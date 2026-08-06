@@ -75,7 +75,12 @@ function createApp() {
   app.use((req, res) => res.status(404).render('error', { title: 'Not Found', message: 'That page has gone missing. Sad!' }));
   app.use((err, req, res, next) => {
     console.error(err);
-    res.status(500).render('error', { title: 'Error', message: 'Something went wrong. Tell the commissioner.' });
+    // Show the underlying reason — it's a private league site and a readable
+    // error beats a blind "something broke" when the commissioner reports it.
+    res.status(500).render('error', {
+      title: 'Error',
+      message: `Something went wrong: ${err && err.message ? err.message : 'unknown error'}`,
+    });
   });
 
   return app;

@@ -8,16 +8,23 @@ let blobStore = null;   // set when running on Netlify
 let fileDir = null;     // set when running locally
 
 function initBlobs(event) {
-  // Lambda-compat functions get their Blobs context from the invocation event.
+  if (blobStore) return true;
   try {
-    const { connectLambda, getStore } = require('@netlify/blobs');
-    if (event) connectLambda(event);
-    blobStore = getStore({ name: 'league', consistency: 'strong' });
+    const mod = require('@netlify/blobs');
+    // Older runtimes configure lambda-compat functions from the event; newer
+    // ones inject NETLIFY_BLOBS_CONTEXT automatically and dropped connectLambda.
+    if (event && typeof mod.connectLambda === 'function') {
+      try { mod.connectLambda(event); } catch (e) { /* fall through to env config */ }
+    }
+    blobStore = mod.getStore({ name: 'league', consistency: 'strong' });
     return true;
   } catch (e) {
+    console.error('Netlify Blobs unavailable:', e.message);
     return false;
   }
 }
+
+const onNetlify = () => !!(process.env.NETLIFY || process.env.NETLIFY_LOCAL || process.env.LAMBDA_TASK_ROOT || process.env.AWS_LAMBDA_FUNCTION_NAME);
 
 function initFiles() {
   fileDir = process.env.DATA_DIR || path.join(__dirname, '..', 'data');
@@ -28,9 +35,15 @@ function keyToFile(key) {
   return path.join(fileDir, key.replace(/[^a-zA-Z0-9_-]/g, '__') + '.json');
 }
 
-// If neither backend is initialized (e.g. blobs unavailable), fall back to files.
+// If neither backend is initialized, fall back to files — but never silently
+// on Netlify, where the function filesystem is read-only/ephemeral and a file
+// fallback would mean quiet data loss.
 function ensureBackend() {
-  if (!blobStore && !fileDir) initFiles();
+  if (blobStore || fileDir) return;
+  if (onNetlify() && !initBlobs()) {
+    throw new Error('Netlify Blobs is not available to this function — data storage is offline. Redeploy the site; if it persists, check that the site has Blobs enabled (Site configuration → Blobs).');
+  }
+  if (!blobStore) initFiles();
 }
 
 async function get(key) {

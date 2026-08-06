@@ -14,21 +14,28 @@
   <p class="tagline">Fantasy Football League &nbsp;•&nbsp; Est. 2016 &nbsp;•&nbsp; The Greatest League in the History of Leagues, Maybe Ever</p>
   <div class="stars">★ ★ ★ ★ ★</div>
 </header>
-<% if (owner) { %>
+<%
+  // Guard everything: the error page renders this header even when the
+  // request died before locals were populated.
+  const _owner = typeof owner !== 'undefined' ? owner : null;
+  const _alerts = typeof alerts !== 'undefined' && alerts ? alerts : [];
+  const _path = typeof currentPath !== 'undefined' ? currentPath : '';
+%>
+<% if (_owner) { %>
 <nav class="navbar">
-  <a href="/" class="<%= currentPath === '/' ? 'active' : '' %>">League Office</a>
-  <a href="/bank" class="<%= currentPath === '/bank' ? 'active' : '' %>">The Tab</a>
-  <a href="/owners" class="<%= currentPath === '/owners' ? 'active' : '' %>">Owners</a>
-  <a href="/history" class="<%= currentPath === '/history' ? 'active' : '' %>">History</a>
-  <a href="/draft" class="<%= currentPath.startsWith('/draft') ? 'active' : '' %>">Draft Room</a>
-  <a href="/votes" class="<%= currentPath.startsWith('/votes') ? 'active' : '' %>">Voting Booth</a>
-  <a href="/rules" class="<%= currentPath === '/rules' ? 'active' : '' %>">Rules</a>
-  <% if (owner.is_commissioner) { %><a href="/admin" class="commish <%= currentPath.startsWith('/admin') ? 'active' : '' %>">⭐ Commish</a><% } %>
-  <span class="who"><%= owner.name %></span>
+  <a href="/" class="<%= _path === '/' ? 'active' : '' %>">League Office</a>
+  <a href="/bank" class="<%= _path === '/bank' ? 'active' : '' %>">The Tab</a>
+  <a href="/owners" class="<%= _path === '/owners' ? 'active' : '' %>">Owners</a>
+  <a href="/history" class="<%= _path === '/history' ? 'active' : '' %>">History</a>
+  <a href="/draft" class="<%= _path.startsWith('/draft') ? 'active' : '' %>">Draft Room</a>
+  <a href="/votes" class="<%= _path.startsWith('/votes') ? 'active' : '' %>">Voting Booth</a>
+  <a href="/rules" class="<%= _path === '/rules' ? 'active' : '' %>">Rules</a>
+  <% if (_owner.is_commissioner) { %><a href="/admin" class="commish <%= _path.startsWith('/admin') ? 'active' : '' %>">⭐ Commish</a><% } %>
+  <span class="who"><%= _owner.name %></span>
   <a href="/password" title="Change password" style="padding:.5rem .4rem">🔑</a>
   <form method="post" action="/logout"><button type="submit">Log out</button></form>
 </nav>
-<% for (const a of alerts) { %>
+<% for (const a of _alerts) { %>
   <div class="alert-banner alert-<%= a.level %>">
     <span class="tag"><%= a.level === 'urgent' ? '🚨 Urgent' : a.level === 'warning' ? '⚠️ Notice' : '📣 League News' %></span>
     <span><%= a.message %></span>

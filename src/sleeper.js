@@ -1,36 +1,38 @@
 // Sleeper's public read-only API (no key required): https://docs.sleeper.com
-// One bundle per league is cached for 5 minutes so a page load never fans out
-// into a dozen upstream calls.
+// Everything here fails soft — the site must work fine when Sleeper is
+// unreachable or unconfigured. Base URL is overridable for tests.
 const { getDoc, setDoc, now } = require('./data');
 
-const TTL_MS = 5 * 60 * 1000;
+const BASE = process.env.SLEEPER_BASE || 'https://api.sleeper.app';
+const TTL_MS = 5 * 60 * 1000;            // live bundle cache
+const PLAYERS_TTL_MS = 24 * 60 * 60 * 1000; // players DB cache (it's a big download)
+const RECORDS_TTL_MS = 6 * 60 * 60 * 1000;  // all-time records cache
 
 async function fetchJson(url) {
   const ac = new AbortController();
-  const t = setTimeout(() => ac.abort(), 4000);
+  const t = setTimeout(() => ac.abort(), 8000);
   try {
-    const res = await fetch(url, { headers: { accept: 'application/json' }, signal: ac.signal });
+    const res = await fetch(BASE + url, { headers: { accept: 'application/json' }, signal: ac.signal });
     if (!res.ok) throw new Error(`Sleeper ${res.status} for ${url}`);
     return await res.json();
   } finally { clearTimeout(t); }
 }
 
-// Returns {state, league, users, rosters, matchups} or null when no league id
-// is configured / Sleeper is unreachable. Never throws — the site must work
-// fine without Sleeper.
+// ---------------------------------------------------------------- live bundle
+// {state, league, users, rosters, matchups, week} or null.
 async function bundle(leagueId) {
   if (!leagueId) return null;
   const cache = await getDoc('sleeper-cache', null);
   if (cache && cache.league_id === leagueId && Date.now() - cache.fetched_at < TTL_MS) return cache.data;
   try {
     const [state, league, users, rosters] = await Promise.all([
-      fetchJson('https://api.sleeper.app/v1/state/nfl'),
-      fetchJson(`https://api.sleeper.app/v1/league/${leagueId}`),
-      fetchJson(`https://api.sleeper.app/v1/league/${leagueId}/users`),
-      fetchJson(`https://api.sleeper.app/v1/league/${leagueId}/rosters`),
+      fetchJson('/v1/state/nfl'),
+      fetchJson(`/v1/league/${leagueId}`),
+      fetchJson(`/v1/league/${leagueId}/users`),
+      fetchJson(`/v1/league/${leagueId}/rosters`),
     ]);
     const week = Math.max(1, Math.min(state.week || 1, 18));
-    const matchups = await fetchJson(`https://api.sleeper.app/v1/league/${leagueId}/matchups/${week}`);
+    const matchups = await fetchJson(`/v1/league/${leagueId}/matchups/${week}`);
     const data = { state, league, users, rosters, matchups, week };
     await setDoc('sleeper-cache', { league_id: leagueId, fetched_at: Date.now(), data, cached: now() });
     return data;
@@ -41,9 +43,7 @@ async function bundle(leagueId) {
 }
 
 async function matchupsForWeek(leagueId, week) {
-  try {
-    return await fetchJson(`https://api.sleeper.app/v1/league/${leagueId}/matchups/${week}`);
-  } catch (e) { return null; }
+  try { return await fetchJson(`/v1/league/${leagueId}/matchups/${week}`); } catch (e) { return null; }
 }
 
 function teamName(users, rosters, rosterId) {
@@ -52,13 +52,39 @@ function teamName(users, rosters, rosterId) {
   return (user && (user.metadata?.team_name || user.display_name)) || `Team ${rosterId}`;
 }
 
+// Attempt to auto-match Sleeper teams to league owners by name overlap.
+function autoMap(data, owners) {
+  const map = {};
+  if (!data) return map;
+  for (const r of data.rosters) {
+    const user = data.users.find(u => u.user_id === r.owner_id);
+    if (!user) continue;
+    const hay = `${user.display_name || ''} ${user.metadata?.team_name || ''}`.toLowerCase();
+    const hit = owners.find(o => hay.includes(o.name.toLowerCase()));
+    if (hit && !Object.values(map).includes(hit.id)) map[String(r.roster_id)] = hit.id;
+  }
+  return map;
+}
+
+// roster->owner map plus the stable user->owner map derived from it
+// (user_id survives across seasons; roster_id does not).
+function userMap(data, sleeperMap) {
+  const out = {};
+  if (!data) return out;
+  for (const [rosterId, ownerId] of Object.entries(sleeperMap || {})) {
+    const roster = data.rosters.find(r => String(r.roster_id) === String(rosterId));
+    if (roster && roster.owner_id) out[roster.owner_id] = Number(ownerId);
+  }
+  return out;
+}
+
 // Standings from roster settings: wins desc, then points-for desc.
 function standings(data, sleeperMap, owners) {
   if (!data) return [];
   const rows = data.rosters.map(r => {
     const s = r.settings || {};
     const pf = (s.fpts || 0) + (s.fpts_decimal || 0) / 100;
-    const mappedId = sleeperMap[String(r.roster_id)];
+    const mappedId = (sleeperMap || {})[String(r.roster_id)];
     const owner = owners.find(o => o.id === Number(mappedId));
     return {
       roster_id: r.roster_id,
@@ -96,9 +122,173 @@ function highScorer(matchups, data, sleeperMap, owners) {
   }
   if (!best || best.points <= 0) return null;
   best.team = teamName(data.users, data.rosters, best.roster_id);
-  const mappedId = sleeperMap[String(best.roster_id)];
+  const mappedId = (sleeperMap || {})[String(best.roster_id)];
   best.owner = owners.find(o => o.id === Number(mappedId)) || null;
   return best;
 }
 
-module.exports = { bundle, matchupsForWeek, standings, scoreboard, highScorer, teamName };
+// ---------------------------------------------------------------- record book
+// Walk the previous_league_id chain and compute all-time records from every
+// season Sleeper knows about. Cached; heavy to compute.
+async function records(leagueId, uMap, owners, { force = false } = {}) {
+  if (!leagueId) return null;
+  const cache = await getDoc('records-cache', null);
+  if (!force && cache && cache.league_id === leagueId && Date.now() - cache.fetched_at < RECORDS_TTL_MS) return cache.data;
+  try {
+    const state = await fetchJson('/v1/state/nfl');
+    const seasons = [];
+    let id = leagueId;
+    for (let depth = 0; id && depth < 15; depth++) {
+      const league = await fetchJson(`/v1/league/${id}`);
+      seasons.push({ id, league });
+      id = league.previous_league_id || null;
+    }
+
+    const ownerName = uid => {
+      const oid = uMap[uid];
+      const o = owners.find(x => x.id === oid);
+      return o ? o.name : null;
+    };
+
+    const weeks = [];       // every real team-week: {points, user_id, name, team, week, season}
+    const games = [];       // every head-to-head: {margin, winner, loser, wPts, lPts, week, season}
+    const seasonRows = [];  // {season, name, team, wins, losses, ties, pf, pa, complete}
+
+    for (const s of seasons) {
+      const [users, rosters] = await Promise.all([
+        fetchJson(`/v1/league/${s.id}/users`),
+        fetchJson(`/v1/league/${s.id}/rosters`),
+      ]);
+      const byRoster = {};
+      for (const r of rosters) byRoster[r.roster_id] = r;
+      const label = rid => {
+        const r = byRoster[rid];
+        const u = r && users.find(x => x.user_id === r.owner_id);
+        return {
+          user_id: r ? r.owner_id : null,
+          name: (r && ownerName(r.owner_id)) || (u && u.display_name) || `Team ${rid}`,
+          team: (u && (u.metadata?.team_name || u.display_name)) || `Team ${rid}`,
+        };
+      };
+
+      const isCurrent = s.league.status === 'in_season' && s.league.season === state.season;
+      const lastPlayed = s.league.status === 'complete' ? 18
+        : isCurrent ? (state.week || 1) - 1
+        : s.league.status === 'in_season' ? 18 : 0;
+
+      for (const r of rosters) {
+        const st = r.settings || {};
+        const lbl = label(r.roster_id);
+        if ((st.wins || 0) + (st.losses || 0) + (st.ties || 0) > 0) {
+          seasonRows.push({
+            season: s.league.season, ...lbl,
+            wins: st.wins || 0, losses: st.losses || 0, ties: st.ties || 0,
+            pf: (st.fpts || 0) + (st.fpts_decimal || 0) / 100,
+            pa: (st.fpts_against || 0) + (st.fpts_against_decimal || 0) / 100,
+            complete: s.league.status === 'complete',
+          });
+        }
+      }
+
+      for (let w = 1; w <= Math.min(lastPlayed, 18); w++) {
+        const ms = await matchupsForWeek(s.id, w);
+        if (!Array.isArray(ms) || !ms.length) continue;
+        const anyPoints = ms.some(m => (m.points || 0) > 0);
+        if (!anyPoints) continue;
+        const byMatch = {};
+        for (const m of ms) {
+          const pts = Math.round((m.points || 0) * 100) / 100;
+          const lbl = label(m.roster_id);
+          weeks.push({ points: pts, ...lbl, week: w, season: s.league.season });
+          if (m.matchup_id != null) (byMatch[m.matchup_id] ??= []).push({ pts, lbl });
+        }
+        for (const pair of Object.values(byMatch)) {
+          if (pair.length !== 2) continue;
+          const [a, b] = pair;
+          const [win, lose] = a.pts >= b.pts ? [a, b] : [b, a];
+          games.push({
+            margin: Math.round((win.pts - lose.pts) * 100) / 100,
+            winner: win.lbl, loser: lose.lbl, wPts: win.pts, lPts: lose.pts,
+            week: w, season: s.league.season,
+          });
+        }
+      }
+    }
+
+    const topWeeks = [...weeks].sort((a, b) => b.points - a.points).slice(0, 5);
+    const bottomWeeks = [...weeks].filter(w => w.points > 0).sort((a, b) => a.points - b.points).slice(0, 5);
+    const zeroWeeks = weeks.filter(w => w.points === 0).length;
+    const blowouts = [...games].sort((a, b) => b.margin - a.margin).slice(0, 3);
+    const nailbiters = [...games].filter(g => g.margin > 0).sort((a, b) => a.margin - b.margin).slice(0, 3);
+    const completedSeasons = seasonRows.filter(r => r.complete);
+    const bestSeasonPF = [...completedSeasons].sort((a, b) => b.pf - a.pf).slice(0, 3);
+    const worstSeasonPF = [...completedSeasons].filter(r => r.pf > 0).sort((a, b) => a.pf - b.pf).slice(0, 3);
+    const bestRecords = [...completedSeasons].sort((a, b) => b.wins - a.wins || b.pf - a.pf).slice(0, 3);
+
+    const data = {
+      computed_at: now(), seasonsCovered: seasons.map(s => s.league.season).sort(),
+      topWeeks, bottomWeeks, zeroWeeks, blowouts, nailbiters,
+      bestSeasonPF, worstSeasonPF, bestRecords,
+      totalGames: games.length, totalWeeks: weeks.length,
+    };
+    await setDoc('records-cache', { league_id: leagueId, fetched_at: Date.now(), data });
+    return data;
+  } catch (e) {
+    console.error('sleeper records failed:', e.message);
+    return cache && cache.league_id === leagueId ? cache.data : null;
+  }
+}
+
+// ---------------------------------------------------------------- war room
+const WAR_POSITIONS = ['QB', 'RB', 'WR', 'TE', 'K', 'DEF'];
+
+// Filtered players DB (the raw download is ~5MB; we keep the fantasy-relevant slice).
+async function players() {
+  const cache = await getDoc('players-cache', null);
+  if (cache && Date.now() - cache.fetched_at < PLAYERS_TTL_MS) return cache.data;
+  try {
+    const all = await fetchJson('/v1/players/nfl');
+    const slim = {};
+    for (const [id, p] of Object.entries(all)) {
+      const pos = (p.fantasy_positions || []).find(x => WAR_POSITIONS.includes(x)) || p.position;
+      if (!WAR_POSITIONS.includes(pos)) continue;
+      if (p.active === false) continue;
+      const rank = p.search_rank == null || p.search_rank >= 9999999 ? null : p.search_rank;
+      if (rank == null || rank > 600) continue;
+      slim[id] = {
+        name: p.full_name || `${p.first_name || ''} ${p.last_name || ''}`.trim() || id,
+        pos, team: p.team || 'FA', rank,
+        inj: p.injury_status || null,
+      };
+    }
+    const data = { players: slim, count: Object.keys(slim).length };
+    await setDoc('players-cache', { fetched_at: Date.now(), data });
+    return data;
+  } catch (e) {
+    console.error('sleeper players failed:', e.message);
+    return cache ? cache.data : null;
+  }
+}
+
+async function draftInfo(leagueId) {
+  try {
+    const drafts = await fetchJson(`/v1/league/${leagueId}/drafts`);
+    if (!Array.isArray(drafts) || !drafts.length) return null;
+    const draft = drafts.sort((a, b) => (b.created || 0) - (a.created || 0))[0];
+    const picks = await fetchJson(`/v1/draft/${draft.draft_id}/picks`);
+    return { draft, picks: Array.isArray(picks) ? picks : [] };
+  } catch (e) {
+    console.error('sleeper draft failed:', e.message);
+    return null;
+  }
+}
+
+async function trendingAdds() {
+  try { return await fetchJson('/v1/players/nfl/trending/add?lookback_hours=48&limit=30'); }
+  catch (e) { return []; }
+}
+
+module.exports = {
+  bundle, matchupsForWeek, standings, scoreboard, highScorer, teamName,
+  autoMap, userMap, records, players, draftInfo, trendingAdds, WAR_POSITIONS,
+};
