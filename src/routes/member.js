@@ -48,7 +48,10 @@ router.post('/password', aw(async (req, res) => {
   if (!req.owner) return res.redirect('/login');
   const { current, next: newPw, confirm } = req.body;
   const forced = !!req.owner.must_change_password;
-  if (!verifyPassword(String(current || ''), req.owner.password_hash)) {
+  // On a forced first-login change the user proved the starter password
+  // seconds ago at login — re-verifying it here only creates lockouts when
+  // storage replicas lag, so it's skipped.
+  if (!forced && !verifyPassword(String(current || ''), req.owner.password_hash)) {
     return res.status(400).render('password', { error: 'Current password is wrong.', forced });
   }
   if (!newPw || String(newPw).length < 8) {
