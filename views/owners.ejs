@@ -8,6 +8,7 @@
   <div class="card owner-card">
     <div class="seal"><%= o.name[0] %></div>
     <h3><%= o.name %></h3>
+    <% if (typeof teams !== 'undefined' && teams[o.id]) { %><div class="muted" style="font-style:italic">🏈 <%= teams[o.id] %></div><% } %>
     <div class="muted" style="min-height:1.1rem"><%= idx === 0 ? '👑 Top Earner' : '' %><%= o.is_commissioner ? (idx === 0 ? ' • ' : '') + '⭐ Commissioner' : '' %></div>
     <div class="trophies" title="League championships">
       <% c.forEach(ch => { %>🏆<% }) %>

@@ -537,8 +537,12 @@
       </form>
       <p class="muted" style="margin-top:.8rem">
         Once connected, the dashboard shows live standings and this week's scoreboard, the Weekly Winner tab
-        gets a one-click "record the high scorer" button, and last place gets roasted automatically.
+        gets a one-click "record the high scorer" button, the Record Book computes itself from the league's full
+        Sleeper history, the 🧠 War Room lights up on draft day, and last place gets roasted automatically.
       </p>
+      <form method="post" action="/admin/sleeper/refresh-records" style="margin-top:.6rem">
+        <button class="btn navy" type="submit">♻️ Rebuild Record Book Now</button>
+      </form>
     </div>
   </div>
   <div class="card">

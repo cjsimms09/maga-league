@@ -4,8 +4,8 @@
   <script>setTimeout(() => location.reload(), 30000);</script>
 <% } %>
 
-<h1 class="page-title"><%= season.year %> Draft Room</h1>
-<p class="page-sub">Reverse standings: last place picks their draft spot first. Keepers cost the matching round.</p>
+<h1 class="page-title"><%= season.year %> Draft Order</h1>
+<p class="page-sub">This page is only for claiming your <b>draft position</b> and declaring keepers — the draft itself happens on Sleeper. Reverse standings: last place picks their spot first.</p>
 
 <% if (error) { %><div class="error-note" style="max-width:640px;margin:0 auto 1rem"><%= error %></div><% } %>
 
@@ -113,7 +113,7 @@
   <div class="body">
     <ol style="margin:.2rem 0; padding-left:1.3rem">
       <li>Draft-spot selection goes in <b>reverse order of last season's standings</b> — last place is on the clock first, then 9th, and so on. The champ picks last. That's the price of greatness.</li>
-      <li>When you're on the clock, claim any open spot on the board. Picks are final (only the commissioner can undo one).</li>
+      <li>When you're on the clock, claim any open spot on the board. Picks are final (only the commissioner can undo one). The commissioner then sets that order in Sleeper, where the actual player draft happens.</li>
       <li>We're a <b>3-keeper league</b>: keep up to 3 players from last year. Keeper #1 costs your Round 1 pick, keeper #2 your Round 2 pick, keeper #3 your Round 3 pick. Keep nobody and you draft from Round 1 like a free man.</li>
     </ol>
   </div>

@@ -1,4 +1,4 @@
-# 🦅 Make America Great Again Fantasy Football League
+# 🦅 Make Football Great Again — the Fantasy Football League
 
 The official league office. Est. 2016. Scorekeeping stays on Sleeper — this site handles
 **the money, the draft order, the votes, and the trash talk.**

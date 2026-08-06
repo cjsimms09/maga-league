@@ -348,6 +348,7 @@ router.post('/season', aw(async (req, res) => {
 router.post('/sleeper', aw(async (req, res) => {
   const config = await getDoc('config', {});
   config.sleeper_league_id = String(req.body.league_id || '').trim();
+  config.sleeper_touched = true;
   await setDoc('config', config);
   await store.del('sleeper-cache');
   back(res, 'sleeper', msg(config.sleeper_league_id ? 'Sleeper league connected.' : 'Sleeper league disconnected.'));
@@ -361,6 +362,87 @@ router.post('/sleeper/map', aw(async (req, res) => {
   config.sleeper_map = map;
   await setDoc('config', config);
   back(res, 'sleeper', msg('Team mapping saved.'));
+}));
+
+router.post('/sleeper/refresh-records', aw(async (req, res) => {
+  const world = req.world;
+  const owners = H.activeOwners(world.owners);
+  const data = await sleeper.bundle(world.config.sleeper_league_id);
+  const uMap = sleeper.userMap(data, world.config.sleeper_map || {});
+  const recs = await sleeper.records(world.config.sleeper_league_id, uMap, owners, { force: true });
+  back(res, 'sleeper', msg(recs ? `Record book recomputed across ${recs.seasonsCovered.length} Sleeper season(s).` : 'Could not reach Sleeper to rebuild the record book.'));
+}));
+
+// ---------- the war room (commissioner's secret draft tool) ----------
+router.get('/warroom', aw(async (req, res) => {
+  const world = req.world;
+  const owners = H.activeOwners(world.owners);
+  const season = H.currentSeason(world.seasons);
+  const leagueId = world.config.sleeper_league_id;
+
+  const [playersDb, draft, trending, sData] = await Promise.all([
+    sleeper.players(), sleeper.draftInfo(leagueId), sleeper.trendingAdds(), sleeper.bundle(leagueId),
+  ]);
+  const keepers = await H.keepersForYear(season.year, owners);
+
+  let view = { configured: !!leagueId, ready: !!(playersDb && draft) };
+  if (view.ready) {
+    const players = playersDb.players;
+    const picks = draft.picks.map(pk => ({
+      round: pk.round, pick_no: pk.pick_no,
+      player_id: pk.player_id,
+      name: (pk.metadata && `${pk.metadata.first_name || ''} ${pk.metadata.last_name || ''}`.trim())
+        || (players[pk.player_id] || {}).name || pk.player_id,
+      pos: (pk.metadata && pk.metadata.position) || (players[pk.player_id] || {}).pos || '?',
+      team: (pk.metadata && pk.metadata.team) || (players[pk.player_id] || {}).team || '',
+      picked_by: pk.picked_by,
+    }));
+    const pickedIds = new Set(picks.map(pk => String(pk.player_id)));
+    const norm = t => String(t || '').toLowerCase().replace(/[^a-z ]/g, '').trim();
+    const keeperNames = new Set(keepers.map(k => norm(k.player_name)));
+
+    const available = Object.entries(players)
+      .filter(([id, pl]) => !pickedIds.has(String(id)) && !keeperNames.has(norm(pl.name)))
+      .map(([id, pl]) => ({ id, ...pl }))
+      .sort((a, b) => a.rank - b.rank);
+
+    const nextPick = picks.length + 1;
+    const top = available.slice(0, 25).map(pl => ({ ...pl, steal: pl.rank <= Math.max(1, nextPick - 12) }));
+    const byPos = {};
+    for (const pos of sleeper.WAR_POSITIONS) byPos[pos] = available.filter(pl => pl.pos === pos).slice(0, 8);
+
+    // Positional run detector: 3+ of a position in the last 6 picks.
+    const recent = picks.slice(-6);
+    const runCounts = {};
+    for (const pk of recent) runCounts[pk.pos] = (runCounts[pk.pos] || 0) + 1;
+    const run = Object.entries(runCounts).find(([pos, n]) => n >= 3 && ['RB','WR','QB','TE'].includes(pos));
+
+    // My side of the draft: map commissioner -> sleeper user_id.
+    const uMap = sleeper.userMap(sData, world.config.sleeper_map || {});
+    const myUserId = Object.keys(uMap).find(uid => uMap[uid] === req.owner.id) || null;
+    const myPicks = picks.filter(pk => pk.picked_by && pk.picked_by === myUserId);
+    const myKeeperList = keepers.filter(k => k.owner_id === req.owner.id);
+    const needCounts = { QB: 1, RB: 2, WR: 2, TE: 1, K: 1, DEF: 1 };
+    const haveCounts = {};
+    for (const pk of myPicks) haveCounts[pk.pos] = (haveCounts[pk.pos] || 0) + 1;
+    const needs = Object.entries(needCounts)
+      .map(([pos, need]) => ({ pos, need, have: haveCounts[pos] || 0 }))
+      .filter(n => n.have < n.need);
+
+    const trendingNamed = (trending || []).slice(0, 15).map(t => {
+      const pl = players[t.player_id];
+      return pl ? { ...pl, adds: t.count, taken: pickedIds.has(String(t.player_id)) } : null;
+    }).filter(Boolean);
+
+    view = {
+      ...view,
+      status: draft.draft.status, rounds: (draft.draft.settings || {}).rounds || 15,
+      picks, nextPick, top, byPos, run: run ? run[0] : null,
+      myPicks, myKeeperList, needs, trendingNamed,
+      playerCount: playersDb.count,
+    };
+  }
+  res.render('admin/warroom', { season, view });
 }));
 
 // ---------- backup ----------

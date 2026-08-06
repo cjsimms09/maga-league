@@ -1,0 +1,132 @@
+<%- include('../partials/header', { title: 'War Room' }) %>
+<% if (view.ready && view.status === 'drafting') { %>
+  <script>setTimeout(() => location.reload(), 15000);</script>
+<% } %>
+
+<h1 class="page-title">🧠 The War Room</h1>
+<p class="page-sub">Commissioner eyes only. Live Sleeper draft intel. Win the draft, deny everything.</p>
+
+<% if (!view.configured) { %>
+  <div class="card"><div class="body"><p class="muted" style="margin:0">Connect Sleeper first (Commish → Sleeper).</p></div></div>
+<% } else if (!view.ready) { %>
+  <div class="card"><div class="body"><p class="muted" style="margin:0">
+    Couldn't load draft data — either Sleeper is unreachable right now or the league has no draft yet.
+    This page comes alive when your <%= season.year %> Sleeper draft exists. Try again in a minute.
+  </p></div></div>
+<% } else { %>
+
+<div class="hero" style="margin-bottom:1.4rem">
+  <div class="hero-item <%= view.status === 'drafting' ? 'good' : '' %>">
+    <span class="hero-label">Draft Status</span>
+    <span class="hero-value" style="font-size:1.1rem; text-transform:uppercase"><%= view.status.replace('_', ' ') %></span>
+    <span class="hero-sub"><%= view.status === 'drafting' ? 'auto-refreshing every 15s' : 'refreshes live once drafting starts' %></span>
+  </div>
+  <div class="hero-item">
+    <span class="hero-label">Next Pick</span>
+    <span class="hero-value">#<%= view.nextPick %></span>
+    <span class="hero-sub">of <%= view.rounds %> rounds</span>
+  </div>
+  <div class="hero-item <%= view.run ? 'bad' : '' %>">
+    <span class="hero-label">Run Detector</span>
+    <span class="hero-value" style="font-size:1.1rem"><%= view.run ? view.run + ' RUN 🚨' : 'calm' %></span>
+    <span class="hero-sub"><%= view.run ? 'they\'re panicking — stay cool or join in' : 'no positional panic in the last 6 picks' %></span>
+  </div>
+  <div class="hero-item">
+    <span class="hero-label">Player Pool</span>
+    <span class="hero-value"><%= view.playerCount %></span>
+    <span class="hero-sub">ranked by Sleeper, keepers excluded</span>
+  </div>
+</div>
+
+<div class="grid cols-2">
+  <div class="card">
+    <h2>🎯 Best Available <span class="sub">Sleeper rank · ⭐ = falling value</span></h2>
+    <div class="body tight scroll-x">
+      <table class="roll">
+        <tr><th>Rank</th><th>Player</th><th>Pos</th><th>Team</th><th></th></tr>
+        <% for (const pl of view.top) { %>
+          <tr>
+            <td class="num"><%= pl.rank %></td>
+            <td><b><%= pl.name %></b><% if (pl.inj) { %> <span class="badge owes"><%= pl.inj %></span><% } %></td>
+            <td><%= pl.pos %></td>
+            <td class="muted"><%= pl.team %></td>
+            <td><%= pl.steal ? '⭐ VALUE' : '' %></td>
+          </tr>
+        <% } %>
+      </table>
+    </div>
+  </div>
+
+  <div>
+    <div class="card" style="margin-bottom:1.2rem">
+      <h2>📋 Your Roster Needs</h2>
+      <div class="body">
+        <% if (view.myKeeperList.length) { %>
+          <p style="margin-top:0"><b>Keeping:</b> <%= view.myKeeperList.map(k => k.player_name + ' (R' + k.round + ')').join(', ') %></p>
+        <% } %>
+        <% if (view.myPicks.length) { %>
+          <p><b>Drafted:</b> <%= view.myPicks.map(p => `${p.name} (${p.pos}, R${p.round})`).join(', ') %></p>
+        <% } else { %>
+          <p class="muted">No picks yet<%= view.status === 'pre_draft' ? ' — draft hasn\'t started' : '' %>.</p>
+        <% } %>
+        <% if (view.needs.length) { %>
+          <p style="margin-bottom:0"><b>Still need:</b>
+            <% for (const n of view.needs) { %><span class="badge navy" style="margin-right:.3rem"><%= n.pos %> × <%= n.need - n.have %></span><% } %>
+          </p>
+        <% } else if (view.myPicks.length) { %>
+          <p class="muted" style="margin-bottom:0">Starting lineup filled — draft upside now.</p>
+        <% } %>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>📈 Trending Pickups <span class="sub">most-added on Sleeper, last 48h</span></h2>
+      <div class="body tight scroll-x">
+        <table class="roll">
+          <tr><th>Player</th><th>Pos</th><th class="num">Adds</th><th></th></tr>
+          <% for (const t of view.trendingNamed) { %>
+            <tr class="<%= t.taken ? 'muted-row' : '' %>">
+              <td><b><%= t.name %></b></td><td><%= t.pos %></td><td class="num"><%= t.adds.toLocaleString() %></td>
+              <td><%= t.taken ? 'taken' : '🔥' %></td>
+            </tr>
+          <% } %>
+          <% if (!view.trendingNamed.length) { %><tr><td class="muted" style="padding:1rem" colspan="4">Nothing trending right now.</td></tr><% } %>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="card col-span-2">
+    <h2>Best Available by Position</h2>
+    <div class="body scroll-x">
+      <div class="grid cols-3">
+        <% for (const [pos, players] of Object.entries(view.byPos)) { if (!players.length) continue; %>
+          <div>
+            <h3 style="margin:.2rem 0 .4rem; color:var(--navy); text-transform:uppercase; font-size:.85rem; letter-spacing:.08em"><%= pos %></h3>
+            <table class="roll">
+              <% for (const pl of players) { %>
+                <tr><td class="num" style="width:3rem"><%= pl.rank %></td><td><b><%= pl.name %></b> <span class="muted"><%= pl.team %></span><% if (pl.inj) { %> <span class="badge owes"><%= pl.inj %></span><% } %></td></tr>
+              <% } %>
+            </table>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+
+  <div class="card col-span-2">
+    <h2>Draft Log <span class="sub">every pick, newest first</span></h2>
+    <div class="body tight scroll-x">
+      <table class="roll">
+        <tr><th class="num">Pick</th><th>Rd</th><th>Player</th><th>Pos</th><th>Team</th></tr>
+        <% for (const pk of [...view.picks].reverse().slice(0, 40)) { %>
+          <tr><td class="num"><%= pk.pick_no %></td><td><%= pk.round %></td><td><b><%= pk.name %></b></td><td><%= pk.pos %></td><td class="muted"><%= pk.team %></td></tr>
+        <% } %>
+        <% if (!view.picks.length) { %><tr><td class="muted" style="padding:1rem" colspan="5">No picks yet.</td></tr><% } %>
+      </table>
+    </div>
+  </div>
+</div>
+<% } %>
+
+<%- include('../partials/footer') %>

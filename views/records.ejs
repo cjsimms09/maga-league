@@ -1,0 +1,129 @@
+<%- include('partials/header', { title: 'Record Book' }) %>
+
+<h1 class="page-title">📖 The Record Book</h1>
+<p class="page-sub">Automatically computed from every season of this league on Sleeper. The numbers don't lie. Some of you wish they did.</p>
+
+<% if (!configured) { %>
+  <div class="card"><div class="body"><p class="muted" style="margin:0">The commissioner hasn't connected Sleeper yet (Commish → Sleeper).</p></div></div>
+<% } else if (!recs) { %>
+  <div class="card"><div class="body"><p class="muted" style="margin:0">Couldn't reach Sleeper right now — try again in a minute.</p></div></div>
+<% } else { %>
+
+<p class="muted" style="text-align:center; margin-top:-.6rem">
+  Covers Sleeper seasons <%= recs.seasonsCovered.join(', ') %> — <%= recs.totalWeeks %> team-weeks, <%= recs.totalGames %> head-to-head games.
+</p>
+
+<% const w0 = recs.topWeeks[0]; const l0 = recs.bottomWeeks[0]; const b0 = recs.blowouts[0]; const n0 = recs.nailbiters[0]; %>
+<div class="hero" style="margin-bottom:1.4rem">
+  <% if (w0) { %>
+  <div class="hero-item good">
+    <span class="hero-label">🔥 Most Points, One Week</span>
+    <span class="hero-value"><%= w0.points.toFixed(2) %></span>
+    <span class="hero-sub"><%= w0.name %> — Wk <%= w0.week %>, <%= w0.season %></span>
+  </div>
+  <% } %>
+  <% if (l0) { %>
+  <div class="hero-item bad">
+    <span class="hero-label">🥶 Fewest Points, One Week</span>
+    <span class="hero-value"><%= l0.points.toFixed(2) %></span>
+    <span class="hero-sub"><%= l0.name %> — Wk <%= l0.week %>, <%= l0.season %></span>
+  </div>
+  <% } %>
+  <% if (b0) { %>
+  <div class="hero-item">
+    <span class="hero-label">🔨 Biggest Beatdown</span>
+    <span class="hero-value"><%= b0.margin.toFixed(2) %></span>
+    <span class="hero-sub"><%= b0.winner.name %> destroyed <%= b0.loser.name %> (<%= b0.season %>)</span>
+  </div>
+  <% } %>
+  <% if (n0) { %>
+  <div class="hero-item">
+    <span class="hero-label">😅 Closest Heartbreak</span>
+    <span class="hero-value"><%= n0.margin.toFixed(2) %></span>
+    <span class="hero-sub"><%= n0.winner.name %> edged <%= n0.loser.name %> (<%= n0.season %>)</span>
+  </div>
+  <% } %>
+</div>
+
+<div class="grid cols-2">
+  <div class="card">
+    <h2>🔥 Best Weeks Ever</h2>
+    <div class="body tight scroll-x">
+      <table class="roll">
+        <tr><th>#</th><th>Owner</th><th class="num">Points</th><th>When</th></tr>
+        <% recs.topWeeks.forEach((w, i) => { %>
+          <tr><td><%= i + 1 %></td><td><b><%= w.name %></b> <span class="muted"><%= w.team %></span></td><td class="num"><%= w.points.toFixed(2) %></td><td>Wk <%= w.week %>, <%= w.season %></td></tr>
+        <% }) %>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🥶 Worst Weeks Ever <span class="sub">shame, eternal</span></h2>
+    <div class="body tight scroll-x">
+      <table class="roll">
+        <tr><th>#</th><th>Owner</th><th class="num">Points</th><th>When</th></tr>
+        <% recs.bottomWeeks.forEach((w, i) => { %>
+          <tr><td><%= i + 1 %></td><td><b><%= w.name %></b> <span class="muted"><%= w.team %></span></td><td class="num"><%= w.points.toFixed(2) %></td><td>Wk <%= w.week %>, <%= w.season %></td></tr>
+        <% }) %>
+      </table>
+      <% if (recs.zeroWeeks) { %><p class="muted" style="padding:.5rem .9rem">Plus <%= recs.zeroWeeks %> recorded 0.00-point week<%= recs.zeroWeeks === 1 ? '' : 's' %>. Set your lineups, people.</p><% } %>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🔨 Biggest Blowouts</h2>
+    <div class="body tight scroll-x">
+      <table class="roll">
+        <tr><th>Margin</th><th>Winner</th><th>Victim</th><th>When</th></tr>
+        <% for (const g of recs.blowouts) { %>
+          <tr><td class="num"><b><%= g.margin.toFixed(2) %></b></td><td><%= g.winner.name %> (<%= g.wPts.toFixed(2) %>)</td><td><%= g.loser.name %> (<%= g.lPts.toFixed(2) %>)</td><td>Wk <%= g.week %>, <%= g.season %></td></tr>
+        <% } %>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>😅 Closest Games</h2>
+    <div class="body tight scroll-x">
+      <table class="roll">
+        <tr><th>Margin</th><th>Winner</th><th>Loser</th><th>When</th></tr>
+        <% for (const g of recs.nailbiters) { %>
+          <tr><td class="num"><b><%= g.margin.toFixed(2) %></b></td><td><%= g.winner.name %> (<%= g.wPts.toFixed(2) %>)</td><td><%= g.loser.name %> (<%= g.lPts.toFixed(2) %>)</td><td>Wk <%= g.week %>, <%= g.season %></td></tr>
+        <% } %>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>💪 Best Seasons (Points For)</h2>
+    <div class="body tight scroll-x">
+      <table class="roll">
+        <tr><th>Owner</th><th class="num">PF</th><th class="num">Record</th><th>Season</th></tr>
+        <% for (const r of recs.bestSeasonPF) { %>
+          <tr><td><b><%= r.name %></b></td><td class="num"><%= r.pf.toFixed(1) %></td><td class="num"><%= r.wins %>-<%= r.losses %></td><td><%= r.season %></td></tr>
+        <% } %>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🚑 Weakest Seasons (Points For)</h2>
+    <div class="body tight scroll-x">
+      <table class="roll">
+        <tr><th>Owner</th><th class="num">PF</th><th class="num">Record</th><th>Season</th></tr>
+        <% for (const r of recs.worstSeasonPF) { %>
+          <tr><td><b><%= r.name %></b></td><td class="num"><%= r.pf.toFixed(1) %></td><td class="num"><%= r.wins %>-<%= r.losses %></td><td><%= r.season %></td></tr>
+        <% } %>
+      </table>
+    </div>
+  </div>
+</div>
+
+<p class="muted" style="text-align:center; margin-top:1rem">
+  Sleeper only knows the seasons the league has lived there — the pre-Sleeper era lives in <a href="/history">History</a>.
+  Recomputed every few hours; the commissioner can force a refresh from the Sleeper tab.
+</p>
+<% } %>
+
+<%- include('partials/footer') %>

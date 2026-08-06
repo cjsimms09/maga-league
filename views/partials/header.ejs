@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title><%= typeof title !== 'undefined' && title ? title + ' — ' : '' %>MAGA Fantasy Football League</title>
+<title><%= typeof title !== 'undefined' && title ? title + ' — ' : '' %>MFGA League</title>
 <link rel="stylesheet" href="/css/style.css">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='48' fill='%230b1f3a'/><text x='50' y='68' font-size='52' text-anchor='middle'>🦅</text></svg>">
 </head>
 <body>
 <header class="masthead">
   <div class="eagle">🦅</div>
-  <h1>Make America <span class="gold">Great Again</span></h1>
+  <h1>Make Football <span class="gold">Great Again</span></h1>
   <p class="tagline">Fantasy Football League &nbsp;•&nbsp; Est. 2016 &nbsp;•&nbsp; The Greatest League in the History of Leagues, Maybe Ever</p>
   <div class="stars">★ ★ ★ ★ ★</div>
 </header>
@@ -27,10 +27,11 @@
   <a href="/bank" class="<%= _path === '/bank' ? 'active' : '' %>">The Tab</a>
   <a href="/owners" class="<%= _path === '/owners' ? 'active' : '' %>">Owners</a>
   <a href="/history" class="<%= _path === '/history' ? 'active' : '' %>">History</a>
-  <a href="/draft" class="<%= _path.startsWith('/draft') ? 'active' : '' %>">Draft Room</a>
+  <a href="/draft" class="<%= _path.startsWith('/draft') ? 'active' : '' %>">Draft Order</a>
   <a href="/votes" class="<%= _path.startsWith('/votes') ? 'active' : '' %>">Voting Booth</a>
+  <a href="/records" class="<%= _path === '/records' ? 'active' : '' %>">Record Book</a>
   <a href="/rules" class="<%= _path === '/rules' ? 'active' : '' %>">Rules</a>
-  <% if (_owner.is_commissioner) { %><a href="/admin" class="commish <%= _path.startsWith('/admin') ? 'active' : '' %>">⭐ Commish</a><% } %>
+  <% if (_owner.is_commissioner) { %><a href="/admin" class="commish <%= _path === '/admin' ? 'active' : '' %>">⭐ Commish</a><a href="/admin/warroom" class="commish <%= _path === '/admin/warroom' ? 'active' : '' %>" title="Commissioner only">🧠 War Room</a><% } %>
   <span class="who"><%= _owner.name %></span>
   <a href="/password" title="Change password" style="padding:.5rem .4rem">🔑</a>
   <form method="post" action="/logout"><button type="submit">Log out</button></form>

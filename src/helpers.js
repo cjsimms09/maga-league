@@ -26,6 +26,14 @@ async function loadWorld() {
     getDoc('config', {}), getDoc('owners', []), getDoc('seasons', {}),
     getDoc('ledger', []), getDoc('alerts', []), getDoc('history', { winnings: {}, awards: {}, weekly: {} }),
   ]);
+  // Light migrations for deployments seeded by an earlier version.
+  if (!config.sleeper_league_id && !config.sleeper_touched && seedData.SLEEPER_LEAGUE_ID) {
+    config.sleeper_league_id = seedData.SLEEPER_LEAGUE_ID;
+    await setDoc('config', config);
+  }
+  let ownersDirty = false;
+  for (const o of owners) if (o.email === undefined) { o.email = ''; ownersDirty = true; }
+  if (ownersDirty) await setDoc('owners', owners);
   return { config, owners, seasons, ledger, alerts, history };
 }
 

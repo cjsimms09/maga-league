@@ -36,7 +36,7 @@ async function ensureSeeded() {
   const defaultHash = hashPassword(process.env.DEFAULT_PASSWORD || 'maga2026');
   const owners = seed.OWNERS.map((o, i) => ({
     id: i + 1, name: o.name, username: o.username, password_hash: defaultHash,
-    must_change_password: true, is_commissioner: !!o.commissioner, active: true,
+    must_change_password: true, is_commissioner: !!o.commissioner, active: true, email: '',
     wins: o.wins, losses: o.losses, ties: o.ties,
   }));
   const byName = {}; owners.forEach(o => byName[o.name] = o.id);
@@ -106,7 +106,7 @@ async function ensureSeeded() {
   }]);
   await setDoc('config', {
     secret: crypto.randomBytes(32).toString('hex'),
-    sleeper_league_id: '', sleeper_map: {},
+    sleeper_league_id: seed.SLEEPER_LEAGUE_ID || '', sleeper_map: {},
     seeded_at: now(),
   });
   seededThisBoot = true;

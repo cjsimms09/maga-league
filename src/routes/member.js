@@ -16,7 +16,7 @@ router.get('/login', (req, res) => {
 router.post('/login', aw(async (req, res) => {
   const username = String(req.body.username || '').trim().toLowerCase();
   const password = String(req.body.password || '');
-  const owner = req.world.owners.find(o => o.username === username && o.active);
+  const owner = req.world.owners.find(o => (o.username === username || (o.email || '').toLowerCase() === username) && o.active);
   if (!owner || !verifyPassword(password, owner.password_hash)) {
     return res.status(401).render('login', { error: 'Wrong username or password. FAKE CREDENTIALS!' });
   }
@@ -28,8 +28,21 @@ router.post('/logout', (req, res) => { req.session = null; res.redirect('/login'
 
 router.get('/password', (req, res) => {
   if (!req.owner) return res.redirect('/login');
-  res.render('password', { error: null, forced: !!req.owner.must_change_password });
+  res.render('password', { error: null, forced: !!req.owner.must_change_password, saved: req.query.saved || null });
 });
+
+router.post('/profile', aw(async (req, res) => {
+  if (!req.owner) return res.redirect('/login');
+  const email = String(req.body.email || '').trim().toLowerCase().slice(0, 120);
+  if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+    return res.status(400).render('password', { error: 'That email does not look right.', forced: false });
+  }
+  const owners = await getDoc('owners', []);
+  const me = owners.find(o => o.id === req.owner.id);
+  me.email = email;
+  await setDoc('owners', owners);
+  res.redirect('/password?saved=1');
+}));
 
 router.post('/password', aw(async (req, res) => {
   if (!req.owner) return res.redirect('/login');
@@ -78,6 +91,13 @@ router.get('/', aw(async (req, res) => {
 
   // Sleeper live data (site works fine when unconfigured/unreachable).
   const sData = await sleeper.bundle(world.config.sleeper_league_id);
+  if (sData && !Object.keys(world.config.sleeper_map || {}).length) {
+    const auto = sleeper.autoMap(sData, owners);
+    if (Object.keys(auto).length) {
+      world.config.sleeper_map = auto;
+      await setDoc('config', world.config);
+    }
+  }
   const sStandings = sleeper.standings(sData, world.config.sleeper_map || {}, owners);
   const sBoard = sleeper.scoreboard(sData);
   let roast = null;
@@ -103,7 +123,25 @@ router.get('/owners', aw(async (req, res) => {
   const totals = H.careerTotals(grid, list);
   const { champs, bowls } = H.accolades(world);
   const ranked = [...list].sort((a, b) => totals[b.id] - totals[a.id]);
-  res.render('owners', { list: ranked, grid, years: H.gridYears(grid), champs, bowls, totals });
+  // Sleeper team name per owner (cached bundle; fails soft).
+  const teams = {};
+  const sData = await sleeper.bundle(world.config.sleeper_league_id);
+  if (sData) {
+    for (const [rosterId, oid] of Object.entries(world.config.sleeper_map || {})) {
+      teams[oid] = sleeper.teamName(sData.users, sData.rosters, Number(rosterId));
+    }
+  }
+  res.render('owners', { list: ranked, grid, years: H.gridYears(grid), champs, bowls, totals, teams });
+}));
+
+// ---------- record book (auto-computed from the league's full Sleeper history) ----------
+router.get('/records', aw(async (req, res) => {
+  const world = req.world;
+  const owners = H.activeOwners(world.owners);
+  const sData = await sleeper.bundle(world.config.sleeper_league_id);
+  const uMap = sleeper.userMap(sData, world.config.sleeper_map || {});
+  const recs = await sleeper.records(world.config.sleeper_league_id, uMap, owners);
+  res.render('records', { recs, configured: !!world.config.sleeper_league_id });
 }));
 
 router.get('/history', aw(async (req, res) => {
