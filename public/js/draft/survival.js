@@ -32,6 +32,13 @@
     RUN_MIN: 0.6,
     RUN_MAX: 1.8,
     RUN_BANNER_AT: 1.4,
+    // Significance gate on run detection. Below RUN_Z_MIN standard deviations
+    // the observation is indistinguishable from chance and the multiplier stays
+    // exactly 1.0; it ramps to full effect at RUN_Z_FULL. 1.5 sigma is roughly
+    // a one-in-seven false-positive rate per position per window, which is the
+    // most noise worth tolerating before the banner stops meaning anything.
+    RUN_Z_MIN: 1.5,
+    RUN_Z_FULL: 3.0,
   };
 
   // How badly an empty slot at this position bites, by round. Index is a
@@ -107,11 +114,18 @@
     const beta = profile && profile.softmax ? profile.softmax.beta_value : CFG.DEFAULT_BETA_VALUE;
 
     // Best available VORP per position, normalised so β is scale-free.
-    const bestByPos = {};
-    board.forEach(p => {
-      const v = p.vorp == null ? 0 : p.vorp;
-      if (bestByPos[p.position] == null || v > bestByPos[p.position]) bestByPos[p.position] = v;
-    });
+    // With fractional availability this is an EXPECTATION, not a max: walking
+    // the position in value order, each player contributes his VORP weighted by
+    // the chance he is the best one still there — i.e. he is available and
+    // everyone above him is not.
+    const bestByPos = ctx.bestByPos || (function () {
+      const out = {};
+      board.forEach(p => {
+        const v = p.vorp == null ? 0 : p.vorp;
+        if (out[p.position] == null || v > out[p.position]) out[p.position] = v;
+      });
+      return out;
+    })();
     const vals = Object.values(bestByPos);
     const maxV = vals.length ? Math.max.apply(null, vals) : 1;
     const minV = vals.length ? Math.min.apply(null, vals) : 0;
@@ -158,6 +172,34 @@
     const out = {};
     keys.forEach(k => { const e = Math.exp(utility[k] - max); out[k] = e; sum += e; });
     keys.forEach(k => { out[k] /= sum; });
+    return out;
+  }
+
+  /**
+   * Expected best-available VORP per position, given fractional availability.
+   *
+   * Sorted descending by value, player j is the best available with probability
+   * avail_j × Π_{k<j}(1 − avail_k). The leftover mass (everyone gone) scores
+   * zero, which is correct — a position picked clean is worth nothing.
+   */
+  function expectedBestByPos(board, avail) {
+    const byPos = {};
+    for (let i = 0; i < board.length; i++) {
+      const p = board[i];
+      (byPos[p.position] || (byPos[p.position] = [])).push(
+        { v: p.vorp == null ? 0 : p.vorp, a: avail[i] == null ? 1 : avail[i] });
+    }
+    const out = {};
+    Object.keys(byPos).forEach(pos => {
+      const list = byPos[pos].sort((x, y) => y.v - x.v);
+      let remaining = 1, exp = 0;
+      for (let i = 0; i < list.length && remaining > 1e-6; i++) {
+        const a = Math.max(0, Math.min(1, list[i].a));
+        exp += remaining * a * list[i].v;
+        remaining *= (1 - a);
+      }
+      out[pos] = exp;
+    });
     return out;
   }
 
@@ -209,7 +251,34 @@
     const windowEnd = Math.min(targetPick,
       Math.max.apply(null, intervening.map(t => t.pick_no)) + 1);
 
-    let board = (ctx.board || []).slice();
+    // EXPECTED (fractional) thinning.
+    //
+    // The board is not advanced by deleting the modal pick. Greedy removal
+    // takes exactly one player per pick and always the same one, which
+    // corrupts what each p_i is conditioned on and biases the whole window
+    // toward whichever position happened to look hottest at step 1.
+    //
+    // Instead every candidate's availability is decremented by his probability
+    // of being taken at that pick:
+    //
+    //     avail[j] <- avail[j] * (1 - P(pick i takes j))
+    //
+    // Same loop, no branching, and it removes the right amount of board mass
+    // in expectation rather than a whole player in one arbitrary place.
+    const board = (ctx.board || []).slice();
+    const avail = new Array(board.length).fill(1);
+    const idxOf = new Map();
+    for (let j = 0; j < board.length; j++) idxOf.set(board[j], j);
+
+    // Per-position value ordering, computed once: the board no longer shrinks,
+    // so the ordering is fixed and only the availability over it changes.
+    const orderByPos = {};
+    for (let j = 0; j < board.length; j++) {
+      (orderByPos[board[j].position] || (orderByPos[board[j].position] = [])).push(j);
+    }
+    const valOf = j => (board[j].vorp == null ? board[j].proj_mean || 0 : board[j].vorp);
+    Object.keys(orderByPos).forEach(pos => orderByPos[pos].sort((a, b) => valOf(b) - valOf(a)));
+
     const steps = [];
     for (let i = 0; i < intervening.length; i++) {
       const team = intervening[i];
@@ -217,37 +286,44 @@
         league: ctx.league,
         progress: ctx.totalPicks ? team.pick_no / ctx.totalPicks : 0.5,
         roundsLeft: ctx.roundsLeft,
+        bestByPos: expectedBestByPos(board, avail),
       });
 
-      // Top candidates per position, in value order, for the within-position draw.
-      const topByPos = {};
-      for (let j = 0; j < board.length; j++) {
-        const pl = board[j];
-        const list = topByPos[pl.position] || (topByPos[pl.position] = []);
-        if (list.length < CFG.WITHIN_POS_CANDIDATES * 2) list.push(pl);
-      }
-      Object.keys(topByPos).forEach(pos => {
-        topByPos[pos] = topByPos[pos]
-          .sort((a, b) => (b.vorp == null ? b.proj_mean || 0 : b.vorp)
-                        - (a.vorp == null ? a.proj_mean || 0 : a.vorp))
-          .slice(0, CFG.WITHIN_POS_CANDIDATES);
-      });
-
-      steps.push({ posProbs, topByPos, team });
-
-      // Advance the board by the modal pick. This is a greedy approximation of
-      // the real branching draft — cheap, and the error over a 12-24 pick
-      // window is small compared with the ADP noise it sits inside.
-      const topPos = Object.keys(posProbs).sort((a, b) => posProbs[b] - posProbs[a])[0];
-      if (topPos) {
-        let bestIdx = -1, bestVal = -Infinity;
-        for (let j = 0; j < board.length; j++) {
-          if (board[j].position !== topPos) continue;
-          const v = board[j].vorp == null ? board[j].proj_mean || 0 : board[j].vorp;
-          if (v > bestVal) { bestVal = v; bestIdx = j; }
+      // Candidate pool per position, in value order. The depth is measured in
+      // EXPECTED players, not slots: keep taking until the availabilities sum
+      // to WITHIN_POS_CANDIDATES. Under greedy thinning the board physically
+      // shrank, so the window slid down on its own; with fractional thinning it
+      // does not, and a fixed top-N would keep re-offering the same decayed
+      // names while the player who is actually next up never enters the pool.
+      const topByPos = {}, availAt = {};
+      Object.keys(orderByPos).forEach(pos => {
+        const order = orderByPos[pos];
+        const pool = [], weights = [];
+        let mass = 0;
+        for (let k = 0; k < order.length && mass < CFG.WITHIN_POS_CANDIDATES
+                        && pool.length < CFG.WITHIN_POS_CANDIDATES * 4; k++) {
+          const j = order[k];
+          if (avail[j] <= 1e-4) continue;
+          pool.push(board[j]);
+          weights.push(avail[j]);
+          mass += avail[j];
         }
-        if (bestIdx >= 0) board = board.slice(0, bestIdx).concat(board.slice(bestIdx + 1));
-      }
+        if (pool.length) { topByPos[pos] = pool; availAt[pos] = weights; }
+      });
+
+      steps.push({ posProbs, topByPos, team, availAt });
+
+      // Decrement in expectation.
+      Object.keys(topByPos).forEach(pos => {
+        const pPos = posProbs[pos] || 0;
+        if (pPos <= 0) return;
+        const pool = topByPos[pos];
+        for (let k = 0; k < pool.length; k++) {
+          const j = idxOf.get(pool[k]);
+          const pTaken = pPos * withinFromPool(pool[k], pool, team, availAt[pos]);
+          avail[j] *= (1 - Math.max(0, Math.min(1, pTaken)));
+        }
+      });
     }
 
     const out = { steps, windowEnd };
@@ -255,8 +331,9 @@
     return out;
   }
 
-  /** P(this specific player, given his position is taken) from a precomputed pool. */
-  function withinFromPool(player, pool, team) {
+  /** P(this specific player, given his position is taken) from a precomputed pool.
+   *  `avail` (optional) weights each candidate by how likely he is still there. */
+  function withinFromPool(player, pool, team, avail) {
     if (!pool || !pool.length) return 0;
     let idx = -1;
     for (let i = 0; i < pool.length; i++) {
@@ -275,8 +352,15 @@
       return v;
     });
     let sum = 0;
-    const exps = scores.map(v => { const e = Math.exp((v - max) * temp / 10); sum += e; return e; });
-    return exps[idx] / sum;
+    // Availability weights the softmax: a player who is 20% likely to still be
+    // on the board contributes 20% of the mass he would if he were certain.
+    const exps = scores.map((v, i) => {
+      const w = avail ? Math.max(0, Math.min(1, avail[i] == null ? 1 : avail[i])) : 1;
+      const e = w * Math.exp((v - max) * temp / 10);
+      sum += e;
+      return e;
+    });
+    return sum > 0 ? exps[idx] / sum : 0;
   }
 
   /**
@@ -291,7 +375,8 @@
       const step = pre.steps[i];
       const pPos = step.posProbs[player.position] || 0;
       if (!pPos) continue;
-      const pWithin = withinFromPool(player, step.topByPos[player.position], step.team);
+      const pWithin = withinFromPool(player, step.topByPos[player.position], step.team,
+        step.availAt && step.availAt[player.position]);
       survives *= (1 - pPos * pWithin);
     }
     return { taken: 1 - survives, windowEnd: pre.windowEnd };
@@ -323,14 +408,34 @@
       const obsRate = observed[pos] / n;
       const expRate = expTotal > 0 ? (expected[pos] || 0) / expTotal : obsRate;
       if (expRate <= 0.01) return;
-      const raw = 1 + CFG.RUN_DAMPING * (obsRate / expRate - 1);
+
+      // SIGNIFICANCE GATE.
+      //
+      // Over a 10-pick window an expectation of 3 RBs and an observation of 6
+      // is a 2x ratio that happens by chance constantly. Ungated, the ratio
+      // alone moved the multiplier and threw a banner — training the user to
+      // react to noise, which is worse than not detecting runs at all.
+      //
+      // Model the count as Binomial(n, expRate) and ask how many standard
+      // deviations the observation actually is. Below RUN_Z_MIN the multiplier
+      // stays exactly 1.0; between RUN_Z_MIN and RUN_Z_FULL it ramps in
+      // linearly, so detection arrives smoothly rather than switching on.
+      const sd = Math.sqrt(n * expRate * (1 - expRate));
+      const z = sd > 1e-9 ? (observed[pos] - expRate * n) / sd : 0;
+      const gate = Math.max(0, Math.min(1,
+        (Math.abs(z) - CFG.RUN_Z_MIN) / Math.max(1e-6, CFG.RUN_Z_FULL - CFG.RUN_Z_MIN)));
+      if (gate <= 0) { out[pos] = 1; return; }
+
+      const raw = 1 + CFG.RUN_DAMPING * (obsRate / expRate - 1) * gate;
       out[pos] = Math.max(CFG.RUN_MIN, Math.min(CFG.RUN_MAX, raw));
+      (out.__z || (out.__z = {}))[pos] = z;
     });
     return out;
   }
 
   function detectRuns(mults) {
     return Object.keys(mults || {})
+      .filter(pos => pos !== '__z')
       .filter(pos => mults[pos] >= CFG.RUN_BANNER_AT)
       .sort((a, b) => mults[b] - mults[a]);
   }
@@ -394,7 +499,7 @@
     return p;
   }
 
-  const api = {
+  const api = { expectedBestByPos,
     CFG, URGENCY, urgency,
     normalCdf, adpSd,
     layer1Taken, layer1TakenGivenAvailable, layer2Taken, precomputeLayer2,

@@ -194,5 +194,48 @@ const kovOn = E.recommend(Object.assign({}, lateCtxFull, { weights: Object.assig
 check('the keeper weight changes late-round scoring',
   kovOff[0].score !== kovOn[0].score || kovOff[0].player.player_id !== kovOn[0].player.player_id);
 
+
+// ============ Run detection significance gate (audit P1.6) ============
+// Over a 10-pick window an expected 3 and an observed 6 is a 2x ratio that
+// happens by chance constantly. Ungated it moved the multiplier and threw a
+// banner, training the user to react to nothing.
+{
+  const RB = board().filter(p => p.position === 'RB');
+  const WR = board().filter(p => p.position === 'WR');
+  const TE = board().filter(p => p.position === 'TE');
+  const QB = board().filter(p => p.position === 'QB');
+  const pool = board();
+
+  // An ordinary mix: roughly what ADP expects over these ten picks.
+  const ordinary = [RB[0], WR[0], RB[1], WR[1], TE[0], RB[2], WR[2], QB[0], WR[3], RB[3]]
+    .map(p => ({ position: p.position }));
+  const ordinaryMults = S.runMultipliers(ordinary, pool, 40);
+  const offenders = Object.keys(ordinaryMults)
+    .filter(k => k !== '__z')
+    .filter(pos => Math.abs(ordinaryMults[pos] - 1) > 0.05);
+  check('an ordinary positional mix produces multipliers ~1.0 for every position',
+    offenders.length === 0,
+    offenders.map(p => `${p}=${ordinaryMults[p].toFixed(2)}`).join(' ') || 'none');
+
+  // A genuine run: nine of ten picks at one position.
+  const runOnRb = RB.slice(0, 9).concat([WR[0]]).map(p => ({ position: p.position }));
+  const runMults = S.runMultipliers(runOnRb, pool, 40);
+  check('a genuine run still lifts the multiplier above the banner threshold',
+    (runMults.RB || 1) >= S.CFG.RUN_BANNER_AT,
+    `RB=${(runMults.RB || 1).toFixed(2)} banner=${S.CFG.RUN_BANNER_AT}`);
+
+  check('a genuine run is the only thing that raises a banner',
+    S.detectRuns(runMults).indexOf('RB') !== -1 && S.detectRuns(ordinaryMults).length === 0,
+    `run=${JSON.stringify(S.detectRuns(runMults))} ordinary=${JSON.stringify(S.detectRuns(ordinaryMults))}`);
+
+  // Marginal case: a mild excess must not fire.
+  const mild = [RB[0], RB[1], RB[2], RB[3], WR[0], WR[1], TE[0], QB[0], WR[2], RB[4]]
+    .map(p => ({ position: p.position }));
+  const mildMults = S.runMultipliers(mild, pool, 40);
+  check('a mild positional excess does not trip the banner',
+    S.detectRuns(mildMults).length === 0,
+    `mults=${JSON.stringify(S.detectRuns(mildMults))}`);
+}
+
 console.log(`\n${pass}/${pass + fail} update checks passed`);
 process.exit(fail ? 1 : 0);
