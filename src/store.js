@@ -28,25 +28,20 @@ function overlayGet(key) {
 }
 
 function initBlobs(event) {
-  if (blobStore) return true;
+  // Rebuilt on EVERY invocation: auth tokens in the blobs context expire, so a
+  // client cached across a warm instance's lifetime eventually starts failing
+  // with "Token expired". The invocation event / env always carry fresh creds.
   try {
     const mod = require('@netlify/blobs');
-    try {
-      // Preferred: the runtime's automatic environment config (complete context).
-      blobStore = mod.getStore({ name: 'league' });
-    } catch (envErr) {
-      // Older runtimes only configure lambda-compat functions from the event.
-      if (event && typeof mod.connectLambda === 'function') {
-        mod.connectLambda(event);
-        blobStore = mod.getStore({ name: 'league' });
-      } else {
-        throw envErr;
-      }
+    // Lambda-compat invocations carry fresh per-request credentials on the event.
+    if (event && event.blobs && typeof mod.connectLambda === 'function') {
+      try { mod.connectLambda(event); } catch (e) { /* fall through to env config */ }
     }
+    blobStore = mod.getStore({ name: 'league' });
     return true;
   } catch (e) {
-    console.error('Netlify Blobs unavailable:', e.message);
-    return false;
+    if (!blobStore) console.error('Netlify Blobs unavailable:', e.message);
+    return !!blobStore;
   }
 }
 

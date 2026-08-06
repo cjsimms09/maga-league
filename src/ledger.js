@@ -13,6 +13,7 @@ const TYPE_LABELS = {
   weekly: 'Weekly High Point',
   award: 'Season Award',
   adjustment: 'Adjustment',
+  payment: 'Payment',
 };
 
 async function allEntries() {

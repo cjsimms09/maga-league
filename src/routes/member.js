@@ -266,11 +266,13 @@ router.get('/votes', aw(async (req, res) => {
   const votes = (await H.allVotes(owners)).map(v => ({
     ...v, myChoice: (v.ballots.find(b => b.owner_id === req.owner.id) || {}).choice || null,
   }));
+  const punishments = await H.punishmentWall(owners, req.owner.id);
   res.render('votes', {
     open: votes.filter(v => v.status === 'open'),
     closed: votes.filter(v => v.status === 'closed'),
     electorate: owners.length,
     proposed: req.query.proposed || null,
+    punishments, punishmentsLocked: !!req.world.config.punishments_locked,
   });
 }));
 
@@ -285,6 +287,24 @@ router.post('/votes/propose', aw(async (req, res) => {
     status: 'open', created_at: now(), closed_at: null,
   });
   res.redirect('/votes?proposed=1');
+}));
+
+// ---------- punishment wall ----------
+router.post('/punishments', aw(async (req, res) => {
+  if (req.world.config.punishments_locked) return res.redirect('/votes#punishments');
+  const text = String(req.body.text || '').trim().slice(0, 300);
+  if (text) {
+    const id = newId();
+    await setDoc(`punish:${id}`, { id, text, proposer_id: req.owner.id, created_at: now() });
+  }
+  res.redirect('/votes#punishments');
+}));
+
+router.post('/punishments/:id/vote', aw(async (req, res) => {
+  if (req.world.config.punishments_locked) return res.redirect('/votes#punishments');
+  const idea = await getDoc(`punish:${req.params.id}`, null);
+  if (idea) await setDoc(`pvote:${req.owner.id}`, { punishment_id: idea.id, cast_at: now() });
+  res.redirect('/votes#punishments');
 }));
 
 // Trash talk on the record: comments on any measure, open or closed.
@@ -304,6 +324,17 @@ router.post('/votes/:id/ballot', aw(async (req, res) => {
     await setDoc(`ballot:${vote.id}:${req.owner.id}`, { choice, cast_at: now() });
   }
   res.redirect('/votes');
+}));
+
+// ---------- my team (live roster + stats from Sleeper) ----------
+router.get('/team', aw(async (req, res) => {
+  const world = req.world;
+  const owners = H.activeOwners(world.owners);
+  const viewId = parseInt(req.query.owner, 10) || req.owner.id;
+  const viewOwner = H.ownerById(owners, viewId) || req.owner;
+  const sData = await sleeper.bundle(world.config.sleeper_league_id);
+  const roster = await sleeper.rosterView(sData, world.config.sleeper_map || {}, viewOwner.id);
+  res.render('team', { viewOwner, owners, roster, configured: !!world.config.sleeper_league_id });
 }));
 
 // ---------- the locker room ----------

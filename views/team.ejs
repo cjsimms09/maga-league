@@ -1,0 +1,70 @@
+<%- include('partials/header', { title: (viewOwner.name === owner.name ? 'My Team' : viewOwner.name + "'s Team") }) %>
+
+<h1 class="page-title"><%= viewOwner.id === owner.id ? '🏈 My Team' : `🔎 ${viewOwner.name}'s Team` %></h1>
+<p class="page-sub">Live roster from Sleeper with recent production. Scout your rivals. Judge their benches.</p>
+
+<form method="get" action="/team" class="inline-form" style="justify-content:center; margin-bottom:1.2rem">
+  <div class="fit">
+    <label class="field">Viewing</label>
+    <select name="owner" onchange="this.form.submit()">
+      <% for (const o of owners) { %>
+        <option value="<%= o.id %>" <%= o.id === viewOwner.id ? 'selected' : '' %>><%= o.name %><%= o.id === owner.id ? ' (you)' : '' %></option>
+      <% } %>
+    </select>
+  </div>
+</form>
+
+<% if (!configured) { %>
+  <div class="card"><div class="body"><p class="muted" style="margin:0">Sleeper isn't connected yet (Commish → Sleeper).</p></div></div>
+<% } else if (!roster) { %>
+  <div class="card"><div class="body"><p class="muted" style="margin:0">
+    Couldn't load this roster — either <%= viewOwner.name %> isn't mapped to a Sleeper team yet (Commish → Sleeper → Team Mapping)
+    or Sleeper is unreachable right now.
+  </p></div></div>
+<% } else { %>
+
+<div class="hero" style="margin-bottom:1.3rem">
+  <div class="hero-item">
+    <span class="hero-label">Team</span>
+    <span class="hero-value" style="font-size:1.05rem"><%= roster.team %></span>
+    <span class="hero-sub"><%= viewOwner.name %></span>
+  </div>
+  <div class="hero-item">
+    <span class="hero-label">Record</span>
+    <span class="hero-value"><%= roster.record || '—' %></span>
+    <span class="hero-sub">this season</span>
+  </div>
+  <div class="hero-item">
+    <span class="hero-label">Roster Size</span>
+    <span class="hero-value"><%= roster.rows.length %></span>
+    <span class="hero-sub"><%= roster.rows.filter(r => r.starter).length %> starters</span>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Roster <span class="sub">points are half-PPR · Wk <%= roster.lastWeek %> = most recent completed week</span></h2>
+  <div class="body tight scroll-x">
+    <table class="roll">
+      <tr><th></th><th>Player</th><th>Pos</th><th>Team</th><th class="num">Wk <%= roster.lastWeek %></th><th class="num">Season</th><th>Status</th></tr>
+      <% for (const r of roster.rows) { %>
+        <tr class="<%= r.starter ? '' : 'muted-row' %>">
+          <td><%= r.starter ? '🟢' : '' %></td>
+          <td><b><%= r.name %></b><% if (r.rank && r.rank <= 50) { %> <span class="badge gold" title="Sleeper overall rank">#<%= r.rank %></span><% } %></td>
+          <td><%= r.pos %></td>
+          <td class="muted"><%= r.team %></td>
+          <td class="num"><%= r.wkPts == null ? '—' : r.wkPts.toFixed(1) %></td>
+          <td class="num"><b><%= r.seasonPts == null ? '—' : r.seasonPts.toFixed(1) %></b></td>
+          <td><% if (r.inj) { %><span class="badge owes"><%= r.inj %></span><% } else { %><span class="muted">healthy</span><% } %></td>
+        </tr>
+      <% } %>
+      <% if (!roster.rows.length) { %><tr><td class="muted" style="padding:1rem" colspan="7">Empty roster — draft hasn't happened yet. The Wk/Season columns come alive once games are played.</td></tr><% } %>
+    </table>
+  </div>
+</div>
+
+<p class="muted" style="text-align:center; margin-top:1rem">
+  🟢 = in the starting lineup on Sleeper. Set your actual lineup over there — this page is for scouting and shame.
+</p>
+<% } %>
+
+<%- include('partials/footer') %>

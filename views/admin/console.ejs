@@ -70,7 +70,48 @@
 <% if (tab === 'ledger') { %>
 <div class="grid cols-2">
   <div class="card">
-    <h2>Balances at a Glance <span class="sub">settle items on <a href="/bank" style="color:inherit">The Tab</a></span></h2>
+    <h2>Make an Entry <span class="sub">your private books — members never see this page</span></h2>
+    <div class="body">
+      <form method="post" action="/admin/ledger">
+        <div class="inline-form">
+          <div>
+            <label class="field">Who</label>
+            <select name="owner_id" required>
+              <option value="">— owner —</option>
+              <% for (const o of ownerRows.filter(o => o.active)) { %><option value="<%= o.id %>"><%= o.name %></option><% } %>
+            </select>
+          </div>
+          <div>
+            <label class="field">What happened</label>
+            <select name="kind">
+              <option value="payment_received">💵 They paid me (+)</option>
+              <option value="payment_sent">💸 I paid them (−)</option>
+              <option value="credit">📈 Credit them (+) — winnings, refund</option>
+              <option value="charge">📉 Charge them (−) — fee, side bet lost</option>
+            </select>
+          </div>
+          <div>
+            <label class="field">Amount ($)</label>
+            <input type="number" step="0.01" min="0.01" name="amount" required placeholder="150">
+          </div>
+        </div>
+        <label class="field">What for</label>
+        <input type="text" name="desc" required placeholder="e.g. Partial buy-in, Week 4 payout, Punt-return side bet">
+        <label class="field">Note (optional — how it moved)</label>
+        <input type="text" name="note" maxlength="120" placeholder="Venmo, cash at draft, Zelle…">
+        <div class="inline-form" style="margin-top:.6rem">
+          <div class="fit">
+            <label class="field">Season</label>
+            <select name="year"><% for (const sn of seasons) { %><option value="<%= sn.year %>" <%= sn.year === season.year ? 'selected' : '' %>><%= sn.year %></option><% } %></select>
+          </div>
+          <div class="fit"><button class="btn" type="submit">Add to the Books</button></div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Balances <span class="sub">quick view</span></h2>
     <div class="body tight">
       <table class="roll">
         <tr><th>Owner</th><th class="num">Net Tab</th><th></th></tr>
@@ -78,12 +119,12 @@
           <tr>
             <td><b><%= b.owner.name %></b></td>
             <td class="num <%= b.balance > 0 ? 'pos' : b.balance < 0 ? 'neg' : '' %>">
-              <%= b.balance === 0 ? '✓ even' : (b.balance > 0 ? 'league owes ' : 'owes ') + money(Math.abs(b.balance)) %>
+              <%= b.balance === 0 ? '✓ even' : (b.balance > 0 ? 'you owe ' : 'owes you ') + money(Math.abs(b.balance)) %>
             </td>
             <td class="num">
               <% if (b.balance !== 0) { %>
               <form class="asis" method="post" action="/admin/ledger/settle-all/<%= b.owner.id %>"
-                    onsubmit="return confirm('Mark everything settled with <%= b.owner.name %>?')">
+                    onsubmit="return confirm('Archive everything with <%= b.owner.name %> as settled?')">
                 <button class="btn small navy">🤝 Square Up</button>
               </form>
               <% } %>
@@ -93,43 +134,51 @@
       </table>
     </div>
   </div>
-  <div class="card">
-    <h2>Add a Manual Entry <span class="sub">side bets, credits, corrections</span></h2>
-    <div class="body">
-      <form method="post" action="/admin/ledger">
-        <label class="field">Owner</label>
-        <select name="owner_id" required>
-          <option value="">— pick the owner —</option>
-          <% for (const o of ownerRows.filter(o => o.active)) { %><option value="<%= o.id %>"><%= o.name %></option><% } %>
-        </select>
-        <label class="field">Amount — positive = league owes them, negative = they owe the league</label>
-        <input type="number" step="0.01" name="amount" required placeholder="e.g. 50 or -25">
-        <label class="field">What is it?</label>
-        <input type="text" name="desc" required placeholder="e.g. Won the punt-return side bet">
-        <div style="margin-top:.8rem"><button class="btn" type="submit">Add to the Books</button></div>
-      </form>
-    </div>
-  </div>
+
   <div class="card col-span-2">
-    <h2>Every Open Item</h2>
-    <div class="body tight scroll-x">
+    <h2>
+      The Register <span class="sub">every transaction ever — the source of truth</span>
+      <span style="display:flex; gap:.4rem; align-items:center">
+        <a class="btn small gold" href="/admin/ledger.csv">⬇ CSV</a>
+      </span>
+    </h2>
+    <div class="body">
+      <form method="get" action="/admin" class="inline-form" style="margin-bottom:.6rem">
+        <input type="hidden" name="tab" value="ledger">
+        <div class="fit">
+          <label class="field">Filter by owner</label>
+          <select name="owner" onchange="this.form.submit()">
+            <option value="">Everyone</option>
+            <% for (const o of ownerRows.filter(o => o.active)) { %><option value="<%= o.id %>" <%= ledgerFilter === o.id ? 'selected' : '' %>><%= o.name %></option><% } %>
+          </select>
+        </div>
+      </form>
+      <div class="scroll-x">
       <table class="roll">
-        <tr><th>Owner</th><th>Item</th><th>Season</th><th class="num">Amount</th><th></th></tr>
-        <% const openItems = ledger.filter(e => !e.settled).sort((a, b) => nameOf(a.owner_id).localeCompare(nameOf(b.owner_id))); %>
-        <% for (const e of openItems) { %>
-          <tr>
+        <tr><th>Date</th><th>Owner</th><th>Entry</th><th class="num">Amount</th><th>Season</th><th>Status</th><th></th></tr>
+        <% const reg = [...ledger].filter(e => !ledgerFilter || e.owner_id === ledgerFilter).sort((a, b) => (a.created_at < b.created_at ? 1 : -1)); %>
+        <% for (const e of reg) { %>
+          <tr class="<%= e.settled ? 'muted-row' : '' %>">
+            <td style="white-space:nowrap"><%= (e.created_at || '').slice(0, 10) %></td>
             <td><b><%= nameOf(e.owner_id) %></b></td>
             <td><%= e.desc %> <span class="muted">(<%= TYPE_LABELS[e.type] || e.type %>)</span></td>
-            <td><%= e.year %></td>
             <td class="num <%= e.amount > 0 ? 'pos' : 'neg' %>"><%= money(e.amount) %></td>
+            <td><%= e.year %></td>
+            <td>
+              <% if (e.settled) { %><span class="badge closed">settled<%= e.settle_note ? ' · ' + e.settle_note : '' %></span>
+              <% } else { %><span class="badge open">open</span><% } %>
+            </td>
             <td class="num" style="white-space:nowrap">
-              <form class="asis" method="post" action="/admin/ledger/<%= e.id %>/settle"><button class="btn small gold">Settle</button></form>
-              <form class="asis" method="post" action="/admin/ledger/<%= e.id %>/delete" onsubmit="return confirm('Delete this entry entirely? (Use Settle if money changed hands.)')"><button class="btn small ghost">✕</button></form>
+              <form class="asis" method="post" action="/admin/ledger/<%= e.id %>/settle">
+                <button class="btn small <%= e.settled ? 'ghost' : 'gold' %>"><%= e.settled ? '↩ Undo' : '✓ Settle' %></button>
+              </form>
+              <form class="asis" method="post" action="/admin/ledger/<%= e.id %>/delete" onsubmit="return confirm('Delete this entry from the books entirely?')"><button class="btn small ghost">✕</button></form>
             </td>
           </tr>
         <% } %>
-        <% if (!openItems.length) { %><tr><td class="muted" style="padding:1rem" colspan="5">The books are clean. Beautiful.</td></tr><% } %>
+        <% if (!reg.length) { %><tr><td class="muted" style="padding:1rem" colspan="7">No entries<%= ledgerFilter ? ' for this owner' : '' %>.</td></tr><% } %>
       </table>
+      </div>
     </div>
   </div>
 </div>

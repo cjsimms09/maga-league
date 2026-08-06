@@ -195,6 +195,28 @@ async function allVotes(owners) {
 
 const activeAlerts = alerts => alerts.filter(a => a.active);
 
+// ---------------------------------------------------------------- punishment wall
+// Ideas are one doc each; each owner has one changeable vote (own doc, no races).
+async function punishmentWall(owners, myId) {
+  const ideaKeys = await store.listKeys('punish:');
+  const ideas = (await store.getMany(ideaKeys)).filter(Boolean);
+  const voteKeys = await store.listKeys('pvote:');
+  const votes = (await store.getMany(voteKeys)).filter(Boolean);
+  const validIds = new Set(ideas.map(i => i.id));
+  const tally = {};
+  let myPick = null;
+  votes.forEach((v, i) => {
+    if (!validIds.has(v.punishment_id)) return;
+    tally[v.punishment_id] = (tally[v.punishment_id] || 0) + 1;
+    if (Number(voteKeys[i].split(':')[1]) === myId) myPick = v.punishment_id;
+  });
+  return ideas.map(i => ({
+    ...i, votes: tally[i.id] || 0,
+    proposer_name: (ownerById(owners, i.proposer_id) || {}).name || '?',
+  })).sort((a, b) => b.votes - a.votes || (a.created_at < b.created_at ? -1 : 1))
+    .map((i, idx, arr) => ({ ...i, leading: i.votes > 0 && i.votes === arr[0].votes, myPick: i.id === myPick }));
+}
+
 // ---------------------------------------------------------------- locker room chat
 // One doc per message (ids are time-sortable), so posts never collide.
 async function chatFeed(owners, limit = 100) {
@@ -213,6 +235,6 @@ const pickRandom = arr => arr[Math.floor(Math.random() * arr.length)];
 module.exports = {
   CATEGORY_LABELS, CATEGORIES, money, loadWorld, activeOwners, ownerById, currentSeason,
   payoutTable, winningsGrid, gridYears, careerTotals, accolades, draftState, keepersForYear,
-  allVotes, activeAlerts, pickRandom, chatFeed, getDoc, setDoc, store,
+  allVotes, activeAlerts, pickRandom, chatFeed, punishmentWall, getDoc, setDoc, store,
   ROASTS: seedData.ROASTS, QUIPS: seedData.QUIPS,
 };

@@ -13,7 +13,7 @@
 <body>
 <header class="masthead">
   <div class="eagle" title="Back-to-back World War champs. Undefeated since 1776.">🦅</div>
-  <h1>Make Football <span class="gold">Great Again</span></h1>
+  <h1><span class="flag">🇺🇸</span> Make Football <span class="gold">Great Again</span> <span class="flag">🇺🇸</span></h1>
   <p class="tagline">Fantasy Football League &nbsp;•&nbsp; Est. 2016 &nbsp;•&nbsp; The Greatest League in the History of Leagues, Maybe Ever</p>
   <div class="stars">★ ★ ★ ★ ★</div>
 </header>
@@ -27,6 +27,7 @@
 <% if (_owner) { %>
 <nav class="navbar">
   <a href="/" class="<%= _path === '/' ? 'active' : '' %>">League Office</a>
+  <a href="/team" class="<%= _path === '/team' ? 'active' : '' %>">My Team</a>
   <a href="/bank" class="<%= _path === '/bank' ? 'active' : '' %>">The Tab</a>
   <a href="/owners" class="<%= _path === '/owners' ? 'active' : '' %>">Owners</a>
   <a href="/history" class="<%= _path === '/history' ? 'active' : '' %>">History</a>

@@ -338,8 +338,66 @@ async function wire(leagueId, week, data, playersDb) {
   return out.sort((a, b) => b.created - a.created).slice(0, 10);
 }
 
+// Player stat lines. Past weeks never change, so they cache hard.
+async function weekStats(season, week) {
+  const key = `stats-cache:${season}:${week}`;
+  const cache = await getDoc(key, null);
+  if (cache) return cache.data;
+  try {
+    const data = await fetchJson(`/v1/stats/nfl/regular/${season}/${week}`);
+    await setDoc(key, { fetched_at: Date.now(), data });
+    return data;
+  } catch (e) { return null; }
+}
+
+async function seasonStats(season) {
+  const key = `stats-cache:${season}:season`;
+  const cache = await getDoc(key, null);
+  if (cache && Date.now() - cache.fetched_at < 6 * 60 * 60 * 1000) return cache.data;
+  try {
+    const data = await fetchJson(`/v1/stats/nfl/regular/${season}`);
+    await setDoc(key, { fetched_at: Date.now(), data });
+    return data;
+  } catch (e) { return cache ? cache.data : null; }
+}
+
+// Full roster view for one owner: players with info + recent + season stat lines.
+async function rosterView(data, sleeperMap, ownerId) {
+  if (!data) return null;
+  const rosterId = Object.keys(sleeperMap || {}).find(rid => Number(sleeperMap[rid]) === Number(ownerId));
+  if (!rosterId) return null;
+  const roster = data.rosters.find(r => String(r.roster_id) === String(rosterId));
+  if (!roster) return null;
+  const playersDb = await players();
+  const lastWeek = Math.max(1, (data.state.week || 2) - 1);
+  const [wk, seas] = await Promise.all([
+    weekStats(data.state.season, lastWeek),
+    seasonStats(data.state.season),
+  ]);
+  const pts = st => st == null ? null : Math.round(((st.pts_half_ppr ?? st.pts_ppr ?? st.pts_std) || 0) * 10) / 10;
+  const starters = new Set(roster.starters || []);
+  const rows = (roster.players || []).map(pid => {
+    const info = (playersDb && playersDb.players[pid]) || { name: pid, pos: '?', team: '?', rank: null, inj: null };
+    const w = wk ? wk[pid] : null;
+    const se = seas ? seas[pid] : null;
+    return {
+      id: pid, ...info,
+      starter: starters.has(pid),
+      wkPts: pts(w), seasonPts: pts(se),
+      gp: se ? (se.gp || se.gms_active || null) : null,
+    };
+  });
+  const posOrder = { QB: 1, RB: 2, WR: 3, TE: 4, K: 5, DEF: 6 };
+  rows.sort((a, b) => (b.starter - a.starter) || ((posOrder[a.pos] || 9) - (posOrder[b.pos] || 9)) || ((a.rank || 9999) - (b.rank || 9999)));
+  return {
+    team: teamName(data.users, data.rosters, roster.roster_id),
+    record: roster.settings ? `${roster.settings.wins || 0}-${roster.settings.losses || 0}` : '',
+    rows, lastWeek,
+  };
+}
+
 module.exports = {
   bundle, matchupsForWeek, standings, scoreboard, highScorer, teamName,
   autoMap, userMap, records, players, draftInfo, trendingAdds, WAR_POSITIONS,
-  weekReview, wire,
+  weekReview, wire, weekStats, seasonStats, rosterView,
 };

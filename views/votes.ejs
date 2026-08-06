@@ -102,4 +102,62 @@
 <% } %>
 <% } %>
 
+<div id="punishments" style="margin-top:2.2rem">
+  <h2 style="color:var(--navy); text-transform:uppercase; letter-spacing:.1em; font-size:1rem; text-align:center">☠️ Last-Place Punishment Wall</h2>
+  <p class="page-sub">Pitch a punishment for whoever finishes last. One vote each — change it as often as you like, until it locks at the start of the season.</p>
+
+  <% if (punishmentsLocked) { %>
+    <div class="turn-banner" style="max-width:680px; margin:0 auto 1rem">
+      🔒 <b>LOCKED.</b> The people have spoken<% const winner = punishments.find(pn => pn.leading); %><% if (winner) { %>:
+      <b>"<%= winner.text %>"</b> awaits whoever finishes last.<% } %>
+    </div>
+  <% } else { %>
+  <div class="card" style="max-width:680px; margin:0 auto 1rem">
+    <h2>Pitch a Punishment</h2>
+    <div class="body">
+      <form method="post" action="/punishments" class="inline-form">
+        <div><input type="text" name="text" maxlength="300" required placeholder="e.g. Last place takes the SAT and posts the score"></div>
+        <div class="fit"><button class="btn" type="submit">Add to the Wall</button></div>
+      </form>
+    </div>
+  </div>
+  <% } %>
+
+  <div class="card" style="max-width:680px; margin:0 auto">
+    <h2>The Ballot <span class="sub"><%= punishments.length %> idea<%= punishments.length === 1 ? '' : 's' %></span>
+      <% if (owner.is_commissioner) { %>
+        <form class="asis" method="post" action="/admin/punishments-lock">
+          <button class="btn small <%= punishmentsLocked ? 'gold' : 'navy' %>"><%= punishmentsLocked ? '🔓 Unlock' : '🔒 Lock for the season' %></button>
+        </form>
+      <% } %>
+    </h2>
+    <div class="body tight">
+      <% if (!punishments.length) { %>
+        <p class="muted" style="padding:1rem; margin:0">No ideas yet. Surely someone deserves to suffer.</p>
+      <% } %>
+      <table class="roll">
+        <% for (const pn of punishments) { %>
+          <tr class="<%= pn.leading && punishments.length > 1 ? '' : '' %>">
+            <td>
+              <%= pn.leading && pn.votes > 0 ? '👑 ' : '' %><b><%= pn.text %></b>
+              <div class="muted" style="font-size:.72rem">by <%= pn.proposer_name %></div>
+            </td>
+            <td class="num" style="white-space:nowrap"><b><%= pn.votes %></b> vote<%= pn.votes === 1 ? '' : 's' %></td>
+            <td class="num" style="white-space:nowrap">
+              <% if (!punishmentsLocked) { %>
+                <form class="asis" method="post" action="/punishments/<%= pn.id %>/vote">
+                  <button class="btn small <%= pn.myPick ? 'gold' : 'navy' %>"><%= pn.myPick ? '✓ Your pick' : 'Vote' %></button>
+                </form>
+              <% } else if (pn.myPick) { %><span class="badge gold">your pick</span><% } %>
+              <% if (owner.is_commissioner) { %>
+                <form class="asis" method="post" action="/admin/punishments/<%= pn.id %>/delete" onsubmit="return confirm('Delete this idea?')"><button class="btn small ghost">✕</button></form>
+              <% } %>
+            </td>
+          </tr>
+        <% } %>
+      </table>
+    </div>
+  </div>
+</div>
+
 <%- include('partials/footer') %>

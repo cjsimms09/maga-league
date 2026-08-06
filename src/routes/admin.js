@@ -62,6 +62,7 @@ router.get('/', aw(async (req, res) => {
     nameOf, TYPE_LABELS: L.TYPE_LABELS,
     CATEGORIES: H.CATEGORIES, CATEGORY_LABELS: H.CATEGORY_LABELS,
     sleeperInfo, suggestion, suggestWeek,
+    ledgerFilter: parseInt(req.query.owner, 10) || 0,
     flash: req.query.msg || null,
   });
 }));
@@ -91,18 +92,41 @@ router.post('/alerts/:id/delete', aw(async (req, res) => {
   back(res, 'alerts');
 }));
 
-// ---------- the ledger (all money flows through here) ----------
+// ---------- the books (all money flows through here) ----------
+// Full manual entry: who, which direction, how much, what for, note, season.
 router.post('/ledger', aw(async (req, res) => {
-  const amount = parseFloat(req.body.amount);
   const owner_id = parseInt(req.body.owner_id, 10);
-  const desc = String(req.body.desc || '').trim() || 'Manual adjustment';
-  if (Number.isFinite(amount) && amount !== 0 && owner_id) {
+  const raw = parseFloat(req.body.amount);
+  const kind = ['charge', 'credit', 'payment_received', 'payment_sent'].includes(req.body.kind) ? req.body.kind : 'credit';
+  const desc = String(req.body.desc || '').trim() || 'Manual entry';
+  const note = String(req.body.note || '').trim().slice(0, 120);
+  const year = parseInt(req.body.year, 10) || H.currentSeason(req.world.seasons).year;
+  if (Number.isFinite(raw) && raw !== 0 && owner_id) {
+    const amount = Math.abs(raw) * ((kind === 'charge' || kind === 'payment_sent') ? -1 : 1);
     await L.addEntry({
-      owner_id, year: H.currentSeason(req.world.seasons).year,
-      type: 'adjustment', amount, desc,
+      owner_id, year,
+      type: kind.startsWith('payment') ? 'payment' : 'adjustment',
+      amount,
+      desc: desc + (note ? ` — ${note}` : ''),
     });
   }
   back(res, req.body.back || 'ledger');
+}));
+
+// The whole register as a CSV — the commissioner's actual accounting file.
+router.get('/ledger.csv', aw(async (req, res) => {
+  const world = req.world;
+  const nameOf = id => (H.ownerById(world.owners, id) || {}).name || '?';
+  const esc = v => `"${String(v == null ? '' : v).replace(/"/g, '""')}"`;
+  const rows = [['date', 'owner', 'type', 'description', 'amount', 'season', 'status', 'settled_on', 'settle_note']];
+  for (const e of [...world.ledger].sort((a, b) => (a.created_at < b.created_at ? -1 : 1))) {
+    rows.push([(e.created_at || '').slice(0, 10), nameOf(e.owner_id), L.TYPE_LABELS[e.type] || e.type,
+      e.desc, e.amount.toFixed(2), e.year, e.settled ? 'settled' : 'open',
+      (e.settled_at || '').slice(0, 10), e.settle_note || '']);
+  }
+  res.setHeader('Content-Type', 'text/csv');
+  res.setHeader('Content-Disposition', `attachment; filename="league-books-${new Date().toISOString().slice(0, 10)}.csv"`);
+  res.send(rows.map(r => r.map(esc).join(',')).join('\n'));
 }));
 router.post('/ledger/:id/settle', aw(async (req, res) => {
   const ledger = await L.allEntries();
@@ -120,6 +144,35 @@ router.post('/ledger/settle-all/:ownerId', aw(async (req, res) => {
   const name = (H.ownerById(req.world.owners, req.params.ownerId) || {}).name || '?';
   if (req.body.back === 'bank') return res.redirect('/bank');
   back(res, req.body.back || 'ledger', msg(`Squared up with ${name} — ${n} item${n === 1 ? '' : 's'} settled.`));
+}));
+
+// Record an actual cash movement of any amount against an owner's tab.
+// 'they_paid' = money came to the commissioner (+), 'i_paid' = went out (-).
+router.post('/payment', aw(async (req, res) => {
+  const owner_id = parseInt(req.body.owner_id, 10);
+  const amount = Math.abs(parseFloat(req.body.amount));
+  const dir = req.body.direction === 'i_paid' ? -1 : 1;
+  const note = String(req.body.note || '').trim().slice(0, 120);
+  if (owner_id && Number.isFinite(amount) && amount > 0) {
+    await L.addEntry({
+      owner_id, year: H.currentSeason(req.world.seasons).year,
+      type: 'payment', amount: dir * amount,
+      desc: (dir === 1 ? 'Payment received' : 'Payment sent') + (note ? ` — ${note}` : ''),
+    });
+  }
+  res.redirect('/bank#owner-' + owner_id);
+}));
+
+// ---------- punishment wall moderation ----------
+router.post('/punishments/:id/delete', aw(async (req, res) => {
+  await store.del(`punish:${req.params.id}`);
+  res.redirect('/votes#punishments');
+}));
+router.post('/punishments-lock', aw(async (req, res) => {
+  const config = await getDoc('config', {});
+  config.punishments_locked = !config.punishments_locked;
+  await setDoc('config', config);
+  res.redirect('/votes#punishments');
 }));
 
 // ---------- weekly high point ----------
