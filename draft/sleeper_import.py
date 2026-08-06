@@ -77,6 +77,20 @@ def fetch_projections(season: str, week: int | str = "season") -> dict:
         return {}
 
 
+def fetch_stats(season: str, week: int | str = "season") -> dict:
+    """Actual stat lines for a completed season.
+
+    Used as the projection baseline when the provider has no projections for the
+    upcoming season yet — which is the normal state of the world in August, and
+    which used to produce a board of zeroes without saying so.
+    """
+    try:
+        return _get(f"/stats/nfl/{season}/{week}?season_type=regular", ttl=24 * 60 * 60)
+    except Exception as exc:  # noqa: BLE001
+        print(f"  ! stats for {season} unavailable ({exc})")
+        return {}
+
+
 # --- roster slot + scoring extraction ---------------------------------------
 
 def roster_slots_from(league: dict) -> dict:

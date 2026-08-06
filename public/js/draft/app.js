@@ -231,6 +231,19 @@
       });
     }
 
+    const proj = p.projections || {};
+    if (proj.warning) {
+      notes.push({ level: 'warn', text: proj.warning });
+    }
+    if (typeof p.value_coverage === 'number' && p.value_coverage < 0.9) {
+      notes.push({
+        level: 'bad',
+        text: 'Only ' + Math.round(p.value_coverage * 100) + '% of the top of the board '
+          + 'carries a projection. VORP, ceilings and VONA are near-zero — this board '
+          + 'is re-printing ADP, not analysing it.',
+      });
+    }
+
     const adp = p.adp || {};
     if (adp.warning) {
       notes.push({ level: 'bad', text: adp.warning });

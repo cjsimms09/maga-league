@@ -34,6 +34,16 @@ ARTIFACT_VERSION = 2
 # it, and the War Room renders it.
 ADP_PROVENANCE: dict = {}
 OPPORTUNITY_PROVENANCE: dict = {}
+PROJECTION_PROVENANCE: dict = {}
+
+# Below this many players carrying non-zero projected points, the provider has
+# not published projections for the season yet and the baseline is worthless.
+PROJECTION_MIN_NONZERO = 100
+
+# A board where the top of the draft has no value attached is not a degraded
+# board, it is an unusable one: VONA is a bet on value-vs-market divergence, and
+# with every VORP at zero the tool is just re-printing ADP.
+VALUE_MIN_COVERAGE = 0.90
 OUT = HERE.parent / "public" / "draft_data.json"
 CONFIG_PATH = HERE / "config" / "league_config.json"
 KEEPERS_PATH = HERE / "config" / "keepers.json"
@@ -61,8 +71,37 @@ def load_players(cfg: dict, offline: bool) -> list[dict]:
 
     import sleeper_import as si
     raw = si.fetch_players()
-    projections = si.fetch_projections(cfg.get("season") or str(time.gmtime().tm_year))
+    season_str = str(cfg.get("season") or time.gmtime().tm_year)
+    projections = si.fetch_projections(season_str)
     baseline = proj_mod.baseline_from_projections(projections, cfg["scoring"])
+    nonzero = sum(1 for v in baseline.values() if v and v > 0)
+    print(f"  projections {season_str}: {len(baseline)} rows, {nonzero} with points")
+    PROJECTION_PROVENANCE.update({"source": "sleeper_projections", "season": season_str,
+                                  "rows": len(baseline), "nonzero": nonzero})
+
+    # In August the upcoming season has no projections yet: Sleeper returns the
+    # player list with empty stat lines, baseline_from_projections dutifully
+    # scores them all to zero, and the board comes out with proj_mean, VORP and
+    # every ceiling at 0.0 while ADP and opportunity metrics look perfectly
+    # healthy. That is the whole value side of the engine silently dead, and it
+    # is exactly what the first real board did.
+    if nonzero < PROJECTION_MIN_NONZERO:
+        prior = str(int(season_str) - 1)
+        print(f"  ! only {nonzero} projections carry points — falling back to {prior} actuals")
+        stats = si.fetch_stats(prior)
+        fallback = proj_mod.baseline_from_projections(stats, cfg["scoring"])
+        fb_nonzero = sum(1 for v in fallback.values() if v and v > 0)
+        print(f"  {prior} actuals: {len(fallback)} rows, {fb_nonzero} with points")
+        if fb_nonzero > nonzero:
+            baseline = fallback
+            PROJECTION_PROVENANCE.update({
+                "source": f"sleeper_stats_{prior}",
+                "rows": len(fallback), "nonzero": fb_nonzero,
+                "warning": f"No {season_str} projections published yet — this board is "
+                           f"built on {prior} actual scoring. Rookies and players whose "
+                           "role changed are undervalued; treat the value side as a "
+                           "starting point, not a forecast.",
+            })
 
     players = []
     for pid, p in raw.items():
@@ -364,13 +403,38 @@ def build(cfg: dict, *, offline: bool = False) -> dict:
         },
         # Read this before trusting anything above it.
         "provenance": {
+            "projections": dict(PROJECTION_PROVENANCE),
             "adp": dict(ADP_PROVENANCE),
             "opportunity_adjustment": OPPORTUNITY_PROVENANCE.get("status", "unknown"),
             "opportunity_detail": {k: v for k, v in OPPORTUNITY_PROVENANCE.items() if k != "status"},
         },
     }
     _assert_opportunity_coverage(available, artifact)
+    _assert_value_side(available, artifact)
     return artifact
+
+
+def _assert_value_side(players: list, artifact: dict) -> None:
+    """Fail if the board has no value on it.
+
+    The first real build produced proj_mean, proj_ceiling, proj_sd, VORP and
+    replacement all exactly 0.0 for every player, with real ADP and real
+    opportunity metrics alongside. Every test passed. Nothing warned.
+    """
+    top = sorted(players, key=lambda p: p.get("raw_adp") or 9999)[:100]
+    if not top:
+        return
+    with_value = sum(1 for p in top if (p.get("proj_mean") or 0) > 0)
+    cov = with_value / len(top)
+    artifact["provenance"]["value_coverage"] = round(cov, 3)
+    print(f"  value coverage: {cov:.0%} of the top {len(top)} have a non-zero projection")
+    if cov < VALUE_MIN_COVERAGE:
+        raise RuntimeError(
+            f"only {cov:.0%} of the top {len(top)} players carry a projection "
+            f"(expected >= {VALUE_MIN_COVERAGE:.0%}). Every VORP, ceiling and VONA on "
+            "this board would be zero — the tool would be re-printing ADP and calling "
+            "it analysis. Check the projection source before publishing."
+        )
 
 
 # In a healthy build most of the top of the board should carry a non-zero
