@@ -126,7 +126,6 @@ const RULES = [
   'Retain up to 3 keepers from previous year',
   'Draft Order — reverse standings from previous year; last place picks their draft spot first',
   'Each keeper costs the matching draft round (1 keeper = your 1st round pick, 2 keepers = 1st and 2nd, 3 keepers = 1st, 2nd, and 3rd)',
-  'Last place pays for the winner’s plaque',
   'Owners MUST set their lineup or be kicked out (1 warning)',
   'ALL trades pending approval (5 votes denies a trade)',
   'Any trade involving draft picks must swap picks within 1 round of each other',
@@ -149,7 +148,6 @@ const ROASTS = [
   "{name} is currently losing to two guys managing their teams from Germany. Six time zones away. Think about that.",
   "OFFICIAL NOTICE: {name} is in DEAD LAST. Sad! Many people are saying it's the worst team they've ever seen.",
   "BREAKING: {name} is currently last place. Historians are calling it a disaster of tremendous proportions.",
-  "{name} is in last place. The plaque fund thanks you for your service.",
   "ALERT: {name}'s team is failing badly. Total disaster. Everybody agrees.",
   "{name} sits in dead last. Experts asked for comment simply laughed.",
   "This is a formal announcement that {name} stinks. That is all.",
@@ -167,7 +165,6 @@ const QUIPS = [
   "The most tremendous league in the history of leagues, maybe ever.",
   "Six votes changes a rule. No votes changes your terrible roster.",
   "All payouts guaranteed by the full faith and credit of the commissioner.",
-  "Last place pays for the plaque. It's in the constitution.",
   "In this league we drain the swamp and the waiver wire.",
 ];
 

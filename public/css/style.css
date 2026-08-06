@@ -146,7 +146,6 @@ a { color: var(--gold); }
   font-weight: 800; text-transform: uppercase; letter-spacing: .1em; font-size: .66rem; white-space: nowrap;
 }
 .alert-info    { background: rgba(76, 133, 255, .10); color: #b9cdf5; }
-.alert-warning { background: rgba(245, 196, 69, .10); color: #f0dCA5; }
 .alert-warning { background: rgba(245, 196, 69, .10); color: #f0dca5; }
 .alert-urgent  { background: linear-gradient(90deg, rgba(255, 70, 85, .28), rgba(255, 70, 85, .12)); color: #ffd7db; border-bottom-color: rgba(255, 70, 85, .4); }
 
