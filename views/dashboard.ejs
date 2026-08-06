@@ -1,0 +1,191 @@
+<%- include('partials/header', { title: 'League Office' }) %>
+
+<% if (roast) { %>
+<div class="roast-banner">🚨 <%= roast %></div>
+<% } %>
+
+<div class="hero">
+  <div class="hero-item">
+    <span class="hero-label"><%= season.year %> Buy-In</span>
+    <span class="hero-value"><%= money(season.buy_in) %></span>
+    <span class="hero-sub">set by league vote</span>
+  </div>
+  <div class="hero-item">
+    <span class="hero-label">Total Pot</span>
+    <span class="hero-value"><%= money(season.total_pot) %></span>
+    <span class="hero-sub"><%= season.status %></span>
+  </div>
+  <% if (season.weekly_payout) { %>
+  <div class="hero-item">
+    <span class="hero-label">Weekly High Point</span>
+    <span class="hero-value"><%= money(season.weekly_payout) %></span>
+    <span class="hero-sub">× <%= season.weeks %> weeks</span>
+  </div>
+  <% } %>
+  <div class="hero-item <%= myBalance > 0 ? 'good' : myBalance < 0 ? 'bad' : '' %>">
+    <span class="hero-label">Your Tab</span>
+    <span class="hero-value"><%= myBalance === 0 ? '✓ Even' : money(Math.abs(myBalance)) %></span>
+    <span class="hero-sub"><%= myBalance > 0 ? 'the league owes you' : myBalance < 0 ? 'you owe the league' : 'all squared up' %></span>
+  </div>
+</div>
+
+<div class="grid cols-2">
+
+  <div class="card">
+    <h2>Buy-In Status <span class="sub"><a href="/bank" style="color:inherit">full ledger → The Tab</a></span></h2>
+    <div class="body tight scroll-x">
+      <table class="roll">
+        <tr><th>Owner</th><th>Buy-in</th><th class="num">Net Tab</th></tr>
+        <% for (const b of buyins) { %>
+          <tr>
+            <td><b><%= b.owner.name %></b></td>
+            <td><% if (b.paid) { %><span class="badge paid">Paid</span><% } else { %><span class="badge owes">Owes <%= money(season.buy_in) %></span><% } %></td>
+            <td class="num <%= b.balance > 0 ? 'pos' : b.balance < 0 ? 'neg' : '' %>"><%= b.balance === 0 ? '—' : money(b.balance) %></td>
+          </tr>
+        <% } %>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Payout Structure <span class="sub">where the <%= money(season.total_pot) %> goes</span></h2>
+    <div class="body tight scroll-x">
+      <table class="roll">
+        <tr><th>Prize</th><th class="num">Share</th><th class="num">Amount</th></tr>
+        <% if (season.weekly_payout) { %>
+          <tr><td>🏈 Weekly High Point × <%= season.weeks %> weeks</td><td class="num"></td><td class="num"><%= money(season.weekly_payout) %> / wk</td></tr>
+        <% } %>
+        <% for (const r of payouts.reg) { %>
+          <tr><td>📈 Regular Season <%= r.place === 1 ? 'Champ' : 'Runner-up' %></td><td class="num"><%= Math.round(r.pct * 1000) / 10 %>%</td><td class="num"><b><%= money(r.amount) %></b></td></tr>
+        <% } %>
+        <% for (const r of payouts.playoff) { %>
+          <tr><td><%= ['🏆','🥈','🥉','4️⃣'][r.place - 1] %> Playoffs — <%= ['1st','2nd','3rd','4th'][r.place - 1] %></td><td class="num"><%= Math.round(r.pct * 1000) / 10 %>%</td><td class="num"><b><%= money(r.amount) %></b></td></tr>
+        <% } %>
+        <tr class="total"><td>Total pot</td><td></td><td class="num"><%= money(season.total_pot) %></td></tr>
+      </table>
+    </div>
+  </div>
+
+  <% if (sleeperStandings.length) { %>
+  <div class="card">
+    <h2>Live Standings <span class="sub">straight from Sleeper</span></h2>
+    <div class="body tight scroll-x">
+      <table class="roll">
+        <tr><th>#</th><th>Team</th><th class="num">W-L</th><th class="num">PF</th></tr>
+        <% for (const r of sleeperStandings) { %>
+          <tr class="<%= r.rank === sleeperStandings.length ? 'last-place' : '' %>">
+            <td><%= r.rank %><%= r.rank === 1 ? ' 👑' : r.rank === sleeperStandings.length ? ' 🚽' : '' %></td>
+            <td><b><%= r.owner_name || r.team %></b><% if (r.owner_name && r.owner_name !== r.team) { %> <span class="muted"><%= r.team %></span><% } %></td>
+            <td class="num"><%= r.wins %>-<%= r.losses %><%= r.ties ? '-' + r.ties : '' %></td>
+            <td class="num"><%= r.pf.toFixed(1) %></td>
+          </tr>
+        <% } %>
+      </table>
+    </div>
+  </div>
+  <% } %>
+
+  <% if (sleeperBoard.length) { %>
+  <div class="card">
+    <h2>Week <%= sleeperData.week %> Scoreboard <span class="sub">live from Sleeper</span></h2>
+    <div class="body">
+      <% for (const m of sleeperBoard) { const hi = Math.max(...m.map(t => t.points)); %>
+        <div class="matchup">
+          <% for (const t of m) { %>
+            <div class="mrow <%= t.points === hi && m.length > 1 && hi > 0 ? 'winning' : '' %>">
+              <span><%= t.team %></span><b><%= t.points.toFixed(2) %></b>
+            </div>
+          <% } %>
+        </div>
+      <% } %>
+    </div>
+  </div>
+  <% } %>
+
+  <div class="card">
+    <h2>Weekly High Point <span class="sub"><%= money(season.weekly_payout) %> to the top score, regular season only</span></h2>
+    <div class="body tight scroll-x">
+      <% if (!weekly.length) { %>
+        <p class="muted" style="padding:1rem">No weekly winners recorded yet.</p>
+      <% } else { %>
+      <table class="roll">
+        <tr><th>Week</th><th>Winner</th><th class="num">Amount</th><th>Paid Out</th></tr>
+        <% for (const w of weekly) { %>
+          <tr>
+            <td>Week <%= w.week %></td>
+            <td><b><%= w.name %></b></td>
+            <td class="num"><%= money(w.amount) %></td>
+            <td><%= w.settled ? '✅' : '⏳ on the tab' %></td>
+          </tr>
+        <% } %>
+      </table>
+      <% } %>
+    </div>
+  </div>
+
+  <div>
+    <div class="card" style="margin-bottom:1.2rem">
+      <h2>Draft Room <span class="sub">last place picks first</span></h2>
+      <div class="body">
+        <% if (!draft.picks.length) { %>
+          <p class="muted">The draft order hasn't been opened yet.</p>
+        <% } else if (draft.complete) { %>
+          <p>✅ The <%= season.year %> draft order is locked in.</p>
+        <% } else if (draft.current) { %>
+          <% if (draft.current.owner_id === owner.id) { %>
+            <p><b>🚨 It's YOUR turn to pick your draft spot!</b></p>
+          <% } else { %>
+            <p>⏰ On the clock: <b><%= draft.current.name %></b> (pick <%= draft.current.pos %> of <%= draft.picks.length %>)</p>
+          <% } %>
+        <% } %>
+        <a class="btn navy" href="/draft">Enter the Draft Room</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Voting Booth <span class="sub">6 yes votes changes a rule</span></h2>
+      <div class="body">
+        <% if (!openVotes.length) { %>
+          <p class="muted">No measures on the ballot. Propose one!</p>
+        <% } else { %>
+          <ul style="margin:.2rem 0 .8rem; padding-left:1.2rem">
+            <% for (const v of openVotes) { %>
+              <li><b><%= v.question %></b> — <%= v.myChoice ? `you voted ${v.myChoice.toUpperCase()}` : 'you haven\'t voted yet' %></li>
+            <% } %>
+          </ul>
+        <% } %>
+        <a class="btn" href="/votes">Go Vote</a>
+      </div>
+    </div>
+  </div>
+
+  <% if (awards.length) { %>
+  <div class="card">
+    <h2><%= season.year %> Season Awards</h2>
+    <div class="body tight scroll-x">
+      <table class="roll">
+        <tr><th>Award</th><th>Owner</th><th class="num">Amount</th><th>Paid</th></tr>
+        <% for (const a of awards) { %>
+          <tr><td><%= CATEGORY_LABELS[a.category] || a.category %></td><td><b><%= a.name %></b></td><td class="num"><%= money(a.amount) %></td><td><%= a.settled ? '✅' : '⏳ on the tab' %></td></tr>
+        <% } %>
+      </table>
+    </div>
+  </div>
+  <% } %>
+
+  <% if (standings.length) { %>
+  <div class="card">
+    <h2><%= season.year %> Final Standings</h2>
+    <div class="body tight">
+      <table class="roll">
+        <tr><th>Place</th><th>Owner</th></tr>
+        <% for (const s of standings) { %>
+          <tr><td><%= s.rank %><%= ['st','nd','rd'][s.rank - 1] || 'th' %><%= s.rank === standings.length ? ' 🚽' : s.rank === 1 ? ' 👑' : '' %></td><td><b><%= s.name %></b></td></tr>
+        <% } %>
+      </table>
+    </div>
+  </div>
+  <% } %>
+
+</div>
+<%- include('partials/footer') %>

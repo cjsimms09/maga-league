@@ -1,0 +1,77 @@
+<%- include('partials/header', { title: 'Voting Booth' }) %>
+
+<h1 class="page-title">The Voting Booth</h1>
+<p class="page-sub">Democracy in action. <b>6 YES votes</b> of <%= electorate %> owners passes a rule change.</p>
+
+<% if (proposed) { %><div class="flash-note" style="max-width:640px;margin:0 auto 1rem">Your measure is on the ballot. Now go campaign for it.</div><% } %>
+
+<div class="card" style="margin-bottom:1.4rem">
+  <h2>📜 Propose a Rule Change <span class="sub">any owner can put a measure on the ballot</span></h2>
+  <div class="body">
+    <form method="post" action="/votes/propose">
+      <div class="inline-form">
+        <div style="flex:2 1 260px">
+          <label class="field">The measure (a yes/no question)</label>
+          <input type="text" name="question" required maxlength="200" placeholder="e.g. Ban trading with your own brother?">
+        </div>
+        <div style="flex:2 1 260px">
+          <label class="field">Make your case (optional)</label>
+          <input type="text" name="description" maxlength="1000" placeholder="Why the league needs this">
+        </div>
+        <div class="fit"><button class="btn" type="submit">Put It on the Ballot</button></div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<h2 style="color:var(--navy); text-transform:uppercase; letter-spacing:.1em; font-size:1rem">🗳 On the Ballot</h2>
+<% if (!open.length) { %>
+  <div class="card"><div class="body"><p class="muted" style="margin:0">Nothing on the ballot. The republic rests.</p></div></div>
+<% } %>
+<% for (const v of open) { %>
+<div class="card vote-card">
+  <h2><%= v.question %> <span class="badge open">Open</span></h2>
+  <div class="body">
+    <p class="pass-note" style="margin:0 0 .4rem">Proposed by <b><%= v.proposer_name %></b></p>
+    <% if (v.description) { %><p style="margin-top:0"><%= v.description %></p><% } %>
+    <div class="tally-bar" title="<%= v.yes %> yes / <%= v.no %> no">
+      <% const tot = Math.max(v.cast, 1); %>
+      <div class="yes" style="width:<%= (v.yes / tot) * 100 %>%"><%= v.yes ? 'YES ' + v.yes : '' %></div>
+      <div class="no" style="width:<%= (v.no / tot) * 100 %>%"><%= v.no ? 'NO ' + v.no : '' %></div>
+    </div>
+    <p class="pass-note"><%= v.cast %> of <%= electorate %> votes in — needs 6 YES to pass<%= v.passed ? ' — ✅ currently passing' : '' %></p>
+    <div class="vote-actions">
+      <form class="asis" method="post" action="/votes/<%= v.id %>/ballot">
+        <input type="hidden" name="choice" value="yes">
+        <button class="btn <%= v.myChoice === 'yes' ? '' : 'ghost' %>" style="<%= v.myChoice === 'yes' ? 'background:var(--green);box-shadow:0 2px 0 #145530' : 'color:var(--green);border-color:var(--green)' %>" type="submit">✓ Vote Yes</button>
+      </form>
+      <form class="asis" method="post" action="/votes/<%= v.id %>/ballot">
+        <input type="hidden" name="choice" value="no">
+        <button class="btn <%= v.myChoice === 'no' ? '' : 'ghost' %>" type="submit">✗ Vote No</button>
+      </form>
+      <% if (v.myChoice) { %><span class="muted">You voted <b><%= v.myChoice.toUpperCase() %></b> — you can change it until the vote closes.</span><% } %>
+    </div>
+  </div>
+</div>
+<% } %>
+
+<% if (closed.length) { %>
+<h2 style="color:var(--navy); text-transform:uppercase; letter-spacing:.1em; font-size:1rem; margin-top:2rem">📜 Past Measures</h2>
+<% for (const v of closed) { %>
+<div class="card vote-card">
+  <h2><%= v.question %> <span class="badge <%= v.passed ? 'open' : 'closed' %>"><%= v.passed ? 'PASSED' : 'FAILED' %></span></h2>
+  <div class="body">
+    <p class="pass-note" style="margin:0 0 .4rem">Proposed by <b><%= v.proposer_name %></b></p>
+    <% if (v.description) { %><p style="margin-top:0"><%= v.description %></p><% } %>
+    <div class="tally-bar" title="<%= v.yes %> yes / <%= v.no %> no">
+      <% const tot = Math.max(v.cast, 1); %>
+      <div class="yes" style="width:<%= (v.yes / tot) * 100 %>%"><%= v.yes ? 'YES ' + v.yes : '' %></div>
+      <div class="no" style="width:<%= (v.no / tot) * 100 %>%"><%= v.no ? 'NO ' + v.no : '' %></div>
+    </div>
+    <p class="pass-note">Final: <%= v.yes %> yes, <%= v.no %> no — <%= v.passed ? 'passed with 6+ yes votes' : 'did not reach 6 yes votes' %></p>
+  </div>
+</div>
+<% } %>
+<% } %>
+
+<%- include('partials/footer') %>

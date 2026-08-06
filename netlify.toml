@@ -1,0 +1,19 @@
+[build]
+  publish = "public"
+  command = "echo 'no build step'"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+[functions."app"]
+  # EJS templates are read from disk at render time, so they must ship
+  # alongside the bundled function code.
+  included_files = ["views/**"]
+
+# Static assets in public/ win automatically (no force); everything else
+# is handled by the express app running inside the function.
+[[redirects]]
+  from = "/*"
+  to = "/.netlify/functions/app/:splat"
+  status = 200

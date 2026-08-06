@@ -1,0 +1,578 @@
+<%- include('../partials/header', { title: 'Commissioner Console' }) %>
+
+<h1 class="page-title">⭐ Commissioner Console</h1>
+<p class="page-sub">Executive powers. Use them wisely, <%= owner.name %>.</p>
+
+<div class="tabs">
+  <% const tabs = [['alerts','📣 Alerts'],['ledger','💰 The Ledger'],['weekly','🏈 Weekly Winner'],['awards','🏆 Season Awards'],['standings','📊 Standings'],['draft','🎯 Draft'],['votes','🗳 Votes'],['owners','👥 Owners'],['season','⚙️ Season Setup'],['sleeper','😴 Sleeper']]; %>
+  <% for (const [key, label] of tabs) { %>
+    <a href="/admin?tab=<%= key %>&year=<%= season.year %>" class="<%= tab === key ? 'active' : '' %>"><%= label %></a>
+  <% } %>
+</div>
+
+<% if (flash) { %><div class="flash-note"><%= flash %></div><% } %>
+
+<% const seasonScoped = ['weekly','awards','standings','draft','season'].includes(tab); %>
+<% if (seasonScoped) { %>
+  <form method="get" action="/admin" class="inline-form" style="margin-bottom:1rem">
+    <input type="hidden" name="tab" value="<%= tab %>">
+    <div class="fit">
+      <label class="field">Managing season</label>
+      <select name="year" onchange="this.form.submit()">
+        <% for (const s of seasons) { %><option value="<%= s.year %>" <%= s.year === season.year ? 'selected' : '' %>><%= s.year %> (<%= s.status %>)</option><% } %>
+      </select>
+    </div>
+  </form>
+<% } %>
+
+<%# ============================ ALERTS ============================ %>
+<% if (tab === 'alerts') { %>
+<div class="grid cols-2">
+  <div class="card">
+    <h2>Post an Alert <span class="sub">shows on every page for every owner</span></h2>
+    <div class="body">
+      <form method="post" action="/admin/alerts">
+        <label class="field">Message</label>
+        <textarea name="message" rows="3" required placeholder="e.g. Draft night is Aug 28th at Cory's. Bring cash."></textarea>
+        <label class="field">Level</label>
+        <select name="level">
+          <option value="info">📣 League News (blue)</option>
+          <option value="warning">⚠️ Notice (yellow)</option>
+          <option value="urgent">🚨 Urgent (red)</option>
+        </select>
+        <div style="margin-top:.8rem"><button class="btn" type="submit">Post Alert</button></div>
+      </form>
+      <p class="muted" style="margin-top:.8rem">Note: last place also gets roasted automatically on the dashboard once Sleeper is connected. No action required. It's the law.</p>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Current Alerts</h2>
+    <div class="body tight">
+      <table class="roll">
+        <% for (const a of alertRows) { %>
+          <tr>
+            <td><span class="badge <%= a.active ? 'open' : 'closed' %>"><%= a.active ? 'live' : 'off' %></span></td>
+            <td><%= a.message %> <span class="muted">(<%= a.level %>)</span></td>
+            <td class="num" style="white-space:nowrap">
+              <form class="asis" method="post" action="/admin/alerts/<%= a.id %>/toggle"><button class="btn small navy"><%= a.active ? 'Hide' : 'Show' %></button></form>
+              <form class="asis" method="post" action="/admin/alerts/<%= a.id %>/delete"><button class="btn small ghost">Delete</button></form>
+            </td>
+          </tr>
+        <% } %>
+        <% if (!alertRows.length) { %><tr><td class="muted" style="padding:1rem">No alerts yet.</td></tr><% } %>
+      </table>
+    </div>
+  </div>
+</div>
+<% } %>
+
+<%# ============================ LEDGER ============================ %>
+<% if (tab === 'ledger') { %>
+<div class="grid cols-2">
+  <div class="card">
+    <h2>Balances at a Glance <span class="sub">settle items on <a href="/bank" style="color:inherit">The Tab</a></span></h2>
+    <div class="body tight">
+      <table class="roll">
+        <tr><th>Owner</th><th class="num">Net Tab</th><th></th></tr>
+        <% for (const b of Object.values(balancesMap).sort((x, y) => x.balance - y.balance)) { %>
+          <tr>
+            <td><b><%= b.owner.name %></b></td>
+            <td class="num <%= b.balance > 0 ? 'pos' : b.balance < 0 ? 'neg' : '' %>">
+              <%= b.balance === 0 ? '✓ even' : (b.balance > 0 ? 'league owes ' : 'owes ') + money(Math.abs(b.balance)) %>
+            </td>
+            <td class="num">
+              <% if (b.balance !== 0) { %>
+              <form class="asis" method="post" action="/admin/ledger/settle-all/<%= b.owner.id %>"
+                    onsubmit="return confirm('Mark everything settled with <%= b.owner.name %>?')">
+                <button class="btn small navy">🤝 Square Up</button>
+              </form>
+              <% } %>
+            </td>
+          </tr>
+        <% } %>
+      </table>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Add a Manual Entry <span class="sub">side bets, credits, corrections</span></h2>
+    <div class="body">
+      <form method="post" action="/admin/ledger">
+        <label class="field">Owner</label>
+        <select name="owner_id" required>
+          <option value="">— pick the owner —</option>
+          <% for (const o of ownerRows.filter(o => o.active)) { %><option value="<%= o.id %>"><%= o.name %></option><% } %>
+        </select>
+        <label class="field">Amount — positive = league owes them, negative = they owe the league</label>
+        <input type="number" step="0.01" name="amount" required placeholder="e.g. 50 or -25">
+        <label class="field">What is it?</label>
+        <input type="text" name="desc" required placeholder="e.g. Won the punt-return side bet">
+        <div style="margin-top:.8rem"><button class="btn" type="submit">Add to the Books</button></div>
+      </form>
+    </div>
+  </div>
+  <div class="card col-span-2">
+    <h2>Every Open Item</h2>
+    <div class="body tight scroll-x">
+      <table class="roll">
+        <tr><th>Owner</th><th>Item</th><th>Season</th><th class="num">Amount</th><th></th></tr>
+        <% const openItems = ledger.filter(e => !e.settled).sort((a, b) => nameOf(a.owner_id).localeCompare(nameOf(b.owner_id))); %>
+        <% for (const e of openItems) { %>
+          <tr>
+            <td><b><%= nameOf(e.owner_id) %></b></td>
+            <td><%= e.desc %> <span class="muted">(<%= TYPE_LABELS[e.type] || e.type %>)</span></td>
+            <td><%= e.year %></td>
+            <td class="num <%= e.amount > 0 ? 'pos' : 'neg' %>"><%= money(e.amount) %></td>
+            <td class="num" style="white-space:nowrap">
+              <form class="asis" method="post" action="/admin/ledger/<%= e.id %>/settle"><button class="btn small gold">Settle</button></form>
+              <form class="asis" method="post" action="/admin/ledger/<%= e.id %>/delete" onsubmit="return confirm('Delete this entry entirely? (Use Settle if money changed hands.)')"><button class="btn small ghost">✕</button></form>
+            </td>
+          </tr>
+        <% } %>
+        <% if (!openItems.length) { %><tr><td class="muted" style="padding:1rem" colspan="5">The books are clean. Beautiful.</td></tr><% } %>
+      </table>
+    </div>
+  </div>
+</div>
+<% } %>
+
+<%# ============================ WEEKLY ============================ %>
+<% if (tab === 'weekly') { %>
+<% if (suggestion) { %>
+<div class="card" style="margin-bottom:1.2rem; border-color:var(--gold)">
+  <h2>😴 Sleeper Says <span class="sub">week <%= suggestWeek %> high score</span></h2>
+  <div class="body">
+    <p style="margin-top:0">
+      Top score in week <%= suggestWeek %>: <b><%= suggestion.team %></b> with <b><%= suggestion.points %></b> points
+      <% if (suggestion.owner) { %> — that's <b><%= suggestion.owner.name %></b>.<% } else { %> — <span class="muted">not mapped to an owner yet (Sleeper tab).</span><% } %>
+    </p>
+    <div class="inline-form">
+      <% if (suggestion.owner) { %>
+      <form class="asis" method="post" action="/admin/weekly">
+        <input type="hidden" name="year" value="<%= season.year %>">
+        <input type="hidden" name="week" value="<%= suggestWeek %>">
+        <input type="hidden" name="owner_id" value="<%= suggestion.owner.id %>">
+        <input type="hidden" name="amount" value="<%= season.weekly_payout %>">
+        <button class="btn gold" type="submit">⚡ Record <%= suggestion.owner.name %> as Week <%= suggestWeek %> Winner (<%= money(season.weekly_payout) %>)</button>
+      </form>
+      <% } %>
+      <form class="asis inline-form" method="get" action="/admin">
+        <input type="hidden" name="tab" value="weekly"><input type="hidden" name="year" value="<%= season.year %>">
+        <div class="fit"><label class="field">Check another week</label>
+        <select name="sweek" onchange="this.form.submit()">
+          <% for (let w = 1; w <= 18; w++) { %><option value="<%= w %>" <%= w === suggestWeek ? 'selected' : '' %>>Week <%= w %></option><% } %>
+        </select></div>
+      </form>
+    </div>
+  </div>
+</div>
+<% } %>
+<div class="grid cols-2">
+  <div class="card">
+    <h2>Record a Weekly High Point <span class="sub">lands on their tab until you settle it</span></h2>
+    <div class="body">
+      <form method="post" action="/admin/weekly">
+        <input type="hidden" name="year" value="<%= season.year %>">
+        <div class="inline-form">
+          <div>
+            <label class="field">Week</label>
+            <select name="week">
+              <% const takenWeeks = new Set(weekly.map(w => w.week)); let firstOpen = 1; while (takenWeeks.has(firstOpen)) firstOpen++; %>
+              <% for (let w = 1; w <= Math.max(season.weeks, 15); w++) { %>
+                <option value="<%= w %>" <%= w === firstOpen ? 'selected' : '' %>>Week <%= w %><%= takenWeeks.has(w) ? ' (recorded — will overwrite)' : '' %></option>
+              <% } %>
+            </select>
+          </div>
+          <div>
+            <label class="field">Winner</label>
+            <select name="owner_id" required>
+              <option value="">— pick the owner —</option>
+              <% for (const o of ownerRows.filter(o => o.active)) { %><option value="<%= o.id %>"><%= o.name %></option><% } %>
+            </select>
+          </div>
+          <div>
+            <label class="field">Amount</label>
+            <input type="number" step="0.01" name="amount" value="<%= season.weekly_payout %>">
+          </div>
+          <div class="fit">
+            <label class="field" style="white-space:nowrap"><input type="checkbox" name="paid" value="1" style="width:auto"> Already paid out</label>
+            <button class="btn" type="submit">Save Winner</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div class="card">
+    <h2><%= season.year %> Weekly Winners</h2>
+    <div class="body tight scroll-x">
+      <table class="roll">
+        <tr><th>Week</th><th>Winner</th><th class="num">Amount</th><th>Paid</th><th></th></tr>
+        <% for (const w of weekly) { %>
+          <tr>
+            <td>Week <%= w.week %></td>
+            <td><b><%= w.name %></b></td>
+            <td class="num"><%= money(w.amount) %></td>
+            <td>
+              <form class="asis" method="post" action="/admin/ledger/<%= w.id %>/settle">
+                <input type="hidden" name="back" value="weekly"><input type="hidden" name="year" value="<%= season.year %>">
+                <button class="btn small <%= w.settled ? 'navy' : 'gold' %>"><%= w.settled ? '✅ Paid' : 'Mark Paid' %></button>
+              </form>
+            </td>
+            <td class="num">
+              <form class="asis" method="post" action="/admin/ledger/<%= w.id %>/delete">
+                <input type="hidden" name="back" value="weekly"><input type="hidden" name="year" value="<%= season.year %>">
+                <button class="btn small ghost">✕</button>
+              </form>
+            </td>
+          </tr>
+        <% } %>
+        <% if (!weekly.length) { %><tr><td class="muted" style="padding:1rem" colspan="5">No winners recorded yet.</td></tr><% } %>
+      </table>
+    </div>
+  </div>
+</div>
+<% } %>
+
+<%# ============================ AWARDS ============================ %>
+<% if (tab === 'awards') { %>
+<div class="grid cols-2">
+  <div class="card">
+    <h2>Assign a Season Award <span class="sub">amount auto-fills; lands on their tab</span></h2>
+    <div class="body">
+      <form method="post" action="/admin/awards">
+        <input type="hidden" name="year" value="<%= season.year %>">
+        <label class="field">Award</label>
+        <select name="category">
+          <% const amounts = {}; [...payouts.reg, ...payouts.playoff].forEach(r => amounts[r.category] = r.amount); %>
+          <% for (const c of CATEGORIES) { %>
+            <option value="<%= c %>"><%= CATEGORY_LABELS[c] %> — <%= money(amounts[c] || 0) %></option>
+          <% } %>
+        </select>
+        <label class="field">Winner</label>
+        <select name="owner_id" required>
+          <option value="">— pick the owner —</option>
+          <% for (const o of ownerRows.filter(o => o.active)) { %><option value="<%= o.id %>"><%= o.name %></option><% } %>
+        </select>
+        <label class="field">Amount (leave blank to use the payout table)</label>
+        <input type="number" step="0.01" name="amount" placeholder="auto">
+        <label class="field" style="margin-top:.7rem"><input type="checkbox" name="paid" value="1" style="width:auto"> Already paid out</label>
+        <div style="margin-top:.8rem"><button class="btn" type="submit">Save Award</button></div>
+      </form>
+    </div>
+  </div>
+  <div class="card">
+    <h2><%= season.year %> Awards</h2>
+    <div class="body tight scroll-x">
+      <table class="roll">
+        <tr><th>Award</th><th>Winner</th><th class="num">Amount</th><th>Paid</th><th></th></tr>
+        <% for (const a of awards) { %>
+          <tr>
+            <td><%= CATEGORY_LABELS[a.category] || a.category %></td>
+            <td><b><%= a.name %></b></td>
+            <td class="num"><%= money(a.amount) %></td>
+            <td>
+              <form class="asis" method="post" action="/admin/ledger/<%= a.id %>/settle">
+                <input type="hidden" name="back" value="awards"><input type="hidden" name="year" value="<%= season.year %>">
+                <button class="btn small <%= a.settled ? 'navy' : 'gold' %>"><%= a.settled ? '✅ Paid' : 'Mark Paid' %></button>
+              </form>
+            </td>
+            <td class="num">
+              <form class="asis" method="post" action="/admin/ledger/<%= a.id %>/delete">
+                <input type="hidden" name="back" value="awards"><input type="hidden" name="year" value="<%= season.year %>">
+                <button class="btn small ghost">✕</button>
+              </form>
+            </td>
+          </tr>
+        <% } %>
+        <% if (!awards.length) { %><tr><td class="muted" style="padding:1rem" colspan="5">No awards assigned yet.</td></tr><% } %>
+      </table>
+    </div>
+  </div>
+</div>
+<% } %>
+
+<%# ============================ STANDINGS ============================ %>
+<% if (tab === 'standings') { %>
+<div class="card">
+  <h2><%= season.year %> Final Regular-Season Standings <span class="sub">these set next year's draft pick order — and who gets the 🚽</span></h2>
+  <div class="body">
+    <form method="post" action="/admin/standings">
+      <input type="hidden" name="year" value="<%= season.year %>">
+      <div class="grid cols-2">
+        <% const activeCount = ownerRows.filter(x => x.active).length; %>
+        <% const currentRanks = {}; (season.standings || []).forEach((oid, i) => currentRanks[oid] = i + 1); %>
+        <% for (const o of ownerRows.filter(o => o.active)) { %>
+          <div class="inline-form">
+            <div class="fit" style="min-width:110px"><b><%= o.name %></b></div>
+            <div class="fit">
+              <select name="rank_<%= o.id %>">
+                <option value="">—</option>
+                <% for (let r = 1; r <= activeCount; r++) { %>
+                  <option value="<%= r %>" <%= currentRanks[o.id] === r ? 'selected' : '' %>><%= r %><%= ['st','nd','rd'][r - 1] || 'th' %></option>
+                <% } %>
+              </select>
+            </div>
+          </div>
+        <% } %>
+      </div>
+      <div style="margin-top:1rem"><button class="btn" type="submit">Save Standings</button></div>
+    </form>
+  </div>
+</div>
+<% } %>
+
+<%# ============================ DRAFT ============================ %>
+<% if (tab === 'draft') { %>
+<div class="grid cols-2">
+  <div class="card">
+    <h2><%= season.year %> Draft Controls</h2>
+    <div class="body">
+      <p>
+        Status:
+        <% if (!draft.picks.length) { %><span class="badge closed">not started</span>
+        <% } else if (draft.complete) { %><span class="badge navy">order complete</span>
+        <% } else { %><span class="badge <%= season.draft_open ? 'open' : 'closed' %>"><%= season.draft_open ? 'OPEN — ' + (draft.current ? draft.current.name + ' on the clock' : '') : 'paused' %></span><% } %>
+        &nbsp;•&nbsp; Keepers: <span class="badge <%= season.keepers_locked ? 'closed' : 'open' %>"><%= season.keepers_locked ? 'locked' : 'unlocked' %></span>
+      </p>
+      <div class="vote-actions">
+        <form class="asis" method="post" action="/admin/draft/open">
+          <input type="hidden" name="year" value="<%= season.year %>">
+          <button class="btn" type="submit"><%= draft.picks.length ? 'Open Draft Room' : 'Generate Order & Open' %></button>
+        </form>
+        <form class="asis" method="post" action="/admin/draft/close">
+          <input type="hidden" name="year" value="<%= season.year %>">
+          <button class="btn navy" type="submit">Pause Room</button>
+        </form>
+        <form class="asis" method="post" action="/admin/keepers-lock">
+          <input type="hidden" name="year" value="<%= season.year %>">
+          <button class="btn gold" type="submit"><%= season.keepers_locked ? 'Unlock Keepers' : 'Lock Keepers' %></button>
+        </form>
+        <form class="asis" method="post" action="/admin/draft/reset" onsubmit="return confirm('Wipe the entire <%= season.year %> draft order and all picks?')">
+          <input type="hidden" name="year" value="<%= season.year %>">
+          <button class="btn ghost" type="submit">Reset Draft</button>
+        </form>
+      </div>
+      <p class="muted" style="margin-top:.9rem">
+        "Generate Order & Open" builds the pick order automatically from the <b><%= season.year - 1 %></b> final standings, reversed
+        (last place picks first). Owners then claim spots on their turn from the Draft Room.
+      </p>
+      <% if (prevStandings.length) { %>
+        <p class="muted"><%= season.year - 1 %> standings on file: <%= prevStandings.map(s => s.rank + '. ' + s.name).join(' · ') %></p>
+      <% } else { %>
+        <p class="muted">⚠️ No <%= season.year - 1 %> standings recorded — enter them in the Standings tab first.</p>
+      <% } %>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Picks & Overrides</h2>
+    <div class="body tight scroll-x">
+      <table class="roll">
+        <tr><th>Pick</th><th>Owner</th><th>Spot Chosen</th><th>Override</th></tr>
+        <% for (const p of draft.picks) { %>
+          <tr>
+            <td><%= p.pos %></td>
+            <td><b><%= p.name %></b></td>
+            <td><%= p.slot != null ? '#' + p.slot : (draft.current && draft.current.pos === p.pos ? '⏰ on the clock' : '—') %></td>
+            <td>
+              <form class="inline-form asis" method="post" action="/admin/draft/override">
+                <input type="hidden" name="year" value="<%= season.year %>">
+                <input type="hidden" name="pos" value="<%= p.pos %>">
+                <input type="number" name="slot" min="1" max="<%= draft.picks.length %>" value="<%= p.slot != null ? p.slot : '' %>" placeholder="spot" style="width:70px">
+                <button class="btn small navy">Set</button>
+              </form>
+            </td>
+          </tr>
+        <% } %>
+        <% if (!draft.picks.length) { %><tr><td class="muted" style="padding:1rem" colspan="4">No draft order yet.</td></tr><% } %>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Declared Keepers</h2>
+    <div class="body tight scroll-x">
+      <table class="roll">
+        <tr><th>Owner</th><th>Player</th><th class="num">Costs Round</th></tr>
+        <% for (const k of keepers) { %>
+          <tr><td><b><%= k.name %></b></td><td><%= k.player_name %></td><td class="num"><%= k.round %></td></tr>
+        <% } %>
+        <% if (!keepers.length) { %><tr><td class="muted" style="padding:1rem" colspan="3">None declared.</td></tr><% } %>
+      </table>
+    </div>
+  </div>
+</div>
+<% } %>
+
+<%# ============================ VOTES ============================ %>
+<% if (tab === 'votes') { %>
+<div class="card">
+  <h2>All Measures <span class="sub">anyone can propose from the Voting Booth — you close, reopen, or delete</span></h2>
+  <div class="body tight scroll-x">
+    <table class="roll">
+      <tr><th>Question</th><th>Proposed By</th><th class="num">Yes</th><th class="num">No</th><th>Ballots</th><th>Status</th><th></th></tr>
+      <% for (const v of votes) { %>
+        <tr>
+          <td><b><%= v.question %></b></td>
+          <td><%= v.proposer_name %></td>
+          <td class="num"><%= v.yes %></td>
+          <td class="num"><%= v.no %></td>
+          <td class="muted" style="max-width:220px"><%= v.ballots.map(b => `${b.name}: ${b.choice}`).join(', ') || '—' %></td>
+          <td><span class="badge <%= v.status === 'open' ? 'open' : (v.passed ? 'gold' : 'closed') %>"><%= v.status === 'open' ? 'open' : (v.passed ? 'passed' : 'failed') %></span></td>
+          <td class="num" style="white-space:nowrap">
+            <% if (v.status === 'open') { %>
+              <form class="asis" method="post" action="/admin/votes/<%= v.id %>/close"><button class="btn small navy">Close</button></form>
+            <% } else { %>
+              <form class="asis" method="post" action="/admin/votes/<%= v.id %>/reopen"><button class="btn small gold">Reopen</button></form>
+            <% } %>
+            <form class="asis" method="post" action="/admin/votes/<%= v.id %>/delete" onsubmit="return confirm('Delete this vote and its ballots?')"><button class="btn small ghost">✕</button></form>
+          </td>
+        </tr>
+      <% } %>
+      <% if (!votes.length) { %><tr><td class="muted" style="padding:1rem" colspan="7">No measures yet.</td></tr><% } %>
+    </table>
+  </div>
+</div>
+<% } %>
+
+<%# ============================ OWNERS ============================ %>
+<% if (tab === 'owners') { %>
+<div class="grid cols-2">
+  <div class="card">
+    <h2>Add an Owner</h2>
+    <div class="body">
+      <form method="post" action="/admin/owners">
+        <label class="field">Name</label>
+        <input type="text" name="name" required>
+        <label class="field">Username (for login)</label>
+        <input type="text" name="username" required>
+        <div style="margin-top:.8rem"><button class="btn" type="submit">Add Owner</button></div>
+      </form>
+      <p class="muted" style="margin-top:.8rem">A temporary password is generated for them — it shows at the top of this page after you add them. They'll be forced to change it on first login.</p>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Roster of Owners</h2>
+    <div class="body tight scroll-x">
+      <table class="roll">
+        <tr><th>Owner</th><th>Username</th><th>Career W-L-T</th><th></th></tr>
+        <% for (const o of ownerRows) { %>
+          <tr>
+            <td><b><%= o.name %></b> <%= o.is_commissioner ? '⭐' : '' %> <%= o.active ? '' : '(inactive)' %></td>
+            <td class="muted"><%= o.username %></td>
+            <td>
+              <form class="inline-form asis" method="post" action="/admin/owners/<%= o.id %>/record">
+                <input type="number" name="wins" value="<%= o.wins %>" style="width:58px" title="Wins">
+                <input type="number" name="losses" value="<%= o.losses %>" style="width:58px" title="Losses">
+                <input type="number" name="ties" value="<%= o.ties %>" style="width:52px" title="Ties">
+                <button class="btn small navy">Save</button>
+              </form>
+            </td>
+            <td class="num" style="white-space:nowrap">
+              <form class="asis" method="post" action="/admin/owners/<%= o.id %>/reset-password" onsubmit="return confirm('Reset <%= o.name %>\'s password?')"><button class="btn small gold">Reset PW</button></form>
+              <% if (o.id !== owner.id) { %>
+                <form class="asis" method="post" action="/admin/owners/<%= o.id %>/toggle-active"><button class="btn small ghost"><%= o.active ? 'Deactivate' : 'Reactivate' %></button></form>
+              <% } %>
+            </td>
+          </tr>
+        <% } %>
+      </table>
+    </div>
+  </div>
+</div>
+<% } %>
+
+<%# ============================ SEASON ============================ %>
+<% if (tab === 'season') { %>
+<div class="card">
+  <h2>Season Setup <span class="sub">edit <%= season.year %> or create a new season</span></h2>
+  <div class="body">
+    <% const p = season.payouts; %>
+    <form method="post" action="/admin/season">
+      <div class="grid cols-3">
+        <div><label class="field">Year</label><input type="number" name="year" value="<%= season.year %>" required></div>
+        <div><label class="field">Buy-in ($) — changes with league votes</label><input type="number" step="0.01" name="buy_in" value="<%= season.buy_in %>"></div>
+        <div><label class="field">Total pot ($)</label><input type="number" step="0.01" name="total_pot" value="<%= season.total_pot %>"></div>
+        <div><label class="field">Regular-season weeks</label><input type="number" name="weeks" value="<%= season.weeks %>"></div>
+        <div><label class="field">Weekly high-point payout ($)</label><input type="number" step="0.01" name="weekly_payout" value="<%= season.weekly_payout %>"></div>
+        <div>
+          <label class="field">Status</label>
+          <select name="status">
+            <% for (const st of ['upcoming','active','complete']) { %><option value="<%= st %>" <%= season.status === st ? 'selected' : '' %>><%= st %></option><% } %>
+          </select>
+        </div>
+      </div>
+      <p class="muted" style="margin:.9rem 0 .3rem">Payout percentages (of the pot remaining after weekly payouts — should add to 100):</p>
+      <div class="grid cols-3">
+        <div><label class="field">Reg. season 1st (%)</label><input type="number" step="0.1" name="reg_1" value="<%= p.reg[0] * 100 %>"></div>
+        <div><label class="field">Reg. season 2nd (%)</label><input type="number" step="0.1" name="reg_2" value="<%= p.reg[1] * 100 %>"></div>
+        <div></div>
+        <div><label class="field">Playoffs 1st (%)</label><input type="number" step="0.1" name="playoff_1" value="<%= p.playoff[0] * 100 %>"></div>
+        <div><label class="field">Playoffs 2nd (%)</label><input type="number" step="0.1" name="playoff_2" value="<%= p.playoff[1] * 100 %>"></div>
+        <div><label class="field">Playoffs 3rd (%)</label><input type="number" step="0.1" name="playoff_3" value="<%= p.playoff[2] * 100 %>"></div>
+        <div><label class="field">Playoffs 4th (%)</label><input type="number" step="0.1" name="playoff_4" value="<%= p.playoff[3] * 100 %>"></div>
+      </div>
+      <div style="margin-top:1rem"><button class="btn" type="submit">Save Season</button></div>
+      <p class="muted" style="margin-top:.6rem">
+        Creating a new year automatically charges the buy-in to every owner's tab. Changing the buy-in later updates
+        anyone who hasn't paid yet. Setting a season to <b>active</b> completes the previous one.
+      </p>
+    </form>
+    <hr style="border:none; border-top:1px solid var(--line); margin:1.2rem 0">
+    <a class="btn navy" href="/admin/export">⬇️ Export League Data (backup)</a>
+    <span class="muted"> — download a JSON snapshot of everything once in a while. The books must survive.</span>
+  </div>
+</div>
+<% } %>
+
+<%# ============================ SLEEPER ============================ %>
+<% if (tab === 'sleeper') { %>
+<div class="grid cols-2">
+  <div class="card">
+    <h2>Connect Sleeper <span class="sub">free public API — read-only, no password needed</span></h2>
+    <div class="body">
+      <form method="post" action="/admin/sleeper">
+        <label class="field">Sleeper League ID</label>
+        <input type="text" name="league_id" value="<%= config.sleeper_league_id || '' %>" placeholder="the long number from sleeper.com/leagues/<ID>/...">
+        <div style="margin-top:.8rem"><button class="btn" type="submit">Save</button></div>
+      </form>
+      <p class="muted" style="margin-top:.8rem">
+        Once connected, the dashboard shows live standings and this week's scoreboard, the Weekly Winner tab
+        gets a one-click "record the high scorer" button, and last place gets roasted automatically.
+      </p>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Team Mapping <span class="sub">tie each Sleeper team to its owner</span></h2>
+    <div class="body">
+      <% if (!config.sleeper_league_id) { %>
+        <p class="muted">Connect a league first.</p>
+      <% } else if (!sleeperInfo) { %>
+        <p class="muted">Couldn't reach Sleeper right now (or the league ID is wrong). Try again in a minute.</p>
+      <% } else { %>
+        <p style="margin-top:0"><b><%= sleeperInfo.league.name %></b> — <%= sleeperInfo.league.season %> season, week <%= sleeperInfo.week %></p>
+        <form method="post" action="/admin/sleeper/map">
+          <table class="roll">
+            <tr><th>Sleeper Team</th><th>Owner</th></tr>
+            <% for (const r of sleeperInfo.rosters) { %>
+              <tr>
+                <td><b><%= r.team %></b></td>
+                <td>
+                  <select name="map_<%= r.roster_id %>">
+                    <option value="">— not mapped —</option>
+                    <% for (const o of ownerRows.filter(o => o.active)) { %>
+                      <option value="<%= o.id %>" <%= Number(r.mapped) === o.id ? 'selected' : '' %>><%= o.name %></option>
+                    <% } %>
+                  </select>
+                </td>
+              </tr>
+            <% } %>
+          </table>
+          <div style="margin-top:.8rem"><button class="btn" type="submit">Save Mapping</button></div>
+        </form>
+      <% } %>
+    </div>
+  </div>
+</div>
+<% } %>
+
+<%- include('../partials/footer') %>

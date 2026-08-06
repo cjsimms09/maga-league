@@ -1,0 +1,57 @@
+<%- include('partials/header', { title: 'Rules' }) %>
+
+<h1 class="page-title">The League Constitution</h1>
+<p class="page-sub">Ratified by the owners. Amended only by 6 votes. We the people, etc.</p>
+
+<div class="grid cols-2">
+  <div class="card col-span-2">
+    <h2>League Rules</h2>
+    <div class="body">
+      <ol style="margin:.2rem 0; padding-left:1.3rem; line-height:1.9">
+        <% for (const r of RULES) { %><li><%= r %></li><% } %>
+      </ol>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Scoring</h2>
+    <div class="body tight scroll-x">
+      <table class="roll">
+        <% for (const [group, rows] of Object.entries(SCORING)) { %>
+          <tr><th colspan="2"><%= group %></th></tr>
+          <% for (const [what, pts] of rows) { %>
+            <tr><td><%= what %></td><td class="num"><%= pts %></td></tr>
+          <% } %>
+        <% } %>
+      </table>
+    </div>
+  </div>
+
+  <div>
+    <div class="card" style="margin-bottom:1.2rem">
+      <h2>Roster Composition</h2>
+      <div class="body tight">
+        <table class="roll">
+          <tr><th>Position</th><th class="num">Spots</th></tr>
+          <% for (const [pos, n] of ROSTER) { %>
+            <tr><td><b><%= pos %></b></td><td class="num"><%= n %></td></tr>
+          <% } %>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2><%= season.year %> Payouts</h2>
+      <div class="body tight">
+        <table class="roll">
+          <% if (season.weekly_payout) { %><tr><td>Weekly High Point</td><td class="num"><%= money(season.weekly_payout) %> × <%= season.weeks %> wks</td></tr><% } %>
+          <% for (const r of payouts.reg) { %><tr><td>Regular Season <%= ['1st','2nd'][r.place - 1] %></td><td class="num"><%= money(r.amount) %></td></tr><% } %>
+          <% for (const r of payouts.playoff) { %><tr><td>Playoffs <%= ['1st','2nd','3rd','4th'][r.place - 1] %></td><td class="num"><%= money(r.amount) %></td></tr><% } %>
+          <tr class="total"><td>Total pot</td><td class="num"><%= money(season.total_pot) %></td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

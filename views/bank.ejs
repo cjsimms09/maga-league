@@ -1,0 +1,89 @@
+<%- include('partials/header', { title: 'The Tab' }) %>
+
+<h1 class="page-title">💰 The Tab</h1>
+<p class="page-sub">
+  Every dollar in one place. Buy-ins, weekly wins, payouts, side deals — everything lands on your tab
+  until the commissioner marks it settled. Tabs carry over seasons. Yes, even across the Atlantic.
+</p>
+
+<div class="hero" style="margin-bottom:1.4rem">
+  <div class="hero-item bad">
+    <span class="hero-label">Owed TO the league</span>
+    <span class="hero-value"><%= money(Math.abs(totalOwedToLeague)) %></span>
+    <span class="hero-sub">outstanding buy-ins &amp; charges</span>
+  </div>
+  <div class="hero-item good">
+    <span class="hero-label">Owed BY the league</span>
+    <span class="hero-value"><%= money(totalLeagueOwes) %></span>
+    <span class="hero-sub">unpaid winnings on the books</span>
+  </div>
+</div>
+
+<% for (const c of cards) { const isMe = c.owner.id === owner.id; %>
+<div class="card tab-card <%= isMe ? 'me' : '' %>" id="owner-<%= c.owner.id %>">
+  <h2>
+    <span><%= c.owner.name %><%= isMe ? ' (you)' : '' %></span>
+    <span class="tab-balance <%= c.balance > 0 ? 'pos' : c.balance < 0 ? 'neg' : 'even' %>">
+      <% if (c.balance === 0) { %>✓ ALL SQUARE
+      <% } else if (c.balance > 0) { %>LEAGUE OWES <%= money(c.balance) %>
+      <% } else { %>OWES LEAGUE <%= money(-c.balance) %><% } %>
+    </span>
+  </h2>
+  <div class="body tight">
+    <% if (!c.open.length) { %>
+      <p class="muted" style="padding: .8rem .9rem; margin:0">Nothing outstanding.</p>
+    <% } else { %>
+      <table class="roll">
+        <tr><th>Open Item</th><th>Season</th><th class="num">Amount</th><% if (owner.is_commissioner) { %><th></th><% } %></tr>
+        <% for (const e of c.open) { %>
+          <tr>
+            <td><%= e.desc %> <span class="muted">(<%= TYPE_LABELS[e.type] || e.type %>)</span></td>
+            <td><%= e.year %></td>
+            <td class="num <%= e.amount > 0 ? 'pos' : 'neg' %>"><%= money(e.amount) %></td>
+            <% if (owner.is_commissioner) { %>
+            <td class="num" style="white-space:nowrap">
+              <form class="asis" method="post" action="/admin/ledger/<%= e.id %>/settle">
+                <input type="hidden" name="back" value="ledger"><button class="btn small gold">Settle</button>
+              </form>
+            </td>
+            <% } %>
+          </tr>
+        <% } %>
+      </table>
+    <% } %>
+    <% if (owner.is_commissioner && c.balance !== 0) { %>
+      <div style="padding:.5rem .9rem; border-top:1px solid var(--line); background:#faf6ea">
+        <form class="asis" method="post" action="/admin/ledger/settle-all/<%= c.owner.id %>"
+              onsubmit="return confirm('Mark everything settled with <%= c.owner.name %>? This means the money actually changed hands.')">
+          <input type="hidden" name="back" value="ledger">
+          <button class="btn small navy">🤝 Square Up Everything with <%= c.owner.name %></button>
+        </form>
+      </div>
+    <% } %>
+    <% const settled = c.entries.filter(e => e.settled); %>
+    <% if (settled.length) { %>
+    <details class="ledger-history">
+      <summary>Full history — <%= settled.length %> settled item<%= settled.length === 1 ? '' : 's' %></summary>
+      <table class="roll">
+        <tr><th>Item</th><th>Season</th><th class="num">Amount</th><th>Settled</th></tr>
+        <% for (const e of settled) { %>
+          <tr class="muted-row">
+            <td><%= e.desc %></td>
+            <td><%= e.year %></td>
+            <td class="num"><%= money(e.amount) %></td>
+            <td class="muted"><%= (e.settled_at || '').slice(0, 10) %></td>
+          </tr>
+        <% } %>
+      </table>
+    </details>
+    <% } %>
+  </div>
+</div>
+<% } %>
+
+<p class="muted" style="text-align:center; margin-top:1.2rem">
+  Green = the league owes them. Red = they owe the league.
+  The commissioner settles items when real money moves<% if (owner.is_commissioner) { %> — that's you, use the buttons<% } %>.
+</p>
+
+<%- include('partials/footer') %>

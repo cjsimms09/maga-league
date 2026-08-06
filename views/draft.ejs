@@ -1,0 +1,122 @@
+<%- include('partials/header', { title: 'Draft Room' }) %>
+<% const myTurn = draft.current && draft.current.owner_id === owner.id && season.draft_open; %>
+<% if (season.draft_open && !draft.complete && !myTurn) { %>
+  <script>setTimeout(() => location.reload(), 30000);</script>
+<% } %>
+
+<h1 class="page-title"><%= season.year %> Draft Room</h1>
+<p class="page-sub">Reverse standings: last place picks their draft spot first. Keepers cost the matching round.</p>
+
+<% if (error) { %><div class="error-note" style="max-width:640px;margin:0 auto 1rem"><%= error %></div><% } %>
+
+<% if (!draft.picks.length) { %>
+  <div class="turn-banner">🚧 The commissioner hasn't opened the <%= season.year %> draft order selection yet.</div>
+<% } else if (draft.complete) { %>
+  <div class="turn-banner">✅ <b>The <%= season.year %> draft order is set.</b> See the board below.</div>
+<% } else if (!season.draft_open) { %>
+  <div class="turn-banner">⏸ The draft room is currently <b>closed</b>. The commissioner will open it when it's time to pick.</div>
+<% } else if (myTurn) { %>
+  <div class="turn-banner you">
+    <div class="big">🚨 You're on the clock, <%= owner.name %>!</div>
+    Choose your draft spot below.
+  </div>
+<% } else { %>
+  <div class="turn-banner">
+    ⏰ On the clock: <b><%= draft.current.name %></b> (pick <%= draft.current.pos %> of <%= draft.picks.length %>).
+    This page refreshes automatically.
+  </div>
+<% } %>
+
+<div class="grid cols-2">
+  <% if (draft.picks.length) { %>
+  <div class="card">
+    <h2>Draft Board <span class="sub">spots 1–<%= draft.picks.length %></span></h2>
+    <div class="body">
+      <div class="draft-board">
+        <% for (let s = 1; s <= draft.picks.length; s++) { const taken = draft.picks.find(p => p.slot === s); %>
+          <div class="slot <%= taken ? 'taken' : 'open-slot' %>">
+            <div class="n">Spot #<%= s %></div>
+            <div class="who"><%= taken ? taken.name : '—' %></div>
+            <% if (!taken && myTurn) { %>
+              <form method="post" action="/draft/pick">
+                <input type="hidden" name="slot" value="<%= s %>">
+                <button class="btn small gold" type="submit">Claim it</button>
+              </form>
+            <% } %>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Pick Order <span class="sub">worst record chooses first</span></h2>
+    <div class="body tight">
+      <ol class="order-list">
+        <% for (const p of draft.picks) { %>
+          <li class="<%= draft.current && p.pos === draft.current.pos ? 'current' : (p.slot != null ? 'done' : '') %>">
+            <span class="pos"><%= p.pos %></span>
+            <span style="flex:1"><b><%= p.name %></b><%= p.owner_id === owner.id ? ' (you)' : '' %></span>
+            <% if (p.slot != null) { %><span class="badge navy">Took spot #<%= p.slot %></span>
+            <% } else if (draft.current && p.pos === draft.current.pos) { %><span class="badge owes">On the clock</span>
+            <% } else { %><span class="muted">waiting…</span><% } %>
+          </li>
+        <% } %>
+      </ol>
+    </div>
+  </div>
+  <% } %>
+
+  <div class="card">
+    <h2>My Keepers <span class="sub">up to 3 — each costs that draft round</span></h2>
+    <div class="body">
+      <% if (season.keepers_locked) { %>
+        <p class="muted">🔒 Keepers are locked for <%= season.year %>.</p>
+        <% if (myKeepers.length) { %>
+          <table class="roll">
+            <% for (const k of myKeepers) { %><tr><td><b><%= k.player_name %></b></td><td class="num">costs Round <%= k.round %></td></tr><% } %>
+          </table>
+        <% } else { %><p class="muted">You declared no keepers.</p><% } %>
+      <% } else { %>
+        <form method="post" action="/draft/keepers">
+          <% for (let i = 1; i <= 3; i++) { const k = myKeepers[i - 1]; %>
+            <label class="field">Keeper <%= i %> <span style="color:var(--red)">(forfeits your Round <%= i %> pick)</span></label>
+            <input type="text" name="k<%= i %>" value="<%= k ? k.player_name : '' %>" placeholder="Leave blank to keep your Round <%= i %> pick">
+          <% } %>
+          <div style="margin-top:.9rem">
+            <button class="btn navy" type="submit">Save My Keepers</button>
+          </div>
+        </form>
+      <% } %>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Declared Keepers <span class="sub">league-wide</span></h2>
+    <div class="body tight scroll-x">
+      <% if (!allKeepers.length) { %>
+        <p class="muted" style="padding:1rem">No keepers declared yet.</p>
+      <% } else { %>
+        <table class="roll">
+          <tr><th>Owner</th><th>Player</th><th class="num">Costs Round</th></tr>
+          <% for (const k of allKeepers) { %>
+            <tr><td><b><%= k.name %></b></td><td><%= k.player_name %></td><td class="num"><%= k.round %></td></tr>
+          <% } %>
+        </table>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<div class="card" style="margin-top:1.2rem">
+  <h2>How It Works</h2>
+  <div class="body">
+    <ol style="margin:.2rem 0; padding-left:1.3rem">
+      <li>Draft-spot selection goes in <b>reverse order of last season's standings</b> — last place is on the clock first, then 9th, and so on. The champ picks last. That's the price of greatness.</li>
+      <li>When you're on the clock, claim any open spot on the board. Picks are final (only the commissioner can undo one).</li>
+      <li>We're a <b>3-keeper league</b>: keep up to 3 players from last year. Keeper #1 costs your Round 1 pick, keeper #2 your Round 2 pick, keeper #3 your Round 3 pick. Keep nobody and you draft from Round 1 like a free man.</li>
+    </ol>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

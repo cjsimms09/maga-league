@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title><%= typeof title !== 'undefined' && title ? title + ' — ' : '' %>MAGA Fantasy Football League</title>
+<link rel="stylesheet" href="/css/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='48' fill='%230b1f3a'/><text x='50' y='68' font-size='52' text-anchor='middle'>🦅</text></svg>">
+</head>
+<body>
+<header class="masthead">
+  <div class="eagle">🦅</div>
+  <h1>Make America <span class="gold">Great Again</span></h1>
+  <p class="tagline">Fantasy Football League &nbsp;•&nbsp; Est. 2016 &nbsp;•&nbsp; The Greatest League in the History of Leagues, Maybe Ever</p>
+  <div class="stars">★ ★ ★ ★ ★</div>
+</header>
+<% if (owner) { %>
+<nav class="navbar">
+  <a href="/" class="<%= currentPath === '/' ? 'active' : '' %>">League Office</a>
+  <a href="/bank" class="<%= currentPath === '/bank' ? 'active' : '' %>">The Tab</a>
+  <a href="/owners" class="<%= currentPath === '/owners' ? 'active' : '' %>">Owners</a>
+  <a href="/history" class="<%= currentPath === '/history' ? 'active' : '' %>">History</a>
+  <a href="/draft" class="<%= currentPath.startsWith('/draft') ? 'active' : '' %>">Draft Room</a>
+  <a href="/votes" class="<%= currentPath.startsWith('/votes') ? 'active' : '' %>">Voting Booth</a>
+  <a href="/rules" class="<%= currentPath === '/rules' ? 'active' : '' %>">Rules</a>
+  <% if (owner.is_commissioner) { %><a href="/admin" class="commish <%= currentPath.startsWith('/admin') ? 'active' : '' %>">⭐ Commish</a><% } %>
+  <span class="who"><%= owner.name %></span>
+  <a href="/password" title="Change password" style="padding:.5rem .4rem">🔑</a>
+  <form method="post" action="/logout"><button type="submit">Log out</button></form>
+</nav>
+<% for (const a of alerts) { %>
+  <div class="alert-banner alert-<%= a.level %>">
+    <span class="tag"><%= a.level === 'urgent' ? '🚨 Urgent' : a.level === 'warning' ? '⚠️ Notice' : '📣 League News' %></span>
+    <span><%= a.message %></span>
+  </div>
+<% } %>
+<% } %>
+<main class="wrap">

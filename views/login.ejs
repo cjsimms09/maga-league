@@ -1,0 +1,22 @@
+<%- include('partials/header', { title: 'Login' }) %>
+<div class="login-box">
+  <div class="card">
+    <h2>Owner Login</h2>
+    <div class="body">
+      <% if (error) { %><div class="error-note"><%= error %></div><% } %>
+      <form method="post" action="/login">
+        <label class="field" for="username">Username</label>
+        <input type="text" id="username" name="username" autocomplete="username" autofocus required>
+        <label class="field" for="password">Password</label>
+        <input type="password" id="password" name="password" autocomplete="current-password" required>
+        <div style="margin-top:1rem; text-align:center">
+          <button class="btn gold" type="submit">Enter the League Office</button>
+        </div>
+      </form>
+      <p class="muted" style="text-align:center; margin-top:1rem">
+        Forgot your password? The commissioner can reset it.
+      </p>
+    </div>
+  </div>
+</div>
+<%- include('partials/footer') %>
