@@ -22,6 +22,9 @@ function findViews() {
 
 function createApp() {
   const app = express();
+  // Static require so the function bundler always packages ejs (express's own
+  // view-engine loading uses a dynamic require that bundlers can miss).
+  app.engine('ejs', require('ejs').__express);
   app.set('view engine', 'ejs');
   app.set('views', findViews());
   app.use(express.urlencoded({ extended: true }));
