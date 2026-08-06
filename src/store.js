@@ -1,22 +1,48 @@
-// Key-value document store. On Netlify it's backed by Netlify Blobs (strong
-// consistency, no external database to set up). Locally it falls back to JSON
-// files under data/ so the whole app runs and tests offline.
+// Key-value document store. On Netlify it's backed by Netlify Blobs (no
+// external database to set up). Locally it falls back to JSON files under
+// data/ so the whole app runs and tests offline.
+//
+// Blobs is used with its default (eventual) consistency — strong consistency
+// needs an 'uncachedEdgeURL' that lambda-compat functions don't get. To keep
+// read-after-write correct anyway, every write is mirrored into an in-memory
+// overlay: within a warm function instance (the overwhelmingly common case
+// for a 10-person league) reads always see the latest write immediately,
+// while other instances converge within Netlify's propagation window.
 const fs = require('fs');
 const path = require('path');
 
 let blobStore = null;   // set when running on Netlify
 let fileDir = null;     // set when running locally
 
+const OVERLAY_TTL_MS = 10 * 60 * 1000;
+const overlay = new Map(); // key -> { value (deep-cloned; null = deleted), t }
+
+function overlayPut(key, value) {
+  overlay.set(key, { value: value == null ? null : structuredClone(value), t: Date.now() });
+}
+function overlayGet(key) {
+  const hit = overlay.get(key);
+  if (!hit) return undefined;
+  if (Date.now() - hit.t > OVERLAY_TTL_MS) { overlay.delete(key); return undefined; }
+  return hit.value == null ? null : structuredClone(hit.value);
+}
+
 function initBlobs(event) {
   if (blobStore) return true;
   try {
     const mod = require('@netlify/blobs');
-    // Older runtimes configure lambda-compat functions from the event; newer
-    // ones inject NETLIFY_BLOBS_CONTEXT automatically and dropped connectLambda.
-    if (event && typeof mod.connectLambda === 'function') {
-      try { mod.connectLambda(event); } catch (e) { /* fall through to env config */ }
+    try {
+      // Preferred: the runtime's automatic environment config (complete context).
+      blobStore = mod.getStore({ name: 'league' });
+    } catch (envErr) {
+      // Older runtimes only configure lambda-compat functions from the event.
+      if (event && typeof mod.connectLambda === 'function') {
+        mod.connectLambda(event);
+        blobStore = mod.getStore({ name: 'league' });
+      } else {
+        throw envErr;
+      }
     }
-    blobStore = mod.getStore({ name: 'league', consistency: 'strong' });
     return true;
   } catch (e) {
     console.error('Netlify Blobs unavailable:', e.message);
@@ -49,6 +75,8 @@ function ensureBackend() {
 async function get(key) {
   ensureBackend();
   if (blobStore) {
+    const fresh = overlayGet(key);
+    if (fresh !== undefined) return fresh;
     const v = await blobStore.get(key, { type: 'json' });
     return v == null ? null : v;
   }
@@ -59,13 +87,19 @@ async function get(key) {
 
 async function set(key, value) {
   ensureBackend();
-  if (blobStore) return blobStore.setJSON(key, value);
+  if (blobStore) {
+    overlayPut(key, value);
+    return blobStore.setJSON(key, value);
+  }
   fs.writeFileSync(keyToFile(key), JSON.stringify(value));
 }
 
 async function del(key) {
   ensureBackend();
-  if (blobStore) return blobStore.delete(key);
+  if (blobStore) {
+    overlayPut(key, null);
+    return blobStore.delete(key);
+  }
   const f = keyToFile(key);
   if (fs.existsSync(f)) fs.unlinkSync(f);
 }
@@ -74,7 +108,13 @@ async function listKeys(prefix) {
   ensureBackend();
   if (blobStore) {
     const { blobs } = await blobStore.list({ prefix });
-    return blobs.map(b => b.key);
+    const keys = new Set(blobs.map(b => b.key));
+    // Merge recent same-instance writes/deletes the listing may not show yet.
+    for (const [key, hit] of overlay) {
+      if (!key.startsWith(prefix) || Date.now() - hit.t > OVERLAY_TTL_MS) continue;
+      if (hit.value == null) keys.delete(key); else keys.add(key);
+    }
+    return [...keys];
   }
   const mangled = prefix.replace(/[^a-zA-Z0-9_-]/g, '__');
   return fs.readdirSync(fileDir)
