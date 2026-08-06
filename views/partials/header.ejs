@@ -41,11 +41,30 @@
   <a href="/password" title="Change password" style="padding:.5rem .4rem">🔑</a>
   <form method="post" action="/logout"><button type="submit">Log out</button></form>
 </nav>
-<% for (const a of _alerts) { %>
+<%
+  // Urgent first, then the rest. Only the top two are shown up front — a stack
+  // of five banners buries the page it is supposed to be introducing.
+  const _sorted = [..._alerts].sort((a, b) =>
+    (b.level === 'urgent') - (a.level === 'urgent'));
+  const _shown = _sorted.slice(0, 2);
+  const _rest = _sorted.slice(2);
+%>
+<% for (const a of _shown) { %>
   <div class="alert-banner alert-<%= a.level %>">
-    <span class="tag"><%= a.level === 'urgent' ? '🚨 Urgent' : a.level === 'warning' ? '⚠️ Notice' : '📣 League News' %></span>
+    <span class="tag"><%= a.level === 'urgent' ? '🚨' : a.level === 'warning' ? '⚠️' : '📣' %></span>
     <span><%= a.message %><% if (a.href) { %> <a href="<%= a.href %>" style="color:inherit; font-weight:800"><%= a.linkText || 'Open →' %></a><% } %></span>
   </div>
+<% } %>
+<% if (_rest.length) { %>
+  <details class="alert-more">
+    <summary><%= _rest.length %> more announcement<%= _rest.length === 1 ? '' : 's' %></summary>
+    <% for (const a of _rest) { %>
+      <div class="alert-banner alert-<%= a.level %>">
+        <span class="tag"><%= a.level === 'urgent' ? '🚨' : a.level === 'warning' ? '⚠️' : '📣' %></span>
+        <span><%= a.message %><% if (a.href) { %> <a href="<%= a.href %>" style="color:inherit; font-weight:800"><%= a.linkText || 'Open →' %></a><% } %></span>
+      </div>
+    <% } %>
+  </details>
 <% } %>
 <% } %>
 <main class="wrap">

@@ -48,11 +48,19 @@ async function loadWorld() {
   // One-time: pin the 2026 draft-day announcement.
   if (!config.draft_day_alert_2026) {
     const alerts = await getDoc('alerts', []);
-    alerts.unshift({
-      id: 'draftday2026', message: 'DRAFT DAY IS SET: 08/22/26 at 5:00 PM. Be there.',
-      level: 'urgent', active: true, created_at: new Date().toISOString(),
-    });
-    await setDoc('alerts', alerts.filter((a, i) => alerts.findIndex(x => x.id === a.id) === i));
+    const DRAFT_DAY = 'DRAFT DAY IS SET: 08/22/26 at 5:00 PM. Be there.';
+    // Dedupe by message, not just id: a fresh seed already includes this alert,
+    // so keying only on the config flag posted it twice on new installs.
+    if (!alerts.some(a => a.message === DRAFT_DAY)) {
+      alerts.unshift({ id: 'draftday2026', message: DRAFT_DAY,
+        level: 'urgent', active: true, created_at: new Date().toISOString() });
+    }
+    const seen = new Set();
+    await setDoc('alerts', alerts.filter(a => {
+      if (seen.has(a.message)) return false;
+      seen.add(a.message);
+      return true;
+    }));
     config.draft_day_alert_2026 = true;
     await setDoc('config', config);
   }
