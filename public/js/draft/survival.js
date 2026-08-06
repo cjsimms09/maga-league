@@ -188,31 +188,56 @@
    * P(taken before targetPick) from the picks that actually happen in between.
    * ctx.intervening: [{team_slot, roster, profile, pick_no}] in pick order.
    */
-  function layer2Taken(player, targetPick, ctx) {
+  /**
+   * Everything about the intervening picks that does not depend on which player
+   * we are scoring: each pick's positional distribution and the top candidates
+   * per position on the board as it thins.
+   *
+   * Computed once per (currentPick, targetPick) and memoised on the context.
+   * Without this, scoring a 200-player board with a 24-pick window is
+   * ~30M inner operations per render — far too slow to use live.
+   */
+  function precomputeLayer2(targetPick, ctx) {
     const intervening = (ctx.intervening || []).filter(
       t => t.pick_no >= (ctx.currentPick || 0) && t.pick_no < targetPick);
-    if (!intervening.length) return null; // nothing to model — caller falls back
-    // The last pick this layer can actually speak to. Beyond it the caller must
-    // continue with Layer 1 rather than pretend Layer 2 covered the whole range.
+    if (!intervening.length) return null;
+
+    const key = (ctx.currentPick || 0) + ':' + targetPick;
+    ctx.__l2cache = ctx.__l2cache || {};
+    if (ctx.__l2cache[key] !== undefined) return ctx.__l2cache[key];
+
     const windowEnd = Math.min(targetPick,
       Math.max.apply(null, intervening.map(t => t.pick_no)) + 1);
 
-    let survives = 1;
-    // The board shrinks as picks happen; approximate by removing the most
-    // likely pick at each step rather than re-simulating (fast, and the error
-    // is small over a 12-24 pick window).
     let board = (ctx.board || []).slice();
+    const steps = [];
     for (let i = 0; i < intervening.length; i++) {
       const team = intervening[i];
-      const posProbs = positionProbabilities(team, board, Object.assign({}, ctx, {
+      const posProbs = positionProbabilities(team, board, {
+        league: ctx.league,
         progress: ctx.totalPicks ? team.pick_no / ctx.totalPicks : 0.5,
         roundsLeft: ctx.roundsLeft,
-      }));
-      const pPos = posProbs[player.position] || 0;
-      const pWithin = withinPositionProbability(player, board, team);
-      survives *= (1 - pPos * pWithin);
+      });
 
-      // Remove the modal pick so later teams see a thinner board.
+      // Top candidates per position, in value order, for the within-position draw.
+      const topByPos = {};
+      for (let j = 0; j < board.length; j++) {
+        const pl = board[j];
+        const list = topByPos[pl.position] || (topByPos[pl.position] = []);
+        if (list.length < CFG.WITHIN_POS_CANDIDATES * 2) list.push(pl);
+      }
+      Object.keys(topByPos).forEach(pos => {
+        topByPos[pos] = topByPos[pos]
+          .sort((a, b) => (b.vorp == null ? b.proj_mean || 0 : b.vorp)
+                        - (a.vorp == null ? a.proj_mean || 0 : a.vorp))
+          .slice(0, CFG.WITHIN_POS_CANDIDATES);
+      });
+
+      steps.push({ posProbs, topByPos, team });
+
+      // Advance the board by the modal pick. This is a greedy approximation of
+      // the real branching draft — cheap, and the error over a 12-24 pick
+      // window is small compared with the ADP noise it sits inside.
       const topPos = Object.keys(posProbs).sort((a, b) => posProbs[b] - posProbs[a])[0];
       if (topPos) {
         let bestIdx = -1, bestVal = -Infinity;
@@ -221,12 +246,55 @@
           const v = board[j].vorp == null ? board[j].proj_mean || 0 : board[j].vorp;
           if (v > bestVal) { bestVal = v; bestIdx = j; }
         }
-        if (bestIdx >= 0 && String(board[bestIdx].player_id) !== String(player.player_id)) {
-          board = board.slice(0, bestIdx).concat(board.slice(bestIdx + 1));
-        }
+        if (bestIdx >= 0) board = board.slice(0, bestIdx).concat(board.slice(bestIdx + 1));
       }
     }
-    return { taken: 1 - survives, windowEnd };
+
+    const out = { steps, windowEnd };
+    ctx.__l2cache[key] = out;
+    return out;
+  }
+
+  /** P(this specific player, given his position is taken) from a precomputed pool. */
+  function withinFromPool(player, pool, team) {
+    if (!pool || !pool.length) return 0;
+    let idx = -1;
+    for (let i = 0; i < pool.length; i++) {
+      if (String(pool[i].player_id) === String(player.player_id)) { idx = i; break; }
+    }
+    if (idx === -1) return 0;   // already gone, or too deep to be the pick
+    let temp = CFG.WITHIN_POS_TEMP;
+    if (team && team.profile && team.profile.reach_delta) {
+      temp = Math.max(0.15, Math.min(0.9, CFG.WITHIN_POS_TEMP
+        + 0.02 * Math.max(0, team.profile.reach_delta.mean)));
+    }
+    let max = -Infinity;
+    const scores = pool.map(p => {
+      const v = p.vorp == null ? p.proj_mean || 0 : p.vorp;
+      if (v > max) max = v;
+      return v;
+    });
+    let sum = 0;
+    const exps = scores.map(v => { const e = Math.exp((v - max) * temp / 10); sum += e; return e; });
+    return exps[idx] / sum;
+  }
+
+  /**
+   * P(taken before targetPick) from the picks that actually happen in between.
+   * ctx.intervening: [{team_slot, roster, profile, pick_no}] in pick order.
+   */
+  function layer2Taken(player, targetPick, ctx) {
+    const pre = precomputeLayer2(targetPick, ctx);
+    if (!pre) return null;
+    let survives = 1;
+    for (let i = 0; i < pre.steps.length; i++) {
+      const step = pre.steps[i];
+      const pPos = step.posProbs[player.position] || 0;
+      if (!pPos) continue;
+      const pWithin = withinFromPool(player, step.topByPos[player.position], step.team);
+      survives *= (1 - pPos * pWithin);
+    }
+    return { taken: 1 - survives, windowEnd: pre.windowEnd };
   }
 
   // ======================== Layer 3 — live Bayesian run detection (hazard) ====
@@ -329,7 +397,8 @@
   const api = {
     CFG, URGENCY, urgency,
     normalCdf, adpSd,
-    layer1Taken, layer1TakenGivenAvailable, layer2Taken, positionProbabilities, withinPositionProbability,
+    layer1Taken, layer1TakenGivenAvailable, layer2Taken, precomputeLayer2,
+    positionProbabilities, withinPositionProbability, withinFromPool,
     runMultipliers, detectRuns, layer2Weight,
     survivalProbability,
   };

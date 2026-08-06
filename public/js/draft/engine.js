@@ -50,11 +50,11 @@
    * E[best available at `nextPick`] for one position.
    * P(j is the best survivor) = P(j survives) × Π over better players P(taken).
    */
-  function expectedBestAvailable(playersAtPos, nextPick, runMults) {
+  function expectedBestAvailable(playersAtPos, nextPick, survivalCtx) {
     const sorted = playersAtPos.slice().sort((a, b) => b.proj_mean - a.proj_mean);
     let expected = 0, allBetterGone = 1, massUsed = 0;
     for (const p of sorted) {
-      const surv = survival(p, nextPick, runMults);
+      const surv = survival(p, nextPick, survivalCtx);
       const pBest = surv * allBetterGone;
       expected += p.proj_mean * pBest;
       massUsed += pBest;
@@ -70,20 +70,20 @@
   }
 
   /** VONA — how much you lose by waiting. The primary decision metric. */
-  function vona(player, board, nextPick, runMults) {
+  function vona(player, board, nextPick, survivalCtx) {
     if (nextPick == null) return player.proj_mean; // no future pick: everything is at stake
     const samePos = board.filter(p => p.position === player.position && p.player_id !== player.player_id);
-    const eba = expectedBestAvailable(samePos, nextPick, runMults);
+    const eba = expectedBestAvailable(samePos, nextPick, survivalCtx);
     return player.proj_mean - eba;
   }
 
   // =============================================== Module 7: composite score
-  function tierCliffUrgency(player, board, nextPick, runMults) {
+  function tierCliffUrgency(player, board, nextPick, survivalCtx) {
     const tierMates = board.filter(p => p.position === player.position && p.tier === player.tier
       && p.player_id !== player.player_id);
     // P(every remaining tier-mate is gone) = the tier is exhausted.
     let pExhausted = 1;
-    tierMates.forEach(p => { pExhausted *= (1 - survival(p, nextPick, runMults)); });
+    tierMates.forEach(p => { pExhausted *= (1 - survival(p, nextPick, survivalCtx)); });
     const drop = player.tier_drop || 0;
     return drop * pExhausted;
   }
@@ -165,8 +165,11 @@
   /** The full composite, with a human-readable audit trail attached. */
   function scorePlayer(player, ctx) {
     const w = Object.assign({}, DEFAULT_WEIGHTS, ctx.weights || {});
-    const v = vona(player, ctx.board, ctx.nextPick, ctx.runMultipliers);
-    const tier = tierCliffUrgency(player, ctx.board, ctx.nextPick, ctx.runMultipliers);
+    // Pass the full context (not just run multipliers) so the A2 three-layer
+    // model reaches VONA. Passing ctx.runMultipliers here silently reduced the
+    // primary decision metric to the ADP-only Layer 1.
+    const v = vona(player, ctx.board, ctx.nextPick, ctx);
+    const tier = tierCliffUrgency(player, ctx.board, ctx.nextPick, ctx);
     const need = starterSlotMarginal(player, ctx.roster || [], ctx.league || {});
     const risk = riskAdjustment(player);
     const ceiling = upsideBonus(player, ctx.currentPick, ctx.totalPicks, ctx.myPicksLeft);
@@ -183,7 +186,7 @@
       - w.bye * bye.value
       + w.stack * stack.value;
 
-    const survivalToNext = ctx.nextPick ? survival(player, ctx.nextPick, ctx.runMultipliers) : 0;
+    const survivalToNext = ctx.nextPick ? survival(player, ctx.nextPick, ctx) : 0;
     const reasons = [];
     if (v > 8) reasons.push(`${v.toFixed(0)} pts better than what's left at ${player.position} by pick ${ctx.nextPick}`);
     if (tier > 5) reasons.push(`last of Tier ${player.tier} ${player.position} — ${Math.round((1 - survivalToNext) * 100)}% gone by your next pick`);

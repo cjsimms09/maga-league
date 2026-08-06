@@ -147,6 +147,33 @@ check('stacking a pass-catcher with your QB is a positive', stackUp.value > 0, J
 check('a second target earner from the same team is a negative', cannibal.value < 0, JSON.stringify(cannibal));
 check('correlation stays modest in redraft', Math.abs(stackUp.value) < 15);
 
+// ============ REGRESSION: layer 2 must actually reach VONA ============
+// scorePlayer once passed only ctx.runMultipliers down to vona(), which
+// silently degraded the primary decision metric to ADP-only. The A2 work was
+// computed and then thrown away. Guard it permanently.
+const vonaAdpOnly = E.vona(targetRb, B, 32, Object.assign({}, ctxBase));
+const vonaLayered = E.vona(targetRb, B, 32, Object.assign({}, ctxBase, { intervening: intervening('RB') }));
+check('VONA responds to the Layer-2 need model (not just ADP)',
+  Math.abs(vonaAdpOnly - vonaLayered) > 0.01,
+  `adp-only=${vonaAdpOnly.toFixed(2)} layered=${vonaLayered.toFixed(2)}`);
+check('scorePlayer threads the full context through, not a multiplier map',
+  (() => {
+    const withL2 = E.scorePlayer(targetRb, Object.assign({}, ctxBase, {
+      nextPick: 32, intervening: intervening('RB'), weights: E.DEFAULT_WEIGHTS, roster: [] }));
+    const withoutL2 = E.scorePlayer(targetRb, Object.assign({}, ctxBase, {
+      nextPick: 32, weights: E.DEFAULT_WEIGHTS, roster: [] }));
+    return Math.abs(withL2.components.vona - withoutL2.components.vona) > 0.01;
+  })());
+
+// Performance guard: the live view re-scores the whole board on every pick.
+const perfCtx = Object.assign({}, ctxBase, { nextPick: 32, intervening: intervening('RB'),
+  weights: E.DEFAULT_WEIGHTS, roster: [], myPicksLeft: 11 });
+E.recommend(Object.assign({}, perfCtx));   // warm
+const t0 = Date.now();
+for (let i = 0; i < 5; i++) E.recommend(Object.assign({}, perfCtx));
+const perMs = (Date.now() - t0) / 5;
+check('full-board scoring stays live-draft fast (<150ms)', perMs < 150, `${perMs.toFixed(1)}ms per render`);
+
 // ============ composite integration ============
 const ctx = {
   board: B, nextPick: 32, currentPick: 20, totalPicks: 150, myPicksLeft: 11,
