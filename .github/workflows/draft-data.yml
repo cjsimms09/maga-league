@@ -1,0 +1,57 @@
+name: Build draft board
+
+# The offline pipeline runs here, not on the site: CI has network access,
+# takes as long as it needs, and commits a static artifact the browser reads.
+# Nothing to pay for and nothing to go down mid-draft.
+on:
+  schedule:
+    - cron: '0 8 * * *'      # 08:00 UTC nightly — well before any evening draft
+  workflow_dispatch:
+    inputs:
+      league_id:
+        description: 'Sleeper league ID'
+        required: false
+        default: '1374848328470102016'
+      slot:
+        description: 'My draft slot (1-indexed)'
+        required: false
+        default: '4'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r draft/requirements.txt
+
+      - name: Run acceptance tests
+        # A board that fails its own scoring tests must never be published.
+        run: python -m pytest draft/tests -q
+
+      - name: Build the draft artifact
+        working-directory: draft
+        run: |
+          python build.py \
+            --league-id "${{ github.event.inputs.league_id || '1374848328470102016' }}" \
+            --slot "${{ github.event.inputs.slot || '4' }}"
+
+      - name: Commit the artifact if it changed
+        run: |
+          if git diff --quiet -- public/draft_data.json draft/config/league_config.json; then
+            echo "no change"
+            exit 0
+          fi
+          git config user.name  "draft-bot"
+          git config user.email "actions@github.com"
+          git add public/draft_data.json draft/config/league_config.json
+          git commit -m "Draft board: rebuild $(date -u +%Y-%m-%d)"
+          git push

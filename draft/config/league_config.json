@@ -1,0 +1,61 @@
+{
+  "adp_blend_weight": 0.7,
+  "bench_size": 7,
+  "draft_type": "snake",
+  "keepers": {
+    "cost_model": "original_round",
+    "count": 3,
+    "max_years": 3,
+    "undrafted_round": 10,
+    "undrafted_rule": "assigned_round"
+  },
+  "league_id": "1374848328470102016",
+  "league_name": "Make Football Great Again",
+  "my_draft_slot": 4,
+  "opportunity_cap": 0.15,
+  "playoff_week_start": 15,
+  "recency_weights": [
+    0.7,
+    0.3
+  ],
+  "roster_size": 16,
+  "roster_slots": {
+    "BN": 6,
+    "DEF": 1,
+    "FLEX": 1,
+    "IR": 1,
+    "K": 1,
+    "QB": 1,
+    "RB": 2,
+    "TE": 1,
+    "WR": 2
+  },
+  "rounds": 13,
+  "scoring": {
+    "def_td": 6.0,
+    "fum_lost": -2.0,
+    "pass_2pt": 2.0,
+    "pass_int": -2.0,
+    "pass_td": 4.0,
+    "pass_yd": 0.04,
+    "rec": 0.5,
+    "rec_2pt": 2.0,
+    "rec_td": 6.0,
+    "rec_yd": 0.1,
+    "rush_2pt": 2.0,
+    "rush_td": 6.0,
+    "rush_yd": 0.1,
+    "st_td": 6.0
+  },
+  "season": "2026",
+  "starters": {
+    "DEF": 1,
+    "FLEX": 1,
+    "K": 1,
+    "QB": 1,
+    "RB": 2,
+    "TE": 1,
+    "WR": 2
+  },
+  "teams": 10
+}

@@ -515,82 +515,35 @@ router.post('/sleeper/refresh-records', aw(async (req, res) => {
   back(res, 'sleeper', msg(recs ? `Record book recomputed across ${recs.seasonsCovered.length} Sleeper season(s).` : 'Could not reach Sleeper to rebuild the record book.'));
 }));
 
-// ---------- the war room (commissioner's secret draft tool) ----------
+// ---------- the war room (commissioner's draft optimization tool) ----------
+// The heavy lifting lives in public/js/draft/* against the offline-built
+// draft_data.json artifact; this route only serves the shell.
 router.get('/warroom', aw(async (req, res) => {
-  const world = req.world;
-  const owners = H.activeOwners(world.owners);
-  const season = H.currentSeason(world.seasons);
-  const leagueId = world.config.sleeper_league_id;
-
-  const [playersDb, draft, trending, sData] = await Promise.all([
-    sleeper.players(), sleeper.draftInfo(leagueId), sleeper.trendingAdds(), sleeper.bundle(leagueId),
-  ]);
-  const keepers = await H.keepersForYear(season.year, owners);
-
-  let view = { configured: !!leagueId, ready: !!(playersDb && draft) };
-  if (view.ready) {
-    const players = playersDb.players;
-    const picks = draft.picks.map(pk => ({
-      round: pk.round, pick_no: pk.pick_no,
-      player_id: pk.player_id,
-      name: (pk.metadata && `${pk.metadata.first_name || ''} ${pk.metadata.last_name || ''}`.trim())
-        || (players[pk.player_id] || {}).name || pk.player_id,
-      pos: (pk.metadata && pk.metadata.position) || (players[pk.player_id] || {}).pos || '?',
-      team: (pk.metadata && pk.metadata.team) || (players[pk.player_id] || {}).team || '',
-      picked_by: pk.picked_by,
-    }));
-    const pickedIds = new Set(picks.map(pk => String(pk.player_id)));
-    const norm = t => String(t || '').toLowerCase().replace(/[^a-z ]/g, '').trim();
-    const keeperNames = new Set(keepers.map(k => norm(k.player_name)));
-
-    const available = Object.entries(players)
-      .filter(([id, pl]) => !pickedIds.has(String(id)) && !keeperNames.has(norm(pl.name)))
-      .map(([id, pl]) => ({ id, ...pl }))
-      .sort((a, b) => a.rank - b.rank);
-
-    const nextPick = picks.length + 1;
-    const top = available.slice(0, 25).map(pl => ({ ...pl, steal: pl.rank <= Math.max(1, nextPick - 12) }));
-    const byPos = {};
-    for (const pos of sleeper.WAR_POSITIONS) byPos[pos] = available.filter(pl => pl.pos === pos).slice(0, 8);
-
-    // Positional run detector: 3+ of a position in the last 6 picks.
-    const recent = picks.slice(-6);
-    const runCounts = {};
-    for (const pk of recent) runCounts[pk.pos] = (runCounts[pk.pos] || 0) + 1;
-    const run = Object.entries(runCounts).find(([pos, n]) => n >= 3 && ['RB','WR','QB','TE'].includes(pos));
-
-    // My side of the draft: map commissioner -> sleeper user_id.
-    const uMap = sleeper.userMap(sData, world.config.sleeper_map || {});
-    const myUserId = Object.keys(uMap).find(uid => uMap[uid] === req.owner.id) || null;
-    const myPicks = picks.filter(pk => pk.picked_by && pk.picked_by === myUserId);
-    const myKeeperList = keepers.filter(k => k.owner_id === req.owner.id);
-    const needCounts = { QB: 1, RB: 2, WR: 2, TE: 1, K: 1, DEF: 1 };
-    const haveCounts = {};
-    for (const pk of myPicks) haveCounts[pk.pos] = (haveCounts[pk.pos] || 0) + 1;
-    const needs = Object.entries(needCounts)
-      .map(([pos, need]) => ({ pos, need, have: haveCounts[pos] || 0 }))
-      .filter(n => n.have < n.need);
-
-    const trendingNamed = (trending || []).slice(0, 15).map(t => {
-      const pl = players[t.player_id];
-      return pl ? { ...pl, adds: t.count, taken: pickedIds.has(String(t.player_id)) } : null;
-    }).filter(Boolean);
-
-    view = {
-      ...view,
-      status: draft.draft.status, rounds: (draft.draft.settings || {}).rounds || 15,
-      picks, nextPick, top, byPos, run: run ? run[0] : null,
-      myPicks, myKeeperList, needs, trendingNamed,
-      playerCount: playersDb.count,
-    };
-  }
-  res.render('admin/warroom', { season, view });
+  res.render('admin/warroom', {
+    season: H.currentSeason(req.world.seasons),
+    config: req.world.config,
+  });
 }));
 
-// ---------- locker room moderation ----------
-router.post('/chat/:key/delete', aw(async (req, res) => {
-  if (String(req.params.key).startsWith('chat:')) await store.del(req.params.key);
-  res.redirect('/chat');
+// Same-origin proxy for Sleeper, used only if the browser's direct call is
+// blocked by CORS. Strictly allow-listed: read-only Sleeper GETs, nothing else.
+const SLEEPER_PROXY_OK = /^\/(draft\/[\w-]+\/picks|draft\/[\w-]+|league\/[\w-]+\/drafts|state\/nfl)$/;
+router.get('/sleeper-proxy', aw(async (req, res) => {
+  const path = String(req.query.path || '');
+  if (!SLEEPER_PROXY_OK.test(path)) return res.status(400).json({ error: 'path not allowed' });
+  try {
+    const ac = new AbortController();
+    const t = setTimeout(() => ac.abort(), 8000);
+    const upstream = await fetch(`https://api.sleeper.app/v1${path}`, {
+      headers: { accept: 'application/json' }, signal: ac.signal,
+    });
+    clearTimeout(t);
+    if (!upstream.ok) return res.status(upstream.status).json({ error: `sleeper ${upstream.status}` });
+    res.setHeader('Cache-Control', 'no-store');
+    res.json(await upstream.json());
+  } catch (e) {
+    res.status(502).json({ error: e.message });
+  }
 }));
 
 // ---------- backup ----------

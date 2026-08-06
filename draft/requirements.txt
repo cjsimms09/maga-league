@@ -1,0 +1,7 @@
+# Offline pipeline only — the site itself has no Python dependency.
+pandas>=2.0
+numpy>=1.24
+pytest>=7.4
+# Play-by-play for the opportunity metrics (Module 2). The build degrades to
+# consensus-only if this is unavailable, so it is intentionally not pinned hard.
+nfl_data_py>=0.3.2

@@ -1,0 +1,264 @@
+{
+  "teams": [
+    {
+      "draft_slot": 1,
+      "keepers": [
+        {
+          "player_id": "1",
+          "name": "RB Player 1",
+          "position": "RB",
+          "original_round": 1,
+          "years_kept": 1
+        },
+        {
+          "player_id": "2",
+          "name": "RB Player 2",
+          "position": "RB",
+          "original_round": 2,
+          "years_kept": 1
+        },
+        {
+          "player_id": "61",
+          "name": "WR Player 1",
+          "position": "WR",
+          "original_round": 3,
+          "years_kept": 1
+        }
+      ]
+    },
+    {
+      "draft_slot": 2,
+      "keepers": [
+        {
+          "player_id": "3",
+          "name": "RB Player 3",
+          "position": "RB",
+          "original_round": 1,
+          "years_kept": 1
+        },
+        {
+          "player_id": "4",
+          "name": "RB Player 4",
+          "position": "RB",
+          "original_round": 2,
+          "years_kept": 1
+        },
+        {
+          "player_id": "62",
+          "name": "WR Player 2",
+          "position": "WR",
+          "original_round": 3,
+          "years_kept": 1
+        }
+      ]
+    },
+    {
+      "draft_slot": 3,
+      "keepers": [
+        {
+          "player_id": "63",
+          "name": "WR Player 3",
+          "position": "WR",
+          "original_round": 1,
+          "years_kept": 1
+        },
+        {
+          "player_id": "5",
+          "name": "RB Player 5",
+          "position": "RB",
+          "original_round": 2,
+          "years_kept": 1
+        },
+        {
+          "player_id": "7",
+          "name": "RB Player 7",
+          "position": "RB",
+          "original_round": 3,
+          "years_kept": 1
+        }
+      ]
+    },
+    {
+      "draft_slot": 4,
+      "keepers": [
+        {
+          "player_id": "6",
+          "name": "RB Player 6",
+          "position": "RB",
+          "original_round": 1,
+          "years_kept": 1
+        },
+        {
+          "player_id": "64",
+          "name": "WR Player 4",
+          "position": "WR",
+          "original_round": 2,
+          "years_kept": 1
+        },
+        {
+          "player_id": "67",
+          "name": "WR Player 7",
+          "position": "WR",
+          "original_round": 3,
+          "years_kept": 1
+        }
+      ]
+    },
+    {
+      "draft_slot": 5,
+      "keepers": [
+        {
+          "player_id": "65",
+          "name": "WR Player 5",
+          "position": "WR",
+          "original_round": 1,
+          "years_kept": 1
+        },
+        {
+          "player_id": "66",
+          "name": "WR Player 6",
+          "position": "WR",
+          "original_round": 2,
+          "years_kept": 1
+        },
+        {
+          "player_id": "8",
+          "name": "RB Player 8",
+          "position": "RB",
+          "original_round": 3,
+          "years_kept": 1
+        }
+      ]
+    },
+    {
+      "draft_slot": 6,
+      "keepers": [
+        {
+          "player_id": "9",
+          "name": "RB Player 9",
+          "position": "RB",
+          "original_round": 1,
+          "years_kept": 1
+        },
+        {
+          "player_id": "71",
+          "name": "WR Player 11",
+          "position": "WR",
+          "original_round": 2,
+          "years_kept": 1
+        },
+        {
+          "player_id": "70",
+          "name": "WR Player 10",
+          "position": "WR",
+          "original_round": 3,
+          "years_kept": 1
+        }
+      ]
+    },
+    {
+      "draft_slot": 7,
+      "keepers": [
+        {
+          "player_id": "10",
+          "name": "RB Player 10",
+          "position": "RB",
+          "original_round": 1,
+          "years_kept": 1
+        },
+        {
+          "player_id": "68",
+          "name": "WR Player 8",
+          "position": "WR",
+          "original_round": 2,
+          "years_kept": 1
+        },
+        {
+          "player_id": "69",
+          "name": "WR Player 9",
+          "position": "WR",
+          "original_round": 3,
+          "years_kept": 1
+        }
+      ]
+    },
+    {
+      "draft_slot": 8,
+      "keepers": [
+        {
+          "player_id": "11",
+          "name": "RB Player 11",
+          "position": "RB",
+          "original_round": 1,
+          "years_kept": 1
+        },
+        {
+          "player_id": "72",
+          "name": "WR Player 12",
+          "position": "WR",
+          "original_round": 2,
+          "years_kept": 1
+        },
+        {
+          "player_id": "12",
+          "name": "RB Player 12",
+          "position": "RB",
+          "original_round": 3,
+          "years_kept": 1
+        }
+      ]
+    },
+    {
+      "draft_slot": 9,
+      "keepers": [
+        {
+          "player_id": "14",
+          "name": "RB Player 14",
+          "position": "RB",
+          "original_round": 1,
+          "years_kept": 1
+        },
+        {
+          "player_id": "75",
+          "name": "WR Player 15",
+          "position": "WR",
+          "original_round": 2,
+          "years_kept": 1
+        },
+        {
+          "player_id": "73",
+          "name": "WR Player 13",
+          "position": "WR",
+          "original_round": 3,
+          "years_kept": 1
+        }
+      ]
+    },
+    {
+      "draft_slot": 10,
+      "keepers": [
+        {
+          "player_id": "15",
+          "name": "RB Player 15",
+          "position": "RB",
+          "original_round": 1,
+          "years_kept": 1
+        },
+        {
+          "player_id": "136",
+          "name": "QB Player 1",
+          "position": "QB",
+          "original_round": 2,
+          "years_kept": 1
+        },
+        {
+          "player_id": "13",
+          "name": "RB Player 13",
+          "position": "RB",
+          "original_round": 3,
+          "years_kept": 1
+        }
+      ]
+    }
+  ]
+}

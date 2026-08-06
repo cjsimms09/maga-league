@@ -537,3 +537,70 @@ details.bal-row.me > summary { box-shadow: inset 3px 0 0 var(--gold); }
   font-size: .6rem; font-weight: 800; line-height: 1.15rem; text-align: center;
   box-shadow: var(--glow-red);
 }
+
+/* ==========================================================================
+   WAR ROOM — draft optimization UI. Built for glanceability on a phone or a
+   second monitor: the recommendation must be readable without squinting.
+   ========================================================================== */
+.sync-status { font-size: .7rem; color: var(--muted); display: block; margin-top: .2rem; }
+.sync-status.live { color: var(--green); }
+.sync-status.error { color: var(--red-bright); }
+.hero-value.on-clock { background: linear-gradient(180deg, #fff, var(--gold)); -webkit-background-clip: text; background-clip: text; }
+
+/* recommendation cards — the thing you actually look at */
+.rec-card {
+  display: flex; gap: .8rem; align-items: center;
+  padding: .7rem .8rem; border: 1px solid var(--line); border-radius: 12px;
+  margin-bottom: .55rem; background: rgba(255, 255, 255, .025);
+}
+.rec-card.top { border-color: rgba(245, 196, 69, .6); background: rgba(245, 196, 69, .07); box-shadow: var(--glow-gold); }
+.rec-rank {
+  flex: 0 0 2rem; height: 2rem; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(255, 255, 255, .07); border: 1px solid var(--line);
+  font-family: var(--font-display); font-weight: 900;
+}
+.rec-card.top .rec-rank { background: var(--gold); color: var(--navy-deep); border-color: transparent; }
+.rec-main { flex: 1; min-width: 0; }
+.rec-name { font-family: var(--font-display); font-weight: 800; font-size: 1.05rem; color: #fff; display: flex; gap: .4rem; align-items: center; flex-wrap: wrap; }
+.rec-why { color: #c7cddd; font-size: .82rem; margin-top: .1rem; }
+.rec-stats { display: flex; flex-wrap: wrap; gap: .7rem; margin-top: .3rem; font-size: .74rem; color: var(--muted); }
+.rec-stats b { color: #fff; font-variant-numeric: tabular-nums; }
+.rec-actions { display: flex; flex-direction: column; gap: .25rem; align-items: flex-end; }
+.rec-score { font-family: var(--font-display); font-size: 1.3rem; font-weight: 900; color: var(--gold-bright); font-variant-numeric: tabular-nums; }
+.rec-pos {
+  font-family: var(--font-display); font-size: .6rem; font-weight: 800; letter-spacing: .08em;
+  padding: .1rem .4rem; border-radius: 4px; background: rgba(255,255,255,.1);
+}
+.rec-pos.QB { background: rgba(255,70,85,.22); color: #ff9aa4; }
+.rec-pos.RB { background: rgba(47,213,118,.2); color: #8ef0b6; }
+.rec-pos.WR { background: rgba(76,133,255,.22); color: #a9c4ff; }
+.rec-pos.TE { background: rgba(245,196,69,.2); color: var(--gold-bright); }
+.rec-pos.K, .rec-pos.DEF { background: rgba(255,255,255,.1); color: #c7cddd; }
+
+/* roster slots */
+.slot-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: .4rem; }
+.slot-chip { border: 1px solid var(--line); border-radius: 9px; padding: .4rem .55rem; font-size: .8rem; }
+.slot-chip.empty { border-style: dashed; color: var(--muted); }
+.slot-chip.filled { background: rgba(47,213,118,.07); border-color: rgba(47,213,118,.35); }
+.slot-label { display: block; font-family: var(--font-display); font-size: .55rem; letter-spacing: .12em; color: var(--muted); }
+
+/* survival bars */
+.surv-row { display: flex; align-items: center; gap: .5rem; margin-bottom: .3rem; font-size: .82rem; }
+.surv-row > span:first-child { flex: 1 1 40%; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.surv-bar { flex: 1 1 40%; height: 8px; background: rgba(255,255,255,.07); border-radius: 999px; overflow: hidden; }
+.surv-bar > div { height: 100%; background: linear-gradient(90deg, var(--red), var(--gold), var(--green)); }
+.surv-row b { flex: 0 0 3rem; text-align: right; font-variant-numeric: tabular-nums; }
+
+/* tier colour bands on the board */
+.tier-cell { font-weight: 800; }
+.tier-cell.t0 { color: #ffd968; } .tier-cell.t1 { color: #8ef0b6; } .tier-cell.t2 { color: #a9c4ff; }
+.tier-cell.t3 { color: #ff9aa4; } .tier-cell.t4 { color: #d7b8ff; } .tier-cell.t5 { color: #9fe8e0; }
+
+input[type=range] { accent-color: var(--gold); }
+
+@media (max-width: 640px) {
+  .rec-card { flex-wrap: wrap; }
+  .rec-actions { flex-direction: row; width: 100%; justify-content: space-between; align-items: center; }
+  .rec-name { font-size: .98rem; }
+}
