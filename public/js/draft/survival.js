@@ -428,14 +428,18 @@
 
       const raw = 1 + CFG.RUN_DAMPING * (obsRate / expRate - 1) * gate;
       out[pos] = Math.max(CFG.RUN_MIN, Math.min(CFG.RUN_MAX, raw));
-      (out.__z || (out.__z = {}))[pos] = z;
+      // Diagnostics ride along non-enumerably: callers iterate this map with
+      // Object.values() and expect every entry to be a multiplier.
+      if (!Object.getOwnPropertyDescriptor(out, 'z')) {
+        Object.defineProperty(out, 'z', { value: {}, enumerable: false });
+      }
+      out.z[pos] = z;
     });
     return out;
   }
 
   function detectRuns(mults) {
     return Object.keys(mults || {})
-      .filter(pos => pos !== '__z')
       .filter(pos => mults[pos] >= CFG.RUN_BANNER_AT)
       .sort((a, b) => mults[b] - mults[a]);
   }

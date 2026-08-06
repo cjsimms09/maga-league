@@ -211,7 +211,7 @@ check('the keeper weight changes late-round scoring',
     .map(p => ({ position: p.position }));
   const ordinaryMults = S.runMultipliers(ordinary, pool, 40);
   const offenders = Object.keys(ordinaryMults)
-    .filter(k => k !== '__z')
+    
     .filter(pos => Math.abs(ordinaryMults[pos] - 1) > 0.05);
   check('an ordinary positional mix produces multipliers ~1.0 for every position',
     offenders.length === 0,
