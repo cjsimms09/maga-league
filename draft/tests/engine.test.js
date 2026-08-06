@@ -129,5 +129,86 @@ check('upside matters more in the endgame', late > early * 1.5, `early=${early.t
 const heavyCeiling = E.recommend(Object.assign({}, ctx, { weights: { tier: 0, need: 0, risk: 0, ceiling: 5 } }));
 check('weight sliders change the ranking', heavyCeiling[0].score !== scored[0].score);
 
+
+// --- KOV scarcity (audit P1.3) ----------------------------------------------
+// KOV was an absolute per-player number in a world with three keeper slots, so
+// every late-round young ascender earned the bonus independently.
+
+(function kovTests() {
+  const C = require('../../public/js/draft/composite.js');
+
+  function mkPlayer(id, vorp, age, pos) {
+    return { player_id: id, name: 'P' + id, position: pos || 'RB', vorp, age: age || 23,
+             adjusted_adp: 120, raw_adp: 120 };
+  }
+  function mkCtx(roster, board) {
+    return {
+      currentPick: 130, roster: roster || [],
+      board: board || [mkPlayer('bench', 5, 28)],
+      league: { teams: 10, keeper_rules: { count: 3, cost_model: 'original_round' } },
+    };
+  }
+
+  {
+    const p = mkPlayer('a', 60, 23);
+    const out = C.keeperOptionValue(p, mkCtx([]));
+    check('KOV: with no candidates rostered, marginal equals raw',
+      approx(out.value, out.raw_value, 1e-9) && out.slots_free === 3,
+      `value=${out.value} raw=${out.raw_value} free=${out.slots_free}`);
+  }
+
+  {
+    const strong = [mkPlayer('i1', 80, 22), mkPlayer('i2', 78, 22), mkPlayer('i3', 76, 22)];
+    const fourth = mkPlayer('d', 60, 23);
+    const ctx = mkCtx(strong);
+    const raw = C.keeperOptionValueRaw(fourth, ctx).value;
+    const marginal = C.keeperOptionValue(fourth, ctx).value;
+    check('KOV: the 4th keeper candidate is worth nothing',
+      raw > 0 && marginal === 0, `raw=${raw} marginal=${marginal}`);
+  }
+
+  {
+    const held = [mkPlayer('i1', 80, 22), mkPlayer('i2', 40, 22), mkPlayer('i3', 30, 22)];
+    const better = mkPlayer('d', 70, 22);
+    const ctx = mkCtx(held);
+    const bar = C.keeperOptionValueRaw(held[2], ctx).value;
+    const out = C.keeperOptionValue(better, ctx);
+    check('KOV: a candidate above the bar keeps only the surplus',
+      approx(out.value, out.raw_value - bar, 1e-9) && out.value > 0 && out.value < out.raw_value,
+      `value=${out.value} raw=${out.raw_value} bar=${bar}`);
+  }
+
+  {
+    const cand = mkPlayer('d', 60, 23);
+    const none = C.keeperOptionValue(cand, mkCtx([])).value;
+    const two = C.keeperOptionValue(cand, mkCtx([mkPlayer('i1', 80, 22), mkPlayer('i2', 78, 22)])).value;
+    const three = C.keeperOptionValue(cand, mkCtx(
+      [mkPlayer('i1', 80, 22), mkPlayer('i2', 78, 22), mkPlayer('i3', 70, 22)])).value;
+    check('KOV: the bar rises as keeper slots fill',
+      none >= two && two >= three, `${none}, ${two}, ${three}`);
+  }
+
+  {
+    const cand = mkPlayer('d', 60, 23);
+    const ctx = mkCtx([]);
+    ctx.currentKeepers = [mkPlayer('k1', 85, 22), mkPlayer('k2', 84, 22), mkPlayer('k3', 83, 22)];
+    check('KOV: keepers carried into the draft count against the slots',
+      C.keeperOptionValue(cand, ctx).value === 0);
+  }
+
+  // Endogeneity: under original_round cost, the round you take him in IS his
+  // keeper price, so the same player must not price identically everywhere.
+  {
+    const p = mkPlayer('a', 60, 23);
+    const board = [mkPlayer('x', 40, 27), mkPlayer('y', 20, 27), mkPlayer('z', 8, 29)];
+    board[0].adjusted_adp = 80; board[1].adjusted_adp = 130; board[2].adjusted_adp = 200;
+    const at8 = C.keeperOptionValueRaw(p, Object.assign(mkCtx([], board), { currentPick: 71 }));
+    const at13 = C.keeperOptionValueRaw(p, Object.assign(mkCtx([], board), { currentPick: 121 }));
+    check('KOV: same player prices differently at round 8 vs 13 (endogeneity)',
+      at8.round === 8 && at13.round === 13 && at8.value !== at13.value,
+      `r8=${at8.round}/${at8.value} r13=${at13.round}/${at13.value}`);
+  }
+})();
+
 console.log(`\n${pass}/${pass + fail} engine checks passed`);
 process.exit(fail ? 1 : 0);

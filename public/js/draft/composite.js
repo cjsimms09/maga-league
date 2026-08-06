@@ -75,10 +75,14 @@
   }
 
   /**
-   * KOV(i) = P(kept) × [E[VORP_next] − E[VORP available at the forfeited round]] × 0.75
+   * KOV_raw(i) = P(kept) × [E[VORP_next] − E[VORP available at the forfeited round]] × 0.75
    * Ramped so early rounds contribute ~nothing.
+   *
+   * This is an ABSOLUTE, per-player number and must not be used directly — see
+   * keeperOptionValue() below, which makes it marginal. Exported only so the
+   * Why? modal can show the raw figure alongside the marginal one.
    */
-  function keeperOptionValue(player, ctx) {
+  function keeperOptionValueRaw(player, ctx) {
     const league = ctx.league || {};
     const teams = league.teams || 10;
     const round = ctx.currentPick ? Math.ceil(ctx.currentPick / teams) : 1;
@@ -96,8 +100,64 @@
     const surplus = nextV - alt;
     return {
       value: ramp * pKeep * surplus * CFG.KOV_DISCOUNT,
-      p_keep: pKeep, ramp, next_vorp: nextV, alternative: alt,
+      p_keep: pKeep, ramp, next_vorp: nextV, alternative: alt, round,
     };
+  }
+
+  /**
+   * KOV, made marginal against the keeper slots I actually have.
+   *
+   * THE BUG THIS FIXES: KOV_raw is per-player and unconstrained, but there are
+   * only three keeper slots. The 4th-best keeper candidate on my roster is
+   * worth *zero* keeper value, because I cannot keep him. Scored raw, every
+   * young ascending player in rounds 10+ earns the bonus independently, and the
+   * tool steers the whole back half of the draft toward a bench full of KEEPER
+   * TARGET badges — each individually justified, collectively worthless.
+   *
+   *   KOV_marginal(i) = max(0, KOV_raw(i) − KOV_raw(incumbent at the last slot))
+   *
+   * The incumbent set is my current roster plus any keepers I entered the draft
+   * with that are still keeper-eligible, ranked by raw KOV. Early on, when I
+   * hold no candidates, the bar is zero and marginal equals raw. After two
+   * strong ones it rises sharply, which is correct: the third slot is worth
+   * only what it beats.
+   */
+  function keeperOptionValue(player, ctx) {
+    const raw = keeperOptionValueRaw(player, ctx);
+    if (raw.value <= 0) return Object.assign({}, raw, { raw_value: raw.value, bar: 0, displaced: null });
+
+    const slots = keeperSlots(ctx);
+    if (slots <= 0) return Object.assign({}, raw, { value: 0, raw_value: raw.value, bar: Infinity, displaced: null });
+
+    // Everyone already competing for those slots.
+    const incumbents = [];
+    for (const p of (ctx.roster || [])) {
+      if (p && p.player_id !== player.player_id) incumbents.push(p);
+    }
+    for (const p of (ctx.currentKeepers || [])) {
+      if (p && p.keeper_eligible_again !== false
+          && !incumbents.some(q => q.player_id === p.player_id)) incumbents.push(p);
+    }
+
+    // The bar is the weakest candidate who would still hold a slot. With fewer
+    // incumbents than slots there is a free slot, so the bar is zero.
+    const ranked = incumbents
+      .map(p => ({ p, kov: keeperOptionValueRaw(p, ctx).value }))
+      .sort((a, b) => b.kov - a.kov);
+    const bar = ranked.length >= slots ? ranked[slots - 1].kov : 0;
+
+    return Object.assign({}, raw, {
+      value: Math.max(0, raw.value - bar),
+      raw_value: raw.value,
+      bar,
+      displaced: ranked.length >= slots ? (ranked[slots - 1].p.name || null) : null,
+      slots_free: Math.max(0, slots - ranked.length),
+    });
+  }
+
+  function keeperSlots(ctx) {
+    const rules = ((ctx.league || {}).keeper_rules) || {};
+    return rules.count == null ? 3 : Number(rules.count);
   }
 
   /**
@@ -215,7 +275,8 @@
     return { value, reasons };
   }
 
-  const api = { CFG, keepProbability, nextYearVorp, keeperOptionValue, expectedVorpAtPick,
+  const api = { CFG, keepProbability, nextYearVorp, keeperOptionValue,
+    keeperOptionValueRaw, keeperSlots, expectedVorpAtPick,
                 byeCollisionPenalty, correlationAdjustment };
   global.DraftComposite = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;

@@ -194,7 +194,11 @@
     risk.reasons.forEach(r => reasons.push(r));
     if (w.ceiling * ceiling > 6) reasons.push(`ceiling ${Math.round(player.proj_ceiling)} — worth the swing here`);
     if (w.keeper * kov.value >= C.CFG.KOV_BADGE_AT) {
-      reasons.push(`KEEPER TARGET — ${Math.round(kov.p_keep * 100)}% likely worth keeping next year at this cost`);
+      reasons.push(`KEEPER TARGET — ${Math.round(kov.p_keep * 100)}% likely worth keeping next year at this cost`
+        + (kov.slots_free
+            ? ` (${kov.slots_free} keeper slot${kov.slots_free === 1 ? '' : 's'} still open)`
+            : `, and he beats ${kov.displaced || 'your weakest keeper'} for the last slot by `
+              + `${Math.round(kov.value)} pts (raw ${Math.round(kov.raw_value)})`));
     }
     if (w.bye * bye.value > 3) reasons.push(`bye collision: ${bye.detail}`);
     stack.reasons.forEach(r => reasons.push(r));
