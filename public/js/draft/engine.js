@@ -27,6 +27,16 @@
     BENCH_DISCOUNT: 0.35,     // a bench upgrade is worth this much of a starter one
     SURVIVOR_CUTOFF: 0.005,   // stop the VONA product once mass is negligible
     TIE_THRESHOLD: 2.0,       // composite points within which we call it a tie
+
+    // --- plausibility rails (Part 6 §2) ---
+    // These never change a recommendation. They flag one, because an
+    // integration bug across eight composite terms produces confident nonsense
+    // rather than a crash — which this codebase has now done three times.
+    RAIL_ADP_AHEAD: 30,           // picks ahead of ADP before "verify this"
+    RAIL_LATE_ROUNDS: 2,          // rounds left below which K/DST stops being odd
+    RAIL_COMPONENT_RATIO: 1.0,    // a component larger than the player's own VORP
+    RAIL_RUNAWAY_RATIO: 3.0,      // top score this many times the runner-up
+    RAIL_DEFAULT_POS_CAP: { QB: 3, K: 2, DEF: 2, TE: 3 },
   };
 
   const DEFAULT_WEIGHTS = { tier: 1.0, need: 1.0, risk: 1.0, ceiling: 0.5,
@@ -231,16 +241,160 @@
   }
 
   /** Rank the whole available board. Returns scored entries, best first. */
+  /**
+   * Which mandatory starting slots are still empty, and which positions fill them.
+   *
+   * FLEX is deliberately excluded from "mandatory": it is satisfiable by three
+   * positions the composite already chases hard. K and DST are the danger,
+   * because their VORP is near zero — StarterSlotMarginal gives an empty slot
+   * full VORP, and full VORP of a kicker is nothing. The composite will
+   * therefore never prioritise them on its own.
+   */
+  function mandatoryGaps(ctx) {
+    const starters = (ctx.league || {}).starters || {};
+    const roster = ctx.roster || [];
+    const held = {};
+    roster.forEach(p => { held[p.position] = (held[p.position] || 0) + 1; });
+
+    const gaps = [];
+    Object.keys(starters).forEach(slot => {
+      if (FLEXIBLE_SLOTS.indexOf(slot) !== -1) return;   // FLEX-type, not position-specific
+      const need = (starters[slot] || 0) - (held[slot] || 0);
+      for (let i = 0; i < need; i++) gaps.push(slot);
+    });
+    return gaps;
+  }
+  const FLEXIBLE_SLOTS = ['FLEX', 'SUPER_FLEX', 'REC_FLEX', 'BN', 'IR', 'TAXI'];
+
+  /**
+   * Roster legality endgame — a HARD filter, not a weight.
+   *
+   * The failure this prevents: with two picks left, no kicker and no defense,
+   * the composite happily recommends a fourth wide receiver because his VONA
+   * dwarfs a kicker's. The draft ends, the lineup is illegal, and no amount of
+   * survival modelling survives that.
+   *
+   * A weight cannot fix it — a large enough VONA always outvotes a weight. So
+   * once remaining picks are down to the number of mandatory holes, candidates
+   * are RESTRICTED to positions that fill one. One round earlier, a soft
+   * warning, so the choice is still yours.
+   */
+  function applyRosterLegality(scored, ctx) {
+    const gaps = mandatoryGaps(ctx);
+    const picksLeft = ctx.myPicksLeft == null ? 99 : ctx.myPicksLeft;
+    if (!gaps.length || !scored.length) return { scored, forced: null, warning: null };
+
+    const needed = {};
+    gaps.forEach(pos => { needed[pos] = true; });
+    const counts = {};
+    gaps.forEach(pos => { counts[pos] = (counts[pos] || 0) + 1; });
+    const gapLabel = Object.keys(counts)
+      .map(pos => (counts[pos] > 1 ? counts[pos] + '\u00d7' : '') + pos).join(', ');
+
+    if (picksLeft <= gaps.length) {
+      const eligible = scored.filter(s => needed[s.player.position]);
+      if (eligible.length) {
+        eligible.forEach(s => {
+          s.forced = true;
+          s.reasons = ['FORCED — ' + picksLeft + ' pick' + (picksLeft === 1 ? '' : 's')
+            + ' left and you still need ' + gapLabel + '. Nothing else can legally start.']
+            .concat(s.reasons || []);
+        });
+        return {
+          scored: eligible,
+          forced: { picksLeft, gaps, message: 'Forced: ' + picksLeft + ' pick'
+            + (picksLeft === 1 ? '' : 's') + ' left, still missing ' + gapLabel + '.' },
+          warning: null,
+        };
+      }
+      // No candidate can fill the hole — say so rather than silently ranking.
+      return { scored, forced: null,
+        warning: 'You still need ' + gapLabel + ' and nobody on the board plays there.' };
+    }
+
+    if (picksLeft <= gaps.length + 1) {
+      return { scored, forced: null,
+        warning: 'Next pick you will be forced — take ' + gapLabel
+          + ' now if you want a choice.' };
+    }
+    return { scored, forced: null, warning: null };
+  }
+
   function recommend(ctx) {
-    const scored = ctx.board.map(p => scorePlayer(p, ctx));
-    scored.sort((a, b) => b.score - a.score);
+    const all = ctx.board.map(p => scorePlayer(p, ctx));
+    all.sort((a, b) => b.score - a.score);
+
+    const legality = applyRosterLegality(all, ctx);
+    const scored = legality.scored;
+
     // Flag when the top candidates are close enough that Monte Carlo should break the tie.
     if (scored.length > 1) {
       const gap = scored[0].score - scored[1].score;
       scored[0].contested = gap < CFG.TIE_THRESHOLD;
       scored[0].gap_to_second = gap;
     }
+    if (scored.length) {
+      scored[0].legality = legality.forced || null;
+      scored[0].legality_warning = legality.warning || null;
+    }
+    scored.forEach(s => { s.rails = plausibilityRails(s, ctx, scored); });
     return scored;
+  }
+
+  /**
+   * Plausibility rails — catch model failure instead of shipping it.
+   *
+   * Eight composite terms, three survival layers and a keeper-option term all
+   * interacting means an integration bug produces CONFIDENT nonsense rather
+   * than a crash. This codebase has already done exactly that three times: a
+   * three-layer survival model computed and discarded, an opportunity join that
+   * matched nobody, and a board where every projection was zero. All three
+   * passed every test.
+   *
+   * These rails change nothing. They flag. On draft day nobody notices a subtly
+   * wrong number; everybody notices a yellow bar.
+   */
+  function plausibilityRails(entry, ctx, scored) {
+    const flags = [];
+    const p = entry.player;
+    const adp = p.adjusted_adp || p.raw_adp;
+    const pick = ctx.currentPick;
+
+    if (adp && pick && adp - pick > CFG.RAIL_ADP_AHEAD) {
+      flags.push('~' + Math.round(adp - pick) + ' picks ahead of ADP — verify before taking');
+    }
+
+    const roundsLeft = ctx.roundsLeft == null ? 99 : ctx.roundsLeft;
+    if ((p.position === 'K' || p.position === 'DEF') && roundsLeft > CFG.RAIL_LATE_ROUNDS
+        && !entry.forced) {
+      flags.push(p.position + ' this early is almost never right');
+    }
+
+    const limits = (ctx.league || {}).position_limits || {};
+    const held = (ctx.roster || []).filter(r => r.position === p.position).length;
+    const cap = limits[p.position] != null ? limits[p.position] : CFG.RAIL_DEFAULT_POS_CAP[p.position];
+    if (cap != null && held >= cap) {
+      flags.push('you already hold ' + held + ' at ' + p.position + ' (cap ' + cap + ')');
+    }
+
+    // A component dwarfing the player's whole value is the signature of a bug,
+    // not of an insight.
+    const comps = entry.components || {};
+    const vorp = Math.abs(p.vorp || 0) || 1;
+    ['keeper', 'ceiling', 'tier', 'need'].forEach(k => {
+      const v = Math.abs(comps[k] || 0);
+      if (v > vorp * CFG.RAIL_COMPONENT_RATIO) {
+        flags.push(k + ' is ' + (v / vorp).toFixed(1) + 'x this player\'s VORP — possible bug');
+      }
+    });
+
+    if (scored && scored.length > 1 && entry === scored[0]) {
+      const a = scored[0].score, b = scored[1].score;
+      if (b > 0 && a / b > CFG.RAIL_RUNAWAY_RATIO) {
+        flags.push('top score is ' + (a / b).toFixed(1) + 'x the runner-up — suspicious, not a slam dunk');
+      }
+    }
+    return flags;
   }
 
   global.DraftEngine = {
@@ -248,7 +402,7 @@
     normalCdf, adpSd, survival, runMultipliers, detectRuns,
     expectedBestAvailable, vona,
     tierCliffUrgency, starterSlotMarginal, riskAdjustment, upsideBonus,
-    scorePlayer, recommend,
+    scorePlayer, recommend, mandatoryGaps, applyRosterLegality, plausibilityRails,
     // A2/A3 surfaces, re-exported so callers need only one handle.
     survivalModel: S, compositeTerms: C,
     keeperOptionValue: C.keeperOptionValue, byeCollisionPenalty: C.byeCollisionPenalty,

@@ -210,5 +210,120 @@ check('weight sliders change the ranking', heavyCeiling[0].score !== scored[0].s
   }
 })();
 
+
+// --- Roster legality endgame (Part 6 §1) ------------------------------------
+// The failure this prevents: two picks left, no K and no DST, and the composite
+// recommends a fourth WR because his VONA dwarfs a kicker's. Draft ends,
+// lineup is illegal. A weight cannot fix this — a big enough VONA outvotes any
+// weight — so it has to be a hard filter.
+(function legalityTests() {
+  const LEAGUE = { teams: 10, starters: { QB: 1, RB: 2, WR: 2, TE: 1, FLEX: 1, K: 1, DEF: 1 } };
+  function mk(id, pos, vorp) {
+    return { player_id: id, name: pos + id, position: pos, vorp,
+             proj_mean: 100 + vorp, proj_ceiling: 140 + vorp,
+             adjusted_adp: 100, raw_adp: 100, tier: 1, tier_drop: 5, tier_size: 3 };
+  }
+  // A stacked board: elite skill players, and a kicker/defense worth ~nothing.
+  const bd = [mk('w1', 'WR', 90), mk('w2', 'WR', 85), mk('r1', 'RB', 80),
+              mk('k1', 'K', 1), mk('d1', 'DEF', 2)];
+  const full = [{ position: 'QB' }, { position: 'RB' }, { position: 'RB' },
+                { position: 'WR' }, { position: 'WR' }, { position: 'TE' }];
+
+  const gaps = E.mandatoryGaps({ league: LEAGUE, roster: full });
+  check('mandatory gaps sees the missing K and DEF, and ignores FLEX',
+    gaps.length === 2 && gaps.indexOf('K') !== -1 && gaps.indexOf('DEF') !== -1,
+    JSON.stringify(gaps));
+
+  const ctx = n => ({ board: bd, roster: full, league: LEAGUE, weights: E.DEFAULT_WEIGHTS,
+                      currentPick: 140, totalPicks: 150, myPicksLeft: n, roundsLeft: n,
+                      runMultipliers: {}, intervening: [] });
+
+  // Unfiltered, the WR wins outright — that is the bug, stated as a fact.
+  const loose = bd.map(p => E.scorePlayer(p, ctx(6))).sort((a, b) => b.score - a.score);
+  check('without the filter the composite prefers a WR over a needed K/DST',
+    ['K', 'DEF'].indexOf(loose[0].player.position) === -1,
+    loose[0].player.position);
+
+  const atTwo = E.recommend(ctx(2));
+  check('with 2 picks and 2 mandatory holes, only K/DEF are recommendable',
+    atTwo.length === 2 && atTwo.every(s => ['K', 'DEF'].indexOf(s.player.position) !== -1),
+    atTwo.map(s => s.player.position).join(','));
+  check('the forced state is reported, not silent',
+    !!atTwo[0].legality && /Forced/.test(atTwo[0].legality.message), 
+    JSON.stringify(atTwo[0].legality));
+  check('the forced pick explains itself in its reasons',
+    /FORCED/.test((atTwo[0].reasons || []).join(' ')));
+
+  const atThree = E.recommend(ctx(3));
+  check('one pick earlier it warns instead of forcing',
+    atThree.length === bd.length && /forced/i.test(atThree[0].legality_warning || ''),
+    atThree[0].legality_warning);
+
+  const atSix = E.recommend(ctx(6));
+  check('with plenty of picks left nothing is forced or warned',
+    atSix.length === bd.length && !atSix[0].legality && !atSix[0].legality_warning);
+
+  // The acceptance test the work order asks for: from every slot, a full draft
+  // must end legal.
+  let illegal = 0;
+  for (let slot = 1; slot <= 10; slot++) {
+    const roster = [];
+    let picks = 8;
+    const pool = bd.concat([mk('q1', 'QB', 60), mk('t1', 'TE', 40), mk('r2', 'RB', 55),
+                            mk('w3', 'WR', 50), mk('w4', 'WR', 45)]);
+    const avail = pool.slice();
+    while (picks > 0 && avail.length) {
+      const c = { board: avail, roster, league: LEAGUE, weights: E.DEFAULT_WEIGHTS,
+                  currentPick: 150 - picks * 10 + slot, totalPicks: 150,
+                  myPicksLeft: picks, roundsLeft: picks, runMultipliers: {}, intervening: [] };
+      const best = E.recommend(c)[0];
+      roster.push({ position: best.player.position });
+      avail.splice(avail.indexOf(best.player), 1);
+      picks--;
+    }
+    if (E.mandatoryGaps({ league: LEAGUE, roster }).length) illegal++;
+  }
+  check('a simulated full draft ends with a legal lineup from every slot',
+    illegal === 0, `${illegal}/10 slots ended illegal`);
+})();
+
+// --- Plausibility rails (Part 6 §2) -----------------------------------------
+(function railTests() {
+  const LEAGUE = { teams: 10, starters: { QB: 1, RB: 2, WR: 2, TE: 1, FLEX: 1, K: 1, DEF: 1 } };
+  const p = { player_id: 'x', name: 'X', position: 'RB', vorp: 20, proj_mean: 150,
+              proj_ceiling: 200, adjusted_adp: 90, raw_adp: 90, tier: 2, tier_drop: 4, tier_size: 3 };
+  const base = { board: [p], roster: [], league: LEAGUE, weights: E.DEFAULT_WEIGHTS,
+                 currentPick: 40, totalPicks: 150, myPicksLeft: 8, roundsLeft: 8,
+                 runMultipliers: {}, intervening: [] };
+
+  const far = E.recommend(base)[0];
+  check('a player 50 picks ahead of ADP is flagged',
+    (far.rails || []).some(f => /ahead of ADP/.test(f)), JSON.stringify(far.rails));
+
+  // Inject a corrupted component and assert the rail fires — the audit's own test.
+  const corrupt = E.scorePlayer(p, base);
+  corrupt.components.keeper = (p.vorp || 1) * 10;
+  const flags = E.plausibilityRails(corrupt, base, [corrupt]);
+  check('a 10x-inflated KOV component is flagged by name',
+    flags.some(f => /keeper is .*x this player/.test(f)), JSON.stringify(flags));
+
+  // The roster must be nearly full, or 8 picks against 8 mandatory holes makes
+  // every pick legitimately forced — and a forced kicker is correct, not odd.
+  const nearlyFull = [{ position: 'QB' }, { position: 'RB' }, { position: 'RB' },
+                      { position: 'WR' }, { position: 'WR' }, { position: 'TE' },
+                      { position: 'DEF' }];
+  const early = Object.assign({}, base, {
+    roster: nearlyFull, board: [Object.assign({}, p, { position: 'K' })] });
+  check('a kicker recommended with 8 rounds left is flagged',
+    (E.recommend(early)[0].rails || []).some(f => /almost never right/.test(f)),
+    JSON.stringify(E.recommend(early)[0].rails));
+
+  const capped = Object.assign({}, base, {
+    roster: [{ position: 'QB' }, { position: 'QB' }, { position: 'QB' }],
+    board: [Object.assign({}, p, { position: 'QB' })] });
+  check('exceeding a positional cap is flagged',
+    (E.recommend(capped)[0].rails || []).some(f => /already hold/.test(f)));
+})();
+
 console.log(`\n${pass}/${pass + fail} engine checks passed`);
 process.exit(fail ? 1 : 0);

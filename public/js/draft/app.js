@@ -292,10 +292,23 @@
   }
 
   function renderRecommendations() {
-    const scored = E.recommend(context()).slice(0, 5);
+    const all = E.recommend(context());
+    const scored = all.slice(0, 5);
     const host = $('#recs');
     if (!scored.length) { host.innerHTML = '<p class="muted">Board is empty.</p>'; return; }
-    host.innerHTML = scored.map((s, i) => {
+
+    // Roster legality comes first and in plain language: on the clock, a red bar
+    // saying "you have no kicker" beats a re-sorted list every time.
+    let head = '';
+    const lg = scored[0].legality, lw = scored[0].legality_warning;
+    if (lg) {
+      head = '<div class="forced-banner">\u26d4 ' + escapeHtml(lg.message)
+        + ' Only players who can legally start are shown.</div>';
+    } else if (lw) {
+      head = '<div class="forced-banner warn">\u26a0\ufe0f ' + escapeHtml(lw) + '</div>';
+    }
+
+    host.innerHTML = head + scored.map((s, i) => {
       const p = s.player;
       const pct = Math.round((1 - (s.survival_to_next || 0)) * 100);
       return '<div class="rec-card' + (i === 0 ? ' top' : '') + '">' +
@@ -307,6 +320,10 @@
           '</div>' +
           '<div class="rec-why">' + escapeHtml(s.reasons[0]) +
             (s.reasons.length > 1 ? ' · ' + escapeHtml(s.reasons[1]) : '') + '</div>' +
+          ((s.rails && s.rails.length)
+            ? '<div class="rail-strip">' + s.rails.map(f =>
+                '<span>\u26a0\ufe0f ' + escapeHtml(f) + '</span>').join('') + '</div>'
+            : '') +
           '<div class="rec-stats">' +
             '<span title="Value Over Next Available — what you lose by waiting">VONA <b>' + s.components.vona.toFixed(1) + '</b></span>' +
             '<span>Proj <b>' + Math.round(p.proj_mean) + '</b></span>' +

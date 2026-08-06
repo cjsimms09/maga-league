@@ -851,3 +851,20 @@ button.is-busy, .btn.is-busy {
 }
 .prov-note.warn { background: rgba(245, 196, 69, .09); border: 1px solid rgba(245, 196, 69, .45); color: #f2e2b4; }
 .prov-note.bad  { background: rgba(255, 70, 85, .10); border: 1px solid rgba(255, 70, 85, .55); color: #ffd3d7; }
+
+/* ---------- roster legality + plausibility rails (War Room) ----------
+   Both exist to be noticed on the clock with forty seconds left. Neither is
+   subtle on purpose. */
+.forced-banner {
+  padding: .7rem .9rem; margin-bottom: .7rem; border-radius: 10px;
+  background: rgba(255, 70, 85, .13); border: 1px solid rgba(255, 70, 85, .6);
+  color: #ffd3d7; font-weight: 700; font-size: .88rem; line-height: 1.45;
+}
+.forced-banner.warn {
+  background: rgba(245, 196, 69, .1); border-color: rgba(245, 196, 69, .55); color: #f2e2b4;
+}
+.rail-strip { display: flex; flex-wrap: wrap; gap: .3rem; margin-top: .35rem; }
+.rail-strip span {
+  background: rgba(245, 196, 69, .12); border: 1px solid rgba(245, 196, 69, .4);
+  color: #f2e2b4; border-radius: 6px; padding: .12rem .4rem; font-size: .68rem; line-height: 1.4;
+}
