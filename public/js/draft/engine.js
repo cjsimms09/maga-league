@@ -10,6 +10,11 @@
 (function (global) {
   'use strict';
 
+  // A2/A3 live in their own modules; engine.js orchestrates them.
+  const S = global.DraftSurvival || (typeof require === 'function' ? require('./survival.js') : null);
+  const C = global.DraftComposite || (typeof require === 'function' ? require('./composite.js') : null);
+  if (!S || !C) throw new Error('draft engine requires survival.js and composite.js to load first');
+
   // ---- config knobs (every magic number lives here, with its reasoning) ----
   const CFG = {
     ADP_SD_FLOOR: 3.0,        // nobody is unsure about pick 1
@@ -24,89 +29,21 @@
     TIE_THRESHOLD: 2.0,       // composite points within which we call it a tie
   };
 
-  const DEFAULT_WEIGHTS = { tier: 1.0, need: 1.0, risk: 1.0, ceiling: 0.5 };
+  const DEFAULT_WEIGHTS = { tier: 1.0, need: 1.0, risk: 1.0, ceiling: 0.5,
+    keeper: 1.0, bye: 1.0, stack: 1.0 };
 
   // Positional injury rates -> how much bye/injury insurance a bench body is worth.
   const INJURY_RATE = { QB: 0.14, RB: 0.28, WR: 0.20, TE: 0.22, K: 0.04, DEF: 0.02 };
   // Age at which production reliably falls off, by position.
   const AGE_CLIFF = { RB: 27, WR: 30, TE: 31, QB: 36, K: 99, DEF: 99 };
 
-  // ---- normal distribution (no dependencies) ----
-  function erf(x) {
-    // Abramowitz & Stegun 7.1.26 — max error 1.5e-7, far tighter than our inputs.
-    const s = x < 0 ? -1 : 1;
-    x = Math.abs(x);
-    const t = 1 / (1 + 0.3275911 * x);
-    const poly = ((((1.061405429 * t - 1.453152027) * t + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t;
-    return s * (1 - poly * Math.exp(-x * x));
-  }
-  function normalCdf(x, mu, sigma) {
-    if (!sigma || sigma <= 0) return x >= mu ? 1 : 0;
-    return 0.5 * (1 + erf((x - mu) / (sigma * Math.SQRT2)));
-  }
-
-  // ================================================= Module 5: survival model
-  function adpSd(adpMean, provided) {
-    if (provided && provided > 0) return provided;
-    return Math.max(CFG.ADP_SD_FLOOR, CFG.ADP_SD_RATE * adpMean);
-  }
-
-  /** P(player still on the board at `pick`), with the live run multiplier. */
-  function survival(player, pick, runMultipliers) {
-    const adp = player.adjusted_adp || player.raw_adp || 9999;
-    const sd = adpSd(adp, player.adp_sd);
-    let taken = normalCdf(pick, adp, sd);
-    const mult = (runMultipliers && runMultipliers[player.position]) || 1;
-    if (mult !== 1) {
-      // Scale the hazard, not the probability, so results stay in [0,1] and a
-      // 2x-hot position can never produce a >100% chance of being gone.
-      taken = 1 - Math.pow(1 - taken, mult);
-    }
-    return Math.max(0, Math.min(1, 1 - taken));
-  }
-
-  /**
-   * Bayesian-ish live update: compare the positional mix of the last N picks to
-   * what ADP predicted, and turn the ratio into a damped hazard multiplier.
-   */
-  function runMultipliers(recentPicks, board, currentPick) {
-    const out = {};
-    if (!recentPicks || recentPicks.length < 4) return out;
-    const window = recentPicks.slice(-CFG.RUN_WINDOW);
-    const n = window.length;
-
-    const observed = {};
-    window.forEach(p => { observed[p.position] = (observed[p.position] || 0) + 1; });
-
-    // Expected: of the players who *should* have gone in this window, what mix?
-    const start = currentPick - n;
-    const expected = {};
-    let expTotal = 0;
-    board.forEach(pl => {
-      const adp = pl.adjusted_adp || pl.raw_adp || 9999;
-      const sd = adpSd(adp, pl.adp_sd);
-      const mass = normalCdf(currentPick, adp, sd) - normalCdf(start, adp, sd);
-      if (mass > 0) {
-        expected[pl.position] = (expected[pl.position] || 0) + mass;
-        expTotal += mass;
-      }
-    });
-
-    Object.keys(observed).forEach(pos => {
-      const obsRate = observed[pos] / n;
-      const expRate = expTotal > 0 ? (expected[pos] || 0) / expTotal : obsRate;
-      if (expRate <= 0.01) return;
-      const raw = 1 + CFG.RUN_DAMPING * (obsRate / expRate - 1);
-      out[pos] = Math.max(CFG.RUN_MIN, Math.min(CFG.RUN_MAX, raw));
-    });
-    return out;
-  }
-
-  function detectRuns(mults) {
-    return Object.keys(mults || {})
-      .filter(pos => mults[pos] >= CFG.RUN_BANNER_AT)
-      .sort((a, b) => mults[b] - mults[a]);
-  }
+  // ---- Module 5 now lives in survival.js (A2 three-layer model) ----
+  // These thin wrappers keep the pre-refactor call sites working unchanged.
+  const normalCdf = S.normalCdf;
+  const adpSd = S.adpSd;
+  const survival = S.survivalProbability;
+  const runMultipliers = S.runMultipliers;
+  const detectRuns = S.detectRuns;
 
   // ========================================================= Module 6: VONA
   /**
@@ -233,8 +170,18 @@
     const need = starterSlotMarginal(player, ctx.roster || [], ctx.league || {});
     const risk = riskAdjustment(player);
     const ceiling = upsideBonus(player, ctx.currentPick, ctx.totalPicks, ctx.myPicksLeft);
+    const kov = C.keeperOptionValue(player, ctx);
+    const bye = C.byeCollisionPenalty(player, ctx);
+    const stack = C.correlationAdjustment(player, ctx);
 
-    const score = v + w.tier * tier + w.need * need.value + w.risk * risk.value + w.ceiling * ceiling;
+    const score = v
+      + w.tier * tier
+      + w.need * need.value
+      + w.risk * risk.value
+      + w.ceiling * ceiling
+      + w.keeper * kov.value
+      - w.bye * bye.value
+      + w.stack * stack.value;
 
     const survivalToNext = ctx.nextPick ? survival(player, ctx.nextPick, ctx.runMultipliers) : 0;
     const reasons = [];
@@ -243,6 +190,11 @@
     if (need.value > 0) reasons.push(need.why);
     risk.reasons.forEach(r => reasons.push(r));
     if (w.ceiling * ceiling > 6) reasons.push(`ceiling ${Math.round(player.proj_ceiling)} — worth the swing here`);
+    if (w.keeper * kov.value >= C.CFG.KOV_BADGE_AT) {
+      reasons.push(`KEEPER TARGET — ${Math.round(kov.p_keep * 100)}% likely worth keeping next year at this cost`);
+    }
+    if (w.bye * bye.value > 3) reasons.push(`bye collision: ${bye.detail}`);
+    stack.reasons.forEach(r => reasons.push(r));
     if (!reasons.length) reasons.push(`best value on the board at ${player.position}`);
 
     return {
@@ -254,11 +206,18 @@
         need: need.value,
         risk: risk.value,
         ceiling,
+        keeper: kov.value,
+        bye: -bye.value,
+        stack: stack.value,
+        keeper_detail: kov,
+        bye_detail: bye,
         weighted: {
           tier: w.tier * tier, need: w.need * need.value,
           risk: w.risk * risk.value, ceiling: w.ceiling * ceiling,
+          keeper: w.keeper * kov.value, bye: -w.bye * bye.value, stack: w.stack * stack.value,
         },
       },
+      keeper_target: kov.value >= C.CFG.KOV_BADGE_AT,
       survival_to_next: survivalToNext,
       reasons,
     };
@@ -283,6 +242,10 @@
     expectedBestAvailable, vona,
     tierCliffUrgency, starterSlotMarginal, riskAdjustment, upsideBonus,
     scorePlayer, recommend,
+    // A2/A3 surfaces, re-exported so callers need only one handle.
+    survivalModel: S, compositeTerms: C,
+    keeperOptionValue: C.keeperOptionValue, byeCollisionPenalty: C.byeCollisionPenalty,
+    correlationAdjustment: C.correlationAdjustment,
   };
 })(typeof window !== 'undefined' ? window : globalThis);
 

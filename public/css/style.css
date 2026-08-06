@@ -604,3 +604,10 @@ input[type=range] { accent-color: var(--gold); }
   .rec-actions { flex-direction: row; width: 100%; justify-content: space-between; align-items: center; }
   .rec-name { font-size: .98rem; }
 }
+
+/* Know Your League */
+.mgr-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: .6rem; }
+.mgr-card { border: 1px solid var(--line); border-radius: 11px; padding: .6rem .75rem; background: rgba(255,255,255,.02); }
+.mgr-name { font-family: var(--font-display); font-weight: 800; color: #fff; display: flex; justify-content: space-between; gap: .5rem; font-size: .88rem; }
+.mgr-name .muted { font-family: var(--font-body); font-weight: 400; font-size: .68rem; }
+.mgr-summary { font-size: .8rem; color: #c7cddd; margin-top: .25rem; line-height: 1.45; }

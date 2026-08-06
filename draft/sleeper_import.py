@@ -102,6 +102,68 @@ def original_rounds(league_id: str) -> dict[str, int]:
     return {str(p["player_id"]): int(p["round"]) for p in picks if p.get("player_id") and p.get("round")}
 
 
+def league_history(league_id: str, *, max_depth: int = 15) -> list[dict]:
+    """Walk previous_league_id backward and return every season, newest first.
+
+    Prior seasons are where all the behavioural signal lives (A1) and where
+    original draft rounds come from, so this chain is load-bearing.
+    """
+    out, seen, current = [], set(), league_id
+    for _ in range(max_depth):
+        if not current or current in seen:
+            break
+        seen.add(current)
+        try:
+            lg = fetch_league(current)
+        except Exception as exc:  # noqa: BLE001 - a broken link ends the chain
+            print(f"  ! history stops at {current}: {exc}")
+            break
+        out.append(lg)
+        current = lg.get("previous_league_id")
+    return out
+
+
+def all_drafts(league_id: str) -> list[dict]:
+    """Every completed draft across league history, newest season first.
+
+    Each entry: {season, league_id, draft_id, picks, users, rosters}. Cached on
+    disk by the fetch layer — the full historical pull happens once.
+    """
+    seasons = league_history(league_id)
+    print(f"  league history: {len(seasons)} season(s) — {[s.get('season') for s in seasons]}")
+    out = []
+    for lg in seasons:
+        lid = lg["league_id"]
+        try:
+            drafts = fetch_drafts(lid)
+        except Exception as exc:  # noqa: BLE001
+            print(f"  ! no drafts for {lg.get('season')}: {exc}")
+            continue
+        for d in sorted(drafts, key=lambda x: x.get("created", 0), reverse=True):
+            if d.get("status") not in ("complete", "paused", "drafting"):
+                continue
+            try:
+                picks = fetch_draft_picks(d["draft_id"])
+            except Exception as exc:  # noqa: BLE001
+                print(f"  ! picks unavailable for draft {d['draft_id']}: {exc}")
+                continue
+            if not picks:
+                continue
+            out.append({
+                "season": lg.get("season"),
+                "league_id": lid,
+                "draft_id": d["draft_id"],
+                "picks": picks,
+                "users": fetch_users(lid),
+                "rosters": fetch_rosters(lid),
+                "settings": d.get("settings") or {},
+            })
+            break  # one draft per season
+    print(f"  collected {len(out)} historical draft(s), "
+          f"{sum(len(d['picks']) for d in out)} picks")
+    return out
+
+
 def import_league(league_id: str, *, keeper_rules: dict | None = None) -> dict:
     """Module 0 end to end -> a league_config dict ready for validation."""
     print(f"Importing Sleeper league {league_id} ...")
@@ -152,6 +214,11 @@ def import_league(league_id: str, *, keeper_rules: dict | None = None) -> dict:
             "undrafted_round": 10,
         },
         "imported_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "history": [
+            {"season": h.get("season"), "league_id": h.get("league_id"), "name": h.get("name")}
+            for h in league_history(league_id)
+        ],
+        "confirmed": False,   # flipped by the review screen; a build warns until then
     }
     print(f"  {cfg['teams']} teams · {len(cfg['scoring'])} scoring rules · "
           f"{sum(cfg['roster_slots'].values())} roster slots · "

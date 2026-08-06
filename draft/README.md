@@ -67,8 +67,41 @@ numbers correctly, and that a zero-keeper league reproduces raw ADP.
 | 5 Survival + live Bayesian update | ✅ |
 | 6 VONA | ✅ |
 | 7 Composite + live weights | ✅ |
-| 8 Monte Carlo | ⬜ next |
+| 8 Monte Carlo | ⬜ not built (A4 depends on it) |
 | 9 Live sync | ✅ |
+
+## Update build (Part A)
+
+| Item | Status |
+|---|---|
+| Auto-import + league history chain | ✅ |
+| Editable confirmation screen | ✅ Commish → War Room → League Setup |
+| A1 manager behavioural models | ✅ `managers.py`, `config/manager_profiles.json` (hand-editable, `locked` respected) |
+| A2 three-layer survival | ✅ `public/js/draft/survival.js` |
+| A3 composite: KOV / bye / correlation | ✅ `public/js/draft/composite.js` |
+| A4 Monte Carlo w/ profiles | ⬜ next (needs Module 8 built first) |
+| A5 pick-pair optimisation | ⬜ |
+| A6 regret view | ⬜ |
+| A7 post-draft audit | ⬜ |
+| Part B (in-season) | ⬜ |
+
+### On ADP honesty in A1
+
+Sleeper publishes no historical ADP and no free source does either. Two of the
+six metrics (`reach_delta`, `bpa_vs_need`) need a value ordering, so they use
+the player's *current* consensus rank as a proxy — which is biased, because a
+player who busted ranks low today and makes whoever drafted him look like a
+reacher. Both are flagged `proxy: true`, shrunk twice as hard as the others,
+and the four ADP-free metrics carry the profile when the sample is thin.
+
+### On survival composition (A2)
+
+Layer 1 is unconditional; Layer 2 only models the picks from now to the target.
+Blending those directly mixes two different quantities and miscalibrates every
+number the tool produces. Layer 1 is therefore conditioned on current
+availability, and beyond the window Layer 2 modelled, the two are **composed**
+(a product of survivals) rather than blended — which is both correct and
+monotone in pick number by construction.
 
 Everything is config-driven; every magic number sits in `CFG` at the top of
 `engine.js` or in `league_config.json`, with a comment explaining it.

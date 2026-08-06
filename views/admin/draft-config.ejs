@@ -1,0 +1,101 @@
+<%- include('../partials/header', { title: 'League Setup' }) %>
+
+<h1 class="page-title">⚙️ League Setup — Confirm the Import</h1>
+<p class="page-sub">
+  Everything below was pulled from Sleeper automatically. Nothing should be typed from memory —
+  but nothing should be trusted unread either. Correct anything wrong, then confirm.
+</p>
+
+<% if (typeof overrides !== 'undefined' && overrides.confirmed) { %>
+  <div class="flash-note">
+    ✅ Confirmed by <%= overrides.confirmed_by %> on <%= (overrides.confirmed_at || '').slice(0, 10) %>.
+    Corrections below are applied to the live board immediately.
+    <a href="/admin/draft-config.json">Download the override file</a> and commit it so the nightly
+    pipeline agrees with what you see here.
+  </div>
+<% } else { %>
+  <div class="error-note">
+    ⚠️ This import has not been confirmed yet. The board still works, but scoring and roster slots
+    are unverified — a single wrong scoring value silently corrupts every projection in the tool.
+  </div>
+<% } %>
+
+<div id="cfg-loading" class="card"><div class="body"><p class="muted" style="margin:0">Reading the board…</p></div></div>
+
+<form method="post" action="/admin/draft-config" id="cfg-form" style="display:none">
+  <div class="grid cols-2">
+    <div class="card">
+      <h2>League Basics <span class="sub">from Sleeper</span></h2>
+      <div class="body">
+        <div class="inline-form">
+          <div><label class="field">Teams</label><input type="number" name="teams" id="f-teams"></div>
+          <div><label class="field">My draft slot</label><input type="number" name="my_draft_slot" id="f-slot"></div>
+          <div>
+            <label class="field">Draft type</label>
+            <select name="draft_type" id="f-type">
+              <option value="snake">Snake</option>
+              <option value="linear">Linear</option>
+              <option value="third_round_reversal">3rd-round reversal</option>
+            </select>
+          </div>
+        </div>
+        <p class="muted" id="f-meta" style="margin-top:.7rem"></p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Keeper Rules <span class="sub">Sleeper cannot tell us these — you must</span></h2>
+      <div class="body">
+        <div class="inline-form">
+          <div><label class="field">Keepers per team</label><input type="number" name="keeper_count" id="f-kcount" value="3"></div>
+          <div>
+            <label class="field">Cost model</label>
+            <select name="cost_model" id="f-cost">
+              <option value="original_round">Costs the round he was drafted</option>
+              <option value="fixed_round">Costs a fixed round</option>
+              <option value="escalator">Escalator (moves up N rounds per year kept)</option>
+              <option value="no_cost">Free — costs no pick</option>
+            </select>
+          </div>
+        </div>
+        <div class="inline-form">
+          <div><label class="field">Fixed round <span class="muted">(fixed_round only)</span></label><input type="number" name="fixed_round" id="f-fixed"></div>
+          <div><label class="field">Rounds gained per year <span class="muted">(escalator only)</span></label><input type="number" name="escalator_rounds" id="f-esc"></div>
+          <div><label class="field">Max years kept</label><input type="number" name="max_years" id="f-years" value="3"></div>
+        </div>
+        <div class="inline-form">
+          <div>
+            <label class="field">Undrafted / waiver adds</label>
+            <select name="undrafted_rule" id="f-undrafted">
+              <option value="assigned_round">Cost an assigned round</option>
+              <option value="ineligible">Not keeper-eligible</option>
+            </select>
+          </div>
+          <div><label class="field">Assigned round</label><input type="number" name="undrafted_round" id="f-uround" value="10"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Roster Slots <span class="sub">what your lineup actually requires</span></h2>
+      <div class="body tight scroll-x"><table class="roll"><tbody id="f-slots"></tbody></table></div>
+    </div>
+
+    <div class="card">
+      <h2>Scoring <span class="sub">every value, as imported — check the ones you care about</span></h2>
+      <div class="body tight scroll-x" style="max-height:420px; overflow-y:auto">
+        <table class="roll"><tbody id="f-scoring"></tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align:center; margin-top:1.2rem">
+    <button class="btn gold" type="submit">✅ Confirm — these are my league's rules</button>
+    <a class="btn navy" href="/admin/warroom">Back to the War Room</a>
+  </div>
+</form>
+
+<script>window.CFG_OVERRIDES = <%- JSON.stringify(typeof overrides !== 'undefined' ? overrides : {}) %>;</script>
+<script src="/js/draft/config-screen.js"></script>
+
+<%- include('../partials/footer') %>

@@ -22,6 +22,9 @@
     recentPicks: [],
     sync: null,
     mode: 'pre',          // 'pre' | 'live'
+    rosters: {},          // team_slot -> [player] (built from picks; feeds A2 Layer 2)
+    profiles: {},         // manager profiles keyed by draft slot
+    overrides: {},
     filterPos: 'ALL',
     search: '',
   };
@@ -36,6 +39,17 @@
       })
       .then(data => {
         state.data = data;
+        // Confirmation-screen overrides win over the imported config, so a
+        // correction takes effect on the board without waiting for a rebuild.
+        const ov = window.CFG_OVERRIDES || {};
+        if (ov.scoring) data.league.scoring = Object.assign({}, data.league.scoring, ov.scoring);
+        if (ov.roster_slots) data.league.roster_slots = Object.assign({}, data.league.roster_slots, ov.roster_slots);
+        if (ov.keepers) data.league.keeper_rules = Object.assign({}, data.league.keeper_rules, ov.keepers);
+        if (ov.teams) data.league.teams = ov.teams;
+        if (ov.my_draft_slot) data.league.my_draft_slot = ov.my_draft_slot;
+        if (ov.draft_type) data.league.draft_type = ov.draft_type;
+        state.overrides = ov;
+        state.profiles = indexProfilesBySlot(data);
         state.board = data.players.slice();
         renderAll();
         wireControls();
@@ -65,18 +79,54 @@
     return mine.indexOf(currentPick()) !== -1;
   }
 
+  function indexProfilesBySlot(data) {
+    // Profiles are keyed by Sleeper user id; the board thinks in draft slots.
+    const profiles = (data.manager_profiles || {}).managers || {};
+    const out = {};
+    Object.keys(profiles).forEach(uid => {
+      const p = profiles[uid];
+      if (p.draft_slot) out[p.draft_slot] = p;
+    });
+    // Without an explicit mapping, fall back to order — better than no profile,
+    // and the Know Your League panel still shows the right names.
+    if (!Object.keys(out).length) {
+      Object.keys(profiles).forEach((uid, i) => { out[i + 1] = profiles[uid]; });
+    }
+    return out;
+  }
+
+  /** Teams picking between my current pick and my next — A2 Layer 2's input. */
+  function interveningPicks(from, to) {
+    const picks = (state.data.pick_order || {}).picks || [];
+    return picks
+      .filter(p => p.overall >= from && p.overall < to)
+      .map(p => ({
+        team_slot: p.slot,
+        pick_no: p.overall,
+        roster: state.rosters[p.slot] || [],
+        profile: state.profiles[p.slot] || null,
+      }));
+  }
+
   function context() {
     const upcoming = myNextPicks();
+    const cur = currentPick();
+    const next = upcoming.length > 1 ? upcoming[1] : null;
+    const totalPicks = (state.data.pick_order.picks || []).length;
+    const teams = state.data.league.teams || 10;
     return {
       board: state.board,
-      nextPick: upcoming.length > 1 ? upcoming[1] : null,
-      currentPick: currentPick(),
-      totalPicks: (state.data.pick_order.picks || []).length,
+      nextPick: next,
+      currentPick: cur,
+      totalPicks,
       myPicksLeft: upcoming.length,
       roster: state.myRoster,
       league: state.data.league,
       weights: state.weights,
       runMultipliers: state.runMults,
+      // A2 Layer 2
+      intervening: next ? interveningPicks(cur, next) : [],
+      roundsLeft: Math.max(0, Math.ceil((totalPicks - cur) / teams)),
     };
   }
 
@@ -89,6 +139,27 @@
     renderSurvival();
     renderRuns();
     renderPicksFeed();
+    renderManagers();
+  }
+
+  function renderManagers() {
+    const host = document.getElementById('managers');
+    if (!host) return;
+    const mp = state.data.manager_profiles || {};
+    const managers = Object.values(mp.managers || {});
+    if (!managers.length) {
+      host.innerHTML = '<p class="muted">No prior drafts on Sleeper yet — every opponent is '
+        + 'modelled as league-average until there is history to learn from.</p>';
+      return;
+    }
+    host.innerHTML = managers.map(m =>
+      '<div class="mgr-card">' +
+        '<div class="mgr-name">' + escapeHtml(m.name) +
+          '<span class="muted">' + m.sample_size + ' draft' + (m.sample_size === 1 ? '' : 's') + '</span></div>' +
+        '<div class="mgr-summary">' + escapeHtml(m.summary) + '</div>' +
+      '</div>').join('');
+    const head = document.getElementById('managers-head');
+    if (head) head.textContent = 'from ' + (mp.drafts_analysed || 0) + ' prior draft(s)';
   }
 
   function renderHeader() {
@@ -243,12 +314,14 @@
   }
 
   // ----------------------------------------------------------------- actions
-  function markDrafted(playerId, toMe) {
+  function markDrafted(playerId, toMe, teamSlot) {
     const p = playerById(playerId);
     if (!p) return;
     state.drafted.add(String(playerId));
     state.board = state.board.filter(x => String(x.player_id) !== String(playerId));
     state.recentPicks.push({ position: p.position, player_id: playerId });
+    const slot = toMe ? state.data.league.my_draft_slot : teamSlot;
+    if (slot) (state.rosters[slot] = state.rosters[slot] || []).push(p);
     if (toMe) state.myRoster.push(p);
     recomputeRuns();
     renderAll();
@@ -269,6 +342,8 @@
       state.board = state.board.filter(x => String(x.player_id) !== id);
       if (p) {
         state.recentPicks.push({ position: p.position, player_id: id });
+        const slot = pick.draft_slot || pick.roster_id;
+        if (slot) (state.rosters[slot] = state.rosters[slot] || []).push(p);
         if (pick.roster_id && mySlot && Number(pick.roster_id) === Number(mySlot)) state.myRoster.push(p);
       }
     });
@@ -336,7 +411,11 @@
       'Tier cliff urgency:               ' + c.weighted.tier.toFixed(1) + '  (raw ' + c.tier_urgency.toFixed(1) + ')\n' +
       'Starting-lineup need:             ' + c.weighted.need.toFixed(1) + '  (raw ' + c.need.toFixed(1) + ')\n' +
       'Risk adjustment:                  ' + c.weighted.risk.toFixed(1) + '  (raw ' + c.risk.toFixed(1) + ')\n' +
-      'Upside bonus:                     ' + c.weighted.ceiling.toFixed(1) + '  (raw ' + c.ceiling.toFixed(1) + ')\n\n' +
+      'Upside bonus:                     ' + c.weighted.ceiling.toFixed(1) + '  (raw ' + c.ceiling.toFixed(1) + ')\n' +
+      'Keeper option value:              ' + c.weighted.keeper.toFixed(1) + '  (raw ' + c.keeper.toFixed(1) +
+        ', P(keep) ' + Math.round((c.keeper_detail.p_keep || 0) * 100) + '%)\n' +
+      'Bye collision:                    ' + c.weighted.bye.toFixed(1) + '  (' + c.bye_detail.detail + ')\n' +
+      'Correlation / stacking:           ' + c.weighted.stack.toFixed(1) + '\n\n' +
       'Projection ' + Math.round(p.proj_mean) + ' (floor ' + Math.round(p.proj_floor) +
       ', ceiling ' + Math.round(p.proj_ceiling) + ')\n' +
       'Adjusted ADP ' + Math.round(p.adjusted_adp) + ' vs raw ' + Math.round(p.raw_adp || 0) + '\n' +

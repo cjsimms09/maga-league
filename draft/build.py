@@ -22,11 +22,13 @@ import config_schema  # noqa: E402
 import keepers as keepers_mod  # noqa: E402
 import projections as proj_mod  # noqa: E402
 import vorp as vorp_mod  # noqa: E402
+import managers as managers_mod  # noqa: E402
 
 ARTIFACT_VERSION = 1
 OUT = HERE.parent / "public" / "draft_data.json"
 CONFIG_PATH = HERE / "config" / "league_config.json"
 KEEPERS_PATH = HERE / "config" / "keepers.json"
+PROFILES_PATH = HERE / "config" / "manager_profiles.json"
 
 # Positions the draft board cares about. IDP leagues would extend this.
 DRAFTABLE = {"QB", "RB", "WR", "TE", "K", "DEF"}
@@ -108,12 +110,33 @@ def load_keepers(cfg: dict) -> dict[int, list[dict]]:
     return out
 
 
+def build_manager_profiles(cfg: dict, offline: bool) -> dict:
+    """A1 — behavioural profiles from every prior draft in league history."""
+    if offline:
+        if PROFILES_PATH.exists():
+            print("  offline: using existing manager profiles")
+            return json.loads(PROFILES_PATH.read_text())
+        fixture = HERE / "fixtures" / "manager_profiles.json"
+        if fixture.exists():
+            return json.loads(fixture.read_text())
+        return {"managers": {}, "league_average": {}, "drafts_analysed": 0,
+                "note": "offline build with no cached profiles"}
+    import sleeper_import as si
+    drafts = si.all_drafts(cfg["league_id"])
+    profiles = managers_mod.build_profiles(drafts, si.fetch_players())
+    managers_mod.save(profiles, PROFILES_PATH)
+    return profiles
+
+
 def build(cfg: dict, *, offline: bool = False) -> dict:
     print("Building draft artifact ...")
     players = load_players(cfg, offline)
     if not players:
         raise SystemExit("no players — cannot build a board")
 
+    profiles = build_manager_profiles(cfg, offline)
+    print(f"  manager profiles: {len(profiles.get('managers', {}))} from "
+          f"{profiles.get('drafts_analysed', 0)} prior draft(s)")
     keeper_map = load_keepers(cfg)
     kept_ids = {str(k["player_id"]) for ks in keeper_map.values() for k in ks if k.get("player_id")}
 
@@ -149,12 +172,15 @@ def build(cfg: dict, *, offline: bool = False) -> dict:
             "forfeited": order.forfeited,
         },
         "replacement": vorp_diag,
+        "manager_profiles": profiles,
         "players": available,
         "kept_player_ids": sorted(kept_ids),
         "notes": {
             "adp_blend_weight": cfg.get("adp_blend_weight"),
             "opportunity_cap": cfg.get("opportunity_cap"),
             "opportunity_applied": any(p.get("opportunity_z") for p in available),
+            "config_confirmed": bool(cfg.get("confirmed")),
+            "profiles_from_drafts": profiles.get("drafts_analysed", 0),
         },
     }
     return artifact
@@ -182,6 +208,9 @@ def main() -> None:
     if args.slot:
         cfg["my_draft_slot"] = args.slot
 
+    if not cfg.get("confirmed"):
+        print("  ! league_config has not been confirmed on the review screen — "
+              "scoring and roster slots are unverified (Commish -> War Room -> League Setup)")
     artifact = build(cfg, offline=args.offline)
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)

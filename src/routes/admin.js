@@ -522,7 +522,66 @@ router.get('/warroom', aw(async (req, res) => {
   res.render('admin/warroom', {
     season: H.currentSeason(req.world.seasons),
     config: req.world.config,
+    overrides: await getDoc('draft-config-overrides', {}),
   });
+}));
+
+// ---------- Module 0 confirmation screen ----------
+// The pipeline writes league_config.json from Sleeper, but nobody should trust
+// an import they have not eyeballed. Overrides live in Blobs so a correction
+// takes effect on the board immediately, and the same screen emits the file to
+// commit so the next pipeline run agrees with what you see.
+router.get('/draft-config', aw(async (req, res) => {
+  const overrides = await getDoc('draft-config-overrides', {});
+  res.render('admin/draft-config', { overrides, config: req.world.config });
+}));
+
+router.post('/draft-config', aw(async (req, res) => {
+  const prev = await getDoc('draft-config-overrides', {});
+  const next = Object.assign({}, prev);
+
+  // Scoring + roster slot corrections arrive as scoring[key] / slot[key].
+  const scoring = {}, slots = {};
+  for (const [k, v] of Object.entries(req.body)) {
+    const ms = k.match(/^scoring\[(.+)\]$/);
+    const ml = k.match(/^slot\[(.+)\]$/);
+    if (ms && v !== '') scoring[ms[1]] = parseFloat(v);
+    if (ml && v !== '') slots[ml[1]] = parseInt(v, 10);
+  }
+  if (Object.keys(scoring).length) next.scoring = scoring;
+  if (Object.keys(slots).length) next.roster_slots = slots;
+
+  const num = (k, parse) => { const v = parse(req.body[k]); return Number.isFinite(v) ? v : undefined; };
+  const teams = num('teams', x => parseInt(x, 10));
+  const slot = num('my_draft_slot', x => parseInt(x, 10));
+  if (teams) next.teams = teams;
+  if (slot) next.my_draft_slot = slot;
+  if (['snake', 'linear', 'third_round_reversal'].includes(req.body.draft_type)) next.draft_type = req.body.draft_type;
+
+  // Keeper house rules — Sleeper never knows these.
+  next.keepers = {
+    count: parseInt(req.body.keeper_count, 10) || 3,
+    cost_model: ['original_round', 'fixed_round', 'escalator', 'no_cost'].includes(req.body.cost_model)
+      ? req.body.cost_model : 'original_round',
+    fixed_round: parseInt(req.body.fixed_round, 10) || undefined,
+    escalator_rounds: parseInt(req.body.escalator_rounds, 10) || undefined,
+    max_years: parseInt(req.body.max_years, 10) || 3,
+    undrafted_rule: req.body.undrafted_rule === 'ineligible' ? 'ineligible' : 'assigned_round',
+    undrafted_round: parseInt(req.body.undrafted_round, 10) || 10,
+  };
+  next.confirmed = true;
+  next.confirmed_at = now();
+  next.confirmed_by = req.owner.name;
+  await setDoc('draft-config-overrides', next);
+  res.redirect('/admin/draft-config?saved=1');
+}));
+
+// The corrected config as a file to commit, so the offline pipeline and the
+// browser never disagree about the league's rules.
+router.get('/draft-config.json', aw(async (req, res) => {
+  const overrides = await getDoc('draft-config-overrides', {});
+  res.setHeader('Content-Disposition', 'attachment; filename="league_config_overrides.json"');
+  res.json(overrides);
 }));
 
 // Same-origin proxy for Sleeper, used only if the browser's direct call is
