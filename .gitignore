@@ -1,5 +1,9 @@
 node_modules/
+# Local dev store for the site (seeded per machine). Not the draft pipeline's
+# data directory, which is a committed artifact — see the negation below.
 data/
+!draft/data/
+!draft/data/**
 *.log
 draft/.cache/
 draft/__pycache__/
