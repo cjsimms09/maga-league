@@ -49,6 +49,12 @@
         if (ov.my_draft_slot) data.league.my_draft_slot = ov.my_draft_slot;
         if (ov.draft_type) data.league.draft_type = ov.draft_type;
         state.overrides = ov;
+        // The slot is the one override that invalidates the artifact rather
+        // than just annotating it: every "my pick" number in pick_order was
+        // computed for the slot the pipeline built with. Accepting a new slot
+        // and keeping the old pick numbers would score the whole draft against
+        // someone else's turns. Recompute instead.
+        applySlot(data);
         state.profiles = indexProfilesBySlot(data);
         state.board = data.players.slice();
         renderAll();
@@ -63,6 +69,34 @@
           'python build.py --league-id ' + escapeHtml((window.LEAGUE_ID || '')) + ' --slot 4</code><br>' +
           'or let the nightly GitHub Action do it.</p></div></div>';
       });
+  }
+
+  /* Draft-slot changes.
+   *
+   * Your seat is decided on the site (reverse standings, one at a time) and can
+   * change right up to draft day — including after the nightly pipeline has
+   * already built a board. `pick_order.picks` is slot-independent: it is the
+   * true pick sequence after keeper forfeits, with each entry carrying the slot
+   * that owns it. Only `my_picks` is slot-specific, so re-deriving it is a
+   * filter, not a rebuild, and it stays exact under snake order and keeper
+   * forfeits alike because it reuses the sequence the pipeline already solved.
+   */
+  function applySlot(data) {
+    const slot = Number(data.league.my_draft_slot);
+    const picks = (data.pick_order && data.pick_order.picks) || [];
+    if (!slot || !picks.length) return;
+
+    const derived = picks.filter(p => Number(p.slot) === slot).map(p => p.overall);
+    if (!derived.length) {
+      console.warn('draft slot ' + slot + ' owns no picks in this board');
+      return;
+    }
+    const baked = (data.pick_order.my_picks || []).join(',');
+    if (derived.join(',') === baked) return;   // slot unchanged; nothing to do
+
+    data.pick_order.my_picks_built_for = data.pick_order.my_picks;
+    data.pick_order.my_picks = derived;
+    state.slotRecomputed = { slot: slot, from: baked, to: derived.join(',') };
   }
 
   // ------------------------------------------------------------- computation
@@ -185,6 +219,17 @@
     if (!host) return;
     const p = d.provenance || {};
     const notes = [];
+
+    if (state.slotRecomputed) {
+      notes.push({
+        level: 'warn',
+        text: 'Your draft slot changed to #' + state.slotRecomputed.slot
+          + ' after this board was built. Pick numbers recomputed live: '
+          + state.slotRecomputed.to + ' (board was built for '
+          + (state.slotRecomputed.from || 'no picks') + '). '
+          + 'Rebuild the board to refresh keeper-adjusted ADP too.',
+      });
+    }
 
     const adp = p.adp || {};
     if (adp.warning) {

@@ -226,3 +226,52 @@ def test_tiers_break_on_real_cliffs():
     tiers = [p["tier"] for p in sorted(players, key=lambda p: -p["proj_mean"])]
     assert tiers[0] == tiers[1] == tiers[2], "the top three are one tier"
     assert tiers[3] > tiers[0], "a 45-point gap must start a new tier"
+
+
+# --- draft slot changes (asked directly: "will this adapt if my position
+#     changes?") --------------------------------------------------------------
+
+def test_pick_order_is_slot_independent_except_for_my_picks():
+    """The client can re-derive my picks because `picks` carries the owning slot.
+
+    This is what makes a late draft-spot change survivable without a rebuild:
+    the true pick sequence after keeper forfeits is the same for everyone, and
+    "which of them are mine" is a filter over it.
+    """
+    cfg = {
+        "teams": 10, "rounds": 5, "draft_type": "snake",
+        "roster_size": 8, "keepers": {"count": 3, "cost_model": "original_round"},
+        "my_draft_slot": 4,
+    }
+    keeps = {1: [{"player_id": "a", "original_round": 2}]}
+    order4 = K.build_true_pick_order(cfg, keeps)
+
+    cfg9 = dict(cfg, my_draft_slot=9)
+    order9 = K.build_true_pick_order(cfg9, keeps)
+
+    # Same sequence, same forfeits — only the ownership filter differs.
+    assert [p["overall"] for p in order4.picks] == [p["overall"] for p in order9.picks]
+    assert order4.my_picks != order9.my_picks
+
+    # And the filter the client applies reproduces the pipeline exactly.
+    derived9 = [p["overall"] for p in order4.picks if p["team_slot"] == 9]
+    assert derived9 == order9.my_picks
+
+
+def test_slot_change_survives_keeper_forfeits():
+    """A team that forfeits picks must not shift anyone else's derived picks."""
+    cfg = {
+        "teams": 10, "rounds": 6, "draft_type": "snake",
+        "roster_size": 9, "keepers": {"count": 3, "cost_model": "original_round"},
+        "my_draft_slot": 1,
+    }
+    keeps = {
+        3: [{"player_id": "x", "original_round": 1}, {"player_id": "y", "original_round": 2}],
+        7: [{"player_id": "z", "original_round": 4}],
+    }
+    order = K.build_true_pick_order(cfg, keeps)
+    for slot in range(1, 11):
+        cfg_s = dict(cfg, my_draft_slot=slot)
+        expected = K.build_true_pick_order(cfg_s, keeps).my_picks
+        derived = [p["overall"] for p in order.picks if p["team_slot"] == slot]
+        assert derived == expected, f"slot {slot} mismatch"

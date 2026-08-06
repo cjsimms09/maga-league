@@ -29,6 +29,7 @@ from __future__ import annotations
 import json
 import re
 import time
+import unicodedata
 import urllib.error
 import urllib.request
 from collections import defaultdict
@@ -61,6 +62,20 @@ TEAM_ALIASES = {
 POS_ALIASES = {"PK": "K", "DST": "DEF", "D/ST": "DEF", "DS": "DEF"}
 
 _SUFFIXES = {"jr", "sr", "ii", "iii", "iv", "v"}
+
+# Nicknames FFC prints and Sleeper does not. Applied to BOTH sides, so an entry
+# here can only ever relabel a key — it cannot break a pair that already
+# matched. "hollywood brown" is the only one confirmed from a real unmatched
+# report; the rest are known aliases added pre-emptively and should be treated
+# as unverified until a build log names them.
+NICKNAMES = {
+    "hollywood brown": "marquise brown",   # confirmed: 2023 and 2024 reports
+    "chig okonkwo": "chigoziem okonkwo",
+    "gabe davis": "gabriel davis",
+    "josh palmer": "joshua palmer",
+    "cam akers": "cameron akers",
+    "scotty miller": "scott miller",
+}
 
 
 # ---------------------------------------------------------------------------
@@ -136,12 +151,19 @@ def normalize_name(name: str) -> str:
     hyphens ("Amon-Ra" / "Amon Ra"), and generational suffixes.
     """
     s = (name or "").lower().strip()
+    # Fold accents: FFC prints "Eddy Pineiro" as "Eddy Pineiro" with a tilde,
+    # Sleeper does not. Without this the n splits the surname in two and the
+    # match fails — which is exactly how the first real build died.
+    s = "".join(c for c in unicodedata.normalize("NFKD", s)
+                if not unicodedata.combining(c))
+    s = s.replace("\u00f8", "o").replace("\u0142", "l").replace("\u00e6", "ae").replace("\u00df", "ss")
     s = s.replace("&", " and ")
     s = re.sub(r"[.'’`]", "", s)          # D.K. -> dk, Ja'Marr -> jamarr
     s = re.sub(r"[-/]", " ", s)            # Amon-Ra -> amon ra
     s = re.sub(r"[^a-z0-9 ]", " ", s)
     parts = [p for p in s.split() if p and p not in _SUFFIXES]
-    return " ".join(parts)
+    out = " ".join(parts)
+    return NICKNAMES.get(out, out)
 
 
 def _initials_key(name: str) -> str:
@@ -179,7 +201,10 @@ def build_index(sleeper_players: dict) -> dict:
         # Team defenses are keyed by team abbreviation in Sleeper, not a name.
         if pos == "DEF" and not full:
             full = p.get("team") or pid
-        rec = {"id": str(pid), "name": full, "pos": pos, "team": _norm_team(p.get("team"))}
+        rank = p.get("search_rank")
+        rank = None if rank is None or rank >= 9_999_999 else float(rank)
+        rec = {"id": str(pid), "name": full, "pos": pos,
+               "team": _norm_team(p.get("team")), "rank": rank}
         n = normalize_name(full)
         if n:
             by_name[n].append(rec)
@@ -212,6 +237,14 @@ def match_player(entry: dict, index: dict) -> tuple[str | None, str]:
         same_team = [c for c in same_pos if c["team"] == team]
         if len(same_team) == 1:
             return same_team[0]["id"], method + "+pos+team"
+        # Historical rows name a team the player has since left, so the team
+        # tiebreak can fail on a player who is not actually ambiguous today.
+        # Fall back to the most prominent candidate — lowest search_rank —
+        # and record that we did, so a wrong match is traceable.
+        ranked = sorted((c for c in same_pos if c.get("rank") is not None),
+                        key=lambda c: c["rank"])
+        if ranked:
+            return ranked[0]["id"], method + "+pos+prominence"
         return None, ""
 
     n = normalize_name(name)

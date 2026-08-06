@@ -519,10 +519,30 @@ router.post('/sleeper/refresh-records', aw(async (req, res) => {
 // The heavy lifting lives in public/js/draft/* against the offline-built
 // draft_data.json artifact; this route only serves the shell.
 router.get('/warroom', aw(async (req, res) => {
+  const season = H.currentSeason(req.world.seasons);
+  const overrides = await getDoc('draft-config-overrides', {});
+
+  // The draft slot is decided on this site, in the draft room, and can change
+  // right up to draft day — after the pipeline has already built a board for
+  // whatever slot it was told. Read the claimed spot straight from the draft
+  // order so the War Room never has to be told twice.
+  let claimedSlot = null;
+  try {
+    const draft = await H.draftState(season.year, req.world.owners);
+    const mine = draft.picks.find(p => p.owner_id === req.owner.id && p.slot != null);
+    if (mine) claimedSlot = mine.slot;
+  } catch (e) {
+    // A missing draft order is normal preseason; fall back to the override.
+  }
+
   res.render('admin/warroom', {
-    season: H.currentSeason(req.world.seasons),
+    season,
     config: req.world.config,
-    overrides: await getDoc('draft-config-overrides', {}),
+    // The claimed spot wins: it is the thing that actually happened, whereas
+    // the override is what someone typed. An explicit override still shows in
+    // the setup screen, so a deliberate what-if is one field away.
+    overrides: claimedSlot ? { ...overrides, my_draft_slot: claimedSlot } : overrides,
+    claimedSlot,
   });
 }));
 

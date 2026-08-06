@@ -117,7 +117,50 @@ def load_players(cfg: dict, offline: bool) -> list[dict]:
         p["raw_adp"] = p.get("adp", p["raw_adp"])
         p["consensus_rank"] = p["raw_adp"]
 
-    return proj_mod.blend(players, baseline, load_opportunity(cfg, offline), cfg)
+    opportunity = _rekey_opportunity(load_opportunity(cfg, offline), raw)
+    return proj_mod.blend(players, baseline, opportunity, cfg)
+
+
+def _rekey_opportunity(metrics: dict, sleeper_players: dict) -> dict:
+    """Translate nflfastR player ids into Sleeper player ids.
+
+    THE BUG THIS FIXES: nflfastR keys players by GSIS id ("00-0036389"); the
+    board keys by Sleeper's own numeric id. The two never overlapped, so the
+    opportunity join produced zero matches on every build since it was written
+    — and because the failure path was "no opportunity data", every test passed
+    and the ±15% adjustment was simply absent. The first real CI run reported
+    0% coverage, which is what surfaced it.
+
+    Sleeper's player DB carries `gsis_id`, so the translation is a lookup.
+    """
+    if not metrics:
+        return metrics
+    gsis_to_sleeper = {}
+    for pid, p in sleeper_players.items():
+        if not isinstance(p, dict):
+            continue
+        g = p.get("gsis_id")
+        if g:
+            gsis_to_sleeper[str(g).strip()] = str(pid)
+            # nflfastR sometimes drops the leading "00-0" zero padding.
+            gsis_to_sleeper[str(g).strip().lstrip("0").lstrip("-")] = str(pid)
+
+    out, hit, miss = {}, 0, 0
+    for key, val in metrics.items():
+        k = str(key).strip()
+        sid = gsis_to_sleeper.get(k) or gsis_to_sleeper.get(k.lstrip("0").lstrip("-"))
+        if sid:
+            out[sid] = val
+            hit += 1
+        else:
+            # Already a Sleeper id (or an unmapped player); keep it either way
+            # so a partially-translated feed still contributes.
+            out[k] = val
+            miss += 1
+    OPPORTUNITY_PROVENANCE["gsis_translated"] = hit
+    OPPORTUNITY_PROVENANCE["gsis_untranslated"] = miss
+    print(f"  opportunity ids: {hit} translated from GSIS, {miss} left as-is")
+    return out
 
 
 def _ffc_format(cfg: dict) -> str:
