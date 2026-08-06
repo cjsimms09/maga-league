@@ -174,6 +174,63 @@
       : (upcoming.length === 1 ? 'Last pick: ' + upcoming[0] : 'Draft complete');
     $('#hdr-built').textContent = 'Board built ' + (d.built_at || '').slice(0, 10) +
       ' · ' + d.players.length + ' players';
+    renderProvenance(d);
+  }
+
+  /* Loud degradation. A fallback that nobody can see is a fallback that gets
+   * trusted as a full-strength result. Anything the pipeline had to substitute
+   * says so here, at the top of the page, before any recommendation. */
+  function renderProvenance(d) {
+    const host = $('#provenance');
+    if (!host) return;
+    const p = d.provenance || {};
+    const notes = [];
+
+    const adp = p.adp || {};
+    if (adp.warning) {
+      notes.push({ level: 'bad', text: adp.warning });
+    } else if (adp.fallback_count) {
+      notes.push({
+        level: 'warn',
+        text: adp.fallback_count + ' player' + (adp.fallback_count === 1 ? '' : 's')
+          + ' priced by Sleeper popularity rank instead of real ADP ('
+          + Math.round((adp.fallback_rate || 0) * 100) + '% of the board).',
+      });
+    }
+
+    const opp = p.opportunity_adjustment;
+    if (opp && opp !== 'ok' && opp !== 'unknown') {
+      notes.push({
+        level: 'bad',
+        text: 'Opportunity adjustment ' + opp + ' — projections are consensus-only, '
+          + 'with no snap/target/red-zone signal applied.',
+      });
+    } else if (typeof p.opportunity_coverage === 'number' && p.opportunity_coverage < 0.8) {
+      notes.push({
+        level: 'warn',
+        text: 'Opportunity adjustment reached only '
+          + Math.round(p.opportunity_coverage * 100) + '% of the top of the board.',
+      });
+    }
+
+    // Artifact age. Stale on draft day is the expensive kind of stale.
+    const built = Date.parse(d.built_at || '');
+    if (built) {
+      const hours = (Date.now() - built) / 3.6e6;
+      if (hours > 36) {
+        notes.push({ level: 'bad', text: 'This board is ' + Math.round(hours / 24)
+          + ' days old. Injury status and projections have moved since it was built.' });
+      } else if (hours > 12) {
+        notes.push({ level: 'warn', text: 'This board is ' + Math.round(hours)
+          + ' hours old — rebuild before you draft off it.' });
+      }
+    }
+
+    if (!notes.length) { host.style.display = 'none'; host.innerHTML = ''; return; }
+    host.style.display = '';
+    host.innerHTML = notes.map(n =>
+      '<div class="prov-note ' + n.level + '"><b>' + (n.level === 'bad' ? '⛔' : '⚠️')
+      + '</b> <span>' + escapeHtml(n.text) + '</span></div>').join('');
   }
 
   function renderRecommendations() {

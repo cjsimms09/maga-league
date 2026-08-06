@@ -210,3 +210,82 @@ def test_hand_edits_are_never_clobbered(tmp_path, history):
     M.save(M.build_profiles(drafts, db), path)   # rebuild over the top
     after = json.loads(path.read_text())
     assert after["managers"]["u1"]["summary"] == "Trades his whole draft for a six-pack."
+
+
+# --- historical ADP de-proxying (work order Phase 1, item 4) -----------------
+
+def _draft_with(season, picks_spec):
+    """picks_spec: [(pick_no, manager, player_id, position)]"""
+    return {
+        "season": str(season),
+        "users": [{"user_id": m, "display_name": m} for _, m, _, _ in picks_spec],
+        "rosters": [],
+        "picks": [{"pick_no": n, "round": (n - 1) // 2 + 1, "picked_by": m,
+                   "player_id": pid, "draft_slot": (n - 1) % 2 + 1,
+                   "metadata": {"position": pos}}
+                  for n, m, pid, pos in picks_spec],
+    }
+
+
+HIST_DRAFTS = [
+    _draft_with(2024, [(1, "alice", "p1", "RB"), (2, "bob", "p2", "WR"),
+                       (3, "alice", "p3", "WR"), (4, "bob", "p4", "RB")]),
+    _draft_with(2025, [(1, "alice", "p2", "WR"), (2, "bob", "p1", "RB"),
+                       (3, "alice", "p4", "RB"), (4, "bob", "p3", "WR")]),
+]
+
+# Today's consensus: p1 busted and now ranks last; p4 broke out and ranks first.
+PLAYERS_DB = {
+    "p1": {"position": "RB", "team": "SF", "search_rank": 40, "years_exp": 3},
+    "p2": {"position": "WR", "team": "KC", "search_rank": 30, "years_exp": 3},
+    "p3": {"position": "WR", "team": "NO", "search_rank": 20, "years_exp": 2},
+    "p4": {"position": "RB", "team": "NYJ", "search_rank": 1, "years_exp": 1},
+}
+
+# What the market actually thought at the time — the reverse of the above.
+HISTORICAL_ADP = {
+    "2024": {"p1": {"adp": 1.0}, "p2": {"adp": 2.0}, "p3": {"adp": 3.0}, "p4": {"adp": 4.0}},
+    "2025": {"p1": {"adp": 1.0}, "p2": {"adp": 2.0}, "p3": {"adp": 3.0}, "p4": {"adp": 4.0}},
+}
+
+
+def test_without_historical_adp_metrics_are_flagged_proxy():
+    prof = M.build_profiles(HIST_DRAFTS, PLAYERS_DB)
+    alice = prof["managers"]["alice"]
+    assert alice["reach_delta"]["proxy"] is True
+    assert alice["bpa_vs_need"]["proxy"] is True
+    assert alice["reach_delta"]["adp_coverage"] == 0.0
+
+
+def test_with_historical_adp_the_proxy_flag_comes_off():
+    prof = M.build_profiles(HIST_DRAFTS, PLAYERS_DB, historical_adp=HISTORICAL_ADP)
+    alice = prof["managers"]["alice"]
+    assert alice["reach_delta"]["proxy"] is False
+    assert alice["bpa_vs_need"]["proxy"] is False
+    assert alice["reach_delta"]["adp_coverage"] == 1.0
+
+
+def test_partial_coverage_keeps_the_proxy_flag():
+    """Half the picks priced by real ADP is not enough to drop the safeguard."""
+    partial = {"2024": HISTORICAL_ADP["2024"]}   # 2025 unpriced
+    prof = M.build_profiles(HIST_DRAFTS, PLAYERS_DB, historical_adp=partial)
+    alice = prof["managers"]["alice"]
+    assert alice["reach_delta"]["proxy"] is True
+    assert 0.0 < alice["reach_delta"]["adp_coverage"] < M.ADP_REAL_THRESHOLD
+
+
+def test_real_adp_changes_the_reach_measurement():
+    """The whole point: hindsight ranking and contemporaneous ADP disagree."""
+    proxied = M.build_profiles(HIST_DRAFTS, PLAYERS_DB)
+    real = M.build_profiles(HIST_DRAFTS, PLAYERS_DB, historical_adp=HISTORICAL_ADP)
+    assert (proxied["managers"]["alice"]["reach_delta"]["raw_mean"]
+            != real["managers"]["alice"]["reach_delta"]["raw_mean"])
+
+
+def test_shrinkage_relaxes_once_metrics_are_real():
+    """Proxy metrics are shrunk at n/(n+4); real ones at n/(n+2)."""
+    assert M.PROXY_PRIOR_STRENGTH > M.PRIOR_STRENGTH
+    n = 2
+    proxy_w = n / (n + M.PROXY_PRIOR_STRENGTH)
+    real_w = n / (n + M.PRIOR_STRENGTH)
+    assert real_w > proxy_w

@@ -16,6 +16,16 @@ on:
         description: 'My draft slot (1-indexed)'
         required: false
         default: '4'
+      snapshot:
+        description: 'Record real API responses and diff them against the fixtures (no build)'
+        type: boolean
+        required: false
+        default: false
+      export_history:
+        description: 'Re-export the full league history artifact'
+        type: boolean
+        required: false
+        default: false
 
 jobs:
   build:
@@ -37,7 +47,33 @@ jobs:
         # A board that fails its own scoring tests must never be published.
         run: python -m pytest draft/tests -q
 
+      # This is the only place with real network access, so it is the only place
+      # that can answer what the live APIs actually return. Its log is the
+      # deliverable: FFC's field set, the unmatched-player report, and the real
+      # nflfastR schema.
+      - name: Snapshot real API responses
+        if: github.event.inputs.snapshot == 'true'
+        working-directory: draft
+        continue-on-error: true      # findings are the output, not a failure
+        run: python build.py --snapshot --league-id "${{ github.event.inputs.league_id || '1374848328470102016' }}"
+
+      - name: Upload snapshot fixtures
+        if: github.event.inputs.snapshot == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: real-api-fixtures
+          path: draft/tests/fixtures/real/
+
+      # Complete league history: every week's starters and bench, every
+      # transaction with its FAAB bid, every draft. Written once; completed
+      # seasons never change.
+      - name: Export league history
+        if: github.event.inputs.export_history == 'true'
+        working-directory: draft
+        run: python history_export.py "${{ github.event.inputs.league_id || '1374848328470102016' }}"
+
       - name: Build the draft artifact
+        if: github.event.inputs.snapshot != 'true'
         working-directory: draft
         run: |
           python build.py \
@@ -45,13 +81,17 @@ jobs:
             --slot "${{ github.event.inputs.slot || '4' }}"
 
       - name: Commit the artifact if it changed
+        if: github.event.inputs.snapshot != 'true'
         run: |
-          if git diff --quiet -- public/draft_data.json draft/config/league_config.json; then
+          PATHS="public/draft_data.json draft/config/league_config.json draft/data/league_history.json"
+          EXISTING=""
+          for p in $PATHS; do [ -e "$p" ] && EXISTING="$EXISTING $p"; done
+          if [ -z "$EXISTING" ] || git diff --quiet -- $EXISTING; then
             echo "no change"
             exit 0
           fi
           git config user.name  "draft-bot"
           git config user.email "actions@github.com"
-          git add public/draft_data.json draft/config/league_config.json
+          git add $EXISTING
           git commit -m "Draft board: rebuild $(date -u +%Y-%m-%d)"
           git push

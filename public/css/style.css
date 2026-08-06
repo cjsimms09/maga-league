@@ -840,3 +840,14 @@ button.is-busy, .btn.is-busy {
   .masthead.compact .eagle { font-size: 1.1rem; }
   .masthead.compact { padding: .6rem 1rem .45rem; }
 }
+
+/* ---------- pipeline provenance notes (War Room) ----------
+   Anything the build had to substitute is declared here, above the
+   recommendations, before you act on them. */
+.prov-note {
+  display: flex; gap: .5rem; align-items: flex-start;
+  padding: .6rem .8rem; margin-bottom: .5rem;
+  border-radius: 10px; font-size: .82rem; line-height: 1.45;
+}
+.prov-note.warn { background: rgba(245, 196, 69, .09); border: 1px solid rgba(245, 196, 69, .45); color: #f2e2b4; }
+.prov-note.bad  { background: rgba(255, 70, 85, .10); border: 1px solid rgba(255, 70, 85, .55); color: #ffd3d7; }

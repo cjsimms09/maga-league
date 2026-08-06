@@ -13,6 +13,12 @@ the six metrics need a value ordering to measure "reached above market":
 consensus rank, which is biased — a player who busted ranks low today, so the
 manager who drafted him looks like a reacher in hindsight.
 
+As of the real-ADP work, Fantasy Football Calculator publishes historical ADP
+by year, so when `historical_adp` is supplied and covers a manager's picks,
+these two metrics stop being proxies: `proxy` goes false, `adp_coverage`
+records the share priced by real ADP, and the extra shrinkage comes off. The
+description below applies only to the fallback path.
+
 That bias is handled three ways, never hidden:
   1. Both affected metrics are marked `proxy: true` in the output.
   2. They are shrunk harder than the ADP-free metrics.
@@ -30,6 +36,11 @@ from pathlib import Path
 PRIOR_STRENGTH = 2.0
 PROXY_PRIOR_STRENGTH = 4.0   # ADP-proxy metrics are shrunk twice as hard
 
+# Share of a manager's ranked picks that must be priced by contemporaneous ADP
+# before the market metrics stop being treated as proxies. Below this the
+# hindsight bias is still doing real damage and the harder shrinkage stays.
+ADP_REAL_THRESHOLD = 0.80
+
 SKILL = {"QB", "RB", "WR", "TE"}
 LATE = {"K", "DEF"}
 
@@ -45,7 +56,8 @@ def _pick_owner(pick: dict) -> str | None:
     return str(pick.get("picked_by") or pick.get("roster_id") or "") or None
 
 
-def build_profiles(drafts: list[dict], players_db: dict, *, season_now: int | None = None) -> dict:
+def build_profiles(drafts: list[dict], players_db: dict, *, season_now: int | None = None,
+                   historical_adp: dict | None = None) -> dict:
     """drafts: output of sleeper_import.all_drafts(). Returns manager_profiles dict."""
     if not drafts:
         return {"managers": {}, "league_average": {}, "drafts_analysed": 0,
@@ -61,13 +73,20 @@ def build_profiles(drafts: list[dict], players_db: dict, *, season_now: int | No
         picks = sorted(d["picks"], key=lambda p: p.get("pick_no") or 0)
         n_teams = max((p.get("draft_slot") or 1) for p in picks) or 10
 
-        # Value ordering *within this draft*: current consensus rank (the proxy).
+        # Value ordering *within this draft*. Contemporaneous ADP if we have it
+        # for that season — that is ground truth, not a proxy. Otherwise fall
+        # back to today's consensus rank and keep the hindsight-bias handling.
+        season_adp = (historical_adp or {}).get(str(d.get("season"))) or {}
         for p in picks:
             pid = str(p.get("player_id") or "")
             meta = p.get("metadata") or {}
             info = players_db.get(pid) or {}
-            rank = info.get("search_rank")
-            rank = None if rank is None or rank >= 9_999_999 else float(rank)
+            real = season_adp.get(pid)
+            if real and real.get("adp"):
+                rank = float(real["adp"])
+            else:
+                rank = info.get("search_rank")
+                rank = None if rank is None or rank >= 9_999_999 else float(rank)
             owner = _pick_owner(p)
             if owner and owner in roster_owner:
                 owner = roster_owner[owner] or owner
@@ -84,6 +103,9 @@ def build_profiles(drafts: list[dict], players_db: dict, *, season_now: int | No
                 "position": (meta.get("position") or info.get("position") or "?").upper(),
                 "team": (meta.get("team") or info.get("team") or "").upper(),
                 "market_rank": rank,
+                # True when the ordering came from contemporaneous ADP rather
+                # than today's consensus rank standing in for it.
+                "market_rank_real": bool(real and real.get("adp")),
                 "years_exp": info.get("years_exp"),
                 "n_teams": n_teams,
             })
@@ -117,6 +139,14 @@ def build_profiles(drafts: list[dict], players_db: dict, *, season_now: int | No
                 "raw_mean_round": round(obs, 2),
             }
 
+        # Share of this manager's picks measured against real historical ADP.
+        # Above ADP_REAL_THRESHOLD the two market metrics stop being proxies:
+        # the hindsight bias is gone, so the extra shrinkage comes off too.
+        ranked = [r for r in mine if r.get("market_rank") is not None]
+        adp_cov = (sum(1 for r in ranked if r.get("market_rank_real")) / len(ranked)) if ranked else 0.0
+        is_proxy = adp_cov < ADP_REAL_THRESHOLD
+        market_strength = PROXY_PRIOR_STRENGTH if is_proxy else PRIOR_STRENGTH
+
         reach = _reach_stats(mine)
         homer_team, homer_rate = _homer(mine)
         rookie = _rate(mine, lambda r: r.get("years_exp") == 0)
@@ -129,10 +159,11 @@ def build_profiles(drafts: list[dict], players_db: dict, *, season_now: int | No
             "picks_analysed": len(mine),
             "shrinkage_weight": round(n / (n + PRIOR_STRENGTH), 3),
             "reach_delta": {
-                "mean": round(_shrink(reach["mean"], league_reach["mean"], n, PROXY_PRIOR_STRENGTH), 2),
+                "mean": round(_shrink(reach["mean"], league_reach["mean"], n, market_strength), 2),
                 "sd": round(reach["sd"] if reach["sd"] else league_reach["sd"], 2),
                 "raw_mean": round(reach["mean"], 2),
-                "proxy": True,
+                "proxy": is_proxy,
+                "adp_coverage": round(adp_cov, 3),
             },
             "positional_timing": timing,
             "homer_index": {
@@ -145,9 +176,10 @@ def build_profiles(drafts: list[dict], players_db: dict, *, season_now: int | No
                 "league_rate": round(league_rookie, 3),
             },
             "bpa_vs_need": {
-                "bpa_rate": round(_shrink(bpa, league_bpa, n, PROXY_PRIOR_STRENGTH), 3),
+                "bpa_rate": round(_shrink(bpa, league_bpa, n, market_strength), 3),
                 "league_rate": round(league_bpa, 3),
-                "proxy": True,
+                "proxy": is_proxy,
+                "adp_coverage": round(adp_cov, 3),
             },
             "positional_mix": _positional_mix(mine),
         }
