@@ -121,6 +121,45 @@ def load_players(cfg: dict, offline: bool) -> list[dict]:
     return proj_mod.blend(players, baseline, opportunity, cfg)
 
 
+def _id_crosswalk(sleeper_players: dict) -> dict:
+    """GSIS id -> Sleeper id.
+
+    Two sources, in order of reliability:
+
+    1. `nfl_data_py.import_ids()` — a maintained crosswalk built for exactly
+       this problem, carrying gsis_id alongside sleeper_id. This is the right
+       answer and covers players Sleeper has no gsis_id for.
+    2. Sleeper's own `gsis_id` field, as a supplement. On the first real run
+       this alone translated 221 of 761 keys, which is why (1) exists.
+    """
+    out = {}
+    try:
+        import nfl_data_py as nfl
+        ids = nfl.import_ids()
+        cols = set(map(str, ids.columns))
+        if {"gsis_id", "sleeper_id"} <= cols:
+            for g, sid in zip(ids["gsis_id"], ids["sleeper_id"]):
+                if g and sid and str(g) != "nan" and str(sid) != "nan":
+                    out[str(g).strip()] = str(sid).strip().split(".")[0]
+            print(f"  id crosswalk: {len(out)} gsis->sleeper pairs from nfl_data_py")
+        else:
+            print(f"  ! import_ids() lacks gsis_id/sleeper_id; columns={sorted(cols)[:25]}")
+    except Exception as exc:  # noqa: BLE001 — supplement below still applies
+        print(f"  ! id crosswalk unavailable ({type(exc).__name__}: {exc})")
+
+    supplement = 0
+    for pid, p in sleeper_players.items():
+        if not isinstance(p, dict):
+            continue
+        g = p.get("gsis_id")
+        if g and str(g).strip() not in out:
+            out[str(g).strip()] = str(pid)
+            supplement += 1
+    print(f"  id crosswalk: +{supplement} from Sleeper's own gsis_id "
+          f"({len(out)} total)")
+    return out
+
+
 def _rekey_opportunity(metrics: dict, sleeper_players: dict) -> dict:
     """Translate nflfastR player ids into Sleeper player ids.
 
@@ -135,31 +174,28 @@ def _rekey_opportunity(metrics: dict, sleeper_players: dict) -> dict:
     """
     if not metrics:
         return metrics
-    gsis_to_sleeper = {}
-    for pid, p in sleeper_players.items():
-        if not isinstance(p, dict):
-            continue
-        g = p.get("gsis_id")
-        if g:
-            gsis_to_sleeper[str(g).strip()] = str(pid)
-            # nflfastR sometimes drops the leading "00-0" zero padding.
-            gsis_to_sleeper[str(g).strip().lstrip("0").lstrip("-")] = str(pid)
+    gsis_to_sleeper = _id_crosswalk(sleeper_players)
 
-    out, hit, miss = {}, 0, 0
+    out, hit, unmapped = {}, 0, []
     for key, val in metrics.items():
         k = str(key).strip()
-        sid = gsis_to_sleeper.get(k) or gsis_to_sleeper.get(k.lstrip("0").lstrip("-"))
+        sid = gsis_to_sleeper.get(k)
         if sid:
             out[sid] = val
             hit += 1
         else:
-            # Already a Sleeper id (or an unmapped player); keep it either way
-            # so a partially-translated feed still contributes.
+            # Already a Sleeper id (or a player in neither crosswalk); keep it
+            # either way so a partially-translated feed still contributes.
             out[k] = val
-            miss += 1
+            unmapped.append(k)
     OPPORTUNITY_PROVENANCE["gsis_translated"] = hit
-    OPPORTUNITY_PROVENANCE["gsis_untranslated"] = miss
-    print(f"  opportunity ids: {hit} translated from GSIS, {miss} left as-is")
+    OPPORTUNITY_PROVENANCE["gsis_untranslated"] = len(unmapped)
+    print(f"  opportunity ids: {hit} translated from GSIS, {len(unmapped)} unmapped")
+    if unmapped:
+        # Print samples from both sides. Without these, a join failure is a
+        # number with no lead to follow.
+        print(f"    unmapped sample : {unmapped[:5]}")
+        print(f"    crosswalk sample: {list(gsis_to_sleeper.items())[:3]}")
     return out
 
 
@@ -348,7 +384,9 @@ def _assert_opportunity_coverage(players: list, artifact: dict) -> None:
         print(f"  opportunity adjustment: {status}")
         return
     top = sorted(players, key=lambda p: p.get("raw_adp") or 9999)[:OPPORTUNITY_COVERAGE_TOP_N]
-    hit = sum(1 for p in top if p.get("opportunity_z"))
+    # `is not None`, not truthiness: a player sitting exactly at the positional
+    # mean has opportunity_z == 0.0 and is covered, not missing.
+    hit = sum(1 for p in top if p.get("opportunity_z") is not None)
     cov = hit / max(len(top), 1)
     artifact["provenance"]["opportunity_coverage"] = round(cov, 3)
     print(f"  opportunity coverage: {cov:.0%} of the top {len(top)}")

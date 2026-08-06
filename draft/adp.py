@@ -47,6 +47,14 @@ STRICT_TOP_N = 150
 # that the War Room renders; the market signal is too degraded to trust quietly.
 FALLBACK_WARN_RATE = 0.15
 
+# The rate is measured over the players who can actually be drafted, not the
+# whole Sleeper pool. Sleeper lists ~1700 "draftable" players; FFC publishes ADP
+# for the ~210 that humans actually take. Measured against 1700 the fallback
+# rate is 89% and the warning fires on every healthy build — the denominator was
+# wrong, not the data. A 10-team league with 3 keepers makes 90 picks, so two
+# and a half times that is a generous definition of "in play".
+RELEVANT_BOARD = 250
+
 # Sleeper's scoring keys -> FFC's format path segment. FFC publishes standard,
 # ppr, half-ppr, 2qb and dynasty; we only ever need the redraft three.
 FORMATS = {"standard": "standard", "half-ppr": "half-ppr", "ppr": "ppr"}
@@ -344,7 +352,8 @@ def _print_report(report: dict, strict_top_n: int) -> None:
             print(f"    #{u['rank']:>4} {u['name']} ({u['pos']} {u['team']}) adp={u['adp']}{flag}")
 
 
-def apply_with_fallback(players: list, adp_table: dict, *, teams: int) -> dict:
+def apply_with_fallback(players: list, adp_table: dict, *, teams: int,
+                        relevant: int = RELEVANT_BOARD) -> dict:
     """Attach ADP to the board, falling back to `search_rank` **on the record**.
 
     `players` is mutated in place: each gets `adp`, `adp_sd` and `adp_source`.
@@ -364,19 +373,29 @@ def apply_with_fallback(players: list, adp_table: dict, *, teams: int) -> dict:
         p["adp_source"] = "search_rank"
         used_fallback.append(p.get("player_id"))
 
-    rate = len(used_fallback) / max(len(players), 1)
+    # Rank by the ADP we just assigned and judge only the part of the board that
+    # is genuinely in play. A deep-bench tight end with no FFC entry is not a
+    # data problem; a top-100 player without one is.
+    in_play = sorted(players, key=lambda p: p.get("adp") or 9999)[:relevant]
+    fb_in_play = [p for p in in_play if p.get("adp_source") == "search_rank"]
+    rate = len(fb_in_play) / max(len(in_play), 1)
     prov = {
         "adp_source": "ffc",
         "fallback_count": len(used_fallback),
+        "fallback_count_in_play": len(fb_in_play),
+        "relevant_board": len(in_play),
         "fallback_rate": round(rate, 4),
+        "fallback_rate_whole_pool": round(len(used_fallback) / max(len(players), 1), 4),
         "fallback_warn_rate": FALLBACK_WARN_RATE,
         "warning": None,
     }
+    print(f"  ADP coverage: {len(in_play) - len(fb_in_play)}/{len(in_play)} of the "
+          f"draftable board priced by FFC ({rate:.0%} on search_rank)")
     if rate > FALLBACK_WARN_RATE:
         prov["warning"] = (
-            f"{rate:.0%} of the board is using search_rank instead of real ADP "
-            f"(threshold {FALLBACK_WARN_RATE:.0%}). Market-based numbers — survival "
-            "odds, VONA, run detection — are degraded."
+            f"{rate:.0%} of the top {len(in_play)} players are using search_rank "
+            f"instead of real ADP (threshold {FALLBACK_WARN_RATE:.0%}). Market-based "
+            "numbers — survival odds, VONA, run detection — are degraded."
         )
         print(f"  ! {prov['warning']}")
     return prov
