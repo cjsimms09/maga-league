@@ -678,3 +678,165 @@ input[type=range] { accent-color: var(--gold); }
   .hero-item { padding: .65rem .45rem .55rem; }
   .hero-item .hero-value { font-size: 1.3rem; }
 }
+
+/* ==========================================================================
+   PHASE 11 — navigation, chrome budget, feedback, accessibility
+   ========================================================================== */
+
+/* ---------- skip link ---------- */
+.skip-link {
+  position: absolute; left: -9999px; top: 0; z-index: 200;
+  background: var(--gold); color: var(--navy-deep);
+  font-family: var(--font-display); font-weight: 800; font-size: .8rem;
+  padding: .7rem 1.1rem; border-radius: 0 0 10px 0; text-decoration: none;
+}
+.skip-link:focus { left: 0; }
+
+/* ---------- focus ----------
+   There was exactly one :focus rule in this stylesheet. Keyboard users had no
+   idea where they were. */
+:focus-visible {
+  outline: 2px solid var(--gold-bright);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+.tabbar a:focus-visible, .tabbar summary:focus-visible { outline-offset: -3px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important; animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important; scroll-behavior: auto !important;
+  }
+}
+
+/* ---------- masthead: full once, compact everywhere else ----------
+   Branding earns its space on the page you land on. On the page you
+   deliberately navigated to, it is a toll. */
+.masthead h1 a { color: inherit; text-decoration: none; }
+.masthead.compact { padding: .8rem 1rem .55rem; }
+.masthead.compact .tagline,
+.masthead.compact .stars { display: none; }
+.masthead.compact .eagle { font-size: 1.25rem; }
+.masthead.compact h1 { font-size: 1.15rem; }
+.masthead.compact::after { margin-top: .45rem; }
+
+/* ---------- busy submit state ---------- */
+button.is-busy, .btn.is-busy {
+  opacity: .75; cursor: progress;
+  display: inline-flex; align-items: center; justify-content: center; gap: .4rem;
+}
+.spin {
+  display: inline-block; width: .8em; height: .8em; flex: none;
+  border: 2px solid currentColor; border-right-color: transparent;
+  border-radius: 50%; animation: spin .6s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ---------- horizontal scroll affordance ---------- */
+.scroll-x.can-scroll {
+  -webkit-mask-image: linear-gradient(90deg, #000 90%, transparent);
+  mask-image: linear-gradient(90deg, #000 90%, transparent);
+}
+.scroll-x.can-scroll.scrolled-end {
+  -webkit-mask-image: none; mask-image: none;
+}
+
+/* ---------- bottom tab bar (phones only) ----------
+   The top nav held twelve flat links and overflowed its container by ~1050px
+   on a 390px screen — roughly 70% of the site's navigation was off-screen
+   behind a gesture most people never try. Four thumb-reachable destinations
+   plus a sheet for the rest. */
+.tabbar { display: none; }
+
+@media (max-width: 700px) {
+  .navbar { display: none; }
+
+  .tabbar {
+    display: flex; align-items: stretch;
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 90;
+    background: rgba(10, 13, 21, .93);
+    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+    border-top: 1px solid var(--line);
+    padding-bottom: env(safe-area-inset-bottom, 0);
+    box-shadow: 0 -8px 24px rgba(0, 0, 0, .45);
+  }
+  .tabbar > a, .tabbar > .more-sheet > summary {
+    flex: 1 1 0; min-width: 0; min-height: 52px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: .1rem; padding: .35rem .2rem .4rem;
+    color: var(--muted); text-decoration: none; cursor: pointer;
+    list-style: none; position: relative;
+  }
+  .tabbar > .more-sheet { flex: 1 1 0; min-width: 0; display: flex; }
+  .tabbar > .more-sheet > summary::-webkit-details-marker { display: none; }
+  .tb-icon { font-size: 1.15rem; line-height: 1.15; }
+  .tb-label {
+    font-family: var(--font-display); font-size: .58rem; font-weight: 800;
+    letter-spacing: .08em; text-transform: uppercase;
+    max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .tabbar > a.active, .more-sheet.active > summary { color: var(--gold-bright); }
+  .tabbar > a.active::before, .more-sheet.active > summary::before {
+    content: ''; position: absolute; top: 0; left: 22%; right: 22%; height: 2px;
+    background: linear-gradient(90deg, var(--gold), var(--gold-bright));
+    border-radius: 0 0 3px 3px; box-shadow: var(--glow-gold);
+  }
+  .tb-badge {
+    position: absolute; top: .3rem; left: 55%;
+    background: var(--red); color: #fff; border-radius: 999px;
+    min-width: 1.05rem; padding: 0 .25rem;
+    font-size: .58rem; font-weight: 800; line-height: 1.05rem; text-align: center;
+  }
+
+  /* the sheet */
+  .more-sheet[open] > summary { color: var(--gold-bright); }
+  .more-panel {
+    position: fixed; left: .5rem; right: .5rem;
+    bottom: calc(56px + env(safe-area-inset-bottom, 0px));
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 16px; padding: .7rem;
+    box-shadow: 0 18px 50px rgba(0, 0, 0, .7);
+    animation: sheet-up .16s ease-out;
+  }
+  @keyframes sheet-up { from { opacity: 0; transform: translateY(8px); } }
+  .more-head {
+    font-family: var(--font-display); font-size: .6rem; font-weight: 800;
+    letter-spacing: .14em; text-transform: uppercase; color: var(--muted);
+    padding: .1rem .3rem .5rem;
+  }
+  .more-links { display: grid; grid-template-columns: 1fr 1fr; gap: .4rem; }
+  .more-links a {
+    display: flex; align-items: center; gap: .45rem; min-height: 44px;
+    padding: .5rem .6rem; border-radius: 10px; text-decoration: none;
+    background: rgba(255, 255, 255, .04); border: 1px solid var(--line);
+    color: #dfe4f0; font-family: var(--font-display); font-weight: 700;
+    font-size: .72rem; letter-spacing: .05em; text-transform: uppercase;
+  }
+  .more-links a.active { border-color: var(--gold); color: var(--gold-bright); }
+  .more-links a.commish { color: var(--red-bright); border-color: rgba(255, 70, 85, .35); }
+  .more-logout {
+    width: 100%; margin-top: .5rem; min-height: 44px;
+    background: none; border: 1px solid var(--line); border-radius: 10px;
+    color: var(--muted); font-family: var(--font-display); font-weight: 800;
+    font-size: .68rem; letter-spacing: .12em; text-transform: uppercase; cursor: pointer;
+  }
+
+  /* keep the bar from covering the last inch of every page */
+  body { padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px)); }
+  .footer { margin-bottom: .3rem; }
+}
+
+/* ---------- tap targets ---------- */
+@media (pointer: coarse) {
+  .btn, button, .todo-item, .badge-link { min-height: 40px; }
+  .btn.small { min-height: 36px; }
+}
+
+/* Compact masthead sits on one line on a phone; the flag pair is what pushes
+   it to two, so it goes when space is tight. */
+@media (max-width: 640px) {
+  .masthead.compact h1 { font-size: .98rem; letter-spacing: .02em; }
+  .masthead.compact h1 .flag { display: none; }
+  .masthead.compact .eagle { font-size: 1.1rem; }
+  .masthead.compact { padding: .6rem 1rem .45rem; }
+}

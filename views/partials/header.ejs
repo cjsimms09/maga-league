@@ -11,60 +11,111 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='48' fill='%230b1f3a'/><text x='50' y='68' font-size='52' text-anchor='middle'>🦅</text></svg>">
 </head>
 <body>
-<header class="masthead">
-  <div class="eagle" title="Back-to-back World War champs. Undefeated since 1776.">🦅</div>
-  <h1><span class="flag">🇺🇸</span> Make Football <span class="gold">Great Again</span> <span class="flag">🇺🇸</span></h1>
-  <p class="tagline">Fantasy Football League &nbsp;•&nbsp; Est. 2016 &nbsp;•&nbsp; The Greatest League in the History of Leagues, Maybe Ever</p>
-  <div class="stars">★ ★ ★ ★ ★</div>
-</header>
 <%
   // Guard everything: the error page renders this header even when the
   // request died before locals were populated.
   const _owner = typeof owner !== 'undefined' ? owner : null;
   const _alerts = typeof alerts !== 'undefined' && alerts ? alerts : [];
   const _path = typeof currentPath !== 'undefined' ? currentPath : '';
+  // The full-size masthead is branding, and branding earns its 138px exactly
+  // once — on the page you land on. Everywhere else it is a toll you pay to
+  // reach the content you navigated to, so it collapses to a single line.
+  const _home = _path === '/' || !_owner;
 %>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="masthead <%= _home ? '' : 'compact' %>">
+  <div class="eagle" title="Back-to-back World War champs. Undefeated since 1776.">🦅</div>
+  <h1><a href="/"><span class="flag">🇺🇸</span> Make Football <span class="gold">Great Again</span> <span class="flag">🇺🇸</span></a></h1>
+  <p class="tagline">Fantasy Football League &nbsp;•&nbsp; Est. 2016 &nbsp;•&nbsp; The Greatest League in the History of Leagues, Maybe Ever</p>
+  <div class="stars">★ ★ ★ ★ ★</div>
+</header>
 <% if (_owner) { %>
-<nav class="navbar">
-  <a href="/" class="<%= _path === '/' ? 'active' : '' %>">League Office</a>
-  <a href="/team" class="<%= _path === '/team' ? 'active' : '' %>">My Team</a>
-  <a href="/bank" class="<%= _path === '/bank' ? 'active' : '' %>">The Tab</a>
-  <a href="/owners" class="<%= _path === '/owners' ? 'active' : '' %>">Owners</a>
-  <a href="/history" class="<%= _path === '/history' ? 'active' : '' %>">History</a>
-  <a href="/draft" class="<%= _path.startsWith('/draft') ? 'active' : '' %>">Draft Order</a>
-  <a href="/votes" class="<%= _path.startsWith('/votes') ? 'active' : '' %>">Voting Booth</a>
-  <a href="/chat" class="<%= _path === '/chat' ? 'active' : '' %>">Locker Room<% if (typeof chatUnread !== 'undefined' && chatUnread) { %><span class="nav-badge"><%= chatUnread %></span><% } %></a>
-  <a href="/records" class="<%= _path === '/records' ? 'active' : '' %>">Record Book</a>
-  <a href="/rules" class="<%= _path === '/rules' ? 'active' : '' %>">Rules</a>
-  <% if (_owner.is_commissioner) { %><a href="/admin" class="commish <%= _path === '/admin' ? 'active' : '' %>">⭐ Commish</a><a href="/admin/warroom" class="commish <%= _path === '/admin/warroom' ? 'active' : '' %>" title="Commissioner only">🧠 War Room</a><% } %>
+<%
+  // One source of truth for navigation. The desktop bar renders all of it; the
+  // phone gets the four destinations people actually visit weekly, and the rest
+  // lives behind "More". Splitting the list in two places is how they drift.
+  const _unread = typeof chatUnread !== 'undefined' ? chatUnread : 0;
+  const _nav = [
+    { href: '/',        label: 'League Office', short: 'Office',  icon: '🏛',  primary: true },
+    { href: '/team',    label: 'My Team',       short: 'Team',    icon: '🏈',  primary: true },
+    { href: '/bank',    label: 'The Tab',       short: 'Tab',     icon: '💰',  primary: true },
+    { href: '/chat',    label: 'Locker Room',   short: 'Locker',  icon: '💬',  primary: true, badge: _unread },
+    { href: '/draft',   label: 'Draft Order',   short: 'Draft',   icon: '🎯',  match: '/draft' },
+    { href: '/votes',   label: 'Voting Booth',  short: 'Votes',   icon: '🗳',  match: '/votes' },
+    { href: '/owners',  label: 'Owners',        short: 'Owners',  icon: '👥' },
+    { href: '/history', label: 'History',       short: 'History', icon: '📜' },
+    { href: '/records', label: 'Record Book',   short: 'Records', icon: '📖' },
+    { href: '/rules',   label: 'Rules',         short: 'Rules',   icon: '⚖️' },
+  ];
+  if (_owner.is_commissioner) {
+    _nav.push({ href: '/admin',          label: '⭐ Commish',   short: 'Commish',  icon: '⭐', commish: true });
+    _nav.push({ href: '/admin/warroom',  label: '🧠 War Room',  short: 'War Room', icon: '🧠', commish: true });
+  }
+  const _isActive = n => n.match ? _path.startsWith(n.match) : _path === n.href;
+  const _primary = _nav.filter(n => n.primary);
+  const _more = _nav.filter(n => !n.primary);
+  const _moreActive = _more.some(_isActive);
+%>
+<nav class="navbar" aria-label="Main">
+  <% for (const n of _nav) { %>
+    <a href="<%= n.href %>" class="<%= n.commish ? 'commish ' : '' %><%= _isActive(n) ? 'active' : '' %>"<%= n.commish ? ' title="Commissioner only"' : '' %>><%= n.label %><% if (n.badge) { %><span class="nav-badge"><%= n.badge %></span><% } %></a>
+  <% } %>
   <span class="who"><%= _owner.name %></span>
   <a href="/password" title="Change password" style="padding:.5rem .4rem">🔑</a>
-  <form method="post" action="/logout"><button type="submit">Log out</button></form>
+  <form method="post" action="/logout" data-no-busy><button type="submit">Log out</button></form>
+</nav>
+
+<nav class="tabbar" aria-label="Primary">
+  <% for (const n of _primary) { %>
+    <a href="<%= n.href %>" class="<%= _isActive(n) ? 'active' : '' %>"<%= _isActive(n) ? ' aria-current="page"' : '' %>>
+      <span class="tb-icon" aria-hidden="true"><%= n.icon %></span>
+      <span class="tb-label"><%= n.short %></span>
+      <% if (n.badge) { %><span class="tb-badge"><%= n.badge %></span><% } %>
+    </a>
+  <% } %>
+  <details class="more-sheet<%= _moreActive ? ' active' : '' %>">
+    <summary aria-label="More pages">
+      <span class="tb-icon" aria-hidden="true">☰</span>
+      <span class="tb-label">More</span>
+    </summary>
+    <div class="more-panel">
+      <div class="more-head"><%= _owner.name %></div>
+      <div class="more-links">
+        <% for (const n of _more) { %>
+          <a href="<%= n.href %>" class="<%= n.commish ? 'commish ' : '' %><%= _isActive(n) ? 'active' : '' %>"><span aria-hidden="true"><%= n.icon %></span> <%= n.short %></a>
+        <% } %>
+        <a href="/password"><span aria-hidden="true">🔑</span> Password</a>
+      </div>
+      <form method="post" action="/logout" data-no-busy><button class="more-logout" type="submit">Log out</button></form>
+    </div>
+  </details>
 </nav>
 <%
-  // Urgent first, then the rest. Only the top two are shown up front — a stack
-  // of five banners buries the page it is supposed to be introducing.
+  // Urgent first, then the rest. A stack of banners buries the page it is
+  // supposed to be introducing, so we cap what renders expanded — and the cap
+  // is tighter away from the dashboard, where you arrived wanting a specific
+  // page, not the announcements you already read on the way in.
   const _sorted = [..._alerts].sort((a, b) =>
     (b.level === 'urgent') - (a.level === 'urgent'));
-  const _shown = _sorted.slice(0, 2);
-  const _rest = _sorted.slice(2);
+  const _cap = _home ? 2 : _sorted.filter(a => a.level === 'urgent').length ? 1 : 0;
+  const _shown = _sorted.slice(0, _cap);
+  const _rest = _sorted.slice(_cap);
+  const _e = s => String(s == null ? '' : s).replace(/[&<>"']/g, c =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const _banner = a => `<div class="alert-banner alert-${_e(a.level)}"><span class="tag">`
+    + (a.level === 'urgent' ? '🚨' : a.level === 'warning' ? '⚠️' : '📣') + '</span><span>'
+    + _e(a.message)
+    + (a.href ? ` <a href="${_e(a.href)}" style="color:inherit; font-weight:800">${_e(a.linkText || 'Open →')}</a>` : '')
+    + '</span></div>';
 %>
-<% for (const a of _shown) { %>
-  <div class="alert-banner alert-<%= a.level %>">
-    <span class="tag"><%= a.level === 'urgent' ? '🚨' : a.level === 'warning' ? '⚠️' : '📣' %></span>
-    <span><%= a.message %><% if (a.href) { %> <a href="<%= a.href %>" style="color:inherit; font-weight:800"><%= a.linkText || 'Open →' %></a><% } %></span>
-  </div>
+<div class="alert-region" role="region" aria-label="League announcements" aria-live="polite">
+  <% for (const a of _shown) { %><%- _banner(a) %><% } %>
+  <% if (_rest.length) { %>
+    <details class="alert-more">
+      <summary><%= _shown.length ? _rest.length + ' more announcement' : _rest.length + ' announcement' %><%= _rest.length === 1 ? '' : 's' %></summary>
+      <% for (const a of _rest) { %><%- _banner(a) %><% } %>
+    </details>
+  <% } %>
+</div>
 <% } %>
-<% if (_rest.length) { %>
-  <details class="alert-more">
-    <summary><%= _rest.length %> more announcement<%= _rest.length === 1 ? '' : 's' %></summary>
-    <% for (const a of _rest) { %>
-      <div class="alert-banner alert-<%= a.level %>">
-        <span class="tag"><%= a.level === 'urgent' ? '🚨' : a.level === 'warning' ? '⚠️' : '📣' %></span>
-        <span><%= a.message %><% if (a.href) { %> <a href="<%= a.href %>" style="color:inherit; font-weight:800"><%= a.linkText || 'Open →' %></a><% } %></span>
-      </div>
-    <% } %>
-  </details>
-<% } %>
-<% } %>
-<main class="wrap">
+<main class="wrap" id="main">
