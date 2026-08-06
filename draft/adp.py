@@ -48,12 +48,20 @@ STRICT_TOP_N = 150
 FALLBACK_WARN_RATE = 0.15
 
 # The rate is measured over the players who can actually be drafted, not the
-# whole Sleeper pool. Sleeper lists ~1700 "draftable" players; FFC publishes ADP
-# for the ~210 that humans actually take. Measured against 1700 the fallback
-# rate is 89% and the warning fires on every healthy build — the denominator was
-# wrong, not the data. A 10-team league with 3 keepers makes 90 picks, so two
-# and a half times that is a generous definition of "in play".
-RELEVANT_BOARD = 250
+# whole Sleeper pool and not an arbitrary depth.
+#
+# Two wrong denominators were tried before this one. Measured over all ~1700
+# Sleeper "draftable" players the rate is 89%, because FFC only publishes the
+# ~210 humans actually take. Measured over a flat top 250 it is 22%, because
+# 250 is simply deeper than FFC publishes — the shortfall was arithmetic, not a
+# data problem, and the warning fired on a perfectly healthy board.
+#
+# The honest denominator is the draft itself: the picks that will be made, plus
+# half again for the players you are choosing between at each one. This league
+# makes 90 picks after keeper forfeits, so ~135. Derived from the format so it
+# stays right if the league changes shape.
+RELEVANT_BOARD = 250          # fallback when the pick count is unknown
+RELEVANT_BOARD_MULTIPLE = 1.5
 
 # Sleeper's scoring keys -> FFC's format path segment. FFC publishes standard,
 # ppr, half-ppr, 2qb and dynasty; we only ever need the redraft three.
@@ -353,7 +361,8 @@ def _print_report(report: dict, strict_top_n: int) -> None:
 
 
 def apply_with_fallback(players: list, adp_table: dict, *, teams: int,
-                        relevant: int = RELEVANT_BOARD) -> dict:
+                        draft_picks: int | None = None,
+                        relevant: int | None = None) -> dict:
     """Attach ADP to the board, falling back to `search_rank` **on the record**.
 
     `players` is mutated in place: each gets `adp`, `adp_sd` and `adp_source`.
@@ -387,6 +396,9 @@ def apply_with_fallback(players: list, adp_table: dict, *, teams: int,
     # Rank by the ADP we just assigned and judge only the part of the board that
     # is genuinely in play. A deep-bench tight end with no FFC entry is not a
     # data problem; a top-100 player without one is.
+    if relevant is None:
+        relevant = (int(draft_picks * RELEVANT_BOARD_MULTIPLE) if draft_picks
+                    else RELEVANT_BOARD)
     in_play = sorted(players, key=lambda p: p.get("adp") or 9999)[:relevant]
     fb_in_play = [p for p in in_play if p.get("adp_source") == "search_rank"]
     rate = len(fb_in_play) / max(len(in_play), 1)

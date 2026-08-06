@@ -94,8 +94,11 @@ def load_players(cfg: dict, offline: bool) -> list[dict]:
         table = adp_mod.build_adp_table(
             raw, fmt=_ffc_format(cfg), teams=int(cfg.get("teams") or 10),
             year=int(cfg.get("season") or time.gmtime().tm_year))
-        ADP_PROVENANCE.update(adp_mod.apply_with_fallback(players, table["adp"],
-                                                          teams=int(cfg.get("teams") or 10)))
+        teams_n = int(cfg.get("teams") or 10)
+        rounds_n = int(cfg.get("rounds") or 0) or max(
+            1, int(cfg.get("roster_size") or 15) - int((cfg.get("keepers") or {}).get("count") or 0))
+        ADP_PROVENANCE.update(adp_mod.apply_with_fallback(
+            players, table["adp"], teams=teams_n, draft_picks=teams_n * rounds_n))
         ADP_PROVENANCE["report"] = table["report"]
     except Exception as exc:  # noqa: BLE001 — reported loudly below, not swallowed
         print(f"  ! ADP unavailable ({exc}); the whole board falls back to search_rank")
