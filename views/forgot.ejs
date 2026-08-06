@@ -1,0 +1,29 @@
+<%- include('partials/header', { title: 'Forgot Password' }) %>
+<div class="login-box">
+  <div class="card">
+    <h2>Forgot Password</h2>
+    <div class="body">
+      <% if (error) { %><div class="error-note"><%= error %></div><% } %>
+      <% if (sent) { %>
+        <div class="flash-note">If that account exists and has an email on file, a reset link is on its way. It expires in an hour.</div>
+        <p style="text-align:center"><a class="btn navy" href="/login">Back to login</a></p>
+      <% } else if (!emailOn) { %>
+        <p>Email isn't switched on for this league yet, so reset links can't be sent.</p>
+        <p class="muted">Text Cory — he can reset it for you in about five seconds from the commissioner console.</p>
+        <p style="text-align:center"><a class="btn navy" href="/login">Back to login</a></p>
+      <% } else { %>
+        <form method="post" action="/forgot">
+          <label class="field" for="username">Username or email</label>
+          <input type="text" id="username" name="username" autofocus required>
+          <div style="margin-top:1rem; text-align:center">
+            <button class="btn gold" type="submit">Send me a reset link</button>
+          </div>
+        </form>
+        <p class="muted" style="text-align:center; margin-top:1rem">
+          No email on file? Text the commissioner instead.
+        </p>
+      <% } %>
+    </div>
+  </div>
+</div>
+<%- include('partials/footer') %>

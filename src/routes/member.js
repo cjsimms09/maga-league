@@ -3,6 +3,8 @@ const router = express.Router();
 const H = require('../helpers');
 const L = require('../ledger');
 const sleeper = require('../sleeper');
+const notify = require('../notify');
+const crypto = require('crypto');
 const { getDoc, setDoc, newId, now } = require('../data');
 const { hashPassword, verifyPassword, requireLogin, aw } = require('../auth');
 const { RULES, SCORING, ROSTER } = require('../seed-data');
@@ -22,6 +24,52 @@ router.post('/login', aw(async (req, res) => {
   }
   req.session.ownerId = owner.id;
   res.redirect(owner.must_change_password ? '/password' : '/');
+}));
+
+// ---------- self-service password reset (needs email configured) ----------
+router.get('/forgot', (req, res) => {
+  res.render('forgot', { sent: req.query.sent || null, error: null, emailOn: notify.configured() });
+});
+
+router.post('/forgot', aw(async (req, res) => {
+  const who = String(req.body.username || '').trim().toLowerCase();
+  const owner = req.world.owners.find(o => o.active && (o.username === who || (o.email || '').toLowerCase() === who));
+  // Always report the same thing — never confirm whether an account exists.
+  if (owner && owner.email && notify.configured()) {
+    const token = crypto.randomBytes(24).toString('hex');
+    await setDoc(`reset:${token}`, { owner_id: owner.id, expires: Date.now() + 60 * 60 * 1000 });
+    await notify.passwordReset(owner, token);
+  }
+  res.redirect('/forgot?sent=1');
+}));
+
+router.get('/reset', aw(async (req, res) => {
+  const rec = await getDoc(`reset:${req.query.token}`, null);
+  if (!rec || rec.expires < Date.now()) {
+    return res.status(400).render('forgot', { sent: null, emailOn: notify.configured(), error: 'That reset link is expired or invalid. Request a new one.' });
+  }
+  res.render('reset', { token: req.query.token, error: null });
+}));
+
+router.post('/reset', aw(async (req, res) => {
+  const token = String(req.body.token || '');
+  const rec = await getDoc(`reset:${token}`, null);
+  if (!rec || rec.expires < Date.now()) {
+    return res.status(400).render('forgot', { sent: null, emailOn: notify.configured(), error: 'That reset link is expired or invalid. Request a new one.' });
+  }
+  const pw = String(req.body.next || '');
+  if (pw.length < 8 || pw !== req.body.confirm) {
+    return res.status(400).render('reset', { token, error: 'Passwords must match and be at least 8 characters.' });
+  }
+  const owners = await getDoc('owners', []);
+  const me = owners.find(o => o.id === rec.owner_id);
+  if (me) {
+    me.password_hash = hashPassword(pw);
+    me.must_change_password = false;
+    await setDoc('owners', owners);
+  }
+  await H.store.del(`reset:${token}`);
+  res.redirect('/login');
 }));
 
 router.post('/logout', (req, res) => { req.session = null; res.redirect('/login'); });
@@ -89,7 +137,7 @@ router.get('/', aw(async (req, res) => {
     .map(e => ({ ...e, name: (H.ownerById(owners, e.owner_id) || {}).name || '?' }));
   const standings = (season.standings || []).map((oid, i) => ({ rank: i + 1, name: (H.ownerById(owners, oid) || {}).name || '?' }));
   const draft = await H.draftState(season.year, owners);
-  const openVotes = (await H.allVotes(owners)).filter(v => v.status === 'open')
+  const openVotes = (await H.allVotes(owners, H.voteThreshold(world.config))).filter(v => v.status === 'open')
     .map(v => ({ ...v, myChoice: (v.ballots.find(b => b.owner_id === req.owner.id) || {}).choice || null }));
 
   // Sleeper live data (site works fine when unconfigured/unreachable).
@@ -148,7 +196,13 @@ router.get('/owners', aw(async (req, res) => {
       teams[oid] = sleeper.teamName(sData.users, sData.rosters, Number(rosterId));
     }
   }
-  res.render('owners', { list: ranked, grid, years: H.gridYears(grid), champs, bowls, totals, teams });
+  // Career W-L: frozen pre-Sleeper baseline + live Sleeper era (when synced).
+  const uMap = sleeper.userMap(sData, world.config.sleeper_map || {});
+  const recs = await sleeper.records(world.config.sleeper_league_id, uMap, list);
+  const era = H.sleeperEraByOwner(recs, uMap);
+  const records = {};
+  for (const o of list) records[o.id] = H.careerRecord(o, era[o.id]);
+  res.render('owners', { list: ranked, grid, years: H.gridYears(grid), champs, bowls, totals, teams, records });
 }));
 
 // ---------- record book (auto-computed from the league's full Sleeper history) ----------
@@ -247,6 +301,11 @@ router.post('/draft/pick', aw(async (req, res) => {
   }
   current.slot = slot;
   await setDoc(`draft:${season.year}`, doc);
+  const next = doc.order.find(p => p.slot == null);
+  if (next) {
+    const nextOwner = H.ownerById(world.owners, next.owner_id);
+    if (nextOwner) notify.draftTurn(nextOwner).catch(() => {});
+  }
   res.redirect('/draft');
 }));
 
@@ -263,14 +322,15 @@ router.post('/draft/keepers', aw(async (req, res) => {
 router.get('/votes', aw(async (req, res) => {
   const world = req.world;
   const owners = H.activeOwners(world.owners);
-  const votes = (await H.allVotes(owners)).map(v => ({
+  const threshold = H.voteThreshold(world.config);
+  const votes = (await H.allVotes(owners, threshold)).map(v => ({
     ...v, myChoice: (v.ballots.find(b => b.owner_id === req.owner.id) || {}).choice || null,
   }));
   const punishments = await H.punishmentWall(owners, req.owner.id);
   res.render('votes', {
     open: votes.filter(v => v.status === 'open'),
     closed: votes.filter(v => v.status === 'closed'),
-    electorate: owners.length,
+    electorate: owners.length, threshold,
     proposed: req.query.proposed || null,
     punishments, punishmentsLocked: !!req.world.config.punishments_locked,
   });
@@ -282,10 +342,9 @@ router.post('/votes/propose', aw(async (req, res) => {
   const description = String(req.body.description || '').trim().slice(0, 1000);
   if (!question) return res.redirect('/votes');
   const id = newId();
-  await setDoc(`vote:${id}`, {
-    id, question, description, proposer_id: req.owner.id,
-    status: 'open', created_at: now(), closed_at: null,
-  });
+  const vote = { id, question, description, proposer_id: req.owner.id, status: 'open', created_at: now(), closed_at: null };
+  await setDoc(`vote:${id}`, vote);
+  notify.newVote(req.world.owners, vote, req.owner.name).catch(() => {});
   res.redirect('/votes?proposed=1');
 }));
 
@@ -341,6 +400,7 @@ router.get('/team', aw(async (req, res) => {
 router.get('/chat', aw(async (req, res) => {
   const owners = H.activeOwners(req.world.owners);
   const feed = await H.chatFeed(owners);
+  await setDoc(`chat-seen:${req.owner.id}`, { at: now() });
   res.render('chat', { feed });
 }));
 

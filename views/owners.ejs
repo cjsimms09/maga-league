@@ -4,7 +4,7 @@
 <p class="page-sub">Ten patriots. One trophy. Ranked by career winnings.</p>
 
 <div class="grid cols-3" style="margin-bottom:1.5rem">
-  <% list.forEach((o, idx) => { const c = champs[o.id] || []; const tb = bowls[o.id] || []; const gp = o.wins + o.losses + o.ties; %>
+  <% list.forEach((o, idx) => { const c = champs[o.id] || []; const tb = bowls[o.id] || []; const rec = (typeof records !== 'undefined' && records[o.id]) || { wins: o.wins, losses: o.losses, ties: o.ties }; const gp = rec.wins + rec.losses + rec.ties; %>
   <div class="card owner-card">
     <div class="seal"><%= o.name[0] %></div>
     <h3><%= o.name %></h3>
@@ -16,14 +16,14 @@
       <% if (tb.length) { %><span title="Toilet Bowls (last place)"> <% tb.forEach(() => { %>🚽<% }) %><span class="muted" style="font-size:.75rem"> <%= tb.join(', ') %></span></span><% } %>
     </div>
     <div class="stat-row">
-      <div class="stat"><b><%= o.wins %>-<%= o.losses %><%= o.ties ? '-' + o.ties : '' %></b><span>Record</span></div>
-      <div class="stat"><b><%= gp ? Math.round(((o.wins + o.ties * 0.5) / gp) * 1000) / 10 : 0 %>%</b><span>Win %</span></div>
+      <div class="stat"><b><%= rec.wins %>-<%= rec.losses %><%= rec.ties ? '-' + rec.ties : '' %></b><span>Record<%= rec.auto ? ' ⚡' : '' %></span></div>
+      <div class="stat"><b><%= gp ? Math.round(((rec.wins + rec.ties * 0.5) / gp) * 1000) / 10 : 0 %>%</b><span>Win %</span></div>
       <div class="stat"><b><%= c.length %></b><span>Titles</span></div>
     </div>
     <div class="money-line">💰 <%= money(totals[o.id]) %> career</div>
   </div>
   <% }) %>
 </div>
-<p class="muted" style="text-align:center">* co-championship (2022 was split — don't ask, it was chaos)</p>
+<p class="muted" style="text-align:center">⚡ = record updates itself from Sleeper &nbsp;·&nbsp; * co-championship (2022 was split — don't ask, it was chaos)</p>
 
 <%- include('partials/footer') %>

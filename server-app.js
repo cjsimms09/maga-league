@@ -54,7 +54,7 @@ function createApp() {
   // Attach the logged-in owner and template globals to every request.
   app.use((req, res, next) => {
     helpers.loadWorld()
-      .then(world => {
+      .then(async world => {
         req.world = world;
         req.owner = req.session.ownerId
           ? world.owners.find(o => o.id === req.session.ownerId && o.active) || null
@@ -64,6 +64,10 @@ function createApp() {
         res.locals.alerts = req.owner ? helpers.activeAlerts(world.alerts) : [];
         res.locals.currentPath = req.path;
         res.locals.quip = helpers.pickRandom(helpers.QUIPS);
+        res.locals.chatUnread = 0;
+        if (req.owner && req.path !== '/chat') {
+          try { res.locals.chatUnread = await helpers.chatUnread(req.owner.id); } catch (e) { /* badge is cosmetic */ }
+        }
         // Live draft-order alert: whoever is on the clock gets told, loudly.
         const season = helpers.currentSeason(world.seasons);
         if (!req.owner || !season || !season.draft_open) return next();

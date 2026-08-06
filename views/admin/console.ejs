@@ -161,7 +161,16 @@
           <tr class="<%= e.settled ? 'muted-row' : '' %>">
             <td style="white-space:nowrap"><%= (e.created_at || '').slice(0, 10) %></td>
             <td><b><%= nameOf(e.owner_id) %></b></td>
-            <td><%= e.desc %> <span class="muted">(<%= TYPE_LABELS[e.type] || e.type %>)</span></td>
+            <td>
+              <%= e.desc %> <span class="muted">(<%= TYPE_LABELS[e.type] || e.type %>)</span>
+              <% if (e.audit && e.audit.length) { %>
+                <details style="display:inline"><summary class="muted" style="display:inline; cursor:pointer; font-size:.7rem"> history</summary>
+                  <div class="muted" style="font-size:.7rem; padding:.2rem 0 0">
+                    <% for (const a of e.audit) { %><div><%= (a.at || '').slice(0, 16).replace('T', ' ') %> — <%= a.what %></div><% } %>
+                  </div>
+                </details>
+              <% } %>
+            </td>
             <td class="num <%= e.amount > 0 ? 'pos' : 'neg' %>"><%= money(e.amount) %></td>
             <td><%= e.year %></td>
             <td>
@@ -287,6 +296,11 @@
   <div class="card">
     <h2>Assign a Season Award <span class="sub">amount auto-fills; lands on their tab</span></h2>
     <div class="body">
+      <form method="post" action="/admin/propose-awards" style="margin-bottom:.9rem">
+        <input type="hidden" name="year" value="<%= season.year %>">
+        <button class="btn gold" type="submit">⚡ Draft all six from Sleeper standings</button>
+        <span class="muted"> — fills in anything not already recorded; you fix the playoff spots.</span>
+      </form>
       <form method="post" action="/admin/awards">
         <input type="hidden" name="year" value="<%= season.year %>">
         <label class="field">Award</label>
@@ -497,6 +511,20 @@
         <div style="margin-top:.8rem"><button class="btn" type="submit">Add Owner</button></div>
       </form>
       <p class="muted" style="margin-top:.8rem">A temporary password is generated for them — it shows at the top of this page after you add them. They'll be forced to change it on first login.</p>
+      <hr style="border:none; border-top:1px solid var(--line); margin:1rem 0">
+      <h3 style="margin:0 0 .3rem; font-size:.8rem; letter-spacing:.1em; text-transform:uppercase; color:var(--muted)">Career Records</h3>
+      <% const synced = ownerRows.some(o => o.record_baseline); %>
+      <p class="muted" style="margin:.2rem 0 .6rem">
+        <% if (synced) { %>
+          ⚡ Records are auto-updating. Everything before the league moved to Sleeper is frozen exactly as you had it; Sleeper seasons are added live.
+        <% } else { %>
+          Records are manual right now. Syncing freezes your pre-Sleeper years untouched and lets Sleeper keep the rest current forever.
+        <% } %>
+      </p>
+      <div class="vote-actions">
+        <form class="asis" method="post" action="/admin/sync-records"><button class="btn small gold"><%= synced ? '↻ Re-sync' : '⚡ Sync with Sleeper' %></button></form>
+        <% if (synced) { %><form class="asis" method="post" action="/admin/unsync-records"><button class="btn small ghost">Back to manual</button></form><% } %>
+      </div>
     </div>
   </div>
   <div class="card">
@@ -567,6 +595,13 @@
       </p>
     </form>
     <hr style="border:none; border-top:1px solid var(--line); margin:1.2rem 0">
+    <form method="post" action="/admin/settings" class="inline-form" style="margin-bottom:1rem">
+      <div class="fit">
+        <label class="field">YES votes needed to pass a rule change</label>
+        <input type="number" name="vote_threshold" min="1" max="20" value="<%= config.vote_threshold || 6 %>" style="width:90px">
+      </div>
+      <div class="fit"><button class="btn navy" type="submit">Save</button></div>
+    </form>
     <a class="btn navy" href="/admin/export">⬇️ Export League Data (backup)</a>
     <span class="muted"> — download a JSON snapshot of everything once in a while. The books must survive.</span>
   </div>

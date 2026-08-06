@@ -1,0 +1,20 @@
+<%- include('partials/header', { title: 'Set a New Password' }) %>
+<div class="login-box">
+  <div class="card">
+    <h2>Set a New Password</h2>
+    <div class="body">
+      <% if (error) { %><div class="error-note"><%= error %></div><% } %>
+      <form method="post" action="/reset">
+        <input type="hidden" name="token" value="<%= token %>">
+        <label class="field" for="next">New password (8+ characters)</label>
+        <input type="password" id="next" name="next" autocomplete="new-password" minlength="8" autofocus required>
+        <label class="field" for="confirm">Confirm new password</label>
+        <input type="password" id="confirm" name="confirm" autocomplete="new-password" minlength="8" required>
+        <div style="margin-top:1rem; text-align:center">
+          <button class="btn gold" type="submit">Save and log in</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<%- include('partials/footer') %>

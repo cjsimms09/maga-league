@@ -150,6 +150,7 @@ async function records(leagueId, uMap, owners, { force = false } = {}) {
       return o ? o.name : null;
     };
 
+    const careerByUser = {}; // user_id -> {wins, losses, ties, seasons[]} across Sleeper only
     const weeks = [];       // every real team-week: {points, user_id, name, team, week, season}
     const games = [];       // every head-to-head: {margin, winner, loser, wPts, lPts, week, season}
     const seasonRows = [];  // {season, name, team, wins, losses, ties, pf, pa, complete}
@@ -179,6 +180,11 @@ async function records(leagueId, uMap, owners, { force = false } = {}) {
       for (const r of rosters) {
         const st = r.settings || {};
         const lbl = label(r.roster_id);
+        if (lbl.user_id && ((st.wins || 0) + (st.losses || 0) + (st.ties || 0)) > 0) {
+          const c = (careerByUser[lbl.user_id] ??= { wins: 0, losses: 0, ties: 0, seasons: [] });
+          c.wins += st.wins || 0; c.losses += st.losses || 0; c.ties += st.ties || 0;
+          if (!c.seasons.includes(s.league.season)) c.seasons.push(s.league.season);
+        }
         if ((st.wins || 0) + (st.losses || 0) + (st.ties || 0) > 0) {
           seasonRows.push({
             season: s.league.season, ...lbl,
@@ -227,6 +233,7 @@ async function records(leagueId, uMap, owners, { force = false } = {}) {
 
     const data = {
       computed_at: now(), seasonsCovered: seasons.map(s => s.league.season).sort(),
+      careerByUser,
       topWeeks, bottomWeeks, zeroWeeks, blowouts, nailbiters,
       bestSeasonPF, worstSeasonPF, bestRecords,
       totalGames: games.length, totalWeeks: weeks.length,

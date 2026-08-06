@@ -1,7 +1,7 @@
 <%- include('partials/header', { title: 'Voting Booth' }) %>
 
 <h1 class="page-title">The Voting Booth</h1>
-<p class="page-sub">Democracy in action. <b>6 YES votes</b> of <%= electorate %> owners passes a rule change.</p>
+<p class="page-sub">Democracy in action. <b><%= threshold %> YES votes</b> of <%= electorate %> owners passes a rule change.</p>
 
 <% if (proposed) { %><div class="flash-note" style="max-width:640px;margin:0 auto 1rem">Your measure is on the ballot. Now go campaign for it.</div><% } %>
 
@@ -39,7 +39,7 @@
       <div class="yes" style="width:<%= (v.yes / tot) * 100 %>%"><%= v.yes ? 'YES ' + v.yes : '' %></div>
       <div class="no" style="width:<%= (v.no / tot) * 100 %>%"><%= v.no ? 'NO ' + v.no : '' %></div>
     </div>
-    <p class="pass-note"><%= v.cast %> of <%= electorate %> votes in — needs 6 YES to pass<%= v.passed ? ' — ✅ currently passing' : '' %></p>
+    <p class="pass-note"><%= v.cast %> of <%= electorate %> votes in — needs <%= threshold %> YES to pass<%= v.passed ? ' — ✅ currently passing' : '' %></p>
     <div class="vote-actions">
       <form class="asis" method="post" action="/votes/<%= v.id %>/ballot">
         <input type="hidden" name="choice" value="yes">
@@ -82,7 +82,7 @@
       <div class="yes" style="width:<%= (v.yes / tot) * 100 %>%"><%= v.yes ? 'YES ' + v.yes : '' %></div>
       <div class="no" style="width:<%= (v.no / tot) * 100 %>%"><%= v.no ? 'NO ' + v.no : '' %></div>
     </div>
-    <p class="pass-note">Final: <%= v.yes %> yes, <%= v.no %> no — <%= v.passed ? 'passed with 6+ yes votes' : 'did not reach 6 yes votes' %></p>
+    <p class="pass-note">Final: <%= v.yes %> yes, <%= v.no %> no — <%= v.passed ? `passed with ${threshold}+ yes votes` : `did not reach ${threshold} yes votes` %></p>
     <details class="ledger-history" <%= v.comments.length ? '' : '' %>>
       <summary>💬 <%= v.comments.length %> comment<%= v.comments.length === 1 ? '' : 's' %> — talk your talk</summary>
       <div style="padding:.7rem 1rem">

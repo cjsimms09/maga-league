@@ -6,6 +6,11 @@
   directory = "netlify/functions"
   node_bundler = "esbuild"
 
+[functions."backup"]
+  # Tuesday 9am UTC — a weekly snapshot of every league document into Blobs.
+  # Keeps the last 12; nothing to configure and nothing to remember.
+  schedule = "0 9 * * 2"
+
 [functions."app"]
   # EJS templates are read from disk at render time, so they must ship
   # alongside the bundled function code.

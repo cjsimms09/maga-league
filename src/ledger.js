@@ -26,17 +26,21 @@ async function addEntry({ owner_id, year, type, amount, desc, week = null, categ
     id: newId(), owner_id: Number(owner_id), year: Number(year), type,
     amount: Number(amount), desc, week, category,
     settled: !!settled, created_at: now(), settled_at: settled ? now() : null,
+    audit: [{ at: now(), what: `Created${settled ? ' (already settled)' : ''}` }],
   };
   ledger.push(entry);
   await setDoc('ledger', ledger);
   return entry;
 }
 
-async function updateEntry(id, patch) {
+async function updateEntry(id, patch, auditNote) {
   const ledger = await allEntries();
   const e = ledger.find(x => x.id === id);
   if (!e) return null;
   Object.assign(e, patch);
+  if (auditNote) {
+    e.audit = [...(e.audit || []), { at: now(), what: auditNote }].slice(-20);
+  }
   await setDoc('ledger', ledger);
   return e;
 }
@@ -46,11 +50,12 @@ async function removeEntry(id) {
   await setDoc('ledger', ledger.filter(x => x.id !== id));
 }
 
-async function setSettled(id, settled, note) {
+async function setSettled(id, settled, note, by) {
+  const cleanNote = settled ? String(note || '').trim().slice(0, 120) : '';
   return updateEntry(id, {
     settled: !!settled, settled_at: settled ? now() : null,
-    settle_note: settled ? String(note || '').trim().slice(0, 120) : '',
-  });
+    settle_note: cleanNote,
+  }, `${settled ? 'Settled' : 'Re-opened (undo)'}${cleanNote ? ` — ${cleanNote}` : ''}${by ? ` by ${by}` : ''}`);
 }
 
 // Settle every open entry for one owner in one shot ("we squared up").
@@ -59,7 +64,11 @@ async function settleAll(owner_id) {
   const t = now();
   let n = 0;
   for (const e of ledger) {
-    if (e.owner_id === Number(owner_id) && !e.settled) { e.settled = true; e.settled_at = t; n++; }
+    if (e.owner_id === Number(owner_id) && !e.settled) {
+      e.settled = true; e.settled_at = t;
+      e.audit = [...(e.audit || []), { at: t, what: 'Settled in a square-up' }].slice(-20);
+      n++;
+    }
   }
   await setDoc('ledger', ledger);
   return n;

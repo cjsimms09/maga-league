@@ -4,6 +4,7 @@ const router = express.Router();
 const H = require('../helpers');
 const L = require('../ledger');
 const sleeper = require('../sleeper');
+const notify = require('../notify');
 const { getDoc, setDoc, store, newId, now } = require('../data');
 const { hashPassword, requireCommissioner, aw } = require('../auth');
 
@@ -27,7 +28,7 @@ router.get('/', aw(async (req, res) => {
   const bal = L.balances(world.ledger, active);
   const draft = await H.draftState(season.year, active);
   const keepers = await H.keepersForYear(season.year, active);
-  const votes = await H.allVotes(active);
+  const votes = await H.allVotes(active, H.voteThreshold(world.config));
   const prevSeason = world.seasons[season.year - 1] || null;
   const prevStandings = prevSeason && prevSeason.standings
     ? prevSeason.standings.map((oid, i) => ({ rank: i + 1, name: nameOf(oid), owner_id: oid })) : [];
@@ -78,6 +79,7 @@ router.post('/alerts', aw(async (req, res) => {
       active: true, created_at: now(),
     });
     await setDoc('alerts', alerts);
+    notify.alertPosted(req.world.owners, message, alerts[alerts.length - 1].level).catch(() => {});
   }
   back(res, 'alerts');
 }));
@@ -131,7 +133,13 @@ router.get('/ledger.csv', aw(async (req, res) => {
 router.post('/ledger/:id/settle', aw(async (req, res) => {
   const ledger = await L.allEntries();
   const e = ledger.find(x => x.id === req.params.id);
-  if (e) await L.setSettled(e.id, !e.settled, req.body.note);
+  if (e) {
+    const updated = await L.setSettled(e.id, !e.settled, req.body.note, req.owner.name);
+    if (updated && updated.settled) {
+      const target = H.ownerById(req.world.owners, updated.owner_id);
+      if (target) notify.moneySettled(target, updated).catch(() => {});
+    }
+  }
   if (req.body.back === 'bank') return res.redirect('/bank');
   back(res, req.body.back || 'ledger', req.body.year ? `&year=${req.body.year}` : '');
 }));
@@ -398,6 +406,84 @@ router.post('/season', aw(async (req, res) => {
   }
   if (touched) await setDoc('ledger', ledger);
   back(res, 'season', `&year=${year}` + msg(`Season ${year} saved.${touched ? ` ${touched} unpaid buy-in charge(s) updated to ${H.money(buy_in)}.` : ''}`));
+}));
+
+// ---------- league settings ----------
+router.post('/settings', aw(async (req, res) => {
+  const config = await getDoc('config', {});
+  const t = parseInt(req.body.vote_threshold, 10);
+  if (Number.isFinite(t) && t > 0 && t <= 20) config.vote_threshold = t;
+  await setDoc('config', config);
+  back(res, 'season', msg(`Rule changes now need ${config.vote_threshold} YES votes.`));
+}));
+
+// Freeze each owner's pre-Sleeper record, then track the Sleeper era live.
+// Seasons Sleeper never saw (the league's old site) are preserved exactly.
+router.post('/sync-records', aw(async (req, res) => {
+  const world = req.world;
+  const active = H.activeOwners(world.owners);
+  const data = await sleeper.bundle(world.config.sleeper_league_id);
+  const uMap = sleeper.userMap(data, world.config.sleeper_map || {});
+  const recs = await sleeper.records(world.config.sleeper_league_id, uMap, active, { force: true });
+  if (!recs || !recs.careerByUser) return back(res, 'owners', msg('Could not reach Sleeper to sync records.'));
+  const era = H.sleeperEraByOwner(recs, uMap);
+  const owners = await getDoc('owners', []);
+  let n = 0;
+  for (const o of owners) {
+    const e = era[o.id];
+    if (!e) continue;
+    // Baseline = the record you already had, minus what Sleeper can account for.
+    o.record_baseline = {
+      wins: Math.max(0, (o.wins || 0) - (e.wins || 0)),
+      losses: Math.max(0, (o.losses || 0) - (e.losses || 0)),
+      ties: Math.max(0, (o.ties || 0) - (e.ties || 0)),
+      through: `pre-${recs.seasonsCovered[0]}`,
+    };
+    n++;
+  }
+  await setDoc('owners', owners);
+  back(res, 'owners', msg(`Synced ${n} owner${n === 1 ? '' : 's'}. Pre-${recs.seasonsCovered[0]} records frozen as-is; Sleeper seasons (${recs.seasonsCovered.join(', ')}) now update themselves.`));
+}));
+
+router.post('/unsync-records', aw(async (req, res) => {
+  const owners = await getDoc('owners', []);
+  for (const o of owners) delete o.record_baseline;
+  await setDoc('owners', owners);
+  back(res, 'owners', msg('Back to manual records.'));
+}));
+
+// Propose all six season payouts from Sleeper's final standings + bracket.
+router.post('/propose-awards', aw(async (req, res) => {
+  const world = req.world;
+  const year = parseInt(req.body.year, 10);
+  const season = world.seasons[year];
+  const active = H.activeOwners(world.owners);
+  const data = await sleeper.bundle(world.config.sleeper_league_id);
+  if (!season || !data) return back(res, 'awards', `&year=${year}` + msg('Could not reach Sleeper.'));
+  const rows = sleeper.standings(data, world.config.sleeper_map || {}, active);
+  const byName = {};
+  for (const o of active) byName[o.name] = o.id;
+  const idAt = i => (rows[i] && rows[i].owner_name) ? byName[rows[i].owner_name] : null;
+  const table = H.payoutTable(season);
+  const plan = [
+    ['reg_1', idAt(0)], ['reg_2', idAt(1)],
+    ['playoff_1', idAt(0)], ['playoff_2', idAt(1)], ['playoff_3', idAt(2)], ['playoff_4', idAt(3)],
+  ];
+  let n = 0;
+  for (const [category, owner_id] of plan) {
+    if (!owner_id) continue;
+    const row = [...table.reg, ...table.playoff].find(r => r.category === category);
+    const existing = world.ledger.find(e => e.type === 'award' && e.year === year && e.category === category);
+    if (existing) continue; // never overwrite what you already entered
+    await L.addEntry({
+      owner_id, year, type: 'award', category, amount: row ? row.amount : 0,
+      desc: H.CATEGORY_LABELS[category],
+    });
+    n++;
+  }
+  back(res, 'awards', `&year=${year}` + msg(n
+    ? `Drafted ${n} award${n === 1 ? '' : 's'} from Sleeper standings — playoff spots are a guess, fix any that are wrong.`
+    : 'Nothing to add — awards already recorded.'));
 }));
 
 // ---------- sleeper ----------

@@ -529,3 +529,11 @@ details.bal-row.me > summary { box-shadow: inset 3px 0 0 var(--gold); }
   .tab-balance { font-size: .6rem; padding: .18rem .5rem; }
   .chat-bubble { max-width: 88%; }
 }
+
+/* ---------- nav unread badge ---------- */
+.nav-badge {
+  display: inline-block; margin-left: .3rem; min-width: 1.15rem; padding: 0 .3rem;
+  background: var(--red); color: #fff; border-radius: 999px;
+  font-size: .6rem; font-weight: 800; line-height: 1.15rem; text-align: center;
+  box-shadow: var(--glow-red);
+}

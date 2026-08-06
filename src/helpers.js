@@ -172,7 +172,7 @@ async function keepersForYear(year, owners) {
 }
 
 // ---------------------------------------------------------------- votes
-async function allVotes(owners) {
+async function allVotes(owners, threshold = 6) {
   const keys = await store.listKeys('vote:');
   const votes = (await store.getMany(keys)).filter(Boolean);
   const withTallies = await Promise.all(votes.map(async v => {
@@ -188,12 +188,53 @@ async function allVotes(owners) {
     const comments = (await store.getMany(cKeys)).filter(Boolean)
       .map(c => ({ ...c, name: (ownerById(owners, c.owner_id) || {}).name || '?' }))
       .sort((a, b) => (a.created_at < b.created_at ? -1 : 1));
-    return { ...v, ballots, yes, no, cast: ballots.length, passed: yes >= 6, proposer_name: proposer ? proposer.name : '?', comments };
+    return { ...v, ballots, yes, no, cast: ballots.length, passed: yes >= threshold, proposer_name: proposer ? proposer.name : '?', comments };
   }));
   return withTallies.sort((a, b) => (a.created_at < b.created_at ? 1 : -1));
 }
 
 const activeAlerts = alerts => alerts.filter(a => a.active);
+
+const voteThreshold = config => {
+  const t = parseInt(config && config.vote_threshold, 10);
+  return Number.isFinite(t) && t > 0 ? t : 6;
+};
+
+// Career W-L. When the commissioner has synced with Sleeper, an owner carries a
+// frozen pre-Sleeper baseline (years from the league's old site, which Sleeper
+// has never heard of) and the Sleeper era is added live on top. Un-synced
+// owners just use their stored numbers.
+function careerRecord(owner, sleeperEra) {
+  const b = owner.record_baseline;
+  if (!b) return { wins: owner.wins, losses: owner.losses, ties: owner.ties, auto: false };
+  const era = sleeperEra || { wins: 0, losses: 0, ties: 0 };
+  return {
+    wins: (b.wins || 0) + (era.wins || 0),
+    losses: (b.losses || 0) + (era.losses || 0),
+    ties: (b.ties || 0) + (era.ties || 0),
+    auto: true,
+  };
+}
+
+// Sleeper-era records keyed by league owner id.
+function sleeperEraByOwner(recs, uMap) {
+  const out = {};
+  if (!recs || !recs.careerByUser) return out;
+  for (const [userId, rec] of Object.entries(recs.careerByUser)) {
+    const oid = uMap[userId];
+    if (oid) out[oid] = rec;
+  }
+  return out;
+}
+
+// Unread locker-room messages for one owner.
+async function chatUnread(ownerId) {
+  const seen = await getDoc(`chat-seen:${ownerId}`, null);
+  const keys = await store.listKeys('chat:');
+  if (!seen || !seen.at) return Math.min(keys.length, 99);
+  const msgs = (await store.getMany(keys.sort().slice(-60))).filter(Boolean);
+  return msgs.filter(m => m.created_at > seen.at).length;
+}
 
 // ---------------------------------------------------------------- punishment wall
 // Ideas are one doc each; each owner has one changeable vote (own doc, no races).
@@ -236,5 +277,6 @@ module.exports = {
   CATEGORY_LABELS, CATEGORIES, money, loadWorld, activeOwners, ownerById, currentSeason,
   payoutTable, winningsGrid, gridYears, careerTotals, accolades, draftState, keepersForYear,
   allVotes, activeAlerts, pickRandom, chatFeed, punishmentWall, getDoc, setDoc, store,
+  voteThreshold, careerRecord, sleeperEraByOwner, chatUnread,
   ROASTS: seedData.ROASTS, QUIPS: seedData.QUIPS,
 };
