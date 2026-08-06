@@ -187,3 +187,31 @@ def test_low_fallback_rate_has_no_warning(monkeypatch):
     board = [{"player_id": "4034", "search_rank": 1}] * 20 + [{"player_id": "9999", "search_rank": 250}]
     prov = adp.apply_with_fallback(board, table, teams=10)
     assert prov["warning"] is None
+
+
+def test_unpriced_players_sort_behind_every_ffc_player(monkeypatch):
+    """search_rank and ADP are different scales — never interleave them.
+
+    A popular-but-unlisted player used to inherit adp = search_rank, so a
+    search_rank of 30 put him in the top 30 of the board alongside genuinely
+    elite players. FFC not listing someone is evidence he goes late, not
+    evidence we should guess early.
+    """
+    monkeypatch.setattr(adp, "fetch_adp", lambda *a, **k: PAYLOAD)
+    table = adp.build_adp_table(SLEEPER_PLAYERS, fmt="half-ppr", teams=10, year=2026)["adp"]
+    board = [{"player_id": pid, "search_rank": 5} for pid in table]
+    board.append({"player_id": "9999", "search_rank": 5})   # unlisted, very popular
+    adp.apply_with_fallback(board, table, teams=10)
+
+    priced = [p["adp"] for p in board if p["adp_source"] == "ffc"]
+    unpriced = [p["adp"] for p in board if p["adp_source"] == "search_rank"]
+    assert min(unpriced) > max(priced)
+
+
+def test_unpriced_players_keep_their_relative_order(monkeypatch):
+    monkeypatch.setattr(adp, "fetch_adp", lambda *a, **k: PAYLOAD)
+    table = adp.build_adp_table(SLEEPER_PLAYERS, fmt="half-ppr", teams=10, year=2026)["adp"]
+    board = [{"player_id": "9999", "search_rank": 40},
+             {"player_id": "8888", "search_rank": 10}]
+    adp.apply_with_fallback(board, table, teams=10)
+    assert board[1]["adp"] < board[0]["adp"]

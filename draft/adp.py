@@ -359,17 +359,28 @@ def apply_with_fallback(players: list, adp_table: dict, *, teams: int,
     `players` is mutated in place: each gets `adp`, `adp_sd` and `adp_source`.
     Returns provenance the artifact carries and the UI renders.
     """
+    # Where FFC's coverage ends. Everything it does not list goes BEHIND this,
+    # never interleaved with it.
+    #
+    # The subtle bug this avoids: search_rank and ADP are different scales. A
+    # player with search_rank 30 whom FFC does not list was getting adp=30 and
+    # landing in the top 30 of the board — not "missing data" but confident
+    # wrong data, sitting among genuinely elite players. And the absence is
+    # itself informative: if hundreds of real drafters did not take him inside
+    # FFC's published range, he goes after it.
+    ffc_max = max((r["adp"] for r in adp_table.values()), default=0.0)
+
     used_fallback = []
     for p in players:
         row = adp_table.get(str(p.get("player_id")))
         if row:
             p.update({k: row[k] for k in ("adp", "adp_sd", "adp_source")})
             continue
-        # Declared fallback: search_rank is a popularity ordering, so treat it
-        # as a very uncertain ADP rather than pretending it is one.
-        rank = p.get("search_rank") or 9999
-        p["adp"] = float(min(rank, 300))
-        p["adp_sd"] = max(6.0, min(0.25 * p["adp"], 24.0))
+        # Declared fallback: search_rank orders these players relative to each
+        # other, which is all we ask of it. It does not get to set their price.
+        rank = float(p.get("search_rank") or 9999)
+        p["adp"] = ffc_max + min(rank, 600.0)
+        p["adp_sd"] = max(8.0, min(0.25 * p["adp"], 30.0))
         p["adp_source"] = "search_rank"
         used_fallback.append(p.get("player_id"))
 
