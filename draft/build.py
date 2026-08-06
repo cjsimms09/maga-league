@@ -429,11 +429,15 @@ def _assert_value_side(players: list, artifact: dict) -> None:
     artifact["provenance"]["value_coverage"] = round(cov, 3)
     print(f"  value coverage: {cov:.0%} of the top {len(top)} have a non-zero projection")
     if cov < VALUE_MIN_COVERAGE:
+        sample = ", ".join(
+            f"{p.get('name')}={p.get('proj_mean')}" for p in top[:5])
         raise RuntimeError(
             f"only {cov:.0%} of the top {len(top)} players carry a projection "
             f"(expected >= {VALUE_MIN_COVERAGE:.0%}). Every VORP, ceiling and VONA on "
             "this board would be zero — the tool would be re-printing ADP and calling "
-            "it analysis. Check the projection source before publishing."
+            "it analysis.\n"
+            f"  projection provenance: {json.dumps(PROJECTION_PROVENANCE)}\n"
+            f"  top of board: {sample}"
         )
 
 

@@ -68,13 +68,67 @@ def fetch_players() -> dict:
     return _get("/players/nfl", ttl=24 * 60 * 60)
 
 
+# Sleeper publishes projections and stats under two different URL shapes
+# depending on season and endpoint version, and the wrong one returns a
+# well-formed payload with empty stat lines rather than an error. That is how a
+# board of zeroes got built while the log cheerfully reported thousands of rows.
+# Try every known shape, score each by how many rows actually carry stats, and
+# say out loud which one won.
+_PROJECTION_PATHS = [
+    "/projections/nfl/regular/{season}",
+    "/projections/nfl/{season}/{week}?season_type=regular",
+    "/projections/nfl/{season}/{week}",
+]
+_STATS_PATHS = [
+    "/stats/nfl/regular/{season}",
+    "/stats/nfl/{season}/{week}?season_type=regular",
+    "/stats/nfl/{season}/{week}",
+]
+
+
+def _rows_with_stats(payload) -> int:
+    """How many entries carry a non-empty stat line — the only measure that matters."""
+    if isinstance(payload, list):
+        payload = {str(i): v for i, v in enumerate(payload)}
+    if not isinstance(payload, dict):
+        return 0
+    n = 0
+    for v in payload.values():
+        stats = v.get("stats") if isinstance(v, dict) and "stats" in v else v
+        if isinstance(stats, dict) and any(
+                isinstance(x, (int, float)) and x for x in stats.values()):
+            n += 1
+    return n
+
+
+def _best_payload(paths: list, season: str, week, label: str, ttl: int) -> dict:
+    best, best_n, best_path = {}, 0, None
+    for tmpl in paths:
+        path = tmpl.format(season=season, week=week)
+        try:
+            data = _get(path, ttl=ttl)
+        except Exception as exc:  # noqa: BLE001 — try the next shape
+            print(f"    {label} {path}: FAILED ({type(exc).__name__})")
+            continue
+        n = _rows_with_stats(data)
+        size = len(data) if hasattr(data, "__len__") else 0
+        print(f"    {label} {path}: {size} rows, {n} with stats")
+        if n > best_n:
+            best, best_n, best_path = data, n, path
+    if best_path:
+        print(f"  {label}: using {best_path} ({best_n} rows with stats)")
+    else:
+        print(f"  ! {label}: no endpoint shape returned usable data")
+    # Normalise a list payload into the {player_id: row} shape callers expect.
+    if isinstance(best, list):
+        best = {str(r.get("player_id")): r for r in best if isinstance(r, dict) and r.get("player_id")}
+    return best
+
+
 def fetch_projections(season: str, week: int | str = "season") -> dict:
     """Consensus projections. Endpoint shape varies by season; caller tolerates None."""
-    try:
-        return _get(f"/projections/nfl/{season}/{week}?season_type=regular", ttl=6 * 60 * 60)
-    except Exception as exc:  # noqa: BLE001 - projections are optional input
-        print(f"  ! projections unavailable ({exc}); falling back to rank-based baseline")
-        return {}
+    print(f"  probing projection endpoints for {season}:")
+    return _best_payload(_PROJECTION_PATHS, season, week, "projections", 6 * 60 * 60)
 
 
 def fetch_stats(season: str, week: int | str = "season") -> dict:
@@ -84,11 +138,8 @@ def fetch_stats(season: str, week: int | str = "season") -> dict:
     upcoming season yet — which is the normal state of the world in August, and
     which used to produce a board of zeroes without saying so.
     """
-    try:
-        return _get(f"/stats/nfl/{season}/{week}?season_type=regular", ttl=24 * 60 * 60)
-    except Exception as exc:  # noqa: BLE001
-        print(f"  ! stats for {season} unavailable ({exc})")
-        return {}
+    print(f"  probing stats endpoints for {season}:")
+    return _best_payload(_STATS_PATHS, season, week, "stats", 24 * 60 * 60)
 
 
 # --- roster slot + scoring extraction ---------------------------------------
