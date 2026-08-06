@@ -4,12 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title><%= typeof title !== 'undefined' && title ? title + ' — ' : '' %>MFGA League</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/style.css">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='48' fill='%230b1f3a'/><text x='50' y='68' font-size='52' text-anchor='middle'>🦅</text></svg>">
 </head>
 <body>
 <header class="masthead">
-  <div class="eagle">🦅</div>
+  <div class="eagle" title="Back-to-back World War champs. Undefeated since 1776.">🦅</div>
   <h1>Make Football <span class="gold">Great Again</span></h1>
   <p class="tagline">Fantasy Football League &nbsp;•&nbsp; Est. 2016 &nbsp;•&nbsp; The Greatest League in the History of Leagues, Maybe Ever</p>
   <div class="stars">★ ★ ★ ★ ★</div>
@@ -29,6 +32,7 @@
   <a href="/history" class="<%= _path === '/history' ? 'active' : '' %>">History</a>
   <a href="/draft" class="<%= _path.startsWith('/draft') ? 'active' : '' %>">Draft Order</a>
   <a href="/votes" class="<%= _path.startsWith('/votes') ? 'active' : '' %>">Voting Booth</a>
+  <a href="/chat" class="<%= _path === '/chat' ? 'active' : '' %>">Locker Room</a>
   <a href="/records" class="<%= _path === '/records' ? 'active' : '' %>">Record Book</a>
   <a href="/rules" class="<%= _path === '/rules' ? 'active' : '' %>">Rules</a>
   <% if (_owner.is_commissioner) { %><a href="/admin" class="commish <%= _path === '/admin' ? 'active' : '' %>">⭐ Commish</a><a href="/admin/warroom" class="commish <%= _path === '/admin/warroom' ? 'active' : '' %>" title="Commissioner only">🧠 War Room</a><% } %>
@@ -39,7 +43,7 @@
 <% for (const a of _alerts) { %>
   <div class="alert-banner alert-<%= a.level %>">
     <span class="tag"><%= a.level === 'urgent' ? '🚨 Urgent' : a.level === 'warning' ? '⚠️ Notice' : '📣 League News' %></span>
-    <span><%= a.message %></span>
+    <span><%= a.message %><% if (a.href) { %> <a href="<%= a.href %>" style="color:inherit; font-weight:800"><%= a.linkText || 'Open →' %></a><% } %></span>
   </div>
 <% } %>
 <% } %>

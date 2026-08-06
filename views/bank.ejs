@@ -1,10 +1,8 @@
 <%- include('partials/header', { title: 'The Tab' }) %>
 
 <h1 class="page-title">💰 The Tab</h1>
-<p class="page-sub">
-  Every dollar in one place. Buy-ins, weekly wins, payouts, side deals — everything lands on your tab
-  until the commissioner marks it settled. Tabs carry over seasons. Yes, even across the Atlantic.
-</p>
+<p class="page-sub">One number per person. Green means the league owes them, red means they owe.
+Tabs roll over season to season until settled — built for the Germany situation.</p>
 
 <div class="hero" style="margin-bottom:1.4rem">
   <div class="hero-item bad">
@@ -19,71 +17,106 @@
   </div>
 </div>
 
-<% for (const c of cards) { const isMe = c.owner.id === owner.id; %>
-<div class="card tab-card <%= isMe ? 'me' : '' %>" id="owner-<%= c.owner.id %>">
-  <h2>
-    <span><%= c.owner.name %><%= isMe ? ' (you)' : '' %></span>
-    <span class="tab-balance <%= c.balance > 0 ? 'pos' : c.balance < 0 ? 'neg' : 'even' %>">
-      <% if (c.balance === 0) { %>✓ ALL SQUARE
-      <% } else if (c.balance > 0) { %>LEAGUE OWES <%= money(c.balance) %>
-      <% } else { %>OWES LEAGUE <%= money(-c.balance) %><% } %>
-    </span>
-  </h2>
+<% if (owner.is_commissioner) { const allOpen = cards.flatMap(c => c.open.map(e => ({ ...e, owner_name: c.owner.name }))); %>
+<div class="card" style="margin-bottom:1.4rem; border-color:rgba(245,196,69,.5)">
+  <h2>💸 Money Moves <span class="sub">one click when cash actually moves — note optional ("Venmo")</span></h2>
   <div class="body tight">
-    <% if (!c.open.length) { %>
-      <p class="muted" style="padding: .8rem .9rem; margin:0">Nothing outstanding.</p>
+    <% if (!allOpen.length) { %>
+      <p class="muted" style="padding:1rem; margin:0">Nothing outstanding. The books are clean. Tremendous.</p>
     <% } else { %>
-      <table class="roll">
-        <tr><th>Open Item</th><th>Season</th><th class="num">Amount</th><% if (owner.is_commissioner) { %><th></th><% } %></tr>
-        <% for (const e of c.open) { %>
-          <tr>
-            <td><%= e.desc %> <span class="muted">(<%= TYPE_LABELS[e.type] || e.type %>)</span></td>
-            <td><%= e.year %></td>
-            <td class="num <%= e.amount > 0 ? 'pos' : 'neg' %>"><%= money(e.amount) %></td>
-            <% if (owner.is_commissioner) { %>
-            <td class="num" style="white-space:nowrap">
-              <form class="asis" method="post" action="/admin/ledger/<%= e.id %>/settle">
-                <input type="hidden" name="back" value="ledger"><button class="btn small gold">Settle</button>
-              </form>
-            </td>
+    <table class="roll stack-sm">
+      <% for (const e of allOpen) { %>
+        <tr>
+          <td>
+            <% if (e.amount < 0) { %>
+              <b><%= e.owner_name %></b> owes you <b class="neg"><%= money(-e.amount) %></b> <span class="muted">— <%= e.desc %></span>
+            <% } else { %>
+              You owe <b><%= e.owner_name %></b> <b class="pos"><%= money(e.amount) %></b> <span class="muted">— <%= e.desc %></span>
             <% } %>
-          </tr>
-        <% } %>
-      </table>
-    <% } %>
-    <% if (owner.is_commissioner && c.balance !== 0) { %>
-      <div style="padding:.5rem .9rem; border-top:1px solid var(--line); background:#faf6ea">
-        <form class="asis" method="post" action="/admin/ledger/settle-all/<%= c.owner.id %>"
-              onsubmit="return confirm('Mark everything settled with <%= c.owner.name %>? This means the money actually changed hands.')">
-          <input type="hidden" name="back" value="ledger">
-          <button class="btn small navy">🤝 Square Up Everything with <%= c.owner.name %></button>
-        </form>
-      </div>
-    <% } %>
-    <% const settled = c.entries.filter(e => e.settled); %>
-    <% if (settled.length) { %>
-    <details class="ledger-history">
-      <summary>Full history — <%= settled.length %> settled item<%= settled.length === 1 ? '' : 's' %></summary>
-      <table class="roll">
-        <tr><th>Item</th><th>Season</th><th class="num">Amount</th><th>Settled</th></tr>
-        <% for (const e of settled) { %>
-          <tr class="muted-row">
-            <td><%= e.desc %></td>
-            <td><%= e.year %></td>
-            <td class="num"><%= money(e.amount) %></td>
-            <td class="muted"><%= (e.settled_at || '').slice(0, 10) %></td>
-          </tr>
-        <% } %>
-      </table>
-    </details>
+          </td>
+          <td style="width:330px">
+            <form class="inline-form" method="post" action="/admin/ledger/<%= e.id %>/settle">
+              <input type="hidden" name="back" value="bank">
+              <div><input type="text" name="note" maxlength="120" placeholder="note (optional) — e.g. Venmo"></div>
+              <div class="fit"><button class="btn small gold" type="submit"><%= e.amount < 0 ? '✓ They Paid' : '✓ I Paid Them' %></button></div>
+            </form>
+          </td>
+        </tr>
+      <% } %>
+    </table>
     <% } %>
   </div>
 </div>
 <% } %>
 
+<div class="card" style="max-width:820px; margin:0 auto">
+  <h2>Balance Board <span class="sub">tap a name for the receipts</span></h2>
+  <div class="body tight">
+    <% for (const c of cards) { const isMe = c.owner.id === owner.id; %>
+    <details class="tab-card bal-row <%= isMe ? 'me' : '' %>" id="owner-<%= c.owner.id %>">
+      <summary>
+        <span class="bal-seal"><%= c.owner.name[0] %></span>
+        <span class="bal-name"><%= c.owner.name %><%= isMe ? ' (you)' : '' %>
+          <small><%= c.open.length ? c.open.length + ' open item' + (c.open.length === 1 ? '' : 's') : 'nothing outstanding' %></small>
+        </span>
+        <span class="tab-balance <%= c.balance > 0 ? 'pos' : c.balance < 0 ? 'neg' : 'even' %>">
+          <% if (c.balance === 0) { %>✓ ALL SQUARE
+          <% } else if (c.balance > 0) { %>LEAGUE OWES <%= money(c.balance) %>
+          <% } else { %>OWES LEAGUE <%= money(-c.balance) %><% } %>
+        </span>
+      </summary>
+      <div class="bal-detail">
+        <% if (c.open.length) { %>
+          <table class="roll">
+            <tr><th>Open Item</th><th>Season</th><th class="num">Amount</th><% if (owner.is_commissioner) { %><th></th><% } %></tr>
+            <% for (const e of c.open) { %>
+              <tr>
+                <td><%= e.desc %> <span class="muted">(<%= TYPE_LABELS[e.type] || e.type %>)</span></td>
+                <td><%= e.year %></td>
+                <td class="num <%= e.amount > 0 ? 'pos' : 'neg' %>"><%= money(e.amount) %></td>
+                <% if (owner.is_commissioner) { %>
+                <td class="num" style="white-space:nowrap">
+                  <form class="asis" method="post" action="/admin/ledger/<%= e.id %>/settle">
+                    <input type="hidden" name="back" value="bank"><button class="btn small gold"><%= e.amount < 0 ? '✓ They Paid' : '✓ I Paid' %></button>
+                  </form>
+                </td>
+                <% } %>
+              </tr>
+            <% } %>
+          </table>
+          <% if (owner.is_commissioner && c.balance !== 0) { %>
+            <div style="padding:.5rem .9rem; border-top:1px solid var(--line)">
+              <form class="asis" method="post" action="/admin/ledger/settle-all/<%= c.owner.id %>"
+                    onsubmit="return confirm('Mark everything settled with <%= c.owner.name %>? This means the money actually changed hands.')">
+                <input type="hidden" name="back" value="bank">
+                <button class="btn small navy">🤝 Square Up Everything with <%= c.owner.name %></button>
+              </form>
+            </div>
+          <% } %>
+        <% } %>
+        <% const settled = c.entries.filter(e => e.settled); %>
+        <% if (settled.length) { %>
+          <div class="bal-history-label">History — <%= settled.length %> settled item<%= settled.length === 1 ? '' : 's' %></div>
+          <table class="roll">
+            <% for (const e of settled) { %>
+              <tr class="muted-row">
+                <td><%= e.desc %></td>
+                <td><%= e.year %></td>
+                <td class="num"><%= money(e.amount) %></td>
+                <td class="muted"><%= (e.settled_at || '').slice(0, 10) %><%= e.settle_note ? ' · ' + e.settle_note : '' %></td>
+              </tr>
+            <% } %>
+          </table>
+        <% } %>
+        <% if (!c.open.length && !settled.length) { %><p class="muted" style="padding:.7rem 1rem; margin:0">No money history yet.</p><% } %>
+      </div>
+    </details>
+    <% } %>
+  </div>
+</div>
+
 <p class="muted" style="text-align:center; margin-top:1.2rem">
-  Green = the league owes them. Red = they owe the league.
-  The commissioner settles items when real money moves<% if (owner.is_commissioner) { %> — that's you, use the buttons<% } %>.
+  Every buy-in, weekly win, award, and side bet lands here automatically<% if (owner.is_commissioner) { %> — settle them up top when money moves<% } %>.
 </p>
 
 <%- include('partials/footer') %>

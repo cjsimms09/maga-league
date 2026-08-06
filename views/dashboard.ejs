@@ -73,6 +73,7 @@
       <table class="roll">
         <tr><th>#</th><th>Team</th><th class="num">W-L</th><th class="num">PF</th></tr>
         <% for (const r of sleeperStandings) { %>
+          <% if (r.rank === playoffTeams + 1) { %><tr><td colspan="4" style="padding:.15rem .8rem; font-size:.62rem; letter-spacing:.14em; text-transform:uppercase; color:var(--red-bright); border-bottom:1px dashed rgba(255,70,85,.5)">— playoff line (top <%= playoffTeams %>) —</td></tr><% } %>
           <tr class="<%= r.rank === sleeperStandings.length ? 'last-place' : '' %>">
             <td><%= r.rank %><%= r.rank === 1 ? ' 👑' : r.rank === sleeperStandings.length ? ' 🚽' : '' %></td>
             <td><b><%= r.owner_name || r.team %></b><% if (r.owner_name && r.owner_name !== r.team) { %> <span class="muted"><%= r.team %></span><% } %></td>
@@ -98,6 +99,33 @@
           <% } %>
         </div>
       <% } %>
+    </div>
+  </div>
+  <% } %>
+
+  <% if (review) { %>
+  <div class="card">
+    <h2>Week <%= reviewWeek %> in Review <span class="sub">auto-generated from Sleeper</span></h2>
+    <div class="body tight">
+      <table class="roll">
+        <tr><td>👑 Top score</td><td><b><%= review.top.team %></b></td><td class="num"><%= review.top.points.toFixed(2) %></td></tr>
+        <tr><td>🚽 Toilet of the week</td><td><b><%= review.low.team %></b></td><td class="num"><%= review.low.points.toFixed(2) %></td></tr>
+        <% if (review.blowout) { %><tr><td>🔨 Beatdown</td><td><b><%= review.blowout.w.team %></b> over <%= review.blowout.l.team %></td><td class="num">by <%= review.blowout.margin.toFixed(2) %></td></tr><% } %>
+        <% if (review.closest) { %><tr><td>😅 Nail-biter</td><td><b><%= review.closest.w.team %></b> edged <%= review.closest.l.team %></td><td class="num">by <%= review.closest.margin.toFixed(2) %></td></tr><% } %>
+      </table>
+    </div>
+  </div>
+  <% } %>
+
+  <% if (wireRows.length) { %>
+  <div class="card">
+    <h2>The League Wire <span class="sub">latest moves on Sleeper</span></h2>
+    <div class="body tight">
+      <table class="roll">
+        <% for (const w of wireRows) { %>
+          <tr><td style="width:5.5rem"><span class="badge <%= w.trade ? 'gold' : 'navy' %>"><%= w.kind %></span></td><td><%= w.text %></td></tr>
+        <% } %>
+      </table>
     </div>
   </div>
   <% } %>
@@ -133,9 +161,9 @@
           <p>✅ The <%= season.year %> draft order is locked in.</p>
         <% } else if (draft.current) { %>
           <% if (draft.current.owner_id === owner.id) { %>
-            <p><b>🚨 It's YOUR turn to pick your draft spot!</b></p>
+            <p><b>🎯 It's your turn to choose your draft spot!</b></p>
           <% } else { %>
-            <p>⏰ On the clock: <b><%= draft.current.name %></b> (pick <%= draft.current.pos %> of <%= draft.picks.length %>)</p>
+            <p>Waiting on <b><%= draft.current.name %></b> to choose their spot (turn <%= draft.current.pos %> of <%= draft.picks.length %>)</p>
           <% } %>
         <% } %>
         <a class="btn navy" href="/draft">Enter the Draft Room</a>
@@ -155,6 +183,20 @@
           </ul>
         <% } %>
         <a class="btn" href="/votes">Go Vote</a>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:1.2rem">
+      <h2>Locker Room <span class="sub">latest trash talk</span></h2>
+      <div class="body">
+        <% if (!chatLatest.length) { %>
+          <p class="muted">Silence in the locker room. Suspicious.</p>
+        <% } else { %>
+          <% for (const m of chatLatest) { %>
+            <p style="margin:.3rem 0"><b style="color:var(--gold-bright)"><%= m.name %>:</b> <%= m.text.length > 90 ? m.text.slice(0, 90) + '…' : m.text %></p>
+          <% } %>
+        <% } %>
+        <a class="btn navy" href="/chat">💬 Enter the Locker Room</a>
       </div>
     </div>
   </div>

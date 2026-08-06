@@ -288,7 +288,58 @@ async function trendingAdds() {
   catch (e) { return []; }
 }
 
+// Mini awards for one completed week: top score, stinker, blowout, nail-biter.
+function weekReview(matchups, data) {
+  if (!matchups || !matchups.length || !data) return null;
+  const rows = matchups.map(m => ({
+    roster_id: m.roster_id, matchup_id: m.matchup_id,
+    points: Math.round((m.points || 0) * 100) / 100,
+    team: teamName(data.users, data.rosters, m.roster_id),
+  }));
+  if (!rows.some(r => r.points > 0)) return null;
+  const top = [...rows].sort((a, b) => b.points - a.points)[0];
+  const low = [...rows].sort((a, b) => a.points - b.points)[0];
+  const byMatch = {};
+  for (const r of rows) if (r.matchup_id != null) (byMatch[r.matchup_id] ??= []).push(r);
+  let blowout = null, closest = null;
+  for (const pair of Object.values(byMatch)) {
+    if (pair.length !== 2) continue;
+    const [w, l] = pair[0].points >= pair[1].points ? pair : [pair[1], pair[0]];
+    const margin = Math.round((w.points - l.points) * 100) / 100;
+    if (!blowout || margin > blowout.margin) blowout = { w, l, margin };
+    if (margin > 0 && (!closest || margin < closest.margin)) closest = { w, l, margin };
+  }
+  return { top, low, blowout, closest };
+}
+
+// Recent league activity (waivers, adds/drops, trades) with player names.
+async function wire(leagueId, week, data, playersDb) {
+  if (!leagueId || !data) return [];
+  const nameOfPlayer = id => (playersDb && playersDb.players[id] && playersDb.players[id].name) || id;
+  const rosterTeam = rid => teamName(data.users, data.rosters, rid);
+  const out = [];
+  for (const w of [week, week - 1]) {
+    if (w < 1) continue;
+    let txs;
+    try { txs = await fetchJson(`/v1/league/${leagueId}/transactions/${w}`); } catch (e) { txs = null; }
+    if (!Array.isArray(txs)) continue;
+    for (const t of txs) {
+      if (t.status !== 'complete') continue;
+      const adds = Object.entries(t.adds || {}).map(([pid, rid]) => `${rosterTeam(rid)} adds ${nameOfPlayer(pid)}`);
+      const drops = Object.entries(t.drops || {}).map(([pid, rid]) => `${rosterTeam(rid)} drops ${nameOfPlayer(pid)}`);
+      const kind = t.type === 'trade' ? 'TRADE' : t.type === 'waiver' ? 'WAIVER' : 'ADD/DROP';
+      const text = t.type === 'trade'
+        ? `Trade between ${(t.roster_ids || []).map(rosterTeam).join(' and ')}: ${[...adds, ...drops].join('; ') || 'picks involved'}`
+        : [...adds, ...drops].join(' · ');
+      if (text) out.push({ kind, text, created: t.created || 0, trade: t.type === 'trade' });
+    }
+    if (out.length >= 10) break;
+  }
+  return out.sort((a, b) => b.created - a.created).slice(0, 10);
+}
+
 module.exports = {
   bundle, matchupsForWeek, standings, scoreboard, highScorer, teamName,
   autoMap, userMap, records, players, draftInfo, trendingAdds, WAR_POSITIONS,
+  weekReview, wire,
 };

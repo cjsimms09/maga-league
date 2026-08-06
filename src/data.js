@@ -33,7 +33,7 @@ async function ensureSeeded() {
   const config = await store.get('config');
   if (config) { seededThisBoot = true; return; }
 
-  const defaultHash = hashPassword(process.env.DEFAULT_PASSWORD || 'maga2026');
+  const defaultHash = hashPassword(process.env.DEFAULT_PASSWORD || 'imabitch');
   const owners = seed.OWNERS.map((o, i) => ({
     id: i + 1, name: o.name, username: o.username, password_hash: defaultHash,
     must_change_password: true, is_commissioner: !!o.commissioner, active: true, email: '',
@@ -82,10 +82,11 @@ async function ensureSeeded() {
     }
   }
 
-  for (const [year, { order }] of Object.entries(seed.DRAFTS)) {
+  for (const [year, { order, open }] of Object.entries(seed.DRAFTS)) {
     await setDoc(`draft:${year}`, {
-      order: order.map(([name, slot], i) => ({ pos: i + 1, owner_id: byName[name], slot })),
+      order: order.map(([name, slot], i) => ({ pos: i + 1, owner_id: byName[name], slot: slot ?? null })),
     });
+    if (open && seasons[year]) seasons[year].draft_open = true;
   }
 
   for (const v of seed.VOTES) {
@@ -101,6 +102,9 @@ async function ensureSeeded() {
   await setDoc('history', history);
   await setDoc('ledger', ledger);
   await setDoc('alerts', [{
+    id: newId(), message: 'DRAFT DAY IS SET: 08/22/26 at 5:00 PM. Be there.',
+    level: 'urgent', active: true, created_at: now(),
+  }, {
     id: newId(), message: 'Welcome to the new league site! Check The Tab to see where your money stands.',
     level: 'info', active: true, created_at: now(),
   }]);

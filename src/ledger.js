@@ -45,8 +45,11 @@ async function removeEntry(id) {
   await setDoc('ledger', ledger.filter(x => x.id !== id));
 }
 
-async function setSettled(id, settled) {
-  return updateEntry(id, { settled: !!settled, settled_at: settled ? now() : null });
+async function setSettled(id, settled, note) {
+  return updateEntry(id, {
+    settled: !!settled, settled_at: settled ? now() : null,
+    settle_note: settled ? String(note || '').trim().slice(0, 120) : '',
+  });
 }
 
 // Settle every open entry for one owner in one shot ("we squared up").

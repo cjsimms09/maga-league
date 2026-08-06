@@ -64,7 +64,24 @@ function createApp() {
         res.locals.alerts = req.owner ? helpers.activeAlerts(world.alerts) : [];
         res.locals.currentPath = req.path;
         res.locals.quip = helpers.pickRandom(helpers.QUIPS);
-        next();
+        // Live draft-order alert: whoever is on the clock gets told, loudly.
+        const season = helpers.currentSeason(world.seasons);
+        if (!req.owner || !season || !season.draft_open) return next();
+        helpers.draftState(season.year, helpers.activeOwners(world.owners))
+          .then(draft => {
+            if (draft.current) {
+              const mine = draft.current.owner_id === req.owner.id;
+              res.locals.alerts = [{
+                level: mine ? 'urgent' : 'info',
+                message: mine
+                  ? `It's your turn to choose your ${season.year} draft spot. No timer — but everyone picks after you.`
+                  : `Draft spots are being chosen: waiting on ${draft.current.name} (turn ${draft.current.pos} of ${draft.picks.length}).`,
+                href: '/draft', linkText: mine ? 'Choose your spot →' : 'See the board →',
+              }, ...res.locals.alerts];
+            }
+            next();
+          })
+          .catch(next);
       })
       .catch(next);
   });

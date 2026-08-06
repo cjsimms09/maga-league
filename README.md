@@ -22,7 +22,7 @@ on every push to this repo.
 ## Logins
 
 Usernames are first names, lowercase: `cory` `marian` `david` `michael` `bates` `dylan`
-`sam` `jeremy` `richard` `justin`. Starter password: **`maga2026`** — everyone must set
+`sam` `jeremy` `richard` `justin`. Starter password: **`imabitch`** — everyone must set
 their own on first login. Cory is commissioner. (Hagen = Michael's team; his money lives
 under Michael.)
 

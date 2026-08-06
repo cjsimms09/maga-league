@@ -96,7 +96,8 @@ const STANDINGS = {
 // entries listed in pick order as [owner, slot chosen].
 const DRAFTS = {
   2025: { order: [ ['Sam',1], ['Bates',2], ['Michael',3], ['Dylan',4], ['Richard',5], ['Cory',6], ['David',7], ['Justin',8], ['Marian',9], ['Jeremy',10] ] },
-  2026: { order: [ ['Richard',1], ['Sam',2], ['Justin',3], ['Cory',4], ['Marian',5], ['Dylan',6], ['David',8], ['Jeremy',7], ['Bates',9], ['Michael',10] ] },
+  // 2026 selection happens live on the site: reverse of 2025 standings, Richard first, no spots chosen yet.
+  2026: { open: true, order: [ ['Richard',null], ['Sam',null], ['Justin',null], ['Cory',null], ['Marian',null], ['Dylan',null], ['David',null], ['Jeremy',null], ['Bates',null], ['Michael',null] ] },
 };
 
 // 2026 buy-in ledger from the Payments tab: 0 = settled, -400 = owes the full
@@ -145,6 +146,7 @@ const ROSTER = [ ['QB', 1], ['RB', 2], ['WR', 2], ['WR/RB/TE (Flex)', 1], ['DEF'
 
 // Auto-roasts for whoever is in last place. {name} gets substituted.
 const ROASTS = [
+  "{name} is currently losing to two guys managing their teams from Germany. Six time zones away. Think about that.",
   "OFFICIAL NOTICE: {name} is in DEAD LAST. Sad! Many people are saying it's the worst team they've ever seen.",
   "BREAKING: {name} is currently last place. Historians are calling it a disaster of tremendous proportions.",
   "{name} is in last place. The plaque fund thanks you for your service.",
@@ -156,6 +158,11 @@ const ROASTS = [
 // Rotating footer quips.
 const QUIPS = [
   "Winners win. Losers pick first. That's the deal.",
+  "Proudly hosted in the United States. Back-to-back World War champs.",
+  "Freedom units only. Points, not kilometers.",
+  "Two of our owners operate from Germany. We monitor the situation closely.",
+  "Est. 1776. The league came later.",
+  "This footer has been cleared by U.S. Customs. Marian's lineup has not.",
   "We settle our tabs. Eventually. Sometimes it takes years. Looking at you, Germany.",
   "The most tremendous league in the history of leagues, maybe ever.",
   "Six votes changes a rule. No votes changes your terrible roster.",

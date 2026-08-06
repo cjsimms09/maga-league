@@ -103,6 +103,18 @@ router.get('/', aw(async (req, res) => {
   }
   const sStandings = sleeper.standings(sData, world.config.sleeper_map || {}, owners);
   const sBoard = sleeper.scoreboard(sData);
+  // Last completed week's mini-awards + the transaction wire.
+  let review = null, reviewWeek = null, wireRows = [];
+  if (sData) {
+    reviewWeek = (sData.week || 1) - 1;
+    if (reviewWeek >= 1) {
+      const rm = await sleeper.matchupsForWeek(world.config.sleeper_league_id, reviewWeek);
+      review = sleeper.weekReview(rm, sData);
+    }
+    const playersDb = await sleeper.players();
+    wireRows = await sleeper.wire(world.config.sleeper_league_id, sData.week || 1, sData, playersDb);
+  }
+  const playoffTeams = (sData && sData.league.settings && sData.league.settings.playoff_teams) || 4;
   let roast = null;
   if (sStandings.length >= 4) {
     const last = sStandings[sStandings.length - 1];
@@ -111,11 +123,13 @@ router.get('/', aw(async (req, res) => {
     }
   }
 
+  const chatLatest = (await H.chatFeed(owners, 3));
   const myBalance = bal[req.owner.id] ? bal[req.owner.id].balance : 0;
   res.render('dashboard', {
     season, payouts: H.payoutTable(season), buyins, weekly, awards, standings, draft,
     openVotes, CATEGORY_LABELS: H.CATEGORY_LABELS, myBalance,
     sleeperData: sData, sleeperStandings: sStandings, sleeperBoard: sBoard, roast,
+    review, reviewWeek, wireRows, playoffTeams, chatLatest,
   });
 }));
 
@@ -273,6 +287,16 @@ router.post('/votes/propose', aw(async (req, res) => {
   res.redirect('/votes?proposed=1');
 }));
 
+// Trash talk on the record: comments on any measure, open or closed.
+router.post('/votes/:id/comment', aw(async (req, res) => {
+  const vote = await getDoc(`vote:${req.params.id}`, null);
+  const text = String(req.body.text || '').trim().slice(0, 500);
+  if (vote && text) {
+    await setDoc(`vcomment:${vote.id}:${newId()}`, { owner_id: req.owner.id, text, created_at: now() });
+  }
+  res.redirect('/votes#vote-' + req.params.id);
+}));
+
 router.post('/votes/:id/ballot', aw(async (req, res) => {
   const vote = await getDoc(`vote:${req.params.id}`, null);
   const choice = req.body.choice;
@@ -280,6 +304,19 @@ router.post('/votes/:id/ballot', aw(async (req, res) => {
     await setDoc(`ballot:${vote.id}:${req.owner.id}`, { choice, cast_at: now() });
   }
   res.redirect('/votes');
+}));
+
+// ---------- the locker room ----------
+router.get('/chat', aw(async (req, res) => {
+  const owners = H.activeOwners(req.world.owners);
+  const feed = await H.chatFeed(owners);
+  res.render('chat', { feed });
+}));
+
+router.post('/chat', aw(async (req, res) => {
+  const text = String(req.body.text || '').trim().slice(0, 500);
+  if (text) await setDoc(`chat:${newId()}`, { owner_id: req.owner.id, text, created_at: now() });
+  res.redirect('/chat#end');
 }));
 
 router.get('/rules', aw(async (req, res) => {

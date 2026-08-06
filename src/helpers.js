@@ -34,6 +34,40 @@ async function loadWorld() {
   let ownersDirty = false;
   for (const o of owners) if (o.email === undefined) { o.email = ''; ownersDirty = true; }
   if (ownersDirty) await setDoc('owners', owners);
+  // One-time: starter password is now 'imabitch' — rehash anyone who has
+  // never logged in (owners who already set their own password keep it).
+  if (!config.starter_pw_v2) {
+    const { hashPassword } = require('./auth');
+    const fresh = hashPassword(process.env.DEFAULT_PASSWORD || 'imabitch');
+    let n = 0;
+    for (const o of owners) if (o.must_change_password) { o.password_hash = fresh; n++; }
+    if (n) await setDoc('owners', owners);
+    config.starter_pw_v2 = true;
+    await setDoc('config', config);
+  }
+  // One-time: pin the 2026 draft-day announcement.
+  if (!config.draft_day_alert_2026) {
+    const alerts = await getDoc('alerts', []);
+    alerts.unshift({
+      id: 'draftday2026', message: 'DRAFT DAY IS SET: 08/22/26 at 5:00 PM. Be there.',
+      level: 'urgent', active: true, created_at: new Date().toISOString(),
+    });
+    await setDoc('alerts', alerts.filter((a, i) => alerts.findIndex(x => x.id === a.id) === i));
+    config.draft_day_alert_2026 = true;
+    await setDoc('config', config);
+  }
+  // One-time: the 2026 draft-spot selection happens live on the site (the old
+  // spreadsheet had it pre-filled). Clear any chosen spots and open the room.
+  if (!config.draft2026_reopened) {
+    const doc = await getDoc('draft:2026', { order: [] });
+    if (doc.order.length) {
+      doc.order.forEach(p => { p.slot = null; });
+      await setDoc('draft:2026', doc);
+    }
+    if (seasons[2026]) { seasons[2026].draft_open = true; await setDoc('seasons', seasons); }
+    config.draft2026_reopened = true;
+    await setDoc('config', config);
+  }
   return { config, owners, seasons, ledger, alerts, history };
 }
 
@@ -150,12 +184,28 @@ async function allVotes(owners) {
     const yes = ballots.filter(b => b.choice === 'yes').length;
     const no = ballots.filter(b => b.choice === 'no').length;
     const proposer = ownerById(owners, v.proposer_id);
-    return { ...v, ballots, yes, no, cast: ballots.length, passed: yes >= 6, proposer_name: proposer ? proposer.name : '?' };
+    const cKeys = await store.listKeys(`vcomment:${v.id}:`);
+    const comments = (await store.getMany(cKeys)).filter(Boolean)
+      .map(c => ({ ...c, name: (ownerById(owners, c.owner_id) || {}).name || '?' }))
+      .sort((a, b) => (a.created_at < b.created_at ? -1 : 1));
+    return { ...v, ballots, yes, no, cast: ballots.length, passed: yes >= 6, proposer_name: proposer ? proposer.name : '?', comments };
   }));
   return withTallies.sort((a, b) => (a.created_at < b.created_at ? 1 : -1));
 }
 
 const activeAlerts = alerts => alerts.filter(a => a.active);
+
+// ---------------------------------------------------------------- locker room chat
+// One doc per message (ids are time-sortable), so posts never collide.
+async function chatFeed(owners, limit = 100) {
+  const keys = (await store.listKeys('chat:')).sort();
+  const recent = keys.slice(-limit);
+  const msgs = (await store.getMany(recent)).filter(Boolean);
+  return msgs.map((m, i) => ({
+    ...m, key: recent[i],
+    name: (ownerById(owners, m.owner_id) || {}).name || '?',
+  })).sort((a, b) => (a.created_at < b.created_at ? -1 : 1));
+}
 
 // Rotating fun.
 const pickRandom = arr => arr[Math.floor(Math.random() * arr.length)];
@@ -163,6 +213,6 @@ const pickRandom = arr => arr[Math.floor(Math.random() * arr.length)];
 module.exports = {
   CATEGORY_LABELS, CATEGORIES, money, loadWorld, activeOwners, ownerById, currentSeason,
   payoutTable, winningsGrid, gridYears, careerTotals, accolades, draftState, keepersForYear,
-  allVotes, activeAlerts, pickRandom, getDoc, setDoc, store,
+  allVotes, activeAlerts, pickRandom, chatFeed, getDoc, setDoc, store,
   ROASTS: seedData.ROASTS, QUIPS: seedData.QUIPS,
 };

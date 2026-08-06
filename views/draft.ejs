@@ -5,7 +5,7 @@
 <% } %>
 
 <h1 class="page-title"><%= season.year %> Draft Order</h1>
-<p class="page-sub">This page is only for claiming your <b>draft position</b> and declaring keepers — the draft itself happens on Sleeper. Reverse standings: last place picks their spot first.</p>
+<p class="page-sub">Everyone claims their <b>draft position</b> here, one at a time, in reverse order of last season's standings — then the actual draft happens on Sleeper. No timer. Just don't hold up the league.</p>
 
 <% if (error) { %><div class="error-note" style="max-width:640px;margin:0 auto 1rem"><%= error %></div><% } %>
 
@@ -17,13 +17,13 @@
   <div class="turn-banner">⏸ The draft room is currently <b>closed</b>. The commissioner will open it when it's time to pick.</div>
 <% } else if (myTurn) { %>
   <div class="turn-banner you">
-    <div class="big">🚨 You're on the clock, <%= owner.name %>!</div>
-    Choose your draft spot below.
+    <div class="big">🎯 Your turn, <%= owner.name %>!</div>
+    Pick any open spot below — check the cheat sheet first if you're keeping players.
   </div>
 <% } else { %>
   <div class="turn-banner">
-    ⏰ On the clock: <b><%= draft.current.name %></b> (pick <%= draft.current.pos %> of <%= draft.picks.length %>).
-    This page refreshes automatically.
+    Waiting on <b><%= draft.current.name %></b> to choose (turn <%= draft.current.pos %> of <%= draft.picks.length %>).
+    This page refreshes on its own.
   </div>
 <% } %>
 
@@ -58,11 +58,43 @@
             <span class="pos"><%= p.pos %></span>
             <span style="flex:1"><b><%= p.name %></b><%= p.owner_id === owner.id ? ' (you)' : '' %></span>
             <% if (p.slot != null) { %><span class="badge navy">Took spot #<%= p.slot %></span>
-            <% } else if (draft.current && p.pos === draft.current.pos) { %><span class="badge owes">On the clock</span>
+            <% } else if (draft.current && p.pos === draft.current.pos) { %><span class="badge gold">Choosing now</span>
             <% } else { %><span class="muted">waiting…</span><% } %>
           </li>
         <% } %>
       </ol>
+    </div>
+  </div>
+  <% } %>
+
+  <% if (draft.picks.length && !draft.complete) {
+       const N = draft.picks.length;
+       // First live pick (overall #) if you take `slot` and keep k players, in a snake draft:
+       // keepers cost rounds 1..k, so your first selection is round k+1.
+       const firstPick = (slot, k) => { const r = k + 1; return (r - 1) * N + (r % 2 === 1 ? slot : (N + 1 - slot)); };
+       const myKeepCount = myKeepers.length;
+  %>
+  <div class="card col-span-2">
+    <h2>Spot Cheat Sheet <span class="sub">your first real pick (overall #), by spot and keepers kept — snake draft</span></h2>
+    <div class="body tight scroll-x">
+      <table class="roll">
+        <tr>
+          <th>Draft Spot</th>
+          <% for (let k = 0; k <= 3; k++) { %><th class="num" <%= k === myKeepCount ? 'style="color:var(--gold-bright)"' : '' %>>Keep <%= k %><%= k === myKeepCount ? ' (you)' : '' %></th><% } %>
+        </tr>
+        <% for (let sN = 1; sN <= N; sN++) { const taken = draft.picks.find(p => p.slot === sN); %>
+          <tr class="<%= taken ? 'muted-row' : '' %>">
+            <td><b>Spot #<%= sN %></b> <%= taken ? '— ' + taken.name : '' %></td>
+            <% for (let k = 0; k <= 3; k++) { %>
+              <td class="num" <%= k === myKeepCount && !taken ? 'style="color:var(--gold-bright);font-weight:800"' : '' %>>Pick <%= firstPick(sN, k) %></td>
+            <% } %>
+          </tr>
+        <% } %>
+      </table>
+      <p class="muted" style="padding:.6rem 1rem">
+        Each keeper costs that round's pick (keep 2 = your first live pick is Round 3). Snake order assumed —
+        notice that with 2–3 keepers a <b>late</b> spot can pick <b>earlier</b> than spot #1. Choose wisely.
+      </p>
     </div>
   </div>
   <% } %>

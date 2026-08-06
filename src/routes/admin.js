@@ -107,7 +107,8 @@ router.post('/ledger', aw(async (req, res) => {
 router.post('/ledger/:id/settle', aw(async (req, res) => {
   const ledger = await L.allEntries();
   const e = ledger.find(x => x.id === req.params.id);
-  if (e) await L.setSettled(e.id, !e.settled);
+  if (e) await L.setSettled(e.id, !e.settled, req.body.note);
+  if (req.body.back === 'bank') return res.redirect('/bank');
   back(res, req.body.back || 'ledger', req.body.year ? `&year=${req.body.year}` : '');
 }));
 router.post('/ledger/:id/delete', aw(async (req, res) => {
@@ -117,6 +118,7 @@ router.post('/ledger/:id/delete', aw(async (req, res) => {
 router.post('/ledger/settle-all/:ownerId', aw(async (req, res) => {
   const n = await L.settleAll(req.params.ownerId);
   const name = (H.ownerById(req.world.owners, req.params.ownerId) || {}).name || '?';
+  if (req.body.back === 'bank') return res.redirect('/bank');
   back(res, req.body.back || 'ledger', msg(`Squared up with ${name} — ${n} item${n === 1 ? '' : 's'} settled.`));
 }));
 
@@ -250,6 +252,7 @@ router.post('/votes/:id/reopen', aw(async (req, res) => {
 router.post('/votes/:id/delete', aw(async (req, res) => {
   await store.del(`vote:${req.params.id}`);
   for (const k of await store.listKeys(`ballot:${req.params.id}:`)) await store.del(k);
+  for (const k of await store.listKeys(`vcomment:${req.params.id}:`)) await store.del(k);
   back(res, 'votes');
 }));
 
@@ -443,6 +446,12 @@ router.get('/warroom', aw(async (req, res) => {
     };
   }
   res.render('admin/warroom', { season, view });
+}));
+
+// ---------- locker room moderation ----------
+router.post('/chat/:key/delete', aw(async (req, res) => {
+  if (String(req.params.key).startsWith('chat:')) await store.del(req.params.key);
+  res.redirect('/chat');
 }));
 
 // ---------- backup ----------

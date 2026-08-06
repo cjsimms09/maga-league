@@ -330,7 +330,7 @@
         Status:
         <% if (!draft.picks.length) { %><span class="badge closed">not started</span>
         <% } else if (draft.complete) { %><span class="badge navy">order complete</span>
-        <% } else { %><span class="badge <%= season.draft_open ? 'open' : 'closed' %>"><%= season.draft_open ? 'OPEN — ' + (draft.current ? draft.current.name + ' on the clock' : '') : 'paused' %></span><% } %>
+        <% } else { %><span class="badge <%= season.draft_open ? 'open' : 'closed' %>"><%= season.draft_open ? 'OPEN — ' + (draft.current ? 'waiting on ' + draft.current.name : '') : 'paused' %></span><% } %>
         &nbsp;•&nbsp; Keepers: <span class="badge <%= season.keepers_locked ? 'closed' : 'open' %>"><%= season.keepers_locked ? 'locked' : 'unlocked' %></span>
       </p>
       <div class="vote-actions">
@@ -372,7 +372,7 @@
           <tr>
             <td><%= p.pos %></td>
             <td><b><%= p.name %></b></td>
-            <td><%= p.slot != null ? '#' + p.slot : (draft.current && draft.current.pos === p.pos ? '⏰ on the clock' : '—') %></td>
+            <td><%= p.slot != null ? '#' + p.slot : (draft.current && draft.current.pos === p.pos ? '🎯 choosing now' : '—') %></td>
             <td>
               <form class="inline-form asis" method="post" action="/admin/draft/override">
                 <input type="hidden" name="year" value="<%= season.year %>">

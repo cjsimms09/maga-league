@@ -1,0 +1,38 @@
+<%- include('partials/header', { title: 'Locker Room' }) %>
+<script>setTimeout(() => { if (!document.activeElement || document.activeElement.tagName !== 'INPUT') location.reload(); }, 25000);</script>
+
+<h1 class="page-title">💬 The Locker Room</h1>
+<p class="page-sub">Trash talk, trade rumors, excuses. All on the record. Refreshes on its own.</p>
+
+<div class="card" style="max-width:760px; margin:0 auto">
+  <h2>League Chat <span class="sub"><%= feed.length %> message<%= feed.length === 1 ? '' : 's' %></span></h2>
+  <div class="body chat-feed">
+    <% if (!feed.length) { %>
+      <p class="muted" style="text-align:center">Dead silence. Someone say something inflammatory.</p>
+    <% } %>
+    <% for (const m of feed) { const mine = m.owner_id === owner.id; %>
+      <div class="chat-msg <%= mine ? 'mine' : '' %>">
+        <div class="chat-avatar"><%= m.name[0] %></div>
+        <div class="chat-bubble">
+          <div class="chat-meta">
+            <b><%= m.name %></b>
+            <span><%= (m.created_at || '').slice(5, 10).replace('-', '/') %> <%= (m.created_at || '').slice(11, 16) %></span>
+            <% if (owner.is_commissioner) { %>
+              <form class="asis" method="post" action="/admin/chat/<%= encodeURIComponent(m.key) %>/delete"><button class="chat-del" title="Delete">✕</button></form>
+            <% } %>
+          </div>
+          <div><%= m.text %></div>
+        </div>
+      </div>
+    <% } %>
+    <div id="end"></div>
+  </div>
+  <div style="padding:.8rem 1rem; border-top:1px solid var(--line)">
+    <form method="post" action="/chat" class="inline-form">
+      <div><input type="text" name="text" maxlength="500" required autocomplete="off" placeholder="Say it to their face, <%= owner.name %>"></div>
+      <div class="fit"><button class="btn" type="submit">Send</button></div>
+    </form>
+  </div>
+</div>
+
+<%- include('partials/footer') %>
