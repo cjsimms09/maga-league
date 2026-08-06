@@ -1,7 +1,31 @@
 {
   "adp_blend_weight": 0.7,
-  "bench_size": 7,
+  "bench_size": 6,
+  "confirmed": false,
   "draft_type": "snake",
+  "history": [
+    {
+      "league_id": "1374848328470102016",
+      "name": "Make Football Great Again",
+      "season": "2026"
+    },
+    {
+      "league_id": "1248121522762027008",
+      "name": "Make Football Great Again",
+      "season": "2025"
+    },
+    {
+      "league_id": "1117672595379277824",
+      "name": "Make Football Great Again",
+      "season": "2024"
+    },
+    {
+      "league_id": "990840142107619328",
+      "name": "Whiny Little Bitch League",
+      "season": "2023"
+    }
+  ],
+  "imported_at": "2026-08-06T22:54:53Z",
   "keepers": {
     "cost_model": "original_round",
     "count": 3,
@@ -13,31 +37,56 @@
   "league_name": "Make Football Great Again",
   "my_draft_slot": 4,
   "opportunity_cap": 0.15,
-  "playoff_week_start": 15,
+  "original_rounds": {},
+  "playoff_teams": 4,
+  "playoff_week_start": 16,
   "recency_weights": [
     0.7,
     0.3
   ],
-  "roster_size": 16,
+  "roster_size": 15,
   "roster_slots": {
     "BN": 6,
     "DEF": 1,
     "FLEX": 1,
-    "IR": 1,
     "K": 1,
     "QB": 1,
     "RB": 2,
     "TE": 1,
     "WR": 2
   },
-  "rounds": 13,
+  "rounds": 12,
   "scoring": {
+    "blk_kick": 0.0,
+    "def_kr_td": 0.0,
+    "def_pr_td": 0.0,
+    "def_st_ff": 0.0,
+    "def_st_fum_rec": 0.0,
+    "def_st_td": 6.0,
     "def_td": 6.0,
+    "ff": 0.0,
+    "fgm_0_19": 3.0,
+    "fgm_20_29": 3.0,
+    "fgm_30_39": 3.0,
+    "fgm_40_49": 3.0,
+    "fgm_50p": 5.0,
+    "fgmiss": 0.0,
+    "fum": 0.0,
     "fum_lost": -2.0,
+    "fum_rec": 2.0,
+    "fum_rec_td": 6.0,
+    "int": 2.0,
     "pass_2pt": 2.0,
     "pass_int": -2.0,
-    "pass_td": 4.0,
+    "pass_td": 6.0,
     "pass_yd": 0.04,
+    "pts_allow_0": 10.0,
+    "pts_allow_14_20": 1.0,
+    "pts_allow_1_6": 7.0,
+    "pts_allow_21_27": 0.0,
+    "pts_allow_28_34": -1.0,
+    "pts_allow_35p": -4.0,
+    "pts_allow_7_13": 4.0,
     "rec": 0.5,
     "rec_2pt": 2.0,
     "rec_td": 6.0,
@@ -45,7 +94,13 @@
     "rush_2pt": 2.0,
     "rush_td": 6.0,
     "rush_yd": 0.1,
-    "st_td": 6.0
+    "sack": 1.0,
+    "safe": 2.0,
+    "st_ff": 0.0,
+    "st_fum_rec": 0.0,
+    "st_td": 0.0,
+    "xpm": 1.0,
+    "xpmiss": -1.0
   },
   "season": "2026",
   "starters": {
@@ -57,5 +112,242 @@
     "TE": 1,
     "WR": 2
   },
-  "teams": 10
+  "teams": 10,
+  "teams_detail": [
+    {
+      "display_name": "coryjsimms",
+      "players": [
+        "11564",
+        "11566",
+        "11632",
+        "2216",
+        "3198",
+        "3321",
+        "4199",
+        "4217",
+        "5872",
+        "6770",
+        "7564",
+        "8144",
+        "8151",
+        "8259",
+        "9753",
+        "9754"
+      ],
+      "roster_id": 1,
+      "team_name": "Scheisse",
+      "user_id": "434915673219526656"
+    },
+    {
+      "display_name": "ds7mmet",
+      "players": [
+        "10232",
+        "11533",
+        "11584",
+        "11631",
+        "11655",
+        "12489",
+        "12514",
+        "2505",
+        "4881",
+        "6804",
+        "7021",
+        "8148",
+        "8183",
+        "NE",
+        "NO"
+      ],
+      "roster_id": 2,
+      "team_name": "Kindergarten Kopp",
+      "user_id": "434921290978029568"
+    },
+    {
+      "display_name": "cashworth",
+      "players": [
+        "11635",
+        "11638",
+        "12527",
+        "1339",
+        "1945",
+        "2449",
+        "3163",
+        "4018",
+        "4892",
+        "6130",
+        "7002",
+        "7588",
+        "9224",
+        "9487",
+        "9504",
+        "SEA"
+      ],
+      "roster_id": 3,
+      "team_name": "Bake it till you make it ",
+      "user_id": "434921916734631936"
+    },
+    {
+      "display_name": "Jreis",
+      "players": [
+        "10213",
+        "10229",
+        "11620",
+        "11792",
+        "12481",
+        "12524",
+        "4037",
+        "5012",
+        "5022",
+        "5850",
+        "5859",
+        "7594",
+        "8138",
+        "9756",
+        "BUF",
+        "PIT"
+      ],
+      "roster_id": 4,
+      "team_name": "Cook Brown Rice in Rome",
+      "user_id": "440723317066821632"
+    },
+    {
+      "display_name": "B8T3S",
+      "players": [
+        "11563",
+        "11624",
+        "11627",
+        "2133",
+        "4227",
+        "4983",
+        "5947",
+        "6806",
+        "6813",
+        "7553",
+        "7567",
+        "8112",
+        "8146",
+        "8205",
+        "9221",
+        "HOU"
+      ],
+      "roster_id": 5,
+      "team_name": "Carried by Gibbs*",
+      "user_id": "439662843298574336"
+    },
+    {
+      "display_name": "MarianSaar",
+      "players": [
+        "11604",
+        "11628",
+        "12508",
+        "12518",
+        "12526",
+        "12529",
+        "2747",
+        "4943",
+        "6794",
+        "7543",
+        "7611",
+        "9226",
+        "9488",
+        "CAR",
+        "GB"
+      ],
+      "roster_id": 6,
+      "team_name": "Show me your TDs",
+      "user_id": "461443264013135872"
+    },
+    {
+      "display_name": "mhagen",
+      "players": [
+        "10859",
+        "3214",
+        "4034",
+        "4381",
+        "4984",
+        "5892",
+        "6650",
+        "6801",
+        "7090",
+        "7523",
+        "7547",
+        "8126",
+        "8137",
+        "8154",
+        "8228",
+        "DEN"
+      ],
+      "roster_id": 7,
+      "team_name": "Dixie Wrecked",
+      "user_id": "458507445241638912"
+    },
+    {
+      "display_name": "Richard2121",
+      "players": [
+        "11560",
+        "12497",
+        "12512",
+        "2020",
+        "421",
+        "4988",
+        "5927",
+        "6790",
+        "7525",
+        "7569",
+        "8121",
+        "8130",
+        "9509",
+        "NYG",
+        "TB"
+      ],
+      "roster_id": 8,
+      "team_name": "Doener",
+      "user_id": "471160336402083840"
+    },
+    {
+      "display_name": "Schmelley",
+      "players": [
+        "12474",
+        "12507",
+        "12711",
+        "1466",
+        "3294",
+        "4866",
+        "5846",
+        "6904",
+        "7526",
+        "8110",
+        "8155",
+        "8167",
+        "9493",
+        "KC",
+        "PHI"
+      ],
+      "roster_id": 9,
+      "team_name": "Schmelley",
+      "user_id": "459850070410391552"
+    },
+    {
+      "display_name": "Sadbru",
+      "players": [
+        "11435",
+        "12493",
+        "12534",
+        "4035",
+        "4046",
+        "5001",
+        "5095",
+        "6786",
+        "6797",
+        "6819",
+        "7049",
+        "8150",
+        "8676",
+        "9997",
+        "BAL"
+      ],
+      "roster_id": 10,
+      "team_name": "Golden Girls",
+      "user_id": "739930057887334400"
+    }
+  ]
 }
