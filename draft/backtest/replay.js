@@ -71,7 +71,13 @@ const POLICIES = {
  * `bundle` is produced by the Python side under AsOf discipline and carries
  * only pre-draft-knowable inputs.
  */
-function replaySeason(bundle) {
+function replaySeason(bundle, opts) {
+  // opts.weightFn(round, ctx) -> weight object, so a strategy can depend on the
+  // round (Upside-Late ramps ceiling; Keeper-Builder lifts KOV in rounds 8+).
+  // Omitted means DEFAULT_WEIGHTS at every pick — the existing behaviour, so
+  // every caller that passed one argument is unchanged.
+  opts = opts || {};
+  const weightFn = opts.weightFn || function () { return E.DEFAULT_WEIGHTS; };
   const teams = bundle.teams || 10;
   const starters = rosterPositionsToStarters(bundle.roster_positions);
   const league = { teams: teams, starters: starters,
@@ -113,7 +119,7 @@ function replaySeason(bundle) {
     const ctx = {
       board: board, currentPick: pick.pick_no, nextPick: nextPick || pick.pick_no + teams,
       totalPicks: totalPicks, myPicksLeft: myPicksLeft, roster: roster, league: league,
-      weights: E.DEFAULT_WEIGHTS, runMultipliers: {}, intervening: [],
+      weights: weightFn(pick.round || 1, null), runMultipliers: {}, intervening: [],
       roundsLeft: Math.max(1, (bundle.rounds || 15) - (pick.round || 1) + 1),
     };
 
