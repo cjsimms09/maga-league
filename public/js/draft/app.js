@@ -1201,8 +1201,8 @@
     host.innerHTML = head + scored.map((s, i) => {
       const p = s.player;
       const pct = Math.round((1 - (s.survival_to_next || 0)) * 100);
-      return '<div class="rec-card' + (i === 0 ? ' top' : '') + '">' +
-        '<div class="rec-rank">' + (i + 1) + '</div>' +
+      return '<div class="rec-card' + (i === 0 ? ' top' : '') + (s.demoted ? ' demoted' : '') + '">' +
+        '<div class="rec-rank">' + (s.demoted ? '↓' : (i + 1)) + '</div>' +
         '<div class="rec-main">' +
           '<div class="rec-name">' + escapeHtml(p.name) +
             '<span class="rec-pos ' + p.position + '">' + p.position + '</span>' +

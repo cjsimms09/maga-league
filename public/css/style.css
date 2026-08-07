@@ -566,6 +566,10 @@ details.bal-row.me > summary { box-shadow: inset 3px 0 0 var(--gold); }
   margin-bottom: .55rem; background: rgba(255, 255, 255, .025);
 }
 .rec-card.top { border-color: rgba(245, 196, 69, .6); background: rgba(245, 196, 69, .07); box-shadow: var(--glow-gold); }
+/* A rail-flagged K/DST that sank below the last real player: shown, but dimmed
+   and set apart by a top rule so it reads as "below the line", never ranked. */
+.rec-card.demoted { opacity: .5; border-style: dashed; border-top: 2px solid var(--line); margin-top: .8rem; }
+.rec-card.demoted .rec-rank { background: transparent; }
 .rec-rank {
   flex: 0 0 2rem; height: 2rem; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;

@@ -351,6 +351,43 @@ check('weight sliders change the ranking', heavyCeiling[0].score !== scored[0].s
     board: [Object.assign({}, p, { position: 'QB' })] });
   check('exceeding a positional cap is flagged',
     (E.recommend(capped)[0].rails || []).some(f => /already hold/.test(f)));
+
+  // --- Onesie demotion (item 2 fix 1): a rail-flagged K/DST sinks below the
+  // last unflagged player, even if a bug floated it to the very top score. This
+  // is the engine-level safety net so the app AND the robot see the same order.
+  const mkE = (pos, score, rails, forced) =>
+    ({ player: { position: pos, name: pos + score }, score, rails: rails || [], forced: !!forced });
+  const messy = [
+    mkE('K', 999, ['K this early is almost never right']),   // flagged, top score
+    mkE('WR', 50, []),
+    mkE('DEF', 900, ['DEF this early is almost never right']), // flagged
+    mkE('RB', 40, []),
+    mkE('K', 30, []),                                          // UNflagged K — stays put
+  ];
+  const dem = E.demoteFlaggedOnesies(messy);
+  check('demotion puts both rail-flagged onesies at the tail of the list',
+    ['K', 'DEF'].indexOf(dem[dem.length - 1].player.position) >= 0
+      && dem[dem.length - 1].rails.length > 0
+      && dem[dem.length - 2].rails.length > 0,
+    dem.map(e => e.player.name).join(','));
+  check('an unflagged kicker is NOT demoted (only rail-flagged onesies sink)',
+    !dem.find(e => e.player.name === 'K30').demoted);
+  check('every non-onesie player is above every demoted onesie',
+    (function () {
+      const firstDemoted = dem.findIndex(e => e.demoted);
+      return dem.slice(0, firstDemoted).every(e =>
+        !(['K', 'DEF'].indexOf(e.player.position) >= 0 && e.rails.length > 0));
+    })());
+  check('demotion is stable within each group (WR before RB, K999 before DEF900)',
+    dem.filter(e => !e.demoted).map(e => e.player.name).join(',') === 'WR50,RB40,K30'
+      && dem.filter(e => e.demoted).map(e => e.player.name).join(',') === 'K999,DEF900');
+  check('a forced endgame onesie is never demoted even when flagged',
+    !E.demoteFlaggedOnesies([mkE('K', 10, ['flag'], true), mkE('WR', 5, [])])[0].demoted);
+  // End to end through recommend: a flagged kicker never sits above a startable
+  // player, and the demoted flag is set for the app to draw its divider.
+  const rec = E.recommend(early);
+  check('through recommend, the flagged kicker is marked demoted',
+    rec[0].player.position !== 'K' || rec[0].demoted === true);
 })();
 
 

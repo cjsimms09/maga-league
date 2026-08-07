@@ -601,14 +601,44 @@
     return f;
   }
 
+  /**
+   * Onesie demotion. A rail-flagged K/DST is the least trustworthy thing on the
+   * board — a confident kicker at the top of the list is precisely the bug the
+   * rails exist to catch (the codebase has shipped confident nonsense three
+   * times). Sink every rail-flagged K/DST below the last unflagged player so it
+   * can never sit in ranked position. Done here in the engine, on the list
+   * `recommend` returns, so the app and the robot mock see the SAME order —
+   * a display-only sort would let the robot draft a kicker the human never sees
+   * offered. Forced endgame K/DST carry no rail flag (see plausibilityRails'
+   * `!entry.forced`) and are never demoted — a legal lineup still needs one.
+   * Stable: the kept group keeps its score order, the sunk group keeps theirs.
+   */
+  function demoteFlaggedOnesies(scored) {
+    const isFlaggedOnesie = s =>
+      (s.player.position === 'K' || s.player.position === 'DEF')
+      && !s.forced && s.rails && s.rails.length > 0;
+    let anySunk = false;
+    const keep = [];
+    const sink = [];
+    scored.forEach(s => {
+      if (isFlaggedOnesie(s)) { s.demoted = true; sink.push(s); anySunk = true; } else { keep.push(s); }
+    });
+    return anySunk ? keep.concat(sink) : scored;
+  }
+
   function recommend(ctx) {
     const all = ctx.board.map(p => scorePlayer(p, ctx));
     all.sort((a, b) => b.score - a.score);
 
     const legality = applyRosterLegality(all, ctx);
-    const scored = legality.scored;
+    // Rails first — they decide who gets demoted. Computed against the
+    // score-sorted list so the runaway check still fires on the top score.
+    legality.scored.forEach(s => { s.rails = plausibilityRails(s, ctx, legality.scored); });
+    const scored = demoteFlaggedOnesies(legality.scored);
 
     // Flag when the top candidates are close enough that Monte Carlo should break the tie.
+    // Computed AFTER demotion so "contested" compares the two real players a
+    // human would actually weigh, never a real player against a sunk kicker.
     if (scored.length > 1) {
       const gap = scored[0].score - scored[1].score;
       scored[0].contested = gap < CFG.TIE_THRESHOLD;
@@ -618,7 +648,6 @@
       scored[0].legality = legality.forced || null;
       scored[0].legality_warning = legality.warning || null;
     }
-    scored.forEach(s => { s.rails = plausibilityRails(s, ctx, scored); });
     return scored;
   }
 
@@ -1381,6 +1410,7 @@
     expectedBestAvailable, vona,
     tierCliffUrgency, starterSlotMarginal, riskAdjustment, upsideBonus,
     scorePlayer, recommend, mandatoryGaps, applyRosterLegality, plausibilityRails,
+    demoteFlaggedOnesies,
     confidence, branchForecast, applyPersonalLists, onTheClock, rosterPlan, byeGrid,
     cheatSheet, sheetText, managerTells, threatBoard,
     WEIGHT_PRESETS, matchPreset, rankDiff, autoWeights,

@@ -164,5 +164,23 @@ if (!IS_FIXTURE) {
   });
 }
 
+// R6 (item 2 fix 1 — onesie demotion): a rail-flagged K/DST is sunk below the
+// last unflagged player, so no demoted onesie can appear ahead of a real one.
+// The robot reads the same recommend() the app renders, so this holds for both.
+{
+  const board = ALL.slice(40);
+  const scored = E.recommend({ board, currentPick: 41, nextPick: 54, totalPicks: 120,
+    myPicksLeft: 7, roster: ALL.slice(0, 4), league: LEAGUE, weights: E.DEFAULT_WEIGHTS,
+    runMultipliers: {}, intervening: [], roundsLeft: 8 });
+  const firstDemoted = scored.findIndex(s => s.demoted);
+  const aboveLine = firstDemoted < 0 ? scored : scored.slice(0, firstDemoted);
+  check('R6 onesie demotion: every demoted entry is a rail-flagged K/DST',
+    scored.filter(s => s.demoted).every(s =>
+      ['K', 'DEF'].includes(s.player.position) && (s.rails || []).length > 0));
+  check('R6 onesie demotion: no demoted onesie sits above an unflagged player',
+    aboveLine.every(s => !s.demoted),
+    aboveLine.filter(s => s.demoted).map(s => s.player.name).join(','));
+}
+
 console.log((IS_FIXTURE ? '[fixture board — R4 skipped] ' : '') + pass + '/' + (pass + fail) + ' robot-mock checks passed');
 process.exit(fail ? 1 : 0);
