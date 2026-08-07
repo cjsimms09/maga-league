@@ -79,8 +79,14 @@ jobs:
           print('LIVE SITE CHECK —', site)
           print('=' * 78)
           print('\n--- is it up, and is it the app or a stale static build? ---')
-          check('Login page', '/login', want=['MAKE FOOTBALL', 'name="username"'])
-          check('Home redirects to login', '/', expect=302)
+          # Case matters: the masthead is "Make Football Great Again" and the CSS
+          # uppercases it. Asserting the rendered look rather than the markup is
+          # how a check reports a problem that is not there.
+          check('Login page', '/login', want=['Make Football', 'name="username"'])
+          # urllib follows redirects, so / lands on /login and returns 200. What
+          # is worth asserting is the user-visible outcome — a logged-out visitor
+          # ends up at the login form — not the status code of a hop we never see.
+          check('Logged out lands on login', '/', want=['name="username"', 'name="password"'])
 
           print('\n--- the things a phone needs to install it ---')
           check('Web manifest', '/manifest.webmanifest', want=['MFGA League', 'icons'])
