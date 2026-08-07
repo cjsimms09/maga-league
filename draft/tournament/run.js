@@ -393,6 +393,15 @@ function runTournament(label, rankBoard, drafts, iterations, jitter) {
 }
 
 // ----------------------------------------------------------------------- main
+/* Importable. `node run.js` still runs the tournament exactly as before; a
+ * `require()` gets the simulator and its helpers without executing anything.
+ * The round-2 diagnostic needs to drive the SAME simulate() the tournament
+ * drives — a reimplementation would be diagnosing a different system, which is
+ * how you end up confidently fixing a bug that was never there. */
+module.exports = { simulate, greedyVPolicy, rankedPolicy, profileFor, percentile,
+                   BOARD, PLAYERS, LEAGUE, TEAMS, ROUNDS, SCHEDULE, snakeOrder, M, V, S };
+if (require.main !== module) return;
+
 console.log('='.repeat(76));
 console.log('MCTS SELF-PLAY TOURNAMENT');
 console.log('='.repeat(76));
