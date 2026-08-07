@@ -165,6 +165,98 @@ jobs:
           print('=' * 78)
           PY
 
+      # Does any of this actually PREDICT, on real data?
+      #
+      # The suite already runs a held-out evaluation, but against synthetic
+      # managers with planted tendencies — which proves the estimator can
+      # recover a pattern that is definitely there. It says nothing about
+      # whether these ten people have one.
+      #
+      # This trains on the older drafts, predicts the most recent one it has
+      # never seen, and scores by log-loss against a league-average baseline.
+      # If the profiles do not beat that baseline they are decoration, and it
+      # is far better to know that here than to find out on 22 August.
+      - name: Backtest against a held-out real draft
+        working-directory: draft
+        env:
+          LEAGUE_ID: ${{ inputs.league_id || '1374848328470102016' }}
+        run: |
+          python - <<'PY'
+          import math, os, sys
+          sys.path.insert(0, '.')
+          import sleeper_import as si, managers as M
+
+          drafts = si.all_drafts(os.environ['LEAGUE_ID'])
+          players = si.fetch_players()
+          # all_drafts returns newest first.
+          by_season = sorted(drafts, key=lambda d: str(d.get('season')))
+          if len(by_season) < 2:
+              print('Only %d draft(s) — nothing to hold out. No backtest possible.' % len(by_season))
+              raise SystemExit(0)
+
+          train, heldout = by_season[:-1], by_season[-1]
+          print('=' * 78)
+          print('BACKTEST — train on %s, predict %s (never seen)'
+                % (', '.join(str(d.get('season')) for d in train), heldout.get('season')))
+          print('=' * 78)
+
+          out = M.build_profiles(train, players)
+          league_avg = out['league_average']
+
+          # Who made each pick: historical picks carry roster_id, not picked_by.
+          roster_owner = {str(r['roster_id']): str(r.get('owner_id') or '')
+                          for r in heldout.get('rosters', [])}
+
+          def logloss(use_profiles):
+              total = n = 0
+              avail = {pid: (players.get(pid) or {}).get('position')
+                       for pid in {str(p['player_id']) for d in by_season for p in d['picks']}}
+              avail = {k: v for k, v in avail.items() if v}
+              for pick in sorted(heldout['picks'], key=lambda p: p.get('pick_no') or 0):
+                  pid = str(pick.get('player_id') or '')
+                  actual = avail.get(pid)
+                  positions = set(avail.values())
+                  if not actual or len(positions) < 2:
+                      avail.pop(pid, None)
+                      continue
+                  # A keeper is not a prediction problem — it was decided last year.
+                  if pick.get('is_keeper'):
+                      avail.pop(pid, None)
+                      continue
+                  owner = roster_owner.get(str(pick.get('roster_id')), '')
+                  profile = out['managers'].get(owner) if use_profiles else None
+                  probs = M.predict_position(profile, league_avg,
+                                             pick.get('round') or 1, positions)
+                  total -= math.log(max(1e-9, probs.get(actual, 1e-9)))
+                  n += 1
+                  avail.pop(pid, None)
+              return (total / n) if n else float('nan'), n
+
+          with_p, n = logloss(True)
+          base, _ = logloss(False)
+          print('picks scored          %d  (keepers excluded)' % n)
+          print('league-average baseline log-loss  %.4f' % base)
+          print('with manager profiles             %.4f' % with_p)
+          if not (base > 0):
+              print('\n?? baseline is degenerate — cannot judge.')
+              raise SystemExit(0)
+          lift = (base - with_p) / base
+          print('improvement                       %+.2f%%' % (lift * 100))
+          print('-' * 78)
+          if lift > 0.02:
+              print('==> The profiles BEAT the league-average baseline on a draft they')
+              print('    have never seen. The opponent model is carrying real signal.')
+          elif lift > 0:
+              print('==> Better than baseline, but by less than 2%. Treat the opponent')
+              print('    model as a tiebreak, not as information.')
+          else:
+              print('==> The profiles do NOT beat a league-average baseline. On this')
+              print('    evidence the opponent model is decoration: it should not be')
+              print('    moving survival percentages, and the tells should be read as')
+              print('    trivia rather than as predictions.')
+          print('=' * 78)
+          PY
+
       - name: Commit the profiles
         if: ${{ inputs.commit }}
         run: |
