@@ -43,6 +43,13 @@ def keeper_cost_round(keeper: dict, cfg: dict) -> int | None:
         return None
     if model == "fixed_round":
         return int(rules["fixed_round"])
+    if model == "top_picks_flat":
+        # POSITIONAL: keeping N keepers forfeits rounds 1..N. Per-player this
+        # cannot be resolved (the cost depends on rank within the team's kept
+        # set), so every keeper 'wants' round 1 and build_true_pick_order's
+        # collision-roll assigns 1,2,3... — which IS rounds 1..N. The optimizer
+        # (optimize_keeper_count) computes the positional cost directly.
+        return 1
 
     original = keeper.get("original_round")
     if original is None:
@@ -234,15 +241,25 @@ def optimize_keeper_count(eligible: list[dict], cfg: dict, *, replacement_by_pos
     """
     from itertools import combinations
     count = int(cfg["keepers"]["count"])
+    model = cfg["keepers"]["cost_model"]
 
     def surplus_of(combo):
         total, detail, ok = 0.0, [], True
-        for k in combo:
-            try:
-                rnd = keeper_cost_round(k, cfg)
-            except ValueError:
-                ok = False
-                break
+        # top_picks_flat: keeping N keepers forfeits rounds 1..N (the k-th keeper
+        # costs round k), independent of where the player was drafted. The cost
+        # is POSITIONAL, so assign the most expensive round (1) to the highest
+        # -VORP keeper — the assignment does not change the total (rounds 1..N
+        # are forfeited either way) but makes the per-keeper surplus legible.
+        ranked = sorted(combo, key=lambda x: -(x.get("vorp") or 0.0))
+        for idx, k in enumerate(ranked):
+            if model == "top_picks_flat":
+                rnd = idx + 1
+            else:
+                try:
+                    rnd = keeper_cost_round(k, cfg)
+                except ValueError:
+                    ok = False
+                    break
             pick = _pick_for_round(rnd, cfg)
             alt = expected_best_available(pool_by_pos, pick, k["position"], replacement_by_pos)
             surp = (k.get("vorp") or 0.0) - alt

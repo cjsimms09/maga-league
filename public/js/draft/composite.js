@@ -45,6 +45,11 @@
     if (rules.cost_model === 'escalator') costRound = Math.max(1, draftRound - (rules.escalator_rounds || 1));
     else if (rules.cost_model === 'fixed_round') costRound = rules.fixed_round || draftRound;
     else if (rules.cost_model === 'no_cost') costRound = rounds;
+    // top_picks_flat: a keeper costs a top pick (round 1 for the best keeper).
+    // KOV is next-year keeper VALUE, so the relevant cost is the marginal top
+    // pick — round 1. Positional per-keeper resolution is not available here;
+    // round 1 is the correct marginal cost for the best keeper candidate.
+    else if (rules.cost_model === 'top_picks_flat') costRound = 1;
     z += 2.4 * ((costRound - 1) / Math.max(1, rounds - 1)) - 0.6;
 
     // Age relative to positional peak.

@@ -27,7 +27,7 @@
   ],
   "imported_at": "2026-08-07T09:08:12Z",
   "keepers": {
-    "cost_model": "original_round",
+    "cost_model": "top_picks_flat",
     "count": 3,
     "max_years": 3,
     "undrafted_round": 10,

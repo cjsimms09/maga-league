@@ -21,7 +21,7 @@ FLEX_ELIGIBILITY = {
     "SUPER_FLEX": ["QB", "RB", "WR", "TE"],
 }
 
-KEEPER_COST_MODELS = {"original_round", "fixed_round", "escalator", "no_cost"}
+KEEPER_COST_MODELS = {"original_round", "fixed_round", "escalator", "no_cost", "top_picks_flat"}
 DRAFT_TYPES = {"snake", "linear", "third_round_reversal"}
 
 REQUIRED_TOP_LEVEL = ["league_id", "season", "teams", "draft_type", "roster_slots", "scoring", "keepers"]

@@ -40,6 +40,11 @@ backtest to mean anything, and it is out of scope before Aug 22.
 _No other decisions open._
 
 
+## D2 — RESOLVED (answer: (b)) — top_picks_flat implemented
+
+_Answered: the k-th keeper costs round k (keeping N forfeits rounds 1..N). Implemented as the `top_picks_flat` cost model; optimizer, true-pick-order and KOV all handle it; config set. See STATUS K0 for the settled keeper decision. Original open text retained below for the record._
+
+### (original)
 ## D2 — Exact definition of the `top_picks_flat` keeper cost model (K0 blocker)
 
 K0 needs this before the cost model can be implemented, because implementing the

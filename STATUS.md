@@ -89,45 +89,42 @@ _Last update: master-execution-order run, start._
 ## One-line readiness
 **NOT YET** — robot mock green in CI; attribution wired; backtest report re-running (run 5 succeeded but its report was lost to a push race, now fixed).
 
-## 🔑 K0 — KEEPER OPTIMIZER OUTPUT (real roster) — PROVISIONAL, D2-critical
+## 🔑 K0 — KEEPER DECISION: SETTLED (D2 answered (b) = top_picks_flat)
 
-Optimizer BUILT (optimize_keeper_count, tested) and RUN against my real roster
-(roster_id 1, from league-history final_rosters, joined to the production
-artifact's VORP). This satisfies the "optimizer output in STATUS.md" requirement
-well ahead of the Aug 19 deadline. It is PROVISIONAL pending D2.
+**DECISION: keep all 3 — Ja'Marr Chase, Derrick Henry, Kenneth Walker.** This
+matches my current Sleeper designation; the optimizer confirms it is optimal.
+Every keeper has positive surplus and surplus rises with each, so keep the max.
+Deadline (optimizer output by Aug 19, lock Aug 20) met on Aug 7.
 
 ```
-K0 KEEPER OPTIMIZER — real roster, cost_model=original_round (PROVISIONAL pending D2 top_picks_flat)
+K0 KEEPER OPTIMIZER — real roster, cost_model=top_picks_flat (PROVISIONAL pending D2 top_picks_flat)
 artifact built_at 2026-08-07T09:08:24Z · adp_source ffc
 
-RECOMMENDED: keep 3 — Drake Maye, Mike Evans, Kenneth Walker  (total surplus 106.1)
+RECOMMENDED: keep 3 — Derrick Henry, Ja'Marr Chase, Kenneth Walker  (total surplus 54.9)
 
 every option (surplus = keeper VORP minus what the forfeited pick returns):
   keep 0: (draft normally)                         surplus    +0.0
-  keep 1: Kenneth Walker                           surplus   +52.2
-      Kenneth Walker     RB  VORP 67  costs R5  pick returns 15  -> surplus +52
-  keep 2: Drake Maye, Kenneth Walker               surplus   +79.2
-      Drake Maye         QB  VORP 24  costs R10  pick returns -3  -> surplus +27
-      Kenneth Walker     RB  VORP 67  costs R5  pick returns 15  -> surplus +52
-  keep 3: Drake Maye, Mike Evans, Kenneth Walker   surplus  +106.1
-      Drake Maye         QB  VORP 24  costs R10  pick returns -3  -> surplus +27
-      Mike Evans         WR  VORP 14  costs R8  pick returns -13  -> surplus +27
-      Kenneth Walker     RB  VORP 67  costs R5  pick returns 15  -> surplus +52
+  keep 1: Ja'Marr Chase                            surplus    +8.4
+      Ja'Marr Chase      WR  VORP 108  costs R1  pick returns 100  -> surplus +8
+  keep 2: Derrick Henry, Ja'Marr Chase             surplus   +26.1
+      Ja'Marr Chase      WR  VORP 108  costs R1  pick returns 100  -> surplus +8
+      Derrick Henry      RB  VORP 86  costs R2  pick returns 68  -> surplus +18
+  keep 3: Derrick Henry, Ja'Marr Chase, Kenneth Walker surplus   +54.9
+      Ja'Marr Chase      WR  VORP 108  costs R1  pick returns 100  -> surplus +8
+      Derrick Henry      RB  VORP 86  costs R2  pick returns 68  -> surplus +18
+      Kenneth Walker     RB  VORP 67  costs R3  pick returns 38  -> surplus +29
 ```
 
-**READ THIS BEFORE ACTING:** the recommendation is DOMINATED by the cost model.
-Under the current `original_round` model, keeping Ja'Marr Chase or Derrick Henry
-is NEGATIVE surplus — they cost round-1/round-2 picks (I drafted them there in
-2023), so keeping them forfeits a better player than they are. So the optimizer
-says keep the CHEAP keepers (Walker/Maye/Evans), not the studs. My currently
-DESIGNATED keepers (Henry, Chase, Walker) include two the optimizer rejects.
+**HUGE draft-day consequence:** under top_picks_flat, keeping 3 forfeits my
+rounds 1, 2 and 3. **My first pick is now 34 (round 4), not 7** — my picks
+become 34, 41, 54, 61, 74, 81 (was 7, 14, 27, 34, 47, 54 under the old wrong
+model). Every earlier board analysis assumed the wrong pick numbers. The
+production artifact must be REBUILT under top_picks_flat so its adjusted_adp,
+true pick order and my-pick numbers are correct — rebuild triggered.
 
-**This flips entirely under `top_picks_flat`** (D2): if all keepers cost a flat
-mid-round instead of their original round, Chase (VORP 108) and Henry (86) become
-strongly keepable and the answer changes completely. So the single most
-important thing for the keeper decision is **answering D2 — what is the real
-cost model.** I cannot pick keepers correctly without it, and the two candidate
-models give opposite answers. Re-runs the instant D2 lands: `python3 draft/keeper_optimize.py`.
+What's implemented (D2=(b)): top_picks_flat added to the optimizer (positional
+cost, tested), to build_true_pick_order (forfeits rounds 1..N, tested), to KOV
+(composite.js), and to config validation. cost_model set to top_picks_flat.
 
 ## Test suite
 - JS suites: engine 192, mcts 63, keepers 38, keeperlock 41, reconcile 12, update 41, betlogic 134, ledger 41, sync 26, backtest 17, strategies 13, attribution 10 — **all green**
@@ -141,7 +138,7 @@ models give opposite answers. Re-runs the instant D2 lands: `python3 draft/keepe
 ## Queue progress
 | # | item | state |
 |---|---|---|
-| 0 | **K0 keeper decision (Aug 19/20 deadline)** | **FRONT OF QUEUE — top_picks_flat NOT built, optimizer never run** |
+| 0 | **K0 keeper decision** | **SETTLED — keep Chase/Henry/Walker; artifact rebuild under top_picks_flat triggered** |
 | 1 | Stabilization sprint | Phase 1 attribution WIRED (`pending`); robot mock GREEN |
 | 2 | Small fixes (onesie / rail budget / config_confirmed) | PENDING |
 | 2b | Draft-day experience | AUDITED, pending |
