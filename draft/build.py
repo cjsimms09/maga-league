@@ -52,6 +52,78 @@ PROFILES_PATH = HERE / "config" / "manager_profiles.json"
 # Positions the draft board cares about. IDP leagues would extend this.
 DRAFTABLE = {"QB", "RB", "WR", "TE", "K", "DEF"}
 
+# config_confirmed single source of truth (item 2 fix 3).
+# The committed league_config.json is a CACHE of what the commissioner confirmed
+# on the live site; the AUTHORITY is the Blob the League Setup screen writes.
+# The bug this closes: a commissioner confirms on the site (Blob=true) but the
+# nightly build reads the stale file (false) and ships an artifact that warns
+# "unconfirmed" forever. The build now fetches the live flag and stamps where
+# the value came from into provenance, so the file can never masquerade as
+# authority. If the live flag is unreachable we fall back to the file BUT label
+# it file-cache and warn — a silent fallback that claimed authority would be the
+# exact dishonesty the provenance discipline exists to prevent.
+CONFIG_STATUS_URL_ENV = "DRAFT_CONFIG_STATUS_URL"
+
+
+def fetch_authoritative_confirmed(cfg: dict) -> dict:
+    """Resolve config_confirmed from its authority (the Blob), not the file.
+
+    Returns a provenance record: the value actually used, its source
+    ('blob' when the live endpoint answered, 'file-cache' otherwise), whether
+    that source is authoritative, and a warning when it is not.
+    """
+    import os
+
+    file_value = bool(cfg.get("confirmed"))
+    url = os.environ.get(CONFIG_STATUS_URL_ENV, "").strip()
+    fetched_at = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    if not url:
+        return {
+            "value": file_value,
+            "source": "file-cache",
+            "authoritative": False,
+            "warning": (f"{CONFIG_STATUS_URL_ENV} not set — used the committed file, "
+                        "which is a cache of the site's confirmation, not the authority"),
+            "file_value": file_value,
+            "fetched_at": fetched_at,
+        }
+    import urllib.request
+
+    endpoint = url.rstrip("/")
+    if not endpoint.endswith("/api/draft-config-status"):
+        endpoint = endpoint + "/api/draft-config-status"
+    try:
+        with urllib.request.urlopen(endpoint, timeout=10) as resp:
+            live = json.loads(resp.read().decode("utf-8"))
+        value = bool(live.get("confirmed"))
+        rec = {
+            "value": value,
+            "source": "blob",
+            "authoritative": True,
+            "warning": None,
+            "url": endpoint,
+            "confirmed_at": live.get("confirmed_at"),
+            "cost_model": live.get("cost_model"),
+            "file_value": file_value,
+            "fetched_at": fetched_at,
+        }
+        if value != file_value:
+            # Not an error — this is exactly the drift the fetch exists to catch.
+            print(f"  config_confirmed: live={value} overrides stale file={file_value} "
+                  f"(authority: {endpoint})")
+        return rec
+    except Exception as exc:  # noqa: BLE001 — any failure must fall back loudly
+        return {
+            "value": file_value,
+            "source": "file-cache",
+            "authoritative": False,
+            "warning": (f"could not reach {endpoint} ({exc.__class__.__name__}): "
+                        "fell back to the committed file, which is a cache not the authority"),
+            "url": endpoint,
+            "file_value": file_value,
+            "fetched_at": fetched_at,
+        }
+
 
 def load_players(cfg: dict, offline: bool) -> list[dict]:
     """Sleeper player DB + ADP + consensus projections -> our player rows."""
@@ -378,8 +450,14 @@ def build_manager_profiles(cfg: dict, offline: bool, force: bool = False) -> dic
     return profiles
 
 
-def build(cfg: dict, *, offline: bool = False, force_profiles: bool = False) -> dict:
+def build(cfg: dict, *, offline: bool = False, force_profiles: bool = False,
+          confirmed_status: dict | None = None) -> dict:
     print("Building draft artifact ...")
+    # Resolve config_confirmed from its authority before assembling the artifact,
+    # so both the league block and provenance carry the same, honestly-sourced
+    # value. When a caller (e.g. a test) passes it in, use theirs verbatim.
+    if confirmed_status is None:
+        confirmed_status = fetch_authoritative_confirmed(cfg)
     players = load_players(cfg, offline)
     if not players:
         raise SystemExit("no players — cannot build a board")
@@ -446,7 +524,8 @@ def build(cfg: dict, *, offline: bool = False, force_profiles: bool = False) -> 
             "opportunity_adj_coverage": round(
                 sum(1 for p in available if p.get("opportunity_adj") is not None)
                 / max(1, len(available)), 3),
-            "config_confirmed": bool(cfg.get("confirmed")),
+            # AUTHORITATIVE value (from the Blob when reachable), not the file.
+            "config_confirmed": bool(confirmed_status.get("value")),
             "profiles_from_drafts": profiles.get("drafts_analysed", 0),
         },
         # Read this before trusting anything above it.
@@ -455,6 +534,10 @@ def build(cfg: dict, *, offline: bool = False, force_profiles: bool = False) -> 
             "adp": dict(ADP_PROVENANCE),
             "opportunity_adjustment": OPPORTUNITY_PROVENANCE.get("status", "unknown"),
             "opportunity_detail": {k: v for k, v in OPPORTUNITY_PROVENANCE.items() if k != "status"},
+            # Where config_confirmed actually came from — 'blob' (authority) or
+            # 'file-cache' (fallback, with a warning). The file is never trusted
+            # silently.
+            "config_confirmed": dict(confirmed_status),
         },
     }
     _assert_provenance_matches_data(available, artifact)
@@ -697,10 +780,14 @@ def main() -> None:
     if args.slot:
         cfg["my_draft_slot"] = args.slot
 
-    if not cfg.get("confirmed"):
+    status = fetch_authoritative_confirmed(cfg)
+    if status.get("warning"):
+        print(f"  ! config_confirmed resolved from {status['source']}: {status['warning']}")
+    if not status.get("value"):
         print("  ! league_config has not been confirmed on the review screen — "
               "scoring and roster slots are unverified (Commish -> War Room -> League Setup)")
-    artifact = build(cfg, offline=args.offline, force_profiles=args.refresh_profiles)
+    artifact = build(cfg, offline=args.offline, force_profiles=args.refresh_profiles,
+                     confirmed_status=status)
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(artifact, separators=(",", ":")))

@@ -681,8 +681,12 @@ router.post('/draft-config', aw(async (req, res) => {
   // Keeper house rules — Sleeper never knows these.
   next.keepers = {
     count: parseInt(req.body.keeper_count, 10) || 3,
-    cost_model: ['original_round', 'fixed_round', 'escalator', 'no_cost'].includes(req.body.cost_model)
-      ? req.body.cost_model : 'original_round',
+    // top_picks_flat is the model this league actually plays (K0): the k-th
+    // keeper forfeits round k. It MUST be in this allow-list, or a re-confirm on
+    // this screen silently reverts the board to original_round and every
+    // forfeited-round number goes wrong.
+    cost_model: ['original_round', 'fixed_round', 'escalator', 'no_cost', 'top_picks_flat'].includes(req.body.cost_model)
+      ? req.body.cost_model : 'top_picks_flat',
     fixed_round: parseInt(req.body.fixed_round, 10) || undefined,
     escalator_rounds: parseInt(req.body.escalator_rounds, 10) || undefined,
     max_years: parseInt(req.body.max_years, 10) || 3,

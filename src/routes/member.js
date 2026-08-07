@@ -11,6 +11,26 @@ const { getDoc, setDoc, newId, now } = require('../data');
 const { hashPassword, verifyPassword, requireLogin, aw } = require('../auth');
 const { RULES, SCORING, ROSTER } = require('../seed-data');
 
+// ---------- public: the authoritative draft-config status ----------
+// The build pipeline runs in CI off a committed league_config.json file, which
+// is only ever a CACHE of what the commissioner confirmed on this site. The
+// authority is the Blob written by the League Setup screen. This read-only,
+// unauthenticated endpoint exposes just the confirmed flag (nothing sensitive)
+// so the pipeline can fetch the real value at build time and stamp it into the
+// artifact's provenance — the file copy can then never masquerade as authority.
+router.get('/api/draft-config-status', aw(async (req, res) => {
+  const o = await getDoc('draft-config-overrides', {});
+  res.set('Cache-Control', 'no-store');
+  res.json({
+    confirmed: !!o.confirmed,
+    confirmed_at: o.confirmed_at || null,
+    cost_model: (o.keepers && o.keepers.cost_model) || null,
+    keeper_count: (o.keepers && o.keepers.count) != null ? o.keepers.count : null,
+    source: 'blob',
+    served_at: now(),
+  });
+}));
+
 // ---------- auth ----------
 router.get('/login', (req, res) => {
   if (req.owner) return res.redirect('/');
