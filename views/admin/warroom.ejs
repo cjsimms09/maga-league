@@ -5,10 +5,13 @@
 
 <div id="loading"><div class="card"><div class="body"><p class="muted" style="margin:0">Loading the board…</p></div></div></div>
 
+<div id="stale-gate" style="display:none"></div>
+
 <div id="warroom" style="display:none">
 
   <div id="provenance" style="display:none"></div>
   <div id="drift-note" style="display:none"></div>
+  <div id="slot-note" style="display:none"></div>
   <div id="run-banner" class="roast-banner" style="display:none"></div>
 
   <div class="hero" style="margin-bottom:1rem">
@@ -21,6 +24,14 @@
       <span class="hero-label">League</span>
       <span class="hero-value" style="font-size:.95rem" id="hdr-league">—</span>
       <span class="hero-sub" id="hdr-built"></span>
+    </div>
+    <div class="hero-item">
+      <span class="hero-label">My Draft Slot</span>
+      <div class="inline-form" style="justify-content:center; margin-top:.25rem">
+        <div class="fit"><input type="number" id="slot-input" min="1" max="20" style="width:64px"></div>
+        <div class="fit"><button class="btn small gold" id="slot-apply">Set</button></div>
+      </div>
+      <span class="hero-sub" id="slot-picks">—</span>
     </div>
     <div class="hero-item" style="flex:2 1 260px">
       <span class="hero-label">Live Sync</span>
@@ -114,6 +125,7 @@
   window.LEAGUE_ID = '<%= (config && config.sleeper_league_id) || "" %>';
   window.CFG_OVERRIDES = <%- JSON.stringify(typeof overrides !== 'undefined' ? overrides : {}) %>;
 </script>
+<script src="/js/draft/keepers.js"></script>
 <script src="/js/draft/survival.js"></script>
 <script src="/js/draft/composite.js"></script>
 <script src="/js/draft/engine.js"></script>

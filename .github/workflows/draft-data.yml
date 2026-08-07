@@ -54,6 +54,15 @@ jobs:
         # A board that fails its own scoring tests must never be published.
         run: python -m pytest draft/tests -q
 
+      # The JS suites are not optional extras: keepers.test.js is the only thing
+      # that catches the Python and browser keeper implementations diverging,
+      # and a divergence there corrupts every pick number invisibly.
+      - name: Run engine and parity tests
+        run: |
+          node draft/tests/engine.test.js
+          node draft/tests/update.test.js
+          node draft/tests/keepers.test.js
+
       # This is the only place with real network access, so it is the only place
       # that can answer what the live APIs actually return. Its log is the
       # deliverable: FFC's field set, the unmatched-player report, and the real

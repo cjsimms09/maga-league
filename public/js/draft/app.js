@@ -214,6 +214,12 @@
     $('#hdr-built').textContent = 'Board built ' + (d.built_at || '').slice(0, 10) +
       ' · ' + d.players.length + ' players';
     renderProvenance(d);
+    const si = $('#slot-input'), sp = $('#slot-picks');
+    if (si && !si.value) si.value = d.league.my_draft_slot || '';
+    if (sp) {
+      const mine = (d.pick_order.my_picks || []).slice(0, 5);
+      sp.textContent = mine.length ? 'picks ' + mine.join(', ') + '\u2026' : 'no picks';
+    }
   }
 
   /* Loud degradation. A fallback that nobody can see is a fallback that gets
@@ -276,16 +282,17 @@
       });
     }
 
-    // Artifact age. Stale on draft day is the expensive kind of stale.
+    // Artifact age. Under 6h quiet, 6-18h amber, over 18h BLOCKING — a stale
+    // board on draft day means drafting off yesterday's injury status without
+    // knowing, and a warning you can scroll past is not a control.
     const built = Date.parse(d.built_at || '');
     if (built) {
       const hours = (Date.now() - built) / 3.6e6;
-      if (hours > 36) {
-        notes.push({ level: 'bad', text: 'This board is ' + Math.round(hours / 24)
-          + ' days old. Injury status and projections have moved since it was built.' });
-      } else if (hours > 12) {
+      if (hours > 18) {
+        blockOnStaleness(hours);
+      } else if (hours > 6) {
         notes.push({ level: 'warn', text: 'This board is ' + Math.round(hours)
-          + ' hours old — rebuild before you draft off it.' });
+          + ' hours old — consider rebuilding before you draft off it.' });
       }
     }
 
@@ -424,6 +431,95 @@
       '<b class="' + (x.s > 0.6 ? 'pos' : x.s < 0.25 ? 'neg' : '') + '">' + Math.round(x.s * 100) + '%</b></div>').join('');
   }
 
+  /* Over 18 hours the board is not usable until it is acknowledged.
+   *
+   * The rule from the readiness spec: under 6h quiet, 6-18h amber, over 18h a
+   * red blocking banner requiring an explicit acknowledgement. The point is not
+   * to be annoying — it is that "I did not realise the board was a day old" is
+   * a mistake you only make once, in the one session that matters.
+   */
+  const STALE_ACK_KEY = 'mfga.draft.staleAck';
+  function blockOnStaleness(hours) {
+    const host = $('#stale-gate');
+    if (!host) return;
+    let acked = null;
+    try { acked = localStorage.getItem(STALE_ACK_KEY); } catch (e) { /* private mode */ }
+    if (acked === String(state.data.built_at)) return;   // acknowledged this artifact
+
+    const age = hours > 36 ? Math.round(hours / 24) + ' days' : Math.round(hours) + ' hours';
+    host.style.display = '';
+    host.innerHTML =
+      '<div class="stale-block">'
+      + '<h3>\u26d4 This board is ' + escapeHtml(age) + ' old</h3>'
+      + '<p>Injury status, suspensions and ADP have all moved since it was built'
+      + ' on ' + escapeHtml((state.data.built_at || '').replace('T', ' ').slice(0, 16)) + ' UTC.'
+      + ' Rebuild it before drafting — Actions \u2192 Build draft board \u2192 Run workflow.</p>'
+      + '<button class="btn small navy" id="stale-ack">I understand, use it anyway</button>'
+      + '</div>';
+    // The board stays visible behind the gate — hiding it would make a network
+    // failure at the table indistinguishable from a broken tool.
+    const wr = $('#warroom');
+    if (wr) wr.classList.add('is-stale');
+    const btn = $('#stale-ack');
+    if (btn) {
+      btn.addEventListener('click', () => {
+        try { localStorage.setItem(STALE_ACK_KEY, String(state.data.built_at)); } catch (e) {}
+        host.style.display = 'none';
+        if (wr) wr.classList.remove('is-stale');
+      });
+    }
+  }
+
+  /* Draft slot as a RUNTIME setting, not a build flag.
+   *
+   * Positions are claimed live on the league site in reverse standings order,
+   * so my seat may not be final until shortly before the draft — well after the
+   * pipeline last ran. Every one of my pick numbers derives from it, and n_next
+   * is exactly what VONA measures against, so a stale slot silently invalidates
+   * every recommendation while everything looks normal.
+   *
+   * Changing it here recomputes the true pick order and my picks immediately,
+   * with no network and no rebuild, and says what moved.
+   */
+  function setSlot(slot) {
+    const n = Number(slot);
+    const league = state.data.league;
+    if (!n || n < 1 || n > (league.teams || 10)) return;
+    const before = (state.data.pick_order.my_picks || []).slice();
+
+    league.my_draft_slot = n;
+    const picks = state.data.pick_order.picks || [];
+    const derived = picks.filter(p => Number(p.slot) === n).map(p => p.overall);
+    if (!derived.length) {
+      showSlotNote('Slot ' + n + ' owns no picks in this board.', true);
+      return;
+    }
+    state.data.pick_order.my_picks = derived;
+    try { localStorage.setItem(SLOT_KEY, String(n)); } catch (e) { /* private mode */ }
+
+    // Say what changed, not just re-render. A bad edit is obvious in a sentence
+    // and easy to miss in a re-sorted table.
+    const parts = [];
+    for (let i = 0; i < Math.min(2, derived.length); i++) {
+      if (before[i] != null && before[i] !== derived[i]) {
+        parts.push((i === 0 ? 'first' : 'second') + ' pick ' + before[i] + ' \u2192 ' + derived[i]);
+      }
+    }
+    showSlotNote('Slot ' + n + '. You pick at ' + derived.slice(0, 6).join(', ')
+      + (derived.length > 6 ? '\u2026' : '')
+      + (parts.length ? ' (' + parts.join(', ') + ')' : ''), false);
+    renderAll();
+  }
+  const SLOT_KEY = 'mfga.draft.slot';
+
+  function showSlotNote(msg, bad) {
+    const host = $('#slot-note');
+    if (!host) return;
+    host.style.display = '';
+    host.className = 'prov-note ' + (bad ? 'bad' : 'warn');
+    host.innerHTML = '<b>\ud83e\udded</b> <span>' + escapeHtml(msg) + '</span>';
+  }
+
   /* Global ADP drift: does this whole room draft ahead of the source? */
   function updateDrift() {
     const seen = (state.recentPicks || []).filter(p => p && p.player && p.pick_no);
@@ -512,6 +608,22 @@
 
   // ----------------------------------------------------------------- wiring
   function wireControls() {
+    const apply = $('#slot-apply'), slotIn = $('#slot-input');
+    if (apply && slotIn) {
+      apply.addEventListener('click', () => setSlot(slotIn.value));
+      slotIn.addEventListener('keydown', ev => {
+        if (ev.key === 'Enter') { ev.preventDefault(); setSlot(slotIn.value); }
+      });
+      // A slot set here survives a reload mid-draft; the artifact's value is
+      // only a seed.
+      try {
+        const saved = localStorage.getItem(SLOT_KEY);
+        if (saved && Number(saved) !== Number(state.data.league.my_draft_slot)) {
+          slotIn.value = saved;
+          setSlot(saved);
+        }
+      } catch (e) { /* private mode */ }
+    }
     document.body.addEventListener('click', ev => {
       const me = ev.target.closest('[data-draft-me]');
       if (me) return markDrafted(me.getAttribute('data-draft-me'), true);

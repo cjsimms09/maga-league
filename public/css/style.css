@@ -868,3 +868,16 @@ button.is-busy, .btn.is-busy {
   background: rgba(245, 196, 69, .12); border: 1px solid rgba(245, 196, 69, .4);
   color: #f2e2b4; border-radius: 6px; padding: .12rem .4rem; font-size: .68rem; line-height: 1.4;
 }
+
+/* ---------- draft-day staleness gate ----------
+   Over 18 hours old the board needs an explicit acknowledgement. The board
+   stays visible behind it: hiding it would make a stale artifact look the same
+   as a broken tool, which is the failure this whole surface exists to prevent. */
+.stale-block {
+  border: 2px solid var(--red); border-radius: var(--radius);
+  background: rgba(255, 70, 85, .12); padding: 1rem 1.1rem; margin-bottom: 1rem;
+  box-shadow: var(--glow-red);
+}
+.stale-block h3 { margin: 0 0 .4rem; font-family: var(--font-display); color: #fff; font-size: 1rem; }
+.stale-block p { margin: 0 0 .7rem; color: #ffd3d7; font-size: .86rem; line-height: 1.5; }
+#warroom.is-stale { opacity: .55; filter: grayscale(.35); pointer-events: none; }
