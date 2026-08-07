@@ -19,6 +19,7 @@ import sys, os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import scoring                                     # our engine, never a provider's
 import vorp as VORP
+from backtest import grade as GR
 from backtest import projections as WF
 
 
@@ -41,8 +42,9 @@ def weekly_points_by_season(weekly_df, seasons, scoring_cfg, crosswalk):
             sid = crosswalk.get(str(row.get(id_col)))
             if not sid:
                 continue
-            line = {k: row.get(k) for k in row
-                    if isinstance(row.get(k), (int, float)) and row.get(k) == row.get(k)}
+            # nflverse column names -> our scoring keys; without this every
+            # prior-season total scored ~0 and the projection went flat.
+            line = GR.nflverse_weekly_to_scoring(row)
             p = scoring.score_stat_line(line, scoring_cfg)
             pts[sid] = pts.get(sid, 0.0) + p
             gms[sid] = gms.get(sid, 0) + 1

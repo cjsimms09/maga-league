@@ -16,6 +16,60 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import scoring
 
 
+# nflverse weekly/pbp column names -> our scoring keys.
+#
+# THE BUG THIS FIXES, caught by the sanity gate: nflverse calls them
+# receptions / receiving_yards / passing_tds; our scoring engine (and league
+# config) call them rec / rec_yd / pass_td. Passing raw nflverse columns to
+# score_stat_line matched almost nothing, so every prior-season total scored
+# near zero, the walk-forward projection collapsed to positional baselines, and
+# ranked UNCORRELATED with ADP (spearman -0.004). weekly_from_pbp already maps
+# by hand for the pbp path; this is the same translation for the library path,
+# in one place both call sites share.
+_WEEKLY_MAP = {
+    "passing_yards": "pass_yd", "passing_tds": "pass_td", "interceptions": "pass_int",
+    "passing_2pt_conversions": "pass_2pt",
+    "rushing_yards": "rush_yd", "rushing_tds": "rush_td",
+    "rushing_2pt_conversions": "rush_2pt",
+    "receptions": "rec", "receiving_yards": "rec_yd", "receiving_tds": "rec_td",
+    "receiving_2pt_conversions": "rec_2pt",
+}
+# Fumbles lost arrive split across three columns; our engine has one key.
+_FUM_LOST_COLS = ("rushing_fumbles_lost", "receiving_fumbles_lost", "sack_fumbles_lost")
+
+
+# Our own keys, so a row that is ALREADY in our vocabulary (the pbp rebuild
+# emits these) passes straight through instead of scoring zero.
+_OUR_KEYS = set(_WEEKLY_MAP.values()) | {"fum_lost"}
+
+
+def nflverse_weekly_to_scoring(row: dict) -> dict:
+    """One weekly/pbp row -> our scoring keys, accepting EITHER vocabulary.
+
+    Two producers feed this: import_weekly_data uses nflverse column names, and
+    weekly_from_pbp (the 2025 recovery path) already emits our keys. A mapper
+    that only translated nflverse names would silently zero every rebuilt row —
+    the same class of bug, one layer over. So our-key values pass through and
+    nflverse names translate, and a row carrying both is summed once per target.
+    """
+    line = {}
+
+    def add(dst, v):
+        if isinstance(v, (int, float)) and v == v:
+            line[dst] = line.get(dst, 0) + v
+
+    for k in _OUR_KEYS:
+        if k in row:
+            add(k, row.get(k))
+    for src, dst in _WEEKLY_MAP.items():
+        if src in row:
+            add(dst, row.get(src))
+    for c in _FUM_LOST_COLS:
+        if c in row:
+            add("fum_lost", row.get(c))
+    return line
+
+
 def crosswalk_gsis_to_sleeper(players_meta, ids_df=None) -> dict:
     """gsis id -> sleeper id, from Sleeper's own field plus nfl_data_py's map.
 
@@ -60,8 +114,7 @@ def rest_of_season_points(weekly_df, season: int, scoring_cfg: dict,
         sid = crosswalk.get(str(row.get(id_col)))
         if not sid:
             continue
-        line = {k: v for k, v in row.items()
-                if isinstance(v, (int, float)) and v == v}
+        line = nflverse_weekly_to_scoring(row)
         out[sid] = out.get(sid, 0.0) + scoring.score_stat_line(line, scoring_cfg)
     return {k: round(v, 2) for k, v in out.items()}
 

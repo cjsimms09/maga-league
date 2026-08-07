@@ -93,3 +93,23 @@ def test_the_overlap_gate_that_saved_run_2_is_still_armed():
     assert v["enough_players"] is False
     good = {"p%d" % i: 300.0 - i for i in range(200)}
     assert WF.sanity_check(good, adp)["passes"] is True
+
+
+def test_the_column_mapper_is_why_projections_correlate_at_all():
+    """SPEC: run 4 joined 141 players but spearman-vs-ADP was -0.004 — the
+    projection was flat because prior-season stats scored ~0. nflverse names
+    (receptions, receiving_yards) are not our scoring keys (rec, rec_yd), so
+    the raw row matched nothing. The mapper is the fix, and it must accept BOTH
+    vocabularies or it would zero the pbp-rebuilt path instead.
+    """
+    import scoring, json, os
+    sc = json.load(open(os.path.join(os.path.dirname(__file__), "..",
+                        "config", "league_config.json")))["scoring"]
+    nflverse = {"receptions": 8, "receiving_yards": 120.0, "receiving_tds": 1}
+    our_keys = {"rec": 8, "rec_yd": 120.0, "rec_td": 1}
+    a = scoring.score_stat_line(GR.nflverse_weekly_to_scoring(nflverse), sc)
+    b = scoring.score_stat_line(GR.nflverse_weekly_to_scoring(our_keys), sc)
+    assert a == b and a > 0, (a, b)
+    # The bug: raw nflverse columns straight to the scorer produce zero.
+    raw = scoring.score_stat_line({k: v for k, v in nflverse.items()}, sc)
+    assert raw == 0.0, "raw nflverse columns must score zero — that was the bug"
