@@ -212,5 +212,57 @@ const slateOf = (...entries) => {
     c.length >= 1 && /picks change/i.test(c[0]), JSON.stringify(c));
 }
 
+
+// ---------------------------------------------------------------------------
+// A SLATE ABOUT A DIFFERENT BOARD
+//
+// The slate persists in localStorage and stores the player's NAME snapshotted
+// at save time. A slate built while a fixture board was loaded therefore keeps
+// showing fixture names — "RB Player 2" — forever, and its ids are synthetic
+// too. Confirming it would recompute adjusted ADP and the true pick order
+// against players that do not exist, with every screen looking normal.
+// ---------------------------------------------------------------------------
+{
+  const clone = o => JSON.parse(JSON.stringify(o));
+  const board = { '9221': { player_id: '9221', name: 'Jahmyr Gibbs' },
+                  '9509': { player_id: '9509', name: 'Bijan Robinson' } };
+  const good = { 1: [{ player_id: '9221', name: 'Jahmyr Gibbs', original_round: 3 }] };
+  const stale = { 1: [{ player_id: 'p12', name: 'RB Player 2', original_round: 3 }] };
+
+  // THE TRAP: a real keeper is ABSENT from the draftable board — that is what
+  // being kept MEANS. An earlier version of this check tested ids against the
+  // board alone and flagged all thirty legitimate keepers, reintroducing a
+  // false positive this project had already fixed once. Hence the third
+  // argument: Sleeper's own keeper set.
+  const sleeperKeepers = { 3: [{ player_id: '4034', name: 'Christian McCaffrey' }] };
+  const realKeeper = { 3: [{ player_id: '4034', name: 'Christian McCaffrey',
+                             original_round: 2 }] };
+
+  check('a player still on the draftable board is not an orphan',
+    K.orphans(good, board, {}).length === 0);
+  check('a REAL keeper is off the board and must NOT be flagged — that is what '
+    + 'being kept means',
+    K.orphans(realKeeper, board, sleeperKeepers).length === 0,
+    JSON.stringify(K.orphans(realKeeper, board, sleeperKeepers)));
+  check('a slate entry in neither the board nor Sleeper\u2019s keepers IS an '
+    + 'orphan, reported by the name it is wearing',
+    K.orphans(stale, board, sleeperKeepers).length === 1
+      && K.orphans(stale, board, sleeperKeepers)[0].name === 'RB Player 2',
+    JSON.stringify(K.orphans(stale, board, sleeperKeepers)));
+
+  // Divergence: same shape, different question. Not "did I edit this since
+  // confirming" but "did Sleeper change under my saved copy".
+  const built = { 1: [{ player_id: '9221', name: 'Jahmyr Gibbs', original_round: 3 }],
+                  2: [{ player_id: '9509', name: 'Bijan Robinson', original_round: 5 }] };
+  check('an identical saved slate does not claim divergence',
+    K.divergesFromSource(clone(built), built) === null);
+  check('a saved slate that Sleeper has moved past is reported, with both counts',
+    (function () {
+      const d = K.divergesFromSource(good, built);
+      return d && d.diverged && d.saved_count === 1 && d.source_count === 2;
+    })(), JSON.stringify(K.divergesFromSource(good, built)));
+}
+
+
 console.log(`\n${pass}/${pass + fail} keeper-lock checks passed`);
 process.exit(fail ? 1 : 0);

@@ -86,6 +86,69 @@
    * Returns [] for a clean slate. Every problem is a sentence, not a code:
    * these get read at speed by somebody who is about to draft.
    */
+  /* Is this slate even about the CURRENT board?
+   *
+   * THE BUG THIS CATCHES. The slate persists in localStorage and stores the
+   * player's NAME snapshotted at save time. A slate built while a fixture
+   * board was loaded keeps showing fixture names — "RB Player 2" — forever,
+   * no matter how real the board underneath becomes, and its ids are
+   * synthetic too. Confirming it would recompute adjusted ADP and the true
+   * pick order against players that DO NOT EXIST, with every screen looking
+   * completely normal.
+   *
+   * THE TRAP IN WRITING THIS CHECK, which I fell into once already: a real
+   * keeper is ABSENT from the draftable board. That is what being kept means.
+   * Testing ids against the board alone flags all thirty legitimate keepers,
+   * which is the same false-positive this project already fixed once.
+   *
+   * Three-way discriminator instead:
+   *   on the draftable board      -> a player you could still draft. Fine;
+   *                                  this is how a manual keeper gets added.
+   *   in Sleeper's own keeper set -> a real keeper, legitimately off-board.
+   *   in NEITHER                  -> not a player in this artifact at all.
+   *                                  That is the fixture ghost.
+   */
+  function orphans(slate, playersById, builtSlate) {
+    const known = {};
+    Object.keys(builtSlate || {}).forEach(function (slot) {
+      (builtSlate[slot] || []).forEach(function (k) { known[String(k.player_id)] = true; });
+    });
+    const out = [];
+    Object.keys(slate || {}).forEach(function (slot) {
+      (slate[slot] || []).forEach(function (k) {
+        const id = String(k.player_id);
+        const onBoard = !!(playersById && playersById[id]);
+        if (!onBoard && !known[id]) {
+          out.push({ team_slot: Number(slot), player_id: id,
+                     name: k.name || id });
+        }
+      });
+    });
+    return out;
+  }
+
+  /* Has Sleeper moved on without us?
+   *
+   * `state.built` is rebuilt from Sleeper every night. A saved slate silently
+   * OVERRIDES it — which is correct for a manual correction made minutes
+   * before the draft, and badly wrong when keepers get finalised on Sleeper
+   * and the saved copy just goes on shadowing them. Same hash, different
+   * question: not "did I edit this since confirming" but "did the league
+   * change under me". */
+  function divergesFromSource(saved, built) {
+    if (!saved || !built) return null;
+    const a = slateHash(saved), b = slateHash(built);
+    if (a === b) return null;
+    const sc = keepersOf(saved).length, bc = keepersOf(built).length;
+    return {
+      diverged: true, saved_count: sc, source_count: bc,
+      message: 'Your saved keeper slate no longer matches what Sleeper says. '
+        + 'Sleeper now shows ' + bc + ' keeper' + (bc === 1 ? '' : 's') + '; your saved '
+        + 'slate has ' + sc + '. Your copy is what the board is using. Either '
+        + 'reset to Sleeper, or confirm you meant to keep yours.',
+    };
+  }
+
   function validate(slate, cfg, playersById) {
     const problems = [];
     const rules = (cfg || {}).keepers || {};
@@ -232,6 +295,8 @@
   }
 
   const api = {
+    orphans: orphans,
+    divergesFromSource: divergesFromSource,
     CFG, keepersOf, slateFromForfeited, slateHash, validate, diffSlates,
     consequence, lockState,
   };

@@ -32,10 +32,42 @@
   }
   const clone = o => JSON.parse(JSON.stringify(o));
 
+  /* REFUSE A FIXTURE BOARD. Loudly, and before anything renders.
+   *
+   * An offline build substitutes synthetic players — "RB Player 2", "QB
+   * Player 8" — and is otherwise shaped exactly like a real board: same
+   * fields, same confident projections, same rank order. The ONLY thing that
+   * distinguishes it is one provenance field. Render it and you get a keeper
+   * screen that looks completely normal and is about nobody.
+   *
+   * An hour of this project's time went into working out which of three
+   * plausible causes was producing fixture names on a screen. That hour is
+   * this function. */
+  function guardFixture(data) {
+    const src = (((data || {}).provenance || {}).adp || {}).adp_source;
+    if (src === 'fixture' || src == null) {
+      $('#loading').innerHTML = '<div class="card"><div class="body">'
+        + '<h2 style="color:#b00020;margin-top:0">This board is not real data</h2>'
+        + '<p><strong>adp_source: ' + escapeHtml(String(src)) + '</strong> — this is a '
+        + 'fixture build, made when the pipeline could not reach Sleeper or the '
+        + 'ADP source. Its players are synthetic ("RB Player 1"), and any keeper '
+        + 'slate built against it would be about players who do not exist.</p>'
+        + '<p>The keeper screen will not open on a fixture board. Rebuild the '
+        + 'artifact against live sources, or open the deployed site rather than '
+        + 'a local copy.</p>'
+        + '<p style="opacity:.7">built_at ' + escapeHtml(String((data || {}).built_at))
+        + ' &middot; ' + (((data || {}).players || []).length) + ' players</p>'
+        + '</div></div>';
+      throw new Error('fixture board refused');
+    }
+    return data;
+  }
+
   // ---------------------------------------------------------------- bootstrap
   function boot() {
     fetch('/draft_data.json', { cache: 'no-store' })
       .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(guardFixture)
       .then(start)
       .catch(() => {
         // The pinned artifact is the same one the War Room runs from offline.
@@ -80,6 +112,19 @@
     let saved = null;
     try { saved = JSON.parse(localStorage.getItem(K.CFG.SLATE_KEY) || 'null'); } catch (e) {}
     state.slate = saved && Object.keys(saved).length ? saved : clone(state.built);
+    // A saved slate silently OVERRIDES the one Sleeper rebuilds nightly. That
+    // is right for a correction made minutes before the draft and wrong when
+    // keepers get finalised on Sleeper and the saved copy goes on shadowing
+    // them. Say which one is in force rather than letting it be discovered.
+    state.divergence = (saved && Object.keys(saved).length)
+      ? K.divergesFromSource(saved, state.built) : null;
+    // Entries in neither the draftable board nor Sleeper's keeper set are not
+    // players in this artifact at all — a slate carried over from a different
+    // board. Blocking, because confirming it would price the whole draft
+    // against people who do not exist.
+    const boardById = {};
+    (state.data.players || []).forEach(function (p) { boardById[String(p.player_id)] = p; });
+    state.orphans = K.orphans(state.slate, boardById, state.built);
 
     $('#loading').style.display = 'none';
     $('#keeper-screen').style.display = '';
@@ -116,6 +161,37 @@
 
   // ------------------------------------------------------------------- render
   function render() {
+    // The divergence banner renders before anything else, because it answers
+    // "which slate am I even looking at" — and every number below it is
+    // computed from the answer.
+    const dv = $('#divergence');
+    if (dv) {
+      const orph = state.orphans || [];
+      dv.innerHTML = (orph.length
+        ? '<div class="stale-block"><h3 style="color:#b00020">\u26d4 This slate is about a '
+          + 'different board</h3><p>' + orph.length + ' keeper'
+          + (orph.length === 1 ? '' : 's') + ' on it — '
+          + orph.slice(0, 4).map(function (o) { return escapeHtml(o.name); }).join(', ')
+          + (orph.length > 4 ? ', \u2026' : '')
+          + ' — are neither on the draftable board nor in Sleeper\u2019s keeper list, '
+          + 'so they are not players in this artifact at all. This slate was saved '
+          + 'against a different board. Do not confirm it; reset it first.</p>'
+          + '<button id="reset-orphans" class="btn">Reset to Sleeper\u2019s keepers</button>'
+          + '</div>'
+        : '') + (state.divergence
+        ? '<div class="stale-block"><h3>⚠ Your saved slate is shadowing Sleeper</h3>'
+          + '<p>' + escapeHtml(state.divergence.message) + '</p>'
+          + '<button id="reset-to-source" class="btn">Reset to Sleeper\u2019s keepers</button></div>'
+        : '');
+      const btn = $('#reset-to-source') || $('#reset-orphans');
+      if (btn) btn.onclick = function () {
+        state.slate = clone(state.built);
+        state.divergence = null;
+        state.orphans = [];
+        saveSlate();
+        render();
+      };
+    }
     let now;
     try { now = recompute(state.slate); } catch (err) {
       // A slate the cost model cannot price (an undrafted keeper in a league
