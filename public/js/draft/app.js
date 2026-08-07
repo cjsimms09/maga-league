@@ -1286,8 +1286,16 @@
     $('#search').addEventListener('input', e => { state.search = e.target.value.toLowerCase(); renderBoard(); });
 
     $('#start-sync').addEventListener('click', () => {
-      const id = $('#draft-id').value.trim();
-      if (!id) { setStatus({ state: 'manual', message: 'Manual mode — mark picks yourself as they happen.' }); return; }
+      const typed = $('#draft-id').value;
+      if (!typed.trim()) { setStatus({ state: 'manual', message: 'Manual mode — mark picks yourself as they happen.' }); return; }
+      // Validate before connecting, not after a poll fails. A bad paste should
+      // say so instantly rather than looking like an outage for eight seconds.
+      const parsed = window.DraftSync.normalizeDraftId(typed);
+      if (parsed.error) { setStatus({ state: 'error', message: parsed.error }); return; }
+      // Show them what we actually understood, so a URL paste is visibly fixed
+      // rather than silently repaired.
+      $('#draft-id').value = parsed.id;
+      const id = parsed.id;
       state.sync = new window.DraftSync({ draftId: id, onPicks: onSyncPicks, onStatus: setStatus });
       // Slots first, then picks: a pick attributed to the wrong seat is worse
       // than a pick arriving a second later.
@@ -1305,6 +1313,10 @@
     const el = $('#sync-status');
     el.textContent = s.message;
     el.className = 'sync-status ' + s.state;
+    // An error that leaves "Syncing…" disabled forever means the only way to
+    // retry a typo is a page reload, mid-draft.
+    const btn = $('#start-sync');
+    if (btn && s.state === 'error') { btn.disabled = false; btn.textContent = 'Connect'; }
   }
 
   function showWhy(playerId) {

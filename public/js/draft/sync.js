@@ -17,8 +17,36 @@
   const POLL_MS = 4000;      // spec asks 3-5s; 4 is polite and plenty fast
   const BACKOFF_MAX = 30000; // on repeated failure, ease off rather than hammer
 
+  /**
+   * Get a draft id out of whatever got pasted.
+   *
+   * People paste the URL, because that is what is in front of them. They also
+   * paste with a trailing space, and on a phone they sometimes get a zero-width
+   * character courtesy of the share sheet. Every one of those used to produce
+   * "Sleeper unreachable (HTTP 400)" — which is a lie twice over: Sleeper was
+   * never contacted, and nothing was unreachable. Our own allowlist rejected a
+   * malformed path and the UI blamed the other end.
+   *
+   * Sleeper ids are long digit strings, so the last long run of digits in the
+   * input is the id whether they pasted a bare number or the whole URL.
+   */
+  function normalizeDraftId(input) {
+    const raw = String(input == null ? '' : input).replace(/[\s\u200B-\u200D\uFEFF]/g, '');
+    if (!raw) return { id: null, error: null };
+    if (/^\d{6,25}$/.test(raw)) return { id: raw, error: null };
+    const runs = raw.match(/\d{6,25}/g);
+    if (runs && runs.length) return { id: runs[runs.length - 1], error: null };
+    return {
+      id: null,
+      error: 'That does not look like a draft ID. Open the draft on Sleeper and copy '
+        + 'the number out of the address bar — sleeper.com/draft/nfl/<number>.',
+    };
+  }
+
   function DraftSync(opts) {
-    this.draftId = opts.draftId || null;
+    const parsed = normalizeDraftId(opts.draftId);
+    this.draftId = parsed.id;
+    this.idError = parsed.error;
     this.onPicks = opts.onPicks || function () {};
     this.onStatus = opts.onStatus || function () {};
     this.transport = null;     // 'direct' | 'proxy' — decided on first success
@@ -30,11 +58,20 @@
   }
 
   DraftSync.prototype.fetchJson = function (path) {
+    // An error has to say which end refused, and why. "HTTP 400" alone sent us
+    // hunting Sleeper's status page for a validation failure of our own making.
+    const fail = (where, r) => r.json().catch(() => ({})).then(body => {
+      const why = body && body.error ? body.error : 'HTTP ' + r.status;
+      const e = new Error(where + ': ' + why);
+      e.status = r.status;
+      e.viaProxy = where === 'this site';
+      throw e;
+    });
     const tryDirect = () => fetch(DIRECT + path, { mode: 'cors' })
-      .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(r => { if (!r.ok) return fail('Sleeper', r); return r.json(); })
       .then(j => { this.transport = 'direct'; return j; });
     const tryProxy = () => fetch(PROXY + encodeURIComponent(path))
-      .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(r => { if (!r.ok) return fail('this site', r); return r.json(); })
       .then(j => { this.transport = 'proxy'; return j; });
 
     if (this.transport === 'direct') return tryDirect().catch(tryProxy);
@@ -44,6 +81,7 @@
   };
 
   DraftSync.prototype.start = function () {
+    if (this.idError) { this.onStatus({ state: 'error', message: this.idError }); return; }
     if (!this.draftId) { this.onStatus({ state: 'manual', message: 'Manual entry mode' }); return; }
     this.running = true;
     this.poll();
@@ -89,7 +127,12 @@
         const wait = Math.min(BACKOFF_MAX, POLL_MS * Math.pow(2, self.failures));
         self.onStatus({
           state: 'error',
-          message: 'Sleeper unreachable (' + err.message + '). Retrying in ' + Math.round(wait / 1000) + 's — you can enter picks by hand meanwhile.',
+          // A 4xx will not fix itself by waiting — it means the id or the path
+          // is wrong. Saying "retrying" there just wastes somebody's draft.
+          message: (err.status >= 400 && err.status < 500
+              ? 'Rejected by ' + err.message + '. Check the draft ID — that will not fix itself by retrying.'
+              : 'Sleeper unreachable (' + err.message + '). Retrying in ' + Math.round(wait / 1000) + 's.')
+            + ' You can enter picks by hand meanwhile.',
         });
         self.timer = setTimeout(function () { self.poll(); }, wait);
       });
@@ -136,5 +179,9 @@
     return this.allPicks().length + 1;
   };
 
+  // Exposed so the id parser can be tested without a browser — it is the piece
+  // that turns a paste into a working sync, and it had a bug.
+  DraftSync.normalizeDraftId = normalizeDraftId;
   global.DraftSync = DraftSync;
+  if (typeof module !== 'undefined' && module.exports) module.exports = DraftSync;
 })(typeof window !== 'undefined' ? window : globalThis);

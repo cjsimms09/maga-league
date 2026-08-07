@@ -65,6 +65,7 @@ jobs:
           node draft/tests/reconcile.test.js
           node draft/tests/betlogic.test.js
           node draft/tests/ledger.test.js
+          node draft/tests/sync.test.js
 
       # This is the only place with real network access, so it is the only place
       # that can answer what the live APIs actually return. Its log is the

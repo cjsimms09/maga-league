@@ -647,7 +647,18 @@ router.get('/draft-config.json', aw(async (req, res) => {
 const SLEEPER_PROXY_OK = /^\/(draft\/[\w-]+\/picks|draft\/[\w-]+|league\/[\w-]+\/drafts|state\/nfl)$/;
 router.get('/sleeper-proxy', aw(async (req, res) => {
   const path = String(req.query.path || '');
-  if (!SLEEPER_PROXY_OK.test(path)) return res.status(400).json({ error: 'path not allowed' });
+  if (!SLEEPER_PROXY_OK.test(path)) {
+    // This is US refusing, not Sleeper. Say so, because the old message
+    // ("path not allowed") surfaced in the War Room as "Sleeper unreachable"
+    // and sent somebody hunting Sleeper's status page for our own validation.
+    const id = (path.match(/^\/draft\/([^/]*)/) || [])[1];
+    console.warn('sleeper-proxy refused path:', path);
+    return res.status(400).json({
+      error: id
+        ? `that draft ID doesn't look right ("${String(id).slice(0, 40)}") — paste just the number from sleeper.com/draft/nfl/<number>`
+        : 'this site only proxies the draft endpoints, and that was not one of them',
+    });
+  }
   try {
     const ac = new AbortController();
     const t = setTimeout(() => ac.abort(), 8000);
