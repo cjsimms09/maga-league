@@ -1147,5 +1147,31 @@ check('weight sliders change the ranking', heavyCeiling[0].score !== scored[0].s
     JSON.stringify((E.WEIGHT_PRESETS || []).map(p => p.key + ':' + (p.weights || {}).value)));
 }
 
+// --- the value anchor cannot be switched off -------------------------------
+// SPEC: measured at picks 41/61/81/101 on the real 2026-08-07 board, value=0
+// put seven K/DST in the top ten at pick 81 against five at default. Every one
+// tripped a rail, so this is insurance rather than a fix for an observed break
+// — but a board chasing need and tier with nothing pulling back toward what a
+// player is worth is not a board worth shipping behind a slider.
+{
+  const L2 = { teams: 10, starters: { QB: 1, RB: 2, WR: 2, TE: 1, FLEX: 1, K: 1, DEF: 1 } };
+  const mk = (id, pos, proj, adp) => ({ player_id: id, name: pos + id, position: pos,
+    team: 'XX', bye: 7, proj_mean: proj, proj_sd: proj * 0.2, proj_ceiling: proj * 1.2,
+    vorp: proj / 4, adjusted_adp: adp, raw_adp: adp, adp_sd: 5, tier: 1, tier_drop: 3,
+    overall_rank: adp, score: proj });
+  const bd = [mk('a', 'RB', 240, 10), mk('b', 'WR', 235, 11), mk('c', 'K', 130, 150)];
+  const c = w => ({ board: bd, currentPick: 40, nextPick: 53, totalPicks: 120,
+    myPicksLeft: 6, roster: [], league: L2, weights: w, runMultipliers: {},
+    intervening: [], roundsLeft: 8 });
+  const at = v => { const w = Object.assign({}, E.DEFAULT_WEIGHTS); w.value = v; return E.recommend(c(w)); };
+  check('value=0 is floored, so it scores identically to the floor',
+    at(0)[0].score.toFixed(6) === at(E.CFG.VALUE_WEIGHT_FLOOR)[0].score.toFixed(6),
+    at(0)[0].score + ' vs ' + at(E.CFG.VALUE_WEIGHT_FLOOR)[0].score);
+  check('the floor is below the default, so the slider still does something',
+    E.CFG.VALUE_WEIGHT_FLOOR < E.DEFAULT_WEIGHTS.value && E.CFG.VALUE_WEIGHT_FLOOR > 0);
+  check('and a kicker never outranks a startable player at ANY value setting',
+    [0, 0.25, 1, 2, 3].every(v => at(v)[0].player.position !== 'K'));
+}
+
 console.log(`\n${pass}/${pass + fail} engine checks passed`);
 process.exit(fail ? 1 : 0);

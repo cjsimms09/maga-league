@@ -1282,7 +1282,23 @@
             + '" data-list="targets" data-id="' + p.player_id + '" title="Target — nudge him up a close call">\u2b50</button>' +
           '<button class="btn small ' + (state.lists.avoid.indexOf(p.player_id) >= 0 ? 'navy' : 'ghost')
             + '" data-list="avoid" data-id="' + p.player_id + '" title="Never draft — remove from every recommendation">\u{1F6AB}</button>' +
-          '<button class="btn small ghost" data-draft-other="' + p.player_id + '">✕</button></td>' +
+          // "I TOOK HIM" BELONGS ON EVERY ROW, NOT JUST THE TOP FIVE.
+          //
+          // Reported from a live mock: taking a player who was not in the
+          // recommendations left no way to put him on my roster. The board's
+          // only draft action was this row's ✕, which marks a player GONE —
+          // i.e. taken by somebody ELSE. So the whole board could record other
+          // people's picks and none of mine, and the roster, the need model and
+          // every downstream recommendation went on believing I had one fewer
+          // player than I did.
+          //
+          // The recommendation cards had the button all along, which is why it
+          // was easy to miss: it works perfectly right up to the moment you
+          // disagree with the tool, which is exactly when you need it.
+          '<button class="btn small gold" data-draft-me="' + p.player_id
+            + '" title="I drafted him — adds to MY roster">\u2795 Me</button>' +
+          '<button class="btn small ghost" data-draft-other="' + p.player_id
+            + '" title="Somebody else took him">✕</button></td>' +
       '</tr>').join('');
     renderSearchTail(rows.length, takenHits);
     $('#board-count').textContent = rows.length + ' shown of ' + state.board.length + ' available';

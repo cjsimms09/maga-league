@@ -52,6 +52,8 @@
     // Upside is worth paying for; it is not worth paying full price for. See
     // upsideBonus — the raw ceiling-minus-mean spread is a variance measure and
     // was entering a points-over-replacement sum at face value.
+    // The value term never switches off entirely; see scorePlayer.
+    VALUE_WEIGHT_FLOOR: 0.25,
     CEILING_SPREAD_SHARE: 0.15,   // fraction of theoretical upside treated as collectable
     CEILING_MAX_BONUS: 20.0,      // hard cap, in the composite's own points
     RAIL_COMPONENT_RATIO: 1.0,    // a component larger than the player's own VORP
@@ -378,7 +380,20 @@
     // is what gives the other six room to matter.
     //
     // Default stays 1.0, so an untouched panel scores exactly as before.
-    const score = w.value * v
+    // FLOOR THE VALUE WEIGHT.
+    //
+    // Measured at picks 41/61/81/101 on the real board, value=0 does NOT
+    // produce the feared unanchored disaster — every K/DST that reached a top
+    // ten tripped a rail at every setting, so the rails hold even when VONA
+    // stops anchoring. But it does degrade: seven K/DST in the top ten at pick
+    // 81 against five at default. Value zero is a board chasing need and tier
+    // with nothing pulling back toward what a player is actually worth.
+    //
+    // The floor is cheap insurance rather than a fix for an observed break, and
+    // saying which it is matters: the slider still reaches 0 in the UI, it just
+    // cannot switch the anchor off entirely.
+    const wValue = Math.max(CFG.VALUE_WEIGHT_FLOOR, w.value == null ? 1 : w.value);
+    const score = wValue * v
       + w.tier * tier
       + w.need * need.value
       + w.risk * risk.value

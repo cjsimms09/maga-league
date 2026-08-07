@@ -1,0 +1,85 @@
+/* Every ordering of "I marked it" vs "Sleeper said it". Sleeper must win, and
+ * the final roster must match Sleeper exactly in all of them.
+ */
+const A = require('../../public/js/draft/attribution.js');
+let pass = 0, fail = 0;
+const check = (n, c, d) => { if (c) { pass++; console.log('PASS  ' + n); }
+  else { fail++; console.log('FAIL  ' + n + (d ? '  -> ' + d : '')); } };
+
+const P = id => ({ player_id: id, name: 'P' + id, position: 'RB' });
+const LOVELAND = P('12517'), OTHER = P('999');
+const MY = 4;
+const ids = list => list.map(p => String(p.player_id)).sort().join(',');
+
+// 1. Local mark first, then the real pick — the Loveland sequence.
+{
+  const s = A.emptyState();
+  A.markLocal(s, LOVELAND, MY, MY);
+  A.applyRemote(s, LOVELAND, MY, MY);
+  check('local mark then real pick: on my roster exactly once',
+    ids(s.myRoster) === '12517' && s.myRoster.length === 1, ids(s.myRoster));
+}
+// 2. Real pick first, then a late local mark of the same player.
+{
+  const s = A.emptyState();
+  A.applyRemote(s, LOVELAND, MY, MY);
+  A.markLocal(s, LOVELAND, MY, MY);
+  check('real pick then late local mark: still exactly once, no duplicate',
+    s.myRoster.length === 1 && s.rosters[MY].length === 1);
+}
+// 3. THE WRONG GUESS. I marked him to seat 7; Sleeper says he is mine.
+{
+  const s = A.emptyState();
+  A.markLocal(s, LOVELAND, 7, MY);
+  check('the wrong guess lands on seat 7 first', ids(s.rosters[7]) === '12517');
+  A.applyRemote(s, LOVELAND, MY, MY);
+  check('Sleeper overrides a wrong local guess — he moves to my roster',
+    ids(s.myRoster) === '12517', ids(s.myRoster));
+  check('...and is removed from the seat I wrongly gave him',
+    ids(s.rosters[7]) === '', ids(s.rosters[7]));
+}
+// 4. The mirror: I claimed someone else's pick as mine.
+{
+  const s = A.emptyState();
+  A.markLocal(s, OTHER, MY, MY);
+  A.applyRemote(s, OTHER, 7, MY);
+  check('a pick I wrongly claimed leaves my roster when Sleeper reassigns it',
+    s.myRoster.length === 0 && ids(s.rosters[7]) === '999');
+}
+// 5. Idempotence — this runs every four seconds forever.
+{
+  const s = A.emptyState();
+  for (let i = 0; i < 25; i++) A.applyRemote(s, LOVELAND, MY, MY);
+  check('25 polls of the same pick produce one roster entry',
+    s.myRoster.length === 1 && s.rosters[MY].length === 1, String(s.myRoster.length));
+}
+// 6. A manual mark during a sync gap, reconciled when the gap closes.
+{
+  const s = A.emptyState();
+  A.markLocal(s, LOVELAND, MY, MY);
+  A.markLocal(s, OTHER, 7, MY);
+  A.applyRemote(s, LOVELAND, MY, MY);
+  A.applyRemote(s, OTHER, 7, MY);
+  check('marks made during a sync gap survive reconciliation unchanged',
+    ids(s.myRoster) === '12517' && ids(s.rosters[7]) === '999');
+}
+// 7. A seatless pick (mock draft with no roster_id AND no draft_slot) is
+//    recorded as gone but placed nowhere — never silently assigned to me.
+{
+  const s = A.emptyState();
+  A.applyRemote(s, LOVELAND, null, MY);
+  check('a seatless pick is marked drafted but not given to anybody',
+    s.drafted.has('12517') && s.myRoster.length === 0);
+}
+// 8. The whole-draft invariant: no player on two rosters, ever.
+{
+  const s = A.emptyState();
+  A.markLocal(s, LOVELAND, 2, MY);
+  A.applyRemote(s, LOVELAND, 9, MY);
+  A.applyRemote(s, LOVELAND, MY, MY);
+  const seats = Object.keys(s.rosters).filter(k => ids(s.rosters[k]).includes('12517'));
+  check('after three conflicting claims he sits on exactly one seat',
+    seats.length === 1 && Number(seats[0]) === MY, JSON.stringify(seats));
+}
+console.log('\n' + pass + '/' + (pass + fail) + ' attribution checks passed');
+process.exit(fail ? 1 : 0);
