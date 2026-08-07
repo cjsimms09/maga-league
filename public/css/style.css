@@ -1565,3 +1565,15 @@ table .num.zero { color: var(--muted); font-weight: 400; }
 /* An offer that has run out of time. Muted rather than hidden — you need to see
    it to decide whether to send it again. */
 .sb-dead { color: var(--red-bright, #ff6b7a); }
+
+/* The expiry rules, stated where the bets are. Collapsed, because you only need
+   them once — but findable, because "why did that expire" is a real question. */
+.sb-rules {
+  margin-bottom: 1rem; border: 1px solid var(--line); border-radius: var(--radius);
+  background: rgba(255, 255, 255, .03);
+}
+.sb-rules > summary { padding: .6rem .9rem; cursor: pointer; font-size: .82rem; font-weight: 700; color: #cfd6e6; }
+.sb-rules ul { margin: 0; padding: 0 1.1rem 0 2rem; }
+.sb-rules li { font-size: .8rem; color: var(--muted); line-height: 1.55; margin-bottom: .35rem; }
+.sb-rules li b { color: #e7eaf3; }
+.sb-rules p { margin: .2rem .9rem .8rem; font-size: .78rem; color: var(--muted); line-height: 1.5; }

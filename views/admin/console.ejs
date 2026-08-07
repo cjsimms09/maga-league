@@ -612,6 +612,37 @@
 
 <%# ============================ SLEEPER ============================ %>
 <% if (tab === 'sleeper') { %>
+<%# A straight answer to "why isn't it working", rather than making the
+    commissioner infer it from an empty table. %>
+<% const st = sleeperStatus || {}; %>
+<div class="card" style="margin-bottom:1.2rem; border-color:<%= st.live && !st.unmapped ? 'rgba(74,222,128,.5)' : 'rgba(255,70,85,.5)' %>">
+  <h2><%= st.live && !st.unmapped ? '✅' : '⚠️' %> Sleeper Status</h2>
+  <div class="body tight">
+    <table class="roll">
+      <tr><td>League ID</td>
+          <td><%= st.hasId ? st.leagueId : '— not set —' %></td>
+          <td><%= st.hasId ? '✅' : '❌ set it below' %></td></tr>
+      <tr><td>Reaching Sleeper</td>
+          <td><%= st.live ? 'yes, right now' : 'no' %></td>
+          <td><%= st.live ? '✅' : '❌ wrong league ID, or Sleeper is down' %></td></tr>
+      <tr><td>Teams mapped</td>
+          <td><%= st.mapped || 0 %><%= st.teams ? ' of ' + st.teams : '' %></td>
+          <td><%= st.live && !st.unmapped ? '✅' : (st.live ? '❌ map them below' : '—') %></td></tr>
+      <tr><td>Last successful fetch</td>
+          <td colspan="2"><%= st.lastOk ? new Date(st.lastOk).toLocaleString('en-US', { timeZone: 'America/New_York' }) + ' ET' : 'never' %></td></tr>
+      <% if (st.lastFail) { %>
+      <tr><td>Last failure</td>
+          <td colspan="2" class="neg"><%= new Date(st.lastFail).toLocaleString('en-US', { timeZone: 'America/New_York' }) %> ET</td></tr>
+      <% } %>
+    </table>
+    <p class="muted" style="padding:.6rem .2rem 0; margin:0; font-size:.8rem">
+      Until all three are ✅: the roster tab, live standings, the weekly-winner
+      button, the 💰 markers on teams with money riding, and grading any bet that
+      turns on a score will all stay empty. Nothing else on the site is affected.
+    </p>
+  </div>
+</div>
+
 <div class="grid cols-2">
   <div class="card">
     <h2>Connect Sleeper <span class="sub">free public API — read-only, no password needed</span></h2>

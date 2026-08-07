@@ -469,17 +469,20 @@ console.log('\n--- nobody can accept a bet after it has started ---');
   ok('and it tells you to send it again', /Send it again/.test(dead.reason), dead.reason);
 }
 {
-  // Whichever comes first. A week-2 bet offered in July dies at ten days, not
-  // at kickoff; the same bet offered the day before dies at kickoff.
+  // The ten-day clock does NOT apply to a week bet. A week-17 bet offered in
+  // September is still a bet on a week that has not happened, and both of you
+  // know exactly as much about week 17 as each other.
+  const far = { created_at: '2026-09-05T00:00:00Z',
+    conditions: [cond({ test: 'outscores', subject_id: 1, target_id: 3, week: 17 })] };
+  ok('a distant week bet stays live past ten days',
+    B.acceptDeadline(far, {}, new Date('2026-10-20T00:00:00Z')).open);
   const early = { created_at: '2026-07-01T00:00:00Z',
     conditions: [cond({ test: 'outscores', subject_id: 1, target_id: 3, week: 2 })] };
-  const d1 = B.acceptDeadline(early, {}, new Date('2026-07-20T00:00:00Z'));
-  ok('ten days beats a distant kickoff', !d1.open && d1.stale, d1.reason);
-  const late2 = { created_at: '2026-09-16T00:00:00Z',
-    conditions: [cond({ test: 'outscores', subject_id: 1, target_id: 3, week: 2 })] };
-  const d2 = B.acceptDeadline(late2, {}, new Date('2026-09-19T00:00:00Z'));
-  ok('a near kickoff beats ten days', !d2.open && !d2.stale, d2.reason);
-  ok('and says which one closed it', /week 2 kicks off/.test(d2.reason), d2.reason);
+  ok('offered in July, still live the day before week 2',
+    B.acceptDeadline(early, {}, new Date('2026-09-17T00:00:00Z')).open);
+  const d = B.acceptDeadline(early, {}, new Date('2026-09-19T00:00:00Z'));
+  ok('and closed once week 2 has started', !d.open, d.reason);
+  ok('by kickoff, not by a day count', /week 2 kicks off/.test(d.reason), d.reason);
 }
 {
   eq('week 1 kickoff is the season opener',
@@ -516,11 +519,15 @@ console.log('\n--- betting on a week already in play ---');
     !B.acceptDeadline(veryLate, {}, new Date('2026-09-23T04:00:00Z')).open);
 }
 {
-  // The ten-day rule cannot resurrect a week that has already gone.
-  const old = { created_at: '2026-09-16T00:00:00Z',
-    conditions: [cond({ test: 'outscores', subject_id: 1, target_id: 3, week: 2 })] };
-  const d = B.acceptDeadline(old, {}, new Date('2026-09-20T00:00:00Z'));
-  ok('kickoff beats the ten-day clock when it comes first', !d.open, d.reason);
+  // Each kind of bet gets its own rule, and only its own.
+  const week = { created_at: '2026-09-01T00:00:00Z',
+    conditions: [cond({ test: 'outscores', subject_id: 1, target_id: 3, week: 9 })] };
+  ok('a week bet is never closed by the ten-day clock',
+    !/answered it in/.test(B.acceptDeadline(week, {}, new Date('2026-09-30T00:00:00Z')).why || ''),
+    JSON.stringify(B.acceptDeadline(week, {}, new Date('2026-09-30T00:00:00Z'))));
+  const season = { format: 'pool', created_at: '2026-09-01T00:00:00Z' };
+  const sd = B.acceptDeadline(season, {}, new Date('2026-09-13T00:00:00Z'));
+  ok('a season bet IS closed by it', !sd.open && /answered it in 10 days/.test(sd.reason), sd.reason);
 }
 
 console.log('\n--- the kickoff cutoff on matchup bets ---');

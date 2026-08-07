@@ -34,7 +34,7 @@ router.get('/', aw(async (req, res) => {
     ? prevSeason.standings.map((oid, i) => ({ rank: i + 1, name: nameOf(oid), owner_id: oid })) : [];
 
   // Sleeper panel data (weekly tab shows the one-click suggestion).
-  let sleeperInfo = null, suggestion = null, suggestWeek = null;
+  let sleeperInfo = null, suggestion = null, suggestWeek = null, sleeperStatus = null;
   if (world.config.sleeper_league_id && (tab === 'sleeper' || tab === 'weekly')) {
     const data = await sleeper.bundle(world.config.sleeper_league_id);
     if (data) {
@@ -54,6 +54,24 @@ router.get('/', aw(async (req, res) => {
     }
   }
 
+  // A straight answer to "why isn't Sleeper working". The cache doc records
+  // both the last success and the last failure, so the panel can say which of
+  // the four things is actually wrong instead of a shrug.
+  if (tab === 'sleeper') {
+    const cache = await getDoc('sleeper-cache', null);
+    const mapped = Object.keys(world.config.sleeper_map || {}).length;
+    sleeperStatus = {
+      hasId: !!world.config.sleeper_league_id,
+      leagueId: world.config.sleeper_league_id || '',
+      live: !!sleeperInfo,
+      mapped,
+      teams: sleeperInfo ? sleeperInfo.rosters.length : 0,
+      unmapped: sleeperInfo ? sleeperInfo.rosters.filter(r => !r.mapped).length : null,
+      lastOk: cache && cache.fetched_at ? new Date(cache.fetched_at).toISOString() : null,
+      lastFail: cache && cache.failed_at ? new Date(cache.failed_at).toISOString() : null,
+    };
+  }
+
   res.render('admin/console', {
     tab, season, seasons, weekly, awards, draft, keepers, votes, prevStandings,
     balancesMap: bal, ledger: world.ledger, config: world.config,
@@ -62,7 +80,7 @@ router.get('/', aw(async (req, res) => {
     ownerRows: [...owners].sort((a, b) => (b.active - a.active) || a.name.localeCompare(b.name)),
     nameOf, TYPE_LABELS: L.TYPE_LABELS,
     CATEGORIES: H.CATEGORIES, CATEGORY_LABELS: H.CATEGORY_LABELS,
-    sleeperInfo, suggestion, suggestWeek,
+    sleeperInfo, suggestion, suggestWeek, sleeperStatus,
     ledgerFilter: parseInt(req.query.owner, 10) || 0,
     flash: req.query.msg || null,
   });

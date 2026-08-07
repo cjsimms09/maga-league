@@ -166,40 +166,45 @@ function acceptDeadline(bet, ctx = {}, at = new Date()) {
     .filter(c => c.when === 'week' && c.week).map(c => Number(c.week));
   if (bet.kind === 'matchup' && bet.week) weeks.push(Number(bet.week));
 
+  // Expiry depends on what the bet is ABOUT. Three kinds, three rules — one
+  // universal clock would be wrong for at least two of them.
   let deadline = null, why = '';
+
   if (weeks.length) {
-    // The earliest week it touches — that is the first thing that can happen.
+    // ── A specific week ───────────────────────────────────────────────────
+    // It dies when that week starts scoring. No day-count on top: a week-17
+    // bet offered in September is still a bet on a week that has not happened,
+    // and both of you know exactly as much about week 17 as each other.
     const wk = Math.min(...weeks);
     const kick = kickoffOf(wk, start);
     const offered = bet.created_at ? new Date(bet.created_at) : null;
     if (offered && offered > kick) {
-      // Offered mid-week, with points already on the board. That is allowed —
-      // you are both watching — but it gets hours, not days. A live offer left
-      // lying around is the worst version of the problem: the price has moved
-      // and only one of you has been watching it move.
+      // Offered once the week is already in play. Allowed — you are both
+      // watching — but it gets hours, not days, because every minute moves the
+      // price and only one of you is watching it move.
       deadline = new Date(offered.getTime() + CFG.IN_PLAY_HOURS * 3600000);
       why = `it was offered mid-week, and live offers only stand for ${CFG.IN_PLAY_HOURS} hours`;
     } else {
       deadline = kick;
       why = `week ${wk} kicks off`;
     }
-  } else if (bet.format === 'pool'
-      || (bet.conditions || []).some(c => c.when === 'season' || c.test === 'finishes')) {
-    // Season-long bets stay open DURING the season — two people can perfectly
-    // well agree in October that one of them finishes higher. What kills it is
-    // the playoffs: by then the table has stopped being a question.
-    deadline = kickoffOf(playoffWeek, start);
-    why = `the playoffs start (week ${playoffWeek})`;
-  }
-
-  // The ten-day rule, on top of whatever the bet is about. Whichever comes
-  // first wins. This is the one that stops an August offer being accepted in
-  // October by somebody who has since watched two months of football.
-  if (bet.created_at) {
-    const stale = new Date(new Date(bet.created_at).getTime() + CFG.PROPOSAL_MAX_DAYS * 86400000);
-    if (!deadline || stale < deadline) {
-      deadline = stale;
+  } else {
+    // ── Season-long, or anything with no event to hang it on ──────────────
+    // Ten days to answer. A season bet can be struck in October, but not
+    // because it has been sitting in a list since August.
+    if (bet.created_at) {
+      deadline = new Date(new Date(bet.created_at).getTime() + CFG.PROPOSAL_MAX_DAYS * 86400000);
       why = `nobody answered it in ${CFG.PROPOSAL_MAX_DAYS} days`;
+    }
+    // ...and a season bet is dead once the playoffs start regardless, because
+    // by then the table has stopped being a question.
+    if (bet.format === 'pool'
+        || (bet.conditions || []).some(c => c.when === 'season' || c.test === 'finishes')) {
+      const po = kickoffOf(playoffWeek, start);
+      if (!deadline || po < deadline) {
+        deadline = po;
+        why = `the playoffs start (week ${playoffWeek})`;
+      }
     }
   }
 
