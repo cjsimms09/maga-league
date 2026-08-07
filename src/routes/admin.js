@@ -569,6 +569,21 @@ router.get('/warroom', aw(async (req, res) => {
   });
 }));
 
+// The rehearsal guide, served from the doc so there is one copy of it. Rendered
+// rather than linked to GitHub because on draft week nobody wants to leave the
+// site to find out how to test the site.
+router.get('/warroom/rehearsal', aw(async (req, res) => {
+  const fs = require('fs');
+  const path = require('path');
+  let md = '';
+  try {
+    md = fs.readFileSync(path.join(__dirname, '..', '..', 'docs', 'MOCK-DRAFT-REHEARSAL.md'), 'utf8');
+  } catch (e) {
+    md = '# Rehearsal guide\n\nCould not read docs/MOCK-DRAFT-REHEARSAL.md.';
+  }
+  res.render('admin/rehearsal', { md });
+}));
+
 // ---------- Module 0 confirmation screen ----------
 // The pipeline writes league_config.json from Sleeper, but nobody should trust
 // an import they have not eyeballed. Overrides live in Blobs so a correction

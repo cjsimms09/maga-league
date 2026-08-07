@@ -493,6 +493,97 @@ check('weight sliders change the ranking', heavyCeiling[0].score !== scored[0].s
 })();
 
 
+// --- Roster shape and bye weeks ---------------------------------------------
+(function planTests() {
+  const L = { starters: { QB: 1, RB: 2, WR: 2, TE: 1, FLEX: 1, K: 1, DEF: 1 } };
+  const P = (pos, bye) => ({ player_id: pos + bye + Math.random(), position: pos, name: pos, bye });
+  const full = [P('QB', 5), P('RB', 5), P('RB', 7), P('WR', 9), P('WR', 11),
+                P('TE', 6), P('RB', 12), P('K', 8), P('DEF', 10)];
+
+  // --- the plan -----------------------------------------------------------
+  {
+    const p = E.rosterPlan({ league: L, roster: [], myPicksLeft: 9 });
+    check('an empty roster needs every starting slot', p.mustSpend === 9, JSON.stringify(p));
+    check('and with exactly nine picks nothing is spare', p.spare === 0, p.message);
+  }
+  {
+    const p = E.rosterPlan({ league: L, roster: [], myPicksLeft: 14 });
+    check('with picks to burn, some are genuinely free', p.spare === 5, p.message);
+    check('and it says so in a sentence', /5 picks are genuinely free/.test(p.message), p.message);
+  }
+  {
+    // The one that matters: two picks, kicker and defence still missing.
+    const short = full.filter(x => x.position !== 'K' && x.position !== 'DEF');
+    const p = E.rosterPlan({ league: L, roster: short, myPicksLeft: 2 });
+    check('K and DEF are counted as must-fill', p.mustSpend === 2, JSON.stringify(p.needed));
+    check('two picks for two slots leaves nothing spare', p.spare === 0);
+    check('and it is flagged tight', p.tight === true);
+  }
+  {
+    const short = full.filter(x => x.position !== 'K' && x.position !== 'DEF');
+    const p = E.rosterPlan({ league: L, roster: short, myPicksLeft: 1 });
+    check('more slots than picks says so plainly', p.spare === -1 && /has to give/.test(p.message), p.message);
+  }
+  {
+    const p = E.rosterPlan({ league: L, roster: full, myPicksLeft: 4 });
+    check('a complete lineup frees every remaining pick', p.mustSpend === 0 && p.spare === 4, p.message);
+    check('and the message says it is all upside', /upside/.test(p.message), p.message);
+  }
+  {
+    // FLEX is a claim on a pick but not on a position.
+    const noFlex = [P('QB', 5), P('RB', 5), P('RB', 7), P('WR', 9), P('WR', 11),
+                    P('TE', 6), P('K', 8), P('DEF', 10)];
+    const p = E.rosterPlan({ league: L, roster: noFlex, myPicksLeft: 3 });
+    check('an unfilled FLEX still costs a pick', p.mustSpend === 1, JSON.stringify(p));
+    check('but it is not listed as a position you must draft',
+      !p.needed.some(n => n.position === 'FLEX'), JSON.stringify(p.needed));
+    const withSurplus = noFlex.concat([P('WR', 4)]);
+    check('a surplus receiver satisfies the FLEX',
+      E.rosterPlan({ league: L, roster: withSurplus, myPicksLeft: 3 }).mustSpend === 0);
+  }
+
+  // --- bye weeks ----------------------------------------------------------
+  {
+    const roster = [P('RB', 7), P('RB', 7), P('WR', 9), P('WR', 11), P('QB', 7)];
+    const late = E.byeGrid({ league: L, roster, myPicksLeft: 2 });
+    const wk7 = late.find(r => r.week === 7);
+    check('both starting RBs out in the same week is a real hole',
+      wk7.severity === 'bad' && wk7.shorts.some(s => s.position === 'RB'), JSON.stringify(wk7.shorts));
+    check('and it says how many you could actually start',
+      wk7.shorts.find(s => s.position === 'RB').available === 0);
+
+    const early = E.byeGrid({ league: L, roster, myPicksLeft: 8 });
+    check('the same clash in round three is provisional, not a crisis',
+      early.find(r => r.week === 7).severity === 'warn', JSON.stringify(early[0]));
+    check('and it is marked as such so the UI can say why',
+      early.find(r => r.week === 7).provisional === true);
+  }
+  {
+    // A position you have not drafted at all is a ROSTER gap, not a bye clash.
+    const thin = [P('RB', 7), P('RB', 7)];
+    const g = E.byeGrid({ league: L, roster: thin, myPicksLeft: 2 });
+    check('an undrafted position is never reported as a bye problem',
+      g.every(r => !r.shorts.some(s => ['QB', 'TE', 'K', 'DEF', 'WR'].indexOf(s.position) >= 0)),
+      JSON.stringify(g));
+  }
+  {
+    // Depth means a bye costs nothing.
+    const deep = [P('WR', 9), P('WR', 11), P('WR', 12), P('RB', 5), P('RB', 6), P('RB', 8)];
+    const g = E.byeGrid({ league: L, roster: deep, myPicksLeft: 2 });
+    check('with three receivers, one on bye is a non-event',
+      !g.find(r => r.week === 9).shorts.length, JSON.stringify(g.find(r => r.week === 9)));
+  }
+  {
+    const g = E.byeGrid({ league: L, roster: [P('RB', 7), P('WR', 7), P('TE', 7), P('QB', 7)], myPicksLeft: 9 });
+    check('weeks are returned in order', g.every((r, i) => i === 0 || g[i - 1].week <= r.week));
+    check('a week with four players out is at least amber even with no hole',
+      g[0].severity !== 'ok', JSON.stringify(g[0]));
+  }
+  check('players with no bye on file are skipped rather than bucketed under 0',
+    E.byeGrid({ league: L, roster: [P('RB', null), P('WR', 0)], myPicksLeft: 5 }).length === 0);
+})();
+
+
 // ---------------------------------------------------------------------------
 // KEEP THIS LAST. process.exit() below ends the run, so any suite appended
 // after it never executes and its checks vanish from the count without a

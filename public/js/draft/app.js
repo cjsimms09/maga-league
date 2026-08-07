@@ -328,6 +328,9 @@
     renderLists();
     renderBoard();
     renderRoster();
+    renderPlan();
+    renderByes();
+    renderChecklist();
     renderSurvival();
     renderRuns();
     renderPicksFeed();
@@ -548,6 +551,112 @@
       + '<div class="list-row"><b>\u{1F6AB} Never</b>'
         + (a.length ? a.map(id => chip(id, 'avoid')).join('') : '<span class="muted">none yet</span>')
       + '</div>';
+  }
+
+  /* ── What is left to fill, and how many picks are actually spare ───────── */
+  function renderPlan() {
+    const host = $('#plan-note');
+    if (!host) return;
+    const plan = E.rosterPlan(context());
+    const need = plan.needed.map(n =>
+      '<span class="rec-pos ' + n.position + '">' + n.position + (n.count > 1 ? ' ×' + n.count : '') + '</span>')
+      .join('') + (plan.flexNeed ? '<span class="rec-pos FLEX">FLEX</span>' : '');
+    host.innerHTML = '<div class="plan-note' + (plan.tight ? ' tight' : '') + '">'
+      + '<div>' + escapeHtml(plan.message) + '</div>'
+      + (need ? '<div class="plan-need">Still to fill: ' + need + '</div>' : '')
+      + '</div>';
+  }
+
+  /* ── Bye weeks that actually cost you something ────────────────────────── */
+  function renderByes() {
+    const host = $('#byes');
+    if (!host) return;
+    const rows = E.byeGrid(context());
+    if (!rows.length) {
+      host.innerHTML = '<p class="muted" style="margin:0">Nothing drafted yet.</p>';
+      $('#bye-head').textContent = '';
+      return;
+    }
+    const holes = rows.filter(r => r.severity === 'bad').length;
+    $('#bye-head').textContent = holes
+      ? holes + ' week' + (holes === 1 ? '' : 's') + " you can't field a lineup"
+      : 'no holes';
+    host.innerHTML = rows.map(r =>
+      '<div class="bye-row ' + r.severity + '">'
+      + '<span class="bye-week">Wk ' + r.week + '</span>'
+      + '<span class="bye-players">' + r.players.map(p =>
+          '<span class="rec-pos ' + p.position + '">' + p.position + '</span> ' + escapeHtml(p.name))
+          .join(', ') + '</span>'
+      + (r.shorts.length
+          ? '<span class="bye-short">' + r.shorts.map(sh =>
+              sh.position + ' ' + sh.available + '/' + sh.need).join(' · ')
+            + (r.provisional ? ' <span class="muted">— fixable with later picks</span>' : '')
+            + '</span>'
+          : '')
+      + '</div>').join('');
+  }
+
+  /* ── Pre-draft checklist ────────────────────────────────────────────────
+     Every line is checked live against real state. A checklist you have to
+     verify by hand is one nobody runs on the morning of the draft. */
+  function renderChecklist() {
+    const host = $('#check-items');
+    if (!host) return;
+    const d = state.data || {};
+    const prov = d.provenance || {};
+    const ageH = d.built_at ? (Date.now() - new Date(d.built_at)) / 3600000 : null;
+    const slot = state.data && state.data.league ? Number(state.data.league.my_draft_slot) || null : null;
+
+    const items = [
+      { ok: !!d.players && d.players.length > 100,
+        label: 'Board built', detail: (d.players || []).length + ' players' },
+      { ok: ageH != null && ageH < 48,
+        label: 'Board is fresh', detail: ageH == null ? 'never built' : Math.round(ageH) + 'h old',
+        fix: 'Run the Draft Board action on GitHub' },
+      // These two read the SAME provenance the banner at the top reads. A
+      // checklist that invents its own idea of "fine" will eventually disagree
+      // with the banner, and a green tick next to a red banner is worse than
+      // having neither.
+      { ok: !(prov.adp || {}).warning && !((prov.adp || {}).fallback_count_in_play > 0),
+        label: 'Real ADP, not fixtures',
+        detail: (prov.adp || {}).warning ? 'fixture / offline build'
+          : ((prov.adp || {}).adp_source || 'unknown')
+            + ((prov.adp || {}).fallback_count_in_play
+                ? ' — ' + prov.adp.fallback_count_in_play + ' guessed in play' : ''),
+        fix: 'Re-run the Draft Board action with network access' },
+      { ok: typeof prov.value_coverage === 'number' && prov.value_coverage >= 0.9,
+        label: 'Projections cover the board',
+        detail: typeof prov.value_coverage === 'number'
+          ? Math.round(prov.value_coverage * 100) + '%'
+          : 'not recorded — treat as unverified',
+        fix: 'Rebuild the board' },
+      { ok: (prov.opportunity_adjustment || '') === 'ok',
+        label: 'Snap / target data joined',
+        detail: prov.opportunity_coverage != null
+          ? Math.round(prov.opportunity_coverage * 100) + '% matched'
+          : (prov.opportunity_adjustment || 'disabled'),
+        fix: 'Rebuild the board' },
+      { ok: !!slot, label: 'Draft slot claimed', detail: slot ? 'pick ' + slot : 'not set',
+        fix: 'Claim it on the Draft Spot page' },
+      { ok: !!(window.LEAGUE_ID), label: 'Sleeper connected',
+        detail: window.LEAGUE_ID ? 'league ' + String(window.LEAGUE_ID).slice(-6) : 'not connected',
+        fix: 'Commish → Sleeper' },
+      { ok: !state.reconcile || !state.reconcile.halt,
+        label: 'Keepers reconcile', detail: state.reconcile && state.reconcile.halt ? 'mismatch' : 'ok' },
+      { ok: (state.lists.targets.length + state.lists.avoid.length) > 0,
+        label: 'Targets or never-draft set',
+        detail: state.lists.targets.length + ' starred, ' + state.lists.avoid.length + ' blocked',
+        fix: 'Optional, but it is your read' },
+    ];
+    const done = items.filter(i => i.ok).length;
+    $('#check-count').textContent = done + ' of ' + items.length + ' ready';
+    host.innerHTML = items.map(i =>
+      '<div class="check-item ' + (i.ok ? 'ok' : 'todo') + '">'
+      + '<span>' + (i.ok ? '\u2705' : '\u2b1c') + '</span>'
+      + '<span class="check-label">' + escapeHtml(i.label)
+      + ' <span class="muted">' + escapeHtml(String(i.detail)) + '</span></span>'
+      + (!i.ok && i.fix ? '<span class="check-fix">' + escapeHtml(i.fix) + '</span>' : '')
+      + '</div>').join('');
   }
 
   function renderRecommendations() {

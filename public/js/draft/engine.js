@@ -278,6 +278,9 @@
     return gaps;
   }
   const FLEXIBLE_SLOTS = ['FLEX', 'SUPER_FLEX', 'REC_FLEX', 'BN', 'IR', 'TAXI'];
+  // Picks remaining below which a bye clash stops being something you can
+  // still draft your way out of.
+  const BYE_SETTLED_AT = 3;
 
   /**
    * Roster legality endgame — a HARD filter, not a weight.
@@ -452,6 +455,104 @@
   }
 
   /**
+   * The shape of the rest of your draft.
+   *
+   * Halfway through, the useful question stops being "who is best" and becomes
+   * "how many picks do I actually have spare". Two picks left with a kicker and
+   * a defence still to fill is not a draft, it is an arithmetic problem, and
+   * you want to know that three rounds before it becomes one.
+   */
+  function rosterPlan(ctx) {
+    const gaps = mandatoryGaps(ctx);
+    const picksLeft = ctx.myPicksLeft == null ? 0 : ctx.myPicksLeft;
+    const starters = (ctx.league || {}).starters || {};
+    const roster = ctx.roster || [];
+    const held = {};
+    roster.forEach(p => { held[p.position] = (held[p.position] || 0) + 1; });
+
+    // FLEX is separate: it is satisfiable three ways, so it is a claim on a
+    // pick without being a claim on a position.
+    let flexNeed = 0;
+    Object.keys(starters).forEach(slot => {
+      if (FLEXIBLE_SLOTS.indexOf(slot) === -1 || slot === 'BN' || slot === 'IR' || slot === 'TAXI') return;
+      const surplus = ['RB', 'WR', 'TE'].reduce((n, pos) =>
+        n + Math.max(0, (held[pos] || 0) - (starters[pos] || 0)), 0);
+      flexNeed += Math.max(0, (starters[slot] || 0) - surplus);
+    });
+
+    const need = {};
+    gaps.forEach(g => { need[g] = (need[g] || 0) + 1; });
+    const needed = Object.keys(need).map(pos => ({ position: pos, count: need[pos] }));
+    const mustSpend = gaps.length + flexNeed;
+    const spare = picksLeft - mustSpend;
+
+    let message;
+    if (!picksLeft) message = 'Draft over.';
+    else if (mustSpend === 0) {
+      message = picksLeft + ' picks left and every starting slot is filled. All of it is upside from here.';
+    } else if (spare < 0) {
+      message = picksLeft + ' picks left but ' + mustSpend + ' slots still to fill. '
+        + 'Something has to give — you will be starting someone off waivers.';
+    } else if (spare === 0) {
+      message = picksLeft + ' picks left and ' + mustSpend + ' slots to fill. '
+        + 'Every remaining pick is spoken for.';
+    } else {
+      message = picksLeft + ' picks left, ' + mustSpend + ' still needed. '
+        + spare + (spare === 1 ? ' pick is' : ' picks are') + ' genuinely free.';
+    }
+    return { needed, flexNeed, mustSpend, picksLeft, spare, message,
+             tight: spare <= 0 && picksLeft > 0 };
+  }
+
+  /**
+   * Bye weeks, and the weeks they actually cost you something.
+   *
+   * A bye clash only matters if it leaves you unable to FIELD a position — two
+   * backup receivers off in the same week is a non-event, and colouring it red
+   * teaches people to ignore the colour. So the flag is not "how many are out",
+   * it is "how many can you still start".
+   */
+  function byeGrid(ctx) {
+    const roster = ctx.roster || [];
+    const starters = (ctx.league || {}).starters || {};
+    const byWeek = {};
+    roster.forEach(p => {
+      if (!p.bye) return;
+      (byWeek[p.bye] || (byWeek[p.bye] = [])).push(p);
+    });
+
+    return Object.keys(byWeek).map(Number).sort((a, b) => a - b).map(week => {
+      const out = byWeek[week];
+      const shorts = [];
+      Object.keys(starters).forEach(pos => {
+        if (FLEXIBLE_SLOTS.indexOf(pos) !== -1) return;
+        const need = starters[pos] || 0;
+        if (!need) return;
+        const away = out.filter(p => p.position === pos).length;
+        // A position with nobody on bye that week is not a bye problem, and a
+        // position you have not drafted yet is a ROSTER problem — that is what
+        // the plan above is for. Flagging both here turns the grid into a wall
+        // of red in round three, which teaches people to ignore the colour.
+        if (!away) return;
+        const have = roster.filter(p => p.position === pos).length;
+        const left = have - away;
+        if (left < need) shorts.push({ position: pos, need, available: left });
+      });
+      // In round three you hold two running backs, so ANY running-back bye
+      // reads as a hole — and it is not one, because you have six picks left to
+      // fill it. A clash is only real once you are nearly out of picks. Until
+      // then it is provisional, and the UI says so instead of shouting.
+      const picksLeft = ctx.myPicksLeft == null ? 0 : ctx.myPicksLeft;
+      const provisional = shorts.length > 0 && picksLeft > BYE_SETTLED_AT;
+      return {
+        week, players: out, shorts, provisional,
+        severity: !shorts.length ? (out.length >= 4 ? 'warn' : 'ok')
+          : provisional ? 'warn' : 'bad',
+      };
+    });
+  }
+
+  /**
    * How much to trust the top recommendation, in words.
    *
    * The engine can always sort. What it cannot always do is tell you the sort
@@ -610,7 +711,7 @@
     expectedBestAvailable, vona,
     tierCliffUrgency, starterSlotMarginal, riskAdjustment, upsideBonus,
     scorePlayer, recommend, mandatoryGaps, applyRosterLegality, plausibilityRails,
-    confidence, branchForecast, applyPersonalLists, onTheClock,
+    confidence, branchForecast, applyPersonalLists, onTheClock, rosterPlan, byeGrid,
     formatDefaults, applyFormatDefaults,
     // A2/A3 surfaces, re-exported so callers need only one handle.
     survivalModel: S, compositeTerms: C,

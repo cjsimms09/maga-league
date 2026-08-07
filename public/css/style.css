@@ -1632,3 +1632,60 @@ table .num.zero { color: var(--muted); font-weight: 400; }
 .list-chip.targets { border-color: var(--gold); color: var(--gold-bright); background: rgba(245,196,69,.12); }
 .list-chip.avoid { border-color: rgba(255,70,85,.5); color: var(--red-bright, #ff6b7a); background: rgba(255,70,85,.08); }
 .clock-star { font-size: 1.1rem; }
+
+/* ---------- war room: the plan, the byes, the checklist ---------- */
+.plan-note {
+  padding: .5rem .7rem; border-radius: 10px; margin-bottom: .7rem;
+  background: rgba(255,255,255,.04); border: 1px solid var(--line);
+  font-size: .82rem; line-height: 1.45; color: #dfe4f0;
+}
+.plan-note.tight { border-color: rgba(255,70,85,.5); background: rgba(255,70,85,.08); }
+.plan-need { margin-top: .3rem; display: flex; flex-wrap: wrap; gap: .25rem; align-items: center;
+             font-size: .78rem; color: var(--muted); }
+
+.bye-row {
+  display: flex; gap: .5rem; align-items: baseline; flex-wrap: wrap;
+  padding: .4rem .55rem; border-radius: 8px; margin-bottom: .3rem;
+  font-size: .8rem; background: rgba(255,255,255,.03); border-left: 2px solid var(--line);
+}
+.bye-row.warn { border-left-color: var(--gold); background: rgba(245,196,69,.07); }
+.bye-row.bad { border-left-color: var(--red-bright, #ff6b7a); background: rgba(255,70,85,.09); }
+.bye-week { flex: 0 0 3.2rem; font-weight: 800; color: #cfd6e6; }
+.bye-players { flex: 1 1 140px; min-width: 0; color: #dfe4f0; overflow-wrap: anywhere; }
+.bye-short { flex: 0 0 auto; font-weight: 700; color: var(--red-bright, #ff6b7a); font-size: .76rem; }
+.bye-row.warn .bye-short { color: var(--gold-bright); }
+
+.checklist { margin-bottom: 1rem; }
+.checklist > summary { padding: .6rem .9rem; cursor: pointer; font-weight: 700; font-size: .86rem; color: #e7eaf3; }
+.check-item {
+  display: flex; gap: .5rem; align-items: baseline; flex-wrap: wrap;
+  padding: .35rem .2rem; border-bottom: 1px solid var(--line); font-size: .82rem;
+}
+.check-item:last-child { border-bottom: none; }
+.check-item.todo .check-label { color: #fff; }
+.check-item.ok .check-label { color: var(--muted); }
+.check-label { flex: 1 1 180px; }
+.check-fix { flex: 0 0 auto; font-size: .74rem; color: var(--gold-bright); }
+
+/* ---------- a rendered document ---------- */
+.doc-body { font-size: .88rem; line-height: 1.6; color: #dfe4f0; }
+.doc-body .doc-h { font-family: var(--font-display); color: #fff; margin: 1.3rem 0 .5rem; line-height: 1.25; }
+.doc-body h1.doc-h { font-size: 1.25rem; }
+.doc-body h2.doc-h { font-size: 1.05rem; color: var(--gold-bright); }
+.doc-body h3.doc-h { font-size: .95rem; }
+.doc-body p { margin: 0 0 .6rem; }
+.doc-body .doc-list { margin: 0 0 .7rem; padding-left: 1.2rem; }
+.doc-body .doc-list li { margin-bottom: .3rem; }
+.doc-body code { background: rgba(255,255,255,.07); padding: .1rem .3rem; border-radius: 4px; font-size: .85em; }
+.doc-body .doc-pre {
+  background: rgba(0,0,0,.35); border: 1px solid var(--line); border-radius: 8px;
+  padding: .6rem .8rem; overflow-x: auto; font-size: .8rem; margin: 0 0 .7rem;
+}
+.doc-body .doc-pre code { background: none; padding: 0; }
+.doc-body .doc-quote {
+  margin: 0 0 .8rem; padding: .5rem .8rem; border-left: 3px solid var(--gold);
+  background: rgba(245,196,69,.07); border-radius: 0 8px 8px 0;
+}
+.doc-body .doc-quote p:last-child { margin-bottom: 0; }
+.doc-body hr { border: 0; border-top: 1px solid var(--line); margin: 1.2rem 0; }
+.doc-body table.roll { margin-bottom: .8rem; }

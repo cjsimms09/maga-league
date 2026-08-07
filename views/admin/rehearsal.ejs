@@ -1,0 +1,78 @@
+<%- include('../partials/header', { title: 'Mock Draft Rehearsal' }) %>
+<%
+  /* A deliberately small Markdown renderer. The alternative is a dependency in
+     a serverless bundle for one page of one document — and this document is the
+     only Markdown the site will ever show. Handles what the file uses:
+     headings, tables, lists, blockquotes, code, bold, and horizontal rules. */
+  const esc = t => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const inline = t => esc(t)
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    .replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>')
+    .replace(/\*([^*]+)\*/g, '<i>$1</i>')
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" rel="noopener">$1</a>');
+
+  const out = [];
+  const lines = md.split('\n');
+  let inCode = false, inList = false, inQuote = false, table = null;
+  const closeList = () => { if (inList) { out.push('</ul>'); inList = false; } };
+  const closeQuote = () => { if (inQuote) { out.push('</blockquote>'); inQuote = false; } };
+  const closeTable = () => {
+    if (!table) return;
+    out.push('<div class="scroll-x"><table class="roll"><thead><tr>'
+      + table.head.map(h => '<th>' + inline(h) + '</th>').join('') + '</tr></thead><tbody>'
+      + table.rows.map(r => '<tr>' + r.map(c => '<td>' + inline(c) + '</td>').join('') + '</tr>').join('')
+      + '</tbody></table></div>');
+    table = null;
+  };
+  const cells = l => l.replace(/^\||\|$/g, '').split('|').map(c => c.trim());
+
+  for (const raw of lines) {
+    const l = raw.replace(/\s+$/, '');
+    if (/^```/.test(l)) {
+      closeList(); closeQuote(); closeTable();
+      out.push(inCode ? '</code></pre>' : '<pre class="doc-pre"><code>');
+      inCode = !inCode; continue;
+    }
+    if (inCode) { out.push(esc(raw)); continue; }
+
+    if (/^\|/.test(l)) {
+      closeList(); closeQuote();
+      if (!table) { table = { head: cells(l), rows: [] }; continue; }
+      if (/^\|[\s:|-]+\|?$/.test(l)) continue;      // the ---|--- separator
+      table.rows.push(cells(l)); continue;
+    }
+    closeTable();
+
+    if (!l.trim()) { closeList(); closeQuote(); continue; }
+    if (/^---+$/.test(l)) { closeList(); closeQuote(); out.push('<hr>'); continue; }
+
+    const h = l.match(/^(#{1,4})\s+(.*)$/);
+    if (h) { closeList(); closeQuote(); const n = h[1].length;
+             out.push('<h' + n + ' class="doc-h">' + inline(h[2]) + '</h' + n + '>'); continue; }
+
+    if (/^>\s?/.test(l)) {
+      closeList();
+      if (!inQuote) { out.push('<blockquote class="doc-quote">'); inQuote = true; }
+      out.push('<p>' + inline(l.replace(/^>\s?/, '')) + '</p>'); continue;
+    }
+    closeQuote();
+
+    const li = l.match(/^\s*(?:[-*]|\d+\.)\s+(.*)$/);
+    if (li) { if (!inList) { out.push('<ul class="doc-list">'); inList = true; }
+              out.push('<li>' + inline(li[1]) + '</li>'); continue; }
+    closeList();
+    out.push('<p>' + inline(l) + '</p>');
+  }
+  closeList(); closeQuote(); closeTable();
+  if (inCode) out.push('</code></pre>');
+%>
+
+<h1 class="page-title">🎬 Mock Draft Rehearsal</h1>
+<p class="page-sub">Do this twice before draft day. Once to find what's broken, once to prove it isn't.</p>
+
+<div class="card"><div class="body doc-body"><%- out.join('\n') %></div></div>
+
+<p style="text-align:center; margin-top:1rem">
+  <a class="btn navy" href="/admin/warroom">← Back to the War Room</a>
+</p>
+<%- include('../partials/footer') %>
