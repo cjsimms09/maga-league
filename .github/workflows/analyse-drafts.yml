@@ -1,0 +1,185 @@
+name: Analyse past drafts
+
+# Why this is its own workflow, run once, rather than part of the nightly build
+#
+# Behavioural profiles are built from COMPLETED drafts, and a completed draft
+# never changes. Recomputing them every night re-derives an identical answer at
+# the cost of the full pick pull plus the 5MB player DB, every time.
+#
+# So the nightly build now asks the cheap question — "is there a completed draft
+# I have not seen?" — and reuses the committed profiles when the answer is no.
+# This workflow is how you force the expensive path: run it once, read the
+# report, commit the result. Run it again after 22 August, when this league's
+# next draft is the most informative one there will ever be.
+#
+# It also PRINTS what it found, in full, per manager. A profile you cannot read
+# is a profile you cannot disagree with, and every number in it is an estimate
+# from three drafts — it should be argued with.
+
+on:
+  workflow_dispatch:
+    inputs:
+      league_id:
+        description: 'Sleeper league ID'
+        required: false
+        default: '1374848328470102016'
+      commit:
+        description: 'Commit the refreshed profiles (off = report only)'
+        type: boolean
+        required: false
+        default: true
+
+jobs:
+  analyse:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r draft/requirements.txt
+
+      - name: Test the analyser before trusting it
+        run: python -m pytest draft/tests/test_managers.py -q
+
+      - name: Analyse every past draft
+        working-directory: draft
+        env:
+          LEAGUE_ID: ${{ inputs.league_id || '1374848328470102016' }}
+        run: |
+          python - <<'PY'
+          import json, os, sys
+          sys.path.insert(0, '.')
+          import sleeper_import as si, managers as M, adp as adp_mod
+
+          league = os.environ['LEAGUE_ID']
+          print('=' * 78)
+          print('ANALYSING PAST DRAFTS —', league)
+          print('=' * 78)
+
+          drafts = si.all_drafts(league)
+          players = si.fetch_players()
+          print(f'\n{len(drafts)} completed draft(s), player DB {len(players)} rows')
+
+          seasons = sorted({str(d.get('season')) for d in drafts if d.get('season')})
+          hist = {}
+          try:
+              cfg = json.load(open('config/league_config.json'))
+              hist = adp_mod.historical_adp(
+                  players, fmt='half-ppr', teams=int(cfg.get('teams') or 10),
+                  years=[int(s) for s in seasons if s.isdigit()])
+              print(f'historical ADP: {sum(len(v) for v in hist.values())} priced rows '
+                    f'across {len(hist)} season(s)')
+          except Exception as exc:                               # noqa: BLE001
+              # Loudly: without it the two market metrics stay proxied, and a
+              # silent fallback here is how "reaches 4 picks above market" turns
+              # into a hindsight artefact nobody knows to distrust.
+              print(f'! historical ADP unavailable ({type(exc).__name__}: {exc}) '
+                    '— market metrics stay PROXIED')
+
+          prof = M.build_profiles(drafts, players, historical_adp=hist)
+
+          print('\n' + '-' * 78)
+          print(f"drafts analysed      {prof['drafts_analysed']}  ({', '.join(prof.get('seasons') or [])})")
+          print(f"picks total          {prof['picks_total']}")
+          print(f"keepers excluded     {prof['picks_kept_excluded']}   <- not draft decisions")
+          print(f"position coverage    {prof['position_coverage']:.1%}")
+          print('-' * 78)
+          if prof['position_coverage'] < 0.9:
+              print('!! POSITION COVERAGE IS LOW — every positional figure below is '
+                    'computed on a subset and should not be trusted.')
+
+          for m in sorted(prof['managers'].values(), key=lambda p: p['name'].lower()):
+              dp = m['draft_patterns']
+              print(f"\n{'=' * 78}\n{m['name']}   "
+                    f"{m['sample_size']} season(s), {m['picks_analysed']} real picks, "
+                    f"{m['keepers']['excluded_from_metrics']} keepers excluded")
+
+              # WHEN he takes each position, and whether that is a habit or a mean.
+              tim = m['positional_timing']
+              if tim:
+                  print('  when he takes each position (round, vs league):')
+                  for pos, t in sorted(tim.items(), key=lambda kv: kv[1]['mean_round']):
+                      c = (dp['consistency'] or {}).get(pos) or {}
+                      tag = ''
+                      if c:
+                          tag = (f"  [{'consistent' if c['predictable'] else 'erratic'}: "
+                                 f"{'/'.join(str(r) for r in c['rounds'])}]")
+                      print(f"    {pos:<4} r{t['mean_round']:<5} "
+                            f"{t['vs_league']:+.1f} vs league{tag}")
+
+              op = dp['openings']
+              if op.get('by_season'):
+                  print('  how he opens:')
+                  for season in sorted(op['by_season']):
+                      print(f"    {season}  {' - '.join(op['by_season'][season])}")
+                  if op['repeats']:
+                      print(f"    ==> opens {op['most_common_open']} in "
+                            f"{op['most_common_open_count']} of {op['seasons']} seasons")
+
+              for name in ('early', 'mid', 'late'):
+                  b = (dp['by_round_bucket'] or {}).get(name)
+                  if b:
+                      mix = ' '.join(f'{k} {v:.0%}' for k, v in list(b['mix'].items())[:4])
+                      print(f"  {name:<6} (r{ {'early':'1-3','mid':'4-8','late':'9+'}[name] }): {mix}")
+
+              bpa = m['bpa_vs_need']
+              print(f"  best-available   {bpa['bpa_rate']:.0%} vs league {bpa['league_rate']:.0%}"
+                    f"{'   (PROXY — not real ADP)' if bpa.get('proxy') else ''}")
+              rd = m['reach_delta']
+              print(f"  reach            {rd['mean']:+.1f} picks vs market"
+                    f"{'   (PROXY)' if rd.get('proxy') else ''}"
+                    f"   adp coverage {rd.get('adp_coverage', 0):.0%}")
+              rf = dp['run_following']
+              print(f"  follows runs     {rf['rate']:.0%} vs league {rf['league_rate']:.0%}")
+              if dp['stack_rate']:
+                  print(f"  stacks his QB    {dp['stack_rate']:.0%} of the time")
+              h = m['homer_index']
+              if h.get('team'):
+                  print(f"  favourite team   {h['team']} ({h['raw_rate']:.0%} of his picks)")
+
+              rt = dp['repeat_targets']
+              if rt:
+                  print('  players he keeps coming back to:')
+                  for r in rt[:6]:
+                      print(f"    {r['name']:<24} {r['position']:<4} "
+                            f"{r['times']}x  rounds {', '.join(str(x) for x in r['rounds'])}")
+
+              kept = m['keepers']['picks_kept']
+              if kept:
+                  print('  kept (excluded from all of the above):')
+                  for k in kept:
+                      print(f"    {k['season']}  r{k['round']}  {k['name']} ({k['position']})")
+
+          M.save(prof, 'config/manager_profiles.json')
+          print('\n' + '=' * 78)
+          print('written to draft/config/manager_profiles.json')
+          print('Set "locked": true in that file to freeze any hand edits — the '
+                'build will never overwrite it.')
+          print('=' * 78)
+          PY
+
+      - name: Commit the profiles
+        if: ${{ inputs.commit }}
+        run: |
+          # Only this one file. The board, the history export and the league
+          # config are built by other jobs and must not be touched here.
+          if git diff --quiet -- draft/config/manager_profiles.json; then
+            echo "profiles unchanged — nothing to commit"
+            exit 0
+          fi
+          git config user.name  "Claude"
+          git config user.email "noreply@anthropic.com"
+          git add draft/config/manager_profiles.json
+          git commit -m "Re-analyse past drafts: refresh manager profiles
+
+          Built from every completed draft in league history. A completed draft
+          never changes, so the nightly build reuses this file until a new one
+          appears on Sleeper."
+          git push

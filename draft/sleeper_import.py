@@ -188,6 +188,27 @@ def league_history(league_id: str, *, max_depth: int = 15) -> list[dict]:
     return out
 
 
+def completed_draft_ids(league_id: str) -> list[str]:
+    """Every completed draft id across league history, cheaply.
+
+    Deliberately does NOT fetch picks or the 5MB player DB. Behavioural profiles
+    are built from completed drafts, and a completed draft never changes — so
+    the only question worth asking nightly is "is there a draft I have not seen
+    yet", and that costs one small call per season instead of the whole pull.
+    """
+    out = []
+    for lg in league_history(league_id):
+        try:
+            drafts = fetch_drafts(lg["league_id"])
+        except Exception:                                    # noqa: BLE001
+            continue
+        for d in sorted(drafts, key=lambda x: x.get("created", 0), reverse=True):
+            if d.get("status") == "complete":
+                out.append(str(d["draft_id"]))
+                break
+    return sorted(out)
+
+
 def all_drafts(league_id: str) -> list[dict]:
     """Every completed draft across league history, newest season first.
 

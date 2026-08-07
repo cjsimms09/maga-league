@@ -309,7 +309,7 @@ def load_keepers(cfg: dict) -> dict[int, list[dict]]:
     return out
 
 
-def build_manager_profiles(cfg: dict, offline: bool) -> dict:
+def build_manager_profiles(cfg: dict, offline: bool, force: bool = False) -> dict:
     """A1 — behavioural profiles from every prior draft in league history."""
     if offline:
         if PROFILES_PATH.exists():
@@ -321,6 +321,37 @@ def build_manager_profiles(cfg: dict, offline: bool) -> dict:
         return {"managers": {}, "league_average": {}, "drafts_analysed": 0,
                 "note": "offline build with no cached profiles"}
     import sleeper_import as si
+
+    # RUN ONCE, NOT NIGHTLY.
+    #
+    # These are built from COMPLETED drafts, and a completed draft never
+    # changes — so recomputing them every night re-derives an identical answer
+    # at the cost of the full pick pull plus the 5MB player DB, every time.
+    #
+    # But "never again" would be wrong too: this league drafts again on 22
+    # August, and that draft is the most informative one there will ever be.
+    # So the cheap question — "is there a completed draft I have not seen?" —
+    # is asked every run, and the expensive work happens only when the answer
+    # is yes, or when --refresh-profiles forces it.
+    if not force and PROFILES_PATH.exists():
+        try:
+            cached = json.loads(PROFILES_PATH.read_text())
+            if cached.get("locked"):
+                print("  manager profiles are locked — keeping hand-edited file")
+                return cached
+            have = set(cached.get("draft_ids") or [])
+            if have:
+                live = set(si.completed_draft_ids(cfg["league_id"]))
+                new_drafts = live - have
+                if not new_drafts:
+                    print(f"  manager profiles: reusing {len(have)} analysed draft(s) — "
+                          "no new completed draft on Sleeper")
+                    return cached
+                print(f"  manager profiles: {len(new_drafts)} new completed draft(s) "
+                      f"({', '.join(sorted(new_drafts))}) — rebuilding")
+        except (json.JSONDecodeError, OSError) as exc:
+            print(f"  ! could not read cached profiles ({exc}); rebuilding")
+
     drafts = si.all_drafts(cfg["league_id"])
     players_db = si.fetch_players()
 
@@ -347,13 +378,13 @@ def build_manager_profiles(cfg: dict, offline: bool) -> dict:
     return profiles
 
 
-def build(cfg: dict, *, offline: bool = False) -> dict:
+def build(cfg: dict, *, offline: bool = False, force_profiles: bool = False) -> dict:
     print("Building draft artifact ...")
     players = load_players(cfg, offline)
     if not players:
         raise SystemExit("no players — cannot build a board")
 
-    profiles = build_manager_profiles(cfg, offline)
+    profiles = build_manager_profiles(cfg, offline, force=force_profiles)
     print(f"  manager profiles: {len(profiles.get('managers', {}))} from "
           f"{profiles.get('drafts_analysed', 0)} prior draft(s)")
     keeper_map = load_keepers(cfg)
@@ -594,6 +625,10 @@ def main() -> None:
                     help="record real API responses to tests/fixtures/real/ and diff "
                          "them against the hand-written fixtures, then exit")
     ap.add_argument("--slot", type=int, help="my draft slot (1-indexed)")
+    ap.add_argument("--refresh-profiles", action="store_true",
+                    help="re-analyse every past draft even if the committed "
+                         "profiles already cover them (they are otherwise built "
+                         "once, since a completed draft never changes)")
     ap.add_argument("--out", default=str(OUT))
     args = ap.parse_args()
 
@@ -617,7 +652,7 @@ def main() -> None:
     if not cfg.get("confirmed"):
         print("  ! league_config has not been confirmed on the review screen — "
               "scoring and roster slots are unverified (Commish -> War Room -> League Setup)")
-    artifact = build(cfg, offline=args.offline)
+    artifact = build(cfg, offline=args.offline, force_profiles=args.refresh_profiles)
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(artifact, separators=(",", ":")))

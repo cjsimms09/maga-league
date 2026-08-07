@@ -289,3 +289,177 @@ def test_shrinkage_relaxes_once_metrics_are_real():
     proxy_w = n / (n + M.PROXY_PRIOR_STRENGTH)
     real_w = n / (n + M.PRIOR_STRENGTH)
     assert real_w > proxy_w
+
+
+# ---------------------------------------------------------------------------
+# Keepers are not draft decisions, and sequence is not a mean.
+# ---------------------------------------------------------------------------
+
+def _draft(season, picks, n_teams=10):
+    """picks: list of (roster_id, player_id, round, pick_no, is_keeper)."""
+    owners = {str(i): {"user_id": f"u{i}"} for i in range(1, n_teams + 1)}
+    return {
+        "season": season, "league_id": f"lg{season}", "draft_id": f"d{season}",
+        "users": [{"user_id": v["user_id"], "display_name": f"mgr{k}"}
+                  for k, v in owners.items()],
+        "rosters": [{"roster_id": int(k), "owner_id": v["user_id"]}
+                    for k, v in owners.items()],
+        "picks": [{"roster_id": r, "player_id": str(pid), "round": rnd,
+                   "pick_no": pno, "is_keeper": kp}
+                  for (r, pid, rnd, pno, kp) in picks],
+        "settings": {},
+    }
+
+
+def _db(spec):
+    """spec: {player_id: (position, team, search_rank, years_exp)}"""
+    return {str(k): {"position": p, "team": t, "search_rank": sr,
+                     "years_exp": ye, "full_name": f"{p}{k}"}
+            for k, (p, t, sr, ye) in spec.items()}
+
+
+def test_keepers_are_excluded_from_behaviour():
+    """A kept QB charged to round 2 must not read as "takes a QB in round 2".
+
+    This is the bug: in a keeper league a fifth of every draft is last year's
+    decision, priced by the keeper cost model rather than chosen off a board.
+    """
+    db = _db({1: ("QB", "KC", 1, 3), 2: ("RB", "SF", 2, 3), 3: ("RB", "DAL", 3, 3),
+              4: ("WR", "BUF", 4, 3), 5: ("WR", "PHI", 5, 3), 6: ("TE", "KC", 6, 3)})
+    # Manager 1 KEEPS a QB in round 1 every year, and never drafts one.
+    seasons = []
+    for yr in ("2023", "2024", "2025"):
+        picks = [(1, 1, 1, 1, True), (1, 2, 2, 11, False),
+                 (1, 3, 3, 21, False), (1, 4, 4, 31, False)]
+        # nine other managers, all taking RB/WR, none taking a QB early
+        pno = 2
+        for r in range(2, 11):
+            picks.append((r, 2 + (r % 4), 1, pno, False))
+            pno += 1
+        seasons.append(_draft(yr, picks))
+    prof = M.build_profiles(seasons, db)
+
+    assert prof["picks_kept_excluded"] == 3, prof["picks_kept_excluded"]
+    me = prof["managers"]["u1"]
+    assert me["keepers"]["excluded_from_metrics"] == 3
+    # The kept QB must not appear as a positional tendency at all.
+    assert "QB" not in me["positional_timing"], me["positional_timing"]
+    # And his real picks are still counted.
+    assert me["picks_analysed"] == 9, me["picks_analysed"]
+    # The kept player is still RECORDED — excluded from behaviour, not hidden.
+    assert len(me["keepers"]["picks_kept"]) == 3
+
+
+def test_unknown_position_is_missing_not_a_position():
+    """With no player DB every position is "?" — that must not become an answer.
+
+    Before this guard, run-following read a confident 1.0 for all ten managers,
+    because every pick in every window shared the sentinel position.
+    """
+    picks = [(r, r, 1, r, False) for r in range(1, 11)]
+    picks += [(r, 10 + r, 2, 10 + r, False) for r in range(1, 11)]
+    prof = M.build_profiles([_draft("2024", picks)], {})   # empty player DB
+    assert prof["position_coverage"] == 0.0
+    for p in prof["managers"].values():
+        assert p["draft_patterns"]["run_following"]["rate"] == 0.0
+        assert p["draft_patterns"]["openings"]["by_season"] == {}
+        assert p["draft_patterns"]["position_coverage"] == 0.0
+
+
+def test_openings_recover_a_repeated_shape():
+    """"RB-RB every year" is the finding a mean throws away."""
+    db = _db({1: ("RB", "KC", 1, 3), 2: ("RB", "SF", 2, 3), 3: ("WR", "DAL", 3, 3),
+              4: ("TE", "BUF", 4, 3), 5: ("QB", "PHI", 5, 3)})
+    seasons = []
+    for yr in ("2023", "2024", "2025"):
+        picks = [(1, 1, 1, 1, False), (1, 2, 2, 11, False),
+                 (1, 3, 3, 21, False), (1, 4, 4, 31, False)]
+        pno = 2
+        for r in range(2, 11):
+            picks.append((r, 5, 1, pno, False)); pno += 1
+        seasons.append(_draft(yr, picks))
+    op = M.build_profiles(seasons, db)["managers"]["u1"]["draft_patterns"]["openings"]
+    assert op["by_season"]["2024"] == ["RB", "RB", "WR", "TE"], op["by_season"]
+    assert op["most_common_open"] == "RB-RB"
+    assert op["most_common_open_count"] == 3
+    assert op["repeats"] is True
+
+
+def test_consistency_separates_a_habit_from_an_average():
+    """Round 4 every year and 1/4/7 have the same mean and opposite meanings."""
+    db = _db({1: ("QB", "KC", 1, 3), 9: ("RB", "SF", 9, 3)})
+    def build(rounds):
+        seasons = []
+        for yr, rnd in zip(("2023", "2024", "2025"), rounds):
+            picks = [(1, 1, rnd, (rnd - 1) * 10 + 1, False)]
+            picks += [(1, 9, r, (r - 1) * 10 + 1, False)
+                      for r in range(1, 9) if r != rnd]
+            pno = 2
+            for r in range(2, 11):
+                picks.append((r, 9, 1, pno, False)); pno += 1
+            seasons.append(_draft(yr, picks))
+        return M.build_profiles(seasons, db)["managers"]["u1"]["draft_patterns"]["consistency"]
+
+    steady = build((4, 4, 4))
+    erratic = build((1, 4, 7))
+    assert steady["QB"]["spread"] == 0 and steady["QB"]["predictable"] is True
+    assert erratic["QB"]["spread"] == 6 and erratic["QB"]["predictable"] is False
+    # Same mean round, opposite verdicts — which is the entire point.
+    assert sum(steady["QB"]["rounds"]) == sum(erratic["QB"]["rounds"])
+
+
+def test_repeat_targets_find_a_favourite_player():
+    """The most human pattern there is: he takes the same man every year."""
+    db = _db({7: ("WR", "KC", 7, 3), 9: ("RB", "SF", 9, 3)})
+    seasons = []
+    for yr, rnd in (("2023", 5), ("2024", 3), ("2025", 2)):
+        picks = [(1, 7, rnd, (rnd - 1) * 10 + 1, False), (1, 9, 8, 71, False)]
+        pno = 2
+        for r in range(2, 11):
+            picks.append((r, 9, 1, pno, False)); pno += 1
+        seasons.append(_draft(yr, picks))
+    rt = M.build_profiles(seasons, db)["managers"]["u1"]["draft_patterns"]["repeat_targets"]
+    fav = [x for x in rt if x["player_id"] == "7"]
+    assert len(fav) == 1
+    assert fav[0]["times"] == 3
+    assert fav[0]["rounds"] == [5, 3, 2]        # and he is paying more each year
+    assert fav[0]["position"] == "WR"
+
+
+def test_run_following_needs_the_whole_draft_not_one_manager():
+    """A run is made of OTHER people's picks.
+
+    Scoring a manager against only his own picks leaves the window permanently
+    short, and every manager scores a flat zero — the failure mode that looks
+    exactly like "nobody follows runs".
+    """
+    db = _db({i: ("RB" if i <= 20 else "WR", "KC", i, 3) for i in range(1, 41)})
+    # Picks 1-6 are all RB (a run). Manager 7 picks 7th and takes an RB too.
+    picks = [(r, r, 1, r, False) for r in range(1, 7)]          # RB run
+    picks.append((7, 7, 1, 7, False))                            # follower: RB
+    picks.append((8, 25, 1, 8, False))                           # contrarian: WR
+    picks += [(r, 26 + r, 1, r, False) for r in range(9, 11)]
+    prof = M.build_profiles([_draft("2024", picks)], db)
+    follower = prof["managers"]["u7"]["draft_patterns"]["run_following"]
+    contrarian = prof["managers"]["u8"]["draft_patterns"]["run_following"]
+    assert follower["rate"] == 1.0, follower
+    assert contrarian["rate"] == 0.0, contrarian
+    assert follower["league_rate"] == prof["managers"]["u8"]["draft_patterns"]["run_following"]["league_rate"]
+
+
+def test_seat_count_survives_null_draft_slots():
+    """Historical picks carry roster_id and a null draft_slot.
+
+    max(draft_slot or 1) then yields 1 and the league reads as one team.
+    """
+    picks = [(r, r, 1, r, False) for r in range(1, 11)]
+    prof = M.build_profiles([_draft("2024", picks)], {})
+    assert len(prof["managers"]) == 10
+
+
+def test_profiles_record_which_drafts_they_came_from():
+    """The basis for building once and rebuilding only on a genuinely new draft."""
+    picks = [(r, r, 1, r, False) for r in range(1, 11)]
+    prof = M.build_profiles([_draft("2024", picks), _draft("2025", picks)], {})
+    assert prof["draft_ids"] == ["d2024", "d2025"]
+    assert prof["drafts_analysed"] == 2

@@ -71,7 +71,12 @@ def build_profiles(drafts: list[dict], players_db: dict, *, season_now: int | No
         roster_owner = {str(r["roster_id"]): str(r.get("owner_id") or "")
                         for r in d.get("rosters", [])}
         picks = sorted(d["picks"], key=lambda p: p.get("pick_no") or 0)
-        n_teams = max((p.get("draft_slot") or 1) for p in picks) or 10
+        # Historical picks come back with draft_slot null — only roster_id is
+        # populated — so counting slots yields 1 and reads as a one-team league.
+        # Count distinct seats instead, and fall back to the roster count.
+        seats = {p.get("draft_slot") or p.get("roster_id") for p in picks}
+        seats.discard(None)
+        n_teams = len(seats) or len(d.get("rosters") or []) or 10
 
         # Value ordering *within this draft*. Contemporaneous ADP if we have it
         # for that season — that is ground truth, not a proxy. Otherwise fall
@@ -100,6 +105,8 @@ def build_profiles(drafts: list[dict], players_db: dict, *, season_now: int | No
                 "pick_no": p.get("pick_no") or 0,
                 "round": p.get("round") or 1,
                 "player_id": pid,
+                "name": (meta.get("first_name", "") + " " + meta.get("last_name", "")).strip()
+                        or info.get("full_name") or pid,
                 "position": (meta.get("position") or info.get("position") or "?").upper(),
                 "team": (meta.get("team") or info.get("team") or "").upper(),
                 "market_rank": rank,
@@ -108,6 +115,8 @@ def build_profiles(drafts: list[dict], players_db: dict, *, season_now: int | No
                 "market_rank_real": bool(real and real.get("adp")),
                 "years_exp": info.get("years_exp"),
                 "n_teams": n_teams,
+                # A KEPT PLAYER IS NOT A DRAFT DECISION. See KEEPERS below.
+                "is_keeper": bool(p.get("is_keeper")),
             })
 
     managers = sorted({r["manager"] for r in rows if r["manager"]})
@@ -116,20 +125,57 @@ def build_profiles(drafts: list[dict], players_db: dict, *, season_now: int | No
                 "note": "picks carried no manager attribution"}
 
     # --- league-average baselines -------------------------------------------
-    league_first_round = _first_round_by_position(rows)
-    league_reach = _reach_stats(rows)
-    league_rookie = _rate(rows, lambda r: r.get("years_exp") == 0)
-    league_bpa = _bpa_rate(rows)
+    # Keepers are excluded from the baselines as well. Measuring a manager's
+    # real picks against an average that includes everybody's keepers would just
+    # move the error rather than remove it.
+    real_rows = [r for r in rows if not r["is_keeper"]] or rows
+
+    # POSITION COVERAGE. Historical picks carry no metadata — position comes
+    # entirely from the Sleeper player DB — so a failed or empty player fetch
+    # leaves every row at "?" and every positional metric computes happily on a
+    # single fake position. Run-following in particular reads 1.0 for all ten
+    # managers, which is not an error message, it is a confident wrong answer.
+    #
+    # So "?" is treated as MISSING everywhere below, and the coverage is
+    # reported. A caller must be able to tell "he has no tendency" from "we
+    # could not see his picks".
+    pos_known = sum(1 for r in rows if r["position"] != "?")
+    pos_coverage = pos_known / len(rows) if rows else 0.0
+    positioned = [r for r in real_rows if r["position"] != "?"]
+    league_first_round = _first_round_by_position(positioned)
+    league_reach = _reach_stats(real_rows)
+    league_rookie = _rate(real_rows, lambda r: r.get("years_exp") == 0)
+    league_bpa = _bpa_rate(real_rows)
+    league_runs = _run_following(positioned, positioned)
 
     out_managers = {}
     for m in managers:
-        mine = [r for r in rows if r["manager"] == m]
+        every = [r for r in rows if r["manager"] == m]
+        # A KEPT PLAYER IS NOT A DRAFT DECISION. It is last year's decision,
+        # charged to a round by the keeper cost model rather than chosen against
+        # a board. In a 3-keeper league that is 30 of 150 picks — 20% of every
+        # profile was being read as behaviour when it was accounting.
+        #
+        # The damage was not uniform, which is worse than if it had been: a man
+        # who keeps a QB at his round-2 cost was recorded as "takes a QB in
+        # round 2", and reach_delta compared that assigned round against the
+        # player's market ADP, so every keeper read as an enormous reach or an
+        # enormous steal depending only on how the cost model priced him.
+        mine = [r for r in every if not r["is_keeper"]]
+        kept = [r for r in every if r["is_keeper"]]
+        if not mine:
+            mine = every            # a manager with nothing but keepers: use what there is
+            kept = []
         seasons = sorted({r["season"] for r in mine})
         n = len(seasons)
+        mine_pos = [r for r in mine if r["position"] != "?"]
 
-        first_round = _first_round_by_position(mine)
+        first_round = _first_round_by_position(mine_pos)
         timing = {}
-        for pos in ("QB", "TE", "K", "DEF"):
+        # RB and WR were missing here. They are the two positions a draft is
+        # actually made of, and "when does he take his first RB" is the single
+        # most useful thing to know about an opponent.
+        for pos in ("QB", "RB", "WR", "TE", "K", "DEF"):
             obs, avg = first_round.get(pos), league_first_round.get(pos)
             if obs is None or avg is None:
                 continue
@@ -181,7 +227,36 @@ def build_profiles(drafts: list[dict], players_db: dict, *, season_now: int | No
                 "proxy": is_proxy,
                 "adp_coverage": round(adp_cov, 3),
             },
-            "positional_mix": _positional_mix(mine),
+            "positional_mix": _positional_mix(mine_pos),
+            # --- sequence, not aggregate ------------------------------------
+            # Everything above is a mean or a rate, and a mean is exactly what
+            # hides a pattern: "takes a QB in round 4 on average" is the same
+            # number whether he goes 4-4-4 or 1-4-7, and those are two different
+            # opponents. These read the draft in order instead.
+            "draft_patterns": {
+                # Share of his picks whose position is actually known. Below 1.0
+                # every positional figure here is computed on a subset.
+                "position_coverage": round(
+                    len(mine_pos) / len(mine), 3) if mine else 0.0,
+                "openings": _openings(mine_pos),
+                "consistency": _consistency(mine_pos),
+                "run_following": {
+                    # The whole draft is the universe: a run is made of OTHER
+                    # people's picks. Passing only his own leaves the window
+                    # short and scores every manager a flat zero.
+                    "rate": round(_run_following(mine_pos, positioned), 3),
+                    "league_rate": round(league_runs, 3),
+                },
+                "by_round_bucket": _round_buckets(mine_pos),
+                "repeat_targets": _repeat_targets(mine),
+                "stack_rate": round(_stack_rate(mine_pos), 3),
+            },
+            "keepers": {
+                "excluded_from_metrics": len(kept),
+                "picks_kept": [{"season": r["season"], "round": r["round"],
+                                "name": r["name"], "position": r["position"]}
+                               for r in sorted(kept, key=lambda r: (r["season"], r["round"]))],
+            },
         }
         # α/β for the Layer-2 softmax (A2): a BPA drafter weights value, a needs
         # drafter weights empty slots. Centred so league-average lands at 1.0/1.0.
@@ -203,6 +278,13 @@ def build_profiles(drafts: list[dict], players_db: dict, *, season_now: int | No
             "bpa_rate": round(league_bpa, 3),
         },
         "drafts_analysed": len(drafts),
+        # Which drafts this was built from. A completed draft never changes, so
+        # this is the whole basis for skipping the rebuild — and for noticing
+        # when a NEW draft appears and the profiles genuinely are stale.
+        "draft_ids": sorted(str(d.get("draft_id")) for d in drafts if d.get("draft_id")),
+        "picks_total": len(rows),
+        "picks_kept_excluded": sum(1 for r in rows if r["is_keeper"]),
+        "position_coverage": round(pos_coverage, 3),
         "seasons": sorted({d.get("season") for d in drafts if d.get("season")}),
         "editable": "Hand-edit any value here; the build never overwrites a file "
                     "whose `locked` flag is true.",
@@ -382,3 +464,174 @@ def predict_position(profile: dict | None, league_avg: dict, round_no: int,
         scores[pos] = max(1e-6, base)
     total = sum(scores.values())
     return {k: v / total for k, v in scores.items()}
+
+
+# --- sequence-aware patterns -------------------------------------------------
+#
+# The metrics above are all means and rates over a bag of picks. They are useful
+# and they are also exactly what conceals a tendency, because a mean throws away
+# the order the picks happened in — and the order IS the strategy.
+
+# How many of a manager's opening picks to record. Four covers the shape of a
+# build (which two positions he anchors, and whether he takes a TE or QB early)
+# without running so long that no two seasons ever match.
+OPENING_DEPTH = 4
+# A run is this many picks of the same position inside the preceding window.
+RUN_WINDOW = 5
+RUN_THRESHOLD = 2
+# Round boundaries for the early/mid/late shape. Early is the anchor, mid is
+# where a strategy shows, late is streamers and lottery tickets.
+BUCKETS = (("early", 1, 3), ("mid", 4, 8), ("late", 9, 99))
+
+
+def _openings(rows: list[dict]) -> dict:
+    """The literal positional sequence of each season's first picks.
+
+    "RB-RB-WR-TE, all three years" is a sentence you can act on. "RB share 0.42"
+    is not. Where a manager repeats a shape, that repetition is the finding.
+    """
+    by_season: dict[str, list[dict]] = {}
+    for r in rows:
+        by_season.setdefault(str(r["season"]), []).append(r)
+    seqs = {}
+    for season, picks in by_season.items():
+        ordered = sorted(picks, key=lambda r: r["pick_no"])[:OPENING_DEPTH]
+        seqs[season] = [r["position"] for r in ordered]
+    shapes: dict[str, int] = {}
+    for seq in seqs.values():
+        shapes["-".join(seq)] = shapes.get("-".join(seq), 0) + 1
+
+    # The first two picks are where repetition actually shows up; four-pick
+    # sequences almost never repeat exactly, so reporting only those would
+    # report "no pattern" for a man with an obvious one.
+    pairs: dict[str, int] = {}
+    for seq in seqs.values():
+        if len(seq) >= 2:
+            key = "-".join(seq[:2])
+            pairs[key] = pairs.get(key, 0) + 1
+    best_pair, best_n = (max(pairs.items(), key=lambda kv: kv[1]) if pairs else (None, 0))
+    return {
+        "by_season": seqs,
+        "seasons": len(seqs),
+        "most_common_open": best_pair,
+        "most_common_open_count": best_n,
+        # Only a repeat is evidence. One season is a sequence, not a habit.
+        "repeats": best_n >= 2,
+    }
+
+
+def _consistency(rows: list[dict]) -> dict:
+    """Does he do the same thing every year, or is the mean hiding a spread?
+
+    Reported per position as the spread of the round he first takes it. A low
+    spread means the mean is a real prediction; a high one means the mean is an
+    artefact and you should not plan around it.
+    """
+    by_season: dict[str, dict[str, int]] = {}
+    for r in sorted(rows, key=lambda r: r["pick_no"]):
+        seen = by_season.setdefault(str(r["season"]), {})
+        seen.setdefault(r["position"], r["round"])
+    out = {}
+    for pos in ("QB", "RB", "WR", "TE", "K", "DEF"):
+        rounds = [s[pos] for s in by_season.values() if pos in s]
+        if len(rounds) < 2:
+            continue
+        spread = max(rounds) - min(rounds)
+        out[pos] = {
+            "rounds": rounds,
+            "spread": spread,
+            "sd": round(statistics.pstdev(rounds), 2),
+            # Two rounds of drift across seasons is still a plan. More than that
+            # and "he takes a QB in round 4" is a number, not a tendency.
+            "predictable": spread <= 2,
+        }
+    return out
+
+
+def _run_following(rows: list[dict], all_rows: list[dict] | None = None) -> float:
+    """How often he takes a position that the picks just before him piled into.
+
+    Herd behaviour is directly exploitable: a follower is predictable the moment
+    a run starts, and a contrarian is the reason your run-detection is wrong
+    about one seat. Measured against the whole draft's pick sequence, so it needs
+    every manager's picks, not just his.
+    """
+    universe = all_rows if all_rows is not None else rows
+    ordered = sorted(universe, key=lambda r: (str(r["season"]), r["pick_no"]))
+    by_key = {(str(r["season"]), r["pick_no"]): r for r in ordered}
+    mine = {(str(r["season"]), r["pick_no"]) for r in rows}
+    hits = total = 0
+    for r in ordered:
+        key = (str(r["season"]), r["pick_no"])
+        if key not in mine:
+            continue
+        window = [by_key[(key[0], n)] for n in range(r["pick_no"] - RUN_WINDOW, r["pick_no"])
+                  if (key[0], n) in by_key]
+        if len(window) < RUN_WINDOW:
+            continue            # too early in the draft for a run to exist yet
+        same = sum(1 for w in window if w["position"] == r["position"])
+        total += 1
+        if same >= RUN_THRESHOLD:
+            hits += 1
+    return hits / total if total else 0.0
+
+
+def _round_buckets(rows: list[dict]) -> dict:
+    """Positional shape early / mid / late, rather than one blended mix."""
+    out = {}
+    for name, lo, hi in BUCKETS:
+        block = [r for r in rows if lo <= r["round"] <= hi]
+        if not block:
+            continue
+        counts: dict[str, int] = {}
+        for r in block:
+            counts[r["position"]] = counts.get(r["position"], 0) + 1
+        out[name] = {"picks": len(block),
+                     "mix": {k: round(v / len(block), 3)
+                             for k, v in sorted(counts.items(), key=lambda kv: -kv[1])}}
+    return out
+
+
+def _repeat_targets(rows: list[dict]) -> list[dict]:
+    """Players he has drafted in more than one season.
+
+    The most human pattern there is, and the easiest to use: if he has taken the
+    same man three years running, he will pay above market for him again.
+    """
+    by_player: dict[str, list[dict]] = {}
+    for r in rows:
+        by_player.setdefault(r["player_id"], []).append(r)
+    out = []
+    for pid, picks in by_player.items():
+        seasons = sorted({str(p["season"]) for p in picks})
+        if len(seasons) < 2:
+            continue
+        out.append({
+            "player_id": pid,
+            "name": picks[0]["name"],
+            "position": picks[0]["position"],
+            "seasons": seasons,
+            "times": len(seasons),
+            "rounds": [p["round"] for p in sorted(picks, key=lambda x: str(x["season"]))],
+        })
+    out.sort(key=lambda x: (-x["times"], x["name"]))
+    return out
+
+
+def _stack_rate(rows: list[dict]) -> float:
+    """Share of his QBs paired with a pass-catcher from the same NFL team.
+
+    Zero across three seasons is as much a tell as a high rate: it means a run
+    on a QB's receivers tells you nothing about whether he is next.
+    """
+    by_season: dict[str, list[dict]] = {}
+    for r in rows:
+        by_season.setdefault(str(r["season"]), []).append(r)
+    qbs = stacked = 0
+    for picks in by_season.values():
+        catchers = {(p["team"], p["position"]) for p in picks if p["position"] in ("WR", "TE")}
+        for q in [p for p in picks if p["position"] == "QB"]:
+            qbs += 1
+            if q["team"] and any(t == q["team"] for t, _ in catchers):
+                stacked += 1
+    return stacked / qbs if qbs else 0.0
