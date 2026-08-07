@@ -3,49 +3,52 @@
 HISTORICAL BACKTEST — does the composite beat ADP on our own drafts?
 ==============================================================================
 
-git HEAD        697bd0d889aa2ebff1a7bff6a4fa7f9f008d5472
+git HEAD        af0c57031cef519e9524f725f3cee73684d09449
 seasons         2023, 2024, 2025
-graded picks    260  (rounds 1-12)
+graded picks    168  (rounds 1-12)
 
 --- 1. HEADLINE ---
   mean actual points of the recommended player
-    B0  ADP                 233.34
-    B1  projected points    254.56
-    B2  VORP                134.27
-    B3  full composite      167.44
-  B3 - B0 per pick          -65.91  +/- 28.00
-  B3 - B0 per draft         -571.18  +/- 482.61   (n=30 drafts)
+    B0  ADP                 213.62
+    B1  projected points    188.97
+    B2  VORP                139.09
+    B3  full composite      138.16
+  B3 - B0 per pick          -75.46  +/- 40.77
+  B3 - B0 per draft         -633.85  +/- 660.26   (n=20 drafts)
 
   VERDICT AGAINST THE PRE-REGISTERED BAR (10 pts/draft):
-    BELOW THE BAR. The composite gains -571.18 points per draft,
-    under the 10 the spec set. Said plainly: on this evidence the
-    sophistication is not paying for itself. That is a finding, not a failure.
+    INCONCLUSIVE. The confidence interval crosses zero, so this sample
+    cannot distinguish the composite from ADP in either direction.
+    That is a statement about N, not a verdict on the model.
+
+    NOTE: B3 does not beat plain VORP (B2). Whatever edge exists is in the
+    value model, not in the survival/tier/need machinery above it.
 
 --- 2. THE DISAGREEMENT SUBSET (where the model claims edge) ---
-  picks where B3 != B0      253  (97.3% of graded)
-  win rate on those         34.8%
-  mean gain on those        -67.73  +/- 28.74
+  picks where B3 != B0      165  (98.2% of graded)
+  win rate on those         21.2%
+  mean gain on those        -76.83  +/- 41.49
   (Picks where the two agree cannot show edge either way — this is the
    honest denominator, and it is always smaller than the headline sample.)
 
 --- 3. PER ROUND ---
   round      n   mean gain      95% CI
-      1     11      173.89   +/- 106.05
-      2     15      308.18   +/- 141.32
-      3     20       73.10   +/- 134.10
-      4     27     -123.56    +/- 80.92
-      5     21     -325.68    +/- 70.66
-      6     22      -97.63    +/- 60.57
-      7     17      -94.57    +/- 39.97
-      8     26      -70.33    +/- 29.77
-      9     25      -50.00    +/- 65.44
-     10     25     -162.00    +/- 65.39
-     11     25      -78.71    +/- 78.93
-     12     26      -80.98    +/- 72.15
+      1     11      288.98   +/- 128.61
+      2     12      358.55   +/- 191.80
+      3     14      184.81   +/- 195.05
+      4     17      -65.73    +/- 67.89
+      5     11     -259.35   +/- 134.68
+      6     12     -105.47    +/- 99.52
+      7     14     -118.67    +/- 43.51
+      8     16     -110.37    +/- 41.90
+      9     15     -121.81    +/- 55.89
+     10     15     -275.50    +/- 47.09
+     11     15     -271.74    +/- 29.88
+     12     16     -252.92    +/- 31.20
 
   PRE-REGISTERED EXPECTATION (written before any result): edge concentrates
   in rounds 3-9, near zero in round 1.
-  ** BUG ALARM ** round 1 shows 173.89 points/pick, past the 8 threshold.
+  ** BUG ALARM ** round 1 shows 288.98 points/pick, past the 8 threshold.
   The top of the board is where the market is most efficient. An edge this
   large there is more likely a leak than an insight. Investigate the AsOf
   store and the projection fit BEFORE believing any number in this report.
@@ -69,9 +72,9 @@ graded picks    260  (rounds 1-12)
   drafts, this is thousands of individual predictions.
 
 --- 5. MODEL vs HUMAN ---
-  picks where B3 disagreed with the manager  229
-  B3 scored more often                       35.8%
-  mean gain over the human                   -22.79  +/- 27.23
+  picks where B3 disagreed with the manager  159
+  B3 scored more often                       29.6%
+  mean gain over the human                   -43.53  +/- 33.39
   (Includes my own picks. Seeds the override analysis with real history.)
 
 --- 6. CAVEATS (mandatory) ---
@@ -80,7 +83,7 @@ graded picks    260  (rounds 1-12)
   * 2025: replayed but NOTHING could be graded — its picks contribute nothing to the headline
   * Historical FFC ADP is name-matched against TODAY'S Sleeper player list, so a player who has since changed teams or retired may match differently than he would have that year.
   * Seasons replayed: [2023, 2024, 2025]
-  * Sample: 30 drafts. Confidence intervals above are the
+  * Sample: 20 drafts. Confidence intervals above are the
     finding, not decoration. Do NOT read per-weight conclusions out of this.
   * Projections are era-appropriate reconstructions, not archived forecasts.
     This grades the DECISION MACHINERY on plausible inputs; it is not a test
@@ -89,4 +92,29 @@ graded picks    260  (rounds 1-12)
   * 2024 used walk_forward (spearman vs ADP 0.53)
   * 2025 used walk_forward (spearman vs ADP 0.54)
 ==============================================================================
+
+==============================================================================
+D1 CUT — VALUE OVER POSITIONAL REPLACEMENT (points minus replacement)
+==============================================================================
+  This discounts an elite QB's raw total by the high replacement QB —
+  the reason ADP sends QBs late. Reported alongside the raw metric; no
+  install happens off either until D1 is ruled.
+  B0 -19.07  B2(VORP) -197.94  B3 -176.58
+  B3-B0 per pick   -157.52 +/- 34.86
+  B3-B0 per draft  -1323.14 +/- 738.13
+  round-1 gain     130.24 +/- 129.04
+  ROUND-1 ALARM STILL FIRES under value grading — the composite genuinely over-drafts QBs in round 1; that is an ENGINE finding, not a metric one.
+  per-round value gain (B3-B0):
+    r1  130.24 +/- 129.04
+    r2  194.46 +/- 190.97
+    r3  21.17 +/- 194.15
+    r4  -153.38 +/- 84.47
+    r5  -295.36 +/- 115.03
+    r6  -208.03 +/- 106.4
+    r7  -217.57 +/- 42.94
+    r8  -217.25 +/- 6.46
+    r9  -229.04 +/- 23.25
+    r10  -274.26 +/- 26.22
+    r11  -260.76 +/- 30.66
+    r12  -261.86 +/- 33.81
 ```

@@ -2,7 +2,7 @@
 ==============================================================================
 STRATEGY TABLE — which weighting would have won our drafts
 ==============================================================================
-git HEAD   697bd0d889aa2ebff1a7bff6a4fa7f9f008d5472
+git HEAD   af0c57031cef519e9524f725f3cee73684d09449
 seasons    2023, 2024, 2025   (N=2)
 
 With N this small we are CHOOSING AMONG PROFILES, not tuning eight dials.
