@@ -1152,6 +1152,45 @@ table.ledger .btn.ghost:hover { color: var(--gold-bright); border-color: var(--g
   border-color: var(--gold); background: rgba(245, 196, 69, .12); color: #fff;
 }
 
+/* Everybody's side of the bet, one line each.
+   On an elaborate bet — "we each pick four teams plus our own" — the terms are
+   only half the story; the other half is who took what. Listing every party's
+   position is what makes such a bet auditable eight months later, so it gets
+   real space rather than being crammed into the meta line. */
+.sb-sides { list-style: none; margin: .45rem 0 0; padding: 0; display: grid; gap: .25rem; }
+.sb-sides li {
+  display: flex; gap: .5rem; align-items: baseline; flex-wrap: wrap;
+  font-size: .8rem; line-height: 1.45;
+  padding: .25rem .5rem; border-radius: 8px;
+  background: rgba(255, 255, 255, .03); border-left: 2px solid var(--line);
+}
+.sb-sides li b { color: #cfd6e6; flex: 0 0 auto; min-width: 5.5rem; }
+.sb-sides li span { color: #e7eaf3; min-width: 0; overflow-wrap: anywhere; }
+/* You, so you can find your own row instantly in a ten-handed bet. */
+.sb-sides li.me { border-left-color: var(--gold); background: rgba(245, 196, 69, .07); }
+.sb-sides li.me b { color: var(--gold-bright); }
+/* The winner, once there is one. */
+.sb-sides li.won { border-left-color: #4ade80; background: rgba(74, 222, 128, .08); }
+.sb-sides li.won b { color: #86efac; }
+
+/* The side-bet ledger. The bet column carries a paragraph; the three money
+   columns must stay narrow enough to read across, so the terms get clamped and
+   the full text lives on the bet card above (and in the title attribute). */
+.sb-ledger td.litem { min-width: 11rem; }
+.sb-ledger .num { white-space: nowrap; }
+.clamp2 {
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden; font-size: .85rem; line-height: 1.35;
+}
+
+/* Inline "add your picks" on a bet you haven't described your side of yet. */
+.sb-pos { display: flex; gap: .3rem; align-items: center; flex: 1 1 180px; min-width: 0; }
+.sb-pos input[type=text] {
+  flex: 1 1 auto; min-width: 0; width: auto;
+  padding: .28rem .5rem; font-size: .78rem; min-height: 34px;
+}
+.sb-pos .btn.small { flex: 0 0 auto; }
+
 /* A zero in the winnings grid is a fact, not missing data — but it should not
    compete with the years somebody actually won something. */
 table .num.zero { color: var(--muted); font-weight: 400; }

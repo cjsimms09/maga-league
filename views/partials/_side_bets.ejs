@@ -20,9 +20,9 @@
 
 <div class="hero" style="margin-bottom:1.2rem">
   <div class="hero-item <%= t.net > 0 ? 'good' : t.net < 0 ? 'bad' : '' %>">
-    <span class="hero-label">Your Side-Bet Record</span>
+    <span class="hero-label">Your Side-Bet Total</span>
     <span class="hero-value"><%= t.net === 0 ? '—' : (t.net > 0 ? '+' : '−') + money(Math.abs(t.net)) %></span>
-    <span class="hero-sub"><%= t.wins %>–<%= t.losses %> settled</span>
+    <span class="hero-sub"><%= t.net > 0 ? 'up on side bets' : t.net < 0 ? 'down on side bets' : 'nothing settled yet' %> · <%= t.wins %>–<%= t.losses %></span>
   </div>
   <div class="hero-item">
     <span class="hero-label">Riding Right Now</span>
@@ -67,12 +67,23 @@
   <div class="body">
     <form method="post" action="/sidebets" class="entry-form">
       <div class="ef-row">
-        <label class="field" style="flex:3 1 260px">The bet
-          <input type="text" name="terms" maxlength="240" required
-                 placeholder="e.g. Bills cover −3.5 at Kansas City on Sunday">
+        <label class="field" style="flex:1 1 100%">The bet — what are the rules?
+          <textarea name="terms" maxlength="1200" rows="3" required
+            placeholder="e.g. Each of us picks 4 other teams plus our own. Whoever picked the team that wins the league takes the pot."></textarea>
         </label>
+      </div>
+      <div class="ef-row">
         <label class="field" style="flex:1 1 120px">Stake each (USD)
           <input type="number" name="stake" step="1" min="1" placeholder="50" required>
+        </label>
+        <label class="field" style="flex:2 1 200px">Settles when <span class="muted">(optional)</span>
+          <input type="text" name="resolves" maxlength="120" placeholder="e.g. end of the 2026 season">
+        </label>
+      </div>
+      <div class="ef-row">
+        <label class="field" style="flex:1 1 100%">Your side of it <span class="muted">(optional — your picks, your team, whatever you took)</span>
+          <input type="text" name="position" maxlength="400"
+                 placeholder="e.g. Bills, Lions, 49ers, Ravens + my own team">
         </label>
       </div>
       <div class="ef-row">
@@ -101,11 +112,25 @@
     <div class="sb-main">
       <div class="sb-terms"><%= b.terms %></div>
       <div class="sb-meta">
-        <b><%= money(b.stake) %></b> each ·
-        <%= b.parties.map(p => betNames(p.owner_id) + (b.winner_ids.includes(p.owner_id) ? ' 🏆' : '')).join(' vs ') %>
+        <b><%= money(b.stake) %></b> each<% if (b.resolves) { %> · settles <%= b.resolves %><% } %>
         <% if (b.status === 'proposed') { %> · <span class="sb-wait">waiting on <%= waiting(b).join(', ') %></span><% } %>
         <% if (b.status === 'settled') { %> · won by <b><%= b.winner_ids.map(betNames).join(', ') %></b><% } %>
       </div>
+      <%# Everyone's side, listed. On an elaborate bet this IS the bet. %>
+      <ul class="sb-sides">
+        <% for (const p of b.parties) { %>
+          <li class="<%= b.winner_ids.includes(p.owner_id) ? 'won' : '' %><%= p.owner_id === owner.id ? ' me' : '' %>">
+            <b><%= betNames(p.owner_id) %><%= b.winner_ids.includes(p.owner_id) ? ' 🏆' : '' %></b>
+            <% if (p.position) { %><span><%= p.position %></span>
+            <% } else if (p.owner_id === owner.id && b.status !== 'settled') { %>
+              <form class="asis sb-pos" method="post" action="/sidebets/<%= b.id %>/position">
+                <input type="text" name="position" maxlength="400" placeholder="add your picks…">
+                <button class="btn small ghost" type="submit">Save</button>
+              </form>
+            <% } else { %><span class="muted">—</span><% } %>
+          </li>
+        <% } %>
+      </ul>
     </div>
     <div class="sb-actions">
       <% if (b.status === 'locked' && (inIt(b) || owner.is_commissioner)) { %>
@@ -146,23 +171,87 @@
 <% } %>
 
 <div class="card" style="margin-bottom:1.2rem">
-  <h2>📊 Side-Bet Standings <span class="sub">settled bets only — never league money</span></h2>
+  <h2>📒 Your Side-Bet Ledger <span class="sub">every bet you're in, with a running total</span></h2>
+  <div class="body tight scroll-x">
+    <% if (!sbLedger.rows.length) { %>
+      <p class="muted" style="padding:1rem; margin:0">You're not in any side bets yet.</p>
+    <% } else { %>
+    <%# Four columns, not five. An elaborate bet's terms are a paragraph, and at
+        390px a fifth column squeezes that paragraph into a 200px-tall sliver of
+        wrapped text. "Against" belongs on the meta line under the terms — it is
+        context for the bet, not a number you scan down the column. %>
+    <table class="roll ledger sb-ledger">
+      <thead><tr>
+        <th>The bet</th><th class="num">Stake</th>
+        <th class="num">Result</th><th class="num">Running</th>
+      </tr></thead>
+      <tbody>
+        <% for (const r of sbLedger.rows) { %>
+          <tr class="<%= r.delta == null ? '' : 'is-settled' %>">
+            <td class="litem">
+              <%# Two lines, then ellipsis. The full terms and every party's side
+                  are on the bet card above; this table is the money trail. %>
+              <div class="sb-terms clamp2" title="<%= r.bet.terms %>"><%= r.bet.terms %></div>
+              <div class="sb-meta">
+                vs <%= r.against %><% if (r.bet.resolves) { %> · settles <%= r.bet.resolves %><% } %>
+              </div>
+              <% if (r.my_position) { %><div class="sb-meta">your side: <%= r.my_position %></div><% } %>
+            </td>
+            <td class="num"><%= money(r.bet.stake) %></td>
+            <td class="num <%= r.delta == null ? '' : r.delta > 0 ? 'pos' : 'neg' %>">
+              <%= r.delta == null
+                    ? (r.bet.status === 'locked' ? '⏳ live' : r.bet.status === 'proposed' ? '· pending' : '✕')
+                    : (r.delta > 0 ? '+' : '−') + money(Math.abs(r.delta)) %></td>
+            <%# Same minus glyph as the Result column beside it — mixing "−$50"
+                and "-$50" in adjacent columns looks like two different things. %>
+            <td class="num run <%= r.running > 0 ? 'pos' : r.running < 0 ? 'neg' : '' %>">
+              <%= r.delta == null ? ''
+                    : (r.running > 0 ? '+' : r.running < 0 ? '−' : '') + money(Math.abs(r.running)) %></td>
+          </tr>
+        <% } %>
+        <tr class="total">
+          <td colspan="3">Your side-bet total</td>
+          <td class="num <%= sbLedger.net > 0 ? 'pos' : sbLedger.net < 0 ? 'neg' : '' %>">
+            <%= sbLedger.net === 0 ? '—' : (sbLedger.net > 0 ? '+' : '−') + money(Math.abs(sbLedger.net)) %></td>
+        </tr>
+      </tbody>
+    </table>
+    <% } %>
+  </div>
+</div>
+
+<div class="card" style="margin-bottom:1.2rem">
+  <h2>💰 Who's Up, Who's Down <span class="sub">settled bets only — never league money</span></h2>
   <div class="body tight scroll-x">
     <table class="roll ledger">
-      <thead><tr><th>Owner</th><th class="num">W–L</th><th class="num">Won</th><th class="num">Lost</th><th class="num">Net</th></tr></thead>
+      <thead><tr><th>Owner</th><th class="num">Net</th><th class="num">Won</th><th class="num">Lost</th><th class="num">W–L</th></tr></thead>
       <tbody>
-        <% for (const o of owners) { const x = tallies[o.id]; if (!x) continue; %>
+        <%# Only people who have actually bet. Ten rows of $0 is not a standings
+            table, it is a list of everyone in the league with noise attached —
+            the ones sitting it out get one line underneath instead. %>
+        <% const active = owners.filter(o => { const x = tallies[o.id]; return x && (x.wins || x.losses || x.open); })
+             .sort((a, b) => tallies[b.id].net - tallies[a.id].net); %>
+        <% const idle = owners.filter(o => !active.includes(o)); %>
+        <% for (const o of active) { const x = tallies[o.id]; %>
           <tr class="<%= o.id === owner.id ? 'is-viewing' : '' %>">
             <td><b><%= o.name %><%= o.id === owner.id ? ' (you)' : '' %></b></td>
-            <td class="num"><%= x.wins %>–<%= x.losses %></td>
-            <td class="num pos"><%= x.won ? money(x.won) : '·' %></td>
-            <td class="num neg"><%= x.lost ? money(x.lost) : '·' %></td>
             <td class="num run <%= x.net > 0 ? 'pos' : x.net < 0 ? 'neg' : '' %>">
-              <%= x.net === 0 ? '—' : (x.net > 0 ? '+' : '−') + money(Math.abs(x.net)) %></td>
+              <%= x.net === 0 ? money(0) : (x.net > 0 ? '+' : '−') + money(Math.abs(x.net)) %></td>
+            <td class="num pos"><%= money(x.won || 0) %></td>
+            <td class="num neg"><%= money(x.lost || 0) %></td>
+            <td class="num muted"><%= x.wins %>–<%= x.losses %></td>
           </tr>
+        <% } %>
+        <% if (!active.length) { %>
+          <tr><td colspan="5" class="muted" style="padding:1rem">Nobody has a side bet on the books yet.</td></tr>
         <% } %>
       </tbody>
     </table>
+    <% if (idle.length && active.length) { %>
+      <p class="muted" style="padding:.6rem .9rem; margin:0; font-size:.78rem">
+        No side bets: <%= idle.map(o => o.name).join(', ') %>
+      </p>
+    <% } %>
   </div>
 </div>
 

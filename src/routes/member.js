@@ -317,11 +317,14 @@ router.get('/bank', aw(async (req, res) => {
   const bets = await SB.all();
   const betNames = id => nameOf(id);
   const tallies = SB.tallies(bets, owners);
+  // The ledger is the point: every bet you are in, chronological, with a
+  // running net. A W-L record cannot tell a season-long \$200 bet from four \$20s.
+  const sbLedger = SB.ledgerFor(bets, req.owner.id, nameOf);
 
   res.render('bank', {
     cards, season, totalOwedToLeague, totalLeagueOwes, viewCard, leagueEntries,
     TYPE_LABELS: L.TYPE_LABELS,
-    section, bets, tallies, owners, betNames,
+    section, bets, tallies, owners, betNames, sbLedger,
   });
 }));
 
@@ -334,14 +337,23 @@ router.post('/sidebets', aw(async (req, res) => {
   const stake = parseFloat(req.body.stake);
   if (terms && Number.isFinite(stake) && stake > 0 && ids.length) {
     try {
-      await SB.propose({ proposer_id: req.owner.id, party_ids: ids, terms, stake });
+      await SB.propose({ proposer_id: req.owner.id, party_ids: ids, terms, stake,
+        position: String(req.body.position || '').trim(),
+        resolves: String(req.body.resolves || '').trim() });
     } catch (e) { /* needs someone on the other side; the form enforces it too */ }
   }
   res.redirect('/bank?section=sidebets');
 }));
 
 router.post('/sidebets/:id/accept', aw(async (req, res) => {
-  await SB.accept(req.params.id, req.owner.id, req.owner.name);
+  await SB.accept(req.params.id, req.owner.id, req.owner.name,
+    String(req.body.position || '').trim());
+  res.redirect('/bank?section=sidebets');
+}));
+
+// Your own side of a bet — picks, teams, the number you took. Yours only.
+router.post('/sidebets/:id/position', aw(async (req, res) => {
+  await SB.setPosition(req.params.id, req.owner.id, String(req.body.position || '').trim());
   res.redirect('/bank?section=sidebets');
 }));
 
