@@ -585,6 +585,115 @@ check('weight sliders change the ranking', heavyCeiling[0].score !== scored[0].s
 
 
 // ---------------------------------------------------------------------------
+// The paper sheet — the fallback for a dead phone at the table.
+// ---------------------------------------------------------------------------
+(function sheetSuite() {
+  const mk = (id, pos, adp, tier, proj) => ({
+    player_id: id, name: 'P' + id, position: pos, team: 'XX', bye: 7,
+    adjusted_adp: adp, raw_adp: adp, tier: tier, proj_mean: proj, proj_sd: 20,
+    vorp: proj / 10, tier_drop: 5, overall_rank: adp,
+  });
+  const board = [
+    mk('a', 'RB', 1, 1, 300), mk('b', 'RB', 2, 1, 290), mk('c', 'WR', 3, 1, 280),
+    mk('d', 'WR', 12, 2, 240), mk('e', 'TE', 20, 1, 200), mk('f', 'QB', 30, 1, 320),
+    mk('g', 'RB', 40, 3, 180), mk('h', 'WR', 55, 3, 170), mk('i', 'K', 90, 1, 130),
+    mk('j', 'DEF', 95, 1, 120), mk('k', 'TE', 60, 2, 150),
+  ];
+  const league = { teams: 10, starters: { QB: 1, RB: 2, WR: 2, TE: 1, FLEX: 1, K: 1, DEF: 1 },
+    roster_slots: { QB: 1, RB: 2, WR: 2, TE: 1, FLEX: 1, K: 1, DEF: 1, BN: 6 } };
+  const ctx = { board: board, currentPick: 5, nextPick: 16, totalPicks: 150,
+    myPicksLeft: 12, roster: [], league: league, weights: E.DEFAULT_WEIGHTS,
+    runMultipliers: {}, intervening: [], roundsLeft: 12 };
+
+  // The single property that makes the queue worth having.
+  const s1 = E.cheatSheet(ctx, { targets: [], avoid: [], queue: ['h', 'a', 'e'] });
+  check('the sheet keeps YOUR queue order, not the board\'s',
+    s1.queue.map(q => q.player_id).join(',') === 'h,a,e', JSON.stringify(s1.queue.map(q => q.player_id)));
+  check('queue rows are numbered from 1 in your order',
+    s1.queue.map(q => q.rank).join(',') === '1,2,3');
+  check('each queued player carries his chance of lasting to your next turn',
+    s1.queue.every(q => typeof q.survives_to_next === 'number'
+      && q.survives_to_next >= 0 && q.survives_to_next <= 100), JSON.stringify(s1.queue));
+  check('the man going at pick 1 is less likely to last than the man going at 55',
+    s1.queue.find(q => q.player_id === 'a').survives_to_next
+      < s1.queue.find(q => q.player_id === 'h').survives_to_next);
+
+  // Best-available must not duplicate the queue, or the sheet reads as if you
+  // have twice as many options as you do.
+  check('best-available excludes anyone already in your queue',
+    s1.best.every(p => ['h', 'a', 'e'].indexOf(p.player_id) < 0), JSON.stringify(s1.best.map(p => p.player_id)));
+
+  // Never-list is absolute everywhere, including on paper.
+  const s2 = E.cheatSheet(ctx, { targets: [], avoid: ['a', 'b'], queue: [] });
+  check('a blocked player never reaches the sheet',
+    s2.best.every(p => p.player_id !== 'a' && p.player_id !== 'b')
+      && s2.byPosition.every(g => g.players.every(p => p.player_id !== 'a')));
+  check('the sheet records how many were blocked', s2.generated.blocked === 2);
+
+  // A contradiction the user created is reported, not silently resolved.
+  const s3 = E.cheatSheet(ctx, { targets: [], avoid: ['a'], queue: ['a'] });
+  check('queued AND blocked is flagged rather than quietly picking one',
+    s3.warnings.some(w => /queue AND/.test(w)), JSON.stringify(s3.warnings));
+
+  // A queued player who has gone is reported, not dropped.
+  const gone = Object.assign({}, ctx, { board: board.filter(p => p.player_id !== 'a') });
+  const s4 = E.cheatSheet(gone, { targets: [], avoid: [], queue: ['a', 'b'] });
+  check('a queued player already drafted is shown as gone, not removed',
+    s4.queue.length === 2 && s4.queue[0].gone === true && s4.queue[1].gone === false,
+    JSON.stringify(s4.queue));
+
+  // Tier breaks are the reason the by-position section exists.
+  const s5 = E.cheatSheet(ctx, { targets: [], avoid: [], queue: [] });
+  const rbs = s5.byPosition.find(g => g.position === 'RB');
+  check('positions are grouped and ordered by the same score as the board',
+    !!rbs && rbs.players.length === 3, JSON.stringify(rbs));
+  check('the last man in a tier is marked as a cliff',
+    rbs.players.some(p => p.tier_break), JSON.stringify(rbs.players));
+  check('the last row overall is never marked as a cliff',
+    rbs.players[rbs.players.length - 1].tier_break === false);
+
+  // Provenance: a sheet that does not say what it was built from is a sheet
+  // you cannot tell is stale.
+  check('the sheet stamps the state it was built from',
+    s5.generated.current_pick === 5 && s5.generated.board_size === 11
+      && s5.generated.my_picks_left === 12, JSON.stringify(s5.generated));
+  check('an empty queue says so rather than looking complete',
+    s5.warnings.some(w => /queue is empty/.test(w)));
+
+  // Targets survive onto paper.
+  const s6 = E.cheatSheet(ctx, { targets: ['g'], avoid: [], queue: [] });
+  check('a starred player is marked as starred on the sheet',
+    s6.best.find(p => p.player_id === 'g').targeted === true);
+
+  // The text renderer.
+  const txt = E.sheetText(s1, { title: 'MFGA', myPicks: [5, 16, 25], built_at: '2026-08-07T09:00:00Z' });
+  check('the text sheet names all three sections',
+    /YOUR QUEUE/.test(txt) && /BEST AVAILABLE/.test(txt) && /== RB ==/.test(txt));
+  check('the text sheet leads with the snapshot it was built from',
+    /snapshot: pick 5/.test(txt) && /your picks: 5, 16, 25/.test(txt), txt.split('\n').slice(0, 4).join(' | '));
+  check('the text sheet prints your queue in your order',
+    txt.indexOf('\n1.') < txt.indexOf('\n2.'));
+  check('the text sheet is plain ASCII-safe text with no markup',
+    txt.indexOf('<') < 0 && txt.indexOf('&') < 0);
+  check('every queued player appears in the text',
+    ['Ph', 'Pa', 'Pe'].every(n => txt.indexOf(n) >= 0));
+
+  // An empty board must degrade, not throw.
+  const empty = E.cheatSheet(Object.assign({}, ctx, { board: [] }), { targets: [], avoid: [], queue: [] });
+  check('an empty board produces a sheet that says so instead of crashing',
+    empty.best.length === 0 && empty.warnings.some(w => /board is empty/.test(w)));
+  check('and rendering that empty sheet does not throw',
+    typeof E.sheetText(empty, {}) === 'string');
+
+  // No next pick (last pick of the draft) must not fabricate a percentage.
+  const last = E.cheatSheet(Object.assign({}, ctx, { nextPick: null }),
+    { targets: [], avoid: [], queue: ['a'] });
+  check('with no next pick the survival column is null, not a made-up 0',
+    last.queue[0].survives_to_next === null, JSON.stringify(last.queue[0]));
+})();
+
+
+// ---------------------------------------------------------------------------
 // KEEP THIS LAST. process.exit() below ends the run, so any suite appended
 // after it never executes and its checks vanish from the count without a
 // single failure to notice. Add new tests ABOVE this line.

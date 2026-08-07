@@ -29,7 +29,9 @@
     search: '',
     // Your own read. Per-device on purpose: it is your opinion, not league
     // data, and it must not need a round trip on the clock.
-    lists: { targets: [], avoid: [] },
+    // `queue` is ordered and the other two are not, on purpose: targets and
+    // never are opinions about players, the queue is a plan for picks.
+    lists: { targets: [], avoid: [], queue: [] },
     clockMode: false,     // the one-answer view
     clockIndex: 0,        // which recommendation it is showing
   };
@@ -38,7 +40,9 @@
   function loadLists() {
     try {
       const raw = JSON.parse(localStorage.getItem(LISTS_KEY) || '{}');
-      state.lists = { targets: raw.targets || [], avoid: raw.avoid || [] };
+      // queue arrived after this key shipped, so read it defensively rather
+      // than versioning the key and throwing away somebody's target list.
+      state.lists = { targets: raw.targets || [], avoid: raw.avoid || [], queue: raw.queue || [] };
     } catch (e) { /* private mode — lists just do not persist */ }
   }
   function saveLists() {
@@ -58,6 +62,73 @@
     }
     saveLists();
     renderAll();
+  }
+
+  /* ── The queue ──────────────────────────────────────────────────────────
+   *
+   * An ordered list of who you take next, in your order. It exists for one
+   * moment: the clock is at 8 seconds, the wifi is gone, and you need a name.
+   * Everything else in here is analysis; this is the decision, already made.
+   *
+   * Blocking a player pulls him out of the queue automatically — a queue that
+   * still lists somebody you have sworn never to draft is the tool arguing with
+   * itself, and on the clock you will believe whichever one you read first.
+   */
+  function toggleQueue(id) {
+    const q = state.lists.queue;
+    const at = q.indexOf(id);
+    if (at >= 0) q.splice(at, 1);
+    else {
+      q.push(id);
+      const a = state.lists.avoid.indexOf(id);
+      if (a >= 0) state.lists.avoid.splice(a, 1);
+    }
+    saveLists();
+    renderAll();
+  }
+  function moveInQueue(id, dir) {
+    const q = state.lists.queue;
+    const at = q.indexOf(id);
+    const to = at + dir;
+    if (at < 0 || to < 0 || to >= q.length) return;
+    q.splice(to, 0, q.splice(at, 1)[0]);
+    saveLists();
+    renderAll();
+  }
+  /* Seed the queue from the board's current order.
+   *
+   * Appends rather than replaces. Somebody who has hand-built eight names and
+   * taps this wants the next twelve, not their eight thrown away — and there is
+   * no undo on the clock.
+   */
+  function fillQueueFromBoard(n) {
+    const out = E.onTheClock(context(), state.lists);
+    const have = new Set(state.lists.queue);
+    let added = 0;
+    for (const s of out.scored) {
+      if (added >= n) break;
+      const id = s.player.player_id;
+      if (have.has(id)) continue;
+      state.lists.queue.push(id);
+      have.add(id);
+      added++;
+    }
+    saveLists();
+    renderAll();
+    return added;
+  }
+  /* Drop queued players who have already been taken.
+   *
+   * Deliberately NOT automatic. A name vanishing from your queue without you
+   * seeing it go is how you spend a pick wondering where he went; struck
+   * through and counted, you can see the run happening.
+   */
+  function tidyQueue() {
+    const before = state.lists.queue.length;
+    state.lists.queue = state.lists.queue.filter(id => !state.drafted.has(String(id)));
+    saveLists();
+    renderAll();
+    return before - state.lists.queue.length;
   }
 
   // ---------------------------------------------------------------- bootstrap
@@ -336,6 +407,7 @@
     renderHeader();
     renderRecommendations();
     renderLists();
+    renderQueue();
     renderBoard();
     renderRoster();
     renderPlan();
@@ -561,6 +633,163 @@
       + '<div class="list-row"><b>\u{1F6AB} Never</b>'
         + (a.length ? a.map(id => chip(id, 'avoid')).join('') : '<span class="muted">none yet</span>')
       + '</div>';
+  }
+
+  /* ── The queue, and the sheet you print from it ─────────────────────────── */
+  function renderQueue() {
+    const host = $('#queue');
+    if (!host) return;
+    const q = state.lists.queue;
+    const head = $('#queue-head');
+    const gone = q.filter(id => state.drafted.has(String(id))).length;
+    if (head) {
+      head.textContent = q.length
+        ? q.length + ' deep' + (gone ? ' · ' + gone + ' already drafted' : '')
+        : 'empty';
+    }
+    const tidy = $('#queue-tidy');
+    if (tidy) {
+      tidy.hidden = !gone;
+      tidy.textContent = '\u{1F9F9} Remove ' + gone + ' drafted';
+    }
+    if (!q.length) {
+      host.innerHTML = '<p class="muted" style="margin:0">Nothing queued. Add anyone with '
+        + '➕ on the draft board, or tap <b>Fill from board</b> to seed it with the '
+        + 'top 15 and edit from there.</p>';
+      return;
+    }
+    const players = state.data.players || [];
+    host.innerHTML = q.map((id, i) => {
+      const p = players.find(x => String(x.player_id) === String(id));
+      const isGone = state.drafted.has(String(id));
+      const name = p ? p.name : id;
+      return '<div class="q-row' + (isGone ? ' gone' : '') + '">'
+        + '<span class="q-rank">' + (i + 1) + '</span>'
+        + '<span class="q-name">' + escapeHtml(name)
+          + (p ? '<span class="rec-pos ' + p.position + '">' + p.position + '</span>' : '')
+          + (p && p.bye ? '<span class="muted"> bye ' + p.bye + '</span>' : '')
+          + (isGone ? '<span class="q-gone">drafted</span>' : '')
+        + '</span>'
+        + '<span class="q-move">'
+          + '<button class="btn small ghost" data-qmove="-1" data-id="' + escapeHtml(String(id))
+            + '"' + (i === 0 ? ' disabled' : '') + ' title="Up">▲</button>'
+          + '<button class="btn small ghost" data-qmove="1" data-id="' + escapeHtml(String(id))
+            + '"' + (i === q.length - 1 ? ' disabled' : '') + ' title="Down">▼</button>'
+          + '<button class="btn small ghost" data-queue="' + escapeHtml(String(id))
+            + '" title="Remove">✕</button>'
+        + '</span>'
+        + '</div>';
+    }).join('');
+  }
+
+  /* Build the sheet from live state, so it can never be a stale copy of one. */
+  function buildSheet() {
+    const sheet = E.cheatSheet(context(), state.lists);
+    const meta = {
+      title: (state.data.league || {}).name || '',
+      myPicks: myNextPicks().slice(0, 8),
+      built_at: state.data.built_at || '',
+    };
+    return { sheet: sheet, meta: meta };
+  }
+
+  function copySheet() {
+    const { sheet, meta } = buildSheet();
+    const text = E.sheetText(sheet, meta);
+    const say = m => { const el = $('#sheet-note'); if (el) el.textContent = m; };
+    // navigator.clipboard needs https and a user gesture, and Safari has denied
+    // it in enough contexts that a silent failure here is a real possibility.
+    // The textarea fallback is ugly and works everywhere.
+    const fallback = () => {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      let ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+      document.body.removeChild(ta);
+      say(ok ? 'Copied — ' + text.split('\n').length + ' lines on the clipboard.'
+             : 'Could not copy. Use Print sheet instead, or select the text manually.');
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        () => say('Copied — ' + text.split('\n').length + ' lines on the clipboard.'),
+        fallback);
+    } else fallback();
+  }
+
+  /* Open the sheet in its own window, styled for paper.
+   *
+   * Its own window rather than a print stylesheet on this page: the War Room is
+   * a dense live dashboard and printing it would produce eleven pages of things
+   * that are meaningless on paper. This prints one document that was designed
+   * to be one document.
+   */
+  function printSheet() {
+    const { sheet, meta } = buildSheet();
+    const esc = escapeHtml;
+    const cell = p => '<td>' + (p.targeted ? '⭐ ' : '') + esc(p.name) + '</td>'
+      + '<td class="p">' + esc(p.position) + '</td>'
+      + '<td class="s">' + esc(p.team || '') + '</td>'
+      + '<td class="s">' + (p.bye || '') + '</td>'
+      + '<td class="s">' + (p.tier ? 'T' + p.tier : '') + '</td>'
+      + '<td class="s">' + (p.adp == null ? '' : p.adp) + '</td>'
+      + '<td class="s">' + (p.survives_to_next == null ? '' : p.survives_to_next + '%') + '</td>';
+    const table = rows => '<table>' + rows + '</table>';
+    const g = sheet.generated;
+
+    const queueRows = sheet.queue.length ? sheet.queue.map((p, i) => p.gone
+      ? '<tr class="gone"><td colspan="8">' + (i + 1) + '. already drafted</td></tr>'
+      : '<tr><td class="n">' + (i + 1) + '</td>' + cell(p) + '</tr>').join('')
+      : '<tr><td colspan="8" class="s">empty</td></tr>';
+
+    const html = '<!doctype html><meta charset="utf-8">'
+      + '<title>MFGA draft sheet</title><style>'
+      + 'body{font:11px/1.35 -apple-system,Segoe UI,Roboto,sans-serif;color:#111;margin:14px}'
+      + 'h1{font-size:15px;margin:0 0 2px} h2{font-size:12px;margin:12px 0 3px;'
+      + 'border-bottom:1px solid #999;text-transform:uppercase;letter-spacing:.04em}'
+      + '.meta{font-size:10px;color:#555;margin:0 0 6px}'
+      + '.warn{font-size:10px;color:#a00;margin:0 0 4px}'
+      + 'table{width:100%;border-collapse:collapse} td{padding:1px 3px;vertical-align:top}'
+      + 'tr:nth-child(even){background:#f3f3f3}'
+      + '.n{width:20px;color:#777} .p{width:34px;font-weight:700} .s{color:#555;white-space:nowrap}'
+      + '.gone{color:#999;text-decoration:line-through}'
+      + '.cliff td{border-bottom:2px solid #333}'
+      + '.cols{display:grid;grid-template-columns:1fr 1fr;gap:0 18px}'
+      + '@media print{body{margin:0}}'
+      + '</style>'
+      + '<h1>Draft sheet' + (meta.title ? ' — ' + esc(meta.title) : '') + '</h1>'
+      + '<p class="meta">Snapshot at pick ' + (g.current_pick || '?') + ' · '
+        + g.roster_size + ' on your roster · ' + (g.my_picks_left == null ? '?' : g.my_picks_left)
+        + ' picks left'
+        + (meta.myPicks.length ? ' · your picks: ' + meta.myPicks.join(', ') : '')
+        + (meta.built_at ? ' · board built ' + esc(meta.built_at) : '')
+        + '<br>⭐ = target. The % column is the chance he lasts to your next turn. '
+        + 'Scores depend on what you have already drafted, so this ages as you pick.</p>'
+      + (sheet.warnings || []).map(w => '<p class="warn">⚠ ' + esc(w) + '</p>').join('')
+      + '<h2>Your queue — take them top down</h2>' + table(queueRows)
+      + '<h2>Best available — the board\'s order</h2>'
+      + table(sheet.best.map((p, i) => '<tr><td class="n">' + (i + 1) + '</td>' + cell(p) + '</tr>').join(''))
+      + '<div class="cols">' + sheet.byPosition.map(grp =>
+          '<div><h2>' + esc(grp.position) + '</h2>' + table(grp.players.map((p, i) =>
+            '<tr class="' + (p.tier_break ? 'cliff' : '') + '"><td class="n">' + (i + 1) + '</td>'
+            + cell(p) + '</tr>').join('')) + '</div>').join('')
+      + '</div>';
+
+    const w = window.open('', '_blank');
+    if (!w) {
+      const el = $('#sheet-note');
+      if (el) el.textContent = 'Your browser blocked the popup. Allow popups for this site, '
+        + 'or use Copy queue and paste it somewhere you can print from.';
+      return;
+    }
+    w.document.write(html);
+    w.document.close();
+    // Let it lay out before the print dialog measures it; without this Safari
+    // has been known to print a blank first page.
+    setTimeout(() => { try { w.focus(); w.print(); } catch (e) {} }, 350);
   }
 
   /* ── What is left to fill, and how many picks are actually spare ───────── */
@@ -789,6 +1018,9 @@
               + 'title="Undraftable — suspension, injury, holdout">⊘</button>') +
         '</td>' +
         '<td class="num" style="white-space:nowrap">' +
+          '<button class="btn small ' + (state.lists.queue.indexOf(p.player_id) >= 0 ? 'navy' : 'ghost')
+            + '" data-queue="' + p.player_id + '" title="Queue — the list you read when the clock is at 8 seconds">'
+            + (state.lists.queue.indexOf(p.player_id) >= 0 ? '✓' : '➕') + '</button>' +
           '<button class="btn small ' + (state.lists.targets.indexOf(p.player_id) >= 0 ? 'gold' : 'ghost')
             + '" data-list="targets" data-id="' + p.player_id + '" title="Target — nudge him up a close call">\u2b50</button>' +
           '<button class="btn small ' + (state.lists.avoid.indexOf(p.player_id) >= 0 ? 'navy' : 'ghost')
@@ -1454,6 +1686,9 @@
       pushPicks: onSyncPicks,
       recordManualPick: recordManualPick,
       endDraft: endDraft,
+      toggleQueue: toggleQueue,
+      fillQueueFromBoard: fillQueueFromBoard,
+      buildSheet: buildSheet,
       state: state,
     };
   }
@@ -1484,6 +1719,28 @@
         + 'and news overrides are kept.')) return;
       endDraft();
     });
+
+    const qFill = $('#queue-fill'), qCopy = $('#queue-copy'),
+          qPrint = $('#queue-print'), qTidy = $('#queue-tidy');
+    if (qFill) qFill.addEventListener('click', () => {
+      const n = fillQueueFromBoard(15);
+      const el = $('#sheet-note');
+      // Say the TOTAL, not just what was added. This button appends, so tapping
+      // it twice gives you thirty — which is fine, but only if you can see it
+      // happen rather than discovering it on the clock.
+      if (el) el.textContent = n
+        ? 'Added ' + n + ' — ' + state.lists.queue.length + ' queued. '
+          + 'Reorder them; your order is what prints.'
+        : 'Nothing to add: everyone the board would suggest is already queued.';
+    });
+    if (qTidy) qTidy.addEventListener('click', () => {
+      const n = tidyQueue();
+      const el = $('#sheet-note');
+      if (el) el.textContent = 'Removed ' + n + ' already-drafted from your queue.';
+    });
+    if (qCopy) qCopy.addEventListener('click', copySheet);
+    if (qPrint) qPrint.addEventListener('click', printSheet);
+
     if (true) {
       slotIn.addEventListener('keydown', ev => {
         if (ev.key === 'Enter') { ev.preventDefault(); setSlot(slotIn.value); }
@@ -1509,6 +1766,12 @@
       if (listBtn) { toggleList(listBtn.getAttribute('data-list'), listBtn.getAttribute('data-id')); return; }
       const unlist = ev.target.closest('[data-unlist]');
       if (unlist) { toggleList(unlist.getAttribute('data-unlist'), unlist.getAttribute('data-id')); return; }
+      // Queue: the same button adds from the board and removes from the panel,
+      // so there is one gesture to learn rather than two.
+      const qBtn = ev.target.closest('[data-queue]');
+      if (qBtn) { toggleQueue(qBtn.getAttribute('data-queue')); return; }
+      const qMove = ev.target.closest('[data-qmove]');
+      if (qMove) { moveInQueue(qMove.getAttribute('data-id'), Number(qMove.getAttribute('data-qmove'))); return; }
 
       const ovBtn = ev.target.closest('[data-override]');
       if (ovBtn) {

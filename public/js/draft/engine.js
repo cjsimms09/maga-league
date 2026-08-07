@@ -50,6 +50,16 @@
     RAIL_COMPONENT_RATIO: 1.0,    // a component larger than the player's own VORP
     RAIL_RUNAWAY_RATIO: 3.0,      // top score this many times the runner-up
     RAIL_DEFAULT_POS_CAP: { QB: 3, K: 2, DEF: 2, TE: 3 },
+
+    // --- the paper sheet (Part 6 §3) ---
+    // Sized for one sheet of A4 at a readable size, not for completeness. A
+    // two-page sheet is a sheet nobody reads the second page of, and the
+    // failure mode this exists for — dead phone, no wifi — is exactly the one
+    // where flipping pages is worst.
+    SHEET_QUEUE_DEPTH: 40,        // your own queue: ~4 rounds of contingency
+    SHEET_BEST_DEPTH: 30,         // board order, for when the queue runs dry
+    SHEET_POSITION_DEPTH: 12,     // per position — deep enough to show 2-3 tiers
+    SHEET_POSITIONS: ['QB', 'RB', 'WR', 'TE', 'K', 'DEF'],
   };
 
   const DEFAULT_WEIGHTS = { tier: 1.0, need: 1.0, risk: 1.0, ceiling: 0.5,
@@ -622,6 +632,174 @@
   }
 
   /**
+   * The sheet you take to the table when the tool is not available.
+   *
+   * Every other surface in here assumes a working phone, a charged battery and
+   * a network. Draft day will eventually not have one of those, and the fallback
+   * cannot be "remember what it said" — it has to be paper, or a block of text
+   * pasted into whatever still works.
+   *
+   * Three things, in the order you would want them:
+   *   1. YOUR QUEUE, in YOUR order. Never re-sorted. A sheet that quietly
+   *      reorders your own decisions is a sheet you stop trusting, and the
+   *      whole point of the queue is that it is the one list the model does
+   *      not get a vote on. It only annotates: how likely each name is to
+   *      still be there when you pick.
+   *   2. THE BOARD'S ORDER for everyone not in the queue, so the queue running
+   *      dry is a smaller problem than it would otherwise be.
+   *   3. BY POSITION with tier breaks marked, because the question at pick 9
+   *      of a paper draft is "who is the last decent TE", and a single ranked
+   *      column answers that badly.
+   *
+   * It is a SNAPSHOT and says so. Scores depend on what is already on your
+   * roster, so a sheet printed pre-draft is right about round 1 and steadily
+   * less right after that. Stamping the state it was built from is what stops
+   * that from being a silent error in round 8.
+   */
+  function cheatSheet(ctx, lists, opts) {
+    opts = opts || {};
+    const queueDepth = opts.queueDepth || CFG.SHEET_QUEUE_DEPTH;
+    const bestDepth = opts.bestDepth || CFG.SHEET_BEST_DEPTH;
+    const posDepth = opts.positionDepth || CFG.SHEET_POSITION_DEPTH;
+
+    const warnings = [];
+    const avoid = new Set((lists && lists.avoid) || []);
+    const targets = new Set((lists && lists.targets) || []);
+    const queueIds = ((lists && lists.queue) || []).slice(0, queueDepth);
+
+    // Scored once, through exactly the path the live recommendation uses, so
+    // the sheet and the screen can never disagree about who is better.
+    const scored = applyPersonalLists(recommend(ctx), lists);
+    const byId = {};
+    scored.forEach(s => { byId[s.player.player_id] = s; });
+
+    const next = ctx.nextPick || null;
+    const row = (p, entry) => ({
+      player_id: p.player_id,
+      name: p.name,
+      position: p.position,
+      team: p.team || '',
+      bye: p.bye || null,
+      tier: p.tier || null,
+      adp: p.adjusted_adp == null ? null : Math.round(p.adjusted_adp),
+      vorp: p.vorp == null ? null : Number(p.vorp.toFixed(1)),
+      targeted: targets.has(p.player_id),
+      // The one number worth carrying onto paper: not "is he good" — the sheet
+      // is already sorted by that — but "can I wait". Null when there is no
+      // next pick to survive to, rather than a fabricated 0.
+      survives_to_next: next ? Math.round(survival(p, next, ctx) * 100) : null,
+      why: entry && entry.reasons && entry.reasons.length ? entry.reasons[0] : null,
+    });
+
+    // 1. Your queue, in your order. A queued player who is already off the
+    //    board is REPORTED, not dropped: "he is gone" is the sheet's job too.
+    const board = {};
+    (ctx.board || []).forEach(p => { board[p.player_id] = p; });
+    const queue = [];
+    queueIds.forEach((id, i) => {
+      const p = board[id];
+      if (!p) {
+        queue.push({ player_id: id, rank: i + 1, gone: true, name: null });
+        return;
+      }
+      const r = row(p, byId[id]);
+      r.rank = i + 1;
+      r.gone = false;
+      if (avoid.has(id)) {
+        // Both starred-for-the-queue and blocked is a contradiction the user
+        // made, and resolving it silently either way would be wrong.
+        r.conflict = true;
+        warnings.push(p.name + ' is in your queue AND on your never list');
+      }
+      queue.push(r);
+    });
+
+    // 2. The board's order, minus anyone already spoken for above.
+    const queued = new Set(queueIds);
+    const best = scored.filter(s => !queued.has(s.player.player_id))
+      .slice(0, bestDepth).map(s => row(s.player, s));
+
+    // 3. By position, with the tier break marked on the last man in each tier.
+    //    That mark is the whole reason this section exists on paper.
+    const positions = opts.positions || CFG.SHEET_POSITIONS;
+    const byPosition = positions.map(pos => {
+      const players = scored.filter(s => s.player.position === pos)
+        .slice(0, posDepth).map(s => row(s.player, s));
+      players.forEach((p, i) => {
+        const nxt = players[i + 1];
+        p.tier_break = !!(nxt && p.tier && nxt.tier && nxt.tier !== p.tier);
+      });
+      return { position: pos, players: players };
+    }).filter(g => g.players.length);
+
+    if (!queue.length) warnings.push('your queue is empty — this sheet is the board\'s opinion only');
+    if (!scored.length) warnings.push('the board is empty — nothing to print');
+
+    return {
+      // Provenance, not decoration. Read it before trusting the sheet.
+      generated: {
+        current_pick: ctx.currentPick || null,
+        next_pick: next,
+        my_picks_left: ctx.myPicksLeft == null ? null : ctx.myPicksLeft,
+        roster_size: (ctx.roster || []).length,
+        board_size: (ctx.board || []).length,
+        blocked: avoid.size,
+      },
+      queue: queue,
+      best: best,
+      byPosition: byPosition,
+      warnings: warnings,
+    };
+  }
+
+  /**
+   * The same sheet as plain text, for the clipboard.
+   *
+   * Plain text because it has to survive being pasted into a notes app, a
+   * group chat, or Sleeper's own search box one name at a time — none of which
+   * render HTML, and all of which are more likely to be working than this site
+   * is at the moment somebody needs this.
+   */
+  function sheetText(sheet, meta) {
+    meta = meta || {};
+    const L = [];
+    const pad = (s, n) => (String(s == null ? '' : s) + '                              ').slice(0, n);
+    const tag = p => (p.targeted ? '*' : ' ');
+    const line = p => pad(p.name, 22) + pad(p.position + (p.team ? ' ' + p.team : ''), 8)
+      + pad(p.bye ? 'bye' + p.bye : '', 6) + pad(p.tier ? 'T' + p.tier : '', 4)
+      + pad(p.adp == null ? '' : 'adp' + p.adp, 7)
+      + (p.survives_to_next == null ? '' : p.survives_to_next + '% there next turn');
+
+    L.push('MFGA DRAFT SHEET' + (meta.title ? ' — ' + meta.title : ''));
+    const g = sheet.generated || {};
+    L.push('snapshot: pick ' + (g.current_pick || '?') + ', ' + (g.roster_size || 0)
+      + ' already on your roster, ' + (g.my_picks_left == null ? '?' : g.my_picks_left) + ' picks left');
+    if (meta.myPicks && meta.myPicks.length) L.push('your picks: ' + meta.myPicks.join(', '));
+    if (meta.built_at) L.push('board built: ' + meta.built_at);
+    L.push('* = target. Percentages are the chance he lasts to your NEXT turn.');
+    (sheet.warnings || []).forEach(w => L.push('!! ' + w));
+
+    L.push('', '== YOUR QUEUE (your order — take them top down) ==');
+    if (!sheet.queue.length) L.push('  (empty)');
+    sheet.queue.forEach(p => {
+      if (p.gone) { L.push(pad(p.rank + '.', 4) + '[already drafted]'); return; }
+      L.push(pad(p.rank + '.', 4) + tag(p) + line(p));
+    });
+
+    L.push('', '== BEST AVAILABLE (the board\'s order) ==');
+    sheet.best.forEach((p, i) => L.push(pad((i + 1) + '.', 4) + tag(p) + line(p)));
+
+    sheet.byPosition.forEach(grp => {
+      L.push('', '== ' + grp.position + ' ==');
+      grp.players.forEach((p, i) => {
+        L.push(pad((i + 1) + '.', 4) + tag(p) + line(p));
+        if (p.tier_break) L.push('    ---- tier break ----');
+      });
+    });
+    return L.join('\n');
+  }
+
+  /**
    * Your own read, applied as a nudge rather than an override.
    *
    * Every drafter has players they want and players they will not touch, and a
@@ -712,6 +890,7 @@
     tierCliffUrgency, starterSlotMarginal, riskAdjustment, upsideBonus,
     scorePlayer, recommend, mandatoryGaps, applyRosterLegality, plausibilityRails,
     confidence, branchForecast, applyPersonalLists, onTheClock, rosterPlan, byeGrid,
+    cheatSheet, sheetText,
     formatDefaults, applyFormatDefaults,
     // A2/A3 surfaces, re-exported so callers need only one handle.
     survivalModel: S, compositeTerms: C,

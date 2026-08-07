@@ -1633,6 +1633,34 @@ table .num.zero { color: var(--muted); font-weight: 400; }
 .list-chip.avoid { border-color: rgba(255,70,85,.5); color: var(--red-bright, #ff6b7a); background: rgba(255,70,85,.08); }
 .clock-star { font-size: 1.1rem; }
 
+/* ---------- war room: the queue ----------
+   Rows are 34px and the reorder buttons are 30px square because this gets used
+   with a thumb, on the clock, by somebody who is not looking carefully. Every
+   other panel here can afford to be dense; this one cannot. */
+#queue { max-height: 22rem; overflow-y: auto; margin-bottom: .6rem; }
+.q-row {
+  display: flex; align-items: center; gap: .4rem; min-height: 34px;
+  padding: .15rem .1rem; border-bottom: 1px solid rgba(255,255,255,.06);
+}
+.q-row:last-child { border-bottom: 0; }
+.q-rank {
+  flex: 0 0 1.5rem; text-align: right; font-size: .74rem; color: #8f9ab3;
+  font-variant-numeric: tabular-nums;
+}
+.q-name { flex: 1 1 auto; font-size: .82rem; display: flex; align-items: center; gap: .3rem; flex-wrap: wrap; }
+.q-move { flex: 0 0 auto; display: flex; gap: .2rem; }
+/* min-height, not just min-width: .btn.small sets padding but not a height, so
+   without this these come out 19px tall — a target you miss with a thumb, which
+   in a queue means reordering the wrong player and not noticing. */
+.q-move .btn { min-width: 30px; min-height: 30px; padding: .2rem .3rem; line-height: 1; }
+.q-move .btn[disabled] { opacity: .3; cursor: default; }
+.q-row.gone .q-name { text-decoration: line-through; color: #7c869c; }
+.q-gone {
+  font-size: .66rem; text-transform: uppercase; letter-spacing: .05em;
+  color: var(--red-bright, #ff6b7a); text-decoration: none;
+}
+.queue-actions { display: flex; flex-wrap: wrap; gap: .35rem; }
+
 /* ---------- war room: the plan, the byes, the checklist ---------- */
 .plan-note {
   padding: .5rem .7rem; border-radius: 10px; margin-bottom: .7rem;
