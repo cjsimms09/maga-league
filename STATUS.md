@@ -1,6 +1,64 @@
 # STATUS — unattended run
 
 _Read this first. Updated after every completed item._
+
+## ⛔ BACKTEST BUG ALARM — downstream HALTED
+
+The backtest report LANDED (`63f1e44`), and its own pre-registered round-1
+alarm FIRED. Per the pre-registration and the standing rule, that halts every
+item that would trust or install off these numbers: **item 4 (calibration/KOV
+fits), item 5 (strategy install), item 6 (exploitation fits) are FROZEN** until
+the leak is explained. A report under a bug alarm is a bug report, not a result.
+
+The four sections, in your reading order, VERBATIM:
+
+**1. Round-1 row (READ FIRST):**
+```
+round  n   mean gain   95% CI
+    1  12    220.53    +/- 25.52     ** BUG ALARM ** past the 8-pt threshold
+    2  15    368.56    +/- 63.99
+    3  20    176.20    +/- 97.28
+    4  30    -13.69    ...
+   (rounds 4-12 mostly negative)
+```
+A +220-point round-1 edge is impossible on a real board where B0 and B3 both
+take an elite — the report says so itself: "more likely a leak than an insight."
+
+**2. Survival calibration:**
+```
+bucket    predicted  actual  error
+0-10%       0.05     0.41    +0.36
+10-20%      0.15     0.63    +0.48
+20-30%      0.25     0.68    +0.43
+...
+90-100%     0.95     0.95     0.00
+```
+Monotonic, severe: players the model is ~sure are gone actually SURVIVE ~40-70%
+of the time. This is the signature of a board that never depletes — if pick ids
+do not join board ids, nobody is ever removed, so everyone "survives".
+
+**3. Disagreement subset:** B3 != B0 on 307/317 picks (96.8%); win rate 40.1%;
+mean gain -40.60 +/- 23.42. (96.8% disagreement is itself a smell — a working
+composite agrees with ADP far more often than it disagrees.)
+
+**4. Headline:** B0(ADP) 220.76 · B1(proj) 353.44 · B2(VORP) 176.64 ·
+B3(composite) 181.44. B3-B0 = -415.44/draft +/- 226.79 (n=30). BELOW THE BAR.
+
+**Leading hypothesis:** the historical draft pick `player_id`s are not joining
+the replay board's `player_id`s, so the board never shrinks. That single bug
+produces all three symptoms (huge round-1 divergence, universal over-survival,
+absurd headline). Diagnostics added to the runner to prove/disprove it next run.
+
+**Correctly gated, and worth noting:** 2025 recovery was REFUSED — the pbp
+rebuild disagreed with the library on 2024 by 11 pts (tolerance 0.5). The
+cross-validation gate did its job. So 2025 grades nothing; the selection rule
+tightens to win-both at N=2 by data availability, not choice — once the leak is
+fixed.
+
+_(original STATUS continues below)_
+
+
+_Read this first. Updated after every completed item._
 _Last update: master-execution-order run, start._
 
 ## One-line readiness

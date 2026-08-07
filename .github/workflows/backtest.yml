@@ -51,7 +51,8 @@ jobs:
           # The bundles carry the whole player universe and are large; the
           # report and the aggregates are the deliverable.
           git add draft/backtest/BACKTEST.md draft/backtest/results.json \
-            draft/backtest/STRATEGY.md draft/backtest/strategy-results.json || true
+            draft/backtest/STRATEGY.md draft/backtest/strategy-results.json \
+            draft/backtest/DIAGNOSTICS.txt || true
           git diff --cached --quiet && { echo "no report changes to commit"; exit 0; }
           git commit -m "Backtest + strategy table against real prior drafts"
           # Rebase onto whatever landed while CI ran, then push. Do NOT swallow a

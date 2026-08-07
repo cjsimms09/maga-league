@@ -22,6 +22,35 @@ Object.keys(points).forEach(season => Object.assign(allPoints, points[season]));
 
 const graded = R.grade(replays, allPoints, { maxRound: R.CFG.MAX_ROUND_GRADED });
 
+// ---- LEAK DIAGNOSTICS (round-1 bug alarm forces this) --------------------
+// The report fired its round-1 alarm. Before any number is believed, prove the
+// board actually depletes and the pick ids join the board ids — a board that
+// never shrinks makes every player 'survive' and every pick diverge, which is
+// exactly the calibration + round-1 signature observed.
+(function () {
+  const D = [];
+  bundles.forEach(b => {
+    const boardIds = new Set((b.players || []).map(p => String(p.player_id)));
+    const pk = (b.picks || []);
+    const nonKeeper = pk.filter(p => !p.is_keeper);
+    const idsOnBoard = nonKeeper.filter(p => boardIds.has(String(p.player_id))).length;
+    D.push('  ' + b.season + ': ' + pk.length + ' picks, ' + nonKeeper.length
+      + ' non-keeper; ' + idsOnBoard + ' of those match a board id ('
+      + (100 * idsOnBoard / Math.max(1, nonKeeper.length)).toFixed(0) + '%)');
+    // The replay result carries records; how many decisions did it actually make?
+    const rep = replays.find(r => r.season === b.season);
+    D.push('    board size ' + (b.players || []).length + '; replay made '
+      + (rep ? rep.records.length : 0) + ' decisions');
+  });
+  // Multi-season-sum smell: any graded actual over a single-season ceiling.
+  const hot = [];
+  Object.keys(allPoints).forEach(id => { if (allPoints[id] > 450) hot.push(id); });
+  D.push('  players with actual points > 450 (single-season ceiling smell): ' + hot.length);
+  console.log('\n=== LEAK DIAGNOSTICS ===');
+  D.forEach(l => console.log(l));
+  require('fs').writeFileSync(require('path').join(__dirname, 'DIAGNOSTICS.txt'), D.join('\n'));
+})();
+
 // Survival truth comes from the pick sequence, which is outcome-free.
 const picksBySeason = {};
 bundles.forEach(b => { picksBySeason[b.season] = b.picks || []; });
