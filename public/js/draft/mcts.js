@@ -52,6 +52,9 @@
     K_MINE: 8,                // candidates considered at my nodes
     K_OPP: 5,                 // ...and at opponent nodes
     ROLLOUT_MY_PICKS: 2,      // how far forward a playout runs, in MY picks
+    // Candidates the rollout's own greedy considers. Small: this runs on every
+    // playout, and V is memoised so the cost is a cache lookup after the first.
+    ROLLOUT_K: 4,
     MAX_NODES: 300000,        // hard cap; on hitting it, deepen rather than widen
     // Onesie discovery. Without forcing K/DST into the candidate set near the
     // end, the search can NEVER discover onesie timing — the exact strategic
@@ -315,9 +318,28 @@
           const endgame = (ctx.myPicksLeft - mine.length + (ctx.myRoster || []).length)
             <= cfg.ENDGAME_WITHIN;
           const cands = legalActions(
-            candidates(board, mine, ctx.league, { k: 3, endgame: endgame }),
+            candidates(board, mine, ctx.league, { k: cfg.ROLLOUT_K, endgame: endgame }),
             mine, ctx.league, ctx.myPicksLeft - myTaken, ctx.blocked);
-          const pick = cands[0] || board[0];
+          // GREEDY ON V, not on the composite board order.
+          //
+          // THE BUG THIS FIXES. This took cands[0] — the best by COMPOSITE
+          // score — while the thing the search is measured against plays
+          // argmax-V every pick. So every Q the search backed up was the value
+          // of "take X, then play a policy weaker than the baseline", and the
+          // search was systematically pricing its own continuations below what
+          // greedy actually achieves. In the 1,000-draft tournament that
+          // produced a mean finish percentile of 0.900 against greedy's 0.992,
+          // t = -19.4, 33 wins to 419 losses.
+          //
+          // A search cannot beat a baseline it simulates itself playing worse
+          // than. The rollout policy and the comparator now optimise the same
+          // objective; the tree is what differs.
+          let pick = null, bestV = -Infinity;
+          for (let ci = 0; ci < cands.length; ci++) {
+            const v = ctx.valuer.evaluate(mine.concat([cands[ci]]));
+            if (v > bestV) { bestV = v; pick = cands[ci]; }
+          }
+          if (!pick) pick = board[0];
           mine.push(pick);
           board = removeFrom(board, pick);
           myTaken++;

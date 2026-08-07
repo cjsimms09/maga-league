@@ -197,8 +197,12 @@ function simulate(opts) {
         });
         const out = search.run(opts.iterations);
         chosen = out.actions.length ? out.actions[0].player : null;
+        // ROOT visits, not the top action's. The first run reported "mean root
+        // visits per pick 75" against a 400-iteration budget, which read like
+        // the search was starving when it was simply the wrong field.
         searchInfo = out.actions.length
-          ? { visits: out.actions[0].visits, share: out.actions[0].share } : null;
+          ? { rootVisits: out.iterations, topVisits: out.actions[0].visits,
+              share: out.actions[0].share } : null;
       } catch (e) {
         chosen = null;                     // fall through to the base policy
       }
@@ -371,7 +375,7 @@ function runTournament(label, rankBoard, drafts, iterations, jitter) {
       t.a += ta.gain; t.b += tb.gain; t.n++;
       const rr = ta.runActive ? bucket.run : bucket.noRun;
       rr.a += ta.gain; rr.b += tb.gain; rr.n++;
-      if (ta.search) { iterSum += ta.search.visits; iterN++; }
+      if (ta.search) { iterSum += ta.search.rootVisits; iterN++; }
     }
     if (!OPTS.pilot && (d + 1) % 50 === 0) {
       process.stdout.write('  ' + label + ': ' + (d + 1) + '/' + drafts + '\r');
