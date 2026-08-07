@@ -23,8 +23,24 @@
     DRIFT_MAX_OFFSET: 12,       // picks
     DRIFT_MAX_SD_SCALE: 1.6,
     DRIFT_EXPECTED_MAD: 8.0,    // MAD a well-calibrated source produces anyway
+    // ADP dispersion. A SOURCE-PROVIDED sd always wins; these only apply when
+    // the source has none.
+    //
+    // The rate was 0.22 with no cap, which at adp 100 gave sd 22 — implying
+    // meaningful probability of that player going at pick 56 or pick 144. Real
+    // mid-round dispersion is roughly half that. Overwide sd flattens every
+    // survival curve, which compresses VONA differences and makes the tool
+    // systematically UNDER-react to real positional cliffs — the exact failure
+    // it exists to prevent.
+    //
+    // This is the work order's own specified interim (P1.5): reduce the
+    // coefficient and add a cap. It is NOT the real fix. The real fix is FFC's
+    // published stdev, or a fit against this league's own prior drafts, and
+    // both need the networked build. Until then this is a less-wrong constant,
+    // and it is labelled as such rather than presented as calibrated.
     ADP_SD_FLOOR: 3.0,          // nobody is unsure about pick 1
-    ADP_SD_RATE: 0.22,          // uncertainty grows with ADP
+    ADP_SD_RATE: 0.15,          // was 0.22 — see above
+    ADP_SD_CAP: 15.0,           // beyond this the curve is flat regardless
     NEAR_HORIZON: 24,           // picks over which Layer 2 is fully trusted
     BLEND_DECAY: 12,            // picks over which Layer 2's weight decays past the horizon
     // NOT a temperature — a PRECISION. It multiplies the score gap inside the
@@ -109,7 +125,8 @@
   }
   function adpSd(adpMean, provided) {
     if (provided && provided > 0) return provided;
-    return Math.max(CFG.ADP_SD_FLOOR, CFG.ADP_SD_RATE * adpMean);
+    return Math.min(CFG.ADP_SD_CAP,
+                    Math.max(CFG.ADP_SD_FLOOR, CFG.ADP_SD_RATE * adpMean));
   }
   const adpOf = p => p.adjusted_adp || p.raw_adp || 9999;
 

@@ -17,8 +17,10 @@
 
   // ---- config knobs (every magic number lives here, with its reasoning) ----
   const CFG = {
+    // Mirrors survival.js — a source-provided sd always wins over both.
     ADP_SD_FLOOR: 3.0,        // nobody is unsure about pick 1
-    ADP_SD_RATE: 0.22,        // uncertainty grows with ADP
+    ADP_SD_RATE: 0.15,        // was 0.22; see survival.js for why, and for why
+    ADP_SD_CAP: 15.0,         // this is an interim, not a calibration
     RUN_WINDOW: 10,           // picks of history the Bayesian update looks at
     RUN_DAMPING: 0.5,         // how hard observed rates move the hazard
     RUN_MIN: 0.6,             // clamp: a cold position can't go below this

@@ -26,7 +26,17 @@ check('survival ~0 well after ADP', probs[probs.length - 1] < 0.05);
 check('survival at ADP is ~50%', approx(E.survival(guy, 40), 0.5, 0.02));
 
 check('adpSd floors at 3', approx(E.adpSd(5), 3.0));
-check('adpSd grows with ADP', approx(E.adpSd(100), 22.0));
+check('adpSd grows with ADP', approx(E.adpSd(50), 7.5));
+// The old assertion pinned adpSd(100) to 22.0 — the 0.22 coefficient the
+// engine audit flagged as roughly twice real mid-round dispersion. A test that
+// pins a number the audit says is wrong is holding the bug in place, exactly
+// like the P(top-2) label did.
+check('adpSd is capped, so a late-round ADP does not flatten the curve entirely',
+  approx(E.adpSd(100), 15.0) && approx(E.adpSd(200), 15.0), String(E.adpSd(200)));
+check('a source-provided sd always beats the heuristic',
+  E.adpSd(170, 6.5) === 6.5);
+check('and the cap never fires below the floor',
+  E.adpSd(1) === 3.0 && E.CFG.ADP_SD_CAP > E.CFG.ADP_SD_FLOOR);
 
 // run multiplier shortens survival
 const hot = E.survival(guy, 60, { RB: 1.8 });
