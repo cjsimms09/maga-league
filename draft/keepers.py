@@ -218,6 +218,72 @@ def optimize_keepers(eligible: list[dict], cfg: dict, *, replacement_by_pos: dic
     return results[:top_n]
 
 
+def optimize_keeper_count(eligible: list[dict], cfg: dict, *, replacement_by_pos: dict,
+                          pool_by_pos: dict) -> dict:
+    """Answer the actual keeper question: keep 0, 1, 2, or 3 — and which?
+
+    optimize_keepers ranks the best combination of exactly `count` keepers. But
+    the real decision includes the NUMBER, because each keeper costs a pick and
+    a marginal keeper can be worth LESS than the pick it forfeits — in which
+    case keeping fewer is correct. Keeping 0 is the baseline (surplus 0: draft
+    normally). For each size k in 0..count this returns the best k-combo by total
+    surplus, and the overall recommendation is the size that maximises it.
+
+    A keeper only 'earns its slot' if its surplus is positive; a negative-surplus
+    keeper means the pick it costs would return more than the player is worth.
+    """
+    from itertools import combinations
+    count = int(cfg["keepers"]["count"])
+
+    def surplus_of(combo):
+        total, detail, ok = 0.0, [], True
+        for k in combo:
+            try:
+                rnd = keeper_cost_round(k, cfg)
+            except ValueError:
+                ok = False
+                break
+            pick = _pick_for_round(rnd, cfg)
+            alt = expected_best_available(pool_by_pos, pick, k["position"], replacement_by_pos)
+            surp = (k.get("vorp") or 0.0) - alt
+            total += surp
+            detail.append({"name": k.get("name"), "position": k.get("position"),
+                           "cost_round": rnd, "cost_pick": pick,
+                           "vorp": round(k.get("vorp") or 0.0, 1),
+                           "alternative_vorp": round(alt, 1),
+                           "surplus": round(surp, 1)})
+        return (total, detail) if ok else (None, None)
+
+    by_size = {}
+    for k in range(0, min(count, len(eligible)) + 1):
+        if k == 0:
+            by_size[0] = {"keep": 0, "players": [], "total_surplus": 0.0,
+                          "detail": [], "note": "draft normally, keep nobody"}
+            continue
+        best = None
+        for combo in combinations(eligible, k):
+            total, detail = surplus_of(combo)
+            if total is None:
+                continue
+            if best is None or total > best["total_surplus"]:
+                best = {"keep": k, "players": [x.get("name") for x in combo],
+                        "total_surplus": round(total, 1), "detail": detail}
+        if best is not None:
+            by_size[k] = best
+
+    sizes = sorted(by_size.values(), key=lambda r: r["total_surplus"], reverse=True)
+    recommended = sizes[0] if sizes else by_size.get(0)
+    return {
+        "recommended_keep": recommended["keep"],
+        "recommended_players": recommended["players"],
+        "recommended_surplus": recommended["total_surplus"],
+        # Every size, so the decision is legible: keeping fewer can win.
+        "by_size": [by_size[k] for k in sorted(by_size)],
+        "count_allowed": count,
+        "eligible_n": len(eligible),
+    }
+
+
 def _pick_for_round(rnd: int | None, cfg: dict) -> int:
     """Approximate overall pick number for a round from my slot."""
     if rnd is None:

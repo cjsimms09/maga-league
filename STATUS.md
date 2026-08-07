@@ -89,29 +89,45 @@ _Last update: master-execution-order run, start._
 ## One-line readiness
 **NOT YET** — robot mock green in CI; attribution wired; backtest report re-running (run 5 succeeded but its report was lost to a push race, now fixed).
 
-## 🔑 K0 — KEEPER DECISION (front of queue, ahead of item 2; locks Aug 20)
+## 🔑 K0 — KEEPER OPTIMIZER OUTPUT (real roster) — PROVISIONAL, D2-critical
 
-**Deadline: optimizer output in this file by Aug 19; keeper decision locks Aug 20.**
-Tracked here permanently so it cannot fall off again.
+Optimizer BUILT (optimize_keeper_count, tested) and RUN against my real roster
+(roster_id 1, from league-history final_rosters, joined to the production
+artifact's VORP). This satisfies the "optimizer output in STATUS.md" requirement
+well ahead of the Aug 19 deadline. It is PROVISIONAL pending D2.
 
-Status check (verified against code, this run):
-1. **top_picks_flat cost model — NOT IMPLEMENTED.** Cost models that exist:
-   original_round, fixed_round, escalator, no_cost. Production config uses
-   `original_round`; the artifact is built under it; provenance carries no
-   keeper-cost stamp. → **NO.** (See DECISIONS D2: need the exact top_picks_flat
-   cost formula before implementing — implementing the wrong model would
-   mis-cost every keeper.)
-2. **keep-0/1/2/3 optimizer — PARTIAL, never run.** `optimize_keepers()` exists
-   but keeps exactly `count` (ranks WHICH 3, never WHETHER 0/1/2/3); is not
-   wired to pipeline or UI; has no test; has never run against the real roster.
-   → **NO.**
-3. Both NO → K0 is now item 0, ahead of item 2.
+```
+K0 KEEPER OPTIMIZER — real roster, cost_model=original_round (PROVISIONAL pending D2 top_picks_flat)
+artifact built_at 2026-08-07T09:08:24Z · adp_source ffc
 
-K0 build plan (this run): (a) resolve D2 [top_picks_flat definition], (b)
-implement the cost model + rebuild artifact under it, (c) extend the optimizer
-to evaluate keep-0/1/2/3 (optimal NUMBER, not just which), (d) run it against
-the real roster (CI/Sleeper), (e) write the ranked output into this file. Each
-step tested; the cost model gets a robot/parity test.
+RECOMMENDED: keep 3 — Drake Maye, Mike Evans, Kenneth Walker  (total surplus 106.1)
+
+every option (surplus = keeper VORP minus what the forfeited pick returns):
+  keep 0: (draft normally)                         surplus    +0.0
+  keep 1: Kenneth Walker                           surplus   +52.2
+      Kenneth Walker     RB  VORP 67  costs R5  pick returns 15  -> surplus +52
+  keep 2: Drake Maye, Kenneth Walker               surplus   +79.2
+      Drake Maye         QB  VORP 24  costs R10  pick returns -3  -> surplus +27
+      Kenneth Walker     RB  VORP 67  costs R5  pick returns 15  -> surplus +52
+  keep 3: Drake Maye, Mike Evans, Kenneth Walker   surplus  +106.1
+      Drake Maye         QB  VORP 24  costs R10  pick returns -3  -> surplus +27
+      Mike Evans         WR  VORP 14  costs R8  pick returns -13  -> surplus +27
+      Kenneth Walker     RB  VORP 67  costs R5  pick returns 15  -> surplus +52
+```
+
+**READ THIS BEFORE ACTING:** the recommendation is DOMINATED by the cost model.
+Under the current `original_round` model, keeping Ja'Marr Chase or Derrick Henry
+is NEGATIVE surplus — they cost round-1/round-2 picks (I drafted them there in
+2023), so keeping them forfeits a better player than they are. So the optimizer
+says keep the CHEAP keepers (Walker/Maye/Evans), not the studs. My currently
+DESIGNATED keepers (Henry, Chase, Walker) include two the optimizer rejects.
+
+**This flips entirely under `top_picks_flat`** (D2): if all keepers cost a flat
+mid-round instead of their original round, Chase (VORP 108) and Henry (86) become
+strongly keepable and the answer changes completely. So the single most
+important thing for the keeper decision is **answering D2 — what is the real
+cost model.** I cannot pick keepers correctly without it, and the two candidate
+models give opposite answers. Re-runs the instant D2 lands: `python3 draft/keeper_optimize.py`.
 
 ## Test suite
 - JS suites: engine 192, mcts 63, keepers 38, keeperlock 41, reconcile 12, update 41, betlogic 134, ledger 41, sync 26, backtest 17, strategies 13, attribution 10 — **all green**

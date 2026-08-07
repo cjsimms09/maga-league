@@ -1,0 +1,16 @@
+K0 KEEPER OPTIMIZER — real roster, cost_model=original_round (PROVISIONAL pending D2 top_picks_flat)
+artifact built_at 2026-08-07T09:08:24Z · adp_source ffc
+
+RECOMMENDED: keep 3 — Drake Maye, Mike Evans, Kenneth Walker  (total surplus 106.1)
+
+every option (surplus = keeper VORP minus what the forfeited pick returns):
+  keep 0: (draft normally)                         surplus    +0.0
+  keep 1: Kenneth Walker                           surplus   +52.2
+      Kenneth Walker     RB  VORP 67  costs R5  pick returns 15  -> surplus +52
+  keep 2: Drake Maye, Kenneth Walker               surplus   +79.2
+      Drake Maye         QB  VORP 24  costs R10  pick returns -3  -> surplus +27
+      Kenneth Walker     RB  VORP 67  costs R5  pick returns 15  -> surplus +52
+  keep 3: Drake Maye, Mike Evans, Kenneth Walker   surplus  +106.1
+      Drake Maye         QB  VORP 24  costs R10  pick returns -3  -> surplus +27
+      Mike Evans         WR  VORP 14  costs R8  pick returns -13  -> surplus +27
+      Kenneth Walker     RB  VORP 67  costs R5  pick returns 15  -> surplus +52
