@@ -1781,3 +1781,8 @@ table .num.zero { color: var(--muted); font-weight: 400; }
 .slider-when { font-size: .71rem; color: #96a0b6; line-height: 1.35; }
 .slider-when b { color: #b9c2d4; font-weight: 600; }
 .weights-effect.changed { color: var(--gold-bright, #f5c445); }
+#auto-note { margin: 0 0 .8rem; }
+.auto-phase { font-size: .8rem; font-weight: 700; color: var(--gold-bright, #f5c445); margin-bottom: .2rem; }
+.auto-reason { font-size: .74rem; color: #b9c2d4; line-height: 1.4; padding-left: .7rem; position: relative; }
+.auto-reason::before { content: '·'; position: absolute; left: .15rem; }
+.auto-reason.run, .auto-reason.tight, .auto-reason.bye { color: var(--gold-bright, #f5c445); }

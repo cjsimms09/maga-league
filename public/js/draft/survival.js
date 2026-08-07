@@ -37,6 +37,28 @@
     DEFAULT_ALPHA_NEED: 1.0,    // league-average manager: need weight
     DEFAULT_BETA_VALUE: 1.0,    // league-average manager: value weight
     K_DST_FORCED_ROUNDS: 2,     // K/DST become forced picks in the final N rounds
+
+    // --- what his own past drafts say he does next (A1 -> prediction) ------
+    // The profiles carried six new sequence-aware patterns and none of them
+    // reached the prediction: they were analysis you could read, not a model
+    // that acted. These wire them in as BOUNDED TILTS on the base
+    // distribution — never overrides. Three drafts is three drafts, and a
+    // tendency that can dominate a live board is a tendency that will be
+    // spectacularly wrong once in front of you.
+    //
+    // Every one of them multiplies toward 1.0 as evidence thins, via the
+    // profile's own shrinkage_weight, so a manager with one prior draft moves
+    // the answer a third as far as one with many.
+    TENDENCY_STRENGTH: 0.35,    // max +/- from "when does he take this position"
+    TENDENCY_SIGMA: 1.5,        // rounds of tolerance around his usual round
+    TENDENCY_ERRATIC: 0.4,      // scale when his rounds are all over the place
+    BUCKET_BLEND: 0.25,         // weight on his observed early/mid/late mix
+    OPENING_BOOST: 0.5,         // extra tilt in rounds 1-2 when he repeats a shape
+    RUN_FOLLOW_MARGIN: 0.1,     // how far past league average counts as a follower
+    RUN_FOLLOW_MAX: 0.5,        // max extra tilt toward a position that is running
+    // A man who has taken the same player in two prior drafts will take him
+    // again above market. Three straight years is not a coincidence.
+    AFFINITY: { 2: 1.7, 3: 2.4, 4: 3.0 },
     RUN_WINDOW: 10,
     RUN_DAMPING: 0.5,
     RUN_MIN: 0.6,
@@ -177,6 +199,113 @@
    * P(this team takes this position with this pick).
    * softmax( α × need(t,p) + β × bestAvailableValue(p) ) per the spec.
    */
+  /* ── Turning a manager's history into a prediction ────────────────────────
+   *
+   * All of this is bounded and multiplicative on the base distribution. None of
+   * it can force a position to certainty, and all of it collapses to 1.0 (a
+   * no-op) when the profile is absent, thin, or says nothing distinctive —
+   * which is the common case and should be.
+   */
+
+  /** How far into the draft a given overall pick is, in rounds (1-indexed). */
+  function roundOf(pickNo, teams) {
+    if (!pickNo || !teams) return null;
+    return Math.floor((pickNo - 1) / teams) + 1;
+  }
+
+  /**
+   * "He takes his first TE in round 6, every year."
+   *
+   * Peaks at his usual round and falls away either side, so a position is
+   * suppressed before he has ever taken one and boosted when he is due. Scaled
+   * down hard when his own rounds are scattered — a mean of round 4 built from
+   * 1, 4 and 7 is an artefact, and predicting round 4 from it is false
+   * precision dressed as insight.
+   */
+  function tendencyTilt(profile, pos, round) {
+    if (!profile || !round) return 1;
+    const t = (profile.positional_timing || {})[pos];
+    if (!t || t.mean_round == null) return 1;
+    const cons = ((profile.draft_patterns || {}).consistency || {})[pos];
+    let strength = CFG.TENDENCY_STRENGTH * (profile.shrinkage_weight == null ? 1 : profile.shrinkage_weight);
+    if (cons && cons.predictable === false) strength *= CFG.TENDENCY_ERRATIC;
+    const d = round - t.mean_round;
+    const bell = Math.exp(-(d * d) / (2 * CFG.TENDENCY_SIGMA * CFG.TENDENCY_SIGMA));
+    return Math.max(0.1, 1 + strength * (2 * bell - 1));
+  }
+
+  /** His observed positional mix in this stretch of the draft. */
+  function bucketMix(profile, round) {
+    const b = (profile && profile.draft_patterns || {}).by_round_bucket;
+    if (!b || !round) return null;
+    const name = round <= 3 ? 'early' : (round <= 8 ? 'mid' : 'late');
+    const block = b[name];
+    return block && block.mix && Object.keys(block.mix).length ? block.mix : null;
+  }
+
+  /**
+   * Rounds 1-2 only: a repeated opening shape is the strongest single signal in
+   * the profile, because it is a decision he has made the same way every year
+   * with the whole board in front of him.
+   */
+  function openingTilt(profile, pos, round) {
+    const op = (profile && profile.draft_patterns || {}).openings;
+    if (!op || !op.repeats || !op.most_common_open || !round || round > 2) return 1;
+    const seq = String(op.most_common_open).split('-');
+    const want = seq[round - 1];
+    if (!want) return 1;
+    const w = (profile.shrinkage_weight == null ? 1 : profile.shrinkage_weight);
+    return want === pos ? 1 + CFG.OPENING_BOOST * w : Math.max(0.4, 1 - CFG.OPENING_BOOST * w * 0.5);
+  }
+
+  /**
+   * A follower takes what is already going; a contrarian is the reason your run
+   * detection is wrong about one seat. Measured against the league rate, not an
+   * absolute, because in a 10-team league everybody follows runs somewhat.
+   */
+  function runFollowTilt(profile, pos, runMults) {
+    const rf = (profile && profile.draft_patterns || {}).run_following;
+    if (!rf || rf.rate == null || rf.league_rate == null) return 1;
+    const mult = (runMults || {})[pos];
+    if (!mult || mult <= 1) return 1;          // this position is not running
+    const edge = rf.rate - rf.league_rate;
+    if (Math.abs(edge) < CFG.RUN_FOLLOW_MARGIN) return 1;
+    const w = (profile.shrinkage_weight == null ? 1 : profile.shrinkage_weight);
+    // Scale by how hot the run is, so a mild multiplier gets a mild tilt.
+    const heat = Math.min(1, (mult - 1) / 0.8);
+    const tilt = Math.max(-CFG.RUN_FOLLOW_MAX, Math.min(CFG.RUN_FOLLOW_MAX, edge * 2)) * heat * w;
+    return Math.max(0.4, 1 + tilt);
+  }
+
+  /**
+   * He has drafted this exact man before. Twice is a preference; three straight
+   * years is a man who will pay over the odds for him again, and no projection
+   * knows that.
+   */
+  function affinityMultiplier(profile, playerId) {
+    const rt = (profile && profile.draft_patterns || {}).repeat_targets;
+    if (!rt || !rt.length || playerId == null) return 1;
+    const hit = rt.find(r => String(r.player_id) === String(playerId));
+    if (!hit) return 1;
+    const base = CFG.AFFINITY[Math.min(4, hit.times)] || 1;
+    const w = (profile.shrinkage_weight == null ? 1 : profile.shrinkage_weight);
+    return 1 + (base - 1) * w;
+  }
+
+  /** Why a seat's distribution was tilted, in words, for the UI to show. */
+  function tendencyReasons(profile, pos, round, runMults) {
+    const out = [];
+    if (openingTilt(profile, pos, round) > 1.05) {
+      out.push('opens ' + (profile.draft_patterns.openings.most_common_open) + ' most years');
+    }
+    const t = (profile && profile.positional_timing || {})[pos];
+    if (t && round && Math.abs(round - t.mean_round) <= CFG.TENDENCY_SIGMA) {
+      out.push('usually takes his first ' + pos + ' around round ' + t.mean_round.toFixed(1));
+    }
+    if (runFollowTilt(profile, pos, runMults) > 1.05) out.push('follows runs more than most');
+    return out;
+  }
+
   function positionProbabilities(team, board, ctx) {
     const league = ctx.league || {};
     const starters = league.starters || {};
@@ -245,6 +374,30 @@
     const out = {};
     keys.forEach(k => { const e = Math.exp(utility[k] - max); out[k] = e; sum += e; });
     keys.forEach(k => { out[k] /= sum; });
+
+    // ---- what his own past drafts say -------------------------------------
+    // Applied AFTER the softmax, as bounded multipliers on a proper
+    // distribution, then renormalised. Doing it inside the utility would let a
+    // tendency compound with the exponential and run away.
+    const round = roundOf(team.pick_no, (league.teams || 10));
+    if (profile && round) {
+      const mix = bucketMix(profile, round);
+      let total = 0;
+      keys.forEach(k => {
+        let m = tendencyTilt(profile, k, round)
+              * openingTilt(profile, k, round)
+              * runFollowTilt(profile, k, ctx.runMultipliers);
+        // His observed mix for this stretch, blended rather than substituted:
+        // it is a rate over a few dozen picks, not a law.
+        if (mix) {
+          const obs = mix[k] || 0;
+          m *= (1 - CFG.BUCKET_BLEND) + CFG.BUCKET_BLEND * (obs / Math.max(1e-6, 1 / keys.length));
+        }
+        out[k] = Math.max(0, out[k] * m);
+        total += out[k];
+      });
+      if (total > 0) keys.forEach(k => { out[k] /= total; });
+    }
     return out;
   }
 
@@ -315,8 +468,14 @@
     const scores = pool.map(p => (p.vorp == null ? p.proj_mean || 0 : p.vorp));
     const max = Math.max.apply(null, scores);
     let sum = 0;
-    const exps = scores.map(s => { const e = Math.exp((s - max) * temp / 10); sum += e; return e; });
-    return exps[idx] / sum;
+    // A man he has drafted before is not just another name at the position.
+    const exps = scores.map((s, i) => {
+      const e = Math.exp((s - max) * temp / 10)
+        * affinityMultiplier(team && team.profile, pool[i].player_id);
+      sum += e;
+      return e;
+    });
+    return sum > 0 ? exps[idx] / sum : 0;
   }
 
   /**
@@ -445,7 +604,8 @@
     // on the board contributes 20% of the mass he would if he were certain.
     const exps = scores.map((v, i) => {
       const w = avail ? Math.max(0, Math.min(1, avail[i] == null ? 1 : avail[i])) : 1;
-      const e = w * Math.exp((v - max) * temp / 10);
+      const e = w * Math.exp((v - max) * temp / 10)
+        * affinityMultiplier(team && team.profile, pool[i].player_id);
       sum += e;
       return e;
     });
@@ -598,6 +758,8 @@
     layer1Taken, layer1TakenGivenAvailable, layer2Taken, precomputeLayer2,
     positionProbabilities, withinPositionProbability, withinFromPool,
     runMultipliers, detectRuns, layer2Weight, withinPrecision,
+    roundOf, tendencyTilt, bucketMix, openingTilt, runFollowTilt,
+    affinityMultiplier, tendencyReasons,
     survivalProbability,
   };
   global.DraftSurvival = api;

@@ -84,6 +84,16 @@
     // length of the list on screen — reporting a change below the fold would be
     // reporting a change you cannot see.
     WEIGHT_DIFF_DEPTH: 5,
+
+    // --- auto-adjusting weights by draft phase ---
+    // Round boundaries for the four phases. Not fitted — three prior drafts is
+    // nowhere near enough to fit weights against, and claiming otherwise would
+    // be exactly the false precision this codebase refuses. They are the
+    // standard shape of a snake draft, stated so they can be argued with.
+    AUTO_ANCHOR_ROUNDS: 2,      // everything is empty; need is meaningless
+    AUTO_BUILD_ROUNDS: 6,       // starters filling in
+    AUTO_FILL_ROUNDS: 10,       // holes start costing real points
+    AUTO_TIGHT_PICKS: 4,        // picks left below which a gap is an emergency
   };
 
   const DEFAULT_WEIGHTS = { tier: 1.0, need: 1.0, risk: 1.0, ceiling: 0.5,
@@ -785,9 +795,13 @@
     if (rd.mean != null && Math.abs(rd.mean) >= CFG.TELL_REACH_PICKS) {
       out.push({
         kind: 'reach', weight: Math.abs(rd.mean) / 2,
+        // Relative to this league, not to raw ADP: keepers pull every pick
+        // "ahead of market" by construction, so the absolute figure is a
+        // shared offset rather than anything about him.
         text: rd.mean > 0
-          ? 'reaches ' + rd.mean.toFixed(1) + ' picks above market on average'
-          : 'lets value come to him — ' + Math.abs(rd.mean).toFixed(1) + ' picks below market',
+          ? 'reaches ' + rd.mean.toFixed(1) + ' picks earlier than the rest of the league'
+          : 'lets value come to him — ' + Math.abs(rd.mean).toFixed(1)
+            + ' picks later than the rest of the league',
         detail: rd.proxy ? 'measured against today\'s ranks, not the ADP of the day — treat as a hint'
                          : 'measured against that season\'s real ADP',
         proxy: !!rd.proxy,
@@ -947,6 +961,101 @@
       atRisk: risk.slice(0, CFG.THREAT_AT_RISK_SHOWN),
       picksUntilNext: intervening.length,
     };
+  }
+
+
+  /* Weights that follow the draft instead of waiting to be turned.
+   *
+   * The honest answer to "should I change these between rounds" is YES, and
+   * always has been — the same weights cannot be right in round 1, when every
+   * slot is empty and lineup need is meaningless noise, and in round 12, when
+   * an unfilled kicker slot is a guaranteed zero. Expecting somebody to work
+   * that out mid-draft with eight seconds on the clock is expecting the wrong
+   * thing of them.
+   *
+   * WHAT THIS IS NOT: backtested. Three prior drafts is not enough to fit
+   * weights against, and pretending otherwise would be the exact false
+   * precision the rest of this codebase refuses. These are the standard
+   * structure of a draft — anchor, build, fill, endgame — expressed as weights,
+   * plus four situational responses to things happening in front of you. Every
+   * single adjustment states its reason, so it is a suggestion you can read and
+   * overrule rather than a black box that moves numbers.
+   */
+  function autoWeights(ctx) {
+    const reasons = [];
+    const teams = (ctx.league || {}).teams || 10;
+    const round = ctx.currentPick ? Math.floor((ctx.currentPick - 1) / teams) + 1 : 1;
+    const picksLeft = ctx.myPicksLeft == null ? 99 : ctx.myPicksLeft;
+    const w = Object.assign({}, DEFAULT_WEIGHTS);
+
+    // ---- phase ------------------------------------------------------------
+    let phase, phaseWhy;
+    if (round <= CFG.AUTO_ANCHOR_ROUNDS) {
+      phase = 'Anchor';
+      phaseWhy = 'Round ' + round + ': every slot is empty, so "need" is noise. '
+        + 'Take the best player and the cliffs.';
+      w.need = 0.35; w.tier = 1.35; w.risk = 1.1; w.ceiling = 0.45; w.bye = 0.5; w.keeper = 0.9;
+    } else if (round <= CFG.AUTO_BUILD_ROUNDS) {
+      phase = 'Build';
+      phaseWhy = 'Round ' + round + ': starters are filling in. Value still leads, '
+        + 'but holes start to matter.';
+      w.need = 0.9; w.tier = 1.2; w.risk = 1.0; w.ceiling = 0.6; w.bye = 0.8; w.stack = 1.1;
+    } else if (round <= CFG.AUTO_FILL_ROUNDS) {
+      phase = 'Fill';
+      phaseWhy = 'Round ' + round + ': an empty starting slot now costs real points '
+        + 'every week, and a stacked bye is a lineup you cannot field.';
+      w.need = 1.45; w.tier = 1.0; w.risk = 0.9; w.ceiling = 0.8; w.bye = 1.4;
+    } else {
+      phase = 'Endgame';
+      phaseWhy = 'Round ' + round + ': the marginal starter is close to worthless, '
+        + 'so swing at upside and at players worth keeping next year.';
+      w.need = 1.3; w.tier = 0.8; w.risk = 0.6; w.ceiling = 1.4; w.keeper = 1.6; w.bye = 1.1;
+    }
+    reasons.push({ kind: 'phase', text: phaseWhy });
+
+    // ---- what is actually happening in front of you -----------------------
+
+    // 1. A mandatory gap you can no longer afford to defer.
+    const gaps = mandatoryGaps(ctx) || {};
+    const missing = (gaps.positions || gaps.needed || []).length
+      || Object.keys(gaps).filter(k => gaps[k] > 0).length;
+    if (picksLeft <= CFG.AUTO_TIGHT_PICKS && missing) {
+      w.need = Math.min(3, w.need + 0.9);
+      w.ceiling = Math.max(0, w.ceiling - 0.3);
+      reasons.push({ kind: 'tight', text: picksLeft + ' picks left with slots still empty — '
+        + 'need outranks everything else now.' });
+    }
+
+    // 2. A run on a position you still have to fill.
+    const runs = detectRuns(ctx.runMultipliers || {}) || [];
+    const hot = (Array.isArray(runs) ? runs : []).map(r => r.position || r).filter(Boolean);
+    if (hot.length) {
+      w.tier = Math.min(3, w.tier + 0.35);
+      reasons.push({ kind: 'run', text: 'Run on ' + hot.join(', ')
+        + ' — chasing the last of a tier is worth more while it is emptying.' });
+    }
+
+    // 3. Starters all filled: stop optimising a lineup that is already legal.
+    const plan = rosterPlan(ctx);
+    if (plan && !plan.needed.length && !plan.flexNeed && round > CFG.AUTO_ANCHOR_ROUNDS) {
+      w.need = Math.max(0.2, w.need - 0.6);
+      w.ceiling = Math.min(3, w.ceiling + 0.4);
+      w.keeper = Math.min(3, w.keeper + 0.3);
+      reasons.push({ kind: 'complete', text: 'Your starting lineup is full — '
+        + 'the rest of this draft is upside and next year\'s keepers.' });
+    }
+
+    // 4. A bye week you already cannot field a lineup in.
+    const byes = byeGrid(ctx) || [];
+    const holes = byes.filter(b => b.severity === 'bad' && !b.provisional).length;
+    if (holes) {
+      w.bye = Math.min(3, w.bye + 0.5);
+      reasons.push({ kind: 'bye', text: holes + ' week' + (holes === 1 ? '' : 's')
+        + ' you cannot field a lineup — bye collisions are now a real cost, not a tiebreak.' });
+    }
+
+    Object.keys(w).forEach(k => { w[k] = Math.round(Math.max(0, Math.min(3, w[k])) * 10) / 10; });
+    return { weights: w, phase: phase, round: round, reasons: reasons };
   }
 
   /**
@@ -1209,7 +1318,7 @@
     scorePlayer, recommend, mandatoryGaps, applyRosterLegality, plausibilityRails,
     confidence, branchForecast, applyPersonalLists, onTheClock, rosterPlan, byeGrid,
     cheatSheet, sheetText, managerTells, threatBoard,
-    WEIGHT_PRESETS, matchPreset, rankDiff,
+    WEIGHT_PRESETS, matchPreset, rankDiff, autoWeights,
     formatDefaults, applyFormatDefaults,
     // A2/A3 surfaces, re-exported so callers need only one handle.
     survivalModel: S, compositeTerms: C,

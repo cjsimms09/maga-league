@@ -463,3 +463,69 @@ def test_profiles_record_which_drafts_they_came_from():
     prof = M.build_profiles([_draft("2024", picks), _draft("2025", picks)], {})
     assert prof["draft_ids"] == ["d2024", "d2025"]
     assert prof["drafts_analysed"] == 2
+
+
+def test_bpa_is_measured_against_the_whole_board_not_your_own_picks():
+    """All ten managers cannot be above the league average.
+
+    The board must be reconstructed from every pick in the draft; only the rows
+    being measured are scored against it. Reconstructing it from one manager's
+    40 picks means almost nothing better is ever "still available", and he comes
+    out at 70% against a league average of 31%.
+    """
+    db = _db({i: ("RB" if i % 2 else "WR", "KC", i, 3) for i in range(1, 101)})
+    # Everyone drafts in exact market order: a perfect best-available draft.
+    picks = []
+    pid = 1
+    for rnd in range(1, 6):
+        seats = range(1, 11) if rnd % 2 else range(10, 0, -1)
+        for i, seat in enumerate(seats):
+            picks.append((seat, pid, rnd, (rnd - 1) * 10 + i + 1, False))
+            pid += 1
+    prof = M.build_profiles([_draft("2024", picks)], db)
+    rates = [p["bpa_vs_need"]["bpa_rate"] for p in prof["managers"].values()]
+    league = prof["managers"]["u1"]["bpa_vs_need"]["league_rate"]
+    # In a strictly-by-rank draft, everybody IS best-available, league included.
+    assert league > 0.95, league
+    assert all(r > 0.95 for r in rates), rates
+    # And nobody is implausibly far from the league — the two are comparable now.
+    assert max(abs(r - league) for r in rates) < 0.1, (rates, league)
+
+
+def test_a_single_reacher_stands_out_from_a_disciplined_league():
+    db = _db({i: ("RB" if i % 2 else "WR", "KC", i, 3) for i in range(1, 121)})
+    picks = []
+    pid = 1
+    for rnd in range(1, 6):
+        for i, seat in enumerate(range(1, 11)):
+            # Seat 3 always grabs somebody 40 places down the board.
+            chosen = 100 + rnd if seat == 3 else pid
+            picks.append((seat, chosen, rnd, (rnd - 1) * 10 + i + 1, False))
+            if seat != 3:
+                pid += 1
+    prof = M.build_profiles([_draft("2024", picks)], db)
+    reacher = prof["managers"]["u3"]["bpa_vs_need"]["bpa_rate"]
+    others = [p["bpa_vs_need"]["bpa_rate"] for k, p in prof["managers"].items() if k != "u3"]
+    assert reacher < min(others), (reacher, others)
+
+
+def test_reach_is_reported_relative_to_the_league():
+    """Keepers shift every pick "ahead of market" by construction.
+
+    A relative figure cancels that; an absolute one puts the same systematic
+    offset on all ten managers and calls it ten findings.
+    """
+    db = _db({i: ("RB", "KC", i + 40, 3) for i in range(1, 61)})   # ADP offset by 40
+    picks = []
+    pid = 1
+    for rnd in range(1, 5):
+        for i, seat in enumerate(range(1, 11)):
+            picks.append((seat, pid, rnd, (rnd - 1) * 10 + i + 1, False))
+            pid += 1
+    prof = M.build_profiles([_draft("2024", picks)], db)
+    for p in prof["managers"].values():
+        # Everybody drafted identically, so relative reach is ~0 for all...
+        assert abs(p["reach_delta"]["mean"]) < 1.0, p["reach_delta"]
+        # ...while the raw-vs-ADP figure carries the shared offset, and is kept
+        # so the number is auditable rather than just quietly adjusted.
+        assert p["reach_delta"]["league_mean_vs_adp"] > 5, p["reach_delta"]

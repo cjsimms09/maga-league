@@ -183,6 +183,7 @@
     state.format = E.applyFormatDefaults(data.league);
     loadOverrides();
     loadLists();
+    loadAuto();
     exposeTestHooks();
     // Keep a pristine copy of everything mock mode overwrites. Connecting to a
     // mock replaces the player pool, the league shape and the pick order — so
@@ -404,6 +405,9 @@
 
   // ------------------------------------------------------------------ render
   function renderAll() {
+    // Before anything is scored: if Auto is on, the weights for THIS pick have
+    // to be in place, or every panel below renders last pick's opinion.
+    applyAutoWeights();
     renderHeader();
     renderRecommendations();
     renderLists();
@@ -637,11 +641,51 @@
   }
 
   /* ── The adjusters ──────────────────────────────────────────────────────── */
+  const AUTO_KEY = 'mfga.draft.autoweights';
+  function loadAuto() {
+    try { state.autoWeights = localStorage.getItem(AUTO_KEY) === '1'; } catch (e) {}
+  }
+  /* Re-apply the auto weights for the current draft state.
+   *
+   * Called from renderAll, so it tracks the draft rather than waiting to be
+   * asked. Silent when nothing changed — a banner that repeats itself every
+   * pick is a banner you stop reading by round 3.
+   */
+  function applyAutoWeights() {
+    if (!state.autoWeights || !state.data) return;
+    const a = E.autoWeights(context());
+    const same = Object.keys(a.weights).every(k => state.weights[k] === a.weights[k]);
+    state.lastAuto = a;
+    if (same) { renderAutoNote(a, false); return; }
+    state.weights = Object.assign({}, a.weights);
+    $$('.weight-slider').forEach(sl => {
+      const v = state.weights[sl.dataset.weight];
+      sl.value = v;
+      const lab = $('#w-' + sl.dataset.weight);
+      if (lab) lab.textContent = v.toFixed(1);
+    });
+    saveWeights();
+    renderAutoNote(a, true);
+  }
+  function renderAutoNote(a, changed) {
+    const host = $('#auto-note');
+    if (!host) return;
+    if (!state.autoWeights) { host.innerHTML = ''; host.hidden = true; return; }
+    host.hidden = false;
+    host.innerHTML = '<div class="auto-phase">' + escapeHtml(a.phase)
+      + ' <span class="muted">round ' + a.round + (changed ? ' · adjusted' : '') + '</span></div>'
+      + a.reasons.map(r => '<div class="auto-reason ' + r.kind + '">'
+          + escapeHtml(r.text) + '</div>').join('');
+  }
+
   function renderPresets() {
     const host = $('#presets');
     if (!host) return;
     const current = E.matchPreset(state.weights);
-    host.innerHTML = E.WEIGHT_PRESETS.map(p =>
+    host.innerHTML = '<button class="btn small ' + (state.autoWeights ? 'gold' : 'ghost')
+      + '" data-auto="1" title="Re-weight automatically as the draft moves">'
+      + (state.autoWeights ? '\u26a1 Auto ON' : '\u26a1 Auto') + '</button>'
+      + E.WEIGHT_PRESETS.map(p =>
       '<button class="btn small ' + (p.key === current ? 'gold' : 'ghost')
       + '" data-preset="' + p.key + '">' + escapeHtml(p.label) + '</button>').join('')
       // Custom is a state, not a button: you get there by moving a slider, and
@@ -650,6 +694,11 @@
     const why = $('#preset-why');
     if (why) {
       const p = E.WEIGHT_PRESETS.find(x => x.key === current);
+      if (state.autoWeights) {
+        why.textContent = 'Auto is driving these — they re-weight themselves every '
+          + 'pick as the draft moves, and say why below. Move any slider to take back over.';
+        return;
+      }
       why.textContent = p ? p.why
         : 'You have moved these off every preset. That is fine — the presets are '
           + 'starting points, not settings.';
@@ -1897,6 +1946,13 @@
         // A slider whose effect you cannot see is a slider you are guessing
         // with, and six of these seven do nothing at all most of the time.
         const before = state.lastClock ? state.lastClock.scored : null;
+        // Touching a slider takes back control. A tool that re-applies its own
+        // number over yours on the next pick is a tool you are fighting.
+        if (state.autoWeights) {
+          state.autoWeights = false;
+          try { localStorage.setItem(AUTO_KEY, '0'); } catch (e) {}
+          renderAutoNote(state.lastAuto || { phase: '', round: 0, reasons: [] }, false);
+        }
         state.weights[sl.dataset.weight] = parseFloat(sl.value);
         $('#w-' + sl.dataset.weight).textContent = parseFloat(sl.value).toFixed(1);
         saveWeights();
@@ -1911,7 +1967,15 @@
     renderPresets();
     document.body.addEventListener('click', ev => {
       const btn = ev.target.closest('[data-preset]');
-      if (btn) applyPreset(btn.getAttribute('data-preset'));
+      if (btn) { applyPreset(btn.getAttribute('data-preset')); return; }
+      const auto = ev.target.closest('[data-auto]');
+      if (auto) {
+        state.autoWeights = !state.autoWeights;
+        try { localStorage.setItem(AUTO_KEY, state.autoWeights ? '1' : '0'); } catch (e) {}
+        if (state.autoWeights) applyAutoWeights(); else renderAutoNote({}, false);
+        renderRecommendations();
+        renderPresets();
+      }
     });
 
     $('#pos-filter').addEventListener('change', e => { state.filterPos = e.target.value; renderBoard(); });

@@ -196,7 +196,7 @@ def build_profiles(drafts: list[dict], players_db: dict, *, season_now: int | No
         reach = _reach_stats(mine)
         homer_team, homer_rate = _homer(mine)
         rookie = _rate(mine, lambda r: r.get("years_exp") == 0)
-        bpa = _bpa_rate(mine)
+        bpa = _bpa_rate(mine, real_rows)
 
         profile = {
             "name": names.get(m, m),
@@ -205,7 +205,21 @@ def build_profiles(drafts: list[dict], players_db: dict, *, season_now: int | No
             "picks_analysed": len(mine),
             "shrinkage_weight": round(n / (n + PRIOR_STRENGTH), 3),
             "reach_delta": {
-                "mean": round(_shrink(reach["mean"], league_reach["mean"], n, market_strength), 2),
+                # RELATIVE TO THIS LEAGUE, not to raw ADP.
+                #
+                # Keepers are removed from the board but ADP still ranks them,
+                # so in a 3-keeper league every real pick lands ~30 places
+                # "ahead of market" by construction. Reported absolute, that put
+                # a "reaches N picks above market" tell on all ten managers —
+                # a systematic offset dressed up as ten separate findings.
+                #
+                # Subtracting the league mean cancels the offset and leaves the
+                # only part that was ever about him: how he reaches compared to
+                # the people he actually drafts against.
+                "mean": round(_shrink(reach["mean"], league_reach["mean"], n, market_strength)
+                              - league_reach["mean"], 2),
+                "mean_vs_adp": round(_shrink(reach["mean"], league_reach["mean"], n, market_strength), 2),
+                "league_mean_vs_adp": round(league_reach["mean"], 2),
                 "sd": round(reach["sd"] if reach["sd"] else league_reach["sd"], 2),
                 "raw_mean": round(reach["mean"], 2),
                 "proxy": is_proxy,
@@ -340,33 +354,60 @@ def _homer(rows: list[dict]) -> tuple[str | None, float]:
     return team, counts[team] / max(1, len(rows))
 
 
-def _bpa_rate(rows: list[dict]) -> float:
+# A pick counts as best-available if at most this many better-ranked players
+# were still on the board when it was made.
+BPA_SLACK = 2
+
+
+def _bpa_rate(rows: list[dict], universe: list[dict] | None = None) -> float:
     """How often the pick was (near) the best player available by market rank.
 
-    Best-available is reconstructed per draft: a pick counts as BPA if no more
-    than two better-ranked players were still on the board.
+    THE BUG THIS FIXES. The board has to be reconstructed from EVERY pick in
+    the draft, and only the rows being measured are scored against it. The old
+    version reconstructed the board from whatever rows it was handed — so a
+    manager was measured against a board containing only his own 40 picks,
+    where almost nothing better is ever "still available", while the league was
+    measured against all 150. The two numbers were computed over different
+    universes and were never comparable.
+
+    It showed: every manager came out at 62-71% "best available" against a
+    league average of 31%. All ten above average, which is not a finding, it is
+    an arithmetic error.
+
+    And it was not cosmetic. bpa_rate drives softmax alpha_need/beta_value, so
+    a ratio of ~2.2 drove alpha to its 0.2 floor and beta to 3.8 for EVERY
+    manager — the need term was effectively switched off for all ten seats in
+    every survival calculation the tool has ever run.
     """
-    by_draft: dict[tuple, list[dict]] = {}
-    for r in rows:
-        by_draft.setdefault((r["season"],), []).append(r)
+    universe = universe if universe is not None else rows
+    measure = {(str(r["season"]), r["pick_no"]) for r in rows}
+
+    by_draft: dict[str, list[dict]] = {}
+    for r in universe:
+        by_draft.setdefault(str(r["season"]), []).append(r)
+
     hits = total = 0
     for group in by_draft.values():
         ordered = sorted(group, key=lambda r: r["pick_no"])
         ranked = sorted([r for r in ordered if r.get("market_rank") is not None],
                         key=lambda r: r["market_rank"])
-        taken: set[str] = set()
         rank_pos = {r["player_id"]: i for i, r in enumerate(ranked)}
+        # Walk the whole draft so the board thins correctly, but only score the
+        # picks we were asked about.
+        gone: set[str] = set()
         for r in ordered:
             if r.get("market_rank") is None:
                 continue
-            better_available = sum(
-                1 for q in ranked
-                if q["player_id"] not in taken and rank_pos[q["player_id"]] < rank_pos[r["player_id"]]
-            )
-            total += 1
-            if better_available <= 2:
-                hits += 1
-            taken.add(r["player_id"])
+            if (str(r["season"]), r["pick_no"]) in measure:
+                better_available = sum(
+                    1 for q in ranked
+                    if q["player_id"] not in gone
+                    and rank_pos[q["player_id"]] < rank_pos[r["player_id"]]
+                )
+                total += 1
+                if better_available <= BPA_SLACK:
+                    hits += 1
+            gone.add(r["player_id"])
     return hits / total if total else 0.0
 
 
