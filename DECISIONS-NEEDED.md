@@ -38,3 +38,30 @@ in-season rankings work — a genuine projection is the prerequisite for the
 backtest to mean anything, and it is out of scope before Aug 22.
 
 _No other decisions open._
+
+
+## D2 — Exact definition of the `top_picks_flat` keeper cost model (K0 blocker)
+
+K0 needs this before the cost model can be implemented, because implementing the
+wrong formula mis-costs every keeper and corrupts adjusted_adp, KOV and the
+optimizer.
+
+`top_picks_flat` is not an implemented model (only original_round, fixed_round,
+escalator, no_cost exist) and the config currently uses `original_round`. I need
+the precise rule. Common "flat top picks" variants:
+  (a) each keeper costs a FIXED round regardless of where drafted (e.g. all
+      keepers cost your round-N pick) — this is essentially `fixed_round`.
+  (b) keepers cost your top picks in order: 1st keeper costs round 1, 2nd costs
+      round 2, 3rd costs round 3 (flat escalating off the top).
+  (c) all keepers cost the same flat round (e.g. round 3), full stop.
+
+**My recommendation:** tell me which of (a)/(b)/(c) — or the exact rule — and I
+implement it as a new `top_picks_flat` cost model with a parity test, rebuild
+the artifact under it, and run the keep-0/1/2/3 optimizer. If (a) or (c) reduce
+to `fixed_round`, I can proceed today by setting cost_model=fixed_round with the
+right round; only (b) or a novel rule needs new code.
+
+**Conservative action meanwhile:** the artifact stays on `original_round` (its
+current, validated model) and K0's model-agnostic half — the keep-0/1/2/3
+optimizer — is built and run now, so it is ready to re-run the instant D2 is
+answered. K0 is NOT blocked from all progress by D2.

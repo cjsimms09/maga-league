@@ -89,6 +89,30 @@ _Last update: master-execution-order run, start._
 ## One-line readiness
 **NOT YET** — robot mock green in CI; attribution wired; backtest report re-running (run 5 succeeded but its report was lost to a push race, now fixed).
 
+## 🔑 K0 — KEEPER DECISION (front of queue, ahead of item 2; locks Aug 20)
+
+**Deadline: optimizer output in this file by Aug 19; keeper decision locks Aug 20.**
+Tracked here permanently so it cannot fall off again.
+
+Status check (verified against code, this run):
+1. **top_picks_flat cost model — NOT IMPLEMENTED.** Cost models that exist:
+   original_round, fixed_round, escalator, no_cost. Production config uses
+   `original_round`; the artifact is built under it; provenance carries no
+   keeper-cost stamp. → **NO.** (See DECISIONS D2: need the exact top_picks_flat
+   cost formula before implementing — implementing the wrong model would
+   mis-cost every keeper.)
+2. **keep-0/1/2/3 optimizer — PARTIAL, never run.** `optimize_keepers()` exists
+   but keeps exactly `count` (ranks WHICH 3, never WHETHER 0/1/2/3); is not
+   wired to pipeline or UI; has no test; has never run against the real roster.
+   → **NO.**
+3. Both NO → K0 is now item 0, ahead of item 2.
+
+K0 build plan (this run): (a) resolve D2 [top_picks_flat definition], (b)
+implement the cost model + rebuild artifact under it, (c) extend the optimizer
+to evaluate keep-0/1/2/3 (optimal NUMBER, not just which), (d) run it against
+the real roster (CI/Sleeper), (e) write the ranked output into this file. Each
+step tested; the cost model gets a robot/parity test.
+
 ## Test suite
 - JS suites: engine 192, mcts 63, keepers 38, keeperlock 41, reconcile 12, update 41, betlogic 134, ledger 41, sync 26, backtest 17, strategies 13, attribution 10 — **all green**
 - Python: 112 — **all green**
@@ -101,6 +125,7 @@ _Last update: master-execution-order run, start._
 ## Queue progress
 | # | item | state |
 |---|---|---|
+| 0 | **K0 keeper decision (Aug 19/20 deadline)** | **FRONT OF QUEUE — top_picks_flat NOT built, optimizer never run** |
 | 1 | Stabilization sprint | Phase 1 attribution WIRED (`pending`); robot mock GREEN |
 | 2 | Small fixes (onesie / rail budget / config_confirmed) | PENDING |
 | 2b | Draft-day experience | AUDITED, pending |
