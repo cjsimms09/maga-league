@@ -102,23 +102,50 @@ def build(store, *, players_meta, weekly_df, crosswalk, prior_seasons,
     notes["projection_method"] = method
     notes["sanity"] = verdict
 
-    # 4. The board.
+    # 4. The board — must include EVERY player the room actually drafted.
+    #
+    # THE LEAK THIS FIXES. The board was FFC-priced-only and dropped anyone
+    # without a projection, so a real 150-pick draft with kickers, defences and
+    # deep fliers lost 23-34% of its picks off the board. A board that never
+    # sees a third of the picks cannot deplete, so players 'survive' predictions
+    # that said they were gone — which is exactly the calibration break the
+    # report showed (predicted 5% survival, 41% actual). A backtest board that
+    # is missing the real picks is not a smaller board, it is a wrong one.
+    draft = store.draft()
+    picks = sorted(draft.get("picks") or [], key=lambda pp: pp.get("pick_no") or 0)
+    drafted_ids = {str(pp.get("player_id")) for pp in picks}
+    pick_no_by_id = {str(pp.get("player_id")): pp.get("pick_no") for pp in picks}
+
     players = []
     for p in players_meta:
         pid = str(p["player_id"])
         pm = proj.get(pid)
-        if pm is None:
-            continue
         a = adp_by_id.get(pid)
+        # Keep him if we can value him OR the room actually drafted him.
+        if pm is None and pid not in drafted_ids:
+            continue
         players.append({
             "player_id": pid, "name": p.get("name"), "position": p.get("position"),
             "team": p.get("team"), "bye": p.get("bye"),
-            "proj_mean": pm, "proj_sd": round(pm * 0.25, 2),
-            "proj_ceiling": round(pm * 1.35, 2),
+            "proj_mean": pm if pm is not None else 0.0,
+            "proj_sd": round((pm or 0.0) * 0.25, 2),
+            "proj_ceiling": round((pm or 0.0) * 1.35, 2),
             "raw_adp": a, "adjusted_adp": a, "adp_sd": None,
-            "adp_source": "ffc" if a else "none",
+            "adp_source": "ffc" if a else ("drafted" if pid in drafted_ids else "none"),
         })
-    players = [p for p in players if p["raw_adp"]]
+
+    # Fallback ADP mirrors the production pipeline: everyone without an FFC price
+    # goes BEHIND FFC's last player, ordered by projection then by when the room
+    # actually took them, so every drafted player has a sensible board position.
+    priced = [p for p in players if p["raw_adp"]]
+    unpriced = [p for p in players if not p["raw_adp"]]
+    ffc_max = max((p["raw_adp"] for p in priced), default=200.0)
+    unpriced.sort(key=lambda x: (-(x["proj_mean"] or 0.0),
+                                 pick_no_by_id.get(x["player_id"], 9999)))
+    for i, up in enumerate(unpriced):
+        up["raw_adp"] = up["adjusted_adp"] = ffc_max + 1 + i
+        up["adp_sd"] = 30.0
+    players = priced + unpriced
     players.sort(key=lambda x: x["raw_adp"])
 
     starters = {}
@@ -131,11 +158,8 @@ def build(store, *, players_meta, weekly_df, crosswalk, prior_seasons,
         p["overall_rank"] = i + 1
         p["score"] = p.get("vorp")
 
-    # 5. The draft itself. take_until is the only read path; the full ordered
-    #    list is legitimate HERE because replay.js consumes it strictly in
-    #    order and never looks ahead — see its board-shrinks-monotonically test.
-    draft = store.draft()
-    picks = sorted(draft.get("picks") or [], key=lambda p: p.get("pick_no") or 0)
+    # 5. The draft itself was fetched above (board coverage needed it). take_until
+    #    remains the only in-order read path replay.js uses.
     rounds = max((p.get("round") or 1) for p in picks) if picks else 0
 
     bundle = {

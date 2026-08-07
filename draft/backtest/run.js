@@ -42,10 +42,21 @@ const graded = R.grade(replays, allPoints, { maxRound: R.CFG.MAX_ROUND_GRADED })
     D.push('    board size ' + (b.players || []).length + '; replay made '
       + (rep ? rep.records.length : 0) + ' decisions');
   });
+  // Name lookup across all bundles.
+  const nameOf = {};
+  bundles.forEach(b => (b.players || []).forEach(p => { nameOf[String(p.player_id)] = p.name; }));
   // Multi-season-sum smell: any graded actual over a single-season ceiling.
   const hot = [];
   Object.keys(allPoints).forEach(id => { if (allPoints[id] > 450) hot.push(id); });
   D.push('  players with actual points > 450 (single-season ceiling smell): ' + hot.length);
+  hot.slice(0, 8).forEach(id => D.push('      ' + (nameOf[id] || id) + ' = ' + allPoints[id].toFixed(0)));
+  // Round-1 detail: the alarm lives here, so show exactly what each policy took.
+  D.push('  round-1 picks (actual / B0 / B3, name=points):');
+  (graded.rows || []).filter(r => r.round === 1).slice(0, 12).forEach(r => {
+    const nm = id => (nameOf[id] || id) + '=' + (allPoints[id] == null ? 'NA' : allPoints[id].toFixed(0));
+    D.push('    ' + r.season + '  actual ' + nm(r.actual_id)
+      + '  | B0 ' + nm(r.ids.B0) + '  | B3 ' + nm(r.ids.B3));
+  });
   console.log('\n=== LEAK DIAGNOSTICS ===');
   D.forEach(l => console.log(l));
   require('fs').writeFileSync(require('path').join(__dirname, 'DIAGNOSTICS.txt'), D.join('\n'));
