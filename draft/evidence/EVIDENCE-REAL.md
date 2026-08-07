@@ -5,9 +5,9 @@
 > filed all of these as CANNOT PRODUCE because its egress policy blocks
 > api.sleeper.app and FFC at CONNECT.
 
-- run: `31210561531`  commit: `9c175637b018044c599782bcb2bd7ecb9aba4647`
+- run: `31210776484`  commit: `905beeb02010b5b292127d31b57c9ecceeb8bddd`
 - league: `1374848328470102016`  slot: `4`
-- generated: `2026-08-07T19:14:27Z`
+- generated: `2026-08-07T19:17:14Z`
 
 ```
 === ACCEPTANCE: the league endpoint answers at all ===
@@ -22,7 +22,7 @@ HTTP 200
 }
 
 === FULL REAL PIPELINE BUILD ===
-run started 2026-08-07 19:14 UTC (14:14 US/Central-ish)
+run started 2026-08-07 19:17 UTC (14:17 US/Central-ish)
 Importing Sleeper league 1374848328470102016 ...
   10 teams · 44 scoring rules · 15 roster slots · 0 prior-draft rounds recovered
   ! league_config has not been confirmed on the review screen — scoring and roster slots are unverified (Commish -> War Room -> League Setup)
@@ -65,17 +65,257 @@ wrote /home/runner/work/maga-league/maga-league/public/draft_data.json — 1736 
   adp_source                : ffc
   opportunity_adjustment    : ok
   opportunity_adj_coverage  : None
-  built_at                  : 2026-08-07T19:14:41Z
+  built_at                  : 2026-08-07T19:17:23Z
 
 === ITEMS 5, 6, 7, 9 (joins, match rates, live scoring settings) ===
 
 ==============================================================================
 ITEM 5 + 7 — name match Sleeper<->FFC, every top-150 failure, and the rates
 ==============================================================================
-Traceback (most recent call last):
-  File "/home/runner/work/maga-league/maga-league/draft/evidence/items.py", line 36, in <module>
-    teams = CFG['league']['teams']
-            ~~~^^^^^^^^^^
-KeyError: 'league'
+  FFC payload:
+    meta         : ['meta', 'status']
+    player fields: ['adp', 'adp_formatted', 'bye', 'high', 'low', 'name', 'player_id', 'position', 'stdev', 'team', 'times_drafted']
+    players      : 209
+    stdev field  : stdev
+    sample       : {"player_id": 5672, "name": "Jahmyr Gibbs", "position": "RB", "team": "DET", "adp": 1.4, "adp_formatted": "1.01", "times_drafted": 243, "high": 1, "low": 4, "stdev": 0.6, "bye": 6}
+  ADP: matched 209, unmatched 0
+
+FFC payload: 209 players, stdev field 'stdev'
+matched 209 of 209  (100.0%)
+  top 50 : 0 unmatched  (100.0% matched)
+  top 100: 0 unmatched  (100.0% matched)
+  top 150: 0 unmatched  (100.0% matched)
+  top 200: 0 unmatched  (100.0% matched)
+
+fail-loud threshold: STRICT_TOP_N = 150 — any unmatched player at or above this rank raises and stops the build.
+this build: passed the gate, no top-150 miss
+
+every unmatched player inside the top 150:
+  (none)
+
+matches by method (exact vs fuzzy vs alias — a board carried by aliases is one roster update away from breaking):
+  name                   192
+  def-team               15
+  name+pos               2
+
+==============================================================================
+ITEM 6 — raw joined record for 5 named players, every source side by side
+==============================================================================
+
+--- Jahmyr Gibbs (RB DET) ---
+  player_id            9221
+  overall_rank         1
+  proj_mean            344.88
+  proj_sd              131.33
+  raw_adp              1.4
+  adjusted_adp         1.12
+  adp_sd               0.6
+  adp_source           ffc
+  opportunity_z        2.19
+  opportunity_adj      0.15
+  vorp                 156.35
+  tier                 1
+  NOT JOINED: gsis_id
+
+--- Bijan Robinson (RB ATL) ---
+  player_id            9509
+  overall_rank         2
+  proj_mean            336.83
+  proj_sd              93.91
+  raw_adp              2.1
+  adjusted_adp         2.03
+  adp_sd               0.7
+  adp_source           ffc
+  opportunity_z        2.59
+  opportunity_adj      0.15
+  vorp                 148.3
+  tier                 1
+  NOT JOINED: gsis_id
+
+--- Puka Nacua (WR LAR) ---
+  player_id            9493
+  overall_rank         3
+  proj_mean            297.85
+  proj_sd              73.27
+  raw_adp              2.5
+  adjusted_adp         2.85
+  adp_sd               0.8
+  adp_source           ffc
+  opportunity_z        2.29
+  opportunity_adj      0.15
+  vorp                 110.67
+  tier                 1
+  NOT JOINED: gsis_id
+
+--- Bennie Fowler (WR FA) ---
+  player_id            2003
+  overall_rank         869
+  proj_mean            0.0
+  proj_sd              0.0
+  raw_adp              782.9
+  adjusted_adp         540.77
+  adp_sd               30.0
+  adp_source           search_rank
+  opportunity_z        0.0
+  opportunity_adj      0.0
+  vorp                 -187.18
+  tier                 53
+  NOT JOINED: gsis_id
+
+--- Anthony Schwartz (WR FA) ---
+  player_id            7533
+  overall_rank         870
+  proj_mean            0.0
+  proj_sd              0.0
+  raw_adp              782.9
+  adjusted_adp         541.47
+  adp_sd               30.0
+  adp_source           search_rank
+  opportunity_z        0.0
+  opportunity_adj      0.0
+  vorp                 -187.18
+  tier                 53
+  NOT JOINED: gsis_id
+
+==============================================================================
+ITEM 9 — fresh live scoring_settings vs the stored config
+==============================================================================
+key                        live       stored
+
+0 differing keys.
+
+all python items produced output
+
+=== ITEMS 13, 15, 25, 26 (board, survival, end-to-end traces) ===
+artifact built_at : 2026-08-07T19:17:23Z
+adp_source        : ffc
+current pick      : 37   my slot: 4
+
+==============================================================================
+ITEM 13 — top 15 with every composite component, full precision
+==============================================================================
+rank	player	pos	score	vorp	tier	need	risk	ceiling	keeper	bye	stack	survival	rails
+1	D'Andre Swift	RB	65.62558833011154			23.6	0	37.43992666666666	0	0	0	0.4920084180728217	["ceiling is 1.6x this player's VORP — possible bug"]
+2	Joe Burrow	QB	63.027931504679984			18.7	0	39.009179999999986	0	0	6	0.8949846477130706	["ceiling is 2.1x this player's VORP — possible bug"]
+3	Tyler Warren	TE	62.498313340080884			24.21	6	33.92328666666666	0	0	0	0.7114586372604967	["~35 picks ahead of ADP — verify before taking","ceiling is 1.4x this player's VORP — possible bug"]
+4	Jeremiyah Love	RB	57.28982587359696			23.47	0	43.05993333333335	0	0	0	0	["ceiling is 1.8x this player's VORP — possible bug"]
+5	Quinshon Judkins	RB	31.652675548860216			4.91	0	35.42636666666666	0	0	0	0.6631207673988793	["ceiling is 7.2x this player's VORP — possible bug"]
+6	Sam LaPorta	TE	31.295242520593405			17.8	0	29.71182666666666	0	0	0	0.7570261653958178	["~59 picks ahead of ADP — verify before taking","ceiling is 1.7x this player's VORP — possible bug"]
+7	Dak Prescott	QB	27.821377419298614			9.46	0	40.29483333333334	0	0	6	0.9220930202056022	["ceiling is 4.3x this player's VORP — possible bug"]
+8	Bucky Irving	RB	24.913382548862337			8.05	6	32.727439999999994	0	0	0	0.6364148279128593	["ceiling is 4.1x this player's VORP — possible bug"]
+9	David Montgomery	RB	21.763097946054444			14.08	-12	35.757233333333325	0	0	0	0.582373776562765	["ceiling is 2.5x this player's VORP — possible bug"]
+10	Brandon Aubrey	K	20.42730837804665			10	0	14.67157333333333	0	0	0	0.9701489200196814	["~89 picks ahead of ADP — verify before taking","K this early is almost never right","ceiling is 1.5x this player's VORP — possible bug"]
+11	Harold Fannin	TE	15.87101581215846			7.48	6	30.67606666666667	0	0	0	0.8190421951485513	["~48 picks ahead of ADP — verify before taking","ceiling is 4.1x this player's VORP — possible bug"]
+12	Brock Purdy	QB	14.93715049522632			6.78	0	37.72825333333333	0	0	0	0.9286493847517598	["~43 picks ahead of ADP — verify before taking","ceiling is 5.6x this player's VORP — possible bug"]
+13	Jayden Daniels	QB	13.539042600560203			6.1	0	37.65262666666668	0	0	0	0.9302289700805428	["~32 picks ahead of ADP — verify before taking","ceiling is 6.2x this player's VORP — possible bug"]
+14	Ladd McConkey	WR	11.927600754409701			-11.984500000000004	6	25.353839999999995	0	0	0	0.7774261917834842	["ceiling is 1.1x this player's VORP — possible bug"]
+15	Cam Little	K	11.321127030122812			7	0	14.260353333333327	0	0	0	0.9730562186418454	["~137 picks ahead of ADP — verify before taking","K this early is almost never right","ceiling is 2.0x this player's VORP — possible bug"]
+
+==============================================================================
+ITEM 15 — survival to my next pick (44), top 30 available
+==============================================================================
+player	pos	adp_mean	adp_sd	sd_source	survival
+Tyler Warren	TE	71.88	10.600	heuristic	0.7115
+D'Andre Swift	RB	43.79	5.100	heuristic	0.4920
+Jeremiyah Love	RB	28.64	3.500	heuristic	0.0000
+Ladd McConkey	WR	47.94	5.900	heuristic	0.7774
+Jaylen Waddle	WR	52.86	6.800	heuristic	0.7913
+Tee Higgins	WR	39	3.600	heuristic	0.8040
+Joe Burrow	QB	57.28	7.900	heuristic	0.8950
+Tetairoa McMillan	WR	36.67	3.500	heuristic	0.8075
+Sam LaPorta	TE	96.34	10.700	heuristic	0.7570
+Emeka Egbuka	WR	33.76	3.800	heuristic	0.8189
+Mike Evans	WR	60.82	6.000	heuristic	0.8293
+David Montgomery	RB	61.85	6.200	heuristic	0.5824
+Malik Nabers	WR	35.06	4.600	heuristic	0.8446
+Garrett Wilson	WR	29.82	2.500	heuristic	0.0000
+Jameson Williams	WR	41.03	3.600	heuristic	0.9856
+Brandon Aubrey	K	126.48	19.300	heuristic	0.9701
+Terry McLaurin	WR	42.82	3.500	heuristic	0.9856
+Dak Prescott	QB	66.82	9.000	heuristic	0.9221
+Kyle Pitts	TE	86.98	9.600	heuristic	0.8126
+Bucky Irving	RB	41.76	4.300	heuristic	0.6364
+Harold Fannin	TE	84.61	6.200	heuristic	0.8190
+Cam Little	K	173.83	20.100	heuristic	0.9731
+Brock Purdy	QB	80.01	6.300	heuristic	0.9286
+Travis Kelce	TE	114.34	19.200	heuristic	0.8261
+Jayden Daniels	QB	69.21	9.200	heuristic	0.9302
+Rome Odunze	WR	45.58	4.400	heuristic	0.9856
+Ka'imi Fairbairn	K	148.75	15.300	heuristic	0.9740
+Jason Myers	K	147.99	15.300	heuristic	0.9748
+Quinshon Judkins	RB	48.67	5.400	heuristic	0.6631
+Parker Washington	WR	70.03	7.100	heuristic	0.9856
+
+==============================================================================
+ITEM 25 — end-to-end trace for one top-20 player
+==============================================================================
+
+--- healthy path: Brock Bowers (TE LV) ---
+  1. Sleeper identity
+      player_id: "11604"
+      gsis_id: ABSENT — this step did not run or did not join
+      team: "LV"
+      position: "TE"
+      bye: null
+  2. projection
+      proj_source: ABSENT — this step did not run or did not join
+      proj_mean: 232.87
+      proj_sd: 68.74
+  3. opportunity adj
+      opportunity_z: 2.38
+      opportunity_adj: 0.15
+  4. ADP join
+      adp_source: "ffc"
+      match_method: ABSENT — this step did not run or did not join
+      raw_adp: 45.1
+      adp_sd: 10
+      adp_sd_source: ABSENT — this step did not run or did not join
+  5. keeper adjustment
+      adjusted_adp: 46.43
+      keeper_shift: ABSENT — this step did not run or did not join
+  6. value
+      vorp: 82.15
+      tier: 1
+      tier_drop: 26.32
+      overall_rank: 10
+  7. composite  : not on this board — already taken in the reconstructed state
+
+==============================================================================
+ITEM 26 — the same for a DEGRADED player
+==============================================================================
+
+--- degraded path: Jahmyr Gibbs (RB DET) ---
+  1. Sleeper identity
+      player_id: "9221"
+      gsis_id: ABSENT — this step did not run or did not join
+      team: "DET"
+      position: "RB"
+      bye: null
+  2. projection
+      proj_source: ABSENT — this step did not run or did not join
+      proj_mean: 344.88
+      proj_sd: 131.33
+  3. opportunity adj
+      opportunity_z: 2.19
+      opportunity_adj: 0.15
+  4. ADP join
+      adp_source: "ffc"
+      match_method: ABSENT — this step did not run or did not join
+      raw_adp: 1.4
+      adp_sd: 0.6
+      adp_sd_source: ABSENT — this step did not run or did not join
+  5. keeper adjustment
+      adjusted_adp: 1.12
+      keeper_shift: ABSENT — this step did not run or did not join
+  6. value
+      vorp: 156.35
+      tier: 1
+      tier_drop: 42.43
+      overall_rank: 1
+  7. composite  : not on this board — already taken in the reconstructed state
+
+  WHAT DEGRADED MEANS FOR THE CARD: the fields marked ABSENT above were filled by fallback, and the composite score does not distinguish a measured number from a substituted one. That is what the provenance block and the per-source counts (items 1 and 4) exist to expose.
+
+=== all items produced output ===
 ```
-regen.sh exit status: 1
+regen.sh exit status: 0
