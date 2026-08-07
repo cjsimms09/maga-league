@@ -5,7 +5,14 @@ name: Build draft board
 # Nothing to pay for and nothing to go down mid-draft.
 on:
   schedule:
-    - cron: '0 8 * * *'      # 08:00 UTC nightly — well before any evening draft
+    # GitHub Actions cron is UTC and does not observe DST, so a schedule
+    # written as "6am Central" silently slides by an hour for half the year.
+    # These are written in UTC deliberately; the local time each is intended to
+    # hit is stated, and the pipeline logs the local time it actually ran so a
+    # drift is visible rather than assumed.
+    - cron: '0 8 * * *'      # 08:00 UTC = 03:00 CDT / 02:00 CST — nightly rebuild
+    - cron: '0 11 * * 2'     # 11:00 UTC Tue = 06:00 CDT — before Wednesday waivers
+    - cron: '0 13 * * 0'     # 13:00 UTC Sun = 08:00 CDT — inactives and lineups
   workflow_dispatch:
     inputs:
       league_id:

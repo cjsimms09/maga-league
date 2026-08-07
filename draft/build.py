@@ -569,7 +569,24 @@ def snapshot(league_id: str | None) -> int:
     return 1 if findings else 0
 
 
+def _log_run_time() -> None:
+    """State the local time this actually ran.
+
+    GitHub Actions cron is UTC and ignores DST, so a schedule written for 06:00
+    Central is an hour off for half the year. Logging both times makes that
+    visible instead of assumed.
+    """
+    import datetime
+    utc = datetime.datetime.now(datetime.timezone.utc)
+    try:
+        central = utc.astimezone(datetime.timezone(datetime.timedelta(hours=-5)))
+        print(f"run started {utc:%Y-%m-%d %H:%M} UTC ({central:%H:%M} US/Central-ish)")
+    except Exception:  # noqa: BLE001
+        print(f"run started {utc:%Y-%m-%d %H:%M} UTC")
+
+
 def main() -> None:
+    _log_run_time()
     ap = argparse.ArgumentParser()
     ap.add_argument("--league-id")
     ap.add_argument("--offline", action="store_true", help="build from cache/fixtures only")

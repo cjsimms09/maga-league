@@ -1,0 +1,1298 @@
+{
+ "generated_by": "draft/gen_keeper_vectors.py",
+ "players": [
+  {
+   "player_id": "p1",
+   "name": "Player 1",
+   "position": "WR",
+   "raw_adp": 3.7,
+   "consensus_rank": 3.7
+  },
+  {
+   "player_id": "p2",
+   "name": "Player 2",
+   "position": "TE",
+   "raw_adp": 6.4,
+   "consensus_rank": 6.4
+  },
+  {
+   "player_id": "p3",
+   "name": "Player 3",
+   "position": "QB",
+   "raw_adp": 9.1,
+   "consensus_rank": 9.100000000000001
+  },
+  {
+   "player_id": "p4",
+   "name": "Player 4",
+   "position": "RB",
+   "raw_adp": 11.8,
+   "consensus_rank": 11.8
+  },
+  {
+   "player_id": "p5",
+   "name": "Player 5",
+   "position": "WR",
+   "raw_adp": 14.5,
+   "consensus_rank": 14.5
+  },
+  {
+   "player_id": "p6",
+   "name": "Player 6",
+   "position": "TE",
+   "raw_adp": 17.2,
+   "consensus_rank": 17.200000000000003
+  },
+  {
+   "player_id": "p7",
+   "name": "Player 7",
+   "position": "QB",
+   "raw_adp": 19.9,
+   "consensus_rank": 19.900000000000002
+  },
+  {
+   "player_id": "p8",
+   "name": "Player 8",
+   "position": "RB",
+   "raw_adp": 22.6,
+   "consensus_rank": 22.6
+  },
+  {
+   "player_id": "p9",
+   "name": "Player 9",
+   "position": "WR",
+   "raw_adp": 25.3,
+   "consensus_rank": 25.3
+  },
+  {
+   "player_id": "p10",
+   "name": "Player 10",
+   "position": "TE",
+   "raw_adp": 28.0,
+   "consensus_rank": 28.0
+  },
+  {
+   "player_id": "p11",
+   "name": "Player 11",
+   "position": "QB",
+   "raw_adp": 30.7,
+   "consensus_rank": 30.700000000000003
+  },
+  {
+   "player_id": "p12",
+   "name": "Player 12",
+   "position": "RB",
+   "raw_adp": 33.4,
+   "consensus_rank": 33.400000000000006
+  },
+  {
+   "player_id": "p13",
+   "name": "Player 13",
+   "position": "WR",
+   "raw_adp": 36.1,
+   "consensus_rank": 36.1
+  },
+  {
+   "player_id": "p14",
+   "name": "Player 14",
+   "position": "TE",
+   "raw_adp": 38.8,
+   "consensus_rank": 38.800000000000004
+  },
+  {
+   "player_id": "p15",
+   "name": "Player 15",
+   "position": "QB",
+   "raw_adp": 41.5,
+   "consensus_rank": 41.5
+  },
+  {
+   "player_id": "p16",
+   "name": "Player 16",
+   "position": "RB",
+   "raw_adp": 44.2,
+   "consensus_rank": 44.2
+  },
+  {
+   "player_id": "p17",
+   "name": "Player 17",
+   "position": "WR",
+   "raw_adp": 46.9,
+   "consensus_rank": 46.900000000000006
+  },
+  {
+   "player_id": "p18",
+   "name": "Player 18",
+   "position": "TE",
+   "raw_adp": 49.6,
+   "consensus_rank": 49.6
+  },
+  {
+   "player_id": "p19",
+   "name": "Player 19",
+   "position": "QB",
+   "raw_adp": 52.3,
+   "consensus_rank": 52.300000000000004
+  },
+  {
+   "player_id": "p20",
+   "name": "Player 20",
+   "position": "RB",
+   "raw_adp": 55.0,
+   "consensus_rank": 55.0
+  },
+  {
+   "player_id": "p21",
+   "name": "Player 21",
+   "position": "WR",
+   "raw_adp": 57.7,
+   "consensus_rank": 57.7
+  },
+  {
+   "player_id": "p22",
+   "name": "Player 22",
+   "position": "TE",
+   "raw_adp": 60.4,
+   "consensus_rank": 60.400000000000006
+  },
+  {
+   "player_id": "p23",
+   "name": "Player 23",
+   "position": "QB",
+   "raw_adp": 63.1,
+   "consensus_rank": 63.1
+  },
+  {
+   "player_id": "p24",
+   "name": "Player 24",
+   "position": "RB",
+   "raw_adp": 65.8,
+   "consensus_rank": 65.80000000000001
+  },
+  {
+   "player_id": "p25",
+   "name": "Player 25",
+   "position": "WR",
+   "raw_adp": 68.5,
+   "consensus_rank": 68.5
+  },
+  {
+   "player_id": "p26",
+   "name": "Player 26",
+   "position": "TE",
+   "raw_adp": 71.2,
+   "consensus_rank": 71.2
+  },
+  {
+   "player_id": "p27",
+   "name": "Player 27",
+   "position": "QB",
+   "raw_adp": 73.9,
+   "consensus_rank": 73.9
+  },
+  {
+   "player_id": "p28",
+   "name": "Player 28",
+   "position": "RB",
+   "raw_adp": 76.6,
+   "consensus_rank": 76.60000000000001
+  },
+  {
+   "player_id": "p29",
+   "name": "Player 29",
+   "position": "WR",
+   "raw_adp": 79.3,
+   "consensus_rank": 79.30000000000001
+  },
+  {
+   "player_id": "p30",
+   "name": "Player 30",
+   "position": "TE",
+   "raw_adp": 82.0,
+   "consensus_rank": 82.0
+  },
+  {
+   "player_id": "p31",
+   "name": "Player 31",
+   "position": "QB",
+   "raw_adp": 84.7,
+   "consensus_rank": 84.7
+  },
+  {
+   "player_id": "p32",
+   "name": "Player 32",
+   "position": "RB",
+   "raw_adp": 87.4,
+   "consensus_rank": 87.4
+  },
+  {
+   "player_id": "p33",
+   "name": "Player 33",
+   "position": "WR",
+   "raw_adp": 90.1,
+   "consensus_rank": 90.10000000000001
+  },
+  {
+   "player_id": "p34",
+   "name": "Player 34",
+   "position": "TE",
+   "raw_adp": 92.8,
+   "consensus_rank": 92.80000000000001
+  },
+  {
+   "player_id": "p35",
+   "name": "Player 35",
+   "position": "QB",
+   "raw_adp": 95.5,
+   "consensus_rank": 95.5
+  },
+  {
+   "player_id": "p36",
+   "name": "Player 36",
+   "position": "RB",
+   "raw_adp": 98.2,
+   "consensus_rank": 98.2
+  },
+  {
+   "player_id": "p37",
+   "name": "Player 37",
+   "position": "WR",
+   "raw_adp": 100.9,
+   "consensus_rank": 100.9
+  },
+  {
+   "player_id": "p38",
+   "name": "Player 38",
+   "position": "TE",
+   "raw_adp": 103.6,
+   "consensus_rank": 103.60000000000001
+  },
+  {
+   "player_id": "p39",
+   "name": "Player 39",
+   "position": "QB",
+   "raw_adp": 106.3,
+   "consensus_rank": 106.30000000000001
+  },
+  {
+   "player_id": "p40",
+   "name": "Player 40",
+   "position": "RB",
+   "raw_adp": 109.0,
+   "consensus_rank": 109.0
+  }
+ ],
+ "cases": [
+  {
+   "name": "10-team snake, 3 keepers each, original_round",
+   "cfg": {
+    "teams": 10,
+    "rounds": 9,
+    "draft_type": "snake",
+    "roster_size": 12,
+    "my_draft_slot": 4,
+    "adp_blend_weight": 0.7,
+    "keepers": {
+     "count": 3,
+     "cost_model": "original_round",
+     "undrafted_round": 10
+    }
+   },
+   "keepers": {
+    "1": [
+     {
+      "player_id": "p1",
+      "original_round": 1
+     },
+     {
+      "player_id": "p11",
+      "original_round": 4
+     },
+     {
+      "player_id": "p21",
+      "original_round": 7
+     }
+    ],
+    "2": [
+     {
+      "player_id": "p2",
+      "original_round": 1
+     },
+     {
+      "player_id": "p12",
+      "original_round": 4
+     },
+     {
+      "player_id": "p22",
+      "original_round": 7
+     }
+    ],
+    "3": [
+     {
+      "player_id": "p3",
+      "original_round": 1
+     },
+     {
+      "player_id": "p13",
+      "original_round": 4
+     },
+     {
+      "player_id": "p23",
+      "original_round": 7
+     }
+    ],
+    "4": [
+     {
+      "player_id": "p4",
+      "original_round": 1
+     },
+     {
+      "player_id": "p14",
+      "original_round": 4
+     },
+     {
+      "player_id": "p24",
+      "original_round": 7
+     }
+    ],
+    "5": [
+     {
+      "player_id": "p5",
+      "original_round": 1
+     },
+     {
+      "player_id": "p15",
+      "original_round": 4
+     },
+     {
+      "player_id": "p25",
+      "original_round": 7
+     }
+    ],
+    "6": [
+     {
+      "player_id": "p6",
+      "original_round": 1
+     },
+     {
+      "player_id": "p16",
+      "original_round": 4
+     },
+     {
+      "player_id": "p26",
+      "original_round": 7
+     }
+    ],
+    "7": [
+     {
+      "player_id": "p7",
+      "original_round": 1
+     },
+     {
+      "player_id": "p17",
+      "original_round": 4
+     },
+     {
+      "player_id": "p27",
+      "original_round": 7
+     }
+    ],
+    "8": [
+     {
+      "player_id": "p8",
+      "original_round": 1
+     },
+     {
+      "player_id": "p18",
+      "original_round": 4
+     },
+     {
+      "player_id": "p28",
+      "original_round": 7
+     }
+    ],
+    "9": [
+     {
+      "player_id": "p9",
+      "original_round": 1
+     },
+     {
+      "player_id": "p19",
+      "original_round": 4
+     },
+     {
+      "player_id": "p29",
+      "original_round": 7
+     }
+    ],
+    "10": [
+     {
+      "player_id": "p10",
+      "original_round": 1
+     },
+     {
+      "player_id": "p20",
+      "original_round": 4
+     },
+     {
+      "player_id": "p30",
+      "original_round": 7
+     }
+    ]
+   },
+   "expect": {
+    "pick_count": 60,
+    "forfeited": [
+     [
+      1,
+      1
+     ],
+     [
+      1,
+      4
+     ],
+     [
+      1,
+      7
+     ],
+     [
+      2,
+      1
+     ],
+     [
+      2,
+      4
+     ],
+     [
+      2,
+      7
+     ],
+     [
+      3,
+      1
+     ],
+     [
+      3,
+      4
+     ],
+     [
+      3,
+      7
+     ],
+     [
+      4,
+      1
+     ],
+     [
+      4,
+      4
+     ],
+     [
+      4,
+      7
+     ],
+     [
+      5,
+      1
+     ],
+     [
+      5,
+      4
+     ],
+     [
+      5,
+      7
+     ],
+     [
+      6,
+      1
+     ],
+     [
+      6,
+      4
+     ],
+     [
+      6,
+      7
+     ],
+     [
+      7,
+      1
+     ],
+     [
+      7,
+      4
+     ],
+     [
+      7,
+      7
+     ],
+     [
+      8,
+      1
+     ],
+     [
+      8,
+      4
+     ],
+     [
+      8,
+      7
+     ],
+     [
+      9,
+      1
+     ],
+     [
+      9,
+      4
+     ],
+     [
+      9,
+      7
+     ],
+     [
+      10,
+      1
+     ],
+     [
+      10,
+      4
+     ],
+     [
+      10,
+      7
+     ]
+    ],
+    "my_picks": [
+     7,
+     14,
+     24,
+     37,
+     47,
+     54
+    ],
+    "my_original_picks": [
+     4,
+     17,
+     24,
+     37,
+     44,
+     57,
+     64,
+     77,
+     84
+    ],
+    "adjusted_adp": {
+     "p31": 17.11,
+     "p32": 18.62,
+     "p33": 20.13,
+     "p34": 21.64,
+     "p35": 23.15,
+     "p36": 24.66,
+     "p37": 26.17,
+     "p38": 27.68,
+     "p39": 29.19,
+     "p40": 30.7
+    },
+    "pool_rank": {
+     "p31": 1,
+     "p32": 2,
+     "p33": 3,
+     "p34": 4,
+     "p35": 5,
+     "p36": 6,
+     "p37": 7,
+     "p38": 8,
+     "p39": 9,
+     "p40": 10
+    }
+   }
+  },
+  {
+   "name": "two keepers colliding on the same cost round (roll-forward rule)",
+   "cfg": {
+    "teams": 10,
+    "rounds": 8,
+    "draft_type": "snake",
+    "roster_size": 11,
+    "my_draft_slot": 1,
+    "adp_blend_weight": 0.7,
+    "keepers": {
+     "count": 2,
+     "cost_model": "original_round",
+     "undrafted_round": 10
+    }
+   },
+   "keepers": {
+    "3": [
+     {
+      "player_id": "p3",
+      "original_round": 2
+     },
+     {
+      "player_id": "p13",
+      "original_round": 2
+     }
+    ]
+   },
+   "expect": {
+    "pick_count": 78,
+    "forfeited": [
+     [
+      3,
+      2
+     ],
+     [
+      3,
+      3
+     ]
+    ],
+    "my_picks": [
+     1,
+     19,
+     20,
+     38,
+     39,
+     58,
+     59,
+     78
+    ],
+    "my_original_picks": [
+     1,
+     20,
+     21,
+     40,
+     41,
+     60,
+     61,
+     80
+    ],
+    "adjusted_adp": {
+     "p1": 1.81,
+     "p2": 3.32,
+     "p4": 5.34,
+     "p5": 6.85,
+     "p6": 8.36,
+     "p7": 9.87,
+     "p8": 11.38,
+     "p9": 12.89,
+     "p10": 14.4,
+     "p11": 15.91,
+     "p12": 17.42,
+     "p14": 19.44,
+     "p15": 20.95,
+     "p16": 22.46,
+     "p17": 23.97,
+     "p18": 25.48,
+     "p19": 26.99,
+     "p20": 28.5,
+     "p21": 30.01,
+     "p22": 31.52,
+     "p23": 33.03,
+     "p24": 34.54,
+     "p25": 36.05,
+     "p26": 37.56,
+     "p27": 39.07,
+     "p28": 40.58,
+     "p29": 42.09,
+     "p30": 43.6,
+     "p31": 45.11,
+     "p32": 46.62,
+     "p33": 48.13,
+     "p34": 49.64,
+     "p35": 51.15,
+     "p36": 52.66,
+     "p37": 54.17,
+     "p38": 55.68,
+     "p39": 57.19,
+     "p40": 58.7
+    },
+    "pool_rank": {
+     "p1": 1,
+     "p2": 2,
+     "p4": 3,
+     "p5": 4,
+     "p6": 5,
+     "p7": 6,
+     "p8": 7,
+     "p9": 8,
+     "p10": 9,
+     "p11": 10,
+     "p12": 11,
+     "p14": 12,
+     "p15": 13,
+     "p16": 14,
+     "p17": 15,
+     "p18": 16,
+     "p19": 17,
+     "p20": 18,
+     "p21": 19,
+     "p22": 20,
+     "p23": 21,
+     "p24": 22,
+     "p25": 23,
+     "p26": 24,
+     "p27": 25,
+     "p28": 26,
+     "p29": 27,
+     "p30": 28,
+     "p31": 29,
+     "p32": 30,
+     "p33": 31,
+     "p34": 32,
+     "p35": 33,
+     "p36": 34,
+     "p37": 35,
+     "p38": 36,
+     "p39": 37,
+     "p40": 38
+    }
+   }
+  },
+  {
+   "name": "escalator cost model, mixed years kept",
+   "cfg": {
+    "teams": 10,
+    "rounds": 8,
+    "draft_type": "snake",
+    "roster_size": 11,
+    "my_draft_slot": 7,
+    "adp_blend_weight": 0.7,
+    "keepers": {
+     "count": 3,
+     "cost_model": "escalator",
+     "escalator_rounds": 2,
+     "undrafted_round": 10
+    }
+   },
+   "keepers": {
+    "7": [
+     {
+      "player_id": "p7",
+      "original_round": 8,
+      "years_kept": 1
+     },
+     {
+      "player_id": "p17",
+      "original_round": 8,
+      "years_kept": 2
+     }
+    ],
+    "2": [
+     {
+      "player_id": "p2",
+      "original_round": 5,
+      "years_kept": 1
+     }
+    ]
+   },
+   "expect": {
+    "pick_count": 77,
+    "forfeited": [
+     [
+      2,
+      3
+     ],
+     [
+      7,
+      4
+     ],
+     [
+      7,
+      6
+     ]
+    ],
+    "my_picks": [
+     7,
+     14,
+     26,
+     45,
+     64,
+     71
+    ],
+    "my_original_picks": [
+     7,
+     14,
+     27,
+     34,
+     47,
+     54,
+     67,
+     74
+    ],
+    "adjusted_adp": {
+     "p1": 1.81,
+     "p3": 3.83,
+     "p4": 5.34,
+     "p5": 6.85,
+     "p6": 8.36,
+     "p8": 10.38,
+     "p9": 11.89,
+     "p10": 13.4,
+     "p11": 14.91,
+     "p12": 16.42,
+     "p13": 17.93,
+     "p14": 19.44,
+     "p15": 20.95,
+     "p16": 22.46,
+     "p18": 24.48,
+     "p19": 25.99,
+     "p20": 27.5,
+     "p21": 29.01,
+     "p22": 30.52,
+     "p23": 32.03,
+     "p24": 33.54,
+     "p25": 35.05,
+     "p26": 36.56,
+     "p27": 38.07,
+     "p28": 39.58,
+     "p29": 41.09,
+     "p30": 42.6,
+     "p31": 44.11,
+     "p32": 45.62,
+     "p33": 47.13,
+     "p34": 48.64,
+     "p35": 50.15,
+     "p36": 51.66,
+     "p37": 53.17,
+     "p38": 54.68,
+     "p39": 56.19,
+     "p40": 57.7
+    },
+    "pool_rank": {
+     "p1": 1,
+     "p3": 2,
+     "p4": 3,
+     "p5": 4,
+     "p6": 5,
+     "p8": 6,
+     "p9": 7,
+     "p10": 8,
+     "p11": 9,
+     "p12": 10,
+     "p13": 11,
+     "p14": 12,
+     "p15": 13,
+     "p16": 14,
+     "p18": 15,
+     "p19": 16,
+     "p20": 17,
+     "p21": 18,
+     "p22": 19,
+     "p23": 20,
+     "p24": 21,
+     "p25": 22,
+     "p26": 23,
+     "p27": 24,
+     "p28": 25,
+     "p29": 26,
+     "p30": 27,
+     "p31": 28,
+     "p32": 29,
+     "p33": 30,
+     "p34": 31,
+     "p35": 32,
+     "p36": 33,
+     "p37": 34,
+     "p38": 35,
+     "p39": 36,
+     "p40": 37
+    }
+   }
+  },
+  {
+   "name": "no keepers at all \u2014 adjustment must be a no-op on pick order",
+   "cfg": {
+    "teams": 10,
+    "rounds": 6,
+    "draft_type": "snake",
+    "roster_size": 9,
+    "my_draft_slot": 10,
+    "adp_blend_weight": 0.7,
+    "keepers": {
+     "count": 0,
+     "cost_model": "original_round",
+     "undrafted_round": 10
+    }
+   },
+   "keepers": {},
+   "expect": {
+    "pick_count": 60,
+    "forfeited": [],
+    "my_picks": [
+     10,
+     11,
+     30,
+     31,
+     50,
+     51
+    ],
+    "my_original_picks": [
+     10,
+     11,
+     30,
+     31,
+     50,
+     51
+    ],
+    "adjusted_adp": {
+     "p1": 1.81,
+     "p2": 3.32,
+     "p3": 4.83,
+     "p4": 6.34,
+     "p5": 7.85,
+     "p6": 9.36,
+     "p7": 10.87,
+     "p8": 12.38,
+     "p9": 13.89,
+     "p10": 15.4,
+     "p11": 16.91,
+     "p12": 18.42,
+     "p13": 19.93,
+     "p14": 21.44,
+     "p15": 22.95,
+     "p16": 24.46,
+     "p17": 25.97,
+     "p18": 27.48,
+     "p19": 28.99,
+     "p20": 30.5,
+     "p21": 32.01,
+     "p22": 33.52,
+     "p23": 35.03,
+     "p24": 36.54,
+     "p25": 38.05,
+     "p26": 39.56,
+     "p27": 41.07,
+     "p28": 42.58,
+     "p29": 44.09,
+     "p30": 45.6,
+     "p31": 47.11,
+     "p32": 48.62,
+     "p33": 50.13,
+     "p34": 51.64,
+     "p35": 53.15,
+     "p36": 54.66,
+     "p37": 56.17,
+     "p38": 57.68,
+     "p39": 59.19,
+     "p40": 60.7
+    },
+    "pool_rank": {
+     "p1": 1,
+     "p2": 2,
+     "p3": 3,
+     "p4": 4,
+     "p5": 5,
+     "p6": 6,
+     "p7": 7,
+     "p8": 8,
+     "p9": 9,
+     "p10": 10,
+     "p11": 11,
+     "p12": 12,
+     "p13": 13,
+     "p14": 14,
+     "p15": 15,
+     "p16": 16,
+     "p17": 17,
+     "p18": 18,
+     "p19": 19,
+     "p20": 20,
+     "p21": 21,
+     "p22": 22,
+     "p23": 23,
+     "p24": 24,
+     "p25": 25,
+     "p26": 26,
+     "p27": 27,
+     "p28": 28,
+     "p29": 29,
+     "p30": 30,
+     "p31": 31,
+     "p32": 32,
+     "p33": 33,
+     "p34": 34,
+     "p35": 35,
+     "p36": 36,
+     "p37": 37,
+     "p38": 38,
+     "p39": 39,
+     "p40": 40
+    }
+   }
+  },
+  {
+   "name": "third-round reversal with keepers",
+   "cfg": {
+    "teams": 10,
+    "rounds": 7,
+    "draft_type": "third_round_reversal",
+    "roster_size": 10,
+    "my_draft_slot": 5,
+    "adp_blend_weight": 0.7,
+    "keepers": {
+     "count": 1,
+     "cost_model": "fixed_round",
+     "fixed_round": 3,
+     "undrafted_round": 10
+    }
+   },
+   "keepers": {
+    "5": [
+     {
+      "player_id": "p5"
+     }
+    ],
+    "9": [
+     {
+      "player_id": "p9"
+     }
+    ]
+   },
+   "expect": {
+    "pick_count": 68,
+    "forfeited": [
+     [
+      5,
+      3
+     ],
+     [
+      9,
+      3
+     ]
+    ],
+    "my_picks": [
+     5,
+     16,
+     33,
+     44,
+     53,
+     64
+    ],
+    "my_original_picks": [
+     5,
+     16,
+     26,
+     35,
+     46,
+     55,
+     66
+    ],
+    "adjusted_adp": {
+     "p1": 1.81,
+     "p2": 3.32,
+     "p3": 4.83,
+     "p4": 6.34,
+     "p6": 8.36,
+     "p7": 9.87,
+     "p8": 11.38,
+     "p10": 13.4,
+     "p11": 14.91,
+     "p12": 16.42,
+     "p13": 17.93,
+     "p14": 19.44,
+     "p15": 20.95,
+     "p16": 22.46,
+     "p17": 23.97,
+     "p18": 25.48,
+     "p19": 26.99,
+     "p20": 28.5,
+     "p21": 30.01,
+     "p22": 31.52,
+     "p23": 33.03,
+     "p24": 34.54,
+     "p25": 36.05,
+     "p26": 37.56,
+     "p27": 39.07,
+     "p28": 40.58,
+     "p29": 42.09,
+     "p30": 43.6,
+     "p31": 45.11,
+     "p32": 46.62,
+     "p33": 48.13,
+     "p34": 49.64,
+     "p35": 51.15,
+     "p36": 52.66,
+     "p37": 54.17,
+     "p38": 55.68,
+     "p39": 57.19,
+     "p40": 58.7
+    },
+    "pool_rank": {
+     "p1": 1,
+     "p2": 2,
+     "p3": 3,
+     "p4": 4,
+     "p6": 5,
+     "p7": 6,
+     "p8": 7,
+     "p10": 8,
+     "p11": 9,
+     "p12": 10,
+     "p13": 11,
+     "p14": 12,
+     "p15": 13,
+     "p16": 14,
+     "p17": 15,
+     "p18": 16,
+     "p19": 17,
+     "p20": 18,
+     "p21": 19,
+     "p22": 20,
+     "p23": 21,
+     "p24": 22,
+     "p25": 23,
+     "p26": 24,
+     "p27": 25,
+     "p28": 26,
+     "p29": 27,
+     "p30": 28,
+     "p31": 29,
+     "p32": 30,
+     "p33": 31,
+     "p34": 32,
+     "p35": 33,
+     "p36": 34,
+     "p37": 35,
+     "p38": 36,
+     "p39": 37,
+     "p40": 38
+    }
+   }
+  },
+  {
+   "name": "undrafted keeper falls back to the assigned round",
+   "cfg": {
+    "teams": 10,
+    "rounds": 8,
+    "draft_type": "snake",
+    "roster_size": 11,
+    "my_draft_slot": 3,
+    "adp_blend_weight": 0.5,
+    "keepers": {
+     "count": 1,
+     "cost_model": "original_round",
+     "undrafted_round": 6
+    }
+   },
+   "keepers": {
+    "3": [
+     {
+      "player_id": "p33"
+     }
+    ]
+   },
+   "expect": {
+    "pick_count": 79,
+    "forfeited": [
+     [
+      3,
+      6
+     ]
+    ],
+    "my_picks": [
+     3,
+     18,
+     23,
+     38,
+     43,
+     62,
+     77
+    ],
+    "my_original_picks": [
+     3,
+     18,
+     23,
+     38,
+     43,
+     58,
+     63,
+     78
+    ],
+    "adjusted_adp": {
+     "p1": 2.35,
+     "p2": 4.2,
+     "p3": 6.05,
+     "p4": 7.9,
+     "p5": 9.75,
+     "p6": 11.6,
+     "p7": 13.45,
+     "p8": 15.3,
+     "p9": 17.15,
+     "p10": 19.0,
+     "p11": 20.85,
+     "p12": 22.7,
+     "p13": 24.55,
+     "p14": 26.4,
+     "p15": 28.25,
+     "p16": 30.1,
+     "p17": 31.95,
+     "p18": 33.8,
+     "p19": 35.65,
+     "p20": 37.5,
+     "p21": 39.35,
+     "p22": 41.2,
+     "p23": 43.05,
+     "p24": 44.9,
+     "p25": 46.75,
+     "p26": 48.6,
+     "p27": 50.45,
+     "p28": 52.3,
+     "p29": 54.15,
+     "p30": 56.0,
+     "p31": 57.85,
+     "p32": 59.7,
+     "p34": 62.4,
+     "p35": 64.25,
+     "p36": 66.1,
+     "p37": 67.95,
+     "p38": 69.8,
+     "p39": 71.65,
+     "p40": 73.5
+    },
+    "pool_rank": {
+     "p1": 1,
+     "p2": 2,
+     "p3": 3,
+     "p4": 4,
+     "p5": 5,
+     "p6": 6,
+     "p7": 7,
+     "p8": 8,
+     "p9": 9,
+     "p10": 10,
+     "p11": 11,
+     "p12": 12,
+     "p13": 13,
+     "p14": 14,
+     "p15": 15,
+     "p16": 16,
+     "p17": 17,
+     "p18": 18,
+     "p19": 19,
+     "p20": 20,
+     "p21": 21,
+     "p22": 22,
+     "p23": 23,
+     "p24": 24,
+     "p25": 25,
+     "p26": 26,
+     "p27": 27,
+     "p28": 28,
+     "p29": 29,
+     "p30": 30,
+     "p31": 31,
+     "p32": 32,
+     "p34": 33,
+     "p35": 34,
+     "p36": 35,
+     "p37": 36,
+     "p38": 37,
+     "p39": 38,
+     "p40": 39
+    }
+   }
+  }
+ ]
+}
