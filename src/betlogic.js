@@ -101,6 +101,10 @@ const CFG = {
   // Where the fantasy playoffs start, when Sleeper has not told us. Week 15 in
   // a 14-week regular season, which is this league's shape.
   PLAYOFF_WEEK_DEFAULT: 15,
+  // A bet offered once the week is already in play. Live betting is fine — you
+  // are both watching the same game — but it cannot SIT, because every minute
+  // that passes moves the price. Three hours is about one afternoon of football.
+  IN_PLAY_HOURS: 3,
 };
 
 /**
@@ -166,8 +170,19 @@ function acceptDeadline(bet, ctx = {}, at = new Date()) {
   if (weeks.length) {
     // The earliest week it touches — that is the first thing that can happen.
     const wk = Math.min(...weeks);
-    deadline = kickoffOf(wk, start);
-    why = `week ${wk} kicks off`;
+    const kick = kickoffOf(wk, start);
+    const offered = bet.created_at ? new Date(bet.created_at) : null;
+    if (offered && offered > kick) {
+      // Offered mid-week, with points already on the board. That is allowed —
+      // you are both watching — but it gets hours, not days. A live offer left
+      // lying around is the worst version of the problem: the price has moved
+      // and only one of you has been watching it move.
+      deadline = new Date(offered.getTime() + CFG.IN_PLAY_HOURS * 3600000);
+      why = `it was offered mid-week, and live offers only stand for ${CFG.IN_PLAY_HOURS} hours`;
+    } else {
+      deadline = kick;
+      why = `week ${wk} kicks off`;
+    }
   } else if (bet.format === 'pool'
       || (bet.conditions || []).some(c => c.when === 'season' || c.test === 'finishes')) {
     // Season-long bets stay open DURING the season — two people can perfectly
@@ -184,17 +199,20 @@ function acceptDeadline(bet, ctx = {}, at = new Date()) {
     const stale = new Date(new Date(bet.created_at).getTime() + CFG.PROPOSAL_MAX_DAYS * 86400000);
     if (!deadline || stale < deadline) {
       deadline = stale;
-      why = `it has been sitting there ${CFG.PROPOSAL_MAX_DAYS} days`;
+      why = `nobody answered it in ${CFG.PROPOSAL_MAX_DAYS} days`;
     }
   }
 
   if (!deadline) return { at: null, why: '', open: true, reason: '', stale: false };
   const open = at < deadline;
-  const stale = !open && /sitting there/.test(why);
+  // A stale offer is one that timed out waiting for an answer, as opposed to
+  // one overtaken by events. The difference matters: stale gets "send it again",
+  // too-late does not, because the thing it was about has happened.
+  const stale = !open && (/nobody answered/.test(why) || /only stand for/.test(why));
   return {
     at: deadline, why, open, stale,
     reason: open ? ''
-      : stale ? `This offer expired — ${why} without an answer. Send it again if you still want it.`
+      : stale ? `This offer expired — ${why}. Send it again if you still want it.`
               : `Too late — ${why}. This one had to be accepted before then.`,
   };
 }

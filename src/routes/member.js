@@ -535,14 +535,29 @@ async function tooLate(bet, req) {
     playoffWeek: sB && sB.league && sB.league.settings ? sB.league.settings.playoff_week_start : null,
   });
   if (!gate.open) return gate.reason;
-  // Belt and braces for this week's games: points on the board mean football
-  // has started even if the calendar says otherwise.
-  if (bet.kind === 'matchup') {
-    const sData = await sleeper.bundle(world.config.sleeper_league_id);
-    const mu = sleeper.myMatchup(sData, world.config.sleeper_map || {}, req.owner.id,
-      H.activeOwners(world.owners));
-    const win = BL.matchupWindow(mu);
-    if (!win.open) return win.reason;
+
+  // The calendar is an approximation; points on the board are the fact. Any bet
+  // that turns on THIS week dies the moment somebody scores in it — which is
+  // what "expires when the first point is scored" actually means, and it is
+  // earlier than kickoff+something in every case that matters.
+  const weeks = (bet.conditions || [])
+    .filter(c => c.when === 'week' && c.week).map(c => Number(c.week));
+  if (bet.kind === 'matchup' && bet.week) weeks.push(Number(bet.week));
+  if (!weeks.length) return null;
+
+  const sData = await sleeper.bundle(world.config.sleeper_league_id);
+  const nowWeek = (sData && sData.week) || 0;
+  const earliest = Math.min(...weeks);
+  // A week already behind us is closed by the deadline above; only the live one
+  // needs the scoreboard consulted.
+  if (earliest !== nowWeek) return null;
+  // Anybody scoring anywhere means the week is under way. Not just this
+  // matchup — a bet between two people whose players all play Sunday is still
+  // a bet on a week that started on Thursday.
+  const anyScore = (sData && Array.isArray(sData.matchups))
+    && sData.matchups.some(m => (m.points || 0) > 0);
+  if (anyScore && !(bet.created_at && new Date(bet.created_at) > BL.kickoffOf(earliest, world.config.season_start))) {
+    return `Week ${earliest} is under way — there are points on the board. This one had to be accepted before anybody scored.`;
   }
   return null;
 }
@@ -837,9 +852,9 @@ router.get('/team', aw(async (req, res) => {
     ? SB.betsAbout(allBets, req.owner.id, nameOf) : [];
   res.render('team', { viewOwner, owners, roster, matchup, betWindow,
     matchupPending, aboutMe, late: req.query.late === '1',
-    // "This week" is the default tab: who you're playing is the question people
-    // open this page with during the season.
-    section: req.query.section === 'roster' ? 'roster' : 'week',
+    // Roster is the default — it is what this page has always been, and it is
+    // the half that works without a live matchup.
+    section: req.query.section === 'week' ? 'week' : 'roster',
     weekNo: (matchup && matchup.week) || (sData && sData.week) || 1,
     configured: !!world.config.sleeper_league_id });
 }));

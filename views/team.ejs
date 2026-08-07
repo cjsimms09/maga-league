@@ -18,12 +18,15 @@
     guard, so the moment Sleeper was unreachable or the season hadn't started
     the whole matchup section silently vanished. A feature that disappears
     exactly when you go looking for it is worse than one that isn't built. %>
+<%# Both links carry their section explicitly. The Roster link used to omit it
+    and rely on the default, so clicking it just re-rendered This Week — the tab
+    looked broken because it was. %>
 <nav class="section-tabs">
+  <a href="/team?owner=<%= viewOwner.id %>&section=roster" class="<%= section === 'roster' ? 'active' : '' %>">
+    <b>🏈 Roster</b><span>who you own, and how they're doing</span>
+  </a>
   <a href="/team?owner=<%= viewOwner.id %>&section=week" class="<%= section === 'week' ? 'active' : '' %>">
     <b>⚔️ This Week</b><span>your matchup and what's on it</span>
-  </a>
-  <a href="/team?owner=<%= viewOwner.id %>" class="<%= section === 'week' ? '' : 'active' %>">
-    <b>🏈 Roster</b><span>who you own, and how they're doing</span>
   </a>
 </nav>
 

@@ -488,6 +488,41 @@ console.log('\n--- nobody can accept a bet after it has started ---');
     B.kickoffOf(14).toISOString(), '2026-12-11T01:15:00.000Z');
 }
 
+console.log('\n--- betting on a week already in play ---');
+{
+  const C = w => cond({ test: 'outscores', subject_id: 1, target_id: 3, week: w });
+  const KICK2 = '2026-09-18T00:15:00.000Z';
+  eq('week 2 kicks off Thursday night', B.kickoffOf(2).toISOString(), KICK2);
+
+  // Offered before kickoff: dies at kickoff, as before.
+  const pre = { created_at: '2026-09-16T00:00:00Z', conditions: [C(2)] };
+  ok('live the day before', B.acceptDeadline(pre, {}, new Date('2026-09-17T12:00:00Z')).open);
+  const missed = B.acceptDeadline(pre, {}, new Date('2026-09-19T12:00:00Z'));
+  ok('dead once the week starts', !missed.open, missed.reason);
+  ok('and that is "too late", not "expired"', !missed.stale, JSON.stringify(missed));
+
+  // Offered DURING the week: allowed, but it only stands for three hours.
+  const live = { created_at: '2026-09-20T18:00:00Z', conditions: [C(2)] };
+  ok('a live offer is legal', B.acceptDeadline(live, {}, new Date('2026-09-20T19:00:00Z')).open);
+  ok('still legal at 2h59', B.acceptDeadline(live, {}, new Date('2026-09-20T20:58:00Z')).open);
+  const cold = B.acceptDeadline(live, {}, new Date('2026-09-20T22:00:00Z'));
+  ok('dead at 4h', !cold.open, cold.reason);
+  ok('and it is stale, so it can be sent again', cold.stale, JSON.stringify(cold));
+  ok('the wording explains the rule', /live offers only stand for 3 hours/.test(cold.reason), cold.reason);
+
+  // A live offer still cannot outlive the week it is about.
+  const veryLate = { created_at: '2026-09-22T23:00:00Z', conditions: [C(2)] };
+  ok('offered Monday night, still only three hours',
+    !B.acceptDeadline(veryLate, {}, new Date('2026-09-23T04:00:00Z')).open);
+}
+{
+  // The ten-day rule cannot resurrect a week that has already gone.
+  const old = { created_at: '2026-09-16T00:00:00Z',
+    conditions: [cond({ test: 'outscores', subject_id: 1, target_id: 3, week: 2 })] };
+  const d = B.acceptDeadline(old, {}, new Date('2026-09-20T00:00:00Z'));
+  ok('kickoff beats the ten-day clock when it comes first', !d.open, d.reason);
+}
+
 console.log('\n--- the kickoff cutoff on matchup bets ---');
 {
   // Week of 10 Sep 2026. Thursday kickoff is 8:15pm ET = 00:15Z Friday.
