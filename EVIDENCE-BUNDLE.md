@@ -69,6 +69,11 @@ opportunity_adjustment   : DISABLED — offline build
 top-200 with non-zero opportunity_z: 197 (98.5%)
 per-player adp source field present: False
 ```
+CONTRADICTION IN THE ARTIFACT, stated without resolving it: `opportunity_adjustment`
+reads `DISABLED — offline build`, yet 197 of the top 200 players (98.5%) carry a
+non-zero `opportunity_z`. Either the provenance flag is wrong or the z-values are
+fixture-synthesised while the flag describes the real pipeline. Not determined here.
+
 Note: these are the FIXTURE artifact's numbers. The deployed artifact was separately observed on 2026-08-07T14:11Z reporting `adp ffc · 0 guessed in play`, `value_coverage 1.0`, `opportunity ok (1.0)`.
 
 ## B. Identity joins
@@ -144,7 +149,27 @@ arithmetic (only keys present in BOTH the stat line and the scoring table):
 ```
 Against the deployed table:
 ```
-(see chat transcript: K=13.00 hand and engine; DST=20.00 hand and engine)
+--- K with distance tiers ---
+stat line: {"fgm_20_29": 1, "fgm_30_39": 1, "fgm_50p": 1, "xpm": 2, "fgmiss": 1}
+         fgm_20_29    1 x    3.0 =     3.00
+         fgm_30_39    1 x    3.0 =     3.00
+           fgm_50p    1 x    5.0 =     5.00
+            fgmiss    1 x    0.0 =     0.00
+               xpm    2 x    1.0 =     2.00
+        hand total                    13.00
+            engine                    13.00
+  match: True
+
+--- DST ---
+stat line: {"def_td": 1, "pts_allow_7_13": 1, "sack": 4, "int": 2, "fum_rec": 1}
+            def_td    1 x    6.0 =     6.00
+           fum_rec    1 x    2.0 =     2.00
+               int    2 x    2.0 =     4.00
+    pts_allow_7_13    1 x    4.0 =     4.00
+              sack    4 x    1.0 =     4.00
+        hand total                    20.00
+            engine                    20.00
+  match: True
 ```
 
 ### 9. Fresh live `scoring_settings` vs stored config
@@ -378,6 +403,20 @@ Secondary B runs only if the primary shows an effect, per the spec: there is
 nothing to check the robustness of otherwise.
 
 ## Outcomes, decided now
+
+- **MCTS beats greedy-on-V (p < 0.05)** → ship **enabled**; proceed to the
+  perturbation arm.
+- **Ties vs greedy but beats the ADP room** → the value function is doing the
+  work and the search adds nothing *yet*. This is not failure; it is the
+  expected result of a variance-blind V, which literally cannot see what a
+  non-greedy line buys. Ship **present-but-off**, with that reason written on
+  the toggle, and it converts directly into a priority signal: **the quantile V
+  is what unlocks the search, so build it next.**
+- **MCTS loses to greedy-on-V** → this is a **bug report, not a verdict**. A
+  correctly implemented search over the same V should never be worse than
+  greedy on average. Most likely locations, in order: the chance-node sampling,
+  the backup at chance nodes, or the rollout policy's divergence from the tree
+  policy. Investigate before drawing any conclusion about MCTS.
 ```
 **Result: NOT YET AVAILABLE.** The primary run (1,000 paired drafts x 2 rooms, 400 iterations/pick) was still executing when this bundle was generated. `draft/tournament/results-primary.json` does not exist yet.
 
