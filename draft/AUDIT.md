@@ -474,3 +474,70 @@ finding described a quirk of the inputs and its cost figure predicts nothing
 about draft day. If it holds, the deferral is a genuine property of the search
 and the cost is worth pricing. This note is repeated at the top of
 `round2.js` so it is read before the output, not after.
+
+---
+
+## 14. Tournament verdict: branch 2, and the exact words the toggle must use
+
+**Primary, 1,000 drafts x 400 iterations, both rooms, clean provenance**
+(`git_head 3f2d3d8`, `uncommitted_when_run: []`, `GREEDY_K 12`, no `ROLLOUT_K`):
+
+| room | MCTS | greedy-on-V | diff | t | sign |
+|---|---|---|---|---|---|
+| composite | 0.9910 | 0.9918 | -0.0008 | -0.473 | 64W 59L |
+| ADP | 0.9683 | 0.8992 | **+0.0691** | **18.667** | 472W 91L |
+
+Pre-registered branch 2 — "ties vs greedy but beats the ADP room" — ship
+**present-but-off**, with the reason on the toggle, and quantile V is the
+unlock.
+
+### Both fixes validated in one table
+
+The ADP room went from +0.0018 (p 0.253, null) to +0.0691 (t 18.7) while the
+composite room went from -0.0922 (t -19.4) to indistinguishable from zero. The
+search now beats a weaker room decisively and *matches* its own value
+function's greedy application exactly — which is precisely what a correct
+search over a variance-blind V should do. The machinery is certified even
+though the edge is still waiting on a better yardstick.
+
+### THE METRIC SATURATED — this is not a footnote
+
+877 of 1,000 paired drafts in the composite room finished at the **identical**
+percentile, both arms averaging 0.991 against a hard ceiling of 1.0. That
+leaves about one point of percentile in which to express any difference at
+all. The metric ran out of ruler.
+
+**So the honest claim is "no difference detectable at this metric's
+resolution", NOT "no difference".** Those are different statements and only
+the first is supported.
+
+### Required toggle copy, decided now rather than at wiring time
+
+When the advisor is wired to the UI, the off-by-default toggle must carry
+this reason, and must not be softened into a claim the data does not support:
+
+> **Search advisor — off.** In 1,000 simulated drafts the search matched, but
+> did not beat, the straightforward application of the same value function.
+> No difference was detectable at this test's resolution — 88% of paired
+> drafts finished tied on the metric, so a small real difference could not
+> have shown up either way. The search does beat an ADP-following room
+> decisively. It optimises expected points and does not model upside, which
+> is the most likely reason it cannot yet beat its own value function.
+
+Wording rules for that box: say *not detectable*, never *none*; give the tie
+rate, because a reader cannot judge a null without knowing how much of the
+metric was usable; and keep the ADP-room result, because it is the evidence
+the machinery works.
+
+### The QB-deferral signature is stable, and the two rooms differ by design
+
+Round-2 marginal V across three independent runs at three scales: -18.59
+(1,000, pre-fix), -17.51 (300), -17.76 (1,000, post-fix), with the direct
+diagnostic at -17.181. That is a property of the search on this board, not
+sampling noise.
+
+The ADP room's per-round shape is entirely different — +19.36 at r4, +10.01
+at r7 — because the search is exploiting a *different* opponent's specific
+weaknesses. Same engine, two rooms, two tailored strategies. That is the
+policy-aware capability the whole thing was built for, visible for the first
+time.
