@@ -72,7 +72,24 @@
   }
 
   /* ------------------------------------------------------------------
-   * 3. Horizontal-scroll affordance.
+   * 3. Tiles that open a <details> elsewhere on the page.
+   *
+   * An anchor cannot open a collapsed <details>, so "tap the pot to see the
+   * split" would scroll you to a closed box and look broken. Six lines fixes it,
+   * and the link still navigates without JS — you just have to open the box.
+   * ------------------------------------------------------------------ */
+  document.addEventListener('click', function (e) {
+    var trigger = e.target.closest('[data-opens]');
+    if (!trigger) return;
+    var target = document.querySelector(trigger.getAttribute('data-opens'));
+    if (!target) return;
+    target.open = true;
+    // Let the anchor do the scrolling; opening first means it scrolls to the
+    // expanded box rather than to where the closed one used to be.
+  });
+
+  /* ------------------------------------------------------------------
+   * 4. Horizontal-scroll affordance.
    *
    * Wide tables scroll inside their card. On a phone with overlay scrollbars
    * there is no visual cue that they do, so a table that is cut off reads as a

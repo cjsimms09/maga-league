@@ -9,51 +9,93 @@
     if (isNaN(d)) return String(s).slice(0, 10);
     return d.getUTCDate() + ' ' + MON[d.getUTCMonth()] + ' ' + d.getUTCFullYear();
   };
-  const me = cards.find(c => c.owner.id === owner.id);
-  const myBal = me ? me.balance : 0;
   const isCommish = owner.is_commissioner;
+  const vc = viewCard;
+  const isMine = vc && vc.owner.id === owner.id;
 %>
 
-<h1 class="page-title">💰 The Tab</h1>
-<p class="page-sub">One running number per person, in <b>USD</b>. Green means the league
-owes them, red means they owe. Balances roll over season to season until settled.</p>
+<h1 class="page-title" id="top">💰 The Tab</h1>
+<p class="page-sub">Every dollar in and out, in <b>USD</b>. Balances roll over season to
+season until settled.</p>
 
-<div class="hero" style="margin-bottom:1.1rem">
-  <div class="hero-item <%= myBal > 0 ? 'good' : myBal < 0 ? 'bad' : '' %>">
-    <span class="hero-label">Your Balance</span>
-    <span class="hero-value"><%= myBal === 0 ? '✓ Even' : money(Math.abs(myBal)) %></span>
-    <span class="hero-sub"><%= myBal > 0 ? 'the league owes you' : myBal < 0 ? 'you owe the league' : 'all squared up' %></span>
-  </div>
-  <div class="hero-item bad">
-    <span class="hero-label">Owed TO the league</span>
-    <span class="hero-value"><%= money(Math.abs(totalOwedToLeague)) %></span>
-  </div>
-  <div class="hero-item good">
-    <span class="hero-label">Owed BY the league</span>
-    <span class="hero-value"><%= money(totalLeagueOwes) %></span>
+<%# ── One team's running ledger. Yours unless you tapped someone else's name. ── %>
+<% if (vc) { %>
+<div class="card owner-ledger" style="margin-bottom:1.3rem">
+  <h2>
+    <%= isMine ? 'Your Ledger' : vc.owner.name + '’s Ledger' %>
+    <span class="sub"><%= season.year %> season</span>
+    <span class="ledger-bal <%= vc.balance > 0 ? 'pos' : vc.balance < 0 ? 'neg' : '' %>">
+      <%= vc.balance === 0 ? '✓ Settled up'
+          : (vc.balance > 0 ? 'League owes ' : 'Owes league ') + money(Math.abs(vc.balance)) %>
+    </span>
+  </h2>
+  <div class="body tight scroll-x">
+    <%
+      // Everything this season, settled and open, so the running balance tells
+      // the story of the year rather than only what is still outstanding.
+      const mine = vc.entries
+        .filter(e => Number(e.year) === Number(season.year))
+        .sort((a, b) => (a.created_at < b.created_at ? -1 : 1));
+    %>
+    <% if (!mine.length) { %>
+      <p class="muted" style="padding:1rem; margin:0">Nothing on the books for <%= season.year %> yet.</p>
+    <% } else { %>
+    <table class="roll ledger">
+      <thead><tr>
+        <th>Date</th><th>Item</th><th class="num">Amount</th><th class="num">Running</th>
+        <th class="st">Status</th><% if (isCommish) { %><th></th><% } %>
+      </tr></thead>
+      <tbody>
+        <% let run = 0; %>
+        <% for (const e of mine) { if (!e.settled) run += e.amount; %>
+          <tr class="<%= e.settled ? 'is-settled' : '' %>">
+            <td class="ldate"><%= fmtDate(e.created_at) %></td>
+            <td><%= e.desc %><% if (e.week) { %> <span class="muted type-tag">wk <%= e.week %></span><% } %></td>
+            <td class="num <%= e.amount < 0 ? 'neg' : 'pos' %>"><%= (e.amount > 0 ? '+' : '') + money(e.amount) %></td>
+            <td class="num run <%= run > 0 ? 'pos' : run < 0 ? 'neg' : '' %>"><%= e.settled ? '—' : money(run) %></td>
+            <td class="st"><%= e.settled ? '✅ paid' : '⏳ open' %></td>
+            <% if (isCommish) { %>
+            <td class="num" style="white-space:nowrap">
+              <form class="asis" method="post" action="/admin/ledger/<%= e.id %>/settle">
+                <input type="hidden" name="back" value="bank">
+                <button class="btn small <%= e.settled ? 'ghost' : 'gold' %>"
+                        title="<%= e.settled ? 'Undo — put it back on the tab' : 'Money actually changed hands' %>"><%= e.settled ? '↺' : '✓' %></button>
+              </form>
+            </td>
+            <% } %>
+          </tr>
+        <% } %>
+        <tr class="total">
+          <td colspan="3">Still owing on the year</td>
+          <td class="num <%= vc.balance > 0 ? 'pos' : vc.balance < 0 ? 'neg' : '' %>"><%= money(vc.balance) %></td>
+          <td class="st"></td><% if (isCommish) { %><td></td><% } %>
+        </tr>
+      </tbody>
+    </table>
+    <% } %>
+    <% if (isCommish && vc.balance !== 0) { %>
+      <div style="padding:.55rem .9rem; border-top:1px solid var(--line)">
+        <form class="asis" method="post" action="/admin/ledger/settle-all/<%= vc.owner.id %>"
+              onsubmit="return confirm('Mark everything settled with <%= vc.owner.name %>? This means the money actually changed hands.')">
+          <input type="hidden" name="back" value="bank">
+          <button class="btn small navy">🤝 Square up everything with <%= vc.owner.name %></button>
+        </form>
+      </div>
+    <% } %>
   </div>
 </div>
-
-<%# Jump strip — ten fixed, known people. Kills the blind scroll for ~50px. %>
-<div class="jump-strip">
-  <% for (const c of cards) { %>
-    <a href="#o<%= c.owner.id %>" class="<%= c.balance > 0 ? 'pos' : c.balance < 0 ? 'neg' : '' %>">
-      <b><%= c.owner.name %></b>
-      <span><%= c.balance === 0 ? '—' : (c.balance > 0 ? '+' : '−') + money(Math.abs(c.balance)).replace('$', '$') %></span>
-    </a>
-  <% } %>
-</div>
+<% } %>
 
 <% if (isCommish) { %>
-<div class="card" style="margin-bottom:1.2rem; border-color:rgba(245,196,69,.5)">
-  <h2>✍️ Record a Payment or Credit <span class="sub">anything the site didn't generate itself</span></h2>
+<div class="card" style="margin-bottom:1.3rem; border-color:rgba(245,196,69,.5)">
+  <h2>✍️ Record a Payment or Credit <span class="sub">anything the site didn’t generate itself</span></h2>
   <div class="body">
     <form method="post" action="/admin/ledger" class="entry-form">
       <input type="hidden" name="back" value="bank">
       <div class="ef-row">
         <label class="field">Who
           <select name="owner_id" required>
-            <% for (const c of cards) { %><option value="<%= c.owner.id %>"><%= c.owner.name %></option><% } %>
+            <% for (const c of cards) { %><option value="<%= c.owner.id %>" <%= vc && c.owner.id === vc.owner.id ? 'selected' : '' %>><%= c.owner.name %></option><% } %>
           </select>
         </label>
         <label class="field">What happened
@@ -69,121 +111,55 @@ owes them, red means they owe. Balances roll over season to season until settled
         </label>
       </div>
       <div class="ef-row">
-        <label class="field" style="flex:2 1 260px">Description
+        <label class="field" style="flex:2 1 240px">Description
           <input type="text" name="desc" maxlength="80" placeholder="e.g. Side bet — Week 4" required>
         </label>
-        <label class="field" style="flex:2 1 200px">Note <span class="muted">(optional)</span>
+        <label class="field" style="flex:1 1 180px">Note <span class="muted">(optional)</span>
           <input type="text" name="note" maxlength="120" placeholder="e.g. Venmo">
         </label>
         <div class="fit"><button class="btn gold" type="submit">Add to Ledger</button></div>
       </div>
     </form>
-    <p class="muted" style="margin:.6rem 0 0; font-size:.76rem">
-      “They paid me” and “I paid them” settle money that actually moved.
-      “Charge” and “Credit” add something new to the tab.
-    </p>
   </div>
 </div>
 <% } %>
 
-<% for (const c of cards) { %>
-<div class="card ledger-card" id="o<%= c.owner.id %>" style="margin-bottom:1.1rem">
-  <h2>
-    <%= c.owner.name %><%= c.owner.id === owner.id ? ' (you)' : '' %>
-    <span class="ledger-bal <%= c.balance > 0 ? 'pos' : c.balance < 0 ? 'neg' : '' %>">
-      <%= c.balance === 0 ? 'Settled up' : (c.balance > 0 ? 'League owes ' : 'Owes league ') + money(Math.abs(c.balance)) %>
-    </span>
-  </h2>
+<%# ── The whole league's books for the season, one chronological list. ── %>
+<div class="card">
+  <h2>🏦 League Ledger <span class="sub"><%= season.year %> — tap a name to open their ledger</span></h2>
   <div class="body tight scroll-x">
-    <% if (!c.open.length) { %>
-      <p class="muted" style="padding:.9rem 1rem; margin:0">Nothing outstanding.</p>
-    <% } else { %>
-    <table class="roll ledger">
-      <thead>
-        <tr>
-          <th>Date</th><th>Description</th>
-          <th class="num split">Charge</th><th class="num split">Credit</th>
-          <th class="num merged">Amount</th><th class="num">Balance</th>
-          <% if (isCommish) { %><th></th><% } %>
-        </tr>
-      </thead>
+    <table class="roll ledger league-ledger">
+      <thead><tr>
+        <th>Date</th><th>Owner</th><th>Item</th><th class="num">Amount</th><th class="st">Status</th>
+      </tr></thead>
       <tbody>
-        <% let running = 0; %>
-        <% for (const e of [...c.open].sort((a, b) => (a.created_at < b.created_at ? -1 : 1))) { running += e.amount; %>
-          <tr>
+        <% if (!leagueEntries.length) { %>
+          <tr><td colspan="5" class="muted" style="padding:1rem">Nothing on the books for <%= season.year %> yet.</td></tr>
+        <% } %>
+        <% for (const e of leagueEntries) { %>
+          <tr class="<%= e.settled ? 'is-settled' : '' %><%= vc && e.owner_id === vc.owner.id ? ' is-viewing' : '' %>">
             <td class="ldate"><%= fmtDate(e.created_at) %></td>
-            <td><%= e.desc %> <span class="muted type-tag">(<%= TYPE_LABELS[e.type] || e.type %><%= e.week ? ' · wk ' + e.week : '' %>)</span></td>
-            <td class="num neg split"><%= e.amount < 0 ? money(-e.amount) : '' %></td>
-            <td class="num pos split"><%= e.amount > 0 ? money(e.amount) : '' %></td>
-            <%# One signed column on a phone. Hiding Charge instead would make
-                every debit invisible while the balance still moved. %>
-            <td class="num merged <%= e.amount < 0 ? 'neg' : 'pos' %>"><%= money(e.amount) %></td>
-            <td class="num run <%= running > 0 ? 'pos' : running < 0 ? 'neg' : '' %>"><%= money(running) %></td>
-            <% if (isCommish) { %>
-            <td class="num" style="white-space:nowrap">
-              <form class="asis" method="post" action="/admin/ledger/<%= e.id %>/settle">
-                <input type="hidden" name="back" value="bank">
-                <button class="btn small gold" title="Money actually changed hands">✓<span class="btn-label"> <%= e.amount < 0 ? 'Paid me' : 'I paid' %></span></button>
-              </form>
-            </td>
-            <% } %>
+            <td><a class="owner-link" href="/bank?owner=<%= e.owner_id %>#top"><%= e.owner_name %></a></td>
+            <td><%= e.desc %><% if (e.week) { %> <span class="muted type-tag">wk <%= e.week %></span><% } %></td>
+            <td class="num <%= e.amount < 0 ? 'neg' : 'pos' %>"><%= (e.amount > 0 ? '+' : '') + money(e.amount) %></td>
+            <td class="st"><%= e.settled ? '✅' : '⏳' %></td>
           </tr>
         <% } %>
         <tr class="total">
-          <td colspan="2">Balance carried</td>
-          <td class="split"></td><td class="split"></td><td class="merged"></td>
-          <td class="num <%= c.balance > 0 ? 'pos' : c.balance < 0 ? 'neg' : '' %>"><%= money(c.balance) %></td>
-          <% if (isCommish) { %><td></td><% } %>
+          <td colspan="3">Still owed TO the league</td>
+          <td class="num neg"><%= money(Math.abs(totalOwedToLeague)) %></td><td class="st"></td>
+        </tr>
+        <tr class="total">
+          <td colspan="3">Still owed BY the league</td>
+          <td class="num pos"><%= money(totalLeagueOwes) %></td><td class="st"></td>
         </tr>
       </tbody>
     </table>
-    <% } %>
-
-    <% if (isCommish && c.balance !== 0) { %>
-      <div style="padding:.55rem .9rem; border-top:1px solid var(--line)">
-        <form class="asis" method="post" action="/admin/ledger/settle-all/<%= c.owner.id %>"
-              onsubmit="return confirm('Mark everything settled with <%= c.owner.name %>? This means the money actually changed hands.')">
-          <input type="hidden" name="back" value="bank">
-          <button class="btn small navy">🤝 Square up everything with <%= c.owner.name %></button>
-        </form>
-      </div>
-    <% } %>
-
-    <% const settled = c.entries.filter(e => e.settled); %>
-    <% if (settled.length) { %>
-      <details class="settled-block">
-        <summary><%= settled.length %> settled item<%= settled.length === 1 ? '' : 's' %> — history</summary>
-        <table class="roll ledger">
-          <thead><tr><th>Date</th><th>Description</th><th class="num">Amount</th><th>Settled</th><% if (isCommish) { %><th></th><% } %></tr></thead>
-          <tbody>
-            <% for (const e of settled.slice(0, 40)) { %>
-              <tr class="is-settled">
-                <td class="ldate"><%= fmtDate(e.created_at) %></td>
-                <td><%= e.desc %></td>
-                <td class="num <%= e.amount > 0 ? 'pos' : 'neg' %>"><%= money(e.amount) %></td>
-                <td><%= fmtDate(e.settled_at) %><%= e.settle_note ? ' — ' + e.settle_note : '' %></td>
-                <% if (isCommish) { %>
-                <td class="num">
-                  <form class="asis" method="post" action="/admin/ledger/<%= e.id %>/settle">
-                    <input type="hidden" name="back" value="bank">
-                    <input type="hidden" name="undo" value="1">
-                    <button class="btn small ghost" title="Undo — put this back on the tab">↺</button>
-                  </form>
-                </td>
-                <% } %>
-              </tr>
-            <% } %>
-          </tbody>
-        </table>
-        <% if (settled.length > 40) { %><p class="muted" style="padding:.5rem .9rem; margin:0">Showing the 40 most recent of <%= settled.length %>. Full history is in the CSV.</p><% } %>
-      </details>
-    <% } %>
   </div>
 </div>
-<% } %>
 
-<p class="muted" style="text-align:center; margin-top:1.2rem">
-  Every buy-in, weekly win and award lands here automatically.
+<p class="muted" style="text-align:center; margin-top:1.1rem">
+  Buy-ins, weekly wins and awards land here automatically.
   <% if (isCommish) { %><a href="/admin/ledger.csv">⬇️ Download the whole register (CSV)</a><% } %>
 </p>
 

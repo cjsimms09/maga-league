@@ -15,11 +15,11 @@
     <span class="hero-value"><%= money(season.buy_in) %></span>
     <span class="hero-sub">set by league vote</span>
   </div>
-  <div class="hero-item">
+  <a class="hero-item clickable" href="#pot-split" data-opens="#pot-split">
     <span class="hero-label">Total Pot</span>
     <span class="hero-value"><%= money(season.total_pot) %></span>
-    <span class="hero-sub"><%= season.status %></span>
-  </div>
+    <span class="hero-sub">tap to see the split →</span>
+  </a>
   <% if (season.weekly_payout) { %>
   <div class="hero-item">
     <span class="hero-label">Weekly High Point</span>
@@ -133,7 +133,7 @@
 
   <div>
     <div class="card" style="margin-bottom:1.2rem">
-      <h2>Draft Room <span class="sub">last place picks first</span></h2>
+      <h2>Draft Spot Selection <span class="sub">last place picks first</span></h2>
       <div class="body">
         <% if (!draft.picks.length) { %>
           <p class="muted">The draft order hasn't been opened yet.</p>
@@ -146,7 +146,7 @@
             <p>Waiting on <b><%= draft.current.name %></b> to choose their spot (turn <%= draft.current.pos %> of <%= draft.picks.length %>)</p>
           <% } %>
         <% } %>
-        <a class="btn navy" href="/draft">Enter the Draft Room</a>
+        <a class="btn navy" href="/draft">Pick Your Draft Spot</a>
       </div>
     </div>
 
@@ -210,8 +210,8 @@
   <% } %>
 
   <div class="col-span-2" style="margin-top:.4rem">
-    <details class="reference-block">
-      <summary>📋 League reference — everyone's buy-in status &amp; the full payout table</summary>
+    <details class="reference-block" id="pot-split">
+      <summary>💵 How the <%= money(season.total_pot) %> pot splits — and everyone’s buy-in status</summary>
       <div class="grid cols-2" style="margin-top:.8rem">
   <div class="card">
     <h2>Buy-In Status <span class="sub"><a href="/bank" style="color:inherit">full ledger → The Tab</a></span></h2>

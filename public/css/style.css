@@ -982,3 +982,21 @@ table.ledger tr.is-settled td:nth-child(2) { text-decoration: line-through; text
   border-color: var(--gold); background: rgba(245, 196, 69, .1);
 }
 .section-tabs a.active b { color: var(--gold-bright); }
+
+/* ---------- clickable hero tile ----------
+   A number with no explanation is a number you have to ask someone about.
+   The pot tile opens its own breakdown. */
+.hero-item.clickable { text-decoration: none; cursor: pointer; transition: border-color .15s ease; }
+.hero-item.clickable:hover { border-color: var(--gold); }
+.hero-item.clickable .hero-sub { color: var(--gold-bright); }
+
+/* ---------- league ledger ---------- */
+.owner-ledger h2 { display: flex; flex-wrap: wrap; align-items: baseline; gap: .5rem; }
+.owner-ledger h2 .ledger-bal { margin-left: auto; }
+table.ledger .st { white-space: nowrap; font-size: .76rem; }
+table.ledger .owner-link { color: var(--gold); text-decoration: none; font-weight: 700; white-space: nowrap; }
+table.ledger .owner-link:hover { text-decoration: underline; }
+/* Which rows belong to the ledger open above — makes the link between the two
+   tables obvious without a second click. */
+table.ledger tr.is-viewing { background: rgba(245, 196, 69, .07); }
+table.ledger tr.is-viewing td:first-child { border-left: 2px solid var(--gold); }

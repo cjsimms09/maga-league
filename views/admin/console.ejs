@@ -399,7 +399,7 @@
       <div class="vote-actions">
         <form class="asis" method="post" action="/admin/draft/open">
           <input type="hidden" name="year" value="<%= season.year %>">
-          <button class="btn" type="submit"><%= draft.picks.length ? 'Open Draft Room' : 'Generate Order & Open' %></button>
+          <button class="btn" type="submit"><%= draft.picks.length ? 'Open Spot Selection' : 'Generate Order & Open' %></button>
         </form>
         <form class="asis" method="post" action="/admin/draft/close">
           <input type="hidden" name="year" value="<%= season.year %>">
@@ -416,7 +416,7 @@
       </div>
       <p class="muted" style="margin-top:.9rem">
         "Generate Order & Open" builds the pick order automatically from the <b><%= season.year - 1 %></b> final standings, reversed
-        (last place picks first). Owners then claim spots on their turn from the Draft Room.
+        (last place picks first). Owners then claim spots on their turn from Draft Spot Selection.
       </p>
       <% if (prevStandings.length) { %>
         <p class="muted"><%= season.year - 1 %> standings on file: <%= prevStandings.map(s => s.rank + '. ' + s.name).join(' · ') %></p>

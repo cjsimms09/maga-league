@@ -285,7 +285,26 @@ router.get('/bank', aw(async (req, res) => {
     .sort((a, b) => (b.owner.id === req.owner.id) - (a.owner.id === req.owner.id) || a.owner.name.localeCompare(b.owner.name));
   const totalOwedToLeague = cards.reduce((s, c) => s + Math.min(c.balance, 0), 0);
   const totalLeagueOwes = cards.reduce((s, c) => s + Math.max(c.balance, 0), 0);
-  res.render('bank', { cards, season, totalOwedToLeague, totalLeagueOwes, TYPE_LABELS: L.TYPE_LABELS });
+
+  // Whose ledger sits at the top. Yours by default; clicking a name in the
+  // league ledger below swaps it, which is how you get from "who owes what" to
+  // "why does he owe that" without a separate page.
+  const viewId = parseInt(req.query.owner, 10) || req.owner.id;
+  const viewCard = cards.find(c => c.owner.id === viewId) || cards.find(c => c.owner.id === req.owner.id);
+
+  // The league ledger: every transaction this season, all ten owners, one
+  // chronological list. This is the view of the books, and it is what the
+  // per-owner cards are a filter of — not the other way round.
+  const nameOf = id => (H.ownerById(world.owners, id) || {}).name || '?';
+  const leagueEntries = world.ledger
+    .filter(e => Number(e.year) === Number(season.year))
+    .map(e => ({ ...e, owner_name: nameOf(e.owner_id) }))
+    .sort((a, b) => (a.created_at < b.created_at ? -1 : 1));
+
+  res.render('bank', {
+    cards, season, totalOwedToLeague, totalLeagueOwes, viewCard, leagueEntries,
+    TYPE_LABELS: L.TYPE_LABELS,
+  });
 }));
 
 // ---------- draft ----------

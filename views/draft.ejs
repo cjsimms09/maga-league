@@ -1,4 +1,4 @@
-<%- include('partials/header', { title: 'Draft Room' }) %>
+<%- include('partials/header', { title: 'Draft Spot Selection' }) %>
 <% const myTurn = draft.current && draft.current.owner_id === owner.id && season.draft_open; %>
 <% if (season.draft_open && !draft.complete && !myTurn) { %>
   <script>setTimeout(() => location.reload(), 30000);</script>
@@ -14,7 +14,7 @@
 <% } else if (draft.complete) { %>
   <div class="turn-banner">✅ <b>The <%= season.year %> draft order is set.</b> See the board below.</div>
 <% } else if (!season.draft_open) { %>
-  <div class="turn-banner">⏸ The draft room is currently <b>closed</b>. The commissioner will open it when it's time to pick.</div>
+  <div class="turn-banner">⏸ Draft spot selection is currently <b>closed</b>. The commissioner will open it when it's time to pick.</div>
 <% } else if (myTurn) { %>
   <div class="turn-banner you">
     <div class="big">🎯 Your turn, <%= owner.name %>!</div>
