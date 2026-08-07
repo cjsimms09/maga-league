@@ -120,7 +120,16 @@ rounds 1, 2 and 3. **My first pick is now 34 (round 4), not 7** — my picks
 become 34, 41, 54, 61, 74, 81 (was 7, 14, 27, 34, 47, 54 under the old wrong
 model). Every earlier board analysis assumed the wrong pick numbers. The
 production artifact must be REBUILT under top_picks_flat so its adjusted_adp,
-true pick order and my-pick numbers are correct — rebuild triggered.
+true pick order and my-pick numbers are correct.
+
+**REBUILD DONE & VERIFIED (Aug 7).** The served board (`public/draft_data.json`,
+built_at 2026-08-07T23:28:30Z) now carries `keeper_rules.cost_model=top_picks_flat`,
+`kept_player_ids=[3198 Henry, 7564 Chase, 8151 Walker]`, `forfeited` rounds 1/2/3,
+and `pick_order.my_picks = [34, 41, 54, 61, 74, 81, 94, 101, 114]`
+(my_picks_before_keepers started at slot 4 = pick 4). First real pick is 34.
+The pick-34 board supersedes every earlier pick-7 analysis. K0 is complete
+end to end — decision + implementation + verified artifact — well ahead of the
+Aug 19 output / Aug 20 lock deadline.
 
 What's implemented (D2=(b)): top_picks_flat added to the optimizer (positional
 cost, tested), to build_true_pick_order (forfeits rounds 1..N, tested), to KOV
@@ -138,7 +147,7 @@ cost, tested), to build_true_pick_order (forfeits rounds 1..N, tested), to KOV
 ## Queue progress
 | # | item | state |
 |---|---|---|
-| 0 | **K0 keeper decision** | **SETTLED — keep Chase/Henry/Walker; artifact rebuild under top_picks_flat triggered** |
+| 0 | **K0 keeper decision** | **✅ DONE — keep Chase/Henry/Walker; artifact rebuilt & VERIFIED under top_picks_flat; first pick 34** |
 | 1 | Stabilization sprint | Phase 1 attribution WIRED (`pending`); robot mock GREEN |
 | 2 | Small fixes (onesie / rail budget / config_confirmed) | PENDING |
 | 2b | Draft-day experience | AUDITED, pending |
