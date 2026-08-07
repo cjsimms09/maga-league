@@ -341,6 +341,20 @@ function signTest(diffs) {
 // --------------------------------------------------------------------- runner
 function runTournament(label, rankBoard, drafts, iterations, jitter) {
   const diffs = [], mctsPct = [], greedyPct = [];
+  /* FINAL-ROSTER V, ALONGSIDE PERCENTILE.
+   *
+   * The primary run saturated its own metric: 877 of 1,000 paired drafts
+   * finished at the IDENTICAL percentile, both arms averaging 0.991 against a
+   * hard ceiling of 1.0. The metric ran out of ruler, so the composite room's
+   * null cannot distinguish "no difference" from "no difference this metric
+   * can express". V is continuous and unpinned, and the round-2 diagnostic
+   * already showed it discriminates where percentile does not (1587 vs 1593).
+   *
+   * This does NOT change the pre-registered decision rule. Percentile remains
+   * the metric the verdict is read from; V annotates it. Reporting a second
+   * number is only cheating if you conclude from whichever one you prefer
+   * after seeing both, so: conclude from percentile, let V explain. */
+  const mctsV = [], greedyV = [], vDiffs = [];
   const bucket = {
     byRound: {}, turn: { a: 0, b: 0, n: 0 }, notTurn: { a: 0, b: 0, n: 0 },
     run: { a: 0, b: 0, n: 0 }, noRun: { a: 0, b: 0, n: 0 },
@@ -360,6 +374,8 @@ function runTournament(label, rankBoard, drafts, iterations, jitter) {
 
     const pa = percentile(a.finals, slot), pb = percentile(b.finals, slot);
     mctsPct.push(pa); greedyPct.push(pb); diffs.push(pa - pb);
+    const va = a.finals[slot], vb = b.finals[slot];
+    mctsV.push(va); greedyV.push(vb); vDiffs.push(va - vb);
 
     // Where the edge lives, if there is one.
     const n = Math.min(a.telemetry.length, b.telemetry.length);
@@ -388,6 +404,17 @@ function runTournament(label, rankBoard, drafts, iterations, jitter) {
     greedy_mean_percentile: mean(greedyPct),
     mean_diff: t.mean, sd_diff: t.sd, t: t.t, p_one_sided: t.p,
     sign: s, buckets: bucket,
+    v: (function () {
+      const tv = pairedT(vDiffs), sv = signTest(vDiffs);
+      let ties = 0;
+      for (let i = 0; i < diffs.length; i++) if (diffs[i] === 0) ties++;
+      return {
+        mcts_mean_final_v: mean(mctsV), greedy_mean_final_v: mean(greedyV),
+        mean_diff: tv.mean, sd_diff: tv.sd, t: tv.t, p_one_sided: tv.p, sign: sv,
+        // How much of the percentile metric was usable at all.
+        percentile_ties: ties, percentile_tie_rate: ties / diffs.length,
+      };
+    })(),
     mean_root_visits: iterN ? iterSum / iterN : 0,
   };
 }
@@ -461,6 +488,18 @@ results.forEach(r => {
   const seg = (name, b) => console.log('    ' + name.padEnd(10)
     + (b.n ? ((b.a - b.b) / b.n).toFixed(2) : 'n/a') + '   (n=' + b.n + ')');
   console.log('  by context:');
+  if (r.v) {
+    console.log('  final-roster V (continuous; percentile saturates, this does not):');
+    console.log('    MCTS mean final V             ', r.v.mcts_mean_final_v.toFixed(2));
+    console.log('    greedy-on-V mean final V      ', r.v.greedy_mean_final_v.toFixed(2));
+    console.log('    paired mean difference        ', r.v.mean_diff.toFixed(3),
+                '(sd ' + r.v.sd_diff.toFixed(3) + ')');
+    console.log('    t                             ', r.v.t.toFixed(3),
+                ' p', r.v.p_one_sided.toExponential(3));
+    console.log('    percentile ties               ', r.v.percentile_ties + '/' + r.drafts,
+                '(' + (100 * r.v.percentile_tie_rate).toFixed(1) + '% — how much of the'
+                + ' primary metric was unusable)');
+  }
   seg('turn', r.buckets.turn); seg('not turn', r.buckets.notTurn);
   seg('in a run', r.buckets.run); seg('no run', r.buckets.noRun);
 });
