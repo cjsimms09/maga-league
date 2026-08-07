@@ -149,7 +149,7 @@ cost, tested), to build_true_pick_order (forfeits rounds 1..N, tested), to KOV
 |---|---|---|
 | 0 | **K0 keeper decision** | **✅ DONE — keep Chase/Henry/Walker; artifact rebuilt & VERIFIED under top_picks_flat; first pick 34** |
 | 1 | Stabilization sprint | Phase 1 attribution WIRED (`pending`); robot mock GREEN |
-| 2 | Small fixes (onesie / rail budget / config_confirmed) | PENDING |
+| 2 | Small fixes (onesie / rail budget / config_confirmed) | **✅ DONE — all 3 shipped, tested, pushed (e134ac0/9b18eaa/0f4520f)** |
 | 2b | Draft-day experience | AUDITED, pending |
 | 2c | Cutting-edge data | AUDITED, pending (mostly ABSENT) |
 | 3 | Backtest completion | DONE — verdict: projection too crude, Default stands |
@@ -159,6 +159,24 @@ cost, tested), to build_true_pick_order (forfeits rounds 1..N, tested), to KOV
 | 7 | Final verification | PENDING |
 | 8 | Freshness for draft day | PENDING |
 | 9 | Close the record | PENDING |
+
+## 🎯 DRAFT-NIGHT DEADLINE BOARD (Aug 22 — these cannot fall off)
+Two mid-run specs inserted. Priority is by DEADLINE, not queue order. L1 and H
+are HARD-GATED on Aug 22: if not live + robot-tested by draft night, the data is
+lost forever.
+| id | item | deadline | state |
+|----|------|----------|-------|
+| **L1** | Prediction ledger — append-only, decision-time writes, contamination rule (grading reads, never writes) | **Aug 22 HARD** | **IN PROGRESS — jumps everything (hardest deadline)** |
+| **L2** | Raw-forever storage — complete draft + season archived raw | **Aug 22 HARD** | PENDING (with L1) |
+| **H** | Shadow rosters — every surviving strategy drafts live & silently; needs robot scenario | **Aug 22 HARD** | PENDING (after L1, before mocks) |
+| **BT2** | Backtest Round 2 — Phase 1 (2025 recovery via pbp category diff) → corrected boards | pre-Sep | PENDING — launch in CI (background); prereq for S/N |
+| **S** | Exhaustive strategy search (weight sweep, sequencing, counterfactual mining, oracle gap) | Sep certify | PENDING — CI compute; runs on BT2's corrected boards |
+| **N** | Luck baseline — ≥500 permutation null searches; candidate must beat null-95th | Sep certify | PENDING — CI compute; embarrassingly parallel, shardable |
+| L3–L6 | Calibration auto-refresh / dossier append / the Annual (cron) / hypothesis ledger | Sep-class | Capture hooks wire NOW; analysis waits |
+
+**Pre-registered framing (locked):** the search RANKS and ELIMINATES; only the
+Phase-N null baseline and Phase-H live shadow grading CERTIFY. Ledger writes at
+decision time only. Nothing installs off a raw backtest ranking.
 
 ## Addendum audit — BUILT / PARTIAL / ABSENT (before any building)
 - 2b.1 Why line — **PARTIAL** (rec cards show reasons[0]; board rows have none; no tap-to-expand item-13 table per player)
