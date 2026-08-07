@@ -54,6 +54,18 @@
     if (this.timer) clearTimeout(this.timer);
   };
 
+  /**
+   * The draft object itself — slot assignments, straight from the source.
+   *
+   * Sleeper knows who sits where. Typing my own slot in is an error waiting to
+   * happen, and falling back to enumeration order for the manager profiles
+   * silently applies the wrong person's tendencies to the wrong seat, which
+   * corrupts Layer 2 in a way no test catches and no user notices.
+   */
+  DraftSync.prototype.fetchDraft = function () {
+    return this.fetchJson('/draft/' + this.draftId);
+  };
+
   DraftSync.prototype.poll = function () {
     if (!this.running) return;
     const self = this;

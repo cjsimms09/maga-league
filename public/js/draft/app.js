@@ -30,6 +30,146 @@
   };
 
   // ---------------------------------------------------------------- bootstrap
+  const PIN_KEY = 'mfga.draft.artifact';
+
+  /* Pin the artifact locally.
+   *
+   * The draft may be somewhere with bad wifi, and this file is served from a
+   * cold-startable serverless function. Cached by build timestamp, the tool
+   * runs fully offline — the only thing lost is live pick sync, and manual
+   * entry covers that. A tool that needs the network at the table is a tool
+   * that fails at the table.
+   */
+  function pinArtifact(data) {
+    try {
+      localStorage.setItem(PIN_KEY, JSON.stringify({ built_at: data.built_at, data: data }));
+    } catch (e) {
+      // Quota is ~5MB and a board is ~1MB, but a full store must not be fatal.
+      console.warn('could not pin artifact locally:', e.message);
+    }
+  }
+  function pinnedArtifact() {
+    try {
+      const raw = localStorage.getItem(PIN_KEY);
+      if (!raw) return null;
+      const pin = JSON.parse(raw);
+      return pin && pin.data ? pin.data : null;
+    } catch (e) { return null; }
+  }
+
+  function bootFrom(data) {
+    state.data = data;
+    // Confirmation-screen overrides win over the imported config, so a
+    // correction takes effect on the board without waiting for a rebuild.
+    const ov = window.CFG_OVERRIDES || {};
+    if (ov.scoring) data.league.scoring = Object.assign({}, data.league.scoring, ov.scoring);
+    if (ov.roster_slots) data.league.roster_slots = Object.assign({}, data.league.roster_slots, ov.roster_slots);
+    if (ov.keepers) data.league.keeper_rules = Object.assign({}, data.league.keeper_rules, ov.keepers);
+    if (ov.teams) data.league.teams = ov.teams;
+    if (ov.my_draft_slot) data.league.my_draft_slot = ov.my_draft_slot;
+    if (ov.draft_type) data.league.draft_type = ov.draft_type;
+    state.overrides = ov;
+    // The slot is the one override that invalidates the artifact rather than
+    // just annotating it: every "my pick" number in pick_order was computed for
+    // the slot the pipeline built with. Accepting a new slot and keeping the old
+    // pick numbers would score the whole draft against someone else's turns.
+    applySlot(data);
+    state.profiles = indexProfilesBySlot(data);
+    // Format-derived defaults before anything is scored: bench depth is worth
+    // much less in a 10-team, 3-keeper league than the 12-team constants
+    // assumed, and that changes the whole back half of the draft.
+    state.format = E.applyFormatDefaults(data.league);
+    loadOverrides();
+    state.board = data.players.slice();
+    applyOverrides();
+    renderAll();
+    wireControls();
+    $('#loading').style.display = 'none';
+    $('#warroom').style.display = '';
+    if (state.offlinePin) {
+      const host = $('#provenance');
+      if (host) {
+        host.style.display = '';
+        host.innerHTML = '<div class="prov-note bad"><b>\u26a0\ufe0f</b> <span>Offline — '
+          + 'running from the board pinned in this browser, built '
+          + escapeHtml((data.built_at || '').replace('T', ' ').slice(0, 16))
+          + ' UTC. Live pick sync is unavailable; enter picks by hand.</span></div>';
+      }
+    }
+  }
+
+  /* Manual news override (Part 4 §4).
+   *
+   * Free data will not deliver draft-morning news reliably and building news
+   * ingestion is not worth it. This covers the whole class of problem with one
+   * control: a suspension, a holdout, a beat-writer report an hour before the
+   * draft. Applied client-side, persisted, and counted visibly so an override
+   * set this morning cannot silently distort tonight's board.
+   */
+  const OVERRIDE_KEY = 'mfga.draft.overrides.players';
+
+  function loadOverrides() {
+    try { state.playerOverrides = JSON.parse(localStorage.getItem(OVERRIDE_KEY) || '{}'); }
+    catch (e) { state.playerOverrides = {}; }
+  }
+  function saveOverrides() {
+    try { localStorage.setItem(OVERRIDE_KEY, JSON.stringify(state.playerOverrides || {})); }
+    catch (e) { /* private mode */ }
+  }
+
+  function setOverride(playerId, kind, pct) {
+    const ov = state.playerOverrides || (state.playerOverrides = {});
+    if (!kind) delete ov[String(playerId)];
+    else ov[String(playerId)] = { kind: kind, pct: pct == null ? 25 : Number(pct) };
+    saveOverrides();
+    // Rebuild the board from the artifact so an override can be undone cleanly
+    // rather than compounding on an already-adjusted number.
+    state.board = state.data.players.filter(p => !state.drafted.has(String(p.player_id)));
+    applyOverrides();
+    renderAll();
+  }
+
+  function applyOverrides() {
+    const ov = state.playerOverrides || {};
+    const ids = Object.keys(ov);
+    if (!ids.length) { renderOverrideCount(0); return; }
+    const removed = {};
+    state.board.forEach(p => {
+      const o = ov[String(p.player_id)];
+      if (!o) return;
+      if (o.kind === 'remove') { removed[String(p.player_id)] = true; return; }
+      const f = o.kind === 'downgrade' ? (1 - o.pct / 100) : (1 + o.pct / 100);
+      // Scale the value chain together: a haircut that moves proj_mean but not
+      // VORP would leave the composite reading a number that no longer exists.
+      p.proj_mean = (p.proj_mean || 0) * f;
+      p.proj_ceiling = (p.proj_ceiling || 0) * f;
+      p.proj_floor = (p.proj_floor || 0) * f;
+      p.vorp = (p.vorp || 0) * f;
+      p.override = o;
+    });
+    state.board = state.board.filter(p => !removed[String(p.player_id)]);
+    renderOverrideCount(ids.length);
+  }
+
+  function renderOverrideCount(n) {
+    const host = $('#override-count');
+    if (!host) return;
+    if (!n) { host.style.display = 'none'; return; }
+    host.style.display = '';
+    host.className = 'prov-note warn';
+    host.innerHTML = '<b>\u270f\ufe0f</b> <span>' + n + ' manual override'
+      + (n === 1 ? '' : 's') + ' active. '
+      + '<button class="btn small navy" id="clear-overrides">Clear all</button></span>';
+    const btn = $('#clear-overrides');
+    if (btn) btn.addEventListener('click', () => {
+      state.playerOverrides = {};
+      saveOverrides();
+      state.board = state.data.players.filter(p => !state.drafted.has(String(p.player_id)));
+      applyOverrides();
+      renderAll();
+    });
+  }
+
   function init() {
     loadWeights();
     fetch('/draft_data.json', { cache: 'no-cache' })
@@ -37,36 +177,16 @@
         if (!r.ok) throw new Error('draft_data.json not found (HTTP ' + r.status + ')');
         return r.json();
       })
-      .then(data => {
-        state.data = data;
-        // Confirmation-screen overrides win over the imported config, so a
-        // correction takes effect on the board without waiting for a rebuild.
-        const ov = window.CFG_OVERRIDES || {};
-        if (ov.scoring) data.league.scoring = Object.assign({}, data.league.scoring, ov.scoring);
-        if (ov.roster_slots) data.league.roster_slots = Object.assign({}, data.league.roster_slots, ov.roster_slots);
-        if (ov.keepers) data.league.keeper_rules = Object.assign({}, data.league.keeper_rules, ov.keepers);
-        if (ov.teams) data.league.teams = ov.teams;
-        if (ov.my_draft_slot) data.league.my_draft_slot = ov.my_draft_slot;
-        if (ov.draft_type) data.league.draft_type = ov.draft_type;
-        state.overrides = ov;
-        // The slot is the one override that invalidates the artifact rather
-        // than just annotating it: every "my pick" number in pick_order was
-        // computed for the slot the pipeline built with. Accepting a new slot
-        // and keeping the old pick numbers would score the whole draft against
-        // someone else's turns. Recompute instead.
-        applySlot(data);
-        state.profiles = indexProfilesBySlot(data);
-        // Format-derived defaults before anything is scored: bench depth is
-        // worth much less in a 10-team, 3-keeper league than the 12-team
-        // constants assumed, and that changes the whole back half of the draft.
-        state.format = E.applyFormatDefaults(data.league);
-        state.board = data.players.slice();
-        renderAll();
-        wireControls();
-        $('#loading').style.display = 'none';
-        $('#warroom').style.display = '';
-      })
+      .then(d => { pinArtifact(d); return d; })
+      .then(bootFrom)
       .catch(err => {
+        // Network gone? Run from the pin rather than showing an empty room.
+        const pinned = pinnedArtifact();
+        if (pinned) {
+          console.warn('using pinned artifact:', err.message);
+          state.offlinePin = true;
+          return bootFrom(pinned);
+        }
         $('#loading').innerHTML = '<div class="card"><div class="body">' +
           '<p><b>No draft board yet.</b> ' + escapeHtml(err.message) + '</p>' +
           '<p class="muted">Run the pipeline to build one:<br><code>cd league/draft &amp;&amp; ' +
@@ -379,6 +499,17 @@
         '<td class="num">' + Math.round(p.adjusted_adp) + '</td>' +
         '<td class="num muted">' + Math.round(p.raw_adp || 0) + '</td>' +
         '<td>' + riskFlags(p) + '</td>' +
+        '<td class="num" style="white-space:nowrap">' +
+          (p.override
+            ? '<button class="btn small gold" data-override="' + p.player_id + '" data-kind="clear" '
+              + 'title="Clear override">↺ ' + escapeHtml(p.override.kind) + '</button>'
+            : '<button class="btn small ghost" data-override="' + p.player_id + '" data-kind="downgrade" '
+              + 'title="News says he is worse — 25% haircut">▼</button>'
+              + '<button class="btn small ghost" data-override="' + p.player_id + '" data-kind="promote" '
+              + 'title="News says he is better — 25% bump">▲</button>'
+              + '<button class="btn small ghost" data-override="' + p.player_id + '" data-kind="remove" '
+              + 'title="Undraftable — suspension, injury, holdout">⊘</button>') +
+        '</td>' +
         '<td class="num"><button class="btn small ghost" data-draft-other="' + p.player_id + '">✕</button></td>' +
       '</tr>').join('');
     $('#board-count').textContent = rows.length + ' shown of ' + state.board.length + ' available';
@@ -429,6 +560,61 @@
       '<div class="surv-row"><span>' + escapeHtml(x.p.name) + ' <span class="muted">' + x.p.position + '</span></span>' +
       '<div class="surv-bar"><div style="width:' + Math.round(x.s * 100) + '%"></div></div>' +
       '<b class="' + (x.s > 0.6 ? 'pos' : x.s < 0.25 ? 'neg' : '') + '">' + Math.round(x.s * 100) + '%</b></div>').join('');
+  }
+
+  /* Slot assignments imported from the Sleeper draft object (Part 5 §2).
+   *
+   * This one call removes a whole class of manual-entry error: it fixes my own
+   * slot AND every manager's seat, which is what the A1 profile mapping needed.
+   * Falling back to enumeration order applied the wrong manager's tendencies to
+   * the wrong seat — invisible, and it corrupts Layer 2 rather than crashing.
+   */
+  function importDraftOrder(draft) {
+    if (!draft) return null;
+    // draft_order maps user_id -> slot; slot_to_roster_id maps slot -> roster.
+    const byUser = draft.draft_order || {};
+    const slotToRoster = draft.slot_to_roster_id || {};
+    const profiles = (state.data.manager_profiles || {}).managers || {};
+
+    let mapped = 0;
+    Object.keys(byUser).forEach(uid => {
+      const slot = Number(byUser[uid]);
+      if (!slot) return;
+      if (profiles[uid]) { profiles[uid].draft_slot = slot; mapped++; }
+    });
+    if (mapped) state.profiles = indexProfilesBySlot(state.data);
+
+    // My own seat: match on the roster id the site already knows, else the
+    // user id if the draft object carries it.
+    let mine = null;
+    const myRosterId = window.MY_ROSTER_ID || null;
+    if (myRosterId) {
+      Object.keys(slotToRoster).forEach(slot => {
+        if (String(slotToRoster[slot]) === String(myRosterId)) mine = Number(slot);
+      });
+    }
+
+    const result = { mapped, total: Object.keys(byUser).length, mySlot: mine };
+    const changed = mine && Number(mine) !== Number(state.data.league.my_draft_slot);
+    if (changed) {
+      showSlotNote('Sleeper says you are in slot ' + mine + ' — importing.', false);
+      setSlot(mine);
+    }
+    showImportNote(result, changed);
+    return result;
+  }
+
+  function showImportNote(r, changed) {
+    const host = $('#import-note');
+    if (!host) return;
+    const bits = [];
+    if (r.mapped) bits.push(r.mapped + ' of ' + r.total + ' managers bound to their real seat');
+    else if (r.total) bits.push('draft order found but no manager profile matched a user id');
+    if (r.mySlot) bits.push('your slot is ' + r.mySlot + (changed ? ' (updated)' : ' (already correct)'));
+    if (!bits.length) return;
+    host.style.display = '';
+    host.className = 'prov-note ' + (r.mapped ? 'warn' : 'bad');
+    host.innerHTML = '<b>\ud83e\udded</b> <span>Imported from Sleeper: ' + escapeHtml(bits.join('; ')) + '.</span>';
   }
 
   /* Over 18 hours the board is not usable until it is acknowledged.
@@ -629,6 +815,13 @@
       if (me) return markDrafted(me.getAttribute('data-draft-me'), true);
       const other = ev.target.closest('[data-draft-other]');
       if (other) return markDrafted(other.getAttribute('data-draft-other'), false);
+      const ovBtn = ev.target.closest('[data-override]');
+      if (ovBtn) {
+        const id = ovBtn.getAttribute('data-override');
+        const kind = ovBtn.getAttribute('data-kind');
+        return setOverride(id, kind === 'clear' ? null : kind,
+          kind === 'downgrade' || kind === 'promote' ? 25 : null);
+      }
       const why = ev.target.closest('[data-why]');
       if (why) return showWhy(why.getAttribute('data-why'));
     });
@@ -658,6 +851,11 @@
       const id = $('#draft-id').value.trim();
       if (!id) { setStatus({ state: 'manual', message: 'Manual mode — mark picks yourself as they happen.' }); return; }
       state.sync = new window.DraftSync({ draftId: id, onPicks: onSyncPicks, onStatus: setStatus });
+      // Slots first, then picks: a pick attributed to the wrong seat is worse
+      // than a pick arriving a second later.
+      state.sync.fetchDraft()
+        .then(importDraftOrder)
+        .catch(err => console.warn('draft order import failed:', err.message));
       state.sync.start();
       state.mode = 'live';
       $('#start-sync').textContent = 'Syncing…';
