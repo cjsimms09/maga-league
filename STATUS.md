@@ -90,7 +90,7 @@ _Last update: master-execution-order run, start._
 **NOT YET** — robot mock green in CI; attribution wired; backtest report re-running (run 5 succeeded but its report was lost to a push race, now fixed).
 
 ## Test suite
-- JS suites: engine 190, mcts 63, keepers 38, keeperlock 41, reconcile 12, update 41, betlogic 134, ledger 41, sync 26, backtest 17, strategies 13, attribution 10 — **all green**
+- JS suites: engine 192, mcts 63, keepers 38, keeperlock 41, reconcile 12, update 41, betlogic 134, ledger 41, sync 26, backtest 17, strategies 13, attribution 10 — **all green**
 - Python: 112 — **all green**
 - Robot mock in CI: **GREEN, 37/37** (full draft from all 10 seats + 5 regression scenarios); wired into new ci.yml on every push
 
@@ -106,7 +106,7 @@ _Last update: master-execution-order run, start._
 | 2b | Draft-day experience | AUDITED, pending |
 | 2c | Cutting-edge data | AUDITED, pending (mostly ABSENT) |
 | 3 | Backtest completion | DONE — verdict: projection too crude, Default stands |
-| 4 | Calibration fixes | adp_sd fit CANNOT proceed (projection-confounded calibration); KOV verdict PROCEEDING |
+| 4 | Calibration fixes | KOV CLOSED (connected, item 17 settled); adp_sd default stands (can't fit, projection-confounded) |
 | 5 | Strategy selection | CONCLUDED — Default stands (backtest cannot select) |
 | 6 | Exploitation | Section A fits CANNOT proceed; Section B intel VALID, pending |
 | 7 | Final verification | PENDING |
