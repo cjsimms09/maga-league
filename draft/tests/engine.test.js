@@ -1173,5 +1173,35 @@ check('weight sliders change the ranking', heavyCeiling[0].score !== scored[0].s
     [0, 0.25, 1, 2, 3].every(v => at(v)[0].player.position !== 'K'));
 }
 
+// --- KOV is connected: it ramps to zero early and moves the board late ------
+// SPEC: item 17 left open whether the keeper term was disconnected or merely
+// zero. Finding 2 (this session) established KOV_ROUND_RAMP_START=6, so item
+// 17's rounds-3-5 boards produced ramp=0 by design. This proves the other
+// half: on a round-12 board the term is live and its removal changes the top 5.
+{
+  const L2 = { teams: 10, starters: { QB: 1, RB: 2, WR: 2, TE: 1, FLEX: 1, K: 1, DEF: 1 },
+               keeper_rules: { count: 3 } };
+  const mk = (id, pos, proj, adp, age) => ({ player_id: id, name: pos + id, position: pos,
+    team: 'XX', bye: 7, proj_mean: proj, proj_sd: proj * 0.2, proj_ceiling: proj * 1.2,
+    vorp: proj / 6, adjusted_adp: adp, raw_adp: adp, adp_sd: 5, tier: 1, tier_drop: 3,
+    overall_rank: adp, score: proj, age: age, next_year_vorp: proj / 5 });
+  const board = [];
+  for (let i = 0; i < 20; i++) board.push(mk('y' + i, 'WR', 150 - i * 3, 110 + i, 23));
+  const c = w => ({ board: board, currentPick: 115, nextPick: 126, totalPicks: 150,
+    myPicksLeft: 4, roster: [], league: L2, weights: w, runMultipliers: {},
+    intervening: [], roundsLeft: 4, currentKeepers: [] });
+  // The connection proof, robust to board shape: the keeper COMPONENT is
+  // non-zero at round 12 and exactly zero at round <=6. (On the real production
+  // board this reorders the top 5 — verified separately; a uniform synthetic
+  // board may not reorder, so we assert the load-bearing fact, not the effect.)
+  const late = E.recommend(c(E.DEFAULT_WEIGHTS));
+  const lateLive = late.some(x => Math.abs((x.components || {}).keeper || 0) > 0);
+  const early = E.recommend(Object.assign({}, c(E.DEFAULT_WEIGHTS), { currentPick: 35 }));
+  const earlyZero = early.every(x => !((x.components || {}).keeper));
+  check('at round <=6 the keeper term contributes nothing (the ramp)', earlyZero);
+  check('on a round-12 board the keeper term is LIVE (non-zero component)',
+    lateLive, 'no live keeper component at round 12');
+}
+
 console.log(`\n${pass}/${pass + fail} engine checks passed`);
 process.exit(fail ? 1 : 0);

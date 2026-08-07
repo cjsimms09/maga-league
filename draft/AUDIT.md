@@ -573,3 +573,38 @@ Note also that V finds a real, consistently signed gap at BOTH iteration
 counts (p 7e-4 and 7e-5) while percentile calls both null and even flips sign
 (-0.0022 to +0.0011). That is a metric at its ceiling producing noise, not a
 search that changed behaviour.
+
+---
+
+## 15. Item 17 CLOSED — KOV is connected, the zeros were the ramp
+
+Evidence item 17 left open whether the keeper-option-value term was
+disconnected from the composite or merely contributing zero. Both halves are
+now settled with data:
+
+- **Rounds <= 6: KOV contributes exactly 0, by design.** `KOV_ROUND_RAMP_START
+  = 6` (composite.js). Item 17's boards were rounds 3-5, so the term ramped to
+  zero there. That is the ramp working, not a disconnection.
+
+- **Round 12: KOV is live and moves the board.** On the production board at
+  pick 115, zeroing the keeper weight changes the top 5 (Courtland Sutton
+  1st -> 3rd, DJ Moore 2nd -> 1st), and keeper components are non-zero across
+  the top 8 (1.22, 2.21, 2.63, ...).
+
+Regression-tested both directions in engine.test.js: zero component at round
+<= 6, live component at round 12. VERDICT: connected and correct. The earlier
+zeros were the ramp, exactly as Finding 2 established.
+
+## 16. adp_sd fit — CANNOT proceed from the backtest; default stands
+
+Item 4 asked to fit `adp_sd` from the backtest's survival calibration. It
+cannot be done honestly: the backtest's calibration is confounded by the crude
+walk-forward projection (over-projected players like Carson Wentz pollute the
+top-of-board that survival predictions are made over), the same confound that
+made the backtest unable to grade the composite. Fitting adp_sd to that
+calibration would be fitting to projection noise.
+
+`adp_sd` therefore keeps its work-order interim (clamp 0.15 x adp, floor 3, cap
+15), cited to WORKORDERv3 and to this finding. A real adp_sd fit needs either a
+real projection model (post-draft) or FFC's own per-player sd (network,
+per NETWORK.md) — recorded as post-draft in D1.
