@@ -61,15 +61,9 @@ console.log('\n--- the sentence reads as English ---');
 eq('outscores in a week',
   B.conditionText(cond({ test: 'outscores', subject_id: 1, target_id: 3, week: 4 }), nameOf),
   "Cory's team outscores David in week 4");
-eq('a points floor over a season',
-  B.conditionText(cond({ test: 'scores_at_least', subject_id: 1, target_number: 1700, when: 'season' }), nameOf),
-  "Cory's team scores at least 1700 points over the whole season");
 eq('a finishing place',
   B.conditionText(cond({ test: 'finishes', subject_id: 2, target_place: 'champion', when: 'season' }), nameOf),
   "Marian's team finishes champion");
-eq('the weekly high',
-  B.conditionText(cond({ test: 'weekly_high', subject_id: 9, week: 7 }), nameOf),
-  "Richard's team is the weekly high scorer in week 7");
 
 console.log('\n--- head-to-head points, a finished week ---');
 {
@@ -108,47 +102,6 @@ console.log('\n--- a week that has not finished yet ---');
   ok('88.0 vs 88.0 is a tie, mid-season too', r.value === null, r.line);
 }
 
-console.log('\n--- points floors ---');
-{
-  const r = B.evalCondition(cond({ test: 'scores_at_least', subject_id: 1, target_number: 130, week: 4 }), ctxDone, nameOf);
-  ok('132.55 clears 130', r.value === true, r.line);
-}
-{
-  const r = B.evalCondition(cond({ test: 'scores_at_least', subject_id: 1, target_number: 140, week: 4 }), ctxDone, nameOf);
-  ok('132.55 does not clear 140', r.value === false, r.line);
-}
-{
-  const c = cond({ test: 'scores_at_least', subject_id: 1, target_number: 500, when: 'season' });
-  const r = B.evalCondition(c, ctxLive, nameOf);
-  ok('a season floor already cleared resolves early', r.value === true, r.line);
-}
-{
-  const c = cond({ test: 'scores_at_least', subject_id: 1, target_number: 2000, when: 'season' });
-  const r = B.evalCondition(c, ctxLive, nameOf);
-  ok('a season floor not yet reached stays open mid-season', r.value === null, r.line);
-  ok('and shows the progress', /610/.test(r.line), r.line);
-}
-{
-  const c = cond({ test: 'scores_at_least', subject_id: 1, target_number: 2000, when: 'season' });
-  const r = B.evalCondition(c, ctxDone, nameOf);
-  ok('and resolves false once the season is closed', r.value === false, r.line);
-}
-
-console.log('\n--- weekly high scorer ---');
-{
-  const r = B.evalCondition(cond({ test: 'weekly_high', subject_id: 4, week: 3 }), ctxDone, nameOf);
-  ok('week 3 belonged to Michael', r.value === true, r.line);
-}
-{
-  const r = B.evalCondition(cond({ test: 'weekly_high', subject_id: 1, week: 3 }), ctxDone, nameOf);
-  ok('so it did not belong to Cory', r.value === false, r.line);
-}
-{
-  const r = B.evalCondition(cond({ test: 'weekly_high', subject_id: 1, week: 17 }), ctxDone, nameOf);
-  ok('an unrecorded week is undecided, not false', r.value === null, r.line);
-  ok('and points at who records it', /commissioner/.test(r.line), r.line);
-}
-
 console.log('\n--- finishing places ---');
 {
   const c = cond({ test: 'finishes', subject_id: 4, target_place: 'champion', when: 'season' });
@@ -174,57 +127,35 @@ console.log('\n--- finishing places ---');
 }
 
 console.log('\n--- ALL vs ANY ---');
+const T_WEEK  = cond({ test: 'outscores', subject_id: 1, target_id: 3, week: 4 });          // true
+const F_PLACE = cond({ test: 'finishes', subject_id: 1, target_place: 'playoffs', when: 'season' }); // Cory 7th -> false
+const T_PLACE = cond({ test: 'finishes', subject_id: 4, target_place: 'champion', when: 'season' }); // true
+const U_WEEK  = cond({ test: 'outscores', subject_id: 1, target_id: 3, week: 12 });         // unknown
 {
-  const b = propBet([
-    cond({ test: 'outscores', subject_id: 1, target_id: 3, week: 4 }),      // true
-    cond({ test: 'weekly_high', subject_id: 4, week: 3 }),                  // true
-  ]);
-  const v = B.evaluate(b, ctxDone, nameOf);
+  const v = B.evaluate(propBet([T_WEEK, T_PLACE]), ctxDone, nameOf);
   ok('ALL with both true → the for-side wins', v.decided && JSON.stringify(v.winner_ids) === '[1]', v.headline);
   ok('and it shows a line per condition', v.lines.length === 2, JSON.stringify(v.lines));
 }
 {
-  const b = propBet([
-    cond({ test: 'outscores', subject_id: 1, target_id: 3, week: 4 }),      // true
-    cond({ test: 'scores_at_least', subject_id: 1, target_number: 140, week: 4 }), // false
-  ]);
-  const v = B.evaluate(b, ctxDone, nameOf);
+  const v = B.evaluate(propBet([T_WEEK, F_PLACE]), ctxDone, nameOf);
   ok('ALL with one false → the other side wins', v.decided && JSON.stringify(v.winner_ids) === '[3]', v.headline);
 }
 {
-  const b = propBet([
-    cond({ test: 'scores_at_least', subject_id: 1, target_number: 140, week: 4 }), // false
-    cond({ test: 'weekly_high', subject_id: 4, week: 3 }),                         // true
-  ], { logic: 'any' });
-  const v = B.evaluate(b, ctxDone, nameOf);
+  const v = B.evaluate(propBet([F_PLACE, T_PLACE], { logic: 'any' }), ctxDone, nameOf);
   ok('ANY with one true → the for-side wins', v.decided && JSON.stringify(v.winner_ids) === '[1]', v.headline);
 }
 {
-  // ALL: one false and one unknown. The false already settles it — waiting on
-  // the unknown would leave a decided bet open for months.
-  const b = propBet([
-    cond({ test: 'scores_at_least', subject_id: 1, target_number: 140, week: 4 }), // false
-    cond({ test: 'outscores', subject_id: 1, target_id: 3, week: 12 }),            // unknown
-  ]);
-  const v = B.evaluate(b, ctxDone, nameOf);
+  // The false already settles it — waiting on the unknown would leave a decided
+  // bet open for months.
+  const v = B.evaluate(propBet([F_PLACE, U_WEEK]), ctxDone, nameOf);
   ok('ALL short-circuits on the first false', v.decided && JSON.stringify(v.winner_ids) === '[3]', v.headline);
 }
 {
-  // ANY: one true and one unknown. Same logic, opposite direction.
-  const b = propBet([
-    cond({ test: 'weekly_high', subject_id: 4, week: 3 }),               // true
-    cond({ test: 'outscores', subject_id: 1, target_id: 3, week: 12 }),  // unknown
-  ], { logic: 'any' });
-  const v = B.evaluate(b, ctxDone, nameOf);
+  const v = B.evaluate(propBet([T_PLACE, U_WEEK], { logic: 'any' }), ctxDone, nameOf);
   ok('ANY short-circuits on the first true', v.decided && JSON.stringify(v.winner_ids) === '[1]', v.headline);
 }
 {
-  // ALL with a true and an unknown genuinely cannot be called.
-  const b = propBet([
-    cond({ test: 'weekly_high', subject_id: 4, week: 3 }),               // true
-    cond({ test: 'outscores', subject_id: 1, target_id: 3, week: 12 }),  // unknown
-  ]);
-  const v = B.evaluate(b, ctxDone, nameOf);
+  const v = B.evaluate(propBet([T_PLACE, U_WEEK]), ctxDone, nameOf);
   ok('ALL with true+unknown stays open', !v.decided, v.headline);
   ok('and says how many are outstanding', /1 condition still open/.test(v.headline), v.headline);
 }
@@ -232,50 +163,128 @@ console.log('\n--- ALL vs ANY ---');
   const v = B.evaluate(propBet([]), ctxDone, nameOf);
   ok('no conditions → settle by hand, not a guess', !v.decided && /by hand/.test(v.headline), v.headline);
 }
+{
+  ok('only the two useful tests survive — no stat thresholds',
+    JSON.stringify(Object.keys(B.TESTS)) === '["outscores","finishes"]', JSON.stringify(Object.keys(B.TESTS)));
+}
 
-console.log('\n--- the pool: Richard and Cory each take five teams ---');
-const pool = (outcome, extra = {}) => ({
-  format: 'pool', pool_outcome: outcome, proposer_id: 1, stake: 100,
+console.log('\n--- the pool: Cory and Richard each take five teams ---');
+// The real bet. Cory: Marian, Bates, Dylan, Justin, himself.
+//                Richard: Michael, Sam, Jeremy, David, himself.
+const pool = (rules, extra = {}) => ({
+  format: 'pool', picks_required: 5, pool_rules: rules, proposer_id: 1, stake: 100,
+  terms: 'the annual pool',
   parties: [
-    { owner_id: 1, accepted: true, picks: [2, 5, 6, 10, 1] },   // Cory: Marian, Bates, Dylan, Justin, himself
-    { owner_id: 9, accepted: true, picks: [4, 7, 8, 3, 9] },    // Richard: Michael, Sam, Jeremy, David, himself
+    { owner_id: 1, accepted: true, picks: [2, 5, 6, 10, 1] },
+    { owner_id: 9, accepted: true, picks: [4, 7, 8, 3, 9] },
   ],
   winner_ids: [], ...extra,
 });
 {
-  const v = B.evaluate(pool('champion'), ctxDone, nameOf);
-  ok('Michael won it, so Richard wins the pool', v.decided && JSON.stringify(v.winner_ids) === '[9]', v.headline);
-  ok('and the headline names the team', /Michael/.test(v.headline), v.headline);
+  const v = B.evaluate(pool(['champion']), ctxDone, nameOf);
+  ok('Michael won it, and Richard had him', v.decided && JSON.stringify(v.winner_ids) === '[9]', v.headline);
+  ok('the working names the champion', v.lines.some(l => /Michael won it all/.test(l)), JSON.stringify(v.lines));
 }
 {
-  const v = B.evaluate(pool('last_place'), ctxDone, nameOf);
-  ok('Richard finished last, and had himself — he wins that one too',
-    v.decided && JSON.stringify(v.winner_ids) === '[9]', v.headline);
+  const v = B.evaluate(pool(['last_place']), ctxDone, nameOf);
+  ok('Richard finished last and had himself', v.decided && JSON.stringify(v.winner_ids) === '[9]', v.headline);
 }
 {
-  const v = B.evaluate(pool('most_points'), ctxDone, nameOf);
-  ok('Michael also scored the most, so Richard again', v.decided && JSON.stringify(v.winner_ids) === '[9]', v.headline);
+  const v = B.evaluate(pool(['champion']), ctxLive, nameOf);
+  ok('mid-season it is not settled', !v.decided, v.headline);
+  ok('but it still shows who is leading', v.lines.some(l => /lead/.test(l)), JSON.stringify(v.lines));
 }
+
+console.log('\n--- the year neither of you has the champion ---');
 {
-  const v = B.evaluate(pool('champion'), ctxLive, nameOf);
-  ok('mid-season the pool is not settled', !v.decided, v.headline);
-  ok('but it shows who is leading', v.lines.some(l => /lead/.test(l)), JSON.stringify(v.lines));
-}
-{
-  // Nobody picked the champion. That is a push — a real outcome, not a hang.
-  const p = pool('champion');
-  p.parties[0].picks = [2, 5]; p.parties[1].picks = [7, 8];
+  // THE case this shape exists for. Cory has Marian(6th) and Bates(2nd);
+  // Richard has Sam(9th) and Jeremy(3rd). Michael won — neither picked him.
+  const p = pool(['champion']);
+  p.parties[0].picks = [2, 5];      // Marian 6th, Bates 2nd
+  p.parties[1].picks = [7, 8];      // Sam 9th, Jeremy 3rd
   const v = B.evaluate(p, ctxDone, nameOf);
-  ok('an unpicked champion is a push', v.decided && v.push && v.winner_ids.length === 0, v.headline);
+  ok('with only one rule it is a push', v.decided && v.push && !v.winner_ids.length, v.headline);
+  ok('and it says to add a tiebreaker', /tiebreaker/.test(v.headline), v.headline);
 }
 {
-  // Both took the champion. They split it.
-  const p = pool('champion');
-  p.parties[0].picks = [4, 2]; p.parties[1].picks = [4, 7];
+  // Same picks, but with the fallback you would actually agree in the chat.
+  const p = pool(['champion', 'best_finish']);
+  p.parties[0].picks = [2, 5];      // best = Bates, 2nd
+  p.parties[1].picks = [7, 8];      // best = Jeremy, 3rd
   const v = B.evaluate(p, ctxDone, nameOf);
-  ok('two holders of the champion split the pool',
-    v.decided && JSON.stringify(v.winner_ids) === '[1,9]', v.headline);
-  ok('and the headline says split', /split/.test(v.headline), v.headline);
+  ok('the tiebreaker decides it — Bates 2nd beats Jeremy 3rd',
+    v.decided && JSON.stringify(v.winner_ids) === '[1]', v.headline);
+  ok('and the working shows the first rule failing first',
+    /Nobody hit that one/.test(v.lines.join(' ')), JSON.stringify(v.lines));
+  ok('then the tiebreaker with both placings',
+    v.lines.some(l => /best was 2nd/.test(l) && /best was 3rd/.test(l)), JSON.stringify(v.lines));
+}
+{
+  // BOTH picked the champion. Old behaviour split the pot; a cascade breaks it.
+  const p = pool(['champion', 'most_wins']);
+  p.parties[0].picks = [4, 2];      // Michael 11w + Marian 6w = 17
+  p.parties[1].picks = [4, 7];      // Michael 11w + Sam 3w    = 14
+  const v = B.evaluate(p, ctxDone, nameOf);
+  ok('both had the champion, so wins break the tie',
+    v.decided && JSON.stringify(v.winner_ids) === '[1]', v.headline);
+  ok('and it says they were level first', /Level on that one/.test(v.lines.join(' ')), JSON.stringify(v.lines));
+}
+{
+  // Level all the way down, with rules left unused.
+  const p = pool(['champion', 'most_wins']);
+  p.parties[0].picks = [5];         // Bates 10w
+  p.parties[1].picks = [3];         // David 8w
+  const v = B.evaluate(p, ctxDone, nameOf);
+  ok('nobody had the champion so it falls to wins',
+    v.decided && JSON.stringify(v.winner_ids) === '[1]', v.headline);
+}
+{
+  const p = pool(['champion']);
+  p.parties[0].picks = [4]; p.parties[1].picks = [4];
+  const v = B.evaluate(p, ctxDone, nameOf);
+  ok('identical picks and no tiebreaker really is a split',
+    v.decided && !v.push && JSON.stringify(v.winner_ids) === '[1,9]', v.headline);
+}
+
+console.log('\n--- the other rules ---');
+{
+  const p = pool(['most_playoff']);
+  p.parties[0].picks = [2, 5];      // Marian 6th, Bates 2nd  -> 1 in
+  p.parties[1].picks = [4, 8, 3];   // Michael 1st, Jeremy 3rd, David 4th -> 3 in
+  const v = B.evaluate(p, ctxDone, nameOf);
+  ok('most teams in the playoffs', v.decided && JSON.stringify(v.winner_ids) === '[9]', v.headline);
+  ok('counted in words', v.lines.some(l => /3 in/.test(l)), JSON.stringify(v.lines));
+}
+{
+  const p = pool(['most_points']);
+  p.parties[0].picks = [1];         // Cory 1580
+  p.parties[1].picks = [4];         // Michael 1810.5
+  const v = B.evaluate(p, ctxDone, nameOf);
+  ok('most combined points', v.decided && JSON.stringify(v.winner_ids) === '[9]', v.headline);
+}
+{
+  const p = pool(['top_scorer']);
+  p.parties[1].picks = [4];
+  const v = B.evaluate(p, ctxDone, nameOf);
+  ok('picked the highest-scoring team', v.decided && JSON.stringify(v.winner_ids) === '[9]', v.headline);
+}
+{
+  const p = pool(['reg_first']);
+  const v = B.evaluate(p, ctxLive, nameOf);
+  ok('a regular-season rule waits for the season to finish', !v.decided, v.headline);
+  ok('and says why', /still running/.test(v.headline), v.headline);
+}
+{
+  // A bet written before rules were ordered must still grade.
+  const old = { format: 'pool', pool_outcome: 'champion', proposer_id: 1, stake: 100, terms: 'old',
+    parties: [{ owner_id: 1, picks: [2] }, { owner_id: 9, picks: [4] }], winner_ids: [] };
+  const v = B.evaluate(old, ctxDone, nameOf);
+  ok('an old single-outcome pool still resolves', v.decided && JSON.stringify(v.winner_ids) === '[9]', v.headline);
+}
+{
+  eq('the sentence reads like the bet you would text someone',
+    B.betText({ format: 'pool', picks_required: 5, pool_rules: ['champion', 'best_finish'] }, nameOf),
+    "We each pick 5 teams. Decided by whoever picked the champion; if that ties, whoever's best team finished higher.");
 }
 
 console.log('\n--- which weeks we will actually fetch ---');

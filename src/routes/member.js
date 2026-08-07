@@ -482,7 +482,10 @@ router.post('/sidebets', aw(async (req, res) => {
         picks: picksFrom(req.body),
         resolves: String(req.body.resolves || '').trim(),
         format, conditions, logic: req.body.logic,
-        pool_outcome: String(req.body.pool_outcome || ''),
+        // Ordered: the first rule that separates the field wins, the rest are
+        // tiebreakers. Order in the form is order of evaluation.
+        pool_rules: [].concat(req.body.pool_rules || []).map(String).filter(Boolean),
+        picks_required: Number(req.body.picks_required) || 0,
         open_slots: openSlots,
       });
       // Nobody checks a website for a bet they do not know exists.

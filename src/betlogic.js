@@ -79,29 +79,11 @@ const TESTS = {
     when: ['week', 'season'],
     hint: 'more fantasy points than another team',
   },
-  scores_at_least: {
-    label: 'scores at least',
-    target: 'number',
-    when: ['week', 'season'],
-    hint: 'a points number, e.g. 140 in a week or 1,700 over a season',
-  },
-  weekly_high: {
-    label: 'is the weekly high scorer',
-    target: 'none',
-    when: ['week'],
-    hint: 'top score in the whole league that week — the $100 week',
-  },
   finishes: {
     label: 'finishes',
     target: 'place',
     when: ['season'],
     hint: 'where they end up when it is all over',
-  },
-  wins_at_least: {
-    label: 'wins at least',
-    target: 'number',
-    when: ['season'],
-    hint: 'regular-season wins',
   },
 };
 
@@ -114,14 +96,117 @@ const PLACES = {
   last:       { label: 'dead last (the toilet)',  test: (i, n) => i === n - 1 },
 };
 
-// What a pool is played for. Each maps the league's season to ONE owner id —
-// the team that "won" by that measure — and everyone who picked them cashes.
-const POOL_OUTCOMES = {
-  champion:    { label: 'wins the championship',       needs: 'final' },
-  reg_first:   { label: 'finishes 1st in the regular season', needs: 'regular' },
-  most_points: { label: 'scores the most points all season',  needs: 'regular' },
-  last_place:  { label: 'finishes dead last',          needs: 'final' },
+/* ── Pool rules ───────────────────────────────────────────────────────────────
+ *
+ * A pool is the shape of the bet this league actually makes: "we each pick five
+ * teams, and whoever picked the champion wins." What makes it work as software
+ * is not one outcome but an ORDERED LIST of them.
+ *
+ * Because the interesting case is the one that happens most years — NEITHER of
+ * you picked the champion. In the group chat that gets settled by falling back
+ * to something else: whose best team finished higher, who had more teams in the
+ * playoffs, whose five scored more points between them. That fallback is the
+ * real "if/then" in a bet like this, and it is what the condition builder
+ * should have been all along instead of "scores at least 140 points".
+ *
+ * So: rules are evaluated in order. The first one that SEPARATES the field
+ * decides it. A tie falls through to the next rule. Run out of rules with
+ * everyone still level and it is a push.
+ *
+ * Every rule scores each person's whole set of picks, higher being better, so
+ * "did you have the champion" (1 or 0) and "how many wins did your five rack
+ * up" (a count) are the same kind of thing and compose in one list.
+ */
+const POOL_RULES = {
+  champion: {
+    label: 'whoever picked the champion',
+    needs: 'final',
+    score: (picks, ctx) => (picks.includes(ctx.finalStandings[0]) ? 1 : 0),
+    note: (ctx, nameOf) => `${nameOf(ctx.finalStandings[0])} won it all.`,
+    fmt: v => (v ? 'had them' : 'did not'),
+  },
+  reg_first: {
+    label: 'whoever picked the regular-season #1',
+    needs: 'complete',
+    score: (picks, ctx) => (picks.includes(ctx.liveOrder[0]) ? 1 : 0),
+    note: (ctx, nameOf) => `${nameOf(ctx.liveOrder[0])} finished 1st in the regular season.`,
+    fmt: v => (v ? 'had them' : 'did not'),
+  },
+  last_place: {
+    label: 'whoever picked the last-place team',
+    needs: 'final',
+    score: (picks, ctx) => (picks.includes(ctx.finalStandings[ctx.finalStandings.length - 1]) ? 1 : 0),
+    note: (ctx, nameOf) => `${nameOf(ctx.finalStandings[ctx.finalStandings.length - 1])} took the toilet.`,
+    fmt: v => (v ? 'had them' : 'did not'),
+  },
+  best_finish: {
+    label: "whoever's best team finished higher",
+    needs: 'final',
+    // Negated index: 1st place is index 0, and higher must mean better.
+    score: (picks, ctx) => {
+      const idx = picks.map(p => ctx.finalStandings.indexOf(Number(p))).filter(i => i >= 0);
+      return idx.length ? -Math.min(...idx) : -999;
+    },
+    fmt: v => (v === -999 ? 'nothing placed' : `best was ${-v + 1}${['st', 'nd', 'rd'][-v] || 'th'}`),
+  },
+  most_playoff: {
+    label: 'whoever got more teams into the playoffs',
+    needs: 'final',
+    score: (picks, ctx) => picks.filter(p => {
+      const i = ctx.finalStandings.indexOf(Number(p));
+      return i >= 0 && i < CFG.PLACE_PLAYOFF_CUT;
+    }).length,
+    fmt: v => `${v} in`,
+  },
+  most_wins: {
+    label: 'whose teams won the most games between them',
+    needs: 'complete',
+    score: (picks, ctx) => picks.reduce((n, p) => n + (ctx.seasonWins(p) || 0), 0),
+    fmt: v => `${v} wins`,
+  },
+  most_points: {
+    label: 'whose teams scored the most points between them',
+    needs: 'complete',
+    score: (picks, ctx) => picks.reduce((n, p) => n + (ctx.seasonPoints(p) || 0), 0),
+    fmt: v => `${Math.round(v * 10) / 10} pts`,
+  },
+  top_scorer: {
+    label: 'whoever picked the highest-scoring team',
+    needs: 'complete',
+    score: (picks, ctx) => {
+      let best = null;
+      for (const o of ctx.owners) {
+        const pf = ctx.seasonPoints(o.id);
+        if (pf == null) continue;
+        if (!best || pf > best.pf) best = { id: o.id, pf };
+      }
+      return best && picks.includes(best.id) ? 1 : 0;
+    },
+    fmt: v => (v ? 'had them' : 'did not'),
+  },
 };
+
+// Kept so bets written before rules were ordered still read and grade.
+const POOL_OUTCOMES = POOL_RULES;
+
+/** The rule list for a bet, tolerating the older single-outcome shape. */
+function poolRules(bet) {
+  const list = (bet.pool_rules && bet.pool_rules.length) ? bet.pool_rules
+    : (bet.pool_outcome ? [bet.pool_outcome] : ['champion']);
+  return list.filter(k => POOL_RULES[k]);
+}
+
+/** Can this rule be called yet, and if not, what is missing? */
+function poolRuleReady(rule, ctx) {
+  if (rule.needs === 'final') {
+    return ctx.finalStandings
+      ? { ok: true }
+      : { ok: false, why: 'the season has not been closed out, so there are no final standings yet' };
+  }
+  return (ctx.season && ctx.season.status === 'complete')
+    ? { ok: true }
+    : { ok: false, why: 'the season is still running' };
+}
 
 // ────────────────────────────────────────────── building a readable sentence
 
@@ -144,8 +229,14 @@ function conditionText(c, nameOf) {
 /** The whole proposition, joined. */
 function betText(bet, nameOf) {
   if (bet.format === 'pool') {
-    const o = POOL_OUTCOMES[bet.pool_outcome] || { label: 'wins' };
-    return `Everyone picks teams — whoever picked the team that ${o.label} takes the pot.`;
+    const n = bet.picks_required || 0;
+    const rules = poolRules(bet).map(k => POOL_RULES[k].label);
+    const head = n ? `We each pick ${n} teams.` : 'We each pick teams.';
+    if (!rules.length) return `${head} Winner takes the pot.`;
+    // The tiebreakers are the interesting part, so they get said out loud.
+    const chain = rules.length === 1 ? rules[0]
+      : rules[0] + rules.slice(1).map(r => `; if that ties, ${r}`).join('');
+    return `${head} Decided by ${chain}.`;
   }
   const cs = bet.conditions || [];
   if (!cs.length) return bet.terms;
@@ -330,66 +421,69 @@ function evaluate(bet, ctx, nameOf) {
 }
 
 function evaluatePool(bet, ctx, nameOf) {
-  const outcome = POOL_OUTCOMES[bet.pool_outcome];
+  const rules = poolRules(bet);
   const lines = [];
-  if (!outcome) {
+  if (!rules.length) {
     return { decided: false, winner_ids: [], push: false,
-             headline: 'This pool has no outcome set — settle it by hand.', lines };
+             headline: 'This pool has no rules set — settle it by hand.', lines };
   }
 
-  let winnerOwner = null;
-  if (outcome.needs === 'final') {
-    const order = ctx.finalStandings;
-    if (!order) {
-      lines.push('The season is not closed out yet, so the final standings do not exist.');
+  let last = null;   // the last rule that actually got evaluated
+  for (const key of rules) {
+    const rule = POOL_RULES[key];
+    const ready = poolRuleReady(rule, ctx);
+    if (!ready.ok) {
+      // Show where it stands anyway — a pool sits open for months and "come
+      // back in January" is not a useful thing for a card to say all season.
+      lines.push(`${rule.label} — not yet: ${ready.why}.`);
       if (ctx.liveOrder.length) {
         lines.push(`As it stands: ${ctx.liveOrder.slice(0, 3).map(nameOf).join(', ')} lead.`);
       }
       return { decided: false, winner_ids: [], push: false,
-               headline: `Not settled — waiting on the final standings.`, lines };
+               headline: `Not settled — ${ready.why}.`, lines };
     }
-    winnerOwner = bet.pool_outcome === 'last_place' ? order[order.length - 1] : order[0];
-    lines.push(`${nameOf(winnerOwner)} ${outcome.label}.`);
-  } else if (bet.pool_outcome === 'most_points') {
-    let best = null;
-    for (const o of ctx.owners) {
-      const pf = ctx.seasonPoints(o.id);
-      if (pf == null) continue;
-      if (!best || pf > best.pf) best = { id: o.id, pf };
+
+    const scored = (bet.parties || []).map(p => ({
+      party: p,
+      score: rule.score((p.picks || []).map(Number), ctx),
+    }));
+    const best = Math.max(...scored.map(x => x.score));
+    const winners = scored.filter(x => x.score === best);
+
+    lines.push(`${rule.label}${rule.note ? ' — ' + rule.note(ctx, nameOf) : ''}: `
+      + scored.map(x => `${nameOf(x.party.owner_id)} ${rule.fmt ? rule.fmt(x.score) : x.score}`).join(', '));
+    last = { rule, scored, best, winners };
+
+    // One clear winner ends it. Anything else falls through to the tiebreaker,
+    // which is exactly the case this shape exists for: nobody had the champion.
+    if (winners.length === 1) {
+      return {
+        decided: true, push: false,
+        winner_ids: [winners[0].party.owner_id],
+        headline: `${nameOf(winners[0].party.owner_id)} wins it.`,
+        lines,
+      };
     }
-    if (!best) return { decided: false, winner_ids: [], push: false,
-                        headline: 'No season points on file yet.', lines };
-    if (ctx.season && ctx.season.status !== 'complete') {
-      lines.push(`${nameOf(best.id)} leads on ${best.pf.toFixed(2)} points, but the season is still running.`);
-      return { decided: false, winner_ids: [], push: false,
-               headline: 'Not settled — season still running.', lines };
+    if (rules.indexOf(key) < rules.length - 1) {
+      lines.push(winners.length === scored.length && best === 0
+        ? '→ Nobody hit that one. Next rule.'
+        : '→ Level on that one. Next rule.');
     }
-    winnerOwner = best.id;
-    lines.push(`${nameOf(best.id)} scored the most points: ${best.pf.toFixed(2)}.`);
-  } else {
-    // reg_first — the regular-season table, which is live all year.
-    if (ctx.season && ctx.season.status !== 'complete') {
-      lines.push(`${nameOf(ctx.liveOrder[0])} is top of the regular season right now, but it is not over.`);
-      return { decided: false, winner_ids: [], push: false,
-               headline: 'Not settled — regular season still running.', lines };
-    }
-    winnerOwner = ctx.liveOrder[0];
-    lines.push(`${nameOf(winnerOwner)} finished 1st in the regular season.`);
   }
 
-  const holders = (bet.parties || []).filter(p => (p.picks || []).map(Number).includes(Number(winnerOwner)));
-  if (!holders.length) {
-    lines.push(`Nobody in this pool picked ${nameOf(winnerOwner)}.`);
+  // Out of rules with the field still level.
+  const allZero = last && last.best === 0 && last.winners.length === last.scored.length;
+  if (allZero) {
+    lines.push('No rule separated anyone.');
     return { decided: true, winner_ids: [], push: true,
-             headline: `Push — nobody picked ${nameOf(winnerOwner)}.`, lines };
+             headline: 'Push — nobody won it. Add a tiebreaker next year.', lines };
   }
-  for (const h of holders) lines.push(`${nameOf(h.owner_id)} had ${nameOf(winnerOwner)}.`);
+  const ids = last.winners.map(w => w.party.owner_id);
+  lines.push('Still level after every rule.');
   return {
-    decided: true, push: false,
-    winner_ids: holders.map(h => h.owner_id),
-    headline: holders.length === 1
-      ? `${nameOf(holders[0].owner_id)} wins — they picked ${nameOf(winnerOwner)}.`
-      : `${holders.map(h => nameOf(h.owner_id)).join(' and ')} split it — they both had ${nameOf(winnerOwner)}.`,
+    decided: true, push: false, winner_ids: ids,
+    headline: `${ids.map(nameOf).join(' and ')} split it — dead level on every rule.`,
+    lines,
   };
 }
 
@@ -435,6 +529,6 @@ function evaluateProposition(bet, ctx, nameOf) {
 }
 
 module.exports = {
-  CFG, TESTS, PLACES, POOL_OUTCOMES,
+  CFG, TESTS, PLACES, POOL_OUTCOMES, POOL_RULES, poolRules,
   conditionText, betText, makeContext, weeksNeeded, evalCondition, evaluate,
 };

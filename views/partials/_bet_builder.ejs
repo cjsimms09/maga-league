@@ -14,34 +14,46 @@
     <form method="post" action="/sidebets" class="entry-form" id="bet-form">
 
       <%# ── Which shape ─────────────────────────────────────────────────── %>
+      <%# Pool first and selected by default — it is the shape of bet this
+          league actually makes ("we each pick five, whoever has the champion
+          wins"), and burying it behind the other one made people build the
+          wrong thing. %>
       <div class="seg" role="radiogroup" aria-label="Bet type">
         <label class="seg-opt">
-          <input type="radio" name="format" value="prop" checked>
-          <span><b>Straight bet</b><small>a claim that comes in or doesn't</small></span>
+          <input type="radio" name="format" value="pool" checked>
+          <span><b>Pool</b><small>we each pick teams — one of us wins</small></span>
         </label>
         <label class="seg-opt">
-          <input type="radio" name="format" value="pool">
-          <span><b>Pool</b><small>everyone picks teams, one winner</small></span>
+          <input type="radio" name="format" value="prop">
+          <span><b>Straight bet</b><small>a claim that comes in or doesn't</small></span>
         </label>
       </div>
 
       <%# ── POOL ────────────────────────────────────────────────────────── %>
-      <div class="fmt-pool" hidden>
-        <p class="bb-lede">Everyone in the pool picks a set of teams. Whoever picked
-        the team that hits takes the money. The site works out who won.</p>
+      <div class="fmt-pool">
+        <p class="bb-lede">Everyone picks a set of teams. The rules below are checked
+        <b>in order</b> — the first one that separates you wins it, and if it ties,
+        the next one breaks it.</p>
         <div class="ef-row">
-          <label class="field" style="flex:1 1 100%">Played for
-            <select name="pool_outcome">
-              <% for (const [k, v] of Object.entries(BL.POOL_OUTCOMES)) { %>
-                <option value="<%= k %>">whoever picked the team that <%= v.label %></option>
-              <% } %>
-            </select>
+          <label class="field" style="flex:0 1 190px">Teams each person picks
+            <input type="number" name="picks_required" min="1" max="10" value="5">
           </label>
         </div>
+
+        <div class="rule-box">
+          <div class="rule-head">Decided by</div>
+          <div id="rule-rows"></div>
+          <button type="button" class="btn small navy" id="rule-add">+ Add a tiebreaker</button>
+          <p class="muted" style="font-size:.76rem; margin:.5rem 0 0">
+            Most years nobody picks the champion. A tiebreaker is what stops that
+            being an argument — add one and the site can still call it.
+          </p>
+        </div>
+
         <div class="ef-row">
           <div class="field" style="flex:1 1 100%">Your picks
-            <span class="muted">(tap the teams you're taking — your own counts)</span>
-            <div class="sb-people">
+            <span class="muted" id="pick-count"></span>
+            <div class="sb-people" id="pool-picks">
               <% for (const o of owners) { %>
                 <label class="sb-person">
                   <input type="checkbox" name="picks" value="<%= o.id %>"> <%= o.name %><%= o.id === owner.id ? ' (you)' : '' %>
@@ -50,6 +62,7 @@
             </div>
           </div>
         </div>
+        <p class="cond-preview" id="pool-preview"></p>
       </div>
 
       <%# ── STRAIGHT ────────────────────────────────────────────────────── %>
@@ -143,6 +156,18 @@
 
 <%# The condition row, cloned by JS. Kept in a <template> so the markup lives
     next to the form it belongs to rather than inside a JS string. %>
+<template id="rule-tpl">
+  <div class="rule-row">
+    <span class="rule-then">then</span>
+    <select name="pool_rules" aria-label="Rule">
+      <% for (const [k, v] of Object.entries(BL.POOL_RULES)) { %>
+        <option value="<%= k %>"><%= v.label %></option>
+      <% } %>
+    </select>
+    <button type="button" class="btn small ghost rule-del" title="Remove">✕</button>
+  </div>
+</template>
+
 <template id="cond-tpl">
   <div class="cond-row">
     <select name="cond_subject" aria-label="Whose team">
@@ -255,6 +280,61 @@
     refresh();
   });
   form.querySelector('[name=logic]').addEventListener('change', refresh);
+
+  /* ── The pool's rule chain ──────────────────────────────────────────────
+     Ordered rows. The first row is the main rule; every row after it is a
+     tiebreaker, and saying "then" down the left is what makes the ordering
+     legible without a paragraph of explanation. */
+  var ruleRows = document.getElementById('rule-rows');
+  var ruleTpl = document.getElementById('rule-tpl');
+  var poolPreview = document.getElementById('pool-preview');
+  var pickCount = document.getElementById('pick-count');
+
+  function addRule(value) {
+    ruleRows.appendChild(ruleTpl.content.cloneNode(true));
+    var row = ruleRows.lastElementChild;
+    if (value) row.querySelector('select').value = value;
+    refreshPool();
+  }
+
+  function refreshPool() {
+    var rows = ruleRows.querySelectorAll('.rule-row');
+    rows.forEach(function (row, i) {
+      // The first row is the rule; the rest are fallbacks.
+      row.querySelector('.rule-then').textContent = i === 0 ? '' : 'then';
+      // Never let someone delete the only rule — a pool with none cannot settle.
+      row.querySelector('.rule-del').style.visibility = rows.length > 1 ? '' : 'hidden';
+    });
+
+    var n = parseInt(form.querySelector('[name=picks_required]').value, 10) || 0;
+    var picked = form.querySelectorAll('#pool-picks input:checked').length;
+    pickCount.textContent = n ? '(' + picked + ' of ' + n + ' picked)' : '';
+    pickCount.className = picked === n ? 'ok-count' : 'muted';
+
+    var labels = [];
+    rows.forEach(function (row) {
+      var sel = row.querySelector('select');
+      labels.push(sel.options[sel.selectedIndex].text);
+    });
+    poolPreview.textContent = 'We each pick ' + (n || '?') + ' teams. Decided by '
+      + labels[0] + labels.slice(1).map(function (l) { return '; if that ties, ' + l; }).join('') + '.';
+  }
+
+  document.getElementById('rule-add').addEventListener('click', function () { addRule(); });
+  ruleRows.addEventListener('change', refreshPool);
+  ruleRows.addEventListener('click', function (e) {
+    if (!e.target.closest('.rule-del')) return;
+    if (ruleRows.querySelectorAll('.rule-row').length < 2) return;
+    e.target.closest('.rule-row').remove();
+    refreshPool();
+  });
+  form.querySelector('[name=picks_required]').addEventListener('input', refreshPool);
+  form.querySelectorAll('#pool-picks input').forEach(function (c) {
+    c.addEventListener('change', refreshPool);
+  });
+  // Open on the bet everyone actually makes, with the fallback already in place.
+  addRule('champion');
+  addRule('best_finish');
 
   /* Straight vs pool. */
   function syncFormat() {

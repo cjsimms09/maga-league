@@ -11,33 +11,44 @@ password is `imabitch`; anyone who has already logged in has their own.
 
 ## 1. The pool — your actual bet with Richard
 
-*League Finances → Side Bets → ➕ Propose a side bet*
+*League Finances → Side Bets → ➕ Propose a side bet.* **Pool** is already
+selected — it's the shape this league actually bets in.
 
-1. Choose **Pool**.
-2. Played for: **whoever picked the team that wins the championship**.
-3. Your picks: tap four other owners plus yourself.
-4. Stake `100`. Settles when: `end of the 2026 season`.
-5. Who's in it: **Richard**. → **Put it up**.
+1. **Teams each person picks:** `5`.
+2. **Decided by** — it opens with the two rules that matter:
+   - *whoever picked the champion*
+   - then *whoever's best team finished higher*
 
-**Check:** you did not have to type the terms — the bet wrote its own sentence.
+   That second row is the point. Most years **neither of you picks the
+   champion**, and without a fallback that's an argument, not a bet. Add more
+   with *+ Add a tiebreaker*; they're checked top to bottom and the first one
+   that separates you wins it.
+3. **Your picks:** tap four others plus yourself. The counter goes green at 5 of 5.
+4. Stake `100`, settles `end of the 2026 season`, who's in it: **Richard**.
+   → **Put it up**.
 
-Now as Richard:
+**Check:** the gold line reads your bet back before you send it —
 
-6. He should see a **badge on the Finances tab** and a banner at the top of the
-   home page. (An email too, if his address is set in the commish console.)
-7. *Side Bets → 🤝 Waiting on You.* **Tick his five teams on the accept form**,
-   then **Accept** → the handshake dialog → *I'm good for it*.
+> *We each pick 5 teams. Decided by whoever picked the champion; if that ties,
+> whoever's best team finished higher.*
+
+You never typed that. If it doesn't say what you meant, fix it before sending.
+
+Now as Richard: **badge on Finances**, banner on the home page, then
+*Side Bets → 🤝 Waiting on You* → **tick his five teams on the accept form** →
+**Accept** → handshake → *I'm good for it*.
 
 **Check:**
-- The bet moves to **🔥 On the Books**.
-- The **pool board** lists all ten teams in standings order with a chip showing
-  who took each one. Your rows are gold, his are plain, unpicked are dimmed.
-- **↪️ Change my picks** on the card lets either of you fix a mistake.
+- **🔥 On the Books**, with a **pool board** listing all ten teams in standings
+  order and who took each. Yours gold, his plain, unpicked dimmed.
+- **↪️ Change my picks** lets either of you fix a mistake.
+- The verdict box shows ⏳ and who's currently leading — it can't call it until
+  the season is closed out, and it says so.
 
-> This is the one I most want your eyes on. Does the board make it obvious at a
-> glance which teams are yours and which are his?
-
----
+> The rules I've given you: champion · regular-season #1 · last place ·
+> best finish · most teams in the playoffs · most combined wins · most combined
+> points · picked the highest-scoring team. **If the way you and Richard
+> actually settle it isn't in that list, tell me and I'll add it.**
 
 ## 2. The market — a bet with nobody named
 
@@ -59,8 +70,13 @@ Two ways in. Try both.
 **From your matchup:** *My Team → this week's game → 🤝 Bet <opponent> on it →
 stake → send.* That builds "your team outscores theirs in week N" for you.
 
-**From the builder:** *Propose → Straight bet → ⚙️ Add if/then conditions →
+**From the builder:** *Propose → **Straight bet** → ⚙️ Add if/then conditions →
 + Add a condition.* Build a row: `[you] [outscores] [them] [in week N]`.
+
+There are only two tests here on purpose — **outscores** and **finishes**. The
+stat-threshold ones ("scores at least 140", "wins at least 8", "is weekly high
+scorer") were removed; nobody bets that way, and they crowded out the rules that
+matter, which now live on the pool.
 
 **Check:** the gold italic line underneath reads your bet back to you in plain
 English as you build it. If it doesn't say what you meant, the bet is wrong —

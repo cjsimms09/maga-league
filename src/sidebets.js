@@ -78,6 +78,8 @@ function normalize(b) {
   b.conditions ??= [];
   b.logic ??= 'all';
   b.pool_outcome ??= '';
+  b.pool_rules ??= (b.pool_outcome ? [b.pool_outcome] : []);
+  b.picks_required ??= 0;
   b.for_id ??= b.proposer_id;
   b.open_slots ??= 0;
   b.push ??= false;
@@ -121,7 +123,7 @@ const mkParty = (owner_id, accepted, extra = {}) => ({
 async function propose({
   proposer_id, party_ids = [], terms, stake,
   position = '', picks = [], resolves = '', week = null,
-  format = 'prop', conditions = [], logic = 'all', pool_outcome = '',
+  format = 'prop', conditions = [], logic = 'all', pool_rules = [], picks_required = 0,
   open_slots = 0,
 }) {
   const others = [...new Set(party_ids.map(Number))].filter(id => id && id !== Number(proposer_id));
@@ -147,7 +149,9 @@ async function propose({
     logic: logic === 'any' ? 'any' : 'all',
     // Whose side the conditions are stated FOR. If they hold, this person wins.
     for_id: Number(proposer_id),
-    pool_outcome: String(pool_outcome || ''),
+    // Ordered rules; the first that separates the field decides it.
+    pool_rules: (Array.isArray(pool_rules) ? pool_rules : [pool_rules]).filter(Boolean).map(String),
+    picks_required: Math.min(Math.max(Number(picks_required) || 0, 0), 10),
     // Market listing: how many more takers this bet is looking for.
     open_slots: slots,
     status: slots ? STATUS.OPEN : STATUS.PROPOSED,

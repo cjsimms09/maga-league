@@ -1465,3 +1465,24 @@ table .num.zero { color: var(--muted); font-weight: 400; }
 @media (max-width: 560px) {
   .standings-chart .co-col { display: none; }
 }
+
+/* ---------- a pool's rule chain ----------
+   Ordered rows with "then" running down the left edge. The ordering IS the
+   bet — "whoever has the champion, and if neither of us does, whose best team
+   finished higher" — so it has to be visible at a glance, not explained. */
+.rule-box {
+  border: 1px solid rgba(245, 196, 69, .35); border-radius: var(--radius);
+  background: rgba(245, 196, 69, .05); padding: .7rem .8rem; margin: .2rem 0 .9rem;
+}
+.rule-head {
+  font-size: .72rem; text-transform: uppercase; letter-spacing: .08em;
+  color: var(--gold-bright); font-weight: 800; margin-bottom: .45rem;
+}
+.rule-row { display: flex; gap: .4rem; align-items: center; margin-bottom: .35rem; }
+.rule-then {
+  flex: 0 0 2.4rem; font-size: .74rem; color: var(--muted);
+  text-align: right; font-style: italic;
+}
+.rule-row select { flex: 1 1 auto; min-width: 0; font-size: .8rem; padding: .35rem .5rem; min-height: 38px; }
+.rule-row .rule-del { flex: 0 0 auto; }
+.ok-count { color: #4ade80; font-weight: 700; }
