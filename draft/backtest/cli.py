@@ -49,10 +49,42 @@ def main() -> int:
     need = sorted({y for s in seasons for y in (s - 2, s - 1, s)})
     need = [y for y in need if y >= 2018]
     print("  pulling weekly for", need)
-    weekly = nfl.import_weekly_data(need)
-    print(f"  weekly: {len(weekly)} rows")
+    # ONE MISSING YEAR MUST NOT KILL THE RUN.
+    #
+    # The first CI attempt called import_weekly_data(need) with five years and
+    # got HTTP 404 on one of them, which took the other four with it and
+    # produced no backtest at all. nfl_data_py 0.3.2 serves some seasons from a
+    # path that no longer exists, while import_pbp_data for the same years works
+    # — so this is a stale URL in the library, not missing data in the world.
+    #
+    # Pull year by year, keep what answers, and record what did not. A season
+    # whose priors are unavailable gets SKIPPED with a caveat further down
+    # rather than silently replayed against nothing, which is the failure mode
+    # that would matter.
+    import pandas as pd
+    frames, missing = [], []
+    for y in need:
+        try:
+            df = nfl.import_weekly_data([y])
+            frames.append(df)
+            print(f"    {y}: {len(df)} rows")
+        except Exception as e:                                   # noqa: BLE001
+            missing.append(y)
+            print(f"    {y}: UNAVAILABLE ({type(e).__name__}: {e})")
+    if not frames:
+        print("\nNO WEEKLY DATA AT ALL — cannot project or grade anything."); return 1
+    weekly = pd.concat(frames, ignore_index=True)
+    print(f"  weekly: {len(weekly)} rows over {sorted(set(need) - set(missing))}")
+    if missing:
+        caveat_missing = ("weekly stats unavailable for %s; any season needing them "
+                          "as a prior or for grading is affected" % missing)
+        print("  ! " + caveat_missing)
+    else:
+        caveat_missing = None
 
     bundles, actual, caveats, methods = [], {}, [], []
+    if caveat_missing:
+        caveats.append(caveat_missing)
     for season in seasons:
         print(f"\n--- {season} ---")
         store = AsOfDataStore(season, history,
@@ -73,7 +105,11 @@ def main() -> int:
         # Grading — the far side of the wall, assembled AFTER the bundle.
         cfg = store.league_config()
         actual[str(season)] = GR.rest_of_season_points(weekly, season, cfg["scoring"], crosswalk)
-        print(f"  graded {len(actual[str(season)])} players")
+        n_graded = len(actual[str(season)])
+        print(f"  graded {n_graded} players")
+        if n_graded == 0:
+            caveats.append(f"{season}: replayed but NOTHING could be graded — "
+                           "its picks contribute nothing to the headline")
 
     if not bundles:
         print("\nNO BUNDLES — nothing to replay."); return 1
