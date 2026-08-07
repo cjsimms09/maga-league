@@ -1,0 +1,154 @@
+name: Check Sleeper
+
+# Why this exists
+#
+# The site is built in a sandbox with no outbound network — Sleeper's API is
+# blocked by egress policy, so nothing about live connectivity can be verified
+# where the code is written. CI can reach the internet. So the checks run here
+# and print their findings into a log, which is the one place both a human and
+# an agent can read the same answer.
+#
+# It changes nothing and commits nothing. It asks questions and prints answers.
+#
+# The question it exists for: IS A MOCK DRAFT PUBLICLY READABLE? The War Room's
+# live sync assumes so, and that assumption has never been tested against a real
+# response. Start a mock on Sleeper, paste its id below, run this.
+
+on:
+  workflow_dispatch:
+    inputs:
+      league_id:
+        description: 'Sleeper league ID'
+        required: false
+        default: '1374848328470102016'
+      draft_id:
+        description: 'Draft ID to probe — paste a MOCK draft id here to test live sync'
+        required: false
+        default: ''
+      week:
+        description: 'Week to pull matchups for'
+        required: false
+        default: '1'
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Probe Sleeper
+        env:
+          LEAGUE_ID: ${{ inputs.league_id }}
+          DRAFT_ID: ${{ inputs.draft_id }}
+          WEEK: ${{ inputs.week }}
+        run: |
+          python3 - <<'PY'
+          import json, os, sys, urllib.request, urllib.error
+
+          BASE = 'https://api.sleeper.app'
+          league = os.environ.get('LEAGUE_ID', '').strip()
+          draft = os.environ.get('DRAFT_ID', '').strip()
+          week = os.environ.get('WEEK', '1').strip() or '1'
+          problems = []
+
+          def get(path, label):
+              url = BASE + path
+              try:
+                  req = urllib.request.Request(url, headers={'accept': 'application/json'})
+                  with urllib.request.urlopen(req, timeout=20) as r:
+                      body = r.read()
+                      return r.status, json.loads(body) if body else None
+              except urllib.error.HTTPError as e:
+                  return e.code, None
+              except Exception as e:                      # noqa: BLE001
+                  problems.append(f'{label}: {type(e).__name__} {e}')
+                  return 0, None
+
+          def show(label, path, summarise):
+              status, data = get(path, label)
+              ok = status == 200 and data is not None
+              print(f'\n{"OK " if ok else "FAIL"}  {label}')
+              print(f'      {path}  ->  HTTP {status}')
+              if ok:
+                  for line in summarise(data):
+                      print(f'      {line}')
+              else:
+                  problems.append(f'{label} returned HTTP {status}')
+              return data if ok else None
+
+          print('=' * 72)
+          print('SLEEPER CONNECTIVITY CHECK')
+          print('=' * 72)
+
+          state = show('NFL state', '/v1/state/nfl', lambda d: [
+              f'season {d.get("season")} · week {d.get("week")} · {d.get("season_type")}',
+          ])
+
+          if league:
+              lg = show('League', f'/v1/league/{league}', lambda d: [
+                  f'name: {d.get("name")}',
+                  f'season {d.get("season")} · {d.get("total_rosters")} teams · status {d.get("status")}',
+                  f'playoff_week_start: {(d.get("settings") or {}).get("playoff_week_start")}'
+                  '   <- the season-bet cutoff reads this',
+                  f'draft_id: {d.get("draft_id")}   <- the real draft, when it exists',
+              ])
+              show('Users', f'/v1/league/{league}/users', lambda d: [
+                  f'{len(d)} users',
+                  'display names: ' + ', '.join(sorted(u.get('display_name', '?') for u in d)[:12]),
+              ])
+              rosters = show('Rosters', f'/v1/league/{league}/rosters', lambda d: [
+                  f'{len(d)} rosters',
+                  'roster_ids: ' + ', '.join(str(r.get('roster_id')) for r in d),
+                  'have settings.fpts: ' + str(sum(1 for r in d if (r.get('settings') or {}).get('fpts') is not None))
+                  + f' of {len(d)}   <- standings and season-points bets need this',
+              ])
+              show(f'Matchups week {week}', f'/v1/league/{league}/matchups/{week}', lambda d: [
+                  f'{len(d)} rows',
+                  'with points > 0: ' + str(sum(1 for m in d if (m.get('points') or 0) > 0))
+                  + '   <- the first-point bet cutoff reads this',
+                  'matchup_ids: ' + ', '.join(str(m.get('matchup_id')) for m in d[:12]),
+              ])
+
+          # ---- the one that matters -------------------------------------------
+          if draft:
+              print('\n' + '-' * 72)
+              print('MOCK DRAFT READABILITY — the assumption the War Room rests on')
+              print('-' * 72)
+              d1 = show('Draft', f'/v1/draft/{draft}', lambda d: [
+                  f'type {d.get("type")} · status {d.get("status")} · {d.get("season")}',
+                  f'teams: {(d.get("settings") or {}).get("teams")} · rounds: {(d.get("settings") or {}).get("rounds")}',
+                  f'slot_to_roster_id: {json.dumps(d.get("slot_to_roster_id"))[:120]}',
+              ])
+              d2 = show('Draft picks', f'/v1/draft/{draft}/picks', lambda d: [
+                  f'{len(d)} picks so far',
+              ] + ([
+                  'first pick shape: ' + json.dumps({k: d[0].get(k) for k in
+                      ('round', 'pick_no', 'draft_slot', 'player_id', 'picked_by')}),
+              ] if d else ['(none yet — that is fine, it proves the endpoint reads)']))
+
+              if d1 is not None and d2 is not None:
+                  print('\n  ==> VERDICT: a mock draft IS publicly readable.')
+                  print('      War Room live sync will work against a mock. ')
+              else:
+                  print('\n  ==> VERDICT: this draft id could NOT be read.')
+                  print('      Either the id is wrong, or mocks are not public. If the id is')
+                  print('      right, the rehearsal has to be done with manual pick entry and')
+                  print('      the live-sync path needs a rethink before draft day.')
+          else:
+              print('\n' + '-' * 72)
+              print('No draft_id supplied, so the mock-readability question is UNANSWERED.')
+              print('Start a mock on Sleeper, copy the number out of the URL')
+              print('(sleeper.com/draft/nfl/<THIS>), and re-run this workflow with it.')
+              print('-' * 72)
+
+          print('\n' + '=' * 72)
+          if problems:
+              print(f'{len(problems)} PROBLEM(S):')
+              for p in problems:
+                  print('  - ' + p)
+          else:
+              print('No problems. Every endpoint the site depends on answered.')
+          print('=' * 72)
+          # Deliberately never fails the build: this is a diagnostic, and a red X
+          # on "we asked a question" trains people to ignore red Xs.
+          PY

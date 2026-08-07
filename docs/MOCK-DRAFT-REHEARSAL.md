@@ -21,9 +21,14 @@ The three that matter most:
 | **Projections cover the board** | Same fix. Under 90% means VORP and VONA are near-zero and the board is re-printing ADP rather than analysing it. |
 | **Snap / target data joined** | Same fix. This one has silently matched *nobody* before, so the % matters. |
 
-**To rebuild:** GitHub → `cjsimms09/maga-league` → **Actions** → **Draft Board** →
-**Run workflow**. Takes a few minutes and commits the new board; Netlify redeploys
-on its own. Reload the War Room and the red banners should be gone.
+**Do you need to rebuild?** Usually no — it rebuilds itself **every night at
+3am Central**, plus Tuesday mornings and Sunday mornings. The checklist tells you
+its actual age. Rebuild by hand only when you've changed something you want
+reflected now: your draft slot, the league config, or keepers.
+
+**To rebuild by hand:** GitHub → `cjsimms09/maga-league` → **Actions** →
+**Build draft board** → **Run workflow**. A few minutes, commits the new board,
+Netlify redeploys on its own. Reload the War Room and the banners should clear.
 
 ---
 
@@ -55,12 +60,16 @@ within a few seconds.
 > anything is down. Re-copy it. Manual entry still works either way — that's
 > what step 5 covers.
 >
-> **I could not verify mock-draft IDs are publicly readable.** The sandbox I
-> build in blocks Sleeper's API entirely, so I have never seen a real response
-> from this endpoint. Real drafts are readable; mocks *should* behave the same
-> way, but this is exactly the assumption a rehearsal exists to test. **If it
-> fails, tell me and I'll fix it — that's not a reason to skip the rehearsal,
-> it's the single most valuable thing the rehearsal could find.**
+> **Want to know before you start?** Run the **Check Sleeper** action with the
+> mock's draft ID — GitHub → Actions → *Check Sleeper* → *Run workflow* → paste
+> the ID. It probes every endpoint the site uses and prints a verdict on whether
+> a mock is publicly readable. It commits nothing and cannot break anything.
+>
+> That question is genuinely open: the sandbox this was built in blocks
+> Sleeper's API entirely, so I have never seen a real response from this
+> endpoint. Real drafts are readable; mocks *should* behave the same way. **If
+> it fails, that's not a reason to skip the rehearsal — it's the single most
+> valuable thing the rehearsal could find.**
 
 ## 3. Set your slot
 
