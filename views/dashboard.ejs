@@ -5,11 +5,11 @@
 <% } %>
 
 <div class="hero">
-  <div class="hero-item <%= myBalance > 0 ? 'good' : myBalance < 0 ? 'bad' : '' %>">
+  <a class="hero-item clickable <%= myBalance > 0 ? 'good' : myBalance < 0 ? 'bad' : '' %>" href="/bank#top">
     <span class="hero-label">Your Balance</span>
     <span class="hero-value"><%= myBalance === 0 ? '✓ Even' : money(Math.abs(myBalance)) %></span>
-    <span class="hero-sub"><%= myBalance > 0 ? 'the league owes you' : myBalance < 0 ? 'you owe the league' : 'all squared up' %></span>
-  </div>
+    <span class="hero-sub"><%= myBalance > 0 ? 'the league owes you →' : myBalance < 0 ? 'you owe the league →' : 'see your ledger →' %></span>
+  </a>
   <div class="hero-item">
     <span class="hero-label"><%= season.year %> Buy-In</span>
     <span class="hero-value"><%= money(season.buy_in) %></span>
@@ -21,11 +21,11 @@
     <span class="hero-sub">tap to see the split →</span>
   </a>
   <% if (season.weekly_payout) { %>
-  <div class="hero-item">
+  <a class="hero-item clickable" href="#weekly-winners" data-flash="#weekly-winners">
     <span class="hero-label">Weekly High Point</span>
     <span class="hero-value"><%= money(season.weekly_payout) %></span>
-    <span class="hero-sub">× <%= season.weeks %> weeks</span>
-  </div>
+    <span class="hero-sub">who's won it →</span>
+  </a>
   <% } %>
 </div>
 
@@ -129,8 +129,8 @@
   </div>
   <% } %>
 
-  <div class="card">
-    <h2>Weekly High Point <span class="sub"><%= money(season.weekly_payout) %> to the top score, regular season only</span></h2>
+  <div class="card" id="weekly-winners">
+    <h2>Weekly High Point <span class="sub"><%= season.year %> — <%= money(season.weekly_payout) %> to the top score, regular season only</span></h2>
     <div class="body tight scroll-x">
       <% if (!weekly.length) { %>
         <p class="muted" style="padding:1rem">No weekly winners recorded yet.</p>

@@ -1108,3 +1108,10 @@ table.ledger .btn.ghost {
   color: var(--muted); border-color: var(--line);
 }
 table.ledger .btn.ghost:hover { color: var(--gold-bright); border-color: var(--gold); }
+
+/* A tile that scrolls you somewhere should make it obvious where it landed. */
+.flash-card { animation: card-flash 1.8s ease-out; }
+@keyframes card-flash {
+  0%, 100% { box-shadow: none; }
+  15%, 60% { box-shadow: 0 0 0 2px var(--gold), var(--glow-gold); }
+}

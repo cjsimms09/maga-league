@@ -88,6 +88,17 @@
     // expanded box rather than to where the closed one used to be.
   });
 
+  // Same idea for a plain card: jump to it and mark it, so a tile that scrolls
+  // you somewhere makes it obvious where it landed you.
+  document.addEventListener('click', function (e) {
+    var trigger = e.target.closest('[data-flash]');
+    if (!trigger) return;
+    var target = document.querySelector(trigger.getAttribute('data-flash'));
+    if (!target) return;
+    target.classList.add('flash-card');
+    setTimeout(function () { target.classList.remove('flash-card'); }, 1800);
+  });
+
   /* ------------------------------------------------------------------
    * 4. Horizontal-scroll affordance.
    *
