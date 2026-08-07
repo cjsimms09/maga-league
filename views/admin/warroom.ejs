@@ -48,12 +48,41 @@
     </div>
   </div>
 
-  <div class="card" style="margin-bottom:1rem; border-color:rgba(245,196,69,.5)">
-    <h2>🎯 Take This Player <span class="sub">ranked by composite score · tap Why? for the full audit</span></h2>
+  <%# ── One answer ────────────────────────────────────────────────────────
+      Draft day is sixty seconds and a room full of noise. Everything below
+      this is for the minute before you're on the clock; THIS is for the minute
+      you are. One name, one sentence, and an honest line about whether the
+      board can actually separate it from the next one. %>
+  <div class="card clock-card" id="clock-card" style="display:none">
     <div class="body">
+      <div class="clock-eyebrow">On the clock — pick <span id="clock-pick">—</span></div>
+      <div class="clock-name" id="clock-name">—</div>
+      <div class="clock-meta" id="clock-meta"></div>
+      <div class="clock-why" id="clock-why"></div>
+      <div class="clock-confidence" id="clock-confidence"></div>
+      <div class="clock-actions">
+        <button class="btn small navy" id="clock-next">Show the next one</button>
+        <button class="btn small ghost" id="clock-off">Full board</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:1rem; border-color:rgba(245,196,69,.5)" id="recs-card">
+    <h2>🎯 Take This Player
+      <span class="sub">ranked by composite score · tap Why? for the full audit</span>
+      <button class="btn small gold" id="clock-on" style="flex:0 0 auto">⏱ One answer</button>
+    </h2>
+    <div class="body">
+      <div id="confidence-note"></div>
       <div id="recs"></div>
       <p id="tiebreak" class="muted" style="display:none; margin:.6rem 0 0"></p>
     </div>
+  </div>
+
+  <%# ── What each option costs you at your next pick ──────────────────────── %>
+  <div class="card" id="branch-card" style="margin-bottom:1rem; display:none">
+    <h2>🔀 If You Take… <span class="sub" id="branch-head">what's likely left at your next pick</span></h2>
+    <div class="body tight scroll-x"><div id="branches"></div></div>
   </div>
 
   <div class="grid cols-2">
@@ -87,6 +116,21 @@
           <p class="muted" style="margin:.1rem 0 .5rem; font-size:.72rem"><%= hint %></p>
         <% } %>
         <button class="btn small navy" id="reset-weights">Reset to defaults</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>⭐ Targets &amp; 🚫 Never <span class="sub">your own read — saved on this device</span></h2>
+      <div class="body">
+        <p class="muted" style="margin:0 0 .6rem; font-size:.78rem">
+          A star nudges a player up a close call. It will not drag a worse player
+          to the top — that is deliberate. <b>Never</b> removes them from every
+          recommendation, full stop.
+        </p>
+        <div id="lists"></div>
+        <p class="muted" style="margin:.5rem 0 0; font-size:.74rem">
+          Star or block anyone from the ⭐ / 🚫 buttons on the draft board below.
+        </p>
       </div>
     </div>
 

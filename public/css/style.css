@@ -1577,3 +1577,58 @@ table .num.zero { color: var(--muted); font-weight: 400; }
 .sb-rules li { font-size: .8rem; color: var(--muted); line-height: 1.55; margin-bottom: .35rem; }
 .sb-rules li b { color: #e7eaf3; }
 .sb-rules p { margin: .2rem .9rem .8rem; font-size: .78rem; color: var(--muted); line-height: 1.5; }
+
+/* ---------- the war room: on the clock ----------
+   Everything else on this page is for the minute BEFORE you're up. This is for
+   the minute you are: one name, big enough to read across a room, one reason,
+   and an honest line about whether the board can really separate it. */
+.clock-card {
+  margin-bottom: 1rem; border-color: var(--gold);
+  background: linear-gradient(160deg, rgba(245,196,69,.10), rgba(255,255,255,.02));
+}
+.clock-eyebrow {
+  font-size: .7rem; text-transform: uppercase; letter-spacing: .14em;
+  color: var(--muted); font-weight: 800;
+}
+.clock-name {
+  font-family: var(--font-display); font-weight: 900; line-height: 1.05;
+  font-size: clamp(1.9rem, 9vw, 3rem); color: #fff; margin: .2rem 0 .1rem;
+  display: flex; align-items: center; gap: .5rem; flex-wrap: wrap;
+}
+.clock-meta { font-size: .82rem; color: var(--muted); }
+.clock-why { font-size: .95rem; color: #e7eaf3; line-height: 1.45; margin-top: .5rem; }
+.clock-confidence { margin-top: .5rem; font-size: .82rem; }
+.clock-confidence .coin-flip { color: var(--gold-bright); font-weight: 700; }
+.clock-confidence .close { color: #fcd34d; }
+.clock-confidence .clear { color: #86efac; }
+.clock-actions { display: flex; gap: .4rem; margin-top: .9rem; flex-wrap: wrap; }
+
+/* How much to trust the ranking, said above it rather than hidden in a tooltip. */
+.conf-note {
+  padding: .5rem .7rem; border-radius: 10px; margin-bottom: .7rem;
+  font-size: .82rem; line-height: 1.45;
+}
+.conf-note.coin-flip { background: rgba(245,196,69,.12); border: 1px solid rgba(245,196,69,.45); color: #f2e6c8; }
+.conf-note.close { background: rgba(255,255,255,.04); border: 1px solid var(--line); color: #cfd6e6; }
+
+/* What each option costs you at your next pick. */
+.branch {
+  padding: .55rem .7rem; border-radius: 10px; margin-bottom: .5rem;
+  background: rgba(255,255,255,.03); border: 1px solid var(--line);
+}
+.branch-head { font-size: .85rem; color: #cfd6e6; margin-bottom: .25rem; }
+.branch-head b { color: var(--gold-bright); }
+.branch-rows { list-style: none; margin: 0; padding: 0; display: grid; gap: .2rem; }
+.branch-rows li { font-size: .8rem; color: #dfe4f0; display: flex; align-items: center; gap: .35rem; }
+
+/* Targets and never-draft. */
+.list-row { display: flex; flex-wrap: wrap; gap: .35rem; align-items: center; margin-bottom: .45rem; }
+.list-row > b { flex: 0 0 5.5rem; font-size: .78rem; color: #cfd6e6; }
+.list-chip {
+  border-radius: 999px; padding: .25rem .55rem; font-size: .74rem; cursor: pointer;
+  font-family: inherit; min-height: 32px; border: 1px solid var(--line);
+  background: rgba(255,255,255,.05); color: #dfe4f0;
+}
+.list-chip.targets { border-color: var(--gold); color: var(--gold-bright); background: rgba(245,196,69,.12); }
+.list-chip.avoid { border-color: rgba(255,70,85,.5); color: var(--red-bright, #ff6b7a); background: rgba(255,70,85,.08); }
+.clock-star { font-size: 1.1rem; }

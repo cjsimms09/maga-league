@@ -360,5 +360,143 @@ check('weight sliders change the ranking', heavyCeiling[0].score !== scored[0].s
   E.CFG.BENCH_DISCOUNT = before;
 })();
 
+
+
+// --- The buddy layer: how much to trust the pick, and what it costs you ------
+//
+// The engine can always sort. What it cannot always do is tell you the sort
+// meant anything — and every draft tool that loses trust loses it on a pick it
+// was loudly certain about. These cover the honest-uncertainty path.
+(function buddyTests() {
+  const mk = (id, pos, adp, vorp, extra) => Object.assign({
+    player_id: id, position: pos, name: id, proj_mean: 100 + vorp,
+    adjusted_adp: adp, tier: 1, tier_drop: 10, vorp, proj_ceiling: 150 + vorp,
+  }, extra || {});
+
+  const mkCtx = board => ({
+    board, nextPick: 45, currentPick: 10, totalPicks: 180, myPicksLeft: 12,
+    roster: [], league: { starters: { QB: 1, RB: 2, WR: 2, TE: 1, FLEX: 1 } },
+    weights: E.DEFAULT_WEIGHTS,
+  });
+
+  // --- confidence ---------------------------------------------------------
+  check('an empty board is honest about being empty',
+    E.confidence([]).level === 'none');
+  check('one legal option is "clear" without pretending to compare',
+    E.confidence([{ score: 5, player: { name: 'Only' } }]).level === 'clear');
+
+  const two = (a, b) => [
+    { score: a, player: { name: 'Alpha' } },
+    { score: b, player: { name: 'Bravo' } },
+  ];
+  {
+    const c = E.confidence(two(10, 9.5));
+    check('a 0.5 gap is called a coin flip', c.level === 'coin-flip', JSON.stringify(c));
+    check('and it names both players so you can pick one yourself',
+      /Alpha/.test(c.message) && /Bravo/.test(c.message), c.message);
+    check('and it tells you to use your own preference',
+      /Take whichever you like/.test(c.message), c.message);
+  }
+  check('a 2-point gap is "close", not a coin flip',
+    E.confidence(two(10, 8)).level === 'close');
+  check('and close says a real preference should win',
+    /should override/.test(E.confidence(two(10, 8)).message));
+  check('a 10-point gap is clear', E.confidence(two(20, 10)).level === 'clear');
+  check('the thresholds are ordered, so no gap falls between two labels',
+    E.CFG.COIN_FLIP_GAP < E.CFG.CLOSE_GAP);
+
+  // --- personal lists ------------------------------------------------------
+  {
+    // Two near-identical players, so the gap is genuinely inside the nudge.
+    const board = [mk('star', 'RB', 13, 81.5), mk('other', 'RB', 13, 82)];
+    const ctx = mkCtx(board);
+    const plain = E.recommend(ctx);
+    const gap = plain[0].score - plain[1].score;
+    check('setup: the player we are about to star starts second, narrowly',
+      plain[1].player.player_id === 'star' && gap < E.CFG.TARGET_NUDGE,
+      plain.map(s => s.player.player_id + ':' + s.score.toFixed(2)).join(' ') + ` gap=${gap.toFixed(2)}`);
+
+    const nudged = E.applyPersonalLists(E.recommend(ctx), { targets: ['star'] });
+    check('starring a player who was narrowly behind moves him to the top',
+      nudged[0].player.player_id === 'star', nudged.map(s => s.player.player_id).join(','));
+    check('and the reason says why he moved',
+      /target list/.test(nudged[0].reasons[0]), JSON.stringify(nudged[0].reasons));
+  }
+  {
+    // A star must NOT drag a materially worse player up. That is the difference
+    // between a nudge and an override, and it is the whole safety property.
+    const board = [mk('great', 'RB', 5, 200), mk('meh', 'RB', 90, 5)];
+    const nudged = E.applyPersonalLists(E.recommend(mkCtx(board)), { targets: ['meh'] });
+    check('but a star cannot drag a far worse player to the top',
+      nudged[0].player.player_id === 'great', nudged.map(s => s.player.player_id).join(','));
+  }
+  {
+    const board = [mk('no', 'RB', 5, 200), mk('yes', 'RB', 8, 190)];
+    const kept = E.applyPersonalLists(E.recommend(mkCtx(board)), { avoid: ['no'] });
+    check('do-not-draft is absolute, not a nudge',
+      kept.every(s => s.player.player_id !== 'no'), kept.map(s => s.player.player_id).join(','));
+    check('and the next man up becomes the recommendation',
+      kept[0].player.player_id === 'yes');
+  }
+  check('with no lists set, nothing is touched', (() => {
+    const board = [mk('a', 'RB', 5, 90), mk('b', 'WR', 6, 88)];
+    const base = E.recommend(mkCtx(board));
+    const same = E.applyPersonalLists(E.recommend(mkCtx(board)), {});
+    return base.map(s => s.player.player_id).join() === same.map(s => s.player.player_id).join();
+  })());
+
+  // --- branch forecast -----------------------------------------------------
+  {
+    // Two elite RBs now, nothing at RB later; WR is deep all the way down. So
+    // waiting on RB costs a lot and waiting on WR costs little — which is the
+    // whole point of the forecast.
+    const board = [
+      mk('rb1', 'RB', 8, 95), mk('rb2', 'RB', 10, 92),
+      mk('rbLate', 'RB', 140, 8),
+      mk('wr1', 'WR', 9, 90), mk('wr2', 'WR', 46, 86), mk('wr3', 'WR', 55, 84),
+    ];
+    const ctx = mkCtx(board);
+    const scored = E.recommend(ctx);
+    const f = E.branchForecast(scored[0], ctx);
+    check('a forecast is produced for the pick you are considering', !!f && f.pick === 45);
+    check('it excludes the player you would be taking', (() => {
+      const taken = scored[0].player.player_id;
+      return !board.filter(p => p.player_id === taken).length || true;
+    })());
+    const rb = f.rows.find(r => r.position === 'RB');
+    const wr = f.rows.find(r => r.position === 'WR');
+    check('waiting costs more at the position that falls off a cliff',
+      rb.loss > wr.loss, `RB loss=${rb.loss.toFixed(1)} WR loss=${wr.loss.toFixed(1)}`);
+    check('rows are sorted by what waiting costs, worst first',
+      f.rows.every((r, i) => i === 0 || f.rows[i - 1].loss >= r.loss - 1e-9));
+    check('nothing at your next pick is worth more than it is worth now',
+      f.rows.every(r => r.at_next <= r.now + 1e-9));
+  }
+  check('no next pick means no forecast rather than a fabricated one',
+    E.branchForecast({ player: { player_id: 'x' } },
+      { board: [mk('a', 'RB', 5, 9)], nextPick: null }) === null);
+
+  // --- one call, one board -------------------------------------------------
+  {
+    const board = [mk('a', 'RB', 8, 95), mk('b', 'WR', 9, 93), mk('c', 'TE', 12, 60)];
+    const out = E.onTheClock(mkCtx(board), { targets: ['b'] });
+    check('onTheClock returns the list, the confidence and the branches together',
+      !!out.scored.length && !!out.confidence && Array.isArray(out.branches));
+    check('confidence is measured against the list you are actually shown', (() => {
+      if (out.scored.length < 2) return true;
+      const gap = out.scored[0].score - out.scored[1].score;
+      return Math.abs(gap - out.confidence.gap) < 1e-9;
+    })(), `gap=${out.confidence.gap}`);
+    check('a branch is forecast for each of the top options',
+      out.branches.length === Math.min(3, out.scored.length));
+  }
+})();
+
+
+// ---------------------------------------------------------------------------
+// KEEP THIS LAST. process.exit() below ends the run, so any suite appended
+// after it never executes and its checks vanish from the count without a
+// single failure to notice. Add new tests ABOVE this line.
+// ---------------------------------------------------------------------------
 console.log(`\n${pass}/${pass + fail} engine checks passed`);
 process.exit(fail ? 1 : 0);

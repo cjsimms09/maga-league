@@ -27,7 +27,38 @@
     overrides: {},
     filterPos: 'ALL',
     search: '',
+    // Your own read. Per-device on purpose: it is your opinion, not league
+    // data, and it must not need a round trip on the clock.
+    lists: { targets: [], avoid: [] },
+    clockMode: false,     // the one-answer view
+    clockIndex: 0,        // which recommendation it is showing
   };
+  const LISTS_KEY = 'wr-lists-v1';
+
+  function loadLists() {
+    try {
+      const raw = JSON.parse(localStorage.getItem(LISTS_KEY) || '{}');
+      state.lists = { targets: raw.targets || [], avoid: raw.avoid || [] };
+    } catch (e) { /* private mode — lists just do not persist */ }
+  }
+  function saveLists() {
+    try { localStorage.setItem(LISTS_KEY, JSON.stringify(state.lists)); } catch (e) {}
+  }
+  function toggleList(which, id) {
+    const other = which === 'targets' ? 'avoid' : 'targets';
+    const list = state.lists[which];
+    const at = list.indexOf(id);
+    if (at >= 0) list.splice(at, 1);
+    else {
+      list.push(id);
+      // A player cannot be both starred and blocked; the newer one wins rather
+      // than leaving a contradiction for the engine to resolve silently.
+      const o = state.lists[other].indexOf(id);
+      if (o >= 0) state.lists[other].splice(o, 1);
+    }
+    saveLists();
+    renderAll();
+  }
 
   // ---------------------------------------------------------------- bootstrap
   const PIN_KEY = 'mfga.draft.artifact';
@@ -80,6 +111,7 @@
     // assumed, and that changes the whole back half of the draft.
     state.format = E.applyFormatDefaults(data.league);
     loadOverrides();
+    loadLists();
     state.board = data.players.slice();
     applyOverrides();
     renderAll();
@@ -293,6 +325,7 @@
   function renderAll() {
     renderHeader();
     renderRecommendations();
+    renderLists();
     renderBoard();
     renderRoster();
     renderSurvival();
@@ -423,8 +456,109 @@
       + '</b> <span>' + escapeHtml(n.text) + '</span></div>').join('');
   }
 
+  /* ── How much to trust it ───────────────────────────────────────────────
+     Stated in words above the list, not buried in a tooltip. A tool that only
+     ever sounds certain gets ignored the first time it is confidently wrong. */
+  function renderConfidence(c) {
+    const host = $('#confidence-note');
+    if (!host || !c || c.level === 'none') { if (host) host.innerHTML = ''; return; }
+    if (c.level === 'clear') { host.innerHTML = ''; return; }
+    host.innerHTML = '<div class="conf-note ' + c.level + '">'
+      + (c.level === 'coin-flip' ? '\u{1FA99} ' : '\u2696\ufe0f ')
+      + escapeHtml(c.message) + '</div>';
+  }
+
+  /* ── What each option costs you at your next pick ──────────────────────── */
+  function renderBranches(branches) {
+    const card = $('#branch-card'), host = $('#branches');
+    if (!card || !host) return;
+    if (!branches || !branches.length) { card.style.display = 'none'; return; }
+    card.style.display = '';
+    $('#branch-head').textContent = 'what is likely left at pick ' + branches[0].pick;
+    host.innerHTML = branches.map(b => {
+      // Only the positions where waiting actually costs something. A row
+      // saying "you lose 0.2 points" is noise on the clock.
+      const rows = b.rows.filter(r => r.loss > 1).slice(0, 4);
+      return '<div class="branch">'
+        + '<div class="branch-head">Take <b>' + escapeHtml(b.taking) + '</b></div>'
+        + (rows.length
+            ? '<ul class="branch-rows">' + rows.map(r =>
+                '<li><span class="rec-pos ' + r.position + '">' + r.position + '</span>'
+                + ' best left \u2248 <b>' + r.at_next.toFixed(0) + '</b>'
+                + ' <span class="muted">(' + r.loss.toFixed(0) + ' worse than now)</span></li>').join('')
+              + '</ul>'
+            : '<p class="muted" style="margin:.2rem 0 0; font-size:.78rem">Nothing falls off a cliff before your next pick.</p>')
+        + '</div>';
+    }).join('');
+  }
+
+  /* ── The one-answer view ────────────────────────────────────────────────
+     Sixty seconds, a room full of noise, and everyone looking at you. One
+     name, one reason, and an honest word about whether it is really ahead. */
+  function renderClock(out) {
+    const card = $('#clock-card');
+    if (!card) return;
+    card.style.display = state.clockMode ? '' : 'none';
+    const recs = $('#recs-card');
+    if (recs) recs.style.display = state.clockMode ? 'none' : '';
+    const branch = $('#branch-card');
+    if (branch && state.clockMode) branch.style.display = 'none';
+    if (!state.clockMode) return;
+
+    const list = out.scored || [];
+    if (!list.length) { $('#clock-name').textContent = 'Board is empty'; return; }
+    const i = Math.min(state.clockIndex, list.length - 1);
+    const s2 = list[i], p = s2.player;
+
+    $('#clock-pick').textContent = state.data && state.data.current_pick
+      ? state.data.current_pick : (context().currentPick || '—');
+    $('#clock-name').innerHTML = escapeHtml(p.name)
+      + '<span class="rec-pos ' + p.position + '">' + p.position + '</span>';
+    $('#clock-meta').textContent = (p.team || '') + (p.bye ? ' · bye ' + p.bye : '')
+      + ' · ADP ' + Math.round(p.adjusted_adp) + ' · proj ' + Math.round(p.proj_mean);
+    // The star goes on the name as a badge, not into the reason line. On the
+    // clock the one sentence you get has to tell you why he is GOOD — "you
+    // starred him" is a restatement of your own click, not information.
+    const reasons = (s2.reasons || []).filter(r => !/target list/.test(r));
+    $('#clock-why').textContent = reasons[0] || (s2.reasons && s2.reasons[0]) || '';
+    if (s2.targeted) {
+      $('#clock-name').innerHTML += '<span class="clock-star" title="On your target list">\u2b50</span>';
+    }
+    const c = out.confidence;
+    $('#clock-confidence').innerHTML = i > 0
+      ? '<span class="muted">Option ' + (i + 1) + ' — you skipped ' + escapeHtml(list[0].player.name) + '</span>'
+      : '<span class="' + c.level + '">' + escapeHtml(c.message) + '</span>';
+  }
+
+  /* ── Your own read ──────────────────────────────────────────────────────── */
+  function renderLists() {
+    const host = $('#lists');
+    if (!host) return;
+    const nameOf = id => {
+      const p = (state.data && state.data.players || []).find(x => x.player_id === id);
+      return p ? p.name : id;
+    };
+    const chip = (id, kind) => '<button class="list-chip ' + kind + '" data-unlist="' + kind
+      + '" data-id="' + escapeHtml(id) + '">' + escapeHtml(nameOf(id)) + ' \u2715</button>';
+    const t = state.lists.targets, a = state.lists.avoid;
+    host.innerHTML =
+      '<div class="list-row"><b>\u2b50 Targets</b>'
+        + (t.length ? t.map(id => chip(id, 'targets')).join('') : '<span class="muted">none yet</span>')
+      + '</div>'
+      + '<div class="list-row"><b>\u{1F6AB} Never</b>'
+        + (a.length ? a.map(id => chip(id, 'avoid')).join('') : '<span class="muted">none yet</span>')
+      + '</div>';
+  }
+
   function renderRecommendations() {
-    const all = E.recommend(context());
+    // One call so the recommendation, the confidence line and the branch
+    // forecasts can never come from three different boards.
+    const out = E.onTheClock(context(), state.lists);
+    state.lastClock = out;
+    renderConfidence(out.confidence);
+    renderBranches(out.branches);
+    renderClock(out);
+    const all = out.scored;
     const scored = all.slice(0, 5);
     const host = $('#recs');
     if (state.reconcile && state.reconcile.halt) {
@@ -515,7 +649,12 @@
               + '<button class="btn small ghost" data-override="' + p.player_id + '" data-kind="remove" '
               + 'title="Undraftable — suspension, injury, holdout">⊘</button>') +
         '</td>' +
-        '<td class="num"><button class="btn small ghost" data-draft-other="' + p.player_id + '">✕</button></td>' +
+        '<td class="num" style="white-space:nowrap">' +
+          '<button class="btn small ' + (state.lists.targets.indexOf(p.player_id) >= 0 ? 'gold' : 'ghost')
+            + '" data-list="targets" data-id="' + p.player_id + '" title="Target — nudge him up a close call">\u2b50</button>' +
+          '<button class="btn small ' + (state.lists.avoid.indexOf(p.player_id) >= 0 ? 'navy' : 'ghost')
+            + '" data-list="avoid" data-id="' + p.player_id + '" title="Never draft — remove from every recommendation">\u{1F6AB}</button>' +
+          '<button class="btn small ghost" data-draft-other="' + p.player_id + '">✕</button></td>' +
       '</tr>').join('');
     $('#board-count').textContent = rows.length + ' shown of ' + state.board.length + ' available';
   }
@@ -966,6 +1105,20 @@
     const apply = $('#slot-apply'), slotIn = $('#slot-input');
     if (apply && slotIn) {
       apply.addEventListener('click', () => setSlot(slotIn.value));
+    }
+    // One-answer mode. Kept as page state rather than a URL so hitting it does
+    // not cost a reload on the clock.
+    const on = $('#clock-on'), off = $('#clock-off'), nxt = $('#clock-next');
+    if (on) on.addEventListener('click', () => {
+      state.clockMode = true; state.clockIndex = 0; renderRecommendations();
+    });
+    if (off) off.addEventListener('click', () => {
+      state.clockMode = false; renderRecommendations();
+    });
+    if (nxt) nxt.addEventListener('click', () => {
+      state.clockIndex += 1; renderRecommendations();
+    });
+    if (true) {
       slotIn.addEventListener('keydown', ev => {
         if (ev.key === 'Enter') { ev.preventDefault(); setSlot(slotIn.value); }
       });
@@ -984,6 +1137,13 @@
       if (me) return markDrafted(me.getAttribute('data-draft-me'), true);
       const other = ev.target.closest('[data-draft-other]');
       if (other) return markDrafted(other.getAttribute('data-draft-other'), false);
+      // Star / block from anywhere on the page, including the chips in the
+      // lists panel, which is how you undo one without hunting the board.
+      const listBtn = ev.target.closest('[data-list]');
+      if (listBtn) { toggleList(listBtn.getAttribute('data-list'), listBtn.getAttribute('data-id')); return; }
+      const unlist = ev.target.closest('[data-unlist]');
+      if (unlist) { toggleList(unlist.getAttribute('data-unlist'), unlist.getAttribute('data-id')); return; }
+
       const ovBtn = ev.target.closest('[data-override]');
       if (ovBtn) {
         const id = ovBtn.getAttribute('data-override');

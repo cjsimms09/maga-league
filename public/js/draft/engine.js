@@ -28,6 +28,19 @@
     SURVIVOR_CUTOFF: 0.005,   // stop the VONA product once mass is negligible
     TIE_THRESHOLD: 2.0,       // composite points within which we call it a tie
 
+    // --- on the clock (Part 6: the buddy layer) ---
+    // How wide the gap to second has to be before the board is telling you
+    // something rather than rounding noise. Below COIN_FLIP the honest answer
+    // is "either", and saying so is worth more than a confident ranking that
+    // is really a tossup — false precision is how a tool loses trust on the
+    // one pick it got loudly wrong.
+    COIN_FLIP_GAP: 1.0,
+    CLOSE_GAP: 3.5,
+    // A target you have starred is allowed to jump a gap this big. Wide enough
+    // that your own read wins a close call, narrow enough that it cannot drag
+    // a materially worse player to the top of the list.
+    TARGET_NUDGE: 3.0,
+
     // --- plausibility rails (Part 6 §2) ---
     // These never change a recommendation. They flag one, because an
     // integration bug across eight composite terms produces confident nonsense
@@ -414,6 +427,128 @@
   }
 
   /**
+   * The whole answer for one pick: the list, how much to trust it, and what
+   * each of the top options costs you at your next pick.
+   *
+   * One call rather than three so the on-the-clock view cannot accidentally
+   * render a recommendation from one board and a forecast from another.
+   */
+  function onTheClock(ctx, lists) {
+    let scored = recommend(ctx);
+    scored = applyPersonalLists(scored, lists);
+    // Personal lists reorder, so contested/gap have to be recomputed against
+    // the list you are actually looking at.
+    if (scored.length > 1) {
+      const gap = scored[0].score - scored[1].score;
+      scored[0].contested = gap < CFG.TIE_THRESHOLD;
+      scored[0].gap_to_second = gap;
+    }
+    const top = scored.slice(0, 3);
+    return {
+      scored,
+      confidence: confidence(scored),
+      branches: top.map(e => branchForecast(e, ctx)).filter(Boolean),
+    };
+  }
+
+  /**
+   * How much to trust the top recommendation, in words.
+   *
+   * The engine can always sort. What it cannot always do is tell you the sort
+   * MEANT anything — and on the clock, "these two are a coin flip, take the one
+   * you like" is a more useful sentence than a confident number that happens to
+   * be 0.3 points ahead. Every draft tool that loses trust loses it on a pick
+   * it was loudly certain about.
+   */
+  function confidence(scored) {
+    if (!scored.length) return { level: 'none', gap: 0, message: 'Board is empty.' };
+    if (scored.length === 1) {
+      return { level: 'clear', gap: Infinity, message: 'Only one legal option.' };
+    }
+    const gap = scored[0].score - scored[1].score;
+    const a = scored[0].player, b = scored[1].player;
+    if (gap < CFG.COIN_FLIP_GAP) {
+      return {
+        level: 'coin-flip', gap,
+        message: 'Coin flip: ' + a.name + ' and ' + b.name + ' score within '
+          + gap.toFixed(1) + '. Take whichever you like — the board cannot separate them.',
+      };
+    }
+    if (gap < CFG.CLOSE_GAP) {
+      return {
+        level: 'close', gap,
+        message: 'Close: ' + a.name + ' is ahead of ' + b.name + ' by only '
+          + gap.toFixed(1) + '. A real preference should override this.',
+      };
+    }
+    return {
+      level: 'clear', gap,
+      message: a.name + ' is clearly ahead — ' + gap.toFixed(1) + ' points over ' + b.name + '.',
+    };
+  }
+
+  /**
+   * What your next pick looks like if you take this player now.
+   *
+   * The decision on the clock is never "who is best" in the abstract, it is
+   * "who is best given what I can still get later". Taking the RB is right if
+   * the WR you want survives the round trip and wrong if he does not, and that
+   * is a different question from which of them scores higher today.
+   *
+   * Returns the expected best VORP still on the board at your next pick, by
+   * position, and flags positions that fall off a cliff in between.
+   */
+  function branchForecast(entry, ctx) {
+    const next = ctx.nextPick;
+    if (!next || !ctx.board || !ctx.board.length) return null;
+
+    // Everything except the player you would be taking.
+    const remaining = ctx.board.filter(p => p.player_id !== entry.player.player_id);
+    const avail = remaining.map(p => survival(p, next, ctx));
+    const at = S.expectedBestByPos(remaining, avail);
+    // Same measure right now, so "what does waiting cost" is a subtraction
+    // rather than a number you have to hold two of in your head.
+    const now = S.expectedBestByPos(remaining, remaining.map(() => 1));
+
+    const rows = Object.keys(at).map(pos => ({
+      position: pos,
+      now: now[pos] || 0,
+      at_next: at[pos] || 0,
+      loss: Math.max(0, (now[pos] || 0) - (at[pos] || 0)),
+    })).sort((x, y) => y.loss - x.loss);
+
+    return { pick: next, taking: entry.player.name, rows };
+  }
+
+  /**
+   * Your own read, applied as a nudge rather than an override.
+   *
+   * Every drafter has players they want and players they will not touch, and a
+   * tool that ignores that gets argued with instead of used. But a star is not
+   * an argument — it moves a player up a close call, it does not drag a
+   * materially worse one to the top. Do-not-draft is absolute, because that one
+   * IS an argument you have already had with yourself.
+   */
+  function applyPersonalLists(scored, lists) {
+    const targets = new Set((lists && lists.targets) || []);
+    const avoid = new Set((lists && lists.avoid) || []);
+    if (!targets.size && !avoid.size) return scored;
+
+    const kept = scored.filter(s => !avoid.has(s.player.player_id));
+    if (avoid.size) {
+      kept.forEach(s => { s.avoided_count = scored.length - kept.length; });
+    }
+    for (const s of kept) {
+      if (!targets.has(s.player.player_id)) continue;
+      s.score += CFG.TARGET_NUDGE;
+      s.targeted = true;
+      s.reasons = ['⭐ On your target list'].concat(s.reasons || []);
+    }
+    kept.sort((a, b) => b.score - a.score);
+    return kept;
+  }
+
+  /**
    * Plausibility rails — catch model failure instead of shipping it.
    *
    * Eight composite terms, three survival layers and a keeper-option term all
@@ -475,6 +610,7 @@
     expectedBestAvailable, vona,
     tierCliffUrgency, starterSlotMarginal, riskAdjustment, upsideBonus,
     scorePlayer, recommend, mandatoryGaps, applyRosterLegality, plausibilityRails,
+    confidence, branchForecast, applyPersonalLists, onTheClock,
     formatDefaults, applyFormatDefaults,
     // A2/A3 surfaces, re-exported so callers need only one handle.
     survivalModel: S, compositeTerms: C,
