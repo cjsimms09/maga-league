@@ -1,6 +1,6 @@
 {
  "meta": {
-  "git_head": "69d02a68760099ac1c84f84a4bd5ee544a0b5702",
+  "git_head": "697bd0d889aa2ebff1a7bff6a4fa7f9f008d5472",
   "seasons": [
    2023,
    2024,
@@ -51,25 +51,25 @@
    "vs_default": {
     "per_season": {
      "2023": {
-      "mean": -390.29,
+      "mean": -466.45,
       "n": 10,
-      "ci95": 37.37,
+      "ci95": 185.49,
       "beats": false
      },
      "2024": {
-      "mean": 10.57,
+      "mean": -65.36,
       "n": 10,
-      "ci95": 11.97,
-      "beats": true
+      "ci95": 85.5,
+      "beats": false
      }
     },
     "pooled": {
-     "mean": -189.86,
+     "mean": -265.91,
      "n": 20,
-     "ci95": 92.12,
+     "ci95": 134.21,
      "beats": false
     },
-    "seasons_won": 1,
+    "seasons_won": 0,
     "seasons_total": 2
    }
   },
@@ -80,25 +80,25 @@
    "vs_default": {
     "per_season": {
      "2023": {
-      "mean": -176.18,
+      "mean": 84.29,
       "n": 10,
-      "ci95": 102.38,
-      "beats": false
+      "ci95": 163.75,
+      "beats": true
      },
      "2024": {
-      "mean": -212.76,
+      "mean": 10.34,
       "n": 10,
-      "ci95": 191.41,
-      "beats": false
+      "ci95": 14.37,
+      "beats": true
      }
     },
     "pooled": {
-     "mean": -194.47,
+     "mean": 47.31,
      "n": 20,
-     "ci95": 105.96,
-     "beats": false
+     "ci95": 81.71,
+     "beats": true
     },
-    "seasons_won": 0,
+    "seasons_won": 2,
     "seasons_total": 2
    }
   },
@@ -109,25 +109,25 @@
    "vs_default": {
     "per_season": {
      "2023": {
-      "mean": 74.64,
+      "mean": -194.24,
       "n": 10,
-      "ci95": 175.12,
-      "beats": true
+      "ci95": 200.74,
+      "beats": false
      },
      "2024": {
-      "mean": 169.73,
+      "mean": 135.97,
       "n": 10,
-      "ci95": 135.52,
+      "ci95": 121.93,
       "beats": true
      }
     },
     "pooled": {
-     "mean": 122.18,
+     "mean": -29.14,
      "n": 20,
-     "ci95": 109.86,
-     "beats": true
+     "ci95": 136.29,
+     "beats": false
     },
-    "seasons_won": 2,
+    "seasons_won": 1,
     "seasons_total": 2
    }
   },
@@ -138,25 +138,25 @@
    "vs_default": {
     "per_season": {
      "2023": {
-      "mean": 243.54,
+      "mean": 327.16,
       "n": 10,
-      "ci95": 213.47,
+      "ci95": 190.49,
       "beats": true
      },
      "2024": {
-      "mean": 65.04,
+      "mean": -14.47,
       "n": 10,
-      "ci95": 75.42,
-      "beats": true
+      "ci95": 28.36,
+      "beats": false
      }
     },
     "pooled": {
-     "mean": 154.29,
+     "mean": 156.35,
      "n": 20,
-     "ci95": 117.26,
+     "ci95": 121.18,
      "beats": true
     },
-    "seasons_won": 2,
+    "seasons_won": 1,
     "seasons_total": 2
    }
   },
@@ -167,25 +167,25 @@
    "vs_default": {
     "per_season": {
      "2023": {
-      "mean": 13.66,
+      "mean": -108.3,
       "n": 10,
-      "ci95": 92.96,
-      "beats": true
+      "ci95": 113.72,
+      "beats": false
      },
      "2024": {
-      "mean": 35.39,
+      "mean": 93.11,
       "n": 10,
-      "ci95": 63.71,
+      "ci95": 109.26,
       "beats": true
      }
     },
     "pooled": {
-     "mean": 24.52,
+     "mean": -7.59,
      "n": 20,
-     "ci95": 55.06,
-     "beats": true
+     "ci95": 89.11,
+     "beats": false
     },
-    "seasons_won": 2,
+    "seasons_won": 1,
     "seasons_total": 2
    }
   },
@@ -196,10 +196,10 @@
    "vs_default": {
     "per_season": {
      "2023": {
-      "mean": 28.51,
+      "mean": -117.25,
       "n": 10,
-      "ci95": 55.88,
-      "beats": true
+      "ci95": 128.76,
+      "beats": false
      },
      "2024": {
       "mean": 0,
@@ -209,12 +209,12 @@
      }
     },
     "pooled": {
-     "mean": 14.25,
+     "mean": -58.63,
      "n": 20,
-     "ci95": 27.94,
-     "beats": true
+     "ci95": 67.98,
+     "beats": false
     },
-    "seasons_won": 1,
+    "seasons_won": 0,
     "seasons_total": 2
    }
   },
@@ -252,28 +252,28 @@
   "n_seasons": 2,
   "rule": "win-both (N<3, bar tightened by data availability)",
   "winner": {
-   "key": "upside_late",
-   "name": "Upside-Late",
-   "note": "ceiling ramps with the round — safe early, lottery tickets late",
+   "key": "tier_hunter",
+   "name": "Tier-Hunter",
+   "note": "tier cliff urgency doubled — chase the last of a tier",
    "vs_default": {
     "per_season": {
      "2023": {
-      "mean": 243.54,
+      "mean": 84.29,
       "n": 10,
-      "ci95": 213.47,
+      "ci95": 163.75,
       "beats": true
      },
      "2024": {
-      "mean": 65.04,
+      "mean": 10.34,
       "n": 10,
-      "ci95": 75.42,
+      "ci95": 14.37,
       "beats": true
      }
     },
     "pooled": {
-     "mean": 154.29,
+     "mean": 47.31,
      "n": 20,
-     "ci95": 117.26,
+     "ci95": 81.71,
      "beats": true
     },
     "seasons_won": 2,
@@ -285,13 +285,13 @@
   "ran": true,
   "samples": 40,
   "jitter": 0.25,
-  "fraction_beating_default": 0.875,
+  "fraction_beating_default": 0.725,
   "survive_threshold": 0.75,
-  "edge_p25": 52.72,
-  "edge_median": 186.18,
-  "edge_p75": 219.36,
-  "edge_min": -68.7,
-  "survives": true
+  "edge_p25": -14.56,
+  "edge_median": 49.42,
+  "edge_p75": 73.13,
+  "edge_min": -112.6,
+  "survives": false
  },
- "install": true
+ "install": false
 }
