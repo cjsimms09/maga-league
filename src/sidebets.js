@@ -80,6 +80,7 @@ function normalize(b) {
   b.pool_outcome ??= '';
   b.pool_rules ??= (b.pool_outcome ? [b.pool_outcome] : []);
   b.picks_required ??= 0;
+  b.kind ??= '';
   b.for_id ??= b.proposer_id;
   b.open_slots ??= 0;
   b.push ??= false;
@@ -124,7 +125,7 @@ async function propose({
   proposer_id, party_ids = [], terms, stake,
   position = '', picks = [], resolves = '', week = null,
   format = 'prop', conditions = [], logic = 'all', pool_rules = [], picks_required = 0,
-  open_slots = 0,
+  open_slots = 0, kind = '',
 }) {
   const others = [...new Set(party_ids.map(Number))].filter(id => id && id !== Number(proposer_id));
   const slots = Math.min(Math.max(Number(open_slots) || 0, 0), MAX_OPEN_SLOTS);
@@ -152,6 +153,9 @@ async function propose({
     // Ordered rules; the first that separates the field decides it.
     pool_rules: (Array.isArray(pool_rules) ? pool_rules : [pool_rules]).filter(Boolean).map(String),
     picks_required: Math.min(Math.max(Number(picks_required) || 0, 0), 10),
+    // 'matchup' means this is a bet on one week's game, and acceptance is
+    // closed at kickoff — see BL.matchupWindow. Everything else is untimed.
+    kind: String(kind || ''),
     // Market listing: how many more takers this bet is looking for.
     open_slots: slots,
     status: slots ? STATUS.OPEN : STATUS.PROPOSED,
@@ -482,6 +486,53 @@ function moneyOnTeams(bets, viewer_id, nameOf) {
   return out;
 }
 
+/**
+ * Bets ABOUT this owner's team that they are not in.
+ *
+ * If Richard and David have money on your week-4 game, you should know — both
+ * because it is funny and because you would rather find out from the site than
+ * from Richard gloating afterwards. Which side each of them took is the actual
+ * information, so it is worked out rather than just listing the bet.
+ *
+ * Only locked and settled bets: a proposal nobody accepted is not a bet, and
+ * telling somebody about it would leak a negotiation that never happened.
+ */
+function betsAbout(bets, owner_id, nameOf) {
+  const me = Number(owner_id);
+  const out = [];
+  for (const b of bets) {
+    if (![STATUS.LOCKED, STATUS.SETTLED].includes(b.status)) continue;
+    if (isParty(b, me)) continue;                 // your own bets are not gossip
+
+    const backing = [], against = [];
+    if (b.format === 'pool') {
+      // In a pool, holding you IS backing you.
+      for (const p of b.parties || []) {
+        ((p.picks || []).map(Number).includes(me) ? backing : against).push(p.owner_id);
+      }
+      if (!backing.length) continue;              // nobody took you; not about you
+    } else {
+      const mentions = (b.conditions || []).some(c =>
+        Number(c.subject_id) === me || Number(c.target_id) === me);
+      if (!mentions) continue;
+      // `for_id` backs the claim. Whether that is backing YOU depends on which
+      // side of the claim you are: the subject, or the thing being beaten.
+      const forMe = (b.conditions || []).some(c => Number(c.subject_id) === me);
+      for (const p of b.parties || []) {
+        const isFor = Number(p.owner_id) === Number(b.for_id);
+        ((isFor === forMe) ? backing : against).push(p.owner_id);
+      }
+    }
+    out.push({
+      bet: b,
+      stake: b.stake,
+      backing: backing.map(id => nameOf(id)),
+      against: against.map(id => nameOf(id)),
+    });
+  }
+  return out;
+}
+
 /** Bets waiting on this person to say yes. Drives the nav badge and the email. */
 function awaiting(bets, owner_id) {
   return bets.filter(b => b.status === STATUS.PROPOSED
@@ -492,5 +543,5 @@ module.exports = {
   STATUS, MAX_OPEN_SLOTS,
   all, get, propose, accept, take, decline, settle, reopen, remove,
   setPosition, markLeg, isParty,
-  tallies, ledgerFor, settlementsFor, awaiting, moneyOnTeams,
+  tallies, ledgerFor, settlementsFor, awaiting, moneyOnTeams, betsAbout,
 };

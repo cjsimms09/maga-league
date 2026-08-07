@@ -23,11 +23,77 @@
   </p></div></div>
 <% } else { %>
 
+<%
+  const fmtLock = d => {
+    if (!d) return '';
+    // Always New York — the NFL kicks off on Eastern time and half this league
+    // is not in it, so "8:15pm" with no zone is a trap.
+    return new Date(d).toLocaleString('en-US', { timeZone: 'America/New_York',
+      weekday: 'short', hour: 'numeric', minute: '2-digit' }) + ' ET';
+  };
+%>
+
+<% if (late) { %>
+  <div class="alert-banner alert-warning" style="margin-bottom:1rem">
+    <span class="tag">⏰</span><span>Too late — that game has already started, so the bet
+    could not be accepted. Nobody's money moved.</span>
+  </div>
+<% } %>
+
+<%# ── Bets your opponent has put in front of you ──────────────────────────── %>
+<% if (matchupPending && matchupPending.length) { %>
+  <div class="card" style="margin-bottom:1.2rem; border-color:rgba(245,196,69,.6)">
+    <h2>🤝 Waiting on You <span class="sub">accept before kickoff or it's void</span></h2>
+    <div class="body">
+      <% for (const b of matchupPending) { %>
+        <div class="sb-row pending">
+          <div class="sb-main">
+            <div class="sb-terms"><%= b.terms %></div>
+            <div class="sb-meta"><b><%= money(b.stake) %></b> each ·
+              <% if (betWindow.open) { %>closes <%= fmtLock(betWindow.locks_at) %>
+              <% } else { %><span class="sb-wait">closed — <%= betWindow.reason %></span><% } %>
+            </div>
+          </div>
+          <div class="sb-actions">
+            <% if (betWindow.open) { %>
+              <form class="asis" method="post" action="/sidebets/<%= b.id %>/accept">
+                <input type="hidden" name="back" value="team">
+                <button class="btn small gold" type="submit">Accept</button>
+              </form>
+            <% } %>
+            <form class="asis" method="post" action="/sidebets/<%= b.id %>/decline">
+              <button class="btn small ghost" type="submit">Decline</button>
+            </form>
+          </div>
+        </div>
+      <% } %>
+    </div>
+  </div>
+<% } %>
+
+<%# ── What other people have riding on you ────────────────────────────────── %>
+<% if (aboutMe && aboutMe.length) { %>
+  <div class="card about-me" style="margin-bottom:1.2rem">
+    <h2>👀 People Have Money On You <span class="sub">bets you're not in — now you know</span></h2>
+    <div class="body">
+      <% for (const r of aboutMe) { %>
+        <div class="am-row">
+          <div class="am-terms"><%= r.bet.terms %></div>
+          <div class="am-sides">
+            <% if (r.backing.length) { %><span class="am-for">👍 <b><%= r.backing.join(', ') %></b> on you</span><% } %>
+            <% if (r.against.length) { %><span class="am-vs">👎 <b><%= r.against.join(', ') %></b> against you</span><% } %>
+            <span class="muted"><%= money(r.stake) %> each</span>
+          </div>
+        </div>
+      <% } %>
+    </div>
+  </div>
+<% } %>
+
 <%# ── This week's game ──────────────────────────────────────────────────────
     Top of the page because it is the thing you came to look at, and because a
     matchup is where a side bet actually gets made — in the group chat on
-    Thursday, not on a finance page. So the bet lives here, prefilled: the
-    opponent, the week, and a condition the site can grade on Tuesday. %>
+    Thursday, not on a finance page. So the bet lives here, prefilled. %>
 <% if (matchup && matchup.opp && matchup.opp.owner && viewOwner.id === owner.id) { %>
 <div class="card matchup-card" style="margin-bottom:1.3rem">
   <h2>⚔️ Week <%= matchup.week %> <span class="sub">your game this week</span></h2>
@@ -46,16 +112,20 @@
       </div>
     </div>
 
+    <% if (!betWindow.open) { %>
+      <p class="mu-closed">🔒 <%= betWindow.reason %> Bets on week <%= matchup.week %> are closed.</p>
+    <% } else { %>
     <details class="mu-bet">
       <summary>🤝 Bet <%= matchup.opp.owner.name %> on it</summary>
       <div class="mu-bet-body">
         <form method="post" action="/sidebets" class="inline-form">
           <input type="hidden" name="format" value="prop">
+          <input type="hidden" name="kind" value="matchup">
           <input type="hidden" name="party" value="<%= matchup.opp.owner.id %>">
-          <input type="hidden" name="resolves" value="week <%= matchup.week %>">
+          <input type="hidden" name="resolves" value="end of week <%= matchup.week %>">
           <%# The condition the builder would have produced, prefilled. Same
-              field names, same parser — this is a shortcut into the same
-              machinery, not a second way of making a bet. %>
+              field names, same parser — a shortcut into the same machinery,
+              not a second way of making a bet. %>
           <input type="hidden" name="cond_test" value="outscores">
           <input type="hidden" name="cond_subject" value="<%= owner.id %>">
           <input type="hidden" name="cond_target_owner" value="<%= matchup.opp.owner.id %>">
@@ -63,19 +133,21 @@
           <input type="hidden" name="cond_week" value="<%= matchup.week %>">
           <input type="hidden" name="logic" value="all">
           <div class="fit">
-            <label class="field">Stake each
+            <label class="field">Wager each
               <input type="number" name="stake" step="1" min="1" placeholder="20" required style="width:6.5rem">
             </label>
           </div>
           <div class="fit"><button class="btn gold" type="submit">Send it to <%= matchup.opp.owner.name %></button></div>
         </form>
         <p class="muted" style="margin:.5rem 0 0; font-size:.78rem">
-          Straight up: <b>your team outscores <%= matchup.opp.owner.name %> in week <%= matchup.week %></b>.
-          They have to accept before it counts. The site grades it once the week
-          is final and tells you both who won — neither of you has to remember.
+          Straight up: <b>your team outscores <%= matchup.opp.owner.name %> in week <%= matchup.week %></b>,
+          settled when the week ends. They have to accept, and
+          <b>acceptance closes <%= fmtLock(betWindow.locks_at) %></b> — once football
+          starts nobody can take it. The site grades it and tells you both who won.
         </p>
       </div>
     </details>
+    <% } %>
   </div>
 </div>
 <% } %>

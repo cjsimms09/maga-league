@@ -251,6 +251,12 @@ label.field {
   display: block; font-family: var(--font-display); font-size: .64rem; font-weight: 800;
   letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin: .7rem 0 .25rem;
 }
+/* Hints inside a label are prose, not a heading. Uppercasing them turned
+   "(optional)" into a second line of shouting as wide as the field name. */
+label.field .muted, .field .muted {
+  text-transform: none; letter-spacing: 0; font-weight: 400;
+  font-family: var(--font-body);
+}
 input[type=text], input[type=password], input[type=number], select, textarea {
   width: 100%; padding: .55rem .7rem; font: inherit; font-size: .92rem;
   border: 1px solid var(--line); border-radius: 9px;
@@ -945,7 +951,13 @@ table.ledger tr.is-settled td:nth-child(2) { text-decoration: line-through; text
 /* Record a payment / credit. */
 .entry-form .ef-row { display: flex; flex-wrap: wrap; gap: .6rem; margin-bottom: .6rem; }
 .entry-form .field { flex: 1 1 150px; display: flex; flex-direction: column; gap: .2rem; margin: 0; }
-.entry-form .field input, .entry-form .field select { width: 100%; }
+/* Text inputs and selects fill their field — checkboxes and radios must NOT.
+   This was a descendant selector, so it also matched the checkbox inside every
+   pick pill: the box stretched to the full width of the pill and shoved the
+   name out the side. Blink quietly shrank it back, Safari did what it was told,
+   and the whole picker rendered as overlapping blank lozenges on a phone. */
+.entry-form .field input:not([type=checkbox]):not([type=radio]),
+.entry-form .field select { width: 100%; }
 .entry-form .fit { display: flex; align-items: flex-end; }
 
 @media (max-width: 640px) {
@@ -964,7 +976,11 @@ table.ledger tr.is-settled td:nth-child(2) { text-decoration: line-through; text
   table.ledger .btn-label { display: none; }
   table.ledger .ldate { font-size: .7rem; }
   table.ledger th, table.ledger td { padding-left: .5rem; padding-right: .5rem; }
-  .entry-form .field { flex: 1 1 100%; }
+  /* One field per line on a phone. !important because several fields carry an
+     inline flex basis for desktop layout, and inline styles beat a stylesheet
+     rule — without it two fields share a 340px row and their labels wrap into
+     each other. */
+  .entry-form .field { flex: 1 1 100% !important; }
 }
 
 /* ---------- section tabs ----------
@@ -1153,6 +1169,13 @@ table.ledger .btn.ghost:hover { color: var(--gold-bright); border-color: var(--g
   display: inline-flex; align-items: center; gap: .3rem; cursor: pointer;
   padding: .35rem .6rem; border-radius: 999px; min-height: 38px;
   background: rgba(255, 255, 255, .04); border: 1px solid var(--line); font-size: .82rem;
+  /* Size to the name inside it and never to a share of the row. */
+  flex: 0 0 auto; max-width: 100%;
+}
+/* The checkbox is a checkbox. Nothing gets to stretch it. */
+.sb-person input[type=checkbox] {
+  flex: 0 0 auto; width: auto; min-width: 0; margin: 0;
+  accent-color: var(--gold);
 }
 .sb-person:has(input:checked) {
   border-color: var(--gold); background: rgba(245, 196, 69, .12); color: #fff;
@@ -1486,3 +1509,19 @@ table .num.zero { color: var(--muted); font-weight: 400; }
 .rule-row select { flex: 1 1 auto; min-width: 0; font-size: .8rem; padding: .35rem .5rem; min-height: 38px; }
 .rule-row .rule-del { flex: 0 0 auto; }
 .ok-count { color: #4ade80; font-weight: 700; }
+
+/* ---------- people have money on you ---------- */
+.about-me { border-color: rgba(96, 165, 250, .35); }
+.am-row { padding: .5rem .2rem; border-bottom: 1px solid var(--line); }
+.am-row:last-child { border-bottom: none; }
+.am-terms { font-size: .85rem; font-weight: 700; color: #e7eaf3; line-height: 1.4; }
+.am-sides { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: .2rem; font-size: .78rem; }
+.am-for { color: #86efac; }
+.am-vs { color: var(--red-bright, #ff6b7a); }
+
+/* Betting on this week is shut. Said plainly rather than by hiding the button —
+   a control that silently vanishes reads as a bug. */
+.mu-closed {
+  margin: .8rem 0 0; padding: .55rem .7rem; border-radius: 10px; font-size: .8rem;
+  background: rgba(255, 255, 255, .04); border: 1px dashed var(--line); color: var(--muted);
+}

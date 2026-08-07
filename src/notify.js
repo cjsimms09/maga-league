@@ -5,7 +5,9 @@ const { getDoc, setDoc, now } = require('./data');
 
 const API_KEY = process.env.RESEND_API_KEY || '';
 const FROM = process.env.NOTIFY_FROM || 'MFGA League <onboarding@resend.dev>';
-const SITE = process.env.SITE_URL || 'https://maga-league.netlify.app';
+// The deployed site. Every notification email links here, so a wrong default
+// sends ten people to a domain that isn't ours.
+const SITE = process.env.SITE_URL || 'https://makefbgreatagain.netlify.app';
 
 const configured = () => !!API_KEY;
 

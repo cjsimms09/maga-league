@@ -66,7 +66,77 @@ const CFG = {
   MAX_WEEK_FETCH: 6,
   // Places, in terms of the final standings array (owner ids, best first).
   PLACE_PLAYOFF_CUT: 4,
+
+  // ── Matchup bets ──────────────────────────────────────────────────────────
+  // A bet on this week's game can only be ACCEPTED before football starts.
+  // After kickoff you would be betting on information, which is not a bet.
+  //
+  // Two independent signals, earlier one wins:
+  //   1. Points on the board. If anybody in the matchup has scored, a game
+  //      involving their roster has kicked off. That is a fact, not a guess,
+  //      and it is the signal that actually matters.
+  //   2. The weekly deadline below, for the gap between kickoff and the first
+  //      score — a few minutes where signal 1 has not fired yet.
+  //
+  // Thursday 8:15pm New York, which is when the NFL week opens. Expressed in
+  // ET rather than UTC on purpose: the league is American and the NFL does not
+  // move its kickoff when the clocks change, so a UTC constant would drift by
+  // an hour twice a season.
+  MATCHUP_LOCK_DAY: 4,          // Thursday, as getDay()
+  MATCHUP_LOCK_HOUR: 20,
+  MATCHUP_LOCK_MINUTE: 15,
+  MATCHUP_LOCK_TZ: 'America/New_York',
+  // The fantasy week turns over on Tuesday — after Monday night, before Thursday.
+  MATCHUP_WEEK_START_DAY: 2,    // Tuesday
 };
+
+/**
+ * Minutes to add to a New York wall-clock time to get UTC. Handles EDT/EST
+ * without a timezone library: format the same instant in both zones and take
+ * the difference.
+ */
+function etOffsetMinutes(at) {
+  const utc = new Date(at.toLocaleString('en-US', { timeZone: 'UTC' }));
+  const et = new Date(at.toLocaleString('en-US', { timeZone: CFG.MATCHUP_LOCK_TZ }));
+  return Math.round((utc - et) / 60000);
+}
+
+/**
+ * When this football week's first game starts, as a real instant.
+ *
+ * Anchored to the Tuesday the fantasy week began, so on a Monday you get this
+ * week's Thursday (already past) rather than next week's.
+ */
+function weekLockAt(at = new Date()) {
+  const off = etOffsetMinutes(at);
+  const et = new Date(at.getTime() - off * 60000);      // wall clock, held in UTC fields
+  const since = (et.getUTCDay() - CFG.MATCHUP_WEEK_START_DAY + 7) % 7;
+  const lock = new Date(et);
+  lock.setUTCDate(et.getUTCDate() - since + (CFG.MATCHUP_LOCK_DAY - CFG.MATCHUP_WEEK_START_DAY));
+  lock.setUTCHours(CFG.MATCHUP_LOCK_HOUR, CFG.MATCHUP_LOCK_MINUTE, 0, 0);
+  return new Date(lock.getTime() + off * 60000);
+}
+
+/**
+ * Can a bet on this week's matchup still be accepted?
+ *
+ * @param matchup  sleeper.myMatchup() shape, or null
+ * @returns { open, reason, locks_at }
+ */
+function matchupWindow(matchup, at = new Date()) {
+  const locks_at = weekLockAt(at);
+  const scored = matchup
+    && ((matchup.me && matchup.me.points > 0) || (matchup.opp && matchup.opp.points > 0));
+  if (scored) {
+    return { open: false, locks_at,
+             reason: 'Games have started — there are points on the board.' };
+  }
+  if (at >= locks_at) {
+    return { open: false, locks_at,
+             reason: 'Kickoff has passed. Bets on this week closed Thursday night.' };
+  }
+  return { open: true, locks_at, reason: '' };
+}
 
 // ─────────────────────────────────────────────────────── the vocabulary
 
@@ -531,4 +601,5 @@ function evaluateProposition(bet, ctx, nameOf) {
 module.exports = {
   CFG, TESTS, PLACES, POOL_OUTCOMES, POOL_RULES, poolRules,
   conditionText, betText, makeContext, weeksNeeded, evalCondition, evaluate,
+  weekLockAt, matchupWindow,
 };

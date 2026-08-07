@@ -481,7 +481,7 @@ router.post('/sidebets', aw(async (req, res) => {
         position: String(req.body.position || '').trim(),
         picks: picksFrom(req.body),
         resolves: String(req.body.resolves || '').trim(),
-        format, conditions, logic: req.body.logic,
+        format, conditions, logic: req.body.logic, kind: String(req.body.kind || ''),
         // Ordered: the first rule that separates the field wins, the rest are
         // tiebreakers. Order in the form is order of evaluation.
         pool_rules: [].concat(req.body.pool_rules || []).map(String).filter(Boolean),
@@ -497,11 +497,23 @@ router.post('/sidebets', aw(async (req, res) => {
 }));
 
 router.post('/sidebets/:id/accept', aw(async (req, res) => {
+  const bet = await SB.get(req.params.id);
+  // A bet on this week's game cannot be accepted once football has started —
+  // after kickoff you would be betting on information. Checked on the server,
+  // not just hidden in the view, because the form is a POST anybody can replay.
+  if (bet && bet.kind === 'matchup') {
+    const world = req.world;
+    const sData = await sleeper.bundle(world.config.sleeper_league_id);
+    const mu = sleeper.myMatchup(sData, world.config.sleeper_map || {}, req.owner.id,
+      H.activeOwners(world.owners));
+    const win = BL.matchupWindow(mu);
+    if (!win.open) return res.redirect('/team?late=1');
+  }
   await SB.accept(req.params.id, req.owner.id, req.owner.name, {
     position: String(req.body.position || '').trim(),
     picks: picksFrom(req.body),
   });
-  res.redirect('/bank?section=sidebets');
+  res.redirect(req.body.back === 'team' ? '/team' : '/bank?section=sidebets');
 }));
 
 // Take the other side of a bet somebody posted to the market. Taking IS the
@@ -738,7 +750,16 @@ router.get('/team', aw(async (req, res) => {
   // This week's game, so the page answers "who am I playing" before it answers
   // "who is on my bench" — and so a bet against that opponent is one tap away.
   const matchup = sleeper.myMatchup(sData, world.config.sleeper_map || {}, viewOwner.id, owners);
-  res.render('team', { viewOwner, owners, roster, matchup,
+  const betWindow = BL.matchupWindow(matchup);
+  const nameOf = id => (H.ownerById(owners, id) || {}).name || '?';
+  const allBets = await SB.all();
+  // Bets your opponent has put in front of you for this week.
+  const matchupPending = SB.awaiting(allBets, req.owner.id).filter(b => b.kind === 'matchup');
+  // And what everyone else has riding on you, which you are not part of.
+  const aboutMe = viewOwner.id === req.owner.id
+    ? SB.betsAbout(allBets, req.owner.id, nameOf) : [];
+  res.render('team', { viewOwner, owners, roster, matchup, betWindow,
+    matchupPending, aboutMe, late: req.query.late === '1',
     configured: !!world.config.sleeper_league_id });
 }));
 

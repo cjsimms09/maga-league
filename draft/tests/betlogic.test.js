@@ -338,6 +338,87 @@ console.log('\n--- settlement legs: who actually owes whom ---');
   eq('and it lands in the ledger as a zero, not a blank', [l.rows[0].delta, l.net], [0, 0]);
 }
 
+console.log('\n--- the kickoff cutoff on matchup bets ---');
+{
+  // Week of 10 Sep 2026. Thursday kickoff is 8:15pm ET = 00:15Z Friday.
+  const thuNoon = new Date('2026-09-10T16:00:00Z');   // Thu 12pm ET
+  const lock = B.weekLockAt(thuNoon);
+  eq('the lock lands on Thursday night ET', lock.toISOString(), '2026-09-11T00:15:00.000Z');
+  ok('you can still accept on Thursday afternoon', B.matchupWindow(null, thuNoon).open);
+}
+{
+  const fri = new Date('2026-09-11T18:00:00Z');
+  const w = B.matchupWindow(null, fri);
+  ok('but not on Friday', !w.open, w.reason);
+  ok('and it says why', /Kickoff has passed/.test(w.reason), w.reason);
+}
+{
+  const sun = new Date('2026-09-13T17:00:00Z');       // Sunday 1pm ET
+  ok('nor on Sunday', !B.matchupWindow(null, sun).open);
+}
+{
+  const tue = new Date('2026-09-15T14:00:00Z');       // Tuesday, new week
+  ok('a new week reopens it on Tuesday', B.matchupWindow(null, tue).open,
+    JSON.stringify(B.matchupWindow(null, tue)));
+  eq('and the lock moves to the next Thursday',
+    B.weekLockAt(tue).toISOString(), '2026-09-18T00:15:00.000Z');
+}
+{
+  // Points on the board beat the clock — this is the signal that matters.
+  const thuNoon = new Date('2026-09-10T16:00:00Z');
+  const w = B.matchupWindow({ me: { points: 12.4 }, opp: { points: 0 } }, thuNoon);
+  ok('any points showing closes it early', !w.open, w.reason);
+  ok('and says so', /points on the board/.test(w.reason), w.reason);
+  ok('the opponent scoring counts too',
+    !B.matchupWindow({ me: { points: 0 }, opp: { points: 3 } }, thuNoon).open);
+  ok('a scoreless pre-kickoff matchup stays open',
+    B.matchupWindow({ me: { points: 0 }, opp: { points: 0 } }, thuNoon).open);
+}
+{
+  // Standard time, months later — the constant is ET, so it must not drift.
+  const dec = new Date('2026-12-10T17:00:00Z');       // Thu 12pm EST
+  eq('EST weeks lock at 8:15pm ET too, not an hour off',
+    B.weekLockAt(dec).toISOString(), '2026-12-11T01:15:00.000Z');
+}
+
+console.log('\n--- who has money on your team ---');
+{
+  const bets = [
+    // Richard backs Cory to outscore David; David takes the other side.
+    { status: 'locked', format: 'prop', stake: 50, for_id: 9, terms: 'wk4',
+      parties: [{ owner_id: 9 }, { owner_id: 3 }],
+      conditions: [cond({ test: 'outscores', subject_id: 1, target_id: 3, week: 4 })] },
+    // A pool where Richard holds Cory and David does not.
+    { status: 'locked', format: 'pool', stake: 100, terms: 'pool',
+      parties: [{ owner_id: 9, picks: [1, 2] }, { owner_id: 3, picks: [4] }] },
+    // Cory's own bet — not gossip.
+    { status: 'locked', format: 'prop', stake: 20, for_id: 1, terms: 'mine',
+      parties: [{ owner_id: 1 }, { owner_id: 3 }],
+      conditions: [cond({ test: 'outscores', subject_id: 1, target_id: 3, week: 5 })] },
+    // A proposal nobody accepted — telling Cory would leak a dead negotiation.
+    { status: 'proposed', format: 'prop', stake: 999, for_id: 9, terms: 'never happened',
+      parties: [{ owner_id: 9 }, { owner_id: 3 }],
+      conditions: [cond({ test: 'outscores', subject_id: 1, target_id: 3, week: 6 })] },
+  ];
+  const rows = SB.betsAbout(bets, 1, nameOf);
+  eq('only the two live bets Cory is not in', rows.length, 2);
+  eq('Richard backed him, David went against', [rows[0].backing, rows[0].against],
+     [['Richard'], ['David']]);
+  eq('and the pool reads the same way', [rows[1].backing, rows[1].against],
+     [['Richard'], ['David']]);
+  ok('his own bet is not reported back to him', !rows.some(r => r.bet.terms === 'mine'));
+  ok('and neither is an unaccepted proposal', !rows.some(r => r.bet.terms === 'never happened'));
+}
+{
+  // Being the TARGET flips who is backing you.
+  const bets = [{ status: 'locked', format: 'prop', stake: 50, for_id: 9, terms: 'vs',
+    parties: [{ owner_id: 9 }, { owner_id: 3 }],
+    conditions: [cond({ test: 'outscores', subject_id: 4, target_id: 1, week: 4 })] }];
+  const rows = SB.betsAbout(bets, 1, nameOf);
+  eq('backing Michael to beat Cory is a bet AGAINST Cory',
+     [rows[0].backing, rows[0].against], [['David'], ['Richard']]);
+}
+
 console.log('\n--- money riding on a team, for the standings marker ---');
 {
   const bets = [
