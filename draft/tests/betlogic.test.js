@@ -242,8 +242,8 @@ console.log('\n--- the year neither of you has the champion ---');
   const p = pool(['champion']);
   p.parties[0].picks = [4]; p.parties[1].picks = [4];
   const v = B.evaluate(p, ctxDone, nameOf);
-  ok('identical picks and no tiebreaker really is a split',
-    v.decided && !v.push && JSON.stringify(v.winner_ids) === '[1,9]', v.headline);
+  ok('identical picks and no tiebreaker refunds both',
+    v.decided && v.push && !v.winner_ids.length, v.headline);
 }
 
 console.log('\n--- the other rules ---');
@@ -338,6 +338,51 @@ console.log('\n--- settlement legs: who actually owes whom ---');
   eq('and it lands in the ledger as a zero, not a blank', [l.rows[0].delta, l.net], [0, 0]);
 }
 
+console.log('\n--- a tie voids the bet and the money goes back ---');
+{
+  const ctxTie = B.makeContext({ season: { year: 2026, status: 'complete', standings: [1, 3] },
+    owners: OWNERS, weekNow: 18, weekPoints: { 4: { 1: 110.5, 3: 110.5 }, 5: { 1: 90, 3: 120 } } });
+  const wk = w => cond({ test: 'outscores', subject_id: 1, target_id: 3, week: w });
+  {
+    const v = B.evaluate(propBet([wk(4)]), ctxTie, nameOf);
+    ok('dead level on points is a push, not an open bet', v.decided && v.push, v.headline);
+    ok('nobody is paid', !v.winner_ids.length);
+    ok('and it says the money goes back', /money back/.test(v.headline), v.headline);
+  }
+  {
+    // A tie is only decisive if nothing else already settled it.
+    const v = B.evaluate(propBet([wk(4), wk(5)]), ctxTie, nameOf);
+    ok('ALL: a flat loss beats a tie elsewhere', v.decided && !v.push, v.headline);
+    eq('the other side wins', v.winner_ids, [3]);
+  }
+  {
+    const ctxWin = B.makeContext({ season: { year: 2026, status: 'complete', standings: [1, 3] },
+      owners: OWNERS, weekNow: 18, weekPoints: { 4: { 1: 110.5, 3: 110.5 }, 5: { 1: 130, 3: 120 } } });
+    const v = B.evaluate(propBet([wk(4), wk(5)], { logic: 'any' }), ctxWin, nameOf);
+    ok('ANY: a win beats a tie elsewhere', v.decided && !v.push, v.headline);
+    eq('the for-side wins', v.winner_ids, [1]);
+  }
+}
+{
+  // Season-long points, dead level.
+  const rows = [['Cory', 5, 1500.0], ['David', 5, 1500.0]].map(([n2, w, pf]) =>
+    ({ owner_name: n2, wins: w, pf }));
+  const ctxLevel = B.makeContext({ season: { year: 2026, status: 'complete', standings: [1, 3] },
+    liveRows: rows, owners: OWNERS, weekNow: 18 });
+  const c = cond({ test: 'outscores', subject_id: 1, target_id: 3, when: 'season' });
+  const v = B.evaluate(propBet([c]), ctxLevel, nameOf);
+  ok('a level season is a push too', v.decided && v.push, v.headline);
+}
+{
+  // A pool that runs out of rules with everyone level refunds rather than splits.
+  const p = { format: 'pool', pool_rules: ['champion'], stake: 100,
+    parties: [{ owner_id: 1, picks: [4] }, { owner_id: 9, picks: [4] }], winner_ids: [] };
+  const v = B.evaluate(p, ctxDone, nameOf);
+  ok('identical picks with no tiebreaker is a refund, not a split',
+    v.decided && v.push && !v.winner_ids.length, v.headline);
+  ok('and says so plainly', /money back/.test(v.headline), v.headline);
+}
+
 console.log('\n--- a shared title is a push, not a tiebreak ---');
 {
   // 2022 for real: the Bills-Bengals game was cancelled, the league split the
@@ -365,11 +410,10 @@ console.log('\n--- a shared title is a push, not a tiebreak ---');
   const p = { format: 'pool', pool_rules: ['champion', 'best_finish'], stake: 100,
     parties: [{ owner_id: 1, picks: [7, 1] }, { owner_id: 9, picks: [7, 9] }], winner_ids: [] };
   const v = B.evaluate(p, ctx22, nameOf);
-  ok('both holding the SAME co-champion is not a dead heat', v.decided && !v.push, v.headline);
-  ok('it cascades instead', /Level on that one/.test(v.lines.join(' ')), JSON.stringify(v.lines));
-  // Both best-placed team is Sam, so the tiebreaker genuinely ties too and they
-  // split — which is right. The point is that it was decided, not refunded.
-  eq('and they split it rather than getting their money back', v.winner_ids, [1, 9]);
+  ok('both holding the SAME co-champion cascades rather than dead-heating',
+    /Level on that one/.test(v.lines.join(' ')), JSON.stringify(v.lines));
+  // Both best team is Sam, so the tiebreaker ties too — and a tie refunds.
+  ok('and ends as a refund once the rules run out', v.decided && v.push, v.headline);
 }
 {
   // One clear champion, one holder — no push anywhere near it.

@@ -461,6 +461,10 @@ function weeksNeeded(bets, weekNow) {
  */
 function evalCondition(c, ctx, nameOf) {
   const say = (value, line) => ({ value, line });
+  // A tie is not "we can't tell" — it is a result. The bet is off and both
+  // sides get their stake back. Leaving it undecided meant a dead-level week
+  // sat open forever waiting for a fact that was never coming.
+  const tie = line => ({ value: null, push: true, line });
   const subject = nameOf(c.subject_id);
 
   switch (c.test) {
@@ -476,7 +480,7 @@ function evalCondition(c, ctx, nameOf) {
           return say(null, `No week ${c.week} score on file for ${a == null ? subject : other}.`);
         }
         if (Math.abs(a - b) < CFG.POINTS_EPSILON) {
-          return say(null, `Dead tie in week ${c.week}: both on ${a.toFixed(2)}. Your terms have to break it.`);
+          return tie(`Dead tie in week ${c.week}: both on ${a.toFixed(2)}. Bet's off.`);
         }
         return say(a > b, `Week ${c.week}: ${subject} ${a.toFixed(2)}, ${other} ${b.toFixed(2)}.`);
       }
@@ -486,7 +490,7 @@ function evalCondition(c, ctx, nameOf) {
       if (ctx.season && ctx.season.status !== 'complete') {
         return say(null, `Season isn't over — ${subject} ${a.toFixed(2)}, ${other} ${b.toFixed(2)} so far.`);
       }
-      if (Math.abs(a - b) < CFG.POINTS_EPSILON) return say(null, `Season points dead level at ${a.toFixed(2)}.`);
+      if (Math.abs(a - b) < CFG.POINTS_EPSILON) return tie(`Season points dead level at ${a.toFixed(2)}. Bet's off.`);
       return say(a > b, `Season points: ${subject} ${a.toFixed(2)}, ${other} ${b.toFixed(2)}.`);
     }
 
@@ -649,11 +653,13 @@ function evaluatePool(bet, ctx, nameOf) {
     return { decided: true, winner_ids: [], push: true,
              headline: 'Push — nobody won it. Add a tiebreaker next year.', lines };
   }
-  const ids = last.winners.map(p => p.owner_id);
-  lines.push('Still level after every rule.');
+  // Level after everything. Same rule as anywhere else: a tie voids the bet and
+  // the money goes back. Splitting a pot nobody won means both sides paying for
+  // a result neither of them got right.
+  lines.push("Still level after every rule — bet's off.");
   return {
-    decided: true, push: false, winner_ids: ids,
-    headline: `${ids.map(nameOf).join(' and ')} split it — dead level on every rule.`,
+    decided: true, push: true, winner_ids: [],
+    headline: 'Push — dead level on every rule. Everyone gets their money back.',
     lines,
   };
 }
@@ -670,15 +676,24 @@ function evaluateProposition(bet, ctx, nameOf) {
   const any = bet.logic === 'any';
   const trues = results.filter(r => r.value === true).length;
   const falses = results.filter(r => r.value === false).length;
-  const unknowns = results.filter(r => r.value === null).length;
+  const pushes = results.filter(r => r.push);
+  const unknowns = results.filter(r => r.value === null && !r.push).length;
 
-  // Short-circuit: ANY is decided the moment one is true; ALL the moment one is
-  // false. Waiting for every fact when the answer is already fixed would leave
-  // a settled bet sitting open for months.
+  // Order matters here, and it is the order a person would reason in:
+  //   1. Already settled either way? Then a tie elsewhere is irrelevant — if
+  //      you needed BOTH and one flatly failed, you lost, tie or no tie.
+  //   2. Otherwise a tie voids the whole thing.
+  //   3. Otherwise wait for the facts that are still missing.
   let holds = null;
   if (any && trues > 0) holds = true;
   else if (!any && falses > 0) holds = false;
-  else if (unknowns === 0) holds = any ? trues > 0 : falses === 0;
+
+  if (holds === null && pushes.length) {
+    return { decided: true, winner_ids: [], push: true,
+             headline: "Push — it ended level, so the bet's off and everyone gets their money back.",
+             lines };
+  }
+  if (holds === null && unknowns === 0) holds = any ? trues > 0 : falses === 0;
 
   if (holds === null) {
     return { decided: false, winner_ids: [], push: false,

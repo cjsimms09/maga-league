@@ -1546,3 +1546,18 @@ table .num.zero { color: var(--muted); font-weight: 400; }
 }
 .ticket input:checked + span b { color: var(--gold-bright); }
 .ticket input:focus-visible + span { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+/* ---------- buying out of a live bet ---------- */
+.buyout { margin-top: .5rem; }
+.buyout > summary {
+  cursor: pointer; font-size: .78rem; font-weight: 700; color: var(--muted); padding: .3rem 0;
+}
+.buyout > summary:hover { color: var(--gold-bright); }
+.bo-form { display: flex; gap: .35rem; align-items: center; flex-wrap: wrap; margin-top: .3rem; }
+.bo-form select, .bo-form input { width: auto; flex: 0 1 auto; min-width: 6rem;
+  padding: .3rem .5rem; font-size: .78rem; min-height: 36px; }
+.buyout.live {
+  padding: .5rem .7rem; border-radius: 10px; font-size: .82rem;
+  background: rgba(74, 222, 128, .08); border: 1px solid rgba(74, 222, 128, .35);
+}
+.buyout.live b { color: #86efac; }

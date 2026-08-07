@@ -223,7 +223,8 @@ function betCard(b, kind) {
       <div class="sb-meta">
         <b><%= money(b.stake) %></b> each<% if (b.resolves) { %> · settles <%= b.resolves %><% } %>
         <% if (b.status === 'proposed') { %> · <span class="sb-wait">waiting on <%= waiting(b).join(', ') %></span><% } %>
-        <% if (b.status === 'settled' && b.push) { %> · <b>push — nobody won</b><% } %>
+        <% if (b.status === 'settled' && b.bought_out) { %> · <b>bought out<% if (b.buyout) { %> for <%= money(b.buyout.amount) %><% } %></b>
+        <% } else if (b.status === 'settled' && b.push) { %> · <b>push — bet was off, money went back</b><% } %>
         <% if (b.status === 'settled' && !b.push) { %> · won by <b><%= b.winner_ids.map(betNames).join(', ') %></b><% } %>
       </div>
 
@@ -297,6 +298,49 @@ function betCard(b, kind) {
             </p>
           <% } %>
         </details>
+      <% } %>
+    </div>
+
+      <%# ── Buying out ──────────────────────────────────────────────────
+          Halfway through a season a bet stops being a coin flip. This is how
+          it gets closed early without waiting for a result nobody's in doubt
+          about — and like the bet itself, the other side has to agree. %>
+      <% if (b.status === 'locked' && inIt(b)) { const bo = b.buyout; %>
+        <% if (!bo) { %>
+          <details class="buyout">
+            <summary>💵 Offer to call it off</summary>
+            <form method="post" action="/sidebets/<%= b.id %>/buyout" class="bo-form">
+              <select name="direction">
+                <option value="receive">They pay me</option>
+                <option value="pay">I pay them</option>
+              </select>
+              <input type="number" name="amount" step="1" min="1" placeholder="$" required>
+              <button class="btn small navy" type="submit">Offer it</button>
+            </form>
+            <p class="muted" style="font-size:.74rem; margin:.35rem 0 0">
+              If they agree the bet is closed with no winner, and only this amount changes hands.
+            </p>
+          </details>
+        <% } else { %>
+          <div class="buyout live">
+            <b>💵 Buyout on the table</b>
+            <div class="sb-meta">
+              <%= betNames(bo.by) %> offered to
+              <%= bo.direction === 'pay' ? 'pay' : 'take' %> <b><%= money(bo.amount) %></b> to call it off
+              <% if (bo.accepted_by.length) { %> · <%= bo.accepted_by.map(betNames).join(', ') %> agreed<% } %>
+            </div>
+            <div class="sb-actions" style="margin-top:.35rem">
+              <% if (bo.by !== owner.id && !bo.accepted_by.includes(owner.id)) { %>
+                <form class="asis" method="post" action="/sidebets/<%= b.id %>/buyout/accept">
+                  <button class="btn small gold" type="submit">Take it</button>
+                </form>
+              <% } %>
+              <form class="asis" method="post" action="/sidebets/<%= b.id %>/buyout/clear">
+                <button class="btn small ghost" type="submit"><%= bo.by === owner.id ? 'Withdraw' : 'No thanks' %></button>
+              </form>
+            </div>
+          </div>
+        <% } %>
       <% } %>
     </div>
 

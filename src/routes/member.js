@@ -646,6 +646,26 @@ router.post('/profile/pay', aw(async (req, res) => {
   res.redirect('/bank#pay-directory');
 }));
 
+// ---------- buying out of a live bet ----------
+router.post('/sidebets/:id/buyout', aw(async (req, res) => {
+  await SB.offerBuyout(req.params.id, req.owner.id, req.owner.name, {
+    amount: req.body.amount,
+    direction: req.body.direction === 'pay' ? 'pay' : 'receive',
+    note: String(req.body.note || '').trim(),
+  });
+  res.redirect('/bank?section=sidebets');
+}));
+
+router.post('/sidebets/:id/buyout/accept', aw(async (req, res) => {
+  await SB.acceptBuyout(req.params.id, req.owner.id, req.owner.name);
+  res.redirect('/bank?section=sidebets');
+}));
+
+router.post('/sidebets/:id/buyout/clear', aw(async (req, res) => {
+  await SB.clearBuyout(req.params.id, req.owner.id, req.owner.name);
+  res.redirect('/bank?section=sidebets');
+}));
+
 router.post('/sidebets/:id/reopen', aw(async (req, res) => {
   const bet = await SB.get(req.params.id);
   if (bet && (SB.isParty(bet, req.owner.id) || req.owner.is_commissioner)) {
@@ -800,6 +820,10 @@ router.get('/team', aw(async (req, res) => {
     ? SB.betsAbout(allBets, req.owner.id, nameOf) : [];
   res.render('team', { viewOwner, owners, roster, matchup, betWindow,
     matchupPending, aboutMe, late: req.query.late === '1',
+    // "This week" is the default tab: who you're playing is the question people
+    // open this page with during the season.
+    section: req.query.section === 'roster' ? 'roster' : 'week',
+    weekNo: (matchup && matchup.week) || (sData && sData.week) || 1,
     configured: !!world.config.sleeper_league_id });
 }));
 

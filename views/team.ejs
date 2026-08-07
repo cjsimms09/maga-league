@@ -1,9 +1,34 @@
 <%- include('partials/header', { title: (viewOwner.name === owner.name ? 'My Team' : viewOwner.name + "'s Team") }) %>
+<%
+  const mine = viewOwner.id === owner.id;
+  const fmtLock = d => {
+    if (!d) return '';
+    // Always New York — the NFL kicks off on Eastern time and half this league
+    // is not in it, so "8:15pm" with no zone is a trap.
+    return new Date(d).toLocaleString('en-US', { timeZone: 'America/New_York',
+      weekday: 'short', hour: 'numeric', minute: '2-digit' }) + ' ET';
+  };
+%>
 
-<h1 class="page-title"><%= viewOwner.id === owner.id ? '🏈 My Team' : `🔎 ${viewOwner.name}'s Team` %></h1>
-<p class="page-sub">Live roster from Sleeper with recent production. Scout your rivals. Judge their benches.</p>
+<h1 class="page-title"><%= mine ? '🏈 My Team' : `🔎 ${viewOwner.name}'s Team` %></h1>
+
+<%# Two tabs, because these answer different questions. "This week" is who
+    you're playing and what's riding on it; "Roster" is who you own. The week
+    tab renders whatever Sleeper's state — it used to live inside the roster's
+    guard, so the moment Sleeper was unreachable or the season hadn't started
+    the whole matchup section silently vanished. A feature that disappears
+    exactly when you go looking for it is worse than one that isn't built. %>
+<nav class="section-tabs">
+  <a href="/team?owner=<%= viewOwner.id %>&section=week" class="<%= section === 'week' ? 'active' : '' %>">
+    <b>⚔️ This Week</b><span>your matchup and what's on it</span>
+  </a>
+  <a href="/team?owner=<%= viewOwner.id %>" class="<%= section === 'week' ? '' : 'active' %>">
+    <b>🏈 Roster</b><span>who you own, and how they're doing</span>
+  </a>
+</nav>
 
 <form method="get" action="/team" class="inline-form" style="justify-content:center; margin-bottom:1.2rem">
+  <input type="hidden" name="section" value="<%= section %>">
   <div class="fit">
     <label class="field">Viewing</label>
     <select name="owner" onchange="this.form.submit()">
@@ -14,15 +39,7 @@
   </div>
 </form>
 
-<% if (!configured) { %>
-  <div class="card"><div class="body"><p class="muted" style="margin:0">Sleeper isn't connected yet (Commish → Sleeper).</p></div></div>
-<% } else if (!roster) { %>
-  <div class="card"><div class="body"><p class="muted" style="margin:0">
-    Couldn't load this roster — either <%= viewOwner.name %> isn't mapped to a Sleeper team yet (Commish → Sleeper → Team Mapping)
-    or Sleeper is unreachable right now.
-  </p></div></div>
-<% } else { %>
-
+<% if (section === 'week') { %>
 <%
   const fmtLock = d => {
     if (!d) return '';
@@ -152,6 +169,72 @@
 </div>
 <% } %>
 
+
+<%# Nothing from Sleeper? Say why, and still let them make the bet. A missing
+    scoreboard is no reason to be unable to bet your opponent. %>
+<% if (mine && (!matchup || !matchup.opp || !matchup.opp.owner)) { %>
+  <div class="card matchup-card" style="margin-bottom:1.3rem">
+    <h2>⚔️ Week <%= weekNo %> <span class="sub">no scoreboard yet</span></h2>
+    <div class="body">
+      <p class="muted" style="margin:0 0 .8rem">
+        <% if (!configured) { %>Sleeper isn't connected yet (Commish → Sleeper), so there's no matchup to show.
+        <% } else if (!matchup) { %>Sleeper hasn't got a matchup for you yet — either the season hasn't started or your team isn't mapped (Commish → Sleeper → Team Mapping).
+        <% } else { %>You don't have an opponent this week.<% } %>
+        You can still put a bet up.
+      </p>
+      <details class="mu-bet">
+        <summary>🤝 Bet somebody on week <%= weekNo %></summary>
+        <div class="mu-bet-body">
+          <form method="post" action="/sidebets" class="entry-form">
+            <input type="hidden" name="format" value="prop">
+            <input type="hidden" name="kind" value="matchup">
+            <input type="hidden" name="cond_test" value="outscores">
+            <input type="hidden" name="cond_subject" value="<%= owner.id %>">
+            <input type="hidden" name="cond_when" value="week">
+            <input type="hidden" name="cond_week" value="<%= weekNo %>">
+            <input type="hidden" name="logic" value="all">
+            <input type="hidden" name="resolves" value="end of week <%= weekNo %>">
+            <div class="ef-row">
+              <label class="field" style="flex:1 1 160px">Who are you betting
+                <select name="party" id="mu-opp" required onchange="document.getElementById('mu-target').value=this.value">
+                  <option value="">Pick someone…</option>
+                  <% for (const o of owners) { if (o.id === owner.id) continue; %>
+                    <option value="<%= o.id %>"><%= o.name %></option>
+                  <% } %>
+                </select>
+              </label>
+              <label class="field" style="flex:1 1 120px">Wager each
+                <input type="number" name="stake" step="1" min="1" placeholder="20" required>
+              </label>
+            </div>
+            <input type="hidden" name="cond_target_owner" id="mu-target" value="">
+            <div class="ef-row" style="justify-content:flex-end">
+              <div class="fit"><button class="btn gold" type="submit">Send it</button></div>
+            </div>
+            <p class="muted" style="margin:.2rem 0 0; font-size:.78rem">
+              Your team outscores theirs in week <%= weekNo %>, settled when the week ends.
+              <b>Has to be accepted before kickoff</b> — <%= fmtLock(betWindow.locks_at) %>.
+            </p>
+          </form>
+        </div>
+      </details>
+    </div>
+  </div>
+<% } %>
+
+<% } else { %>
+
+<p class="page-sub">Live roster from Sleeper with recent production. Scout your rivals. Judge their benches.</p>
+
+<% if (!configured) { %>
+  <div class="card"><div class="body"><p class="muted" style="margin:0">Sleeper isn't connected yet (Commish → Sleeper).</p></div></div>
+<% } else if (!roster) { %>
+  <div class="card"><div class="body"><p class="muted" style="margin:0">
+    Couldn't load this roster — either <%= viewOwner.name %> isn't mapped to a Sleeper team yet (Commish → Sleeper → Team Mapping)
+    or Sleeper is unreachable right now.
+  </p></div></div>
+<% } else { %>
+
 <div class="hero" style="margin-bottom:1.3rem">
   <div class="hero-item">
     <span class="hero-label">Team</span>
@@ -196,4 +279,5 @@
 </p>
 <% } %>
 
+<% } %>
 <%- include('partials/footer') %>

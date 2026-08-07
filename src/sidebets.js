@@ -81,6 +81,7 @@ function normalize(b) {
   b.pool_rules ??= (b.pool_outcome ? [b.pool_outcome] : []);
   b.picks_required ??= 0;
   b.kind ??= '';
+  b.bought_out ??= false;
   b.for_id ??= b.proposer_id;
   b.open_slots ??= 0;
   b.push ??= false;
@@ -303,6 +304,84 @@ async function markLeg(id, leg_id, owner_id, by_name, paid = true) {
   leg.paid_by = paid ? Number(owner_id) : null;
   bet.audit.push({ at: now(), by: Number(owner_id),
     what: `${by_name || 'Someone'} marked a ${paid ? 'payment made' : 'payment unmade'}` });
+  await store.set(KEY(bet.id), bet);
+  return bet;
+}
+
+/**
+ * Offer to buy your way out of a live bet.
+ *
+ * Halfway through the season a bet stops being a coin flip — one of you is
+ * plainly winning. A buyout is how that gets closed without waiting: "give me
+ * $30 and we'll call it off", or "I'll pay you $30 to let me out".
+ *
+ * It is an offer, not a settlement. Everyone else in the bet has to say yes,
+ * for the same reason the bet itself needed everyone to say yes.
+ *
+ * @param direction  'receive' — they pay the offerer to end it
+ *                   'pay'     — the offerer pays them to end it
+ */
+async function offerBuyout(id, owner_id, by_name, { amount, direction = 'receive', note = '' }) {
+  const bet = await get(id);
+  if (!bet || bet.status !== STATUS.LOCKED) return null;
+  if (!isParty(bet, owner_id)) return null;
+  const amt = Math.abs(Number(amount) || 0);
+  if (!amt) return null;
+  bet.buyout = {
+    by: Number(owner_id),
+    amount: r2(amt),
+    direction: direction === 'pay' ? 'pay' : 'receive',
+    note: String(note || '').slice(0, 200),
+    offered_at: now(),
+    // Everyone who is not the offerer has to agree.
+    accepted_by: [],
+  };
+  bet.audit.push({ at: now(), by: Number(owner_id),
+    what: `${by_name || 'Someone'} offered to ${direction === 'pay' ? 'pay' : 'take'} ${amt} to call it off` });
+  await store.set(KEY(bet.id), bet);
+  return bet;
+}
+
+/** Say yes to a buyout. When the last party agrees, the bet closes on it. */
+async function acceptBuyout(id, owner_id, by_name) {
+  const bet = await get(id);
+  if (!bet || bet.status !== STATUS.LOCKED || !bet.buyout) return null;
+  const me = Number(owner_id);
+  if (!isParty(bet, me) || me === bet.buyout.by) return bet;
+  if (!bet.buyout.accepted_by.includes(me)) bet.buyout.accepted_by.push(me);
+  bet.audit.push({ at: now(), by: me, what: `${by_name || 'Someone'} accepted the buyout` });
+
+  const others = bet.parties.map(p => p.owner_id).filter(x => x !== bet.buyout.by);
+  if (others.every(x => bet.buyout.accepted_by.includes(x))) {
+    // Closed by agreement rather than by result. No winner is recorded, because
+    // nobody won — but money still moves, so it still produces legs.
+    const each = r2(bet.buyout.amount / (others.length || 1));
+    bet.status = STATUS.SETTLED;
+    bet.winner_ids = [];
+    bet.push = true;                       // no result; keeps W-L honest
+    bet.bought_out = true;
+    bet.settled_at = now();
+    bet.settled_by = me;
+    bet.settle_note = `Bought out for ${bet.buyout.amount}`;
+    bet.legs = others.map(other => ({
+      id: newId(),
+      from: bet.buyout.direction === 'receive' ? other : bet.buyout.by,
+      to: bet.buyout.direction === 'receive' ? bet.buyout.by : other,
+      amount: each, paid: false, paid_at: null, paid_by: null,
+    }));
+    bet.audit.push({ at: now(), what: 'Bought out — bet closed by agreement' });
+  }
+  await store.set(KEY(bet.id), bet);
+  return bet;
+}
+
+/** Withdraw or turn down a buyout. The bet carries on as it was. */
+async function clearBuyout(id, owner_id, by_name) {
+  const bet = await get(id);
+  if (!bet || !bet.buyout || !isParty(bet, owner_id)) return null;
+  bet.audit.push({ at: now(), by: Number(owner_id),
+    what: `${by_name || 'Someone'} ${Number(owner_id) === bet.buyout.by ? 'withdrew' : 'turned down'} the buyout` });
+  delete bet.buyout;
   await store.set(KEY(bet.id), bet);
   return bet;
 }
@@ -542,6 +621,6 @@ function awaiting(bets, owner_id) {
 module.exports = {
   STATUS, MAX_OPEN_SLOTS,
   all, get, propose, accept, take, decline, settle, reopen, remove,
-  setPosition, markLeg, isParty,
+  setPosition, markLeg, isParty, offerBuyout, acceptBuyout, clearBuyout,
   tallies, ledgerFor, settlementsFor, awaiting, moneyOnTeams, betsAbout,
 };
