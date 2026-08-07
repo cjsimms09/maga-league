@@ -885,6 +885,19 @@ button.is-busy, .btn.is-busy {
   color: #f2e2b4; border-radius: 6px; padding: .12rem .4rem; font-size: .68rem; line-height: 1.4;
 }
 
+/* Rail-fire budget: the acknowledge list under the checklist when the top 15
+   carries more flags than the board should ever produce. */
+.rail-budget { margin: .5rem 0 .2rem; display: flex; flex-direction: column; gap: .4rem; }
+.rail-fire {
+  padding: .5rem .6rem; border-radius: 9px; border: 1px solid var(--line);
+  background: rgba(255, 255, 255, .02);
+}
+.rail-fire.open { border-color: rgba(255, 70, 85, .5); background: rgba(255, 70, 85, .07); }
+.rail-fire.acked { opacity: .75; }
+.rail-fire-head { display: flex; align-items: center; gap: .45rem; flex-wrap: wrap; }
+.rail-fire-flags { margin-top: .3rem; font-size: .7rem; color: #f2e2b4; line-height: 1.45; }
+.rail-ack-note { font-size: .74rem; color: var(--muted); }
+
 /* ---------- draft-day staleness gate ----------
    Over 18 hours old the board needs an explicit acknowledgement. The board
    stays visible behind it: hiding it would make a stale artifact look the same

@@ -36,6 +36,52 @@
     clockIndex: 0,        // which recommendation it is showing
   };
   const LISTS_KEY = 'wr-lists-v1';
+  const RAIL_ACK_KEY = 'wr-rail-acks-v1';
+
+  /* ── Rail-fire budget (item 2 fix 2) ────────────────────────────────────
+   * A rail is the engine flagging that a number is probably a bug, not an
+   * insight. One flagged player in your top options is a judgement call; more
+   * than two is a pattern that says the BOARD is wrong — a bad ADP pull, a join
+   * that matched nobody, a component dwarfing its own VORP across the field.
+   * So >2 flagged in the top 15 turns the checklist RED and keeps it red until
+   * every fire is acknowledged with a reason you have to type. The reason is
+   * logged (persisted with the build it was made against and the exact flags),
+   * so "I looked and it's fine" is a recorded decision, not a silent dismissal.
+   * A new build, or a changed set of flags, invalidates the old acknowledgement
+   * — you cannot wave through a fire you never actually saw. */
+  const RAIL_BUDGET = 2;   // >2 flagged in the top 15 trips the checklist item
+  const RAIL_TOPN = 15;
+
+  function loadRailAcks() {
+    try { state.railAcks = JSON.parse(localStorage.getItem(RAIL_ACK_KEY) || '{}') || {}; }
+    catch (e) { state.railAcks = {}; }
+  }
+  function saveRailAcks() {
+    try { localStorage.setItem(RAIL_ACK_KEY, JSON.stringify(state.railAcks || {})); } catch (e) {}
+  }
+  /** The current rail-fire picture: which of the top-N carry flags, and which
+   *  of those the user has acknowledged for THIS build. Reuses the last
+   *  recommendation list so it never disagrees with the cards on screen; the
+   *  counting/ack logic itself lives in the engine (E.computeRailBudget) so the
+   *  app and any test agree exactly. */
+  function railFireBudget() {
+    const scored = (state.lastClock && state.lastClock.scored)
+      || (state.board && state.data ? E.recommend(context()) : []);
+    return E.computeRailBudget(scored, { builtAt: (state.data || {}).built_at,
+      acks: state.railAcks || {}, budget: RAIL_BUDGET, topN: RAIL_TOPN });
+  }
+  function acknowledgeRailFire(id) {
+    const budget = railFireBudget();
+    const fire = budget.fires.find(f => f.id === String(id));
+    if (!fire) return;
+    const reason = (window.prompt('Why is ' + fire.name + ' safe to keep in the top options '
+      + 'despite the rail?\n(' + fire.flags.join('; ') + ')\n\nThis reason is logged.') || '').trim();
+    if (!reason) return;   // no silent acknowledgement — a blank reason is not a reason
+    state.railAcks[fire.id] = { sig: fire.sig, reason, flags: fire.flags,
+      at: new Date().toISOString(), built_at: (state.data || {}).built_at || null, name: fire.name };
+    saveRailAcks();
+    renderAll();
+  }
 
   function loadLists() {
     try {
@@ -183,6 +229,7 @@
     state.format = E.applyFormatDefaults(data.league);
     loadOverrides();
     loadLists();
+    loadRailAcks();
     loadAuto();
     exposeTestHooks();
     // Keep a pristine copy of everything mock mode overwrites. Connecting to a
@@ -1111,6 +1158,22 @@
         detail: state.lists.targets.length + ' starred, ' + state.lists.avoid.length + ' blocked',
         fix: 'Optional, but it is your read' },
     ];
+
+    // Rail-fire budget: >2 flagged in the top 15 is red until each is
+    // acknowledged with a logged reason. Placed last so a board-quality alarm
+    // reads after the board-built lines it depends on.
+    const budget = railFireBudget();
+    items.push({
+      ok: !budget.overBudget || budget.allAcked,
+      label: 'Rail-fire budget',
+      detail: budget.count === 0 ? 'no flags in the top ' + RAIL_TOPN
+        : budget.count + ' flagged in the top ' + RAIL_TOPN
+          + (budget.overBudget
+              ? (budget.allAcked ? ' \u2014 all acknowledged' : ' \u2014 ' + budget.unacked.length + ' to acknowledge')
+              : ' (within budget of ' + RAIL_BUDGET + ')'),
+      fix: budget.overBudget && !budget.allAcked
+        ? 'Acknowledge each fire below, or rebuild the board' : '' });
+
     const done = items.filter(i => i.ok).length;
     $('#check-count').textContent = done + ' of ' + items.length + ' ready';
     host.innerHTML = items.map(i =>
@@ -1119,7 +1182,20 @@
       + '<span class="check-label">' + escapeHtml(i.label)
       + ' <span class="muted">' + escapeHtml(String(i.detail)) + '</span></span>'
       + (!i.ok && i.fix ? '<span class="check-fix">' + escapeHtml(i.fix) + '</span>' : '')
-      + '</div>').join('');
+      + '</div>').join('')
+    // When over budget, list every fire with its flags and an acknowledge
+    // button; acknowledged ones show the logged reason so the record is visible.
+    + (budget.overBudget ? '<div class="rail-budget">' + budget.fires.map(f =>
+        '<div class="rail-fire ' + (f.acked ? 'acked' : 'open') + '">'
+        + '<div class="rail-fire-head"><b>' + escapeHtml(f.name) + '</b> '
+        + '<span class="rec-pos ' + f.position + '">' + f.position + '</span>'
+        + (f.acked
+            ? '<span class="rail-ack-note">\u2705 ' + escapeHtml(f.ack.reason) + '</span>'
+            : '<button class="btn small navy" data-rail-ack="' + escapeHtml(f.id) + '">Acknowledge</button>')
+        + '</div>'
+        + '<div class="rail-fire-flags">' + f.flags.map(x =>
+            '\u26a0\ufe0f ' + escapeHtml(x)).join(' \u00b7 ') + '</div>'
+        + '</div>').join('') + '</div>' : '');
   }
 
   /**
@@ -2087,6 +2163,8 @@
       }
       const why = ev.target.closest('[data-why]');
       if (why) return showWhy(why.getAttribute('data-why'));
+      const railAck = ev.target.closest('[data-rail-ack]');
+      if (railAck) return acknowledgeRailFire(railAck.getAttribute('data-rail-ack'));
     });
 
     $$('.weight-slider').forEach(sl => {

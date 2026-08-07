@@ -388,6 +388,37 @@ check('weight sliders change the ranking', heavyCeiling[0].score !== scored[0].s
   const rec = E.recommend(early);
   check('through recommend, the flagged kicker is marked demoted',
     rec[0].player.position !== 'K' || rec[0].demoted === true);
+
+  // --- Rail-fire budget (item 2 fix 2). Pure counting + acknowledgement logic.
+  const flg = (id, rails) => ({ player: { player_id: id, name: 'P' + id, position: 'RB' }, rails: rails || [] });
+  const list = [flg('1', ['a']), flg('2', []), flg('3', ['b', 'c']),
+                flg('4', ['d']), flg('5', [])];
+  const b0 = E.computeRailBudget(list, { builtAt: 'B1', acks: {}, budget: 2, topN: 15 });
+  check('budget counts only flagged players in the top N', b0.count === 3, String(b0.count));
+  check('more than the budget trips overBudget', b0.overBudget === true);
+  check('nothing acknowledged yet, so not allAcked', b0.allAcked === false && b0.unacked.length === 3);
+  check('two flags or fewer is within budget',
+    E.computeRailBudget([flg('1', ['a']), flg('2', ['b'])], { builtAt: 'B1', budget: 2 }).overBudget === false);
+  check('topN cut excludes flags below the line',
+    E.computeRailBudget(list, { builtAt: 'B1', budget: 2, topN: 2 }).count === 1);
+  // Acknowledge one fire against build B1 with its exact flags.
+  const sig3 = E.railFireSig('B1', '3', ['b', 'c']);
+  const acks = { 3: { sig: sig3, reason: 'checked, real', flags: ['b', 'c'] } };
+  const b1 = E.computeRailBudget(list, { builtAt: 'B1', acks, budget: 2, topN: 15 });
+  check('a matching acknowledgement clears exactly that fire',
+    b1.unacked.length === 2 && b1.fires.find(f => f.id === '3').acked === true);
+  check('still overBudget until EVERY fire is acknowledged', b1.overBudget === true && b1.allAcked === false);
+  // A rebuild (new builtAt) invalidates the old ack — you must look again.
+  const b2 = E.computeRailBudget(list, { builtAt: 'B2', acks, budget: 2, topN: 15 });
+  check('a new build silently invalidates an old acknowledgement',
+    b2.fires.find(f => f.id === '3').acked === false && b2.unacked.length === 3);
+  // A changed flag set on the same player also invalidates it.
+  const list2 = [flg('1', ['a']), flg('3', ['b', 'c', 'NEW']), flg('4', ['d'])];
+  const b3 = E.computeRailBudget(list2, { builtAt: 'B1', acks, budget: 2, topN: 15 });
+  check('a changed flag set invalidates the acknowledgement for that player',
+    b3.fires.find(f => f.id === '3').acked === false);
+  check('flag-set signature is order-independent',
+    E.railFireSig('B1', '3', ['c', 'b']) === E.railFireSig('B1', '3', ['b', 'c']));
 })();
 
 

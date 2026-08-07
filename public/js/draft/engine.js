@@ -626,6 +626,40 @@
     return anySunk ? keep.concat(sink) : scored;
   }
 
+  /**
+   * Rail-fire budget (item 2 fix 2), pure so it is testable and identical
+   * wherever it runs. A rail flags a number the engine thinks is a bug. One in
+   * the top options is a judgement call; more than `budget` is a pattern that
+   * indicts the whole board. This counts the flagged players in the top `topN`
+   * and reports which are acknowledged for THIS build. An acknowledgement is
+   * tied to the exact build and flag set via the signature, so a rebuild or a
+   * changed flag set silently invalidates it — you cannot wave through a fire
+   * you never saw. No DOM, no state: caller passes the scored list and acks.
+   */
+  function railFireSig(builtAt, id, flags) {
+    return String(builtAt == null ? '?' : builtAt) + '|' + id + '|'
+      + (flags || []).slice().sort().join('¦');
+  }
+  function computeRailBudget(scored, opts) {
+    opts = opts || {};
+    const budget = opts.budget == null ? 2 : opts.budget;
+    const topN = opts.topN == null ? 15 : opts.topN;
+    const acks = opts.acks || {};
+    const builtAt = opts.builtAt;
+    const fires = (scored || []).slice(0, topN)
+      .filter(s => s.rails && s.rails.length)
+      .map(s => {
+        const id = String(s.player.player_id);
+        const sig = railFireSig(builtAt, id, s.rails);
+        const ack = acks[id];
+        return { id, name: s.player.name, position: s.player.position,
+          flags: s.rails.slice(), sig, acked: !!(ack && ack.sig === sig), ack: ack || null };
+      });
+    const unacked = fires.filter(f => !f.acked);
+    return { fires, count: fires.length, budget, topN,
+      overBudget: fires.length > budget, unacked, allAcked: unacked.length === 0 };
+  }
+
   function recommend(ctx) {
     const all = ctx.board.map(p => scorePlayer(p, ctx));
     all.sort((a, b) => b.score - a.score);
@@ -1410,7 +1444,7 @@
     expectedBestAvailable, vona,
     tierCliffUrgency, starterSlotMarginal, riskAdjustment, upsideBonus,
     scorePlayer, recommend, mandatoryGaps, applyRosterLegality, plausibilityRails,
-    demoteFlaggedOnesies,
+    demoteFlaggedOnesies, computeRailBudget, railFireSig,
     confidence, branchForecast, applyPersonalLists, onTheClock, rosterPlan, byeGrid,
     cheatSheet, sheetText, managerTells, threatBoard,
     WEIGHT_PRESETS, matchPreset, rankDiff, autoWeights,
