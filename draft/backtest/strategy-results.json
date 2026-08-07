@@ -1,0 +1,297 @@
+{
+ "meta": {
+  "git_head": "ab005bd8a27b50b2ae93d3e629b9e7ed806a4dcc",
+  "seasons": [
+   2023,
+   2024,
+   2025
+  ],
+  "caveats": [
+   "[2025] could NOT be recovered: the play-by-play rebuild disagreed with the library on 2024 ({\"season\": 2024, \"players_compared\": 576, \"official_only\": 30, \"rebuilt_only\": 8, \"mean_abs_diff\": 0.489, \"worst_diff\": 11.0, \"worst_diff_top200\": 11.0, \"tolerance\": 0.5, \"agrees\": false})",
+   "weekly stats unavailable for [2025]; any season needing them as a prior or for grading is affected",
+   "2025: replayed but NOTHING could be graded — its picks contribute nothing to the headline",
+   "Historical FFC ADP is name-matched against TODAY'S Sleeper player list, so a player who has since changed teams or retired may match differently than he would have that year.",
+   "Seasons replayed: [2023, 2024, 2025]"
+  ]
+ },
+ "table": [
+  {
+   "key": "default",
+   "name": "Default",
+   "note": "the shipped weighting; the baseline every other profile is measured against",
+   "vs_default": {
+    "per_season": {
+     "2023": {
+      "mean": 0,
+      "n": 10,
+      "ci95": 0,
+      "beats": false
+     },
+     "2024": {
+      "mean": 0,
+      "n": 10,
+      "ci95": 0,
+      "beats": false
+     }
+    },
+    "pooled": {
+     "mean": 0,
+     "n": 20,
+     "ci95": 0,
+     "beats": false
+    },
+    "seasons_won": 0,
+    "seasons_total": 2
+   }
+  },
+  {
+   "key": "value_anchor",
+   "name": "Value-Anchor",
+   "note": "every modifier halved — trust the value gap, ignore roster shaping",
+   "vs_default": {
+    "per_season": {
+     "2023": {
+      "mean": -390.29,
+      "n": 10,
+      "ci95": 37.37,
+      "beats": false
+     },
+     "2024": {
+      "mean": 10.57,
+      "n": 10,
+      "ci95": 11.97,
+      "beats": true
+     }
+    },
+    "pooled": {
+     "mean": -189.86,
+     "n": 20,
+     "ci95": 92.12,
+     "beats": false
+    },
+    "seasons_won": 1,
+    "seasons_total": 2
+   }
+  },
+  {
+   "key": "tier_hunter",
+   "name": "Tier-Hunter",
+   "note": "tier cliff urgency doubled — chase the last of a tier",
+   "vs_default": {
+    "per_season": {
+     "2023": {
+      "mean": -176.18,
+      "n": 10,
+      "ci95": 102.38,
+      "beats": false
+     },
+     "2024": {
+      "mean": -212.76,
+      "n": 10,
+      "ci95": 191.41,
+      "beats": false
+     }
+    },
+    "pooled": {
+     "mean": -194.47,
+     "n": 20,
+     "ci95": 105.96,
+     "beats": false
+    },
+    "seasons_won": 0,
+    "seasons_total": 2
+   }
+  },
+  {
+   "key": "need_filler",
+   "name": "Need-Filler",
+   "note": "starting-lineup need doubled — fill the roster before chasing value",
+   "vs_default": {
+    "per_season": {
+     "2023": {
+      "mean": 74.64,
+      "n": 10,
+      "ci95": 175.12,
+      "beats": true
+     },
+     "2024": {
+      "mean": 169.73,
+      "n": 10,
+      "ci95": 135.52,
+      "beats": true
+     }
+    },
+    "pooled": {
+     "mean": 122.18,
+     "n": 20,
+     "ci95": 109.86,
+     "beats": true
+    },
+    "seasons_won": 2,
+    "seasons_total": 2
+   }
+  },
+  {
+   "key": "upside_late",
+   "name": "Upside-Late",
+   "note": "ceiling ramps with the round — safe early, lottery tickets late",
+   "vs_default": {
+    "per_season": {
+     "2023": {
+      "mean": 243.54,
+      "n": 10,
+      "ci95": 213.47,
+      "beats": true
+     },
+     "2024": {
+      "mean": 65.04,
+      "n": 10,
+      "ci95": 75.42,
+      "beats": true
+     }
+    },
+    "pooled": {
+     "mean": 154.29,
+     "n": 20,
+     "ci95": 117.26,
+     "beats": true
+    },
+    "seasons_won": 2,
+    "seasons_total": 2
+   }
+  },
+  {
+   "key": "scarcity",
+   "name": "Scarcity",
+   "note": "tier and need up, risk down — positional runs matter more than floor",
+   "vs_default": {
+    "per_season": {
+     "2023": {
+      "mean": 13.66,
+      "n": 10,
+      "ci95": 92.96,
+      "beats": true
+     },
+     "2024": {
+      "mean": 35.39,
+      "n": 10,
+      "ci95": 63.71,
+      "beats": true
+     }
+    },
+    "pooled": {
+     "mean": 24.52,
+     "n": 20,
+     "ci95": 55.06,
+     "beats": true
+    },
+    "seasons_won": 2,
+    "seasons_total": 2
+   }
+  },
+  {
+   "key": "keeper_builder",
+   "name": "Keeper-Builder",
+   "note": "KOV doubled in rounds 8+ — draft next year’s keepers late",
+   "vs_default": {
+    "per_season": {
+     "2023": {
+      "mean": 28.51,
+      "n": 10,
+      "ci95": 55.88,
+      "beats": true
+     },
+     "2024": {
+      "mean": 0,
+      "n": 10,
+      "ci95": 0,
+      "beats": false
+     }
+    },
+    "pooled": {
+     "mean": 14.25,
+     "n": 20,
+     "ci95": 27.94,
+     "beats": true
+    },
+    "seasons_won": 1,
+    "seasons_total": 2
+   }
+  },
+  {
+   "key": "slider_defaults",
+   "name": "Slider-Defaults",
+   "note": "the panel’s out-of-the-box slider positions; equals Default now that value is a slider — a self-consistency check on the harness",
+   "vs_default": {
+    "per_season": {
+     "2023": {
+      "mean": 0,
+      "n": 10,
+      "ci95": 0,
+      "beats": false
+     },
+     "2024": {
+      "mean": 0,
+      "n": 10,
+      "ci95": 0,
+      "beats": false
+     }
+    },
+    "pooled": {
+     "mean": 0,
+     "n": 20,
+     "ci95": 0,
+     "beats": false
+    },
+    "seasons_won": 0,
+    "seasons_total": 2
+   }
+  }
+ ],
+ "selection": {
+  "n_seasons": 2,
+  "rule": "win-both (N<3, bar tightened by data availability)",
+  "winner": {
+   "key": "upside_late",
+   "name": "Upside-Late",
+   "note": "ceiling ramps with the round — safe early, lottery tickets late",
+   "vs_default": {
+    "per_season": {
+     "2023": {
+      "mean": 243.54,
+      "n": 10,
+      "ci95": 213.47,
+      "beats": true
+     },
+     "2024": {
+      "mean": 65.04,
+      "n": 10,
+      "ci95": 75.42,
+      "beats": true
+     }
+    },
+    "pooled": {
+     "mean": 154.29,
+     "n": 20,
+     "ci95": 117.26,
+     "beats": true
+    },
+    "seasons_won": 2,
+    "seasons_total": 2
+   }
+  }
+ },
+ "sweep": {
+  "ran": true,
+  "samples": 40,
+  "jitter": 0.25,
+  "fraction_beating_default": 0.875,
+  "survive_threshold": 0.75,
+  "edge_p25": 52.72,
+  "edge_median": 186.18,
+  "edge_p75": 219.36,
+  "edge_min": -68.7,
+  "survives": true
+ },
+ "install": true
+}

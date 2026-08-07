@@ -1,0 +1,207 @@
+{
+ "meta": {
+  "git_head": "ab005bd8a27b50b2ae93d3e629b9e7ed806a4dcc",
+  "uncommitted_when_run": [],
+  "seasons": [
+   2023,
+   2024,
+   2025
+  ],
+  "max_round": 12,
+  "methods": [
+   {
+    "season": 2023,
+    "method": "walk_forward",
+    "spearman": 0.5966
+   },
+   {
+    "season": 2024,
+    "method": "walk_forward",
+    "spearman": 0.5332
+   },
+   {
+    "season": 2025,
+    "method": "walk_forward",
+    "spearman": 0.5437
+   }
+  ],
+  "caveats": [
+   "[2025] could NOT be recovered: the play-by-play rebuild disagreed with the library on 2024 ({\"season\": 2024, \"players_compared\": 576, \"official_only\": 30, \"rebuilt_only\": 8, \"mean_abs_diff\": 0.489, \"worst_diff\": 11.0, \"worst_diff_top200\": 11.0, \"tolerance\": 0.5, \"agrees\": false})",
+   "weekly stats unavailable for [2025]; any season needing them as a prior or for grading is affected",
+   "2025: replayed but NOTHING could be graded — its picks contribute nothing to the headline",
+   "Historical FFC ADP is name-matched against TODAY'S Sleeper player list, so a player who has since changed teams or retired may match differently than he would have that year.",
+   "Seasons replayed: [2023, 2024, 2025]"
+  ]
+ },
+ "headline": {
+  "b0_mean": 220.76,
+  "b1_mean": 353.44,
+  "b2_mean": 176.64,
+  "b3_mean": 181.44,
+  "mean_gain_per_pick": -39.32,
+  "ci95_per_pick": 22.7,
+  "mean_gain_per_draft": -415.44,
+  "ci95_per_draft": 226.79,
+  "drafts_counted": 30
+ },
+ "disagreement": {
+  "n": 307,
+  "share_of_picks": 0.968,
+  "win_rate": 0.401,
+  "mean_gain": -40.6,
+  "ci95": 23.42
+ },
+ "per_round": [
+  {
+   "round": 1,
+   "n": 12,
+   "mean_gain": 220.53,
+   "ci95": 25.52
+  },
+  {
+   "round": 2,
+   "n": 15,
+   "mean_gain": 368.56,
+   "ci95": 63.99
+  },
+  {
+   "round": 3,
+   "n": 20,
+   "mean_gain": 176.2,
+   "ci95": 97.28
+  },
+  {
+   "round": 4,
+   "n": 30,
+   "mean_gain": -13.69,
+   "ci95": 96.22
+  },
+  {
+   "round": 5,
+   "n": 30,
+   "mean_gain": -170.99,
+   "ci95": 75.68
+  },
+  {
+   "round": 6,
+   "n": 30,
+   "mean_gain": -98.14,
+   "ci95": 40.91
+  },
+  {
+   "round": 7,
+   "n": 30,
+   "mean_gain": -48.15,
+   "ci95": 31.98
+  },
+  {
+   "round": 8,
+   "n": 30,
+   "mean_gain": -67.68,
+   "ci95": 36.02
+  },
+  {
+   "round": 9,
+   "n": 30,
+   "mean_gain": -66.56,
+   "ci95": 54.17
+  },
+  {
+   "round": 10,
+   "n": 30,
+   "mean_gain": -154.51,
+   "ci95": 37.35
+  },
+  {
+   "round": 11,
+   "n": 30,
+   "mean_gain": -101.9,
+   "ci95": 57.02
+  },
+  {
+   "round": 12,
+   "n": 30,
+   "mean_gain": -83.8,
+   "ci95": 56.88
+  }
+ ],
+ "vs_human": {
+  "n": 277,
+  "win_rate": 0.39,
+  "mean_gain": -0.02,
+  "ci95": 22.44
+ },
+ "calibration": [
+  {
+   "bucket": "0-10%",
+   "predicted_mid": 0.05,
+   "n": 624,
+   "actual_rate": 0.415,
+   "error": 0.365
+  },
+  {
+   "bucket": "10-20%",
+   "predicted_mid": 0.15,
+   "n": 244,
+   "actual_rate": 0.627,
+   "error": 0.477
+  },
+  {
+   "bucket": "20-30%",
+   "predicted_mid": 0.25,
+   "n": 209,
+   "actual_rate": 0.684,
+   "error": 0.434
+  },
+  {
+   "bucket": "30-40%",
+   "predicted_mid": 0.35,
+   "n": 210,
+   "actual_rate": 0.767,
+   "error": 0.417
+  },
+  {
+   "bucket": "40-50%",
+   "predicted_mid": 0.45,
+   "n": 200,
+   "actual_rate": 0.83,
+   "error": 0.38
+  },
+  {
+   "bucket": "50-60%",
+   "predicted_mid": 0.55,
+   "n": 236,
+   "actual_rate": 0.831,
+   "error": 0.281
+  },
+  {
+   "bucket": "60-70%",
+   "predicted_mid": 0.65,
+   "n": 266,
+   "actual_rate": 0.823,
+   "error": 0.173
+  },
+  {
+   "bucket": "70-80%",
+   "predicted_mid": 0.75,
+   "n": 280,
+   "actual_rate": 0.896,
+   "error": 0.146
+  },
+  {
+   "bucket": "80-90%",
+   "predicted_mid": 0.85,
+   "n": 407,
+   "actual_rate": 0.867,
+   "error": 0.017
+  },
+  {
+   "bucket": "90-100%",
+   "predicted_mid": 0.95,
+   "n": 1848,
+   "actual_rate": 0.95,
+   "error": 0
+  }
+ ],
+ "graded_picks": 317
+}
