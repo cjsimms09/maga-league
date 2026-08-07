@@ -27,6 +27,32 @@
   </div>
 </div>
 
+<% if (typeof sbCount !== 'undefined' && sbCount) { %>
+<div class="card" style="margin-bottom:1.5rem">
+  <h2>🤝 The Side-Bet Book <span class="sub"><%= money(sbTotal) %> has changed hands across <%= sbSettledCount %> settled bet<%= sbSettledCount === 1 ? '' : 's' %></span></h2>
+  <div class="body tight scroll-x">
+    <table class="roll ledger">
+      <thead><tr><th>Owner</th><th class="num">W–L</th><th class="num">Net</th></tr></thead>
+      <tbody>
+        <% const sbRanked = list.slice().sort((a, b) => (sbTallies[b.id] || {}).net - (sbTallies[a.id] || {}).net); %>
+        <% for (const o of sbRanked) { const x = sbTallies[o.id]; if (!x || (!x.wins && !x.losses)) continue; %>
+          <tr>
+            <td><b><%= o.name %></b></td>
+            <td class="num"><%= x.wins %>–<%= x.losses %></td>
+            <td class="num run <%= x.net > 0 ? 'pos' : x.net < 0 ? 'neg' : '' %>">
+              <%= x.net === 0 ? '—' : (x.net > 0 ? '+' : '−') + money(Math.abs(x.net)) %></td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+    <p class="muted" style="padding:.6rem .9rem; margin:0; font-size:.78rem">
+      Side bets are between members and never counted as league winnings — none of
+      this is in the grid above. <a href="/bank?section=sidebets">Open the side-bet book →</a>
+    </p>
+  </div>
+</div>
+<% } %>
+
 <% if (shame.length) { %>
 <div class="card" style="margin-bottom:1.5rem">
   <h2>🚽 The Wall of Shame <span class="sub">last-place finishers, immortalized forever</span></h2>

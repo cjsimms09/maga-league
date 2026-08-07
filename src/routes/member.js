@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const H = require('../helpers');
 const L = require('../ledger');
+const SB = require('../sidebets');
 const sleeper = require('../sleeper');
 const notify = require('../notify');
 const crypto = require('crypto');
@@ -256,7 +257,16 @@ async function moneySection(req) {
     .filter(s => s.status === 'complete' && (s.standings || []).length)
     .map(s => ({ year: s.year, name: nameOf(s.standings[s.standings.length - 1]) }));
 
-  return { details, list: ranked, grid, years, totals, grand, shame, CATEGORY_LABELS: H.CATEGORY_LABELS };
+  // Side bets, all time. Shown here because it is funny, kept apart from the
+  // winnings grid because it is not league money.
+  const sbBets = await SB.all();
+  const sbTallies = SB.tallies(sbBets, list);
+  const sbSettled = sbBets.filter(b => b.status === 'settled');
+  const sbTotal = sbSettled.reduce((n, b) => n + b.stake * (b.parties.length - b.winner_ids.length), 0);
+
+  return { details, list: ranked, grid, years, totals, grand, shame,
+           CATEGORY_LABELS: H.CATEGORY_LABELS,
+           sbTallies, sbCount: sbBets.length, sbSettledCount: sbSettled.length, sbTotal };
 }
 
 router.get('/history', aw(async (req, res) => {
@@ -301,10 +311,73 @@ router.get('/bank', aw(async (req, res) => {
     .map(e => ({ ...e, owner_name: nameOf(e.owner_id) }))
     .sort((a, b) => (a.created_at < b.created_at ? -1 : 1));
 
+  // Side bets live on this page but in their own section, because they are
+  // finance-adjacent and emphatically not league money.
+  const section = req.query.section === 'sidebets' ? 'sidebets' : 'money';
+  const bets = await SB.all();
+  const betNames = id => nameOf(id);
+  const tallies = SB.tallies(bets, owners);
+
   res.render('bank', {
     cards, season, totalOwedToLeague, totalLeagueOwes, viewCard, leagueEntries,
     TYPE_LABELS: L.TYPE_LABELS,
+    section, bets, tallies, owners, betNames,
   });
+}));
+
+// ---------- side bets ----------
+// A separate set of books on purpose: see src/sidebets.js. Anyone can propose,
+// everyone named has to accept, and none of it touches league money.
+router.post('/sidebets', aw(async (req, res) => {
+  const ids = [].concat(req.body.party || []).map(Number).filter(Boolean);
+  const terms = String(req.body.terms || '').trim();
+  const stake = parseFloat(req.body.stake);
+  if (terms && Number.isFinite(stake) && stake > 0 && ids.length) {
+    try {
+      await SB.propose({ proposer_id: req.owner.id, party_ids: ids, terms, stake });
+    } catch (e) { /* needs someone on the other side; the form enforces it too */ }
+  }
+  res.redirect('/bank?section=sidebets');
+}));
+
+router.post('/sidebets/:id/accept', aw(async (req, res) => {
+  await SB.accept(req.params.id, req.owner.id, req.owner.name);
+  res.redirect('/bank?section=sidebets');
+}));
+
+router.post('/sidebets/:id/decline', aw(async (req, res) => {
+  await SB.decline(req.params.id, req.owner.id, req.owner.name);
+  res.redirect('/bank?section=sidebets');
+}));
+
+router.post('/sidebets/:id/settle', aw(async (req, res) => {
+  const bet = await SB.get(req.params.id);
+  // Only someone in the bet can record its result — or the commissioner, who
+  // ends up adjudicating anyway.
+  if (bet && (SB.isParty(bet, req.owner.id) || req.owner.is_commissioner)) {
+    const winners = [].concat(req.body.winner || []).map(Number).filter(Boolean);
+    await SB.settle(req.params.id, winners, req.owner.id, req.owner.name);
+  }
+  res.redirect('/bank?section=sidebets');
+}));
+
+router.post('/sidebets/:id/reopen', aw(async (req, res) => {
+  const bet = await SB.get(req.params.id);
+  if (bet && (SB.isParty(bet, req.owner.id) || req.owner.is_commissioner)) {
+    await SB.reopen(req.params.id, req.owner.id, req.owner.name);
+  }
+  res.redirect('/bank?section=sidebets');
+}));
+
+router.post('/sidebets/:id/delete', aw(async (req, res) => {
+  const bet = await SB.get(req.params.id);
+  // Only the proposer (while nobody has accepted) or the commissioner.
+  const onlyProposerIn = bet && bet.parties.filter(x => x.accepted).length === 1;
+  if (bet && (req.owner.is_commissioner
+      || (bet.proposer_id === req.owner.id && onlyProposerIn))) {
+    await SB.remove(req.params.id);
+  }
+  res.redirect('/bank?section=sidebets');
 }));
 
 // ---------- draft ----------

@@ -1,0 +1,226 @@
+<%
+  const myId = owner.id;
+  const inIt = b => (b.parties || []).some(p => p.owner_id === myId);
+  const myTurn = b => b.status === 'proposed'
+    && (b.parties || []).some(p => p.owner_id === myId && !p.accepted);
+  const waiting = b => (b.parties || []).filter(p => !p.accepted).map(p => betNames(p.owner_id));
+  const pending = bets.filter(myTurn);
+  const live = bets.filter(b => b.status === 'locked');
+  const proposed = bets.filter(b => b.status === 'proposed' && !myTurn(b));
+  const done = bets.filter(b => b.status === 'settled');
+  const dead = bets.filter(b => b.status === 'declined');
+  const t = tallies[myId] || { net: 0, wins: 0, losses: 0, at_stake: 0, open: 0 };
+%>
+
+<div class="sb-note">
+  <b>These are not league money.</b> Side bets are between you and whoever took the
+  other side — they never touch buy-ins, prize money, or anyone’s league balance.
+  The site keeps score. It does not hold the cash.
+</div>
+
+<div class="hero" style="margin-bottom:1.2rem">
+  <div class="hero-item <%= t.net > 0 ? 'good' : t.net < 0 ? 'bad' : '' %>">
+    <span class="hero-label">Your Side-Bet Record</span>
+    <span class="hero-value"><%= t.net === 0 ? '—' : (t.net > 0 ? '+' : '−') + money(Math.abs(t.net)) %></span>
+    <span class="hero-sub"><%= t.wins %>–<%= t.losses %> settled</span>
+  </div>
+  <div class="hero-item">
+    <span class="hero-label">Riding Right Now</span>
+    <span class="hero-value"><%= money(t.at_stake) %></span>
+    <span class="hero-sub"><%= t.open %> bet<%= t.open === 1 ? '' : 's' %> live</span>
+  </div>
+</div>
+
+<% if (pending.length) { %>
+<div class="card" style="margin-bottom:1.2rem; border-color:rgba(245,196,69,.6)">
+  <h2>🤝 Waiting on You <span class="sub">accept and it’s on</span></h2>
+  <div class="body">
+    <% for (const b of pending) { %>
+      <div class="sb-row pending">
+        <div class="sb-main">
+          <div class="sb-terms"><%= b.terms %></div>
+          <div class="sb-meta">
+            <b><%= money(b.stake) %></b> each ·
+            <%= b.parties.map(p => betNames(p.owner_id)).join(' vs ') %> ·
+            proposed by <%= betNames(b.proposer_id) %>
+          </div>
+        </div>
+        <div class="sb-actions">
+          <form class="asis" method="post" action="/sidebets/<%= b.id %>/accept"
+                data-handshake="<%= b.terms.replace(/"/g, '&quot;') %>"
+                data-stake="<%= money(b.stake) %>"
+                data-with="<%= b.parties.filter(p => p.owner_id !== owner.id).map(p => betNames(p.owner_id)).join(', ') %>">
+            <button class="btn small gold" type="submit">Accept</button>
+          </form>
+          <form class="asis" method="post" action="/sidebets/<%= b.id %>/decline">
+            <button class="btn small ghost" type="submit">Decline</button>
+          </form>
+        </div>
+      </div>
+    <% } %>
+  </div>
+</div>
+<% } %>
+
+<details class="card entry-card" style="margin-bottom:1.2rem">
+  <summary>➕ Propose a side bet <span class="sub">anyone can start one — everyone named has to agree</span></summary>
+  <div class="body">
+    <form method="post" action="/sidebets" class="entry-form">
+      <div class="ef-row">
+        <label class="field" style="flex:3 1 260px">The bet
+          <input type="text" name="terms" maxlength="240" required
+                 placeholder="e.g. Bills cover −3.5 at Kansas City on Sunday">
+        </label>
+        <label class="field" style="flex:1 1 120px">Stake each (USD)
+          <input type="number" name="stake" step="1" min="1" placeholder="50" required>
+        </label>
+      </div>
+      <div class="ef-row">
+        <div class="field" style="flex:1 1 100%">Who’s in it <span class="muted">(pick one or more — you’re already in)</span>
+          <div class="sb-people">
+            <% for (const o of owners) { if (o.id === owner.id) continue; %>
+              <label class="sb-person">
+                <input type="checkbox" name="party" value="<%= o.id %>"> <%= o.name %>
+              </label>
+            <% } %>
+          </div>
+        </div>
+      </div>
+      <div class="ef-row" style="justify-content:flex-end">
+        <div class="fit"><button class="btn gold" type="submit">Propose It</button></div>
+      </div>
+      <p class="muted" style="margin:.2rem 0 0; font-size:.76rem">
+        Proposing counts as your acceptance. It isn’t a bet until everyone named agrees.
+      </p>
+    </form>
+  </div>
+</details>
+
+<% function betCard(b, kind) { %>
+  <div class="sb-row <%= kind %><%= inIt(b) ? ' mine' : '' %>">
+    <div class="sb-main">
+      <div class="sb-terms"><%= b.terms %></div>
+      <div class="sb-meta">
+        <b><%= money(b.stake) %></b> each ·
+        <%= b.parties.map(p => betNames(p.owner_id) + (b.winner_ids.includes(p.owner_id) ? ' 🏆' : '')).join(' vs ') %>
+        <% if (b.status === 'proposed') { %> · <span class="sb-wait">waiting on <%= waiting(b).join(', ') %></span><% } %>
+        <% if (b.status === 'settled') { %> · won by <b><%= b.winner_ids.map(betNames).join(', ') %></b><% } %>
+      </div>
+    </div>
+    <div class="sb-actions">
+      <% if (b.status === 'locked' && (inIt(b) || owner.is_commissioner)) { %>
+        <form class="asis sb-settle" method="post" action="/sidebets/<%= b.id %>/settle">
+          <select name="winner" required>
+            <option value="">Who won?</option>
+            <% for (const p of b.parties) { %><option value="<%= p.owner_id %>"><%= betNames(p.owner_id) %></option><% } %>
+          </select>
+          <button class="btn small gold" type="submit">Settle</button>
+        </form>
+      <% } %>
+      <% if (b.status === 'settled' && (inIt(b) || owner.is_commissioner)) { %>
+        <form class="asis" method="post" action="/sidebets/<%= b.id %>/reopen">
+          <button class="btn small ghost" title="Undo the result">↺</button>
+        </form>
+      <% } %>
+      <% if (b.status === 'proposed' && b.proposer_id === owner.id) { %>
+        <form class="asis" method="post" action="/sidebets/<%= b.id %>/delete">
+          <button class="btn small ghost" title="Withdraw">✕</button>
+        </form>
+      <% } %>
+    </div>
+  </div>
+<% } %>
+
+<% if (live.length) { %>
+<div class="card" style="margin-bottom:1.2rem">
+  <h2>🔥 On the Books <span class="sub"><%= live.length %> live — money riding</span></h2>
+  <div class="body"><% for (const b of live) { betCard(b, 'live'); } %></div>
+</div>
+<% } %>
+
+<% if (proposed.length) { %>
+<div class="card" style="margin-bottom:1.2rem">
+  <h2>⏳ Proposed <span class="sub">not a bet until everyone agrees</span></h2>
+  <div class="body"><% for (const b of proposed) { betCard(b, 'proposed'); } %></div>
+</div>
+<% } %>
+
+<div class="card" style="margin-bottom:1.2rem">
+  <h2>📊 Side-Bet Standings <span class="sub">settled bets only — never league money</span></h2>
+  <div class="body tight scroll-x">
+    <table class="roll ledger">
+      <thead><tr><th>Owner</th><th class="num">W–L</th><th class="num">Won</th><th class="num">Lost</th><th class="num">Net</th></tr></thead>
+      <tbody>
+        <% for (const o of owners) { const x = tallies[o.id]; if (!x) continue; %>
+          <tr class="<%= o.id === owner.id ? 'is-viewing' : '' %>">
+            <td><b><%= o.name %><%= o.id === owner.id ? ' (you)' : '' %></b></td>
+            <td class="num"><%= x.wins %>–<%= x.losses %></td>
+            <td class="num pos"><%= x.won ? money(x.won) : '·' %></td>
+            <td class="num neg"><%= x.lost ? money(x.lost) : '·' %></td>
+            <td class="num run <%= x.net > 0 ? 'pos' : x.net < 0 ? 'neg' : '' %>">
+              <%= x.net === 0 ? '—' : (x.net > 0 ? '+' : '−') + money(Math.abs(x.net)) %></td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<% if (done.length || dead.length) { %>
+<details class="card entry-card">
+  <summary>📜 Settled &amp; declined <span class="sub"><%= done.length %> settled, <%= dead.length %> never happened</span></summary>
+  <div class="body">
+    <% for (const b of done) { betCard(b, 'settled'); } %>
+    <% for (const b of dead) { %>
+      <div class="sb-row declined">
+        <div class="sb-main">
+          <div class="sb-terms"><%= b.terms %></div>
+          <div class="sb-meta">declined — <%= b.parties.map(p => betNames(p.owner_id)).join(' vs ') %></div>
+        </div>
+      </div>
+    <% } %>
+  </div>
+</details>
+<% } %>
+
+<%# The handshake warning. Accepting is the whole mechanism, so it gets said. %>
+<dialog id="handshake" class="claim-dialog">
+  <h3>🤝 Accept this bet?</h3>
+  <p class="cd-lede" id="hs-terms"></p>
+  <table class="roll"><tbody>
+    <tr><td>Stake</td><td><b id="hs-stake"></b> each</td></tr>
+    <tr><td>Against</td><td id="hs-with"></td></tr>
+  </tbody></table>
+  <p class="cd-warn">
+    This is a <b>gentlemen’s agreement</b> — as good as a handshake. The site keeps
+    score, it does not hold the money and it will not chase anyone for it. Accept
+    only if you are good for it.
+  </p>
+  <div class="cd-actions">
+    <button class="btn navy" id="hs-cancel" type="button">Back</button>
+    <button class="btn gold" id="hs-confirm" type="button">I’m good for it — accept</button>
+  </div>
+</dialog>
+
+<script>
+(function () {
+  var dlg = document.getElementById('handshake');
+  if (!dlg) return;
+  var pending = null;
+  document.querySelectorAll('form[data-handshake]').forEach(function (f) {
+    f.addEventListener('submit', function (ev) {
+      ev.preventDefault();
+      pending = f;
+      document.getElementById('hs-terms').textContent = f.getAttribute('data-handshake');
+      document.getElementById('hs-stake').textContent = f.getAttribute('data-stake');
+      document.getElementById('hs-with').textContent = f.getAttribute('data-with');
+      if (typeof dlg.showModal === 'function') dlg.showModal();
+      else if (confirm('Accepting is a gentlemen’s agreement — as good as a handshake. Accept?')) f.submit();
+    });
+  });
+  document.getElementById('hs-cancel').addEventListener('click', function () { dlg.close(); pending = null; });
+  document.getElementById('hs-confirm').addEventListener('click', function () {
+    if (pending) { dlg.close(); var f = pending; pending = null; f.removeAttribute('data-handshake'); f.submit(); }
+  });
+})();
+</script>

@@ -18,6 +18,20 @@
 %>
 
 <h1 class="page-title" id="top">💰 League Finances</h1>
+
+<nav class="section-tabs">
+  <a href="/bank" class="<%= section === 'money' ? 'active' : '' %>">
+    <b>🏦 League Money</b><span>buy-ins, prizes, who owes what</span>
+  </a>
+  <a href="/bank?section=sidebets" class="<%= section === 'sidebets' ? 'active' : '' %>">
+    <b>🤝 Side Bets</b><span>between members — separate books</span>
+  </a>
+</nav>
+
+<% if (section === 'sidebets') { %>
+  <%- include('partials/_side_bets') %>
+<% } else { %>
+
 <p class="page-sub">Every dollar in and out, in <b>USD</b>. Balances roll over season to
 season until settled.</p>
 
@@ -172,5 +186,7 @@ season until settled.</p>
   Buy-ins, weekly wins and awards land here automatically.
   <% if (isCommish) { %><a href="/admin/ledger.csv">⬇️ Download the whole register (CSV)</a><% } %>
 </p>
+
+<% } %>
 
 <%- include('partials/footer') %>
