@@ -24,7 +24,7 @@
     RUN_MIN: 0.6,             // clamp: a cold position can't go below this
     RUN_MAX: 1.8,             // clamp: a hot position can't exceed this
     RUN_BANNER_AT: 1.4,       // multiplier that earns a "RUN DETECTED" banner
-    BENCH_DISCOUNT: 0.35,     // a bench upgrade is worth this much of a starter one
+    BENCH_DISCOUNT: 0.35,     // 12-team default; formatDefaults() overrides it
     SURVIVOR_CUTOFF: 0.005,   // stop the VONA product once mass is negligible
     TIE_THRESHOLD: 2.0,       // composite points within which we call it a tie
 
@@ -320,6 +320,78 @@
     return { scored, forced: null, warning: null };
   }
 
+  /**
+   * Format-derived defaults (Part 3 §7).
+   *
+   * The composite's constants were reasoned for a 12-team league. Ten teams
+   * with three keepers is a different game, and several defaults are simply
+   * wrong for it — but hand-setting new ones would break again the moment the
+   * league changes shape, so they are DERIVED from team count and keeper count.
+   *
+   * The driver is how much talent actually leaves the pool before the draft
+   * and how deep the draft goes. With 10 teams x 3 keepers only 30 players are
+   * gone, so replacement level sits high and the waiver wire stays stocked all
+   * season. Two consequences follow, and both are real strategy changes:
+   *
+   *   Bench depth is worth much less. A bench player you are stashing is
+   *   competing against a waiver wire that keeps producing startable options,
+   *   so the 0.35 discount is too generous — nearer 0.20 in this format.
+   *   Handcuffs are close to worthless for the same reason.
+   *
+   *   VORP spreads compress, so VONA matters more relative to VORP. Positional
+   *   scarcity is weaker everywhere except genuinely elite TE and QB.
+   *
+   * (The FAAB consequence in the source spec does not apply — this league runs
+   * waiver priority, confirmed by zero bid amounts across 1,091 historical
+   * transactions.)
+   */
+  function formatDefaults(league) {
+    const teams = (league && league.teams) || 12;
+    const keepers = ((league && league.keeper_rules) || {}).count || 0;
+    const starters = (league && league.starters) || {};
+    const startersPerTeam = Object.keys(starters)
+      .reduce((n, k) => n + (starters[k] || 0), 0) || 9;
+
+    // Two independent forces, and it matters that they are separated. An
+    // earlier version divided (teams x keepers) by (teams x starters), which
+    // cancels the team count entirely — a 14-team league scored identically to
+    // a 10-team one. The test caught it.
+    //
+    //   scarcity  — more teams competing for the same NFL player pool means a
+    //               thinner wire and a bench that is worth more
+    //   relief    — keepers shorten the draft, so more talent goes undrafted
+    //               and the wire stays richer, making the bench worth less
+    const scarcity = teams / 12;                                  // 1.0 at the baseline
+    const relief = keepers / Math.max(1, startersPerTeam);          // 0 at redraft
+    const benchDiscount = Math.max(0.15, Math.min(0.45,
+      0.35 * scarcity - 0.35 * relief));
+    const lockedAway = teams * keepers;
+
+    return {
+      teams, keepers, startersPerTeam,
+      locked_away: lockedAway,
+      scarcity: Number(scarcity.toFixed(3)),
+      keeper_relief: Number(relief.toFixed(3)),
+      BENCH_DISCOUNT: Number(benchDiscount.toFixed(3)),
+      // Streaming is worth more when a startable option is always available, so
+      // the positions you can stream get pushed later.
+      STREAMABLE_LATE: teams <= 10 ? ['QB', 'TE', 'K', 'DEF'] : ['K', 'DEF'],
+      why: teams <= 10
+        ? teams + ' teams and ' + keepers + ' keepers: only ' + lockedAway
+          + ' players leave the pool, so replacement level is high, the wire stays '
+          + 'stocked, and bench depth is worth ' + Math.round(benchDiscount * 100)
+          + '% of a starter upgrade rather than 35%.'
+        : teams + '-team league: defaults unchanged.',
+    };
+  }
+
+  /** Apply format-derived defaults to the live config. Idempotent. */
+  function applyFormatDefaults(league) {
+    const f = formatDefaults(league);
+    CFG.BENCH_DISCOUNT = f.BENCH_DISCOUNT;
+    return f;
+  }
+
   function recommend(ctx) {
     const all = ctx.board.map(p => scorePlayer(p, ctx));
     all.sort((a, b) => b.score - a.score);
@@ -403,6 +475,7 @@
     expectedBestAvailable, vona,
     tierCliffUrgency, starterSlotMarginal, riskAdjustment, upsideBonus,
     scorePlayer, recommend, mandatoryGaps, applyRosterLegality, plausibilityRails,
+    formatDefaults, applyFormatDefaults,
     // A2/A3 surfaces, re-exported so callers need only one handle.
     survivalModel: S, compositeTerms: C,
     keeperOptionValue: C.keeperOptionValue, byeCollisionPenalty: C.byeCollisionPenalty,

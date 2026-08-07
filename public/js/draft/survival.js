@@ -18,6 +18,11 @@
   'use strict';
 
   const CFG = {
+    DRIFT_MIN_PICKS: 15,        // no correction until the room has shown itself
+    DRIFT_DAMPING: 0.6,         // nudge the model, never replace it
+    DRIFT_MAX_OFFSET: 12,       // picks
+    DRIFT_MAX_SD_SCALE: 1.6,
+    DRIFT_EXPECTED_MAD: 8.0,    // MAD a well-calibrated source produces anyway
     ADP_SD_FLOOR: 3.0,          // nobody is unsure about pick 1
     ADP_SD_RATE: 0.22,          // uncertainty grows with ADP
     NEAR_HORIZON: 24,           // picks over which Layer 2 is fully trusted
@@ -77,9 +82,72 @@
   }
   const adpOf = p => p.adjusted_adp || p.raw_adp || 9999;
 
+  // ================================== Global ADP drift (Part 6 §6) ==========
+  //
+  // Layer 3 detects POSITIONAL runs. It cannot see that this entire room drafts
+  // differently from the ADP source — which a keeper league with a re-fitted
+  // ADP is exactly where you would expect. If every pick lands six slots ahead
+  // of ADP, every survival curve is optimistic and nothing in the model says so.
+  //
+  // Two separable signals:
+  //   signed  — the room is systematically early or late  -> recentre
+  //   absolute— the room is simply less predictable        -> widen sd
+  //
+  // Both damped, both requiring a real sample first. A room is allowed to look
+  // unusual for ten picks without the model rewriting itself.
+  function adpDrift(observed) {
+    const rows = (observed || []).filter(
+      o => o && o.pick_no != null && o.adp != null && o.adp < 9999);
+    const n = rows.length;
+    if (n < CFG.DRIFT_MIN_PICKS) {
+      return { n, applied: false, offset: 0, sdScale: 1, message: null };
+    }
+    let sumSigned = 0, sumAbs = 0;
+    rows.forEach(o => {
+      const d = o.pick_no - o.adp;
+      sumSigned += d;
+      sumAbs += Math.abs(d);
+    });
+    const meanSigned = sumSigned / n;
+    const mad = sumAbs / n;
+
+    // Damp toward zero, and cap: drift correction should nudge the model, never
+    // replace it.
+    const offset = Math.max(-CFG.DRIFT_MAX_OFFSET, Math.min(CFG.DRIFT_MAX_OFFSET,
+      meanSigned * CFG.DRIFT_DAMPING));
+    // A perfectly calibrated source still produces MAD ≈ 0.8 × sd. Anything
+    // beyond that is this room being genuinely noisier than the source implies.
+    const expectedMad = CFG.DRIFT_EXPECTED_MAD;
+    const sdScale = Math.max(1, Math.min(CFG.DRIFT_MAX_SD_SCALE,
+      1 + ((mad / expectedMad) - 1) * CFG.DRIFT_DAMPING));
+
+    let message = null;
+    if (Math.abs(offset) >= 1.5) {
+      message = 'This room is drafting ' + Math.abs(Math.round(meanSigned))
+        + ' picks ' + (meanSigned < 0 ? 'ahead of' : 'behind') + ' ADP on average'
+        + ' — survival estimates recentred.';
+    }
+    if (sdScale > 1.15) {
+      message = (message ? message + ' ' : '')
+        + 'Picks are ' + ((sdScale - 1) * 100).toFixed(0) + '% less predictable than '
+        + 'the ADP source implies — survival curves widened.';
+    }
+    return { n, applied: true, offset, sdScale, meanSigned, mad, message };
+  }
+
+  /** ADP for survival maths, recentred by observed room drift. */
+  function effectiveAdp(p, ctx) {
+    const d = ctx && ctx.drift;
+    return adpOf(p) + (d && d.applied ? d.offset : 0);
+  }
+  function effectiveSd(p, ctx) {
+    const d = ctx && ctx.drift;
+    return adpSd(adpOf(p), p.adp_sd) * (d && d.applied ? d.sdScale : 1);
+  }
+
   // =============================================== Layer 1 — ADP baseline
-  function layer1Taken(player, pick) {
-    return normalCdf(pick, adpOf(player), adpSd(adpOf(player), player.adp_sd));
+  function layer1Taken(player, pick, ctx) {
+    return normalCdf(pick, effectiveAdp(player, ctx), effectiveSd(player, ctx));
   }
 
   /**
@@ -91,10 +159,10 @@
    * different quantities and miscalibrates every survival number the tool
    * produces. Bayes:  P(taken by n | survived to c) = (F(n) - F(c)) / (1 - F(c))
    */
-  function layer1TakenGivenAvailable(player, pick, currentPick) {
-    const fN = layer1Taken(player, pick);
+  function layer1TakenGivenAvailable(player, pick, currentPick, ctx) {
+    const fN = layer1Taken(player, pick, ctx);
     if (currentPick == null || currentPick <= 0) return fN;
-    const fC = layer1Taken(player, currentPick);
+    const fC = layer1Taken(player, currentPick, ctx);
     if (fC >= 0.999) return 1;           // he should already be gone; treat as gone
     return Math.max(0, Math.min(1, (fN - fC) / (1 - fC)));
   }
@@ -466,8 +534,8 @@
     // Both layers must answer the same question: "given he is available now,
     // is he still there at targetPick?"
     const t1 = ctx.currentPick != null
-      ? layer1TakenGivenAvailable(player, targetPick, ctx.currentPick)
-      : layer1Taken(player, targetPick);
+      ? layer1TakenGivenAvailable(player, targetPick, ctx.currentPick, ctx)
+      : layer1Taken(player, targetPick, ctx);
 
     let taken = t1;
     let layers = ['adp'];
@@ -503,7 +571,7 @@
     return p;
   }
 
-  const api = { expectedBestByPos,
+  const api = { expectedBestByPos, adpDrift, effectiveAdp, effectiveSd,
     CFG, URGENCY, urgency,
     normalCdf, adpSd,
     layer1Taken, layer1TakenGivenAvailable, layer2Taken, precomputeLayer2,

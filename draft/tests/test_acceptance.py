@@ -275,3 +275,70 @@ def test_slot_change_survives_keeper_forfeits():
         expected = K.build_true_pick_order(cfg_s, keeps).my_picks
         derived = [p["overall"] for p in order.picks if p["team_slot"] == slot]
         assert derived == expected, f"slot {slot} mismatch"
+
+
+# --- Per-player variance / UpsideBonus (audit P1.7) -------------------------
+# The audit asked for a test that "should currently FAIL — that's the point":
+# within a position, UpsideBonus ordering must differ from proj_mean ordering.
+# Against the real board it did fail: Spearman was exactly 1.0000 at every
+# position, with (ceiling - mean) / mean a literal constant.
+
+import projections as PJ  # noqa: E402
+
+
+def _mk(pid, pos, proj, **kw):
+    return dict({"player_id": pid, "position": pos, "proj_mean": proj,
+                 "years_exp": 4, "age": 25}, **kw)
+
+
+def test_bellcow_and_committee_backs_do_not_share_a_ceiling():
+    bell = _mk("a", "RB", 200)
+    comm = _mk("b", "RB", 200)
+    v_bell, why_bell = PJ.player_variance(bell, {"opportunity_share": 0.28})
+    v_comm, why_comm = PJ.player_variance(comm, {"opportunity_share": 0.04})
+    assert v_bell < v_comm, "a bell-cow must be less volatile than a committee back"
+    assert why_bell and why_comm, "each modifier explains itself"
+
+
+def test_rookies_and_backups_carry_more_variance():
+    starter = _mk("a", "WR", 150, years_exp=5, depth_chart_order=1)
+    rookie = _mk("b", "WR", 150, years_exp=0, depth_chart_order=1)
+    backup = _mk("c", "WR", 150, years_exp=5, depth_chart_order=3)
+    base, _ = PJ.player_variance(starter, {})
+    assert PJ.player_variance(rookie, {})[0] > base
+    assert PJ.player_variance(backup, {})[0] > base
+
+
+def test_variance_multiplier_is_clamped():
+    worst = _mk("x", "RB", 100, years_exp=0, depth_chart_order=4,
+                injury_status="Questionable", age=33)
+    v, _ = PJ.player_variance(worst, {"opportunity_share": 0.01})
+    assert v <= PJ.POSITION_VARIANCE["RB"] * PJ.VAR_MULT_MAX + 1e-9
+    best = _mk("y", "RB", 100, years_exp=6, depth_chart_order=1, age=24)
+    v2, _ = PJ.player_variance(best, {"opportunity_share": 0.35})
+    assert v2 >= PJ.POSITION_VARIANCE["RB"] * PJ.VAR_MULT_MIN - 1e-9
+
+
+def test_upside_ordering_now_differs_from_projection_ordering():
+    """THE test from the audit. Before the fix this could not pass by
+    construction: ceiling - mean was mean x constant within a position."""
+    cfg = {"opportunity_cap": 0.15}
+    players = [
+        _mk("bell", "RB", 210, years_exp=5, depth_chart_order=1),
+        _mk("comm", "RB", 205, years_exp=0, depth_chart_order=2),
+        _mk("mid", "RB", 200, years_exp=4, depth_chart_order=1),
+    ]
+    baseline = {p["player_id"]: p["proj_mean"] for p in players}
+    metrics = {"bell": {"opportunity_share": 0.30},
+               "comm": {"opportunity_share": 0.03},
+               "mid": {"opportunity_share": 0.15}}
+    PJ.blend(players, baseline, metrics, cfg)
+
+    by_mean = [p["player_id"] for p in sorted(players, key=lambda x: -x["proj_mean"])]
+    by_upside = [p["player_id"] for p in
+                 sorted(players, key=lambda x: -(x["proj_ceiling"] - x["proj_mean"]))]
+    assert by_mean != by_upside, (
+        f"UpsideBonus still just re-ranks proj_mean: {by_mean} == {by_upside}")
+    # And specifically: the committee rookie outranks the bell-cow on ceiling
+    # despite a lower projection, which is the whole point of the term.
+    assert by_upside.index("comm") < by_upside.index("bell")

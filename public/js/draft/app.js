@@ -56,6 +56,10 @@
         // someone else's turns. Recompute instead.
         applySlot(data);
         state.profiles = indexProfilesBySlot(data);
+        // Format-derived defaults before anything is scored: bench depth is
+        // worth much less in a 10-team, 3-keeper league than the 12-team
+        // constants assumed, and that changes the whole back half of the draft.
+        state.format = E.applyFormatDefaults(data.league);
         state.board = data.players.slice();
         renderAll();
         wireControls();
@@ -158,6 +162,7 @@
       league: state.data.league,
       weights: state.weights,
       runMultipliers: state.runMults,
+      drift: state.drift || null,
       // A2 Layer 2
       intervening: next ? interveningPicks(cur, next) : [],
       roundsLeft: Math.max(0, Math.ceil((totalPicks - cur) / teams)),
@@ -419,6 +424,24 @@
       '<b class="' + (x.s > 0.6 ? 'pos' : x.s < 0.25 ? 'neg' : '') + '">' + Math.round(x.s * 100) + '%</b></div>').join('');
   }
 
+  /* Global ADP drift: does this whole room draft ahead of the source? */
+  function updateDrift() {
+    const seen = (state.recentPicks || []).filter(p => p && p.player && p.pick_no);
+    state.drift = E.survivalModel.adpDrift(seen.map(p => ({
+      pick_no: p.pick_no,
+      adp: p.player.adjusted_adp || p.player.raw_adp,
+    })));
+    const host = $('#drift-note');
+    if (!host) return;
+    if (state.drift && state.drift.message) {
+      host.style.display = '';
+      host.className = 'prov-note warn';
+      host.innerHTML = '<b>\ud83d\udcd0</b> <span>' + escapeHtml(state.drift.message) + '</span>';
+    } else {
+      host.style.display = 'none';
+    }
+  }
+
   function renderRuns() {
     const runs = E.detectRuns(state.runMults);
     const el = $('#run-banner');
@@ -451,7 +474,8 @@
     if (!p) return;
     state.drafted.add(String(playerId));
     state.board = state.board.filter(x => String(x.player_id) !== String(playerId));
-    state.recentPicks.push({ position: p.position, player_id: playerId });
+    state.recentPicks.push({ position: p.position, player_id: playerId,
+                             pick_no: state.recentPicks.length + 1, player: p });
     const slot = toMe ? state.data.league.my_draft_slot : teamSlot;
     if (slot) (state.rosters[slot] = state.rosters[slot] || []).push(p);
     if (toMe) state.myRoster.push(p);
@@ -461,6 +485,7 @@
 
   function recomputeRuns() {
     state.runMults = E.runMultipliers(state.recentPicks, state.data.players, currentPick());
+    updateDrift();
   }
 
   function onSyncPicks(picks) {
@@ -473,7 +498,9 @@
       state.drafted.add(id);
       state.board = state.board.filter(x => String(x.player_id) !== id);
       if (p) {
-        state.recentPicks.push({ position: p.position, player_id: id });
+        state.recentPicks.push({ position: p.position, player_id: id,
+                                 pick_no: pick.pick_no || (state.recentPicks.length + 1),
+                                 player: p });
         const slot = pick.draft_slot || pick.roster_id;
         if (slot) (state.rosters[slot] = state.rosters[slot] || []).push(p);
         if (pick.roster_id && mySlot && Number(pick.roster_id) === Number(mySlot)) state.myRoster.push(p);

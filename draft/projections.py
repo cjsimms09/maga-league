@@ -22,6 +22,83 @@ CEILING_Z = 1.036  # 85th percentile
 # Expected games. Positional durability priors from historical games-missed.
 EXPECTED_GAMES = {"QB": 15.5, "RB": 14.2, "WR": 15.0, "TE": 14.8, "K": 16.5, "DEF": 17.0}
 
+# --- per-player variance (audit P1.7) ---------------------------------------
+#
+# POSITION_VARIANCE alone is a FLAT constant within a position, which made
+# season_sd = mean x const and therefore ceiling - mean = mean x const x 1.036.
+# UpsideBonus was, by construction, a fixed multiple of proj_mean — Spearman
+# 1.0000 against proj_mean at every position on the real board, with the ratio
+# a literal constant. It was not measuring upside; it was re-weighting the
+# projection signal already inside VONA, and the x1.6 late-draft multiplier
+# amplified the duplicate.
+#
+# These modifiers spread it out using data the pipeline already pulls. A
+# committee back and a bell-cow with equal projections should not have equal
+# ceilings — the committee back is the one with a real chance of a season far
+# from his mean, in both directions.
+VAR_MULT_MIN, VAR_MULT_MAX = 0.70, 1.45
+
+# Workload concentration. A high share of his team's opportunity means the role
+# is secure and the outcome is closer to the projection.
+VAR_WORKLOAD_BELLCOW = -0.18      # top-of-role usage
+VAR_WORKLOAD_COMMITTEE = 0.14     # thin or split usage
+VAR_WORKLOAD_HIGH = 0.20          # share above this counts as a bell-cow
+VAR_WORKLOAD_LOW = 0.08           # share below this counts as a committee piece
+
+VAR_BACKUP = 0.16                 # not the starter on the depth chart
+VAR_ROOKIE = 0.22                 # no NFL usage history at all
+VAR_SECOND_YEAR = 0.10
+VAR_INJURED = 0.12                # carrying a designation right now
+VAR_AGE_CLIFF = 0.06              # past positional peak
+PEAK_AGE = {"QB": 30, "RB": 26, "WR": 27, "TE": 28, "K": 32, "DEF": 27}
+
+
+def player_variance(p: dict, metrics: dict | None = None) -> tuple[float, list[str]]:
+    """Season-level volatility for one player, as a fraction of his mean.
+
+    Returns (variance, reasons) — the reasons ride into the artifact so the
+    Why? panel can say *why* a ceiling is high, rather than just asserting it.
+    """
+    pos = p.get("position") or "WR"
+    base = POSITION_VARIANCE.get(pos, 0.30)
+    m = metrics or {}
+    mult, why = 1.0, []
+
+    if pos in ("RB", "WR", "TE"):
+        share = max(float(m.get("opportunity_share") or 0.0),
+                    float(m.get("target_share") or 0.0))
+        if share >= VAR_WORKLOAD_HIGH:
+            mult += VAR_WORKLOAD_BELLCOW
+            why.append(f"bell-cow usage ({share:.0%} of team opportunity)")
+        elif 0 < share < VAR_WORKLOAD_LOW:
+            mult += VAR_WORKLOAD_COMMITTEE
+            why.append(f"committee usage ({share:.0%})")
+
+    order = p.get("depth_chart_order")
+    if order is not None and order != "" and int(order or 1) >= 2:
+        mult += VAR_BACKUP
+        why.append("behind on the depth chart")
+
+    exp = p.get("years_exp")
+    if exp == 0:
+        mult += VAR_ROOKIE
+        why.append("rookie, no usage history")
+    elif exp == 1:
+        mult += VAR_SECOND_YEAR
+        why.append("second year")
+
+    if p.get("injury_status"):
+        mult += VAR_INJURED
+        why.append(f"carrying {p['injury_status']}")
+
+    age, peak = p.get("age"), PEAK_AGE.get(pos, 27)
+    if age and age > peak:
+        mult += VAR_AGE_CLIFF
+        why.append(f"age {int(age)}, past the {pos} peak")
+
+    mult = max(VAR_MULT_MIN, min(VAR_MULT_MAX, mult))
+    return base * mult, why
+
 
 def baseline_from_projections(raw: dict, scoring: dict) -> dict[str, float]:
     """Convert provider stat-line projections into our league's points."""
@@ -148,12 +225,11 @@ def blend(players: list[dict], baseline: dict[str, float], metrics: dict[str, di
         adj = max(-cap, min(cap, (z.get(pid, 0.0) / 2.0) * cap))
         mean_proj = base * (1 + adj)
 
-        var = POSITION_VARIANCE.get(p["position"], 0.30)
+        var, var_why = player_variance(p, metrics.get(pid) if metrics else None)
         games = EXPECTED_GAMES.get(p["position"], 15.0)
-        # POSITION_VARIANCE is already calibrated at the season level (it folds
-        # in both weekly scoring swings and games-missed risk), so season sd is
-        # simply mean × positional volatility. Weekly sd, used by the Monte
-        # Carlo, is this scaled back down by sqrt(games).
+        # Season sd is mean × the player's own volatility. Keeping this
+        # per-player is what stops ceiling - mean collapsing into a constant
+        # multiple of the mean, which is what made UpsideBonus inert.
         season_sd = mean_proj * var
 
         p["proj_baseline"] = round(base, 2)
@@ -163,6 +239,8 @@ def blend(players: list[dict], baseline: dict[str, float], metrics: dict[str, di
         p["proj_floor"] = round(max(0.0, mean_proj + FLOOR_Z * season_sd), 2)
         p["proj_ceiling"] = round(mean_proj + CEILING_Z * season_sd, 2)
         p["proj_sd"] = round(season_sd, 2)
+        p["variance"] = round(var, 4)
+        p["variance_why"] = var_why
         p["weekly_sd"] = round(season_sd / (games ** 0.5), 2)
         p["games_expected"] = games
         m = metrics.get(pid, {})

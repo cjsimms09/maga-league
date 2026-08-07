@@ -325,5 +325,40 @@ check('weight sliders change the ranking', heavyCeiling[0].score !== scored[0].s
     (E.recommend(capped)[0].rails || []).some(f => /already hold/.test(f)));
 })();
 
+
+// --- Format-derived defaults (Part 3 §7) ------------------------------------
+(function formatTests() {
+  const ten = { teams: 10, keeper_rules: { count: 3 },
+                starters: { QB: 1, RB: 2, WR: 2, TE: 1, FLEX: 1, K: 1, DEF: 1 } };
+  const twelve = { teams: 12, keeper_rules: { count: 0 },
+                   starters: { QB: 1, RB: 2, WR: 2, TE: 1, FLEX: 1, K: 1, DEF: 1 } };
+
+  const f10 = E.formatDefaults(ten);
+  const f12 = E.formatDefaults(twelve);
+
+  check('a 10-team 3-keeper league discounts bench depth harder than 12-team redraft',
+    f10.BENCH_DISCOUNT < f12.BENCH_DISCOUNT,
+    `10-team=${f10.BENCH_DISCOUNT} 12-team=${f12.BENCH_DISCOUNT}`);
+  check('the 10-team bench discount lands near the 0.20 the audit calls for',
+    f10.BENCH_DISCOUNT >= 0.15 && f10.BENCH_DISCOUNT <= 0.24, f10.BENCH_DISCOUNT);
+  check('12-team redraft keeps the original default', f12.BENCH_DISCOUNT === 0.35, f12.BENCH_DISCOUNT);
+  check('shallow leagues mark QB and TE as streamable, deep ones do not',
+    f10.STREAMABLE_LATE.indexOf('QB') !== -1 && f12.STREAMABLE_LATE.indexOf('QB') === -1);
+  check('the format change explains itself', /replacement level is high/.test(f10.why), f10.why);
+
+  // Derived, not hand-set: expanding the league must move it back on its own.
+  const fourteen = E.formatDefaults({ teams: 14, keeper_rules: { count: 3 },
+                                      starters: ten.starters });
+  check('expanding the league raises the bench discount again without a code change',
+    fourteen.BENCH_DISCOUNT > f10.BENCH_DISCOUNT,
+    `14-team=${fourteen.BENCH_DISCOUNT} 10-team=${f10.BENCH_DISCOUNT}`);
+
+  const before = E.CFG.BENCH_DISCOUNT;
+  E.applyFormatDefaults(ten);
+  check('applying the defaults actually changes the live config',
+    E.CFG.BENCH_DISCOUNT === f10.BENCH_DISCOUNT, `${before} -> ${E.CFG.BENCH_DISCOUNT}`);
+  E.CFG.BENCH_DISCOUNT = before;
+})();
+
 console.log(`\n${pass}/${pass + fail} engine checks passed`);
 process.exit(fail ? 1 : 0);

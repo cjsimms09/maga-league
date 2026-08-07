@@ -237,5 +237,48 @@ check('the keeper weight changes late-round scoring',
     `mults=${JSON.stringify(S.detectRuns(mildMults))}`);
 }
 
+
+// ============ Global ADP drift detection (Part 6 §6) ============
+// Layer 3 sees positional runs. It cannot see that this whole room drafts
+// systematically ahead of the ADP source — which is exactly what a keeper
+// league with a re-fitted ADP looks like.
+{
+  const early = [];   // room taking players ~8 picks ahead of ADP
+  for (let i = 1; i <= 30; i++) early.push({ pick_no: i, adp: i + 8 });
+  const noisy = [];   // unbiased but wildly unpredictable
+  for (let i = 1; i <= 30; i++) noisy.push({ pick_no: i, adp: i + (i % 2 ? 25 : -25) });
+  const clean = [];   // a room that matches its ADP source
+  for (let i = 1; i <= 30; i++) clean.push({ pick_no: i, adp: i + (i % 2 ? 2 : -2) });
+
+  const short = early.slice(0, 8);
+  check('drift is not applied before the minimum sample',
+    S.adpDrift(short).applied === false, JSON.stringify(S.adpDrift(short)));
+
+  const d = S.adpDrift(early);
+  check('a room drafting ahead of ADP produces a negative recentring offset',
+    d.applied && d.offset < 0, JSON.stringify(d));
+  check('the offset is damped, not the raw deviation',
+    Math.abs(d.offset) < 8, `offset=${d.offset} raw=${d.meanSigned}`);
+  check('the drift is explained in words', /ahead of ADP/.test(d.message || ''), d.message);
+
+  const dn = S.adpDrift(noisy);
+  check('an unpredictable room widens the survival curves',
+    dn.sdScale > 1.1, `sdScale=${dn.sdScale}`);
+
+  const dc = S.adpDrift(clean);
+  check('a well-calibrated room is left alone',
+    Math.abs(dc.offset) < 1.5 && dc.sdScale <= 1.05 && !dc.message,
+    `offset=${dc.offset} sdScale=${dc.sdScale} msg=${dc.message}`);
+
+  // And it must actually move survival, not just report a number.
+  const guy = { player_id: 'z', position: 'RB', adjusted_adp: 60, adp_sd: 6, proj_mean: 200 };
+  const plain = S.survivalProbability(guy, 50, { currentPick: 30 });
+  const drifted = S.survivalProbability(guy, 50, { currentPick: 30, drift: d });
+  check('recentring changes survival, it is not merely cosmetic',
+    Math.abs(plain - drifted) > 0.01, `plain=${plain.toFixed(3)} drifted=${drifted.toFixed(3)}`);
+  check('a room drafting early makes players less likely to survive',
+    drifted < plain, `plain=${plain.toFixed(3)} drifted=${drifted.toFixed(3)}`);
+}
+
 console.log(`\n${pass}/${pass + fail} update checks passed`);
 process.exit(fail ? 1 : 0);
