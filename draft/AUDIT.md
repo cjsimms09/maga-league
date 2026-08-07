@@ -391,3 +391,51 @@ recorded which code had actually been loaded. The run predates both edits by
 roughly half an hour of wall clock, so the attribution is *probably* clean —
 but "probably" is not a provenance. A result you cannot attribute to a specific
 configuration is an anecdote.
+
+---
+
+## 13. Round 2: what the diagnostic actually showed, and one claim I overstated
+
+`draft/tournament/round2.js`, 100 sampled round-2 states, 400 iterations each.
+
+**The finding, in one line: greedy takes a QB in round 2 in 100 of 100 states.
+MCTS takes one in 0 of 100.** It takes RB (42) or WR (58) and defers the QB —
+to round 3, to round 5, and in one observed draft to round 10, the final pick.
+
+| hypothesis | result |
+|---|---|
+| A — candidate-set asymmetry at the root | **DEAD.** Greedy's pick was among the root's expanded children in 100 of 100. The search always held the option and declined it. |
+| B — exploration the points-V cannot cash | **THE MECHANISM.** MCTS's pick is never rank 1 by V: rank 3 in 32%, rank 4 in 44%. |
+| C — attribution leakage | **PARTIAL — and I overstated it.** |
+
+**The correction.** Commit 4b60e4e's message called C "CONFIRMED" and described
+the two arms as "of equal quality". The script's own stated criterion says
+otherwise: C would be live if the single-pick V delta were near zero while the
+tournament showed -17.5. It is not near zero. It is **-17.181**, which matches
+the tournament's -17.51 almost exactly. The round-2 pick genuinely costs ~17
+points of immediate lineup value at the moment it is made.
+
+What is true is weaker and more useful: that cost is **mostly, not wholly,
+recovered**. Final-roster V comes in at 1587/1592/1600 against greedy's
+1593/1595/1603 — a 3-to-6 point persistent gap. So the per-round figure
+overstates the end-of-draft effect by roughly four times, because the deferred
+QB's gain is booked in whatever later round takes it. Path-dependence in the
+per-round attribution is real; "it nets out entirely" was wrong.
+
+**Not turn mechanics.** The deficit is uniform across seats, -13.60 to -20.02,
+and seat 10 is the *least* affected. Nothing here lives at the snake boundary.
+
+**What it means.** The search is making a deliberate bet — take the 3rd or 4th
+best player by immediate V, on the expectation that the QB position holds. With
+a variance-blind points-V, that bet has almost nothing to pay out from, because
+the value function cannot represent what a non-greedy line buys. It recovers
+about three quarters of the cost and loses the rest. That is precisely the
+predicted signature of the interim V, and it is the argument for a quantile
+value function being the next thing built rather than another search tweak.
+
+**Board caveat, and it is a large one.** On this fixture artifact QBs project
+330.8 against RB 207 and WR 210, with elite QBs at ADP 6-15 — a 120-point
+positional gap that makes QB timing *the* round-2 decision. That shape is
+unusual. Every number in this section may look different on the real artifact,
+and none of it should be read as a statement about draft day until it is
+re-run there.
