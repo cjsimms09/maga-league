@@ -1,0 +1,31 @@
+name: CI — tests and robot mock
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "20" }
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - name: Python deps
+        run: pip install pytest
+      - name: JS suites
+        run: |
+          set -e
+          for t in attribution backtest betlogic engine keeperlock keepers ledger \
+                   mcts reconcile strategies sync update; do
+            echo "== $t =="
+            node draft/tests/$t.test.js
+          done
+      - name: Robot mock draft — the safety net
+        # A full snake draft from every seat through the real engine and
+        # attribution modules, plus every bug this session as a regression
+        # scenario. Red here means the app is unsafe to ship unattended.
+        run: node draft/tests/robot-mock.js
+      - name: Python suites
+        run: python -m pytest draft/tests -q
