@@ -34,6 +34,10 @@
     // existed. Keeping the key so calibration is unchanged; see withinPrecision.
     WITHIN_POS_TEMP: 0.35,      // softmax PRECISION for "which player at this position"
     WITHIN_POS_CANDIDATES: 6,   // how deep to consider inside a position
+    // Probability assigned to a player OUTSIDE the candidate pool. Small, but
+    // never zero: zero makes Layer 2 assert survival of exactly 1.0, which is
+    // the model claiming certainty about a room that can draft anyone.
+    WITHIN_POS_TAIL_P: 0.01,
     DEFAULT_ALPHA_NEED: 1.0,    // league-average manager: need weight
     DEFAULT_BETA_VALUE: 1.0,    // league-average manager: value weight
     K_DST_FORCED_ROUNDS: 2,     // K/DST become forced picks in the final N rounds
@@ -462,7 +466,7 @@
       .slice(0, CFG.WITHIN_POS_CANDIDATES);
     if (!pool.length) return 0;
     const idx = pool.findIndex(p => String(p.player_id) === String(player.player_id));
-    if (idx === -1) return 0;
+    if (idx === -1) return CFG.WITHIN_POS_TAIL_P;   // see withinFromPool
 
     const temp = withinPrecision(team);
     const scores = pool.map(p => (p.vorp == null ? p.proj_mean || 0 : p.vorp));
@@ -591,7 +595,21 @@
     for (let i = 0; i < pool.length; i++) {
       if (String(pool[i].player_id) === String(player.player_id)) { idx = i; break; }
     }
-    if (idx === -1) return 0;   // already gone, or too deep to be the pick
+    if (idx === -1) {
+      // NOT ZERO. Zero here means "no simulated pick can ever take this man",
+      // and Layer 2 then reports survival of EXACTLY 1.0 — the model asserting
+      // certainty about a real room that can take anyone.
+      //
+      // Observed on the real board: the top 7 defences graded smoothly from
+      // 0.915 to 0.960 and every defence below them returned exactly 1.000000,
+      // a cliff at the candidate-pool boundary rather than anywhere in the
+      // data. The same boundary sits in the middle of every position, which is
+      // exactly the mid-round region VONA works in.
+      //
+      // A small floor is not a model of the tail — it is a refusal to claim
+      // certainty. Anyone outside the pool is unlikely to be taken, not unable.
+      return CFG.WITHIN_POS_TAIL_P;
+    }
     const temp = withinPrecision(team);
     let max = -Infinity;
     const scores = pool.map(p => {
@@ -730,11 +748,15 @@
         const cur = ctx.currentPick || 0;
         const picksAway = l2.windowEnd - cur;
         const w = layer2Weight(picksAway);
-        const t1Window = layer1TakenGivenAvailable(player, l2.windowEnd, cur);
+        // ctx was missing on this call and the one below, so effectiveAdp and
+        // effectiveSd fell back to raw ADP: the global drift correction and any
+        // provided sd were silently dropped inside the Layer-2 path — the exact
+        // path that runs whenever a draft is live.
+        const t1Window = layer1TakenGivenAvailable(player, l2.windowEnd, cur, ctx);
         const takenInWindow = w * l2.taken + (1 - w) * t1Window;
         const survivesWindow = 1 - takenInWindow;
         // Remainder: P(taken between windowEnd and targetPick | survived to windowEnd)
-        const takenAfter = layer1TakenGivenAvailable(player, targetPick, l2.windowEnd);
+        const takenAfter = layer1TakenGivenAvailable(player, targetPick, l2.windowEnd, ctx);
         taken = 1 - survivesWindow * (1 - takenAfter);
         layers = l2.windowEnd >= targetPick ? ['need'] : ['need→adp'];
       }

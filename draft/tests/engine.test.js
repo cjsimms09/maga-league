@@ -996,6 +996,70 @@ check('weight sliders change the ranking', heavyCeiling[0].score !== scored[0].s
 
 
 // ---------------------------------------------------------------------------
+// Layer 2 must never assert certainty (the candidate-pool cliff).
+// ---------------------------------------------------------------------------
+(function layer2CliffSuite() {
+  const S = E.survivalModel;
+  const L = { teams: 10, starters: { QB: 1, RB: 2, WR: 2, TE: 1, FLEX: 1, K: 1, DEF: 1 } };
+  // More players at a position than the candidate pool holds, so some are
+  // guaranteed to fall outside it.
+  const board = [];
+  for (let i = 0; i < 20; i++) {
+    board.push({ player_id: 'd' + i, name: 'DEF' + i, position: 'DEF',
+      adjusted_adp: 160 + i, raw_adp: 160 + i, proj_mean: 125 - i * 0.2,
+      vorp: 10 - i * 0.05, tier: 1, tier_drop: 1 });
+    board.push({ player_id: 'r' + i, name: 'RB' + i, position: 'RB',
+      adjusted_adp: 40 + i, raw_adp: 40 + i, proj_mean: 200 - i * 3,
+      vorp: 20 - i * 0.3, tier: 1 + Math.floor(i / 5), tier_drop: 4 });
+  }
+  const intervening = [];
+  for (let i = 0; i < 7; i++) {
+    intervening.push({ team_slot: 5 + i, pick_no: 37 + i, roster: [], profile: null });
+  }
+  const ctx = { board: board, league: L, runMultipliers: {}, currentPick: 37,
+                nextPick: 44, roundsLeft: 11, intervening: intervening };
+
+  check('the candidate pool is smaller than the position, so some players sit '
+    + 'outside it', S.CFG.WITHIN_POS_CANDIDATES < 20);
+
+  const defs = board.filter(p => p.position === 'DEF');
+  const svs = defs.map(p => S.survivalProbability(p, 44, ctx));
+  check('NO player gets survival of exactly 1.0 from Layer 2 — the model must '
+    + 'not claim a real room is incapable of taking someone',
+    svs.every(v => v < 1), JSON.stringify(svs.filter(v => v >= 1).length + ' at exactly 1.0'));
+  check('and every survival is still a probability',
+    svs.every(v => v >= 0 && v <= 1));
+  check('players outside the pool are still MORE likely to survive than those '
+    + 'inside it — the floor is small, not a flattening',
+    Math.min.apply(null, svs.slice(S.CFG.WITHIN_POS_CANDIDATES + 2))
+      > Math.max.apply(null, svs.slice(0, 3)),
+    JSON.stringify({ outside: svs.slice(-1)[0], inside: svs[0] }));
+  check('the tail floor is small enough to stay a floor, not a model',
+    S.CFG.WITHIN_POS_TAIL_P > 0 && S.CFG.WITHIN_POS_TAIL_P <= 0.05,
+    String(S.CFG.WITHIN_POS_TAIL_P));
+
+  // The dropped-ctx bug: layer1TakenGivenAvailable inside the Layer-2
+  // composition was called without ctx, so drift and any provided sd were
+  // silently ignored on the one path that runs during a live draft.
+  // Inside the near horizon Layer 2 carries full weight (w = 1), so Layer 1
+  // contributes nothing and the missing ctx could not show. The bug bites past
+  // NEAR_HORIZON, where the composition blends the two — which is exactly the
+  // "what is left at my pick three rounds from now" question.
+  const far = 37 + S.CFG.NEAR_HORIZON + 20;
+  check('past the near horizon Layer 1 carries real weight in the composition',
+    S.layer2Weight(S.CFG.NEAR_HORIZON + 20) < 0.9,
+    String(S.layer2Weight(S.CFG.NEAR_HORIZON + 20)));
+  const drifted = Object.assign({}, ctx, { drift: { applied: true, offset: -25, sdScale: 1 } });
+  const a = S.survivalProbability(defs[0], far, ctx);
+  const b = S.survivalProbability(defs[0], far, drifted);
+  check('a global ADP drift reaches the Layer-2 composition — it was silently '
+    + 'dropped because ctx was not passed to layer1TakenGivenAvailable',
+    Math.abs(a - b) > 1e-9,
+    'no drift ' + a.toFixed(6) + '  drifted ' + b.toFixed(6));
+})();
+
+
+// ---------------------------------------------------------------------------
 // KEEP THIS LAST. process.exit() below ends the run, so any suite appended
 // after it never executes and its checks vanish from the count without a
 // single failure to notice. Add new tests ABOVE this line.
