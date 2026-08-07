@@ -346,10 +346,14 @@ router.get('/bank', aw(async (req, res) => {
   const { verdicts, order: liveOrder } = await gradeBets(bets, world, owners, nameOf);
   // When each open bet stops being acceptable. Shown on every proposal so the
   // person deciding can see the clock, not just discover it when they're late.
+  const sBundle = await sleeper.bundle(world.config.sleeper_league_id);
+  const gateCtx = {
+    seasonStart: world.config.season_start,
+    playoffWeek: sBundle && sBundle.league && sBundle.league.settings
+      ? sBundle.league.settings.playoff_week_start : null,
+  };
   const deadlines = {};
-  for (const b of bets) {
-    deadlines[b.id] = BL.acceptDeadline(b, { seasonStart: world.config.season_start });
-  }
+  for (const b of bets) deadlines[b.id] = BL.acceptDeadline(b, gateCtx);
 
   res.render('bank', {
     cards, season, totalOwedToLeague, totalLeagueOwes, viewCard, leagueEntries,
@@ -525,7 +529,11 @@ router.post('/sidebets', aw(async (req, res) => {
 async function tooLate(bet, req) {
   if (!bet) return null;
   const world = req.world;
-  const gate = BL.acceptDeadline(bet, { seasonStart: world.config.season_start });
+  const sB = await sleeper.bundle(world.config.sleeper_league_id);
+  const gate = BL.acceptDeadline(bet, {
+    seasonStart: world.config.season_start,
+    playoffWeek: sB && sB.league && sB.league.settings ? sB.league.settings.playoff_week_start : null,
+  });
   if (!gate.open) return gate.reason;
   // Belt and braces for this week's games: points on the board mean football
   // has started even if the calendar says otherwise.
@@ -647,6 +655,12 @@ router.post('/profile/pay', aw(async (req, res) => {
 }));
 
 // ---------- buying out of a live bet ----------
+// Re-offer a proposal whose ten days ran out. Proposer only.
+router.post('/sidebets/:id/resend', aw(async (req, res) => {
+  await SB.resend(req.params.id, req.owner.id, req.owner.name);
+  res.redirect('/bank?section=sidebets');
+}));
+
 router.post('/sidebets/:id/buyout', aw(async (req, res) => {
   await SB.offerBuyout(req.params.id, req.owner.id, req.owner.name, {
     amount: req.body.amount,
@@ -677,9 +691,12 @@ router.post('/sidebets/:id/reopen', aw(async (req, res) => {
 router.post('/sidebets/:id/delete', aw(async (req, res) => {
   const bet = await SB.get(req.params.id);
   // Only the proposer (while nobody has accepted) or the commissioner.
-  const onlyProposerIn = bet && bet.parties.filter(x => x.accepted).length === 1;
+  // The proposer can pull an offer back any time it is still just an offer —
+  // that is what "rescind" means, and needing nobody to have accepted yet made
+  // it impossible to withdraw exactly the bets worth withdrawing.
+  const stillAnOffer = bet && [SB.STATUS.PROPOSED, SB.STATUS.OPEN].includes(bet.status);
   if (bet && (req.owner.is_commissioner
-      || (bet.proposer_id === req.owner.id && onlyProposerIn))) {
+      || (bet.proposer_id === req.owner.id && stillAnOffer))) {
     await SB.remove(req.params.id);
   }
   res.redirect('/bank?section=sidebets');

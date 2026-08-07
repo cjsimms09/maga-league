@@ -1561,3 +1561,7 @@ table .num.zero { color: var(--muted); font-weight: 400; }
   background: rgba(74, 222, 128, .08); border: 1px solid rgba(74, 222, 128, .35);
 }
 .buyout.live b { color: #86efac; }
+
+/* An offer that has run out of time. Muted rather than hidden — you need to see
+   it to decide whether to send it again. */
+.sb-dead { color: var(--red-bright, #ff6b7a); }

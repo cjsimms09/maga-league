@@ -93,10 +93,14 @@ const CFG = {
   // from it, so one date pins the whole calendar. Commissioner-overridable via
   // config.season_start.
   SEASON_START: '2026-09-10',
-  // A proposal with no event to hang a deadline on dies after this many days.
-  // Without it, a bet nobody answered sits around forever waiting to be
-  // accepted at the exact moment it stops being a fair price.
-  PROPOSAL_TTL_DAYS: 3,
+  // Every offer dies after this long, whatever it is about. A season-long bet
+  // is legitimately acceptable in October — but not because it has been sitting
+  // in a list since August and somebody just noticed it is now free money. If
+  // you still want the bet, send it again.
+  PROPOSAL_MAX_DAYS: 10,
+  // Where the fantasy playoffs start, when Sleeper has not told us. Week 15 in
+  // a 14-week regular season, which is this league's shape.
+  PLAYOFF_WEEK_DEFAULT: 15,
 };
 
 /**
@@ -153,6 +157,7 @@ function kickoffOf(week, seasonStart) {
  */
 function acceptDeadline(bet, ctx = {}, at = new Date()) {
   const start = ctx.seasonStart || CFG.SEASON_START;
+  const playoffWeek = Number(ctx.playoffWeek) || CFG.PLAYOFF_WEEK_DEFAULT;
   const weeks = (bet.conditions || [])
     .filter(c => c.when === 'week' && c.week).map(c => Number(c.week));
   if (bet.kind === 'matchup' && bet.week) weeks.push(Number(bet.week));
@@ -165,20 +170,32 @@ function acceptDeadline(bet, ctx = {}, at = new Date()) {
     why = `week ${wk} kicks off`;
   } else if (bet.format === 'pool'
       || (bet.conditions || []).some(c => c.when === 'season' || c.test === 'finishes')) {
-    deadline = kickoffOf(1, start);
-    why = 'the season starts';
-  } else if (bet.created_at) {
-    // No event to hang it on — a free-text bet settled by hand. It still gets a
-    // shelf life, because "I forgot about it" is how the sniping works.
-    deadline = new Date(new Date(bet.created_at).getTime() + CFG.PROPOSAL_TTL_DAYS * 86400000);
-    why = `it was offered more than ${CFG.PROPOSAL_TTL_DAYS} days ago`;
+    // Season-long bets stay open DURING the season — two people can perfectly
+    // well agree in October that one of them finishes higher. What kills it is
+    // the playoffs: by then the table has stopped being a question.
+    deadline = kickoffOf(playoffWeek, start);
+    why = `the playoffs start (week ${playoffWeek})`;
   }
 
-  if (!deadline) return { at: null, why: '', open: true, reason: '' };
+  // The ten-day rule, on top of whatever the bet is about. Whichever comes
+  // first wins. This is the one that stops an August offer being accepted in
+  // October by somebody who has since watched two months of football.
+  if (bet.created_at) {
+    const stale = new Date(new Date(bet.created_at).getTime() + CFG.PROPOSAL_MAX_DAYS * 86400000);
+    if (!deadline || stale < deadline) {
+      deadline = stale;
+      why = `it has been sitting there ${CFG.PROPOSAL_MAX_DAYS} days`;
+    }
+  }
+
+  if (!deadline) return { at: null, why: '', open: true, reason: '', stale: false };
   const open = at < deadline;
+  const stale = !open && /sitting there/.test(why);
   return {
-    at: deadline, why, open,
-    reason: open ? '' : `Too late — ${why}. This one had to be accepted before then.`,
+    at: deadline, why, open, stale,
+    reason: open ? ''
+      : stale ? `This offer expired — ${why} without an answer. Send it again if you still want it.`
+              : `Too late — ${why}. This one had to be accepted before then.`,
   };
 }
 

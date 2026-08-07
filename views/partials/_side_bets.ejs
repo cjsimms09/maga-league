@@ -5,6 +5,11 @@
     && (b.parties || []).some(p => p.owner_id === myId && !p.accepted);
   const waiting = b => (b.parties || []).filter(p => !p.accepted).map(p => betNames(p.owner_id));
   const pending = bets.filter(myTurn);
+  // Everything you've offered that nobody has answered yet. Its own section
+  // because "what did I send, and is it still live?" is a question the list of
+  // everyone's bets cannot answer.
+  const sent = bets.filter(b => b.proposer_id === myId
+    && ['proposed', 'open'].includes(b.status));
   const market  = bets.filter(b => b.status === 'open');
   const live    = bets.filter(b => b.status === 'locked');
   const proposed = bets.filter(b => b.status === 'proposed' && !myTurn(b));
@@ -147,6 +152,48 @@
           </form>
           <form class="asis" method="post" action="/sidebets/<%= b.id %>/decline">
             <button class="btn small ghost" type="submit">Decline</button>
+          </form>
+        </div>
+      </div>
+    <% } %>
+  </div>
+</div>
+<% } %>
+
+<%# ── Your outbox ─────────────────────────────────────────────────────────
+    Offers die after ten days. That is deliberate — an offer nobody answered in
+    a fortnight is not a live price any more, it is a trap waiting for whoever
+    remembers it first. Resending is one tap, and it is an explicit act so you
+    have to still mean it. %>
+<% if (sent.length) { %>
+<div class="card" style="margin-bottom:1.2rem">
+  <h2>📤 Bets You've Sent <span class="sub">waiting on an answer — pull them back any time</span></h2>
+  <div class="body">
+    <% for (const b of sent) { const dl = deadlines[b.id]; %>
+      <div class="sb-row <%= dl && !dl.open ? 'declined' : '' %>">
+        <div class="sb-main">
+          <div class="sb-terms"><%= b.terms %></div>
+          <div class="sb-meta">
+            <b><%= money(b.stake) %></b> each ·
+            <% if (b.status === 'open') { %>on the board, <%= b.open_slots %> taker<%= b.open_slots === 1 ? '' : 's' %> wanted
+            <% } else { %>waiting on <%= waiting(b).join(', ') %><% } %>
+            <% if (dl && dl.at) { %>
+              · <span class="<%= dl.open ? 'sb-wait' : 'sb-dead' %>">
+                <%= dl.open ? 'live until ' : 'expired ' %><%= new Date(dl.at).toLocaleString('en-US', { timeZone: 'America/New_York', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) %> ET
+              </span>
+            <% } %>
+          </div>
+          <% if (dl && !dl.open) { %><div class="sb-meta"><%= dl.reason %></div><% } %>
+        </div>
+        <div class="sb-actions">
+          <% if (dl && !dl.open && dl.stale) { %>
+            <form class="asis" method="post" action="/sidebets/<%= b.id %>/resend">
+              <button class="btn small gold" type="submit">Send again</button>
+            </form>
+          <% } %>
+          <form class="asis" method="post" action="/sidebets/<%= b.id %>/delete"
+                onsubmit="return confirm('Pull this bet back? Nobody will be able to accept it.')">
+            <button class="btn small ghost" type="submit">Rescind</button>
           </form>
         </div>
       </div>

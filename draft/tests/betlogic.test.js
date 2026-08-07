@@ -435,28 +435,51 @@ console.log('\n--- nobody can accept a bet after it has started ---');
   ok('and it says which event closed it', /week 4 kicks off/.test(late.reason), late.reason);
 }
 {
-  // A bet touching several weeks locks at the earliest of them.
-  const multi = { created_at: '2026-09-01T00:00:00Z', conditions: [
+  // A bet touching several weeks locks at the earliest of them. Offered close
+  // enough to kickoff that the ten-day rule is not the binding constraint.
+  const multi = { created_at: '2026-09-14T00:00:00Z', conditions: [
     cond({ test: 'outscores', subject_id: 1, target_id: 3, week: 9 }),
     cond({ test: 'outscores', subject_id: 1, target_id: 3, week: 2 }),
   ] };
+  ok('live the day before week 2',
+    B.acceptDeadline(multi, {}, new Date('2026-09-17T00:00:00Z')).open);
   const d = B.acceptDeadline(multi, {}, new Date('2026-09-20T00:00:00Z'));
-  ok('the earliest week is what closes it', !d.open && /week 2/.test(d.reason), d.reason);
+  ok('the earliest week is what closes it, not week 9', !d.open && /week 2/.test(d.reason), d.reason);
 }
 {
-  const pool = { format: 'pool', created_at: '2026-08-20T00:00:00Z' };
-  ok('a season pool is open in August', B.acceptDeadline(pool, {}, new Date('2026-08-25T00:00:00Z')).open);
-  const shut = B.acceptDeadline(pool, {}, new Date('2026-10-01T00:00:00Z'));
-  ok('but not once the season has started', !shut.open, shut.reason);
-  ok('and says so', /the season starts/.test(shut.reason), shut.reason);
+  // Season bets are perfectly good mid-season — two people can agree in October
+  // that one finishes above the other. It is the playoffs that end it.
+  const oct = { format: 'pool', created_at: '2026-10-15T00:00:00Z' };
+  ok('a pool offered in October is live', B.acceptDeadline(oct, {}, new Date('2026-10-18T00:00:00Z')).open);
+  const dec = { format: 'pool', created_at: '2026-12-20T00:00:00Z' };
+  const shut = B.acceptDeadline(dec, {}, new Date('2026-12-22T00:00:00Z'));
+  ok('but not once the playoffs are under way', !shut.open, shut.reason);
+  ok('and it names the playoff week', /playoffs start \(week 15\)/.test(shut.reason), shut.reason);
+  ok('the league can move that week', /week 14/.test(
+    B.acceptDeadline(dec, { playoffWeek: 14 }, new Date('2026-12-22T00:00:00Z')).reason));
 }
 {
-  // Free text has no event, so it gets a shelf life instead of living forever.
-  const free = { created_at: '2026-09-01T00:00:00Z' };
-  ok('a hand-settled bet is live for a few days',
-    B.acceptDeadline(free, {}, new Date('2026-09-02T00:00:00Z')).open);
-  const stale = B.acceptDeadline(free, {}, new Date('2026-09-06T00:00:00Z'));
-  ok('then expires rather than waiting to be sniped', !stale.open, stale.reason);
+  // The ten-day rule, on everything.
+  const aug = { format: 'pool', created_at: '2026-08-20T00:00:00Z' };
+  ok('an offer is live for the first ten days',
+    B.acceptDeadline(aug, {}, new Date('2026-08-28T00:00:00Z')).open);
+  const dead = B.acceptDeadline(aug, {}, new Date('2026-09-05T00:00:00Z'));
+  ok('and dead after them, even though the season has not started', !dead.open, dead.reason);
+  ok('flagged as stale rather than too late', dead.stale === true, JSON.stringify(dead));
+  ok('and it tells you to send it again', /Send it again/.test(dead.reason), dead.reason);
+}
+{
+  // Whichever comes first. A week-2 bet offered in July dies at ten days, not
+  // at kickoff; the same bet offered the day before dies at kickoff.
+  const early = { created_at: '2026-07-01T00:00:00Z',
+    conditions: [cond({ test: 'outscores', subject_id: 1, target_id: 3, week: 2 })] };
+  const d1 = B.acceptDeadline(early, {}, new Date('2026-07-20T00:00:00Z'));
+  ok('ten days beats a distant kickoff', !d1.open && d1.stale, d1.reason);
+  const late2 = { created_at: '2026-09-16T00:00:00Z',
+    conditions: [cond({ test: 'outscores', subject_id: 1, target_id: 3, week: 2 })] };
+  const d2 = B.acceptDeadline(late2, {}, new Date('2026-09-19T00:00:00Z'));
+  ok('a near kickoff beats ten days', !d2.open && !d2.stale, d2.reason);
+  ok('and says which one closed it', /week 2 kicks off/.test(d2.reason), d2.reason);
 }
 {
   eq('week 1 kickoff is the season opener',

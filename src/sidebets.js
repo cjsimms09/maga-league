@@ -612,6 +612,25 @@ function betsAbout(bets, owner_id, nameOf) {
   return out;
 }
 
+/**
+ * Send an expired offer again.
+ *
+ * The ten-day clock runs from `created_at`, so resending is literally resetting
+ * it — same terms, same people, fresh clock. Deliberately an explicit act by
+ * the person who offered it rather than an auto-renew: the whole point of the
+ * expiry is that a stale offer should need somebody to look at it again and
+ * decide they still mean it.
+ */
+async function resend(id, owner_id, by_name) {
+  const bet = await get(id);
+  if (!bet || bet.status !== STATUS.PROPOSED) return null;
+  if (Number(bet.proposer_id) !== Number(owner_id)) return null;
+  bet.created_at = now();
+  bet.audit.push({ at: now(), by: Number(owner_id), what: `${by_name || 'Someone'} sent it again` });
+  await store.set(KEY(bet.id), bet);
+  return bet;
+}
+
 /** Bets waiting on this person to say yes. Drives the nav badge and the email. */
 function awaiting(bets, owner_id) {
   return bets.filter(b => b.status === STATUS.PROPOSED
@@ -621,6 +640,6 @@ function awaiting(bets, owner_id) {
 module.exports = {
   STATUS, MAX_OPEN_SLOTS,
   all, get, propose, accept, take, decline, settle, reopen, remove,
-  setPosition, markLeg, isParty, offerBuyout, acceptBuyout, clearBuyout,
+  setPosition, markLeg, isParty, offerBuyout, acceptBuyout, clearBuyout, resend,
   tallies, ledgerFor, settlementsFor, awaiting, moneyOnTeams, betsAbout,
 };
