@@ -215,3 +215,31 @@ def test_unpriced_players_keep_their_relative_order(monkeypatch):
              {"player_id": "8888", "search_rank": 10}]
     adp.apply_with_fallback(board, table, teams=10)
     assert board[1]["adp"] < board[0]["adp"]
+
+
+def test_bye_fills_from_ffc_only_where_sleeper_left_a_hole():
+    """SPEC: the bye grid needs a bye week; Sleeper's preseason dump has none.
+
+    On the 2026-08-07 real build, metadata.bye_week was empty for 0 of 1737
+    players, so the bye grid and every bye-conflict warning computed over nulls
+    and silently found nothing. FFC publishes bye alongside ADP.
+
+    Sleeper stays the roster authority: where it HAS a value that value wins,
+    so this can never overwrite good data with a provider's guess.
+    """
+    players = [
+        {"player_id": "1", "search_rank": 5, "bye": None},   # hole -> fill from FFC
+        {"player_id": "2", "search_rank": 6, "bye": 9},      # Sleeper knows -> keep 9
+        {"player_id": "3", "search_rank": 7, "bye": None},   # no FFC row -> stays None
+    ]
+    table = {
+        "1": {"adp": 5.0, "adp_sd": 2.0, "adp_source": "ffc", "bye": 6},
+        "2": {"adp": 6.0, "adp_sd": 2.0, "adp_source": "ffc", "bye": 11},
+    }
+    adp.apply_with_fallback(players, table, teams=10, draft_picks=120)
+    by_id = {p["player_id"]: p for p in players}
+    assert by_id["1"]["bye"] == 6, "an empty bye must be filled from FFC"
+    assert by_id["1"]["bye_source"] == "ffc"
+    assert by_id["2"]["bye"] == 9, "Sleeper's bye must win over FFC's"
+    assert "bye_source" not in by_id["2"]
+    assert by_id["3"]["bye"] is None, "unknown must stay unknown, never guessed"

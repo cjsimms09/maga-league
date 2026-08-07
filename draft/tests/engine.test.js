@@ -1097,5 +1097,40 @@ check('weight sliders change the ranking', heavyCeiling[0].score !== scored[0].s
 // after it never executes and its checks vanish from the count without a
 // single failure to notice. Add new tests ABOVE this line.
 // ---------------------------------------------------------------------------
+// --- the ceiling term must not outweigh the value terms ---------------------
+// SPEC: CFG.RAIL_COMPONENT_RATIO = 1.0 states the contract the composite is
+// built on — no single component may exceed the player's own VORP. The ceiling
+// term violated it by up to 15x on the real 2026-08-07 board because it added
+// proj_ceiling minus proj_mean at face value, which is a VARIANCE spread (136
+// points for Gibbs) entering a sum denominated in points over replacement.
+// Nothing in this suite covered the magnitude, only the direction, which is why
+// it survived to be found by the plausibility rail on live data.
+{
+  const wide = { player_id: 'w', name: 'Wide', position: 'RB', team: 'XX', bye: 7,
+                 proj_mean: 200, proj_sd: 120, proj_ceiling: 340, vorp: 40,
+                 adjusted_adp: 20, raw_adp: 20, tier: 2, tier_drop: 5, overall_rank: 20 };
+  const narrow = Object.assign({}, wide, { player_id: 'n', name: 'Narrow',
+                 proj_sd: 10, proj_ceiling: 212 });
+  const c = pos => ({ board: [wide, narrow], currentPick: 100, nextPick: 110,
+                      totalPicks: 120, myPicksLeft: 3, roster: [],
+                      league: { teams: 10, starters: { QB: 1, RB: 2, WR: 2, TE: 1,
+                                                       FLEX: 1, K: 1, DEF: 1 } },
+                      weights: E.DEFAULT_WEIGHTS, runMultipliers: {}, intervening: [],
+                      roundsLeft: 3 });
+  const got = E.recommend(c()).find(x => x.player.player_id === 'w');
+  const ceilComp = Math.abs((got.components || {}).ceiling || 0);
+  check('the ceiling component is capped, so a wide projection cannot buy the pick',
+    ceilComp <= E.CFG.CEILING_MAX_BONUS + 1e-9,
+    ceilComp + ' > cap ' + E.CFG.CEILING_MAX_BONUS);
+  check('a 140-point upside spread does not enter the composite at face value',
+    ceilComp < 140 * 0.5, String(ceilComp));
+  check('but upside still beats no upside — the lottery ticket survives the cap',
+    Math.abs((E.recommend(c()).find(x => x.player.player_id === 'w').components || {}).ceiling || 0)
+      > Math.abs((E.recommend(c()).find(x => x.player.player_id === 'n').components || {}).ceiling || 0));
+  check('the ceiling constants are the ones documented in upsideBonus',
+    E.CFG.CEILING_SPREAD_SHARE === 0.15 && E.CFG.CEILING_MAX_BONUS === 20.0,
+    JSON.stringify([E.CFG.CEILING_SPREAD_SHARE, E.CFG.CEILING_MAX_BONUS]));
+}
+
 console.log(`\n${pass}/${pass + fail} engine checks passed`);
 process.exit(fail ? 1 : 0);

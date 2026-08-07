@@ -49,6 +49,11 @@
     // rather than a crash — which this codebase has now done three times.
     RAIL_ADP_AHEAD: 30,           // picks ahead of ADP before "verify this"
     RAIL_LATE_ROUNDS: 2,          // rounds left below which K/DST stops being odd
+    // Upside is worth paying for; it is not worth paying full price for. See
+    // upsideBonus — the raw ceiling-minus-mean spread is a variance measure and
+    // was entering a points-over-replacement sum at face value.
+    CEILING_SPREAD_SHARE: 0.15,   // fraction of theoretical upside treated as collectable
+    CEILING_MAX_BONUS: 20.0,      // hard cap, in the composite's own points
     RAIL_COMPONENT_RATIO: 1.0,    // a component larger than the player's own VORP
     RAIL_RUNAWAY_RATIO: 3.0,      // top score this many times the runner-up
     RAIL_DEFAULT_POS_CAP: { QB: 3, K: 2, DEF: 2, TE: 3 },
@@ -308,11 +313,39 @@
   }
 
   function upsideBonus(player, pickNumber, totalPicks, myPicksLeft) {
+    // UNIT MISMATCH — the bug this fixes.
+    //
+    // `raw` is proj_ceiling minus proj_mean, which is a SPREAD: it tracks
+    // proj_sd, not value over replacement. On the real board that is 136 points
+    // for Jahmyr Gibbs and 110 for McCaffrey. Every other term in the composite
+    // is denominated in points-over-replacement, where an elite player scores
+    // ~150 and a round-6 pick scores ~10. So the raw spread was entering the
+    // sum at elite-VORP magnitude for anyone with a wide projection, and the
+    // wider the uncertainty the bigger the bonus — variance was being paid for
+    // as though it were value.
+    //
+    // The plausibility rail caught it and was ignored: on the 2026-08-07 board
+    // it fired `ceiling is Nx this player's VORP` on 15 of the top 15, reaching
+    // 15.0x at pick 54. RAIL_COMPONENT_RATIO = 1.0 states the contract plainly
+    // — no single component may exceed the player's own VORP — so a term
+    // running 15x over it is not a tuning question.
+    //
+    // Two changes, both in named config:
+    //   CEILING_SPREAD_SHARE puts the spread on the composite's scale. Only a
+    //   fraction of theoretical upside is actually collectable, and paying the
+    //   whole spread assumes every boom outcome lands.
+    //   CEILING_MAX_BONUS is a hard ceiling on the ceiling. Whatever the
+    //   projection's variance, this term cannot outweigh the value terms.
+    //
+    // Deliberately NOT capped at the player's own VORP: a round-12 flier has a
+    // VORP near zero and upside is the entire reason to take him. Capping there
+    // would delete the lottery-ticket behaviour the next line exists to create.
     const raw = (player.proj_ceiling || player.proj_mean) - player.proj_mean;
     // Late picks should be lottery tickets, not safe floors.
     const lateness = totalPicks ? Math.min(1, pickNumber / totalPicks) : 0.5;
     const endgame = myPicksLeft != null && myPicksLeft <= 5 ? 1.6 : 1.0;
-    return raw * (0.3 + 0.7 * lateness) * endgame;
+    const scaled = raw * CFG.CEILING_SPREAD_SHARE * (0.3 + 0.7 * lateness) * endgame;
+    return Math.max(-CFG.CEILING_MAX_BONUS, Math.min(CFG.CEILING_MAX_BONUS, scaled));
   }
 
   /** The full composite, with a human-readable audit trail attached. */

@@ -329,6 +329,11 @@ def build_adp_table(sleeper_players: dict, *, fmt: str, teams: int, year: int,
         rows[pid] = {
             "adp": adp, "adp_sd": sd, "adp_sd_source": sd_src,
             "adp_source": "ffc", "match_method": method, "ffc_rank": rank,
+            # FFC publishes the bye week and Sleeper's metadata.bye_week is
+            # empty for every player in the preseason player dump. Carrying it
+            # here is the whole reason the bye grid has data; see
+            # apply_with_fallback for why it does not overwrite Sleeper's.
+            "bye": entry.get("bye"),
         }
 
     report = {
@@ -384,6 +389,21 @@ def apply_with_fallback(players: list, adp_table: dict, *, teams: int,
         row = adp_table.get(str(p.get("player_id")))
         if row:
             p.update({k: row[k] for k in ("adp", "adp_sd", "adp_source")})
+            # BYE WEEKS. Sleeper's /players/nfl dump carries metadata.bye_week,
+            # and in the preseason it is empty for ALL of them — 0 of 1737 on
+            # the 2026-08-07 build. So the bye grid and every bye-conflict
+            # warning were computing over nulls and silently finding nothing:
+            # three starters could share a bye and the tool would say so with
+            # a straight face.
+            #
+            # FFC publishes bye alongside ADP. Fill from it ONLY where Sleeper
+            # left a hole — Sleeper is the roster authority and wins whenever
+            # it actually has a value, so this cannot overwrite good data with
+            # a provider's guess. A player in neither source keeps bye=None,
+            # which the grid already renders as unknown rather than as "clear".
+            if p.get("bye") in (None, "", 0) and row.get("bye") not in (None, "", 0):
+                p["bye"] = int(row["bye"])
+                p["bye_source"] = "ffc"
             continue
         # Declared fallback: search_rank orders these players relative to each
         # other, which is all we ask of it. It does not get to set their price.
