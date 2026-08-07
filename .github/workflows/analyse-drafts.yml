@@ -170,13 +170,22 @@ jobs:
         run: |
           # Only this one file. The board, the history export and the league
           # config are built by other jobs and must not be touched here.
-          if git diff --quiet -- draft/config/manager_profiles.json; then
-            echo "profiles unchanged — nothing to commit"
-            exit 0
-          fi
+          #
+          # `git add` FIRST, then check the index.
+          #
+          # manager_profiles.json has never been tracked, and `git diff --quiet
+          # -- <untracked path>` reports no change — so the first run of this
+          # step said "profiles unchanged, nothing to commit" about a file that
+          # did not exist in the repo at all. Which meant the profiles were
+          # never committed, and the whole run-once cache in build.py could
+          # never fire, because a fresh CI checkout had nothing to reuse.
           git config user.name  "Claude"
           git config user.email "noreply@anthropic.com"
           git add draft/config/manager_profiles.json
+          if git diff --cached --quiet -- draft/config/manager_profiles.json; then
+            echo "profiles unchanged — nothing to commit"
+            exit 0
+          fi
           git commit -m "Re-analyse past drafts: refresh manager profiles
 
           Built from every completed draft in league history. A completed draft
