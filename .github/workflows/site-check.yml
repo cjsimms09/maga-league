@@ -163,6 +163,78 @@ jobs:
               except Exception:                            # noqa: BLE001
                   notes.append('could not compare the deployed slot against the repo config')
 
+          # ------------------------------------------------------------------
+          # IS THE BOARD BUILT FOR *OUR* LEAGUE?
+          #
+          # Everything downstream — VORP baselines, replacement level, the
+          # starter-need model, every projection — is computed from the scoring
+          # table and roster shape in league_config.json. If any of that drifts
+          # from what Sleeper actually says, the board is a confident, coherent,
+          # internally-consistent analysis of a league that does not exist. It
+          # would not warn, because nothing in the pipeline can tell.
+          #
+          # A commissioner changing half-PPR to full PPR in August is not a
+          # hypothetical. This is the only check that would catch it.
+          # ------------------------------------------------------------------
+          print('\n--- is the board built for OUR rules? ---')
+          try:
+              cfg = json.load(open('draft/config/league_config.json'))
+              lid = cfg.get('league_id')
+              req = urllib.request.Request(f'https://api.sleeper.app/v1/league/{lid}',
+                                           headers={'accept': 'application/json'})
+              with urllib.request.urlopen(req, timeout=20) as r:
+                  live = json.loads(r.read())
+              lsc, lset = live.get('scoring_settings') or {}, live.get('settings') or {}
+
+              drift = []
+              # Scoring: compare every key WE score by. A key Sleeper has that we
+              # ignore is a real miss too, but only for categories that can score.
+              for k, v in sorted((cfg.get('scoring') or {}).items()):
+                  got = lsc.get(k)
+                  if got is None:
+                      drift.append(f'scoring.{k}: we score it at {v}, Sleeper does not have it')
+                  elif abs(float(got) - float(v)) > 1e-9:
+                      drift.append(f'scoring.{k}: config {v}, Sleeper {got}')
+              ours = set(cfg.get('scoring') or {})
+              for k, v in sorted(lsc.items()):
+                  if k not in ours and isinstance(v, (int, float)) and abs(v) >= 0.5:
+                      drift.append(f'scoring.{k}: Sleeper scores it at {v}, we ignore it')
+
+              if int(cfg.get('teams') or 0) != int(live.get('total_rosters') or 0):
+                  drift.append(f'teams: config {cfg.get("teams")}, Sleeper {live.get("total_rosters")}')
+              for key, ours_v in (('playoff_week_start', cfg.get('playoff_week_start')),):
+                  got = lset.get(key)
+                  if got is not None and ours_v is not None and int(got) != int(ours_v):
+                      drift.append(f'{key}: config {ours_v}, Sleeper {got}')
+
+              # Roster shape. Sleeper gives roster_positions as a flat list.
+              rp = live.get('roster_positions') or []
+              live_slots = {}
+              for slot in rp:
+                  live_slots[slot] = live_slots.get(slot, 0) + 1
+              for slot, n in sorted((cfg.get('roster_slots') or {}).items()):
+                  got = live_slots.get(slot, 0)
+                  if got != n:
+                      drift.append(f'roster_slots.{slot}: config {n}, Sleeper {got}')
+              for slot, n in sorted(live_slots.items()):
+                  if slot not in (cfg.get('roster_slots') or {}):
+                      drift.append(f'roster_slots.{slot}: Sleeper has {n}, config has none')
+
+              print(f'      league          {live.get("name")} ({live.get("season")}, '
+                    f'{live.get("total_rosters")} teams, status {live.get("status")})')
+              print(f'      Sleeper roster  {" ".join(rp)}')
+              if drift:
+                  print(f'FAIL  {len(drift)} field(s) differ from the live league')
+                  for d_ in drift:
+                      print('        - ' + d_)
+                      problems.append('config drift — ' + d_)
+              else:
+                  print('OK    every scoring key, roster slot and team count matches Sleeper')
+          except Exception as e:                           # noqa: BLE001
+              # Loudly. "Could not check" must never read like "checked, fine".
+              problems.append(f'could not compare config against the live league: {type(e).__name__} {e}')
+              print(f'FAIL  could not reach Sleeper to compare: {type(e).__name__} {e}')
+
           print('\n' + '=' * 78)
           for n in notes:
               print('note: ' + n)

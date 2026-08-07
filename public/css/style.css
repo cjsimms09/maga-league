@@ -1661,6 +1661,38 @@ table .num.zero { color: var(--muted); font-weight: 400; }
 }
 .queue-actions { display: flex; flex-wrap: wrap; gap: .35rem; }
 
+/* ---------- war room: who picks before you ---------- */
+.threat-sub {
+  font-size: .68rem; text-transform: uppercase; letter-spacing: .06em;
+  color: #8f9ab3; margin-bottom: .3rem;
+}
+.threat-risk {
+  padding: .5rem .6rem; border-radius: 10px; margin-bottom: .7rem;
+  background: rgba(255,70,85,.07); border: 1px solid rgba(255,70,85,.22);
+}
+.risk-row { display: flex; align-items: baseline; gap: .45rem; padding: .16rem 0; font-size: .8rem; }
+.risk-pct {
+  flex: 0 0 2.4rem; text-align: right; font-variant-numeric: tabular-nums;
+  font-weight: 700; color: #e8b0b6;
+}
+.risk-pct.hot { color: var(--red-bright, #ff6b7a); }
+.risk-name { flex: 1 1 auto; display: flex; align-items: center; gap: .3rem; flex-wrap: wrap; }
+.risk-by { flex: 0 0 auto; font-size: .72rem; color: #a7b0c4; }
+.threat-row { padding: .45rem 0; border-top: 1px solid rgba(255,255,255,.07); }
+.threat-row:first-child { border-top: 0; }
+.threat-head { display: flex; align-items: center; gap: .4rem; flex-wrap: wrap; font-size: .84rem; }
+.threat-pick {
+  flex: 0 0 auto; font-size: .68rem; color: #8f9ab3; border: 1px solid var(--line);
+  border-radius: 6px; padding: .05rem .3rem; font-variant-numeric: tabular-nums;
+}
+.threat-pos { display: flex; align-items: center; gap: .2rem; font-size: .7rem; }
+.threat-names { display: flex; flex-wrap: wrap; gap: .3rem; margin: .25rem 0 .1rem; }
+.threat-name {
+  font-size: .74rem; padding: .1rem .35rem; border-radius: 6px;
+  background: rgba(255,255,255,.05); border: 1px solid var(--line);
+}
+.threat-tell { font-size: .73rem; color: #b9c2d4; margin-top: .12rem; }
+
 /* ---------- war room: the plan, the byes, the checklist ---------- */
 .plan-note {
   padding: .5rem .7rem; border-radius: 10px; margin-bottom: .7rem;
@@ -1739,3 +1771,13 @@ table .num.zero { color: var(--muted); font-weight: 400; }
 .tail-form .btn { flex: 0 0 auto; }
 /* A player the board never carried. Shown, but visibly not a projection. */
 .off-board { opacity: .75; font-style: italic; }
+
+/* ---------- war room: the adjusters ---------- */
+.preset-row { display: flex; flex-wrap: wrap; gap: .3rem; align-items: center; margin-bottom: .35rem; }
+.preset-custom {
+  font-size: .68rem; text-transform: uppercase; letter-spacing: .06em; color: #8f9ab3;
+}
+.preset-why { font-size: .74rem; color: #b9c2d4; margin: 0 0 .8rem; line-height: 1.4; }
+.slider-when { font-size: .71rem; color: #96a0b6; line-height: 1.35; }
+.slider-when b { color: #b9c2d4; font-weight: 600; }
+.weights-effect.changed { color: var(--gold-bright, #f5c445); }

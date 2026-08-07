@@ -60,10 +60,118 @@
     SHEET_BEST_DEPTH: 30,         // board order, for when the queue runs dry
     SHEET_POSITION_DEPTH: 12,     // per position — deep enough to show 2-3 tiers
     SHEET_POSITIONS: ['QB', 'RB', 'WR', 'TE', 'K', 'DEF'],
+
+    // --- reading the room (A1 surfaced) ---
+    // How much evidence earns a sentence about an opponent. Set high on purpose.
+    // A tool that says something confident about all nine of your league-mates
+    // is a tool saying nine things, most of them noise, and one wrong call at
+    // the table costs more trust than nine right ones earn. Under these
+    // thresholds it says nothing, which is usually correct.
+    TELL_TIMING_ROUNDS: 1.0,     // rounds off league average before it is a tendency
+    TELL_REACH_PICKS: 2.0,       // picks above/below market
+    TELL_BPA_GAP: 0.12,          // best-available rate vs league
+    TELL_HOMER_RATE: 0.20,       // share of picks from one NFL team
+    TELL_ROOKIE_RATIO: 1.5,      // times the league rookie rate
+    TELL_ROOKIE_FLOOR: 0.12,     // ...and at least this often, so 2% vs 1% is not a tell
+
+    // --- the threat board ---
+    THREAT_NAMES_PER_PICK: 3,    // names shown per intervening seat
+    THREAT_MIN_P: 0.01,          // below this a candidate is noise, not a threat
+    THREAT_AT_RISK_MIN: 0.25,    // chance of being gone before it is worth naming
+    THREAT_AT_RISK_SHOWN: 8,
+
+    // How deep to compare when reporting what a weight change did. Five is the
+    // length of the list on screen — reporting a change below the fold would be
+    // reporting a change you cannot see.
+    WEIGHT_DIFF_DEPTH: 5,
   };
 
   const DEFAULT_WEIGHTS = { tier: 1.0, need: 1.0, risk: 1.0, ceiling: 0.5,
     keeper: 1.0, bye: 1.0, stack: 1.0 };
+
+  /* Named strategies, as weight sets.
+   *
+   * Seven sliders is six too many to reason about on the clock, and a knob you
+   * do not know how to turn is a knob you never touch — which makes it worse
+   * than no knob, because it still looks like a decision you are declining to
+   * make. These are the four readings of a draft that actually differ, each
+   * expressed as the weights it implies, with the reason attached so it can be
+   * argued with rather than trusted.
+   *
+   * They are starting points. Every one of them is still a slider afterwards.
+   */
+  const WEIGHT_PRESETS = [
+    {
+      key: 'balanced', label: 'Balanced',
+      why: 'The defaults. Value and lineup need traded off evenly — right until '
+        + 'you have a reason it is not.',
+      weights: { tier: 1.0, need: 1.0, risk: 1.0, ceiling: 0.5, keeper: 1.0, bye: 1.0, stack: 1.0 },
+    },
+    {
+      key: 'value', label: 'Best available',
+      why: 'Take the best player and sort the lineup out later. Need barely '
+        + 'registers; tier cliffs and safety do the deciding. Strongest early, '
+        + 'dangerous after round 8 when the holes stop filling themselves.',
+      weights: { tier: 1.4, need: 0.35, risk: 1.1, ceiling: 0.5, keeper: 1.0, bye: 0.7, stack: 0.7 },
+    },
+    {
+      key: 'upside', label: 'Swing for it',
+      why: 'Ceiling over floor, cliffs over comfort. In a 10-team league the '
+        + 'median team makes the playoffs, so the payoff is in the tail — but '
+        + 'this WILL hand you a bust or two and you should expect it.',
+      weights: { tier: 1.2, need: 0.8, risk: 0.45, ceiling: 1.6, keeper: 1.3, bye: 0.8, stack: 1.3 },
+    },
+    {
+      key: 'safe', label: 'Win now, no holes',
+      why: 'Fill the lineup, avoid the bye-week landmines, take the boring '
+        + 'healthy one. Costs you upside and it is meant to. Sensible when your '
+        + 'three keepers already carry the team.',
+      weights: { tier: 0.9, need: 1.6, risk: 1.7, ceiling: 0.2, keeper: 0.5, bye: 1.6, stack: 0.8 },
+    },
+  ];
+
+  /* Which preset (if any) the current weights ARE.
+   *
+   * Exact match only. "Close to Balanced" is a claim that invites you to stop
+   * reading the sliders, which is the opposite of what they are for.
+   */
+  function matchPreset(weights) {
+    const keys = Object.keys(DEFAULT_WEIGHTS);
+    for (const p of WEIGHT_PRESETS) {
+      if (keys.every(k => Math.abs((weights[k] == null ? 1 : weights[k]) - p.weights[k]) < 1e-9)) return p.key;
+    }
+    return null;
+  }
+
+  /* What a weight change actually did to the top of the board.
+   *
+   * A slider whose effect you cannot see is a slider you are guessing with.
+   * Comparing two ranked lists of names is the only honest answer to "did that
+   * do anything" — and most of the time the answer is no, which is worth
+   * knowing before you spend a pick believing otherwise.
+   */
+  function rankDiff(before, after, depth) {
+    depth = depth || CFG.WEIGHT_DIFF_DEPTH;
+    const a = (before || []).slice(0, depth).map(s => s.player.name);
+    const b = (after || []).slice(0, depth).map(s => s.player.name);
+    if (!a.length || !b.length) return { changed: false, message: '' };
+    if (a[0] !== b[0]) {
+      return { changed: true, topChanged: true,
+        message: 'Now recommends ' + b[0] + ' over ' + a[0] + '.' };
+    }
+    const joined = b.filter(n => a.indexOf(n) === -1);
+    const dropped = a.filter(n => b.indexOf(n) === -1);
+    if (joined.length || dropped.length) {
+      return { changed: true, topChanged: false,
+        message: (joined.length ? joined.join(', ') + ' into the top ' + depth : '')
+          + (joined.length && dropped.length ? '; ' : '')
+          + (dropped.length ? dropped.join(', ') + ' out' : '') + '.' };
+    }
+    const moved = b.some((n, i) => a[i] !== n);
+    return { changed: moved, topChanged: false,
+      message: moved ? 'Reordered the top ' + depth + ', same names.'
+                     : 'No change to the top ' + depth + '.' };
+  }
 
   // Positional injury rates -> how much bye/injury insurance a bench body is worth.
   const INJURY_RATE = { QB: 0.14, RB: 0.28, WR: 0.20, TE: 0.22, K: 0.04, DEF: 0.02 };
@@ -632,6 +740,216 @@
   }
 
   /**
+   * What a manager's own draft history says about him, in English.
+   *
+   * The profiles have been feeding the survival model since A1 — alpha_need and
+   * beta_value shape every positional distribution, reach_delta widens the
+   * softmax for a reacher. All of that has been true and completely invisible.
+   * A number that moves a recommendation you cannot see is a number you cannot
+   * argue with, and the whole promise of this tool is "explain, don't just
+   * rank".
+   *
+   * Thresholds live in CFG because every one of them is a judgement call about
+   * how much evidence earns a sentence. Under them we say nothing, which is the
+   * right answer far more often than people building these expect.
+   *
+   * Everything here is already shrunk toward the league average by managers.py,
+   * so a single draft cannot produce a confident tell. `sample_size` is
+   * reported anyway — three drafts is three drafts, however it is phrased.
+   */
+  function managerTells(profile) {
+    if (!profile) return [];
+    const out = [];
+    const n = profile.sample_size || 0;
+
+    // Positional timing: the most useful single fact about an opponent. Negative
+    // vs_league means EARLIER than the league — managers.py measures mean round.
+    const timing = profile.positional_timing || {};
+    Object.keys(timing).forEach(pos => {
+      const t = timing[pos] || {};
+      const d = t.vs_league;
+      if (d == null || Math.abs(d) < CFG.TELL_TIMING_ROUNDS) return;
+      out.push({
+        kind: 'timing', position: pos,
+        weight: Math.abs(d),
+        text: d < 0
+          ? 'takes ' + pos + ' about ' + Math.abs(d).toFixed(1) + ' rounds earlier than the league'
+          : 'waits about ' + d.toFixed(1) + ' rounds longer than the league on ' + pos,
+        detail: 'his average ' + pos + ' comes off in round ' + (t.mean_round || 0).toFixed(1),
+      });
+    });
+
+    // Reaching. Proxy-flagged metrics say so, because a manager who drafted a
+    // player who later busted looks like a reacher purely in hindsight.
+    const rd = profile.reach_delta || {};
+    if (rd.mean != null && Math.abs(rd.mean) >= CFG.TELL_REACH_PICKS) {
+      out.push({
+        kind: 'reach', weight: Math.abs(rd.mean) / 2,
+        text: rd.mean > 0
+          ? 'reaches ' + rd.mean.toFixed(1) + ' picks above market on average'
+          : 'lets value come to him — ' + Math.abs(rd.mean).toFixed(1) + ' picks below market',
+        detail: rd.proxy ? 'measured against today\'s ranks, not the ADP of the day — treat as a hint'
+                         : 'measured against that season\'s real ADP',
+        proxy: !!rd.proxy,
+      });
+    }
+
+    // Best-available vs need.
+    const bpa = profile.bpa_vs_need || {};
+    if (bpa.bpa_rate != null && bpa.league_rate != null
+        && Math.abs(bpa.bpa_rate - bpa.league_rate) >= CFG.TELL_BPA_GAP) {
+      const hi = bpa.bpa_rate > bpa.league_rate;
+      out.push({
+        kind: 'bpa', weight: Math.abs(bpa.bpa_rate - bpa.league_rate) * 5,
+        text: hi ? 'drafts best-available and ignores his holes'
+                 : 'drafts for need — he fills slots before he takes value',
+        detail: Math.round(bpa.bpa_rate * 100) + '% best-available vs '
+          + Math.round(bpa.league_rate * 100) + '% league',
+        proxy: !!bpa.proxy,
+      });
+    }
+
+    // Homer. Cheap to compute, disproportionately useful — it is the one tell
+    // people will confirm out loud at the table.
+    const h = profile.homer_index || {};
+    if (h.team && h.rate != null && h.rate >= CFG.TELL_HOMER_RATE) {
+      out.push({
+        kind: 'homer', weight: h.rate * 3, team: h.team,
+        text: 'homer for ' + h.team + ' — ' + Math.round(h.rate * 100) + '% of his picks',
+        detail: 'expect him to take a ' + h.team + ' player above where you would',
+      });
+    }
+
+    // Rookies.
+    const r = profile.rookie_affinity || {};
+    if (r.rate != null && r.league_rate != null && r.rate >= r.league_rate * CFG.TELL_ROOKIE_RATIO
+        && r.rate >= CFG.TELL_ROOKIE_FLOOR) {
+      out.push({
+        kind: 'rookie', weight: (r.rate - r.league_rate) * 6,
+        text: 'chases rookies — ' + Math.round(r.rate * 100) + '% vs '
+          + Math.round(r.league_rate * 100) + '% league',
+      });
+    }
+
+    out.sort((a, b) => b.weight - a.weight);
+    out.forEach(t => { t.sample_size = n; });
+    return out;
+  }
+
+  /**
+   * Who picks before you do, what they need, and who they are likely to take.
+   *
+   * This is the question the whole survival model answers internally and has
+   * never once said out loud. Round 6, you want the TE, and the real decision is
+   * "do the four seats between me and my next pick take him". The tool knew. It
+   * expressed that knowledge as a single percentage attached to a player, with
+   * no way to see WHICH seat was the threat or WHY.
+   *
+   * Naming the seat is what makes it actionable, because you know these people.
+   * "62% gone" is a number to accept. "Richard takes a QB three rounds early and
+   * has no QB" is a number you can check against a man you have played fantasy
+   * football with for a decade — and disagree with, which is the point.
+   *
+   * Returns one row per intervening pick, in pick order, plus a roll-up of who
+   * on your board is most likely to be gone and who is most likely to take him.
+   */
+  function threatBoard(ctx, opts) {
+    opts = opts || {};
+    const namesPer = opts.namesPerPick || CFG.THREAT_NAMES_PER_PICK;
+    // No next pick means no window. `t.pick_no < ctx.nextPick` with a null
+    // nextPick would let the whole rest of the draft through and report the
+    // last pick of your draft as if forty seats were about to snipe you.
+    const intervening = ctx.nextPick ? (ctx.intervening || []).filter(t =>
+      t.pick_no >= (ctx.currentPick || 0) && t.pick_no < ctx.nextPick) : [];
+    if (!intervening.length || !ctx.board || !ctx.board.length) {
+      return { rows: [], atRisk: [], picksUntilNext: 0 };
+    }
+
+    // Availability at the time each seat picks, so seat four is not told that
+    // a player seat one is 80% likely to have taken is still sitting there.
+    const board = ctx.board;
+    const rows = [];
+    // P(still on the board) for each player, carried forward across the window.
+    const alive = {};
+    board.forEach(p => { alive[p.player_id] = 1; });
+
+    intervening.forEach(team => {
+      const posP = S.positionProbabilities(team, board, ctx);
+      const profile = team.profile || null;
+      const tells = managerTells(profile);
+
+      // The seat's whole distribution over players: P(position) × P(this man,
+      // given the position) × P(he is even still there).
+      const cand = [];
+      board.forEach(p => {
+        const pp = posP[p.position];
+        if (!pp) return;
+        const within = S.withinPositionProbability(p, board, team);
+        const p_take = pp * within * alive[p.player_id];
+        if (p_take > CFG.THREAT_MIN_P) cand.push({ player: p, p: p_take });
+      });
+      cand.sort((a, b) => b.p - a.p);
+
+      // One seat takes exactly one player, so its probabilities cannot sum past
+      // 1. Without this a confident seat reads as taking three men at once.
+      let mass = 0;
+      cand.forEach(c => { mass += c.p; });
+      if (mass > 1) cand.forEach(c => { c.p /= mass; });
+      cand.forEach(c => { alive[c.player.player_id] *= (1 - c.p); });
+
+      // The full distribution, not the top three. Truncating here would bake a
+      // rendering decision into the data, and a caller asking "how likely is he
+      // to take a QB" would silently get 0 for any position off the podium.
+      const positions = Object.keys(posP).map(k => ({ position: k, p: posP[k] }))
+        .sort((a, b) => b.p - a.p);
+
+      rows.push({
+        pick_no: team.pick_no,
+        team_slot: team.team_slot,
+        manager: (profile && (profile.name || profile.display_name)) || null,
+        sample_size: profile ? (profile.sample_size || 0) : 0,
+        roster_size: (team.roster || []).length,
+        positions: positions,
+        likely: cand.slice(0, namesPer).map(c => ({
+          player_id: c.player.player_id, name: c.player.name,
+          position: c.player.position, team: c.player.team || '',
+          p: Math.round(c.p * 100),
+        })),
+        tells: tells.slice(0, 2),
+      });
+    });
+
+    // Roll-up: who is most likely to be gone, and who takes him.
+    const risk = board.map(p => {
+      const gone = 1 - alive[p.player_id];
+      if (gone < CFG.THREAT_AT_RISK_MIN) return null;
+      let culprit = null, best = 0;
+      rows.forEach(r => {
+        const hit = r.likely.find(l => l.player_id === p.player_id);
+        if (hit && hit.p > best) { best = hit.p; culprit = r; }
+      });
+      return {
+        player_id: p.player_id, name: p.name, position: p.position,
+        vorp: p.vorp == null ? null : Number(p.vorp.toFixed(1)),
+        gone: Math.round(gone * 100),
+        // Null rather than a guess when no single seat stands out: "somebody
+        // will take him" is a different and weaker claim than naming a seat.
+        by: culprit ? (culprit.manager || 'seat ' + culprit.team_slot) : null,
+        by_pick: culprit ? culprit.pick_no : null,
+      };
+    }).filter(Boolean);
+    // Ordered by what it costs you, not by probability: a 95%-gone kicker is
+    // not news, and a 55%-gone RB1 is the entire decision.
+    risk.sort((a, b) => (b.gone / 100) * (b.vorp || 0) - (a.gone / 100) * (a.vorp || 0));
+
+    return {
+      rows: rows,
+      atRisk: risk.slice(0, CFG.THREAT_AT_RISK_SHOWN),
+      picksUntilNext: intervening.length,
+    };
+  }
+
+  /**
    * The sheet you take to the table when the tool is not available.
    *
    * Every other surface in here assumes a working phone, a charged battery and
@@ -890,7 +1208,8 @@
     tierCliffUrgency, starterSlotMarginal, riskAdjustment, upsideBonus,
     scorePlayer, recommend, mandatoryGaps, applyRosterLegality, plausibilityRails,
     confidence, branchForecast, applyPersonalLists, onTheClock, rosterPlan, byeGrid,
-    cheatSheet, sheetText,
+    cheatSheet, sheetText, managerTells, threatBoard,
+    WEIGHT_PRESETS, matchPreset, rankDiff,
     formatDefaults, applyFormatDefaults,
     // A2/A3 surfaces, re-exported so callers need only one handle.
     survivalModel: S, compositeTerms: C,

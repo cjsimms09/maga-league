@@ -694,6 +694,199 @@ check('weight sliders change the ranking', heavyCeiling[0].score !== scored[0].s
 
 
 // ---------------------------------------------------------------------------
+// Reading the room — manager tells, and who takes whom before your next pick.
+// ---------------------------------------------------------------------------
+(function threatSuite() {
+  const mk = (id, pos, adp, tier, proj) => ({
+    player_id: id, name: 'P' + id, position: pos, team: 'XX', bye: 7,
+    adjusted_adp: adp, raw_adp: adp, tier: tier, proj_mean: proj, proj_sd: 20,
+    vorp: proj / 10, tier_drop: 5, overall_rank: adp,
+  });
+  const board = [];
+  ['RB', 'WR', 'QB', 'TE'].forEach((pos, pi) => {
+    for (let i = 0; i < 6; i++) board.push(mk(pos + i, pos, 5 + pi * 4 + i * 3, 1 + i, 300 - pi * 20 - i * 12));
+  });
+  const league = { teams: 10, starters: { QB: 1, RB: 2, WR: 2, TE: 1, FLEX: 1, K: 1, DEF: 1 },
+    roster_slots: { QB: 1, RB: 2, WR: 2, TE: 1, FLEX: 1, K: 1, DEF: 1, BN: 6 } };
+  const seat = (slot, pick_no, profile, roster) => ({
+    team_slot: slot, pick_no: pick_no, roster: roster || [], profile: profile || null });
+  const ctx = (intervening, over) => Object.assign({
+    board: board, currentPick: 10, nextPick: 15, totalPicks: 130, myPicksLeft: 10,
+    roster: [], league: league, weights: E.DEFAULT_WEIGHTS, runMultipliers: {},
+    intervening: intervening, roundsLeft: 10, progress: 0.2,
+  }, over || {});
+
+  // --- tells -------------------------------------------------------------
+  check('a manager with no profile produces no tells', E.managerTells(null).length === 0);
+  check('a profile with nothing distinctive produces no tells',
+    E.managerTells({ sample_size: 3, positional_timing: { QB: { vs_league: 0.2, mean_round: 7 } },
+      reach_delta: { mean: 0.3 }, homer_index: { team: 'KC', rate: 0.08 },
+      rookie_affinity: { rate: 0.10, league_rate: 0.09 },
+      bpa_vs_need: { bpa_rate: 0.6, league_rate: 0.6 } }).length === 0,
+    JSON.stringify(E.managerTells({ sample_size: 3, reach_delta: { mean: 0.3 } })));
+
+  const early = E.managerTells({ sample_size: 3,
+    positional_timing: { QB: { vs_league: -3.2, mean_round: 4.2 } } });
+  check('taking a position early is reported as early, not late',
+    early.length === 1 && /QB about 3.2 rounds earlier/.test(early[0].text), JSON.stringify(early));
+  const late = E.managerTells({ sample_size: 3,
+    positional_timing: { TE: { vs_league: 2.4, mean_round: 11 } } });
+  check('waiting on a position is reported as waiting',
+    /waits about 2.4 rounds longer/.test(late[0].text), JSON.stringify(late));
+
+  const proxied = E.managerTells({ sample_size: 3, reach_delta: { mean: 4.0, proxy: true } });
+  check('a reach measured by proxy is marked as a proxy',
+    proxied[0].proxy === true && /hint/.test(proxied[0].detail), JSON.stringify(proxied));
+  check('a reach measured against real ADP is not marked as a proxy',
+    E.managerTells({ sample_size: 3, reach_delta: { mean: 4.0, proxy: false } })[0].proxy === false);
+  check('drafting below market reads as patience, not reaching',
+    /lets value come to him/.test(E.managerTells({ sample_size: 3,
+      reach_delta: { mean: -3.5 } })[0].text));
+
+  check('a homer above the threshold is called out by team',
+    /homer for KC/.test(E.managerTells({ sample_size: 3,
+      homer_index: { team: 'KC', rate: 0.31 } })[0].text));
+  check('a rookie rate that is high only in ratio terms is not a tell',
+    E.managerTells({ sample_size: 3, rookie_affinity: { rate: 0.03, league_rate: 0.01 } }).length === 0);
+  check('tells come back strongest first',
+    (function () {
+      const t = E.managerTells({ sample_size: 3,
+        positional_timing: { QB: { vs_league: -4.0, mean_round: 3 }, TE: { vs_league: -1.1, mean_round: 8 } } });
+      return t.length === 2 && t[0].position === 'QB';
+    })());
+  check('every tell carries the sample size it came from',
+    E.managerTells({ sample_size: 3, homer_index: { team: 'KC', rate: 0.31 } })[0].sample_size === 3);
+
+  // --- the threat board --------------------------------------------------
+  check('with nobody picking in between there is nothing to report',
+    E.threatBoard(ctx([])).rows.length === 0);
+  check('and it does not pretend otherwise',
+    E.threatBoard(ctx([])).atRisk.length === 0 && E.threatBoard(ctx([])).picksUntilNext === 0);
+
+  const seats = [seat(5, 11), seat(6, 12), seat(7, 13), seat(8, 14)];
+  const t = E.threatBoard(ctx(seats));
+  check('one row per intervening pick, in pick order',
+    t.rows.length === 4 && t.rows.map(r => r.pick_no).join(',') === '11,12,13,14',
+    JSON.stringify(t.rows.map(r => r.pick_no)));
+  check('picks outside the window are excluded',
+    E.threatBoard(ctx(seats.concat([seat(9, 40)]))).rows.length === 4);
+  check('a seat with no profile is labelled by slot, not left blank',
+    t.rows.every(r => r.manager === null && r.team_slot > 0));
+
+  // THE property that is easy to get wrong: one seat takes ONE player.
+  t.rows.forEach(r => {
+    const sum = r.likely.reduce((s, l) => s + l.p, 0);
+    check('pick ' + r.pick_no + ' does not claim to take more than one player ('
+      + sum + '%)', sum <= 101, JSON.stringify(r.likely));
+  });
+
+  check('each seat names its most likely position with a probability',
+    t.rows.every(r => r.positions.length && r.positions[0].p > 0
+      && r.positions[0].p <= 1));
+  check('positions come back most-likely first',
+    t.rows.every(r => r.positions.every((p, i) => i === 0 || r.positions[i - 1].p >= p.p)));
+
+  // Availability must decay across the window, or seat four is told a player
+  // seat one almost certainly took is still sitting there.
+  const topName = t.rows[0].likely[0].name;
+  const later = t.rows[3].likely.find(l => l.name === topName);
+  check('a player the first seat is likely to take is less likely to still be '
+    + 'there for the fourth', !later || later.p < t.rows[0].likely[0].p,
+    JSON.stringify({ first: t.rows[0].likely[0], fourth: later }));
+
+  check('at-risk players carry a chance and a named seat where one stands out',
+    t.atRisk.every(r => r.gone >= 25 && r.gone <= 100), JSON.stringify(t.atRisk.slice(0, 3)));
+  check('at-risk is ordered by what it costs you, not by raw probability',
+    t.atRisk.every((r, i) => i === 0
+      || (t.atRisk[i - 1].gone / 100) * (t.atRisk[i - 1].vorp || 0) >= (r.gone / 100) * (r.vorp || 0)),
+    JSON.stringify(t.atRisk.map(r => r.name + ' ' + r.gone + '% v' + r.vorp)));
+  check('nobody appears in at-risk twice',
+    new Set(t.atRisk.map(r => r.player_id)).size === t.atRisk.length);
+
+  // A profile actually has to change the answer, or none of this is worth
+  // rendering. The lever is alpha_need vs beta_value: a need-driven manager
+  // whose ONLY hole is QB should reach for the low-value QB that a
+  // value-driven manager in the same seat would pass on.
+  //
+  // (An earlier version of this test asserted that a high alpha_need raised QB
+  // for a manager with an EMPTY roster. It does the opposite, correctly: an
+  // empty roster's biggest need is the two-starter position, so need-weighting
+  // pushes him further toward RB. The profile was doing its job; the test was
+  // wrong about what the job is.)
+  const oneHole = [
+    { position: 'RB' }, { position: 'RB' }, { position: 'WR' },
+    { position: 'WR' }, { position: 'TE' },
+  ];
+  const pOf = (x, pos) => (x.rows[0].positions.find(p => p.position === pos) || { p: 0 }).p;
+  const needy = E.threatBoard(ctx([seat(5, 11,
+    { name: 'Richard', sample_size: 3, softmax: { alpha_need: 2.5, beta_value: 0.4 },
+      positional_timing: { QB: { vs_league: -3.2, mean_round: 4.2 } } }, oneHole)]));
+  const valuey = E.threatBoard(ctx([seat(5, 11,
+    { name: 'Sam', sample_size: 3, softmax: { alpha_need: 0.4, beta_value: 2.5 } }, oneHole)]));
+  check('with QB his only hole, the need-driven manager takes a QB more often '
+    + 'than the value-driven one', pOf(needy, 'QB') > pOf(valuey, 'QB'),
+    JSON.stringify({ needy: pOf(needy, 'QB'), valuey: pOf(valuey, 'QB') }));
+  check('and the value-driven manager keeps taking the best player instead',
+    pOf(valuey, 'RB') > pOf(needy, 'RB'),
+    JSON.stringify({ needy: pOf(needy, 'RB'), valuey: pOf(valuey, 'RB') }));
+  check('every seat\'s positional probabilities sum to 1',
+    needy.rows[0].positions.reduce((s, p) => s + p.p, 0) > 0.999
+      && needy.rows[0].positions.reduce((s, p) => s + p.p, 0) < 1.001);
+
+  // A reacher spreads his probability down the list rather than concentrating
+  // it on the best name — that is what makes him hard to predict. Tested on
+  // the raw probability rather than through the threat board, whose integer
+  // percentages round the whole effect away.
+  //
+  // This is the property that was inverted for the life of the file: the
+  // softmax constant is a PRECISION (it multiplies the score gap), and both
+  // call sites RAISED it for a reacher, modelling him as more predictable than
+  // average. Nothing failed because nothing tested it.
+  const S = E.survivalModel;
+  const rbPool = board.filter(p => p.position === 'RB');
+  const best = rbPool[0], fourth = rbPool[3];
+  const prof = mean => ({ profile: { reach_delta: { mean: mean } } });
+  const wp = (p, t) => S.withinPositionProbability(p, board, t);
+
+  check('a league-average manager is unchanged by the fix',
+    S.withinPrecision({ profile: {} }) === S.CFG.WITHIN_POS_TEMP
+      && S.withinPrecision(prof(0)) === S.CFG.WITHIN_POS_TEMP);
+  check('a reacher is modelled with LOWER precision than average',
+    S.withinPrecision(prof(10)) < S.CFG.WITHIN_POS_TEMP, String(S.withinPrecision(prof(10))));
+  check('a value drafter is modelled with HIGHER precision than average',
+    S.withinPrecision(prof(-10)) > S.CFG.WITHIN_POS_TEMP, String(S.withinPrecision(prof(-10))));
+  check('precision is clamped at both ends so an outlier profile cannot break it',
+    S.withinPrecision(prof(999)) >= 0.15 && S.withinPrecision(prof(-999)) <= 0.9);
+
+  check('a reacher is LESS likely than average to take the best man at a position',
+    wp(best, prof(12)) < wp(best, prof(0)),
+    JSON.stringify({ reacher: wp(best, prof(12)), avg: wp(best, prof(0)) }));
+  check('and MORE likely than average to take somebody further down',
+    wp(fourth, prof(12)) > wp(fourth, prof(0)),
+    JSON.stringify({ reacher: wp(fourth, prof(12)), avg: wp(fourth, prof(0)) }));
+  check('a value drafter concentrates on the best man instead',
+    wp(best, prof(-12)) > wp(best, prof(0)));
+  check('probabilities within a position still sum to 1 after the change',
+    (function () {
+      const tot = rbPool.slice(0, S.CFG.WITHIN_POS_CANDIDATES)
+        .reduce((s, p) => s + wp(p, prof(12)), 0);
+      return tot > 0.999 && tot < 1.001;
+    })());
+
+  check('a profiled manager is named rather than numbered',
+    needy.rows[0].manager === 'Richard');
+  check('and his tell rides along with the row',
+    needy.rows[0].tells.length === 1 && /QB/.test(needy.rows[0].tells[0].text));
+
+  // Degradation, not crashes.
+  check('an empty board produces an empty threat board rather than throwing',
+    E.threatBoard(ctx(seats, { board: [] })).rows.length === 0);
+  check('no next pick means no window and no invented threats',
+    E.threatBoard(ctx(seats, { nextPick: null })).rows.length === 0);
+})();
+
+
+// ---------------------------------------------------------------------------
 // KEEP THIS LAST. process.exit() below ends the run, so any suite appended
 // after it never executes and its checks vanish from the count without a
 // single failure to notice. Add new tests ABOVE this line.

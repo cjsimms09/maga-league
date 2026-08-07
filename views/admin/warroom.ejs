@@ -116,22 +116,60 @@
     </div>
 
     <div class="card">
-      <h2>Weights <span class="sub">tune live — saved on this device</span></h2>
+      <h2>🎛 Adjusters <span class="sub">how the board weighs things — saved on this device</span></h2>
       <div class="body">
+        <p class="muted" style="margin:0 0 .6rem; font-size:.78rem">
+          Every recommendation is a weighted sum of seven things. These are the
+          weights. <b>1.0 is normal, 0 turns it off, 3 makes it dominant.</b>
+          Pick a strategy below, or move one slider and watch what it does to
+          the top five — if nothing changes, that factor wasn't deciding
+          anything anyway.
+        </p>
+        <div class="preset-row" id="presets"></div>
+        <p class="preset-why" id="preset-why"></p>
         <% const sliders = [
-             ['tier', 'Tier cliff urgency', 'How hard to chase the last player in a tier'],
-             ['need', 'Starting-lineup need', 'How much an empty slot outranks bench depth'],
-             ['risk', 'Risk penalty', 'Age, injury, depth chart'],
-             ['ceiling', 'Upside bonus', 'Ceiling chasing, heavier late'],
-             ['keeper', 'Keeper option value', 'Late picks who become next year\'s cheap keeper'],
-             ['bye', 'Bye collision penalty', 'How much a stacked bye week costs you'],
-             ['stack', 'Correlation / stacking', 'QB with his own pass-catcher; target competition'] ]; %>
-        <% for (const [key, label, hint] of sliders) { %>
+             ['tier', 'Tier cliff urgency',
+              'How hard to chase the last good player at a position before the drop-off.',
+              'Raise it when a tier is about to empty and you would rather have the last one than the best one.'],
+             ['need', 'Starting-lineup need',
+              'How much an empty starting slot outranks another bench body.',
+              'Raise it late, when unfilled slots start costing you real points. Drop it in round 1 — everything is empty and it just shouts.'],
+             ['risk', 'Risk penalty',
+              'Age, injury history, a crowded depth chart.',
+              'Raise it if your keepers already carry the team and you only need this draft not to blow up. Drop it if you need a swing.'],
+             ['ceiling', 'Upside bonus',
+              'Rewards the wide range of outcomes over the safe median.',
+              'Raise it late, and raise it if you are chasing rather than protecting a lead. Default is 0.5 because most drafters overrate ceiling early.'],
+             ['keeper', 'Keeper option value',
+              'A late pick who becomes next year\'s cheap keeper is worth more than his projection.',
+              'Raise it once you are out of the running for this year, or in the last four rounds when the marginal starter is worthless anyway.'],
+             ['bye', 'Bye collision penalty',
+              'What it costs to stack your starters on the same bye week.',
+              'Raise it after round 8, when a real hole is a week you cannot field a lineup. It is noise before that — check the bye card.'],
+             ['stack', 'Correlation / stacking',
+              'Your QB with his own receiver; two receivers competing for the same targets.',
+              'Raise it if you like the correlated boom weeks. Drop it to 0 if you think stacking is overrated — plenty of people do.'] ]; %>
+        <% for (const [key, label, hint, when] of sliders) { %>
           <label class="field" style="margin-bottom:.1rem"><%= label %> — <span id="w-<%= key %>">1.0</span></label>
           <input class="weight-slider" type="range" min="0" max="3" step="0.1" value="1" data-weight="<%= key %>" style="width:100%">
-          <p class="muted" style="margin:.1rem 0 .5rem; font-size:.72rem"><%= hint %></p>
+          <p class="muted" style="margin:.1rem 0 .1rem; font-size:.72rem"><%= hint %></p>
+          <p class="slider-when" style="margin:0 0 .55rem"><b>When to move it:</b> <%= when %></p>
         <% } %>
         <button class="btn small navy" id="reset-weights">Reset to defaults</button>
+        <p class="muted" id="weights-effect" style="margin:.5rem 0 0; font-size:.76rem; min-height:1.1em"></p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🎯 Before your next pick <span class="sub" id="threats-head"></span></h2>
+      <div class="body">
+        <p class="muted" style="margin:0 0 .6rem; font-size:.78rem">
+          Every seat between you and your next turn, what they need, and who
+          they are likely to take — built from <b>their own draft history on
+          Sleeper</b>. This has been driving the survival percentages all along;
+          this is it saying so out loud, so you can disagree with it.
+        </p>
+        <div id="threats"></div>
       </div>
     </div>
 

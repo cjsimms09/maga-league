@@ -408,6 +408,7 @@
     renderRecommendations();
     renderLists();
     renderQueue();
+    renderThreats();
     renderBoard();
     renderRoster();
     renderPlan();
@@ -633,6 +634,112 @@
       + '<div class="list-row"><b>\u{1F6AB} Never</b>'
         + (a.length ? a.map(id => chip(id, 'avoid')).join('') : '<span class="muted">none yet</span>')
       + '</div>';
+  }
+
+  /* ── The adjusters ──────────────────────────────────────────────────────── */
+  function renderPresets() {
+    const host = $('#presets');
+    if (!host) return;
+    const current = E.matchPreset(state.weights);
+    host.innerHTML = E.WEIGHT_PRESETS.map(p =>
+      '<button class="btn small ' + (p.key === current ? 'gold' : 'ghost')
+      + '" data-preset="' + p.key + '">' + escapeHtml(p.label) + '</button>').join('')
+      // Custom is a state, not a button: you get there by moving a slider, and
+      // showing it as one you could press would be a lie about what it does.
+      + (current ? '' : '<span class="preset-custom">custom</span>');
+    const why = $('#preset-why');
+    if (why) {
+      const p = E.WEIGHT_PRESETS.find(x => x.key === current);
+      why.textContent = p ? p.why
+        : 'You have moved these off every preset. That is fine — the presets are '
+          + 'starting points, not settings.';
+    }
+  }
+
+  function applyPreset(key, prefix) {
+    const p = E.WEIGHT_PRESETS.find(x => x.key === key);
+    if (!p) return;
+    const before = state.lastClock ? state.lastClock.scored : null;
+    state.weights = Object.assign({}, p.weights);
+    $$('.weight-slider').forEach(sl => {
+      const v = state.weights[sl.dataset.weight];
+      sl.value = v;
+      $('#w-' + sl.dataset.weight).textContent = v.toFixed(1);
+    });
+    saveWeights();
+    renderRecommendations();
+    reportWeightEffect(before, prefix || (p.label + ' applied.'));
+    renderPresets();
+  }
+
+  function reportWeightEffect(before, prefix) {
+    const el = $('#weights-effect');
+    if (!el) return;
+    const after = state.lastClock ? state.lastClock.scored : null;
+    const d = E.rankDiff(before, after);
+    el.className = d.topChanged ? 'weights-effect changed' : 'muted weights-effect';
+    el.textContent = ((prefix ? prefix + ' ' : '') + (d.message || '')).trim();
+  }
+
+  /* ── Who picks before you, and what they are likely to do ───────────────── */
+  function renderThreats() {
+    const host = $('#threats');
+    if (!host) return;
+    const head = $('#threats-head');
+    const t = E.threatBoard(context());
+    if (!t.rows.length) {
+      if (head) head.textContent = '';
+      host.innerHTML = '<p class="muted" style="margin:0">You are on the clock, or this is '
+        + 'your last pick — nobody picks between now and your next turn.</p>';
+      return;
+    }
+    if (head) head.textContent = t.picksUntilNext + ' pick'
+      + (t.picksUntilNext === 1 ? '' : 's') + ' before your turn';
+
+    // At-risk first. It is the answer; the seat-by-seat breakdown is the
+    // working, and on the clock most people only ever read the answer.
+    let html = '';
+    if (t.atRisk.length) {
+      html += '<div class="threat-risk"><div class="threat-sub">Most likely to be gone</div>'
+        + t.atRisk.map(r =>
+          '<div class="risk-row">'
+          + '<span class="risk-pct' + (r.gone >= 70 ? ' hot' : '') + '">' + r.gone + '%</span>'
+          + '<span class="risk-name">' + escapeHtml(r.name)
+            + '<span class="rec-pos ' + r.position + '">' + r.position + '</span></span>'
+          + '<span class="risk-by">' + (r.by
+              ? 'likely ' + escapeHtml(r.by) + ' at ' + r.by_pick
+              : '<span class="muted">no single seat stands out</span>') + '</span>'
+          + '</div>').join('')
+        + '</div>';
+    }
+
+    html += t.rows.map(r => {
+      const who = r.manager ? escapeHtml(r.manager) : 'Seat ' + r.team_slot;
+      const pos = r.positions.slice(0, 3).map(p =>
+        '<span class="rec-pos ' + p.position + '">' + p.position + '</span>'
+        + '<span class="muted">' + Math.round(p.p * 100) + '%</span>').join(' ');
+      const names = r.likely.length
+        ? r.likely.map(l => '<span class="threat-name">' + escapeHtml(l.name)
+            + ' <span class="muted">' + l.p + '%</span></span>').join('')
+        : '<span class="muted">nothing stands out</span>';
+      // No history means no tell. Saying so is better than an empty space that
+      // reads as "this one is unpredictable".
+      const tells = r.tells.length
+        ? r.tells.map(x => '<div class="threat-tell">' + escapeHtml(x.text)
+            + (x.proxy ? ' <span class="muted" title="measured against today\'s ranks, '
+                + 'not the ADP of the day">(hint only)</span>' : '') + '</div>').join('')
+        : '<div class="threat-tell muted">' + (r.sample_size
+            ? 'nothing in ' + r.sample_size + ' draft' + (r.sample_size === 1 ? '' : 's')
+              + ' stands out — he drafts near league average'
+            : 'no draft history on Sleeper — modelled as league average') + '</div>';
+      return '<div class="threat-row">'
+        + '<div class="threat-head"><span class="threat-pick">' + r.pick_no + '</span>'
+        + '<b>' + who + '</b>' + '<span class="threat-pos">' + pos + '</span></div>'
+        + '<div class="threat-names">' + names + '</div>'
+        + tells
+        + '</div>';
+    }).join('');
+    host.innerHTML = html;
   }
 
   /* ── The queue, and the sheet you print from it ─────────────────────────── */
@@ -1786,20 +1893,25 @@
 
     $$('.weight-slider').forEach(sl => {
       sl.addEventListener('input', () => {
+        // Snapshot the list BEFORE the change so the effect can be reported.
+        // A slider whose effect you cannot see is a slider you are guessing
+        // with, and six of these seven do nothing at all most of the time.
+        const before = state.lastClock ? state.lastClock.scored : null;
         state.weights[sl.dataset.weight] = parseFloat(sl.value);
         $('#w-' + sl.dataset.weight).textContent = parseFloat(sl.value).toFixed(1);
         saveWeights();
         renderRecommendations();
+        reportWeightEffect(before);
+        renderPresets();
       });
     });
     $('#reset-weights').addEventListener('click', () => {
-      state.weights = Object.assign({}, E.DEFAULT_WEIGHTS);
-      $$('.weight-slider').forEach(sl => {
-        sl.value = state.weights[sl.dataset.weight];
-        $('#w-' + sl.dataset.weight).textContent = state.weights[sl.dataset.weight].toFixed(1);
-      });
-      saveWeights();
-      renderRecommendations();
+      applyPreset('balanced', 'Back to the defaults.');
+    });
+    renderPresets();
+    document.body.addEventListener('click', ev => {
+      const btn = ev.target.closest('[data-preset]');
+      if (btn) applyPreset(btn.getAttribute('data-preset'));
     });
 
     $('#pos-filter').addEventListener('change', e => { state.filterPos = e.target.value; renderBoard(); });

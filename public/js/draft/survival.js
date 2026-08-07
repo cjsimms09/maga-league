@@ -27,7 +27,12 @@
     ADP_SD_RATE: 0.22,          // uncertainty grows with ADP
     NEAR_HORIZON: 24,           // picks over which Layer 2 is fully trusted
     BLEND_DECAY: 12,            // picks over which Layer 2's weight decays past the horizon
-    WITHIN_POS_TEMP: 0.35,      // softmax temperature for "which player at this position"
+    // NOT a temperature — a PRECISION. It multiplies the score gap inside the
+    // softmax, so HIGHER means sharper (more mass on the best name) and LOWER
+    // means flatter. It was named TEMP and then used as if it were one, which
+    // inverted every reacher adjustment below it for as long as this file has
+    // existed. Keeping the key so calibration is unchanged; see withinPrecision.
+    WITHIN_POS_TEMP: 0.35,      // softmax PRECISION for "which player at this position"
     WITHIN_POS_CANDIDATES: 6,   // how deep to consider inside a position
     DEFAULT_ALPHA_NEED: 1.0,    // league-average manager: need weight
     DEFAULT_BETA_VALUE: 1.0,    // league-average manager: value weight
@@ -272,6 +277,32 @@
   }
 
   /** P(this specific player is the one taken, given the position is taken). */
+  /**
+   * How sharply a manager's pick concentrates on the best name at a position.
+   *
+   * THE BUG THIS FIXES. The constant is a precision, not a temperature: it
+   * MULTIPLIES the score gap inside exp(), so a larger value puts MORE mass on
+   * the top player. Both call sites raised it for a reacher while a comment two
+   * lines above said "a reacher spreads probability down the list" — so every
+   * reacher in the league has been modelled as MORE predictable than average,
+   * exactly backwards, feeding wrong survival percentages into every
+   * recommendation the tool has ever made.
+   *
+   * Nothing failed, because nothing tested it. That is the same shape as the
+   * three integration bugs the plausibility rails exist to catch.
+   *
+   * Now signed and inverted, so it means what the sentence means:
+   *   reaches above market  -> lower precision -> flatter -> harder to predict
+   *   lets value come to him -> higher precision -> he takes the best name
+   * A league-average manager (delta 0) lands on exactly CFG.WITHIN_POS_TEMP,
+   * so behaviour for an unprofiled seat is unchanged.
+   */
+  function withinPrecision(team) {
+    const rd = team && team.profile && team.profile.reach_delta;
+    if (!rd || rd.mean == null) return CFG.WITHIN_POS_TEMP;
+    return Math.max(0.15, Math.min(0.9, CFG.WITHIN_POS_TEMP - 0.02 * rd.mean));
+  }
+
   function withinPositionProbability(player, board, team) {
     const pool = board.filter(p => p.position === player.position)
       .sort((a, b) => (b.vorp || b.proj_mean || 0) - (a.vorp || a.proj_mean || 0))
@@ -280,13 +311,7 @@
     const idx = pool.findIndex(p => String(p.player_id) === String(player.player_id));
     if (idx === -1) return 0;
 
-    // A reacher spreads probability down the list; a value drafter concentrates
-    // it on the top name.
-    let temp = CFG.WITHIN_POS_TEMP;
-    if (team && team.profile && team.profile.reach_delta) {
-      temp = Math.max(0.15, Math.min(0.9, CFG.WITHIN_POS_TEMP
-        + 0.02 * Math.max(0, team.profile.reach_delta.mean)));
-    }
+    const temp = withinPrecision(team);
     const scores = pool.map(p => (p.vorp == null ? p.proj_mean || 0 : p.vorp));
     const max = Math.max.apply(null, scores);
     let sum = 0;
@@ -408,11 +433,7 @@
       if (String(pool[i].player_id) === String(player.player_id)) { idx = i; break; }
     }
     if (idx === -1) return 0;   // already gone, or too deep to be the pick
-    let temp = CFG.WITHIN_POS_TEMP;
-    if (team && team.profile && team.profile.reach_delta) {
-      temp = Math.max(0.15, Math.min(0.9, CFG.WITHIN_POS_TEMP
-        + 0.02 * Math.max(0, team.profile.reach_delta.mean)));
-    }
+    const temp = withinPrecision(team);
     let max = -Infinity;
     const scores = pool.map(p => {
       const v = p.vorp == null ? p.proj_mean || 0 : p.vorp;
@@ -576,7 +597,7 @@
     normalCdf, adpSd,
     layer1Taken, layer1TakenGivenAvailable, layer2Taken, precomputeLayer2,
     positionProbabilities, withinPositionProbability, withinFromPool,
-    runMultipliers, detectRuns, layer2Weight,
+    runMultipliers, detectRuns, layer2Weight, withinPrecision,
     survivalProbability,
   };
   global.DraftSurvival = api;
