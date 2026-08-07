@@ -3,11 +3,14 @@
   // "12 Mar 2026", never "03/12/2026" — David and Marian read the latter as
   // 3 December, and this is the money page.
   const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  const fmtDate = s => {
+  const fmtDate = (s, withYear) => {
     if (!s) return '';
     const d = new Date(s);
     if (isNaN(d)) return String(s).slice(0, 10);
-    return d.getUTCDate() + ' ' + MON[d.getUTCMonth()] + ' ' + d.getUTCFullYear();
+    // Within one season the year is the same on every row — repeating it ten
+    // times steals width from the description, which is what actually differs.
+    return d.getUTCDate() + ' ' + MON[d.getUTCMonth()]
+      + (withYear ? ' ' + d.getUTCFullYear() : '');
   };
   const isCommish = owner.is_commissioner;
   const vc = viewCard;
@@ -42,18 +45,19 @@ season until settled.</p>
     <% } else { %>
     <table class="roll ledger">
       <thead><tr>
-        <th>Date</th><th>Item</th><th class="num">Amount</th><th class="num">Running</th>
-        <th class="st">Status</th><% if (isCommish) { %><th></th><% } %>
+        <th>Date</th><th>Item</th><th class="num">Amount</th>
+        <th class="num">Tab</th><% if (isCommish) { %><th></th><% } %>
       </tr></thead>
       <tbody>
         <% let run = 0; %>
         <% for (const e of mine) { if (!e.settled) run += e.amount; %>
           <tr class="<%= e.settled ? 'is-settled' : '' %>">
             <td class="ldate"><%= fmtDate(e.created_at) %></td>
-            <td><%= e.desc %><% if (e.week) { %> <span class="muted type-tag">wk <%= e.week %></span><% } %></td>
+            <td class="litem"><%= e.desc %><% if (e.week) { %> <span class="muted type-tag">wk <%= e.week %></span><% } %></td>
             <td class="num <%= e.amount < 0 ? 'neg' : 'pos' %>"><%= (e.amount > 0 ? '+' : '') + money(e.amount) %></td>
-            <td class="num run <%= run > 0 ? 'pos' : run < 0 ? 'neg' : '' %>"><%= e.settled ? '—' : money(run) %></td>
-            <td class="st"><%= e.settled ? '✅ paid' : '⏳ open' %></td>
+            <%# A settled row shows a tick, not an em-dash: "—" reads as missing
+                data, when the truth is that this one is done and off the tab. %>
+            <td class="num run <%= e.settled ? 'done' : run > 0 ? 'pos' : run < 0 ? 'neg' : '' %>"><%= e.settled ? '✅' : money(run) %></td>
             <% if (isCommish) { %>
             <td class="num" style="white-space:nowrap">
               <form class="asis" method="post" action="/admin/ledger/<%= e.id %>/settle">
@@ -66,9 +70,9 @@ season until settled.</p>
           </tr>
         <% } %>
         <tr class="total">
-          <td colspan="3">Still owing on the year</td>
-          <td class="num <%= vc.balance > 0 ? 'pos' : vc.balance < 0 ? 'neg' : '' %>"><%= money(vc.balance) %></td>
-          <td class="st"></td><% if (isCommish) { %><td></td><% } %>
+          <td colspan="3"><%= vc.balance === 0 ? 'All settled' : vc.balance < 0 ? 'Still owes' : 'Still owed' %></td>
+          <td class="num <%= vc.balance > 0 ? 'pos' : vc.balance < 0 ? 'neg' : '' %>"><%= vc.balance === 0 ? '✓' : money(vc.balance) %></td>
+          <% if (isCommish) { %><td></td><% } %>
         </tr>
       </tbody>
     </table>
@@ -87,8 +91,8 @@ season until settled.</p>
 <% } %>
 
 <% if (isCommish) { %>
-<div class="card" style="margin-bottom:1.3rem; border-color:rgba(245,196,69,.5)">
-  <h2>✍️ Record a Payment or Credit <span class="sub">anything the site didn’t generate itself</span></h2>
+<details class="card entry-card" style="margin-bottom:1.3rem; border-color:rgba(245,196,69,.5)">
+  <summary>✍️ Record a payment or credit <span class="sub">cash, side bets — anything the site didn’t generate itself</span></summary>
   <div class="body">
     <form method="post" action="/admin/ledger" class="entry-form">
       <input type="hidden" name="back" value="bank">
@@ -121,7 +125,7 @@ season until settled.</p>
       </div>
     </form>
   </div>
-</div>
+</details>
 <% } %>
 
 <%# ── The chart: who owes what, at a glance. Tap a name to open their ledger. ── %>

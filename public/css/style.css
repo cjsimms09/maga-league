@@ -1069,3 +1069,42 @@ table.standings-chart .owner-link { font-size: .92rem; }
   font-size: .74rem; color: var(--muted);
 }
 .more-rows > summary:hover { color: var(--gold-bright); }
+
+/* ---------- League Finances refinements ----------
+   Found by screenshotting rather than reasoning: a one-row ledger was taking
+   as much height as the ten-row chart underneath it. */
+
+/* The commissioner's entry form is a tool, not the page. One line closed. */
+.entry-card > summary {
+  cursor: pointer; list-style: none;
+  padding: .75rem 1rem; font-family: var(--font-display); font-weight: 800;
+  font-size: .85rem; letter-spacing: .04em; color: var(--gold-bright);
+}
+.entry-card > summary::-webkit-details-marker { display: none; }
+.entry-card > summary::after { content: ' ▾'; color: var(--muted); }
+.entry-card[open] > summary::after { content: ' ▴'; }
+.entry-card > summary .sub {
+  display: block; font-family: var(--font-body); font-weight: 400;
+  font-size: .74rem; letter-spacing: 0; color: var(--muted); text-transform: none;
+}
+
+/* Description is the column that varies, so it gets the room. Striking it
+   through on a settled row made "2026 buy-in" wrap to three lines to say
+   something the tick already says. */
+table.ledger .litem { min-width: 9rem; }
+table.ledger tr.is-settled td:nth-child(2) { text-decoration: none; }
+table.ledger tr.is-settled .litem { color: var(--muted); }
+table.ledger td.run.done { color: var(--green); font-weight: 400; }
+
+@media (max-width: 640px) {
+  table.ledger .ldate { font-size: .68rem; white-space: nowrap; }
+  table.ledger .litem { min-width: 7.5rem; }
+}
+
+/* The undo control on a settled ledger row is not destructive — it puts the
+   item back on the tab. Inheriting the red "ghost" style made a routine
+   correction look like a delete. */
+table.ledger .btn.ghost {
+  color: var(--muted); border-color: var(--line);
+}
+table.ledger .btn.ghost:hover { color: var(--gold-bright); border-color: var(--gold); }
