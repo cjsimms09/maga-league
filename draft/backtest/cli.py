@@ -62,6 +62,7 @@ def main() -> int:
     # rather than silently replayed against nothing, which is the failure mode
     # that would matter.
     import pandas as pd
+    caveats = []
     frames, missing = [], []
     for y in need:
         try:
@@ -74,6 +75,53 @@ def main() -> int:
     if not frames:
         print("\nNO WEEKLY DATA AT ALL — cannot project or grade anything."); return 1
     weekly = pd.concat(frames, ignore_index=True)
+
+    # RECOVER THE MISSING SEASONS FROM PLAY-BY-PLAY.
+    #
+    # 2025 is the season closest to the board we actually draft on, so losing it
+    # does not merely shrink N — it re-weights the verdict toward 2023
+    # conditions. import_pbp_data serves it even though import_weekly_data 404s.
+    #
+    # THE GATE: rebuild a season the library CAN serve, and require agreement
+    # within rounding on graded points before trusting the rebuilt path for one
+    # it cannot. A rebuilt stat line that quietly disagrees would corrupt every
+    # grade downstream while looking entirely normal.
+    xval = None
+    if missing:
+        have = sorted(set(need) - set(missing))
+        control = have[-1] if have else None
+        print(f"\n  recovering {missing} from play-by-play "
+              f"(cross-validating on {control})")
+        try:
+            pbp = nfl.import_pbp_data(sorted(set(missing) | ({control} if control else set())),
+                                      downcast=True)
+            print(f"    pbp: {len(pbp)} rows")
+        except Exception as e:                                   # noqa: BLE001
+            pbp = None
+            print(f"    pbp UNAVAILABLE: {e}")
+        if pbp is not None and control:
+            scoring_for_xval = json.load(open(os.path.join(
+                os.path.dirname(HERE), "config", "league_config.json")))["scoring"]
+            xval = GR.cross_validate(pbp, weekly, control, scoring_for_xval, crosswalk)
+            print("    cross-validation:", json.dumps(xval))
+            if xval.get("agrees"):
+                rebuilt = GR.weekly_from_pbp(pbp, missing)
+                if rebuilt:
+                    weekly = pd.concat([weekly, pd.DataFrame(rebuilt)], ignore_index=True)
+                    print(f"    recovered {missing}: +{len(rebuilt)} player-weeks")
+                    caveats.append(
+                        "%s weekly stats were REBUILT from play-by-play because "
+                        "import_weekly_data 404s for them; cross-validated on %s "
+                        "(worst top-200 difference %.3f pts)"
+                        % (missing, control, xval["worst_diff_top200"]))
+                    missing = []
+            else:
+                print("    REFUSING the rebuilt path — it does not reproduce "
+                      + str(control) + " within tolerance")
+                caveats.append(
+                    "%s could NOT be recovered: the play-by-play rebuild "
+                    "disagreed with the library on %s (%s)"
+                    % (missing, control, json.dumps(xval)))
     print(f"  weekly: {len(weekly)} rows over {sorted(set(need) - set(missing))}")
     if missing:
         caveat_missing = ("weekly stats unavailable for %s; any season needing them "
@@ -82,7 +130,7 @@ def main() -> int:
     else:
         caveat_missing = None
 
-    bundles, actual, caveats, methods = [], {}, [], []
+    bundles, actual, methods = [], {}, []
     if caveat_missing:
         caveats.append(caveat_missing)
     for season in seasons:
