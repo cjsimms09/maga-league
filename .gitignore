@@ -8,3 +8,4 @@ data/
 draft/.cache/
 draft/__pycache__/
 draft/**/__pycache__/
+draft/backtest/bundles.json

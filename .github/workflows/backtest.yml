@@ -1,0 +1,44 @@
+name: Historical backtest
+on:
+  workflow_dispatch:
+    inputs:
+      seasons:
+        description: "Comma-separated seasons (blank = all replayable)"
+        required: false
+        default: ""
+      commit:
+        description: "Commit the report back"
+        required: false
+        default: "true"
+jobs:
+  backtest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - uses: actions/setup-node@v4
+        with: { node-version: "20" }
+      - name: Install
+        run: pip install -r draft/requirements.txt
+      # Ship condition 4. Runs here and not in the agent sandbox because it
+      # needs FFC's historical `year` endpoint and Sleeper, both of which that
+      # sandbox's egress policy refuses at CONNECT.
+      - name: Assemble era-appropriate bundles
+        run: python draft/backtest/cli.py --seasons "${{ inputs.seasons }}" --out draft/backtest/bundles.json
+      - name: Replay and report
+        run: |
+          node draft/backtest/run.js \
+            --in draft/backtest/bundles.json \
+            --out draft/backtest/results.json \
+            --report draft/backtest/BACKTEST.md
+      - name: Commit the report
+        if: ${{ inputs.commit != 'false' }}
+        run: |
+          git config user.name Claude
+          git config user.email noreply@anthropic.com
+          # The bundles carry the whole player universe and are large; the
+          # report and the aggregates are the deliverable.
+          git add draft/backtest/BACKTEST.md draft/backtest/results.json || true
+          git diff --cached --quiet || git commit -m "Backtest report against real prior drafts"
+          git push || true
