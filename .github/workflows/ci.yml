@@ -18,10 +18,17 @@ jobs:
         run: |
           set -e
           for t in attribution backtest betlogic engine keeperlock keepers ledger \
-                   mcts reconcile strategies sync update; do
+                   mcts predledger reconcile strategies sync update; do
             echo "== $t =="
             node draft/tests/$t.test.js
           done
+      - name: Server integration — prediction ledger over real HTTP
+        # Needs express etc.; the pure suites above do not. Guards the JSON-body
+        # parser: without it every fetch()-posted prediction 400s and draft
+        # night's data is lost. Boots the real app, logs in, posts, reads back.
+        run: |
+          npm install --no-audit --no-fund
+          node draft/tests/server-ledger.test.js
       - name: Robot mock draft — the safety net
         # A full snake draft from every seat through the real engine and
         # attribution modules, plus every bug this session as a regression

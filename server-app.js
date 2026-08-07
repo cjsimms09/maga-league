@@ -28,6 +28,9 @@ function createApp() {
   app.set('view engine', 'ejs');
   app.set('views', findViews());
   app.use(express.urlencoded({ extended: true }));
+  // JSON bodies: the prediction ledger (Phase L1) and other fetch() callers post
+  // application/json. Capped small — these are single records, not uploads.
+  app.use(express.json({ limit: '256kb' }));
   app.use(express.static(path.join(__dirname, 'public'))); // no-op on Netlify (CDN serves these), used by dev server
   app.set('trust proxy', 1);
 

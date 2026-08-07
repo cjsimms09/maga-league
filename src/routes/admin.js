@@ -656,6 +656,39 @@ router.get('/draft-config', aw(async (req, res) => {
   res.render('admin/draft-config', { overrides, config: req.world.config });
 }));
 
+// ---------- Prediction ledger (Phase L1 — the Learning Seed) ----------
+// Append-only, written AT DECISION TIME from the War Room. The contamination
+// rule is architectural: this POST is the ONLY write path, and it stamps the
+// decision time from the SERVER clock, so a prediction cannot be backdated to
+// fit an outcome. Grading reads via GET and never writes.
+const predledger = require('../predledger');
+
+router.post('/api/ledger/predict', aw(async (req, res) => {
+  const body = req.body || {};
+  const season = body.season || H.currentSeason(req.world.seasons).year;
+  try {
+    const entry = await predledger.append(store, {
+      kind: body.kind,
+      season,
+      pick: body.pick,
+      build_at: body.build_at || null,
+      client_at: body.client_at || null,
+      payload: body.payload || {},
+    });
+    res.json({ ok: true, entry });
+  } catch (e) {
+    // Fail loudly: a rejected prediction is a bug to see, not to swallow.
+    res.status(400).json({ ok: false, error: String(e.message || e) });
+  }
+}));
+
+router.get('/api/ledger/predict', aw(async (req, res) => {
+  const season = req.query.season || H.currentSeason(req.world.seasons).year;
+  const entries = await predledger.readAll(store, season);
+  res.set('Cache-Control', 'no-store');
+  res.json({ ok: true, season: String(season), count: entries.length, entries });
+}));
+
 router.post('/draft-config', aw(async (req, res) => {
   const prev = await getDoc('draft-config-overrides', {});
   const next = Object.assign({}, prev);

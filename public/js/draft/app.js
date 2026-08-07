@@ -283,6 +283,15 @@
     if (!kind) delete ov[String(playerId)];
     else ov[String(playerId)] = { kind: kind, pct: pct == null ? 25 : Number(pct) };
     saveOverrides();
+    // L1 capture: an override is a judgement against the model. Log the setting
+    // (or clearing) at decision time, with the player it targets.
+    if (typeof PredLedger !== 'undefined' && !state.mockMode) {
+      var op = playerById(playerId);
+      var c = ledgerCtx();
+      PredLedger.override({ season: c.season, build_at: c.build_at, pick: c.pick,
+        payload: { player_id: String(playerId), name: op ? op.name : null,
+          kind: kind || 'clear', pct: kind ? (pct == null ? 25 : Number(pct)) : null } });
+    }
     // Rebuild the board from the artifact so an override can be undone cleanly
     // rather than compounding on an already-adjusted number.
     state.board = state.data.players.filter(p => !state.drafted.has(String(p.player_id)));
@@ -1250,6 +1259,24 @@
     // forecasts can never come from three different boards.
     const out = E.onTheClock(context(), state.lists);
     state.lastClock = out;
+    // L1 capture: the board I made a decision from, once per (pick, build).
+    // Logged BEFORE the outcome is known — the whole point of decision-time
+    // capture. Not on mocks. Deduped in PredLedger so re-renders don't flood.
+    if (typeof PredLedger !== 'undefined' && !state.mockMode && out.scored && out.scored.length) {
+      var c = ledgerCtx();
+      PredLedger.recommendation({ season: c.season, build_at: c.build_at, pick: c.pick,
+        payload: {
+          weights: state.weights,
+          top: out.scored.slice(0, 10).map(function (s) {
+            return { player_id: String(s.player.player_id), name: s.player.name,
+              position: s.player.position, score: Math.round(s.score * 10) / 10,
+              survival_to_next: s.survival_to_next == null ? null : Math.round(s.survival_to_next * 1000) / 1000,
+              rails: (s.rails || []).length, demoted: !!s.demoted };
+          }),
+          contested: !!(out.scored[0] && out.scored[0].contested),
+          confidence: out.confidence ? out.confidence.level : null,
+        } });
+    }
     renderConfidence(out.confidence);
     renderBranches(out.branches);
     renderClock(out);
@@ -1833,8 +1860,29 @@
       state.recentPicks.push({ position: p.position, player_id: playerId,
                                pick_no: state.recentPicks.length + 1, player: p });
     }
+    // L1 capture: a pick I take is a decision — log it at decision time. Only my
+    // own picks (toMe); other teams' picks are recorded by the survival/board
+    // context, not as my decisions. Never on a mock, and never a re-mark.
+    if (toMe && !alreadySeen && !state.mockMode) capturePick(p);
     recomputeRuns();
     renderAll();
+  }
+
+  /* Decision-time ledger captures (Phase L1). Best-effort; a failed post never
+   * blocks the clock. season/build_at pin the record to the exact board. */
+  function ledgerCtx() {
+    return {
+      season: state.data && state.data.league ? state.data.league.season : null,
+      build_at: (state.data || {}).built_at || null,
+      pick: currentPick(),
+    };
+  }
+  function capturePick(p) {
+    if (typeof PredLedger === 'undefined') return;
+    var c = ledgerCtx();
+    PredLedger.pick({ season: c.season, build_at: c.build_at, pick: c.pick,
+      payload: { player_id: String(p.player_id), name: p.name, position: p.position,
+        team: p.team, adjusted_adp: p.adjusted_adp, vorp: p.vorp, tier: p.tier } });
   }
 
   /* Reconcile the assumed keeper slate against what Sleeper actually shows.
