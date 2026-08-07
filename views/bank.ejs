@@ -184,19 +184,20 @@ season until settled.</p>
     <table class="roll ledger standings-chart">
       <thead><tr>
         <th>Owner</th><th>Buy-in</th>
-        <th class="num">Paid in</th><th class="num">Won</th><th class="num">Balance</th>
+        <th class="num">Paid in</th><th class="num" title="Prize money — weekly highs and season awards">Won</th><th class="num">Balance</th>
       </tr></thead>
       <tbody>
+        <%# Summarised by what each entry IS, not which way its sign points —
+            see seasonSummary() in src/ledger.js. Reading `amount > 0` as
+            "won" put every payment received into the winnings column. %>
         <% for (const c of cards) {
-             const yr = c.entries.filter(e => Number(e.year) === Number(season.year));
-             const paid = yr.filter(e => e.amount < 0 && e.settled).reduce((s, e) => s + -e.amount, 0);
-             const won = yr.filter(e => e.amount > 0).reduce((s, e) => s + e.amount, 0);
-             const buyIn = yr.find(e => e.type === 'buy_in');
+             const sum = c.summary;
+             const paid = sum.paid_in, won = sum.won, buyIn = sum.buy_in;
         %>
           <tr class="<%= vc && c.owner.id === vc.owner.id ? 'is-viewing' : '' %>">
             <td><a class="owner-link" href="/bank?owner=<%= c.owner.id %>#top"><%= c.owner.name %><%= c.owner.id === owner.id ? ' (you)' : '' %></a></td>
             <td><% if (!buyIn) { %><span class="muted">—</span>
-                <% } else if (buyIn.settled) { %><span class="badge paid">Paid</span>
+                <% } else if (sum.buy_in_paid) { %><span class="badge paid">Paid</span>
                 <% } else { %><span class="badge owes">Owes</span><% } %></td>
             <td class="num"><%= paid ? money(paid) : '·' %></td>
             <td class="num pos"><%= won ? money(won) : '·' %></td>

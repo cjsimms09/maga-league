@@ -88,6 +88,55 @@ function balances(ledger, owners) {
   return map;
 }
 
+/**
+ * What a ledger entry IS, as opposed to which way its sign points.
+ *
+ * The sign says which direction the money moves; it does not say why. Those are
+ * different questions and conflating them is how "Richard paid his buy-in"
+ * ended up in the winnings column: recording a payment received creates a
+ * POSITIVE entry (it cancels the negative buy-in charge), and any filter that
+ * reads `amount > 0` as "won" counts it as prize money.
+ *
+ * So: classify by type, never by sign. These predicates are the one definition,
+ * used by every view that summarises a season.
+ */
+const isPrize = e => e.type === 'weekly' || e.type === 'award';
+const isPayment = e => e.type === 'payment';
+
+/**
+ * One owner's season, summarised for the standings chart.
+ *
+ *   won      prize money earned — weekly highs and season awards, nothing else.
+ *            Whether it has been PAID is the balance's job, not this column's.
+ *   paid_in  money that actually came from them: payments they made, plus any
+ *            charge the commissioner ticked off (ticking a charge means "this
+ *            one is square"). A payment the league made TO them is neither.
+ *   paid_out cash the league has handed over.
+ */
+function seasonSummary(entries, year) {
+  const yr = entries.filter(e => Number(e.year) === Number(year));
+  const sum = (list, f = e => Math.abs(e.amount)) => Math.round(list.reduce((s, e) => s + f(e), 0) * 100) / 100;
+  const buy_in = yr.find(e => e.type === 'buy_in') || null;
+  const paid_in = sum(yr.filter(e =>
+    (isPayment(e) && e.amount > 0) ||
+    (!isPayment(e) && e.amount < 0 && e.settled)));
+  return {
+    entries: yr,
+    buy_in,
+    // Has the buy-in actually been covered? Two ways to record it and both
+    // count: ticking the charge itself, or recording a payment that covers it.
+    // Deriving the badge from `buy_in.settled` alone left the chart saying
+    // "Owes" next to a balance of zero, which is the site contradicting itself
+    // about the one number it exists to keep unambiguous.
+    buy_in_paid: !!buy_in && (buy_in.settled || paid_in >= Math.abs(buy_in.amount)),
+    won: sum(yr.filter(isPrize)),
+    paid_in,
+    paid_out: sum(yr.filter(e =>
+      (isPayment(e) && e.amount < 0) ||
+      (isPrize(e) && e.settled))),
+  };
+}
+
 // Winnings actually won in ledger years (weekly + awards; adjustments are
 // bookkeeping, not winnings) — added to the legacy grid for career totals.
 function ledgerWinningsByOwnerYear(ledger) {
@@ -113,4 +162,5 @@ function awardsForYear(ledger, year) {
 module.exports = {
   TYPE_LABELS, allEntries, addEntry, updateEntry, removeEntry, setSettled, settleAll,
   balances, ledgerWinningsByOwnerYear, weeklyForYear, awardsForYear,
+  isPrize, isPayment, seasonSummary,
 };

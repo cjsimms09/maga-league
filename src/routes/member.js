@@ -301,7 +301,10 @@ router.get('/bank', aw(async (req, res) => {
     .map(o => {
       const entries = world.ledger.filter(e => e.owner_id === o.id)
         .sort((a, b) => (a.created_at < b.created_at ? 1 : -1));
-      return { owner: o, balance: bal[o.id].balance, open: bal[o.id].open, entries };
+      // Summarised by entry TYPE, not by sign — see L.seasonSummary. Doing it
+      // here means the chart and any future view share one definition.
+      return { owner: o, balance: bal[o.id].balance, open: bal[o.id].open, entries,
+               summary: L.seasonSummary(entries, season.year) };
     })
     .sort((a, b) => (b.owner.id === req.owner.id) - (a.owner.id === req.owner.id) || a.owner.name.localeCompare(b.owner.name));
   const totalOwedToLeague = cards.reduce((s, c) => s + Math.min(c.balance, 0), 0);
