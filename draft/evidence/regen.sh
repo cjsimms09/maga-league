@@ -60,10 +60,27 @@ if adp in (None, "fixture"):
              "therefore worse than not producing them." % adp)
 PY
 
+# Each half runs even if the other fails.
+#
+# The first CI run lost SEVEN working items because item 5 raised a KeyError,
+# `set -e` aborted the script, and items.js never executed. An evidence bundle
+# whose failure mode is "produce nothing" defeats its own purpose: a failed
+# item is itself evidence, and the items that would have worked are the ones
+# a reader most needs. Failures are collected and re-raised at the end, so
+# nothing is hidden — only isolated.
+rc=0
 echo
 echo "=== ITEMS 5, 6, 7, 9 (joins, match rates, live scoring settings) ==="
-python3 draft/evidence/items.py "$LEAGUE_ID"
+python3 draft/evidence/items.py "$LEAGUE_ID" || { rc=1; echo "!! python items exited non-zero"; }
 
 echo
 echo "=== ITEMS 13, 15, 25, 26 (board, survival, end-to-end traces) ==="
-node draft/evidence/items.js
+SLOT="$SLOT" node draft/evidence/items.js || { rc=1; echo "!! node items exited non-zero"; }
+
+echo
+if [ "$rc" -ne 0 ]; then
+  echo "=== ONE OR MORE ITEMS FAILED — see the tracebacks above ==="
+else
+  echo "=== all items produced output ==="
+fi
+exit $rc
