@@ -267,7 +267,7 @@
         + ctx.mySlot + ' — the schedule must begin at my pick.');
     }
 
-    const root = newNode(null, 0, true);
+    let root = newNode(null, 0, true);
     nodeState[root] = {
       board: ctx.board.slice(),
       myRoster: (ctx.myRoster || []).slice(),
@@ -486,12 +486,65 @@
       };
     }
 
-    /* Tree reuse: promote the child matching a pick that actually happened. */
+    /* Tree reuse: promote the child matching a pick that actually happened.
+     *
+     * This is the path the tool actually lives on during a draft — every real
+     * pick promotes a subtree — so it matters more than seed determinism does.
+     * If reuse quietly diverged from a fresh search, the recommendation would
+     * get slowly worse as the draft went on and nothing would say so.
+     *
+     * The subtree keeps its accumulated statistics: that is the entire point.
+     * Siblings are simply orphaned rather than compacted — the node arrays are
+     * bounded by MAX_NODES and a copying compaction would cost more than the
+     * memory it reclaims.
+     */
     function advance(playerId) {
       const kids = childIndex[root] || [];
       for (let i = 0; i < kids.length; i++) {
         if (nodes.action[kids[i]] && String(nodes.action[kids[i]].player_id) === String(playerId)) {
-          return { hit: true, node: kids[i] };
+          const before = { visits: nodes.visits[kids[i]], value: nodes.value[kids[i]] };
+          root = kids[i];
+          nodes.action[root] = null;      // the root is a state, not a move
+
+          // RECALIBRATE, AND RESCALE WHAT WE KEPT.
+          //
+          // The valuer's range is fixed per root: floor is "draft nothing
+          // useful again", ceiling is "a perfect remaining draft". Both shrink
+          // as picks are used up, so the range at the new root is narrower than
+          // the one the retained statistics were normalised against.
+          //
+          // Keeping the old scale meant Q slid out of step with the decision
+          // actually in front of you: the exploration constant is calibrated to
+          // a span that no longer exists, so a stale wide range over-explores,
+          // and it gets worse with every promotion. Found by the equivalence
+          // test — the reused tree and a fresh search agreed on WHO but were
+          // 0.09 apart on the value of the recommendation.
+          //
+          // Every retained node's summed value is mapped from the old range to
+          // the new one, so old and new iterations stay commensurable.
+          const oldR = ctx.valuer.range();
+          const st = nodeState[root];
+          ctx.valuer.calibrate(st.myRoster, st.board,
+            ctx.myPicksLeft - (st.myRoster.length - (ctx.myRoster || []).length));
+          const newR = ctx.valuer.range();
+          const oldSpan = oldR.hi - oldR.lo, newSpan = newR.hi - newR.lo;
+          if (newSpan > 0 && (oldSpan !== newSpan || oldR.lo !== newR.lo)) {
+            const stack = [root];
+            while (stack.length) {
+              const n = stack.pop();
+              if (nodes.visits[n]) {
+                const meanOld = nodes.value[n] / nodes.visits[n];
+                const rawMean = meanOld * oldSpan + oldR.lo;
+                let meanNew = (rawMean - newR.lo) / newSpan;
+                meanNew = meanNew < 0 ? 0 : (meanNew > 1 ? 1 : meanNew);
+                nodes.value[n] = meanNew * nodes.visits[n];
+              }
+              const kk = childIndex[n];
+              if (kk) for (let j = 0; j < kk.length; j++) stack.push(kk[j]);
+            }
+          }
+          return { hit: true, node: root, reused: before,
+                   recalibrated: { from: oldR, to: newR } };
         }
       }
       // A miss means the room did something the generator never proposed. Worth
@@ -502,7 +555,20 @@
 
     return { run: run, iterate: iterate, summary: summary, advance: advance,
              nodeCount: function () { return nodeCount; },
-             _internal: { nodes: nodes, childIndex: childIndex, nodeState: nodeState, root: root } };
+             rootState: function () { return nodeState[root]; },
+             /* The actions available at the CURRENT root, for chaining
+              * advance() through the picks that actually happened. */
+             options: function () {
+               return (childIndex[root] || []).map(function (c) {
+                 return { player: nodes.action[c], visits: nodes.visits[c] };
+               }).sort(function (a, b) { return b.visits - a.visits; });
+             },
+             isMyTurn: function () {
+               const t = (ctx.schedule || [])[nodeState[root].step];
+               return !!t && t.team_slot === ctx.mySlot;
+             },
+             _internal: { nodes: nodes, childIndex: childIndex, nodeState: nodeState,
+                          rootId: function () { return root; } } };
   }
 
   /**

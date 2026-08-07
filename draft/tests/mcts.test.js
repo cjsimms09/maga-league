@@ -308,16 +308,103 @@ function makeCtx(over) {
     !spread || spread.visited > 1, JSON.stringify(spread));
 }
 
-// --- tree reuse -------------------------------------------------------------
+// --- tree reuse: SHIP CONDITION 3 -------------------------------------------
+//
+// Reuse is the path the tool actually lives on during a draft: every real pick
+// promotes a subtree. Seed determinism is the easy half of condition 3; this is
+// the half that matters, because if reuse diverged from a fresh search the
+// recommendation would decay as the draft progressed and nothing would say so.
 {
   const s = M.createSearch(makeCtx());
-  const out = s.run(400);
-  const hit = s.advance(out.actions[0].player.player_id);
-  check('a pick the generator proposed is found in the tree and promoted',
+  const out = s.run(600);
+  const target = out.actions[0];
+  const hit = s.advance(target.player.player_id);
+  check('a pick the generator proposed is found and promoted to root',
     hit.hit === true && hit.node != null);
-  const miss = s.advance('nobody-at-all');
+  check('the promoted subtree KEEPS its accumulated visits — reuse that threw '
+    + 'them away would be a rebuild wearing a disguise',
+    hit.reused.visits === target.visits, JSON.stringify(hit.reused));
+  check('and the value range is recalibrated for the new root, since fewer '
+    + 'picks remain and less value is at stake',
+    hit.recalibrated && (hit.recalibrated.to.hi - hit.recalibrated.to.lo)
+      < (hit.recalibrated.from.hi - hit.recalibrated.from.lo),
+    JSON.stringify(hit.recalibrated));
+
+  const after = s.summary();
+  check('after promotion the search reports from the new root, not the old one',
+    after.iterations === target.visits
+      && after.actions.every(r => r.player.player_id !== target.player.player_id),
+    JSON.stringify({ iters: after.iterations, was: target.visits }));
+
+  const miss = M.createSearch(makeCtx()).advance('nobody-at-all');
   check('a pick the generator never proposed is reported as a miss, not guessed at',
     miss.hit === false && miss.node === null);
+
+  // EQUIVALENCE: a reused tree and a fresh tree from the SAME state must agree.
+  //
+  // The state has to actually match. Promoting my own pick leaves the root on
+  // an OPPONENT's turn, nine picks before my next one — an earlier version of
+  // this test compared that against a fresh search rooted on my next turn and
+  // "found" a divergence that was entirely its own doing. So chain advance()
+  // through the intervening picks, exactly as live sync would, and only then
+  // compare.
+  let guard = 0;
+  while (!s.isMyTurn() && guard++ < 20) {
+    const opts = s.options();
+    if (!opts.length || !opts[0].player) break;
+    s.run(60);                                  // grow the tree as sync would
+    const step = s.advance(opts[0].player.player_id);
+    if (!step.hit) break;
+  }
+  // The rescale arithmetic, checked directly rather than inferred.
+  //
+  // The equivalence test below tolerates 0.05 and cannot isolate this, but the
+  // range genuinely drifts over a draft — measured on the real board, the span
+  // falls from 548 to 424 and the floor rises by 98 points across ten picks. A
+  // retained mean carried at the old scale would be ~0.23 out in normalised
+  // units by then, which is larger than most gaps the search is deciding.
+  (function () {
+    const s2 = M.createSearch(makeCtx());
+    s2.run(400);
+    const before = s2.summary().actions[0];
+    const h = s2.advance(before.player.player_id);
+    const oldSpan = h.recalibrated.from.hi - h.recalibrated.from.lo;
+    const newSpan = h.recalibrated.to.hi - h.recalibrated.to.lo;
+    const rawMean = before.q * oldSpan + h.recalibrated.from.lo;
+    let want = (rawMean - h.recalibrated.to.lo) / newSpan;
+    want = want < 0 ? 0 : (want > 1 ? 1 : want);
+    const got = s2.summary().rootValue;
+    check('a retained mean is rescaled from the old range into the new one, '
+      + 'so pre- and post-promotion iterations stay commensurable',
+      Math.abs(got - want) < 1e-9, 'got ' + got + ' want ' + want);
+  })();
+
+  check('advance() chains through the intervening picks back to my turn',
+    s.isMyTurn(), 'guard=' + guard);
+
+  const reusedState = s.rootState();
+  s.run(1500);
+  const reusedSummary = s.summary();
+  const reusedTop = reusedSummary.actions[0];
+
+  const freshCtx = makeCtx();
+  freshCtx.board = reusedState.board.slice();
+  freshCtx.myRoster = reusedState.myRoster.slice();
+  freshCtx.myPicksLeft = 6 - reusedState.myRoster.length;
+  freshCtx.schedule = freshCtx.schedule.slice(reusedState.step);
+  const fresh = M.createSearch(freshCtx);
+  fresh.run(reusedSummary.iterations + 1500);
+  const freshTop = fresh.summary().actions[0];
+
+  check('a promoted subtree and a fresh search from the same state agree on '
+    + 'the recommendation — reuse is not slowly poisoning the answer',
+    reusedTop.player.player_id === freshTop.player.player_id,
+    'reused ' + reusedTop.player.name + ' (' + (reusedTop.share * 100).toFixed(0)
+      + '%) vs fresh ' + freshTop.player.name + ' (' + (freshTop.share * 100).toFixed(0) + '%)');
+  check('...and on the value of that recommendation, within tolerance — which '
+    + 'is what the rescale-on-promotion exists to guarantee',
+    Math.abs(reusedTop.q - freshTop.q) < 0.05,
+    'q ' + reusedTop.q.toFixed(4) + ' vs ' + freshTop.q.toFixed(4));
 }
 
 // --- node cap degrades to deepening, does not crash -------------------------
