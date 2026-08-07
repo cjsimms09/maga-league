@@ -6,7 +6,7 @@
 
 <div class="hero">
   <div class="hero-item <%= myBalance > 0 ? 'good' : myBalance < 0 ? 'bad' : '' %>">
-    <span class="hero-label">Your Tab</span>
+    <span class="hero-label">Your Balance</span>
     <span class="hero-value"><%= myBalance === 0 ? '✓ Even' : money(Math.abs(myBalance)) %></span>
     <span class="hero-sub"><%= myBalance > 0 ? 'the league owes you' : myBalance < 0 ? 'you owe the league' : 'all squared up' %></span>
   </div>
@@ -98,14 +98,33 @@
   <% } %>
 
   <% if (wireRows.length) { %>
+  <%
+    // A realistic mid-season wire is 40-60 transactions, which at ~60px a row is
+    // more than this entire page. Capped structurally, with the count shown —
+    // being told there are 47 more is the difference between "that's all of it"
+    // and "there's more, tap to see".
+    const WIRE_CAP = 6;
+    const wireShown = wireRows.slice(0, WIRE_CAP);
+    const wireRest = wireRows.slice(WIRE_CAP);
+  %>
   <div class="card">
     <h2>The League Wire <span class="sub">latest moves on Sleeper</span></h2>
     <div class="body tight">
       <table class="roll">
-        <% for (const w of wireRows) { %>
+        <% for (const w of wireShown) { %>
           <tr><td style="width:5.5rem"><span class="badge <%= w.trade ? 'gold' : 'navy' %>"><%= w.kind %></span></td><td><%= w.text %></td></tr>
         <% } %>
       </table>
+      <% if (wireRest.length) { %>
+        <details class="more-rows">
+          <summary>See all <%= wireRows.length %> moves (<%= wireRest.length %> more)</summary>
+          <table class="roll">
+            <% for (const w of wireRest) { %>
+              <tr><td style="width:5.5rem"><span class="badge <%= w.trade ? 'gold' : 'navy' %>"><%= w.kind %></span></td><td><%= w.text %></td></tr>
+            <% } %>
+          </table>
+        </details>
+      <% } %>
     </div>
   </div>
   <% } %>
@@ -128,56 +147,6 @@
         <% } %>
       </table>
       <% } %>
-    </div>
-  </div>
-
-  <div>
-    <div class="card" style="margin-bottom:1.2rem">
-      <h2>Draft Spot Selection <span class="sub">last place picks first</span></h2>
-      <div class="body">
-        <% if (!draft.picks.length) { %>
-          <p class="muted">The draft order hasn't been opened yet.</p>
-        <% } else if (draft.complete) { %>
-          <p>✅ The <%= season.year %> draft order is locked in.</p>
-        <% } else if (draft.current) { %>
-          <% if (draft.current.owner_id === owner.id) { %>
-            <p><b>🎯 It's your turn to choose your draft spot!</b></p>
-          <% } else { %>
-            <p>Waiting on <b><%= draft.current.name %></b> to choose their spot (turn <%= draft.current.pos %> of <%= draft.picks.length %>)</p>
-          <% } %>
-        <% } %>
-        <a class="btn navy" href="/draft">Pick Your Draft Spot</a>
-      </div>
-    </div>
-
-    <div class="card">
-      <h2>Voting Booth <span class="sub">6 yes votes changes a rule</span></h2>
-      <div class="body">
-        <% if (!openVotes.length) { %>
-          <p class="muted">No measures on the ballot. Propose one!</p>
-        <% } else { %>
-          <ul style="margin:.2rem 0 .8rem; padding-left:1.2rem">
-            <% for (const v of openVotes) { %>
-              <li><b><%= v.question %></b> — <%= v.myChoice ? `you voted ${v.myChoice.toUpperCase()}` : 'you haven\'t voted yet' %></li>
-            <% } %>
-          </ul>
-        <% } %>
-        <a class="btn" href="/votes">Go Vote</a>
-      </div>
-    </div>
-
-    <div class="card" style="margin-top:1.2rem">
-      <h2>Locker Room <span class="sub">latest trash talk</span></h2>
-      <div class="body">
-        <% if (!chatLatest.length) { %>
-          <p class="muted">Silence in the locker room. Suspicious.</p>
-        <% } else { %>
-          <% for (const m of chatLatest) { %>
-            <p style="margin:.3rem 0"><b style="color:var(--gold-bright)"><%= m.name %>:</b> <%= m.text.length > 90 ? m.text.slice(0, 90) + '…' : m.text %></p>
-          <% } %>
-        <% } %>
-        <a class="btn navy" href="/chat">💬 Enter the Locker Room</a>
-      </div>
     </div>
   </div>
 

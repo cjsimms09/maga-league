@@ -1059,3 +1059,13 @@ table.standings-chart .owner-link { font-size: .92rem; }
 .claim-dialog tr.cd-mine td { color: #fff; }
 .claim-dialog .cd-warn { margin: .8rem 0; font-size: .8rem; color: var(--red-bright); }
 .claim-dialog .cd-actions { display: flex; gap: .5rem; justify-content: flex-end; flex-wrap: wrap; }
+
+/* ---------- capped lists ----------
+   Every Sleeper-derived list is unbounded and grows all season. Capped with the
+   remaining count stated, so "that's all of it" and "there's more" are
+   distinguishable. */
+.more-rows > summary {
+  cursor: pointer; padding: .45rem .9rem; border-top: 1px solid var(--line);
+  font-size: .74rem; color: var(--muted);
+}
+.more-rows > summary:hover { color: var(--gold-bright); }
