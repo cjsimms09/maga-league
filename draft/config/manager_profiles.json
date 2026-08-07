@@ -272,8 +272,8 @@
       "sample_size": 3,
       "shrinkage_weight": 0.6,
       "softmax": {
-        "alpha_need": 0.509,
-        "beta_value": 1.991
+        "alpha_need": 1.006,
+        "beta_value": 0.994
       },
       "summary": "Drafts near market value."
     },
@@ -551,8 +551,8 @@
       "sample_size": 3,
       "shrinkage_weight": 0.6,
       "softmax": {
-        "alpha_need": 0.533,
-        "beta_value": 1.967
+        "alpha_need": 1.022,
+        "beta_value": 0.978
       },
       "summary": "Reaches ~7 picks early. Takes QB early (round 5 on average, 1.4 rounds before the league). Takes TE early (round 5 on average, 1.8 rounds before the league)."
     },
@@ -859,8 +859,8 @@
       "sample_size": 3,
       "shrinkage_weight": 0.6,
       "softmax": {
-        "alpha_need": 0.46,
-        "beta_value": 2.04
+        "alpha_need": 0.974,
+        "beta_value": 1.026
       },
       "summary": "Drafts near market value. Takes QB early (round 5 on average, 1.4 rounds before the league)."
     },
@@ -1151,8 +1151,8 @@
       "sample_size": 3,
       "shrinkage_weight": 0.6,
       "softmax": {
-        "alpha_need": 0.46,
-        "beta_value": 2.04
+        "alpha_need": 0.974,
+        "beta_value": 1.026
       },
       "summary": "Drafts near market value. Waits on QB (round 8). Waits on TE (round 8)."
     },
@@ -1421,8 +1421,8 @@
       "sample_size": 3,
       "shrinkage_weight": 0.6,
       "softmax": {
-        "alpha_need": 0.61,
-        "beta_value": 1.89
+        "alpha_need": 1.073,
+        "beta_value": 0.927
       },
       "summary": "Drafts near market value."
     },
@@ -1690,8 +1690,8 @@
       "sample_size": 3,
       "shrinkage_weight": 0.6,
       "softmax": {
-        "alpha_need": 0.335,
-        "beta_value": 2.165
+        "alpha_need": 0.89,
+        "beta_value": 1.11
       },
       "summary": "Drafts near market value."
     },
@@ -1982,8 +1982,8 @@
       "sample_size": 3,
       "shrinkage_weight": 0.6,
       "softmax": {
-        "alpha_need": 0.214,
-        "beta_value": 2.286
+        "alpha_need": 0.809,
+        "beta_value": 1.191
       },
       "summary": "Drafts near market value. Takes best available."
     },
@@ -2251,8 +2251,8 @@
       "sample_size": 3,
       "shrinkage_weight": 0.6,
       "softmax": {
-        "alpha_need": 0.484,
-        "beta_value": 2.016
+        "alpha_need": 0.99,
+        "beta_value": 1.01
       },
       "summary": "Waits \u2014 lets value fall ~7 picks."
     },
@@ -2515,8 +2515,8 @@
       "sample_size": 3,
       "shrinkage_weight": 0.6,
       "softmax": {
-        "alpha_need": 0.808,
-        "beta_value": 1.692
+        "alpha_need": 1.205,
+        "beta_value": 0.795
       },
       "summary": "Reaches ~13 picks early. Drafts for need."
     },
@@ -2781,8 +2781,8 @@
       "sample_size": 3,
       "shrinkage_weight": 0.6,
       "softmax": {
-        "alpha_need": 0.571,
-        "beta_value": 1.929
+        "alpha_need": 1.048,
+        "beta_value": 0.952
       },
       "summary": "Drafts near market value."
     }
