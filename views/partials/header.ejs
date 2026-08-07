@@ -42,9 +42,10 @@
     { href: '/chat',    label: 'Locker Room',   short: 'Locker',  icon: '💬',  primary: true, badge: _unread },
     { href: '/draft',   label: 'Draft Order',   short: 'Draft',   icon: '🎯',  match: '/draft' },
     { href: '/votes',   label: 'Voting Booth',  short: 'Votes',   icon: '🗳',  match: '/votes' },
-    { href: '/owners',  label: 'Owners',        short: 'Owners',  icon: '👥' },
-    { href: '/history', label: 'History',       short: 'History', icon: '📜' },
-    { href: '/records', label: 'Record Book',   short: 'Records', icon: '📖' },
+    // Owners and Record Book are sections of /history now, not nav items.
+    // Three entries answering one question ("who has won what") cost three
+    // slots in a bar that was already 70% off-screen on a phone.
+    { href: '/history', label: 'History',       short: 'History', icon: '🏛', match: '/history' },
     { href: '/rules',   label: 'Rules',         short: 'Rules',   icon: '⚖️' },
   ];
   if (_owner.is_commissioner) {

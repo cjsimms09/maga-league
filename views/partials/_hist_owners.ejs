@@ -1,8 +1,3 @@
-<%- include('partials/header', { title: 'Owners' }) %>
-
-<h1 class="page-title">League Owners</h1>
-<p class="page-sub">Ten patriots. One trophy. Ranked by career winnings.</p>
-
 <div class="grid cols-3" style="margin-bottom:1.5rem">
   <% list.forEach((o, idx) => { const c = champs[o.id] || []; const tb = bowls[o.id] || []; const rec = (typeof records !== 'undefined' && records[o.id]) || { wins: o.wins, losses: o.losses, ties: o.ties }; const gp = rec.wins + rec.losses + rec.ties; %>
   <div class="card owner-card">
@@ -25,5 +20,3 @@
   <% }) %>
 </div>
 <p class="muted" style="text-align:center">⚡ = record updates itself from Sleeper &nbsp;·&nbsp; * co-championship (2022 was split — don't ask, it was chaos)</p>
-
-<%- include('partials/footer') %>

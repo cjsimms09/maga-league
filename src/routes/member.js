@@ -181,7 +181,14 @@ router.get('/', aw(async (req, res) => {
   });
 }));
 
-router.get('/owners', aw(async (req, res) => {
+// ---------- league history: money, owners, record book ----------
+// These were three tabs reading the same helpers and answering one question.
+// /owners and /records now redirect into the merged page so old links, phone
+// bookmarks and anything shared in the group chat keep working.
+router.get('/owners', (req, res) => res.redirect('/history?section=owners'));
+router.get('/records', (req, res) => res.redirect('/history?section=records'));
+
+async function ownersSection(req) {
   const world = req.world;
   const list = H.activeOwners(world.owners);
   const grid = H.winningsGrid(world);
@@ -202,20 +209,19 @@ router.get('/owners', aw(async (req, res) => {
   const era = H.sleeperEraByOwner(recs, uMap);
   const records = {};
   for (const o of list) records[o.id] = H.careerRecord(o, era[o.id]);
-  res.render('owners', { list: ranked, grid, years: H.gridYears(grid), champs, bowls, totals, teams, records });
-}));
+  return { list: ranked, grid, years: H.gridYears(grid), champs, bowls, totals, teams, records };
+}
 
-// ---------- record book (auto-computed from the league's full Sleeper history) ----------
-router.get('/records', aw(async (req, res) => {
+async function recordsSection(req) {
   const world = req.world;
   const owners = H.activeOwners(world.owners);
   const sData = await sleeper.bundle(world.config.sleeper_league_id);
   const uMap = sleeper.userMap(sData, world.config.sleeper_map || {});
   const recs = await sleeper.records(world.config.sleeper_league_id, uMap, owners);
-  res.render('records', { recs, configured: !!world.config.sleeper_league_id });
-}));
+  return { recs, configured: !!world.config.sleeper_league_id };
+}
 
-router.get('/history', aw(async (req, res) => {
+async function moneySection(req) {
   const world = req.world;
   const owners = world.owners;
   const list = H.activeOwners(owners);
@@ -250,7 +256,18 @@ router.get('/history', aw(async (req, res) => {
     .filter(s => s.status === 'complete' && (s.standings || []).length)
     .map(s => ({ year: s.year, name: nameOf(s.standings[s.standings.length - 1]) }));
 
-  res.render('history', { details, list: ranked, grid, years, totals, grand, shame, CATEGORY_LABELS: H.CATEGORY_LABELS });
+  return { details, list: ranked, grid, years, totals, grand, shame, CATEGORY_LABELS: H.CATEGORY_LABELS };
+}
+
+router.get('/history', aw(async (req, res) => {
+  const section = ['money', 'owners', 'records'].includes(req.query.section)
+    ? req.query.section : 'money';
+  // Only build what is being shown. The record book walks the whole Sleeper
+  // history, which is not a call worth making to render the money grid.
+  const data = section === 'owners' ? await ownersSection(req)
+    : section === 'records' ? await recordsSection(req)
+    : await moneySection(req);
+  res.render('history', Object.assign({ section }, data));
 }));
 
 // ---------- The Tab (money) ----------

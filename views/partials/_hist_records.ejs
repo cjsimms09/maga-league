@@ -1,8 +1,3 @@
-<%- include('partials/header', { title: 'Record Book' }) %>
-
-<h1 class="page-title">📖 The Record Book</h1>
-<p class="page-sub">Automatically computed from every season of this league on Sleeper. The numbers don't lie. Some of you wish they did.</p>
-
 <% if (!configured) { %>
   <div class="card"><div class="body"><p class="muted" style="margin:0">The commissioner hasn't connected Sleeper yet (Commish → Sleeper).</p></div></div>
 <% } else if (!recs) { %>
@@ -125,5 +120,3 @@
   Recomputed every few hours; the commissioner can force a refresh from the Sleeper tab.
 </p>
 <% } %>
-
-<%- include('partials/footer') %>

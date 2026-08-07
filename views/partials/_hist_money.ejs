@@ -1,0 +1,103 @@
+<div class="card" style="margin-bottom:1.5rem">
+  <h2>All-Time Winnings <span class="sub"><%= money(grand) %> paid out since 2016</span></h2>
+  <div class="body tight scroll-x">
+    <table class="roll">
+      <tr>
+        <th>Owner</th>
+        <% for (const y of years) { %><th class="num"><%= y %></th><% } %>
+        <th class="num">Career</th>
+      </tr>
+      <% for (const o of list) { %>
+        <tr>
+          <td><b><%= o.name %></b></td>
+          <% for (const y of years) { const v = (grid[o.id] || {})[y]; %>
+            <td class="num"><%= v ? money(v) : '·' %></td>
+          <% } %>
+          <td class="num"><b><%= money(totals[o.id]) %></b></td>
+        </tr>
+      <% } %>
+      <tr class="total">
+        <td>League total</td>
+        <% for (const y of years) { let s = 0; for (const o of list) s += (grid[o.id] || {})[y] || 0; %>
+          <td class="num"><%= s ? money(s) : '·' %></td>
+        <% } %>
+        <td class="num"><%= money(grand) %></td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+<% if (shame.length) { %>
+<div class="card" style="margin-bottom:1.5rem">
+  <h2>🚽 The Wall of Shame <span class="sub">last-place finishers, immortalized forever</span></h2>
+  <div class="body">
+    <div class="shame-row">
+      <% for (const s of shame) { %>
+        <div class="shame-item"><span class="shame-year"><%= s.year %></span><b><%= s.name %></b></div>
+      <% } %>
+    </div>
+  </div>
+</div>
+<% } %>
+
+<% for (const d of details) { const champ = d.awards.find(a => a.category === 'playoff_1'); %>
+<details class="season" <%= d.season.status === 'active' ? 'open' : '' %>>
+  <summary>
+    <span class="yr"><%= d.season.year %></span>
+    <span class="champ">
+      <% if (champ) { %>🏆 <%= champ.name %><%= champ.note && champ.note.startsWith('Co-champion') ? ' & ' + (d.awards.find(a => a.category === 'playoff_2') || {}).name + ' (co-champs)' : '' %>
+      <% } else { %><%= d.season.status === 'active' ? 'Season in progress…' : 'No champion recorded' %><% } %>
+    </span>
+    <span style="flex:1"></span>
+    <span class="badge gold">Pot <%= money(d.season.total_pot) %></span>
+    <span class="badge navy">Buy-in <%= money(d.season.buy_in) %></span>
+  </summary>
+  <div class="body">
+    <div class="grid cols-2">
+      <% if (d.awards.length) { %>
+      <div>
+        <h3 style="margin:.2rem 0 .4rem; color:var(--navy); text-transform:uppercase; font-size:.85rem; letter-spacing:.08em">Payouts</h3>
+        <table class="roll">
+          <% for (const a of d.awards) { %>
+            <tr><td><%= CATEGORY_LABELS[a.category] || a.category %><% if (a.note) { %> <span class="muted">(<%= a.note %>)</span><% } %></td><td><b><%= a.name %></b></td><td class="num"><%= money(a.amount) %></td></tr>
+          <% } %>
+        </table>
+      </div>
+      <% } %>
+      <% if (d.standings.length) { %>
+      <div>
+        <h3 style="margin:.2rem 0 .4rem; color:var(--navy); text-transform:uppercase; font-size:.85rem; letter-spacing:.08em">Final Standings</h3>
+        <table class="roll">
+          <% for (const s of d.standings) { %>
+            <tr><td style="width:3.5rem"><%= s.rank %><%= ['st','nd','rd'][s.rank - 1] || 'th' %></td><td><b><%= s.name %></b></td></tr>
+          <% } %>
+        </table>
+      </div>
+      <% } %>
+      <% if (d.weekly.length) { %>
+      <div>
+        <h3 style="margin:.2rem 0 .4rem; color:var(--navy); text-transform:uppercase; font-size:.85rem; letter-spacing:.08em">Weekly High Point</h3>
+        <table class="roll">
+          <% for (const w of d.weekly) { %>
+            <tr><td style="width:5rem">Wk <%= w.week %></td><td><b><%= w.name %></b></td><td class="num"><%= money(w.amount) %></td></tr>
+          <% } %>
+        </table>
+      </div>
+      <% } %>
+      <% if (d.picks.length) { %>
+      <div>
+        <h3 style="margin:.2rem 0 .4rem; color:var(--navy); text-transform:uppercase; font-size:.85rem; letter-spacing:.08em">Draft Order</h3>
+        <table class="roll">
+          <% [...d.picks].filter(p => p.slot != null).sort((a, b) => a.slot - b.slot).forEach(p => { %>
+            <tr><td style="width:3.5rem">#<%= p.slot %></td><td><b><%= p.name %></b></td></tr>
+          <% }) %>
+        </table>
+      </div>
+      <% } %>
+    </div>
+    <% if (!d.awards.length && !d.standings.length && !d.weekly.length && !d.picks.length) { %>
+      <p class="muted">Nothing recorded for this season yet.</p>
+    <% } %>
+  </div>
+</details>
+<% } %>
