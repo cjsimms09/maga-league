@@ -428,7 +428,24 @@ def build(cfg: dict, *, offline: bool = False, force_profiles: bool = False) -> 
         "notes": {
             "adp_blend_weight": cfg.get("adp_blend_weight"),
             "opportunity_cap": cfg.get("opportunity_cap"),
-            "opportunity_applied": any(p.get("opportunity_z") for p in available),
+            # DERIVED FROM THE DATA, and from the field that actually proves
+            # the adjustment reached a projection.
+            #
+            # THE BUG THIS FIXES: this read `opportunity_z`, which is the input
+            # to the adjustment, not evidence of it. A fixture that populates z
+            # without ever calling blend() therefore reported
+            # `opportunity_applied: True` while `opportunity_adj` was None on
+            # every one of 203 players and the provenance flag said DISABLED.
+            # Three claims about one thing, two wrong, and the wrong one was the
+            # COMPUTED one — which is worse, because computed reads like proof.
+            #
+            # `opportunity_adj` is set only by projections.blend(), in the same
+            # statement that applies the adjustment to the projection. It cannot
+            # be non-null unless the adjustment actually happened.
+            "opportunity_applied": any(p.get("opportunity_adj") for p in available),
+            "opportunity_adj_coverage": round(
+                sum(1 for p in available if p.get("opportunity_adj") is not None)
+                / max(1, len(available)), 3),
             "config_confirmed": bool(cfg.get("confirmed")),
             "profiles_from_drafts": profiles.get("drafts_analysed", 0),
         },
@@ -440,6 +457,7 @@ def build(cfg: dict, *, offline: bool = False, force_profiles: bool = False) -> 
             "opportunity_detail": {k: v for k, v in OPPORTUNITY_PROVENANCE.items() if k != "status"},
         },
     }
+    _assert_provenance_matches_data(available, artifact)
     _assert_opportunity_coverage(available, artifact)
     _assert_value_side(available, artifact)
     return artifact
@@ -477,6 +495,36 @@ def _assert_value_side(players: list, artifact: dict) -> None:
 # matching players and every projection is consensus-only without saying so.
 OPPORTUNITY_MIN_COVERAGE = 0.60
 OPPORTUNITY_COVERAGE_TOP_N = 200
+
+
+def _assert_provenance_matches_data(players: list, artifact: dict) -> None:
+    """Provenance must agree with the data it describes, or the build stops.
+
+    A label that can disagree with its own data is not a guarantee, it is
+    decoration — and the entire loud-degradation design rests on those labels
+    being true. The pre-draft checklist reads them. The War Room banners read
+    them. If they can drift, all of that is theatre.
+
+    So the claim is recomputed here from the players themselves and compared
+    against what the pipeline asserted. Disagreement fails the build rather
+    than shipping an artifact whose provenance is fiction.
+    """
+    prov = artifact["provenance"]
+    claimed = str(prov.get("opportunity_adjustment", "unknown"))
+    claims_ok = claimed == "ok"
+    observed = any(p.get("opportunity_adj") for p in players)
+
+    prov["opportunity_claimed_ok"] = claims_ok
+    prov["opportunity_observed_in_data"] = observed
+
+    if claims_ok != observed:
+        raise SystemExit(
+            "PROVENANCE DISAGREES WITH THE DATA.\n"
+            f"  provenance.opportunity_adjustment = {claimed!r} (ok={claims_ok})\n"
+            f"  players with a non-null opportunity_adj = {observed}\n"
+            "One of them is lying. The adjustment either reached the projections "
+            "or it did not, and the artifact must not ship claiming both."
+        )
 
 
 def _assert_opportunity_coverage(players: list, artifact: dict) -> None:

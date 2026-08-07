@@ -342,3 +342,64 @@ def test_upside_ordering_now_differs_from_projection_ordering():
     # And specifically: the committee rookie outranks the bell-cow on ceiling
     # despite a lower projection, which is the whole point of the term.
     assert by_upside.index("comm") < by_upside.index("bell")
+
+
+# ---------------------------------------------------------------------------
+# Provenance must agree with the data it describes.
+# ---------------------------------------------------------------------------
+
+def test_provenance_disagreeing_with_data_fails_the_build():
+    """A label that can disagree with its own data is decoration, not a guarantee.
+
+    The fixture artifact shipped with provenance.opportunity_adjustment
+    'DISABLED', notes.opportunity_applied True, and opportunity_adj None on
+    every one of 203 players. Three claims about one thing, two of them wrong,
+    and the wrong one was the COMPUTED one — which is worse, because computed
+    reads like proof.
+    """
+    import build as B
+
+    # Claims ok, data says the adjustment never touched a projection.
+    art = {"provenance": {"opportunity_adjustment": "ok"}}
+    players = [{"player_id": "1", "opportunity_adj": None},
+               {"player_id": "2", "opportunity_adj": None}]
+    with pytest.raises(SystemExit) as e:
+        B._assert_provenance_matches_data(players, art)
+    assert "PROVENANCE DISAGREES WITH THE DATA" in str(e.value)
+
+    # Claims DISABLED, data says it plainly ran. The other direction, which is
+    # the one the shipped fixture actually exhibited.
+    art2 = {"provenance": {"opportunity_adjustment": "DISABLED — offline build"}}
+    live = [{"player_id": "1", "opportunity_adj": 0.07}]
+    with pytest.raises(SystemExit):
+        B._assert_provenance_matches_data(live, art2)
+
+
+def test_provenance_agreeing_with_data_passes_and_records_both():
+    import build as B
+    art = {"provenance": {"opportunity_adjustment": "ok"}}
+    players = [{"player_id": "1", "opportunity_adj": 0.05},
+               {"player_id": "2", "opportunity_adj": -0.02}]
+    B._assert_provenance_matches_data(players, art)
+    assert art["provenance"]["opportunity_claimed_ok"] is True
+    assert art["provenance"]["opportunity_observed_in_data"] is True
+
+    art2 = {"provenance": {"opportunity_adjustment": "DISABLED — offline build"}}
+    off = [{"player_id": "1", "opportunity_adj": None}]
+    B._assert_provenance_matches_data(off, art2)
+    assert art2["provenance"]["opportunity_claimed_ok"] is False
+    assert art2["provenance"]["opportunity_observed_in_data"] is False
+
+
+def test_opportunity_applied_reads_the_field_that_proves_it():
+    """`opportunity_z` is the INPUT to the adjustment, not evidence of it.
+
+    A fixture can populate z without ever calling blend(). Only
+    `opportunity_adj` is set in the same statement that applies the adjustment
+    to the projection, so only it can prove the adjustment happened.
+    """
+    src = (Path(__file__).resolve().parent.parent / "build.py").read_text()
+    i = src.index('"opportunity_applied"')
+    line = src[i:src.index("\n", i)]
+    assert "opportunity_adj" in line, line
+    assert "opportunity_z" not in line, line
