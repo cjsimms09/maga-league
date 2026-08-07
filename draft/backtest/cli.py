@@ -87,8 +87,24 @@ def main() -> int:
         caveats.append(caveat_missing)
     for season in seasons:
         print(f"\n--- {season} ---")
-        store = AsOfDataStore(season, history,
-                              adp_loader=lambda fmt, teams, year: ADP.fetch_adp(fmt, teams, year))
+        # THE NAME MATCHER IS NOT OPTIONAL.
+        #
+        # The first run that got this far failed its own sanity gate on all
+        # three seasons with overlap_with_adp of 18, 14 and 7 players. The cause
+        # was here: fetch_adp returns FFC's RAW payload, whose player_id is
+        # FFC's own id (Jahmyr Gibbs is 5672 there), and I keyed it as though it
+        # were a Sleeper id. Seven coincidental collisions out of two hundred.
+        #
+        # build_adp_table is the production path — it name-matches FFC to
+        # Sleeper and returns rows keyed by SLEEPER id. Reusing it is the same
+        # rule the replay follows for engine.js, and I broke it here first.
+        def _adp(fmt, teams, year):
+            table = ADP.build_adp_table(sleeper_players, fmt=fmt, teams=teams,
+                                        year=year, strict_top_n=10 ** 9)
+            rows = table["adp"]
+            return {"players": [{"sleeper_id": pid, "adp": r["adp"]}
+                                for pid, r in rows.items()]}
+        store = AsOfDataStore(season, history, adp_loader=_adp)
         try:
             bundle, notes = BB.build(store, players_meta=players_meta, weekly_df=weekly,
                                      crosswalk=crosswalk,
@@ -113,6 +129,9 @@ def main() -> int:
 
     if not bundles:
         print("\nNO BUNDLES — nothing to replay."); return 1
+    caveats.append("Historical FFC ADP is name-matched against TODAY'S Sleeper "
+                   "player list, so a player who has since changed teams or "
+                   "retired may match differently than he would have that year.")
     caveats.append(f"Seasons replayed: {[b['season'] for b in bundles]}")
     json.dump({"bundles": bundles, "actual_points": actual, "caveats": caveats,
                "methods": methods}, open(args.out, "w"))
