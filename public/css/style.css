@@ -1000,3 +1000,62 @@ table.ledger .owner-link:hover { text-decoration: underline; }
    tables obvious without a second click. */
 table.ledger tr.is-viewing { background: rgba(245, 196, 69, .07); }
 table.ledger tr.is-viewing td:first-child { border-left: 2px solid var(--gold); }
+
+/* ---------- the 2022 asterisk ----------
+   A footnote nobody reads is not an explanation. This one gets a box, because
+   two people are listed as champions of a year neither of them won. */
+.asterisk-note {
+  max-width: 640px; margin: .6rem auto 0; padding: .7rem .9rem;
+  border: 1px dashed rgba(245, 196, 69, .5); border-radius: var(--radius);
+  background: rgba(245, 196, 69, .05);
+  color: #d9dfee; font-size: .82rem; line-height: 1.6; text-align: center;
+}
+.asterisk-note b { color: var(--gold-bright); }
+
+/* ---------- who owes what, at a glance ---------- */
+table.standings-chart td:first-child { font-weight: 700; }
+table.standings-chart .owner-link { font-size: .92rem; }
+
+/* ---------- draft spot selection ----------
+   The keeper/snake interaction is the entire decision on this page and it was
+   a grid of overall pick numbers you had to decode. */
+.keeper-shortcuts { display: flex; gap: .5rem; flex-wrap: wrap; }
+.shortcut {
+  flex: 1 1 150px; text-align: left; cursor: pointer;
+  background: rgba(255, 255, 255, .04); border: 1px solid var(--line);
+  border-radius: 12px; padding: .6rem .7rem; color: inherit;
+}
+.shortcut:hover { border-color: var(--gold); background: rgba(245, 196, 69, .07); }
+.shortcut.mine { border-color: rgba(245, 196, 69, .7); background: rgba(245, 196, 69, .09); }
+.sc-k { display: block; font-family: var(--font-display); font-size: .68rem;
+        letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.shortcut.mine .sc-k { color: var(--gold-bright); }
+.sc-spot { display: block; font-family: var(--font-display); font-size: 1.15rem; font-weight: 800; color: #fff; }
+.sc-pick { display: block; font-size: .72rem; color: var(--muted); margin-top: .1rem; }
+
+/* Every open tile carries its own consequence, so the cheat sheet is a
+   confirmation rather than a lookup you have to perform. */
+.slot-hint { display: flex; flex-wrap: wrap; gap: .25rem; justify-content: center; margin: .3rem 0 .1rem; }
+.slot-hint span { font-size: .6rem; color: var(--muted); background: rgba(255,255,255,.05);
+                  border-radius: 4px; padding: .05rem .25rem; }
+.slot-hint span.mine { color: var(--gold-bright); background: rgba(245,196,69,.12); font-weight: 700; }
+.draft-board .slot.flash { animation: slot-flash 1.8s ease-out; }
+@keyframes slot-flash {
+  0%, 100% { box-shadow: none; }
+  15%, 60% { box-shadow: 0 0 0 3px var(--gold), var(--glow-gold); }
+}
+
+.claim-dialog {
+  border: 1px solid rgba(245, 196, 69, .6); border-radius: 16px;
+  background: var(--panel); color: var(--ink);
+  max-width: 560px; width: calc(100% - 1.6rem); padding: 1.1rem;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, .75);
+}
+.claim-dialog::backdrop { background: rgba(0, 0, 0, .72); }
+.claim-dialog h3 { margin: 0 0 .2rem; font-family: var(--font-display); font-size: 1.15rem; color: #fff; }
+.claim-dialog .cd-lede { margin: 0 0 .8rem; color: var(--muted); font-size: .85rem; }
+.claim-dialog table { width: 100%; font-size: .82rem; }
+.claim-dialog tr.cd-mine { background: rgba(245, 196, 69, .1); }
+.claim-dialog tr.cd-mine td { color: #fff; }
+.claim-dialog .cd-warn { margin: .8rem 0; font-size: .8rem; color: var(--red-bright); }
+.claim-dialog .cd-actions { display: flex; gap: .5rem; justify-content: flex-end; flex-wrap: wrap; }

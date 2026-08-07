@@ -1,4 +1,4 @@
-<%- include('partials/header', { title: 'The Tab' }) %>
+<%- include('partials/header', { title: 'League Finances' }) %>
 <%
   // "12 Mar 2026", never "03/12/2026" — David and Marian read the latter as
   // 3 December, and this is the money page.
@@ -14,7 +14,7 @@
   const isMine = vc && vc.owner.id === owner.id;
 %>
 
-<h1 class="page-title" id="top">💰 The Tab</h1>
+<h1 class="page-title" id="top">💰 League Finances</h1>
 <p class="page-sub">Every dollar in and out, in <b>USD</b>. Balances roll over season to
 season until settled.</p>
 
@@ -124,34 +124,40 @@ season until settled.</p>
 </div>
 <% } %>
 
-<%# ── The whole league's books for the season, one chronological list. ── %>
+<%# ── The chart: who owes what, at a glance. Tap a name to open their ledger. ── %>
 <div class="card">
-  <h2>🏦 League Ledger <span class="sub"><%= season.year %> — tap a name to open their ledger</span></h2>
+  <h2>📊 Where Everyone Stands <span class="sub"><%= season.year %> — tap a name for their ledger</span></h2>
   <div class="body tight scroll-x">
-    <table class="roll ledger league-ledger">
+    <table class="roll ledger standings-chart">
       <thead><tr>
-        <th>Date</th><th>Owner</th><th>Item</th><th class="num">Amount</th><th class="st">Status</th>
+        <th>Owner</th><th>Buy-in</th>
+        <th class="num">Paid in</th><th class="num">Won</th><th class="num">Balance</th>
       </tr></thead>
       <tbody>
-        <% if (!leagueEntries.length) { %>
-          <tr><td colspan="5" class="muted" style="padding:1rem">Nothing on the books for <%= season.year %> yet.</td></tr>
-        <% } %>
-        <% for (const e of leagueEntries) { %>
-          <tr class="<%= e.settled ? 'is-settled' : '' %><%= vc && e.owner_id === vc.owner.id ? ' is-viewing' : '' %>">
-            <td class="ldate"><%= fmtDate(e.created_at) %></td>
-            <td><a class="owner-link" href="/bank?owner=<%= e.owner_id %>#top"><%= e.owner_name %></a></td>
-            <td><%= e.desc %><% if (e.week) { %> <span class="muted type-tag">wk <%= e.week %></span><% } %></td>
-            <td class="num <%= e.amount < 0 ? 'neg' : 'pos' %>"><%= (e.amount > 0 ? '+' : '') + money(e.amount) %></td>
-            <td class="st"><%= e.settled ? '✅' : '⏳' %></td>
+        <% for (const c of cards) {
+             const yr = c.entries.filter(e => Number(e.year) === Number(season.year));
+             const paid = yr.filter(e => e.amount < 0 && e.settled).reduce((s, e) => s + -e.amount, 0);
+             const won = yr.filter(e => e.amount > 0).reduce((s, e) => s + e.amount, 0);
+             const buyIn = yr.find(e => e.type === 'buy_in');
+        %>
+          <tr class="<%= vc && c.owner.id === vc.owner.id ? 'is-viewing' : '' %>">
+            <td><a class="owner-link" href="/bank?owner=<%= c.owner.id %>#top"><%= c.owner.name %><%= c.owner.id === owner.id ? ' (you)' : '' %></a></td>
+            <td><% if (!buyIn) { %><span class="muted">—</span>
+                <% } else if (buyIn.settled) { %><span class="badge paid">Paid</span>
+                <% } else { %><span class="badge owes">Owes</span><% } %></td>
+            <td class="num"><%= paid ? money(paid) : '·' %></td>
+            <td class="num pos"><%= won ? money(won) : '·' %></td>
+            <td class="num run <%= c.balance > 0 ? 'pos' : c.balance < 0 ? 'neg' : '' %>">
+              <%= c.balance === 0 ? '✓ even' : money(c.balance) %></td>
           </tr>
         <% } %>
         <tr class="total">
-          <td colspan="3">Still owed TO the league</td>
-          <td class="num neg"><%= money(Math.abs(totalOwedToLeague)) %></td><td class="st"></td>
+          <td colspan="4">Still owed TO the league</td>
+          <td class="num neg"><%= money(Math.abs(totalOwedToLeague)) %></td>
         </tr>
         <tr class="total">
-          <td colspan="3">Still owed BY the league</td>
-          <td class="num pos"><%= money(totalLeagueOwes) %></td><td class="st"></td>
+          <td colspan="4">Still owed BY the league</td>
+          <td class="num pos"><%= money(totalLeagueOwes) %></td>
         </tr>
       </tbody>
     </table>

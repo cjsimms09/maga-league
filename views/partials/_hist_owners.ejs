@@ -5,7 +5,7 @@
     <h3><%= o.name %></h3>
     <% if (typeof teams !== 'undefined' && teams[o.id]) { %><div class="muted" style="font-style:italic">🏈 <%= teams[o.id] %></div><% } %>
     <div class="muted" style="min-height:1.1rem"><%= idx === 0 ? '👑 Top Earner' : '' %><%= o.is_commissioner ? (idx === 0 ? ' • ' : '') + '⭐ Commissioner' : '' %></div>
-    <div class="trophies" title="League championships">
+    <div class="trophies" title="League championships<%= (champs[o.id] || []).some(ch => ch.co) ? ' — 2022 was a split title after Bills–Bengals was cancelled' : '' %>">
       <% c.forEach(ch => { %>🏆<% }) %>
       <% if (c.length) { %><span class="muted" style="font-size:.75rem"> <%= c.map(ch => ch.year + (ch.co ? '*' : '')).join(', ') %></span><% } %>
       <% if (tb.length) { %><span title="Toilet Bowls (last place)"> <% tb.forEach(() => { %>🚽<% }) %><span class="muted" style="font-size:.75rem"> <%= tb.join(', ') %></span></span><% } %>
@@ -19,4 +19,11 @@
   </div>
   <% }) %>
 </div>
-<p class="muted" style="text-align:center">⚡ = record updates itself from Sleeper &nbsp;·&nbsp; * co-championship (2022 was split — don't ask, it was chaos)</p>
+<p class="muted" style="text-align:center; line-height:1.7">
+  ⚡ = record updates itself from Sleeper
+</p>
+<div class="asterisk-note">
+  <b>* The 2022 asterisk.</b> Bills–Bengals was cancelled, so rather than play it out
+  they <b>split the trophy and the pot</b>. Marian and Sam are both listed as champions
+  for 2022 and neither of them actually won it. The asterisk stays. Forever.
+</div>

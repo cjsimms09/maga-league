@@ -27,8 +27,58 @@
   </div>
 <% } %>
 
+<%
+  const N = draft.picks.length || (season.teams || 10);
+  // Snake order. Keeper #k costs round k, so with k keepers your first live
+  // selection is round k+1. In an odd round the slot picks in order; in an even
+  // round it reverses — which is the whole reason a late spot can pick EARLIER
+  // than spot #1 once you are keeping players.
+  const posInRound = (slot, r) => (r % 2 === 1 ? slot : (N + 1 - slot));
+  const overall = (slot, r) => (r - 1) * N + posInRound(slot, r);
+  const firstPick = (slot, k) => overall(slot, k + 1);
+  const pickList = (slot, k, howMany) => {
+    const out = [];
+    for (let i = 0; i < howMany; i++) out.push(overall(slot, k + 1 + i));
+    return out;
+  };
+  const ordinal = n => n + (['st','nd','rd'][((n % 100 - 20) % 10) - 1] || ['st','nd','rd'][n - 1] || 'th');
+  const takenSlots = new Set(draft.picks.filter(p => p.slot != null).map(p => p.slot));
+  const openSlots = [];
+  for (let i = 1; i <= N; i++) if (!takenSlots.has(i)) openSlots.push(i);
+  // The spot that gets you on the board soonest for each keeper count.
+  const bestFor = k => openSlots.slice().sort((a, b) => firstPick(a, k) - firstPick(b, k))[0];
+  const myKeepCount = myKeepers.length;
+%>
+
 <div class="grid cols-2">
   <% if (draft.picks.length) { %>
+  <div class="card col-span-2">
+    <h2>🧭 Which Spot Should You Take? <span class="sub">it depends entirely on how many you keep</span></h2>
+    <div class="body">
+      <p style="margin:.1rem 0 .8rem">
+        Every keeper costs you that round's pick. Keep 2 and your first real selection is
+        <b>Round 3</b> — and because the draft snakes, <b>a late spot can pick earlier than
+        spot #1</b>. That is the whole decision.
+      </p>
+      <div class="keeper-shortcuts">
+        <% for (let k = 0; k <= 3; k++) { const b = bestFor(k); %>
+          <% if (b) { %>
+          <button class="shortcut <%= k === myKeepCount ? 'mine' : '' %>" type="button"
+                  data-spot="<%= b %>" data-keep="<%= k %>">
+            <span class="sc-k">Keep <%= k %><%= k === myKeepCount ? ' (you)' : '' %></span>
+            <span class="sc-spot">Spot #<%= b %></span>
+            <span class="sc-pick">first pick #<%= firstPick(b, k) %> · <%= ordinal(posInRound(b, k + 1)) %> of Rd <%= k + 1 %></span>
+          </button>
+          <% } %>
+        <% } %>
+      </div>
+      <p class="muted" style="margin:.7rem 0 0; font-size:.78rem">
+        These are the <b>earliest</b> first pick available right now for each keeper count.
+        Tap one to jump to that spot on the board.
+      </p>
+    </div>
+  </div>
+
   <div class="card">
     <h2>Draft Board <span class="sub">spots 1–<%= draft.picks.length %></span></h2>
     <div class="body">
@@ -37,8 +87,15 @@
           <div class="slot <%= taken ? 'taken' : 'open-slot' %>">
             <div class="n">Spot #<%= s %></div>
             <div class="who"><%= taken ? taken.name : '—' %></div>
+            <% if (!taken) { %>
+              <div class="slot-hint">
+                <% for (let k = 0; k <= 3; k++) { %>
+                  <span class="<%= k === myKeepCount ? 'mine' : '' %>">K<%= k %>: #<%= firstPick(s, k) %></span>
+                <% } %>
+              </div>
+            <% } %>
             <% if (!taken && myTurn) { %>
-              <form method="post" action="/draft/pick">
+              <form method="post" action="/draft/pick" class="claim-form" data-slot="<%= s %>">
                 <input type="hidden" name="slot" value="<%= s %>">
                 <button class="btn small gold" type="submit">Claim it</button>
               </form>
@@ -150,5 +207,85 @@
     </ol>
   </div>
 </div>
+
+<%# ── Confirmation. Claiming a spot is final, and the consequence is not
+     obvious from a number on a tile — so it gets stated in full first. ── %>
+<dialog id="claim-dialog" class="claim-dialog">
+  <h3>Take Spot #<span id="cd-slot"></span>?</h3>
+  <p class="cd-lede">Here is exactly what that means, depending on how many players you keep.</p>
+  <table class="roll" id="cd-table">
+    <thead><tr><th>If you keep</th><th>First pick</th><th>Where that lands</th><th>Then</th></tr></thead>
+    <tbody></tbody>
+  </table>
+  <p class="cd-warn">This is <b>final</b> — only the commissioner can undo it.</p>
+  <div class="cd-actions">
+    <button class="btn navy" id="cd-cancel" type="button">Back</button>
+    <button class="btn gold" id="cd-confirm" type="button">Yes, take Spot #<span id="cd-slot2"></span></button>
+  </div>
+</dialog>
+
+<script>
+(function () {
+  var N = <%= N %>, myKeep = <%= myKeepCount %>;
+  var posInRound = function (slot, r) { return r % 2 === 1 ? slot : (N + 1 - slot); };
+  var overall = function (slot, r) { return (r - 1) * N + posInRound(slot, r); };
+  var ord = function (n) {
+    var s = ['th', 'st', 'nd', 'rd'], v = n % 100;
+    return n + (s[(v - 20) % 10] || s[v] || s[0]);
+  };
+
+  var dlg = document.getElementById('claim-dialog');
+  if (!dlg) return;
+  var pending = null;
+
+  document.querySelectorAll('.claim-form').forEach(function (form) {
+    form.addEventListener('submit', function (ev) {
+      ev.preventDefault();
+      pending = form;
+      var slot = Number(form.getAttribute('data-slot'));
+      document.getElementById('cd-slot').textContent = slot;
+      document.getElementById('cd-slot2').textContent = slot;
+
+      var rows = '';
+      for (var k = 0; k <= 3; k++) {
+        var r = k + 1;
+        var first = overall(slot, r);
+        var p = posInRound(slot, r);
+        var nexts = [overall(slot, r + 1), overall(slot, r + 2)].join(', ');
+        var flag = (k === myKeep) ? ' class="cd-mine"' : '';
+        var where = ord(p) + ' pick of Round ' + r;
+        if (p === 1) where += ' \u2014 you are on the clock first';
+        if (p === N) where += ' \u2014 last, but you pick again immediately';
+        rows += '<tr' + flag + '><td><b>' + k + ' keeper' + (k === 1 ? '' : 's') + '</b>'
+             + (k === myKeep ? ' <span class="muted">(what you declared)</span>' : '') + '</td>'
+             + '<td><b>#' + first + '</b></td><td>' + where + '</td>'
+             + '<td class="muted">then #' + nexts + '</td></tr>';
+      }
+      dlg.querySelector('tbody').innerHTML = rows;
+      if (typeof dlg.showModal === 'function') dlg.showModal();
+      else if (confirm('Take spot #' + slot + '?')) form.submit();
+    });
+  });
+
+  document.getElementById('cd-cancel').addEventListener('click', function () { dlg.close(); pending = null; });
+  document.getElementById('cd-confirm').addEventListener('click', function () {
+    if (pending) { dlg.close(); pending.removeAttribute('data-slot'); pending.submit(); }
+  });
+
+  // Shortcut chips scroll to the spot and flash it, so "best if I keep 2" and
+  // the tile you are about to tap are visibly the same thing.
+  document.querySelectorAll('.shortcut').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var spot = Number(btn.getAttribute('data-spot'));
+      var tiles = document.querySelectorAll('.draft-board .slot');
+      var tile = tiles[spot - 1];
+      if (!tile) return;
+      tile.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      tile.classList.add('flash');
+      setTimeout(function () { tile.classList.remove('flash'); }, 1800);
+    });
+  });
+})();
+</script>
 
 <%- include('partials/footer') %>
