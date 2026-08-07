@@ -408,6 +408,7 @@
     // Before anything is scored: if Auto is on, the weights for THIS pick have
     // to be in place, or every panel below renders last pick's opinion.
     applyAutoWeights();
+    checkKeeperLock();
     renderHeader();
     renderRecommendations();
     renderLists();
@@ -728,6 +729,47 @@
     const d = E.rankDiff(before, after);
     el.className = d.topChanged ? 'weights-effect changed' : 'muted weights-effect';
     el.textContent = ((prefix ? prefix + ' ' : '') + (d.message || '')).trim();
+  }
+
+  /* Is the keeper slate the board was built on one anybody has checked?
+   *
+   * The slate is the single input that can be wrong while every number derived
+   * from it — adjusted ADP, the true pick order, my pick numbers — still looks
+   * perfectly normal. So it gets a banner, not a log line, and the banner
+   * distinguishes "never confirmed" from "confirmed then edited". The second is
+   * the dangerous one: it means somebody checked a slate that is no longer the
+   * one on screen.
+   */
+  function checkKeeperLock() {
+    if (!window.KeeperLock) return;
+    const KL = window.KeeperLock;
+    const built = KL.slateFromForfeited((state.data.pick_order || {}).forfeited || []);
+    let slate = built;
+    try {
+      const saved = JSON.parse(localStorage.getItem(KL.CFG.SLATE_KEY) || 'null');
+      if (saved && Object.keys(saved).length) slate = saved;
+    } catch (e) { /* private mode — the built slate stands */ }
+    let stored = null;
+    try { stored = JSON.parse(localStorage.getItem(KL.CFG.LOCK_KEY) || 'null'); } catch (e) {}
+    state.keeperLock = KL.lockState(stored, slate, Date.now());
+    state.keeperSlate = slate;
+    renderKeeperLock();
+  }
+
+  function renderKeeperLock() {
+    const host = $('#keeper-lock-note');
+    if (!host) return;
+    const st = state.keeperLock;
+    // A mock has no keepers at all, so the banner would be noise you learn to
+    // scroll past — and learning to scroll past this one is the failure.
+    if (!st || (st.locked && !st.stale) || state.mockMode) { host.style.display = 'none'; return; }
+    host.style.display = '';
+    host.innerHTML = '<div class="stale-block' + (st.stale ? ' warn' : '') + '">'
+      + '<h3>' + (st.stale ? '\u26a0\ufe0f Keeper slate confirmed a while ago'
+                          : '\u26d4 Keeper slate not confirmed') + '</h3>'
+      + '<p>' + escapeHtml(st.message) + '</p>'
+      + '<p><a class="btn small gold" href="/admin/keepers">\u{1F512} Review and confirm the slate</a></p>'
+      + '</div>';
   }
 
   /* ── Who picks before you, and what they are likely to do ───────────────── */
@@ -1052,6 +1094,15 @@
         fix: 'Commish → Sleeper' },
       { ok: !state.reconcile || !state.reconcile.halt,
         label: 'Keepers reconcile', detail: state.reconcile && state.reconcile.halt ? 'mismatch' : 'ok' },
+      // Part 4 §3a: an unconfirmed slate is the one input that can be wrong
+      // while every number derived from it still looks completely normal.
+      { ok: !!(state.keeperLock && state.keeperLock.locked),
+        label: 'Keeper slate confirmed',
+        detail: state.keeperLock ? (state.keeperLock.locked
+          ? (state.keeperLock.stale ? 'confirmed, but a while ago' : 'yes')
+          : (state.keeperLock.edited ? 'edited since it was confirmed' : 'never confirmed'))
+          : 'unknown',
+        fix: 'Commish \u2192 Keepers \u2192 Confirm & lock' },
       { ok: (state.lists.targets.length + state.lists.avoid.length) > 0,
         label: 'Targets or never-draft set',
         detail: state.lists.targets.length + ' starred, ' + state.lists.avoid.length + ' blocked',

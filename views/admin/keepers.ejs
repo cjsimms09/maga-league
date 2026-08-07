@@ -1,0 +1,49 @@
+<%- include('../partials/header', { title: 'Keeper Slate' }) %>
+
+<h1 class="page-title">🔒 Keeper Slate</h1>
+<p class="page-sub">All ten teams, what each keeper costs, and what changing one does to your draft.</p>
+
+<div id="loading"><div class="card"><div class="body"><p class="muted" style="margin:0">Loading the board…</p></div></div></div>
+
+<div id="keeper-screen" style="display:none">
+
+  <div id="lock-banner"></div>
+
+  <div class="card" style="margin-bottom:1rem">
+    <h2>What this changes <span class="sub" id="ks-head"></span></h2>
+    <div class="body">
+      <p class="muted" style="margin:0 0 .6rem; font-size:.78rem">
+        Every pick number and every adjusted ADP on the board is computed from
+        this slate. A late keeper change invalidates all of it while the board
+        still looks completely normal — which is why this screen exists and why
+        it has to be confirmed rather than assumed.
+      </p>
+      <div id="consequence"></div>
+      <div id="diff"></div>
+      <div id="problems"></div>
+      <div class="keeper-actions">
+        <button class="btn small gold" id="ks-confirm">🔒 Confirm &amp; lock this slate</button>
+        <button class="btn small ghost" id="ks-revert" title="Back to the slate the board was built with">↺ Revert to the built slate</button>
+        <a class="btn small navy" href="/admin/warroom">🧠 Back to the War Room</a>
+      </div>
+      <p class="muted" style="margin:.5rem 0 0; font-size:.74rem" id="ks-note"></p>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:1rem">
+    <h2>My picks <span class="sub">as this slate stands</span></h2>
+    <div class="body"><div id="ks-picks"></div></div>
+  </div>
+
+  <div id="teams"></div>
+</div>
+
+<script>
+  window.CFG_OVERRIDES = <%- JSON.stringify(typeof overrides !== 'undefined' ? overrides : {}) %>;
+  window.OWNERS_BY_SLOT = <%- JSON.stringify(typeof ownersBySlot !== 'undefined' ? ownersBySlot : {}) %>;
+</script>
+<script src="/js/draft/keepers.js"></script>
+<script src="/js/draft/keeperlock.js"></script>
+<script src="/js/draft/keeperui.js"></script>
+
+<%- include('../partials/footer') %>

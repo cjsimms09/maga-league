@@ -23,6 +23,7 @@
   <div id="import-note" style="display:none"></div>
   <div id="override-count" style="display:none"></div>
   <div id="mock-note" style="display:none"></div>
+  <div id="keeper-lock-note" style="display:none"></div>
   <div id="reconcile-note" style="display:none"></div>
   <div id="run-banner" class="roast-banner" style="display:none"></div>
 
@@ -52,6 +53,7 @@
         <div class="fit"><button class="btn small gold" id="start-sync">Connect</button></div>
         <div class="fit"><button class="btn small ghost" id="end-draft" title="Stop syncing and clear every pick — keeps your targets, weights and news overrides">⏹ End draft</button></div>
       <div class="fit"><a class="btn small navy" href="/admin/draft-config">⚙️ League Setup</a></div>
+      <div class="fit"><a class="btn small navy" href="/admin/keepers">🔒 Keepers</a></div>
       <div class="fit"><a class="btn small ghost" href="/admin/warroom/rehearsal" title="How to test all this against a Sleeper mock">🎬 Rehearse</a></div>
       </div>
       <span class="sync-status" id="sync-status">Not connected — manual entry works fine.</span>
@@ -253,6 +255,7 @@
   window.CFG_OVERRIDES = <%- JSON.stringify(typeof overrides !== 'undefined' ? overrides : {}) %>;
 </script>
 <script src="/js/draft/keepers.js"></script>
+<script src="/js/draft/keeperlock.js"></script>
 <script src="/js/draft/reconcile.js"></script>
 <script src="/js/draft/survival.js"></script>
 <script src="/js/draft/composite.js"></script>

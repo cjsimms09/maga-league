@@ -620,6 +620,37 @@ router.get('/warroom/rehearsal', aw(async (req, res) => {
 // an import they have not eyeballed. Overrides live in Blobs so a correction
 // takes effect on the board immediately, and the same screen emits the file to
 // commit so the next pipeline run agrees with what you see.
+/* The keeper slate: edit it, see the consequence, lock it.
+ *
+ * Its own screen rather than a panel in the War Room, because it is used at a
+ * different moment — the days before the draft, when keepers are still moving —
+ * and because it has to be somewhere you can hand to a co-commissioner without
+ * also handing over the board.
+ *
+ * The slate itself lives in localStorage on the client, deliberately: it is
+ * edited minutes before a draft on the one device that matters, and a round
+ * trip is a thing that can fail at exactly the wrong time. The server's job
+ * here is only to name the seats, so the screen says "Richard" rather than
+ * "Seat 7" when somebody is scanning it under time pressure.
+ */
+router.get('/keepers', aw(async (req, res) => {
+  const season = H.currentSeason(req.world.seasons);
+  const overrides = await getDoc('draft-config-overrides', {});
+  const ownersBySlot = {};
+  try {
+    const draft = await H.draftState(season.year, req.world.owners);
+    (draft.picks || []).forEach(p => {
+      if (p.slot != null && p.owner_id) {
+        const o = req.world.owners.find(x => x.id === p.owner_id);
+        if (o) ownersBySlot[String(p.slot)] = o.display_name || o.name;
+      }
+    });
+  } catch (e) {
+    // No draft order claimed yet is normal preseason; seats stay numbered.
+  }
+  res.render('admin/keepers', { season, config: req.world.config, overrides, ownersBySlot });
+}));
+
 router.get('/draft-config', aw(async (req, res) => {
   const overrides = await getDoc('draft-config-overrides', {});
   res.render('admin/draft-config', { overrides, config: req.world.config });
