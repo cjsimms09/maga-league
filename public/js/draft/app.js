@@ -427,6 +427,11 @@
     const all = E.recommend(context());
     const scored = all.slice(0, 5);
     const host = $('#recs');
+    if (state.reconcile && state.reconcile.halt) {
+      host.innerHTML = '<p class="muted" style="margin:0">Paused — resolve the keeper '
+        + 'mismatch above. Every number below it derives from the slate.</p>';
+      return;
+    }
     if (!scored.length) { host.innerHTML = '<p class="muted">Board is empty.</p>'; return; }
 
     // Roster legality comes first and in plain language: on the clock, a red bar
@@ -832,6 +837,101 @@
     renderAll();
   }
 
+  /* Reconcile the assumed keeper slate against what Sleeper actually shows.
+   *
+   * Runs on every sync tick. Cheap, and the alternative is discovering at pick
+   * 4 that a player the tool thinks is gone has been sitting on the board all
+   * along, invisible to every recommendation it made.
+   */
+  function reconcileKeepers(picks) {
+    if (!window.DraftReconcile || state.mockMode) return;   // mocks have no keepers
+    const assumed = (state.data.pick_order || {}).forfeited || [];
+    if (!assumed.length) return;
+
+    const byId = {};
+    (state.data.players || []).forEach(p => { byId[String(p.player_id)] = p; });
+    const teams = state.data.league.teams || 10;
+    const currentRound = Math.ceil(currentPick() / teams);
+
+    const r = window.DraftReconcile.reconcile(picks, assumed,
+      { playersById: byId, currentRound: currentRound });
+    state.reconcile = r;
+    renderReconcile(r, assumed, byId);
+  }
+
+  function renderReconcile(r, assumed, byId) {
+    const host = $('#reconcile-note');
+    if (!host) return;
+    if (!r || r.ok) { host.style.display = 'none'; return; }
+    host.style.display = '';
+    host.innerHTML =
+      '<div class="stale-block">'
+      + '<h3>\u26d4 The keeper slate does not match the draft</h3>'
+      + '<p>' + escapeHtml(r.message) + '</p>'
+      + '<p>Recommendations are paused: the board is known to be wrong, and a '
+      + 'confident wrong recommendation is worse than none.</p>'
+      + '<button class="btn small gold" id="fix-keepers">Re-adjust from what Sleeper shows</button> '
+      + '<button class="btn small navy" id="ignore-keepers">Ignore and continue</button>'
+      + '</div>';
+
+    const fix = $('#fix-keepers');
+    if (fix) fix.addEventListener('click', () => {
+      const slate = window.DraftReconcile.correctedSlate(assumed, r, { playersById: byId });
+      applyKeeperSlate(slate);
+    });
+    const ignore = $('#ignore-keepers');
+    if (ignore) ignore.addEventListener('click', () => {
+      state.reconcile = { ok: true, halt: false, ignored: true };
+      host.style.display = 'none';
+      renderAll();
+    });
+  }
+
+  /* Rebuild everything a keeper change invalidates — client-side, no network.
+   * This is what makes mid-draft correction possible at all. */
+  function applyKeeperSlate(slate) {
+    if (!window.DraftKeepers) return;
+    const league = state.data.league;
+    const teams = league.teams || 10;
+    const rounds = Math.round((state.data.pick_order.picks || []).length / teams)
+      + Math.round(((state.data.pick_order.forfeited || []).length) / teams);
+    const cfg = {
+      teams: teams,
+      rounds: rounds || ((league.roster_size || 15) - ((league.keeper_rules || {}).count || 0)),
+      draft_type: league.draft_type || 'snake',
+      my_draft_slot: league.my_draft_slot,
+      adp_blend_weight: 0.7,
+      keepers: league.keeper_rules || { count: 3, cost_model: 'original_round' },
+    };
+    const before = (state.data.pick_order.my_picks || []).slice();
+    const out = window.DraftKeepers.reapply(state.data.players, cfg, slate);
+
+    state.data.pick_order = {
+      picks: out.order.picks.map(p => ({ overall: p.overall, round: p.round, slot: p.team_slot })),
+      my_picks: out.order.my_picks,
+      my_picks_before_keepers: out.order.my_original_picks,
+      forfeited: out.order.forfeited,
+    };
+    state.data.players = out.players;
+    const kept = {};
+    out.kept_ids.forEach(id => { kept[String(id)] = true; });
+    state.board = out.players.filter(p => !state.drafted.has(String(p.player_id))
+                                       && !kept[String(p.player_id)]);
+    state.reconcile = { ok: true, halt: false, corrected: true };
+
+    const host = $('#reconcile-note');
+    if (host) {
+      host.style.display = '';
+      host.className = '';
+      host.innerHTML = '<div class="prov-note warn"><b>\u2705</b> <span>Keeper slate '
+        + 'corrected from the live draft. Your picks were '
+        + escapeHtml(before.slice(0, 6).join(', ')) + ' \u2192 now '
+        + escapeHtml(out.order.my_picks.slice(0, 6).join(', '))
+        + '. Adjusted ADP and the pick sequence have been rebuilt.</span></div>';
+    }
+    renderAll();
+  }
+
   function recomputeRuns() {
     state.runMults = E.runMultipliers(state.recentPicks, state.data.players, currentPick());
     updateDrift();
@@ -855,6 +955,8 @@
         if (pick.roster_id && mySlot && Number(pick.roster_id) === Number(mySlot)) state.myRoster.push(p);
       }
     });
+    // Check the slate against reality before scoring anything off it.
+    if (!(state.reconcile && state.reconcile.ignored)) reconcileKeepers(picks);
     recomputeRuns();
     renderAll();
   }
