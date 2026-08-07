@@ -3,44 +3,38 @@
 _Questions no spec already answers. Each carries my recommended answer; I take
 the conservative option and mark the item PROVISIONAL until you rule._
 
-## D1 — Backtest grading metric: raw points vs value-over-replacement
+## D1 — Backtest grading metric — RESOLVED BY DATA (needs your acknowledgement)
 
-**Status: OPEN. Backtest is PROVISIONAL. All backtest-fed installs (items 4, 5,
-6) stay FROZEN until this is answered.**
+The value-over-replacement cut ran alongside raw points. It did **not** clear
+the round-1 alarm — under value grading the alarm still fires (round-1 +130) and
+the composite is worse overall (B3−B0 −157/pick vs −66 raw). So the alarm is
+**not a pure metric artifact.**
 
-The board-coverage leak is fixed (pick→board join now 100%). But the round-1
-alarm still fires, and the round-1 detail explains why with data:
+The real cause, and it is the one the pre-registration named ("investigate the
+projection fit"): **B3 runs on our crude walk-forward projection; B0 runs on the
+real contemporaneous market's ADP.** The projection floated Carson Wentz to
+round 1 in 2024. So the backtest is measuring "composite-on-a-crude-projection
+vs the market," and the projection stand-in — which the spec itself flagged as
+"not a test of projection accuracy" — is the confound. B3 < B0 tells us our
+era-appropriate projection is worse than the market had, which we already knew;
+it does NOT tell us the composite logic is bad.
 
-```
-2023  B0 Justin Jefferson=274  | B3 Josh Allen=502
-2024  B0 Derrick Henry=372     | B3 Carson Wentz=5
-```
+**Consequence, and it is the pre-registered "boring outcome":** the backtest
+cannot grade the composite or select a strategy on this projection. **Default
+stands.** No strategy install, no adp_sd fit, no Section-A exploitation fit —
+all of those would be fitting to projection noise.
 
-B3 (the composite) drafts QBs in round 1; B0 (ADP) does not. In this scoring
-(4pt pass-TD, 0.04/pass-yd) elite QBs genuinely score 450–560 raw points — the
-six >450 "smells" are all real QBs, not a data bug. So grading each pick on RAW
-actual points structurally rewards QB totals, and a policy that takes a QB early
-"wins" round 1 on raw points while its roster is worse (B3 is −571/draft
-overall). The spec asked for "mean actual points of the recommended player";
-that exact metric trips the spec's own round-1 bug alarm.
+**What IS still valid, because it does NOT touch our projection:**
+- KOV verdict (projection-independent; done directly on the production board) — proceeding.
+- Exploitation Section B intel (value-fall map, reach map, run archaeology,
+  faller verdict, blunder map) — these mine the ACTUAL PICKS your league-mates
+  made vs contemporaneous ADP and actual outcomes. No walk-forward projection is
+  involved, so they are unaffected. This is the "richest vein", and it survives.
 
-**The question:** should the backtest grade on raw actual points (spec verbatim)
-or on actual points OVER POSITIONAL REPLACEMENT (value-aware, matching how the
-tournament graded final-roster V)?
+**Your call (not blocking — Default stands meanwhile):** is it worth building a
+real projection model (post-draft) to make the backtest able to grade the engine
+and select a strategy? My recommendation: yes, post-draft, as part of the
+in-season rankings work — a genuine projection is the prerequisite for the
+backtest to mean anything, and it is out of scope before Aug 22.
 
-**My recommendation:** value-over-replacement. Raw points is structurally broken
-for QBs in this scoring; VORP-on-actuals neutralises it (QB replacement is high,
-so an elite QB's value-add is small — which is why ADP sends QBs late). This is
-the same value yardstick the MCTS tournament already used and validated.
-
-**Conservative action taken meanwhile:** I am NOT changing the headline metric
-unilaterally. I am adding value-over-replacement as a SECOND reported cut
-alongside raw points, so both are visible, and evaluating whether the round-1
-alarm is raw-points-specific. No strategy is installed off either until you
-rule. If value-grading clears the alarm, that confirms it was a metric artifact
-and value-grading should govern selection.
-
-**Second, smaller finding surfaced by the same detail:** the walk-forward
-projection also over-projects QBs as a class (it floated Carson Wentz to round
-1 in 2024). Even under value grading this is worth a look, but it is downstream
-of D1 — value grading may make it moot for selection.
+_No other decisions open._

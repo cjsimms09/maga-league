@@ -2,7 +2,26 @@
 
 _Read this first. Updated after every completed item._
 
-## ⛔ BACKTEST — board leak FIXED (join now 100%); round-1 alarm now traced to the GRADING METRIC (see DECISIONS D1). Downstream still FROZEN.
+## BACKTEST — CONCLUDED: projection stand-in too crude to grade the engine → DEFAULT STANDS
+
+Three real leaks found and fixed (all caught by the pre-registered round-1
+alarm): board coverage (66-77%→100% join), cross-season points overwrite, and
+the raw-points QB metric. After all three, the alarm STILL fires under value
+grading too (round-1 +130; B3-B0 -157/pick). Root cause is the one the
+pre-registration named: B3 runs on our CRUDE walk-forward projection while B0
+runs on the real market's ADP — the projection floated Carson Wentz to round 1.
+The backtest measures composite-on-crude-projection vs the market; the
+projection confounds it, exactly as the spec foresaw ("not a test of projection
+accuracy").
+
+**VERDICT (pre-registered boring outcome): the backtest cannot select a strategy
+or fit a parameter on this projection. DEFAULT STANDS.** No strategy install, no
+adp_sd fit, no Section-A exploitation fit — all would be fitting projection
+noise. See DECISIONS D1.
+
+**Still valid and PROCEEDING (projection-independent):** KOV verdict (item 4b),
+and Exploitation Section B intel (mines actual picks vs ADP + outcomes, no
+projection involved — the 'richest vein' survives).
 
 The backtest report LANDED (`63f1e44`), and its own pre-registered round-1
 alarm FIRED. Per the pre-registration and the standing rule, that halts every
@@ -86,10 +105,10 @@ _Last update: master-execution-order run, start._
 | 2 | Small fixes (onesie / rail budget / config_confirmed) | PENDING |
 | 2b | Draft-day experience | AUDITED, pending |
 | 2c | Cutting-edge data | AUDITED, pending (mostly ABSENT) |
-| 3 | Backtest completion | BLOCKED on run 5 |
-| 4 | Calibration fixes | BLOCKED on run 5 |
-| 5 | Strategy selection | harness BUILT; BLOCKED on run 5 bundles |
-| 6 | Exploitation pass | pre-registered; BLOCKED on run 5 |
+| 3 | Backtest completion | DONE — verdict: projection too crude, Default stands |
+| 4 | Calibration fixes | adp_sd fit CANNOT proceed (projection-confounded calibration); KOV verdict PROCEEDING |
+| 5 | Strategy selection | CONCLUDED — Default stands (backtest cannot select) |
+| 6 | Exploitation | Section A fits CANNOT proceed; Section B intel VALID, pending |
 | 7 | Final verification | PENDING |
 | 8 | Freshness for draft day | PENDING |
 | 9 | Close the record | PENDING |
