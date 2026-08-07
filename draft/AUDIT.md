@@ -541,3 +541,35 @@ at r7 — because the search is exploiting a *different* opponent's specific
 weaknesses. Same engine, two rooms, two tailored strategies. That is the
 policy-aware capability the whole thing was built for, visible for the first
 time.
+
+### 14a. Compute scaling, properly controlled: the gap does not grow
+
+Secondary A's 1,000-iteration result could not be compared to the primary,
+because V reporting was added after the primary ran. A matched control fixes
+that: 200 drafts, identical seeds and seats (runTournament derives both
+deterministically from the draft index), no jitter, **only the iteration count
+differs**.
+
+| arm | iters | pct diff | pct t | V diff | V t | V p | V sign |
+|---|---|---|---|---|---|---|---|
+| control | 400 | -0.0022 | -0.515 | 1.807 | 3.231 | 7.2e-4 | 130W/70L |
+| Secondary A | 1000 | +0.0011 | +0.324 | 1.960 | 3.899 | 6.6e-5 | 131W/69L |
+
+**2.5x the compute buys 0.15 points of roster value.** The sign counts are
+almost identical — 130/70 against 131/69 — so the search wins the same drafts
+either way, by the same amount.
+
+The pre-registration's condition was: *"if the primary is null and Secondary A
+shows the gap growing with compute, the honest verdict is undertrained, not
+useless."* The gap does not grow. **Undertrained is ruled out**, and it is
+ruled out by a controlled comparison rather than by comparing two arms that
+differed in three ways at once.
+
+This is the strongest available statement of branch 2's diagnosis: the search
+is not compute-starved, it is yardstick-limited. More iterations will not
+unlock it; a value function that can price upside might.
+
+Note also that V finds a real, consistently signed gap at BOTH iteration
+counts (p 7e-4 and 7e-5) while percentile calls both null and even flips sign
+(-0.0022 to +0.0011). That is a metric at its ceiling producing noise, not a
+search that changed behaviour.
