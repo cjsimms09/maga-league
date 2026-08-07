@@ -439,3 +439,38 @@ positional gap that makes QB timing *the* round-2 decision. That shape is
 unusual. Every number in this section may look different on the real artifact,
 and none of it should be read as a statement about draft day until it is
 re-run there.
+
+### 13a. The refined reading, and the one number to check on a real board
+
+**What survives the correction is the more interesting half.** If the search's
+round-2 bet were simply wrong — QB does not hold, the deferral just burns value
+— the cost would persist rather than shrink from 17 to 3-6 by draft end.
+Recovering roughly 13 of 17 points *through a variance-blind V* means the bet's
+premise is validated: the QB position does hold, the later picks capture most
+of what was deferred, and the rounds 3/5/10 gains in the per-round table are
+that recovery being booked.
+
+What is missing is the last quarter — and that quarter is precisely the part of
+the payout a mean-points yardstick has no channel to credit: flexibility, and
+the option value of capturing elite RB/WR scarcity early. The search is making
+a structurally sound bet and getting paid in a currency its own scorekeeper
+does not recognise.
+
+So the reading for the record is neither "free strategy mislabelled by
+accounting" nor "exploration error". It is a deliberate deferral that is ~75%
+self-financing on immediate value, with the remainder being exactly the
+quantity the interim V is blind to. **Whether that remainder is a real 3-6
+point loss or a mismeasured gain is undecidable with this V, on this board.**
+Two queued things resolve it: the real artifact, and a quantile V that gives
+upside a channel to pay through. That is the argument for quantile-V-next over
+any further search tweak.
+
+**THE ONE NUMBER TO CHECK ON A REAL-BOARD RE-RUN.** 100/100 never-rank-1 means
+MCTS deviated from greedy in *every single* sampled state. Total behavioural
+consistency is almost always a board artifact rather than a strategy — real
+boards produce mixed behaviour. So on the real artifact the first thing to look
+at is not the cost, it is **whether 100/100 breaks**. If it breaks, the fixture
+finding described a quirk of the inputs and its cost figure predicts nothing
+about draft day. If it holds, the deferral is a genuine property of the search
+and the cost is worth pricing. This note is repeated at the top of
+`round2.js` so it is read before the output, not after.

@@ -29,6 +29,26 @@
  *
  * Split by seat throughout: worst at seats 1 and 10 points at turn mechanics
  * (the back-to-back at the snake boundary), not at the search itself.
+ *
+ * ON RE-RUNNING THIS AGAINST THE REAL ARTIFACT — READ THIS FIRST.
+ *
+ * The fixture run produced 100/100 never-rank-1: MCTS deviated from greedy in
+ * round 2 in EVERY sampled state, taking RB or WR while greedy took a QB 100
+ * times out of 100. Total behavioural consistency like that is almost always a
+ * property of the BOARD, not of the strategy. Real boards produce mixed
+ * behaviour; a policy that does the same thing in 100 of 100 states is usually
+ * responding to a structural quirk of the inputs.
+ *
+ * The quirk here is visible: this fixture prices QBs at 330.8 against RB 207
+ * and WR 210, a 120-point positional premium, with elite QBs at ADP 6-15. On
+ * the real artifact that premium disappears and the round-2 decision may not
+ * be about quarterbacks at all.
+ *
+ * So the first number to look at on a real-board re-run is NOT the cost. It is
+ * whether 100/100 breaks. If it does, the fixture finding was a board artifact
+ * and the cost figure describes nothing that will happen on draft day. If it
+ * does NOT break, the deferral is a genuine property of the search and the
+ * cost is worth pricing.
  */
 'use strict';
 const T = require('./run.js');
