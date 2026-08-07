@@ -588,7 +588,12 @@
     const I = search._internal;
     const bits = [];
     bits.push('prefers ' + top.player.name + ' (' + Math.round(top.share * 100)
-      + '% of playouts, P(top-2) ' + (top.q * 100).toFixed(1) + '%)');
+      // NOT "P(top-2)". Q is the NORMALISED interim value — a position within
+      // this decision's own plausible range, not a probability of anything.
+      // Labelling it as a probability was left over from the deleted P(top-2)
+      // value function and is exactly the kind of confidently-wrong number this
+      // project keeps getting burned by: it reads as calibrated and is not.
+      + '% of playouts)');
 
     if (alt.visits) {
       // Q is normalised, so report it as a share of the decision's own span

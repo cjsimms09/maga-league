@@ -437,8 +437,14 @@ function makeCtx(over) {
   check('the search explains itself in a sentence, naming both options',
     ex && /prefers/.test(ex.text) && ex.text.indexOf(out.actions[0].player.name) >= 0,
     ex && ex.text);
-  check('and it quotes the visit share and the probability, not just a name',
-    /% of playouts/.test(ex.text) && /P\(top-2\)/.test(ex.text), ex.text);
+  // This test previously REQUIRED the string "P(top-2)" — it was enforcing a
+  // mislabel. Q is the normalised interim value, a position within this
+  // decision's own range, not a probability of anything. Asserting it is NOT
+  // presented as a probability is the check that matters.
+  check('it quotes the visit share and does NOT dress the normalised value up '
+    + 'as a probability',
+    /% of playouts/.test(ex.text) && !/P\(top-2\)/.test(ex.text)
+      && !/probability/i.test(ex.text), ex.text);
   check('a single legal move says so instead of inventing a comparison',
     (function () {
       const one = M.explain(s, { actions: [out.actions[0]] }, LEAGUE);
