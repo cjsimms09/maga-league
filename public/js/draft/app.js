@@ -113,6 +113,15 @@
     loadOverrides();
     loadLists();
     exposeTestHooks();
+    // Keep a pristine copy of everything mock mode overwrites. Connecting to a
+    // mock replaces the player pool, the league shape and the pick order — so
+    // without this, "end the mock" would have nothing to go back to and the
+    // only way out would be a page reload.
+    state.pristine = {
+      players: data.players.slice(),
+      league: JSON.parse(JSON.stringify(data.league || {})),
+      pick_order: JSON.parse(JSON.stringify(data.pick_order || {})),
+    };
     state.board = data.players.slice();
     applyOverrides();
     renderAll();
@@ -1368,6 +1377,54 @@
     renderAll();
   }
 
+  /**
+   * End the draft and put the board back how it started.
+   *
+   * A mock leaves its picks everywhere: the drafted set, every seat's roster,
+   * your own roster, the run detector, and — because mock mode rebuilds the
+   * pool for the mock's shape — the player list and pick order too. Reloading
+   * the page cleared it, which is fine in August and unusable in the ninety
+   * seconds between a mock finishing and your real draft opening.
+   *
+   * What survives is everything you PREPARED: targets, never-draft, weights,
+   * news overrides, your slot. Those are your work, not the mock's.
+   */
+  function endDraft() {
+    if (state.sync && state.sync.stop) { try { state.sync.stop(); } catch (e) {} }
+    state.sync = null;
+    state.mode = 'pre';
+    state.mockMode = null;
+    state.drafted = new Set();
+    state.myRoster = [];
+    state.rosters = {};
+    state.recentPicks = [];
+    state.runMults = {};
+    state.reconcile = null;
+    state.clockMode = false;
+    state.clockIndex = 0;
+
+    if (state.pristine) {
+      state.data.players = state.pristine.players.slice();
+      state.data.league = JSON.parse(JSON.stringify(state.pristine.league));
+      state.data.pick_order = JSON.parse(JSON.stringify(state.pristine.pick_order));
+      state.format = E.applyFormatDefaults(state.data.league);
+      state.profiles = indexProfilesBySlot(state.data);
+    }
+    state.board = (state.data.players || []).slice();
+    applyOverrides();          // news overrides are prep, so they go back on
+
+    ['#mock-note', '#reconcile-note', '#run-banner'].forEach(sel => {
+      const el = $(sel); if (el) el.style.display = 'none';
+    });
+    const btn = $('#start-sync');
+    if (btn) { btn.disabled = false; btn.textContent = 'Connect'; }
+    const idBox = $('#draft-id');
+    if (idBox) idBox.value = '';
+    setStatus({ state: 'manual', message: 'Draft ended. Board is back to full — '
+      + 'your targets, weights and news overrides were kept.' });
+    renderAll();
+  }
+
   /* A deliberate handle for driving the page without a live draft.
    *
    * The pick path is the part most worth exercising and the hardest to reach:
@@ -1382,6 +1439,7 @@
     window.__warroom = {
       pushPicks: onSyncPicks,
       recordManualPick: recordManualPick,
+      endDraft: endDraft,
       state: state,
     };
   }
@@ -1403,6 +1461,14 @@
     });
     if (nxt) nxt.addEventListener('click', () => {
       state.clockIndex += 1; renderRecommendations();
+    });
+    const end = $('#end-draft');
+    if (end) end.addEventListener('click', () => {
+      const n = state.drafted.size;
+      if (n && !confirm('End this draft and clear all ' + n + ' picks?\n\n'
+        + 'The board goes back to full. Your targets, never-draft list, weights '
+        + 'and news overrides are kept.')) return;
+      endDraft();
     });
     if (true) {
       slotIn.addEventListener('keydown', ev => {
