@@ -338,6 +338,89 @@ console.log('\n--- settlement legs: who actually owes whom ---');
   eq('and it lands in the ledger as a zero, not a blank', [l.rows[0].delta, l.net], [0, 0]);
 }
 
+console.log('\n--- a shared title is a push, not a tiebreak ---');
+{
+  // 2022 for real: the Bills-Bengals game was cancelled, the league split the
+  // trophy, and Sam and Marian were co-champions.
+  const ctx22 = B.makeContext({
+    season: { year: 2022, status: 'complete', standings: [7, 2, 1, 9, 3, 4, 5, 6, 8, 10] },
+    champions: [7, 2], owners: OWNERS, weekNow: 18,
+  });
+  const p = { format: 'pool', pool_rules: ['champion', 'best_finish'], stake: 100,
+    parties: [{ owner_id: 1, picks: [7] }, { owner_id: 9, picks: [2] }], winner_ids: [] };
+  const v = B.evaluate(p, ctx22, nameOf);
+  ok('each holding one co-champion is a push', v.decided && v.push && !v.winner_ids.length, v.headline);
+  ok('and it does NOT fall through to the tiebreaker',
+    !v.lines.some(l => /best team finished higher/.test(l)), JSON.stringify(v.lines));
+  ok('the headline says the title was shared', /shared/.test(v.headline), v.headline);
+  ok('and the working names both', v.lines.some(l => /Sam and Marian shared/.test(l)), JSON.stringify(v.lines));
+}
+{
+  // Both holding the SAME champion is not a dead heat — it is a genuine tie,
+  // and that is what tiebreakers are for.
+  const ctx22 = B.makeContext({
+    season: { year: 2022, status: 'complete', standings: [7, 2, 1, 9, 3, 4, 5, 6, 8, 10] },
+    champions: [7, 2], owners: OWNERS, weekNow: 18,
+  });
+  const p = { format: 'pool', pool_rules: ['champion', 'best_finish'], stake: 100,
+    parties: [{ owner_id: 1, picks: [7, 1] }, { owner_id: 9, picks: [7, 9] }], winner_ids: [] };
+  const v = B.evaluate(p, ctx22, nameOf);
+  ok('both holding the SAME co-champion is not a dead heat', v.decided && !v.push, v.headline);
+  ok('it cascades instead', /Level on that one/.test(v.lines.join(' ')), JSON.stringify(v.lines));
+  // Both best-placed team is Sam, so the tiebreaker genuinely ties too and they
+  // split — which is right. The point is that it was decided, not refunded.
+  eq('and they split it rather than getting their money back', v.winner_ids, [1, 9]);
+}
+{
+  // One clear champion, one holder — no push anywhere near it.
+  const v = B.evaluate({ format: 'pool', pool_rules: ['champion'], stake: 100,
+    parties: [{ owner_id: 1, picks: [2] }, { owner_id: 9, picks: [4] }], winner_ids: [] },
+    ctxDone, nameOf);
+  ok('a normal single champion still just wins', v.decided && !v.push, v.headline);
+  eq('Richard had Michael', v.winner_ids, [9]);
+}
+
+console.log('\n--- nobody can accept a bet after it has started ---');
+{
+  const wk4 = { kind: 'matchup', week: 4, created_at: '2026-09-28T00:00:00Z',
+                conditions: [cond({ test: 'outscores', subject_id: 1, target_id: 3, week: 4 })] };
+  ok('Wednesday before the game — fine',
+    B.acceptDeadline(wk4, {}, new Date('2026-09-30T18:00:00Z')).open);
+  const late = B.acceptDeadline(wk4, {}, new Date('2026-10-05T14:00:00Z'));
+  ok('THE SNIPE: Monday morning, 50 points up — refused', !late.open, late.reason);
+  ok('and it says which event closed it', /week 4 kicks off/.test(late.reason), late.reason);
+}
+{
+  // A bet touching several weeks locks at the earliest of them.
+  const multi = { created_at: '2026-09-01T00:00:00Z', conditions: [
+    cond({ test: 'outscores', subject_id: 1, target_id: 3, week: 9 }),
+    cond({ test: 'outscores', subject_id: 1, target_id: 3, week: 2 }),
+  ] };
+  const d = B.acceptDeadline(multi, {}, new Date('2026-09-20T00:00:00Z'));
+  ok('the earliest week is what closes it', !d.open && /week 2/.test(d.reason), d.reason);
+}
+{
+  const pool = { format: 'pool', created_at: '2026-08-20T00:00:00Z' };
+  ok('a season pool is open in August', B.acceptDeadline(pool, {}, new Date('2026-08-25T00:00:00Z')).open);
+  const shut = B.acceptDeadline(pool, {}, new Date('2026-10-01T00:00:00Z'));
+  ok('but not once the season has started', !shut.open, shut.reason);
+  ok('and says so', /the season starts/.test(shut.reason), shut.reason);
+}
+{
+  // Free text has no event, so it gets a shelf life instead of living forever.
+  const free = { created_at: '2026-09-01T00:00:00Z' };
+  ok('a hand-settled bet is live for a few days',
+    B.acceptDeadline(free, {}, new Date('2026-09-02T00:00:00Z')).open);
+  const stale = B.acceptDeadline(free, {}, new Date('2026-09-06T00:00:00Z'));
+  ok('then expires rather than waiting to be sniped', !stale.open, stale.reason);
+}
+{
+  eq('week 1 kickoff is the season opener',
+    B.kickoffOf(1).toISOString(), '2026-09-11T00:15:00.000Z');
+  eq('and week 14 is still 8:15pm ET in December',
+    B.kickoffOf(14).toISOString(), '2026-12-11T01:15:00.000Z');
+}
+
 console.log('\n--- the kickoff cutoff on matchup bets ---');
 {
   // Week of 10 Sep 2026. Thursday kickoff is 8:15pm ET = 00:15Z Friday.

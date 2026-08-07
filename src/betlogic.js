@@ -88,6 +88,15 @@ const CFG = {
   MATCHUP_LOCK_TZ: 'America/New_York',
   // The fantasy week turns over on Tuesday — after Monday night, before Thursday.
   MATCHUP_WEEK_START_DAY: 2,    // Tuesday
+
+  // Thursday of NFL week 1, in New York. Every other week's kickoff is derived
+  // from it, so one date pins the whole calendar. Commissioner-overridable via
+  // config.season_start.
+  SEASON_START: '2026-09-10',
+  // A proposal with no event to hang a deadline on dies after this many days.
+  // Without it, a bet nobody answered sits around forever waiting to be
+  // accepted at the exact moment it stops being a fair price.
+  PROPOSAL_TTL_DAYS: 3,
 };
 
 /**
@@ -115,6 +124,62 @@ function weekLockAt(at = new Date()) {
   lock.setUTCDate(et.getUTCDate() - since + (CFG.MATCHUP_LOCK_DAY - CFG.MATCHUP_WEEK_START_DAY));
   lock.setUTCHours(CFG.MATCHUP_LOCK_HOUR, CFG.MATCHUP_LOCK_MINUTE, 0, 0);
   return new Date(lock.getTime() + off * 60000);
+}
+
+/** Kickoff of a given NFL week: week 1's Thursday plus seven days per week. */
+function kickoffOf(week, seasonStart) {
+  const base = new Date(`${seasonStart || CFG.SEASON_START}T12:00:00Z`);
+  const day = new Date(base.getTime() + (Math.max(1, Number(week) || 1) - 1) * 7 * 86400000);
+  const off = etOffsetMinutes(day);
+  const et = new Date(day.getTime() - off * 60000);
+  et.setUTCHours(CFG.MATCHUP_LOCK_HOUR, CFG.MATCHUP_LOCK_MINUTE, 0, 0);
+  return new Date(et.getTime() + off * 60000);
+}
+
+/**
+ * The last moment a bet can be ACCEPTED, and why.
+ *
+ * The rule is one sentence: you cannot accept a bet after the first thing it
+ * depends on has started. Everything else follows from reading the bet.
+ *
+ * This exists because of a specific way to get robbed. Somebody offers you a
+ * week-4 bet on Wednesday, you say nothing, and on Monday morning — with their
+ * team up fifty — you accept. They forgot to withdraw it, so you have taken a
+ * bet you already know you have won. Hiding the button is not enough; the
+ * deadline has to be a property of the bet, checked on the server, for every
+ * kind of bet rather than just the matchup ones.
+ *
+ * @returns { at: Date|null, why: string, open: boolean, reason: string }
+ */
+function acceptDeadline(bet, ctx = {}, at = new Date()) {
+  const start = ctx.seasonStart || CFG.SEASON_START;
+  const weeks = (bet.conditions || [])
+    .filter(c => c.when === 'week' && c.week).map(c => Number(c.week));
+  if (bet.kind === 'matchup' && bet.week) weeks.push(Number(bet.week));
+
+  let deadline = null, why = '';
+  if (weeks.length) {
+    // The earliest week it touches — that is the first thing that can happen.
+    const wk = Math.min(...weeks);
+    deadline = kickoffOf(wk, start);
+    why = `week ${wk} kicks off`;
+  } else if (bet.format === 'pool'
+      || (bet.conditions || []).some(c => c.when === 'season' || c.test === 'finishes')) {
+    deadline = kickoffOf(1, start);
+    why = 'the season starts';
+  } else if (bet.created_at) {
+    // No event to hang it on — a free-text bet settled by hand. It still gets a
+    // shelf life, because "I forgot about it" is how the sniping works.
+    deadline = new Date(new Date(bet.created_at).getTime() + CFG.PROPOSAL_TTL_DAYS * 86400000);
+    why = `it was offered more than ${CFG.PROPOSAL_TTL_DAYS} days ago`;
+  }
+
+  if (!deadline) return { at: null, why: '', open: true, reason: '' };
+  const open = at < deadline;
+  return {
+    at: deadline, why, open,
+    reason: open ? '' : `Too late — ${why}. This one had to be accepted before then.`,
+  };
 }
 
 /**
@@ -188,26 +253,31 @@ const PLACES = {
  * up" (a count) are the same kind of thing and compose in one list.
  */
 const POOL_RULES = {
+  // ── Outcome rules: one thing happened, and either you had it or you did not.
+  // `teams` returns everyone who won it — usually one, but 2022 split the title
+  // between Sam and Marian and that has to be representable.
   champion: {
+    kind: 'outcome',
     label: 'whoever picked the champion',
     needs: 'final',
-    score: (picks, ctx) => (picks.includes(ctx.finalStandings[0]) ? 1 : 0),
-    note: (ctx, nameOf) => `${nameOf(ctx.finalStandings[0])} won it all.`,
-    fmt: v => (v ? 'had them' : 'did not'),
+    teams: ctx => ctx.champions,
+    note: (ctx, nameOf) => ctx.champions.length > 1
+      ? `${ctx.champions.map(nameOf).join(' and ')} shared the title.`
+      : `${nameOf(ctx.champions[0])} won it all.`,
   },
   reg_first: {
+    kind: 'outcome',
     label: 'whoever picked the regular-season #1',
     needs: 'complete',
-    score: (picks, ctx) => (picks.includes(ctx.liveOrder[0]) ? 1 : 0),
+    teams: ctx => [ctx.liveOrder[0]],
     note: (ctx, nameOf) => `${nameOf(ctx.liveOrder[0])} finished 1st in the regular season.`,
-    fmt: v => (v ? 'had them' : 'did not'),
   },
   last_place: {
+    kind: 'outcome',
     label: 'whoever picked the last-place team',
     needs: 'final',
-    score: (picks, ctx) => (picks.includes(ctx.finalStandings[ctx.finalStandings.length - 1]) ? 1 : 0),
+    teams: ctx => [ctx.finalStandings[ctx.finalStandings.length - 1]],
     note: (ctx, nameOf) => `${nameOf(ctx.finalStandings[ctx.finalStandings.length - 1])} took the toilet.`,
-    fmt: v => (v ? 'had them' : 'did not'),
   },
   best_finish: {
     label: "whoever's best team finished higher",
@@ -241,18 +311,18 @@ const POOL_RULES = {
     fmt: v => `${Math.round(v * 10) / 10} pts`,
   },
   top_scorer: {
+    kind: 'outcome',
     label: 'whoever picked the highest-scoring team',
     needs: 'complete',
-    score: (picks, ctx) => {
+    teams: ctx => {
       let best = null;
       for (const o of ctx.owners) {
         const pf = ctx.seasonPoints(o.id);
         if (pf == null) continue;
         if (!best || pf > best.pf) best = { id: o.id, pf };
       }
-      return best && picks.includes(best.id) ? 1 : 0;
+      return best ? [best.id] : [];
     },
-    fmt: v => (v ? 'had them' : 'did not'),
   },
 };
 
@@ -328,7 +398,8 @@ function betText(bet, nameOf) {
  * @param weekNow       the league's current week
  * @param owners        active owners, for name lookup
  */
-function makeContext({ season, liveRows = [], weeklyHigh = [], weekPoints = {}, weekNow = 1, owners = [] }) {
+function makeContext({ season, liveRows = [], weeklyHigh = [], weekPoints = {}, weekNow = 1,
+                      owners = [], champions = null, seasonStart = null }) {
   const byName = {};
   for (const r of liveRows) if (r.owner_name) byName[r.owner_name] = r;
   const rowFor = id => {
@@ -345,6 +416,12 @@ function makeContext({ season, liveRows = [], weeklyHigh = [], weekPoints = {}, 
     // Live regular-season order — wins then points-for, same as the league page.
     liveOrder: liveRows.filter(r => r.owner_name)
       .map(r => (owners.find(o => o.name === r.owner_name) || {}).id).filter(Boolean),
+    // Usually one team. In 2022 the title was split, and a bet where each side
+    // held one of the co-champions is a push — so more than one has to fit.
+    champions: champions && champions.length ? champions.map(Number)
+      : ((season && season.status === 'complete' && (season.standings || []).length)
+          ? [Number(season.standings[0])] : []),
+    seasonStart: seasonStart || null,
     seasonPoints: id => { const r = rowFor(id); return r ? r.pf : null; },
     seasonWins:   id => { const r = rowFor(id); return r ? r.wins : null; },
     weeklyHigh:   week => (weeklyHigh[week - 1] != null ? Number(weeklyHigh[week - 1]) : null),
@@ -498,13 +575,11 @@ function evaluatePool(bet, ctx, nameOf) {
              headline: 'This pool has no rules set — settle it by hand.', lines };
   }
 
-  let last = null;   // the last rule that actually got evaluated
+  let last = null;
   for (const key of rules) {
     const rule = POOL_RULES[key];
     const ready = poolRuleReady(rule, ctx);
     if (!ready.ok) {
-      // Show where it stands anyway — a pool sits open for months and "come
-      // back in January" is not a useful thing for a card to say all season.
       lines.push(`${rule.label} — not yet: ${ready.why}.`);
       if (ctx.liveOrder.length) {
         lines.push(`As it stands: ${ctx.liveOrder.slice(0, 3).map(nameOf).join(', ')} lead.`);
@@ -513,42 +588,68 @@ function evaluatePool(bet, ctx, nameOf) {
                headline: `Not settled — ${ready.why}.`, lines };
     }
 
-    const scored = (bet.parties || []).map(p => ({
-      party: p,
-      score: rule.score((p.picks || []).map(Number), ctx),
-    }));
-    const best = Math.max(...scored.map(x => x.score));
-    const winners = scored.filter(x => x.score === best);
+    if (rule.kind === 'outcome') {
+      const won = (rule.teams(ctx) || []).map(Number).filter(Boolean);
+      const holders = (bet.parties || []).map(p => ({
+        party: p,
+        held: (p.picks || []).map(Number).filter(t => won.includes(t)),
+      })).filter(h => h.held.length);
 
-    lines.push(`${rule.label}${rule.note ? ' — ' + rule.note(ctx, nameOf) : ''}: `
-      + scored.map(x => `${nameOf(x.party.owner_id)} ${rule.fmt ? rule.fmt(x.score) : x.score}`).join(', '));
-    last = { rule, scored, best, winners };
+      if (rule.note) lines.push(rule.label + ' — ' + rule.note(ctx, nameOf));
 
-    // One clear winner ends it. Anything else falls through to the tiebreaker,
-    // which is exactly the case this shape exists for: nobody had the champion.
-    if (winners.length === 1) {
-      return {
-        decided: true, push: false,
-        winner_ids: [winners[0].party.owner_id],
-        headline: `${nameOf(winners[0].party.owner_id)} wins it.`,
-        lines,
-      };
+      // ── The dead heat ──────────────────────────────────────────────────
+      // The thing itself was shared, and the two of you held different halves
+      // of it. Neither was more right than the other, so nobody's money moves.
+      // This is NOT the same as "we both picked the same winner" and it is not
+      // something a tiebreaker should decide — you'd each be paying for the
+      // other's correct pick.
+      const distinct = new Set(holders.flatMap(h => h.held));
+      if (won.length > 1 && holders.length > 1 && distinct.size > 1) {
+        lines.push(holders.map(h =>
+          `${nameOf(h.party.owner_id)} had ${h.held.map(nameOf).join(', ')}`).join('; ') + '.');
+        lines.push('Split outcome, split down the middle — everyone gets their stake back.');
+        return { decided: true, winner_ids: [], push: true,
+                 headline: 'Push — the title was shared and you held one each.', lines };
+      }
+
+      lines.push(holders.length
+        ? holders.map(h => `${nameOf(h.party.owner_id)} had them`).join(', ')
+        : 'Nobody had them.');
+      last = { rule, winners: holders.map(h => h.party), everyoneMissed: !holders.length };
+
+      if (holders.length === 1) {
+        return { decided: true, push: false,
+                 winner_ids: [holders[0].party.owner_id],
+                 headline: `${nameOf(holders[0].party.owner_id)} wins it.`, lines };
+      }
+    } else {
+      const scored = (bet.parties || []).map(p => ({
+        party: p, score: rule.score((p.picks || []).map(Number), ctx),
+      }));
+      const best = Math.max(...scored.map(x => x.score));
+      const winners = scored.filter(x => x.score === best);
+      lines.push(`${rule.label}: `
+        + scored.map(x => `${nameOf(x.party.owner_id)} ${rule.fmt ? rule.fmt(x.score) : x.score}`).join(', '));
+      last = { rule, winners: winners.map(w => w.party), everyoneMissed: false };
+      if (winners.length === 1) {
+        return { decided: true, push: false,
+                 winner_ids: [winners[0].party.owner_id],
+                 headline: `${nameOf(winners[0].party.owner_id)} wins it.`, lines };
+      }
     }
+
     if (rules.indexOf(key) < rules.length - 1) {
-      lines.push(winners.length === scored.length && best === 0
-        ? '→ Nobody hit that one. Next rule.'
-        : '→ Level on that one. Next rule.');
+      lines.push(last.everyoneMissed ? '→ Nobody hit that one. Next rule.'
+                                     : '→ Level on that one. Next rule.');
     }
   }
 
-  // Out of rules with the field still level.
-  const allZero = last && last.best === 0 && last.winners.length === last.scored.length;
-  if (allZero) {
+  if (last && last.everyoneMissed) {
     lines.push('No rule separated anyone.');
     return { decided: true, winner_ids: [], push: true,
              headline: 'Push — nobody won it. Add a tiebreaker next year.', lines };
   }
-  const ids = last.winners.map(w => w.party.owner_id);
+  const ids = last.winners.map(p => p.owner_id);
   lines.push('Still level after every rule.');
   return {
     decided: true, push: false, winner_ids: ids,
@@ -601,5 +702,5 @@ function evaluateProposition(bet, ctx, nameOf) {
 module.exports = {
   CFG, TESTS, PLACES, POOL_OUTCOMES, POOL_RULES, poolRules,
   conditionText, betText, makeContext, weeksNeeded, evalCondition, evaluate,
-  weekLockAt, matchupWindow,
+  weekLockAt, matchupWindow, kickoffOf, acceptDeadline,
 };

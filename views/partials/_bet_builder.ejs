@@ -1,57 +1,92 @@
 <%
-  // The propose form. Two shapes, one card:
-  //   STRAIGHT — a claim about a team, optionally with if/then conditions the
-  //              site can grade.
-  //   POOL     — everybody picks teams, one outcome decides whose picks hit.
-  //              This is the Richard-and-Cory bet.
-  // Conditions are OPTIONAL everywhere. A bet with none is a handshake with a
-  // stake on it, which is what most side bets are, and it settles by hand.
+  /* ── The betting slip ────────────────────────────────────────────────────
+   *
+   * The old version put every field for every kind of bet on screen at once and
+   * asked you to work out which ones applied to you. That is a builder, and a
+   * builder is the wrong shape for something you fill in on a phone while the
+   * group chat is going.
+   *
+   * A slip is the right shape: pick what kind of bet it is, and only that bet's
+   * fields exist. Four tickets cover everything this league has ever actually
+   * wagered on; "Something else" is free text and settles by hand, which is how
+   * every side bet worked before this page existed.
+   *
+   * Everything a ticket cannot express is still reachable — the pool's rule
+   * chain, extra tiebreakers, posting to the board — it just isn't in your way
+   * until you've said what you're doing.
+   */
   const others = owners.filter(o => o.id !== owner.id);
+  const thisWeek = (typeof currentWeek !== 'undefined' && currentWeek) ? currentWeek : 1;
 %>
 <details class="card entry-card bet-builder" id="propose" style="margin-bottom:1.2rem">
-  <summary>➕ Propose a side bet <span class="sub">straight bet or a pool — the site can grade it for you</span></summary>
+  <summary>➕ Start a bet <span class="sub">pick the kind, fill in two things, send it</span></summary>
   <div class="body">
     <form method="post" action="/sidebets" class="entry-form" id="bet-form">
 
-      <%# ── Which shape ─────────────────────────────────────────────────── %>
-      <%# Pool first and selected by default — it is the shape of bet this
-          league actually makes ("we each pick five, whoever has the champion
-          wins"), and burying it behind the other one made people build the
-          wrong thing. %>
-      <div class="seg" role="radiogroup" aria-label="Bet type">
-        <label class="seg-opt">
-          <input type="radio" name="format" value="pool" checked>
-          <span><b>Pool</b><small>we each pick teams — one of us wins</small></span>
+      <%# ── 1. What kind of bet ──────────────────────────────────────────── %>
+      <div class="tickets" role="radiogroup" aria-label="Kind of bet">
+        <label class="ticket">
+          <input type="radio" name="ticket" value="pool" checked>
+          <span>
+            <b>🏆 Season pool</b>
+            <small>We each pick teams. Whoever has the champion wins.</small>
+          </span>
         </label>
-        <label class="seg-opt">
-          <input type="radio" name="format" value="prop">
-          <span><b>Straight bet</b><small>a claim that comes in or doesn't</small></span>
+        <label class="ticket">
+          <input type="radio" name="ticket" value="matchup">
+          <span>
+            <b>⚔️ Beat me this week</b>
+            <small>My team outscores yours in week <%= thisWeek %>.</small>
+          </span>
+        </label>
+        <label class="ticket">
+          <input type="radio" name="ticket" value="finish">
+          <span>
+            <b>🏁 Finish above me</b>
+            <small>Where we end up when the season's done.</small>
+          </span>
+        </label>
+        <label class="ticket">
+          <input type="radio" name="ticket" value="custom">
+          <span>
+            <b>✍️ Something else</b>
+            <small>Write it in your own words. You settle it yourselves.</small>
+          </span>
         </label>
       </div>
 
-      <%# ── POOL ────────────────────────────────────────────────────────── %>
-      <div class="fmt-pool">
-        <p class="bb-lede">Everyone picks a set of teams. The rules below are checked
-        <b>in order</b> — the first one that separates you wins it, and if it ties,
-        the next one breaks it.</p>
+      <%# Hidden fields the tickets drive. The server parses exactly the same
+          shape whichever ticket you picked — one code path, four front doors. %>
+      <input type="hidden" name="format" id="f-format" value="pool">
+      <input type="hidden" name="kind" id="f-kind" value="">
+      <input type="hidden" name="logic" value="all">
+      <input type="hidden" name="cond_test" id="f-test" value="" disabled>
+      <input type="hidden" name="cond_subject" id="f-subject" value="<%= owner.id %>" disabled>
+      <input type="hidden" name="cond_target_owner" id="f-target" value="" disabled>
+      <input type="hidden" name="cond_when" id="f-when" value="" disabled>
+      <input type="hidden" name="cond_week" id="f-week" value="<%= thisWeek %>" disabled>
+      <input type="hidden" name="cond_target_place" id="f-place" value="" disabled>
+
+      <%# ── 2. The ticket's own fields ───────────────────────────────────── %>
+
+      <%# POOL %>
+      <div class="tk tk-pool">
         <div class="ef-row">
-          <label class="field" style="flex:0 1 190px">Teams each person picks
+          <label class="field" style="flex:0 1 200px">Teams each of us picks
             <input type="number" name="picks_required" min="1" max="10" value="5">
           </label>
         </div>
-
         <div class="rule-box">
-          <div class="rule-head">Decided by</div>
+          <div class="rule-head">Who wins it</div>
           <div id="rule-rows"></div>
           <button type="button" class="btn small navy" id="rule-add">+ Add a tiebreaker</button>
           <p class="muted" style="font-size:.76rem; margin:.5rem 0 0">
-            Most years nobody picks the champion. A tiebreaker is what stops that
-            being an argument — add one and the site can still call it.
+            Checked in order. Most years nobody picks the champion — a tiebreaker
+            is what stops that being an argument.
           </p>
         </div>
-
         <div class="ef-row">
-          <div class="field" style="flex:1 1 100%">Your picks
+          <div class="field" style="flex:1 1 100%">Your teams
             <span class="muted" id="pick-count"></span>
             <div class="sb-people" id="pool-picks">
               <% for (const o of owners) { %>
@@ -62,60 +97,46 @@
             </div>
           </div>
         </div>
-        <p class="cond-preview" id="pool-preview"></p>
       </div>
 
-      <%# ── STRAIGHT ────────────────────────────────────────────────────── %>
-      <div class="fmt-prop">
+      <%# MATCHUP %>
+      <div class="tk tk-matchup" hidden>
+        <p class="bb-lede">Your team against theirs in <b>week <%= thisWeek %></b>, straight up on
+        points. Settles when the week ends — and it has to be accepted <b>before
+        kickoff</b>, so nobody can take it once they've seen a score.</p>
+      </div>
+
+      <%# FINISH %>
+      <div class="tk tk-finish" hidden>
+        <p class="bb-lede">Whoever finishes higher in the final standings takes it.
+        Has to be accepted before the season starts.</p>
+      </div>
+
+      <%# CUSTOM %>
+      <div class="tk tk-custom" hidden>
         <div class="ef-row">
-          <label class="field" style="flex:1 1 100%">The bet, in your words
-            <span class="muted">(leave blank and the conditions below write it for you)</span>
-            <textarea name="terms" maxlength="1200" rows="2"
-              placeholder="e.g. My team beats yours in week 4 and I take the weekly high"></textarea>
+          <label class="field" style="flex:1 1 100%">What's the bet?
+            <textarea name="terms" maxlength="1200" rows="3"
+              placeholder="e.g. Loser buys dinner at the draft. Winner picks the restaurant."></textarea>
           </label>
         </div>
-
-        <details class="cond-box">
-          <summary>⚙️ Add if/then conditions <span class="sub">optional — but then the site grades it and tells you who won</span></summary>
-          <div class="cond-body">
-            <div id="cond-rows"></div>
-            <div class="cond-tools">
-              <button type="button" class="btn small navy" id="cond-add">+ Add a condition</button>
-              <label class="cond-join">Joined by
-                <select name="logic">
-                  <option value="all">ALL of them must happen</option>
-                  <option value="any">ANY one of them is enough</option>
-                </select>
-              </label>
-            </div>
-            <p class="cond-preview" id="cond-preview"></p>
-            <p class="muted" style="font-size:.76rem; margin:.4rem 0 0">
-              If these come in, <b>you</b> win. If they don't, the other side does.
-              The site never settles anything on its own — it works out the answer,
-              shows the numbers, and one of you presses the button.
-            </p>
-          </div>
-        </details>
+        <p class="bb-lede">The site tracks it and remembers who owes who — but it
+        can't grade this one, so you two agree the result and press the button.</p>
       </div>
 
-      <%# ── The money and the timing ────────────────────────────────────── %>
+      <%# ── 3. Money, and who you're betting ─────────────────────────────── %>
       <div class="ef-row">
-        <label class="field" style="flex:1 1 120px">Stake each (USD)
+        <label class="field" style="flex:1 1 130px">Wager each
           <input type="number" name="stake" step="1" min="1" placeholder="50" required>
         </label>
-        <label class="field" style="flex:2 1 200px">Settles when <span class="muted">(optional)</span>
-          <input type="text" name="resolves" maxlength="120" placeholder="e.g. end of the 2026 season">
-        </label>
-      </div>
-      <div class="ef-row fmt-prop">
-        <label class="field" style="flex:1 1 100%">Your side of it <span class="muted">(optional — anything the conditions don't capture)</span>
-          <input type="text" name="position" maxlength="400" placeholder="e.g. I'm giving 10 points">
+        <label class="field tk tk-custom" style="flex:2 1 220px" hidden>Settles when
+          <input type="text" name="resolves" maxlength="120" placeholder="e.g. draft night">
         </label>
       </div>
 
-      <%# ── Who it's against ────────────────────────────────────────────── %>
       <div class="ef-row">
-        <div class="field" style="flex:1 1 100%">Who's in it <span class="muted">(you're already in)</span>
+        <div class="field" style="flex:1 1 100%">Send this bet to
+          <span class="muted">(they get an alert and have to accept)</span>
           <div class="sb-people">
             <% for (const o of others) { %>
               <label class="sb-person">
@@ -126,36 +147,34 @@
         </div>
       </div>
 
-      <%# ── Or don't name anyone: post it and see who bites ─────────────── %>
       <label class="market-toggle">
         <input type="checkbox" id="market-on">
-        <span><b>Or post it to the market</b> — don't name anyone, let whoever wants it take the other side.</span>
+        <span><b>Or put it on the board</b> — don't name anyone, and whoever wants
+        it takes the other side.</span>
       </label>
       <div class="ef-row market-slots" hidden>
-        <label class="field" style="flex:1 1 160px">Takers wanted
+        <label class="field" style="flex:1 1 170px">How many takers
           <select name="open_slots">
             <% for (let i = 1; i <= 5; i++) { %>
               <option value="<%= i %>"><%= i %> <%= i === 1 ? 'person' : 'people' %></option>
             <% } %>
           </select>
         </label>
-        <p class="muted" style="flex:2 1 220px; margin:0; align-self:end; font-size:.78rem">
-          It sits on the board until that many people take it, then it locks automatically.
-        </p>
       </div>
 
+      <%# The slip, read back. If this doesn't say what you meant, don't send it. %>
+      <p class="cond-preview" id="slip"></p>
+
       <div class="ef-row" style="justify-content:flex-end">
-        <div class="fit"><button class="btn gold" type="submit">Put it up</button></div>
+        <div class="fit"><button class="btn gold" type="submit">Send it</button></div>
       </div>
       <p class="muted" style="margin:.2rem 0 0; font-size:.76rem">
-        Proposing counts as your acceptance. It isn't a bet until everyone named agrees.
+        Sending counts as your yes. It isn't a bet until they agree.
       </p>
     </form>
   </div>
 </details>
 
-<%# The condition row, cloned by JS. Kept in a <template> so the markup lives
-    next to the form it belongs to rather than inside a JS string. %>
 <template id="rule-tpl">
   <div class="rule-row">
     <span class="rule-then">then</span>
@@ -168,186 +187,125 @@
   </div>
 </template>
 
-<template id="cond-tpl">
-  <div class="cond-row">
-    <select name="cond_subject" aria-label="Whose team">
-      <% for (const o of owners) { %>
-        <option value="<%= o.id %>"<%= o.id === owner.id ? ' selected' : '' %>><%= o.name %><%= o.id === owner.id ? ' (you)' : '' %></option>
-      <% } %>
-    </select>
-    <select name="cond_test" aria-label="Does what"
-            data-target="<%= Object.entries(BL.TESTS).map(([k, v]) => k + ':' + v.target).join(',') %>"
-            data-when="<%= Object.entries(BL.TESTS).map(([k, v]) => k + ':' + v.when.join('|')).join(',') %>">
-      <% for (const [k, v] of Object.entries(BL.TESTS)) { %>
-        <option value="<%= k %>" title="<%= v.hint %>"><%= v.label %></option>
-      <% } %>
-    </select>
-    <select name="cond_target_owner" class="t-owner" aria-label="Against which team">
-      <% for (const o of owners) { %><option value="<%= o.id %>"><%= o.name %></option><% } %>
-    </select>
-    <input type="number" name="cond_target_number" class="t-number" step="0.1" placeholder="points" aria-label="How many" hidden>
-    <select name="cond_target_place" class="t-place" aria-label="Which place" hidden>
-      <% for (const [k, v] of Object.entries(BL.PLACES)) { %><option value="<%= k %>"><%= v.label %></option><% } %>
-    </select>
-    <select name="cond_when" class="t-when" aria-label="When">
-      <option value="week">in week…</option>
-      <option value="season">over the whole season</option>
-    </select>
-    <input type="number" name="cond_week" class="t-week" min="1" max="18" placeholder="wk" aria-label="Which week">
-    <button type="button" class="btn small ghost cond-del" title="Remove this condition">✕</button>
-  </div>
-</template>
-
 <script>
-/* The builder. Progressive enhancement over a plain form: without this you get
-   no condition rows, and a bet with no conditions is still a perfectly good bet
-   that settles by hand — which is how they all worked last season. */
+/* The slip. Progressive enhancement: with this blocked you get the pool ticket
+   as a plain form, which still makes a perfectly good bet. */
 (function () {
   var form = document.getElementById('bet-form');
   if (!form) return;
-  var rows = document.getElementById('cond-rows');
-  var tpl = document.getElementById('cond-tpl');
-  var preview = document.getElementById('cond-preview');
-
-  /* Which second input a test needs, parsed out of the data- attributes so the
-     server's TESTS table stays the only definition of it. */
-  function specs(sel, attr) {
-    var out = {};
-    (sel.getAttribute(attr) || '').split(',').forEach(function (pair) {
-      var kv = pair.split(':'); out[kv[0]] = kv[1];
-    });
-    return out;
-  }
-
-  function syncRow(row) {
-    var test = row.querySelector('[name=cond_test]');
-    var need = specs(test, 'data-target')[test.value];
-    var whens = (specs(test, 'data-when')[test.value] || 'week').split('|');
-    row.querySelector('.t-owner').hidden = need !== 'owner';
-    row.querySelector('.t-number').hidden = need !== 'number';
-    row.querySelector('.t-place').hidden = need !== 'place';
-    var when = row.querySelector('.t-when');
-    // Only offer the time controls this test actually supports — "finishes
-    // champion in week 4" is not a thing, and offering it invites the bug.
-    Array.prototype.forEach.call(when.options, function (o) {
-      o.hidden = whens.indexOf(o.value) < 0;
-      o.disabled = o.hidden;
-    });
-    if (whens.indexOf(when.value) < 0) when.value = whens[0];
-    when.hidden = whens.length < 2;
-    row.querySelector('.t-week').hidden = when.value !== 'week';
-  }
-
-  /* The live sentence, assembled from the labels the user can actually see.
-     Deliberately built from option text rather than re-implementing the
-     server's phrasing — one place to change wording, no drift. */
-  function sentence() {
-    var parts = [];
-    rows.querySelectorAll('.cond-row').forEach(function (row) {
-      var pick = function (s) { return s.options[s.selectedIndex] ? s.options[s.selectedIndex].text : ''; };
-      var test = row.querySelector('[name=cond_test]');
-      var need = specs(test, 'data-target')[test.value];
-      var s = pick(row.querySelector('[name=cond_subject]')).replace(' (you)', '') + "'s team ";
-      s += pick(test);
-      if (need === 'owner') s += ' ' + pick(row.querySelector('.t-owner'));
-      if (need === 'number') s += ' ' + (row.querySelector('.t-number').value || '…');
-      if (need === 'place') s += ' ' + pick(row.querySelector('.t-place'));
-      var when = row.querySelector('.t-when');
-      if (when.value === 'week') s += ' in week ' + (row.querySelector('.t-week').value || '…');
-      else s += ' over the whole season';
-      parts.push(s);
-    });
-    if (!parts.length) return '';
-    var join = form.querySelector('[name=logic]').value === 'any' ? ' OR ' : ' AND ';
-    return 'If ' + parts.join(join) + ', you win.';
-  }
-
-  function refresh() {
-    rows.querySelectorAll('.cond-row').forEach(syncRow);
-    preview.textContent = sentence();
-    preview.hidden = !preview.textContent;
-  }
-
-  document.getElementById('cond-add').addEventListener('click', function () {
-    rows.appendChild(tpl.content.cloneNode(true));
-    refresh();
-  });
-  rows.addEventListener('change', refresh);
-  rows.addEventListener('input', refresh);
-  rows.addEventListener('click', function (e) {
-    if (!e.target.closest('.cond-del')) return;
-    e.target.closest('.cond-row').remove();
-    refresh();
-  });
-  form.querySelector('[name=logic]').addEventListener('change', refresh);
-
-  /* ── The pool's rule chain ──────────────────────────────────────────────
-     Ordered rows. The first row is the main rule; every row after it is a
-     tiebreaker, and saying "then" down the left is what makes the ordering
-     legible without a paragraph of explanation. */
   var ruleRows = document.getElementById('rule-rows');
   var ruleTpl = document.getElementById('rule-tpl');
-  var poolPreview = document.getElementById('pool-preview');
+  var slip = document.getElementById('slip');
   var pickCount = document.getElementById('pick-count');
+  var WEEK = <%= thisWeek %>;
+  var ME = '<%= owner.name.replace(/'/g, "\\'") %>';
 
+  /* Each ticket says which hidden fields it needs. The server has one parser;
+     these presets are just four ways of filling in the same form. */
+  var TICKETS = {
+    pool:    { format: 'pool', kind: '', fields: {} },
+    matchup: { format: 'prop', kind: 'matchup',
+               fields: { test: 'outscores', when: 'week', week: WEEK } },
+    finish:  { format: 'prop', kind: '',
+               fields: { test: 'outscores', when: 'season' } },
+    custom:  { format: 'prop', kind: '', fields: {} },
+  };
+
+  function ticket() { return form.querySelector('[name=ticket]:checked').value; }
+  function set(id, value, on) {
+    var el = document.getElementById(id);
+    el.value = value == null ? '' : value;
+    el.disabled = !on;               // disabled fields are not submitted
+  }
+
+  function firstNamed() {
+    var c = form.querySelector('[name=party]:checked');
+    return c ? c.closest('.sb-person').textContent.trim() : null;
+  }
+
+  function syncTicket() {
+    var t = ticket(), cfg = TICKETS[t];
+    document.getElementById('f-format').value = cfg.format;
+    document.getElementById('f-kind').value = cfg.kind;
+    var f = cfg.fields;
+    set('f-test', f.test, !!f.test);
+    set('f-subject', <%= owner.id %>, !!f.test);
+    set('f-when', f.when, !!f.when);
+    set('f-week', f.week, f.when === 'week');
+    // Head-to-head tickets need an opponent; it is whoever you send it to.
+    var opp = form.querySelector('[name=party]:checked');
+    set('f-target', opp ? opp.value : '', !!f.test && !!opp);
+
+    form.querySelectorAll('.tk').forEach(function (el) {
+      el.hidden = !el.classList.contains('tk-' + t);
+    });
+    refresh();
+  }
+
+  /* ── The pool's rule chain ─────────────────────────────────────────────── */
   function addRule(value) {
     ruleRows.appendChild(ruleTpl.content.cloneNode(true));
     var row = ruleRows.lastElementChild;
     if (value) row.querySelector('select').value = value;
-    refreshPool();
+    refresh();
+  }
+  function ruleLabels() {
+    return [].map.call(ruleRows.querySelectorAll('.rule-row select'), function (s) {
+      return s.options[s.selectedIndex].text;
+    });
   }
 
-  function refreshPool() {
+  /* ── The slip, in English ──────────────────────────────────────────────── */
+  function refresh() {
     var rows = ruleRows.querySelectorAll('.rule-row');
     rows.forEach(function (row, i) {
-      // The first row is the rule; the rest are fallbacks.
       row.querySelector('.rule-then').textContent = i === 0 ? '' : 'then';
-      // Never let someone delete the only rule — a pool with none cannot settle.
       row.querySelector('.rule-del').style.visibility = rows.length > 1 ? '' : 'hidden';
     });
 
     var n = parseInt(form.querySelector('[name=picks_required]').value, 10) || 0;
     var picked = form.querySelectorAll('#pool-picks input:checked').length;
     pickCount.textContent = n ? '(' + picked + ' of ' + n + ' picked)' : '';
-    pickCount.className = picked === n ? 'ok-count' : 'muted';
+    pickCount.className = picked === n && n ? 'ok-count' : 'muted';
 
-    var labels = [];
-    rows.forEach(function (row) {
-      var sel = row.querySelector('select');
-      labels.push(sel.options[sel.selectedIndex].text);
-    });
-    poolPreview.textContent = 'We each pick ' + (n || '?') + ' teams. Decided by '
-      + labels[0] + labels.slice(1).map(function (l) { return '; if that ties, ' + l; }).join('') + '.';
+    var t = ticket();
+    var who = firstNamed();
+    var vs = who || 'whoever takes it';
+    var text = '';
+    if (t === 'pool') {
+      var l = ruleLabels();
+      text = 'We each pick ' + (n || '?') + ' teams. Decided by ' + l[0]
+           + l.slice(1).map(function (x) { return '; if that ties, ' + x; }).join('') + '.';
+    } else if (t === 'matchup') {
+      text = ME + "'s team outscores " + vs + ' in week ' + WEEK + '.';
+    } else if (t === 'finish') {
+      text = ME + ' finishes above ' + vs + ' on points over the whole season.';
+    } else {
+      var typed = (form.querySelector('[name=terms]') || {}).value || '';
+      text = typed.trim() || 'Write the bet above and it will show here.';
+    }
+    var stake = form.querySelector('[name=stake]').value;
+    slip.textContent = text + (stake ? '  ·  $' + stake + ' each.' : '');
   }
 
   document.getElementById('rule-add').addEventListener('click', function () { addRule(); });
-  ruleRows.addEventListener('change', refreshPool);
+  ruleRows.addEventListener('change', refresh);
   ruleRows.addEventListener('click', function (e) {
     if (!e.target.closest('.rule-del')) return;
     if (ruleRows.querySelectorAll('.rule-row').length < 2) return;
     e.target.closest('.rule-row').remove();
-    refreshPool();
+    refresh();
   });
-  form.querySelector('[name=picks_required]').addEventListener('input', refreshPool);
-  form.querySelectorAll('#pool-picks input').forEach(function (c) {
-    c.addEventListener('change', refreshPool);
+  form.querySelectorAll('[name=ticket]').forEach(function (r) {
+    r.addEventListener('change', syncTicket);
   });
-  // Open on the bet everyone actually makes, with the fallback already in place.
-  addRule('champion');
-  addRule('best_finish');
-
-  /* Straight vs pool. */
-  function syncFormat() {
-    var pool = form.querySelector('[name=format]:checked').value === 'pool';
-    form.querySelectorAll('.fmt-pool').forEach(function (el) { el.hidden = !pool; });
-    form.querySelectorAll('.fmt-prop').forEach(function (el) { el.hidden = pool; });
-  }
-  form.querySelectorAll('[name=format]').forEach(function (r) {
-    r.addEventListener('change', syncFormat);
+  form.addEventListener('input', refresh);
+  form.addEventListener('change', function (e) {
+    // Picking who you're betting also picks the opponent on a head-to-head.
+    if (e.target.name === 'party') syncTicket();
   });
 
-  /* Market listing: naming people and posting openly are alternatives, so
-     turning one on has to turn the other off or you get a bet that is both. */
+  /* Naming people and posting openly are alternatives, not both. */
   var market = document.getElementById('market-on');
   var slots = form.querySelector('.market-slots');
   var people = form.querySelectorAll('[name=party]');
@@ -359,10 +317,12 @@
       if (market.checked) c.checked = false;
       c.closest('.sb-person').classList.toggle('is-off', market.checked);
     });
+    syncTicket();
   });
   slots.querySelector('select').disabled = true;
 
-  syncFormat();
-  refresh();
+  addRule('champion');
+  addRule('best_finish');
+  syncTicket();
 })();
 </script>

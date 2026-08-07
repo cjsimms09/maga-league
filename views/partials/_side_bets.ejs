@@ -36,6 +36,13 @@
   </div>
 <% } %>
 
+<% if (typeof late !== 'undefined' && late) { %>
+  <div class="alert-banner alert-warning" style="margin-bottom:1rem">
+    <span class="tag">⏰</span><span>Too late to accept that one — the thing it was
+    about has already started. Nobody's money moved.</span>
+  </div>
+<% } %>
+
 <div class="sb-note">
   <b>These are not league money.</b> Side bets are between you and whoever took the
   other side — they never touch buy-ins, prize money, or anyone’s league balance.
@@ -108,7 +115,10 @@
           <div class="sb-meta">
             <b><%= money(b.stake) %></b> each ·
             <%= b.parties.map(p => betNames(p.owner_id)).join(' vs ') %> ·
-            proposed by <%= betNames(b.proposer_id) %>
+            from <%= betNames(b.proposer_id) %>
+            <% const dl = deadlines[b.id]; if (dl && dl.at) { %>
+              · <span class="<%= dl.open ? 'sb-wait' : 'muted' %>"><%= dl.open ? 'accept before ' : 'expired — ' %><%= new Date(dl.at).toLocaleString('en-US', { timeZone: 'America/New_York', weekday: 'short', hour: 'numeric', minute: '2-digit' }) %> ET</span>
+            <% } %>
           </div>
           <%# What the other side already took, so you can pick against it. %>
           <% if (b.format === 'pool') { %>
@@ -129,7 +139,11 @@
               <div class="pick-label">Your teams</div>
               <% pickGrid(b, 'picks'); %>
             <% } %>
-            <button class="btn small gold" type="submit">Accept</button>
+            <% if (!deadlines[b.id] || deadlines[b.id].open) { %>
+              <button class="btn small gold" type="submit">Accept</button>
+            <% } else { %>
+              <span class="muted" style="font-size:.76rem">Too late to accept</span>
+            <% } %>
           </form>
           <form class="asis" method="post" action="/sidebets/<%= b.id %>/decline">
             <button class="btn small ghost" type="submit">Decline</button>

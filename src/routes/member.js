@@ -344,11 +344,19 @@ router.get('/bank', aw(async (req, res) => {
   // The pool board wants the live standings order so "who picked whom" reads
   // as a standings table with the picks marked, not an arbitrary list.
   const { verdicts, order: liveOrder } = await gradeBets(bets, world, owners, nameOf);
+  // When each open bet stops being acceptable. Shown on every proposal so the
+  // person deciding can see the clock, not just discover it when they're late.
+  const deadlines = {};
+  for (const b of bets) {
+    deadlines[b.id] = BL.acceptDeadline(b, { seasonStart: world.config.season_start });
+  }
 
   res.render('bank', {
     cards, season, totalOwedToLeague, totalLeagueOwes, viewCard, leagueEntries,
     TYPE_LABELS: L.TYPE_LABELS,
     section, bets, tallies, owners, betNames, sbLedger, sbOwed, sbOwedMine, verdicts, liveOrder,
+    deadlines, late: req.query.late === '1',
+    currentWeek: (await sleeper.bundle(world.config.sleeper_league_id) || {}).week || 1,
     BL, payDirectory: owners.filter(o => o.venmo || o.paypal || o.cashapp || o.zelle),
   });
 }));
@@ -393,8 +401,19 @@ async function gradeBets(bets, world, owners, nameOf) {
     } catch (e) { /* a missing week grades as "can't tell", which is honest */ }
   }
 
+  // A shared title is a real outcome — 2022 split the trophy — and a pool where
+  // each side held one of the co-champions is a push, not a tiebreak. Awards
+  // are where that fact lives, same as the record book reads it.
+  const champions = [];
+  for (const a of L.awardsForYear(world.ledger, season.year)) {
+    if (a.category === 'playoff_1'
+        || (a.category === 'playoff_2' && /^Co-champion/i.test(a.desc || ''))) {
+      champions.push(Number(a.owner_id));
+    }
+  }
   const ctx = BL.makeContext({
     season, liveRows, weekPoints, weekNow, owners,
+    champions, seasonStart: world.config.season_start,
     weeklyHigh: (world.history.weekly || {})[String(season.year)] || [],
   });
   for (const b of gradeable) {
@@ -496,18 +515,36 @@ router.post('/sidebets', aw(async (req, res) => {
   res.redirect('/bank?section=sidebets');
 }));
 
-router.post('/sidebets/:id/accept', aw(async (req, res) => {
-  const bet = await SB.get(req.params.id);
-  // A bet on this week's game cannot be accepted once football has started —
-  // after kickoff you would be betting on information. Checked on the server,
-  // not just hidden in the view, because the form is a POST anybody can replay.
-  if (bet && bet.kind === 'matchup') {
-    const world = req.world;
+/**
+ * The deadline check, applied to every way of joining a bet.
+ *
+ * Kept in one function because there are two doors — accepting a named bet and
+ * taking one off the board — and a rule enforced at one of them is not enforced
+ * at all.
+ */
+async function tooLate(bet, req) {
+  if (!bet) return null;
+  const world = req.world;
+  const gate = BL.acceptDeadline(bet, { seasonStart: world.config.season_start });
+  if (!gate.open) return gate.reason;
+  // Belt and braces for this week's games: points on the board mean football
+  // has started even if the calendar says otherwise.
+  if (bet.kind === 'matchup') {
     const sData = await sleeper.bundle(world.config.sleeper_league_id);
     const mu = sleeper.myMatchup(sData, world.config.sleeper_map || {}, req.owner.id,
       H.activeOwners(world.owners));
     const win = BL.matchupWindow(mu);
-    if (!win.open) return res.redirect('/team?late=1');
+    if (!win.open) return win.reason;
+  }
+  return null;
+}
+
+router.post('/sidebets/:id/accept', aw(async (req, res) => {
+  const bet = await SB.get(req.params.id);
+  const late = await tooLate(bet, req);
+  if (late) {
+    return res.redirect(req.body.back === 'team'
+      ? '/team?late=1' : '/bank?section=sidebets&late=1');
   }
   await SB.accept(req.params.id, req.owner.id, req.owner.name, {
     position: String(req.body.position || '').trim(),
@@ -519,6 +556,9 @@ router.post('/sidebets/:id/accept', aw(async (req, res) => {
 // Take the other side of a bet somebody posted to the market. Taking IS the
 // handshake — the person who posted it gave theirs by posting.
 router.post('/sidebets/:id/take', aw(async (req, res) => {
+  const bet = await SB.get(req.params.id);
+  const late = await tooLate(bet, req);
+  if (late) return res.redirect('/bank?section=sidebets&late=1');
   await SB.take(req.params.id, req.owner.id, req.owner.name, {
     position: String(req.body.position || '').trim(),
     picks: picksFrom(req.body),
