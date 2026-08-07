@@ -524,13 +524,40 @@ router.post('/sleeper', aw(async (req, res) => {
 }));
 router.post('/sleeper/map', aw(async (req, res) => {
   const config = await getDoc('config', {});
+  const owners = H.activeOwners(req.world.owners);
+  const nameOf = id => (H.ownerById(owners, id) || {}).name || ('#' + id);
+
   const map = {};
+  const byOwner = {};
   for (const [k, v] of Object.entries(req.body)) {
-    if (k.startsWith('map_') && v) map[k.slice(4)] = Number(v);
+    if (!k.startsWith('map_') || !v) continue;
+    const rosterId = k.slice(4);
+    const ownerId = Number(v);
+    map[rosterId] = ownerId;
+    (byOwner[ownerId] = byOwner[ownerId] || []).push(rosterId);
   }
+
+  // One owner cannot hold two Sleeper teams. Nothing used to stop it, and the
+  // failure was silent in the worst way: the duplicated owner appeared twice in
+  // the standings, somebody else appeared not at all, and every score-based
+  // lookup for the missing owner quietly returned nothing.
+  const dupes = Object.entries(byOwner).filter(([, rosters]) => rosters.length > 1);
+  if (dupes.length) {
+    return back(res, 'sleeper', msg(
+      'Not saved — ' + dupes.map(([o, r]) => `${nameOf(o)} is on ${r.length} teams`).join(', ')
+      + '. Each owner can hold one Sleeper team. Nothing was changed.'));
+  }
+
   config.sleeper_map = map;
   await setDoc('config', config);
-  back(res, 'sleeper', msg('Team mapping saved.'));
+
+  // Say what actually landed. "Saved." is what a form says when it has no idea
+  // whether the thing you wanted happened, and it is why nobody trusts it.
+  const total = Object.keys(map).length;
+  const missing = owners.filter(o => !Object.values(map).includes(o.id)).map(o => o.name);
+  back(res, 'sleeper', msg(
+    `Mapped ${total} team${total === 1 ? '' : 's'}.`
+    + (missing.length ? ` Still without a Sleeper team: ${missing.join(', ')}.` : ' Every owner has one.')));
 }));
 
 router.post('/sleeper/refresh-records', aw(async (req, res) => {
