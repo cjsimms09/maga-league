@@ -112,6 +112,7 @@
     state.format = E.applyFormatDefaults(data.league);
     loadOverrides();
     loadLists();
+    exposeTestHooks();
     state.board = data.players.slice();
     applyOverrides();
     renderAll();
@@ -730,10 +731,16 @@
   }
 
   function renderBoard() {
-    const rows = state.board
-      .filter(p => state.filterPos === 'ALL' || p.position === state.filterPos)
-      .filter(p => !state.search || p.name.toLowerCase().indexOf(state.search) !== -1)
-      .slice(0, 200);
+    const match = p => (state.filterPos === 'ALL' || p.position === state.filterPos)
+      && (!state.search || (p.name || '').toLowerCase().indexOf(state.search) !== -1);
+    const rows = state.board.filter(match).slice(0, 200);
+
+    // Searching also looks at players already taken. "He isn't here" and "he
+    // went four picks ago" are different answers, and only one of them means
+    // something is broken — but the board could only ever give you the first.
+    const takenHits = state.search
+      ? (state.data.players || []).filter(p => state.drafted.has(String(p.player_id)) && match(p)).slice(0, 25)
+      : [];
     $('#board-body').innerHTML = rows.map(p =>
       '<tr data-tier="' + p.tier + '">' +
         '<td>' + p.overall_rank + '</td>' +
@@ -765,7 +772,89 @@
             + '" data-list="avoid" data-id="' + p.player_id + '" title="Never draft — remove from every recommendation">\u{1F6AB}</button>' +
           '<button class="btn small ghost" data-draft-other="' + p.player_id + '">✕</button></td>' +
       '</tr>').join('');
+    renderSearchTail(rows.length, takenHits);
     $('#board-count').textContent = rows.length + ' shown of ' + state.board.length + ' available';
+  }
+
+  /**
+   * What to say when the board cannot answer the search.
+   *
+   * Three different answers, and conflating them is how somebody ends up
+   * believing the tool is broken:
+   *   - he is available (rows > 0)         — nothing to say
+   *   - he is already taken                — say who has him
+   *   - nobody by that name exists here    — offer to record the pick anyway
+   *
+   * The last one matters because the board is a built artifact of the players
+   * worth drafting. Somebody will always take a rookie nobody projected, and
+   * "he does not exist" must never be the end of the conversation.
+   */
+  function renderSearchTail(shown, taken) {
+    const host = $('#search-tail');
+    if (!host) return;
+    if (!state.search) { host.innerHTML = ''; host.hidden = true; return; }
+    host.hidden = false;
+
+    const whoHas = id => {
+      const slot = Object.keys(state.rosters).find(k =>
+        (state.rosters[k] || []).some(p => String(p.player_id) === String(id)));
+      if (!slot) return 'already drafted';
+      const prof = Object.values(state.profiles || {}).find(x => Number(x.draft_slot) === Number(slot));
+      return 'taken by ' + (prof && prof.display_name ? prof.display_name : 'seat ' + slot);
+    };
+
+    let html = '';
+    if (taken.length) {
+      html += '<div class="tail-taken"><b>Already gone:</b> '
+        + taken.map(p => escapeHtml(p.name) + ' <span class="muted">(' + whoHas(p.player_id) + ')</span>').join(' · ')
+        + '</div>';
+    }
+    if (!shown) {
+      html += '<div class="tail-none">'
+        + '<b>No available player matches “' + escapeHtml(state.search) + '”.</b>'
+        + '<div class="muted">The board only carries players worth drafting. If somebody '
+        + 'just took a name that is not on it, record it here so the picks stay in step.</div>'
+        + '<form class="tail-form" id="manual-pick">'
+        + '<input type="text" id="mp-name" placeholder="Player name" value="' + escapeHtml(state.search) + '">'
+        + '<select id="mp-pos">' + ['QB','RB','WR','TE','K','DEF'].map(x =>
+            '<option value="' + x + '">' + x + '</option>').join('') + '</select>'
+        + '<select id="mp-slot"><option value="">Which seat?</option>'
+        + Array.from({ length: (state.data.league || {}).teams || 10 }, (_, i) =>
+            '<option value="' + (i + 1) + '">seat ' + (i + 1)
+            + (Number(state.data.league.my_draft_slot) === i + 1 ? ' (me)' : '') + '</option>').join('')
+        + '</select>'
+        + '<button type="submit" class="btn small gold">Record it</button>'
+        + '</form></div>';
+    }
+    host.innerHTML = html;
+  }
+
+  /**
+   * Record a pick for somebody the board has never heard of.
+   *
+   * The stub carries no projection, so it can never move a recommendation. It
+   * exists so the pick count, the seat rosters and your own roster stay true —
+   * which is what every survival and VONA number is computed against.
+   */
+  function recordManualPick(name, position, slot) {
+    const clean = String(name || '').trim();
+    if (!clean || !slot) return;
+    const id = 'manual:' + clean.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    if (state.drafted.has(id)) return;
+    const p = { player_id: id, name: clean, position: position || '?', team: '',
+                bye: null, off_board: true };
+    state.drafted.add(id);
+    state.recentPicks.push({ position: p.position, player_id: id,
+                             pick_no: state.recentPicks.length + 1, player: p });
+    (state.rosters[slot] = state.rosters[slot] || []).push(p);
+    if (Number(slot) === Number(state.data.league.my_draft_slot)) state.myRoster.push(p);
+    if (state.sync && state.sync.addManual) {
+      try { state.sync.addManual(id, slot); } catch (e) { /* local record still stands */ }
+    }
+    state.search = '';
+    const box = $('#search'); if (box) box.value = '';
+    recomputeRuns();
+    renderAll();
   }
 
   function riskFlags(p) {
@@ -797,7 +886,15 @@
     });
     $('#roster-slots').innerHTML = cells.join('');
     $('#roster-list').innerHTML = state.myRoster.length
-      ? state.myRoster.map(p => '<li>' + escapeHtml(p.name) + ' <span class="muted">' + p.position + ' · ' + Math.round(p.proj_mean) + '</span></li>').join('')
+      ? state.myRoster.map(p => {
+          // A player the board never carried has no projection. "· NaN" is how
+          // that used to read, which looks like a broken number rather than an
+          // absent one.
+          const proj = Number.isFinite(p.proj_mean) ? ' · ' + Math.round(p.proj_mean) : '';
+          const off = p.off_board ? ' <span class="muted">(not on the board)</span>' : '';
+          return '<li' + (p.off_board ? ' class="off-board"' : '') + '>' + escapeHtml(p.name)
+            + ' <span class="muted">' + p.position + proj + '</span>' + off + '</li>';
+        }).join('')
       : '<li class="muted">Nothing yet.</li>';
   }
 
@@ -1053,16 +1150,44 @@
       ' — they are going faster than ADP says. Move up anyone you actually want.';
   }
 
+  /**
+   * Every pick that has happened, from wherever it came.
+   *
+   * This used to read only from the sync object, so a pick marked by hand — or
+   * one for a player the board never carried — was recorded in state, removed
+   * from the board, added to a roster, and then not shown. The feed is the only
+   * place you can check the tool agrees with the room, so it has to show
+   * everything or it is worse than nothing.
+   */
   function renderPicksFeed() {
-    const picks = state.sync ? state.sync.allPicks().slice(-12).reverse() : [];
-    $('#picks-feed').innerHTML = picks.length
-      ? picks.map(p => {
-          const pl = playerById(p.player_id);
-          return '<li><b>' + (p.pick_no || '?') + '.</b> ' +
-            escapeHtml(pl ? pl.name : (p.metadata.first_name || '') + ' ' + (p.metadata.last_name || '')) +
-            ' <span class="muted">' + (pl ? pl.position : (p.metadata.position || '')) +
-            (p.source === 'manual' ? ' · typed' : '') + '</span></li>';
-        }).join('')
+    const seen = new Set();
+    const rows = [];
+    const push = (id, no, name, pos, tag) => {
+      const key = String(id);
+      if (seen.has(key)) return;
+      seen.add(key);
+      rows.push({ no: no || 0, name, pos, tag });
+    };
+    (state.sync ? state.sync.allPicks() : []).forEach(p => {
+      const pl = playerById(p.player_id);
+      const meta = p.metadata || {};
+      push(p.player_id, p.pick_no,
+        pl ? pl.name : ([meta.first_name, meta.last_name].filter(Boolean).join(' ') || 'Unknown'),
+        pl ? pl.position : (meta.position || ''),
+        p.source === 'manual' ? 'typed' : '');
+    });
+    // Anything state knows that the sync does not — manual entries and picks
+    // for players outside the board.
+    state.recentPicks.forEach(r => {
+      const pl = r.player || {};
+      push(r.player_id, r.pick_no, pl.name || 'Unknown', pl.position || r.position || '',
+        pl.off_board ? 'off board' : '');
+    });
+    rows.sort((a, b) => b.no - a.no);
+    $('#picks-feed').innerHTML = rows.length
+      ? rows.slice(0, 12).map(r => '<li><b>' + (r.no || '?') + '.</b> ' + escapeHtml(r.name)
+          + ' <span class="muted">' + escapeHtml(r.pos)
+          + (r.tag ? ' · ' + r.tag : '') + '</span></li>').join('')
       : '<li class="muted">No picks yet.</li>';
   }
 
@@ -1185,28 +1310,80 @@
     updateDrift();
   }
 
+  /**
+   * A pick came in from Sleeper. Get it onto the right roster, always.
+   *
+   * Two bugs lived here, both found in a live rehearsal:
+   *
+   * 1. Everything except "remove from board" sat inside `if (p)`. A player the
+   *    local board has never heard of — a rookie, a late flier, anyone outside
+   *    the built board — produced NOTHING. The pick did not appear in the feed,
+   *    did not land on anyone's roster, and if it was yours, your own roster
+   *    silently stayed empty. Sleeper hands us first name, last name, position
+   *    and team in the pick metadata, so there is no excuse for losing it.
+   *
+   * 2. "Is this mine" compared pick.roster_id against my DRAFT SLOT. Those are
+   *    different numbers that happen to be equal in this league because its
+   *    slot_to_roster_id is the identity map. In any league where somebody
+   *    joined in a different order, every pick would be attributed to the wrong
+   *    team and nothing would look wrong.
+   */
   function onSyncPicks(picks) {
-    // Reconcile the API's view with ours: anything it knows that we don't.
-    const mySlot = state.data.league.my_draft_slot;
+    const mySlot = Number(state.data.league.my_draft_slot) || null;
     picks.forEach(pick => {
       const id = String(pick.player_id);
       if (state.drafted.has(id)) return;
-      const p = playerById(id);
       state.drafted.add(id);
       state.board = state.board.filter(x => String(x.player_id) !== id);
-      if (p) {
-        state.recentPicks.push({ position: p.position, player_id: id,
-                                 pick_no: pick.pick_no || (state.recentPicks.length + 1),
-                                 player: p });
-        const slot = pick.draft_slot || pick.roster_id;
-        if (slot) (state.rosters[slot] = state.rosters[slot] || []).push(p);
-        if (pick.roster_id && mySlot && Number(pick.roster_id) === Number(mySlot)) state.myRoster.push(p);
-      }
+
+      // Known to the board, or reconstructed from what Sleeper sent. A stub
+      // carries no projection, so it can never affect a recommendation — it
+      // exists so the pick is visible and lands on the right roster.
+      const known = playerById(id);
+      const meta = pick.metadata || {};
+      const p = known || {
+        player_id: id,
+        name: [meta.first_name, meta.last_name].filter(Boolean).join(' ')
+          || meta.player_name || ('Player ' + id),
+        position: meta.position || '?',
+        team: meta.team || '',
+        bye: null,
+        off_board: true,          // rendered differently; never scored
+      };
+
+      state.recentPicks.push({
+        position: p.position, player_id: id,
+        pick_no: pick.pick_no || (state.recentPicks.length + 1),
+        player: p,
+      });
+      // draft_slot is the seat; roster_id is the team. The seat is what my own
+      // slot is expressed in, so prefer it and only fall back to roster_id.
+      const slot = Number(pick.draft_slot) || Number(pick.roster_id) || null;
+      if (slot) (state.rosters[slot] = state.rosters[slot] || []).push(p);
+      if (mySlot && slot === mySlot) state.myRoster.push(p);
     });
     // Check the slate against reality before scoring anything off it.
     if (!(state.reconcile && state.reconcile.ignored)) reconcileKeepers(picks);
     recomputeRuns();
     renderAll();
+  }
+
+  /* A deliberate handle for driving the page without a live draft.
+   *
+   * The pick path is the part most worth exercising and the hardest to reach:
+   * it needs a Sleeper response, and the only way to get one is to be mid-draft.
+   * This lets a test — or a person rehearsing on the sofa in August — push a
+   * pick through the real handler and see what the page does with it.
+   *
+   * Read-only entry points only. Nothing here can be reached by a page the user
+   * did not already have open as commissioner.
+   */
+  function exposeTestHooks() {
+    window.__warroom = {
+      pushPicks: onSyncPicks,
+      recordManualPick: recordManualPick,
+      state: state,
+    };
   }
 
   // ----------------------------------------------------------------- wiring
@@ -1284,6 +1461,13 @@
 
     $('#pos-filter').addEventListener('change', e => { state.filterPos = e.target.value; renderBoard(); });
     $('#search').addEventListener('input', e => { state.search = e.target.value.toLowerCase(); renderBoard(); });
+    // The manual-pick form is re-rendered on every keystroke, so it is wired by
+    // delegation rather than by handle.
+    document.body.addEventListener('submit', ev => {
+      if (!ev.target || ev.target.id !== 'manual-pick') return;
+      ev.preventDefault();
+      recordManualPick($('#mp-name').value, $('#mp-pos').value, $('#mp-slot').value);
+    });
 
     $('#start-sync').addEventListener('click', () => {
       const typed = $('#draft-id').value;

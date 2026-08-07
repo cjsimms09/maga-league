@@ -1689,3 +1689,25 @@ table .num.zero { color: var(--muted); font-weight: 400; }
 .doc-body .doc-quote p:last-child { margin-bottom: 0; }
 .doc-body hr { border: 0; border-top: 1px solid var(--line); margin: 1.2rem 0; }
 .doc-body table.roll { margin-bottom: .8rem; }
+
+/* ---------- when the board cannot answer the search ----------
+   "He isn't here" and "he went four picks ago" are different answers, and only
+   one of them means something is wrong. */
+#search-tail { padding: 0 .9rem .6rem; }
+.tail-taken {
+  font-size: .8rem; color: #cfd6e6; padding: .5rem .7rem; border-radius: 8px;
+  background: rgba(255,255,255,.04); border: 1px solid var(--line); margin-bottom: .45rem;
+}
+.tail-none {
+  font-size: .82rem; padding: .6rem .7rem; border-radius: 10px;
+  background: rgba(245,196,69,.08); border: 1px solid rgba(245,196,69,.4); color: #f2e6c8;
+}
+.tail-none .muted { font-size: .76rem; line-height: 1.45; margin: .2rem 0 .5rem; display: block; }
+.tail-form { display: flex; gap: .35rem; flex-wrap: wrap; align-items: center; }
+.tail-form input, .tail-form select {
+  width: auto; flex: 1 1 7rem; min-width: 0; padding: .3rem .5rem;
+  font-size: .8rem; min-height: 36px;
+}
+.tail-form .btn { flex: 0 0 auto; }
+/* A player the board never carried. Shown, but visibly not a projection. */
+.off-board { opacity: .75; font-style: italic; }
