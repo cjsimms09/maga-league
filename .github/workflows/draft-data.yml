@@ -87,6 +87,13 @@ jobs:
       # Complete league history: every week's starters and bench, every
       # transaction with its FAAB bid, every draft. Written once; completed
       # seasons never change.
+      - name: Refresh keepers.json from real designations
+        # keepers.json was fixtures ("RB Player 1"); the pick order was fiction.
+        # Regenerate from final_rosters keeper designations so my forfeited
+        # rounds (and pick numbers) are real. Pre-draft only my slot is known;
+        # others populate as slots are assigned.
+        working-directory: .
+        run: python draft/gen_keepers_json.py || echo "gen_keepers skipped"
       - name: Export league history
         if: github.event.inputs.export_history == 'true'
         working-directory: draft
