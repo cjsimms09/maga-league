@@ -53,9 +53,17 @@
         <tr><th>#</th><th>Team</th><th class="num">W-L</th><th class="num">PF</th></tr>
         <% for (const r of sleeperStandings) { %>
           <% if (r.rank === playoffTeams + 1) { %><tr><td colspan="4" style="padding:.15rem .8rem; font-size:.62rem; letter-spacing:.14em; text-transform:uppercase; color:var(--red-bright); border-bottom:1px dashed rgba(255,70,85,.5)">— playoff line (top <%= playoffTeams %>) —</td></tr><% } %>
+          <%# Money marker. If somebody has a live side bet riding on this team,
+              say so right here — half the fun of a season-long pool is reading
+              the table with the bet in mind, and a standings row that doesn't
+              know about it makes you hold the whole thing in your head. Gold
+              means it's YOUR money. %>
+          <% const bm = r.owner_id != null ? betMoney[r.owner_id] : null; %>
           <tr class="<%= r.rank === sleeperStandings.length ? 'last-place' : '' %>">
             <td><%= r.rank %><%= r.rank === 1 ? ' 👑' : r.rank === sleeperStandings.length ? ' 🚽' : '' %></td>
-            <td><b><%= r.owner_name || r.team %></b><% if (r.owner_name && r.owner_name !== r.team) { %> <span class="muted"><%= r.team %></span><% } %></td>
+            <td><b><%= r.owner_name || r.team %></b><% if (bm) { %><span
+                class="bet-money<%= bm.mine ? ' mine' : '' %>"
+                title="<%= bm.notes.join(' · ').replace(/"/g, '&quot;') %>">💰<% if (bm.mine) { %><%= money(bm.mine) %><% } %></span><% } %><% if (r.owner_name && r.owner_name !== r.team) { %> <span class="muted"><%= r.team %></span><% } %></td>
             <td class="num"><%= r.wins %>-<%= r.losses %><%= r.ties ? '-' + r.ties : '' %></td>
             <td class="num"><%= r.pf.toFixed(1) %></td>
           </tr>
@@ -221,4 +229,103 @@
     </details>
   </div>
 </div>
+
+<%# ── The locker room, on the front page ────────────────────────────────────
+    It was a tab, and a tab nobody opens is a tab nobody posts in. The last few
+    messages plus a box to reply, at the bottom of the page everybody lands on,
+    is the difference between a group chat and a ghost town. %>
+<div class="card locker-home" id="locker" style="margin-top:1.4rem">
+  <h2>💬 Locker Room
+    <span class="sub"><a href="/chat">see all / older →</a></span>
+  </h2>
+  <div class="body">
+    <% if (!chatLatest.length) { %>
+      <p class="muted" style="margin:0 0 .7rem">Nobody's said anything yet. Somebody has to go first.</p>
+    <% } else { %>
+      <ul class="lh-feed">
+        <% for (const m of chatLatest) { %>
+          <li class="<%= m.owner_id === owner.id ? 'me' : '' %>">
+            <b><%= m.name %></b>
+            <span><%= m.text %></span>
+          </li>
+        <% } %>
+      </ul>
+    <% } %>
+    <form method="post" action="/chat" class="lh-form">
+      <input type="hidden" name="back" value="home">
+      <input type="text" name="text" maxlength="500" required
+             placeholder="Say something about <%= (sleeperStandings.length && sleeperStandings[sleeperStandings.length - 1].owner_name) || 'somebody' %>…"
+             autocomplete="off">
+      <button class="btn gold" type="submit">Post</button>
+    </form>
+  </div>
+</div>
+
+<%# ── Put it on your phone ──────────────────────────────────────────────────
+    No app store, no download — this is a website that behaves like an app once
+    it is on the home screen. The instructions differ per platform and both are
+    two taps, so both are shown rather than sniffing the user agent and getting
+    it wrong for whoever is on the one you didn't think of.
+
+    Dismissed state lives in localStorage: it is a nudge, not a setting, and it
+    is not worth a database column or a round trip. %>
+<div class="card install-card" id="install-card" hidden style="margin-top:1.2rem">
+  <div class="body">
+    <button type="button" class="install-x" id="install-dismiss" aria-label="Dismiss">✕</button>
+    <div class="ic-head">📲 Put this on your phone</div>
+    <p class="ic-lede">It opens full-screen like an app — no address bar, no app store.
+      One tap from your home screen to the standings, the money and your bets.</p>
+    <div class="ic-steps">
+      <div>
+        <b> iPhone / iPad</b>
+        <span>Tap <b>Share</b> <span class="ic-glyph">⬆️</span> at the bottom of Safari, scroll down, tap <b>Add to Home Screen</b>.</span>
+      </div>
+      <div>
+        <b>🤖 Android</b>
+        <span>Tap <b>⋮</b> in Chrome, then <b>Add to Home screen</b> (or <b>Install app</b>).</span>
+      </div>
+    </div>
+    <button type="button" class="btn gold" id="install-now" hidden>Install it</button>
+  </div>
+</div>
+
+<script>
+/* Show the install nudge only when it can actually be acted on: not already
+   installed, not previously dismissed. On Chrome we can skip the instructions
+   entirely and offer the real install prompt. */
+(function () {
+  var card = document.getElementById('install-card');
+  if (!card) return;
+  var standalone = window.matchMedia('(display-mode: standalone)').matches
+    || window.navigator.standalone === true;
+  var dismissed = false;
+  try { dismissed = localStorage.getItem('mfga-install-hidden') === '1'; } catch (e) {}
+  if (standalone || dismissed) return;
+  card.hidden = false;
+
+  document.getElementById('install-dismiss').addEventListener('click', function () {
+    card.hidden = true;
+    try { localStorage.setItem('mfga-install-hidden', '1'); } catch (e) {}
+  });
+
+  // Chrome hands us the prompt; when it does, the button beats the instructions.
+  var deferred = null;
+  var btn = document.getElementById('install-now');
+  window.addEventListener('beforeinstallprompt', function (e) {
+    e.preventDefault();
+    deferred = e;
+    btn.hidden = false;
+    card.classList.add('can-install');
+  });
+  btn.addEventListener('click', function () {
+    if (!deferred) return;
+    deferred.prompt();
+    deferred.userChoice.then(function () { deferred = null; btn.hidden = true; });
+  });
+  window.addEventListener('appinstalled', function () {
+    card.hidden = true;
+    try { localStorage.setItem('mfga-install-hidden', '1'); } catch (e) {}
+  });
+})();
+</script>
 <%- include('partials/footer') %>

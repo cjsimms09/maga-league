@@ -5,6 +5,7 @@ const { getDoc, setDoc, now } = require('./data');
 
 const BASE = process.env.SLEEPER_BASE || 'https://api.sleeper.app';
 const TTL_MS = 5 * 60 * 1000;            // live bundle cache
+const FAIL_TTL_MS = 60 * 1000;           // how long a failed fetch is remembered
 const PLAYERS_TTL_MS = 24 * 60 * 60 * 1000; // players DB cache (it's a big download)
 const RECORDS_TTL_MS = 6 * 60 * 60 * 1000;  // all-time records cache
 
@@ -24,6 +25,14 @@ async function bundle(leagueId) {
   if (!leagueId) return null;
   const cache = await getDoc('sleeper-cache', null);
   if (cache && cache.league_id === leagueId && Date.now() - cache.fetched_at < TTL_MS) return cache.data;
+  // Negative cache. Without it, an outage means every page load pays five
+  // eight-second timeouts before rendering — the site does not break, it just
+  // becomes unusable, which is worse because it looks like our fault. One
+  // failure buys a minute of serving the stale bundle instead.
+  if (cache && cache.league_id === leagueId && cache.failed_at
+      && Date.now() - cache.failed_at < FAIL_TTL_MS) {
+    return cache.data || null;
+  }
   try {
     const [state, league, users, rosters] = await Promise.all([
       fetchJson('/v1/state/nfl'),
@@ -38,12 +47,68 @@ async function bundle(leagueId) {
     return data;
   } catch (e) {
     console.error('sleeper fetch failed:', e.message);
-    return cache && cache.league_id === leagueId ? cache.data : null;
+    const stale = cache && cache.league_id === leagueId ? cache.data : null;
+    // Remember the failure so the next render does not repeat the wait. The
+    // stale bundle rides along so pages keep showing last-known-good data.
+    await setDoc('sleeper-cache', {
+      league_id: leagueId, fetched_at: (cache && cache.fetched_at) || 0,
+      failed_at: Date.now(), data: stale, cached: now(),
+    });
+    return stale;
   }
 }
 
 async function matchupsForWeek(leagueId, week) {
   try { return await fetchJson(`/v1/league/${leagueId}/matchups/${week}`); } catch (e) { return null; }
+}
+
+/**
+ * One finished week's fantasy points, keyed by league owner id.
+ *
+ * Cached forever once fetched: a completed week's scores do not change, and
+ * side bets on week 4 will be looked at on every page load for the rest of the
+ * season. The cache is what makes it safe to grade bets on a page render at all.
+ */
+async function weekPointsByOwner(leagueId, week, sleeperMap) {
+  if (!leagueId || !week) return null;
+  const key = `weekpoints:${leagueId}:${week}`;
+  const cache = await getDoc(key, null);
+  if (cache && cache.points) return cache.points;
+  const matchups = await matchupsForWeek(leagueId, week);
+  if (!matchups || !Array.isArray(matchups) || !matchups.length) return null;
+  const points = {};
+  for (const m of matchups) {
+    const ownerId = (sleeperMap || {})[String(m.roster_id)];
+    if (ownerId == null) continue;
+    points[String(ownerId)] = Math.round((m.points || 0) * 100) / 100;
+  }
+  // A week where nobody has scored yet is not worth caching as final.
+  const anyScore = Object.values(points).some(p => p > 0);
+  if (anyScore) await setDoc(key, { fetched_at: Date.now(), points });
+  return anyScore ? points : null;
+}
+
+/** This week's matchup for one owner: their team, the opponent, both scores. */
+function myMatchup(data, sleeperMap, ownerId, owners) {
+  if (!data || !Array.isArray(data.matchups)) return null;
+  const mine = Object.entries(sleeperMap || {}).find(([, id]) => Number(id) === Number(ownerId));
+  if (!mine) return null;
+  const myRoster = Number(mine[0]);
+  const row = data.matchups.find(m => Number(m.roster_id) === myRoster);
+  if (!row) return null;
+  const opp = data.matchups.find(m => m.matchup_id === row.matchup_id && Number(m.roster_id) !== myRoster);
+  const ownerFor = rosterId => {
+    const id = (sleeperMap || {})[String(rosterId)];
+    return (owners || []).find(o => o.id === Number(id)) || null;
+  };
+  const pts = m => Math.round((m.points || 0) * 100) / 100;
+  return {
+    week: data.week,
+    me:  { roster_id: myRoster, team: teamName(data.users, data.rosters, myRoster),
+           points: pts(row), owner: ownerFor(myRoster) },
+    opp: opp ? { roster_id: opp.roster_id, team: teamName(data.users, data.rosters, opp.roster_id),
+                 points: pts(opp), owner: ownerFor(opp.roster_id) } : null,
+  };
 }
 
 function teamName(users, rosters, rosterId) {
@@ -89,6 +154,10 @@ function standings(data, sleeperMap, owners) {
     return {
       roster_id: r.roster_id,
       team: teamName(data.users, data.rosters, r.roster_id),
+      // The id as well as the name: callers that need to join a standings row
+      // to anything else (side-bet money, ledgers) should not have to match on
+      // a display string.
+      owner_id: owner ? owner.id : null,
       owner_name: owner ? owner.name : null,
       wins: s.wins || 0, losses: s.losses || 0, ties: s.ties || 0, pf,
     };
@@ -404,7 +473,8 @@ async function rosterView(data, sleeperMap, ownerId) {
 }
 
 module.exports = {
-  bundle, matchupsForWeek, standings, scoreboard, highScorer, teamName,
+  bundle, matchupsForWeek, weekPointsByOwner, myMatchup,
+  standings, scoreboard, highScorer, teamName,
   autoMap, userMap, records, players, draftInfo, trendingAdds, WAR_POSITIONS,
   weekReview, wire, weekStats, seasonStats, rosterView,
 };

@@ -68,6 +68,24 @@ function createApp() {
         if (req.owner && req.path !== '/chat') {
           try { res.locals.chatUnread = await helpers.chatUnread(req.owner.id); } catch (e) { /* badge is cosmetic */ }
         }
+        // Side bets waiting on you to say yes. A proposal nobody is told about
+        // just sits there, so it gets a badge on the nav and a line up top —
+        // the same treatment the draft clock gets, because it is the same
+        // problem: somebody is waiting on you and you do not know it.
+        res.locals.betsWaiting = 0;
+        if (req.owner) {
+          try {
+            const sidebets = require('./src/sidebets');
+            res.locals.betsWaiting = sidebets.awaiting(await sidebets.all(), req.owner.id).length;
+          } catch (e) { /* badge is cosmetic */ }
+        }
+        if (res.locals.betsWaiting && req.path !== '/bank') {
+          res.locals.alerts = [{
+            level: 'info',
+            message: `${res.locals.betsWaiting} side bet${res.locals.betsWaiting === 1 ? '' : 's'} waiting on you to accept or decline.`,
+            href: '/bank?section=sidebets', linkText: 'Take a look →',
+          }, ...res.locals.alerts];
+        }
         // Live draft-order alert: whoever is on the clock gets told, loudly.
         const season = helpers.currentSeason(world.seasons);
         if (!req.owner || !season || !season.draft_open) return next();

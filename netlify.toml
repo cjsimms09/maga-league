@@ -16,6 +16,20 @@
   # alongside the bundled function code.
   included_files = ["views/**"]
 
+# The web-app manifest needs its own content type — Netlify serves unknown
+# extensions as application/octet-stream, and Chrome silently ignores a
+# manifest that arrives with the wrong type, so "Install app" never appears.
+[[headers]]
+  for = "/manifest.webmanifest"
+  [headers.values]
+    Content-Type = "application/manifest+json; charset=utf-8"
+    Cache-Control = "public, max-age=3600"
+
+[[headers]]
+  for = "/icons/*"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
+
 # Static assets in public/ win automatically (no force); everything else
 # is handled by the express app running inside the function.
 [[redirects]]

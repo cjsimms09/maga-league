@@ -5,12 +5,36 @@
     && (b.parties || []).some(p => p.owner_id === myId && !p.accepted);
   const waiting = b => (b.parties || []).filter(p => !p.accepted).map(p => betNames(p.owner_id));
   const pending = bets.filter(myTurn);
-  const live = bets.filter(b => b.status === 'locked');
+  const market  = bets.filter(b => b.status === 'open');
+  const live    = bets.filter(b => b.status === 'locked');
   const proposed = bets.filter(b => b.status === 'proposed' && !myTurn(b));
   const done = bets.filter(b => b.status === 'settled');
   const dead = bets.filter(b => b.status === 'declined');
   const t = tallies[myId] || { net: 0, wins: 0, losses: 0, at_stake: 0, open: 0 };
+  const esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+  // The engine's sentence for a bet, which for a conditional bet IS the bet.
+  // Suppressed when it just repeats the terms — an auto-written bet has the
+  // sentence AS its terms, and printing it twice looks like a rendering bug.
+  const sentence = b => {
+    const s = BL.betText(b, betNames);
+    return s && s.trim() !== (b.terms || '').trim() ? s : '';
+  };
+  const myPicks = b => ((b.parties || []).find(p => p.owner_id === myId) || {}).picks || [];
 %>
+
+<%# Pick-your-teams grid, used when accepting a pool, when taking one off the
+    board, and when changing your mind later. A pool with no way to enter your
+    picks is a pool nobody can play — this is the control that makes it real. %>
+<% function pickGrid(b, name) { const mine = myPicks(b); %>
+  <div class="sb-people compact">
+    <% for (const o of owners) { %>
+      <label class="sb-person">
+        <input type="checkbox" name="<%= name %>" value="<%= o.id %>"<%= mine.includes(o.id) ? ' checked' : '' %>>
+        <%= o.name %><%= o.id === owner.id ? ' (you)' : '' %>
+      </label>
+    <% } %>
+  </div>
+<% } %>
 
 <div class="sb-note">
   <b>These are not league money.</b> Side bets are between you and whoever took the
@@ -29,8 +53,49 @@
     <span class="hero-value"><%= money(t.at_stake) %></span>
     <span class="hero-sub"><%= t.open %> bet<%= t.open === 1 ? '' : 's' %> live</span>
   </div>
+  <%# The number that actually gets money to move. %>
+  <div class="hero-item <%= sbOwedMine.owed_to_me > sbOwedMine.i_owe ? 'good' : sbOwedMine.i_owe > 0 ? 'bad' : '' %>">
+    <span class="hero-label">Still Unpaid</span>
+    <span class="hero-value"><%= sbOwedMine.owed_to_me || sbOwedMine.i_owe ? money(sbOwedMine.owed_to_me - sbOwedMine.i_owe) : '✓' %></span>
+    <span class="hero-sub"><%= sbOwedMine.owed_to_me || sbOwedMine.i_owe
+        ? `owed you ${money(sbOwedMine.owed_to_me)} · you owe ${money(sbOwedMine.i_owe)}`
+        : 'everything squared up' %></span>
+  </div>
 </div>
 
+<%# ── Money that hasn't moved yet ───────────────────────────────────────── %>
+<% if (sbOwedMine.rows.length) { %>
+<div class="card" id="unpaid" style="margin-bottom:1.2rem; border-color:rgba(74,222,128,.35)">
+  <h2>💸 Who Owes Who <span class="sub">settled bets, money not yet handed over</span></h2>
+  <div class="body tight">
+    <% for (const r of sbOwedMine.rows) { %>
+      <div class="owe-row <%= r.net > 0 ? 'in' : r.net < 0 ? 'out' : '' %>">
+        <div class="owe-main">
+          <b><%= r.name %></b>
+          <span class="owe-verb"><%= r.net > 0 ? 'owes you' : r.net < 0 ? 'you owe' : 'square' %></span>
+          <span class="owe-amt"><%= money(Math.abs(r.net)) %></span>
+          <div class="sb-meta"><%= r.legs.map(l => (l.direction === 'in' ? '+' : '−') + money(l.amount) + ' · ' + l.bet.terms.slice(0, 48)).join(' · ') %></div>
+        </div>
+        <div class="owe-actions">
+          <% for (const l of r.legs) { %>
+            <form class="asis" method="post" action="/sidebets/<%= l.bet.id %>/leg/<%= l.id %>">
+              <button class="btn small <%= l.direction === 'in' ? 'gold' : 'navy' %>"
+                title="<%= esc(l.bet.terms) %>"><%= l.direction === 'in' ? '✓ Got it' : '✓ Paid' %> <%= money(l.amount) %></button>
+            </form>
+          <% } %>
+        </div>
+      </div>
+    <% } %>
+    <% if (payDirectory.length) { %>
+      <p class="muted" style="padding:.5rem .2rem 0; margin:0; font-size:.78rem">
+        <a href="/bank#pay-directory">Everyone’s Venmo and PayPal →</a>
+      </p>
+    <% } %>
+  </div>
+</div>
+<% } %>
+
+<%# ── Waiting on you ────────────────────────────────────────────────────── %>
 <% if (pending.length) { %>
 <div class="card" style="margin-bottom:1.2rem; border-color:rgba(245,196,69,.6)">
   <h2>🤝 Waiting on You <span class="sub">accept and it’s on</span></h2>
@@ -39,17 +104,31 @@
       <div class="sb-row pending">
         <div class="sb-main">
           <div class="sb-terms"><%= b.terms %></div>
+          <% if (sentence(b)) { %><div class="sb-rule">📐 <%= sentence(b) %></div><% } %>
           <div class="sb-meta">
             <b><%= money(b.stake) %></b> each ·
             <%= b.parties.map(p => betNames(p.owner_id)).join(' vs ') %> ·
             proposed by <%= betNames(b.proposer_id) %>
           </div>
+          <%# What the other side already took, so you can pick against it. %>
+          <% if (b.format === 'pool') { %>
+            <ul class="sb-sides">
+              <% for (const p of b.parties) { if (p.owner_id === owner.id) continue; %>
+                <li><b><%= betNames(p.owner_id) %></b>
+                  <span><%= p.picks.length ? p.picks.map(betNames).join(', ') : '—' %></span></li>
+              <% } %>
+            </ul>
+          <% } %>
         </div>
         <div class="sb-actions">
-          <form class="asis" method="post" action="/sidebets/<%= b.id %>/accept"
-                data-handshake="<%= b.terms.replace(/"/g, '&quot;') %>"
+          <form method="post" action="/sidebets/<%= b.id %>/accept" class="accept-form"
+                data-handshake="<%= esc(b.terms) %>"
                 data-stake="<%= money(b.stake) %>"
-                data-with="<%= b.parties.filter(p => p.owner_id !== owner.id).map(p => betNames(p.owner_id)).join(', ') %>">
+                data-with="<%= esc(b.parties.filter(p => p.owner_id !== owner.id).map(p => betNames(p.owner_id)).join(', ')) %>">
+            <% if (b.format === 'pool') { %>
+              <div class="pick-label">Your teams</div>
+              <% pickGrid(b, 'picks'); %>
+            <% } %>
             <button class="btn small gold" type="submit">Accept</button>
           </form>
           <form class="asis" method="post" action="/sidebets/<%= b.id %>/decline">
@@ -62,84 +141,163 @@
 </div>
 <% } %>
 
-<details class="card entry-card" style="margin-bottom:1.2rem">
-  <summary>➕ Propose a side bet <span class="sub">anyone can start one — everyone named has to agree</span></summary>
+<%- include('_bet_builder') %>
+
+<%# ── The board: bets looking for a taker ───────────────────────────────── %>
+<% if (market.length) { %>
+<div class="card" style="margin-bottom:1.2rem; border-color:rgba(96,165,250,.45)">
+  <h2>📢 On the Board <span class="sub">posted by someone — take the other side</span></h2>
   <div class="body">
-    <form method="post" action="/sidebets" class="entry-form">
-      <div class="ef-row">
-        <label class="field" style="flex:1 1 100%">The bet — what are the rules?
-          <textarea name="terms" maxlength="1200" rows="3" required
-            placeholder="e.g. Each of us picks 4 other teams plus our own. Whoever picked the team that wins the league takes the pot."></textarea>
-        </label>
-      </div>
-      <div class="ef-row">
-        <label class="field" style="flex:1 1 120px">Stake each (USD)
-          <input type="number" name="stake" step="1" min="1" placeholder="50" required>
-        </label>
-        <label class="field" style="flex:2 1 200px">Settles when <span class="muted">(optional)</span>
-          <input type="text" name="resolves" maxlength="120" placeholder="e.g. end of the 2026 season">
-        </label>
-      </div>
-      <div class="ef-row">
-        <label class="field" style="flex:1 1 100%">Your side of it <span class="muted">(optional — your picks, your team, whatever you took)</span>
-          <input type="text" name="position" maxlength="400"
-                 placeholder="e.g. Bills, Lions, 49ers, Ravens + my own team">
-        </label>
-      </div>
-      <div class="ef-row">
-        <div class="field" style="flex:1 1 100%">Who’s in it <span class="muted">(pick one or more — you’re already in)</span>
-          <div class="sb-people">
-            <% for (const o of owners) { if (o.id === owner.id) continue; %>
-              <label class="sb-person">
-                <input type="checkbox" name="party" value="<%= o.id %>"> <%= o.name %>
-              </label>
-            <% } %>
+    <% for (const b of market) { %>
+      <div class="sb-row market">
+        <div class="sb-main">
+          <div class="sb-terms"><%= b.terms %></div>
+          <% if (sentence(b)) { %><div class="sb-rule">📐 <%= sentence(b) %></div><% } %>
+          <div class="sb-meta">
+            <b><%= money(b.stake) %></b> each · posted by <%= betNames(b.proposer_id) %>
+            · looking for <b><%= b.open_slots %></b> more<% if (b.resolves) { %> · settles <%= b.resolves %><% } %>
           </div>
+          <% const mePicked = b.parties.find(p => p.owner_id === owner.id); %>
+          <ul class="sb-sides">
+            <% for (const p of b.parties) { %>
+              <li class="<%= p.owner_id === owner.id ? 'me' : '' %>">
+                <b><%= betNames(p.owner_id) %></b>
+                <span><%= p.picks.length ? p.picks.map(betNames).join(', ') : (p.position || '—') %></span>
+              </li>
+            <% } %>
+          </ul>
+        </div>
+        <div class="sb-actions">
+          <% if (!inIt(b)) { %>
+            <form method="post" action="/sidebets/<%= b.id %>/take" class="take-form"
+                  data-handshake="<%= esc(b.terms) %>" data-stake="<%= money(b.stake) %>"
+                  data-with="<%= esc(b.parties.map(p => betNames(p.owner_id)).join(', ')) %>">
+              <% if (b.format === 'pool') { %>
+                <div class="pick-label">Your teams</div>
+                <% pickGrid(b, 'picks'); %>
+              <% } else { %>
+                <input type="text" name="position" maxlength="400" placeholder="your side (optional)">
+              <% } %>
+              <button class="btn small gold" type="submit">Take the other side</button>
+            </form>
+          <% } else { %>
+            <span class="muted" style="font-size:.78rem">You posted this</span>
+            <form class="asis" method="post" action="/sidebets/<%= b.id %>/delete">
+              <button class="btn small ghost" title="Take it down">✕</button>
+            </form>
+          <% } %>
         </div>
       </div>
-      <div class="ef-row" style="justify-content:flex-end">
-        <div class="fit"><button class="btn gold" type="submit">Propose It</button></div>
-      </div>
-      <p class="muted" style="margin:.2rem 0 0; font-size:.76rem">
-        Proposing counts as your acceptance. It isn’t a bet until everyone named agrees.
-      </p>
-    </form>
+    <% } %>
   </div>
-</details>
+</div>
+<% } %>
 
-<% function betCard(b, kind) { %>
+<%
+/* One bet card. Carries the sentence, everyone's side, the engine's verdict
+   with its working, and the settle controls. */
+function betCard(b, kind) {
+  const v = verdicts[b.id];
+%>
   <div class="sb-row <%= kind %><%= inIt(b) ? ' mine' : '' %>">
     <div class="sb-main">
       <div class="sb-terms"><%= b.terms %></div>
+      <% if (sentence(b) || (b.format === 'prop' && b.conditions.length > 1)) { %>
+        <div class="sb-rule">📐 <%= sentence(b) || b.terms %><% if (b.format === 'prop' && b.conditions.length > 1) { %>
+          <span class="muted">(<%= b.logic === 'any' ? 'any one of them' : 'all of them' %>, for <%= betNames(b.for_id) %>)</span><% } %></div>
+      <% } %>
       <div class="sb-meta">
         <b><%= money(b.stake) %></b> each<% if (b.resolves) { %> · settles <%= b.resolves %><% } %>
         <% if (b.status === 'proposed') { %> · <span class="sb-wait">waiting on <%= waiting(b).join(', ') %></span><% } %>
-        <% if (b.status === 'settled') { %> · won by <b><%= b.winner_ids.map(betNames).join(', ') %></b><% } %>
+        <% if (b.status === 'settled' && b.push) { %> · <b>push — nobody won</b><% } %>
+        <% if (b.status === 'settled' && !b.push) { %> · won by <b><%= b.winner_ids.map(betNames).join(', ') %></b><% } %>
       </div>
-      <%# Everyone's side, listed. On an elaborate bet this IS the bet. %>
-      <ul class="sb-sides">
-        <% for (const p of b.parties) { %>
-          <li class="<%= b.winner_ids.includes(p.owner_id) ? 'won' : '' %><%= p.owner_id === owner.id ? ' me' : '' %>">
-            <b><%= betNames(p.owner_id) %><%= b.winner_ids.includes(p.owner_id) ? ' 🏆' : '' %></b>
-            <% if (p.position) { %><span><%= p.position %></span>
-            <% } else if (p.owner_id === owner.id && b.status !== 'settled') { %>
-              <form class="asis sb-pos" method="post" action="/sidebets/<%= b.id %>/position">
-                <input type="text" name="position" maxlength="400" placeholder="add your picks…">
-                <button class="btn small ghost" type="submit">Save</button>
-              </form>
-            <% } else { %><span class="muted">—</span><% } %>
-          </li>
+
+      <%# A pool's picks belong in standings order, so it reads as the league
+          table with everyone's stake marked on it — which is the whole appeal
+          of the bet. Falls back to plain order before a ball is kicked. %>
+      <% if (b.format === 'pool') {
+           const pickerOf = {};
+           for (const p of b.parties) for (const id of p.picks) (pickerOf[id] ??= []).push(p.owner_id);
+           const ordered = (liveOrder && liveOrder.length ? liveOrder : owners.map(o => o.id));
+           const rest = owners.map(o => o.id).filter(id => !ordered.includes(id));
+      %>
+        <table class="pool-board">
+          <tbody>
+          <% [...ordered, ...rest].forEach((id, i) => { const hs = pickerOf[id] || []; %>
+            <tr class="<%= hs.includes(owner.id) ? 'mine' : hs.length ? 'theirs' : 'unpicked' %>">
+              <td class="pb-rank"><%= liveOrder && liveOrder.length ? i + 1 : '·' %></td>
+              <td class="pb-team"><%= betNames(id) %></td>
+              <td class="pb-who">
+                <% if (!hs.length) { %><span class="muted">nobody</span>
+                <% } else { %><% for (const h of hs) { %><span class="pb-chip <%= h === owner.id ? 'me' : '' %>"><%= betNames(h) %></span><% } %><% } %>
+              </td>
+            </tr>
+          <% }) %>
+          </tbody>
+        </table>
+        <%# Your picks stay editable until the bet is settled. Somebody will
+            always accept first and enter their teams second. %>
+        <% if (b.parties.some(p => p.owner_id === owner.id) && b.status !== 'settled') { %>
+          <details class="pick-edit">
+            <summary><%= myPicks(b).length ? '✏️ Change my picks' : '⚠️ Pick your teams' %></summary>
+            <form method="post" action="/sidebets/<%= b.id %>/position">
+              <% pickGrid(b, 'picks'); %>
+              <button class="btn small gold" type="submit">Save my picks</button>
+            </form>
+          </details>
         <% } %>
-      </ul>
+      <% } else { %>
+        <%# Everyone's side, listed. On an elaborate bet this IS the bet. %>
+        <ul class="sb-sides">
+          <% for (const p of b.parties) { %>
+            <li class="<%= b.winner_ids.includes(p.owner_id) ? 'won' : '' %><%= p.owner_id === owner.id ? ' me' : '' %>">
+              <b><%= betNames(p.owner_id) %><%= b.winner_ids.includes(p.owner_id) ? ' 🏆' : '' %></b>
+              <% if (p.position) { %><span><%= p.position %></span>
+              <% } else if (p.owner_id === owner.id && b.status !== 'settled') { %>
+                <form class="asis sb-pos" method="post" action="/sidebets/<%= b.id %>/position">
+                  <input type="text" name="position" maxlength="400" placeholder="add your side…">
+                  <button class="btn small ghost" type="submit">Save</button>
+                </form>
+              <% } else { %><span class="muted">—</span><% } %>
+            </li>
+          <% } %>
+        </ul>
+      <% } %>
+
+      <%# ── The engine's opinion. Never applied without a human. ────────── %>
+      <% if (v) { %>
+        <details class="verdict <%= v.decided ? 'ready' : 'open' %>"<%= v.decided ? ' open' : '' %>>
+          <summary><%= v.decided ? '⚖️' : '⏳' %> <%= v.headline %></summary>
+          <% if (v.lines.length) { %>
+            <ul class="verdict-lines"><% for (const l of v.lines) { %><li><%= l %></li><% } %></ul>
+          <% } %>
+          <% if (v.decided && (inIt(b) || owner.is_commissioner)) { %>
+            <form class="asis" method="post" action="/sidebets/<%= b.id %>/settle-auto">
+              <button class="btn small gold" type="submit">
+                <%= v.push ? 'Settle as a push' : `Settle it — ${v.winner_ids.map(betNames).join(' & ')} won` %>
+              </button>
+            </form>
+            <p class="muted" style="margin:.4rem 0 0; font-size:.74rem">
+              The site works it out; one of you confirms. Nothing settles on its own.
+            </p>
+          <% } %>
+        </details>
+      <% } %>
     </div>
+
     <div class="sb-actions">
       <% if (b.status === 'locked' && (inIt(b) || owner.is_commissioner)) { %>
         <form class="asis sb-settle" method="post" action="/sidebets/<%= b.id %>/settle">
           <select name="winner" required>
-            <option value="">Who won?</option>
-            <% for (const p of b.parties) { %><option value="<%= p.owner_id %>"><%= betNames(p.owner_id) %></option><% } %>
+            <option value="">Settle by hand…</option>
+            <% for (const p of b.parties) { %><option value="<%= p.owner_id %>"><%= betNames(p.owner_id) %> won</option><% } %>
           </select>
-          <button class="btn small gold" type="submit">Settle</button>
+          <button class="btn small navy" type="submit">Go</button>
+        </form>
+        <form class="asis" method="post" action="/sidebets/<%= b.id %>/settle">
+          <input type="hidden" name="push" value="1">
+          <button class="btn small ghost" title="Nobody won — no money moves">Push</button>
         </form>
       <% } %>
       <% if (b.status === 'settled' && (inIt(b) || owner.is_commissioner)) { %>
@@ -191,16 +349,18 @@
             <td class="litem">
               <%# Two lines, then ellipsis. The full terms and every party's side
                   are on the bet card above; this table is the money trail. %>
-              <div class="sb-terms clamp2" title="<%= r.bet.terms %>"><%= r.bet.terms %></div>
+              <div class="sb-terms clamp2" title="<%= esc(r.bet.terms) %>"><%= r.bet.terms %></div>
               <div class="sb-meta">
                 vs <%= r.against %><% if (r.bet.resolves) { %> · settles <%= r.bet.resolves %><% } %>
               </div>
-              <% if (r.my_position) { %><div class="sb-meta">your side: <%= r.my_position %></div><% } %>
+              <% if (r.my_picks.length) { %><div class="sb-meta">your picks: <%= r.my_picks.map(betNames).join(', ') %></div>
+              <% } else if (r.my_position) { %><div class="sb-meta">your side: <%= r.my_position %></div><% } %>
             </td>
             <td class="num"><%= money(r.bet.stake) %></td>
-            <td class="num <%= r.delta == null ? '' : r.delta > 0 ? 'pos' : 'neg' %>">
+            <td class="num <%= r.delta == null ? '' : r.delta > 0 ? 'pos' : r.delta < 0 ? 'neg' : '' %>">
               <%= r.delta == null
-                    ? (r.bet.status === 'locked' ? '⏳ live' : r.bet.status === 'proposed' ? '· pending' : '✕')
+                    ? (r.bet.status === 'locked' ? '⏳ live' : r.bet.status === 'open' ? '📢 posted' : r.bet.status === 'proposed' ? '· pending' : '✕')
+                    : r.delta === 0 ? 'push'
                     : (r.delta > 0 ? '+' : '−') + money(Math.abs(r.delta)) %></td>
             <%# Same minus glyph as the Result column beside it — mixing "−$50"
                 and "-$50" in adjacent columns looks like two different things. %>

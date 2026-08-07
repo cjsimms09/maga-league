@@ -3,6 +3,7 @@ const router = express.Router();
 const H = require('../helpers');
 const L = require('../ledger');
 const SB = require('../sidebets');
+const BL = require('../betlogic');
 const sleeper = require('../sleeper');
 const notify = require('../notify');
 const crypto = require('crypto');
@@ -120,6 +121,10 @@ router.post('/password', aw(async (req, res) => {
 // ---------- everything below requires login ----------
 router.use(requireLogin);
 
+// How many locker-room messages the home page carries. Enough to prove a
+// conversation is happening; few enough that the chat does not become the page.
+const CHAT_ON_HOME = 5;
+
 router.get('/', aw(async (req, res) => {
   const world = req.world;
   const season = H.currentSeason(world.seasons);
@@ -172,13 +177,19 @@ router.get('/', aw(async (req, res) => {
     }
   }
 
-  const chatLatest = (await H.chatFeed(owners, 3));
+  // The locker room lives at the bottom of this page now. A tab nobody opens is
+  // a tab nobody posts in; putting the last few messages under the standings —
+  // with a box to reply — is the difference between a chat and a ghost town.
+  const chatLatest = (await H.chatFeed(owners, CHAT_ON_HOME));
   const myBalance = bal[req.owner.id] ? bal[req.owner.id].balance : 0;
+  // Which teams have side-bet money riding on them, so the standings can say so.
+  const betMoney = SB.moneyOnTeams(await SB.all(), req.owner.id,
+    id => (H.ownerById(owners, id) || {}).name || '?');
   res.render('dashboard', {
     season, payouts: H.payoutTable(season), buyins, weekly, awards, standings, draft,
     openVotes, CATEGORY_LABELS: H.CATEGORY_LABELS, myBalance,
     sleeperData: sData, sleeperStandings: sStandings, sleeperBoard: sBoard, roast,
-    review, reviewWeek, wireRows, playoffTeams, chatLatest,
+    review, reviewWeek, wireRows, playoffTeams, chatLatest, betMoney, owners,
   });
 }));
 
@@ -320,41 +331,197 @@ router.get('/bank', aw(async (req, res) => {
   // The ledger is the point: every bet you are in, chronological, with a
   // running net. A W-L record cannot tell a season-long \$200 bet from four \$20s.
   const sbLedger = SB.ledgerFor(bets, req.owner.id, nameOf);
+  // Who still owes whom, netted per person. This is the number that gets money
+  // to actually move, so it sits on the owner card next to the league balance.
+  const sbOwed = SB.settlementsFor(bets, viewCard ? viewCard.owner.id : req.owner.id, nameOf);
+  // The side-bet tab is always about YOU, even if you are looking at somebody
+  // else's ledger card on the money tab. Two different questions, two objects.
+  const sbOwedMine = viewCard && viewCard.owner.id !== req.owner.id
+    ? SB.settlementsFor(bets, req.owner.id, nameOf) : sbOwed;
+  // The pool board wants the live standings order so "who picked whom" reads
+  // as a standings table with the picks marked, not an arbitrary list.
+  const { verdicts, order: liveOrder } = await gradeBets(bets, world, owners, nameOf);
 
   res.render('bank', {
     cards, season, totalOwedToLeague, totalLeagueOwes, viewCard, leagueEntries,
     TYPE_LABELS: L.TYPE_LABELS,
-    section, bets, tallies, owners, betNames, sbLedger,
+    section, bets, tallies, owners, betNames, sbLedger, sbOwed, sbOwedMine, verdicts, liveOrder,
+    BL, payDirectory: owners.filter(o => o.venmo || o.paypal || o.cashapp || o.zelle),
   });
 }));
+
+/**
+ * Grade every locked bet the engine can reach an opinion on.
+ *
+ * The verdict is never applied — it is shown to the parties with its working,
+ * and somebody presses the button. Sleeper corrects stats for days after a
+ * game; a bet auto-settled on a number that later moves is precisely the
+ * argument this feature exists to prevent.
+ *
+ * Cost control: only weeks referenced by LOCKED bets are fetched, deduped and
+ * capped by betlogic.CFG.MAX_WEEK_FETCH, and each completed week is cached
+ * permanently. A page with no live conditional bets makes no extra requests.
+ */
+async function gradeBets(bets, world, owners, nameOf) {
+  const out = {};
+  const gradeable = bets.filter(b => b.status === SB.STATUS.LOCKED);
+  const hasPool = bets.some(b => b.format === 'pool' && b.status !== SB.STATUS.DECLINED);
+  if (!gradeable.length && !hasPool) return { verdicts: out, order: [] };
+
+  const leagueId = world.config.sleeper_league_id;
+  const sMap = world.config.sleeper_map || {};
+  const season = H.currentSeason(world.seasons);
+  let sData = null, liveRows = [], weekNow = 1;
+  try {
+    sData = await sleeper.bundle(leagueId);
+    if (sData) {
+      liveRows = sleeper.standings(sData, sMap, owners);
+      weekNow = sData.week || 1;
+    }
+  } catch (e) {
+    console.error('bet grading: sleeper unreachable —', e.message);
+  }
+
+  const weekPoints = {};
+  for (const wk of BL.weeksNeeded(gradeable, weekNow)) {
+    try {
+      const pts = await sleeper.weekPointsByOwner(leagueId, wk, sMap);
+      if (pts) weekPoints[wk] = pts;
+    } catch (e) { /* a missing week grades as "can't tell", which is honest */ }
+  }
+
+  const ctx = BL.makeContext({
+    season, liveRows, weekPoints, weekNow, owners,
+    weeklyHigh: (world.history.weekly || {})[String(season.year)] || [],
+  });
+  for (const b of gradeable) {
+    try {
+      out[b.id] = BL.evaluate(b, ctx, nameOf);
+    } catch (e) {
+      // A bet the engine chokes on must say so on the card, not vanish.
+      out[b.id] = { decided: false, winner_ids: [], push: false,
+        headline: 'The site could not grade this one — settle it by hand.',
+        lines: [e.message] };
+    }
+  }
+  return { verdicts: out, order: ctx.finalStandings || ctx.liveOrder };
+}
 
 // ---------- side bets ----------
 // A separate set of books on purpose: see src/sidebets.js. Anyone can propose,
 // everyone named has to accept, and none of it touches league money.
+/**
+ * Read the condition rows out of a submitted form.
+ *
+ * The builder posts parallel arrays (cond_test[], cond_subject[], …) because
+ * that is what a plain HTML form with repeatable rows gives you without a
+ * client-side framework, and this site deliberately has no build step. Rows
+ * with no test selected are dropped — an empty row is somebody who opened the
+ * builder and changed their mind, not an error worth refusing the whole bet
+ * over.
+ */
+function parseConditions(body) {
+  const arr = k => [].concat(body[k] || []);
+  const tests = arr('cond_test');
+  const out = [];
+  for (let i = 0; i < tests.length; i++) {
+    const test = String(tests[i] || '');
+    if (!BL.TESTS[test]) continue;
+    const spec = BL.TESTS[test];
+    const when = spec.when.includes(String(arr('cond_when')[i])) ? String(arr('cond_when')[i]) : spec.when[0];
+    const c = {
+      id: 'c' + i,
+      test,
+      subject_id: Number(arr('cond_subject')[i]) || 0,
+      when,
+      week: Number(arr('cond_week')[i]) || null,
+    };
+    if (!c.subject_id) continue;
+    if (spec.target === 'owner') {
+      c.target_id = Number(arr('cond_target_owner')[i]) || 0;
+      if (!c.target_id || c.target_id === c.subject_id) continue;   // a team cannot outscore itself
+    } else if (spec.target === 'number') {
+      c.target_number = parseFloat(arr('cond_target_number')[i]);
+      if (!Number.isFinite(c.target_number)) continue;
+    } else if (spec.target === 'place') {
+      c.target_place = String(arr('cond_target_place')[i] || '');
+      if (!BL.PLACES[c.target_place]) continue;
+    }
+    // A weekly test with no week is not a condition, it is half of one.
+    if (c.when === 'week' && !c.week) continue;
+    out.push(c);
+  }
+  return out;
+}
+
+const picksFrom = body => [].concat(body.picks || []).map(Number).filter(Boolean);
+
 router.post('/sidebets', aw(async (req, res) => {
   const ids = [].concat(req.body.party || []).map(Number).filter(Boolean);
-  const terms = String(req.body.terms || '').trim();
   const stake = parseFloat(req.body.stake);
-  if (terms && Number.isFinite(stake) && stake > 0 && ids.length) {
+  const format = req.body.format === 'pool' ? 'pool' : 'prop';
+  const conditions = format === 'prop' ? parseConditions(req.body) : [];
+  // A conditional bet writes its own terms if you did not — the sentence the
+  // builder shows IS the bet, and retyping it in prose is busywork.
+  const owners = H.activeOwners(req.world.owners);
+  const nameOf = id => (H.ownerById(owners, id) || {}).name || '?';
+  let terms = String(req.body.terms || '').trim();
+  const openSlots = Number(req.body.open_slots) || 0;
+  if (!terms) {
+    terms = BL.betText({ format, conditions, logic: req.body.logic,
+      pool_outcome: req.body.pool_outcome, terms: '' }, nameOf);
+  }
+  if (terms && Number.isFinite(stake) && stake > 0 && (ids.length || openSlots)) {
     try {
-      await SB.propose({ proposer_id: req.owner.id, party_ids: ids, terms, stake,
+      const bet = await SB.propose({
+        proposer_id: req.owner.id, party_ids: ids, terms, stake,
         position: String(req.body.position || '').trim(),
-        resolves: String(req.body.resolves || '').trim() });
+        picks: picksFrom(req.body),
+        resolves: String(req.body.resolves || '').trim(),
+        format, conditions, logic: req.body.logic,
+        pool_outcome: String(req.body.pool_outcome || ''),
+        open_slots: openSlots,
+      });
+      // Nobody checks a website for a bet they do not know exists.
+      const targets = owners.filter(o => ids.includes(o.id));
+      notify.sideBetProposed(targets, bet, req.owner.name, terms).catch(() => {});
     } catch (e) { /* needs someone on the other side; the form enforces it too */ }
   }
   res.redirect('/bank?section=sidebets');
 }));
 
 router.post('/sidebets/:id/accept', aw(async (req, res) => {
-  await SB.accept(req.params.id, req.owner.id, req.owner.name,
-    String(req.body.position || '').trim());
+  await SB.accept(req.params.id, req.owner.id, req.owner.name, {
+    position: String(req.body.position || '').trim(),
+    picks: picksFrom(req.body),
+  });
+  res.redirect('/bank?section=sidebets');
+}));
+
+// Take the other side of a bet somebody posted to the market. Taking IS the
+// handshake — the person who posted it gave theirs by posting.
+router.post('/sidebets/:id/take', aw(async (req, res) => {
+  await SB.take(req.params.id, req.owner.id, req.owner.name, {
+    position: String(req.body.position || '').trim(),
+    picks: picksFrom(req.body),
+  });
   res.redirect('/bank?section=sidebets');
 }));
 
 // Your own side of a bet — picks, teams, the number you took. Yours only.
 router.post('/sidebets/:id/position', aw(async (req, res) => {
-  await SB.setPosition(req.params.id, req.owner.id, String(req.body.position || '').trim());
+  await SB.setPosition(req.params.id, req.owner.id,
+    req.body.position != null ? String(req.body.position).trim() : null,
+    req.body.picks != null ? picksFrom(req.body) : null);
   res.redirect('/bank?section=sidebets');
+}));
+
+// Tick off one loser→winner payment. Either side of that leg can mark it, which
+// is the same trust model as the bet itself.
+router.post('/sidebets/:id/leg/:legId', aw(async (req, res) => {
+  await SB.markLeg(req.params.id, req.params.legId, req.owner.id, req.owner.name,
+    req.body.paid !== '0');
+  res.redirect(req.body.back === 'money' ? '/bank#top' : '/bank?section=sidebets');
 }));
 
 router.post('/sidebets/:id/decline', aw(async (req, res) => {
@@ -368,9 +535,57 @@ router.post('/sidebets/:id/settle', aw(async (req, res) => {
   // ends up adjudicating anyway.
   if (bet && (SB.isParty(bet, req.owner.id) || req.owner.is_commissioner)) {
     const winners = [].concat(req.body.winner || []).map(Number).filter(Boolean);
-    await SB.settle(req.params.id, winners, req.owner.id, req.owner.name);
+    await SB.settle(req.params.id, winners, req.owner.id, req.owner.name, {
+      push: req.body.push === '1',
+      why: String(req.body.why || '').trim(),
+    });
   }
   res.redirect('/bank?section=sidebets');
+}));
+
+/**
+ * Settle a bet the way the engine called it.
+ *
+ * This is the confirm half of "the engine never settles a bet". The verdict is
+ * recomputed here rather than trusted from the form — otherwise the winner ids
+ * would be attacker-supplied, and the button would be a way to award yourself
+ * anybody's money.
+ */
+router.post('/sidebets/:id/settle-auto', aw(async (req, res) => {
+  const bet = await SB.get(req.params.id);
+  if (bet && (SB.isParty(bet, req.owner.id) || req.owner.is_commissioner)) {
+    const world = req.world;
+    const owners = H.activeOwners(world.owners);
+    const nameOf = id => (H.ownerById(owners, id) || {}).name || '?';
+    const { verdicts } = await gradeBets([bet], world, owners, nameOf);
+    const v = verdicts[bet.id];
+    if (v && v.decided) {
+      await SB.settle(bet.id, v.winner_ids, req.owner.id, req.owner.name,
+        { push: v.push, why: v.headline });
+    }
+  }
+  res.redirect('/bank?section=sidebets');
+}));
+
+/**
+ * Where to send people money. Yours to set, everyone's to see.
+ *
+ * Handles, not account numbers: a Venmo handle is already public to anyone who
+ * can search for you, so this is a convenience directory rather than anything
+ * that needs protecting. Nothing here is a credential.
+ */
+router.post('/profile/pay', aw(async (req, res) => {
+  const clean = (v, n = 60) => String(v || '').trim().replace(/^@+/, '').slice(0, n);
+  const world = req.world;
+  const owner = world.owners.find(o => o.id === req.owner.id);
+  if (owner) {
+    owner.venmo = clean(req.body.venmo);
+    owner.paypal = clean(req.body.paypal, 80);
+    owner.cashapp = clean(req.body.cashapp);
+    owner.zelle = clean(req.body.zelle, 80);
+    await setDoc('owners', world.owners);
+  }
+  res.redirect('/bank#pay-directory');
 }));
 
 router.post('/sidebets/:id/reopen', aw(async (req, res) => {
@@ -514,7 +729,11 @@ router.get('/team', aw(async (req, res) => {
   const viewOwner = H.ownerById(owners, viewId) || req.owner;
   const sData = await sleeper.bundle(world.config.sleeper_league_id);
   const roster = await sleeper.rosterView(sData, world.config.sleeper_map || {}, viewOwner.id);
-  res.render('team', { viewOwner, owners, roster, configured: !!world.config.sleeper_league_id });
+  // This week's game, so the page answers "who am I playing" before it answers
+  // "who is on my bench" — and so a bet against that opponent is one tap away.
+  const matchup = sleeper.myMatchup(sData, world.config.sleeper_map || {}, viewOwner.id, owners);
+  res.render('team', { viewOwner, owners, roster, matchup,
+    configured: !!world.config.sleeper_league_id });
 }));
 
 // ---------- the locker room ----------
@@ -528,7 +747,10 @@ router.get('/chat', aw(async (req, res) => {
 router.post('/chat', aw(async (req, res) => {
   const text = String(req.body.text || '').trim().slice(0, 500);
   if (text) await setDoc(`chat:${newId()}`, { owner_id: req.owner.id, text, created_at: now() });
-  res.redirect('/chat#end');
+  // Posting from the home page returns you to the home page. Being teleported
+  // into a different tab because you replied to a message is how people learn
+  // not to reply.
+  res.redirect(req.body.back === 'home' ? '/#locker' : '/chat#end');
 }));
 
 router.get('/rules', aw(async (req, res) => {

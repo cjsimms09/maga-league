@@ -91,6 +91,27 @@ async function alertPosted(owners, message, level) {
   });
 }
 
+/**
+ * Somebody put a bet in front of you.
+ *
+ * This one matters more than the other notifications: an unanswered side bet
+ * sits at "proposed" doing nothing, and the person who offered it is waiting.
+ * Nobody checks a website for a bet they do not know exists.
+ */
+async function sideBetProposed(owners, bet, proposerName, sentence) {
+  const to = emailsFor(owners, o => o.id !== bet.proposer_id);
+  if (!to.length) return { skipped: true };
+  await sendMail({
+    to,
+    subject: `🤝 ${proposerName} wants to bet you ${fmt(bet.stake)}`,
+    html: wrap(`${proposerName} put up a side bet`,
+      `<b>${sentence}</b><br><br>${fmt(bet.stake)} each${bet.resolves ? `, settling ${bet.resolves}` : ''}.
+       It is not a bet until you accept — and accepting is a gentlemen's agreement,
+       as good as a handshake. The site keeps score; it does not hold the money.`,
+      { path: '/bank?section=sidebets', label: 'See the bet' }),
+  });
+}
+
 async function passwordReset(owner, token) {
   if (!owner.email) return { skipped: true };
   return sendMail({
@@ -104,4 +125,5 @@ async function passwordReset(owner, token) {
 
 const fmt = n => '$' + Math.abs(Math.round(n * 100) / 100).toLocaleString('en-US');
 
-module.exports = { configured, sendMail, draftTurn, moneySettled, newVote, alertPosted, passwordReset, SITE };
+module.exports = { configured, sendMail, draftTurn, moneySettled, newVote, alertPosted,
+                   sideBetProposed, passwordReset, SITE };

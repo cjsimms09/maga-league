@@ -91,6 +91,41 @@ season until settled.</p>
       </tbody>
     </table>
     <% } %>
+    <%# ── Side bets, on the same card but behind a hard line ──────────────
+        They belong here — this is the card you open to answer "am I square?"
+        and the answer is incomplete without them. But they are NOT league
+        money, so they sit under their own rule with their own total and never
+        touch the balance above. %>
+    <% if (sbOwed.rows.length) { %>
+      <div class="ledger-sidebets">
+        <div class="lsb-head">
+          🤝 Side bets <span class="muted">— between members, not league money</span>
+        </div>
+        <% for (const r of sbOwed.rows) { %>
+          <div class="lsb-row">
+            <span class="lsb-who"><%= r.net > 0 ? r.name + ' owes' : 'owes ' + r.name %></span>
+            <span class="lsb-amt <%= r.net > 0 ? 'pos' : 'neg' %>"><%= money(Math.abs(r.net)) %></span>
+            <% if (isMine) { %>
+              <span class="lsb-act">
+                <% for (const l of r.legs) { %>
+                  <form class="asis" method="post" action="/sidebets/<%= l.bet.id %>/leg/<%= l.id %>">
+                    <input type="hidden" name="back" value="money">
+                    <button class="btn small ghost" title="<%= l.bet.terms.replace(/"/g, '&quot;') %>">✓ <%= money(l.amount) %></button>
+                  </form>
+                <% } %>
+              </span>
+            <% } %>
+          </div>
+        <% } %>
+        <div class="lsb-row total">
+          <span class="lsb-who">Side-bet balance</span>
+          <span class="lsb-amt <%= sbOwed.owed_to_me - sbOwed.i_owe > 0 ? 'pos' : sbOwed.owed_to_me - sbOwed.i_owe < 0 ? 'neg' : '' %>">
+            <%= money(sbOwed.owed_to_me - sbOwed.i_owe) %></span>
+          <span class="lsb-act"><a href="/bank?section=sidebets">open →</a></span>
+        </div>
+      </div>
+    <% } %>
+
     <% if (isCommish && vc.balance !== 0) { %>
       <div style="padding:.55rem .9rem; border-top:1px solid var(--line)">
         <form class="asis" method="post" action="/admin/ledger/settle-all/<%= vc.owner.id %>"
@@ -180,6 +215,67 @@ season until settled.</p>
       </tbody>
     </table>
   </div>
+</div>
+
+<%# ── How to actually send someone money ────────────────────────────────────
+    Half the reason a debt sits open for a month is that nobody can remember
+    whether Bates is on Venmo or PayPal. One list, everyone's, self-maintained. %>
+<div class="card" id="pay-directory" style="margin-top:1.3rem">
+  <h2>📲 How to Pay People <span class="sub">handles only — tap to copy</span></h2>
+  <div class="body tight">
+    <% const pays = owners.map(o => ({ o, has: [
+         o.venmo && ['Venmo', '@' + o.venmo],
+         o.cashapp && ['Cash App', '$' + o.cashapp],
+         o.paypal && ['PayPal', o.paypal],
+         o.zelle && ['Zelle', o.zelle],
+       ].filter(Boolean) })); %>
+    <% for (const p of pays) { if (!p.has.length) continue; %>
+      <div class="pay-row">
+        <b><%= p.o.name %><%= p.o.id === owner.id ? ' (you)' : '' %></b>
+        <span class="pay-handles">
+          <% for (const [kind, handle] of p.has) { %>
+            <button type="button" class="pay-chip" data-copy="<%= handle %>"><%= kind %> <code><%= handle %></code></button>
+          <% } %>
+        </span>
+      </div>
+    <% } %>
+    <% const missing = pays.filter(p => !p.has.length).map(p => p.o.name); %>
+    <% if (missing.length) { %>
+      <p class="muted" style="margin:.5rem 0 0; font-size:.78rem">
+        Nothing on file for <%= missing.join(', ') %> — they can add theirs below.
+      </p>
+    <% } %>
+  </div>
+  <details class="entry-card" style="border:0; border-top:1px solid var(--line); border-radius:0">
+    <summary>✍️ Add or change yours <span class="sub">only you can edit your own</span></summary>
+    <div class="body">
+      <form method="post" action="/profile/pay" class="entry-form">
+        <div class="ef-row">
+          <label class="field">Venmo <span class="muted">(without the @)</span>
+            <input type="text" name="venmo" maxlength="60" value="<%= owner.venmo || '' %>" placeholder="cory-simms">
+          </label>
+          <label class="field">Cash App <span class="muted">(without the $)</span>
+            <input type="text" name="cashapp" maxlength="60" value="<%= owner.cashapp || '' %>" placeholder="corysimms">
+          </label>
+        </div>
+        <div class="ef-row">
+          <label class="field">PayPal
+            <input type="text" name="paypal" maxlength="80" value="<%= owner.paypal || '' %>" placeholder="email or paypal.me link">
+          </label>
+          <label class="field">Zelle
+            <input type="text" name="zelle" maxlength="80" value="<%= owner.zelle || '' %>" placeholder="phone or email">
+          </label>
+        </div>
+        <div class="ef-row" style="justify-content:flex-end">
+          <div class="fit"><button class="btn gold" type="submit">Save</button></div>
+        </div>
+        <p class="muted" style="margin:.2rem 0 0; font-size:.76rem">
+          Handles only — never a card number, an account number, or a password.
+          Everyone in the league can see this list.
+        </p>
+      </form>
+    </div>
+  </details>
 </div>
 
 <p class="muted" style="text-align:center; margin-top:1.1rem">

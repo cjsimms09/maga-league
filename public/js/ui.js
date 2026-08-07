@@ -100,7 +100,26 @@
   });
 
   /* ------------------------------------------------------------------
-   * 4. Horizontal-scroll affordance.
+   * 4. Tap-to-copy payment handles.
+   *
+   * The point of the directory is getting a handle into Venmo with as few
+   * steps as possible. Selecting text on a phone to copy it is four fiddly
+   * ones. Falls back to leaving the text visible and selectable, which is
+   * exactly what it was before.
+   * ------------------------------------------------------------------ */
+  document.addEventListener('click', function (e) {
+    var chip = e.target.closest('[data-copy]');
+    if (!chip || !navigator.clipboard) return;
+    navigator.clipboard.writeText(chip.getAttribute('data-copy')).then(function () {
+      var was = chip.innerHTML;
+      chip.classList.add('copied');
+      chip.textContent = '✓ Copied';
+      setTimeout(function () { chip.innerHTML = was; chip.classList.remove('copied'); }, 1400);
+    }).catch(function () { /* clipboard denied — the text is still on screen */ });
+  });
+
+  /* ------------------------------------------------------------------
+   * 5. Horizontal-scroll affordance.
    *
    * Wide tables scroll inside their card. On a phone with overlay scrollbars
    * there is no visual cue that they do, so a table that is cut off reads as a

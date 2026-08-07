@@ -23,6 +23,63 @@
   </p></div></div>
 <% } else { %>
 
+<%# ── This week's game ──────────────────────────────────────────────────────
+    Top of the page because it is the thing you came to look at, and because a
+    matchup is where a side bet actually gets made — in the group chat on
+    Thursday, not on a finance page. So the bet lives here, prefilled: the
+    opponent, the week, and a condition the site can grade on Tuesday. %>
+<% if (matchup && matchup.opp && matchup.opp.owner && viewOwner.id === owner.id) { %>
+<div class="card matchup-card" style="margin-bottom:1.3rem">
+  <h2>⚔️ Week <%= matchup.week %> <span class="sub">your game this week</span></h2>
+  <div class="body">
+    <div class="mu">
+      <div class="mu-side <%= matchup.me.points > matchup.opp.points ? 'up' : '' %>">
+        <span class="mu-team"><%= matchup.me.team %></span>
+        <span class="mu-pts"><%= matchup.me.points.toFixed(2) %></span>
+        <span class="mu-who">you</span>
+      </div>
+      <div class="mu-vs">vs</div>
+      <div class="mu-side <%= matchup.opp.points > matchup.me.points ? 'up' : '' %>">
+        <span class="mu-team"><%= matchup.opp.team %></span>
+        <span class="mu-pts"><%= matchup.opp.points.toFixed(2) %></span>
+        <span class="mu-who"><%= matchup.opp.owner.name %></span>
+      </div>
+    </div>
+
+    <details class="mu-bet">
+      <summary>🤝 Bet <%= matchup.opp.owner.name %> on it</summary>
+      <div class="mu-bet-body">
+        <form method="post" action="/sidebets" class="inline-form">
+          <input type="hidden" name="format" value="prop">
+          <input type="hidden" name="party" value="<%= matchup.opp.owner.id %>">
+          <input type="hidden" name="resolves" value="week <%= matchup.week %>">
+          <%# The condition the builder would have produced, prefilled. Same
+              field names, same parser — this is a shortcut into the same
+              machinery, not a second way of making a bet. %>
+          <input type="hidden" name="cond_test" value="outscores">
+          <input type="hidden" name="cond_subject" value="<%= owner.id %>">
+          <input type="hidden" name="cond_target_owner" value="<%= matchup.opp.owner.id %>">
+          <input type="hidden" name="cond_when" value="week">
+          <input type="hidden" name="cond_week" value="<%= matchup.week %>">
+          <input type="hidden" name="logic" value="all">
+          <div class="fit">
+            <label class="field">Stake each
+              <input type="number" name="stake" step="1" min="1" placeholder="20" required style="width:6.5rem">
+            </label>
+          </div>
+          <div class="fit"><button class="btn gold" type="submit">Send it to <%= matchup.opp.owner.name %></button></div>
+        </form>
+        <p class="muted" style="margin:.5rem 0 0; font-size:.78rem">
+          Straight up: <b>your team outscores <%= matchup.opp.owner.name %> in week <%= matchup.week %></b>.
+          They have to accept before it counts. The site grades it once the week
+          is final and tells you both who won — neither of you has to remember.
+        </p>
+      </div>
+    </details>
+  </div>
+</div>
+<% } %>
+
 <div class="hero" style="margin-bottom:1.3rem">
   <div class="hero-item">
     <span class="hero-label">Team</span>

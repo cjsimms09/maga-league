@@ -9,6 +9,15 @@
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/style.css">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='48' fill='%230b1f3a'/><text x='50' y='68' font-size='52' text-anchor='middle'>🦅</text></svg>">
+<%# Home-screen install. The manifest covers Android/Chrome; the apple-* tags
+    are what iOS reads, because Safari still ignores the manifest for this. %>
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/icons/icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="MFGA League">
+<meta name="theme-color" content="#0b1f3a">
 </head>
 <body>
 <%
@@ -35,10 +44,11 @@
   // phone gets the four destinations people actually visit weekly, and the rest
   // lives behind "More". Splitting the list in two places is how they drift.
   const _unread = typeof chatUnread !== 'undefined' ? chatUnread : 0;
+  const _bets = typeof betsWaiting !== 'undefined' ? betsWaiting : 0;
   const _nav = [
     { href: '/',        label: 'League Office', short: 'Office',  icon: '🏛',  primary: true },
     { href: '/team',    label: 'My Team',       short: 'Team',    icon: '🏈',  primary: true },
-    { href: '/bank',    label: 'League Finances', short: 'Finances', icon: '💰',  primary: true },
+    { href: '/bank',    label: 'League Finances', short: 'Finances', icon: '💰',  primary: true, badge: _bets },
     { href: '/chat',    label: 'Locker Room',   short: 'Locker',  icon: '💬',  primary: true, badge: _unread },
     { href: '/draft',   label: 'Draft Spot',     short: 'Draft',   icon: '🎯',  match: '/draft' },
     { href: '/votes',   label: 'Voting Booth',  short: 'Votes',   icon: '🗳',  match: '/votes' },
