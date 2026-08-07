@@ -1730,50 +1730,33 @@
    * when the attribution is already right. Cheap for the same reason — the
    * common case is a membership test that passes.
    */
-  function reattribute(id, slot, mySlot) {
-    const key = String(id);
-    const already = (state.rosters[slot] || []).some(p => String(p.player_id) === key);
-    if (already) {
-      // Right seat already. Make sure myRoster agrees, since the two are
-      // maintained separately and can drift.
-      if (mySlot && Number(slot) === Number(mySlot)
-          && !state.myRoster.some(p => String(p.player_id) === key)) {
-        const pl = playerById(key);
-        if (pl) state.myRoster.push(pl);
-      }
-      return;
-    }
-    let moved = null;
-    Object.keys(state.rosters).forEach(s => {
-      const before = state.rosters[s].length;
-      state.rosters[s] = state.rosters[s].filter(p => {
-        if (String(p.player_id) !== key) return true;
-        moved = p; return false;
-      });
-      if (state.rosters[s].length !== before && String(s) !== String(slot)) {
-        // Worth saying out loud: a pick changing hands mid-draft is either a
-        // correction or a sign the seat mapping is wrong, and both matter.
-        console.info('[draft] re-attributed ' + key + ' from seat ' + s + ' to ' + slot);
-      }
-    });
-    const pl = moved || playerById(key);
-    if (!pl) return;
-    (state.rosters[slot] = state.rosters[slot] || []).push(pl);
-    state.myRoster = state.myRoster.filter(p => String(p.player_id) !== key);
-    if (mySlot && Number(slot) === Number(mySlot)) state.myRoster.push(pl);
-  }
+  // Pick-lifecycle ownership now lives in the tested DraftAttribution module
+  // (public/js/draft/attribution.js), so the running app and the robot mock
+  // exercise the SAME code. The inline copy that used to sit here is deleted —
+  // an inline duplicate of a tested module is a second implementation the tests
+  // do not cover, and it is exactly where the Loveland bug hid.
+  const ATTR = (typeof window !== 'undefined' && window.DraftAttribution) || null;
 
   // ----------------------------------------------------------------- actions
   function markDrafted(playerId, toMe, teamSlot) {
     const p = playerById(playerId);
     if (!p) return;
-    state.drafted.add(String(playerId));
+    const mySlot = Number(state.data.league.my_draft_slot) || null;
+    const slot = toMe ? mySlot : (teamSlot || null);
+    const alreadySeen = state.drafted.has(String(playerId));
+    // A local mark is a GUESS; the shared module records it as such and Sleeper
+    // can later override it. Same call the robot mock's R1/R3 scenarios prove.
+    if (ATTR) ATTR.markLocal(state, p, slot, mySlot);
+    else {
+      state.drafted.add(String(playerId));
+      if (slot) (state.rosters[slot] = state.rosters[slot] || []).push(p);
+      if (toMe) state.myRoster.push(p);
+    }
     state.board = state.board.filter(x => String(x.player_id) !== String(playerId));
-    state.recentPicks.push({ position: p.position, player_id: playerId,
-                             pick_no: state.recentPicks.length + 1, player: p });
-    const slot = toMe ? state.data.league.my_draft_slot : teamSlot;
-    if (slot) (state.rosters[slot] = state.rosters[slot] || []).push(p);
-    if (toMe) state.myRoster.push(p);
+    if (!alreadySeen) {
+      state.recentPicks.push({ position: p.position, player_id: playerId,
+                               pick_no: state.recentPicks.length + 1, player: p });
+    }
     recomputeRuns();
     renderAll();
   }
@@ -1900,26 +1883,10 @@
     const mySlot = Number(state.data.league.my_draft_slot) || null;
     picks.forEach(pick => {
       const id = String(pick.player_id);
-      const pickSlot = Number(pick.draft_slot) || Number(pick.roster_id) || null;
-      if (state.drafted.has(id)) {
-        // ALREADY RECORDED LOCALLY — BUT SLEEPER DECIDES WHOSE IT IS.
-        //
-        // Reported from a live mock: one round-4 pick never reached my roster
-        // while every other pick did. The player had been marked drafted by
-        // hand first (markDrafted, or a mis-tap on the board), which adds him
-        // to state.drafted and pushes him onto whichever roster was chosen.
-        // When the authoritative pick arrived seconds later this returned
-        // early, so the hand-made guess became permanent and the real
-        // attribution was thrown away.
-        //
-        // A local mark is a guess made before the data arrived. Sleeper is the
-        // record. So re-attribute instead of skipping: if the seat the API
-        // reports differs from where he is sitting, move him.
-        if (pickSlot) reattribute(id, pickSlot, mySlot);
-        return;
-      }
-      state.drafted.add(id);
-      state.board = state.board.filter(x => String(x.player_id) !== id);
+      // draft_slot is the seat; roster_id is the team. A MOCK draft has no
+      // rosters, so the seat only lives in draft_slot — prefer it.
+      const slot = Number(pick.draft_slot) || Number(pick.roster_id) || null;
+      const firstSight = !state.drafted.has(id);
 
       // Known to the board, or reconstructed from what Sleeper sent. A stub
       // carries no projection, so it can never affect a recommendation — it
@@ -1936,16 +1903,24 @@
         off_board: true,          // rendered differently; never scored
       };
 
-      state.recentPicks.push({
-        position: p.position, player_id: id,
-        pick_no: pick.pick_no || (state.recentPicks.length + 1),
-        player: p,
-      });
-      // draft_slot is the seat; roster_id is the team. The seat is what my own
-      // slot is expressed in, so prefer it and only fall back to roster_id.
-      const slot = Number(pick.draft_slot) || Number(pick.roster_id) || null;
-      if (slot) (state.rosters[slot] = state.rosters[slot] || []).push(p);
-      if (mySlot && slot === mySlot) state.myRoster.push(p);
+      // SLEEPER IS AUTHORITATIVE. applyRemote places him on the seat the API
+      // reports and moves him off any seat a local guess put him on — the same
+      // tested path the robot mock's Loveland scenario exercises. Idempotent,
+      // so it is safe to run for every pick on every four-second poll.
+      if (ATTR) ATTR.applyRemote(state, p, slot, mySlot);
+      else {
+        state.drafted.add(id);
+        if (slot) (state.rosters[slot] = state.rosters[slot] || []).push(p);
+        if (mySlot && slot === mySlot) state.myRoster.push(p);
+      }
+      state.board = state.board.filter(x => String(x.player_id) !== id);
+      if (firstSight) {
+        state.recentPicks.push({
+          position: p.position, player_id: id,
+          pick_no: pick.pick_no || (state.recentPicks.length + 1),
+          player: p,
+        });
+      }
     });
     // Check the slate against reality before scoring anything off it.
     if (!(state.reconcile && state.reconcile.ignored)) reconcileKeepers(picks);

@@ -4,20 +4,21 @@ _Read this first. Updated after every completed item._
 _Last update: master-execution-order run, start._
 
 ## One-line readiness
-**NOT YET** ready for a human mock — stabilization in progress; robot mock being built as the safety net that gates the rest.
+**NOT YET** — robot mock green in CI; attribution wired; backtest report re-running (run 5 succeeded but its report was lost to a push race, now fixed).
 
 ## Test suite
 - JS suites: engine 190, mcts 63, keepers 38, keeperlock 41, reconcile 12, update 41, betlogic 134, ledger 41, sync 26, backtest 17, strategies 13, attribution 10 — **all green**
 - Python: 112 — **all green**
-- Robot mock in CI: **being built (item 1, Phase 3)**
+- Robot mock in CI: **GREEN, 37/37** (full draft from all 10 seats + 5 regression scenarios); wired into new ci.yml on every push
 
 ## In flight
-- Backtest **run 5** (`53bc711`) in CI — projection-correlation fix. Feeds queue items 3–6. Runs 1–4 all refused by guards (2 crashes, 2 real bugs the sanity gate caught: 7/200 join, then flat projection). No wrong number has ever reached the record.
+- Backtest **run 6** (`ec2ff03`) — re-run after run 5 SUCCEEDED but its report was lost: CI's `git push || true` swallowed a non-fast-forward when my own pushes landed first. Commit-back now rebases and fails loudly. Run 5 succeeding means the projection fix worked and the sanity gate PASSED — the report is real, just needs to land.
+- Runs 1–5: two crashes, two real bugs the sanity gate caught (7/200 join, flat projection), one success-with-lost-report. No wrong number ever reached the record.
 
 ## Queue progress
 | # | item | state |
 |---|---|---|
-| 1 | Stabilization sprint | IN PROGRESS |
+| 1 | Stabilization sprint | Phase 1 attribution WIRED (`pending`); robot mock GREEN |
 | 2 | Small fixes (onesie / rail budget / config_confirmed) | PENDING |
 | 2b | Draft-day experience | AUDITED, pending |
 | 2c | Cutting-edge data | AUDITED, pending (mostly ABSENT) |
