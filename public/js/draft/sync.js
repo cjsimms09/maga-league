@@ -152,6 +152,21 @@
         round: p.round,
         picked_by: p.picked_by || p.roster_id,
         roster_id: p.roster_id,
+        // DRAFT_SLOT IS THE SEAT, AND IN A MOCK IT IS THE ONLY ONE.
+        //
+        // Reported from a real mock: a round-4 pick did not register. This
+        // normaliser dropped draft_slot, and reconcile.js reads
+        // `p.draft_slot || p.roster_id || null`. In a LEAGUE draft roster_id
+        // exists, so the fallback covered the omission and everything worked.
+        // A MOCK DRAFT HAS NO ROSTERS — Sleeper sends roster_id null and puts
+        // the seat in draft_slot — so every mock pick resolved to team_slot
+        // null, could not be attributed to any seat, and vanished from the
+        // roster it belonged to.
+        //
+        // The mock is the rehearsal for draft day, so a bug that only appears
+        // in mocks is a bug in the only practice available.
+        draft_slot: p.draft_slot != null ? p.draft_slot
+          : (p.metadata && p.metadata.draft_slot != null ? p.metadata.draft_slot : null),
         source: p.__manual ? 'manual' : 'sleeper',
         metadata: p.metadata || {},
       });
@@ -160,9 +175,12 @@
     return out;
   };
 
-  DraftSync.prototype.addManual = function (playerId, rosterId) {
+  DraftSync.prototype.addManual = function (playerId, rosterId, draftSlot) {
     this.manual.push({
       player_id: String(playerId), roster_id: rosterId,
+      // Same reasoning as the sleeper path: without a seat a typed pick is
+      // recorded but belongs to nobody, which is the failure it exists to fix.
+      draft_slot: draftSlot != null ? draftSlot : rosterId,
       pick_no: this.allPicks().length + 1, __manual: true,
     });
     this.onPicks(this.allPicks());

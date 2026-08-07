@@ -63,5 +63,48 @@ console.log('\n--- the id survives into the sync ---');
     status && status.state === 'manual', JSON.stringify(status));
 }
 
+// --- a mock draft has no rosters, and the seat lives in draft_slot ---------
+// Reported from a real mock: a round-4 pick (Colston Loveland) never
+// registered. allPicks() dropped draft_slot, and reconcile reads
+// `draft_slot || roster_id`. A LEAGUE draft has roster_id so the omission was
+// invisible; a MOCK sends roster_id null, so every pick resolved to a null
+// seat and belonged to nobody.
+{
+  const s = new DraftSync({ draftId: '123', onPicks: function () {}, onStatus: function () {} });
+  s.picks = [
+    { player_id: '12517', pick_no: 34, round: 4, draft_slot: 4, roster_id: null,
+      picked_by: 'u1', metadata: { first_name: 'Colston', last_name: 'Loveland' } },
+    { player_id: '999', pick_no: 35, round: 4, draft_slot: 5, roster_id: null, picked_by: 'u2' },
+  ];
+  const out = s.allPicks();
+  ok('a mock pick keeps its seat, so it can be attributed to a team',
+    out[0].draft_slot === 4 && out[1].draft_slot === 5,
+    JSON.stringify(out.map(function (p) { return p.draft_slot; })));
+  ok('and the pick itself survives normalisation',
+    out.length === 2 && out[0].player_id === '12517');
+
+  ok('reconcile can resolve a seat from draft_slot alone (roster_id null)',
+    (out[0].draft_slot || out[0].roster_id || null) === 4);
+
+  // A league draft must keep working through the roster_id fallback.
+  const s2 = new DraftSync({ draftId: '124', onPicks: function () {}, onStatus: function () {} });
+  s2.picks = [{ player_id: '77', pick_no: 1, round: 1, roster_id: 7, picked_by: 'u7' }];
+  const o2 = s2.allPicks();
+  ok('a league pick with no draft_slot still resolves via roster_id',
+    (o2[0].draft_slot || o2[0].roster_id || null) === 7);
+
+  // Sleeper sometimes nests it in metadata.
+  const s3 = new DraftSync({ draftId: '125', onPicks: function () {}, onStatus: function () {} });
+  s3.picks = [{ player_id: '88', pick_no: 2, round: 1, roster_id: null,
+                metadata: { draft_slot: 9 } }];
+  ok('draft_slot nested in metadata is found too',
+    s3.allPicks()[0].draft_slot === 9);
+
+  const s4 = new DraftSync({ draftId: '126', onPicks: function () {}, onStatus: function () {} });
+  s4.addManual('12517', 4);
+  ok('a typed pick carries a seat, or it belongs to nobody either',
+    s4.allPicks()[0].draft_slot === 4);
+}
+
 console.log(`\n${pass}/${pass + fail} sync checks passed`);
 process.exit(fail ? 1 : 0);
