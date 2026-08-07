@@ -648,6 +648,20 @@
         fix: 'Rebuild the board' },
       { ok: !!slot, label: 'Draft slot claimed', detail: slot ? 'pick ' + slot : 'not set',
         fix: 'Claim it on the Draft Spot page' },
+      // Pick NUMBERS recompute live when the slot changes, but keeper-adjusted
+      // ADP does not — it was computed for whichever seat the pipeline built
+      // with. A board that is right about when you pick and wrong about what
+      // will be there is the worst of both, so this is a checklist line rather
+      // than only a banner.
+      { ok: !state.slotRecomputed,
+        label: 'Board built for your seat',
+        detail: state.slotRecomputed
+          ? 'built for seat ' + (state.slotRecomputed.from ? 'with picks ' + state.slotRecomputed.from : 'another seat')
+            + ', you are now #' + state.slotRecomputed.slot
+          : 'yes',
+        fix: state.slotRecomputed
+          ? 'Rebuild: Actions → Build draft board → slot ' + state.slotRecomputed.slot
+          : '' },
       { ok: !!(window.LEAGUE_ID), label: 'Sleeper connected',
         detail: window.LEAGUE_ID ? 'league ' + String(window.LEAGUE_ID).slice(-6) : 'not connected',
         fix: 'Commish → Sleeper' },

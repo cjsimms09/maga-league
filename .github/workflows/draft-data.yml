@@ -20,9 +20,9 @@ on:
         required: false
         default: '1374848328470102016'
       slot:
-        description: 'My draft slot (1-indexed)'
+        description: 'My draft slot (1-indexed) — leave blank to use the committed config'
         required: false
-        default: '4'
+        default: ''
       snapshot:
         description: 'Record real API responses and diff them against the fixtures (no build)'
         type: boolean
@@ -95,10 +95,25 @@ jobs:
       - name: Build the draft artifact
         if: github.event.inputs.snapshot != 'true'
         working-directory: draft
+        env:
+          SLOT: ${{ github.event.inputs.slot }}
         run: |
-          python build.py \
-            --league-id "${{ github.event.inputs.league_id || '1374848328470102016' }}" \
-            --slot "${{ github.event.inputs.slot || '4' }}"
+          # --slot is an OVERRIDE, not a default. It used to fall back to a
+          # hardcoded 4, which meant every nightly rebuild forced slot 4 no
+          # matter what the committed config said — so a slot change would be
+          # silently undone by the next cron run and the board would go on being
+          # keeper-adjusted for somebody else's turns.
+          #
+          # Blank now means "use draft/config/league_config.json", which is the
+          # file the League Setup screen emits and the only durable record of
+          # which seat this board is for.
+          if [ -n "$SLOT" ]; then
+            echo "building for slot $SLOT (explicit override)"
+            python build.py --league-id "${{ github.event.inputs.league_id || '1374848328470102016' }}" --slot "$SLOT"
+          else
+            echo "building for the slot in league_config.json: $(python -c "import json;print(json.load(open('config/league_config.json')).get('my_draft_slot'))" 2>/dev/null || echo unknown)"
+            python build.py --league-id "${{ github.event.inputs.league_id || '1374848328470102016' }}"
+          fi
 
       - name: Commit the artifact if it changed
         if: github.event.inputs.snapshot != 'true'

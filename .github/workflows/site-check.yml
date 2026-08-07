@@ -1,0 +1,171 @@
+name: Check the live site
+
+# Why this exists
+#
+# Everything about this site is verified locally or in CI. Nothing is verified
+# against the thing your league actually loads — the sandbox it is built in
+# cannot reach netlify.app at all. Four real bugs in the last day lived in
+# exactly that gap.
+#
+# CI can reach the internet. So it fetches the deployed site and reports what a
+# real browser would get. It cannot log in — every member page is behind auth,
+# and putting a league password in a secret to read a fantasy football site is a
+# bad trade. What it CAN check is everything unauthenticated, which happens to
+# include the single most important artifact: the draft board the War Room
+# actually downloads.
+#
+# Commits nothing. Never fails the build — a red X on "we asked a question"
+# teaches people to ignore red Xs.
+
+on:
+  workflow_dispatch:
+    inputs:
+      site:
+        description: 'Site URL'
+        required: false
+        default: 'https://makefbgreatagain.netlify.app'
+  schedule:
+    # 07:00 UTC = 02:00 CDT, an hour before the nightly board rebuild lands.
+    # Catches a deploy that broke overnight before anyone opens the site.
+    - cron: '0 7 * * *'
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      # Checked out first: the script compares the DEPLOYED board against the
+      # slot in the repo's committed config, so the repo has to be there before
+      # it runs rather than after.
+      - uses: actions/checkout@v4
+
+      - name: Fetch the deployed site
+        env:
+          SITE: ${{ inputs.site || 'https://makefbgreatagain.netlify.app' }}
+        run: |
+          python3 - <<'PY'
+          import json, os, sys, urllib.request, urllib.error, datetime
+
+          site = os.environ.get('SITE', '').rstrip('/')
+          problems, notes = [], []
+
+          def fetch(path, expect=200, binary=False):
+              url = site + path
+              try:
+                  req = urllib.request.Request(url, headers={
+                      'accept': '*/*', 'user-agent': 'mfga-site-check'})
+                  with urllib.request.urlopen(req, timeout=25) as r:
+                      body = r.read()
+                      return r.status, dict(r.headers), (body if binary else body.decode('utf-8', 'replace'))
+              except urllib.error.HTTPError as e:
+                  return e.code, dict(e.headers or {}), ''
+              except Exception as e:                       # noqa: BLE001
+                  problems.append(f'{path}: {type(e).__name__} {e}')
+                  return 0, {}, ''
+
+          def check(label, path, expect=200, want=None, binary=False):
+              status, headers, body = fetch(path, expect, binary)
+              ok = status == expect
+              if ok and want:
+                  missing = [w for w in want if w not in body]
+                  if missing:
+                      ok = False
+                      problems.append(f'{label}: served, but missing {missing}')
+              print(f'{"OK  " if ok else "FAIL"}  {label:<34} {path:<34} HTTP {status}')
+              if not ok and status != expect:
+                  problems.append(f'{label}: expected HTTP {expect}, got {status}')
+              return status, headers, body
+
+          print('=' * 78)
+          print('LIVE SITE CHECK —', site)
+          print('=' * 78)
+          print('\n--- is it up, and is it the app or a stale static build? ---')
+          check('Login page', '/login', want=['MAKE FOOTBALL', 'name="username"'])
+          check('Home redirects to login', '/', expect=302)
+
+          print('\n--- the things a phone needs to install it ---')
+          check('Web manifest', '/manifest.webmanifest', want=['MFGA League', 'icons'])
+          for size in (180, 192, 512):
+              check(f'Icon {size}', f'/icons/icon-{size}.png', binary=True)
+
+          print('\n--- the stylesheet, and whether it is the one we shipped ---')
+          _, _, css = check('Stylesheet', '/css/style.css', want=[
+              '.sb-person',      # the pick pills whose checkbox blew out on iOS
+              '[hidden]',        # the rule that stops JS-gated controls rendering
+              '.clock-card',     # one-answer mode
+              '.tail-none',      # search fallback for players off the board
+          ])
+          if css:
+              print(f'      {len(css):,} bytes')
+
+          print('\n--- the client the War Room runs on ---')
+          for f in ('engine', 'survival', 'composite', 'keepers', 'reconcile', 'sync', 'app'):
+              check(f'js/draft/{f}.js', f'/js/draft/{f}.js')
+          _, _, sync = fetch('/js/draft/sync.js')
+          if 'normalizeDraftId' in sync:
+              print('      OK    the deployed sync can parse a pasted draft URL')
+          else:
+              problems.append('deployed sync.js predates the draft-URL fix — Netlify has not redeployed')
+
+          print('\n--- THE DRAFT BOARD THE WAR ROOM ACTUALLY DOWNLOADS ---')
+          status, headers, raw = fetch('/draft_data.json')
+          if status != 200:
+              problems.append(f'draft_data.json: HTTP {status}')
+              print(f'FAIL  board: HTTP {status}')
+          else:
+              d = json.loads(raw)
+              prov = d.get('provenance', {})
+              built = d.get('built_at')
+              age_h = None
+              if built:
+                  t = datetime.datetime.fromisoformat(built.replace('Z', '+00:00'))
+                  age_h = (datetime.datetime.now(datetime.timezone.utc) - t).total_seconds() / 3600
+              print(f'      built_at        {built}  ({age_h:.1f}h old)' if age_h is not None else f'      built_at {built}')
+              print(f'      players         {len(d.get("players", []))}')
+              print(f'      my_draft_slot   {(d.get("league") or {}).get("my_draft_slot")}')
+              print(f'      value_coverage  {prov.get("value_coverage")}')
+              print(f'      opportunity     {prov.get("opportunity_adjustment")} '
+                    f'({prov.get("opportunity_coverage")})')
+              adp = prov.get('adp') or {}
+              print(f'      adp source      {adp.get("adp_source")} '
+                    f'· {adp.get("fallback_count_in_play")} guessed in play')
+
+              # The same three questions the pre-draft checklist asks, asked of
+              # the DEPLOYED artifact rather than the one in the repo.
+              if age_h is not None and age_h > 48:
+                  problems.append(f'the deployed board is {age_h:.0f}h old — the nightly rebuild may not be landing')
+              if adp.get('warning'):
+                  problems.append(f'deployed board has an ADP warning: {adp["warning"]}')
+              if adp.get('fallback_count_in_play'):
+                  problems.append(f'{adp["fallback_count_in_play"]} draftable players have guessed ADP')
+              vc = prov.get('value_coverage')
+              if isinstance(vc, (int, float)) and vc < 0.9:
+                  problems.append(f'deployed value_coverage is {vc:.0%} — VORP and VONA are near-zero')
+              if prov.get('opportunity_adjustment') != 'ok':
+                  problems.append(f'deployed opportunity adjustment: {prov.get("opportunity_adjustment")}')
+
+              # Does the deployed board match the seat the config says?
+              try:
+                  cfg = json.load(open('draft/config/league_config.json'))
+                  want_slot = cfg.get('my_draft_slot')
+                  got_slot = (d.get('league') or {}).get('my_draft_slot')
+                  if want_slot and got_slot and int(want_slot) != int(got_slot):
+                      problems.append(
+                          f'the deployed board was built for slot {got_slot}, but the repo config '
+                          f'says {want_slot} — keeper-adjusted ADP is for the wrong seat')
+                  else:
+                      print(f'      seat            board {got_slot} == config {want_slot}  OK')
+              except Exception:                            # noqa: BLE001
+                  notes.append('could not compare the deployed slot against the repo config')
+
+          print('\n' + '=' * 78)
+          for n in notes:
+              print('note: ' + n)
+          if problems:
+              print(f'{len(problems)} PROBLEM(S) on the live site:')
+              for p in problems:
+                  print('  - ' + p)
+          else:
+              print('Live site looks healthy: it is up, the assets we shipped are the assets')
+              print('being served, and the deployed draft board is fresh and fully sourced.')
+          print('=' * 78)
+          PY
