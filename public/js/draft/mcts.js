@@ -192,6 +192,24 @@
     return pool[0];
   }
 
+  /* The rollout's cheap cousin of sampleOpponentPick: sample the position from
+   * the manager's model, then take his best available there. */
+  function fastOpponentPick(board, team, ctx, rand) {
+    if (!board.length) return null;
+    let posP = null;
+    try { posP = S ? S.positionProbabilities(team, board, ctx) : null; } catch (e) { posP = null; }
+    if (!posP) return board[0];
+    const keys = Object.keys(posP);
+    if (!keys.length) return board[0];
+    let r = rand(), acc = 0, chosen = keys[keys.length - 1];
+    for (let i = 0; i < keys.length; i++) {
+      acc += posP[keys[i]];
+      if (r <= acc) { chosen = keys[i]; break; }
+    }
+    for (let i = 0; i < board.length; i++) if (board[i].position === chosen) return board[i];
+    return board[0];
+  }
+
   // --------------------------------------------------------------- the search
   /**
    * ctx: {
@@ -304,7 +322,15 @@
           board = removeFrom(board, pick);
           myTaken++;
         } else {
-          const pick = sampleOpponentPick(board, team, rolloutCtx(board, team), rand);
+          // FAST policy in the rollout, per the spec's "fast policy sampling".
+          //
+          // The tree's chance nodes use the full model (position softmax AND
+          // within-position softmax). A rollout runs orders of magnitude more
+          // often and only has to be unbiased in aggregate, so it samples the
+          // position properly and then takes the best available there. The
+          // within-position softmax re-sorts a position pool on every call and
+          // was most of the search's cost for a second-order effect.
+          const pick = fastOpponentPick(board, team, rolloutCtx(board, team), rand);
           if (pick) board = removeFrom(board, pick);
         }
         step++;
@@ -524,6 +550,7 @@
   }
 
   const api = { CFG, rng, unmetNeeds, candidates, legalActions, sampleOpponentPick,
+                fastOpponentPick,
                 createSearch, explain };
   global.DraftMCTS = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
