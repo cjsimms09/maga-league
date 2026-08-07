@@ -2,7 +2,7 @@
 
 _Read this first. Updated after every completed item._
 
-## ⛔ BACKTEST BUG ALARM — LEAK FOUND & FIXED, re-running (downstream still HALTED)
+## ⛔ BACKTEST — board leak FIXED (join now 100%); round-1 alarm now traced to the GRADING METRIC (see DECISIONS D1). Downstream still FROZEN.
 
 The backtest report LANDED (`63f1e44`), and its own pre-registered round-1
 alarm FIRED. Per the pre-registration and the standing rule, that halts every
@@ -44,15 +44,16 @@ composite agrees with ADP far more often than it disagrees.)
 **4. Headline:** B0(ADP) 220.76 · B1(proj) 353.44 · B2(VORP) 176.64 ·
 B3(composite) 181.44. B3-B0 = -415.44/draft +/- 226.79 (n=30). BELOW THE BAR.
 
-**LEAK CONFIRMED (diagnostics, `697bd0d`):** only 66-77% of each draft's
-non-keeper picks were on the replay board. The board was FFC-priced-only and
-dropped anyone without a projection, so ~28% of real picks (K, DST, deep
-fliers) fell off it. A board that never sees a third of the picks cannot
-deplete — so players 'survive' predictions that said they were gone, which is
-the calibration break exactly. **FIXED:** the board now includes every
-actually-drafted player, with a fallback ADP behind FFC's last player (mirrors
-the production pipeline). Re-run in flight; downstream stays FROZEN until the
-re-run's round-1 row is back under threshold and the join is ~100%.
+**Board leak FIXED** (join now 100%, board ~800 players). But the round-1
+alarm STILL fires, and the round-1 detail traced it to a deeper cause: **B3
+drafts QBs in round 1** (Josh Allen, even Carson Wentz), and grading on RAW
+per-pick points rewards QB raw totals (elite QBs legitimately score 450–560 in
+this scoring). B0/ADP sends QBs late; B3's composite over-drafts them; raw
+grading crowns the QB in round 1 while the roster craters (−571/draft overall).
+This is a metric-vs-spec conflict → **DECISIONS-NEEDED D1** (raw points vs
+value-over-replacement). My rec: value-over-replacement (the tournament's
+yardstick). Implementing it as a SECOND reported cut; NO install off either
+until you rule. The six >450 'smells' are all real QBs, not a data bug.
 
 **Correctly gated, and worth noting:** 2025 recovery was REFUSED — the pbp
 rebuild disagreed with the library on 2024 by 11 pts (tolerance 0.5). The
