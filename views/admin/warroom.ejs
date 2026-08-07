@@ -87,6 +87,20 @@
     <div class="body">
       <div id="confidence-note"></div>
       <div id="recs"></div>
+      <%# Best available at a position you choose. The main list answers "who
+          should I take"; this answers "I want a WR \u2014 which one, and what
+          does waiting cost me". %>
+      <div id="pos-recs-wrap" style="margin-top:.9rem; border-top:1px solid var(--line,#2a2a2a); padding-top:.7rem">
+        <label class="field" style="margin-bottom:.25rem">Best available by position</label>
+        <select id="pos-recs" style="width:auto">
+          <option value="">— pick a position —</option>
+          <option value="QB">QB</option><option value="RB">RB</option>
+          <option value="WR">WR</option><option value="TE">TE</option>
+          <option value="K">K</option><option value="DEF">DEF</option>
+          <option value="FLEX">FLEX (RB/WR/TE)</option>
+        </select>
+        <div id="pos-recs-out" style="margin-top:.5rem"></div>
+      </div>
       <p id="tiebreak" class="muted" style="display:none; margin:.6rem 0 0"></p>
     </div>
   </div>
@@ -131,6 +145,9 @@
         <p class="preset-why" id="preset-why"></p>
         <div id="auto-note" hidden></div>
         <% const sliders = [
+             ['value', 'Raw value (VONA)',
+              'How much the board\u2019s own value gap drives the pick. This is the biggest term in the score.',
+              'This one used to be fixed, which is why the other six felt dead \u2014 they were competing with an anchor. DROP IT to let need, tier and risk actually decide. Raise it to take the best player available and ignore roster shape.'],
              ['tier', 'Tier cliff urgency',
               'How hard to chase the last good player at a position before the drop-off.',
               'Raise it when a tier is about to empty and you would rather have the last one than the best one.'],

@@ -103,7 +103,7 @@
     AUTO_TIGHT_PICKS: 4,        // picks left below which a gap is an emergency
   };
 
-  const DEFAULT_WEIGHTS = { tier: 1.0, need: 1.0, risk: 1.0, ceiling: 0.5,
+  const DEFAULT_WEIGHTS = { value: 1.0, tier: 1.0, need: 1.0, risk: 1.0, ceiling: 0.5,
     keeper: 1.0, bye: 1.0, stack: 1.0 };
 
   /* Named strategies, as weight sets.
@@ -122,28 +122,28 @@
       key: 'balanced', label: 'Balanced',
       why: 'The defaults. Value and lineup need traded off evenly — right until '
         + 'you have a reason it is not.',
-      weights: { tier: 1.0, need: 1.0, risk: 1.0, ceiling: 0.5, keeper: 1.0, bye: 1.0, stack: 1.0 },
+      weights: { value: 1.0, tier: 1.0, need: 1.0, risk: 1.0, ceiling: 0.5, keeper: 1.0, bye: 1.0, stack: 1.0 },
     },
     {
       key: 'value', label: 'Best available',
       why: 'Take the best player and sort the lineup out later. Need barely '
         + 'registers; tier cliffs and safety do the deciding. Strongest early, '
         + 'dangerous after round 8 when the holes stop filling themselves.',
-      weights: { tier: 1.4, need: 0.35, risk: 1.1, ceiling: 0.5, keeper: 1.0, bye: 0.7, stack: 0.7 },
+      weights: { value: 1.3, tier: 1.4, need: 0.35, risk: 1.1, ceiling: 0.5, keeper: 1.0, bye: 0.7, stack: 0.7 },
     },
     {
       key: 'upside', label: 'Swing for it',
       why: 'Ceiling over floor, cliffs over comfort. In a 10-team league the '
         + 'median team makes the playoffs, so the payoff is in the tail — but '
         + 'this WILL hand you a bust or two and you should expect it.',
-      weights: { tier: 1.2, need: 0.8, risk: 0.45, ceiling: 1.6, keeper: 1.3, bye: 0.8, stack: 1.3 },
+      weights: { value: 0.8, tier: 1.2, need: 0.8, risk: 0.45, ceiling: 1.6, keeper: 1.3, bye: 0.8, stack: 1.3 },
     },
     {
       key: 'safe', label: 'Win now, no holes',
       why: 'Fill the lineup, avoid the bye-week landmines, take the boring '
         + 'healthy one. Costs you upside and it is meant to. Sensible when your '
         + 'three keepers already carry the team.',
-      weights: { tier: 0.9, need: 1.6, risk: 1.7, ceiling: 0.2, keeper: 0.5, bye: 1.6, stack: 0.8 },
+      weights: { value: 0.6, tier: 0.9, need: 1.6, risk: 1.7, ceiling: 0.2, keeper: 0.5, bye: 1.6, stack: 0.8 },
     },
   ];
 
@@ -363,7 +363,22 @@
     const bye = C.byeCollisionPenalty(player, ctx);
     const stack = C.correlationAdjustment(player, ctx);
 
-    const score = v
+    // VALUE IS ON A SLIDER NOW.
+    //
+    // `v` used to enter unweighted, which made it a fixed anchor no control
+    // could touch. Measured on the real board at the six picks I actually own,
+    // the gap between the top two players was 2.4 to 10.1 points of score,
+    // while a slider swing moves its term by a few — so only extreme settings
+    // ever flipped a recommendation, and three of the seven sliders (keeper,
+    // bye, stack) could not change the top five at ANY setting.
+    //
+    // A control that cannot move the thing it points at is worse than no
+    // control: it teaches you to stop trusting the panel. Putting value on a
+    // slider makes value-versus-need an actual trade-off, and turning it down
+    // is what gives the other six room to matter.
+    //
+    // Default stays 1.0, so an untouched panel scores exactly as before.
+    const score = w.value * v
       + w.tier * tier
       + w.need * need.value
       + w.risk * risk.value

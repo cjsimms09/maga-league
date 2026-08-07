@@ -411,6 +411,9 @@
     checkKeeperLock();
     renderHeader();
     renderRecommendations();
+    // Every pick changes who is left, so the position panel is stale the
+    // instant it is not redrawn with everything else.
+    renderPositionRecs();
     renderLists();
     renderQueue();
     renderThreats();
@@ -1117,6 +1120,53 @@
       + ' <span class="muted">' + escapeHtml(String(i.detail)) + '</span></span>'
       + (!i.ok && i.fix ? '<span class="check-fix">' + escapeHtml(i.fix) + '</span>' : '')
       + '</div>').join('');
+  }
+
+  /**
+   * Best available at ONE position, with what waiting costs.
+   *
+   * The main list answers "who should I take". This answers a different and
+   * equally common question — "I want a receiver, which one, and can he wait?"
+   * — which the ranked list cannot, because the receiver you want may be
+   * eleventh overall and never appear on it.
+   *
+   * The survival column is the point. A name is not guidance; a name plus
+   * "62% he is gone by your next pick" is a decision.
+   */
+  function renderPositionRecs() {
+    const host = $('#pos-recs-out');
+    if (!host) return;
+    const pos = state.posRecs || '';
+    if (!pos) { host.innerHTML = ''; return; }
+    const FLEXY = { FLEX: ['RB', 'WR', 'TE'] };
+    const wanted = FLEXY[pos] || [pos];
+    const ctx = context();
+    const scored = E.recommend(ctx)
+      .filter(s => wanted.indexOf(s.player.position) >= 0)
+      .slice(0, 5);
+    if (!scored.length) {
+      host.innerHTML = '<p class="muted" style="margin:0">Nobody left at ' + escapeHtml(pos) + '.</p>';
+      return;
+    }
+    const next = ctx.nextPick;
+    host.innerHTML = '<ol style="margin:0; padding-left:1.1rem">' + scored.map(s => {
+      const p = s.player;
+      const sv = s.survival_to_next;
+      // Gone-by-next is the more useful direction: it is the risk, not the
+      // reassurance, and people act on risk.
+      const gone = (sv == null || !next) ? null : Math.round((1 - sv) * 100);
+      const why = (s.reasons && s.reasons.length) ? s.reasons[0] : '';
+      return '<li style="margin-bottom:.35rem"><b>' + escapeHtml(p.name) + '</b> '
+        + '<span class="muted">' + escapeHtml(p.position) + (p.team ? ' ' + escapeHtml(p.team) : '')
+        + ' · ADP ' + (p.adjusted_adp == null ? '—' : Math.round(p.adjusted_adp))
+        + ' · score ' + s.score.toFixed(1) + '</span>'
+        + (gone == null ? ''
+            : '<br><span style="font-size:.78rem">' + gone + '% gone by pick ' + next
+              + (gone >= 60 ? ' — <b>take him now or lose him</b>' : ' — he can probably wait')
+              + '</span>')
+        + (why ? '<br><span class="muted" style="font-size:.75rem">' + escapeHtml(why) + '</span>' : '')
+        + '</li>';
+    }).join('') + '</ol>';
   }
 
   function renderRecommendations() {
@@ -2065,6 +2115,7 @@
         $('#w-' + sl.dataset.weight).textContent = parseFloat(sl.value).toFixed(1);
         saveWeights();
         renderRecommendations();
+        renderPositionRecs();
         reportWeightEffect(before);
         renderPresets();
       });
@@ -2087,6 +2138,13 @@
     });
 
     $('#pos-filter').addEventListener('change', e => { state.filterPos = e.target.value; renderBoard(); });
+    const posRecs = $('#pos-recs');
+    if (posRecs) {
+      posRecs.addEventListener('change', e => {
+        state.posRecs = e.target.value || '';
+        renderPositionRecs();
+      });
+    }
     $('#search').addEventListener('input', e => { state.search = e.target.value.toLowerCase(); renderBoard(); });
     // The manual-pick form is re-rendered on every keystroke, so it is wired by
     // delegation rather than by handle.

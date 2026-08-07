@@ -1132,5 +1132,20 @@ check('weight sliders change the ranking', heavyCeiling[0].score !== scored[0].s
     JSON.stringify([E.CFG.CEILING_SPREAD_SHARE, E.CFG.CEILING_MAX_BONUS]));
 }
 
+// --- value must be a control, not an anchor --------------------------------
+// SPEC: measured on the real 2026-08-07 board at the six picks I own, the top
+// two players were separated by 2.4-10.1 points of score while a slider swing
+// moves its own term by a few. `v` entered the sum unweighted, so it was an
+// anchor no control could touch — and three of seven sliders could not change
+// the top five at ANY setting. A control that cannot move what it points at
+// teaches you to stop trusting the panel.
+{
+  check('value is a weight, and defaults to 1.0 so an untouched panel is unchanged',
+    E.DEFAULT_WEIGHTS.value === 1.0);
+  check('every preset carries a value weight, so selecting one cannot silently drop it',
+    (E.WEIGHT_PRESETS || []).every(p => p.weights && p.weights.value != null),
+    JSON.stringify((E.WEIGHT_PRESETS || []).map(p => p.key + ':' + (p.weights || {}).value)));
+}
+
 console.log(`\n${pass}/${pass + fail} engine checks passed`);
 process.exit(fail ? 1 : 0);
