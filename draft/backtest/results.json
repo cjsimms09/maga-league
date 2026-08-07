@@ -1,7 +1,9 @@
 {
  "meta": {
-  "git_head": "ab005bd8a27b50b2ae93d3e629b9e7ed806a4dcc",
-  "uncommitted_when_run": [],
+  "git_head": "69d02a68760099ac1c84f84a4bd5ee544a0b5702",
+  "uncommitted_when_run": [
+   "?? draft/backtest/DIAGNOSTICS.txt"
+  ],
   "seasons": [
    2023,
    2024,
@@ -12,17 +14,17 @@
    {
     "season": 2023,
     "method": "walk_forward",
-    "spearman": 0.5966
+    "spearman": 0.5964
    },
    {
     "season": 2024,
     "method": "walk_forward",
-    "spearman": 0.5332
+    "spearman": 0.5325
    },
    {
     "season": 2025,
     "method": "walk_forward",
-    "spearman": 0.5437
+    "spearman": 0.544
    }
   ],
   "caveats": [

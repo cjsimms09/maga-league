@@ -1,0 +1,7 @@
+  2023: 150 picks, 150 non-keeper; 116 of those match a board id (77%)
+    board size 160; replay made 150 decisions
+  2024: 150 picks, 127 non-keeper; 91 of those match a board id (72%)
+    board size 141; replay made 127 decisions
+  2025: 150 picks, 130 non-keeper; 86 of those match a board id (66%)
+    board size 126; replay made 130 decisions
+  players with actual points > 450 (single-season ceiling smell): 6
