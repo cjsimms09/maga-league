@@ -258,6 +258,32 @@ rk	player	pos	score	vona	tier_urg	need	risk	ceiling	keeper	bye	stack	surv
 15	RB Player 29	RB	18.488	-4.430	2.021	21.600	-12.000	22.593	0.000	0.000	0.000	0.6272
 ```
 
+**RAILS COLUMN — omitted from the table above; that omission was a defect in this
+report, not in the system.** Re-run of the same board, dumping `s.rails`:
+```
+rk  player          pos  RAILS FIRED
+ 1  QB Player 8    QB   ["ceiling is 1.5x this player's VORP — possible bug"]
+ 2  QB Player 7    QB   ["ceiling is 1.6x this player's VORP — possible bug"]
+ 3  RB Player 28   RB   (none)
+ 4  QB Player 6    QB   ["ceiling is 1.5x this player's VORP — possible bug"]
+ 5  TE Player 12   TE   ["~41 picks ahead of ADP — verify before taking","ceiling is 1.1x this player's VORP — possible bug"]
+ 6  DEF Player 1   DEF  ["~127 picks ahead of ADP — verify before taking","DEF this early is almost never right"]
+ 7  WR Player 29   WR   ["ceiling is 1.0x this player's VORP — possible bug"]
+ 8  WR Player 28   WR   (none)
+ 9  K Player 1     K    ["~140 picks ahead of ADP — verify before taking","K this early is almost never right"]
+10  TE Player 9    TE   ["~49 picks ahead of ADP — verify before taking","ceiling is 1.6x this player's VORP — possible bug"]
+
+roundsLeft = 11   RAIL_LATE_ROUNDS = 2
+```
+The K/DST rail fired on both DEF at #6 and K at #9, with the ADP rail alongside.
+
+A SECOND observation from the same output, not resolved here: the ceiling rail
+fires on 6 of the top 10, reporting the ceiling term at 1.0-1.6x the player's own
+VORP. That rail exists to catch a component larger than the value it modifies.
+Whether this is fixture projections inflating it or the ceiling term genuinely
+being disproportionate is not determined by this evidence.
+
+
 ### 14. Default weights vs every slider at 2x
 ```
 === ITEM 14 — top 10 at default weights vs every slider at 2x ===
@@ -335,7 +361,33 @@ keeper	0
 bye	0
 stack	8
 ```
-Caveat on the two zeros, stated so the reviewer can weigh it: the 20 boards are
+**RESOLVED AFTER REVIEW — both zeros were the construction, not the terms.**
+
+```
+KOV_ROUND_RAMP_START = 6      rounds 1-6 give ramp exactly 0
+item 17's boards sat at currentPick 30-49, i.e. rounds 3-5
+=> KOV could not contribute on ANY of the 20 boards. Zeroing a term that is
+   already zero proves nothing.
+
+New tests on boards that CAN exercise them (engine.test.js, 170 checks):
+  round 12, ramp fully open                              KOV ramp = 1
+  raw KOV for a young player                             non-zero
+  marginal KOV when he beats the incumbent bar           non-zero
+  zeroing keeper on that board                           TOP 5 CHANGES  <- participates
+  round 4, same player                                   exactly 0      <- the ramp
+  4th candidate behind three stronger ones               exactly 0      <- the scarcity fix
+  roster stacked on one bye week                         bye penalty non-zero
+  zeroing bye on that board                              TOP 5 CHANGES  <- participates
+```
+
+A diagnostic from the first attempt is worth recording, because it nearly
+produced a second false verdict: with a STRONG roster, marginal KOV returned
+`value: 0, raw_value: 1.05, bar: 5.49, slots_free: 0, displaced: RBr3`. That
+zero is the scarcity fix (P1.3) working — three slots already held by better
+candidates makes a fourth worth nothing. Read without the diagnostic it looks
+identical to an inert term.
+
+Original caveat, retained: the 20 boards are
 constructed from the fixture artifact with 7-player rosters taken as consecutive
 slices, and the contexts carry no `original_rounds` and no keeper config. Whether
 `keeper` and `bye` are inert in general, or merely unexercised by this construction,

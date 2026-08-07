@@ -887,6 +887,115 @@ check('weight sliders change the ranking', heavyCeiling[0].score !== scored[0].s
 
 
 // ---------------------------------------------------------------------------
+// PARTICIPATION: keeper (KOV) and bye, on boards that can actually exercise them.
+//
+// The evidence bundle's item 17 reported keeper 0/20 and bye 0/20 — but every
+// board there sat at pick 30-49, i.e. rounds 3-5, and KOV_ROUND_RAMP_START is
+// 6, so the ramp is exactly 0 and KOV CANNOT contribute. The zero was the
+// construction, not the term. Zeroing a term that is already zero proves
+// nothing, which is why "0 of 20" was an open question and not a verdict.
+//
+// These are the boards that can tell the difference.
+// ---------------------------------------------------------------------------
+(function participationSuite() {
+  const L = { teams: 10,
+    starters: { QB: 1, RB: 2, WR: 2, TE: 1, FLEX: 1, K: 1, DEF: 1 },
+    roster_slots: { QB: 1, RB: 2, WR: 2, TE: 1, FLEX: 1, K: 1, DEF: 1, BN: 6 },
+    keeper_rules: { count: 3, cost_model: 'original_round', undrafted_round: 10 } };
+
+  // Young ascending players are what KOV exists to price; old ones are the
+  // control. age and years_exp drive keepProbability and next-year VORP.
+  const mk = (id, pos, adp, proj, age) => ({
+    player_id: id, name: pos + id, position: pos, team: 'XX', bye: 7,
+    adjusted_adp: adp, raw_adp: adp, tier: 1 + Math.floor(adp / 24), tier_drop: 4,
+    proj_mean: proj, proj_sd: proj * 0.2, proj_floor: proj * 0.8, proj_ceiling: proj * 1.3,
+    vorp: proj / 10, overall_rank: adp, age: age, years_exp: age - 22,
+    depth_chart_order: 1,
+  });
+  const board = [];
+  for (let i = 0; i < 60; i++) {
+    // Alternate young and old at the same projection, so KOV is the only thing
+    // that can separate them.
+    board.push(mk('y' + i, ['RB', 'WR', 'TE', 'QB'][i % 4], 100 + i * 2, 160 - i, 23));
+    board.push(mk('o' + i, ['RB', 'WR', 'TE', 'QB'][i % 4], 101 + i * 2, 160 - i, 31));
+  }
+  // The incumbents must be POOR keeper candidates, or marginal KOV correctly
+  // returns 0 for everyone on the board: with three slots already held by
+  // better candidates, the 4th-best is worth nothing and that is the scarcity
+  // fix (P1.3) working. An earlier version of this test used a strong roster
+  // and read that legitimate zero as the term being inert — the diagnostic
+  // (raw_value 1.05, bar 5.49, slots_free 0, displaced RBr3) is what showed it.
+  //
+  // Old players with modest projections are the incumbents here, so a young
+  // ascending board player can actually clear the bar.
+  const roster = [mk('r1', 'QB', 1, 210, 35), mk('r2', 'RB', 2, 120, 33),
+                  mk('r3', 'RB', 3, 115, 34), mk('r4', 'WR', 4, 110, 34),
+                  mk('r5', 'WR', 5, 108, 35), mk('r6', 'TE', 6, 100, 34),
+                  mk('r7', 'K', 7, 130, 33), mk('r8', 'DEF', 8, 125, 33)];
+
+  const lateCtx = w => ({
+    board: board, currentPick: 115, nextPick: 125, totalPicks: 150,
+    myPicksLeft: 4, roster: roster, league: L, weights: w || E.DEFAULT_WEIGHTS,
+    runMultipliers: {}, intervening: [], roundsLeft: 4,
+    original_rounds: board.reduce((m, p) => { m[p.player_id] = 12; return m; }, {}),
+  });
+
+  const kov = E.compositeTerms.keeperOptionValue(board[0], lateCtx());
+  check('at round 12 the KOV ramp is fully open, not zero',
+    kov.ramp === 1, JSON.stringify({ ramp: kov.ramp, round: kov.round }));
+  check('and raw KOV is non-zero for a young player there',
+    Math.abs(kov.raw_value) > 0, JSON.stringify(kov));
+  check('MARGINAL KOV is non-zero when a board player beats the incumbent '
+    + 'keeper bar', Math.abs(kov.value) > 0, JSON.stringify(kov));
+
+  // The scarcity fix, asserted directly rather than inferred: with three
+  // stronger candidates already rostered, a 4th is worth zero.
+  const strong = [mk('s1', 'RB', 1, 300, 23), mk('s2', 'RB', 2, 295, 23),
+                  mk('s3', 'WR', 3, 290, 23), mk('s4', 'WR', 4, 285, 24)];
+  const crowded = E.compositeTerms.keeperOptionValue(board[0],
+    Object.assign({}, lateCtx(), { roster: strong }));
+  check('a 4th keeper candidate behind three stronger ones is worth zero — the '
+    + 'scarcity fix, not an inert term',
+    crowded.value === 0 && crowded.raw_value > 0, JSON.stringify(crowded));
+
+  const early = E.compositeTerms.keeperOptionValue(board[0],
+    Object.assign({}, lateCtx(), { currentPick: 37 }));
+  check('at round 4 KOV is exactly zero — the ramp, working as specified, which '
+    + 'is why the 0/20 in the evidence bundle proved nothing',
+    early.value === 0 && early.ramp === 0, JSON.stringify(early));
+
+  // THE DEMANDED TEST: zero the term on a board that can exercise it.
+  const withKov = E.recommend(lateCtx()).slice(0, 5).map(x => x.player.player_id).join();
+  const noKov = E.recommend(lateCtx(Object.assign({}, E.DEFAULT_WEIGHTS, { keeper: 0 })))
+    .slice(0, 5).map(x => x.player.player_id).join();
+  check('ZEROING KEEPER CHANGES THE TOP 5 ON A ROUND-12 BOARD — the term '
+    + 'participates', withKov !== noKov, 'with: ' + withKov + '  without: ' + noKov);
+
+  // Bye: it can only bite when the roster actually collides on a week.
+  const byeRoster = [mk('b1', 'RB', 1, 300, 27), mk('b2', 'RB', 2, 290, 27),
+                     mk('b3', 'WR', 3, 280, 27), mk('b4', 'WR', 4, 270, 27),
+                     mk('b5', 'TE', 5, 260, 27), mk('b6', 'QB', 6, 250, 27)];
+  byeRoster.forEach(p => { p.bye = 9; });          // everyone off in week 9
+  const byeBoard = board.map(p => Object.assign({}, p, { bye: 9 }));
+  const byeCtx = w => ({
+    board: byeBoard, currentPick: 60, nextPick: 70, totalPicks: 150, myPicksLeft: 6,
+    roster: byeRoster, league: L, weights: w || E.DEFAULT_WEIGHTS,
+    runMultipliers: {}, intervening: [], roundsLeft: 6,
+  });
+  const bTerm = E.compositeTerms.byeCollisionPenalty(byeBoard[0], byeCtx());
+  check('a roster stacked on one bye week produces a non-zero bye penalty',
+    Math.abs(bTerm.value || bTerm) > 0, JSON.stringify(bTerm));
+
+  const withBye = E.recommend(byeCtx()).slice(0, 5).map(x => x.player.player_id).join();
+  const noBye = E.recommend(byeCtx(Object.assign({}, E.DEFAULT_WEIGHTS, { bye: 0 })))
+    .slice(0, 5).map(x => x.player.player_id).join();
+  check('zeroing bye changes the top 5 when the roster actually collides — '
+    + 'the term participates', withBye !== noBye,
+    'with: ' + withBye + '  without: ' + noBye);
+})();
+
+
+// ---------------------------------------------------------------------------
 // KEEP THIS LAST. process.exit() below ends the run, so any suite appended
 // after it never executes and its checks vanish from the count without a
 // single failure to notice. Add new tests ABOVE this line.
