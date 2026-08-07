@@ -99,7 +99,7 @@ def main() -> int:
         # Sleeper and returns rows keyed by SLEEPER id. Reusing it is the same
         # rule the replay follows for engine.js, and I broke it here first.
         def _adp(fmt, teams, year):
-            table = ADP.build_adp_table(sleeper_players, fmt=fmt, teams=teams,
+            table = ADP.build_adp_table(players_raw, fmt=fmt, teams=teams,
                                         year=year, strict_top_n=10 ** 9)
             rows = table["adp"]
             return {"players": [{"sleeper_id": pid, "adp": r["adp"]}
