@@ -98,5 +98,39 @@ check('calibration buckets span 0-100% and report their own n',
 check('an empty bucket reports null rather than a fabricated 0%',
   cal.every(b => b.n > 0 ? b.actual_rate != null : b.actual_rate === null));
 
+// --- the report's pre-registration must fire on its own alarm --------------
+const REP = require('../backtest/report.js');
+{
+  const fake = {
+    graded_picks: 100,
+    headline: { b0_mean: 100, b1_mean: 101, b2_mean: 150, b3_mean: 120,
+                mean_gain_per_pick: 2, ci95_per_pick: 0.5,
+                mean_gain_per_draft: 30, ci95_per_draft: 4, drafts_counted: 3 },
+    disagreement: { n: 40, share_of_picks: 0.4, win_rate: 0.6, mean_gain: 5, ci95: 2 },
+    per_round: [{ round: 1, n: 30, mean_gain: 25, ci95: 3 },
+                { round: 5, n: 30, mean_gain: 4, ci95: 2 }],
+    vs_human: { n: 50, win_rate: 0.5, mean_gain: 1, ci95: 3 },
+    rows: [],
+  };
+  const txt = REP.render(fake, [], { seasons: [2024], git_head: 'abc', caveats: [], methods: [] });
+  check('a large round-1 edge is reported as a BUG ALARM, not a triumph',
+    /BUG ALARM/.test(txt) && /more likely a leak than an insight/.test(txt));
+  check('and B3 failing to beat plain VORP is called out explicitly',
+    /does not beat plain VORP/.test(txt));
+
+  const weak = JSON.parse(JSON.stringify(fake));
+  weak.headline.mean_gain_per_draft = 3; weak.headline.ci95_per_draft = 1;
+  weak.per_round = [{ round: 1, n: 30, mean_gain: 0.4, ci95: 3 }];
+  const t2 = REP.render(weak, [], { seasons: [2024], caveats: [], methods: [] });
+  check('under the bar it says so plainly rather than hedging',
+    /BELOW THE BAR/.test(t2) && /not paying for itself/.test(t2));
+
+  const noisy = JSON.parse(JSON.stringify(weak));
+  noisy.headline.mean_gain_per_draft = 2; noisy.headline.ci95_per_draft = 9;
+  const t3 = REP.render(noisy, [], { seasons: [2024], caveats: [], methods: [] });
+  check('a CI crossing zero is INCONCLUSIVE, not a small win',
+    /INCONCLUSIVE/.test(t3) && /statement about N/.test(t3));
+}
+
 console.log('\n' + pass + '/' + (pass + fail) + ' backtest checks passed');
 process.exit(fail ? 1 : 0);
