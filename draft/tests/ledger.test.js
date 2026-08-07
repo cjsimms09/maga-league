@@ -138,5 +138,49 @@ console.log('\n--- the buy-in badge agrees with the balance ---');
   ok('no buy-in on file is not "paid"', !L.seasonSummary(entries, YEAR).buy_in_paid);
 }
 
+console.log('\n--- carried-over balances get their own column ---');
+{
+  // David: last season's winnings walked forward, plus this season's buy-in.
+  const entries = [
+    e('buy_in', -400, { settled: true }),
+    e('carryover', 375, { desc: '2025 winnings credit carried on the books' }),
+  ];
+  const s = L.seasonSummary(entries, YEAR);
+  eq('it is not a win this season', s.won, 0);
+  eq('and it is not money he paid in', s.paid_in, 400);
+  eq('it shows as carried over, signed in his favour', s.carried_over, 375);
+  eq('and it is still open', s.carried_open, 375);
+  eq('the balance still counts it', L.balances(entries, [{ id: 9 }])[9].balance, 375);
+}
+{
+  // The other direction: somebody who ended last season owing.
+  const entries = [e('carryover', -120, { desc: '2025 unpaid balance' })];
+  const s = L.seasonSummary(entries, YEAR);
+  eq('a debit carries over negative', s.carried_over, -120);
+  eq('and is not counted as money paid in', s.paid_in, 0);
+}
+{
+  // Settled carryover: it happened, it is square, it still belongs in the column.
+  const entries = [e('carryover', 375, { settled: true, desc: '2025 winnings' })];
+  const s = L.seasonSummary(entries, YEAR);
+  eq('a settled carryover still shows in the column', s.carried_over, 375);
+  eq('but nothing is outstanding', s.carried_open, 0);
+  eq('and it never counts as money paid in', s.paid_in, 0);
+  eq('nor does it move the live balance', L.balances(entries, [{ id: 9 }])[9].balance, 0);
+}
+{
+  const entries = [e('weekly', 100), e('buy_in', -400, { settled: true })];
+  const s = L.seasonSummary(entries, YEAR);
+  eq('somebody with no carryover reads as zero, not undefined', s.carried_over, 0);
+  ok('and the entry list is empty rather than missing', Array.isArray(s.carried_entries) && !s.carried_entries.length);
+}
+{
+  // Carryover must stay out of the all-time winnings grid.
+  const grid = L.ledgerWinningsByOwnerYear([
+    e('carryover', 375), e('weekly', 100), e('award', 250),
+  ]);
+  eq('the winnings grid counts prizes only', grid[9][YEAR], 350);
+}
+
 console.log(`\n${pass}/${pass + fail} ledger checks passed`);
 if (fail) process.exit(1);

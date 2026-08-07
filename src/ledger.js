@@ -14,6 +14,11 @@ const TYPE_LABELS = {
   award: 'Season Award',
   adjustment: 'Adjustment',
   payment: 'Payment',
+  // A balance walked forward from a previous season. It is its own type because
+  // it is the one entry that is neither earned this year nor paid this year —
+  // filed as an adjustment it made the chart say "the league owes David $375"
+  // next to a Won column of nothing, with no way to tell which year it came from.
+  carryover: 'Carried Over',
 };
 
 async function allEntries() {
@@ -102,6 +107,7 @@ function balances(ledger, owners) {
  */
 const isPrize = e => e.type === 'weekly' || e.type === 'award';
 const isPayment = e => e.type === 'payment';
+const isCarryover = e => e.type === 'carryover';
 
 /**
  * One owner's season, summarised for the standings chart.
@@ -117,9 +123,14 @@ function seasonSummary(entries, year) {
   const yr = entries.filter(e => Number(e.year) === Number(year));
   const sum = (list, f = e => Math.abs(e.amount)) => Math.round(list.reduce((s, e) => s + f(e), 0) * 100) / 100;
   const buy_in = yr.find(e => e.type === 'buy_in') || null;
+  // Carryover is signed, unlike the other columns: it can point either way and
+  // which way it points is the whole information. Positive = the league came
+  // into this season owing them.
+  const carried = yr.filter(isCarryover);
+  const carried_over = Math.round(carried.reduce((s, e) => s + e.amount, 0) * 100) / 100;
   const paid_in = sum(yr.filter(e =>
     (isPayment(e) && e.amount > 0) ||
-    (!isPayment(e) && e.amount < 0 && e.settled)));
+    (!isPayment(e) && !isCarryover(e) && e.amount < 0 && e.settled)));
   return {
     entries: yr,
     buy_in,
@@ -134,6 +145,11 @@ function seasonSummary(entries, year) {
     paid_out: sum(yr.filter(e =>
       (isPayment(e) && e.amount < 0) ||
       (isPrize(e) && e.settled))),
+    carried_over,
+    // Still outstanding from before — a carryover that nobody has squared yet.
+    carried_open: Math.round(carried.filter(e => !e.settled)
+      .reduce((s, e) => s + e.amount, 0) * 100) / 100,
+    carried_entries: carried,
   };
 }
 
@@ -162,5 +178,5 @@ function awardsForYear(ledger, year) {
 module.exports = {
   TYPE_LABELS, allEntries, addEntry, updateEntry, removeEntry, setSettled, settleAll,
   balances, ledgerWinningsByOwnerYear, weeklyForYear, awardsForYear,
-  isPrize, isPayment, seasonSummary,
+  isPrize, isPayment, isCarryover, seasonSummary,
 };

@@ -1,4 +1,4 @@
-const { store, getDoc, setDoc, ensureSeeded } = require('./data');
+const { store, getDoc, setDoc, ensureSeeded, now } = require('./data');
 const ledgerLib = require('./ledger');
 const seedData = require('./seed-data');
 
@@ -43,6 +43,30 @@ async function loadWorld() {
     for (const o of owners) if (o.must_change_password) { o.password_hash = fresh; n++; }
     if (n) await setDoc('owners', owners);
     config.starter_pw_v2 = true;
+    await setDoc('config', config);
+  }
+  // One-time: reclassify carried-forward balances.
+  //
+  // Prior-season balances were seeded as plain adjustments, which left the
+  // chart showing "the league owes David $375" beside a Won column of zero and
+  // no way to tell where the money came from. `carryover` is now its own type
+  // and gets its own column, so the old rows are moved across.
+  //
+  // Deliberately narrow: only entries the seeder itself wrote, matched on the
+  // exact phrasing it used. A commissioner's hand-typed adjustment is left
+  // alone — guessing at what somebody meant by "credit" is how you silently
+  // rewrite their books.
+  if (!config.carryover_v1) {
+    let n = 0;
+    for (const e of ledger) {
+      if (e.type === 'adjustment' && /winnings credit carried on the books/i.test(e.desc || '')) {
+        e.type = 'carryover';
+        e.audit = [...(e.audit || []), { at: now(), what: 'Reclassified as a carried-over balance' }];
+        n++;
+      }
+    }
+    if (n) await setDoc('ledger', ledger);
+    config.carryover_v1 = true;
     await setDoc('config', config);
   }
   // One-time: pin the 2026 draft-day announcement.

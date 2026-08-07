@@ -184,7 +184,8 @@ season until settled.</p>
     <table class="roll ledger standings-chart">
       <thead><tr>
         <th>Owner</th><th>Buy-in</th>
-        <th class="num">Paid in</th><th class="num" title="Prize money — weekly highs and season awards">Won</th><th class="num">Balance</th>
+        <th class="num co-col" title="Balance walked forward from a previous season">Carried in</th>
+        <th class="num">Paid in</th><th class="num" title="Prize money won this season — weekly highs and season awards">Won</th><th class="num">Balance</th>
       </tr></thead>
       <tbody>
         <%# Summarised by what each entry IS, not which way its sign points —
@@ -199,24 +200,73 @@ season until settled.</p>
             <td><% if (!buyIn) { %><span class="muted">—</span>
                 <% } else if (sum.buy_in_paid) { %><span class="badge paid">Paid</span>
                 <% } else { %><span class="badge owes">Owes</span><% } %></td>
+            <%# Signed, unlike the columns either side of it: which way a
+                carryover points is the whole information. %>
+            <td class="num co-col <%= sum.carried_over > 0 ? 'pos' : sum.carried_over < 0 ? 'neg' : '' %>">
+              <%= sum.carried_over ? (sum.carried_over > 0 ? '+' : '−') + money(Math.abs(sum.carried_over)) : '·' %></td>
             <td class="num"><%= paid ? money(paid) : '·' %></td>
             <td class="num pos"><%= won ? money(won) : '·' %></td>
             <td class="num run <%= c.balance > 0 ? 'pos' : c.balance < 0 ? 'neg' : '' %>">
               <%= c.balance === 0 ? '✓ even' : money(c.balance) %></td>
           </tr>
         <% } %>
+        <%# The label is split around the hideable column so the row still adds
+            up to the right width when "Carried in" drops off on a phone —
+            a colspan cannot itself be responsive. %>
         <tr class="total">
-          <td colspan="4">Still owed TO the league</td>
+          <td colspan="2">Still owed TO the league</td>
+          <td class="co-col"></td><td colspan="2"></td>
           <td class="num neg"><%= money(Math.abs(totalOwedToLeague)) %></td>
         </tr>
         <tr class="total">
-          <td colspan="4">Still owed BY the league</td>
+          <td colspan="2">Still owed BY the league</td>
+          <td class="co-col"></td><td colspan="2"></td>
           <td class="num pos"><%= money(totalLeagueOwes) %></td>
         </tr>
       </tbody>
     </table>
   </div>
 </div>
+
+<%# ── Balances walked forward from previous seasons ─────────────────────────
+    Its own section because it answers a question the rest of the page cannot:
+    "why does the league owe David $375 when he has won nothing this year?"
+    The answer is that it is last season's money, and until it appears somewhere
+    with a date on it the chart just looks wrong. %>
+<% const carriers = cards.filter(c => c.summary.carried_over !== 0); %>
+<% if (carriers.length) { %>
+<div class="card" id="carryover" style="margin-top:1.3rem">
+  <h2>↪️ Carried Over <span class="sub">brought into <%= season.year %> from previous seasons</span></h2>
+  <div class="body tight">
+    <% for (const c of carriers) { const s = c.summary; %>
+      <div class="co-row">
+        <div class="co-main">
+          <a class="owner-link" href="/bank?owner=<%= c.owner.id %>#top"><b><%= c.owner.name %><%= c.owner.id === owner.id ? ' (you)' : '' %></b></a>
+          <div class="sb-meta">
+            <%= s.carried_entries.map(e => e.desc + (e.settled ? ' · settled' : '')).join(' · ') %>
+          </div>
+        </div>
+        <div class="co-amt <%= s.carried_over > 0 ? 'pos' : 'neg' %>">
+          <span class="co-verb"><%= s.carried_over > 0 ? 'league owed them' : 'they owed the league' %></span>
+          <b><%= money(Math.abs(s.carried_over)) %></b>
+          <% if (s.carried_open === 0) { %><span class="co-done">✅ squared</span><% } %>
+        </div>
+      </div>
+    <% } %>
+    <% const netIn = carriers.reduce((n, c) => n + c.summary.carried_over, 0); %>
+    <div class="co-row total">
+      <div class="co-main"><b>Net carried into <%= season.year %></b></div>
+      <div class="co-amt <%= netIn > 0 ? 'pos' : netIn < 0 ? 'neg' : '' %>">
+        <b><%= (netIn > 0 ? '+' : netIn < 0 ? '−' : '') + money(Math.abs(netIn)) %></b>
+      </div>
+    </div>
+    <p class="muted" style="margin:.6rem 0 0; font-size:.78rem">
+      Carried-over money counts in everyone's balance but is <b>not</b> <%= season.year %>
+      winnings — it stays out of the Won column and out of the all-time grid for this year.
+    </p>
+  </div>
+</div>
+<% } %>
 
 <%# ── How to actually send someone money ────────────────────────────────────
     Half the reason a debt sits open for a month is that nobody can remember

@@ -99,15 +99,20 @@ router.post('/alerts/:id/delete', aw(async (req, res) => {
 router.post('/ledger', aw(async (req, res) => {
   const owner_id = parseInt(req.body.owner_id, 10);
   const raw = parseFloat(req.body.amount);
-  const kind = ['charge', 'credit', 'payment_received', 'payment_sent'].includes(req.body.kind) ? req.body.kind : 'credit';
+  const kind = ['charge', 'credit', 'payment_received', 'payment_sent', 'carry_credit', 'carry_debit']
+    .includes(req.body.kind) ? req.body.kind : 'credit';
   const desc = String(req.body.desc || '').trim() || 'Manual entry';
   const note = String(req.body.note || '').trim().slice(0, 120);
   const year = parseInt(req.body.year, 10) || H.currentSeason(req.world.seasons).year;
   if (Number.isFinite(raw) && raw !== 0 && owner_id) {
-    const amount = Math.abs(raw) * ((kind === 'charge' || kind === 'payment_sent') ? -1 : 1);
+    const negative = kind === 'charge' || kind === 'payment_sent' || kind === 'carry_debit';
+    const amount = Math.abs(raw) * (negative ? -1 : 1);
     await L.addEntry({
       owner_id, year,
-      type: kind.startsWith('payment') ? 'payment' : 'adjustment',
+      // Carryover is its own type, not an adjustment: it is the one entry that
+      // is neither earned nor paid this season, and the chart gives it a column.
+      type: kind.startsWith('payment') ? 'payment'
+          : kind.startsWith('carry') ? 'carryover' : 'adjustment',
       amount,
       desc: desc + (note ? ` — ${note}` : ''),
     });
