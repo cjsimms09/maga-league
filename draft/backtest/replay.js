@@ -176,24 +176,31 @@ function sd(xs) {
 /** 95% CI half-width. Small N is the whole story here, so this is not optional. */
 function ci95(xs) { return xs.length < 2 ? 0 : 1.96 * sd(xs) / Math.sqrt(xs.length); }
 
-function grade(replays, actualPoints, opts) {
+function grade(replays, pointsFn, opts) {
   opts = opts || {};
   const maxRound = opts.maxRound || CFG.MAX_ROUND_GRADED;
-  const pts = id => {
-    const v = actualPoints[String(id)];
+  // SEASON-AWARE. pointsFn(id, season) — a player drafted in two seasons must be
+  // graded with THAT season's points. The old flat map merged seasons and let a
+  // later season silently overwrite an earlier one, grading a 2023 pick with
+  // 2024 points: a quiet leak on top of the board leak.
+  const lookup = typeof pointsFn === 'function'
+    ? pointsFn
+    : (id) => pointsFn[String(id)];          // flat map (unit tests)
+  const pts = (id, season) => {
+    const v = lookup(String(id), season);
     return (v == null || !isFinite(v)) ? null : v;
   };
 
   const rows = [];
   replays.forEach(r => r.records.forEach(rec => {
     if ((rec.round || 99) > maxRound) return;
-    const b0 = pts(rec.choices.B0), b3 = pts(rec.choices.B3);
+    const b0 = pts(rec.choices.B0, rec.season), b3 = pts(rec.choices.B3, rec.season);
     if (b0 == null || b3 == null) return;             // ungradeable, not zero
     rows.push({
       season: rec.season, round: rec.round, pick_no: rec.pick_no,
       roster_id: rec.roster_id,
-      b0: b0, b1: pts(rec.choices.B1), b2: pts(rec.choices.B2), b3: b3,
-      actual: pts(rec.actual),
+      b0: b0, b1: pts(rec.choices.B1, rec.season), b2: pts(rec.choices.B2, rec.season), b3: b3,
+      actual: pts(rec.actual, rec.season),
       disagree: rec.choices.B3 !== rec.choices.B0,
       vs_human: rec.choices.B3 !== rec.actual,
       ids: rec.choices, actual_id: rec.actual,

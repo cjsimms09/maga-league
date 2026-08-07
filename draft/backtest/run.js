@@ -17,10 +17,63 @@ const bundles = input.bundles || [];
 const points = input.actual_points || {};
 
 const replays = bundles.map(b => R.replaySeason(b));
+// Season-aware raw points. NEVER merge seasons — a player drafted in two years
+// must be graded with each year's own points.
+const rawFn = (id, season) => {
+  const m = points[String(season)];
+  return m ? m[String(id)] : null;
+};
+
+// Value-over-replacement points (D1's recommended metric). Replacement is the
+// (starters x teams)-th best ACTUAL scorer at each position that season, so an
+// elite QB's huge raw total is discounted by the high replacement QB — which is
+// why ADP correctly sends QBs late and raw-points grading does not.
+const posOf = {};
+bundles.forEach(b => (b.players || []).forEach(p => { posOf[String(p.player_id)] = p.position; }));
+function replacementBySeason() {
+  const out = {};
+  bundles.forEach(b => {
+    const season = String(b.season);
+    const m = points[season] || {};
+    const starters = {};
+    (b.roster_positions || []).forEach(slot => {
+      if (['BN','IR','TAXI'].indexOf(slot) >= 0) return;
+      // FLEX contributes to RB/WR/TE replacement pools; approximate by adding to each.
+      if (slot === 'FLEX') { ['RB','WR','TE'].forEach(x => starters[x] = (starters[x]||0) + 1/3); }
+      else starters[slot] = (starters[slot] || 0) + 1;
+    });
+    const teams = b.teams || 10;
+    const byPos = {};
+    Object.keys(m).forEach(id => {
+      const pos = posOf[id]; if (!pos) return;
+      (byPos[pos] = byPos[pos] || []).push(m[id]);
+    });
+    const rep = {};
+    Object.keys(byPos).forEach(pos => {
+      const arr = byPos[pos].slice().sort((x, y) => y - x);
+      const n = Math.max(1, Math.round((starters[pos] || 0) * teams));
+      rep[pos] = arr[Math.min(arr.length - 1, n)] || 0;   // next man off the bench
+    });
+    out[season] = rep;
+  });
+  return out;
+}
+const REPL = replacementBySeason();
+const valueFn = (id, season) => {
+  const m = points[String(season)];
+  const raw = m ? m[String(id)] : null;
+  if (raw == null) return null;
+  const pos = posOf[String(id)];
+  const rep = (REPL[String(season)] || {})[pos] || 0;
+  return raw - rep;
+};
+
+// Flat map only for the diagnostics' name/smell dump.
 const allPoints = {};
 Object.keys(points).forEach(season => Object.assign(allPoints, points[season]));
 
-const graded = R.grade(replays, allPoints, { maxRound: R.CFG.MAX_ROUND_GRADED });
+const graded = R.grade(replays, rawFn, { maxRound: R.CFG.MAX_ROUND_GRADED });
+const gradedValue = R.grade(replays, valueFn, { maxRound: R.CFG.MAX_ROUND_GRADED });
 
 // ---- LEAK DIAGNOSTICS (round-1 bug alarm forces this) --------------------
 // The report fired its round-1 alarm. Before any number is believed, prove the
@@ -83,10 +136,43 @@ const meta = {
                                spearman: (b.sanity || {}).spearman_vs_adp })),
   caveats: input.caveats || [],
 };
-const text = REP.render(graded, cal, meta);
+let text = REP.render(graded, cal, meta);
+
+// ---- D1: value-over-replacement cut, reported ALONGSIDE the raw metric ------
+// The raw-points round-1 alarm is a QB artifact (elite QBs score 450+ raw but
+// little over replacement). This cut is the D1-recommended metric; if the
+// alarm clears here, that confirms it was a metric artifact, not the engine
+// over-drafting QBs.
+(function () {
+  const h = gradedValue.headline, r1 = (gradedValue.per_round || []).find(x => x.round === 1);
+  const V = [];
+  V.push('');
+  V.push('='.repeat(78));
+  V.push('D1 CUT — VALUE OVER POSITIONAL REPLACEMENT (points minus replacement)');
+  V.push('='.repeat(78));
+  V.push('  This discounts an elite QB\'s raw total by the high replacement QB —');
+  V.push('  the reason ADP sends QBs late. Reported alongside the raw metric; no');
+  V.push('  install happens off either until D1 is ruled.');
+  V.push('  B0 ' + h.b0_mean + '  B2(VORP) ' + h.b2_mean + '  B3 ' + h.b3_mean);
+  V.push('  B3-B0 per pick   ' + h.mean_gain_per_pick + ' +/- ' + h.ci95_per_pick);
+  V.push('  B3-B0 per draft  ' + h.mean_gain_per_draft + ' +/- ' + h.ci95_per_draft);
+  V.push('  round-1 gain     ' + (r1 ? r1.mean_gain + ' +/- ' + r1.ci95 : 'n/a'));
+  if (r1) {
+    V.push(Math.abs(r1.mean_gain) > 8
+      ? '  ROUND-1 ALARM STILL FIRES under value grading — the composite genuinely'
+        + ' over-drafts QBs in round 1; that is an ENGINE finding, not a metric one.'
+      : '  Round-1 alarm CLEARS under value grading — confirming the raw-points'
+        + ' alarm was a QB metric artifact, per D1.');
+  }
+  V.push('  per-round value gain (B3-B0):');
+  (gradedValue.per_round || []).forEach(x => V.push('    r' + x.round + '  ' + x.mean_gain + ' +/- ' + x.ci95));
+  text = text + '\n' + V.join('\n');
+  console.log(V.join('\n'));
+})();
 console.log(text);
 fs.writeFileSync(REPORT, '```\n' + text + '\n```\n');
 fs.writeFileSync(OUT, JSON.stringify({ meta, headline: graded.headline,
   disagreement: graded.disagreement, per_round: graded.per_round,
+  value_cut: { headline: gradedValue.headline, per_round: gradedValue.per_round, disagreement: gradedValue.disagreement },
   vs_human: graded.vs_human, calibration: cal, graded_picks: graded.graded_picks }, null, 1));
 console.log('\nwritten to', path.relative(process.cwd(), REPORT));
