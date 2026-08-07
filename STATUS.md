@@ -2,7 +2,7 @@
 
 _Read this first. Updated after every completed item._
 
-## ⛔ BACKTEST BUG ALARM — downstream HALTED
+## ⛔ BACKTEST BUG ALARM — LEAK FOUND & FIXED, re-running (downstream still HALTED)
 
 The backtest report LANDED (`63f1e44`), and its own pre-registered round-1
 alarm FIRED. Per the pre-registration and the standing rule, that halts every
@@ -44,10 +44,15 @@ composite agrees with ADP far more often than it disagrees.)
 **4. Headline:** B0(ADP) 220.76 · B1(proj) 353.44 · B2(VORP) 176.64 ·
 B3(composite) 181.44. B3-B0 = -415.44/draft +/- 226.79 (n=30). BELOW THE BAR.
 
-**Leading hypothesis:** the historical draft pick `player_id`s are not joining
-the replay board's `player_id`s, so the board never shrinks. That single bug
-produces all three symptoms (huge round-1 divergence, universal over-survival,
-absurd headline). Diagnostics added to the runner to prove/disprove it next run.
+**LEAK CONFIRMED (diagnostics, `697bd0d`):** only 66-77% of each draft's
+non-keeper picks were on the replay board. The board was FFC-priced-only and
+dropped anyone without a projection, so ~28% of real picks (K, DST, deep
+fliers) fell off it. A board that never sees a third of the picks cannot
+deplete — so players 'survive' predictions that said they were gone, which is
+the calibration break exactly. **FIXED:** the board now includes every
+actually-drafted player, with a fallback ADP behind FFC's last player (mirrors
+the production pipeline). Re-run in flight; downstream stays FROZEN until the
+re-run's round-1 row is back under threshold and the join is ~100%.
 
 **Correctly gated, and worth noting:** 2025 recovery was REFUSED — the pbp
 rebuild disagreed with the library on 2024 by 11 pts (tolerance 0.5). The
