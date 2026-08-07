@@ -333,3 +333,61 @@ candidates fall within the 2.0-point tie threshold and says the tiebreaker is pe
 The keeper optimizer's math (`keepers.optimize_keepers`) is written and tested but has no
 UI panel. All of Part B (in-season: lineup optimizer, playoff odds, waivers, trades) is
 unstarted.
+
+---
+
+## 11. Open — the survival tail, and why the sd fix did not close it
+
+**Status: OPEN. Do not read the adp_sd change as having fixed this.**
+
+The review found DEFs returning survival of exactly `1.0000` and correctly split
+it into two causes. Only one of them is fixed.
+
+**Cause A — the candidate-pool cutoff. FIXED.** `withinPositionProbability`
+considered only the top `WITHIN_POS_CANDIDATES = 6` at a position and returned
+exactly `0` for anyone outside that pool, so survival came back as exactly
+`1.0` — not "very likely", but "certain". Out-of-pool now returns
+`WITHIN_POS_TAIL_P = 0.01` (survival.js:486, :628). A player nobody is likely
+to take is still a player somebody *might* take.
+
+**Cause B — layer 1 has no reach tail. OPEN, and now more visible.** Layer 1
+models "taken by pick N" as a Normal around ADP. A Normal's tail dies
+exponentially, and real drafts do not: somebody takes a kicker in round 6, or
+reaches 40 picks for their guy, at a rate far above what any Normal assigns.
+
+The adp_sd interim (`0.22 x adp` to `clamp(0.15 x adp, 3, 15)`) is correct for
+mid-round dispersion — that is what it was measured against — but it makes this
+specific symptom *worse*, because a smaller sd pushes far-from-ADP players
+further into the tail:
+
+| DEF at ADP 164, evaluated at pick 44 | sd | z | P(taken) | survival |
+|---|---|---|---|---|
+| before (0.22 x adp) | 37.4 | 3.2 | ~7e-4 | 0.9993 |
+| after (capped at 15) | 15.0 | 8.0 | ~6e-17 | 1.0000000 |
+
+Both numbers say "he'll be there", so no draft-day decision changes; that is
+why this is an open item and not a defect. What is wrong is the *shape*: at
+eight sigma the model has stopped expressing uncertainty at all, and a card
+that prints `100%` is making a promise the data cannot support.
+
+The fix is a floor or a mixture on layer 1 — a small always-on probability that
+any given seat reaches — not a return to a wider sd, which would be trading a
+tail bug for a mid-round bug that was separately measured and rejected.
+
+Not being done now: it changes the survival model the MCTS reasons through, and
+a tournament is mid-flight against the current one. Changing both at once would
+leave the result unattributable, which is the mistake section 12 exists to stop.
+
+## 12. Run provenance
+
+`draft/tournament/run.js` stamps every results file with the git HEAD, any
+uncommitted paths under `public/js/draft` and `draft/tournament`, and the full
+`mcts.CFG` and `survival.CFG` at load time.
+
+This exists because the first 1,000-draft tournament could not be cleanly
+attributed afterwards: the adp_sd commit and the rollout-fix commit both landed
+within two minutes of the results file being written, and nothing in the file
+recorded which code had actually been loaded. The run predates both edits by
+roughly half an hour of wall clock, so the attribution is *probably* clean —
+but "probably" is not a provenance. A result you cannot attribute to a specific
+configuration is an anecdote.

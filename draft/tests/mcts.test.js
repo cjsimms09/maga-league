@@ -452,5 +452,96 @@ function makeCtx(over) {
     })());
 }
 
+// ---------------------------------------------------------------------------
+// THE ROLLOUT INVARIANT
+//
+// The search is scored against a baseline that plays argmax-V. If the rollout
+// plays anything weaker, every Q backed up is the value of "take X, then play
+// worse than the comparator", and the search optimises its own underpricing —
+// which is how MCTS lost 33-419 at t = -19.4. With rollout == baseline, a tree
+// that learns nothing degenerates to exactly what greedy does, so search >=
+// greedy holds nearly by construction and any future loss is a bug report
+// rather than a verdict.
+//
+// Three checks, because the invariant can break in three different ways:
+// the objective can drift, the CHOICE SET can drift (this is what happened
+// the first time the fix was attempted), or a call site can stop using the
+// shared function at all.
+// ---------------------------------------------------------------------------
+{
+  const board = makeBoard();
+  const valuer = V.makeValuer({ league: LEAGUE, players: board });
+
+  // 1. greedyPick IS argmax-V, computed independently here rather than by
+  //    re-calling the function under test.
+  let mismatches = 0, states = 0, exercised = 0;
+  for (let trial = 0; trial < 40; trial++) {
+    // Deterministic pseudo-random rosters and boards — no Math.random, so a
+    // failure reproduces exactly.
+    const r = M.rng(1000 + trial);
+    const roster = [];
+    const avail = board.slice();
+    const nRoster = trial % 8;
+    for (let i = 0; i < nRoster; i++) {
+      const idx = Math.floor(r() * avail.length);
+      roster.push(avail.splice(idx, 1)[0]);
+    }
+    // Shuffle a little so composite order and V order genuinely disagree.
+    for (let i = 0; i < 15; i++) {
+      const a = Math.floor(r() * avail.length), b = Math.floor(r() * avail.length);
+      const t = avail[a]; avail[a] = avail[b]; avail[b] = t;
+    }
+    const picksLeft = 14 - nRoster;
+    const got = M.greedyPick(avail, roster, LEAGUE, picksLeft, valuer, null);
+
+    const cands = M.legalActions(
+      M.candidates(avail, roster, LEAGUE,
+        { k: M.CFG.GREEDY_K, endgame: picksLeft <= M.CFG.ENDGAME_WITHIN }),
+      roster, LEAGUE, picksLeft, null);
+    let want = null, bestV = -Infinity;
+    cands.forEach(function (c) {
+      const v = valuer.evaluate(roster.concat([c]));
+      if (v > bestV) { bestV = v; want = c; }
+    });
+    states++;
+    if (got !== want) mismatches++;
+    // Does this state actually DISCRIMINATE? A state where the composite-best
+    // is also the V-best would pass under the old broken code too, so count
+    // how many trials would have caught the original bug.
+    if (cands.length && want !== cands[0]) exercised++;
+  }
+  check('greedy-on-V picks the argmax of V over its legal candidate set, on '
+    + states + ' states', mismatches === 0, mismatches + ' mismatches');
+  check('and those states discriminate — the composite-best is NOT the V-best '
+    + 'in ' + exercised + ' of them, so this test would have failed the '
+    + 'pre-fix code', exercised >= 5, 'only ' + exercised + ' discriminating');
+
+  // 2. The choice set is ONE number, not two that happen to agree. The first
+  //    attempt at this fix shared the objective but gave the rollout k=4 while
+  //    the baseline used k=12; whenever the V-best of the 12 ranked 5th or
+  //    worse by composite, the rollout was still strictly weaker. There is no
+  //    separate ROLLOUT_K to drift any more.
+  check('there is no second candidate-count constant for greedy to drift on',
+    M.CFG.ROLLOUT_K === undefined && typeof M.CFG.GREEDY_K === 'number',
+    'ROLLOUT_K=' + M.CFG.ROLLOUT_K);
+
+  // 3. Both call sites enter the shared function. A shared function can still
+  //    be bypassed by a future edit that reintroduces a local argmax loop, and
+  //    a rollout's internal pick is not observable from outside the search
+  //    without adding a production hook that exists only for tests. So this
+  //    reads the source. It is a blunt check and deliberately so: the thing it
+  //    guards cost a 1,000-draft tournament to find.
+  const fs = require('fs');
+  const mctsSrc = fs.readFileSync(__dirname + '/../../public/js/draft/mcts.js', 'utf8');
+  const runSrc = fs.readFileSync(__dirname + '/../tournament/run.js', 'utf8');
+  const rolloutBody = mctsSrc.slice(mctsSrc.indexOf('function rollout('),
+                                    mctsSrc.indexOf('function rolloutCtx('));
+  check('the rollout picks via the shared greedy, with no local argmax of its own',
+    /greedyPick\(/.test(rolloutBody) && !/bestV/.test(rolloutBody),
+    rolloutBody.length + ' chars scanned');
+  check('the tournament baseline calls the same function rather than a copy',
+    /M\.greedyPick\(/.test(runSrc) && !/bestV/.test(runSrc));
+}
+
 console.log(`\n${pass}/${pass + fail} MCTS checks passed`);
 process.exit(fail ? 1 : 0);

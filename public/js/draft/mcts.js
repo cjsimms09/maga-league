@@ -52,9 +52,10 @@
     K_MINE: 8,                // candidates considered at my nodes
     K_OPP: 5,                 // ...and at opponent nodes
     ROLLOUT_MY_PICKS: 2,      // how far forward a playout runs, in MY picks
-    // Candidates the rollout's own greedy considers. Small: this runs on every
-    // playout, and V is memoised so the cost is a cache lookup after the first.
-    ROLLOUT_K: 4,
+    // Candidates greedy-on-V considers — in the rollout AND in the baseline it
+    // is measured against. ONE constant, because they must be ONE policy; see
+    // greedyPick below for why a second number here is a bug, not a tuning knob.
+    GREEDY_K: 12,
     MAX_NODES: 300000,        // hard cap; on hitting it, deepen rather than widen
     // Onesie discovery. Without forcing K/DST into the candidate set near the
     // end, the search can NEVER discover onesie timing — the exact strategic
@@ -62,6 +63,40 @@
     // produces a search that never learns when kickers matter.
     ENDGAME_WITHIN: 3,        // my picks remaining, at or below which K/DEF are always candidates
   };
+
+  /* THE GREEDY-ON-V POLICY. One definition, called by both the rollout and the
+   * tournament's baseline.
+   *
+   * WHY THIS IS A FUNCTION AND NOT A CONVENTION. The search is scored against
+   * a baseline that plays argmax-V. If the rollout plays anything WEAKER than
+   * that baseline, every Q the tree backs up is the value of "take X, then
+   * play worse than the comparator plays", so the search underprices its own
+   * continuations and then optimises the underpricing. That is not a tuning
+   * problem; it makes losing to the baseline possible. With the rollout and
+   * the baseline identical, a tree that discovers nothing degenerates to
+   * exactly what greedy would have done — so search >= greedy holds nearly by
+   * construction, and any future loss is again automatically a bug report.
+   *
+   * The first version of this fix shared the OBJECTIVE (argmax-V) but not the
+   * CHOICE SET: the rollout searched the top ROLLOUT_K=4 by composite rank
+   * while the baseline searched the top 12. Whenever the V-best of those 12
+   * ranked 5th or worse by composite, the rollout was still strictly weaker.
+   * Same defect, smaller. Two call sites agreeing on a number is a coincidence
+   * maintained by hand; two call sites entering the same function is an
+   * invariant. mcts.test.js asserts the identity holds anyway, because a
+   * shared function can still be bypassed by a future edit. */
+  function greedyPick(board, roster, league, picksLeft, valuer, blocked) {
+    const cands = legalActions(
+      candidates(board, roster, league,
+        { k: CFG.GREEDY_K, endgame: picksLeft <= CFG.ENDGAME_WITHIN }),
+      roster, league, picksLeft, blocked || null);
+    let best = null, bestV = -Infinity;
+    for (let i = 0; i < cands.length; i++) {
+      const v = valuer.evaluate(roster.concat([cands[i]]));
+      if (v > bestV) { bestV = v; best = cands[i]; }
+    }
+    return best || board[0] || null;
+  }
 
   /* Seeded RNG (mulberry32). Small, fast, and reproducible across engines —
    * Math.random() cannot be seeded, and an unseeded search is a card that
@@ -315,31 +350,11 @@
         const team = teamAt(step);
         if (!team || !board.length) break;
         if (team.team_slot === ctx.mySlot) {
-          const endgame = (ctx.myPicksLeft - mine.length + (ctx.myRoster || []).length)
-            <= cfg.ENDGAME_WITHIN;
-          const cands = legalActions(
-            candidates(board, mine, ctx.league, { k: cfg.ROLLOUT_K, endgame: endgame }),
-            mine, ctx.league, ctx.myPicksLeft - myTaken, ctx.blocked);
-          // GREEDY ON V, not on the composite board order.
-          //
-          // THE BUG THIS FIXES. This took cands[0] — the best by COMPOSITE
-          // score — while the thing the search is measured against plays
-          // argmax-V every pick. So every Q the search backed up was the value
-          // of "take X, then play a policy weaker than the baseline", and the
-          // search was systematically pricing its own continuations below what
-          // greedy actually achieves. In the 1,000-draft tournament that
-          // produced a mean finish percentile of 0.900 against greedy's 0.992,
-          // t = -19.4, 33 wins to 419 losses.
-          //
-          // A search cannot beat a baseline it simulates itself playing worse
-          // than. The rollout policy and the comparator now optimise the same
-          // objective; the tree is what differs.
-          let pick = null, bestV = -Infinity;
-          for (let ci = 0; ci < cands.length; ci++) {
-            const v = ctx.valuer.evaluate(mine.concat([cands[ci]]));
-            if (v > bestV) { bestV = v; pick = cands[ci]; }
-          }
-          if (!pick) pick = board[0];
+          // The SAME function the baseline plays. Not a reimplementation of it,
+          // not a cheaper approximation of it — see greedyPick's comment for
+          // the tournament loss that came of the two drifting apart.
+          const pick = greedyPick(board, mine, ctx.league,
+            ctx.myPicksLeft - myTaken, ctx.valuer, ctx.blocked) || board[0];
           mine.push(pick);
           board = removeFrom(board, pick);
           myTaken++;
@@ -643,7 +658,7 @@
   }
 
   const api = { CFG, rng, unmetNeeds, candidates, legalActions, sampleOpponentPick,
-                fastOpponentPick,
+                fastOpponentPick, greedyPick,
                 createSearch, explain };
   global.DraftMCTS = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;

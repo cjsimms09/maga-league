@@ -25,18 +25,36 @@ check('survival ~1 well before ADP', probs[0] > 0.95);
 check('survival ~0 well after ADP', probs[probs.length - 1] < 0.05);
 check('survival at ADP is ~50%', approx(E.survival(guy, 40), 0.5, 0.02));
 
-check('adpSd floors at 3', approx(E.adpSd(5), 3.0));
-check('adpSd grows with ADP', approx(E.adpSd(50), 7.5));
-// The old assertion pinned adpSd(100) to 22.0 — the 0.22 coefficient the
-// engine audit flagged as roughly twice real mid-round dispersion. A test that
-// pins a number the audit says is wrong is holding the bug in place, exactly
-// like the P(top-2) label did.
-check('adpSd is capped, so a late-round ADP does not flatten the curve entirely',
-  approx(E.adpSd(100), 15.0) && approx(E.adpSd(200), 15.0), String(E.adpSd(200)));
+// UNCITED CONSTANTS. The old assertion here pinned adpSd(100) to 22.0 — the
+// 0.22 coefficient the engine audit flagged as roughly twice real mid-round
+// dispersion. A test that pins a number the audit says is wrong holds the bug
+// in place, exactly like the P(top-2) label test did.
+//
+// The first repair of it was no better: it swapped 22.0 for a literal 15.0,
+// which is just CFG.ADP_SD_CAP restated. That still tests the code against
+// itself, and it still breaks the moment the constant is legitimately tuned.
+// The rule now: assert the SHAPE against the named constant, and separately
+// assert the constant's VALUE once, with a citation for where the value comes
+// from. Then re-tuning touches exactly one line, and that line says why.
+//
+// SPEC: WORKORDERv3.md, adp_sd interim — "clamp(0.15 x adp, 3.0, 15.0)",
+// standing in for real per-player ADP dispersion until FFC's sd is reachable
+// (blocked at CONNECT by the network policy; see the allowlist note).
+check('the sd coefficients are the ones the work order specifies',
+  E.CFG.ADP_SD_RATE === 0.15 && E.CFG.ADP_SD_FLOOR === 3.0
+    && E.CFG.ADP_SD_CAP === 15.0,
+  JSON.stringify([E.CFG.ADP_SD_RATE, E.CFG.ADP_SD_FLOOR, E.CFG.ADP_SD_CAP]));
+check('adpSd floors, rather than going to zero at the top of the board',
+  approx(E.adpSd(5), E.CFG.ADP_SD_FLOOR));
+check('adpSd grows linearly with ADP between the floor and the cap',
+  approx(E.adpSd(50), 50 * E.CFG.ADP_SD_RATE));
+check('and is capped, so a late-round ADP does not flatten the curve entirely',
+  approx(E.adpSd(100), E.CFG.ADP_SD_CAP) && approx(E.adpSd(200), E.CFG.ADP_SD_CAP),
+  String(E.adpSd(200)));
 check('a source-provided sd always beats the heuristic',
   E.adpSd(170, 6.5) === 6.5);
 check('and the cap never fires below the floor',
-  E.adpSd(1) === 3.0 && E.CFG.ADP_SD_CAP > E.CFG.ADP_SD_FLOOR);
+  E.adpSd(1) === E.CFG.ADP_SD_FLOOR && E.CFG.ADP_SD_CAP > E.CFG.ADP_SD_FLOOR);
 
 // run multiplier shortens survival
 const hot = E.survival(guy, 60, { RB: 1.8 });
@@ -351,7 +369,12 @@ check('weight sliders change the ranking', heavyCeiling[0].score !== scored[0].s
     `10-team=${f10.BENCH_DISCOUNT} 12-team=${f12.BENCH_DISCOUNT}`);
   check('the 10-team bench discount lands near the 0.20 the audit calls for',
     f10.BENCH_DISCOUNT >= 0.15 && f10.BENCH_DISCOUNT <= 0.24, f10.BENCH_DISCOUNT);
-  check('12-team redraft keeps the original default', f12.BENCH_DISCOUNT === 0.35, f12.BENCH_DISCOUNT);
+  // Symbolic, not a literal 0.35: the claim is "a 12-team league is left at the
+  // module default", and that is true whatever the default happens to be. The
+  // 10-team check above is the one with a cited target (the audit's 0.20), and
+  // it asserts a RANGE around it rather than a snapshot.
+  check('12-team redraft keeps the original default',
+    f12.BENCH_DISCOUNT === E.CFG.BENCH_DISCOUNT, f12.BENCH_DISCOUNT);
   check('shallow leagues mark QB and TE as streamable, deep ones do not',
     f10.STREAMABLE_LATE.indexOf('QB') !== -1 && f12.STREAMABLE_LATE.indexOf('QB') === -1);
   check('the format change explains itself', /replacement level is high/.test(f10.why), f10.why);

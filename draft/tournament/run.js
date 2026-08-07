@@ -117,18 +117,15 @@ function rankedPolicy(rankBoard) {
  *
  * This is the comparator the ship condition names. Losing to it means the
  * search adds nothing over simply maximising V one pick at a time. */
+/* The baseline the search must beat. It does NOT reimplement argmax-V — it
+ * calls the very function the search's own rollout plays, so the two cannot
+ * drift. They did drift once (objective shared, choice set not) and the search
+ * lost 33-419; see M.greedyPick. If this line ever becomes a local copy again,
+ * the tournament silently stops measuring what it claims to measure. */
 function greedyVPolicy(valuer) {
   return function (available, roster, picksLeft) {
-    const cands = M.legalActions(
-      M.candidates(available, roster, LEAGUE,
-        { k: 12, endgame: picksLeft <= M.CFG.ENDGAME_WITHIN }),
-      roster, LEAGUE, picksLeft, null);
-    let best = null, bestV = -Infinity;
-    for (let i = 0; i < cands.length; i++) {
-      const v = valuer.evaluate(roster.concat([cands[i]]));
-      if (v > bestV) { bestV = v; best = cands[i]; }
-    }
-    return best || available[0];
+    return M.greedyPick(available, roster, LEAGUE, picksLeft, valuer, null)
+      || available[0];
   };
 }
 
@@ -459,6 +456,39 @@ results.forEach(r => {
   seg('in a run', r.buckets.run); seg('no run', r.buckets.noRun);
 });
 
-fs.writeFileSync(OPTS.out, JSON.stringify({ opts: OPTS, results: results }, null, 1));
+/* PROVENANCE OF THE RUN ITSELF.
+ *
+ * The first tournament could not be cleanly attributed after the fact: two
+ * unrelated commits (the adp_sd interim and the rollout fix) landed within
+ * minutes of the results file being written, and nothing in that file recorded
+ * which version of the code had actually been loaded. A result you cannot
+ * attribute to a specific configuration is not a measurement, it is an
+ * anecdote. So every run now stamps the exact commit and the exact constants
+ * that produced it — including the survival constants, because the search
+ * reasons THROUGH the survival model and a change there changes the result
+ * without touching a line of mcts.js. */
+function gitHead() {
+  try {
+    return require('child_process')
+      .execSync('git rev-parse HEAD && git status --porcelain -- ../../public/js/draft ../tournament',
+        { cwd: __dirname, encoding: 'utf8' })
+      .trim().split('\n');
+  } catch (e) { return ['UNAVAILABLE: ' + e.message]; }
+}
+const head = gitHead();
+const stamp = {
+  git_head: head[0],
+  // Anything listed here means the run used code that is NOT the commit above.
+  uncommitted_when_run: head.slice(1),
+  mcts_cfg: M.CFG,
+  survival_cfg: S ? S.CFG : 'survival module not loaded',
+  node: process.version,
+};
+if (stamp.uncommitted_when_run.length) {
+  console.log('\n!! this run used UNCOMMITTED code — see uncommitted_when_run in the results file:');
+  stamp.uncommitted_when_run.forEach(l => console.log('   ' + l));
+}
+fs.writeFileSync(OPTS.out,
+  JSON.stringify({ opts: OPTS, stamp: stamp, results: results }, null, 1));
 console.log('\nwritten to', OPTS.out.replace(/^.*\/league\//, ''));
 console.log('='.repeat(76));
