@@ -529,3 +529,26 @@ def test_reach_is_reported_relative_to_the_league():
         # ...while the raw-vs-ADP figure carries the shared offset, and is kept
         # so the number is auditable rather than just quietly adjusted.
         assert p["reach_delta"]["league_mean_vs_adp"] > 5, p["reach_delta"]
+
+
+def test_softmax_is_actually_centred_on_the_league_average():
+    """A perfectly average manager must lean neither to need nor to value.
+
+    The comment claimed "centred so league-average lands at 1.0/1.0" while the
+    arithmetic gave 0.5/2.0 — every average seat modelled as weighting value
+    four times need, in every survival calculation the tool ran.
+    """
+    db = _db({i: ("RB" if i % 2 else "WR", "KC", i, 3) for i in range(1, 101)})
+    picks = []
+    pid = 1
+    for rnd in range(1, 6):
+        for i, seat in enumerate(range(1, 11)):
+            picks.append((seat, pid, rnd, (rnd - 1) * 10 + i + 1, False))
+            pid += 1
+    prof = M.build_profiles([_draft("2024", picks)], db)
+    # Everybody drafted identically, so everybody IS the league average.
+    for p in prof["managers"].values():
+        assert abs(p["softmax"]["alpha_need"] - 1.0) < 0.15, p["softmax"]
+        assert abs(p["softmax"]["beta_value"] - 1.0) < 0.15, p["softmax"]
+        # And symmetric about 1.0, not merely close to it.
+        assert abs((p["softmax"]["alpha_need"] + p["softmax"]["beta_value"]) - 2.0) < 0.01

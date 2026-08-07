@@ -41,6 +41,12 @@ PROXY_PRIOR_STRENGTH = 4.0   # ADP-proxy metrics are shrunk twice as hard
 # hindsight bias is still doing real damage and the harder shrinkage stays.
 ADP_REAL_THRESHOLD = 0.80
 
+# How far a best-available rate away from the league average swings the Layer-2
+# softmax. At 1.0, a manager drafting BPA twice as often as the league lands at
+# alpha 0.0 / beta 2.0 before clamping — enough to matter, bounded so it cannot
+# switch either term off entirely.
+SOFTMAX_TILT = 1.0
+
 SKILL = {"QB", "RB", "WR", "TE"}
 LATE = {"K", "DEF"}
 
@@ -276,9 +282,19 @@ def build_profiles(drafts: list[dict], players_db: dict, *, season_now: int | No
         # drafter weights empty slots. Centred so league-average lands at 1.0/1.0.
         bpa_rate = profile["bpa_vs_need"]["bpa_rate"]
         ref = max(0.05, league_bpa)
+        # THE BUG THIS FIXES: the comment above has always said "centred so
+        # league-average lands at 1.0/1.0", and the arithmetic did not. At a
+        # ratio of exactly 1.0 the old form gave alpha 0.5 and beta 2.0 — a
+        # perfectly average manager modelled as weighting value four times need,
+        # in every survival calculation, for every seat.
+        #
+        # Now genuinely symmetric about 1.0: a manager who drafts best-available
+        # more than the league leans to value, less than the league leans to
+        # need, and exactly at the league leans neither way.
+        tilt = SOFTMAX_TILT * ((bpa_rate / ref) - 1.0)
         profile["softmax"] = {
-            "alpha_need": round(max(0.2, 2.0 - 1.5 * (bpa_rate / ref)), 3),
-            "beta_value": round(max(0.2, 0.5 + 1.5 * (bpa_rate / ref)), 3),
+            "alpha_need": round(min(2.5, max(0.2, 1.0 - tilt)), 3),
+            "beta_value": round(min(2.5, max(0.2, 1.0 + tilt)), 3),
         }
         profile["summary"] = _plain_language(profile)
         out_managers[m] = profile
