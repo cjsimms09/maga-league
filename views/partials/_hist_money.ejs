@@ -11,7 +11,7 @@
         <tr>
           <td><b><%= o.name %></b></td>
           <% for (const y of years) { const v = (grid[o.id] || {})[y]; %>
-            <td class="num"><%= v ? money(v) : '·' %></td>
+            <td class="num <%= v ? '' : 'zero' %>"><%= money(v || 0) %></td>
           <% } %>
           <td class="num"><b><%= money(totals[o.id]) %></b></td>
         </tr>
@@ -19,7 +19,7 @@
       <tr class="total">
         <td>League total</td>
         <% for (const y of years) { let s = 0; for (const o of list) s += (grid[o.id] || {})[y] || 0; %>
-          <td class="num"><%= s ? money(s) : '·' %></td>
+          <td class="num <%= s ? '' : 'zero' %>"><%= money(s || 0) %></td>
         <% } %>
         <td class="num"><%= money(grand) %></td>
       </tr>

@@ -1151,3 +1151,7 @@ table.ledger .btn.ghost:hover { color: var(--gold-bright); border-color: var(--g
 .sb-person:has(input:checked) {
   border-color: var(--gold); background: rgba(245, 196, 69, .12); color: #fff;
 }
+
+/* A zero in the winnings grid is a fact, not missing data — but it should not
+   compete with the years somebody actually won something. */
+table .num.zero { color: var(--muted); font-weight: 400; }
