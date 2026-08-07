@@ -881,3 +881,82 @@ button.is-busy, .btn.is-busy {
 .stale-block h3 { margin: 0 0 .4rem; font-family: var(--font-display); color: #fff; font-size: 1rem; }
 .stale-block p { margin: 0 0 .7rem; color: #ffd3d7; font-size: .86rem; line-height: 1.5; }
 #warroom.is-stale { opacity: .55; filter: grayscale(.35); pointer-events: none; }
+
+/* ==========================================================================
+   THE TAB — an actual ledger
+   Date, description, charge, credit, running balance. The previous version was
+   nested collapsible cards, which is a filing cabinet, not a ledger: you could
+   not read down a column and you could not see a balance accumulate.
+   ========================================================================== */
+
+/* Ten fixed, known people — a jump strip beats search and beats scrolling. */
+.jump-strip {
+  display: flex; gap: .4rem; overflow-x: auto; padding: .1rem .1rem .5rem;
+  margin-bottom: 1rem; -webkit-overflow-scrolling: touch;
+}
+.jump-strip a {
+  flex: 0 0 auto; text-decoration: none; text-align: center;
+  padding: .4rem .7rem; border-radius: 10px; min-width: 78px;
+  background: rgba(255, 255, 255, .04); border: 1px solid var(--line);
+}
+.jump-strip a b {
+  display: block; font-family: var(--font-display); font-size: .72rem;
+  letter-spacing: .04em; color: #dfe4f0;
+}
+.jump-strip a span { display: block; font-size: .74rem; color: var(--muted); margin-top: .1rem; }
+.jump-strip a.pos { border-color: rgba(47, 213, 118, .45); }
+.jump-strip a.pos span { color: var(--green); }
+.jump-strip a.neg { border-color: rgba(255, 70, 85, .45); }
+.jump-strip a.neg span { color: var(--red-bright); }
+
+/* The ledger itself. */
+.ledger-card h2 { display: flex; justify-content: space-between; align-items: baseline; gap: .6rem; flex-wrap: wrap; }
+.ledger-bal {
+  font-family: var(--font-body); font-size: .8rem; font-weight: 700;
+  letter-spacing: 0; text-transform: none; color: var(--muted);
+}
+.ledger-bal.pos { color: var(--green); }
+.ledger-bal.neg { color: var(--red-bright); }
+
+table.ledger { font-variant-numeric: tabular-nums; }
+/* Charge/Credit on a wide screen; one signed Amount column on a phone. Both
+   carry the same information — the phone spends one column instead of two so
+   the running balance stays on screen. */
+table.ledger .merged { display: none; }
+table.ledger .ldate { white-space: nowrap; color: var(--muted); font-size: .78rem; }
+table.ledger td.num { font-variant-numeric: tabular-nums; }
+/* The running balance is the column the eye follows — give it the weight. */
+table.ledger td.run { font-weight: 800; border-left: 1px solid var(--line); }
+table.ledger tr.is-settled td { color: var(--muted); }
+table.ledger tr.is-settled td:nth-child(2) { text-decoration: line-through; text-decoration-color: rgba(255,255,255,.25); }
+
+.settled-block > summary {
+  cursor: pointer; padding: .5rem .9rem; border-top: 1px solid var(--line);
+  font-size: .76rem; color: var(--muted);
+}
+.settled-block > summary:hover { color: #fff; }
+
+/* Record a payment / credit. */
+.entry-form .ef-row { display: flex; flex-wrap: wrap; gap: .6rem; margin-bottom: .6rem; }
+.entry-form .field { flex: 1 1 150px; display: flex; flex-direction: column; gap: .2rem; margin: 0; }
+.entry-form .field input, .entry-form .field select { width: 100%; }
+.entry-form .fit { display: flex; align-items: flex-end; }
+
+@media (max-width: 640px) {
+  /* Do NOT hide the charge column here. Charges only ever render in that
+     column, so hiding it makes every debit invisible while the balance still
+     moves — a ledger that does not show you what you were charged. The table
+     scrolls inside its card instead, which the scroll affordance now marks.
+     Tightened type buys back most of the width honestly. */
+  table.ledger { font-size: .82rem; }
+  table.ledger .split { display: none; }
+  table.ledger .merged { display: table-cell; }
+  table.ledger .type-tag { display: none; }
+  /* The settle control is the primary action on this page for the one person
+     who can use it — a tick fits on screen where "✓ Paid me" does not, and an
+     action you have to scroll sideways to reach is an action you skip. */
+  table.ledger .btn-label { display: none; }
+  table.ledger .ldate { font-size: .7rem; }
+  table.ledger th, table.ledger td { padding-left: .5rem; padding-right: .5rem; }
+  .entry-form .field { flex: 1 1 100%; }
+}
