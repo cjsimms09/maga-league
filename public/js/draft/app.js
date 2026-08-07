@@ -594,6 +594,19 @@
       });
     }
 
+    // A mock draft is a DIFFERENT draft from the league's: usually a different
+    // team count, always 15-ish rounds, and never any keepers. The artifact's
+    // pick_order is the keeper-adjusted 90-pick league sequence, so used
+    // unchanged against a mock the pick numbers are wrong from pick 1 and the
+    // tool goes silent once the mock passes pick 90. That would waste the one
+    // rehearsal that catches everything fixtures cannot.
+    //
+    // So: if the draft's own shape disagrees with the league config, rebuild
+    // the pick order from the DRAFT's shape, with no keepers. Every other code
+    // path — sync parsing, survival, recommendations, tempo, the UI — is then
+    // exercised for real against a truthful sequence.
+    applyDraftShape(draft, mine);
+
     const result = { mapped, total: Object.keys(byUser).length, mySlot: mine };
     const changed = mine && Number(mine) !== Number(state.data.league.my_draft_slot);
     if (changed) {
@@ -602,6 +615,60 @@
     }
     showImportNote(result, changed);
     return result;
+  }
+
+  function applyDraftShape(draft, mySlot) {
+    if (!window.DraftKeepers) return;
+    const st = draft.settings || {};
+    const teams = Number(st.teams || 0);
+    const rounds = Number(st.rounds || 0);
+    const league = state.data.league;
+    if (!teams || !rounds) return;
+
+    const sameTeams = Number(league.teams) === teams;
+    const keeperCount = (league.keeper_rules || {}).count || 0;
+    const leagueRounds = (state.data.pick_order.picks || []).length / Math.max(1, league.teams || 1);
+    const sameRounds = Math.abs(leagueRounds - rounds) < 0.5;
+    if (sameTeams && sameRounds && !keeperCount) return;   // it IS the league draft
+
+    const cfg = {
+      teams: teams,
+      rounds: rounds,
+      draft_type: draft.type || 'snake',
+      my_draft_slot: mySlot || league.my_draft_slot || 1,
+      adp_blend_weight: 0.7,
+      // Mocks have no keepers. Saying count:0 is not a guess — it is what makes
+      // the rebuilt sequence match what the mock will actually do.
+      keepers: { count: 0, cost_model: 'no_cost' },
+    };
+    const out = window.DraftKeepers.reapply(state.data.players, cfg, {});
+    state.data.pick_order = {
+      picks: out.order.picks.map(p => ({ overall: p.overall, round: p.round, slot: p.team_slot })),
+      my_picks: out.order.my_picks,
+      my_picks_before_keepers: out.order.my_original_picks,
+      forfeited: [],
+    };
+    state.data.players = out.players;
+    state.board = out.players.filter(p => !state.drafted.has(String(p.player_id)));
+    state.data.league = Object.assign({}, league, { teams: teams });
+    state.format = E.applyFormatDefaults(state.data.league);
+    state.mockMode = { teams: teams, rounds: rounds, type: cfg.draft_type,
+                       picks: out.order.picks.length, myPicks: out.order.my_picks };
+
+    const host = $('#mock-note');
+    if (host) {
+      host.style.display = '';
+      host.className = 'prov-note warn';
+      host.innerHTML = '<b>\ud83e\uddea</b> <span><b>Mock mode.</b> This draft is '
+        + teams + ' teams \u00d7 ' + rounds + ' rounds (' + escapeHtml(cfg.draft_type)
+        + '), which is not your league\u2019s shape. Pick order rebuilt from the mock '
+        + 'with no keepers \u2014 you pick at '
+        + escapeHtml(out.order.my_picks.slice(0, 6).join(', '))
+        + (out.order.my_picks.length > 6 ? '\u2026' : '')
+        + '. Keeper-adjusted ADP is <b>not</b> applied here, so treat the values as a '
+        + 'dry run of the machinery, not of your actual board.</span>';
+    }
+    renderAll();
   }
 
   function showImportNote(r, changed) {
