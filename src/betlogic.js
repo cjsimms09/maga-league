@@ -98,9 +98,13 @@ const CFG = {
   // in a list since August and somebody just noticed it is now free money. If
   // you still want the bet, send it again.
   PROPOSAL_MAX_DAYS: 10,
-  // Where the fantasy playoffs start, when Sleeper has not told us. Week 15 in
-  // a 14-week regular season, which is this league's shape.
-  PLAYOFF_WEEK_DEFAULT: 15,
+  // Where the fantasy playoffs start, when Sleeper has not told us. Verified
+  // against the live league on 2026-08-07: playoff_week_start is 16, not the 15
+  // I had guessed. It is only a fallback — the real value is read from Sleeper
+  // per request — but the fallback is what runs whenever Sleeper is briefly
+  // unreachable, and a season-long bet closing a week early is the kind of
+  // wrong that only shows up in an argument.
+  PLAYOFF_WEEK_DEFAULT: 16,
   // A bet offered once the week is already in play. Live betting is fine — you
   // are both watching the same game — but it cannot SIT, because every minute
   // that passes moves the price. Three hours is about one afternoon of football.

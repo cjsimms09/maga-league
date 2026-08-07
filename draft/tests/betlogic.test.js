@@ -451,10 +451,11 @@ console.log('\n--- nobody can accept a bet after it has started ---');
   // that one finishes above the other. It is the playoffs that end it.
   const oct = { format: 'pool', created_at: '2026-10-15T00:00:00Z' };
   ok('a pool offered in October is live', B.acceptDeadline(oct, {}, new Date('2026-10-18T00:00:00Z')).open);
-  const dec = { format: 'pool', created_at: '2026-12-20T00:00:00Z' };
-  const shut = B.acceptDeadline(dec, {}, new Date('2026-12-22T00:00:00Z'));
+  // Week 16 is this league's real playoff_week_start, verified against Sleeper.
+  const dec = { format: 'pool', created_at: '2026-12-26T00:00:00Z' };
+  const shut = B.acceptDeadline(dec, {}, new Date('2026-12-27T00:00:00Z'));
   ok('but not once the playoffs are under way', !shut.open, shut.reason);
-  ok('and it names the playoff week', /playoffs start \(week 15\)/.test(shut.reason), shut.reason);
+  ok('and it names the playoff week', /playoffs start \(week 16\)/.test(shut.reason), shut.reason);
   ok('the league can move that week', /week 14/.test(
     B.acceptDeadline(dec, { playoffWeek: 14 }, new Date('2026-12-22T00:00:00Z')).reason));
 }

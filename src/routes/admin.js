@@ -67,6 +67,10 @@ router.get('/', aw(async (req, res) => {
       mapped,
       teams: sleeperInfo ? sleeperInfo.rosters.length : 0,
       unmapped: sleeperInfo ? sleeperInfo.rosters.filter(r => !r.mapped).length : null,
+      // Which ones, not just how many. Sleeper display names rarely contain the
+      // owner's first name — of the ten in this league the auto-matcher can
+      // only recognise three — so this list is the actual work to be done.
+      unmappedTeams: sleeperInfo ? sleeperInfo.rosters.filter(r => !r.mapped).map(r => r.team) : [],
       lastOk: cache && cache.fetched_at ? new Date(cache.fetched_at).toISOString() : null,
       lastFail: cache && cache.failed_at ? new Date(cache.failed_at).toISOString() : null,
     };

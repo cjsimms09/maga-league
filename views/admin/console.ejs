@@ -628,6 +628,10 @@
       <tr><td>Teams mapped</td>
           <td><%= st.mapped || 0 %><%= st.teams ? ' of ' + st.teams : '' %></td>
           <td><%= st.live && !st.unmapped ? '✅' : (st.live ? '❌ map them below' : '—') %></td></tr>
+      <% if (st.unmappedTeams && st.unmappedTeams.length) { %>
+      <tr><td>Still unmapped</td>
+          <td colspan="2" class="neg"><%= st.unmappedTeams.join(' · ') %></td></tr>
+      <% } %>
       <tr><td>Last successful fetch</td>
           <td colspan="2"><%= st.lastOk ? new Date(st.lastOk).toLocaleString('en-US', { timeZone: 'America/New_York' }) + ' ET' : 'never' %></td></tr>
       <% if (st.lastFail) { %>
