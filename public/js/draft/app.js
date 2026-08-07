@@ -1657,6 +1657,46 @@
     return (state.data.players || []).find(p => String(p.player_id) === String(id));
   }
 
+  /**
+   * Move an already-recorded pick to the seat Sleeper says owns it.
+   *
+   * Idempotent: called on every poll for every pick, so it must do nothing
+   * when the attribution is already right. Cheap for the same reason — the
+   * common case is a membership test that passes.
+   */
+  function reattribute(id, slot, mySlot) {
+    const key = String(id);
+    const already = (state.rosters[slot] || []).some(p => String(p.player_id) === key);
+    if (already) {
+      // Right seat already. Make sure myRoster agrees, since the two are
+      // maintained separately and can drift.
+      if (mySlot && Number(slot) === Number(mySlot)
+          && !state.myRoster.some(p => String(p.player_id) === key)) {
+        const pl = playerById(key);
+        if (pl) state.myRoster.push(pl);
+      }
+      return;
+    }
+    let moved = null;
+    Object.keys(state.rosters).forEach(s => {
+      const before = state.rosters[s].length;
+      state.rosters[s] = state.rosters[s].filter(p => {
+        if (String(p.player_id) !== key) return true;
+        moved = p; return false;
+      });
+      if (state.rosters[s].length !== before && String(s) !== String(slot)) {
+        // Worth saying out loud: a pick changing hands mid-draft is either a
+        // correction or a sign the seat mapping is wrong, and both matter.
+        console.info('[draft] re-attributed ' + key + ' from seat ' + s + ' to ' + slot);
+      }
+    });
+    const pl = moved || playerById(key);
+    if (!pl) return;
+    (state.rosters[slot] = state.rosters[slot] || []).push(pl);
+    state.myRoster = state.myRoster.filter(p => String(p.player_id) !== key);
+    if (mySlot && Number(slot) === Number(mySlot)) state.myRoster.push(pl);
+  }
+
   // ----------------------------------------------------------------- actions
   function markDrafted(playerId, toMe, teamSlot) {
     const p = playerById(playerId);
@@ -1794,7 +1834,24 @@
     const mySlot = Number(state.data.league.my_draft_slot) || null;
     picks.forEach(pick => {
       const id = String(pick.player_id);
-      if (state.drafted.has(id)) return;
+      const pickSlot = Number(pick.draft_slot) || Number(pick.roster_id) || null;
+      if (state.drafted.has(id)) {
+        // ALREADY RECORDED LOCALLY — BUT SLEEPER DECIDES WHOSE IT IS.
+        //
+        // Reported from a live mock: one round-4 pick never reached my roster
+        // while every other pick did. The player had been marked drafted by
+        // hand first (markDrafted, or a mis-tap on the board), which adds him
+        // to state.drafted and pushes him onto whichever roster was chosen.
+        // When the authoritative pick arrived seconds later this returned
+        // early, so the hand-made guess became permanent and the real
+        // attribution was thrown away.
+        //
+        // A local mark is a guess made before the data arrived. Sleeper is the
+        // record. So re-attribute instead of skipping: if the seat the API
+        // reports differs from where he is sitting, move him.
+        if (pickSlot) reattribute(id, pickSlot, mySlot);
+        return;
+      }
       state.drafted.add(id);
       state.board = state.board.filter(x => String(x.player_id) !== id);
 
