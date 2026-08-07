@@ -1,0 +1,2798 @@
+{
+  "draft_ids": [
+    "1001232801791856640",
+    "1117672595379277825",
+    "1248121522766217216"
+  ],
+  "drafts_analysed": 3,
+  "editable": "Hand-edit any value here; the build never overwrites a file whose `locked` flag is true.",
+  "league_average": {
+    "bpa_rate": 0.311,
+    "first_round_by_position": {
+      "DEF": 13.17,
+      "K": 13.1,
+      "QB": 6.36,
+      "RB": 3.97,
+      "TE": 6.57,
+      "WR": 3.4
+    },
+    "reach_delta_mean": 9.61,
+    "rookie_rate": 0.0
+  },
+  "managers": {
+    "434915673219526656": {
+      "bpa_vs_need": {
+        "adp_coverage": 1.0,
+        "bpa_rate": 0.309,
+        "league_rate": 0.311,
+        "proxy": false
+      },
+      "draft_patterns": {
+        "by_round_bucket": {
+          "early": {
+            "mix": {
+              "RB": 0.2,
+              "WR": 0.8
+            },
+            "picks": 5
+          },
+          "late": {
+            "mix": {
+              "DEF": 0.143,
+              "K": 0.143,
+              "QB": 0.095,
+              "RB": 0.333,
+              "WR": 0.286
+            },
+            "picks": 21
+          },
+          "mid": {
+            "mix": {
+              "QB": 0.133,
+              "RB": 0.4,
+              "TE": 0.2,
+              "WR": 0.267
+            },
+            "picks": 15
+          }
+        },
+        "consistency": {
+          "DEF": {
+            "predictable": true,
+            "rounds": [
+              15,
+              15,
+              15
+            ],
+            "sd": 0.0,
+            "spread": 0
+          },
+          "K": {
+            "predictable": true,
+            "rounds": [
+              13,
+              14,
+              12
+            ],
+            "sd": 0.82,
+            "spread": 2
+          },
+          "QB": {
+            "predictable": false,
+            "rounds": [
+              6,
+              11,
+              5
+            ],
+            "sd": 2.62,
+            "spread": 6
+          },
+          "RB": {
+            "predictable": false,
+            "rounds": [
+              4,
+              3,
+              6
+            ],
+            "sd": 1.25,
+            "spread": 3
+          },
+          "TE": {
+            "predictable": false,
+            "rounds": [
+              5,
+              7,
+              4
+            ],
+            "sd": 1.25,
+            "spread": 3
+          },
+          "WR": {
+            "predictable": false,
+            "rounds": [
+              1,
+              2,
+              7
+            ],
+            "sd": 2.62,
+            "spread": 6
+          }
+        },
+        "openings": {
+          "by_season": {
+            "2023": [
+              "WR",
+              "WR",
+              "WR",
+              "RB"
+            ],
+            "2024": [
+              "WR",
+              "RB",
+              "WR",
+              "WR"
+            ],
+            "2025": [
+              "TE",
+              "QB",
+              "RB",
+              "WR"
+            ]
+          },
+          "most_common_open": "TE-QB",
+          "most_common_open_count": 1,
+          "repeats": false,
+          "seasons": 3
+        },
+        "position_coverage": 1.0,
+        "repeat_targets": [
+          {
+            "name": "George Kittle",
+            "player_id": "4217",
+            "position": "TE",
+            "rounds": [
+              5,
+              4
+            ],
+            "seasons": [
+              "2023",
+              "2025"
+            ],
+            "times": 2
+          },
+          {
+            "name": "Javonte Williams",
+            "player_id": "7588",
+            "position": "RB",
+            "rounds": [
+              8,
+              9
+            ],
+            "seasons": [
+              "2023",
+              "2024"
+            ],
+            "times": 2
+          }
+        ],
+        "run_following": {
+          "league_rate": 0.407,
+          "rate": 0.378
+        },
+        "stack_rate": 0.25
+      },
+      "homer_index": {
+        "rate": 0.056,
+        "raw_rate": 0.073,
+        "team": "SF"
+      },
+      "keepers": {
+        "excluded_from_metrics": 4,
+        "picks_kept": [
+          {
+            "name": "Ja'Marr Chase",
+            "position": "WR",
+            "round": 1,
+            "season": "2024"
+          },
+          {
+            "name": "Ja'Marr Chase",
+            "position": "WR",
+            "round": 1,
+            "season": "2025"
+          },
+          {
+            "name": "Malik Nabers",
+            "position": "WR",
+            "round": 2,
+            "season": "2025"
+          },
+          {
+            "name": "Derrick Henry",
+            "position": "RB",
+            "round": 3,
+            "season": "2025"
+          }
+        ]
+      },
+      "manager_id": "434915673219526656",
+      "name": "coryjsimms",
+      "picks_analysed": 41,
+      "positional_mix": {
+        "QB": 0.143,
+        "RB": 0.286,
+        "TE": 0.143,
+        "WR": 0.429
+      },
+      "positional_timing": {
+        "DEF": {
+          "mean_round": 14.27,
+          "raw_mean_round": 15.0,
+          "vs_league": 1.1
+        },
+        "K": {
+          "mean_round": 13.04,
+          "raw_mean_round": 13.0,
+          "vs_league": -0.06
+        },
+        "QB": {
+          "mean_round": 6.94,
+          "raw_mean_round": 7.33,
+          "vs_league": 0.59
+        },
+        "RB": {
+          "mean_round": 4.19,
+          "raw_mean_round": 4.33,
+          "vs_league": 0.22
+        },
+        "TE": {
+          "mean_round": 5.83,
+          "raw_mean_round": 5.33,
+          "vs_league": -0.74
+        },
+        "WR": {
+          "mean_round": 3.36,
+          "raw_mean_round": 3.33,
+          "vs_league": -0.04
+        }
+      },
+      "reach_delta": {
+        "adp_coverage": 1.0,
+        "league_mean_vs_adp": 9.61,
+        "mean": -5.25,
+        "mean_vs_adp": 4.36,
+        "proxy": false,
+        "raw_mean": 0.85,
+        "sd": 19.24
+      },
+      "rookie_affinity": {
+        "league_rate": 0.0,
+        "rate": 0.0
+      },
+      "sample_size": 3,
+      "shrinkage_weight": 0.6,
+      "softmax": {
+        "alpha_need": 0.509,
+        "beta_value": 1.991
+      },
+      "summary": "Drafts near market value."
+    },
+    "434921290978029568": {
+      "bpa_vs_need": {
+        "adp_coverage": 0.95,
+        "bpa_rate": 0.304,
+        "league_rate": 0.311,
+        "proxy": false
+      },
+      "draft_patterns": {
+        "by_round_bucket": {
+          "early": {
+            "mix": {
+              "QB": 0.25,
+              "RB": 0.25,
+              "TE": 0.25,
+              "WR": 0.25
+            },
+            "picks": 4
+          },
+          "late": {
+            "mix": {
+              "DEF": 0.143,
+              "K": 0.143,
+              "QB": 0.048,
+              "RB": 0.381,
+              "TE": 0.048,
+              "WR": 0.238
+            },
+            "picks": 21
+          },
+          "mid": {
+            "mix": {
+              "QB": 0.133,
+              "RB": 0.333,
+              "TE": 0.067,
+              "WR": 0.467
+            },
+            "picks": 15
+          }
+        },
+        "consistency": {
+          "DEF": {
+            "predictable": true,
+            "rounds": [
+              11,
+              12,
+              13
+            ],
+            "sd": 0.82,
+            "spread": 2
+          },
+          "K": {
+            "predictable": false,
+            "rounds": [
+              14,
+              11,
+              14
+            ],
+            "sd": 1.41,
+            "spread": 3
+          },
+          "QB": {
+            "predictable": true,
+            "rounds": [
+              4,
+              3,
+              5
+            ],
+            "sd": 0.82,
+            "spread": 2
+          },
+          "RB": {
+            "predictable": true,
+            "rounds": [
+              3,
+              5,
+              4
+            ],
+            "sd": 0.82,
+            "spread": 2
+          },
+          "TE": {
+            "predictable": false,
+            "rounds": [
+              1,
+              6
+            ],
+            "sd": 2.5,
+            "spread": 5
+          },
+          "WR": {
+            "predictable": false,
+            "rounds": [
+              2,
+              4,
+              6
+            ],
+            "sd": 1.63,
+            "spread": 4
+          }
+        },
+        "openings": {
+          "by_season": {
+            "2023": [
+              "TE",
+              "WR",
+              "RB",
+              "QB"
+            ],
+            "2024": [
+              "RB",
+              "QB",
+              "WR",
+              "WR"
+            ],
+            "2025": [
+              "QB",
+              "WR",
+              "RB",
+              "TE"
+            ]
+          },
+          "most_common_open": "QB-WR",
+          "most_common_open_count": 1,
+          "repeats": false,
+          "seasons": 3
+        },
+        "position_coverage": 1.0,
+        "repeat_targets": [
+          {
+            "name": "DK Metcalf",
+            "player_id": "5846",
+            "position": "WR",
+            "rounds": [
+              5,
+              4
+            ],
+            "seasons": [
+              "2023",
+              "2025"
+            ],
+            "times": 2
+          },
+          {
+            "name": "Terry McLaurin",
+            "player_id": "5927",
+            "position": "WR",
+            "rounds": [
+              7,
+              7
+            ],
+            "seasons": [
+              "2023",
+              "2024"
+            ],
+            "times": 2
+          },
+          {
+            "name": "Travis Kelce",
+            "player_id": "1466",
+            "position": "TE",
+            "rounds": [
+              1,
+              6
+            ],
+            "seasons": [
+              "2023",
+              "2025"
+            ],
+            "times": 2
+          }
+        ],
+        "run_following": {
+          "league_rate": 0.407,
+          "rate": 0.342
+        },
+        "stack_rate": 0.25
+      },
+      "homer_index": {
+        "rate": 0.087,
+        "raw_rate": 0.125,
+        "team": "SEA"
+      },
+      "keepers": {
+        "excluded_from_metrics": 5,
+        "picks_kept": [
+          {
+            "name": "Travis Kelce",
+            "position": "TE",
+            "round": 1,
+            "season": "2024"
+          },
+          {
+            "name": "A.J. Brown",
+            "position": "WR",
+            "round": 2,
+            "season": "2024"
+          },
+          {
+            "name": "Kyren Williams",
+            "position": "RB",
+            "round": 3,
+            "season": "2024"
+          },
+          {
+            "name": "Bucky Irving",
+            "position": "RB",
+            "round": 1,
+            "season": "2025"
+          },
+          {
+            "name": "Brian Thomas",
+            "position": "WR",
+            "round": 2,
+            "season": "2025"
+          }
+        ]
+      },
+      "manager_id": "434921290978029568",
+      "name": "ds7mmet",
+      "picks_analysed": 40,
+      "positional_mix": {
+        "QB": 0.231,
+        "RB": 0.308,
+        "TE": 0.154,
+        "WR": 0.308
+      },
+      "positional_timing": {
+        "DEF": {
+          "mean_round": 12.47,
+          "raw_mean_round": 12.0,
+          "vs_league": -0.7
+        },
+        "K": {
+          "mean_round": 13.04,
+          "raw_mean_round": 13.0,
+          "vs_league": -0.06
+        },
+        "QB": {
+          "mean_round": 4.94,
+          "raw_mean_round": 4.0,
+          "vs_league": -1.41
+        },
+        "RB": {
+          "mean_round": 3.99,
+          "raw_mean_round": 4.0,
+          "vs_league": 0.02
+        },
+        "TE": {
+          "mean_round": 4.73,
+          "raw_mean_round": 3.5,
+          "vs_league": -1.84
+        },
+        "WR": {
+          "mean_round": 3.76,
+          "raw_mean_round": 4.0,
+          "vs_league": 0.36
+        }
+      },
+      "reach_delta": {
+        "adp_coverage": 0.95,
+        "league_mean_vs_adp": 9.61,
+        "mean": 7.31,
+        "mean_vs_adp": 16.92,
+        "proxy": false,
+        "raw_mean": 21.79,
+        "sd": 134.15
+      },
+      "rookie_affinity": {
+        "league_rate": 0.0,
+        "rate": 0.0
+      },
+      "sample_size": 3,
+      "shrinkage_weight": 0.6,
+      "softmax": {
+        "alpha_need": 0.533,
+        "beta_value": 1.967
+      },
+      "summary": "Reaches ~7 picks early. Takes QB early (round 5 on average, 1.4 rounds before the league). Takes TE early (round 5 on average, 1.8 rounds before the league)."
+    },
+    "434921916734631936": {
+      "bpa_vs_need": {
+        "adp_coverage": 0.925,
+        "bpa_rate": 0.319,
+        "league_rate": 0.311,
+        "proxy": false
+      },
+      "draft_patterns": {
+        "by_round_bucket": {
+          "early": {
+            "mix": {
+              "QB": 0.167,
+              "RB": 0.5,
+              "WR": 0.333
+            },
+            "picks": 6
+          },
+          "late": {
+            "mix": {
+              "DEF": 0.143,
+              "K": 0.143,
+              "QB": 0.048,
+              "RB": 0.286,
+              "TE": 0.048,
+              "WR": 0.333
+            },
+            "picks": 21
+          },
+          "mid": {
+            "mix": {
+              "QB": 0.067,
+              "RB": 0.4,
+              "TE": 0.2,
+              "WR": 0.333
+            },
+            "picks": 15
+          }
+        },
+        "consistency": {
+          "DEF": {
+            "predictable": true,
+            "rounds": [
+              14,
+              14,
+              15
+            ],
+            "sd": 0.47,
+            "spread": 1
+          },
+          "K": {
+            "predictable": false,
+            "rounds": [
+              15,
+              12,
+              13
+            ],
+            "sd": 1.25,
+            "spread": 3
+          },
+          "QB": {
+            "predictable": false,
+            "rounds": [
+              2,
+              6
+            ],
+            "sd": 2.0,
+            "spread": 4
+          },
+          "RB": {
+            "predictable": false,
+            "rounds": [
+              3,
+              1,
+              6
+            ],
+            "sd": 2.05,
+            "spread": 5
+          },
+          "TE": {
+            "predictable": false,
+            "rounds": [
+              5,
+              8,
+              7
+            ],
+            "sd": 1.25,
+            "spread": 3
+          },
+          "WR": {
+            "predictable": false,
+            "rounds": [
+              1,
+              3,
+              4
+            ],
+            "sd": 1.25,
+            "spread": 3
+          }
+        },
+        "openings": {
+          "by_season": {
+            "2023": [
+              "WR",
+              "QB",
+              "RB",
+              "RB"
+            ],
+            "2024": [
+              "WR",
+              "WR",
+              "RB",
+              "TE"
+            ],
+            "2025": [
+              "RB",
+              "RB",
+              "WR",
+              "WR"
+            ]
+          },
+          "most_common_open": "RB-RB",
+          "most_common_open_count": 1,
+          "repeats": false,
+          "seasons": 3
+        },
+        "position_coverage": 1.0,
+        "repeat_targets": [
+          {
+            "name": "DeAndre Hopkins",
+            "player_id": "1426",
+            "position": "WR",
+            "rounds": [
+              5,
+              12
+            ],
+            "seasons": [
+              "2023",
+              "2024"
+            ],
+            "times": 2
+          },
+          {
+            "name": "Evan Engram",
+            "player_id": "4066",
+            "position": "TE",
+            "rounds": [
+              7,
+              8
+            ],
+            "seasons": [
+              "2024",
+              "2025"
+            ],
+            "times": 2
+          },
+          {
+            "name": "James Conner",
+            "player_id": "4137",
+            "position": "RB",
+            "rounds": [
+              6,
+              5
+            ],
+            "seasons": [
+              "2024",
+              "2025"
+            ],
+            "times": 2
+          },
+          {
+            "name": "Joe Mixon",
+            "player_id": "4018",
+            "position": "RB",
+            "rounds": [
+              4,
+              7
+            ],
+            "seasons": [
+              "2023",
+              "2025"
+            ],
+            "times": 2
+          },
+          {
+            "name": "Mike Evans",
+            "player_id": "2216",
+            "position": "WR",
+            "rounds": [
+              8,
+              4
+            ],
+            "seasons": [
+              "2023",
+              "2025"
+            ],
+            "times": 2
+          },
+          {
+            "name": "Stefon Diggs",
+            "player_id": "2449",
+            "position": "WR",
+            "rounds": [
+              1,
+              10
+            ],
+            "seasons": [
+              "2023",
+              "2025"
+            ],
+            "times": 2
+          }
+        ],
+        "run_following": {
+          "league_rate": 0.407,
+          "rate": 0.342
+        },
+        "stack_rate": 0.667
+      },
+      "homer_index": {
+        "rate": 0.07,
+        "raw_rate": 0.095,
+        "team": "CIN"
+      },
+      "keepers": {
+        "excluded_from_metrics": 3,
+        "picks_kept": [
+          {
+            "name": "Joe Mixon",
+            "position": "RB",
+            "round": 1,
+            "season": "2024"
+          },
+          {
+            "name": "Mike Evans",
+            "position": "WR",
+            "round": 2,
+            "season": "2024"
+          },
+          {
+            "name": "Patrick Mahomes",
+            "position": "QB",
+            "round": 3,
+            "season": "2024"
+          }
+        ]
+      },
+      "manager_id": "434921916734631936",
+      "name": "cashworth",
+      "picks_analysed": 42,
+      "positional_mix": {
+        "QB": 0.125,
+        "RB": 0.438,
+        "TE": 0.062,
+        "WR": 0.375
+      },
+      "positional_timing": {
+        "DEF": {
+          "mean_round": 13.87,
+          "raw_mean_round": 14.33,
+          "vs_league": 0.7
+        },
+        "K": {
+          "mean_round": 13.24,
+          "raw_mean_round": 13.33,
+          "vs_league": 0.14
+        },
+        "QB": {
+          "mean_round": 4.94,
+          "raw_mean_round": 4.0,
+          "vs_league": -1.41
+        },
+        "RB": {
+          "mean_round": 3.59,
+          "raw_mean_round": 3.33,
+          "vs_league": -0.38
+        },
+        "TE": {
+          "mean_round": 6.63,
+          "raw_mean_round": 6.67,
+          "vs_league": 0.06
+        },
+        "WR": {
+          "mean_round": 2.96,
+          "raw_mean_round": 2.67,
+          "vs_league": -0.44
+        }
+      },
+      "reach_delta": {
+        "adp_coverage": 0.925,
+        "league_mean_vs_adp": 9.61,
+        "mean": -2.6,
+        "mean_vs_adp": 7.01,
+        "proxy": false,
+        "raw_mean": 5.28,
+        "sd": 32.43
+      },
+      "rookie_affinity": {
+        "league_rate": 0.0,
+        "rate": 0.0
+      },
+      "sample_size": 3,
+      "shrinkage_weight": 0.6,
+      "softmax": {
+        "alpha_need": 0.46,
+        "beta_value": 2.04
+      },
+      "summary": "Drafts near market value. Takes QB early (round 5 on average, 1.4 rounds before the league)."
+    },
+    "439662843298574336": {
+      "bpa_vs_need": {
+        "adp_coverage": 0.975,
+        "bpa_rate": 0.319,
+        "league_rate": 0.311,
+        "proxy": false
+      },
+      "draft_patterns": {
+        "by_round_bucket": {
+          "early": {
+            "mix": {
+              "RB": 0.25,
+              "WR": 0.75
+            },
+            "picks": 4
+          },
+          "late": {
+            "mix": {
+              "DEF": 0.143,
+              "K": 0.143,
+              "QB": 0.143,
+              "RB": 0.19,
+              "TE": 0.143,
+              "WR": 0.238
+            },
+            "picks": 21
+          },
+          "mid": {
+            "mix": {
+              "QB": 0.067,
+              "RB": 0.267,
+              "TE": 0.067,
+              "WR": 0.6
+            },
+            "picks": 15
+          }
+        },
+        "consistency": {
+          "DEF": {
+            "predictable": true,
+            "rounds": [
+              13,
+              15,
+              15
+            ],
+            "sd": 0.94,
+            "spread": 2
+          },
+          "K": {
+            "predictable": true,
+            "rounds": [
+              11,
+              12,
+              12
+            ],
+            "sd": 0.47,
+            "spread": 1
+          },
+          "QB": {
+            "predictable": false,
+            "rounds": [
+              12,
+              9,
+              5
+            ],
+            "sd": 2.87,
+            "spread": 7
+          },
+          "RB": {
+            "predictable": false,
+            "rounds": [
+              1,
+              7,
+              9
+            ],
+            "sd": 3.4,
+            "spread": 8
+          },
+          "TE": {
+            "predictable": false,
+            "rounds": [
+              14,
+              10,
+              4
+            ],
+            "sd": 4.11,
+            "spread": 10
+          },
+          "WR": {
+            "predictable": false,
+            "rounds": [
+              2,
+              3,
+              6
+            ],
+            "sd": 1.7,
+            "spread": 4
+          }
+        },
+        "openings": {
+          "by_season": {
+            "2023": [
+              "RB",
+              "WR",
+              "WR",
+              "RB"
+            ],
+            "2024": [
+              "TE",
+              "QB",
+              "WR",
+              "WR"
+            ],
+            "2025": [
+              "WR",
+              "WR",
+              "WR",
+              "WR"
+            ]
+          },
+          "most_common_open": "WR-WR",
+          "most_common_open_count": 1,
+          "repeats": false,
+          "seasons": 3
+        },
+        "position_coverage": 1.0,
+        "repeat_targets": [
+          {
+            "name": "Garrett Wilson",
+            "player_id": "8146",
+            "position": "WR",
+            "rounds": [
+              3,
+              4
+            ],
+            "seasons": [
+              "2023",
+              "2025"
+            ],
+            "times": 2
+          },
+          {
+            "name": "Isiah Pacheco",
+            "player_id": "8205",
+            "position": "RB",
+            "rounds": [
+              7,
+              7
+            ],
+            "seasons": [
+              "2023",
+              "2025"
+            ],
+            "times": 2
+          },
+          {
+            "name": "Justin Tucker",
+            "player_id": "1264",
+            "position": "K",
+            "rounds": [
+              11,
+              12
+            ],
+            "seasons": [
+              "2023",
+              "2024"
+            ],
+            "times": 2
+          },
+          {
+            "name": "Xavier Worthy",
+            "player_id": "11624",
+            "position": "WR",
+            "rounds": [
+              8,
+              6
+            ],
+            "seasons": [
+              "2024",
+              "2025"
+            ],
+            "times": 2
+          }
+        ],
+        "run_following": {
+          "league_rate": 0.407,
+          "rate": 0.595
+        },
+        "stack_rate": 0.5
+      },
+      "homer_index": {
+        "rate": 0.072,
+        "raw_rate": 0.1,
+        "team": "NYJ"
+      },
+      "keepers": {
+        "excluded_from_metrics": 5,
+        "picks_kept": [
+          {
+            "name": "Jonathan Taylor",
+            "position": "RB",
+            "round": 1,
+            "season": "2024"
+          },
+          {
+            "name": "Garrett Wilson",
+            "position": "WR",
+            "round": 2,
+            "season": "2024"
+          },
+          {
+            "name": "Jahmyr Gibbs",
+            "position": "RB",
+            "round": 3,
+            "season": "2024"
+          },
+          {
+            "name": "Jahmyr Gibbs",
+            "position": "RB",
+            "round": 1,
+            "season": "2025"
+          },
+          {
+            "name": "Jonathan Taylor",
+            "position": "RB",
+            "round": 2,
+            "season": "2025"
+          }
+        ]
+      },
+      "manager_id": "439662843298574336",
+      "name": "B8T3S",
+      "picks_analysed": 40,
+      "positional_mix": {
+        "QB": 0.083,
+        "RB": 0.167,
+        "TE": 0.083,
+        "WR": 0.667
+      },
+      "positional_timing": {
+        "DEF": {
+          "mean_round": 13.87,
+          "raw_mean_round": 14.33,
+          "vs_league": 0.7
+        },
+        "K": {
+          "mean_round": 12.24,
+          "raw_mean_round": 11.67,
+          "vs_league": -0.86
+        },
+        "QB": {
+          "mean_round": 7.74,
+          "raw_mean_round": 8.67,
+          "vs_league": 1.39
+        },
+        "RB": {
+          "mean_round": 4.99,
+          "raw_mean_round": 5.67,
+          "vs_league": 1.02
+        },
+        "TE": {
+          "mean_round": 8.23,
+          "raw_mean_round": 9.33,
+          "vs_league": 1.66
+        },
+        "WR": {
+          "mean_round": 3.56,
+          "raw_mean_round": 3.67,
+          "vs_league": 0.16
+        }
+      },
+      "reach_delta": {
+        "adp_coverage": 0.975,
+        "league_mean_vs_adp": 9.61,
+        "mean": -5.93,
+        "mean_vs_adp": 3.68,
+        "proxy": false,
+        "raw_mean": -0.28,
+        "sd": 18.31
+      },
+      "rookie_affinity": {
+        "league_rate": 0.0,
+        "rate": 0.0
+      },
+      "sample_size": 3,
+      "shrinkage_weight": 0.6,
+      "softmax": {
+        "alpha_need": 0.46,
+        "beta_value": 2.04
+      },
+      "summary": "Drafts near market value. Waits on QB (round 8). Waits on TE (round 8)."
+    },
+    "440723317066821632": {
+      "bpa_vs_need": {
+        "adp_coverage": 0.955,
+        "bpa_rate": 0.288,
+        "league_rate": 0.311,
+        "proxy": false
+      },
+      "draft_patterns": {
+        "by_round_bucket": {
+          "early": {
+            "mix": {
+              "RB": 0.625,
+              "WR": 0.375
+            },
+            "picks": 8
+          },
+          "late": {
+            "mix": {
+              "DEF": 0.143,
+              "K": 0.143,
+              "QB": 0.095,
+              "RB": 0.238,
+              "TE": 0.143,
+              "WR": 0.238
+            },
+            "picks": 21
+          },
+          "mid": {
+            "mix": {
+              "QB": 0.2,
+              "RB": 0.267,
+              "TE": 0.2,
+              "WR": 0.333
+            },
+            "picks": 15
+          }
+        },
+        "consistency": {
+          "DEF": {
+            "predictable": false,
+            "rounds": [
+              9,
+              10,
+              15
+            ],
+            "sd": 2.62,
+            "spread": 6
+          },
+          "K": {
+            "predictable": true,
+            "rounds": [
+              13,
+              13,
+              14
+            ],
+            "sd": 0.47,
+            "spread": 1
+          },
+          "QB": {
+            "predictable": true,
+            "rounds": [
+              7,
+              6,
+              5
+            ],
+            "sd": 0.82,
+            "spread": 2
+          },
+          "RB": {
+            "predictable": true,
+            "rounds": [
+              1,
+              1,
+              2
+            ],
+            "sd": 0.47,
+            "spread": 1
+          },
+          "TE": {
+            "predictable": true,
+            "rounds": [
+              6,
+              6,
+              7
+            ],
+            "sd": 0.47,
+            "spread": 1
+          },
+          "WR": {
+            "predictable": true,
+            "rounds": [
+              3,
+              3,
+              3
+            ],
+            "sd": 0.0,
+            "spread": 0
+          }
+        },
+        "openings": {
+          "by_season": {
+            "2023": [
+              "RB",
+              "RB",
+              "WR",
+              "RB"
+            ],
+            "2024": [
+              "RB",
+              "RB",
+              "WR",
+              "RB"
+            ],
+            "2025": [
+              "RB",
+              "WR",
+              "RB",
+              "QB"
+            ]
+          },
+          "most_common_open": "RB-RB",
+          "most_common_open_count": 2,
+          "repeats": true,
+          "seasons": 3
+        },
+        "position_coverage": 1.0,
+        "repeat_targets": [
+          {
+            "name": "San Francisco 49ers",
+            "player_id": "SF",
+            "position": "DEF",
+            "rounds": [
+              10,
+              9,
+              15
+            ],
+            "seasons": [
+              "2023",
+              "2024",
+              "2025"
+            ],
+            "times": 3
+          },
+          {
+            "name": "Dallas Goedert",
+            "player_id": "5022",
+            "position": "TE",
+            "rounds": [
+              14,
+              13
+            ],
+            "seasons": [
+              "2024",
+              "2025"
+            ],
+            "times": 2
+          },
+          {
+            "name": "Josh Jacobs",
+            "player_id": "5850",
+            "position": "RB",
+            "rounds": [
+              2,
+              1
+            ],
+            "seasons": [
+              "2023",
+              "2024"
+            ],
+            "times": 2
+          },
+          {
+            "name": "Rome Odunze",
+            "player_id": "11620",
+            "position": "WR",
+            "rounds": [
+              8,
+              8
+            ],
+            "seasons": [
+              "2024",
+              "2025"
+            ],
+            "times": 2
+          }
+        ],
+        "run_following": {
+          "league_rate": 0.407,
+          "rate": 0.395
+        },
+        "stack_rate": 0.2
+      },
+      "homer_index": {
+        "rate": 0.094,
+        "raw_rate": 0.136,
+        "team": "SF"
+      },
+      "keepers": {
+        "excluded_from_metrics": 1,
+        "picks_kept": [
+          {
+            "name": "Josh Jacobs",
+            "position": "RB",
+            "round": 1,
+            "season": "2025"
+          }
+        ]
+      },
+      "manager_id": "440723317066821632",
+      "name": "Jreis",
+      "picks_analysed": 44,
+      "positional_mix": {
+        "QB": 0.111,
+        "RB": 0.444,
+        "TE": 0.111,
+        "WR": 0.333
+      },
+      "positional_timing": {
+        "DEF": {
+          "mean_round": 12.07,
+          "raw_mean_round": 11.33,
+          "vs_league": -1.1
+        },
+        "K": {
+          "mean_round": 13.24,
+          "raw_mean_round": 13.33,
+          "vs_league": 0.14
+        },
+        "QB": {
+          "mean_round": 6.14,
+          "raw_mean_round": 6.0,
+          "vs_league": -0.21
+        },
+        "RB": {
+          "mean_round": 2.39,
+          "raw_mean_round": 1.33,
+          "vs_league": -1.58
+        },
+        "TE": {
+          "mean_round": 6.43,
+          "raw_mean_round": 6.33,
+          "vs_league": -0.14
+        },
+        "WR": {
+          "mean_round": 3.16,
+          "raw_mean_round": 3.0,
+          "vs_league": -0.24
+        }
+      },
+      "reach_delta": {
+        "adp_coverage": 0.955,
+        "league_mean_vs_adp": 9.61,
+        "mean": 4.82,
+        "mean_vs_adp": 14.43,
+        "proxy": false,
+        "raw_mean": 17.64,
+        "sd": 82.59
+      },
+      "rookie_affinity": {
+        "league_rate": 0.0,
+        "rate": 0.0
+      },
+      "sample_size": 3,
+      "shrinkage_weight": 0.6,
+      "softmax": {
+        "alpha_need": 0.61,
+        "beta_value": 1.89
+      },
+      "summary": "Drafts near market value."
+    },
+    "458507445241638912": {
+      "bpa_vs_need": {
+        "adp_coverage": 0.921,
+        "bpa_rate": 0.345,
+        "league_rate": 0.311,
+        "proxy": false
+      },
+      "draft_patterns": {
+        "by_round_bucket": {
+          "early": {
+            "mix": {
+              "RB": 0.333,
+              "WR": 0.667
+            },
+            "picks": 3
+          },
+          "late": {
+            "mix": {
+              "DEF": 0.143,
+              "K": 0.143,
+              "QB": 0.095,
+              "RB": 0.19,
+              "TE": 0.095,
+              "WR": 0.333
+            },
+            "picks": 21
+          },
+          "mid": {
+            "mix": {
+              "QB": 0.067,
+              "RB": 0.333,
+              "TE": 0.2,
+              "WR": 0.4
+            },
+            "picks": 15
+          }
+        },
+        "consistency": {
+          "DEF": {
+            "predictable": true,
+            "rounds": [
+              13,
+              13,
+              14
+            ],
+            "sd": 0.47,
+            "spread": 1
+          },
+          "K": {
+            "predictable": true,
+            "rounds": [
+              14,
+              15,
+              13
+            ],
+            "sd": 0.82,
+            "spread": 2
+          },
+          "QB": {
+            "predictable": false,
+            "rounds": [
+              4,
+              12
+            ],
+            "sd": 4.0,
+            "spread": 8
+          },
+          "RB": {
+            "predictable": false,
+            "rounds": [
+              1,
+              6,
+              6
+            ],
+            "sd": 2.36,
+            "spread": 5
+          },
+          "TE": {
+            "predictable": false,
+            "rounds": [
+              8,
+              5,
+              5
+            ],
+            "sd": 1.41,
+            "spread": 3
+          },
+          "WR": {
+            "predictable": true,
+            "rounds": [
+              2,
+              4,
+              4
+            ],
+            "sd": 0.94,
+            "spread": 2
+          }
+        },
+        "openings": {
+          "by_season": {
+            "2023": [
+              "RB",
+              "WR",
+              "WR",
+              "QB"
+            ],
+            "2024": [
+              "WR",
+              "TE",
+              "RB",
+              "WR"
+            ],
+            "2025": [
+              "WR",
+              "TE",
+              "RB",
+              "WR"
+            ]
+          },
+          "most_common_open": "WR-TE",
+          "most_common_open_count": 2,
+          "repeats": true,
+          "seasons": 3
+        },
+        "position_coverage": 1.0,
+        "repeat_targets": [
+          {
+            "name": "Dalton Kincaid",
+            "player_id": "10236",
+            "position": "TE",
+            "rounds": [
+              10,
+              5
+            ],
+            "seasons": [
+              "2023",
+              "2024"
+            ],
+            "times": 2
+          },
+          {
+            "name": "Jared Goff",
+            "player_id": "3163",
+            "position": "QB",
+            "rounds": [
+              15,
+              12
+            ],
+            "seasons": [
+              "2023",
+              "2024"
+            ],
+            "times": 2
+          }
+        ],
+        "run_following": {
+          "league_rate": 0.407,
+          "rate": 0.421
+        },
+        "stack_rate": 0.667
+      },
+      "homer_index": {
+        "rate": 0.089,
+        "raw_rate": 0.128,
+        "team": "DET"
+      },
+      "keepers": {
+        "excluded_from_metrics": 6,
+        "picks_kept": [
+          {
+            "name": "Christian McCaffrey",
+            "position": "RB",
+            "round": 1,
+            "season": "2024"
+          },
+          {
+            "name": "Josh Allen",
+            "position": "QB",
+            "round": 2,
+            "season": "2024"
+          },
+          {
+            "name": "Amon-Ra St. Brown",
+            "position": "WR",
+            "round": 3,
+            "season": "2024"
+          },
+          {
+            "name": "Christian McCaffrey",
+            "position": "RB",
+            "round": 1,
+            "season": "2025"
+          },
+          {
+            "name": "Josh Allen",
+            "position": "QB",
+            "round": 2,
+            "season": "2025"
+          },
+          {
+            "name": "Amon-Ra St. Brown",
+            "position": "WR",
+            "round": 3,
+            "season": "2025"
+          }
+        ]
+      },
+      "manager_id": "458507445241638912",
+      "name": "mhagen",
+      "picks_analysed": 39,
+      "positional_mix": {
+        "QB": 0.083,
+        "RB": 0.333,
+        "TE": 0.167,
+        "WR": 0.417
+      },
+      "positional_timing": {
+        "DEF": {
+          "mean_round": 13.27,
+          "raw_mean_round": 13.33,
+          "vs_league": 0.1
+        },
+        "K": {
+          "mean_round": 13.64,
+          "raw_mean_round": 14.0,
+          "vs_league": 0.54
+        },
+        "QB": {
+          "mean_round": 7.34,
+          "raw_mean_round": 8.0,
+          "vs_league": 0.99
+        },
+        "RB": {
+          "mean_round": 4.19,
+          "raw_mean_round": 4.33,
+          "vs_league": 0.22
+        },
+        "TE": {
+          "mean_round": 6.23,
+          "raw_mean_round": 6.0,
+          "vs_league": -0.34
+        },
+        "WR": {
+          "mean_round": 3.36,
+          "raw_mean_round": 3.33,
+          "vs_league": -0.04
+        }
+      },
+      "reach_delta": {
+        "adp_coverage": 0.921,
+        "league_mean_vs_adp": 9.61,
+        "mean": -4.89,
+        "mean_vs_adp": 4.72,
+        "proxy": false,
+        "raw_mean": 1.46,
+        "sd": 28.76
+      },
+      "rookie_affinity": {
+        "league_rate": 0.0,
+        "rate": 0.0
+      },
+      "sample_size": 3,
+      "shrinkage_weight": 0.6,
+      "softmax": {
+        "alpha_need": 0.335,
+        "beta_value": 2.165
+      },
+      "summary": "Drafts near market value."
+    },
+    "459850070410391552": {
+      "bpa_vs_need": {
+        "adp_coverage": 0.949,
+        "bpa_rate": 0.37,
+        "league_rate": 0.311,
+        "proxy": false
+      },
+      "draft_patterns": {
+        "by_round_bucket": {
+          "early": {
+            "mix": {
+              "RB": 0.75,
+              "TE": 0.25
+            },
+            "picks": 4
+          },
+          "late": {
+            "mix": {
+              "DEF": 0.143,
+              "K": 0.143,
+              "QB": 0.19,
+              "RB": 0.333,
+              "TE": 0.048,
+              "WR": 0.143
+            },
+            "picks": 21
+          },
+          "mid": {
+            "mix": {
+              "QB": 0.133,
+              "RB": 0.2,
+              "TE": 0.067,
+              "WR": 0.6
+            },
+            "picks": 15
+          }
+        },
+        "consistency": {
+          "DEF": {
+            "predictable": true,
+            "rounds": [
+              14,
+              13,
+              13
+            ],
+            "sd": 0.47,
+            "spread": 1
+          },
+          "K": {
+            "predictable": true,
+            "rounds": [
+              15,
+              15,
+              14
+            ],
+            "sd": 0.47,
+            "spread": 1
+          },
+          "QB": {
+            "predictable": false,
+            "rounds": [
+              6,
+              6,
+              9
+            ],
+            "sd": 1.41,
+            "spread": 3
+          },
+          "RB": {
+            "predictable": false,
+            "rounds": [
+              1,
+              3,
+              7
+            ],
+            "sd": 2.49,
+            "spread": 6
+          },
+          "TE": {
+            "predictable": false,
+            "rounds": [
+              2,
+              10,
+              5
+            ],
+            "sd": 3.3,
+            "spread": 8
+          },
+          "WR": {
+            "predictable": true,
+            "rounds": [
+              5,
+              5,
+              4
+            ],
+            "sd": 0.47,
+            "spread": 1
+          }
+        },
+        "openings": {
+          "by_season": {
+            "2023": [
+              "RB",
+              "TE",
+              "RB",
+              "RB"
+            ],
+            "2024": [
+              "WR",
+              "TE",
+              "WR",
+              "RB"
+            ],
+            "2025": [
+              "RB",
+              "RB",
+              "WR",
+              "QB"
+            ]
+          },
+          "most_common_open": "RB-RB",
+          "most_common_open_count": 1,
+          "repeats": false,
+          "seasons": 3
+        },
+        "position_coverage": 1.0,
+        "repeat_targets": [
+          {
+            "name": "Christian Watson",
+            "player_id": "8167",
+            "position": "WR",
+            "rounds": [
+              7,
+              10
+            ],
+            "seasons": [
+              "2023",
+              "2024"
+            ],
+            "times": 2
+          },
+          {
+            "name": "Khalil Herbert",
+            "player_id": "7608",
+            "position": "RB",
+            "rounds": [
+              10,
+              15
+            ],
+            "seasons": [
+              "2023",
+              "2024"
+            ],
+            "times": 2
+          },
+          {
+            "name": "Mark Andrews",
+            "player_id": "5012",
+            "position": "TE",
+            "rounds": [
+              2,
+              5
+            ],
+            "seasons": [
+              "2023",
+              "2024"
+            ],
+            "times": 2
+          },
+          {
+            "name": "Rhamondre Stevenson",
+            "player_id": "7611",
+            "position": "RB",
+            "rounds": [
+              3,
+              14
+            ],
+            "seasons": [
+              "2023",
+              "2025"
+            ],
+            "times": 2
+          }
+        ],
+        "run_following": {
+          "league_rate": 0.407,
+          "rate": 0.395
+        },
+        "stack_rate": 0.0
+      },
+      "homer_index": {
+        "rate": 0.072,
+        "raw_rate": 0.1,
+        "team": "MIA"
+      },
+      "keepers": {
+        "excluded_from_metrics": 5,
+        "picks_kept": [
+          {
+            "name": "Puka Nacua",
+            "position": "WR",
+            "round": 1,
+            "season": "2024"
+          },
+          {
+            "name": "Saquon Barkley",
+            "position": "RB",
+            "round": 2,
+            "season": "2024"
+          },
+          {
+            "name": "Travis Etienne",
+            "position": "RB",
+            "round": 3,
+            "season": "2024"
+          },
+          {
+            "name": "Saquon Barkley",
+            "position": "RB",
+            "round": 1,
+            "season": "2025"
+          },
+          {
+            "name": "Puka Nacua",
+            "position": "WR",
+            "round": 2,
+            "season": "2025"
+          }
+        ]
+      },
+      "manager_id": "459850070410391552",
+      "name": "Schmelley",
+      "picks_analysed": 40,
+      "positional_mix": {
+        "QB": 0.154,
+        "RB": 0.385,
+        "TE": 0.154,
+        "WR": 0.308
+      },
+      "positional_timing": {
+        "DEF": {
+          "mean_round": 13.27,
+          "raw_mean_round": 13.33,
+          "vs_league": 0.1
+        },
+        "K": {
+          "mean_round": 14.04,
+          "raw_mean_round": 14.67,
+          "vs_league": 0.94
+        },
+        "QB": {
+          "mean_round": 6.74,
+          "raw_mean_round": 7.0,
+          "vs_league": 0.39
+        },
+        "RB": {
+          "mean_round": 3.79,
+          "raw_mean_round": 3.67,
+          "vs_league": -0.18
+        },
+        "TE": {
+          "mean_round": 6.03,
+          "raw_mean_round": 5.67,
+          "vs_league": -0.54
+        },
+        "WR": {
+          "mean_round": 4.16,
+          "raw_mean_round": 4.67,
+          "vs_league": 0.76
+        }
+      },
+      "reach_delta": {
+        "adp_coverage": 0.949,
+        "league_mean_vs_adp": 9.61,
+        "mean": 5.05,
+        "mean_vs_adp": 14.65,
+        "proxy": false,
+        "raw_mean": 18.02,
+        "sd": 136.41
+      },
+      "rookie_affinity": {
+        "league_rate": 0.0,
+        "rate": 0.0
+      },
+      "sample_size": 3,
+      "shrinkage_weight": 0.6,
+      "softmax": {
+        "alpha_need": 0.214,
+        "beta_value": 2.286
+      },
+      "summary": "Drafts near market value. Takes best available."
+    },
+    "461443264013135872": {
+      "bpa_vs_need": {
+        "adp_coverage": 0.947,
+        "bpa_rate": 0.314,
+        "league_rate": 0.311,
+        "proxy": false
+      },
+      "draft_patterns": {
+        "by_round_bucket": {
+          "early": {
+            "mix": {
+              "RB": 0.333,
+              "WR": 0.667
+            },
+            "picks": 3
+          },
+          "late": {
+            "mix": {
+              "DEF": 0.095,
+              "K": 0.143,
+              "QB": 0.095,
+              "RB": 0.333,
+              "TE": 0.095,
+              "WR": 0.238
+            },
+            "picks": 21
+          },
+          "mid": {
+            "mix": {
+              "QB": 0.133,
+              "RB": 0.333,
+              "TE": 0.133,
+              "WR": 0.4
+            },
+            "picks": 15
+          }
+        },
+        "consistency": {
+          "DEF": {
+            "predictable": true,
+            "rounds": [
+              12,
+              14
+            ],
+            "sd": 1.0,
+            "spread": 2
+          },
+          "K": {
+            "predictable": true,
+            "rounds": [
+              13,
+              11,
+              13
+            ],
+            "sd": 0.94,
+            "spread": 2
+          },
+          "QB": {
+            "predictable": false,
+            "rounds": [
+              4,
+              5,
+              12
+            ],
+            "sd": 3.56,
+            "spread": 8
+          },
+          "RB": {
+            "predictable": false,
+            "rounds": [
+              2,
+              4,
+              6
+            ],
+            "sd": 1.63,
+            "spread": 4
+          },
+          "TE": {
+            "predictable": false,
+            "rounds": [
+              6,
+              8,
+              10
+            ],
+            "sd": 1.63,
+            "spread": 4
+          },
+          "WR": {
+            "predictable": false,
+            "rounds": [
+              1,
+              6,
+              4
+            ],
+            "sd": 2.05,
+            "spread": 5
+          }
+        },
+        "openings": {
+          "by_season": {
+            "2023": [
+              "WR",
+              "RB",
+              "WR",
+              "QB"
+            ],
+            "2024": [
+              "RB",
+              "QB",
+              "WR",
+              "WR"
+            ],
+            "2025": [
+              "WR",
+              "WR",
+              "RB",
+              "WR"
+            ]
+          },
+          "most_common_open": "WR-WR",
+          "most_common_open_count": 1,
+          "repeats": false,
+          "seasons": 3
+        },
+        "position_coverage": 1.0,
+        "repeat_targets": [
+          {
+            "name": "Harrison Butker",
+            "player_id": "4227",
+            "position": "K",
+            "rounds": [
+              11,
+              13
+            ],
+            "seasons": [
+              "2024",
+              "2025"
+            ],
+            "times": 2
+          },
+          {
+            "name": "Lamar Jackson",
+            "player_id": "4881",
+            "position": "QB",
+            "rounds": [
+              4,
+              5
+            ],
+            "seasons": [
+              "2023",
+              "2024"
+            ],
+            "times": 2
+          }
+        ],
+        "run_following": {
+          "league_rate": 0.407,
+          "rate": 0.368
+        },
+        "stack_rate": 0.5
+      },
+      "homer_index": {
+        "rate": 0.074,
+        "raw_rate": 0.103,
+        "team": "KC"
+      },
+      "keepers": {
+        "excluded_from_metrics": 6,
+        "picks_kept": [
+          {
+            "name": "Justin Jefferson",
+            "position": "WR",
+            "round": 1,
+            "season": "2024"
+          },
+          {
+            "name": "Chris Olave",
+            "position": "WR",
+            "round": 2,
+            "season": "2024"
+          },
+          {
+            "name": "De'Von Achane",
+            "position": "RB",
+            "round": 3,
+            "season": "2024"
+          },
+          {
+            "name": "Justin Jefferson",
+            "position": "WR",
+            "round": 1,
+            "season": "2025"
+          },
+          {
+            "name": "De'Von Achane",
+            "position": "RB",
+            "round": 2,
+            "season": "2025"
+          },
+          {
+            "name": "Brock Bowers",
+            "position": "TE",
+            "round": 3,
+            "season": "2025"
+          }
+        ]
+      },
+      "manager_id": "461443264013135872",
+      "name": "MarianSaar",
+      "picks_analysed": 39,
+      "positional_mix": {
+        "QB": 0.167,
+        "RB": 0.333,
+        "TE": 0.083,
+        "WR": 0.417
+      },
+      "positional_timing": {
+        "DEF": {
+          "mean_round": 13.07,
+          "raw_mean_round": 13.0,
+          "vs_league": -0.1
+        },
+        "K": {
+          "mean_round": 12.64,
+          "raw_mean_round": 12.33,
+          "vs_league": -0.46
+        },
+        "QB": {
+          "mean_round": 6.74,
+          "raw_mean_round": 7.0,
+          "vs_league": 0.39
+        },
+        "RB": {
+          "mean_round": 3.99,
+          "raw_mean_round": 4.0,
+          "vs_league": 0.02
+        },
+        "TE": {
+          "mean_round": 7.43,
+          "raw_mean_round": 8.0,
+          "vs_league": 0.86
+        },
+        "WR": {
+          "mean_round": 3.56,
+          "raw_mean_round": 3.67,
+          "vs_league": 0.16
+        }
+      },
+      "reach_delta": {
+        "adp_coverage": 0.947,
+        "league_mean_vs_adp": 9.61,
+        "mean": -6.96,
+        "mean_vs_adp": 2.65,
+        "proxy": false,
+        "raw_mean": -1.99,
+        "sd": 20.67
+      },
+      "rookie_affinity": {
+        "league_rate": 0.0,
+        "rate": 0.0
+      },
+      "sample_size": 3,
+      "shrinkage_weight": 0.6,
+      "softmax": {
+        "alpha_need": 0.484,
+        "beta_value": 2.016
+      },
+      "summary": "Waits \u2014 lets value fall ~7 picks."
+    },
+    "471160336402083840": {
+      "bpa_vs_need": {
+        "adp_coverage": 0.897,
+        "bpa_rate": 0.247,
+        "league_rate": 0.311,
+        "proxy": false
+      },
+      "draft_patterns": {
+        "by_round_bucket": {
+          "early": {
+            "mix": {
+              "QB": 0.25,
+              "RB": 0.25,
+              "WR": 0.5
+            },
+            "picks": 4
+          },
+          "late": {
+            "mix": {
+              "DEF": 0.143,
+              "K": 0.19,
+              "QB": 0.19,
+              "RB": 0.19,
+              "TE": 0.048,
+              "WR": 0.238
+            },
+            "picks": 21
+          },
+          "mid": {
+            "mix": {
+              "QB": 0.067,
+              "RB": 0.2,
+              "TE": 0.133,
+              "WR": 0.6
+            },
+            "picks": 15
+          }
+        },
+        "consistency": {
+          "DEF": {
+            "predictable": true,
+            "rounds": [
+              13,
+              14,
+              15
+            ],
+            "sd": 0.82,
+            "spread": 2
+          },
+          "K": {
+            "predictable": true,
+            "rounds": [
+              14,
+              13,
+              13
+            ],
+            "sd": 0.47,
+            "spread": 1
+          },
+          "QB": {
+            "predictable": false,
+            "rounds": [
+              2,
+              6,
+              11
+            ],
+            "sd": 3.68,
+            "spread": 9
+          },
+          "RB": {
+            "predictable": false,
+            "rounds": [
+              3,
+              9,
+              6
+            ],
+            "sd": 2.45,
+            "spread": 6
+          },
+          "TE": {
+            "predictable": true,
+            "rounds": [
+              7,
+              5
+            ],
+            "sd": 1.0,
+            "spread": 2
+          },
+          "WR": {
+            "predictable": false,
+            "rounds": [
+              1,
+              3,
+              4
+            ],
+            "sd": 1.25,
+            "spread": 3
+          }
+        },
+        "openings": {
+          "by_season": {
+            "2023": [
+              "WR",
+              "QB",
+              "RB",
+              "RB"
+            ],
+            "2024": [
+              "WR",
+              "WR",
+              "TE",
+              "QB"
+            ],
+            "2025": [
+              "WR",
+              "WR",
+              "RB",
+              "WR"
+            ]
+          },
+          "most_common_open": "WR-WR",
+          "most_common_open_count": 2,
+          "repeats": true,
+          "seasons": 3
+        },
+        "position_coverage": 1.0,
+        "repeat_targets": [
+          {
+            "name": "DJ Moore",
+            "player_id": "4983",
+            "position": "WR",
+            "rounds": [
+              4,
+              5
+            ],
+            "seasons": [
+              "2024",
+              "2025"
+            ],
+            "times": 2
+          },
+          {
+            "name": "DeVonta Smith",
+            "player_id": "7525",
+            "position": "WR",
+            "rounds": [
+              7,
+              7
+            ],
+            "seasons": [
+              "2024",
+              "2025"
+            ],
+            "times": 2
+          }
+        ],
+        "run_following": {
+          "league_rate": 0.407,
+          "rate": 0.395
+        },
+        "stack_rate": 0.167
+      },
+      "homer_index": {
+        "rate": 0.072,
+        "raw_rate": 0.1,
+        "team": "CHI"
+      },
+      "keepers": {
+        "excluded_from_metrics": 5,
+        "picks_kept": [
+          {
+            "name": "Breece Hall",
+            "position": "RB",
+            "round": 1,
+            "season": "2024"
+          },
+          {
+            "name": "Bijan Robinson",
+            "position": "RB",
+            "round": 2,
+            "season": "2024"
+          },
+          {
+            "name": "Bijan Robinson",
+            "position": "RB",
+            "round": 1,
+            "season": "2025"
+          },
+          {
+            "name": "Nico Collins",
+            "position": "WR",
+            "round": 2,
+            "season": "2025"
+          },
+          {
+            "name": "Trey McBride",
+            "position": "TE",
+            "round": 3,
+            "season": "2025"
+          }
+        ]
+      },
+      "manager_id": "471160336402083840",
+      "name": "Richard2121",
+      "picks_analysed": 40,
+      "positional_mix": {
+        "QB": 0.167,
+        "RB": 0.25,
+        "TE": 0.083,
+        "WR": 0.5
+      },
+      "positional_timing": {
+        "DEF": {
+          "mean_round": 13.67,
+          "raw_mean_round": 14.0,
+          "vs_league": 0.5
+        },
+        "K": {
+          "mean_round": 13.24,
+          "raw_mean_round": 13.33,
+          "vs_league": 0.14
+        },
+        "QB": {
+          "mean_round": 6.34,
+          "raw_mean_round": 6.33,
+          "vs_league": -0.01
+        },
+        "RB": {
+          "mean_round": 5.19,
+          "raw_mean_round": 6.0,
+          "vs_league": 1.22
+        },
+        "TE": {
+          "mean_round": 6.23,
+          "raw_mean_round": 6.0,
+          "vs_league": -0.34
+        },
+        "WR": {
+          "mean_round": 2.96,
+          "raw_mean_round": 2.67,
+          "vs_league": -0.44
+        }
+      },
+      "reach_delta": {
+        "adp_coverage": 0.897,
+        "league_mean_vs_adp": 9.61,
+        "mean": 12.92,
+        "mean_vs_adp": 22.53,
+        "proxy": false,
+        "raw_mean": 31.14,
+        "sd": 141.15
+      },
+      "rookie_affinity": {
+        "league_rate": 0.0,
+        "rate": 0.0
+      },
+      "sample_size": 3,
+      "shrinkage_weight": 0.6,
+      "softmax": {
+        "alpha_need": 0.808,
+        "beta_value": 1.692
+      },
+      "summary": "Reaches ~13 picks early. Drafts for need."
+    },
+    "739930057887334400": {
+      "bpa_vs_need": {
+        "adp_coverage": 0.905,
+        "bpa_rate": 0.296,
+        "league_rate": 0.311,
+        "proxy": false
+      },
+      "draft_patterns": {
+        "by_round_bucket": {
+          "early": {
+            "mix": {
+              "QB": 0.167,
+              "RB": 0.333,
+              "WR": 0.5
+            },
+            "picks": 6
+          },
+          "late": {
+            "mix": {
+              "DEF": 0.143,
+              "K": 0.143,
+              "QB": 0.143,
+              "RB": 0.19,
+              "TE": 0.048,
+              "WR": 0.333
+            },
+            "picks": 21
+          },
+          "mid": {
+            "mix": {
+              "QB": 0.133,
+              "RB": 0.467,
+              "TE": 0.2,
+              "WR": 0.2
+            },
+            "picks": 15
+          }
+        },
+        "consistency": {
+          "DEF": {
+            "predictable": true,
+            "rounds": [
+              12,
+              10,
+              11
+            ],
+            "sd": 0.82,
+            "spread": 2
+          },
+          "K": {
+            "predictable": true,
+            "rounds": [
+              11,
+              13,
+              13
+            ],
+            "sd": 0.94,
+            "spread": 2
+          },
+          "QB": {
+            "predictable": false,
+            "rounds": [
+              3,
+              5,
+              7
+            ],
+            "sd": 1.63,
+            "spread": 4
+          },
+          "RB": {
+            "predictable": true,
+            "rounds": [
+              4,
+              2,
+              3
+            ],
+            "sd": 0.82,
+            "spread": 2
+          },
+          "TE": {
+            "predictable": true,
+            "rounds": [
+              7,
+              8,
+              8
+            ],
+            "sd": 0.47,
+            "spread": 1
+          },
+          "WR": {
+            "predictable": false,
+            "rounds": [
+              1,
+              3,
+              5
+            ],
+            "sd": 1.63,
+            "spread": 4
+          }
+        },
+        "openings": {
+          "by_season": {
+            "2023": [
+              "WR",
+              "WR",
+              "QB",
+              "RB"
+            ],
+            "2024": [
+              "RB",
+              "RB",
+              "WR",
+              "RB"
+            ],
+            "2025": [
+              "RB",
+              "WR",
+              "RB",
+              "QB"
+            ]
+          },
+          "most_common_open": "RB-WR",
+          "most_common_open_count": 1,
+          "repeats": false,
+          "seasons": 3
+        },
+        "position_coverage": 1.0,
+        "repeat_targets": [
+          {
+            "name": "Dak Prescott",
+            "player_id": "3294",
+            "position": "QB",
+            "rounds": [
+              10,
+              7
+            ],
+            "seasons": [
+              "2023",
+              "2024"
+            ],
+            "times": 2
+          },
+          {
+            "name": "Philadelphia Eagles",
+            "player_id": "PHI",
+            "position": "DEF",
+            "rounds": [
+              12,
+              10
+            ],
+            "seasons": [
+              "2023",
+              "2025"
+            ],
+            "times": 2
+          },
+          {
+            "name": "Tyreek Hill",
+            "player_id": "3321",
+            "position": "WR",
+            "rounds": [
+              1,
+              3
+            ],
+            "seasons": [
+              "2023",
+              "2025"
+            ],
+            "times": 2
+          }
+        ],
+        "run_following": {
+          "league_rate": 0.407,
+          "rate": 0.447
+        },
+        "stack_rate": 0.167
+      },
+      "homer_index": {
+        "rate": 0.07,
+        "raw_rate": 0.095,
+        "team": "PHI"
+      },
+      "keepers": {
+        "excluded_from_metrics": 3,
+        "picks_kept": [
+          {
+            "name": "Tyreek Hill",
+            "position": "WR",
+            "round": 1,
+            "season": "2024"
+          },
+          {
+            "name": "CeeDee Lamb",
+            "position": "WR",
+            "round": 2,
+            "season": "2024"
+          },
+          {
+            "name": "CeeDee Lamb",
+            "position": "WR",
+            "round": 1,
+            "season": "2025"
+          }
+        ]
+      },
+      "manager_id": "739930057887334400",
+      "name": "Sadbru",
+      "picks_analysed": 42,
+      "positional_mix": {
+        "QB": 0.133,
+        "RB": 0.467,
+        "WR": 0.4
+      },
+      "positional_timing": {
+        "DEF": {
+          "mean_round": 11.87,
+          "raw_mean_round": 11.0,
+          "vs_league": -1.3
+        },
+        "K": {
+          "mean_round": 12.64,
+          "raw_mean_round": 12.33,
+          "vs_league": -0.46
+        },
+        "QB": {
+          "mean_round": 5.54,
+          "raw_mean_round": 5.0,
+          "vs_league": -0.81
+        },
+        "RB": {
+          "mean_round": 3.39,
+          "raw_mean_round": 3.0,
+          "vs_league": -0.58
+        },
+        "TE": {
+          "mean_round": 7.23,
+          "raw_mean_round": 7.67,
+          "vs_league": 0.66
+        },
+        "WR": {
+          "mean_round": 3.16,
+          "raw_mean_round": 3.0,
+          "vs_league": -0.24
+        }
+      },
+      "reach_delta": {
+        "adp_coverage": 0.905,
+        "league_mean_vs_adp": 9.61,
+        "mean": -4.97,
+        "mean_vs_adp": 4.64,
+        "proxy": false,
+        "raw_mean": 1.33,
+        "sd": 23.15
+      },
+      "rookie_affinity": {
+        "league_rate": 0.0,
+        "rate": 0.0
+      },
+      "sample_size": 3,
+      "shrinkage_weight": 0.6,
+      "softmax": {
+        "alpha_need": 0.571,
+        "beta_value": 1.929
+      },
+      "summary": "Drafts near market value."
+    }
+  },
+  "picks_kept_excluded": 43,
+  "picks_total": 450,
+  "position_coverage": 1.0,
+  "seasons": [
+    "2023",
+    "2024",
+    "2025"
+  ]
+}
