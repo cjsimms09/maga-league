@@ -13,6 +13,11 @@ on:
 jobs:
   backtest:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write        # the report commit-back needs it; its absence is
+                             # why runs 5 and 6 generated the report and could
+                             # not push it. The other committing workflows have
+                             # had this all along.
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
