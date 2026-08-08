@@ -17,7 +17,7 @@ jobs:
       - name: JS suites
         run: |
           set -e
-          for t in attribution backtest betlogic engine keeperlock keepers ledger \
+          for t in attribution authority backtest betlogic engine keeperlock keepers ledger \
                    claimfix doctrine mcts predledger prefs rawarchive reconcile shadows sidebets strategies sync update venmo; do
             echo "== $t =="
             node draft/tests/$t.test.js

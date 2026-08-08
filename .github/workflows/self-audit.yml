@@ -45,7 +45,7 @@ jobs:
           npm install --no-audit --no-fund >/dev/null 2>&1
           py_ok=1; js_ok=1
           python -m pytest draft/tests -q || py_ok=0
-          for t in attribution backtest betlogic engine keeperlock keepers ledger \
+          for t in attribution authority backtest betlogic engine keeperlock keepers ledger \
                    claimfix doctrine mcts predledger prefs rawarchive reconcile shadows sidebets strategies sync update venmo; do
             node draft/tests/$t.test.js >/dev/null 2>&1 || js_ok=0
           done
