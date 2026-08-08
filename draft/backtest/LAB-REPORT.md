@@ -1,6 +1,6 @@
 # THE LAB — report
 
-_git HEAD `0dec9a209ba0bb918f7adad96140b953ed7c2203` · seasons 2023, 2024, 2025 · currency: E[$] under payouts.json.by_season (era-correct)_
+_git HEAD `a0b2cc34900224352ddf13d2f8adedd972f71780` · seasons 2023, 2024, 2025 · currency: E[$] under payouts.json.by_season (era-correct)_
 
 ## Experiments run
 
