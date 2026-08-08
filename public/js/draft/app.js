@@ -577,12 +577,45 @@
     if (adp.warning) {
       notes.push({ level: 'bad', text: adp.warning });
     } else if (adp.fallback_count) {
-      notes.push({
-        level: 'warn',
-        text: adp.fallback_count + ' player' + (adp.fallback_count === 1 ? '' : 's')
-          + ' priced by Sleeper popularity rank instead of real ADP ('
-          + Math.round((adp.fallback_rate || 0) * 100) + '% of the board).',
-      });
+      // A4 reword (polish pass) + "cited or corrected". The old copy paired the
+      // WHOLE-POOL count (1,559) with the IN-PLAY rate (~8% = 17/225) — two
+      // different denominators, misleading. The deep pool priced by fallback is
+      // FINE for late fliers; amber ONLY when fallback penetrates the draft-
+      // relevant top with SKILL players. K/DEF never carry FFC ADP, so their
+      // fallback is EXPECTED — never a warning — and is excluded from the trigger.
+      const teams = (d.league || {}).teams || 10;
+      const coreDepth = teams * 13;   // the draftable skill core (10-team → ~130)
+      const isFallback = pl => pl.adp_source && pl.adp_source !== 'ffc' && pl.adp_source !== 'consensus';
+      const skillCore = (d.players || []).filter(pl =>
+        (pl.overall_rank || pl.consensus_rank || 1e9) <= coreDepth
+        && ['QB', 'RB', 'WR', 'TE'].indexOf(pl.position) !== -1
+        && isFallback(pl));
+      const rep = adp.report || {};
+      const matchStr = rep.matched != null
+        ? ' (FFC ' + rep.matched + '/' + (rep.matched + (rep.unmatched_count || 0)) + ' matched)' : '';
+      if (skillCore.length > 0) {
+        // Fallback penetrated the draft-relevant top with skill players — a real
+        // FFC coverage / name-match regression worth diagnosing. Report by position.
+        const byPos = {};
+        skillCore.forEach(pl => { byPos[pl.position] = (byPos[pl.position] || 0) + 1; });
+        notes.push({
+          level: 'warn',
+          text: skillCore.length + ' skill player' + (skillCore.length === 1 ? '' : 's')
+            + ' inside the top ' + coreDepth + ' lack real ADP ('
+            + Object.keys(byPos).map(k => byPos[k] + ' ' + k).join(', ')
+            + ') — possible FFC coverage/match regression: '
+            + skillCore.slice(0, 4).map(pl => pl.name).join(', ')
+            + (skillCore.length > 4 ? '…' : '') + '.',
+        });
+      } else {
+        // The expected, benign case (A4): the top is on real ADP; only the deep
+        // pool + K/DEF fall back.
+        notes.push({
+          level: 'ok',
+          text: 'Top ' + coreDepth + ': real ADP' + matchStr + '. Deep pool ('
+            + adp.fallback_count + ') priced by fallback — fine for late fliers.',
+        });
+      }
     }
 
     const opp = p.opportunity_adjustment;
@@ -616,8 +649,9 @@
 
     if (!notes.length) { host.style.display = 'none'; host.innerHTML = ''; return; }
     host.style.display = '';
+    const icon = lvl => lvl === 'bad' ? '⛔' : (lvl === 'ok' ? 'ℹ️' : '⚠️');
     host.innerHTML = notes.map(n =>
-      '<div class="prov-note ' + n.level + '"><b>' + (n.level === 'bad' ? '⛔' : '⚠️')
+      '<div class="prov-note ' + n.level + '"><b>' + icon(n.level)
       + '</b> <span>' + escapeHtml(n.text) + '</span></div>').join('');
   }
 

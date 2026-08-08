@@ -918,6 +918,7 @@ button.is-busy, .btn.is-busy {
 }
 .prov-note.warn { background: rgba(245, 196, 69, .09); border: 1px solid rgba(245, 196, 69, .45); color: #f2e2b4; }
 .prov-note.bad  { background: rgba(255, 70, 85, .10); border: 1px solid rgba(255, 70, 85, .55); color: #ffd3d7; }
+.prov-note.ok   { background: rgba(47, 213, 118, .08); border: 1px solid rgba(47, 213, 118, .35); color: #b8e8c9; }
 
 /* ---------- roster legality + plausibility rails (War Room) ----------
    Both exist to be noticed on the clock with forty seconds left. Neither is
