@@ -289,6 +289,7 @@
       var op = playerById(playerId);
       var c = ledgerCtx();
       PredLedger.override({ season: c.season, build_at: c.build_at, pick: c.pick,
+        method: 'override-v1',
         payload: { player_id: String(playerId), name: op ? op.name : null,
           kind: kind || 'clear', pct: kind ? (pct == null ? 25 : Number(pct)) : null } });
     }
@@ -1265,6 +1266,7 @@
     if (typeof PredLedger !== 'undefined' && !state.mockMode && out.scored && out.scored.length) {
       var c = ledgerCtx();
       PredLedger.recommendation({ season: c.season, build_at: c.build_at, pick: c.pick,
+        method: 'composite-v1',
         payload: {
           weights: state.weights,
           top: out.scored.slice(0, 10).map(function (s) {
@@ -1541,6 +1543,47 @@
       '<div class="surv-row"><span>' + escapeHtml(x.p.name) + ' <span class="muted">' + x.p.position + '</span></span>' +
       '<div class="surv-bar"><div style="width:' + Math.round(x.s * 100) + '%"></div></div>' +
       '<b class="' + (x.s > 0.6 ? 'pos' : x.s < 0.25 ? 'neg' : '') + '">' + Math.round(x.s * 100) + '%</b></div>').join('');
+
+    // L1 capture: the survival estimates the tool showed at this pick, plus a
+    // last-responsible-moment snapshot per onesie position, once per (pick,build).
+    if (typeof PredLedger !== 'undefined' && !state.mockMode) {
+      var c = ledgerCtx();
+      PredLedger.survival({ season: c.season, build_at: c.build_at, pick: c.pick,
+        method: 'survival-v1',
+        payload: { to_pick: next, estimates: top.map(function (x) {
+          return { player_id: String(x.p.player_id), name: x.p.name,
+            position: x.p.position, survival: Math.round(x.s * 1000) / 1000 }; }) } });
+      var lrm = computeLRM(upcoming);
+      if (lrm && lrm.length) {
+        // Explicitly a stopgap computed from the survival model, NOT the real
+        // 2b.6 LRM feature — tagged so grading never confuses the two.
+        PredLedger.lrm({ season: c.season, build_at: c.build_at, pick: c.pick,
+          method: 'survival-snapshot-v0',
+          payload: { last_responsible_moment: lrm } });
+      }
+    }
+  }
+
+  /* Last-responsible-moment per onesie position: the latest of my upcoming picks
+   * where an acceptable option still survives with P >= 0.85. Computed from the
+   * existing survival machinery — logged to the ledger so January can grade the
+   * countdown against when the position actually died. */
+  function computeLRM(upcoming) {
+    if (!upcoming || upcoming.length < 2) return [];
+    var out = [];
+    ['QB', 'TE', 'K', 'DEF'].forEach(function (pos) {
+      var atPos = state.board.filter(function (p) { return p.position === pos; })
+        .sort(function (a, b) { return (b.vorp || 0) - (a.vorp || 0); });
+      if (!atPos.length) return;
+      var best = atPos[0];
+      var lastSafe = null;
+      for (var i = 1; i < upcoming.length; i++) {
+        if (E.survival(best, upcoming[i], state.runMults) >= 0.85) lastSafe = upcoming[i];
+      }
+      out.push({ position: pos, best_available: best.name,
+        act_by_pick: lastSafe, next_pick: upcoming[1] });
+    });
+    return out;
   }
 
   /* Slot assignments imported from the Sleeper draft object (Part 5 §2).
@@ -1779,6 +1822,17 @@
     el.style.display = '';
     el.textContent = '🚨 RUN DETECTED: ' + runs.map(p => p + ' (' + state.runMults[p].toFixed(2) + '×)').join(', ') +
       ' — they are going faster than ADP says. Move up anyone you actually want.';
+
+    // L1 capture: a run-detection firing, deduped by the run signature so the
+    // same run logs once but a new/changed run at a later pick logs again.
+    if (typeof PredLedger !== 'undefined' && !state.mockMode) {
+      var c = ledgerCtx();
+      var sig = runs.map(function (p) { return p + ':' + state.runMults[p].toFixed(2); }).join(',');
+      PredLedger.run({ season: c.season, build_at: c.build_at, pick: c.pick,
+        method: 'run-detect-v1',
+        payload: { positions: runs.map(function (p) {
+          return { position: p, multiplier: Math.round(state.runMults[p] * 100) / 100 }; }) } }, sig);
+    }
   }
 
   /**
@@ -1881,6 +1935,7 @@
     if (typeof PredLedger === 'undefined') return;
     var c = ledgerCtx();
     PredLedger.pick({ season: c.season, build_at: c.build_at, pick: c.pick,
+      method: 'pick-v1',
       payload: { player_id: String(p.player_id), name: p.name, position: p.position,
         team: p.team, adjusted_adp: p.adjusted_adp, vorp: p.vorp, tier: p.tier } });
   }
@@ -2048,8 +2103,48 @@
     });
     // Check the slate against reality before scoring anything off it.
     if (!(state.reconcile && state.reconcile.ignored)) reconcileKeepers(picks);
+    // L2 raw-forever: archive the complete pick stream (ALL teams, as Sleeper
+    // sent it), immutable and content-hash deduped server-side. This is the
+    // permanent raw record of what happened — independent of the board artifact.
+    if (!state.mockMode && picks && picks.length) captureRawPicks(picks);
     recomputeRuns();
     renderAll();
+  }
+
+  /* L2: post the raw Sleeper pick stream to the immutable archive. Best-effort;
+   * dedup happens on the server, so re-sending an unchanged stream is cheap and
+   * never duplicates. Never blocks the draft. */
+  function captureRawPicks(picks) {
+    if (typeof fetch !== 'function') return;
+    var season = state.data && state.data.league ? state.data.league.season : null;
+    // Once per session: archive the exact board build the draft is running on,
+    // so the raw record stands alone even if the git artifact is later rebuilt.
+    if (!state.rawBoardArchived && state.data) {
+      state.rawBoardArchived = true;
+      fetch('/admin/api/archive', { method: 'POST',
+        headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin',
+        body: JSON.stringify({ kind: 'board', season: season,
+          source_at: (state.data || {}).built_at || null,
+          payload: { built_at: state.data.built_at, version: state.data.version,
+            league: state.data.league, pick_order: state.data.pick_order,
+            kept_player_ids: state.data.kept_player_ids, provenance: state.data.provenance,
+            players: state.data.players } }),
+      }).catch(function () { state.rawBoardArchived = false; /* let a later sync retry */ });
+    }
+    fetch('/admin/api/archive', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin',
+      body: JSON.stringify({ kind: 'draft_picks', season: season,
+        source_at: new Date().toISOString(),
+        payload: { count: picks.length, picks: picks } }),
+    }).catch(function () {
+      // one retry, then surface — a lost raw archive on draft night is exactly
+      // the silent data loss L2 exists to prevent.
+      fetch('/admin/api/archive', { method: 'POST',
+        headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin',
+        body: JSON.stringify({ kind: 'draft_picks', season: season,
+          source_at: new Date().toISOString(), payload: { count: picks.length, picks: picks } }),
+      }).catch(function (e) { if (window.console) console.error('[rawarchive] draft_picks capture failed', e); });
+    });
   }
 
   /**

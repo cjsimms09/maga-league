@@ -11,6 +11,21 @@ const { getDoc, setDoc, newId, now } = require('../data');
 const { hashPassword, verifyPassword, requireLogin, aw } = require('../auth');
 const { RULES, SCORING, ROSTER } = require('../seed-data');
 
+// ---------- public: the deployed build stamp ----------
+// Netlify injects COMMIT_REF at build time. This lets CI (which can reach the
+// live site; the build sandbox cannot) confirm the deployed code matches the
+// pushed commit, and fail loudly on a silent deploy failure. Nothing sensitive.
+router.get('/api/version', (req, res) => {
+  res.set('Cache-Control', 'no-store');
+  res.json({
+    commit: process.env.COMMIT_REF || process.env.HEAD || null,
+    branch: process.env.BRANCH || null,
+    deploy_id: process.env.DEPLOY_ID || null,
+    context: process.env.CONTEXT || null,     // 'production' on the live site
+    now: now(),
+  });
+});
+
 // ---------- public: the authoritative draft-config status ----------
 // The build pipeline runs in CI off a committed league_config.json file, which
 // is only ever a CACHE of what the commissioner confirmed on this site. The

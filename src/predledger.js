@@ -43,6 +43,12 @@ function buildEntry(raw, { nowIso, seq }) {
     id: `${raw.season}-${String(seq).padStart(9, '0')}`,
     seq,
     kind,
+    // The method/model version that PRODUCED this prediction. Grading reads it so
+    // a mid-season model upgrade never blurs the record: the lightweight LRM logs
+    // as 'survival-snapshot-v0', distinct from a future real 'lrm-v1', and every
+    // kind carries its own version. Defaults to kind-v0 if a caller omits it, so
+    // an untagged entry is conservatively marked as un-versioned, never blank.
+    method: String(raw.method || `${kind}-v0`),
     season: String(raw.season),
     // decision_at is stamped by the server, NOT taken from the client, so a
     // replayed or backdated client cannot forge the moment of decision.

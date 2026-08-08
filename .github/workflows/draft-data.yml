@@ -105,11 +105,11 @@ jobs:
         env:
           SLOT: ${{ github.event.inputs.slot }}
           # The authority for config_confirmed is the live site's Blob, not the
-          # committed file. Set repo variable SITE_URL (e.g. https://<site>.netlify.app)
-          # so the build fetches the real flag and stamps its source into
-          # provenance. Unset is safe: the build falls back to the file and says
-          # so loudly (provenance.config_confirmed.source = 'file-cache').
-          DRAFT_CONFIG_STATUS_URL: ${{ vars.SITE_URL }}
+          # committed file. Repo variable SITE_URL wins; falls back to the known
+          # production URL so the fetch works out of the box. Unreachable is safe:
+          # the build falls back to the file and says so loudly
+          # (provenance.config_confirmed.source = 'file-cache').
+          DRAFT_CONFIG_STATUS_URL: ${{ vars.SITE_URL || 'https://makefbgreatagain.netlify.app' }}
         run: |
           # --slot is an OVERRIDE, not a default. It used to fall back to a
           # hardcoded 4, which meant every nightly rebuild forced slot 4 no

@@ -2,6 +2,18 @@
 
 _Read this first. Updated after every completed item._
 
+## 🚀 DEPLOY STAMP (repo ↔ live)
+- **Repo main HEAD:** `28131c0` at time of the audit (this commit advances it — see `git log`).
+- **Live site:** https://makefbgreatagain.netlify.app — Netlify auto-deploys `main` on push.
+- **Repo var:** set `SITE_URL` to the above (workflows fall back to it hardcoded until then).
+- **Live verification is CI-only:** this build sandbox's egress policy **blocks netlify.app** (proxy 403), so the live hash cannot be checked from here. Two CI workflows close the gap: `site-check.yml` (asset/board freshness) and the new **`deploy-verify.yml`** (polls `/api/version` after each push and **fails loudly** if the live commit never matches the pushed SHA). A new `/api/version` endpoint exposes the deployed `COMMIT_REF`.
+
+### Deployment audit (2026-08-08) — CLOSED
+1. **Repo vs live:** HEAD==origin/main, 0 unpushed. Live hash unverifiable from the sandbox (egress-blocked); now covered by `deploy-verify.yml` in CI. ✅ mechanism in place
+2. **Subtree sync:** N/A — work commits directly to `github.com/cjsimms09/maga-league` `main`; no subtree split to lag. ✅
+3. **Ledger persistence across redeploy:** ✅ **CONFIRMED PERSISTENT.** Prod uses durable Netlify Blobs; `ensureBackend()` **throws loudly** on Netlify rather than silently falling back to the ephemeral function FS. Ledger+archive survive redeploys; also in the weekly backup now. The draft-night-disaster scenario is structurally prevented.
+4. **Deployed-build stamp:** ✅ this section, refreshed on deploy.
+
 ## BACKTEST — CONCLUDED: projection stand-in too crude to grade the engine → DEFAULT STANDS
 
 Three real leaks found and fixed (all caught by the pre-registered round-1
@@ -166,8 +178,18 @@ are HARD-GATED on Aug 22: if not live + robot-tested by draft night, the data is
 lost forever.
 | id | item | deadline | state |
 |----|------|----------|-------|
-| **L1** | Prediction ledger — append-only, decision-time writes, contamination rule (grading reads, never writes) | **Aug 22 HARD** | **✅ DONE & LIVE-VERIFIED (f9f6e6d)** — real HTTP: login → POST recommendation → entry stored with server `decision_at` → GET reads back. Contamination rule proven (readAll does zero writes). Caught+fixed a real bug: no JSON parser was mounted (every posted prediction would 400). +12 unit, +6 server-integration checks in CI. |
-| **L2** | Raw-forever storage — complete draft (all teams) + season archived raw | **Aug 22 HARD** | NEXT — L1 captures MY picks + recs; L2 archives the FULL pick stream |
+| **L1** | Prediction ledger — append-only, decision-time writes, contamination rule (grading reads, never writes) | **Aug 22 HARD** | **✅ DONE, LIVE-VERIFIED, ALL 4 DEMANDS MET** — see check-off below |
+| **L2** | Raw-forever storage — complete draft (all teams) + season archived raw | **Aug 22 HARD** | **✅ DONE** — immutable, content-hash-deduped archive (`src/rawarchive.js`); full Sleeper pick stream + board build snapshotted on sync; +12 unit checks |
+
+### L1 check-off — the four verification demands (all met)
+1. **Immutability probe** ✅ — every store path tried against entry 1: second append gets a new seq (never overwrites), a held reference can't mutate the stored prediction, the module exposes no update/delete/edit, a direct re-write is refused (`append-only`). (`predledger.test.js`)
+2. **Coverage across kinds** ✅ — all six kinds (recommendation, pick, survival, override, lrm, run) write, each with its own `method` tag; all six wired into the client at their decision moments.
+3. **Robot draft writes the ledger** ✅ — R7: a full simulated draft produces 2 entries/my-pick with **monotonic seq, zero gaps**, decision_at + method on every entry. (`robot-mock.js`, 43/43)
+4. **Retention** ✅ — `pred:`/`raw:` added to the weekly backup; server-integration test proves the entry persists in the backing store and **survives a simulated redeploy**, and that backup enumerates both keyspaces.
+
+Plus: **method/model_version tag** on every entry (LRM = `survival-snapshot-v0`, distinct from future `lrm-v1`) so a mid-season model upgrade never blurs grading.
+
+_Note: the TE-TE top of board at pick 34 (Bowers 126.5 > McBride 74.6, 52-pt gap) — logged as a lead for the pick-34 dossier (Backtest-2 §3.4) to confirm/kill against history: is the last elite TE the scarcest asset after 30 keepers vanish?_
 | **H** | Shadow rosters — every surviving strategy drafts live & silently; needs robot scenario | **Aug 22 HARD** | PENDING (after L1, before mocks) |
 | **BT2** | Backtest Round 2 — Phase 1 (2025 recovery via pbp category diff) → corrected boards | pre-Sep | PENDING — launch in CI (background); prereq for S/N |
 | **S** | Exhaustive strategy search (weight sweep, sequencing, counterfactual mining, oracle gap) | Sep certify | PENDING — CI compute; runs on BT2's corrected boards |

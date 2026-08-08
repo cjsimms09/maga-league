@@ -5,7 +5,13 @@
 const store = require('../../src/store');
 
 const KEEP = 12;
-const PREFIXES = ['draft:', 'keepers:', 'vote:', 'ballot:', 'vcomment:', 'punish:', 'pvote:', 'chat:'];
+// pred:/pred-seq: (the prediction ledger, L1) and raw:/raw-head: (raw-forever
+// archive, L2) are included so the learning-seed capture is backed up, not just
+// live in Blobs — an append-only log that only lives in one place is a diary in
+// disappearing ink. These are append-only and immutable; the weekly snapshot is
+// redundancy, never their authority.
+const PREFIXES = ['draft:', 'keepers:', 'vote:', 'ballot:', 'vcomment:', 'punish:', 'pvote:', 'chat:',
+  'pred:', 'pred-seq:', 'raw:', 'raw-head:'];
 const SINGLES = ['config', 'owners', 'seasons', 'ledger', 'alerts', 'history'];
 
 exports.handler = async (event) => {

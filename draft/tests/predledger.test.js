@@ -31,6 +31,11 @@ function memStore() {
   check('buildEntry carries kind/season/pick/seq/id',
     e.kind === 'pick' && e.season === '2026' && e.pick === 34 && e.seq === 7
       && e.id === '2026-000000007');
+  check('every entry carries a method/model version (defaults to kind-v0)',
+    e.method === 'pick-v0');
+  check('an explicit method is preserved (survival-snapshot-v0 vs future lrm-v1)',
+    P.buildEntry({ kind: 'lrm', season: 2026, method: 'survival-snapshot-v0' },
+      { nowIso: 'z', seq: 1 }).method === 'survival-snapshot-v0');
   check('a recorded entry is frozen — a reader cannot mutate a prediction',
     (function () { try { e.pick = 999; } catch (x) {} return e.pick === 34; })());
   check('an unknown kind is rejected loudly',
@@ -77,6 +82,61 @@ function memStore() {
   const c = await P.append(store2, { kind: 'pick', season: 2026, pick: 41 }, { now });
   check('a lost seq counter recovers from existing keys and never reuses a seq',
     c.seq === 2);
+
+  // --- DEMAND 1: the immutability probe ------------------------------------
+  // Attempt to change entry 000000001 through every path the module exposes.
+  // Each must FAIL or APPEND — never edit the recorded prediction in place.
+  {
+    const s = memStore();
+    const e1 = await P.append(s, { kind: 'recommendation', season: 2026, pick: 34,
+      method: 'composite-v1', payload: { top: ['a'] } }, { now });
+    const key = P.seqKey(2026, e1.seq);
+
+    // Path 1: re-append with the same season/kind must NOT reuse the key — it
+    // gets a new seq, leaving entry 1 untouched.
+    const e2 = await P.append(s, { kind: 'recommendation', season: 2026, pick: 34,
+      method: 'composite-v1', payload: { top: ['DIFFERENT'] } }, { now });
+    const after1 = (await s.get(key));
+    check('probe: a second append never overwrites entry 1 (new seq instead)',
+      e2.seq === e1.seq + 1 && after1.payload.top[0] === 'a');
+
+    // Path 2: the returned object is frozen — a grading pass that holds a
+    // reference cannot mutate the prediction content.
+    try { e1.payload.top[0] = 'tampered'; } catch (x) {}
+    try { e1.decision_at = 'backdated'; } catch (x) {}
+    const reread = await s.get(key);
+    check('probe: a held reference cannot mutate the stored prediction',
+      reread.decision_at === now && reread.kind === 'recommendation');
+
+    // Path 3: the module exposes NO update or delete — grading can only read
+    // and append. (Part 11: grading appends grades, never touches predictions.)
+    check('probe: the ledger module exposes no update/delete/edit function',
+      typeof P.update === 'undefined' && typeof P.del === 'undefined'
+        && typeof P.edit === 'undefined' && typeof P.remove === 'undefined');
+
+    // Path 4: assertFreshKey is the guard that makes a direct re-write refuse.
+    check('probe: a direct re-write of an existing key is refused (append-only)',
+      (function () { try { P.assertFreshKey([key], key); return false; }
+        catch (x) { return /append-only/.test(x.message); } })());
+  }
+
+  // --- DEMAND 2: coverage across all kinds ---------------------------------
+  // Draft night fires all of these; each must WRITE. A domain that recommends
+  // without logging is invisible to the learning loop.
+  {
+    const s = memStore();
+    const kinds = ['recommendation', 'pick', 'survival', 'override', 'lrm', 'run'];
+    for (const k of kinds) {
+      await P.append(s, { kind: k, season: 2026, pick: 34, method: k + '-v1',
+        payload: { probe: k } }, { now });
+    }
+    const all = await P.readAll(s, 2026);
+    check('coverage: all six kinds write to the ledger',
+      kinds.every(k => all.some(e => e.kind === k)) && all.length === 6,
+      all.map(e => e.kind).join(','));
+    check('coverage: each kind carries its own method tag',
+      all.every(e => e.method === e.kind + '-v1'));
+  }
 
   console.log('\n' + pass + '/' + (pass + fail) + ' predledger checks passed');
   process.exit(fail ? 1 : 0);

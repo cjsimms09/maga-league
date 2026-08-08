@@ -13,6 +13,18 @@
 const fs = require('fs'), path = require('path');
 const E = require('../../public/js/draft/engine.js');
 const A = require('../../public/js/draft/attribution.js');
+const P = require('../../src/predledger.js');
+
+// In-memory store with the real store surface, for the ledger-capture scenario.
+function memStore() {
+  const m = new Map();
+  return {
+    async get(k) { return m.has(k) ? m.get(k) : null; },
+    async set(k, v) { m.set(k, v); },
+    async listKeys(prefix) { return [...m.keys()].filter(k => k.startsWith(prefix)); },
+    async getMany(keys) { return keys.map(k => (m.has(k) ? m.get(k) : null)); },
+  };
+}
 
 let pass = 0, fail = 0;
 const check = (n, c, d) => { if (c) pass++; else { fail++; console.log('FAIL  ' + n + (d ? '  -> ' + d : '')); } };
@@ -182,5 +194,60 @@ if (!IS_FIXTURE) {
     aboveLine.filter(s => s.demoted).map(s => s.player.name).join(','));
 }
 
-console.log((IS_FIXTURE ? '[fixture board — R4 skipped] ' : '') + pass + '/' + (pass + fail) + ' robot-mock checks passed');
-process.exit(fail ? 1 : 0);
+// R7 (DEMAND 3 — the robot draft writes the ledger): a full simulated draft
+// must produce the expected ledger entries with monotonic seq and ZERO gaps.
+// This is what proves draft night gets captured — not just a single curl test.
+// For every one of MY picks: a 'recommendation' (the board I decided from) and
+// a 'pick' (what I took), exactly as app.js fires them.
+(async function ledgerScenario() {
+  const store = memStore();
+  const NOW = '2026-08-22T18:00:00.000Z';   // fixed: robot-mock forbids live Date
+  const mySlot = Number(LEAGUE.my_draft_slot) || 4;
+  const sched = snake();
+  const taken = new Set();
+  const rosters = {}; for (let s = 1; s <= TEAMS; s++) rosters[s] = [];
+  const rand = rng(4242);
+  let myPickCount = 0;
+
+  for (const step of sched) {
+    const board = ALL.filter(p => !taken.has(String(p.player_id)));
+    if (!board.length) break;
+    let chosen;
+    if (step.team_slot === mySlot) {
+      const ctx = { board, currentPick: step.pick_no, nextPick: step.pick_no + TEAMS,
+        totalPicks: sched.length, myPicksLeft: sched.filter(t => t.team_slot === mySlot && t.pick_no >= step.pick_no).length,
+        roster: rosters[mySlot], league: LEAGUE, weights: E.DEFAULT_WEIGHTS,
+        runMultipliers: {}, intervening: [], roundsLeft: ROUNDS - step.round + 1 };
+      const scored = E.recommend(ctx);
+      chosen = scored.length ? scored[0].player : board[0];
+      myPickCount++;
+      // The two decision-time writes, in the app's order: recommendation then pick.
+      await P.append(store, { kind: 'recommendation', method: 'composite-v1', season: 2026,
+        pick: step.pick_no, build_at: ART.built_at,
+        payload: { top: scored.slice(0, 5).map(s => ({ id: String(s.player.player_id), score: s.score })) } }, { now: NOW });
+      await P.append(store, { kind: 'pick', method: 'pick-v1', season: 2026, pick: step.pick_no,
+        build_at: ART.built_at, payload: { player_id: String(chosen.player_id), name: chosen.name } }, { now: NOW });
+    } else {
+      chosen = opponentPick(board, rand);
+    }
+    taken.add(String(chosen.player_id));
+    rosters[step.team_slot].push(chosen);
+  }
+
+  const entries = await P.readAll(store, 2026);
+  check('R7 ledger: a full draft writes 2 entries per my pick (rec + pick)',
+    entries.length === myPickCount * 2, entries.length + ' for ' + myPickCount + ' picks');
+  const seqs = entries.map(e => e.seq);
+  check('R7 ledger: seq is monotonic with ZERO gaps (1..N contiguous)',
+    seqs.every((s, i) => s === i + 1), seqs.join(','));
+  check('R7 ledger: every entry has a decision_at and a method tag',
+    entries.every(e => e.decision_at === NOW && /-v1$/.test(e.method)));
+  check('R7 ledger: recommendation precedes its pick at each of my picks',
+    entries.filter(e => e.kind === 'recommendation').every((rec, i) => {
+      const pk = entries.find(e => e.kind === 'pick' && e.pick === rec.pick && e.seq > rec.seq);
+      return !!pk;
+    }));
+
+  console.log((IS_FIXTURE ? '[fixture board — R4 skipped] ' : '') + pass + '/' + (pass + fail) + ' robot-mock checks passed');
+  process.exit(fail ? 1 : 0);
+})().catch(e => { console.error(e); process.exit(1); });

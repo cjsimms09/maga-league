@@ -35,6 +35,7 @@
     opts = opts || {};
     var body = {
       kind: kind,
+      method: info.method || null,           // model/method version that produced it
       season: info.season || null,
       pick: info.pick == null ? null : info.pick,
       build_at: info.build_at || null,
@@ -52,19 +53,28 @@
     });
   }
 
+  function oncePer(kind, info, sig) {
+    var key = kind + '|' + info.pick + '|' + (info.build_at || '') + '|' + (sig || '');
+    if (seen[key]) return Promise.resolve(null);
+    seen[key] = true;
+    return send(kind, info);
+  }
+
   var PredLedger = {
     /* Once per (pick, build) — the board state I made a decision from. */
-    recommendation: function (info) {
-      var key = 'rec|' + info.pick + '|' + (info.build_at || '');
-      if (seen[key]) return Promise.resolve(null);
-      seen[key] = true;
-      return send('recommendation', info);
-    },
+    recommendation: function (info) { return oncePer('recommendation', info); },
     /* Every pick I take is its own decision — never deduped. */
     pick: function (info) { return send('pick', info); },
     /* Every override is a judgement against the model — never deduped. */
     override: function (info) { return send('override', info); },
-    /* Generic passthrough for survival/lrm/run snapshots if wired later. */
+    /* Survival estimates at this pick — once per (pick, build). */
+    survival: function (info) { return oncePer('survival', info); },
+    /* Last-responsible-moment snapshot — once per (pick, build). */
+    lrm: function (info) { return oncePer('lrm', info); },
+    /* A run-detection firing — deduped by the run signature so the same run
+     * logs once, but a new/changed run at a later pick logs again. */
+    run: function (info, sig) { return oncePer('run', info, sig); },
+    /* Generic passthrough. */
     capture: function (kind, info) { return send(kind, info); },
     lastError: function () { return lastError; },
     _reset: function () { seen = {}; lastError = null; },   // tests only

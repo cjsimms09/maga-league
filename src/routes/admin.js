@@ -669,6 +669,7 @@ router.post('/api/ledger/predict', aw(async (req, res) => {
   try {
     const entry = await predledger.append(store, {
       kind: body.kind,
+      method: body.method || null,
       season,
       pick: body.pick,
       build_at: body.build_at || null,
@@ -687,6 +688,40 @@ router.get('/api/ledger/predict', aw(async (req, res) => {
   const entries = await predledger.readAll(store, season);
   res.set('Cache-Control', 'no-store');
   res.json({ ok: true, season: String(season), count: entries.length, entries });
+}));
+
+// ---------- Raw-forever archive (Phase L2 — the Learning Seed) ----------
+// Immutable, append-only snapshots of what actually happened: the full Sleeper
+// pick stream (all teams, timestamped), the board build the draft ran on, the
+// final draft. Features recompute; raw is permanent. Content-hash deduped so a
+// re-sync that changed nothing does not duplicate.
+const rawarchive = require('../rawarchive');
+
+router.post('/api/archive', aw(async (req, res) => {
+  const body = req.body || {};
+  const season = body.season || H.currentSeason(req.world.seasons).year;
+  try {
+    const result = await rawarchive.snapshot(store, {
+      kind: body.kind, season, source_at: body.source_at || null, payload: body.payload || {},
+    });
+    res.json({ ok: true, deduped: result.deduped, seq: result.seq,
+      snapshot: result.snapshot ? { id: result.snapshot.id, seq: result.snapshot.seq,
+        kind: result.snapshot.kind, archived_at: result.snapshot.archived_at, hash: result.snapshot.hash } : null });
+  } catch (e) {
+    res.status(400).json({ ok: false, error: String(e.message || e) });
+  }
+}));
+
+router.get('/api/archive', aw(async (req, res) => {
+  const season = req.query.season || H.currentSeason(req.world.seasons).year;
+  res.set('Cache-Control', 'no-store');
+  if (req.query.kind) {
+    const rows = await rawarchive.readAll(store, season, req.query.kind);
+    return res.json({ ok: true, season: String(season), kind: req.query.kind, count: rows.length, snapshots: rows });
+  }
+  // Default: a manifest of what raw data exists (cheap, no payloads).
+  const manifest = await rawarchive.manifest(store, season);
+  res.json({ ok: true, season: String(season), manifest });
 }));
 
 router.post('/draft-config', aw(async (req, res) => {
