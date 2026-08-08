@@ -324,6 +324,22 @@ E[$] = Σ_w P(weekly-high,w)·$100 + P(RS champ)·$250 + P(RS 2nd)·$125 + Σ_k 
 ```
 Auto-refreshes in CI (`money_history.py` → `MONEY-HISTORY.md`). **ANALYSIS 2** (dollar re-grade of Phase S/N vs luck baseline) is queued CI backtest work.
 
+### 📋 CHAT-CLAUDE SYNC AUDIT (2026-08-08) — on record vs missing
+Against the expected 9-item inventory. **6 fully on record, 2 partial, 1 unauditable (truncated in the source message).**
+| # | Deliverable | Status |
+|---|---|---|
+| 1 | Live-API briefing (era stability, rounds=15, pick_timer=0, playoff wks 16–17, pick_trading=1, cpu_autopick=1) | ✅ **ON RECORD** (STATUS §Live-API briefing — all six markers) |
+| 2 | 2025 + 2024 + 2023 season/efficiency tables + tags (dynasty, RS-merchant, leak cohort) | ⚠️ **PARTIAL** — 2024 & 2025 name-mapped standings+efficiency tables ON RECORD with tags; **2023 present only as inline context + aggregate money counts, NOT a per-owner standings/efficiency table** like the other two years. Tags all present. |
+| 3 | All three years' money tables + brackets | ✅ **ON RECORD** — $/season standings + winners brackets present for 2023/24/25 (4 placement games each, 18 wks); per-season reconciliation ✅ |
+| 4 | money_history bug report + resolution | ✅ **ON RECORD** (DISCREPANCY RESOLVED recon #2; playoff-$ fold; ca46416/67d7766) |
+| 5 | Complete 2024 weekly-high ledger (Cory 4 / ds7mmet 3 / R2121 2 / MarianSaar 2) | ✅ **ON RECORD + independently cross-check-verified** |
+| 6 | 2025 wks 1–6 highs (ds7mmet 2, mhagen 2, Jreis 1, Schmelley 1) | ✅ **ON RECORD + verified** |
+| 7 | Four documented bench-decided highs (2024 wks 4/8/15, 2025 wk2) | ⚠️ **PARTIAL — 2 of 4 enumerated** (2024 wk15 = 1.06; 2025 wk2 donation). **2024 wk4 & wk8 specifics NOT captured.** The lineup data to recompute them (`starters`/`players`/`starters_points`/`players_points`) IS in the harvest — so this is computable, not lost; it's the exact started-vs-optimal machinery the in-season **lineup optimizer** builds, so it's routed there rather than as a one-off. |
+| 8 | Reconciliation-pass spec + traceability matrix | ✅ **ON RECORD** (§RECONCILIATION-PASS TRACEABILITY MATRIX, deliverable #1, 127049a) |
+| 9 | *(truncated in the source message)* | ❓ **UNAUDITABLE** — the 9th expected item was cut off; resend it and I'll audit. |
+**Also pending (not a chat deliverable I'm missing — a pre-registered CI TODO):** 2025 **weeks 7–15** weekly-high winners (R2121/MarianSaar verification).
+**Gap-closing actions:** (a) stamp the 2023 name-mapped standings/efficiency table when the 2023 harvest lands (item G, in flight); (b) compute & record 2024 wk4/wk8 bench-optimality to complete the four-highs set.
+
 **✅ TWO-ANALYST CROSS-CHECK (2026-08-08) — chat-Claude harvest vs my independent `money_history` computation. EVERY number reconciles; ZERO disagreements:**
 - **2024 weekly-high counts:** chat = Cory 4 / ds7mmet 3 / R2121 2 / MarianSaar 2; mine = **CORY 4, ...9568 3, two managers at 2, four at 1 (total 15 = $1,500)** — exact match on the named group (4,3,2,2). Fixes the ID map: **ds7mmet = 434921290978029568**.
 - **2024 threshold distribution:** chat = median 138.9, range 122–166; mine = **median 138.9, min 122.1, max 166.2** — exact.
