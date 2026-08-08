@@ -2103,3 +2103,17 @@ table .num.zero { color: var(--muted); font-weight: 400; }
 .cmp-result:hover { background: rgba(245,196,69,.1); border-color: rgba(245,196,69,.4); }
 .cmp-gone { font-size: .64rem; color: var(--muted); border: 1px solid var(--line); border-radius: 4px; padding: 0 .3rem; }
 .cmp-nomatch { margin-top: .4rem; font-size: .8rem; }
+
+/* §2(d) — always-visible best-available strip (Zone 1). Compact, cross-position
+   glance: top 3 per position with gone-by-next %, each tappable to compare. */
+.best-avail-strip { margin-top: .8rem; }
+.ba-head { font-size: .72rem; color: var(--muted); margin-bottom: .35rem; text-transform: uppercase; letter-spacing: .04em; }
+.ba-head .muted { text-transform: none; letter-spacing: 0; }
+.ba-row { display: flex; align-items: center; gap: .35rem; margin-bottom: .3rem; flex-wrap: wrap; }
+.ba-pos { flex: 0 0 auto; }
+.ba-cell { background: rgba(255,255,255,.04); border: 1px solid var(--line); border-radius: 7px;
+  color: #dfe6f5; padding: .22rem .45rem; font-size: .8rem; cursor: pointer; }
+.ba-cell:hover { background: rgba(245,196,69,.1); border-color: rgba(245,196,69,.4); }
+.ba-cell.hot { border-color: rgba(255,70,85,.5); }
+.ba-gone { font-size: .68rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.ba-cell.hot .ba-gone { color: #ffb4bb; }

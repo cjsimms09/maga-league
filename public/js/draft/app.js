@@ -1301,6 +1301,39 @@
    * The survival column is the point. A name is not guidance; a name plus
    * "62% he is gone by your next pick" is a decision.
    */
+  /* §2(d) density — the ALWAYS-VISIBLE best-available strip. The dropdown hides
+   * exactly the cross-position glance the panel exists for, so this shows the top
+   * few at every skill position at once, each with its gone-by-next %. Derived
+   * from the same scored board the recommendations use (passed in, never
+   * re-scored). K/DEF are omitted until late (they're noise before the endgame). */
+  function renderBestAvailStrip(scored, nextPick) {
+    const host = $('#best-avail-strip');
+    if (!host) return;
+    scored = scored || [];
+    const POS = ['QB', 'RB', 'WR', 'TE'];
+    const perPos = {};
+    scored.forEach(s => {
+      const pos = s.player.position;
+      if (POS.indexOf(pos) < 0) return;
+      (perPos[pos] = perPos[pos] || []).push(s);
+    });
+    const rows = POS.filter(pos => (perPos[pos] || []).length).map(pos => {
+      const cells = perPos[pos].slice(0, 3).map(s => {
+        const sv = s.survival_to_next;
+        const gone = (sv == null || !nextPick) ? null : Math.round((1 - sv) * 100);
+        const hot = gone != null && gone >= 60;
+        return '<button class="ba-cell' + (hot ? ' hot' : '') + '" data-compare="' + s.player.player_id + '" '
+          + 'title="tap to compare — ' + escapeHtml(s.player.name) + '">'
+          + escapeHtml(s.player.name.split(' ').slice(-1)[0])
+          + (gone == null ? '' : ' <span class="ba-gone">' + gone + '%</span>') + '</button>';
+      }).join('');
+      return '<div class="ba-row"><span class="ba-pos rec-pos ' + pos + '">' + pos + '</span>' + cells + '</div>';
+    }).join('');
+    host.innerHTML = rows
+      ? '<div class="ba-head">Best available <span class="muted">· top 3/pos · % = gone by your next pick · tap to compare</span></div>' + rows
+      : '';
+  }
+
   function renderPositionRecs() {
     const host = $('#pos-recs-out');
     if (!host) return;
@@ -1538,6 +1571,7 @@
     renderClock(out);
     // Paths panel derives from the same scored board the list uses.
     renderPaths(out.scored);
+    renderBestAvailStrip(out.scored, (context() || {}).nextPick);
     renderCompareTray();   // keep the dollar-gap overlay fresh as the board changes
     const all = out.scored;
     const scored = all.slice(0, 5);
