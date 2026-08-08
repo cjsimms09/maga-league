@@ -15,9 +15,14 @@
 // Kinds captured (from the spec): 'recommendation' (board context + what was
 // recommended), 'pick' (what I actually took — a SEPARATE later entry, joined
 // by pick number, so the recommendation is never mutated after the fact),
-// 'survival', 'override', 'lrm', 'run'.
+// 'survival', 'override', 'lrm', 'run', and the doctrine pair — 'doctrine'
+// (the plan in force at this pick, its live alternative and the dollar gap) and
+// 'doctrine_decline' (I was offered a switch and kept the prior plan). January
+// grades whether declared doctrines and declines earned their dollars, which it
+// cannot do if the banner's state was never written down.
 
-const KINDS = ['recommendation', 'pick', 'survival', 'override', 'lrm', 'run'];
+const KINDS = ['recommendation', 'pick', 'survival', 'override', 'lrm', 'run',
+               'doctrine', 'doctrine_decline'];
 
 function seqKey(season, seq) {
   // Zero-padded so lexical key order equals numeric order for cheap listing.

@@ -579,13 +579,20 @@ details.bal-row.me > summary { box-shadow: inset 3px 0 0 var(--gold); }
 }
 .path-card.top { border-color: rgba(245,196,69,.6); background: rgba(245,196,69,.08); box-shadow: var(--glow-gold); }
 .path-card.coinflip { outline: 1px dashed rgba(245,196,69,.5); outline-offset: 2px; }
-.path-head { display: flex; align-items: baseline; justify-content: space-between; gap: .4rem; }
+/* wraps so the doctrine badge (§4) can join the row without crushing the name */
+.path-head { display: flex; align-items: baseline; justify-content: space-between; gap: .4rem; flex-wrap: wrap; }
 .path-name { font-family: var(--font-display); font-weight: 900; color: #fff; font-size: .98rem; }
 .path-price {
   font-size: .68rem; font-weight: 800; letter-spacing: .03em; white-space: nowrap;
   color: #ffb4bb; background: rgba(255,70,85,.14); padding: .1rem .4rem; border-radius: 5px;
 }
 .path-price.top { color: var(--navy-deep); background: var(--gold); }
+/* §4 vocabulary — the one path the enrolled doctrine actually takes. */
+.path-doctrine {
+  font-size: .64rem; font-weight: 800; letter-spacing: .04em; white-space: nowrap;
+  color: #ffd873; background: rgba(245,196,69,.16); border: 1px solid rgba(245,196,69,.4);
+  padding: .05rem .35rem; border-radius: 5px; margin-left: auto;
+}
 .path-pick { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
 .path-player { font-weight: 800; color: #fff; display: flex; gap: .35rem; align-items: center; }
 .path-score { font-family: var(--font-display); font-size: 1.15rem; font-weight: 900; color: var(--gold-bright); font-variant-numeric: tabular-nums; }
@@ -2129,13 +2136,83 @@ table .num.zero { color: var(--muted); font-weight: 400; }
 .pick-reach { color: #ffb4bb; font-size: .74rem; }
 .pick-fell { color: #8ef0b6; font-size: .74rem; }
 
+/* ── THE DOCTRINE BANNER ──────────────────────────────────────────────────
+   Top of screen, above the status bar: the plan being executed, its
+   confidence, and the live alternative's price. Sticks WITH the status bar
+   (banner z-41 above statusbar z-40) so the strategic frame never scrolls away
+   from the board. A switch is an EVENT — the announcement row is a colour
+   shift, not a toast, because it needs a decision, not a glance. */
+.doctrine-banner {
+  position: sticky; top: var(--pin-banner, 0px); z-index: 41;
+  display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+  padding: .5rem .9rem; margin-bottom: .35rem; border-radius: 10px;
+  /* Opaque base UNDER the gold tint. A single rgba gradient leaves the left end
+     near-transparent, and once the banner is pinned the board scrolls visibly
+     through the most important text on the page. */
+  background-color: rgba(11,16,32,.97);
+  background-image: linear-gradient(90deg, rgba(245,196,69,.15), rgba(245,196,69,0) 62%);
+  border: 1px solid rgba(245,196,69,.45);
+  backdrop-filter: blur(6px);
+}
+.doctrine-banner .db-main { flex: 1 1 320px; min-width: 0; }
+.doctrine-banner .db-side { flex: 0 1 auto; text-align: right; margin-left: auto; }
+.db-name {
+  font-family: var(--font-display); font-weight: 900; font-size: 1.02rem;
+  letter-spacing: .01em; color: #ffd873; line-height: 1.15;
+}
+.db-eyebrow {
+  display: block; font-size: .6rem; font-weight: 800; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--muted); margin-bottom: .1rem;
+}
+.db-edge { font-size: .72rem; font-weight: 700; color: #8ef0b6; margin-left: .45rem; }
+.db-creed { font-size: .78rem; color: #c7cddd; font-style: italic; margin-top: .1rem; }
+.db-confidence { font-size: .78rem; font-weight: 700; color: #dfe6f5; white-space: nowrap; }
+.db-alt { font-size: .74rem; color: var(--muted); white-space: nowrap; }
+.db-alt b { color: #dfe6f5; font-variant-numeric: tabular-nums; }
+/* Contested = the alternative is inside the noise band. Amber, not red: the
+   plan still holds, it just is not clear of the band. */
+.doctrine-banner.contested { border-color: rgba(245,196,69,.75); }
+.doctrine-banner.contested .db-confidence { color: #ffd873; }
+/* Neutral — no doctrine changes this pick. Dimmed on purpose: the banner is
+   telling you it has nothing to say here, and it should look that way. */
+.doctrine-banner.neutral { border-color: var(--line); }
+.doctrine-banner.neutral .db-confidence { color: var(--muted); font-weight: 600; }
+/* Unenrolled — nothing won its race, so this is the control and it says so. */
+.doctrine-banner.control { border-color: var(--line);
+  background-image: linear-gradient(90deg, rgba(255,255,255,.06), rgba(255,255,255,0) 62%); }
+.doctrine-banner.control .db-name { color: #dfe6f5; }
+
+.doctrine-switch {
+  position: sticky; top: var(--pin-switch, 0px); z-index: 41;
+  display: flex; align-items: center; gap: .8rem; flex-wrap: wrap;
+  padding: .5rem .9rem; margin-bottom: .5rem; border-radius: 10px;
+  background-color: rgba(11,16,32,.97);
+  background-image: linear-gradient(90deg, rgba(47,213,118,.22), rgba(47,213,118,.1));
+  border: 1px solid rgba(47,213,118,.6);
+  backdrop-filter: blur(6px);
+  font-size: .86rem; font-weight: 700; color: #b9f5d3;
+}
+.doctrine-switch .btn { margin-left: auto; flex: 0 0 auto; }
+
+@media (max-width: 640px) {
+  .doctrine-banner { gap: .35rem; padding: .45rem .6rem; }
+  .doctrine-banner .db-side { text-align: left; margin-left: 0; flex-basis: 100%; }
+  .db-confidence, .db-alt { white-space: normal; }
+}
+
 /* §2(d) — slim pinned status bar. Sticks below the site nav; pick state + sync
-   stay in view while scrolling the board. Below the watermark ribbons (z-78). */
+   stay in view while scrolling the board. Below the watermark ribbons (z-78).
+   `--pin-status` is measured by app.js layoutPinned(): every pinned strip used
+   to sit at top:0 and stack ON TOP of each other, which buried this bar under
+   the nav entirely. The offsets are computed, not hardcoded, because the nav
+   wraps to two rows on narrow viewports. */
 .wr-statusbar {
-  position: sticky; top: 0; z-index: 40;
+  position: sticky; top: var(--pin-status, 0px); z-index: 40;
   display: flex; align-items: center; gap: .9rem; flex-wrap: wrap;
   padding: .4rem .8rem; margin-bottom: .8rem; border-radius: 10px;
-  background: rgba(11,16,32,.92); border: 1px solid var(--line);
+  /* .92 was invisible-by-accident tolerable; now that the bar actually pins in
+     view, the board scrolling through it is legible enough to misread. */
+  background: rgba(11,16,32,.97); border: 1px solid var(--line);
   backdrop-filter: blur(6px); font-size: .82rem;
 }
 .wr-statusbar.on-clock { border-color: rgba(47,213,118,.5); background: rgba(47,213,118,.08); }

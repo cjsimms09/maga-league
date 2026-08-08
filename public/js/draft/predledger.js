@@ -74,6 +74,10 @@
     /* A run-detection firing — deduped by the run signature so the same run
      * logs once, but a new/changed run at a later pick logs again. */
     run: function (info, sig) { return oncePer('run', info, sig); },
+    /* Doctrine state at this pick — deduped by the doctrine SIGNATURE, so a
+     * steady plan logs once per pick but a switch (which changes the signature)
+     * always writes. Declines are explicit events and go through capture(). */
+    doctrine: function (info, sig) { return oncePer('doctrine', info, sig); },
     /* Generic passthrough. */
     capture: function (kind, info) { return send(kind, info); },
     lastError: function () { return lastError; },

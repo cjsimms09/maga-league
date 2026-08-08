@@ -598,6 +598,15 @@
     renderRuns();
     renderPicksFeed();
     renderManagers();
+    // Last: the pinned offsets depend on the heights everything above just set
+    // (the banner grows a line when a doctrine switches, the watermarks appear
+    // and disappear with rehearsal/slot state). Measured again on the next
+    // frame because a strip shown during THIS pass can still be mid-reflow —
+    // measuring only inline reads a stale zero height and collapses the stack.
+    try {
+      layoutPinned();
+      if (typeof requestAnimationFrame === 'function') requestAnimationFrame(layoutPinned);
+    } catch (e) { /* never blocks the clock */ }
   }
 
   function renderManagers() {
@@ -1523,8 +1532,19 @@
         cf.style.display = 'none';
       }
     }
+    // §4 — everything speaks the same vocabulary. Tag the ONE path the current
+    // doctrine would actually take: resolve the doctrine's best allowed player
+    // off the same scored board, then find the path holding him. Exact, not a
+    // position heuristic — a badge that guessed would be worse than no badge.
+    const onPlanKey = doctrinePathKey(scored, paths);
+    const planName = onPlanKey && state.doctrine
+      ? DraftDoctrine.doctrineMeta(state.doctrine.current).name : null;
+
     host.innerHTML = paths.map(function (p, i) {
       const pl = p.pick.player;
+      const doctrineBadge = (onPlanKey && p.key === onPlanKey)
+        ? '<span class="path-doctrine" title="the branch your enrolled doctrine takes">◆ the '
+          + escapeHtml(planName) + ' branch</span>' : '';
       const priceBadge = p.price > 0
         ? '<span class="path-price">+' + p.price.toFixed(1) + ' vs top</span>'
         : '<span class="path-price top">top path</span>';
@@ -1534,7 +1554,7 @@
       return '<div class="path-card' + (i === 0 ? ' top' : '')
           + (p.coin_flip_with ? ' coinflip' : '') + '" data-path="' + escapeHtml(p.key) + '">' +
         '<div class="path-head">' +
-          '<span class="path-name">' + escapeHtml(p.name) + '</span>' + priceBadge +
+          '<span class="path-name">' + escapeHtml(p.name) + '</span>' + doctrineBadge + priceBadge +
         '</div>' +
         '<div class="path-pick">' +
           '<span class="path-player">' + escapeHtml(pl.name) +
@@ -1696,6 +1716,11 @@
     renderConfidence(out.confidence);
     renderBranches(out.branches);
     renderClock(out);
+    // The doctrine banner reads the SAME scored board — the plan and the paths
+    // must never be arguing from two different boards. It runs FIRST so the
+    // path cards can tag themselves with the doctrine as of THIS pick rather
+    // than the previous one (§4: everything speaks the same vocabulary).
+    try { renderDoctrine(out.scored); } catch (e) { /* never blocks the clock */ }
     // Paths panel derives from the same scored board the list uses.
     renderPaths(out.scored);
     renderBestAvailStrip(out.scored, (context() || {}).nextPick);
@@ -2406,6 +2431,189 @@
         payload: { positions: runs.map(function (p) {
           return { position: p, multiplier: Math.round(state.runMults[p] * 100) / 100 }; }) } }, sig);
     }
+  }
+
+  /* ── THE DOCTRINE BANNER (war-room-v2-doctrine-banner.md) ────────────────
+   * The strategic spine, made visible. Three things at all times: the doctrine
+   * being executed (name + creed), how confident the plan is, and what the live
+   * alternative costs in dollars. Switches are EVENTS, under hysteresis, with a
+   * one-tap decline.
+   *
+   * TWO DIFFERENT DOLLARS, DELIBERATELY LABELLED DIFFERENTLY:
+   *   - the ENROLLMENT edge (+$91.50) is experiment 19b's season-long, paired-
+   *     room result. It is a fact about the plan, shown once, cited.
+   *   - the LIVE GAP is what executing this doctrine instead of the alternative
+   *     costs AT THIS PICK, off the same playerDollars model the dollar-gap
+   *     panel uses. It moves every pick.
+   * Conflating the two would invent precision neither number has.
+   *
+   * Never blocks the clock: every step is inside a try, and a doctrine failure
+   * leaves the board untouched.
+   */
+  /* PINNED-STRIP STACKING. The nav, the rehearsal/slot watermarks, the doctrine
+   * banner and the status bar are all `position: sticky; top: 0`, which does not
+   * stack them — it piles them on the same 0px line, and the ones with the lower
+   * z-index vanish underneath. (That is why the status bar was invisible when
+   * scrolled: the nav sat on top of it.) Measure the strips above and publish
+   * each one's offset as a CSS variable, so they queue instead of collide.
+   *
+   * Measured rather than hardcoded because the nav wraps to two rows on narrow
+   * viewports and the watermarks come and go with rehearsal/slot state. */
+  function layoutPinned() {
+    const root = document.documentElement;
+    const h = sel => {
+      const el = document.querySelector(sel);
+      if (!el || el.offsetParent === null) return 0;
+      return Math.round(el.getBoundingClientRect().height);
+    };
+    // The watermarks deliberately overlay the nav (z-78/80 vs z-50), so the
+    // clearance below both is the taller of the two, not their sum.
+    const base = Math.max(h('.navbar'), h('.rehearsal-watermark') + h('.slot-watermark'));
+    const banner = h('#doctrine-banner');
+    const sw = h('#doctrine-switch');
+    root.style.setProperty('--pin-banner', base + 'px');
+    root.style.setProperty('--pin-switch', (base + banner) + 'px');
+    root.style.setProperty('--pin-status', (base + banner + sw) + 'px');
+  }
+
+  function myLivePickIndex() {
+    const mine = (state.data.pick_order && state.data.pick_order.my_picks) || [];
+    if (!mine.length) return 1;
+    const remaining = myNextPicks().length;
+    return Math.min(mine.length, Math.max(1, mine.length - remaining + 1));
+  }
+
+  function doctrineState() {
+    if (state.doctrine) return state.doctrine;
+    if (typeof DraftDoctrine === 'undefined') return null;
+    const block = (state.data || {}).doctrine || null;
+    state.doctrineEnrollment = DraftDoctrine.enrollment(block);
+    state.doctrine = new DraftDoctrine.DoctrineState(state.doctrineEnrollment.key, {
+      noiseBand: E.CFG.DG_NOISE_BAND,       // the same even-money band everything else uses
+    });
+    return state.doctrine;
+  }
+
+  function renderDoctrine(scored) {
+    if (typeof DraftDoctrine === 'undefined') return;
+    const host = document.getElementById('doctrine-banner');
+    if (!host) return;
+    const st = doctrineState();
+    if (!st || !scored || !scored.length) { host.style.display = 'none'; return; }
+
+    const scores = DraftDoctrine.scoreBoard(scored, {
+      liveIndex: myLivePickIndex(),
+      roster: state.myRoster,
+      dollarsOf: function (p) { return E.playerDollars(p).total; },
+    });
+    // A run is the causal story a switch needs — "the QB run erased its edge"
+    // beats "the numbers moved", and it is the same detector the banner above
+    // the board already fires on.
+    const runs = E.detectRuns(state.runMults);
+    const prior = st.current;
+    const out = st.update(scores, currentPick(), {
+      cause: runs.length ? ('the ' + runs.join('/') + ' run moved the board') : null,
+      projected: null,
+    });
+
+    const enr = state.doctrineEnrollment || { enrolled: false };
+    host.style.display = 'flex';
+    host.className = 'doctrine-banner'
+      + (enr.enrolled ? '' : ' control')
+      + (out.neutral ? ' neutral' : '')
+      + (/within the band/.test(out.confidence) ? ' contested' : '');
+
+    // The enrollment line rides with the plan only while the plan IS the
+    // enrolled one; after a switch the edge belongs to a doctrine we left.
+    const onPlan = enr.enrolled && out.doctrine_key === enr.key;
+    const edge = (onPlan && enr.edge != null)
+      ? '<span class="db-edge" title="experiment 19b, ' + (enr.rooms || 0) + ' paired rooms vs the '
+        + escapeHtml(String(enr.control || 'control')) + ' control">+$' + Math.round(enr.edge)
+        + ' season edge</span>'
+      : '';
+    document.getElementById('db-name').innerHTML =
+      '<span class="db-eyebrow">' + (enr.enrolled ? 'The plan' : 'No doctrine enrolled — running the control') + '</span>'
+      + escapeHtml(out.doctrine) + edge;
+    document.getElementById('db-creed').textContent = out.creed || '';
+    document.getElementById('db-confidence').textContent = out.confidence;
+    // A "$0 gap" is not an alternative, it is the same decision — say the pick
+    // is doctrine-free rather than manufacture a contest out of a tie.
+    document.getElementById('db-alt').innerHTML = out.neutral
+      ? 'no doctrine changes this pick — take the best player'
+      : (out.alternative
+        ? escapeHtml(out.alternative) + (out.gap == null ? ''
+            : (out.gap >= 0 ? ' trails by <b>$' + Math.abs(out.gap).toFixed(0) + '</b>'
+                            : ' leads by <b>$' + Math.abs(out.gap).toFixed(0) + '</b>'))
+          + ' <span class="muted">at this pick</span>'
+        : '');
+
+    renderDoctrineSwitch(out, prior);
+    captureDoctrine(out);
+  }
+
+  /* A switch is an EVENT: an announcement row with one plain sentence and a
+   * one-tap decline. It persists until declined or superseded — a strategy
+   * change is not something to miss because a toast timed out. */
+  function renderDoctrineSwitch(out, prior) {
+    const row = document.getElementById('doctrine-switch');
+    if (!row) return;
+    if (!out.switched) return;                       // leave any prior announcement standing
+    row.style.display = 'flex';
+    document.getElementById('db-switch-text').textContent = out.sentence || '';
+    const btn = document.getElementById('db-decline');
+    if (btn) {
+      btn.onclick = function () {
+        const st = state.doctrine;
+        if (!st) return;
+        const rec = st.decline(prior, currentPick());
+        row.style.display = 'none';
+        if (typeof PredLedger !== 'undefined' && !state.mockMode) {
+          const c = ledgerCtx();
+          PredLedger.capture('doctrine_decline', { season: c.season, build_at: c.build_at,
+            pick: c.pick, method: 'doctrine-v1',
+            payload: { kept: rec.kept, declined: out.doctrine_key, note: rec.note } });
+        }
+        renderAll();
+      };
+    }
+  }
+
+  /* Which path is THE DOCTRINE'S path? Score each path by the best doctrine-
+   * ALLOWED candidate it contains and badge the winner.
+   *
+   * The obvious version — find the doctrine's best player on the whole board,
+   * then locate his path — badges nothing surprisingly often: the paths rank by
+   * engine score while the doctrine ranks by dollars, so the doctrine's pick can
+   * sit outside the priced directions entirely and the badge silently vanishes.
+   * Choosing AMONG the paths answers the question actually being asked — "which
+   * of these directions is my plan?" — and returns null only when the doctrine
+   * genuinely permits nothing on offer. */
+  function doctrinePathKey(scored, paths) {
+    if (typeof DraftDoctrine === 'undefined' || !state.doctrine) return null;
+    if (!paths || !paths.length) return null;
+    const allow = DraftDoctrine.LIVE_CONSTRAINTS[state.doctrine.current];
+    if (!allow) return null;
+    const i = myLivePickIndex();
+    let bestKey = null, bestD = -Infinity;
+    paths.forEach(function (pa) {
+      (pa.candidates || []).forEach(function (c) {
+        const p = c.player;
+        if (!allow(p.position, i, state.myRoster)) return;
+        const d = E.playerDollars(p).total;
+        if (d > bestD) { bestD = d; bestKey = pa.key; }
+      });
+    });
+    return bestKey;
+  }
+
+  function captureDoctrine(out) {
+    if (typeof PredLedger === 'undefined' || state.mockMode) return;
+    const c = ledgerCtx();
+    const sig = out.doctrine_key + '|' + (out.alternative_key || '') + '|' + (out.switched ? 'sw' : '');
+    PredLedger.doctrine({ season: c.season, build_at: c.build_at, pick: c.pick,
+      method: 'doctrine-v1',
+      payload: { doctrine: out.doctrine_key, alternative: out.alternative_key,
+        gap: out.gap, switched: out.switched, confidence: out.confidence } }, sig);
   }
 
   /**
@@ -3343,6 +3551,11 @@
     return String(s == null ? '' : s).replace(/[&<>"']/g, c =>
       ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   }
+
+  // The nav wraps at narrow widths, which changes every pinned strip's offset.
+  window.addEventListener('resize', function () {
+    try { layoutPinned(); } catch (e) { /* cosmetic only */ }
+  });
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();

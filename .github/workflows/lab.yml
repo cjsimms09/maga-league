@@ -60,7 +60,9 @@ jobs:
         run: |
           python -m pytest draft/tests/test_money_grade.py draft/tests/test_roster_sim.py \
                            draft/tests/test_lab_stats.py draft/tests/test_lab.py \
-                           draft/tests/test_data_spine.py -q
+                           draft/tests/test_data_spine.py \
+                           draft/tests/test_doctrine_parity.py \
+                           draft/tests/test_doctrine_stamp.py -q
 
       - name: Run the Lab
         run: python draft/backtest/lab.py --out draft/backtest
@@ -78,6 +80,11 @@ jobs:
           python draft/backtest/stack_sweep.py --rooms 120        # exp 6
           python draft/backtest/sim_validation.py --rooms 24      # simulator fidelity + limits
           python draft/opening_script.py                          # inherits any new verdict
+          # The doctrine banner reads the enrolled plan off the BOARD artifact,
+          # which is rebuilt on the egress schedule, not the Lab's. Re-stamp it
+          # here so a fresh 19b verdict reaches the War Room on this run rather
+          # than waiting for an unrelated projection rebuild.
+          python draft/stamp_doctrine.py
 
       - name: Commit the report
         run: |
@@ -90,7 +97,8 @@ jobs:
                   draft/backtest/STACK-SWEEP.md draft/backtest/stack-sweep.json \
                   draft/backtest/SIM-FIDELITY.md draft/backtest/sim-fidelity.json \
                   draft/backtest/HETEROGENEOUS-VALIDATION.md \
-                  draft/data/opening_script.md draft/data/opening_script.json
+                  draft/data/opening_script.md draft/data/opening_script.json \
+                  public/draft_data.json
           git commit -m "Lab report $stamp" || { echo "no change"; exit 0; }
           git pull --rebase origin main && git push || echo "push skipped"
 

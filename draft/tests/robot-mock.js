@@ -471,6 +471,119 @@ if (!IS_FIXTURE) {
     strat.every(s => s.log.every(l => l.rehearsal === false)));
 }
 
+// R-doctrine (war-room-v2-doctrine-banner.md §5): the banner's state machine
+// driven by the REAL board through a full draft, not by fixture numbers. The
+// unit suite proves the hysteresis algebra; this proves the algebra is being
+// fed real dollars, that the enrolled plan comes from the Lab's stamp, and —
+// the load-bearing property — that switches are RARE on a real board.
+{
+  const DD = require('../../public/js/draft/doctrine.js');
+  const mySlot = Number(LEAGUE.my_draft_slot) || 4;
+  const sched = snake();
+  const dollarsOf = p => E.playerDollars(p).total;
+
+  const enr = DD.enrollment(ART.doctrine || null);
+  check('R-doctrine: the enrolled plan comes from the artifact stamp, not the client',
+    ART.doctrine ? (enr.enrolled === true && !!DD.DOCTRINES[enr.key])
+                 : (enr.enrolled === false && enr.key === 'balanced'),
+    JSON.stringify({ stamped: !!ART.doctrine, key: enr.key }));
+
+  // --- the ordinary draft: how often does the plan actually change? ---------
+  {
+    const st = new DD.DoctrineState(enr.key, { noiseBand: E.CFG.DG_NOISE_BAND, minPicks: 2 });
+    const taken = new Set();
+    const rand = rng(4242);
+    const myRoster = [];
+    let myPicks = 0, switches = 0, everyPickPriced = true;
+
+    for (const step of sched) {
+      const board = ALL.filter(p => !taken.has(String(p.player_id)));
+      if (!board.length) break;
+      let chosen;
+      if (step.team_slot === mySlot) {
+        myPicks++;
+        const ctx = { board, currentPick: step.pick_no, nextPick: step.pick_no + TEAMS,
+          totalPicks: sched.length, myPicksLeft: sched.filter(t => t.team_slot === mySlot && t.pick_no >= step.pick_no).length,
+          roster: myRoster, league: LEAGUE, weights: E.DEFAULT_WEIGHTS,
+          runMultipliers: {}, intervening: [], roundsLeft: ROUNDS - step.round + 1 };
+        const scored = E.recommend(ctx);
+        const scores = DD.scoreBoard(scored, { liveIndex: myPicks, roster: myRoster, dollarsOf });
+        // Every doctrine must price out to a real, positive dollar figure off a
+        // real board — a $0 or NaN here means the banner would render a number
+        // it did not compute.
+        if (!Object.keys(scores).every(k => Number.isFinite(scores[k]) && scores[k] > 0)) everyPickPriced = false;
+        const out = st.update(scores, step.pick_no);
+        if (out.switched) switches++;
+        chosen = scored.length ? scored[0].player : board[0];
+        myRoster.push(chosen);
+      } else {
+        chosen = opponentPick(board, rand);
+      }
+      taken.add(String(chosen.player_id));
+    }
+
+    check('R-doctrine: every doctrine priced from the real board at every one of my picks',
+      everyPickPriced);
+    check('R-doctrine: the banner logged doctrine state once per pick (' + myPicks + ')',
+      st.log.length === myPicks, st.log.length + ' vs ' + myPicks);
+    check('R-doctrine: every logged row names a doctrine and its live alternative',
+      st.log.every(l => !!l.doctrine && (l.alternative === null || !!DD.DOCTRINES[l.alternative])));
+    // HYSTERESIS IS THE POINT. A banner that reconsiders the plan every pick is
+    // a mood ring; over a whole draft the doctrine should change a handful of
+    // times at most.
+    check('R-doctrine: switches are RARE across a full draft (' + switches + ' in ' + myPicks + ')',
+      switches <= Math.ceil(myPicks / 3), switches + '/' + myPicks);
+  }
+
+  // --- the QB run: exactly ONE switch announcement, framed in dollars -------
+  // Scripted rather than sampled: run the QB position between two of my picks
+  // so Early-QB Strike can still be executed, just at a far worse price. That
+  // is the board event the banner exists to announce.
+  //
+  // A REAL PROPERTY THIS SCENARIO PINNED DOWN, worth stating: draining QBs
+  // *entirely* does NOT price the doctrine down — an unsatisfiable constraint
+  // falls back to unconstrained, so a total wipeout makes Early-QB Strike cost
+  // nothing because there is no longer an early QB to strike for. The doctrine
+  // dies rather than bleeds. Only a PARTIAL run — the top of the tier gone, the
+  // tail still there — moves the dollars, and that is what a run actually is.
+  {
+    const st = new DD.DoctrineState('early_qb', { noiseBand: E.CFG.DG_NOISE_BAND, minPicks: 2 });
+    const full = ALL.slice(0, 120).map(p => ({ player: p }));
+    const topQBs = new Set(full.filter(e => e.player.position === 'QB')
+      .sort((a, b) => dollarsOf(b.player) - dollarsOf(a.player))
+      .slice(0, 6).map(e => String(e.player.player_id)));
+    const afterRun = full.filter(e => !topQBs.has(String(e.player.player_id)));
+    const scoresFull = DD.scoreBoard(full, { liveIndex: 3, roster: [], dollarsOf });
+    const scoresRun = DD.scoreBoard(afterRun, { liveIndex: 3, roster: [], dollarsOf });
+    check('R-doctrine: a partial QB run prices Early-QB Strike down',
+      scoresRun.early_qb < scoresFull.early_qb, scoresFull.early_qb + ' -> ' + scoresRun.early_qb);
+    const wipeout = DD.scoreBoard(full.filter(e => e.player.position !== 'QB'),
+      { liveIndex: 3, roster: [], dollarsOf });
+    check('R-doctrine: a TOTAL QB wipeout releases the constraint instead of penalising it',
+      Math.abs(wipeout.early_qb - wipeout.balanced) < 1e-6, JSON.stringify(wipeout.early_qb));
+
+    const a = st.update(scoresFull, 31);
+    const b = st.update(scoresRun, 41, { cause: 'the QB run emptied the tier', projected: 14 });
+    const c = st.update(scoresRun, 51, { cause: 'the QB run emptied the tier', projected: 14 });
+    const d = st.update(scoresRun, 61, { cause: 'the QB run emptied the tier', projected: 14 });
+    const announcements = [a, b, c, d].filter(x => x.switched);
+    check('R-doctrine: a QB run triggers EXACTLY ONE switch announcement',
+      announcements.length === 1, announcements.length + ' announcements');
+    check('R-doctrine: the announcement is framed in dollars and names the cause',
+      announcements.length === 1 && /\+\$\d/.test(announcements[0].sentence)
+      && /QB run/.test(announcements[0].sentence), (announcements[0] || {}).sentence);
+    check('R-doctrine: the switch waited out the hysteresis window (not the first pick)',
+      a.switched === false && b.switched === false);
+
+    // Decline: the owner's call wins, the prior doctrine survives, it is logged.
+    const prior = 'early_qb';
+    const rec = st.decline(prior, 61);
+    check('R-doctrine: declining a switch restores the prior doctrine and logs it',
+      st.current === prior && rec.kind === 'doctrine_decline' && rec.kept === prior
+      && st.log.some(l => l.kind === 'doctrine_decline'));
+  }
+}
+
 // R7 (DEMAND 3 — the robot draft writes the ledger): a full simulated draft
 // must produce the expected ledger entries with monotonic seq and ZERO gaps.
 // This is what proves draft night gets captured — not just a single curl test.

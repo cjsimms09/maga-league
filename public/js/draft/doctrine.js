@@ -15,16 +15,27 @@
 (function (global) {
   'use strict';
 
-  // Working doctrine set (final names come from the tournaments; creeds are the
-  // one-line philosophy each executes). key is the machine id.
+  // The doctrine set. **Keys are the LAB's archetype keys** (`cory_conditional.py`
+  // `make_archetypes()`) — the spec said the final names come from whatever the
+  // tournaments race, and experiment 19b raced these. One vocabulary from the
+  // simulator to the banner to the ledger means an enrolled verdict can be read
+  // straight off `cory-conditional.json` without a translation table nobody
+  // maintains. Creeds are the one-line philosophy each executes.
   const DOCTRINES = {
     hero_rb:    { key: 'hero_rb',    name: 'Hero-RB Continuation', creed: 'one anchor back, then hammer WR value' },
-    wr_feast:   { key: 'wr_feast',   name: 'WR Feast',             creed: 'ride the value fall; TE and QB wait; ceiling in the flex' },
+    robust_rb:  { key: 'robust_rb',  name: 'Robust RB',            creed: 'two backs early; win the position the room is short on' },
+    zero_rb:    { key: 'zero_rb',    name: 'Zero RB',              creed: 'no backs until the middle rounds; pass-game value first' },
+    wr_anchor:  { key: 'wr_anchor',  name: 'WR Feast',             creed: 'ride the value fall; TE and QB wait; ceiling in the flex' },
     elite_te:   { key: 'elite_te',   name: 'Elite-TE Anchor',      creed: 'pay for the last elite TE; the cliff pays it back' },
     early_qb:   { key: 'early_qb',   name: 'Early-QB Strike',      creed: 'take the rushing-QB edge before the room does' },
+    late_qb:    { key: 'late_qb',    name: 'Late-QB Patience',     creed: 'let the room pay for QB; take the streamer tier' },
     ceiling:    { key: 'ceiling',    name: 'Ceiling Chase',        creed: 'high-variance builds; the weekly-high pool rewards booms' },
     balanced:   { key: 'balanced',   name: 'Balanced Value',       creed: 'best expected dollars available (the control)' },
   };
+
+  // Older ledger rows and the pre-alignment spec used `wr_feast`; resolve it so
+  // a historical record still names a doctrine instead of rendering a raw key.
+  const ALIASES = { wr_feast: 'wr_anchor' };
 
   const DEFAULTS = {
     noiseBand: 4.0,       // dollars; mirrors the engine's DG_NOISE_BAND even-money band
@@ -32,8 +43,105 @@
   };
 
   function doctrineMeta(key) {
-    return DOCTRINES[key] || { key: key, name: key, creed: '' };
+    const k = ALIASES[key] || key;
+    return DOCTRINES[k] || { key: k, name: k, creed: '' };
   }
+
+  /* ── LIVE DOCTRINE SCORING ────────────────────────────────────────────────
+   * The banner needs a dollar number per doctrine at every pick, and it has to
+   * be a REAL number or the whole panel is decoration.
+   *
+   * A doctrine, in the Lab, is a CONSTRAINT on which players a seat may take at
+   * a given live pick (`cory_conditional.py` `make_archetypes()`). The mirrors
+   * below are that same constraint, pick-for-pick, in the browser. So a
+   * doctrine's live score is: **the E[$] of the best board player that doctrine
+   * would let me take right now.** The gap between two doctrines is therefore
+   * the dollar cost of executing one instead of the other AT THIS PICK — an
+   * auditable number off the same `playerDollars` model the dollar-gap panel
+   * uses, not a season projection.
+   *
+   * WHAT IT IS NOT: the Lab's +$91.50 enrollment edge is a season-long, paired-
+   * room result. These are this-pick costs. The banner shows both and labels
+   * them differently, because conflating them would be inventing precision.
+   *
+   * One deliberate difference from the Lab chooser: it takes max-VORP inside the
+   * allowed set, this takes max-dollars. The client's currency is E[$] and the
+   * banner is a money instrument; VORP is the input to that, not the output.
+   */
+  function _count(roster, pos) {
+    return (roster || []).filter(function (p) { return (p.position || p.pos) === pos; }).length;
+  }
+
+  // (position, liveIndex 1-based, roster) -> allowed?  Mirrors make_archetypes().
+  const LIVE_CONSTRAINTS = {
+    balanced:  function () { return true; },
+    ceiling:   function () { return true; },   // a tilt, not a positional filter
+    zero_rb:   function (pos, i) { return i >= 6 || pos !== 'RB'; },
+    late_qb:   function (pos, i) { return i >= 8 || pos !== 'QB'; },
+    hero_rb:   function (pos, i, r) {
+      if (i === 2 && _count(r, 'RB') === 0) return pos === 'RB';
+      if (i <= 8 && _count(r, 'RB') >= 1) return pos !== 'RB';
+      return true;
+    },
+    robust_rb: function (pos, i, r) {
+      const have = _count(r, 'RB');
+      if (i <= 4 && (2 - have) >= (4 - (i - 1)) && have < 2) return pos === 'RB';
+      return true;
+    },
+    wr_anchor: function (pos, i, r) {
+      const have = _count(r, 'WR');
+      if (i <= 4 && (3 - have) >= (4 - (i - 1)) && have < 3) return pos === 'WR';
+      return true;
+    },
+    elite_te:  function (pos, i, r) {
+      if (i === 2 && _count(r, 'TE') === 0) return pos === 'TE';
+      return true;
+    },
+    early_qb:  function (pos, i, r) {
+      if (i === 3 && _count(r, 'QB') === 0) return pos === 'QB';
+      return true;
+    },
+  };
+
+  /**
+   * Score every doctrine against the live board.
+   *
+   * entries    scored board rows ([{player}] — the engine's `recommend` output)
+   * opts.liveIndex  1-based index of MY picks (which live pick this is)
+   * opts.roster     my current roster ([{position}]), keepers included
+   * opts.dollarsOf  player -> E[$] (the engine's playerDollars(...).total)
+   * opts.keys       doctrines to score (defaults to all)
+   *
+   * Returns {key: dollars}. A doctrine whose constraint leaves NOTHING on the
+   * board falls back to unconstrained — the Lab does the same, and a doctrine
+   * that cannot be executed should read as "no cost", not as a fake $0 cliff.
+   */
+  function scoreBoard(entries, opts) {
+    opts = opts || {};
+    const rows = entries || [];
+    const dollarsOf = opts.dollarsOf || function () { return 0; };
+    const i = opts.liveIndex == null ? 1 : opts.liveIndex;
+    const roster = opts.roster || [];
+    const keys = opts.keys || Object.keys(LIVE_CONSTRAINTS);
+    const priced = rows.map(function (e) {
+      const p = e.player || e;
+      return { position: p.position, dollars: dollarsOf(p) };
+    });
+    const bestOf = function (list) {
+      return list.reduce(function (m, r) { return r.dollars > m ? r.dollars : m; }, -Infinity);
+    };
+    const unconstrained = priced.length ? bestOf(priced) : 0;
+    const out = {};
+    keys.forEach(function (k) {
+      const allow = LIVE_CONSTRAINTS[k];
+      if (!allow || !priced.length) { out[k] = round2(unconstrained); return; }
+      const pool = priced.filter(function (r) { return allow(r.position, i, roster); });
+      out[k] = round2(pool.length ? bestOf(pool) : unconstrained);
+    });
+    return out;
+  }
+
+  function round2(x) { return Math.round(x * 100) / 100; }
 
   /** Rank a {key: dollarScore} map high→low into [{...meta, score}]. */
   function rankDoctrines(scoresByKey) {
@@ -87,9 +195,17 @@
       }
     }
 
-    // The live alternative to display: the top-ranked doctrine that isn't current.
-    const alt = ranked.find(function (d) { return d.key !== this.current; }, this) || null;
-    const altGap = alt ? +( (scoresByKey[this.current] != null ? scoresByKey[this.current] : curScore) - alt.score ).toFixed(2) : null;
+    // The live alternative to display. Prefer one that would take a DIFFERENT
+    // player — a doctrine scoring identically to the plan is not an alternative,
+    // it is the same decision under another name, and showing "trails by $0"
+    // reads as a contest when nothing is being contested. When every doctrine
+    // ties, that is itself the finding: this pick is doctrine-neutral.
+    const mine = scoresByKey && scoresByKey[this.current] != null ? scoresByKey[this.current] : curScore;
+    const others = ranked.filter(function (d) { return d.key !== this.current; }, this);
+    const differing = others.filter(function (d) { return Math.abs(d.score - mine) > 0.01; });
+    const neutral = others.length > 0 && differing.length === 0;
+    const alt = differing[0] || others[0] || null;
+    const altGap = alt ? +(mine - alt.score).toFixed(2) : null;
     const cur = doctrineMeta(this.current);
 
     const out = {
@@ -101,8 +217,11 @@
       alternative_key: alt ? alt.key : null,
       // Positive = current leads the alternative by this much; negative = it trails.
       gap: altGap,
+      // True when no doctrine would take a different player here — the plan is
+      // not binding at this pick, so the choice is doctrine-free.
+      neutral: neutral,
       switched: switched,
-      confidence: this._confidence(pick, switched, alt, altGap),
+      confidence: this._confidence(pick, switched, alt, altGap, neutral),
       sentence: switched ? this._switchSentence(cur, scoresByKey, ctx) : null,
     };
     this.log.push({ pick: pick, doctrine: cur.key, alternative: out.alternative_key,
@@ -110,9 +229,13 @@
     return out;
   };
 
-  DoctrineState.prototype._confidence = function (pick, switched, alt, altGap) {
+  DoctrineState.prototype._confidence = function (pick, switched, alt, altGap, neutral) {
     if (switched) return 'Doctrine switched — re-ranking';
     if (!alt) return 'Plan intact';
+    // Checked BEFORE the band test: a $0 gap is inside the band arithmetically,
+    // but "contested" would be a lie — nothing is competing, every doctrine
+    // takes the same player. Saying so tells you this pick is a free one.
+    if (neutral) return 'Plan not binding here — every doctrine takes the same player';
     if (altGap != null && altGap <= this.noiseBand) return 'Contested — alternative within the band';
     return 'Plan intact — on script';
   };
@@ -139,8 +262,33 @@
     return rec;
   };
 
-  const api = { DOCTRINES: DOCTRINES, DEFAULTS: DEFAULTS, doctrineMeta: doctrineMeta,
-                rankDoctrines: rankDoctrines, DoctrineState: DoctrineState };
+  /**
+   * Read the enrolled plan out of the artifact's `doctrine` block (build.py
+   * stamps it from the Lab's `cory-conditional.json`). No block, or a block with
+   * no winner, means NOTHING WAS ENROLLED — fall back to the control and say so.
+   * The banner must never imply a verdict the Lab did not deliver.
+   */
+  function enrollment(block) {
+    const b = block || {};
+    if (!b.enrolled) {
+      return { key: 'balanced', meta: doctrineMeta('balanced'), enrolled: false,
+               edge: null, ci95: null, runner_up: null,
+               note: 'no doctrine enrolled — running the control' };
+    }
+    const meta = doctrineMeta(b.enrolled);
+    return { key: meta.key, meta: meta, enrolled: true,
+             edge: b.edge == null ? null : Number(b.edge),
+             ci95: b.ci95 || null,
+             runner_up: b.runner_up ? doctrineMeta(b.runner_up) : null,
+             runner_up_edge: b.runner_up_edge == null ? null : Number(b.runner_up_edge),
+             rooms: b.rooms || null, source: b.source || null,
+             note: null };
+  }
+
+  const api = { DOCTRINES: DOCTRINES, ALIASES: ALIASES, DEFAULTS: DEFAULTS,
+                doctrineMeta: doctrineMeta, rankDoctrines: rankDoctrines,
+                DoctrineState: DoctrineState, LIVE_CONSTRAINTS: LIVE_CONSTRAINTS,
+                scoreBoard: scoreBoard, enrollment: enrollment };
   global.DraftDoctrine = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);

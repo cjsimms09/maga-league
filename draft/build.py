@@ -49,6 +49,8 @@ CONFIG_PATH = HERE / "config" / "league_config.json"
 KEEPERS_PATH = HERE / "config" / "keepers.json"
 PAYOUTS_PATH = HERE / "config" / "payouts.json"
 PROFILES_PATH = HERE / "config" / "manager_profiles.json"
+# The Lab's enrolled-doctrine verdict (experiment 19b). Read-only to the build.
+DOCTRINE_PATH = HERE / "backtest" / "cory-conditional.json"
 
 # Positions the draft board cares about. IDP leagues would extend this.
 DRAFTABLE = {"QB", "RB", "WR", "TE", "K", "DEF"}
@@ -83,6 +85,47 @@ def _load_payouts() -> dict | None:
           f"(weekly-high ${p.get('weekly_high', {}).get('total')} = "
           f"{round(100 * p.get('weekly_high', {}).get('total', 0) / max(1, p.get('total_pot', 1)))}%)")
     return p
+
+
+def _load_doctrine() -> dict | None:
+    """The ENROLLED DOCTRINE, stamped from the Lab's own verdict file.
+
+    Data spine: one fact, one home, many readers. The enrolled plan is decided
+    by experiment 19b (`cory_conditional.py`), lives in `cory-conditional.json`,
+    and reaches the War Room banner ONLY through this stamp — the client never
+    guesses a doctrine, and no second copy of the verdict exists to drift.
+
+    A missing/unreadable file, or a race in which nothing was enrolled, yields
+    None. The banner then runs the control and says nothing was enrolled; an
+    un-raced doctrine must never render as a verdict.
+    """
+    if not DOCTRINE_PATH.exists():
+        print("  ! cory-conditional.json missing — no doctrine enrolled (banner runs the control)")
+        return None
+    try:
+        v = json.loads(DOCTRINE_PATH.read_text())
+    except (json.JSONDecodeError, OSError) as exc:
+        print(f"  ! cory-conditional.json unreadable ({exc}) — no doctrine enrolled")
+        return None
+    board = v.get("leaderboard") or []
+    enrolled = v.get("enrolled")
+    winner = next((r for r in board if r.get("archetype") == enrolled), None)
+    if not enrolled or not winner:
+        print("  doctrine: nothing enrolled (no archetype cleared its gate)")
+        return None
+    runner = next((r for r in board if r.get("archetype") != enrolled), None)
+    out = {
+        "enrolled": enrolled,
+        "edge": winner.get("mean_edge"),
+        "ci95": winner.get("ci95"),
+        "runner_up": (runner or {}).get("archetype"),
+        "runner_up_edge": (runner or {}).get("mean_edge"),
+        "rooms": v.get("rooms"),
+        "control": v.get("control"),
+        "source": "experiment 19b — paired-room Cory-conditional race (heterogeneous opponents)",
+    }
+    print(f"  doctrine: {enrolled} enrolled at +${out['edge']} over {v.get('control')}")
+    return out
 
 
 def fetch_authoritative_confirmed(cfg: dict) -> dict:
@@ -590,6 +633,9 @@ def build(cfg: dict, *, offline: bool = False, force_profiles: bool = False,
         # War Room can show E[$] context and a checklist line that the payout
         # structure matches the league site. Absent file is not fatal (it warns).
         "payouts": _load_payouts(),
+        # THE ENROLLED DOCTRINE (war-room-v2-doctrine-banner.md §1). Stamped from
+        # the Lab's verdict, never authored here. None = nothing enrolled.
+        "doctrine": _load_doctrine(),
         "notes": {
             "adp_blend_weight": cfg.get("adp_blend_weight"),
             "opportunity_cap": cfg.get("opportunity_cap"),

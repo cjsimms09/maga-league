@@ -86,6 +86,27 @@
     </div>
   </div>
 
+  <%# ── THE DOCTRINE BANNER (war-room-v2-doctrine-banner.md) ───────────────
+      Above the status bar, the most prominent strategic element on the page:
+      what plan is being executed, how confident it is, and what the live
+      alternative costs. Switches are announced as EVENTS with a one-tap
+      decline. Populated by app.js renderDoctrine(); hidden until the board
+      loads so an empty bar never occupies the top of the screen. %>
+  <div id="doctrine-banner" class="doctrine-banner" style="display:none">
+    <div class="db-main">
+      <div class="db-name" id="db-name">—</div>
+      <div class="db-creed" id="db-creed"></div>
+    </div>
+    <div class="db-side">
+      <div class="db-confidence" id="db-confidence"></div>
+      <div class="db-alt" id="db-alt"></div>
+    </div>
+  </div>
+  <div id="doctrine-switch" class="doctrine-switch" style="display:none">
+    <span id="db-switch-text"></span>
+    <button class="btn small ghost" id="db-decline" title="Keep the prior doctrine — my draft, my call">Decline — keep the plan</button>
+  </div>
+
   <%# §2(d) — slim pinned status bar: pick state + connection stay visible when
       scrolled down to the board. Populated by app.js renderStatusBar(). %>
   <div id="wr-statusbar" class="wr-statusbar" style="display:flex"></div>
@@ -333,6 +354,7 @@
 <script src="/js/draft/engine.js"></script>
 <script src="/js/draft/attribution.js"></script>
 <script src="/js/draft/shadows.js"></script>
+<script src="/js/draft/doctrine.js"></script>
 <script src="/js/draft/alerts.js"></script>
 <script src="/js/draft/prefsync.js"></script>
 <script src="/js/draft/predledger.js"></script>
