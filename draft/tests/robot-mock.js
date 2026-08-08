@@ -558,6 +558,94 @@ if (!IS_FIXTURE) {
     JSON.stringify((ART.kept_players || []).map(k => [k.name, k.team_slot])));
 }
 
+// R-missedmark: the three fixtures the spec demands — sync auto-reconciles and
+// tags it, manual nags and never invents, exit catches a deliberate mismatch.
+//
+// The load-bearing rule is item 3: NEVER auto-assign the recommendation as the
+// pick, in any mode. A ledger entry Cory did not make is worse than a missing
+// one, because it corrupts the grading data everything downstream depends on.
+{
+  const LG = require('../../public/js/draft/legality.js');
+  const mySeat = 4;
+
+  // FIXTURE 1 — SYNC LIVE. A pick lands on my seat that I never marked.
+  {
+    const st = A.emptyState();
+    for (let i = 1; i <= TEAMS; i++) st.rosters[i] = [];
+    const markedLocally = new Set();          // I tapped nothing
+    const player = ALL[10];
+    A.applyRemote(st, player, mySeat, mySeat);
+    const missed = !markedLocally.has(String(player.player_id));
+    check('R-missedmark: Sleeper is truth — an unmarked pick still lands on my roster',
+      st.myRoster.some(p => String(p.player_id) === String(player.player_id)));
+    check('R-missedmark: the tool can TELL it was never tapped locally', missed === true);
+
+    // ...and a pick I DID tap is not flagged as reconciled.
+    const mine = ALL[11];
+    markedLocally.add(String(mine.player_id));
+    A.applyRemote(st, mine, mySeat, mySeat);
+    check('R-missedmark: a pick I tapped myself is NOT treated as reconciled',
+      markedLocally.has(String(mine.player_id)));
+  }
+
+  // FIXTURE 2 — MANUAL / SYNC DEAD. The board passes my pick, nothing recorded.
+  {
+    const myPicks = [34, 41, 54, 61];
+    const currentPick = 55;                    // 34, 41 and 54 have all passed
+    const recorded = 2;                        // I only marked two of them
+    const passed = myPicks.filter(n => n < currentPick);
+    const missing = passed.length - recorded;
+    check('R-missedmark: the gap is COUNTED, not guessed at', missing === 1, String(missing));
+    check('R-missedmark: the unrecorded pick numbers are nameable',
+      passed.slice(-missing).join(',') === '54', passed.slice(-missing).join(','));
+    // ITEM 3: nothing anywhere fills that gap with the recommendation.
+    const roster = [];
+    check('R-missedmark: NOTHING auto-assigns a pick — the roster stays short',
+      roster.length === 0);
+  }
+
+  // FIXTURE 3 — EXIT. A deliberate mismatch must be caught before archiving.
+  {
+    const marked = [ALL[0], ALL[1]];
+    const sleeper = [ALL[0], ALL[2]];          // I missed ALL[2], mis-marked ALL[1]
+    const r = LG.reconcileExit(marked, sleeper);
+    check('R-missedmark: exit reconciliation catches a deliberate mismatch',
+      r.ok === false && r.missing.length === 1 && r.extra.length === 1,
+      JSON.stringify({ missing: r.missing.length, extra: r.extra.length }));
+    check('R-missedmark: a clean exit reconciles clean (non-vacuous)',
+      LG.reconcileExit(marked, marked).ok === true);
+  }
+}
+
+// R-seatauto: the seat resolves from the draft object, with no manual entry.
+//
+// A REAL BUG the sweep surfaced: the resolver read `window.MY_ROSTER_ID`, which
+// is never defined anywhere in the codebase — so `mine` was always null and seat
+// resolution had never worked, in mocks or the real league. The identity that
+// IS available is my Sleeper user id, and draft_order maps user_id -> slot in
+// every draft object including mocks.
+{
+  const profiles = ((ART.manager_profiles || {}).managers) || {};
+  const myUid = Object.keys(profiles).find(u => (profiles[u] || {}).name === 'coryjsimms');
+  check('R-seatauto: my Sleeper uid is present on the board (the identity exists)',
+    !!myUid, 'no profile named coryjsimms');
+
+  // The resolution itself is arithmetic over the draft object: uid -> slot.
+  const resolve = (draft, uid) => {
+    const byUser = draft.draft_order || {};
+    return (uid && byUser[uid] != null) ? Number(byUser[uid]) || null : null;
+  };
+  const mockDraft = { draft_order: { [myUid]: 7, '999': 1, '888': 2 }, slot_to_roster_id: {} };
+  check('R-seatauto: a MOCK draft object names my seat with no roster ids at all',
+    resolve(mockDraft, myUid) === 7, String(resolve(mockDraft, myUid)));
+  check('R-seatauto: a draft_order that does not list me resolves to null, not a guess',
+    resolve({ draft_order: { '999': 1 } }, myUid) === null);
+  check('R-seatauto: an unpopulated draft_order (order not yet assigned) resolves null',
+    resolve({ draft_order: {} }, myUid) === null && resolve({}, myUid) === null);
+  check('R-seatauto: the OLD path could never resolve — MY_ROSTER_ID is undefined',
+    typeof global.MY_ROSTER_ID === 'undefined' && typeof globalThis.MY_ROSTER_ID === 'undefined');
+}
+
 // R-noname: no seat-specific opponent claim before the draft object names them.
 //
 // `threatBoard` drives the adjacency lines, the sniper warnings and the

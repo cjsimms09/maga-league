@@ -78,6 +78,11 @@
   </details>
   <%# The run banner stays OUT of the fold-away: a positional run is live
       decision input, not status. %>
+  <%# MISSED-MARK RECOVERY. Both stay OUT of the fold-away: an unrecorded pick
+      makes every recommendation below it wrong, and a reconciled pick is a
+      roster change I did not make myself. Neither is status. %>
+  <div id="unrecorded-note" style="display:none"></div>
+  <div id="reconciled-note" style="display:none"></div>
   <div id="run-banner" class="roast-banner" style="display:none"></div>
   <%# Retained hosts: the checklist summary is now inline in the details panel,
       but these ids are still written to by renderChecklist(). Keeping them as

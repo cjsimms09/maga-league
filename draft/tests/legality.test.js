@@ -131,5 +131,37 @@ const roster = (...positions) => positions.map(p);
     tight.mustDraftNow === true && L.assess([], STARTERS, 8).mustDraftNow === false);
 }
 
+// --- MISSED-MARK RECOVERY: end-of-draft reconciliation ----------------------
+{
+  const mk = (id, name) => ({ player_id: String(id), name: name || ('P' + id) });
+  const clean = L.reconcileExit([mk(1), mk(2), mk(3)], [mk(1), mk(2), mk(3)]);
+  check('exit: a matching roster reconciles clean',
+    clean.ok === true && !clean.missing.length && !clean.extra.length);
+
+  // THE FORGOT-TO-TAP CASE: Sleeper has him, I never recorded him.
+  const forgot = L.reconcileExit([mk(1), mk(2)], [mk(1), mk(2), mk(3, 'Judkins')]);
+  check('exit: a pick Sleeper has and I never marked is listed as MISSING',
+    forgot.ok === false && forgot.missing.length === 1
+    && forgot.missing[0].name === 'Judkins', JSON.stringify(forgot.missing));
+
+  // THE MIS-TAP: I recorded someone Sleeper does not have.
+  const mistap = L.reconcileExit([mk(1), mk(9, 'WrongGuy')], [mk(1)]);
+  check('exit: a player I marked that Sleeper does not have is listed as EXTRA',
+    mistap.extra.length === 1 && mistap.extra[0].name === 'WrongGuy',
+    JSON.stringify(mistap.extra));
+
+  const both = L.reconcileExit([mk(1), mk(9)], [mk(1), mk(3)]);
+  check('exit: missing and extra are reported SEPARATELY, never netted to zero',
+    both.missing.length === 1 && both.extra.length === 1 && both.ok === false);
+  check('exit: a discrepancy names the correction as required before archiving',
+    /correct before archiving/.test(both.note), both.note);
+
+  // NEVER AUTO-APPLIED (spec item 3): the function reports, it does not mutate.
+  const marked = [mk(1)];
+  L.reconcileExit(marked, [mk(1), mk(2)]);
+  check('exit: reconciliation REPORTS and never mutates the roster it was given',
+    marked.length === 1, String(marked.length));
+}
+
 console.log(`\n${pass}/${pass + fail} legality checks passed`);
 process.exit(fail ? 1 : 0);

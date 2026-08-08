@@ -201,7 +201,38 @@
     };
   }
 
-  var api = { STREAMABLE: STREAMABLE, FLEX_POS: FLEX_POS, lineupState: lineupState,
+  /**
+   * MISSED-MARK RECOVERY (4) — END-OF-DRAFT RECONCILIATION.
+   *
+   * Compare what I marked against what Sleeper says I own. Every discrepancy is
+   * listed for one-tap correction BEFORE the draft archives, because a wrong
+   * roster at exit corrupts the grading data everything downstream depends on.
+   *
+   * Returns { ok, missing[], extra[] }:
+   *   missing — Sleeper has him, I never recorded him (the forgot-to-tap case)
+   *   extra   — I recorded him, Sleeper does not have him (a mis-tap)
+   */
+  function reconcileExit(markedRoster, sleeperRoster) {
+    var mine = {};
+    (markedRoster || []).forEach(function (p) { mine[String(p.player_id)] = p; });
+    var theirs = {};
+    (sleeperRoster || []).forEach(function (p) { theirs[String(p.player_id)] = p; });
+    var missing = Object.keys(theirs).filter(function (id) { return !mine[id]; })
+      .map(function (id) { return theirs[id]; });
+    var extra = Object.keys(mine).filter(function (id) { return !theirs[id]; })
+      .map(function (id) { return mine[id]; });
+    return {
+      ok: missing.length === 0 && extra.length === 0,
+      missing: missing, extra: extra,
+      // Never auto-applied. The list is for ONE-TAP CORRECTION -- a roster the
+      // owner did not confirm is the same problem as a pick he did not make.
+      note: (missing.length || extra.length)
+        ? 'roster differs from Sleeper — correct before archiving'
+        : 'roster matches Sleeper',
+    };
+  }
+
+  var api = { reconcileExit: reconcileExit, STREAMABLE: STREAMABLE, FLEX_POS: FLEX_POS, lineupState: lineupState,
               assess: assess, suppressReason: suppressReason,
               priceOnesie: priceOnesie, exitSummary: exitSummary };
   global.DraftLegality = api;

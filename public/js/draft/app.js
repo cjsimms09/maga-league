@@ -20,6 +20,9 @@
     weights: Object.assign({}, E.DEFAULT_WEIGHTS),
     runMults: {},
     recentPicks: [],
+    // Player ids I tapped myself. The difference between this and what Sleeper
+    // reports on my seat is exactly the missed-mark case.
+    markedLocally: new Set(),
     sync: null,
     mode: 'pre',          // 'pre' | 'live'
     rosters: {},          // team_slot -> [player] (built from picks; feeds A2 Layer 2)
@@ -520,7 +523,23 @@
     return order.filter(p => p >= current);
   }
   function currentPick() {
-    return state.sync ? state.sync.currentPickNumber() : (state.data.pick_order.my_picks[0] || 1);
+    if (state.sync) return state.sync.currentPickNumber();
+    // MANUAL MODE HAD NO CLOCK. This returned `my_picks[0]` unconditionally, so
+    // with sync down the board sat frozen at pick 34 forever no matter how many
+    // picks were recorded — 43 players off the board and the status bar still
+    // read "YOU ARE UP - pick 34". Everything pick-dependent inherited it: LRM,
+    // survival, the branch forecast, picks-left in the legality strip, and the
+    // missed-mark nag, which could never fire.
+    //
+    // Manual mode is the DRAFT-NIGHT FALLBACK, so this was the one path that had
+    // to work when sync failed, and it was the one path with no clock.
+    //
+    // Before any pick is recorded, my first live pick stays the anchor: that is
+    // the pre-draft prep board, and "who do I take at 34" is the right question
+    // then. Once picks start flowing, the count of recorded picks IS the clock.
+    const recorded = (state.recentPicks || []).length;
+    if (!recorded) return state.data.pick_order.my_picks[0] || 1;
+    return recorded + 1;
   }
   function onTheClock() {
     const mine = state.data.pick_order.my_picks || [];
@@ -554,6 +573,20 @@
           + escapeHtml(seatTxt) + '</span>' : '')
       + '<span class="sb-conn ' + (connected ? 'on' : 'off') + '">' + (connected ? '● live sync' : '○ manual') + '</span>'
       + (mock ? '<span class="sb-mock">REHEARSAL</span>' : '');
+  }
+
+  /** My Sleeper user id, from the profile that names me. The artifact keys
+   *  manager_profiles by uid, so the identity is already on the board — it was
+   *  just never wired to the seat lookup. */
+  function myLeagueUserId() {
+    if (state.myUid !== undefined) return state.myUid;
+    const profiles = ((state.data || {}).manager_profiles || {}).managers || {};
+    const me = Object.keys(profiles).find(uid => {
+      const p = profiles[uid] || {};
+      return p.name === 'coryjsimms' || p.is_me === true;
+    });
+    state.myUid = me || null;
+    return state.myUid;
   }
 
   function indexProfilesBySlot(data) {
@@ -675,6 +708,7 @@
     renderPicksFeed();
     renderManagers();
     try { renderSystemStrip(); } catch (e) { /* never blocks the clock */ }
+    try { renderUnrecordedPicks(); } catch (e) { /* never blocks the clock */ }
     try { renderLegality(); } catch (e) { /* never blocks the clock */ }
     // Last: the pinned offsets depend on the heights everything above just set
     // (the banner grows a line when a doctrine switches, the watermarks appear
@@ -2324,15 +2358,27 @@
     state.profilesMappedFromDraft = mapped > 0;
     if (mapped) state.profiles = indexProfilesBySlot(state.data);
 
-    // My own seat: match on the roster id the site already knows, else the
-    // user id if the draft object carries it.
+    // MY OWN SEAT — AUTO-DETECTED, no manual entry in a rehearsal.
+    //
+    // A REAL BUG FOUND HERE: this read `window.MY_ROSTER_ID`, which is NEVER
+    // DEFINED anywhere in the codebase. So `mine` was always null — seat
+    // resolution has never worked, in mocks OR the real league, and the A2
+    // verification machinery could never fire because its input did not exist.
+    //
+    // The identity that IS available is my Sleeper USER id, and `draft_order`
+    // maps user_id -> slot in every draft object including mocks. That is the
+    // primary path now; slot_to_roster_id stays as a secondary, since a LEAGUE
+    // draft carries rosters and a mock does not.
     let mine = null;
+    const myUid = myLeagueUserId();
+    if (myUid && byUser[myUid] != null) mine = Number(byUser[myUid]) || null;
     const myRosterId = window.MY_ROSTER_ID || null;
-    if (myRosterId) {
+    if (!mine && myRosterId) {
       Object.keys(slotToRoster).forEach(slot => {
         if (String(slotToRoster[slot]) === String(myRosterId)) mine = Number(slot);
       });
     }
+    if (mine) state.seatAutoSource = myUid && byUser[myUid] != null ? 'draft_order' : 'roster_id';
 
     // A mock draft is a DIFFERENT draft from the league's: usually a different
     // team count, always 15-ish rounds, and never any keepers. The artifact's
@@ -2471,6 +2517,8 @@
     state.format = E.applyFormatDefaults(state.data.league);
     state.mockMode = { teams: teams, rounds: rounds, type: cfg.draft_type,
                        picks: out.order.picks.length, myPicks: out.order.my_picks };
+    // Auto-detected from the mock's own draft_order = a real resolution, not a
+    // guess. Only an unnamed seat falls back to 'assumed'.
     state.roomSeatSource = mySlot ? 'sleeper' : 'assumed';
     refreshSeat();
     // REHEARSAL KEEPER MODE (3) — the biggest fidelity gap. In a real draft ~27
@@ -2903,6 +2951,68 @@
   /* One platform-board observation. Deliberately records what we KNOW and
    * flags what we are inferring: `autopick` is a guess from a missing
    * `picked_by`, so it ships as `autopick_inferred` rather than as fact. */
+  /* A pick that arrived from Sleeper on my seat which I never tapped. Sleeper
+   * is authoritative, so the roster is already right — what this adds is the
+   * VISIBLE record that it came from sync, and an override prompt tagged so the
+   * ledger knows I did not tap it live. */
+  function noteReconciledPick(player, pick) {
+    const pickNo = Number(pick.pick_no) || null;
+    state.reconciledPicks = state.reconciledPicks || [];
+    state.reconciledPicks.push({ player_id: String(player.player_id), name: player.name,
+                                 pick_no: pickNo });
+    const feed = document.getElementById('reconciled-note');
+    if (feed) {
+      feed.style.display = '';
+      feed.className = 'prov-note ok';
+      feed.innerHTML = '<b>🔄</b> <span><b>Synced:</b> you took '
+        + escapeHtml(player.name) + ' at ' + (pickNo == null ? '?' : pickNo)
+        + ' — roster updated from Sleeper.</span>';
+    }
+    // If it differs from what we recommended, this is still an override and
+    // still needs its reason — tagged so the grading data knows the difference
+    // between "chose otherwise" and "did not tap".
+    try {
+      const top = (state.lastClock && state.lastClock.scored || [])[0];
+      if (top && String(top.player.player_id) !== String(player.player_id)) {
+        promptOverrideReason(player, top.player, { reconciled: true });
+      }
+    } catch (e) { /* the roster is already correct; the prompt is a bonus */ }
+    if (typeof PredLedger !== 'undefined' && !state.mockMode) {
+      const c = ledgerCtx();
+      PredLedger.capture('pick_reconciled', { season: c.season, build_at: c.build_at,
+        pick: pickNo, method: 'reconcile-v1',
+        payload: { player_id: String(player.player_id), name: player.name,
+                   position: player.position, source: 'sleeper',
+                   note: 'landed on my seat without a local mark — reconciled, not inferred' } });
+    }
+  }
+
+  /* MISSED-MARK RECOVERY (2) — THE SYNC-DEAD PATH. Never infer. The board has
+   * moved past a pick of mine and nothing is recorded, so say so and keep
+   * saying it. It blocks nothing; it just will not go away until answered, and
+   * it NAMES the consequence rather than letting stale recommendations look
+   * authoritative. */
+  function renderUnrecordedPicks() {
+    const host = document.getElementById('unrecorded-note');
+    if (!host || !state.data) return null;
+    const cur = currentPick();
+    const mine = (state.data.pick_order || {}).my_picks || [];
+    const recorded = state.myRoster.filter(p => !p.is_keeper).length;
+    const passed = mine.filter(n => n < cur);
+    const missing = passed.length - recorded;
+    if (missing <= 0) { host.style.display = 'none'; state.unrecorded = 0; return 0; }
+    state.unrecorded = missing;
+    const at = passed.slice(-missing);
+    host.style.display = '';
+    host.className = 'prov-note danger';
+    host.innerHTML = '<b>⚠️</b> <span><b>You picked at ' + at.join(', ')
+      + ' — mark who you took.</b> Nothing is assumed: the tool will not invent a '
+      + 'pick, and it will not stop asking. <b>Recommendations below assume your '
+      + 'roster is missing ' + missing + ' pick' + (missing === 1 ? '' : 's')
+      + '</b> — need, byes and legality are all computed from what is recorded.</span>';
+    return missing;
+  }
+
   function capturePlatformSample(pick, player, slot) {
     if (typeof PredLedger === 'undefined' || !state.mockMode) return;
     try {
@@ -3072,6 +3182,9 @@
   function markDrafted(playerId, toMe, teamSlot, pathKey) {
     const p = playerById(playerId);
     if (!p) return;
+    // Recorded BEFORE anything else: the difference between this set and what
+    // Sleeper reports on my seat is exactly the missed-mark case.
+    if (toMe) state.markedLocally.add(String(playerId));
     const seatSlot = mySlot();
     const slot = toMe ? seatSlot : (teamSlot || null);
     const alreadySeen = state.drafted.has(String(playerId));
@@ -3176,7 +3289,7 @@
    * and logs 'no_reason_given' — a REQUIRED modal at draft speed poisons the
    * ledger worse than a missing reason, so every off-top pick still produces one
    * override entry, tagged, with the path it came from (null until Part 2). */
-  function logOverrideReason(picked, overTop, reason, path) {
+  function logOverrideReason(picked, overTop, reason, path, reconciled) {
     if (typeof PredLedger === 'undefined' || state.mockMode) return;
     const c = ledgerCtx();
     PredLedger.override({ season: c.season, build_at: c.build_at, pick: c.pick,
@@ -3185,11 +3298,15 @@
         over_player_id: overTop ? String(overTop.player_id) : null,
         over_name: overTop ? overTop.name : null,
         reason: reason || 'no_reason_given', path: path == null ? null : path,
+        // The ledger must know I did not tap this live — a reconciled override
+        // is a different kind of evidence from a deliberate one, and January
+        // grades them differently.
+        reconciled_from_sync: !!reconciled,
         off_top_rec: true } });
   }
   function promptOverrideReason(picked, overTop, opts) {
     opts = opts || {};
-    if (typeof document === 'undefined') { logOverrideReason(picked, overTop, 'no_reason_given', opts.path); return; }
+    if (typeof document === 'undefined') { logOverrideReason(picked, overTop, 'no_reason_given', opts.path, opts.reconciled); return; }
     const old = document.getElementById('override-reason'); if (old) old.remove();
     const host = document.createElement('div');
     host.id = 'override-reason';
@@ -3209,7 +3326,7 @@
     document.body.appendChild(host);
     const finish = (reason) => {
       if (host.parentNode) host.remove();
-      logOverrideReason(picked, overTop, reason === 'skip' ? 'no_reason_given' : reason, opts.path);
+      logOverrideReason(picked, overTop, reason === 'skip' ? 'no_reason_given' : reason, opts.path, opts.reconciled);
     };
     host.addEventListener('click', ev => {
       const b = ev.target.closest('[data-orr]');
@@ -3490,6 +3607,15 @@
         if (seatSlot && slot === seatSlot) state.myRoster.push(p);
       }
       state.board = state.board.filter(x => String(x.player_id) !== id);
+      // MISSED-MARK RECOVERY (1) — THE SYNC-LIVE PATH.
+      // I forgot to tap "I took him", but Sleeper knows within seconds and
+      // Sleeper is truth per the authority doctrine. applyRemote above has
+      // already put him on my roster; this is the CONFIRMATION, so a silently
+      // corrected roster is never mistaken for one I recorded myself. No
+      // guessing is involved anywhere in this path.
+      if (firstSight && seatSlot && slot === seatSlot && !state.markedLocally.has(id)) {
+        noteReconciledPick(p, pick);
+      }
       // EXP-31 PLATFORM SAMPLING. In a MOCK room every non-Cory pick is
       // Sleeper's own default ordering executing — bot/autopick picks most
       // purely of all. We have no archive of the historical platform board, so
