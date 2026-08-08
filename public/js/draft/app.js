@@ -1989,10 +1989,22 @@
     // Overrides are the one ledger entry kind that needs my finger — draft night
     // is the harvest. Mocks fire it too (rehearsal) so the path is proven first.
     if (toMe && !alreadySeen) {
-      const topRec = state.lastClock && state.lastClock.scored && state.lastClock.scored[0];
+      const scored = (state.lastClock && state.lastClock.scored) || [];
+      const topRec = scored[0];
       const topId = topRec && topRec.player ? String(topRec.player.player_id) : null;
       if (topId && String(playerId) !== topId) {
-        promptOverrideReason(p, topRec.player);
+        // Coin-flip courtesy: if the top pick was flagged contested and I took
+        // the OTHER side of that coin flip, it isn't an override — log 'coin_flip'
+        // with no interrogation. Otherwise prompt (offering 'coin flip' too when
+        // the board says it's close).
+        const contested = !!(topRec && topRec.contested);
+        const second = scored[1] && scored[1].player ? String(scored[1].player.player_id) : null;
+        const path = null;   // Paths panel (Part 2) not built yet; field reserved.
+        if (contested && second && String(playerId) === second) {
+          logOverrideReason(p, topRec.player, 'coin_flip', path);
+        } else {
+          promptOverrideReason(p, topRec.player, { contested: contested, path: path });
+        }
       }
     }
     recomputeRuns();
@@ -2010,37 +2022,50 @@
     { key: 'news', label: '📰 News', hint: 'Something changed' },
     { key: 'plan', label: '🧭 Plan', hint: 'Roster construction' },
   ];
-  function promptOverrideReason(picked, overTop) {
-    if (typeof document === 'undefined') return;
+  /* Log the reason (or its absence) for an off-top pick. Skipping is frictionless
+   * and logs 'no_reason_given' — a REQUIRED modal at draft speed poisons the
+   * ledger worse than a missing reason, so every off-top pick still produces one
+   * override entry, tagged, with the path it came from (null until Part 2). */
+  function logOverrideReason(picked, overTop, reason, path) {
+    if (typeof PredLedger === 'undefined' || state.mockMode) return;
+    const c = ledgerCtx();
+    PredLedger.override({ season: c.season, build_at: c.build_at, pick: c.pick,
+      method: 'override-reason-v1',
+      payload: { player_id: String(picked.player_id), name: picked.name,
+        over_player_id: overTop ? String(overTop.player_id) : null,
+        over_name: overTop ? overTop.name : null,
+        reason: reason || 'no_reason_given', path: path == null ? null : path,
+        off_top_rec: true } });
+  }
+  function promptOverrideReason(picked, overTop, opts) {
+    opts = opts || {};
+    if (typeof document === 'undefined') { logOverrideReason(picked, overTop, 'no_reason_given', opts.path); return; }
     const old = document.getElementById('override-reason'); if (old) old.remove();
     const host = document.createElement('div');
     host.id = 'override-reason';
     host.className = 'override-reason-toast';
+    // When the board itself calls it close, offer 'coin flip' as a one-tap reason.
+    const reasons = opts.contested
+      ? OVERRIDE_REASONS.concat([{ key: 'coin_flip', label: '🪙 Coin flip', hint: 'Board says it is close' }])
+      : OVERRIDE_REASONS;
     host.innerHTML =
       '<div class="orr-head">Took <b>' + escapeHtml(picked.name) + '</b> over '
-      + escapeHtml(overTop ? overTop.name : 'the top pick') + ' — why?</div>'
+      + escapeHtml(overTop ? overTop.name : 'the top pick') + ' — why? <span class="muted">(skip is fine)</span></div>'
       + '<div class="orr-btns">'
-      + OVERRIDE_REASONS.map(r => '<button class="btn small navy" data-orr="' + r.key
+      + reasons.map(r => '<button class="btn small navy" data-orr="' + r.key
         + '" title="' + escapeHtml(r.hint) + '">' + r.label + '</button>').join('')
       + '<button class="btn small ghost" data-orr="skip">skip</button>'
       + '</div>';
     document.body.appendChild(host);
     const finish = (reason) => {
       if (host.parentNode) host.remove();
-      if (reason && reason !== 'skip' && typeof PredLedger !== 'undefined' && !state.mockMode) {
-        const c = ledgerCtx();
-        PredLedger.override({ season: c.season, build_at: c.build_at, pick: c.pick,
-          method: 'override-reason-v1',
-          payload: { player_id: String(picked.player_id), name: picked.name,
-            over_player_id: overTop ? String(overTop.player_id) : null,
-            over_name: overTop ? overTop.name : null, reason: reason, off_top_rec: true } });
-      }
+      logOverrideReason(picked, overTop, reason === 'skip' ? 'no_reason_given' : reason, opts.path);
     };
     host.addEventListener('click', ev => {
       const b = ev.target.closest('[data-orr]');
       if (b) finish(b.getAttribute('data-orr'));
     });
-    // Never block the clock: auto-dismiss (as a skip) after 12s.
+    // Never block the clock: auto-dismiss as a frictionless skip after 12s.
     setTimeout(() => { if (host.parentNode) finish('skip'); }, 12000);
   }
 

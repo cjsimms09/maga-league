@@ -246,6 +246,28 @@ if (!IS_FIXTURE) {
     full < open, 'open=' + open.toFixed(1) + ' full=' + full.toFixed(1));
 }
 
+// R-LRM (§C): the countdown must MOVE, or it is a decorative alarm. computeLRM's
+// core is "last of my picks where survival(bestQB, pick) >= 0.85". Simulate
+// opponents taking QBs (an elevated run multiplier) and assert the deadline
+// tightens (moves earlier) for QBs whose deadline sits in my window — never later.
+if (!IS_FIXTURE) {
+  const picks = [34, 41, 54, 61, 74, 81, 94, 101, 114, 121, 134, 141];
+  const qbs = ALL.filter(p => p.position === 'QB').sort((a, b) => (b.vorp || 0) - (a.vorp || 0));
+  const lastSafe = (qb, m) => {
+    let l = null;
+    for (let i = 0; i < picks.length; i++) if (E.survival(qb, picks[i], m) >= 0.85) l = picks[i];
+    return l;
+  };
+  let moved = 0, wentLater = 0;
+  qbs.forEach(qb => {
+    const calm = lastSafe(qb, {});
+    const run = lastSafe(qb, { QB: 1.6 });
+    if (calm != null && run != null && run !== calm) { moved++; if (run > calm) wentLater++; }
+  });
+  check('R-LRM: a QB run MOVES the deadline for QBs in my window (not a static alarm)', moved > 0, 'moved=' + moved);
+  check('R-LRM: the run only ever TIGHTENS the deadline, never loosens it', wentLater === 0, 'wentLater=' + wentLater);
+}
+
 // R7 (DEMAND 3 — the robot draft writes the ledger): a full simulated draft
 // must produce the expected ledger entries with monotonic seq and ZERO gaps.
 // This is what proves draft night gets captured — not just a single curl test.
