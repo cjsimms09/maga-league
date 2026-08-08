@@ -56,7 +56,25 @@ def load_profiles(path: Path | None = None) -> dict:
 
 
 def seat_params(profiles: dict) -> dict:
-    """{manager_name: {pos_mult, temp, shrinkage, source}} — the fitted room."""
+    """{manager_name: {pos_mult, temp, shrinkage, source}} — the fitted room.
+
+    SEAT-ASSIGNMENT AUDIT (2026-08-08, prompted by the client-side draft_slot
+    bug). Keyed by MANAGER NAME, never by seat number, and `draft_room` assigns
+    seats from `sorted(opp_keepers)` — real owner usernames out of
+    `predicted_keepers.json`, all nine of which resolve to a fitted profile. So
+    the simulator never touched the client's order-fallback and no landed verdict
+    rests on an arbitrary profile-to-seat mapping. **Clean.**
+
+    ONE REAL LIMITATION, recorded rather than glossed: seat NUMBERS are assigned
+    ALPHABETICALLY by owner, because the true 2026 draft order does not exist
+    yet. My own seat is correct (pick numbers come from `my_picks`), and the
+    paired design shares the room between candidate and control, so the deltas
+    are unaffected. But WHICH opponent sits adjacent to me is a placeholder, so
+    any finding that depends on adjacency — §6 conditional states especially —
+    is conditioned on an arbitrary neighbour ordering. Re-run once Sleeper
+    assigns the real order; the same "seats unassigned" truth the War Room
+    surface now tells.
+    """
     mgrs = profiles.get("managers") or {}
     out = {}
     for _, d in mgrs.items():

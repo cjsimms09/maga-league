@@ -613,7 +613,14 @@
         team_slot: p.slot,
         pick_no: p.overall,
         roster: state.rosters[p.slot] || [],
-        profile: state.profiles[p.slot] || null,
+        // HONEST STATE UNTIL IMPORT. This is the single choke point feeding the
+        // adjacency lines, sniper warnings and the before-your-next-pick strip.
+        // Until the live draft object maps uids to seats, WHO sits where is
+        // unknown, and profileForSlot returns null rather than a name from the
+        // order-fallback. A confident wrong name is worse than an honest blank:
+        // it would put a real manager's tendencies on a stranger's seat and
+        // invite a decision against them.
+        profile: profileForSlot(p.slot),
       }));
   }
 
@@ -1074,8 +1081,14 @@
       host.innerHTML = '<p class="muted" style="margin:0; font-size:.78rem">On the clock — nobody picks before your next turn.</p>';
       return;
     }
+    // Generic, not silent: say the count and say the seats are unknown. The
+    // dossier's league-wide tendencies are still true and still shown; what is
+    // suppressed is any claim about WHO sits where.
+    const unassigned = !state.profilesMappedFromDraft;
     host.innerHTML = '<div class="ts-head">' + t.picksUntilNext + ' pick'
-      + (t.picksUntilNext === 1 ? '' : 's') + ' before your turn</div>'
+      + (t.picksUntilNext === 1 ? '' : 's') + ' before your turn'
+      + (unassigned ? ' <span class="muted">· seats unassigned until Sleeper '
+        + 'names them</span>' : '') + '</div>'
       + t.rows.slice(0, 6).map(r => {
         const who = r.manager ? escapeHtml(r.manager) : 'Seat ' + r.team_slot;
         const names = r.likely.length
@@ -1100,7 +1113,8 @@
       return;
     }
     if (head) head.textContent = t.picksUntilNext + ' pick'
-      + (t.picksUntilNext === 1 ? '' : 's') + ' before your turn';
+      + (t.picksUntilNext === 1 ? '' : 's') + ' before your turn'
+      + (state.profilesMappedFromDraft ? '' : ' · seats unassigned');
 
     // At-risk first. It is the answer; the seat-by-seat breakdown is the
     // working, and on the clock most people only ever read the answer.

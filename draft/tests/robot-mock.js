@@ -558,6 +558,42 @@ if (!IS_FIXTURE) {
     JSON.stringify((ART.kept_players || []).map(k => [k.name, k.team_slot])));
 }
 
+// R-noname: no seat-specific opponent claim before the draft object names them.
+//
+// `threatBoard` drives the adjacency lines, the sniper warnings and the
+// before-your-next-pick strip. Feed it profiles and it names opponents; feed it
+// nulls and it must degrade to seat numbers rather than inventing anyone. A
+// confident wrong name would put a real manager's tendencies on a stranger's
+// seat and invite a decision against them.
+{
+  const teams = TEAMS;
+  const board = ALL.slice(0, 120);
+  const mkCtx = (withProfiles) => ({
+    board, currentPick: 34, nextPick: 41, totalPicks: 150, myPicksLeft: 8,
+    roster: [], league: LEAGUE, weights: E.DEFAULT_WEIGHTS, runMultipliers: {},
+    roundsLeft: 10,
+    intervening: [35, 36, 37, 38, 39, 40].map((n, i) => ({
+      team_slot: ((i + 4) % teams) + 1, pick_no: n, roster: [],
+      profile: withProfiles ? { display_name: 'Richard2121', draft_slot: 5 } : null,
+    })),
+  });
+
+  const named = E.threatBoard(mkCtx(true));
+  check('R-noname: WITH a mapped profile the board names the opponent (non-vacuous)',
+    named.rows.some(r => r.manager), JSON.stringify(named.rows.map(r => r.manager)));
+
+  const blank = E.threatBoard(mkCtx(false));
+  check('R-noname: with NO mapping, not one row claims a manager',
+    blank.rows.every(r => !r.manager), JSON.stringify(blank.rows.map(r => r.manager)));
+  check('R-noname: the pick numbers and counts still render — generic, not silent',
+    blank.rows.length === named.rows.length
+    && blank.picksUntilNext === named.picksUntilNext,
+    blank.rows.length + ' vs ' + named.rows.length);
+  check('R-noname: no tell is attributed to anyone when seats are unassigned',
+    blank.rows.every(r => !(r.tells || []).some(t => /Richard/i.test(t.text || ''))),
+    JSON.stringify(blank.rows.map(r => (r.tells || []).map(t => t.text))));
+}
+
 // R-legality (SEVERITY-1, mock #1): the guarantee that failed.
 //
 // Cory left a mock with no defense and the tool never said a word. Per his
