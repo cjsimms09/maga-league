@@ -40,6 +40,48 @@ baseline exists in the historical record`. Cory's standard: **narrow and honest
 beats empty.** Same denominator as 19b, so the live figure is directly
 comparable to its +$187 simulated edge.
 
+## 🛑 D11 — HOLD. Treat +$226.50 as SUSPECT until diagnosed (Cory, 2026-08-08)
+
+**Do not install. No recommendation until four checks are reported.** Cory's
+reasoning, which is correct: *a swing that large, produced by a grader change,
+that INVERTS a previously refuted hypothesis, is the classic signature of a
+defect rather than a discovery.*
+
+**Required before D11 gets a recommendation — PARKED behind mock #2 per the lane
+rule below, then run as a batch:**
+1. **Decompose the swing** — how much is playoff dollars vs the ramp itself.
+2. **Verify the bracket resim's 12/12 reproduction wasn't achieved by fitting.**
+3. **Run the null baseline on the new grader.** A grader that inflates real
+   edges inflates null edges too; if the null p95 also jumped, the effect is
+   **grader scale, not signal**.
+4. **Confirm the ceiling-ramp result survives the heterogeneous rooms.**
+
+### ⚠️ PARTIAL ANSWER TO (3) ALREADY IN HAND — and it half-confirms the suspicion
+
+No compute needed; these numbers were already recorded across the two runs:
+
+| quantity | pre-playoff grader | complete grader | ratio |
+|---|---|---|---|
+| §6 conditional **null p95** | $65.83 | $157.23 | **2.39×** |
+| WR Feast edge | $91.50 | $187.25 | 2.05× |
+| frontier λ=0.5 | $70.67 | $171.00 | 2.42× |
+| stack peak 0.5× | $80.42 | $204.58 | 2.54× |
+
+**The null scaled 2.39× and the surviving edges scaled 2.0–2.5×.** That is
+Cory's hypothesis landing: *most of the apparent growth is grader scale, not new
+signal.* Every "edge grew" line in `PLAYOFF-MONEY-VALIDATION.md` should be read
+against a null that grew by the same factor — the verdicts survive, but they did
+not strengthen, and I reported growth without normalising. **That framing error
+is mine and is corrected here.**
+
+**BUT this does NOT explain H1.** −$37.29 → +$226.50 is a **sign flip**, and a
+scale factor cannot flip a sign. So the reversal is either (a) the real
+mechanism — playoffs are a two-week single-elimination tournament and pay for
+variance in a way sixteen accumulating weeks never did — or (b) a defect in how
+the bracket prices ceiling. **Checks 1, 2 and 4 are what separate those, and
+none of them has been run.** Until they are, +$226.50 is a suspect number, not a
+finding.
+
 ## 🚨 D11 — URGENT: the phase-shape refutation REVERSES on the complete money function
 
 **You are rehearsing on a config tuned without 53% of the money.** Playoff $ is
