@@ -1,0 +1,74 @@
+# The Strategy Hunt + The Learning Seed — Built to Compound
+
+Two mandates, one document. First: an **exhaustive** search for strategies that would have performed well in this league's actual drafts — every honest avenue, not eight hand-picked profiles. Second: the learning infrastructure instrumented NOW, before draft day, so 2026 is fully captured and the system is materially smarter every season. These connect: the search generates hypotheses; the learning system grades them on live data; years compound.
+
+Framing, locked before any numbers: the historical search **ranks, characterizes, and eliminates**. Certification comes from the null-baseline test (Phase N) and live shadow grading (Phase H) — never from a raw backtest ranking alone. Runs on the corrected foundations (real keepers, top_picks_flat where each season's reality matches, full board coverage) and after/alongside Backtest Round 2.
+
+---
+
+# PHASE S — The Exhaustive Strategy Search
+
+Search the full space, four families, all seasons, my seat and league-wide, graded per pick and per final roster:
+
+### S1. Weight-space sweep
+Coarse grid over the composite weights (each of tier/need/risk/ceiling at {0, 0.5, 1, 1.5, 2.5}, value at {0.5, 1, 1.5}) — thousands of combinations are fine in CI. Also round-dependent variants: each weight allowed one schedule (flat, ramp-up-by-round, ramp-down). Record every combination's result; report the top 20 by pooled surplus with per-season splits and intervals.
+
+### S2. Sequencing strategies (decision rules, not weights)
+Positional opening books from my real first picks (34/41/54 under current rules; each season's true slots historically): RB-RB, WR-WR, WR-RB, best-available-pure, TE-early, QB-early, late-QB-hard (no QB before pick 90), onesie-at-LRM-exactly. Each rule constrains the first 2–3 live picks, Default drafts the rest. These test the openings a human actually chooses between.
+
+### S3. Counterfactual mining (find where the points actually lived)
+For every replayed pick: the gap between what Default took and the best-available-by-actual-season-outcome. Aggregate the gaps: which rounds, which positions, which situations (post-run, faller-available, opponent-just-reached) held the most recoverable value? Then invert: what *systematic, describable* adjustment captures the largest recurring gap? This generates strategies from the data rather than testing preconceptions — report the top 5 data-generated candidates alongside the designed ones.
+
+### S4. Oracle gap (the ceiling on all of this)
+Perfect-hindsight drafting from my seat vs Default: the total points available to ANY strategy. This number contextualizes everything — if the oracle gap is 120 points/season, a strategy claiming +90 is suspect; if it's 300, there's real room. Report it per season.
+
+# PHASE N — The Luck Baseline (how we get honest significance at small N)
+
+The classical p-value is unreachable at N≤3 drafts. The honest substitute: **race the search against its own luck.**
+
+1. Permutation runs: repeat the ENTIRE Phase S search ≥500 times on outcome-shuffled data (player season-outcomes permuted within position, preserving the draft structure). Record the best-performing strategy's score in each permutation.
+2. That distribution is what "the best strategy the search finds" looks like **when there is nothing to find**.
+3. The real search's top candidates are then reported against it: "Real best: +47/season. Luck-only best (95th percentile of 500 null searches): +52." → not distinguishable from luck, and we say so. Or: "+83 vs luck-best +52" → genuine signal, honestly earned.
+4. This is the pre-registered certification bar for anything from Phase S: **a strategy earns 'candidate' status only if it beats the null-search 95th percentile.** Below it: ranked, recorded, and carried as a hypothesis — never installed.
+5. Multiple-comparisons honesty is thereby built in structurally: the null baseline already includes the search's ability to cherry-pick, because the null searches cherry-pick too.
+
+# PHASE H — Shadow Rosters (2026 becomes the certification season)
+
+The answer to "would this strategy have worked" that no replay can provide: **run them all, live, silently.**
+
+1. On draft night, after every real pick, each surviving strategy (Default, all Phase-S candidates above the elimination line, and the null-beating candidates especially) maintains its own counterfactual draft — what IT would have taken at my slots, from the actually-available board. Log each shadow roster at draft end.
+2. All season: every week, score every shadow roster's optimal lineup with real results, alongside my real roster. Weekly one-line update in the app ("Shadow standings: Tier-Hunter 1,204 · You 1,187 · Default 1,151...").
+3. Season end: a full out-of-sample grading of every strategy on a season none of them saw — the certification the backtest couldn't produce. Next year's default weighting gets chosen WITH this evidence, through the Part 11 gates.
+4. Shadow rosters are frozen at draft night (no shadow waivers in v1 — note the limitation; a v2 can shadow waiver policies too, September decision).
+5. This compounds: every future season adds a full live grading of the whole strategy space. By year 3, strategy selection rests on 3 live seasons + 6 replayed drafts — a real sample, accumulated automatically.
+
+# PHASE L — The Learning Seed (instrument NOW, before draft day)
+
+The single biggest determinant of how powerful this system is in 2-3 years is whether 2026 is fully captured from day one. Build the capture layer before the draft; the analysis layers (the full Part 11) follow in September.
+
+### L1. The prediction ledger — live before draft night
+Append-only, written AT DECISION TIME (grading may read, never write — the contamination rule): every draft recommendation with full board context and what I actually took; every survival estimate at every pick; my overrides with one-tap reasons; the LRM countdowns vs when positions actually died; run-detection firings vs actual runs. Draft night is the ledger's first big harvest — if it isn't wired, that data is gone forever.
+
+### L2. Raw-forever storage
+The complete 2026 draft (every pick, timestamped, with board state), all season's weekly data, all transactions and lineups league-wide, archived raw. Features recompute; raw is permanent. A metric invented in 2028 backtests against 2026 only if this exists.
+
+### L3. Calibration auto-refresh
+After the draft: automatically grade every survival prediction made live (Layer by layer) and append to the calibration history. After each season week: grade any in-season predictions. The calibration curve becomes a living document that sharpens with every prediction the system ever makes.
+
+### L4. Dossier append pipeline
+The 2026 draft and season auto-append to the nine opponent dossiers (reach deltas from live picks vs behavior-ADP, keeper choices graded under flat-cost surplus, in-season efficiency once weekly data flows). Era-tagged to this year's ruleset. New-owner and rule-change handling per the Part 12 spec.
+
+### L5. The Annual — scheduled, not aspirational
+A January job (cron, not intention) that generates the season review: shadow-roster final standings, my overrides graded (was I right?), calibration verdicts, dossier drift, and the gated proposals for 2027 (strategy default, weight changes, parameter fits) — each proposal carrying its evidence and requiring my sign-off, each applied change graded the following year. The gate rules from Part 11 apply verbatim: multi-season consistency or in-season significance; a planted noise-proposal must be rejected (test the gate).
+
+### L6. The hypothesis ledger (connects S/N/H to the years ahead)
+Every strategy, parameter idea, and intel lean this project generates — from the Phase S search, the Intel Card, my own hunches logged via a one-line "add hypothesis" input — becomes a tracked entry: statement, origin, evidence for/against, status (active/eliminated/certified). Shadow rosters and each season's data grade the active ones automatically where possible. Nothing interesting is ever lost to a chat scroll again; nothing gets believed without accumulating evidence. This ledger IS the 2-3 year compounding, made concrete.
+
+---
+
+## Deliverables
+- `STRATEGY-HUNT.md`: full Phase S results (top 20 weights, all sequencing rules, counterfactual-mined candidates, oracle gaps), the Phase N luck distribution and verdicts, the elimination list, and the candidate list entering shadow tracking — every claim with N and intervals, provenance-stamped
+- Shadow-roster system live and robot-tested before draft night
+- Ledger capture verified live (trigger one recommendation, show the entry, decision-time timestamp)
+- STATUS.md: the luck-baseline verdict verbatim ("real best vs null-95th"), the shadow-tracked candidate list, and the L1–L6 readiness checklist
+- Honest closing paragraph, per house rules: what the search could not determine, and what specifically the 2026 shadow season will resolve

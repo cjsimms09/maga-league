@@ -178,6 +178,33 @@ lost forever.
 Phase-N null baseline and Phase-H live shadow grading CERTIFY. Ledger writes at
 decision time only. Nothing installs off a raw backtest ranking.
 
+## 📅 SEASON READINESS — IN-SEASON MASTER calendar gates (starts Aug 23)
+The in-season arsenal (`docs/queued/in-season-master.md`) is appended to the END
+of the queue. **Do not start before the draft-critical items are locked and the
+draft has happened (Aug 22).** On Aug 23 it becomes the master queue, worked
+phase by phase, calendar-gated. Countdowns from today (2026-08-08):
+
+| gate | date | ~days out | deliverable | state |
+|------|------|-----------|-------------|-------|
+| G1 | **Sep 8** | ~31 | Phase 1: in-season rankings 1.1 + waiver Lite 1.2 + Weekly Brief 1.3 + opponent capture 1.4 — live & robot-tested (week-1 waivers) | not started (gated) |
+| G2 | **Sep 15** | ~38 | Phase 2: lineup optimizer v1 (2.1) + streaming engine (2.2) — live (week-2 lineups) | not started (gated) |
+| G3 | **Sep 22** | ~45 | 2.3 playoff odds + leverage, 3.1 trade radar — live (week 3, panic window opens) | not started (gated) |
+| G4 | **Oct 6** | ~59 | 3.1 full trade engine + 3.2 Vegas layer + 3.3 fragility/handcuff — live (week 5) | not started (gated) |
+| G5 | Sep–Jan | — | Phase 4 compounding: quantile V, learning loop, watchdog, playoff-weeks mode; the Annual on a Jan cron | not started (gated) |
+
+**Gate rule:** anything at risk of missing its gate ships the honest LITE version
+at the gate, upgraded behind it — "a crude tool on Tuesday beats a perfect tool
+on Thursday; waivers don't wait." Acceptance test for the whole phase: by week 6,
+my routine is four touches (~10 min/wk) — Tuesday brief, waiver card, Thursday
+micro-brief, Sunday alert. If a tool demands more, the surface is wrong.
+
+**Dependency flag (2026-08-08):** of the four "committed specs" the in-season
+master says to re-read, only **in-season rankings** exists as a doc. **Season-
+readiness kit, Part 11, Part 12 are MISSING as documents** (see
+`docs/queued/README.md`). Not a blocker — the master is its own fallback spec —
+but flagged now, before their phases begin. This session's three master specs
+are now committed under `docs/queued/` so a reclaimed container can't lose them.
+
 ## Addendum audit — BUILT / PARTIAL / ABSENT (before any building)
 - 2b.1 Why line — **PARTIAL** (rec cards show reasons[0]; board rows have none; no tap-to-expand item-13 table per player)
 - 2b.2 full board **BUILT**, sortable; next-up glance strip **ABSENT**; visual tier bands **ABSENT**
