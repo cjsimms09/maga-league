@@ -1,0 +1,276 @@
+{
+ "meta": {
+  "generated_from": "opening_script.py \u2014 derives from board + predicted slates; regenerate on any input change",
+  "fingerprint": {
+   "board_built_at": "2026-08-08T08:51:41Z",
+   "my_slot": 4,
+   "my_keepers_hash": "bbd8bddb8d18",
+   "predicted_slates_hash": "08d78875e626"
+  },
+  "slot_provenance": "site-claimed \u2014 Sleeper draft order pending (regenerates on assignment)",
+  "doctrine": {
+   "enrolled": "Balanced Value (the control)",
+   "why": "first tournament verdicts parked every doctrine under the null (clear-board finding); enrollment updates when experiment 19's Cory-conditional race lands"
+  }
+ },
+ "my_picks": [
+  34,
+  41,
+  54,
+  61,
+  74,
+  81,
+  94,
+  101,
+  114,
+  121,
+  134,
+  141
+ ],
+ "branches": {
+  "primary_both_tes_gone": [
+   {
+    "pick": 34,
+    "candidates": [
+     {
+      "player_id": "12517",
+      "name": "Colston Loveland",
+      "position": "TE",
+      "vorp": 37.9,
+      "survival": 0.98
+     },
+     {
+      "player_id": "7525",
+      "name": "DeVonta Smith",
+      "position": "WR",
+      "vorp": 37.9,
+      "survival": 0.26
+     },
+     {
+      "player_id": "11635",
+      "name": "Ladd McConkey",
+      "position": "WR",
+      "vorp": 30.8,
+      "survival": 0.87
+     },
+     {
+      "player_id": "4881",
+      "name": "Lamar Jackson",
+      "position": "QB",
+      "vorp": 28.6,
+      "survival": 0.94
+     },
+     {
+      "player_id": "7526",
+      "name": "Jaylen Waddle",
+      "position": "WR",
+      "vorp": 28.6,
+      "survival": 0.93
+     }
+    ]
+   },
+   {
+    "pick": 41,
+    "candidates": [
+     {
+      "player_id": "12517",
+      "name": "Colston Loveland",
+      "position": "TE",
+      "vorp": 37.9,
+      "survival": 0.95
+     },
+     {
+      "player_id": "11635",
+      "name": "Ladd McConkey",
+      "position": "WR",
+      "vorp": 30.8,
+      "survival": 0.65
+     },
+     {
+      "player_id": "4881",
+      "name": "Lamar Jackson",
+      "position": "QB",
+      "vorp": 28.6,
+      "survival": 0.82
+     },
+     {
+      "player_id": "7526",
+      "name": "Jaylen Waddle",
+      "position": "WR",
+      "vorp": 28.6,
+      "survival": 0.79
+     },
+     {
+      "player_id": "6801",
+      "name": "Tee Higgins",
+      "position": "WR",
+      "vorp": 26.4,
+      "survival": 0.26
+     }
+    ]
+   },
+   {
+    "pick": 54,
+    "candidates": [
+     {
+      "player_id": "12517",
+      "name": "Colston Loveland",
+      "position": "TE",
+      "vorp": 37.9,
+      "survival": 0.78
+     },
+     {
+      "player_id": "4881",
+      "name": "Lamar Jackson",
+      "position": "QB",
+      "vorp": 28.6,
+      "survival": 0.41
+     },
+     {
+      "player_id": "7526",
+      "name": "Jaylen Waddle",
+      "position": "WR",
+      "vorp": 28.6,
+      "survival": 0.35
+     },
+     {
+      "player_id": "11564",
+      "name": "Drake Maye",
+      "position": "QB",
+      "vorp": 24.3,
+      "survival": 0.31
+     },
+     {
+      "player_id": "12518",
+      "name": "Tyler Warren",
+      "position": "TE",
+      "vorp": 24.2,
+      "survival": 0.84
+     }
+    ]
+   }
+  ],
+  "contingency_bowers_available": [
+   {
+    "pick": 34,
+    "candidates": [
+     {
+      "player_id": "11604",
+      "name": "Brock Bowers",
+      "position": "TE",
+      "vorp": 82.2,
+      "survival": 0.84
+     },
+     {
+      "player_id": "12517",
+      "name": "Colston Loveland",
+      "position": "TE",
+      "vorp": 37.9,
+      "survival": 0.98
+     },
+     {
+      "player_id": "7525",
+      "name": "DeVonta Smith",
+      "position": "WR",
+      "vorp": 37.9,
+      "survival": 0.26
+     },
+     {
+      "player_id": "11635",
+      "name": "Ladd McConkey",
+      "position": "WR",
+      "vorp": 30.8,
+      "survival": 0.87
+     },
+     {
+      "player_id": "4881",
+      "name": "Lamar Jackson",
+      "position": "QB",
+      "vorp": 28.6,
+      "survival": 0.94
+     }
+    ]
+   },
+   {
+    "pick": 41,
+    "candidates": [
+     {
+      "player_id": "11604",
+      "name": "Brock Bowers",
+      "position": "TE",
+      "vorp": 82.2,
+      "survival": 0.6
+     },
+     {
+      "player_id": "12517",
+      "name": "Colston Loveland",
+      "position": "TE",
+      "vorp": 37.9,
+      "survival": 0.95
+     },
+     {
+      "player_id": "11635",
+      "name": "Ladd McConkey",
+      "position": "WR",
+      "vorp": 30.8,
+      "survival": 0.65
+     },
+     {
+      "player_id": "4881",
+      "name": "Lamar Jackson",
+      "position": "QB",
+      "vorp": 28.6,
+      "survival": 0.82
+     },
+     {
+      "player_id": "7526",
+      "name": "Jaylen Waddle",
+      "position": "WR",
+      "vorp": 28.6,
+      "survival": 0.79
+     }
+    ]
+   },
+   {
+    "pick": 54,
+    "candidates": [
+     {
+      "player_id": "12517",
+      "name": "Colston Loveland",
+      "position": "TE",
+      "vorp": 37.9,
+      "survival": 0.78
+     },
+     {
+      "player_id": "4881",
+      "name": "Lamar Jackson",
+      "position": "QB",
+      "vorp": 28.6,
+      "survival": 0.41
+     },
+     {
+      "player_id": "7526",
+      "name": "Jaylen Waddle",
+      "position": "WR",
+      "vorp": 28.6,
+      "survival": 0.35
+     },
+     {
+      "player_id": "11564",
+      "name": "Drake Maye",
+      "position": "QB",
+      "vorp": 24.3,
+      "survival": 0.31
+     },
+     {
+      "player_id": "12518",
+      "name": "Tyler Warren",
+      "position": "TE",
+      "vorp": 24.2,
+      "survival": 0.84
+     }
+    ]
+   }
+  ]
+ }
+}

@@ -133,10 +133,20 @@ jobs:
             python build.py --league-id "${{ github.event.inputs.league_id || '1374848328470102016' }}"
           fi
 
+      - name: Regenerate the opening script + predicted slates from the fresh board
+        # The regeneration hook made mechanical: every artifact rebuild (which
+        # includes slot-assignment and keeper-designation changes flowing into
+        # the board) re-derives the predicted slates and the opening script, so
+        # their fingerprints always match the board they claim to describe.
+        if: github.event.inputs.snapshot != 'true'
+        run: |
+          python draft/predict_keepers.py || echo "predicted slates unchanged/skipped"
+          python draft/opening_script.py
+
       - name: Commit the artifact if it changed
         if: github.event.inputs.snapshot != 'true'
         run: |
-          PATHS="public/draft_data.json draft/config/league_config.json draft/data/league_history.json"
+          PATHS="public/draft_data.json draft/config/league_config.json draft/data/league_history.json draft/data/predicted_keepers.json draft/data/opening_script.md draft/data/opening_script.json"
           EXISTING=""
           for p in $PATHS; do [ -e "$p" ] && EXISTING="$EXISTING $p"; done
           if [ -z "$EXISTING" ] || git diff --quiet -- $EXISTING; then
