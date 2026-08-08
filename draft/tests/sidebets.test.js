@@ -110,5 +110,24 @@ const BETS = [
   check('2025 year view excludes the open and the push bet', yr25.rows.length === 1, String(yr25.rows.length));
 }
 
+// --- firewall (§6/§7): no side-bet content outside the side-bets section -----
+{
+  const fs = require('fs'), path = require('path');
+  const V = f => fs.readFileSync(path.join(__dirname, '../../views', f), 'utf8');
+
+  // The tracker/side-bet partial is included ONLY behind the section guard in
+  // bank.ejs — the one page that has a side-bets section.
+  const bank = V('bank.ejs');
+  const guarded = /section === 'sidebets'[\s\S]{0,80}include\('partials\/_side_bets'\)/.test(bank);
+  check('bank.ejs includes _side_bets ONLY inside the section===sidebets guard', guarded, 'guard not found');
+
+  // The league-money surfaces never include the side-bet partial or its markup.
+  for (const f of ['history.ejs', 'team.ejs', 'dashboard.ejs']) {
+    const src = V(f);
+    check(f + ' does not include the side-bet partial',
+      !/_side_bets/.test(src) && !/sb-tracker/.test(src), f + ' references side bets');
+  }
+}
+
 console.log(`\n${pass}/${pass + fail} side-bet tracker checks passed`);
 process.exit(fail ? 1 : 0);

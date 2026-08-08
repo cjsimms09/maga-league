@@ -25,7 +25,91 @@
     return s && s.trim() !== (b.terms || '').trim() ? s : '';
   };
   const myPicks = b => ((b.parties || []).find(p => p.owner_id === myId) || {}).picks || [];
+  // Side-bet tracker: dollar formatting + sign class. A dash for an empty cell.
+  const sbMoney = n => (n == null ? '—' : (n > 0 ? '+$' + n : (n < 0 ? '−$' + Math.abs(n) : '$0')));
+  const sbCls = n => (n == null ? 'sb-dash' : (n > 0 ? 'sb-pos' : (n < 0 ? 'sb-neg' : 'sb-zero')));
 %>
+
+<style>
+  .sb-tracker{margin:0 0 20px}
+  .sb-grid{border-collapse:collapse;width:100%;font-size:14px}
+  .sb-grid th,.sb-grid td{padding:6px 10px;text-align:right;border-bottom:1px solid rgba(0,0,0,.08)}
+  .sb-grid th:first-child,.sb-grid td:first-child{text-align:left}
+  .sb-grid a{text-decoration:none}
+  .sb-pos{color:#0a7d34;font-weight:600}.sb-neg{color:#b3261e;font-weight:600}
+  .sb-dash{color:#aaa}.sb-zero{color:#666}
+  .sb-grid .sb-career{font-weight:700;border-left:2px solid rgba(0,0,0,.12)}
+  .sb-name a{font-weight:600}
+  .sb-back{display:inline-block;margin:0 0 10px;font-size:13px}
+  .sb-ledrow{padding:8px 0;border-bottom:1px solid rgba(0,0,0,.08)}
+  .sb-open{background:#fff8e1;border-left:3px solid #f5a623;padding:8px 10px;margin:4px 0}
+</style>
+
+<div class="sb-tracker">
+<% if (sbDrill) { %>
+  <a class="sb-back" href="/bank?section=sidebets">← back to the grid</a>
+  <% if (sbDrill.kind === 'name' || sbDrill.kind === 'cell') { %>
+    <h3><%= sbDrill.name %><%= sbDrill.kind === 'cell' ? ' — ' + sbDrill.year : ' — career side bets' %>
+      <span class="<%= sbCls(sbDrill.ledger.net) %>">(<%= sbMoney(sbDrill.ledger.net) %>)</span></h3>
+    <% const opens = sbDrill.ledger.rows.filter(r => r.bet.status !== 'settled');
+       const setl = sbDrill.ledger.rows.filter(r => r.bet.status === 'settled'); %>
+    <% opens.forEach(r => { %>
+      <div class="sb-open"><b>OPEN</b> · vs <%= r.against %> · $<%= r.bet.stake %> — <%= esc(r.bet.terms) %>
+        <% const me = (r.bet.parties||[]).find(p=>p.owner_id===sbDrill.owner_id); %>
+      </div>
+    <% }) %>
+    <% setl.forEach(r => { %>
+      <div class="sb-ledrow">
+        <span class="<%= sbCls(r.delta) %>"><%= sbMoney(r.delta) %></span>
+        · vs <%= r.against %> · <%= esc(r.bet.terms) %>
+        <span style="color:#888">(running <%= sbMoney(r.running) %>)</span>
+      </div>
+    <% }) %>
+    <% if (!sbDrill.ledger.rows.length) { %><p style="color:#888">No bets here yet.</p><% } %>
+  <% } else if (sbDrill.kind === 'year') { %>
+    <h3>Side bets — <%= sbDrill.year %></h3>
+    <% if (sbDrill.league.biggest_winner) { %>
+      <p>Biggest winner: <b><%= sbDrill.league.biggest_winner.name %></b>
+        <span class="sb-pos"><%= sbMoney(sbDrill.league.biggest_winner.net) %></span>
+        · Biggest loser: <b><%= sbDrill.league.biggest_loser.name %></b>
+        <span class="sb-neg"><%= sbMoney(sbDrill.league.biggest_loser.net) %></span></p>
+    <% } %>
+    <% sbDrill.league.rows.forEach(row => { %>
+      <div class="sb-ledrow"><%= esc(row.bet.terms) %> · $<%= row.bet.stake %>
+        <div>
+        <% row.parties.forEach((p, i) => { %><%
+          %><a href="/bank?section=sidebets&sbview=name&owner=<%= p.owner_id %>" class="<%= sbCls(p.delta) %>"><%= p.name %> <%= sbMoney(p.delta) %></a><%= i < row.parties.length - 1 ? ' · ' : '' %><%
+        %><% }) %>
+        </div>
+      </div>
+    <% }) %>
+    <% if (!sbDrill.league.rows.length) { %><p style="color:#888">No settled bets that year.</p><% } %>
+  <% } %>
+<% } else if (sbGrid && sbGrid.years.length) { %>
+  <h3>The tracker — side-bet net by year</h3>
+  <table class="sb-grid">
+    <thead><tr><th>Owner</th>
+      <% sbGrid.years.forEach(y => { %>
+        <th><a href="/bank?section=sidebets&sbview=year&year=<%= y %>"><%= y %></a></th>
+      <% }) %>
+      <th class="sb-career">Career</th></tr></thead>
+    <tbody>
+    <% sbGrid.rows.forEach(row => { %>
+      <tr>
+        <td class="sb-name"><a href="/bank?section=sidebets&sbview=name&owner=<%= row.owner.id %>"><%= row.owner.name %></a></td>
+        <% sbGrid.years.forEach(y => { const c = row.cells[y]; %>
+          <td class="<%= sbCls(c) %>">
+            <% if (c == null) { %>—<% } else { %><a href="/bank?section=sidebets&sbview=cell&owner=<%= row.owner.id %>&year=<%= y %>" class="<%= sbCls(c) %>"><%= sbMoney(c) %></a><% } %>
+          </td>
+        <% }) %>
+        <td class="sb-career <%= sbCls(row.career) %>"><%= sbMoney(row.career) %></td>
+      </tr>
+    <% }) %>
+    </tbody>
+  </table>
+  <p style="color:#888;font-size:12px">Side bets are their own book — never mixed into league money. Click a name, a cell, or a year to drill in.</p>
+<% } %>
+</div>
 
 <%# Pick-your-teams grid, used when accepting a pool, when taking one off the
     board, and when changing your mind later. A pool with no way to enter your

@@ -382,6 +382,28 @@ router.get('/bank', aw(async (req, res) => {
   // The ledger is the point: every bet you are in, chronological, with a
   // running net. A W-L record cannot tell a season-long \$200 bet from four \$20s.
   const sbLedger = SB.ledgerFor(bets, req.owner.id, nameOf);
+  // THE TRACKER (side-bet-tracker.md): the owners x years grid, plus the three
+  // drill-down axes — name (a career ledger), cell (owner+year), year (league-
+  // wide). All three reuse the same derived layer; the view just picks which.
+  const sbGrid = SB.gridByYear(bets, owners);
+  const sbView = ['name', 'cell', 'year'].includes(req.query.sbview) ? req.query.sbview : null;
+  const sbDrill = (() => {
+    if (!sbView) return null;
+    const oid = Number(req.query.owner) || null;
+    const yr = Number(req.query.year) || null;
+    if (sbView === 'name' && oid) {
+      return { kind: 'name', owner_id: oid, name: nameOf(oid),
+               ledger: SB.ledgerFor(bets, oid, nameOf) };
+    }
+    if (sbView === 'cell' && oid && yr) {
+      return { kind: 'cell', owner_id: oid, name: nameOf(oid), year: yr,
+               ledger: SB.ledgerFor(bets, oid, nameOf, { year: yr }) };
+    }
+    if (sbView === 'year' && yr) {
+      return { kind: 'year', year: yr, league: SB.leagueLedgerForYear(bets, yr, nameOf) };
+    }
+    return null;
+  })();
   // Who still owes whom, netted per person. This is the number that gets money
   // to actually move, so it sits on the owner card next to the league balance.
   const sbOwed = SB.settlementsFor(bets, viewCard ? viewCard.owner.id : req.owner.id, nameOf);
@@ -407,6 +429,7 @@ router.get('/bank', aw(async (req, res) => {
     cards, season, totalOwedToLeague, totalLeagueOwes, viewCard, leagueEntries,
     TYPE_LABELS: L.TYPE_LABELS,
     section, bets, tallies, owners, betNames, sbLedger, sbOwed, sbOwedMine, verdicts, liveOrder,
+    sbGrid, sbView, sbDrill,
     deadlines, late: req.query.late === '1',
     currentWeek: (await sleeper.bundle(world.config.sleeper_league_id) || {}).week || 1,
     BL, payDirectory: owners.filter(o => o.venmo || o.paypal || o.cashapp || o.zelle),
