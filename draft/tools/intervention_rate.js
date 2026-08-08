@@ -390,6 +390,53 @@ function diff(nDrafts) {
   });
   console.log('');
 
+  // ── IDENTITY, not just rate — the measurement that actually decides it ──────
+  // A single deviation rate cannot tell two different worlds apart:
+  //   (a) no candidate's ranking moved at all -> the stages are LABELING ONLY;
+  //   (b) rankings moved and the net rate happened to hold constant.
+  // The decisive number is how many picks changed IDENTITY (WHO is recommended),
+  // not how many deviated. So actually re-run the SAME deterministic simulation
+  // with the BASELINE commit's own code (via a throwaway git worktree) and compare
+  // the recommended-player sequence pick-for-pick. A per-pick dynamic count — not
+  // a file-diff proxy, which would flag additive code that never touches the scorer.
+  var cp = require('child_process');
+  var idSeq = function (simFn) {
+    var out = [];
+    for (var i = 0; i < nDrafts; i++) simFn(1000 + i * 7919).forEach(function (r) { out.push(r.player); });
+    return out;
+  };
+  var curIds = idSeq(simulate);
+  var identityChanges = null, baseIds = null, wtErr = null;
+  var wt = path.join(require('os').tmpdir(), 'itr-base-' + base.git_head.slice(0, 8));
+  try {
+    cp.execSync('git worktree add -f --detach ' + wt + ' ' + base.git_head,
+      { cwd: ROOT, stdio: 'ignore' });
+    var baseSim = require(path.join(wt, 'draft', 'tools', 'intervention_rate.js')).simulate;
+    baseIds = idSeq(baseSim);
+  } catch (e) { wtErr = e.message; }
+  finally { try { cp.execSync('git worktree remove --force ' + wt, { cwd: ROOT, stdio: 'ignore' }); } catch (e) {} }
+
+  console.log('── IDENTITY ' + '─'.repeat(62));
+  console.log('  picks total                 : ' + cur.picks);
+  if (baseIds) {
+    var n = Math.min(curIds.length, baseIds.length);
+    var diffs = 0;
+    for (var k = 0; k < n; k++) if (curIds[k] !== baseIds[k]) diffs++;
+    identityChanges = diffs + Math.abs(curIds.length - baseIds.length);
+    console.log('  picks that changed IDENTITY : ' + identityChanges + '  (ran the '
+      + base.git_head.slice(0, 8) + ' simulation and diffed)');
+    if (identityChanges === 0) {
+      console.log('    Not one of ' + n + ' recommendations changed WHO it picks. This is');
+      console.log('    world (a): the stages LABEL the composite\'s picks, they do not');
+      console.log('    choose them. Stage 2 is not behavioral.');
+    } else {
+      console.log('    Rankings actually moved on ' + identityChanges + ' picks — world (b).');
+    }
+  } else {
+    console.log('  picks that changed IDENTITY : UNKNOWN — baseline worktree failed: ' + wtErr);
+  }
+  console.log('');
+
   // Dead-weight terms and lead-driver ranking must also hold.
   const baseDead = (b.dead || []).slice().sort().join(',');
   const curDead = (cur.dead || []).slice().sort().join(',');
@@ -402,18 +449,18 @@ function diff(nDrafts) {
     + '   ' + leadOrder(cur.leadCount));
   console.log('');
 
-  const relabelled = !anyMoved && deadSame && leadSame;
+  const relabelled = !anyMoved && deadSame && leadSame && identityChanges === 0;
   console.log('── VERDICT ' + '─'.repeat(63));
   if (relabelled) {
-    console.log('  RELABELLED — every metric is byte-identical to the pre-tree baseline.');
-    console.log('  The tree is a LEGEND printed over an unchanged engine: engine.js and');
-    console.log('  the recommendation path never call stages.js, so the pick is still');
-    console.log('  whatever the composite produced. STAGE 2 IS A LABEL, NOT AN ANCHOR.');
-    console.log('');
-    console.log('  The deviation rate is INTACT at ' + (cur.rate * 100).toFixed(1)
-      + '%. If the intent was for Stage 2');
-    console.log('  to anchor — deviations EARNED off consensus rather than assumed — that');
-    console.log('  intent is NOT met by shipping the vocabulary. Flag, do not absorb.');
+    console.log('  STAGE 2 WAS NEVER IMPLEMENTED.');
+    console.log('  0 of ' + cur.picks + ' picks changed identity and every metric is byte-identical');
+    console.log('  to the pre-tree baseline. stages.js LABELS the composite\'s existing');
+    console.log('  behavior; it does not change how recommendations are chosen. The');
+    console.log('  recommendation does NOT start at consensus and earn its way off — so');
+    console.log('  "Stage 2 baseline" and "Stage 4 edge intervention" are names for');
+    console.log('  deviations the composite was already making for reasons the stages');
+    console.log('  did not cause. An unchanged rate here is NOT "as expected" — it is the');
+    console.log('  evidence that the tree is a taxonomy, not a decision procedure.');
   } else {
     console.log('  CHANGED — the tree moved recommendations. Per the baseline\'s own');
     console.log('  contract this change must be justified on its OWN evidence, not');
@@ -421,7 +468,7 @@ function diff(nDrafts) {
   }
   console.log('='.repeat(74));
 
-  return { relabelled, anyMoved, deadSame, leadSame, sameBoard,
+  return { relabelled, anyMoved, deadSame, leadSame, sameBoard, identityChanges,
            baseline: b, current: cur, baseHead: base.git_head, curHead };
 }
 

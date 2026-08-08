@@ -556,7 +556,7 @@ are all committed under `docs/queued/` so a reclaimed container can't lose them.
 - See DECISIONS-NEEDED.md (currently: none open).
 
 ## Standing rules in force
-fail loudly · single scoring path · every pinned constant cites its source · every bug found becomes a robot scenario in the same commit · provenance stamps on every results file · guards are never disabled to pass.
+fail loudly · single scoring path · every pinned constant cites its source · every bug found becomes a robot scenario in the same commit · provenance stamps on every results file · guards are never disabled to pass · **PROBE BEFORE ACCEPTING A DATA BLOCKER** — before filing or approving any "data unreachable" claim, probe the obvious sources first (in CI where egress works, if the sandbox is blocked). Third blocked-data claim this week, second that was actually reachable (FFC historical ADP was live at an endpoint nobody had asked for; the Option A narrowing was approved under a false constraint). A blocker is a measured 404, never an assumption · **surface no mechanism it does not have** — a field naming a stage/plan/source must be wired to real behaviour or rendered explicitly absent (SOURCE stays absent until Stage 2 is behavioral).
 
 ## ▶ RESUME MARKER — 2026-08-08, after the branch/deploy incident
 

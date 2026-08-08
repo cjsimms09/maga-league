@@ -4,6 +4,22 @@ _Written 2026-08-08 at HEAD `65417d6`, **before experiment 34 exists in code**,
 let alone reports. That is the entire point: a consequence agreed after the fact
 is not a consequence, it is a rationalisation._
 
+> **⛔ THE NARROWING IS WITHDRAWN (2026-08-08).** D13's Option A proposed grading
+> 34 against *the room's revealed preference* instead of the market, on the belief
+> that historical ADP was unreachable. **That belief was false** — the reachability
+> probe (run 31284357107) found FantasyFootballCalculator historical, half-PPR,
+> usable for all three seasons (2023/24/25). The narrowing was adopted under a
+> false constraint and is **void**. Experiment 34 answers the ORIGINAL question —
+> *did our picks beat real contemporaneous ADP on realized dollars* — exactly as
+> this document specifies below. `EVIDENCE_STATE` for 34 is graded against real
+> ADP (`raced against market at n=36`), per the reporting obligation at the end.
+> Leaving a withdrawn narrowing standing in a file is the stale-claim problem the
+> tier-voice expiry exists to prevent, so it is struck here, not merely superseded
+> elsewhere. _(A room-revealed-preference arm is still worth running as a SECOND,
+> separately-reported arm — it answers "did we beat these nine humans", a
+> different and arguably more actionable question — but it is an addition, never
+> the substitute Option A made it.)_
+
 ## The finding this responds to
 
 Measured tonight over 25 seeded drafts, 300 real decisions

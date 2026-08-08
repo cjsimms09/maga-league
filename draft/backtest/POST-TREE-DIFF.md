@@ -1,6 +1,30 @@
-# POST-TREE DIFF — the tree RELABELLED, it did not change behaviour
+# POST-TREE DIFF — STAGE 2 WAS NEVER IMPLEMENTED
 
-_Measured 2026-08-08, grind item #3. Regenerate: `node draft/tools/intervention_rate.js --diff 25`._
+_Measured 2026-08-08. Regenerate: `node draft/tools/intervention_rate.js --diff 25`._
+
+## The reading is pinned in advance (Cory): an unchanged rate is NOT "as expected"
+
+An unchanged deviation rate is **not** a confirmation that the tree works as
+designed. It is the evidence that **Stage 2 was never implemented** — that
+`stages.js` labels the composite's existing behaviour rather than changing how
+recommendations are chosen. Stage 2 was defined as *recommendations START from
+consensus ADP and deviate only in proportion to evidence.* If the scoring path is
+untouched, that mechanism does not exist, and "Stage 4 edge intervention" is a
+name for deviations the composite was already making for reasons the stages did
+not cause. This is the sixth instance of the display-without-governing family
+(doctrine shown but not governing, `ctx.doctrine` never passed, sliders maybe not
+reaching the scorer) — and the most convincing version yet, because the label
+*accurately describes* what the composite did while implying the tree caused it.
+
+## The decisive number: IDENTITY, not rate — 0 of 300 picks changed
+
+A single percentage cannot separate two worlds: (a) no candidate's ranking moved —
+labeling only; (b) rankings moved and the net rate held constant. So the diff runs
+the **baseline commit's own simulation** (via a throwaway git worktree at
+`93ad39b`) and compares the recommended player **pick-for-pick**:
+
+> **picks that changed IDENTITY: 0 of 300.** Not one recommendation changed WHO it
+> picks. World (a): labeling only.
 
 ## The one question this answers
 

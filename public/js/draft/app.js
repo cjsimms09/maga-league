@@ -3090,12 +3090,13 @@
    * the LAYOUT is what mock #4 tests, and the CONTENTS change later without the
    * containers moving.
    *
-   * THE TWO ABSENT LINES ARE DELIBERATE. SOURCE (Stage 2 baseline vs Stage 4
-   * edge intervention) needs the decision tree's stages, and NEAR-MISS needs its
-   * thresholds. Neither exists. An empty field labelled SOURCE would be worse
-   * than no field — it would rehearse a layout whose densest elements are
-   * placeholders — so they are named as not-yet-staged and take one line
-   * together.
+   * THE TWO ABSENT LINES ARE DELIBERATE. SOURCE (consensus baseline vs edge
+   * intervention) needs a BEHAVIORAL Stage 2 — a recommendation that starts at
+   * consensus and requires evidence to move off it. That does not exist: stages.js
+   * labels the composite's existing picks (the --diff proves 0 identities changed),
+   * so a SOURCE field would claim a mechanism the code does not have. NEAR-MISS
+   * needs Stage 4's thresholds. Both are named as absent, with WHAT they wait for —
+   * a real mechanism, never a placeholder dressed as one.
    */
   /* Local, because engine.js's lastName is not in this scope — the alts line
    * threw a ReferenceError on every render and the catch turned it into a
@@ -3187,23 +3188,23 @@
       rHost.innerHTML = esc(a.line) + ' · <b>' + myPicksLeft() + '</b> picks left';
     } catch (e) { rHost.innerHTML = '<span class="muted">roster —</span>'; }
 
-    // 6. SOURCE — real now that the stage vocabulary exists. Stages 1-3 are
-    //    live; Stage 4 fires at a FLOOR and says so, because an unsized
-    //    intervention is not the same claim as a sized one.
-    // 7. NEAR-MISS — still absent; it needs Stage 4's thresholds, which need
-    //    the sizing that D13 blocked.
+    // 6. SOURCE — DELIBERATELY ABSENT, reverted 2026-08-08 (Cory).
+    //    stages.js is a LABELING layer: the `--diff` proves it changed 0 picks'
+    //    identities (the scoring path is byte-identical to the pre-tree baseline),
+    //    so Stage 2 is NOT behavioral — the recommendation does not start at
+    //    consensus and earn its way off. Rendering SOURCE as "consensus baseline"
+    //    vs "edge intervention" would claim a mechanism that does not exist — the
+    //    exact display-without-governing bug family (doctrine shown but not
+    //    governing; ctx.doctrine never passed). So SOURCE stays explicitly absent
+    //    and NAMES what it is waiting for: a behavioral Stage 2, not the label.
+    //    Do NOT wire this to DraftStages until E.recommend starts at consensus.
+    // 7. NEAR-MISS — absent; needs Stage 4 thresholds (which need the sizing D13
+    //    blocked). Also a real mechanism, also not faked.
     const srcHost = document.getElementById('mvs-absent');
-    let srcLine = 'SOURCE: <i>not yet staged</i>';
-    if (typeof DraftStages !== 'undefined' && top) {
-      // Which stage produced this pick, from what already ran.
-      const st = top.legality ? DraftStages.STAGES.LEGALITY
-        : (rep && rep.drove) ? DraftStages.STAGES.DOCTRINE
-        : DraftStages.STAGES.BASELINE;
-      srcLine = 'SOURCE: ' + esc(DraftStages.line(DraftStages.report(st, null)));
-    }
-    srcHost.innerHTML = srcLine
-      + ' · NEAR-MISS: <i>not yet staged</i>'
-      + ' <span class="muted">— needs Stage 4 thresholds (D13)</span>';
+    srcHost.innerHTML =
+      'SOURCE: <i>absent — needs a behavioral Stage 2</i> '
+      + '<span class="muted">(the stages label the pick, they do not choose it — D14)</span>'
+      + ' · NEAR-MISS: <i>absent — needs Stage 4 thresholds (D13)</i>';
   }
 
   /* Shadow consensus/dissent, from the shadows that already exist. Returns null
