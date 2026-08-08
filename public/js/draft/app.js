@@ -1170,6 +1170,14 @@
         label: 'Targets or never-draft set',
         detail: state.lists.targets.length + ' starred, ' + state.lists.avoid.length + ' blocked',
         fix: 'Optional, but it is your read' },
+      // URGENT — the league settings showed draft_rounds:3. Verify the DRAFT
+      // OBJECT reports 15 once it exists; a 3-round draft is a catastrophe.
+      { ok: state.syncedDraftRounds === 15,
+        label: 'Draft object rounds == 15',
+        detail: state.syncedDraftRounds == null ? 'no draft object synced yet (league setting showed 3 — VERIFY)'
+          : (state.syncedDraftRounds === 15 ? 'yes — from Sleeper draft object'
+            : 'DRAFT OBJECT SAYS ' + state.syncedDraftRounds + ' — TEXT THE COMMISSIONER'),
+        fix: 'Connect the Sleeper draft room; if not 15, the commissioner must fix it before the draft' },
       // Money function: the payout table is ground truth — confirm it loaded and
       // sums correctly (re-verify vs the league site if the commissioner edits it).
       (function () {
@@ -1713,6 +1721,13 @@
    */
   function importDraftOrder(draft) {
     if (!draft) return null;
+    // URGENT (chat-Claude, 2026-08-08): the LEAGUE settings showed draft_rounds:3.
+    // The DRAFT OBJECT's rounds is authoritative — capture it so the checklist
+    // can verify it equals 15. A 3-round draft object is a draft-night disaster
+    // (Cory texts the commissioner). Only trust a real (non-mock) draft object.
+    if (!state.mockMode && draft.settings && draft.settings.rounds != null) {
+      state.syncedDraftRounds = Number(draft.settings.rounds);
+    }
     // draft_order maps user_id -> slot; slot_to_roster_id maps slot -> roster.
     const byUser = draft.draft_order || {};
     const slotToRoster = draft.slot_to_roster_id || {};

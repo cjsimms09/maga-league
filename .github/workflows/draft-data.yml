@@ -98,6 +98,11 @@ jobs:
         if: github.event.inputs.export_history == 'true'
         working-directory: draft
         run: python history_export.py "${{ github.event.inputs.league_id || '1374848328470102016' }}"
+      - name: Money-weighted history archaeology
+        # Weekly-high thresholds, concentration, $/season standings under the
+        # payout table. Cheap, projection-free; refreshes whenever history does.
+        working-directory: .
+        run: python draft/money_history.py || echo "money_history skipped (no weekly data yet)"
 
       - name: Build the draft artifact
         if: github.event.inputs.snapshot != 'true'
