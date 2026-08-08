@@ -22,9 +22,13 @@ BOARD = HERE.parent / "public" / "draft_data.json"
 OUT = HERE / "data" / "predicted_keepers.json"
 MAX_KEEPERS = 3
 
-# Cory intel override: {owner display_name: [player names], confidence, source}.
+# Cory intel overrides. Locked reads that override / confirm the model.
 INTEL_OVERRIDES = [
     {"owner": "MarianSaar", "player": "Brock Bowers", "confidence": "high", "source": "Cory intel"},
+    # Batch 2 — Cory 100% confidence: Richard2121's full 3-keeper slate.
+    {"owner": "Richard2121", "player": "Bijan Robinson", "confidence": "certain", "source": "Cory intel"},
+    {"owner": "Richard2121", "player": "Trey McBride", "confidence": "certain", "source": "Cory intel"},
+    {"owner": "Richard2121", "player": "Nico Collins", "confidence": "certain", "source": "Cory intel"},
 ]
 
 

@@ -172,7 +172,8 @@
           "vorp": 148.3,
           "cost_round": 1,
           "surplus": 44.4,
-          "confidence": "high"
+          "confidence": "certain",
+          "override": "Cory intel (confirms model)"
         },
         {
           "player_id": "8130",
@@ -181,7 +182,8 @@
           "vorp": 64.2,
           "cost_round": 2,
           "surplus": 2.1,
-          "confidence": "low"
+          "confidence": "certain",
+          "override": "Cory intel (confirms model)"
         },
         {
           "player_id": "7569",
@@ -190,11 +192,12 @@
           "vorp": 57.5,
           "cost_round": 3,
           "surplus": 21.3,
-          "confidence": "medium"
+          "confidence": "certain",
+          "override": "Cory intel (confirms model)"
         }
       ],
       "next_best": "DeVonta Smith",
-      "source": "model"
+      "source": "model + intel override"
     },
     "Schmelley": {
       "roster_id": "9",

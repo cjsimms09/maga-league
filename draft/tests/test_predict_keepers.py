@@ -33,6 +33,16 @@ def test_marian_keeps_bowers_high_conf_intel():
     assert "intel" in (bowers.get("override") or "")
 
 
+def test_richard_slate_locked_certain_intel():
+    # Batch 2: Cory 100% — Richard keeps Bijan + McBride + Nico, all certain.
+    p = _predictions()["Richard2121"]["predicted_keepers"]
+    names = {k["name"] for k in p}
+    assert any("Bijan" in n for n in names)
+    assert any("McBride" in n for n in names)
+    assert any("Nico" in n or "Collins" in n for n in names)
+    assert all(k["confidence"] == "certain" for k in p if "intel" in (k.get("override") or ""))
+
+
 def test_keep_none_is_a_legal_prediction():
     # Weak rosters keep nobody (Jreis kept 0 in 2024 — league precedent).
     preds = _predictions()

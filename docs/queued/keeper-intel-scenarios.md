@@ -24,6 +24,24 @@ Run the elite-TE analysis BOTH ways. **Numbers below are from the real board** (
 
 **The honest read:** under *normal* survival the take-now premium is small in v1 dollars (the rough model underprices the TE cliff that VORP sees clearly — flagged for quantile-V). **The decision is driven by room-panic risk:** the moment the board shows TE scarcity (especially once Bowers is off), survival to 41 falls off a cliff, and taking the last-elite-TE at 34 becomes strongly correct. So the live LRM/scarcity signal on TE is the thing to watch at pick 34.
 
+## 2b. INTEL BATCH 2 (2026-08-08) — Richard2121 locked; THE TE FORK COLLAPSES
+
+**Cory 100% confidence: Richard2121 keeps Bijan Robinson + Trey McBride + Nico Collins** (full slate). Encoded as `certain` intel overrides. **Corroboration (point 4):** the flat-cost K0 optimizer independently endorses *exactly* this slate — Bijan r1 (surplus +44), McBride r2 (+2), Nico r3 (+21). McBride's +2 was model-*uncertain* (barely clears the round-2 cost); Cory's intel resolves it to certain. Bijan/Nico the model already backed. Model + intel agree.
+
+**⚡ THE ELITE-TE-ANCHOR CONTINUATION NO LONGER EXISTS.** With **both** Bowers (Marian) and McBride (Richard) predicted kept, the both-TEs-gone branch becomes the **PRIMARY** pick-34 scenario; the old Bowers-available branch (§2 above) **demotes to a contingency footnote**.
+
+**Re-run on the PREDICTED BOARD** (all 14 opponent keepers + my 3 removed from the pool):
+- **TE landscape — no cliff, no rush.** Best TE is now **Loveland (VORP 38)**, then Warren (24), LaPorta (18) — **all survive 100% to pick 34 AND 41.** TE goes from an anchor decision to a "take one whenever" slot; the LRM on TE relaxes completely.
+- **The freed pick-34 decision (real survival-zone options on the predicted board):**
+  - **WR-feast:** Tee Higgins (71% to 34), T. McMillan (46%), Nabers (34%), plus fallers Jameson Williams (87%) & Davante Adams (80%).
+  - **Early-QB:** Lamar (98%), Maye (99%), Burrow (99%) — QB is **wide open at 34**, so grabbing a top-5 QB while the field is still on skill players is genuinely live.
+  - **RB depth:** Etienne (63%), Swift (91%), Bucky Irving (87%).
+- **Net:** with Cory's robust-RB keeper base (RB slots full) and TE de-anchored, **pick 34 = WR2 (Higgins/McMillan) or Early-QB (Lamar)** — the WR-feast and Early-QB continuations **gained the probability mass** the elite-TE branch lost. (The D3 flex-discount already tilts him toward the WR2 hole over redundant RB depth.)
+- **Honest limitation:** the crude "remove kept players from the pool" doesn't re-shift the remaining players' ADP, so deep-board survival is approximate — proper **re-ranking on the predicted board** (survival recomputed against the compressed order) is the refinement to do in the A-9 board-wiring build; the qualitative shift (TE cliff gone, WR/QB open) is robust.
+
+### Keeper-slate confidence tracker
+**2 of 9 opponents on INTEL** (MarianSaar=Bowers high; Richard2121=full slate certain) · **7 on model-only.** Cory keeps feeding reads as he gets them; each replaces its model prediction and re-runs the board.
+
 ## 3. OPENING SCRIPT — per keeper-scenario
 The opening script generates **per keeper-scenario**; its Aug-20 regeneration on the real slate is already specced. Until then it carries the **predicted-slate variant with the Bowers branch explicitly forked** (Branch A / Branch B above).
 
