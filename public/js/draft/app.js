@@ -3384,6 +3384,15 @@
     const prior = st.current;
     const out = st.update(scores, currentPick(), {
       cause: runs.length ? ('the ' + runs.join('/') + ' run moved the board') : null,
+      // KNOWN STUB, not a forgotten field: doctrine.js's switch sentence will
+      // print "+$X" when projected is a number, and omit it gracefully when null.
+      // The branch's projected dollar gain lives in the dollar-gap panel, but
+      // wiring it here means threading the switched-TO branch's dollars back into
+      // the sentence (doctrine.js already receives the score map) — a change to
+      // the tested switch-sentence path, deferred out of the pre-mock freeze.
+      // The seam guard asserts this field is PASSED (not undefined); its value is
+      // a deliberate null until that wiring lands. Filed with the movement-line
+      // DOCTRINE-DRIFT follow-up.
       projected: null,
     });
 

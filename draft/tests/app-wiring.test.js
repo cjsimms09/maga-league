@@ -114,6 +114,35 @@ check('the app bumps the board version on in-place mutation',
   'no bumpBoard call in app.js — the survival memo will serve stale pools '
     + 'after an undo restores a player to the board');
 
+// ── THE OTHER CONSUMERS — the seam sweep, widened ───────────────────────────
+// engineSrc above scans engine/survival/composite. But the app also feeds ctx to
+// doctrine.js (DoctrineState.update's 3rd arg), and a guard scoped to three of
+// four consumers has a hole the exact size of the fourth. This sweeps the rest:
+//   - doctrine.js: every ctx field it reads must be PASSED at the update() site.
+//     (Value may be a deliberate stub like projected:null — the seam is about the
+//     field being present, not undefined; a stub is a choice, an omission is a bug.)
+//   - mcts.js reads many ctx fields but is NOT wired into the app (Lab-only), so
+//     its ctx is out of the app seam. Asserted, so wiring MCTS in later without
+//     supplying its ctx trips this guard instead of failing silently.
+{
+  const doctrineSrc = fs.readFileSync(path.join(DIR, 'doctrine.js'), 'utf8');
+  const dReads = [...new Set((doctrineSrc.match(/ctx\.[a-zA-Z_][a-zA-Z0-9_]*/g) || [])
+    .map(m => m.slice(4)))].filter(f => !f.startsWith('_'));
+  check('doctrine.js is a real consumer (non-vacuity)', dReads.length > 0, dReads.join(','));
+  // The app feeds doctrine at the update() call site, NOT via context().
+  const updateCall = (appSrc.match(/\.update\(\s*scores\b[^{]*\{([\s\S]*?)\}\s*\)/) || ['', ''])[1];
+  const dPass = new Set((updateCall.match(/([a-zA-Z_][a-zA-Z0-9_]*)\s*:/g) || [])
+    .map(m => m.replace(/:$/, '').trim()));
+  check('located the doctrine update() call site (non-vacuity)', dPass.size > 0, [...dPass].join(','));
+  dReads.forEach(f => check('doctrine seam: app passes ctx.' + f + ' at update()',
+    dPass.has(f), 'doctrine.js reads it in the switch sentence — absent means undefined at runtime'));
+
+  check('mcts.js is NOT app-fed (its ctx is outside the app seam by design)',
+    !/\bDraftMcts\b|\bmcts\.|runMcts|MctsSearch/.test(appSrc),
+    'MCTS got wired into the app — add it as a consumer above and supply its ctx '
+      + '(blocked, cfg, myRoster, mySlot, schedule, seed, valuer)');
+}
+
 // ── NEW SURFACES MUST BE CALLED, not merely defined ─────────────────────────
 // The stack line and the movement line are the doctrine-tilt risk again: a pure
 // engine helper (liveStackRoutes / movementLine), green in isolation, that the
