@@ -52,9 +52,29 @@ rather than full VORP?
 first live pick, real board) — how much does top-of-board ordering change if
 flex-fills are marginalized? **If any top-5 candidate moves >2 composite points,
 it's a pre-mock fix through the normal gates; if it's noise, document why and
-close.** Gated on the CI rebuild landing (needs the real 15-round board with
-kept_players). My recommendation: run the quantification the moment the rebuild
-lands; do not change the engine until the number says it's material.
+close.**
+
+**QUANTIFIED 2026-08-08 (real board, pick 34, keepers rostered):** the effect is
+**MASSIVE, not noise.** With 2 RB keepers filling both RB slots, every top RB
+"starts in your flex" at FULL VORP; marginalizing that produces **−148 to −156
+composite-point deltas** and **reorders the top-5 from RB-led (Gibbs, Bijan,
+Nacua…) to WR-led (Nacua #1, then Gibbs, Bijan, JSN, St. Brown)**. Max top-5
+delta **156 ≫ 2**. Per the pre-registered rule this **triggers a pre-mock fix
+through the gates** — it decides my literal first pick (RB vs WR at 34).
+
+**⚠️ CRITICAL CAVEAT — do NOT blind-install the naive version.** My test
+marginalized need as `vorp − best_other_flex_vorp`, which **double-counts VONA**
+(the composite already has a VONA term pricing "what you lose by waiting"). So
+the 156-pt swing OVERSTATES the true effect — a correct flex-discount must be a
+small, capped adjustment that doesn't re-apply VONA. The honest read: flex-fills
+ARE currently over-valued vs dedicated-slot fills (a 3rd RB and a WR2 both start,
+but the WR fills a genuine positional hole), and the effect is material enough to
+fix — but the RIGHT fix is a **capped flex-discount** designed through the gates,
+not the double-counting formula I stress-tested. **This decides pick 34, so it's
+Cory's call on the formulation.** September's quantile-V BenchValue dissolves it
+properly; the August fix should be conservative. **My recommendation:** a small
+capped discount (flex-fill worth ~0.7× dedicated-fill, tuned so the top-5 shifts
+only where genuinely warranted), re-quantified, before mock #1.
 
 ## D4 — Draft slot is UNVERIFIED (A2 — blocked on Sleeper draft room creation)
 

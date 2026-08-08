@@ -25,6 +25,15 @@ A stable hash over the fields that, if changed, invalidate the board:
 Requirements:
 - **Stable/canonical:** sort keys, normalize numbers, so an unordered re-serialize
   produces the same hash. (Reuse `rawarchive.stableStringify` / a shared helper.)
+- **🚨 ROUND FLOAT-NOISE BEFORE HASHING (chat-Claude, 2026-08-08).** 2023's stored
+  scoring carries float noise — `pass_yd = 0.03999999910593033` which is
+  functionally `0.04`. Sleeper's own values drift in the last bits across
+  seasons. **The hash MUST round every numeric to a fixed precision (e.g. 4
+  decimals) before comparing**, or the very first cross-season hash check
+  false-positives a "rule change" that never happened and the watchdog cries
+  wolf on day one. Byte-for-byte across 2024/25/26 held (chat-Claude); only 2023
+  needs the rounding — but round unconditionally, it is free insurance. Test:
+  `hash({pass_yd: 0.03999999910593033}) == hash({pass_yd: 0.04})`.
 - **Stamped into the artifact** provenance at build time (`provenance.ruleset_hash`)
   — this is the missing field EVIDENCE-BUNDLE item 26/27 names.
 - **Recorded** as the "known-good" hash when the config is confirmed (alongside

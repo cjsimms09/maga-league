@@ -312,13 +312,26 @@ Auto-refreshes in CI (`money_history.py` → `MONEY-HISTORY.md`). **ANALYSIS 2**
 **Cross-season joins MUST key on owner_id/user_id, never roster_id** (roster_id↔owner changes between seasons — 2024 champ roster 4 ≠ 2025 roster 4). `money_history` keys on owner (via per-season roster→owner resolve) ✓.
 **🎯 PRE-REGISTERED PREDICTION (log before harvest):** Richard2121 & MarianSaar banked multiple 2025 weekly highs despite records — payout already paid the ceiling-unlucky. Verify vs weeks 1–15.
 
+### 2024 season — owner_ids identical to 2025 (roster mapping stable both years)
+- **Cory (me) 2024: HIGHEST points in the league (2128)** — missed playoffs on an **8.2-point tiebreak**, **297 bench points lost**. Two-year lineup efficiency **86.0 / 85.9** → **the lineup optimizer is the highest-ROI component; ELEVATE its priority within the in-season master.** (Being points-best and still missing playoffs is the exact leak the optimizer + the money function's weekly-high chase attack.)
+- **2024 champion Jreis kept 0 keepers** (precedent for keep-fewer — noted in **K0 context**; does not reopen K0, which is settled at keep-3 by surplus, but logs that a champion kept none) and won at **91.8% efficiency**.
+- **Both champions were top-2 efficiency in their title year** (mhagen 89.1% / Jreis 91.8%) — strong signal that lineup-setting, not just drafting, wins here. Reinforces the optimizer priority.
+- **🎯 PRE-REGISTERED (2024 harvest):** 2024 weekly-high winners follow the same logic — points-strong/record-unlucky teams (Cory 2024 among them) banked highs. Verify vs 2024 weeks 1–15.
+
 ### Live-API briefing — other findings (chat-Claude, 2026-08-08)
 1. **Era stability CONFIRMED** — 2024/2025/2026 settings byte-for-byte identical (scoring incl. pass_td 6.0, playoff_start 16, 4 teams, deadline 11, waiver_type 1, max_keepers 3, pick_trading 1). **Backtest simplifies: all replay seasons ran under current rules — full pattern transfer, no era adjustments.** Stamp the settings hash across the chain as proof (Part 12).
 2. **Rounds=15 verified at source** (D7 closed).
 3. **Draft-object flags:** `pick_timer=0` (possibly UNTIMED — Cory confirming; if so, note in opening-script/UI-urgency design), `draft_order=null` (D4 amber confirmed at source → add auto-import trigger when it becomes non-null), `cpu_autopick=1` (**no-show manager drafts Sleeper's default board — absent opponents are perfectly predictable**, dossier note), `reversal_round=0` (snake holds).
 4. **Playoffs = weeks 16–17 ONLY** (2 rounds). Playoff-SOS term targets 16–17; weekly-high window = weeks 1–15 exactly (money_history honors this). Corrects the specs' 15–17 assumption.
 9. **Data-path:** roster objects carry `total_moves=0`/`waiver_budget_used=0` for everyone — transaction/waiver fingerprinting must use `/league/{id}/transactions/{week}` (history_export already does ✓), never roster settings.
-11. **Harvest targets confirmed reachable:** 2025 draft `1248121522766217216`, 2024 draft `1117672595379277825`, 2023 league `990840142107619328`, winners/losers brackets for 2024+2025 (playoff-finish → payout mapping). Chain walks clean; stay under 1000 calls/min.
+11. **Harvest targets confirmed reachable:** 2025 draft `1248121522766217216`, 2024 draft `1117672595379277825`, 2023 league `990840142107619328` (chain origin, `previous_league_id=null`, orig. name "Whiny Little Bitch League"), 2023 draft `1001232801791856640`, winners/losers brackets 2023+2024+2025. Chain walks clean; stay under 1000 calls/min.
+
+### Recon complete (chat-Claude) — harvest is mine in CI
+- **Zero owner turnover: identical 10 user_ids all 3 seasons.** Dossiers are clean 3-season behavioral records of the same humans; **new-owner machinery stays dormant.** Roster mapping stable 2024↔2025 (still key joins on owner_id).
+- **Era stability is functionally 3/3 seasons** — but **2023 scoring carries float-noise** (`pass_yd 0.03999999910593033 ≡ 0.04`); the Part-12 settings hash **MUST round floats before comparing** or the first cross-season check false-positives (spec updated).
+- **mhagen dynasty PENDING** — 2023 champion = roster 7; confirms 2-of-3 titles IF owner mapping held (verify via 2023 users in the harvest).
+- **Remaining CI harvest (triggering):** matchups weeks 1–15 × 3 seasons (weekly-high ledger + the Richard2121/MarianSaar prediction), per-week transactions (waiver/FA fingerprints, since roster `total_moves`/`waiver_budget_used`=0), 2023 winners_bracket (final money table), 2023 draft into the replay chain.
+- **Unfilled placeholders from Cory (need the actual values):** (a) draft **pick timer** — untimed vs X-second clock (draft object showed `pick_timer=0`); (b) **RS runner-up tiebreak** for payouts config (the 2024 "8.2-pt tiebreak" story implies points-for, unconfirmed); (c) **mhagen dynasty** confirm/pending.
 
 ## 📅 SEASON READINESS — IN-SEASON MASTER calendar gates (starts Aug 23)
 The in-season arsenal (`docs/queued/in-season-master.md`) is appended to the END
