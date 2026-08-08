@@ -9,6 +9,25 @@ Idle time dies. Proceed by default; never wait at redirect windows (judgment →
 Work order: §A state correctness → §C verdicts → Part 2 layout (absorbs §B) → §D → phone pass. Every UI change gets a robot scenario; "WHAT DOES NOT CHANGE" is protected.
 - **§A1 keepers pre-populate roster:** machinery DONE (`build.py` emits `kept_players`; `populateKeepers()` rosters + badges 🔒; need model + bye card read post-keeper roster; robot R8). **Activates fully once the CI rebuild lands** (kept_players needs the real player pool + correct slot). Acceptance text corrected in the spec (participation = reason-change + flex-consumption; the naive "RB need = 0" was wrong).
 - **ROUNDS BUG FIXED (draft-critical):** draft is **15 rounds, my 12 picks (rounds 4–15)** — the old `roster_size − keeper_count = 12` was a pipeline derivation bug (NOT Sleeper). One source now (`config_schema.draft_rounds`), 5 sites unified, cross-language regression tests. **CI rebuild triggered** to regenerate the artifact at 15; robot R-rounds is red until it lands (by design).
+- **🚨 SLOT-CLAIM (LIVE on the site's /draft page — Cory claims 4th, reverse-standings order):**
+  - **Pipeline status:** claim-flow ✅ (`/draft/pick` → `draft:2026` doc) → config ✅ (War Room reads the claimed slot as `my_draft_slot`) → regeneration ✅ (pick numbers recompute live via `setSlot`). **NEW (2026-08-08):** provenance wired — a site-claimed slot now reads **'site-claimed, Sleeper pending'** (distinct from manual-UNVERIFIED and Sleeper-verified) in the watermark + checklist; `R-slot` truth-table extended (69 robot). Full board (keeper-adjusted ADP) + opening-script rebuild still need the Python pipeline — flagged, not automatic on claim. **Live claim state is in Netlify Blobs (sandbox copy is stale/all-null) — I can't read who's-claimed-what from here; the analysis below is slot-VALUE ranking, which is availability-filtered live.**
+  - **SLOT-VALUE ANALYSIS (keepers forfeit rounds 1–3 → first LIVE pick is ROUND 4; round 4 is even/reverse, so HIGH slot numbers pick FIRST):** metric = best-available anchor at first pick + Bowers-class TE survival + turn structure. Pick model validated against the artifact's built slot-4 = [34,41,54,…].
+
+| slot | 1st pick | first two | Bowers (elite TE) survives | rank | one-line |
+|---|---|---|---|---|---|
+| **10** | **28** | 28, 47 | **94%** | **#1** | earliest pick — best shot at a premium faller to anchor WR2/TE |
+| 9 | 29 | 29, 46 | 93% | #2 | near-earliest; strong anchor odds |
+| 8 | 30 | 30, 45 | 91% | #3 | still front of round 4 |
+| 7 | 31 | 31, 44 | 89% | #4 | upper-mid |
+| 6 | 32 | 32, 43 | 87% | #5 | mid |
+| 5 | 33 | 33, 42 | 85% | #6 | mid |
+| 4 | 34 | 34, 41 | 83% | #7 | the built slot; mid |
+| 3 | 35 | 35, 40 | 80% | #8 | lower-mid |
+| **1** | **37** | **37, 38 B2B** | 74% | #9 | **the TURN — back-to-back pair (stack/WR2+TE) but the latest first pick** |
+| 2 | 36 | 36, 39 | 77% | #10 | latest-ish, no turn upside |
+
+  - **Recommendation:** **claim the HIGHEST open slot (10 → 9 → 8).** With Cory's core set (Chase/Henry/Walker) and WR2/TE open, the earliest round-4 pick maximizes the shot at a premium faller (94% Bowers at pick 28 vs 74% at pick 37) to anchor a starter hole — that's buying the top-4 door with a premium piece. **Only deviate to slot 1** if the plan is stack-building: the turn's back-to-back (37,38) secures a pair before the long wait, at the cost of the earliest-anchor edge. **Middle slots (4–6) are the compromise, none are the play.** Whichever high slots R2121 (already claimed) and picks 1–3 leave open when Cory's turn arrives, take the highest number available. _Dossier adjacency (who sits at slot±1 each round) populates in the War Room as claims land — it's live-dependent, not computable from the board alone._
+
 - **§D3 flex-discount — INSTALLED + quantified at real pick-34 (2026-08-08):** a flex-only fill is priced **marginal over the best flex-eligible alternative on the board**, floored at 0, capped at full VORP (`CFG.FLEX_DISCOUNT`, `bestFlexAlt`; cited engine test + `R-flex` robot; 213/57 green). **Pick-34 before/after** (slot 4, keepers Chase/Henry/Walker → RB slots FULL, WR2 open; board = seeded ADP-softmax through picks 1–33):
   - **BEFORE (full-VORP flex):** Javonte Williams (RB), D'Andre Swift (RB), Tyler Warren (TE), Jeremiyah Love (RB), T. McMillan (WR) — **3 redundant RBs in the top-5** that would only sit in the flex.
   - **AFTER (D3):** Tyler Warren (TE, fills TE1), T. McMillan (WR2), Drake Maye (QB1), Tee Higgins (WR2), Emeka Egbuka (WR2) — **all three flex-only RBs dropped out**, replaced by dedicated-slot fills. Exactly the intended tilt: stop overpaying for 3rd-RB depth when real starter holes (WR2/TE/QB) are open.

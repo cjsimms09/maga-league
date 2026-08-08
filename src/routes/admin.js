@@ -597,6 +597,11 @@ router.get('/warroom', aw(async (req, res) => {
     // the setup screen, so a deliberate what-if is one field away.
     overrides: claimedSlot ? { ...overrides, my_draft_slot: claimedSlot } : overrides,
     claimedSlot,
+    // A slot claimed on THIS site's /draft page is provenance 'site-claimed'
+    // (Sleeper draft order still pending). That is a real claim on our own
+    // backend — better than a manual guess — but not yet the Sleeper-verified
+    // state the A2 machinery flips to when the draft object's order lands.
+    slotProvenance: claimedSlot ? 'site-claimed' : null,
   });
 }));
 

@@ -285,6 +285,11 @@
 <script>
   window.LEAGUE_ID = '<%= (config && config.sleeper_league_id) || "" %>';
   window.CFG_OVERRIDES = <%- JSON.stringify(typeof overrides !== 'undefined' ? overrides : {}) %>;
+  // A2 / site-claim: the slot the site's /draft claim flow assigned (if any) and
+  // its provenance, so the War Room can mark slot-derived numbers 'site-claimed,
+  // Sleeper pending' instead of 'manually set, UNVERIFIED'.
+  window.CLAIMED_SLOT = <%= claimedSlot ? Number(claimedSlot) : 'null' %>;
+  window.SLOT_PROVENANCE = <%- JSON.stringify(typeof slotProvenance !== 'undefined' ? slotProvenance : null) %>;
 </script>
 <script src="/js/draft/keepers.js"></script>
 <script src="/js/draft/keeperlock.js"></script>

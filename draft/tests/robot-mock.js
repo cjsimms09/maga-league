@@ -328,16 +328,27 @@ if (!IS_FIXTURE) {
   function slotVerified(source, mock, draftOrderCount) {
     if (mock) return false;                         // a mock is a different draft
     if (source === 'sleeper' && draftOrderCount > 0) return true;
-    return false;                                   // manual, or order not assigned
+    return false;                                   // manual/site-claimed, or order not assigned
+  }
+  // Provenance mirrors app.js setSlot: sleeper > site-claimed > manual. Only
+  // 'sleeper' verifies; 'site-claimed' is a real backend claim (Sleeper pending).
+  function slotSource(source, mock) {
+    if (source === 'sleeper' && !mock) return 'sleeper';
+    if (source === 'site-claimed' && !mock) return 'site-claimed';
+    return 'manual';
   }
   check('R-slot: a manually-entered slot is UNVERIFIED (placeholder)',
-    slotVerified('manual', false, 0) === false);
+    slotVerified('manual', false, 0) === false && slotSource('manual', false) === 'manual');
   check('R-slot: a real Sleeper draft object with an assigned order VERIFIES the seat',
-    slotVerified('sleeper', false, 10) === true);
+    slotVerified('sleeper', false, 10) === true && slotSource('sleeper', false) === 'sleeper');
   check('R-slot: a Sleeper object whose draft_order is still null stays UNVERIFIED (D4)',
     slotVerified('sleeper', false, 0) === false);
   check('R-slot: a slot resolved inside a MOCK never counts as verified',
     slotVerified('sleeper', true, 10) === false);
+  check('R-slot: a site-claimed slot is NOT Sleeper-verified but is its own provenance (not manual)',
+    slotVerified('site-claimed', false, 0) === false && slotSource('site-claimed', false) === 'site-claimed');
+  check('R-slot: a site-claim inside a mock degrades to manual',
+    slotSource('site-claimed', true) === 'manual');
 }
 
 // R-paths (Part 2 §1): the paths panel must render 0–4 PRICED, single-position

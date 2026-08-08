@@ -1150,7 +1150,9 @@
         label: 'Draft slot verified against Sleeper draft object',
         detail: !slot ? 'not set'
           : state.slotVerified ? 'pick ' + slot + ' — from Sleeper, verified'
-            : 'pick ' + slot + ' — manually set, UNVERIFIED (draft order not yet assigned)',
+            : state.slotSource === 'site-claimed'
+              ? 'pick ' + slot + ' — site-claimed, Sleeper pending (real claim; not yet Sleeper-verified)'
+              : 'pick ' + slot + ' — manually set, UNVERIFIED (draft order not yet assigned)',
         fix: !slot ? 'Claim it on the Draft Spot page'
           : state.slotVerified ? ''
             : 'Connect the Sleeper draft room; the slot verifies automatically once the draft order is assigned' },
@@ -1776,9 +1778,19 @@
     var hasSlot = !!Number(league.my_draft_slot);
     var on = hasSlot && !state.slotVerified && !state.mockMode;
     var wm = document.getElementById('slot-watermark');
-    if (wm) wm.style.display = on ? '' : 'none';
+    if (wm) {
+      wm.style.display = on ? '' : 'none';
+      // A site-claimed slot is provisional but not a wild guess — say so, so the
+      // banner doesn't cry "unverified" over a real claim on our own backend.
+      if (on) {
+        wm.textContent = state.slotSource === 'site-claimed'
+          ? 'Slot site-claimed — Sleeper draft order pending; pick numbers are live but not yet Sleeper-verified'
+          : 'Slot unverified — pick numbers & timing are provisional until Sleeper confirms your seat';
+      }
+    }
     if (typeof document !== 'undefined' && document.body) {
       document.body.classList.toggle('slot-unverified', on);
+      document.body.classList.toggle('slot-siteclaimed', on && state.slotSource === 'site-claimed');
     }
   }
 
@@ -2015,8 +2027,12 @@
     }
     state.data.pick_order.my_picks = derived;
     // A2: only a slot imported from a REAL (non-mock) Sleeper draft object counts
-    // as verified. A manual entry is a placeholder until Sleeper confirms it.
-    state.slotSource = (source === 'sleeper' && !state.mockMode) ? 'sleeper' : 'manual';
+    // as VERIFIED. A slot claimed on this site's /draft page is 'site-claimed'
+    // (Sleeper pending) — a real claim on our backend, better than a manual
+    // guess, but not yet Sleeper-verified. A manual entry is a placeholder.
+    if (source === 'sleeper' && !state.mockMode) state.slotSource = 'sleeper';
+    else if (source === 'site-claimed' && !state.mockMode) state.slotSource = 'site-claimed';
+    else state.slotSource = 'manual';
     state.slotVerified = state.slotSource === 'sleeper';
     try { localStorage.setItem(SLOT_KEY, String(n)); } catch (e) { /* private mode */ }
 
@@ -2625,15 +2641,24 @@
       slotIn.addEventListener('keydown', ev => {
         if (ev.key === 'Enter') { ev.preventDefault(); setSlot(slotIn.value); }
       });
-      // A slot set here survives a reload mid-draft; the artifact's value is
-      // only a seed.
-      try {
-        const saved = localStorage.getItem(SLOT_KEY);
-        if (saved && Number(saved) !== Number(state.data.league.my_draft_slot)) {
-          slotIn.value = saved;
-          setSlot(saved);
-        }
-      } catch (e) { /* private mode */ }
+      // Slot provenance, most-authoritative first:
+      // 1. a slot CLAIMED on the site's /draft page — provenance 'site-claimed,
+      //    Sleeper pending' (a real claim on our backend; regenerates the pick
+      //    numbers). 2. a slot saved in localStorage from a manual entry. The
+      //    Sleeper draft object (A2) still trumps both when it arrives.
+      const claimed = Number(window.CLAIMED_SLOT) || null;
+      if (claimed && window.SLOT_PROVENANCE === 'site-claimed') {
+        slotIn.value = claimed;
+        setSlot(claimed, 'site-claimed');
+      } else {
+        try {
+          const saved = localStorage.getItem(SLOT_KEY);
+          if (saved && Number(saved) !== Number(state.data.league.my_draft_slot)) {
+            slotIn.value = saved;
+            setSlot(saved);
+          }
+        } catch (e) { /* private mode */ }
+      }
     }
     document.body.addEventListener('click', ev => {
       const me = ev.target.closest('[data-draft-me]');
