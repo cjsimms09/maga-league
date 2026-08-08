@@ -2873,15 +2873,51 @@
   /* LAYER 2 collapses on a phone and stays open on desktop, but a deliberate
    * tap always wins — once the user opens or closes it, that choice sticks for
    * the session. A panel that re-decides on every resize is a panel that fights
-   * you on the clock. */
+   * you on the clock.
+   *
+   * SETTING .open FIRES `toggle`. So a naive listener that stamps userOpened on
+   * every toggle stamps it on OUR OWN programmatic collapse too, and the flag
+   * that is supposed to mean "the user deliberately touched this" is poisoned
+   * before the user has touched anything. `programmatic` is the guard: the only
+   * toggles that count as a decision are the ones we did not cause. */
+  var layerProgrammatic = false;
+  function setLayer(el, open) {
+    if (!el || el.open === open) return;
+    layerProgrammatic = true;
+    el.open = open;
+    layerProgrammatic = false;
+  }
+
   function initLayers() {
     const l2 = document.getElementById('layer-2');
     if (!l2 || l2.dataset.wired) return;
     l2.dataset.wired = '1';
-    if (window.matchMedia && window.matchMedia('(max-width: 900px)').matches) l2.open = false;
-    l2.addEventListener('toggle', function () { l2.dataset.userOpened = '1'; });
+    if (window.matchMedia && window.matchMedia('(max-width: 900px)').matches) setLayer(l2, false);
+    l2.addEventListener('toggle', function () {
+      if (!layerProgrammatic) l2.dataset.userOpened = '1';
+    });
     const l3 = document.getElementById('layer-3');
-    if (l3) l3.addEventListener('toggle', function () { l3.dataset.userOpened = '1'; });
+    if (l3) l3.addEventListener('toggle', function () {
+      if (!layerProgrammatic) l3.dataset.userOpened = '1';
+    });
+  }
+
+  /* THE BOARD IS A REFERENCE IN LIVE MODE AND AN INPUT DEVICE IN MANUAL MODE.
+   *
+   * Under live sync, Sleeper records the other nine teams' picks and the full
+   * board is something you consult a few times a draft — Layer 3 is right.
+   * In MANUAL or REHEARSAL mode, every one of ~135 opponent picks is typed on
+   * that board, so the same tap-to-open costs a tap per pick with the clock
+   * running, and the mock-#2 lesson was that draft-night friction is what makes
+   * people stop recording picks — which is how the roster silently drifts.
+   *
+   * So the depth of Layer 3 follows the MODE, not a fixed opinion. A deliberate
+   * tap still wins: userOpened means the user has an opinion and we stop having
+   * one. */
+  function layerDepthForMode(mode) {
+    const l3 = document.getElementById('layer-3');
+    if (!l3 || l3.dataset.userOpened) return;
+    setLayer(l3, mode !== 'LIVE');
   }
 
   function renderSystemStrip() {
@@ -2911,6 +2947,7 @@
     const tone = red.length ? 'bad' : amber.length ? 'warn' : 'ok';
     const dot = red.length ? '🔴' : amber.length ? '🟡' : '🟢';
     const mode = state.mockMode ? 'REHEARSAL' : (state.sync ? 'LIVE' : 'MANUAL');
+    layerDepthForMode(mode);
     const age = ageH == null ? 'never built'
       : ageH < 1 ? 'board fresh' : 'board ' + Math.round(ageH) + 'h';
     const issues = red.concat(amber);

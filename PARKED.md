@@ -95,3 +95,36 @@ Named suspect, first thing to test.
 ## Already landed, not parked
 - **Claim-integrity doctrine** (`CLAIM-INTEGRITY.md`) + the three guards —
   shipped before this rule took effect; re-sent instruction needed no new work.
+
+## Found by the mock-#3 dress rehearsal 2026-08-08 — measured, NOT fixed
+
+**⑪ THE REMAINING 1.9s PER OPPONENT PICK.** The survival memoisation took a
+marked opponent pick from **6.0s to 1.9s of synchronous main-thread block**
+(3.2x, bit-identical numbers — see `survival-memo.test.js`). What is left is the
+model's inherent cost: ~1700 board players x ~24 intervening picks, now flat
+across the profile with no single hotspot above ~430ms. Two ways further, both
+of which change behaviour and so are NOT being done unattended:
+  - score survival only for the players actually displayed, rather than the
+    whole board (VONA reads it broadly — needs a call-graph audit first);
+  - move the recompute off the click path entirely and render a visible
+    `recomputing…` state, never a silently stale number.
+At 1.9s x ~135 opponent picks this is still ~4 minutes of frozen UI across a
+draft. Worth doing; not worth guessing at.
+
+**⑫ TAP TARGETS UNDER A FIXED OVERLAY.** `#arm-alerts` is `position:fixed`,
+`z-index:150`, occupying x=1266-1426 at the bottom of a 1440px viewport. The
+board's "✕ / ➕ Me" buttons centre at x≈1260 — **six pixels of clearance**. At
+other viewport widths, or with a scrollbar, that overlay will sit on top of the
+row-level draft actions and eat the tap. Dropped taps on those two buttons are
+precisely how mock #2 ended with a drifted roster, so this is the same class of
+defect as the 6-second freeze, not a cosmetic one. Fix is cheap (move it, or
+make the board's action column un-overlappable); it needs a width sweep to
+verify rather than a single-viewport spot check.
+
+**⑬ THE WAR ROOM FETCHES FONTS FROM GOOGLE.** The only failing request in the
+whole rehearsal was
+`fonts.googleapis.com/css2?family=Archivo…&family=Inter…` (ERR_CONNECTION_RESET
+under the sandbox's egress block). It degrades to system fonts rather than
+breaking, so this is not urgent — but it is a render-blocking external
+dependency on draft night, on whatever wifi the room has. Self-host the two
+faces and the dependency disappears.

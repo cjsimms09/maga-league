@@ -477,26 +477,81 @@
     return Math.max(0.15, Math.min(0.9, CFG.WITHIN_POS_TEMP - 0.02 * rd.mean));
   }
 
-  function withinPositionProbability(player, board, team) {
-    const pool = board.filter(p => p.position === player.position)
-      .sort((a, b) => (b.vorp || b.proj_mean || 0) - (a.vorp || a.proj_mean || 0))
-      .slice(0, CFG.WITHIN_POS_CANDIDATES);
-    if (!pool.length) return 0;
-    const idx = pool.findIndex(p => String(p.player_id) === String(player.player_id));
-    if (idx === -1) return CFG.WITHIN_POS_TAIL_P;   // see withinFromPool
+  /* Same shape as poolSoftmax, and the same reason. This one was the single
+   * hottest frame in the profile: it FILTERS AND SORTS THE WHOLE BOARD (~1700
+   * players) and then builds a softmax over the result — on every call, once
+   * per player scored — although every part of that work is a function of
+   * (board, position, team) and none of it depends on WHICH player is being
+   * scored. The player only selects a numerator.
+   *
+   * STALENESS IS THE ONLY WAY THIS CAN LIE, so the key is guarded on both axes.
+   * `state.board` is usually replaced by a fresh filter() — a new object, hence
+   * a new WeakMap key — but app.js:3441 pushes onto it in place when a pick is
+   * undone. Identity alone would then hand back a pool that is missing a player
+   * who is genuinely available again, and he would read as un-takeable forever.
+   * The length fingerprint catches exactly that case; combined with identity it
+   * covers every mutation the board actually undergoes (players leave by
+   * filter, return by push).
+   */
+  var POS_SOFTMAX = typeof WeakMap === 'function' ? new WeakMap() : null;
 
-    const temp = withinPrecision(team);
-    const scores = pool.map(p => (p.vorp == null ? p.proj_mean || 0 : p.vorp));
-    const max = Math.max.apply(null, scores);
-    let sum = 0;
-    // A man he has drafted before is not just another name at the position.
-    const exps = scores.map((s, i) => {
-      const e = Math.exp((s - max) * temp / 10)
-        * affinityMultiplier(team && team.profile, pool[i].player_id);
-      sum += e;
-      return e;
-    });
-    return sum > 0 ? exps[idx] / sum : 0;
+  function positionSoftmax(board, position, team) {
+    var perBoard = POS_SOFTMAX && POS_SOFTMAX.get(board);
+    if (perBoard && perBoard.len !== board.length) { perBoard = null; }
+    if (!perBoard) {
+      perBoard = { len: board.length, byKey: new Map() };
+      if (POS_SOFTMAX) POS_SOFTMAX.set(board, perBoard);
+    }
+    // TWO CACHES, BECAUSE THE TWO HALVES HAVE DIFFERENT KEYS. The pool (the
+    // expensive filter+sort over the whole board, plus its id index) depends on
+    // position ALONE; only the softmax over it depends on the team. Keying both
+    // on (position, team) would be correct but would thrash — layer 2 walks the
+    // same positions across nine different opponents, so a single-team slot
+    // would re-sort the board on every step and the memo would buy nothing.
+    var slot = perBoard.byKey.get(position);
+    if (!slot) {
+      MEMO.poolBuilds++;
+      var pool = board.filter(function (p) { return p.position === position; })
+        .sort(function (a, b) {
+          return (b.vorp || b.proj_mean || 0) - (a.vorp || a.proj_mean || 0);
+        })
+        .slice(0, CFG.WITHIN_POS_CANDIDATES);
+      var idxById = new Map();
+      for (var k = 0; k < pool.length; k++) idxById.set(String(pool[k].player_id), k);
+      slot = { pool: pool, idxById: idxById, byTeam: new Map() };
+      perBoard.byKey.set(position, slot);
+    }
+    var cached = slot.byTeam.get(team);
+    if (cached) return cached;
+    MEMO.posSoftmaxBuilds++;
+
+    var pool = slot.pool;
+    var out = { team: team, pool: pool, exps: null, sum: 0, idxById: slot.idxById };
+    if (pool.length) {
+      var temp = withinPrecision(team);
+      var scores = pool.map(function (p) { return p.vorp == null ? p.proj_mean || 0 : p.vorp; });
+      var max = Math.max.apply(null, scores);
+      var sum = 0;
+      // A man he has drafted before is not just another name at the position.
+      var exps = scores.map(function (s, i) {
+        var e = Math.exp((s - max) * temp / 10)
+          * affinityMultiplier(team && team.profile, pool[i].player_id);
+        sum += e;
+        return e;
+      });
+      out.exps = exps;
+      out.sum = sum;
+    }
+    slot.byTeam.set(team, out);
+    return out;
+  }
+
+  function withinPositionProbability(player, board, team) {
+    var sm = positionSoftmax(board, player.position, team);
+    if (!sm.pool.length) return 0;
+    if (!sm.idxById.has(String(player.player_id))) return CFG.WITHIN_POS_TAIL_P; // see withinFromPool
+    var idx = sm.idxById.get(String(player.player_id));
+    return sm.sum > 0 ? sm.exps[idx] / sm.sum : 0;
   }
 
   /**
@@ -604,14 +659,88 @@
     return out;
   }
 
+  /* THE SOFTMAX IS A PROPERTY OF THE POOL, NOT OF THE PLAYER BEING SCORED.
+   *
+   * `withinFromPool` used to rebuild the entire pool's softmax — a full pass to
+   * find `max`, another to exponentiate and sum — on EVERY call, and it is
+   * called once per (player x step) from layer2Taken and again once per
+   * (candidate x step) from the thinning loop inside precomputeLayer2. Scoring
+   * a 200-player board over a 24-pick window therefore re-derived the same few
+   * hundred denominators tens of thousands of times.
+   *
+   * Measured on the live war room: marking ONE opponent pick blocked the main
+   * thread for 5.6-6.4 seconds, of which ~5.5s was this function and its
+   * closures. Across ~135 opponent picks that is roughly THIRTEEN MINUTES of
+   * frozen UI on draft night — and because the block is synchronous, taps made
+   * during it are dropped. Dropped taps are exactly how mock #2 ended with a
+   * roster that had silently drifted from the truth.
+   *
+   * The memo below changes NO arithmetic. Same array order, same accumulation
+   * order, so `sum` and `exps[idx]` are bit-identical floats; the only thing
+   * that changes is how many times they are computed. Keyed on the identity of
+   * the `pool` array, which precomputeLayer2 creates fresh per (step, position)
+   * and hands to both call sites together with its matching `team`/`avail` —
+   * and the entry is re-derived if either of those does not match, so a future
+   * caller reusing a pool under different conditions cannot silently read a
+   * stale denominator.
+   */
+  var POOL_SOFTMAX = typeof WeakMap === 'function' ? new WeakMap() : null;
+
+  /* WORK COUNTERS — the deterministic form of "this is still fast".
+   *
+   * A wall-clock assertion in CI is a flake generator; the thing that actually
+   * regressed when this was slow is the NUMBER OF TIMES the expensive work ran,
+   * and that is exactly reproducible. `survival-memo.test.js` scores a board
+   * and asserts the board is sorted once per position rather than once per
+   * player. If someone removes a memo, the count moves and the test fails —
+   * which is the point: a performance property nobody can break silently.
+   */
+  var MEMO = { poolBuilds: 0, posSoftmaxBuilds: 0, poolSoftmaxBuilds: 0 };
+  function memoStats() {
+    return { poolBuilds: MEMO.poolBuilds, posSoftmaxBuilds: MEMO.posSoftmaxBuilds,
+             poolSoftmaxBuilds: MEMO.poolSoftmaxBuilds };
+  }
+  function resetMemoStats() {
+    MEMO.poolBuilds = 0; MEMO.posSoftmaxBuilds = 0; MEMO.poolSoftmaxBuilds = 0;
+  }
+
+  function poolSoftmax(pool, team, avail) {
+    var memo = POOL_SOFTMAX && POOL_SOFTMAX.get(pool);
+    if (memo && memo.team === team && memo.avail === avail) return memo;
+    MEMO.poolSoftmaxBuilds++;
+
+    var temp = withinPrecision(team);
+    var max = -Infinity;
+    var scores = pool.map(function (p) {
+      var v = p.vorp == null ? p.proj_mean || 0 : p.vorp;
+      if (v > max) max = v;
+      return v;
+    });
+    var sum = 0;
+    var exps = scores.map(function (v, i) {
+      var w = avail ? Math.max(0, Math.min(1, avail[i] == null ? 1 : avail[i])) : 1;
+      var e = w * Math.exp((v - max) * temp / 10)
+        * affinityMultiplier(team && team.profile, pool[i].player_id);
+      sum += e;
+      return e;
+    });
+    // The index lookup was a linear scan per call too; one map serves every
+    // player scored against this pool.
+    var idxById = new Map();
+    for (var i = 0; i < pool.length; i++) idxById.set(String(pool[i].player_id), i);
+
+    memo = { team: team, avail: avail, exps: exps, sum: sum, idxById: idxById };
+    if (POOL_SOFTMAX) POOL_SOFTMAX.set(pool, memo);
+    return memo;
+  }
+
   /** P(this specific player, given his position is taken) from a precomputed pool.
    *  `avail` (optional) weights each candidate by how likely he is still there. */
   function withinFromPool(player, pool, team, avail) {
     if (!pool || !pool.length) return 0;
-    let idx = -1;
-    for (let i = 0; i < pool.length; i++) {
-      if (String(pool[i].player_id) === String(player.player_id)) { idx = i; break; }
-    }
+    var sm = poolSoftmax(pool, team, avail);
+    var idx = sm.idxById.has(String(player.player_id))
+      ? sm.idxById.get(String(player.player_id)) : -1;
     if (idx === -1) {
       // NOT ZERO. Zero here means "no simulated pick can ever take this man",
       // and Layer 2 then reports survival of EXACTLY 1.0 — the model asserting
@@ -627,24 +756,10 @@
       // certainty. Anyone outside the pool is unlikely to be taken, not unable.
       return CFG.WITHIN_POS_TAIL_P;
     }
-    const temp = withinPrecision(team);
-    let max = -Infinity;
-    const scores = pool.map(p => {
-      const v = p.vorp == null ? p.proj_mean || 0 : p.vorp;
-      if (v > max) max = v;
-      return v;
-    });
-    let sum = 0;
     // Availability weights the softmax: a player who is 20% likely to still be
     // on the board contributes 20% of the mass he would if he were certain.
-    const exps = scores.map((v, i) => {
-      const w = avail ? Math.max(0, Math.min(1, avail[i] == null ? 1 : avail[i])) : 1;
-      const e = w * Math.exp((v - max) * temp / 10)
-        * affinityMultiplier(team && team.profile, pool[i].player_id);
-      sum += e;
-      return e;
-    });
-    return sum > 0 ? exps[idx] / sum : 0;
+    // (Both the weighting and the accumulation live in poolSoftmax now.)
+    return sm.sum > 0 ? sm.exps[idx] / sm.sum : 0;
   }
 
   /**
@@ -800,6 +915,7 @@
     roundOf, tendencyTilt, bucketMix, openingTilt, runFollowTilt,
     affinityMultiplier, tendencyReasons,
     survivalProbability,
+    positionSoftmax, poolSoftmax, memoStats, resetMemoStats,
   };
   global.DraftSurvival = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
