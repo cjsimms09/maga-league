@@ -90,15 +90,22 @@ def build_policies():
 
 # --- the room, instrumented with LIVE-DETECTABLE state ------------------------
 
-def run_room(pool, my_keepers, opp_keepers, my_picks, chooser, rng):
+def run_room(pool, my_keepers, opp_keepers, my_picks, chooser, rng,
+             heterogeneous=True):
     """CC.draft_room + per-pick STATE capture. Every state below is computed
-    from information available at that instant in a real draft."""
+    from information available at that instant in a real draft.
+
+    Opponents are the DOSSIER-DRIVEN per-seat models by default (the same room
+    CC.draft_room builds) — this function keeps its own loop only because it
+    also records state, and it must not drift from CC's opponent behaviour."""
     kept = {p["player_id"] for ks in opp_keepers.values() for p in ks}
     kept |= {p["player_id"] for p in my_keepers}
     board = [p for p in pool if p["player_id"] not in kept]
     rosters = {0: list(my_keepers)}
-    for i, (_, ks) in enumerate(sorted(opp_keepers.items()), start=1):
+    seat_name = {}
+    for i, (owner, ks) in enumerate(sorted(opp_keepers.items()), start=1):
         rosters[i] = list(ks)
+        seat_name[i] = owner
     while len(rosters) < 10:
         rosters[len(rosters)] = []
     my_set = set(my_picks)
@@ -129,8 +136,13 @@ def run_room(pool, my_keepers, opp_keepers, my_picks, chooser, rng):
             choice = max(chooser(board, live_idx, rosters[0]), key=lambda p: p["vorp"])
             rosters[0].append(choice)
         else:
-            choice = CC.softmax_pick(board, rng)
-            rosters[opp_order[oi % 9]].append(choice)
+            seat = opp_order[oi % 9]
+            if heterogeneous:
+                _, pick_fn = CC._het_picker()
+                choice = pick_fn(board, rng, seat_name.get(seat, ""), recent=recent)
+            else:
+                choice = CC.softmax_pick(board, rng, recent=recent)
+            rosters[seat].append(choice)
             oi += 1
         recent.append(choice["position"])
         board = [p for p in board if p["player_id"] != choice["player_id"]]

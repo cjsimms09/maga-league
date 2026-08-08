@@ -146,14 +146,38 @@ def softmax_pick(board, rng, temp=6.0, recent=None, cascade=None):
     return rng.choices(top, weights=w, k=1)[0]
 
 
-def draft_room(pool, my_keepers, opp_keepers, my_picks, chooser, rng):
-    """One 10-team room; returns {team_idx: roster}. I am team 0."""
+# HETEROGENEOUS ROOMS (2026-08-08): opponents are per-seat models fitted from
+# three seasons of real drafts, not nine copies of one agent. Every verdict
+# landed BEFORE this switch was measured against a homogeneous room and is
+# re-validated against this one — see HETEROGENEOUS-VALIDATION.md.
+_HET = None
+
+
+def _het_picker():
+    global _HET
+    if _HET is None:
+        import opponent_model as OM
+        _HET = (OM.seat_params(OM.load_profiles()),
+                OM.heterogeneous_picker(OM.seat_params(OM.load_profiles()),
+                                        CASCADE, CASCADE_WINDOW))
+    return _HET
+
+
+def draft_room(pool, my_keepers, opp_keepers, my_picks, chooser, rng,
+               heterogeneous=True):
+    """One 10-team room; returns {team_idx: roster}. I am team 0.
+
+    heterogeneous=True gives every opponent seat its OWN fitted model (the
+    dossier-driven room). False restores the uniform sampler, kept so the
+    pre-/post- comparison can be run on demand rather than remembered."""
     kept_ids = {p["player_id"] for ks in opp_keepers.values() for p in ks}
     kept_ids |= {p["player_id"] for p in my_keepers}
     board = [p for p in pool if p["player_id"] not in kept_ids]
     rosters = {0: list(my_keepers)}
+    seat_name = {}
     for i, (owner, ks) in enumerate(sorted(opp_keepers.items()), start=1):
         rosters[i] = list(ks)
+        seat_name[i] = owner
     while len(rosters) < 10:
         rosters[len(rosters)] = []
     my_set = set(my_picks)
@@ -171,8 +195,13 @@ def draft_room(pool, my_keepers, opp_keepers, my_picks, chooser, rng):
             choice = max(allowed, key=lambda p: p["vorp"])
             rosters[0].append(choice)
         else:
-            choice = softmax_pick(board, rng, recent=recent)
-            rosters[opp_order[oi % len(opp_order)]].append(choice)
+            seat = opp_order[oi % len(opp_order)]
+            if heterogeneous:
+                _, pick_fn = _het_picker()
+                choice = pick_fn(board, rng, seat_name.get(seat, ""), recent=recent)
+            else:
+                choice = softmax_pick(board, rng, recent=recent)
+            rosters[seat].append(choice)
             oi += 1
         recent.append(choice["position"])
         board = [p for p in board if p["player_id"] != choice["player_id"]]

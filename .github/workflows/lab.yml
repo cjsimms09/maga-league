@@ -31,6 +31,7 @@ on:
       - 'draft/backtest/policy_tournament.py'
       - 'draft/backtest/stack_sweep.py'
       - 'draft/backtest/sim_validation.py'
+      - 'draft/backtest/opponent_model.py'
       - 'draft/data/league_history.json'
       - 'draft/config/payouts.json'
       - '.github/workflows/lab.yml'
@@ -88,6 +89,7 @@ jobs:
                   draft/backtest/POLICY-TOURNAMENT.md draft/backtest/policy-tournament.json \
                   draft/backtest/STACK-SWEEP.md draft/backtest/stack-sweep.json \
                   draft/backtest/SIM-FIDELITY.md draft/backtest/sim-fidelity.json \
+                  draft/backtest/HETEROGENEOUS-VALIDATION.md \
                   draft/data/opening_script.md draft/data/opening_script.json
           git commit -m "Lab report $stamp" || { echo "no change"; exit 0; }
           git pull --rebase origin main && git push || echo "push skipped"

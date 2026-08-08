@@ -7,22 +7,22 @@
  "leaderboard": [
   {
    "archetype": "wr_anchor",
-   "mean_edge": 92.62,
+   "mean_edge": 91.5,
    "ci95": [
-    76.0,
-    110.0
+    73.88,
+    108.88
    ],
    "mean_divergence": 1.9,
    "verdict": "WINNER \u2014 enroll as THE PLAN"
   },
   {
    "archetype": "early_qb",
-   "mean_edge": 56.0,
+   "mean_edge": 67.62,
    "ci95": [
-    40.5,
-    72.62
+    50.25,
+    87.12
    ],
-   "mean_divergence": 0.4,
+   "mean_divergence": 0.5,
    "verdict": "WINNER \u2014 enroll as THE PLAN"
   },
   {
@@ -67,10 +67,10 @@
   },
   {
    "archetype": "late_qb",
-   "mean_edge": -71.75,
+   "mean_edge": -60.62,
    "ci95": [
-    -89.12,
-    -55.88
+    -76.38,
+    -46.0
    ],
    "mean_divergence": 0.6,
    "verdict": "parked: CI includes $0"
