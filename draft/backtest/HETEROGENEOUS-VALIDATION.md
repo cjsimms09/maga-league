@@ -70,3 +70,49 @@ the D9 install, and the D10 stand-down all stand on the more realistic room.
   `SIM-FIDELITY.md`), but who runs and on what trigger is not proven.
 - All money remains the **v1 proxy**; September's quantile re-run is
   pre-registered for every number above.
+
+
+## INSTALL / HOLD REVIEW (the decision the validation was for)
+
+Every landed install and stand-down, re-examined against the heterogeneous
+numbers before the final mock. **No change is warranted. All hold.**
+
+| decision | homogeneous basis | heterogeneous number | review |
+|---|---|---|---|
+| **D9 — ceiling slider 0.65** | frontier peak +$55.50 at λ=0.5 | **+$70.67** | **HOLD at 0.65.** The new number makes the install look *under*-tuned, not wrong — and an edge growing is not a reason to chase it. The environment is still a proxy and the conservatism standard has not changed. September re-tunes on the quantile model, not on a bigger proxy number. |
+| **D9 — endgame ceiling 0.5** | H1 refuted at −$31.25 | **−$37.29** | **HOLD.** The refutation deepened; the correction is more supported than when it shipped. |
+| **D9 — core tilts unchanged** | all straddled the default | still straddle | **HOLD.** "No evidence of a shift" survived the realism upgrade. |
+| **D10 — stack stood down at 1.0** | +$67.50 peak, modeled rho | unchanged (rho still modeled) | **HOLD the stand-down.** Heterogeneous rooms improve the OPPONENTS, not the correlation assumption the finding rests on. The reason for standing down is untouched. |
+| **Doctrine — WR Feast enrolled** | +$86.00 | **+$91.50** | **HOLD enrollment.** Strengthened; opening script regenerated on the validated figure. |
+| **§6 — nothing automated** | 0 rules cleared | **0 rules cleared** | **HOLD.** See below. |
+
+**The general principle this review applied:** a verdict getting *better* under a
+more realistic model is a reason to trust the existing decision, not a reason to
+re-open it at a more aggressive setting. Every one of these installs was
+deliberately set at the conservative end; nothing here argues the conservative
+end was wrong.
+
+## §6 ON THE HETEROGENEOUS ROOMS — still zero, and that is the good outcome
+
+All three states partition cleanly (`run_pressure` 85/120, `rb_drain_early`
+60/120, `thin_board_early` 60/120) and **zero states were rejected by the
+incidence band** — the instrument now works. Mining them:
+
+| state | setting | in − out | vs null p95 ($65.83) | n |
+|---|---|---|---|---|
+| thin_board_early | floor_heavy | +$53.33 | **−$12.50 short** | 60 |
+| thin_board_early | h1_phase | +$21.25 | −$44.58 short | 60 |
+| run_pressure | floor_heavy | +$4.62 | −$61.21 short | 85 |
+| rb_drain_early | h1_phase | +$4.58 | −$61.25 short | 60 |
+
+**Zero rules clear both §6 conditions.** The closest — floor-heavy on a thin
+early board — lands **$12.50 below its own null floor**, which is exactly the
+region where a weaker programme would have declared a finding.
+
+**This is the guard working twice.** The first time it caught a costumed global
+(`run_fired_early` at 120/120 rooms); the second time it declined to reward the
+instrument's own improvement. Rules appearing the moment we sharpened the
+measurement would have been the suspicious result — that is precisely the shape
+of a search finding what it was upgraded to find. Nothing enters Auto; the
+LEANS go to the manual-override cheat sheet where a human fires them, and the
+live 2026 season is the legitimate tiebreaker.
