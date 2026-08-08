@@ -268,6 +268,29 @@ if (!IS_FIXTURE) {
   check('R-LRM: the run only ever TIGHTENS the deadline, never loosens it', wentLater === 0, 'wentLater=' + wentLater);
 }
 
+// R-DST (2026-08-08 must-fix): the board MUST carry defenses, or the DEF starter
+// slot can never be filled — legality and the forced-pick endgame were untestable
+// against a pool with zero DEF. Red until the rebuild ingests DST; green after.
+{
+  const defs = ALL.filter(p => p.position === 'DEF');
+  check('R-DST: the board carries at least one defense (DEF starter slot is fillable)',
+    defs.length > 0, defs.length + ' DEF on the board');
+  if (defs.length) {
+    // Fill every starter slot EXCEPT DEF (incl. a flex filler), 1 pick left:
+    // the endgame must force a DEF and nothing else.
+    const pick = (pos, n) => ALL.filter(p => p.position === pos)[n || 0];
+    const roster = [pick('QB'), pick('RB', 0), pick('RB', 1), pick('WR', 0), pick('WR', 1),
+                    pick('TE'), pick('RB', 2) /* flex */, pick('K')].filter(Boolean);
+    const board = ALL.filter(p => roster.indexOf(p) < 0);
+    const scored = E.recommend({ board, currentPick: 150, nextPick: null, totalPicks: 150,
+      myPicksLeft: 1, roster: roster, league: LEAGUE, weights: E.DEFAULT_WEIGHTS,
+      runMultipliers: {}, intervening: [], roundsLeft: 1 });
+    check('R-DST: with only DEF unfilled and 1 pick left, the endgame forces a DEF',
+      scored.length > 0 && scored.every(s => s.player.position === 'DEF'),
+      scored.slice(0, 3).map(s => s.player.position).join(','));
+  }
+}
+
 // R7 (DEMAND 3 — the robot draft writes the ledger): a full simulated draft
 // must produce the expected ledger entries with monotonic seq and ZERO gaps.
 // This is what proves draft night gets captured — not just a single curl test.

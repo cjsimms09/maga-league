@@ -1605,6 +1605,21 @@
    * where an acceptable option still survives with P >= 0.85. Computed from the
    * existing survival machinery — logged to the ledger so January can grade the
    * countdown against when the position actually died. */
+  /* Two different questions, two lines (D5): "when do I lose the DIFFERENCE-MAKER"
+   * (the elite tier) and "when do I lose a STARTER" (the startable tier). Tracking
+   * only the #1 reads "gone immediately" always; only the top-12 buries the elite
+   * cliff. So QB/TE get BOTH thresholds; K/DEF are streamable, startable-only. */
+  function lrmLastSafe(pool, upcoming) {
+    var last = null, idx = 0, target = null;
+    for (var i = 1; i < upcoming.length; i++) {
+      var surv = null;
+      for (var j = 0; j < pool.length; j++) {
+        if (E.survival(pool[j], upcoming[i], state.runMults) >= 0.85) { surv = pool[j]; break; }
+      }
+      if (surv) { last = upcoming[i]; idx = i; target = surv; }
+    }
+    return { by_pick: last, picks_early: idx, target: target };
+  }
   function computeLRM(upcoming) {
     if (!upcoming || upcoming.length < 2) return [];
     var out = [];
@@ -1612,52 +1627,51 @@
       var atPos = state.board.filter(function (p) { return p.position === pos; })
         .sort(function (a, b) { return (b.vorp || 0) - (a.vorp || 0); });
       if (!atPos.length) return;
-      // Track a STARTABLE-quality option, NOT the #1 — the elite (Allen, Bowers)
-      // is always gone by a round-4 start, so tracking him reads "gone by next
-      // pick" and says nothing. For K/DEF any option is a fine streamer; for
-      // QB/TE the acceptable pool is the startable tier (top ~12 by VORP).
-      var pool = (pos === 'K' || pos === 'DEF') ? atPos : atPos.slice(0, 12);
-      var lastSafe = null, lastSafeIdx = 0, gettable = null;
-      for (var i = 1; i < upcoming.length; i++) {
-        // The best pool option that still survives to this pick.
-        var surv = null;
-        for (var j = 0; j < pool.length; j++) {
-          if (E.survival(pool[j], upcoming[i], state.runMults) >= 0.85) { surv = pool[j]; break; }
-        }
-        if (surv) { lastSafe = upcoming[i]; lastSafeIdx = i; gettable = surv; }
-      }
-      out.push({ position: pos, best_available: (gettable || atPos[0]).name,
-        act_by_pick: lastSafe, next_pick: upcoming[1],
-        // How many of MY picks I'd spend early by taking this onesie now instead
-        // of at its last-responsible moment — the cost that IS the decision in a
-        // 12-pick, 9-starter draft.
-        picks_early: lastSafeIdx });
+      var dual = (pos === 'QB' || pos === 'TE');
+      var startablePool = (pos === 'K' || pos === 'DEF') ? atPos : atPos.slice(0, 12);
+      // Elite = the top tier (difference-makers). Prefer real tier boundaries;
+      // fall back to top-3 by VORP if tiers are absent.
+      var elitePool = atPos.filter(function (p) { return (p.tier || 99) <= 1; });
+      if (!elitePool.length) elitePool = atPos.slice(0, 3);
+      var st = lrmLastSafe(startablePool, upcoming);
+      var el = dual ? lrmLastSafe(elitePool, upcoming) : null;
+      out.push({ position: pos, dual: dual, next_pick: upcoming[1],
+        startable_by: st.by_pick, startable_early: st.picks_early,
+        startable_target: (st.target || atPos[0]).name,
+        elite_by: el ? el.by_pick : null, elite_early: el ? el.picks_early : 0,
+        elite_target: el && el.target ? el.target.name : null });
     });
     return out;
   }
 
   /* §C — the LRM countdown strip. The single most dynamic piece of guidance for a
-   * draft that starts in round 4: for each onesie, the last of my picks where an
-   * acceptable option still survives, framed with the COST of acting early —
-   * "DEF safe until pick 132 — taking one now spends a skill pick 4 picks early."
-   * In this draft shape (12 picks, 9 starters) that cost framing is the decision. */
+   * draft that starts in round 4, framed with the COST of acting early. For QB/TE
+   * it shows both the elite-cliff and startable lines where they diverge. */
   function renderLRM() {
     var host = document.getElementById('lrm-strip');
     if (!host) return;
-    var upcoming = myNextPicks();
-    var lrm = computeLRM(upcoming);
+    var lrm = computeLRM(myNextPicks());
     if (!lrm.length) { host.innerHTML = ''; host.style.display = 'none'; return; }
+    var phrase = function (by, early) {
+      var until = by ? 'until pick <b>' + by + '</b>' : '<b>gone by your next pick</b>';
+      var cost = early >= 1
+        ? ' <span class="lrm-cost">(−' + early + ' skill pick' + (early === 1 ? '' : 's') + ')</span>'
+        : (by ? '' : '');
+      return until + cost;
+    };
     host.style.display = '';
     host.innerHTML = '<div class="lrm-head">Last responsible moment</div>' + lrm.map(function (r) {
-      var cost = r.picks_early >= 1
-        ? ' — <span class="lrm-cost">taking one now spends a skill pick ' + r.picks_early
-          + ' pick' + (r.picks_early === 1 ? '' : 's') + ' early</span>'
-        : ' — <span class="lrm-now">act now, it may not survive your next pick</span>';
-      var until = r.act_by_pick
-        ? 'safe until pick <b>' + r.act_by_pick + '</b>'
-        : '<b>gone by your next pick</b>';
-      return '<div class="lrm-row"><span class="rec-pos ' + r.position + '">' + r.position + '</span> '
-        + until + cost + '</div>';
+      var badge = '<span class="rec-pos ' + r.position + '">' + r.position + '</span> ';
+      // Dual line for QB/TE where the two thresholds actually diverge.
+      if (r.dual && r.elite_by !== r.startable_by) {
+        var elite = r.elite_by
+          ? '<span class="lrm-elite">elite cliff ' + phrase(r.elite_by, r.elite_early) + '</span>'
+          : '<span class="lrm-now">elite tier gone</span>';
+        return '<div class="lrm-row">' + badge + elite
+          + ' <span class="muted">· startable ' + phrase(r.startable_by, r.startable_early) + '</span></div>';
+      }
+      return '<div class="lrm-row">' + badge + 'safe ' + phrase(r.startable_by, r.startable_early)
+        + ' <span class="muted">(' + escapeHtml(r.startable_target) + ')</span></div>';
     }).join('');
   }
 

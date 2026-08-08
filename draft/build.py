@@ -176,13 +176,34 @@ def load_players(cfg: dict, offline: bool) -> list[dict]:
             })
 
     players = []
+    dst_kept = 0
     for pid, p in raw.items():
         pos = (p.get("fantasy_positions") or [p.get("position")])[0] if p.get("fantasy_positions") else p.get("position")
-        if pos not in DRAFTABLE or p.get("active") is False:
+        if pos not in DRAFTABLE:
+            continue
+        # DST are team ENTITIES (player_id = team abbrev, e.g. "PHI"), not people.
+        # Sleeper marks many of them active=False (a team is not an "active
+        # player") and/or leaves search_rank null — so the two generic filters
+        # below silently dropped EVERY defense. The board then carried a DEF
+        # starter slot it could never fill: the legality filter could not be
+        # satisfied, the forced-pick endgame could not fire, and the robot's
+        # "legal roster from every state" test passed against a pool where the
+        # DEF requirement was untestable. Defenses are streamable and roughly
+        # interchangeable, so neither an inactive flag nor a missing rank is a
+        # reason to exclude a team unit — keep them with a late fallback rank
+        # that real DEF ADP/projections refine below. (Fix 2026-08-08; the
+        # exclusion carried no citation, so it read as intentional.)
+        is_dst = pos == "DEF"
+        if p.get("active") is False and not is_dst:
             continue
         rank = p.get("search_rank")
-        if rank is None or rank >= 9_999_999:
-            continue
+        if (rank is None or rank >= 9_999_999):
+            if is_dst:
+                rank = 400.0   # late fallback; ADP/projection join refines it
+            else:
+                continue
+        if is_dst:
+            dst_kept += 1
         players.append({
             "player_id": str(pid),
             "name": p.get("full_name") or f"{p.get('first_name','')} {p.get('last_name','')}".strip() or str(pid),
@@ -196,7 +217,10 @@ def load_players(cfg: dict, offline: bool) -> list[dict]:
             "raw_adp": float(rank),
             "consensus_rank": float(rank),
         })
-    print(f"  {len(players)} draftable players, {len(baseline)} with consensus projections")
+    print(f"  {len(players)} draftable players ({dst_kept} DST), {len(baseline)} with consensus projections")
+    if dst_kept == 0:
+        # Fail loud: a board with a DEF starter slot and zero defenses is broken.
+        print("  ! WARNING: no DST ingested — the DEF starter slot cannot be filled")
 
     # Real ADP replaces search_rank as the market signal. search_rank stays as a
     # *declared* fallback — recorded per player, surfaced in the UI above a

@@ -922,6 +922,7 @@ button.is-busy, .btn.is-busy {
   letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
 .lrm-row { font-size: .82rem; line-height: 1.45; }
 .lrm-cost { color: #f2c445; }
+.lrm-elite { color: #ff8a95; font-weight: 700; }
 .lrm-now { color: #ff8a95; font-weight: 700; }
 
 /* ---------- draft-day staleness gate ----------
