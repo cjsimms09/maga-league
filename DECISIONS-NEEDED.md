@@ -10,6 +10,36 @@ the conservative option and mark the item PROVISIONAL until you rule._
 - **Draft slot:** claim in progress on `/draft` (site-claimed provenance); auto-verifies on Sleeper draft-order assignment.
 - **⏳ Only outstanding data:** the master-sheet **XLSX file itself** (for the 2016–2022 pre-Sleeper import) was NOT attached to the ingestion message — send the file and the pre-Sleeper history/settlement import lands. This is a data hand-off, not a decision.
 
+## ✅ D12 — RANDOMISED COMPLIANCE: DECLINED for 2026 (Cory, 2026-08-08) — closed
+
+I raised randomising compliance on near-tie decisions as the only route to
+*causal* evidence for experiment 37. **Declined for 2026**, with reasoning
+recorded so this is a decision on the record and not an omission:
+
+1. the **shadow season already provides a quasi-experimental comparison at zero
+   cost** to real decisions;
+2. the marginal causal information from near-tie randomisation is **small by
+   construction** — near-ties are exactly where the effect size is smallest;
+3. *"I want to play this season believing my own decisions."*
+
+**RE-RAISE IN THE JANUARY ANNUAL as a 2027 option**, once the tool has real
+evidence behind it. Hooked into the annual run so it resurfaces without anyone
+remembering to.
+
+**The consequence, which the January report must honor:** 37's 2026 numbers are
+**associational, not causal**. Wording discipline — never *"the tool earned
+$X"*, only *"$X was realised on decisions where the tool recommended Y"*. With
+no control arm, no stronger claim is available at any sample size.
+
+## ✅ D13 — DOCTRINE COUNTERFACTUAL: the Balanced archetype (Cory, 2026-08-08) — closed
+
+Doctrine calls have no behavioral baseline in the historical record. Graded
+against the **Balanced control archetype** as the naive alternative, carrying the
+**verbatim report label**: `measured vs Balanced archetype; no behavioral
+baseline exists in the historical record`. Cory's standard: **narrow and honest
+beats empty.** Same denominator as 19b, so the live figure is directly
+comparable to its +$187 simulated edge.
+
 ## 🚨 D11 — URGENT: the phase-shape refutation REVERSES on the complete money function
 
 **You are rehearsing on a config tuned without 53% of the money.** Playoff $ is

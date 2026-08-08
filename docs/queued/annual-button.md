@@ -2,6 +2,9 @@
 
 Close the last manual gap in the learning loop. Everything deterministic already runs on crons forever. What still requires a human-driven session is IMPLEMENTING the Annual's gated proposals. Build the automation that does it — with one press from my phone, and my approval as the only remaining human step (by design, not by limitation).
 
+## Standing re-raise items (surface these every January without anyone remembering to)
+- **RANDOMISED COMPLIANCE for 2027** — declined for 2026 (see `DECISIONS-NEEDED.md` D12) on the grounds that the shadow season gives a quasi-experimental read at zero cost, near-tie randomisation carries little marginal causal information, and Cory wanted to play 2026 believing his own decisions. **Re-raise once the tool has real evidence behind it**, with experiment 37's associational 2026 numbers attached so the trade-off is concrete rather than abstract.
+
 ## The architecture
 
 ### 1. SELF-IMPROVE.md — the standing instructions, committed to the repo
