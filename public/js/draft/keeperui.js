@@ -87,7 +87,22 @@
     const league = data.league || {};
     const ov = window.CFG_OVERRIDES || {};
     const teams = ov.teams || league.teams || 10;
-    const forfeited = (data.pick_order || {}).forfeited || [];
+    // BUG FIX (2026-08-08): forfeited entries can arrive with name == player_id
+    // and position '?' (a slate stored as raw ids). Route every one through the
+    // shared PlayerRef resolver so the keeper screen renders name + position +
+    // team + bye, and an unresolvable id renders LOUDLY as "Unknown player (id)"
+    // (and is logged) — never a bare number. One resolver, every reader.
+    const rawForfeited = (data.pick_order || {}).forfeited || [];
+    const forfeited = (typeof PlayerRef === 'undefined') ? rawForfeited : rawForfeited.map(function (f) {
+      const r = PlayerRef.resolve(f, data);
+      if (!r.resolved) {
+        try { console.error('keeper slate: unresolvable player id on the board — ' + r.player_id); } catch (e) {}
+      }
+      // Keep the forfeiture fields (team_slot, cost_round, original_round…) and
+      // overwrite the display fields with resolved metadata.
+      return Object.assign({}, f, { name: r.name, position: r.position || f.position,
+        team: r.team || f.team, bye: r.bye != null ? r.bye : f.bye, resolved: r.resolved });
+    });
     // Rounds has to include the picks keepers ate, or the rebuilt order is
     // short by exactly the number of keepers and every pick number is wrong.
     const rounds = Math.round(((data.pick_order || {}).picks || []).length / teams)

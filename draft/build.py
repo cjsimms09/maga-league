@@ -521,6 +521,20 @@ def build(cfg: dict, *, offline: bool = False, force_profiles: bool = False,
     # from the pre-exclusion pool (so bye/position/name are present), and stamp
     # each with its team_slot and cost_round from the forfeiture record.
     forfeit_by_id = {str(f.get("player_id")): f for f in order.forfeited}
+    # SSOT display fix (2026-08-08): a slate stored as raw ids leaves forfeited
+    # entries with name == player_id and position "?". Resolve every one against
+    # the player pool HERE, at the source, so the artifact itself never ships a
+    # bare id to any reader (the client PlayerRef resolver is the belt; this is
+    # the suspenders). An id with no pool match is left loud for the resolver.
+    _pool_by_id = {str(p.get("player_id")): p for p in players}
+    for f in order.forfeited:
+        src = _pool_by_id.get(str(f.get("player_id")))
+        if src:
+            f["name"] = src.get("name") or src.get("full_name") or f.get("name")
+            f["position"] = src.get("position") or f.get("position")
+            f["team"] = src.get("team") or f.get("team")
+            if src.get("bye") is not None:
+                f["bye"] = src.get("bye")
     kept_players = []
     for p in players:
         pid = str(p.get("player_id"))
