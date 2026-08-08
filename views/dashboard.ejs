@@ -8,6 +8,7 @@
 <div class="venmo-nag" id="venmo-nag" style="display:none;background:var(--panel-soft);border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:8px;padding:10px 14px;margin:0 0 12px;gap:10px;align-items:center;flex-wrap:wrap;color:var(--ink)">
   <span>💸 Add your Venmo so people can pay you.</span>
   <form method="post" action="/profile/pay" style="display:flex;gap:6px;align-items:center;margin:0">
+    <input type="hidden" name="back" value="home">
     <span style="color:var(--muted)">@</span>
     <input type="text" name="venmo" maxlength="60" placeholder="your-handle" required
            style="padding:5px 8px;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--ink)">

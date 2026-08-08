@@ -68,4 +68,28 @@ function needsNag(owner) {
   return !!owner && !has(owner);
 }
 
-module.exports = { FALLBACK, handle, has, link, render, missing, needsNag };
+/**
+ * Apply a payment-info update to the ONE owner record — from EITHER surface.
+ *
+ * Two writers exist by design (the home-page banner posts venmo alone; the
+ * Finances "How to Pay" form posts all four), and both land here. The rule the
+ * data spine demands: a field ABSENT from the body is left alone — the
+ * home-banner save must never wipe the paypal/cashapp/zelle somebody entered on
+ * the other surface. An empty string PRESENT in the body is an intentional
+ * clear and is honored.
+ */
+const FIELDS = { venmo: 60, paypal: 80, cashapp: 60, zelle: 80 };
+
+function applyProfileUpdate(owner, body) {
+  if (!owner || !body) return owner;
+  const clean = (v, n) => String(v == null ? '' : v).trim().replace(/^@+/, '').slice(0, n);
+  for (const f of Object.keys(FIELDS)) {
+    if (Object.prototype.hasOwnProperty.call(body, f)) {
+      owner[f] = clean(body[f], FIELDS[f]);
+    }
+  }
+  return owner;
+}
+
+module.exports = { FALLBACK, FIELDS, handle, has, link, render, missing, needsNag,
+                   applyProfileUpdate };

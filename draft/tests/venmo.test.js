@@ -53,5 +53,52 @@ check('a missing handle has no link (null, never a broken url)', V.link(noHandle
   check('needsNag is false for no owner (logged out)', V.needsNag(null) === false);
 }
 
+// --- WIRING (venmo-wiring verification): one handle, entered once, ---------
+// correct everywhere. Both surfaces write through applyProfileUpdate to the
+// SAME owner record; every reader renders from that record.
+{
+  const owners = [
+    { id: 1, name: 'Cory', paypal: 'cory-pp', zelle: 'cory@x.com' },  // no venmo yet
+    { id: 2, name: 'Richard' },
+  ];
+  const me = owners[0];
+
+  // Before the save: the nag fires and every money surface shows the fallback.
+  check('wiring: before any save, the nag fires for me', V.needsNag(me) === true);
+  check('wiring: settlement shows the loud fallback before the save',
+    V.render(me).label === V.FALLBACK);
+
+  // THE HOME-BANNER SAVE: posts venmo alone (plus the back field).
+  V.applyProfileUpdate(me, { venmo: '@cory-simms', back: 'home' });
+
+  // ...and every reader sees it, from the single write:
+  check('wiring: How to Pay renders the handle after the home-banner save',
+    V.render(me).label === '@cory-simms');
+  check('wiring: the settlement deep link works from the same record',
+    V.link(me, { amount: 25 }).indexOf('venmo.com/u/cory-simms') > 0);
+  check('wiring: the commissioner nag list no longer includes me',
+    V.missing(owners).every(o => o.id !== 1));
+  check('wiring: the nag suppresses for me', V.needsNag(me) === false);
+
+  // The clobber bug, locked out: the venmo-only save left the OTHER fields alone.
+  check('wiring: a venmo-only save never wipes paypal/zelle entered elsewhere',
+    me.paypal === 'cory-pp' && me.zelle === 'cory@x.com');
+
+  // EDIT FROM THE OTHER SURFACE: the Finances form updates the same record.
+  V.applyProfileUpdate(me, { venmo: 'cory-simms-2', paypal: 'cory-pp', cashapp: '', zelle: 'cory@x.com' });
+  check('wiring: an edit from How to Pay updates the one record everywhere',
+    V.render(me).label === '@cory-simms-2');
+
+  // An explicitly-present empty string is an intentional clear — honored.
+  V.applyProfileUpdate(me, { venmo: '' });
+  check('wiring: an explicit empty venmo clears it (and the nag returns)',
+    V.needsNag(me) === true && V.render(me).label === V.FALLBACK);
+
+  // Junk fields in the body never land on the record.
+  V.applyProfileUpdate(me, { venmo: 'ok', is_commissioner: true, evil: 'x' });
+  check('wiring: only the four payment fields can be written through this path',
+    me.is_commissioner === undefined && me.evil === undefined && me.venmo === 'ok');
+}
+
 console.log(`\n${pass}/${pass + fail} venmo checks passed`);
 process.exit(fail ? 1 : 0);

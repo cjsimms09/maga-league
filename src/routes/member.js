@@ -733,17 +733,18 @@ router.post('/sidebets/:id/settle-auto', aw(async (req, res) => {
  * that needs protecting. Nothing here is a credential.
  */
 router.post('/profile/pay', aw(async (req, res) => {
-  const clean = (v, n = 60) => String(v || '').trim().replace(/^@+/, '').slice(0, n);
+  // TWO writers, ONE record (data-spine): the home-page banner posts venmo
+  // alone; the Finances form posts all four. V.applyProfileUpdate touches only
+  // fields PRESENT in the body, so a banner save can never wipe the paypal or
+  // zelle entered on the other surface. Every reader (How to Pay, settlement,
+  // side-bet rows, the commissioner nag) renders from this same owner record.
   const world = req.world;
   const owner = world.owners.find(o => o.id === req.owner.id);
   if (owner) {
-    owner.venmo = clean(req.body.venmo);
-    owner.paypal = clean(req.body.paypal, 80);
-    owner.cashapp = clean(req.body.cashapp);
-    owner.zelle = clean(req.body.zelle, 80);
+    V.applyProfileUpdate(owner, req.body);
     await setDoc('owners', world.owners);
   }
-  res.redirect('/bank#pay-directory');
+  res.redirect(req.body.back === 'home' ? '/' : '/bank#pay-directory');
 }));
 
 // ---------- buying out of a live bet ----------
