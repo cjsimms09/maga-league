@@ -548,3 +548,29 @@ are all committed under `docs/queued/` so a reclaimed container can't lose them.
 
 ## Standing rules in force
 fail loudly · single scoring path · every pinned constant cites its source · every bug found becomes a robot scenario in the same commit · provenance stamps on every results file · guards are never disabled to pass.
+
+## ▶ RESUME MARKER — 2026-08-08, end of session
+
+**STAGE 3 IS COMPLETE.** The doctrine governs, inside a measured band, and
+discloses in both directions.
+
+| step | state |
+|---|---|
+| 1. Stage 3 boundary | ✅ **DONE** — tilt wired (cited 2.5), roster-relative + keeper-conditioned signal, Chase stack first-class, two-directional disclosure |
+| 2. Minimum viable surface | ▶ **NEXT** — four truthful lines, two marked explicitly ABSENT |
+| 3. Mock #4 + degraded drill | pending — deliverable is the one-page failure card |
+| 4. In-season ledger kinds | pending — before the freeze |
+| 5. Exp 34 | pending — not implemented; build from scratch |
+| 6. Decision tree | pending — against 34's reliability |
+| 7. Full surface | pending |
+| 8. Mock #5+ | pending |
+
+**Running in CI, needs no session:** covariance study (portfolio step 1, fires on
+push), the Lab, the nightly board.
+
+**Where to start:** step 2. The four truthful lines are STATUS, PLAN (truthful as
+of Stage 3), RECOMMENDATION (player + one number + market delta), ALTERNATIVES
+(runner-ups + shadow consensus), plus ROSTER/LEGALITY — five, in fact, once the
+Plan Line became honest. The two ABSENT ones are SOURCE (needs the tree's stages)
+and NEAR-MISS (needs its thresholds); render them as explicitly absent, never as
+empty containers.

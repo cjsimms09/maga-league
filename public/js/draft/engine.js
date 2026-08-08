@@ -600,6 +600,67 @@
     return 1;
   }
 
+  /**
+   * TWO-DIRECTIONAL OVERRIDE DISCLOSURE.
+   *
+   * A DOCTRINE THAT ONLY SPEAKS WHEN IT WINS IS A DOCTRINE YOU CANNOT AUDIT —
+   * and worse, it is one that looks effective regardless of whether it is,
+   * because every visible instance is a success by selection.
+   *
+   * So the report is symmetric:
+   *   drove  = true   the enrolled plan's preferred player IS the recommendation
+   *   drove  = false  it wanted someone else and lost — and then `wanted`,
+   *                   `beatenBy` and `margin` say exactly who and by how much
+   *
+   * The losing candidate has to be RETAINED rather than discarded, which is why
+   * this runs over the full scored list rather than inspecting only the winner.
+   * That retention is the whole mechanism: without it the loss is unreportable
+   * and the doctrine silently becomes a win-only narrator.
+   */
+  function doctrineReport(scored, ctx) {
+    var key = ctx && ctx.doctrine;
+    if (!key || !scored.length) return null;
+
+    // The plan's own favourite: the highest-scoring player it actively wants.
+    var wanted = null;
+    for (var i = 0; i < scored.length; i++) {
+      if (doctrineTilt(scored[i].player, ctx) > 0) { wanted = scored[i]; break; }
+    }
+    var top = scored[0];
+    var drove = !!(wanted && String(wanted.player.player_id) === String(top.player.player_id));
+
+    var out = {
+      doctrine: key,
+      drove: drove,
+      // What the plan wanted, ALWAYS — win or lose.
+      wanted: wanted ? { player_id: String(wanted.player.player_id),
+                         name: wanted.player.name,
+                         position: wanted.player.position,
+                         score: Math.round(wanted.score * 10) / 10 } : null,
+      beatenBy: null,
+      margin: null,
+      line: null,
+    };
+
+    if (drove) {
+      out.line = 'the plan drove this pick';
+      return out;
+    }
+    if (!wanted) {
+      // A real state, and worth naming rather than rendering blank: the plan
+      // has no opinion here, which is different from having lost.
+      out.line = 'the plan has no preference at this pick';
+      return out;
+    }
+    out.beatenBy = { player_id: String(top.player.player_id), name: top.player.name,
+                     position: top.player.position,
+                     score: Math.round(top.score * 10) / 10 };
+    out.margin = Math.round((top.score - wanted.score) * 10) / 10;
+    out.line = 'the plan wanted ' + wanted.player.name + ' (' + wanted.player.position
+      + '); ' + top.player.name + ' beat him by ' + out.margin;
+    return out;
+  }
+
   function scorePlayer(player, ctx) {
     const w = Object.assign({}, DEFAULT_WEIGHTS, ctx.weights || {});
     // Pass the full context (not just run multipliers) so the A2 three-layer
@@ -984,6 +1045,7 @@
     if (scored.length) {
       scored[0].legality = legality.forced || null;
       scored[0].legality_warning = legality.warning || null;
+      scored[0].doctrine_report = doctrineReport(scored, ctx);
     }
     return scored;
   }
@@ -1996,7 +2058,7 @@
     normalCdf, adpSd, survival, runMultipliers, detectRuns,
     expectedBestAvailable, vona,
     tierCliffUrgency, starterSlotMarginal, riskAdjustment, upsideBonus,
-    scorePlayer, onesieState, positionRank, doctrineTilt, recommend, mandatoryGaps, applyRosterLegality, plausibilityRails,
+    scorePlayer, onesieState, positionRank, doctrineTilt, doctrineReport, recommend, mandatoryGaps, applyRosterLegality, plausibilityRails,
     demoteFlaggedOnesies, computeRailBudget, railFireSig, bestFlexAlt,
     confidence, branchForecast, computePaths, dollarGap, playerDollars, applyPersonalLists, onTheClock, rosterPlan, byeGrid,
     cheatSheet, sheetText, managerTells, threatBoard,

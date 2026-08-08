@@ -186,5 +186,65 @@ const check = (n, c, d) => { if (c) { pass++; console.log('PASS  ' + n); }
     'governs=' + DOC.governs() + ' — Stage 3 wired the tilt, so this must be true');
 }
 
+// ── TWO-DIRECTIONAL OVERRIDE DISCLOSURE ─────────────────────────────────────
+//
+// A doctrine that only speaks when it WINS is a doctrine you cannot audit — and
+// worse, one that looks effective regardless of whether it is, because every
+// visible instance is a success by selection. So the losing case is the case
+// these checks are really about.
+{
+  const E = require('../../public/js/draft/engine.js');
+  const mk = (id, pos, v, team) => ({ player_id: String(id), name: pos + id, position: pos,
+    team: team || 'X', vorp: v, proj_mean: 100 + v, proj_ceiling: 130 + v, proj_floor: 70,
+    proj_sd: 20, adjusted_adp: 40 - v / 6, raw_adp: 40 - v / 6, adp_sd: 5, adp_source: 'ffc' });
+  const bd = [mk(1, 'RB', 60), mk(2, 'WR', 59.4), mk(3, 'RB', 52), mk(4, 'WR', 51),
+              mk(5, 'TE', 40), mk(6, 'QB', 38), mk(9, 'K', 8), mk(10, 'DEF', 9)];
+  const ctx = d => ({ board: bd.slice(), roster: [],
+    league: { starters: { QB: 1, RB: 2, WR: 2, TE: 1, FLEX: 1, K: 1, DEF: 1 }, teams: 10 },
+    weights: E.DEFAULT_WEIGHTS, currentPick: 34, nextPick: 47, totalPicks: 150,
+    myPicksLeft: 12, roundsLeft: 12, runMultipliers: {}, intervening: [], doctrine: d });
+
+  const wr = E.recommend(ctx('wr_anchor'))[0].doctrine_report;
+  const none = E.recommend(ctx(null))[0].doctrine_report;
+  const bal = E.recommend(ctx('balanced'))[0].doctrine_report;
+
+  check('an enrolled doctrine ALWAYS produces a report, win or lose',
+    !!wr && typeof wr.drove === 'boolean', JSON.stringify(wr));
+  check('no doctrine enrolled produces no report (silence, not a blank one)',
+    none === null, JSON.stringify(none));
+
+  check('when the doctrine LOSES it still names what it WANTED',
+    wr.drove === false && wr.wanted && wr.wanted.name,
+    JSON.stringify(wr));
+  check('...and names WHAT BEAT IT, by how much',
+    !!wr.beatenBy && typeof wr.margin === 'number' && wr.margin > 0,
+    JSON.stringify({ beatenBy: wr.beatenBy, margin: wr.margin }));
+  check('...in one readable sentence, not a data dump',
+    /wanted .+ beat him by/.test(wr.line), wr.line);
+
+  // The losing candidate must be RETAINED, which is the whole mechanism —
+  // without it the loss is unreportable and the doctrine becomes a win-only
+  // narrator. Assert it is a real board player, not a placeholder.
+  check('the losing candidate is RETAINED, not discarded',
+    bd.some(p => String(p.player_id) === String(wr.wanted.player_id)),
+    'wanted=' + JSON.stringify(wr.wanted));
+
+  // "No preference" is a distinct state from "lost" and must read differently.
+  check('a doctrine with NO preference here says so, rather than reading as a loss',
+    bal && bal.drove === false && bal.wanted === null
+      && /no preference/.test(bal.line), JSON.stringify(bal));
+
+  // NON-VACUITY: a winning case must be reachable, or "drove" is untested.
+  const winner = (() => {
+    // A board where the plan's favourite is also the composite's.
+    const b2 = [mk(1, 'WR', 90), mk(2, 'RB', 40), mk(3, 'TE', 20), mk(4, 'QB', 18)];
+    const c = Object.assign(ctx('wr_anchor'), { board: b2 });
+    return E.recommend(c)[0].doctrine_report;
+  })();
+  check('NON-VACUITY: the DROVE branch is reachable and says so',
+    winner && winner.drove === true && /drove this pick/.test(winner.line),
+    JSON.stringify(winner));
+}
+
 console.log(`\n${pass}/${pass + fail} doctrine-governance checks passed`);
 process.exit(fail ? 1 : 0);
