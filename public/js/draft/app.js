@@ -170,6 +170,17 @@
     });
   }
   function toggleList(which, id) {
+    // A-2: snapshot before the tap; undo restores the EXACT prior lists (a
+    // star can knock a player off the never list, so re-toggling is not enough).
+    const before = JSON.parse(JSON.stringify(state.lists));
+    const wasOn = state.lists[which].indexOf(id) >= 0;
+    if (!undoRunning) {
+      showUndo((which === 'targets' ? (wasOn ? 'Unstarred' : 'Starred')
+        : (wasOn ? 'Un-nevered' : 'Never-listed')) + ' player', function () {
+        state.lists = before;
+        saveLists();
+      });
+    }
     const other = which === 'targets' ? 'avoid' : 'targets';
     const list = state.lists[which];
     const at = list.indexOf(id);
@@ -2478,6 +2489,44 @@
   const ATTR = (typeof window !== 'undefined' && window.DraftAttribution) || null;
 
   // ----------------------------------------------------------------- actions
+
+  /* A-2 — undo everywhere a fat thumb can lie. Every one-tap state change gets
+   * a 5-second toast; the Loveland class of error becomes one tap back, not
+   * reconciliation archaeology. Undo events log to the ledger as CORRECTIONS —
+   * never deletions; the original entry stands and the correction follows it. */
+  let undoTimer = null;
+  let undoRunning = false;      // an undo must not toast its own inverse
+  function showUndo(label, undoFn) {
+    if (undoRunning) return;
+    let host = $('#undo-toast');
+    if (!host) {
+      host = document.createElement('div');
+      host.id = 'undo-toast';
+      host.style.cssText = 'position:fixed;bottom:18px;left:50%;transform:translateX(-50%);'
+        + 'background:#1c2740;color:#fff;border:1px solid rgba(245,196,69,.5);border-radius:10px;'
+        + 'padding:.55rem .9rem;z-index:200;display:flex;gap:.7rem;align-items:center;'
+        + 'box-shadow:0 6px 24px rgba(0,0,0,.45);font-size:.85rem';
+      document.body.appendChild(host);
+    }
+    host.innerHTML = '<span>' + escapeHtml(label) + '</span>'
+      + '<button class="btn small gold" id="undo-btn">Undo</button>';
+    host.style.display = 'flex';
+    if (undoTimer) clearTimeout(undoTimer);
+    host.querySelector('#undo-btn').addEventListener('click', function () {
+      clearTimeout(undoTimer);
+      host.style.display = 'none';
+      undoRunning = true;
+      try { undoFn(); } finally { undoRunning = false; }
+      if (typeof PredLedger !== 'undefined' && !state.mockMode) {
+        var c = ledgerCtx();
+        PredLedger.capture('correction', { season: c.season, build_at: c.build_at,
+          pick: c.pick, method: 'undo-v1', payload: { undone: label } });
+      }
+      renderAll();
+    });
+    undoTimer = setTimeout(function () { host.style.display = 'none'; }, 5000);
+  }
+
   function markDrafted(playerId, toMe, teamSlot, pathKey) {
     const p = playerById(playerId);
     if (!p) return;
@@ -2509,6 +2558,34 @@
     // from the snapshot above. Mocks fire it too (flagged rehearsal) so the
     // whole shadow path is exercised before draft night.
     if (toMe && !alreadySeen && boardAtPick) updateShadows(boardAtPick);
+    // A-2: a LOCAL mark is a guess, and a guess gets five seconds of takeback.
+    // (A Sleeper-reported pick never comes through here — that is the record.)
+    if (!alreadySeen) {
+      showUndo((toMe ? 'You took ' : 'Marked ') + (p.name || playerId), function () {
+        if (ATTR) ATTR.unmarkLocal(state, p);
+        else {
+          state.drafted.delete(String(playerId));
+          Object.keys(state.rosters).forEach(function (s2) {
+            state.rosters[s2] = (state.rosters[s2] || []).filter(function (x) {
+              return String(x.player_id) !== String(playerId); });
+          });
+          state.myRoster = state.myRoster.filter(function (x) {
+            return String(x.player_id) !== String(playerId); });
+        }
+        // Back onto the board (renders sort; position in the array is moot).
+        if (!state.board.some(function (x) { return String(x.player_id) === String(playerId); })) {
+          state.board.push(p);
+        }
+        // Drop the feed entry the mark created (the LAST matching one).
+        for (let i = state.recentPicks.length - 1; i >= 0; i--) {
+          if (String(state.recentPicks[i].player_id) === String(playerId)) {
+            state.recentPicks.splice(i, 1);
+            break;
+          }
+        }
+        recomputeRuns();
+      });
+    }
     // §C override-reason capture: if I took someone who ISN'T the top
     // recommendation, ask why in one tap (target/gut/news/plan) and log it.
     // Overrides are the one ledger entry kind that needs my finger — draft night

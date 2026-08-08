@@ -81,5 +81,26 @@ const ids = list => list.map(p => String(p.player_id)).sort().join(',');
   check('after three conflicting claims he sits on exactly one seat',
     seats.length === 1 && Number(seats[0]) === MY, JSON.stringify(seats));
 }
+// 9. A-2 undo: unmarkLocal is the EXACT inverse of markLocal — mark a guess,
+//    take it back, and the state is indistinguishable from never marking.
+{
+  const s = A.emptyState();
+  A.markLocal(s, LOVELAND, MY, MY);
+  check('setup: the guess landed on my roster',
+    s.drafted.has('12517') && ids(s.myRoster).includes('12517'));
+  A.unmarkLocal(s, LOVELAND);
+  check('undo removes him from the drafted set', !s.drafted.has('12517'));
+  check('undo removes him from every seat and my roster',
+    s.myRoster.length === 0
+    && Object.values(s.rosters).every(r => !ids(r).includes('12517')));
+}
+// 10. A-2 undo of a wrong-seat guess: mark him to seat 2, undo, no residue.
+{
+  const s = A.emptyState();
+  A.markLocal(s, LOVELAND, 2, MY);
+  A.unmarkLocal(s, LOVELAND);
+  check('a wrong-seat guess unwinds with no residue anywhere',
+    !s.drafted.has('12517') && Object.values(s.rosters).every(r => r.length === 0));
+}
 console.log('\n' + pass + '/' + (pass + fail) + ' attribution checks passed');
 process.exit(fail ? 1 : 0);

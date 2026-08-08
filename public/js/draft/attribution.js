@@ -44,6 +44,25 @@
   }
 
   /**
+   * A-2: take a LOCAL guess back — the exact inverse of markLocal.
+   *
+   * Only a guess is undoable; a Sleeper-reported pick is the record and has no
+   * inverse here (correcting the record is reconciliation's job, not undo's).
+   * Removes the player from the drafted set, every seat, and my roster — the
+   * caller restores him to the visible board.
+   */
+  function unmarkLocal(state, player) {
+    if (!player) return state;
+    const id = String(player.player_id);
+    state.drafted.delete(id);
+    Object.keys(state.rosters).forEach(function (s) {
+      state.rosters[s] = drop(state.rosters[s], id);
+    });
+    state.myRoster = drop(state.myRoster, id);
+    return state;
+  }
+
+  /**
    * A pick Sleeper reported. Authoritative.
    *
    * Idempotent: this runs for every pick on every four-second poll, so the
@@ -61,7 +80,7 @@
     return { drafted: new Set(), rosters: {}, myRoster: [] };
   }
 
-  const api = { emptyState: emptyState, markLocal: markLocal,
+  const api = { emptyState: emptyState, markLocal: markLocal, unmarkLocal: unmarkLocal,
                 applyRemote: applyRemote, place: place };
   global.DraftAttribution = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
