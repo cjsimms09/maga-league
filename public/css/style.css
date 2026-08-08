@@ -1976,6 +1976,13 @@ table .num.zero { color: var(--muted); font-weight: 400; }
 }
 .dash-chip b { color: #fff; }
 
+/* Dashboard widening (F-2a): Queue + Decisions share the row on desktop; each
+   card scrolls its own overflow so a long queue never stretches the page. Below
+   900px they stack, phone-first. */
+.dash-cols { display: grid; grid-template-columns: 1fr; gap: 1rem; align-items: start; }
+@media (min-width: 900px) { .dash-cols { grid-template-columns: 1.15fr 1fr; } }
+.dash-cols > .card { margin: 0; }
+
 .dash-queue { list-style: none; margin: 0; padding: 0; counter-reset: dq; }
 .dash-q { display: flex; gap: .6rem; align-items: flex-start; padding: .5rem .55rem; border-radius: 9px; margin-bottom: .3rem; border: 1px solid transparent; }
 .dash-q-ic { flex: 0 0 auto; font-size: .95rem; }

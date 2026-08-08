@@ -43,7 +43,8 @@
   <span class="dash-chip">Sunday audit: <%= h.audit ? esc(h.audit.slice(0, 80)) : 'none recorded yet' %></span>
 </div>
 
-<%# ── The queue as a progress board ─────────────────────────────────────── %>
+<%# ── Queue + Decisions side by side on desktop (dashboard widening, F-2a) ── %>
+<div class="dash-cols">
 <div class="card">
   <h2>🧭 The Queue <span class="sub">top → bottom · current item highlighted · 🚩 = draft-deadline order</span></h2>
   <div class="body">
@@ -79,6 +80,7 @@
     </div>
   </div>
 </div>
+</div><%# /dash-cols %>
 
 <p style="text-align:center; margin-top:1rem">
   <a class="btn navy" href="/admin/warroom">← Back to the War Room</a>

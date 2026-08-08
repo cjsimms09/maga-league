@@ -189,3 +189,31 @@ right round; only (b) or a novel rule needs new code.
 current, validated model) and K0's model-agnostic half — the keep-0/1/2/3
 optimizer — is built and run now, so it is ready to re-run the instant D2 is
 answered. K0 is NOT blocked from all progress by D2.
+
+## F-2 — "Dashboard widening" scope — PROVISIONAL (judgment call, not blocking)
+
+Cory queued **"dashboard widening as a small backlog item"** without a spec. The
+term is ambiguous between at least three readings, so per the power-through rule
+I took the safe, unambiguously-correct slice and parked the rest for a one-word
+ruling:
+
+- **(a) VISUAL** — the `/admin/status` dashboard renders in a narrow phone
+  column; widen the container to use desktop width (multi-column on wide screens).
+  A CSS-only change in `views/admin/dashboard.ejs` / the stylesheet.
+- **(b) CONTENT** — the dashboard model parses only the single "Continuous queue"
+  line of STATUS.md; "widen" it to also surface the backlog list, the RESUME
+  marker, and recently-shipped milestones as their own sections.
+- **(c) both.**
+
+**Done meanwhile (no ruling needed):** refreshed the STATUS "Continuous queue"
+line so the dashboard's parse reflects reality (was stale at "§2(c) [NEXT]"; now
+19/21 done, current = Phase H / opening script / A-1..3). That fixes the
+dashboard's ACCURACY, which is its whole job, regardless of which widening Cory
+meant.
+
+**My recommendation + action taken:** (a) — the visual widen, the literal reading
+and the "small" one — is **BUILT** (2026-08-08): `/admin/status` now puts the
+Queue and Decisions cards side by side on desktop (≥900px `.dash-cols` grid),
+phone-stacked below. (b) is a redesign better folded into the data-spine dashboard
+work and is **parked** for a one-word ruling ((b)/(c) if you also want the
+content-widen). Not blocking anything.
