@@ -1632,6 +1632,7 @@
             '<span class="rec-pos ' + pl.position + '">' + pl.position + '</span></span>' +
           '<span class="path-score">' + p.pick.score.toFixed(1) + '</span>' +
         '</div>' +
+        (p.distinction ? '<div class="path-distinction">' + escapeHtml(p.distinction) + '</div>' : '') +
         (p.pick.why ? '<div class="path-why">' + escapeHtml(p.pick.why) + '</div>' : '') +
         '<div class="path-when">' + escapeHtml(p.when_right) + '</div>' +
         (plan ? '<div class="path-plan">next turn cost if you wait: ' + escapeHtml(plan) + '</div>' : '') +

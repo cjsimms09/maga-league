@@ -594,6 +594,11 @@ details.bal-row.me > summary { box-shadow: inset 3px 0 0 var(--gold); }
   background: rgba(255,70,85,.12); border-radius: 5px; padding: .15rem .4rem;
   margin-bottom: .35rem; }
 
+/* Two paths at one position must say WHY they differ — "Fill RB now" beside
+   "Tier cliff" reads as a contradiction without it. */
+.path-distinction { font-size: .7rem; color: var(--muted); font-style: italic;
+  margin: .1rem 0 .2rem; }
+
 /* §4 vocabulary — the one path the enrolled doctrine actually takes. */
 .path-doctrine {
   font-size: .64rem; font-weight: 800; letter-spacing: .04em; white-space: nowrap;

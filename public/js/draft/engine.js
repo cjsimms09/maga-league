@@ -323,7 +323,8 @@
     const dedicated = starters[player.position] || 0;
 
     if (mine.length < dedicated) {
-      return { value: player.vorp, why: `fills an empty ${player.position} slot` };
+      return { value: player.vorp, fills: 'starter',
+               why: `fills an empty ${player.position} slot` };
     }
     // Dedicated slots full — can they still start in a flex?
     let flexOpen = 0;
@@ -336,7 +337,7 @@
       flexOpen += Math.max(0, (starters[slot] || 0) - Math.max(0, used));
     });
     if (flexOpen > 0) {
-      return { value: player.vorp, why: 'starts in your flex' };
+      return { value: player.vorp, fills: 'flex', why: 'starts in your flex' };
     }
     // Bench: worth the upgrade over the man he replaces, discounted, plus a
     // small insurance premium scaled by how often this position misses games.
@@ -345,6 +346,12 @@
     const insurance = (INJURY_RATE[player.position] || 0.15) * Math.max(0, player.vorp) * 0.5;
     return {
       value: upgrade * CFG.BENCH_DISCOUNT + insurance,
+      // WHICH SLOT, not just how much. Path naming used to threshold the
+      // MAGNITUDE (`need > 0.5`), so a bench upgrade with any positive marginal
+      // value was labelled "Fill TE now" while the TE slot was already full —
+      // the mock-#1 complaint, and independent of the seat bug that caused the
+      // roster to be wrong in the first place.
+      fills: 'bench',
       why: upgrade > 0 ? `bench upgrade over your ${player.position}${dedicated}` : 'bye/injury cover',
     };
   }
@@ -505,6 +512,8 @@
         vona: v,
         tier_urgency: tier,
         need: need.value,
+        need_fills: need.fills || 'bench',
+        need_why: need.why,
         risk: risk.value,
         ceiling,
         keeper: kov.value,
@@ -974,6 +983,14 @@
    * Returns [] when the board is empty. The caller renders these as cards and
    * logs which path a pick came from; picking off every path is an override.
    */
+  /** Surname only — path names are read at a glance on the clock. */
+  function lastName(player) {
+    const n = String((player && player.name) || '').trim();
+    if (!n) return 'him';
+    const parts = n.split(/\s+/);
+    return parts.length > 1 ? parts[parts.length - 1] : n;
+  }
+
   function computePaths(ctx, scored) {
     const list = (scored && scored.length ? scored : recommend(ctx)) || [];
     if (!list.length) return [];
@@ -1008,10 +1025,30 @@
       const posRow = branch ? (branch.rows.find(r => r.position === c.pos) || null) : null;
       const posLoss = posRow ? posRow.loss : 0;
 
-      let name;
-      if (c.cliff) name = 'Lock the last elite ' + c.pos;
-      else if (need > 0.5) name = 'Fill ' + c.pos + ' now';
-      else name = 'Best ' + c.pos + ' value';
+      // PATH NAMES STATE THEIR MECHANISM (mock-#1 fix #2). "Fill RB now" and
+      // "Lock the last elite RB" read as contradictory when they are two valid
+      // RB strategies; naming the mechanism makes the difference legible.
+      //
+      // And the name reads the SLOT STATE, never the need MAGNITUDE (fix #1).
+      // A second TE can be a legitimate flex or value play — it may never be
+      // called "filling" a slot that is already full.
+      const fills = (lead.components || {}).need_fills || 'bench';
+      const tierNo = lead.player.tier != null ? lead.player.tier : null;
+      let name, mechanism;
+      if (c.cliff) {
+        name = 'Tier cliff — last of' + (tierNo != null ? ' Tier ' + tierNo : ' his tier')
+          + ', ' + lastName(lead.player);
+        mechanism = 'scarcity';
+      } else if (fills === 'starter') {
+        name = 'Fill ' + c.pos + ' now — ' + lastName(lead.player);
+        mechanism = 'need';
+      } else if (fills === 'flex') {
+        name = c.pos + ' for the flex — ' + lastName(lead.player);
+        mechanism = 'flex';
+      } else {
+        name = 'Best ' + c.pos + ' value — ' + lastName(lead.player);
+        mechanism = 'value';
+      }
 
       let whenRight;
       if (c.cliff) {
@@ -1034,6 +1071,8 @@
       return {
         key: c.key,
         name: name,
+        mechanism: mechanism,
+        fills: fills,
         position: c.pos,
         cliff: c.cliff,
         pick: { player: lead.player, score: lead.score, why: (lead.reasons || [])[0] || '' },
@@ -1051,6 +1090,22 @@
       named[0].coin_flip_with = named[1].key;
       named[1].coin_flip_with = named[0].key;
     }
+    // SAME POSITION, DIFFERENT LOGIC. Two paths at one position must say WHY
+    // they differ — that is the mock-#1 complaint: they read as disagreeing
+    // when they are two valid strategies at the same position.
+    const byPos = {};
+    named.forEach(p => { (byPos[p.position] = byPos[p.position] || []).push(p); });
+    Object.keys(byPos).forEach(pos => {
+      const group = byPos[pos];
+      if (group.length < 2) return;
+      const kinds = group.map(p => p.mechanism);
+      group.forEach(p => {
+        const others = kinds.filter((k, i) => group[i] !== p);
+        p.distinction = 'same position, different logic: ' + p.mechanism
+          + ' vs ' + others.join('/');
+      });
+    });
+
     return named;
   }
 

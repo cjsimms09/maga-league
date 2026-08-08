@@ -1394,5 +1394,87 @@ check('weight sliders change the ranking', heavyCeiling[0].score !== scored[0].s
     lateU > earlyU, 'early=' + earlyU.toFixed(1) + ' late=' + lateU.toFixed(1));
 }
 
+
+
+// --- MOCK #1 FIX #1 + #2: path names read SLOT STATE, not need magnitude -----
+//
+// The reported bug: a path said "Fill TE now" with Loveland already rostered.
+// The seat-identity bug made the roster wrong, but there was a SECOND and
+// independent defect underneath it — path naming thresholded the need
+// MAGNITUDE (`need > 0.5`), and a bench upgrade carries positive marginal
+// value, so a backup TE was labelled as filling a slot that was already full.
+{
+  const league = { teams: 10, starters: { QB: 1, RB: 2, WR: 2, TE: 1, FLEX: 1, K: 1, DEF: 1 },
+                   roster_slots: { BN: 6 }, scoring: {} };
+  const mk = (id, pos, mean, tier) => ({ player_id: String(id), name: 'Player ' + id,
+    position: pos, proj_mean: mean, proj_ceiling: mean * 1.3, vorp: mean / 3,
+    adjusted_adp: id, raw_adp: id, tier: tier || 1, bye: 7, team: 'AAA', weekly_sd: 6 });
+
+  // TE-led board so a TE path clears PATHS_BAND and the assertion is real.
+  const board = [mk(1, 'TE', 250, 2), mk(2, 'TE', 244, 2), mk(3, 'WR', 150, 6),
+                 mk(4, 'WR', 145, 6), mk(5, 'RB', 148, 6), mk(6, 'RB', 120, 7)];
+  const baseCtx = board2 => ({ board: board2, currentPick: 34, nextPick: 41, totalPicks: 150,
+    myPicksLeft: 8, league, weights: E.DEFAULT_WEIGHTS, runMultipliers: {},
+    intervening: [], roundsLeft: 10 });
+
+  // computePaths(ctx, scored) consumes the scored list it is GIVEN, so the
+  // naming rule can be tested directly instead of via recommend()'s ranking.
+  // Three earlier attempts at a full-pipeline fixture all passed vacuously —
+  // the engine's own ranking kept any non-starter path from ever leading, so
+  // no TE path existed to mislabel. Feeding the scored list makes the exact
+  // mislabel case reachable.
+  const entry = (player, fills, need, tierUrgency) => ({
+    player, score: 100 - need, survival_to_next: 0.5, rails: [], why: 'x',
+    components: { vona: 10, tier_urgency: tierUrgency || 0, need: need,
+                  need_fills: fills, risk: 0, ceiling: 5, keeper: 0, bye: 0, stack: 0 },
+  });
+
+  // THE BUG: a FLEX-filling TE carrying a large marginal value. The old rule
+  // (`need > 0.5`) named this "Fill TE now" while the TE slot was full.
+  const withTE = Object.assign(baseCtx(board), { roster: [mk(99, 'TE', 120, 5)] });
+  const scoredTE = [entry(mk(1, 'TE', 250, 2), 'flex', 80, 0),
+                    entry(mk(5, 'RB', 148, 6), 'bench', 40, 0)];
+  const paths = E.computePaths(withTE, scoredTE);
+  const tePaths = paths.filter(p => p.position === 'TE');
+  check('NON-VACUITY: the flex-TE path IS produced (the mislabel case is reachable)',
+    tePaths.length > 0, paths.map(p => p.name).join(' | '));
+  check('a large-need FLEX fill is NOT named "Fill TE now" — the slot is full',
+    !tePaths.some(p => /^Fill TE now/.test(p.name)), tePaths.map(p => p.name).join(' | '));
+  check('it is named for its real mechanism instead',
+    tePaths.every(p => p.fills === 'flex' && p.mechanism === 'flex'
+      && /for the flex/.test(p.name)), JSON.stringify(tePaths.map(p => p.name)));
+  check('a BENCH fill with large need is not called a fill either',
+    paths.filter(p => p.fills === 'bench').every(p => /^Best /.test(p.name)),
+    paths.map(p => p.name + ':' + p.fills).join(' | '));
+
+  // With the TE slot EMPTY, "Fill TE now" is correct and must still appear.
+  const noTE = Object.assign(baseCtx(board), { roster: [] });
+  const paths2 = E.computePaths(noTE, [
+    entry(mk(1, 'TE', 250, 2), 'starter', 80, 0),
+    entry(mk(5, 'RB', 148, 6), 'starter', 70, 0),
+    entry(mk(6, 'RB', 120, 7), 'starter', 60, 3.0)]);
+  const teFill = paths2.find(p => p.position === 'TE' && p.fills === 'starter');
+  check('with the TE slot EMPTY, a fill-TE path is still offered',
+    !!teFill, paths2.map(p => p.name + ':' + p.fills).join(' | '));
+
+  // Names state their mechanism and carry the player.
+  check('every path name states its mechanism and names the player',
+    paths2.every(p => /—/.test(p.name) && ['need', 'flex', 'value', 'scarcity'].includes(p.mechanism)),
+    paths2.map(p => p.name + ' [' + p.mechanism + ']').join(' | '));
+
+  // Two paths at one position must say WHY they differ.
+  const shared = paths2.filter(p => p.position === 'RB');
+  if (shared.length >= 2) {
+    check('two paths at one position carry the distinction line',
+      shared.every(p => /same position, different logic/.test(p.distinction || '')),
+      JSON.stringify(shared.map(p => p.distinction)));
+  } else {
+    check('two paths at one position carry the distinction line (n/a this board)', true);
+  }
+  check('a lone path at a position carries NO distinction line (no clutter)',
+    paths2.filter(p => paths2.filter(q => q.position === p.position).length === 1)
+      .every(p => !p.distinction));
+}
+
 console.log(`\n${pass}/${pass + fail} engine checks passed`);
 process.exit(fail ? 1 : 0);
