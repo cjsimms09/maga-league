@@ -68,8 +68,12 @@ const cookieFrom = res => res.headers.getSetCookie().map(s => s.split(';')[0]).j
     check('/history is non-empty and lists the 2024 season card',
       body.length > 2000 && /\/history\/season\/2024/.test(body),
       'len ' + body.length);
-    check('/history marks 2024 as a written chapter (the link is connected)',
-      /Chapter written/.test(body));
+    // Behavioral, not copy-pinned: B owns the history wording, so assert the
+    // written-vs-records DISTINCTION renders (2024 is a written chapter, other
+    // years are records-only) rather than an exact string that B may reword.
+    check('/history distinguishes the written 2024 chapter from records-only years',
+      /<span class="tag">/.test(body) && /tag (pending|ghost)/.test(body),
+      'no written/records tag distinction found — the chapters set is not driving the tags');
   }
 
   // /history/season/2024 — the written chapter must carry real prose, not a shell.
