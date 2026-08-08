@@ -20,8 +20,14 @@ on:
       - 'draft/backtest/roster_sim.py'
       - 'draft/backtest/lab_stats.py'
       - 'draft/backtest/lab.py'
+      - 'draft/backtest/bridge.py'
+      - 'draft/backtest/dump-replay.js'
+      - 'draft/backtest/cli.py'
+      - 'draft/backtest/grade.py'
+      - 'draft/tests/test_bridge.py'
       - 'draft/data/league_history.json'
       - 'draft/config/payouts.json'
+      - '.github/workflows/lab.yml'
 
 permissions:
   contents: write        # commits LAB-REPORT.md + lab-results.json
