@@ -76,8 +76,17 @@ router.get('/', aw(async (req, res) => {
     };
   }
 
+  // Contact-directory status for the commissioner — aggregate, actionable, and
+  // ONLY when there's something to act on (contact-directory.md: the commissioner
+  // sees status, not a personal to-do list of other people's chores). Each owner
+  // is nagged for their OWN data on their own home page.
+  const contactStatus = active
+    .map(o => ({ name: o.name, missing: [!o.venmo && 'Venmo', !o.email && 'email', !o.phone && 'phone'].filter(Boolean) }))
+    .filter(o => o.missing.length);
+
   res.render('admin/console', {
     tab, season, seasons, weekly, awards, draft, keepers, votes, prevStandings,
+    contactStatus,
     balancesMap: bal, ledger: world.ledger, config: world.config,
     payouts: H.payoutTable(season),
     alertRows: [...world.alerts].sort((a, b) => (b.active - a.active) || (a.created_at < b.created_at ? 1 : -1)),

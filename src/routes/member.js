@@ -264,10 +264,9 @@ router.get('/', aw(async (req, res) => {
     // incomplete list. Superset of the Venmo nag — covers email and phone too.
     contacts: owners.map(contactOf),
     myContact: contactOf(world.owners.find(o => o.id === req.owner.id) || req.owner),
+    // Each owner is nagged for their OWN data only. The commissioner's aggregate
+    // view lives in the Commissioner Console, not on the home page.
     contactNag: contactMissingFields(world.owners.find(o => o.id === req.owner.id)),
-    contactMissing: (req.owner && req.owner.is_commissioner)
-      ? owners.filter(o => contactMissingFields(o).length)
-          .map(o => ({ name: o.name, missing: contactMissingFields(o) })) : [],
   });
 }));
 

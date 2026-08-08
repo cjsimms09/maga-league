@@ -12,6 +12,17 @@
 
 <% if (flash) { %><div class="flash-note"><%= flash %></div><% } %>
 
+<%# Contact-directory status — aggregate, and only when actionable. Nothing shows
+    when everyone's complete; each owner is nagged for their own data at home. %>
+<% if (typeof contactStatus !== 'undefined' && contactStatus.length) { %>
+<details class="contact-status" style="background:var(--panel-soft); border:1px solid var(--line); border-left:3px solid var(--gold); border-radius:8px; padding:.6rem .9rem; margin:0 0 1rem;">
+  <summary style="cursor:pointer; color:var(--ink)"><b><%= contactStatus.length %></b> owner<%= contactStatus.length === 1 ? '' : 's' %> still missing contact info — tap for names to hound in the chat.</summary>
+  <ul style="margin:.5rem 0 0; padding-left:1.2rem; color:#cdd3e2;">
+    <% for (const o of contactStatus) { %><li><b><%= o.name %></b> — missing <%= o.missing.join(', ') %></li><% } %>
+  </ul>
+</details>
+<% } %>
+
 <% const seasonScoped = ['weekly','awards','standings','draft','season'].includes(tab); %>
 <% if (seasonScoped) { %>
   <form method="get" action="/admin" class="inline-form" style="margin-bottom:1rem">
