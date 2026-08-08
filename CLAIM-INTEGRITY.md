@@ -81,3 +81,65 @@ claim-integrity rules are not — "don't overstate a finding in conversation"
 cannot be linted. Those stay prose, and stay weaker, and everyone should know
 which category a given rule is in. Pretending a prose rule is enforced is its
 own overclaim.
+
+---
+
+# RULE: A FIXTURE'S QUANTITATIVE PREMISE MUST BE MEASURED, NOT ASSUMED
+
+_Added 2026-08-08 after the third instance. Promoted from habit to rule._
+
+**If a fixture encodes a quantitative premise — "wide gap", "depleted board",
+"close call", "underpowered sample" — the test must COMPUTE that premise and
+FAIL if the fixture does not satisfy it.**
+
+## Why this is a rule and not a nicety
+
+**A fixture built to be strict that measures permissive fails in the direction
+that looks like success.** The test goes green, the guard appears to hold, and
+the thing it was written to catch walks straight through. There is no error
+message, no red, nothing to notice — the failure is indistinguishable from
+working.
+
+That asymmetry is what makes it worth a rule. A fixture that is accidentally too
+strict fails loudly and gets fixed in minutes. A fixture that is accidentally
+too permissive is a guard you believe in that isn't there.
+
+## The three instances
+
+1. **The sanity sweep's board was never depleted.** Built to test round-9
+   decisions; Jahmyr Gibbs was still available in round 13, so the engine was
+   never asked to choose between a QB2 and a replacement-level flex — the exact
+   situation the harness existed for. It was green while the bug it was built
+   for sat in the live tool. Fixed by draining ~10 players per round and
+   asserting it; the QB2 bug appeared immediately, 265 times.
+
+2. **The "wide gap" fixture measured a gap of 4.0.** Built with a 25-vorp lead
+   to prove a doctrine tilt could not override a strong composite preference.
+   The composite compresses vorp through VONA, tier urgency and need, so the
+   upper bound would have passed **trivially** on the day the tilt landed —
+   against a wide board that was not wide. Caught by a gap check added for
+   exactly this reason, on its first run.
+
+3. **The onesie injury exception fired on "Questionable".** The premise was
+   "a starter whose availability is genuinely threatened". Unmeasured, it waved
+   through 291 duplicates, because in August most of the league carries that
+   tag. An exception that fires for everybody is the rule with extra words.
+
+## What this requires in practice
+
+- Compute the premise **in the test**, from the fixture, at run time.
+- Assert it **before** the assertions that depend on it.
+- Where the dependent assertion is behind a flag or a pending feature, run the
+  premise check **anyway, in both states** — otherwise the fixture rots
+  unexercised and is wrong on the day it is finally needed. (Instance 2 was
+  caught precisely because the premise check ran while the feature was off.)
+- State the measured value in the failure message, so the fix is obvious rather
+  than a hunt.
+
+## Scope
+
+This is the **enforceable** kind of rule, per the scope limit above: a premise
+that can be computed must be computed. Where a premise genuinely cannot be
+measured — "this fixture is representative of real drafts" — say so in the file
+and treat the test as weaker evidence, rather than asserting a construction
+nobody checked.
