@@ -522,6 +522,14 @@
         keeper_detail: kov,
         bye_detail: bye,
         weighted: {
+          // THE VALUE TERM WAS MISSING HERE. `score` is wValue*v + everything
+          // else, but only "everything else" was published — so any consumer
+          // asking "what moved this player" got the answer minus its LARGEST
+          // component. The deviation badge found it: with no value term it
+          // could never name our projections as a driver, and therefore could
+          // never surface the evidence class that matters most (untested,
+          // pending experiment 33).
+          value: wValue * v,
           tier: w.tier * tier, need: w.need * need.value,
           risk: w.risk * risk.value, ceiling: w.ceiling * ceiling,
           keeper: w.keeper * kov.value, bye: -w.bye * bye.value, stack: w.stack * stack.value,
@@ -1075,7 +1083,14 @@
         fills: fills,
         position: c.pos,
         cliff: c.cliff,
-        pick: { player: lead.player, score: lead.score, why: (lead.reasons || [])[0] || '' },
+        // `components` rides along: the DEVIATION BADGE needs the per-term
+        // breakdown to say what bought the distance, and a slimmed projection
+        // silently starved it — the badge rendered with "no single term carries
+        // this" on every card, which reads like a finding and was a plumbing
+        // gap.
+        pick: { player: lead.player, score: lead.score,
+                components: lead.components,
+                why: (lead.reasons || [])[0] || '' },
         candidates: c.members.map(m => ({ player: m.player, score: m.score })),
         plan: branch ? branch.rows.slice(0, 2) : [],
         next_pick: branch ? branch.pick : null,

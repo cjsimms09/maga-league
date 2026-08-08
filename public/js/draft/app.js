@@ -1809,6 +1809,10 @@
       const plan = (p.plan || []).filter(function (r) { return r.loss > 0; }).slice(0, 2)
         .map(function (r) { return r.position + ' −' + Math.round(r.loss); }).join(' · ');
       const extras = p.candidates.slice(1, 5);
+      // THE DEVIATION BADGE, Zone 1, non-optional — and silent inside the band.
+      const dev = (typeof DraftDeviation !== 'undefined')
+        ? DraftDeviation.badge(p.pick, currentPick(), E.CFG.DG_NOISE_BAND) : null;
+      const devHtml = dev ? renderDeviationBadge(dev, p.key) : '';
       const block = p.legality_block
         ? '<div class="path-illegal">🚫 suppressed — ' + escapeHtml(p.legality_block) + '</div>'
         : '';
@@ -1825,6 +1829,7 @@
           '<span class="path-score">' + p.pick.score.toFixed(1) + '</span>' +
         '</div>' +
         (p.distinction ? '<div class="path-distinction">' + escapeHtml(p.distinction) + '</div>' : '') +
+        devHtml +
         (p.pick.why ? '<div class="path-why">' + escapeHtml(p.pick.why) + '</div>' : '') +
         '<div class="path-when">' + escapeHtml(p.when_right) + '</div>' +
         (plan ? '<div class="path-plan">next turn cost if you wait: ' + escapeHtml(plan) + '</div>' : '') +
@@ -3043,6 +3048,37 @@
    * Choosing AMONG the paths answers the question actually being asked — "which
    * of these directions is my plan?" — and returns null only when the doctrine
    * genuinely permits nothing on offer. */
+  /* One badge: the compact line always, the rationale on tap. Expand IN PLACE,
+   * never a modal, never navigation — the same interaction everywhere, so
+   * learning it once covers the tool. */
+  function renderDeviationBadge(d, key) {
+    const arrow = d.early ? '⚡' : '↓';
+    const terms = d.drivers.map(function (t) {
+      return '<li><b>' + escapeHtml(t.term) + '</b> '
+        + (t.points > 0 ? '+' : '') + t.points
+        + ' <span class="dv-klass dv-' + t.klass + '">' + t.klass + '</span>'
+        + ' <span class="muted">' + escapeHtml(t.note) + '</span></li>';
+    }).join('');
+    return '<details class="dv" data-dv="' + escapeHtml(key || '') + '">'
+      + '<summary class="dv-sum">'
+      + '<span class="dv-mark">' + arrow + '</span>'
+      + '<span class="dv-line">' + escapeHtml(d.line) + '</span>'
+      + '<span class="dv-tier dv-t-' + d.tier + '">' + d.tier + '</span>'
+      + '</summary>'
+      + '<div class="dv-body">'
+      + (d.early ? '<div class="dv-head">the model is overriding consensus here — '
+          + 'what bought the distance:</div>'
+        : '<div class="dv-head">he is priced below the market — what we see that it does not:</div>')
+      + '<ul class="dv-terms">' + terms + '</ul>'
+      + '<div class="dv-counter">' + escapeHtml(d.counter) + '</div>'
+      + (d.dispersion
+        ? '<div class="dv-disp">market: ADP ' + d.adp + ' ±' + d.dispersion.sd
+          + ' — ' + escapeHtml(d.dispersion.text) + '</div>'
+        : '<div class="dv-disp muted">no market dispersion for this player — '
+          + 'ADP is a fallback estimate, not a crowd read</div>')
+      + '</div></details>';
+  }
+
   function doctrinePathKey(scored, paths) {
     if (typeof DraftDoctrine === 'undefined' || !state.doctrine) return null;
     if (!paths || !paths.length) return null;

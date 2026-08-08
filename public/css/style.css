@@ -599,6 +599,33 @@ details.bal-row.me > summary { box-shadow: inset 3px 0 0 var(--gold); }
 .path-distinction { font-size: .7rem; color: var(--muted); font-style: italic;
   margin: .1rem 0 .2rem; }
 
+/* THE DEVIATION BADGE. Compact by default, rationale on tap, expand IN PLACE —
+   the same interaction everywhere, so learning it once covers the tool. */
+.dv { margin: .25rem 0 .35rem; }
+.dv > summary { list-style: none; cursor: pointer; display: flex; gap: .4rem;
+  align-items: center; flex-wrap: wrap; font-size: .74rem; }
+.dv > summary::-webkit-details-marker { display: none; }
+.dv-mark { font-size: .8rem; }
+.dv-line { color: #dfe6f5; font-variant-numeric: tabular-nums; }
+.dv-tier { font-size: .6rem; font-weight: 900; letter-spacing: .08em;
+  padding: .05rem .35rem; border-radius: 4px; }
+.dv-t-LEAN { background: rgba(255,255,255,.12); color: var(--muted); }
+.dv-t-LIKELY { background: rgba(245,196,69,.22); color: #ffd873; }
+.dv-t-CERTIFIED { background: rgba(47,213,118,.25); color: #b9f5d3; }
+.dv-body { margin-top: .35rem; padding: .4rem .5rem; border-radius: 8px;
+  background: rgba(255,255,255,.04); border: 1px solid var(--line); }
+.dv-head { font-size: .72rem; color: var(--muted); margin-bottom: .25rem; }
+.dv-terms { margin: 0 0 .35rem; padding-left: 1rem; font-size: .74rem; color: #c7cddd; }
+.dv-terms li { margin: .1rem 0; }
+.dv-klass { font-size: .6rem; font-weight: 800; text-transform: uppercase;
+  padding: 0 .25rem; border-radius: 3px; }
+.dv-untested { background: rgba(255,70,85,.2); color: #ffb4bb; }
+.dv-weak { background: rgba(255,255,255,.1); color: var(--muted); }
+.dv-structural { background: rgba(143,166,208,.18); color: #c7cddd; }
+.dv-moderate { background: rgba(47,213,118,.18); color: #8ef0b6; }
+.dv-counter { font-size: .74rem; font-style: italic; color: #ffd873; }
+.dv-disp { font-size: .7rem; color: var(--muted); margin-top: .25rem; }
+
 /* §4 vocabulary — the one path the enrolled doctrine actually takes. */
 .path-doctrine {
   font-size: .64rem; font-weight: 800; letter-spacing: .04em; white-space: nowrap;
