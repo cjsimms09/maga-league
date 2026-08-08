@@ -74,6 +74,19 @@ def test_an_unknown_policy_key_raises_instead_of_grading_empty():
         BR.policy_roster(DUMP, "b0", 1)
 
 
+def test_roster_aware_dump_is_preferred_over_ghost_choices():
+    # The third iteration's design: when dump-replay provides the roster-aware
+    # pass (policy drafted excluding its own picks, Phase-H style), the bridge
+    # uses IT — full distinct roster, zero dupes — instead of deduped ghosts.
+    dump = dict(DUMP, roster_aware={"B0": {"1": ["x1", "z9"], "2": ["x2"]}})
+    r = BR.policy_roster(dump, "B0", 1)
+    assert r["roster"] == ["k1", "x1", "z9"]      # keeper + both distinct picks
+    assert r["duplicates"] == 0 and r["source"] == "roster_aware"
+    # 'actual' still reconstructs history from the records, never roster_aware.
+    a = BR.policy_roster(dump, "actual", 1)
+    assert a["roster"] == ["k1", "a1", "a3"] and a["source"] == "choices"
+
+
 def test_coverage_reports_the_honesty_floor():
     weekly = {"1": {"a": 10.0}, "2": {"a": 8.0, "b": 5.0}}
     assert BR.coverage_of(["a", "b"], weekly) == 1.0
@@ -149,13 +162,19 @@ def test_ci_every_policy_money_grades_bounded():
                 # seat is its NATURAL rate, not empty grading.)
                 picks = picks_by_seat.get(int(rid), 0)
                 keeps = keepers_by_seat.get(int(rid), 0)
-                assert g["roster_size"] + g["duplicates"] == keeps + picks, \
-                    (f"{season} {policy} seat {rid}: roster {g['roster_size']} + dupes "
-                     f"{g['duplicates']} != keepers {keeps} + picks {picks}")
-                # Keeper-only grading still impossible: at least half the
-                # decision picks must land distinct players.
-                assert g["roster_size"] >= max(1, picks // 2), \
-                    f"{season} {policy} seat {rid}: roster {g['roster_size']} of {picks} picks — empty grading"
+                if policy == "actual":
+                    # History path: conservation with counted ghost dupes.
+                    assert g["roster_size"] + g["duplicates"] == keeps + picks, \
+                        (f"{season} {policy} seat {rid}: roster {g['roster_size']} + dupes "
+                         f"{g['duplicates']} != keepers {keeps} + picks {picks}")
+                else:
+                    # Roster-aware path (third CI iteration): a policy drafting
+                    # like a shadow — excluding its own prior picks — fills its
+                    # roster EXACTLY: keepers + one distinct player per pick.
+                    assert g["roster_size"] == keeps + picks and g["duplicates"] == 0, \
+                        (f"{season} {policy} seat {rid}: roster {g['roster_size']} "
+                         f"(dupes {g['duplicates']}) != keepers {keeps} + picks {picks} — "
+                         "roster-aware replay must fill exactly")
                 # And its players are real NFL players: coverage clears a floor
                 # for POLICIES too, not just 'actual'.
                 assert g["coverage"] >= 0.5, f"{season} {policy} seat {rid}: coverage {g['coverage']}"

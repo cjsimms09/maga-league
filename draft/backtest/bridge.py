@@ -46,14 +46,29 @@ def policy_roster(season_dump: dict, policy: str, roster_id: int) -> dict:
     quiet $0 with coverage 0.0 — an empty roster wearing a bounded number.
     """
     records = season_dump.get("records", [])
-    if policy != "actual" and not any(policy in (r.get("choices") or {}) for r in records):
-        available = sorted({k for r in records for k in (r.get("choices") or {})})
-        raise KeyError(f"policy '{policy}' appears in no replay record; available: {available}")
     ids: list[str] = []
-    dupes = 0
     for k in season_dump.get("keepers", []):
         if int(k["roster_id"]) == int(roster_id):
             ids.append(str(k["player_id"]))
+
+    # Preferred path: the ROSTER-AWARE replay (dump-replay's second pass) —
+    # each policy drafted excluding its own prior picks, like a Phase-H shadow,
+    # so its roster genuinely fills. The per-pick ghost choices below remain as
+    # the fallback/'actual' path; their dedupe under-fills argmax policies (the
+    # second CI run: B3 landed 5 distinct in 15 picks) and is only structural.
+    aware = (season_dump.get("roster_aware") or {}).get(policy)
+    if policy != "actual" and aware is not None:
+        for pid in aware.get(str(roster_id), []):
+            pid = str(pid)
+            if pid not in ids:
+                ids.append(pid)
+        return {"roster": ids, "duplicates": 0, "source": "roster_aware"}
+
+    if policy != "actual" and not any(policy in (r.get("choices") or {}) for r in records):
+        available = sorted({k for r in records for k in (r.get("choices") or {})}
+                           | set((season_dump.get("roster_aware") or {}).keys()))
+        raise KeyError(f"policy '{policy}' appears in no replay record; available: {available}")
+    dupes = 0
     for r in records:
         if int(r["roster_id"]) != int(roster_id):
             continue
@@ -65,7 +80,7 @@ def policy_roster(season_dump: dict, policy: str, roster_id: int) -> dict:
             dupes += 1
             continue
         ids.append(pid)
-    return {"roster": ids, "duplicates": dupes}
+    return {"roster": ids, "duplicates": dupes, "source": "choices"}
 
 
 # --- weekly scoring + money ---------------------------------------------------
