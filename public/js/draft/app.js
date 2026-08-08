@@ -42,6 +42,8 @@
     slotSource: null,     // 'manual' | 'sleeper'
     // B7 compare tray: up to two player_ids selected for the dollar-gap overlay.
     compare: [],
+    compareOpen: false,   // tray visible in search-mode even with <2 picked
+    compareSearch: '',    // live filter for the compare search box
   };
   const LISTS_KEY = 'wr-lists-v1';
   const RAIL_ACK_KEY = 'wr-rail-acks-v1';
@@ -1375,14 +1377,64 @@
     const i = state.compare.indexOf(id);
     if (i >= 0) state.compare.splice(i, 1);
     else { state.compare.push(id); if (state.compare.length > 2) state.compare.shift(); }
+    state.compareOpen = true;        // selecting a player opens the tray
+    state.compareSearch = '';
     renderCompareTray();
   }
-  function clearCompare() { state.compare = []; renderCompareTray(); }
+  function clearCompare() {
+    state.compare = []; state.compareOpen = false; state.compareSearch = '';
+    renderCompareTray();
+  }
+  function openCompare() { state.compareOpen = true; renderCompareTray(); }
+
+  // Search the WHOLE player pool by name for the compare picker (available first,
+  // drafted flagged) so any two players can be weighed, not just board cards.
+  function compareMatches(q) {
+    q = String(q || '').toLowerCase().trim();
+    if (!q) return [];
+    const all = (state.data && state.data.players) || [];
+    const picked = new Set(state.compare.map(String));
+    return all.filter(p => !picked.has(String(p.player_id))
+        && (p.name || '').toLowerCase().indexOf(q) !== -1)
+      .slice(0, 6)
+      .map(p => ({ id: String(p.player_id), name: p.name, position: p.position,
+        gone: state.drafted.has(String(p.player_id)) }));
+  }
 
   function renderCompareTray() {
     const host = $('#compare-tray');
     if (!host) return;
-    if (state.compare.length < 2) { host.style.display = 'none'; host.innerHTML = ''; return; }
+    // Show when two are picked OR the tray was opened for search-mode selection.
+    if (state.compare.length < 2 && !state.compareOpen) {
+      host.style.display = 'none'; host.innerHTML = ''; return;
+    }
+    // SEARCH MODE — fewer than two players chosen: render the chosen one(s) plus a
+    // search box to fill the empty slot by typing a name.
+    if (state.compare.length < 2) {
+      const chosen = state.compare.map(playerById).filter(Boolean);
+      const chip = p => '<span class="cmp-pick">' + escapeHtml(p.name)
+        + '<span class="rec-pos ' + p.position + '">' + p.position + '</span>'
+        + '<button class="cmp-pick-x" data-compare="' + p.player_id + '" title="remove">✕</button></span>';
+      const results = compareMatches(state.compareSearch);
+      const list = results.length
+        ? '<div class="cmp-results">' + results.map(r =>
+            '<button class="cmp-result" data-cmp-add="' + r.id + '">' + escapeHtml(r.name)
+            + ' <span class="rec-pos ' + r.position + '">' + r.position + '</span>'
+            + (r.gone ? ' <span class="cmp-gone">drafted</span>' : '') + '</button>').join('') + '</div>'
+        : (state.compareSearch ? '<div class="cmp-nomatch muted">no player matches “' + escapeHtml(state.compareSearch) + '”</div>' : '');
+      host.style.display = '';
+      host.innerHTML = '<div class="cmp-inner">'
+        + '<button class="cmp-close" data-cmp-close="1" title="Close">✕</button>'
+        + '<div class="cmp-search-head">⚖️ Compare — pick two players for the dollar gap</div>'
+        + (chosen.length ? '<div class="cmp-picks">' + chosen.map(chip).join('') + '</div>' : '')
+        + '<input type="text" class="cmp-search" id="cmp-search" placeholder="Search a player…" '
+          + 'value="' + escapeHtml(state.compareSearch) + '" autocomplete="off">'
+        + list
+        + '</div>';
+      const box = document.getElementById('cmp-search');
+      if (box) { box.focus(); box.setSelectionRange(box.value.length, box.value.length); }
+      return;
+    }
     const a = playerById(state.compare[0]);
     const b = playerById(state.compare[1]);
     if (!a || !b) { host.style.display = 'none'; return; }
@@ -2727,6 +2779,9 @@
     document.body.addEventListener('click', ev => {
       const cmp = ev.target.closest('[data-compare]');
       if (cmp) { ev.preventDefault(); return toggleCompare(cmp.getAttribute('data-compare')); }
+      const cadd = ev.target.closest('[data-cmp-add]');
+      if (cadd) { ev.preventDefault(); return toggleCompare(cadd.getAttribute('data-cmp-add')); }
+      if (ev.target.closest('[data-cmp-open]')) { ev.preventDefault(); return openCompare(); }
       if (ev.target.closest('[data-cmp-close]')) return clearCompare();
       const me = ev.target.closest('[data-draft-me]');
       if (me) return markDrafted(me.getAttribute('data-draft-me'), true, null,
@@ -2807,6 +2862,10 @@
       });
     }
     $('#search').addEventListener('input', e => { state.search = e.target.value.toLowerCase(); renderBoard(); });
+    // Compare-tray search (delegated — the tray re-renders on each keystroke).
+    document.body.addEventListener('input', e => {
+      if (e.target && e.target.id === 'cmp-search') { state.compareSearch = e.target.value; renderCompareTray(); }
+    });
     // The manual-pick form is re-rendered on every keystroke, so it is wired by
     // delegation rather than by handle.
     document.body.addEventListener('submit', ev => {
