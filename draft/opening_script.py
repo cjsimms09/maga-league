@@ -112,16 +112,43 @@ def generate(board: dict, predicted: dict) -> dict:
     contingency = scripted_candidates(
         board, (pred_ids - {bowers}) | my_kept if bowers else pred_ids | my_kept, my_picks)
 
+    # Doctrine enrollment: experiment 19b's Cory-conditional verdict, when it
+    # exists, IS the plan (the doctrine-banner spec: winner feeds banner +
+    # script + Paths in one pass). Falls back to Balanced when no verdict.
+    DOCTRINE_NAMES = {"wr_anchor": "WR Feast", "early_qb": "Early-QB Strike",
+                      "elite_te": "Elite-TE Anchor", "zero_rb": "Zero-RB",
+                      "hero_rb": "Hero-RB Continuation", "robust_rb": "Robust-RB",
+                      "late_qb": "Late-QB", "balanced": "Balanced Value"}
+    doctrine = {"enrolled": "Balanced Value (the control)",
+                "why": "no Cory-conditional verdict on file; league-general run "
+                       "parked every doctrine under the null"}
+    cc_path = HERE / "backtest" / "cory-conditional.json"
+    if cc_path.exists():
+        try:
+            cc = json.loads(cc_path.read_text())
+            winner = next((r for r in cc.get("leaderboard", [])
+                           if r["verdict"].startswith("WINNER")), None)
+            if winner:
+                nm = DOCTRINE_NAMES.get(winner["archetype"], winner["archetype"])
+                runner = next((r for r in cc.get("leaderboard", [])
+                               if r is not winner), None)
+                doctrine = {"enrolled": nm,
+                            "why": f"19b Cory-conditional race: +${winner['mean_edge']:.0f}/season "
+                                   f"vs control (CI [{winner['ci95'][0]}, {winner['ci95'][1]}], "
+                                   f"{winner['mean_divergence']} contested decisions/draft; v1 money "
+                                   f"proxy, Sept quantile re-run pre-registered)"
+                                   + (f"; runner-up {DOCTRINE_NAMES.get(runner['archetype'], runner['archetype'])} "
+                                      f"+${runner['mean_edge']:.0f}" if runner else "")}
+            else:
+                doctrine = {"enrolled": "Balanced Value (the control)",
+                            "why": "19b race ran; no archetype cleared the paired CI + even-money band"}
+        except Exception:
+            pass
     meta = {
         "generated_from": "opening_script.py — derives from board + predicted slates; regenerate on any input change",
         "fingerprint": fingerprint(board, predicted),
         "slot_provenance": "site-claimed — Sleeper draft order pending (regenerates on assignment)",
-        "doctrine": {
-            "enrolled": "Balanced Value (the control)",
-            "why": "first tournament verdicts parked every doctrine under the null "
-                   "(clear-board finding); enrollment updates when experiment 19's "
-                   "Cory-conditional race lands",
-        },
+        "doctrine": doctrine,
     }
     return {"meta": meta, "my_picks": my_picks,
             "branches": {

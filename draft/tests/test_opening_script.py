@@ -71,9 +71,21 @@ def test_fingerprint_and_staleness_contract():
     assert "my_slot" in OS.is_stale(s["meta"], moved3)
 
 
-def test_doctrine_framing_is_honest_about_the_tournament():
+def test_doctrine_enrollment_follows_the_19b_verdict():
     board, predicted = _inputs()
     s = OS.generate(board, predicted)
     d = s["meta"]["doctrine"]
-    assert d["enrolled"].startswith("Balanced Value")
-    assert "parked" in d["why"]           # no invented conviction
+    cc = DRAFT / "backtest" / "cory-conditional.json"
+    if cc.exists():
+        result = json.loads(cc.read_text())
+        winner = next((r for r in result["leaderboard"]
+                       if r["verdict"].startswith("WINNER")), None)
+        if winner:
+            # The winner IS the plan, with its evidence cited — never a bare name.
+            assert d["enrolled"] != "Balanced Value (the control)"
+            assert "19b" in d["why"] and "CI" in d["why"]
+        else:
+            assert d["enrolled"].startswith("Balanced Value")
+    else:
+        # No verdict on file -> the control, honestly.
+        assert d["enrolled"].startswith("Balanced Value")

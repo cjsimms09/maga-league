@@ -236,6 +236,9 @@ def load_players(cfg: dict, offline: bool) -> list[dict]:
             "depth_chart_order": p.get("depth_chart_order"),
             "raw_adp": float(rank),
             "consensus_rank": float(rank),
+            # Exp 31 (platform anchoring): the platform's OWN ordering, kept
+            # verbatim so the delta board can price Sleeper-vs-market divergence.
+            "sleeper_rank": float(rank),
         })
     print(f"  {len(players)} draftable players ({dst_kept} DST), {len(baseline)} with consensus projections")
     if dst_kept == 0:

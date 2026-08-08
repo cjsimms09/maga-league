@@ -141,12 +141,13 @@ jobs:
         if: github.event.inputs.snapshot != 'true'
         run: |
           python draft/predict_keepers.py || echo "predicted slates unchanged/skipped"
+          python draft/backtest/cory_conditional.py || echo "19b race skipped"
           python draft/opening_script.py
 
       - name: Commit the artifact if it changed
         if: github.event.inputs.snapshot != 'true'
         run: |
-          PATHS="public/draft_data.json draft/config/league_config.json draft/data/league_history.json draft/data/predicted_keepers.json draft/data/opening_script.md draft/data/opening_script.json"
+          PATHS="public/draft_data.json draft/config/league_config.json draft/data/league_history.json draft/data/predicted_keepers.json draft/data/opening_script.md draft/data/opening_script.json draft/backtest/cory-conditional.json draft/backtest/CORY-CONDITIONAL.md"
           EXISTING=""
           for p in $PATHS; do [ -e "$p" ] && EXISTING="$EXISTING $p"; done
           if [ -z "$EXISTING" ] || git diff --quiet -- $EXISTING; then
