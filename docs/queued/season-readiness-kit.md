@@ -33,6 +33,14 @@ rest of the in-season work.
   priority; (c) **FA speed after processing** — first-come-first-served is the
   biggest edge, so the clear-time alert is the priority build. Verify exact
   clear day/time + reset behavior from the settings API; stamp into config.
+  **Confirmed from CI: `is_faab=false`, `type_code=1` (reverse standings), clears
+  Tuesday (`day_of_week=2`), `clear_days=2`.**
+- **D2 — THE WINNER'S CURSE (elevate FA-speed accordingly):** priority is
+  reverse-standings, so **when Cory is winning, his priority is structurally LAST
+  every week.** The better the season goes, the more the waiver edge shifts from
+  claim priority (near-useless for a contender) to **FA SPEED.** For a winning
+  team the **clear-time alert is not a nice-to-have — it is the ENTIRE waiver
+  edge.** Build it first, weight it highest.
 - **FA-speed layer:** post-clear free agency is **first-come-first-served**, so
   Tuesday detection gains a **clear-time alert mode** — ranked FA targets pushed
   the moment waivers process (the add-fast window is the edge, not the bid).

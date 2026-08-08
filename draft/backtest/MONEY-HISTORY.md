@@ -45,4 +45,12 @@ _Graded seasons: 2023, 2024, 2025 · payout table = ground truth._
 | 9 | 471160336402083840 | $500 | $0 | $0 | $500 | 3 |
 | 10 | 739930057887334400 | $200 | $0 | $0 | $200 | 1 |
 
-_⚠️ UNVERIFIED until: (1) the winners_bracket is harvested for all 3 seasons (playoff-finish $ folds in here — a known discrepancy: Cory made 2023 playoffs but shows $0 playoff until the bracket lands); (2) Cory confirms whether 2023 (league year one, keepers null) used the CURRENT payout structure. Weeks 1–15 pay the $100; playoff weeks 16–17 do not. Owner IDs unresolved except mine until the owners map is joined._
+## Reconciliation — playoff $ per season must equal the pot ($2125) or 0
+| season | assigned | expected | ok |
+|---|---|---|---|
+| 2023 | $2125 | $2125 | ✅ |
+| 2024 | $2125 | $2125 | ✅ |
+| 2025 | $2125 | $2125 | ✅ |
+
+
+_⚠️ UNVERIFIED until Cory confirms whether **2023** (league year one, keepers null) used the CURRENT payout structure ($400 buy-in / $4,000 pot). If 2023 differed, its dollars need a per-season payout config. Weekly-high = weeks 1–15; playoff weeks 16–17 don't pay. Owner IDs unresolved except mine until the owners map is joined (roster→owner is stable across seasons)._

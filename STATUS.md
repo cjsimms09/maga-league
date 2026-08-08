@@ -272,6 +272,34 @@ _Note: the TE-TE top of board at pick 34 (Bowers 126.5 > McBride 74.6, 52-pt gap
 Phase-N null baseline and Phase-H live shadow grading CERTIFY. Ledger writes at
 decision time only. Nothing installs off a raw backtest ranking.
 
+## 🧮 RECONCILIATION-PASS TRACEABILITY MATRIX (deliverable #1)
+Every reconnaissance finding → the component(s) it changes → status. Objective it all serves: **maximize E[$] — a starting core solid enough to buy the top-4 door + variance concentrated where it's cheap (stacks, 6 bench tickets, flex).**
+
+| # | finding | component(s) | status |
+|---|---|---|---|
+| A1 | money_history 2023 bracket / base math | `money_history.py` | **APPLIED** (67d7766) — playoff-\$ from brackets, per-season reconciliation ✅, +2 tests. UNVERIFIED only on 2023-payout-era (Cory). |
+| A2 | Part-12 hash float-noise (2023 `pass_yd 0.03999…`) | `part-12-watchdog.md` | **APPLIED to spec** (349f78a); watchdog build PENDING |
+| A3 | cross-season joins key on owner_id | `money_history.py` / harvest | **APPLIED** (keys on owner per season) |
+| B1 | weekly-high threshold 135–155 (wk 1–15) | Weekly-High Engine gauge | **DATA APPLIED**; gauge PENDING (money-function §3, gated) |
+| B2 | concentration ~60% top-3 = pool is harvestable | ceiling/stack config rationale | **PENDING** (cite in config when B3 installs) |
+| B3 | ceiling↑ + stacks first-class + bench-lottery + playoff-SOS wk16–17 | draft engine | **PENDING — quantify-before-install** (D3 flex quantified: material; needs capped design) |
+| B4 | champion-kept-0 (Jreis 2024); keeper analysis 2024–25 only | K0 docs / dossiers | **APPLIED** (context noted) |
+| B5 | era stability 3/3 → no era hedging | Backtest R2 / Strategy Hunt | **APPLIED to spec note**; reporting change PENDING their build |
+| C1 | Cory eff 86.1/86.0/85.9; optimizer Jan metric ≥90% | lineup optimizer spec | **APPLIED** (baseline + metric recorded; priority ELEVATED) |
+| C2 | dual objective ΔP(win)+ΔP(high)·$100, real thresholds | lineup optimizer | **PENDING** (money-function §4 spec) |
+| C3 | Schmelley wk5-2025 benched 36, missed $100 by 3.2 | optimizer rationale | **PENDING harvest** (per-week bench stat) |
+| C4 | bench-error-decided weekly highs across 45 wks | analysis | **PENDING harvest** (pre-registered) |
+| D1 | waiver correction #2 (reverse-standings weekly reset) | waiver spec | **APPLIED** (spec); `is_faab:false` confirmed from CI ✅ |
+| D2 | winner's curse: good team → priority last → FA-speed IS the edge | waiver spec | **PENDING** (fold into season-readiness waiver §) |
+| D3 | stealth score stays (FA-speed targeting) | waiver | **APPLIED** (spec) |
+| E1 | manager cards: mhagen DYNASTY, ds7mmet RS-merchant, Richard2121/MarianSaar undervalued, leak cohort | dossiers | **APPLIED** (tables below) |
+| E2 | efficiency-adjusted opponent projections (Schmelley −15pt) | weekly brief matchup | **PENDING** (in-season spec) |
+| E3 | trade deadline wk11 + 2-day/5-vote veto | trade radar | **PENDING** (radar spec) |
+| F1–F3 | money ledger + weekly-high race line + shadow-\$ | weekly brief / shadows | **PENDING** (money-function §4) |
+| G | harvest: matchups×45, transactions, 2023 draft/bracket | CI | **IN FLIGHT** (export triggered) |
+
+**Honesty line (leans-not-laws at N=3 seasons — most likely noise):** (1) the weekly-high threshold band (135–155) is 3×15 obs — wide CIs, treat as a guide not a line; (2) concentration "~60% top-3" over 3 seasons could regress toward spread — don't over-tilt to variance on it alone; (3) the ds7mmet "0-3 playoff openers" tag is 3 games — a real lean, but one hot week flips it. All three render as leans in any surface that shows them.
+
 ## 💰 THE MONEY FUNCTION — payouts.json is ground truth ($4,000 pot)
 E[$] = Σ_w P(weekly-high,w)·$100 + P(RS champ)·$250 + P(RS 2nd)·$125 + Σ_k P(finish k)·payout_k. Weekly-high **$1,500 (37.5%)** · RS $375 · playoffs $2,125. Encoded in `draft/config/payouts.json` (checksum-guarded, stamped into artifact, checklist line, +4 tests). **Variance is subsidized** — draft-engine amendments (ceiling cap↑, stacking first-class, weekly-high engine display) are specced in `docs/queued/money-function.md`, **gated on quantify-before-install**.
 
