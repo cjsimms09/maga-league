@@ -1170,6 +1170,21 @@
         label: 'Targets or never-draft set',
         detail: state.lists.targets.length + ' starred, ' + state.lists.avoid.length + ' blocked',
         fix: 'Optional, but it is your read' },
+      // Money function: the payout table is ground truth — confirm it loaded and
+      // sums correctly (re-verify vs the league site if the commissioner edits it).
+      (function () {
+        var pay = (state.data || {}).payouts;
+        var sum = pay ? ((pay.weekly_high || {}).total || 0) + ((pay.regular_season || {}).total || 0)
+          + ((pay.playoffs || {}).total || 0) : null;
+        return {
+          ok: !!(pay && sum === pay.total_pot),
+          label: 'Payout table matches the league site',
+          detail: pay ? ('$' + pay.total_pot + ' pot · weekly-high '
+            + Math.round(100 * ((pay.weekly_high || {}).total || 0) / (pay.total_pot || 1)) + '%')
+            : 'payouts.json not loaded',
+          fix: pay ? 're-verify vs the league site if payouts changed' : 'add draft/config/payouts.json',
+        };
+      })(),
     ];
 
     // Rail-fire budget: >2 flagged in the top 15 is red until each is

@@ -21,12 +21,18 @@ rest of the in-season work.
 - Tuesday detection of newly-available players
 - **Stealth score** — under-owned production the room hasn't noticed yet
 - Value = RoS projection over my current **worst starter** at the position
-- **~~Bid bands~~ → Priority economics:** the recommendation is add-value vs the
-  **option value of my current waiver-priority position**. Track everyone's
-  priority position weekly (rolling vs reverse-standings, per `config.waivers`).
-  Each target gets a **burn/hold verdict**: is this add worth dropping to the
-  back of the priority order (rolling), or is it marginal enough to wait for
-  free agency?
+- **~~Bid bands~~ ~~→ priority option-value/burn-hold~~ → CORRECTION #2 (money-function
+  spec, 2026-08-08):** the mechanism is **reverse-standings order that RESETS
+  WEEKLY** — each claim slides you back only *within that week's* processing.
+  So **priority is NOT a durable asset**: no hoarding, no cross-week option
+  value, no burn/hold — the cross-week cost of claiming is ~zero, so **claim
+  aggressively**. The real decisions are: (a) **within-week claim ordering** when
+  I want multiple players — sequence by scarcity (who else wants each target,
+  from dossier add-patterns), since my 2nd claim processes behind the field's
+  1st; (b) **roster-spot opportunity cost** — the DROP is the price, not the
+  priority; (c) **FA speed after processing** — first-come-first-served is the
+  biggest edge, so the clear-time alert is the priority build. Verify exact
+  clear day/time + reset behavior from the settings API; stamp into config.
 - **FA-speed layer:** post-clear free agency is **first-come-first-served**, so
   Tuesday detection gains a **clear-time alert mode** — ranked FA targets pushed
   the moment waivers process (the add-fast window is the edge, not the bid).

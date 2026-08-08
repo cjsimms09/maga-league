@@ -1,0 +1,30 @@
+{
+  "_comment": "GROUND TRUTH for the money function (Cory, 2026-08-08). All objective math derives from this file — E[$] = Sum_w P(weekly-high, w)*weekly_high + P(RS champ)*rs_champ + P(RS 2nd)*rs_runner_up + Sum_k P(playoff finish k)*playoff[k]. Config-driven so a payout change is one file edit that trips the settings watchdog, never a code hunt. Re-verify against the league site's published structure if the commissioner edits payouts (pre-draft checklist line).",
+  "currency": "USD",
+  "total_pot": 4000,
+  "weekly_high": {
+    "amount": 100,
+    "weeks": 15,
+    "total": 1500,
+    "note": "37.5% of the pot — matchup-independent, paid to the league-high score each week. Variance is subsidized: this rewards pure ceiling against all 9 opponents simultaneously."
+  },
+  "regular_season": {
+    "champ": 250,
+    "runner_up": 125,
+    "total": 375,
+    "note": "Rewards consistent winning — the floor still buys RS money + playoff entry, so this is NOT a pure-ceiling league."
+  },
+  "playoffs": {
+    "1": 675,
+    "2": 575,
+    "3": 475,
+    "4": 400,
+    "total": 2125,
+    "gradient_1_to_4": 275,
+    "note": "Flat gradient: top-4 ENTRY (~$400 floor) is the real prize; seeding and winning add modestly. P(make top 4) matters more than P(win it)."
+  },
+  "_checksum": {
+    "sum_of_parts": 4000,
+    "components": "1500 (weekly) + 375 (RS) + 2125 (playoffs) = 4000"
+  }
+}

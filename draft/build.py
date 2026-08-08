@@ -47,6 +47,7 @@ VALUE_MIN_COVERAGE = 0.90
 OUT = HERE.parent / "public" / "draft_data.json"
 CONFIG_PATH = HERE / "config" / "league_config.json"
 KEEPERS_PATH = HERE / "config" / "keepers.json"
+PAYOUTS_PATH = HERE / "config" / "payouts.json"
 PROFILES_PATH = HERE / "config" / "manager_profiles.json"
 
 # Positions the draft board cares about. IDP leagues would extend this.
@@ -63,6 +64,25 @@ DRAFTABLE = {"QB", "RB", "WR", "TE", "K", "DEF"}
 # it file-cache and warn — a silent fallback that claimed authority would be the
 # exact dishonesty the provenance discipline exists to prevent.
 CONFIG_STATUS_URL_ENV = "DRAFT_CONFIG_STATUS_URL"
+
+
+def _load_payouts() -> dict | None:
+    """The payout table (money function ground truth). Validates the checksum so a
+    fat-fingered edit fails loud rather than corrupting every E[$] downstream."""
+    if not PAYOUTS_PATH.exists():
+        print("  ! payouts.json missing — the money function has no ground truth")
+        return None
+    p = json.loads(PAYOUTS_PATH.read_text())
+    parts = (p.get("weekly_high", {}).get("total", 0)
+             + p.get("regular_season", {}).get("total", 0)
+             + p.get("playoffs", {}).get("total", 0))
+    if parts != p.get("total_pot"):
+        raise SystemExit(f"payouts.json checksum failed: parts sum to {parts}, "
+                         f"total_pot says {p.get('total_pot')}")
+    print(f"  payouts: ${p.get('total_pot')} pot "
+          f"(weekly-high ${p.get('weekly_high', {}).get('total')} = "
+          f"{round(100 * p.get('weekly_high', {}).get('total', 0) / max(1, p.get('total_pot', 1)))}%)")
+    return p
 
 
 def fetch_authoritative_confirmed(cfg: dict) -> dict:
@@ -549,6 +569,10 @@ def build(cfg: dict, *, offline: bool = False, force_profiles: bool = False,
         # Full objects for the kept players (bye/position/name + team_slot), so
         # the War Room can pre-populate my roster and bye card from pick one (A1).
         "kept_players": kept_players,
+        # The payout table — GROUND TRUTH for the money function. Stamped so the
+        # War Room can show E[$] context and a checklist line that the payout
+        # structure matches the league site. Absent file is not fatal (it warns).
+        "payouts": _load_payouts(),
         "notes": {
             "adp_blend_weight": cfg.get("adp_blend_weight"),
             "opportunity_cap": cfg.get("opportunity_cap"),
