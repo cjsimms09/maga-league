@@ -272,6 +272,37 @@ _Note: the TE-TE top of board at pick 34 (Bowers 126.5 > McBride 74.6, 52-pt gap
 Phase-N null baseline and Phase-H live shadow grading CERTIFY. Ledger writes at
 decision time only. Nothing installs off a raw backtest ranking.
 
+## 💰 THE MONEY FUNCTION — payouts.json is ground truth ($4,000 pot)
+E[$] = Σ_w P(weekly-high,w)·$100 + P(RS champ)·$250 + P(RS 2nd)·$125 + Σ_k P(finish k)·payout_k. Weekly-high **$1,500 (37.5%)** · RS $375 · playoffs $2,125. Encoded in `draft/config/payouts.json` (checksum-guarded, stamped into artifact, checklist line, +4 tests). **Variance is subsidized** — draft-engine amendments (ceiling cap↑, stacking first-class, weekly-high engine display) are specced in `docs/queued/money-function.md`, **gated on quantify-before-install**.
+
+### Money-history archaeology (3 real seasons, projection-free) — ANALYSIS 1 + partial 3
+**Weekly-high threshold — what wins $100 (weeks 1–15 pay):** median winning score ≈ **135–155**, ranging ~122 (early) to ~185 (peak); playoff weeks 16–17 don't pay.
+**Concentration:** top-3 teams hold **~60%** of weekly highs; 7–8 distinct winners per 15-week season — highs cluster but aren't monopolized.
+**$/season standings (weekly-high + RS money; playoff-finish money TODO):**
+```
+#  manager            weekly$  RS$   total$  (3 seasons)
+1  434921290978029568  1000   375    1375
+2  458507445241638912   800   500    1300
+3  440723317066821632   500   125     625
+7  Cory (me)            400     0     400   ← mid-pack, all weekly-high, no RS
+```
+Auto-refreshes in CI (`money_history.py` → `MONEY-HISTORY.md`). **ANALYSIS 2** (dollar re-grade of Phase S/N vs luck baseline) is queued CI backtest work.
+
+### Live league-object findings (chat-Claude, 2026-08-08)
+1. **🚨 URGENT** — league settings show `draft_rounds:3`. The DRAFT OBJECT is authoritative; checklist line **"Draft object rounds == 15"** added (red until synced; says TEXT THE COMMISSIONER if ≠15). **DECISIONS D7.**
+2. Playoffs weeks **16–17** (`playoff_week_start:16`, 4 teams); weekly-high window **weeks 1–15 exactly** (money_history honors this). Playoff-SOS term cap reduced per money spec.
+3. `pick_trading:1` — the **pick-trade valuator (backlog 3.5)** is ON; build it in the power-through queue.
+4. Stamp full settings JSON into the **watchdog hash** (Part 12); verify scoring byte-for-byte incl. `pass_td:6.0`.
+5. **Trade deadline week 11** → trade-radar clock.
+6. Bench **6 of 12** → lottery-ticket policy scope widens (reinforced by the money function).
+
+### Dossier intel — 2025 name-mapped standings + efficiency (chat-Claude) → append to dossiers
+- **mhagen** — champion; market-drafter, elite execution.
+- **Richard2121** — 90.4% lineup efficiency, **points-unlucky** (4–11 record ≠ bad manager).
+- **Schmelley 84.3% · Cory (me) 85.9% · Sadbru 86.5%** — the **lineup-leak cohort** (efficiency to reclaim).
+- **ds7mmet** — schedule-lucky playoff entry.
+- **🎯 PRE-REGISTERED PREDICTION (verify when the matchup harvest + name-map run):** Richard2121 and MarianSaar **banked multiple weekly highs despite their records** — the money function's core thesis (ceiling ≠ record). `money_history.py` already computes highs per owner; the name↔ID join (owners map, currently a TODO) confirms/refutes it. This is a real falsifiable test of "variance is subsidized."
+
 ## 📅 SEASON READINESS — IN-SEASON MASTER calendar gates (starts Aug 23)
 The in-season arsenal (`docs/queued/in-season-master.md`) is appended to the END
 of the queue. **Do not start before the draft-critical items are locked and the
