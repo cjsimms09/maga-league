@@ -2053,6 +2053,51 @@
     return flags;
   }
 
+  /* ── THE MOVEMENT LINE ──────────────────────────────────────────────────────
+   *
+   * One thin line: is the model changing its mind as the board moves, and why?
+   * PURE over two snapshots of the top of the board taken at two DIFFERENT picks.
+   * The caller remembers the previous snapshot (state.lastRecommendation); the
+   * board's own run machinery supplies the "why", passed in as `reason` rather
+   * than re-derived here — so this function invents no causal claim of its own.
+   *
+   *   snap = { pick, topId, topName, topScore, secondName, secondScore }
+   *
+   *   MOVED   the top recommendation changed between the two picks.
+   *   ALMOST  the top HELD, but the runner-up closed materially without passing.
+   *   STEADY  nothing worth a line — kind 'steady', empty line.
+   *
+   * The `reason` is appended, never fabricated: an empty reason yields a bare
+   * factual line ("Shifted to X.") rather than an invented explanation.
+   */
+  function movementLine(prev, curr, opts) {
+    opts = opts || {};
+    var CLOSE = opts.closeBand != null ? opts.closeBand : 3.0;   // "within N pts"
+    var SHRINK = opts.minShrink != null ? opts.minShrink : 0.5;  // gap must actually close
+    var reason = opts.reason || '';
+    if (!prev || !curr || !curr.topName) return { kind: 'steady', line: '' };
+
+    if (prev.topId != null && curr.topId != null
+        && String(prev.topId) !== String(curr.topId)) {
+      return { kind: 'moved',
+        line: 'Shifted to ' + curr.topName + (reason ? ' — ' + reason : '') + '.' };
+    }
+
+    // Same top: did the runner-up close in without passing?
+    var prevGap = (prev.secondScore != null && prev.topScore != null)
+      ? prev.topScore - prev.secondScore : null;
+    var currGap = (curr.secondScore != null && curr.topScore != null)
+      ? curr.topScore - curr.secondScore : null;
+    if (prevGap != null && currGap != null
+        && currGap >= 0 && currGap <= CLOSE && currGap < prevGap - SHRINK) {
+      var name = curr.secondName || 'the runner-up';
+      return { kind: 'almost',
+        line: name + ' closed to within ' + currGap.toFixed(1) + ' pts'
+          + (reason ? ' on the ' + reason : '') + " — didn't pass." };
+    }
+    return { kind: 'steady', line: '' };
+  }
+
   /* ── LIVE STACK ROUTES ──────────────────────────────────────────────────────
    *
    * Enumerate the same-team QB↔pass-catcher completions still on the board,
@@ -2159,7 +2204,7 @@
     expectedBestAvailable, vona,
     tierCliffUrgency, starterSlotMarginal, riskAdjustment, upsideBonus,
     scorePlayer, onesieState, positionRank, doctrineTilt, doctrineReport, recommend, mandatoryGaps, applyRosterLegality, plausibilityRails,
-    demoteFlaggedOnesies, computeRailBudget, railFireSig, bestFlexAlt, liveStackRoutes,
+    demoteFlaggedOnesies, computeRailBudget, railFireSig, bestFlexAlt, liveStackRoutes, movementLine,
     confidence, branchForecast, computePaths, dollarGap, playerDollars, applyPersonalLists, onTheClock, rosterPlan, byeGrid,
     cheatSheet, sheetText, managerTells, threatBoard,
     WEIGHT_PRESETS, matchPreset, rankDiff, autoWeights,

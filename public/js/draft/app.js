@@ -20,6 +20,13 @@
     weights: Object.assign({}, E.DEFAULT_WEIGHTS),
     runMults: {},
     recentPicks: [],
+    // Movement line: the top-of-board snapshot from the LAST pick, and the frozen
+    // line for THIS pick (so re-renders don't recompute it away). Advanced only
+    // when the pick number actually changes.
+    lastRecommendation: null,
+    movement: null,
+    // Stack routes for the current scored board (feeds the rec-card badge).
+    stackRoutes: null,
     // Player ids I tapped myself. The difference between this and what Sleeper
     // reports on my seat is exactly the missed-mark case.
     markedLocally: new Set(),
@@ -2036,6 +2043,10 @@
     // Stack line runs BEFORE the rec cards below so stackBadge() can read its
     // route map. Same scored board — never a second computation.
     try { renderStackLine(out.scored); } catch (e) { console.error('[stack]', e && e.message); }
+    // The movement line diffs this pick's top against the last pick's. Same
+    // scored board; never blocks the clock.
+    try { updateMovement(currentPick(), out.scored); }
+    catch (e) { console.error('[movement]', e && e.message); }
     renderCompareTray();   // keep the dollar-gap overlay fresh as the board changes
     const all = out.scored;
     const scored = all.slice(0, 5);
@@ -2485,6 +2496,61 @@
       return '<div class="lrm-row">' + badge + 'safe ' + phrase(r.startable_by, r.startable_early)
         + ' <span class="muted">(' + escapeHtml(r.startable_target) + ')</span></div>';
     }).join('');
+  }
+
+  /* THE MOVEMENT LINE — the model thinking out loud as the board moves.
+   *
+   * Needs a remembered previous state, which is `state.lastRecommendation`: a
+   * snapshot of the top of the board taken at the LAST pick we were on. On a new
+   * pick we diff it against the current top (E.movementLine, pure + tested) and
+   * freeze the result in `state.movement` so re-renders WITHIN the same pick show
+   * the same line rather than recomputing to "steady" and erasing it. The snapshot
+   * only advances on a genuinely new pick — a re-render at the same pick must not
+   * move the comparison basis or every diff would read steady.
+   *
+   * The "why" is the board's OWN run detection, passed in — never invented here.
+   */
+  function snapshotRec(pick, scored) {
+    var top = scored && scored[0], second = scored && scored[1];
+    return {
+      pick: pick,
+      topId: top && top.player ? String(top.player.player_id) : null,
+      topName: top && top.player ? top.player.name : null,
+      topScore: top ? top.score : null,
+      secondName: second && second.player ? second.player.name : null,
+      secondScore: second ? second.score : null,
+    };
+  }
+
+  function movementReason() {
+    // Factual co-occurrence, not a causal claim: name any position currently
+    // running. Empty when nothing is running, so the line stays bare.
+    try {
+      var runs = E.detectRuns(state.runMults || {});
+      return runs.length ? runs.join('/') + ' run on' : '';
+    } catch (e) { return ''; }
+  }
+
+  function updateMovement(pick, scored) {
+    var curr = snapshotRec(pick, scored);
+    var prev = state.lastRecommendation;
+    if (!prev || prev.pick !== pick) {
+      var mv = prev ? E.movementLine(prev, curr, { reason: movementReason() })
+                    : { kind: 'steady', line: '' };
+      state.movement = { pick: pick, kind: mv.kind, line: mv.line };
+      state.lastRecommendation = curr;   // advance ONLY on a new pick
+    }
+    renderMovementLine();
+  }
+
+  function renderMovementLine() {
+    var el = document.getElementById('movement-line');
+    if (!el) return;
+    var m = state.movement;
+    if (!m || !m.line) { el.innerHTML = ''; el.style.display = 'none'; return; }
+    el.style.display = '';
+    var icon = m.kind === 'moved' ? '↪' : (m.kind === 'almost' ? '≈' : '');
+    el.innerHTML = '<span class="movement-mark">' + icon + '</span> ' + escapeHtml(m.line);
   }
 
   /* THE STACK LINE — a quiet context-rail home for a LEAN.

@@ -98,9 +98,15 @@ surface implies the model is acting on it. The model is not.
 
 | piece | blocked by |
 |---|---|
-| Movement (1) DID IT MOVE | nothing — needs `lastRecommendation` state |
-| Movement (2) ALMOST MOVED | nothing — same substrate |
-| Movement (3) WOULD MOVE | **the latency work** (`PARKED #11`) |
-| Movement (4) DOCTRINE DRIFT | nothing, **if worded as a gap**; override wording needs **Stage 3** |
-| Movement log + ledger | nothing — the `shadow_pick`-class kinds pattern already exists |
+| Movement (1) DID IT MOVE | ✅ **BUILT 2026-08-08 (grind #4).** `E.movementLine` + `state.lastRecommendation` snapshot; Zone-1 line under the Paths panel |
+| Movement (2) ALMOST MOVED | ✅ **BUILT** — same function detects a runner-up closing materially without passing; "flap" suppressed (a gap already close and barely moved stays steady) |
+| Movement (3) WOULD MOVE | ⏳ still **the latency work** (`PARKED #11`) — a counterfactual re-score per candidate at ~1.9s each |
+| Movement (4) DOCTRINE DRIFT | ⏳ not built. Now that Stage 3 is wired the override wording is available, but the honest gap wording is the safer default until the display-only status (DOCTRINE-ENFORCEMENT-AUDIT) is re-checked. Follow-up |
+| Movement log + ledger | ⏳ not built — the snapshot substrate now exists; the log UI + a `movement` ledger kind (server+client whitelist) are the next slice so January can grade the repositioning |
+
+**Honesty note on (1)/(2):** the "why" is the board's own run detection, passed in
+and appended factually as co-occurrence ("Shifted to Montgomery — RB/WR run on."),
+never a fabricated causal claim. `movement_line.test.js` asserts a move with no
+supplied reason renders a BARE line, and the app-wiring suite asserts the render
+path actually calls it (the doctrine-tilt "wired but never called" failure class).
 | Stack line + badge | ✅ **BUILT 2026-08-08 (grind #4).** `E.liveStackRoutes` enumerates same-team QB↔catcher completions ranked by the engine's own stack value, single-partner first (exp 6); Zone-2 line + `⚡ completes X stack — LEAN` badge; **class DERIVED from `deviation.js` EVIDENCE.stack** (proven by `stack_routes.test.js`: promoting to moderate flips the label with no engine edit); CSS polish requested from B in PARKED. |

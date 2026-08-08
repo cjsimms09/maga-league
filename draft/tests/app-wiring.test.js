@@ -114,6 +114,24 @@ check('the app bumps the board version on in-place mutation',
   'no bumpBoard call in app.js — the survival memo will serve stale pools '
     + 'after an undo restores a player to the board');
 
+// ── NEW SURFACES MUST BE CALLED, not merely defined ─────────────────────────
+// The stack line and the movement line are the doctrine-tilt risk again: a pure
+// engine helper (liveStackRoutes / movementLine), green in isolation, that the
+// render path forgets to call reaches production as dead code. Assert the SEAM:
+// renderRecommendations must invoke both, and each must consult its engine helper.
+{
+  const rr = appSrc.slice(appSrc.indexOf('function renderRecommendations'),
+    appSrc.indexOf('function renderRecommendations') + 3000);
+  check('renderRecommendations calls the stack line', /renderStackLine\(/.test(rr));
+  check('renderRecommendations calls the movement line', /updateMovement\(/.test(rr));
+  check('the stack line consults E.liveStackRoutes', /E\.liveStackRoutes\(/.test(appSrc));
+  check('the movement line consults E.movementLine', /E\.movementLine\(/.test(appSrc));
+  check('the movement snapshot advances only on a NEW pick (guards the diff basis)',
+    /prev\.pick !== pick/.test(appSrc),
+    'without the pick-change guard, a same-pick re-render moves the comparison '
+      + 'basis and every diff reads steady');
+}
+
 // ── HONEST LIMIT, asserted so nobody mistakes this for more than it is ──────
 check('this suite knows what it cannot check (limitation is documented)',
   /catches "the app never mentions it", not "the app mentions it but computes it wrong"/

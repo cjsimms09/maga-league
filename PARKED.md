@@ -105,6 +105,12 @@ _Per TERRITORY rule 6, the reverse direction: A adds markup + class hooks, B own
   quiet register of `.lrm-strip`: this is a LEAN, it must never out-shout the
   installed surfaces. The `#stack-class` sub-label prints the evidence class
   ("LEAN, not installed") — style it as a caveat, not a feature tag.
+- **Movement line CSS (grind #4, landed 2026-08-08).** New Zone-1 markup
+  `#movement-line` (under the Paths panel) with classes `.movement-line` and
+  `.movement-mark` (the arrow/approx glyph). One thin line, replaced never
+  accumulated — it should read as the model murmuring, quieter than the
+  recommendation above it. No inline styles used; it inherits body text until
+  you style it.
 
 ## Already landed, not parked
 - **Claim-integrity doctrine** (`CLAIM-INTEGRITY.md`) + the three guards —
