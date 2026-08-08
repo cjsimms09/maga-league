@@ -88,7 +88,7 @@
    * and every surface that asks follows, rather than each renderer being
    * remembered separately.
    */
-  var GOVERNS = false;
+  var GOVERNS = true;
   function governs() { return GOVERNS; }
   function setGoverns(v) { GOVERNS = !!v; return GOVERNS; }
   function governanceLine(enrolled) {
@@ -96,6 +96,69 @@
     return GOVERNS
       ? 'enrolled — tilting recommendations'
       : 'enrolled, DISPLAY-ONLY — not driving recommendations';
+  }
+
+  /* ── WHAT EACH DOCTRINE WANTS (as opposed to what it ALLOWS) ─────────────
+   *
+   * LIVE_CONSTRAINTS answers "is this pick legal under the plan" and returns
+   * true for almost everything once the binding rounds pass. That makes it a
+   * filter, not a preference — using it as a tilt hands every position the same
+   * bonus and differentiates nothing, which is exactly what a first attempt at
+   * the Stage 3 tilt did.
+   *
+   * PREFERS is the missing half: +1 the plan actively wants this position here,
+   * -1 it actively wants to avoid it, 0 no opinion. Read straight off each
+   * doctrine's own creed, which is the only defensible source — a preference
+   * invented separately from the creed would let the banner and the score mean
+   * different things by the same name.
+   *
+   * `i` is MY pick index, 1-based (the same coordinate LIVE_CONSTRAINTS uses).
+   */
+  const PREFERS = {
+    // "one anchor back, then hammer WR value"
+    hero_rb: function (pos, i, r) {
+      if (i <= 2 && _count(r, 'RB') === 0) return pos === 'RB' ? 1 : -1;
+      return pos === 'WR' ? 1 : (pos === 'RB' ? -1 : 0);
+    },
+    // "two backs early; win the position the room is short on"
+    robust_rb: function (pos, i, r) {
+      return (i <= 4 && _count(r, 'RB') < 2) ? (pos === 'RB' ? 1 : -1) : 0;
+    },
+    // "no backs until the middle rounds; pass-game value first"
+    zero_rb: function (pos, i) {
+      if (i >= 6) return 0;
+      if (pos === 'RB') return -1;
+      return (pos === 'WR' || pos === 'TE') ? 1 : 0;
+    },
+    // "ride the value fall; TE and QB wait; ceiling in the flex"
+    wr_anchor: function (pos, i) {
+      if (i > 6) return 0;
+      if (pos === 'WR') return 1;
+      return (pos === 'TE' || pos === 'QB') ? -1 : 0;
+    },
+    // "pay for the last elite TE; the cliff pays it back"
+    elite_te: function (pos, i, r) {
+      return (i <= 3 && _count(r, 'TE') === 0) ? (pos === 'TE' ? 1 : 0) : 0;
+    },
+    // "take the rushing-QB edge before the room does"
+    early_qb: function (pos, i, r) {
+      return (i <= 4 && _count(r, 'QB') === 0) ? (pos === 'QB' ? 1 : 0) : 0;
+    },
+    // "let the room pay for QB; take the streamer tier"
+    late_qb: function (pos, i) { return (i <= 8 && pos === 'QB') ? -1 : 0; },
+    // A VARIANCE posture, not a positional one. Deliberately no positional
+    // preference — pretending otherwise would invent a claim the creed does
+    // not make. The ceiling TERM already carries this doctrine's intent.
+    ceiling: function () { return 0; },
+    balanced: function () { return 0; },        // the control, by definition
+  };
+
+  /** +1 wants it here, -1 avoids it here, 0 no opinion. */
+  function prefers(key, pos, i, roster) {
+    const f = PREFERS[key];
+    if (typeof f !== 'function') return 0;
+    const v = Number(f(pos, i, roster || [])) || 0;
+    return v > 0 ? 1 : (v < 0 ? -1 : 0);
   }
 
   const LIVE_CONSTRAINTS = {
@@ -315,7 +378,8 @@
                 DOCTRINES: DOCTRINES, ALIASES: ALIASES, DEFAULTS: DEFAULTS,
                 doctrineMeta: doctrineMeta, rankDoctrines: rankDoctrines,
                 DoctrineState: DoctrineState, LIVE_CONSTRAINTS: LIVE_CONSTRAINTS,
-                scoreBoard: scoreBoard, enrollment: enrollment };
+                scoreBoard: scoreBoard, enrollment: enrollment,
+                PREFERS: PREFERS, prefers: prefers };
   global.DraftDoctrine = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);

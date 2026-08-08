@@ -108,8 +108,26 @@ const check = (n, c, d) => { if (c) { pass++; console.log('PASS  ' + n); }
     return sc.length ? sc[0] : null;
   };
 
-  const wrFeast = order('wr_feast');
-  const rbAnchor = order('rb_anchor');
+  /* THE KEYS MUST BE REAL — the premise rule applied to a fixture's identifiers.
+   *
+   * A first pass used 'wr_feast' and 'rb_anchor', which are the doctrines'
+   * DISPLAY NAMES, not their keys ('wr_anchor', 'robust_rb'). Every tilt
+   * silently returned 0, so the LOWER bound failed with a message accusing the
+   * ENGINE of not being wired when the fault was in the test. An unverified
+   * identifier is an unverified premise. */
+  const KEY_A = 'wr_anchor', KEY_B = 'robust_rb';
+  check('the fixture uses REAL doctrine keys (premise, not assumption)',
+    !!DOC.DOCTRINES[KEY_A] && !!DOC.DOCTRINES[KEY_B]
+    && typeof DOC.PREFERS[KEY_A] === 'function'
+    && typeof DOC.PREFERS[KEY_B] === 'function',
+    'keys ' + KEY_A + '/' + KEY_B + ' must exist in DOCTRINES and PREFERS');
+  check('...and they PREFER OPPOSITE positions, or the fixture cannot separate them',
+    DOC.prefers(KEY_A, 'WR', 1, []) > 0 && DOC.prefers(KEY_B, 'RB', 1, []) > 0,
+    KEY_A + '(WR)=' + DOC.prefers(KEY_A, 'WR', 1, [])
+      + ' ' + KEY_B + '(RB)=' + DOC.prefers(KEY_B, 'RB', 1, []));
+
+  const wrFeast = order(KEY_A);
+  const rbAnchor = order(KEY_B);
   const none = order(null);
 
   check('the CLOSE fixture is capable of showing a difference (non-vacuity)',
@@ -134,14 +152,14 @@ const check = (n, c, d) => { if (c) { pass++; console.log('PASS  ' + n); }
   if (!DOC.governs()) {
     check('DISPLAY-ONLY means two different doctrines produce IDENTICAL rankings',
       wrFeast === rbAnchor && wrFeast === none,
-      'wr_feast=' + wrFeast + ' rb_anchor=' + rbAnchor + ' none=' + none
+      KEY_A + '=' + wrFeast + ' ' + KEY_B + '=' + rbAnchor + ' none=' + none
         + ' — rankings differ while GOVERNS is false, so something IS tilting '
         + 'and the banner is understating the model');
   } else {
     // ---- LOWER BOUND: it must move something, or it is decoration ----------
     check('LOWER BOUND — on a CLOSE call, two doctrines produce DIFFERENT rankings',
       wrFeast !== rbAnchor,
-      'GOVERNS=true but wr_feast and rb_anchor rank identically — the flag was '
+      'GOVERNS=true but the two doctrines rank identically — the flag was '
         + 'flipped without the tilt reaching the scoring path, which is exactly '
         + 'the audited bug wearing a fix\'s clothes');
     check('...and a doctrine actually moves the board off the no-doctrine order',
@@ -150,12 +168,12 @@ const check = (n, c, d) => { if (c) { pass++; console.log('PASS  ' + n); }
 
     // ---- UPPER BOUND: it must NOT be able to dominate ----------------------
     const wideNone = topOf(wideBoard, null);
-    const wideWr = topOf(wideBoard, 'wr_feast');
+    const wideWr = topOf(wideBoard, KEY_A);
     const gap = wideGap;
     check('UPPER BOUND — a doctrine does NOT displace a strongly-preferred player',
       wideWr && wideNone
         && String(wideWr.player.player_id) === String(wideNone.player.player_id),
-      'wr_feast flipped the top pick on a board where the composite led by '
+      KEY_A + ' flipped the top pick on a board where the composite led by '
         + gap.toFixed(1) + ' — that is an OVERRIDE, not a tilt. A tilt that '
         + 'always wins is the 74%-intervention problem wearing a doctrine label.');
   }
@@ -163,10 +181,9 @@ const check = (n, c, d) => { if (c) { pass++; console.log('PASS  ' + n); }
 
 // --- the current, audited state, asserted explicitly ------------------------
 {
-  check('CURRENT STATE (2026-08-08): the doctrine is display-only',
-    DOC.governs() === false,
-    'governs=' + DOC.governs()
-      + ' — if Stage 3 has landed, update this check WITH the wiring, not before');
+  check('CURRENT STATE: Stage 3 has landed — the doctrine governs',
+    DOC.governs() === true,
+    'governs=' + DOC.governs() + ' — Stage 3 wired the tilt, so this must be true');
 }
 
 console.log(`\n${pass}/${pass + fail} doctrine-governance checks passed`);

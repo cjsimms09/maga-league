@@ -114,6 +114,31 @@
     ONESIE_EXTREME_ADP: 18,       // picks past his market price = real value falling
     ONESIE_ELITE_RANK: 3,         // ...and only for a top-N player at the position
 
+    /* ── THE DOCTRINE TILT (Stage 3) ─────────────────────────────────────
+     *
+     * SMALL AND CITED, per the pre-registration's small-and-earn-up rule. The
+     * enrolled doctrine is a TILT, never an override: it may decide a close
+     * call and must never beat a clear one.
+     *
+     * THE MAGNITUDE IS CITED, NOT CHOSEN. Experiment 19b measured WR Feast
+     * diverging from the control on a mean of 1.9 picks per draft and earning
+     * +$187 doing it. A tilt that fires on ~2 of 12 picks is a tilt that can
+     * only decide near-ties — so the bonus is sized to the observed near-tie
+     * gap, not to a number that felt right. Measured on the real board, the
+     * top-two composite gap at Cory's picks runs 2.4-10.1 points; DG_NOISE_BAND
+     * (the even-money threshold) is 4.0. A tilt of 2.5 can therefore flip a
+     * genuine coin-flip and cannot flip anything the engine already calls
+     * decided.
+     *
+     * ⚠️ THIS IS A LEAN, NOT AN INSTALL. 19b is one tournament on simulated
+     * rooms; the doctrine's own edge has never been graded on realized
+     * outcomes. When experiment 34 reports, this constant is the install
+     * point — and per the pre-registration it starts SMALL and earns its way
+     * up, rather than starting loud and being tuned down.
+     */
+    DOCTRINE_TILT: 2.5,           // composite points, cited to exp 19b + the 4.0 band
+    DOCTRINE_TILT_ON: true,
+
     CEILING_SPREAD_SHARE: 0.15,   // fraction of theoretical upside treated as collectable
     CEILING_MAX_BONUS: 20.0,      // hard cap, in the composite's own points
     RAIL_COMPONENT_RATIO: 1.0,    // a component larger than the player's own VORP
@@ -531,6 +556,48 @@
     return 0;
   }
 
+  /**
+   * Does the enrolled doctrine want this player, and by how much?
+   *
+   * Returns the bonus in composite points (0 when nothing applies). Reads
+   * `ctx.doctrine` — the enrolled key — and defers to DraftDoctrine's own
+   * LIVE_CONSTRAINTS so the score and the banner cannot disagree about what
+   * the plan wants.
+   *
+   * Deliberately returns a FLAT bonus rather than a proportional one: a
+   * proportional tilt scales with the player's own value, which means it grows
+   * exactly where the composite is already confident — the opposite of what a
+   * tie-breaker should do.
+   */
+  function doctrineTilt(player, ctx) {
+    if (!CFG.DOCTRINE_TILT_ON) return 0;
+    var key = ctx && ctx.doctrine;
+    if (!key) return 0;
+    var DOC = (typeof DraftDoctrine !== 'undefined') ? DraftDoctrine
+      : (typeof require !== 'undefined' ? (function () {
+          try { return require('./doctrine.js'); } catch (e) { return null; } })() : null);
+    if (!DOC || !DOC.LIVE_CONSTRAINTS) return 0;
+    if (typeof DOC.prefers !== 'function') return 0;
+    var i = pickIndexOf(ctx);
+    // PREFERS, not LIVE_CONSTRAINTS: the latter is a legality filter that
+    // returns true for nearly everything, so tilting on it differentiates
+    // nothing. See the note above PREFERS in doctrine.js.
+    var pref = DOC.prefers(key, player.position, i, ctx.roster || []);
+    if (!pref) return 0;
+    return pref * CFG.DOCTRINE_TILT;
+  }
+
+  /* Which of MY picks this is (1-based) — LIVE_CONSTRAINTS is written in that
+   * coordinate system, not in [live-sequence]. */
+  function pickIndexOf(ctx) {
+    if (ctx.myPickIndex != null) return Number(ctx.myPickIndex);
+    var left = Number(ctx.myPicksLeft);
+    var total = Number(ctx.totalMyPicks);
+    if (Number.isFinite(left) && Number.isFinite(total)) return total - left + 1;
+    if (Number.isFinite(left)) return Math.max(1, 13 - left);   // 12-pick keeper default
+    return 1;
+  }
+
   function scorePlayer(player, ctx) {
     const w = Object.assign({}, DEFAULT_WEIGHTS, ctx.weights || {});
     // Pass the full context (not just run multipliers) so the A2 three-layer
@@ -609,6 +676,16 @@
     if (onesie.duplicate && onesie.discount < 1) {
       score = score * onesie.discount;
     }
+
+    /* THE DOCTRINE TILT. Additive and bounded, applied after the discounts so
+     * it cannot rescue a player the construction rules just priced down — a
+     * plan may not talk you into an unstartable backup.
+     *
+     * `doctrineAllows` is the SAME LIVE_CONSTRAINTS predicate the banner uses
+     * to name the doctrine's branch, so the surface and the score cannot
+     * disagree about what the plan wants. One canonical fact, one derivation. */
+    var tilt = doctrineTilt(player, ctx);
+    if (tilt) score += tilt;
 
     const survivalToNext = ctx.nextPick ? survival(player, ctx.nextPick, ctx) : 0;
     const reasons = [];
@@ -1917,7 +1994,7 @@
     normalCdf, adpSd, survival, runMultipliers, detectRuns,
     expectedBestAvailable, vona,
     tierCliffUrgency, starterSlotMarginal, riskAdjustment, upsideBonus,
-    scorePlayer, onesieState, positionRank, recommend, mandatoryGaps, applyRosterLegality, plausibilityRails,
+    scorePlayer, onesieState, positionRank, doctrineTilt, recommend, mandatoryGaps, applyRosterLegality, plausibilityRails,
     demoteFlaggedOnesies, computeRailBudget, railFireSig, bestFlexAlt,
     confidence, branchForecast, computePaths, dollarGap, playerDollars, applyPersonalLists, onTheClock, rosterPlan, byeGrid,
     cheatSheet, sheetText, managerTells, threatBoard,
