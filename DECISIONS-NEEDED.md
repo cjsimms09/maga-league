@@ -37,6 +37,48 @@ and select a strategy? My recommendation: yes, post-draft, as part of the
 in-season rankings work — a genuine projection is the prerequisite for the
 backtest to mean anything, and it is out of scope before Aug 22.
 
+## D3 — Flex-fill discount in the need term (OPEN — tracked, quantify before mocks)
+
+The Final Pass A1 review surfaced this: `starterSlotMarginal` values a player who
+fills the **FLEX** slot at **full VORP**, identical to one filling a dedicated
+slot. So with my 3 keepers (2 RB + 1 WR), an additional RB still "starts in your
+flex" at full value — RB need does not drop until the flex is ALSO consumed. This
+is arguably correct (a flex RB does start) but it prices my literal first pick.
+
+**Question:** should a flex-fill be valued at *marginal-over-best-flex-alternative*
+rather than full VORP?
+
+**Plan (before mocks):** quantify at MY actual draft state (keepers rostered,
+first live pick, real board) — how much does top-of-board ordering change if
+flex-fills are marginalized? **If any top-5 candidate moves >2 composite points,
+it's a pre-mock fix through the normal gates; if it's noise, document why and
+close.** Gated on the CI rebuild landing (needs the real 15-round board with
+kept_players). My recommendation: run the quantification the moment the rebuild
+lands; do not change the engine until the number says it's material.
+
+## D4 — Draft slot is UNVERIFIED (A2 — blocked on Sleeper draft room creation)
+
+Slot 9 is a **placeholder**, not a claim — draft positions have not been selected
+in Sleeper yet. Per Final Pass A2, the machinery to build (not blocking; captured
+so it's not lost):
+1. Label the slot **"manually set — UNVERIFIED, draft order not yet assigned"**
+   with amber treatment; propagate a **provisional watermark** to everything
+   slot-derived (my pick numbers, live-pick mapping, branch forecasts,
+   survival-to-next, the opening script when it generates).
+2. Add **slot-assignment to the watched-state list** (alongside keeper
+   designations): when the Sleeper draft room is created and slots assign,
+   auto-import, flip the label to **"from Sleeper — verified,"** and clear the
+   watermarks.
+3. Pre-draft checklist line: **"Draft slot verified against Sleeper draft object"**
+   — red until true.
+4. The **opening script regenerates on slot assignment** (same trigger discipline
+   as keeper-lock regeneration).
+
+**Interaction with A1:** the keeper pre-population matches `team_slot ==
+my_draft_slot`. The CI rebuild stamps keepers with whatever slot the config
+carries; once the real slot is verified and the board rebuilt for it, A1
+populates correctly. Until then A1 shows keepers for the config's current slot.
+
 _No other decisions open._
 
 

@@ -1,5 +1,51 @@
 # STATUS — unattended run
 
+## 🧭 WAR ROOM FINAL PASS — in progress (before shadows, per deadline order)
+Work order: §A state correctness → §C verdicts → Part 2 layout (absorbs §B) → §D → phone pass. Every UI change gets a robot scenario; "WHAT DOES NOT CHANGE" is protected.
+- **§A1 keepers pre-populate roster:** machinery DONE (`build.py` emits `kept_players`; `populateKeepers()` rosters + badges 🔒; need model + bye card read post-keeper roster; robot R8). **Activates fully once the CI rebuild lands** (kept_players needs the real player pool + correct slot). Acceptance text corrected in the spec (participation = reason-change + flex-consumption; the naive "RB need = 0" was wrong).
+- **ROUNDS BUG FIXED (draft-critical):** draft is **15 rounds, my 12 picks (rounds 4–15)** — the old `roster_size − keeper_count = 12` was a pipeline derivation bug (NOT Sleeper). One source now (`config_schema.draft_rounds`), 5 sites unified, cross-language regression tests. **CI rebuild triggered** to regenerate the artifact at 15; robot R-rounds is red until it lands (by design).
+- **§A2 slot verification — OPEN (blocked on external event):** slot 9 is an UNVERIFIED placeholder (draft order not yet assigned in Sleeper). Requirements captured in DECISIONS-NEEDED: amber "manually set — UNVERIFIED" label + provisional watermark on everything slot-derived; slot-assignment added to watched-state (auto-import + flip to "from Sleeper — verified" + clear watermarks); checklist line "Draft slot verified against Sleeper draft object" (red until true); opening-script regenerates on slot assignment.
+- **§C missing-feature verdicts:**
+  1. **LRM countdown strip (2b.6):** **ABSENT as UI**, but a lightweight LRM *is now computed + logged* (`survival-snapshot-v0`). Build the visible strip before mocks (highest-value for a round-4 start).
+  2. **Run-detection banner:** **BUILT** (`renderRuns` → `#run-banner`); now also logs to ledger.
+  3. **Global ADP drift readout:** **ABSENT** (engine has drift; no readout).
+  4. **Override reason capture (one-tap target/gut/news/plan):** **PARTIAL** — override logs to ledger, but the one-tap *reason* prompt is ABSENT; build before mocks (ledger needs it draft night).
+  5. **Room-conformity readout:** **ABSENT** (behavior-ADP not shipped) — pending.
+  6. **Intel Card / pick-34 dossier placeholder:** **ABSENT** — reserve the page slot for Backtest-2 §3.4.
+
+## 📋 BACKLOG (Complete Backlog — `docs/queued/complete-backlog.md`)
+**Triage rule (binding):** the deadline order (polish → paths → shadows → opening script → mocks) is untouchable; any Part A/B item threatening a deadline item auto-defers to Part D with a note.
+**Environment (corrected 2026-08-08): Cory drafts on DESKTOP CHROME.** Desktop three-zone layout is the PRIMARY surface; phone is the tested disaster-recovery path (must work, not be optimal). Safari pass demoted to a light fallback (robot's Chromium == the real env).
+
+| item | gate | notes |
+|---|---|---|
+| A-1 server-side personal prefs | before first mock | STAYS but urgency DROPPED (desktop-primary); Blobs-backed, localStorage cache |
+| A-2 undo everywhere | before first mock | 5s undo toast; logs corrections to ledger |
+| A-3 my-turn alerting | before first mock | desktop Chrome audio (no gesture-arm); **add tab-title flash + test with war room in a BACKGROUND tab** (Sleeper focused elsewhere) |
+| A-4 post-pick instant read | as capacity, else draft week | banter/intel line from existing deltas |
+| A-5 biggest-fallers ticker | as capacity | |
+| A-6 any-pick board explorer | as capacity | tappable branch timeline |
+| A-7 player card depth | as capacity | one consistent card everywhere |
+| A-8 draft board export | as capacity | CSV + printable recap |
+| B-1 game-day runbook | **generates from Aug 15** | daily-refreshed one-pager |
+| B-2 function warm-up scheduler | draft week | keep Netlify functions warm |
+| B-3 Safari/iOS pass | draft week — **DEMOTED to light fallback** | desktop Chrome is the real env |
+| B-4 client error beacon | draft week | tiny Sentry for live sessions |
+| B-5 performance budget pass | draft week | phone-viewport Lighthouse; regressions fail CI |
+| B-6 full failure drill | T-24h in runbook | wifi kill, Sleeper outage, manual entry |
+| C-1 live shadow standings strip | behind mocks | zero decision weight |
+| C-2 round-transition posture cards | behind mocks | |
+| C-3 closing checklist | behind mocks | post-draft card + archive-all to L2 |
+| D-1 draft recap | Aug 23+ | graded card per team |
+| D-2 mock-frown ledger UI | Aug 23+ | "log a frown" → triage → scenario |
+| D-3 prediction-confidence display | Sep (data-gated) | |
+| D-4 everything already queued | behind all | in-season master, BT2, S/N, annual button |
+| **E-1 weekly self-audit cron** | **STARTS this Sunday (Aug 9)** | **✅ `self-audit.yml` created** — Sun-night sweep: tests green, deploy==HEAD, storage=blobs, crons present → SELF-AUDIT.md |
+| E-2 frown→scenario pipeline | standing | no fix merges without its scenario |
+| E-3 quarterly design review | Oct 1 / Jan 2 / Apr 1 | |
+| E-4 honesty paragraph everywhere | standing | checked requirement on every new surface |
+| **nflverse audit** | queued (break) | (1) dataset inventory table (used/pending/skipped); (2) evaluate nfl_data_py→nflreadpy migration (post-draft, dual-path gate); (3) confirm 2c metric data paths reachable in CI now, gated post-draft |
+
 _Read this first. Updated after every completed item._
 
 ## 🚀 DEPLOY STAMP (repo ↔ live)

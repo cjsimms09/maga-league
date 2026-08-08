@@ -1,0 +1,96 @@
+name: Weekly self-audit (E-1)
+
+# The system checking its own pulse, every week, forever (backlog E-1).
+#
+# Sunday nights: a watchdog for the watchdogs. Confirms the test suite is green,
+# the deployed build matches HEAD, storage is durable, and the scheduled crons
+# exist — then writes a one-line verdict to SELF-AUDIT.md (kept separate from
+# STATUS.md to avoid racing the frequent hand-edits there; STATUS links to it).
+# Hard failures (tests red, live storage not on durable blobs) fail the run;
+# softer drift is reported as AMBER in the summary.
+
+on:
+  schedule:
+    # 04:00 UTC Monday ≈ 23:00 US Central Sunday — "Sunday night".
+    - cron: '0 4 * * 1'
+  workflow_dispatch:
+    inputs:
+      site:
+        description: 'Site URL'
+        required: false
+        default: ''
+
+permissions:
+  contents: write        # writes the one-line verdict back to SELF-AUDIT.md
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "20" }
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - name: Run the sweep
+        env:
+          SITE: ${{ inputs.site || vars.SITE_URL || 'https://makefbgreatagain.netlify.app' }}
+          WANT_SHA: ${{ github.sha }}
+        run: |
+          set +e
+          amber=(); hard=()
+
+          echo "== test suites =="
+          pip install pytest -q
+          npm install --no-audit --no-fund >/dev/null 2>&1
+          py_ok=1; js_ok=1
+          python -m pytest draft/tests -q || py_ok=0
+          for t in attribution backtest betlogic engine keeperlock keepers ledger \
+                   mcts predledger rawarchive reconcile strategies sync update; do
+            node draft/tests/$t.test.js >/dev/null 2>&1 || js_ok=0
+          done
+          node draft/tests/robot-mock.js >/dev/null 2>&1 || js_ok=0
+          node draft/tests/server-ledger.test.js >/dev/null 2>&1 || js_ok=0
+          [ "$py_ok" = 1 ] && [ "$js_ok" = 1 ] && tests="green" || { tests="RED"; hard+=("test suite red"); }
+
+          echo "== deploy health =="
+          health=$(curl -s --max-time 25 "$SITE/api/health" 2>/dev/null)
+          commit=$(echo "$health" | python3 -c "import sys,json;print(json.load(sys.stdin).get('commit') or '')" 2>/dev/null)
+          backend=$(echo "$health" | python3 -c "import sys,json;print(json.load(sys.stdin).get('storage_backend') or '')" 2>/dev/null)
+          ctx=$(echo "$health" | python3 -c "import sys,json;print(json.load(sys.stdin).get('context') or '')" 2>/dev/null)
+          if [ -z "$commit" ]; then amber+=("live /api/health unreachable or no commit"); fi
+          if [ -n "$commit" ] && [ "${commit:0:12}" != "${WANT_SHA:0:12}" ]; then
+            amber+=("live commit ${commit:0:12} != HEAD ${WANT_SHA:0:12} (deploy lag?)")
+          fi
+          if [ "$ctx" = "production" ] && [ "$backend" != "blobs" ]; then
+            hard+=("live storage_backend=$backend, not durable blobs")
+          fi
+
+          echo "== scheduled crons present =="
+          for wf in backup.js draft-data.yml site-check.yml deploy-verify.yml self-audit.yml; do
+            [ -f ".github/workflows/$wf" ] || { ls netlify/functions/$wf >/dev/null 2>&1 || amber+=("missing scheduled: $wf"); }
+          done
+
+          stamp=$(date -u +%Y-%m-%dT%H:%MZ)
+          if [ ${#hard[@]} -gt 0 ]; then verdict="RED"; elif [ ${#amber[@]} -gt 0 ]; then verdict="AMBER"; else verdict="GREEN"; fi
+          short_commit="${commit:0:12}"; [ -z "$short_commit" ] && short_commit="none"
+          line="$stamp — self-audit: $verdict — tests $tests · deploy $short_commit ($backend) · amber:${#amber[@]} hard:${#hard[@]}"
+          {
+            echo "# Weekly self-audit (E-1)"
+            echo ""
+            echo "_Latest: **$verdict**_ — $stamp"
+            echo ""
+            echo '```'
+            echo "$line"
+            for a in "${amber[@]}"; do echo "  AMBER: $a"; done
+            for h in "${hard[@]}"; do echo "  HARD:  $h"; done
+            echo '```'
+          } > SELF-AUDIT.md
+
+          git config user.name "self-audit-bot"; git config user.email "actions@github.com"
+          git add SELF-AUDIT.md
+          git commit -m "Self-audit $stamp: $verdict" || echo "no change"
+          git pull --rebase origin main && git push || echo "push skipped"
+
+          echo "$line"
+          [ ${#hard[@]} -gt 0 ] && exit 1 || exit 0
