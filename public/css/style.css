@@ -2078,3 +2078,12 @@ table .num.zero { color: var(--muted); font-weight: 400; }
   .wr-decide { grid-template-columns: 1fr; }
   .wr-zone2 { gap: .8rem; }
 }
+
+/* ---------- Part 2 §2(d) density: sticky board header + name column ----------
+   The draft board runs 200+ rows; keep the column labels and the player-name
+   column anchored while scanning. Scoped to #board so the ledger/history .roll
+   tables are untouched. Opaque navy so nothing bleeds through the sticky cells. */
+#board thead th { position: sticky; top: 0; z-index: 6; background: var(--navy-deep, #0b1020); }
+#board th:nth-child(2), #board td:nth-child(2) { position: sticky; left: 0; z-index: 4; background: var(--navy-deep, #0b1020); }
+#board thead th:nth-child(2) { z-index: 7; }
+#board tbody tr:hover td:nth-child(2) { background: rgba(255,255,255,.045); }
