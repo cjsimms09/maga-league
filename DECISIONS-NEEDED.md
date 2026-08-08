@@ -102,20 +102,21 @@ work, none of it live yet, so this is spec + capture refit, no live code to brea
   patterns from our actual league history is already captured; the fit itself is
   in-season work (built-ahead, activation-flagged awaiting season data).
 
-## D7 — 🚨 URGENT: league settings show draft_rounds:3 (verify the DRAFT OBJECT)
+## D7 — ✅ RESOLVED: rounds=15 verified at source (the draft_rounds:3 was a red herring)
 
-Chat-Claude read the live league object: `draft_rounds:3` in the LEAGUE settings.
-The **draft OBJECT** (draft `1374848328474324992`) is authoritative for the actual
-draft length. **If the draft object reports anything other than 15, Cory must text
-the commissioner before the draft room is finalized** — a 3-round draft is a
-draft-night catastrophe. Built now: the app captures the synced draft object's
-rounds and a checklist line **"Draft object rounds == 15"** goes red until verified
-(says TEXT THE COMMISSIONER on a mismatch). **Blocked on:** the draft object being
-reachable (needs the Sleeper draft room; sandbox egress can't reach the API). My
-recommendation: Cory checks the draft settings on Sleeper directly now, and the
-checklist confirms it on first sync.
+Chat-Claude pulled the draft OBJECT directly: `draft 1374848328474324992
+settings.rounds = 15`. The `draft_rounds:3` in the LEAGUE settings is a stale/unused
+field; the draft object is authoritative and says **15**. Our pipeline fix (15
+rounds, 12 my-picks) is correct and confirmed at source. The checklist line
+confirms it green on first sync. No commissioner action needed. **Closed.**
 
-_No other decisions open._
+## D8 — IR config oddity (low priority, pre-season answer)
+
+`reserve_slots=1` but every `reserve_allow_*` flag = 0. Verify what actually
+qualifies for the IR slot (affects in-season roster-capacity logic). Not draft-
+relevant; recommendation: check Sleeper's IR settings before week 1.
+
+_No other decisions open (D3 flex-quant and D6 is_faab pending their data)._
 
 
 ## D2 — RESOLVED (answer: (b)) — top_picks_flat implemented

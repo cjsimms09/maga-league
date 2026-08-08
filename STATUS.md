@@ -296,12 +296,29 @@ Auto-refreshes in CI (`money_history.py` → `MONEY-HISTORY.md`). **ANALYSIS 2**
 5. **Trade deadline week 11** → trade-radar clock.
 6. Bench **6 of 12** → lottery-ticket policy scope widens (reinforced by the money function).
 
-### Dossier intel — 2025 name-mapped standings + efficiency (chat-Claude) → append to dossiers
-- **mhagen** — champion; market-drafter, elite execution.
-- **Richard2121** — 90.4% lineup efficiency, **points-unlucky** (4–11 record ≠ bad manager).
-- **Schmelley 84.3% · Cory (me) 85.9% · Sadbru 86.5%** — the **lineup-leak cohort** (efficiency to reclaim).
-- **ds7mmet** — schedule-lucky playoff entry.
-- **🎯 PRE-REGISTERED PREDICTION (verify when the matchup harvest + name-map run):** Richard2121 and MarianSaar **banked multiple weekly highs despite their records** — the money function's core thesis (ceiling ≠ record). `money_history.py` already computes highs per owner; the name↔ID join (owners map, currently a TODO) confirms/refutes it. This is a real falsifiable test of "variance is subsidized."
+### 2025 season table — name-mapped, append to dossiers (chat-Claude live pull)
+| manager | rec | PF | lineup eff | note |
+|---|---|---|---|---|
+| **mhagen** | 12–3 | 1840.9 | 89.1% | CHAMPION · market-value drafter · no-leak execution · fewest PA |
+| B8T3S | 10–5 | 1831.1 | 89.8% | |
+| Jreis | 10–5 | 1642.1 | — | schedule-favored seed |
+| ds7mmet | 9–6 | 1584.5 | — | luckiest playoff entry (6th in PF) |
+| Schmelley | 8–7 | 1656.3 | 84.3% | **worst lineup-setter** (leak cohort) |
+| MarianSaar | 7–8 | 1744.7 | — | 3rd-most PF, **missed playoffs — schedule-robbed** |
+| **Cory (me)** | 5–10 | 1555.9 | 85.9% | **~255 bench points lost** (leak cohort) |
+| cashworth | 5–10 | 1536.0 | — | |
+| Sadbru | 5–10 | 1476.0 | 86.5% | last in PF (leak cohort) |
+| Richard2121 | 4–11 | 1711.2 | 90.4% | 4th-most PF, **BEST lineup-setter**, league-high 1849 PA → **points-unlucky, not bad** |
+**Cross-season joins MUST key on owner_id/user_id, never roster_id** (roster_id↔owner changes between seasons — 2024 champ roster 4 ≠ 2025 roster 4). `money_history` keys on owner (via per-season roster→owner resolve) ✓.
+**🎯 PRE-REGISTERED PREDICTION (log before harvest):** Richard2121 & MarianSaar banked multiple 2025 weekly highs despite records — payout already paid the ceiling-unlucky. Verify vs weeks 1–15.
+
+### Live-API briefing — other findings (chat-Claude, 2026-08-08)
+1. **Era stability CONFIRMED** — 2024/2025/2026 settings byte-for-byte identical (scoring incl. pass_td 6.0, playoff_start 16, 4 teams, deadline 11, waiver_type 1, max_keepers 3, pick_trading 1). **Backtest simplifies: all replay seasons ran under current rules — full pattern transfer, no era adjustments.** Stamp the settings hash across the chain as proof (Part 12).
+2. **Rounds=15 verified at source** (D7 closed).
+3. **Draft-object flags:** `pick_timer=0` (possibly UNTIMED — Cory confirming; if so, note in opening-script/UI-urgency design), `draft_order=null` (D4 amber confirmed at source → add auto-import trigger when it becomes non-null), `cpu_autopick=1` (**no-show manager drafts Sleeper's default board — absent opponents are perfectly predictable**, dossier note), `reversal_round=0` (snake holds).
+4. **Playoffs = weeks 16–17 ONLY** (2 rounds). Playoff-SOS term targets 16–17; weekly-high window = weeks 1–15 exactly (money_history honors this). Corrects the specs' 15–17 assumption.
+9. **Data-path:** roster objects carry `total_moves=0`/`waiver_budget_used=0` for everyone — transaction/waiver fingerprinting must use `/league/{id}/transactions/{week}` (history_export already does ✓), never roster settings.
+11. **Harvest targets confirmed reachable:** 2025 draft `1248121522766217216`, 2024 draft `1117672595379277825`, 2023 league `990840142107619328`, winners/losers brackets for 2024+2025 (playoff-finish → payout mapping). Chain walks clean; stay under 1000 calls/min.
 
 ## 📅 SEASON READINESS — IN-SEASON MASTER calendar gates (starts Aug 23)
 The in-season arsenal (`docs/queued/in-season-master.md`) is appended to the END
