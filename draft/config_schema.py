@@ -100,6 +100,35 @@ def validate(cfg: dict) -> dict:
     return normalize(cfg)
 
 
+def draft_rounds(cfg: dict) -> int:
+    """THE single source of truth for draft LENGTH (rounds).
+
+    DRAFT ROUNDS vs MY PICKS — do not conflate them.
+
+    `rounds` is the LENGTH of the draft: one round per roster spot. Under
+    top_picks_flat a keeper does NOT shorten the draft — it forfeits a SPECIFIC
+    round (the k-th keeper forfeits round k), so every team still drafts across
+    all `roster_size` rounds; a keeper simply skips their pick in the forfeited
+    ones. My *picks remaining* is therefore rounds − my_keeper_count (15 − 3 = 12
+    live picks in rounds 4–15), and that subtraction belongs in the pick order
+    (per-team), NOT in the draft length.
+
+    The old `roster_size - keepers.count` was the bug (it shortened the draft to
+    12 rounds for EVERYONE — only correct for a 'keepers shrink the draft' model,
+    not ours). Confirmed by Cory 2026-08-08: 15 rounds, 12 live picks, rounds
+    1–3 keeper-forfeited. Every consumer (config_schema.normalize,
+    keepers.build_true_pick_order, build.py's ADP fallback, the JS mock shape)
+    calls THIS — the constant carries its reasoning in one place, so the
+    conflation cannot creep back in through a stray fallback. Rounds NEVER
+    derives from keeper count.
+    """
+    explicit = cfg.get("rounds")
+    if explicit:
+        return int(explicit)
+    slots = cfg.get("roster_slots") or {}
+    return cfg.get("roster_size") or sum(slots.values())
+
+
 def normalize(cfg: dict) -> dict:
     """Fill derived fields the rest of the pipeline expects."""
     out = dict(cfg)
@@ -107,7 +136,7 @@ def normalize(cfg: dict) -> dict:
     out["starters"] = {k: v for k, v in slots.items() if k in STARTER_SLOTS and v > 0}
     out["bench_size"] = sum(v for k, v in slots.items() if k in BENCH_SLOTS)
     out["roster_size"] = sum(slots.values())
-    out.setdefault("rounds", out["roster_size"] - out["keepers"].get("count", 0))
+    out["rounds"] = draft_rounds(out)   # single source; see draft_rounds()
     out.setdefault("adp_blend_weight", 0.7)   # Module 3: adjusted vs raw ADP anchor
     out.setdefault("opportunity_cap", 0.15)   # Module 2: max ± adjustment to consensus
     out.setdefault("recency_weights", [0.7, 0.3])  # Module 2: last season, season before

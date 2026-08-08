@@ -206,8 +206,8 @@ def load_players(cfg: dict, offline: bool) -> list[dict]:
             raw, fmt=_ffc_format(cfg), teams=int(cfg.get("teams") or 10),
             year=int(cfg.get("season") or time.gmtime().tm_year))
         teams_n = int(cfg.get("teams") or 10)
-        rounds_n = int(cfg.get("rounds") or 0) or max(
-            1, int(cfg.get("roster_size") or 15) - int((cfg.get("keepers") or {}).get("count") or 0))
+        # Draft length from the ONE source (config_schema.draft_rounds).
+        rounds_n = config_schema.draft_rounds(cfg)
         ADP_PROVENANCE.update(adp_mod.apply_with_fallback(
             players, table["adp"], teams=teams_n, draft_picks=teams_n * rounds_n))
         ADP_PROVENANCE["report"] = table["report"]
@@ -470,6 +470,25 @@ def build(cfg: dict, *, offline: bool = False, force_profiles: bool = False,
 
     order = keepers_mod.build_true_pick_order(cfg, keeper_map)
     print(f"  true pick order: {len(order.picks)} picks, {len(order.forfeited)} forfeited")
+
+    # Kept players are excluded from the draftable board (they are already
+    # rostered), but the War Room needs their full objects to pre-populate the
+    # roster panel and bye card from pick one (Final Pass A1). Capture them here,
+    # from the pre-exclusion pool (so bye/position/name are present), and stamp
+    # each with its team_slot and cost_round from the forfeiture record.
+    forfeit_by_id = {str(f.get("player_id")): f for f in order.forfeited}
+    kept_players = []
+    for p in players:
+        pid = str(p.get("player_id"))
+        if pid not in kept_ids:
+            continue
+        rec = dict(p)
+        f = forfeit_by_id.get(pid, {})
+        rec["team_slot"] = f.get("team_slot")
+        rec["cost_round"] = f.get("cost_round")
+        rec["original_round"] = f.get("original_round")
+        rec["is_keeper"] = True
+        kept_players.append(rec)
     if order.my_picks:
         print(f"  my picks: {order.my_picks[:8]}{' ...' if len(order.my_picks) > 8 else ''}")
 
@@ -503,6 +522,9 @@ def build(cfg: dict, *, offline: bool = False, force_profiles: bool = False,
         "manager_profiles": profiles,
         "players": available,
         "kept_player_ids": sorted(kept_ids),
+        # Full objects for the kept players (bye/position/name + team_slot), so
+        # the War Room can pre-populate my roster and bye card from pick one (A1).
+        "kept_players": kept_players,
         "notes": {
             "adp_blend_weight": cfg.get("adp_blend_weight"),
             "opportunity_cap": cfg.get("opportunity_cap"),

@@ -42,7 +42,14 @@ function rng(seed) {
 const ART = JSON.parse(fs.readFileSync(path.join(__dirname, '..', '..', 'public', 'draft_data.json'), 'utf8'));
 const LEAGUE = ART.league;
 const TEAMS = LEAGUE.teams || 10;
-const ROUNDS = 12;
+// Draft LENGTH = one round per roster spot (ground truth from roster_slots).
+// Keepers forfeit specific rounds; they do not shorten the draft. See
+// config_schema.draft_rounds. ROSTER_SIZE is the stable source; the artifact's
+// stamped `rounds` MUST equal it (asserted in R-rounds below — red on a stale
+// board built under the old roster_size−count bug, green once rebuilt).
+const ROSTER_SIZE = Object.values(LEAGUE.roster_slots || {}).reduce((a, b) => a + b, 0) || 15;
+const ROUNDS = ROSTER_SIZE;
+const MY_KEEPERS = 3;
 const IS_FIXTURE = (((ART.provenance || {}).adp || {}).adp_source) === 'fixture';
 const ALL = ART.players.filter(p => p.proj_mean > 0)
   .sort((a, b) => (a.overall_rank || 1e9) - (b.overall_rank || 1e9));
@@ -192,6 +199,51 @@ if (!IS_FIXTURE) {
   check('R6 onesie demotion: no demoted onesie sits above an unflagged player',
     aboveLine.every(s => !s.demoted),
     aboveLine.filter(s => s.demoted).map(s => s.player.name).join(','));
+}
+
+// R-rounds (2026-08-08 rounds fix): the draft is 15 rounds; a 3-keeper seat
+// plays 12 (rounds 4-15). The artifact's stamped `rounds` MUST equal roster size
+// — this is RED on a board built under the old roster_size−count bug and GREEN
+// once rebuilt, exactly as intended.
+{
+  check('R-rounds: artifact draft length equals roster size (keepers do not shorten it)',
+    LEAGUE.rounds === ROSTER_SIZE, 'rounds=' + LEAGUE.rounds + ' roster_size=' + ROSTER_SIZE);
+  const forfeited = new Set([1, 2, 3]);   // my top_picks_flat forfeits
+  const played = [];
+  for (let r = 1; r <= ROUNDS; r++) if (!forfeited.has(r)) played.push(r);
+  check('R-rounds: a 3-keeper seat plays ' + (ROUNDS - MY_KEEPERS) + ' rounds, first is round 4, last is round ' + ROUNDS,
+    played.length === ROUNDS - MY_KEEPERS && played[0] === 4 && played[played.length - 1] === ROUNDS,
+    played.join(','));
+}
+
+// R8 (Final Pass A1 — the need term reads the post-keeper roster). Written to the
+// engine's TRUE behavior (per the flex nuance): the participation test is the
+// reason CHANGE (an ignored roster would still say "fills an empty RB slot"),
+// and the value only drops once dedicated AND flex are all consumed.
+{
+  const keeperRoster = [
+    { position: 'WR', name: 'Chase', proj_mean: 200, vorp: 100 },
+    { position: 'RB', name: 'Henry', proj_mean: 200, vorp: 90 },
+    { position: 'RB', name: 'Walker', proj_mean: 180, vorp: 70 },
+  ];
+  const rb = ALL.find(p => p.position === 'RB');
+  const wr = ALL.find(p => p.position === 'WR');
+  check('R8 A1: with 2 RB keepers, the RB dedicated slots read FILLED (starts in flex, not "empty RB slot")',
+    /flex/.test(E.starterSlotMarginal(rb, keeperRoster, LEAGUE).why));
+  check('R8 A1 participation: the SAME RB on an EMPTY roster reads "empty RB slot" — proving need is roster-driven',
+    /empty RB/.test(E.starterSlotMarginal(rb, [], LEAGUE).why));
+  check('R8 A1: WR still has one open dedicated slot (1 of 2 filled by Chase)',
+    /empty WR/.test(E.starterSlotMarginal(wr, keeperRoster, LEAGUE).why));
+  // Consume dedicated AND flex: 2RB + 3WR + 1TE fills RB×2, WR×2, TE×1, FLEX×1
+  // (the 3rd WR takes the flex), so an additional RB can only make the bench.
+  const flexFull = keeperRoster.concat([
+    { position: 'WR', name: 'x', proj_mean: 190, vorp: 85 },
+    { position: 'WR', name: 'y', proj_mean: 185, vorp: 80 },
+    { position: 'TE', name: 't', proj_mean: 150, vorp: 60 }]);
+  const open = E.starterSlotMarginal(rb, keeperRoster, LEAGUE).value;
+  const full = E.starterSlotMarginal(rb, flexFull, LEAGUE).value;
+  check('R8 A1: once dedicated+flex are consumed, RB need drops to bench value (< flex-open value)',
+    full < open, 'open=' + open.toFixed(1) + ' full=' + full.toFixed(1));
 }
 
 // R7 (DEMAND 3 — the robot draft writes the ledger): a full simulated draft

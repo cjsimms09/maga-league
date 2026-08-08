@@ -242,6 +242,7 @@
       pick_order: JSON.parse(JSON.stringify(data.pick_order || {})),
     };
     state.board = data.players.slice();
+    populateKeepers(data);
     applyOverrides();
     renderAll();
     wireControls();
@@ -1499,6 +1500,36 @@
     return flags.join(' ');
   }
 
+  /* A1 — keepers pre-populate my roster.
+   *
+   * I START this draft with my keepers already rostered; a roster that reads
+   * "Nothing yet" and a need model that thinks I have zero RBs is the biggest
+   * defect on the page. On board load my confirmed keepers (the kept_players
+   * for MY slot) go straight into myRoster, badged KEEPER: the need term reads a
+   * post-keeper roster, the bye card shows their byes from pick one, and the
+   * picks-remaining math is already correct because the forfeited rounds are
+   * gone from the pick order. Idempotent; skipped in a mock (mocks have no
+   * keepers). Falls back to the forfeiture records (no bye) on an older board.
+   */
+  function populateKeepers(data) {
+    if (state.mockMode) return;
+    const mySlot = Number(data.league.my_draft_slot) || null;
+    if (!mySlot) return;
+    let mine = (data.kept_players || []).filter(k => Number(k.team_slot) === mySlot);
+    if (!mine.length) {
+      mine = ((data.pick_order || {}).forfeited || [])
+        .filter(f => Number(f.team_slot) === mySlot)
+        .map(f => ({ player_id: f.player_id, name: f.name, position: f.position,
+          bye: null, off_board: true }));
+    }
+    const have = new Set(state.myRoster.map(p => String(p.player_id)));
+    mine.forEach(k => {
+      if (have.has(String(k.player_id))) return;
+      state.myRoster.push(Object.assign({}, k, { is_keeper: true }));
+      state.drafted.add(String(k.player_id));   // keepers are off the board
+    });
+  }
+
   function renderRoster() {
     const starters = state.data.league.starters || {};
     const filled = {};
@@ -1512,9 +1543,13 @@
           const at = state.myRoster.filter(p => p.position === slot).sort((a, b) => b.proj_mean - a.proj_mean);
           occupant = at[i];
         }
-        cells.push('<div class="slot-chip ' + (occupant ? 'filled' : 'empty') + '">' +
+        const isKeeper = occupant && occupant.is_keeper;
+        cells.push('<div class="slot-chip ' + (occupant ? 'filled' : 'empty')
+          + (isKeeper ? ' keeper' : '') + '">' +
           '<span class="slot-label">' + slot + '</span>' +
-          '<span>' + (occupant ? escapeHtml(occupant.name) : '—') + '</span></div>');
+          '<span>' + (occupant ? escapeHtml(occupant.name) : '—')
+          + (isKeeper ? ' <span class="keeper-badge" title="Kept — locked to your roster">🔒 KEEPER</span>' : '')
+          + '</span></div>');
       }
     });
     $('#roster-slots').innerHTML = cells.join('');
@@ -1524,9 +1559,10 @@
           // that used to read, which looks like a broken number rather than an
           // absent one.
           const proj = Number.isFinite(p.proj_mean) ? ' · ' + Math.round(p.proj_mean) : '';
-          const off = p.off_board ? ' <span class="muted">(not on the board)</span>' : '';
-          return '<li' + (p.off_board ? ' class="off-board"' : '') + '>' + escapeHtml(p.name)
-            + ' <span class="muted">' + p.position + proj + '</span>' + off + '</li>';
+          const off = p.off_board && !p.is_keeper ? ' <span class="muted">(not on the board)</span>' : '';
+          const kept = p.is_keeper ? ' <span class="keeper-badge" title="Kept — locked to your roster">🔒 KEEPER</span>' : '';
+          return '<li' + (p.off_board && !p.is_keeper ? ' class="off-board"' : '') + (p.is_keeper ? ' class="keeper"' : '') + '>'
+            + escapeHtml(p.name) + ' <span class="muted">' + p.position + proj + '</span>' + kept + off + '</li>';
         }).join('')
       : '<li class="muted">Nothing yet.</li>';
   }
@@ -2000,7 +2036,10 @@
       + Math.round(((state.data.pick_order.forfeited || []).length) / teams);
     const cfg = {
       teams: teams,
-      rounds: rounds || ((league.roster_size || 15) - ((league.keeper_rules || {}).count || 0)),
+      // Draft length: for a MOCK, the mock's own shape (rounds, computed above
+      // from its pick_order); else the ARTIFACT's stamped rounds — never a local
+      // formula, which would be a second source that can drift from the pipeline.
+      rounds: rounds || league.rounds || (league.roster_size || 15),
       draft_type: league.draft_type || 'snake',
       my_draft_slot: league.my_draft_slot,
       adp_blend_weight: 0.7,

@@ -55,7 +55,7 @@
     "TE": 1,
     "WR": 2
   },
-  "rounds": 12,
+  "rounds": 15,
   "scoring": {
     "blk_kick": 0.0,
     "def_kr_td": 0.0,

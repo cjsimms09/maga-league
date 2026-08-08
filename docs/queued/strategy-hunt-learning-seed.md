@@ -53,6 +53,12 @@ The answer to "would this strategy have worked" that no replay can provide: **ru
 4. Shadow rosters are frozen at draft night (no shadow waivers in v1 — note the limitation; a v2 can shadow waiver policies too, September decision).
 5. This compounds: every future season adds a full live grading of the whole strategy space. By year 3, strategy selection rests on 3 live seasons + 6 replayed drafts — a real sample, accumulated automatically.
 
+### Phase H build requirements (folded in 2026-08-08 — implement exactly)
+1. **Correct board state per shadow pick.** A shadow drafts only at MY slots, and only from the board AS IT ACTUALLY STOOD when my real pick arrived (not the end-of-draft board). Log a **board-state hash per shadow pick**; the robot scenario asserts this sequencing (a shadow pick made against the wrong board snapshot is a bug).
+2. **Hard filters yes, personal taste no.** Shadows obey legality + positional caps (the hard filters) but **IGNORE my targets/never lists** — they test strategies, not my taste. This decision is written here so January's grading interprets shadow rosters correctly.
+3. **Freeze means freeze.** Each shadow roster stamps: strategy name, **weight-function hash**, board `built_at`, and a `frozen` flag. September grading MUST REFUSE to grade a roster whose strategy hash no longer matches the code (a changed strategy is a different strategy — don't credit it with an old roster's outcome).
+4. **Fire during mocks/rehearsals too**, flagged as `rehearsal` entries (never mixed with real draft-night entries), so the whole shadow path is exercised before draft night.
+
 # PHASE L — The Learning Seed (instrument NOW, before draft day)
 
 The single biggest determinant of how powerful this system is in 2-3 years is whether 2026 is fully captured from day one. Build the capture layer before the draft; the analysis layers (the full Part 11) follow in September.

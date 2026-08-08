@@ -90,7 +90,10 @@ def build_true_pick_order(cfg: dict, keepers_by_team: dict[int, list[dict]]) -> 
     optionally original_round / years_kept.
     """
     teams = cfg["teams"]
-    rounds = cfg.get("rounds") or (cfg["roster_size"] - cfg["keepers"]["count"])
+    # Draft LENGTH from the ONE source (config_schema.draft_rounds): keepers
+    # forfeit specific rounds (handled below), they never shorten the draft.
+    import config_schema
+    rounds = config_schema.draft_rounds(cfg)
     full = draft_order(teams, rounds, cfg.get("draft_type", "snake"))
     my_slot = cfg.get("my_draft_slot")
 
