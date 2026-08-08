@@ -40,6 +40,8 @@
     // until slotVerified flips true, and a body watermark says so.
     slotVerified: false,
     slotSource: null,     // 'manual' | 'sleeper'
+    // B7 compare tray: up to two player_ids selected for the dollar-gap overlay.
+    compare: [],
   };
   const LISTS_KEY = 'wr-lists-v1';
   const RAIL_ACK_KEY = 'wr-rail-acks-v1';
@@ -1362,6 +1364,65 @@
     }).join('');
   }
 
+  /* B7 COMPARE TRAY — tap any two players anywhere → a two-column overlay whose
+   * DOMINANT number is the dollar gap (gold), with the decomposed breakdown bar,
+   * survival-to-next for each, tier position, and the auditable Why? terms. This
+   * is the "close call" tool: two taps in, one tap out. The dollar gap answers
+   * "which of these makes me more money" and its uncertainty is impossible to
+   * miss (rough tag + even-money band). */
+  function toggleCompare(id) {
+    id = String(id);
+    const i = state.compare.indexOf(id);
+    if (i >= 0) state.compare.splice(i, 1);
+    else { state.compare.push(id); if (state.compare.length > 2) state.compare.shift(); }
+    renderCompareTray();
+  }
+  function clearCompare() { state.compare = []; renderCompareTray(); }
+
+  function renderCompareTray() {
+    const host = $('#compare-tray');
+    if (!host) return;
+    if (state.compare.length < 2) { host.style.display = 'none'; host.innerHTML = ''; return; }
+    const a = playerById(state.compare[0]);
+    const b = playerById(state.compare[1]);
+    if (!a || !b) { host.style.display = 'none'; return; }
+    const g = E.dollarGap(a, b, context());
+    // The breakdown bar: signed contributions, gold for money.
+    const parts = [['high-pool', g.high], ['top-4 entry', g.entry], ['RS', g.rs], ['next-pick echo', g.echo]];
+    const maxMag = Math.max(1, ...parts.map(p => Math.abs(p[1])));
+    const bar = parts.map(function (p) {
+      const w = Math.round((Math.abs(p[1]) / maxMag) * 100);
+      const side = p[1] >= 0 ? 'a' : 'b';
+      return '<div class="cmp-bar-row"><span class="cmp-bar-lbl">' + p[0] + '</span>'
+        + '<span class="cmp-bar-track"><span class="cmp-bar-fill ' + side + '" style="width:' + w + '%"></span></span>'
+        + '<span class="cmp-bar-val">' + (p[1] >= 0 ? '+' : '') + p[1] + '</span></div>';
+    }).join('');
+    const col = (p, isLeader) => {
+      return '<div class="cmp-col' + (isLeader ? ' lead' : '') + '">'
+        + '<div class="cmp-name">' + escapeHtml(p.name) + '<span class="rec-pos ' + p.position + '">' + p.position + '</span></div>'
+        + '<div class="cmp-stat">proj <b>' + Math.round(p.proj_mean || 0) + '</b> · ceil <b>' + Math.round(p.proj_ceiling || 0) + '</b></div>'
+        + '<div class="cmp-stat">tier <b>' + (p.tier || '?') + '</b> · ADP <b>' + Math.round(p.adjusted_adp || p.adp || 0) + '</b></div>'
+        + '</div>';
+    };
+    host.style.display = '';
+    host.innerHTML =
+      '<div class="cmp-inner">'
+      + '<button class="cmp-close" data-cmp-close="1" title="Close">✕</button>'
+      + '<div class="cmp-cols">' + col(a, !g.even_money && g.leader === (a.name)) + col(b, !g.even_money && g.leader === (b.name)) + '</div>'
+      + '<div class="cmp-hero' + (g.even_money ? ' even' : '') + '">'
+        + (g.even_money ? '<span class="cmp-hero-num">even money</span><span class="cmp-hero-sub">pick your guy</span>'
+            : '<span class="cmp-hero-num">' + escapeHtml(g.verdict.replace(/ this pick$/, '')) + '</span><span class="cmp-hero-sub">this pick · <b>rough</b> v1 estimate (±$' + g.band + ')</span>')
+      + '</div>'
+      + '<div class="cmp-bars">' + bar + '</div>'
+      + '<details class="cmp-why"><summary>Why? — the derivation</summary>'
+        + '<div class="cmp-why-body">' + escapeHtml(g.terms.note)
+        + '<br>' + escapeHtml(a.name) + ': high $' + g.terms.A.dollars.high + ' · entry $' + g.terms.A.dollars.entry + ' · RS $' + g.terms.A.dollars.rs
+        + '<br>' + escapeHtml(b.name) + ': high $' + g.terms.B.dollars.high + ' · entry $' + g.terms.B.dollars.entry + ' · RS $' + g.terms.B.dollars.rs
+        + (g.terms.echo ? '<br>next-pick echo: cost of taking ' + escapeHtml(a.name) + ' = ' + g.terms.echo.cost_of_taking_A + ' pts, ' + escapeHtml(b.name) + ' = ' + g.terms.echo.cost_of_taking_B + ' pts' : '')
+        + '</div></details>'
+      + '</div>';
+  }
+
   function renderRecommendations() {
     // One call so the recommendation, the confidence line and the branch
     // forecasts can never come from three different boards.
@@ -1391,6 +1452,7 @@
     renderClock(out);
     // Paths panel derives from the same scored board the list uses.
     renderPaths(out.scored);
+    renderCompareTray();   // keep the dollar-gap overlay fresh as the board changes
     const all = out.scored;
     const scored = all.slice(0, 5);
     const host = $('#recs');
@@ -1441,6 +1503,8 @@
           '<button class="btn small gold" data-draft-me="' + p.player_id + '">I took him</button>' +
           '<button class="btn small ghost" data-draft-other="' + p.player_id + '">Gone</button>' +
           '<button class="btn small navy" data-why="' + p.player_id + '">Why?</button>' +
+          '<button class="btn small ghost" data-compare="' + p.player_id + '" title="Compare — dollar gap">' +
+            (state.compare.indexOf(String(p.player_id)) >= 0 ? '⚖️✓' : '⚖️') + '</button>' +
         '</div>' +
       '</div>';
     }).join('');
@@ -2661,6 +2725,9 @@
       }
     }
     document.body.addEventListener('click', ev => {
+      const cmp = ev.target.closest('[data-compare]');
+      if (cmp) { ev.preventDefault(); return toggleCompare(cmp.getAttribute('data-compare')); }
+      if (ev.target.closest('[data-cmp-close]')) return clearCompare();
       const me = ev.target.closest('[data-draft-me]');
       if (me) return markDrafted(me.getAttribute('data-draft-me'), true, null,
         me.getAttribute('data-path-key') || null);

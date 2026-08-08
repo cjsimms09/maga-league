@@ -2025,3 +2025,40 @@ table .num.zero { color: var(--muted); font-weight: 400; }
 .sp-claimed-p { color:#dfe6f5; margin-top:.4rem; }
 .sp-claimed-n { font-size:.76rem; margin-top:.5rem; }
 .sp-foot { font-size:.74rem; margin-top:1rem; }
+
+/* ---------- B7 COMPARE TRAY (Part 2 §2) — the dollar gap as the dominant number.
+   Per the visual-design directive: money is GOLD, one dominant figure per card,
+   everything else subordinate. A floating overlay, phone-friendly. ---------- */
+.compare-tray {
+  position: fixed; left: 50%; bottom: 1rem; transform: translateX(-50%);
+  width: min(560px, 94vw); z-index: 90;
+  background: var(--navy-deep, #0b1020); border: 1px solid rgba(245,196,69,.55);
+  border-radius: 16px; box-shadow: 0 12px 40px rgba(0,0,0,.55); padding: .9rem 1rem;
+}
+.cmp-inner { position: relative; }
+.cmp-close { position: absolute; top: -.3rem; right: -.3rem; background: rgba(255,255,255,.08);
+  border: 1px solid var(--line); color: #dfe6f5; border-radius: 50%; width: 1.7rem; height: 1.7rem; cursor: pointer; }
+.cmp-cols { display: flex; gap: .6rem; }
+.cmp-col { flex: 1; border: 1px solid var(--line); border-radius: 10px; padding: .5rem .6rem; background: rgba(255,255,255,.03); }
+.cmp-col.lead { border-color: rgba(245,196,69,.6); background: rgba(245,196,69,.07); }
+.cmp-name { font-family: var(--font-display); font-weight: 800; color: #fff; display: flex; gap: .35rem; align-items: center; }
+.cmp-stat { font-size: .74rem; color: var(--muted); margin-top: .2rem; }
+.cmp-stat b { color: #fff; }
+/* THE dominant number — gold, biggest thing in the tray. */
+.cmp-hero { text-align: center; margin: .7rem 0 .5rem; }
+.cmp-hero-num { display: block; font-family: var(--font-display); font-weight: 900;
+  font-size: 1.9rem; color: var(--gold-bright, #f5c445); line-height: 1.05; }
+.cmp-hero.even .cmp-hero-num { color: #9fb0d8; }
+.cmp-hero-sub { display: block; font-size: .72rem; color: var(--muted); margin-top: .15rem; }
+.cmp-hero-sub b { color: #ffb4bb; }
+.cmp-bars { display: flex; flex-direction: column; gap: .25rem; }
+.cmp-bar-row { display: flex; align-items: center; gap: .5rem; font-size: .72rem; color: var(--muted); }
+.cmp-bar-lbl { flex: 0 0 5.2rem; }
+.cmp-bar-track { flex: 1; height: 7px; background: rgba(255,255,255,.07); border-radius: 4px; position: relative; }
+.cmp-bar-fill { position: absolute; top: 0; bottom: 0; border-radius: 4px; }
+.cmp-bar-fill.a { left: 50%; background: var(--gold, #f5c445); }
+.cmp-bar-fill.b { right: 50%; background: rgba(76,133,255,.7); }
+.cmp-bar-val { flex: 0 0 2.6rem; text-align: right; color: #dfe6f5; font-variant-numeric: tabular-nums; }
+.cmp-why { margin-top: .5rem; font-size: .74rem; color: var(--muted); }
+.cmp-why summary { cursor: pointer; }
+.cmp-why-body { margin-top: .3rem; line-height: 1.5; color: #c7cddd; }
