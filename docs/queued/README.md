@@ -11,6 +11,7 @@ because sessions are ephemeral and a container that gets reclaimed takes any
 | `backtest-round-2.md` | launch Phase 1 in CI whenever a natural break comes (background compute); prereq for the strategy hunt's corrected boards | queued — session upload, committed here so it survives container reclaim |
 | `strategy-hunt-learning-seed.md` | Phase L1 (ledger) DONE; Phase H (shadows) pre-draft; Phases S/N in CI after Backtest-2's corrected boards; L3–L6 September-class (capture hooks now) | queued — L1 shipped (`f9f6e6d`); rest gated |
 | `in-season-master.md` | **do not start before 23 Aug 2026** — becomes the master queue on Aug 23; calendar-gated Sep 8 / 15 / 22 / Oct 6 | queued — session upload, committed here so it survives container reclaim |
+| `annual-button.md` | Phase 4 / September-class build, BUT **dry-run acceptance test as soon as L1–L2 are done** (prove the machinery before the January it matters) | queued — dry-run gated on L2 (L1 shipped `f9f6e6d`) |
 
 ## ⚠️ Dependency status-check (in-season-master Phase 1) — flagged 2026-08-08
 
