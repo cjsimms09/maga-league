@@ -1,0 +1,1731 @@
+{
+  "provenance": "source: master_sheet",
+  "source_file": "master-sheet.5a5da27ab2407a3b.xlsx",
+  "source_sha256": "5a5da27ab2407a3bfbdc2d12022e079f3310cdb4e2c5ec15f2b64db975e7578e",
+  "note": "The league's founding document \u2014 Est. 2016. Pre-Sleeper seasons (2016-2022) exist NOWHERE else. Career money derives from by_year, never sheet_total (which is stale for owners with 2025 winnings).",
+  "seasons": {
+    "2027": {
+      "regular_season": {
+        "1st": {
+          "pct": 0.1,
+          "amount": 250,
+          "winner": null
+        },
+        "2nd": {
+          "pct": 0.05,
+          "amount": 125,
+          "winner": null
+        }
+      },
+      "playoffs": {
+        "1st": {
+          "pct": 0.27,
+          "amount": 675,
+          "winner": null
+        },
+        "2nd": {
+          "pct": 0.22,
+          "amount": 550,
+          "winner": null
+        },
+        "3rd": {
+          "pct": 0.2,
+          "amount": 500,
+          "winner": null
+        },
+        "4th": {
+          "pct": 0.16,
+          "amount": 400,
+          "winner": null
+        }
+      },
+      "standings": [],
+      "draft_order": [
+        {
+          "rank": "1st",
+          "owner": null
+        },
+        {
+          "rank": "2nd",
+          "owner": null
+        },
+        {
+          "rank": "3rd",
+          "owner": null
+        },
+        {
+          "rank": "4th",
+          "owner": null
+        },
+        {
+          "rank": "5th",
+          "owner": null
+        },
+        {
+          "rank": "6th",
+          "owner": null
+        },
+        {
+          "rank": "7th",
+          "owner": null
+        },
+        {
+          "rank": "8th",
+          "owner": null
+        },
+        {
+          "rank": "9th",
+          "owner": null
+        },
+        {
+          "rank": "10th",
+          "owner": null
+        }
+      ],
+      "trades": [],
+      "year": 2027,
+      "buy_in": 400,
+      "per_owner_money": {
+        "Marian": {
+          "weekly": 0,
+          "regular_season": 0,
+          "playoffs": 0,
+          "total": 0
+        },
+        "Cory": {
+          "weekly": 0,
+          "regular_season": 0,
+          "playoffs": 0,
+          "total": 0
+        },
+        "Bates": {
+          "weekly": 0,
+          "regular_season": 0,
+          "playoffs": 0,
+          "total": 0
+        },
+        "David": {
+          "weekly": 0,
+          "regular_season": 0,
+          "playoffs": 0,
+          "total": 0
+        },
+        "Michael": {
+          "weekly": 0,
+          "regular_season": 0,
+          "playoffs": 0,
+          "total": 0
+        },
+        "Sam": {
+          "weekly": 0,
+          "regular_season": 0,
+          "playoffs": 0,
+          "total": 0
+        },
+        "Dylan": {
+          "weekly": 0,
+          "regular_season": 0,
+          "playoffs": 0,
+          "total": 0
+        },
+        "Jeremy": {
+          "weekly": 0,
+          "regular_season": 0,
+          "playoffs": 0,
+          "total": 0
+        },
+        "Richard": {
+          "weekly": 0,
+          "regular_season": 0,
+          "playoffs": 0,
+          "total": 0
+        },
+        "Justin": {
+          "weekly": 0,
+          "regular_season": 0,
+          "playoffs": 0,
+          "total": 0
+        }
+      },
+      "rs_po_distributed": 2500,
+      "pot": 4000
+    },
+    "2026": {
+      "regular_season": {
+        "1st": {
+          "pct": 0.1,
+          "amount": 250,
+          "winner": null
+        },
+        "2nd": {
+          "pct": 0.05,
+          "amount": 125,
+          "winner": null
+        }
+      },
+      "playoffs": {
+        "1st": {
+          "pct": 0.27,
+          "amount": 675,
+          "winner": null
+        },
+        "2nd": {
+          "pct": 0.23,
+          "amount": 575,
+          "winner": null
+        },
+        "3rd": {
+          "pct": 0.19,
+          "amount": 475,
+          "winner": null
+        },
+        "4th": {
+          "pct": 0.16,
+          "amount": 400,
+          "winner": null
+        }
+      },
+      "standings": [],
+      "draft_order": [
+        {
+          "rank": "1st",
+          "owner": "Richard"
+        },
+        {
+          "rank": "2nd",
+          "owner": "Sam"
+        },
+        {
+          "rank": "3rd",
+          "owner": "Justin"
+        },
+        {
+          "rank": "4th",
+          "owner": "Cory"
+        },
+        {
+          "rank": "5th",
+          "owner": "Marian"
+        },
+        {
+          "rank": "6th",
+          "owner": "Dylan"
+        },
+        {
+          "rank": "7th",
+          "owner": "Jeremy"
+        },
+        {
+          "rank": "8th",
+          "owner": "David"
+        },
+        {
+          "rank": "9th",
+          "owner": "Bates"
+        },
+        {
+          "rank": "10th",
+          "owner": "Michael"
+        }
+      ],
+      "trades": [],
+      "year": 2026,
+      "buy_in": 400,
+      "per_owner_money": {
+        "Marian": {
+          "weekly": 0,
+          "regular_season": 0,
+          "playoffs": 0,
+          "total": 0
+        },
+        "Cory": {
+          "weekly": 0,
+          "regular_season": 0,
+          "playoffs": 0,
+          "total": 0
+        },
+        "Bates": {
+          "weekly": 0,
+          "regular_season": 0,
+          "playoffs": 0,
+          "total": 0
+        },
+        "David": {
+          "weekly": 0,
+          "regular_season": 0,
+          "playoffs": 0,
+          "total": 0
+        },
+        "Michael": {
+          "weekly": 0,
+          "regular_season": 0,
+          "playoffs": 0,
+          "total": 0
+        },
+        "Sam": {
+          "weekly": 0,
+          "regular_season": 0,
+          "playoffs": 0,
+          "total": 0
+        },
+        "Dylan": {
+          "weekly": 0,
+          "regular_season": 0,
+          "playoffs": 0,
+          "total": 0
+        },
+        "Jeremy": {
+          "weekly": 0,
+          "regular_season": 0,
+          "playoffs": 0,
+          "total": 0
+        },
+        "Richard": {
+          "weekly": 0,
+          "regular_season": 0,
+          "playoffs": 0,
+          "total": 0
+        },
+        "Justin": {
+          "weekly": 0,
+          "regular_season": 0,
+          "playoffs": 0,
+          "total": 0
+        }
+      },
+      "rs_po_distributed": 2500,
+      "pot": 4000
+    },
+    "2025": {
+      "regular_season": {
+        "1st": {
+          "pct": 0.1,
+          "amount": 250,
+          "winner": "Michael"
+        },
+        "2nd": {
+          "pct": 0.05,
+          "amount": 125,
+          "winner": "Bates"
+        }
+      },
+      "playoffs": {
+        "1st": {
+          "pct": 0.27,
+          "amount": 675,
+          "winner": "Michael"
+        },
+        "2nd": {
+          "pct": 0.22,
+          "amount": 550,
+          "winner": "Bates"
+        },
+        "3rd": {
+          "pct": 0.2,
+          "amount": 500,
+          "winner": "David"
+        },
+        "4th": {
+          "pct": 0.16,
+          "amount": 400,
+          "winner": "Jeremy"
+        }
+      },
+      "standings": [
+        {
+          "rank": "1st",
+          "owner": "Michael"
+        },
+        {
+          "rank": "2nd",
+          "owner": "Bates"
+        },
+        {
+          "rank": "3rd",
+          "owner": "Jeremy"
+        },
+        {
+          "rank": "4th",
+          "owner": "David"
+        },
+        {
+          "rank": "5th",
+          "owner": "Dylan"
+        },
+        {
+          "rank": "6th",
+          "owner": "Marian"
+        },
+        {
+          "rank": "7th",
+          "owner": "Cory"
+        },
+        {
+          "rank": "8th",
+          "owner": "Justin"
+        },
+        {
+          "rank": "9th",
+          "owner": "Sam"
+        },
+        {
+          "rank": "10th",
+          "owner": "Richard"
+        }
+      ],
+      "draft_order": [
+        {
+          "rank": "1st",
+          "owner": "Sam"
+        },
+        {
+          "rank": "2nd",
+          "owner": "Bates"
+        },
+        {
+          "rank": "3rd",
+          "owner": "Michael"
+        },
+        {
+          "rank": "4th",
+          "owner": "Dylan"
+        },
+        {
+          "rank": "5th",
+          "owner": "Richard"
+        },
+        {
+          "rank": "6th",
+          "owner": "Cory"
+        },
+        {
+          "rank": "7th",
+          "owner": "David"
+        },
+        {
+          "rank": "8th",
+          "owner": "Justin"
+        },
+        {
+          "rank": "9th",
+          "owner": "Marian"
+        },
+        {
+          "rank": "10th",
+          "owner": "Jeremy"
+        }
+      ],
+      "trades": [],
+      "year": 2025,
+      "buy_in": 400,
+      "per_owner_money": {
+        "Marian": {
+          "weekly": 100,
+          "regular_season": 0,
+          "playoffs": 0,
+          "total": 100
+        },
+        "Cory": {
+          "weekly": 0,
+          "regular_season": 0,
+          "playoffs": 0,
+          "total": 0
+        },
+        "Bates": {
+          "weekly": 200,
+          "regular_season": 125,
+          "playoffs": 550,
+          "total": 875
+        },
+        "David": {
+          "weekly": 300,
+          "regular_season": 0,
+          "playoffs": 500,
+          "total": 800
+        },
+        "Michael": {
+          "weekly": 400,
+          "regular_season": 250,
+          "playoffs": 675,
+          "total": 1325
+        },
+        "Sam": {
+          "weekly": 0,
+          "regular_season": 0,
+          "playoffs": 0,
+          "total": 0
+        },
+        "Dylan": {
+          "weekly": 100,
+          "regular_season": 0,
+          "playoffs": 0,
+          "total": 100
+        },
+        "Jeremy": {
+          "weekly": 200,
+          "regular_season": 0,
+          "playoffs": 400,
+          "total": 600
+        },
+        "Richard": {
+          "weekly": 200,
+          "regular_season": 0,
+          "playoffs": 0,
+          "total": 200
+        },
+        "Justin": {
+          "weekly": 0,
+          "regular_season": 0,
+          "playoffs": 0,
+          "total": 0
+        }
+      },
+      "rs_po_distributed": 2500,
+      "pot": 4000
+    },
+    "2024": {
+      "regular_season": {
+        "1st": {
+          "pct": 0.1,
+          "amount": 250,
+          "winner": "David"
+        },
+        "2nd": {
+          "pct": 0.05,
+          "amount": 125,
+          "winner": "Jeremy"
+        }
+      },
+      "playoffs": {
+        "1st": {
+          "pct": 0.27,
+          "amount": 675,
+          "winner": "Jeremy"
+        },
+        "2nd": {
+          "pct": 0.22,
+          "amount": 550,
+          "winner": "Marian"
+        },
+        "3rd": {
+          "pct": 0.2,
+          "amount": 500,
+          "winner": "Justin"
+        },
+        "4th": {
+          "pct": 0.16,
+          "amount": 400,
+          "winner": "David"
+        }
+      },
+      "standings": [
+        {
+          "rank": "1st",
+          "owner": "David"
+        },
+        {
+          "rank": "2nd",
+          "owner": "Jeremy"
+        },
+        {
+          "rank": "3rd",
+          "owner": "Justin"
+        },
+        {
+          "rank": "4th",
+          "owner": "Marian"
+        },
+        {
+          "rank": "5th",
+          "owner": "Cory"
+        },
+        {
+          "rank": "6th",
+          "owner": "Richard"
+        },
+        {
+          "rank": "7th",
+          "owner": "Dylan"
+        },
+        {
+          "rank": "8th",
+          "owner": "Michael"
+        },
+        {
+          "rank": "9th",
+          "owner": "Bates"
+        },
+        {
+          "rank": "10th",
+          "owner": "Sam"
+        }
+      ],
+      "draft_order": [
+        {
+          "rank": "1st",
+          "owner": "Jeremy"
+        },
+        {
+          "rank": "2nd",
+          "owner": "Bates"
+        },
+        {
+          "rank": "3rd",
+          "owner": "Richard"
+        },
+        {
+          "rank": "4th",
+          "owner": "Justin"
+        },
+        {
+          "rank": "5th",
+          "owner": "Ben"
+        },
+        {
+          "rank": "6th",
+          "owner": "Marian"
+        },
+        {
+          "rank": "7th",
+          "owner": "David"
+        },
+        {
+          "rank": "8th",
+          "owner": "Cory"
+        },
+        {
+          "rank": "9th",
+          "owner": "Dylan"
+        },
+        {
+          "rank": "10th",
+          "owner": "Michael"
+        }
+      ],
+      "trades": [],
+      "year": 2024,
+      "buy_in": 400,
+      "per_owner_money": {
+        "Marian": {
+          "weekly": 200,
+          "regular_season": 0,
+          "playoffs": 550,
+          "total": 750
+        },
+        "Cory": {
+          "weekly": 400,
+          "regular_season": 0,
+          "playoffs": 0,
+          "total": 400
+        },
+        "Bates": {
+          "weekly": 0,
+          "regular_season": 0,
+          "playoffs": 0,
+          "total": 0
+        },
+        "David": {
+          "weekly": 300,
+          "regular_season": 250,
+          "playoffs": 400,
+          "total": 950
+        },
+        "Michael": {
+          "weekly": 100,
+          "regular_season": 0,
+          "playoffs": 0,
+          "total": 100
+        },
+        "Sam": {
+          "weekly": 0,
+          "regular_season": 0,
+          "playoffs": 0,
+          "total": 0
+        },
+        "Dylan": {
+          "weekly": 100,
+          "regular_season": 0,
+          "playoffs": 0,
+          "total": 100
+        },
+        "Jeremy": {
+          "weekly": 100,
+          "regular_season": 125,
+          "playoffs": 675,
+          "total": 900
+        },
+        "Richard": {
+          "weekly": 200,
+          "regular_season": 0,
+          "playoffs": 0,
+          "total": 200
+        },
+        "Justin": {
+          "weekly": 100,
+          "regular_season": 0,
+          "playoffs": 500,
+          "total": 600
+        }
+      },
+      "rs_po_distributed": 2500,
+      "pot": 4000
+    },
+    "2023": {
+      "regular_season": {
+        "1st": {
+          "pct": 0.1,
+          "amount": 200,
+          "winner": "Michael"
+        },
+        "2nd": {
+          "pct": 0.05,
+          "amount": 100,
+          "winner": "David"
+        }
+      },
+      "playoffs": {
+        "1st": {
+          "pct": 0.275,
+          "amount": 550,
+          "winner": "Michael"
+        },
+        "2nd": {
+          "pct": 0.225,
+          "amount": 450,
+          "winner": "Dylan"
+        },
+        "3rd": {
+          "pct": 0.2,
+          "amount": 400,
+          "winner": "Cory"
+        },
+        "4th": {
+          "pct": 0.15,
+          "amount": 300,
+          "winner": "David"
+        }
+      },
+      "standings": [
+        {
+          "rank": "1st",
+          "owner": "Michael"
+        },
+        {
+          "rank": "2nd",
+          "owner": "David"
+        },
+        {
+          "rank": "3rd",
+          "owner": "Dylan"
+        },
+        {
+          "rank": "4th",
+          "owner": "Cory"
+        },
+        {
+          "rank": "5th",
+          "owner": "Marian"
+        },
+        {
+          "rank": "6th",
+          "owner": "Sam"
+        },
+        {
+          "rank": "7th",
+          "owner": "Justin"
+        },
+        {
+          "rank": "8th",
+          "owner": "Richard"
+        },
+        {
+          "rank": "9th",
+          "owner": "Bates"
+        },
+        {
+          "rank": "10th",
+          "owner": "Jeremy"
+        }
+      ],
+      "draft_order": [
+        {
+          "rank": "1st",
+          "owner": "Richard"
+        },
+        {
+          "rank": "2nd",
+          "owner": "Bates"
+        },
+        {
+          "rank": "3rd",
+          "owner": "Michael"
+        },
+        {
+          "rank": "4th",
+          "owner": "Jeremy"
+        },
+        {
+          "rank": "5th",
+          "owner": "Cory"
+        },
+        {
+          "rank": "6th",
+          "owner": "Justin"
+        },
+        {
+          "rank": "7th",
+          "owner": "Dylan"
+        },
+        {
+          "rank": "8th",
+          "owner": "David"
+        },
+        {
+          "rank": "9th",
+          "owner": "Sam"
+        },
+        {
+          "rank": "10th",
+          "owner": "Marian"
+        }
+      ],
+      "trades": [],
+      "year": 2023,
+      "buy_in": 350,
+      "per_owner_money": {
+        "Marian": {
+          "weekly": 100,
+          "regular_season": 0,
+          "playoffs": 0,
+          "total": 100
+        },
+        "Cory": {
+          "weekly": 0,
+          "regular_season": 0,
+          "playoffs": 400,
+          "total": 400
+        },
+        "Bates": {
+          "weekly": 100,
+          "regular_season": 0,
+          "playoffs": 0,
+          "total": 100
+        },
+        "David": {
+          "weekly": 400,
+          "regular_season": 100,
+          "playoffs": 300,
+          "total": 800
+        },
+        "Michael": {
+          "weekly": 300,
+          "regular_season": 200,
+          "playoffs": 550,
+          "total": 1050
+        },
+        "Sam": {
+          "weekly": 200,
+          "regular_season": 0,
+          "playoffs": 0,
+          "total": 200
+        },
+        "Dylan": {
+          "weekly": 100,
+          "regular_season": 0,
+          "playoffs": 450,
+          "total": 550
+        },
+        "Jeremy": {
+          "weekly": 200,
+          "regular_season": 0,
+          "playoffs": 0,
+          "total": 200
+        },
+        "Richard": {
+          "weekly": 100,
+          "regular_season": 0,
+          "playoffs": 0,
+          "total": 100
+        },
+        "Justin": {
+          "weekly": 0,
+          "regular_season": 0,
+          "playoffs": 0,
+          "total": 0
+        }
+      },
+      "rs_po_distributed": 2000,
+      "pot": 3500
+    },
+    "2022": {
+      "regular_season": {
+        "1st": {
+          "pct": 0.225,
+          "amount": 787.5,
+          "winner": "Marian"
+        },
+        "2nd": {
+          "pct": 0.05,
+          "amount": 175,
+          "winner": "Sam"
+        }
+      },
+      "playoffs": {
+        "1st": {
+          "pct": 0.3,
+          "amount": 1050,
+          "winner": "Marian/Sam"
+        },
+        "2nd": {
+          "pct": 0.2,
+          "amount": 700,
+          "winner": "Marian/Sam"
+        },
+        "3rd": {
+          "pct": 0.125,
+          "amount": 437.5,
+          "winner": "David"
+        },
+        "4th": {
+          "pct": 0.1,
+          "amount": 350,
+          "winner": "Dylan"
+        }
+      },
+      "standings": [
+        {
+          "rank": "1st",
+          "owner": "Marian"
+        },
+        {
+          "rank": "2nd",
+          "owner": "Sam"
+        },
+        {
+          "rank": "3rd",
+          "owner": "David"
+        },
+        {
+          "rank": "4th",
+          "owner": "Dylan"
+        },
+        {
+          "rank": "5th",
+          "owner": "Justin"
+        },
+        {
+          "rank": "6th",
+          "owner": "Cory"
+        },
+        {
+          "rank": "7th",
+          "owner": "Jeremy"
+        },
+        {
+          "rank": "8th",
+          "owner": "Michael"
+        },
+        {
+          "rank": "9th",
+          "owner": "Bates"
+        },
+        {
+          "rank": "10th",
+          "owner": "Richard"
+        }
+      ],
+      "draft_order": [
+        {
+          "rank": "1st",
+          "owner": "Richard"
+        },
+        {
+          "rank": "2nd",
+          "owner": "Dylan"
+        },
+        {
+          "rank": "3rd",
+          "owner": "David"
+        },
+        {
+          "rank": "4th",
+          "owner": "Justin"
+        },
+        {
+          "rank": "5th",
+          "owner": "Sam"
+        },
+        {
+          "rank": "6th",
+          "owner": "Michael"
+        },
+        {
+          "rank": "7th",
+          "owner": "Jeremy"
+        },
+        {
+          "rank": "8th",
+          "owner": "Cory"
+        },
+        {
+          "rank": "9th",
+          "owner": "Bates"
+        },
+        {
+          "rank": "10th",
+          "owner": "Marian"
+        }
+      ],
+      "trades": [
+        "Richard trade 7th Round pick for Cory 8th Round Pick & Cam Akers",
+        "Bates trade 6th Round Pick & Tyreek Hill for Sams 5th Round Pick"
+      ],
+      "year": 2022,
+      "buy_in": 350,
+      "rs_po_distributed": 3500.0,
+      "pot": 3500
+    },
+    "2021": {
+      "regular_season": {
+        "1st": {
+          "pct": 0.225,
+          "amount": 675,
+          "winner": "Bates"
+        },
+        "2nd": {
+          "pct": 0.05,
+          "amount": 150,
+          "winner": "Cory"
+        }
+      },
+      "playoffs": {
+        "1st": {
+          "pct": 0.3,
+          "amount": 900,
+          "winner": "Marian"
+        },
+        "2nd": {
+          "pct": 0.2,
+          "amount": 600,
+          "winner": "Bates"
+        },
+        "3rd": {
+          "pct": 0.125,
+          "amount": 375,
+          "winner": "Cory"
+        },
+        "4th": {
+          "pct": 0.1,
+          "amount": 300,
+          "winner": "Jeremy"
+        }
+      },
+      "standings": [
+        {
+          "rank": "1st",
+          "owner": "Bates"
+        },
+        {
+          "rank": "2nd",
+          "owner": "Cory"
+        },
+        {
+          "rank": "3rd",
+          "owner": "Marian"
+        },
+        {
+          "rank": "4th",
+          "owner": "Jeremy"
+        },
+        {
+          "rank": "5th",
+          "owner": "Michael"
+        },
+        {
+          "rank": "6th",
+          "owner": "Sam"
+        },
+        {
+          "rank": "7th",
+          "owner": "Justin"
+        },
+        {
+          "rank": "8th",
+          "owner": "David"
+        },
+        {
+          "rank": "9th",
+          "owner": "Dylan"
+        },
+        {
+          "rank": "10th",
+          "owner": "Richard"
+        }
+      ],
+      "draft_order": [
+        {
+          "rank": "1st",
+          "owner": "Jeremy"
+        },
+        {
+          "rank": "2nd",
+          "owner": "Michael"
+        },
+        {
+          "rank": "3rd",
+          "owner": "Sam"
+        },
+        {
+          "rank": "4th",
+          "owner": "Dylan"
+        },
+        {
+          "rank": "5th",
+          "owner": "Richard"
+        },
+        {
+          "rank": "6th",
+          "owner": "Justin"
+        },
+        {
+          "rank": "7th",
+          "owner": "David"
+        },
+        {
+          "rank": "8th",
+          "owner": "Bates"
+        },
+        {
+          "rank": "9th",
+          "owner": "Cory"
+        },
+        {
+          "rank": "10th",
+          "owner": "Marian"
+        }
+      ],
+      "trades": [],
+      "year": 2021,
+      "buy_in": 300,
+      "rs_po_distributed": 3000,
+      "pot": 3000
+    },
+    "2020": {
+      "regular_season": {
+        "1st": {
+          "pct": 0.225,
+          "amount": 562.5,
+          "winner": "Cory"
+        },
+        "2nd": {
+          "pct": 0.05,
+          "amount": 125,
+          "winner": "David"
+        }
+      },
+      "playoffs": {
+        "1st": {
+          "pct": 0.3,
+          "amount": 750,
+          "winner": "Marian"
+        },
+        "2nd": {
+          "pct": 0.2,
+          "amount": 500,
+          "winner": "Cory"
+        },
+        "3rd": {
+          "pct": 0.125,
+          "amount": 312.5,
+          "winner": "Bates"
+        },
+        "4th": {
+          "pct": 0.1,
+          "amount": 250,
+          "winner": "David"
+        }
+      },
+      "standings": [
+        {
+          "rank": "1st",
+          "owner": "Cory"
+        },
+        {
+          "rank": "2nd",
+          "owner": "David"
+        },
+        {
+          "rank": "3rd",
+          "owner": "Marian"
+        },
+        {
+          "rank": "4th",
+          "owner": "Bates"
+        },
+        {
+          "rank": "5th",
+          "owner": "Justin"
+        },
+        {
+          "rank": "6th",
+          "owner": "Richard"
+        },
+        {
+          "rank": "7th",
+          "owner": "Dylan"
+        },
+        {
+          "rank": "8th",
+          "owner": "Sam"
+        },
+        {
+          "rank": "9th",
+          "owner": "Michael"
+        },
+        {
+          "rank": "10th",
+          "owner": "Jeremy"
+        }
+      ],
+      "draft_order": [
+        {
+          "rank": "1st",
+          "owner": "Bates"
+        },
+        {
+          "rank": "2nd",
+          "owner": "Sam"
+        },
+        {
+          "rank": "3rd",
+          "owner": "Cory"
+        },
+        {
+          "rank": "4th",
+          "owner": "Justin"
+        },
+        {
+          "rank": "5th",
+          "owner": "Dylan"
+        },
+        {
+          "rank": "6th",
+          "owner": "Richard"
+        },
+        {
+          "rank": "7th",
+          "owner": "Jeremy"
+        },
+        {
+          "rank": "8th",
+          "owner": "David"
+        },
+        {
+          "rank": "9th",
+          "owner": "Michael"
+        },
+        {
+          "rank": "10th",
+          "owner": "Marian"
+        }
+      ],
+      "trades": [],
+      "year": 2020,
+      "buy_in": 250,
+      "rs_po_distributed": 2500.0,
+      "pot": 2500
+    },
+    "2019": {
+      "regular_season": {
+        "1st": {
+          "pct": 0.225,
+          "amount": 450,
+          "winner": "Michael"
+        },
+        "2nd": {
+          "pct": 0.05,
+          "amount": 100,
+          "winner": "Marian"
+        }
+      },
+      "playoffs": {
+        "1st": {
+          "pct": 0.3,
+          "amount": 600,
+          "winner": "Marian"
+        },
+        "2nd": {
+          "pct": 0.2,
+          "amount": 400,
+          "winner": "Michael"
+        },
+        "3rd": {
+          "pct": 0.125,
+          "amount": 250,
+          "winner": "David"
+        },
+        "4th": {
+          "pct": 0.1,
+          "amount": 200,
+          "winner": "Jeremy"
+        }
+      },
+      "standings": [
+        {
+          "rank": "1st",
+          "owner": "Michael"
+        },
+        {
+          "rank": "2nd",
+          "owner": "Marian"
+        },
+        {
+          "rank": "3rd",
+          "owner": "David"
+        },
+        {
+          "rank": "4th",
+          "owner": "Jeremy"
+        },
+        {
+          "rank": "5th",
+          "owner": "Richard"
+        },
+        {
+          "rank": "6th",
+          "owner": "Dylan"
+        },
+        {
+          "rank": "7th",
+          "owner": "Justin"
+        },
+        {
+          "rank": "8th",
+          "owner": "Cory"
+        },
+        {
+          "rank": "9th",
+          "owner": "Sam"
+        },
+        {
+          "rank": "10th",
+          "owner": "Bates"
+        }
+      ],
+      "draft_order": [],
+      "trades": [],
+      "year": 2019,
+      "buy_in": 200,
+      "rs_po_distributed": 2000,
+      "pot": 2000
+    },
+    "2018": {
+      "regular_season": {
+        "1st": {
+          "pct": 0.225,
+          "amount": 337.5,
+          "winner": "Bates"
+        },
+        "2nd": {
+          "pct": 0.05,
+          "amount": 75,
+          "winner": "Cory"
+        }
+      },
+      "playoffs": {
+        "1st": {
+          "pct": 0.3,
+          "amount": 450,
+          "winner": "Cory"
+        },
+        "2nd": {
+          "pct": 0.2,
+          "amount": 300,
+          "winner": "Richard"
+        },
+        "3rd": {
+          "pct": 0.125,
+          "amount": 187.5,
+          "winner": "Dylan"
+        },
+        "4th": {
+          "pct": 0.1,
+          "amount": 150,
+          "winner": "Bates"
+        }
+      },
+      "standings": [],
+      "draft_order": [],
+      "trades": [],
+      "year": 2018,
+      "buy_in": 150,
+      "rs_po_distributed": 1500.0,
+      "pot": 1500
+    },
+    "2017": {
+      "regular_season": {
+        "1st": {
+          "pct": 0.225,
+          "amount": 281.25,
+          "winner": "Dylan"
+        },
+        "2nd": {
+          "pct": 0.05,
+          "amount": 62.5,
+          "winner": "Cory"
+        }
+      },
+      "playoffs": {
+        "1st": {
+          "pct": 0.3,
+          "amount": 375,
+          "winner": "Cory"
+        },
+        "2nd": {
+          "pct": 0.2,
+          "amount": 250,
+          "winner": "David"
+        },
+        "3rd": {
+          "pct": 0.125,
+          "amount": 156.25,
+          "winner": "Jeremy"
+        },
+        "4th": {
+          "pct": 0.1,
+          "amount": 125,
+          "winner": "Dylan"
+        }
+      },
+      "standings": [],
+      "draft_order": [],
+      "trades": [],
+      "year": 2017,
+      "buy_in": 125,
+      "rs_po_distributed": 1250.0,
+      "pot": 1250
+    },
+    "2016": {
+      "regular_season": {
+        "1st": {
+          "pct": 0.225,
+          "amount": 225,
+          "winner": "Michael"
+        },
+        "2nd": {
+          "pct": 0.05,
+          "amount": 50,
+          "winner": "Richard"
+        }
+      },
+      "playoffs": {
+        "1st": {
+          "pct": 0.3,
+          "amount": 300,
+          "winner": "David"
+        },
+        "2nd": {
+          "pct": 0.2,
+          "amount": 200,
+          "winner": "Cory"
+        },
+        "3rd": {
+          "pct": 0.125,
+          "amount": 125,
+          "winner": "Michael"
+        },
+        "4th": {
+          "pct": 0.1,
+          "amount": 100,
+          "winner": "Richard"
+        }
+      },
+      "standings": [],
+      "draft_order": [],
+      "trades": [],
+      "year": 2016,
+      "buy_in": 100,
+      "rs_po_distributed": 1000,
+      "pot": 1000
+    }
+  },
+  "total_winnings": {
+    "Marian": {
+      "wins": 52,
+      "loss": 33,
+      "tie": 0,
+      "win_pct": 0.611764705882353,
+      "by_year": {
+        "2016": 0,
+        "2017": 0,
+        "2018": 0,
+        "2019": 700,
+        "2020": 900,
+        "2021": 870,
+        "2022": 1662.5,
+        "2023": 100,
+        "2024": 750,
+        "2025": 100,
+        "2026": 0
+      },
+      "career_from_years": 5082.5,
+      "sheet_total": 4982.5,
+      "stale": true,
+      "stale_delta": 100.0
+    },
+    "Cory": {
+      "wins": 49,
+      "loss": 36,
+      "tie": 1,
+      "win_pct": 0.5697674418604651,
+      "by_year": {
+        "2016": 200,
+        "2017": 437.5,
+        "2018": 525,
+        "2019": 0,
+        "2020": 1050,
+        "2021": 507.5,
+        "2022": 0,
+        "2023": 400,
+        "2024": 400,
+        "2025": 0,
+        "2026": 0
+      },
+      "career_from_years": 3520.0,
+      "sheet_total": 3520,
+      "stale": false,
+      "stale_delta": 0.0
+    },
+    "David": {
+      "wins": 51,
+      "loss": 34,
+      "tie": 0,
+      "win_pct": 0.6,
+      "by_year": {
+        "2016": 300,
+        "2017": 250,
+        "2018": 0,
+        "2019": 250,
+        "2020": 250,
+        "2021": 0,
+        "2022": 437.5,
+        "2023": 800,
+        "2024": 950,
+        "2025": 800,
+        "2026": 0
+      },
+      "career_from_years": 4037.5,
+      "sheet_total": 3237.5,
+      "stale": true,
+      "stale_delta": 800.0
+    },
+    "Michael": {
+      "wins": 42,
+      "loss": 43,
+      "tie": 0,
+      "win_pct": 0.49411764705882355,
+      "by_year": {
+        "2016": 350,
+        "2017": 0,
+        "2018": 0,
+        "2019": 850,
+        "2020": 0,
+        "2021": 0,
+        "2022": 0,
+        "2023": 1050,
+        "2024": 100,
+        "2025": 1325,
+        "2026": 0
+      },
+      "career_from_years": 3675,
+      "sheet_total": 2350,
+      "stale": true,
+      "stale_delta": 1325
+    },
+    "Bates": {
+      "wins": 36,
+      "loss": 49,
+      "tie": 0,
+      "win_pct": 0.4235294117647059,
+      "by_year": {
+        "2016": 0,
+        "2017": 0,
+        "2018": 487.5,
+        "2019": 0,
+        "2020": 300,
+        "2021": 1232.5,
+        "2022": 0,
+        "2023": 100,
+        "2024": 0,
+        "2025": 875,
+        "2026": 0
+      },
+      "career_from_years": 2995.0,
+      "sheet_total": 2120,
+      "stale": true,
+      "stale_delta": 875.0
+    },
+    "Dylan": {
+      "wins": 41,
+      "loss": 44,
+      "tie": 0,
+      "win_pct": 0.4823529411764706,
+      "by_year": {
+        "2016": 0,
+        "2017": 406.25,
+        "2018": 187.5,
+        "2019": 0,
+        "2020": 0,
+        "2021": 0,
+        "2022": 350,
+        "2023": 550,
+        "2024": 100,
+        "2025": 100,
+        "2026": 0
+      },
+      "career_from_years": 1693.75,
+      "sheet_total": 1593.75,
+      "stale": true,
+      "stale_delta": 100.0
+    },
+    "Sam": {
+      "wins": 37,
+      "loss": 48,
+      "tie": 0,
+      "win_pct": 0.43529411764705883,
+      "by_year": {
+        "2016": 0,
+        "2017": 0,
+        "2018": 0,
+        "2019": 0,
+        "2020": 0,
+        "2021": 0,
+        "2022": 1050,
+        "2023": 200,
+        "2024": 0,
+        "2025": 0,
+        "2026": 0
+      },
+      "career_from_years": 1250,
+      "sheet_total": 1250,
+      "stale": false,
+      "stale_delta": 0
+    },
+    "Jeremy": {
+      "wins": 40,
+      "loss": 45,
+      "tie": 0,
+      "win_pct": 0.47058823529411764,
+      "by_year": {
+        "2016": 0,
+        "2017": 156.25,
+        "2018": 0,
+        "2019": 200,
+        "2020": 0,
+        "2021": 290,
+        "2022": 0,
+        "2023": 200,
+        "2024": 900,
+        "2025": 600,
+        "2026": 0
+      },
+      "career_from_years": 2346.25,
+      "sheet_total": 1746.25,
+      "stale": true,
+      "stale_delta": 600.0
+    },
+    "Richard": {
+      "wins": 36,
+      "loss": 49,
+      "tie": 0,
+      "win_pct": 0.4235294117647059,
+      "by_year": {
+        "2016": 150,
+        "2017": 0,
+        "2018": 300,
+        "2019": 0,
+        "2020": 0,
+        "2021": 0,
+        "2022": 0,
+        "2023": 100,
+        "2024": 200,
+        "2025": 200,
+        "2026": 0
+      },
+      "career_from_years": 950,
+      "sheet_total": 750,
+      "stale": true,
+      "stale_delta": 200
+    },
+    "Justin": {
+      "wins": 41,
+      "loss": 43,
+      "tie": 1,
+      "win_pct": 0.4823529411764706,
+      "by_year": {
+        "2016": 0,
+        "2017": 0,
+        "2018": 0,
+        "2019": 0,
+        "2020": 0,
+        "2021": 0,
+        "2022": 0,
+        "2023": 0,
+        "2024": 600,
+        "2025": 0,
+        "2026": 0
+      },
+      "career_from_years": 600,
+      "sheet_total": 600,
+      "stale": false,
+      "stale_delta": 0
+    }
+  },
+  "payments_2026": {
+    "Cory": {
+      "raw_2026": 0,
+      "paid": true
+    },
+    "Marian": {
+      "raw_2026": 0,
+      "paid": true
+    },
+    "David": {
+      "raw_2026": 375,
+      "paid": true
+    },
+    "Bates": {
+      "raw_2026": -400,
+      "paid": false
+    },
+    "Michael": {
+      "raw_2026": -400,
+      "paid": false
+    },
+    "Richard": {
+      "raw_2026": -400,
+      "paid": false
+    },
+    "Jeremy": {
+      "raw_2026": -400,
+      "paid": false
+    },
+    "Justin": {
+      "raw_2026": -400,
+      "paid": false
+    },
+    "Sam": {
+      "raw_2026": -400,
+      "paid": false
+    },
+    "Dylan": {
+      "raw_2026": -400,
+      "paid": false
+    }
+  },
+  "votes_pending": [
+    "Increase Buyin to $500?",
+    "Keep Keeper rules the same?",
+    "Change Payout percentages?"
+  ]
+}
