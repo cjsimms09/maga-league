@@ -324,21 +324,40 @@ E[$] = Σ_w P(weekly-high,w)·$100 + P(RS champ)·$250 + P(RS 2nd)·$125 + Σ_k 
 ```
 Auto-refreshes in CI (`money_history.py` → `MONEY-HISTORY.md`). **ANALYSIS 2** (dollar re-grade of Phase S/N vs luck baseline) is queued CI backtest work — now specced with the **Phase $ money-grading refinements** (`strategy-hunt-learning-seed.md`): weekly-high odds vs **harvested per-week thresholds** (2024 wk1=126, wk2=166 — not a flat bar); opponents simulated at **observed efficiency** (Schmelley 84–87%, not optimal); every strategy's E[$] reported **decomposed** (weekly-high $ / playoff-entry $ / RS $); the **dollar** luck-baseline verdict is the certification bar, and anything clearing it is flagged for the shadow set.
 
-### 📋 CHAT-CLAUDE SYNC AUDIT (2026-08-08) — on record vs missing
-Against the expected 9-item inventory. **6 fully on record, 2 partial, 1 unauditable (truncated in the source message).**
+### 📋 CHAT-CLAUDE SYNC AUDIT (2026-08-08) — CLOSED (gaps filled 2026-08-08)
+Against the expected 9-item inventory. **All items resolved; one material CORRECTION found on item 7.**
 | # | Deliverable | Status |
 |---|---|---|
 | 1 | Live-API briefing (era stability, rounds=15, pick_timer=0, playoff wks 16–17, pick_trading=1, cpu_autopick=1) | ✅ **ON RECORD** (STATUS §Live-API briefing — all six markers) |
-| 2 | 2025 + 2024 + 2023 season/efficiency tables + tags (dynasty, RS-merchant, leak cohort) | ⚠️ **PARTIAL** — 2024 & 2025 name-mapped standings+efficiency tables ON RECORD with tags; **2023 present only as inline context + aggregate money counts, NOT a per-owner standings/efficiency table** like the other two years. Tags all present. |
+| 2 | 2025 + 2024 + 2023 season/efficiency tables + tags (dynasty, RS-merchant, leak cohort) | ✅ **CLOSED** — 2023 table now on record (below); all three years complete with tags |
 | 3 | All three years' money tables + brackets | ✅ **ON RECORD** — $/season standings + winners brackets present for 2023/24/25 (4 placement games each, 18 wks); per-season reconciliation ✅ |
 | 4 | money_history bug report + resolution | ✅ **ON RECORD** (DISCREPANCY RESOLVED recon #2; playoff-$ fold; ca46416/67d7766) |
 | 5 | Complete 2024 weekly-high ledger (Cory 4 / ds7mmet 3 / R2121 2 / MarianSaar 2) | ✅ **ON RECORD + independently cross-check-verified** |
 | 6 | 2025 wks 1–6 highs (ds7mmet 2, mhagen 2, Jreis 1, Schmelley 1) | ✅ **ON RECORD + verified** |
-| 7 | Four documented bench-decided highs (2024 wks 4/8/15, 2025 wk2) | ⚠️ **PARTIAL — 2 of 4 enumerated** (2024 wk15 = 1.06; 2025 wk2 donation). **2024 wk4 & wk8 specifics NOT captured.** The lineup data to recompute them (`starters`/`players`/`starters_points`/`players_points`) IS in the harvest — so this is computable, not lost; it's the exact started-vs-optimal machinery the in-season **lineup optimizer** builds, so it's routed there rather than as a one-off. |
+| 7 | Four documented bench-decided highs (2024 wks 4/8/15, 2025 wk2) | ⚠️ **CORRECTED to THREE** — cross-check below: wk8 ✅ confirmed, **wk4 ✗ REJECTED under slot legality** |
 | 8 | Reconciliation-pass spec + traceability matrix | ✅ **ON RECORD** (§RECONCILIATION-PASS TRACEABILITY MATRIX, deliverable #1, 127049a) |
-| 9 | *(truncated in the source message)* | ❓ **UNAUDITABLE** — the 9th expected item was cut off; resend it and I'll audit. |
-**Also pending (not a chat deliverable I'm missing — a pre-registered CI TODO):** 2025 **weeks 7–15** weekly-high winners (R2121/MarianSaar verification).
-**Gap-closing actions:** (a) stamp the 2023 name-mapped standings/efficiency table when the 2023 harvest lands (item G, in flight); (b) compute & record 2024 wk4/wk8 bench-optimality to complete the four-highs set.
+| 9 | League-history page spec (chapters, records book, franchise pages, Money Board, Bad Beats HOF, search, January auto-append) | ✅ **HELD + AMENDED** (`league-history-page.md`; §1 banter-voice amendment + Annual-Button consolidation, all sections present) |
+**Settlement report (audit tail):** the financial settlement = the **Annual** generates the who-gets-paid/who-owes artifact from the verified season money table via `payouts.json`, rendered on the site's league-visible **Finances** page (the machine that computes the money writes the invoice). Recorded into `annual-button.md` §1c(4). **Audit CLOSED.**
+**Still pending (pre-registered CI TODO, not a missing deliverable):** 2025 **weeks 7–15** weekly-high winners (R2121/MarianSaar verification).
+
+**🔎 ITEM-7 CROSS-CHECK (independent optimal-lineup computation, slot-legal: QB1·RB2·WR2·TE1·FLEX1·K1·DEF1):**
+- **2024 wk8 — ✅ CONFIRMED donated.** Cory actual **100.34**, winning high **135.56**, **legal optimal 171.64** (beats the high by **+36.1**). Even conservative chat estimate (~155+) clears it. A true bench-decided high — ~71 legal points left on the bench.
+- **2024 wk4 — ✗ REJECTED (disagreement with chat's ~173).** Cory actual **116.72**, winning high **151.32**, **legal optimal 145.06** — falls **6.3 SHORT** of the high. Chat's ~173 did **not** respect slot legality: the roster's only TE was **Kyle Pitts at 0.0** (a forced dead starter slot), and with just 2 RB / 2 WR / 1 FLEX startable, the extra big RB/WR scores (Chase Brown, London, Williams) can't all be used. **wk4 was NOT winnable even with a perfect lineup — it is a lineup-efficiency leak (~28 legal pts benched, 116.72→145.06) but NOT a donated weekly-high.** Do not count it in the "bench-decided highs" set.
+- **Net:** the bench-decided-high set is **THREE** (2024 wk8, 2024 wk15 miss-by-1.06, 2025 wk2 miss-by-5.2), not four. The optimizer's business case stands (wk4 still shows a 28-pt lineup leak) — but honesty rule: wk4 is a leak, not a stolen high.
+
+#### 2023 season table (name-mapped, chat-Claude gap-fill — closes item 2)
+| owner | W-L | PF | ppts | eff% | tag |
+|---|---|---|---|---|---|
+| mhagen | 10-5 | 1852.2 | 2061.8 | 89.8% | **champion, most PF** (dynasty yr 1) |
+| ds7mmet | 10-5 | 1815.7 | 2156.1 | 84.2% | **era-high potential, era-WORST efficiency** (leak cohort) |
+| Schmelley | 9-6 | 1737.7 | 1995.6 | 87.1% | runner-up |
+| Cory (me) | 9-6 | 1566.0 | 1819.8 | 86.1% | 4-seed → **3rd place**, 7th in PF (record outran points) |
+| Sadbru | 7-8 | 1588.8 | 1734.4 | 91.6% | best efficiency |
+| MarianSaar | 8-7 | 1577.3 | 1907.6 | 82.7% | lowest efficiency (leak cohort) |
+| cashworth | 6-9 | 1661.0 | 1872.5 | 88.7% | |
+| Richard2121 | 6-9 | 1484.9 | 1713.0 | 86.7% | |
+| B8T3S | 5-10 | 1548.6 | 1797.3 | 86.2% | |
+| Jreis | 5-10 | 1486.3 | 1672.8 | 88.9% | **last place → 2024 champion** |
 
 **✅ TWO-ANALYST CROSS-CHECK (2026-08-08) — chat-Claude harvest vs my independent `money_history` computation. EVERY number reconciles; ZERO disagreements:**
 - **2024 weekly-high counts:** chat = Cory 4 / ds7mmet 3 / R2121 2 / MarianSaar 2; mine = **CORY 4, ...9568 3, two managers at 2, four at 1 (total 15 = $1,500)** — exact match on the named group (4,3,2,2). Fixes the ID map: **ds7mmet = 434921290978029568**.
@@ -377,7 +396,7 @@ Against the expected 9-item inventory. **6 fully on record, 2 partial, 1 unaudit
 - **2024 champion Jreis kept 0 keepers** (precedent for keep-fewer — noted in **K0 context**; does not reopen K0, which is settled at keep-3 by surplus, but logs that a champion kept none) and won at **91.8% efficiency**.
 - **Both champions were top-2 efficiency in their title year** (mhagen 89.1% / Jreis 91.8%) — strong signal that lineup-setting, not just drafting, wins here. Reinforces the optimizer priority.
 - **🎯 PRE-REGISTERED (2024 harvest):** 2024 weekly-high winners follow the same logic — points-strong/record-unlucky teams (Cory 2024 among them) banked highs. Verify vs 2024 weeks 1–15. **→ CONFIRMED** (cross-check above: Cory led 2024 with 4 highs = $400).
-- **Dossier additions (chat-Claude 2024/2025 weekly-high ledgers, cross-check-verified):** Cory's **optimal-2024 ≈ $700–800 + a playoff berth** (4 real highs + the wk15 miss-by-1.06 and other bench-decided losses recoverable) — **this is the lineup optimizer's quantified business case; cite it verbatim in the in-season/optimizer spec.** Cory's **wk2-2025** bench donation (Henry started at 2.3 over a 14.4 bench option, missed the high by 5.2) = the **4th documented bench-decided high**. **B8T3S and Sadbru: zero highs in 2024** (bottom of the money pool). **mhagen double-dipped in his 2025 title year** (2 of the first-6 highs) — the dynasty benchmark also chases weekly $. Still TODO in CI: confirm R2121/MarianSaar 2025 highs across weeks 7–15 (pre-registered above).
+- **Dossier additions (chat-Claude 2024/2025 weekly-high ledgers, cross-check-verified):** Cory's **optimal-2024 ≈ $700–800 + a playoff berth** (4 real highs + the wk15 miss-by-1.06 and other bench-decided losses recoverable) — **this is the lineup optimizer's quantified business case; cite it verbatim in the in-season/optimizer spec.** Cory's **wk2-2025** bench donation (Henry started at 2.3 over a 14.4 bench option, missed the high by 5.2) = one of **THREE confirmed bench-decided highs** (2024 wk8, 2024 wk15, 2025 wk2 — the chat-side wk4 candidate was REJECTED under slot legality, see item-7 cross-check above). **B8T3S and Sadbru: zero highs in 2024** (bottom of the money pool). **mhagen double-dipped in his 2025 title year** (2 of the first-6 highs) — the dynasty benchmark also chases weekly $. Still TODO in CI: confirm R2121/MarianSaar 2025 highs across weeks 7–15 (pre-registered above).
 
 ### Live-API briefing — other findings (chat-Claude, 2026-08-08)
 1. **Era stability CONFIRMED** — 2024/2025/2026 settings byte-for-byte identical (scoring incl. pass_td 6.0, playoff_start 16, 4 teams, deadline 11, waiver_type 1, max_keepers 3, pick_trading 1). **Backtest simplifies: all replay seasons ran under current rules — full pattern transfer, no era adjustments.** Stamp the settings hash across the chain as proof (Part 12).

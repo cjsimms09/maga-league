@@ -37,7 +37,11 @@ and select a strategy? My recommendation: yes, post-draft, as part of the
 in-season rankings work — a genuine projection is the prerequisite for the
 backtest to mean anything, and it is out of scope before Aug 22.
 
-## D3 — Flex-fill discount in the need term (OPEN — tracked, quantify before mocks)
+## D3 — Flex-fill discount in the need term — ✅ RESOLVED + IMPLEMENTED (2026-08-08)
+
+**Cory approved marginal-over-best-flex-alternative pricing; BUILT, tested, and re-quantified.** `CFG.FLEX_DISCOUNT` + `bestFlexAlt` price a flex-only fill at candidate-VORP minus the best flex-eligible alternative on the board, floored at 0, capped at full VORP (`FLEX_ALT_WEIGHT` knob). Cited engine test + `R-flex` robot. **Re-quantified at real pick-34:** before/after top-5 flips from 3 redundant flex-only RBs (Williams/Swift/Love) to dedicated-slot fills (Warren TE1 / McMillan WR2 / Maye QB1). 221 engine / 67 robot green. _Original open-item text retained below for provenance._
+
+## D3 — Flex-fill discount in the need term (original — OPEN — tracked, quantify before mocks)
 
 The Final Pass A1 review surfaced this: `starterSlotMarginal` values a player who
 fills the **FLEX** slot at **full VORP**, identical to one filling a dedicated
@@ -76,7 +80,10 @@ properly; the August fix should be conservative. **My recommendation:** a small
 capped discount (flex-fill worth ~0.7× dedicated-fill, tuned so the top-5 shifts
 only where genuinely warranted), re-quantified, before mock #1.
 
-## D4 — Draft slot is UNVERIFIED (A2 — blocked on Sleeper draft room creation)
+## D4 — Draft slot is UNVERIFIED (A2 — MACHINERY BUILT 2026-08-08; still blocked on Sleeper draft room creation)
+
+**All four machinery items below are BUILT** (`state.slotVerified`/`slotSource`, "SLOT UNVERIFIED" watermark, checklist line "Draft slot verified against Sleeper draft object", auto-import-and-clear on draft-object sync, `R-slot` robot). The ONLY remaining block is external: Sleeper draft order isn't assigned yet, so the real slot is unknown. The tool is armed and verifies automatically the moment the order lands. _Original item text retained below._
+
 
 Slot 9 is a **placeholder**, not a claim — draft positions have not been selected
 in Sleeper yet. Per Final Pass A2, the machinery to build (not blocking; captured
