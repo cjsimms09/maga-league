@@ -92,6 +92,20 @@ action"* — **the END DRAFT confirmation guard from the §D safety pass may be
 intercepting the press and never completing; check that path specifically.**
 Named suspect, first thing to test.
 
+## → FOR SESSION B (site lane) — CSS polish requests
+_Per TERRITORY rule 6, the reverse direction: A adds markup + class hooks, B owns
+`public/css/**`. These are cosmetic-only; the features work unstyled today._
+
+- **Stack line + badge CSS (grind #4, landed 2026-08-08).** New Zone-2 markup in
+  `views/admin/warroom.ejs` (`#stack-card`, `#stack-line`) and rec-card class
+  hooks in `app.js`: `.stack-line`, `.stack-head`, `.stack-row`, `.stack-more`
+  (a `<details>`), and `.rec-stack-badge`. The badge carries a single inline
+  accent (`color:#f5c445`) as a stopgap so it reads as a badge, not body copy —
+  **please move it into the design system** and drop the inline style. Match the
+  quiet register of `.lrm-strip`: this is a LEAN, it must never out-shout the
+  installed surfaces. The `#stack-class` sub-label prints the evidence class
+  ("LEAN, not installed") — style it as a caveat, not a feature tag.
+
 ## Already landed, not parked
 - **Claim-integrity doctrine** (`CLAIM-INTEGRITY.md`) + the three guards —
   shipped before this rule took effect; re-sent instruction needed no new work.

@@ -2053,13 +2053,113 @@
     return flags;
   }
 
+  /* ── LIVE STACK ROUTES ──────────────────────────────────────────────────────
+   *
+   * Enumerate the same-team QB↔pass-catcher completions still on the board,
+   * ranked by the stack value the ENGINE ITSELF uses (CFG.STACK_*), so the line
+   * cannot claim a value the scorer would not. Single-partner routes rank first
+   * — exp 6's finding that the FIRST partner is the value; a second catcher is a
+   * flattened marginal and sorts below.
+   *
+   * HONESTY, load-bearing: `stack` is classed weak / LEAN / NOT INSTALLED in
+   * deviation.js, and this surface would otherwise give a not-installed term
+   * standing visual prominence — the deviation badge's failure mode in reverse,
+   * decoration reading as evidence. So each result carries `klass`/`classLabel`
+   * DERIVED from EVIDENCE.stack, never hard-coded here. If exp 6 or 21 promotes
+   * the term, the label changes in one place (deviation.js) and the prominence
+   * becomes earned rather than assumed.
+   *
+   * Takes the SCORED board (same list the recs render from — never a second
+   * computation) so survival and adp come from the render, not a re-derive.
+   */
+  function liveStackRoutes(roster, scored, opts) {
+    opts = opts || {};
+    var max = opts.max || 4;
+    roster = roster || [];
+    scored = scored || [];
+
+    // The class comes from the evidence table, in one place.
+    var DEV = (typeof DraftDeviation !== 'undefined') ? DraftDeviation
+      : (typeof require === 'function' ? require('./deviation.js') : null);
+    var ev = DEV && DEV.EVIDENCE ? DEV.EVIDENCE.stack : { klass: 'weak', note: 'LEAN only — not installed' };
+    var installed = ev.klass === 'moderate' || ev.klass === 'validated';
+    var classLabel = installed ? 'installed' : 'LEAN, not installed';
+
+    var byTeam = {};
+    roster.forEach(function (r) {
+      if (r && r.team) (byTeam[r.team] = byTeam[r.team] || []).push(r);
+    });
+
+    var adpOf = function (p) { return p.adjusted_adp != null ? p.adjusted_adp
+      : (p.raw_adp != null ? p.raw_adp : null); };
+
+    var routes = [];
+    scored.forEach(function (s) {
+      var p = (s && s.player) ? s.player : s;
+      if (!p || !p.team) return;
+      var mates = byTeam[p.team];
+      if (!mates || !mates.length) return;
+
+      var qbs = mates.filter(function (m) { return m.position === 'QB'; });
+      var catchers = mates.filter(function (m) { return m.position === 'WR' || m.position === 'TE'; });
+
+      var value = 0, anchor = null;
+      if (p.position === 'QB' && catchers.length) {
+        value = catchers[0].position === 'TE' ? CFG.STACK_QB_TE : CFG.STACK_QB_WR1;
+        anchor = catchers[0];
+      } else if ((p.position === 'WR' || p.position === 'TE') && qbs.length) {
+        value = p.position === 'TE' ? CFG.STACK_QB_TE : CFG.STACK_QB_WR1;
+        anchor = qbs[0];
+      } else {
+        return; // same-team competition is a penalty, not a route to complete
+      }
+
+      // First pairing on this team (single) vs an add-on to an existing QB+catcher pair (double).
+      var single = !(qbs.length && catchers.length);
+      routes.push({
+        partner_id: String(p.player_id),
+        partner: p.name,
+        position: p.position,
+        anchor: anchor.name,
+        anchor_position: anchor.position,
+        value: value,
+        single: single,
+        survival: (s && s.survival_to_next != null) ? s.survival_to_next : null,
+        adp: adpOf(p),
+        klass: ev.klass,
+        class_label: classLabel,
+        label: p.name + (single ? ' completes ' : ' extends ') + anchor.name + ' stack',
+      });
+    });
+
+    // Single-partner first, then higher stack value, then the one most at risk
+    // of being gone (lower survival) so "best" surfaces the fleeting one.
+    routes.sort(function (a, b) {
+      if (a.single !== b.single) return a.single ? -1 : 1;
+      if (b.value !== a.value) return b.value - a.value;
+      var as = a.survival == null ? 1 : a.survival, bs = b.survival == null ? 1 : b.survival;
+      return as - bs;
+    });
+
+    var partnerIds = {};
+    routes.forEach(function (r) { partnerIds[r.partner_id] = r; });
+    return {
+      count: routes.length,
+      routes: routes.slice(0, max),
+      best: routes[0] || null,
+      partnerIds: partnerIds,      // player_id -> route, for the rec-card badge
+      klass: ev.klass,
+      class_label: classLabel,
+    };
+  }
+
   global.DraftEngine = {
     CFG, DEFAULT_WEIGHTS,
     normalCdf, adpSd, survival, runMultipliers, detectRuns,
     expectedBestAvailable, vona,
     tierCliffUrgency, starterSlotMarginal, riskAdjustment, upsideBonus,
     scorePlayer, onesieState, positionRank, doctrineTilt, doctrineReport, recommend, mandatoryGaps, applyRosterLegality, plausibilityRails,
-    demoteFlaggedOnesies, computeRailBudget, railFireSig, bestFlexAlt,
+    demoteFlaggedOnesies, computeRailBudget, railFireSig, bestFlexAlt, liveStackRoutes,
     confidence, branchForecast, computePaths, dollarGap, playerDollars, applyPersonalLists, onTheClock, rosterPlan, byeGrid,
     cheatSheet, sheetText, managerTells, threatBoard,
     WEIGHT_PRESETS, matchPreset, rankDiff, autoWeights,

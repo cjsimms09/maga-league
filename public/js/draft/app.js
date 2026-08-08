@@ -2033,6 +2033,9 @@
     try { renderMVS(out.scored, out.paths); }
     catch (e) { console.error('[mvs]', e && e.message); }
     renderBestAvailStrip(out.scored, (context() || {}).nextPick);
+    // Stack line runs BEFORE the rec cards below so stackBadge() can read its
+    // route map. Same scored board — never a second computation.
+    try { renderStackLine(out.scored); } catch (e) { console.error('[stack]', e && e.message); }
     renderCompareTray();   // keep the dollar-gap overlay fresh as the board changes
     const all = out.scored;
     const scored = all.slice(0, 5);
@@ -2067,6 +2070,7 @@
           '</div>' +
           '<div class="rec-why">' + escapeHtml(s.reasons[0]) +
             (s.reasons.length > 1 ? ' · ' + escapeHtml(s.reasons[1]) : '') + '</div>' +
+          stackBadge(p) +
           ((s.rails && s.rails.length)
             ? '<div class="rail-strip">' + s.rails.map(f =>
                 '<span>\u26a0\ufe0f ' + escapeHtml(f) + '</span>').join('') + '</div>'
@@ -2481,6 +2485,58 @@
       return '<div class="lrm-row">' + badge + 'safe ' + phrase(r.startable_by, r.startable_early)
         + ' <span class="muted">(' + escapeHtml(r.startable_target) + ')</span></div>';
     }).join('');
+  }
+
+  /* THE STACK LINE — a quiet context-rail home for a LEAN.
+   *
+   * `stack` is classed weak / not installed (deviation.js) and the intervention
+   * rate found it lead-driver on 5 of 221 interventions. So it earns a
+   * context-rail line — a human weighing a lean is a legitimate path — but never
+   * Zone-1 prominence, and it ALWAYS wears its class (from the evidence table,
+   * not hard-coded) so decoration never reads as an installed edge. Hidden when
+   * there are no live routes. Also stashes the route map for the rec-card badge.
+   */
+  function renderStackLine(scored) {
+    var card = document.getElementById('stack-card');
+    var host = document.getElementById('stack-line');
+    if (!card || !host) return;
+    var ctx = context();
+    var res = E.liveStackRoutes((ctx && ctx.roster) || [], scored || []);
+    state.stackRoutes = res;                       // consumed by stackBadge()
+    var clsEl = document.getElementById('stack-class');
+    if (clsEl) clsEl.textContent = res.class_label;
+    if (!res.count) { host.innerHTML = ''; card.style.display = 'none'; return; }
+    card.style.display = '';
+    var fmt = function (r) {
+      var odds = r.survival == null ? '' : ' <span class="muted">('
+        + Math.round(r.survival * 100) + '% at ' + (r.adp != null ? Math.round(r.adp) : '?') + ')</span>';
+      return escapeHtml(r.label) + odds;
+    };
+    var head = '<div class="stack-head">' + res.count + ' live route'
+      + (res.count === 1 ? '' : 's') + ' · best: ' + fmt(res.best) + '</div>';
+    var rest = res.routes.slice(1);
+    var more = rest.length
+      ? '<details class="stack-more"><summary>' + rest.length + ' more this way</summary>'
+        + rest.map(function (r) { return '<div class="stack-row">' + fmt(r) + '</div>'; }).join('')
+        + '</details>'
+      : '';
+    host.innerHTML = head + more;
+  }
+
+  /* A subtle badge on any recommendation that completes/extends a live route.
+   * Reads the class the same way the line does: '⚡ completes X stack — LEAN'
+   * while stack is uninstalled, and the tag drops to nothing once it is earned. */
+  function stackBadge(player) {
+    var res = state.stackRoutes;
+    if (!res || !res.partnerIds) return '';
+    var r = res.partnerIds[String(player.player_id)];
+    if (!r) return '';
+    var verb = r.single ? 'completes' : 'extends';
+    var tag = (res.klass === 'moderate' || res.klass === 'validated') ? '' : ' — LEAN';
+    // Inline accent so the badge reads as a badge before B's CSS lands (PARKED);
+    // the class name is the real hook B will style.
+    return '<div class="rec-stack-badge" style="font-size:.78rem;color:#f5c445;margin-top:.2rem">⚡ '
+      + verb + ' ' + escapeHtml(r.anchor) + ' stack' + tag + '</div>';
   }
 
   /* Slot assignments imported from the Sleeper draft object (Part 5 §2).

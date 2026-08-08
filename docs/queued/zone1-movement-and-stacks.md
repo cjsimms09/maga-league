@@ -103,4 +103,4 @@ surface implies the model is acting on it. The model is not.
 | Movement (3) WOULD MOVE | **the latency work** (`PARKED #11`) |
 | Movement (4) DOCTRINE DRIFT | nothing, **if worded as a gap**; override wording needs **Stage 3** |
 | Movement log + ledger | nothing — the `shadow_pick`-class kinds pattern already exists |
-| Stack line + badge | nothing — but **must carry its LEAN class** |
+| Stack line + badge | ✅ **BUILT 2026-08-08 (grind #4).** `E.liveStackRoutes` enumerates same-team QB↔catcher completions ranked by the engine's own stack value, single-partner first (exp 6); Zone-2 line + `⚡ completes X stack — LEAN` badge; **class DERIVED from `deviation.js` EVIDENCE.stack** (proven by `stack_routes.test.js`: promoting to moderate flips the label with no engine edit); CSS polish requested from B in PARKED. |
