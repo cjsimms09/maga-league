@@ -13,17 +13,31 @@ rest of the in-season work.
 ## The four Phase-1 components (live by Sep 8), from `in-season-master.md` §1
 
 ### Waiver Engine — Lite (then Full by week 3)
+> **⚠️ NO FAAB (Cory, 2026-08-08).** This league runs **priority economics**, not
+> bids. Every FAAB assumption below is struck and refit. The pipeline stamps the
+> real waiver settings into `config.waivers` (`waiver_type`, day, clear days) —
+> `is_faab=false` is the machine-checkable confirmation.
+
 - Tuesday detection of newly-available players
 - **Stealth score** — under-owned production the room hasn't noticed yet
 - Value = RoS projection over my current **worst starter** at the position
-- **Bid bands** (not false-precision single numbers), FAAB-budget-aware
+- **~~Bid bands~~ → Priority economics:** the recommendation is add-value vs the
+  **option value of my current waiver-priority position**. Track everyone's
+  priority position weekly (rolling vs reverse-standings, per `config.waivers`).
+  Each target gets a **burn/hold verdict**: is this add worth dropping to the
+  back of the priority order (rolling), or is it marginal enough to wait for
+  free agency?
+- **FA-speed layer:** post-clear free agency is **first-come-first-served**, so
+  Tuesday detection gains a **clear-time alert mode** — ranked FA targets pushed
+  the moment waivers process (the add-fast window is the edge, not the bid).
 - **Every recommendation logged to the prediction ledger at decision time**
-  (kind `waiver`, method e.g. `waiver-lite-v1`) — graded on its schedule
-- Full upgrade (week 3): empirical competing-bid model from league transaction
-  history + live budgets; bid recommendation as a win-probability curve;
-  vacated-opportunity attribution down real depth charts; keeper-forward flag
-  under **flat-cost** rules (a waiver add is this-season-only value EXCEPT a
-  plausible top-30-next-year player — no phantom late-round keeper value)
+  (kind `waiver`, method `waiver-priority-v1`) — graded on its schedule.
+- Full upgrade (week 3): ~~empirical competing-bid model~~ → **priority-usage
+  model** from league transaction history (who burns priority on marginal adds,
+  who camps FA, who's fast after clears); vacated-opportunity attribution down
+  real depth charts; keeper-forward flag under **flat-cost** rules (a waiver add
+  is this-season-only value EXCEPT a plausible top-30-next-year player — no
+  phantom late-round keeper value).
 
 ### The Weekly Brief — the front door (Tuesday, 3-minute phone read)
 Waiver card · matchup outlook · lineup flags · shadow standings · one intel

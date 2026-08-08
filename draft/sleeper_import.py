@@ -288,6 +288,20 @@ def import_league(league_id: str, *, keeper_rules: dict | None = None) -> dict:
         "scoring": dict(league.get("scoring_settings") or {}),
         "playoff_week_start": settings.get("playoff_week_start", 15),
         "playoff_teams": settings.get("playoff_teams", 4),
+        # Waiver economics (2026-08-08). Cory confirmed the league has NO FAAB, so
+        # the in-season waiver engine runs on PRIORITY economics, not bids. Capture
+        # the raw Sleeper fields so the pipeline stamps the truth rather than the
+        # tool assuming FAAB. Sleeper waiver_type: 0=rolling priority, 1=reverse
+        # standings, 2=FAAB. `budget`/faab is present only for FAAB leagues — its
+        # absence/zero is the machine-checkable confirmation of no-FAAB.
+        "waivers": {
+            "type_code": settings.get("waiver_type"),
+            "day_of_week": settings.get("waiver_day_of_week"),
+            "clear_days": settings.get("waiver_clear_days"),
+            "budget": settings.get("waiver_budget"),
+            "daily_waivers": settings.get("daily_waivers"),
+            "is_faab": bool(settings.get("waiver_budget")) and settings.get("waiver_type") == 2,
+        },
         "teams_detail": teams,
         "original_rounds": original_rounds(league_id),
         "keepers": keeper_rules or {

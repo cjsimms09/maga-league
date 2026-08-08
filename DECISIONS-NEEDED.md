@@ -79,6 +79,29 @@ my_draft_slot`. The CI rebuild stamps keepers with whatever slot the config
 carries; once the real slot is verified and the board rebuilt for it, A1
 populates correctly. Until then A1 shows keepers for the config's current slot.
 
+## D6 — NO FAAB: waiver economics are priority-based (Cory, 2026-08-08) — REFIT DONE, one verify pending
+
+Cory confirmed the league has **no FAAB**. Actions taken (built-ahead in-season
+work, none of it live yet, so this is spec + capture refit, no live code to break):
+- **Config capture (Part 1):** `sleeper_import` now stamps `config.waivers`
+  (`waiver_type`, `day_of_week`, `clear_days`, `budget`, `is_faab`). **Verify pending:**
+  the sandbox can't reach api.sleeper.app (egress-blocked); the next CI import
+  stamps the real values — confirm `is_faab=false` and the priority mechanism
+  (rolling vs reverse-standings) once it lands.
+- **Audit (Part 2):** only two FAAB touchpoints in code — `engine.js:553` already
+  says the FAAB consequence doesn't apply; `history_export.py` captured bids
+  (now noted null under no-FAAB). No live bid logic to rip out.
+- **Waiver spec refit (Parts 3–4):** `season-readiness-kit.md` — recommendation is
+  add-value vs the **option value of my priority position** (track everyone
+  weekly), with a **burn/hold** verdict per target; plus an **FA-speed clear-time
+  alert** (post-clear FA is first-come-first-served). Method tag `waiver-priority-v1`.
+- **Dossier pivot (Part 5):** bid-aggression → **priority-usage patterns** (who
+  burns priority on marginal adds, who camps FA) + **add-speed** after clears.
+- **History (Part 6):** the export already carries `type` (waiver vs free_agent)
+  and `created` (add-speed) per transaction — the raw material to fit these
+  patterns from our actual league history is already captured; the fit itself is
+  in-season work (built-ahead, activation-flagged awaiting season data).
+
 _No other decisions open._
 
 

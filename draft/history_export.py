@@ -163,7 +163,10 @@ def export_season(lg: dict, *, gaps: list) -> dict:
                 "roster_ids": t.get("roster_ids") or [],
                 "adds": t.get("adds") or {},
                 "drops": t.get("drops") or {},
-                # The whole point of item 6: real observed FAAB bids.
+                # NO-FAAB pivot (2026-08-08): this league has no bids, so the
+                # signal is `type` (waiver vs free_agent — priority-usage vs
+                # camping FA) and `created` (add-speed after clears), NOT the bid.
+                # waiver_bid is kept for completeness but will be null here.
                 "waiver_bid": (t.get("settings") or {}).get("waiver_bid"),
                 "created": t.get("created"),
             } for t in tx]
