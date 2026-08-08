@@ -421,6 +421,56 @@ if (!IS_FIXTURE) {
     !(keepZeroOnly.misplaced || []).some(m => m.observed_team === 9), 'team 9 should not appear');
 }
 
+// R-shadow (Phase H): a FULL simulated draft with shadow rosters riding along.
+// At each of my picks the shadows draft from the board AS IT STOOD (including
+// the player I take); the scenario asserts the board-hash sequencing over the
+// whole draft, one shadow player per real pick, no duplicates, and that the
+// frozen rosters pass gradeGuard.
+{
+  const SH = require('../../public/js/draft/shadows.js');
+  const mySlot = Number(LEAGUE.my_draft_slot) || 4;
+  const sched = snake();
+  const taken = new Set();
+  const rand = rng(777);
+  const shadows = SH.create({ rehearsal: false, rounds: ROUNDS, built_at: ART.built_at });
+  const expectedHashes = [];
+  let myPicks = 0;
+
+  for (const step of sched) {
+    const board = ALL.filter(p => !taken.has(String(p.player_id)));
+    if (!board.length) break;
+    let chosen;
+    if (step.team_slot === mySlot) {
+      const ctx = { board, currentPick: step.pick_no, nextPick: step.pick_no + TEAMS,
+        totalPicks: sched.length, myPicksLeft: sched.filter(t => t.team_slot === mySlot && t.pick_no >= step.pick_no).length,
+        roster: [], league: LEAGUE, weights: E.DEFAULT_WEIGHTS,
+        runMultipliers: {}, intervening: [], roundsLeft: ROUNDS - step.round + 1 };
+      expectedHashes.push(SH.boardHash(board));
+      SH.onMyPick(shadows, board, ctx, step.round);
+      myPicks++;
+      const scored = E.recommend(ctx);
+      chosen = scored.length ? scored[0].player : board[0];
+    } else {
+      chosen = opponentPick(board, rand);
+    }
+    taken.add(String(chosen.player_id));
+  }
+  SH.freeze(shadows, { built_at: ART.built_at });
+
+  const strat = Object.values(shadows.strategies);
+  check('R-shadow: every strategy drafted one player per real pick (' + myPicks + ')',
+    strat.every(s => s.roster.length === myPicks),
+    strat.map(s => s.key + ':' + s.roster.length).join(','));
+  check('R-shadow: every shadow pick logged the CORRECT board snapshot hash (sequencing)',
+    strat.every(s => s.log.every((l, i) => l.board_hash === expectedHashes[i])));
+  check('R-shadow: no shadow rosters a duplicate over a full draft',
+    strat.every(s => new Set(s.roster.map(p => String(p.player_id))).size === s.roster.length));
+  check('R-shadow: frozen rosters pass gradeGuard (hash + frozen)',
+    strat.every(s => SH.gradeGuard(s, ROUNDS).ok === true));
+  check('R-shadow: real-draft shadows carry rehearsal:false throughout',
+    strat.every(s => s.log.every(l => l.rehearsal === false)));
+}
+
 // R7 (DEMAND 3 — the robot draft writes the ledger): a full simulated draft
 // must produce the expected ledger entries with monotonic seq and ZERO gaps.
 // This is what proves draft night gets captured — not just a single curl test.

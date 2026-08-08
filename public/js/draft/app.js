@@ -2415,6 +2415,10 @@
     const mySlot = Number(state.data.league.my_draft_slot) || null;
     const slot = toMe ? mySlot : (teamSlot || null);
     const alreadySeen = state.drafted.has(String(playerId));
+    // Phase H: the board AS IT STOOD when this pick arrived — including the
+    // player being taken. Snapshotted BEFORE the filter below; shadows draft
+    // from exactly this snapshot, and its hash is what the robot verifies.
+    const boardAtPick = (toMe && !alreadySeen) ? state.board.slice() : null;
     // A local mark is a GUESS; the shared module records it as such and Sleeper
     // can later override it. Same call the robot mock's R1/R3 scenarios prove.
     if (ATTR) ATTR.markLocal(state, p, slot, mySlot);
@@ -2432,6 +2436,10 @@
     // own picks (toMe); other teams' picks are recorded by the survival/board
     // context, not as my decisions. Never on a mock, and never a re-mark.
     if (toMe && !alreadySeen && !state.mockMode) capturePick(p, pathKey);
+    // Phase H: every strategy takes its own counterfactual pick at my slot,
+    // from the snapshot above. Mocks fire it too (flagged rehearsal) so the
+    // whole shadow path is exercised before draft night.
+    if (toMe && !alreadySeen && boardAtPick) updateShadows(boardAtPick);
     // §C override-reason capture: if I took someone who ISN'T the top
     // recommendation, ask why in one tap (target/gut/news/plan) and log it.
     // Overrides are the one ledger entry kind that needs my finger — draft night
@@ -2554,6 +2562,35 @@
         chosen_path: chosen ? chosen.name : null,
         chosen_path_key: chosen ? chosen.key : null,
         off_path: paths.length > 0 && !chosen } });
+  }
+
+  /* Phase H shadow rosters (strategy-hunt-learning-seed.md). Every strategy
+   * drafts silently at my slots from the exact board snapshot; the 2026 season
+   * grades them out-of-sample in dollars. Best-effort like every capture — a
+   * shadow failure never touches the real clock. */
+  function updateShadows(boardAtPick) {
+    if (typeof DraftShadows === 'undefined') return;
+    try {
+      if (!state.shadows) {
+        state.shadows = DraftShadows.create({
+          rehearsal: !!state.mockMode,                    // req 4: flagged, never mixed
+          rounds: Math.round((state.data.pick_order.picks || []).length
+            / ((state.data.league || {}).teams || 10)) || 15,
+          built_at: (state.data || {}).built_at || null,
+        });
+      }
+      const teams = (state.data.league || {}).teams || 10;
+      const round = Math.max(1, Math.ceil(currentPick() / teams));
+      const baseCtx = Object.assign({}, context(), { board: boardAtPick });
+      const picks = DraftShadows.onMyPick(state.shadows, boardAtPick, baseCtx, round);
+      // Ledger each shadow pick at decision time (kind shadow_pick). Rehearsal
+      // entries carry the flag in the payload; the grading side filters on it.
+      if (typeof PredLedger !== 'undefined' && picks.length) {
+        var c = ledgerCtx();
+        PredLedger.capture('shadow_pick', { season: c.season, build_at: c.build_at,
+          pick: c.pick, method: 'shadow-v1', payload: { picks: picks } });
+      }
+    } catch (e) { /* never block the draft on a shadow */ }
   }
 
   /* Reconcile the assumed keeper slate against what Sleeper actually shows.
@@ -2779,6 +2816,28 @@
    * news overrides, your slot. Those are your work, not the mock's.
    */
   function endDraft() {
+    // Phase H req 3: freeze means freeze. Stamp every shadow roster (strategy,
+    // weight hash, built_at, rehearsal) and ledger the final rosters BEFORE the
+    // state reset wipes them — this is the record September grades.
+    if (state.shadows && typeof DraftShadows !== 'undefined' && !state.shadows.frozen) {
+      try {
+        DraftShadows.freeze(state.shadows, { built_at: (state.data || {}).built_at || null });
+        if (typeof PredLedger !== 'undefined') {
+          var sc = ledgerCtx();
+          PredLedger.capture('shadow_freeze', { season: sc.season, build_at: sc.build_at,
+            pick: sc.pick, method: 'shadow-v1',
+            payload: {
+              rehearsal: state.shadows.rehearsal,
+              rosters: Object.keys(state.shadows.strategies).map(function (k) {
+                var s = state.shadows.strategies[k];
+                return { strategy: k, weight_hash: s.weight_hash, frozen: true,
+                  roster: s.roster.map(function (p) { return String(p.player_id); }) };
+              }),
+            } });
+        }
+      } catch (e) { /* freezing must never block ending the draft */ }
+      state.shadows = null;
+    }
     if (state.sync && state.sync.stop) { try { state.sync.stop(); } catch (e) {} }
     state.sync = null;
     state.mode = 'pre';
