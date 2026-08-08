@@ -89,4 +89,59 @@
   }
   setInterval(poll, 15000);
 </script>
+<%# ── CLAIM CORRECTION (commissioner-only; the whole page already is) ────
+    Reassign or void any owner's claim mid-selection. Every consumer derives
+    from the one claim doc, so a fix here corrects /draft, this page's model,
+    and the war room on their next poll. %>
+<div class="card" style="margin-top:1rem">
+  <h2>🛠 Claim correction <span class="sub">fix a wrong claim without breaking the turn order</span></h2>
+  <div class="body">
+    <% if (typeof fixed !== 'undefined' && fixed) { %>
+      <p style="color:#2fd576;font-weight:600">✅ Corrected — <%= fixed %>. All surfaces update from the claim doc.</p>
+    <% } %>
+    <% if (typeof fixerr !== 'undefined' && fixerr) { %>
+      <p style="color:#ff8a94;font-weight:600">⛔ <%= fixerr %></p>
+    <% } %>
+    <p class="muted" style="font-size:.8rem">Set = move the owner to a slot (their old slot returns to the pool). Clear = void the claim — they become the current turn again and later positions wait. Every correction is recorded on the doc.</p>
+    <table style="width:100%;border-collapse:collapse;font-size:.85rem">
+      <thead><tr>
+        <th style="text-align:left;padding:.3rem .4rem">pick order</th>
+        <th style="text-align:left;padding:.3rem .4rem">owner</th>
+        <th style="text-align:left;padding:.3rem .4rem">claimed slot</th>
+        <th style="text-align:left;padding:.3rem .4rem">correct</th>
+      </tr></thead>
+      <tbody>
+      <% (typeof claims !== 'undefined' ? claims : []).forEach(function (c) { %>
+        <tr style="border-top:1px solid rgba(255,255,255,.08)">
+          <td style="padding:.3rem .4rem"><%= c.pos %></td>
+          <td style="padding:.3rem .4rem"><b><%= c.name %></b></td>
+          <td style="padding:.3rem .4rem"><%= c.slot == null ? '—' : ('slot ' + c.slot) %></td>
+          <td style="padding:.3rem .4rem">
+            <form method="post" action="/admin/draft/claim-fix" style="display:inline-flex;gap:.35rem;align-items:center;margin:0">
+              <input type="hidden" name="owner_id" value="<%= c.owner_id %>">
+              <input type="hidden" name="action" value="set">
+              <select name="slot" style="padding:.2rem">
+                <% if (c.slot != null) { %><option value="<%= c.slot %>">slot <%= c.slot %> (current)</option><% } %>
+                <% (typeof openSlots !== 'undefined' ? openSlots : []).forEach(function (s2) { %>
+                  <option value="<%= s2 %>">slot <%= s2 %></option>
+                <% }) %>
+              </select>
+              <button class="btn small gold" type="submit"
+                onclick="return confirm('Move <%= c.name %> to the selected slot?')">Set</button>
+            </form>
+            <% if (c.slot != null) { %>
+            <form method="post" action="/admin/draft/claim-fix" style="display:inline;margin:0 0 0 .4rem">
+              <input type="hidden" name="owner_id" value="<%= c.owner_id %>">
+              <input type="hidden" name="action" value="clear">
+              <button class="btn small navy" type="submit"
+                onclick="return confirm('Void <%= c.name %>\'s claim? They become the current turn and re-pick.')">Clear</button>
+            </form>
+            <% } %>
+          </td>
+        </tr>
+      <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div>
 <%- include('../partials/footer') %>

@@ -704,13 +704,59 @@ async function slotPickerModel(req) {
 
 router.get('/slot-picker', requireCory, aw(async (req, res) => {
   const model = await slotPickerModel(req);
-  res.render('admin/slot-picker', { model });
+  // Claim-correction panel data: the raw order with names, and the open pool.
+  const season = H.currentSeason(req.world.seasons);
+  const doc = await getDoc(`draft:${season.year}`, { order: [] });
+  const cf = require('../claimfix');
+  const claims = (doc.order || []).map(e => ({
+    pos: e.pos, owner_id: e.owner_id, slot: e.slot,
+    name: (H.ownerById(req.world.owners, e.owner_id) || {}).name || ('Owner ' + e.owner_id),
+  }));
+  res.render('admin/slot-picker', { model, claims, openSlots: cf.openSlots(doc),
+    fixed: req.query.fixed || null, fixerr: req.query.fixerr || null });
 }));
 
 // Polled by the page so it re-ranks live as claims land — same model, JSON.
 router.get('/slot-picker/state.json', requireCory, aw(async (req, res) => {
   const model = await slotPickerModel(req);
   res.json(model);
+}));
+
+// ---------- CLAIM CORRECTION (commissioner-only, live during selection) ----
+// The fat-finger fix: reassign or void any owner's slot claim mid-process.
+// Atomic at the document level (one read-modify-write of the ONE claim doc),
+// and downstream-safe by construction: the /draft pool, the slot-picker model
+// and the war room's claimed-slot provenance all DERIVE from this doc, so
+// correcting it corrects every surface on their next read/poll. If the
+// correction changes whose turn it is, that owner gets the turn notification.
+const claimfix = require('../claimfix');
+
+router.post('/draft/claim-fix', requireCory, aw(async (req, res) => {
+  const world = req.world;
+  const season = H.currentSeason(world.seasons);
+  const doc = await getDoc(`draft:${season.year}`, { order: [] });
+  try {
+    const out = claimfix.applyCorrection(doc, {
+      owner_id: req.body.owner_id,
+      action: req.body.action,
+      slot: req.body.slot,
+      by: req.owner.id,
+      at: now(),
+    });
+    await setDoc(`draft:${season.year}`, out.doc);
+    // Whoever is now on the clock hears about it — a voided claim puts the
+    // cleared owner back on turn; everyone later waits for them.
+    if (out.next_owner_id != null) {
+      const nxt = H.ownerById(world.owners, out.next_owner_id);
+      if (nxt) notify.draftTurn(nxt).catch(() => {});
+    }
+    res.redirect('/admin/slot-picker?fixed=' + encodeURIComponent(
+      (H.ownerById(world.owners, out.change.owner_id) || {}).name
+      + ': ' + (out.change.from == null ? 'unclaimed' : 'slot ' + out.change.from)
+      + ' → ' + (out.change.to == null ? 'unclaimed (re-picks)' : 'slot ' + out.change.to)));
+  } catch (e) {
+    res.redirect('/admin/slot-picker?fixerr=' + encodeURIComponent(String(e.message || e)));
+  }
 }));
 
 // ---------- Module 0 confirmation screen ----------
