@@ -11,7 +11,9 @@ because sessions are ephemeral and a container that gets reclaimed takes any
 | `backtest-round-2.md` | launch Phase 1 in CI whenever a natural break comes (background compute); prereq for the strategy hunt's corrected boards | queued — session upload, committed here so it survives container reclaim |
 | `strategy-hunt-learning-seed.md` | Phase L1 (ledger) DONE; Phase H (shadows) pre-draft; Phases S/N in CI after Backtest-2's corrected boards; L3–L6 September-class (capture hooks now) | queued — L1 shipped (`f9f6e6d`); rest gated |
 | `in-season-master.md` | **do not start before 23 Aug 2026** — becomes the master queue on Aug 23; calendar-gated Sep 8 / 15 / 22 / Oct 6 | queued — session upload, committed here so it survives container reclaim |
-| `annual-button.md` | Phase 4 / September-class build, BUT **dry-run acceptance test as soon as L1–L2 are done** (prove the machinery before the January it matters) | queued — dry-run gated on L2 (L1 shipped `f9f6e6d`) |
+| `annual-button.md` | Phase 4 / September-class build, BUT **dry-run acceptance test as soon as L1–L2 are done** (prove the machinery before the January it matters) | queued — dry-run gated on L2 (L1+L2 now DONE — dry-run is unblocked) |
+| `season-readiness-kit.md` | do not start before 23 Aug — Phase 1 with the in-season-master | consolidated reference (authored 2026-08-08) |
+| `part-12-watchdog.md` | Phase 4 / Sep-class; hash primitive may land earlier | slim spec (authored 2026-08-08) |
 
 ## ⚠️ Dependency status-check (in-season-master Phase 1) — flagged 2026-08-08
 
@@ -24,9 +26,9 @@ blocker — but it needs resolving before those phases begin:
 | dependency | status |
 |---|---|
 | in-season rankings spec | ✅ **PRESENT** — `in-season-rankings.md`, referenced correctly |
-| season-readiness kit | ❌ **MISSING** — no doc holds the Weekly Brief format, waiver-Lite stealth score, bid bands. Referenced throughout as if committed. |
-| Part 11 (learning loop) | ❌ **MISSING as a doc** — only a one-line "not built" in EVIDENCE-BUNDLE. Substance overlaps `strategy-hunt-learning-seed.md` L3–L6 (now committed), which can serve as its spec. |
-| Part 12 (watchdog) | ❌ **MISSING as a doc** — only EVIDENCE-BUNDLE references ("no ruleset hash exists anywhere"). Needs a spec or built from the in-season-master §4 text. |
+| season-readiness kit | ✅ **RECOVERED 2026-08-08** — `season-readiness-kit.md` consolidates the requirements that live inline in `in-season-master.md` §1 (Waiver Lite, Weekly Brief, opponent capture) and names it authoritative |
+| Part 11 (learning loop) | ✅ **FOLDED 2026-08-08** — it IS `strategy-hunt-learning-seed.md` (Phase L + Phase N); a header note there makes that explicit |
+| Part 12 (watchdog) | ✅ **AUTHORED 2026-08-08** — `part-12-watchdog.md`, slim buildable spec (ruleset hash incl. keeper cost model; fail-loud checks; robot scenario) from in-season-master §4 + EVIDENCE-BUNDLE items 26–27 |
 
 ## Why the date gate is real and not advisory
 

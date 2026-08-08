@@ -1,5 +1,16 @@
 # The Strategy Hunt + The Learning Seed — Built to Compound
 
+> **This document IS "Part 11" (the learning loop).** The in-season-master and
+> EVIDENCE-BUNDLE reference a "Part 11" spec that was never separately committed.
+> Phase L here (L1 ledger → L2 raw → L3 calibration auto-refresh → L4 dossier
+> append → L5 The Annual → L6 hypothesis ledger) is that learning loop in full;
+> the Annual Button (`annual-button.md`) is its one-press implementation arm.
+> Where anything cites "Part 11 gates" (multi-season consistency OR in-season
+> significance; never loosen a gate; planted-noise proposal must be rejected;
+> every changed constant cites its evidence and is reversible), those rules live
+> in Phase L / Phase N of this document. Folded here 2026-08-08 so there is one
+> authoritative learning-loop spec, not a dangling reference.
+
 Two mandates, one document. First: an **exhaustive** search for strategies that would have performed well in this league's actual drafts — every honest avenue, not eight hand-picked profiles. Second: the learning infrastructure instrumented NOW, before draft day, so 2026 is fully captured and the system is materially smarter every season. These connect: the search generates hypotheses; the learning system grades them on live data; years compound.
 
 Framing, locked before any numbers: the historical search **ranks, characterizes, and eliminates**. Certification comes from the null-baseline test (Phase N) and live shadow grading (Phase H) — never from a raw backtest ranking alone. Runs on the corrected foundations (real keepers, top_picks_flat where each season's reality matches, full board coverage) and after/alongside Backtest Round 2.

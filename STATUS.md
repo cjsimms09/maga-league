@@ -222,12 +222,12 @@ on Thursday; waivers don't wait." Acceptance test for the whole phase: by week 6
 my routine is four touches (~10 min/wk) — Tuesday brief, waiver card, Thursday
 micro-brief, Sunday alert. If a tool demands more, the surface is wrong.
 
-**Dependency flag (2026-08-08):** of the four "committed specs" the in-season
-master says to re-read, only **in-season rankings** exists as a doc. **Season-
-readiness kit, Part 11, Part 12 are MISSING as documents** (see
-`docs/queued/README.md`). Not a blocker — the master is its own fallback spec —
-but flagged now, before their phases begin. This session's three master specs
-are now committed under `docs/queued/` so a reclaimed container can't lose them.
+**Dependency flag (2026-08-08) — RESOLVED:** all four Phase-1 dependency specs
+now exist as committed docs. in-season rankings (present) · **season-readiness
+kit** (recovered/consolidated from in-season-master §1) · **Part 11** (folded —
+it IS strategy-hunt-learning-seed.md, header note added) · **Part 12** (authored
+slim spec, ruleset hash incl. keeper cost model). This session's master specs
+are all committed under `docs/queued/` so a reclaimed container can't lose them.
 
 ## Addendum audit — BUILT / PARTIAL / ABSENT (before any building)
 - 2b.1 Why line — **PARTIAL** (rec cards show reasons[0]; board rows have none; no tap-to-expand item-13 table per player)
