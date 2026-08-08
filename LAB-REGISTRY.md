@@ -7,7 +7,13 @@ Standing infrastructure per `docs/queued/the-lab.md`. **Every experiment is regi
 ## Shared harness (build once — gates every experiment)
 - Tier A historical replays (2023/24/25, era-correct payouts) · Tier B Monte-Carlo rooms (all slots, heterogeneous keeper configs keep-0/1/2/3, stress scenarios) · Tier C adversarial.
 - Season cross-validation (tune-2 / hold-1, rotate) + 500-null luck baselines searching the SAME space.
-- **State: SPEC ONLY — harness not yet built.** This is the critical-path blocker; everything below waits on it. Backtest R2's `draft/backtest/` replay is the seed to grow into Tier A.
+- **State: CORE BUILT (2026-08-08).** The grading currency + honesty budget are live and validated:
+  - `draft/backtest/money_grade.py` — **E[$] grading** under `payouts.json.by_season`; `grade_actual` reconciles to the pot on all three seasons, `grade_substituted` re-grades one seat's weekly-high + RS against the real field. (19 tests.)
+  - `draft/backtest/roster_sim.py` — **roster → weekly scores** (best legal lineup from harvested actual player points); the draft→dollars bridge. Hindsight-ceiling denominator, documented. (10 tests.)
+  - `draft/backtest/lab_stats.py` — **null-search baselines + leave-one-season-out CV + `ship_rule`** (beats null p95 AND positive every held-out season). (6 tests.)
+  - `draft/backtest/lab.py` — **the registry runner**; runs harness-wired experiments, writes `lab-results.json` + `LAB-REPORT.md`. **`lab.yml`** runs it weekly (03:30 UTC Mon, ahead of the self-audit) + on any harness/data change.
+  - **First experiment live — L0 (measurement):** weekly-high + RS dollars left on the table by lineup decisions — **+$470/470/595/445 per team** (2023/24/25). Proves roster→scores→dollars end to end.
+- **Remaining harness piece:** the **draft-replay → per-season-roster → money** bridge (grow `run.js`/`replay.js` bundles into `roster_sim`-scored, `money_grade`-graded rosters) + **substituted-seat playoff resim** (reseed + bracket). That bridge unblocks the GATED draft-side experiments (1/2/19) below; the grading + gate machinery they need is already built and tested.
 
 ## DRAFT-SIDE slate (1–12) — prioritized ahead of mocks where compute allows
 | # | experiment | pre-registered criterion | state |
@@ -51,5 +57,5 @@ Race the named positional doctrines under OUR rules + money. **Each archetype is
 - September: entire slate re-runs on quantile grading; August verdicts provisional and labeled.
 - The 2026 shadow season is the final arbiter; January grades the Lab itself in realized dollars.
 
-## ⚠️ Honest state (2026-08-08)
-All 18 are **registered (pre-reg criteria locked)** but **0 have a functional CI workflow** and the **shared harness is not built**. The next build increment is: (a) grow `draft/backtest/` into the Tier-A/B/C harness with per-season payout grading, (b) a `lab.yml` workflow triggered on harvest completion + weekly schedule that runs the registered experiments and appends the Lab report, (c) port experiments 1–2 (Strategy Hunt, Auto-adjuster) onto the harness first (draft-relevant, ahead of mocks). Harvest completion (2025 wks 7–15, all 2023 matchups, transactions) gates Tier A — it is the upstream dependency.
+## ⚠️ Honest state (2026-08-08, updated)
+All 18 + Exp-19 are **registered (pre-reg criteria locked)**. **Harness CORE is now BUILT and CI-wired** (see Shared-harness section): E[$] grading, roster→scores bridge, null/CV honesty budget, the registry runner, and `lab.yml` — 35 harness tests green, one measurement experiment (L0) running weekly. **What remains:** the **draft-replay → money bridge** (turn the existing points-graded `run.js`/`replay.js` bundles into money-graded per-season rosters) and the **substituted-seat playoff resim**; those two unblock the gated draft-side experiments (1/2/19). Their grading + gates are done — porting is now wiring, not new infrastructure. Next increment: (a) money-grade the strategy bundles (Exp-1), (b) archetype overlays on the replay (Exp-19), (c) the playoff resim so `grade_substituted` returns full-season E[$].

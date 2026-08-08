@@ -1,0 +1,50 @@
+{
+  "git_head": "f4a12c0588c9f0bce03411097764d6e0c4de1ae3",
+  "seasons": [
+    "2023",
+    "2024",
+    "2025"
+  ],
+  "grading_currency": "E[$] under payouts.json.by_season (era-correct)",
+  "results": [
+    {
+      "id": "L0-lineup-ceiling-money",
+      "title": "Weekly-high + RS dollars left on the table by lineup decisions",
+      "kind": "measurement",
+      "metric": "E[$] (weekly-high + regular-season), era-correct per season",
+      "per_season": [
+        {
+          "season": "2023",
+          "mean_dollars_left_on_table": 470.0,
+          "max_seat": 800.0
+        },
+        {
+          "season": "2024",
+          "mean_dollars_left_on_table": 595.0,
+          "max_seat": 950.0
+        },
+        {
+          "season": "2025",
+          "mean_dollars_left_on_table": 445.0,
+          "max_seat": 750.0
+        }
+      ],
+      "summary": "mean $/team the optimal-in-hindsight lineup would have added: 2023 +$470.0, 2024 +$595.0, 2025 +$445.0",
+      "verdict": "measurement \u2014 quantifies the lineup-decision prize the in-season experiments (13/14) will chase; not a shipped edge."
+    }
+  ],
+  "pending_gated_experiments": [
+    {
+      "registry": "1",
+      "title": "Strategy tournament (money-graded, per-slot)"
+    },
+    {
+      "registry": "2",
+      "title": "Auto-adjuster policy tournament"
+    },
+    {
+      "registry": "19",
+      "title": "Archetype tournament (Cory-conditional + league-general)"
+    }
+  ]
+}

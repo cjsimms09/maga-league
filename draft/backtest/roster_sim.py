@@ -101,6 +101,25 @@ def roster_weekly_scores(season: dict, roster_ids: list[str], pos_by_id: dict[st
     return out
 
 
+def infer_positions(season: dict) -> dict[str, str]:
+    """player_id -> position from a season's own DEDICATED starting slots.
+
+    The harvest carries no position column, but the starters list is ordered to
+    match roster_positions, so a player who ever started in a QB/RB/WR/TE/K/DEF
+    slot reveals his position. The FLEX slot is ambiguous and skipped — such a
+    player is almost always caught in another week's dedicated slot. Season-local
+    (not the 2026 board) so historical ids resolve to their real position.
+    """
+    template = season.get("roster_positions") or []
+    pos: dict[str, str] = {}
+    for entries in (season.get("weeks") or {}).values():
+        for e in entries or []:
+            for slot, pid in zip(template, e.get("starters") or []):
+                if slot in ("QB", "RB", "WR", "TE", "K", "DEF"):
+                    pos[str(pid)] = slot
+    return pos
+
+
 def positions_from_board(board_path) -> dict[str, str]:
     """player_id -> position from the draft board artifact (public/draft_data.json)."""
     import json

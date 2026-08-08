@@ -1,0 +1,52 @@
+name: THE LAB — experiment runner
+
+# Standing infrastructure per docs/queued/the-lab.md + LAB-REGISTRY.md.
+#
+# Runs the registered, harness-wired experiments (money_grade + roster_sim +
+# lab_stats), grading in E[$] under era-correct per-season payouts, and commits
+# the append-only results + the one-table Lab report. Weekly cadence feeds the
+# Sunday self-audit; also runs on any change to the harness or the historical
+# data it grades against, so a harness edit re-grades immediately.
+
+on:
+  schedule:
+    # 03:30 UTC Monday — ahead of the 04:00 self-audit, so its report is fresh.
+    - cron: '30 3 * * 1'
+  workflow_dispatch: {}
+  push:
+    branches: [main]
+    paths:
+      - 'draft/backtest/money_grade.py'
+      - 'draft/backtest/roster_sim.py'
+      - 'draft/backtest/lab_stats.py'
+      - 'draft/backtest/lab.py'
+      - 'draft/data/league_history.json'
+      - 'draft/config/payouts.json'
+
+permissions:
+  contents: write        # commits LAB-REPORT.md + lab-results.json
+
+jobs:
+  lab:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+
+      - name: Guard — harness tests must be green before grading anything
+        run: |
+          pip install pytest -q
+          python -m pytest draft/tests/test_money_grade.py draft/tests/test_roster_sim.py \
+                           draft/tests/test_lab_stats.py draft/tests/test_lab.py -q
+
+      - name: Run the Lab
+        run: python draft/backtest/lab.py --out draft/backtest
+
+      - name: Commit the report
+        run: |
+          stamp=$(date -u +%Y-%m-%dT%H:%MZ)
+          git config user.name "lab-bot"; git config user.email "actions@github.com"
+          git add draft/backtest/LAB-REPORT.md draft/backtest/lab-results.json
+          git commit -m "Lab report $stamp" || { echo "no change"; exit 0; }
+          git pull --rebase origin main && git push || echo "push skipped"
