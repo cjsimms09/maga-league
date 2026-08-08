@@ -480,6 +480,7 @@
     renderPlan();
     renderByes();
     renderChecklist();
+    renderLRM();
     renderSurvival();
     renderRuns();
     renderPicksFeed();
@@ -1612,14 +1613,43 @@
         .sort(function (a, b) { return (b.vorp || 0) - (a.vorp || 0); });
       if (!atPos.length) return;
       var best = atPos[0];
-      var lastSafe = null;
+      var lastSafe = null, lastSafeIdx = 0;
       for (var i = 1; i < upcoming.length; i++) {
-        if (E.survival(best, upcoming[i], state.runMults) >= 0.85) lastSafe = upcoming[i];
+        if (E.survival(best, upcoming[i], state.runMults) >= 0.85) { lastSafe = upcoming[i]; lastSafeIdx = i; }
       }
       out.push({ position: pos, best_available: best.name,
-        act_by_pick: lastSafe, next_pick: upcoming[1] });
+        act_by_pick: lastSafe, next_pick: upcoming[1],
+        // How many of MY picks I'd spend early by taking this onesie now instead
+        // of at its last-responsible moment — the cost that IS the decision in a
+        // 12-pick, 9-starter draft.
+        picks_early: lastSafeIdx });
     });
     return out;
+  }
+
+  /* §C — the LRM countdown strip. The single most dynamic piece of guidance for a
+   * draft that starts in round 4: for each onesie, the last of my picks where an
+   * acceptable option still survives, framed with the COST of acting early —
+   * "DEF safe until pick 132 — taking one now spends a skill pick 4 picks early."
+   * In this draft shape (12 picks, 9 starters) that cost framing is the decision. */
+  function renderLRM() {
+    var host = document.getElementById('lrm-strip');
+    if (!host) return;
+    var upcoming = myNextPicks();
+    var lrm = computeLRM(upcoming);
+    if (!lrm.length) { host.innerHTML = ''; host.style.display = 'none'; return; }
+    host.style.display = '';
+    host.innerHTML = '<div class="lrm-head">Last responsible moment</div>' + lrm.map(function (r) {
+      var cost = r.picks_early >= 1
+        ? ' — <span class="lrm-cost">taking one now spends a skill pick ' + r.picks_early
+          + ' pick' + (r.picks_early === 1 ? '' : 's') + ' early</span>'
+        : ' — <span class="lrm-now">act now, it may not survive your next pick</span>';
+      var until = r.act_by_pick
+        ? 'safe until pick <b>' + r.act_by_pick + '</b>'
+        : '<b>gone by your next pick</b>';
+      return '<div class="lrm-row"><span class="rec-pos ' + r.position + '">' + r.position + '</span> '
+        + until + cost + '</div>';
+    }).join('');
   }
 
   /* Slot assignments imported from the Sleeper draft object (Part 5 §2).
@@ -1954,8 +1984,64 @@
     // own picks (toMe); other teams' picks are recorded by the survival/board
     // context, not as my decisions. Never on a mock, and never a re-mark.
     if (toMe && !alreadySeen && !state.mockMode) capturePick(p);
+    // §C override-reason capture: if I took someone who ISN'T the top
+    // recommendation, ask why in one tap (target/gut/news/plan) and log it.
+    // Overrides are the one ledger entry kind that needs my finger — draft night
+    // is the harvest. Mocks fire it too (rehearsal) so the path is proven first.
+    if (toMe && !alreadySeen) {
+      const topRec = state.lastClock && state.lastClock.scored && state.lastClock.scored[0];
+      const topId = topRec && topRec.player ? String(topRec.player.player_id) : null;
+      if (topId && String(playerId) !== topId) {
+        promptOverrideReason(p, topRec.player);
+      }
+    }
     recomputeRuns();
     renderAll();
+  }
+
+  /* §C — the one-tap override-reason prompt. Fires when I take someone off the
+   * top recommendation. Four reasons, one tap, plus a skip; the choice logs to
+   * the ledger as an override so January can grade my disagreements with the
+   * model. A dynamic overlay so no view change is needed; auto-dismisses on any
+   * choice or after a short timeout (the clock never waits on it). */
+  const OVERRIDE_REASONS = [
+    { key: 'target', label: '⭐ Target', hint: 'On my list' },
+    { key: 'gut', label: '🎯 Gut', hint: 'My read' },
+    { key: 'news', label: '📰 News', hint: 'Something changed' },
+    { key: 'plan', label: '🧭 Plan', hint: 'Roster construction' },
+  ];
+  function promptOverrideReason(picked, overTop) {
+    if (typeof document === 'undefined') return;
+    const old = document.getElementById('override-reason'); if (old) old.remove();
+    const host = document.createElement('div');
+    host.id = 'override-reason';
+    host.className = 'override-reason-toast';
+    host.innerHTML =
+      '<div class="orr-head">Took <b>' + escapeHtml(picked.name) + '</b> over '
+      + escapeHtml(overTop ? overTop.name : 'the top pick') + ' — why?</div>'
+      + '<div class="orr-btns">'
+      + OVERRIDE_REASONS.map(r => '<button class="btn small navy" data-orr="' + r.key
+        + '" title="' + escapeHtml(r.hint) + '">' + r.label + '</button>').join('')
+      + '<button class="btn small ghost" data-orr="skip">skip</button>'
+      + '</div>';
+    document.body.appendChild(host);
+    const finish = (reason) => {
+      if (host.parentNode) host.remove();
+      if (reason && reason !== 'skip' && typeof PredLedger !== 'undefined' && !state.mockMode) {
+        const c = ledgerCtx();
+        PredLedger.override({ season: c.season, build_at: c.build_at, pick: c.pick,
+          method: 'override-reason-v1',
+          payload: { player_id: String(picked.player_id), name: picked.name,
+            over_player_id: overTop ? String(overTop.player_id) : null,
+            over_name: overTop ? overTop.name : null, reason: reason, off_top_rec: true } });
+      }
+    };
+    host.addEventListener('click', ev => {
+      const b = ev.target.closest('[data-orr]');
+      if (b) finish(b.getAttribute('data-orr'));
+    });
+    // Never block the clock: auto-dismiss (as a skip) after 12s.
+    setTimeout(() => { if (host.parentNode) finish('skip'); }, 12000);
   }
 
   /* Decision-time ledger captures (Phase L1). Best-effort; a failed post never

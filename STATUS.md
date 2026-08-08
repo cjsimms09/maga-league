@@ -6,10 +6,10 @@ Work order: §A state correctness → §C verdicts → Part 2 layout (absorbs §
 - **ROUNDS BUG FIXED (draft-critical):** draft is **15 rounds, my 12 picks (rounds 4–15)** — the old `roster_size − keeper_count = 12` was a pipeline derivation bug (NOT Sleeper). One source now (`config_schema.draft_rounds`), 5 sites unified, cross-language regression tests. **CI rebuild triggered** to regenerate the artifact at 15; robot R-rounds is red until it lands (by design).
 - **§A2 slot verification — OPEN (blocked on external event):** slot 9 is an UNVERIFIED placeholder (draft order not yet assigned in Sleeper). Requirements captured in DECISIONS-NEEDED: amber "manually set — UNVERIFIED" label + provisional watermark on everything slot-derived; slot-assignment added to watched-state (auto-import + flip to "from Sleeper — verified" + clear watermarks); checklist line "Draft slot verified against Sleeper draft object" (red until true); opening-script regenerates on slot assignment.
 - **§C missing-feature verdicts:**
-  1. **LRM countdown strip (2b.6):** **ABSENT as UI**, but a lightweight LRM *is now computed + logged* (`survival-snapshot-v0`). Build the visible strip before mocks (highest-value for a round-4 start).
+  1. **LRM countdown strip (2b.6):** **✅ BUILT** — `renderLRM()` → `#lrm-strip`, with the **cost-of-acting-early framing** ("DEF safe until pick X — taking one now spends a skill pick N picks early"), the decision in a 12-pick/9-starter draft. Still logs `survival-snapshot-v0`.
   2. **Run-detection banner:** **BUILT** (`renderRuns` → `#run-banner`); now also logs to ledger.
   3. **Global ADP drift readout:** **ABSENT** (engine has drift; no readout).
-  4. **Override reason capture (one-tap target/gut/news/plan):** **PARTIAL** — override logs to ledger, but the one-tap *reason* prompt is ABSENT; build before mocks (ledger needs it draft night).
+  4. **Override reason capture (one-tap target/gut/news/plan):** **✅ BUILT** — taking anyone off the top recommendation fires a one-tap toast (⭐Target/🎯Gut/📰News/🧭Plan/skip); logs `override-reason-v1` with the over-player + off-top-rec flag. Never blocks the clock (12s auto-skip). Fires in mocks too (rehearsal, no real-ledger write). Lands before mock #1. ✅
   5. **Room-conformity readout:** **ABSENT** (behavior-ADP not shipped) — pending.
   6. **Intel Card / pick-34 dossier placeholder:** **ABSENT** — reserve the page slot for Backtest-2 §3.4.
 

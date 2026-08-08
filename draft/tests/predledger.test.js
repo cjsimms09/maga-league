@@ -138,6 +138,17 @@ function memStore() {
       all.every(e => e.method === e.kind + '-v1'));
   }
 
+  // --- §C override-reason capture: the one entry kind that needs my finger ---
+  {
+    const s = memStore();
+    const e = await P.append(s, { kind: 'override', method: 'override-reason-v1', season: 2026,
+      pick: 34, payload: { player_id: '99', name: 'X', over_name: 'TopRec',
+        reason: 'target', off_top_rec: true } }, { now });
+    check('override-reason logs with its method, reason, and off-top-rec flag',
+      e.method === 'override-reason-v1' && e.payload.reason === 'target'
+        && e.payload.off_top_rec === true && e.payload.over_name === 'TopRec');
+  }
+
   console.log('\n' + pass + '/' + (pass + fail) + ' predledger checks passed');
   process.exit(fail ? 1 : 0);
 })();

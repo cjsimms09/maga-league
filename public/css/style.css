@@ -905,6 +905,25 @@ button.is-busy, .btn.is-busy {
 .rail-fire-flags { margin-top: .3rem; font-size: .7rem; color: #f2e2b4; line-height: 1.45; }
 .rail-ack-note { font-size: .74rem; color: var(--muted); }
 
+/* §C override-reason toast — one tap, bottom-center, never blocks the clock. */
+.override-reason-toast {
+  position: fixed; left: 50%; bottom: 1.2rem; transform: translateX(-50%);
+  z-index: 60; max-width: min(94vw, 30rem);
+  background: var(--navy-deep, #0b1020); border: 1px solid rgba(245,196,69,.55);
+  border-radius: 12px; padding: .7rem .8rem; box-shadow: 0 10px 30px rgba(0,0,0,.4);
+}
+.override-reason-toast .orr-head { font-size: .82rem; margin-bottom: .5rem; line-height: 1.4; }
+.override-reason-toast .orr-btns { display: flex; flex-wrap: wrap; gap: .4rem; }
+.override-reason-toast .orr-btns .btn { flex: 1 1 auto; min-height: 2.2rem; }
+
+/* §C LRM strip — the last-responsible-moment countdown with the cost of acting early. */
+.lrm-strip { display: flex; flex-direction: column; gap: .35rem; }
+.lrm-strip .lrm-head { font-family: var(--font-display); font-weight: 800; font-size: .78rem;
+  letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+.lrm-row { font-size: .82rem; line-height: 1.45; }
+.lrm-cost { color: #f2c445; }
+.lrm-now { color: #ff8a95; font-weight: 700; }
+
 /* ---------- draft-day staleness gate ----------
    Over 18 hours old the board needs an explicit acknowledgement. The board
    stays visible behind it: hiding it would make a stale artifact look the same
