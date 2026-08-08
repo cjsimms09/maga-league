@@ -322,7 +322,7 @@ E[$] = Σ_w P(weekly-high,w)·$100 + P(RS champ)·$250 + P(RS 2nd)·$125 + Σ_k 
 3  440723317066821632   500   125     625
 7  Cory (me)            400     0     400   ← mid-pack, all weekly-high, no RS
 ```
-Auto-refreshes in CI (`money_history.py` → `MONEY-HISTORY.md`). **ANALYSIS 2** (dollar re-grade of Phase S/N vs luck baseline) is queued CI backtest work.
+Auto-refreshes in CI (`money_history.py` → `MONEY-HISTORY.md`). **ANALYSIS 2** (dollar re-grade of Phase S/N vs luck baseline) is queued CI backtest work — now specced with the **Phase $ money-grading refinements** (`strategy-hunt-learning-seed.md`): weekly-high odds vs **harvested per-week thresholds** (2024 wk1=126, wk2=166 — not a flat bar); opponents simulated at **observed efficiency** (Schmelley 84–87%, not optimal); every strategy's E[$] reported **decomposed** (weekly-high $ / playoff-entry $ / RS $); the **dollar** luck-baseline verdict is the certification bar, and anything clearing it is flagged for the shadow set.
 
 ### 📋 CHAT-CLAUDE SYNC AUDIT (2026-08-08) — on record vs missing
 Against the expected 9-item inventory. **6 fully on record, 2 partial, 1 unauditable (truncated in the source message).**

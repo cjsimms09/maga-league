@@ -43,6 +43,15 @@ The classical p-value is unreachable at N≤3 drafts. The honest substitute: **r
 4. This is the pre-registered certification bar for anything from Phase S: **a strategy earns 'candidate' status only if it beats the null-search 95th percentile.** Below it: ranked, recorded, and carried as a hypothesis — never installed.
 5. Multiple-comparisons honesty is thereby built in structurally: the null baseline already includes the search's ability to cherry-pick, because the null searches cherry-pick too.
 
+# PHASE $ — Money grading (how E[$] is computed for every replayed & shadow strategy)
+
+Refinements locked 2026-08-08 (Cory). Dollars is the top-level currency (Phase L governing principle); this is the METHOD that makes each strategy's E[$] faithful to the league that actually exists, not a flat abstraction. It feeds both Phase N (the dollar luck baseline) and Phase H (shadow standings), so it is defined once here.
+
+1. **Weekly-high odds grade against the HARVESTED per-week winning thresholds, never a flat number.** Each week has its own bar from the money-history harvest — 2024 week 1's high was **126**, week 2's was **166** — and a strategy's P(weekly-high, w) is its roster's optimal-lineup score distribution vs *that week's* actual threshold, season by season. A flat "≈140" bar would credit an easy week and rob a hard one; the per-week, per-season thresholds are ground truth. (Weeks 1–15 pay; 16–17 don't.)
+2. **Opponent scores simulate at their OBSERVED lineup efficiency, not optimal.** Each opponent's weekly score is drawn from *their* roster's ceiling scaled by *their* measured efficiency (Schmelley 84–87%, mhagen ~90%, per the dossiers), not a perfect lineup. H2H results, top-4 playoff-entry odds, and RS standings therefore reflect the real league — where points are routinely left on benches — instead of an all-optimal fantasy that nobody plays. My/shadow rosters still grade at *their* strategy's lineup logic; the asymmetry is the point (the edge is partly that opponents misfire).
+3. **Every strategy's E[$] is reported DECOMPOSED — weekly-high $ vs playoff-entry $ vs RS $ — never just a total.** The headline number hides where the money is made: a variance strategy might buy weekly-high lottery tickets while a floor strategy banks RS-equity and playoff entry. The decomposition is the actionable output (it tells us which lever a strategy actually pulls); the total is the ranking key.
+4. **The dollar luck-baseline verdict (Phase N, computed in $) is the certification bar.** A strategy earns 'candidate' status only if its **E[$] beats the null-search 95th percentile in dollars** (not points). Anything that clears it is **flagged for the shadow-roster set (Phase H) if not already in it** — the live 2026 season becomes its out-of-sample certification. Below the bar: ranked, recorded, carried as a hypothesis, never installed. N=3-season dollar edges render as leans, not laws (governing principle).
+
 # PHASE H — Shadow Rosters (2026 becomes the certification season)
 
 The answer to "would this strategy have worked" that no replay can provide: **run them all, live, silently.**
@@ -103,7 +112,8 @@ Every strategy, parameter idea, and intel lean this project generates — from t
 ---
 
 ## Deliverables
-- `STRATEGY-HUNT.md`: full Phase S results (top 20 weights, all sequencing rules, counterfactual-mined candidates, oracle gaps), the Phase N luck distribution and verdicts, the elimination list, and the candidate list entering shadow tracking — every claim with N and intervals, provenance-stamped
+- `STRATEGY-HUNT.md`: full Phase S results (top 20 weights, all sequencing rules, counterfactual-mined candidates, oracle gaps), the Phase N luck distribution and verdicts **in dollars**, the elimination list, and the candidate list entering shadow tracking — every claim with N and intervals, provenance-stamped
+- **Phase $ per-strategy E[$] table, DECOMPOSED** (weekly-high $ · playoff-entry $ · RS $ · total), graded against the harvested per-week thresholds with opponents at observed efficiency — the "where does each strategy make its money" view, with the dollar luck-baseline bar drawn on it and every clearing strategy marked for the shadow set
 - Shadow-roster system live and robot-tested before draft night
 - Ledger capture verified live (trigger one recommendation, show the entry, decision-time timestamp)
 - STATUS.md: the luck-baseline verdict verbatim ("real best vs null-95th"), the shadow-tracked candidate list, and the L1–L6 readiness checklist
