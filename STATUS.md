@@ -166,8 +166,8 @@ are HARD-GATED on Aug 22: if not live + robot-tested by draft night, the data is
 lost forever.
 | id | item | deadline | state |
 |----|------|----------|-------|
-| **L1** | Prediction ledger — append-only, decision-time writes, contamination rule (grading reads, never writes) | **Aug 22 HARD** | **IN PROGRESS — jumps everything (hardest deadline)** |
-| **L2** | Raw-forever storage — complete draft + season archived raw | **Aug 22 HARD** | PENDING (with L1) |
+| **L1** | Prediction ledger — append-only, decision-time writes, contamination rule (grading reads, never writes) | **Aug 22 HARD** | **✅ DONE & LIVE-VERIFIED (f9f6e6d)** — real HTTP: login → POST recommendation → entry stored with server `decision_at` → GET reads back. Contamination rule proven (readAll does zero writes). Caught+fixed a real bug: no JSON parser was mounted (every posted prediction would 400). +12 unit, +6 server-integration checks in CI. |
+| **L2** | Raw-forever storage — complete draft (all teams) + season archived raw | **Aug 22 HARD** | NEXT — L1 captures MY picks + recs; L2 archives the FULL pick stream |
 | **H** | Shadow rosters — every surviving strategy drafts live & silently; needs robot scenario | **Aug 22 HARD** | PENDING (after L1, before mocks) |
 | **BT2** | Backtest Round 2 — Phase 1 (2025 recovery via pbp category diff) → corrected boards | pre-Sep | PENDING — launch in CI (background); prereq for S/N |
 | **S** | Exhaustive strategy search (weight sweep, sequencing, counterfactual mining, oracle gap) | Sep certify | PENDING — CI compute; runs on BT2's corrected boards |
