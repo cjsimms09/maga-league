@@ -105,10 +105,27 @@ jobs:
       - name: Run the bridge (money-graded policy results)
         run: python draft/backtest/bridge.py --out draft/backtest/bridge-results.json
 
-      - name: Upload bridge results (artifact, not committed — inputs are egress-built)
+      - name: THE GATED BATCH — experiments 1, 2, 19 (tournament), behind the gate
+        # Runs ONLY after the bridge gate above passed — the experiments consume
+        # the same roster-aware replay path the gate just certified. Null-search
+        # + held-out gates are inside tournament.py; nothing installs itself.
+        run: |
+          python -m pytest draft/tests/test_tournament.py -q
+          python draft/backtest/tournament.py
+
+      - name: Commit the tournament report
+        run: |
+          stamp=$(date -u +%Y-%m-%dT%H:%MZ)
+          git config user.name "lab-bot"; git config user.email "actions@github.com"
+          git add draft/backtest/LAB-TOURNAMENT.md
+          git commit -m "Lab tournament report $stamp" || { echo "no change"; exit 0; }
+          git pull --rebase origin main && git push || echo "push skipped"
+
+      - name: Upload bridge + tournament results (artifacts — inputs are egress-built)
         uses: actions/upload-artifact@v4
         with:
           name: bridge-results
           path: |
             draft/backtest/bridge-results.json
+            draft/backtest/tournament-results.json
           retention-days: 30
