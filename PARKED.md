@@ -128,3 +128,40 @@ under the sandbox's egress block). It degrades to system fonts rather than
 breaking, so this is not urgent — but it is a render-blocking external
 dependency on draft night, on whatever wifi the room has. Self-host the two
 faces and the dependency disappears.
+
+## ⑭ THE COMMAND CENTER — filed 2026-08-08, build AFTER the draft-critical sequence
+
+Cory's private in-season page, same access gating as the war room. **The
+in-season tools deserve the same rigor as the draft tool, and the evidence says
+they are worth more** — L0 measured $445–595/team/season left on the table by
+lineup decisions alone, against a draft edge that is currently unmeasured
+(exp 34) and deviating on 100%-LEAN evidence.
+
+1. **ONE PAGE, MY EYES ONLY** — the season's war room, same composition
+   discipline: what to do now, why, what's close, who disagrees, everything else
+   one tap down.
+2. **THE ALWAYS-VISIBLE LINE-UP** — Sunday's start/sit calls with dollar framing
+   (ΔP(win) and ΔP(weekly high)·100 dollars) · this week's waiver/FA targets
+   ranked with claim-order strategy and the clear-time alert · money position
+   (banked, projected, rank) · the week's high-point threshold vs my projection ·
+   alerts (injury, role change, an uncovered starter on bye).
+3. **SAME EPISTEMICS AS THE DRAFT TOOL, non-negotiable** — every recommendation
+   carries its confidence sentence, evidence class, market/consensus comparison
+   and near-misses; every piece of advice writes to the ledger at decision time
+   with its counterfactual; **nothing renders in a voice its evidence doesn't
+   support.** (The `EVIDENCE_STATE`-derived sentence already generalises here.)
+4. **SELF-TESTING AND SELF-UPDATING** — the sanity-sweep harness applied to
+   in-season advice: never recommend an illegal lineup, never claim a player I
+   cannot roster, never stream against a bye. Plus weekly re-grading that updates
+   the confidence sentences automatically as the season produces evidence.
+5. **THE LEARNING LOOP LIVE** — weekly residual scanning (where were we most
+   wrong), auto-proposed registry entries, and the attribution table filling in
+   with real dollars per component.
+6. **BUILT AND REHEARSED BEFORE WEEK 1** — dry-run against 2023–25 replayed
+   weeks, and rehearse a full simulated game week. **The first live Sunday must
+   not be the first Sunday the tool has ever run.**
+
+*Dependencies worth noting now: (3) inherits the tier-sentence SSOT and the
+ledger's decision-time rail, both of which exist. (4) is the sanity sweep
+retargeted — the harness pattern is proven. (6) collides with the 2026-09-01
+in-season instrumentation hard date; sequence them together.*
