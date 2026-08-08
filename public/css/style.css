@@ -925,6 +925,20 @@ button.is-busy, .btn.is-busy {
 .lrm-elite { color: #ff8a95; font-weight: 700; }
 .lrm-now { color: #ff8a95; font-weight: 700; }
 
+/* §D.2 rehearsal watermark — impossible to mistake sim state for the real draft. */
+.rehearsal-watermark {
+  position: sticky; top: 0; z-index: 80; text-align: center;
+  background: repeating-linear-gradient(45deg, rgba(245,196,69,.22) 0 14px, rgba(245,196,69,.32) 14px 28px);
+  color: #f2e2b4; font-weight: 900; letter-spacing: .12em; text-transform: uppercase;
+  padding: .45rem; border-bottom: 2px solid rgba(245,196,69,.6); font-size: .82rem;
+}
+body.is-rehearsal::after {
+  content: "REHEARSAL"; position: fixed; right: -46px; top: 34px; z-index: 79;
+  transform: rotate(45deg); background: rgba(245,196,69,.85); color: #0b1020;
+  font-weight: 900; letter-spacing: .1em; padding: .3rem 3.4rem; pointer-events: none;
+  box-shadow: 0 4px 14px rgba(0,0,0,.35);
+}
+
 /* ---------- draft-day staleness gate ----------
    Over 18 hours old the board needs an explicit acknowledgement. The board
    stays visible behind it: hiding it would make a stale artifact look the same

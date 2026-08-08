@@ -19,6 +19,7 @@
 
   <div id="provenance" style="display:none"></div>
   <div id="drift-note" style="display:none"></div>
+  <div id="rehearsal-watermark" class="rehearsal-watermark" style="display:none">REHEARSAL — not the real draft</div>
   <div id="slot-note" style="display:none"></div>
   <div id="import-note" style="display:none"></div>
   <div id="override-count" style="display:none"></div>
@@ -51,10 +52,11 @@
       <div class="inline-form" style="justify-content:center; margin-top:.3rem">
         <div style="flex:1 1 150px"><input type="text" id="draft-id" placeholder="Sleeper draft ID (blank = manual)"></div>
         <div class="fit"><button class="btn small gold" id="start-sync">Connect</button></div>
-        <div class="fit"><button class="btn small ghost" id="end-draft" title="Stop syncing and clear every pick — keeps your targets, weights and news overrides">⏹ End draft</button></div>
       <div class="fit"><a class="btn small navy" href="/admin/draft-config">⚙️ League Setup</a></div>
       <div class="fit"><a class="btn small navy" href="/admin/keepers">🔒 Keepers</a></div>
       <div class="fit"><a class="btn small ghost" href="/admin/warroom/rehearsal" title="How to test all this against a Sleeper mock">🎬 Rehearse</a></div>
+        <%# §D.1 — END DRAFT moved off the primary flow, away from CONNECT, and requires a typed confirm. %>
+        <div class="fit" style="margin-left:auto"><button class="btn small ghost danger-quiet" id="end-draft" title="Clear every pick (keeps targets, weights, news overrides) — asks you to type END">⏹ End draft</button></div>
       </div>
       <span class="sync-status" id="sync-status">Not connected — manual entry works fine.</span>
     </div>

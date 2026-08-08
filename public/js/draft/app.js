@@ -480,6 +480,7 @@
     renderPlan();
     renderByes();
     renderChecklist();
+    renderRehearsalWatermark();
     renderLRM();
     renderSurvival();
     renderRuns();
@@ -1647,6 +1648,19 @@
   /* §C — the LRM countdown strip. The single most dynamic piece of guidance for a
    * draft that starts in round 4, framed with the COST of acting early. For QB/TE
    * it shows both the elite-cliff and startable lines where they diverge. */
+  /* §D.2 — a persistent REHEARSAL watermark whenever mock mode is on, so a
+   * screenshot or a glance can never confuse sim state with the real draft (the
+   * empty-roster/round-1 state read ambiguously). Both a banner and a body flag
+   * (CSS paints a corner ribbon off the flag) so it survives scrolling. */
+  function renderRehearsalWatermark() {
+    var on = !!state.mockMode;
+    var wm = document.getElementById('rehearsal-watermark');
+    if (wm) wm.style.display = on ? '' : 'none';
+    if (typeof document !== 'undefined' && document.body) {
+      document.body.classList.toggle('is-rehearsal', on);
+    }
+  }
+
   function renderLRM() {
     var host = document.getElementById('lrm-strip');
     if (!host) return;
@@ -2411,9 +2425,14 @@
     const end = $('#end-draft');
     if (end) end.addEventListener('click', () => {
       const n = state.drafted.size;
-      if (n && !confirm('End this draft and clear all ' + n + ' picks?\n\n'
-        + 'The board goes back to full. Your targets, never-draft list, weights '
-        + 'and news overrides are kept.')) return;
+      // §D.1 — a misclick at live pick 30 is a catastrophe. A one-click confirm
+      // is not enough next to CONNECT: require TYPING to end a draft with picks.
+      if (n) {
+        const typed = window.prompt('End this draft and clear all ' + n + ' picks?\n'
+          + 'The board goes back to full; your targets, never-draft list, weights and '
+          + 'news overrides are kept.\n\nType END to confirm:');
+        if (String(typed || '').trim().toUpperCase() !== 'END') return;
+      }
       endDraft();
     });
 

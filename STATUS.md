@@ -1,5 +1,10 @@
 # STATUS — unattended run
 
+## ⚡ POWER-THROUGH DIRECTIVE (supersedes calendar pacing)
+Idle time dies. Proceed by default; never wait at redirect windows (judgment → DECISIONS-NEEDED, continue other work). Gates convert from "build by" to **"build now, ACTIVATE when reality allows."** Only true blocks: **my inputs** (slot date, keeper confirmations), **external events** (slot assignment, keeper lock, NFL week-1 data), and the **draft-path code freeze at final mock** (the fixture-keepers lesson: draft on what you rehearsed on). Quality rules untouched: robot green per commit, gates never loosened, participation tests, ledger discipline, specs → docs/queued.
+
+**Continuous queue (top→bottom, no stopping):** DST fix ✅(rebuild in flight) → **§D + A2** → D3 flex quant → Part 2 layout (desktop three-zone + Paths) → Phase H shadows → opening-script machinery → A-1/A-2/A-3 → **mocks-ready checkpoint (ping Cory)** → Part C → Part A (A-4..A-8) → Part B ops → Backtest R2 + Strategy Hunt S/N (CI) → entire in-season master (built now, activation flagged 'awaiting season data') → D-1 recap → annual-button dry-run → 2c builds → E-behaviors. Freeze draft-path at final mock; in-season/background continues through draft week.
+
 ## 🧭 WAR ROOM FINAL PASS — in progress (before shadows, per deadline order)
 Work order: §A state correctness → §C verdicts → Part 2 layout (absorbs §B) → §D → phone pass. Every UI change gets a robot scenario; "WHAT DOES NOT CHANGE" is protected.
 - **§A1 keepers pre-populate roster:** machinery DONE (`build.py` emits `kept_players`; `populateKeepers()` rosters + badges 🔒; need model + bye card read post-keeper roster; robot R8). **Activates fully once the CI rebuild lands** (kept_players needs the real player pool + correct slot). Acceptance text corrected in the spec (participation = reason-change + flex-consumption; the naive "RB need = 0" was wrong).
