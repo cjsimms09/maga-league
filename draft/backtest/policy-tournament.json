@@ -257,7 +257,7 @@
    "disposition": "LEAN \u2192 manual-override cheat sheet, never automated"
   }
  ],
- "conditional_null_p95": 65.83,
+ "conditional_null_p95": 67.14,
  "state_coverage_rooms": {
   "run_pressure": 85,
   "rb_drain_early": 60,

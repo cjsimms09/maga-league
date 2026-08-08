@@ -27,7 +27,7 @@ _120 paired rooms · control: hand-designed defaults · **H1 beats all three riv
 
 ## §6 — conditional rules (state → setting → edge → confidence)
 
-_conditional null p95 = **$65.83** (the null mines the SAME policy×state grid over permuted state labels — 40 draws). State coverage: run_pressure=85 rooms, rb_drain_early=60 rooms, thin_board_early=60 rooms_
+_conditional null p95 = **$67.14** (the null mines the SAME policy×state grid over permuted state labels — 60 draws). State coverage: run_pressure=85 rooms, rb_drain_early=60 rooms, thin_board_early=60 rooms_
 
 | state | setting | edge $ (in-state) | in−out | 95% CI | n | disposition |
 |---|---|---|---|---|---|---|
