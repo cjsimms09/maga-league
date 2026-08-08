@@ -44,6 +44,19 @@ patterns — *"model underprices rookie WRs after week 6"* — each entering as 
 system should notice its own failures and turn them into questions without being
 asked."*
 
+**(2b) HYPOTHESIS PROVENANCE + SEPARATE HIT RATES** (added 2026-08-08) —
+residual-generated hypotheses are **tagged as such**, and the Annual reports the
+**hit rate of machine-generated vs human-generated hypotheses separately**.
+*"If the scanner's proposals never clear the gates while human ones do, that's
+worth knowing rather than assuming."*
+
+*(Method note for the build: the two streams must face the IDENTICAL gates, or
+the comparison measures gate leniency rather than hypothesis quality. And the
+volumes will diverge hard — a scanner can propose dozens a week where Cory
+proposes a few a season — so report **rate with n**, never rate alone. A
+scanner at 2/60 and a human at 2/3 have the same numerator and opposite
+meanings.)*
+
 **(3) THE ANNUAL AS THE INSTALL GATE** (already specced) stays the **only** path
 from proposal to installed change for Tier-2 items; Tier-1 auto-installs through
 the gates; Tier-0 flows freely. **January deliverable: what it learned, what it
