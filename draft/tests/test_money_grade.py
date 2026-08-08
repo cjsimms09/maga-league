@@ -108,6 +108,20 @@ def test_substituting_own_scores_is_identity(hp, season):
     assert sub["standings_rank"] == 1
 
 
+def test_harvested_weekly_high_distribution_for_monte_carlo(hp):
+    # Money-grading requirement #2: Monte-Carlo rooms sample the weekly-high bar
+    # from the HARVESTED distribution, not a flat constant. Lock its shape.
+    hist, _ = hp
+    dist = MG.weekly_high_threshold_distribution(hist, ["2023", "2024", "2025"])
+    assert dist["n"] == 45                          # 15 RS weeks x 3 seasons
+    assert dist["min"] == pytest.approx(122.1, abs=0.1)   # the cited floor of the range
+    assert 140 <= dist["median"] <= 155             # real median (~148), not the flat bar
+    assert dist["max"] > 166                         # cited "166+" upper range
+    assert dist["samples"] == sorted(dist["samples"])
+    # Every sample is a real winning score: it appears as some week's max.
+    assert all(s > 0 for s in dist["samples"])
+
+
 def test_a_dominant_substituted_seat_wins_more_weekly_highs(hp):
     # Sanity of the substitution direction: give a seat an unbeatable score every
     # week and it must sweep the weekly-high pool it is eligible for.

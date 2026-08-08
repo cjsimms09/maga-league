@@ -137,6 +137,35 @@ def weekly_high_winners(field: dict[int, dict[int, float]], weeks: list[int]) ->
     return out
 
 
+def weekly_high_threshold_distribution(history: dict, seasons: list[str]) -> dict:
+    """The HARVESTED per-week winning scores across seasons — the distribution a
+    Monte-Carlo room samples its weekly-high bar from (money-grading requirement
+    #2: sample thresholds from the harvested distribution, never a flat constant).
+
+    Returns {samples: sorted[float], n, min, median, max}. On the three real
+    seasons this is n=45 RS weeks, min ~122, median ~148, max ~171 — so a
+    replayed roster's week-k score competes against a realistic winning bar, not
+    a single number that flatters or punishes every week the same.
+    """
+    samples: list[float] = []
+    for season in seasons:
+        s = season_of(history, season)
+        if not s:
+            continue
+        field = field_weekly_scores(s)
+        for w in regular_season_weeks(s):
+            scores = field.get(w) or {}
+            if scores:
+                samples.append(round(max(scores.values()), 2))
+    samples.sort()
+    n = len(samples)
+    median = samples[n // 2] if n else 0.0
+    return {"samples": samples, "n": n,
+            "min": samples[0] if n else 0.0,
+            "median": median,
+            "max": samples[-1] if n else 0.0}
+
+
 def weekly_high_dollars(field: dict[int, dict[int, float]], weeks: list[int],
                         pay: dict, roster_id: int) -> float:
     """Weekly-high dollars a roster wins across `weeks` (splitting exact ties)."""
