@@ -296,12 +296,33 @@
     return owners[String(slot)] ? owners[String(slot)] : 'Seat ' + slot;
   }
 
+  // Big-board value of a player_id (proj_mean, fallback to −overall_rank), used to
+  // order each team's keepers BEST-FIRST so the most valuable keeper reads as
+  // "round 1", the next "round 2", etc. — for EVERY team. Under top_picks_flat the
+  // order is cost- and hash-independent, so sorting the slate in place is safe.
+  function boardValue(id) {
+    const m = state._valById || (state._valById = (function () {
+      const map = {};
+      const add = (arr) => (arr || []).forEach(p => {
+        const k = String(p.player_id);
+        if (map[k] == null) map[k] = (p.proj_mean != null ? p.proj_mean
+          : (p.overall_rank != null ? -p.overall_rank : 0));
+      });
+      add((state.data || {}).kept_players);
+      add((state.data || {}).players);
+      return map;
+    })());
+    return m[String(id)] || 0;
+  }
+
   function renderTeams() {
     const max = state.cfg.keepers.count == null ? 3 : Number(state.cfg.keepers.count);
     const mine = Number(state.cfg.my_draft_slot);
     let html = '';
     for (let slot = 1; slot <= state.cfg.teams; slot++) {
       const list = state.slate[String(slot)] || [];
+      // Best board value first → round 1, 2, 3 … (in place; order is safe).
+      list.sort((a, b) => boardValue(b.player_id) - boardValue(a.player_id));
       const q = state.search[slot] || '';
       html += '<div class="card keeper-card' + (slot === mine ? ' mine' : '') + '">'
         + '<h2>' + escapeHtml(seatName(slot)) + (slot === mine ? ' <span class="sub">you</span>' : '')
