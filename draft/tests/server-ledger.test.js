@@ -45,6 +45,16 @@ function cookieFrom(res) {
   await new Promise(r => server.once('listening', r));
   const base = `http://127.0.0.1:${server.address().port}`;
 
+  // /api/health must be public (NO auth) — CI deploy-verify and the pre-draft
+  // checklist rely on it without credentials, and it must leak no league data.
+  const health = await fetch(base + '/api/health');
+  const hbody = health.status === 200 ? await health.json() : {};
+  check('GET /api/health is public (200, no login)', health.status === 200, String(health.status));
+  check('health declares the storage backend (file in this test)',
+    hbody.storage_backend === 'file', String(hbody.storage_backend));
+  check('health carries a commit field and no league data',
+    ('commit' in hbody) && !('owners' in hbody) && !('players' in hbody));
+
   const login = await fetch(base + '/login', { method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: 'username=cory&password=draftnight2026', redirect: 'manual' });

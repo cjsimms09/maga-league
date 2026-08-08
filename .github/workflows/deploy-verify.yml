@@ -34,7 +34,7 @@ jobs:
 
           site = os.environ['SITE'].rstrip('/')
           want = os.environ['WANT']
-          url = site + '/api/version'
+          url = site + '/api/health'           # public, no auth, no league data
           print(f'want commit {want[:12]} at {url}')
 
           deadline = time.time() + 8 * 60      # Netlify prod deploys are ~1-3 min
@@ -48,7 +48,16 @@ jobs:
                   got = (body.get('commit') or '')
                   last = got
                   if got and (got == want or got.startswith(want[:12]) or want.startswith(got[:12])):
-                      print(f'OK — live site is serving {got[:12]} (context {body.get("context")})')
+                      backend = body.get('storage_backend')
+                      print(f'OK — live site is serving {got[:12]} (context {body.get("context")}, '
+                            f'storage {backend})')
+                      # Persistence guard: production MUST be on durable Blobs. A
+                      # 'file' backend on the live site means ephemeral storage and
+                      # silent data loss on the next redeploy — fail loudly.
+                      if body.get('context') == 'production' and backend != 'blobs':
+                          print(f'::error::live storage_backend is {backend!r}, not durable blobs — '
+                                f'ledger/archive would not survive a redeploy')
+                          sys.exit(1)
                       sys.exit(0)
                   print(f'  live is {got[:12] or "(no commit)"} — waiting for {want[:12]} ...')
               except urllib.error.HTTPError as e:

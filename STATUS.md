@@ -6,7 +6,8 @@ _Read this first. Updated after every completed item._
 - **Repo main HEAD:** `28131c0` at time of the audit (this commit advances it — see `git log`).
 - **Live site:** https://makefbgreatagain.netlify.app — Netlify auto-deploys `main` on push.
 - **Repo var:** set `SITE_URL` to the above (workflows fall back to it hardcoded until then).
-- **Live verification is CI-only:** this build sandbox's egress policy **blocks netlify.app** (proxy 403), so the live hash cannot be checked from here. Two CI workflows close the gap: `site-check.yml` (asset/board freshness) and the new **`deploy-verify.yml`** (polls `/api/version` after each push and **fails loudly** if the live commit never matches the pushed SHA). A new `/api/version` endpoint exposes the deployed `COMMIT_REF`.
+- **Live verification is CI-only:** this build sandbox's egress policy **blocks netlify.app** (proxy 403), so the live hash cannot be checked from here. Two CI workflows close the gap: `site-check.yml` (asset/board freshness) and the new **`deploy-verify.yml`** (polls **`/api/health`** after each push and **fails loudly** if the live commit never matches the pushed SHA).
+- **Public `/api/health`** (no auth, no league data) returns `commit`, `build_at`, and **`storage_backend`** — so CI verification and the pre-draft checklist never need credentials. deploy-verify also **asserts production is on durable `blobs`** (a `file` backend live would mean ephemeral storage → silent redeploy data loss). `/api/version` kept as an alias.
 
 ### Deployment audit (2026-08-08) — CLOSED
 1. **Repo vs live:** HEAD==origin/main, 0 unpushed. Live hash unverifiable from the sandbox (egress-blocked); now covered by `deploy-verify.yml` in CI. ✅ mechanism in place

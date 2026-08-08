@@ -121,4 +121,15 @@ async function getMany(keys) {
   return Promise.all(keys.map(k => get(k)));
 }
 
-module.exports = { initBlobs, initFiles, get, set, del, listKeys, getMany };
+// Which backend is actually serving reads/writes right now. Exposed on the
+// public /api/health so CI and the pre-draft checklist can confirm production is
+// on DURABLE Blobs — 'file' on Netlify would mean ephemeral storage and silent
+// data loss on redeploy, the exact failure the ledger's persistence depends on
+// not happening. 'file' is correct only in local/dev.
+function backend() {
+  if (blobStore) return 'blobs';
+  if (fileDir) return 'file';
+  return 'uninitialized';
+}
+
+module.exports = { initBlobs, initFiles, get, set, del, listKeys, getMany, backend };

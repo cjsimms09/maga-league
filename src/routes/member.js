@@ -7,23 +7,36 @@ const BL = require('../betlogic');
 const sleeper = require('../sleeper');
 const notify = require('../notify');
 const crypto = require('crypto');
-const { getDoc, setDoc, newId, now } = require('../data');
+const { store, getDoc, setDoc, newId, now } = require('../data');
 const { hashPassword, verifyPassword, requireLogin, aw } = require('../auth');
 const { RULES, SCORING, ROSTER } = require('../seed-data');
 
-// ---------- public: the deployed build stamp ----------
-// Netlify injects COMMIT_REF at build time. This lets CI (which can reach the
-// live site; the build sandbox cannot) confirm the deployed code matches the
-// pushed commit, and fail loudly on a silent deploy failure. Nothing sensitive.
-router.get('/api/version', (req, res) => {
-  res.set('Cache-Control', 'no-store');
-  res.json({
+// ---------- public: deploy health, NO league data ----------
+// Everything CI's deploy verification and the pre-draft checklist need to trust
+// the live site, and NOTHING that requires a login or leaks league data. Netlify
+// injects COMMIT_REF at build time; storage_backend declares whether prod is on
+// DURABLE Blobs (it must be — 'file' would mean ephemeral storage and silent
+// data loss on redeploy). Public on purpose: credentials must never gate a
+// health check. /api/version kept as an alias so an older poller keeps working.
+function healthPayload() {
+  return {
+    ok: true,
     commit: process.env.COMMIT_REF || process.env.HEAD || null,
     branch: process.env.BRANCH || null,
     deploy_id: process.env.DEPLOY_ID || null,
-    context: process.env.CONTEXT || null,     // 'production' on the live site
+    context: process.env.CONTEXT || null,         // 'production' on the live site
+    build_at: process.env.BUILD_TIME || process.env.DEPLOY_TIME || null,
+    storage_backend: store.backend(),             // 'blobs' (durable) | 'file' | 'uninitialized'
     now: now(),
-  });
+  };
+}
+router.get('/api/health', (req, res) => {
+  res.set('Cache-Control', 'no-store');
+  res.json(healthPayload());
+});
+router.get('/api/version', (req, res) => {        // alias — same public payload
+  res.set('Cache-Control', 'no-store');
+  res.json(healthPayload());
 });
 
 // ---------- public: the authoritative draft-config status ----------
