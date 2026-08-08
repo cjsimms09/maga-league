@@ -21,6 +21,32 @@ _control: `arch:balanced` · seasons 2023, 2024 · null p95 **$30.00** (200 outc
 | profile:scarcity | -5.00 | 2023:+0 · 2024:-10 | 2023:0.9 · 2024:0.4 | parked: edge -5.00 <= null p95 30.00 |
 | profile:value_anchor | -5.00 | 2023:+0 · 2024:-10 | 2023:2.1 · 2024:1.6 | parked: edge -5.00 <= null p95 30.00 |
 
+## Sub-threshold structure (descriptive — verdicts unchanged)
+
+| candidate | pooled $ | null pctile | both seasons + ? | divergent-pick mix | flag |
+|---|---|---|---|---|---|
+| B0 | +50.00 | 100th | YES | 2023:WR×55,RB×50,QB×39 · 2024:WR×66,QB×41,RB×15 · 2025:WR×67,QB×44,RB×3 | CANDIDATE |
+| profile:tier_hunter | +5.00 | 36th | no | 2023:RB×13,QB×7,WR×6 · 2024:QB×4,TE×4,DT×2 · 2025:QB×5,TE×3,RB×2 | — |
+| B3 | +0.00 | 0th | no | — | — |
+| arch:early_qb | +0.00 | 0th | no | — | — |
+| arch:elite_te | +0.00 | 0th | no | 2023:RB×8,WR×5,TE×4 · 2025:TE×9,DT×5,RB×2 | — |
+| arch:wr_anchor | +0.00 | 0th | no | 2023:WR×19,RB×13,QB×2 · 2024:QB×2,DT×1,WR×1 · 2025:WR×2,DT×2 | — |
+| arch:zero_rb | +0.00 | 0th | no | 2023:RB×12,TE×4,QB×3 · 2024:DT×3,DB×1 · 2025:RB×5,TE×4,DT×4 | — |
+| profile:default | +0.00 | 0th | no | — | — |
+| profile:keeper_builder | +0.00 | 0th | no | 2023:QB×2,RB×1 · 2024:WR×2,QB×1 · 2025:TE×2,DE×1 | — |
+| profile:upside_late | +0.00 | 0th | no | 2023:QB×24,RB×1 · 2024:QB×19,RB×1 · 2025:QB×23,RB×1 | — |
+| arch:hero_rb | -5.00 | 0th | no | 2023:WR×5,RB×4,FB×3 · 2024:RB×7,DT×4,DEF×4 · 2025:DT×7,QB×3,RB×3 | — |
+| arch:late_qb | -5.00 | 0th | no | 2023:QB×29,WR×10,RB×2 · 2024:RB×3,WR×3,TE×2 · 2025:QB×10,RB×8,WR×2 | — |
+| arch:robust_rb | -5.00 | 0th | no | 2024:RB×4,DT×3,WR×2 · 2025:WR×1 | — |
+| profile:need_filler | -5.00 | 0th | no | 2023:FB×4,DT×3,RB×3 · 2024:DT×2,WR×2,DB×2 · 2025:DT×10,DE×6,TE×1 | — |
+| profile:scarcity | -5.00 | 0th | no | 2023:FB×3,DT×3,DB×3 · 2024:DT×2,DB×2 · 2025:DT×4,TE×1,RB×1 | — |
+| profile:value_anchor | -5.00 | 0th | no | 2023:RB×10,WR×8,QB×3 · 2024:QB×4,RB×3,DT×3 · 2025:DT×11,QB×6,TE×1 | — |
+
+**WATCH flags (0):** none — a WATCH buys a Phase-H shadow seat, never weights; the live 2026 season is the legitimate tiebreaker for sub-threshold leans (new data, not re-tortured old data). **The install rule is untouched: nothing enters the engine below the pre-registered bar.**
+
+**Honesty line:** 16 candidates × 2 seasons means ~4 would show both-season-positive sign by PURE CHANCE (independent coin-flip signs under the null → 25% each); several candidates also tie the control exactly (zero divergence), shrinking the effective field. Read the YES column with that base rate.
+
+
 **Reading the divergence column (pre-registered from the shadows' clear-board finding):** edges live in the handful of contested decisions per draft — a candidate whose rosters differ from the control by only 1–3 players is being graded on seasoning-sized samples, and its dollar edge should be read accordingly. The null p95 is the floor either way.
 
 **Caveats:** weekly-high + RS dollars only; playoff $ pending the bracket resim (lower bound) · seasons graded = those the weekly pull could serve (2025 weekly is 404 upstream) · rough v1 dollar model; quantile-V re-run pre-registered for September · ghost replay vs a fixed room: the room does not react to the counterfactual
