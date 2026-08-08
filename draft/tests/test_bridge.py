@@ -134,16 +134,28 @@ def test_ci_every_policy_money_grades_bounded():
         picks_by_seat = {}
         for r in dump[season]["records"]:
             picks_by_seat[int(r["roster_id"])] = picks_by_seat.get(int(r["roster_id"]), 0) + 1
+        keepers_by_seat = {}
+        for k in dump[season].get("keepers", []):
+            keepers_by_seat[int(k["roster_id"])] = keepers_by_seat.get(int(k["roster_id"]), 0) + 1
         for policy, per_seat in rows.items():
             for rid, g in per_seat.items():
                 assert 0 <= g["weekly_high"] <= p["weekly_high_total"], (season, policy, rid)
                 assert g["regular_season"] in (0.0, float(p["rs_champ"]), float(p["rs_runner_up"]))
-                # The first CI run's vacuous-pass, locked out: a policy roster
-                # must hold roughly one player per decision pick (keepers can
-                # add; ghost dupes subtract a little) — never keeper-only.
-                min_expected = max(1, picks_by_seat.get(int(rid), 0) - 3)
-                assert g["roster_size"] >= min_expected, \
-                    f"{season} {policy} seat {rid}: roster {g['roster_size']} < {min_expected} — empty grading"
+                # The first CI run's vacuous-pass, locked out — by CONSERVATION,
+                # not a fuzzy floor: every decision pick lands either a new
+                # player or a counted ghost-duplicate, keepers add on top. (The
+                # second run taught the floor lesson: B0's argmax ghost-loops
+                # the same still-available player — 5 dupes in 15 picks at one
+                # seat is its NATURAL rate, not empty grading.)
+                picks = picks_by_seat.get(int(rid), 0)
+                keeps = keepers_by_seat.get(int(rid), 0)
+                assert g["roster_size"] + g["duplicates"] == keeps + picks, \
+                    (f"{season} {policy} seat {rid}: roster {g['roster_size']} + dupes "
+                     f"{g['duplicates']} != keepers {keeps} + picks {picks}")
+                # Keeper-only grading still impossible: at least half the
+                # decision picks must land distinct players.
+                assert g["roster_size"] >= max(1, picks // 2), \
+                    f"{season} {policy} seat {rid}: roster {g['roster_size']} of {picks} picks — empty grading"
                 # And its players are real NFL players: coverage clears a floor
                 # for POLICIES too, not just 'actual'.
                 assert g["coverage"] >= 0.5, f"{season} {policy} seat {rid}: coverage {g['coverage']}"
