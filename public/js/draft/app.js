@@ -796,6 +796,18 @@
       totalPicks: ((state.data.pick_order || {}).picks || []).length || null,
       myPickIndex: myLivePickIndex(),
       totalMyPicks: ((state.data.pick_order || {}).my_picks || []).length || null,
+      // SUPPLIED DEFENSIVELY, not to fix a live bug. composite.js reads it when
+      // computing the keeper-option bar, and today it is REDUNDANT because
+      // populateKeepers pushes keepers onto state.myRoster with is_keeper:true,
+      // so ctx.roster already carries them as incumbents. The seam sweep is what
+      // established that — the field looked missing and was merely doubled.
+      //
+      // It is wired anyway because the redundancy is an accident of one
+      // function's behaviour: if the roster ever stops carrying keepers (a
+      // rehearsal-mode change would do it), the KOV bar would silently lose its
+      // incumbents and every keeper-target badge would inflate, with nothing
+      // failing.
+      currentKeepers: (state.myRoster || []).filter(function (p) { return p.is_keeper; }),
       league: state.data.league,
       weights: state.weights,
       runMultipliers: state.runMults,
@@ -3216,6 +3228,18 @@
       totalPicks: ((state.data.pick_order || {}).picks || []).length || null,
       myPickIndex: myLivePickIndex(),
       totalMyPicks: ((state.data.pick_order || {}).my_picks || []).length || null,
+      // SUPPLIED DEFENSIVELY, not to fix a live bug. composite.js reads it when
+      // computing the keeper-option bar, and today it is REDUNDANT because
+      // populateKeepers pushes keepers onto state.myRoster with is_keeper:true,
+      // so ctx.roster already carries them as incumbents. The seam sweep is what
+      // established that — the field looked missing and was merely doubled.
+      //
+      // It is wired anyway because the redundancy is an accident of one
+      // function's behaviour: if the roster ever stops carrying keepers (a
+      // rehearsal-mode change would do it), the KOV bar would silently lose its
+      // incumbents and every keeper-target badge would inflate, with nothing
+      // failing.
+      currentKeepers: (state.myRoster || []).filter(function (p) { return p.is_keeper; }),
       dollarsOf: function (p) { return E.playerDollars(p).total; },
     });
     // A run is the causal story a switch needs — "the QB run erased its edge"

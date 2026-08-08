@@ -32,7 +32,14 @@ const check = (n, c, d) => { if (c) { pass++; console.log('PASS  ' + n); }
   else { fail++; console.log('FAIL  ' + n + (d ? '  -> ' + d : '')); } };
 
 const DIR = path.join(__dirname, '..', '..', 'public', 'js', 'draft');
-const engineSrc = fs.readFileSync(path.join(DIR, 'engine.js'), 'utf8');
+// EVERY MODULE THE APP FEEDS, not just the engine. The first version of this
+// suite read engine.js alone — and the seam sweep immediately found ctx fields
+// read by survival.js and composite.js that engine.js never mentions. A wiring
+// guard scoped to one consumer is a wiring guard with a hole the exact size of
+// every other consumer.
+const CONSUMERS = ['engine.js', 'survival.js', 'composite.js'];
+const engineSrc = CONSUMERS
+  .map(f => fs.readFileSync(path.join(DIR, f), 'utf8')).join('\n');
 const appSrc = fs.readFileSync(path.join(DIR, 'app.js'), 'utf8');
 
 // Every ctx.<field> the engine reads.
@@ -40,7 +47,16 @@ const reads = new Set();
 (engineSrc.match(/ctx\.[a-zA-Z_][a-zA-Z0-9_]*/g) || [])
   .forEach(m => reads.add(m.slice(4)));
 // Internal caches the engine sets on ctx itself are not the caller's job.
-const INTERNAL = new Set(['_flexAltSorted']);
+// Fields a consumer sets on ctx itself, or derives internally — not the
+// caller's job. Each is named with WHY, so the exemption list cannot quietly
+// become a place to hide real gaps.
+const INTERNAL = new Set([
+  '_flexAltSorted',   // engine's own sort cache
+  '__l2cache',        // survival's layer-2 memo
+  '__l',              // same, prefix-matched below
+  'bestByPos',        // survival computes it inside precomputeLayer2
+  'progress',         // survival DERIVES it from ctx.totalPicks (see note)
+]);
 
 // What context() supplies.
 const ctxBlock = (appSrc.match(/function context\(\)[\s\S]*?\n  \}/) || [''])[0];
@@ -53,7 +69,8 @@ check('the engine actually reads ctx fields (non-vacuity)',
 check('context() was located and parsed (non-vacuity)',
   supplies.size >= 8, 'parsed ' + supplies.size + ' supplied fields');
 
-const missing = [...reads].filter(f => !INTERNAL.has(f) && !supplies.has(f)).sort();
+const missing = [...reads]
+  .filter(f => !INTERNAL.has(f) && !f.startsWith('__') && !supplies.has(f)).sort();
 check('EVERY ctx field the engine reads is supplied by the app',
   !missing.length,
   'the app never passes: ' + JSON.stringify(missing)
@@ -75,7 +92,14 @@ const CAPABILITIES = [
     why: 'the doctrine tilt evaluates roster-relative weights at this index; '
        + 'absent, pickIndexOf FALLS BACK TO A GUESS' },
   { field: 'totalPicks',
-    why: 'draft progress -> urgency curves and the ceiling term' },
+    why: 'draft progress -> urgency curves and the ceiling term. ALSO survival\'s '
+       + 'per-team progress, which fell back to a flat 0.5 for every intervening '
+       + 'team while this was unsupplied — a second-order effect the seam sweep '
+       + 'surfaced and nobody would have traced from the symptom' },
+  { field: 'currentKeepers',
+    why: 'the keeper-option BAR. Redundant today because myRoster carries '
+       + 'keepers, but the redundancy is one function\'s behaviour, not a '
+       + 'guarantee' },
 ];
 CAPABILITIES.forEach(c => {
   check(`the app supplies ctx.${c.field}`, supplies.has(c.field),
