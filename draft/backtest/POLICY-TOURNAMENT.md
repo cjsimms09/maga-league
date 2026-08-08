@@ -38,7 +38,15 @@ _conditional null p95 = **$49.62** (the null mines the SAME policy×state grid o
 | thin_board_early | h1_phase | -42.80 | -22.72 | [-65.68, -21.19] | 59 | LEAN → manual-override cheat sheet, never automated |
 | thin_board_early | floor_heavy | -132.20 | -25.64 | [-182.2, -88.56] | 59 | LEAN → manual-override cheat sheet, never automated |
 
-**Non-partitioning states (reported, never inferred from):** `run_pressure` fired in 0/120 rooms — a state that fires in ~every room is a CONSTANT; its 'conditional' edge would just be the global edge wearing a state label. Caught by the degeneracy guard, excluded from inference.
+### States rejected by the incidence band [10%–85%] — logged so they are not re-proposed
+
+| state | incidence | classification | why |
+|---|---|---|---|
+| `run_pressure` | 0/120 (0%) | **INSUFFICIENT-N** | fires too rarely to estimate an edge — no verdict is possible, and a number here would be noise wearing a confidence interval. Re-propose only with an incidence that lands inside the band. |
+
+### Pre-registered expectation (written before reading this run's rows)
+
+After the guard, surviving conditional rules will be **FEW** and their per-state n **small** — most land INSUFFICIENT-N or LEAN. The likeliest robust findings are one or two rules around the **run-response** and **my-turn-adjacency** states, where incidence genuinely varies room to room. **A short list of real conditions beats a long list of costumed globals**, and a run that produces zero shipping rules is the guard working, not the experiment failing.
 
 **Caveats:** v1 money proxy (proj-normal weeks, weekly-high+RS; playoff $ excluded) · paired rooms + paired weekly luck; predicted opponent slates · the null MINES CONDITIONS TOO (permuted state labels, same grid) · September quantile re-run pre-registered; nothing installs itself
 

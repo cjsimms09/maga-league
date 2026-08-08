@@ -137,7 +137,20 @@
     AUTO_TIGHT_PICKS: 4,        // picks left below which a gap is an emergency
   };
 
-  const DEFAULT_WEIGHTS = { value: 1.0, tier: 1.0, need: 1.0, risk: 1.0, ceiling: 0.5,
+  /* CEILING = 0.65 — installed 2026-08-08 per DECISION D9 (Cory: "INSTALL, the
+   * conservative end"). EVIDENCE: Lab experiment 21 (mean-variance frontier,
+   * `FRONTIER.md`) found an INVERTED-U dose-response on ceiling tilt across 150
+   * paired rooms from my actual keeper base — moderate tilt is worth
+   * +$56/season vs no tilt (λ=0.5: CI [33, 78]; λ=0.25: +$44), while heavy tilt
+   * is provably NEGATIVE (λ=2: −$18; λ=3: −$27, CI excludes zero). Experiment 2
+   * §5 (`POLICY-TOURNAMENT.md`) independently reproduced the same shape from a
+   * different control. 0.65 is deliberately the CONSERVATIVE end of the winning
+   * band, not its peak.
+   * CAVEAT, stated because it governs the install: both experiments ran in the
+   * simulated-room PROXY (v1 money model), not on held-out real seasons — this
+   * is a strong LEAN, not a certified edge. September's quantile re-run
+   * certifies or reverts it (pre-registered). */
+  const DEFAULT_WEIGHTS = { value: 1.0, tier: 1.0, need: 1.0, risk: 1.0, ceiling: 0.65,
     keeper: 1.0, bye: 1.0, stack: 1.0 };
 
   /* Named strategies, as weight sets.
@@ -1360,27 +1373,44 @@
     const w = Object.assign({}, DEFAULT_WEIGHTS);
 
     // ---- phase ------------------------------------------------------------
+    /* THE CEILING PROFILE IS EARLY-WEIGHTED (0.75 → 0.70 → 0.65 → 0.60), and it
+     * used to be the exact opposite (0.45 → 0.60 → 0.80 → 1.40). The designed
+     * late ramp was BACKWARDS and the Lab said so (D9, 2026-08-08):
+     *   - exp 2 §5's per-phase grid: endgame ceiling 0.5 is BETTER (+$19, CI
+     *     [7.5, 33]) while 1.0 / 2.0 / 3.0 are all WORSE with CIs excluding
+     *     zero. An aggressive endgame weight destroys money.
+     *   - exp 21: early-ramp λ=1 (+$56) ≫ late-ramp λ=1 (+$5). The ceiling
+     *     dollars are in the early rounds, among near-equal candidates, where a
+     *     tilt actually changes which player you take.
+     *   - core tilts all straddled the default, so early stays NEAR the base
+     *     rather than being pushed — "no evidence of a shift" is not a licence.
+     * WHY ENDGAME STILL GETS LOTTERY BEHAVIOUR: the bench-lottery lives in
+     * upsideBonus (lateness × endgame multipliers), a DIFFERENT mechanism —
+     * late fliers are cheap because a bench floor is free on the waiver wire.
+     * That policy is untouched. What is removed is the DOUBLE ramp: multiplying
+     * a 1.4 weight on top of upsideBonus's own late amplification, which is
+     * precisely the over-tilt the dose-response priced as negative. */
     let phase, phaseWhy;
     if (round <= CFG.AUTO_ANCHOR_ROUNDS) {
       phase = 'Anchor';
       phaseWhy = 'Round ' + round + ': every slot is empty, so "need" is noise. '
         + 'Take the best player and the cliffs.';
-      w.need = 0.35; w.tier = 1.35; w.risk = 1.1; w.ceiling = 0.45; w.bye = 0.5; w.keeper = 0.9;
+      w.need = 0.35; w.tier = 1.35; w.risk = 1.1; w.ceiling = 0.75; w.bye = 0.5; w.keeper = 0.9;
     } else if (round <= CFG.AUTO_BUILD_ROUNDS) {
       phase = 'Build';
       phaseWhy = 'Round ' + round + ': starters are filling in. Value still leads, '
         + 'but holes start to matter.';
-      w.need = 0.9; w.tier = 1.2; w.risk = 1.0; w.ceiling = 0.6; w.bye = 0.8; w.stack = 1.1;
+      w.need = 0.9; w.tier = 1.2; w.risk = 1.0; w.ceiling = 0.7; w.bye = 0.8; w.stack = 1.1;
     } else if (round <= CFG.AUTO_FILL_ROUNDS) {
       phase = 'Fill';
       phaseWhy = 'Round ' + round + ': an empty starting slot now costs real points '
         + 'every week, and a stacked bye is a lineup you cannot field.';
-      w.need = 1.45; w.tier = 1.0; w.risk = 0.9; w.ceiling = 0.8; w.bye = 1.4;
+      w.need = 1.45; w.tier = 1.0; w.risk = 0.9; w.ceiling = 0.65; w.bye = 1.4;
     } else {
       phase = 'Endgame';
       phaseWhy = 'Round ' + round + ': the marginal starter is close to worthless, '
         + 'so swing at upside and at players worth keeping next year.';
-      w.need = 1.3; w.tier = 0.8; w.risk = 0.6; w.ceiling = 1.4; w.keeper = 1.6; w.bye = 1.1;
+      w.need = 1.3; w.tier = 0.8; w.risk = 0.6; w.ceiling = 0.6; w.keeper = 1.6; w.bye = 1.1;
     }
     reasons.push({ kind: 'phase', text: phaseWhy });
 

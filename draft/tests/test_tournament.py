@@ -137,3 +137,54 @@ def test_null_uses_the_same_search():
     assert all(isinstance(x, float) or isinstance(x, int) for x in draws)
     real = T.edges_vs_control(T.run_tournament(DUMP, WEEKLY, POS, hist, pay))
     assert real["profile:hot"]["pooled"] >= max(0.0, min(draws)) - 1e9  # sanity: comparable scale
+
+
+# --- §6 degeneracy guard: the incidence band, both ways + null parity --------
+
+def _pt():
+    import importlib, sys
+    sys.path.insert(0, str(BT))
+    return importlib.import_module("policy_tournament")
+
+
+def test_incidence_band_rejects_both_ends_for_opposite_reasons():
+    PT = _pt()
+    n = 100
+    always = [True] * n                      # a CONSTANT wearing a state label
+    never = [False] * n
+    rare = [True] * 5 + [False] * 95         # too rare to estimate
+    half = [True] * 50 + [False] * 50        # a real partition
+    assert PT.classify_state(always)[0] == "GLOBAL"
+    assert PT.classify_state(never)[0] == "INSUFFICIENT-N"
+    assert PT.classify_state(rare)[0] == "INSUFFICIENT-N"
+    assert PT.classify_state(half)[0] == "OK"
+    # The two rejections are NOT the same thing and must not be conflated.
+    assert PT.classify_state(always)[0] != PT.classify_state(rare)[0]
+
+
+def test_a_state_just_inside_the_band_is_usable():
+    PT = _pt()
+    n = 200
+    edge = [True] * 30 + [False] * 170       # 15% — inside [10%, 85%], n >= 20
+    assert PT.classify_state(edge)[0] == "OK"
+
+
+def test_min_rooms_guard_bites_even_inside_the_band():
+    PT = _pt()
+    # 12% incidence but only 6 rooms — inside the band, still unestimable.
+    small = [True] * 6 + [False] * 44
+    assert PT.classify_state(small)[0] == "INSUFFICIENT-N"
+
+
+def test_null_mining_inherits_the_guard_identically():
+    # PARITY: the null must face the same partition requirement, or we compare
+    # real partitioned rules against null degenerate ones and flatter ourselves.
+    PT = _pt()
+    grades = {"defaults": [10.0] * 100, "h1_phase": [12.0] * 100}
+    degenerate = {"always_on": [True] * 100}
+    rows, n = PT.mine_conditional(grades, degenerate, "always_on", None)
+    assert rows == [], "the real miner must reject a degenerate state"
+    # The null path calls the SAME miner, so its best edge over that state is 0.
+    import random as _r
+    p95 = PT.null_conditional_p95(grades, degenerate, ["always_on"], 5, _r.Random(1))
+    assert p95 == 0.0, "the null must be rejected by the same guard, not credited"

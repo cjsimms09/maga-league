@@ -218,7 +218,11 @@ phone-stacked below. (b) is a redesign better folded into the data-spine dashboa
 work and is **parked** for a one-word ruling ((b)/(c) if you also want the
 content-widen). Not blocking anything.
 
-## D9 — Ceiling-weight install (experiment 21's winner) — YOUR CALL, evidence attached
+## D9 — Ceiling-weight install — ✅ RESOLVED + INSTALLED 2026-08-08 (Cory: "INSTALL, the conservative end")
+
+**Installed:** `DEFAULT_WEIGHTS.ceiling` 0.5 → **0.65** (the conservative end of the winning band, not its peak), cited-constant path with the full evidence line in `engine.js`. **Shape finding applied:** the auto-adjuster's ceiling phase profile was a LATE ramp (0.45 → 0.60 → 0.80 → **1.40**) — backwards, and the Lab said so — now EARLY-weighted (**0.75** → 0.70 → 0.65 → **0.60**). **The bench-lottery policy is untouched** (`upsideBonus`'s lateness × endgame multipliers — a different mechanism: the floor is free on the wire); what was removed is the DOUBLE ramp of a 1.4 weight on top of it, which is exactly the over-tilt the dose-response priced as negative. Pinned by 4 cited engine tests so it cannot silently revert. Quantified at pick 34: top-5 **order unchanged**, max score delta 0.8 — a genuinely conservative install. September's quantile re-run certifies or reverts. _Original decision text retained below._
+
+## D9 — Ceiling-weight install (experiment 21's winner) — the original call, evidence attached
 
 The frontier race cleared its pre-registered in-experiment gate: **moderate
 ceiling tilt is worth ~+$45–56/season** on the Cory-conditional paired rooms

@@ -221,13 +221,19 @@
   "rb_drain_early": 58,
   "thin_board_early": 59
  },
- "degenerate_states": [
+ "rejected_states": [
   {
    "state": "run_pressure",
+   "classification": "INSUFFICIENT-N",
    "rooms_firing": 0,
    "of": 120,
-   "why": "non-partitioning or too few rooms \u2014 a constant, not a condition; no conditional inference possible"
+   "incidence": 0.0,
+   "why": "fires too rarely to estimate an edge \u2014 no verdict is possible, and a number here would be noise wearing a confidence interval. Re-propose only with an incidence that lands inside the band."
   }
+ ],
+ "incidence_band": [
+  0.1,
+  0.85
  ],
  "caveats": [
   "v1 money proxy (proj-normal weeks, weekly-high+RS; playoff $ excluded)",

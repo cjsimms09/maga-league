@@ -191,19 +191,45 @@ def binarize(all_feats):
     return out
 
 
-DEGENERACY_MIN = 0.15    # a state firing in <15% or >85% of rooms cannot support
-                         # a conditional claim — it is not a condition, it is a
-                         # constant, and the global edge would masquerade as one.
+# THE INCIDENCE BAND, both ways (completed 2026-08-08 per Cory):
+#   > HIGH_BAND  — the state is a CONSTANT wearing a state label; its
+#                  "conditional" edge is just the global edge. GLOBAL.
+#   < LOW_BAND   — the state is too rare to estimate an edge for at all.
+#                  INSUFFICIENT-N: report the incidence, never a verdict.
+# Both ends produce a logged classification, never a number that could be read
+# as a finding. The two ends fail for OPPOSITE reasons and must not be conflated.
+LOW_BAND = 0.10
+HIGH_BAND = 0.85
+MIN_ROOMS = 20           # even inside the band, an edge needs a sample
+
+
+def classify_state(mask):
+    """-> (verdict, share, n). The single place incidence is judged, so the real
+    mining and the NULL mining cannot drift apart (guard parity)."""
+    n = sum(1 for f in mask if f)
+    share = n / max(1, len(mask))
+    if share > HIGH_BAND:
+        return "GLOBAL", share, n
+    if share < LOW_BAND:
+        return "INSUFFICIENT-N", share, n
+    if n < MIN_ROOMS:
+        return "INSUFFICIENT-N", share, n
+    return "OK", share, n
 
 
 def mine_conditional(grades, flags, state_key, rng):
-    """§6: per policy, the paired edge in rooms WHERE the state holds."""
+    """§6: per policy, the paired edge in rooms WHERE the state holds.
+
+    Returns [] for any state failing the incidence band — and the NULL mining
+    calls THIS SAME function, so the null faces the identical partition
+    requirement. Without that parity we would be comparing real partitioned
+    rules against null degenerate ones and flattering ourselves."""
     mask = flags[state_key]
-    fired = [i for i, f in enumerate(mask) if f]
+    verdict, share, n = classify_state(mask)
     out = []
-    share = len(fired) / max(1, len(mask))
-    if share < DEGENERACY_MIN or share > 1 - DEGENERACY_MIN or len(fired) < 20:
-        return out, len(fired)
+    if verdict != "OK":
+        return out, n
+    fired = [i for i, f in enumerate(mask) if f]
     for cand in grades:
         if cand == "defaults" or cand.startswith("grid_"):
             continue
@@ -277,14 +303,25 @@ def main():
     feats = [room_features(st) for st in room_states]
     flags = binarize(feats)
     STATES = list(flags.keys())
-    conditional, coverage, degenerate = [], {}, []
+    conditional, coverage, rejected = [], {}, []
+    WHY = {
+        "GLOBAL": ("fires in ~every room — a CONSTANT, not a condition; its "
+                   "'conditional' edge would be the global edge wearing a state "
+                   "label. Folded into the GLOBAL domain (exp 21 / §5) where it "
+                   "belongs. Do not re-propose as a condition."),
+        "INSUFFICIENT-N": ("fires too rarely to estimate an edge — no verdict is "
+                           "possible, and a number here would be noise wearing a "
+                           "confidence interval. Re-propose only with an incidence "
+                           "that lands inside the band."),
+    }
     for sk in STATES:
         rows, n = mine_conditional(grades, flags, sk, rng)
+        verdict, share, _ = classify_state(flags[sk])
         coverage[sk] = n
-        if not rows:
-            degenerate.append({"state": sk, "rooms_firing": n, "of": args.rooms,
-                               "why": "non-partitioning or too few rooms — a constant, "
-                                      "not a condition; no conditional inference possible"})
+        if verdict != "OK":
+            rejected.append({"state": sk, "classification": verdict,
+                             "rooms_firing": n, "of": args.rooms,
+                             "incidence": round(share, 3), "why": WHY[verdict]})
         conditional.extend(rows)
     conditional.sort(key=lambda r: -r["in_minus_out"])
     null_p95 = null_conditional_p95(grades, flags, STATES, args.null_draws,
@@ -303,7 +340,8 @@ def main():
               "conditional_rules": conditional,
               "conditional_null_p95": round(null_p95, 2),
               "state_coverage_rooms": coverage,
-              "degenerate_states": degenerate,
+              "rejected_states": rejected,
+              "incidence_band": [LOW_BAND, HIGH_BAND],
               "caveats": [
                   "v1 money proxy (proj-normal weeks, weekly-high+RS; playoff $ excluded)",
                   "paired rooms + paired weekly luck; predicted opponent slates",
@@ -337,13 +375,21 @@ def main():
     for r in conditional:
         L.append(f"| {r['state']} | {r['setting']} | {r['edge']:+.2f} | {r['in_minus_out']:+.2f} | "
                  f"[{r['ci95'][0]}, {r['ci95'][1]}] | {r['n_rooms']} | {r['disposition']} |")
-    if degenerate:
-        L += ["", "**Non-partitioning states (reported, never inferred from):** "
-              + " · ".join(f"`{d['state']}` fired in {d['rooms_firing']}/{d['of']} rooms"
-                           for d in degenerate)
-              + " — a state that fires in ~every room is a CONSTANT; its 'conditional' "
-                "edge would just be the global edge wearing a state label. Caught by the "
-                "degeneracy guard, excluded from inference."]
+    if rejected:
+        L += ["", f"### States rejected by the incidence band "
+              f"[{int(LOW_BAND*100)}%–{int(HIGH_BAND*100)}%] — logged so they are not re-proposed", "",
+              "| state | incidence | classification | why |", "|---|---|---|---|"]
+        for d in rejected:
+            L.append(f"| `{d['state']}` | {d['rooms_firing']}/{d['of']} ({d['incidence']:.0%}) "
+                     f"| **{d['classification']}** | {d['why']} |")
+    L += ["", "### Pre-registered expectation (written before reading this run's rows)",
+          "", "After the guard, surviving conditional rules will be **FEW** and their "
+          "per-state n **small** — most land INSUFFICIENT-N or LEAN. The likeliest "
+          "robust findings are one or two rules around the **run-response** and "
+          "**my-turn-adjacency** states, where incidence genuinely varies room to "
+          "room. **A short list of real conditions beats a long list of costumed "
+          "globals**, and a run that produces zero shipping rules is the guard "
+          "working, not the experiment failing."]
     L += ["", "**Caveats:** " + " · ".join(result["caveats"]), "",
           "_Every candidate state is computed from board/roster/pick state at the "
           "instant of the pick — machine-detectability is structural here, not a "
@@ -359,8 +405,8 @@ def main():
     for r in conditional[:4]:
         print(f"  {r['state']:18s} {r['setting']:14s} in {r['edge']:+7.2f} "
               f"in-out {r['in_minus_out']:+7.2f} {r['disposition'][:34]}")
-    if degenerate:
-        print("degenerate (excluded):", ", ".join(d["state"] for d in degenerate))
+    for d in rejected:
+        print(f"rejected {d['state']:18s} {d['classification']:15s} incidence {d['incidence']:.0%}")
     return 0
 
 

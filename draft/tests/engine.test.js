@@ -1351,5 +1351,42 @@ check('weight sliders change the ranking', heavyCeiling[0].score !== scored[0].s
     lateLive, 'no live keeper component at round 12');
 }
 
+// --- D9: the installed ceiling posture (Lab exp 21 + exp 2 §5) --------------
+// Pins the INSTALL so a later edit cannot silently revert it. Every number is
+// cited to DECISIONS-NEEDED D9 / FRONTIER.md / POLICY-TOURNAMENT.md — never
+// read back off the code.
+{
+  // D9 (Cory, 2026-08-08): "INSTALL — ceiling slider 0.5 -> 0.65, conservative end".
+  check('D9: the ceiling slider is installed at the conservative 0.65',
+    E.DEFAULT_WEIGHTS.ceiling === 0.65, String(E.DEFAULT_WEIGHTS.ceiling));
+
+  // The phase profile is EARLY-weighted, not a late ramp: exp 2 §5's per-phase
+  // grid found endgame ceiling >= 1.0 WORSE with CIs excluding zero, and exp 21
+  // found early-ramp (+$56) >> late-ramp (+$5).
+  const d9board = [];
+  for (let i = 0; i < 60; i++) {
+    d9board.push({ player_id: 'd' + i, name: 'P' + i, position: ['RB','WR','TE','QB'][i % 4],
+      proj_mean: 200 - i * 2, proj_ceiling: 240 - i * 2, vorp: 90 - i,
+      adjusted_adp: 30 + i, raw_adp: 30 + i, tier: 1 + (i / 10 | 0), tier_drop: 8, bye: 7 });
+  }
+  const d9league = { teams: 10, starters: { QB: 1, RB: 2, WR: 2, TE: 1, FLEX: 1, K: 1, DEF: 1 } };
+  const at = (pick, left) => E.autoWeights({ board: d9board, currentPick: pick,
+    nextPick: pick + 13, totalPicks: 150, myPicksLeft: left, roster: [],
+    league: d9league, runMultipliers: {}, intervening: [], roundsLeft: 8 }).weights.ceiling;
+  const anchorC = at(4, 13), endgameC = at(124, 2);
+  check('D9: the auto ceiling profile weights EARLY over ENDGAME (the late ramp was backwards)',
+    anchorC > endgameC, 'anchor=' + anchorC + ' endgame=' + endgameC);
+  check('D9: the endgame ceiling weight is modest (<= 1.0), per the per-phase grid',
+    endgameC <= 1.0, String(endgameC));
+
+  // The bench-lottery is a DIFFERENT mechanism (floor is free on the wire) and
+  // stays: the same player must still earn more upside credit late than early.
+  const flier = { position: 'WR', proj_mean: 100, proj_ceiling: 190, vorp: 5 };
+  const earlyU = E.upsideBonus(flier, 10, 150, 12);
+  const lateU = E.upsideBonus(flier, 140, 150, 3);
+  check('D9: the bench-lottery policy is UNTOUCHED — upside still amplifies late',
+    lateU > earlyU, 'early=' + earlyU.toFixed(1) + ' late=' + lateU.toFixed(1));
+}
+
 console.log(`\n${pass}/${pass + fail} engine checks passed`);
 process.exit(fail ? 1 : 0);
