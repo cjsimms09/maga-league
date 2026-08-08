@@ -1,0 +1,114 @@
+<%- include('../partials/header', { title: 'The Chronicle' }) %>
+<%
+  // Flag by nationality — David and Marian are German (voice spec §8.1); a
+  // shared 2022 title carries both a German and an American, so any name
+  // containing a German owner shows the German flag.
+  const german = A.german;                                  // Set of real names
+  const flag = name => [...german].some(g => String(name).includes(g)) ? '🇩🇪' : '🇺🇸';
+  const modern = new Set(A.modernYears);
+  const rebrandYear = (A.seasons.find(s => s.name === 'Make Football Great Again') || {}).year;
+%>
+
+<div class="chron">
+  <p class="chron-eyebrow">Est. 2016 · The Same Ten Men · A Decade</p>
+  <h1 class="chron-title">The <span class="gold">MFGA</span> Archive</h1>
+  <p class="chron-sub">Every dollar, every champion, every humiliation — written down at last.</p>
+
+  <%- include('_subnav', { active: 'chronicle' }) %>
+
+  <!-- THE FOUNDING ---------------------------------------------------------->
+  <div class="founding">
+    <h2>The Founding</h2>
+    <p class="old-name">In the Year of Our League <b>2016</b>, ten men did assemble
+      and pay <b>$100</b> apiece — under a banner that read, without irony,
+      the <b>Whiny Little Bitch League</b>.</p>
+    <p style="color:var(--muted); max-width:52ch; margin:0 auto;">
+      The same ten men have answered the bell every autumn since. No owner has
+      ever quit, been bought out, or been thrown out. That is either loyalty or a
+      hostage situation — the record does not say which.</p>
+  </div>
+
+  <!-- THE CHRONICLE OF AMENDMENTS ------------------------------------------->
+  <div class="card">
+    <h2>📜 The Chronicle of Amendments <span class="sub">what changed, and what it cost</span></h2>
+    <div class="body">
+      <p style="color:var(--muted); margin:0 0 .6rem;">The buy-in has climbed every
+        step of the way, and the German has objected at every step, as is tradition:</p>
+      <div class="buyin-track">
+        <% A.amendments.steps.forEach((s, i) => { %>
+          <% if (i) { %><span class="arrow">→</span><% } %>
+          <span class="amt <%= i === A.amendments.steps.length - 1 ? 'now' : '' %>">$<%= s.buy_in %></span>
+        <% }) %>
+      </div>
+      <p style="color:var(--muted); font-size:.82rem; margin:.2rem 0 1rem;">
+        From the founding hundred in 2016 to <b>$400</b> today — with a vote on the
+        floor to make it $500.</p>
+
+      <div class="amend">
+        <div class="step"><span class="yr">2016</span><span>The league is founded as the <b>Whiny Little Bitch League</b>. Buy-in $100.</span></div>
+        <div class="step"><span class="yr">—</span><span>Three keepers adopted; the draft stops being a blank page every September.</span></div>
+        <% if (rebrandYear) { %>
+        <div class="step"><span class="yr"><%= rebrandYear %></span><span>The rebrand: the Whiny Little Bitch League becomes <b>Make Football Great Again</b>. (The 2023 season was the old name's last stand — it says so in the box scores.)</span></div>
+        <% } %>
+        <div class="step"><span class="yr">2025</span><span>This website is founded — the first time the league's real standings, real money, and real history live anywhere but a spreadsheet.</span></div>
+      </div>
+
+      <h3 style="font-family:var(--font-display); font-weight:800; text-transform:uppercase; letter-spacing:.06em; font-size:.8rem; color:var(--muted); margin:1rem 0 .5rem;">Presently before the league — the 2027 votes</h3>
+      <ul style="margin:0; padding-left:1.1rem; color:#cdd3e2;">
+        <% for (const v of A.votesPending) { %><li><%= v %></li><% } %>
+      </ul>
+    </div>
+  </div>
+
+  <!-- THE CHAMPIONS ROLL ---------------------------------------------------->
+  <div class="card">
+    <h2>👑 The Rolls <span class="sub">champions in order</span></h2>
+    <div class="body">
+      <% for (const c of A.champions) { %>
+        <div class="reign <%= c.co_championship ? '' : '' %>">
+          <span class="yr"><%= c.year %></span>
+          <span class="who"><%= c.champion %><span class="flag"><%= flag(c.champion) %></span><% if (c.asterisk) { %> <a class="aster" href="#asterisk" title="The disputed title">*</a><% } %></span>
+          <span class="buyin">$<%= c.buy_in %> buy-in</span>
+        </div>
+      <% } %>
+      <p style="color:var(--muted); font-size:.8rem; margin:.8rem 0 0;">
+        <b>No owner changes in league history.</b> The same ten men, a decade —
+        remarkable, and true.</p>
+    </div>
+  </div>
+
+  <!-- THE SEASONS ----------------------------------------------------------->
+  <div class="card">
+    <h2>📖 The Seasons <span class="sub">the years with box scores — 2023 to present</span></h2>
+    <div class="body">
+      <div class="season-grid">
+        <% for (const s of A.seasons) {
+             const champRid = s.bracket && s.bracket.placements ? s.bracket.placements[1] : null;
+             const champ = s.standings.find(x => x.roster_id === champRid);
+             const written = chapters.has(s.year);
+        %>
+          <a class="season-card" href="/history/season/<%= s.year %>">
+            <div class="yr"><%= s.year %></div>
+            <% if (champ) { %><div class="champ"><%= champ.name %> <small>champion</small></div><% } %>
+            <div class="meta"><%= s.name %></div>
+            <% if (written) { %><span class="tag">Chapter written</span>
+            <% } else { %><span class="tag pending">Records only — chapter pending</span><% } %>
+          </a>
+        <% } %>
+      </div>
+      <p style="color:var(--muted); font-size:.8rem; margin:1rem 0 0;">
+        The decade before Sleeper (2016–2022) lives in <b>The Rolls</b> and
+        <b>The Money Board</b> — money and champions, an age before records.</p>
+    </div>
+  </div>
+
+  <%- include('_asterisk') %>
+
+  <p class="provenance">
+    Derived from the master sheet (<%= A.provenance.master_sha256.slice(0, 12) %>…)
+    and the Sleeper harvest of <%= (A.provenance.harvest_built_at || '').slice(0, 10) %>.
+    Every number on these pages traces to one of those two sources.
+  </p>
+</div>
+
+<%- include('../partials/footer') %>

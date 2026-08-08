@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const H = require('../helpers');
+const HIST = require('./history-data');   // the MFGA Archive — chronicle data engine
 const L = require('../ledger');
 const SB = require('../sidebets');
 const BL = require('../betlogic');
@@ -333,16 +334,89 @@ async function moneySection(req) {
            sbTallies, sbCount: sbBets.length, sbSettledCount: sbSettled.length, sbTotal };
 }
 
+// Which seasons have a written chapter committed under views/history/chapters/.
+// Prose is generated once and reviewed for voice before it ships — this set is
+// the switch that turns a chapter on. Add a year here when its chapter lands.
+const CHAPTERS = new Set([2024]);
+
+// Safe access to the archive engine: a data problem should render a readable
+// error, not crash the request. Memoised inside history-data.build().
+function archive() {
+  return HIST.build();
+}
+
+// The History tab is now THE CHRONICLE. The old money/owners/records tabs still
+// answer to ?section= so bookmarks, the /owners and /records redirects, and
+// anything shared in the group chat keep working — they just aren't the front
+// door anymore.
 router.get('/history', aw(async (req, res) => {
-  const section = ['money', 'owners', 'records'].includes(req.query.section)
-    ? req.query.section : 'money';
-  // Only build what is being shown. The record book walks the whole Sleeper
-  // history, which is not a call worth making to render the money grid.
-  const data = section === 'owners' ? await ownersSection(req)
-    : section === 'records' ? await recordsSection(req)
-    : await moneySection(req);
-  res.render('history', Object.assign({ section }, data));
+  const legacy = ['money', 'owners', 'records'];
+  if (legacy.includes(req.query.section)) {
+    const section = req.query.section;
+    const data = section === 'owners' ? await ownersSection(req)
+      : section === 'records' ? await recordsSection(req)
+      : await moneySection(req);
+    return res.render('history', Object.assign({ section }, data));
+  }
+  const A = archive();
+  res.render('history/index', { A, chapters: CHAPTERS });
 }));
+
+// A single season chapter — prose (when written) plus the season's whole record:
+// standings + money, the weekly-high ledger, the bracket, the draft, superlatives.
+router.get('/history/season/:year', aw(async (req, res) => {
+  const A = archive();
+  const year = Number(req.params.year);
+  const season = A.byYear[year];
+  if (!season) {
+    return res.status(404).render('error', { title: 'No such season',
+      message: `The ${req.params.year} chapter has not been written into the archive.` });
+  }
+  const chapterInclude = CHAPTERS.has(year) ? `history/chapters/${year}` : null;
+  // required cast (§2) computed from the all-play instrument, plus the champion.
+  const cast = seasonCast(season);
+  res.render('history/season', { A, season, chapterInclude, cast, chapters: CHAPTERS });
+}));
+
+// The All-Time Records Book (the crown jewel).
+router.get('/history/records', aw(async (req, res) => {
+  res.render('history/records', { A: archive() });
+}));
+
+// The Money Board — all-time career earnings, ranked. The table that settles it.
+router.get('/history/money', aw(async (req, res) => {
+  res.render('history/money', { A: archive() });
+}));
+
+// The Bad Beats Hall of Fame — auto-detected tragedies.
+router.get('/history/badbeats', aw(async (req, res) => {
+  res.render('history/badbeats', { A: archive() });
+}));
+
+// A franchise page — one owner, all time.
+router.get('/history/franchise/:name', aw(async (req, res) => {
+  const A = archive();
+  const name = Object.keys(A.owners).find(n => n.toLowerCase() === String(req.params.name).toLowerCase());
+  if (!name) {
+    return res.status(404).render('error', { title: 'No such franchise',
+      message: 'There is no owner by that name in the archive. The same ten men, a decade — check the spelling.' });
+  }
+  res.render('history/franchise', { A, owner: A.owners[name] });
+}));
+
+// The required cast for a modern season — champion + fraud/robbed/lucky/collapse,
+// each from the honest instrument (all-play gap) so the roast is traceable (§2).
+function seasonCast(season) {
+  const aps = Object.values(season.allPlay);
+  const byGap = [...aps].sort((a, b) => b.gap - a.gap);      // fraud first
+  const fraud = byGap[0];
+  const robbed = byGap[byGap.length - 1];
+  const champRid = season.bracket && season.bracket.placements ? season.bracket.placements[1] : null;
+  const champion = season.standings.find(s => s.roster_id === champRid) || null;
+  const last = season.standings.find(s => s.rank === season.standings.length) || null;
+  const streak = season.superlatives.streaks;
+  return { fraud, robbed, champion, last, longestSkid: streak && streak.loss };
+}
 
 // ---------- The Tab (money) ----------
 router.get('/bank', aw(async (req, res) => {

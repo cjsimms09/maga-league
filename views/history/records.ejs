@@ -1,0 +1,98 @@
+<%- include('../partials/header', { title: 'The Record Book' }) %>
+<%
+  const R = A.records;
+  const fmt = n => (n == null ? '—' : Number(n).toFixed(2));
+  const german = A.german;
+  const flag = name => [...german].some(g => String(name).includes(g)) ? '🇩🇪' : '🇺🇸';
+  // dynasty tracker: titles + finals from the champions roll & brackets
+  const titles = {};
+  for (const c of A.champions) for (const nm of String(c.champion).split('/')) titles[nm] = (titles[nm] || 0) + (c.co_championship ? 0.5 : 1);
+  const dynasty = Object.entries(titles).map(([name, n]) => ({ name, n })).sort((a, b) => b.n - a.n);
+%>
+
+<div class="chron chron-wide">
+  <a class="back-link" href="/history">← The Chronicle</a>
+  <p class="chron-eyebrow">The Crown Jewel</p>
+  <h1 class="chron-title">The <span class="gold">Record Book</span></h1>
+  <p class="chron-sub">All-time highs, lows, and the numbers that settle arguments — 2023 to present.</p>
+  <%- include('_subnav', { active: 'records' }) %>
+
+  <div class="card">
+    <h2>👑 The Dynasty Tracker <span class="sub">titles, all time</span></h2>
+    <div class="body chron-scroll">
+      <table class="ledger">
+        <thead><tr><th class="name">Owner</th><th>Titles</th></tr></thead>
+        <tbody>
+          <% for (const d of dynasty) { %>
+            <tr><td class="name"><%= d.name %> <span class="flag"><%= flag(d.name) %></span></td>
+              <td class="money"><%= d.n % 1 ? d.n.toFixed(1) : d.n %><% if (d.name === 'Marian') { %> <a class="aster" href="/history#asterisk">*</a><% } %></td></tr>
+          <% } %>
+        </tbody>
+      </table>
+      <p style="color:var(--muted); font-size:.8rem; margin:.6rem 0 0;">A co-championship counts a half. Marian's 2022 crown carries the asterisk.</p>
+    </div>
+  </div>
+
+  <div class="stat-grid" style="margin-bottom:1.4rem;">
+    <div class="stat-card"><p class="label">Highest week ever</p><div class="big"><%= fmt(R.highestWeek[0].points) %></div><div class="sub"><span class="who"><%= R.highestWeek[0].owner %></span> · <%= R.highestWeek[0].year %> Wk <%= R.highestWeek[0].week %></div></div>
+    <div class="stat-card bad"><p class="label">Lowest week ever</p><div class="big"><%= fmt(R.lowestWeek[0].points) %></div><div class="sub"><span class="who"><%= R.lowestWeek[0].owner %></span> · <%= R.lowestWeek[0].year %> Wk <%= R.lowestWeek[0].week %></div></div>
+    <div class="stat-card"><p class="label">Biggest blowout</p><div class="big"><%= fmt(R.biggestBlowout[0].margin) %></div><div class="sub"><span class="who"><%= R.biggestBlowout[0].winner_name %></span> over <%= R.biggestBlowout[0].loser_name %> · <%= R.biggestBlowout[0].year %></div></div>
+    <div class="stat-card"><p class="label">Closest game</p><div class="big"><%= fmt(R.closest[0].margin) %></div><div class="sub"><span class="who"><%= R.closest[0].winner_name %></span> over <%= R.closest[0].loser_name %> · <%= R.closest[0].year %></div></div>
+    <div class="stat-card"><p class="label">Best single-player game</p><div class="big"><%= fmt(R.bestPlayer.points) %></div><div class="sub"><span class="who"><%= R.bestPlayer.name %></span> (<%= R.bestPlayer.pos %>) · <%= R.bestPlayer.owner %>, <%= R.bestPlayer.year %></div></div>
+    <div class="stat-card bad"><p class="label">Most points in a loss <small>(the Bad Beat record)</small></p><div class="big"><%= fmt(R.mostInLoss[0].points) %></div><div class="sub"><span class="who"><%= R.mostInLoss[0].owner %></span> · <%= R.mostInLoss[0].year %> Wk <%= R.mostInLoss[0].week %></div></div>
+  </div>
+
+  <div class="card">
+    <h2>💯 Most Weekly Highs <span class="sub">career · the $100 hunters</span></h2>
+    <div class="body chron-scroll">
+      <table class="ledger">
+        <thead><tr><th class="name">Owner</th><th>Weekly highs</th><th>≈ Weekly $</th></tr></thead>
+        <tbody>
+          <% for (const w of R.weeklyHighCareer) { %>
+            <tr><td class="name"><%= w.name %></td><td><%= w.n %></td><td class="money">$<%= w.n * 100 %></td></tr>
+          <% } %>
+        </tbody>
+      </table>
+      <p style="color:var(--muted); font-size:.8rem; margin:.6rem 0 0;">
+        Best single season: <b><%= R.weeklyHighSeason[0].name %></b> with
+        <%= R.weeklyHighSeason[0].n %> in <%= R.weeklyHighSeason[0].year %>.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🃏 Weird &amp; Unique <span class="sub">auto-detected absurdities</span></h2>
+    <div class="body">
+      <% if (R.weird.lastBeatFirst.length) { %>
+        <p style="color:#cdd3e2"><b>Last beat first:</b>
+        <% for (const x of R.weird.lastBeatFirst) { %>
+          <%= x.year %> Wk<%= x.week %> — <b><%= x.winner %></b> (#<%= x.winner_rank %>) over <%= x.loser %> (#<%= x.loser_rank %>).
+        <% } %></p>
+      <% } %>
+      <% if (R.weird.bothUnder80.length) { %>
+        <p style="color:#cdd3e2"><b>Both teams under 80:</b>
+        <% for (const x of R.weird.bothUnder80) { %>
+          <%= x.year %> Wk<%= x.week %> — <%= x.a %> <%= fmt(x.pa) %>, <%= x.b %> <%= fmt(x.pb) %>.
+        <% } %></p>
+      <% } %>
+      <% if (!R.weird.ties.length) { %><p style="color:var(--muted)">No ties in league history. Somebody always has to lose — that's the deal.</p><% } %>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🏈 The Franchises <span class="sub">one page each — the same ten men</span></h2>
+    <div class="body">
+      <div class="season-grid">
+        <% for (const name of Object.keys(A.owners)) { const o = A.owners[name]; %>
+          <a class="season-card" href="/history/franchise/<%= name.toLowerCase() %>">
+            <div class="champ"><%= name %> <span class="flag"><%= flag(name) %></span></div>
+            <div class="meta"><%= o.career.wins %>-<%= o.career.losses %> (Sleeper era) · <% if (o.money) { %>$<%= o.money.career.toLocaleString('en-US') %> all-time<% } %></div>
+          </a>
+        <% } %>
+      </div>
+    </div>
+  </div>
+
+  <p class="provenance">Records span the box-score era (2023–present). Money and champions run back to 2016.</p>
+</div>
+
+<%- include('../partials/footer') %>

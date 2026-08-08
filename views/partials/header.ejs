@@ -8,6 +8,10 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/style.css">
+<%# The Chronicle carries its own stylesheet, loaded only where it renders. %>
+<% if (typeof currentPath !== 'undefined' && /^\/history(\/|$|\?)/.test(currentPath) && !(typeof section !== 'undefined' && section)) { %>
+<link rel="stylesheet" href="/css/chronicle.css">
+<% } %>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='48' fill='%230b1f3a'/><text x='50' y='68' font-size='52' text-anchor='middle'>🦅</text></svg>">
 <%# Home-screen install. The manifest covers Android/Chrome; the apple-* tags
     are what iOS reads, because Safari still ignores the manifest for this. %>

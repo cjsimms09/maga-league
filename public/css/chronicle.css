@@ -1,0 +1,209 @@
+/* =========================================================================
+   THE MFGA ARCHIVE — chronicle styles.
+   Loaded only on /history/* (see header.ejs). Builds on the site's existing
+   design tokens (--gold, --red, --ink, --panel …) defined in style.css so the
+   chronicle reads as part of the same building, not a bolt-on.
+   ========================================================================= */
+
+.chron { max-width: 900px; margin: 0 auto; }
+.chron-wide { max-width: 1100px; }
+
+/* ---- sub-navigation across the chronicle ---- */
+.chron-nav {
+  display: flex; flex-wrap: wrap; gap: .4rem; justify-content: center;
+  margin: 0 0 1.6rem;
+}
+.chron-nav a {
+  font-family: var(--font-display); font-weight: 800; font-size: .72rem;
+  letter-spacing: .06em; text-transform: uppercase;
+  color: #c7cddd; text-decoration: none;
+  padding: .5rem .8rem; border: 1px solid var(--line); border-radius: 999px;
+  background: var(--panel);
+}
+.chron-nav a:hover { border-color: var(--gold); color: var(--gold-bright); }
+.chron-nav a.active {
+  color: #241a03; background: linear-gradient(135deg, var(--gold), #e8a52e);
+  border-color: transparent; box-shadow: var(--glow-gold);
+}
+
+/* ---- ceremonial headers ---- */
+.chron-eyebrow {
+  text-align: center; font-family: var(--font-display); font-weight: 800;
+  letter-spacing: .3em; text-transform: uppercase; font-size: .7rem;
+  color: var(--gold); margin: 0 0 .4rem;
+}
+.chron-title {
+  text-align: center; font-family: var(--font-display); font-weight: 900;
+  font-size: clamp(1.7rem, 5vw, 2.9rem); line-height: 1.02; margin: 0 0 .3rem;
+  color: var(--ink);
+}
+.chron-title .gold { color: var(--gold-bright); }
+.chron-sub { text-align: center; color: var(--muted); margin: 0 0 1.6rem; font-size: .95rem; }
+
+.chron-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+/* ---- the founding block ---- */
+.founding {
+  border: 1px solid var(--line); border-radius: var(--radius);
+  background:
+    radial-gradient(120% 120% at 50% -20%, rgba(245,196,69,.10), transparent 60%),
+    var(--panel);
+  padding: 1.6rem 1.4rem; margin: 0 0 1.4rem; text-align: center;
+}
+.founding h2 {
+  font-family: var(--font-display); font-weight: 900; font-size: 1.5rem;
+  margin: 0 0 .3rem; color: var(--ink);
+}
+.founding .old-name {
+  color: var(--muted); font-style: italic; margin: 0 0 1rem;
+}
+.founding .old-name b { color: var(--red-bright); font-style: normal; }
+
+/* ---- champions timeline ---- */
+.reign {
+  display: grid; grid-template-columns: 4.2rem 1fr auto; gap: .6rem;
+  align-items: center; padding: .55rem .2rem; border-bottom: 1px solid var(--line);
+}
+.reign:last-child { border-bottom: 0; }
+.reign .yr { font-family: var(--font-display); font-weight: 900; color: var(--gold); font-size: 1.1rem; }
+.reign .who { font-weight: 700; color: var(--ink); }
+.reign .who .flag { margin-left: .3rem; }
+.reign .buyin { color: var(--muted); font-size: .8rem; font-variant-numeric: tabular-nums; }
+.reign.dynasty .who { color: var(--gold-bright); }
+.aster { color: var(--red-bright); font-weight: 900; text-decoration: none; }
+.aster:hover { text-decoration: underline; }
+
+/* ---- amendment ledger ---- */
+.amend { border-left: 2px solid var(--gold); padding: .1rem 0 .1rem 1rem; margin: 0 0 1rem; }
+.amend .step { display: flex; gap: .6rem; align-items: baseline; padding: .3rem 0; }
+.amend .step .yr { font-family: var(--font-display); font-weight: 800; color: var(--gold); min-width: 3rem; }
+.buyin-track { display: flex; flex-wrap: wrap; gap: .3rem; align-items: center; margin: .6rem 0; }
+.buyin-track .amt {
+  font-family: var(--font-display); font-weight: 800; font-variant-numeric: tabular-nums;
+  padding: .3rem .55rem; border: 1px solid var(--line); border-radius: 8px; background: var(--panel-soft);
+}
+.buyin-track .amt.now { border-color: var(--gold); color: var(--gold-bright); }
+.buyin-track .arrow { color: var(--muted); }
+
+/* ---- season index cards ---- */
+.season-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: .8rem; }
+.season-card {
+  display: block; text-decoration: none; color: inherit;
+  border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel);
+  padding: 1rem; transition: border-color .12s, transform .12s;
+}
+.season-card:hover { border-color: var(--gold); transform: translateY(-2px); }
+.season-card .yr { font-family: var(--font-display); font-weight: 900; font-size: 1.6rem; color: var(--ink); line-height: 1; }
+.season-card .champ { color: var(--gold-bright); font-weight: 700; margin-top: .35rem; }
+.season-card .champ small { color: var(--muted); font-weight: 500; }
+.season-card .meta { color: var(--muted); font-size: .8rem; margin-top: .5rem; }
+.season-card .tag {
+  display: inline-block; font-family: var(--font-display); font-size: .6rem; font-weight: 800;
+  letter-spacing: .08em; text-transform: uppercase; padding: .12rem .4rem; border-radius: 6px;
+  margin-top: .5rem; background: rgba(245,196,69,.12); color: var(--gold-bright); border: 1px solid rgba(245,196,69,.35);
+}
+.season-card .tag.pending { background: rgba(255,255,255,.05); color: var(--muted); border-color: var(--line); }
+
+/* ---- the chapter prose ---- */
+.chapter { line-height: 1.72; font-size: 1.04rem; color: #dfe3ee; }
+.chapter > p { margin: 0 0 1.05rem; }
+.chapter p:first-of-type::first-letter {
+  font-family: var(--font-display); font-weight: 900; float: left;
+  font-size: 3.1rem; line-height: .8; padding: .25rem .5rem .1rem 0; color: var(--gold);
+}
+.chapter h3 {
+  font-family: var(--font-display); font-weight: 900; text-transform: uppercase;
+  letter-spacing: .04em; font-size: 1.05rem; color: var(--ink);
+  margin: 1.8rem 0 .6rem; padding-top: 1rem; border-top: 1px solid var(--line);
+}
+.chapter h3 .n { color: var(--gold); margin-right: .4rem; }
+.chapter em { color: #eef1f8; }
+.chapter b, .chapter strong { color: #fff; }
+.chapter .stat { color: var(--gold-bright); font-variant-numeric: tabular-nums; font-weight: 700; }
+
+/* the champion's paragraph of respect */
+.respect {
+  border: 1px solid rgba(245,196,69,.4); border-radius: var(--radius);
+  background: radial-gradient(120% 140% at 0% 0%, rgba(245,196,69,.10), transparent 55%), var(--panel);
+  padding: 1.1rem 1.2rem; margin: 1.4rem 0;
+}
+.respect .crown { font-family: var(--font-display); font-weight: 900; letter-spacing: .06em;
+  text-transform: uppercase; font-size: .72rem; color: var(--gold); margin: 0 0 .4rem; }
+
+/* pull quote — the ceremonial register (Richard tragedy, etc.) */
+.decree {
+  border-left: 3px solid var(--red); padding: .6rem 0 .6rem 1.1rem; margin: 1.3rem 0;
+  font-size: 1.14rem; line-height: 1.5; color: #fff; font-style: italic;
+}
+
+/* ---- the asterisk footnote ---- */
+.asterisk-note {
+  border: 1px solid rgba(255,70,85,.35); border-radius: var(--radius);
+  background: var(--panel); padding: 1rem 1.1rem; margin: 1.4rem 0; font-size: .92rem; color: #cdd3e2;
+}
+.asterisk-note h4 { font-family: var(--font-display); font-weight: 800; color: var(--red-bright); margin: 0 0 .4rem; font-size: .95rem; }
+
+/* ---- data tables ---- */
+.ledger { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.ledger th, .ledger td { padding: .5rem .6rem; text-align: right; border-bottom: 1px solid var(--line); white-space: nowrap; }
+.ledger th { color: var(--muted); font-family: var(--font-display); font-weight: 700; font-size: .64rem; letter-spacing: .1em; text-transform: uppercase; }
+.ledger td.name, .ledger th.name { text-align: left; }
+.ledger .rk { color: var(--muted); }
+.ledger tr.champ td { background: rgba(245,196,69,.07); }
+.ledger tr.champ td.name { color: var(--gold-bright); font-weight: 700; }
+.ledger tr.toilet td.name { color: var(--red-bright); }
+.ledger td .team { color: var(--muted); font-size: .78rem; display: block; }
+.ledger .pos { color: var(--green); }
+.ledger .neg { color: var(--red-bright); }
+.ledger .money { color: var(--gold-bright); font-weight: 700; }
+
+/* generic stat cards */
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: .7rem; }
+.stat-card { border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel); padding: .9rem 1rem; }
+.stat-card .label { font-family: var(--font-display); font-weight: 800; font-size: .62rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin: 0 0 .35rem; }
+.stat-card .big { font-family: var(--font-display); font-weight: 900; font-size: 1.35rem; color: var(--ink); line-height: 1.1; }
+.stat-card .who { color: var(--gold-bright); font-weight: 700; }
+.stat-card .sub { color: var(--muted); font-size: .82rem; margin-top: .25rem; }
+.stat-card.bad .big { color: var(--red-bright); }
+
+/* the weekly-high ledger, compact */
+.wh-row td.tight { color: var(--red-bright); font-weight: 700; }  /* sub-2 race */
+
+/* bracket */
+.bracket { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.bracket .round h4 { font-family: var(--font-display); font-weight: 800; text-transform: uppercase; letter-spacing: .08em; font-size: .66rem; color: var(--muted); margin: 0 0 .5rem; }
+.match { border: 1px solid var(--line); border-radius: 10px; margin: 0 0 .5rem; overflow: hidden; }
+.match .side { display: flex; justify-content: space-between; padding: .4rem .6rem; font-variant-numeric: tabular-nums; }
+.match .side.win { background: rgba(47,213,118,.08); color: #fff; font-weight: 700; }
+.match .side.win .s { color: var(--green); }
+.match .side.lose { color: var(--muted); }
+.place-badge { display: inline-block; font-family: var(--font-display); font-weight: 900; font-size: .6rem; padding: .1rem .35rem; border-radius: 5px; background: rgba(245,196,69,.15); color: var(--gold-bright); margin-left: .3rem; }
+
+/* bad beats cards */
+.beat { border: 1px solid var(--line); border-left: 3px solid var(--red); border-radius: 10px; background: var(--panel); padding: .8rem 1rem; margin: 0 0 .6rem; }
+.beat .hdr { display: flex; justify-content: space-between; gap: 1rem; align-items: baseline; }
+.beat .who { font-weight: 800; color: var(--ink); }
+.beat .when { color: var(--muted); font-size: .78rem; }
+.beat .pts { font-family: var(--font-display); font-weight: 900; color: var(--red-bright); font-variant-numeric: tabular-nums; }
+.beat .note { color: #c3c9d8; font-size: .9rem; margin-top: .3rem; }
+.beat.monument { border-left-width: 5px; background: radial-gradient(120% 140% at 0 0, rgba(255,70,85,.10), transparent 55%), var(--panel); }
+
+/* franchise header */
+.fran-head { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; justify-content: space-between; margin: 0 0 1.2rem; }
+.fran-head .name { font-family: var(--font-display); font-weight: 900; font-size: 2rem; color: var(--ink); }
+.fran-head .name .flag { margin-left: .4rem; }
+.fran-head .rings { color: var(--gold-bright); font-weight: 700; }
+.h2h-grid td.win { color: var(--green); }
+.h2h-grid td.lose { color: var(--red-bright); }
+
+/* small caption / provenance */
+.provenance { text-align: center; color: var(--muted); font-size: .72rem; margin: 2rem 0 0; opacity: .7; }
+
+.back-link { display: inline-block; color: var(--muted); text-decoration: none; font-size: .82rem; margin: 0 0 1rem; }
+.back-link:hover { color: var(--gold-bright); }
+
+@media (max-width: 620px) {
+  .bracket { grid-template-columns: 1fr; }
+  .chapter { font-size: 1rem; }
+  .reign { grid-template-columns: 3.4rem 1fr auto; }
+}

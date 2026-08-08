@@ -1,0 +1,195 @@
+<%- include('../partials/header', { title: season.year + ' Season' }) %>
+<%
+  const S = season;
+  const money = S.money ? S.money.rows : {};
+  const lastRank = S.standings.length;
+  const champRid = S.bracket && S.bracket.placements ? S.bracket.placements[1] : null;
+  const german = A.german;
+  const flag = name => [...german].some(g => String(name).includes(g)) ? '🇩🇪' : '🇺🇸';
+  const seasonBeats = A.badBeats.filter(b => b.year === S.year);
+  const fmt = n => (n == null ? '—' : Number(n).toFixed(2));
+%>
+
+<div class="chron">
+  <a class="back-link" href="/history">← The Chronicle</a>
+  <p class="chron-eyebrow"><%= S.name %></p>
+  <h1 class="chron-title">The <span class="gold"><%= S.year %></span> Season</h1>
+  <% if (cast.champion) { %>
+    <p class="chron-sub">Champion: <b style="color:var(--gold-bright)"><%= cast.champion.name %></b>
+      · Wooden spoon: <b style="color:var(--red-bright)"><%= cast.last.name %></b></p>
+  <% } %>
+
+  <!-- THE CHAPTER (prose) --------------------------------------------------->
+  <div class="card">
+    <div class="body">
+      <% if (chapterInclude) { %>
+        <div class="chapter">
+          <%- include('../' + chapterInclude) %>
+        </div>
+      <% } else { %>
+        <p style="color:var(--muted)">The written chapter for <%= S.year %> is pending
+        voice review. Everything below is the season's record, derived and verified.</p>
+      <% } %>
+    </div>
+  </div>
+
+  <!-- FINAL STANDINGS + MONEY ----------------------------------------------->
+  <div class="card">
+    <h2>🏁 Final Standings <span class="sub">the money nobody knew until now</span></h2>
+    <div class="body chron-scroll">
+      <table class="ledger">
+        <thead><tr>
+          <th class="name">#</th><th class="name">Owner</th><th>W-L</th>
+          <th>PF</th><th>PA</th><th>Eff%</th><th>Bench $</th><th>Total $</th>
+        </tr></thead>
+        <tbody>
+          <% for (const r of S.standings) { %>
+            <tr class="<%= r.roster_id === champRid ? 'champ' : '' %> <%= r.rank === lastRank ? 'toilet' : '' %>">
+              <td class="name rk"><%= r.rank %></td>
+              <td class="name"><%= r.name %> <span class="flag"><%= flag(r.name) %></span>
+                <span class="team"><%= r.team_name %></span></td>
+              <td><%= r.wins %>-<%= r.losses %><%= r.ties ? '-' + r.ties : '' %></td>
+              <td><%= fmt(r.pf) %></td>
+              <td><%= fmt(r.pa) %></td>
+              <td><%= r.eff != null ? r.eff + '%' : '—' %></td>
+              <td class="neg"><%= r.benchLeft != null ? fmt(r.benchLeft) : '—' %></td>
+              <td class="money"><%= money[r.roster_id] ? '$' + money[r.roster_id].total : '—' %></td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+      <% if (S.money) { %>
+        <p style="color:var(--muted); font-size:.8rem; margin:.7rem 0 0;">
+          Pot: <b>$<%= S.money.pot %></b> ($<%= S.money.buy_in %> × 10). Weekly-high
+          $100 × 15 weeks (regular season only) + regular-season champ/runner-up +
+          the playoff purse. <b>Bench $</b> is points left on the bench across the
+          regular season — the lineups that could have been.</p>
+      <% } %>
+    </div>
+  </div>
+
+  <!-- THE WEEKLY-HIGH LEDGER ------------------------------------------------>
+  <div class="card">
+    <h2>💵 The Weekly-High Ledger <span class="sub">$100 a week, weeks 1–15</span></h2>
+    <div class="body chron-scroll">
+      <table class="ledger">
+        <thead><tr><th>Wk</th><th class="name">Winner</th><th>Score</th><th class="name">Runner-up</th><th>By</th></tr></thead>
+        <tbody>
+          <% for (const w of S.weeklyHigh) { %>
+            <tr class="wh-row">
+              <td class="rk"><%= w.week %></td>
+              <td class="name"><%= w.name %></td>
+              <td><%= fmt(w.score) %></td>
+              <td class="name" style="color:var(--muted)"><%= w.second_name || '—' %></td>
+              <td class="<%= (w.margin != null && w.margin < 2) ? 'tight' : '' %>"><%= w.margin != null ? fmt(w.margin) : '—' %></td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+      <p style="color:var(--muted); font-size:.8rem; margin:.7rem 0 0;">
+        A margin in <span style="color:var(--red-bright)">red</span> is a race decided
+        by under two points — a hundred dollars lost by a rounding error.</p>
+    </div>
+  </div>
+
+  <!-- PLAYOFF BRACKET ------------------------------------------------------->
+  <% if (S.bracket) { %>
+  <div class="card">
+    <h2>🏆 The Playoffs</h2>
+    <div class="body">
+      <div class="bracket">
+        <div class="round">
+          <h4>Championship bracket</h4>
+          <% for (const m of S.bracket.winners) { %>
+            <div class="match">
+              <div class="side <%= m.winner === m.t1 ? 'win' : 'lose' %>"><span><%= m.t1_name %></span></div>
+              <div class="side <%= m.winner === m.t2 ? 'win' : 'lose' %>"><span><%= m.t2_name %></span>
+                <% if (m.place === 1) { %><span class="place-badge">TITLE</span><% } else if (m.place === 3) { %><span class="place-badge">3RD</span><% } %></div>
+            </div>
+          <% } %>
+        </div>
+        <div class="round">
+          <h4>Consolation</h4>
+          <% for (const m of S.bracket.losers) { %>
+            <div class="match">
+              <div class="side <%= m.winner === m.t1 ? 'win' : 'lose' %>"><span><%= m.t1_name %></span></div>
+              <div class="side <%= m.winner === m.t2 ? 'win' : 'lose' %>"><span><%= m.t2_name %></span></div>
+            </div>
+          <% } %>
+        </div>
+      </div>
+      <% if (S.bracket.placements) { %>
+        <p style="margin:.9rem 0 0; color:#cdd3e2;">
+          <b style="color:var(--gold-bright)"><%= (S.teams[S.bracket.placements[1]]||{}).name %></b> took the ring
+          <% if (S.bracket.placements[2]) { %>over <b><%= (S.teams[S.bracket.placements[2]]||{}).name %></b><% } %>.</p>
+      <% } %>
+    </div>
+  </div>
+  <% } %>
+
+  <!-- THE DRAFT ------------------------------------------------------------->
+  <% if (S.draft && S.draft.firstTwo.length) { %>
+  <div class="card">
+    <h2>🎯 The Draft <span class="sub">the first two rounds, pick by pick</span></h2>
+    <div class="body chron-scroll">
+      <table class="ledger">
+        <thead><tr><th>Pick</th><th class="name">Owner</th><th class="name">Player</th><th>Pos</th><th>Keeper</th></tr></thead>
+        <tbody>
+          <% for (const p of S.draft.firstTwo) { %>
+            <tr>
+              <td class="rk"><%= p.round %>.<%= String(((p.pick_no - 1) % 10) + 1).padStart(2, '0') %></td>
+              <td class="name"><%= p.owner %></td>
+              <td class="name"><%= p.player %></td>
+              <td><%= p.pos %></td>
+              <td><%= p.is_keeper ? '🔒' : '' %></td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+      <p style="color:var(--muted); font-size:.8rem; margin:.7rem 0 0;">
+        Outcome-vs-ADP verdicts (best pick, worst reach, latest steal) await archived
+        historical ADP for <%= S.year %> — it is not in the repository, and the
+        chronicle does not invent a market it cannot cite.</p>
+    </div>
+  </div>
+  <% } %>
+
+  <!-- SUPERLATIVES ---------------------------------------------------------->
+  <% const su = S.superlatives; %>
+  <div class="card">
+    <h2>⭐ Season Superlatives</h2>
+    <div class="body">
+      <div class="stat-grid">
+        <div class="stat-card"><p class="label">Highest week</p><div class="big"><%= fmt(su.highest.points) %></div><div class="sub"><span class="who"><%= su.highest.owner %></span> · Week <%= su.highest.week %></div></div>
+        <div class="stat-card bad"><p class="label">Lowest week</p><div class="big"><%= fmt(su.lowest.points) %></div><div class="sub"><span class="who"><%= su.lowest.owner %></span> · Week <%= su.lowest.week %></div></div>
+        <% if (su.blowout) { %><div class="stat-card"><p class="label">Biggest blowout</p><div class="big"><%= fmt(su.blowout.margin) %></div><div class="sub"><span class="who"><%= su.blowout.winner_name %></span> over <%= su.blowout.loser_name %> · Wk <%= su.blowout.week %></div></div><% } %>
+        <% if (su.closest) { %><div class="stat-card"><p class="label">Closest game</p><div class="big"><%= fmt(su.closest.margin) %></div><div class="sub"><span class="who"><%= su.closest.winner_name %></span> over <%= su.closest.loser_name %> · Wk <%= su.closest.week %></div></div><% } %>
+        <% if (su.bestPlayer) { %><div class="stat-card"><p class="label">Best single game</p><div class="big"><%= fmt(su.bestPlayer.points) %></div><div class="sub"><span class="who"><%= su.bestPlayer.name %></span> (<%= su.bestPlayer.pos %>) for <%= su.bestPlayer.owner %> · Wk <%= su.bestPlayer.week %></div></div><% } %>
+        <% if (su.benchCat) { %><div class="stat-card bad"><p class="label">Bench catastrophe</p><div class="big"><%= fmt(su.benchCat.points) %></div><div class="sub"><span class="who"><%= su.benchCat.name %></span> benched by <%= su.benchCat.owner %> in a loss · Wk <%= su.benchCat.week %></div></div><% } %>
+        <% if (su.streaks && su.streaks.win) { %><div class="stat-card"><p class="label">Longest win streak</p><div class="big"><%= su.streaks.win.len %></div><div class="sub"><span class="who"><%= su.streaks.win.name %></span></div></div><% } %>
+        <% if (su.streaks && su.streaks.loss) { %><div class="stat-card bad"><p class="label">Longest losing streak</p><div class="big"><%= su.streaks.loss.len %></div><div class="sub"><span class="who"><%= su.streaks.loss.name %></span></div></div><% } %>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEASON BAD BEATS ------------------------------------------------------>
+  <% if (seasonBeats.length) { %>
+  <div class="card">
+    <h2>💔 Bad Beats of <%= S.year %></h2>
+    <div class="body">
+      <% for (const b of seasonBeats.slice(0, 8)) { %>
+        <div class="beat">
+          <div class="hdr"><span class="who"><%= b.owner %></span><span class="pts"><%= fmt(b.points) %></span></div>
+          <div class="when">Week <%= b.week %></div>
+          <div class="note"><%= b.note %></div>
+        </div>
+      <% } %>
+      <p style="margin:.6rem 0 0;"><a class="back-link" href="/history/badbeats">See the all-time Bad Beats Hall of Fame →</a></p>
+    </div>
+  </div>
+  <% } %>
+
+  <p class="provenance">Derived from the Sleeper harvest and the master sheet. No number here is hand-entered.</p>
+</div>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,15 @@
+<%
+  // Chronicle sub-navigation. `active` names the current page.
+  const _act = typeof active !== 'undefined' ? active : '';
+  const _links = [
+    ['chronicle', '/history',            '📜 The Chronicle'],
+    ['records',   '/history/records',    '📖 Record Book'],
+    ['money',     '/history/money',      '💰 Money Board'],
+    ['badbeats',  '/history/badbeats',   '💔 Bad Beats'],
+  ];
+%>
+<nav class="chron-nav" aria-label="The Archive">
+  <% for (const [key, href, label] of _links) { %>
+    <a href="<%= href %>" class="<%= _act === key ? 'active' : '' %>"><%= label %></a>
+  <% } %>
+</nav>
