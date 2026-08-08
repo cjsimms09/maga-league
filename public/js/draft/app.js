@@ -1612,12 +1612,21 @@
       var atPos = state.board.filter(function (p) { return p.position === pos; })
         .sort(function (a, b) { return (b.vorp || 0) - (a.vorp || 0); });
       if (!atPos.length) return;
-      var best = atPos[0];
-      var lastSafe = null, lastSafeIdx = 0;
+      // Track a STARTABLE-quality option, NOT the #1 — the elite (Allen, Bowers)
+      // is always gone by a round-4 start, so tracking him reads "gone by next
+      // pick" and says nothing. For K/DEF any option is a fine streamer; for
+      // QB/TE the acceptable pool is the startable tier (top ~12 by VORP).
+      var pool = (pos === 'K' || pos === 'DEF') ? atPos : atPos.slice(0, 12);
+      var lastSafe = null, lastSafeIdx = 0, gettable = null;
       for (var i = 1; i < upcoming.length; i++) {
-        if (E.survival(best, upcoming[i], state.runMults) >= 0.85) { lastSafe = upcoming[i]; lastSafeIdx = i; }
+        // The best pool option that still survives to this pick.
+        var surv = null;
+        for (var j = 0; j < pool.length; j++) {
+          if (E.survival(pool[j], upcoming[i], state.runMults) >= 0.85) { surv = pool[j]; break; }
+        }
+        if (surv) { lastSafe = upcoming[i]; lastSafeIdx = i; gettable = surv; }
       }
-      out.push({ position: pos, best_available: best.name,
+      out.push({ position: pos, best_available: (gettable || atPos[0]).name,
         act_by_pick: lastSafe, next_pick: upcoming[1],
         // How many of MY picks I'd spend early by taking this onesie now instead
         // of at its last-responsible moment — the cost that IS the decision in a
