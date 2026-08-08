@@ -149,6 +149,55 @@ function memStore() {
         && e.payload.off_top_rec === true && e.payload.over_name === 'TopRec');
   }
 
+  /* --- THE CLOSED VOCABULARY, CHECKED AGAINST ITS ACTUAL EMITTERS ----------
+   *
+   * KINDS is enforced at the server boundary; the code that emits into it is a
+   * different file. Adding a capture call without adding its kind therefore
+   * produces a 400 that nobody sees unless they happen to be watching the
+   * console at the instant it fires — and the data for that record is simply
+   * lost, silently, for as long as it takes somebody to notice.
+   *
+   * It went unnoticed twice. 'doctrine' was caught when the banner was wired;
+   * then the mock-#3 rehearsal surfaced 'shadow_pick', and sweeping every
+   * capture call in the client found FOUR unregistered kinds, not one:
+   * shadow_pick, shadow_freeze, pick_reconciled and correction. Phase H's
+   * decision-time record and the missed-mark recovery audit trail had both
+   * been writing into a 400 the whole time.
+   *
+   * So the rule stops living in prose. This reads the emitters out of the
+   * client source and fails if the two ever disagree again.
+   */
+  {
+    const fs = require('fs');
+    const path = require('path');
+    const dir = path.join(__dirname, '..', '..', 'public', 'js', 'draft');
+    const emitted = new Set();
+    for (const f of fs.readdirSync(dir).filter(x => x.endsWith('.js'))) {
+      const src = fs.readFileSync(path.join(dir, f), 'utf8');
+      // PredLedger.capture('<kind>', ...) — the generic passthrough. The named
+      // helpers (PredLedger.pick, .lrm, ...) hard-code their kind inside
+      // predledger.js itself and cannot drift from it.
+      const re = /PredLedger\.capture\(\s*'([a-z_]+)'/g;
+      let m;
+      while ((m = re.exec(src))) emitted.add(m[1]);
+    }
+    check('the client actually emits kinds through capture() (test is not vacuous)',
+      emitted.size >= 4, 'found ' + emitted.size);
+
+    const unregistered = [...emitted].filter(k => P.KINDS.indexOf(k) < 0);
+    check('EVERY kind the client emits is registered in KINDS',
+      unregistered.length === 0,
+      'unregistered: ' + JSON.stringify(unregistered)
+        + ' — these 400 at the boundary and the record is lost');
+
+    // The four found by the rehearsal, named so a future edit that drops one
+    // fails here rather than in a mock.
+    for (const k of ['shadow_pick', 'shadow_freeze', 'pick_reconciled', 'correction']) {
+      check("'" + k + "' is registered (found unregistered by the mock-#3 rehearsal)",
+        P.KINDS.indexOf(k) >= 0);
+    }
+  }
+
   console.log('\n' + pass + '/' + (pass + fail) + ' predledger checks passed');
   process.exit(fail ? 1 : 0);
 })();

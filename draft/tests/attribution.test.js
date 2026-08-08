@@ -102,5 +102,51 @@ const ids = list => list.map(p => String(p.player_id)).sort().join(',');
   check('a wrong-seat guess unwinds with no residue anywhere',
     !s.drafted.has('12517') && Object.values(s.rosters).every(r => r.length === 0));
 }
+// 11. THE SEATLESS MARK — "✕ this man is gone", which says nothing about who
+//     took him. The commonest manual action in the war room, and until the
+//     mock-#3 rehearsal it was the one case no test here exercised: every
+//     assertion above passes a slot. markLocal returned early on the null and
+//     DISCARDED the mark, so the player never entered state.drafted.
+{
+  const s = A.emptyState();
+  A.markLocal(s, LOVELAND, null, MY);
+  check('a seatless mark still records the player as GONE',
+    s.drafted.has('12517'));
+  check('...and attributes him to nobody, because nobody was named',
+    Object.values(s.rosters).every(r => !ids(r).includes('12517'))
+    && !ids(s.myRoster).includes('12517'));
+
+  // THE CONSEQUENCE THAT MADE THIS SEVERITY-1: every board rebuild in app.js
+  // derives from the drafted set, so a mark missing from it comes back onto
+  // the board as available the next time the board is rebuilt.
+  const pool = [LOVELAND, OTHER];
+  const rebuilt = pool.filter(p => !s.drafted.has(String(p.player_id)));
+  check('a rebuilt board does NOT resurrect a seatlessly-marked player',
+    !ids(rebuilt).includes('12517'), JSON.stringify(ids(rebuilt)));
+}
+
+// 12. THE TWO PATHS MUST AGREE. applyRemote always handled the unknown seat
+//     correctly (record, leave unplaced); markLocal did not. One canonical
+//     fact, one derivation — the shared-state audit's whole premise.
+{
+  const local = A.emptyState(), remote = A.emptyState();
+  A.markLocal(local, LOVELAND, null, MY);
+  A.applyRemote(remote, LOVELAND, null, MY);
+  check('a seatless LOCAL mark and a seatless REMOTE pick agree on the fact',
+    local.drafted.has('12517') === remote.drafted.has('12517'));
+  check('...and both leave him unattributed rather than guessing a seat',
+    Object.values(local.rosters).every(r => r.length === 0)
+    && Object.values(remote.rosters).every(r => r.length === 0));
+}
+
+// 13. Undo still inverts it exactly, with no seat to unwind.
+{
+  const s = A.emptyState();
+  A.markLocal(s, LOVELAND, null, MY);
+  A.unmarkLocal(s, LOVELAND);
+  check('undoing a seatless mark puts him back (drafted set is clean)',
+    !s.drafted.has('12517'));
+}
+
 console.log('\n' + pass + '/' + (pass + fail) + ' attribution checks passed');
 process.exit(fail ? 1 : 0);

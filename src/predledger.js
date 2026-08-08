@@ -27,7 +27,38 @@ const KINDS = ['recommendation', 'pick', 'survival', 'override', 'lrm', 'run',
                // room is Sleeper's default ordering executing — especially the
                // bot/autopick ones — so a rehearsal doubles as a sample of the
                // platform board we have no historical archive of.
-               'mock_platform_sample'];
+               'mock_platform_sample',
+               // Phase H. Every strategy drafts silently at my slots, and each
+               // of those counterfactual picks is a prediction logged at
+               // DECISION TIME so the 2026 season can grade it in dollars.
+               // Emitted by app.js updateShadows() and never registered here,
+               // so every shadow capture 400'd and the decision-time record
+               // behind shadow standings was dropped on the floor. Found by the
+               // mock-#3 rehearsal, and only after two louder errors sitting in
+               // front of it were classified away.
+               'shadow_pick',
+               // ...and it was never one omission. A sweep of every capture
+               // call in the client found FOUR kinds emitted and none
+               // registered, so four separate decision-time records were
+               // 400'ing on every write:
+               'shadow_freeze',    // the shadow slate frozen at draft end
+               'pick_reconciled',  // missed-mark recovery: a pick I forgot to
+                                   // mark, recovered from Sleeper rather than
+                                   // invented — the audit trail for the fix
+               'correction'];      // a recorded pick corrected after the fact
+
+/* EVERY KIND THE CLIENT EMITS MUST BE REGISTERED ABOVE.
+ *
+ * This is a closed vocabulary enforced at the server boundary, while the code
+ * that emits into it lives in a different file — so adding a capture call
+ * without adding its kind yields a 400 that is invisible unless somebody
+ * happens to be watching the console at the moment it fires. That has now
+ * happened twice ('doctrine', then 'shadow_pick'), which makes it a class
+ * rather than an accident.
+ *
+ * ledger.test.js reads the emitters straight out of the client source and
+ * asserts the two agree, so the next omission fails a test instead of quietly
+ * discarding data for weeks. */
 
 function seqKey(season, seq) {
   // Zero-padded so lexical key order equals numeric order for cheap listing.

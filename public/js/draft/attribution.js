@@ -35,10 +35,36 @@
     if (mySlot != null && Number(slot) === Number(mySlot)) state.myRoster.push(player);
   }
 
-  /** A pick the user typed or tapped. A guess, and revisable. */
+  /**
+   * A pick the user typed or tapped. A guess, and revisable.
+   *
+   * A SEATLESS MARK IS STILL A MARK. Tapping "✕" on a board row says one thing
+   * — THIS MAN IS GONE — and says nothing about who took him, so `slot` is null
+   * on the commonest manual action there is. This used to return early on that
+   * null and discard the mark entirely: the player never entered `state.drafted`
+   * and was removed only from the live `state.board` array by the caller.
+   *
+   * That is a time bomb rather than a cosmetic gap, because every board rebuild
+   * derives from the drafted set —
+   *     state.board = state.data.players.filter(p => !state.drafted.has(id))
+   * — at app.js:392, :432, :2620 and :3744. So a data refresh, a news override
+   * or a keeper change mid-draft RESURRECTED every opponent pick that had been
+   * marked by hand, silently, back onto the board as available. The queue's
+   * "already drafted" strike-through and the compare tray's drafted badge read
+   * the same set and were blind to them too.
+   *
+   * `applyRemote` had this right all along (record first, return unplaced if the
+   * seat is unknown); the two paths simply disagreed about the same question.
+   * They now agree, which is the whole point of the shared-state audit: one
+   * canonical fact, one derivation.
+   *
+   * Caught by that audit's INVARIANT 2 firing in the live war room —
+   * "3 off the board != 1 picks + 3 keepers" — during the mock-#3 rehearsal.
+   */
   function markLocal(state, player, slot, mySlot) {
-    if (!player || !slot) return state;
+    if (!player) return state;
     state.drafted.add(String(player.player_id));
+    if (!slot) return state;              // seatless mark: gone, unattributed
     place(state, player, slot, mySlot);
     return state;
   }
