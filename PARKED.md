@@ -165,3 +165,38 @@ lineup decisions alone, against a draft edge that is currently unmeasured
 ledger's decision-time rail, both of which exist. (4) is the sanity sweep
 retargeted — the harness pattern is proven. (6) collides with the 2026-09-01
 in-season instrumentation hard date; sequence them together.*
+
+## ⑮ THE ORGANISM TEST — filed 2026-08-08, build WITH the in-season tools
+
+An end-to-end assertion that **a decision made in one half is visible and
+gradeable in the other.** Not a diagram, not a claim in a README — a test. **If
+any link is broken, the build fails.** Same standard as the doctrine wiring:
+one organism has to be *provable*, not assumed.
+
+### The three links
+
+| # | link | direction | status |
+|---|---|---|---|
+| **A** | a draft pick's **shadow roster** scored by **in-season results** | draft → season | ⛔ needs the season / in-season grading |
+| **B** | an **in-season efficiency measurement** changing a **draft-side opponent projection** | season → draft | ⛔ needs in-season measurement |
+| **C** | a **January verdict** updating `EVIDENCE_STATE`, which changes a **draft surface's confidence sentence** | season → draft | ✅ **PROVABLE TODAY — seeded now** |
+
+### Why C is already real
+
+`EVIDENCE_STATE` → `tierVoice()` → `tierLine()` → the rendered badge was built
+2026-08-08 with exactly this property: `recordEvidence(34, ...)` rewrites every
+surface showing a tier, and the badge reads it **live** rather than snapshotting
+the wording. That is precisely link C's mechanism — a verdict from the season
+half changing what the draft half says about itself.
+
+So C is asserted now, in `draft/tests/organism.test.js`, as the **seed and the
+pattern**: the organism test is not a future aspiration with three empty rows,
+it is one proven link with two pending. A and B join it as their halves land.
+
+### The standard each link must meet
+
+Not "the data flows" — **the OUTPUT CHANGES.** A link that passes data which
+nothing consumes is the doctrine bug again: a truthful-looking wire attached to
+a computation it does not touch. Every link asserts a *visible behavioural
+difference*, the same way the doctrine guard scores the same board twice and
+compares rankings rather than grepping for a word.
