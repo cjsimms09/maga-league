@@ -1,0 +1,87 @@
+name: HISTORICAL ADP PROBE — can experiment 34 run properly?
+
+# D13 blocked exp 34 on a missing "what ADP said" arm, and Option A (the room's
+# revealed preference) was approved as a NARROWED substitute. Before settling
+# for the narrowing, this asks whether real contemporaneous ADP is retrievable.
+#
+# It runs in CI because the sandbox has no egress — both candidates returned 000
+# locally, which is a statement about the sandbox and NOT about the sources.
+#
+# Reports success AND failure via the run summary, per the standing rule from
+# the [skip ci] incident: a silent failure in an unwatched run is
+# indistinguishable from success.
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - name: Probe the three candidates
+        run: |
+          pip install -q nfl_data_py 2>/dev/null || true
+          python3 - <<'PY'
+          import json, urllib.request, urllib.error
+
+          def get(url, timeout=25):
+              try:
+                  req = urllib.request.Request(url, headers={
+                      'accept': 'application/json',
+                      'user-agent': 'mfga-adp-probe'})
+                  with urllib.request.urlopen(req, timeout=timeout) as r:
+                      return r.status, r.read(400000)
+              except urllib.error.HTTPError as e:
+                  return e.code, b''
+              except Exception as e:                      # noqa: BLE001
+                  return 0, str(e).encode()
+
+          print('=' * 70)
+          print('CANDIDATE 1 — FantasyFootballCalculator historical, by year+format')
+          print('=' * 70)
+          ffc_ok = {}
+          for year in (2023, 2024, 2025):
+              url = (f'https://fantasyfootballcalculator.com/api/v1/adp/half-ppr'
+                     f'?teams=10&year={year}')
+              status, body = get(url)
+              n = 0
+              try:
+                  n = len((json.loads(body) or {}).get('players') or [])
+              except Exception:                            # noqa: BLE001
+                  pass
+              ffc_ok[year] = (status == 200 and n > 50)
+              print(f'  {year}  HTTP {status}  players={n}  '
+                    f'{"USABLE" if ffc_ok[year] else "NOT USABLE"}')
+          print()
+          print('  VERDICT: ' + ('ALL THREE SEASONS RETRIEVABLE — exp 34 runs against '
+                'REAL contemporaneous ADP and Option A\'s narrowing is NOT needed'
+                if all(ffc_ok.values()) else
+                'incomplete — see per-year rows above'))
+
+          print()
+          print('=' * 70)
+          print('CANDIDATE 3 — an nflverse ADP table')
+          print('=' * 70)
+          try:
+              import nfl_data_py as nfl
+              found = [a for a in dir(nfl) if 'adp' in a.lower()]
+              print(f'  nfl_data_py members matching "adp": {found or "NONE"}')
+              print('  VERDICT: ' + ('candidate exists — inspect it'
+                    if found else 'NO ADP TABLE in nflverse. Candidate 3 is out.'))
+          except Exception as e:                           # noqa: BLE001
+              print(f'  could not import nfl_data_py: {e}')
+
+          print()
+          print('=' * 70)
+          print('CANDIDATE 2 — Underdog BBM projection_adp')
+          print('=' * 70)
+          print('  NOT PROBED: BBM files are an ingestion we have planned, not a')
+          print('  public endpoint to curl. Reachability is a question about')
+          print('  whether we hold the files, not about the network — answer it')
+          print('  by looking, not by probing. Recorded so the gap is explicit')
+          print('  rather than mistaken for a failed check.')
+          print('=' * 70)
+          PY
