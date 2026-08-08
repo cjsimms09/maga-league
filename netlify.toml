@@ -29,7 +29,18 @@
   # EJS templates are read from disk at render time, so they must ship
   # alongside the bundled function code. STATUS.md + DECISIONS-NEEDED.md ship too
   # so the status dashboard can parse them live (they stay the source of truth).
-  included_files = ["views/**", "STATUS.md", "DECISIONS-NEEDED.md", "TASK-AUDIT.md"]
+  #
+  # The League History engine (src/routes/history-data.js) reads its committed
+  # harvest from disk at request time — the money/records/chronicle numbers are
+  # NOT in the Blob world, they are read straight from these JSON files. esbuild
+  # bundles the JS but NOT arbitrary data reads, so without these lines the files
+  # are absent in the function and every /history route 500s with ENOENT while
+  # the rest of the site (Blob-backed) stays up. It renders fine on the dev
+  # server because that has the full repo on disk — the gap is production-only.
+  # Proven by simulating a bundle of included_files alone: build() throws ENOENT
+  # on league_history.json. draft_data.json is the 2026 board (player id->name).
+  included_files = ["views/**", "STATUS.md", "DECISIONS-NEEDED.md", "TASK-AUDIT.md",
+    "draft/data/**", "draft/config/**", "public/draft_data.json"]
 
 # The web-app manifest needs its own content type — Netlify serves unknown
 # extensions as application/octet-stream, and Chrome silently ignores a
