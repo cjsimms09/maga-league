@@ -783,8 +783,19 @@
       // scoring exactly as it did before while the banner claimed the plan was
       // driving. Caught by the MVS plan line reading "no preference" at pick 1
       // on a board whose top pick was a WR under WR Feast.
-      doctrine: (state.doctrine && state.doctrineEnrollment
+      doctrine: (doctrineState() && state.doctrineEnrollment
                  && state.doctrineEnrollment.enrolled) ? state.doctrine.current : null,
+      // THE THREE THE ENGINE READ AND THE APP NEVER SENT.
+      //   totalPicks   drives draft progress -> urgency curves and the ceiling
+      //                term. Absent, progress was computed off undefined.
+      //   myPickIndex  which of MY picks this is. The doctrine tilt needs it,
+      //                and without it pickIndexOf fell back to a GUESS
+      //                (13 - myPicksLeft), so every roster-relative weight was
+      //                evaluated at an estimated position in the plan.
+      //   totalMyPicks the denominator that fallback was standing in for.
+      totalPicks: ((state.data.pick_order || {}).picks || []).length || null,
+      myPickIndex: myLivePickIndex(),
+      totalMyPicks: ((state.data.pick_order || {}).my_picks || []).length || null,
       league: state.data.league,
       weights: state.weights,
       runMultipliers: state.runMults,
@@ -3192,8 +3203,19 @@
       // scoring exactly as it did before while the banner claimed the plan was
       // driving. Caught by the MVS plan line reading "no preference" at pick 1
       // on a board whose top pick was a WR under WR Feast.
-      doctrine: (state.doctrine && state.doctrineEnrollment
+      doctrine: (doctrineState() && state.doctrineEnrollment
                  && state.doctrineEnrollment.enrolled) ? state.doctrine.current : null,
+      // THE THREE THE ENGINE READ AND THE APP NEVER SENT.
+      //   totalPicks   drives draft progress -> urgency curves and the ceiling
+      //                term. Absent, progress was computed off undefined.
+      //   myPickIndex  which of MY picks this is. The doctrine tilt needs it,
+      //                and without it pickIndexOf fell back to a GUESS
+      //                (13 - myPicksLeft), so every roster-relative weight was
+      //                evaluated at an estimated position in the plan.
+      //   totalMyPicks the denominator that fallback was standing in for.
+      totalPicks: ((state.data.pick_order || {}).picks || []).length || null,
+      myPickIndex: myLivePickIndex(),
+      totalMyPicks: ((state.data.pick_order || {}).my_picks || []).length || null,
       dollarsOf: function (p) { return E.playerDollars(p).total; },
     });
     // A run is the causal story a switch needs — "the QB run erased its edge"

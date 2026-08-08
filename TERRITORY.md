@@ -47,6 +47,27 @@ consolation prize.
 
 **The Lab stays with A.** Whoever owns `engine.js` owns the things that import it.
 
+## ⚠️ THREE SEMANTIC COUPLINGS A FUTURE SPLIT MUST NOT BREAK
+
+These are not import edges — grep will not find them — so a session that splits
+work differently will move a file and break a link nobody remembers.
+
+1. **`EVIDENCE_STATE` (deviation.js) is what experiments 33/34 write to.** That
+   is **organism link C**: a Lab verdict changing what a draft surface says about
+   its own confidence. `recordEvidence(34, ...)` rewrites every tier sentence.
+   Move or fork that constant and the season half loses its only wire into the
+   draft half. `draft/tests/organism.test.js` asserts the link.
+2. **`PREFERS` (doctrine.js) encodes what experiment 19b raced.** The signal and
+   the race must describe the same plan — 19b conditioned on the real keeper
+   base, so the signal is keeper-conditioned too. Re-tuning one without the
+   other silently tunes the tilt to a roster that does not exist.
+   `creed-signal-parity.test.js` polices creed-vs-signal but CANNOT police
+   signal-vs-race; that one is human discipline.
+3. **`LAB-REPORT.md` embeds the intervention rate**, which is computed by
+   `draft/tools/intervention_rate.js` from draft-path modules. A Lab report is
+   therefore downstream of `engine.js` and `deviation.js`. Changing either moves
+   a number printed in the Lab's headline.
+
 ## Conflict-avoidance protocol
 
 1. **Run the check before every commit:** `bash scripts/territory-check.sh A|B`.
@@ -60,7 +81,12 @@ consolation prize.
    commits freely and asks A to ship, or waits for A's next deploy — see
    `DEPLOY-POLICY.md`.
 4. **Never both in a mock.** Live rehearsal touches draft state; A owns it.
-5. **If B needs a draft-path change**, B does not make it. B writes the request
+5. **Any headless or long-running job reports its outcome via `PushNotification`
+   — SUCCESS AND FAILURE.** Standing rule from the `[skip ci]` incident, where
+   two commits silently skipped every workflow and the commit messages claimed
+   the suites were green. **A silent failure in an unwatched run is
+   indistinguishable from success**, and nobody is watching the console.
+6. **If B needs a draft-path change**, B does not make it. B writes the request
    into `PARKED.md` and A does it. One file, one owner, no exceptions — the
    whole point of the split is that nobody edits a module someone else is
    reasoning about.
