@@ -43,3 +43,21 @@ Complexity discipline: every knob must justify itself — a knob whose sweep sho
 Each runs the full Tier A/B/C gauntlet with season cross-validation; H1 is credited only if it beats **all three rivals AND the 95th-percentile luck baseline** on held-out data by a margin exceeding the noise band. If uniform-boom or defaults statistically tie H1, that is reported loudly (a simpler policy wins on robustness).
 
 **Required reported quantities:** the **per-phase optimal upside / risk / correlation values the sweep finds, WITH intervals** — i.e., the actual (ceiling, risk-penalty, correlation) triple the tournament lands on for each phase, so H1's predicted shape (modest-core / aggressive-floor-free-endgame) can be read directly off the numbers and confirmed or falsified. A phase whose interval straddles the default is reported as "no evidence of a shift there," not nudged.
+
+## 6. CONDITIONAL POLICY MINING (sweep refinement, locked 2026-08-08)
+Beyond crowning one best OVERALL policy, mine the tournament results for **CONDITIONAL winners** — settings that win in a specific, detectable STATE even if they don't win globally. Examples of the rule shape (illustrative, not pre-decided):
+- "when a **positional run fires before pick 45**, cliff-urgency = X beats default by $Y"
+- "from **turn slots** (1/10), correlation = Z earns more than it does from middle slots"
+- "when **my first two picks are RB-heavy**, the need-ramp should onset N picks earlier"
+
+**Deliverable — the conditional-rules table:** `state → setting → E[$] edge → confidence`, every row with intervals and its held-out validation result.
+
+**STRICT SHIP RULE (both conditions required):** a conditional rule ships into Auto ONLY if
+1. it **wins on held-out data** (same cross-validation + luck-baseline + noise-band bar as the global policy), **AND**
+2. its **trigger state is machine-detectable LIVE** — the condition must be computable from board/roster/pick state in real time. **No rule that requires a judgment call to fire.** (A run-before-pick-45 is detectable; "when the room feels chalky" is not.)
+
+**Where the winners and losers go:**
+- Rules passing BOTH conditions become **Auto's event-response layer**, each shipped through normal gates with a **cited robot scenario asserting the rule fires in its trigger state and only there** (and a participation test — the rule must actually move a pick when it fires).
+- Rules that win conditionally but are **NOT machine-detectable** (or don't clear held-out) become entries on the **manual-override cheat sheet (the paper sheet), labeled explicitly as LEANS** — human-fired, not automated, and never credited as tested policy.
+
+**Overfitting note:** conditional mining multiplies the comparison count, so the luck baseline (Phase N) must be computed over the CONDITIONAL search too — the null searches mine conditions as well, or the significance bar is a lie. A conditional edge that the null-search reproduces at the 95th percentile is noise, and is reported as such.
