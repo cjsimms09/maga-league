@@ -61,7 +61,8 @@
       <div class="fit"><a class="btn small ghost" href="/admin/status" title="Build progress, decisions, and the draft countdown at a glance">📊 Status</a></div>
       <div class="fit"><a class="btn small gold" href="/admin/slot-picker" title="Private: which draft slot to claim, live as claims land">🎯 Slot Picker</a></div>
         <%# §D.1 — END DRAFT moved off the primary flow, away from CONNECT, and requires a typed confirm. %>
-        <div class="fit" style="margin-left:auto"><button class="btn small ghost danger-quiet" id="end-draft" title="Clear every pick (keeps targets, weights, news overrides) — asks you to type END">⏹ End draft</button></div>
+        <div class="fit" style="margin-left:auto"><button class="btn small ghost" id="hard-reset" title="Unlink sync and return to idle. Works even when sync is wedged; your picks, targets and weights are untouched.">⏻ Hard reset</button></div>
+        <div class="fit"><button class="btn small ghost danger-quiet" id="end-draft" title="Clear every pick (keeps targets, weights, news overrides) — asks you to type END">⏹ End draft</button></div>
       </div>
       <span class="sync-status" id="sync-status">Not connected — manual entry works fine.</span>
     </div>
@@ -106,6 +107,11 @@
     <span id="db-switch-text"></span>
     <button class="btn small ghost" id="db-decline" title="Keep the prior doctrine — my draft, my call">Decline — keep the plan</button>
   </div>
+
+  <%# In-page typed confirm for END DRAFT. window.prompt was the mock-#1
+      swallowing mechanism — Chrome suppresses repeated dialogs and a suppressed
+      prompt returns null silently, so the button read as dead. %>
+  <div id="end-confirm" class="end-confirm" style="display:none"></div>
 
   <%# THE LEGALITY STRIP — the running guarantee, visible at all times.
       Mock #1 ended with no defense and the tool never said a word; a silent
@@ -362,6 +368,7 @@
 <script src="/js/draft/shadows.js"></script>
 <script src="/js/draft/seat.js"></script>
 <script src="/js/draft/legality.js"></script>
+<script src="/js/draft/session.js"></script>
 <script src="/js/draft/doctrine.js"></script>
 <script src="/js/draft/alerts.js"></script>
 <script src="/js/draft/prefsync.js"></script>

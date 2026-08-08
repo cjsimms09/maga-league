@@ -2148,6 +2148,25 @@ table .num.zero { color: var(--muted); font-weight: 400; }
 .pick-reach { color: #ffb4bb; font-size: .74rem; }
 .pick-fell { color: #8ef0b6; font-size: .74rem; }
 
+/* In-page typed confirm. Replaces window.prompt, which Chrome can suppress —
+   a confirmation the browser can swallow is a trapdoor, not a safety feature. */
+.end-confirm { position: fixed; inset: 0; z-index: 200; display: flex;
+  align-items: center; justify-content: center; background: rgba(4,7,16,.72);
+  backdrop-filter: blur(3px); }
+.ec-card { width: min(420px, 92vw); background: var(--navy-deep, #0b1020);
+  border: 1px solid rgba(255,70,85,.55); border-radius: 12px; padding: 1rem 1.1rem;
+  box-shadow: 0 18px 50px rgba(0,0,0,.55); }
+.ec-head { font-family: var(--font-display); font-weight: 900; color: #fff;
+  font-size: 1rem; margin-bottom: .4rem; }
+.ec-body { font-size: .82rem; color: #c7cddd; margin-bottom: .7rem; }
+.ec-label { display: block; font-size: .74rem; color: var(--muted); margin-bottom: .25rem; }
+.ec-input { width: 100%; padding: .45rem .6rem; border-radius: 8px;
+  border: 1px solid var(--line); background: rgba(255,255,255,.05); color: #fff;
+  font-family: var(--font-display); letter-spacing: .12em; text-transform: uppercase; }
+.ec-feedback { font-size: .74rem; color: var(--muted); margin: .35rem 0 .6rem; min-height: 1em; }
+.ec-feedback.ok { color: #8ef0b6; font-weight: 700; }
+.ec-actions { display: flex; gap: .5rem; justify-content: flex-end; }
+
 /* THE LEGALITY STRIP — the running guarantee. Sits directly under the doctrine
    banner in the pinned stack. Four states, three colours: legal and streamable
    are calm (a deliberate K/DST punt is a strategy, not a fault), at-risk is

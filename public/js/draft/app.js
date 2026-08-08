@@ -3342,6 +3342,72 @@
    * What survives is everything you PREPARED: targets, never-draft, weights,
    * news overrides, your slot. Those are your work, not the mock's.
    */
+  /* IN-PAGE TYPED CONFIRM. Cannot be suppressed, always visible, and every
+   * keystroke gives feedback — the button is never ambiguous about whether it
+   * heard you. */
+  function openEndConfirm(n) {
+    const host = document.getElementById('end-confirm');
+    if (!host) { endDraft(); return; }          // no modal? do not strand the user
+    host.style.display = 'flex';
+    host.innerHTML =
+      '<div class="ec-card">'
+      + '<div class="ec-head">End this draft and clear all ' + n + ' picks?</div>'
+      + '<div class="ec-body">The board goes back to full. Your targets, never-draft '
+      + 'list, weights and news overrides are kept.</div>'
+      + '<label class="ec-label">Type <b>END</b> to confirm</label>'
+      + '<input id="ec-input" class="ec-input" autocomplete="off" spellcheck="false">'
+      + '<div id="ec-feedback" class="ec-feedback">waiting…</div>'
+      + '<div class="ec-actions">'
+      + '<button class="btn small ghost" id="ec-cancel">Cancel</button>'
+      + '<button class="btn small danger-quiet" id="ec-go" disabled>End draft</button>'
+      + '</div></div>';
+    const input = document.getElementById('ec-input');
+    const go = document.getElementById('ec-go');
+    const fb = document.getElementById('ec-feedback');
+    const close = () => { host.style.display = 'none'; host.innerHTML = ''; };
+    const check = () => {
+      const ok = String(input.value || '').trim().toUpperCase() === 'END';
+      go.disabled = !ok;
+      // IMMEDIATE FEEDBACK on every keystroke. Mock #1's failure was a control
+      // that gave none, so "it did not hear me" and "it is broken" looked alike.
+      fb.textContent = ok ? '✓ ready — press End draft'
+        : (input.value ? 'keep typing…' : 'waiting…');
+      fb.className = 'ec-feedback' + (ok ? ' ok' : '');
+    };
+    input.addEventListener('input', check);
+    input.addEventListener('keydown', ev => {
+      if (ev.key === 'Enter' && !go.disabled) { close(); endDraft(); }
+      if (ev.key === 'Escape') close();
+    });
+    document.getElementById('ec-cancel').addEventListener('click', close);
+    go.addEventListener('click', () => { close(); endDraft(); });
+    input.focus();
+  }
+
+  /* THE HARD RESET. Must work from ANY state, including a wedged sync, so it
+   * never asks the sync layer for permission — it tears sync down first and
+   * clears session state unconditionally. The one control that must not itself
+   * be able to hang. */
+  function doHardReset() {
+    const btn = document.getElementById('hard-reset');
+    if (btn) { btn.disabled = true; btn.textContent = '⏻ resetting…'; }
+    try { if (state.sync && state.sync.stop) state.sync.stop(); } catch (e) { /* wedged is expected */ }
+    state.sync = null;
+    if (typeof DraftSession !== 'undefined') {
+      state.session = DraftSession.hardReset(state.session, Date.now());
+    }
+    const idBox = document.getElementById('draft-id');
+    if (idBox) idBox.value = '';
+    const connect = document.getElementById('start-sync');
+    if (connect) { connect.disabled = false; connect.textContent = 'Connect'; }
+    setStatus({ state: 'manual', message: 'Session reset — sync unlinked, manual entry live. '
+      + 'Your picks, targets and weights are untouched.' });
+    renderAll();
+    if (btn) { btn.textContent = '⏻ reset done'; setTimeout(() => {
+      btn.disabled = false; btn.textContent = '⏻ Hard reset';
+    }, 1500); }
+  }
+
   function endDraft() {
     // Phase H req 3: freeze means freeze. Stamp every shadow roster (strategy,
     // weight hash, built_at, rehearsal) and ledger the final rosters BEFORE the
@@ -3443,16 +3509,23 @@
     const end = $('#end-draft');
     if (end) end.addEventListener('click', () => {
       const n = state.drafted.size;
-      // §D.1 — a misclick at live pick 30 is a catastrophe. A one-click confirm
-      // is not enough next to CONNECT: require TYPING to end a draft with picks.
-      if (n) {
-        const typed = window.prompt('End this draft and clear all ' + n + ' picks?\n'
-          + 'The board goes back to full; your targets, never-draft list, weights and '
-          + 'news overrides are kept.\n\nType END to confirm:');
-        if (String(typed || '').trim().toUpperCase() !== 'END') return;
-      }
+      // §D.1 still holds — a misclick at live pick 30 is a catastrophe, so
+      // ending a draft with picks requires TYPING. But it no longer uses
+      // window.prompt.
+      //
+      // THE MOCK-#1 BUG: Chrome suppresses repeated dialogs. Once "prevent this
+      // page from creating additional dialogs" is armed, prompt() returns null
+      // INSTANTLY AND SILENTLY, this handler reads null !== 'END' and returns,
+      // and the button is dead forever with no error and no feedback —
+      // indistinguishable from a hang. A confirmation the browser can suppress
+      // is not a safety feature, it is a trapdoor. The confirm lives in the page
+      // now, where nothing can swallow it.
+      if (n) { openEndConfirm(n); return; }
       endDraft();
     });
+
+    const hardReset = $('#hard-reset');
+    if (hardReset) hardReset.addEventListener('click', () => doHardReset());
 
     const qFill = $('#queue-fill'), qCopy = $('#queue-copy'),
           qPrint = $('#queue-print'), qTidy = $('#queue-tidy');
@@ -3608,7 +3681,24 @@
       // rather than silently repaired.
       $('#draft-id').value = parsed.id;
       const id = parsed.id;
-      state.sync = new window.DraftSync({ draftId: id, onPicks: onSyncPicks, onStatus: setStatus });
+      // SESSION LIFECYCLE + SELF-TIMING. Mock #1 could not report how long the
+      // hang lasted because nothing measured it. Every transition is stamped
+      // now, and __wrDiag() reports connect time and longest gap.
+      if (typeof DraftSession !== 'undefined') {
+        state.session = DraftSession.connecting(
+          state.session || DraftSession.create(Date.now()), id, Date.now());
+        startSessionWatch();
+      }
+      state.sync = new window.DraftSync({
+        draftId: id,
+        onPicks: function (picks) {
+          if (typeof DraftSession !== 'undefined' && state.session) {
+            DraftSession.sawResponse(state.session, Date.now(), !!(picks && picks.length));
+          }
+          return onSyncPicks(picks);
+        },
+        onStatus: setStatus,
+      });
       // Slots first, then picks: a pick attributed to the wrong seat is worse
       // than a pick arriving a second later.
       state.sync.fetchDraft()
@@ -3619,6 +3709,36 @@
       $('#start-sync').textContent = 'Syncing…';
       $('#start-sync').disabled = true;
     });
+  }
+
+  /* THE PATIENCE TIMER. A spinner that hangs is the worst possible draft-night
+   * behavior, so waiting has a deadline and the deadline has a visible exit:
+   * connecting -> wedged auto-falls back to MANUAL with a banner that says what
+   * happened, what still works, and what to do. Nothing is lost — manual entry
+   * was always the fallback path; this just stops pretending sync is coming. */
+  function startSessionWatch() {
+    if (state.sessionWatch) clearInterval(state.sessionWatch);
+    state.sessionWatch = setInterval(function () {
+      if (typeof DraftSession === 'undefined' || !state.session) return;
+      const before = state.session.state;
+      DraftSession.tick(state.session, Date.now());
+      const now = state.session.state;
+      if (now === before) return;
+      const d = DraftSession.describe(state.session);
+      setStatus({ state: now === 'wedged' ? 'error' : now === 'stalled' ? 'warn' : 'live',
+                  message: d.text });
+      if (now === 'wedged') {
+        // AUTO-FALLBACK. Stop polling, unlink, and say so loudly. The manual
+        // path is the draft-night fallback anyway, so exercising it is free.
+        try { if (state.sync && state.sync.stop) state.sync.stop(); } catch (e) { /* expected */ }
+        state.sync = null;
+        const connect = document.getElementById('start-sync');
+        if (connect) { connect.disabled = false; connect.textContent = 'Retry connect'; }
+        clearInterval(state.sessionWatch);
+        state.sessionWatch = null;
+        renderAll();
+      }
+    }, 1000);
   }
 
   function setStatus(s) {
@@ -3698,6 +3818,9 @@
       myRoster: (state.myRoster || []).map(p => p.position + ' ' + p.name),
       rosterSlotsSeen: rosterSlotsSeen,
       mock: state.mockMode || null,
+      // What mock #1 could not tell us: how long the hang actually lasted.
+      session: (typeof DraftSession !== 'undefined' && state.session)
+        ? DraftSession.report(state.session) : null,
     };
   };
 
