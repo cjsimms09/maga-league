@@ -110,3 +110,6 @@ A public HISTORY-tab feature: season chapters (2023→present), the All-Time Rec
 - Part D triggers Aug 23; Part E's E-1 cron starts this Sunday
 - Part F (League History Page) is the tail: post-draft idle-CI delight, behind every Part D in-season item and every gate; never preempts draft-critical or in-season work
 - STATUS.md gains a BACKLOG section tracking every item here with its gate; the triage rule (deadline-threat → auto-defer) is written at the top of it
+
+## F-2. Status Dashboard — "full program" panel (5-min nicety, idle-gap work)
+Widen `/admin/status`: fold `TASK-AUDIT.md`'s spec list into a SECOND collapsible panel — **"the full program"** under **"the critical path"** (the existing queue line). The critical-path queue stays the default view; the full-program panel expands to show every filed spec + backlog item with its gate. Not now-work; do it in a natural gap.

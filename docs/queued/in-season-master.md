@@ -71,3 +71,6 @@ The capture from 1.4 starts rendering: efficiency league table, checked-out dete
 
 ## THE TEST OF THE WHOLE THING
 By week 6 my in-season routine should be: read the Tuesday brief (3 min), act on the waiver card, glance at Thursday's micro-brief, confirm Sunday's alert. Four touches, ~10 minutes weekly, every decision logged and graded. If any tool requires more of me than that to deliver its value, it's built wrong — fix the surface, not my routine.
+
+## IR-eligibility guard (D8 resolution, 2026-08-08)
+The IR slot is 1 slot with restrictive flags (`reserve_slots=1`, all `reserve_allow_*`=0). On any IR move in the roster tooling, add a one-line check: if `reserve_allow_<player.status>`=0 → surface a loud **"IR rejected: <player> isn't IR-eligible under league settings"** instead of a silent no-op. Robot: attempt to IR an ineligible-status player → the rejection fires.

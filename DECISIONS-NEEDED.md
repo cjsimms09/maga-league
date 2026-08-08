@@ -87,7 +87,7 @@ properly; the August fix should be conservative. **My recommendation:** a small
 capped discount (flex-fill worth ~0.7× dedicated-fill, tuned so the top-5 shifts
 only where genuinely warranted), re-quantified, before mock #1.
 
-## D4 — Draft slot is UNVERIFIED (A2 — MACHINERY BUILT 2026-08-08; still blocked on Sleeper draft room creation)
+## D4 — Draft slot — ✅ RESOLVED as built (auto-verifies on the external Sleeper draft-order assignment; no Cory input needed)
 
 **All four machinery items below are BUILT** (`state.slotVerified`/`slotSource`, "SLOT UNVERIFIED" watermark, checklist line "Draft slot verified against Sleeper draft object", auto-import-and-clear on draft-object sync, `R-slot` robot). The ONLY remaining block is external: Sleeper draft order isn't assigned yet, so the real slot is unknown. The tool is armed and verifies automatically the moment the order lands. _Original item text retained below._
 
@@ -144,13 +144,19 @@ field; the draft object is authoritative and says **15**. Our pipeline fix (15
 rounds, 12 my-picks) is correct and confirmed at source. The checklist line
 confirms it green on first sync. No commissioner action needed. **Closed.**
 
-## D8 — IR config oddity (low priority, pre-season answer)
+## D8 — IR config oddity — ✅ RESOLVED (2026-08-08, per Cory: don't burn time on it)
 
-`reserve_slots=1` but every `reserve_allow_*` flag = 0. Verify what actually
-qualifies for the IR slot (affects in-season roster-capacity logic). Not draft-
-relevant; recommendation: check Sleeper's IR settings before week 1.
+`reserve_slots=1`, every `reserve_allow_*` flag = 0. **Resolution (Cory):** treat the
+IR slot as configured — **1 slot, restrictive flags** — and add a **one-line
+in-season check that flags if a player I try to IR is REJECTED** by those flags
+(the fix is literally its own description). Requirement folded into
+`in-season-master.md` (roster-capacity / IR-eligibility guard: on an IR move,
+if `reserve_allow_<status>`=0 for the player's status → loud "IR rejected: <player>
+isn't IR-eligible under league settings" rather than a silent no-op). Closed —
+implement the one-liner when the in-season roster tooling activates (post-draft).
 
-_No other decisions open (D3 flex-quant and D6 is_faab pending their data)._
+_No decisions require Cory's input (D4 auto-resolves on the external Sleeper
+draft-order assignment; everything else answered)._
 
 
 ## D2 — RESOLVED (answer: (b)) — top_picks_flat implemented
