@@ -73,6 +73,31 @@
   }
 
   // (position, liveIndex 1-based, roster) -> allowed?  Mirrors make_archetypes().
+  /* ── IS THE DOCTRINE ACTUALLY GOVERNING? ────────────────────────────────
+   *
+   * ONE CANONICAL FLAG, because the answer has to be identical everywhere it is
+   * asserted. Audited 2026-08-08 (DOCTRINE-ENFORCEMENT-AUDIT.md): the enrolled
+   * doctrine never reached the engine — `grep doctrine engine.js` returned
+   * nothing — and its only consumer added a badge to an already-generated path.
+   * Recommendations were byte-identical whether enrolled or not.
+   *
+   * A plan line reading "plan intact" while nothing executes the plan is the
+   * same failure as an uninstalled term wearing a badge: a truthful-looking
+   * label on a computation it did not touch. So the surface says what is true,
+   * and it says it from HERE — when Stage 3 wires the tilt, GOVERNS flips once
+   * and every surface that asks follows, rather than each renderer being
+   * remembered separately.
+   */
+  var GOVERNS = false;
+  function governs() { return GOVERNS; }
+  function setGoverns(v) { GOVERNS = !!v; return GOVERNS; }
+  function governanceLine(enrolled) {
+    if (!enrolled) return 'no doctrine enrolled — running the control';
+    return GOVERNS
+      ? 'enrolled — tilting recommendations'
+      : 'enrolled, DISPLAY-ONLY — not driving recommendations';
+  }
+
   const LIVE_CONSTRAINTS = {
     balanced:  function () { return true; },
     ceiling:   function () { return true; },   // a tilt, not a positional filter
@@ -285,7 +310,9 @@
              note: null };
   }
 
-  const api = { DOCTRINES: DOCTRINES, ALIASES: ALIASES, DEFAULTS: DEFAULTS,
+  const api = { governs: governs, setGoverns: setGoverns,
+                governanceLine: governanceLine,
+                DOCTRINES: DOCTRINES, ALIASES: ALIASES, DEFAULTS: DEFAULTS,
                 doctrineMeta: doctrineMeta, rankDoctrines: rankDoctrines,
                 DoctrineState: DoctrineState, LIVE_CONSTRAINTS: LIVE_CONSTRAINTS,
                 scoreBoard: scoreBoard, enrollment: enrollment };

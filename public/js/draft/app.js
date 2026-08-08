@@ -1801,8 +1801,13 @@
     host.innerHTML = paths.map(function (p, i) {
       const pl = p.pick.player;
       const doctrineBadge = (onPlanKey && p.key === onPlanKey)
-        ? '<span class="path-doctrine" title="the branch your enrolled doctrine takes">◆ the '
-          + escapeHtml(planName) + ' branch</span>' : '';
+        ? '<span class="path-doctrine' + (DraftDoctrine.governs() ? '' : ' inert')
+          + '" title="' + (DraftDoctrine.governs()
+              ? 'the branch your enrolled doctrine takes'
+              : 'LABEL ONLY — the doctrine is display-only and did not influence this ranking')
+          + '">◆ the ' + escapeHtml(planName) + ' branch'
+          + (DraftDoctrine.governs() ? '' : ' <span class="pd-inert">(label only)</span>')
+          + '</span>' : '';
       const priceBadge = p.price > 0
         ? '<span class="path-price">+' + p.price.toFixed(1) + ' vs top</span>'
         : '<span class="path-price top">top path</span>';
@@ -3055,7 +3060,12 @@
       : '';
     document.getElementById('db-name').innerHTML =
       '<span class="db-eyebrow">' + (enr.enrolled ? 'The plan' : 'No doctrine enrolled — running the control') + '</span>'
-      + escapeHtml(out.doctrine) + edge;
+      + escapeHtml(out.doctrine) + edge
+      // THE GOVERNANCE STATE, stated rather than implied. While the doctrine is
+      // display-only, a banner reading "The plan — WR Feast +$187" asserts
+      // control it does not have.
+      + '<span class="db-governs' + (DraftDoctrine.governs() ? '' : ' off') + '">'
+      + escapeHtml(DraftDoctrine.governanceLine(enr.enrolled)) + '</span>';
     document.getElementById('db-creed').textContent = out.creed || '';
     document.getElementById('db-confidence').textContent = out.confidence;
     // A "$0 gap" is not an alternative, it is the same decision — say the pick

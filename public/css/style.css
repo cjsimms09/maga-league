@@ -2233,6 +2233,15 @@ table .num.zero { color: var(--muted); font-weight: 400; }
   border-radius: 4px; white-space: nowrap;
   background: rgba(245,196,69,.16); color: #f5c445; }
 .ss-rmode.warn { background: rgba(255,150,60,.22); color: #ffb765; }
+/* Governance state on the doctrine banner. The OFF variant is deliberately
+   plain and grey rather than alarming: it is a true statement about the tool,
+   not an error, and it must read as information rather than as a fault. */
+.db-governs { font-size: .62rem; font-weight: 700; padding: .08rem .38rem;
+  border-radius: 4px; margin-left: .45rem; white-space: nowrap;
+  background: rgba(47,213,118,.18); color: #b9f5d3; }
+.db-governs.off { background: rgba(255,255,255,.09); color: var(--muted, #9aa4bb); }
+.path-doctrine.inert { opacity: .72; }
+.pd-inert { font-weight: 400; opacity: .8; }
 .ss-seat { color: #dfe6f5; }
 .ss-age { color: var(--muted); }
 .ss-dot { margin-left: auto; white-space: nowrap; }
