@@ -354,3 +354,56 @@ It is a STRONG LEAN, not a certified edge.
 says it should), installed through the normal cited-constant path, robot green,
 before mock #2 — so the mocks rehearse the tilt. September's quantile re-run
 either certifies or reverts it. One word (install / hold) and it lands.
+
+## 🚨 D13 — EXPERIMENT 34 IS BLOCKED ON TWO OF ITS THREE ARMS
+
+_Found 2026-08-08 while building it. Needs a call from Cory; the sequence
+continues on other items meanwhile._
+
+34 is specced as a three-way compare at each of my real historical picks:
+**what the tool would have recommended · what ADP said · what I actually took**,
+all graded on realized outcomes.
+
+**What EXISTS (verified):**
+
+| input | state |
+|---|---|
+| my real picks, 2023–25 | ✅ **41 non-keeper decisions** (2023: 15, 2024: 14, 2025: 12) — *more than the registry's ~36 estimate* |
+| realized outcomes | ✅ `players_points` for every rostered player, every week |
+| the money grader | ✅ certified, substituted-seat, playoff-complete |
+
+**What DOES NOT EXIST:**
+
+| arm | blocker |
+|---|---|
+| **"what ADP said"** | **no historical ADP artifact for 2023–25.** Same gap that blocked the Bates reach check. |
+| **"what the tool would have recommended"** | needs **decision-time projections** for those seasons. None archived — the same gap experiment 35 names for its weekly inputs. |
+
+So the arm that survives intact is *"what I actually took"*, which alone answers
+nothing: it is an outcome with no comparison.
+
+### THE DECISION
+
+**Option A — the revealed-market substitute (my recommendation).** The draft
+itself reveals the market: the order the other nine teams took players IS a
+consensus ordering for that season, observed rather than published. Grade my
+pick against where the room valued that player. Not ADP, and it must be labelled
+as the room's revealed preference rather than a national consensus — but it is
+REAL, it is contemporaneous, and it needs no archive that does not exist.
+Reconstructing the tool's arm still needs prior-year-only projections through
+the AsOf store, which narrows the claim to *"what could a decision-time policy
+have captured"* — the same honest narrowing 35 already carries.
+
+**Option B — run the one arm and say so.** Report only the actual-pick arm
+against realized dollars. Cheap, and close to worthless: no counterfactual.
+
+**Option C — declare 34 unrunnable as specced** and move its weight onto
+experiment 33 (which needs no historical ADP — it races projection SOURCES on
+realized weekly points) and 35.
+
+⚠️ **This changes the sequence's premise.** 34 was placed before the decision
+tree because it "tells us what the model is." If it can only run in Option A's
+narrowed form, it answers a narrower question — and the pre-registered
+consequence in `PRE-REGISTRATION-34.md` should be read against that narrower
+claim, not the one it was written for. **The pre-registration still binds; what
+changes is what counts as its evidence.**
