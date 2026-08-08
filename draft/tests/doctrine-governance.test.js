@@ -74,23 +74,62 @@ const check = (n, c, d) => { if (c) { pass++; console.log('PASS  ' + n); }
     mk(5, 'TE', 40), mk(6, 'QB', 38), mk(7, 'WR', 36), mk(8, 'RB', 35),
     mk(9, 'K', 8), mk(10, 'DEF', 9),
   ];
-  const ctxFor = doctrine => ({
-    board: board.slice(), roster: [],
+  /* THE WIDE BOARD — the UPPER bound's fixture.
+   *
+   * Here the composite's favourite is far ahead: the top RB leads the top WR by
+   * ~25 vorp, which is not a close call by any reading. A doctrine tilt that
+   * flips THIS is not a tilt, it is an override — and an override that always
+   * wins is the 74%-intervention problem wearing a doctrine label. Small and
+   * cited means bounded, and a bound nobody tests is a preference. */
+  // The vorp spread has to be LARGE because the composite compresses it — VONA,
+  // tier urgency and need all pull toward the middle. A first pass used a
+  // 25-vorp lead and produced a composite gap of only 4.0, which the
+  // non-vacuity check below caught on its first run: the upper bound would have
+  // passed trivially on the day the tilt landed. This spread is calibrated
+  // against the measured gap, not guessed.
+  const wideBoard = [
+    mk(1, 'RB', 190), mk(2, 'WR', 44), mk(3, 'RB', 40), mk(4, 'WR', 38),
+    mk(5, 'TE', 36), mk(6, 'QB', 34), mk(7, 'WR', 32), mk(8, 'RB', 30),
+    mk(9, 'K', 8), mk(10, 'DEF', 9),
+  ];
+  const ctxOn = (bd, doctrine) => ({
+    board: bd.slice(), roster: [],
     league: { starters: { QB: 1, RB: 2, WR: 2, TE: 1, FLEX: 1, K: 1, DEF: 1 }, teams: 10 },
     weights: E.DEFAULT_WEIGHTS, currentPick: 34, nextPick: 47,
     totalPicks: 150, myPicksLeft: 12, roundsLeft: 12,
     runMultipliers: {}, intervening: [],
     doctrine: doctrine,                 // the field a wired engine would read
   });
+  const ctxFor = doctrine => ctxOn(board, doctrine);
   const order = d => E.recommend(ctxFor(d)).slice(0, 5)
     .map(s => s.player.player_id).join(',');
+  const topOf = (bd, d) => {
+    const sc = E.recommend(ctxOn(bd, d));
+    return sc.length ? sc[0] : null;
+  };
 
   const wrFeast = order('wr_feast');
   const rbAnchor = order('rb_anchor');
   const none = order(null);
 
-  check('the fixture is capable of showing a difference (non-vacuity)',
+  check('the CLOSE fixture is capable of showing a difference (non-vacuity)',
     board.length >= 8 && wrFeast.length > 0, 'order=' + wrFeast);
+
+  /* THE WIDE FIXTURE IS CHECKED IN BOTH STATES, deliberately.
+   *
+   * The upper-bound assertion only runs once the tilt is wired, so its fixture
+   * would otherwise sit unexercised for however long that takes and could rot
+   * silently — the board data drifts, the gap narrows, and on the day the tilt
+   * lands the upper bound passes trivially against a "wide" board that is no
+   * longer wide. Checking the gap now keeps the assertion honest before it is
+   * ever needed. */
+  const wideGap = (() => {
+    const sc = E.recommend(ctxOn(wideBoard, null));
+    return sc.length > 1 ? sc[0].score - sc[1].score : 0;
+  })();
+  check('the WIDE fixture really is wide, checked even while display-only',
+    wideGap > 8, 'composite gap is only ' + wideGap.toFixed(1)
+      + ' — the upper-bound assertion would pass trivially when the tilt lands');
 
   if (!DOC.governs()) {
     check('DISPLAY-ONLY means two different doctrines produce IDENTICAL rankings',
@@ -99,7 +138,8 @@ const check = (n, c, d) => { if (c) { pass++; console.log('PASS  ' + n); }
         + ' — rankings differ while GOVERNS is false, so something IS tilting '
         + 'and the banner is understating the model');
   } else {
-    check('GOVERNING means two different doctrines produce DIFFERENT rankings',
+    // ---- LOWER BOUND: it must move something, or it is decoration ----------
+    check('LOWER BOUND — on a CLOSE call, two doctrines produce DIFFERENT rankings',
       wrFeast !== rbAnchor,
       'GOVERNS=true but wr_feast and rb_anchor rank identically — the flag was '
         + 'flipped without the tilt reaching the scoring path, which is exactly '
@@ -107,6 +147,17 @@ const check = (n, c, d) => { if (c) { pass++; console.log('PASS  ' + n); }
     check('...and a doctrine actually moves the board off the no-doctrine order',
       wrFeast !== none || rbAnchor !== none,
       'neither doctrine differs from no-doctrine — nothing is being tilted');
+
+    // ---- UPPER BOUND: it must NOT be able to dominate ----------------------
+    const wideNone = topOf(wideBoard, null);
+    const wideWr = topOf(wideBoard, 'wr_feast');
+    const gap = wideGap;
+    check('UPPER BOUND — a doctrine does NOT displace a strongly-preferred player',
+      wideWr && wideNone
+        && String(wideWr.player.player_id) === String(wideNone.player.player_id),
+      'wr_feast flipped the top pick on a board where the composite led by '
+        + gap.toFixed(1) + ' — that is an OVERRIDE, not a tilt. A tilt that '
+        + 'always wins is the 74%-intervention problem wearing a doctrine label.');
   }
 }
 
