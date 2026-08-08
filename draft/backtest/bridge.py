@@ -39,13 +39,22 @@ def policy_roster(season_dump: dict, policy: str, roster_id: int) -> dict:
     Keepers (history's, same for every policy) + the policy's choice at each of
     that seat's decision picks. `policy='actual'` reproduces history's roster —
     the structural identity the CI gate checks.
+
+    A policy key that never appears in ANY record's choices raises instead of
+    silently producing a keeper-only roster. The first CI run taught this the
+    hard way: asking for 'b0' where the replay writes 'B0' graded every seat a
+    quiet $0 with coverage 0.0 — an empty roster wearing a bounded number.
     """
+    records = season_dump.get("records", [])
+    if policy != "actual" and not any(policy in (r.get("choices") or {}) for r in records):
+        available = sorted({k for r in records for k in (r.get("choices") or {})})
+        raise KeyError(f"policy '{policy}' appears in no replay record; available: {available}")
     ids: list[str] = []
     dupes = 0
     for k in season_dump.get("keepers", []):
         if int(k["roster_id"]) == int(roster_id):
             ids.append(str(k["player_id"]))
-    for r in season_dump.get("records", []):
+    for r in records:
         if int(r["roster_id"]) != int(roster_id):
             continue
         pid = r["actual"] if policy == "actual" else (r.get("choices") or {}).get(policy)
@@ -99,7 +108,7 @@ def grade_policy_seat(history, payouts, season: str, roster_id: int,
 # --- the full run -------------------------------------------------------------
 
 def run_bridge(bundles_path: Path, records_path: Path, weekly_path: Path,
-               policies=("actual", "b0", "b3")) -> dict:
+               policies=("actual", "B0", "B3")) -> dict:
     bundles = json.loads(Path(bundles_path).read_text())
     dump = json.loads(Path(records_path).read_text())["seasons"]
     weekly_all = json.loads(Path(weekly_path).read_text())["weekly_points"]

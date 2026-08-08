@@ -38,11 +38,11 @@ DUMP = {
     "keepers": [{"roster_id": 1, "player_id": "k1"}, {"roster_id": 2, "player_id": "k2"}],
     "records": [
         {"pick_no": 1, "round": 1, "roster_id": 1, "actual": "a1",
-         "choices": {"b0": "x1", "b3": "y1"}},
+         "choices": {"B0": "x1", "B3": "y1"}},
         {"pick_no": 2, "round": 1, "roster_id": 2, "actual": "a2",
-         "choices": {"b0": "x2", "b3": "y2"}},
+         "choices": {"B0": "x2", "B3": "y2"}},
         {"pick_no": 3, "round": 2, "roster_id": 1, "actual": "a3",
-         "choices": {"b0": "x1", "b3": "y3"}},   # b0 repeats x1 — the ghost dupe
+         "choices": {"B0": "x1", "B3": "y3"}},   # B0 repeats x1 — the ghost dupe
     ],
 }
 
@@ -54,16 +54,24 @@ def test_actual_policy_reproduces_history():
 
 
 def test_policy_roster_takes_that_policys_choices_only():
-    r = BR.policy_roster(DUMP, "b3", 1)
+    r = BR.policy_roster(DUMP, "B3", 1)
     assert r["roster"] == ["k1", "y1", "y3"]
-    r2 = BR.policy_roster(DUMP, "b3", 2)
+    r2 = BR.policy_roster(DUMP, "B3", 2)
     assert r2["roster"] == ["k2", "y2"]           # seat 2 sees only its own picks
 
 
 def test_ghost_duplicates_are_deduped_and_counted():
-    r = BR.policy_roster(DUMP, "b0", 1)
+    r = BR.policy_roster(DUMP, "B0", 1)
     assert r["roster"] == ["k1", "x1"]            # x1 held once
     assert r["duplicates"] == 1                    # and the repeat is on the record
+
+
+def test_an_unknown_policy_key_raises_instead_of_grading_empty():
+    # The first CI run's lesson, locked: 'b0' vs the replay's 'B0' silently
+    # graded keeper-only rosters at $0/coverage-0. Now it is a loud KeyError
+    # that names the keys that DO exist.
+    with pytest.raises(KeyError, match="available.*B0"):
+        BR.policy_roster(DUMP, "b0", 1)
 
 
 def test_coverage_reports_the_honesty_floor():
@@ -117,17 +125,48 @@ def test_ci_actual_rosters_match_the_real_drafts():
 def test_ci_every_policy_money_grades_bounded():
     res = BR.run_bridge(BUNDLES, RECORDS, WEEKLY)
     _, pay = MG.load_history(), MG.load_payouts()
+    dump = json.loads(RECORDS.read_text())["seasons"]
     graded = 0
     for season, rows in res["seasons"].items():
         if "skipped" in rows:
             continue
         p = MG.season_pay(pay, season)
+        picks_by_seat = {}
+        for r in dump[season]["records"]:
+            picks_by_seat[int(r["roster_id"])] = picks_by_seat.get(int(r["roster_id"]), 0) + 1
         for policy, per_seat in rows.items():
             for rid, g in per_seat.items():
                 assert 0 <= g["weekly_high"] <= p["weekly_high_total"], (season, policy, rid)
                 assert g["regular_season"] in (0.0, float(p["rs_champ"]), float(p["rs_runner_up"]))
+                # The first CI run's vacuous-pass, locked out: a policy roster
+                # must hold roughly one player per decision pick (keepers can
+                # add; ghost dupes subtract a little) — never keeper-only.
+                min_expected = max(1, picks_by_seat.get(int(rid), 0) - 3)
+                assert g["roster_size"] >= min_expected, \
+                    f"{season} {policy} seat {rid}: roster {g['roster_size']} < {min_expected} — empty grading"
+                # And its players are real NFL players: coverage clears a floor
+                # for POLICIES too, not just 'actual'.
+                assert g["coverage"] >= 0.5, f"{season} {policy} seat {rid}: coverage {g['coverage']}"
                 graded += 1
     assert graded > 0, "the bridge graded nothing — the gate must not pass vacuously"
+
+
+@pytestmark_ci
+def test_ci_counterfactual_policies_actually_differ_from_history():
+    # If B0/B3 rosters were identical to 'actual' everywhere, the bridge would
+    # be grading history three times and calling it a comparison.
+    res = BR.run_bridge(BUNDLES, RECORDS, WEEKLY)
+    dump = json.loads(RECORDS.read_text())["seasons"]
+    differs = 0
+    for season, rows in res["seasons"].items():
+        if "skipped" in rows:
+            continue
+        for rid in rows.get("actual", {}):
+            a = set(BR.policy_roster(dump[season], "actual", int(rid))["roster"])
+            b = set(BR.policy_roster(dump[season], "B0", int(rid))["roster"])
+            if a != b:
+                differs += 1
+    assert differs > 0, "B0 == history at every seat in every season — not a counterfactual"
 
 
 @pytestmark_ci
