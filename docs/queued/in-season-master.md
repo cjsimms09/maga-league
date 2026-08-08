@@ -12,6 +12,25 @@ Design principles for everything below, non-negotiable:
 
 ---
 
+## 🔒 ATTRIBUTION WORDING RULE — binding on every in-season and January report
+
+Experiment 37 is **observational with no control arm** (randomised compliance
+declined for 2026, `DECISIONS-NEEDED.md` D12). Its numbers are therefore
+**associational, and no sample size changes that.**
+
+**Required phrasing, verbatim (Cory, 2026-08-08):**
+
+> ✅ "**$X was realised on decisions where the tool recommended Y**"
+> ❌ "the tool earned $X"
+
+The banned form asserts causation the design cannot support: with your own past
+behavior as the baseline, a good outcome is equally consistent with *"the tool
+helped"* and *"the tool agreed with what a competent manager would have done
+anyway."* Every attribution figure — per component, per week, and in the January
+Annual — carries the permitted wording. This is enforced by
+`draft/tests/test_attribution_wording.py`, which scans generated report
+artifacts, not by anyone remembering.
+
 ## PHASE 1 — Foundation (build immediately post-draft, live by Sep 8)
 
 ### 1.1 In-season rankings substrate

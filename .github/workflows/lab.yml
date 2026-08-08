@@ -62,7 +62,8 @@ jobs:
                            draft/tests/test_lab_stats.py draft/tests/test_lab.py \
                            draft/tests/test_data_spine.py \
                            draft/tests/test_doctrine_parity.py \
-                           draft/tests/test_doctrine_stamp.py -q
+                           draft/tests/test_doctrine_stamp.py \
+                           draft/tests/test_attribution_wording.py -q
 
       - name: Run the Lab
         run: python draft/backtest/lab.py --out draft/backtest

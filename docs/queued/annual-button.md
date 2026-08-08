@@ -2,6 +2,25 @@
 
 Close the last manual gap in the learning loop. Everything deterministic already runs on crons forever. What still requires a human-driven session is IMPLEMENTING the Annual's gated proposals. Build the automation that does it — with one press from my phone, and my approval as the only remaining human step (by design, not by limitation).
 
+## 🔒 ATTRIBUTION WORDING RULE — binding on every in-season and January report
+
+Experiment 37 is **observational with no control arm** (randomised compliance
+declined for 2026, `DECISIONS-NEEDED.md` D12). Its numbers are therefore
+**associational, and no sample size changes that.**
+
+**Required phrasing, verbatim (Cory, 2026-08-08):**
+
+> ✅ "**$X was realised on decisions where the tool recommended Y**"
+> ❌ "the tool earned $X"
+
+The banned form asserts causation the design cannot support: with your own past
+behavior as the baseline, a good outcome is equally consistent with *"the tool
+helped"* and *"the tool agreed with what a competent manager would have done
+anyway."* Every attribution figure — per component, per week, and in the January
+Annual — carries the permitted wording. This is enforced by
+`draft/tests/test_attribution_wording.py`, which scans generated report
+artifacts, not by anyone remembering.
+
 ## Standing re-raise items (surface these every January without anyone remembering to)
 - **RANDOMISED COMPLIANCE for 2027** — declined for 2026 (see `DECISIONS-NEEDED.md` D12) on the grounds that the shadow season gives a quasi-experimental read at zero cost, near-tie randomisation carries little marginal causal information, and Cory wanted to play 2026 believing his own decisions. **Re-raise once the tool has real evidence behind it**, with experiment 37's associational 2026 numbers attached so the trade-off is concrete rather than abstract.
 
