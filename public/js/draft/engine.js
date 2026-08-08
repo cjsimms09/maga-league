@@ -54,6 +54,13 @@
     // was entering a points-over-replacement sum at face value.
     // The value term never switches off entirely; see scorePlayer.
     VALUE_WEIGHT_FLOOR: 0.25,
+    // D3 flex-discount (approved 2026-08-08). A player who only "starts in your
+    // flex" is priced at his MARGINAL value over the best flex-eligible
+    // alternative realistically available — never full VORP. FLEX_ALT_WEIGHT is
+    // the knob (1.0 = full marginal); lower softens the overlap with the VONA
+    // `value` term. Floored at 0, capped at full VORP in scorePlayer.
+    FLEX_DISCOUNT: true,
+    FLEX_ALT_WEIGHT: 1.0,
     CEILING_SPREAD_SHARE: 0.15,   // fraction of theoretical upside treated as collectable
     CEILING_MAX_BONUS: 20.0,      // hard cap, in the composite's own points
     RAIL_COMPONENT_RATIO: 1.0,    // a component larger than the player's own VORP
@@ -249,6 +256,27 @@
   }
 
   /** Value only counts if it reaches the starting lineup. */
+  /* D3 — the best flex-eligible alternative realistically available on the board
+   * (excluding `player`), by VORP. The marginal a flex-fill is worth is priced
+   * against THIS. Cached on ctx across a scoring pass (recommend reuses one ctx),
+   * so it is O(n) total, not O(n²). A board-now proxy for "what I could take
+   * instead"; the survival-weighted version is quantile-V September work. */
+  function bestFlexAlt(player, ctx) {
+    const FLEXIBLE = { FLEX: ['RB', 'WR', 'TE'], SUPER_FLEX: ['QB', 'RB', 'WR', 'TE'], REC_FLEX: ['WR', 'TE'] };
+    if (!ctx._flexAltSorted) {
+      const starters = (ctx.league || {}).starters || {};
+      const elig = {};
+      Object.keys(FLEXIBLE).forEach(s => { if (starters[s]) FLEXIBLE[s].forEach(p => { elig[p] = true; }); });
+      ctx._flexAltSorted = (ctx.board || []).filter(p => elig[p.position])
+        .sort((a, b) => (b.vorp || 0) - (a.vorp || 0));
+    }
+    const list = ctx._flexAltSorted;
+    for (let i = 0; i < list.length; i++) {
+      if (String(list[i].player_id) !== String(player.player_id)) return list[i].vorp || 0;
+    }
+    return 0;
+  }
+
   function starterSlotMarginal(player, roster, league) {
     const starters = league.starters || {};
     const flexEligible = { FLEX: ['RB', 'WR', 'TE'], SUPER_FLEX: ['QB', 'RB', 'WR', 'TE'], REC_FLEX: ['WR', 'TE'] };
@@ -359,6 +387,18 @@
     const v = vona(player, ctx.board, ctx.nextPick, ctx);
     const tier = tierCliffUrgency(player, ctx.board, ctx.nextPick, ctx);
     const need = starterSlotMarginal(player, ctx.roster || [], ctx.league || {});
+    // D3 flex-discount (approved, pre-registered material): a player who ONLY
+    // "starts in your flex" is priced at his marginal value over the best
+    // flex-eligible alternative realistically available — never full VORP. With 2
+    // RB keepers, a 3rd RB in the flex is worth what he adds OVER the next RB I
+    // could take, not his whole VORP; this tilts toward filling genuine holes
+    // (WR2) over redundant depth. Floored at 0, capped at full VORP.
+    if (CFG.FLEX_DISCOUNT && /flex/.test(need.why)) {
+      const alt = bestFlexAlt(player, ctx);
+      const marginal = Math.min(player.vorp || 0, Math.max(0, (player.vorp || 0) - CFG.FLEX_ALT_WEIGHT * alt));
+      need.value = marginal;
+      need.why = 'flex depth — marginal over the next flex option';
+    }
     const risk = riskAdjustment(player);
     const ceiling = upsideBonus(player, ctx.currentPick, ctx.totalPicks, ctx.myPicksLeft);
     const kov = C.keeperOptionValue(player, ctx);
@@ -1444,7 +1484,7 @@
     expectedBestAvailable, vona,
     tierCliffUrgency, starterSlotMarginal, riskAdjustment, upsideBonus,
     scorePlayer, recommend, mandatoryGaps, applyRosterLegality, plausibilityRails,
-    demoteFlaggedOnesies, computeRailBudget, railFireSig,
+    demoteFlaggedOnesies, computeRailBudget, railFireSig, bestFlexAlt,
     confidence, branchForecast, applyPersonalLists, onTheClock, rosterPlan, byeGrid,
     cheatSheet, sheetText, managerTells, threatBoard,
     WEIGHT_PRESETS, matchPreset, rankDiff, autoWeights,

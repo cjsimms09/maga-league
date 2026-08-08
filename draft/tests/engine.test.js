@@ -257,6 +257,25 @@ check('weight sliders change the ranking', heavyCeiling[0].score !== scored[0].s
   const full = [{ position: 'QB' }, { position: 'RB' }, { position: 'RB' },
                 { position: 'WR' }, { position: 'WR' }, { position: 'TE' }];
 
+  // --- D3 flex-discount: a flex-fill is priced marginal-over-best-alternative --
+  {
+    const board3 = [mk('rb1', 'RB', 100), mk('rb2', 'RB', 90), mk('wr1', 'WR', 70)];
+    const keepers2 = [{ position: 'RB', proj_mean: 200, vorp: 88 }, { position: 'RB', proj_mean: 190, vorp: 80 }];
+    check('D3 bestFlexAlt returns the best OTHER flex-eligible vorp',
+      E.bestFlexAlt(board3[0], { board: board3, league: LEAGUE }) === 90);
+    const ctx3 = { board: board3, currentPick: 34, nextPick: 41, totalPicks: 150, myPicksLeft: 12,
+      roster: keepers2, league: LEAGUE, weights: E.DEFAULT_WEIGHTS, runMultipliers: {}, roundsLeft: 12 };
+    check('D3 a flex-fill (2 RB keepers) is priced marginal = vorp − best alt (100−90=10)',
+      E.scorePlayer(board3[0], ctx3).components.need === 10);
+    check('D3 flex need is FLOORED at zero (rb2 marginal 90−100 < 0 → 0)',
+      E.scorePlayer(board3[1], Object.assign({}, ctx3, { _flexAltSorted: null })).components.need === 0);
+    check('D3 a DEDICATED-slot fill is NOT discounted (WR into open WR2 keeps full 70)',
+      E.scorePlayer(board3[2], Object.assign({}, ctx3, { _flexAltSorted: null })).components.need === 70);
+    // Capped at full VORP: never worth more than the player's own VORP.
+    check('D3 flex need is CAPPED at full VORP',
+      E.scorePlayer(board3[0], Object.assign({}, ctx3, { _flexAltSorted: null })).components.need <= 100);
+  }
+
   const gaps = E.mandatoryGaps({ league: LEAGUE, roster: full });
   check('mandatory gaps sees the missing K and DEF, and ignores FLEX',
     gaps.length === 2 && gaps.indexOf('K') !== -1 && gaps.indexOf('DEF') !== -1,
@@ -1065,9 +1084,14 @@ check('weight sliders change the ranking', heavyCeiling[0].score !== scored[0].s
     + 'is why the 0/20 in the evidence bundle proved nothing',
     early.value === 0 && early.ramp === 0, JSON.stringify(early));
 
-  // THE DEMANDED TEST: zero the term on a board that can exercise it.
-  const withKov = E.recommend(lateCtx()).slice(0, 5).map(x => x.player.player_id).join();
-  const noKov = E.recommend(lateCtx(Object.assign({}, E.DEFAULT_WEIGHTS, { keeper: 0 })))
+  // THE DEMANDED TEST: zero the term on a board that can exercise it. `need` is
+  // zeroed in BOTH arms to isolate the keeper term — otherwise the D3 flex
+  // discount (which lives in `need`) can reorder the flex-eligible top-5 hard
+  // enough to mask the keeper effect on this synthetic board. With need off, the
+  // ONLY difference is the keeper term, so a top-5 change proves it participates.
+  const withKov = E.recommend(lateCtx(Object.assign({}, E.DEFAULT_WEIGHTS, { need: 0 })))
+    .slice(0, 5).map(x => x.player.player_id).join();
+  const noKov = E.recommend(lateCtx(Object.assign({}, E.DEFAULT_WEIGHTS, { need: 0, keeper: 0 })))
     .slice(0, 5).map(x => x.player.player_id).join();
   check('ZEROING KEEPER CHANGES THE TOP 5 ON A ROUND-12 BOARD — the term '
     + 'participates', withKov !== noKov, 'with: ' + withKov + '  without: ' + noKov);

@@ -291,6 +291,31 @@ if (!IS_FIXTURE) {
   }
 }
 
+// R-flex (D3, approved 2026-08-08): a candidate who can ONLY start in the flex
+// is priced at his marginal value over the best flex-eligible alternative on the
+// board — never full VORP — while a candidate who fills a DEDICATED open starter
+// slot keeps his full value. This is the "don't pay full price for redundant RB
+// depth when a real WR2 hole is open" invariant, run through the real scorePlayer.
+{
+  // A seat with 2 RB starters already filled (keepers). RB slots are FULL, so any
+  // further RB can only reach the lineup via the flex; the WR slot is still open.
+  const mkp = (id, pos, vorp) => ({ player_id: id, position: pos, proj_mean: 100 + vorp, vorp: vorp });
+  const board = [mkp('R1', 'RB', 100), mkp('R2', 'RB', 90), mkp('W1', 'WR', 70)];
+  const roster = [{ position: 'RB', proj_mean: 288, vorp: 88 }, { position: 'RB', proj_mean: 280, vorp: 80 }];
+  const ctx = { board: board, currentPick: 34, nextPick: 41, totalPicks: 150, myPicksLeft: 12,
+    roster: roster, league: LEAGUE, weights: E.DEFAULT_WEIGHTS, runMultipliers: {}, roundsLeft: 12 };
+  const rbNeed = E.scorePlayer(board[0], ctx).components.need;
+  const wrNeed = E.scorePlayer(board[2], Object.assign({}, ctx, { _flexAltSorted: null })).components.need;
+  check('R-flex: a flex-only RB fill is discounted BELOW his raw VORP (100 → ' + rbNeed + ')',
+    rbNeed < 100 && rbNeed >= 0, 'need=' + rbNeed);
+  check('R-flex: the flex-fill marginal is vorp − best-other-flex-alt (100 − 90 = 10)',
+    rbNeed === 10, 'need=' + rbNeed);
+  check('R-flex: a WR filling the OPEN dedicated WR slot keeps full value (70), not discounted',
+    wrNeed === 70, 'need=' + wrNeed);
+  check('R-flex: the discount makes the dedicated-slot WR out-need the redundant RB depth',
+    wrNeed > rbNeed, 'wr=' + wrNeed + ' rb=' + rbNeed);
+}
+
 // R7 (DEMAND 3 — the robot draft writes the ledger): a full simulated draft
 // must produce the expected ledger entries with monotonic seq and ZERO gaps.
 // This is what proves draft night gets captured — not just a single curl test.
