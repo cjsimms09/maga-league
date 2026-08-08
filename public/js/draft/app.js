@@ -1395,6 +1395,19 @@
           : (state.keeperLock.edited ? 'edited since it was confirmed' : 'never confirmed'))
           : 'unknown',
         fix: 'Commish \u2192 Keepers \u2192 Confirm & lock' },
+      // HARD DEADLINE, its own line by Cory's instruction: an un-instrumented
+      // September cannot be recovered in January. Experiment 37 grades the live
+      // season's dollars per component, and it can only grade decisions that
+      // were LOGGED AT DECISION TIME. This ticks green when the in-season
+      // ledger kinds are live; it is deliberately visible from now, not from
+      // September, because the build slot is the first one after draft week.
+      { ok: !!(window.INSEASON_LEDGER_LIVE),
+        label: 'In-season instrumentation live (HARD DATE: Sept 1)',
+        detail: window.INSEASON_LEDGER_LIVE
+          ? 'logging lineup / waiver / trade / doctrine decisions'
+          : 'NOT LIVE — exp 37 can only grade what was logged at decision time; '
+            + 'September cannot be reconstructed in January',
+        fix: 'First post-draft build item: extend PredLedger to the in-season kinds' },
       { ok: (state.lists.targets.length + state.lists.avoid.length) > 0,
         label: 'Targets or never-draft set',
         detail: state.lists.targets.length + ' starred, ' + state.lists.avoid.length + ' blocked',
