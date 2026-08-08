@@ -1,44 +1,85 @@
 {
-  "_comment": "GROUND TRUTH for the money function (Cory, 2026-08-08). All objective math derives from this file — E[$] = Sum_w P(weekly-high, w)*weekly_high + P(RS champ)*rs_champ + P(RS 2nd)*rs_runner_up + Sum_k P(playoff finish k)*playoff[k]. Config-driven so a payout change is one file edit that trips the settings watchdog, never a code hunt. Re-verify against the league site's published structure if the commissioner edits payouts (pre-draft checklist line).",
+  "_comment": "GROUND TRUTH for the money function. All objective math derives from this file. PER-SEASON keyed by year (master sheet, 2026-08-08): the structure CHANGED across eras, so money math must pick the season's own config. `current` mirrors the active season (2026) for the money-function default + backward compat. E[$] = Sum_w P(weekly-high,w)*weekly + P(RS champ)*champ + P(RS 2nd)*runner_up + Sum_k P(finish k)*playoff[k], using THAT season's amounts.",
   "currency": "USD",
-  "total_pot": 4000,
-  "weekly_high": {
-    "amount": 100,
-    "weeks": 15,
-    "total": 1500,
-    "note": "37.5% of the pot — matchup-independent, paid to the league-high score each week. Variance is subsidized: this rewards pure ceiling against all 9 opponents simultaneously."
-  },
-  "regular_season": {
-    "champ": 250,
-    "runner_up": 125,
-    "total": 375,
-    "tiebreak": "total_points_for",
-    "tiebreak_note": "Cory 2026-08-08: RS ties (incl. the runner-up / playoff-cut line) break on TOTAL POINTS-FOR. Corroborated by Cory's 2024 playoff miss on an 8.2-point tiebreak.",
-    "note": "Rewards consistent winning — the floor still buys RS money + playoff entry, so this is NOT a pure-ceiling league."
-  },
-  "draft": {
-    "untimed": true,
-    "pick_timer_seconds": 0,
-    "note": "Cory 2026-08-08: the draft is UNTIMED (corroborated by pick_timer=0 on the Sleeper draft object). The War Room / opening script drop HARD time-pressure cues; the LRM countdown stays — it counts PICKS, not seconds."
-  },
-  "season_overrides": {
+  "active_season": 2026,
+  "weekly_high_scope": "regular_season_only",
+  "weekly_high_scope_note": "Master sheet (in writing): the weekly-$100 high is REGULAR SEASON ONLY — weeks 1-15 pay, playoff weeks do not.",
+
+  "by_season": {
     "2023": {
-      "status": "differs_from_current",
-      "values": null,
-      "note": "Cory 2026-08-08 CONFIRMED 2023 (league year one) used a DIFFERENT payout structure — actual buy-in / pot / split still PENDING. Until the real 2023 values land, money_history's 2023 dollars are computed under the CURRENT structure and are ERA-MISMATCHED — flagged, not trusted. 2024 & 2025 use the current structure."
+      "buy_in": 350, "total_pot": 3500,
+      "weekly_high": { "amount": 100, "weeks": 15, "total": 1500 },
+      "regular_season": { "champ": 200, "runner_up": 100, "total": 300 },
+      "playoffs": { "1": 550, "2": 450, "3": 400, "4": 300, "total": 1700 },
+      "_checksum": { "sum_of_parts": 3500, "components": "1500 + 300 + 1700 = 3500" },
+      "source": "master_sheet",
+      "note": "League year one — SMALLER pot. Corrects the earlier era-mismatch: Cory's 2023 THIRD paid $400, not $475."
+    },
+    "2024": {
+      "buy_in": 400, "total_pot": 4000,
+      "weekly_high": { "amount": 100, "weeks": 15, "total": 1500 },
+      "regular_season": { "champ": 250, "runner_up": 125, "total": 375 },
+      "playoffs": { "1": 675, "2": 550, "3": 500, "4": 400, "total": 2125 },
+      "_checksum": { "sum_of_parts": 4000, "components": "1500 + 375 + 2125 = 4000" },
+      "source": "master_sheet",
+      "note": "Playoffs 675/550/500/400 — DIFFERS from 2026. Corrects MarianSaar 2nd=$550 (not 575), cashworth 3rd=$500 (not 475)."
+    },
+    "2025": {
+      "buy_in": 400, "total_pot": 4000,
+      "weekly_high": { "amount": 100, "weeks": 15, "total": 1500 },
+      "regular_season": { "champ": 250, "runner_up": 125, "total": 375 },
+      "playoffs": { "1": 675, "2": 550, "3": 500, "4": 400, "total": 2125 },
+      "_checksum": { "sum_of_parts": 4000, "components": "1500 + 375 + 2125 = 4000" },
+      "source": "master_sheet",
+      "note": "Same as 2024. Corrects ds7mmet 3rd=$500 (not 475), B8T3S 2nd=$550 (not 575)."
+    },
+    "2026": {
+      "buy_in": 400, "total_pot": 4000,
+      "weekly_high": { "amount": 100, "weeks": 15, "total": 1500 },
+      "regular_season": { "champ": 250, "runner_up": 125, "total": 375 },
+      "playoffs": { "1": 675, "2": 575, "3": 475, "4": 400, "total": 2125 },
+      "_checksum": { "sum_of_parts": 4000, "components": "1500 + 375 + 2125 = 4000" },
+      "source": "master_sheet",
+      "note": "ACTIVE season. Playoffs changed 2nd/3rd to 575/475 vs 2024-25's 550/500."
+    },
+    "2027": {
+      "planned": true, "pending_vote": true, "buy_in": null, "total_pot": null,
+      "playoffs": { "2": 550, "3": 500 },
+      "source": "master_sheet_votes_tab",
+      "note": "PLANNED reversion (playoff 2nd/3rd back to 550/500) + a $500 buy-in vote PENDING. Not final — the January rollover diff (Part 12 / Annual) catches the outcome. Do not use for grading."
     }
   },
-  "playoffs": {
-    "1": 675,
-    "2": 575,
-    "3": 475,
-    "4": 400,
-    "total": 2125,
-    "gradient_1_to_4": 275,
-    "note": "Flat gradient: top-4 ENTRY (~$400 floor) is the real prize; seeding and winning add modestly. P(make top 4) matters more than P(win it)."
+
+  "current": {
+    "total_pot": 4000,
+    "weekly_high": { "amount": 100, "weeks": 15, "total": 1500 },
+    "regular_season": {
+      "champ": 250, "runner_up": 125, "total": 375,
+      "tiebreak": "total_points",
+      "tiebreak_note": "Master sheet rules tab (confirmed): RS ties break on TOTAL POINTS. Corroborated by Cory's 2024 8.2-point tiebreak miss."
+    },
+    "playoffs": { "1": 675, "2": 575, "3": 475, "4": 400, "total": 2125 }
   },
-  "_checksum": {
-    "sum_of_parts": 4000,
-    "components": "1500 (weekly) + 375 (RS) + 2125 (playoffs) = 4000"
-  }
+
+  "total_pot": 4000,
+  "weekly_high": { "amount": 100, "weeks": 15, "total": 1500,
+    "note": "37.5% of the pot — regular season only, paid to the league-high score each week." },
+  "regular_season": { "champ": 250, "runner_up": 125, "total": 375,
+    "tiebreak": "total_points",
+    "note": "Rewards consistent winning; the floor still buys RS money + playoff entry." },
+  "playoffs": { "1": 675, "2": 575, "3": 475, "4": 400, "total": 2125, "gradient_1_to_4": 275,
+    "note": "Flat gradient: top-4 ENTRY (~$400 floor) is the real prize." },
+
+  "draft": {
+    "untimed": true, "pick_timer_seconds": 0,
+    "note": "Draft is UNTIMED (pick_timer=0 at source). Hard time-pressure cues dropped; the LRM countdown counts PICKS."
+  },
+  "rules": {
+    "pick_trade_same_round_window": 1,
+    "pick_trade_note": "League rule (master sheet): traded picks must swap within ONE round of each other — a hard constraint for the pick-trade valuator.",
+    "pending_votes": ["$500 buy-in (2027)", "playoff payout-percentage changes (2027)"],
+    "pending_votes_note": "Live governance on the Votes tab — 2027 config may move; the January rollover diff covers it."
+  },
+  "_data_spine_note": "The master sheet's own TOTAL column is STALE (excludes 2025 for several owners) — the exact disease the data spine cures. Career money derives from YEAR columns, never the sheet Total.",
+  "_checksum": { "sum_of_parts": 4000, "components": "current/2026: 1500 (weekly) + 375 (RS) + 2125 (playoffs) = 4000" }
 }

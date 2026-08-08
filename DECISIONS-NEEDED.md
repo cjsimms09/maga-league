@@ -3,10 +3,12 @@
 _Questions no spec already answers. Each carries my recommended answer; I take
 the conservative option and mark the item PROVISIONAL until you rule._
 
-### ✅ Open inputs — RESOLVED 2026-08-08 (set in `draft/config/payouts.json`)
-- **Pick timer:** ✅ **UNTIMED** (`draft.untimed=true`, corroborated by `pick_timer=0` at source). Hard time-pressure cues dropped; the LRM countdown stays (counts picks, not seconds).
-- **RS runner-up tiebreak:** ✅ **TOTAL POINTS-FOR** (`regular_season.tiebreak="total_points_for"`, corroborated by Cory's 2024 8.2-pt tiebreak miss).
-- **2023 payout era:** 🚩 **CONFIRMED DIFFERS from the current structure — actual buy-in/pot/split still PENDING from Cory.** Recorded as `season_overrides.2023.status="differs_from_current"`, `values=null`. **money_history now flags 2023 dollars as ERA-MISMATCHED** (computed under the current structure, not trusted) until the real 2023 values land. **This is the one input still open — send the 2023 numbers and I'll fill the override so 2023 dollars recompute correctly.**
+### ✅ Open inputs — ALL RESOLVED 2026-08-08 (master sheet + config)
+- **Pick timer:** ✅ **UNTIMED** (`draft.untimed=true`, `pick_timer=0` at source).
+- **RS tiebreak:** ✅ **TOTAL POINTS** (`regular_season.tiebreak="total_points"`, master-sheet rules tab).
+- **2023 payout era:** ✅ **RESOLVED by the master sheet** — 2023 = $3,500 pot (playoffs 550/450/400/300, RS 200/100). Encoded in `payouts.json.by_season`; money_history recomputed per-season (Cory 2023 3rd corrected $475→$400). No longer pending.
+- **Draft slot:** claim in progress on `/draft` (site-claimed provenance); auto-verifies on Sleeper draft-order assignment.
+- **⏳ Only outstanding data:** the master-sheet **XLSX file itself** (for the 2016–2022 pre-Sleeper import) was NOT attached to the ingestion message — send the file and the pre-Sleeper history/settlement import lands. This is a data hand-off, not a decision.
 
 ## D1 — Backtest grading metric — RESOLVED BY DATA (needs your acknowledgement)
 

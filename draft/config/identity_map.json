@@ -1,0 +1,17 @@
+{
+  "_comment": "IDENTITY TABLE (master sheet, 2026-08-08). Real name <-> Sleeper handle <-> Sleeper owner_id. The history page and settlement render REAL NAMES; money_history keys on owner_id. Zero owner turnover across the Sleeper era (2023-26); the real names extend the mapping back to the pre-Sleeper years (2016-2022) in the master sheet.",
+  "by_real_name": {
+    "Cory":          { "handle": "coryjsimms",   "owner_id": "434915673219526656" },
+    "David":         { "handle": "ds7mmet",       "owner_id": "434921290978029568" },
+    "Michael Hagen": { "handle": "mhagen",        "owner_id": "458507445241638912" },
+    "Jeremy":        { "handle": "Jreis",         "owner_id": null },
+    "Justin":        { "handle": "cashworth",     "owner_id": null },
+    "Dylan":         { "handle": "Schmelley",     "owner_id": null },
+    "Sam":           { "handle": "Sadbru",        "owner_id": null },
+    "Bates":         { "handle": "B8T3S",         "owner_id": null },
+    "Marian":        { "handle": "MarianSaar",    "owner_id": null },
+    "Richard":       { "handle": "Richard2121",   "owner_id": null }
+  },
+  "_owner_id_note": "coryjsimms/ds7mmet/mhagen owner_ids are independently confirmed from the two-analyst cross-check; the remaining seven owner_ids resolve when the owners map is joined from the harvest (roster->owner is stable across seasons). The two ID pairs at count '2' in 2024 (471160336402083840, 461443264013135872) belong to {Richard2121, MarianSaar}; the two '1's in 2025 wks1-6 (440723317066821632, 459850070410391552) to {Jreis, Schmelley} — resolve the exact assignment on the owners-map join.",
+  "_pre_sleeper": "The master sheet carries real names + standings + payouts for 2016-2022 (pre-Sleeper). Those years key on real name only (no owner_id) and are tagged source:master_sheet in the history page."
+}

@@ -87,10 +87,18 @@ def analyse():
     # games with a "p" field: p=1 is the championship (w=1st, l=2nd), p=3 is the
     # third-place game (w=3rd, l=4th). Map each to payouts.playoffs[finish].
     reconcile = {}   # season -> playoff $ assigned (must be 0 or the full pot)
+    def _season_pay(sk):
+        # PER-SEASON structure (master sheet): the payout table CHANGED across
+        # eras (2023 = $3,500 pot 550/450/400/300; 2024-25 = 675/550/500/400;
+        # 2026 = 675/575/475/400). Pick the season's own config; fall back to the
+        # current/top-level only if a year is missing.
+        by = (pay.get("by_season") or {}).get(str(sk))
+        return by if by else pay
+
     def _playoff_dollars(sk, season):
         brackets = season.get("brackets") or {}
         wb = brackets.get("winners") or brackets.get("winners_bracket") or []
-        po = pay.get("playoffs") or {}
+        po = (_season_pay(sk).get("playoffs")) or (pay.get("playoffs") or {})
         assigned = 0.0
         # Each season has exactly two placement games: p=1 (champ/runner-up) and
         # p=3 (3rd/4th). w/l are roster_ids, resolved to owner PER SEASON (the
@@ -115,16 +123,17 @@ def analyse():
     # Regular-season + playoff money from standings/brackets.
     for sk, s in sorted(graded.items()):
         _playoff_dollars(sk, s)
+        rs = (_season_pay(sk).get("regular_season")) or (pay.get("regular_season") or {})
         st = s.get("standings") or []
         if len(st) >= 1:
             dollars.setdefault(_owner_name(s, st[0].get("roster_id")), {"weekly": 0.0, "seasons": set()})
             dollars[_owner_name(s, st[0].get("roster_id"))].setdefault("rs", 0.0)
             dollars[_owner_name(s, st[0].get("roster_id"))]["rs"] = \
-                dollars[_owner_name(s, st[0].get("roster_id"))].get("rs", 0.0) + (pay.get("regular_season") or {}).get("champ", 250)
+                dollars[_owner_name(s, st[0].get("roster_id"))].get("rs", 0.0) + rs.get("champ", 250)
         if len(st) >= 2:
             nm = _owner_name(s, st[1].get("roster_id"))
             dollars.setdefault(nm, {"weekly": 0.0, "seasons": set()})
-            dollars[nm]["rs"] = dollars[nm].get("rs", 0.0) + (pay.get("regular_season") or {}).get("runner_up", 125)
+            dollars[nm]["rs"] = dollars[nm].get("rs", 0.0) + rs.get("runner_up", 125)
 
     # Threshold distribution by week (pooled across seasons). Only paying weeks
     # (1..15) matter for the $ chase; playoff weeks are shown but flagged.
@@ -152,14 +161,18 @@ def analyse():
          for n, v in dollars.items()),
         key=lambda x: -x["total_$"])
 
-    # Reconciliation: per season, playoff $ assigned must be 0 (unplayed) or the
-    # full playoff pot (all 4 finishes present, no double-count).
-    pot = (pay.get("playoffs") or {}).get("total", 2125)
-    recon = {sk: {"assigned": amt, "expected": pot, "ok": amt in (0, pot)}
+    # Reconciliation: per season, playoff $ assigned must be 0 (unplayed) or that
+    # SEASON's full playoff pot (2023 = $1,700, 2024-26 = $2,125). Per-season now
+    # that the payout structure is era-keyed.
+    def _season_pot(sk):
+        by = (pay.get("by_season") or {}).get(str(sk))
+        po = (by or pay).get("playoffs") or {}
+        return po.get("total", 2125)
+    recon = {sk: {"assigned": amt, "expected": _season_pot(sk), "ok": amt in (0, _season_pot(sk))}
              for sk, amt in reconcile.items()}
     return {"graded_seasons": sorted(graded.keys()), "threshold_table": threshold_table,
             "concentration": concentration, "dollar_standings": standings,
-            "reconciliation": recon, "playoff_pot": pot}
+            "reconciliation": recon, "playoff_pot": (pay.get("playoffs") or {}).get("total", 2125)}
 
 
 def render(result):
@@ -193,22 +206,14 @@ def render(result):
         r = rc[sk]
         out.append(f"| {sk} | ${r['assigned']:.0f} | ${r['expected']:.0f} | {'✅' if r['ok'] else '🐛 LEAK'} |")
     out.append("" if not bad else f"\n**🐛 RECONCILIATION FAILED for {bad} — do not trust the money table.**")
-    # 2023 era: Cory CONFIRMED (2026-08-08) it used a DIFFERENT payout structure.
-    # Until the real 2023 values land, its dollars here are computed under the
-    # current structure and are ERA-MISMATCHED — say so loudly, do not silently
-    # present 2023 dollars as trustworthy.
-    ov = ((pay.get("season_overrides") or {}).get("2023") or {}) if isinstance(pay, dict) else {}
-    if ov.get("status") == "differs_from_current" and not ov.get("values"):
-        out += ["", "**🚩 2023 DOLLARS ARE ERA-MISMATCHED.** Cory confirmed 2023 (year one) "
-                "used a DIFFERENT payout structure; the real buy-in/pot/split are still "
-                "PENDING. The 2023 rows above are computed under the CURRENT structure and "
-                "must NOT be trusted until `payouts.season_overrides.2023.values` is filled. "
-                "2024 & 2025 use the current structure and reconcile."]
-    else:
-        out += ["", "_2023 payout era: pending Cory's confirmation of the year-one structure._"]
-    out += ["", "_Weekly-high = weeks 1–15; playoff weeks 16–17 don't pay. Owner IDs "
-            "unresolved except mine until the owners map is joined (roster→owner is stable "
-            "across seasons)._"]
+    # PER-SEASON payouts (master sheet, 2026-08-08): each season uses its OWN
+    # structure — 2023 = $3,500 pot (550/450/400/300), 2024-25 = 675/550/500/400,
+    # 2026 = 675/575/475/400. All three seasons reconcile to their own pot above.
+    out += ["", "_Payouts are PER-SEASON (master sheet): 2023 = \\$3,500 pot "
+            "(playoffs 550/450/400/300, RS 200/100); 2024–25 = \\$4,000 (675/550/500/400, "
+            "RS 250/125); 2026 = current (675/575/475/400). Weekly-high = weeks 1–15, "
+            "regular season only. Owner IDs map to real names via the identity table "
+            "(`draft/config/identity_map.json`)._"]
     return "\n".join(out) + "\n"
 
 
