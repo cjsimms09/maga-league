@@ -104,9 +104,37 @@ PENDING = [
 ]
 
 
+# External truth anchors (Cory, from the master sheet) — the certification order:
+# the grader must reproduce these before any experiment consumes it.
+CERT_ANCHORS = [("2023", "434915673219526656", 400), ("2025", "458507445241638912", 1325)]
+
+
+def certify_grader(history, payouts) -> None:
+    """Reproduce-history certification, in-process. Raises if the grader does not
+    match the external anchors or conserve each era's pot — so run_all cannot
+    grade a single experiment on an un-certified grader (Cory's gate)."""
+    def owner_total(season, uid):
+        s = MG.season_of(history, season)
+        g = MG.grade_actual(history, payouts, season)
+        total = 0
+        for rid, v in g["per_roster"].items():
+            r = next((r for r in s.get("final_rosters", []) if r.get("roster_id") == rid), None)
+            if r and str(r.get("owner_id")) == uid:
+                total += v["total"]
+        return total, g["distributed"], g["pay"]["total_pot"]
+    for season, uid, want in CERT_ANCHORS:
+        got, distributed, pot = owner_total(season, uid)
+        if round(got, 2) != want:
+            raise AssertionError(f"CERTIFICATION FAILED: {season} owner {uid} = ${got}, known ${want}")
+        if round(distributed, 2) != pot:
+            raise AssertionError(f"CERTIFICATION FAILED: {season} distributed ${distributed} != pot ${pot}")
+
+
 def run_all(out_dir: Path) -> dict:
     history = MG.load_history()
     payouts = MG.load_payouts()
+    # GATE: no experiment runs until the grader reproduces history to the dollar.
+    certify_grader(history, payouts)
     results = []
     for spec in EXPERIMENTS:
         if not spec.get("runnable"):
