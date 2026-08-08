@@ -24,6 +24,17 @@ Standing infrastructure per `docs/queued/the-lab.md`. **Every experiment is regi
 | 10 | Slot-conditional strategy (best strategy × 10 slots) | report per-slot winners; a slot-conditional rule ships only if machine-detectable + held-out (per §6) | spec · no wf |
 | 11 | Keeper-decision retro (2024/25 keeps under optimizer) | grades K0 logic vs history; informational unless it clears null | spec (K0 docs) · no wf |
 | 12 | Pick-trade valuator calibration (within-1-round offers vs replay) | valuator ships only if priced offers track replay outcomes across MC rooms; honors the 1-round rule | spec (`payouts.rules`) · no wf |
+| **19** | **Archetype tournament** (Zero-RB / Hero-RB / Robust-RB / WR-Anchor / Elite-TE-Anchor / Early-QB / Late-QB / Balanced-BPA-control) as sequencing-constraint overlays | an archetype "wins" only if its E[$] beats Balanced-BPA control + null-95th on held-out; raced LEAGUE-GENERAL (all slots, varied keepers) AND CORY-CONDITIONAL (my seat, keepers locked) | **spec — PRE-MOCK priority** (experiment-1-adjacent, shares harness) · no wf |
+
+### Experiment 19 — THE ARCHETYPE TOURNAMENT (detail; PRE-MOCK)
+Race the named positional doctrines under OUR rules + money. **Each archetype is a sequencing-CONSTRAINT overlay** on the engine — the composite still picks the best player WITHIN the constraint:
+- **Zero-RB** (no RB before live round ~6) · **Hero-RB** (one RB in first two live picks, then none until late) · **Robust-RB** (2–3 RB in first four) · **WR-Anchor** (3 WR in first four) · **Elite-TE-Anchor** (TE in first two — the Bowers question formalized) · **Early-QB** (QB in first three — does 6-pt passing TD justify it?) · **Late-QB** (no QB before round ~8) · **Balanced-BPA** (no constraints — the CONTROL).
+
+**Raced two ways:** (a) **LEAGUE-GENERAL** — every archetype from every slot across Monte-Carlo rooms with varied keeper configs → "what wins in this league's economy"; (b) **CORY-CONDITIONAL** — from my ACTUAL seat, keepers locked (Henry+Walker+Chase = I already START Robust-RB-shaped, which pre-answers part of it — the real query is what sequencing wins FROM that base: do I ever draft another early RB; when does TE/QB/WR-heavy pay).
+
+**Grading:** full money — E[$] decomposed (high-pool / entry / RS), era-correct per-season payouts, harvested per-week thresholds, efficiency-adjusted opponents, 500-null baselines, season cross-validation. Same gates as everything.
+
+**Deliverables:** the archetype leaderboard BOTH ways; **league-specific verdicts called out explicitly** (does 6-pt passTD move QB timing vs consensus? does half-PPR + 10-team kill Zero-RB's edge? does the high pool reward ceiling-heavy builds?); and **the Cory-conditional winner feeds DIRECTLY into the opening script + the Paths panel's direction-naming** — path cards speak archetype language ("this is the Hero-RB branch") where the tournament shows a doctrine matters.
 
 ## IN-SEASON slate (13–18) — graded on replayed 2023–25; lands before week 1
 | # | experiment | pre-registered criterion | state |
