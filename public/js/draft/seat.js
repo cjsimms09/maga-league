@@ -40,7 +40,7 @@
 (function (global) {
   'use strict';
 
-  var SOURCES = ['sleeper', 'site-claimed', 'manual', 'league-config', 'assumed', 'unresolved'];
+  var SOURCES = ['sleeper', 'inferred', 'site-claimed', 'manual', 'league-config', 'assumed', 'unresolved'];
 
   /**
    * Build the seat identity.
@@ -89,6 +89,28 @@
     return Number.isFinite(n) && n > 0 ? n : null;
   }
 
+  /**
+   * THE MIDDLE FALLBACK: infer the seat ARITHMETICALLY from my first marked pick.
+   *
+   * When the draft object does not name me (some mock rooms), I still know one
+   * thing the moment I take a player: WHICH PICK NUMBER was mine. In a snake
+   * that determines the seat exactly — pick 34 in a 10-team room is seat 4, and
+   * no other seat owns it.
+   *
+   * This is a DERIVATION, not a guess, so it earns source 'inferred' rather
+   * than 'assumed'. It is still weaker than the draft object saying so, because
+   * it depends on my having marked the right pick number.
+   *
+   * Returns null when the room shape is unknown or the pick is out of range —
+   * never a fallback number.
+   */
+  function inferFromPick(pickNo, teams) {
+    var p = Number(pickNo), t = Number(teams);
+    if (!p || !t || p < 1) return null;
+    var slot = slotOfPick(p, t);
+    return (slot >= 1 && slot <= t) ? slot : null;
+  }
+
   /** One sentence naming the identity. Rendered in ONE place, quoted elsewhere. */
   function describe(seat) {
     if (!seat || !seat.resolved) {
@@ -97,7 +119,9 @@
         : 'SEAT UNRESOLVED — set your draft slot';
     }
     var assumed = seat.source === 'assumed'
-      ? ' (ASSUMED — the mock room did not report your seat; set it if wrong)' : '';
+      ? ' (ASSUMED — the mock room did not report your seat; set it if wrong)'
+      : seat.source === 'inferred'
+        ? ' (inferred from your first pick — the room did not name you)' : '';
     if (seat.mapped) {
       return 'mock seat ' + seat.roomSlot + ' = my real seat ' + seat.realSlot
         + ' — picks mapped' + assumed;
@@ -172,7 +196,8 @@
     return { ok: problems.length === 0, problems: problems };
   }
 
-  var api = { resolve: resolve, describe: describe, audit: audit, slotOfPick: slotOfPick, SOURCES: SOURCES };
+  var api = { resolve: resolve, describe: describe, audit: audit, slotOfPick: slotOfPick,
+              inferFromPick: inferFromPick, SOURCES: SOURCES };
   global.DraftSeat = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);

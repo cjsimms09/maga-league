@@ -151,12 +151,53 @@ def test_seat_bearing_artifact_fields_are_enumerated():
         assert not bad, f"{name} holds out-of-range seats: {bad}"
 
 
-def test_pick_count_law_is_stated_where_it_is_enforced():
-    """The arithmetic assertion, and the reason the LOOSER one is wrong: keepers
-    are on the board without being pick events, so `drafted == picks` is false on
-    a correct board at pick 1. An assertion that fires on correct state is an
-    assertion that gets deleted."""
+def test_the_three_invariants_are_stated_where_they_are_enforced():
+    """Three invariants over THREE POPULATIONS, and the populations are the
+    whole difficulty. `drafted == picks` is false on a correct board because
+    keepers are off the board without being pick events; and in a REHEARSAL the
+    predicted opponent keepers are neither events nor placements, just absent.
+
+    An assertion that fires on correct state gets deleted, so each term names
+    the population it counts, in a comment, for a future session with no memory
+    of the conversation that produced it."""
     app = (CLIENT / "app.js").read_text()
-    assert "drafted.size == picksObserved + keepersPreSeeded" in app
     assert "function assertPickState" in app
-    assert "went BACKWARDS" in app          # monotonicity
+    assert "went BACKWARDS" in app                       # monotonicity
+    assert "INVARIANT 1" in app and "INVARIANT 2" in app and "INVARIANT 3" in app
+    # The three populations must be NAMED, not merely used.
+    for term in ("pickEvents", "keeperPlacements", "removedFromBoard", "rehearsalRemovals"):
+        assert term in app, f"population term '{term}' missing"
+    assert "WHICH POPULATION EACH TERM COUNTS" in app
+    # Invariant 3 is delegated, not re-implemented.
+    assert "DraftReconcile.placementErrors" in app
+
+
+def test_the_placement_law_exists_once_on_the_js_side():
+    """Invariant 3 is `top_picks_flat`: a team keeping N forfeits rounds 1..N,
+    so its keepers must occupy those rounds. One implementation, two callers —
+    the commissioner reconcile and the pick-state invariant."""
+    rec = (CLIENT / "reconcile.js").read_text()
+    assert "function placementErrors" in rec
+    assert "placementErrors: placementErrors" in rec     # exported
+    app = (CLIENT / "app.js").read_text()
+    assert "function placementErrors" not in app, "re-implemented in app.js"
+
+
+def test_keeper_placement_law_holds_on_the_real_slate():
+    """The Python half of the pair. Same law, same field (`cost_round`), so the
+    two cannot diverge in MEANING even though the languages differ."""
+    import json
+    art = ROOT / "public" / "draft_data.json"
+    if not art.exists():
+        pytest.skip("board not built")
+    forfeited = (json.loads(art.read_text()).get("pick_order") or {}).get("forfeited") or []
+    by_team: dict[int, list] = {}
+    for f in forfeited:
+        by_team.setdefault(int(f["team_slot"]), []).append(f)
+    for seat, ks in by_team.items():
+        n = len(ks)
+        rounds = sorted(int(k["cost_round"]) for k in ks)
+        assert rounds == list(range(1, n + 1)), (
+            f"seat {seat} keeps {n} but its keeper costs are {rounds} — "
+            f"top_picks_flat forfeits rounds 1..{n}"
+        )

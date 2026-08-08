@@ -181,7 +181,57 @@
     return out;
   }
 
-  const api = { reconcile: reconcile, correctedSlate: correctedSlate };
+  /**
+   * TOP_PICKS_FLAT PLACEMENT LAW — the single JS implementation, shared.
+   *
+   * Keeping N players forfeits rounds 1..N by rank, so every keeper a team
+   * holds must occupy one of ITS OWN rounds 1..N. A keeper outside that window
+   * is a placement error, not a preference.
+   *
+   * Called by `reconcile()` (the commissioner cross-check) AND by app.js's
+   * `pickState()` invariant, so the rule exists once on this side. The Python
+   * keeper-placement verification asserts the same law against the artifact;
+   * they are paired deliberately and both read `forfeited[].cost_round`, so
+   * they cannot diverge in MEANING even though the languages differ.
+   *
+   * `forfeited`: [{player_id, name, team_slot, cost_round}]
+   */
+  function placementErrors(forfeited) {
+    const byTeam = {};
+    (forfeited || []).forEach(function (f) {
+      const t = Number(f.team_slot);
+      if (!t) return;
+      (byTeam[t] = byTeam[t] || []).push(f);
+    });
+    const errors = [];
+    Object.keys(byTeam).forEach(function (t) {
+      const ks = byTeam[t];
+      const n = ks.length;                       // this team keeps N
+      const rounds = ks.map(function (k) { return Number(k.cost_round); });
+      ks.forEach(function (k) {
+        const r = Number(k.cost_round);
+        if (!(r >= 1 && r <= n)) {
+          errors.push({ team_slot: Number(t), player_id: String(k.player_id),
+            name: k.name, cost_round: r, keeps: n,
+            why: k.name + ' costs round ' + r + ' but seat ' + t + ' keeps '
+              + n + ' — rounds 1..' + n + ' are the only legal costs' });
+        }
+      });
+      // ...and the N rounds must be DISTINCT: two keepers cannot both cost R2.
+      const seen = {};
+      rounds.forEach(function (r) {
+        if (seen[r]) {
+          errors.push({ team_slot: Number(t), cost_round: r, keeps: n,
+            why: 'seat ' + t + ' has two keepers both costing round ' + r });
+        }
+        seen[r] = true;
+      });
+    });
+    return errors;
+  }
+
+  const api = { reconcile: reconcile, correctedSlate: correctedSlate,
+                placementErrors: placementErrors };
   global.DraftReconcile = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);

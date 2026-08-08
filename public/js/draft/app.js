@@ -494,6 +494,24 @@
    * .my_draft_slot)` reads and one code path that left that field describing a
    * different room than `pick_order.my_picks` did. Fifteen readers cannot notice
    * a disagreement; one can. */
+  /* Upgrade an ASSUMED mock seat to an INFERRED one the moment I mark a pick.
+   * Only fires in a mock with no better source; a Sleeper-named seat is never
+   * overwritten by arithmetic. */
+  function inferSeatFromMarkedPick() {
+    if (typeof DraftSeat === 'undefined' || !state.mockMode) return null;
+    if (state.roomSeatSource === 'sleeper' || state.roomSeatSource === 'manual') return null;
+    const teams = (state.mockMode || {}).teams;
+    const at = pickState().currentPick - 1;      // the pick I just took
+    const slot = DraftSeat.inferFromPick(at, teams);
+    if (!slot || slot === mySlot()) return null;
+    state.roomSeatSource = 'inferred';
+    setSlot(slot, 'manual');                     // routes through the one mutation point
+    state.roomSeatSource = 'inferred';           // setSlot marks manual; this is stronger
+    showSlotNote('Seat inferred from your pick at ' + at + ' — you are seat ' + slot
+      + ' in this room.', false);
+    return slot;
+  }
+
   function refreshSeat() {
     if (typeof DraftSeat === 'undefined' || !state.data) return null;
     const league = state.data.league || {};
@@ -522,47 +540,75 @@
     const current = currentPick();
     return order.filter(p => p >= current);
   }
-  /* THE SINGLE SOURCE FOR PICK STATE.
+  /* THE SINGLE SOURCE FOR PICK STATE — three invariants, three populations.
    *
-   * Same pattern as the seat fix and the rounds fix: one derivation, every
-   * consumer reads it. Derived from PICKS OBSERVED — synced picks plus locally
-   * marked picks — never from `my_picks[0]` or any static seed.
+   * WHICH POPULATION EACH TERM COUNTS. Read this before changing anything here;
+   * the next person to read it will be a future session with no memory of the
+   * conversation that produced it.
    *
-   * A PRECISION THE OBVIOUS INVARIANT GETS WRONG. "pick count == drafted-player
-   * count" is not quite true here: my keepers are added to `drafted` when the
-   * board loads (they are off the board) but they are not pick EVENTS we
-   * observed. Opponent keepers are not marked at all outside rehearsal. So the
-   * exact structural law is
+   *   pickEvents        picks OBSERVED in this draft — synced from Sleeper or
+   *                     marked locally. NOT keepers. A keeper is not an event
+   *                     that happened during the draft; it is a pre-existing
+   *                     placement.
+   *   keeperPlacements  players off the board because a team KEPT them. In the
+   *                     league draft this is the confirmed slate. In a mock it
+   *                     is MY seeded keepers only.
+   *   removedFromBoard  players absent from the board for ANY reason. In the
+   *                     league that is pickEvents + keeperPlacements. In a
+   *                     REHEARSAL it also includes predicted OPPONENT keepers
+   *                     pre-removed for fidelity — and those are NEITHER events
+   *                     NOR placements. They were never drafted and nobody
+   *                     "kept" them here; they are simply absent, so the
+   *                     invariant is evaluated against the REHEARSAL BOARD'S
+   *                     OWN expected counts, not the league's.
    *
-   *     drafted.size == picksObserved + keepersPreSeeded
-   *
-   * and a divergence from THAT is structurally impossible. Asserting the looser
-   * version would have failed on a correct board at pick 1, which is how a
-   * useful assertion gets deleted.
+   * INVARIANT 1  currentPick == pickEvents + 1                  (keepers excluded)
+   * INVARIANT 2  removedFromBoard == pickEvents + keeperPlacements + rehearsalRemovals
+   *              A mismatch means the board and the slate disagree — its own
+   *              alarm, separate from a clock fault.
+   * INVARIANT 3  under top_picks_flat, every keeper occupies one of its own
+   *              team's rounds 1..N. Delegated to DraftReconcile.placementErrors
+   *              so the rule exists ONCE on this side; the Python keeper-
+   *              placement verification asserts the same law on the artifact.
    */
   function pickState() {
-    const observed = state.sync
+    const pickEvents = state.sync
       ? Math.max(0, state.sync.currentPickNumber() - 1)
       : (state.recentPicks || []).length;
-    const keepersPreSeeded = (state.myRoster || []).filter(p => p.is_keeper).length;
-    const drafted = state.drafted ? state.drafted.size : 0;
-    const expected = observed + keepersPreSeeded;
+    const keeperPlacements = (state.myRoster || []).filter(p => p.is_keeper).length;
+    const rehearsalRemovals = (state.rehearsalKeepers || {}).removed || 0;
+    const removedFromBoard = state.drafted ? state.drafted.size : 0;
+
+    // INVARIANT 2's expectation, in the population the CURRENT board lives in.
+    // Rehearsal removals are only in the mock population; in the league draft
+    // that term is zero and the expression collapses to the league law.
+    const expectedRemoved = pickEvents + keeperPlacements + rehearsalRemovals;
+
+    let placement = [];
+    try {
+      if (typeof DraftReconcile !== 'undefined' && DraftReconcile.placementErrors && !state.mockMode) {
+        placement = DraftReconcile.placementErrors(
+          ((state.data || {}).pick_order || {}).forfeited || []);
+      }
+    } catch (e) { placement = []; }
+
     return {
-      observed: observed,
-      keepersPreSeeded: keepersPreSeeded,
-      draftedOnBoard: drafted,
-      currentPick: observed + 1,
-      // The structural law. False = a pick event or a board removal happened
-      // without the other, which is a bug, not a state.
-      consistent: drafted === expected,
-      expectedDrafted: expected,
+      pickEvents: pickEvents,
+      keeperPlacements: keeperPlacements,
+      rehearsalRemovals: rehearsalRemovals,
+      removedFromBoard: removedFromBoard,
+      expectedRemoved: expectedRemoved,
+      currentPick: pickEvents + 1,                        // INVARIANT 1
+      boardConsistent: removedFromBoard === expectedRemoved,  // INVARIANT 2
+      placementErrors: placement,                          // INVARIANT 3
+      consistent: removedFromBoard === expectedRemoved && placement.length === 0,
     };
   }
 
-  /* MONOTONICITY + THE STRUCTURAL LAW, checked every render. A clock that goes
-   * backwards, or a drafted-count that stops matching the picks that produced
-   * it, is the shape of the frozen-clock bug and of every attribution bug.
-   * Failing loudly here would have caught the frozen clock at pick 35. */
+  /* All three invariants, checked every render, plus monotonicity. Each failure
+   * is its OWN alarm — a board/slate disagreement is a different problem from a
+   * clock fault and from a misplaced keeper, and collapsing them into one
+   * boolean would lose the diagnosis. */
   function assertPickState() {
     const ps = pickState();
     const last = state.lastPickSeen == null ? -1 : state.lastPickSeen;
@@ -570,10 +616,12 @@
     if (ps.currentPick < last) {
       problems.push('pick went BACKWARDS: ' + last + ' -> ' + ps.currentPick);
     }
-    if (!ps.consistent) {
-      problems.push('drafted ' + ps.draftedOnBoard + ' != observed ' + ps.observed
-        + ' + keepers ' + ps.keepersPreSeeded);
+    if (!ps.boardConsistent) {
+      problems.push('board/slate disagree: ' + ps.removedFromBoard + ' off the board != '
+        + ps.pickEvents + ' picks + ' + ps.keeperPlacements + ' keepers'
+        + (ps.rehearsalRemovals ? ' + ' + ps.rehearsalRemovals + ' rehearsal removals' : ''));
     }
+    ps.placementErrors.forEach(function (e) { problems.push('KEEPER PLACEMENT: ' + e.why); });
     state.lastPickSeen = Math.max(last, ps.currentPick);
     state.pickStateProblems = problems;
     if (problems.length) console.error('[pick-state] ' + problems.join(' · '));
@@ -2826,7 +2874,7 @@
     (state.pickStateProblems || []).forEach(function (x) { red.push('PICK STATE: ' + x); });
     if ((prov.adp || {}).warning) red.push('ADP is fixture/offline');
     if (typeof prov.value_coverage === 'number' && prov.value_coverage < 0.9) red.push('thin projections');
-    if (!seat || !seat.resolved) red.push('seat unresolved');
+    if (!seat || !seat.resolved) red.push('SEAT UNKNOWN — seat-dependent panels suppressed');
     else if (seat.source === 'assumed') amber.push('seat assumed');
     else if (!state.mockMode && !state.slotVerified) amber.push('slot unverified');
     if (state.keeperLock && !state.keeperLock.locked && !state.mockMode) amber.push('slate unconfirmed');
@@ -3242,7 +3290,15 @@
     if (!p) return;
     // Recorded BEFORE anything else: the difference between this set and what
     // Sleeper reports on my seat is exactly the missed-mark case.
-    if (toMe) state.markedLocally.add(String(playerId));
+    if (toMe) {
+      state.markedLocally.add(String(playerId));
+      // SEAT FALLBACK 2 of 3 (auto-detect spec): the draft object did not name
+      // me, but marking my own pick tells me the pick NUMBER, and in a snake
+      // that determines the seat exactly. A derivation, not a guess — so the
+      // seat upgrades from 'assumed' to 'inferred' rather than staying a
+      // silent fallback.
+      try { inferSeatFromMarkedPick(); } catch (e) { /* never blocks the clock */ }
+    }
     const seatSlot = mySlot();
     const slot = toMe ? seatSlot : (teamSlot || null);
     const alreadySeen = state.drafted.has(String(playerId));

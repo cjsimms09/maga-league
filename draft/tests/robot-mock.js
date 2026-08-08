@@ -681,6 +681,7 @@ if (!IS_FIXTURE) {
 // IS available is my Sleeper user id, and draft_order maps user_id -> slot in
 // every draft object including mocks.
 {
+  const SEAT = require('../../public/js/draft/seat.js');
   const profiles = ((ART.manager_profiles || {}).managers) || {};
   const myUid = Object.keys(profiles).find(u => (profiles[u] || {}).name === 'coryjsimms');
   check('R-seatauto: my Sleeper uid is present on the board (the identity exists)',
@@ -698,6 +699,30 @@ if (!IS_FIXTURE) {
     resolve({ draft_order: { '999': 1 } }, myUid) === null);
   check('R-seatauto: an unpopulated draft_order (order not yet assigned) resolves null',
     resolve({ draft_order: {} }, myUid) === null && resolve({}, myUid) === null);
+  // FALLBACK 2 of 3: arithmetic inference from my first marked pick. A snake
+  // pick number determines the seat exactly, so this is a DERIVATION and earns
+  // 'inferred', not 'assumed'.
+  // A CLEAN SNAKE, which is what a mock is. Cory's real picks (34, 41, 54) are
+  // the post-forfeit LIVE sequence and do NOT map this way — in an unforfeited
+  // 10-team snake pick 34 belongs to seat 7. Asserting 34->4 here would have
+  // been importing league arithmetic into a mock, which is the same
+  // population-confusion that caused the keeper-seat bug.
+  check('R-seatauto: my first marked pick INFERS the seat arithmetically',
+    SEAT.inferFromPick(4, 10) === 4 && SEAT.inferFromPick(17, 10) === 4
+    && SEAT.inferFromPick(24, 10) === 4 && SEAT.inferFromPick(37, 10) === 4
+    && SEAT.inferFromPick(34, 10) === 7 && SEAT.inferFromPick(1, 10) === 1,
+    [4, 17, 24, 37, 34, 1].map(n => n + '->' + SEAT.inferFromPick(n, 10)).join(' '));
+  check('R-seatauto: inference refuses an unknown room shape rather than guessing',
+    SEAT.inferFromPick(34, 0) === null && SEAT.inferFromPick(0, 10) === null);
+  check('R-seatauto: an inferred seat is LABELLED inferred, not silently adopted',
+    /inferred from your first pick/.test(SEAT.describe(SEAT.resolve({
+      realSlot: 4, roomSlot: 4, source: 'inferred', mock: { teams: 10 }, myPicks: [] }))),
+    SEAT.describe(SEAT.resolve({ realSlot: 4, roomSlot: 4, source: 'inferred',
+      mock: { teams: 10 }, myPicks: [] })));
+  // FALLBACK 3 of 3: nothing resolved -> UNKNOWN, never a number.
+  check('R-seatauto: with no draft object and no marked pick the seat is UNKNOWN',
+    SEAT.resolve({ realSlot: 4, roomSlot: null, mock: { teams: 10 } }).resolved === false);
+
   check('R-seatauto: the OLD path could never resolve — MY_ROSTER_ID is undefined',
     typeof global.MY_ROSTER_ID === 'undefined' && typeof globalThis.MY_ROSTER_ID === 'undefined');
 }
