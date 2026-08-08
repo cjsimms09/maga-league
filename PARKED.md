@@ -25,10 +25,27 @@ green** → this queue reopens, top-down.
 | 8 | **Rehearsal keeper mode** · **mock platform-board sampling** · **sync diagnosis** · **session plumbing / hard reset** | from the mock-#1 batch; below the three blockers by Cory's own ordering |
 | 9 | **Site optimization Phase 2** | post-draft by its own spec |
 
-## Truncated messages awaiting resend
-- sync-diagnosis directive — ended at *"a sp"*
-- rehearsal keeper mode — ended at *"the value landscape at"*
-- session plumbing — ended at *"verify that guard isn't what"*
+## Tails received 2026-08-08 — filed with their items, NOT acted on
+
+**① SYNC** (item 8) — *"…auto-fall-back to manual mode with a clear banner after
+a short timeout; **a spinner that hangs is the worst possible draft-night
+behavior**."* Plus: **instrument the sync path to log its own timings**, so the
+next mock reports the hang duration rather than relying on memory. *(This also
+answers the question I could not: the hang duration is unknown, and the
+instrumentation is what makes it knowable next time.)*
+
+**② REHEARSAL KEEPER MODE** (item 8) — *"…use the predicted slate to pre-remove
+predicted opponent keepers from the rehearsal board, so **the value landscape at
+my picks resembles draft night instead of a full pool**. Label it: `rehearsal
+board — predicted keepers removed`."* Note when built: `predicted_keepers.json`
+already exists and `cory_conditional.py` already resolves opponent keepers onto
+the pool, so the data path is proven — this is a client-side board filter plus a
+label, not new ingestion.
+
+**③ PLUMBING** (item 8) — *"…verify that guard isn't what's swallowing the
+action"* — **the END DRAFT confirmation guard from the §D safety pass may be
+intercepting the press and never completing; check that path specifically.**
+Named suspect, first thing to test.
 
 ## Already landed, not parked
 - **Claim-integrity doctrine** (`CLAIM-INTEGRITY.md`) + the three guards —
