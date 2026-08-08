@@ -45,7 +45,41 @@ const KINDS = ['recommendation', 'pick', 'survival', 'override', 'lrm', 'run',
                'pick_reconciled',  // missed-mark recovery: a pick I forgot to
                                    // mark, recovered from Sleeper rather than
                                    // invented — the audit trail for the fix
-               'correction'];      // a recorded pick corrected after the fact
+               'correction',       // a recorded pick corrected after the fact
+
+               /* ── IN-SEASON KINDS (experiment 37's rail) ──────────────────
+                *
+                * Registered BEFORE the draft, deliberately, and this is the
+                * one deadline where missing it destroys something
+                * unrecoverable. Draft night is the densest decision event of
+                * the year; a ledger that starts on Sept 1 captures NONE of it,
+                * and no amount of later work reconstructs a decision-time
+                * record after the decision. Sleeper's transactions are
+                * retrievable retroactively — what is NOT retrievable is what
+                * the tool RECOMMENDED at the moment, which is the entire
+                * attribution question.
+                *
+                * EVERY ONE OF THESE CARRIES ITS COUNTERFACTUAL. That is not a
+                * payload convention, it is what makes the entry gradeable:
+                * without "what I would plausibly have done otherwise" there is
+                * an outcome and nothing to compare it to. Enforced by
+                * assertCounterfactual below.
+                *
+                * ⚠️ ATTRIBUTION WORDING IS BINDING ON EVERYTHING GRADED FROM
+                * THESE (docs/queued/in-season-master.md): the design is
+                * observational with no control arm, so the permitted form is
+                * "$X was realised on decisions where the tool recommended Y" —
+                * never "the tool earned $X". No sample size changes that.
+                */
+               'lineup_call',      // a start/sit recommendation, with the lineup
+                                   // I would have played instead
+               'waiver_claim',     // a claim recommendation + priority/order
+               'stream_call',      // a K/DEF stream, with the hold alternative
+               'trade_eval',       // an offer priced, accepted or declined
+               'weekly_brief',     // the brief as delivered — what I was told,
+                                   // when, so a later grade reads what I saw
+               'inseason_override'];  // I went against the recommendation, and
+                                      // what I did instead
 
 /* EVERY KIND THE CLIENT EMITS MUST BE REGISTERED ABOVE.
  *
@@ -59,6 +93,29 @@ const KINDS = ['recommendation', 'pick', 'survival', 'override', 'lrm', 'run',
  * ledger.test.js reads the emitters straight out of the client source and
  * asserts the two agree, so the next omission fails a test instead of quietly
  * discarding data for weeks. */
+
+/* WHICH KINDS MUST CARRY A COUNTERFACTUAL, and why it is enforced rather than
+ * documented: an in-season entry without one records an outcome with nothing to
+ * compare it against, which is unfalsifiable rather than merely incomplete. The
+ * January attribution table is built entirely from these pairs.
+ *
+ * The counterfactual is MODELLED, NOT OBSERVED, and its quality varies sharply
+ * by component — that limitation rides with the report per exp 37, and is the
+ * reason the wording rule exists. Recording it is what makes the weakness
+ * visible; omitting it is what would hide it. */
+const COUNTERFACTUAL_KINDS = ['lineup_call', 'waiver_claim', 'stream_call',
+                              'trade_eval', 'inseason_override'];
+
+function assertCounterfactual(kind, payload) {
+  if (COUNTERFACTUAL_KINDS.indexOf(kind) < 0) return;
+  const p = payload || {};
+  if (p.counterfactual === undefined || p.counterfactual === null) {
+    throw new Error(
+      `in-season kind '${kind}' requires payload.counterfactual — what I would ` +
+      'plausibly have done without the tool. Without it the entry records an ' +
+      'outcome with nothing to compare it to, and January cannot grade it.');
+  }
+}
 
 function seqKey(season, seq) {
   // Zero-padded so lexical key order equals numeric order for cheap listing.
@@ -79,6 +136,7 @@ function buildEntry(raw, { nowIso, seq }) {
   if (!raw || typeof raw !== 'object') throw new Error('ledger entry must be an object');
   const kind = String(raw.kind || '');
   if (KINDS.indexOf(kind) < 0) throw new Error(`unknown ledger kind: ${kind || '(none)'}`);
+  assertCounterfactual(kind, raw.payload);
   if (raw.season == null) throw new Error('ledger entry needs a season');
   const entry = {
     id: `${raw.season}-${String(seq).padStart(9, '0')}`,
@@ -158,6 +216,7 @@ async function readAll(store, season) {
 }
 
 module.exports = {
-  KINDS, seqKey, counterKey, buildEntry, assertFreshKey,
+  KINDS, COUNTERFACTUAL_KINDS, assertCounterfactual,
+  seqKey, counterKey, buildEntry, assertFreshKey,
   nextSeq, append, readAll,
 };

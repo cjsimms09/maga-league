@@ -198,6 +198,53 @@ function memStore() {
     }
   }
 
+  /* --- IN-SEASON KINDS: registered before the draft, on purpose -----------
+   *
+   * This is the one deadline where missing it destroys something
+   * unrecoverable. Sleeper's transactions are retrievable retroactively; what
+   * the tool RECOMMENDED at the moment is not, and that is the whole
+   * attribution question. A ledger that starts Sept 1 captures none of draft
+   * night — the densest decision event of the year.
+   */
+  {
+    const inSeason = ['lineup_call', 'waiver_claim', 'stream_call', 'trade_eval',
+                      'weekly_brief', 'inseason_override'];
+    check('every in-season kind is registered BEFORE the draft',
+      inSeason.every(k => P.KINDS.indexOf(k) >= 0),
+      'missing: ' + JSON.stringify(inSeason.filter(k => P.KINDS.indexOf(k) < 0)));
+
+    // THE COUNTERFACTUAL IS ENFORCED, not documented. An entry without one
+    // records an outcome with nothing to compare it against — unfalsifiable
+    // rather than merely incomplete.
+    let threw = null;
+    try {
+      await P.append(memStore(), { kind: 'lineup_call', method: 'v1', season: 2026,
+        payload: { player: 'X' } }, { now });
+    } catch (e) { threw = e.message; }
+    check('an in-season call WITHOUT a counterfactual is REFUSED',
+      threw && /counterfactual/.test(threw), String(threw));
+    check('...and the refusal explains why it matters, not just that it failed',
+      threw && /nothing to compare|cannot grade/.test(threw), String(threw));
+
+    const okEntry = await P.append(memStore(), { kind: 'lineup_call', method: 'v1',
+      season: 2026, payload: { player: 'X', counterfactual: { lineup: ['Y'] } } },
+      { now });
+    check('an in-season call WITH a counterfactual is accepted',
+      okEntry.kind === 'lineup_call'
+      && okEntry.payload.counterfactual.lineup[0] === 'Y');
+
+    // weekly_brief records what I was SHOWN, so it needs no counterfactual —
+    // there is no alternative brief I would have read.
+    const brief = await P.append(memStore(), { kind: 'weekly_brief', method: 'v1',
+      season: 2026, payload: { text: 'start X' } }, { now });
+    check('weekly_brief needs no counterfactual (it records what I was shown)',
+      brief.kind === 'weekly_brief');
+    check('...and that exemption is DELIBERATE, listed rather than implicit',
+      P.COUNTERFACTUAL_KINDS.indexOf('weekly_brief') < 0
+      && P.COUNTERFACTUAL_KINDS.length === 5,
+      JSON.stringify(P.COUNTERFACTUAL_KINDS));
+  }
+
   console.log('\n' + pass + '/' + (pass + fail) + ' predledger checks passed');
   process.exit(fail ? 1 : 0);
 })();

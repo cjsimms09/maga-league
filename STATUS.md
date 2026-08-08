@@ -559,7 +559,7 @@ discloses in both directions.
 | 1. Stage 3 boundary | ✅ **DONE** — tilt wired (cited 2.5), roster-relative + keeper-conditioned signal, Chase stack first-class, two-directional disclosure |
 | 2. Minimum viable surface | ✅ **SHIPPED** — 5 truthful lines + the absent pair, verified desktop+phone, within the fold, no errors |
 | 3. Mock #4 + degraded drill | ▶ **NEXT** — deliverable is the one-page failure card |
-| 4. In-season ledger kinds | pending — before the freeze |
+| 4. In-season ledger kinds | ✅ **SHIPPED** — 6 kinds registered before the draft, counterfactual ENFORCED |
 | 5. Exp 34 | pending — not implemented; build from scratch |
 | 6. Decision tree | pending — against 34's reliability |
 | 7. Full surface | pending |
