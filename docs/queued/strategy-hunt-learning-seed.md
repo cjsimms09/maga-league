@@ -48,7 +48,7 @@ The classical p-value is unreachable at N≤3 drafts. The honest substitute: **r
 The answer to "would this strategy have worked" that no replay can provide: **run them all, live, silently.**
 
 1. On draft night, after every real pick, each surviving strategy (Default, all Phase-S candidates above the elimination line, and the null-beating candidates especially) maintains its own counterfactual draft — what IT would have taken at my slots, from the actually-available board. Log each shadow roster at draft end.
-2. All season: every week, score every shadow roster's optimal lineup with real results, alongside my real roster. Weekly one-line update in the app ("Shadow standings: Tier-Hunter 1,204 · You 1,187 · Default 1,151...").
+2. All season: every week, score every shadow roster's optimal lineup with real results, alongside my real roster. **Standings render in DOLLARS** (E[$] to date — weekly-highs banked + playoff-entry equity + RS equity), points as the secondary/input line: "Shadow standings: Tier-Hunter **$180** (1,204 pts) · You **$100** (1,187) · Default **$60** (1,151)…". Dollars is the scoreboard per the governing principle above.
 3. Season end: a full out-of-sample grading of every strategy on a season none of them saw — the certification the backtest couldn't produce. Next year's default weighting gets chosen WITH this evidence, through the Part 11 gates.
 4. Shadow rosters are frozen at draft night (no shadow waivers in v1 — note the limitation; a v2 can shadow waiver policies too, September decision).
 5. This compounds: every future season adds a full live grading of the whole strategy space. By year 3, strategy selection rests on 3 live seasons + 6 replayed drafts — a real sample, accumulated automatically.
@@ -60,6 +60,25 @@ The answer to "would this strategy have worked" that no replay can provide: **ru
 4. **Fire during mocks/rehearsals too**, flagged as `rehearsal` entries (never mixed with real draft-night entries), so the whole shadow path is exercised before draft night.
 
 # PHASE L — The Learning Seed (instrument NOW, before draft day)
+
+> **GOVERNING PRINCIPLE — REALIZED DOLLARS IS THE TOP-LEVEL GRADING CURRENCY**
+> (2026-08-08, from the money function). Everything the learning loop grades is
+> scored in **$** first, points second:
+> - **Every graded decision reports BOTH** its *process verdict* (was the call
+>   defensible given what was known?) **AND its `$ delta` where computable**
+>   (weekly-high $ gained/lost, playoff-equity $, RS-equity $). A decision with
+>   no computable dollar effect still carries its process verdict and says
+>   `$ delta: n/a (reason)` — never silently points-only.
+> - **Shadow standings render in dollars** (Phase H) — points are the input, E[$]
+>   is the scoreboard, from week 1.
+> - **The Annual's proposals cite DOLLAR evidence** — a weight change is justified
+>   by realized-$ improvement across seasons, not point deltas.
+> - **The multi-season-consistency gate is UNCHANGED** — dollars is the *currency*,
+>   not a loosening of the *bar*. A dollar edge still must clear multi-season
+>   consistency (or in-season significance) and beat the null baseline; N=3 dollar
+>   results are leans, not laws, and render as such.
+> - Interim (pre-quantile-V) dollar figures are the August approximation; they
+>   steer gently (display > weight) until quantile V makes E[$] exact.
 
 The single biggest determinant of how powerful this system is in 2-3 years is whether 2026 is fully captured from day one. Build the capture layer before the draft; the analysis layers (the full Part 11) follow in September.
 
