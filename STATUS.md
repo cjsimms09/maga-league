@@ -560,8 +560,8 @@ discloses in both directions.
 | 2. Minimum viable surface | ✅ **SHIPPED** — 5 truthful lines + the absent pair, verified desktop+phone, within the fold, no errors |
 | 3. Mock #4 + degraded drill | ▶ **NEXT** — deliverable is the one-page failure card |
 | 4. In-season ledger kinds | ✅ **SHIPPED** — 6 kinds registered before the draft, counterfactual ENFORCED |
-| 5. Exp 34 | pending — not implemented; build from scratch |
-| 6. Decision tree | pending — against 34's reliability |
+| 5. Exp 34 | 🚨 **BLOCKED — see D13.** Two of three arms have no data. Recommendation on file; needs Cory's call |
+| 6. Decision tree | ▶ **NEXT, and it is NOT fully blocked by D13.** Stages 1-3 are defined by RULES, not by measured reliability: Stage 1 legality floor (the sanity-sweep predicates already exist and are tested), Stage 2 consensus baseline (the anchor doctrine's §4 default-to-market, explicitly buildable now), Stage 3 doctrine tilt (**already built and wired**). Only STAGE 4's aggression sizing needs 34 — and per PRE-REGISTRATION-34.md it starts SMALL regardless, so it can be built at its floor and widened when evidence arrives. Build 1-3 + a floor-level 4; do not tune 4 |
 | 7. Full surface | pending |
 | 8. Mock #5+ | pending |
 
