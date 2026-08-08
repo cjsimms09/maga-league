@@ -1,0 +1,74 @@
+<%- include('../partials/header', { title: 'The Absurdity Catalogue' }) %>
+<%
+  const C = A.catalogue;
+  const view = 'allTime';                 // all-time roll-up; per-season below each
+  const cap = 30;                          // cap the long lists on the page
+%>
+
+<div class="chron chron-wide">
+  <a class="back-link" href="/history">← The Chronicle</a>
+  <p class="chron-eyebrow">The Material, Waiting</p>
+  <h1 class="chron-title">The <span class="gold">Absurdity &amp; Miracle</span> Catalogue</h1>
+  <p class="chron-sub">Every box score, 2023–2025, mined for the moments the chapters are made of.</p>
+  <%- include('_subnav', { active: 'catalogue' }) %>
+
+  <div class="asterisk-note" style="border-color:var(--line)">
+    <p style="margin:0; color:#cdd3e2;"><%= C.coverageNote %></p>
+  </div>
+
+  <!-- count bar -->
+  <div class="stat-grid" style="margin:1.2rem 0;">
+    <% for (const [key, label] of C.cats) { %>
+      <a class="stat-card" href="#cat-<%= key %>" style="text-decoration:none; color:inherit;">
+        <p class="label"><%= label %></p>
+        <div class="big"><%= C.counts[key] %></div>
+      </a>
+    <% } %>
+  </div>
+
+  <% for (const [key, label, desc] of C.cats) { const rows = C.allTime[key]; %>
+    <div class="card" id="cat-<%= key %>">
+      <h2><%= label %> <span class="sub"><%= C.counts[key] %> all-time</span></h2>
+      <div class="body">
+        <p style="color:var(--muted); font-size:.85rem; margin:0 0 .8rem;"><%= desc %></p>
+        <% if (!rows.length) { %>
+          <p style="color:#cdd3e2; margin:0;"><em>None on record.</em>
+            <% if (key === 'subOnePoint') { %>The closest game in league history was decided by 1.10 (2024, Week 7). This league does not do photo finishes.<% } %>
+            <% if (key === 'ties') { %>Nobody has ever tied. Somebody always has to lose — that's the deal.<% } %>
+            <% if (key === 'benchOverLineup') { %>No single benched player has ever outscored a full starting nine. Close, but the format won't allow it.<% } %>
+          </p>
+        <% } else { %>
+          <ul style="margin:0; padding-left:1.1rem; color:#dfe3ee; line-height:1.7;">
+            <% for (const r of rows.slice(0, cap)) { %>
+              <li><span style="color:var(--muted); font-variant-numeric:tabular-nums;"><%= r.year %></span> — <%= r.summary %></li>
+            <% } %>
+          </ul>
+          <% if (rows.length > cap) { %><p style="color:var(--muted); font-size:.8rem; margin:.6rem 0 0;">…and <%= rows.length - cap %> more.</p><% } %>
+        <% } %>
+      </div>
+    </div>
+  <% } %>
+
+  <!-- streaks per season -->
+  <div class="card">
+    <h2>📈 Longest Streaks <span class="sub">by season</span></h2>
+    <div class="body chron-scroll">
+      <table class="ledger">
+        <thead><tr><th>Year</th><th class="name">Longest win streak</th><th class="name">Longest losing streak</th></tr></thead>
+        <tbody>
+          <% for (const s of A.seasons) { const st = C.bySeason[s.year].streaks; %>
+            <tr>
+              <td class="rk"><%= s.year %></td>
+              <td class="name"><%= st && st.win ? st.win.name + ' — ' + st.win.len : '—' %></td>
+              <td class="name" style="color:var(--red-bright)"><%= st && st.loss ? st.loss.name + ' — ' + st.loss.len : '—' %></td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <p class="provenance">Auto-detected from the Sleeper harvest. Every line is a stat with a joke already attached — the chapters just have to pick.</p>
+</div>
+
+<%- include('../partials/footer') %>

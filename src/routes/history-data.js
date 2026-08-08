@@ -91,9 +91,10 @@ function build() {
   const owners = buildOwnerRegistry(seasons, master);
   const records = buildRecordsBook(seasons, owners);
   const moneyBoard = buildMoneyBoard(master, owners);
-  const amendments = buildAmendments(master);
+  const amendments = buildAmendments(master, payouts);
   const badBeats = buildBadBeats(seasons, owners);
   const champions = buildChampionsRoll(master);
+  const catalogue = buildCatalogue(seasons);
 
   _cache = {
     provenance: {
@@ -102,7 +103,7 @@ function build() {
       master_sha256: master.source_sha256,
       note: master.note,
     },
-    seasons, byYear, owners, records, moneyBoard, amendments, badBeats, champions,
+    seasons, byYear, owners, records, moneyBoard, amendments, badBeats, champions, catalogue,
     firstName: FIRST_NAME, german: GERMAN,
     modernYears: seasons.map(s => s.year),        // 2023-2025 (full box scores)
     votesPending: master.votes_pending || [],
@@ -170,11 +171,27 @@ function buildSeason(s, ctx) {
         if (pts == null) continue;
         if (!benchTop || pts > benchTop.points) benchTop = { player_id: pid, name: playerName(pid), pos: playerPos(pid), points: pts };
       }
+      // Slot-level points, by the roster order [QB,RB,RB,WR,WR,TE,FLEX,K,DEF].
+      // The slot names the position for this season — reliable where the 2026
+      // board is not. Powers the kicker>QB and defense>WR-corps detectors.
+      const sp = m.starters_points || [];
+      const st = m.starters || [];
+      const slotPlayer = i => ({ name: playerName(st[i]), pts: round2(sp[i]) });
+      const slot = {
+        qb:  sp[0] != null ? slotPlayer(0) : null,
+        wr:  [2, 3].map(() => null),   // placeholder, replaced below
+        te:  sp[5] != null ? slotPlayer(5) : null,
+        flex: sp[6] != null ? slotPlayer(6) : null,
+        k:   sp[7] != null ? slotPlayer(7) : null,
+        def: sp[8] != null ? slotPlayer(8) : null,
+      };
+      slot.rb = [1, 2].filter(i => sp[i] != null).map(slotPlayer);
+      slot.wr = [3, 4].filter(i => sp[i] != null).map(slotPlayer);
       return {
         roster_id: m.roster_id, matchup_id: m.matchup_id,
         points: round2(m.points), opt: round2(opt),
         eff: opt > 0 ? m.points / opt : 1,
-        best, benchTop,
+        best, benchTop, slot,
       };
     });
   }
@@ -593,6 +610,121 @@ function buildWeird(seasons) {
 }
 
 // ---------------------------------------------------------------------------
+// THE ABSURDITY & MIRACLE CATALOGUE — every box score 2023-2025 mined for the
+// material the chapters will need. Box scores exist ONLY for the modern seasons;
+// 2016-2022 are pre-Sleeper and carry no box-score absurdities (never invented).
+// ---------------------------------------------------------------------------
+function buildCatalogue(seasons) {
+  const CATS = [
+    ['subOnePoint',    '⚔️ Wins by Under a Point',            'Games decided by less than 1.00.'],
+    ['ties',           '🤝 Ties',                              'Nobody has to lose — but sometimes nobody wins.'],
+    ['kickerOverQB',   '🦵 Kicker Outscored the Starting QB',  'The kicker put up more than the quarterback.'],
+    ['defOverWR',      '🛡️ Defense Outscored the WR Corps',    'The defense beat both starting receivers combined.'],
+    ['defOverQB',      '🛡️ Defense Outscored the QB',          'The defense beat the starting quarterback.'],
+    ['sub70',          '💩 Sub-70 Disasters',                  'A starting lineup that failed to reach 70.'],
+    ['benchOverLineup','🪑 Bench Player Beat the Whole Lineup', 'One benched player outscored the entire starting nine.'],
+    ['benchOverBest',  '🪑 Best Player Was on the Bench',       'The top scorer that week never left the bench.'],
+    ['nearHigh',       '💵 Weekly High Lost by a Fraction',     'The $100 missed by under two points.'],
+    ['lastBeatFirst',  '🙃 Last Beat First',                    'The cellar-dweller toppled the league leader.'],
+    ['blowout',        '💥 Biggest Blowouts',                   'The most lopsided beatings.'],
+  ];
+
+  const bySeason = {};
+  for (const s of seasons) {
+    const nameOf = rid => (s.teams[rid] || {}).name || `#${rid}`;
+    const c = { subOnePoint: [], ties: [], kickerOverQB: [], defOverWR: [], defOverQB: [],
+      sub70: [], benchOverLineup: [], benchOverBest: [], nearHigh: [], lastBeatFirst: [], blowout: [] };
+
+    // game-level (regular season)
+    for (const g of s.games) {
+      if (g.winner === 0) {
+        c.ties.push({ year: s.year, week: g.week, a: nameOf(g.a), b: nameOf(g.b), pts: g.pa,
+          summary: `${nameOf(g.a)} and ${nameOf(g.b)} tied at ${g.pa.toFixed(2)}.` });
+      } else if (g.margin < 1) {
+        const w = nameOf(g.winner), l = nameOf(g.winner === g.a ? g.b : g.a);
+        c.subOnePoint.push({ year: s.year, week: g.week, winner: w, loser: l, margin: g.margin,
+          summary: `${w} beat ${l} by ${g.margin.toFixed(2)} in Week ${g.week}.` });
+      }
+    }
+    // biggest blowouts of the season (top 3 decided games)
+    for (const g of [...s.games].filter(x => x.winner !== 0).sort((a, b) => b.margin - a.margin).slice(0, 3)) {
+      const w = nameOf(g.winner), l = nameOf(g.winner === g.a ? g.b : g.a);
+      c.blowout.push({ year: s.year, week: g.week, winner: w, loser: l, margin: g.margin,
+        pw: g.winner === g.a ? g.pa : g.pb, pl: g.winner === g.a ? g.pb : g.pa,
+        summary: `${w} buried ${l} by ${g.margin.toFixed(2)} in Week ${g.week}.` });
+    }
+    // weekly highs lost by a fraction (< 2)
+    for (const wh of s.weeklyHigh) {
+      if (wh.margin != null && wh.margin < 2 && wh.second_name) {
+        c.nearHigh.push({ year: s.year, week: wh.week, missed_by: wh.second_name, took_it: wh.name,
+          margin: wh.margin, score: wh.score, second: wh.second,
+          summary: `${wh.second_name} missed the Week ${wh.week} high by ${wh.margin.toFixed(2)} — ${wh.name} banked $100 with ${wh.score.toFixed(2)}.` });
+      }
+    }
+    // last (rank>=9) beat first (rank<=2)
+    const rankByRid = {};
+    for (const st of s.standings) rankByRid[st.roster_id] = st.rank;
+    for (const g of s.games) {
+      if (g.winner === 0) continue;
+      const wr = rankByRid[g.winner], loserRid = g.winner === g.a ? g.b : g.a, lr = rankByRid[loserRid];
+      if (wr >= 9 && lr <= 2) c.lastBeatFirst.push({ year: s.year, week: g.week,
+        winner: nameOf(g.winner), winner_rank: wr, loser: nameOf(loserRid), loser_rank: lr,
+        summary: `${nameOf(g.winner)} (finished #${wr}) beat ${nameOf(loserRid)} (#${lr}) in Week ${g.week}.` });
+    }
+    // team-week-level (regular season): positional absurdities + bench
+    for (const w of s.weekList) {
+      if (w > REG_WEEKS) continue;
+      for (const tw of s.weeks[w]) {
+        const who = nameOf(tw.roster_id), sl = tw.slot || {};
+        if (tw.points < 70) c.sub70.push({ year: s.year, week: w, owner: who, points: tw.points,
+          summary: `${who} scored just ${tw.points.toFixed(2)} in Week ${w}.` });
+        if (sl.k && sl.qb && sl.k.pts > sl.qb.pts) c.kickerOverQB.push({ year: s.year, week: w, owner: who,
+          k: sl.k.name, kpts: sl.k.pts, qb: sl.qb.name, qbpts: sl.qb.pts,
+          summary: `${who}'s kicker ${sl.k.name} (${sl.k.pts.toFixed(2)}) outscored his QB ${sl.qb.name} (${sl.qb.pts.toFixed(2)}), Week ${w}.` });
+        const wrSum = round2((sl.wr || []).reduce((a, x) => a + x.pts, 0));
+        if (sl.def && (sl.wr || []).length && sl.def.pts > wrSum) c.defOverWR.push({ year: s.year, week: w, owner: who,
+          def: sl.def.name, defpts: sl.def.pts, wrpts: wrSum,
+          summary: `${who}'s ${sl.def.name} defense (${sl.def.pts.toFixed(2)}) outscored both starting WRs combined (${wrSum.toFixed(2)}), Week ${w}.` });
+        if (sl.def && sl.qb && sl.def.pts > sl.qb.pts) c.defOverQB.push({ year: s.year, week: w, owner: who,
+          def: sl.def.name, defpts: sl.def.pts, qb: sl.qb.name, qbpts: sl.qb.pts,
+          summary: `${who}'s ${sl.def.name} defense (${sl.def.pts.toFixed(2)}) outscored his QB ${sl.qb.name} (${sl.qb.pts.toFixed(2)}), Week ${w}.` });
+        if (tw.benchTop && tw.benchTop.points > tw.points) c.benchOverLineup.push({ year: s.year, week: w, owner: who,
+          player: tw.benchTop.name, pts: tw.benchTop.points, lineup: tw.points,
+          summary: `${who} benched ${tw.benchTop.name} (${tw.benchTop.points.toFixed(2)}) — more than his ENTIRE starting lineup scored (${tw.points.toFixed(2)}), Week ${w}.` });
+        else if (tw.benchTop && tw.best && tw.benchTop.points > tw.best.points) c.benchOverBest.push({ year: s.year, week: w, owner: who,
+          player: tw.benchTop.name, pts: tw.benchTop.points, bestStarter: tw.best.name, bestPts: tw.best.points,
+          summary: `${who}'s best player was on the bench: ${tw.benchTop.name} (${tw.benchTop.points.toFixed(2)}) beat his top starter ${tw.best.name} (${tw.best.points.toFixed(2)}), Week ${w}.` });
+      }
+    }
+    // sort within each list, most extreme first where a magnitude exists
+    c.subOnePoint.sort((a, b) => a.margin - b.margin);
+    c.sub70.sort((a, b) => a.points - b.points);
+    c.nearHigh.sort((a, b) => a.margin - b.margin);
+    c.kickerOverQB.sort((a, b) => (b.kpts - b.qbpts) - (a.kpts - a.qbpts));
+    c.defOverWR.sort((a, b) => (b.defpts - b.wrpts) - (a.defpts - a.wrpts));
+    c.benchOverBest.sort((a, b) => (b.pts - b.bestPts) - (a.pts - a.bestPts));
+    c.streaks = s.superlatives.streaks;
+    bySeason[s.year] = c;
+  }
+
+  // all-time roll-ups (flatten every season, sort)
+  const flat = key => seasons.flatMap(s => bySeason[s.year][key] || []);
+  const allTime = {};
+  for (const [key] of CATS) allTime[key] = flat(key);
+  allTime.subOnePoint.sort((a, b) => a.margin - b.margin);
+  allTime.nearHigh.sort((a, b) => a.margin - b.margin);
+  allTime.sub70.sort((a, b) => a.points - b.points);
+  allTime.blowout.sort((a, b) => b.margin - a.margin);
+
+  // counts, for the summary bar
+  const counts = {};
+  for (const [key] of CATS) counts[key] = allTime[key].length;
+
+  return { cats: CATS, bySeason, allTime, counts,
+    coverageNote: 'Box scores exist only for 2023–2025 (Sleeper era). 2016–2022 pre-date Sleeper and carry no box-score detail — the archive says so plainly rather than inventing it.' };
+}
+
+// ---------------------------------------------------------------------------
 // The Money Board — all-time career earnings, ranked (the settling table).
 // ---------------------------------------------------------------------------
 function buildMoneyBoard(master, owners) {
@@ -613,7 +745,7 @@ function buildMoneyBoard(master, owners) {
 // ---------------------------------------------------------------------------
 // The Chronicle of Amendments — buy-in escalation + votes pending.
 // ---------------------------------------------------------------------------
-function buildAmendments(master) {
+function buildAmendments(master, payouts) {
   const seasons = master.seasons || {};
   const buyIns = [];
   for (const y of Object.keys(seasons).sort()) {
@@ -626,7 +758,22 @@ function buildAmendments(master) {
   for (const b of buyIns) {
     if (b.buy_in !== prev) { steps.push(b); prev = b.buy_in; }
   }
-  return { buyIns, steps, votesPending: master.votes_pending || [] };
+  // Payout-structure revisions: emit an entry each time the structure changes
+  // (pot, playoff purse or regular-season split). Traceable to payouts.json.
+  const payRevisions = [];
+  let prevSig = null;
+  for (const y of Object.keys((payouts && payouts.by_season) || {}).sort()) {
+    const p = payouts.by_season[y];
+    if (p.total_pot == null) continue;          // skip placeholder/future seasons
+    const po = p.playoffs || {}, rs = p.regular_season || {};
+    const sig = JSON.stringify([p.total_pot, po['1'], po['2'], po['3'], po['4'], rs.champ, rs.runner_up]);
+    if (sig !== prevSig) {
+      payRevisions.push({ year: Number(y), pot: p.total_pot, buy_in: p.buy_in,
+        playoffs: [po['1'], po['2'], po['3'], po['4']], reg: [rs.champ, rs.runner_up] });
+      prevSig = sig;
+    }
+  }
+  return { buyIns, steps, payRevisions, votesPending: master.votes_pending || [] };
 }
 
 // ---------------------------------------------------------------------------

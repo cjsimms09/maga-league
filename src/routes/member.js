@@ -393,6 +393,12 @@ router.get('/history/badbeats', aw(async (req, res) => {
   res.render('history/badbeats', { A: archive() });
 }));
 
+// The Absurdity & Miracle Catalogue — every box score mined, organised by
+// category, so the chapters have material waiting. A working reference page.
+router.get('/history/catalogue', aw(async (req, res) => {
+  res.render('history/catalogue', { A: archive() });
+}));
+
 // A franchise page — one owner, all time.
 router.get('/history/franchise/:name', aw(async (req, res) => {
   const A = archive();

@@ -53,7 +53,25 @@
         <div class="step"><span class="yr">2025</span><span>This website is founded — the first time the league's real standings, real money, and real history live anywhere but a spreadsheet.</span></div>
       </div>
 
-      <h3 style="font-family:var(--font-display); font-weight:800; text-transform:uppercase; letter-spacing:.06em; font-size:.8rem; color:var(--muted); margin:1rem 0 .5rem;">Presently before the league — the 2027 votes</h3>
+      <h3 style="font-family:var(--font-display); font-weight:800; text-transform:uppercase; letter-spacing:.06em; font-size:.8rem; color:var(--muted); margin:1.2rem 0 .5rem;">Payout-structure revisions</h3>
+      <div class="chron-scroll">
+        <table class="ledger">
+          <thead><tr><th>From</th><th>Pot</th><th>Playoffs (1–4)</th><th>Reg. season (1st / 2nd)</th></tr></thead>
+          <tbody>
+            <% for (const r of A.amendments.payRevisions) { %>
+              <tr>
+                <td class="rk"><%= r.year %></td>
+                <td class="money">$<%= r.pot.toLocaleString('en-US') %></td>
+                <td><%= r.playoffs.map(x => '$' + x).join(' / ') %></td>
+                <td><%= r.reg.map(x => '$' + x).join(' / ') %></td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+      <p style="color:var(--muted); font-size:.8rem; margin:.5rem 0 0;">The purse has been re-cut more than once — the weekly-$100 (regular season only) has held throughout.</p>
+
+      <h3 style="font-family:var(--font-display); font-weight:800; text-transform:uppercase; letter-spacing:.06em; font-size:.8rem; color:var(--muted); margin:1.2rem 0 .5rem;">Presently before the league — the 2027 votes</h3>
       <ul style="margin:0; padding-left:1.1rem; color:#cdd3e2;">
         <% for (const v of A.votesPending) { %><li><%= v %></li><% } %>
       </ul>
