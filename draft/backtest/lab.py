@@ -151,6 +151,10 @@ def certify_grader(history, payouts) -> None:
             raise AssertionError(f"CERTIFICATION FAILED: {season} owner {uid} = ${got}, known ${want}")
         if round(distributed, 2) != pot:
             raise AssertionError(f"CERTIFICATION FAILED: {season} distributed ${distributed} != pot ${pot}")
+    # The bracket resim prices 53% of the pot for substituted seats. Same rule
+    # as the money tables: it does not grade until it reproduces every harvested
+    # bracket. Raises on any mismatch.
+    MG.certify_bracket_resim(history, COMPLETED_SEASONS)
 
 
 def run_all(out_dir: Path) -> dict:

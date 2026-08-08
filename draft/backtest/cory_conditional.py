@@ -46,6 +46,21 @@ RS_CHAMP, RS_RUNNER = 250, 125
 EVEN_MONEY_BAND = 4.0          # mirrors the engine's DG_NOISE_BAND
 SEED = 20260808
 
+# The bracket. Read from the payout table rather than typed here, so a payout
+# revision reaches the simulator the same way it reaches every other consumer —
+# payouts.json is the money function's ground truth, and a second copy of these
+# numbers is a second thing to forget to update.
+PLAYOFF_TEAMS = 4
+
+
+def _playoff_pay(season="2026"):
+    p = json.loads((HERE.parent / "config" / "payouts.json").read_text())
+    block = ((p.get("by_season") or {}).get(str(season)) or {}).get("playoffs") or {}
+    return {int(k): float(v) for k, v in block.items() if str(k).isdigit()}
+
+
+PLAYOFF_PAY = _playoff_pay()
+
 
 # --- archetype constraint choosers (liveIdx = 1-based index of MY picks) ------
 
@@ -246,7 +261,23 @@ def team_week_params(roster):
 
 
 def grade_room(rosters, rng):
-    """Simulate the paying weeks; return my dollars (weekly-high + RS)."""
+    """Simulate the paying weeks; return my dollars (weekly-high + RS + playoffs).
+
+    PLAYOFF $ IS 53% OF THE POT ($2,125 of $4,000). Grading without it measured
+    every strategy on the smaller half of the money and — worse — priced
+    "make the bracket" at zero, when reaching it is the largest payday
+    available. The bracket mirrors the real one, whose format
+    `money_grade.simulate_bracket` derived from the harvested brackets: four
+    teams by regular-season rank, 1v4 and 2v3, then a final and a third-place
+    game, each decided on that week's score.
+
+    LIMITATION, stated rather than buried: seeding is by season TOTAL POINTS
+    because this room has no schedule to produce a win-loss record, while the
+    real league seeds by wins and breaks ties on points. Points-based seeding is
+    a strictly less noisy ranking than the real one, so it understates how often
+    a mid-table team backs into the bracket. That belongs in the simulator's
+    standing limitation list, not papered over.
+    """
     params = {t: team_week_params(r) for t, r in rosters.items()}
     totals = {t: 0.0 for t in rosters}
     my_wk = 0
@@ -254,12 +285,44 @@ def grade_room(rosters, rng):
         scores = {t: rng.gauss(m, sd) for t, (m, sd) in params.items()}
         hi = max(scores, key=lambda t: scores[t])
         if hi == 0:
-            my_wk += WEEKLY_HIGH
+            my_wk += WEEKLY_HIGH        # weekly-high is REGULAR SEASON ONLY
         for t in totals:
             totals[t] += scores[t]
-    rank = sorted(totals, key=lambda t: -totals[t]).index(0) + 1
+
+    rs, po, place = postseason_dollars(params, totals, rng)
+    return {"weekly_high": my_wk, "rs": rs, "playoff": po, "place": place,
+            "total": my_wk + rs + po}
+
+
+def postseason_dollars(params, totals, rng):
+    """RS prize + resimulated bracket for seat 0. Returns (rs, playoff, place).
+
+    Shared by every room grader (`grade_room` here, `grade_room_corr` in the
+    stack sweep) so no experiment can quietly run on a different money function
+    than its neighbours — the failure this refactor exists to prevent is one
+    grader keeping playoff $ and another not, with both reported in the same
+    table as if they were comparable.
+    """
+    order = sorted(totals, key=lambda t: -totals[t])
+    rank = order.index(0) + 1
     rs = RS_CHAMP if rank == 1 else RS_RUNNER if rank == 2 else 0
-    return {"weekly_high": my_wk, "rs": rs, "total": my_wk + rs}
+
+    # The bracket. Seeds are order[0..3]; a playoff week is one more draw from
+    # the same weekly distribution, so a strategy's ceiling matters here exactly
+    # as much as it does in the weekly-high pool.
+    seeds = order[:PLAYOFF_TEAMS]
+    place = None
+    if 0 in seeds:
+        def game(a, b):
+            sa = rng.gauss(*params[a])
+            sb = rng.gauss(*params[b])
+            return (a, b) if sa >= sb else (b, a)   # exact ties are measure-zero here
+        w1, l1 = game(seeds[0], seeds[3])
+        w2, l2 = game(seeds[1], seeds[2])
+        champ, runner = game(w1, w2)
+        third, fourth = game(l1, l2)
+        place = {champ: 1, runner: 2, third: 3, fourth: 4}[0]
+    return rs, PLAYOFF_PAY.get(place, 0), place
 
 
 def race(n_rooms=200, seed=SEED):
@@ -321,14 +384,60 @@ def main():
                      ("parked: CI includes $0" if lo <= 0 else
                       f"parked: edge inside the ${EVEN_MONEY_BAND} even-money band")})
     rows.sort(key=lambda r: -r["mean_edge"])
-    enrolled = next((r["archetype"] for r in rows if r["verdict"].startswith("WINNER")),
-                    "balanced")
+
+    # THE HEAD-TO-HEAD GATE.
+    #
+    # Clearing the control is necessary, not sufficient. When two archetypes both
+    # clear it, ranking them by raw mean hands the plan to whichever won a coin
+    # flip — exactly the noise-chasing every other gate here exists to prevent.
+    # The rooms are PAIRED, so leader-minus-runner-up is a legitimate paired
+    # delta with its own bootstrap CI. The leader is enrolled only if it beats
+    # the runner-up by more than the even-money band with a CI clear of $0.
+    #
+    # Otherwise they are CO-LEADERS and the INCUMBENT is retained. Same principle
+    # as the doctrine banner's hysteresis: a plan that changes on a difference
+    # the data cannot resolve is not a plan.
+    winners = [r for r in rows if r["verdict"].startswith("WINNER")]
+    incumbent = None
+    try:
+        incumbent = json.loads(Path(args.out).read_text()).get("enrolled")
+    except (OSError, json.JSONDecodeError):
+        pass
+
+    head_to_head = None
+    if not winners:
+        enrolled = "balanced"
+    elif len(winners) == 1:
+        enrolled = winners[0]["archetype"]
+    else:
+        lead, runner = winners[0]["archetype"], winners[1]["archetype"]
+        h2h = [a - b for a, b in zip(per_seed[lead], per_seed[runner])]
+        h_mean = sum(h2h) / len(h2h)
+        h_lo, h_hi = bootstrap_ci(h2h, random.Random(SEED + 123))
+        separable = h_lo > 0 and h_mean > EVEN_MONEY_BAND
+        if separable:
+            enrolled = lead
+        elif incumbent in (lead, runner):
+            enrolled = incumbent          # inseparable — do not churn the plan
+        else:
+            enrolled = lead               # no incumbent among them; take the leader
+        head_to_head = {
+            "leader": lead, "runner_up": runner,
+            "paired_mean": round(h_mean, 2),
+            "ci95": [round(h_lo, 2), round(h_hi, 2)],
+            "separable": separable,
+            "resolution": ("leader separates from the runner-up" if separable else
+                           f"CO-LEADERS — inseparable; retained {enrolled}"),
+        }
 
     result = {"experiment": "19b Cory-conditional archetype race",
               "rooms": args.rooms, "seed": SEED,
               "control": "balanced", "enrolled": enrolled, "leaderboard": rows,
+              "head_to_head": head_to_head,
               "caveats": [
-                  "money proxy v1: simulated weeks from proj_mean/weekly_sd normals; playoff $ excluded",
+                  "money proxy v1: simulated weeks from proj_mean/weekly_sd normals",
+                  "playoff $ INCLUDED (bracket resim, 53% of the pot); bracket seeding is by "
+                  "season total points — this room has no schedule, so it cannot seed by record",
                   "predicted opponent slates (2 intel, 7 model) — regenerates when real designations land",
                   "opponents = ADP-softmax; the room does not adapt to my sequencing",
                   "paired seeds: candidate vs control share room AND weekly luck — deltas isolate sequencing",
@@ -342,6 +451,16 @@ def main():
     for r in rows:
         L.append(f"| {r['archetype']} | {r['mean_edge']:+.2f} | [{r['ci95'][0]}, {r['ci95'][1]}] "
                  f"| {r['mean_divergence']} | {r['verdict']} |")
+    if head_to_head:
+        h = head_to_head
+        L += ["", "### Head-to-head (the tie-break gate)",
+              f"Two archetypes cleared the control, so ranking by raw mean would hand the plan to "
+              f"whichever won a coin flip. Paired delta **{h['leader']} − {h['runner_up']} = "
+              f"{h['paired_mean']:+.2f}**, CI [{h['ci95'][0]}, {h['ci95'][1]}] — "
+              + ("**separable**, the leader is enrolled on its own merit."
+                 if h["separable"] else
+                 f"**not separable**. {h['resolution']}. A plan that changes on a difference the "
+                 "data cannot resolve is not a plan.")]
     L += ["", "**Caveats:** " + " · ".join(result["caveats"]), "",
           "_The enrolled archetype feeds the doctrine banner, the opening script, and the "
           "Paths vocabulary in one pass. If Balanced stands, that IS the verdict — no "

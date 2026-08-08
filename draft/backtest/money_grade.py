@@ -15,11 +15,9 @@ It works two ways:
                              era-correct payout table. If this is wrong, nothing
                              downstream can be trusted.
   * grade_substituted(...) — replace ONE seat's weekly scores with a replayed
-                             strategy's scores and re-grade weekly-high + RS
-                             against the real field. This is what money-grades a
-                             Lab candidate. (Playoff re-simulation for a
-                             substituted seat is the next harness layer — see
-                             substituted_playoff_note.)
+                             strategy's scores and re-grade weekly-high + RS +
+                             the RESIMULATED PLAYOFF BRACKET against the real
+                             field. This is what money-grades a Lab candidate.
 
 Nothing here reads projections or makes a pick. It is pure money math over
 scores that already exist, so it can never leak outcome data into a decision.
@@ -251,6 +249,100 @@ def playoff_dollars(placements: dict[int, int], pay: dict, roster_id: int) -> fl
     return float(pay["playoffs"].get(str(place), 0) or 0)
 
 
+# --- playoffs (RESIMULATED bracket) -------------------------------------------
+#
+# Playoff money is the LARGEST single component of the pot — $2,125 of $4,000 in
+# the current era, 53%. Every Lab verdict landed before this layer existed was
+# measured on the other 47%. A candidate that changes who makes the bracket was
+# being graded as if the bracket did not pay.
+#
+# The format below was DERIVED from the harvested brackets, not assumed: four
+# teams by regular-season rank, seeds 1v4 and 2v3 in round 1, then the winners
+# meet for 1st/2nd (the `p:1` game) and the losers for 3rd/4th (`p:3`). Round r
+# plays in week `playoff_week_start + (r - 1)`. All 12 games across 2023/24/25
+# reproduce exactly under these rules, which is what `certify_bracket_resim`
+# asserts — the same certify-before-you-grade discipline the money tables get.
+
+PLAYOFF_TEAMS = 4
+SEED_PAIRS = ((1, 4), (2, 3))
+
+
+def bracket_seeds(standings: list[dict], n: int = PLAYOFF_TEAMS) -> dict[int, int]:
+    """{seed: roster_id} for the top `n` by RS rank."""
+    return {row["rank"]: row["roster_id"] for row in standings if row["rank"] <= n}
+
+
+def _game(field: dict[int, dict[int, float]], week: int, a: int, b: int,
+          seed_of: dict[int, int]) -> tuple[int, int]:
+    """(winner, loser) for one playoff game. Raises if a score is missing —
+    a silent 0.0 would hand the game to the other team and look like a result."""
+    scores = field.get(week) or {}
+    for r in (a, b):
+        if r not in scores:
+            raise KeyError(f"no week-{week} score for roster {r}; cannot resim the bracket")
+    if scores[a] > scores[b]:
+        return a, b
+    if scores[b] > scores[a]:
+        return b, a
+    # An exact tie in a playoff game is vanishingly rare and the platform's
+    # tiebreak is not in the harvested data. Higher seed advances, stated rather
+    # than silently coin-flipped, so the rule is auditable if it ever fires.
+    return (a, b) if seed_of[a] < seed_of[b] else (b, a)
+
+
+def simulate_bracket(standings: list[dict], field: dict[int, dict[int, float]],
+                     season: dict) -> dict[int, int]:
+    """Resim the winners bracket from standings + weekly scores → {roster: place}.
+
+    Used two ways: against the ACTUAL standings and field it must reproduce the
+    harvested placements (the certification), and against a SUBSTITUTED field it
+    produces the placements a Lab candidate would actually have earned.
+    """
+    seeds = bracket_seeds(standings)
+    if len(seeds) < PLAYOFF_TEAMS:
+        raise ValueError(f"need {PLAYOFF_TEAMS} seeded teams, got {len(seeds)}")
+    seed_of = {rid: seed for seed, rid in seeds.items()}
+    start = int((season.get("settings") or {}).get("playoff_week_start") or 15)
+
+    winners, losers = [], []
+    for hi, lo in SEED_PAIRS:
+        w, l = _game(field, start, seeds[hi], seeds[lo], seed_of)
+        winners.append(w)
+        losers.append(l)
+    champ, runner = _game(field, start + 1, winners[0], winners[1], seed_of)
+    third, fourth = _game(field, start + 1, losers[0], losers[1], seed_of)
+    return {champ: 1, runner: 2, third: 3, fourth: 4}
+
+
+def certify_bracket_resim(history: dict, seasons: list[str] | None = None) -> dict:
+    """The resim must reproduce every harvested bracket, or it may not grade.
+
+    Same discipline as the money-table certification: an unproven simulator does
+    not get to price 53% of the pot. Returns a per-season report; raises on any
+    mismatch so a caller cannot proceed on a red result by ignoring a return.
+    """
+    seasons = seasons or [str(s.get("season")) for s in (history.get("seasons") or [])]
+    report, failures = {}, []
+    for year in seasons:
+        s = season_of(history, year)
+        if s is None:
+            continue
+        actual = playoff_placements(s)
+        if len(actual) < PLAYOFF_TEAMS:
+            report[year] = {"skipped": "bracket not played out yet"}
+            continue
+        field = field_weekly_scores(s)
+        standings = standings_from_scores(field, weekly_matchups(s), regular_season_weeks(s))
+        resim = simulate_bracket(standings, field, s)
+        ok = resim == actual
+        report[year] = {"ok": ok, "actual": actual, "resim": resim}
+        if not ok:
+            failures.append(f"{year}: resim {resim} != actual {actual}")
+    if failures:
+        raise AssertionError("bracket resim does not reproduce history: " + "; ".join(failures))
+    return report
+
+
 # --- full-season grade --------------------------------------------------------
 
 def grade_actual(history: dict, payouts: dict, season) -> dict:
@@ -284,9 +376,18 @@ def grade_substituted(history: dict, payouts: dict, season, roster_id: int,
 
     `my_weekly`: {week: score} for the replayed strategy in `roster_id`'s seat.
     Weeks absent from my_weekly keep the harvested score (so a partial series
-    still grades). Playoff dollars for a substituted seat require a bracket
-    re-simulation (reseed + resim) — the next harness layer; reported as None
-    here with a note rather than a wrong number.
+    still grades).
+
+    PLAYOFF $ (53% of the pot) is now RESIMULATED: the substituted standings
+    reseed the bracket and the bracket replays on substituted scores. Three
+    honest outcomes, never mixed:
+      * the seat misses the top 4 under the substituted standings -> $0, exact;
+      * the seat makes it AND `my_weekly` covers the playoff weeks -> real
+        dollars from the resimulated finish;
+      * the seat makes it but the replay stops at the regular season -> None
+        with a note. Grading a resimulated run on HARVESTED playoff scores would
+        pair a strategy's regular season with the incumbent roster's playoffs,
+        which is not a number about anything.
     """
     s = season_of(history, season)
     pay = season_pay(payouts, season)
@@ -303,12 +404,41 @@ def grade_substituted(history: dict, payouts: dict, season, roster_id: int,
     standings = standings_from_scores(sub, matchups, rs_weeks)
     wh = weekly_high_dollars(sub, rs_weeks, pay, roster_id)
     rs = regular_season_dollars(standings, pay, roster_id)
-    return {
+
+    po, po_note, place = None, None, None
+    made = any(r["roster_id"] == roster_id and r["rank"] <= PLAYOFF_TEAMS for r in standings)
+    start = int((s.get("settings") or {}).get("playoff_week_start") or 15)
+    bracket_weeks = [start, start + 1]
+    if not made:
+        po, po_note = 0.0, "missed the bracket under the substituted standings"
+    elif not all(int(w) in {int(k) for k in my_weekly} for w in bracket_weeks):
+        po_note = ("seat reached the bracket but the replay does not cover weeks "
+                   f"{bracket_weeks} — playoff $ withheld rather than graded on the "
+                   "incumbent roster's playoff scores")
+    else:
+        try:
+            placements = simulate_bracket(standings, sub, s)
+            place = placements.get(roster_id)
+            po = playoff_dollars(placements, pay, roster_id)
+        except (KeyError, ValueError) as exc:
+            po_note = f"bracket resim unavailable: {exc}"
+
+    out = {
         "season": str(season), "roster_id": roster_id,
         "weekly_high": wh, "regular_season": rs,
-        "playoff": None,
-        "substituted_playoff_note": "playoff $ for a substituted seat needs "
-        "reseed + bracket resim (next harness layer); weekly-high and RS are exact",
-        "graded_total_partial": round(wh + rs, 2),
+        "playoff": po,
+        "made_playoffs": made,
+        "playoff_place": place,
         "standings_rank": next((r["rank"] for r in standings if r["roster_id"] == roster_id), None),
     }
+    if po_note:
+        out["substituted_playoff_note"] = po_note
+    # `graded_total` is the full money function when playoff $ resolved; the
+    # `_partial` key stays so a withheld bracket is never silently read as a
+    # complete grade by something summing the wrong field.
+    if po is None:
+        out["graded_total_partial"] = round(wh + rs, 2)
+    else:
+        out["graded_total"] = round(wh + rs + po, 2)
+        out["graded_total_partial"] = round(wh + rs, 2)
+    return out

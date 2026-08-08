@@ -75,9 +75,12 @@ def grade_room_corr(rosters, rng):
             my_wk += CC.WEEKLY_HIGH
         for t in totals:
             totals[t] += scores[t]
-    rank = sorted(totals, key=lambda t: -totals[t]).index(0) + 1
-    rs = CC.RS_CHAMP if rank == 1 else CC.RS_RUNNER if rank == 2 else 0
-    return my_wk + rs
+    # Same postseason as every other room grader — playoff $ is 53% of the pot,
+    # and a stack's whole thesis is correlated upside, which is exactly what a
+    # two-week single-elimination bracket pays for. Grading it without the
+    # bracket measured stacking on the half of the money least suited to it.
+    rs, po, _place = CC.postseason_dollars(params, totals, rng)
+    return my_wk + rs + po
 
 
 def race(n_rooms, seed=SEED):

@@ -97,6 +97,7 @@ jobs:
                   draft/backtest/STACK-SWEEP.md draft/backtest/stack-sweep.json \
                   draft/backtest/SIM-FIDELITY.md draft/backtest/sim-fidelity.json \
                   draft/backtest/HETEROGENEOUS-VALIDATION.md \
+                  draft/backtest/PLAYOFF-MONEY-VALIDATION.md \
                   draft/data/opening_script.md draft/data/opening_script.json \
                   public/draft_data.json
           git commit -m "Lab report $stamp" || { echo "no change"; exit 0; }

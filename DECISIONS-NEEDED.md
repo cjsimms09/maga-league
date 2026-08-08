@@ -10,6 +10,50 @@ the conservative option and mark the item PROVISIONAL until you rule._
 - **Draft slot:** claim in progress on `/draft` (site-claimed provenance); auto-verifies on Sleeper draft-order assignment.
 - **⏳ Only outstanding data:** the master-sheet **XLSX file itself** (for the 2016–2022 pre-Sleeper import) was NOT attached to the ingestion message — send the file and the pre-Sleeper history/settlement import lands. This is a data hand-off, not a decision.
 
+## 🚨 D11 — URGENT: the phase-shape refutation REVERSES on the complete money function
+
+**You are rehearsing on a config tuned without 53% of the money.** Playoff $ is
+$2,125 of the $4,000 pot; until today the Lab graded weekly-high + RS only. The
+bracket resim landed (format derived from, and reproducing, all 12 harvested
+playoff games), every simulated verdict was re-run, and one finding **reversed**:
+
+| | weekly-high + RS only | complete money function |
+|---|---|---|
+| **H1 — ceiling weighted toward EARLY picks** | −$37.29 **REFUTED** | **+$226.50, CI [168, 288] — best in the sweep** |
+| frontier flat λ=0.5 (the D9 basis) | +$70.67 | +$171.00 [109, 234] |
+| over-dosing λ=2.0 / 3.0 | negative | still negative (−$89 / −$117) |
+
+The mechanism is plain: **the playoffs are a two-week single-elimination
+tournament** — you need to win one game, not accumulate over sixteen — so
+variance is worth far more there, and excluding the half of the pot that pays
+for it underpriced ceiling everywhere.
+
+**NOTHING WAS CHANGED.** D9 stands exactly as installed (`ceiling 0.65`, endgame
+`0.5`, core tilts unchanged). Reversing a refutation is precisely the case where
+a fitted parameter is most tempting and least earned, so it is filed, not
+applied.
+
+**My recommendation: HOLD through the mocks, decide before the final one.**
+Rehearse the config you will draft on — that is the fixture-keepers lesson, and
+it outranks a same-day retune. The open question for you is whether the ceiling
+term's phase profile should move toward the early ramp for draft night, and
+whether the slider should come off the conservative end now that its evidence
+base is the whole money function rather than 47% of it.
+
+Everything else survived and mostly grew: **WR Feast +$91.50 → +$187.25** (still
+enrolled), Late-QB −$61 → −$212, stack peak 0.5× +$80.42 → +$204.58, still a LEAN and still not installed, §6 still
+clearing **zero** conditional rules (its null floor scaled with the money, from
+$65.83 to $157.23).
+
+**One thing I fixed rather than filed:** on the complete money function Early-QB
+Strike posts a *higher mean* than WR Feast (+$200.62 vs +$187.25), and the old
+rule — highest mean among those clearing the control — would have flipped your
+enrolled doctrine. It should not have. The paired head-to-head is
+**+$13.38, CI [−$53.75, +$78.00] — not separable.** A head-to-head gate now sits
+after the control gate: co-leaders that cannot be told apart retain the
+incumbent. WR Feast stands because nothing beat it, not because it won. Full
+detail in `draft/backtest/PLAYOFF-MONEY-VALIDATION.md`.
+
 ## D1 — Backtest grading metric — RESOLVED BY DATA (needs your acknowledgement)
 
 The value-over-replacement cut ran alongside raw points. It did **not** clear
