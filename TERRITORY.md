@@ -2,6 +2,49 @@
 
 _Answered 2026-08-08 with evidence, not assertion._
 
+## 🚦 BRANCH PROTOCOL — both sessions work directly on `main` (Cory, 2026-08-08, BINDING)
+
+**What went wrong (so it is on the record):** A committed to
+`claude/new-session-jwdvn7` and B to `claude/new-session-xs2lv6`. Neither was
+`main`. For a full session the work existed but reached nothing that consumes it
+— `main` was stale, the deployed site ran old code, and neither session could
+see the other's work. **Committed is not merged; merged is not deployed; deployed
+is not verified.** Every one of those gaps has bitten this project.
+
+**THE RULE: no feature branches, no session-named branches. Both sessions commit
+to `main`.** The file-territory split below already makes A and B edit disjoint
+files, so the territory IS the isolation. A branch only adds a merge problem on
+top of an already-solved problem.
+
+**Mechanics — mandatory for BOTH sessions, no exceptions:**
+1. `git pull --rebase origin main` **before every commit**.
+2. `git push` **immediately after every commit.** Never accumulate local commits.
+3. Push rejected → `pull --rebase` and push again. **Never branch to escape a
+   rejected push.**
+4. Rebase conflict → the conflict is inside someone's territory, i.e. a territory
+   violation. **STOP and report it. Do not resolve it, do not branch around it.**
+   Under a clean split, rebasing onto the other session never conflicts, so a
+   conflict is a useful *alarm*, not a routine event.
+
+**Enforcement (checks, not intentions):**
+5. `bash scripts/branch-check.sh` fails loudly if HEAD is not `main` — run it
+   before every commit, same shape as the territory check.
+6. The Sunday audit (`self-audit.yml`) asserts **no remote branch exists other
+   than `main`**, and that the **deployed commit equals `main` HEAD**. Divergence
+   and stale deploys are both caught weekly rather than discovered.
+
+**Deploy (the other half of the failure):**
+7. **A still owns deploys.** But B's work must not sit stranded: A deploys
+   whenever Cory needs to see something, and **at minimum once per work session
+   if `main` has changed.** Draft-week build reserve still protected
+   (`DEPLOY-POLICY.md`).
+8. STATUS.md carries a **DEPLOYED vs main HEAD** line so "built but not live" is
+   never invisible again (`site-check.yml` is the automated half).
+
+_Supersedes conflict-avoidance rule 2's "rebase before push against bot commits"
+phrasing below and rule 3's "B waits for A" where it implied branch isolation —
+B commits to main directly and pings A to deploy._
+
 ## ⚠️ THE SPLIT YOU PROPOSED IS NOT SAFE
 
 **Draft-path vs "Lab/site/in-season" cannot be separated, because the Lab is

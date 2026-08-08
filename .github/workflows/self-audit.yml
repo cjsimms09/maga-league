@@ -45,8 +45,8 @@ jobs:
           npm install --no-audit --no-fund >/dev/null 2>&1
           py_ok=1; js_ok=1
           python -m pytest draft/tests -q || py_ok=0
-          for t in alerts attribution authority backtest betlogic engine keeperlock keepers ledger \
-                   claimfix doctrine mcts predledger prefs rawarchive reconcile shadows sidebets strategies sync update venmo; do
+          for t in alerts app-wiring attribution authority backtest betlogic engine keeperlock keepers ledger \
+                   claimfix doctrine mcts movement_line predledger prefs rawarchive reconcile shadows sidebets stages stack_routes strategies sync update venmo; do
             node draft/tests/$t.test.js >/dev/null 2>&1 || js_ok=0
           done
           node draft/tests/robot-mock.js >/dev/null 2>&1 || js_ok=0
@@ -64,6 +64,12 @@ jobs:
           fi
           if [ "$ctx" = "production" ] && [ "$backend" != "blobs" ]; then
             hard+=("live storage_backend=$backend, not durable blobs")
+          fi
+
+          echo "== branch protocol: only main should exist (TERRITORY.md § Branch protocol) =="
+          others=$(git ls-remote --heads origin | awk '{print $2}' | sed 's#refs/heads/##' | grep -v '^main$' || true)
+          if [ -n "$others" ]; then
+            hard+=("stray branch(es) other than main: $(echo "$others" | paste -sd, -) — sessions must commit to main, not branch")
           fi
 
           echo "== scheduled crons present =="
