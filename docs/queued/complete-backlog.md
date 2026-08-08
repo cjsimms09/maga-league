@@ -113,3 +113,6 @@ A public HISTORY-tab feature: season chapters (2023→present), the All-Time Rec
 
 ## F-2. Status Dashboard — "full program" panel (5-min nicety, idle-gap work)
 Widen `/admin/status`: fold `TASK-AUDIT.md`'s spec list into a SECOND collapsible panel — **"the full program"** under **"the critical path"** (the existing queue line). The critical-path queue stays the default view; the full-program panel expands to show every filed spec + backlog item with its gate. Not now-work; do it in a natural gap.
+
+## A-9. Predicted keeper slates + scenario machinery (draft-relevant — see keeper-intel-scenarios.md)
+Predict all 9 opponents' keepers from 2025 rosters under flat-cost surplus (K0 optimizer generalized to all seats), each with confidence; mock/rehearsal boards use PREDICTED slates until real designations land (keeper-watch replaces one by one). Cory's Bowers→MarianSaar intel is a high-confidence override. Scenario-conditional pick-34 dossier (Bowers-available vs kept, McBride inherits) is COMPUTED (in the spec). Opening script forks the Bowers branch. Ledger the prediction; January grades keeper-prediction accuracy. **Priority: pre-mock (probable board > fictional full pool).**
