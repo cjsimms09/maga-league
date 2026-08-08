@@ -3,6 +3,51 @@
 _Questions no spec already answers. Each carries my recommended answer; I take
 the conservative option and mark the item PROVISIONAL until you rule._
 
+## 🚨 D14 — THE DECISION TREE RELABELLED BEHAVIOUR, IT DID NOT CHANGE IT
+
+_Filed 2026-08-08, grind item #3. Flagged loudly per the standing rule; not
+absorbed into "the tree shipped."_
+
+**The finding.** I re-ran the intervention rate against the frozen pre-tree
+baseline on the same board. **Every metric is byte-identical:** rate 73.7%,
+8.84/draft, mean magnitude 17.06 picks, reaches 212 / falls 9, dead weight still
+`bye, survival`, lead-driver ranking unchanged. Machine proof:
+`node draft/tools/intervention_rate.js --diff 25`; write-up in
+`draft/backtest/POST-TREE-DIFF.md`.
+
+**Why.** `engine.js` and the recommendation path never call `stages.js`. The
+tree is a **legend printed over an unchanged engine** — a real legibility win
+(a pick can now name where it came from; Stage 4 ships visibly unsized), but
+**Stage 2 is a label, not an anchor.** The 73.7% rate is intact. You said if it
+did not drop, the tree relabelled rather than changed — it relabelled.
+
+### THE DECISION
+
+Do we make Stage 2 a **real anchor** now — the default answer is consensus, and a
+deviation must be *earned* off it by a later stage — or does the tree stay a
+legend until the blocking evidence lands?
+
+**Option A — anchor now.** Drops the rate hard by suppressing deviations. But the
+deviations most in need of justification are bought by `value` (untested — our
+projections never raced against the market) and are 212/221 reaches, and the
+evidence that says *which* deviations deserve to survive (exp 33, 34) is blocked
+(D13). Anchoring now suppresses deviations **on a guess**, and changes what the
+tool recommends on draft night inside the freeze window.
+
+**Option B — hold the legend until exp 33/34 report (my recommendation).** Keep
+the 73.7% rate visible and honestly labelled; do not silently reshape draft-night
+behaviour on unmeasured evidence. The tree's legibility value is already banked.
+Anchor when there is a measured reason to prefer consensus over a given
+deviation, not before. This respects "draft on what you rehearsed on."
+
+**Option C — anchor only the untested-`value` reaches**, leaving structural
+(`need`) and moderate (`ceiling`/`survival`) deviations alone. A middle path that
+targets the specific class with the weakest evidence — but it still moves
+behaviour ahead of the measurement and needs its own justification.
+
+Recommendation: **B.** The consequence is recorded either way: the rate is 73.7%
+and the tool deviates on ~9 of my ~17 picks, all LEAN, until 33/34 unblock.
+
 ### ✅ Open inputs — ALL RESOLVED 2026-08-08 (master sheet + config)
 - **Pick timer:** ✅ **UNTIMED** (`draft.untimed=true`, `pick_timer=0` at source).
 - **RS tiebreak:** ✅ **TOTAL POINTS** (`regular_season.tiebreak="total_points"`, master-sheet rules tab).

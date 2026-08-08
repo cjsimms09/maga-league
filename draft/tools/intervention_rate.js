@@ -322,6 +322,109 @@ function freezeBaseline(nDrafts, outPath) {
   return out;
 }
 
+/* ── THE POST-TREE DIFF ────────────────────────────────────────────────────
+ *
+ * Answers the ONE question the frozen baseline exists to answer: now that the
+ * decision-tree vocabulary has landed, does the model DEVIATE differently, or
+ * does it deviate identically and merely LABEL the deviations?
+ *
+ * The distinction is load-bearing and easy to lose. A staged surface comes with
+ * its own story for whatever it recommends, so "Stage 2 — consensus baseline"
+ * printed next to a pick READS like the pick came from consensus even when the
+ * arithmetic that chose it never consulted a stage. The only defence is the
+ * number recorded before the change (pre-tree-baseline.json) and a mechanical
+ * diff against it — which is this.
+ *
+ * The verdict is intentionally binary and blunt:
+ *   RELABELLED  — metrics byte-identical to baseline. The tree is a legend over
+ *                 an unchanged engine. Stage 2 is a label, not an anchor. If the
+ *                 intent was for Stage 2 to ANCHOR (deviations must be earned off
+ *                 consensus), that intent is NOT met and must be flagged, not
+ *                 absorbed into "the tree shipped".
+ *   CHANGED     — metrics moved. Recommendations changed. That change must be
+ *                 justified on its OWN evidence, never inherited from the refactor.
+ */
+function diff(nDrafts) {
+  const quiet = console.log;
+  console.log = () => {};
+  const cur = report(nDrafts);
+  console.log = quiet;
+
+  const basePath = path.join(ROOT, 'draft', 'backtest', 'pre-tree-baseline.json');
+  const base = JSON.parse(fs.readFileSync(basePath, 'utf8'));
+  const b = base.metrics;
+
+  const curHead = require('child_process')
+    .execSync('git rev-parse HEAD', { cwd: ROOT }).toString().trim();
+
+  const sameBoard = base.board_built_at === DATA.built_at;
+
+  console.log('='.repeat(74));
+  console.log('POST-TREE DIFF — did the decision tree CHANGE behaviour, or LABEL it?');
+  console.log('='.repeat(74));
+  console.log(`  baseline head ${base.git_head.slice(0, 8)}  (${base.architecture})`);
+  console.log(`  current head  ${curHead.slice(0, 8)}  (decision-tree vocabulary landed)`);
+  console.log(`  board         ${sameBoard ? 'SAME as baseline — fair diff'
+    : 'DIFFERENT — diff measures the BOARD, re-freeze first'}  (${DATA.built_at})`);
+  console.log('');
+
+  const rows = [
+    ['deviation rate',      b.rate * 100,        cur.rate * 100,        '%',     1],
+    ['per-draft mean',      b.perDraftMean,      cur.perDraftMean,      '/draft',2],
+    ['mean magnitude',      b.meanMagnitude,     cur.meanMagnitude,     ' picks',2],
+    ['median magnitude',    b.medianMagnitude,   cur.medianMagnitude,   ' picks',2],
+    ['reaches',             b.reaches,           cur.reaches,           '',      0],
+    ['falls',               b.falls,             cur.falls,             '',      0],
+    ['interventions',       b.interventions,     cur.interventions,     '',      0],
+  ];
+  let anyMoved = false;
+  console.log('  metric              baseline      current       Δ');
+  console.log('  ' + '─'.repeat(56));
+  rows.forEach(([name, bv, cv, unit, dp]) => {
+    const d = cv - bv;
+    if (Math.abs(d) > 1e-9) anyMoved = true;
+    const f = x => x.toFixed(dp) + unit;
+    const dstr = (d > 0 ? '+' : '') + d.toFixed(dp);
+    console.log('  ' + name.padEnd(18) + f(bv).padStart(11) + '  '
+      + f(cv).padStart(11) + '  ' + dstr.padStart(8) + (Math.abs(d) > 1e-9 ? '  ⚠' : ''));
+  });
+  console.log('');
+
+  // Dead-weight terms and lead-driver ranking must also hold.
+  const baseDead = (b.dead || []).slice().sort().join(',');
+  const curDead = (cur.dead || []).slice().sort().join(',');
+  const deadSame = baseDead === curDead;
+  const leadOrder = o => Object.keys(o).sort((x, y) => o[y] - o[x]).join('>');
+  const leadSame = leadOrder(b.leadCount) === leadOrder(cur.leadCount);
+  console.log('  dead weight   baseline [' + (baseDead || 'none') + ']  current ['
+    + (curDead || 'none') + ']  ' + (deadSame ? 'same' : '⚠ CHANGED'));
+  console.log('  lead-driver ranking  ' + (leadSame ? 'unchanged' : '⚠ CHANGED')
+    + '   ' + leadOrder(cur.leadCount));
+  console.log('');
+
+  const relabelled = !anyMoved && deadSame && leadSame;
+  console.log('── VERDICT ' + '─'.repeat(63));
+  if (relabelled) {
+    console.log('  RELABELLED — every metric is byte-identical to the pre-tree baseline.');
+    console.log('  The tree is a LEGEND printed over an unchanged engine: engine.js and');
+    console.log('  the recommendation path never call stages.js, so the pick is still');
+    console.log('  whatever the composite produced. STAGE 2 IS A LABEL, NOT AN ANCHOR.');
+    console.log('');
+    console.log('  The deviation rate is INTACT at ' + (cur.rate * 100).toFixed(1)
+      + '%. If the intent was for Stage 2');
+    console.log('  to anchor — deviations EARNED off consensus rather than assumed — that');
+    console.log('  intent is NOT met by shipping the vocabulary. Flag, do not absorb.');
+  } else {
+    console.log('  CHANGED — the tree moved recommendations. Per the baseline\'s own');
+    console.log('  contract this change must be justified on its OWN evidence, not');
+    console.log('  inherited from the restructure. The moved metrics are marked ⚠ above.');
+  }
+  console.log('='.repeat(74));
+
+  return { relabelled, anyMoved, deadSame, leadSame, sameBoard,
+           baseline: b, current: cur, baseHead: base.git_head, curHead };
+}
+
 if (require.main === module) {
   if (process.argv[2] === '--freeze') {
     const dest = path.join(ROOT, 'draft', 'backtest', 'pre-tree-baseline.json');
@@ -333,8 +436,10 @@ if (require.main === module) {
     console.log('  magnitude   ' + b.metrics.meanMagnitude.toFixed(1) + ' picks');
     console.log('  reach/fall  ' + b.metrics.reaches + '/' + b.metrics.falls);
     console.log('  dead        ' + (b.metrics.dead.join(',') || 'none'));
+  } else if (process.argv[2] === '--diff') {
+    diff(Number(process.argv[3]) || 25);
   } else {
     report(Number(process.argv[2]) || 25);
   }
 }
-module.exports = { simulate, report, freezeBaseline, myPicks, NOISE_BAND };
+module.exports = { simulate, report, freezeBaseline, diff, myPicks, NOISE_BAND };

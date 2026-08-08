@@ -23,6 +23,8 @@ built against measured reliability.
 
 
 
+**🚨 THE DECISION TREE RELABELLED, IT DID NOT CHANGE BEHAVIOUR (2026-08-08, grind #3 — flagged loudly, not absorbed).** I re-ran the intervention rate against the frozen pre-tree baseline on the same board. **Byte-identical:** 73.7%, 8.84/draft, 17.06-pick magnitude, 212/9 reach-fall, dead weight still `bye,survival`, lead ranking unchanged. `engine.js` never calls `stages.js` — the tree is a **legend over an unchanged engine, Stage 2 is a label not an anchor,** and the 73.7% deviation rate is fully intact. This is a real legibility win (a pick can name its stage; Stage 4 ships visibly unsized) and it is NOT a behaviour change. Whether to make Stage 2 a *real* anchor is filed as **🚨 D14** — recommendation HOLD, because anchoring now suppresses deviations on the very evidence (exp 33/34) that D13 blocks. Machine proof: `node draft/tools/intervention_rate.js --diff 25`; write-up `draft/backtest/POST-TREE-DIFF.md`.
+
 ## ⚡ POWER-THROUGH DIRECTIVE (supersedes calendar pacing)
 Idle time dies. Proceed by default; never wait at redirect windows (judgment → DECISIONS-NEEDED, continue other work). Gates convert from "build by" to **"build now, ACTIVATE when reality allows."** Only true blocks: **my inputs** (slot date, keeper confirmations), **external events** (slot assignment, keeper lock, NFL week-1 data), and the **draft-path code freeze at final mock** (the fixture-keepers lesson: draft on what you rehearsed on). Quality rules untouched: robot green per commit, gates never loosened, participation tests, ledger discipline, specs → docs/queued.
 
@@ -561,8 +563,9 @@ discloses in both directions.
 | 3. Mock #4 + degraded drill | ▶ **NEXT** — deliverable is the one-page failure card |
 | 4. In-season ledger kinds | ✅ **SHIPPED** — 6 kinds registered before the draft, counterfactual ENFORCED |
 | 5. Exp 34 | 🚨 **BLOCKED — see D13.** Two of three arms have no data. Recommendation on file; needs Cory's call |
-| 6. Decision tree | ▶ **NEXT, and it is NOT fully blocked by D13.** Stages 1-3 are defined by RULES, not by measured reliability: Stage 1 legality floor (the sanity-sweep predicates already exist and are tested), Stage 2 consensus baseline (the anchor doctrine's §4 default-to-market, explicitly buildable now), Stage 3 doctrine tilt (**already built and wired**). Only STAGE 4's aggression sizing needs 34 — and per PRE-REGISTRATION-34.md it starts SMALL regardless, so it can be built at its floor and widened when evidence arrives. Build 1-3 + a floor-level 4; do not tune 4 |
-| 7. Full surface | pending |
+| 6. Decision tree | ✅ **VOCABULARY SHIPPED (bd431b1); ⚠️ RELABEL-ONLY.** Stages 1-5 named, SOURCE live on the surface, Stage 4 visibly unsized. But `--diff` proves the tree is a legend over an unchanged engine — rate byte-identical to baseline (D14). Stage 2 is a label, not an anchor. Anchoring for real = a behaviour change on blocked evidence → **HELD as D14** |
+| 6b. Intervention rate re-report | ✅ **DONE (grind #3).** 73.7% intact, byte-identical to baseline; flagged loudly as relabel-only. `draft/backtest/POST-TREE-DIFF.md`, `--diff` mode |
+| 7. Full surface | ▶ **NEXT** — SOURCE ✅ live (reads the stage); NEAR-MISS still absent (needs Stage 4 thresholds → D13). Movement line + class-tagged stack line remain |
 | 8. Mock #5+ | pending |
 
 **Running in CI, needs no session:** covariance study (portfolio step 1, fires on
