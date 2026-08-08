@@ -110,7 +110,7 @@ season until settled.</p>
                  const vp = V.render(ownerById(r.owner_id), { amount: Math.abs(r.net), note: 'side bet' }); %>
               <span class="lsb-act">
                 <% if (vp.url) { %><a class="btn small" href="<%= vp.url %>" target="_blank" rel="noopener">Pay <%= vp.label %> 💸</a>
-                <% } else { %><span class="muted" style="color:#b3261e"><%= vp.label %></span><% } %>
+                <% } else { %><span class="muted" style="color:var(--red-bright)"><%= vp.label %></span><% } %>
               </span>
             <% } %>
             <% if (isMine) { %>

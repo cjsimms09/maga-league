@@ -5,15 +5,15 @@
 <% } %>
 
 <% if (typeof venmoNag !== 'undefined' && venmoNag) { %>
-<div class="venmo-nag" id="venmo-nag" style="display:none;background:#eef6ff;border:1px solid #b9dcff;border-radius:8px;padding:10px 14px;margin:0 0 12px;gap:10px;align-items:center;flex-wrap:wrap">
+<div class="venmo-nag" id="venmo-nag" style="display:none;background:var(--panel-soft);border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:8px;padding:10px 14px;margin:0 0 12px;gap:10px;align-items:center;flex-wrap:wrap;color:var(--ink)">
   <span>💸 Add your Venmo so people can pay you.</span>
   <form method="post" action="/profile/pay" style="display:flex;gap:6px;align-items:center;margin:0">
-    <span style="color:#888">@</span>
+    <span style="color:var(--muted)">@</span>
     <input type="text" name="venmo" maxlength="60" placeholder="your-handle" required
-           style="padding:5px 8px;border:1px solid #ccc;border-radius:6px">
+           style="padding:5px 8px;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--ink)">
     <button type="submit" class="btn small">Save</button>
   </form>
-  <button type="button" onclick="document.getElementById('venmo-nag').style.display='none';sessionStorage.setItem('venmoNagDismissed','1')" style="margin-left:auto;background:none;border:none;color:#888;cursor:pointer">dismiss</button>
+  <button type="button" onclick="document.getElementById('venmo-nag').style.display='none';sessionStorage.setItem('venmoNagDismissed','1')" style="margin-left:auto;background:none;border:none;color:var(--muted);cursor:pointer">dismiss</button>
 </div>
 <script>
   // Dismissible-but-recurring: hidden for this session once dismissed, back next.
@@ -22,7 +22,7 @@
 <% } %>
 
 <% if (typeof venmoMissing !== 'undefined' && venmoMissing && venmoMissing.length) { %>
-<div class="venmo-missing" style="background:#fff8e1;border:1px solid #f0d98a;border-radius:8px;padding:10px 14px;margin:0 0 12px;font-size:14px">
+<div class="venmo-missing" style="background:var(--panel-soft);border:1px solid var(--line);border-left:3px solid var(--red);border-radius:8px;padding:10px 14px;margin:0 0 12px;font-size:14px;color:var(--ink)">
   <b>Commissioner:</b> still no Venmo on file for
   <%= venmoMissing.map(o => o.name).join(', ') %> — hound them in the chat.
 </div>
@@ -70,26 +70,37 @@
 <div class="grid cols-2">
 
   <% if (sleeperStandings.length) { %>
+  <%
+    // STATE AWARENESS: a ranked table with a crown, a playoff line and a toilet
+    // is decoration on noise until real results exist. Pre-season renders the
+    // table UNRANKED (alphabetical, explicitly labeled, no merit furniture);
+    // the full ranked rendering returns the moment week-1 scores land.
+    const seasonStarted = sleeperStandings.some(r =>
+      (r.wins || 0) + (r.losses || 0) + (r.ties || 0) > 0 || (r.pf || 0) > 0);
+    const standingsRows = seasonStarted ? sleeperStandings
+      : sleeperStandings.slice().sort((a, b) =>
+          String(a.owner_name || a.team).localeCompare(String(b.owner_name || b.team)));
+  %>
   <div class="card">
-    <h2>Live Standings <span class="sub">straight from Sleeper</span></h2>
+    <h2>Live Standings <span class="sub"><%= seasonStarted ? 'straight from Sleeper' : 'pre-season — standings begin week 1' %></span></h2>
     <div class="body tight scroll-x">
       <table class="roll">
-        <tr><th>#</th><th>Team</th><th class="num">W-L</th><th class="num">PF</th></tr>
-        <% for (const r of sleeperStandings) { %>
-          <% if (r.rank === playoffTeams + 1) { %><tr><td colspan="4" style="padding:.15rem .8rem; font-size:.62rem; letter-spacing:.14em; text-transform:uppercase; color:var(--red-bright); border-bottom:1px dashed rgba(255,70,85,.5)">— playoff line (top <%= playoffTeams %>) —</td></tr><% } %>
+        <tr><% if (seasonStarted) { %><th>#</th><% } %><th>Team</th><th class="num" style="white-space:nowrap; min-width:3.4em">W-L</th><th class="num" style="white-space:nowrap; min-width:4.5em">PF</th></tr>
+        <% for (const r of standingsRows) { %>
+          <% if (seasonStarted && r.rank === playoffTeams + 1) { %><tr><td colspan="4" style="padding:.15rem .8rem; font-size:.62rem; letter-spacing:.14em; text-transform:uppercase; color:var(--red-bright); border-bottom:1px dashed rgba(255,70,85,.5)">— playoff line (top <%= playoffTeams %>) —</td></tr><% } %>
           <%# Money marker. If somebody has a live side bet riding on this team,
               say so right here — half the fun of a season-long pool is reading
               the table with the bet in mind, and a standings row that doesn't
               know about it makes you hold the whole thing in your head. Gold
               means it's YOUR money. %>
           <% const bm = r.owner_id != null ? betMoney[r.owner_id] : null; %>
-          <tr class="<%= r.rank === sleeperStandings.length ? 'last-place' : '' %>">
-            <td><%= r.rank %><%= r.rank === 1 ? ' 👑' : r.rank === sleeperStandings.length ? ' 🚽' : '' %></td>
+          <tr class="<%= seasonStarted && r.rank === sleeperStandings.length ? 'last-place' : '' %>">
+            <% if (seasonStarted) { %><td><%= r.rank %><%= r.rank === 1 ? ' 👑' : r.rank === sleeperStandings.length ? ' 🚽' : '' %></td><% } %>
             <td><b><%= r.owner_name || r.team %></b><% if (bm) { %><span
                 class="bet-money<%= bm.mine ? ' mine' : '' %>"
                 title="<%= bm.notes.join(' · ').replace(/"/g, '&quot;') %>">💰<% if (bm.mine) { %><%= money(bm.mine) %><% } %></span><% } %><% if (r.owner_name && r.owner_name !== r.team) { %> <span class="muted"><%= r.team %></span><% } %></td>
-            <td class="num"><%= r.wins %>-<%= r.losses %><%= r.ties ? '-' + r.ties : '' %></td>
-            <td class="num"><%= r.pf.toFixed(1) %></td>
+            <td class="num" style="white-space:nowrap"><%= r.wins %>-<%= r.losses %><%= r.ties ? '-' + r.ties : '' %></td>
+            <td class="num" style="white-space:nowrap"><%= r.pf.toFixed(1) %></td>
           </tr>
         <% } %>
       </table>

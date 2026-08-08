@@ -97,10 +97,10 @@
   <h2>🛠 Claim correction <span class="sub">fix a wrong claim without breaking the turn order</span></h2>
   <div class="body">
     <% if (typeof fixed !== 'undefined' && fixed) { %>
-      <p style="color:#2fd576;font-weight:600">✅ Corrected — <%= fixed %>. All surfaces update from the claim doc.</p>
+      <p style="color:var(--green);font-weight:600">✅ Corrected — <%= fixed %>. All surfaces update from the claim doc.</p>
     <% } %>
     <% if (typeof fixerr !== 'undefined' && fixerr) { %>
-      <p style="color:#ff8a94;font-weight:600">⛔ <%= fixerr %></p>
+      <p style="color:var(--red-bright);font-weight:600">⛔ <%= fixerr %></p>
     <% } %>
     <p class="muted" style="font-size:.8rem">Set = move the owner to a slot (their old slot returns to the pool). Clear = void the claim — they become the current turn again and later positions wait. Every correction is recorded on the doc.</p>
     <table style="width:100%;border-collapse:collapse;font-size:.85rem">

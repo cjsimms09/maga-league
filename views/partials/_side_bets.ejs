@@ -33,16 +33,16 @@
 <style>
   .sb-tracker{margin:0 0 20px}
   .sb-grid{border-collapse:collapse;width:100%;font-size:14px}
-  .sb-grid th,.sb-grid td{padding:6px 10px;text-align:right;border-bottom:1px solid rgba(0,0,0,.08)}
+  .sb-grid th,.sb-grid td{padding:6px 10px;text-align:right;border-bottom:1px solid var(--line);color:var(--ink)}
   .sb-grid th:first-child,.sb-grid td:first-child{text-align:left}
   .sb-grid a{text-decoration:none}
-  .sb-pos{color:#0a7d34;font-weight:600}.sb-neg{color:#b3261e;font-weight:600}
-  .sb-dash{color:#aaa}.sb-zero{color:#666}
-  .sb-grid .sb-career{font-weight:700;border-left:2px solid rgba(0,0,0,.12)}
+  .sb-pos{color:var(--green);font-weight:600}.sb-neg{color:var(--red-bright);font-weight:600}
+  .sb-dash{color:var(--muted)}.sb-zero{color:var(--muted)}
+  .sb-grid .sb-career{font-weight:700;border-left:2px solid var(--line)}
   .sb-name a{font-weight:600}
   .sb-back{display:inline-block;margin:0 0 10px;font-size:13px}
-  .sb-ledrow{padding:8px 0;border-bottom:1px solid rgba(0,0,0,.08)}
-  .sb-open{background:#fff8e1;border-left:3px solid #f5a623;padding:8px 10px;margin:4px 0}
+  .sb-ledrow{padding:8px 0;border-bottom:1px solid var(--line);color:var(--ink)}
+  .sb-open{background:var(--panel-soft);border:1px solid var(--line);border-left:3px solid var(--gold);padding:8px 10px;margin:4px 0;color:var(--ink)}
 </style>
 
 <div class="sb-tracker">
@@ -62,10 +62,10 @@
       <div class="sb-ledrow">
         <span class="<%= sbCls(r.delta) %>"><%= sbMoney(r.delta) %></span>
         · vs <%= r.against %> · <%= esc(r.bet.terms) %>
-        <span style="color:#888">(running <%= sbMoney(r.running) %>)</span>
+        <span style="color:var(--muted)">(running <%= sbMoney(r.running) %>)</span>
       </div>
     <% }) %>
-    <% if (!sbDrill.ledger.rows.length) { %><p style="color:#888">No bets here yet.</p><% } %>
+    <% if (!sbDrill.ledger.rows.length) { %><p style="color:var(--muted)">No bets here yet.</p><% } %>
   <% } else if (sbDrill.kind === 'year') { %>
     <h3>Side bets — <%= sbDrill.year %></h3>
     <% if (sbDrill.league.biggest_winner) { %>
@@ -81,13 +81,13 @@
           %><a href="/bank?section=sidebets&sbview=name&owner=<%= p.owner_id %>" class="<%= sbCls(p.delta) %>"><%= p.name %> <%= sbMoney(p.delta) %></a><%
           // Both parties get their pay handle (§3): a deep link, or the loud fallback.
           if (typeof V !== 'undefined' && typeof ownerById !== 'undefined') { const vp = V.render(ownerById(p.owner_id)); %><%
-            %> <% if (vp.url) { %><a href="<%= vp.url %>" target="_blank" rel="noopener" style="font-size:12px">💸<%= vp.label %></a><% } else { %><span style="font-size:12px;color:#b3261e"><%= vp.label %></span><% } %><%
+            %> <% if (vp.url) { %><a href="<%= vp.url %>" target="_blank" rel="noopener" style="font-size:12px">💸<%= vp.label %></a><% } else { %><span style="font-size:12px;color:var(--red-bright)"><%= vp.label %></span><% } %><%
           %><% } %><%= i < row.parties.length - 1 ? ' · ' : '' %><%
         %><% }) %>
         </div>
       </div>
     <% }) %>
-    <% if (!sbDrill.league.rows.length) { %><p style="color:#888">No settled bets that year.</p><% } %>
+    <% if (!sbDrill.league.rows.length) { %><p style="color:var(--muted)">No settled bets that year.</p><% } %>
   <% } %>
 <% } else if (sbGrid && sbGrid.years.length) { %>
   <h3>The tracker — side-bet net by year</h3>
@@ -111,7 +111,7 @@
     <% }) %>
     </tbody>
   </table>
-  <p style="color:#888;font-size:12px">Side bets are their own book — never mixed into league money. Click a name, a cell, or a year to drill in.</p>
+  <p style="color:var(--muted);font-size:12px">Side bets are their own book — never mixed into league money. Click a name, a cell, or a year to drill in.</p>
 <% } %>
 </div>
 
