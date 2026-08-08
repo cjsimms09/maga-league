@@ -400,7 +400,25 @@ says it should), installed through the normal cited-constant path, robot green,
 before mock #2 — so the mocks rehearse the tilt. September's quantile re-run
 either certifies or reverts it. One word (install / hold) and it lands.
 
-## 🚨 D13 — EXPERIMENT 34 IS BLOCKED ON TWO OF ITS THREE ARMS
+## ✅ D13 — PARTLY UNBLOCKED 2026-08-08: real historical ADP IS reachable
+
+**The reachability probe ran in CI (egress works there) and answered the premise
+before we settled for the narrowing.** FantasyFootballCalculator historical, by
+year + format, returns usable half-PPR boards for **all three seasons**: 2023
+(199 players), 2024 (178), 2025 (156), all HTTP 200. nflverse has no ADP table
+(as predicted); BBM was correctly not probed (a file ingestion, not an endpoint).
+
+**Consequence:** Option A's narrowing (grade against the room's revealed
+preference) is **WITHDRAWN as necessary** — exp 34's *"what ADP said"* arm can run
+against REAL contemporaneous national ADP. The still-missing arm is *"what the
+tool would have recommended"* (needs decision-time projections — none archived),
+so 34 runs as a **two-way** compare (my pick vs real ADP, graded on realized
+outcomes), not the full three-way, until the AsOf projection store exists. That
+is a genuine upgrade over Option A. **Build note for the Lab:** the FFC fetch is
+a CI-egress step (like the bridge), so exp 34's ADP arm is a `lab.yml` job, not a
+sandbox run. Original blocker text retained below for the record.
+
+## 🚨 D13 (original) — EXPERIMENT 34 IS BLOCKED ON TWO OF ITS THREE ARMS
 
 _Found 2026-08-08 while building it. Needs a call from Cory; the sequence
 continues on other items meanwhile._

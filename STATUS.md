@@ -558,7 +558,31 @@ are all committed under `docs/queued/` so a reclaimed container can't lose them.
 ## Standing rules in force
 fail loudly · single scoring path · every pinned constant cites its source · every bug found becomes a robot scenario in the same commit · provenance stamps on every results file · guards are never disabled to pass.
 
-## ▶ RESUME MARKER — 2026-08-08, end of session
+## ▶ RESUME MARKER — 2026-08-08, after the branch/deploy incident
+
+**THIS SESSION (post-merge):** Merged both session branches to `main` (clean,
+STATUS.md unioned, nothing lost); wrote + enforced the **branch protocol** (both
+sessions on main, `branch-check.sh`, Sunday-audit stray-branch assertion);
+diagnosed + fixed the **`/history` 500 and the empty money board** (same
+`included_files` bundling gap, fixed forward, proven); fixed **deploy-verify**
+(pre-existing invalid YAML → it had never run) and gated it on `[deploy]`; added
+**`bundling_guard`** + **`history_smoke`** (war room included) + a **workflow-YAML
+lint**, all green + negative-controlled, wired into CI + the audit; completed the
+**seam sweep** (doctrine.js + mcts.js added to the wiring guard). Live confirm of
+the site is in the repaired deploy-verify's hands (sandbox has no egress).
+
+**OWED ANSWERS DELIVERED:**
+- **Historical ADP reachability = YES** (probe run 31284357107): FFC historical,
+  half-PPR, all three seasons usable (2023/24/25). **D13 Option A withdrawn** —
+  exp 34's ADP arm runs against real ADP as a `lab.yml` egress job.
+- **Stage 2 scope in days (D14):** making Stage 2 a *real* anchor is an engine
+  change to `E.recommend` (default = consensus order; deviations EARNED via a
+  named stage, not a composite that happens to deviate) + re-measure/re-freeze +
+  behavioural stage tests + robot regression ≈ **~2 focused days.** It is NOT
+  merely more work — it CHANGES draft-night recommendations, so per D14 it must
+  not be built until (a) you rule on D14 and (b) exp 33/34 report, so the anchor
+  suppresses deviations for a MEASURED reason, not a guess. Now that ADP is
+  reachable, exp 34 can run and feed that decision. Recommendation stands: HOLD.
 
 **STAGE 3 IS COMPLETE.** The doctrine governs, inside a measured band, and
 discloses in both directions.
@@ -569,7 +593,7 @@ discloses in both directions.
 | 2. Minimum viable surface | ✅ **SHIPPED** — 5 truthful lines + the absent pair, verified desktop+phone, within the fold, no errors |
 | 3. Mock #4 + degraded drill | ▶ **NEXT** — deliverable is the one-page failure card |
 | 4. In-season ledger kinds | ✅ **SHIPPED** — 6 kinds registered before the draft, counterfactual ENFORCED |
-| 5. Exp 34 | 🚨 **BLOCKED — see D13.** Two of three arms have no data. Recommendation on file; needs Cory's call |
+| 5. Exp 34 | ◐ **PARTLY UNBLOCKED (2026-08-08).** ADP reachability probe: FFC historical usable all 3 seasons → the "what ADP said" arm runs against REAL ADP (D13 Option A withdrawn). Remaining block: "what the tool would have recommended" needs decision-time projections (none archived). Runs as a **two-way** compare now, as a `lab.yml` egress job — build is the next Lab unit |
 | 6. Decision tree | ✅ **VOCABULARY SHIPPED (bd431b1); ⚠️ RELABEL-ONLY.** Stages 1-5 named, SOURCE live on the surface, Stage 4 visibly unsized. But `--diff` proves the tree is a legend over an unchanged engine — rate byte-identical to baseline (D14). Stage 2 is a label, not an anchor. Anchoring for real = a behaviour change on blocked evidence → **HELD as D14** |
 | 6b. Intervention rate re-report | ✅ **DONE (grind #3).** 73.7% intact, byte-identical to baseline; flagged loudly as relabel-only. `draft/backtest/POST-TREE-DIFF.md`, `--diff` mode |
 | 7. Full surface | ◐ **MOSTLY DONE (grind #4).** SOURCE ✅ live (reads the stage); NEAR-MISS still absent (needs Stage 4 thresholds → D13). **Class-tagged STACK LINE ✅** — `liveStackRoutes` + Zone-2 line + LEAN badge, class derived from the evidence table (17/17). **MOVEMENT LINE ✅** — `movementLine` + `lastRecommendation` snapshot; DID IT MOVE + ALMOST MOVED live under the Paths panel, flap-suppressed, "why" from run detection never fabricated (12/12). **Remaining:** WOULD MOVE (latency-blocked, PARKED #11), DOCTRINE DRIFT line, and the movement LOG + ledger kind. Seam guarded by app-wiring (17/17); `stages`/`stack_routes`/`movement_line`/`app-wiring` all now gate in CI (were silently un-run) |
