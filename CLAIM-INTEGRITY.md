@@ -136,10 +136,39 @@ too permissive is a guard you believe in that isn't there.
 - State the measured value in the failure message, so the fix is obvious rather
   than a hunt.
 
+## EXTENSION: identifier existence is a premise too
+
+_Added after the fourth instance._
+
+**Any fixture referencing a named entity — doctrine key, strategy id, player id,
+experiment number, evidence-state key — must assert that the entity RESOLVES
+before asserting anything about its behaviour.**
+
+The fourth instance: the doctrine band fixture compared `'wr_feast'` against
+`'rb_anchor'`, which are DISPLAY NAMES, not keys (`wr_anchor`, `robust_rb`).
+Both resolved to nothing, every tilt returned 0, and the test failed accusing
+the ENGINE of not being wired.
+
+**That direction was luck.** A test comparing two nonexistent entities finds no
+difference between them, and whether that reads as a correct failure or a false
+pass depends entirely on which way the assertion points. The same typo in an
+"assert these are equal" test passes silently and forever.
+
+So the four instances share one root — **a fixture's premise is assumed rather
+than verified** — and they differ only in what kind of premise:
+
+| # | fixture | assumed premise | measured reality |
+|---|---|---|---|
+| 1 | sanity sweep | the board is depleted | Gibbs available in round 13 |
+| 2 | legality/engine fixtures | the path is reachable | the assertion was vacuous |
+| 3 | doctrine band | the gap is wide | composite gap was 4.0 |
+| 4 | doctrine band | the keys exist | they were display names |
+
 ## Scope
 
 This is the **enforceable** kind of rule, per the scope limit above: a premise
-that can be computed must be computed. Where a premise genuinely cannot be
+that can be computed must be computed — and an identifier's existence can always
+be computed. Where a premise genuinely cannot be
 measured — "this fixture is representative of real drafts" — say so in the file
 and treat the test as weaker evidence, rather than asserting a construction
 nobody checked.

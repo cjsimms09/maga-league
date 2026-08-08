@@ -85,13 +85,56 @@ const badgeNow = () => D.badge(entry, 64, 4);
     won + ' | ' + inc);
 }
 
-// ── THE PENDING LINKS, visible on every run ─────────────────────────────────
+/* ── THE PENDING LINKS, AND THE CHECK THAT THEY DO NOT STAY PENDING ─────────
+ *
+ * A test with permanently-pending assertions is a test that stops being read.
+ * The failure mode is specific: the dependency lands, nobody remembers this
+ * file, and the "PENDING" note quietly becomes false — the link is buildable and
+ * unbuilt, and the suite is still green because it is only printing a string.
+ *
+ * So each pending link names a DEPENDENCY PREDICATE it can evaluate itself, and
+ * FAILS when the dependency has landed while the link is still pending. The test
+ * notices its own unblocking.
+ */
+const PENDING = [
+  {
+    id: 'LINK A',
+    what: 'draft pick -> shadow roster scored by in-season results',
+    blockedBy: 'the 2026 season + in-season grading',
+    // Landed when shadow rosters can be graded against realized weekly results.
+    landed: () => {
+      try {
+        const S = require('../../public/js/draft/shadows.js');
+        return typeof S.gradeAgainstSeason === 'function';
+      } catch (e) { return false; }
+    },
+  },
+  {
+    id: 'LINK B',
+    what: 'in-season efficiency -> draft-side opponent projection',
+    blockedBy: 'the in-season tools (Command Center, PARKED.md ⑭)',
+    landed: () => {
+      try {
+        const E = require('../../public/js/draft/engine.js');
+        return typeof E.applyInSeasonEfficiency === 'function';
+      } catch (e) { return false; }
+    },
+  },
+];
+
 console.log('');
-console.log('  PENDING LINKS (not yet assertable — listed so the gap stays visible):');
-console.log('    LINK A  draft pick -> shadow roster scored by in-season results');
-console.log('            blocked: needs the season + in-season grading');
-console.log('    LINK B  in-season efficiency -> draft-side opponent projection');
-console.log('            blocked: needs in-season measurement');
+console.log('  PENDING LINKS (listed so the gap stays visible on every run):');
+PENDING.forEach(l => {
+  const up = l.landed();
+  console.log('    ' + l.id + '  ' + l.what);
+  console.log('            blocked by: ' + l.blockedBy + (up ? '   <-- LANDED' : ''));
+  check(l.id + ' is still legitimately pending (its dependency has NOT landed)',
+    !up,
+    l.id + "'s dependency is now present, so the link is buildable and unbuilt. "
+      + 'Write the assertion and move it above — a pending note that has become '
+      + 'false is worse than no note, because the suite stays green while the '
+      + 'organism has a hole nobody is looking at.');
+});
 console.log('  Both join this file as their halves land. See PARKED.md ⑮.');
 
 console.log(`\n${pass}/${pass + fail} organism checks passed (1 of 3 links proven)`);

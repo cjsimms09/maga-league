@@ -113,39 +113,67 @@
    * different things by the same name.
    *
    * `i` is MY pick index, 1-based (the same coordinate LIVE_CONSTRAINTS uses).
+   *
+   * WEIGHTS ARE CONTINUOUS, in [-1, +1], not booleans. A boolean preference
+   * makes every tilt the same size, so a doctrine that mildly prefers WR and one
+   * that is built entirely around WR push equally hard — and the only way to
+   * express "slightly" becomes not expressing it at all. Continuous weights let
+   * the tilt move a close call proportionally to how much the plan actually
+   * cares, while the upper bound is preserved by construction: |w| <= 1, so the
+   * tilt can never exceed DOCTRINE_TILT.
    */
   const PREFERS = {
     // "one anchor back, then hammer WR value"
     hero_rb: function (pos, i, r) {
-      if (i <= 2 && _count(r, 'RB') === 0) return pos === 'RB' ? 1 : -1;
-      return pos === 'WR' ? 1 : (pos === 'RB' ? -1 : 0);
+      // "one anchor back, THEN HAMMER WR value" — the anchor is emphatic, the
+      // WR lean that follows is strong but not absolute.
+      if (i <= 2 && _count(r, 'RB') === 0) return pos === 'RB' ? 1 : -0.5;
+      return pos === 'WR' ? 0.8 : (pos === 'RB' ? -0.6 : 0);
     },
     // "two backs early; win the position the room is short on"
     robust_rb: function (pos, i, r) {
-      return (i <= 4 && _count(r, 'RB') < 2) ? (pos === 'RB' ? 1 : -1) : 0;
+      // "TWO backs EARLY" — emphatic while the requirement is unmet, and it
+      // decays as the second back is secured.
+      if (i > 4 || _count(r, 'RB') >= 2) return 0;
+      var short = 2 - _count(r, 'RB');
+      return pos === 'RB' ? (short >= 2 ? 1 : 0.7) : -0.6;
     },
     // "no backs until the middle rounds; pass-game value first"
     zero_rb: function (pos, i) {
+      // "NO backs until the MIDDLE rounds" — absolute early, easing toward the
+      // middle rather than switching off at a cliff.
       if (i >= 6) return 0;
-      if (pos === 'RB') return -1;
-      return (pos === 'WR' || pos === 'TE') ? 1 : 0;
+      var decay = 1 - (i - 1) / 6;                 // 1.0 at pick 1 -> ~0.2 at 6
+      if (pos === 'RB') return -1 * decay;
+      return (pos === 'WR' || pos === 'TE') ? 0.8 * decay : 0;
     },
     // "ride the value fall; TE and QB wait; ceiling in the flex"
     wr_anchor: function (pos, i) {
+      // "ride the value fall; TE and QB WAIT" — WR is the plan's whole name, so
+      // it is emphatic; the TE/QB deferral is real but softer than a ban.
       if (i > 6) return 0;
       if (pos === 'WR') return 1;
-      return (pos === 'TE' || pos === 'QB') ? -1 : 0;
+      return (pos === 'TE' || pos === 'QB') ? -0.7 : 0;
     },
     // "pay for the last elite TE; the cliff pays it back"
     elite_te: function (pos, i, r) {
-      return (i <= 3 && _count(r, 'TE') === 0) ? (pos === 'TE' ? 1 : 0) : 0;
+      // "pay for the LAST ELITE TE" — emphatic, and only while one is unowned.
+      return (i <= 3 && _count(r, 'TE') === 0) ? (pos === 'TE' ? 1 : -0.3) : 0;
     },
     // "take the rushing-QB edge before the room does"
     early_qb: function (pos, i, r) {
-      return (i <= 4 && _count(r, 'QB') === 0) ? (pos === 'QB' ? 1 : 0) : 0;
+      // "take the rushing-QB edge BEFORE the room does" — urgency decays as the
+      // window closes rather than ending abruptly.
+      if (i > 4 || _count(r, 'QB') > 0) return 0;
+      return pos === 'QB' ? (1 - (i - 1) * 0.15) : -0.2;
     },
     // "let the room pay for QB; take the streamer tier"
-    late_qb: function (pos, i) { return (i <= 8 && pos === 'QB') ? -1 : 0; },
+    late_qb: function (pos, i) {
+      // "LET the room PAY for QB" — strongest early, fading toward the streamer
+      // tier rather than flipping off at pick 8.
+      if (i > 8 || pos !== 'QB') return 0;
+      return -1 * (1 - (i - 1) / 9);
+    },
     // A VARIANCE posture, not a positional one. Deliberately no positional
     // preference — pretending otherwise would invent a claim the creed does
     // not make. The ceiling TERM already carries this doctrine's intent.
@@ -158,7 +186,9 @@
     const f = PREFERS[key];
     if (typeof f !== 'function') return 0;
     const v = Number(f(pos, i, roster || [])) || 0;
-    return v > 0 ? 1 : (v < 0 ? -1 : 0);
+    // CLAMPED, so the upper bound is a property of this function rather than a
+    // promise every doctrine author has to keep.
+    return Math.max(-1, Math.min(1, v));
   }
 
   const LIVE_CONSTRAINTS = {
