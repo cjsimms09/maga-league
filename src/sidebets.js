@@ -483,11 +483,17 @@ function settlementsFor(bets, owner_id, nameOf) {
  * running net. This is the thing that matters — a W-L record says nothing about
  * a season-long bet worth $200 against four $20 ones.
  */
-function ledgerFor(bets, owner_id, nameOf) {
+function ledgerFor(bets, owner_id, nameOf, { year = null } = {}) {
   const rows = [];
   let running = 0;
-  const mine = bets.filter(b => isParty(b, owner_id))
-    .sort((a, b) => (a.created_at < b.created_at ? -1 : 1));
+  let mine = bets.filter(b => isParty(b, owner_id));
+  // Cell-click view (§5): filter to bets that RESOLVED in one year. A year view
+  // is historical, so it is settled bets only — an open bet has no year yet.
+  if (year != null) {
+    const y = Number(year);
+    mine = mine.filter(b => b.status === STATUS.SETTLED && betYear(b) === y);
+  }
+  mine = mine.sort((a, b) => (a.created_at < b.created_at ? -1 : 1));
   for (const b of mine) {
     const me = b.parties.find(p => p.owner_id === Number(owner_id));
     const others = b.parties.filter(p => p.owner_id !== Number(owner_id));
@@ -631,6 +637,110 @@ async function resend(id, owner_id, by_name) {
   return bet;
 }
 
+/**
+ * The year a settled bet belongs to. Money changes hands when it settles, so the
+ * grid keys on the settlement year (falling back to when it was created for the
+ * odd bet missing a settled stamp). Only settled, non-push bets have a year that
+ * matters to the running score.
+ */
+function betYear(b) {
+  const d = b.settled_at || b.created_at;
+  if (!d) return null;
+  const y = new Date(d).getUTCFullYear();
+  return Number.isFinite(y) ? y : null;
+}
+
+/** One party's dollar delta on a bet: +winnings or −stake. 0 unless settled. */
+function partyDelta(b, owner_id) {
+  if (b.status !== STATUS.SETTLED || b.push) return 0;
+  const won = (b.winner_ids || []).includes(Number(owner_id));
+  const losers = b.parties.length - b.winner_ids.length;
+  const winners = b.winner_ids.length || 1;
+  return won ? (b.stake * losers) / winners : -b.stake;
+}
+
+/**
+ * THE SIDE-BET TRACKER GRID (side-bet-tracker.md §1–3): owners down the left,
+ * years across the top, each cell that owner's side-bet net for that year, a
+ * career column on the right. Fully derived from settled bets — nothing typed.
+ *
+ * A cell with no bets for that owner-year is `null` (rendered as a quiet dash,
+ * never a zero). Zero-sum by construction: sum every owner's cell for a year and
+ * it is 0 — the invariant the robot asserts.
+ */
+function gridByYear(bets, owners) {
+  const net = {};                       // owner_id -> { year -> net }
+  const present = {};                   // owner_id -> Set(years with a bet)
+  for (const o of owners) { net[o.id] = {}; present[o.id] = new Set(); }
+  const years = new Set();
+
+  for (const b of bets) {
+    if (b.status !== STATUS.SETTLED || b.push) continue;
+    const y = betYear(b);
+    if (y == null) continue;
+    years.add(y);
+    for (const p of b.parties || []) {
+      if (!net[p.owner_id]) continue;
+      net[p.owner_id][y] = (net[p.owner_id][y] || 0) + partyDelta(b, p.owner_id);
+      present[p.owner_id].add(y);
+    }
+  }
+
+  const ys = [...years].sort((a, b) => a - b);
+  const rows = owners.map(o => {
+    const cells = {};
+    let career = 0, hasAny = false;
+    for (const y of ys) {
+      if (present[o.id].has(y)) {
+        cells[y] = r2(net[o.id][y] || 0);
+        career += net[o.id][y] || 0;
+        hasAny = true;
+      } else {
+        cells[y] = null;               // quiet dash, not zero
+      }
+    }
+    return { owner: o, cells, career: r2(career), has_bets: hasAny };
+  });
+  return { years: ys, rows };
+}
+
+/**
+ * League-wide ledger for one year (side-bet-tracker.md §5, the year-click view):
+ * every settled bet that resolved that year, both parties shown, plus the year's
+ * biggest winner and loser from the grid.
+ */
+function leagueLedgerForYear(bets, year, nameOf) {
+  const y = Number(year);
+  const rows = [];
+  for (const b of bets) {
+    if (b.status !== STATUS.SETTLED || b.push) continue;
+    if (betYear(b) !== y) continue;
+    rows.push({
+      bet: b,
+      parties: (b.parties || []).map(p => ({
+        owner_id: p.owner_id,
+        name: nameOf ? nameOf(p.owner_id) : p.owner_id,
+        delta: r2(partyDelta(b, p.owner_id)),
+        won: (b.winner_ids || []).includes(p.owner_id),
+      })),
+    });
+  }
+  rows.sort((a, b) => (a.bet.settled_at < b.bet.settled_at ? 1 : -1));
+  // Year's biggest winner / loser across all parties.
+  const net = {};
+  for (const row of rows) {
+    for (const p of row.parties) net[p.owner_id] = (net[p.owner_id] || 0) + p.delta;
+  }
+  const ranked = Object.entries(net).map(([id, v]) => ({
+    owner_id: Number(id), name: nameOf ? nameOf(Number(id)) : Number(id), net: r2(v),
+  })).sort((a, b) => b.net - a.net);
+  return {
+    year: y, rows,
+    biggest_winner: ranked[0] || null,
+    biggest_loser: ranked.length ? ranked[ranked.length - 1] : null,
+  };
+}
+
 /** Bets waiting on this person to say yes. Drives the nav badge and the email. */
 function awaiting(bets, owner_id) {
   return bets.filter(b => b.status === STATUS.PROPOSED
@@ -642,4 +752,5 @@ module.exports = {
   all, get, propose, accept, take, decline, settle, reopen, remove,
   setPosition, markLeg, isParty, offerBuyout, acceptBuyout, clearBuyout, resend,
   tallies, ledgerFor, settlementsFor, awaiting, moneyOnTeams, betsAbout,
+  betYear, partyDelta, gridByYear, leagueLedgerForYear,
 };
