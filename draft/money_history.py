@@ -86,23 +86,35 @@ def analyse():
     # Playoff-finish money from the winners bracket. Sleeper marks placement
     # games with a "p" field: p=1 is the championship (w=1st, l=2nd), p=3 is the
     # third-place game (w=3rd, l=4th). Map each to payouts.playoffs[finish].
-    def _playoff_dollars(season):
+    reconcile = {}   # season -> playoff $ assigned (must be 0 or the full pot)
+    def _playoff_dollars(sk, season):
         brackets = season.get("brackets") or {}
         wb = brackets.get("winners") or brackets.get("winners_bracket") or []
         po = pay.get("playoffs") or {}
+        assigned = 0.0
+        # Each season has exactly two placement games: p=1 (champ/runner-up) and
+        # p=3 (3rd/4th). w/l are roster_ids, resolved to owner PER SEASON (the
+        # mapping changes between seasons). Dedup by finish so a malformed bracket
+        # can't over-pay — the reconciliation guard below catches any leak.
+        seen_finish = set()
         for game in wb:
             p = game.get("p")
-            if p in (1, 3) and game.get("w") is not None and game.get("l") is not None:
+            if p in (1, 3) and isinstance(game.get("w"), int) and isinstance(game.get("l"), int):
                 for rid, finish in ((game["w"], p), (game["l"], p + 1)):
+                    if finish in seen_finish:
+                        continue
+                    seen_finish.add(finish)
                     amt = po.get(str(finish))
                     if amt:
                         nm = _owner_name(season, rid)
                         dollars.setdefault(nm, {"weekly": 0.0, "seasons": set()})
                         dollars[nm]["playoff"] = dollars[nm].get("playoff", 0.0) + amt
+                        assigned += amt
+        reconcile[sk] = assigned
 
     # Regular-season + playoff money from standings/brackets.
     for sk, s in sorted(graded.items()):
-        _playoff_dollars(s)
+        _playoff_dollars(sk, s)
         st = s.get("standings") or []
         if len(st) >= 1:
             dollars.setdefault(_owner_name(s, st[0].get("roster_id")), {"weekly": 0.0, "seasons": set()})
@@ -140,8 +152,14 @@ def analyse():
          for n, v in dollars.items()),
         key=lambda x: -x["total_$"])
 
+    # Reconciliation: per season, playoff $ assigned must be 0 (unplayed) or the
+    # full playoff pot (all 4 finishes present, no double-count).
+    pot = (pay.get("playoffs") or {}).get("total", 2125)
+    recon = {sk: {"assigned": amt, "expected": pot, "ok": amt in (0, pot)}
+             for sk, amt in reconcile.items()}
     return {"graded_seasons": sorted(graded.keys()), "threshold_table": threshold_table,
-            "concentration": concentration, "dollar_standings": standings}
+            "concentration": concentration, "dollar_standings": standings,
+            "reconciliation": recon, "playoff_pot": pot}
 
 
 def render(result):
@@ -165,12 +183,21 @@ def render(result):
     for i, r in enumerate(result["dollar_standings"], 1):
         out.append(f"| {i} | {r['name']} | ${r['weekly_$']:.0f} | ${r['rs_$']:.0f} | "
                    f"${r.get('playoff_$', 0):.0f} | ${r['total_$']:.0f} | {r['seasons']} |")
-    out += ["", "_⚠️ UNVERIFIED until: (1) the winners_bracket is harvested for all 3 "
-            "seasons (playoff-finish $ folds in here — a known discrepancy: Cory made "
-            "2023 playoffs but shows $0 playoff until the bracket lands); (2) Cory "
-            "confirms whether 2023 (league year one, keepers null) used the CURRENT "
-            "payout structure. Weeks 1–15 pay the $100; playoff weeks 16–17 do not. "
-            "Owner IDs unresolved except mine until the owners map is joined._"]
+    # Reconciliation cross-check (chat-Claude's requested guard): each season's
+    # playoff $ must equal the pot or zero.
+    rc = result.get("reconciliation", {})
+    bad = [sk for sk, r in rc.items() if not r["ok"]]
+    out += ["", "## Reconciliation — playoff $ per season must equal the pot ($%d) or 0" % result.get("playoff_pot", 2125),
+            "| season | assigned | expected | ok |", "|---|---|---|---|"]
+    for sk in sorted(rc):
+        r = rc[sk]
+        out.append(f"| {sk} | ${r['assigned']:.0f} | ${r['expected']:.0f} | {'✅' if r['ok'] else '🐛 LEAK'} |")
+    out.append("" if not bad else f"\n**🐛 RECONCILIATION FAILED for {bad} — do not trust the money table.**")
+    out += ["", "_⚠️ UNVERIFIED until Cory confirms whether **2023** (league year one, "
+            "keepers null) used the CURRENT payout structure ($400 buy-in / $4,000 pot). "
+            "If 2023 differed, its dollars need a per-season payout config. Weekly-high = "
+            "weeks 1–15; playoff weeks 16–17 don't pay. Owner IDs unresolved except mine "
+            "until the owners map is joined (roster→owner is stable across seasons)._"]
     return "\n".join(out) + "\n"
 
 
