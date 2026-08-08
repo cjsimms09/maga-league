@@ -2736,7 +2736,34 @@
         PredLedger.capture('shadow_pick', { season: c.season, build_at: c.build_at,
           pick: c.pick, method: 'shadow-v1', payload: { picks: picks } });
       }
+      renderShadowStrip();
     } catch (e) { /* never block the draft on a shadow */ }
+  }
+
+  /* Part C — the shadow-standings strip (Phase H made visible). State-aware
+   * per the standings-honesty rule: it renders only when shadows exist, labels
+   * rehearsal explicitly, and the DOLLARS column begins at week 1 — pre-season
+   * it says so rather than ranking on nothing. */
+  function renderShadowStrip() {
+    const host = $('#shadow-strip');
+    const body = $('#shadow-strip-body');
+    if (!host || !body) return;
+    const sh = state.shadows;
+    if (!sh || !Object.keys(sh.strategies || {}).length) { host.style.display = 'none'; return; }
+    host.style.display = '';
+    const rows = Object.values(sh.strategies).map(function (s) {
+      const last = s.roster.length ? s.roster[s.roster.length - 1] : null;
+      return '<tr><td><b>' + escapeHtml(s.name) + '</b></td>'
+        + '<td class="num">' + s.roster.length + ' picks</td>'
+        + '<td>' + (last ? escapeHtml(last.name + ' (' + (last.position || '?') + ')') : '—') + '</td></tr>';
+    }).join('');
+    body.innerHTML =
+      (sh.rehearsal ? '<p class="muted" style="margin:.2rem 0 .5rem">REHEARSAL shadows — never mixed with draft night.</p>' : '')
+      + '<div class="scroll-x"><table class="roll">'
+      + '<tr><th>strategy</th><th class="num">drafted</th><th>latest pick</th></tr>'
+      + rows + '</table></div>'
+      + '<p class="muted" style="font-size:.72rem;margin:.5rem 0 0">Standings render in DOLLARS from week 1 '
+      + '(weekly-highs banked + RS equity) — pre-season there is nothing honest to rank on, so nothing is ranked.</p>';
   }
 
   /* A-3 — my-turn alerting. Edge-triggered tick after every pick update; the
