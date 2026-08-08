@@ -63,10 +63,19 @@ if printf '%s' "$MSG" | grep -qiE '\[deploy\]'; then
   exit 1
 fi
 
-# Netlify's own conventions, honoured explicitly so they behave as documented
-# rather than by accident.
-if printf '%s' "$MSG" | grep -qiE '\[skip netlify\]|\[netlify skip\]|\[skip ci\]'; then
-  log "commit message carries an explicit skip — SKIPPING"
+# NETLIFY-ONLY MARKERS. `[skip ci]` is DELIBERATELY ABSENT.
+#
+# It was here, and it caused a real outage of our own making: `[skip ci]` is a
+# GITHUB ACTIONS convention, not a Netlify one, and GitHub honours it on the
+# head commit by skipping EVERY workflow for that push. Two commits carrying it
+# (7858343, 41ca3d7) therefore skipped CI, the test suites, and the Lab —
+# silently, while the commit messages claimed the suites were green locally.
+#
+# The two budgets are unrelated: Netlify build minutes are the scarce resource;
+# GitHub Actions is free and does not compete with it. Coupling them was a
+# category error. Deploys are gated here; CI and the Lab must ALWAYS run.
+if printf '%s' "$MSG" | grep -qiE '\[skip netlify\]|\[netlify skip\]'; then
+  log "commit message carries an explicit Netlify skip — SKIPPING"
   exit 0
 fi
 

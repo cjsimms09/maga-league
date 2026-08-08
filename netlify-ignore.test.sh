@@ -38,11 +38,14 @@ git init -q "$TMP"
   git commit -qm "ship the war room fixes [deploy]"
   DEPLOYC=$(git rev-parse HEAD)
   echo c > c; git add c
-  git commit -qm "docs only [skip ci]"
+  git commit -qm "docs only [skip netlify]"
   SKIPC=$(git rev-parse HEAD)
-  echo "$ORDINARY $DEPLOYC $SKIPC" > refs.txt
+  echo d > d; git add d
+  git commit -qm "ordinary docs commit [skip ci]"
+  SKIPCI=$(git rev-parse HEAD)
+  echo "$ORDINARY $DEPLOYC $SKIPC $SKIPCI" > refs.txt
 )
-read -r ORDINARY DEPLOYC SKIPC < "$TMP/refs.txt"
+read -r ORDINARY DEPLOYC SKIPC SKIPCI < "$TMP/refs.txt"
 
 # Run the gate from inside the fixture repo so `git log` resolves those refs.
 run_in_fixture() {
@@ -59,7 +62,12 @@ run_in_fixture() {
 OLDPWD="$PWD"
 run_in_fixture "an ORDINARY commit does NOT deploy (this is the whole point)" 0 "$ORDINARY"
 run_in_fixture "a commit marked [deploy] DOES deploy"                         1 "$DEPLOYC"
-run_in_fixture "a commit marked [skip ci] does NOT deploy"                     0 "$SKIPC"
+run_in_fixture "a commit marked [skip netlify] does NOT deploy"                0 "$SKIPC"
+# THE REGRESSION THIS EXISTS FOR: [skip ci] is a GITHUB convention. Honouring it
+# here taught us to write it in commit messages, which skipped every workflow —
+# CI, the test suites, and the Lab — silently. The deploy gate must be blind to
+# it, and nothing in this repo should ever emit it again.
+run_in_fixture "[skip ci] is NOT a Netlify marker (it silently killed CI once)" 0 "$SKIPCI"
 run_in_fixture "a build hook deploys regardless of the message"               1 "$ORDINARY" INCOMING_HOOK_TITLE="manual deploy"
 
 rm -rf "$TMP"
