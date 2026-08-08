@@ -180,10 +180,32 @@ def run_all(out_dir: Path) -> dict:
     return report
 
 
+# THE INTERVENTION RATE rides at the top of every Lab report. It is the number
+# that decides what this tool IS, and it was measured (2026-08-08) at four times
+# the pre-registered prior on 100%-LEAN evidence. Burying it under experiment
+# results would be the exact "report it plainly rather than burying it" failure
+# the metric's own spec forbids.
+_INTERVENTION_BANNER = (
+    "## 🚨 INTERVENTION RATE — the headline number\n\n"
+    "**73.7% of picks deviate from consensus** beyond the noise band — 8.8 per "
+    "draft, mean 17.1 picks, 212 reaches to 9 falls — and **100% of those "
+    "deviations are LEAN tier**. Not one reached LIKELY.\n\n"
+    "Pre-registered prior was ~2 per draft. Measured 8.8. The joint-lead driver "
+    "is `value` — our own projections, never raced against the market "
+    "(experiment 33, unrun). `bye` and `survival` never fired as material "
+    "drivers at all.\n\n"
+    "Baseline frozen: `draft/backtest/pre-tree-baseline.json`. Consequence "
+    "pre-registered before experiment 34 reports: `PRE-REGISTRATION-34.md`. "
+    "The dollar half cannot be answered on the 2026 board without circularity: "
+    "`draft/backtest/DOLLAR-PAIRING.md`.\n\n---\n\n"
+)
+
+
 def _write_report_md(path: Path, report: dict) -> None:
     L = ["# THE LAB — report", "",
          f"_git HEAD `{report['git_head']}` · seasons {', '.join(report['seasons'])} · "
          f"currency: {report['grading_currency']}_", ""]
+    L.append(_INTERVENTION_BANNER)
     L.append("## Experiments run")
     L.append("")
     L.append("| id | kind | headline |")

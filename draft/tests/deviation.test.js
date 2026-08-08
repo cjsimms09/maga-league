@@ -142,5 +142,26 @@ const entry = (weighted, over) => ({
     D.EVIDENCE.stack.klass === 'weak' && /not installed/.test(D.EVIDENCE.stack.note));
 }
 
+
+// --- THE TIER MUST SPEAK, NOT JUST GRADE ------------------------------------
+// Measured 2026-08-08: 100% of this model's deviations are LEAN across 300
+// simulated decisions. A uniform grade reads as no grade at all, so the tier
+// carries its meaning as a sentence — and a recommendation that departs from
+// consensus must not speak in the same voice as a validated call.
+{
+  const b = D.badge(entry({ tier: 9 }), 64, 4);
+  check('the tier renders as a SENTENCE, not a bare grade',
+    b.tierLine === 'LEAN — unvalidated vs market', b.tierLine);
+  check('LEAN says explicitly that it is unvalidated AGAINST THE MARKET',
+    /unvalidated vs market/.test(D.tierLine('LEAN')));
+  check('LIKELY and CERTIFIED do not borrow LEAN\'s disclaimer',
+    !/unvalidated/.test(D.tierLine('LIKELY'))
+    && !/unvalidated/.test(D.tierLine('CERTIFIED')),
+    D.tierLine('LIKELY') + ' | ' + D.tierLine('CERTIFIED'));
+  check('every tier in the ladder has a voice (none falls through silently)',
+    ['LEAN', 'LIKELY', 'CERTIFIED'].every(t => D.TIER_VOICE[t]),
+    JSON.stringify(D.TIER_VOICE));
+}
+
 console.log(`\n${pass}/${pass + fail} deviation checks passed`);
 process.exit(fail ? 1 : 0);

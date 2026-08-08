@@ -1,5 +1,28 @@
 # STATUS — unattended run
 
+## 🚨 THE NUMBER THAT MATTERS MOST THIS WEEK (2026-08-08)
+
+**The model deviates from consensus on 73.7% of picks — 8.8 per draft, mean 17.1
+picks — and 100% of those deviations are LEAN tier. Not one reached LIKELY.**
+
+Cory's pre-registered prior was ~2 per draft. Measured 8.8. The split is 212
+reaches to 9 falls, so this is systematic, not opportunistic. The joint-lead
+driver is `value` — our own projections, **never raced against the market**
+(experiment 33, unrun).
+
+Two terms never fired as material drivers at all: **`bye` and `survival`** —
+and survival is one of only two moderate-evidence terms in the model.
+
+Frozen as the pre-tree baseline: `draft/backtest/pre-tree-baseline.json`.
+Consequence pre-registered BEFORE experiment 34 reports: `PRE-REGISTRATION-34.md`.
+The dollar half of the question cannot be answered on the 2026 board without
+circularity — see `draft/backtest/DOLLAR-PAIRING.md`.
+
+**Approved sequence:** doctrine Stage 3 → exp 34 → exp 33 → the decision tree,
+built against measured reliability.
+
+
+
 ## ⚡ POWER-THROUGH DIRECTIVE (supersedes calendar pacing)
 Idle time dies. Proceed by default; never wait at redirect windows (judgment → DECISIONS-NEEDED, continue other work). Gates convert from "build by" to **"build now, ACTIVATE when reality allows."** Only true blocks: **my inputs** (slot date, keeper confirmations), **external events** (slot assignment, keeper lock, NFL week-1 data), and the **draft-path code freeze at final mock** (the fixture-keepers lesson: draft on what you rehearsed on). Quality rules untouched: robot green per commit, gates never loosened, participation tests, ledger discipline, specs → docs/queued.
 

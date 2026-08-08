@@ -3125,7 +3125,7 @@
       + '<summary class="dv-sum">'
       + '<span class="dv-mark">' + arrow + '</span>'
       + '<span class="dv-line">' + escapeHtml(d.line) + '</span>'
-      + '<span class="dv-tier dv-t-' + d.tier + '">' + d.tier + '</span>'
+      + '<span class="dv-tier dv-t-' + d.tier + '">' + escapeHtml(d.tierLine || d.tier) + '</span>'
       + '</summary>'
       + '<div class="dv-body">'
       + (d.early ? '<div class="dv-head">the model is overriding consensus here — '

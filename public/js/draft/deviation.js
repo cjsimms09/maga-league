@@ -105,6 +105,29 @@
    * cannot be wrong the way a projection can, but it is not EVIDENCE either, so
    * it must not raise confidence in a deviation.
    */
+  /* THE TIER, SPOKEN HONESTLY.
+   *
+   * A tier word alone is read as a grade — LEAN sounds like "slightly less
+   * confident", when what it actually means here is "bought with evidence that
+   * has never been raced against the market". Measured 2026-08-08: 100% of this
+   * model's deviations are LEAN, across 300 simulated decisions. So the word on
+   * its own would be doing the opposite of its job — a uniform grade reads as
+   * no grade at all.
+   *
+   * The per-component confidence rule therefore applies to the composite's own
+   * output: a recommendation that departs from consensus must not speak in the
+   * same voice as a validated call. One canonical phrasing, defined here rather
+   * than in the renderer, so every surface that shows a tier shows the same
+   * sentence.
+   */
+  var TIER_VOICE = {
+    LEAN:      'unvalidated vs market',
+    LIKELY:    'moderate evidence',
+    CERTIFIED: 'validated vs held-out',
+  };
+  function tierVoice(tier) { return TIER_VOICE[tier] || TIER_VOICE.LEAN; }
+  function tierLine(tier) { return tier + ' — ' + tierVoice(tier); }
+
   function tierFor(ds) {
     if (!ds.length) return 'LEAN';
     var worst = ds.reduce(function (m, d) { return Math.min(m, Number(d.rank) || 0); }, 9);
@@ -167,6 +190,9 @@
       delta: delta,
       early: delta > 0,
       tier: tier,
+      // The tier as a SENTENCE, never a bare grade. See tierVoice.
+      tierLine: tierLine(tier),
+      tierVoice: tierVoice(tier),
       // ⚡ = the model is OVERRIDING consensus here, not merely ordering within
       // it. Only ever set on a real deviation, by construction.
       override: Math.abs(delta) >= band,
@@ -201,7 +227,8 @@
 
   var api = { EVIDENCE: EVIDENCE, MATERIAL: MATERIAL, drivers: drivers,
               tierFor: tierFor, dispersion: dispersion, badge: badge,
-              summary: summary, counterLine: counterLine };
+              summary: summary, counterLine: counterLine,
+              tierVoice: tierVoice, tierLine: tierLine, TIER_VOICE: TIER_VOICE };
   global.DraftDeviation = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);
