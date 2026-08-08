@@ -27,3 +27,19 @@ Complexity discipline: every knob must justify itself — a knob whose sweep sho
 - The verdict: Auto-tuned / Auto-default / fixed-preset as the recommended draft-day driver, with the one-paragraph honest rationale
 - If tuned policy wins: it ships through normal gates (cited config, robot scenario asserting the new schedule fires at the right picks, participation test per phase), and the war room's Auto explanation lines update to describe the TESTED policy
 - Rehearsal requirement: whichever policy wins drives at least one full robot mock and one Cory mock before draft night — the winner must be the rehearsed configuration
+
+## 5. PRE-REGISTERED HYPOTHESIS (locked 2026-08-08, before any sweep runs)
+**Registered by Cory ahead of the first sweep — no post-hoc metric shopping (per §3 pre-registration).**
+
+**H1 (the phase-shape hypothesis):** under E[$] grading, the winning policy tilts **boomier than the current defaults**, and specifically with a **PHASE SHAPE** rather than a uniform lift:
+- **Core rounds (foundation → middle):** a **MODEST** ceiling/correlation increase — the floor still has to buy the top-4 door, so the core stays solid; boom is nudged, not maximized.
+- **Final ~6 bench picks (endgame):** **AGGRESSIVE upside + near-ZERO risk penalty** — a bench ticket's floor is free on the waiver wire, so downside stops mattering and you pay only for ceiling/lottery outcomes.
+
+**Comparative test — the candidate set MUST include H1's rivals so the verdict is comparative, not confirmatory:**
+1. **H1 phase-shape** (modest core boom + aggressive floor-free endgame) — the registered favorite
+2. **Uniform boom-tilt** (raise ceiling/correlation evenly across all phases — no phase shape)
+3. **Current hand-designed defaults** (the champion)
+4. **Floor-heavy** (the opposite tilt — risk-averse throughout)
+Each runs the full Tier A/B/C gauntlet with season cross-validation; H1 is credited only if it beats **all three rivals AND the 95th-percentile luck baseline** on held-out data by a margin exceeding the noise band. If uniform-boom or defaults statistically tie H1, that is reported loudly (a simpler policy wins on robustness).
+
+**Required reported quantities:** the **per-phase optimal upside / risk / correlation values the sweep finds, WITH intervals** — i.e., the actual (ceiling, risk-penalty, correlation) triple the tournament lands on for each phase, so H1's predicted shape (modest-core / aggressive-floor-free-endgame) can be read directly off the numbers and confirmed or falsified. A phase whose interval straddles the default is reported as "no evidence of a shift there," not nudged.
