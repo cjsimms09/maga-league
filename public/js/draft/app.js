@@ -3065,10 +3065,23 @@
       rHost.innerHTML = esc(a.line) + ' · <b>' + myPicksLeft() + '</b> picks left';
     } catch (e) { rHost.innerHTML = '<span class="muted">roster —</span>'; }
 
-    // 6+7. THE ABSENT PAIR, named rather than blank.
-    document.getElementById('mvs-absent').innerHTML =
-      'SOURCE: <i>not yet staged</i> · NEAR-MISS: <i>not yet staged</i>'
-      + ' <span class="muted">— both need the decision tree</span>';
+    // 6. SOURCE — real now that the stage vocabulary exists. Stages 1-3 are
+    //    live; Stage 4 fires at a FLOOR and says so, because an unsized
+    //    intervention is not the same claim as a sized one.
+    // 7. NEAR-MISS — still absent; it needs Stage 4's thresholds, which need
+    //    the sizing that D13 blocked.
+    const srcHost = document.getElementById('mvs-absent');
+    let srcLine = 'SOURCE: <i>not yet staged</i>';
+    if (typeof DraftStages !== 'undefined' && top) {
+      // Which stage produced this pick, from what already ran.
+      const st = top.legality ? DraftStages.STAGES.LEGALITY
+        : (rep && rep.drove) ? DraftStages.STAGES.DOCTRINE
+        : DraftStages.STAGES.BASELINE;
+      srcLine = 'SOURCE: ' + esc(DraftStages.line(DraftStages.report(st, null)));
+    }
+    srcHost.innerHTML = srcLine
+      + ' · NEAR-MISS: <i>not yet staged</i>'
+      + ' <span class="muted">— needs Stage 4 thresholds (D13)</span>';
   }
 
   /* Shadow consensus/dissent, from the shadows that already exist. Returns null

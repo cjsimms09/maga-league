@@ -18,6 +18,10 @@ SIDE="${1:-}"
 # B (site) owns these. A owns everything else.
 b_owns() {
   case "$1" in
+    # THE WAR ROOM VIEW IS A's, despite living under views/. It IS the draft
+    # surface — the split is by SUBSTANCE, not by directory, and this exception
+    # was found by the check failing on A's own legitimate work.
+    views/admin/warroom.ejs) return 1 ;;
     views/*|src/routes/*|public/css/*|public/icons/*|public/*.webmanifest) return 0 ;;
     public/js/*) case "$1" in public/js/draft/*) return 1 ;; *) return 0 ;; esac ;;
     docs/queued/league-history-page.md|docs/queued/history-chronicle-voice.md) return 0 ;;

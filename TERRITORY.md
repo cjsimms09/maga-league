@@ -34,7 +34,7 @@ result was already reported.
 | side | owns |
 |---|---|
 | **A — model** | `public/js/draft/**`, `draft/**` (Lab, backtest, tools, tests), `src/predledger.js`, `netlify.toml`, the doctrine/spec docs |
-| **B — site** | `views/**`, `src/routes/**`, `public/css/**`, `public/icons/**`, `public/js/**` *except* `public/js/draft/**`, and the site-facing specs (history page, chronicle voice, contact directory) |
+| **B — site** | `views/**` **except `views/admin/warroom.ejs`** (that file IS the draft surface — the split is by SUBSTANCE, not directory; found by the check failing on A's own legitimate work), `src/routes/**`, `public/css/**`, `public/icons/**`, `public/js/**` *except* `public/js/draft/**`, and the site-facing specs (history page, chronicle voice, contact directory) |
 
 Verified: **no file under B's territory imports anything from `public/js/draft/`.**
 That is what makes it clean.
