@@ -1,17 +1,15 @@
 # THE ANCHOR DOCTRINE — consensus is the prior; deviation must be paid for
 
-Filed 2026-08-08 (Cory). An architectural principle for how recommendations
-relate to the market, not a tweak to a slider.
+Filed 2026-08-08 (Cory), complete text. An architectural principle for how
+recommendations relate to the market, not a tweak to a slider.
 
 > **Consensus ADP is the PRIOR. Every deviation from it must be paid for with
 > evidence, and deviation size scales with evidence strength.**
 
 ## 1. Restructure the composite as market-anchored
 
-Today the composite scores players from our own terms and ADP enters as one
-input among several. Inverted: **start from the consensus rank**, then apply our
-terms as **evidence-weighted shifts**, each term's contribution scaled by its own
-**measured** reliability:
+**Start from the consensus rank**, then apply our terms as **evidence-weighted
+shifts**, each scaled by its own **measured** reliability:
 
 | term | reliability comes from |
 |---|---|
@@ -20,67 +18,196 @@ terms as **evidence-weighted shifts**, each term's contribution scaled by its ow
 | tier model | its calibration |
 | survival model | its Brier score |
 
-A term with weak evidence moves the needle a little. A term with strong evidence
-moves it a lot. Where the market is **measurably efficient**, deviations shrink
-toward zero automatically; where it is **measurably wrong**, they widen. Nobody
+A term with weak evidence moves the needle a little; a term with strong evidence
+moves it a lot. Where the market is measurably efficient, deviations shrink
+toward zero **automatically**; where it is measurably wrong, they widen. Nobody
 hand-tunes the shrinkage — it is read off the audits.
 
 ## 2. Deviation budget, displayed
 
-Every recommendation shows **how far it sits from consensus and what bought the
-distance**: `Judkins — ADP 78, we say now (14 picks early): tier cliff +18,
-ceiling +6, need +4`. The flip side is shown with it — *if you don't believe the
-cliff, he's a reach.*
+> `Judkins at 68 (ADP 82, +14): tier cliff [strong evidence] +9, ceiling
+> [moderate] +3, need [weak] +2.`
 
-**This is the same feature as the ADP-DEVIATION EXPLAINER** from the mock-#1
-three-fixes batch. One build serves both: one compact line by default, detail on
-tap, nothing rendered when the deviation is inside noise, Zone-1 sparseness
-preserved.
+Every recommendation shows how far it sits from consensus **and what bought the
+distance**, with each term's **evidence strength labelled**. Big deviations
+require big evidence and say so. The flip side rides along — *if you don't
+believe the cliff, he's a reach.*
 
-## 3. 🚧 THE HONEST BLOCKER — this cannot be installed yet
+**Unexplained big deviations are treated as BUGS, not insights.**
+
+Same feature as the **ADP-deviation explainer** from the mock-#1 three-fixes
+batch — one build, one compact line by default, detail on tap, nothing rendered
+inside noise, Zone-1 sparseness preserved.
+
+### ⚠️ One correction to the mock-#1 claim, because it changes what to build
+
+Cory: *"mock #1's TE loop would have failed this test instantly — a huge
+deviation with no evidence behind it."* **It would not have, and the reason
+matters.**
+
+The TE loop was caused by the seat-identity bug: the need term was reading
+another team's roster, which had no TE. So the deviation *did* have an
+explanation, and a confident one — `need [strong] +N`. An
+"unexplained-deviation" detector would have stayed silent.
+
+What would have caught it is the **other half** of §2: the explanation is
+rendered against a state Cory can check. Seeing `need [strong] +9 — TE1 empty`
+while Loveland sat on his roster is a one-glance contradiction. So the display
+catches wrong beliefs by **making model state legible**, not by thresholding
+unexplained magnitude.
+
+Both checks are worth having, and they catch different failures:
+- **unexplained magnitude** → a term firing with no attributable cause (a real
+  bug class, just not this one);
+- **legible belief** → a term firing for a stated reason the human can falsify
+  at a glance. **This is the one that catches wrong-state bugs**, and it is the
+  higher-value half.
+
+Build both; do not expect the first to do the second's job.
+
+## 3. Be unafraid when the evidence is real
+
+**No artificial cap on deviation size.** If the tier cliff plus the money
+function plus a validated dossier read say a player is worth 20 picks of reach,
+recommend it **loudly, with the case attached**.
+
+> The doctrine constrains **WHY** we deviate, never **HOW FAR**.
+
+## 4. Default-to-market fallback
+
+When our terms are weak, uncertain, or disagree — near-ties, the deep pool,
+positions where we lack signal — the recommendation **collapses to consensus
+order and says so**: *"no edge here — market order, take your guy."*
+
+**Silence is a valid output.** (This is the same instinct as the doctrine
+banner's neutral state, which already says *"plan not binding here — every
+doctrine takes the same player"*, and as the dollar-gap panel's `even_money`
+verdict. The Anchor Doctrine generalises it.)
+
+## 5. Continuous scanning feeds this
+
+The Lab keeps hunting edges. **Any edge that clears its gates enters as a new
+evidence-weighted term with its measured strength attached.** The doctrine is
+the pipe connecting discovered edges to draft-day deviations **at the right
+magnitude** — which is what has been missing: until now an edge either got
+installed at a hand-chosen weight or sat parked.
+
+## 6. Robot
+
+- fixture with **all terms weak** asserts **market order**;
+- fixture with **one strong term** asserts a **proportional deviation with its
+  explanation**.
+
+---
+
+# CONSENSUS QUALITY UPGRADE
+
+The doctrine makes consensus the prior, so **the prior's quality now sets the
+floor on the whole system.**
+
+## 1. Multi-source anchor
+Add **Underdog ADP** (public, best-ball, ceiling-weighted — the closest crowd to
+our high-pool economy) and the **Sleeper board** alongside FFC. Weighted
+composite anchor, **weights set by measured predictive quality (exp 36 run per
+source), never by assumption.** Archive all sources daily.
+
+**Verified state (2026-08-08):**
+- FFC ✅ live (`adp_source: 'ffc'`, 205 players matched).
+- Sleeper board — `sleeper_rank` **is already emitted by `build.py`** but is
+  **null in the current artifact**; it populates on the next CI rebuild with
+  Sleeper egress. Half-wired already.
+- Underdog — **not sourced; feasibility unverified.** Confirm a stable public
+  endpoint before promising this arm.
+- Daily archive — the nightly rebuild (`draft-data.yml`, 08:00 UTC) commits the
+  artifact, so **git history is already an ADP time series** (18 snapshots
+  today). Usable now; a dedicated archive artifact is better and should replace
+  the reliance on `git log -p` before the series matters.
+
+## 2. Dispersion as a first-class signal
+Wide dispersion = contested opinion → our terms deserve **more room to move
+him** (evidence is cheap where the crowd is confused). Tight = settled →
+deviate only on strong evidence. Cards read `ADP 42 ±11 — contested` vs
+`ADP 42 ±2 — settled`.
+
+**This is already instrumented and is mostly a DISPLAY task — with one trap.**
+`adp_sd` exists on all 1764 players. But:
+
+| pool | n | median `adp_sd` | meaning |
+|---|---|---|---|
+| real FFC ADP | **205** | **9.5** | genuine crowd dispersion |
+| fallback (`search_rank`) | **1559** | **30.0** | a placeholder, not a measurement |
+
+Rendering `±30 — contested` for a deep-pool player would present a missing
+measurement as a strong signal — the exact inversion of the doctrine. **The
+dispersion badge renders only where ADP is real, and the fallback pool says
+"no market read" instead.**
+
+## 3. Format matching
+Our league: **10-team, half-PPR, 6-pt pass TDs.** Verify whether FFC/Underdog
+expose format-filtered ADP; use the closest match, else apply and **document** a
+format adjustment.
+
+**Load-bearing and cheap:** 6-pt pass TDs systematically underprice QBs in
+4-pt-sourced ADP, and **this compounds with the late-QB verdict (−$212 on the
+complete money function).** If our anchor carries a 4-pt QB price, the market we
+are anchoring to is wrong about QBs in a direction we have already measured
+independently. Worth checking before the multi-source work, not after.
+
+## 4. Recency weighting
+Weight recent drafts far above stale ones (**7–14 day half-life, tuned by which
+weighting best predicts final ADP**). Camp news moves boards fast. The snapshot
+series exists (see §1) — currently shallow (n=18), which bounds how well the
+half-life can be tuned; say so with the tuned value.
+
+## 5. Measure the anchor itself
+**Extend experiment 36** to grade **each source and the composite** against
+realized outcomes by round and position: which crowd is right where, and **is
+the composite better than its best member** — it usually is, but prove it.
+
+## 6. Surface
+Cards show the composite anchor plus a **one-tap source breakdown where sources
+disagree materially.** Cross-crowd disagreement is **intel, not noise to average
+away.**
+
+---
+
+## 🚧 BUILD SPLIT — what is gated and what is not
 
 **The reliability weights ARE the mechanism.** Without measured reliability,
-"evidence-weighted shift" degrades into "shift by a number I chose", which is a
-fitted parameter wearing a principle's clothing — exactly what the project's
-install discipline exists to refuse. Current state of the four inputs:
+"evidence-weighted shift" degrades into "shift by a number I chose" — a fitted
+parameter wearing a principle's clothing, which is what the install discipline
+exists to refuse.
 
 | input | status |
 |---|---|
-| survival Brier / calibration | ✅ **measured** — `replay.js` `calibration()`, and the auto-adjuster pre-registration already scores survival by calibration error |
-| projection reliability (exp 33) | ❌ **registered, not run** |
-| ADP efficiency by round/position (exp 36) | ❌ **now registered (below), not run** |
-| tier-model calibration | ❌ **not measured, no instrument yet** |
+| survival Brier / calibration | ✅ measured (`replay.js calibration()`) |
+| projection reliability (exp 33) | ❌ registered, not run |
+| ADP efficiency by round/position/**source** (exp 36) | ❌ registered, not run |
+| tier-model calibration | ❌ no instrument yet (bundled into 36) |
 
-So: **one of four exists.** The restructure installs when 33 and 36 have landed
-and the tier model has a calibration instrument. Until then it is a spec.
+**GATED on 33 + 36 + tier calibration:** §1 composite restructure, §5 edge
+intake at measured strength, and the consensus §1/§4 weightings. Installs
+through the normal gates — null, leave-one-season-out CV, money-graded win over
+the current composite. *A restructure this large does not get a pass because its
+principle is sound.*
 
-**What IS buildable now, and should be built now:** §2, the deviation budget
-display. It requires no reliability weights at all — it reports the deviation the
-CURRENT composite already produces and decomposes it into the terms that caused
-it. That is honest today, useful today, and it becomes the natural display
-surface for §1 later. It also does something valuable ahead of the restructure:
-**it makes the current model's deviations auditable**, which is how we find out
-whether they were ever justified.
+**BUILDABLE NOW, no reliability weights required:**
+- **§2 deviation budget display** (merged with the mock-#1 ADP-deviation
+  explainer) — reports the deviation the CURRENT composite already produces and
+  decomposes it into causing terms. Makes today's deviations auditable, which is
+  how we learn whether they were ever justified.
+- **§4 default-to-market fallback** — "no edge here, market order" needs only
+  the existing noise band, and it is the conservative direction by construction.
+- **Consensus §2 dispersion badge** (real-ADP pool only) and **§3 format check**.
+- **§6 robot fixtures** — both assertions run against the current composite.
 
-## 4. Build split
-
-- **NOW:** §2 deviation budget display (merged with the mock-#1 ADP-deviation
-  explainer). Threshold-gated so normal picks render nothing.
-- **NOW:** experiment 36, registered below — it is a dependency and did not exist.
-- **NOW:** a tier-model calibration instrument (the missing fourth input), specced
-  as part of 36's harness since both are "is our structure right?" questions.
-- **GATED on 33 + 36 + tier calibration:** the §1 composite restructure. It
-  installs through the normal gates — null baseline, leave-one-season-out CV, and
-  a money-graded win over the current composite. **A restructure this large does
-  not get a pass because its principle is sound.**
-
-## 5. Pre-registered risk, stated before the work
+## Pre-registered risk, stated before the work
 
 If 33 says our projections beat the market and 36 says ADP is inefficient where
-we deviate, the Anchor Doctrine will **widen** deviations and look like a
-vindication. If 33 says our projections lose to a naive baseline, the doctrine
-will **collapse deviations toward ADP** and the tool becomes, largely, a
-well-presented consensus board with a legality layer and a money function.
+we deviate, the doctrine **widens** deviations and looks like a vindication. If
+33 says our projections lose to a naive baseline, the doctrine **collapses
+deviations toward ADP** and the tool becomes, largely, a well-presented
+consensus board with a legality layer and a money function.
 
-**Both outcomes are the doctrine working.** Write that down now, because the
-second one will be tempting to explain away later.
+**Both outcomes are the doctrine working.** Written down now, because the second
+one will be tempting to explain away later.
