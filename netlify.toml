@@ -15,7 +15,7 @@
   # EJS templates are read from disk at render time, so they must ship
   # alongside the bundled function code. STATUS.md + DECISIONS-NEEDED.md ship too
   # so the status dashboard can parse them live (they stay the source of truth).
-  included_files = ["views/**", "STATUS.md", "DECISIONS-NEEDED.md"]
+  included_files = ["views/**", "STATUS.md", "DECISIONS-NEEDED.md", "TASK-AUDIT.md"]
 
 # The web-app manifest needs its own content type — Netlify serves unknown
 # extensions as application/octet-stream, and Chrome silently ignores a

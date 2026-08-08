@@ -633,6 +633,8 @@ router.get('/status', aw(async (req, res) => {
   const read = f => { try { return fs.readFileSync(path.join(root, f), 'utf8'); } catch (e) { return ''; } };
   const statusText = read('STATUS.md');
   const decText = read('DECISIONS-NEEDED.md');
+  // F-2 (resolved): the full program, collapsible beneath the board.
+  const auditText = read('TASK-AUDIT.md');
 
   // Health strip, all best-effort — any field may be null and the view degrades.
   const health = { commit: null, commitAt: null, ci: null, audit: null };
@@ -659,7 +661,7 @@ router.get('/status', aw(async (req, res) => {
     draftDate: (req.world.config && req.world.config.draft_date) || '2026-08-22',
     health: health,
   });
-  res.render('admin/dashboard', { model: model, hasFiles: !!(statusText && decText) });
+  res.render('admin/dashboard', { model: model, hasFiles: !!(statusText && decText), auditText: auditText });
 }));
 
 // ---------- SLOT PICKER (private, Cory-only) ----------

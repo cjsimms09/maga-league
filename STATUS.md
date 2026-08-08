@@ -410,7 +410,7 @@ Against the expected 9-item inventory. **All items resolved; one material CORREC
 **Dossiers are clean 3-season records — ZERO owner turnover** (identical 10 user_ids). **mhagen dynasty CONFIRMED: 2 titles in 3 years** (2023 roster 7 = his owner_id), both with most-PF + ~90% efficiency → **benchmark tag.** **Cory's 3-yr efficiency 86.1/86.0/85.9** — a stable, precisely-measured leak: the lineup optimizer's baseline AND its January success metric. 2023 keepers null league-wide (keeper analysis = 2024–25 only). Jreis last-2023→champ-2024; ds7mmet era-highest potential (2156) at 84.2% eff.
 
 ### Live league-object findings (chat-Claude, 2026-08-08)
-1. **🚨 URGENT** — league settings show `draft_rounds:3`. The DRAFT OBJECT is authoritative; checklist line **"Draft object rounds == 15"** added (red until synced; says TEXT THE COMMISSIONER if ≠15). **DECISIONS D7.**
+1. ✅ **SETTLED (annotated 2026-08-08)** — league settings showed `draft_rounds:3`, but the **draft object was verified 15 via chat-Claude fetch**; the DRAFT OBJECT is authoritative, so this was a stale-settings echo, not a live problem. The checklist line **"Draft object rounds == 15"** stands as the mechanical guard and **greens on first sync** — a watch line, not an open emergency. **DECISIONS D7.**
 2. Playoffs weeks **16–17** (`playoff_week_start:16`, 4 teams); weekly-high window **weeks 1–15 exactly** (money_history honors this). Playoff-SOS term cap reduced per money spec.
 3. `pick_trading:1` — the **pick-trade valuator (backlog 3.5)** is ON; build it in the power-through queue.
 4. Stamp full settings JSON into the **watchdog hash** (Part 12); verify scoring byte-for-byte incl. `pass_td:6.0`.

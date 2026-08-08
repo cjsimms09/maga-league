@@ -40,10 +40,10 @@ freeze lifts.**
      py) AND **golden-masters byte-identical**. A refactor that changes any
      output is a bug by definition — **reverted on sight.**
    - Small commits, one concern each, so any regression bisects in minutes.
-6. **⚠️ TRUNCATED IN TRANSMISSION** — the directive ended mid-item at "(6) D".
-   Captured through item 5 verbatim; **resend item 6's tail** and it lands
-   here. (Filed per the established truncation protocol — best-effort capture,
-   flagged for resend, never silently dropped.)
+6. **DELIVERABLE** (resent 2026-08-08, complete): before/after perf numbers,
+   the **lines-of-code delta**, the **redundancy kill-list**, and **one honesty
+   line — the three simplifications you were most tempted to make but didn't,
+   and why.**
 
 ## Phase-1 baseline (measured 2026-08-08, sandbox)
 See STATUS.md "PERF BASELINE" entry — asset inventory + script counts recorded;

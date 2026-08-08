@@ -82,6 +82,20 @@
 </div>
 </div><%# /dash-cols %>
 
+<%# ── F-2 (resolved): THE FULL PROGRAM — collapsible, beneath the board ──
+    TASK-AUDIT.md rendered verbatim: the complete program for anyone who wants
+    more than the critical path. Collapsed by default; zero new parsing — the
+    file is the truth and reads as itself. %>
+<% if (typeof auditText !== 'undefined' && auditText) { %>
+<details class="card" style="margin-top:1rem">
+  <summary style="cursor:pointer;padding:.7rem 1rem"><b>📚 The full program</b>
+    <span class="sub">TASK-AUDIT.md — everything, beneath the critical path</span></summary>
+  <div class="body">
+    <pre style="white-space:pre-wrap;font-size:.78rem;line-height:1.45;color:var(--ink);background:none;border:none;margin:0;font-family:inherit"><%= auditText %></pre>
+  </div>
+</details>
+<% } %>
+
 <p style="text-align:center; margin-top:1rem">
   <a class="btn navy" href="/admin/warroom">← Back to the War Room</a>
 </p>
