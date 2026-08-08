@@ -86,6 +86,13 @@
     </div>
   </div>
 
+  <%# ── Part 2 §2 — THREE-ZONE LAYOUT ──────────────────────────────────────
+       Zone 1 DECIDE (left ~60%): the Paths panel + ranked list + branch forecast.
+       Zone 2 CONTEXT (right rail ~40%): roster, byes, LRM, survival.
+       Zone 3 DEPTH (full width below): adjusters, opponents, queue, lists, board.
+       The compare tray is a floating overlay, so it lives outside the zones. %>
+  <div class="wr-decide">
+  <div class="wr-zone1">
   <div class="card" style="margin-bottom:1rem; border-color:rgba(245,196,69,.5)" id="recs-card">
     <h2>🎯 Take This Player
       <span class="sub">2–4 priced directions · the ranked list is underneath</span>
@@ -124,8 +131,9 @@
     <h2>🔀 If You Take… <span class="sub" id="branch-head">what's likely left at your next pick</span></h2>
     <div class="body tight scroll-x"><div id="branches"></div></div>
   </div>
+  </div><%# /wr-zone1 %>
 
-  <div class="grid cols-2">
+  <aside class="wr-zone2">
     <div class="card">
       <h2>My Roster <span class="sub">starting slots first</span></h2>
       <div class="body">
@@ -148,7 +156,10 @@
       <h2>Survival Odds <span class="sub" id="survival-head"></span></h2>
       <div class="body"><div id="survival"></div></div>
     </div>
+  </aside><%# /wr-zone2 %>
+  </div><%# /wr-decide %>
 
+  <div class="wr-zone3 grid cols-2">
     <div class="card">
       <h2>🎛 Adjusters <span class="sub">how the board weighs things — saved on this device</span></h2>
       <div class="body">
