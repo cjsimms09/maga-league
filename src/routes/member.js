@@ -412,6 +412,13 @@ router.get('/history/money', aw(async (req, res) => {
   res.render('history/money', { A: archive() });
 }));
 
+// The Amendments — the league's constitution: name lineage, buy-in ladder,
+// payout revisions, the Rolls, and matters presently before the league.
+// Reference material, moved off the /history doorway.
+router.get('/history/amendments', aw(async (req, res) => {
+  res.render('history/amendments', { A: archive() });
+}));
+
 // The Bad Beats Hall of Fame — auto-detected tragedies.
 router.get('/history/badbeats', aw(async (req, res) => {
   res.render('history/badbeats', { A: archive() });

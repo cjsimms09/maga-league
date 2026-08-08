@@ -1,131 +1,176 @@
 <%- include('../partials/header', { title: 'The Chronicle' }) %>
 <%
-  // Flag by nationality — David and Marian are German (voice spec §8.1); a
-  // shared 2022 title carries both a German and an American, so any name
-  // containing a German owner shows the German flag.
-  const german = A.german;                                  // Set of real names
+  const german = A.german;
   const flag = name => [...german].some(g => String(name).includes(g)) ? '🇩🇪' : '🇺🇸';
-  const modern = new Set(A.modernYears);
-  const rebrandYear = (A.seasons.find(s => s.name === 'Make Football Great Again') || {}).year;
+  const dollars = n => (n == null ? '' : '$' + Number(n).toLocaleString('en-US'));
+  const champByYear = {};
+  for (const c of A.champions) champByYear[c.year] = c;
+  const years = [];
+  for (let y = 2026; y >= (A.lore.foundingYear || 2016); y--) years.push(y);
+  // Season pages exist only where box scores do (2023-2025). Pre-Sleeper years
+  // are not yet clickable (their ceremonial chapter is pending).
+  const linkFor = y => A.byYear[y] ? `/history/season/${y}` : null;
 %>
 
 <div class="chron">
-  <p class="chron-eyebrow">Est. 2016 · The Same Ten Men · A Decade</p>
+  <!-- 1. HEADER (turnover-corrected eyebrow) -->
+  <p class="chron-eyebrow">Est. 2016 · Not Quite the Same Ten Men · A Decade of Receipts</p>
   <h1 class="chron-title">The <span class="gold">MFGA</span> Archive</h1>
   <p class="chron-sub">Every dollar, every champion, every humiliation — written down at last.</p>
 
-  <%- include('_subnav', { active: 'chronicle' }) %>
-
-  <!-- THE FOUNDING ---------------------------------------------------------->
-  <div class="founding">
-    <h2>The Founding</h2>
-    <p class="old-name">In the Year of Our League <b>2016</b>, ten men did assemble
-      and pay <b>$100</b> apiece — under a banner that read, without irony,
-      the <b>Whiny Little Bitch League</b>.</p>
-    <p style="color:var(--muted); max-width:52ch; margin:0 auto;">
-      The same ten men have answered the bell every autumn since. No owner has
-      ever quit, been bought out, or been thrown out. That is either loyalty or a
-      hostage situation — the record does not say which.</p>
-  </div>
-
-  <!-- THE CHRONICLE OF AMENDMENTS ------------------------------------------->
+  <!-- 2. THE STORY OF THE LEAGUE (the centerpiece) -->
   <div class="card">
-    <h2>📜 The Chronicle of Amendments <span class="sub">what changed, and what it cost</span></h2>
     <div class="body">
-      <p style="color:var(--muted); margin:0 0 .6rem;">The buy-in has climbed every
-        step of the way, and the German has objected at every step, as is tradition:</p>
-      <div class="buyin-track">
-        <% A.amendments.steps.forEach((s, i) => { %>
-          <% if (i) { %><span class="arrow">→</span><% } %>
-          <span class="amt <%= i === A.amendments.steps.length - 1 ? 'now' : '' %>">$<%= s.buy_in %></span>
-        <% }) %>
-      </div>
-      <p style="color:var(--muted); font-size:.82rem; margin:.2rem 0 1rem;">
-        From the founding hundred in 2016 to <b>$400</b> today — with a vote on the
-        floor to make it $500.</p>
+      <div class="chapter">
+        <p>It began, as the great institutions do, with a dick joke. In
+        <strong>2016</strong> ten men put down a hundred dollars apiece and founded
+        the <strong>Balls and Wieners League</strong> — a name chosen by grown adults
+        with jobs, and the first of three, because this league has never once been
+        able to leave well enough alone. Balls and Wieners became the <em>Whiny
+        Little Bitch League</em>, which lasted years and told you everything you
+        needed to know about the customer-service tone of the group chat, and in
+        <strong>2024</strong> it finally became <strong>Make Football Great Again</strong>.
+        Three names in a decade. Not one of them a name you'd say in front of your
+        mother.</p>
 
-      <div class="amend">
-        <div class="step"><span class="yr">2016</span><span>The league is founded as the <b>Whiny Little Bitch League</b>. Buy-in $100.</span></div>
-        <div class="step"><span class="yr">—</span><span>Three keepers adopted; the draft stops being a blank page every September.</span></div>
-        <% if (rebrandYear) { %>
-        <div class="step"><span class="yr"><%= rebrandYear %></span><span>The rebrand: the Whiny Little Bitch League becomes <b>Make Football Great Again</b>. (The 2023 season was the old name's last stand — it says so in the box scores.)</span></div>
-        <% } %>
-        <div class="step"><span class="yr">2025</span><span>This website is founded — the first time the league's real standings, real money, and real history live anywhere but a spreadsheet.</span></div>
-      </div>
+        <p>The buy-in climbed like a fever: <span class="stat">$100</span> to
+        <span class="stat">$125</span> to <span class="stat">$150</span> and on up,
+        a hundred a rung, to <span class="stat">$400</span> today — with a vote on
+        the floor right now to make it five. And at every single increase
+        <strong>David</strong>, the German, has objected, the way other men object
+        to sunrise: annually, loudly, and to no effect. He was the league's first
+        champion in 2016 and he has been bitching about the cost of playing in it
+        ever since. Somewhere along the way the league bolted on <strong>keepers</strong>
+        (2024, the first draft anyone actually protected a player), and — the quiet
+        revolution — in <strong>2023</strong> it added the <strong>weekly-high $100</strong>,
+        a hundred bucks to the top score each week of the regular season. Nobody
+        clocked it at the time. It is now <span class="stat">37.5%</span> of the
+        entire pot. The biggest money in the league is the prize nobody voted to
+        make the biggest money in the league.</p>
 
-      <h3 style="font-family:var(--font-display); font-weight:800; text-transform:uppercase; letter-spacing:.06em; font-size:.8rem; color:var(--muted); margin:1.2rem 0 .5rem;">Payout-structure revisions</h3>
-      <div class="chron-scroll">
-        <table class="ledger">
-          <thead><tr><th>From</th><th>Pot</th><th>Playoffs (1–4)</th><th>Reg. season (1st / 2nd)</th></tr></thead>
-          <tbody>
-            <% for (const r of A.amendments.payRevisions) { %>
-              <tr>
-                <td class="rk"><%= r.year %></td>
-                <td class="money">$<%= r.pot.toLocaleString('en-US') %></td>
-                <td><%= r.playoffs.map(x => '$' + x).join(' / ') %></td>
-                <td><%= r.reg.map(x => '$' + x).join(' / ') %></td>
-              </tr>
-            <% } %>
-          </tbody>
-        </table>
-      </div>
-      <p style="color:var(--muted); font-size:.8rem; margin:.5rem 0 0;">The purse has been re-cut more than once — the weekly-$100 (regular season only) has held throughout.</p>
+        <p>The chairs have not all held the same asses, either — whatever the old
+        tagline claimed. <strong>Three men left and three men took their seats</strong>:
+        <strong>Sam</strong>, <strong>Dylan</strong> and <strong>Jeremy</strong>
+        replaced <strong>Brandon</strong>, <strong>Taylor Hagen</strong> and
+        <strong>Ben</strong>. The league does not keep good records of its own
+        casualties — Brandon and Taylor Hagen have been scrubbed from the ledger
+        entirely, and Ben survives only as a name in one draft order, a ghost at
+        the table. The chronicle names them anyway, because a league that erases
+        the men it replaced is just lying to itself with extra steps.</p>
 
-      <h3 style="font-family:var(--font-display); font-weight:800; text-transform:uppercase; letter-spacing:.06em; font-size:.8rem; color:var(--muted); margin:1.2rem 0 .5rem;">Presently before the league — the 2027 votes</h3>
-      <ul style="margin:0; padding-left:1.1rem; color:#cdd3e2;">
-        <% for (const v of A.votesPending) { %><li><%= v %></li><% } %>
-      </ul>
+        <p>What the money remembers is the dynasties. <strong>Marian</strong> owns
+        the early book — a genuine three-peat, <span class="stat">2019</span>,
+        <span class="stat">2020</span>, <span class="stat">2021</span>, and then a
+        fourth ring in <span class="stat">2022</span> that the league has refused
+        to fully honor for reasons we will get to. Then the crown moved to
+        <strong>Michael</strong>, who took <span class="stat">2023</span> and
+        <span class="stat">2025</span> and turned Dixie Wrecked into the closest
+        thing this league has to a modern dynasty. In between,
+        <strong>Jeremy</strong> — the doctor, and yes, the league mocks him for
+        being a doctor — diagnosed the whole field in 2024 and walked off with the
+        ring while everyone else bled out.</p>
+
+        <p>And then there's everyone else, which is the good part. <strong>Dylan</strong>
+        named his team after himself and still can't get over the hump. <strong>Bates</strong>
+        has spent years branded the league's Chiefs homer, a reputation that
+        collapses the instant you check the receipts — <span class="stat">three</span>
+        Kansas City picks in three seasons, fewer than the two Germans, so the most
+        notorious KC fan in the league got out-Chiefed by men who've never claimed
+        to give a shit about Missouri. <strong>Richard</strong> is the league's
+        patron saint of the bad beat: in 2025 he scored <span class="stat">1,711</span>
+        points, third-most in the whole league, and finished <em>dead last</em> at
+        <span class="stat">4–11</span>. <strong>Sam</strong> owns a co-championship
+        and, more recently, the wooden spoon — the man contains multitudes.
+        <strong>Justin</strong> keeps quietly cashing checks nobody sees him earn.
+        And <strong>Cory</strong>, the commissioner, runs a team called <em>Zero
+        Mistakes Were Made</em> and in 2024 missed the playoffs by
+        <span class="stat">8.20</span> points while leaving <span class="stat">297</span>
+        on his own bench — the man built the scoreboard and then benched his own
+        money on it. He gets ripped hardest in here, on purpose. It's his page.</p>
+
+        <p>The one story told in a lower voice is the <strong>2022 asterisk</strong>
+        — Marian's fourth title, shared with Sam, disputed to this day. That one
+        gets stated straight, once, at the bottom of this page, because the joke is
+        the ring and the decade of arguing about it, never the reason it happened.</p>
+
+        <p>A decade in, the Balls and Wieners League has a buy-in of four hundred
+        dollars, ten owners who aren't quite the ten it started with, a
+        controversial banner year nobody agrees on, and — finally — a website that
+        remembers <em>every single dollar</em> any of them has ever won or lost.
+        That's what this archive is. The full constitution — the amendment ledger,
+        the buy-in ladder, the payout revisions and the pending votes — lives in
+        <a href="/history/amendments" style="color:var(--gold-bright)">the Amendments</a>.
+        The rest is the seasons. Read them and weep, or read them and gloat. Those
+        are the only two options this league has ever offered.</p>
+      </div>
     </div>
   </div>
 
-  <!-- THE CHAMPIONS ROLL ---------------------------------------------------->
+  <!-- 3. THE SEASONS timeline -->
   <div class="card">
-    <h2>👑 The Rolls <span class="sub">champions in order</span></h2>
+    <h2>📖 The Seasons <span class="sub">tap a year with a chapter</span></h2>
     <div class="body">
-      <% for (const c of A.champions) { %>
-        <div class="reign <%= c.co_championship ? '' : '' %>">
-          <span class="yr"><%= c.year %></span>
-          <span class="who"><%= c.champion %><span class="flag"><%= flag(c.champion) %></span><% if (c.asterisk) { %> <a class="aster" href="#asterisk" title="The disputed title">*</a><% } %></span>
-          <span class="buyin">$<%= c.buy_in %> buy-in</span>
-        </div>
-      <% } %>
-      <p style="color:var(--muted); font-size:.8rem; margin:.8rem 0 0;">
-        <b>No owner changes in league history.</b> The same ten men, a decade —
-        remarkable, and true.</p>
-    </div>
-  </div>
-
-  <!-- THE SEASONS ----------------------------------------------------------->
-  <div class="card">
-    <h2>📖 The Seasons <span class="sub">the years with box scores — 2023 to present</span></h2>
-    <div class="body">
-      <div class="season-grid">
-        <% for (const s of A.seasons) {
-             const champRid = s.bracket && s.bracket.placements ? s.bracket.placements[1] : null;
-             const champ = s.standings.find(x => x.roster_id === champRid);
-             const written = chapters.has(s.year);
+      <div class="timeline">
+        <% for (const y of years) {
+             const c = champByYear[y];
+             const href = linkFor(y);
+             const written = chapters.has(y);
+             const preSleeper = y < 2023;
+             const inProgress = y === 2026;
         %>
-          <a class="season-card" href="/history/season/<%= s.year %>">
-            <div class="yr"><%= s.year %></div>
-            <% if (champ) { %><div class="champ"><%= champ.name %> <small>champion</small></div><% } %>
-            <div class="meta"><%= s.name %></div>
-            <% if (written) { %><span class="tag">Chapter written</span>
-            <% } else { %><span class="tag pending">Records only — chapter pending</span><% } %>
-          </a>
+          <% if (href) { %><a class="tl-row" href="<%= href %>"><% } else { %><div class="tl-row tl-dead"><% } %>
+            <span class="tl-year"><%= y %></span>
+            <span class="tl-mid">
+              <% if (inProgress) { %>
+                <span class="tl-champ tl-live">Season in progress</span>
+              <% } else if (c) { %>
+                <span class="tl-champ">🏆 <%= c.champion %> <span class="flag"><%= flag(c.champion) %></span><% if (c.asterisk) { %><a class="aster" href="#asterisk" onclick="event.stopPropagation()">*</a><% } %></span>
+                <% if (c.payout != null) { %><span class="tl-won"><%= dollars(c.payout) %></span><% } %>
+              <% } %>
+            </span>
+            <span class="tl-tag">
+              <% if (written) { %><span class="tag">Chapter</span>
+              <% } else if (A.byYear[y]) { %><span class="tag pending">Records</span>
+              <% } else if (preSleeper) { %><span class="tag ghost">Pre-Sleeper</span>
+              <% } %>
+            </span>
+          <% if (href) { %></a><% } else { %></div><% } %>
         <% } %>
       </div>
-      <p style="color:var(--muted); font-size:.8rem; margin:1rem 0 0;">
-        The decade before Sleeper (2016–2022) lives in <b>The Rolls</b> and
-        <b>The Money Board</b> — money and champions, an age before records.</p>
+      <p class="tl-note">Full box scores survive from <b>2023</b> on. 2016–2022 are the age before Sleeper — champions and money only; their chapters are on the way.</p>
     </div>
   </div>
 
+  <!-- 4. FOUR DOORS -->
+  <div class="doors">
+    <a class="door" href="/history/records">
+      <span class="door-icon">📖</span>
+      <span class="door-title">The Record Book</span>
+      <span class="door-sub">All-time highs, lows, the dynasty tracker, and every franchise page.</span>
+    </a>
+    <a class="door" href="/history/money">
+      <span class="door-icon">💰</span>
+      <span class="door-title">The Money Board</span>
+      <span class="door-sub">Career earnings, ranked ten deep. The table that settles arguments.</span>
+    </a>
+    <a class="door" href="/history/badbeats">
+      <span class="door-icon">💔</span>
+      <span class="door-title">Bad Beats Hall of Fame</span>
+      <span class="door-sub">Auto-detected heartbreak — the tragedies the schedule authored.</span>
+    </a>
+    <a class="door" href="/history/catalogue">
+      <span class="door-icon">🃏</span>
+      <span class="door-title">The Absurdity Catalogue</span>
+      <span class="door-sub">Every box score mined: kickers over QBs, benched studs, near-misses.</span>
+    </a>
+  </div>
+
+  <!-- 5. THE 2022 ASTERISK (closing footnote) -->
   <%- include('_asterisk') %>
 
   <p class="provenance">
     Derived from the master sheet (<%= A.provenance.master_sha256.slice(0, 12) %>…)
     and the Sleeper harvest of <%= (A.provenance.harvest_built_at || '').slice(0, 10) %>.
-    Every number on these pages traces to one of those two sources.
   </p>
 </div>
 

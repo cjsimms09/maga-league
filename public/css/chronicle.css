@@ -85,6 +85,38 @@
 .buyin-track .amt.now { border-color: var(--gold); color: var(--gold-bright); }
 .buyin-track .arrow { color: var(--muted); }
 
+/* ---- the seasons timeline (hub main event) ---- */
+.timeline { display: flex; flex-direction: column; }
+.tl-row {
+  display: grid; grid-template-columns: 4.2rem 1fr auto; gap: .8rem; align-items: center;
+  padding: .7rem .3rem; border-bottom: 1px solid var(--line); text-decoration: none; color: inherit;
+}
+.tl-row:last-child { border-bottom: 0; }
+a.tl-row:hover { background: rgba(245, 196, 69, .06); }
+.tl-dead { cursor: default; opacity: .82; }
+.tl-year { font-family: var(--font-display); font-weight: 900; font-size: 1.35rem; color: var(--ink); }
+.tl-mid { display: flex; align-items: baseline; gap: .7rem; flex-wrap: wrap; min-width: 0; }
+.tl-champ { font-weight: 700; color: var(--gold-bright); }
+.tl-champ.tl-live { color: var(--green); font-weight: 700; }
+.tl-won { color: var(--muted); font-variant-numeric: tabular-nums; font-size: .85rem; }
+.tl-tag { justify-self: end; }
+.tag.ghost { background: rgba(255, 255, 255, .04); color: var(--muted); border: 1px solid var(--line);
+  display: inline-block; font-family: var(--font-display); font-size: .58rem; font-weight: 800;
+  letter-spacing: .08em; text-transform: uppercase; padding: .12rem .4rem; border-radius: 6px; }
+.tl-note { color: var(--muted); font-size: .8rem; margin: .8rem 0 0; }
+
+/* ---- the doors ---- */
+.doors { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: .8rem; margin: 1.4rem 0; }
+.door {
+  display: flex; flex-direction: column; gap: .3rem; text-decoration: none; color: inherit;
+  border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel);
+  padding: 1.1rem 1.2rem; transition: border-color .12s, transform .12s;
+}
+.door:hover { border-color: var(--gold); transform: translateY(-2px); }
+.door-icon { font-size: 1.5rem; }
+.door-title { font-family: var(--font-display); font-weight: 900; font-size: 1.05rem; color: var(--ink); }
+.door-sub { color: var(--muted); font-size: .85rem; line-height: 1.4; }
+
 /* ---- season index cards ---- */
 .season-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: .8rem; }
 .season-card {

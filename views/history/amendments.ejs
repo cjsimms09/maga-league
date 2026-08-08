@@ -1,0 +1,121 @@
+<%- include('../partials/header', { title: 'The Amendments' }) %>
+<%
+  const german = A.german;
+  const flag = name => [...german].some(g => String(name).includes(g)) ? '🇩🇪' : '🇺🇸';
+  const dollars = n => (n == null ? '—' : '$' + Number(n).toLocaleString('en-US'));
+  const L = A.lore;
+%>
+
+<div class="chron">
+  <a class="back-link" href="/history">← The Chronicle</a>
+  <p class="chron-eyebrow">The Constitution</p>
+  <h1 class="chron-title">The <span class="gold">Amendments</span></h1>
+  <p class="chron-sub">What the league has called itself, charged, paid out, and is still arguing about.</p>
+
+  <!-- NAME LINEAGE -->
+  <div class="card">
+    <h2>🏷️ The Names <span class="sub">what this league has been called</span></h2>
+    <div class="body">
+      <div class="amend">
+        <% for (const n of L.nameLineage) { %>
+          <div class="step">
+            <span class="yr"><%= n.from != null ? n.from : '????' %></span>
+            <span><b><%= n.name %></b> — <%= n.note %>.</span>
+          </div>
+        <% } %>
+      </div>
+      <p style="color:var(--muted); font-size:.82rem; margin:.4rem 0 0;">
+        The Balls and Wieners League became the Whiny Little Bitch League at a date
+        that predates Sleeper and survives nowhere in the data — it was already the
+        WLBL by the <b><%= L.wlblInUseBy %></b> season. The rebrand to Make Football
+        Great Again landed for <b><%= L.rebrandYear %></b>.</p>
+    </div>
+  </div>
+
+  <!-- BUY-IN LADDER + AMENDMENT LEDGER -->
+  <div class="card">
+    <h2>📜 The Chronicle of Amendments <span class="sub">what changed, and what it cost</span></h2>
+    <div class="body">
+      <p style="color:var(--muted); margin:0 0 .6rem;">The buy-in has climbed every
+        step of the way, and the German has objected at every step, as is tradition:</p>
+      <div class="buyin-track">
+        <% A.amendments.steps.forEach((s, i) => { %>
+          <% if (i) { %><span class="arrow">→</span><% } %>
+          <span class="amt <%= i === A.amendments.steps.length - 1 ? 'now' : '' %>">$<%= s.buy_in %></span>
+        <% }) %>
+      </div>
+      <p style="color:var(--muted); font-size:.82rem; margin:.2rem 0 1rem;">
+        From the founding hundred in <%= L.foundingYear %> to <b>$400</b> today — with a
+        vote on the floor to make it $500.</p>
+
+      <div class="amend">
+        <div class="step"><span class="yr"><%= L.foundingYear %></span><span>The league is founded as the <b>Balls and Wieners League</b>. Buy-in $100, ten men.</span></div>
+        <div class="step"><span class="yr">????</span><span>Renamed the <b>Whiny Little Bitch League</b> — the exact year predates the Sleeper record.</span></div>
+        <div class="step"><span class="yr">????</span><span><b>Roster turnover:</b> <%= L.turnover.departed.join(', ') %> departed; <%= L.turnover.added.join(', ') %> took their chairs. The exact seasons predate the master sheet's owner records (2019 is the first year it names anyone, and all current ten are already present).</span></div>
+        <div class="step"><span class="yr"><%= L.weeklyHighIntroYear %></span><span>The <b>weekly-high $100</b> pool is introduced — a hundred to the top score each regular-season week. It did NOT exist before this; earlier seasons split the pot between the regular-season finish and the playoffs only. It is now 37.5% of the pot.</span></div>
+        <div class="step"><span class="yr"><%= L.keeperAdoptionYear || '????' %></span><span>Three keepers adopted — <%= L.keeperNote %>.</span></div>
+        <% if (L.rebrandYear) { %><div class="step"><span class="yr"><%= L.rebrandYear %></span><span>The rebrand to <b>Make Football Great Again</b> (the <%= L.rebrandYear - 1 %> season was the old name's last stand — it says so in the box scores).</span></div><% } %>
+        <div class="step"><span class="yr"><%= L.websiteFoundedYear %></span><span>This website is founded — the first time the league's real standings, real money, and real history live anywhere but a spreadsheet.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAYOUT REVISIONS -->
+  <div class="card">
+    <h2>💵 Payout-Structure Revisions <span class="sub">the purse, re-cut</span></h2>
+    <div class="body chron-scroll">
+      <table class="ledger">
+        <thead><tr><th>From</th><th>Pot</th><th>Playoffs (1–4)</th><th>Reg. season (1st / 2nd)</th></tr></thead>
+        <tbody>
+          <% for (const r of A.amendments.payRevisions) { %>
+            <tr>
+              <td class="rk"><%= r.year %></td>
+              <td class="money">$<%= r.pot.toLocaleString('en-US') %></td>
+              <td><%= r.playoffs.map(x => '$' + x).join(' / ') %></td>
+              <td><%= r.reg.map(x => '$' + x).join(' / ') %></td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+      <p style="color:var(--muted); font-size:.8rem; margin:.6rem 0 0;">The weekly-$100 high (regular season only) was <b>added in <%= L.weeklyHighIntroYear %></b> — it is not a founding feature. Before that the whole pot went to the regular-season finish and the playoffs.</p>
+    </div>
+  </div>
+
+  <!-- THE ROLLS — champions with buy-in AND winnings -->
+  <div class="card">
+    <h2>👑 The Rolls <span class="sub">champions in order — and what the ring paid</span></h2>
+    <div class="body chron-scroll">
+      <table class="ledger">
+        <thead><tr><th>Year</th><th class="name">Champion</th><th>Buy-in</th><th>Title paid</th></tr></thead>
+        <tbody>
+          <% for (const c of [...A.champions].reverse()) { %>
+            <tr class="champ">
+              <td class="rk"><%= c.year %></td>
+              <td class="name"><%= c.champion %> <span class="flag"><%= flag(c.champion) %></span><% if (c.asterisk) { %> <a class="aster" href="/history#asterisk">*</a><% } %></td>
+              <td style="color:var(--muted)">$<%= c.buy_in %></td>
+              <td class="money"><%= dollars(c.payout) %></td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+      <p style="color:var(--muted); font-size:.8rem; margin:.6rem 0 0;">
+        <b>The roster has turned over:</b> <%= L.turnover.departed.join(', ') %> left;
+        <%= L.turnover.added.join(', ') %> replaced them (seasons unrecorded). The
+        2022 title is shared and carries <a class="aster" href="/history#asterisk">the asterisk</a>.</p>
+    </div>
+  </div>
+
+  <!-- MATTERS PRESENTLY BEFORE THE LEAGUE -->
+  <div class="card">
+    <h2>🗳️ Matters Presently Before the League <span class="sub">the 2027 votes</span></h2>
+    <div class="body">
+      <ul style="margin:0; padding-left:1.1rem; color:#cdd3e2;">
+        <% for (const v of A.votesPending) { %><li><%= v %></li><% } %>
+      </ul>
+    </div>
+  </div>
+
+  <p class="provenance">Source: the master sheet and the Sleeper league names, 2023–present.</p>
+</div>
+
+<%- include('../partials/footer') %>

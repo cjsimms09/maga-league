@@ -16,6 +16,18 @@
   <div class="card">
     <h2>💰 Career Earnings <span class="sub">2016 → present, ten deep</span></h2>
     <div class="body chron-scroll">
+      <% if (!MB.rows.length) { %>
+        <%# FAIL LOUD, never silent-empty. An empty earnings table reads as
+            "nobody has won anything," which is worse than an error because
+            nothing alarms. If the money engine returned no rows, the source
+            data did not load — say so, visibly. %>
+        <div class="asterisk-note" style="border-color:var(--red)">
+          <h4>⚠️ The money data failed to load</h4>
+          <p style="margin:0">The career-earnings source (the master sheet) did not
+          load, so this board is empty — that is a data/deploy failure, not a real
+          "nobody earned anything." Reported rather than shown as blanks.</p>
+        </div>
+      <% } else { %>
       <table class="ledger">
         <thead><tr>
           <th class="name">#</th><th class="name">Owner</th><th>Career $</th><th>W-L-T</th>
@@ -41,6 +53,14 @@
         Career totals derive from each year's winnings, never the spreadsheet's own
         stale total column. Marian's 2022 line carries the asterisk — the disputed,
         shared title.</p>
+      <% } %>
+      <div class="asterisk-note" style="border-color:var(--red); margin-top:.9rem;">
+        <h4>⚠️ A known attribution gap (owner turnover)</h4>
+        <p style="margin:0"><%= A.lore.turnover.moneyCaveat %> Until the true split
+        is confirmed, these totals show what the master sheet records — flagged, not
+        silently trusted. The departed owners (<%= A.lore.turnover.departed.join(', ') %>)
+        carry no figures in the data at all.</p>
+      </div>
     </div>
   </div>
 

@@ -96,6 +96,55 @@ function build() {
   const champions = buildChampionsRoll(master);
   const catalogue = buildCatalogue(seasons, owners);
 
+  // LEAGUE-NAME LINEAGE + dated amendments — corrected against ground truth.
+  // 2016 founding name is "Balls and Wieners League" (owner-confirmed). The
+  // Sleeper harvest carries per-season names only from 2023 (WLBL) and 2024+
+  // (MFGA), so the rebrand year is derivable (min MFGA season) but the
+  // BWL->WLBL transition predates Sleeper and is not in the data.
+  const mfgaYears = seasons.filter(s => s.name === 'Make Football Great Again').map(s => s.year);
+  const wlblYears = seasons.filter(s => s.name === 'Whiny Little Bitch League').map(s => s.year);
+  // Keeper adoption: the draft data shows the first season carrying keeper
+  // designations. 2023 has none; 2024 is the first with keepers.
+  let keeperAdoptionYear = null;
+  for (const s of [...seasons].sort((a, b) => a.year - b.year)) {
+    if (s.draft && (s.draft.picks || []).some(p => p.is_keeper)) { keeperAdoptionYear = s.year; break; }
+  }
+  const lore = {
+    foundingYear: 2016,
+    foundingName: 'Balls and Wieners League',
+    nameLineage: [
+      { name: 'Balls and Wieners League', from: 2016, note: 'the founding name' },
+      { name: 'Whiny Little Bitch League', from: null, note: 'transition year predates Sleeper — unrecorded; in use by the 2023 season' },
+      { name: 'Make Football Great Again', from: mfgaYears.length ? Math.min(...mfgaYears) : null, note: 'the current name' },
+    ],
+    rebrandYear: mfgaYears.length ? Math.min(...mfgaYears) : null,     // 2024
+    wlblInUseBy: wlblYears.length ? Math.max(...wlblYears) : null,     // 2023
+    websiteFoundedYear: 2026,
+    keeperAdoptionYear,                                                // 2024 (first draft with keepers)
+    keeperNote: keeperAdoptionYear ? `first season with keeper designations in the draft data (${keeperAdoptionYear - 1} had none)` : 'year unknown',
+    // Weekly-high $100 pool: appears in the master sheet's payout structure only
+    // from 2023 on (2016-2022 split the pot between regular-season finish and
+    // playoffs only). It is NOT a founding feature.
+    weeklyHighIntroYear: (function () {
+      const withWeekly = Object.keys((payouts.by_season || {}))
+        .filter(y => (payouts.by_season[y].weekly_high || {}).amount).map(Number);
+      return withWeekly.length ? Math.min(...withWeekly) : 2023;
+    })(),
+    // Owner turnover (owner-confirmed): three replacements. The departed three
+    // appear NOWHERE in the data; the added three are already present by 2019,
+    // the earliest year the master sheet names owners — so the exact seasons
+    // predate the record and are not establishable. Stated, not invented.
+    turnover: {
+      departed: ['Brandon', 'Taylor Hagen', 'Ben'],
+      added: ['Sam', 'Dylan', 'Jeremy'],
+      yearsKnown: false,
+      note: 'Sam, Dylan and Jeremy replaced Brandon, Taylor Hagen and Ben. The master sheet names owners only from 2019 (all current ten already present); Brandon and Taylor Hagen appear nowhere, and Ben survives in the record only as an entry in the 2024 draft order — so the exact seasons of the changes are not fully establishable from the data.',
+      // Data-integrity flag: pre-join winnings attributed to the replacements
+      // that likely belong to their predecessors — surfaced, not silently kept.
+      moneyCaveat: 'The master sheet credits Dylan with $406.25 (2017) and $187.50 (2018) and Jeremy with $156.25 (2017) — before either is known to have joined. Those dollars most likely belong to the owners they replaced; the true split is not recoverable from the data.',
+    },
+  };
+
   _cache = {
     provenance: {
       harvest_built_at: harvest.built_at,
@@ -103,7 +152,7 @@ function build() {
       master_sha256: master.source_sha256,
       note: master.note,
     },
-    seasons, byYear, owners, records, moneyBoard, amendments, badBeats, champions, catalogue,
+    seasons, byYear, owners, records, moneyBoard, amendments, badBeats, champions, catalogue, lore,
     firstName: FIRST_NAME, german: GERMAN,
     modernYears: seasons.map(s => s.year),        // 2023-2025 (full box scores)
     votesPending: master.votes_pending || [],
@@ -817,6 +866,7 @@ function buildChampionsRoll(master) {
       year: Number(y), champion: champ, co_championship: co,
       asterisk: co,                     // the 2022 Marian/Sam split — the asterisk
       buy_in: s.buy_in,
+      payout: (po['1st'] && po['1st'].amount != null) ? po['1st'].amount : null, // what the title paid
     });
   }
   return roll;
