@@ -89,6 +89,7 @@
   <%# §2(d) — slim pinned status bar: pick state + connection stay visible when
       scrolled down to the board. Populated by app.js renderStatusBar(). %>
   <div id="wr-statusbar" class="wr-statusbar" style="display:flex"></div>
+  <span id="prefs-sync" style="display:none;font-size:.68rem;color:#8fa6d0;position:absolute;top:2px;right:8px;z-index:5" title="prefs sync state"></span>
 
   <%# ── Part 2 §2 — THREE-ZONE LAYOUT ──────────────────────────────────────
        Zone 1 DECIDE (left ~60%): the Paths panel + ranked list + branch forecast.
@@ -327,6 +328,7 @@
 <script src="/js/draft/engine.js"></script>
 <script src="/js/draft/attribution.js"></script>
 <script src="/js/draft/shadows.js"></script>
+<script src="/js/draft/prefsync.js"></script>
 <script src="/js/draft/predledger.js"></script>
 <script src="/js/draft/sync.js"></script>
 <script src="/js/draft/app.js"></script>

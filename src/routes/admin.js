@@ -788,6 +788,33 @@ router.get('/api/ledger/predict', aw(async (req, res) => {
   res.json({ ok: true, season: String(season), count: entries.length, entries });
 }));
 
+// ---------- A-1: personal draft prefs, synced across devices ----------
+// One document per owner (targets/never/queue, sliders, overrides, rail-acks),
+// same durable store as the ledger; localStorage is only the offline cache.
+// Last-write-wins whole-document — the merge lives in src/prefs.js so tests
+// and the client agree on who won.
+const prefs = require('../prefs');
+
+router.get('/api/prefs', aw(async (req, res) => {
+  const d = await prefs.load(store, req.owner.id);
+  res.set('Cache-Control', 'no-store');
+  res.json({ ok: true, doc: d });
+}));
+
+router.post('/api/prefs', aw(async (req, res) => {
+  const body = req.body || {};
+  if (!body.updated_at) return res.status(400).json({ ok: false, error: 'updated_at required' });
+  try {
+    const winner = await prefs.save(store, req.owner.id, {
+      prefs: body.prefs || {}, updated_at: String(body.updated_at),
+      device: body.device || '',
+    });
+    res.json({ ok: true, doc: winner });
+  } catch (e) {
+    res.status(400).json({ ok: false, error: String(e.message || e) });
+  }
+}));
+
 // ---------- Raw-forever archive (Phase L2 — the Learning Seed) ----------
 // Immutable, append-only snapshots of what actually happened: the full Sleeper
 // pick stream (all teams, timestamped), the board build the draft ran on, the

@@ -68,6 +68,7 @@
   }
   function saveRailAcks() {
     try { localStorage.setItem(RAIL_ACK_KEY, JSON.stringify(state.railAcks || {})); } catch (e) {}
+    markPrefsChanged();
   }
   /** The current rail-fire picture: which of the top-N carry flags, and which
    *  of those the user has acknowledged for THIS build. Reuses the last
@@ -103,6 +104,70 @@
   }
   function saveLists() {
     try { localStorage.setItem(LISTS_KEY, JSON.stringify(state.lists)); } catch (e) {}
+    markPrefsChanged();
+  }
+
+  /* --- A-1: prefs that survive the phone/laptop divide -------------------
+   * localStorage stays the offline cache; the server doc (keyed to my login)
+   * is what crosses devices. Newest stamp wins, whole-document, and the
+   * status bar SAYS which side won. Best-effort throughout. */
+  const PREFS_STAMP_KEY = 'wr-prefs-stamp-v1';
+  let prefsApplying = false;     // suppress push while adopting the server copy
+  const prefsPush = (typeof PrefSync !== 'undefined') ? PrefSync.scheduler(1200) : null;
+
+  function currentPrefs() {
+    return { lists: state.lists, weights: state.weights, autoWeights: !!state.autoWeights,
+             playerOverrides: state.playerOverrides || {}, railAcks: state.railAcks || {} };
+  }
+  function markPrefsChanged() {
+    if (prefsApplying) return;
+    const at = new Date().toISOString();
+    try { localStorage.setItem(PREFS_STAMP_KEY, at); } catch (e) {}
+    if (!prefsPush) return;
+    prefsPush(function () {
+      return { updated_at: at, device: (navigator.platform || 'browser'), prefs: currentPrefs() };
+    }, function () { stampPrefsSynced('pushed'); });
+  }
+  function applyServerPrefs(p) {
+    prefsApplying = true;
+    try {
+      if (p.lists) state.lists = { targets: p.lists.targets || [], avoid: p.lists.avoid || [],
+                                   queue: p.lists.queue || [] };
+      if (p.weights) state.weights = Object.assign({}, E.DEFAULT_WEIGHTS, p.weights);
+      if (typeof p.autoWeights === 'boolean') state.autoWeights = p.autoWeights;
+      if (p.playerOverrides) state.playerOverrides = p.playerOverrides;
+      if (p.railAcks) state.railAcks = p.railAcks;
+      // Refresh the offline cache so a later offline load sees the same truth.
+      try { localStorage.setItem(LISTS_KEY, JSON.stringify(state.lists)); } catch (e) {}
+      try { localStorage.setItem(RAIL_ACK_KEY, JSON.stringify(state.railAcks || {})); } catch (e) {}
+      try { localStorage.setItem(OVERRIDE_KEY, JSON.stringify(state.playerOverrides || {})); } catch (e) {}
+      try { localStorage.setItem(WEIGHT_KEY, JSON.stringify(state.weights)); } catch (e) {}
+      try { localStorage.setItem(AUTO_KEY, state.autoWeights ? '1' : '0'); } catch (e) {}
+    } finally { prefsApplying = false; }
+  }
+  function stampPrefsSynced(note) {
+    const el = $('#prefs-sync');
+    if (el) { el.textContent = '☁ synced'; el.title = 'prefs ' + note; el.style.display = ''; }
+  }
+  function syncPrefsFromServer() {
+    if (typeof PrefSync === 'undefined') return;
+    PrefSync.pull().then(function (serverDoc) {
+      let localAt = '';
+      try { localAt = localStorage.getItem(PREFS_STAMP_KEY) || ''; } catch (e) {}
+      if (serverDoc && String(serverDoc.updated_at || '') > String(localAt)) {
+        // The other device wrote later — its homework wins here too.
+        applyServerPrefs(serverDoc.prefs || {});
+        try { localStorage.setItem(PREFS_STAMP_KEY, String(serverDoc.updated_at)); } catch (e) {}
+        applyOverrides();
+        renderAll();
+        stampPrefsSynced('adopted from ' + (serverDoc.device || 'another device'));
+      } else if (localAt) {
+        markPrefsChanged();          // local is newer (or server empty): push up
+        stampPrefsSynced('local copy is current');
+      } else {
+        stampPrefsSynced('in sync');
+      }
+    });
   }
   function toggleList(which, id) {
     const other = which === 'targets' ? 'avoid' : 'targets';
@@ -241,6 +306,9 @@
     loadLists();
     loadRailAcks();
     loadAuto();
+    // A-1: after the local caches load, race them against the server document —
+    // the prep laptop's Tuesday homework beats this phone's stale cache.
+    syncPrefsFromServer();
     exposeTestHooks();
     // Keep a pristine copy of everything mock mode overwrites. Connecting to a
     // mock replaces the player pool, the league shape and the pick order — so
@@ -285,6 +353,7 @@
     catch (e) { state.playerOverrides = {}; }
   }
   function saveOverrides() {
+    markPrefsChanged();
     try { localStorage.setItem(OVERRIDE_KEY, JSON.stringify(state.playerOverrides || {})); }
     catch (e) { /* private mode */ }
   }
@@ -3042,6 +3111,7 @@
       if (auto) {
         state.autoWeights = !state.autoWeights;
         try { localStorage.setItem(AUTO_KEY, state.autoWeights ? '1' : '0'); } catch (e) {}
+        markPrefsChanged();
         if (state.autoWeights) applyAutoWeights(); else renderAutoNote({}, false);
         renderRecommendations();
         renderPresets();
@@ -3128,6 +3198,7 @@
   }
 
   function saveWeights() {
+    markPrefsChanged();
     try { localStorage.setItem(WEIGHT_KEY, JSON.stringify(state.weights)); } catch (e) { /* private mode */ }
   }
   function loadWeights() {
