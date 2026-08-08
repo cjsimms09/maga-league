@@ -201,3 +201,90 @@ def test_keeper_placement_law_holds_on_the_real_slate():
             f"seat {seat} keeps {n} but its keeper costs are {rounds} — "
             f"top_picks_flat forfeits rounds 1..{n}"
         )
+
+
+# ── THE POPULATION-LABEL REQUIREMENT ─────────────────────────────────────────
+#
+# Cory, 2026-08-08: any pick number, seat, or count must carry WHICH COORDINATE
+# SYSTEM it is in, at its definition site.
+#
+# THREE DEFECTS IN ONE DAY came from a value being correct in one system and
+# read in another — not from a wrong value:
+#
+#   1. `kept_players.team_slot` is a [league-seat]; the lookup used a
+#      [room-seat]. Every rehearsal started with an empty roster.
+#   2. `drafted.size` counts [board-removals]; the invariant compared it to
+#      [pick-events]. Correct on both sides, false as an equation.
+#   3. Cory's 34/41/54 are [live-sequence] (post-keeper-forfeit); a test fed
+#      them to snake arithmetic expecting [absolute-pick]. Pick 34 is seat 4
+#      live and seat 7 absolute — both right, in different systems.
+#
+# A wrong value gets caught by a test. A right value in the wrong system does
+# not, because every individual step looks correct. The label is the only thing
+# that makes the mismatch visible at the point of use.
+
+COORDINATE_VOCAB = {
+    "[league-seat]",     # my seat in the real league
+    "[room-seat]",       # my seat in the room being drafted now
+    "[live-sequence]",   # pick numbers AFTER keeper forfeits
+    "[absolute-pick]",   # position in an unforfeited snake
+    "[pick-events]",     # picks observed this draft
+    "[placements]",      # kept, never drafted
+    "[board-removals]",  # absent for any reason (superset)
+}
+
+# Values that carry a coordinate system, and the file that DEFINES each. Adding
+# a new such value means adding a row — which is the point: the registry is the
+# list of things a future session must not conflate.
+LABELLED_VALUES = [
+    ("seat.js", "roomSlot:", "[room-seat]"),
+    ("seat.js", "realSlot:", "[league-seat]"),
+    ("seat.js", "function slotOfPick", "[absolute-pick]"),
+    ("app.js", "const pickEvents", "[pick-events]"),
+    ("app.js", "const keeperPlacements", "[placements]"),
+    ("app.js", "const removedFromBoard", "[board-removals]"),
+    ("app.js", "currentPick: pickEvents + 1", "[live-sequence]"),
+    ("app.js", "const keeperSeat", "[league-seat]"),
+]
+
+LABEL_WINDOW = 4          # lines above the definition the label may sit in
+
+
+@pytest.mark.parametrize("fname,anchor,label", LABELLED_VALUES)
+def test_every_coordinate_bearing_value_is_labelled(fname, anchor, label):
+    text = (CLIENT / fname).read_text()
+    lines = text.splitlines()
+    idx = next((i for i, l in enumerate(lines) if anchor in l), None)
+    assert idx is not None, f"{fname}: definition site '{anchor}' not found — registry is stale"
+    window = "\n".join(lines[max(0, idx - LABEL_WINDOW):idx + 1])
+    assert label in window, (
+        f"{fname}: '{anchor}' defines a coordinate-bearing value but does not name "
+        f"its system within {LABEL_WINDOW} lines. Expected {label}. Three defects "
+        f"in one day came from a value being correct in one system and read in "
+        f"another; the label is what makes that visible at the point of use."
+    )
+
+
+def test_the_vocabulary_is_closed_and_actually_used():
+    """Anti-overreach + non-vacuity. Labels must come from the controlled set —
+    an invented one is drift — and each one must appear somewhere, or the
+    registry is describing a system nobody uses."""
+    text = "".join((CLIENT / f).read_text() for f in ("seat.js", "app.js"))
+    used = set(re.findall(r"\[[a-z-]+\]", text))
+    # Only labels that look like coordinate systems are policed; markdown links
+    # and array literals are not vocabulary.
+    coordinate_shaped = {u for u in used if u.endswith(("-seat]", "-pick]", "-events]",
+                                                       "placements]", "-removals]", "-sequence]"))}
+    unknown = coordinate_shaped - COORDINATE_VOCAB
+    assert not unknown, f"coordinate labels outside the vocabulary: {sorted(unknown)}"
+    for label in COORDINATE_VOCAB:
+        assert label in text, f"{label} is in the vocabulary but used nowhere"
+
+
+def test_the_two_seat_systems_are_never_silently_equated():
+    """The keeper-seat bug in one assertion: a [league-seat] and a [room-seat]
+    must not be compared without the difference being named."""
+    app = (CLIENT / "app.js").read_text()
+    assert "state.realSlot) ? Number(state.realSlot) : seatSlot" in app
+    i = app.index("const keeperSeat")
+    assert "[league-seat]" in app[max(0, i - 400):i]

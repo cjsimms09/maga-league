@@ -62,7 +62,10 @@
     var source = opts.source || (room == null ? 'unresolved' : 'league-config');
     if (SOURCES.indexOf(source) < 0) source = 'manual';
     return {
+      // COORDINATE SYSTEM [room-seat]: my seat in the room being drafted NOW.
       roomSlot: room,
+      // COORDINATE SYSTEM [league-seat]: my seat in the real league. Display and
+      // provenance only — comparing this to a room seat is the keeper-seat bug.
       realSlot: real,
       source: room == null ? 'unresolved' : source,
       verified: !!opts.verified && room != null,
@@ -75,7 +78,11 @@
     };
   }
 
-  /** Which seat owns overall pick `p` in a `teams`-team snake (1-based). */
+  /** Which seat owns overall pick `p` in a `teams`-team snake (1-based).
+   *  INPUT COORDINATE SYSTEM [absolute-pick]: position in an UNFORFEITED snake.
+   *  Cory's 34/41/54 are [live-sequence] (post-keeper-forfeit) and do NOT map
+   *  through here — pick 34 is seat 7 absolute, seat 4 live. Feeding one system
+   *  into the other is exactly today's third defect. */
   function slotOfPick(p, teams) {
     var t = Number(teams);
     if (!t) return null;

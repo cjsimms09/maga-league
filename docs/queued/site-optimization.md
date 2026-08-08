@@ -59,6 +59,7 @@ Four numbers, tracked weekly. Any growth without a cited reason raises an alert.
 | 2 | artifact size (`draft_data.json`) | performance — the dominant transfer |
 | 3 | page load time, phone viewport | performance |
 | 4 | **independent derivations of shared state** (seat · pick position · roster · keepers · rounds · board version) | **the one that predicts bugs** |
+| 4b | **coordinate-bearing values missing a population label** | the second-order version of the same failure |
 
 **The fourth is the point.** The first three are ordinary performance hygiene.
 Number four is the leading indicator: **every severity-1 this project has had
@@ -71,3 +72,27 @@ the build when a canonical fact gains a derivation without a cited exemption,
 and reports the counts for the Sunday audit. Budgets today: rounds **0**,
 current_pick **2**, seat **10** (all writes or the single derivation, each
 individually cited).
+
+### The population-label requirement (added 2026-08-08)
+
+Any **pick number, seat, or count** must name **which coordinate system it is
+in** at its definition site: `[league-seat]` · `[room-seat]` ·
+`[live-sequence]` · `[absolute-pick]` · `[pick-events]` · `[placements]` ·
+`[board-removals]`.
+
+**Three defects in one day came from a value being correct in one system and
+read in another** — not from a wrong value:
+
+1. `kept_players.team_slot` is a `[league-seat]`; the lookup used a
+   `[room-seat]`. Every rehearsal started empty.
+2. `drafted.size` counts `[board-removals]`; the invariant compared it to
+   `[pick-events]`. Correct on both sides, false as an equation.
+3. Cory's 34/41/54 are `[live-sequence]`; a test fed them to snake arithmetic
+   expecting `[absolute-pick]`. **Pick 34 is seat 4 live and seat 7 absolute —
+   both right, in different systems.**
+
+A wrong value gets caught by a test. **A right value in the wrong system does
+not**, because every individual step looks correct. Enforced by
+`test_shared_state_audit.py`, with a closed vocabulary (an invented label is
+drift) and a registry of the values that carry one — adding a new such value
+means adding a row, which is the point.

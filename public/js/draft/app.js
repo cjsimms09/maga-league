@@ -572,11 +572,14 @@
    *              placement verification asserts the same law on the artifact.
    */
   function pickState() {
+    // COORDINATE SYSTEM [pick-events]: count of picks OBSERVED this draft.
     const pickEvents = state.sync
       ? Math.max(0, state.sync.currentPickNumber() - 1)
       : (state.recentPicks || []).length;
+    // COORDINATE SYSTEM [placements]: kept, never drafted. Not an event.
     const keeperPlacements = (state.myRoster || []).filter(p => p.is_keeper).length;
     const rehearsalRemovals = (state.rehearsalKeepers || {}).removed || 0;
+    // COORDINATE SYSTEM [board-removals]: absent for ANY reason, superset of both.
     const removedFromBoard = state.drafted ? state.drafted.size : 0;
 
     // INVARIANT 2's expectation, in the population the CURRENT board lives in.
@@ -598,6 +601,7 @@
       rehearsalRemovals: rehearsalRemovals,
       removedFromBoard: removedFromBoard,
       expectedRemoved: expectedRemoved,
+      // COORDINATE SYSTEM [live-sequence]: the pick number the ROOM is on.
       currentPick: pickEvents + 1,                        // INVARIANT 1
       boardConsistent: removedFromBoard === expectedRemoved,  // INVARIANT 2
       placementErrors: placement,                          // INVARIANT 3
@@ -2227,6 +2231,9 @@
     // seat is a different number, so matching on the room seat finds nothing and
     // the rehearsal silently starts empty — the exact failure this is fixing.
     // My keepers are mine in any room; look them up by the league seat.
+    // COORDINATE SYSTEM [league-seat]: kept_players.team_slot is stamped with my
+    // LEAGUE seat, so the lookup must use one too — reading it against a
+    // [room-seat] is the bug that started every rehearsal with an empty roster.
     const keeperSeat = (state.mockMode && state.realSlot) ? Number(state.realSlot) : seatSlot;
     let mine = (data.kept_players || []).filter(k => Number(k.team_slot) === keeperSeat);
     if (!mine.length) {
