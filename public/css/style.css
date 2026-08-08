@@ -1943,3 +1943,57 @@ table .num.zero { color: var(--muted); font-weight: 400; }
 }
 .pick-chip.moved { border-color: var(--gold); color: var(--gold-bright, #f5c445); }
 .pick-chip .was { font-size: .64rem; color: #8f9ab3; margin-left: .25rem; }
+
+/* ==========================================================================
+   STATUS DASHBOARD (/admin/status) — the phone-readable face of STATUS.md +
+   DECISIONS-NEEDED.md. Big countdown, a progress bar, the queue as a board,
+   decisions as cards. Reads on any width; the queue never scrolls sideways.
+   ========================================================================== */
+.dash-hero {
+  display: flex; gap: 1rem; flex-wrap: wrap; align-items: stretch; margin-bottom: .8rem;
+}
+.dash-count {
+  flex: 0 0 auto; min-width: 130px; text-align: center;
+  background: rgba(245,196,69,.08); border: 1px solid rgba(245,196,69,.4);
+  border-radius: 14px; padding: .8rem 1.1rem; display: flex; flex-direction: column; justify-content: center;
+}
+.dash-count-num { font-family: var(--font-display); font-size: 2.6rem; font-weight: 900; color: var(--gold-bright, #f5c445); line-height: 1; }
+.dash-count-num.hot { color: #ff8a94; }
+.dash-count-lbl { font-size: .72rem; color: var(--muted); margin-top: .3rem; text-transform: uppercase; letter-spacing: .05em; }
+.dash-prog { flex: 1 1 240px; display: flex; flex-direction: column; justify-content: center; gap: .45rem;
+  background: rgba(255,255,255,.03); border: 1px solid var(--line); border-radius: 14px; padding: .8rem 1rem; }
+.dash-prog-top { font-size: .86rem; color: #dfe6f5; }
+.dash-prog-top b { color: #fff; }
+.dash-bar { height: 10px; border-radius: 6px; background: rgba(255,255,255,.08); overflow: hidden; }
+.dash-bar-fill { height: 100%; background: linear-gradient(90deg, var(--gold, #f5c445), #2fd576); border-radius: 6px; }
+.dash-prog-legend { display: flex; flex-wrap: wrap; gap: .8rem; font-size: .74rem; color: var(--muted); }
+
+.dash-health { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1rem; }
+.dash-chip {
+  font-size: .76rem; color: #c7cddd; background: rgba(255,255,255,.04);
+  border: 1px solid var(--line); border-radius: 8px; padding: .3rem .6rem;
+}
+.dash-chip b { color: #fff; }
+
+.dash-queue { list-style: none; margin: 0; padding: 0; counter-reset: dq; }
+.dash-q { display: flex; gap: .6rem; align-items: flex-start; padding: .5rem .55rem; border-radius: 9px; margin-bottom: .3rem; border: 1px solid transparent; }
+.dash-q-ic { flex: 0 0 auto; font-size: .95rem; }
+.dash-q-lbl { font-size: .88rem; color: #dfe6f5; line-height: 1.35; }
+.dash-q.done { opacity: .62; }
+.dash-q.done .dash-q-lbl { text-decoration: none; color: #9fb0d8; }
+.dash-q.current { background: rgba(245,196,69,.1); border-color: rgba(245,196,69,.55); box-shadow: var(--glow-gold); }
+.dash-q.current .dash-q-lbl { color: #fff; font-weight: 700; }
+.dash-q.gated { background: rgba(255,70,85,.06); border-color: rgba(255,70,85,.25); }
+.dash-now { font-family: var(--font-display); font-size: .6rem; font-weight: 900; letter-spacing: .1em;
+  background: var(--gold, #f5c445); color: var(--navy-deep, #0b1020); padding: .05rem .35rem; border-radius: 4px; margin-left: .4rem; vertical-align: middle; }
+.dash-flag { margin-left: .25rem; }
+.dash-unblock { display: block; font-size: .72rem; color: #ffb4bb; margin-top: .15rem; }
+
+.dash-decs { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: .6rem; }
+.dash-dec { border: 1px solid var(--line); border-radius: 11px; padding: .6rem .7rem; background: rgba(255,255,255,.03); }
+.dash-dec.open { border-color: rgba(255,70,85,.5); background: rgba(255,70,85,.07); }
+.dash-dec-id { font-family: var(--font-display); font-weight: 900; color: #fff; font-size: .9rem; display: flex; align-items: center; gap: .4rem; }
+.dash-dec-badge { font-size: .58rem; font-weight: 800; letter-spacing: .06em; padding: .1rem .35rem; border-radius: 4px; }
+.dash-dec-badge.open { background: rgba(255,70,85,.85); color: #0b1020; }
+.dash-dec-badge.resolved { background: rgba(47,213,118,.2); color: #8ef0b6; }
+.dash-dec-title { font-size: .8rem; color: #c7cddd; margin-top: .3rem; line-height: 1.35; }

@@ -615,6 +615,48 @@ router.get('/warroom/rehearsal', aw(async (req, res) => {
   res.render('admin/rehearsal', { md });
 }));
 
+// ---------- STATUS DASHBOARD ----------
+// The phone-readable face of STATUS.md + DECISIONS-NEEDED.md. Those files stay
+// the source of truth; this route re-parses them on every load, so it is always
+// current with whatever was last pushed (no build step, no drift). Next to the
+// war room, behind the same login.
+router.get('/status', aw(async (req, res) => {
+  const fs = require('fs');
+  const path = require('path');
+  const dash = require('../dashboard');
+  const root = path.join(__dirname, '..', '..');
+  const read = f => { try { return fs.readFileSync(path.join(root, f), 'utf8'); } catch (e) { return ''; } };
+  const statusText = read('STATUS.md');
+  const decText = read('DECISIONS-NEEDED.md');
+
+  // Health strip, all best-effort — any field may be null and the view degrades.
+  const health = { commit: null, commitAt: null, ci: null, audit: null };
+  // Last commit: git in dev; Netlify exposes COMMIT_REF but not the time, so we
+  // try git first and fall back to the env ref. Never throw — a dashboard that
+  // 500s because git is absent is worse than one that says "unknown".
+  try {
+    const cp = require('child_process');
+    health.commit = cp.execSync('git rev-parse --short HEAD', { cwd: root, stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim();
+    health.commitAt = cp.execSync('git log -1 --format=%cI', { cwd: root, stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim();
+  } catch (e) {
+    health.commit = (process.env.COMMIT_REF || '').slice(0, 7) || null;
+  }
+  // Sunday self-audit summary (E-1 writes a one-line summary to STATUS.md). Pull
+  // the most recent line that looks like an audit stamp, if any.
+  const auditLine = statusText.split('\n').reverse()
+    .find(l => /self-?audit|sunday audit|weekly audit/i.test(l) && !/^#/.test(l));
+  if (auditLine) health.audit = dash.clean(auditLine).slice(0, 200);
+
+  const model = dash.buildModel({
+    statusText: statusText,
+    decText: decText,
+    now: new Date().toISOString(),
+    draftDate: (req.world.config && req.world.config.draft_date) || '2026-08-22',
+    health: health,
+  });
+  res.render('admin/dashboard', { model: model, hasFiles: !!(statusText && decText) });
+}));
+
 // ---------- Module 0 confirmation screen ----------
 // The pipeline writes league_config.json from Sleeper, but nobody should trust
 // an import they have not eyeballed. Overrides live in Blobs so a correction

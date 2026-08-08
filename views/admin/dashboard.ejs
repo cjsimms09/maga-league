@@ -1,0 +1,86 @@
+<%- include('../partials/header', { title: 'Status Dashboard' }) %>
+<%
+  const esc = t => String(t == null ? '' : t)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const m = model || {};
+  const q = m.queue || [];
+  const c = m.counts || { done: 0, total: 0 };
+  const pct = c.total ? Math.round((c.done / c.total) * 100) : 0;
+  const ICON = { done: '✅', current: '🔄', queued: '⬜', gated: '🔒' };
+  const cd = m.countdown;
+  const cdText = cd == null ? '—' : (cd > 0 ? cd + ' day' + (cd === 1 ? '' : 's') + ' to draft'
+    : cd === 0 ? 'DRAFT DAY' : Math.abs(cd) + ' days since draft');
+  const h = m.health || {};
+%>
+
+<h1 class="page-title">📊 Status Dashboard</h1>
+<p class="page-sub">The phone-readable face of <code>STATUS.md</code> + <code>DECISIONS-NEEDED.md</code> — re-read on every load, so it never drifts from the files.</p>
+
+<% if (!hasFiles) { %>
+  <div class="card"><div class="body"><p class="muted">Could not read STATUS.md / DECISIONS-NEEDED.md in this deploy. The dashboard is empty until those files ship with the function bundle.</p></div></div>
+<% } %>
+
+<%# ── Countdown + progress hero ─────────────────────────────────────────── %>
+<div class="dash-hero">
+  <div class="dash-count">
+    <div class="dash-count-num<%= (cd != null && cd <= 3) ? ' hot' : '' %>"><%= cd == null ? '—' : (cd < 0 ? '✓' : cd) %></div>
+    <div class="dash-count-lbl"><%= esc(cdText) %><% if (m.draftDate) { %> · <%= esc(m.draftDate) %><% } %></div>
+  </div>
+  <div class="dash-prog">
+    <div class="dash-prog-top"><b><%= c.done %></b> of <b><%= c.total %></b> queue items done · <b><%= m.openDecisions || 0 %></b> open decision<%= (m.openDecisions === 1 ? '' : 's') %></div>
+    <div class="dash-bar"><div class="dash-bar-fill" style="width:<%= pct %>%"></div></div>
+    <div class="dash-prog-legend">
+      <span>✅ <%= c.done %> done</span><span>🔄 <%= c.current %> in flight</span>
+      <span>⬜ <%= c.queued %> queued</span><span>🔒 <%= c.gated %> gated</span>
+    </div>
+  </div>
+</div>
+
+<%# ── Health strip ──────────────────────────────────────────────────────── %>
+<div class="dash-health">
+  <span class="dash-chip">Last commit: <b><%= h.commit ? esc(h.commit) : 'unknown' %></b><% if (h.commitAt) { %> · <span class="muted"><%= esc(h.commitAt.replace('T', ' ').slice(0, 16)) %></span><% } %></span>
+  <span class="dash-chip">CI: <a href="https://github.com/cjsimms09/maga-league/actions" rel="noopener">Actions ↗</a></span>
+  <span class="dash-chip">Sunday audit: <%= h.audit ? esc(h.audit.slice(0, 80)) : 'none recorded yet' %></span>
+</div>
+
+<%# ── The queue as a progress board ─────────────────────────────────────── %>
+<div class="card">
+  <h2>🧭 The Queue <span class="sub">top → bottom · current item highlighted · 🚩 = draft-deadline order</span></h2>
+  <div class="body">
+    <ol class="dash-queue">
+      <% q.forEach(item => { %>
+        <li class="dash-q <%= item.status %><%= item.deadline ? ' deadline' : '' %>">
+          <span class="dash-q-ic"><%= ICON[item.status] || '•' %></span>
+          <span class="dash-q-lbl">
+            <%= esc(item.label) %>
+            <% if (item.deadline) { %><span class="dash-flag" title="draft-deadline order">🚩</span><% } %>
+            <% if (item.status === 'current') { %><span class="dash-now">NOW</span><% } %>
+            <% if (item.status === 'gated' && item.unblock) { %><span class="dash-unblock">🔒 unblocks: <%= esc(item.unblock) %></span><% } %>
+          </span>
+        </li>
+      <% }) %>
+      <% if (!q.length) { %><li class="muted">No queue line found in STATUS.md (looking for "Continuous queue …").</li><% } %>
+    </ol>
+  </div>
+</div>
+
+<%# ── Decisions as action cards ─────────────────────────────────────────── %>
+<div class="card">
+  <h2>🚦 Decisions <span class="sub">open items need your call · resolved kept for the record</span></h2>
+  <div class="body">
+    <div class="dash-decs">
+      <% (m.decisions || []).forEach(d => { %>
+        <div class="dash-dec <%= d.status %>">
+          <div class="dash-dec-id"><%= esc(d.id) %> <span class="dash-dec-badge <%= d.status %>"><%= d.status === 'open' ? 'ACTION' : 'resolved' %></span></div>
+          <div class="dash-dec-title"><%= esc(d.title) %></div>
+        </div>
+      <% }) %>
+      <% if (!(m.decisions || []).length) { %><p class="muted">No decisions parsed from DECISIONS-NEEDED.md.</p><% } %>
+    </div>
+  </div>
+</div>
+
+<p style="text-align:center; margin-top:1rem">
+  <a class="btn navy" href="/admin/warroom">← Back to the War Room</a>
+</p>
+<%- include('../partials/footer') %>
