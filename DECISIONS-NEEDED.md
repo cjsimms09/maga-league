@@ -190,7 +190,7 @@ current, validated model) and K0's model-agnostic half — the keep-0/1/2/3
 optimizer — is built and run now, so it is ready to re-run the instant D2 is
 answered. K0 is NOT blocked from all progress by D2.
 
-## F-2 — "Dashboard widening" scope — PROVISIONAL (judgment call, not blocking)
+## F-2 — "Dashboard widening" scope — ✅ RESOLVED (Cory ruled: collapsible full-program panel; BUILT 2026-08-08)
 
 Cory queued **"dashboard widening as a small backlog item"** without a spec. The
 term is ambiguous between at least three readings, so per the power-through rule

@@ -118,10 +118,12 @@ EXPERIMENTS = [
 # Registry cross-reference: gated draft-side experiments awaiting the
 # draft-replay -> money bridge (the last harness piece). Listed so the report is
 # honest about what is NOT yet running.
+# Experiments 1/2/19 FIRED 2026-08-08 — league-general verdicts land per run in
+# LAB-TOURNAMENT.md (replay-bridge job). What remains gated is the follow-up
+# increment, not the batch itself.
 PENDING = [
-    ("1", "Strategy tournament (money-graded, per-slot)"),
-    ("2", "Auto-adjuster policy tournament"),
-    ("19", "Archetype tournament (Cory-conditional + league-general)"),
+    ("19b", "Archetype tournament — CORY-CONDITIONAL race (my 2026 seat, keepers locked)"),
+    ("resim", "Substituted-seat playoff bracket resim (entry/title $ joins the grades)"),
 ]
 
 

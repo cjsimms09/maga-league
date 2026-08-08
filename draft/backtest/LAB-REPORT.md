@@ -1,6 +1,6 @@
 # THE LAB — report
 
-_git HEAD `68b16af937fead995256c3d5a8843572c6f3733e` · seasons 2023, 2024, 2025 · currency: E[$] under payouts.json.by_season (era-correct)_
+_git HEAD `b7e46750cda9120e5f28e7b1f61f785ea2641bdd` · seasons 2023, 2024, 2025 · currency: E[$] under payouts.json.by_season (era-correct)_
 
 ## Experiments run
 
@@ -20,6 +20,5 @@ _measurement — quantifies the lineup-decision prize the in-season experiments 
 
 ## Registered, awaiting the draft-replay → money bridge
 
-- **#1** Strategy tournament (money-graded, per-slot) — harness-ready; gated by `lab_stats.ship_rule` once the replay produces per-season rosters to money-grade.
-- **#2** Auto-adjuster policy tournament — harness-ready; gated by `lab_stats.ship_rule` once the replay produces per-season rosters to money-grade.
-- **#19** Archetype tournament (Cory-conditional + league-general) — harness-ready; gated by `lab_stats.ship_rule` once the replay produces per-season rosters to money-grade.
+- **#19b** Archetype tournament — CORY-CONDITIONAL race (my 2026 seat, keepers locked) — harness-ready; gated by `lab_stats.ship_rule` once the replay produces per-season rosters to money-grade.
+- **#resim** Substituted-seat playoff bracket resim (entry/title $ joins the grades) — harness-ready; gated by `lab_stats.ship_rule` once the replay produces per-season rosters to money-grade.

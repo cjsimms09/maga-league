@@ -1,5 +1,5 @@
 {
-  "git_head": "68b16af937fead995256c3d5a8843572c6f3733e",
+  "git_head": "b7e46750cda9120e5f28e7b1f61f785ea2641bdd",
   "seasons": [
     "2023",
     "2024",
@@ -43,16 +43,12 @@
   ],
   "pending_gated_experiments": [
     {
-      "registry": "1",
-      "title": "Strategy tournament (money-graded, per-slot)"
+      "registry": "19b",
+      "title": "Archetype tournament \u2014 CORY-CONDITIONAL race (my 2026 seat, keepers locked)"
     },
     {
-      "registry": "2",
-      "title": "Auto-adjuster policy tournament"
-    },
-    {
-      "registry": "19",
-      "title": "Archetype tournament (Cory-conditional + league-general)"
+      "registry": "resim",
+      "title": "Substituted-seat playoff bracket resim (entry/title $ joins the grades)"
     }
   ]
 }
