@@ -2870,7 +2870,22 @@
    * The health dot is the contract that makes collapsing safe: anything that
    * INVALIDATES a recommendation forces it red and force-opens the detail. Noise
    * folds away; the thing that must not be missed still shouts. */
+  /* LAYER 2 collapses on a phone and stays open on desktop, but a deliberate
+   * tap always wins — once the user opens or closes it, that choice sticks for
+   * the session. A panel that re-decides on every resize is a panel that fights
+   * you on the clock. */
+  function initLayers() {
+    const l2 = document.getElementById('layer-2');
+    if (!l2 || l2.dataset.wired) return;
+    l2.dataset.wired = '1';
+    if (window.matchMedia && window.matchMedia('(max-width: 900px)').matches) l2.open = false;
+    l2.addEventListener('toggle', function () { l2.dataset.userOpened = '1'; });
+    const l3 = document.getElementById('layer-3');
+    if (l3) l3.addEventListener('toggle', function () { l3.dataset.userOpened = '1'; });
+  }
+
   function renderSystemStrip() {
+    initLayers();
     document.body.classList.add('warroom-page');
     const host = document.getElementById('system-strip');
     if (!host || !state.data) return null;

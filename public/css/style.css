@@ -599,6 +599,34 @@ details.bal-row.me > summary { box-shadow: inset 3px 0 0 var(--gold); }
 .path-distinction { font-size: .7rem; color: var(--muted); font-style: italic;
   margin: .1rem 0 .2rem; }
 
+/* ── THE THREE-LAYER ARCHITECTURE ─────────────────────────────────────────
+   Layer 1 always visible · Layer 2 one tap · Layer 3 one more tap. NOTHING is
+   deleted — demotion changes depth, not existence, and a demoted element keeps
+   its full detail.
+
+   ONE INTERACTION EVERYWHERE: tap to expand IN PLACE, tap again to collapse.
+   Never a modal, never navigation away from the draft. Learning it once (on a
+   deviation badge) covers the whole tool. */
+.layer-sum {
+  list-style: none; cursor: pointer; user-select: none;
+  font-size: .72rem; letter-spacing: .05em; text-transform: uppercase;
+  color: var(--muted); padding: .35rem 0; margin-top: .2rem;
+  border-top: 1px solid var(--line);
+}
+.layer-sum::-webkit-details-marker { display: none; }
+.layer-sum::before { content: '▸ '; }
+details[open] > .layer-sum::before { content: '▾ '; }
+.layer-sum:hover { color: #dfe6f5; }
+.wr-layer2, .wr-layer3 { display: block; }
+
+/* On a phone Layer 2 starts CLOSED, or the rail pushes Layer 1 off the screen —
+   the exact failure the header overhaul just fixed. Desktop has the room, so
+   the rail stays open there and the tap costs nothing. */
+@media (max-width: 900px) {
+  .wr-layer2:not([data-user-opened]) > .wr-zone2 { display: none; }
+  .wr-layer2:not([data-user-opened]) > .layer-sum::before { content: '▸ '; }
+}
+
 /* THE DEVIATION BADGE. Compact by default, rationale on tap, expand IN PLACE —
    the same interaction everywhere, so learning it once covers the tool. */
 .dv { margin: .25rem 0 .35rem; }

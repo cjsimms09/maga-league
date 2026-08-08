@@ -163,6 +163,13 @@
        The compare tray is a floating overlay, so it lives outside the zones. %>
   <div class="wr-decide">
   <div class="wr-zone1">
+  <%# LAYER 1, FIRST: the LRM strip is a DEADLINE — "elite QB gone by 41"
+      changes what you do RIGHT NOW. It sat in the right rail, and then at the
+      bottom of Layer 1 at 1676px; a deadline below the fold is a deadline you
+      read after it passed. One thin line, above the decision surface. %>
+  <div class="card" id="lrm-card" style="margin-bottom:.6rem">
+    <div class="body"><div id="lrm-strip" class="lrm-strip" style="display:none"></div></div>
+  </div>
   <div class="card" style="margin-bottom:1rem; border-color:rgba(245,196,69,.5)" id="recs-card">
     <h2>🎯 Take This Player
       <span class="sub">2–4 priced directions · the ranked list is underneath</span>
@@ -206,6 +213,13 @@
   </div>
   </div><%# /wr-zone1 %>
 
+  <%# ── LAYER 2 (one tap) ─────────────────────────────────────────────────
+      Roster, byes, survival, opponents. Everything a decision LEANS on but does
+      not need in the same glance. Open by default on desktop where the rail is
+      free; collapsed on a phone where it would push Layer 1 off the screen.
+      Nothing is deleted — demotion is a change of depth, not of existence. %>
+  <details class="wr-layer2" id="layer-2" open>
+    <summary class="layer-sum">Layer 2 — roster, byes, survival, opponents</summary>
   <aside class="wr-zone2">
     <div class="card">
       <h2>My Roster <span class="sub">starting slots first</span></h2>
@@ -222,10 +236,6 @@
     </div>
 
     <div class="card">
-      <div class="body"><div id="lrm-strip" class="lrm-strip" style="display:none"></div></div>
-    </div>
-
-    <div class="card">
       <h2>Survival Odds <span class="sub" id="survival-head"></span></h2>
       <div class="body"><div id="survival"></div></div>
     </div>
@@ -236,8 +246,14 @@
       <div class="body"><div id="threat-strip" class="threat-strip"></div></div>
     </div>
   </aside><%# /wr-zone2 %>
+  </details>
   </div><%# /wr-decide %>
 
+  <%# ── LAYER 3 (one more tap) ────────────────────────────────────────────
+      Full board, adjusters, shadow standings, Know Your League, queue/paper,
+      every audit and explainer. Reachable always, in the way never. %>
+  <details class="wr-layer3" id="layer-3">
+    <summary class="layer-sum">Layer 3 — board, adjusters, audits &amp; every explainer</summary>
   <div id="shadow-strip" class="card" style="display:none;margin:0 0 1rem">
     <h2>👥 Shadow standings <span class="sub">every strategy drafts silently at your slots — the 2026 season grades them in dollars</span></h2>
     <div class="body" id="shadow-strip-body"></div>
@@ -377,6 +393,7 @@
       </table>
     </div>
   </div>
+  </details><%# /layer-3 %>
 </div>
 
 <script>
