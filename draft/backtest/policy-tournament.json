@@ -1,0 +1,238 @@
+{
+ "experiment": "2 \u2014 auto-adjuster policy tournament (\u00a75 phase shapes, \u00a76 conditional mining)",
+ "rooms": 120,
+ "seed": 20260808,
+ "control": "defaults",
+ "h1_beats_all_rivals": false,
+ "rivals": [
+  {
+   "policy": "h1_phase",
+   "edge": -31.25,
+   "ci95": [
+    -47.5,
+    -16.04
+   ],
+   "beats_defaults": false
+  },
+  {
+   "policy": "uniform_boom",
+   "edge": -48.54,
+   "ci95": [
+    -69.79,
+    -28.33
+   ],
+   "beats_defaults": false
+  },
+  {
+   "policy": "floor_heavy",
+   "edge": -119.17,
+   "ci95": [
+    -147.29,
+    -92.92
+   ],
+   "beats_defaults": false
+  }
+ ],
+ "per_phase_optima": {
+  "core": [
+   {
+    "ceiling_w": 0.0,
+    "edge": -25.83,
+    "ci95": [
+     -55.0,
+     -0.83
+    ],
+    "straddles_default": false
+   },
+   {
+    "ceiling_w": 0.25,
+    "edge": -8.33,
+    "ci95": [
+     -20.0,
+     1.04
+    ],
+    "straddles_default": true
+   },
+   {
+    "ceiling_w": 0.5,
+    "edge": 0.0,
+    "ci95": [
+     0.0,
+     0.0
+    ],
+    "straddles_default": true
+   },
+   {
+    "ceiling_w": 1.0,
+    "edge": 11.67,
+    "ci95": [
+     -5.62,
+     30.62
+    ],
+    "straddles_default": true
+   },
+   {
+    "ceiling_w": 2.0,
+    "edge": 21.25,
+    "ci95": [
+     -2.08,
+     45.42
+    ],
+    "straddles_default": true
+   }
+  ],
+  "endgame": [
+   {
+    "ceiling_w": 0.0,
+    "edge": 0.0,
+    "ci95": [
+     -18.54,
+     16.25
+    ],
+    "straddles_default": true
+   },
+   {
+    "ceiling_w": 0.5,
+    "edge": 19.38,
+    "ci95": [
+     7.5,
+     33.12
+    ],
+    "straddles_default": false
+   },
+   {
+    "ceiling_w": 1.0,
+    "edge": -31.04,
+    "ci95": [
+     -46.25,
+     -15.83
+    ],
+    "straddles_default": false
+   },
+   {
+    "ceiling_w": 2.0,
+    "edge": -31.25,
+    "ci95": [
+     -47.08,
+     -15.21
+    ],
+    "straddles_default": false
+   },
+   {
+    "ceiling_w": 3.0,
+    "edge": -33.54,
+    "ci95": [
+     -50.42,
+     -18.33
+    ],
+    "straddles_default": false
+   }
+  ]
+ },
+ "conditional_rules": [
+  {
+   "state": "rb_drain_early",
+   "setting": "h1_phase",
+   "edge": -18.97,
+   "ci95": [
+    -40.95,
+    3.02
+   ],
+   "in_minus_out": 23.77,
+   "n_rooms": 58,
+   "clears_conditional_null": false,
+   "machine_detectable": true,
+   "disposition": "LEAN \u2192 manual-override cheat sheet, never automated"
+  },
+  {
+   "state": "rb_drain_early",
+   "setting": "floor_heavy",
+   "edge": -108.19,
+   "ci95": [
+    -139.66,
+    -75.43
+   ],
+   "in_minus_out": 21.25,
+   "n_rooms": 58,
+   "clears_conditional_null": false,
+   "machine_detectable": true,
+   "disposition": "LEAN \u2192 manual-override cheat sheet, never automated"
+  },
+  {
+   "state": "rb_drain_early",
+   "setting": "uniform_boom",
+   "edge": -50.86,
+   "ci95": [
+    -81.9,
+    -22.41
+   ],
+   "in_minus_out": -4.49,
+   "n_rooms": 58,
+   "clears_conditional_null": false,
+   "machine_detectable": true,
+   "disposition": "LEAN \u2192 manual-override cheat sheet, never automated"
+  },
+  {
+   "state": "thin_board_early",
+   "setting": "uniform_boom",
+   "edge": -58.9,
+   "ci95": [
+    -94.07,
+    -27.54
+   ],
+   "in_minus_out": -20.38,
+   "n_rooms": 59,
+   "clears_conditional_null": false,
+   "machine_detectable": true,
+   "disposition": "LEAN \u2192 manual-override cheat sheet, never automated"
+  },
+  {
+   "state": "thin_board_early",
+   "setting": "h1_phase",
+   "edge": -42.8,
+   "ci95": [
+    -65.68,
+    -21.19
+   ],
+   "in_minus_out": -22.72,
+   "n_rooms": 59,
+   "clears_conditional_null": false,
+   "machine_detectable": true,
+   "disposition": "LEAN \u2192 manual-override cheat sheet, never automated"
+  },
+  {
+   "state": "thin_board_early",
+   "setting": "floor_heavy",
+   "edge": -132.2,
+   "ci95": [
+    -182.2,
+    -88.56
+   ],
+   "in_minus_out": -25.64,
+   "n_rooms": 59,
+   "clears_conditional_null": false,
+   "machine_detectable": true,
+   "disposition": "LEAN \u2192 manual-override cheat sheet, never automated"
+  }
+ ],
+ "conditional_null_p95": 50.21,
+ "state_coverage_rooms": {
+  "run_pressure": 0,
+  "rb_drain_early": 58,
+  "thin_board_early": 59
+ },
+ "degenerate_states": [
+  {
+   "state": "run_pressure",
+   "rooms_firing": 0,
+   "of": 120,
+   "why": "non-partitioning or too few rooms \u2014 a constant, not a condition; no conditional inference possible"
+  }
+ ],
+ "caveats": [
+  "v1 money proxy (proj-normal weeks, weekly-high+RS; playoff $ excluded)",
+  "paired rooms + paired weekly luck; predicted opponent slates",
+  "the null MINES CONDITIONS TOO (permuted state labels, same grid)",
+  "September quantile re-run pre-registered; nothing installs itself"
+ ]
+}

@@ -42,6 +42,13 @@ Race the named positional doctrines under OUR rules + money. **Each archetype is
 
 **Deliverables:** the archetype leaderboard BOTH ways; **league-specific verdicts called out explicitly** (does 6-pt passTD move QB timing vs consensus? does half-PPR + 10-team kill Zero-RB's edge? does the high pool reward ceiling-heavy builds?); and **the Cory-conditional winner feeds DIRECTLY into the opening script + the Paths panel's direction-naming** — path cards speak archetype language ("this is the Hero-RB branch") where the tournament shows a doctrine matters.
 
+## 🧪 EXPERIMENT 2 §5/§6 — FIRED 2026-08-08 (`POLICY-TOURNAMENT.md`): **H1 REFUTED, defaults hold**
+**§5 phase shapes — the hand-designed champion WINS.** H1 phase-shape (modest core + aggressive floor-free endgame) **−$31/season** vs defaults (CI [−48, −16] — the loss is real, not noise); uniform boom −$49; floor-heavy −$119. **H1 is refuted, and the per-phase grid says exactly why:** endgame ceiling **0.5 is BETTER (+$19, CI [7.5, 33])** but **1.0/2.0/3.0 are all WORSE with CIs excluding zero** — the endgame optimum is MODEST, not aggressive. Core: every tilt from 0.25–2.0 straddles the default (**"no evidence of a shift there"** — reported, never nudged); only ceiling-0 is worse. **Cross-experiment consistency:** exp 21 independently found the same inverted-U (moderate tilt +$55, λ=3 −$27). Two experiments, different controls, same shape.
+**§6 conditional mining — ZERO rules clear.** Best in-minus-out contrast +$23.77 vs a conditional null p95 of **$50.21** (the null mines the SAME policy×state grid over permuted state labels, as §6 requires). All rows → **LEANS on the manual-override cheat sheet, never automated.** **A methodological catch worth keeping:** the first run's states (`run_fired_early`, `endgame`) fired in **120/120 rooms** — constants, not conditions, whose "conditional" edge was the global edge wearing a state label. A **degeneracy guard** now excludes any state firing in <15% or >85% of rooms and reports it as non-partitioning; states are median-split so they genuinely partition, and the claim is in-state MINUS out-of-state, so "wins in this state" can't mean "wins, and this state happened."
+
+## 📊 EXPERIMENT 6 — FIRED 2026-08-08 (`STACK-SWEEP.md`): **stacking pays, and the first partner is the value**
+Dose 0.5× **+$67.50** (CI [45, 93]) · 1.0× +$64 · 1.5× +$56 · 2.0× +$55 · 3.0× +$56 — every dose clears, but the curve **saturates immediately**: the answer to "where does the high-pool gain stop paying for the floor cost" is that the FIRST stack partner captures it and forcing 5 same-team starters adds nothing. **Honest caveat:** the grading model applies a within-team weekly correlation (rho=0.35) that the sweep is pricing — the benefit is real *given that rho*, so this is a **LEAN pending the September quantile model's real correlation structure**, not an install.
+
 ## 🏆 EXPERIMENT 19b — CORY-CONDITIONAL VERDICT (2026-08-08, `CORY-CONDITIONAL.md`)
 **WR FEAST ENROLLED AS THE PLAN: +$86/season vs Balanced (paired bootstrap CI [70, 103]), on 1.9 contested decisions/draft; runner-up Early-QB Strike +$65 (0.5 decisions — the Lamar window); Late-QB provably burns −$61.** Zero-divergence archetypes (zero/hero/robust-RB, elite-TE) graded IDENTICAL to control — their constraints never bind from my keeper base on the predicted board, which is the method proving itself, not a bug. Machinery: 200 paired rooms (opponents ADP-softmax on the predicted board, candidate+control share room AND weekly luck), v1 money proxy (proj-normal weeks, weekly-high+RS, playoff-$ excluded), **September quantile re-run pre-registered**. Enrollment flows mechanically: `cory-conditional.json` → opening script doctrine block (done) → doctrine banner + Paths vocabulary when they wire. Regenerates with the board+slates in `draft-data.yml`.
 
@@ -50,6 +57,39 @@ Race the named positional doctrines under OUR rules + money. **Each archetype is
 
 ## EXPERIMENT 31 — PLATFORM ANCHORING (registered 2026-08-08)
 **Hypothesis (Cory):** the room over-relies on Sleeper's default board. **(1) Historical adherence** per manager, 3 seasons: deviation from platform-visible ordering vs from market (FFC, held historically). **DATA CAVEAT RESOLVED: historical Sleeper default rankings for 2023–25 are NOT archived** (we hold picks, not rankings-at-time) → adherence measures against the best platform proxy and is **confidence-capped at LEAN**, per pre-registration. Per-manager adherence sharpens every dossier ("Sadbru: 91% platform-adherent" is a prediction machine). **(2) THE 2026 DELTA BOARD — data source SHIPPED:** `build.py` now emits `sleeper_rank` per player; next artifact build carries it → FALL LIST (Sleeper < market: the room lets them slide) + REACH LIST (Sleeper > market: the room pays retail-plus; I never do), Zone-3 render + board badges ("📉 Sleeper sleeps on him, −14 vs market"), confidence-tiered. **(3) The exploit gates:** survival's opponent basis becomes Sleeper-rank ONLY if historical adherence confirms (the behavior-ADP split validated through the gates); cpu_autopick = 100% adherent, known. **(4) Pre-registered null:** where the two boards agree, adherence is unmeasurable and the experiment SAYS so; the delta lists stay useful as divergence intel either way, LEAN-tiered.
+
+## 🔥 THE GATE SWEEP (2026-08-08) — power-through applied to the Lab
+
+Cory's correction: "queued behind mocks" was never a gate. Every experiment re-audited against the FOUR legitimate gates (Cory's inputs · external events · season data that doesn't exist · draft-path SURFACE freeze). **Result: 3 experiments were wrongly held and are now FIRED; 4 more are runnable-now and auto-fire on the next Lab run; the rest name a real gate.** The standing auto-fire rule is in `the-lab.md §3b` and mechanically enforced by `lab.yml`.
+
+| # | experiment | was | now | gate (if any) |
+|---|---|---|---|---|
+| 2 §5 | phase shapes (H1 vs 3 rivals) | "queued behind mocks" ❌ | **FIRED — H1 REFUTED** | none |
+| 2 §6 | conditional policy mining | "queued behind mocks" ❌ | **FIRED — 0 rules clear** | none |
+| 6 | stack/correlation dose-response | "no wf" | **FIRED — pays, peaks 0.5×** | none |
+| 21 | mean-variance frontier | queued | FIRED (prev leg) | none |
+| 19b | Cory-conditional archetypes | queued | FIRED (prev leg) | none |
+| 1, 19 | strategy + archetype (league-general) | — | FIRED, auto-reruns behind bridge gate | none |
+| 7 | ceiling dose-response | own entry | **SUBSUMED by 21** (same knob, better design) | none |
+| 3 | slider micro-sweeps (7 weights) | "no wf" | **runnable in CI** — needs the REAL engine's 7 weights, so it rides the replay path, not the local proxy | none — next fire |
+| 4 | flex-pricing validation (D3) | "no wf" | **runnable in CI** — same reason (engine internals) | none — next fire |
+| 10 | slot-conditional strategy | "no wf" | **runnable NOW** (race from all 10 slots; pick numbers derive from the snake) | none — next fire |
+| 11 | keeper-decision retro | "no wf" | **runnable NOW** (2024/25 keeps vs the optimizer; local history) | none — next fire |
+| 12, 23 | pick-trade valuator + loser's-curse prior | "no wf" | runnable NOW (MC rooms) | none — queued behind 10/11 |
+| 25 | RB dead zone | spec | runnable NOW (local history + sim) | none — queued |
+| 26 | Konami QB premium | spec | runnable NOW (board rushing splits) | none — queued |
+| 5 | LRM threshold tuning | spec | **needs LRM modeled in the sim** — a build, not a gate | none — queued |
+| 8 | survival calibration | partial | runs behind the bridge gate (egress) | none |
+| 24 | best-ball translation | spec | needs BBM ingestion (CI egress) | none — ingestion first |
+| 27 | championship-week stacking | spec | **needs the playoff bracket resim** (a build) | none — queued behind resim |
+| 28, 29 | ambiguous backfields · availability curves | spec | runnable NOW (depth-chart + games-expected on the board) | none — queued |
+| **9, 20, 31(1)** | behavior-ADP split · herding fade · historical adherence | spec | **GATED — data that does not exist** | historical Sleeper rankings for 2023–25 are NOT archived; LEAN-capped vs proxy |
+| **22** | team-context projection layer | spec | **GATED — September quantile model** | season data / model that doesn't exist yet |
+| **13–18** | in-season slate | spec | **GATED — season data** | no 2026 weeks played |
+| **30** | recency-bias trade timing | spec | **GATED — in-season** | needs live trade market |
+| **19b-real, shadow grading** | real-slate reruns | — | **GATED — external event** | keeper designations + Sleeper draft room |
+
+**Nothing on this board is waiting on a mock, a session, or "time".**
 
 ## RESEARCH-DRIVEN slate (20–30) — literature imports, all registry-and-gates (added 2026-08-08)
 Every one enters as a **prior with sample-size credibility** and must survive OUR harness (league-conditional, money-graded, null + CV) before touching the engine — **big foreign data proposes, our data disposes.** Priority: **20, 21, 24, 25, 26 are draft-relevant** — run with the pre-mock batch if compute allows; 22, 27–30 queue behind (22 is a September quantile-build item).

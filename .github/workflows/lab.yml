@@ -26,6 +26,10 @@ on:
       - 'draft/backtest/grade.py'
       - 'draft/tests/test_bridge.py'
       - 'draft/backtest/tournament.py'
+      - 'draft/backtest/cory_conditional.py'
+      - 'draft/backtest/frontier.py'
+      - 'draft/backtest/policy_tournament.py'
+      - 'draft/backtest/stack_sweep.py'
       - 'draft/data/league_history.json'
       - 'draft/config/payouts.json'
       - '.github/workflows/lab.yml'
@@ -59,11 +63,29 @@ jobs:
       - name: Run the Lab
         run: python draft/backtest/lab.py --out draft/backtest
 
+      - name: AUTO-FIRE — every local-input experiment, every run (the standing rule)
+        # the-lab.md §3b: no experiment waits for a session to decide it's time.
+        # These need only in-repo inputs (board artifact + predicted slates +
+        # payouts), so they re-run on every Lab invocation and a dependency
+        # turning green fires them without anyone noticing it turned green.
+        run: |
+          set -e
+          python draft/backtest/cory_conditional.py --rooms 200   # exp 19b
+          python draft/backtest/frontier.py --rooms 150           # exp 21 (+ exp 2 §5 slice)
+          python draft/backtest/policy_tournament.py --rooms 120  # exp 2 §5/§6
+          python draft/backtest/stack_sweep.py --rooms 120        # exp 6
+          python draft/opening_script.py                          # inherits any new verdict
+
       - name: Commit the report
         run: |
           stamp=$(date -u +%Y-%m-%dT%H:%MZ)
           git config user.name "lab-bot"; git config user.email "actions@github.com"
-          git add draft/backtest/LAB-REPORT.md draft/backtest/lab-results.json
+          git add draft/backtest/LAB-REPORT.md draft/backtest/lab-results.json \
+                  draft/backtest/CORY-CONDITIONAL.md draft/backtest/cory-conditional.json \
+                  draft/backtest/FRONTIER.md draft/backtest/frontier.json \
+                  draft/backtest/POLICY-TOURNAMENT.md draft/backtest/policy-tournament.json \
+                  draft/backtest/STACK-SWEEP.md draft/backtest/stack-sweep.json \
+                  draft/data/opening_script.md draft/data/opening_script.json
           git commit -m "Lab report $stamp" || { echo "no change"; exit 0; }
           git pull --rebase origin main && git push || echo "push skipped"
 

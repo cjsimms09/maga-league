@@ -32,6 +32,17 @@ Standing infrastructure, not a one-off: a permanent experiment registry + the sh
 17. **Efficiency-adjusted opponent projections**: validate the matchup-exploitation layer — do observed-efficiency projections beat optimal-lineup projections at predicting real opponent scores? (Brier/MAE, three seasons of evidence)
 18. **Trade radar acceptance thresholds**: simulated trade offers priced by the engine vs replay outcomes
 
+## 3b. STANDING AUTO-FIRE RULE (added 2026-08-08 — power-through applies to the Lab)
+**No experiment ever waits for a session to decide it's time.** An experiment whose dependencies are green FIRES AUTOMATICALLY on the next Lab run. Analysis work never queues behind human events.
+
+**The ONLY legitimate gates — nothing else may hold an experiment:**
+1. **Cory's inputs** (a decision only he can make)
+2. **External events** (slot claims, keeper designations, the Sleeper draft room existing)
+3. **Season data that does not exist yet** (September quantile model; in-season experiments 13–18; shadow grading)
+4. **The draft-path code FREEZE at final mock** — and this protects the **SURFACE ONLY**. Lab, CI, and site-backlog work continue unrestricted through draft week and forever.
+
+"Queued behind mocks", "after the draft", "when there's time" are **NOT gates** and must never appear as an experiment's state. If an experiment is runnable, it runs; if it is gated, the registry names WHICH of the four gates and why. Mechanically enforced: `lab.yml`'s local-input experiments re-run every Lab invocation, and egress-dependent ones re-run behind the bridge gate — so a dependency turning green fires the experiment without anyone noticing it turned green.
+
 ## 4. Program rules (the honesty budget)
 - Pre-registration mandatory; the registry entry precedes the run
 - Multiple-comparisons discipline: with this many experiments, the null baselines are the significance floor — an "edge" the nulls reproduce is noise, reported as such

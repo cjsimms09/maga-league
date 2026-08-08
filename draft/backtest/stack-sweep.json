@@ -1,0 +1,64 @@
+{
+ "experiment": "6 \u2014 stack/correlation dose-response",
+ "rooms": 120,
+ "rho_within_team": 0.35,
+ "control_dose": 0.0,
+ "leaderboard": [
+  {
+   "dose": 0.5,
+   "edge": 67.5,
+   "ci95": [
+    44.58,
+    92.5
+   ],
+   "max_same_team": 3.19,
+   "verdict": "WINNER \u2014 dose pays"
+  },
+  {
+   "dose": 1.0,
+   "edge": 63.96,
+   "ci95": [
+    41.46,
+    88.54
+   ],
+   "max_same_team": 4.05,
+   "verdict": "WINNER \u2014 dose pays"
+  },
+  {
+   "dose": 1.5,
+   "edge": 56.25,
+   "ci95": [
+    35.0,
+    79.17
+   ],
+   "max_same_team": 5.03,
+   "verdict": "WINNER \u2014 dose pays"
+  },
+  {
+   "dose": 2.0,
+   "edge": 55.0,
+   "ci95": [
+    33.96,
+    76.88
+   ],
+   "max_same_team": 5.02,
+   "verdict": "WINNER \u2014 dose pays"
+  },
+  {
+   "dose": 3.0,
+   "edge": 55.83,
+   "ci95": [
+    34.17,
+    76.46
+   ],
+   "max_same_team": 5.02,
+   "verdict": "WINNER \u2014 dose pays"
+  }
+ ],
+ "where_it_stops_paying": 3.0,
+ "caveats": [
+  "v1 money proxy + a modeled within-team correlation (rho=0.35) \u2014 the sweep prices a benefit it actually simulates",
+  "paired rooms + paired weekly luck; predicted opponent slates",
+  "September quantile re-run pre-registered; nothing installs itself"
+ ]
+}

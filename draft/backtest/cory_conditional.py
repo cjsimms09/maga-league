@@ -88,6 +88,7 @@ def load_world():
              "proj_mean": p.get("proj_mean") or 0.0,
              "proj_ceiling": p.get("proj_ceiling") or p.get("proj_mean") or 0.0,
              "weekly_sd": p.get("weekly_sd") or 6.0,
+             "team": p.get("team") or "FA",
              "adp": p.get("adjusted_adp") or p.get("raw_adp") or 999.0}
             for p in board.get("players", []) if (p.get("proj_mean") or 0) > 0]
     my_keepers = [{"player_id": str(k["player_id"]), "name": k.get("name"),
