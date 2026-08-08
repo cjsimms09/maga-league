@@ -662,6 +662,57 @@ router.get('/status', aw(async (req, res) => {
   res.render('admin/dashboard', { model: model, hasFiles: !!(statusText && decText) });
 }));
 
+// ---------- SLOT PICKER (private, Cory-only) ----------
+// A live tool while draft-spot claims land on the shared /draft page: for every
+// still-open slot, Cory's resulting pick numbers + Bowers-class survival + turn
+// structure, ranked. READ-ONLY — it never writes the claim doc and never touches
+// the shared /draft page (which stays exactly as-is for every other owner). The
+// whole /admin router is already requireCommissioner (Cory is the sole
+// commissioner); the explicit owner guard below is defense-in-depth so this can
+// never render for anyone else even if a second commissioner is ever added.
+function requireCory(req, res, next) {
+  const me = req.owner || {};
+  if (me.is_commissioner === true) return next();
+  return res.status(403).send('Not available.');
+}
+
+async function slotPickerModel(req) {
+  const fs = require('fs');
+  const path = require('path');
+  const slotpicker = require('../slotpicker');
+  const season = H.currentSeason(req.world.seasons);
+  let artifact = {};
+  try {
+    artifact = JSON.parse(fs.readFileSync(path.join(__dirname, '..', '..', 'public', 'draft_data.json'), 'utf8'));
+  } catch (e) { artifact = {}; }
+  const doc = await getDoc(`draft:${season.year}`, { order: [] });
+  const owners = req.world.owners;
+  const nameOf = id => (H.ownerById(owners, id) || {}).name || ('Owner ' + id);
+  // Keeper rounds for MY seat: from the artifact's forfeited count for my keepers
+  // (Cory keeps 3 → rounds 1-3). Falls back to 3.
+  const forfeited = ((artifact.pick_order || {}).forfeited || []);
+  const myForfeits = forfeited.length ? Math.max.apply(null, forfeited.map(f => Number(f.cost_round) || 0)) : 3;
+  return slotpicker.analyze({
+    artifact: artifact,
+    claimOrder: doc.order || [],
+    myOwnerId: req.owner.id,
+    keeperRounds: myForfeits || 3,
+    ownerName: nameOf,
+    season: season.year,
+  });
+}
+
+router.get('/slot-picker', requireCory, aw(async (req, res) => {
+  const model = await slotPickerModel(req);
+  res.render('admin/slot-picker', { model });
+}));
+
+// Polled by the page so it re-ranks live as claims land — same model, JSON.
+router.get('/slot-picker/state.json', requireCory, aw(async (req, res) => {
+  const model = await slotPickerModel(req);
+  res.json(model);
+}));
+
 // ---------- Module 0 confirmation screen ----------
 // The pipeline writes league_config.json from Sleeper, but nobody should trust
 // an import they have not eyeballed. Overrides live in Blobs so a correction

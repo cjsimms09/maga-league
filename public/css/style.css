@@ -1997,3 +1997,31 @@ table .num.zero { color: var(--muted); font-weight: 400; }
 .dash-dec-badge.open { background: rgba(255,70,85,.85); color: #0b1020; }
 .dash-dec-badge.resolved { background: rgba(47,213,118,.2); color: #8ef0b6; }
 .dash-dec-title { font-size: .8rem; color: #c7cddd; margin-top: .3rem; line-height: 1.35; }
+
+/* ---------- SLOT PICKER (private, Cory-only) ---------- */
+.sp-rec { display:flex; gap:.7rem; align-items:stretch; background:rgba(245,196,69,.1);
+  border:1px solid rgba(245,196,69,.55); border-radius:14px; padding:.7rem .8rem; margin-bottom:.9rem; box-shadow:var(--glow-gold); }
+.sp-rec-tag { flex:0 0 auto; align-self:center; font-family:var(--font-display); font-weight:900; font-size:.62rem;
+  letter-spacing:.1em; background:var(--gold,#f5c445); color:var(--navy-deep,#0b1020); padding:.25rem .45rem; border-radius:5px; }
+.sp-rec-slot { font-family:var(--font-display); font-weight:900; color:#fff; font-size:1.15rem; }
+.sp-rec-why { color:#dfe6f5; font-size:.84rem; margin-top:.15rem; }
+.sp-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(230px,1fr)); gap:.6rem; }
+.sp-card { border:1px solid var(--line); border-radius:12px; padding:.6rem .7rem; background:rgba(255,255,255,.03); }
+.sp-card.top { border-color:rgba(245,196,69,.6); background:rgba(245,196,69,.07); }
+.sp-card-h { display:flex; align-items:baseline; gap:.4rem; }
+.sp-rank { font-family:var(--font-display); font-weight:900; color:var(--gold-bright,#f5c445); }
+.sp-slot { font-weight:800; color:#fff; }
+.sp-first { margin-top:.3rem; color:#dfe6f5; font-size:.9rem; }
+.sp-first b { color:#fff; }
+.sp-b2b { font-size:.62rem; font-weight:800; background:rgba(47,213,118,.2); color:#8ef0b6; padding:.05rem .3rem; border-radius:4px; margin-left:.25rem; }
+.sp-line { color:var(--muted); font-size:.75rem; margin-top:.2rem; }
+.sp-turn { color:#9fb0d8; font-style:italic; }
+.sp-taken { margin-top:1rem; }
+.sp-taken-h { font-size:.72rem; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin-bottom:.35rem; }
+.sp-taken-chip { display:inline-block; opacity:.5; font-size:.74rem; background:rgba(255,255,255,.05);
+  border:1px solid var(--line); border-radius:7px; padding:.2rem .45rem; margin:.15rem .3rem .15rem 0; text-decoration:line-through; }
+.sp-claimed { border:1px solid rgba(47,213,118,.5); background:rgba(47,213,118,.08); border-radius:14px; padding:1rem; text-align:center; }
+.sp-claimed-h { font-family:var(--font-display); font-size:1.2rem; color:#fff; }
+.sp-claimed-p { color:#dfe6f5; margin-top:.4rem; }
+.sp-claimed-n { font-size:.76rem; margin-top:.5rem; }
+.sp-foot { font-size:.74rem; margin-top:1rem; }

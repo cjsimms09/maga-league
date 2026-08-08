@@ -1,0 +1,92 @@
+<%- include('../partials/header', { title: 'Slot Picker' }) %>
+
+<h1 class="page-title">🎯 Slot Picker <span class="sub" style="font-size:.6em">private — your eyes only</span></h1>
+<p class="page-sub">Claims are landing live on the shared draft page. This ranks the still-open slots for <b>your</b> pick. Re-ranks itself as each claim lands.</p>
+
+<div id="sp-root" data-provenance="<%= model.provenance %>" data-caveat="<%= model.caveat %>"></div>
+
+<p class="sp-foot muted">
+  <span id="sp-prov"></span> · pick numbers are provisional — <span id="sp-caveat"></span>.
+  This tool is private to you and changes nothing on the shared claim page.
+</p>
+
+<p style="text-align:center; margin-top:1rem">
+  <a class="btn navy" href="/admin/warroom">← War Room</a>
+  <a class="btn ghost" href="/draft">Shared claim page →</a>
+</p>
+
+<script>
+  var SP_INITIAL = <%- JSON.stringify(model) %>;
+
+  function el(tag, cls, html) { var e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
+  function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+  function render(m) {
+    var root = document.getElementById('sp-root');
+    root.innerHTML = '';
+    document.getElementById('sp-prov').textContent = m.provenance;
+    document.getElementById('sp-caveat').textContent = m.caveat;
+
+    // EPHEMERAL: once you've claimed, collapse to a confirmation of your slot.
+    if (m.claimed) {
+      var card = el('div', 'sp-claimed');
+      card.appendChild(el('div', 'sp-claimed-h', '✅ You claimed <b>slot ' + m.myClaim + '</b>'));
+      card.appendChild(el('div', 'sp-claimed-p', 'Your picks: <b>' + (m.myClaimPicks || []).slice(0, 8).join(', ') + '…</b>'));
+      card.appendChild(el('div', 'sp-claimed-n muted', 'This will retire into the War Room provenance strip once Sleeper mirrors the draft order.'));
+      root.appendChild(card);
+      return;
+    }
+
+    // Recommendation, pinned.
+    if (m.recommendation) {
+      var rec = el('div', 'sp-rec');
+      rec.innerHTML = '<div class="sp-rec-tag">TAKE THIS</div><div class="sp-rec-body">'
+        + '<div class="sp-rec-slot">Slot ' + m.recommendation.slot + '</div>'
+        + '<div class="sp-rec-why">' + esc(m.recommendation.reason) + '</div></div>';
+      root.appendChild(rec);
+    }
+
+    // Open-slot cards, ranked.
+    var grid = el('div', 'sp-grid');
+    (m.open || []).forEach(function (c) {
+      var card = el('div', 'sp-card' + (c.rank === 1 ? ' top' : ''));
+      var surv = c.bowersSurvival != null ? (Math.round(c.bowersSurvival * 100) + '% ' + esc(c.bowersName)) : '—';
+      var nb = function (n) { return n ? (n.claimed ? esc(n.name) : 'open (slot ' + n.slot + ')') : '—'; };
+      card.innerHTML =
+        '<div class="sp-card-h"><span class="sp-rank">#' + c.rank + '</span> <span class="sp-slot">Slot ' + c.slot + '</span></div>'
+        + '<div class="sp-first">first pick <b>' + c.first + '</b>' + (c.backToBack ? ' <span class="sp-b2b">B2B ' + c.first + ',' + c.second + '</span>' : '') + '</div>'
+        + '<div class="sp-line">picks: ' + (c.picks || []).slice(0, 5).join(', ') + '…</div>'
+        + '<div class="sp-line">elite TE: <b>' + surv + '</b> to your 1st</div>'
+        + '<div class="sp-line sp-turn">' + esc(c.turnNote) + '</div>'
+        + '<div class="sp-line sp-adj">neighbors: ' + nb(c.before) + ' | ' + nb(c.after) + '</div>';
+      grid.appendChild(card);
+    });
+    root.appendChild(grid);
+
+    // Taken slots, grayed, with who took them.
+    if ((m.taken || []).length) {
+      var taken = el('div', 'sp-taken');
+      taken.innerHTML = '<div class="sp-taken-h">Taken</div>' + m.taken.map(function (t) {
+        return '<span class="sp-taken-chip">slot ' + t.slot + ' — ' + esc(t.ownerName) + '</span>';
+      }).join('');
+      root.appendChild(taken);
+    }
+  }
+
+  render(SP_INITIAL);
+
+  // LIVE: re-rank as claims land. Poll the JSON state; on change, re-render.
+  var lastSig = JSON.stringify(SP_INITIAL.taken) + '|' + SP_INITIAL.claimed;
+  function poll() {
+    fetch('/admin/slot-picker/state.json', { credentials: 'same-origin' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (m) {
+        if (!m) return;
+        var sig = JSON.stringify(m.taken) + '|' + m.claimed;
+        if (sig !== lastSig) { lastSig = sig; render(m); }
+      })
+      .catch(function () { /* transient; next tick retries */ });
+  }
+  setInterval(poll, 15000);
+</script>
+<%- include('../partials/footer') %>
