@@ -9,29 +9,35 @@
 
 <div id="warroom" style="display:none">
 
-  <%# ── Before you draft ──────────────────────────────────────────────────
-      Live status, not a static list. A checklist you have to verify by hand is
-      one nobody runs on the morning of the draft. %>
-  <details class="card checklist" id="checklist">
-    <summary>✅ Pre-draft checklist <span class="sub" id="check-count"></span></summary>
-    <div class="body"><div id="check-items"></div></div>
-  </details>
+  <%# ── ONE STATUS STRIP ──────────────────────────────────────────────────
+      Six stacked banners used to push the decision surface below the fold on a
+      phone. The tool must START at the top of the screen. Everything that was
+      a banner is now one line — state · seat · board freshness · health dot —
+      with the detail one tap away.
 
-  <div id="provenance" style="display:none"></div>
-  <div id="drift-note" style="display:none"></div>
-  <div id="rehearsal-watermark" class="rehearsal-watermark" style="display:none">REHEARSAL — not the real draft</div>
-  <div id="slot-watermark" class="slot-watermark" style="display:none">Slot unverified — pick numbers &amp; timing are provisional until Sleeper confirms your seat</div>
-  <%# B7 compare tray — a floating dollar-gap overlay; tap ⚖️ on any two players. %>
-  <div id="compare-tray" class="compare-tray" style="display:none"></div>
-  <div id="slot-note" style="display:none"></div>
-  <div id="import-note" style="display:none"></div>
-  <div id="override-count" style="display:none"></div>
-  <div id="mock-note" style="display:none"></div>
-  <div id="rehearsal-keeper-note" style="display:none"></div>
-  <div id="keeper-lock-note" style="display:none"></div>
-  <div id="reconcile-note" style="display:none"></div>
-  <div id="run-banner" class="roast-banner" style="display:none"></div>
-
+      The health dot is the contract: it goes RED and force-opens the detail on
+      anything that invalidates a recommendation (keeper mismatch, unusable ADP,
+      an unverified slot). Collapsing noise is only safe if the thing that must
+      not be missed can still shout. %>
+  <div id="system-strip" class="system-strip" style="display:none"></div>
+  <details class="system-details" id="system-details">
+    <summary>Details &amp; checklist</summary>
+    <div class="sd-body">
+      <div id="check-count-inline" class="sd-count"></div>
+      <div id="check-items"></div>
+      <div id="provenance" style="display:none"></div>
+      <div id="drift-note" style="display:none"></div>
+      <div id="slot-note" style="display:none"></div>
+      <div id="import-note" style="display:none"></div>
+      <div id="override-count" style="display:none"></div>
+      <div id="mock-note" style="display:none"></div>
+      <div id="rehearsal-keeper-note" style="display:none"></div>
+      <div id="keeper-lock-note" style="display:none"></div>
+      <div id="reconcile-note" style="display:none"></div>
+      <%# SETUP + CONNECT live here now. "On the clock" already renders in the
+          pinned status bar, and slot/sync/nav are pre-draft controls touched
+          once — so they sit one tap away rather than occupying the fold that
+          the decision surface needs. %>
   <div class="hero" style="margin-bottom:1rem">
     <div class="hero-item">
       <span class="hero-label">On the Clock</span>
@@ -68,6 +74,25 @@
       <span class="sync-status" id="sync-status">Not connected — manual entry works fine.</span>
     </div>
   </div>
+    </div>
+  </details>
+  <%# The run banner stays OUT of the fold-away: a positional run is live
+      decision input, not status. %>
+  <div id="run-banner" class="roast-banner" style="display:none"></div>
+  <%# Retained hosts: the checklist summary is now inline in the details panel,
+      but these ids are still written to by renderChecklist(). Keeping them as
+      hidden spans is cheaper and safer than threading null-guards through a
+      path that runs on every render during a live draft. %>
+  <span id="checklist" style="display:none"></span>
+  <span id="check-count" style="display:none"></span>
+  <%# B7 compare tray — a floating dollar-gap overlay; tap ⚖️ on any two players. %>
+  <div id="compare-tray" class="compare-tray" style="display:none"></div>
+  <%# Watermarks retained as hidden hosts: their CONTENT now renders in the
+      strip, but renderRehearsalWatermark()/renderSlotWatermark() still drive
+      the body classes that mark slot-derived numbers as provisional. %>
+  <div id="rehearsal-watermark" class="rehearsal-watermark" style="display:none">REHEARSAL — not the real draft</div>
+  <div id="slot-watermark" class="slot-watermark" style="display:none">Slot unverified — pick numbers &amp; timing are provisional until Sleeper confirms your seat</div>
+
 
   <%# ── One answer ────────────────────────────────────────────────────────
       Draft day is sixty seconds and a room full of noise. Everything below

@@ -635,6 +635,7 @@
     renderRuns();
     renderPicksFeed();
     renderManagers();
+    try { renderSystemStrip(); } catch (e) { /* never blocks the clock */ }
     try { renderLegality(); } catch (e) { /* never blocks the clock */ }
     // Last: the pinned offsets depend on the heights everything above just set
     // (the banner grows a line when a doctrine switches, the watermarks appear
@@ -1455,6 +1456,8 @@
 
     const done = items.filter(i => i.ok).length;
     $('#check-count').textContent = done + ' of ' + items.length + ' ready';
+    const inline = document.getElementById('check-count-inline');
+    if (inline) inline.textContent = 'Pre-draft checklist — ' + done + ' of ' + items.length + ' ready';
     host.innerHTML = items.map(i =>
       '<div class="check-item ' + (i.ok ? 'ok' : 'todo') + '">'
       + '<span>' + (i.ok ? '\u2705' : '\u2b1c') + '</span>'
@@ -2196,7 +2199,11 @@
     var on = hasSlot && !state.slotVerified && !state.mockMode;
     var wm = document.getElementById('slot-watermark');
     if (wm) {
-      wm.style.display = on ? '' : 'none';
+      // HEADER OVERHAUL: the strip already carries "slot unverified", so the
+      // full-width bar is pure duplication costing ~70px of the fold. The CORNER
+      // RIBBON (body.slot-unverified) stays — it is the thing that marks every
+      // slot-derived number as provisional, and it costs no vertical space.
+      wm.style.display = 'none';
       // A site-claimed slot is provisional but not a wild guess — say so, so the
       // banner doesn't cry "unverified" over a real claim on our own backend.
       if (on) {
@@ -2643,6 +2650,60 @@
   /* THE LEGALITY STRIP — the running guarantee, rendered every pick.
    * Mock #1 ended without a defense and nothing on screen ever said so. This
    * asserts the state continuously, so it can visibly stop being true. */
+  /* THE ONE STATUS STRIP. Six banners collapsed into a line the tool can start
+   * below, with the detail one tap away.
+   *
+   * The health dot is the contract that makes collapsing safe: anything that
+   * INVALIDATES a recommendation forces it red and force-opens the detail. Noise
+   * folds away; the thing that must not be missed still shouts. */
+  function renderSystemStrip() {
+    document.body.classList.add('warroom-page');
+    const host = document.getElementById('system-strip');
+    if (!host || !state.data) return null;
+    const d = state.data;
+    const prov = d.provenance || {};
+    const ageH = d.built_at ? (Date.now() - new Date(d.built_at)) / 3600000 : null;
+    const seat = refreshSeat();
+
+    // RED = a recommendation cannot be trusted. AMBER = trust it less.
+    const red = [];
+    const amber = [];
+    if (state.reconcile && state.reconcile.halt) red.push('keeper slate mismatch');
+    if ((prov.adp || {}).warning) red.push('ADP is fixture/offline');
+    if (typeof prov.value_coverage === 'number' && prov.value_coverage < 0.9) red.push('thin projections');
+    if (!seat || !seat.resolved) red.push('seat unresolved');
+    else if (seat.source === 'assumed') amber.push('seat assumed');
+    else if (!state.mockMode && !state.slotVerified) amber.push('slot unverified');
+    if (state.keeperLock && !state.keeperLock.locked && !state.mockMode) amber.push('slate unconfirmed');
+    if (ageH != null && ageH >= 48) amber.push('board ' + Math.round(ageH) + 'h old');
+    if ((prov.adp || {}).fallback_count_in_play > 0) amber.push(prov.adp.fallback_count_in_play + ' ADP guessed');
+
+    const tone = red.length ? 'bad' : amber.length ? 'warn' : 'ok';
+    const dot = red.length ? '🔴' : amber.length ? '🟡' : '🟢';
+    const mode = state.mockMode ? 'REHEARSAL' : (state.sync ? 'LIVE' : 'MANUAL');
+    const age = ageH == null ? 'never built'
+      : ageH < 1 ? 'board fresh' : 'board ' + Math.round(ageH) + 'h';
+    const issues = red.concat(amber);
+
+    host.style.display = 'flex';
+    host.className = 'system-strip ' + tone;
+    host.innerHTML =
+      '<span class="ss-mode ' + mode.toLowerCase() + '">' + mode + '</span>'
+      + '<span class="ss-seat">' + escapeHtml(seat ? DraftSeat.describe(seat) : 'seat —') + '</span>'
+      + '<span class="ss-age">' + escapeHtml(age) + '</span>'
+      + '<span class="ss-dot" title="' + escapeHtml(issues.join(' · ') || 'all clear') + '">'
+      + dot + (issues.length ? ' <span class="ss-issues">' + escapeHtml(issues[0])
+        + (issues.length > 1 ? ' +' + (issues.length - 1) : '') + '</span>' : '') + '</span>';
+
+    // A red state force-opens the detail ONCE. Re-collapsing is the user's
+    // call after that — a panel that refuses to close is its own problem.
+    const det = document.getElementById('system-details');
+    if (det && red.length && !state.systemForced) { det.open = true; state.systemForced = true; }
+    if (!red.length) state.systemForced = false;
+    state.systemHealth = { tone: tone, red: red, amber: amber };
+    return state.systemHealth;
+  }
+
   function renderLegality() {
     const host = document.getElementById('legality-strip');
     if (!host || typeof DraftLegality === 'undefined' || !state.data) return null;

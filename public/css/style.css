@@ -2148,6 +2148,43 @@ table .num.zero { color: var(--muted); font-weight: 400; }
 .pick-reach { color: #ffb4bb; font-size: .74rem; }
 .pick-fell { color: #8ef0b6; font-size: .74rem; }
 
+/* On a phone the page title and subtitle cost ~90px above the decision
+   surface and say nothing the nav does not — the nav pill already reads WAR
+   ROOM. Reclaimed for the fold; both stay on desktop where the space is free. */
+@media (max-width: 640px) {
+  body.warroom-page .page-title { font-size: 1rem; margin: .2rem 0 .1rem; }
+  body.warroom-page .page-sub { display: none; }
+}
+
+/* ONE STATUS STRIP. Six stacked banners collapsed to a line, so the decision
+   surface starts at the top of the screen instead of below the fold. */
+.system-strip {
+  display: flex; align-items: center; gap: .7rem; flex-wrap: wrap;
+  padding: .35rem .8rem; margin-bottom: .3rem; border-radius: 10px;
+  font-size: .78rem; background: rgba(11,16,32,.9);
+  border: 1px solid var(--line); color: #c7cddd;
+}
+.system-strip.warn { border-color: rgba(245,196,69,.5); }
+.system-strip.bad { border-color: rgba(255,70,85,.7); }
+.ss-mode { font-size: .62rem; font-weight: 900; letter-spacing: .1em;
+  padding: .1rem .4rem; border-radius: 4px; background: rgba(255,255,255,.1); }
+.ss-mode.rehearsal { background: var(--gold,#f5c445); color: var(--navy-deep,#0b1020); }
+.ss-mode.live { background: rgba(47,213,118,.3); color: #b9f5d3; }
+.ss-seat { color: #dfe6f5; }
+.ss-age { color: var(--muted); }
+.ss-dot { margin-left: auto; white-space: nowrap; }
+.ss-issues { color: var(--muted); font-size: .72rem; }
+.system-strip.bad .ss-issues { color: #ffb4bb; }
+
+.system-details { margin-bottom: .6rem; }
+.system-details > summary { cursor: pointer; font-size: .74rem; color: var(--muted);
+  padding: .2rem 0; list-style: none; }
+.system-details > summary::-webkit-details-marker { display: none; }
+.system-details > summary::before { content: '▸ '; }
+.system-details[open] > summary::before { content: '▾ '; }
+.sd-body { padding: .4rem 0; }
+.sd-count { font-size: .78rem; font-weight: 700; color: #dfe6f5; margin-bottom: .4rem; }
+
 /* In-page typed confirm. Replaces window.prompt, which Chrome can suppress —
    a confirmation the browser can swallow is a trapdoor, not a safety feature. */
 .end-confirm { position: fixed; inset: 0; z-index: 200; display: flex;
