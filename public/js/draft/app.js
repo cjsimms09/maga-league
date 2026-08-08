@@ -505,6 +505,7 @@
     renderLists();
     renderQueue();
     renderThreats();
+    renderThreatStrip();
     renderBoard();
     renderRoster();
     renderPlan();
@@ -902,6 +903,31 @@
   }
 
   /* ── Who picks before you, and what they are likely to do ───────────────── */
+  /* §2(d) — the CONDENSED opponent strip for Zone 2: each seat between now and my
+   * next pick, their top-2 likely picks and one tendency line. Same threatBoard
+   * data as the full Zone-3 card, compressed for the rail. */
+  function renderThreatStrip() {
+    const host = $('#threat-strip');
+    if (!host) return;
+    const t = E.threatBoard(context());
+    if (!t.rows.length) {
+      host.innerHTML = '<p class="muted" style="margin:0; font-size:.78rem">On the clock — nobody picks before your next turn.</p>';
+      return;
+    }
+    host.innerHTML = '<div class="ts-head">' + t.picksUntilNext + ' pick'
+      + (t.picksUntilNext === 1 ? '' : 's') + ' before your turn</div>'
+      + t.rows.slice(0, 6).map(r => {
+        const who = r.manager ? escapeHtml(r.manager) : 'Seat ' + r.team_slot;
+        const names = r.likely.length
+          ? r.likely.slice(0, 2).map(l => escapeHtml(l.name)).join(', ')
+          : '<span class="muted">nothing stands out</span>';
+        const tell = r.tells.length ? escapeHtml(r.tells[0].text) : '';
+        return '<div class="ts-row"><span class="ts-seat"><b>' + r.pick_no + '</b> ' + who + '</span>'
+          + '<span class="ts-likely">' + names + '</span>'
+          + (tell ? '<span class="ts-tell">' + tell + '</span>' : '') + '</div>';
+      }).join('');
+  }
+
   function renderThreats() {
     const host = $('#threats');
     if (!host) return;

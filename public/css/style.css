@@ -2139,3 +2139,12 @@ table .num.zero { color: var(--muted); font-weight: 400; }
 .sb-conn.off { color: var(--muted); }
 .sb-mock { margin-left: auto; font-weight: 900; font-size: .64rem; letter-spacing: .1em;
   color: var(--navy-deep,#0b1020); background: var(--gold,#f5c445); padding: .1rem .4rem; border-radius: 4px; }
+
+/* §2(d) — condensed opponent strip (Zone 2). Compact: seat · likely · tell. */
+.threat-strip .ts-head { font-size: .72rem; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin-bottom: .4rem; }
+.ts-row { padding: .35rem 0; border-bottom: 1px solid rgba(255,255,255,.05); }
+.ts-row:last-child { border-bottom: none; }
+.ts-seat { display: block; font-size: .82rem; color: #dfe6f5; }
+.ts-seat b { color: #fff; font-variant-numeric: tabular-nums; }
+.ts-likely { display: block; font-size: .78rem; color: #c7cddd; }
+.ts-tell { display: block; font-size: .72rem; color: var(--muted); font-style: italic; margin-top: .1rem; }
