@@ -25,6 +25,7 @@ on:
       - 'draft/backtest/cli.py'
       - 'draft/backtest/grade.py'
       - 'draft/tests/test_bridge.py'
+      - 'draft/backtest/tournament.py'
       - 'draft/data/league_history.json'
       - 'draft/config/payouts.json'
       - '.github/workflows/lab.yml'

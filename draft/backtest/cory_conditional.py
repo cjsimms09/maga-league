@@ -86,6 +86,7 @@ def load_world():
     pool = [{"player_id": str(p["player_id"]), "name": p.get("name"),
              "position": p.get("position"), "vorp": p.get("vorp") or 0.0,
              "proj_mean": p.get("proj_mean") or 0.0,
+             "proj_ceiling": p.get("proj_ceiling") or p.get("proj_mean") or 0.0,
              "weekly_sd": p.get("weekly_sd") or 6.0,
              "adp": p.get("adjusted_adp") or p.get("raw_adp") or 999.0}
             for p in board.get("players", []) if (p.get("proj_mean") or 0) > 0]

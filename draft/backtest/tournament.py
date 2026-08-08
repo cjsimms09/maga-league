@@ -196,12 +196,36 @@ def main():
     diverg = divergence_vs_control(dump)
 
     rng = random.Random(SEED)
-    null_dist = [null_best_edge(dump, weekly, pos, history, payouts, rng)
-                 for _ in range(args.null_draws)]
+    null_dist = sorted(null_best_edge(dump, weekly, pos, history, payouts, rng)
+                       for _ in range(args.null_draws))
     verd, p95 = verdicts(edges, null_dist, graded_seasons)
+
+    def null_pctile(x):
+        below = sum(1 for v in null_dist if v < x)
+        return round(100.0 * below / len(null_dist), 0) if null_dist else 0
+
+    # Sub-threshold structure: WHERE each candidate diverges from the control —
+    # the position mix of its divergent picks, per season, so "did the same
+    # close-call types recur" is answerable from the report.
+    div_positions = {}
+    for season, sd in dump.items():
+        posmap = pos.get(season) or {}
+        ctrl_ra = (sd.get("roster_aware") or {}).get(CONTROL, {})
+        for cand, ra in (sd.get("roster_aware") or {}).items():
+            if cand == CONTROL:
+                continue
+            mix = {}
+            for rid, ids in ra.items():
+                for pid in set(ids) - set(ctrl_ra.get(rid, [])):
+                    pp = posmap.get(str(pid)) or "?"
+                    mix[pp] = mix.get(pp, 0) + 1
+            div_positions.setdefault(cand, {})[season] = mix
 
     result = {
         "control": CONTROL, "graded_seasons": graded_seasons,
+        "null_distribution_pctiles": {str(q): LS.percentile(null_dist, q / 100.0)
+                                      for q in (50, 75, 90, 95, 99)},
+        "divergent_pick_positions": div_positions,
         "null_draws": args.null_draws, "null_p95": round(p95, 2), "seed": SEED,
         "verdicts": verd, "divergence_vs_control": diverg,
         "caveats": [
@@ -224,6 +248,38 @@ def main():
         ps = " · ".join(f"{s}:{v['per_season'].get(s, 0):+.0f}" for s in graded_seasons)
         dv = " · ".join(f"{s}:{diverg.get(cand, {}).get(s, 0)}" for s in graded_seasons)
         L.append(f"| {cand} | {v['pooled_edge']:+.2f} | {ps} | {dv} | {v['verdict']} |")
+    # --- SUB-THRESHOLD STRUCTURE REPORT (descriptive addendum — NOT a verdict change) ---
+    L += ["", "## Sub-threshold structure (descriptive — verdicts unchanged)", "",
+          "| candidate | pooled $ | null pctile | both seasons + ? | divergent-pick mix | flag |",
+          "|---|---|---|---|---|---|"]
+    watch = []
+    for cand, v in ranked:
+        both_pos = (len(graded_seasons) >= 2
+                    and all(v["per_season"].get(s2, 0.0) > 0 for s2 in graded_seasons))
+        pct = null_pctile(v["pooled_edge"])
+        mixes = div_positions.get(cand, {})
+        mix_txt = " · ".join(
+            f"{s2}:" + ",".join(f"{p2}×{n2}" for p2, n2 in sorted(m.items(), key=lambda x: -x[1])[:3])
+            for s2, m in mixes.items() if m) or "—"
+        # A repeatable pattern = divergence in BOTH seasons with a shared top position.
+        tops = [max(m, key=m.get) for m in mixes.values() if m]
+        repeatable = len(tops) >= 2 and len(set(tops)) == 1
+        flagged = both_pos and repeatable and not v["verdict"].startswith("CANDIDATE")
+        if flagged:
+            watch.append(cand)
+        L.append(f"| {cand} | {v['pooled_edge']:+.2f} | {pct:.0f}th | "
+                 f"{'YES' if both_pos else 'no'} | {mix_txt} | "
+                 f"{'**WATCH → Phase-H shadows**' if flagged else ('CANDIDATE' if v['verdict'].startswith('CANDIDATE') else '—')} |")
+    L += ["",
+          f"**WATCH flags ({len(watch)}):** " + (", ".join(watch) if watch else "none") + " — "
+          "a WATCH buys a Phase-H shadow seat, never weights; the live 2026 season is the "
+          "legitimate tiebreaker for sub-threshold leans (new data, not re-tortured old data). "
+          "**The install rule is untouched: nothing enters the engine below the pre-registered bar.**", "",
+          f"**Honesty line:** {len(ranked)} candidates × 2 seasons means ~{len(ranked) // 4} "
+          "would show both-season-positive sign by PURE CHANCE (independent coin-flip signs "
+          "under the null → 25% each); several candidates also tie the control exactly "
+          "(zero divergence), shrinking the effective field. Read the YES column with that base rate.", ""]
+    result["watch_flags"] = watch
     L += ["",
           "**Reading the divergence column (pre-registered from the shadows' clear-board "
           "finding):** edges live in the handful of contested decisions per draft — a "

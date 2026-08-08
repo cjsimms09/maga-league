@@ -217,3 +217,20 @@ Queue and Decisions cards side by side on desktop (≥900px `.dash-cols` grid),
 phone-stacked below. (b) is a redesign better folded into the data-spine dashboard
 work and is **parked** for a one-word ruling ((b)/(c) if you also want the
 content-widen). Not blocking anything.
+
+## D9 — Ceiling-weight install (experiment 21's winner) — YOUR CALL, evidence attached
+
+The frontier race cleared its pre-registered in-experiment gate: **moderate
+ceiling tilt is worth ~+$45–56/season** on the Cory-conditional paired rooms
+(flat λ=0.5 CI [33,78]; early-phase λ=1 CI [35,79]), heavy tilt provably burns
+money (λ=3: −$27, CI excludes 0), and the effect concentrates in EARLY rounds
+(the late-ramp hypothesis is refuted — Upside-Late's shape is backwards for our
+money). **Why I did NOT install:** the program's install bar demands held-out
+real-season evidence; this ran in the simulated-room proxy (v1 money model).
+It is a STRONG LEAN, not a certified edge.
+
+**Recommendation:** a conservative bump of the composite's ceiling slider
+(0.5 → ~0.65–0.7, calibrated so pick-34's top-5 reorders only where the frontier
+says it should), installed through the normal cited-constant path, robot green,
+before mock #2 — so the mocks rehearse the tilt. September's quantile re-run
+either certifies or reverts it. One word (install / hold) and it lands.

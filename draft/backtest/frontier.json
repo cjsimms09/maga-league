@@ -1,0 +1,94 @@
+{
+ "experiment": "21 mean-variance frontier point (+ exp 2 phase-shape slice)",
+ "rooms": 150,
+ "seed": 20260808,
+ "control": {
+  "weekly_mean": 109.9,
+  "weekly_sd": 36.6
+ },
+ "leaderboard": [
+  {
+   "candidate": "early_l1.0",
+   "mean_edge": 56.33,
+   "ci95": [
+    35.17,
+    79.0
+   ],
+   "weekly_mean": 120.1,
+   "weekly_sd": 38.9,
+   "verdict": "WINNER \u2014 install via the gates (slider change, cited)"
+  },
+  {
+   "candidate": "flat_l0.5",
+   "mean_edge": 55.5,
+   "ci95": [
+    33.33,
+    78.0
+   ],
+   "weekly_mean": 119.5,
+   "weekly_sd": 38.9,
+   "verdict": "WINNER \u2014 install via the gates (slider change, cited)"
+  },
+  {
+   "candidate": "flat_l0.25",
+   "mean_edge": 43.67,
+   "ci95": [
+    22.67,
+    67.33
+   ],
+   "weekly_mean": 118.0,
+   "weekly_sd": 38.5,
+   "verdict": "WINNER \u2014 install via the gates (slider change, cited)"
+  },
+  {
+   "candidate": "flat_l1.0",
+   "mean_edge": 9.83,
+   "ci95": [
+    -10.67,
+    30.67
+   ],
+   "weekly_mean": 113.6,
+   "weekly_sd": 38.3,
+   "verdict": "parked: CI includes $0"
+  },
+  {
+   "candidate": "late_l1.0",
+   "mean_edge": 5.0,
+   "ci95": [
+    -13.33,
+    23.83
+   ],
+   "weekly_mean": 113.1,
+   "weekly_sd": 38.1,
+   "verdict": "parked: CI includes $0"
+  },
+  {
+   "candidate": "flat_l2.0",
+   "mean_edge": -17.5,
+   "ci95": [
+    -39.17,
+    4.17
+   ],
+   "weekly_mean": 107.7,
+   "weekly_sd": 37.8,
+   "verdict": "parked: CI includes $0"
+  },
+  {
+   "candidate": "flat_l3.0",
+   "mean_edge": -26.83,
+   "ci95": [
+    -49.17,
+    -4.67
+   ],
+   "weekly_mean": 106.2,
+   "weekly_sd": 37.0,
+   "verdict": "parked: CI includes $0"
+  }
+ ],
+ "h1_high_variance_corner": true,
+ "caveats": [
+  "v1 money proxy (proj-normal weeks, weekly-high+RS; playoff $ excluded)",
+  "predicted opponent slates; paired rooms + paired weekly luck",
+  "September quantile re-run pre-registered; install only via the gates"
+ ]
+}
