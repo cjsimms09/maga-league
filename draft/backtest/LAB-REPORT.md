@@ -1,6 +1,6 @@
 # THE LAB — report
 
-_git HEAD `dea48f3b2eaede5be3942a1c605186d3b8284884` · seasons 2023, 2024, 2025 · currency: E[$] under payouts.json.by_season (era-correct)_
+_git HEAD `acb893f3a7acb6ddfff4c1d10e488e2b324f9995` · seasons 2023, 2024, 2025 · currency: E[$] under payouts.json.by_season (era-correct)_
 
 ## Experiments run
 
@@ -10,13 +10,17 @@ _git HEAD `dea48f3b2eaede5be3942a1c605186d3b8284884` · seasons 2023, 2024, 2025
 
 ### L0-lineup-ceiling-money — Weekly-high + RS dollars left on the table by lineup decisions
 
-| season | mean $/team | best seat |
-|---|---|---|
-| 2023 | +$470.0 | +$800.0 |
-| 2024 | +$595.0 | +$950.0 |
-| 2025 | +$445.0 | +$750.0 |
+| season | mean $/team (hindsight ceiling) | best seat | tier |
+|---|---|---|---|
+| 2023 | +$470.0 | +$800.0 | MEASUREMENT — hindsight ceiling, unreachable by construction (exp 35 measures the capture rate) |
+| 2024 | +$595.0 | +$950.0 | MEASUREMENT — hindsight ceiling, unreachable by construction (exp 35 measures the capture rate) |
+| 2025 | +$445.0 | +$750.0 | MEASUREMENT — hindsight ceiling, unreachable by construction (exp 35 measures the capture rate) |
 
 _measurement — quantifies the lineup-decision prize the in-season experiments (13/14) will chase; not a shipped edge._
+
+## Honesty line (claim-integrity rule 3)
+
+_Caveats carried by every number above: the money proxy is v1; L0's figures are a **hindsight ceiling**, unreachable by construction because it knows the outcomes — what fraction is actually reachable is experiment 35's question, not this table's answer. Nothing here is installed; installs require null + leave-one-season-out CV._
 
 ## Registered, awaiting the draft-replay → money bridge
 

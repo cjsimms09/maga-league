@@ -195,13 +195,26 @@ def _write_report_md(path: Path, report: dict) -> None:
         if r.get("per_season"):
             L.append(f"### {r['id']} — {r['title']}")
             L.append("")
-            L.append("| season | mean $/team | best seat |")
-            L.append("|---|---|---|")
+            # Claim-integrity rule 1: the column names the tier. These are
+            # HINDSIGHT-CEILING measurements, not an achievable edge — an
+            # unlabelled dollar column reads as CERTIFIED by omission.
+            L.append("| season | mean $/team (hindsight ceiling) | best seat | tier |")
+            L.append("|---|---|---|---|")
             for p in r["per_season"]:
-                L.append(f"| {p['season']} | +${p['mean_dollars_left_on_table']} | +${p['max_seat']} |")
+                L.append(f"| {p['season']} | +${p['mean_dollars_left_on_table']} "
+                         f"| +${p['max_seat']} | MEASUREMENT — hindsight ceiling, "
+                         "unreachable by construction (exp 35 measures the capture rate) |")
             L.append("")
             L.append(f"_{r['verdict']}_")
             L.append("")
+    L.append("## Honesty line (claim-integrity rule 3)")
+    L.append("")
+    L.append("_Caveats carried by every number above: the money proxy is v1; "
+             "L0's figures are a **hindsight ceiling**, unreachable by construction "
+             "because it knows the outcomes — what fraction is actually reachable "
+             "is experiment 35's question, not this table's answer. Nothing here "
+             "is installed; installs require null + leave-one-season-out CV._")
+    L.append("")
     L.append("## Registered, awaiting the draft-replay → money bridge")
     L.append("")
     for p in report["pending_gated_experiments"]:

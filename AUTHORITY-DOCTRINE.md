@@ -18,7 +18,7 @@ Three phases, every dual-source fact:
    confirmed fact.
 2. **Reconciliation gate** — the moment Sleeper speaks, the site's declaration
    is checked against it. A mismatch is 🚨 LOUD (halt, banner, checklist red) —
-   never silently resolved. Agreement upgrades the label (`Sleeper-confirmed ✓`).
+   never silently resolved. Agreement upgrades the label (`Sleeper-verified ✓`).
 3. **Hard cutover** — once Sleeper is authoritative for a fact, reads come from
    the Sleeper-derived source only. No code path quietly re-reads the site
    declaration. Structural (greppable), not procedural.
@@ -50,7 +50,7 @@ authority question — its inputs do, and they are classified above.
 
 ## 3. The enforcement
 
-`draft/tests/authority.test.js`, in CI: for every Sleeper-settled fact it
+`draft/tests/authority.test.js`, in CI: for every Sleeper-verified fact it
 asserts (a) the provenance labels render pre-confirmation, (b) the
 reconciliation gate exists and a fixture mismatch FIRES it, (c) post-cutover no
 code path reads the site store — structural greps plus live-module fixtures
@@ -61,8 +61,8 @@ goes red here.
 ## 4. How to use this file
 
 Adding a feature that touches a fact Sleeper also knows?
-1. Classify it (Sleeper-settled / site-native / derived).
-2. If Sleeper-settled: build all three phases before shipping, label the
+1. Classify it (Sleeper-verified / site-native / derived).
+2. If Sleeper-verified: build all three phases before shipping, label the
    declaration, wire the loud gate, cut over reads.
 3. Add the fact to the inventory table AND a case to `authority.test.js`.
 4. Cite this file in the spec/commit.
