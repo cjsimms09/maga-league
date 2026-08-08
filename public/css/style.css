@@ -2117,3 +2117,7 @@ table .num.zero { color: var(--muted); font-weight: 400; }
 .ba-cell.hot { border-color: rgba(255,70,85,.5); }
 .ba-gone { font-size: .68rem; color: var(--muted); font-variant-numeric: tabular-nums; }
 .ba-cell.hot .ba-gone { color: #ffb4bb; }
+
+/* §2(d) recent-picks reach/fell tags — each pick as opponent-model evidence. */
+.pick-reach { color: #ffb4bb; font-size: .74rem; }
+.pick-fell { color: #8ef0b6; font-size: .74rem; }

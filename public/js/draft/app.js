@@ -2290,14 +2290,27 @@
    * place you can check the tool agrees with the room, so it has to show
    * everything or it is worse than nothing.
    */
+  // §2(d): who took him, resolved from the draft slot via the manager profiles.
+  function seatLabel(slot) {
+    if (!slot) return null;
+    const prof = Object.values(state.profiles || {}).find(x => Number(x.draft_slot) === Number(slot));
+    return (prof && prof.display_name) ? prof.display_name
+      : (Number(slot) === Number((state.data.league || {}).my_draft_slot) ? 'you' : 'Seat ' + slot);
+  }
+
   function renderPicksFeed() {
     const seen = new Set();
     const rows = [];
-    const push = (id, no, name, pos, tag) => {
+    const push = (id, no, name, pos, tag, slot) => {
       const key = String(id);
       if (seen.has(key)) return;
       seen.add(key);
-      rows.push({ no: no || 0, name, pos, tag });
+      // §2(d): each pick is opponent-model evidence — show ADP delta (reach/fell).
+      const pl = playerById(id);
+      const adp = pl ? (pl.adjusted_adp != null ? pl.adjusted_adp : pl.adp) : null;
+      let delta = null;
+      if (no && adp != null) delta = Math.round(no - adp);   // <0 = drafted EARLY (reach), >0 = fell
+      rows.push({ no: no || 0, name, pos, tag, who: seatLabel(slot), delta });
     };
     (state.sync ? state.sync.allPicks() : []).forEach(p => {
       const pl = playerById(p.player_id);
@@ -2305,20 +2318,28 @@
       push(p.player_id, p.pick_no,
         pl ? pl.name : ([meta.first_name, meta.last_name].filter(Boolean).join(' ') || 'Unknown'),
         pl ? pl.position : (meta.position || ''),
-        p.source === 'manual' ? 'typed' : '');
+        p.source === 'manual' ? 'typed' : '', p.draft_slot);
     });
     // Anything state knows that the sync does not — manual entries and picks
     // for players outside the board.
     state.recentPicks.forEach(r => {
       const pl = r.player || {};
       push(r.player_id, r.pick_no, pl.name || 'Unknown', pl.position || r.position || '',
-        pl.off_board ? 'off board' : '');
+        pl.off_board ? 'off board' : '', r.slot);
     });
     rows.sort((a, b) => b.no - a.no);
+    const deltaTag = d => {
+      if (d == null) return '';
+      if (d <= -8) return ' · <span class="pick-reach">reach ' + d + '</span>';
+      if (d >= 8) return ' · <span class="pick-fell">fell +' + d + '</span>';
+      return '';
+    };
     $('#picks-feed').innerHTML = rows.length
       ? rows.slice(0, 12).map(r => '<li><b>' + (r.no || '?') + '.</b> ' + escapeHtml(r.name)
           + ' <span class="muted">' + escapeHtml(r.pos)
-          + (r.tag ? ' · ' + r.tag : '') + '</span></li>').join('')
+          + (r.who ? ' · by ' + escapeHtml(r.who) : '')
+          + (r.tag ? ' · ' + r.tag : '') + '</span>'
+          + deltaTag(r.delta) + '</li>').join('')
       : '<li class="muted">No picks yet.</li>';
   }
 
