@@ -107,6 +107,12 @@
     <button class="btn small ghost" id="db-decline" title="Keep the prior doctrine — my draft, my call">Decline — keep the plan</button>
   </div>
 
+  <%# THE LEGALITY STRIP — the running guarantee, visible at all times.
+      Mock #1 ended with no defense and the tool never said a word; a silent
+      guarantee cannot visibly stop being true. Informational for streamable
+      onesies, alarming for mandatory slots. Populated by renderLegality(). %>
+  <div id="legality-strip" class="legality-strip" style="display:none"></div>
+
   <%# §2(d) — slim pinned status bar: pick state + connection stay visible when
       scrolled down to the board. Populated by app.js renderStatusBar(). %>
   <div id="wr-statusbar" class="wr-statusbar" style="display:flex"></div>
@@ -355,6 +361,7 @@
 <script src="/js/draft/attribution.js"></script>
 <script src="/js/draft/shadows.js"></script>
 <script src="/js/draft/seat.js"></script>
+<script src="/js/draft/legality.js"></script>
 <script src="/js/draft/doctrine.js"></script>
 <script src="/js/draft/alerts.js"></script>
 <script src="/js/draft/prefsync.js"></script>

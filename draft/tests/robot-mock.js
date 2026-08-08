@@ -471,6 +471,101 @@ if (!IS_FIXTURE) {
     strat.every(s => s.log.every(l => l.rehearsal === false)));
 }
 
+// R-legality (SEVERITY-1, mock #1): the guarantee that failed.
+//
+// Cory left a mock with no defense and the tool never said a word. Per his
+// REVISION, the fix is not force-filling: K/DST are streamable and punting them
+// is legitimate. So the assertions are (1) a full draft from EVERY slot never
+// ends with a MANDATORY slot unfilled, (2) the strip is never silent about an
+// open slot, and (3) an attempt to end with a mandatory hole is caught while
+// an intentional K/DST punt is NOT.
+{
+  const LG = require('../../public/js/draft/legality.js');
+  const STARTERS = (LEAGUE.starters) || { QB: 1, RB: 2, WR: 2, TE: 1, FLEX: 1, K: 1, DEF: 1 };
+  const MANDATORY = Object.keys(STARTERS).filter(k => !LG.STREAMABLE[k]);
+
+  // THE DRAFTER IS DELIBERATELY BLIND. A first version of this scenario used
+  // E.recommend and passed even with the guarantee deleted — the engine fills
+  // every mandatory slot naturally in 15 picks, so the test proved nothing.
+  // Mock #1's actual failure was a BLIND engine (need read another team's
+  // roster), so the drafter here ignores need entirely and takes the highest
+  // projection on the board. That is the state the guarantee has to survive.
+  const blindPick = pool => pool.slice().sort((a, b) =>
+    (b.proj_mean || 0) - (a.proj_mean || 0))[0];
+
+  let allLegal = true, everSilent = false, slotsRun = 0, guaranteeFired = 0;
+  const failures = [];
+
+  for (let mySlot = 1; mySlot <= TEAMS; mySlot++) {
+    const sched = snake();
+    const taken = new Set();
+    const rand = rng(9000 + mySlot);
+    const myRoster = [];
+    const mySched = sched.filter(t => t.team_slot === mySlot);
+    slotsRun++;
+
+    for (const step of sched) {
+      const board = ALL.filter(p => !taken.has(String(p.player_id)));
+      if (!board.length) break;
+      let chosen;
+      if (step.team_slot === mySlot) {
+        const left = mySched.filter(t => t.pick_no >= step.pick_no).length;
+        const a = LG.assess(myRoster, STARTERS, left);
+        // The strip must never be silent while a slot is open.
+        if (a.status !== 'legal' && !/unfilled|empty|Starters: /.test(a.line)) everSilent = true;
+        // Draft to the guarantee: when every remaining pick is spoken for by a
+        // mandatory slot, take one of those. Otherwise take the best available.
+        const needPos = a.hardMissing.length ? a.hardMissing[0].slot : null;
+        let pool = board;
+        if (a.mustDraftNow && needPos) {
+          const want = needPos === 'FLEX' ? LG.FLEX_POS : [needPos];
+          const filtered = board.filter(p => want.indexOf(p.position) >= 0);
+          if (filtered.length) { pool = filtered; guaranteeFired++; }
+        }
+        chosen = blindPick(pool);
+        myRoster.push(chosen);
+      } else {
+        chosen = opponentPick(board, rand);
+      }
+      taken.add(String(chosen.player_id));
+    }
+
+    const end = LG.assess(myRoster, STARTERS, 0);
+    if (end.hardMissing.length) {
+      allLegal = false;
+      failures.push('slot ' + mySlot + ': ' + end.line);
+    }
+  }
+
+  check('R-legality: a full draft from EVERY slot (' + slotsRun + ') ends with every '
+    + 'MANDATORY starting slot filled', allLegal, failures.slice(0, 3).join(' | '));
+  check('R-legality: the strip is never silent while a slot is open', !everSilent);
+  // NON-VACUITY. If the guarantee never fires, the assertion above is testing
+  // the engine's good taste, not the guarantee. It must have bound at least
+  // once across the sweep, or this scenario is decoration.
+  check('R-legality: the guarantee actually FIRED (non-vacuous, ' + guaranteeFired + ' times)',
+    guaranteeFired > 0, 'never fired — the scenario proves nothing');
+  check('R-legality: mandatory slots are exactly the non-streamable ones',
+    MANDATORY.sort().join(',') === ['FLEX', 'QB', 'RB', 'TE', 'WR'].sort().join(','),
+    MANDATORY.join(','));
+
+  // Ending illegally is BLOCKED; ending on a deliberate onesie punt is NOT.
+  const punt = LG.exitSummary(
+    ['QB', 'RB', 'RB', 'WR', 'WR', 'TE', 'RB'].map(pos => ({ position: pos })), STARTERS, 0);
+  check('R-legality: a deliberate K/DST punt exits cleanly with a streaming plan',
+    punt.deliberate === true && punt.todo.length === 2 && punt.todo.every(t => /stream/.test(t.plan)));
+  const hole = LG.exitSummary(
+    ['QB', 'RB', 'WR', 'TE'].map(pos => ({ position: pos })), STARTERS, 0);
+  check('R-legality: exiting with a MANDATORY hole is refused as non-deliberate',
+    hole.deliberate === false && hole.todo.some(t => /it is a hole/.test(t.plan)));
+
+  // DST availability — the fix for the missing-DST board bug must be live here.
+  const defs = ALL.filter(p => p.position === 'DEF').length;
+  const ks = ALL.filter(p => p.position === 'K').length;
+  check('R-legality: defenses and kickers are actually in the rehearsal pool',
+    defs > 0 && ks > 0, 'DEF=' + defs + ' K=' + ks);
+}
+
 // R-seat (SEVERITY-1, mock #1): ONE seat identity across every consumer.
 //
 // The bug: `applyDraftShape` rebuilt the pick order for the MOCK seat while

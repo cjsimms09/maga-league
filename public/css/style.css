@@ -587,6 +587,13 @@ details.bal-row.me > summary { box-shadow: inset 3px 0 0 var(--gold); }
   color: #ffb4bb; background: rgba(255,70,85,.14); padding: .1rem .4rem; border-radius: 5px;
 }
 .path-price.top { color: var(--navy-deep); background: var(--gold); }
+/* A path that would strand a mandatory starting slot. Dimmed and labelled, not
+   removed — the reason is the point, and a vanished option teaches nothing. */
+.path-card.suppressed { opacity: .55; border-color: rgba(255,70,85,.5); }
+.path-illegal { font-size: .72rem; font-weight: 800; color: #ffb4bb;
+  background: rgba(255,70,85,.12); border-radius: 5px; padding: .15rem .4rem;
+  margin-bottom: .35rem; }
+
 /* §4 vocabulary — the one path the enrolled doctrine actually takes. */
 .path-doctrine {
   font-size: .64rem; font-weight: 800; letter-spacing: .04em; white-space: nowrap;
@@ -2135,6 +2142,34 @@ table .num.zero { color: var(--muted); font-weight: 400; }
 /* §2(d) recent-picks reach/fell tags — each pick as opponent-model evidence. */
 .pick-reach { color: #ffb4bb; font-size: .74rem; }
 .pick-fell { color: #8ef0b6; font-size: .74rem; }
+
+/* THE LEGALITY STRIP — the running guarantee. Sits directly under the doctrine
+   banner in the pinned stack. Four states, three colours: legal and streamable
+   are calm (a deliberate K/DST punt is a strategy, not a fault), at-risk is
+   amber, ILLEGAL is loud and cannot be missed. */
+.legality-strip {
+  position: sticky; top: var(--pin-legality, 0px); z-index: 41;
+  display: flex; align-items: center; gap: .6rem; flex-wrap: wrap;
+  padding: .35rem .9rem; margin-bottom: .35rem; border-radius: 10px;
+  font-size: .8rem; font-weight: 700;
+  background-color: rgba(11,16,32,.97);
+  border: 1px solid var(--line); color: #c7cddd;
+  backdrop-filter: blur(6px);
+}
+.legality-strip.legal { border-color: rgba(47,213,118,.45); color: #b9f5d3; }
+.legality-strip.streamable { border-color: rgba(245,196,69,.35); color: #dfe6f5; }
+.legality-strip.at-risk { border-color: rgba(245,196,69,.7); color: #ffd873; }
+.legality-strip.ILLEGAL {
+  border-color: rgba(255,70,85,.85); color: #fff;
+  background-image: repeating-linear-gradient(45deg,
+    rgba(255,70,85,.20) 0 12px, rgba(255,70,85,.32) 12px 24px);
+  font-weight: 900; letter-spacing: .02em;
+}
+.ls-tag { font-size: .62rem; font-weight: 900; letter-spacing: .1em;
+  text-transform: uppercase; padding: .1rem .4rem; border-radius: 4px;
+  background: rgba(255,255,255,.1); }
+.legality-strip.ILLEGAL .ls-tag { background: #ff4655; color: #fff; }
+.legality-strip.legal .ls-tag { background: rgba(47,213,118,.25); }
 
 /* ── THE DOCTRINE BANNER ──────────────────────────────────────────────────
    Top of screen, above the status bar: the plan being executed, its

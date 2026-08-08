@@ -635,6 +635,7 @@
     renderRuns();
     renderPicksFeed();
     renderManagers();
+    try { renderLegality(); } catch (e) { /* never blocks the clock */ }
     // Last: the pinned offsets depend on the heights everything above just set
     // (the banner grows a line when a doctrine switches, the watermarks appear
     // and disappear with rehearsal/slot state). Measured again on the next
@@ -1582,6 +1583,21 @@
         cf.style.display = 'none';
       }
     }
+    // LEGALITY SUPPRESSION. A path that would strand a MANDATORY starting slot
+    // is suppressed with its reason on the card. Onesies never trigger this —
+    // punting K/DST is a strategy, and forcing it through path suppression
+    // would be forcing by the back door.
+    const starters = (state.data.league || {}).starters || {};
+    const picksLeft = myNextPicks().length;
+    paths.forEach(function (pa) {
+      pa.legality_block = null;
+      if (typeof DraftLegality === 'undefined' || !pa.pick) return;
+      try {
+        pa.legality_block = DraftLegality.suppressReason(
+          state.myRoster, starters, picksLeft, pa.pick.player);
+      } catch (e) { /* a legality failure never removes a path silently */ }
+    });
+
     // §4 — everything speaks the same vocabulary. Tag the ONE path the current
     // doctrine would actually take: resolve the doctrine's best allowed player
     // off the same scored board, then find the path holding him. Exact, not a
@@ -1601,8 +1617,13 @@
       const plan = (p.plan || []).filter(function (r) { return r.loss > 0; }).slice(0, 2)
         .map(function (r) { return r.position + ' −' + Math.round(r.loss); }).join(' · ');
       const extras = p.candidates.slice(1, 5);
+      const block = p.legality_block
+        ? '<div class="path-illegal">🚫 suppressed — ' + escapeHtml(p.legality_block) + '</div>'
+        : '';
       return '<div class="path-card' + (i === 0 ? ' top' : '')
+          + (p.legality_block ? ' suppressed' : '')
           + (p.coin_flip_with ? ' coinflip' : '') + '" data-path="' + escapeHtml(p.key) + '">' +
+        block +
         '<div class="path-head">' +
           '<span class="path-name">' + escapeHtml(p.name) + '</span>' + doctrineBadge + priceBadge +
         '</div>' +
@@ -2546,9 +2567,31 @@
     const base = Math.max(h('.navbar'), h('.rehearsal-watermark') + h('.slot-watermark'));
     const banner = h('#doctrine-banner');
     const sw = h('#doctrine-switch');
+    const leg = h('#legality-strip');
     root.style.setProperty('--pin-banner', base + 'px');
     root.style.setProperty('--pin-switch', (base + banner) + 'px');
-    root.style.setProperty('--pin-status', (base + banner + sw) + 'px');
+    root.style.setProperty('--pin-legality', (base + banner + sw) + 'px');
+    root.style.setProperty('--pin-status', (base + banner + sw + leg) + 'px');
+  }
+
+  /* THE LEGALITY STRIP — the running guarantee, rendered every pick.
+   * Mock #1 ended without a defense and nothing on screen ever said so. This
+   * asserts the state continuously, so it can visibly stop being true. */
+  function renderLegality() {
+    const host = document.getElementById('legality-strip');
+    if (!host || typeof DraftLegality === 'undefined' || !state.data) return null;
+    const starters = (state.data.league || {}).starters || {};
+    const left = myNextPicks().length;
+    const a = DraftLegality.assess(state.myRoster, starters, left);
+    state.legality = a;
+    host.style.display = 'flex';
+    host.className = 'legality-strip ' + a.status;
+    const tag = a.status === 'legal' ? 'LEGAL'
+      : a.status === 'streamable' ? 'BY DESIGN?'
+        : a.status === 'at-risk' ? 'WATCH' : 'ILLEGAL';
+    host.innerHTML = '<span class="ls-tag">' + tag + '</span>'
+      + '<span>' + escapeHtml(a.line) + '</span>';
+    return a;
   }
 
   function myLivePickIndex() {
