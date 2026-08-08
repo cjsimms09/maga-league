@@ -2225,6 +2225,14 @@ table .num.zero { color: var(--muted); font-weight: 400; }
   padding: .1rem .4rem; border-radius: 4px; background: rgba(255,255,255,.1); }
 .ss-mode.rehearsal { background: var(--gold,#f5c445); color: var(--navy-deep,#0b1020); }
 .ss-mode.live { background: rgba(47,213,118,.3); color: #b9f5d3; }
+/* WHICH rehearsal mode is live, stated next to the mode badge. The TAKE variant
+   is amber because it is the deliberate opt-out and must never be mistaken for
+   the default — the keeper-overwrite bug was found by noticing a wrong roster,
+   which means the mode was invisible until after it had done damage. */
+.ss-rmode { font-size: .62rem; font-weight: 700; padding: .1rem .4rem;
+  border-radius: 4px; white-space: nowrap;
+  background: rgba(245,196,69,.16); color: #f5c445; }
+.ss-rmode.warn { background: rgba(255,150,60,.22); color: #ffb765; }
 .ss-seat { color: #dfe6f5; }
 .ss-age { color: var(--muted); }
 .ss-dot { margin-left: auto; white-space: nowrap; }

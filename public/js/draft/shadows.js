@@ -106,8 +106,39 @@
    * the shadow swaps in its OWN roster and its board-minus-own-picks, and its
    * strategy's weights for this round. No taste lists ever enter here (req 2).
    */
-  function onMyPick(shadows, board, baseCtx, round) {
+  function onMyPick(shadows, board, baseCtx, round, drafted) {
     if (shadows.frozen) return [];
+
+    /* THE AVAILABILITY GATE.
+     *
+     * Reported from a rehearsal: shadows were selecting players already taken,
+     * which makes every shadow roster fictional and voids the counterfactual —
+     * the entire point of Phase H is comparison against a team that COULD have
+     * been drafted.
+     *
+     * An isolated repro proved THIS MODULE picks correctly when handed a
+     * correctly-filtered board (0 duplicates, 0 unavailable across 42 picks and
+     * 7 strategies), so the fault was upstream: `state.board` is rebuilt from
+     * `state.drafted`, and seatless "✕ he is gone" marks were never entering
+     * that set, so any rebuild RESURRECTED every hand-marked opponent pick.
+     * Shadows then drafted men Cory had watched come off the board. That root
+     * cause is fixed in attribution.markLocal.
+     *
+     * This gate is the second line, per the single-path rule: shadows
+     * cross-check the board they are handed against the AUTHORITATIVE drafted
+     * set and drop anyone already gone, counting every rejection so the guard
+     * is falsifiable rather than merely reassuring. A counterfactual that
+     * quietly drafts ghosts is worse than no counterfactual at all.
+     */
+    const gone = (drafted instanceof Set) ? drafted
+      : (drafted && drafted.length ? new Set(drafted.map(String)) : null);
+    if (gone && gone.size) {
+      const before = board.length;
+      board = board.filter(p => !gone.has(String(p.player_id)));
+      shadows.rejected = (shadows.rejected || 0) + (before - board.length);
+    }
+    if (!board.length) return [];
+
     const bh = boardHash(board);
     const defs = profiles();
     const out = [];

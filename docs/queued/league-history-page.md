@@ -1,6 +1,20 @@
 # THE LEAGUE HISTORY PAGE — The MFGA Archive
 
-Queue position: POST-DRAFT / idle-CI work — this is a delight feature and must never preempt a draft-critical or in-season calendar gate. But it's cheap (all data already harvested/archived) and high-joy; slot it into gaps starting Aug 23. It lives on the PUBLIC league site's existing HISTORY tab (league-visible, not admin) — this is a gift to the whole league and, quietly, the greatest trash-talk artifact ever built.
+> **⚠️ SUPERSEDED ON VOICE AND CONTENT** by `history-chronicle-voice.md`
+> (2026-08-08), which consolidates every amendment: the chronicle register, the
+> per-season required cast (champion / collapse / fraud / robbed), box-score
+> mining, the Cory-roast rule with its equal-opportunity counter, the running-gag
+> continuity requirement, the league lore, and the Hamlin asterisk.
+>
+> **This document remains authoritative for structure, navigation and the
+> self-updating machinery** (§2–§4 below).
+>
+> **Also superseded on its GATE:** re-audited 2026-08-08, this has none — the
+> Founding, the Amendments and the Rolls need no draft and no season, and the
+> 2023–25 chapters need only data already on disk. See
+> `docs/POST-DRAFT-LABEL-AUDIT.md`. It is build-order **#7**, not idle-CI work.
+
+_Original queue position (retained for the record): POST-DRAFT / idle-CI work_ — this is a delight feature and must never preempt a draft-critical or in-season calendar gate. But it's cheap (all data already harvested/archived) and high-joy; slot it into gaps starting Aug 23. It lives on the PUBLIC league site's existing HISTORY tab (league-visible, not admin) — this is a gift to the whole league and, quietly, the greatest trash-talk artifact ever built.
 
 Voice matters: match the site's existing tone ("Winners win. Losers pick first. That's the deal."). This page should be FUN — a thing people scroll at Thanksgiving, not a spreadsheet.
 

@@ -1,5 +1,19 @@
 # Queued work — not started, gated on a date or an event
 
+> ## ⚠️ RE-AUDITED 2026-08-08 — most of this was mislabelled
+>
+> `docs/POST-DRAFT-LABEL-AUDIT.md` re-examined every post-draft label against
+> real dependencies. **11 of 17 items had no gate at all.** The table below is
+> retained for the items that genuinely are gated; **the audit supersedes it**
+> wherever the two disagree, and it carries the build order.
+>
+> The recurring error: "code freeze" was read as "the repo is frozen." It only
+> ever meant **the war-room surface** (`public/js/draft/`). Site work, Lab work,
+> specs and the whole league-history layer were never frozen by it.
+>
+> Two new specs, both **ungated, build now**:
+> `history-chronicle-voice.md` (#7) · `contact-directory.md` (#8).
+
 Nothing in this directory is in progress. Each item names the gate that has to
 open before it begins. They live in the repo rather than in a conversation
 because sessions are ephemeral and a container that gets reclaimed takes any

@@ -23,16 +23,76 @@
     return list.filter(function (p) { return String(p.player_id) !== String(id); });
   }
 
+  function isKeeper(p) { return !!(p && p.is_keeper); }
+
+  /**
+   * KEEPERS ARE IMMOVABLE. A hard rule, enforced at the one chokepoint every
+   * roster write passes through, because a keeper vanishing silently is the
+   * fixture-keepers disease again: the roster still looks plausible, the need
+   * model quietly reprices three positions, and nothing anywhere says so.
+   *
+   * Nothing may remove or replace a keeper-badged player: not a pick, not a
+   * sync event, not reconciliation. `drop()` is the only way a player leaves a
+   * roster in this module, so guarding it covers every path by construction
+   * rather than by remembering to add a check at each call site.
+   *
+   * The one legitimate exception is an explicit un-keeper (the slate itself
+   * changed), which goes through `dropAllowingKeeper` and is used only by
+   * unmarkLocal — the exact inverse of a user action the user just took.
+   */
+  var keeperViolations = 0;
+  function dropRespectingKeepers(list, id) {
+    return (list || []).filter(function (p) {
+      if (String(p.player_id) !== String(id)) return true;
+      if (isKeeper(p)) { keeperViolations++; return true; }   // refuse, and count it
+      return false;
+    });
+  }
+  function keeperGuardReport() { return { violations: keeperViolations }; }
+  function resetKeeperGuard() { keeperViolations = 0; }
+
   /** Put a player on exactly one seat, removing him from every other. */
   function place(state, player, slot, mySlot) {
     const id = String(player.player_id);
     Object.keys(state.rosters).forEach(function (s) {
-      if (String(s) !== String(slot)) state.rosters[s] = drop(state.rosters[s], id);
+      if (String(s) !== String(slot)) state.rosters[s] = dropRespectingKeepers(state.rosters[s], id);
     });
     state.rosters[slot] = state.rosters[slot] || [];
     if (!has(state.rosters[slot], id)) state.rosters[slot].push(player);
-    state.myRoster = drop(state.myRoster, id);
+    // A keeper already on my roster is never displaced by an incoming pick for
+    // the same player — and if the incoming copy is not badged, the badged one
+    // stays rather than being overwritten by a stub from the sync feed.
+    if (has(state.myRoster, id) && state.myRoster.some(function (p) {
+      return String(p.player_id) === String(id) && isKeeper(p);
+    })) {
+      // COUNT THE REFUSAL. Protecting the keeper silently would leave the
+      // guard unfalsifiable — the whole point is that an attempt to displace
+      // one is visible, so a real slate change is distinguishable from a bug.
+      keeperViolations++;
+      return;
+    }
+    state.myRoster = dropRespectingKeepers(state.myRoster, id);
     if (mySlot != null && Number(slot) === Number(mySlot)) state.myRoster.push(player);
+  }
+
+  /**
+   * REHEARSAL SKIP — a mock pick in a round I do not actually own.
+   *
+   * Under `top_picks_flat`, keeping three players forfeits rounds 1-3. A mock
+   * room does not know that: it hands me picks in those rounds anyway. Those
+   * selections are REHEARSAL NOISE — the player is genuinely off the board in
+   * this room, so the board and survival model must see him gone, but he is not
+   * mine and must never touch my roster, my need model, or my legality state.
+   *
+   * Recording them as noise rather than discarding them keeps the board honest
+   * (he IS unavailable here) while keeping the roster true to draft night.
+   */
+  function markRehearsalNoise(state, player) {
+    if (!player) return state;
+    state.drafted.add(String(player.player_id));
+    state.rehearsalNoise = state.rehearsalNoise || [];
+    if (!has(state.rehearsalNoise, player.player_id)) state.rehearsalNoise.push(player);
+    return state;
   }
 
   /**
@@ -80,11 +140,15 @@
   function unmarkLocal(state, player) {
     if (!player) return state;
     const id = String(player.player_id);
+    // A keeper is not undoable, because marking him was never an action the
+    // user took — he was seeded from the confirmed slate. Undo unwinds guesses.
+    if (state.myRoster.some(function (p) {
+      return String(p.player_id) === String(id) && isKeeper(p); })) return state;
     state.drafted.delete(id);
     Object.keys(state.rosters).forEach(function (s) {
-      state.rosters[s] = drop(state.rosters[s], id);
+      state.rosters[s] = dropRespectingKeepers(state.rosters[s], id);
     });
-    state.myRoster = drop(state.myRoster, id);
+    state.myRoster = dropRespectingKeepers(state.myRoster, id);
     return state;
   }
 
@@ -107,7 +171,9 @@
   }
 
   const api = { emptyState: emptyState, markLocal: markLocal, unmarkLocal: unmarkLocal,
-                applyRemote: applyRemote, place: place };
+                applyRemote: applyRemote, place: place,
+                isKeeper: isKeeper, markRehearsalNoise: markRehearsalNoise,
+                keeperGuardReport: keeperGuardReport, resetKeeperGuard: resetKeeperGuard };
   global.DraftAttribution = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);

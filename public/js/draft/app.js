@@ -2948,6 +2948,15 @@
     const dot = red.length ? '🔴' : amber.length ? '🟡' : '🟢';
     const mode = state.mockMode ? 'REHEARSAL' : (state.sync ? 'LIVE' : 'MANUAL');
     layerDepthForMode(mode);
+    // WHICH REHEARSAL MODE IS LIVE, stated rather than inferred. Cory found the
+    // keeper-overwrite bug by noticing a wrong ROSTER — the mode was invisible,
+    // so the first evidence of it was corrupted state. A mode that changes what
+    // happens to my picks has to be readable before it does anything.
+    const kn = keeperRounds();
+    const rehearsalTag = !state.mockMode ? ''
+      : (state.rehearsalMode === 'take'
+          ? '<span class="ss-rmode warn">keepers locked · rounds 1–' + kn + ' TAKEN</span>'
+          : '<span class="ss-rmode">keepers locked · rounds 1–' + kn + ' skipped</span>');
     const age = ageH == null ? 'never built'
       : ageH < 1 ? 'board fresh' : 'board ' + Math.round(ageH) + 'h';
     const issues = red.concat(amber);
@@ -2956,6 +2965,7 @@
     host.className = 'system-strip ' + tone;
     host.innerHTML =
       '<span class="ss-mode ' + mode.toLowerCase() + '">' + mode + '</span>'
+      + rehearsalTag
       + '<span class="ss-seat">' + escapeHtml(seat ? DraftSeat.describe(seat) : 'seat —') + '</span>'
       + '<span class="ss-age">' + escapeHtml(age) + '</span>'
       + '<span class="ss-dot" title="' + escapeHtml(issues.join(' · ') || 'all clear') + '">'
@@ -3603,7 +3613,12 @@
       const teams = (state.data.league || {}).teams || 10;
       const round = Math.max(1, Math.ceil(currentPick() / teams));
       const baseCtx = Object.assign({}, context(), { board: boardAtPick });
-      const picks = DraftShadows.onMyPick(state.shadows, boardAtPick, baseCtx, round);
+      // THE AUTHORITATIVE DRAFTED SET — synced picks, locally-marked picks and
+      // keepers, one set, not a shadow-private copy. The single-path rule: the
+      // shadows must answer "is he available?" from the same fact the board
+      // does, or they drift from it exactly the way they just did.
+      const picks = DraftShadows.onMyPick(state.shadows, boardAtPick, baseCtx,
+                                          round, state.drafted);
       // Ledger each shadow pick at decision time (kind shadow_pick). Rehearsal
       // entries carry the flag in the payload; the grading side filters on it.
       if (typeof PredLedger !== 'undefined' && picks.length) {
@@ -3788,6 +3803,32 @@
    *    joined in a different order, every pick would be attributed to the wrong
    *    team and nothing would look wrong.
    */
+  /* REHEARSAL KEEPER MODE — which of MY mock picks are noise rather than mine.
+   *
+   * SKIP is the DEFAULT and the only mode that models draft night: under
+   * `top_picks_flat`, keeping N players forfeits rounds 1..N, so a mock pick of
+   * mine in those rounds corresponds to a pick I will not have. `state.
+   * rehearsalMode === 'take'` is the deliberate opt-out (rehearsing a no-keeper
+   * draft), and it must be chosen, never fallen into.
+   *
+   * Only ever true in a mock, only ever for MY seat, only ever in the forfeited
+   * rounds. Everything else flows through the normal path untouched.
+   */
+  function keeperRounds() {
+    if (!state.data || !state.data.league) return 0;
+    return Number((state.data.league.keeper_rules || {}).count) || 0;
+  }
+  function rehearsalSkips(pick, slot, seatSlot) {
+    if (!state.mockMode) return false;
+    if (state.rehearsalMode === 'take') return false;
+    if (!seatSlot || Number(slot) !== Number(seatSlot)) return false;
+    const n = keeperRounds();
+    if (!n) return false;
+    const round = Number(pick && pick.round);
+    if (!Number.isFinite(round)) return false;
+    return round >= 1 && round <= n;
+  }
+
   function onSyncPicks(picks) {
     const seatSlot = mySlot();
     picks.forEach(pick => {
@@ -3812,6 +3853,22 @@
         off_board: true,          // rendered differently; never scored
       };
 
+      // REHEARSAL SKIP MODE — THE DEFAULT IN A MOCK.
+      //
+      // Keeping three players forfeits rounds 1-3. A mock room does not know
+      // that and hands me picks in those rounds anyway; taking them made my
+      // roster six deep when draft night starts it at three, and the need model
+      // repriced every position off a roster I will never have.
+      //
+      // Those selections are REHEARSAL NOISE: the player really is off this
+      // room's board, so the board and survival model must see him gone, but he
+      // is not mine and must never reach my roster, need, legality or byes.
+      if (rehearsalSkips(pick, slot, seatSlot)) {
+        if (ATTR) ATTR.markRehearsalNoise(state, p);
+        else state.drafted.add(id);
+        state.board = state.board.filter(x => String(x.player_id) !== id);
+        return;                                   // never mine, never reconciled
+      }
       // SLEEPER IS AUTHORITATIVE. applyRemote places him on the seat the API
       // reports and moves him off any seat a local guess put him on — the same
       // tested path the robot mock's Loveland scenario exercises. Idempotent,
