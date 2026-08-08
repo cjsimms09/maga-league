@@ -59,3 +59,50 @@ jobs:
           git add draft/backtest/LAB-REPORT.md draft/backtest/lab-results.json
           git commit -m "Lab report $stamp" || { echo "no change"; exit 0; }
           git pull --rebase origin main && git push || echo "push skipped"
+
+  # THE REPLAY->MONEY BRIDGE GATE (the harness's final increment).
+  #
+  # Runs HERE because building its inputs needs nflverse + FFC egress the
+  # sandbox does not have. Bundles + per-week points are built fresh, the replay
+  # dumps every policy's per-pick choices, and test_bridge.py's CI layer asserts
+  # the real invariants: the 'actual' policy reproduces each seat's true drafted
+  # roster, every policy money-grades bounded, and coverage clears the honesty
+  # floor. Experiments that consume the FULL REPLAY PATH (1/2/19 and the
+  # money-graded parts of 20/21/24/25/26) run only behind this gate — a red
+  # bridge means their inputs cannot be trusted, so they must not run at all.
+  #
+  # Deliberately a separate job: a nflverse outage must not take down the
+  # certification + L0 report above, which need no egress.
+  replay-bridge:
+    runs-on: ubuntu-latest
+    needs: lab            # certification first — the bridge grades with the same grader
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "20" }
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+
+      - name: Build bundles + per-week points (nflverse/FFC egress)
+        run: |
+          pip install -r draft/requirements.txt -q
+          pip install pytest -q
+          python draft/backtest/cli.py --out draft/backtest/bundles.json \
+                                       --weekly-out draft/backtest/weekly_points.json
+
+      - name: Dump the replay's per-pick policy choices
+        run: node draft/backtest/dump-replay.js
+
+      - name: BRIDGE GATE — the replay path money-grades correctly
+        run: python -m pytest draft/tests/test_bridge.py -q
+
+      - name: Run the bridge (money-graded policy results)
+        run: python draft/backtest/bridge.py --out draft/backtest/bridge-results.json
+
+      - name: Upload bridge results (artifact, not committed — inputs are egress-built)
+        uses: actions/upload-artifact@v4
+        with:
+          name: bridge-results
+          path: |
+            draft/backtest/bridge-results.json
+          retention-days: 30

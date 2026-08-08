@@ -119,6 +119,40 @@ def rest_of_season_points(weekly_df, season: int, scoring_cfg: dict,
     return {k: round(v, 2) for k, v in out.items()}
 
 
+def weekly_points_table(weekly_df, season: int, scoring_cfg: dict,
+                        crosswalk: dict) -> dict:
+    """{week: {sleeper_id: points}} for `season` — the per-WEEK sibling of
+    rest_of_season_points, for the draft-replay -> money bridge.
+
+    money-grading a COUNTERFACTUAL roster needs every NFL player's weekly points
+    (league_history only carries points for players somebody rostered), scored by
+    OUR engine under the replayed season's config. Same honesty rule: a player
+    with no weekly rows is ABSENT, never 0.0 — the bridge reports coverage so a
+    roster full of unmatchable players cannot silently grade as all-zeros.
+    """
+    out: dict[int, dict[str, float]] = {}
+    if weekly_df is None or len(weekly_df) == 0:
+        return out
+    cols = set(weekly_df.columns)
+    id_col = "player_id" if "player_id" in cols else "gsis_id"
+    df = weekly_df
+    if "season" in cols:
+        df = df[df["season"] == season]
+    for row in df.to_dict("records"):
+        sid = crosswalk.get(str(row.get(id_col)))
+        if not sid:
+            continue
+        wk = row.get("week")
+        if wk is None:
+            continue
+        wk = int(wk)
+        line = nflverse_weekly_to_scoring(row)
+        pts = scoring.score_stat_line(line, scoring_cfg)
+        out.setdefault(wk, {})
+        out[wk][sid] = round(out[wk].get(sid, 0.0) + pts, 2)
+    return out
+
+
 def survived(pick_no: int, next_pick: int, player_id: str, picks: list) -> bool | None:
     """Did this player last from `pick_no` to the seat's next pick?
 

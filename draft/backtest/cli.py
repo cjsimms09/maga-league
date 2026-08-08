@@ -23,6 +23,8 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--history", default=os.path.join(os.path.dirname(HERE), "data", "league_history.json"))
     ap.add_argument("--out", default=os.path.join(HERE, "bundles.json"))
+    ap.add_argument("--weekly-out", default=os.path.join(HERE, "weekly_points.json"),
+                    help="per-week per-player points for the replay->money bridge")
     ap.add_argument("--seasons", default="")
     args = ap.parse_args()
 
@@ -130,7 +132,7 @@ def main() -> int:
     else:
         caveat_missing = None
 
-    bundles, actual, methods = [], {}, []
+    bundles, actual, methods, weekly_points = [], {}, [], {}
     if caveat_missing:
         caveats.append(caveat_missing)
     for season in seasons:
@@ -169,6 +171,9 @@ def main() -> int:
         # Grading — the far side of the wall, assembled AFTER the bundle.
         cfg = store.league_config()
         actual[str(season)] = GR.rest_of_season_points(weekly, season, cfg["scoring"], crosswalk)
+        # Per-week points for the replay->money bridge (same wall: written after
+        # the bundle, read only by the bridge, never by the replay).
+        weekly_points[str(season)] = GR.weekly_points_table(weekly, season, cfg["scoring"], crosswalk)
         n_graded = len(actual[str(season)])
         print(f"  graded {n_graded} players")
         if n_graded == 0:
@@ -184,6 +189,8 @@ def main() -> int:
     json.dump({"bundles": bundles, "actual_points": actual, "caveats": caveats,
                "methods": methods}, open(args.out, "w"))
     print(f"\nwrote {args.out}")
+    json.dump({"weekly_points": weekly_points}, open(args.weekly_out, "w"))
+    print(f"wrote {args.weekly_out}")
     return 0
 
 
