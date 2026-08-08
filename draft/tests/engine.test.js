@@ -525,6 +525,38 @@ check('weight sliders change the ranking', heavyCeiling[0].score !== scored[0].s
   check('the thresholds are ordered, so no gap falls between two labels',
     E.CFG.COIN_FLIP_GAP < E.CFG.CLOSE_GAP);
 
+  // --- paths panel (Part 2 §1) --------------------------------------------
+  {
+    // A board with several coherent directions: elite TE, WR value, RB depth.
+    const board = [
+      mk('teA', 'TE', 20, 60, { tier: 1, tier_drop: 40 }),
+      mk('teB', 'TE', 55, 20, { tier: 3 }),
+      mk('wrA', 'WR', 24, 58), mk('wrB', 'WR', 30, 54), mk('wrC', 'WR', 44, 40),
+      mk('rbA', 'RB', 26, 56), mk('rbB', 'RB', 38, 48),
+      mk('qbA', 'QB', 90, 30),
+    ];
+    const paths = E.computePaths(mkCtx(board));
+    check('paths: returns an array, at most PATHS_MAX directions',
+      Array.isArray(paths) && paths.length <= E.CFG.PATHS_MAX, 'n=' + paths.length);
+    check('paths: the top path is priced at zero (nothing costs less than the best)',
+      paths.length > 0 && paths[0].price === 0, JSON.stringify(paths.map(p => p.price)));
+    check('paths: every price is >= 0 and within the qualifying band',
+      paths.every(p => p.price >= 0 && p.price <= E.CFG.PATHS_BAND),
+      JSON.stringify(paths.map(p => p.price)));
+    check('paths: each direction groups a single position (a real direction, not a mix)',
+      paths.every(p => p.candidates.every(c => c.player.position === p.position)));
+    check('paths: every path names a plain-language direction and a when-it\'s-right',
+      paths.every(p => p.name && p.when_right));
+    check('paths: distinct directions do not repeat the same cluster key',
+      new Set(paths.map(p => p.key)).size === paths.length);
+    // Coin-flip flag is symmetric when set.
+    check('paths: a path-level coin flip is mutual (both cards point at each other)',
+      paths.every(p => !p.coin_flip_with
+        || (paths.find(q => q.key === p.coin_flip_with) || {}).coin_flip_with === p.key));
+    check('paths: an empty board yields no paths',
+      E.computePaths(mkCtx([])).length === 0);
+  }
+
   // --- personal lists ------------------------------------------------------
   {
     // Two near-identical players, so the gap is genuinely inside the nudge.

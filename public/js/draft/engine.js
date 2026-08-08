@@ -38,6 +38,17 @@
     // one pick it got loudly wrong.
     COIN_FLIP_GAP: 1.0,
     CLOSE_GAP: 3.5,
+    // --- Paths panel (Part 2 §1) ---
+    // How many top candidates the path clustering considers, how far below the
+    // top score a direction may sit and still count as "solid" (the qualifying
+    // band; default max(12, COIN_FLIP_GAP*4) = 12), and the hard 2–4 cap on how
+    // many directions render (more than four is a ranking, not a decision).
+    PATHS_POOL: 10,
+    PATHS_BAND: 12.0,
+    PATHS_MAX: 4,
+    // Tier-urgency at/above this makes a path a "cliff — take it now" direction
+    // rather than a "value" one; it drives both the name and the when-it's-right.
+    PATHS_CLIFF_URGENCY: 6.0,
     // A target you have starred is allowed to jump a gap this big. Wide enough
     // that your own read wins a close call, narrow enough that it cannot drag
     // a materially worse player to the top of the list.
@@ -918,6 +929,105 @@
   }
 
   /**
+   * THE PATHS PANEL (Part 2 §1) — turn the flat top-N into 2–4 coherent
+   * DIRECTIONS. Deterministic, derived entirely from the already-scored board:
+   * no new model, no randomness, so a path set reproduces exactly.
+   *
+   *   1. take the top PATHS_POOL by composite score
+   *   2. cluster them by DIRECTION = position, split into a "cliff" vs "value"
+   *      flavour by the leader's tier-urgency (position × tier-urgency, the two
+   *      axes the spec names; branch consequence then colours when-it's-right)
+   *   3. a direction QUALIFIES only if its best candidate is within PATHS_BAND of
+   *      the top composite score — beyond that it is not a solid direction
+   *   4. price every path vs the top path (never hidden), name it in plain
+   *      language, and generate the one-line "when it's right" from live state
+   *   5. cap at PATHS_MAX; flag a path-level coin flip when the top two price
+   *      within COIN_FLIP_GAP
+   *
+   * Returns [] when the board is empty. The caller renders these as cards and
+   * logs which path a pick came from; picking off every path is an override.
+   */
+  function computePaths(ctx, scored) {
+    const list = (scored && scored.length ? scored : recommend(ctx)) || [];
+    if (!list.length) return [];
+    const pool = list.slice(0, CFG.PATHS_POOL);
+    const topScore = pool[0].score;
+
+    // Cluster by (position × cliff/value flavour). The leader of each cluster is
+    // its best-scoring member; flavour is decided by that leader's tier urgency.
+    const clusters = {};
+    const order = [];
+    pool.forEach(entry => {
+      const pos = entry.player.position;
+      const urgent = ((entry.components || {}).tier_urgency || 0) >= CFG.PATHS_CLIFF_URGENCY;
+      const key = pos + (urgent ? ':cliff' : ':value');
+      if (!clusters[key]) { clusters[key] = { key: key, pos: pos, cliff: urgent, members: [] }; order.push(key); }
+      clusters[key].members.push(entry);
+    });
+
+    // Qualify + build. A cluster's score is its best member's score.
+    const paths = order.map(key => clusters[key]).filter(c => c.members[0].score >= topScore - CFG.PATHS_BAND);
+    paths.sort((a, b) => b.members[0].score - a.members[0].score);
+    const chosen = paths.slice(0, CFG.PATHS_MAX);
+    const bestScore = chosen.length ? chosen[0].members[0].score : topScore;
+
+    const named = chosen.map((c, i) => {
+      const lead = c.members[0];
+      const need = (lead.components || {}).need || 0;
+      const branch = branchForecast(lead, ctx);
+      // A path's own position loss between now and my next pick — the branch
+      // consequence axis. High loss = the cliff is real (take it now); low loss
+      // = the value will fall (you can wait), which colours when-it's-right.
+      const posRow = branch ? (branch.rows.find(r => r.position === c.pos) || null) : null;
+      const posLoss = posRow ? posRow.loss : 0;
+
+      let name;
+      if (c.cliff) name = 'Lock the last elite ' + c.pos;
+      else if (need > 0.5) name = 'Fill ' + c.pos + ' now';
+      else name = 'Best ' + c.pos + ' value';
+
+      let whenRight;
+      if (c.cliff) {
+        // A cliff is a cliff because the TIER empties after the leader — often
+        // there is little comparable left to lose downstream (that IS the cliff),
+        // so justify from the tier drop, not a possibly-zero branch loss.
+        whenRight = 'right if you believe the ' + c.pos + ' cliff — he is the last of his tier and '
+          + 'the quality drop after him is the steepest at the position';
+      } else if (posLoss >= 8) {
+        whenRight = 'right if you believe the ' + c.pos + ' cliff — the drop to your next pick is ~'
+          + Math.round(posLoss) + ' pts';
+      } else if (posLoss <= 2) {
+        whenRight = 'right if you trust the room to keep passing on ' + c.pos
+          + ' — the value should still be there next turn';
+      } else {
+        whenRight = 'right if you want ' + c.pos + ' certainty now over ~' + Math.round(posLoss)
+          + ' pts of downside risk by waiting';
+      }
+
+      return {
+        key: c.key,
+        name: name,
+        position: c.pos,
+        cliff: c.cliff,
+        pick: { player: lead.player, score: lead.score, why: (lead.reasons || [])[0] || '' },
+        candidates: c.members.map(m => ({ player: m.player, score: m.score })),
+        plan: branch ? branch.rows.slice(0, 2) : [],
+        next_pick: branch ? branch.pick : null,
+        price: Math.round((bestScore - c.members[0].score) * 10) / 10,   // >= 0; 0 for the top path
+        when_right: whenRight,
+        is_top: i === 0,
+      };
+    });
+
+    // Path-level coin flip: the top two directions price within the gap.
+    if (named.length > 1 && (named[1].price) < CFG.COIN_FLIP_GAP) {
+      named[0].coin_flip_with = named[1].key;
+      named[1].coin_flip_with = named[0].key;
+    }
+    return named;
+  }
+
+  /**
    * What a manager's own draft history says about him, in English.
    *
    * The profiles have been feeding the survival model since A1 — alpha_need and
@@ -1485,7 +1595,7 @@
     tierCliffUrgency, starterSlotMarginal, riskAdjustment, upsideBonus,
     scorePlayer, recommend, mandatoryGaps, applyRosterLegality, plausibilityRails,
     demoteFlaggedOnesies, computeRailBudget, railFireSig, bestFlexAlt,
-    confidence, branchForecast, applyPersonalLists, onTheClock, rosterPlan, byeGrid,
+    confidence, branchForecast, computePaths, applyPersonalLists, onTheClock, rosterPlan, byeGrid,
     cheatSheet, sheetText, managerTells, threatBoard,
     WEIGHT_PRESETS, matchPreset, rankDiff, autoWeights,
     formatDefaults, applyFormatDefaults,

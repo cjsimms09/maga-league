@@ -340,6 +340,29 @@ if (!IS_FIXTURE) {
     slotVerified('sleeper', true, 10) === false);
 }
 
+// R-paths (Part 2 §1): the paths panel must render 0–4 PRICED, single-position
+// directions on the REAL board, never a direction beyond the qualifying band,
+// and its top path always at price 0. Run at a mid-draft board so real clustering
+// happens (the flat top-5 becomes coherent directions).
+{
+  const roster = [ALL.find(p => p.position === 'WR'), ALL.filter(p => p.position === 'RB')[0],
+                  ALL.filter(p => p.position === 'RB')[1]].filter(Boolean);
+  const board = ALL.filter(p => roster.indexOf(p) < 0).slice(0, 120);
+  const ctx = { board, currentPick: 34, nextPick: 47, totalPicks: 150, myPicksLeft: 12,
+    roster, league: LEAGUE, weights: E.DEFAULT_WEIGHTS, runMultipliers: {}, intervening: [], roundsLeft: 12 };
+  const paths = E.computePaths(ctx);
+  check('R-paths: renders no more than PATHS_MAX directions', paths.length <= E.CFG.PATHS_MAX, 'n=' + paths.length);
+  check('R-paths: at least one direction on a live board', paths.length >= 1, 'n=' + paths.length);
+  check('R-paths: the top path is priced at 0', paths.length > 0 && paths[0].price === 0,
+    JSON.stringify(paths.map(p => p.price)));
+  check('R-paths: no direction is priced beyond the qualifying band',
+    paths.every(p => p.price >= 0 && p.price <= E.CFG.PATHS_BAND), JSON.stringify(paths.map(p => p.price)));
+  check('R-paths: each direction is a single real position (not a mix)',
+    paths.every(p => p.candidates.every(c => c.player.position === p.position)));
+  check('R-paths: every direction carries a name, a pick, and a when-it\'s-right',
+    paths.every(p => p.name && p.pick && p.pick.player && p.when_right));
+}
+
 // R7 (DEMAND 3 — the robot draft writes the ledger): a full simulated draft
 // must produce the expected ledger entries with monotonic seq and ZERO gaps.
 // This is what proves draft night gets captured — not just a single curl test.
