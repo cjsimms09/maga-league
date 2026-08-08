@@ -1,0 +1,7 @@
+<%# The contact directory's shared data source + popover loader. Include ONCE on
+    any login-gated page that tags people with data-contact="<owner_id>". The JSON
+    is league-visible on purpose (a directory) and behind login — it must never be
+    emitted by an unauthenticated route. %>
+<% const _contacts = (typeof contacts !== 'undefined' && contacts) ? contacts : []; %>
+<script type="application/json" id="contact-data"><%- JSON.stringify(_contacts).replace(/</g, '\\u003c') %></script>
+<script src="/js/contact.js" defer></script>

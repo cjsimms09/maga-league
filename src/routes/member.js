@@ -175,6 +175,21 @@ router.use(requireLogin);
 // conversation is happening; few enough that the chat does not become the page.
 const CHAT_ON_HOME = 5;
 
+// ---------- contact directory (contact-directory.md) ----------
+// One record per owner — Venmo + email + phone — rendered by the shared card
+// wherever a person appears. "Complete" means all three are on file.
+function contactOf(o) {
+  return { id: o.id, name: o.name, team_name: o.team_name || '',
+    venmo: o.venmo || '', email: o.email || '', phone: o.phone || '' };
+}
+function contactMissingFields(o) {
+  const m = [];
+  if (!o || !o.venmo) m.push('Venmo');
+  if (!o || !o.email) m.push('email');
+  if (!o || !o.phone) m.push('phone');
+  return m;
+}
+
 router.get('/', aw(async (req, res) => {
   const world = req.world;
   const season = H.currentSeason(world.seasons);
@@ -244,6 +259,15 @@ router.get('/', aw(async (req, res) => {
     // handle; the commissioner also sees who is still missing theirs.
     venmoNag: V.needsNag(req.owner && world.owners.find(o => o.id === req.owner.id)),
     venmoMissing: (req.owner && req.owner.is_commissioner) ? V.missing(world.owners) : [],
+    // Contact directory: the shared card's data source (login-gated), this
+    // owner's own record + what's missing, and the commissioner's at-a-glance
+    // incomplete list. Superset of the Venmo nag — covers email and phone too.
+    contacts: owners.map(contactOf),
+    myContact: contactOf(world.owners.find(o => o.id === req.owner.id) || req.owner),
+    contactNag: contactMissingFields(world.owners.find(o => o.id === req.owner.id)),
+    contactMissing: (req.owner && req.owner.is_commissioner)
+      ? owners.filter(o => contactMissingFields(o).length)
+          .map(o => ({ name: o.name, missing: contactMissingFields(o) })) : [],
   });
 }));
 
@@ -519,6 +543,9 @@ router.get('/bank', aw(async (req, res) => {
     currentWeek: (await sleeper.bundle(world.config.sleeper_league_id) || {}).week || 1,
     BL, payDirectory: owners.filter(o => o.venmo || o.paypal || o.cashapp || o.zelle),
     V, ownerById: id => owners.find(o => o.id === Number(id)),
+    // Contact directory: shared card data + this owner's own record for the edit
+    // form. Same one-record store the home page reads.
+    contacts: owners.map(contactOf), myContact: contactOf(world.owners.find(o => o.id === req.owner.id) || req.owner),
   });
 }));
 
@@ -822,6 +849,42 @@ router.post('/profile/pay', aw(async (req, res) => {
   const owner = world.owners.find(o => o.id === req.owner.id);
   if (owner) {
     V.applyProfileUpdate(owner, req.body);
+    await setDoc('owners', world.owners);
+  }
+  res.redirect(req.body.back === 'home' ? '/' : '/bank#pay-directory');
+}));
+
+/**
+ * Contact directory write path (contact-directory.md).
+ *
+ * Email and phone live on the ONE owner record, alongside the Venmo handle, and
+ * every surface that shows a person reads from here. This route has its OWN
+ * explicit allow-list — email and phone only — deliberately NOT routed through
+ * venmo.js's four-field payment allow-list, so neither path can widen the other
+ * by accident. Phone/email are PII: they render only in login-gated views and
+ * never in an unauthenticated response (health/site-check payloads exclude them).
+ */
+function cleanPhone(v) {
+  // Keep the characters a phone number legitimately uses; drop the rest.
+  return String(v == null ? '' : v).replace(/[^\d+().\-\s]/g, '').trim().slice(0, 30);
+}
+router.post('/profile/contact', aw(async (req, res) => {
+  const world = req.world;
+  const owner = world.owners.find(o => o.id === req.owner.id);
+  if (owner) {
+    // Venmo (and the other payment handles, if present) go through venmo.js's
+    // own four-field allow-list — calling it, never widening it.
+    V.applyProfileUpdate(owner, req.body);
+    if (Object.prototype.hasOwnProperty.call(req.body, 'email')) {
+      const email = String(req.body.email || '').trim().toLowerCase().slice(0, 120);
+      if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+        return res.redirect((req.body.back === 'home' ? '/' : '/bank') + '?contact=bademail');
+      }
+      owner.email = email;
+    }
+    if (Object.prototype.hasOwnProperty.call(req.body, 'phone')) {
+      owner.phone = cleanPhone(req.body.phone);
+    }
     await setDoc('owners', world.owners);
   }
   res.redirect(req.body.back === 'home' ? '/' : '/bank#pay-directory');

@@ -4,28 +4,31 @@
 <div class="roast-banner">🚨 <%= roast %></div>
 <% } %>
 
-<% if (typeof venmoNag !== 'undefined' && venmoNag) { %>
-<div class="venmo-nag" id="venmo-nag" style="display:none;background:var(--panel-soft);border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:8px;padding:10px 14px;margin:0 0 12px;gap:10px;align-items:center;flex-wrap:wrap;color:var(--ink)">
-  <span>💸 Add your Venmo so people can pay you.</span>
-  <form method="post" action="/profile/pay" style="display:flex;gap:6px;align-items:center;margin:0">
+<%# Contact directory nag (contact-directory.md): one banner for incomplete
+    contact info — Venmo, email or phone. Recurring but dismissible per session.
+    Only the MISSING fields get an input, so a complete owner never sees it. %>
+<% const _nag = (typeof contactNag !== 'undefined' && contactNag) ? contactNag : []; %>
+<% if (_nag.length) { %>
+<div class="contact-nag" id="contact-nag">
+  <span>📇 Your contact info is incomplete — add your <%= _nag.join(', ') %> so the league can reach and pay you.</span>
+  <form method="post" action="/profile/contact">
     <input type="hidden" name="back" value="home">
-    <span style="color:var(--muted)">@</span>
-    <input type="text" name="venmo" maxlength="60" placeholder="your-handle" required
-           style="padding:5px 8px;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--ink)">
+    <% if (_nag.includes('phone')) { %><input type="tel" name="phone" maxlength="30" placeholder="phone"><% } %>
+    <% if (_nag.includes('email')) { %><input type="email" name="email" maxlength="120" placeholder="email"><% } %>
+    <% if (_nag.includes('Venmo')) { %><input type="text" name="venmo" maxlength="60" placeholder="venmo handle"><% } %>
     <button type="submit" class="btn small">Save</button>
   </form>
-  <button type="button" onclick="document.getElementById('venmo-nag').style.display='none';sessionStorage.setItem('venmoNagDismissed','1')" style="margin-left:auto;background:none;border:none;color:var(--muted);cursor:pointer">dismiss</button>
+  <button type="button" class="dismiss" onclick="this.parentNode.style.display='none';sessionStorage.setItem('contactNagDismissed','1')">dismiss</button>
 </div>
 <script>
-  // Dismissible-but-recurring: hidden for this session once dismissed, back next.
-  (function(){ if(!sessionStorage.getItem('venmoNagDismissed')){ var n=document.getElementById('venmo-nag'); if(n) n.style.display='flex'; } })();
+  (function(){ if(!sessionStorage.getItem('contactNagDismissed')){ var n=document.getElementById('contact-nag'); if(n) n.style.display='flex'; } })();
 </script>
 <% } %>
 
-<% if (typeof venmoMissing !== 'undefined' && venmoMissing && venmoMissing.length) { %>
+<% if (typeof contactMissing !== 'undefined' && contactMissing && contactMissing.length) { %>
 <div class="venmo-missing" style="background:var(--panel-soft);border:1px solid var(--line);border-left:3px solid var(--red);border-radius:8px;padding:10px 14px;margin:0 0 12px;font-size:14px;color:var(--ink)">
-  <b>Commissioner:</b> still no Venmo on file for
-  <%= venmoMissing.map(o => o.name).join(', ') %> — hound them in the chat.
+  <b>Commissioner — incomplete contact info:</b>
+  <%= contactMissing.map(o => o.name + ' (' + o.missing.join('/') + ')').join(', ') %> — hound them in the chat.
 </div>
 <% } %>
 
@@ -97,7 +100,7 @@
           <% const bm = r.owner_id != null ? betMoney[r.owner_id] : null; %>
           <tr class="<%= seasonStarted && r.rank === sleeperStandings.length ? 'last-place' : '' %>">
             <% if (seasonStarted) { %><td><%= r.rank %><%= r.rank === 1 ? ' 👑' : r.rank === sleeperStandings.length ? ' 🚽' : '' %></td><% } %>
-            <td><b><%= r.owner_name || r.team %></b><% if (bm) { %><span
+            <td><% if (r.owner_id != null) { %><button type="button" class="contact-link" data-contact="<%= r.owner_id %>"><b><%= r.owner_name || r.team %></b></button><% } else { %><b><%= r.owner_name || r.team %></b><% } %><% if (bm) { %><span
                 class="bet-money<%= bm.mine ? ' mine' : '' %>"
                 title="<%= bm.notes.join(' · ').replace(/"/g, '&quot;') %>">💰<% if (bm.mine) { %><%= money(bm.mine) %><% } %></span><% } %><% if (r.owner_name && r.owner_name !== r.team) { %> <span class="muted"><%= r.team %></span><% } %></td>
             <td class="num" style="white-space:nowrap"><%= r.wins %>-<%= r.losses %><%= r.ties ? '-' + r.ties : '' %></td>
@@ -233,7 +236,7 @@
         <tr><th>Owner</th><th>Buy-in</th><th class="num">Net Tab</th></tr>
         <% for (const b of buyins) { %>
           <tr>
-            <td><b><%= b.owner.name %></b></td>
+            <td><button type="button" class="contact-link" data-contact="<%= b.owner.id %>"><b><%= b.owner.name %></b></button></td>
             <td><% if (b.paid) { %><span class="badge paid">Paid</span><% } else { %><span class="badge owes">Owes <%= money(season.buy_in) %></span><% } %></td>
             <td class="num <%= b.balance > 0 ? 'pos' : b.balance < 0 ? 'neg' : '' %>"><%= b.balance === 0 ? '—' : money(b.balance) %></td>
           </tr>
@@ -364,4 +367,5 @@
   });
 })();
 </script>
+<%- include('partials/_contact_directory') %>
 <%- include('partials/footer') %>

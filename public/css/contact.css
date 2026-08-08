@@ -1,0 +1,60 @@
+/* Contact directory — the shared card + its tap targets. Site-wide (not
+   chronicle-only), so linked globally. Builds on style.css design tokens. */
+
+/* a person's name that opens the card */
+.contact-link {
+  background: none; border: 0; padding: 0; margin: 0; cursor: pointer;
+  font: inherit; color: inherit; text-align: left;
+  border-bottom: 1px dotted rgba(245, 196, 69, .5);
+}
+.contact-link:hover { color: var(--gold-bright); border-bottom-color: var(--gold); }
+
+/* the modal overlay */
+.contact-overlay {
+  position: fixed; inset: 0; z-index: 400;
+  background: rgba(3, 5, 10, .72);
+  display: flex; align-items: center; justify-content: center;
+  padding: 1rem;
+}
+.contact-overlay[hidden] { display: none; }
+
+.contact-card {
+  position: relative; width: 100%; max-width: 360px;
+  background: var(--panel); border: 1px solid var(--line);
+  border-radius: var(--radius); box-shadow: 0 24px 60px rgba(0, 0, 0, .5);
+  padding: 1.2rem 1.2rem 1rem;
+}
+.cc-close {
+  position: absolute; top: .5rem; right: .5rem;
+  background: none; border: 0; color: var(--muted); font-size: 1rem; cursor: pointer;
+  padding: .3rem .5rem; border-radius: 6px;
+}
+.cc-close:hover { color: var(--red-bright); }
+.cc-name { font-family: var(--font-display); font-weight: 900; font-size: 1.35rem; color: var(--ink); }
+.cc-team { color: var(--muted); font-size: .85rem; margin: 0 0 .8rem; }
+
+.cc-row { display: flex; gap: .7rem; align-items: baseline; padding: .5rem 0; border-top: 1px solid var(--line); }
+.cc-row:first-of-type { border-top: 0; }
+.cc-ico { width: 1.4rem; text-align: center; flex: 0 0 auto; }
+.cc-body { display: flex; flex-direction: column; gap: .1rem; min-width: 0; }
+.cc-label { font-family: var(--font-display); font-weight: 800; font-size: .58rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.cc-body a { color: var(--gold-bright); text-decoration: none; word-break: break-word; }
+.cc-body a:hover { text-decoration: underline; }
+.cc-act {
+  display: inline-block; margin-left: .4rem; font-size: .7rem; font-weight: 700;
+  padding: .05rem .4rem; border: 1px solid rgba(245, 196, 69, .4); border-radius: 999px;
+}
+.cc-none { color: var(--muted); font-style: italic; }
+
+/* the incomplete-info banner (recurring, dismissible per session) */
+.contact-nag {
+  display: none; background: var(--panel-soft); border: 1px solid var(--line);
+  border-left: 3px solid var(--gold); border-radius: 8px;
+  padding: 10px 14px; margin: 0 0 12px; gap: 10px; align-items: center; flex-wrap: wrap; color: var(--ink);
+}
+.contact-nag form { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin: 0; }
+.contact-nag input {
+  padding: 5px 8px; border: 1px solid var(--line); border-radius: 6px;
+  background: var(--panel); color: var(--ink); font: inherit; max-width: 11rem;
+}
+.contact-nag .dismiss { margin-left: auto; background: none; border: none; color: var(--muted); cursor: pointer; }

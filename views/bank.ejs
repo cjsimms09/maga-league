@@ -288,13 +288,15 @@ season until settled.</p>
          o.paypal && ['PayPal', o.paypal],
          o.zelle && ['Zelle', o.zelle],
        ].filter(Boolean) })); %>
-    <% for (const p of pays) { if (!p.has.length) continue; %>
+    <% for (const p of pays) { if (!p.has.length && !p.o.email && !p.o.phone) continue; %>
       <div class="pay-row">
-        <b><%= p.o.name %><%= p.o.id === owner.id ? ' (you)' : '' %></b>
+        <button type="button" class="contact-link" data-contact="<%= p.o.id %>"><b><%= p.o.name %><%= p.o.id === owner.id ? ' (you)' : '' %></b></button>
         <span class="pay-handles">
           <% for (const [kind, handle] of p.has) { %>
             <button type="button" class="pay-chip" data-copy="<%= handle %>"><%= kind %> <code><%= handle %></code></button>
           <% } %>
+          <% if (p.o.phone) { %><a class="pay-chip" href="tel:<%= p.o.phone.replace(/[^\d+]/g, '') %>">📞 <code><%= p.o.phone %></code></a><% } %>
+          <% if (p.o.email) { %><a class="pay-chip" href="mailto:<%= p.o.email %>">✉️ <code><%= p.o.email %></code></a><% } %>
         </span>
       </div>
     <% } %>
@@ -308,7 +310,15 @@ season until settled.</p>
   <details class="entry-card" style="border:0; border-top:1px solid var(--line); border-radius:0">
     <summary>✍️ Add or change yours <span class="sub">only you can edit your own</span></summary>
     <div class="body">
-      <form method="post" action="/profile/pay" class="entry-form">
+      <form method="post" action="/profile/contact" class="entry-form">
+        <div class="ef-row">
+          <label class="field">Phone <span class="muted">(call &amp; text)</span>
+            <input type="tel" name="phone" maxlength="30" value="<%= owner.phone || '' %>" placeholder="(555) 123-4567">
+          </label>
+          <label class="field">Email
+            <input type="email" name="email" maxlength="120" value="<%= owner.email || '' %>" placeholder="you@example.com">
+          </label>
+        </div>
         <div class="ef-row">
           <label class="field">Venmo <span class="muted">(without the @)</span>
             <input type="text" name="venmo" maxlength="60" value="<%= owner.venmo || '' %>" placeholder="cory-simms">
@@ -344,4 +354,5 @@ season until settled.</p>
 
 <% } %>
 
+<%- include('partials/_contact_directory') %>
 <%- include('partials/footer') %>
