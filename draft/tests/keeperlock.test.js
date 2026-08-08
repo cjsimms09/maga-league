@@ -31,6 +31,12 @@ const slateOf = (...entries) => {
     s['3'].length === 2 && s['3'][0].player_id === '7', JSON.stringify(s));
   check('a keeper with no original round falls back to the cost it was charged',
     s['3'][1].original_round === 5, JSON.stringify(s['3'][1]));
+  // Bug fix (2026-08-08): the slate must PRESERVE the distinct cost rounds so the
+  // keeper screen shows the real forfeited rounds (1/2/3), not "round 1" three
+  // times. Under top_picks_flat the display derives cost by rank (i+1); the raw
+  // cost_round must still survive slateFromForfeited for non-flat models.
+  check('slateFromForfeited preserves each keeper\'s distinct cost_round',
+    s['3'][0].cost_round === 2 && s['3'][1].cost_round === 5, JSON.stringify(s['3']));
   check('an empty forfeited list is an empty slate, not a crash',
     JSON.stringify(K.slateFromForfeited([])) === '{}'
       && JSON.stringify(K.slateFromForfeited(null)) === '{}');

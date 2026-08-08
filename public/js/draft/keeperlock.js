@@ -59,6 +59,10 @@
         name: f.name || String(f.player_id),
         position: f.position || '?',
         original_round: f.original_round == null ? f.cost_round : f.original_round,
+        // The round this keeper actually FORFEITS. Under top_picks_flat this is
+        // rank-derived (keeping N forfeits rounds 1..N), NOT the original round —
+        // preserve it so the slate shows the real cost, not "round 1" three times.
+        cost_round: f.cost_round == null ? null : f.cost_round,
         years_kept: f.years_kept == null ? 1 : f.years_kept,
       });
     });

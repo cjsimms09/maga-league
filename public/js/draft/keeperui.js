@@ -321,14 +321,31 @@
   }
 
   function keeperRow(slot, i, k) {
+    // COST ROUND display. Under top_picks_flat the cost is RANK-derived — keeping
+    // N keepers forfeits rounds 1..N — so the Nth keeper (by slate order) costs
+    // round i+1, regardless of the player's original draft round. Showing
+    // original_round here made all three of a same-tier keeper set read "round 1",
+    // which is wrong: they forfeit rounds 1, 2 AND 3 (hence first live pick = r4).
+    // So for top_picks_flat we render a read-only, rank-derived cost; other cost
+    // models (original_round / fixed_round) keep the editable per-keeper input.
+    const model = (state.cfg.keepers || {}).cost_model;
+    let costCell;
+    if (model === 'top_picks_flat') {
+      const r = i + 1;
+      costCell = '<span class="keeper-cost fixed" title="top-picks-flat: keeping ' + r
+        + ' keeper' + (r === 1 ? '' : 's') + ' forfeits rounds 1–' + r + '">round <b>' + r + '</b></span>';
+    } else {
+      const val = k.cost_round != null ? k.cost_round : k.original_round;
+      costCell = '<label class="keeper-cost">round '
+        + '<input type="number" min="1" max="' + state.cfg.rounds + '" '
+        + 'value="' + (val == null ? '' : val) + '" '
+        + 'data-cost="' + slot + ':' + i + '"></label>';
+    }
     return '<div class="keeper-row">'
       + '<span class="keeper-name">' + escapeHtml(k.name)
       + '<span class="rec-pos ' + escapeHtml(k.position || '?') + '">'
       + escapeHtml(k.position || '?') + '</span></span>'
-      + '<label class="keeper-cost">round '
-      + '<input type="number" min="1" max="' + state.cfg.rounds + '" '
-      + 'value="' + (k.original_round == null ? '' : k.original_round) + '" '
-      + 'data-cost="' + slot + ':' + i + '"></label>'
+      + costCell
       + '<button class="btn small ghost" data-drop="' + slot + ':' + i + '" title="Remove">✕</button>'
       + '</div>';
   }
