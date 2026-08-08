@@ -103,6 +103,11 @@ After the draft: automatically grade every survival prediction made live (Layer 
 ### L4. Dossier append pipeline
 The 2026 draft and season auto-append to the nine opponent dossiers (reach deltas from live picks vs behavior-ADP, keeper choices graded under flat-cost surplus, in-season efficiency once weekly data flows). Era-tagged to this year's ruleset. New-owner and rule-change handling per the Part 12 spec.
 
+**Literature grounding (Cambridge/Sleeper draft study, cited 2026-08-08).** Two findings from the published draft-behavior research anchor this whole opponent-modeling programme, and belong on the record here:
+- **The behavioral-dossier approach IS that paper's explicitly-named future work.** The paper models draft behavior in aggregate and flags per-opponent behavioral modeling as the open direction; the nine dossiers operationalize exactly that. We are not guessing that opponent modeling helps — the literature named it as the next step, and this is it.
+- **"No universal optimal strategy — it depends on your room" is the formal justification for our league-conditional tournament design.** The paper's central result is that the best draft strategy is room-dependent; that is precisely why the Lab races strategies **Cory-conditional and per-slot** (experiments 1/10/19) rather than seeking one global answer. Our tournament architecture is that finding, applied.
+- **Herding is published and exploitable** (drafters herd on early QBs and on K/DST): Lab experiment 20 tests fading herd-shaped runs for dollars and scans our own three seasons' dossiers for the signature — herding is encoded into the opponent model, not left implicit.
+
 ### L5. The Annual — scheduled, not aspirational
 A January job (cron, not intention) that generates the season review: shadow-roster final standings, my overrides graded (was I right?), calibration verdicts, dossier drift, and the gated proposals for 2027 (strategy default, weight changes, parameter fits) — each proposal carrying its evidence and requiring my sign-off, each applied change graded the following year. The gate rules from Part 11 apply verbatim: multi-season consistency or in-season significance; a planted noise-proposal must be rejected (test the gate).
 
