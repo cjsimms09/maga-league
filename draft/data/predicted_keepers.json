@@ -1,0 +1,231 @@
+{
+  "provenance": "predicted (flat-cost surplus) + Cory intel",
+  "note": "PREDICTED slates for mock/rehearsal \u2014 replaced one-by-one by real designations via keeper-watch. Assumes keeper-eligibility (max_years=3 not verifiable for opponents).",
+  "round_cost_vorp": [
+    103.91,
+    62.08,
+    36.2
+  ],
+  "predictions": {
+    "coryjsimms": {
+      "roster_id": "1",
+      "predicted_keepers": [
+        {
+          "player_id": "7564",
+          "name": "Ja'Marr Chase",
+          "position": "WR",
+          "vorp": 145.1,
+          "cost_round": 1,
+          "surplus": 41.2,
+          "confidence": "high"
+        },
+        {
+          "player_id": "3198",
+          "name": "Derrick Henry",
+          "position": "RB",
+          "vorp": 124.2,
+          "cost_round": 2,
+          "surplus": 62.1,
+          "confidence": "high"
+        },
+        {
+          "player_id": "8151",
+          "name": "Kenneth Walker",
+          "position": "RB",
+          "vorp": 105.8,
+          "cost_round": 3,
+          "surplus": 69.6,
+          "confidence": "high"
+        }
+      ],
+      "next_best": "Chris Olave",
+      "source": "model"
+    },
+    "ds7mmet": {
+      "roster_id": "2",
+      "predicted_keepers": [],
+      "next_best": "Lamar Jackson",
+      "source": "model"
+    },
+    "cashworth": {
+      "roster_id": "3",
+      "predicted_keepers": [],
+      "next_best": "Ashton Jeanty",
+      "source": "model"
+    },
+    "Jreis": {
+      "roster_id": "4",
+      "predicted_keepers": [],
+      "next_best": "James Cook",
+      "source": "model"
+    },
+    "B8T3S": {
+      "roster_id": "5",
+      "predicted_keepers": [
+        {
+          "player_id": "9221",
+          "name": "Jahmyr Gibbs",
+          "position": "RB",
+          "vorp": 156.3,
+          "cost_round": 1,
+          "surplus": 52.4,
+          "confidence": "high"
+        },
+        {
+          "player_id": "6813",
+          "name": "Jonathan Taylor",
+          "position": "RB",
+          "vorp": 103.9,
+          "cost_round": 2,
+          "surplus": 41.8,
+          "confidence": "high"
+        },
+        {
+          "player_id": "8112",
+          "name": "Drake London",
+          "position": "WR",
+          "vorp": 56.3,
+          "cost_round": 3,
+          "surplus": 20.1,
+          "confidence": "medium"
+        }
+      ],
+      "next_best": "Garrett Wilson",
+      "source": "model"
+    },
+    "MarianSaar": {
+      "roster_id": "6",
+      "predicted_keepers": [
+        {
+          "player_id": "9488",
+          "name": "Jaxon Smith-Njigba",
+          "position": "WR",
+          "vorp": 90.7,
+          "cost_round": 1,
+          "surplus": -13.2,
+          "confidence": "low"
+        },
+        {
+          "player_id": "11604",
+          "name": "Brock Bowers",
+          "position": "TE",
+          "vorp": 82.2,
+          "cost_round": 2,
+          "surplus": 20.1,
+          "confidence": "high",
+          "override": "Cory intel (confirms model)"
+        },
+        {
+          "player_id": "9226",
+          "name": "De'Von Achane",
+          "position": "RB",
+          "vorp": 62.0,
+          "cost_round": 3,
+          "surplus": 25.8,
+          "confidence": "high"
+        }
+      ],
+      "next_best": "Justin Jefferson",
+      "source": "model + intel override"
+    },
+    "mhagen": {
+      "roster_id": "7",
+      "predicted_keepers": [
+        {
+          "player_id": "4034",
+          "name": "Christian McCaffrey",
+          "position": "RB",
+          "vorp": 105.9,
+          "cost_round": 1,
+          "surplus": 2.0,
+          "confidence": "low"
+        },
+        {
+          "player_id": "7547",
+          "name": "Amon-Ra St. Brown",
+          "position": "WR",
+          "vorp": 82.0,
+          "cost_round": 2,
+          "surplus": 19.9,
+          "confidence": "medium"
+        },
+        {
+          "player_id": "4984",
+          "name": "Josh Allen",
+          "position": "QB",
+          "vorp": 62.1,
+          "cost_round": 3,
+          "surplus": 25.9,
+          "confidence": "high"
+        }
+      ],
+      "next_best": "George Pickens",
+      "source": "model"
+    },
+    "Richard2121": {
+      "roster_id": "8",
+      "predicted_keepers": [
+        {
+          "player_id": "9509",
+          "name": "Bijan Robinson",
+          "position": "RB",
+          "vorp": 148.3,
+          "cost_round": 1,
+          "surplus": 44.4,
+          "confidence": "high"
+        },
+        {
+          "player_id": "8130",
+          "name": "Trey McBride",
+          "position": "TE",
+          "vorp": 64.2,
+          "cost_round": 2,
+          "surplus": 2.1,
+          "confidence": "low"
+        },
+        {
+          "player_id": "7569",
+          "name": "Nico Collins",
+          "position": "WR",
+          "vorp": 57.5,
+          "cost_round": 3,
+          "surplus": 21.3,
+          "confidence": "medium"
+        }
+      ],
+      "next_best": "DeVonta Smith",
+      "source": "model"
+    },
+    "Schmelley": {
+      "roster_id": "9",
+      "predicted_keepers": [
+        {
+          "player_id": "9493",
+          "name": "Puka Nacua",
+          "position": "WR",
+          "vorp": 118.2,
+          "cost_round": 1,
+          "surplus": 14.3,
+          "confidence": "medium"
+        },
+        {
+          "player_id": "4866",
+          "name": "Saquon Barkley",
+          "position": "RB",
+          "vorp": 73.9,
+          "cost_round": 2,
+          "surplus": 11.8,
+          "confidence": "medium"
+        }
+      ],
+      "next_best": "Breece Hall",
+      "source": "model"
+    },
+    "Sadbru": {
+      "roster_id": "10",
+      "predicted_keepers": [],
+      "next_best": "CeeDee Lamb",
+      "source": "model"
+    }
+  }
+}
