@@ -34,6 +34,12 @@
     lists: { targets: [], avoid: [], queue: [] },
     clockMode: false,     // the one-answer view
     clockIndex: 0,        // which recommendation it is showing
+    // A2 slot verification: a slot can be set manually (a guess/placeholder) or
+    // imported from the real Sleeper draft object (verified). Everything derived
+    // from the slot — pick numbers, LRM, the opening script — is provisional
+    // until slotVerified flips true, and a body watermark says so.
+    slotVerified: false,
+    slotSource: null,     // 'manual' | 'sleeper'
   };
   const LISTS_KEY = 'wr-lists-v1';
   const RAIL_ACK_KEY = 'wr-rail-acks-v1';
@@ -481,6 +487,7 @@
     renderByes();
     renderChecklist();
     renderRehearsalWatermark();
+    renderSlotWatermark();
     renderLRM();
     renderSurvival();
     renderRuns();
@@ -1136,8 +1143,17 @@
           ? Math.round(prov.opportunity_coverage * 100) + '% matched'
           : (prov.opportunity_adjustment || 'disabled'),
         fix: 'Rebuild the board' },
-      { ok: !!slot, label: 'Draft slot claimed', detail: slot ? 'pick ' + slot : 'not set',
-        fix: 'Claim it on the Draft Spot page' },
+      // A2: a slot that is merely CLAIMED is a placeholder — green only once it
+      // is VERIFIED against the Sleeper draft object's draft_order. Amber (not
+      // green) while manually set: the number can be right and still unconfirmed.
+      { ok: !!slot && state.slotVerified,
+        label: 'Draft slot verified against Sleeper draft object',
+        detail: !slot ? 'not set'
+          : state.slotVerified ? 'pick ' + slot + ' — from Sleeper, verified'
+            : 'pick ' + slot + ' — manually set, UNVERIFIED (draft order not yet assigned)',
+        fix: !slot ? 'Claim it on the Draft Spot page'
+          : state.slotVerified ? ''
+            : 'Connect the Sleeper draft room; the slot verifies automatically once the draft order is assigned' },
       // Pick NUMBERS recompute live when the slot changes, but keeper-adjusted
       // ADP does not — it was computed for whichever seat the pipeline built
       // with. A board that is right about when you pick and wrong about what
@@ -1684,6 +1700,23 @@
     }
   }
 
+  /* A2 — a persistent "SLOT UNVERIFIED" flag whenever a slot is claimed but not
+   * yet confirmed against the Sleeper draft object. Everything slot-derived (pick
+   * numbers, LRM windows, the opening script) is provisional until this clears,
+   * so a glance or a screenshot can never mistake a placeholder seat for the real
+   * one. Mirrors the rehearsal watermark: a body flag CSS paints a corner ribbon
+   * off. Suppressed in mock mode (the rehearsal ribbon already owns the corner). */
+  function renderSlotWatermark() {
+    var league = (state.data || {}).league || {};
+    var hasSlot = !!Number(league.my_draft_slot);
+    var on = hasSlot && !state.slotVerified && !state.mockMode;
+    var wm = document.getElementById('slot-watermark');
+    if (wm) wm.style.display = on ? '' : 'none';
+    if (typeof document !== 'undefined' && document.body) {
+      document.body.classList.toggle('slot-unverified', on);
+    }
+  }
+
   function renderLRM() {
     var host = document.getElementById('lrm-strip');
     if (!host) return;
@@ -1766,9 +1799,20 @@
 
     const result = { mapped, total: Object.keys(byUser).length, mySlot: mine };
     const changed = mine && Number(mine) !== Number(state.data.league.my_draft_slot);
-    if (changed) {
-      showSlotNote('Sleeper says you are in slot ' + mine + ' — importing.', false);
-      setSlot(mine);
+    // A2: a resolved slot from a real draft object with a populated draft_order
+    // VERIFIES the seat. Set it whether or not the number changed — a manual
+    // guess that happens to be right is still upgraded from placeholder to
+    // verified, clearing the UNVERIFIED watermark. draft_order still null (order
+    // not yet assigned, D4) → no verification, watermark stays.
+    if (mine && !state.mockMode && Object.keys(byUser).length > 0) {
+      if (changed) {
+        showSlotNote('Sleeper says you are in slot ' + mine + ' — importing.', false);
+        setSlot(mine, 'sleeper');
+      } else {
+        state.slotSource = 'sleeper';
+        state.slotVerified = true;
+      }
+      renderSlotWatermark();
     }
     showImportNote(result, changed);
     return result;
@@ -1891,7 +1935,7 @@
    * Changing it here recomputes the true pick order and my picks immediately,
    * with no network and no rebuild, and says what moved.
    */
-  function setSlot(slot) {
+  function setSlot(slot, source) {
     const n = Number(slot);
     const league = state.data.league;
     if (!n || n < 1 || n > (league.teams || 10)) return;
@@ -1905,6 +1949,10 @@
       return;
     }
     state.data.pick_order.my_picks = derived;
+    // A2: only a slot imported from a REAL (non-mock) Sleeper draft object counts
+    // as verified. A manual entry is a placeholder until Sleeper confirms it.
+    state.slotSource = (source === 'sleeper' && !state.mockMode) ? 'sleeper' : 'manual';
+    state.slotVerified = state.slotSource === 'sleeper';
     try { localStorage.setItem(SLOT_KEY, String(n)); } catch (e) { /* private mode */ }
 
     // Say what changed, not just re-render. A bad edit is obvious in a sentence

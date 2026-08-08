@@ -939,6 +939,23 @@ body.is-rehearsal::after {
   box-shadow: 0 4px 14px rgba(0,0,0,.35);
 }
 
+/* A2 — SLOT UNVERIFIED. A quieter cousin of the rehearsal banner: the slot is a
+   placeholder until Sleeper confirms it, and everything slot-derived is
+   provisional. Same sticky-banner + corner-ribbon pattern, in caution red so it
+   reads as "trust this number less", not "you are in a sim". */
+.slot-watermark {
+  position: sticky; top: 0; z-index: 78; text-align: center;
+  background: repeating-linear-gradient(45deg, rgba(255,70,85,.16) 0 14px, rgba(255,70,85,.26) 14px 28px);
+  color: #ffd3d7; font-weight: 800; letter-spacing: .1em; text-transform: uppercase;
+  padding: .4rem; border-bottom: 2px solid rgba(255,70,85,.5); font-size: .76rem;
+}
+body.slot-unverified:not(.is-rehearsal)::before {
+  content: "SLOT UNVERIFIED"; position: fixed; right: -46px; top: 92px; z-index: 77;
+  transform: rotate(45deg); background: rgba(255,70,85,.82); color: #0b1020;
+  font-weight: 900; letter-spacing: .08em; padding: .28rem 3.2rem; pointer-events: none;
+  box-shadow: 0 4px 14px rgba(0,0,0,.35);
+}
+
 /* ---------- draft-day staleness gate ----------
    Over 18 hours old the board needs an explicit acknowledgement. The board
    stays visible behind it: hiding it would make a stale artifact look the same

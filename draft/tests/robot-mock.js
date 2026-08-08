@@ -316,6 +316,30 @@ if (!IS_FIXTURE) {
     wrNeed > rbNeed, 'wr=' + wrNeed + ' rb=' + rbNeed);
 }
 
+// R-slot (A2): the slot-verification truth table, mirroring app.js setSlot /
+// importDraftOrder exactly (app.js is a browser IIFE with no node harness, so —
+// like opponentPick above — the rule is re-encoded here as the guarded spec). A
+// slot is VERIFIED only when it comes from a REAL (non-mock) Sleeper draft object
+// whose draft_order is populated. A manual entry, a mock draft, or a real object
+// with a still-null draft_order (order not yet assigned) all stay UNVERIFIED, and
+// everything slot-derived is provisional (watermark up) until it flips.
+{
+  // slotVerified(source, mock, draftOrderCount): the decision app.js encodes.
+  function slotVerified(source, mock, draftOrderCount) {
+    if (mock) return false;                         // a mock is a different draft
+    if (source === 'sleeper' && draftOrderCount > 0) return true;
+    return false;                                   // manual, or order not assigned
+  }
+  check('R-slot: a manually-entered slot is UNVERIFIED (placeholder)',
+    slotVerified('manual', false, 0) === false);
+  check('R-slot: a real Sleeper draft object with an assigned order VERIFIES the seat',
+    slotVerified('sleeper', false, 10) === true);
+  check('R-slot: a Sleeper object whose draft_order is still null stays UNVERIFIED (D4)',
+    slotVerified('sleeper', false, 0) === false);
+  check('R-slot: a slot resolved inside a MOCK never counts as verified',
+    slotVerified('sleeper', true, 10) === false);
+}
+
 // R7 (DEMAND 3 — the robot draft writes the ledger): a full simulated draft
 // must produce the expected ledger entries with monotonic seq and ZERO gaps.
 // This is what proves draft night gets captured — not just a single curl test.
