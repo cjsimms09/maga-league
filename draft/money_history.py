@@ -193,11 +193,22 @@ def render(result):
         r = rc[sk]
         out.append(f"| {sk} | ${r['assigned']:.0f} | ${r['expected']:.0f} | {'✅' if r['ok'] else '🐛 LEAK'} |")
     out.append("" if not bad else f"\n**🐛 RECONCILIATION FAILED for {bad} — do not trust the money table.**")
-    out += ["", "_⚠️ UNVERIFIED until Cory confirms whether **2023** (league year one, "
-            "keepers null) used the CURRENT payout structure ($400 buy-in / $4,000 pot). "
-            "If 2023 differed, its dollars need a per-season payout config. Weekly-high = "
-            "weeks 1–15; playoff weeks 16–17 don't pay. Owner IDs unresolved except mine "
-            "until the owners map is joined (roster→owner is stable across seasons)._"]
+    # 2023 era: Cory CONFIRMED (2026-08-08) it used a DIFFERENT payout structure.
+    # Until the real 2023 values land, its dollars here are computed under the
+    # current structure and are ERA-MISMATCHED — say so loudly, do not silently
+    # present 2023 dollars as trustworthy.
+    ov = ((pay.get("season_overrides") or {}).get("2023") or {}) if isinstance(pay, dict) else {}
+    if ov.get("status") == "differs_from_current" and not ov.get("values"):
+        out += ["", "**🚩 2023 DOLLARS ARE ERA-MISMATCHED.** Cory confirmed 2023 (year one) "
+                "used a DIFFERENT payout structure; the real buy-in/pot/split are still "
+                "PENDING. The 2023 rows above are computed under the CURRENT structure and "
+                "must NOT be trusted until `payouts.season_overrides.2023.values` is filled. "
+                "2024 & 2025 use the current structure and reconcile."]
+    else:
+        out += ["", "_2023 payout era: pending Cory's confirmation of the year-one structure._"]
+    out += ["", "_Weekly-high = weeks 1–15; playoff weeks 16–17 don't pay. Owner IDs "
+            "unresolved except mine until the owners map is joined (roster→owner is stable "
+            "across seasons)._"]
     return "\n".join(out) + "\n"
 
 

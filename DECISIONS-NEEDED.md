@@ -3,6 +3,11 @@
 _Questions no spec already answers. Each carries my recommended answer; I take
 the conservative option and mark the item PROVISIONAL until you rule._
 
+### ✅ Open inputs — RESOLVED 2026-08-08 (set in `draft/config/payouts.json`)
+- **Pick timer:** ✅ **UNTIMED** (`draft.untimed=true`, corroborated by `pick_timer=0` at source). Hard time-pressure cues dropped; the LRM countdown stays (counts picks, not seconds).
+- **RS runner-up tiebreak:** ✅ **TOTAL POINTS-FOR** (`regular_season.tiebreak="total_points_for"`, corroborated by Cory's 2024 8.2-pt tiebreak miss).
+- **2023 payout era:** 🚩 **CONFIRMED DIFFERS from the current structure — actual buy-in/pot/split still PENDING from Cory.** Recorded as `season_overrides.2023.status="differs_from_current"`, `values=null`. **money_history now flags 2023 dollars as ERA-MISMATCHED** (computed under the current structure, not trusted) until the real 2023 values land. **This is the one input still open — send the 2023 numbers and I'll fill the override so 2023 dollars recompute correctly.**
+
 ## D1 — Backtest grading metric — RESOLVED BY DATA (needs your acknowledgement)
 
 The value-over-replacement cut ran alongside raw points. It did **not** clear

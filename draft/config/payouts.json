@@ -12,7 +12,21 @@
     "champ": 250,
     "runner_up": 125,
     "total": 375,
+    "tiebreak": "total_points_for",
+    "tiebreak_note": "Cory 2026-08-08: RS ties (incl. the runner-up / playoff-cut line) break on TOTAL POINTS-FOR. Corroborated by Cory's 2024 playoff miss on an 8.2-point tiebreak.",
     "note": "Rewards consistent winning — the floor still buys RS money + playoff entry, so this is NOT a pure-ceiling league."
+  },
+  "draft": {
+    "untimed": true,
+    "pick_timer_seconds": 0,
+    "note": "Cory 2026-08-08: the draft is UNTIMED (corroborated by pick_timer=0 on the Sleeper draft object). The War Room / opening script drop HARD time-pressure cues; the LRM countdown stays — it counts PICKS, not seconds."
+  },
+  "season_overrides": {
+    "2023": {
+      "status": "differs_from_current",
+      "values": null,
+      "note": "Cory 2026-08-08 CONFIRMED 2023 (league year one) used a DIFFERENT payout structure — actual buy-in / pot / split still PENDING. Until the real 2023 values land, money_history's 2023 dollars are computed under the CURRENT structure and are ERA-MISMATCHED — flagged, not trusted. 2024 & 2025 use the current structure."
+    }
   },
   "playoffs": {
     "1": 675,
