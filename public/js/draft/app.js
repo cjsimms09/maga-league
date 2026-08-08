@@ -419,6 +419,26 @@
     return mine.indexOf(currentPick()) !== -1;
   }
 
+  /* §2(d) — the slim PINNED status bar. Pick state + connection stay visible when
+   * you scroll down to the board and lose the hero card. Driven entirely by
+   * existing state; no new computation. */
+  function renderStatusBar() {
+    const host = $('#wr-statusbar');
+    if (!host) return;
+    const cur = currentPick();
+    const up = onTheClock();
+    const nexts = myNextPicks();
+    const next = up ? nexts[1] : nexts[0];
+    const connected = !!state.sync;
+    const mock = !!state.mockMode;
+    host.className = 'wr-statusbar' + (up ? ' on-clock' : '');
+    host.innerHTML =
+      '<span class="sb-pick">' + (up ? '🟢 YOU ARE UP · pick ' + cur : 'Pick ' + cur) + '</span>'
+      + (next ? '<span class="sb-next">next: ' + next + '</span>' : '')
+      + '<span class="sb-conn ' + (connected ? 'on' : 'off') + '">' + (connected ? '● live sync' : '○ manual') + '</span>'
+      + (mock ? '<span class="sb-mock">REHEARSAL</span>' : '');
+  }
+
   function indexProfilesBySlot(data) {
     // Profiles are keyed by Sleeper user id; the board thinks in draft slots.
     const profiles = (data.manager_profiles || {}).managers || {};
@@ -522,6 +542,7 @@
   function renderHeader() {
     const d = state.data;
     const upcoming = myNextPicks();
+    renderStatusBar();
     $('#hdr-league').textContent = (d.league.name || 'League') + ' · ' + d.league.teams + ' teams · ' +
       (d.league.keeper_rules.count || 0) + ' keepers';
     $('#hdr-pick').textContent = onTheClock() ? 'YOU ARE UP — pick ' + currentPick() : 'Pick ' + currentPick();

@@ -2121,3 +2121,21 @@ table .num.zero { color: var(--muted); font-weight: 400; }
 /* §2(d) recent-picks reach/fell tags — each pick as opponent-model evidence. */
 .pick-reach { color: #ffb4bb; font-size: .74rem; }
 .pick-fell { color: #8ef0b6; font-size: .74rem; }
+
+/* §2(d) — slim pinned status bar. Sticks below the site nav; pick state + sync
+   stay in view while scrolling the board. Below the watermark ribbons (z-78). */
+.wr-statusbar {
+  position: sticky; top: 0; z-index: 40;
+  display: flex; align-items: center; gap: .9rem; flex-wrap: wrap;
+  padding: .4rem .8rem; margin-bottom: .8rem; border-radius: 10px;
+  background: rgba(11,16,32,.92); border: 1px solid var(--line);
+  backdrop-filter: blur(6px); font-size: .82rem;
+}
+.wr-statusbar.on-clock { border-color: rgba(47,213,118,.5); background: rgba(47,213,118,.08); }
+.sb-pick { font-family: var(--font-display); font-weight: 800; color: #fff; }
+.wr-statusbar.on-clock .sb-pick { color: #8ef0b6; }
+.sb-next { color: var(--muted); }
+.sb-conn.on { color: #8ef0b6; }
+.sb-conn.off { color: var(--muted); }
+.sb-mock { margin-left: auto; font-weight: 900; font-size: .64rem; letter-spacing: .1em;
+  color: var(--navy-deep,#0b1020); background: var(--gold,#f5c445); padding: .1rem .4rem; border-radius: 4px; }
