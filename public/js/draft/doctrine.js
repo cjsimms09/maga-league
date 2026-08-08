@@ -114,6 +114,27 @@
    *
    * `i` is MY pick index, 1-based (the same coordinate LIVE_CONSTRAINTS uses).
    *
+   * ── ROSTER-RELATIVE, NOT ABSOLUTE ────────────────────────────────────────
+   *
+   * The weights express MARGINAL preference GIVEN WHAT IS HELD, not a standing
+   * fondness for a position. This is not a refinement; the absolute version was
+   * WRONG for this seat and would have encoded a different plan than the one
+   * that was raced.
+   *
+   * Cory keeps Chase (WR), Henry (RB) and Walker (RB) against starters
+   * WR2/RB2/FLEX1. So on draft day:
+   *   - "WR Feast" does NOT mean "take WRs generally" — WR1 is already elite.
+   *     It means WR2 and flex-eligible pass-catching depth, and it means
+   *     COMPLETING THE CHASE STACK.
+   *   - BOTH RB slots are already filled. Additional RB value is FLEX-MARGINAL
+   *     (the D3 fix), so an RB-first plan has nothing left to be first about.
+   *
+   * Experiment 19b DID race from the real keeper base — `cory_conditional.py`
+   * seeds `my_keepers` from `kept_players` and removes them from the pool — so
+   * the RACE was conditioned correctly and only this SIGNAL was not. Encoding
+   * the empty-roster archetype here would have tuned the tilt to a starting
+   * roster that does not exist.
+   *
    * WEIGHTS ARE CONTINUOUS, in [-1, +1], not booleans. A boolean preference
    * makes every tilt the same size, so a doctrine that mildly prefers WR and one
    * that is built entirely around WR push equally hard — and the only way to
@@ -125,15 +146,18 @@
   const PREFERS = {
     // "one anchor back, then hammer WR value"
     hero_rb: function (pos, i, r) {
-      // "one anchor back, THEN HAMMER WR value" — the anchor is emphatic, the
-      // WR lean that follows is strong but not absolute.
-      if (i <= 2 && _count(r, 'RB') === 0) return pos === 'RB' ? 1 : -0.5;
+      // "one anchor back, THEN HAMMER WR value". The anchor clause is satisfied
+      // the moment a back is held — with two kept, this plan starts at its
+      // second clause.
+      if (_count(r, 'RB') === 0 && i <= 2) return pos === 'RB' ? 1 : -0.5;
       return pos === 'WR' ? 0.8 : (pos === 'RB' ? -0.6 : 0);
     },
     // "two backs early; win the position the room is short on"
     robust_rb: function (pos, i, r) {
-      // "TWO backs EARLY" — emphatic while the requirement is unmet, and it
-      // decays as the second back is secured.
+      // "TWO backs EARLY" — and with Henry and Walker kept, that requirement is
+      // MET BEFORE PICK ONE. The plan correctly goes silent rather than
+      // recommending a third back at full strength; anything further is
+      // flex-marginal and priced there.
       if (i > 4 || _count(r, 'RB') >= 2) return 0;
       var short = 2 - _count(r, 'RB');
       return pos === 'RB' ? (short >= 2 ? 1 : 0.7) : -0.6;
@@ -148,11 +172,29 @@
       return (pos === 'WR' || pos === 'TE') ? 0.8 * decay : 0;
     },
     // "ride the value fall; TE and QB wait; ceiling in the flex"
-    wr_anchor: function (pos, i) {
-      // "ride the value fall; TE and QB WAIT" — WR is the plan's whole name, so
-      // it is emphatic; the TE/QB deferral is real but softer than a ban.
+    wr_anchor: function (pos, i, r, player) {
       if (i > 6) return 0;
-      if (pos === 'WR') return 1;
+      var haveWR = _count(r, 'WR');
+
+      /* THE CHASE-STACK EXPRESSION, and it is FIRST-CLASS rather than a
+       * separate feature. Correlated pass-catching ceiling is precisely what
+       * the weekly-high pool pays for, so completing the stack behind a kept
+       * elite receiver IS this doctrine, not an adjacent bonus to it. When an
+       * anchor pass-catcher is already held, that team's QB stops being a
+       * deferred position and becomes the plan's own move. */
+      var anchorTeams = stackAnchorTeams(r);
+      if (player && player.team && anchorTeams.indexOf(player.team) >= 0) {
+        if (pos === 'QB') return 1;              // completing the stack
+        if (pos === 'WR' || pos === 'TE') return 0.9;   // the game-stack
+      }
+
+      // WR2 while a starting slot is genuinely open; depth after that. With an
+      // elite WR1 kept, "take WRs" is not the plan — WR2 and flex are.
+      if (pos === 'WR') {
+        if (haveWR < 2) return 1;                // a real starting slot
+        return 0.45;                             // flex-eligible depth, not a hole
+      }
+      // The TE/QB deferral stands EXCEPT where the stack overrode it above.
       return (pos === 'TE' || pos === 'QB') ? -0.7 : 0;
     },
     // "pay for the last elite TE; the cliff pays it back"
@@ -181,11 +223,26 @@
     balanced: function () { return 0; },        // the control, by definition
   };
 
-  /** +1 wants it here, -1 avoids it here, 0 no opinion. */
-  function prefers(key, pos, i, roster) {
+  /* Teams whose pass-game we already own an anchor in. A kept elite receiver
+   * makes his QB a stack completion rather than an ordinary QB — the payout
+   * table pays for correlated ceiling, so this is a plan expression. */
+  function stackAnchorTeams(roster) {
+    return (roster || [])
+      .filter(function (p) {
+        return p && p.team && (p.position === 'WR' || p.position === 'TE');
+      })
+      .map(function (p) { return p.team; });
+  }
+
+  /** +1 wants it here, -1 avoids it here, 0 no opinion.
+   *  `posOrPlayer` may be a position string or a player object (which lets
+   *  team-aware expressions like the stack anchor see what they need). */
+  function prefers(key, posOrPlayer, i, roster) {
     const f = PREFERS[key];
     if (typeof f !== 'function') return 0;
-    const v = Number(f(pos, i, roster || [])) || 0;
+    const player = (posOrPlayer && typeof posOrPlayer === 'object') ? posOrPlayer : null;
+    const pos = player ? player.position : posOrPlayer;
+    const v = Number(f(pos, i, roster || [], player)) || 0;
     // CLAMPED, so the upper bound is a property of this function rather than a
     // promise every doctrine author has to keep.
     return Math.max(-1, Math.min(1, v));
@@ -409,7 +466,8 @@
                 doctrineMeta: doctrineMeta, rankDoctrines: rankDoctrines,
                 DoctrineState: DoctrineState, LIVE_CONSTRAINTS: LIVE_CONSTRAINTS,
                 scoreBoard: scoreBoard, enrollment: enrollment,
-                PREFERS: PREFERS, prefers: prefers };
+                PREFERS: PREFERS, prefers: prefers,
+                stackAnchorTeams: stackAnchorTeams };
   global.DraftDoctrine = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);

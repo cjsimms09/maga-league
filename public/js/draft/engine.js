@@ -582,7 +582,9 @@
     // PREFERS, not LIVE_CONSTRAINTS: the latter is a legality filter that
     // returns true for nearly everything, so tilting on it differentiates
     // nothing. See the note above PREFERS in doctrine.js.
-    var pref = DOC.prefers(key, player.position, i, ctx.roster || []);
+    // Pass the PLAYER, not just the position: roster-relative expressions like
+    // the Chase-stack completion need his team.
+    var pref = DOC.prefers(key, player, i, ctx.roster || []);
     if (!pref) return 0;
     return pref * CFG.DOCTRINE_TILT;
   }

@@ -111,5 +111,66 @@ check('every weight is clamped to [-1, 1] (the upper bound is structural)',
   keys.every(k => ['RB', 'WR', 'TE', 'QB', 'K', 'DEF'].every(p =>
     [1, 2, 3, 5, 8].every(i => Math.abs(DOC.prefers(k, p, i, [])) <= 1))));
 
+
+// ── KEEPER-CONDITIONED: the signal must encode the POST-KEEPER plan ─────────
+//
+// "WR Feast" from a roster that already holds an elite WR1 is a DIFFERENT
+// STRATEGY than WR Feast from scratch. Experiment 19b raced from the real
+// keeper base (cory_conditional.py seeds my_keepers from kept_players and
+// removes them from the pool), so the RACE was conditioned correctly — and for
+// a while the SIGNAL was not, which would have tuned the tilt to a starting
+// roster that does not exist.
+{
+  const KEEPERS = [
+    { position: 'WR', team: 'CIN', name: "Ja'Marr Chase" },
+    { position: 'RB', team: 'BAL', name: 'Derrick Henry' },
+    { position: 'RB', team: 'KC', name: 'Kenneth Walker' },
+  ];
+  const at = (key, p, i, r) => DOC.prefers(key, p, i, r);
+
+  // Premise first, per the fixture rule: this fixture only means anything if
+  // the keepers are the real ones and they fill the slots they are claimed to.
+  check('PREMISE: the keeper fixture matches the real slate (WR + 2 RB)',
+    KEEPERS.filter(k => k.position === 'RB').length === 2
+    && KEEPERS.filter(k => k.position === 'WR').length === 1,
+    JSON.stringify(KEEPERS.map(k => k.position)));
+
+  check('with BOTH RB slots kept, an RB-first plan goes silent (D3 flex-marginal)',
+    at('robust_rb', { position: 'RB', team: 'X' }, 1, KEEPERS) === 0,
+    'weight=' + at('robust_rb', { position: 'RB', team: 'X' }, 1, KEEPERS));
+
+  check('hero_rb starts at its SECOND clause when a back is already held',
+    at('hero_rb', { position: 'WR', team: 'X' }, 1, KEEPERS) > 0
+    && at('hero_rb', { position: 'RB', team: 'X' }, 1, KEEPERS) < 0);
+
+  // The Chase stack, first-class.
+  const burrow = at('wr_anchor', { position: 'QB', team: 'CIN' }, 1, KEEPERS);
+  const otherQB = at('wr_anchor', { position: 'QB', team: 'SF' }, 1, KEEPERS);
+  check('completing the CHASE STACK is a plan expression, not a side bonus',
+    burrow > 0 && burrow > otherQB,
+    `CIN QB=${burrow} other QB=${otherQB}`);
+  check('...and the QB deferral still applies to every OTHER team',
+    otherQB < 0, 'other QB=' + otherQB);
+  check('the Bengals GAME-STACK is preferred over an unrelated pass-catcher slot',
+    at('wr_anchor', { position: 'TE', team: 'CIN' }, 1, KEEPERS)
+      > at('wr_anchor', { position: 'TE', team: 'SF' }, 1, KEEPERS));
+
+  // WR is roster-relative, not absolute.
+  const wr2Open = at('wr_anchor', { position: 'WR', team: 'SF' }, 1, KEEPERS);
+  const wrDepth = at('wr_anchor', { position: 'WR', team: 'SF' }, 1,
+    KEEPERS.concat([{ position: 'WR', team: 'DAL' }]));
+  check('WR preference is MARGINAL: full while WR2 is open, depth once filled',
+    wr2Open > wrDepth && wrDepth > 0,
+    `wr2-open=${wr2Open} depth=${wrDepth}`);
+
+  // NON-VACUITY: the keeper roster must actually change the signal, or none of
+  // the above is testing roster-relativity at all.
+  check('NON-VACUITY: the keeper roster CHANGES the signal vs an empty one',
+    at('robust_rb', { position: 'RB', team: 'X' }, 1, [])
+      !== at('robust_rb', { position: 'RB', team: 'X' }, 1, KEEPERS),
+    'empty and keeper rosters produce identical weights — the signal is not ' +
+    'roster-relative and the tilt would encode the wrong plan');
+}
+
 console.log(`\n${pass}/${pass + fail} creed/signal parity checks passed`);
 process.exit(fail ? 1 : 0);
