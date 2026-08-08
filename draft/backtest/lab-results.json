@@ -16,20 +16,28 @@
         {
           "season": "2023",
           "mean_dollars_left_on_table": 470.0,
+          "mean_high_pool_leak": 330.0,
+          "mean_matchup_leak": 140.0,
           "max_seat": 800.0
         },
         {
           "season": "2024",
           "mean_dollars_left_on_table": 595.0,
+          "mean_high_pool_leak": 420.0,
+          "mean_matchup_leak": 175.0,
           "max_seat": 950.0
         },
         {
           "season": "2025",
           "mean_dollars_left_on_table": 445.0,
+          "mean_high_pool_leak": 345.0,
+          "mean_matchup_leak": 100.0,
           "max_seat": 750.0
         }
       ],
-      "summary": "mean $/team the optimal-in-hindsight lineup would have added: 2023 +$470.0, 2024 +$595.0, 2025 +$445.0",
+      "my_three_year_leak": 2100.0,
+      "note": "Playoff-$ leak excluded until the substituted-seat bracket resim lands; these are a lower bound. See EFFICIENCY-LEAK.md.",
+      "summary": "mean $/team the optimal-in-hindsight lineup would have added: 2023 +$470.0, 2024 +$595.0, 2025 +$445.0 (my 3-yr: $2100)",
       "verdict": "measurement \u2014 quantifies the lineup-decision prize the in-season experiments (13/14) will chase; not a shipped edge."
     }
   ],

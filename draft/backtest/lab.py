@@ -44,34 +44,55 @@ def _git_head() -> str:
 # experiments' headline, measured directly. Proves the roster->scores->dollars
 # pipeline end to end. (Playoff $ excluded until the substituted-seat bracket
 # resim lands; weekly-high + RS are exact.)
+MY_UID = "434915673219526656"   # coryjsimms — for the personal leak figure
+
+
 def exp_lineup_ceiling_money(history, payouts) -> dict:
     per_season = []
+    my_total = 0.0
     for season in COMPLETED_SEASONS:
         s = MG.season_of(history, season)
         pos = RS.infer_positions(s)
         actual = MG.grade_actual(history, payouts, season)
         rs_weeks = MG.regular_season_weeks(s)
-        deltas = []
+        deltas, wk_leak, rs_leak = [], 0.0, 0.0
         for e0 in (s["weeks"][str(rs_weeks[0])]):
             rid = int(e0["roster_id"])
-            # realized weekly-high + RS for this seat (from the exact grade).
-            realized = actual["per_roster"][rid]["weekly_high"] + actual["per_roster"][rid]["regular_season"]
+            r_wk = actual["per_roster"][rid]["weekly_high"]
+            r_rs = actual["per_roster"][rid]["regular_season"]
             # hindsight ceiling: best legal lineup every week from actual players.
             players = _season_players(s, rid)
             ceiling_scores = RS.roster_weekly_scores(s, players, pos)
             sub = MG.grade_substituted(history, payouts, season, rid, ceiling_scores)
-            deltas.append(sub["graded_total_partial"] - realized)
-        mean_delta = round(sum(deltas) / len(deltas), 2)
-        per_season.append({"season": season, "mean_dollars_left_on_table": mean_delta,
-                           "max_seat": round(max(deltas), 2)})
+            d_wk, d_rs = sub["weekly_high"] - r_wk, sub["regular_season"] - r_rs
+            deltas.append(d_wk + d_rs)
+            wk_leak += d_wk
+            rs_leak += d_rs
+            uid = next((str(r.get("owner_id")) for r in s.get("final_rosters", [])
+                        if r.get("roster_id") == rid), None)
+            if uid == MY_UID:
+                my_total += d_wk + d_rs
+        n = len(deltas)
+        per_season.append({
+            "season": season,
+            "mean_dollars_left_on_table": round(sum(deltas) / n, 2),
+            # Decomposition per the money function: high-pool vs matchup (RS).
+            "mean_high_pool_leak": round(wk_leak / n, 2),
+            "mean_matchup_leak": round(rs_leak / n, 2),
+            "max_seat": round(max(deltas), 2),
+        })
     return {
         "id": "L0-lineup-ceiling-money",
         "title": "Weekly-high + RS dollars left on the table by lineup decisions",
         "kind": "measurement",
         "metric": "E[$] (weekly-high + regular-season), era-correct per season",
         "per_season": per_season,
+        "my_three_year_leak": round(my_total, 2),
+        "note": "Playoff-$ leak excluded until the substituted-seat bracket resim "
+                "lands; these are a lower bound. See EFFICIENCY-LEAK.md.",
         "summary": "mean $/team the optimal-in-hindsight lineup would have added: "
-                   + ", ".join(f"{p['season']} +${p['mean_dollars_left_on_table']}" for p in per_season),
+                   + ", ".join(f"{p['season']} +${p['mean_dollars_left_on_table']}" for p in per_season)
+                   + f" (my 3-yr: ${round(my_total)})",
         "verdict": "measurement — quantifies the lineup-decision prize the in-season "
                    "experiments (13/14) will chase; not a shipped edge.",
     }

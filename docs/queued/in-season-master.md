@@ -2,6 +2,8 @@
 
 This consolidates every in-season capability into one build order, gated to the NFL calendar. Where a committed spec already exists (in-season rankings, Part 11 learning loop, Part 12 watchdog, season-readiness kit), this document sequences it — re-read the committed spec before building; do not re-derive. Where no spec exists, this document is the spec.
 
+**THE QUANTIFIED BUSINESS CASE (`EFFICIENCY-LEAK.md`, 2026-08-08):** the certified Lab money-grader measured what suboptimal lineups cost, in dollars: the optimal-in-hindsight lineup would have added **~$445–595 per team per season** (weekly-high + RS alone; **my own three-year figure is $2,100**), ~70–75% of it in the weekly-high pool. That is the dollar-denominated reason the lineup optimizer below exists, and its **January report card**: the optimizer's *realized* 2026 recovery is graded against that baseline — it ships only if it beats naive start-your-studs on held-out dollars. Playoff-$ leak joins the figure once the substituted-seat bracket resim lands.
+
 Design principles for everything below, non-negotiable:
 - **Adaptable:** every threshold in config; every model re-fits or re-blends weekly as real data accumulates; ruleset-hash awareness so a mid-season rule change trips the watchdog, never silently corrupts
 - **Intuitive:** every output leads with a plain-language sentence and a recommended action; numbers support, never lead. The Weekly Brief is the front door — if a tool's output doesn't surface there, it doesn't exist to me.

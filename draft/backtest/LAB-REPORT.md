@@ -6,7 +6,7 @@ _git HEAD `8e605e5d3a97d7842b06af90e0926ffb85ba82ab` · seasons 2023, 2024, 2025
 
 | id | kind | headline |
 |---|---|---|
-| L0-lineup-ceiling-money | measurement | mean $/team the optimal-in-hindsight lineup would have added: 2023 +$470.0, 2024 +$595.0, 2025 +$445.0 |
+| L0-lineup-ceiling-money | measurement | mean $/team the optimal-in-hindsight lineup would have added: 2023 +$470.0, 2024 +$595.0, 2025 +$445.0 (my 3-yr: $2100) |
 
 ### L0-lineup-ceiling-money — Weekly-high + RS dollars left on the table by lineup decisions
 
