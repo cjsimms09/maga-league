@@ -1,6 +1,17 @@
 # THE LAB — report
 
-_git HEAD `d649bf74afb3cd232a72748729e492f79bc2a2a7` · seasons 2023, 2024, 2025 · currency: E[$] under payouts.json.by_season (era-correct)_
+_git HEAD `ed43434ed3d55f175e1c132b8f77591162e83641` · seasons 2023, 2024, 2025 · currency: E[$] under payouts.json.by_season (era-correct)_
+
+## 🚨 INTERVENTION RATE — the headline number
+
+**73.7% of picks deviate from consensus** beyond the noise band — 8.8 per draft, mean 17.1 picks, 212 reaches to 9 falls — and **100% of those deviations are LEAN tier**. Not one reached LIKELY.
+
+Pre-registered prior was ~2 per draft. Measured 8.8. The joint-lead driver is `value` — our own projections, never raced against the market (experiment 33, unrun). `bye` and `survival` never fired as material drivers at all.
+
+Baseline frozen: `draft/backtest/pre-tree-baseline.json`. Consequence pre-registered before experiment 34 reports: `PRE-REGISTRATION-34.md`. The dollar half cannot be answered on the 2026 board without circularity: `draft/backtest/DOLLAR-PAIRING.md`.
+
+---
+
 
 ## Experiments run
 
