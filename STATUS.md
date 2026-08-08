@@ -568,14 +568,18 @@ discloses in both directions.
 **Running in CI, needs no session:** covariance study (portfolio step 1, fires on
 push), the Lab, the nightly board.
 
-**⚠️ ONE KNOWN DEFECT, found by the MVS and not yet fixed:** the plan line reads
-"no preference at this pick" when it should read "plan drove this pick". The
-cause is ORDERING, not the tilt — `context()` builds the scoring context before
-`renderDoctrine()` lazily initialises `state.doctrine`, so the FIRST render
-passes `doctrine: null`. Fix is to initialise the doctrine state before the
-first `context()` call rather than on first render. Small; do it before mock #4.
+**✅ THE ORDERING DEFECT IS FIXED AND VERIFIED.** `context()` now calls
+`doctrineState()` — which initialises both the state and the enrollment — rather
+than reading `state.doctrine` before anything had set it. The plan line reads
+**"WR Feast (+$187/season) · plan drove this pick"** on both viewports.
 
-**Where to start:** step 3 (after that fix). The four truthful lines are STATUS, PLAN (truthful as
+**The score is the proof the tilt is live in the app, not just in tests:**
+Puka Nacua went **222.4 → 224.9**. That delta is exactly `DOCTRINE_TILT = 2.5`,
+applied to a WR under WR Feast. A rendered sentence can be wrong; an arithmetic
+signature cannot be faked by a label.
+
+**Where to start:** step 3 — mock #4 + the degraded drill, one session, and the
+deliverable is the ONE-PAGE FAILURE CARD. The four truthful lines are STATUS, PLAN (truthful as
 of Stage 3), RECOMMENDATION (player + one number + market delta), ALTERNATIVES
 (runner-ups + shadow consensus), plus ROSTER/LEGALITY — five, in fact, once the
 Plan Line became honest. The two ABSENT ones are SOURCE (needs the tree's stages)
