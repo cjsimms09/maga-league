@@ -24,6 +24,38 @@ green** → this queue reopens, top-down.
 | 7 | **Exp 31** 2026 delta board render | waits on `sleeper_rank` populating in a CI rebuild |
 | 8 | **Rehearsal keeper mode** · **mock platform-board sampling** · **sync diagnosis** · **session plumbing / hard reset** | from the mock-#1 batch; below the three blockers by Cory's own ordering |
 | 9 | **Site optimization Phase 2** | post-draft by its own spec |
+| 10 | **THE LEARNING ENGINE** (received 2026-08-08, verbatim below) — ① continuous weekly re-grading that moves displayed confidence tiers on its own · ② hypothesis generation from residuals, auto-proposing registry entries as pre-registered experiments · ③ the Annual as the sole install gate for Tier-2, Tier-1 auto-installing through the gates, Tier-0 free | post-draft; ① and ② both need a live season's weekly outcomes. **⚠️ FLAG: the "Learning Constitution" and its Tier-0/1/2 taxonomy are referenced as existing but are NOT in the repo** — no file mentions them. Either it was never filed or it is in a message that did not arrive. That taxonomy is load-bearing for ③, so it must land before this is buildable. |
+
+### Item 10 verbatim (so the spec is not paraphrased when it is finally built)
+
+**(1) CONTINUOUS RE-GRADING** — every week, automatically re-run the calibration
+passes against the new week's outcomes: survival accuracy, projection error by
+position, lineup-policy capture, doctrine performance vs Balanced. Update the
+confidence tiers on every surface accordingly. *"The tool's displayed certainty
+should move on its own as evidence accumulates: a term that keeps being right
+gets louder, a term that keeps missing gets quieter, automatically, within
+Tier-1 bounds."*
+
+**(2) HYPOTHESIS GENERATION FROM RESIDUALS** — weekly, scan where the model was
+most wrong (biggest projection misses, blown survival calls, **overrides where
+Cory beat the recommendation**) and auto-propose registry entries for the
+patterns — *"model underprices rookie WRs after week 6"* — each entering as a
+**pre-registered experiment with criteria, not as an installed change**. *"The
+system should notice its own failures and turn them into questions without being
+asked."*
+
+**(3) THE ANNUAL AS THE INSTALL GATE** (already specced) stays the **only** path
+from proposal to installed change for Tier-2 items; Tier-1 auto-installs through
+the gates; Tier-0 flows freely. **January deliverable: what it learned, what it
+proposes, what it retired — and the honest count of hypotheses that DIED,
+because a learning system that only ever adds is memorizing, not learning.**
+
+*(Notes for the build, not changes to the spec: ② has an existing feeder — the
+ledger already captures `override` with its one-tap reason and `recommendation`
+at decision time, so "overrides where I beat the recommendation" is a join over
+data we will already have, not new instrumentation. ①'s survival-accuracy pass
+also exists as `replay.js calibration()`. The genuinely new pieces are the
+weekly scheduler, the residual scan, and the tier-update write path.)*
 
 ## Tails received 2026-08-08 — filed with their items, NOT acted on
 
