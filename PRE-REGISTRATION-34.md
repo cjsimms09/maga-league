@@ -68,3 +68,33 @@ does not apply — the sample, the era, the roster, the opponent model. Some of
 those objections may even be correct. But they have to be raised **against a
 consequence already on the record**, not used to select which consequence gets
 adopted once the number is known.
+
+---
+
+## THE REPORTING OBLIGATION — mechanical, not remembered
+
+When 34 reports, the confidence sentence shown on **every** deviation must be
+rewritten to reflect what was measured. This is not a documentation step; it is
+a one-line call:
+
+```js
+DraftDeviation.recordEvidence(34, 'inconclusive',
+  'raced against market at n=36, inconclusive');
+// or 'lost'  -> 'lost to market by $X/season at n=36'
+// or 'won'   -> 'beat market by $X/season at n=36'
+```
+
+`EVIDENCE_STATE` is the sentence's source of truth. `tierVoice()` derives from
+it, `tierLine()` renders it, and the badge reads it live rather than snapshotting
+the wording — all asserted in `deviation.test.js`, including that the badge
+follows a mid-session change.
+
+**Why this is a rule and not a nicety:** *"LEAN — unvalidated vs market"* is
+honest today and becomes a **lie** the moment 34 reports, in either direction,
+because the market race will have happened. A confidence sentence that outlives
+the experiment which should have updated it is worse than the bare word — the
+bare word at least does not assert a fact about evidence that no longer holds.
+
+The same rule binds 33 to the same table. Any experiment that changes what we
+know about a term's evidence must update `EVIDENCE_STATE` in the same commit
+that records its result.

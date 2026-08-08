@@ -159,8 +159,75 @@ const entry = (weighted, over) => ({
     && !/unvalidated/.test(D.tierLine('CERTIFIED')),
     D.tierLine('LIKELY') + ' | ' + D.tierLine('CERTIFIED'));
   check('every tier in the ladder has a voice (none falls through silently)',
-    ['LEAN', 'LIKELY', 'CERTIFIED'].every(t => D.TIER_VOICE[t]),
-    JSON.stringify(D.TIER_VOICE));
+    ['LEAN', 'LIKELY', 'CERTIFIED'].every(t => D.tierVoices()[t]),
+    JSON.stringify(D.tierVoices()));
+}
+
+// --- THE SENTENCE MUST EXPIRE WITH ITS EXPERIMENT ---------------------------
+//
+// A confidence sentence that outlives the experiment which should have updated
+// it is WORSE THAN THE BARE WORD: "unvalidated vs market" is honest today and
+// becomes a lie the moment 34 reports, in either direction, because the market
+// race will have happened.
+//
+// So the sentence is DERIVED from EVIDENCE_STATE, and these checks prove the
+// derivation actually fires rather than the constant merely existing.
+{
+  const restore = JSON.parse(JSON.stringify(D.EVIDENCE_STATE[34]));
+
+  D.recordEvidence(34, 'inconclusive', 'raced against market at n=36, inconclusive');
+  check('when 34 reports INCONCLUSIVE the sentence stops saying "unvalidated"',
+    !/unvalidated/.test(D.tierLine('LEAN')) && /inconclusive/.test(D.tierLine('LEAN')),
+    D.tierLine('LEAN'));
+
+  D.recordEvidence(34, 'lost', 'lost to market by $41/season at n=36');
+  check('when 34 reports a LOSS the sentence says so, with the number',
+    /lost to market/.test(D.tierLine('LEAN')) && /\$41/.test(D.tierLine('LEAN')),
+    D.tierLine('LEAN'));
+
+  D.recordEvidence(34, 'won', null);
+  check('a WIN still produces a measured sentence, not the pre-experiment one',
+    !/unvalidated/.test(D.tierLine('LEAN')), D.tierLine('LEAN'));
+
+  // And the badge — the thing actually rendered — must follow, not cache.
+  const live = D.badge(entry({ tier: 9 }), 64, 4);
+  check('the BADGE follows the evidence state (it does not snapshot the wording)',
+    !/unvalidated/.test(live.tierLine), live.tierLine);
+
+  D.recordEvidence(34, restore.status, restore.finding);
+  check('restored: the pre-experiment sentence returns when 34 is unrun again',
+    /unvalidated vs market/.test(D.tierLine('LEAN')), D.tierLine('LEAN'));
+}
+
+// --- SSOT: NO SECOND COPY OF THIS SENTENCE ANYWHERE -------------------------
+//
+// The failure this prevents is documented and real: "Sleeper-confirmed" drifted
+// to "Sleeper-verified" inside a single session. A second copy of a confidence
+// sentence drifts the same way, and nobody notices which surface is telling the
+// older story. Same rule as the PlayerRef resolver, applied to language.
+{
+  const fs = require('fs');
+  const path = require('path');
+  const dir = path.join(__dirname, '..', '..', 'public', 'js', 'draft');
+  const offenders = [];
+  fs.readdirSync(dir).filter(f => f.endsWith('.js') && f !== 'deviation.js')
+    .forEach(f => {
+      const src = fs.readFileSync(path.join(dir, f), 'utf8');
+      src.split('\n').forEach((line, i) => {
+        const code = line.replace(/^\s*(\/\/|\*).*$/, '');   // ignore comment lines
+        if (/unvalidated vs market|moderate evidence|validated vs held-out/.test(code)) {
+          offenders.push(f + ':' + (i + 1));
+        }
+      });
+    });
+  check('the tier sentence exists in exactly ONE module (no drift copies)',
+    !offenders.length,
+    'found the phrasing outside deviation.js at: ' + offenders.join(', '));
+
+  // Non-vacuity: the scan must be capable of finding something.
+  const selfCheck = fs.readFileSync(path.join(dir, 'deviation.js'), 'utf8');
+  check('...and the scan can actually detect the phrasing (non-vacuity)',
+    /unvalidated vs market/.test(selfCheck));
 }
 
 console.log(`\n${pass}/${pass + fail} deviation checks passed`);

@@ -120,13 +120,70 @@
    * than in the renderer, so every surface that shows a tier shows the same
    * sentence.
    */
-  var TIER_VOICE = {
-    LEAN:      'unvalidated vs market',
-    LIKELY:    'moderate evidence',
-    CERTIFIED: 'validated vs held-out',
+  /* ── THE EVIDENCE STATE — the sentence's SOURCE OF TRUTH ─────────────────
+   *
+   * The confidence sentence is DERIVED from what the experiments have actually
+   * reported, never written by hand. That is the whole mechanism, and it exists
+   * because of a specific failure mode: a confidence sentence that outlives the
+   * experiment which should have updated it is WORSE THAN THE BARE WORD. "LEAN
+   * — unvalidated vs market" is honest today and becomes a lie the moment 34
+   * reports, in either direction, because the market race will have happened.
+   *
+   * So updating a finding here rewrites every surface at once. There is no
+   * second place to remember.
+   */
+  var EVIDENCE_STATE = {
+    33: { name: 'projection source bake-off', status: 'unrun', finding: null },
+    34: { name: 'recommendation-vs-market scoreboard', status: 'unrun', finding: null },
   };
-  function tierVoice(tier) { return TIER_VOICE[tier] || TIER_VOICE.LEAN; }
+
+  /* THE SENTENCE, DERIVED. `status` is one of:
+   *   'unrun'         — never executed
+   *   'inconclusive'  — ran; CI spans zero (the n≈36 case, pre-registered)
+   *   'lost'          — ran; our picks lost to market. `finding` carries the words.
+   *   'won'           — ran; our picks beat market.
+   */
+  function leanVoice() {
+    var e = EVIDENCE_STATE[34];
+    if (!e || e.status === 'unrun') return 'unvalidated vs market';
+    if (e.status === 'inconclusive') {
+      return e.finding || 'raced against market, inconclusive at this sample';
+    }
+    if (e.status === 'lost') return e.finding || 'lost to market when measured';
+    if (e.status === 'won') return e.finding || 'beat market when measured';
+    return 'unvalidated vs market';
+  }
+
+  /* THE ONE PLACE THE TIER IS PUT INTO WORDS.
+   *
+   * SSOT applied to LANGUAGE, the same rule as the PlayerRef resolver — because
+   * phrasing drifts exactly the way facts do. "Sleeper-confirmed" became
+   * "Sleeper-verified" inside a single session once; a second copy of this
+   * sentence would do the same and nobody would notice which surface was
+   * telling the older story.
+   */
+  function tierVoice(tier) {
+    if (tier === 'LEAN') return leanVoice();
+    if (tier === 'LIKELY') return 'moderate evidence';
+    if (tier === 'CERTIFIED') return 'validated vs held-out';
+    return leanVoice();
+  }
   function tierLine(tier) { return tier + ' — ' + tierVoice(tier); }
+
+  // Kept as a derived view so callers can enumerate the ladder without each
+  // rebuilding the mapping — but it is COMPUTED, never a second source.
+  function tierVoices() {
+    return { LEAN: tierVoice('LEAN'), LIKELY: tierVoice('LIKELY'),
+             CERTIFIED: tierVoice('CERTIFIED') };
+  }
+
+  /** Record an experiment's result. Rewrites every surface that shows a tier. */
+  function recordEvidence(expId, status, finding) {
+    if (!EVIDENCE_STATE[expId]) return null;
+    EVIDENCE_STATE[expId].status = status;
+    EVIDENCE_STATE[expId].finding = finding || null;
+    return EVIDENCE_STATE[expId];
+  }
 
   function tierFor(ds) {
     if (!ds.length) return 'LEAN';
@@ -228,7 +285,8 @@
   var api = { EVIDENCE: EVIDENCE, MATERIAL: MATERIAL, drivers: drivers,
               tierFor: tierFor, dispersion: dispersion, badge: badge,
               summary: summary, counterLine: counterLine,
-              tierVoice: tierVoice, tierLine: tierLine, TIER_VOICE: TIER_VOICE };
+              tierVoice: tierVoice, tierLine: tierLine, tierVoices: tierVoices,
+              EVIDENCE_STATE: EVIDENCE_STATE, recordEvidence: recordEvidence };
   global.DraftDeviation = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);
