@@ -22,7 +22,12 @@
 // cannot do if the banner's state was never written down.
 
 const KINDS = ['recommendation', 'pick', 'survival', 'override', 'lrm', 'run',
-               'doctrine', 'doctrine_decline'];
+               'doctrine', 'doctrine_decline',
+               // Experiment 31 data collection. Every non-Cory pick in a MOCK
+               // room is Sleeper's default ordering executing — especially the
+               // bot/autopick ones — so a rehearsal doubles as a sample of the
+               // platform board we have no historical archive of.
+               'mock_platform_sample'];
 
 function seqKey(season, seq) {
   // Zero-padded so lexical key order equals numeric order for cheap listing.

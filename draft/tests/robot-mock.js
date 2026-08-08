@@ -513,6 +513,51 @@ if (!IS_FIXTURE) {
   }
 }
 
+// R-seatdata (the sweep Cory asked for): the room-seat-vs-league-seat pattern.
+//
+// It bit twice in one day — `league.my_draft_slot` surviving a mock rebuild, and
+// `kept_players.team_slot` carrying the LEAGUE seat while the lookup used the
+// ROOM seat. The sweep found a third and fourth: `state.profiles` is indexed by
+// manager_profiles' league `draft_slot` and every read matched it against a room
+// seat. In a mock that is fiction, not a near-miss — a bot in room seat 3 would
+// render as a named league manager, and the dossier model would attribute its
+// pick to that manager's tendencies.
+{
+  const profiles = ((ART.manager_profiles || {}).managers) || {};
+  const withSlot = Object.values(profiles).filter(p => p.draft_slot);
+  // THE SWEEP'S REAL FINDING: profiles carry NO draft_slot, so any slot->name
+  // mapping before the live draft object is imported comes from
+  // indexProfilesBySlot's ORDER FALLBACK — my ten managers assigned to seats
+  // 1..10 in object order. Arbitrary in the real league, not only in mocks.
+  // Asserted as the documented state so a future build that starts emitting
+  // draft_slot fails here and forces the consumer rule to be revisited.
+  check('R-seatdata: profiles carry NO league draft_slot — slot names need the draft object',
+    withSlot.length === 0,
+    withSlot.length + ' of ' + Object.keys(profiles).length + ' now slotted — revisit profileForSlot');
+
+  // Every artifact field that carries a seat must be a LEAGUE seat, so any
+  // consumer comparing one to a room seat is a bug by construction. Enumerate
+  // them, so a NEW seat-bearing field cannot be added without this failing.
+  const SEAT_BEARING = [
+    ['kept_players[].team_slot', (ART.kept_players || []).map(k => k.team_slot)],
+    ['pick_order.forfeited[].team_slot', ((ART.pick_order || {}).forfeited || []).map(f => f.team_slot)],
+    ['manager_profiles[].draft_slot', withSlot.map(p => p.draft_slot)],   // empty today
+  ];
+  const teams = LEAGUE.teams || 10;
+  SEAT_BEARING.forEach(([name, vals]) => {
+    check('R-seatdata: ' + name + ' holds league seats in range',
+      vals.every(v => v == null || (Number(v) >= 1 && Number(v) <= teams)),
+      JSON.stringify(vals.slice(0, 6)));
+  });
+
+  // My keepers are stamped with MY league seat — the exact fact that made the
+  // room-seat lookup return nothing and start every rehearsal empty.
+  const mySeat = Number(LEAGUE.my_draft_slot);
+  check('R-seatdata: my kept players are stamped with my LEAGUE seat, not a room seat',
+    (ART.kept_players || []).every(k => Number(k.team_slot) === mySeat),
+    JSON.stringify((ART.kept_players || []).map(k => [k.name, k.team_slot])));
+}
+
 // R-legality (SEVERITY-1, mock #1): the guarantee that failed.
 //
 // Cory left a mock with no defense and the tool never said a word. Per his

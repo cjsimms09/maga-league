@@ -78,6 +78,9 @@
      * steady plan logs once per pick but a switch (which changes the signature)
      * always writes. Declines are explicit events and go through capture(). */
     doctrine: function (info, sig) { return oncePer('doctrine', info, sig); },
+    /* Exp-31 platform sampling — deduped per (pick, build) by pick number, so a
+     * four-second poll re-seeing the same pick logs it once. */
+    platformSample: function (info, sig) { return oncePer('mock_platform_sample', info, sig); },
     /* Generic passthrough. */
     capture: function (kind, info) { return send(kind, info); },
     lastError: function () { return lastError; },

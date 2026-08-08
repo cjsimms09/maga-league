@@ -572,6 +572,38 @@
     return out;
   }
 
+  /* THE SEAT-DATA RULE, third and fourth instance (found by the sweep Cory
+   * asked for after `kept_players.team_slot` bit twice).
+   *
+   * `state.profiles` is indexed by manager_profiles' `draft_slot`, which is a
+   * LEAGUE seat. Every read matched it against a ROOM seat. In a mock that is
+   * not a near-miss, it is FICTION: seat 3 in a stranger's mock room would
+   * render as "taken by Richard" and — worse — the dossier-driven opponent
+   * model would attribute a bot's pick to a real manager's tendencies.
+   *
+   * The `indexProfilesBySlot` order-fallback makes it worse still: with no uid
+   * mapping (which is every mock, since mock rooms are strangers) it assigns my
+   * ten managers to seats 1..10 arbitrarily.
+   *
+   * A mock room contains strangers and bots. The honest answer for who owns a
+   * seat there is NOBODY KNOWN, so this returns null in a mock unless the live
+   * draft object actually mapped a uid we recognise. */
+  function profileForSlot(slot) {
+    if (!slot) return null;
+    // GATED ON A REAL MAPPING, not on mock-vs-league — because the sweep found
+    // the artifact's manager profiles carry NO draft_slot at all (0 of 10). So
+    // `indexProfilesBySlot` always takes its order-fallback, which assigns my
+    // ten managers to seats 1..10 in object order. That is arbitrary in the
+    // REAL league too, not just in mocks: before the draft object is imported,
+    // "taken by Richard" means "Richard was tenth in a hash".
+    //
+    // A name is only trustworthy once `importDraftOrder` resolved it from the
+    // live draft's users by uid. Until then the seat is unnamed, which is what
+    // it actually is.
+    if (!state.profilesMappedFromDraft) return null;
+    return (state.profiles || {})[slot] || null;
+  }
+
   /** Teams picking between my current pick and my next — A2 Layer 2's input. */
   function interveningPicks(from, to) {
     const picks = (state.data.pick_order || {}).picks || [];
@@ -1952,7 +1984,7 @@
       const slot = Object.keys(state.rosters).find(k =>
         (state.rosters[k] || []).some(p => String(p.player_id) === String(id)));
       if (!slot) return 'already drafted';
-      const prof = Object.values(state.profiles || {}).find(x => Number(x.draft_slot) === Number(slot));
+      const prof = profileForSlot(slot);
       return 'taken by ' + (prof && prof.display_name ? prof.display_name : 'seat ' + slot);
     };
 
@@ -2273,6 +2305,9 @@
       if (!slot) return;
       if (profiles[uid]) { profiles[uid].draft_slot = slot; mapped++; }
     });
+    // Only a mapping resolved from the LIVE draft object's users is trustworthy
+    // in a mock — that is a real uid match, not a league-seat coincidence.
+    state.profilesMappedFromDraft = mapped > 0;
     if (mapped) state.profiles = indexProfilesBySlot(state.data);
 
     // My own seat: match on the roster id the site already knows, else the
@@ -2851,6 +2886,46 @@
     return bestKey;
   }
 
+  /* One platform-board observation. Deliberately records what we KNOW and
+   * flags what we are inferring: `autopick` is a guess from a missing
+   * `picked_by`, so it ships as `autopick_inferred` rather than as fact. */
+  function capturePlatformSample(pick, player, slot) {
+    if (typeof PredLedger === 'undefined' || !state.mockMode) return;
+    try {
+      const c = ledgerCtx();
+      const pickNo = Number(pick.pick_no) || null;
+      const adp = player.adjusted_adp != null ? player.adjusted_adp
+        : (player.raw_adp != null ? player.raw_adp : null);
+      // The whole point: where did the platform take him vs where the market
+      // says he goes. Negative = platform took him EARLIER than market (a REACH
+      // the room pays for); positive = he lasted longer (a FALL to me).
+      const delta = (pickNo != null && adp != null) ? Math.round((adp - pickNo) * 10) / 10 : null;
+      PredLedger.platformSample({
+        season: c.season, build_at: c.build_at, pick: pickNo,
+        method: 'platform-sample-v1',
+        payload: {
+          pick_no: pickNo, round: pick.round || null, draft_slot: slot,
+          player_id: String(player.player_id), name: player.name,
+          position: player.position, team: player.team || null,
+          // OUR market read, alongside, so the sample is a delta not a datum.
+          ffc_adp: player.raw_adp != null ? player.raw_adp : null,
+          adjusted_adp: player.adjusted_adp != null ? player.adjusted_adp : null,
+          adp_source: player.adp_source || null,
+          consensus_rank: player.consensus_rank != null ? player.consensus_rank : null,
+          sleeper_rank: player.sleeper_rank != null ? player.sleeper_rank : null,
+          vs_market: delta,
+          // INFERRED, not observed: Sleeper omits picked_by for autopick/bot
+          // seats, but an absent field is not proof. Labelled so exp 31 can
+          // weight it rather than trust it.
+          autopick_inferred: !pick.picked_by,
+          room: { teams: state.mockMode.teams, rounds: state.mockMode.rounds },
+          note: 'mock room — platform-behavior sample (bots); may differ from '
+            + 'the human-facing Sleeper board until human-room evidence corroborates',
+        },
+      }, 'p' + pickNo);
+    } catch (e) { /* sampling must never touch the clock */ }
+  }
+
   function captureDoctrine(out) {
     if (typeof PredLedger === 'undefined' || state.mockMode) return;
     const c = ledgerCtx();
@@ -2873,7 +2948,7 @@
   // §2(d): who took him, resolved from the draft slot via the manager profiles.
   function seatLabel(slot) {
     if (!slot) return null;
-    const prof = Object.values(state.profiles || {}).find(x => Number(x.draft_slot) === Number(slot));
+    const prof = profileForSlot(slot);
     return (prof && prof.display_name) ? prof.display_name
       : (Number(slot) === mySlot() ? 'you' : 'Seat ' + slot);
   }
@@ -3401,6 +3476,15 @@
         if (seatSlot && slot === seatSlot) state.myRoster.push(p);
       }
       state.board = state.board.filter(x => String(x.player_id) !== id);
+      // EXP-31 PLATFORM SAMPLING. In a MOCK room every non-Cory pick is
+      // Sleeper's own default ordering executing — bot/autopick picks most
+      // purely of all. We have no archive of the historical platform board, so
+      // rehearsals are the only live source, and each one makes the FALL/REACH
+      // delta board sharper. Captured with OUR FFC ADP alongside, because the
+      // sample is only useful as a DELTA against the market.
+      if (firstSight && state.mockMode && slot && slot !== seatSlot) {
+        capturePlatformSample(pick, p, slot);
+      }
       if (firstSight) {
         state.recentPicks.push({
           position: p.position, player_id: id,
