@@ -46,12 +46,19 @@
 
     const seenKeepers = {};
     const unknown = [];
+    // Placement-identity mismatches: the RIGHT player was kept, but Cory
+    // (placing keepers by hand the day before the draft) put him on the wrong
+    // team or in the wrong round. His manual placement is itself an error
+    // surface, so we cross-check every observed keeper against its designation.
+    const misplaced = [];
+    const teams = opts.teams || null;
 
     (picks || []).forEach(function (p) {
       if (!p || !p.is_keeper) return;
       const id = String(p.player_id);
       seenKeepers[id] = p;
-      if (!assumedById[id]) {
+      const designated = assumedById[id];
+      if (!designated) {
         unknown.push({
           player_id: id,
           name: (byId[id] && byId[id].name) || p.metadata && p.metadata.first_name
@@ -59,6 +66,26 @@
             : id,
           team_slot: p.draft_slot || p.roster_id || null,
           pick_no: p.pick_no || null,
+        });
+        return;
+      }
+      // Designated keeper seen — verify WHERE he was placed matches the slate.
+      const obsTeam = p.draft_slot || p.roster_id || null;
+      const obsRound = (teams && p.pick_no) ? Math.ceil(p.pick_no / teams) : null;
+      const wrongTeam = obsTeam != null && designated.team_slot != null
+        && Number(obsTeam) !== Number(designated.team_slot);
+      const wrongRound = obsRound != null && designated.cost_round != null
+        && Number(obsRound) !== Number(designated.cost_round);
+      if (wrongTeam || wrongRound) {
+        misplaced.push({
+          player_id: id,
+          name: designated.name || (byId[id] && byId[id].name) || id,
+          expected_team: designated.team_slot,
+          observed_team: obsTeam,
+          expected_round: designated.cost_round,
+          observed_round: obsRound,
+          wrong_team: wrongTeam,
+          wrong_round: wrongRound,
         });
       }
     });
@@ -81,19 +108,20 @@
       }
     });
 
-    const ok = !unknown.length && !missing.length;
+    const ok = !unknown.length && !missing.length && !misplaced.length;
     return {
       ok: ok,
       unknown: unknown,
       missing: missing,
+      misplaced: misplaced,
       // Halting is the point. A board known to be wrong must not keep
       // producing confident recommendations.
       halt: !ok,
-      message: ok ? null : describe(unknown, missing),
+      message: ok ? null : describe(unknown, missing, misplaced),
     };
   }
 
-  function describe(unknown, missing) {
+  function describe(unknown, missing, misplaced) {
     const bits = [];
     if (unknown.length) {
       bits.push(unknown.length + ' player' + (unknown.length === 1 ? ' was' : 's were')
@@ -106,6 +134,16 @@
         + missing.map(function (m) { return m.name; }).join(', ')
         + ' — still on the board, and currently invisible to every recommendation');
     }
+    (misplaced || []).forEach(function (m) {
+      const where = [];
+      if (m.wrong_team) {
+        where.push('placed on team ' + m.observed_team + ', designated for team ' + m.expected_team);
+      }
+      if (m.wrong_round) {
+        where.push('placed in round ' + m.observed_round + ', designated cost round ' + m.expected_round);
+      }
+      bits.push(m.name + ' was mis-placed: ' + where.join('; '));
+    });
     return bits.join('. ') + '.';
   }
 

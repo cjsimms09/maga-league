@@ -14,6 +14,7 @@ const fs = require('fs'), path = require('path');
 const E = require('../../public/js/draft/engine.js');
 const A = require('../../public/js/draft/attribution.js');
 const P = require('../../src/predledger.js');
+const RC = require('../../public/js/draft/reconcile.js');
 
 // In-memory store with the real store surface, for the ledger-capture scenario.
 function memStore() {
@@ -372,6 +373,52 @@ if (!IS_FIXTURE) {
     paths.every(p => p.candidates.every(c => c.player.position === p.position)));
   check('R-paths: every direction carries a name, a pick, and a when-it\'s-right',
     paths.every(p => p.name && p.pick && p.pick.player && p.when_right));
+}
+
+// R-placement (keeper-placement-verification §5): the heterogeneous keeper
+// board — teams keeping 3/2/1/0 — reconciles clean when Cory places every
+// keeper on the right team in the right round, and the placement alarm FIRES
+// the moment he fat-fingers one onto the wrong team or the wrong round. This is
+// the commissioner cross-check running through the real reconcile module.
+{
+  // Designations (the confirmed slate): keep-3 on team 1 (r1/2/3), keep-2 on
+  // team 4 = me (r1/2), keep-1 on team 7 (r1), keep-0 on team 9 (nothing).
+  const assumed = [
+    { player_id: 'k31', team_slot: 1, cost_round: 1, name: 'T1 Keeper A' },
+    { player_id: 'k32', team_slot: 1, cost_round: 2, name: 'T1 Keeper B' },
+    { player_id: 'k33', team_slot: 1, cost_round: 3, name: 'T1 Keeper C' },
+    { player_id: 'k41', team_slot: 4, cost_round: 1, name: 'My Keeper A' },
+    { player_id: 'k42', team_slot: 4, cost_round: 2, name: 'My Keeper B' },
+    { player_id: 'k71', team_slot: 7, cost_round: 1, name: 'T7 Keeper A' },
+  ];
+  // round r, team t -> a plausible snake pick_no in a 10-team draft.
+  const pickNo = (t, r) => (r % 2 === 1) ? (r - 1) * TEAMS + t : (r - 1) * TEAMS + (TEAMS - t + 1);
+  const correct = assumed.map(k => ({ player_id: k.player_id, is_keeper: true,
+    draft_slot: k.team_slot, pick_no: pickNo(k.team_slot, k.cost_round) }));
+  const opts = { teams: TEAMS, currentRound: 4, playersById: {} };
+
+  const clean = RC.reconcile(correct, assumed, opts);
+  check('R-placement: heterogeneous 3/2/1/0 keeper board reconciles clean when placed right',
+    clean.ok && !clean.halt, JSON.stringify(clean.misplaced || clean.message));
+
+  // Fat-finger #1: my keeper A dropped on team 5 instead of team 4.
+  const wrongTeam = correct.map(p => p.player_id === 'k41'
+    ? { ...p, draft_slot: 5, pick_no: pickNo(5, 1) } : p);
+  const rt = RC.reconcile(wrongTeam, assumed, opts);
+  check('R-placement: a keeper placed on the WRONG TEAM fires the alarm and halts',
+    rt.halt && rt.misplaced.some(m => m.player_id === 'k41' && m.wrong_team), JSON.stringify(rt.misplaced));
+
+  // Fat-finger #2: team-1 keeper C placed in round 2 instead of his cost round 3.
+  const wrongRound = correct.map(p => p.player_id === 'k33'
+    ? { ...p, pick_no: pickNo(1, 2) } : p);
+  const rr = RC.reconcile(wrongRound, assumed, opts);
+  check('R-placement: a keeper placed in the WRONG ROUND fires the alarm and halts',
+    rr.halt && rr.misplaced.some(m => m.player_id === 'k33' && m.wrong_round), JSON.stringify(rr.misplaced));
+
+  // A keep-0 team is legal: no designation, no keeper picks, nothing to reconcile.
+  const keepZeroOnly = RC.reconcile(correct, assumed, opts);
+  check('R-placement: keep-0 teams contribute no keeper picks and never trip the alarm',
+    !(keepZeroOnly.misplaced || []).some(m => m.observed_team === 9), 'team 9 should not appear');
 }
 
 // R7 (DEMAND 3 — the robot draft writes the ledger): a full simulated draft

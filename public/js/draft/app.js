@@ -2573,7 +2573,7 @@
     const currentRound = Math.ceil(currentPick() / teams);
 
     const r = window.DraftReconcile.reconcile(picks, assumed,
-      { playersById: byId, currentRound: currentRound });
+      { playersById: byId, currentRound: currentRound, teams: teams });
     state.reconcile = r;
     renderReconcile(r, assumed, byId);
   }
