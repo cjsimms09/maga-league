@@ -27,7 +27,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from build import OUT, _load_doctrine  # noqa: E402  (path set above)
+from build import OUT, _load_doctrine, _load_predicted_keepers  # noqa: E402
 
 
 def stamp(artifact_path: Path) -> tuple[bool, dict | None]:
@@ -41,10 +41,14 @@ def stamp(artifact_path: Path) -> tuple[bool, dict | None]:
         return False, None
     data = json.loads(artifact_path.read_text())
     block = _load_doctrine()
-    if data.get("doctrine") == block:
-        print("  doctrine block already current — no write")
+    # The rehearsal keeper slate rides along: same problem, same clock mismatch —
+    # it changes when intel lands, not when projections rebuild.
+    predicted = _load_predicted_keepers()
+    if data.get("doctrine") == block and data.get("predicted_keepers") == predicted:
+        print("  doctrine + predicted-keeper blocks already current — no write")
         return False, block
     data["doctrine"] = block
+    data["predicted_keepers"] = predicted
     artifact_path.write_text(json.dumps(data, separators=(",", ":")))
     print(f"  stamped doctrine into {artifact_path}")
     return True, block

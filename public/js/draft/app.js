@@ -2028,13 +2028,22 @@
    * keepers). Falls back to the forfeiture records (no bye) on an older board.
    */
   function populateKeepers(data) {
-    if (state.mockMode) return;
+    // REHEARSAL KEEPER MODE (1): fire in mocks too. A rehearsal that starts with
+    // an empty roster rehearses the wrong draft — need, byes, stack hooks and
+    // the Money Meter are all wrong from pick one. In a mock my keepers are not
+    // ON the Sleeper roster, so they are seeded here and badged; the seat is the
+    // ROOM seat, and the keepers are mine regardless of which room I am in.
     const seatSlot = mySlot();
     if (!seatSlot) return;
-    let mine = (data.kept_players || []).filter(k => Number(k.team_slot) === seatSlot);
+    // `kept_players.team_slot` is stamped with my LEAGUE seat. In a mock the room
+    // seat is a different number, so matching on the room seat finds nothing and
+    // the rehearsal silently starts empty — the exact failure this is fixing.
+    // My keepers are mine in any room; look them up by the league seat.
+    const keeperSeat = (state.mockMode && state.realSlot) ? Number(state.realSlot) : seatSlot;
+    let mine = (data.kept_players || []).filter(k => Number(k.team_slot) === keeperSeat);
     if (!mine.length) {
       mine = ((data.pick_order || {}).forfeited || [])
-        .filter(f => Number(f.team_slot) === seatSlot)
+        .filter(f => Number(f.team_slot) === keeperSeat)
         .map(f => ({ player_id: f.player_id, name: f.name, position: f.position,
           bye: null, off_board: true }));
     }
@@ -2303,6 +2312,55 @@
     return result;
   }
 
+  /* Remove the PREDICTED opponent keepers from the rehearsal board.
+   *
+   * Predicted, not confirmed. The artifact keeps them under their own key so
+   * they can never be mistaken for `kept_players` (my real slate), and the
+   * board carries a label naming what was done and how many. A rehearsal board
+   * that silently differed from the real one would be worse than a full pool. */
+  function applyRehearsalKeepers() {
+    if (!state.mockMode || !state.data) return null;
+    const block = state.data.predicted_keepers;
+    if (!block || !block.predictions) return null;
+    const mine = new Set((state.data.kept_players || []).map(k => String(k.player_id)));
+    const remove = new Map();
+    Object.keys(block.predictions).forEach(owner => {
+      if (owner === 'coryjsimms') return;                 // my own keepers are seeded, not removed
+      ((block.predictions[owner] || {}).predicted_keepers || []).forEach(k => {
+        const id = String(k.player_id);
+        if (mine.has(id)) return;
+        remove.set(id, { owner: owner, name: k.name, position: k.position,
+                         confidence: k.confidence });
+      });
+    });
+    if (!remove.size) return null;
+    const before = state.board.length;
+    state.board = state.board.filter(p => !remove.has(String(p.player_id)));
+    state.rehearsalKeepers = {
+      removed: before - state.board.length,
+      predicted: remove.size,
+      owners: new Set([...remove.values()].map(v => v.owner)).size,
+      high: [...remove.values()].filter(v => v.confidence === 'high').length,
+    };
+    renderRehearsalKeeperNote();
+    return state.rehearsalKeepers;
+  }
+
+  function renderRehearsalKeeperNote() {
+    const host = document.getElementById('rehearsal-keeper-note');
+    if (!host) return;
+    const r = state.rehearsalKeepers;
+    if (!r || !r.removed) { host.style.display = 'none'; return; }
+    host.style.display = '';
+    host.className = 'prov-note warn';
+    host.innerHTML = '<b>🎬</b> <span><b>rehearsal board: predicted keepers removed</b> — '
+      + r.removed + ' of ' + r.predicted + ' predicted opponent keepers pulled from the pool '
+      + 'across ' + r.owners + ' owners (' + r.high + ' high-confidence), so the value '
+      + 'landscape at your picks resembles draft night instead of a full mock pool. '
+      + '<b>These are PREDICTIONS, not the confirmed slate</b> — a real keeper we did not '
+      + 'predict will still be on this board, and a predicted one may not actually be kept.</span>';
+  }
+
   function applyDraftShape(draft, mySlot) {
     if (!window.DraftKeepers) return;
     const st = draft.settings || {};
@@ -2359,6 +2417,13 @@
                        picks: out.order.picks.length, myPicks: out.order.my_picks };
     state.roomSeatSource = mySlot ? 'sleeper' : 'assumed';
     refreshSeat();
+    // REHEARSAL KEEPER MODE (3) — the biggest fidelity gap. In a real draft ~27
+    // opponent keepers are gone before pick one; in a mock the whole pool is
+    // live, so the value landscape at my picks looks nothing like draft night.
+    // Pre-remove the PREDICTED slate and say so, loudly, because it is a
+    // prediction and the board must never imply it is the confirmed slate.
+    applyRehearsalKeepers();
+    populateKeepers(state.data);
 
     const host = $('#mock-note');
     if (host) {
@@ -3481,6 +3546,10 @@
       pushPicks: onSyncPicks,
       recordManualPick: recordManualPick,
       endDraft: endDraft,
+      // Drive the mock-room path without a live Sleeper connection — the only
+      // way to rehearse the rehearsal, and how R-rehearsal verifies it.
+      applyDraftShape: applyDraftShape,
+      applyRehearsalKeepers: applyRehearsalKeepers,
       toggleQueue: toggleQueue,
       fillQueueFromBoard: fillQueueFromBoard,
       buildSheet: buildSheet,

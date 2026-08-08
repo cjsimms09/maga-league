@@ -471,6 +471,48 @@ if (!IS_FIXTURE) {
     strat.every(s => s.log.every(l => l.rehearsal === false)));
 }
 
+// R-rehearsal (mock #2 fidelity): the predicted-keeper board filter.
+//
+// In a real draft ~27 opponent keepers are gone before pick one; in a Sleeper
+// mock the whole pool is live, so the value landscape at my picks is nothing
+// like draft night. The artifact carries the PREDICTED slate under its own key
+// so it can never be confused with my confirmed one.
+{
+  const pk = ART.predicted_keepers;
+  check('R-rehearsal: the artifact carries a predicted opponent slate',
+    !!(pk && pk.predictions && Object.keys(pk.predictions).length), 'absent');
+
+  if (pk && pk.predictions) {
+    const mine = new Set((ART.kept_players || []).map(k => String(k.player_id)));
+    const opp = [];
+    Object.keys(pk.predictions).forEach(o => {
+      if (o === 'coryjsimms') return;
+      ((pk.predictions[o] || {}).predicted_keepers || []).forEach(k => opp.push(String(k.player_id)));
+    });
+    check('R-rehearsal: predicted opponent keepers are DISJOINT from my confirmed slate',
+      opp.every(id => !mine.has(id)), 'overlap: ' + opp.filter(id => mine.has(id)).join(','));
+    check('R-rehearsal: removing them actually thins the board (non-vacuous)',
+      opp.length > 0 && ALL.some(p => opp.includes(String(p.player_id))),
+      opp.length + ' predicted');
+
+    // The prediction must never be merged into kept_players — a prediction that
+    // reads as the confirmed slate is the failure the separate key prevents.
+    check('R-rehearsal: the confirmed slate is unchanged by the prediction',
+      (ART.kept_players || []).length === 3
+      && (ART.kept_players || []).every(k => Number(k.team_slot) === Number(LEAGUE.my_draft_slot)),
+      JSON.stringify((ART.kept_players || []).map(k => [k.name, k.team_slot])));
+
+    // Every predicted keeper carries a confidence, so the label can be honest
+    // about how much of the slate is intel vs model.
+    const all = [];
+    Object.keys(pk.predictions).forEach(o =>
+      ((pk.predictions[o] || {}).predicted_keepers || []).forEach(k => all.push(k)));
+    check('R-rehearsal: every predicted keeper carries a confidence tier',
+      all.every(k => typeof k.confidence === 'string' && k.confidence),
+      all.filter(k => !k.confidence).length + ' missing');
+  }
+}
+
 // R-legality (SEVERITY-1, mock #1): the guarantee that failed.
 //
 // Cory left a mock with no defense and the tool never said a word. Per his

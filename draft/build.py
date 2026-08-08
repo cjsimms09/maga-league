@@ -51,6 +51,8 @@ PAYOUTS_PATH = HERE / "config" / "payouts.json"
 PROFILES_PATH = HERE / "config" / "manager_profiles.json"
 # The Lab's enrolled-doctrine verdict (experiment 19b). Read-only to the build.
 DOCTRINE_PATH = HERE / "backtest" / "cory-conditional.json"
+# Predicted opponent keeper slate — REHEARSAL fidelity input (not draft truth).
+PREDICTED_PATH = HERE / "data" / "predicted_keepers.json"
 
 # Positions the draft board cares about. IDP leagues would extend this.
 DRAFTABLE = {"QB", "RB", "WR", "TE", "K", "DEF"}
@@ -126,6 +128,34 @@ def _load_doctrine() -> dict | None:
     }
     print(f"  doctrine: {enrolled} enrolled at +${out['edge']} over {v.get('control')}")
     return out
+
+
+def _load_predicted_keepers() -> dict | None:
+    """The PREDICTED opponent keeper slate, for rehearsal-board fidelity.
+
+    In a real draft ~27 opponent keepers are off the board before pick one; in a
+    Sleeper mock they are all available, so the value landscape at my picks is
+    nothing like draft night. Pre-removing the predicted slate makes a rehearsal
+    rehearse the right board.
+
+    THIS IS A PREDICTION, NOT TRUTH. It is stamped under its own key, labelled at
+    the point of use, and never merges into `kept_players` (which is my real,
+    confirmed slate). A prediction that reads as settled fact is the failure this
+    separation prevents.
+    """
+    if not PREDICTED_PATH.exists():
+        print("  ! predicted_keepers.json missing — rehearsal board cannot pre-remove opponents")
+        return None
+    try:
+        v = json.loads(PREDICTED_PATH.read_text())
+    except (json.JSONDecodeError, OSError) as exc:
+        print(f"  ! predicted_keepers.json unreadable ({exc})")
+        return None
+    preds = v.get("predictions") or {}
+    n = sum(len((x or {}).get("predicted_keepers") or []) for x in preds.values())
+    print(f"  predicted keepers: {n} across {len(preds)} owners (rehearsal input)")
+    return {"provenance": v.get("provenance"), "note": v.get("note"),
+            "predictions": preds}
 
 
 def fetch_authoritative_confirmed(cfg: dict) -> dict:
@@ -636,6 +666,9 @@ def build(cfg: dict, *, offline: bool = False, force_profiles: bool = False,
         # THE ENROLLED DOCTRINE (war-room-v2-doctrine-banner.md §1). Stamped from
         # the Lab's verdict, never authored here. None = nothing enrolled.
         "doctrine": _load_doctrine(),
+        # REHEARSAL ONLY. Predicted, not confirmed — kept separate from
+        # `kept_players` so a prediction can never be read as the real slate.
+        "predicted_keepers": _load_predicted_keepers(),
         "notes": {
             "adp_blend_weight": cfg.get("adp_blend_weight"),
             "opportunity_cap": cfg.get("opportunity_cap"),
