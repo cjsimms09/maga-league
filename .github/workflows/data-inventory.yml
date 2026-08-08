@@ -1,0 +1,91 @@
+name: nflverse data inventory & reachability
+
+# The sandbox that builds this repo can't reach nflverse; CI can. This probes
+# every dataset we use, have specced, or newly added (FTN charting), records
+# reachability + real schema + season coverage, and commits DATA-INVENTORY.md so
+# September's 2c build starts with zero discovery work. Also evaluates nflreadpy
+# (the maintained successor to nfl_data_py — our 404s came from stale URLs there).
+# Draft-day scope: none — this is in-season/2c reachability, run on demand.
+
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: '0 8 1 * *'      # monthly, so coverage drift is caught before September
+
+permissions:
+  contents: write
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - name: Probe datasets
+        run: |
+          pip install -q nfl_data_py nflreadpy || pip install -q nfl_data_py || true
+          python3 - <<'PY'
+          import datetime
+          Y = 2024                      # a fully-published season to probe schema against
+          rows = []
+
+          def probe(name, fn, seasons=None):
+              try:
+                  df = fn()
+                  n = len(df)
+                  cols = list(getattr(df, "columns", []))[:16]
+                  rows.append((name, "REACHABLE", n, ",".join(map(str, cols))))
+              except Exception as e:                     # noqa: BLE001
+                  rows.append((name, "UNREACHABLE", 0, f"{type(e).__name__}: {e}"[:120]))
+
+          # --- nfl_data_py (what we use today) ---
+          try:
+              import nfl_data_py as nfl
+              probe("import_ids", lambda: nfl.import_ids())
+              probe("import_pbp_data[2024]", lambda: nfl.import_pbp_data([Y], downcast=True, cache=False))
+              probe("import_weekly_data[2024]", lambda: nfl.import_weekly_data([Y]))
+              for grp in ("passing", "rushing", "receiving"):
+                  probe(f"import_ngs_data[{grp}]", (lambda g=grp: nfl.import_ngs_data(g, [Y])))
+              probe("import_snap_counts[2024]", lambda: nfl.import_snap_counts([Y]))
+              probe("import_depth_charts[2024]", lambda: nfl.import_depth_charts([Y]))
+              probe("import_injuries[2024]", lambda: nfl.import_injuries([Y]))
+              probe("import_draft_picks", lambda: nfl.import_draft_picks([Y]))
+              probe("import_schedules[2024]", lambda: nfl.import_schedules([Y]))
+              # Route participation: known to stop publishing after 2023 — probe both.
+              try:
+                  probe("participation[2023]", lambda: nfl.import_pbp_participation([2023]))
+                  probe("participation[2024]", lambda: nfl.import_pbp_participation([2024]))
+              except AttributeError:
+                  rows.append(("participation", "NO_LOADER", 0, "import_pbp_participation absent in this nfl_data_py"))
+          except Exception as e:                          # noqa: BLE001
+              rows.append(("nfl_data_py", "IMPORT_FAILED", 0, str(e)[:120]))
+
+          # --- nflreadpy (successor; has FTN charting) ---
+          try:
+              import nflreadpy as nr
+              rows.append(("nflreadpy", "INSTALLED", 0, "successor available for migration eval"))
+              # FTN charting, 2022+ (NEW 2c scope)
+              for yr in (2022, 2023, 2024):
+                  probe(f"load_ftn_charting[{yr}]", (lambda y=yr: nr.load_ftn_charting(seasons=[y])))
+              # participation via nflreadpy if present
+              if hasattr(nr, "load_participation"):
+                  probe("nflreadpy.load_participation[2024]", lambda: nr.load_participation(seasons=[2024]))
+          except Exception as e:                          # noqa: BLE001
+              rows.append(("nflreadpy", "NOT_INSTALLED", 0, str(e)[:120]))
+
+          stamp = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%MZ")
+          out = ["# nflverse data inventory & reachability", "",
+                 f"_Probed {stamp} in CI (schema season {Y}). Draft-day scope: none._", "",
+                 "| dataset | status | rows | columns / error |", "|---|---|---|---|"]
+          for name, status, n, detail in rows:
+              out.append(f"| `{name}` | {status} | {n} | {detail} |")
+          open("DATA-INVENTORY.md", "w").write("\n".join(out) + "\n")
+          print("\n".join(out))
+          PY
+      - name: Commit the inventory
+        run: |
+          git config user.name "data-inventory-bot"; git config user.email "actions@github.com"
+          git add DATA-INVENTORY.md
+          git commit -m "nflverse data inventory $(date -u +%Y-%m-%d)" || { echo "no change"; exit 0; }
+          git pull --rebase origin main && git push || echo "push skipped"

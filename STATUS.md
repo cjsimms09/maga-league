@@ -44,7 +44,26 @@ Work order: §A state correctness → §C verdicts → Part 2 layout (absorbs §
 | E-2 frown→scenario pipeline | standing | no fix merges without its scenario |
 | E-3 quarterly design review | Oct 1 / Jan 2 / Apr 1 | |
 | E-4 honesty paragraph everywhere | standing | checked requirement on every new surface |
-| **nflverse audit** | queued (break) | (1) dataset inventory table (used/pending/skipped); (2) evaluate nfl_data_py→nflreadpy migration (post-draft, dual-path gate); (3) confirm 2c metric data paths reachable in CI now, gated post-draft |
+| **nflverse audit** | in progress | inventory table below; nflreadpy migration eval (post-draft, dual-path gate); 2c reachability probe in CI (`data-inventory.yml`) |
+
+## 📊 nflverse dataset inventory (used-where from code; reachability from CI probe)
+Reachability/schema/season-coverage fill in from `data-inventory.yml` → `DATA-INVENTORY.md` (the sandbox egress can't reach nflverse; CI can). Draft-day scope for all pending/2c items: **none — the gate holds.**
+
+| dataset | used-where | specced-pending | skipped (reason) |
+|---|---|---|---|
+| `import_ids` (gsis↔sleeper) | **USED** — `build.py` id crosswalk | | |
+| `import_pbp_data` (play-by-play) | **USED** — opportunity metrics + backtest weekly recovery | | |
+| `import_weekly_data` | | 2c / in-season rankings ingestion | (pbp-derived today) |
+| NGS passing/rushing/receiving | | **2c** (xTD, efficiency) | |
+| participation (route %) | | **2c** — ⚠️ verify post-2023 publish or proxy (CI probe) | |
+| depth charts | | in-season vacated-opportunity attribution | |
+| rosters | | in-season | |
+| draft picks (capital) | | **2c** draft-capital boost | |
+| snap counts | | 2c snap slopes | |
+| injuries | | in-season Sunday sweep | |
+| schedules | | in-season matchup/Vegas | |
+| officials | | — | genuinely skipped (no signal for our scoring) |
+| **FTN charting** (`load_ftn_charting`, 2022+, nflreadpy) | | **2c (NEW)** — drop-adj catch rate, catchable-target share, contested-target rate, PA/screen/RPO splits, pressure-context QB; fold into opportunity z-score under ±15% cap (single z, never independent multipliers), each with the participation test; priority use = waiver buy-low + trade radar | |
 
 _Read this first. Updated after every completed item._
 
