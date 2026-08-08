@@ -201,34 +201,17 @@ a computation it does not touch. Every link asserts a *visible behavioural
 difference*, the same way the doctrine guard scores the same board twice and
 compares rankings rather than grepping for a word.
 
-## ⑯ THE PORTFOLIO DOCTRINE — ⚠️ SPEC NOT RECEIVED
+## ⑯ THE PORTFOLIO DOCTRINE — spec received 2026-08-08
 
-_Referenced 2026-08-08: "the file I'm attaching / the doc titled **THE PORTFOLIO
-DOCTRINE — Constructing a Variance Profile, Not Collecting Players**."_
+Full text: `docs/queued/portfolio-doctrine.md`. The earlier placeholder here is
+superseded; the document arrived and nothing was reconstructed.
 
-**NO FILE ARRIVED.** This entry is a placeholder holding only what the covering
-message stated directly. It is NOT the spec, and it must not be treated as one —
-building from a reconstructed spec is how a doctrine ends up meaning whatever
-the last person to summarise it thought it meant.
+**Queue position:** behind tilt → Stage 3 boundary → exp 34 → tree, with step 1
+(measure covariance) explicitly excepted and already running in CI.
 
-### What is actually known
-
-- **Title:** *Constructing a Variance Profile, Not Collecting Players.*
-- **Position in the queue:** parked behind tilt → Stage 3 boundary → exp 34 →
-  tree, with one exception below.
-- **Step 1 (the exception):** measure actual covariance from historical weekly
-  data — same-team QB/pass-catcher pairs, same-game pairs, 2021–25 nflverse
-  weekly data. Fact-finding, runnable in CI now, independent of everything else.
-  Its output **converts exp 6's stack finding from modelled-rho to measured**,
-  which is the difference between a LEAN and evidence.
-- **Step 2:** "build the portfolio evaluator —" *(the message truncated here)*.
-- **Build order strictly as specced, no shortcuts.**
-
-### Status
-
-**Step 1 is BUILT and wired to CI** — `draft/backtest/measure_covariance.py` +
-`.github/workflows/covariance.yml`. It runs without the spec because the
-covering message specified it completely.
-
-**Steps 2+ are BLOCKED on receiving the document.** Re-send it and this entry
-gets replaced by the real thing.
+**Why it matters more than its position suggests (spec §6):** if it works it
+SUBSUMES the stack bonus, the bye-collision penalty, the flex-marginal fix, the
+ceiling term's role, and the Money Meter's crude proxy — five hand-built
+approximations of one quantity, replaced by the quantity itself. Fewer terms,
+each measured, rather than more terms each guessed. That is the opposite
+direction from everything else in the queue.

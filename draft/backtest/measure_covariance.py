@@ -9,7 +9,7 @@ WHAT IS MEASURED, from nflverse weekly data 2021-25, in OUR scoring:
 
   1. SAME-TEAM QB -> pass-catcher pairs (the classic stack)
   2. SAME-TEAM pass-catcher -> pass-catcher pairs (the cannibalisation question)
-  3. SAME-GAME opposing pairs (the shootout question)
+  3. SAME-GAME opposing pairs (the shootout question) — via a schedule join
   4. A BASELINE of unrelated pairs, so a correlation has something to be
      compared against — without it, "rho = 0.31" is a number, not a finding
 
@@ -67,6 +67,35 @@ def score_row(row, sc: dict) -> float:
     )
 
 
+def fetch_schedules(seasons):
+    """week -> {team: opponent}, per season. Needed for the same-game arm.
+
+    The first cut of this script skipped same-game pairs because weekly data
+    carries a player's team but not his weekly opponent. The spec names them
+    explicitly (§1: "players in the same game (positive via game script/pace)"),
+    so the join is done rather than the arm dropped.
+    """
+    import nfl_data_py as nfl
+    opp = {}
+    for s in seasons:
+        try:
+            sched = nfl.import_schedules([s])
+        except Exception as e:                      # noqa: BLE001
+            raise SystemExit(
+                f"could not fetch schedules for {s}: {type(e).__name__} {e}. "
+                "The same-game arm needs this join; refusing to silently drop it."
+            ) from e
+        for row in sched.to_dict("records"):
+            if row.get("game_type") not in (None, "REG"):
+                continue
+            wk, home, away = row.get("week"), row.get("home_team"), row.get("away_team")
+            if not (wk and home and away):
+                continue
+            opp.setdefault((s, wk), {})[home] = away
+            opp[(s, wk)][away] = home
+    return opp
+
+
 def fetch(seasons):
     try:
         import nfl_data_py as nfl
@@ -87,8 +116,8 @@ def fetch(seasons):
 
 
 def build_series(frames, sc):
-    """{(season, team, player, pos): {week: our_points}}"""
-    series, teams = {}, {}
+    """{(season, player, pos): {week: our_points}}, plus team-by-week."""
+    series, teams, team_week = {}, {}, {}
     for season, df in frames:
         for row in df.to_dict("records"):
             pos = row.get("position")
@@ -100,7 +129,10 @@ def build_series(frames, sc):
             key = (season, row.get("player_display_name"), pos)
             series.setdefault(key, {})[wk] = score_row(row, sc)
             teams.setdefault(key, row.get("recent_team"))
-    return series, teams
+            # PER-WEEK team, so the same-game join is correct for mid-season
+            # movers rather than using the end-of-season club for every week.
+            team_week.setdefault(key, {})[wk] = row.get("recent_team")
+    return series, teams, team_week
 
 
 def pearson(xs, ys):
@@ -152,7 +184,8 @@ def main() -> int:
         print(f"NOTE: rec is {sc.get('rec')} — expected 0.5 (half-PPR)")
 
     frames = fetch(SEASONS)
-    series, teams = build_series(frames, sc)
+    series, teams, team_week = build_series(frames, sc)
+    opp = fetch_schedules(SEASONS)
     if not series:
         raise SystemExit("no player-weeks built — refusing to report an empty study")
 
@@ -163,14 +196,51 @@ def main() -> int:
         and a[2] in CATCHERS and b[2] in CATCHERS                      # noqa: E731
     unrelated = lambda a, b, t: t.get(a) and t.get(b) and t[a] != t[b]  # noqa: E731
 
+    def same_game(a, b, t):
+        """Different teams, but facing each other — the shootout question."""
+        if not (t.get(a) and t.get(b)) or t[a] == t[b]:
+            return False
+        season = a[0]
+        shared = set(series[a]) & set(series[b])
+        # Count as same-game only if they actually met in most shared weeks.
+        met = 0
+        for w in shared:
+            ta = (team_week.get(a) or {}).get(w)
+            tb = (team_week.get(b) or {}).get(w)
+            if ta and tb and (opp.get((season, w)) or {}).get(ta) == tb:
+                met += 1
+        return met >= MIN_WEEKS
+
     results = [
         summarise("same_team_qb_to_catcher", pair_rhos(series, teams, qb_catcher),
                   "the classic stack — exp 6's modelled rho becomes measured here"),
         summarise("same_team_catcher_to_catcher", pair_rhos(series, teams, catcher_pair),
                   "the cannibalisation question: do team-mates split one pie?"),
+        summarise("same_game_opposing", pair_rhos(series, teams, same_game),
+                  "the shootout question (spec §1) — positive via game script/pace"),
         summarise("unrelated_baseline", pair_rhos(series, teams, unrelated),
                   "THE BASELINE. Without it a rho is a number, not a finding."),
     ]
+
+    # THE NUMBER THE SPEC NAMES. Experiment 6 priced the stack family against a
+    # MODELLED rho = 0.35 and was flagged LEAN for exactly that reason. This is
+    # the comparison that converts the family from lean to evidence — reported
+    # explicitly rather than left for a reader to compute.
+    stack = next((r for r in results if r["pair_type"] == "same_team_qb_to_catcher"), {})
+    base = next((r for r in results if r["pair_type"] == "unrelated_baseline"), {})
+    verdict = None
+    if stack.get("n_pairs") and base.get("n_pairs"):
+        excess = round(stack["mean_rho"] - base["mean_rho"], 4)
+        verdict = {
+            "modelled_rho_exp6": 0.35,
+            "measured_mean_rho": stack["mean_rho"],
+            "baseline_mean_rho": base["mean_rho"],
+            "excess_over_baseline": excess,
+            "reading": (
+                "MODEL OVERSTATED the stack" if stack["mean_rho"] < 0.35 - 0.05 else
+                "MODEL UNDERSTATED the stack" if stack["mean_rho"] > 0.35 + 0.05 else
+                "measured rho is consistent with the modelled 0.35"),
+        }
 
     payload = {
         "measured_at_seasons": SEASONS,
@@ -178,13 +248,17 @@ def main() -> int:
                     "source": "draft/config/league_config.json (OUR scoring, not nflverse defaults)"},
         "min_shared_weeks": MIN_WEEKS,
         "results": results,
+        "exp6_rho_check": verdict,
         "limitations": [
-            "SAME-GAME OPPOSING PAIRS are not measured here: weekly data carries a "
-            "player's team but not his opponent per week without a schedule join. "
-            "Stated rather than approximated — the shootout question needs the "
-            "schedule merge and is a separate, honest step.",
-            "recent_team is end-of-season team; mid-season movers are attributed to "
-            "their final club, which adds noise in both directions.",
+            "A PLAYER-vs-OPPOSING-DST arm (spec §1) is NOT measured: nflverse weekly "
+            "data does not carry team-defence scoring in the same table, so it needs "
+            "a separate DST source. Named rather than approximated.",
+            "SAME-BYE (spec §1's degenerate perfect correlation to zero) is not "
+            "measured because it is not an empirical question — a bye is a "
+            "structural zero, already handled by the bye term.",
+            "Pair classification uses end-of-season team; the SAME-GAME arm uses "
+            "per-week team so its join is correct for mid-season movers, but the "
+            "same-team arms attribute a mover to his final club.",
             "Correlation of weekly POINTS is not the same as correlation of the "
             "quantity a portfolio cares about (weekly-high capture). This measures "
             "the input; pricing it is step 2.",
@@ -205,6 +279,17 @@ def main() -> int:
     lines += ["", "## What each row is for", ""]
     for r in results:
         lines.append(f"- **{r['pair_type']}** — {r.get('note', '')}")
+    if verdict:
+        lines += ["", "## THE NUMBER EXPERIMENT 6 ASSUMED", "",
+                  f"- exp 6 priced the stack family against a **modelled rho = "
+                  f"{verdict['modelled_rho_exp6']}**",
+                  f"- measured same-team QB->catcher rho: **{verdict['measured_mean_rho']}**",
+                  f"- unrelated baseline: {verdict['baseline_mean_rho']}  "
+                  f"(excess over baseline: **{verdict['excess_over_baseline']}**)",
+                  f"- **reading: {verdict['reading']}**", "",
+                  "This is the comparison that converts the stack family from LEAN to "
+                  "evidence — or that shows the lean was priced off a rho the data "
+                  "does not support."]
     lines += ["", "## Limitations, stated with the result", ""]
     lines += [f"- {x}" for x in payload["limitations"]]
     lines += ["", "**The comparison that matters:** the stack rows mean nothing except "
