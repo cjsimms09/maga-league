@@ -1,0 +1,54 @@
+name: MEASURED COVARIANCE — portfolio doctrine step 1
+
+# Fact-finding, and deliberately independent of the build sequence (tilt ->
+# Stage 3 -> exp 34 -> tree). It converts experiment 6's stack finding from a
+# MODELLED rho to a MEASURED one, which is the difference between a LEAN and
+# evidence — and it needs nothing from the draft tool to do it.
+#
+# Runs in CI because nflverse egress is blocked from the sandbox. GitHub Actions
+# is free and does not compete with the Netlify build budget, so this should not
+# wait its turn behind anything.
+#
+# NOTE: no [skip ci] anywhere near this repo's commit messages — that convention
+# silently skipped every workflow twice on 2026-08-08. See DEPLOY-POLICY.md.
+
+on:
+  workflow_dispatch: {}
+  schedule:
+    # Tuesday 05:00 UTC. Weekly is plenty: the input is historical seasons.
+    - cron: '0 5 * * 2'
+  push:
+    branches: [main]
+    paths:
+      - 'draft/backtest/measure_covariance.py'
+      - 'draft/config/league_config.json'
+      - '.github/workflows/covariance.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  measure:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+
+      - name: Install nflverse
+        run: pip install -q nfl_data_py pandas
+
+      - name: Measure the real correlations
+        run: python3 draft/backtest/measure_covariance.py
+
+      - name: Commit the measurement
+        run: |
+          git config user.name  covariance-bot
+          git config user.email covariance-bot@users.noreply.github.com
+          git add draft/backtest/covariance.json draft/backtest/COVARIANCE.md
+          if git diff --cached --quiet; then
+            echo "no change in measured covariance"
+          else
+            git commit -m "Measured covariance $(date -u +%Y-%m-%dT%H:%MZ)"
+            git push
+          fi
