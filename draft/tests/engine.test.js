@@ -557,6 +557,30 @@ check('weight sliders change the ranking', heavyCeiling[0].score !== scored[0].s
       E.computePaths(mkCtx([])).length === 0);
   }
 
+  // --- B7 dollar gap -------------------------------------------------------
+  {
+    const boomy = { player_id: 'boom', name: 'Boomer', position: 'WR', proj_mean: 180, proj_ceiling: 260 };
+    const steady = { player_id: 'steady', name: 'Steady', position: 'WR', proj_mean: 175, proj_ceiling: 205 };
+    const g = E.dollarGap(boomy, steady, null);
+    check('dollarGap: the boomier player leads on high-pool $ (more weekly-high fuel)',
+      g.high > 0, JSON.stringify(g));
+    check('dollarGap: total decomposes into high + entry + rs (+ echo, 0 with no ctx)',
+      Math.abs(g.total - (g.high + g.entry + g.rs + g.echo)) < 0.05, JSON.stringify(g));
+    check('dollarGap: v1 always carries the rough confidence class',
+      g.confidence === 'rough');
+    check('dollarGap: the Why? terms expose each player\'s decomposition',
+      g.terms && g.terms.A && g.terms.B && g.terms.A.dollars && g.terms.note);
+    // Two near-identical players fall inside the noise band → even money.
+    const twinA = { player_id: 'ta', name: 'TwinA', position: 'RB', proj_mean: 150, proj_ceiling: 200 };
+    const twinB = { player_id: 'tb', name: 'TwinB', position: 'RB', proj_mean: 150, proj_ceiling: 200 };
+    const gt = E.dollarGap(twinA, twinB, null);
+    check('dollarGap: a gap inside the noise band is EVEN MONEY, not a fake number',
+      gt.even_money === true && /even money/.test(gt.verdict) && gt.leader === null,
+      JSON.stringify(gt));
+    check('dollarGap: a real gap names the leader with a dollar figure',
+      !g.even_money && g.leader === 'Boomer' && /\+\$/.test(g.verdict), g.verdict);
+  }
+
   // --- personal lists ------------------------------------------------------
   {
     // Two near-identical players, so the gap is genuinely inside the nudge.

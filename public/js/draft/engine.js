@@ -49,6 +49,20 @@
     // Tier-urgency at/above this makes a path a "cliff — take it now" direction
     // rather than a "value" one; it drives both the name and the when-it's-right.
     PATHS_CLIFF_URGENCY: 6.0,
+    // --- B7 dollar gap (Part 2) — the comparison primitive ---
+    // v1 CRUDE boom-capacity proxy. These coefficients are ROUGH placeholders
+    // that turn projection shape into a dollar estimate until September's quantile
+    // model makes E[$] exact; they are calibrated only for RELATIVE comparison and
+    // every gap renders with its confidence class. DG_HIGH_K prices boom capacity
+    // (ceiling-over-mean) into weekly-high equity; DG_ENTRY_K prices the mean into
+    // top-4-entry equity; DG_RS_K into RS equity; DG_ECHO_K converts the branch
+    // forecast's next-pick point-loss into an echo dollar. DG_NOISE_BAND is the
+    // "even money" width — a gap inside it is not a real edge and says so.
+    DG_HIGH_K: 0.22,
+    DG_ENTRY_K: 0.08,
+    DG_RS_K: 0.05,
+    DG_ECHO_K: 0.10,
+    DG_NOISE_BAND: 4.0,
     // A target you have starred is allowed to jump a gap this big. Wide enough
     // that your own read wins a close call, narrow enough that it cannot drag
     // a materially worse player to the top of the list.
@@ -1028,6 +1042,85 @@
   }
 
   /**
+   * B7 — a player's crude v1 E[$] estimate, decomposed. ROUGH by design: it turns
+   * projection SHAPE into dollars until September's quantile model makes E[$]
+   * exact. Boom capacity (ceiling over mean) buys weekly-high lottery tickets;
+   * the mean buys top-4-entry equity and RS equity. Coefficients are placeholders
+   * calibrated only for RELATIVE comparison — never presented without a confidence
+   * class. Returns {high, entry, rs, total} in dollars.
+   */
+  function playerDollars(p) {
+    const mean = p.proj_mean || 0;
+    const ceil = p.proj_ceiling != null ? p.proj_ceiling : mean;
+    const boom = Math.max(0, ceil - mean);        // upside points — weekly-high fuel
+    const high = CFG.DG_HIGH_K * boom;            // weekly-high equity
+    const entry = CFG.DG_ENTRY_K * mean;          // top-4-entry equity (floor/consistency)
+    const rs = CFG.DG_RS_K * mean;                // regular-season equity
+    return { high: high, entry: entry, rs: rs, total: high + entry + rs };
+  }
+
+  /**
+   * THE DOLLAR GAP (Part 2 §1/B7) — "which of these two makes me more money?",
+   * the single most prominent figure in any comparison. Returns the projected
+   * E[$] difference A−B, DECOMPOSED (high-pool $ / top-4-entry $ / next-pick echo
+   * $), each a rough v1 estimate. HONESTY RAILS baked in: a `confidence` class of
+   * 'rough' always (v1), and a gap inside the noise band reports `even_money:true`
+   * with the "even money — pick your guy" verdict rather than a fake number. The
+   * `terms` field is the auditable derivation the Why? panel expands.
+   *
+   * next-pick echo: taking A instead of B costs you the best-available at B's
+   * position at your next pick (the two-pick math, not just this pick) — read off
+   * the branch forecast's position loss when a ctx is supplied.
+   */
+  function dollarGap(a, b, ctx) {
+    const da = playerDollars(a), db = playerDollars(b);
+    // Next-pick echo: what taking A costs in best-available-at-B's-position by my
+    // next pick, minus the symmetric cost of taking B. Positive favors A.
+    let echo = 0, echoTerms = null;
+    if (ctx && ctx.nextPick && ctx.board && ctx.board.length) {
+      const fa = branchForecast({ player: a }, ctx);
+      const fb = branchForecast({ player: b }, ctx);
+      const lossAt = (f, pos) => {
+        if (!f) return 0;
+        const row = f.rows.find(r => r.position === pos);
+        return row ? row.loss : 0;
+      };
+      // Taking A leaves B's position exposed at next pick (cost), and vice-versa.
+      const costOfA = lossAt(fa, b.position);
+      const costOfB = lossAt(fb, a.position);
+      echo = CFG.DG_ECHO_K * (costOfB - costOfA);
+      echoTerms = { cost_of_taking_A: Math.round(costOfA * 10) / 10,
+                    cost_of_taking_B: Math.round(costOfB * 10) / 10 };
+    }
+    const high = da.high - db.high;
+    const entry = da.entry - db.entry;
+    const rs = da.rs - db.rs;
+    const total = (high + entry + rs) + echo;
+    const round1 = x => Math.round(x * 10) / 10;
+    const even = Math.abs(total) < CFG.DG_NOISE_BAND;
+    const leader = total >= 0 ? a : b;
+    return {
+      total: round1(total),
+      high: round1(high),
+      entry: round1(entry),
+      echo: round1(echo),
+      rs: round1(rs),
+      leader: even ? null : (leader.name || leader.player_id),
+      even_money: even,
+      confidence: 'rough',              // v1 — quantile-V upgrades this in September
+      band: CFG.DG_NOISE_BAND,
+      verdict: even ? 'even money — pick your guy'
+        : (leader.name || 'A') + ' +$' + Math.abs(Math.round(total)) + ' this pick',
+      terms: {
+        A: { name: a.name, dollars: { high: round1(da.high), entry: round1(da.entry), rs: round1(da.rs) } },
+        B: { name: b.name, dollars: { high: round1(db.high), entry: round1(db.entry), rs: round1(db.rs) } },
+        echo: echoTerms,
+        note: 'v1 rough estimate from projection shape (boom capacity vs mean); quantile-V makes this exact in September.',
+      },
+    };
+  }
+
+  /**
    * What a manager's own draft history says about him, in English.
    *
    * The profiles have been feeding the survival model since A1 — alpha_need and
@@ -1595,7 +1688,7 @@
     tierCliffUrgency, starterSlotMarginal, riskAdjustment, upsideBonus,
     scorePlayer, recommend, mandatoryGaps, applyRosterLegality, plausibilityRails,
     demoteFlaggedOnesies, computeRailBudget, railFireSig, bestFlexAlt,
-    confidence, branchForecast, computePaths, applyPersonalLists, onTheClock, rosterPlan, byeGrid,
+    confidence, branchForecast, computePaths, dollarGap, playerDollars, applyPersonalLists, onTheClock, rosterPlan, byeGrid,
     cheatSheet, sheetText, managerTells, threatBoard,
     WEIGHT_PRESETS, matchPreset, rankDiff, autoWeights,
     formatDefaults, applyFormatDefaults,
