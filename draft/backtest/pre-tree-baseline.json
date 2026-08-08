@@ -1,0 +1,77 @@
+{
+  "label": "PRE-TREE BASELINE",
+  "measured_at": "2026-08-08T20:58:23.920Z",
+  "git_head": "93ad39bf7ecad307f30777dc400c6a238accad29",
+  "board_built_at": "2026-08-08T08:51:41Z",
+  "architecture": "composite-then-explain (no decision tree)",
+  "drafts": 25,
+  "noise_band": 4,
+  "metrics": {
+    "rate": 0.7366666666666667,
+    "perDraftMean": 8.84,
+    "picks": 300,
+    "interventions": 221,
+    "dead": [
+      "bye",
+      "survival"
+    ],
+    "meanMagnitude": 17.064253393665197,
+    "medianMagnitude": 11.3,
+    "maxMagnitude": 37.3,
+    "reaches": 212,
+    "falls": 9,
+    "perDraft": [
+      7,
+      10,
+      10,
+      7,
+      8,
+      10,
+      9,
+      10,
+      8,
+      9,
+      9,
+      10,
+      9,
+      10,
+      6,
+      9,
+      8,
+      8,
+      10,
+      9,
+      9,
+      8,
+      8,
+      10,
+      10
+    ],
+    "tiers": {
+      "LEAN": 221
+    },
+    "leadCount": {
+      "need": 94,
+      "value": 87,
+      "ceiling": 24,
+      "keeper": 11,
+      "stack": 5
+    },
+    "anyCount": {
+      "need": 204,
+      "value": 221,
+      "tier": 121,
+      "risk": 61,
+      "ceiling": 221,
+      "keeper": 105,
+      "stack": 39
+    }
+  },
+  "comparability": {
+    "seeds": "deterministic: 1000 + i*7919",
+    "opponent_model": "top-8 by adjusted_adp, rand()*rand() index weighting",
+    "board": "public/draft_data.json at board_built_at",
+    "note": "A tree measured against a DIFFERENT board or opponent model is not comparable to this. Re-freeze the baseline on the new board first, or the diff measures the board rather than the tree."
+  },
+  "the_question": "When the decision tree lands, re-run and diff. Same rate and same magnitude => the tree made existing behaviour legible. Different rate or magnitude => the tree CHANGED recommendations, and that change must be justified on its own evidence rather than inherited from the restructure."
+}

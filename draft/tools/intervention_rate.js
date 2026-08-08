@@ -264,11 +264,77 @@ function report(nDrafts) {
 
   return { rate: rate, perDraftMean: perDraftMean, picks: picks.length,
            interventions: interventions.length, dead: dead,
-           meanMagnitude: mean(mags), leadCount: leadCount, anyCount: anyCount };
+           meanMagnitude: mean(mags), medianMagnitude: median(mags),
+           maxMagnitude: mags.length ? Math.max.apply(null, mags) : 0,
+           reaches: early, falls: interventions.length - early,
+           perDraft: perDraft, tiers: tiers,
+           leadCount: leadCount, anyCount: anyCount };
+}
+
+/* ── THE PRE-TREE BASELINE ────────────────────────────────────────────────
+ *
+ * Frozen deliberately, BEFORE the decision tree is built, so that when the tree
+ * lands we can answer a question that is otherwise unanswerable after the fact:
+ *
+ *   DOES THE STAGED STRUCTURE CHANGE HOW OFTEN THE MODEL DEVIATES,
+ *   OR DOES IT ONLY MAKE THE EXISTING DEVIATIONS LEGIBLE?
+ *
+ * Those are different things. A restructure that CLARIFIES behaviour is a
+ * documentation win. A restructure that silently CHANGES recommendations is a
+ * model change wearing a refactor's clothes — and the second one is very easy
+ * to ship believing it was the first, because the new structure comes with its
+ * own explanation for whatever it now does.
+ *
+ * The only defence is a number recorded before the change, which is this file.
+ * The diff gets REPORTED, never absorbed.
+ */
+function freezeBaseline(nDrafts, outPath) {
+  const quiet = console.log;
+  console.log = () => {};
+  const r = report(nDrafts);
+  console.log = quiet;
+  const out = {
+    label: 'PRE-TREE BASELINE',
+    measured_at: new Date().toISOString(),
+    git_head: require('child_process')
+      .execSync('git rev-parse HEAD', { cwd: ROOT }).toString().trim(),
+    board_built_at: DATA.built_at,
+    architecture: 'composite-then-explain (no decision tree)',
+    drafts: nDrafts,
+    noise_band: NOISE_BAND,
+    metrics: r,
+    // What a later comparison must hold fixed to be a fair diff.
+    comparability: {
+      seeds: 'deterministic: 1000 + i*7919',
+      opponent_model: 'top-8 by adjusted_adp, rand()*rand() index weighting',
+      board: 'public/draft_data.json at board_built_at',
+      note: 'A tree measured against a DIFFERENT board or opponent model is not '
+        + 'comparable to this. Re-freeze the baseline on the new board first, '
+        + 'or the diff measures the board rather than the tree.',
+    },
+    the_question: 'When the decision tree lands, re-run and diff. Same rate and '
+      + 'same magnitude => the tree made existing behaviour legible. Different '
+      + 'rate or magnitude => the tree CHANGED recommendations, and that change '
+      + 'must be justified on its own evidence rather than inherited from the '
+      + 'restructure.',
+  };
+  require('fs').writeFileSync(outPath, JSON.stringify(out, null, 2) + '\n');
+  return out;
 }
 
 if (require.main === module) {
-  const n = Number(process.argv[2]) || 25;
-  report(n);
+  if (process.argv[2] === '--freeze') {
+    const dest = path.join(ROOT, 'draft', 'backtest', 'pre-tree-baseline.json');
+    const b = freezeBaseline(Number(process.argv[3]) || 25, dest);
+    console.log('PRE-TREE BASELINE frozen -> ' + path.relative(ROOT, dest));
+    console.log('  head        ' + b.git_head.slice(0, 8));
+    console.log('  rate        ' + (b.metrics.rate * 100).toFixed(1) + '%');
+    console.log('  per draft   ' + b.metrics.perDraftMean.toFixed(1));
+    console.log('  magnitude   ' + b.metrics.meanMagnitude.toFixed(1) + ' picks');
+    console.log('  reach/fall  ' + b.metrics.reaches + '/' + b.metrics.falls);
+    console.log('  dead        ' + (b.metrics.dead.join(',') || 'none'));
+  } else {
+    report(Number(process.argv[2]) || 25);
+  }
 }
-module.exports = { simulate, report, myPicks, NOISE_BAND };
+module.exports = { simulate, report, freezeBaseline, myPicks, NOISE_BAND };
