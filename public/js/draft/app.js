@@ -485,6 +485,34 @@
     state.slotRecomputed = { slot: slot, from: baked, to: derived.join(',') };
   }
 
+  /* ── THE SEAT: one identity, consumed everywhere ────────────────────────
+   * `mySlot()` is the ONLY way any surface may learn which seat is mine. Before
+   * mock #1 there were fifteen independent `Number(state.data.league
+   * .my_draft_slot)` reads and one code path that left that field describing a
+   * different room than `pick_order.my_picks` did. Fifteen readers cannot notice
+   * a disagreement; one can. */
+  function refreshSeat() {
+    if (typeof DraftSeat === 'undefined' || !state.data) return null;
+    const league = state.data.league || {};
+    state.seat = DraftSeat.resolve({
+      realSlot: state.realSlot != null ? state.realSlot : league.my_draft_slot,
+      roomSlot: league.my_draft_slot,
+      source: state.mockMode ? (state.roomSeatSource || 'assumed')
+                             : (state.slotSource || 'league-config'),
+      verified: !!state.slotVerified,
+      mock: state.mockMode ? { teams: state.mockMode.teams, rounds: state.mockMode.rounds,
+                               type: state.mockMode.type } : null,
+      myPicks: (state.data.pick_order || {}).my_picks || [],
+    });
+    return state.seat;
+  }
+
+  /** MY seat in the room being drafted. Never read my_draft_slot directly. */
+  function mySlot() {
+    const s = state.seat || refreshSeat();
+    return s ? s.roomSlot : (Number((state.data.league || {}).my_draft_slot) || null);
+  }
+
   // ------------------------------------------------------------- computation
   function myNextPicks() {
     const order = (state.data.pick_order && state.data.pick_order.my_picks) || [];
@@ -511,10 +539,19 @@
     const next = up ? nexts[1] : nexts[0];
     const connected = !!state.sync;
     const mock = !!state.mockMode;
+    // THE SEAT IS RENDERED HERE AND NOWHERE ELSE. Two surfaces printing their
+    // own seat is what let mock #1 show "slot 7" and "you pick at 4, 17, 24"
+    // side by side for a whole draft with nothing catching it.
+    const seat = refreshSeat();
+    const seatTxt = seat && typeof DraftSeat !== 'undefined' ? DraftSeat.describe(seat) : '';
+    const seatBad = !seat || !seat.resolved || seat.source === 'assumed';
     host.className = 'wr-statusbar' + (up ? ' on-clock' : '');
     host.innerHTML =
       '<span class="sb-pick">' + (up ? '🟢 YOU ARE UP · pick ' + cur : 'Pick ' + cur) + '</span>'
       + (next ? '<span class="sb-next">next: ' + next + '</span>' : '')
+      + (seatTxt ? '<span class="sb-seat' + (seatBad ? ' warn' : '')
+          + '" title="one resolved seat identity — every panel reads this">'
+          + escapeHtml(seatTxt) + '</span>' : '')
       + '<span class="sb-conn ' + (connected ? 'on' : 'off') + '">' + (connected ? '● live sync' : '○ manual') + '</span>'
       + (mock ? '<span class="sb-mock">REHEARSAL</span>' : '');
   }
@@ -644,7 +681,7 @@
       ' · ' + d.players.length + ' players';
     renderProvenance(d);
     const si = $('#slot-input'), sp = $('#slot-picks');
-    if (si && !si.value) si.value = d.league.my_draft_slot || '';
+    if (si && !si.value) si.value = mySlot() || '';
     if (sp) {
       const mine = (d.pick_order.my_picks || []).slice(0, 5);
       sp.textContent = mine.length ? 'picks ' + mine.join(', ') + '\u2026' : 'no picks';
@@ -1286,7 +1323,7 @@
     const d = state.data || {};
     const prov = d.provenance || {};
     const ageH = d.built_at ? (Date.now() - new Date(d.built_at)) / 3600000 : null;
-    const slot = state.data && state.data.league ? Number(state.data.league.my_draft_slot) || null : null;
+    const slot = mySlot();
 
     const items = [
       { ok: !!d.players && d.players.length > 100,
@@ -1899,7 +1936,7 @@
         + '<select id="mp-slot"><option value="">Which seat?</option>'
         + Array.from({ length: (state.data.league || {}).teams || 10 }, (_, i) =>
             '<option value="' + (i + 1) + '">seat ' + (i + 1)
-            + (Number(state.data.league.my_draft_slot) === i + 1 ? ' (me)' : '') + '</option>').join('')
+            + (mySlot() === i + 1 ? ' (me)' : '') + '</option>').join('')
         + '</select>'
         + '<button type="submit" class="btn small gold">Record it</button>'
         + '</form></div>';
@@ -1925,7 +1962,7 @@
     state.recentPicks.push({ position: p.position, player_id: id,
                              pick_no: state.recentPicks.length + 1, player: p });
     (state.rosters[slot] = state.rosters[slot] || []).push(p);
-    if (Number(slot) === Number(state.data.league.my_draft_slot)) state.myRoster.push(p);
+    if (Number(slot) === mySlot()) state.myRoster.push(p);
     if (state.sync && state.sync.addManual) {
       try { state.sync.addManual(id, slot); } catch (e) { /* local record still stands */ }
     }
@@ -1957,12 +1994,12 @@
    */
   function populateKeepers(data) {
     if (state.mockMode) return;
-    const mySlot = Number(data.league.my_draft_slot) || null;
-    if (!mySlot) return;
-    let mine = (data.kept_players || []).filter(k => Number(k.team_slot) === mySlot);
+    const seatSlot = mySlot();
+    if (!seatSlot) return;
+    let mine = (data.kept_players || []).filter(k => Number(k.team_slot) === seatSlot);
     if (!mine.length) {
       mine = ((data.pick_order || {}).forfeited || [])
-        .filter(f => Number(f.team_slot) === mySlot)
+        .filter(f => Number(f.team_slot) === seatSlot)
         .map(f => ({ player_id: f.player_id, name: f.name, position: f.position,
           bye: null, off_board: true }));
     }
@@ -2249,7 +2286,12 @@
       teams: teams,
       rounds: rounds,
       draft_type: draft.type || 'snake',
-      my_draft_slot: mySlot || league.my_draft_slot || 1,
+      // THE ROOM SEAT. Sleeper naming my seat is authoritative. Falling back to
+      // the LEAGUE seat is an assumption, and it is only tenable if that number
+      // exists in this room at all — league seat 7 in a 6-team mock is not a
+      // seat, it is a bug waiting to attribute picks to nobody.
+      my_draft_slot: mySlot || (Number(league.my_draft_slot) <= teams
+        ? Number(league.my_draft_slot) : 0) || 1,
       adp_blend_weight: 0.7,
       // Mocks have no keepers. Saying count:0 is not a guess — it is what makes
       // the rebuilt sequence match what the mock will actually do.
@@ -2264,10 +2306,24 @@
     };
     state.data.players = out.players;
     state.board = out.players.filter(p => !state.drafted.has(String(p.player_id)));
-    state.data.league = Object.assign({}, league, { teams: teams });
+    // ── SEVERITY-1 FIX (mock #1): carry the ROOM SEAT, not the league seat. ──
+    // This line used to be `Object.assign({}, league, { teams })`, which copied
+    // `my_draft_slot` straight from the league while `my_picks` above had just
+    // been rebuilt for the MOCK seat. The one line that would have corrected it
+    // (`setSlot(mine, 'sleeper')` in the caller) is guarded by `!state.mockMode`
+    // and this function sets `state.mockMode` — so in a mock it could never run.
+    // Two live seat identities, and every roster attribution compared the pick's
+    // seat against the wrong one.
+    state.realSlot = Number(league.my_draft_slot) || state.realSlot || null;
+    state.data.league = Object.assign({}, league, {
+      teams: teams,
+      my_draft_slot: cfg.my_draft_slot,       // the seat the picks were built for
+    });
     state.format = E.applyFormatDefaults(state.data.league);
     state.mockMode = { teams: teams, rounds: rounds, type: cfg.draft_type,
                        picks: out.order.picks.length, myPicks: out.order.my_picks };
+    state.roomSeatSource = mySlot ? 'sleeper' : 'assumed';
+    refreshSeat();
 
     const host = $('#mock-note');
     if (host) {
@@ -2276,9 +2332,10 @@
       host.innerHTML = '<b>\ud83e\uddea</b> <span><b>Mock mode.</b> This draft is '
         + teams + ' teams \u00d7 ' + rounds + ' rounds (' + escapeHtml(cfg.draft_type)
         + '), which is not your league\u2019s shape. Pick order rebuilt from the mock '
-        + 'with no keepers \u2014 you pick at '
-        + escapeHtml(out.order.my_picks.slice(0, 6).join(', '))
-        + (out.order.my_picks.length > 6 ? '\u2026' : '')
+        + 'with no keepers \u2014 <b>' + escapeHtml(DraftSeat.describe(state.seat))
+        + '</b>, so you pick at '
+        + escapeHtml((state.data.pick_order.my_picks || []).slice(0, 6).join(', '))
+        + ((state.data.pick_order.my_picks || []).length > 6 ? '\u2026' : '')
         + '. Keeper-adjusted ADP is <b>not</b> applied here, so treat the values as a '
         + 'dry run of the machinery, not of your actual board.</span>';
     }
@@ -2370,6 +2427,11 @@
     else if (source === 'site-claimed' && !state.mockMode) state.slotSource = 'site-claimed';
     else state.slotSource = 'manual';
     state.slotVerified = state.slotSource === 'sleeper';
+    // In a mock this sets the ROOM seat; the league seat is preserved so the
+    // mapping stays displayable. Manual entry beats an assumption.
+    if (state.mockMode) state.roomSeatSource = 'manual';
+    else state.realSlot = n;
+    refreshSeat();
     try { localStorage.setItem(SLOT_KEY, String(n)); } catch (e) { /* private mode */ }
 
     // Say what changed, not just re-render. A bad edit is obvious in a sentence
@@ -2630,7 +2692,7 @@
     if (!slot) return null;
     const prof = Object.values(state.profiles || {}).find(x => Number(x.draft_slot) === Number(slot));
     return (prof && prof.display_name) ? prof.display_name
-      : (Number(slot) === Number((state.data.league || {}).my_draft_slot) ? 'you' : 'Seat ' + slot);
+      : (Number(slot) === mySlot() ? 'you' : 'Seat ' + slot);
   }
 
   function renderPicksFeed() {
@@ -2738,8 +2800,8 @@
   function markDrafted(playerId, toMe, teamSlot, pathKey) {
     const p = playerById(playerId);
     if (!p) return;
-    const mySlot = Number(state.data.league.my_draft_slot) || null;
-    const slot = toMe ? mySlot : (teamSlot || null);
+    const seatSlot = mySlot();
+    const slot = toMe ? seatSlot : (teamSlot || null);
     const alreadySeen = state.drafted.has(String(playerId));
     // Phase H: the board AS IT STOOD when this pick arrived — including the
     // player being taken. Snapshotted BEFORE the filter below; shadows draft
@@ -2747,7 +2809,7 @@
     const boardAtPick = (toMe && !alreadySeen) ? state.board.slice() : null;
     // A local mark is a GUESS; the shared module records it as such and Sleeper
     // can later override it. Same call the robot mock's R1/R3 scenarios prove.
-    if (ATTR) ATTR.markLocal(state, p, slot, mySlot);
+    if (ATTR) ATTR.markLocal(state, p, slot, seatSlot);
     else {
       state.drafted.add(String(playerId));
       if (slot) (state.rosters[slot] = state.rosters[slot] || []).push(p);
@@ -3122,7 +3184,7 @@
    *    team and nothing would look wrong.
    */
   function onSyncPicks(picks) {
-    const mySlot = Number(state.data.league.my_draft_slot) || null;
+    const seatSlot = mySlot();
     picks.forEach(pick => {
       const id = String(pick.player_id);
       // draft_slot is the seat; roster_id is the team. A MOCK draft has no
@@ -3149,11 +3211,11 @@
       // reports and moves him off any seat a local guess put him on — the same
       // tested path the robot mock's Loveland scenario exercises. Idempotent,
       // so it is safe to run for every pick on every four-second poll.
-      if (ATTR) ATTR.applyRemote(state, p, slot, mySlot);
+      if (ATTR) ATTR.applyRemote(state, p, slot, seatSlot);
       else {
         state.drafted.add(id);
         if (slot) (state.rosters[slot] = state.rosters[slot] || []).push(p);
-        if (mySlot && slot === mySlot) state.myRoster.push(p);
+        if (seatSlot && slot === seatSlot) state.myRoster.push(p);
       }
       state.board = state.board.filter(x => String(x.player_id) !== id);
       if (firstSight) {
@@ -3556,6 +3618,31 @@
   window.addEventListener('resize', function () {
     try { layoutPinned(); } catch (e) { /* cosmetic only */ }
   });
+
+  /* LIVE SEAT DIAGNOSTIC. Read-only, safe to call any time, and the thing to
+   * run in the console the moment a rehearsal looks wrong: it reports the one
+   * resolved identity plus an audit across every consumer, so "which surface
+   * disagrees" is one command instead of a guess. Mock #1 would have been a
+   * five-second diagnosis with this. */
+  window.__wrDiag = function () {
+    const seat = refreshSeat();
+    const rosterSlotsSeen = Object.keys(state.rosters || {})
+      .filter(k => (state.rosters[k] || []).length);
+    const audit = typeof DraftSeat !== 'undefined' ? DraftSeat.audit(seat, {
+      pickOrderMyPicks: (state.data.pick_order || {}).my_picks || [],
+      headerSlot: mySlot(),
+      rosterSlotsSeen: rosterSlotsSeen,
+      teams: (state.data.league || {}).teams,
+    }) : null;
+    return {
+      seat: seat,
+      describe: seat && typeof DraftSeat !== 'undefined' ? DraftSeat.describe(seat) : null,
+      audit: audit,
+      myRoster: (state.myRoster || []).map(p => p.position + ' ' + p.name),
+      rosterSlotsSeen: rosterSlotsSeen,
+      mock: state.mockMode || null,
+    };
+  };
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();

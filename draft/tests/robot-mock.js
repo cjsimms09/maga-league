@@ -471,6 +471,94 @@ if (!IS_FIXTURE) {
     strat.every(s => s.log.every(l => l.rehearsal === false)));
 }
 
+// R-seat (SEVERITY-1, mock #1): ONE seat identity across every consumer.
+//
+// The bug: `applyDraftShape` rebuilt the pick order for the MOCK seat while
+// `league.my_draft_slot` kept the LEAGUE seat, because the only line that syncs
+// them is guarded by `!state.mockMode` and applyDraftShape sets mockMode first.
+// Every roster attribution compared a pick's seat against the wrong number, so
+// my picks landed nowhere and one opponent's landed on my roster — which is why
+// the engine offered TEs after Loveland and never saw an empty DEF.
+{
+  const SEAT = require('../../public/js/draft/seat.js');
+
+  // The exact mock #1 shape: a 10-team mock room, my real league seat is 7.
+  const mock = { teams: 10, rounds: 15, type: 'snake' };
+  const roomPicks = [];
+  for (let r = 1; r <= 15; r++) {
+    roomPicks.push(r % 2 ? (r - 1) * 10 + 4 : r * 10 - 4 + 1);   // seat 4, snake
+  }
+
+  const good = SEAT.resolve({ realSlot: 7, roomSlot: 4, source: 'sleeper',
+                              mock: mock, myPicks: roomPicks });
+  check('R-seat: the room seat and the league seat are BOTH kept, and differ',
+    good.roomSlot === 4 && good.realSlot === 7 && good.mapped === true);
+  check('R-seat: the mapping is stated, not silently reconciled',
+    /mock seat 4 = my real seat 7/.test(SEAT.describe(good)), SEAT.describe(good));
+
+  // The regression itself: pick order built for seat 4, identity claiming 7.
+  const broken = SEAT.resolve({ realSlot: 7, roomSlot: 7, source: 'assumed',
+                                mock: mock, myPicks: roomPicks });
+  const auditBad = SEAT.audit(broken, { headerSlot: 7, pickOrderMyPicks: roomPicks });
+  check('R-seat: an identity that disagrees with its own pick order FAILS the audit',
+    auditBad.ok === false && auditBad.problems.length > 0, JSON.stringify(auditBad.problems));
+
+  const auditGood = SEAT.audit(good, {
+    headerSlot: 4, pickOrderMyPicks: roomPicks, noticePicks: roomPicks,
+    rosterSlotsSeen: [1, 4, 7, 10],
+  });
+  check('R-seat: a consistent identity passes with every consumer agreeing',
+    auditGood.ok === true, JSON.stringify(auditGood.problems));
+
+  // The other half of the wrong-roster symptom: a seat outside the room.
+  const outside = SEAT.audit(good, { headerSlot: 4, pickOrderMyPicks: roomPicks,
+                                     rosterSlotsSeen: [1, 4, 12] });
+  check('R-seat: a roster on a seat the room does not have is caught',
+    outside.ok === false && /outside a 10-team room/.test(outside.problems.join(' ')),
+    JSON.stringify(outside.problems));
+
+  // A league seat that does not exist in a smaller mock must never be assumed.
+  const small = SEAT.resolve({ realSlot: 7, roomSlot: null, source: 'assumed',
+                               mock: { teams: 6, rounds: 15 }, myPicks: [] });
+  check('R-seat: an unresolvable mock seat reports UNRESOLVED, never a fallback number',
+    small.resolved === false && small.roomSlot === null
+    && /UNRESOLVED/.test(SEAT.describe(small)), SEAT.describe(small));
+  check('R-seat: an unresolved seat fails the audit before any surface can be right',
+    SEAT.audit(small, {}).ok === false);
+
+  // Outside a mock, the league seat IS the room seat — no mapping, no warning.
+  const real = SEAT.resolve({ realSlot: 7, roomSlot: null, source: 'sleeper',
+                              verified: true, myPicks: [7, 14] });
+  check('R-seat: in a league draft the two identities collapse to one',
+    real.roomSlot === 7 && real.mapped === false && real.verified === true);
+}
+
+// R-seat-attribution: with ONE identity, my marked picks land on my roster and
+// opponent picks never do — the symptom that cuts both ways.
+{
+  const A = require('../../public/js/draft/attribution.js');
+  const roomSeat = 4;                       // mock seat, NOT the league's 7
+  const st = { drafted: new Set(), rosters: {}, myRoster: [], board: [] };
+  const mk = (id, pos) => ({ player_id: String(id), name: 'P' + id, position: pos });
+
+  A.markLocal(st, mk(1, 'TE'), roomSeat, roomSeat);        // I take a TE
+  A.markLocal(st, mk(2, 'TE'), 7, roomSeat);               // seat 7 takes a TE
+  A.markLocal(st, mk(3, 'RB'), 9, roomSeat);               // seat 9 takes an RB
+
+  check('R-seat-attribution: my pick lands on MY roster',
+    st.myRoster.length === 1 && st.myRoster[0].player_id === '1',
+    st.myRoster.map(p => p.player_id).join(','));
+  check('R-seat-attribution: the league-seat opponent does NOT land on my roster',
+    !st.myRoster.some(p => p.player_id === '2'));
+  check('R-seat-attribution: every opponent pick lands on its own seat',
+    (st.rosters[7] || []).length === 1 && (st.rosters[9] || []).length === 1);
+
+  // And the need model therefore sees ONE rostered TE, not zero and not two.
+  const tes = st.myRoster.filter(p => p.position === 'TE').length;
+  check('R-seat-attribution: the need model reads exactly my own TE count',
+    tes === 1, 'TEs on my roster: ' + tes);
+}
+
 // R-doctrine (war-room-v2-doctrine-banner.md §5): the banner's state machine
 // driven by the REAL board through a full draft, not by fixture numbers. The
 // unit suite proves the hysteresis algebra; this proves the algebra is being

@@ -2219,6 +2219,10 @@ table .num.zero { color: var(--muted); font-weight: 400; }
 .sb-pick { font-family: var(--font-display); font-weight: 800; color: #fff; }
 .wr-statusbar.on-clock .sb-pick { color: #8ef0b6; }
 .sb-next { color: var(--muted); }
+/* The seat identity — rendered here and nowhere else. `warn` when it is an
+   assumption or unresolved, because a guessed seat drafts the wrong roster. */
+.sb-seat { color: #c7cddd; font-variant-numeric: tabular-nums; }
+.sb-seat.warn { color: #ffd873; font-weight: 700; }
 .sb-conn.on { color: #8ef0b6; }
 .sb-conn.off { color: var(--muted); }
 .sb-mock { margin-left: auto; font-weight: 900; font-size: .64rem; letter-spacing: .1em;
