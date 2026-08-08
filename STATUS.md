@@ -557,8 +557,8 @@ discloses in both directions.
 | step | state |
 |---|---|
 | 1. Stage 3 boundary | ✅ **DONE** — tilt wired (cited 2.5), roster-relative + keeper-conditioned signal, Chase stack first-class, two-directional disclosure |
-| 2. Minimum viable surface | ▶ **NEXT** — four truthful lines, two marked explicitly ABSENT |
-| 3. Mock #4 + degraded drill | pending — deliverable is the one-page failure card |
+| 2. Minimum viable surface | ✅ **SHIPPED** — 5 truthful lines + the absent pair, verified desktop+phone, within the fold, no errors |
+| 3. Mock #4 + degraded drill | ▶ **NEXT** — deliverable is the one-page failure card |
 | 4. In-season ledger kinds | pending — before the freeze |
 | 5. Exp 34 | pending — not implemented; build from scratch |
 | 6. Decision tree | pending — against 34's reliability |
@@ -568,7 +568,14 @@ discloses in both directions.
 **Running in CI, needs no session:** covariance study (portfolio step 1, fires on
 push), the Lab, the nightly board.
 
-**Where to start:** step 2. The four truthful lines are STATUS, PLAN (truthful as
+**⚠️ ONE KNOWN DEFECT, found by the MVS and not yet fixed:** the plan line reads
+"no preference at this pick" when it should read "plan drove this pick". The
+cause is ORDERING, not the tilt — `context()` builds the scoring context before
+`renderDoctrine()` lazily initialises `state.doctrine`, so the FIRST render
+passes `doctrine: null`. Fix is to initialise the doctrine state before the
+first `context()` call rather than on first render. Small; do it before mock #4.
+
+**Where to start:** step 3 (after that fix). The four truthful lines are STATUS, PLAN (truthful as
 of Stage 3), RECOMMENDATION (player + one number + market delta), ALTERNATIVES
 (runner-ups + shadow consensus), plus ROSTER/LEGALITY — five, in fact, once the
 Plan Line became honest. The two ABSENT ones are SOURCE (needs the tree's stages)

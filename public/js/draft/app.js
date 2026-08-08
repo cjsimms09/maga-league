@@ -778,6 +778,13 @@
       totalPicks,
       myPicksLeft: upcoming.length,
       roster: state.myRoster,
+      // STAGE 3: the enrolled doctrine reaches the SCORER. Without this line the
+      // tilt is wired in the engine and live only in tests — the app would keep
+      // scoring exactly as it did before while the banner claimed the plan was
+      // driving. Caught by the MVS plan line reading "no preference" at pick 1
+      // on a board whose top pick was a WR under WR Feast.
+      doctrine: (state.doctrine && state.doctrineEnrollment
+                 && state.doctrineEnrollment.enrolled) ? state.doctrine.current : null,
       league: state.data.league,
       weights: state.weights,
       runMultipliers: state.runMults,
@@ -1997,6 +2004,11 @@
     try { renderDoctrine(out.scored); } catch (e) { /* never blocks the clock */ }
     // Paths panel derives from the same scored board the list uses.
     renderPaths(out.scored);
+    // THE MVS RIDES THE SAME RENDER, never a second computation — a surface
+    // that recomputes its own numbers is a surface that can disagree with the
+    // panel beneath it.
+    try { renderMVS(out.scored, out.paths); }
+    catch (e) { console.error('[mvs]', e && e.message); }
     renderBestAvailStrip(out.scored, (context() || {}).nextPick);
     renderCompareTray();   // keep the dollar-gap overlay fresh as the board changes
     const all = out.scored;
@@ -2925,6 +2937,150 @@
     setLayer(l3, mode !== 'LIVE');
   }
 
+  /* ── THE MINIMUM VIABLE SURFACE — five truthful lines, two absent ────────
+   *
+   * COMPOSITION, NOT COMPUTATION. Every line below reads something that already
+   * exists and renders it as one sentence. Nothing here invents a number, which
+   * is what makes it safe to rehearse on before the model changes underneath it:
+   * the LAYOUT is what mock #4 tests, and the CONTENTS change later without the
+   * containers moving.
+   *
+   * THE TWO ABSENT LINES ARE DELIBERATE. SOURCE (Stage 2 baseline vs Stage 4
+   * edge intervention) needs the decision tree's stages, and NEAR-MISS needs its
+   * thresholds. Neither exists. An empty field labelled SOURCE would be worse
+   * than no field — it would rehearse a layout whose densest elements are
+   * placeholders — so they are named as not-yet-staged and take one line
+   * together.
+   */
+  /* Local, because engine.js's lastName is not in this scope — the alts line
+   * threw a ReferenceError on every render and the catch turned it into a
+   * console message, so three of five lines silently rendered blank while the
+   * page reported no page-level error. A swallowed exception that leaves a
+   * partially-rendered surface is the worst shape of all: it looks designed. */
+  function shortName(n) {
+    const parts = String(n || '').trim().split(/\s+/);
+    return parts.length > 1 ? parts[parts.length - 1] : (parts[0] || '');
+  }
+
+  function renderMVS(scored, paths) {
+    const host = document.getElementById('mvs');
+    if (!host || !state.data) return;
+    host.style.display = '';
+    const esc = escapeHtml;
+
+    // 1. STATUS — state, seat, board freshness, health, current pick.
+    const seat = refreshSeat();
+    const mode = state.mockMode ? 'REHEARSAL' : (state.sync ? 'LIVE' : 'MANUAL');
+    const ageH = state.data.built_at
+      ? (Date.now() - new Date(state.data.built_at)) / 3600000 : null;
+    const dot = (state.pickStateProblems || []).length ? '🔴'
+      : (!seat || !seat.resolved) ? '🔴'
+      : (ageH != null && ageH >= 48) ? '🟡' : '🟢';
+    document.getElementById('mvs-status').innerHTML =
+      '<b>' + esc(mode) + '</b> · ' + esc(seat ? DraftSeat.describe(seat) : 'seat —')
+      + ' · ' + (ageH == null ? 'board —' : ageH < 1 ? 'board fresh'
+          : 'board ' + Math.round(ageH) + 'h')
+      + ' · ' + dot + ' · <b>pick ' + currentPick() + '</b>';
+
+    // 2. PLAN — truthful as of Stage 3: the doctrine actually governs now, and
+    //    doctrine_report says whether it drove THIS pick or lost.
+    const planHost = document.getElementById('mvs-plan');
+    const enr = state.doctrineEnrollment || { enrolled: false };
+    const rep = scored && scored.length ? scored[0].doctrine_report : null;
+    if (!enr.enrolled) {
+      planHost.innerHTML = '<span class="muted">no doctrine enrolled — running the control</span>';
+    } else {
+      const nm = (typeof DraftDoctrine !== 'undefined' && state.doctrine)
+        ? DraftDoctrine.doctrineMeta(state.doctrine.current).name : 'plan';
+      const edge = enr.edge != null ? ' (+$' + Math.round(enr.edge) + '/season)' : '';
+      if (rep && rep.drove) {
+        planHost.innerHTML = '<b>' + esc(nm) + '</b>' + edge
+          + ' · <span class="mvs-ok">plan drove this pick</span>';
+      } else if (rep && rep.wanted) {
+        planHost.innerHTML = '<b>' + esc(nm) + '</b>' + edge
+          + ' · <span class="mvs-dev">⚡ ' + esc(rep.line) + '</span>';
+      } else {
+        planHost.innerHTML = '<b>' + esc(nm) + '</b>' + edge
+          + ' · <span class="muted">no preference at this pick</span>';
+      }
+    }
+
+    // 3. RECOMMENDATION — player, position, ONE number, and the market delta.
+    const recHost = document.getElementById('mvs-rec');
+    const top = scored && scored.length ? scored[0] : null;
+    if (!top) { recHost.innerHTML = '<span class="muted">no recommendation yet</span>'; }
+    else {
+      const dev = (typeof DraftDeviation !== 'undefined')
+        ? DraftDeviation.badge(top, currentPick(), E.CFG.DG_NOISE_BAND) : null;
+      recHost.innerHTML =
+        '<span class="mvs-name">' + esc(top.player.name) + '</span>'
+        + '<span class="rec-pos ' + top.player.position + '">' + top.player.position + '</span>'
+        + '<span class="mvs-num">' + top.score.toFixed(1) + '</span>'
+        + (dev
+            ? '<span class="mvs-delta">' + esc(dev.line) + ' · '
+              + esc(dev.tierLine) + '</span>'
+            : '<span class="mvs-delta muted">market pick — inside the noise band</span>');
+    }
+
+    // 4. ALTERNATIVES — runner-ups with gaps, plus shadow consensus/dissent.
+    const altHost = document.getElementById('mvs-alts');
+    const runners = (scored || []).slice(1, 3).map(function (r) {
+      return esc(shortName(r.player.name)) + ' −' + (top.score - r.score).toFixed(1);
+    }).join(' · ');
+    const cons = shadowConsensus();
+    altHost.innerHTML = (runners || '<span class="muted">no alternatives</span>')
+      + (cons ? '<span class="mvs-sep">|</span>'
+          + '<span class="' + (cons.split ? 'mvs-dev' : 'muted') + '">'
+          + esc(cons.text) + '</span>' : '');
+    altHost.className = 'mvs-line' + (cons && cons.split ? ' contested' : '');
+
+    // 5. ROSTER / LEGALITY — one line, from the legality module.
+    const rHost = document.getElementById('mvs-roster');
+    try {
+      const starters = (state.data.league || {}).starters || {};
+      const a = DraftLegality.assess(state.myRoster, starters, myPicksLeft());
+      rHost.innerHTML = esc(a.line) + ' · <b>' + myPicksLeft() + '</b> picks left';
+    } catch (e) { rHost.innerHTML = '<span class="muted">roster —</span>'; }
+
+    // 6+7. THE ABSENT PAIR, named rather than blank.
+    document.getElementById('mvs-absent').innerHTML =
+      'SOURCE: <i>not yet staged</i> · NEAR-MISS: <i>not yet staged</i>'
+      + ' <span class="muted">— both need the decision tree</span>';
+  }
+
+  /* Shadow consensus/dissent, from the shadows that already exist. Returns null
+   * rather than a fabricated majority when there are no shadow picks yet. */
+  function shadowConsensus() {
+    if (!state.shadows || !state.shadows.strategies) return null;
+    const picks = {};
+    let n = 0;
+    Object.keys(state.shadows.strategies).forEach(function (k) {
+      const log = state.shadows.strategies[k].log || [];
+      const last = log[log.length - 1];
+      if (!last) return;
+      n++;
+      (picks[last.name] = picks[last.name] || []).push(k);
+    });
+    if (!n) return null;
+    const ranked = Object.keys(picks).sort(function (a, b) {
+      return picks[b].length - picks[a].length; });
+    const lead = ranked[0];
+    const agree = picks[lead].length;
+    const dissent = ranked.slice(1);
+    return {
+      split: agree < Math.ceil(n * 0.75),
+      text: agree + ' of ' + n + ' say ' + shortName(lead)
+        + (dissent.length ? ' · dissent: ' + dissent.slice(0, 2)
+            .map(function (d) { return shortName(d); }).join(', ') : ''),
+    };
+  }
+
+  function myPicksLeft() {
+    const mine = (state.data.pick_order || {}).my_picks || [];
+    const now = currentPick();
+    return mine.filter(function (p) { return p >= now; }).length;
+  }
+
   function renderSystemStrip() {
     initLayers();
     document.body.classList.add('warroom-page');
@@ -3031,6 +3187,13 @@
     const scores = DraftDoctrine.scoreBoard(scored, {
       liveIndex: myLivePickIndex(),
       roster: state.myRoster,
+      // STAGE 3: the enrolled doctrine reaches the SCORER. Without this line the
+      // tilt is wired in the engine and live only in tests — the app would keep
+      // scoring exactly as it did before while the banner claimed the plan was
+      // driving. Caught by the MVS plan line reading "no preference" at pick 1
+      // on a board whose top pick was a WR under WR Feast.
+      doctrine: (state.doctrine && state.doctrineEnrollment
+                 && state.doctrineEnrollment.enrolled) ? state.doctrine.current : null,
       dollarsOf: function (p) { return E.playerDollars(p).total; },
     });
     // A run is the causal story a switch needs — "the QB run erased its edge"

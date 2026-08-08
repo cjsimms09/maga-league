@@ -2229,6 +2229,28 @@ table .num.zero { color: var(--muted); font-weight: 400; }
    is amber because it is the deliberate opt-out and must never be mistaken for
    the default — the keeper-overwrite bug was found by noticing a wrong roster,
    which means the mode was invisible until after it had done damage. */
+/* ── THE MINIMUM VIABLE SURFACE ──────────────────────────────────────────
+   Five lines, each one line tall, readable without scrolling on a phone. The
+   ABSENT line is deliberately quiet: it states a fact about the tool rather
+   than warning about a fault. */
+.mvs { display: flex; flex-direction: column; gap: .3rem;
+  padding: .6rem .7rem; margin-bottom: .8rem; border-radius: 8px;
+  background: rgba(255,255,255,.04); border: 1px solid rgba(245,196,69,.35); }
+.mvs-line { font-size: .82rem; line-height: 1.35; color: #dfe6f5;
+  white-space: nowrap; overflow-x: auto; }
+.mvs-line.contested { color: #ffb765; }
+.mvs-rec { font-size: 1rem; display: flex; align-items: center; gap: .4rem; flex-wrap: wrap; }
+.mvs-name { font-weight: 800; }
+.mvs-num { font-weight: 900; color: var(--gold,#f5c445); font-size: 1.05rem; }
+.mvs-delta { font-size: .76rem; color: var(--muted,#9aa4bb); }
+.mvs-ok { color: #b9f5d3; }
+.mvs-dev { color: #ffb765; font-weight: 600; }
+.mvs-sep { margin: 0 .45rem; opacity: .4; }
+.mvs-absent { font-size: .72rem; color: var(--muted,#9aa4bb);
+  border-top: 1px dashed rgba(255,255,255,.12); padding-top: .3rem; }
+.mvs-absent i { font-style: normal; opacity: .75; }
+@media (max-width: 620px) { .mvs-line { font-size: .78rem; } }
+
 .ss-rmode { font-size: .62rem; font-weight: 700; padding: .1rem .4rem;
   border-radius: 4px; white-space: nowrap;
   background: rgba(245,196,69,.16); color: #f5c445; }
