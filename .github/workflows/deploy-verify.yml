@@ -70,4 +70,4 @@ jobs:
                 f'(last seen: {last or "unreachable / no /api/version"}). '
                 f'Deploy may have failed, be queued, or predate the version endpoint.')
           sys.exit(1)
-PY
+          PY

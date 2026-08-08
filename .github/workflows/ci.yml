@@ -12,12 +12,36 @@ jobs:
         with: { node-version: "20" }
       - uses: actions/setup-python@v5
         with: { python-version: "3.11" }
+      - name: Lint workflow YAML (a broken workflow fails SILENTLY)
+        # deploy-verify.yml sat unparseable for an unknown span — GitHub could
+        # not read its triggers, so it created-and-instantly-failed every run
+        # with zero jobs and nobody noticed. An unrunnable verifier is worse than
+        # none: it looks present. This parses every workflow so the next such
+        # break is a red build, not a silent hole in the deploy pipeline.
+        run: |
+          python3 - <<'PY'
+          import glob, sys, yaml
+          bad = []
+          for f in sorted(glob.glob('.github/workflows/*.yml')):
+              try:
+                  d = yaml.safe_load(open(f))
+                  # YAML parses the bare key `on:` as boolean True — accept either.
+                  if not (isinstance(d, dict) and ('on' in d or True in d) and 'jobs' in d):
+                      bad.append(f'{f}: missing on:/jobs:')
+              except Exception as e:
+                  bad.append(f'{f}: {type(e).__name__}: {str(e).splitlines()[0]}')
+          if bad:
+              print('UNPARSEABLE OR MALFORMED WORKFLOWS:')
+              for b in bad: print('  ' + b)
+              sys.exit(1)
+          print('all workflow YAML parses')
+          PY
       - name: Python deps
         run: pip install pytest
       - name: JS suites
         run: |
           set -e
-          for t in alerts app-wiring attribution authority backtest betlogic engine keeperlock keepers ledger \
+          for t in alerts app-wiring attribution authority backtest betlogic bundling_guard engine keeperlock keepers ledger \
                    claimfix doctrine mcts movement_line predledger prefs rawarchive reconcile shadows sidebets stages stack_routes strategies sync update venmo; do
             echo "== $t =="
             node draft/tests/$t.test.js
@@ -29,6 +53,14 @@ jobs:
         run: |
           npm install --no-audit --no-fund
           node draft/tests/server-ledger.test.js
+      - name: History smoke — the pages render logged-in, WITH content
+        # "Renders locally, breaks in prod" is a known failure family here: the
+        # History engine 500'd in the deployed function (data not bundled) and the
+        # money board came back empty. Boots the app, logs in, asserts every
+        # History page is 200 AND populated (money board shows real dollar totals).
+        # Complements bundling_guard: the guard proves the files SHIP, this proves
+        # the render POPULATES.
+        run: node draft/tests/history_smoke.test.js
       - name: Robot mock draft — the safety net
         # A full snake draft from every seat through the real engine and
         # attribution modules, plus every bug this session as a regression
