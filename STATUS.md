@@ -287,6 +287,8 @@ E[$] = Σ_w P(weekly-high,w)·$100 + P(RS champ)·$250 + P(RS 2nd)·$125 + Σ_k 
 7  Cory (me)            400     0     400   ← mid-pack, all weekly-high, no RS
 ```
 Auto-refreshes in CI (`money_history.py` → `MONEY-HISTORY.md`). **ANALYSIS 2** (dollar re-grade of Phase S/N vs luck baseline) is queued CI backtest work.
+**DISCREPANCY RESOLVED (recon #2):** money_history now folds **playoff-finish $ from the winners_bracket** (Sleeper `p=1/3` placement games → payouts). Cory's ledger corrected to **$400 weekly + $475 playoff = $875** (was weekly-only — he made 2023 playoffs). **Still ⚠️ UNVERIFIED until:** all 3 seasons' brackets are harvested (CI), and Cory confirms **whether 2023 (league year one, keepers null) used the current payout structure.**
+**Dossiers are clean 3-season records — ZERO owner turnover** (identical 10 user_ids). **mhagen dynasty CONFIRMED: 2 titles in 3 years** (2023 roster 7 = his owner_id), both with most-PF + ~90% efficiency → **benchmark tag.** **Cory's 3-yr efficiency 86.1/86.0/85.9** — a stable, precisely-measured leak: the lineup optimizer's baseline AND its January success metric. 2023 keepers null league-wide (keeper analysis = 2024–25 only). Jreis last-2023→champ-2024; ds7mmet era-highest potential (2156) at 84.2% eff.
 
 ### Live league-object findings (chat-Claude, 2026-08-08)
 1. **🚨 URGENT** — league settings show `draft_rounds:3`. The DRAFT OBJECT is authoritative; checklist line **"Draft object rounds == 15"** added (red until synced; says TEXT THE COMMISSIONER if ≠15). **DECISIONS D7.**

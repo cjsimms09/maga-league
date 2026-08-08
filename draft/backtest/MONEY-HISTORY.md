@@ -32,15 +32,17 @@ _Graded seasons: 2023, 2024, 2025 · payout table = ground truth._
 | 2025 | 7 | 0.6 | 15 |
 
 ## $/season historical standings (the real leaderboard, in dollars)
-| # | manager | weekly-high $ | RS $ | total $ | seasons |
-|---|---|---|---|---|---|
-| 1 | 434921290978029568 | $1000 | $375 | $1375 | 3 |
-| 2 | 458507445241638912 | $800 | $500 | $1300 | 3 |
-| 3 | 440723317066821632 | $500 | $125 | $625 | 3 |
-| 4 | 471160336402083840 | $500 | $0 | $500 | 3 |
-| 5 | 439662843298574336 | $300 | $125 | $425 | 3 |
-| 6 | 461443264013135872 | $400 | $0 | $400 | 3 |
-| 7 | Cory (me) | $400 | $0 | $400 | 3 |
-| 8 | 459850070410391552 | $300 | $0 | $300 | 3 |
-| 9 | 739930057887334400 | $200 | $0 | $200 | 1 |
-| 10 | 434921916734631936 | $100 | $0 | $100 | 1 |
+| # | manager | weekly $ | RS $ | playoff $ | total $ | seasons |
+|---|---|---|---|---|---|---|
+| 1 | 434921290978029568 | $1000 | $375 | $1275 | $2650 | 3 |
+| 2 | 458507445241638912 | $800 | $500 | $1350 | $2650 | 3 |
+| 3 | 440723317066821632 | $500 | $125 | $1075 | $1700 | 3 |
+| 4 | 439662843298574336 | $300 | $125 | $575 | $1000 | 3 |
+| 5 | 461443264013135872 | $400 | $0 | $575 | $975 | 3 |
+| 6 | 459850070410391552 | $300 | $0 | $575 | $875 | 3 |
+| 7 | Cory (me) | $400 | $0 | $475 | $875 | 3 |
+| 8 | 434921916734631936 | $100 | $0 | $475 | $575 | 1 |
+| 9 | 471160336402083840 | $500 | $0 | $0 | $500 | 3 |
+| 10 | 739930057887334400 | $200 | $0 | $0 | $200 | 1 |
+
+_⚠️ UNVERIFIED until: (1) the winners_bracket is harvested for all 3 seasons (playoff-finish $ folds in here — a known discrepancy: Cory made 2023 playoffs but shows $0 playoff until the bracket lands); (2) Cory confirms whether 2023 (league year one, keepers null) used the CURRENT payout structure. Weeks 1–15 pay the $100; playoff weeks 16–17 do not. Owner IDs unresolved except mine until the owners map is joined._

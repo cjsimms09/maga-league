@@ -83,8 +83,26 @@ def analyse():
                 dollars[name]["weekly"] += weekly_high_amt
                 high_counts[sk][name] = high_counts[sk].get(name, 0) + 1
 
+    # Playoff-finish money from the winners bracket. Sleeper marks placement
+    # games with a "p" field: p=1 is the championship (w=1st, l=2nd), p=3 is the
+    # third-place game (w=3rd, l=4th). Map each to payouts.playoffs[finish].
+    def _playoff_dollars(season):
+        brackets = season.get("brackets") or {}
+        wb = brackets.get("winners") or brackets.get("winners_bracket") or []
+        po = pay.get("playoffs") or {}
+        for game in wb:
+            p = game.get("p")
+            if p in (1, 3) and game.get("w") is not None and game.get("l") is not None:
+                for rid, finish in ((game["w"], p), (game["l"], p + 1)):
+                    amt = po.get(str(finish))
+                    if amt:
+                        nm = _owner_name(season, rid)
+                        dollars.setdefault(nm, {"weekly": 0.0, "seasons": set()})
+                        dollars[nm]["playoff"] = dollars[nm].get("playoff", 0.0) + amt
+
     # Regular-season + playoff money from standings/brackets.
     for sk, s in sorted(graded.items()):
+        _playoff_dollars(s)
         st = s.get("standings") or []
         if len(st) >= 1:
             dollars.setdefault(_owner_name(s, st[0].get("roster_id")), {"weekly": 0.0, "seasons": set()})
@@ -116,8 +134,9 @@ def analyse():
 
     standings = sorted(
         ({"name": ("Cory (me)" if n == MY_OWNER else n),
-          "weekly_$": v["weekly"], "rs_$": v.get("rs", 0.0),
-          "total_$": v["weekly"] + v.get("rs", 0.0), "seasons": len(v["seasons"])}
+          "weekly_$": v["weekly"], "rs_$": v.get("rs", 0.0), "playoff_$": v.get("playoff", 0.0),
+          "total_$": v["weekly"] + v.get("rs", 0.0) + v.get("playoff", 0.0),
+          "seasons": len(v["seasons"])}
          for n, v in dollars.items()),
         key=lambda x: -x["total_$"])
 
@@ -141,14 +160,17 @@ def render(result):
     for sk, c in sorted(result["concentration"].items()):
         out.append(f"| {sk} | {c['distinct_winners']} | {c['top3_share']} | {c['weeks']} |")
     out += ["", "## $/season historical standings (the real leaderboard, in dollars)",
-            "| # | manager | weekly-high $ | RS $ | total $ | seasons |", "|---|---|---|---|---|---|"]
+            "| # | manager | weekly $ | RS $ | playoff $ | total $ | seasons |",
+            "|---|---|---|---|---|---|---|"]
     for i, r in enumerate(result["dollar_standings"], 1):
         out.append(f"| {i} | {r['name']} | ${r['weekly_$']:.0f} | ${r['rs_$']:.0f} | "
-                   f"${r['total_$']:.0f} | {r['seasons']} |")
-    out += ["", "_Limitations: weekly-high + regular-season money only; playoff "
-            "finish money (from the brackets) is not yet folded in (TODO — parse "
-            "winners_bracket). Owner IDs unresolved except mine until the owners "
-            "map is joined. Weeks 1–15 pay the $100; playoff weeks 16–17 do not._"]
+                   f"${r.get('playoff_$', 0):.0f} | ${r['total_$']:.0f} | {r['seasons']} |")
+    out += ["", "_⚠️ UNVERIFIED until: (1) the winners_bracket is harvested for all 3 "
+            "seasons (playoff-finish $ folds in here — a known discrepancy: Cory made "
+            "2023 playoffs but shows $0 playoff until the bracket lands); (2) Cory "
+            "confirms whether 2023 (league year one, keepers null) used the CURRENT "
+            "payout structure. Weeks 1–15 pay the $100; playoff weeks 16–17 do not. "
+            "Owner IDs unresolved except mine until the owners map is joined._"]
     return "\n".join(out) + "\n"
 
 
