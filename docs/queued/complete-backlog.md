@@ -91,10 +91,22 @@ Every generated report, recap, and analysis ends with its limitations stated —
 
 ---
 
+# PART F — LEAGUE HISTORY PAGE (post-draft delight, back of the queue)
+
+## F-1. The MFGA Archive — full spec in `league-history-page.md`
+A public HISTORY-tab feature: season chapters (2023→present), the All-Time Records Book, franchise pages, the Money Board, Bad Beats Hall of Fame, and self-updating machinery that appends a chapter per year via the January Annual cron. Consumes the L2 archives + harvest outputs already in hand (matchups, brackets, drafts, transactions, money ledgers); one deterministic, provenance-stamped build script; no runtime LLM calls (recaps generated at build time, committed as content).
+
+**Queue position (per Cory, 2026-08-08):** post-draft idle-CI work, buildable in gaps from Aug 23. **Never preempts a draft-critical or in-season calendar gate** — it drops behind all of Part D's in-season work and every deadline item. Slots into CI idle time only.
+
+**GUARDRAIL (Section 5, firm):** results and records are league property; **dossier analysis, war-room intelligence, opponent models, and strategy tooling NEVER leak to this page.** The page shows what happened, never what the machine thinks about anyone's tendencies. Roast lovingly at outcomes, not people (Cory's 1.06 miss is fair game — it's already legend). Every recap ends with the season's money table. This guardrail is a build-time invariant: the history build reads ONLY the public results/records surfaces, never the dossier/war-room stores.
+
+---
+
 ## Sequencing summary for the task list
 - Deadline order proceeds untouched: polish → paths → shadows → opening script → mocks
 - Part A items slot into natural gaps (A-1/A-2/A-3 before first mock — they change what the mock rehearses; A-4 through A-8 as capacity allows, else they slide to draft week)
 - Part B is calendar-locked to draft week; B-1's runbook generates from Aug 15
 - Part C ships behind mocks (exercised in rehearsal before the night)
 - Part D triggers Aug 23; Part E's E-1 cron starts this Sunday
+- Part F (League History Page) is the tail: post-draft idle-CI delight, behind every Part D in-season item and every gate; never preempts draft-critical or in-season work
 - STATUS.md gains a BACKLOG section tracking every item here with its gate; the triage rule (deadline-threat → auto-defer) is written at the top of it
