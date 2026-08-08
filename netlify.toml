@@ -40,7 +40,8 @@
   # Proven by simulating a bundle of included_files alone: build() throws ENOENT
   # on league_history.json. draft_data.json is the 2026 board (player id->name).
   included_files = ["views/**", "STATUS.md", "DECISIONS-NEEDED.md", "TASK-AUDIT.md",
-    "draft/data/**", "draft/config/**", "public/draft_data.json"]
+    "draft/data/**", "draft/config/**", "public/draft_data.json",
+    "docs/MOCK-DRAFT-REHEARSAL.md"]
 
 # The web-app manifest needs its own content type — Netlify serves unknown
 # extensions as application/octet-stream, and Chrome silently ignores a

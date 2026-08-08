@@ -28,7 +28,18 @@ jobs:
           # Repo variable SITE_URL wins; falls back to the known production URL.
           SITE: ${{ inputs.site || vars.SITE_URL || 'https://makefbgreatagain.netlify.app' }}
           WANT: ${{ github.sha }}
+          EVENT: ${{ github.event_name }}
+          # Via env, never inlined into the script — a commit message is untrusted.
+          MSG: ${{ github.event.head_commit.message }}
         run: |
+          # Only a [deploy] push (or a tag/manual run) actually rebuilds the site
+          # — netlify-ignore.sh skips everything else. Polling for a SHA Netlify
+          # never built would fail forever and train everyone to ignore the red X.
+          # So verify ONLY when a build was expected; otherwise skip cleanly.
+          if [ "$EVENT" = "push" ] && ! printf '%s' "$MSG" | grep -qF '[deploy]'; then
+            echo "no [deploy] marker — Netlify skips this build, nothing to verify. OK."
+            exit 0
+          fi
           python3 - <<'PY'
           import json, os, sys, time, urllib.request, urllib.error
 

@@ -100,6 +100,17 @@ const cookieFrom = res => res.headers.getSetCookie().map(s => s.split(';')[0]).j
       dollars.some(d => !/^\$0$/.test(d)), 'first few: ' + dollars.slice(0, 5).join(' '));
   }
 
+  // /admin/warroom — the draft surface. Serves a shell (the board loads client
+  // side), so this asserts the shell renders with its decision scaffolding, not
+  // a login bounce or a 500. This is the page draft night actually runs on.
+  {
+    const { status, body } = await getPage('/admin/warroom');
+    check('/admin/warroom is 200 (logged-in draft surface)', status === 200, String(status));
+    check('/admin/warroom renders the war-room shell (not a bounce/empty)',
+      body.length > 5000 && /war\s*room|Take This Player|paths-panel|recs/i.test(body),
+      'len ' + body.length);
+  }
+
   server.close();
   console.log('');
   console.log(pass + '/' + (pass + fail) + ' history-smoke checks passed');
