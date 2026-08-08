@@ -1,6 +1,6 @@
 {
  "artifact_version": 1,
- "built_at": "2026-08-06T23:05:47+00:00",
+ "built_at": "2026-08-08T01:51:53+00:00",
  "root_league_id": "1374848328470102016",
  "seasons": [
   {
@@ -28,6 +28,7 @@
     "taxi_slots": 0,
     "sub_start_time_eligibility": 0,
     "daily_waivers_days": 1093,
+    "sub_lock_if_starter_active": 0,
     "playoff_week_start": 16,
     "waiver_clear_days": 2,
     "reserve_allow_doubtful": 0,
@@ -43,6 +44,7 @@
     "trade_deadline": 11,
     "taxi_years": 0,
     "daily_waivers": 0,
+    "faab_suggestions": 0,
     "disable_trades": 0,
     "pick_trading": 1,
     "type": 1,
