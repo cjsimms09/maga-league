@@ -1,6 +1,20 @@
 [build]
   publish = "public"
-  command = "echo 'no build step'"
+  # No build step — the site is static + one bundled function, and the 1.25MB
+  # draft board is COMMITTED, not generated here. (Worth stating: there is no
+  # data pipeline inside the Netlify build to move to Actions. The minutes were
+  # never per-build cost; they were build COUNT.) The one thing the build does
+  # produce is a stamp naming the deployed commit, so site-check can tell a
+  # deliberately-undeployed site from a silently-stale one.
+  command = "printf '{\"commit\":\"%s\",\"branch\":\"%s\",\"built_at\":\"%s\"}\\n' \"${COMMIT_REF:-unknown}\" \"${BRANCH:-unknown}\" \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\" > public/build-stamp.json"
+  # DEPLOY GATE. Every push to main used to become a build — 349 of them between
+  # Aug 1 and Aug 8, accelerating 31 -> 124 -> 194 a day, which consumed 75% of
+  # August's build minutes. Exhausting them suspends the site until Sept 1 and
+  # would take the war room down ON DRAFT DAY. Commits stay frequent; deploys
+  # become deliberate: a build happens only on [deploy] in the tip commit, a
+  # tag, or a manual/hook trigger. exit 0 = skip, exit 1 = build — see
+  # netlify-ignore.sh and netlify-ignore.test.sh, which asserts both directions.
+  ignore = "bash netlify-ignore.sh"
 
 [functions]
   directory = "netlify/functions"

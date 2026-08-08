@@ -3439,6 +3439,13 @@
         // Back onto the board (renders sort; position in the array is moot).
         if (!state.board.some(function (x) { return String(x.player_id) === String(playerId); })) {
           state.board.push(p);
+          // THE ONLY IN-PLACE BOARD MUTATION IN THE APP, and survival memoises
+          // per board version. Without this bump the cached position pools keep
+          // the restored player OUT, and he reads as un-takeable for the rest
+          // of the draft — silently, with a plausible number. Any future
+          // in-place edit here must bump too; survival-memo.test.js asserts the
+          // invalidation behaviour this protects.
+          if (typeof DraftSurvival !== 'undefined') DraftSurvival.bumpBoard(state.board);
         }
         // Drop the feed entry the mark created (the LAST matching one).
         for (let i = state.recentPicks.length - 1; i >= 0; i--) {

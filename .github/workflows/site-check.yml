@@ -235,6 +235,61 @@ jobs:
               problems.append(f'could not compare config against the live league: {type(e).__name__} {e}')
               print(f'FAIL  could not reach Sleeper to compare: {type(e).__name__} {e}')
 
+          # ------------------------------------------------------------------
+          # IS THE DEPLOYED SITE THE SITE WE THINK IT IS?
+          #
+          # Deploys are gated on explicit intent (netlify-ignore.sh) because
+          # auto-deploying every push consumed 75% of August's build minutes,
+          # and running out suspends the site until Sept 1 — the war room down
+          # on draft day. That trade INVERTS the failure mode: we now risk
+          # rehearsing a mock on a stale site while the repo is already fixed.
+          #
+          # The verdict is computed by draft/tools/deploy_drift.py, which is
+          # unit-tested (draft/tests/test_deploy_drift.py) including the
+          # deliberate skipped-deploy case. The rule is WHAT changed, not how
+          # many commits: forty undeployed spec commits are fine and expected;
+          # ONE undeployed file under public/js/draft/ means the war room being
+          # rehearsed on is not the war room in the repo.
+          # ------------------------------------------------------------------
+          print('\n--- is the deployed commit the current main? ---')
+          status, _, stamp = fetch('/build-stamp.json')
+          if status != 200:
+              notes.append('no build stamp yet — expected until the first gated deploy lands')
+              print('note  build stamp absent (pre-dates the deploy gate)')
+          else:
+              try:
+                  import subprocess
+                  sys.path.insert(0, 'draft/tools')
+                  import deploy_drift as DD
+
+                  st = json.loads(stamp)
+                  dep = st.get('commit') or ''
+                  head = subprocess.run(['git', 'rev-parse', 'HEAD'],
+                                        capture_output=True, text=True).stdout.strip()
+                  print(f'      deployed  {dep[:8]}   main {head[:8]}   built {st.get("built_at")}')
+
+                  if dep and head and dep != head:
+                      names = subprocess.run(['git', 'diff', '--name-only', f'{dep}..{head}'],
+                                             capture_output=True, text=True)
+                      if names.returncode != 0:
+                          notes.append('deployed commit not found locally (force-push or shallow clone)')
+                      else:
+                          changed = [x for x in names.stdout.splitlines() if x.strip()]
+                          behind = subprocess.run(['git', 'rev-list', '--count', f'{dep}..{head}'],
+                                                  capture_output=True, text=True).stdout.strip()
+                          v = DD.assess(changed, dep, head, int(behind) if behind.isdigit() else None)
+                          if v['level'] == 'red':
+                              problems.append(v['message'])
+                              print(f'FAIL  {v["message"]}')
+                              for f_ in (v['draft'] + v['served'])[:12]:
+                                  print('        - ' + f_)
+                          else:
+                              print(f'OK    {v["message"]}')
+                  else:
+                      print('OK    the live site is exactly main')
+              except Exception as e:                       # noqa: BLE001
+                  notes.append(f'could not evaluate deploy drift: {type(e).__name__} {e}')
+
           print('\n' + '=' * 78)
           for n in notes:
               print('note: ' + n)

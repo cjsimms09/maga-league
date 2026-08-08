@@ -486,20 +486,52 @@
    *
    * STALENESS IS THE ONLY WAY THIS CAN LIE, so the key is guarded on both axes.
    * `state.board` is usually replaced by a fresh filter() — a new object, hence
-   * a new WeakMap key — but app.js:3441 pushes onto it in place when a pick is
-   * undone. Identity alone would then hand back a pool that is missing a player
-   * who is genuinely available again, and he would read as un-takeable forever.
-   * The length fingerprint catches exactly that case; combined with identity it
-   * covers every mutation the board actually undergoes (players leave by
-   * filter, return by push).
+   * a new WeakMap key — but app.js pushes onto it in place when a pick is undone.
+   *
+   * LENGTH IS NOT AN ADEQUATE WITNESS, and the first version of this used one.
+   * Length collides trivially: a pick that removes one player and an undo that
+   * restores another leave the count unchanged, and ANY in-place edit that does
+   * not change length — a flag flip, a re-sort, a projection update — is
+   * invisible to it. A stale survival table from a missed invalidation is
+   * SILENT AND WRONG, which is strictly worse than slow: the whole point of
+   * this model is telling you who will still be there, and a wrong answer there
+   * is indistinguishable from a right one until the player is gone.
+   *
+   * So the witness is an explicit monotonic VERSION, bumped at every mutation
+   * site via `bumpBoard(board)`. Correctness no longer depends on a coincidence
+   * of array length; it depends on every mutation path calling the bump, which
+   * is a property a test can assert directly — and `survival-memo.test.js`
+   * does, for every mutation shape the board actually undergoes.
    */
   var POS_SOFTMAX = typeof WeakMap === 'function' ? new WeakMap() : null;
+  var BOARD_VERSION = typeof WeakMap === 'function' ? new WeakMap() : null;
+
+  /** Every in-place mutation of a board array MUST call this. */
+  function bumpBoard(board) {
+    if (!board || !BOARD_VERSION) return 0;
+    var v = (BOARD_VERSION.get(board) || 0) + 1;
+    BOARD_VERSION.set(board, v);
+    return v;
+  }
+  function boardVersion(board) {
+    if (!board || !BOARD_VERSION) return 0;
+    return BOARD_VERSION.get(board) || 0;
+  }
 
   function positionSoftmax(board, position, team) {
+    var ver = boardVersion(board);
     var perBoard = POS_SOFTMAX && POS_SOFTMAX.get(board);
-    if (perBoard && perBoard.len !== board.length) { perBoard = null; }
+    // Belt and braces: the version is the real witness, but a length change is
+    // a free, independent tell — if it ever fires, a mutation site is missing
+    // its bump, and MEMO.staleLengthCatches makes that visible instead of
+    // letting the cheaper check quietly paper over the bug.
+    if (perBoard && perBoard.len !== board.length && perBoard.ver === ver) {
+      MEMO.staleLengthCatches++;
+      perBoard = null;
+    }
+    if (perBoard && perBoard.ver !== ver) perBoard = null;
     if (!perBoard) {
-      perBoard = { len: board.length, byKey: new Map() };
+      perBoard = { ver: ver, len: board.length, byKey: new Map() };
       if (POS_SOFTMAX) POS_SOFTMAX.set(board, perBoard);
     }
     // TWO CACHES, BECAUSE THE TWO HALVES HAVE DIFFERENT KEYS. The pool (the
@@ -695,13 +727,18 @@
    * player. If someone removes a memo, the count moves and the test fails —
    * which is the point: a performance property nobody can break silently.
    */
-  var MEMO = { poolBuilds: 0, posSoftmaxBuilds: 0, poolSoftmaxBuilds: 0 };
+  var MEMO = { poolBuilds: 0, posSoftmaxBuilds: 0, poolSoftmaxBuilds: 0,
+               staleLengthCatches: 0 };
   function memoStats() {
     return { poolBuilds: MEMO.poolBuilds, posSoftmaxBuilds: MEMO.posSoftmaxBuilds,
-             poolSoftmaxBuilds: MEMO.poolSoftmaxBuilds };
+             poolSoftmaxBuilds: MEMO.poolSoftmaxBuilds,
+             // Non-zero means a mutation site forgot to bumpBoard(). That is a
+             // correctness bug, not a performance one.
+             staleLengthCatches: MEMO.staleLengthCatches };
   }
   function resetMemoStats() {
     MEMO.poolBuilds = 0; MEMO.posSoftmaxBuilds = 0; MEMO.poolSoftmaxBuilds = 0;
+    MEMO.staleLengthCatches = 0;
   }
 
   function poolSoftmax(pool, team, avail) {
@@ -916,6 +953,7 @@
     affinityMultiplier, tendencyReasons,
     survivalProbability,
     positionSoftmax, poolSoftmax, memoStats, resetMemoStats,
+    bumpBoard, boardVersion,
   };
   global.DraftSurvival = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
