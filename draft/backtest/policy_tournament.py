@@ -178,16 +178,31 @@ def room_features(states):
 
 
 def binarize(all_feats):
-    """Split every feature at its MEDIAN across rooms — so each state partitions
-    the sample roughly in half and conditional inference is actually possible.
-    A feature whose median split still lands ~all/~none is caught by the
-    degeneracy guard below and reported, never inferred from."""
+    """Split every feature at the threshold that lands incidence CLOSEST TO 50%.
+
+    THE BUG THIS FIXES (found 2026-08-08 by the simulator-fidelity audit, and it
+    is the true cause of `run_pressure`'s "0% incidence"): a naive `> median`
+    split collapses on a CLUSTERED INTEGER statistic. Run counts across rooms
+    span 19-25 with four distinct values; the median is 22 and only 8% of rooms
+    are strictly above it — so `> median` selected almost nothing and the guard
+    correctly reported INSUFFICIENT-N. The state was fine; the BINARIZER was
+    broken, and it made a real, frequent league phenomenon look absent.
+
+    Searching the observed values for the best-balanced cut handles ties
+    properly. A feature whose BEST cut still cannot reach the incidence band is
+    genuinely unusable, and the guard then says so honestly."""
     keys = list(next(iter(all_feats)).keys()) if all_feats else []
     out = {}
     for k in keys:
-        vals = sorted(f[k] for f in all_feats)
-        med = vals[len(vals) // 2]
-        out[k] = [f[k] > med for f in all_feats]
+        vals = [f[k] for f in all_feats]
+        cands = sorted(set(vals))
+        best, best_gap = None, 2.0
+        for c in cands:                      # ">= c" over every observed value
+            share = sum(1 for v in vals if v >= c) / len(vals)
+            gap = abs(share - 0.5)
+            if gap < best_gap:
+                best, best_gap = c, gap
+        out[k] = [v >= best for v in vals] if best is not None else [False] * len(vals)
     return out
 
 

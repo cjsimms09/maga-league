@@ -136,7 +136,7 @@
    "edge": -18.97,
    "ci95": [
     -40.95,
-    3.02
+    3.45
    ],
    "in_minus_out": 23.77,
    "n_rooms": 58,
@@ -149,11 +149,53 @@
    "setting": "floor_heavy",
    "edge": -108.19,
    "ci95": [
-    -139.66,
-    -75.43
+    -142.67,
+    -76.72
    ],
    "in_minus_out": 21.25,
    "n_rooms": 58,
+   "clears_conditional_null": false,
+   "machine_detectable": true,
+   "disposition": "LEAN \u2192 manual-override cheat sheet, never automated"
+  },
+  {
+   "state": "run_pressure",
+   "setting": "uniform_boom",
+   "edge": -45.88,
+   "ci95": [
+    -72.06,
+    -21.47
+   ],
+   "in_minus_out": 9.12,
+   "n_rooms": 85,
+   "clears_conditional_null": false,
+   "machine_detectable": true,
+   "disposition": "LEAN \u2192 manual-override cheat sheet, never automated"
+  },
+  {
+   "state": "run_pressure",
+   "setting": "floor_heavy",
+   "edge": -117.94,
+   "ci95": [
+    -153.24,
+    -88.24
+   ],
+   "in_minus_out": 4.2,
+   "n_rooms": 85,
+   "clears_conditional_null": false,
+   "machine_detectable": true,
+   "disposition": "LEAN \u2192 manual-override cheat sheet, never automated"
+  },
+  {
+   "state": "run_pressure",
+   "setting": "h1_phase",
+   "edge": -31.18,
+   "ci95": [
+    -50.59,
+    -10.0
+   ],
+   "in_minus_out": 0.25,
+   "n_rooms": 85,
    "clears_conditional_null": false,
    "machine_detectable": true,
    "disposition": "LEAN \u2192 manual-override cheat sheet, never automated"
@@ -163,8 +205,8 @@
    "setting": "uniform_boom",
    "edge": -50.86,
    "ci95": [
-    -81.9,
-    -22.41
+    -81.03,
+    -24.14
    ],
    "in_minus_out": -4.49,
    "n_rooms": 58,
@@ -177,8 +219,8 @@
    "setting": "uniform_boom",
    "edge": -58.9,
    "ci95": [
-    -94.07,
-    -27.54
+    -92.37,
+    -29.24
    ],
    "in_minus_out": -20.38,
    "n_rooms": 59,
@@ -191,8 +233,8 @@
    "setting": "h1_phase",
    "edge": -42.8,
    "ci95": [
-    -65.68,
-    -21.19
+    -66.53,
+    -22.46
    ],
    "in_minus_out": -22.72,
    "n_rooms": 59,
@@ -205,8 +247,8 @@
    "setting": "floor_heavy",
    "edge": -132.2,
    "ci95": [
-    -182.2,
-    -88.56
+    -183.47,
+    -89.41
    ],
    "in_minus_out": -25.64,
    "n_rooms": 59,
@@ -215,22 +257,13 @@
    "disposition": "LEAN \u2192 manual-override cheat sheet, never automated"
   }
  ],
- "conditional_null_p95": 49.62,
+ "conditional_null_p95": 67.13,
  "state_coverage_rooms": {
-  "run_pressure": 0,
+  "run_pressure": 85,
   "rb_drain_early": 58,
   "thin_board_early": 59
  },
- "rejected_states": [
-  {
-   "state": "run_pressure",
-   "classification": "INSUFFICIENT-N",
-   "rooms_firing": 0,
-   "of": 120,
-   "incidence": 0.0,
-   "why": "fires too rarely to estimate an edge \u2014 no verdict is possible, and a number here would be noise wearing a confidence interval. Re-propose only with an incidence that lands inside the band."
-  }
- ],
+ "rejected_states": [],
  "incidence_band": [
   0.1,
   0.85

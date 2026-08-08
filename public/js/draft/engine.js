@@ -1373,44 +1373,46 @@
     const w = Object.assign({}, DEFAULT_WEIGHTS);
 
     // ---- phase ------------------------------------------------------------
-    /* THE CEILING PROFILE IS EARLY-WEIGHTED (0.75 → 0.70 → 0.65 → 0.60), and it
-     * used to be the exact opposite (0.45 → 0.60 → 0.80 → 1.40). The designed
-     * late ramp was BACKWARDS and the Lab said so (D9, 2026-08-08):
+    /* THE ENDGAME CEILING WEIGHT IS 0.5, DOWN FROM 1.4 — and that is the ONLY
+     * phase this evidence moves. Cory's narrowing, 2026-08-08 (D9 correction):
      *   - exp 2 §5's per-phase grid: endgame ceiling 0.5 is BETTER (+$19, CI
-     *     [7.5, 33]) while 1.0 / 2.0 / 3.0 are all WORSE with CIs excluding
-     *     zero. An aggressive endgame weight destroys money.
-     *   - exp 21: early-ramp λ=1 (+$56) ≫ late-ramp λ=1 (+$5). The ceiling
-     *     dollars are in the early rounds, among near-equal candidates, where a
-     *     tilt actually changes which player you take.
-     *   - core tilts all straddled the default, so early stays NEAR the base
-     *     rather than being pushed — "no evidence of a shift" is not a licence.
-     * WHY ENDGAME STILL GETS LOTTERY BEHAVIOUR: the bench-lottery lives in
+     *     [7.5, 33]) while 1.0 / 2.0 / 3.0 are all WORSE with CIs EXCLUDING
+     *     ZERO. The designed "swing at upside in the endgame" hypothesis is
+     *     REFUTED — moderate wins, aggressive burns money.
+     *   - CORE TILTS (Anchor 0.45 / Build 0.60 / Fill 0.80) ARE UNCHANGED ON
+     *     PURPOSE. Every core tilt the grid tested straddled the default:
+     *     "no evidence of a shift" is the FINDING, not an invitation to nudge.
+     *     Moving them would be fitting noise with extra steps.
+     * WHY THE ENDGAME STILL GETS LOTTERY BEHAVIOUR: the bench-lottery lives in
      * upsideBonus (lateness × endgame multipliers), a DIFFERENT mechanism —
      * late fliers are cheap because a bench floor is free on the waiver wire.
-     * That policy is untouched. What is removed is the DOUBLE ramp: multiplying
-     * a 1.4 weight on top of upsideBonus's own late amplification, which is
-     * precisely the over-tilt the dose-response priced as negative. */
+     * That policy is untouched. What is removed is the DOUBLE ramp: a 1.4
+     * weight multiplied on top of upsideBonus's own late amplification, which
+     * is precisely the over-tilt the dose-response priced as negative. */
     let phase, phaseWhy;
     if (round <= CFG.AUTO_ANCHOR_ROUNDS) {
       phase = 'Anchor';
       phaseWhy = 'Round ' + round + ': every slot is empty, so "need" is noise. '
         + 'Take the best player and the cliffs.';
-      w.need = 0.35; w.tier = 1.35; w.risk = 1.1; w.ceiling = 0.75; w.bye = 0.5; w.keeper = 0.9;
+      w.need = 0.35; w.tier = 1.35; w.risk = 1.1; w.ceiling = 0.45; w.bye = 0.5; w.keeper = 0.9;
     } else if (round <= CFG.AUTO_BUILD_ROUNDS) {
       phase = 'Build';
       phaseWhy = 'Round ' + round + ': starters are filling in. Value still leads, '
         + 'but holes start to matter.';
-      w.need = 0.9; w.tier = 1.2; w.risk = 1.0; w.ceiling = 0.7; w.bye = 0.8; w.stack = 1.1;
+      w.need = 0.9; w.tier = 1.2; w.risk = 1.0; w.ceiling = 0.6; w.bye = 0.8; w.stack = 1.1;
     } else if (round <= CFG.AUTO_FILL_ROUNDS) {
       phase = 'Fill';
       phaseWhy = 'Round ' + round + ': an empty starting slot now costs real points '
         + 'every week, and a stacked bye is a lineup you cannot field.';
-      w.need = 1.45; w.tier = 1.0; w.risk = 0.9; w.ceiling = 0.65; w.bye = 1.4;
+      w.need = 1.45; w.tier = 1.0; w.risk = 0.9; w.ceiling = 0.8; w.bye = 1.4;
     } else {
       phase = 'Endgame';
       phaseWhy = 'Round ' + round + ': the marginal starter is close to worthless, '
-        + 'so swing at upside and at players worth keeping next year.';
-      w.need = 1.3; w.tier = 0.8; w.risk = 0.6; w.ceiling = 0.6; w.keeper = 1.6; w.bye = 1.1;
+        + 'so take ceiling over floor — but MODERATELY. (We designed an aggressive '
+        + 'endgame upside ramp; the Lab inverted it: heavy late tilt measured '
+        + 'NEGATIVE, moderate measured best. Fliers still get their upside credit '
+        + 'because a bench floor is free on the wire.) Keeper value counts here too.';
+      w.need = 1.3; w.tier = 0.8; w.risk = 0.6; w.ceiling = 0.5; w.keeper = 1.6; w.bye = 1.1;
     }
     reasons.push({ kind: 'phase', text: phaseWhy });
 

@@ -34,3 +34,15 @@ All ten owners ranked by **projected E[$] of their roster-as-drafted**, updating
 ## Dependencies / sequencing
 - Composes: the **Money Meter** decomposition (B7 `dollarGap` / `playerDollars` are the seed), the **Paths panel** re-ranking, the **branch forecast** (survival to next picks), the **Stack Finder**, and **Experiment 19** (archetype-conditional forecasts) — so it lands AFTER Exp 19's harness work gives the archetype continuations. Until then, the Navigator can run on the current composite forecast (labeled provisional) and the Stack Routes on survival×dollar without the archetype layer.
 - Both are Zone-2 rail cards in the three-zone layout (Part 2 §2).
+
+
+## ⚖️ RANKING CORRECTION — "the first partner is the value" (exp 6, 2026-08-08)
+
+Lab experiment 6's dose-response (`STACK-SWEEP.md`) measured the stack benefit as **saturating immediately**: 0.5× dose **+$67.50/season** (CI [45, 93]), then 1.0× +$64, 1.5× +$56, 2.0× +$55, 3.0× +$56. The curve is flat after the first partner — **a second partner on the same team adds ≈$0.**
+
+**Therefore the routes UI ranks and prices accordingly:**
+1. **Single-partner completions rank ABOVE double-stack routes**, always — they capture essentially the whole measured benefit at a fraction of the roster cost.
+2. **Double-stacks display a FLATTENED marginal value**, never an additive one. The second partner's line reads **"second partner adds ~$0 (exp 6)"** — showing a doubled dollar figure would imply an additive benefit the measurement explicitly refutes.
+3. The correlation *mechanism* is unchanged; only the implied *dose* is corrected.
+
+**Honest caveat carried into the UI copy:** exp 6 priced this against a MODELED within-team correlation (rho=0.35), not a measured one — it is a **LEAN**, which is exactly why **D10 stood down** rather than installing the stack weight. September's quantile model supplies the real correlation structure and this ranking re-derives from it.

@@ -107,10 +107,42 @@ def load_world():
     return pool, my_keepers, opp_keepers, my_picks
 
 
-def softmax_pick(board, rng, temp=6.0):
-    """Opponents draft near-ADP with human noise (the robot-mock opponent, py-side)."""
+# THE CASCADE (herding) TERM — fitted to our own three drafts by
+# sim_validation.py; see SIM-FIDELITY.md. Independent opponents NEVER cascade,
+# so an independent room cannot generate a positional run at any temperature —
+# which is why exp 2 §6 saw run_pressure at 0% incidence and mistook a MODEL
+# limitation for a league fact. Real runs are correlated: one reach makes the
+# next likelier as humans watch a position empty. This term reproduces that.
+# FITTED = 1.0, and the fit is the finding: the INDEPENDENT sampler already
+# reproduces our real run frequency at every definition tested (3-of-5: real
+# 19.7 vs indep 21.7 runs/draft; 4-of-5: 7.7 vs 7.3; 5-of-5: 0.7 vs 0.9), so the
+# data does not demand a large herding term — and magnitude 8 OVERSHOOTS badly
+# (5-of-5: 5.3 vs real 0.7, seven times too many runs). The mechanism is built,
+# parameterized and validated; its fitted magnitude is small because the
+# independence hypothesis is NOT what was breaking run detection. See
+# SIM-FIDELITY.md. What remains untested is run STRUCTURE (who runs, on what
+# trigger) — frequency matching does not prove that, and it is listed as a
+# standing limitation rather than assumed away.
+CASCADE = 1.0            # fitted magnitude (SIM-FIDELITY.md fit grid)
+CASCADE_WINDOW = 5       # picks of recent history the herd reacts to
+
+
+def softmax_pick(board, rng, temp=6.0, recent=None, cascade=None):
+    """Opponents draft near-ADP with human noise, PLUS herding: when a position's
+    recent-pick density spikes, every agent's probability of taking that
+    position rises. The magnitude is fitted, not assumed."""
     top = sorted(board, key=lambda p: p["adp"])[:12]
     w = [math.exp(-i / (temp / 2)) for i in range(len(top))]
+    c = CASCADE if cascade is None else cascade
+    if c and recent:
+        window = recent[-CASCADE_WINDOW:]
+        if window:
+            dens = {}
+            for pos in window:
+                dens[pos] = dens.get(pos, 0) + 1
+            for j, p in enumerate(top):
+                d = dens.get(p["position"], 0) / len(window)
+                w[j] *= (1.0 + c * d * d)     # quadratic: a real spike, not drift
     return rng.choices(top, weights=w, k=1)[0]
 
 
@@ -129,6 +161,7 @@ def draft_room(pool, my_keepers, opp_keepers, my_picks, chooser, rng):
     total_picks = 150
     opp_order = [t for t in range(1, 10)]
     oi = 0
+    recent = []                      # the herd's field of view
     for pick_no in range(1, total_picks + 1):
         if not board:
             break
@@ -136,15 +169,30 @@ def draft_room(pool, my_keepers, opp_keepers, my_picks, chooser, rng):
             live_idx += 1
             allowed = chooser(board, live_idx, rosters[0])
             choice = max(allowed, key=lambda p: p["vorp"])
+            rosters[0].append(choice)
         else:
-            choice = softmax_pick(board, rng)
+            choice = softmax_pick(board, rng, recent=recent)
             rosters[opp_order[oi % len(opp_order)]].append(choice)
             oi += 1
-            board = [p for p in board if p["player_id"] != choice["player_id"]]
-            continue
-        rosters[0].append(choice)
+        recent.append(choice["position"])
         board = [p for p in board if p["player_id"] != choice["player_id"]]
     return rosters
+
+
+def draft_room_sequence(pool, my_keepers, opp_keepers, my_picks, rng, cascade=None):
+    """The room's PICK SEQUENCE as positions — what sim_validation compares
+    against the real drafts. Same sampler, same cascade, no strategy overlay."""
+    kept = {p["player_id"] for ks in opp_keepers.values() for p in ks}
+    kept |= {p["player_id"] for p in my_keepers}
+    board = [p for p in pool if p["player_id"] not in kept]
+    recent = []
+    for _ in range(150):
+        if not board:
+            break
+        choice = softmax_pick(board, rng, recent=recent, cascade=cascade)
+        recent.append(choice["position"])
+        board = [p for p in board if p["player_id"] != choice["player_id"]]
+    return recent
 
 
 def team_week_params(roster):

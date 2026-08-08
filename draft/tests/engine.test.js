@@ -1373,11 +1373,17 @@ check('weight sliders change the ranking', heavyCeiling[0].score !== scored[0].s
   const at = (pick, left) => E.autoWeights({ board: d9board, currentPick: pick,
     nextPick: pick + 13, totalPicks: 150, myPicksLeft: left, roster: [],
     league: d9league, runMultipliers: {}, intervening: [], roundsLeft: 8 }).weights.ceiling;
-  const anchorC = at(4, 13), endgameC = at(124, 2);
-  check('D9: the auto ceiling profile weights EARLY over ENDGAME (the late ramp was backwards)',
-    anchorC > endgameC, 'anchor=' + anchorC + ' endgame=' + endgameC);
-  check('D9: the endgame ceiling weight is modest (<= 1.0), per the per-phase grid',
-    endgameC <= 1.0, String(endgameC));
+  const endgameC = at(124, 2);
+  // exp 2 §5's grid: endgame 0.5 BETTER (+$19, CI [7.5,33]); 1.0/2.0/3.0 WORSE
+  // with CIs excluding zero. The aggressive-endgame hypothesis is REFUTED.
+  check('D9: the endgame ceiling weight is the grid winner (<= 0.5), not the designed 1.4',
+    endgameC <= 0.5, String(endgameC));
+  // CORE TILTS UNCHANGED, deliberately: every core tilt straddled the default,
+  // and "no evidence of a shift" is the finding, not a licence to nudge.
+  const src = require('fs').readFileSync(__dirname + '/../../public/js/draft/engine.js', 'utf8');
+  check('D9 (narrowed): core phase tilts are UNCHANGED at their designed values',
+    /w\.ceiling = 0\.45;/.test(src) && /w\.ceiling = 0\.6;/.test(src) && /w\.ceiling = 0\.8;/.test(src),
+    'anchor 0.45 / build 0.6 / fill 0.8 must all still be present');
 
   // The bench-lottery is a DIFFERENT mechanism (floor is free on the wire) and
   // stays: the same player must still earn more upside credit late than early.

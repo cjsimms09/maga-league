@@ -1,0 +1,248 @@
+{
+ "definition": {
+  "run_window": 5,
+  "run_min": 3
+ },
+ "real": {
+  "run_share": 0.46,
+  "runs_per_draft": 19.67,
+  "mean_run_len": 3.16,
+  "timing": {
+   "q1": {
+    "QB": 0.099,
+    "RB": 0.321,
+    "WR": 0.457,
+    "TE": 0.111
+   },
+   "q2": {
+    "QB": 0.111,
+    "RB": 0.272,
+    "WR": 0.272,
+    "TE": 0.099
+   },
+   "q3": {
+    "QB": 0.123,
+    "RB": 0.309,
+    "WR": 0.296,
+    "TE": 0.086
+   },
+   "q4": {
+    "QB": 0.123,
+    "RB": 0.333,
+    "WR": 0.383,
+    "TE": 0.111
+   },
+   "q5": {
+    "QB": 0.098,
+    "RB": 0.28,
+    "WR": 0.305,
+    "TE": 0.073
+   }
+  }
+ },
+ "sim_independent": {
+  "run_share": 0.45,
+  "runs_per_draft": 21.5,
+  "mean_run_len": 3.14,
+  "timing": {
+   "q1": {
+    "QB": 0.128,
+    "RB": 0.263,
+    "WR": 0.415,
+    "TE": 0.082
+   },
+   "q2": {
+    "QB": 0.133,
+    "RB": 0.263,
+    "WR": 0.41,
+    "TE": 0.082
+   },
+   "q3": {
+    "QB": 0.13,
+    "RB": 0.263,
+    "WR": 0.41,
+    "TE": 0.085
+   },
+   "q4": {
+    "QB": 0.133,
+    "RB": 0.263,
+    "WR": 0.412,
+    "TE": 0.082
+   },
+   "q5": {
+    "QB": 0.132,
+    "RB": 0.263,
+    "WR": 0.41,
+    "TE": 0.085
+   }
+  }
+ },
+ "sim_fitted": {
+  "run_share": 0.454,
+  "runs_per_draft": 21.25,
+  "mean_run_len": 3.2,
+  "timing": {
+   "q1": {
+    "QB": 0.128,
+    "RB": 0.262,
+    "WR": 0.415,
+    "TE": 0.083
+   },
+   "q2": {
+    "QB": 0.133,
+    "RB": 0.263,
+    "WR": 0.408,
+    "TE": 0.082
+   },
+   "q3": {
+    "QB": 0.13,
+    "RB": 0.263,
+    "WR": 0.408,
+    "TE": 0.085
+   },
+   "q4": {
+    "QB": 0.133,
+    "RB": 0.263,
+    "WR": 0.412,
+    "TE": 0.082
+   },
+   "q5": {
+    "QB": 0.13,
+    "RB": 0.263,
+    "WR": 0.41,
+    "TE": 0.085
+   }
+  }
+ },
+ "fitted_cascade": 1.0,
+ "fit_grid": [
+  {
+   "cascade": 0.0,
+   "run_share": 0.45,
+   "runs_per_draft": 21.5,
+   "err": 0.01
+  },
+  {
+   "cascade": 1.0,
+   "run_share": 0.454,
+   "runs_per_draft": 21.25,
+   "err": 0.006
+  },
+  {
+   "cascade": 2.0,
+   "run_share": 0.473,
+   "runs_per_draft": 21.9,
+   "err": 0.013
+  },
+  {
+   "cascade": 4.0,
+   "run_share": 0.5,
+   "runs_per_draft": 22.65,
+   "err": 0.04
+  },
+  {
+   "cascade": 8.0,
+   "run_share": 0.54,
+   "runs_per_draft": 23.75,
+   "err": 0.08
+  },
+  {
+   "cascade": 16.0,
+   "run_share": 0.583,
+   "runs_per_draft": 24.35,
+   "err": 0.123
+  }
+ ],
+ "checks": [
+  {
+   "stat": "run_share",
+   "real": 0.46,
+   "sim": 0.454,
+   "tolerance": 0.05,
+   "reproduces": true
+  },
+  {
+   "stat": "runs_per_draft",
+   "real": 19.67,
+   "sim": 21.25,
+   "tolerance": 1.5,
+   "reproduces": false
+  },
+  {
+   "stat": "mean_run_len",
+   "real": 3.16,
+   "sim": 3.2,
+   "tolerance": 0.5,
+   "reproduces": true
+  },
+  {
+   "stat": "timing_q1_RB",
+   "real": 0.321,
+   "sim": 0.262,
+   "tolerance": 0.15,
+   "reproduces": true
+  },
+  {
+   "stat": "timing_q1_WR",
+   "real": 0.457,
+   "sim": 0.415,
+   "tolerance": 0.15,
+   "reproduces": true
+  },
+  {
+   "stat": "timing_q1_QB",
+   "real": 0.099,
+   "sim": 0.128,
+   "tolerance": 0.15,
+   "reproduces": true
+  },
+  {
+   "stat": "timing_q3_RB",
+   "real": 0.309,
+   "sim": 0.263,
+   "tolerance": 0.15,
+   "reproduces": true
+  },
+  {
+   "stat": "timing_q3_WR",
+   "real": 0.296,
+   "sim": 0.408,
+   "tolerance": 0.15,
+   "reproduces": true
+  },
+  {
+   "stat": "timing_q3_QB",
+   "real": 0.123,
+   "sim": 0.13,
+   "tolerance": 0.15,
+   "reproduces": true
+  },
+  {
+   "stat": "timing_q5_RB",
+   "real": 0.28,
+   "sim": 0.263,
+   "tolerance": 0.15,
+   "reproduces": true
+  },
+  {
+   "stat": "timing_q5_WR",
+   "real": 0.305,
+   "sim": 0.41,
+   "tolerance": 0.15,
+   "reproduces": true
+  },
+  {
+   "stat": "timing_q5_QB",
+   "real": 0.098,
+   "sim": 0.13,
+   "tolerance": 0.15,
+   "reproduces": true
+  }
+ ],
+ "cannot_reproduce": [
+  "runs_per_draft"
+ ],
+ "not_measurable_locally": [
+  "reach / ADP-deviation distribution \u2014 historical ADP lives in the CI-built bundles (egress); this comparison runs in the replay-bridge job"
+ ]
+}

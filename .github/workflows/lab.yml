@@ -30,6 +30,7 @@ on:
       - 'draft/backtest/frontier.py'
       - 'draft/backtest/policy_tournament.py'
       - 'draft/backtest/stack_sweep.py'
+      - 'draft/backtest/sim_validation.py'
       - 'draft/data/league_history.json'
       - 'draft/config/payouts.json'
       - '.github/workflows/lab.yml'
@@ -74,6 +75,7 @@ jobs:
           python draft/backtest/frontier.py --rooms 150           # exp 21 (+ exp 2 §5 slice)
           python draft/backtest/policy_tournament.py --rooms 120  # exp 2 §5/§6
           python draft/backtest/stack_sweep.py --rooms 120        # exp 6
+          python draft/backtest/sim_validation.py --rooms 24      # simulator fidelity + limits
           python draft/opening_script.py                          # inherits any new verdict
 
       - name: Commit the report
@@ -85,6 +87,7 @@ jobs:
                   draft/backtest/FRONTIER.md draft/backtest/frontier.json \
                   draft/backtest/POLICY-TOURNAMENT.md draft/backtest/policy-tournament.json \
                   draft/backtest/STACK-SWEEP.md draft/backtest/stack-sweep.json \
+                  draft/backtest/SIM-FIDELITY.md draft/backtest/sim-fidelity.json \
                   draft/data/opening_script.md draft/data/opening_script.json
           git commit -m "Lab report $stamp" || { echo "no change"; exit 0; }
           git pull --rebase origin main && git push || echo "push skipped"
