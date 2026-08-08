@@ -94,7 +94,7 @@ function build() {
   const amendments = buildAmendments(master, payouts);
   const badBeats = buildBadBeats(seasons, owners);
   const champions = buildChampionsRoll(master);
-  const catalogue = buildCatalogue(seasons);
+  const catalogue = buildCatalogue(seasons, owners);
 
   _cache = {
     provenance: {
@@ -614,7 +614,7 @@ function buildWeird(seasons) {
 // material the chapters will need. Box scores exist ONLY for the modern seasons;
 // 2016-2022 are pre-Sleeper and carry no box-score absurdities (never invented).
 // ---------------------------------------------------------------------------
-function buildCatalogue(seasons) {
+function buildCatalogue(seasons, owners) {
   const CATS = [
     ['subOnePoint',    '⚔️ Wins by Under a Point',            'Games decided by less than 1.00.'],
     ['ties',           '🤝 Ties',                              'Nobody has to lose — but sometimes nobody wins.'],
@@ -635,12 +635,26 @@ function buildCatalogue(seasons) {
     const c = { subOnePoint: [], ties: [], kickerOverQB: [], defOverWR: [], defOverQB: [],
       sub70: [], benchOverLineup: [], benchOverBest: [], nearHigh: [], lastBeatFirst: [], blowout: [] };
 
+    // TIED SCORES — scan EVERY week, playoffs included. A tie is exactly the
+    // kind of event this pass exists to catch, so it must not be scoped to the
+    // regular season the way the win/loss game list is. (Result for 2023-2025:
+    // none — the closest any matchup came was 1.10. The one tie in league
+    // history is pre-Sleeper; see preSleeperTies below.)
+    for (const w of s.weekList) {
+      const byM = {};
+      for (const tw of s.weeks[w]) (byM[tw.matchup_id] ??= []).push(tw);
+      for (const pair of Object.values(byM)) {
+        if (pair.length !== 2) continue;
+        if (pair[0].points === pair[1].points) {
+          c.ties.push({ year: s.year, week: w, a: nameOf(pair[0].roster_id), b: nameOf(pair[1].roster_id),
+            pts: pair[0].points, playoff: w >= PLAYOFF_START,
+            summary: `${nameOf(pair[0].roster_id)} and ${nameOf(pair[1].roster_id)} tied at ${pair[0].points.toFixed(2)} (Week ${w}${w >= PLAYOFF_START ? ', playoffs' : ''}).` });
+        }
+      }
+    }
     // game-level (regular season)
     for (const g of s.games) {
-      if (g.winner === 0) {
-        c.ties.push({ year: s.year, week: g.week, a: nameOf(g.a), b: nameOf(g.b), pts: g.pa,
-          summary: `${nameOf(g.a)} and ${nameOf(g.b)} tied at ${g.pa.toFixed(2)}.` });
-      } else if (g.margin < 1) {
+      if (g.margin != null && g.winner !== 0 && g.margin < 1) {
         const w = nameOf(g.winner), l = nameOf(g.winner === g.a ? g.b : g.a);
         c.subOnePoint.push({ year: s.year, week: g.week, winner: w, loser: l, margin: g.margin,
           summary: `${w} beat ${l} by ${g.margin.toFixed(2)} in Week ${g.week}.` });
@@ -720,7 +734,18 @@ function buildCatalogue(seasons) {
   const counts = {};
   for (const [key] of CATS) counts[key] = allTime[key].length;
 
-  return { cats: CATS, bySeason, allTime, counts,
+  // PRE-SLEEPER TIES — the master sheet keeps career W-L-T but no per-week
+  // scores for 2016-2022, so a tied game there survives only as a tally. Exactly
+  // two owners carry one tie each, which means they tied EACH OTHER; the season,
+  // week and score predate Sleeper and exist nowhere. Surfaced honestly, not
+  // invented. This is distinct from the 2022 Marian/Sam agreed split (a cancelled
+  // game, not a tied score — that carries the asterisk, see the Rolls).
+  const preSleeperTies = Object.values(owners || {})
+    .filter(o => o.money && (o.money.tie || 0) > 0)
+    .map(o => ({ name: o.name, ties: o.money.tie }))
+    .sort((a, b) => a.name.localeCompare(b.name));
+
+  return { cats: CATS, bySeason, allTime, counts, preSleeperTies,
     coverageNote: 'Box scores exist only for 2023–2025 (Sleeper era). 2016–2022 pre-date Sleeper and carry no box-score detail — the archive says so plainly rather than inventing it.' };
 }
 

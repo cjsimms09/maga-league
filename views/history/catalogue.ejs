@@ -31,10 +31,25 @@
       <h2><%= label %> <span class="sub"><%= C.counts[key] %> all-time</span></h2>
       <div class="body">
         <p style="color:var(--muted); font-size:.85rem; margin:0 0 .8rem;"><%= desc %></p>
-        <% if (!rows.length) { %>
+        <% if (key === 'ties') { %>
+          <%# Distinct facts: (a) box-score-era tied scores, (b) the pre-Sleeper
+              tie that survives only as a career tally, (c) the 2022 agreed split. %>
+          <% const pst = C.preSleeperTies || []; %>
+          <% if (rows.length) { %>
+            <ul style="margin:0 0 .6rem; padding-left:1.1rem; color:#dfe3ee; line-height:1.7;">
+              <% for (const r of rows) { %><li><span style="color:var(--muted)"><%= r.year %></span> — <%= r.summary %></li><% } %>
+            </ul>
+          <% } else { %>
+            <p style="color:#cdd3e2; margin:0 0 .6rem;"><em>No tied scores in the box-score era (2023–2025)</em> — the closest any matchup came was 1.10 points.</p>
+          <% } %>
+          <% if (pst.length) { %>
+            <p style="color:#cdd3e2; margin:0 0 .6rem;"><b>One tie is on the books, pre-Sleeper.</b>
+              The career records show a single tie each for <b><%= pst.map(p => p.name).join(' and ') %></b> — which means they tied <i>each other</i>, somewhere in 2016–2022. The season, week and score predate Sleeper and exist nowhere but the tally, so the archive records the fact without inventing the detail.</p>
+          <% } %>
+          <p style="color:var(--muted); margin:0; font-size:.85rem;">Not to be confused with the <b>2022</b> Marian/Sam championship — that was an <i>agreed split</i> after a cancelled game, not a tied score. It carries <a class="aster" href="/history#asterisk">the asterisk</a>.</p>
+        <% } else if (!rows.length) { %>
           <p style="color:#cdd3e2; margin:0;"><em>None on record.</em>
             <% if (key === 'subOnePoint') { %>The closest game in league history was decided by 1.10 (2024, Week 7). This league does not do photo finishes.<% } %>
-            <% if (key === 'ties') { %>Nobody has ever tied. Somebody always has to lose — that's the deal.<% } %>
             <% if (key === 'benchOverLineup') { %>No single benched player has ever outscored a full starting nine. Close, but the format won't allow it.<% } %>
           </p>
         <% } else { %>
