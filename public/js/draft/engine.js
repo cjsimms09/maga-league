@@ -86,6 +86,34 @@
     // `value` term. Floored at 0, capped at full VORP in scorePlayer.
     FLEX_DISCOUNT: true,
     FLEX_ALT_WEIGHT: 1.0,
+
+    /* THE ONESIE DUPLICATION RULE.
+     *
+     * For a position with exactly one starting slot and no flex relief — QB, K,
+     * DEF, and TE once the TE slot and the flex are both accounted for — the
+     * SECOND player is worth close to nothing in a 10-team league. He cannot be
+     * started while the starter is healthy, and if the starter goes down the
+     * wire has a comparable body for free. That asymmetry is the whole rule: a
+     * bench RB gets started most weeks; a bench QB gets started almost never.
+     *
+     * A HARD marginal-value discount, not a soft need penalty. The second QB is
+     * priced at his BACKUP/INSURANCE value, because standalone VORP is a number
+     * about a player who starts and this one does not.
+     *
+     * Measured before the fix by draft/tests/sanity-sweep.test.js — 420 roster
+     * states over the real board, realistically depleted — 265 onesie-duplicate
+     * recommendations, including the reported QB2-in-round-9: Caleb Williams at
+     * #2 with a QB rostered, Lamar Jackson at r6, Brock Purdy at r8.
+     */
+    ONESIE_DISCOUNT: true,
+    ONESIE_KEEP: 0.10,            // fraction of standalone value a backup retains
+    ONESIE_ENDGAME_PICKS: 2,      // last N picks: nothing else matters, rule relaxes
+    // THE EXPLICIT EXCEPTIONS. A onesie duplicate may still surface, but only
+    // for a stated reason, and the card must SAY it rather than presenting him
+    // as a normal recommendation.
+    ONESIE_EXTREME_ADP: 18,       // picks past his market price = real value falling
+    ONESIE_ELITE_RANK: 3,         // ...and only for a top-N player at the position
+
     CEILING_SPREAD_SHARE: 0.15,   // fraction of theoretical upside treated as collectable
     CEILING_MAX_BONUS: 20.0,      // hard cap, in the composite's own points
     RAIL_COMPONENT_RATIO: 1.0,    // a component larger than the player's own VORP
@@ -424,6 +452,85 @@
   }
 
   /** The full composite, with a human-readable audit trail attached. */
+  /**
+   * Is this player a ONESIE DUPLICATE, and if so does he earn an exception?
+   *
+   * Returns { duplicate, discount, exception, why } where `discount` is the
+   * multiplier applied to his value-bearing terms and `why` is the sentence the
+   * card must show when he surfaces anyway. A onesie duplicate that appears
+   * WITHOUT a stated reason is a bug; one that appears WITH one is a judgement
+   * the human can overrule.
+   */
+  function onesieState(player, ctx) {
+    const none = { duplicate: false, discount: 1, exception: null, why: null };
+    if (!CFG.ONESIE_DISCOUNT) return none;
+    const starters = (ctx.league || {}).starters || {};
+    const pos = player.position;
+    const roster = ctx.roster || [];
+    const slots = starters[pos] || 0;
+    if (!slots) return none;
+
+    const have = roster.filter(p => p.position === pos).length;
+    if (have < slots) return none;                       // still filling the slot
+
+    // TE is a onesie only once the FLEX cannot take him either.
+    if (pos === 'TE' || pos === 'RB' || pos === 'WR') {
+      const flexEl = ['RB', 'WR', 'TE'];
+      const spare = flexEl.reduce((n, q) =>
+        n + Math.max(0, roster.filter(p => p.position === q).length - (starters[q] || 0)), 0);
+      const flexOpen = (starters.FLEX || 0) - Math.min(starters.FLEX || 0, spare);
+      if (flexOpen > 0) return none;                     // he can still start
+      if (pos !== 'TE') return none;                     // RB/WR depth is legitimate
+    }
+
+    // THE ENDGAME RELAXATION: with a pick or two left, nothing else matters.
+    const left = Number(ctx.myPicksLeft);
+    if (Number.isFinite(left) && left <= CFG.ONESIE_ENDGAME_PICKS) return none;
+
+    // ---- the exceptions, each of which must be SAYABLE ----------------------
+    const adp = player.adjusted_adp != null ? player.adjusted_adp : player.raw_adp;
+    const here = Number(ctx.currentPick);
+    const fell = (adp != null && Number.isFinite(here)) ? (here - adp) : 0;
+    const rank = positionRank(player, ctx);
+    if (fell >= CFG.ONESIE_EXTREME_ADP && rank > 0 && rank <= CFG.ONESIE_ELITE_RANK) {
+      return { duplicate: true, discount: 1, exception: 'value',
+        why: pos + '2 — ' + (player.name || 'he') + ' at +' + Math.round(fell)
+          + ' vs ADP, insurance/trade value; YOU CANNOT START HIM' };
+    }
+    const starter = roster.filter(p => p.position === pos)
+      .sort((a, b) => (b.proj_mean || 0) - (a.proj_mean || 0))[0];
+    /* "QUESTIONABLE" IS NOT AN INJURY EXCEPTION.
+     *
+     * The first cut of this accepted any non-healthy status, and the sanity
+     * sweep immediately surfaced 291 onesie duplicates all waved through on
+     * `Questionable` — because in August a large share of the league carries
+     * that tag and it means almost nothing. An exception that fires for
+     * everybody is not an exception; it is the rule with extra words, and it
+     * would have put a backup QB on the card in most states while looking
+     * principled.
+     *
+     * Only a status that actually threatens availability counts. */
+    const SERIOUS = /^(out|doubtful|ir|injured[ _-]?reserve|pup|nfi|suspended)$/i;
+    if (starter && starter.injury_status && SERIOUS.test(String(starter.injury_status).trim())) {
+      return { duplicate: true, discount: 1, exception: 'injury',
+        why: pos + '2 — your starter is flagged ' + starter.injury_status
+          + '; this is insurance, not a starter' };
+    }
+
+    return { duplicate: true, discount: CFG.ONESIE_KEEP, exception: null,
+      why: pos + '2 — you cannot start him; priced as a backup' };
+  }
+
+  /** Where he ranks at his own position on the CURRENT board. */
+  function positionRank(player, ctx) {
+    const at = (ctx.board || []).filter(p => p.position === player.position)
+      .sort((a, b) => (b.proj_mean || 0) - (a.proj_mean || 0));
+    for (let i = 0; i < at.length; i++) {
+      if (String(at[i].player_id) === String(player.player_id)) return i + 1;
+    }
+    return 0;
+  }
+
   function scorePlayer(player, ctx) {
     const w = Object.assign({}, DEFAULT_WEIGHTS, ctx.weights || {});
     // Pass the full context (not just run multipliers) so the A2 three-layer
@@ -444,6 +551,8 @@
       need.value = marginal;
       need.why = 'flex depth — marginal over the next flex option';
     }
+    // THE ONESIE DUPLICATION DISCOUNT — see CFG.ONESIE_DISCOUNT.
+    const onesie = onesieState(player, ctx);
     const risk = riskAdjustment(player);
     const ceiling = upsideBonus(player, ctx.currentPick, ctx.totalPicks, ctx.myPicksLeft);
     const kov = C.keeperOptionValue(player, ctx);
@@ -478,7 +587,7 @@
     // saying which it is matters: the slider still reaches 0 in the UI, it just
     // cannot switch the anchor off entirely.
     const wValue = Math.max(CFG.VALUE_WEIGHT_FLOOR, w.value == null ? 1 : w.value);
-    const score = wValue * v
+    let score = wValue * v
       + w.tier * tier
       + w.need * need.value
       + w.risk * risk.value
@@ -486,6 +595,20 @@
       + w.keeper * kov.value
       - w.bye * bye.value
       + w.stack * stack.value;
+
+    /* THE ONESIE DISCOUNT, applied to the assembled score.
+     *
+     * Deliberately NOT a need penalty. The need term already reads ~0 for a
+     * backup — that was true while the tool was recommending QB2 in round 9 —
+     * because VONA, tier urgency and ceiling were still pricing him as though
+     * he would play. He will not. So the discount lands on the WHOLE marginal
+     * value, which is what "priced as a backup" actually means.
+     *
+     * Kept multiplicative and applied last so it cannot be argued away by a
+     * slider: no weight setting turns a bench QB into a startable one. */
+    if (onesie.duplicate && onesie.discount < 1) {
+      score = score * onesie.discount;
+    }
 
     const survivalToNext = ctx.nextPick ? survival(player, ctx.nextPick, ctx) : 0;
     const reasons = [];
@@ -503,11 +626,17 @@
     }
     if (w.bye * bye.value > 3) reasons.push(`bye collision: ${bye.detail}`);
     stack.reasons.forEach(r => reasons.push(r));
+    // A onesie duplicate NEVER appears without saying what it is — whether it
+    // was discounted or waved through on an exception. This is the difference
+    // between a bug and a judgement call the human can overrule.
+    if (onesie.duplicate && onesie.why) reasons.unshift(onesie.why);
     if (!reasons.length) reasons.push(`best value on the board at ${player.position}`);
 
     return {
       player,
       score,
+      onesie: onesie.duplicate ? { discounted: onesie.discount < 1,
+        exception: onesie.exception, why: onesie.why } : null,
       components: {
         vona: v,
         tier_urgency: tier,
@@ -1788,7 +1917,7 @@
     normalCdf, adpSd, survival, runMultipliers, detectRuns,
     expectedBestAvailable, vona,
     tierCliffUrgency, starterSlotMarginal, riskAdjustment, upsideBonus,
-    scorePlayer, recommend, mandatoryGaps, applyRosterLegality, plausibilityRails,
+    scorePlayer, onesieState, positionRank, recommend, mandatoryGaps, applyRosterLegality, plausibilityRails,
     demoteFlaggedOnesies, computeRailBudget, railFireSig, bestFlexAlt,
     confidence, branchForecast, computePaths, dollarGap, playerDollars, applyPersonalLists, onTheClock, rosterPlan, byeGrid,
     cheatSheet, sheetText, managerTells, threatBoard,
