@@ -18,7 +18,7 @@ jobs:
         run: |
           set -e
           for t in attribution backtest betlogic engine keeperlock keepers ledger \
-                   mcts predledger rawarchive reconcile sidebets strategies sync update; do
+                   mcts predledger rawarchive reconcile sidebets strategies sync update venmo; do
             echo "== $t =="
             node draft/tests/$t.test.js
           done

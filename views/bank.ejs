@@ -105,6 +105,14 @@ season until settled.</p>
           <div class="lsb-row">
             <span class="lsb-who"><%= r.net > 0 ? r.name + ' owes' : 'owes ' + r.name %></span>
             <span class="lsb-amt <%= r.net > 0 ? 'pos' : 'neg' %>"><%= money(Math.abs(r.net)) %></span>
+            <% // When I owe them, make it an actionable invoice: tap to pay their Venmo.
+               if (isMine && r.net < 0 && typeof V !== 'undefined') {
+                 const vp = V.render(ownerById(r.owner_id), { amount: Math.abs(r.net), note: 'side bet' }); %>
+              <span class="lsb-act">
+                <% if (vp.url) { %><a class="btn small" href="<%= vp.url %>" target="_blank" rel="noopener">Pay <%= vp.label %> 💸</a>
+                <% } else { %><span class="muted" style="color:#b3261e"><%= vp.label %></span><% } %>
+              </span>
+            <% } %>
             <% if (isMine) { %>
               <span class="lsb-act">
                 <% for (const l of r.legs) { %>

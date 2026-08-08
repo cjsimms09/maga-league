@@ -78,7 +78,11 @@
       <div class="sb-ledrow"><%= esc(row.bet.terms) %> · $<%= row.bet.stake %>
         <div>
         <% row.parties.forEach((p, i) => { %><%
-          %><a href="/bank?section=sidebets&sbview=name&owner=<%= p.owner_id %>" class="<%= sbCls(p.delta) %>"><%= p.name %> <%= sbMoney(p.delta) %></a><%= i < row.parties.length - 1 ? ' · ' : '' %><%
+          %><a href="/bank?section=sidebets&sbview=name&owner=<%= p.owner_id %>" class="<%= sbCls(p.delta) %>"><%= p.name %> <%= sbMoney(p.delta) %></a><%
+          // Both parties get their pay handle (§3): a deep link, or the loud fallback.
+          if (typeof V !== 'undefined' && typeof ownerById !== 'undefined') { const vp = V.render(ownerById(p.owner_id)); %><%
+            %> <% if (vp.url) { %><a href="<%= vp.url %>" target="_blank" rel="noopener" style="font-size:12px">💸<%= vp.label %></a><% } else { %><span style="font-size:12px;color:#b3261e"><%= vp.label %></span><% } %><%
+          %><% } %><%= i < row.parties.length - 1 ? ' · ' : '' %><%
         %><% }) %>
         </div>
       </div>

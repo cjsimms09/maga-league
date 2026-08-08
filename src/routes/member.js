@@ -4,6 +4,7 @@ const H = require('../helpers');
 const L = require('../ledger');
 const SB = require('../sidebets');
 const BL = require('../betlogic');
+const V = require('../venmo');
 const sleeper = require('../sleeper');
 const notify = require('../notify');
 const crypto = require('crypto');
@@ -238,6 +239,10 @@ router.get('/', aw(async (req, res) => {
     openVotes, CATEGORY_LABELS: H.CATEGORY_LABELS, myBalance,
     sleeperData: sData, sleeperStandings: sStandings, sleeperBoard: sBoard, roast,
     review, reviewWeek, wireRows, playoffTeams, chatLatest, betMoney, owners,
+    // Venmo nag (venmo-handles.md §2): fires for a logged-in owner with no
+    // handle; the commissioner also sees who is still missing theirs.
+    venmoNag: V.needsNag(req.owner && world.owners.find(o => o.id === req.owner.id)),
+    venmoMissing: (req.owner && req.owner.is_commissioner) ? V.missing(world.owners) : [],
   });
 }));
 
@@ -433,6 +438,7 @@ router.get('/bank', aw(async (req, res) => {
     deadlines, late: req.query.late === '1',
     currentWeek: (await sleeper.bundle(world.config.sleeper_league_id) || {}).week || 1,
     BL, payDirectory: owners.filter(o => o.venmo || o.paypal || o.cashapp || o.zelle),
+    V, ownerById: id => owners.find(o => o.id === Number(id)),
   });
 }));
 

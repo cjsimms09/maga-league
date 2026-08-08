@@ -4,6 +4,30 @@
 <div class="roast-banner">🚨 <%= roast %></div>
 <% } %>
 
+<% if (typeof venmoNag !== 'undefined' && venmoNag) { %>
+<div class="venmo-nag" id="venmo-nag" style="display:none;background:#eef6ff;border:1px solid #b9dcff;border-radius:8px;padding:10px 14px;margin:0 0 12px;gap:10px;align-items:center;flex-wrap:wrap">
+  <span>💸 Add your Venmo so people can pay you.</span>
+  <form method="post" action="/profile/pay" style="display:flex;gap:6px;align-items:center;margin:0">
+    <span style="color:#888">@</span>
+    <input type="text" name="venmo" maxlength="60" placeholder="your-handle" required
+           style="padding:5px 8px;border:1px solid #ccc;border-radius:6px">
+    <button type="submit" class="btn small">Save</button>
+  </form>
+  <button type="button" onclick="document.getElementById('venmo-nag').style.display='none';sessionStorage.setItem('venmoNagDismissed','1')" style="margin-left:auto;background:none;border:none;color:#888;cursor:pointer">dismiss</button>
+</div>
+<script>
+  // Dismissible-but-recurring: hidden for this session once dismissed, back next.
+  (function(){ if(!sessionStorage.getItem('venmoNagDismissed')){ var n=document.getElementById('venmo-nag'); if(n) n.style.display='flex'; } })();
+</script>
+<% } %>
+
+<% if (typeof venmoMissing !== 'undefined' && venmoMissing && venmoMissing.length) { %>
+<div class="venmo-missing" style="background:#fff8e1;border:1px solid #f0d98a;border-radius:8px;padding:10px 14px;margin:0 0 12px;font-size:14px">
+  <b>Commissioner:</b> still no Venmo on file for
+  <%= venmoMissing.map(o => o.name).join(', ') %> — hound them in the chat.
+</div>
+<% } %>
+
 <div class="hero">
   <a class="hero-item clickable <%= myBalance > 0 ? 'good' : myBalance < 0 ? 'bad' : '' %>" href="/bank#top">
     <span class="hero-label">Your Balance</span>
