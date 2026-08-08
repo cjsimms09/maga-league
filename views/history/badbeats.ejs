@@ -1,0 +1,49 @@
+<%- include('../partials/header', { title: 'Bad Beats Hall of Fame' }) %>
+<%
+  const fmt = n => (n == null ? '—' : Number(n).toFixed(2));
+  const beats = A.badBeats;
+  const monument = A.records.mostInLoss[0];      // most points in a loss, all time
+  const groups = [
+    ['top3_loss',      '🥉 Top-3 Score, Still Lost', 'A top-three score in the league that week — and a loss anyway.'],
+    ['near_high',      '💵 Missed the Weekly High by Under 2', 'A hundred dollars lost to a rounding error.'],
+    ['tiebreak_miss',  '🎟️ Missed the Playoffs on a Tiebreak', 'Same record, out on total points.'],
+    ['season_high_loss','🔥 Season High in a Loss', "The year's biggest wasted week."],
+  ];
+  const byKind = k => beats.filter(b => b.kind === k);
+%>
+
+<div class="chron">
+  <a class="back-link" href="/history">← The Chronicle</a>
+  <p class="chron-eyebrow">Where Tragedies Are Enshrined</p>
+  <h1 class="chron-title">Bad Beats <span class="gold">Hall of Fame</span></h1>
+  <p class="chron-sub">Auto-detected heartbreak. If the schedule robbed you, it's written here forever.</p>
+  <%- include('_subnav', { active: 'badbeats' }) %>
+
+  <!-- THE MONUMENT -->
+  <div class="beat monument">
+    <div class="hdr"><span class="who">🏛️ The Monument — <%= monument.owner %>, <%= monument.year %></span><span class="pts"><%= fmt(monument.points) %></span></div>
+    <div class="when">Week <%= monument.week %> · lost to <%= monument.winner_name %> (<%= fmt(monument.winner_points) %>)</div>
+    <div class="note">The most points ever scored in a losing effort. You can do everything
+      right and still lose in this league — <%= monument.owner %> is the proof, carved in stone.</div>
+  </div>
+
+  <% for (const [kind, title, blurb] of groups) { const rows = byKind(kind); if (!rows.length) continue; %>
+    <div class="card">
+      <h2><%= title %></h2>
+      <div class="body">
+        <p style="color:var(--muted); font-size:.85rem; margin:0 0 .8rem;"><%= blurb %></p>
+        <% for (const b of rows.slice(0, 10)) { %>
+          <div class="beat">
+            <div class="hdr"><span class="who"><%= b.owner %></span><span class="pts"><%= kind === 'tiebreak_miss' ? '−' + fmt(b.points) : fmt(b.points) %></span></div>
+            <div class="when"><%= b.year %><%= b.week ? ' · Week ' + b.week : '' %></div>
+            <div class="note"><%= b.note %></div>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  <% } %>
+
+  <p class="provenance">Every entry auto-detected from the box scores. The machine finds the heartbreak so nobody has to relive it from memory.</p>
+</div>
+
+<%- include('../partials/footer') %>

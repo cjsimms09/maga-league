@@ -588,3 +588,30 @@ of Stage 3), RECOMMENDATION (player + one number + market delta), ALTERNATIVES
 Plan Line became honest. The two ABSENT ones are SOURCE (needs the tree's stages)
 and NEAR-MISS (needs its thresholds); render them as explicitly absent, never as
 empty containers.
+
+---
+
+## ▶ SESSION B (SITE LANE) — 2026-08-08
+
+**Territory:** `views/**`, `src/routes/**`, `public/css/**`, `public/js/**` (except draft), site specs. Read TERRITORY.md + PARKED.md, ran `territory-check.sh B` (clean). Confirmed the three couplings I must not disturb — `EVIDENCE_STATE` (deviation.js), `PREFERS` (doctrine.js), `LAB-REPORT` intervention rate — all draft-path, all untouched. **No draft-path file edited. Never deployed** (deploys are A's).
+
+### ✅ WORK UNIT COMPLETE — League History page (build-order #7)
+
+Committed `f77735a`, pushed to `claude/new-session-xs2lv6`.
+
+- **Engine** `src/routes/history-data.js` — the "one build script" run at load: deterministic, provenance-stamped, no LLM, no hand-entered numbers, memoised. Reads the committed harvest (`league_history.json`, `master_sheet_archive.json`, `payouts.json`, `identity_map.json`, `draft_data.json` — all read-only in A's territory). **Cross-validated to the decimal against the spec's ground truth:** Richard 2025 (1711.20, 4-11, last, most-robbed by all-play gap); the 0.12 and 1.06 weekly-high misses; Cory's 8.20 tiebreak + 297 bench points; all ten owners' 2024 money reconciles with `per_owner_money`. Fraud/robbed via the all-play instrument (§2), not naive rank. Lineup efficiency derives position from **starter-slot order** (season-authoritative) so retired players don't break the optimal calc.
+- **Pages** (login-gated under `/history`; legacy `?section=money|owners|records` preserved for old links): Chronicle hub (Founding, Amendment ledger with buy-in 100→400 + 2027 votes, Champions roll, Season index) · Season chapters (standings+money, weekly-high ledger, bracket, draft, superlatives, per-season bad beats) · Record Book · Money Board · Bad Beats HOF · Franchise pages. **2022 asterisk (Hamlin)** footnote links from every listing of that title (roll, money board, dynasty tracker, franchise) — register drops, joke is the ring never the event.
+- **2024 chapter** `views/history/chapters/2024.ejs` — committed prose, chronicle form + tavern language. Every roast stat-traceable; all ten owners ripped, Cory hardest; champion (Jeremy) one clean paragraph. `CHAPTERS` set in member.js gates which years show prose.
+- Verified end-to-end on the dev server (all pages 200, no render errors, CSS gated to `/history/*`, legacy tabs intact).
+
+### ⏸️ STOP — BLOCKED ON CORY (voice calibration)
+
+Per the assignment: **produced ONE chapter (2024) and stopped for review before generating the rest. The voice needs calibrating once, not ten times.** Awaiting Cory's read on the 2024 chapter voice.
+
+**Two methodology notes for the review:**
+1. My computed lineup efficiency clusters Cory at **~86% all three years** (86.4/86.0/86.1) — the spec quoted "85.9%". Within methodology noise; I use my internally-derived figures as the traceable source, not the spec's number.
+2. The spec's §8.2 attributes Dylan "84.3% efficiency" to **2023 runner-up**; in my calc 84.3% is Dylan's **2025** figure, and 2023 Dylan is rank 3 / 87.1%. Flagging the season attribution before it goes into a chapter.
+
+### ▶ RESUME (after voice sign-off), in order
+1. Generate remaining chapters: **2023, 2025** (full box-score seasons), then the ceremonial **2016–2022** chapters (money + amendments only — the archive states plainly what pre-Sleeper data does/doesn't support; never invent detail). Add each year to `CHAPTERS` in member.js as it lands.
+2. Then the site backlog: **contact directory** (email/phone alongside Venmo, one profile store, tappable owner cards from home standings) → **side-bet tracker drill-down grid** → **dashboard widening** (collapsible "full program" panel) → site-opt Phase 2 items in my lane.

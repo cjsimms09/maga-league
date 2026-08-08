@@ -1,0 +1,100 @@
+<%- include('../partials/header', { title: owner.name + ' — Franchise' }) %>
+<%
+  const o = owner;
+  const fmt = n => (n == null ? '—' : Number(n).toFixed(2));
+  const dollars = n => '$' + Number(n || 0).toLocaleString('en-US', { maximumFractionDigits: 2 });
+  const flag = o.german ? '🇩🇪' : '🇺🇸';
+  // titles from the champions roll
+  const titles = A.champions.filter(c => String(c.champion).split('/').includes(o.name));
+  const years = Object.keys(o.seasons).map(Number).sort();
+  // opponents for the H2H grid, in board order
+  const opponents = Object.keys(A.owners).filter(n => n !== o.name);
+%>
+
+<div class="chron chron-wide">
+  <a class="back-link" href="/history/records">← The Franchises</a>
+
+  <div class="fran-head">
+    <div>
+      <span class="name"><%= o.name %><span class="flag"><%= flag %></span></span>
+      <div style="color:var(--muted); font-size:.85rem;">@<%= o.handle %></div>
+    </div>
+    <div style="text-align:right;">
+      <% if (titles.length) { %>
+        <div class="rings">👑 <%= titles.map(t => t.year + (t.co_championship ? '*' : '')).join(' · ') %></div>
+      <% } else { %>
+        <div style="color:var(--muted)">No titles. Yet.</div>
+      <% } %>
+      <% if (o.money) { %><div style="color:var(--gold-bright); font-weight:700;"><%= dollars(o.money.career) %> all-time</div><% } %>
+    </div>
+  </div>
+
+  <div class="stat-grid" style="margin-bottom:1.4rem;">
+    <div class="stat-card"><p class="label">Sleeper-era record</p><div class="big"><%= o.career.wins %>-<%= o.career.losses %><%= o.career.ties ? '-' + o.career.ties : '' %></div><div class="sub">2023–present</div></div>
+    <% if (o.money) { %><div class="stat-card"><p class="label">All-time record</p><div class="big"><%= o.money.wins %>-<%= o.money.loss %><%= o.money.tie ? '-' + o.money.tie : '' %></div><div class="sub"><%= (o.money.win_pct * 100).toFixed(1) %>% win rate</div></div><% } %>
+    <div class="stat-card"><p class="label">Points for (era)</p><div class="big"><%= fmt(o.career.pf) %></div></div>
+    <div class="stat-card"><p class="label">Titles</p><div class="big"><%= titles.length %></div><div class="sub"><%= titles.map(t => t.year).join(', ') || '—' %></div></div>
+  </div>
+
+  <div class="card">
+    <h2>📅 Year by Year <span class="sub">the box-score era</span></h2>
+    <div class="body chron-scroll">
+      <table class="ledger">
+        <thead><tr><th>Year</th><th class="name">Team</th><th>W-L</th><th>PF</th><th>PA</th><th>Eff%</th><th>Finish</th></tr></thead>
+        <tbody>
+          <% for (const y of years) { const s = o.seasons[y]; %>
+            <tr>
+              <td class="rk"><%= y %></td>
+              <td class="name" style="color:var(--muted)"><%= s.team_name %></td>
+              <td><%= s.wins %>-<%= s.losses %><%= s.ties ? '-' + s.ties : '' %></td>
+              <td><%= fmt(s.pf) %></td>
+              <td><%= fmt(s.pa) %></td>
+              <td><%= s.eff != null ? s.eff + '%' : '—' %></td>
+              <td class="<%= s.rank === 1 ? 'money' : (s.rank >= 9 ? 'neg' : '') %>">#<%= s.rank %></td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>⚔️ Head to Head <span class="sub">regular-season, box-score era</span></h2>
+    <div class="body chron-scroll">
+      <table class="ledger h2h-grid">
+        <thead><tr><th class="name">Opponent</th><th>W</th><th>L</th><th>Record</th></tr></thead>
+        <tbody>
+          <% for (const opp of opponents) { const h = o.h2h[opp]; if (!h) continue; %>
+            <tr>
+              <td class="name"><a href="/history/franchise/<%= opp.toLowerCase() %>" style="color:inherit; text-decoration:none;"><%= opp %></a></td>
+              <td class="win"><%= h.w %></td>
+              <td class="lose"><%= h.l %></td>
+              <td class="<%= h.w > h.l ? 'win' : (h.l > h.w ? 'lose' : '') %>"><%= h.w %>-<%= h.l %><%= h.t ? '-' + h.t : '' %></td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <% if (o.money && o.money.by_year) { %>
+  <div class="card">
+    <h2>💰 Money Ledger <span class="sub">every year, every dollar</span></h2>
+    <div class="body chron-scroll">
+      <table class="ledger">
+        <thead><tr><% for (const y of Object.keys(o.money.by_year).sort()) { %><th><%= String(y).slice(2) %></th><% } %><th>Career</th></tr></thead>
+        <tbody><tr>
+          <% for (const y of Object.keys(o.money.by_year).sort()) { const v = o.money.by_year[y]; %>
+            <td style="<%= v ? '' : 'color:var(--muted)' %>"><%= v ? dollars(v) : '·' %><% if (o.name === 'Marian' && Number(y) === 2022) { %><a class="aster" href="/history#asterisk">*</a><% } %></td>
+          <% } %>
+          <td class="money"><%= dollars(o.money.career) %></td>
+        </tr></tbody>
+      </table>
+    </div>
+  </div>
+  <% } %>
+
+  <p class="provenance">One of the same ten men who have paid the buy-in every year since 2016.</p>
+</div>
+
+<%- include('../partials/footer') %>
