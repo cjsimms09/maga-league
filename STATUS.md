@@ -21,6 +21,11 @@ Work order: §A state correctness → §C verdicts → Part 2 layout (absorbs §
   5. **Room-conformity readout:** **ABSENT** (behavior-ADP not shipped) — pending.
   6. **Intel Card / pick-34 dossier placeholder:** **ABSENT** — reserve the page slot for Backtest-2 §3.4.
 
+## 🧭 PART 2 LAYOUT — Paths panel (centerpiece) IN PROGRESS (2026-08-08)
+- **§1 Paths panel — ENGINE + RENDER BUILT.** `E.computePaths(ctx, scored)` turns the flat top-N into **2–4 priced DIRECTIONS**, deterministically clustered from the already-scored board by (position × cliff/value flavour). Each carries a plain-language name, the pick + one-line why, the wait-cost plan (branch forecast), a **price vs the top path (never hidden)**, and a state-derived when-it's-right; caps at 4; flags a path-level coin flip. Unit-tested (8 checks) + `R-paths` robot (6). Rendered in the War Room above the ranked list (now in a `Full ranked list` `<details>`), gold top card, coin-flip banner, expandable "N more this way". **Ledger:** a pick logs `chosen_path`/`chosen_path_key` (resolved from the on-screen paths, or `off_path:true`); overrides name the direction taken. At real pick 34: Lock-elite-TE (Warren, top) / Fill-WR-now (McMillan +4.9) / Fill-QB-now (Maye +9.4).
+- **§2 zoned three-zone desktop layout + §3 compare tray + §4 density fixes — NEXT** (the panel exists; the surrounding Zone-1/2/3 grid reflow is the next commit).
+- **Live render/phone acceptance** (§Part-2 acceptance, 390px zero-scroll on the clock) is folded into the combined end-of-Part-2 phone pass per the spec's sequencing; static coverage (computePaths unit+robot, app.js syntax, EJS compile) is green now.
+
 ## 📋 BACKLOG (Complete Backlog — `docs/queued/complete-backlog.md`)
 **Triage rule (binding):** the deadline order (polish → paths → shadows → opening script → mocks) is untouchable; any Part A/B item threatening a deadline item auto-defers to Part D with a note.
 **Environment (corrected 2026-08-08): Cory drafts on DESKTOP CHROME.** Desktop three-zone layout is the PRIMARY surface; phone is the tested disaster-recovery path (must work, not be optimal). Safari pass demoted to a light fallback (robot's Chromium == the real env).

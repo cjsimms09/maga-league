@@ -560,6 +560,50 @@ details.bal-row.me > summary { box-shadow: inset 3px 0 0 var(--gold); }
 .hero-value.on-clock { background: linear-gradient(180deg, #fff, var(--gold)); -webkit-background-clip: text; background-clip: text; }
 
 /* recommendation cards — the thing you actually look at */
+/* ---------- Paths panel (Part 2 §1) — the primary decision surface ----------
+   2–4 priced DIRECTIONS as cards, in a responsive grid. The top path is gold;
+   a coin-flip pair is ringed. The flat ranked list lives in a <details> below. */
+.paths-panel {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: .7rem; margin-bottom: .7rem;
+}
+.paths-coinflip {
+  background: rgba(245,196,69,.1); border: 1px solid rgba(245,196,69,.45);
+  border-radius: 10px; padding: .5rem .7rem; margin-bottom: .6rem;
+  font-size: .85rem; color: #f2e2b4;
+}
+.path-card {
+  display: flex; flex-direction: column; gap: .35rem;
+  padding: .7rem .75rem; border: 1px solid var(--line); border-radius: 12px;
+  background: rgba(255,255,255,.03);
+}
+.path-card.top { border-color: rgba(245,196,69,.6); background: rgba(245,196,69,.08); box-shadow: var(--glow-gold); }
+.path-card.coinflip { outline: 1px dashed rgba(245,196,69,.5); outline-offset: 2px; }
+.path-head { display: flex; align-items: baseline; justify-content: space-between; gap: .4rem; }
+.path-name { font-family: var(--font-display); font-weight: 900; color: #fff; font-size: .98rem; }
+.path-price {
+  font-size: .68rem; font-weight: 800; letter-spacing: .03em; white-space: nowrap;
+  color: #ffb4bb; background: rgba(255,70,85,.14); padding: .1rem .4rem; border-radius: 5px;
+}
+.path-price.top { color: var(--navy-deep); background: var(--gold); }
+.path-pick { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
+.path-player { font-weight: 800; color: #fff; display: flex; gap: .35rem; align-items: center; }
+.path-score { font-family: var(--font-display); font-size: 1.15rem; font-weight: 900; color: var(--gold-bright); font-variant-numeric: tabular-nums; }
+.path-why { color: #c7cddd; font-size: .78rem; }
+.path-when { color: #9fb0d8; font-size: .76rem; font-style: italic; }
+.path-plan { color: var(--muted); font-size: .72rem; font-variant-numeric: tabular-nums; }
+.path-actions { display: flex; flex-direction: column; gap: .3rem; margin-top: .2rem; }
+.path-more { font-size: .74rem; color: var(--muted); }
+.path-more summary { cursor: pointer; }
+.path-alt {
+  display: block; width: 100%; text-align: left; margin-top: .25rem;
+  background: rgba(255,255,255,.04); border: 1px solid var(--line); border-radius: 7px;
+  color: #dfe6f5; padding: .3rem .5rem; font-size: .78rem; cursor: pointer;
+}
+.path-alt:hover { background: rgba(255,255,255,.09); }
+.recs-details { margin-top: .3rem; }
+.recs-details > summary { cursor: pointer; color: var(--muted); font-size: .8rem; margin-bottom: .5rem; }
+
 .rec-card {
   display: flex; gap: .8rem; align-items: center;
   padding: .7rem .8rem; border: 1px solid var(--line); border-radius: 12px;

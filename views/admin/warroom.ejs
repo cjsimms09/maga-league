@@ -84,12 +84,19 @@
 
   <div class="card" style="margin-bottom:1rem; border-color:rgba(245,196,69,.5)" id="recs-card">
     <h2>🎯 Take This Player
-      <span class="sub">ranked by composite score · tap Why? for the full audit</span>
+      <span class="sub">2–4 priced directions · the ranked list is underneath</span>
       <button class="btn small gold" id="clock-on" style="flex:0 0 auto">⏱ One answer</button>
     </h2>
     <div class="body">
       <div id="confidence-note"></div>
-      <div id="recs"></div>
+      <%# Part 2 §1 — the Paths panel: the primary decision surface. The flat
+          ranked list below it stays for the "who exactly" follow-through. %>
+      <div id="paths-coinflip" class="paths-coinflip" style="display:none"></div>
+      <div id="paths-panel" class="paths-panel"></div>
+      <details id="recs-details" class="recs-details">
+        <summary>Full ranked list</summary>
+        <div id="recs"></div>
+      </details>
       <%# Best available at a position you choose. The main list answers "who
           should I take"; this answers "I want a WR \u2014 which one, and what
           does waiting cost me". %>

@@ -1297,6 +1297,69 @@
     }).join('') + '</ol>';
   }
 
+  /* Part 2 §1 — render the Paths panel (the primary decision surface). Derived
+   * from the SAME scored board the ranked list uses (passed in, never re-scored),
+   * so a path and the list beneath it can never disagree. Stores state.lastPaths
+   * so a pick can be logged with the direction it came from. */
+  function renderPaths(scored) {
+    const host = $('#paths-panel');
+    if (!host) return;
+    const paths = E.computePaths(context(), scored);
+    state.lastPaths = paths;
+    const cf = $('#paths-coinflip');
+    if (!paths.length) {
+      host.innerHTML = '';
+      if (cf) cf.style.display = 'none';
+      return;
+    }
+    // Path-level coin-flip banner: when the top two directions price within the gap.
+    if (cf) {
+      const flip = paths[0].coin_flip_with ? paths.find(p => p.key === paths[0].coin_flip_with) : null;
+      if (flip) {
+        cf.style.display = '';
+        cf.innerHTML = '🪙 <b>' + escapeHtml(paths[0].name) + '</b> and <b>'
+          + escapeHtml(flip.name) + '</b> are a coin flip — take the one you believe in.';
+      } else {
+        cf.style.display = 'none';
+      }
+    }
+    host.innerHTML = paths.map(function (p, i) {
+      const pl = p.pick.player;
+      const priceBadge = p.price > 0
+        ? '<span class="path-price">+' + p.price.toFixed(1) + ' vs top</span>'
+        : '<span class="path-price top">top path</span>';
+      const plan = (p.plan || []).filter(function (r) { return r.loss > 0; }).slice(0, 2)
+        .map(function (r) { return r.position + ' −' + Math.round(r.loss); }).join(' · ');
+      const extras = p.candidates.slice(1, 5);
+      return '<div class="path-card' + (i === 0 ? ' top' : '')
+          + (p.coin_flip_with ? ' coinflip' : '') + '" data-path="' + escapeHtml(p.key) + '">' +
+        '<div class="path-head">' +
+          '<span class="path-name">' + escapeHtml(p.name) + '</span>' + priceBadge +
+        '</div>' +
+        '<div class="path-pick">' +
+          '<span class="path-player">' + escapeHtml(pl.name) +
+            '<span class="rec-pos ' + pl.position + '">' + pl.position + '</span></span>' +
+          '<span class="path-score">' + p.pick.score.toFixed(1) + '</span>' +
+        '</div>' +
+        (p.pick.why ? '<div class="path-why">' + escapeHtml(p.pick.why) + '</div>' : '') +
+        '<div class="path-when">' + escapeHtml(p.when_right) + '</div>' +
+        (plan ? '<div class="path-plan">next turn cost if you wait: ' + escapeHtml(plan) + '</div>' : '') +
+        '<div class="path-actions">' +
+          '<button class="btn small gold" data-draft-me="' + pl.player_id
+            + '" data-path-key="' + escapeHtml(p.key) + '">I took ' + escapeHtml(pl.name.split(' ').slice(-1)[0]) + '</button>' +
+          (extras.length
+            ? '<details class="path-more"><summary>' + extras.length + ' more this way</summary>'
+              + extras.map(function (c) {
+                  return '<button class="path-alt" data-draft-me="' + c.player.player_id
+                    + '" data-path-key="' + escapeHtml(p.key) + '">' + escapeHtml(c.player.name)
+                    + ' <span class="muted">' + c.score.toFixed(1) + '</span></button>';
+                }).join('') + '</details>'
+            : '') +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
   function renderRecommendations() {
     // One call so the recommendation, the confidence line and the branch
     // forecasts can never come from three different boards.
@@ -1324,6 +1387,8 @@
     renderConfidence(out.confidence);
     renderBranches(out.branches);
     renderClock(out);
+    // Paths panel derives from the same scored board the list uses.
+    renderPaths(out.scored);
     const all = out.scored;
     const scored = all.slice(0, 5);
     const host = $('#recs');
@@ -2076,7 +2141,7 @@
   const ATTR = (typeof window !== 'undefined' && window.DraftAttribution) || null;
 
   // ----------------------------------------------------------------- actions
-  function markDrafted(playerId, toMe, teamSlot) {
+  function markDrafted(playerId, toMe, teamSlot, pathKey) {
     const p = playerById(playerId);
     if (!p) return;
     const mySlot = Number(state.data.league.my_draft_slot) || null;
@@ -2098,7 +2163,7 @@
     // L1 capture: a pick I take is a decision — log it at decision time. Only my
     // own picks (toMe); other teams' picks are recorded by the survival/board
     // context, not as my decisions. Never on a mock, and never a re-mark.
-    if (toMe && !alreadySeen && !state.mockMode) capturePick(p);
+    if (toMe && !alreadySeen && !state.mockMode) capturePick(p, pathKey);
     // §C override-reason capture: if I took someone who ISN'T the top
     // recommendation, ask why in one tap (target/gut/news/plan) and log it.
     // Overrides are the one ledger entry kind that needs my finger — draft night
@@ -2114,7 +2179,13 @@
         // the board says it's close).
         const contested = !!(topRec && topRec.contested);
         const second = scored[1] && scored[1].player ? String(scored[1].player.player_id) : null;
-        const path = null;   // Paths panel (Part 2) not built yet; field reserved.
+        // Paths panel (Part 2 §1): name the direction the override took, if any —
+        // "took him off Path B" is richer override evidence than "took him".
+        const paths = state.lastPaths || [];
+        const takenPath = (pathKey && paths.find(x => x.key === pathKey))
+          || paths.find(x => x.candidates.some(cd => String(cd.player.player_id) === String(playerId)))
+          || null;
+        const path = takenPath ? takenPath.name : null;
         if (contested && second && String(playerId) === second) {
           logOverrideReason(p, topRec.player, 'coin_flip', path);
         } else {
@@ -2193,13 +2264,28 @@
       pick: currentPick(),
     };
   }
-  function capturePick(p) {
+  function capturePick(p, pathKey) {
     if (typeof PredLedger === 'undefined') return;
     var c = ledgerCtx();
+    // Part 2 §1: log WHICH path the pick came from. Resolve from the paths that
+    // were on screen when the decision was made — prefer the explicit key the
+    // clicked button carried, else match the player against every path's
+    // candidates. No matching path = an off-path pick (an override in path terms).
+    var paths = state.lastPaths || [];
+    var chosen = null;
+    if (pathKey) chosen = paths.find(function (x) { return x.key === pathKey; }) || null;
+    if (!chosen) {
+      chosen = paths.find(function (x) {
+        return x.candidates.some(function (cd) { return String(cd.player.player_id) === String(p.player_id); });
+      }) || null;
+    }
     PredLedger.pick({ season: c.season, build_at: c.build_at, pick: c.pick,
       method: 'pick-v1',
       payload: { player_id: String(p.player_id), name: p.name, position: p.position,
-        team: p.team, adjusted_adp: p.adjusted_adp, vorp: p.vorp, tier: p.tier } });
+        team: p.team, adjusted_adp: p.adjusted_adp, vorp: p.vorp, tier: p.tier,
+        chosen_path: chosen ? chosen.name : null,
+        chosen_path_key: chosen ? chosen.key : null,
+        off_path: paths.length > 0 && !chosen } });
   }
 
   /* Reconcile the assumed keeper slate against what Sleeper actually shows.
@@ -2551,7 +2637,8 @@
     }
     document.body.addEventListener('click', ev => {
       const me = ev.target.closest('[data-draft-me]');
-      if (me) return markDrafted(me.getAttribute('data-draft-me'), true);
+      if (me) return markDrafted(me.getAttribute('data-draft-me'), true, null,
+        me.getAttribute('data-path-key') || null);
       const other = ev.target.closest('[data-draft-other]');
       if (other) return markDrafted(other.getAttribute('data-draft-other'), false);
       // Star / block from anywhere on the page, including the chips in the
