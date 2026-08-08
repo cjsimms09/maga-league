@@ -2739,6 +2739,32 @@
     } catch (e) { /* never block the draft on a shadow */ }
   }
 
+  /* A-3 — my-turn alerting. Edge-triggered tick after every pick update; the
+   * visibilitychange re-tick is the catch-up sweep for throttled background
+   * polls (phone in a pocket). All best-effort. */
+  const ALERT_CFG_KEY = 'wr-alerts-v1';
+  let alertSt = null;
+  function alertCfg() {
+    try { return Object.assign({}, DraftAlerts.DEFAULTS,
+      JSON.parse(localStorage.getItem(ALERT_CFG_KEY) || '{}')); }
+    catch (e) { return (typeof DraftAlerts !== 'undefined') ? DraftAlerts.DEFAULTS : {}; }
+  }
+  function alertTick() {
+    if (typeof DraftAlerts === 'undefined' || !state.data) return;
+    try {
+      const my = (state.data.pick_order || {}).my_picks || [];
+      const out = DraftAlerts.tick(alertSt, currentPick(), my);
+      alertSt = out.st;
+      if (out.fire) DraftAlerts.fire(alertCfg(), { document: document, navigator: navigator });
+      else if (my.indexOf(currentPick()) < 0) DraftAlerts.stopFlash(document);
+    } catch (e) { /* an alert failure never touches the clock */ }
+  }
+  if (typeof document !== 'undefined') {
+    document.addEventListener('visibilitychange', function () {
+      if (!document.hidden) alertTick();      // the catch-up sweep
+    });
+  }
+
   /* Reconcile the assumed keeper slate against what Sleeper actually shows.
    *
    * Runs on every sync tick. Cheap, and the alternative is discovering at pick
@@ -2910,6 +2936,7 @@
     // permanent raw record of what happened — independent of the board artifact.
     if (!state.mockMode && picks && picks.length) captureRawPicks(picks);
     recomputeRuns();
+    alertTick();               // A-3: did that batch put me on the clock?
     renderAll();
   }
 
