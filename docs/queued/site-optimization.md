@@ -48,3 +48,26 @@ freeze lifts.**
 ## Phase-1 baseline (measured 2026-08-08, sandbox)
 See STATUS.md "PERF BASELINE" entry — asset inventory + script counts recorded;
 Lighthouse/waterfall runs need the deployed site and land with B-5's live run.
+
+## 📐 THE COMPLEXITY BUDGET — checked in the Sunday audit (Cory, 2026-08-08)
+
+Four numbers, tracked weekly. Any growth without a cited reason raises an alert.
+
+| # | metric | why |
+|---|---|---|
+| 1 | war-room bundle size | performance |
+| 2 | artifact size (`draft_data.json`) | performance — the dominant transfer |
+| 3 | page load time, phone viewport | performance |
+| 4 | **independent derivations of shared state** (seat · pick position · roster · keepers · rounds · board version) | **the one that predicts bugs** |
+
+**The fourth is the point.** The first three are ordinary performance hygiene.
+Number four is the leading indicator: **every severity-1 this project has had
+came from a shared fact derived in more than one place** — rounds, seat, keeper
+seat, pick position, opponent identity. None was hard to fix; each was invisible
+because the second derivation looked reasonable on its own.
+
+**Enforced, not merely tracked:** `draft/tests/test_shared_state_audit.py` fails
+the build when a canonical fact gains a derivation without a cited exemption,
+and reports the counts for the Sunday audit. Budgets today: rounds **0**,
+current_pick **2**, seat **10** (all writes or the single derivation, each
+individually cited).

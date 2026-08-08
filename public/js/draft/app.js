@@ -522,6 +522,64 @@
     const current = currentPick();
     return order.filter(p => p >= current);
   }
+  /* THE SINGLE SOURCE FOR PICK STATE.
+   *
+   * Same pattern as the seat fix and the rounds fix: one derivation, every
+   * consumer reads it. Derived from PICKS OBSERVED — synced picks plus locally
+   * marked picks — never from `my_picks[0]` or any static seed.
+   *
+   * A PRECISION THE OBVIOUS INVARIANT GETS WRONG. "pick count == drafted-player
+   * count" is not quite true here: my keepers are added to `drafted` when the
+   * board loads (they are off the board) but they are not pick EVENTS we
+   * observed. Opponent keepers are not marked at all outside rehearsal. So the
+   * exact structural law is
+   *
+   *     drafted.size == picksObserved + keepersPreSeeded
+   *
+   * and a divergence from THAT is structurally impossible. Asserting the looser
+   * version would have failed on a correct board at pick 1, which is how a
+   * useful assertion gets deleted.
+   */
+  function pickState() {
+    const observed = state.sync
+      ? Math.max(0, state.sync.currentPickNumber() - 1)
+      : (state.recentPicks || []).length;
+    const keepersPreSeeded = (state.myRoster || []).filter(p => p.is_keeper).length;
+    const drafted = state.drafted ? state.drafted.size : 0;
+    const expected = observed + keepersPreSeeded;
+    return {
+      observed: observed,
+      keepersPreSeeded: keepersPreSeeded,
+      draftedOnBoard: drafted,
+      currentPick: observed + 1,
+      // The structural law. False = a pick event or a board removal happened
+      // without the other, which is a bug, not a state.
+      consistent: drafted === expected,
+      expectedDrafted: expected,
+    };
+  }
+
+  /* MONOTONICITY + THE STRUCTURAL LAW, checked every render. A clock that goes
+   * backwards, or a drafted-count that stops matching the picks that produced
+   * it, is the shape of the frozen-clock bug and of every attribution bug.
+   * Failing loudly here would have caught the frozen clock at pick 35. */
+  function assertPickState() {
+    const ps = pickState();
+    const last = state.lastPickSeen == null ? -1 : state.lastPickSeen;
+    const problems = [];
+    if (ps.currentPick < last) {
+      problems.push('pick went BACKWARDS: ' + last + ' -> ' + ps.currentPick);
+    }
+    if (!ps.consistent) {
+      problems.push('drafted ' + ps.draftedOnBoard + ' != observed ' + ps.observed
+        + ' + keepers ' + ps.keepersPreSeeded);
+    }
+    state.lastPickSeen = Math.max(last, ps.currentPick);
+    state.pickStateProblems = problems;
+    if (problems.length) console.error('[pick-state] ' + problems.join(' · '));
+    return problems;
+  }
+
   function currentPick() {
     if (state.sync) return state.sync.currentPickNumber();
     // MANUAL MODE HAD NO CLOCK. This returned `my_picks[0]` unconditionally, so
@@ -537,9 +595,7 @@
     // Before any pick is recorded, my first live pick stays the anchor: that is
     // the pre-draft prep board, and "who do I take at 34" is the right question
     // then. Once picks start flowing, the count of recorded picks IS the clock.
-    const recorded = (state.recentPicks || []).length;
-    if (!recorded) return state.data.pick_order.my_picks[0] || 1;
-    return recorded + 1;
+    return pickState().currentPick;
   }
   function onTheClock() {
     const mine = state.data.pick_order.my_picks || [];
@@ -707,6 +763,7 @@
     renderRuns();
     renderPicksFeed();
     renderManagers();
+    try { assertPickState(); } catch (e) { /* never blocks the clock */ }
     try { renderSystemStrip(); } catch (e) { /* never blocks the clock */ }
     try { renderUnrecordedPicks(); } catch (e) { /* never blocks the clock */ }
     try { renderLegality(); } catch (e) { /* never blocks the clock */ }
@@ -2275,7 +2332,7 @@
    * off. Suppressed in mock mode (the rehearsal ribbon already owns the corner). */
   function renderSlotWatermark() {
     var league = (state.data || {}).league || {};
-    var hasSlot = !!Number(league.my_draft_slot);
+    var hasSlot = !!mySlot();
     var on = hasSlot && !state.slotVerified && !state.mockMode;
     var wm = document.getElementById('slot-watermark');
     if (wm) {
@@ -2394,7 +2451,7 @@
     applyDraftShape(draft, mine);
 
     const result = { mapped, total: Object.keys(byUser).length, mySlot: mine };
-    const changed = mine && Number(mine) !== Number(state.data.league.my_draft_slot);
+    const changed = mine && Number(mine) !== mySlot();
     // A2: a resolved slot from a real draft object with a populated draft_order
     // VERIFIES the seat. Set it whether or not the number changed — a manual
     // guess that happens to be right is still upgraded from placeholder to
@@ -2766,6 +2823,7 @@
     const red = [];
     const amber = [];
     if (state.reconcile && state.reconcile.halt) red.push('keeper slate mismatch');
+    (state.pickStateProblems || []).forEach(function (x) { red.push('PICK STATE: ' + x); });
     if ((prov.adp || {}).warning) red.push('ADP is fixture/offline');
     if (typeof prov.value_coverage === 'number' && prov.value_coverage < 0.9) red.push('thin projections');
     if (!seat || !seat.resolved) red.push('seat unresolved');
@@ -3516,7 +3574,7 @@
       // formula, which would be a second source that can drift from the pipeline.
       rounds: rounds || league.rounds || (league.roster_size || 15),
       draft_type: league.draft_type || 'snake',
-      my_draft_slot: league.my_draft_slot,
+      my_draft_slot: mySlot(),
       adp_blend_weight: 0.7,
       keepers: league.keeper_rules || { count: 3, cost_model: 'original_round' },
     };
@@ -3918,7 +3976,7 @@
       } else {
         try {
           const saved = localStorage.getItem(SLOT_KEY);
-          if (saved && Number(saved) !== Number(state.data.league.my_draft_slot)) {
+          if (saved && Number(saved) !== mySlot()) {
             slotIn.value = saved;
             setSlot(saved);
           }

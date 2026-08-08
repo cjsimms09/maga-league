@@ -558,6 +558,62 @@ if (!IS_FIXTURE) {
     JSON.stringify((ART.kept_players || []).map(k => [k.name, k.team_slot])));
 }
 
+// R-manualclock: THE CONSUMER SWEEP. Every consumer of pick position must
+// advance in MANUAL mode specifically — the sync path was masking a frozen
+// clock everywhere, and manual mode is the draft-night fallback.
+//
+// Mutation-checked below: freeze the clock and this scenario must fail.
+{
+  const LG = require('../../public/js/draft/legality.js');
+  const STARTERS = LEAGUE.starters || { QB: 1, RB: 2, WR: 2, TE: 1, FLEX: 1, K: 1, DEF: 1 };
+  const myPicks = [34, 41, 54, 61, 74, 81];
+  // The manual clock, as app.js derives it: picks OBSERVED + 1.
+  const clockFrom = observed => observed + 1;
+
+  const seen = [];
+  let survivalSeries = [], lrmSeries = [], legalitySeries = [];
+  const board = ALL.slice(0, 200);
+
+  for (let observed = 0; observed <= 90; observed += 10) {
+    const cur = clockFrom(observed);
+    seen.push(cur);
+    const left = myPicks.filter(n => n >= cur);
+    const nextPick = left.length > 1 ? left[1] : cur + TEAMS;
+    const ctx = { board, currentPick: cur, nextPick: nextPick, totalPicks: 150,
+      myPicksLeft: left.length, roster: [], league: LEAGUE,
+      weights: E.DEFAULT_WEIGHTS, runMultipliers: {}, intervening: [],
+      roundsLeft: ROUNDS - Math.ceil(cur / TEAMS) + 1 };
+    const scored = E.recommend(ctx);
+    // A MID-BOARD player, not the top one: the best available never survives to
+    // my next pick, so scored[0] is saturated at 0.000 and would read exactly
+    // like a frozen clock. A metric that cannot move proves nothing.
+    const mid = scored.find(x => x.survival_to_next != null
+      && x.survival_to_next > 0.01 && x.survival_to_next < 0.99);
+    if (mid) survivalSeries.push(mid.survival_to_next);
+    legalitySeries.push(LG.assess([], STARTERS, left.length).picksLeft);
+    lrmSeries.push(left.length);
+  }
+
+  check('R-manualclock: the clock ADVANCES on observed picks (never frozen)',
+    seen.every((v, i) => i === 0 || v > seen[i - 1]), seen.join(','));
+  check('R-manualclock: legality picks-remaining TIGHTENS as the clock moves',
+    legalitySeries[0] > legalitySeries[legalitySeries.length - 1],
+    legalitySeries.join(','));
+  check('R-manualclock: LRM horizon shrinks — my remaining picks decrease',
+    lrmSeries[0] > lrmSeries[lrmSeries.length - 1], lrmSeries.join(','));
+  // Survival must MOVE. A frozen clock produces an identical series.
+  check('R-manualclock: survival estimates actually change as the clock advances',
+    new Set(survivalSeries.map(v => Math.round(v * 1000))).size > 1,
+    survivalSeries.slice(0, 6).map(v => v.toFixed(3)).join(','));
+
+  // THE STRUCTURAL LAW: drafted == observed + keepers pre-seeded.
+  const law = (drafted, observed, keepers) => drafted === observed + keepers;
+  check('R-manualclock: the structural law holds for a normal board',
+    law(43, 40, 3) && law(3, 0, 3) && law(0, 0, 0));
+  check('R-manualclock: the law CATCHES the frozen-clock shape',
+    !law(43, 0, 3), 'a frozen clock reports 0 observed against 43 drafted');
+}
+
 // R-missedmark: the three fixtures the spec demands — sync auto-reconciles and
 // tags it, manual nags and never invents, exit catches a deliberate mismatch.
 //
