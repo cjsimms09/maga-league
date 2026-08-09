@@ -187,3 +187,32 @@ with the board is not a verdict.
   exceeds the correlation arm's. Fires in the `lab.yml` exp34 job right after the
   correlation arm and cross-reads `exp34.json` to state whether the two arms
   agree. **The single-pick summary is superseded and will not be reported.**
+- ✅ **FIRED (2026-08-09, CI run 31288646000).** `EXP34-DOLLARS.md`. Result, all
+  three seasons, sign-consistent: **our-minus-ADP = −$575/season (CI [−825, −100]),
+  ADP-EARNS-MORE** (2025 −$100 / 2024 −$825 / 2023 −$800); decomposed weekly-high
+  −$600, regular-season −$325, playoff −$800 across the three. The correlation arm
+  BEAT (+0.122). **So the two arms DISAGREE in the pre-registered "more interesting"
+  direction: our ordering RANKS realized value better but EARNS LESS money.**
+  - **The load-bearing reading — and it is NOT "the projections lose money."** The
+    dollar arm's "our ordering" is the PURE VALUE-GREEDY: take the highest
+    walk-forward-projected available player at every seat, positional construction
+    deliberately excluded (the same value-isolation the correlation arm uses, for
+    the same reason). A value-greedy drafts a positionally-lopsided roster — stack
+    the top of one position, start only a few of them, leave QB/TE/FLEX/K/DEF thin —
+    so its optimal-lineup ceiling is low even though each player it took was
+    well-ranked. ADP, by contrast, *is* a positional-construction prior: it orders
+    the board by market scarcity, so following it yields a balanced, startable,
+    payout-fitting roster for free. The gap is therefore the **measured cost of
+    ignoring roster construction**, not a defect in the projections — the
+    correlation arm proves the projections rank well.
+  - **What it VINDICATES:** the portfolio / need / positional-construction layer.
+    Value evaluation and roster construction are SEPARATE sources of value; a good
+    value model is necessary but not sufficient for money, and the need machinery
+    (which the real composite tool HAS and this arm deliberately stripped) is doing
+    essential work. This is the anchor/portfolio thesis, now measured: **do not
+    draft on value alone.** The natural follow-up is the composite-ordering variant
+    (`E.recommend`, need included) through the same dollar grader — registered.
+  - **What it does NOT license:** n=3 seasons, thin by construction, room held
+    fixed, optimal-lineup ceiling. It is a LEAN toward "construction matters," not a
+    dollar verdict on the tool. The correlation arm still carries the ranking claim;
+    this arm carries the construction claim; neither is a 74%-deviation licence.

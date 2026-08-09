@@ -222,7 +222,7 @@ jobs:
           git add draft/backtest/EXP34.md draft/backtest/exp34.json \
                   draft/backtest/EXP34-DOLLARS.md draft/backtest/exp34_dollars.json
           git commit -m "Exp 34 report (correlation + dollar arms) $stamp" || { echo "no change"; exit 0; }
-          git pull --rebase origin main && git push || echo "push skipped"
+          git pull --rebase origin "${GITHUB_REF_NAME}" && git push || echo "push skipped"
       - name: Upload exp 34 results (artifact — inputs are egress-built)
         uses: actions/upload-artifact@v4
         with:
@@ -264,7 +264,7 @@ jobs:
           git config user.name "lab-bot"; git config user.email "actions@github.com"
           git add draft/backtest/EXP36.md draft/backtest/exp36.json
           git commit -m "Exp 36 report $stamp" || { echo "no change"; exit 0; }
-          git pull --rebase origin main && git push || echo "push skipped"
+          git pull --rebase origin "${GITHUB_REF_NAME}" && git push || echo "push skipped"
       - name: Upload exp 36 results (artifact — inputs are egress-built)
         uses: actions/upload-artifact@v4
         with:
