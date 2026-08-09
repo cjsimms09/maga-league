@@ -287,32 +287,62 @@ def _egress_main(out_dir: Path) -> int:
         print("  ! import_ids unavailable:", e); ids_df = None
     crosswalk = GR.crosswalk_gsis_to_sleeper(players_meta, ids_df)
 
+    import pandas as pd
     # weekly per year, year-by-year so one 404 can't kill the run (cli.py's lesson).
     need = sorted({y for s in seasons for y in (int(s["season"]) - 2,
                    int(s["season"]) - 1, int(s["season"]))})
-    weekly_by_year, caveats = {}, []
+    caveats = []
+    frames, missing = [], []
     for y in need:
         try:
-            weekly_by_year[y] = nfl.import_weekly_data([y])
-            print(f"  weekly {y}: {len(weekly_by_year[y])} rows")
+            df = nfl.import_weekly_data([y]); frames.append(df); print(f"  weekly {y}: {len(df)} rows")
         except Exception as e:
-            caveats.append(f"weekly {y} UNAVAILABLE ({type(e).__name__}); seasons needing it lose that prior")
+            missing.append(y); print(f"  weekly {y} UNAVAILABLE ({type(e).__name__})")
+    weekly = pd.concat(frames, ignore_index=True) if frames else None
+
+    # PBP FALLBACK (cli.py's recovery): import_weekly_data 404s for some seasons
+    # that import_pbp_data still serves — notably 2025. Rebuild from pbp, but ONLY
+    # after cross-validating on a season the library CAN serve, so a quietly-wrong
+    # rebuild never corrupts the grades. Refuse (with a caveat) if it disagrees.
+    if missing and weekly is not None:
+        have = sorted(set(need) - set(missing)); control = have[-1] if have else None
+        print(f"  recovering {missing} from pbp (cross-validating on {control})")
+        try:
+            pbp = nfl.import_pbp_data(sorted(set(missing) | ({control} if control else set())), downcast=True)
+        except Exception as e:
+            pbp = None; caveats.append(f"pbp unavailable for {missing} ({type(e).__name__}); those seasons stay skipped")
+        if pbp is not None and control:
+            scfg = next((s.get("scoring_settings") for s in seasons if int(s["season"]) == control), {}) or {}
+            xval = GR.cross_validate(pbp, weekly, control, scfg, crosswalk)
+            print("    cross-validation:", json.dumps(xval, default=str))
+            if xval.get("agrees"):
+                rebuilt = GR.weekly_from_pbp(pbp, missing)
+                if rebuilt:
+                    weekly = pd.concat([weekly, pd.DataFrame(rebuilt)], ignore_index=True)
+                    caveats.append(f"{missing} weekly REBUILT from pbp (import_weekly_data 404s); "
+                                   f"cross-validated on {control} (worst top-200 diff {xval.get('worst_diff_top200')})")
+                    missing = []
+            else:
+                caveats.append(f"{missing} NOT recovered: pbp rebuild disagreed with the library on {control}")
+
+    have_years = set() if weekly is None else set(int(y) for y in weekly["season"].unique()) \
+        if "season" in weekly.columns else set()
 
     all_pools, all_decisions = [], []
     for s in seasons:
         yr = int(s["season"])
         scoring_cfg = s.get("scoring_settings") or {}
         teams = ((s.get("settings") or {}).get("teams")) or 10
-        if yr not in weekly_by_year:
-            caveats.append(f"{yr}: realized weekly unavailable; season SKIPPED (not scored zero)")
+        if yr not in have_years:
+            caveats.append(f"{yr}: realized weekly unavailable (incl. pbp); season SKIPPED (not scored zero)")
             continue
-        realized = GR.rest_of_season_points(weekly_by_year[yr], yr, scoring_cfg, crosswalk, from_week=1)
+        realized = GR.rest_of_season_points(weekly, yr, scoring_cfg, crosswalk, from_week=1)
         # our walk-forward projection from strictly PRIOR realized points (no leak).
         prior_pts, prior_games = {}, {}
         for py in (yr - 2, yr - 1):
-            if py in weekly_by_year:
-                prior_pts[py] = GR.rest_of_season_points(weekly_by_year[py], py, scoring_cfg, crosswalk)
-                prior_games[py] = _weekly_games(weekly_by_year[py], py, crosswalk)
+            if py in have_years:
+                prior_pts[py] = GR.rest_of_season_points(weekly, py, scoring_cfg, crosswalk)
+                prior_games[py] = _weekly_games(weekly, py, crosswalk)
         proj = PROJ.walk_forward(yr, prior_pts, prior_games, positions, ages)
         if not proj:
             caveats.append(f"{yr}: no prior seasons to project from; season SKIPPED")

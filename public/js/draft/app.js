@@ -3092,7 +3092,7 @@
    *
    * THE TWO ABSENT LINES ARE DELIBERATE. SOURCE (consensus baseline vs edge
    * intervention) needs a BEHAVIORAL Stage 2 — a recommendation that starts at
-   * consensus and requires evidence to move off it. That does not exist: stages.js
+   * consensus and requires evidence to move off it. That does not exist (the stages
    * labels the composite's existing picks (the --diff proves 0 identities changed),
    * so a SOURCE field would claim a mechanism the code does not have. NEAR-MISS
    * needs Stage 4's thresholds. Both are named as absent, with WHAT they wait for —
@@ -3197,7 +3197,7 @@
     //    exact display-without-governing bug family (doctrine shown but not
     //    governing; ctx.doctrine never passed). So SOURCE stays explicitly absent
     //    and NAMES what it is waiting for: a behavioral Stage 2, not the label.
-    //    Do NOT wire this to DraftStages until E.recommend starts at consensus.
+    //    Do NOT re-introduce a stage/source label until E.recommend starts at consensus.
     // 7. NEAR-MISS — absent; needs Stage 4 thresholds (which need the sizing D13
     //    blocked). Also a real mechanism, also not faked.
     const srcHost = document.getElementById('mvs-absent');
