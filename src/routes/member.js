@@ -12,7 +12,7 @@ const sleeper = require('../sleeper');
 const notify = require('../notify');
 const crypto = require('crypto');
 const { store, getDoc, setDoc, newId, now } = require('../data');
-const { hashPassword, verifyPassword, requireLogin, aw } = require('../auth');
+const { hashPassword, verifyPassword, requireLogin, requireCommissioner, aw } = require('../auth');
 const { RULES, SCORING, ROSTER } = require('../seed-data');
 
 // ---------- public: deploy health, NO league data ----------
@@ -1178,7 +1178,12 @@ router.get('/matchup', aw(async (req, res) => {
 //   • PROOF: the validation — reproduces the certified L0 leak to the dollar, and
 //     a per-week drill-down of any real week's optimal-vs-actual. This is the
 //     "proven before week 1" face; it works fully offline off the harvest.
-router.get('/lineup', aw(async (req, res) => {
+// COMMISSIONER-ONLY, server-side (gated like the war room). This tab renders
+// per-owner lineup efficiency and bench-points-left — the most competitively
+// sensitive ANALYSIS in the system. STANDING RULE: results are league property,
+// analysis is the commissioner's. requireCommissioner 403s every non-commissioner
+// BEFORE the handler runs, so it can never leak by a stray link or open tab.
+router.get('/lineup', requireCommissioner, aw(async (req, res) => {
   const world = req.world;
   const owners = H.activeOwners(world.owners);
   const me = req.owner;
@@ -1244,7 +1249,7 @@ router.get('/lineup', aw(async (req, res) => {
 // Decision-time write: log THIS lineup call with its counterfactual (the naive
 // "start your studs" lineup) so January can grade what the tool recommended vs
 // what would have happened otherwise. The predledger enforces the counterfactual.
-router.post('/lineup/log', aw(async (req, res) => {
+router.post('/lineup/log', requireCommissioner, aw(async (req, res) => {
   const season = String(H.currentSeason(req.world.seasons).year || 2026);
   const predledger = require('../predledger');
   try {

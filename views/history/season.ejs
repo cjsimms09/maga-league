@@ -40,7 +40,7 @@
       <table class="ledger">
         <thead><tr>
           <th class="name">#</th><th class="name">Owner</th><th>W-L</th>
-          <th>PF</th><th>PA</th><th>Eff%</th><th>Bench $</th><th>Total $</th>
+          <th>PF</th><th>PA</th><th>Total $</th>
         </tr></thead>
         <tbody>
           <% for (const r of S.standings) { %>
@@ -51,8 +51,9 @@
               <td><%= r.wins %>-<%= r.losses %><%= r.ties ? '-' + r.ties : '' %></td>
               <td><%= fmt(r.pf) %></td>
               <td><%= fmt(r.pa) %></td>
-              <td><%= r.eff != null ? r.eff + '%' : '—' %></td>
-              <td class="neg"><%= r.benchLeft != null ? fmt(r.benchLeft) : '—' %></td>
+              <%# Per-owner lineup efficiency + bench-points-left REMOVED from this
+                  league-visible page: results are league property, but efficiency
+                  and bench-analysis are the commissioner's (see /lineup, gated). %>
               <td class="money"><%= money[r.roster_id] ? '$' + money[r.roster_id].total : '—' %></td>
             </tr>
           <% } %>
