@@ -273,7 +273,7 @@ def _egress_main(out_dir: Path) -> int:
     seasons = [s for s in history["seasons"] if real_draft(s)]
     print("exp34 seasons:", sorted({int(s["season"]) for s in seasons}))
 
-    players_raw = SL.load_players()
+    players_raw = SL.fetch_players()
     index = ADP.build_index(players_raw)
     positions = {str(pid): p.get("position") for pid, p in players_raw.items()}
     ages = {str(pid): p.get("age") for pid, p in players_raw.items()}
