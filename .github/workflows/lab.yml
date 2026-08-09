@@ -38,6 +38,8 @@ on:
       - 'draft/tests/test_exp34_dollars.py'
       - 'draft/backtest/exp36.py'
       - 'draft/tests/test_exp36.py'
+      - 'draft/backtest/exp33.py'
+      - 'draft/tests/test_exp33.py'
       - 'draft/data/league_history.json'
       - 'draft/config/payouts.json'
       - '.github/workflows/lab.yml'
@@ -272,4 +274,45 @@ jobs:
           path: |
             draft/backtest/exp36.json
             draft/backtest/EXP36.md
+          retention-days: 30
+
+  # EXPERIMENT 33 — projection-source bake-off (the foundational weak link).
+  #
+  # Races our blend vs a naive prior-year model vs FFC ADP (ranking) [vs Sleeper if
+  # retrievable] on realized points by position — MAE, rank correlation, top-decile
+  # hit, priced in $ through the certified grader. A LOSS IS THE HEADLINE. The
+  # metrics + naive model + head-to-head are the verified pure core (test_exp33.py
+  # gates first, no egress). Separate job so a nflverse/FFC outage can't take down L0.
+  exp33:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - name: GATE — the pure bake-off tests (no egress)
+        run: |
+          pip install pytest -q
+          python -m pytest draft/tests/test_exp33.py -q
+      - name: CERTIFICATION GATE — the $ pricing grades through the certified layer
+        run: |
+          python -m pytest draft/tests/test_money_grade_certification.py \
+                           draft/tests/test_roster_sim.py draft/tests/test_exp34_dollars.py -q
+      - name: Fire exp 33 (nflverse + FFC egress)
+        run: |
+          pip install -r draft/requirements.txt -q
+          python draft/backtest/exp33.py --out draft/backtest
+      - name: Commit the exp 33 report
+        run: |
+          stamp=$(date -u +%Y-%m-%dT%H:%MZ)
+          git config user.name "lab-bot"; git config user.email "actions@github.com"
+          git add draft/backtest/EXP33.md draft/backtest/exp33.json
+          git commit -m "Exp 33 report $stamp" || { echo "no change"; exit 0; }
+          git pull --rebase origin "${GITHUB_REF_NAME}" && git push || echo "push skipped"
+      - name: Upload exp 33 results (artifact — inputs are egress-built)
+        uses: actions/upload-artifact@v4
+        with:
+          name: exp33-results
+          path: |
+            draft/backtest/exp33.json
+            draft/backtest/EXP33.md
           retention-days: 30

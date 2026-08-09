@@ -700,3 +700,27 @@ Per the assignment: **produced ONE chapter (2024) and stopped for review before 
 6. **LINEUP OPTIMIZER** — biggest leak ($445-595/team/season; Cory 86% eff 3yrs). Validate against replayed 2023-25 weeks. Dual objective priced in $: P(win matchup) AND P(clear week's high band). Confidence sentence + ledger-at-decision-time w/ counterfactual. **TERRITORY: likely needs A-lane files (`src/sleeper.js`, `src/predledger.js`, projections) — coordinate the split before building.**
 7. **SUNDAY ALERT** — pre-kickoff start/sit calls priced in $.
 8. **INSTRUMENTATION CHECK** — confirm the in-season ledger kinds capture what exp-37 needs at decision time.
+
+---
+
+## ▶ SESSION A (MODEL/DRAFT LANE) — 2026-08-09, exp 34 dollar arm + 36 + 33 batch
+
+Branch `claude/exp34-dollar-arm-21m58r` (per harness). Fired via `lab.yml` dispatch; CI commit steps fixed to rebase onto the run's own ref (`$GITHUB_REF_NAME`) — the old `pull --rebase origin main` hit an add/add conflict on a feature-branch run and silently skipped the push, stranding results in CI. Now `exp34_dollars.json` / `exp36.*` persist to the branch.
+
+### ✅ EXP 34 DOLLAR ARM — BUILT + FIRED (`exp34_dollars.py`, `EXP34-DOLLARS.md`, CI 31288646000)
+Policy rosters (our walk-forward ordering vs real FFC ADP, keepers + one seat per real non-keeper pick, room fixed) graded through the certified `grade_substituted`: era-correct payouts, harvested weekly-high bar, resimulated bracket, real field. **Grades all 3 seasons incl. 2025** (harvest is the grading source; the correlation arm skipped 2025).
+- **Result: our-minus-ADP = −$575/season, CI [−825, −100], ADP-EARNS-MORE**, sign-consistent all 3 (2025 −$100 / 2024 −$825 / 2023 −$800). Decomposed: weekly-high −$600, RS −$325, playoff −$800.
+- Correlation arm BEAT (+0.122). **The two arms DISAGREE in the pre-registered "more interesting" direction: our ordering ranks realized value better but earns LESS money.**
+- **Reading (recorded in EXP34-METHODOLOGY.md):** "our ordering" here is the PURE VALUE-GREEDY (positional construction deliberately excluded). A value-greedy builds a positionally-lopsided, low-ceiling roster; ADP *is* a positional-construction prior, so following it yields a balanced payout-fitting roster for free. The gap is the **measured cost of ignoring roster construction, NOT a defect in the projections** — the correlation arm proves the projections rank well. **Vindicates the portfolio/need layer: do not draft on value alone.** LEAN (n=3, room fixed, optimal-lineup ceiling), not a dollar verdict on the tool.
+
+### ✅ EXP 36 — ADP-EFFICIENCY SURFACE — BUILT + FIRED (`exp36.py`, `EXP36.md`, CI 31288983577)
+255 board picks (every owner, 2023–24; 2025 skipped — nflverse pbp couldn't recover). Efficiency = within-cell Spearman(−adp, realized), clamped [0,1] = the Anchor Doctrine's per-cell shrink weight. Floor n≥8; pre-registered pooling in-module.
+- **CONTRADICTS the pre-registered anchor assumption "bind hard early, loosen late."** Early ADP is WEAK: R1-3 RB 0.12, WR 0.26. The market orders value best in the MIDDLE (R4-7 QB 0.58, TE 0.62) and late WR (R12+ 0.72); late RB/QB anti-correlate (shrink 0). Pooled, every position is a *weak* ranker (WR 0.49 / RB 0.45 / QB 0.38 / TE 0.28 — none clears 0.5).
+- **This FIRMS exp 34's thin "better early not late" signal** with far more data: a weak early market is exactly why our early deviations beat it.
+- QB format-match: 6-pt 0.381 vs 4-pt 0.416 (delta −0.035) — modest, in the predicted direction (our 6-pt scoring makes ADP's QB order look slightly worse). Tier cliffs recover known structure (RB after rank 3 z2.08, QB after 8, TE after 8, WR at 15/25).
+- **Implication for Stage 2:** shrinkage should be region-specific and in places INVERTED from the prior — early RB/WR deviations are cheaper than assumed, late WR deviations expensive. This is the calibration surface the doctrine named as a dependency.
+
+### ◐ EXP 33 — PROJECTION BAKE-OFF — BUILT + WIRED, firing (`exp33.py`, `test_exp33.py` 6/6)
+Races our blend vs naive (prior-year + availability, no regression/age) vs FFC ADP (ranking) [vs Sleeper if retrievable] on realized points by position — MAE, rank-corr, top-decile hit, priced in $ (reuses the dollar-arm value-greedy grader). A LOSS IS THE HEADLINE; provenance-banner flag set when a source beats our blend. No tuning inside the experiment. Fires as its own `lab.yml` job behind the pure + cert gates.
+
+### ▶ NEXT (this session, in order): read exp 33 result → EXP 41 (calibration-weighted ensemble, can now consume exp 36's per-cell weights) → auto-adjuster conditional mining → WHAT-WOULD-HAVE-WORKED → upsideBonus gated sweep / seam-consumer guard / DOCTRINE DRIFT / movement log / covariance rho verdict.
