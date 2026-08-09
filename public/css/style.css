@@ -3166,3 +3166,12 @@ table.roll td.num, .pf, .wh-race-scale, .wh-band-note{ color: var(--ink); }
 .sb-chip.out{ color:var(--red); border-color:rgba(212,36,47,.4); }
 .sb-chip.sweat{ color:#fff; background:var(--navy); border-color:var(--navy); }
 .sb-open{ font-size:.72rem; margin-top:.5rem; text-align:right; }
+
+/* ── SETTLEMENT (Square Up) — who pays whom ─────────────────────────────────── */
+.settle-list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:.5rem; }
+.settle-row{ display:flex; align-items:center; gap:.6rem; flex-wrap:wrap;
+  padding:.55rem .7rem; background:var(--panel-soft); border:1px solid var(--line); border-radius:10px; }
+.settle-who{ flex:1 1 auto; min-width:0; font-size:.92rem; }
+.settle-who b{ color:var(--navy); }
+.settle-arrow{ color:var(--red); font-weight:800; margin:0 .15rem; }
+.settle-amt{ font-variant-numeric:tabular-nums; font-weight:800; color:var(--ink); }

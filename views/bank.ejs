@@ -236,6 +236,30 @@ season until settled.</p>
   </div>
 </div>
 
+<%# ── SETTLEMENT — the invoice: who pays whom to square everyone to zero ─────── %>
+<% const _st = (typeof settlement !== 'undefined' && settlement) ? settlement : null; %>
+<% if (_st && _st.transfers.length) { %>
+<div class="card" id="settlement" style="margin-top:1.3rem">
+  <h2>🧾 Square Up <span class="sub">the minimal payments that settle everyone — tap a Venmo</span></h2>
+  <div class="body">
+    <ul class="settle-list">
+      <% for (const t of _st.transfers) { %>
+        <li class="settle-row">
+          <span class="settle-who"><b><%= t.from %></b> <span class="settle-arrow">→</span> <b><%= t.to %></b></span>
+          <span class="settle-amt"><%= money(t.amount) %></span>
+          <% if (t.venmo) { %><a class="btn gold small" href="<%= t.venmo.url %>" target="_blank" rel="noopener">Venmo <%= t.to %></a>
+          <% } else { %><span class="muted" style="font-size:.72rem">no Venmo on file for <%= t.to %></span><% } %>
+        </li>
+      <% } %>
+    </ul>
+    <p class="muted" style="margin:.6rem 0 0; font-size:.78rem">
+      <b><%= money(_st.total) %></b> moves in <%= _st.transfers.length %> payment<%= _st.transfers.length === 1 ? '' : 's' %> and everyone's square.
+      <% if (!_st.balanced) { %><span class="neg"> Note: the books don't fully close — <%= money(Math.abs(_st.imbalance)) %> unaccounted.</span><% } %>
+    </p>
+  </div>
+</div>
+<% } %>
+
 <%# ── Balances walked forward from previous seasons ─────────────────────────
     Its own section because it answers a question the rest of the page cannot:
     "why does the league owe David $375 when he has won nothing this year?"

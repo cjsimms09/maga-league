@@ -12,6 +12,7 @@ const TT = require('./trashtalk');         // trash talk attached to a specific 
 const WW = require('./whatwatch');         // what-to-watch — the Sunday/Monday sweat meter + what each owner needs
 const MK = require('./marks');             // auto badges — GOAT on Mahomes' owner, Chiefs mark on KC players
 const RIV = require('./rivalries');        // named rivalries (German derby, Dylan-Sam, Bates-Richard)
+const SET = require('./settlement');       // the settlement report — who pays whom, with Venmo
 const L = require('../ledger');
 const SB = require('../sidebets');
 const BL = require('../betlogic');
@@ -593,6 +594,14 @@ router.get('/bank', aw(async (req, res) => {
   const totalOwedToLeague = cards.reduce((s, c) => s + Math.min(c.balance, 0), 0);
   const totalLeagueOwes = cards.reduce((s, c) => s + Math.max(c.balance, 0), 0);
 
+  // THE SETTLEMENT REPORT — minimal who-pays-whom to square everyone to zero,
+  // computed from the same balances, with the payee's Venmo attached. The
+  // machine that tracks the money writes the invoice. (The Annual emits this as
+  // the sealed-season artifact; here it renders live off current balances.)
+  const settlement = SET.settlementReport(
+    owners.map(o => ({ owner_id: o.id, name: o.name, net: bal[o.id] ? bal[o.id].balance : 0 })),
+    id => { const o = H.ownerById(owners, id); const h = o && V.handle(o); return h ? { handle: h, url: `https://venmo.com/u/${h}` } : null; });
+
   // Whose ledger sits at the top. Yours by default; clicking a name in the
   // league ledger below swaps it, which is how you get from "who owes what" to
   // "why does he owe that" without a separate page.
@@ -685,7 +694,7 @@ router.get('/bank', aw(async (req, res) => {
     // Propose-from-anywhere: a ?betvs=<id> link (matchup, standings, franchise)
     // pre-selects that opponent in the bet builder.
     prefillParty: Number(req.query.betvs) || null,
-    cards, season, totalOwedToLeague, totalLeagueOwes, viewCard, leagueEntries,
+    cards, season, totalOwedToLeague, totalLeagueOwes, viewCard, leagueEntries, settlement,
     TYPE_LABELS: L.TYPE_LABELS,
     section, bets, tallies, owners, betNames, sbLedger, sbOwed, sbOwedMine, verdicts, liveOrder,
     sbGrid, sbView, sbDrill,
