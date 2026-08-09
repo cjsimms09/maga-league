@@ -14,26 +14,33 @@
 # Getting this inverted fails silently in one of two ways: never deploying, or
 # deploying every time. `netlify-ignore.test.sh` asserts both directions.
 #
-# ── THE POLICY ──
-# Default is SKIP. A build happens only on EXPLICIT INTENT:
+# ── THE POLICY (OPT-OUT, since 2026-08-09) ──
+# A build happens by DEFAULT when main changes in a way a visitor would see. It
+# SKIPS only for changes a visitor would not (docs, Lab, reports, CI) or an
+# explicit suppress marker. This inverts the old opt-in [deploy] gate, which
+# raced three times: reading the marker on the TIP only meant whoever pushed
+# last silently decided whether anything shipped, and a buried marker never built.
 #
-#   1. the commit message contains [deploy]            -> BUILD
-#   2. the commit is tagged (refs/tags/...)            -> BUILD
-#   3. a manual/API deploy trigger                     -> BUILD
-#      (Netlify sets INCOMING_HOOK_TITLE for hook builds; manual "Trigger
-#       deploy" from the UI sets no CACHED_COMMIT_REF on first run, which we
-#       treat as build-anyway rather than risk never deploying.)
+#   * manual/API hook (INCOMING_HOOK_TITLE)            -> BUILD
+#   * tagged commit                                    -> BUILD
+#   * [skip deploy] / [skip netlify] on the tip        -> SKIP  (the only marker now)
+#   * [deploy] ANYWHERE in CACHED..COMMIT range        -> BUILD (force; race-immune)
+#   * the range touches a SERVED file                  -> BUILD (opt-out default)
+#   * the range is all non-served (docs/Lab/CI)        -> SKIP  (budget batching)
 #
-# Everything else — specs, docs, Lab code, CI-only work, tests, bot artifact
-# pushes — skips. Ten commits become one build, by default rather than by
-# anyone remembering.
+# Reading the RANGE since the last successful build (CACHED_COMMIT_REF..COMMIT_REF),
+# not the tip, is what kills the race: a served change (or a [deploy]) under a
+# later doc/Lab commit still ships. The budget is still protected because the
+# high-frequency noise — Lab reports, docs, STATUS/PARKED, CI edits — touches no
+# served files and skips. (Reserve [skip deploy] for a served change you explicitly
+# do NOT want live yet.) The 194-builds/day crisis was auto-deploying on EVERY
+# push including bot artifact spam; scoping to served files removes that without
+# reintroducing silent stranding.
 #
-# ── THE FAILURE MODE THIS CREATES, AND ITS ALARM ──
-# The risk of a default-skip policy is a SILENTLY STALE SITE: someone forgets
-# [deploy] and production drifts behind main without anyone noticing. That is
-# why `site-check.yml` compares the deployed commit against main HEAD and
-# alerts on drift. Do not remove that check while this gate is in place — the
-# gate and the drift alarm are one mechanism in two files.
+# ── ALARM (unchanged) ── `site-check.yml` + the Sunday self-audit compare the
+# deployed commit against main HEAD and report "prod is N commits behind"; the
+# audit HARD-fails when a stranded release includes served files. The gate and the
+# drift alarm are one mechanism across files — do not remove either.
 
 set -uo pipefail
 
@@ -52,32 +59,58 @@ if [ -n "${COMMIT_REF:-}" ] && git describe --exact-match --tags "${COMMIT_REF}"
   exit 1
 fi
 
-# --- 1. [deploy] in the commit message ---------------------------------------
-# Read the message for the commit being built, not for HEAD of the working
-# tree, so a batched deploy marker on the tip commit is what counts.
+# ── THE POLICY IS NOW OPT-OUT (2026-08-09) — forgetting a marker can no longer
+#    silently strand work. The old opt-in [deploy]-on-the-TIP gate raced three
+#    times: two sessions push to main, the tip is whoever pushed last, and a
+#    buried [deploy] never built. Opt-out over the RANGE since the last build kills
+#    both failure modes at once.
+#
+#    A build happens when the commits SINCE THE LAST SUCCESSFUL BUILD
+#    (CACHED_COMMIT_REF..COMMIT_REF) either touch a SERVED file or carry [deploy]
+#    anywhere in the range. It SKIPS only when the range is all non-served (docs,
+#    Lab code, reports, CI, STATUS/PARKED — the 194-builds/day noise) or an
+#    explicit [skip deploy] is on the tip. Reading the RANGE, not the tip, is what
+#    makes a buried marker (or a served change under a later doc commit) still ship.
 REF="${COMMIT_REF:-HEAD}"
 MSG="$(git log -1 --pretty=%B "$REF" 2>/dev/null || echo '')"
 
-if printf '%s' "$MSG" | grep -qiE '\[deploy\]'; then
-  log "commit message carries [deploy] — BUILDING"
-  exit 1
-fi
-
-# NETLIFY-ONLY MARKERS. `[skip ci]` is DELIBERATELY ABSENT.
-#
-# It was here, and it caused a real outage of our own making: `[skip ci]` is a
-# GITHUB ACTIONS convention, not a Netlify one, and GitHub honours it on the
-# head commit by skipping EVERY workflow for that push. Two commits carrying it
-# (7858343, 41ca3d7) therefore skipped CI, the test suites, and the Lab —
-# silently, while the commit messages claimed the suites were green locally.
-#
-# The two budgets are unrelated: Netlify build minutes are the scarce resource;
-# GitHub Actions is free and does not compete with it. Coupling them was a
-# category error. Deploys are gated here; CI and the Lab must ALWAYS run.
-if printf '%s' "$MSG" | grep -qiE '\[skip netlify\]|\[netlify skip\]'; then
-  log "commit message carries an explicit Netlify skip — SKIPPING"
+# Explicit suppress wins (the ONLY marker now — opt-out, not opt-in). `[skip ci]`
+# stays DELIBERATELY ABSENT: it is a GitHub Actions convention that once skipped
+# our whole CI+Lab silently (commits 7858343, 41ca3d7). Netlify minutes and Actions
+# minutes are unrelated budgets; never couple them.
+if printf '%s' "$MSG" | grep -qiE '\[skip deploy\]|\[skip netlify\]|\[netlify skip\]'; then
+  log "tip carries an explicit skip marker — SKIPPING"
   exit 0
 fi
 
-log "no explicit deploy intent — SKIPPING (add [deploy] to the tip commit to ship)"
+# The range since the last successful build. On the first build CACHED is empty —
+# build (never risk never-deploying). If the diff can't be computed (force-push,
+# unrelated history), build rather than silently skip.
+RANGE_FILES=""
+if [ -n "${CACHED_COMMIT_REF:-}" ] && [ -n "${COMMIT_REF:-}" ]; then
+  RANGE_FILES="$(git diff --name-only "${CACHED_COMMIT_REF}" "${COMMIT_REF}" 2>/dev/null)" || {
+    log "cannot diff ${CACHED_COMMIT_REF:0:8}..${COMMIT_REF:0:8} — BUILDING (conservative)"; exit 1; }
+  RANGE_MSGS="$(git log --pretty=%B "${CACHED_COMMIT_REF}..${COMMIT_REF}" 2>/dev/null || echo '')"
+else
+  log "no CACHED_COMMIT_REF (first build or unknown) — BUILDING"
+  exit 1
+fi
+
+# [deploy] ANYWHERE in the range forces a build (backward-compat + race-immunity:
+# a buried marker still counts because we scan the whole range, not just the tip).
+if printf '%s' "${RANGE_MSGS:-$MSG}" | grep -qiE '\[deploy\]'; then
+  log "[deploy] present in range ${CACHED_COMMIT_REF:0:8}..${COMMIT_REF:0:8} — BUILDING"
+  exit 1
+fi
+
+# SERVED files: anything that changes what a visitor's browser receives. Non-served
+# (draft/ Lab, docs/, scripts/, .github/, root *.md like STATUS/PARKED, *.json Lab
+# reports) does NOT rebuild the site — that is the batching that protects the budget.
+if printf '%s' "$RANGE_FILES" | grep -qE '^(views/|public/|src/|server-app\.js|package(-lock)?\.json|netlify\.toml|netlify/functions/)'; then
+  n="$(printf '%s' "$RANGE_FILES" | grep -cE '^(views/|public/|src/|server-app\.js|package(-lock)?\.json|netlify\.toml|netlify/functions/)')"
+  log "range touches ${n} served file(s) — BUILDING (opt-out: served changes auto-deploy)"
+  exit 1
+fi
+
+log "range touches no served files (docs/Lab/reports/CI only) — SKIPPING (add [skip deploy] is unnecessary)"
 exit 0
