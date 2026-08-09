@@ -98,6 +98,16 @@
   </div>
 </div>
 
+<%# ── What this matchup is worth — one folded line ──────────────────────────── %>
+<% if (typeof stakes !== 'undefined' && stakes) {
+     const w = Math.round(stakes.win * 100), l = Math.round(stakes.lose * 100), s = Math.round(stakes.swing * 100); %>
+  <div class="stakes-line">
+    <span class="tag">🎟️</span>
+    <span>What this is worth: a win puts you at <b class="pos"><%= w %>%</b> to make the playoffs, a loss drops you to <b class="neg"><%= l %>%</b><% if (s > 0) { %> — a <b><%= s %>-point</b> swing<% } %>.
+      <span class="muted" style="font-size:.74rem">(estimate — record + points, until the model lands)</span></span>
+  </div>
+<% } %>
+
 <%# ── HEAD TO HEAD — the centrepiece ───────────────────────────────────────── %>
 <div class="card h2h-card" style="margin-bottom:1.2rem">
   <h2>📈 Head to Head <span class="sub">all-time, since the Sleeper era (2023)</span></h2>

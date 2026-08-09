@@ -2886,3 +2886,31 @@ html.dispatch-open { overflow: hidden; }
 @media (prefers-reduced-motion: reduce) {
   .dispatch-card, .dispatch-region.js .dispatch-stack { animation: none; }
 }
+
+/* ── THE FOLDED COLUMNS — playoff odds/movement + clinch/elim in the standings,
+   and the "what this is worth" line on the matchup screen. Kept narrow so the
+   standings table never needs to scroll sideways on a phone. */
+.po-th { min-width: 3.6em; }
+.po-cell { font-variant-numeric: tabular-nums; }
+.po-odds { font-weight: 700; color: #cfd6e6; }
+.po-arrow { font-size: .68rem; font-weight: 800; }
+.po-arrow.up { color: var(--green); }
+.po-arrow.down { color: var(--red-bright); }
+.po-badge { font-family: var(--font-display); font-weight: 800; font-size: .58rem;
+  letter-spacing: .06em; padding: .1rem .32rem; border-radius: 5px; white-space: nowrap; }
+.po-badge.in { color: var(--green); background: rgba(47,213,118,.12); border: 1px solid rgba(47,213,118,.4); }
+.po-badge.out { color: var(--muted); background: rgba(255,255,255,.05); border: 1px solid var(--line); }
+
+.stakes-line { display: flex; align-items: flex-start; gap: .6rem;
+  padding: .7rem .9rem; margin-bottom: 1.2rem; border-radius: var(--radius);
+  background: linear-gradient(135deg, rgba(47,213,118,.08), rgba(255,70,85,.06));
+  border: 1px solid var(--line); font-size: .9rem; line-height: 1.45; }
+.stakes-line .tag { font-size: 1.15rem; line-height: 1; }
+.stakes-line b { color: #fff; }
+
+/* very small screens: the PF column yields its padding so 5 columns still fit
+   without a sideways scroll (numbers stay, just tighter). */
+@media (max-width: 400px) {
+  table.roll td.po-cell, table.roll th.po-th { padding-left: .35rem; padding-right: .55rem; }
+  .po-badge { font-size: .54rem; }
+}

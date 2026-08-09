@@ -110,14 +110,31 @@
     const standingsRows = seasonStarted ? sleeperStandings
       : sleeperStandings.slice().sort((a, b) =>
           String(a.owner_name || a.team).localeCompare(String(b.owner_name || b.team)));
+    // The folded playoff column — only once there's a real picture to fold in.
+    const _po = (typeof playoffPicture !== 'undefined' && playoffPicture) ? playoffPicture : null;
+    const showPO = seasonStarted && _po;
+    const _poCols = showPO ? 5 : 4;
+    const _poCell = id => {
+      const p = _po && id != null ? _po[id] : null;
+      if (!p) return '<span class="muted">—</span>';
+      if (p.status === 'clinched') return '<span class="po-badge in" title="clinched a playoff spot">🔒 IN</span>';
+      if (p.status === 'eliminated') return '<span class="po-badge out" title="mathematically eliminated">❌ OUT</span>';
+      const pctv = Math.round(p.odds * 100);
+      let arrow = '';
+      if (p.delta != null && Math.abs(p.delta) >= 0.005) {
+        const d = Math.round(Math.abs(p.delta) * 100);
+        arrow = p.delta > 0 ? ` <span class="po-arrow up">▲${d}</span>` : ` <span class="po-arrow down">▼${d}</span>`;
+      }
+      return `<span class="po-odds" title="playoff odds (estimate)">${pctv}%</span>${arrow}`;
+    };
   %>
   <div class="card">
     <h2>Live Standings <span class="sub"><%= seasonStarted ? 'straight from Sleeper' : 'pre-season — standings begin week 1' %></span></h2>
     <div class="body tight scroll-x">
       <table class="roll">
-        <tr><% if (seasonStarted) { %><th>#</th><% } %><th>Team</th><th class="num" style="white-space:nowrap; min-width:3.4em">W-L</th><th class="num" style="white-space:nowrap; min-width:4.5em">PF</th></tr>
+        <tr><% if (seasonStarted) { %><th>#</th><% } %><th>Team</th><th class="num" style="white-space:nowrap; min-width:3.4em">W-L</th><th class="num" style="white-space:nowrap; min-width:4.5em">PF</th><% if (showPO) { %><th class="num po-th" title="playoff odds — a running estimate off record + points">PO%</th><% } %></tr>
         <% for (const r of standingsRows) { %>
-          <% if (seasonStarted && r.rank === playoffTeams + 1) { %><tr><td colspan="4" style="padding:.15rem .8rem; font-size:.62rem; letter-spacing:.14em; text-transform:uppercase; color:var(--red-bright); border-bottom:1px dashed rgba(255,70,85,.5)">— playoff line (top <%= playoffTeams %>) —</td></tr><% } %>
+          <% if (seasonStarted && r.rank === playoffTeams + 1) { %><tr><td colspan="<%= _poCols %>" style="padding:.15rem .8rem; font-size:.62rem; letter-spacing:.14em; text-transform:uppercase; color:var(--red-bright); border-bottom:1px dashed rgba(255,70,85,.5)">— playoff line (top <%= playoffTeams %>) —</td></tr><% } %>
           <%# Money marker. If somebody has a live side bet riding on this team,
               say so right here — half the fun of a season-long pool is reading
               the table with the bet in mind, and a standings row that doesn't
@@ -137,6 +154,7 @@
                 title="<%= bm.notes.join(' · ').replace(/"/g, '&quot;') %>">💰<% if (bm.mine) { %><%= money(bm.mine) %><% } %></span><% } %><% if (r.owner_name && r.owner_name !== r.team) { %> <span class="muted"><%= r.team %></span><% } %></td>
             <td class="num" style="white-space:nowrap"><%= r.wins %>-<%= r.losses %><%= r.ties ? '-' + r.ties : '' %></td>
             <td class="num" style="white-space:nowrap"><%= r.pf.toFixed(1) %></td>
+            <% if (showPO) { %><td class="num po-cell" style="white-space:nowrap"><%- _poCell(r.owner_id) %></td><% } %>
           </tr>
         <% } %>
       </table>

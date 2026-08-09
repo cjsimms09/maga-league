@@ -7,6 +7,7 @@ const LO = require('./lineup');            // the lineup optimizer engine (valid
 const MOVE = require('./standings-movement'); // week-over-week rank arrows (dormant pre-season)
 const PE = require('./pickem');            // league pick'em — pick every game, tracked forever
 const DISPATCH = require('./dispatch');    // transient popups — awards / power poll / this-week-in-history
+const PO = require('./playoffs');          // folded columns — playoff odds/movement, clinch/elim, matchup leverage
 const L = require('../ledger');
 const SB = require('../sidebets');
 const BL = require('../betlogic');
@@ -286,6 +287,31 @@ router.get('/', aw(async (req, res) => {
     wireRows = await sleeper.wire(world.config.sleeper_league_id, sData.week || 1, sData, playersDb);
   }
   const playoffTeams = (sData && sData.league.settings && sData.league.settings.playoff_teams) || 4;
+
+  // THE FOLDED COLUMNS — the playoff picture, folded into the standings: odds
+  // with week-over-week movement + clinch/elimination markers. Derived (a seeded
+  // Monte-Carlo off records + points-for; labelled B's estimate, swaps for A's
+  // champ model later) and DORMANT until the season produces records, so it
+  // renders nothing pre-season. Odds are snapshotted per week to anchor the
+  // movement arrow to a real week-over-week change. Defensive: never break home.
+  let playoffPicture = null;
+  try {
+    const playedRows = sStandings.filter(r => r.owner_id != null
+      && ((r.wins || 0) + (r.losses || 0) + (r.ties || 0)) > 0);
+    if (sData && playedRows.length >= 4) {
+      const rows = playedRows.map(r => ({ owner_id: r.owner_id, wins: r.wins, losses: r.losses, pf: r.pf }));
+      const regWeeks = (sData.league.settings && sData.league.settings.playoff_week_start)
+        ? sData.league.settings.playoff_week_start - 1 : (season.weeks || 14);
+      const gamesLeft = PO.gamesRemaining(sData.week, regWeeks);
+      const cut = playoffTeams;
+      const odds = PO.simOdds(rows, gamesLeft, cut);
+      // Latest-in-week snapshot; movement compares against last week's snapshot.
+      await setDoc(`playoff-odds:${season.year}:${sData.week}`, { week: sData.week, odds, saved_at: now() });
+      const prev = await getDoc(`playoff-odds:${season.year}:${sData.week - 1}`, null);
+      playoffPicture = PO.picture(rows, gamesLeft, cut, prev ? prev.odds : null);
+    }
+  } catch (e) { /* the folded columns are a bonus; the standings render without them */ }
+
   let roast = null;
   if (sStandings.length >= 4) {
     const last = sStandings[sStandings.length - 1];
@@ -328,7 +354,7 @@ router.get('/', aw(async (req, res) => {
     openVotes, CATEGORY_LABELS: H.CATEGORY_LABELS, myBalance,
     sleeperData: sData, sleeperStandings: sStandings, sleeperBoard: sBoard, roast,
     whBand, whRace,
-    review, reviewWeek, wireRows, playoffTeams, chatLatest, betMoney, owners, rankMoves, dispatches,
+    review, reviewWeek, wireRows, playoffTeams, chatLatest, betMoney, owners, rankMoves, dispatches, playoffPicture,
     // Venmo nag (venmo-handles.md §2): fires for a logged-in owner with no
     // handle; the commissioner also sees who is still missing theirs.
     venmoNag: V.needsNag(req.owner && world.owners.find(o => o.id === req.owner.id)),
@@ -1380,9 +1406,27 @@ router.get('/matchup', aw(async (req, res) => {
       games: pc.games.length, picksMade: pc.picksMade };
   } catch (e) { /* the strip is a bonus; never let it break the matchup page */ }
 
+  // WHAT THIS MATCHUP IS WORTH — one line: how much your playoff odds swing on a
+  // win vs a loss this week (the folded columns' leverage). Derived, dormant
+  // until there are records to run; defensive so it never breaks the page.
+  let stakes = null;
+  try {
+    const sStand = sleeper.standings(sData, world.config.sleeper_map || {}, owners)
+      .filter(r => r.owner_id != null && ((r.wins || 0) + (r.losses || 0) + (r.ties || 0)) > 0);
+    if (sData && sStand.length >= 4) {
+      const rows = sStand.map(r => ({ owner_id: r.owner_id, wins: r.wins, losses: r.losses, pf: r.pf }));
+      const regWeeks = (sData.league.settings && sData.league.settings.playoff_week_start)
+        ? sData.league.settings.playoff_week_start - 1 : 14;
+      const gamesLeft = PO.gamesRemaining(sData.week, regWeeks);
+      const cut = (sData.league.settings && sData.league.settings.playoff_teams) || 4;
+      const lev = PO.matchupLeverage(rows, gamesLeft, cut, me.id);
+      if (lev) stakes = lev;
+    }
+  } catch (e) { /* leverage is a bonus */ }
+
   res.render('matchup', {
     me, owners, opp, live, weekNo, matchup: liveMatchup, betWindow, record,
-    perPlayer, proj, highBand, whBand, whRace, pickem,
+    perPlayer, proj, highBand, whBand, whRace, pickem, stakes,
     configured: !!world.config.sleeper_league_id,
     late: req.query.late === '1', sent: req.query.sent === '1',
     nameOf,
