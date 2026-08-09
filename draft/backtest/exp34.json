@@ -1,0 +1,589 @@
+{
+  "experiment": "34 \u2014 recommendation-vs-market, policy-level (forgone-value unit)",
+  "n_decisions": 19,
+  "n_pool_picks": 19,
+  "underpowered": true,
+  "note": "n~41, underpowered; inconclusive => anchor binds HARDER (PRE-REGISTRATION-34)",
+  "rank_correlation": {
+    "n_picks": 19,
+    "rho_our_mean": 0.391,
+    "rho_our_ci": [
+      0.3,
+      0.475
+    ],
+    "rho_market_mean": 0.268,
+    "rho_market_ci": [
+      0.176,
+      0.349
+    ],
+    "diff_mean": 0.123,
+    "diff_ci": [
+      0.008,
+      0.233
+    ],
+    "verdict": "beat"
+  },
+  "top5_set_value": {
+    "n": 5,
+    "picks": 19,
+    "our_mean": 319.252,
+    "market_mean": 197.414,
+    "delta_mean": 121.838,
+    "delta_ci": [
+      98.085,
+      143.959
+    ],
+    "verdict": "beat"
+  },
+  "top10_set_value": {
+    "n": 10,
+    "picks": 18,
+    "our_mean": 259.174,
+    "market_mean": 187.45,
+    "delta_mean": 71.724,
+    "delta_ci": [
+      52.309,
+      91.343
+    ],
+    "verdict": "beat"
+  },
+  "bands_forgone_value": [
+    {
+      "band": "value(<=0)",
+      "n": 7,
+      "hit_rate": 0.286,
+      "mean_delta": 20.229,
+      "ci": [
+        -23.929,
+        73.7
+      ],
+      "verdict": "inconclusive",
+      "thin": true
+    },
+    {
+      "band": "near-zero",
+      "n": 1,
+      "hit_rate": 1.0,
+      "mean_delta": 42.52,
+      "ci": [
+        NaN,
+        NaN
+      ],
+      "verdict": "inconclusive",
+      "thin": true
+    },
+    {
+      "band": "moderate",
+      "n": 4,
+      "hit_rate": 0.5,
+      "mean_delta": -1.525,
+      "ci": [
+        -23.925,
+        22.25
+      ],
+      "verdict": "inconclusive",
+      "thin": true
+    },
+    {
+      "band": "large",
+      "n": 6,
+      "hit_rate": 0.5,
+      "mean_delta": -87.483,
+      "ci": [
+        -203.623,
+        19.807
+      ],
+      "verdict": "inconclusive",
+      "thin": true
+    }
+  ],
+  "bands_adp_distance": [
+    {
+      "band": "<5",
+      "n": 13,
+      "hit_rate": 0.231,
+      "mean_delta": -50.845,
+      "ci": [
+        -112.754,
+        -2.011
+      ],
+      "verdict": "lost",
+      "thin": false
+    },
+    {
+      "band": "5-15",
+      "n": 4,
+      "hit_rate": 0.75,
+      "mean_delta": 46.0,
+      "ci": [
+        -2.9,
+        110.175
+      ],
+      "verdict": "inconclusive",
+      "thin": true
+    },
+    {
+      "band": "15-30",
+      "n": 1,
+      "hit_rate": 1.0,
+      "mean_delta": 50.3,
+      "ci": [
+        NaN,
+        NaN
+      ],
+      "verdict": "inconclusive",
+      "thin": true
+    },
+    {
+      "band": ">30",
+      "n": 1,
+      "hit_rate": 1.0,
+      "mean_delta": 76.4,
+      "ci": [
+        NaN,
+        NaN
+      ],
+      "verdict": "inconclusive",
+      "thin": true
+    }
+  ],
+  "sensitivity_by_round": [
+    {
+      "band": "r1-3",
+      "n": 4,
+      "hit_rate": 0.75,
+      "mean_delta": 49.03,
+      "ci": [
+        3.55,
+        112.5
+      ],
+      "verdict": "beat",
+      "thin": true
+    },
+    {
+      "band": "r4-7",
+      "n": 7,
+      "hit_rate": 0.571,
+      "mean_delta": 12.5,
+      "ci": [
+        -8.486,
+        32.829
+      ],
+      "verdict": "inconclusive",
+      "thin": true
+    },
+    {
+      "band": "r8-11",
+      "n": 5,
+      "hit_rate": 0.2,
+      "mean_delta": -16.752,
+      "ci": [
+        -64.552,
+        30.56
+      ],
+      "verdict": "inconclusive",
+      "thin": true
+    },
+    {
+      "band": "r12+",
+      "n": 3,
+      "hit_rate": 0.0,
+      "mean_delta": -183.38,
+      "ci": [
+        -301.62,
+        0.0
+      ],
+      "verdict": "inconclusive",
+      "thin": true
+    }
+  ],
+  "sensitivity_by_dispersion": [
+    {
+      "band": "unanimous",
+      "n": 3,
+      "hit_rate": 1.0,
+      "mean_delta": 28.34,
+      "ci": [
+        10.5,
+        42.52
+      ],
+      "verdict": "beat",
+      "thin": true
+    },
+    {
+      "band": "mid",
+      "n": 10,
+      "hit_rate": 0.2,
+      "mean_delta": -39.648,
+      "ci": [
+        -94.958,
+        1.474
+      ],
+      "verdict": "inconclusive",
+      "thin": false
+    },
+    {
+      "band": "contested",
+      "n": 6,
+      "hit_rate": 0.5,
+      "mean_delta": -6.47,
+      "ci": [
+        -136.943,
+        87.117
+      ],
+      "verdict": "inconclusive",
+      "thin": true
+    }
+  ],
+  "cliff": {
+    "crosses_cliff": {
+      "n": 0,
+      "hit_rate": null,
+      "mean_delta": NaN,
+      "ci": [
+        NaN,
+        NaN
+      ],
+      "thin": true
+    },
+    "within_tier": {
+      "n": 0,
+      "hit_rate": null,
+      "mean_delta": NaN,
+      "ci": [
+        NaN,
+        NaN
+      ],
+      "thin": true
+    }
+  },
+  "caveats": [
+    "weekly 2025 UNAVAILABLE (HTTPError); seasons needing it lose that prior",
+    "2025: realized weekly unavailable; season SKIPPED (not scored zero)"
+  ],
+  "decisions": [
+    {
+      "season": 2024,
+      "round": 3,
+      "pick_no": 26,
+      "took": "3198",
+      "took_proj": 113.83,
+      "took_realized": 371.9,
+      "adp_best": "9221",
+      "adp_best_proj": 178.76,
+      "adp_best_realized": 361.4,
+      "forgone_value": 64.93,
+      "adp_distance": -12.9,
+      "dispersion": 2.3,
+      "crosses_cliff": null,
+      "took_tier": null,
+      "adp_best_tier": null
+    },
+    {
+      "season": 2024,
+      "round": 4,
+      "pick_no": 35,
+      "took": "8112",
+      "took_proj": 116.62,
+      "took_realized": 230.8,
+      "adp_best": "2133",
+      "adp_best_proj": 139.52,
+      "adp_best_realized": 198.8,
+      "forgone_value": 22.9,
+      "adp_distance": -9.9,
+      "dispersion": 3.0,
+      "crosses_cliff": null,
+      "took_tier": null,
+      "adp_best_tier": null
+    },
+    {
+      "season": 2024,
+      "round": 6,
+      "pick_no": 55,
+      "took": "7611",
+      "took_proj": 121.13,
+      "took_realized": 159.4,
+      "adp_best": "5846",
+      "adp_best_proj": 142.58,
+      "adp_best_realized": 158.2,
+      "forgone_value": 21.45,
+      "adp_distance": 6.9,
+      "dispersion": 5.0,
+      "crosses_cliff": null,
+      "took_tier": null,
+      "adp_best_tier": null
+    },
+    {
+      "season": 2024,
+      "round": 7,
+      "pick_no": 66,
+      "took": "7553",
+      "took_proj": 85.63,
+      "took_realized": 107.7,
+      "adp_best": "4950",
+      "adp_best_proj": 128.34,
+      "adp_best_realized": 57.4,
+      "forgone_value": 42.71,
+      "adp_distance": 17.3,
+      "dispersion": 6.0,
+      "crosses_cliff": null,
+      "took_tier": null,
+      "adp_best_tier": null
+    },
+    {
+      "season": 2024,
+      "round": 9,
+      "pick_no": 86,
+      "took": "7588",
+      "took_proj": 119.8,
+      "took_realized": 137.2,
+      "adp_best": "4988",
+      "adp_best_proj": 112.0,
+      "adp_best_realized": 60.8,
+      "forgone_value": -7.8,
+      "adp_distance": 31.7,
+      "dispersion": 13.8,
+      "crosses_cliff": null,
+      "took_tier": null,
+      "adp_best_tier": null
+    },
+    {
+      "season": 2024,
+      "round": 10,
+      "pick_no": 95,
+      "took": "9224",
+      "took_proj": 74.94,
+      "took_realized": 228.0,
+      "adp_best": "8183",
+      "adp_best_proj": 268.93,
+      "adp_best_realized": 306.86,
+      "forgone_value": 193.99,
+      "adp_distance": -1.7,
+      "dispersion": 6.9,
+      "crosses_cliff": null,
+      "took_tier": null,
+      "adp_best_tier": null
+    },
+    {
+      "season": 2024,
+      "round": 13,
+      "pick_no": 126,
+      "took": "9488",
+      "took_proj": 99.72,
+      "took_realized": 203.0,
+      "adp_best": "9488",
+      "adp_best_proj": 99.72,
+      "adp_best_realized": 203.0,
+      "forgone_value": 0.0,
+      "adp_distance": -31.3,
+      "dispersion": 7.6,
+      "crosses_cliff": null,
+      "took_tier": null,
+      "adp_best_tier": null
+    },
+    {
+      "season": 2023,
+      "round": 1,
+      "pick_no": 5,
+      "took": "7564",
+      "took_proj": 190.64,
+      "took_realized": 212.72,
+      "adp_best": "6794",
+      "adp_best_proj": 196.52,
+      "adp_best_realized": 170.2,
+      "forgone_value": 5.88,
+      "adp_distance": 0.6,
+      "dispersion": 2.5,
+      "crosses_cliff": null,
+      "took_tier": null,
+      "adp_best_tier": null
+    },
+    {
+      "season": 2023,
+      "round": 2,
+      "pick_no": 16,
+      "took": "7526",
+      "took_proj": 152.44,
+      "took_realized": 167.6,
+      "adp_best": "4988",
+      "adp_best_proj": 137.21,
+      "adp_best_realized": 21.1,
+      "forgone_value": -15.23,
+      "adp_distance": 6.8,
+      "dispersion": 12.0,
+      "crosses_cliff": null,
+      "took_tier": null,
+      "adp_best_tier": null
+    },
+    {
+      "season": 2023,
+      "round": 3,
+      "pick_no": 26,
+      "took": "2133",
+      "took_proj": 165.82,
+      "took_realized": 213.9,
+      "adp_best": "9509",
+      "adp_best_proj": null,
+      "adp_best_realized": 217.3,
+      "forgone_value": null,
+      "adp_distance": -8.7,
+      "dispersion": 10.4,
+      "crosses_cliff": null,
+      "took_tier": null,
+      "adp_best_tier": null
+    },
+    {
+      "season": 2023,
+      "round": 4,
+      "pick_no": 38,
+      "took": "4199",
+      "took_proj": 111.95,
+      "took_realized": 166.6,
+      "adp_best": "2309",
+      "adp_best_proj": 131.67,
+      "adp_best_realized": 198.9,
+      "forgone_value": 19.72,
+      "adp_distance": -2.2,
+      "dispersion": 4.8,
+      "crosses_cliff": null,
+      "took_tier": null,
+      "adp_best_tier": null
+    },
+    {
+      "season": 2023,
+      "round": 5,
+      "pick_no": 46,
+      "took": "4217",
+      "took_proj": 114.91,
+      "took_realized": 191.9,
+      "adp_best": "2309",
+      "adp_best_proj": 131.67,
+      "adp_best_realized": 198.9,
+      "forgone_value": 16.76,
+      "adp_distance": 13.0,
+      "dispersion": 6.2,
+      "crosses_cliff": null,
+      "took_tier": null,
+      "adp_best_tier": null
+    },
+    {
+      "season": 2023,
+      "round": 6,
+      "pick_no": 55,
+      "took": "6797",
+      "took_proj": 284.5,
+      "took_realized": 273.66,
+      "adp_best": "6797",
+      "adp_best_proj": 284.5,
+      "adp_best_realized": 273.66,
+      "forgone_value": 0.0,
+      "adp_distance": -10.1,
+      "dispersion": 6.0,
+      "crosses_cliff": null,
+      "took_tier": null,
+      "adp_best_tier": null
+    },
+    {
+      "season": 2023,
+      "round": 7,
+      "pick_no": 66,
+      "took": "8138",
+      "took_proj": 88.21,
+      "took_realized": 231.3,
+      "adp_best": "4137",
+      "adp_best_proj": 118.45,
+      "adp_best_realized": 188.0,
+      "forgone_value": 30.24,
+      "adp_distance": 5.6,
+      "dispersion": 8.9,
+      "crosses_cliff": null,
+      "took_tier": null,
+      "adp_best_tier": null
+    },
+    {
+      "season": 2023,
+      "round": 8,
+      "pick_no": 75,
+      "took": "7588",
+      "took_proj": 119.39,
+      "took_realized": 155.7,
+      "adp_best": "5892",
+      "adp_best_proj": 113.16,
+      "adp_best_realized": 237.0,
+      "forgone_value": -6.23,
+      "adp_distance": -9.3,
+      "dispersion": 6.7,
+      "crosses_cliff": null,
+      "took_tier": null,
+      "adp_best_tier": null
+    },
+    {
+      "season": 2023,
+      "round": 9,
+      "pick_no": 86,
+      "took": "5892",
+      "took_proj": 113.16,
+      "took_realized": 237.0,
+      "adp_best": "5892",
+      "adp_best_proj": 113.16,
+      "adp_best_realized": 237.0,
+      "forgone_value": 0.0,
+      "adp_distance": -23.6,
+      "dispersion": 6.8,
+      "crosses_cliff": null,
+      "took_tier": null,
+      "adp_best_tier": null
+    },
+    {
+      "season": 2023,
+      "round": 10,
+      "pick_no": 95,
+      "took": "8137",
+      "took_proj": 113.14,
+      "took_realized": 184.3,
+      "adp_best": "8137",
+      "adp_best_proj": 113.14,
+      "adp_best_realized": 184.3,
+      "forgone_value": 0.0,
+      "adp_distance": -18.5,
+      "dispersion": 8.7,
+      "crosses_cliff": null,
+      "took_tier": null,
+      "adp_best_tier": null
+    },
+    {
+      "season": 2023,
+      "round": 12,
+      "pick_no": 115,
+      "took": "4147",
+      "took_proj": 72.35,
+      "took_realized": 96.3,
+      "adp_best": "6768",
+      "adp_best_proj": 268.34,
+      "adp_best_realized": 344.82,
+      "forgone_value": 195.99,
+      "adp_distance": -21.1,
+      "dispersion": 7.6,
+      "crosses_cliff": null,
+      "took_tier": null,
+      "adp_best_tier": null
+    },
+    {
+      "season": 2023,
+      "round": 14,
+      "pick_no": 135,
+      "took": "8168",
+      "took_proj": 59.09,
+      "took_realized": 43.2,
+      "adp_best": "6768",
+      "adp_best_proj": 268.34,
+      "adp_best_realized": 344.82,
+      "forgone_value": 209.25,
+      "adp_distance": -13.3,
+      "dispersion": 10.0,
+      "crosses_cliff": null,
+      "took_tier": null,
+      "adp_best_tier": null
+    }
+  ]
+}
