@@ -81,6 +81,19 @@
     /* Exp-31 platform sampling — deduped per (pick, build) by pick number, so a
      * four-second poll re-seeing the same pick logs it once. */
     platformSample: function (info, sig) { return oncePer('mock_platform_sample', info, sig); },
+    /* FORWARD PREDICTION — a committed, timestamped claim about something that has
+     * not happened yet (survival %, ADP falls, who the room takes, roster $). The
+     * server stamps decision_at and enforces the gradeable skeleton (key + ftype +
+     * value + resolution_rule); the FORWARD GUARANTEE (only graded if committed
+     * before it resolved) lives in forecast_grade.py. Deduped by the forecast key,
+     * so re-rendering the board never double-commits the same claim. */
+    forecast: function (info) { return oncePer('forecast', info, (info.payload || {}).key); },
+    /* What reality returned — a SEPARATE append joined by key, written only when the
+     * outcome is known. Deduped by the forecast key it resolves (append-only: the
+     * first resolution wins; a re-resolve is ignored). */
+    forecastResolution: function (info) {
+      return oncePer('forecast_resolution', info, (info.payload || {}).forecast_key);
+    },
     /* Generic passthrough. */
     capture: function (kind, info) { return send(kind, info); },
     lastError: function () { return lastError; },
