@@ -47,5 +47,20 @@ ck('.wr-arm is static (in-flow) on mobile',
 ck('.wr-arm is not position:fixed inside any mobile block',
   !/\.wr-arm[^{}]*\{[^}]*position:\s*fixed/.test(mobile));
 
+// The strongest form of "nothing fixed covers a control": the war room hides the
+// fixed bottom tab bar entirely, so it can never sit over the Take button (it did,
+// at 804px) or the arm alert. This lives OUTSIDE a media block (specificity beats
+// the ≤700px .tabbar{display:flex}); assert against the whole sheet.
+ck('the war room hides the fixed bottom tab bar',
+  /body\.warroom-page\s+\.tabbar\s*\{[^}]*display:\s*none/.test(css),
+  'tab bar not hidden on warroom — a fixed element can cover a control again');
+
+// Hiding both chrome bars is only safe if a way out remains: the shell must carry
+// an always-visible exit link (not buried in the collapsed Details section).
+const shell = fs.readFileSync(path.join(ROOT, 'views', 'admin', 'warroom.ejs'), 'utf8');
+ck('the war-room shell keeps an always-visible exit link',
+  /class="wr-exit"[^>]*href="\/"|href="\/"[^>]*class="wr-exit"/.test(shell),
+  'no wr-exit link — hiding the chrome would strand a standalone PWA user');
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

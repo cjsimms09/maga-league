@@ -20,6 +20,11 @@
       an unverified slot). Collapsing noise is only safe if the thing that must
       not be missed can still shout. %>
   <div id="system-strip" class="system-strip" style="display:none"></div>
+  <%# The war room hides the site chrome (masthead + bottom tab bar) so a fixed
+      element can never cover the recommendation or the Take button. This is the
+      one always-visible way back out — shares the Details row, so it costs no
+      vertical space above the decision surface. %>
+  <div class="wr-toprow">
   <details class="system-details" id="system-details">
     <summary>Details &amp; checklist</summary>
     <div class="sd-body">
@@ -80,6 +85,8 @@
   </div>
     </div>
   </details>
+  <a class="wr-exit" href="/" title="Leave the war room">🏛 Office</a>
+  </div><%# /wr-toprow %>
   <%# The run banner stays OUT of the fold-away: a positional run is live
       decision input, not status. %>
   <%# MISSED-MARK RECOVERY. Both stay OUT of the fold-away: an unrecorded pick

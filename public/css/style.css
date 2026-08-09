@@ -2471,12 +2471,26 @@ button.pd-team.pick:hover { background: rgba(245,196,69,.16); transform: transla
 .wr-zone1 > #queue-card        { order: 13; }
 
 /* WAR ROOM = focused draft tool: collapse the site chrome at pick-time (Cory:
-   ~172px of masthead + a draft-day notice already read + a redundant title). The
-   bottom tab bar still navigates; the war room's own status strip identifies it. */
+   ~172px of masthead + a draft-day notice already read + a redundant title).
+   The bottom tab bar goes too: it is FIXED, so it sat over the recommendation's
+   Take button (804px) and, earlier, the ARM alert — a fixed element covering a
+   control, which the audit rule forbids. Hiding it reclaims the bottom of the
+   screen AND removes that whole class of overlap. The war room keeps its own way
+   out (the "🏛 Office" link on the Details row) plus its Setup/Keepers links, so
+   navigation is never lost even with both chrome bars gone. */
 body.warroom-page .masthead { display: none; }
 body.warroom-page .alert-region { display: none; }
+body.warroom-page .tabbar { display: none; }
+body.warroom-page { padding-bottom: 0; }   /* the 60px was tab-bar clearance */
 body.warroom-page > .wrap > .page-title,
 body.warroom-page #warroom > .page-title { display: none; }
+/* The one always-visible exit, sharing the Details row so it costs no fold. */
+.wr-toprow { display: flex; align-items: flex-start; gap: .5rem; }
+.wr-toprow > .system-details { flex: 1 1 auto; min-width: 0; }
+.wr-exit { flex: none; margin-left: auto; font-size: .82rem; font-weight: 700;
+  color: var(--muted); text-decoration: none; white-space: nowrap;
+  padding: .2rem .5rem; border: 1px solid var(--line); border-radius: 999px; }
+.wr-exit:hover, .wr-exit:focus-visible { color: var(--ink); border-color: var(--muted); }
 
 /* Compress THE PLAN + WATCH to tight context strips above the recommendation
    (were full 133px / 101px blocks). The name, confidence and alternative price
