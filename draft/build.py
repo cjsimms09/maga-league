@@ -25,6 +25,7 @@ import projections as proj_mod  # noqa: E402
 import vorp as vorp_mod  # noqa: E402
 import managers as managers_mod  # noqa: E402
 import keeper_slate as keeper_slate_mod  # noqa: E402
+import adp_series as adp_series_mod  # noqa: E402
 
 ARTIFACT_VERSION = 2
 
@@ -54,6 +55,11 @@ PROFILES_PATH = HERE / "config" / "manager_profiles.json"
 DOCTRINE_PATH = HERE / "backtest" / "cory-conditional.json"
 # Predicted opponent keeper slate — REHEARSAL fidelity input (not draft truth).
 PREDICTED_PATH = HERE / "data" / "predicted_keepers.json"
+# THE RETAINED ADP SERIES — the append-only dated record that makes ADP
+# rate-of-change computable. The board overwrites draft_data.json every night, so
+# without this the only series is git history (~2 days). This file is committed by
+# the nightly workflow; every un-retained day before the draft is unrecoverable.
+ADP_SERIES_PATH = HERE / "data" / "adp_series.json"
 
 # Positions the draft board cares about. IDP leagues would extend this.
 DRAFTABLE = {"QB", "RB", "WR", "TE", "K", "DEF"}
@@ -616,6 +622,57 @@ def build_manager_profiles(cfg: dict, offline: bool, force: bool = False) -> dic
     return profiles
 
 
+def _update_adp_series(artifact: dict, *, today: str, path: Path = ADP_SERIES_PATH) -> None:
+    """Append today's board ADP to the retained series, persist it, and stamp
+    adp_velocity / adp_stale on each board player from the accumulated series.
+
+    This is the one place a clock touches the series: `today` is passed in (the
+    caller derives it from the artifact's built_at) so the pure functions in
+    adp_series stay deterministic and unit-tested. Same-day re-runs replace, not
+    double (append_snapshot dedups by date).
+
+    velocity is POSITIVE when a player is RISING (ADP number falling toward an
+    earlier pick). adp_stale is set only when the move clears the threshold AND
+    the series is deep enough to mean anything — day one it is None on everyone,
+    which is the honest state, not a bug. Non-fatal by contract: the board must
+    still ship if the series file is unreadable, so callers wrap this.
+    """
+    players = artifact.get("players", [])
+    adp_by_id = {str(p["player_id"]): p["raw_adp"]
+                 for p in players if p.get("raw_adp") is not None}
+
+    series = []
+    if path.exists():
+        try:
+            doc = json.loads(path.read_text())
+            series = doc.get("series", []) if isinstance(doc, dict) else (doc or [])
+        except (ValueError, OSError):
+            series = []      # corrupt/missing series starts fresh, loudly below
+
+    series = adp_series_mod.append_snapshot(series, today, adp_by_id)
+    span = adp_series_mod.span_days(series)
+
+    stamped = 0
+    for p in players:
+        pid = str(p.get("player_id"))
+        v = adp_series_mod.velocity(series, pid)
+        p["adp_velocity"] = v
+        flag = adp_series_mod.stale_flag(v, span)
+        p["adp_stale"] = flag
+        if flag:
+            stamped += 1
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(
+        {"_note": "Daily ADP series (append-only, deduped by date). Powers the "
+                  "staleness alarm; NOT a tested momentum edge. See draft/adp_series.py.",
+         "series": series},
+        separators=(",", ":")))
+    artifact.setdefault("notes", {})["adp_series_span_days"] = span
+    print(f"  ADP series: {len(series)} day(s) retained (span {span}); "
+          f"{stamped} player(s) flagged stale at span {span}")
+
+
 def build(cfg: dict, *, offline: bool = False, force_profiles: bool = False,
           confirmed_status: dict | None = None) -> dict:
     print("Building draft artifact ...")
@@ -1006,6 +1063,12 @@ def main() -> None:
               "scoring and roster slots are unverified (Commish -> War Room -> League Setup)")
     artifact = build(cfg, offline=args.offline, force_profiles=args.refresh_profiles,
                      confirmed_status=status)
+    # Retain today's ADP into the dated series and stamp velocity/staleness on the
+    # board. Non-fatal: a series hiccup must never block the board from shipping.
+    try:
+        _update_adp_series(artifact, today=artifact["built_at"][:10])
+    except Exception as exc:  # noqa: BLE001 — the board ships without the stamps
+        print(f"  ! ADP series not updated ({exc}); board ships without velocity stamps")
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(artifact, separators=(",", ":")))

@@ -147,7 +147,7 @@ jobs:
       - name: Commit the artifact if it changed
         if: github.event.inputs.snapshot != 'true'
         run: |
-          PATHS="public/draft_data.json draft/config/league_config.json draft/data/league_history.json draft/data/predicted_keepers.json draft/data/opening_script.md draft/data/opening_script.json draft/backtest/cory-conditional.json draft/backtest/CORY-CONDITIONAL.md"
+          PATHS="public/draft_data.json draft/config/league_config.json draft/data/league_history.json draft/data/predicted_keepers.json draft/data/opening_script.md draft/data/opening_script.json draft/backtest/cory-conditional.json draft/backtest/CORY-CONDITIONAL.md draft/data/adp_series.json"
           EXISTING=""
           for p in $PATHS; do [ -e "$p" ] && EXISTING="$EXISTING $p"; done
           if [ -z "$EXISTING" ] || git diff --quiet -- $EXISTING; then
