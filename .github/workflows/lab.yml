@@ -104,6 +104,7 @@ jobs:
           python draft/backtest/exp_keeper_nabers.py --rooms 200  # keeper decision w/ Nabers (Aug-20 lock)
           python draft/backtest/exp_need_phase.py --rooms 300     # need-weight ramp vs the mask
           python draft/backtest/exp_participation.py --rooms 400  # all-terms participation (draft-day Auto)
+          python draft/backtest/exp_participation_regional.py --rooms 400  # disaggregate-before-discard
           python draft/backtest/sim_validation.py --rooms 24      # simulator fidelity + limits
           python draft/opening_script.py                          # inherits any new verdict
           # The doctrine banner reads the enrolled plan off the BOARD artifact,
@@ -124,6 +125,7 @@ jobs:
                   draft/backtest/EXP-KEEPER-NABERS.md draft/backtest/exp_keeper_nabers.json \
                   draft/backtest/EXP-NEED-PHASE.md draft/backtest/exp_need_phase.json \
                   draft/backtest/EXP-PARTICIPATION.md draft/backtest/exp_participation.json \
+                  draft/backtest/EXP-PARTICIPATION-REGIONAL.md draft/backtest/exp_participation_regional.json \
                   draft/backtest/SIM-FIDELITY.md draft/backtest/sim-fidelity.json \
                   draft/backtest/HETEROGENEOUS-VALIDATION.md \
                   draft/backtest/PLAYOFF-MONEY-VALIDATION.md \

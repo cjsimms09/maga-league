@@ -61,6 +61,14 @@ a question, distrust the frame it arrived in:
   level, keepers, runs, tier cliffs, the dead zone, survival — is conditional on what
   everyone else does. Price against the *actual expected board* (the real keeper slate,
   the real pool), never a generic/full one.
+- **Edge is DIFFERENTIAL correctness, not correctness (2026-08-09).** A model advantage earns
+  only where it DIVERGES from what opponents actually do, in the direction it's right; where
+  the room already prices players like the good board, the good board buys nothing at your seat.
+  So "which board is best (vs outcomes)" and "where is my edge" are TWO questions — the second
+  is (best board) − (the room's revealed behavior), and the bar is never a board, it's their
+  picks (exp43: the room is collectively at-market, so beat where you can be systematically
+  better than they actually were). The pick-level case of "price against the actual state":
+  here the actual state is the opponents' revealed ADP, read from three seasons of their picks.
 - **Was the space actually searched? (nulls) — and does a POSITIVE rule fire only in the
   domain it was measured?** A null over 3 configs ≠ a null over a swept grid — state what was
   searched. The mirror we kept missing: a POSITIVE rule has a DOMAIN too (the board region,
@@ -69,6 +77,15 @@ a question, distrust the frame it arrived in:
   applied to cheap bench slots claimed more than we knew. So every installed rule must
   EXPRESS its domain and DEFER outside it (weaken, hand to the market, or say "past the
   measured region — your call") rather than a confident rec built on evidence from pick 34.
+  **The third member of this family — disaggregate before you discard (2026-08-09):** a pooled
+  NEGATIVE or null is a lead, not a verdict. Before acting on "X hurts / doesn't earn," split
+  it along the axes its mechanism could vary on (phase, board state, position, roster shape)
+  and ask whether it fails everywhere or only on average — a term that helps in one narrow
+  region and hurts elsewhere reads as pooled-harmful, and a narrow-region edge is the most
+  valuable kind (everyone applies these uniformly or not at all). Fire it REGARDLESS of prior —
+  most urgently where you have none, since that's where a buried lead is likeliest and least
+  expected. (Read regional cells only at full power: the tier/risk cut showed a false "+44 mid"
+  at n=20 that vanished at n=400 — a small effect wanders in sign until the CI clears zero.)
 - **Is a "settled" finding still sound?** Before citing one: how much was searched, was the
   INSTRUMENT sound then (we've since fixed a within-position confound, gone to
   heterogeneous rooms, killed a can't-fail fixture, caught a leaking source), has anything

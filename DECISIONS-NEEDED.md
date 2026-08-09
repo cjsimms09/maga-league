@@ -92,6 +92,14 @@ Audit date: 2026-08-09 (swept every recorded verdict in draft/backtest/*.json + 
   (see caveat) — the ROBUST claim is the SIGN/ordering: no adjuster earns; at any strength big
   enough to move a pick, tier/risk lose (stack is instrument-limited here — see below). The win is a large **robustness/legibility**
   gain plus removing a measured drag.
+- **Regional check (exp_participation_regional, 400 rooms — disaggregate before discard):** split
+  each term by Cory's pick bands (early r4-6 / mid r7-10 / late r11-15). No term earns in ANY band,
+  so the pooled "drop them" STANDS — but it sharpened the picture: tier hurts early −147 AND mid −68,
+  risk hurts early −97, bye hurts early −13, all neutral late; ceiling flat everywhere. The harm
+  concentrates in the EARLY rounds (4-6, Cory's most valuable picks) where the value anchor is
+  strongest — i.e. the terms distort a good ranking exactly where ranking matters most, and go inert
+  once the board flattens. (An n=20 pass falsely showed "risk earns mid +44"; n=400 killed it — a
+  reminder that regional cells must be read at full power.)
 - **Confidence — split by faithfulness:** **need-weight (drop/flatten): STRONG & FAITHFUL** —
   need_signal is the exact harness term, and exp_need_phase agrees. **tier/risk/ceiling/bye:
   DIRECTIONAL via PROXY** — computed from the same board fields the engine uses but not the
