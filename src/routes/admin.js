@@ -95,6 +95,7 @@ router.get('/', aw(async (req, res) => {
 
   res.render('admin/console', {
     tab, season, seasons, weekly, awards, draft, keepers, votes, prevStandings,
+    threshold: H.voteThreshold(world.config),
     contactStatus,
     balancesMap: bal, ledger: world.ledger, config: world.config,
     payouts: H.payoutTable(season),

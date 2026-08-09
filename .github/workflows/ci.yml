@@ -82,6 +82,12 @@ jobs:
         # harvested target on its own. Asserts it renders and that no per-owner
         # efficiency analysis leaks onto this league-visible page.
         run: node draft/tests/matchup_weekly_high.test.js
+      - name: Route smoke — every surface renders (no 500 / template ReferenceError)
+        # A view referencing a local the route forgot to pass renders fine in a
+        # page-specific test but 500s in prod. This GETs the whole surface as the
+        # commissioner (and commissioner-only routes as a member) and fails on any
+        # 500 or template error. Caught /admin?tab=votes throwing `threshold`.
+        run: node draft/tests/route_smoke.test.js
       - name: The Vault — trash + dispatch archives are actually read (de-orphaned)
         # Both archives stored permanently but no surface called archiveForSeason/
         # getArchive ("an archive nothing reads is the same as a deletion").
