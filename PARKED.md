@@ -479,3 +479,30 @@ raw-data vs analysis.
 If A has a SEPARATE guard/assertion encoding the old rule, reconcile it to the
 above (B's `access_guard.test.js` is the current one). Then **deploy main** — Cory
 has been unable to see days of design work stranded behind this.
+
+---
+
+## ▶ SESSION B → A REQUEST (2026-08-09): league-wide CHAMPIONSHIP-PROBABILITY model
+
+Pool side bets are being rebuilt as a live snake-draft of franchises (Cory: split
+the 10 teams, alternate picks by prior-season finish, whoever holds the champion
+wins). The COMMISSIONER-ONLY advisor on Cory's picks needs an engine input that is
+A's lane (and which also feeds the **League Outlook page** and **in-season
+projections**, per Cory):
+
+**Requested (A engine):** `P(team wins the league)` for each of the 10 franchises —
+from roster strength, the owner's measured lineup efficiency, and remaining
+schedule. Ideally also expose the **bracket-pairing structure / correlation** (odds
+two given teams meet in a playoff round) so the advisor can price that taking the
+two best teams is worth LESS than standalone odds when they'd eliminate each other
+in the semifinal.
+
+Shape B will consume (suggestion): `{ champProb: {owner_id: p}, meetProb?: {"a:b": p} }`
+or a function on sleeper.js / a new engine module. B builds the portfolio advisor
+ON TOP (marginal contribution to P(I hold the champion) = VONA-for-franchises,
+correlation discount, "likely gone before my next turn", live P(I win the bet)).
+
+Until A ships it, B's advisor runs on a **labelled placeholder** (rough champ odds
+from standings + points) and drops A's real model in cleanly — same pattern as the
+matchup page. Flagging rather than building engine in A's lane. The draft MECHANICS
++ the shared interface + the advisor SURFACE are B's and proceeding now.
