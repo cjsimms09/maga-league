@@ -80,55 +80,134 @@ def _extract_rows_json(html):
     return best
 
 
+def _rows_from(data):
+    """Coerce any FP-shaped container into a list of row dicts. Handles: a bare list of
+    rows; the SSR `{"rows":[...]}`; and the data-API `{"players":[...]}` (the client-hydrated
+    endpoint — the ONLY place players 6-300 live; SSR carries just the top-5 teaser)."""
+    if isinstance(data, list):
+        return data
+    if isinstance(data, dict):
+        for k in ("players", "rows", "data"):
+            v = data.get(k)
+            if isinstance(v, list):
+                return v
+    return []
+
+
 def parse(html):
-    """FantasyPros ADP page -> [{name, position, team, adp}] sorted by adp ascending.
-    FP embeds the data as JSON, NOT an HTML table (confirmed 2026-08-09 from the live page):
-    rows are {rank, player:{name, team:"MIN (13)", url}, pos:"WR1", avg}. `avg` is the
-    consensus ADP. Also accepts a bare JSON list (a saved fixture)."""
-    raw = _extract_rows_json(html)
-    if raw is None:
-        # tolerate being handed the rows array / list directly (fixtures, tests)
-        s = (html or "").strip()
-        raw = s if s.startswith("[") else None
-    try:
-        data = json.loads(raw) if raw else []
-    except (ValueError, TypeError):
-        data = []
+    """FantasyPros ADP -> [{name, position, team, adp}] sorted by adp ascending.
+    Accepts THREE real shapes (confirmed 2026-08-09 from the live page + bundle):
+      1. SSR HTML: `window.FP.report = {..."rows":[{rank,player:{name,team:"MIN (13)"},pos,avg}]}`
+         — but SSR only carries the TOP 5 (ssrHeader:true), so this alone is a teaser.
+      2. data-API JSON: `{"players":[{player_name,player_position_id,player_team_id,rank_ave/adp}]}`
+         — the client-hydrated full board (players 6-300); this is the one that grades.
+      3. a bare JSON list (a saved fixture / the rows array handed directly)."""
+    s = (html or "").strip()
+    data = None
+    if s.startswith("{") or s.startswith("["):
+        try:                                            # handed API JSON / a bare list directly
+            data = json.loads(s)
+        except (ValueError, TypeError):
+            data = None
+    if data is None:
+        raw = _extract_rows_json(html)
+        try:
+            data = json.loads(raw) if raw else []
+        except (ValueError, TypeError):
+            data = []
     rows = []
-    for o in data:
+    for o in _rows_from(data):
         if not isinstance(o, dict):
             continue
         pl = o.get("player") or {}
-        name = pl.get("name") or o.get("name")
-        avg = o.get("avg", o.get("averagePick", o.get("adp")))
+        name = pl.get("name") or o.get("name") or o.get("player_name")
+        avg = o.get("avg", o.get("averagePick", o.get("adp", o.get("rank_ave"))))
         if not name or avg is None:
             continue
         try:
             adp = float(avg)
         except (TypeError, ValueError):
             continue
-        team_raw = (pl.get("team") or o.get("team") or "")
+        team_raw = str(pl.get("team") or o.get("team") or o.get("player_team_id") or "")
         team = team_raw.split(" (")[0].strip()          # "MIN (13)" -> "MIN"; "" -> ""
-        pos_m = _POS.search(str(o.get("pos") or o.get("position") or ""))
+        pos_m = _POS.search(str(o.get("pos") or o.get("position") or o.get("player_position_id") or ""))
         rows.append({"name": name, "position": _norm_pos(pos_m.group(1)) if pos_m else None,
                      "team": team if team and not team.isdigit() else None, "adp": adp})
     rows.sort(key=lambda r: r["adp"])
     return rows
 
 
-def fetch(year, half_ppr=True, timeout=30):   # pragma: no cover  (egress, CI only)
-    """FP consensus ADP page for a year. half-point-ppr-overall = our format. Returns
-    (html, url) or (None, url) on failure — a season that fails is skipped, not fatal."""
+def _get(url, timeout=30, headers=None):   # pragma: no cover  (egress, CI only)
     import urllib.request
+    h = {"User-Agent": "Mozilla/5.0 mfga-source-grade"}
+    h.update(headers or {})
+    req = urllib.request.Request(url, headers=h)
+    with urllib.request.urlopen(req, timeout=timeout) as r:
+        return r.read().decode("utf-8", "ignore")
+
+
+# candidate data-API endpoint templates, tried in order if bundle discovery finds nothing.
+# {y}=year, {k}=api key. HALF scoring = our format. These mirror FP's public web API shape.
+_API_CANDIDATES = [
+    "https://api.fantasypros.com/v2/json/nfl/{y}/consensus-rankings?type=adp&scoring=HALF&position=ALL&week=0",
+    "https://api.fantasypros.com/public/v2/json/nfl/{y}/consensus-rankings?type=adp&scoring=HALF&position=ALL&week=0",
+]
+_KEY_RE = __import__("re").compile(r'["\']?(?:x-api-key|apiKey|api_key)["\']?\s*[:=]\s*["\']([A-Za-z0-9]{20,})["\']')
+_APIURL_RE = __import__("re").compile(r'https?://api\.fantasypros\.com/[A-Za-z0-9/_.\-{}?&=]+')
+
+
+def fetch(year, half_ppr=True, timeout=30):   # pragma: no cover  (egress, CI only)
+    """Return (text, url, diag). SSR HTML only carries the top-5 teaser, so this is
+    SELF-DISCOVERING: it grabs the reports bundle, extracts FP's data-API endpoint + embedded
+    key, and tries the API (the full board). If the API yields >=20 rows, returns that JSON;
+    else returns the SSR HTML (still parseable, just thin). `diag` records what was tried so a
+    miss shows the real endpoint next run instead of silently contributing nothing."""
     fmt = "half-point-ppr" if half_ppr else "ppr"
-    url = f"https://www.fantasypros.com/nfl/adp/{fmt}-overall.php?year={year}"
+    page_url = f"https://www.fantasypros.com/nfl/adp/{fmt}-overall.php?year={year}"
+    diag = {"page_url": page_url, "api_tried": [], "bundle_key_found": False, "bundle_api_urls": []}
     try:
-        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 mfga-source-grade"})
-        with urllib.request.urlopen(req, timeout=timeout) as r:
-            return r.read().decode("utf-8", "ignore"), url
+        html = _get(page_url, timeout)
     except Exception as e:
-        print(f"  FantasyPros {year} fetch skip: {type(e).__name__}")
-        return None, url
+        print(f"  FantasyPros {year} page fetch skip: {type(e).__name__}")
+        return None, page_url, {**diag, "page_error": type(e).__name__}
+
+    # 1) discover the data endpoint + key from the reports bundle
+    key = None
+    bm = __import__("re").search(r'//cdn\.fantasypros\.com/[^"\']*pages/reports/bundle-[^"\']+\.js', html)
+    if bm:
+        try:
+            bundle = _get("https:" + bm.group(0), timeout)
+            km = _KEY_RE.search(bundle)
+            if km:
+                key = km.group(1); diag["bundle_key_found"] = True
+            diag["bundle_api_urls"] = sorted(set(_APIURL_RE.findall(bundle)))[:12]
+        except Exception as e:
+            diag["bundle_error"] = type(e).__name__
+    # also try a key embedded directly on the page
+    if not key:
+        km = _KEY_RE.search(html)
+        if km:
+            key = km.group(1); diag["page_key_found"] = True
+
+    # 2) try the API (discovered endpoint template first, then candidates) with the key
+    templates = list(diag["bundle_api_urls"]) + _API_CANDIDATES
+    for tmpl in templates:
+        if "consensus-rankings" not in tmpl and "adp" not in tmpl.lower():
+            continue
+        api_url = tmpl.replace("{y}", str(year)).replace("{k}", key or "")
+        if "{year}" in api_url:
+            api_url = api_url.replace("{year}", str(year))
+        try:
+            txt = _get(api_url, timeout, headers=({"x-api-key": key} if key else None))
+            n = len(parse(txt))
+            diag["api_tried"].append({"url": api_url[:160], "rows": n, "keyed": bool(key)})
+            if n >= 20:
+                diag["api_ok"] = api_url[:160]
+                return txt, api_url, diag
+        except Exception as e:
+            diag["api_tried"].append({"url": api_url[:160], "err": type(e).__name__, "keyed": bool(key)})
+
+    return html, page_url, diag   # fall back to the (thin) SSR HTML — diag shows why
 
 
 if __name__ == "__main__":   # pragma: no cover

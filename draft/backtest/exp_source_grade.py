@@ -171,28 +171,28 @@ def egress_main():   # pragma: no cover  (CI only)
                 sid, _how = ADP.match_player(r, index)
                 if sid and str(sid) in realized:
                     adp_mfl[str(sid)] = r["adp"]
-        # FantasyPros — half-PPR (our format), crosswalked the same way.
-        html, fp_url = FP.fetch(yr)
-        fp_rows = FP.parse(html) if html else []
+        # FantasyPros — half-PPR (our format), crosswalked the same way. fetch() is now
+        # SELF-DISCOVERING (SSR carries only the top-5 teaser; the full board is a client
+        # data-API), and returns what it tried in fetch_diag.
+        text, fp_url, fetch_diag = FP.fetch(yr)
+        fp_rows = FP.parse(text) if text else []
         adp_fp = {}
         for r in fp_rows:
             sid, _how = ADP.match_player(r, index)
             if sid and str(sid) in realized:
                 adp_fp[str(sid)] = r["adp"]
-        # SELF-DIAGNOSE: a parse miss must LOOK like a miss, not an absent source. If FP
-        # came back but parsed thin, save the raw head so the next run shows the real table.
-        if html and len(adp_fp) < 20:
-            # center the dump on a real ADP ROW so the next run shows the row structure,
-            # not the <head>. If no row marker exists in the server HTML, the table is
-            # client-rendered and we need FP's data endpoint, not HTML — report which.
-            marks = [html.find(m) for m in ('player-label', '/nfl/players/', 'id="data"', 'averagePick')]
+        # SELF-DIAGNOSE: a parse miss must LOOK like a miss, not an absent source. Record the
+        # discovery attempt ALWAYS when thin (which endpoints/keys were tried) so the next run
+        # shows the real data-API instead of silently contributing nothing.
+        if text and len(adp_fp) < 20:
+            marks = [text.find(m) for m in ('player_name', '/nfl/players/', 'id="data"', 'averagePick')]
             mark = max([m for m in marks if m >= 0] or [-1])
-            slc = html[max(0, mark - 300): mark + 4000] if mark >= 0 else html[:4000]
-            fp_diag[yr] = {"url": fp_url, "parsed_rows": len(fp_rows), "crosswalked": len(adp_fp),
-                           "row_marker_found": mark >= 0, "html_len": len(html),
-                           "table_slice": slc}
+            slc = text[max(0, mark - 300): mark + 2000] if mark >= 0 else text[:2000]
+            fp_diag[yr] = {"parsed_rows": len(fp_rows), "crosswalked": len(adp_fp),
+                           "text_len": len(text), "fetch_diag": fetch_diag, "sample": slc}
             print(f"  {yr}: FantasyPros parsed {len(fp_rows)} rows, {len(adp_fp)} crosswalked "
-                  f"(<20) — raw head saved for structure inspection")
+                  f"(<20) — discovery diag saved (api_tried={len(fetch_diag.get('api_tried', []))}, "
+                  f"key={fetch_diag.get('bundle_key_found')})")
 
         sources = {"FFC": adp_ffc}
         if len(adp_mfl) >= 20:
