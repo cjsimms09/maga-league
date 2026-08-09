@@ -271,3 +271,54 @@ calibrated function. THAT MEASUREMENT COMES FIRST.
 
 **Gate:** nothing here reaches the surface until measured and past the gates, same
 as everything else. Items 1–3 are the draft slice; 4–6 wait for their systems.
+
+---
+
+## Exp 41 — CALIBRATION-WEIGHTED ENSEMBLE (registered 2026-08-09; build behind exp 34)
+
+**Idea:** the most robust finding in forecasting is that aggregating diverse models
+beats selecting the best one. We have 8 strategy profiles and a Lab that grades them
+— so combine them with weights earned by **measured calibration**, not preference,
+not equal. **Why it aims at our actual problem:** an ensemble deviates only where its
+members AGREE; disagreement collapses the recommendation toward market. That is an
+anchor that emerges from STRUCTURE rather than an imposed threshold — it may do what
+the T=4.0 cap could not, and member disagreement may be a better contested-decision
+detector than any hand-tuned threshold (possibly free).
+**Build:** (1) score every candidate under all 8 profiles per pick; (2) combine into
+one recommendation weighted by each profile's Lab-measured historical accuracy;
+(3) agreement level = the confidence number the surface has been missing (strong
+agreement → confident, may deviate; split → collapse to consensus and say so);
+(4) race the ensemble vs the single composite in the paired-room harness,
+money-graded, null-baselined, same gates.
+**Report:** ensemble vs composite in dollars; its intervention rate vs the composite's
+74%; whether member disagreement predicts the tournament's contested decisions.
+**PRE-REGISTERED:** expect the ensemble deviates **LESS often and more accurately.**
+If it deviates just as often, the profiles are not diverse enough to be an ensemble —
+and THAT is the finding. Ships nothing to the surface until measured past the gates.
+
+## Exp 42 — THE BENCH AS CONTINGENT CLAIMS (registered 2026-08-09; behind exp 34; needs exp 29)
+
+**Idea:** bench picks are not lottery tickets, they are **contingent claims on a
+specific, nameable failure** — a handcuff pays out only when a particular starter
+breaks; an ascending role player only when a depth chart shifts. Price them:
+`value = P(triggering event) × value-if-triggered − roster-spot cost`, with P from
+availability data + depth-chart context, not a vibe.
+**Why different from now:** current bench logic maximizes ceiling, treating all upside
+as fungible. It is not — **upside CORRELATED WITH MY OWN FAILURE MODES is worth more**
+than independent upside. If my RB corps is fragile, the back who inherits those
+touches is worth more to me than an equal back on someone else's roster. The reframe
+of the last six picks: not "which upside guys" but "which of my failure modes am I
+insuring, at what price."
+**Build:** (1) compute my roster's failure modes after each pick (fragile starters,
+positions with no replacement, uncovered byes); (2) per bench candidate identify the
+triggering event + estimate P and value-if-triggered; (3) price the claim vs the
+roster spot, surface in plain language ("insures your RB2 — pays if Henry misses
+time, ~X%"); (4) race vs the ceiling-maximizing endgame, money-graded.
+**Dependency:** needs exp 29's availability curves for real probabilities — sequence
+29 ahead or run together.
+**PRE-REGISTERED CAVEAT:** in a 10-team league the wire is deep, which cuts against
+insurance — you can often just claim the replacement AFTER the failure. The
+experiment must test exactly that: is a rostered handcuff worth more than the
+waiver-claim OPTION on the same player post-injury? **If the wire makes insurance
+redundant, that is the finding and the bench goes back to ceiling.** No surface until
+measured past the gates.
