@@ -1,0 +1,21 @@
+<%
+  // ── DERIVE: tap any number to see how it was computed ─────────────────────
+  // A reusable, site-wide component (Session B). Inline, never a modal, never a
+  // navigation away. ui.js opens the panel as a fixed-positioned popover so it
+  // never clips inside a scrolling table (the money board, standings, any .roll).
+  //
+  // Show REAL derivations only — the rows must be the actual parts the number is
+  // built from, so any figure on the site can be traced to what fed it. If you
+  // cannot supply true parts, do not wrap the number.
+  //
+  // Locals:
+  //   val   — the string to display (already formatted, e.g. "$12,450")
+  //   label — panel heading (e.g. "Michael — career earnings")   [optional]
+  //   rows  — [{ k, v, strong? }] the breakdown; strong marks the total line
+  //   foot  — provenance / how / when, one line                  [optional]
+  //   cls   — extra class on the wrapper (e.g. "money-gold")      [optional]
+  const _rows  = (typeof rows  !== 'undefined' && Array.isArray(rows)) ? rows : [];
+  const _label = (typeof label !== 'undefined' && label) ? String(label) : '';
+  const _foot  = (typeof foot  !== 'undefined' && foot)  ? String(foot)  : '';
+  const _cls   = (typeof cls   !== 'undefined' && cls)   ? String(cls)   : '';
+%><span class="derive <%= _cls %>" data-derive><button class="derive-trigger" type="button" aria-expanded="false" aria-haspopup="dialog"><span class="derive-val"><%= val %></span><span class="derive-cue" aria-hidden="true"></span></button><span class="derive-panel" role="dialog"<% if (_label) { %> aria-label="<%= _label %>"<% } %> hidden><% if (_label) { %><span class="derive-head"><%= _label %></span><% } %><% _rows.forEach(function (r) { %><span class="derive-row<%= r.strong ? ' is-sum' : '' %>"><span class="derive-k"><%= r.k %></span><span class="derive-v"><%= r.v %></span></span><% }) %><% if (_foot) { %><span class="derive-foot"><%= _foot %></span><% } %></span></span>

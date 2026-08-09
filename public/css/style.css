@@ -2753,3 +2753,56 @@ button.pd-team.pick:hover { background: rgba(245,196,69,.16); transform: transla
 .ts-seat b { color: #fff; font-variant-numeric: tabular-nums; }
 .ts-likely { display: block; font-size: .78rem; color: #c7cddd; }
 .ts-tell { display: block; font-size: .72rem; color: var(--muted); font-style: italic; margin-top: .1rem; }
+
+/* ── DERIVE: tap any number to see how it was computed (B, site-wide) ────────
+   Inline, never a modal, never navigation. The trigger reads as the number it
+   wraps with a faint dotted underline + an ⓘ cue; ui.js opens the panel as a
+   fixed-positioned popover so it escapes any scroll container (money board,
+   standings) instead of being clipped. The panel shows the real parts a figure
+   is built from — this is what lets every number on the site be traced. */
+.derive { position: relative; display: inline; }
+.derive-trigger {
+  font: inherit; color: inherit; background: none; border: 0; padding: 0; margin: 0;
+  display: inline; text-align: inherit; cursor: pointer;
+  border-bottom: 1px dotted rgba(245, 196, 69, .45);
+}
+.derive-trigger:hover,
+.derive-trigger[aria-expanded="true"] { border-bottom-color: var(--gold); }
+.derive-trigger:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; border-radius: 2px; }
+.derive-cue::after {
+  content: '\24D8'; /* ⓘ */ font-size: .62em; margin-left: .18em; opacity: .5;
+  vertical-align: super; font-style: normal; font-weight: 700;
+}
+.derive-trigger:hover .derive-cue::after,
+.derive-trigger[aria-expanded="true"] .derive-cue::after { opacity: 1; color: var(--gold); }
+
+.derive-panel {
+  position: fixed; z-index: 220; min-width: 190px; max-width: min(88vw, 320px);
+  display: flex; flex-direction: column;
+  background: var(--panel-soft); color: var(--ink);
+  border: 1px solid var(--line); border-radius: 10px;
+  box-shadow: 0 14px 38px rgba(0, 0, 0, .55);
+  padding: .55rem .65rem; font-size: .78rem; line-height: 1.35;
+  text-align: left; white-space: normal; font-weight: 400; letter-spacing: normal;
+  text-transform: none; font-variant-numeric: normal;
+  animation: derive-in .12s ease-out;
+}
+.derive-panel[hidden] { display: none; }
+@keyframes derive-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+.derive-head {
+  font-family: var(--font-display); font-size: .62rem; font-weight: 800;
+  letter-spacing: .09em; text-transform: uppercase; color: var(--muted);
+  margin-bottom: .35rem;
+}
+.derive-row { display: flex; justify-content: space-between; gap: 1.1rem; padding: .09rem 0; }
+.derive-k { color: #c6cfe0; }
+.derive-v { font-variant-numeric: tabular-nums; font-weight: 600; color: #fff; white-space: nowrap; }
+.derive-row.is-sum {
+  margin-top: .2rem; padding-top: .3rem; border-top: 1px solid var(--line);
+}
+.derive-row.is-sum .derive-k { font-weight: 700; color: #fff; }
+.derive-row.is-sum .derive-v { color: var(--gold); }
+.derive-foot {
+  margin-top: .4rem; font-size: .68rem; color: var(--muted);
+  border-top: 1px dashed rgba(255, 255, 255, .08); padding-top: .32rem; font-weight: 400;
+}

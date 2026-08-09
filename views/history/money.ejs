@@ -45,7 +45,20 @@
                 <span class="flag<%= isGerman ? ' egg-flag' : '' %>"<% if (isGerman) { %> data-egg="wwc" title="🇩🇪" role="button" tabindex="0"<% } %>><%= flag(r.name) %></span>
                 <% if (isGerman) { %><span class="egg-medal egg-reveal" data-egg-medal="wwc">🎖️ back-to-back world war champs</span><% } %>
               </td>
-              <td class="money money-gold"><%= dollars(r.career) %></td>
+              <% // Career = the exact sum of each season's winnings (helpers.careerTotals).
+                 // Tap the number to see the seasons that built it — real parts, no stale total.
+                 const _dy = MB.years.concat(showLive ? [LIVE_YEAR] : []);
+                 const _drows = _dy
+                   .map(function (y) { return { y: y, v: (r.by_year || {})[y] || (r.by_year || {})[String(y)] || 0 }; })
+                   .filter(function (o) { return o.v; })
+                   .map(function (o) { return { k: String(o.y), v: dollars(o.v) }; });
+                 _drows.push({ k: 'Career total', v: dollars(r.career), strong: true }); %>
+              <td class="money money-gold"><%- include('../partials/_derive', {
+                val: dollars(r.career),
+                label: r.name + ' — career earnings',
+                rows: _drows,
+                foot: 'Summed from each season’s winnings — never the sheet’s stale total.'
+              }) %></td>
               <td class="mb-trend"><%- include('../partials/_sparkline', { values: series, w: 84, h: 22, tone: 'gold', title: r.name + ' earnings by season' }) %></td>
               <td style="color:var(--muted)"><%= r.wins %>-<%= r.loss %><%= r.tie ? '-' + r.tie : '' %></td>
               <% for (const y of MB.years) { const v = (r.by_year || {})[y] || (r.by_year || {})[String(y)] || 0; %>
