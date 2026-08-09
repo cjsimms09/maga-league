@@ -19,17 +19,20 @@
 
   <div class="card">
     <h2>👑 The Dynasty Tracker <span class="sub">titles, all time</span></h2>
-    <div class="body chron-scroll">
-      <table class="ledger">
-        <thead><tr><th class="name">Owner</th><th>Titles</th></tr></thead>
-        <tbody>
-          <% for (const d of dynasty) { %>
-            <tr><td class="name"><%= d.name %> <span class="flag"><%= flag(d.name) %></span></td>
-              <td class="money"><%= d.n % 1 ? d.n.toFixed(1) : d.n %><% if (d.name === 'Marian') { %> <a class="aster" href="/history#asterisk">*</a><% } %></td></tr>
-          <% } %>
-        </tbody>
-      </table>
-      <p style="color:var(--muted); font-size:.8rem; margin:.6rem 0 0;">A co-championship counts a half. Marian's 2022 crown carries the asterisk.</p>
+    <div class="body">
+      <% const maxTitles = dynasty.length ? dynasty[0].n : 1; %>
+      <div class="dynasty-ladder">
+        <% dynasty.forEach((d, i) => { const full = Math.floor(d.n); const half = d.n % 1 >= 0.5; %>
+          <div class="dyn-row<%= i === 0 ? ' dyn-top' : '' %>">
+            <span class="dyn-name"><%= d.name %> <span class="flag"><%= flag(d.name) %></span><% if (d.name === 'Marian') { %><a class="aster" href="/history#asterisk">*</a><% } %></span>
+            <span class="dyn-crowns" aria-label="<%= d.n %> titles">
+              <% for (let k = 0; k < full; k++) { %>👑<% } %><% if (half) { %><span class="dyn-half">👑</span><% } %>
+            </span>
+            <span class="dyn-count"><%= d.n % 1 ? d.n.toFixed(1) : d.n %> <span class="muted">ring<%= d.n === 1 ? '' : 's' %></span></span>
+          </div>
+        <% }) %>
+      </div>
+      <p style="color:var(--muted); font-size:.8rem; margin:.7rem 0 0;">A co-championship counts a half. Marian's 2022 crown carries the asterisk.</p>
     </div>
   </div>
 
@@ -48,8 +51,11 @@
       <table class="ledger">
         <thead><tr><th class="name">Owner</th><th>Weekly highs</th><th>≈ Weekly $</th></tr></thead>
         <tbody>
+          <% const maxWH = R.weeklyHighCareer.length ? Math.max(...R.weeklyHighCareer.map(w => w.n)) : 1; %>
           <% for (const w of R.weeklyHighCareer) { %>
-            <tr><td class="name"><%= w.name %></td><td><%= w.n %></td><td class="money">$<%= w.n * 100 %></td></tr>
+            <tr><td class="name"><%= w.name %></td>
+              <td><span class="wh-hunt-bar" style="width:<%= Math.round((w.n / maxWH) * 100) %>%"></span><span class="wh-hunt-n"><%= w.n %></span></td>
+              <td class="money money-gold">$<%= (w.n * 100).toLocaleString('en-US') %></td></tr>
           <% } %>
         </tbody>
       </table>

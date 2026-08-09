@@ -966,3 +966,22 @@ DEPLOYED == main HEAD after this commit.
 
 ## ▶ DEPLOY 2026-08-09 (A) — ship current main; the earlier [deploy] was buried before Netlify evaluated it [deploy]
 `df19f98`'s [deploy] marker was overtaken by lab-bot + B commits before Netlify read the tip, so the build skipped and nothing went live — the exact silent-stranding gap. Re-deploying main HEAD (restore + lineup optimizer + matchup + H2H + Money Board redesign + eggs + side-bet lifecycle + the Lab batch). This commit touches only STATUS.md (not a lab.yml trigger path) so the lab-bot cannot bury it before the build fires. Restore is live-safe (byte-identical to the approved prose), guard loosened (tools 403 / history visible), URGENT flag cleared.
+### 🅱️ update: DESIGN SWEEP started (design-first per Cory, ahead of Sunday alert)
+- **Weekly-high strip** (`_weekly_high_strip.ejs`) — the $100-a-week race as bars on
+  every season page; photo-finishes glow red; who-owned-it chips. Reusable for the
+  live home "this week's race". DONE.
+- **Record Book** — Dynasty Tracker → crown ladder (👑/title, half for co-titles,
+  leader gold-lit); weekly-high hunters → gold bars. DONE.
+- Both offline-renderable, screenshotted, sent to Cory.
+**DESIGN SWEEP REMAINING:** standings rank-movement arrows (live — needs prev-week
+rank, activates on deploy); live home "this week's weekly-high race" meter (reuse
+the strip); money-colour on the side-bet grid; side-bet grid sparklines; page
+hierarchy pass (home/bank); "propose-from-anywhere" one-tap (standings/franchise);
+PROPOSED-not-OPEN wording; Chiefs/Mahomes + Bates eggs. THEN: Sunday alert →
+instrumentation check.
+**⚠️ A/B PROTOCOL:** A struck main-only in TERRITORY.md (claims harness forces
+branches). NOT true for B — every B commit pushes to main fine (per Cory's
+directive). B added a clarification: B is on main, no B branch to integrate, A's
+one action is DEPLOY main. A still on branch `claude/exp34-dollar-arm-*`.
+**BEST-UNSEEN-THING for Cory when deployed:** `/lineup` → The Proof tab (commish-
+only) — validated-to-the-dollar leak, the $2,100 bench tab, per-week drill-down.
