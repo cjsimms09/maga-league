@@ -1,0 +1,184 @@
+{
+  "n_rooms_per_cell": 60,
+  "across_seats": {
+    "1": {
+      "need_minus_pure": 252.08,
+      "ci95": [
+        178.33,
+        335.83
+      ],
+      "holds": true,
+      "avg_RB": {
+        "balanced": 3.25,
+        "b0_pure": 6.53,
+        "b0_need": 4.03
+      }
+    },
+    "2": {
+      "need_minus_pure": 243.75,
+      "ci95": [
+        151.25,
+        339.17
+      ],
+      "holds": true,
+      "avg_RB": {
+        "balanced": 3.18,
+        "b0_pure": 6.3,
+        "b0_need": 4.05
+      }
+    },
+    "3": {
+      "need_minus_pure": 338.75,
+      "ci95": [
+        251.67,
+        430.42
+      ],
+      "holds": true,
+      "avg_RB": {
+        "balanced": 3.08,
+        "b0_pure": 6.18,
+        "b0_need": 4.23
+      }
+    },
+    "4": {
+      "need_minus_pure": 269.17,
+      "ci95": [
+        184.58,
+        357.5
+      ],
+      "holds": true,
+      "avg_RB": {
+        "balanced": 3.07,
+        "b0_pure": 6.35,
+        "b0_need": 4.35
+      }
+    },
+    "5": {
+      "need_minus_pure": 335.42,
+      "ci95": [
+        237.08,
+        441.25
+      ],
+      "holds": true,
+      "avg_RB": {
+        "balanced": 3.0,
+        "b0_pure": 6.53,
+        "b0_need": 4.43
+      }
+    },
+    "6": {
+      "need_minus_pure": 306.67,
+      "ci95": [
+        215.83,
+        400.42
+      ],
+      "holds": true,
+      "avg_RB": {
+        "balanced": 2.92,
+        "b0_pure": 6.42,
+        "b0_need": 4.73
+      }
+    },
+    "7": {
+      "need_minus_pure": 282.5,
+      "ci95": [
+        185.42,
+        379.58
+      ],
+      "holds": true,
+      "avg_RB": {
+        "balanced": 2.75,
+        "b0_pure": 6.08,
+        "b0_need": 4.62
+      }
+    },
+    "8": {
+      "need_minus_pure": 213.75,
+      "ci95": [
+        138.75,
+        292.08
+      ],
+      "holds": true,
+      "avg_RB": {
+        "balanced": 2.72,
+        "b0_pure": 6.2,
+        "b0_need": 4.68
+      }
+    },
+    "9": {
+      "need_minus_pure": 292.5,
+      "ci95": [
+        204.17,
+        388.75
+      ],
+      "holds": true,
+      "avg_RB": {
+        "balanced": 2.55,
+        "b0_pure": 6.32,
+        "b0_need": 4.68
+      }
+    },
+    "10": {
+      "need_minus_pure": 346.67,
+      "ci95": [
+        255.83,
+        435.83
+      ],
+      "holds": true,
+      "avg_RB": {
+        "balanced": 2.55,
+        "b0_pure": 6.72,
+        "b0_need": 4.73
+      }
+    }
+  },
+  "across_seats_all_hold": true,
+  "opponent_model": {
+    "dossier": {
+      "need_minus_pure": 288.75,
+      "ci95": [
+        207.08,
+        378.75
+      ],
+      "holds": true
+    },
+    "uniform": {
+      "need_minus_pure": 248.75,
+      "ci95": [
+        180.42,
+        320.83
+      ],
+      "holds": true
+    }
+  },
+  "alternate_keepers": {
+    "actual (Chase WR, Henry+Walker RB)": {
+      "need_minus_pure": 288.75,
+      "ci95": [
+        207.08,
+        378.75
+      ],
+      "holds": true,
+      "kept_RB": 2
+    },
+    "one RB instead a WR (RB slots NOT full)": {
+      "need_minus_pure": 328.33,
+      "ci95": [
+        240.0,
+        417.5
+      ],
+      "holds": true,
+      "kept_RB": 1
+    },
+    "one RB instead a TE": {
+      "need_minus_pure": 233.75,
+      "ci95": [
+        162.08,
+        313.33
+      ],
+      "holds": true,
+      "kept_RB": 1
+    }
+  },
+  "reads": "Rule holds where CI clears $0. Expected weakenings: the margin SHRINKS as fewer RB are kept (less over-draft to prevent) \u2014 that is correct, not a failure. If it flips sign anywhere, that seat/slate is where 'within need' stops paying and the tool should say so."
+}

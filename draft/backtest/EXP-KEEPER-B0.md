@@ -46,6 +46,45 @@ fill** before ranking. This is the concrete rule the tool speaks at pick 34, and
 supersedes an unqualified "follow the market." Wiring it into the board is the
 follow-on (with the resolver, task #10).
 
+## THE NEED DEFINITION — this IS the strategy now (read it)
+
+`need_filter(board, roster)` — the exact rule the board executes:
+1. **Starters first.** Slots: **QB1 RB2 WR2 TE1 K1 DEF1** (dedicated) **+ 1 FLEX (RB/WR/TE)**.
+   A position is *needed* while `count(pos) < starters(pos)`. The pick is the
+   **lowest-ADP player among needed positions**.
+2. **Flex next.** Once all dedicated starters are full, if the flex is open
+   (RB/WR/TE overflow `< 1`), pick the lowest-ADP RB/WR/TE. **This is where a 3rd RB
+   earns its keep and a 4th does not** — the 3rd fills flex; the 4th only ever
+   reaches the board through step 3.
+3. **Bench = best available.** Starters + flex full → no mask, lowest-ADP overall.
+4. **Onesies (K/DEF)** are "needs" from pick 1, but their late ADP means the
+   lowest-ADP-among-needs rule only takes them late — and if they're the *only*
+   unfilled starters at the end, they get drafted (mandatory endgame). Correct
+   by construction, no special case.
+- **NOT modeled (known limitation):** bye-week coverage — after QB1/TE1 fill, the
+  rule deprioritizes QB/TE until bench, so it won't proactively draft a bye
+  handcuff. Streaming covers most of this in a 10-team league; flagged for the
+  board copy so Cory knows the rule doesn't handle byes.
+
+## Robustness (stress-tested, 120 rooms/cell) — it holds everywhere
+
+`python3 draft/backtest/exp_keeper_b0.py --robust` → `exp_keeper_b0_robust.json`.
+The +$258 headline is **not fragile**:
+- **Across all 10 seats:** need−pure = **$214–$347, every CI clear of $0.** Holds
+  from any draft slot (Cory's is unassigned). Pure ADP over-drafts RB at every seat
+  (~2 more RB than within-need).
+- **Opponent model:** holds under both the dossier room ($289) and the uniform
+  sampler ($249) — not an artifact of the dossier fits. (True frozen fixed-sequence
+  opponents still need the replay harness; the uniform room is the available proxy.)
+- **Alternate keeper slates:** holds under all tested ($234–$328). Honest correction
+  to my pre-registration: I predicted the margin would shrink monotonically with
+  fewer RB kept — it does **not** (it tracks the full need structure, not RB count
+  alone), but it stays large and positive in every slate.
+- **Where it would weaken:** nowhere in the tested space. The one caveat is the seat
+  sweep assumes a full 15 picks (it doesn't subtract keeper-consumed picks), so its
+  absolute `avg_RB` (~6) is inflated vs the real keeper-reduced roster (~4.5) — the
+  *relative* need−pure margin is unaffected.
+
 ## Discipline / limits
 
 - **Relative result is the robust one.** Both arms run the SAME rooms and the SAME

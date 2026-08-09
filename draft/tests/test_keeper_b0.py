@@ -47,3 +47,11 @@ def test_b0_arms_return_singletons_forcing_the_adp_pick():
         pass
     assert len(KB.candidates()["b0_pure"](board, 1, [])) == 1
     assert KB.candidates()["b0_pure"](board, 1, [])[0]["adp"] == 3   # lowest ADP
+
+
+def test_snake_picks_seat_positions():
+    # 10-team snake: seat 1 -> 1,20,21,40,...; seat 10 -> 10,11,30,31,...
+    s1 = KB.snake_picks(1, teams=10, rounds=3)
+    assert s1 == [1, 20, 21]
+    s10 = KB.snake_picks(10, teams=10, rounds=3)
+    assert s10 == [10, 11, 30]

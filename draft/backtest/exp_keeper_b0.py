@@ -75,8 +75,23 @@ def candidates():
     }
 
 
-def race(n_rooms=200, seed=SEED):
+def snake_picks(seat, teams=10, rounds=15):
+    """Overall pick numbers for a given snake SEAT (1-indexed). Cory's seat is still
+    unassigned, so the rule must hold from any of them."""
+    out = []
+    for r in range(1, rounds + 1):
+        s = seat if r % 2 == 1 else (teams - seat + 1)
+        out.append((r - 1) * teams + s)
+    return out
+
+
+def race(n_rooms=200, seed=SEED, my_picks_override=None, my_keepers_override=None,
+         heterogeneous=True):
     pool, my_keepers, opp_keepers, my_picks = CC.load_world()
+    if my_picks_override is not None:
+        my_picks = my_picks_override
+    if my_keepers_override is not None:
+        my_keepers = my_keepers_override
     cand = candidates()
     per_seed = {k: [] for k in cand}
     rb_taken = {k: [] for k in cand}      # how many RB each policy drafts (the 4th-RB tell)
@@ -85,7 +100,8 @@ def race(n_rooms=200, seed=SEED):
         rosters_by = {}
         for k, chooser in cand.items():
             r = random.Random(); r.setstate(opp_state)     # SAME room for every candidate
-            rosters_by[k] = CC.draft_room(pool, my_keepers, opp_keepers, my_picks, chooser, r)
+            rosters_by[k] = CC.draft_room(pool, my_keepers, opp_keepers, my_picks, chooser, r,
+                                          heterogeneous=heterogeneous)
         grade_state = random.Random(seed * 7 + s).getstate()
         for k, rosters in rosters_by.items():
             g = random.Random(); g.setstate(grade_state)   # SAME weekly luck for every candidate
@@ -132,12 +148,93 @@ def run(n_rooms=200):
     }
 
 
+def _head_to_head(per_seed, seed=SEED):
+    """b0_need - b0_pure, paired; returns (mean, [lo,hi], beats)."""
+    hh = [a - b for a, b in zip(per_seed["b0_need"], per_seed["b0_pure"])]
+    m = sum(hh) / len(hh)
+    lo, hi = CC.bootstrap_ci(hh, random.Random(seed + 1))
+    return round(m, 2), [round(lo, 2), round(hi, 2)], bool(lo > 0)
+
+
+def _avg_rb(rb_taken):
+    return {k: round(sum(v) / len(v), 2) for k, v in rb_taken.items()}
+
+
+def robustness(n_rooms=100):
+    """Stress the +$258 headline: across seats (Cory's is unassigned), under a
+    different opponent model, and under alternate keeper slates (an unpredicted
+    keeper changes the need structure). Report where the margin WEAKENS."""
+    _, base_keepers, _, _ = CC.load_world()
+    result = {"n_rooms_per_cell": n_rooms}
+
+    # 1. ACROSS SEATS — does need>pure hold from every draft slot?
+    seats = {}
+    for seat in range(1, 11):
+        ps, rb = race(n_rooms=n_rooms, my_picks_override=snake_picks(seat))
+        m, ci, beats = _head_to_head(ps)
+        seats[seat] = {"need_minus_pure": m, "ci95": ci, "holds": beats,
+                       "avg_RB": _avg_rb(rb)}
+    result["across_seats"] = seats
+    result["across_seats_all_hold"] = all(v["holds"] for v in seats.values())
+
+    # 2. OPPONENT MODEL — dossier (heterogeneous) vs uniform sampler. True frozen
+    #    fixed-sequence needs the replay harness; the uniform room is the available
+    #    contrast for "does the room model drive the result".
+    model = {}
+    for name, het in (("dossier", True), ("uniform", False)):
+        ps, rb = race(n_rooms=n_rooms, heterogeneous=het)
+        m, ci, beats = _head_to_head(ps)
+        model[name] = {"need_minus_pure": m, "ci95": ci, "holds": beats}
+    result["opponent_model"] = model
+
+    # 3. ALTERNATE KEEPER SLATES — the margin should track the need structure: fewer
+    #    RB kept -> less over-draft to avoid -> smaller margin. That is the honest
+    #    dependency, and it tells Cory the rule matters MOST exactly when his RB slots
+    #    are pre-filled (his actual case).
+    def swap(pos_from, pos_to):
+        # flip one kept player's position label to change the need structure
+        out, flipped = [], False
+        for k in base_keepers:
+            if not flipped and k["position"] == pos_from:
+                out.append({**k, "position": pos_to}); flipped = True
+            else:
+                out.append(dict(k))
+        return out
+    slates = {"actual (Chase WR, Henry+Walker RB)": base_keepers,
+              "one RB instead a WR (RB slots NOT full)": swap("RB", "WR"),
+              "one RB instead a TE": swap("RB", "TE")}
+    ks = {}
+    for name, kp in slates.items():
+        ps, rb = race(n_rooms=n_rooms, my_keepers_override=kp)
+        m, ci, beats = _head_to_head(ps)
+        ks[name] = {"need_minus_pure": m, "ci95": ci, "holds": beats,
+                    "kept_RB": sum(1 for p in kp if p["position"] == "RB")}
+    result["alternate_keepers"] = ks
+    result["reads"] = ("Rule holds where CI clears $0. Expected weakenings: the margin "
+                       "SHRINKS as fewer RB are kept (less over-draft to prevent) — that is "
+                       "correct, not a failure. If it flips sign anywhere, that seat/slate is "
+                       "where 'within need' stops paying and the tool should say so.")
+    return result
+
+
 if __name__ == "__main__":   # pragma: no cover
     import argparse
     ap = argparse.ArgumentParser()
     ap.add_argument("--rooms", type=int, default=200)
+    ap.add_argument("--robust", action="store_true", help="run the robustness sweep")
     ap.add_argument("--out", default=str(HERE / "exp_keeper_b0.json"))
     a = ap.parse_args()
+    if a.robust:
+        rob = robustness(n_rooms=max(60, a.rooms // 2))
+        Path(HERE / "exp_keeper_b0_robust.json").write_text(json.dumps(rob, indent=2))
+        print(json.dumps({
+            "across_seats_all_hold": rob["across_seats_all_hold"],
+            "seats": {s: (v["need_minus_pure"], v["ci95"], v["avg_RB"]["b0_pure"], v["avg_RB"]["b0_need"])
+                      for s, v in rob["across_seats"].items()},
+            "opponent_model": {k: (v["need_minus_pure"], v["ci95"]) for k, v in rob["opponent_model"].items()},
+            "alt_keepers": {k: (v["need_minus_pure"], v["ci95"], v["kept_RB"]) for k, v in rob["alternate_keepers"].items()},
+        }, indent=2))
+        raise SystemExit(0)
     res = run(n_rooms=a.rooms)
     Path(a.out).write_text(json.dumps(res, indent=2))
     print(json.dumps({"per_policy": {k: {"vs_balanced": v["mean_vs_balanced"], "ci95": v["ci95"],
