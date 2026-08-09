@@ -55,6 +55,19 @@ the outcome is mine.
    mirror: when Cory (or anyone) asserts something is a big edge and the evidence
    contradicts it, say so THAT TURN — the sliders are not a top edge, and saying it back
    beats executing the request.
+11. **Design for information, not for a result (2026-08-09).** Racing 3 hand-picked configs
+    yields a result and almost no information. Before running anything, write down: the
+    possible outcomes, what each would change, and whether a different design would teach
+    more for the same cost — if yes, run that one. A good design here: (a) DISTINGUISHES
+    hypotheses — maps a response across a range to show the SHAPE (the ceiling inverted-U
+    beat any win/lose race), not just default-vs-challenger; (b) covers the space where the
+    prior is strong densely enough that a real effect can't hide; (c) reuses the same
+    rooms/seeds/opponents across arms (paired — already why 19b is trustworthy); (d) goes
+    FACTORIAL over terms that might interact, for little more than testing them separately,
+    to reveal interactions; (e) knows its POWER before running; (f) reports curves with
+    intervals, not a leaderboard. When a result is uninformative (null with no power, a
+    comparison that isolated nothing), that is a DESIGN failure — say so, don't file it as
+    a finding.
 10. **Prior-guided search — the front half of the science (2026-08-09).** Deciding WHAT
     to test is a skill, and the weak one. Three arbitrary configs raced = an anecdote;
     sweeping thousands against thin data = multiplicity, winner is noise. Between them:

@@ -49,6 +49,23 @@ risk / keeper / bye are decoration (≤$30).** If need or value came back null t
 overturn the architecture and I'd distrust the harness first. If ceiling earns on
 weekly-high, that's the one non-obvious survivor and it sharpens the shape story.
 
+## Design for information (habit 11) — response surface + factorial, not on/off
+On/off ablation gives a leaderboard; the informative version maps SHAPE and INTERACTION:
+- **need + value:** sweep each weight across a range {0, 0.5, 1, 1.5, 2, 3} and report the
+  E[$] **curve with intervals** (is it monotonic? where's the optimum? does value peak at
+  its 1.0 default or higher now that the board is better?). Same paired rooms/seeds across
+  every point.
+- **need × phase FACTORIAL:** the one interaction with a strong prior — need should matter
+  MORE as slots fill. Cross need-weight × {early, mid, late} finer than Auto's designed
+  2/6/10 boundaries. This is the phase sweep the tournament never ran (it moved only
+  ceiling/risk), answering the Auto-audit gap in the same design.
+- **ceiling × payout-component:** grade ceiling's effect separately on the **weekly-high**
+  vs **regular-season** dollars — the only place the prior gives ceiling a chance (shape
+  pays in weekly-high). A single pooled number would hide it.
+- **tier/risk/keeper/bye:** on/off only (weak prior) — bounded, not mapped.
+All arms share rooms/seeds/opponents (paired). Report curves + CIs, not a winner. An
+uninformative cell (CI spanning zero at the n used) is labeled underpowered, not "null."
+
 ## What it settles
 If need + value carry it and the rest are decoration, the model collapses to the defensible
 core — rank by (MFL) board, mask to startable need, apply proven exceptions — and the war
