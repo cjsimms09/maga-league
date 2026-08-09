@@ -178,5 +178,31 @@ function check(name, cond, detail) {
     JSON.stringify(none));
 }
 
+// --- HUMAN OVERRIDE: choose / return / protected from auto-hysteresis ---------
+{
+  const s = new D.DoctrineState('wr_anchor', { noiseBand: 4, minPicks: 2 });
+  const rec = s.choose('zero_rb', 34);
+  check('choose sets the current doctrine to the human pick', s.current === 'zero_rb');
+  check('choose marks a manual override', s.manual === true);
+  check('choose returns a ledger-ready manual_switch record',
+    rec.event === 'manual_switch' && rec.from === 'wr_anchor' && rec.doctrine === 'zero_rb' && rec.pick === 34);
+
+  // A big, durable lead for a DIFFERENT doctrine must NOT auto-switch while manual.
+  const scores = { zero_rb: 100, hero_rb: 200, wr_anchor: 150 };
+  s.update(scores, 35); s.update(scores, 36); s.update(scores, 37);
+  check('the auto-hysteresis does NOT move the plan out from under a manual override',
+    s.current === 'zero_rb', s.current);
+  const out = s.update(scores, 38);
+  check('...but it still reports the live alternative + gap (so the banner can nudge)',
+    out.alternative_key === 'hero_rb' && out.gap !== 0, JSON.stringify(out));
+
+  const back = s.returnToRecommended(39);
+  check('returnToRecommended restores the enrolled plan', s.current === 'wr_anchor' && s.manual === false);
+  check('return is logged as its own event', back.event === 'return_to_recommended');
+  // With the hold cleared, the durable leader can auto-switch again.
+  s.update(scores, 40); const auto = s.update(scores, 41);
+  check('auto-hysteresis resumes after returning to recommended', s.current === 'hero_rb', s.current);
+}
+
 console.log(`\n${pass}/${pass + fail} doctrine checks passed`);
 process.exit(fail ? 1 : 0);

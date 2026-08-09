@@ -873,8 +873,11 @@
       // scoring exactly as it did before while the banner claimed the plan was
       // driving. Caught by the MVS plan line reading "no preference" at pick 1
       // on a board whose top pick was a WR under WR Feast.
-      doctrine: (doctrineState() && state.doctrineEnrollment
-                 && state.doctrineEnrollment.enrolled) ? state.doctrine.current : null,
+      // The tilt applies when the model's plan is enrolled OR when Cory has
+      // manually chosen a doctrine — a human override must re-tilt the board too,
+      // not just the auto-enrolled plan.
+      doctrine: (doctrineState() && ((state.doctrineEnrollment && state.doctrineEnrollment.enrolled)
+                 || (state.doctrine && state.doctrine.manual))) ? state.doctrine.current : null,
       // THE THREE THE ENGINE READ AND THE APP NEVER SENT.
       //   totalPicks   drives draft progress -> urgency curves and the ceiling
       //                term. Absent, progress was computed off undefined.
@@ -3592,8 +3595,11 @@
       // scoring exactly as it did before while the banner claimed the plan was
       // driving. Caught by the MVS plan line reading "no preference" at pick 1
       // on a board whose top pick was a WR under WR Feast.
-      doctrine: (doctrineState() && state.doctrineEnrollment
-                 && state.doctrineEnrollment.enrolled) ? state.doctrine.current : null,
+      // The tilt applies when the model's plan is enrolled OR when Cory has
+      // manually chosen a doctrine — a human override must re-tilt the board too,
+      // not just the auto-enrolled plan.
+      doctrine: (doctrineState() && ((state.doctrineEnrollment && state.doctrineEnrollment.enrolled)
+                 || (state.doctrine && state.doctrine.manual))) ? state.doctrine.current : null,
       // THE THREE THE ENGINE READ AND THE APP NEVER SENT.
       //   totalPicks   drives draft progress -> urgency curves and the ceiling
       //                term. Absent, progress was computed off undefined.
@@ -3675,7 +3681,109 @@
         : '');
 
     renderDoctrineSwitch(out, prior);
+    renderDoctrinePicker(scores, out, enr);
     captureDoctrine(out);
+  }
+
+  /* THE DOCTRINE-SWITCH UI. Tap the plan block -> the full doctrine list, each with
+   * its live dollar score and the gap to the current plan, and a one-tap switch;
+   * one-tap return to the model's recommended plan, always. A switch re-tilts the
+   * board immediately (the doctrine tilt reads state.doctrine.current) and is logged
+   * to the ledger so January can grade whether my override earned money. When the
+   * live alternative is within the band, the picker header is a visible prompt, not
+   * a passive note — a coin-flip is my call and I should be told so. A-rendered into
+   * B's #doctrine-banner host; no shell edit. */
+  function renderDoctrinePicker(scores, out, enr) {
+    const banner = document.getElementById('doctrine-banner');
+    if (!banner || typeof DraftDoctrine === 'undefined') return;
+    const st = state.doctrine;
+    if (!st) return;
+    // A-owned picker element, created once and inserted right after the banner.
+    let pick = document.getElementById('doctrine-picker');
+    if (!pick) {
+      pick = document.createElement('div');
+      pick.id = 'doctrine-picker';
+      pick.className = 'doctrine-picker';
+      pick.style.display = 'none';
+      banner.parentNode.insertBefore(pick, banner.nextSibling);
+      // Tap the banner to toggle the picker open/closed.
+      banner.style.cursor = 'pointer';
+      banner.setAttribute('title', 'tap to change the plan');
+      banner.addEventListener('click', function (e) {
+        if (e.target.closest && e.target.closest('#db-decline')) return;  // let decline handle itself
+        pick.style.display = pick.style.display === 'none' ? '' : 'none';
+      });
+    }
+    const cur = st.current;
+    const contested = /within the band/.test(out.confidence || '');
+    // Ranked by live dollars; each doctrine its score + gap to the current plan.
+    const curScore = scores && scores[cur] != null ? scores[cur] : 0;
+    const rows = Object.keys(scores || {})
+      .map(function (k) { return { key: k, meta: DraftDoctrine.doctrineMeta(k), score: scores[k] }; })
+      .sort(function (a, b) { return b.score - a.score; })
+      .map(function (r) {
+        const gap = r.score - curScore;
+        const isCur = r.key === cur;
+        const gapTxt = isCur ? '<span class="dp-cur">current plan</span>'
+          : (gap >= 0 ? '+$' + gap.toFixed(0) : '−$' + Math.abs(gap).toFixed(0));
+        return '<div class="dp-row' + (isCur ? ' dp-is-cur' : '') + '">'
+          + '<span class="dp-name">' + escapeHtml(r.meta.name) + '</span>'
+          + '<span class="dp-creed muted">' + escapeHtml(r.meta.creed) + '</span>'
+          + '<span class="dp-gap">' + gapTxt + '</span>'
+          + (isCur ? '' : '<button class="btn small gold dp-switch" data-doctrine="'
+              + escapeHtml(r.key) + '">switch</button>')
+          + '</div>';
+      }).join('');
+    const header = contested && out.alternative
+      ? '<div class="dp-head dp-contested">⚖️ close call — ' + escapeHtml(out.alternative)
+        + ' is within the band. A coin-flip is your call: tap to switch.</div>'
+      : '<div class="dp-head">Change the plan — each doctrine’s live dollar score at this pick:</div>';
+    const returnBtn = st.manual
+      ? '<button class="btn small navy dp-return">↩ back to the recommended plan ('
+        + escapeHtml(DraftDoctrine.doctrineMeta(st.enrolledKey).name) + ')</button>'
+      : '';
+    pick.innerHTML = header + rows + returnBtn;
+    // Contested is a prompt: open the picker so the coin-flip is in front of me.
+    if (contested && pick.dataset.autoOpenedPick !== String(currentPick())) {
+      pick.style.display = '';
+      pick.dataset.autoOpenedPick = String(currentPick());
+    }
+    // Wire the switch + return buttons (fresh each render; simple + robust).
+    Array.prototype.forEach.call(pick.querySelectorAll('.dp-switch'), function (b) {
+      b.onclick = function (e) {
+        e.stopPropagation();
+        doctrineChoose(b.getAttribute('data-doctrine'));
+      };
+    });
+    const rb = pick.querySelector('.dp-return');
+    if (rb) rb.onclick = function (e) { e.stopPropagation(); doctrineReturn(); };
+  }
+
+  /* Commit a human doctrine switch: set it, log it at decision time, re-render so
+   * the board re-tilts immediately. */
+  function doctrineChoose(key) {
+    const st = state.doctrine;
+    if (!st || !key) return;
+    const rec = st.choose(key, currentPick());
+    if (typeof PredLedger !== 'undefined' && !state.mockMode) {
+      const c = ledgerCtx();
+      PredLedger.capture('doctrine', { season: c.season, build_at: c.build_at, pick: c.pick,
+        method: 'doctrine-manual-v1',
+        payload: { doctrine: rec.doctrine, from: rec.from, manual: true, event: 'manual_switch' } });
+    }
+    renderAll();
+  }
+  function doctrineReturn() {
+    const st = state.doctrine;
+    if (!st) return;
+    const rec = st.returnToRecommended(currentPick());
+    if (typeof PredLedger !== 'undefined' && !state.mockMode) {
+      const c = ledgerCtx();
+      PredLedger.capture('doctrine', { season: c.season, build_at: c.build_at, pick: c.pick,
+        method: 'doctrine-manual-v1',
+        payload: { doctrine: rec.doctrine, from: rec.from, manual: false, event: 'return_to_recommended' } });
+    }
+    renderAll();
   }
 
   /* A switch is an EVENT: an announcement row with one plain sentence and a
