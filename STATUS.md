@@ -1293,3 +1293,50 @@ Tests: champs 12, rivalries 24, both wired to CI; HTTP integration 14 + 11.
 **Still gated on A (unchanged):** war-room boundary NOT in TERRITORY.md (line 124).
 **A must integrate+deploy the branch** — warroom shell CSS, derive, rivalry pages,
 crown+trophy, and rivalry billing are all on it, not yet on main.
+
+### ▶ SESSION B RESUME MARKER — 2026-08-09 (WAR ROOM redesign DONE + big backlog)
+**Ritual:** "You are session B, read SESSION-B.md and STATUS.md, then continue."
+**Branch:** `claude/warroom-shell-redesign-9j1th0` (rebased onto main, pushed). B never deploys.
+
+**★ WAR ROOM REDESIGN — DONE, verified at 390px (front-of-line priority).**
+The recommendation now owns the phone's first fold. Measured: recs-card 1230px
+(1.46 folds, below fold) → **326px with the stale warning, ~141px on a fresh board**
+— what to take (Puka Nacua), why (tier cliff, +87 pts), and the "I TOOK X" button
+all visible before scrolling. Shell-only; host-id contract respected (app-wiring
+22/22 green). Header `tool` mode suppresses masthead + announcements on the war
+room; furniture (doctrine/legality/statusbar/mvs/shadow/LRM) moved below the pick
+and compacted. No horizontal scroll. **Screenshot harness:** `scratchpad/wrshot.js`
+(boots app, logs in commish, 390px, reports per-host top/height + hOverflow) —
+NODE_PATH=./node_modules, chromium at /opt/pw-browsers/chromium-1194/chrome-linux/chrome.
+
+**🅰️→ A: DEPLOY so Cory can screenshot-verify the war room** (his one measurable
+check). Branch has: warroom redesign, crown+trophy, rivalry billing+German egg,
+rivalry pages, derive. Rebased clean onto main; integrate + deploy.
+
+**★ HUGE BACKLOG from Cory (this turn) — parked in PARKED.md "the big feature spec".**
+Taxonomy Cory set (the site must NOT grow a page per feature):
+- TRANSIENT (appear/read/dismiss, archived to history): weekly awards (Tue),
+  power rankings (weekly), on-this-day (one home line).
+- FOLDED into existing screens: playoff-odds COLUMN in standings; "what this
+  matchup is worth" line on matchup; live weekly-$100 + sweat meter INTO the
+  what-to-watch panel; elimination/clinch markers in standings + one-time notice.
+- WHAT-TO-WATCH panel (home, Sun/Mon only, appears+vanishes): per-matchup "who
+  needs what from whom", weekly-high race, decided-flag. Needs live Sleeper (403s
+  in sandbox — build+verify against deployed data, like the odds probe).
+- PICK'EM ("the best one, build it properly"): two-way pick per game on the league
+  matchup screen, locks at first kickoff, see who picked against you, per-game
+  split, season + all-time accuracy leaderboard (small/permanent), archived.
+- TRASH TALK on a specific matchup, permanent + archived for the chronicle.
+- FINAL DESIGN PASS (explicitly LAST): whole-site, mobile-first, USA theme
+  deliberate, everything-ties-together, time-capsule surfacing. Plus: Chiefs logo
+  next to every KC player everywhere (Sleeper `p.team === 'KC'`, reachable);
+  GOAT next to whoever rosters Mahomes (auto-moves). DO NOT build a season money
+  leaderboard (already on money board).
+- Mobile-first constraints apply to everything: no horizontal scroll, thumb
+  targets, nothing important below 3 folds, test at 390px.
+
+**Sequencing recommendation for next session:** pick'em first (buildable+testable
+offline, high delight, "the best one"), then transient popups (awards/power/on-this-
+day, offline-testable), then folded columns (playoff odds/matchup worth), then the
+live what-to-watch panel (needs deployed Sleeper), then the final design pass +
+Chiefs logo + GOAT last. Chiefs logo + GOAT are cheap and could ride along early.

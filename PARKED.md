@@ -631,3 +631,62 @@ when the egg is live. Sizeable but mechanical; keep the German real, not machine
   in the league voice.
 - Permanent history note when a rivalry game decides a playoff spot or a weekly
   high (extra billing + a durable mark).
+
+---
+
+## 🅱️ THE BIG FEATURE SPEC (Cory, 2026-08-09) — parked, sequenced
+
+**The principle (governs all of it):** the site must NOT grow a page per feature.
+Transient things pop up and vanish; persistent things become a column, a line, or a
+small addition to an existing screen. A new page requires a stated why first.
+All league-visible; none touch the commissioner-only tools.
+
+### PICK'EM — "build this properly, it is the best one" (do FIRST; offline-testable)
+Two-way pick per game on the league matchup screen (tap a side, done; everyone
+picks weekly). Requirements: see who picked AGAINST you; per-game split once locked
+("7 of 10 took Michael"); picks LOCK at first kickoff; season-long accuracy
+leaderboard AND all-time (accumulating across seasons), small but permanent, in the
+standings area or home; the worst picker should know it; archived so the chronicle
+can quote ("4-11 the year he finished last"). Storage: a B-owned module
+(`src/picks.js`) + routes + a picks partial. No new page — the leaderboard folds
+into standings/home; the picks UI is on the existing league-matchup screen.
+
+### TRANSIENT POPUPS (dismissible cards, archived to history; offline-testable)
+- WEEKLY AWARDS — Tuesday, mean, league voice: highest/worst score, biggest bench
+  disaster, luckiest win, unluckiest loss, best single player, worst start. Appear,
+  read, dismiss; archived so chapters can use it. (Compute from box scores.)
+- POWER RANKINGS — weekly popup, one written line each, ranked by something real,
+  dismissible. Not a permanent page.
+- ON THIS DAY IN LEAGUE HISTORY — one rotating home-page LINE from the chronicle.
+
+### FOLDED INTO EXISTING SCREENS
+- PLAYOFF ODDS — a COLUMN in the standings (% + this-week movement). Needs a
+  champ/playoff-probability model (A lane — see the earlier "championship-probability"
+  request to A; until then a labelled placeholder from standings+points).
+- WHAT THIS MATCHUP IS WORTH — one line on the matchup screen: expected money swing
+  each side (from payout structure + standings implications).
+- ELIMINATION & CLINCH — a marker in standings when it happens + one-time notice.
+
+### WHAT-TO-WATCH panel (home, Sun/Mon only; NEEDS DEPLOYED SLEEPER — 403 in sandbox)
+Small compact home panel, appears for the night game and goes away. Per undecided
+matchup: the remaining player, his team, exactly what he needs ("Cory needs 14.2
+more from Jefferson to beat Michael"). Cover every matchup. Include the live
+weekly-$100 race. Say "decided" plainly when mathematically over. The SWEAT METER
+and the LIVE WEEKLY HUNDRED fold into THIS panel (do not build a third live
+surface). Tapping opens the full matchup. Bill a live rivalry as such. Build+verify
+against deployed data (same constraint as the Vegas odds probe).
+
+### TRASH TALK ON MATCHUPS
+Post directly on a specific matchup (not just the locker room); attached to that
+game permanently + archived so chapters can quote pre-loss bravado.
+
+### FINAL DESIGN PASS — explicitly LAST (after everything above)
+Whole-site, page-by-page, mobile-FIRST (390px, no horizontal scroll ever, thumb
+targets, nothing important below 3 folds), USA theme made deliberate (real palette /
+type scale / consistent treatment), everything-ties-together (every number → its
+story, every name → their history, every game → its box score), a real time capsule
+(surface old seasons / departed owners / name changes / money / rivalries / trophy).
+Two specific adds: (1) CHIEFS LOGO next to every KC player everywhere (Sleeper
+`p.team === 'KC'`, reachable — confirmed); (2) a GOAT next to whoever rosters
+Mahomes, auto-moving. DO NOT build a season money leaderboard (dup of money board).
+Screenshot before/after each page; bold over timid.
