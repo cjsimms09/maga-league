@@ -1067,12 +1067,10 @@ button.is-busy, .btn.is-busy {
   color: #f2e2b4; font-weight: 900; letter-spacing: .12em; text-transform: uppercase;
   padding: .45rem; border-bottom: 2px solid rgba(245,196,69,.6); font-size: .82rem;
 }
-body.is-rehearsal::after {
-  content: "REHEARSAL"; position: fixed; right: -30px; top: 6px; z-index: 79;
-  transform: rotate(45deg); background: rgba(245,196,69,.9); color: #0b1020;
-  font-weight: 900; letter-spacing: .08em; font-size: .58rem; padding: .12rem 2.4rem;
-  pointer-events: none; box-shadow: 0 3px 10px rgba(0,0,0,.3);
-}
+/* Corner ribbon removed: A's `main` replaced it with a flat strip because the
+   ribbon covered END DRAFT / HARD RESET. Not rebuilding it — the flat strip is
+   the version that solved the overlay problem. (The sticky .rehearsal-watermark
+   banner above stays.) */
 
 /* A2 — SLOT UNVERIFIED. A quieter cousin of the rehearsal banner: the slot is a
    placeholder until Sleeper confirms it, and everything slot-derived is
@@ -1084,12 +1082,8 @@ body.is-rehearsal::after {
   color: #ffd3d7; font-weight: 800; letter-spacing: .1em; text-transform: uppercase;
   padding: .4rem; border-bottom: 2px solid rgba(255,70,85,.5); font-size: .76rem;
 }
-body.slot-unverified:not(.is-rehearsal)::before {
-  content: "SLOT UNVERIFIED"; position: fixed; right: -34px; top: 6px; z-index: 77;
-  transform: rotate(45deg); background: rgba(255,70,85,.9); color: #fff;
-  font-weight: 900; letter-spacing: .06em; font-size: .56rem; padding: .12rem 2.5rem;
-  pointer-events: none; box-shadow: 0 3px 10px rgba(0,0,0,.3);
-}
+/* Corner ribbon removed (see rehearsal note above): flat strip is A's solution
+   to the overlay problem; the sticky .slot-watermark banner stays. */
 
 /* ---------- draft-day staleness gate ----------
    Over 18 hours old the board needs an explicit acknowledgement. The board
@@ -2457,19 +2451,51 @@ button.pd-team.pick:hover { background: rgba(245,196,69,.16); transform: transla
    the summary / strategies / deadline / branches / queue. Search + slip stay at
    the very top (one tap; the slip alert is urgent). */
 .wr-zone1 { min-width: 0; display: flex; flex-direction: column; }
-.wr-zone1 > .wr-search      { order: 1; }
-.wr-zone1 > #search-tail    { order: 2; }
-.wr-zone1 > #queue-slip     { order: 3; }
-.wr-zone1 > #recs-card      { order: 4; }   /* THE recommendation — first */
-.wr-zone1 > #doctrine-banner{ order: 5; }   /* THE PLAN — context */
-.wr-zone1 > #doctrine-switch{ order: 6; }
-.wr-zone1 > #legality-strip { order: 7; }   /* WATCH — context */
-.wr-zone1 > #wr-statusbar   { order: 8; }   /* pick bar — context */
-.wr-zone1 > #mvs            { order: 9; }
+/* Cory: the recommendation + Take button above the fold, WITH its context, by
+   COMPRESSING what sits above it — not by banishing THE PLAN/WATCH below. So the
+   compact context sits just above the recommendation, and the redundant summary
+   / strategies / deadline / branches / queue drop beneath it. Compression of the
+   strips + chrome (below) is what lifts the rec over the fold. */
+.wr-zone1 > .wr-search         { order: 1; }
+.wr-zone1 > #search-tail       { order: 2; }
+.wr-zone1 > #queue-slip        { order: 3; }
+.wr-zone1 > #doctrine-banner   { order: 4; }   /* THE PLAN — compact context, above the rec */
+.wr-zone1 > #doctrine-switch   { order: 5; }
+.wr-zone1 > #legality-strip    { order: 6; }   /* WATCH — compact context */
+.wr-zone1 > #wr-statusbar      { order: 7; }   /* pick bar */
+.wr-zone1 > #recs-card         { order: 8; }   /* THE recommendation + Take button */
+.wr-zone1 > #mvs               { order: 9; }   /* redundant summary — beneath */
 .wr-zone1 > #shadow-projection { order: 10; }
-.wr-zone1 > #lrm-card       { order: 11; }
-.wr-zone1 > #branch-card    { order: 12; }
-.wr-zone1 > #queue-card     { order: 13; }
+.wr-zone1 > #lrm-card          { order: 11; }
+.wr-zone1 > #branch-card       { order: 12; }
+.wr-zone1 > #queue-card        { order: 13; }
+
+/* WAR ROOM = focused draft tool: collapse the site chrome at pick-time (Cory:
+   ~172px of masthead + a draft-day notice already read + a redundant title). The
+   bottom tab bar still navigates; the war room's own status strip identifies it. */
+body.warroom-page .masthead { display: none; }
+body.warroom-page .alert-region { display: none; }
+body.warroom-page > .wrap > .page-title,
+body.warroom-page #warroom > .page-title { display: none; }
+
+/* Compress THE PLAN + WATCH to tight context strips above the recommendation
+   (were full 133px / 101px blocks). The name, confidence and alternative price
+   stay — the plan's philosophy line (db-creed) is the one thing you don't need at
+   the instant of a pick, so it drops here to buy the fold back. */
+#doctrine-banner.doctrine-banner { padding: .3rem .7rem; gap: .2rem .7rem; }
+#doctrine-banner .db-name { font-size: .88rem; line-height: 1.1; }
+/* On the war room, compress THE PLAN to a tight two-line max: the plan name +
+   edge, then the confidence. The philosophy line (creed) and the alt-price drop
+   here — the creed you already know at the table, and the alt price is repeated
+   in the recs card's "next turn cost" line — so the recommendation clears the
+   fold comfortably. */
+body.warroom-page #doctrine-banner { flex-wrap: nowrap; align-items: baseline; }
+body.warroom-page #doctrine-banner .db-main { flex: 1 1 auto; }
+body.warroom-page #doctrine-banner .db-side { flex: 0 1 auto; margin-left: auto; }
+body.warroom-page #doctrine-banner .db-creed,
+body.warroom-page #doctrine-banner .db-alt { display: none; }
+body.warroom-page #doctrine-banner .db-confidence { white-space: normal; overflow-wrap: anywhere; }
+#legality-strip.legality-strip { padding: .28rem .7rem; }
 .wr-zone2 { display: flex; flex-direction: column; gap: 1rem; min-width: 0; }
 .wr-zone2 .card { margin: 0; }
 .wr-zone3 { margin-top: 1rem; }

@@ -37,7 +37,10 @@
 <link rel="apple-touch-startup-image" media="(device-width:375px) and (device-height:812px) and (-webkit-device-pixel-ratio:3)" href="/icons/splash-1125x2436.png">
 <link rel="apple-touch-startup-image" media="(device-width:375px) and (device-height:667px) and (-webkit-device-pixel-ratio:2)" href="/icons/splash-750x1334.png">
 </head>
-<body>
+<%# The war room is a focused draft tool: mark it server-side so the site chrome
+    (masthead + announcements) collapses immediately, with no flash before app.js
+    runs. app.js also adds this class plus its sim-state classes; idempotent. %>
+<body class="<%= typeof currentPath !== 'undefined' && /^\/admin\/warroom/.test(currentPath) ? 'warroom-page' : '' %>">
 <%
   // Guard everything: the error page renders this header even when the
   // request died before locals were populated.
