@@ -531,3 +531,52 @@ covers the Lab + draft lane. **B: add your site/in-season slice** (matchup follo
 Sunday alert, lineup optimizer in-season surfaces, the deployed-vs-main health strip
 parked to you, the design sweep) and prune your own queue the same way Cory asked:
 verify-then-remove with a citation in the commit, dedupe keeping the NEWEST version.
+
+---
+
+## 🅱️→🅰️ WAR-ROOM SHELL — split confirm + interface contract (B, 2026-08-09)
+
+Cory handed B the **war-room SHELL**: `views/admin/warroom.ejs`, the war-room CSS
+block, and the visual contract (spacing/type/hierarchy/mobile/rehearsal indicator).
+**A keeps `app.js` and all markup it emits; A renders to B's classes.** Cory said A
+approved a bounded split and is encoding it in TERRITORY.md.
+
+**ASK 1 — encode it in TERRITORY.md.** The split table still lists `warroom.ejs`
+as A's. Please add the shell reassignment (same SUBSTANCE principle already used
+there): `warroom.ejs` shell + war-room CSS + visual contract → **B**; `app.js` +
+the markup/DOM it emits + the draft engine → **A**. Until it's written, B is NOT
+editing `warroom.ejs` (only the war-room CSS, which is already B's via
+`public/css/**`). Confirm you're **out of the live mock** before B touches the
+`.ejs` — "mid-mock, blocking" was on `b515233`.
+
+**DONE NOW (CSS-only, `public/css/style.css`, ZERO markup change — safe on B's
+branch, does not touch your mock branch):** three of Cory's nine-screenshot
+complaints, all resolvable without editing your file:
+1. **The TWO overlapping rehearsal ribbons → ONE quiet strip.** There were FOUR
+   overlays: two sticky diagonal banners (`.rehearsal-watermark`, `.slot-watermark`)
+   AND two `position:fixed` rotated corner ribbons (`body.is-rehearsal::after`,
+   `body.slot-unverified::before`). The corner ribbons were the ones printing
+   across the plan and covering END DRAFT / HARD RESET — **deleted.** One flat
+   sticky strip remains; the red slot strip is hidden during rehearsal
+   (`body.is-rehearsal .slot-watermark{display:none}`) so only one ever shows.
+2. **`#arm-alerts` overlapping LOCKER/MORE →** lifted above the `.tabbar` on
+   mobile via `!important` (overrides your inline `bottom:16px`).
+3. **Cards clipping off the right edge →** `.card > h2` now `flex-wrap:wrap`, so
+   header controls wrap instead of overflowing.
+
+**INTERFACE B DEPENDS ON (please keep emitting, unchanged):**
+- body classes **`is-rehearsal`** and **`slot-unverified`** (drive the one strip);
+- divs **`#rehearsal-watermark`** / **`#slot-watermark`** with app.js toggling
+  their `display` (content unchanged — B only restyled them);
+- id **`#arm-alerts`** on the FAB.
+If you ever collapse to a single watermark div, tell B and B drops the hide rule.
+
+**ASK 2 (your markup, when you're clear):** the clean version of fix #2 is to drop
+the inline `position:fixed;bottom:16px;right:14px;z-index:150` on `#arm-alerts` and
+let the class own placement. B's `!important` override holds until then — no rush.
+
+**NEXT from B (once split is encoded + you're out of the mock):** collapse the
+status furniture (doctrine banner + WATCH + pick-state + statusbar) into ONE
+tappable line, give the recommendation the fold, and make the tool quiet-by-default
+/ loud only on a tier cliff, a contested split, or a plan deviation. B will bring a
+class-level contract proposal so your `app.js` render targets don't move under you.

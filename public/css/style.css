@@ -176,6 +176,11 @@ a { color: var(--gold); }
   border-bottom: 1px solid var(--line);
   background: rgba(255, 255, 255, .025);
   display: flex; justify-content: space-between; align-items: center; gap: .5rem;
+  /* Card headers that pack controls (war room: ⚖️ Compare / ⏱ One answer; the
+     Draft Board's filter + search) overflowed the right edge on a phone because
+     flex children can't wrap. Wrap them onto a second line instead of clipping.
+     Single title+sub headers are unaffected — they never need the extra row. */
+  flex-wrap: wrap; row-gap: .35rem;
   position: relative;
 }
 .card > h2::before {
@@ -1044,35 +1049,54 @@ button.is-busy, .btn.is-busy {
 .lrm-elite { color: #ff8a95; font-weight: 700; }
 .lrm-now { color: #ff8a95; font-weight: 700; }
 
-/* §D.2 rehearsal watermark — impossible to mistake sim state for the real draft. */
-.rehearsal-watermark {
-  position: sticky; top: 0; z-index: 80; text-align: center;
-  background: repeating-linear-gradient(45deg, rgba(245,196,69,.22) 0 14px, rgba(245,196,69,.32) 14px 28px);
-  color: #f2e2b4; font-weight: 900; letter-spacing: .12em; text-transform: uppercase;
-  padding: .45rem; border-bottom: 2px solid rgba(245,196,69,.6); font-size: .82rem;
-}
-body.is-rehearsal::after {
-  content: "REHEARSAL"; position: fixed; right: -46px; top: 34px; z-index: 79;
-  transform: rotate(45deg); background: rgba(245,196,69,.85); color: #0b1020;
-  font-weight: 900; letter-spacing: .1em; padding: .3rem 3.4rem; pointer-events: none;
-  box-shadow: 0 4px 14px rgba(0,0,0,.35);
-}
+/* ── ONE STATE INDICATOR (B, war-room shell) ────────────────────────────────
+   Cory's #1 complaint: TWO diagonal ribbons over live text, one printing across
+   the plan and covering END DRAFT / HARD RESET. There were FOUR overlays here —
+   two sticky diagonal banners AND two fixed rotated corner ribbons. That is the
+   opposite of "one rehearsal indicator, placed where it cannot cover content."
 
-/* A2 — SLOT UNVERIFIED. A quieter cousin of the rehearsal banner: the slot is a
-   placeholder until Sleeper confirms it, and everything slot-derived is
-   provisional. Same sticky-banner + corner-ribbon pattern, in caution red so it
-   reads as "trust this number less", not "you are in a sim". */
+   Now: ONE quiet, flat, sticky strip at the very top. Rehearsal (gold) subsumes
+   slot-unverified (red) — a rehearsal is already provisional, so only one shows
+   at a time (rule below). The rotated corner ribbons are GONE: a fixed overlay
+   at the top-right corner is guaranteed to land on the doctrine banner and the
+   setup buttons, which is exactly what it was doing.
+
+   The markup (the two divs, the `is-rehearsal` / `slot-unverified` body classes,
+   and app.js toggling their `display`) is A's and UNCHANGED — this is styling
+   only. The strip stays impossible to miss (it is a safety indicator) without
+   being a construction-zone stripe painted over the decision. */
+.rehearsal-watermark,
 .slot-watermark {
-  position: sticky; top: 0; z-index: 78; text-align: center;
-  background: repeating-linear-gradient(45deg, rgba(255,70,85,.16) 0 14px, rgba(255,70,85,.26) 14px 28px);
-  color: #ffd3d7; font-weight: 800; letter-spacing: .1em; text-transform: uppercase;
-  padding: .4rem; border-bottom: 2px solid rgba(255,70,85,.5); font-size: .76rem;
+  position: sticky; top: 0; z-index: 80; text-align: center;
+  padding: .35rem .6rem; font-size: .74rem; font-weight: 800;
+  letter-spacing: .1em; text-transform: uppercase; line-height: 1.2;
 }
-body.slot-unverified:not(.is-rehearsal)::before {
-  content: "SLOT UNVERIFIED"; position: fixed; right: -46px; top: 92px; z-index: 77;
-  transform: rotate(45deg); background: rgba(255,70,85,.82); color: #0b1020;
-  font-weight: 900; letter-spacing: .08em; padding: .28rem 3.2rem; pointer-events: none;
-  box-shadow: 0 4px 14px rgba(0,0,0,.35);
+.rehearsal-watermark {
+  background: rgba(245,196,69,.14); color: #f2e2b4;
+  border-bottom: 1px solid rgba(245,196,69,.55);
+  box-shadow: inset 3px 0 0 rgba(245,196,69,.9);
+}
+.slot-watermark {
+  z-index: 78;
+  background: rgba(255,70,85,.11); color: #ffd3d7;
+  border-bottom: 1px solid rgba(255,70,85,.45);
+  box-shadow: inset 3px 0 0 rgba(255,70,85,.85);
+  font-size: .7rem;
+}
+/* One indicator at a time: a rehearsal already means every slot number is
+   provisional, so the red slot strip never stacks under the gold one. */
+body.is-rehearsal .slot-watermark { display: none !important; }
+
+/* ARM-MY-TURN FAB — clear the mobile bottom nav (B, war-room shell).
+   In every phone screenshot the fixed "🔔 Arm my-turn alert" button sat at
+   bottom:16px, landing squarely on the .tabbar and hiding LOCKER + MORE. The
+   button's inline bottom is A's markup; we lift it above the ~52px tabbar (plus
+   the safe-area inset) from the CSS side so no markup change is needed. Desktop
+   has no tabbar, so the inline bottom is left alone there. */
+@media (max-width: 700px) {
+  #arm-alerts {
+    bottom: calc(52px + env(safe-area-inset-bottom, 0px) + 12px) !important;
+  }
 }
 
 /* ---------- draft-day staleness gate ----------

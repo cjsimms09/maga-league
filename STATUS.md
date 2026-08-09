@@ -1142,3 +1142,32 @@ re-point. Everything B owns is green.
 - **`bbm-probe.yml` cannot fire until integrated to main.** `workflow_dispatch` requires the workflow on main to be dispatchable (404 on the branch ref, confirmed). It runs the full-field R1 dead-zone (4.8 GB stream, memory-safe) + discovers BBM V's exact CSV URL (CI has the egress the sandbox lacks). **Needs your authorization to merge my branch → main, OR you dispatch it after a merge.** The high-value finals result is already in-hand and committed; this is the full-N escalation.
 
 ### ▶ QUEUED (unchanged priority): full-field BBM dead-zone (CI, above) → forward-prediction draft-time emission wire-up (war room calls `forecast_slate.materialize` → POST /admin/api/ledger/predict per committed claim) → third composite arm → dollar-grade exp35 → exp41 race → auto-adjuster mining → what-would-have-worked. **On Cory:** mock #4 + degraded drill still parked on your GO (12 days out; treat as next after current unit when you say go).
+
+## 🅱️ SESSION B — war-room shell, first cut (2026-08-09)
+
+**New territory (Cory): the war-room SHELL** — `warroom.ejs`, the war-room CSS, the
+visual contract. A keeps `app.js` + the markup it emits. Split not yet in
+TERRITORY.md and A was mid-mock in `warroom.ejs`, so B did NOT touch the `.ejs`;
+started on the war-room CSS (already B's via `public/css/**`) and parked the split-
+confirm + interface contract for A (PARKED).
+
+**Shipped (CSS-only, zero markup change — on B's branch, A's mock untouched):**
+three of Cory's nine-screenshot complaints, fixed without editing A's file.
+1. **TWO overlapping rehearsal ribbons → ONE quiet sticky strip.** There were four
+   overlays (two sticky diagonal banners + two `position:fixed` rotated corner
+   ribbons). The corner ribbons — the ones printing across the plan and covering
+   END DRAFT / HARD RESET — are deleted; the red slot strip is hidden during a
+   rehearsal so only one indicator ever shows.
+2. **`#arm-alerts` FAB no longer covers LOCKER/MORE** — lifted above the mobile
+   `.tabbar` (overrides A's inline `bottom:16px`).
+3. **Cards no longer clip off the right edge** — `.card > h2` wraps its controls
+   (`flex-wrap:wrap`) instead of overflowing; site-wide safe.
+
+**BLOCKED ON A (parked):** (a) encode the shell split in TERRITORY.md; (b) confirm
+out-of-mock before B edits `warroom.ejs`; (c) optional markup tidy — drop the inline
+position on `#arm-alerts` and let the class own it.
+
+**NEXT (B):** once split lands + A clear — collapse the status furniture into ONE
+tappable line, give the recommendation the fold, quiet-by-default/loud-on-what-
+matters. Meanwhile: verify remaining site work (rank arrows/sparklines/Chiefs
+counter already built per prior commits) and improve the weakest isolated page.
