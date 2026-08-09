@@ -10,19 +10,24 @@ whenever a result moves what matters (per the operating addendum)._
 **Yes — with three corrections the evidence forces. It is not just right, it is what
 the B0 result already proved empirically.** The honest version:
 
-1. **Layer 1 is more load-bearing AND more data-capped than the spec assumes.** B0
-   (follow FFC ADP) is the only thing that clears our gates — so the anchor carries
-   the draft. But "build a graded multi-source composite" **largely cannot be done
-   historically**: FFC is the ONLY clean, gradeable *redraft* value source for
-   2023-25. Sleeper's historical ADP is not archived (and by Cory's own rule Sleeper
-   is a room-predictor, not an anchor member). Underdog/BBM is *best-ball* — a
-   different product whose value signal is contaminated by best-ball roster
-   construction; it corroborates, it is not a co-anchor. **So "the best possible
-   market read" = FFC, format-matched, recency-weighted, with current-year sources
-   blended into the LIVE 2026 anchor using weights transferred from FFC's graded
-   per-region reliability (exp 36) — NOT a historically-graded composite, because
-   the data for one does not exist.** Stating this now so we don't burn a week
-   building a composite we can't validate.
+1. **Layer 1 is load-bearing, and a SECOND gradeable source exists (correction,
+   2026-08-09).** B0 (follow FFC ADP) is the only thing that clears our gates — so
+   the anchor carries the draft. I initially wrote "FFC is the only gradeable redraft
+   source"; **that was an inference from what's wired in the repo, not a probe, and
+   it was wrong** (the third "blocked-data" claim this month that turned out
+   reachable). A real search found **FantasyPros publishes free historical half-PPR
+   ADP by year and position (2015–2024 confirmed, 2025 likely), as consensus ADP
+   aggregated from commissioner sites — revealed drafter behavior, exactly the kind
+   that cleared our null (not paid expert rankings).** URL: `/nfl/adp/
+   half-point-ppr-{overall,rb,wr,...}.php?year=YYYY`. So a graded FFC + FantasyPros
+   composite CAN be tested per region. MFL historical is uncertain (docs say current-
+   year only; year-scoped hosts exist — CI probe pending). Wayback CDX can recover
+   Sleeper's August snapshots (but Sleeper stays in the room/survival model, not the
+   anchor, per Cory's rule). nflverse has real NFL draft picks (PFR), NOT fantasy ADP.
+   **So "the best possible market read" = an empirically-tested FFC+FantasyPros
+   (+others if the probe confirms) composite vs the best single member, per region,
+   money-graded — data-supported, being built now.** Sandbox egress is policy-blocked
+   for these hosts; the fetch+grade runs in CI (open egress), like FFC/BBM.
 
 2. **The deviation problem is real and Layer 2 is the fix — but the binding
    constraint is COHERENCE, not more exceptions.** The model deviates on 74% of
