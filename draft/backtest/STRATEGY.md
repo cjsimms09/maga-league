@@ -35,10 +35,17 @@ per-season edge over Default:
 --- PERTURBATION GATE (each weight jittered +/-25%) ---
   40 jittered variants; 100% still beat Default (threshold 75%)
   edge distribution:  p25 196.33   median 223.77   p75 250.83   worst 11.59
-  SURVIVES. The edge is a property of the strategy, not one point in
-  weight-space. INSTALL Upside-Late as the League-Tuned preset.
+  SURVIVES the jitter. The edge is a property of the strategy, not one
+  point in weight-space — but weight-jitter is a ROBUSTNESS test, not a
+  null. This table grades vs Default with no outcome-shuffle baseline, so
+  beating it is NECESSARY, NOT SUFFICIENT. Upside-Late is a
+  CANDIDATE; it installs ONLY if it also clears the tournament null
+  (LAB-TOURNAMENT.md, arch:balanced control, 200-draw shuffle p95).
+  As of the last tournament run profile:upside_late scored $0 at the 0th
+  percentile there (its tilt washes out to extra QBs through the composite),
+  so it does NOT install.
 
-INSTALL DECISION: YES — Upside-Late
+STRATEGY-TABLE VERDICT: CANDIDATE — Upside-Late (robust vs Default; PENDING the tournament null gate before any install)
 
 --- CAVEATS ---
   * [2025] could NOT be recovered: the play-by-play rebuild disagreed with the library on 2024 ({"season": 2024, "players_compared": 576, "official_only": 30, "rebuilt_only": 8, "mean_abs_diff": 0.489, "worst_diff": 11.0, "worst_diff_top200": 11.0, "tolerance": 0.5, "agrees": false})
