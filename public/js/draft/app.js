@@ -646,7 +646,13 @@
     const last = state.lastPickSeen == null ? -1 : state.lastPickSeen;
     const problems = [];
     if (ps.currentPick < last) {
-      problems.push('pick went BACKWARDS: ' + last + ' -> ' + ps.currentPick);
+      // Name the coordinate that produced the lower number — a symptom you can act
+      // on, not just "they disagree". The source is the live clock: the sync room
+      // in sync mode, the observed-picks count in manual.
+      var src = state.sync ? 'sync clock (room pick ' + state.sync.currentPickNumber() + ')'
+        : 'manual observed-picks (recentPicks=' + (state.recentPicks || []).length + ')';
+      problems.push('pick went BACKWARDS within ' + ctx + ': last-seen ' + last
+        + ' -> current ' + ps.currentPick + ' — regressed by ' + src);
     }
     if (!ps.boardConsistent) {
       problems.push('board/slate disagree: ' + ps.removedFromBoard + ' off the board != '
@@ -705,6 +711,37 @@
   function onTheClock() {
     const mine = state.data.pick_order.my_picks || [];
     return mine.indexOf(currentPick()) !== -1;
+  }
+
+  /* THE SINGLE PICK COORDINATE — every surface renders from THIS, so no screen
+   * ever shows two pick sequences again.
+   *
+   *   current   the LIVE pick in the ACTIVE draft's frame (the mock room when
+   *             mocking, the league otherwise) — always currentPick(), the one
+   *             number derived from pickState()/sync. It is DELIBERATELY not
+   *             state.data.current_pick, which is baked at board-build and never
+   *             updates — reading that was how the clock card showed a different
+   *             number from the status bar.
+   *   mine/next my picks + my next pick, in that SAME frame (pick_order.my_picks).
+   *   rawRoom   the platform's raw clock, for a behind-a-tap detail ONLY — never
+   *             mixed into the default display (in a mock this is the room's own
+   *             overall number; when it equals `current` there is nothing to show).
+   *   isMock    true in a rehearsal — the label that says the frame is the mock's. */
+  function pickCoordinate() {
+    var cur = currentPick();
+    var mine = (state.data && state.data.pick_order && state.data.pick_order.my_picks) || [];
+    var next = myNextPicks();
+    var raw = state.sync ? state.sync.currentPickNumber() : null;
+    return {
+      current: cur,
+      mine: mine,
+      next: next.length ? next[0] : null,
+      isMock: !!state.mockMode,
+      rawRoom: raw,
+      // Only worth surfacing (behind a tap) when the raw room number differs from
+      // the frame we show — i.e. there is a second number that could confuse.
+      rawDiffers: raw != null && raw !== cur,
+    };
   }
 
   /* §2(d) — the slim PINNED status bar. Pick state + connection stay visible when
@@ -1125,8 +1162,9 @@
     const i = Math.min(state.clockIndex, list.length - 1);
     const s2 = list[i], p = s2.player;
 
-    $('#clock-pick').textContent = state.data && state.data.current_pick
-      ? state.data.current_pick : (context().currentPick || '—');
+    // ONE coordinate, live — never state.data.current_pick (baked at build, stale),
+    // which is what made this card disagree with the status bar.
+    $('#clock-pick').textContent = pickCoordinate().current || '—';
     $('#clock-name').innerHTML = escapeHtml(p.name)
       + '<span class="rec-pos ' + p.position + '">' + p.position + '</span>';
     $('#clock-meta').textContent = (p.team || '') + (p.bye ? ' · bye ' + p.bye : '')

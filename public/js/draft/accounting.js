@@ -80,26 +80,31 @@
     }
 
     // 2. Board removals == picks observed + keeper placements + rehearsal removals.
+    //    Every alarm NAMES the coordinate system that produced each number, so it
+    //    is diagnosable (which source is wrong) rather than a bare "they disagree".
     var expectedRemoved = pickEvents + keeperPlacements + rehearsalRemovals;
     if (draftedN !== expectedRemoved) {
-      problems.push('board/slate disagree: ' + draftedN + ' off the board != '
-        + pickEvents + ' picks + ' + keeperPlacements + ' keepers'
-        + (rehearsalRemovals ? ' + ' + rehearsalRemovals + ' rehearsal removals' : ''));
+      var pe = (s.syncPickNumber != null) ? 'sync clock' : 'recentPicks';
+      problems.push('[drafted-set] ' + draftedN + ' off the board != '
+        + '[' + pe + '] ' + pickEvents + ' picks + [roster is_keeper] '
+        + keeperPlacements + ' keepers'
+        + (rehearsalRemovals ? ' + [rehearsal] ' + rehearsalRemovals + ' removals' : '')
+        + ' (' + expectedRemoved + ' expected)');
     }
 
     // 3. My roster's MARKED picks == the picks I have actually made. This is the
     //    dilution guard: if marked > picksMade, seeded keepers or ghosts are being
     //    counted as picks and every roster-relative recommendation is biased.
     if (myPicks.length && item.marked.length !== picksMade) {
-      problems.push('roster marked-picks (' + item.marked.length
-        + ') != my picks made (' + picksMade + ') — the need model is reading '
+      problems.push('[roster marked] ' + item.marked.length
+        + ' picks != [my_picks < clock] ' + picksMade + ' made — the need model is reading '
         + (item.marked.length > picksMade ? 'MORE' : 'FEWER') + ' picks than the clock');
     }
 
     // 4. Picks made + picks left == my total pick slots in this context.
     if (myPicks.length && (picksMade + picksLeft) !== myPicks.length) {
-      problems.push('picks made+left (' + (picksMade + picksLeft) + ') != my total picks ('
-        + myPicks.length + ')');
+      problems.push('[my_picks split] made ' + picksMade + ' + left ' + picksLeft
+        + ' != [my_picks total] ' + myPicks.length);
     }
 
     return {
