@@ -1684,6 +1684,18 @@ table .num.zero { color: var(--muted); font-weight: 400; }
   background: linear-gradient(90deg, var(--gold), var(--gold-bright)); margin-right: .5rem; min-width: 4px; max-width: 120px; }
 .wh-hunt-n { font-variant-numeric: tabular-nums; }
 
+/* ── HOME WEEKLY-HIGH PANEL — the band, and the live race ───────────────────── */
+.wh-band-note { font-size: .84rem; line-height: 1.5; color: var(--ink); margin: 0 0 .3rem; }
+.wh-band-note b { color: var(--gold-bright); }
+.wh-race { margin-bottom: .3rem; }
+.wh-race-top { display: flex; justify-content: space-between; align-items: baseline; gap: .6rem; flex-wrap: wrap; font-size: .84rem; }
+.wh-race-lead b { color: #fff; font-variant-numeric: tabular-nums; }
+.wh-race-gap { font-size: .76rem; }
+.wh-race-bar { height: 12px; border-radius: 6px; background: rgba(255,255,255,.06); overflow: hidden; margin: .35rem 0 .25rem; }
+.wh-race-fill { height: 100%; border-radius: 6px; background: linear-gradient(90deg, var(--gold), var(--gold-bright)); transition: width .6s cubic-bezier(.2,.8,.3,1); }
+.wh-race-fill.lead { background: linear-gradient(90deg, #2fd576, #6ee7a0); }
+.wh-race-scale { display: flex; justify-content: space-between; font-size: .68rem; font-variant-numeric: tabular-nums; }
+
 /* ── WEEKLY-HIGH STRIP — the $100-a-week race, made visible ─────────────────── */
 .wh-strip { margin: .2rem 0 .4rem; }
 .wh-bars { display: flex; align-items: flex-end; gap: 3px; height: 120px; padding: 0 .1rem; }

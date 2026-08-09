@@ -228,6 +228,24 @@ router.get('/', aw(async (req, res) => {
   }
   const sStandings = sleeper.standings(sData, world.config.sleeper_map || {}, owners);
   const sBoard = sleeper.scoreboard(sData);
+  // The weekly-high made visible: the harvested winning band (renders always),
+  // and — once games are on — THIS week's live race for the $100.
+  const whBand = LO.weeklyHighBand();
+  let whRace = null;
+  if (sData && Array.isArray(sData.matchups)) {
+    const map = world.config.sleeper_map || {};
+    const nameOfId = id => (H.ownerById(owners, id) || {}).name || '?';
+    const scores = sData.matchups
+      .map(m => ({ owner: Number(map[String(m.roster_id)]), pts: Number(m.points) || 0 }))
+      .filter(s => s.owner);
+    if (scores.some(s => s.pts > 0)) {
+      const top = Math.max(...scores.map(s => s.pts));
+      const leader = scores.find(s => s.pts === top);
+      const mine = scores.find(s => s.owner === req.owner.id);
+      whRace = { week: sData.week, top, leaderName: nameOfId(leader.owner),
+        mine: mine ? mine.pts : null, iLead: mine && mine.pts === top };
+    }
+  }
   // Last completed week's mini-awards + the transaction wire.
   let review = null, reviewWeek = null, wireRows = [];
   if (sData) {
@@ -260,6 +278,7 @@ router.get('/', aw(async (req, res) => {
     season, payouts: H.payoutTable(season), buyins, weekly, awards, standings, draft,
     openVotes, CATEGORY_LABELS: H.CATEGORY_LABELS, myBalance,
     sleeperData: sData, sleeperStandings: sStandings, sleeperBoard: sBoard, roast,
+    whBand, whRace,
     review, reviewWeek, wireRows, playoffTeams, chatLatest, betMoney, owners,
     // Venmo nag (venmo-handles.md §2): fires for a logged-in owner with no
     // handle; the commissioner also sees who is still missing theirs.

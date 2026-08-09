@@ -175,6 +175,25 @@
 
   <div class="card" id="weekly-winners">
     <h2>Weekly High Point <span class="sub"><%= season.year %> — <%= money(season.weekly_payout) %> to the top score, regular season only</span></h2>
+    <%# The biggest recurring prize, made visible: the bar you have to clear, and
+        — once games are on — this week's live race for the $100. %>
+    <% if (typeof whBand !== 'undefined' && whBand && whBand.n) { %>
+      <div class="body" style="padding-bottom:0">
+        <% if (typeof whRace !== 'undefined' && whRace) {
+             const pct = whRace.top ? Math.max(4, Math.min(100, Math.round((whRace.mine || 0) / whRace.top * 100))) : 0; %>
+          <div class="wh-race">
+            <div class="wh-race-top">
+              <span class="wh-race-lead"><%= whRace.iLead ? '🟢 You lead week ' + whRace.week : '🏈 ' + whRace.leaderName + ' leads week ' + whRace.week %> · <b><%= whRace.top.toFixed(1) %></b></span>
+              <% if (whRace.mine != null && !whRace.iLead) { %><span class="wh-race-gap muted">you're <%= (whRace.top - whRace.mine).toFixed(1) %> back</span><% } %>
+            </div>
+            <div class="wh-race-bar"><div class="wh-race-fill<%= whRace.iLead ? ' lead' : '' %>" style="width:<%= pct %>%"></div></div>
+            <div class="wh-race-scale muted"><span>you: <%= whRace.mine != null ? whRace.mine.toFixed(1) : '—' %></span><span>$100 at the top</span></div>
+          </div>
+        <% } else { %>
+          <p class="wh-band-note">🎯 <b><%= money(season.weekly_payout) %></b> to the week's top score. The bar, from three seasons: typically <b><%= Math.round(whBand.median) %></b> wins it — range <%= Math.round(whBand.min) %>–<%= Math.round(whBand.max) %>. It comes alive here once games are on.</p>
+        <% } %>
+      </div>
+    <% } %>
     <div class="body tight scroll-x">
       <% if (!weekly.length) { %>
         <p class="muted" style="padding:1rem">No weekly winners recorded yet.</p>
