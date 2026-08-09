@@ -45,6 +45,18 @@ the outcome is mine.
    state (the actual keeper slate, the actual pool), not a full/average one. Same
    habit as attacking the frame, applied to the board. The Lab should surface these
    interactions on its own, not wait for Cory to name them one at a time.
+7. **A finding that implies a change must become a DECISION, not a JSON file (2026-08-09).**
+   The source grade concluded MFL > FFC and nothing happened — the verdict sat inert
+   until Cory asked. For EVERY finding, ask three questions and act: (1) does it imply
+   something should change? if not, record and move on. (2) can it change SAFELY on its
+   own? AUTO-ADAPT = measured optimum + bounded blast radius (evidence weights, noise
+   bands, calibration, confidence sentences, dossier updates) — change it and say so.
+   (3) if not — GATED = structural, unbounded blast radius (the anchor source is the
+   clearest: every pick ranks by it) — put it in **DECISIONS-NEEDED.md** with what was
+   found, what it implies, magnitude, confidence, cost of inaction, and a recommendation.
+   Measure automatically, surface automatically, install with a gate where the blast
+   radius warrants one. The failure this kills: a real result nobody acts on because no
+   step exists between "experiment finished" and "thing changed."
 6. **Separate ROBUST from CONTINGENT, and never let a failure read as success
    (2026-08-09).** Slate-dependent findings run on PREDICTIONS until keeper lock
    (Aug 20, ~48h before the draft). Report which conclusions hold under any plausible
