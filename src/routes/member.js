@@ -360,7 +360,7 @@ async function moneySection(req) {
 // Which seasons have a written chapter committed under views/history/chapters/.
 // Prose is generated once and reviewed for voice before it ships — this set is
 // the switch that turns a chapter on. Add a year here when its chapter lands.
-const CHAPTERS = new Set([2024]);
+const CHAPTERS = new Set([2023, 2024, 2025]);
 
 // Safe access to the archive engine: a data problem should render a readable
 // error, not crash the request. Memoised inside history-data.build().
