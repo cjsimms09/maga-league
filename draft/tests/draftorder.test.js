@@ -2,9 +2,17 @@
 // DRAFT-SELECTION ORDER — engine unit tests + VERIFICATION AGAINST HISTORY.
 // Cory: "verify it against history; if it does not reproduce the actual selection
 // order, the rule is wrong somewhere and I would rather find that now."
+//
+// The rule (Cory, confirmed 2026-08-09): non-playoff six by REVERSE regular-season
+// finish, then the playoff four by REVERSE BRACKET finish (4th, 3rd, runner-up,
+// champion last). We verify against the SELECTION ORDER the league actually used
+// (seed.DRAFTS[year].order — "entries listed in pick order"), NOT the resulting
+// slots, and we drive the playoff four from the BRACKET (seed.AWARDS playoff_1..4),
+// not the regular-season standings — the two differ, and the bracket is what governs.
 const path = require('path');
 const ROOT = path.join(__dirname, '..', '..');
-const { computeSelectionOrder, regSeasonOrder } = require(path.join(ROOT, 'src', 'routes', 'draftorder'));
+const { computeSelectionOrder, regSeasonOrder, bracketFinishFromAwards,
+        PLAYOFF_RULE_CONFIRMED } = require(path.join(ROOT, 'src', 'routes', 'draftorder'));
 const seed = require(path.join(ROOT, 'src', 'seed-data'));
 
 let pass = 0, fail = 0;
@@ -25,45 +33,70 @@ const eq = (a, b) => JSON.stringify(a) === JSON.stringify(b);
   ck('stage 2: complete, champion selects last',
     eq(done.picks.map(p => p.owner_id), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]) && done.complete,
     done.picks.map(p => p.owner_id).join());
+
+  // THE DISTINCTION: bracket ≠ standings. If the regular-season order among the
+  // four were [10,9,8,7] but the BRACKET finished [7,8,9,10] (the top seed won it
+  // all... no — champ=7 means the 4th seed won), the four select by BRACKET.
+  const swapped = computeSelectionOrder(reg, [7, 8, 9, 10], 4);
+  ck('stage 2: playoff four ordered by BRACKET, not standings',
+    eq(swapped.picks.slice(6).map(p => p.owner_id), [10, 9, 8, 7]),
+    swapped.picks.slice(6).map(p => p.owner_id).join());
+
   ck('regSeasonOrder tiebreaks on PF', eq(
     regSeasonOrder([{ owner_id: 'a', wins: 8, pf: 900 }, { owner_id: 'b', wins: 8, pf: 950 }, { owner_id: 'c', wins: 6, pf: 999 }]),
     ['b', 'a', 'c']));
 
   // ── VERIFICATION AGAINST HISTORY ──────────────────────────────────────────────
-  // Map names→ids in seed order (Cory=1 … Justin=10).
   const id = {}; seed.OWNERS.forEach((o, i) => { id[o.name] = i + 1; });
   const names = ids => ids.map(x => Object.keys(id).find(k => id[k] === x));
+  const nameToId = nm => id[nm];
 
-  // The STATED rule = reverse of final standings (5–10 reg-season, 1–4 bracket).
-  // Compare that to the ACTUAL selection order the league used the next year.
+  // Predict the selection order the engine produces from a season's results, and
+  // compare to the actual order the league used the NEXT year.
   //   DRAFTS[2025] followed 2024's results; DRAFTS[2026] followed 2025's.
-  function check(resultYear, draftYear) {
-    const finalStd = seed.STANDINGS[resultYear].map(nm => id[nm]);      // best→worst
-    const predicted = [...finalStd].reverse();                          // stated rule
-    const actual = seed.DRAFTS[draftYear].order.map(([nm]) => id[nm]);  // real selection order
+  function verify(resultYear, draftYear) {
+    const regOrder = seed.STANDINGS[resultYear].map(nm => id[nm]);        // best→worst reg
+    const bracket = bracketFinishFromAwards(seed.AWARDS[resultYear], nameToId, 4); // champ→4th
+    const predicted = computeSelectionOrder(regOrder, bracket, 4).picks.map(p => p.owner_id);
+    const actual = seed.DRAFTS[draftYear].order.map(([nm]) => id[nm]);    // real selection order
     const six = eq(predicted.slice(0, 6), actual.slice(0, 6));
     const four = eq(predicted.slice(6), actual.slice(6));
-    console.log(`  ${draftYear} draft (from ${resultYear}): non-playoff six ${six ? 'REPRODUCES' : 'MISMATCH'}, playoff four ${four ? 'REPRODUCES' : 'MISMATCH'}`);
-    if (!four) {
-      console.log(`     predicted 7-10: ${names(predicted.slice(6)).join(', ')}`);
-      console.log(`     ACTUAL    7-10: ${names(actual.slice(6)).join(', ')}`);
+    const full = eq(predicted, actual);
+    console.log(`  ${draftYear} draft (from ${resultYear}): six ${six ? 'REPRODUCES' : 'MISMATCH'}, four ${four ? 'REPRODUCES' : 'MISMATCH'}`);
+    if (!full) {
+      console.log(`     predicted: ${names(predicted).join(', ')}`);
+      console.log(`     ACTUAL   : ${names(actual).join(', ')}`);
     }
-    return { six, four };
+    return { six, four, full, predicted, actual };
   }
-  const y26 = check(2025, 2026);
-  const y25 = check(2024, 2025);
 
-  // The solid part reproduces for both years — this is verified, bake it in:
-  ck('history: non-playoff six reproduces (2026 draft)', y26.six);
-  ck('history: non-playoff six reproduces (2025 draft)', y25.six);
-  ck('history: 2026 draft fully reproduces the stated rule', y26.six && y26.four);
+  const y25 = verify(2024, 2025);
+  // 2025 is THE decisive case: 2024's bracket (Jeremy champ, David 4th) differs
+  // from its regular-season standings (David 1st, Jeremy 2nd). Reverse-standings
+  // would send David — the 1st seed — to pick LAST; reverse-bracket sends him to
+  // pick 7th (first among the four). The actual order has him at 7th, so it
+  // confirms the rule is reverse-BRACKET and reproduces the whole order exactly.
+  ck('history: 2025 draft reproduces the selection order EXACTLY (reverse-bracket)', y25.full,
+    y25.full ? '' : `predicted ${names(y25.predicted)} vs actual ${names(y25.actual)}`);
+  ck('history: 2025 non-playoff six reproduces', y25.six);
+  ck('history: 2025 playoff four reproduces (bracket, not standings)', y25.four);
 
-  // THE FINDING (Cory asked to be told): the 2025 draft's playoff-four order does
-  // NOT match "reverse bracket". This assertion DOCUMENTS the discrepancy so it
-  // can't be silently "fixed" by a future change without a human re-deciding the
-  // rule. If someone makes 2025 reproduce, this flips and forces a re-read.
-  ck('history: 2025 draft playoff-four does NOT match reverse-bracket (FLAGGED for Cory)', !y25.four,
-    'if this now reproduces, the rule question below is resolved — update the report');
+  // 2026 is NOT yet drafted (seed.DRAFTS[2026].open === true). Its seed order is a
+  // PLACEHOLDER built with the OLD naive reverse-standings rule, so under the
+  // confirmed reverse-bracket rule it differs at picks 7–8 (Jeremy/David swap,
+  // because they swapped between the 2025 standings and the 2025 bracket). The
+  // live board must therefore use the ENGINE's order, not that placeholder. We
+  // assert the champion still selects last in both — the invariant that always holds.
+  const y26 = verify(2025, 2026);
+  ck('2026 is still open (live selection, placeholder not authoritative)', seed.DRAFTS[2026].open === true);
+  ck('2026: champion selects last in the engine order', y26.predicted[9] === id['Michael'], names([y26.predicted[9]]).join());
+  ck('2026: champion selects last in the seed placeholder too', y26.actual[9] === id['Michael']);
+  ck('2026: engine and placeholder differ ONLY at picks 7–8 (the standings-vs-bracket swap)',
+    eq(y26.predicted.slice(0, 6), y26.actual.slice(0, 6)) && eq(y26.predicted.slice(8), y26.actual.slice(8))
+      && !eq(y26.predicted.slice(6, 8), y26.actual.slice(6, 8)));
+
+  // The rule is confirmed — the flag surfaces read to render the four as final.
+  ck('PLAYOFF_RULE_CONFIRMED is true', PLAYOFF_RULE_CONFIRMED === true);
 
   console.log(`\n${pass} passed, ${fail} failed`);
   process.exit(fail ? 1 : 0);

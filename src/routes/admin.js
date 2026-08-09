@@ -8,6 +8,7 @@ const notify = require('../notify');
 const { getDoc, setDoc, store, newId, now } = require('../data');
 const { hashPassword, requireCommissioner, aw } = require('../auth');
 const VE = require('./voteenact');   // vote → season-config enactment
+const DO = require('./draftorder');   // selection order: reverse reg-season + reverse bracket
 
 router.use(requireCommissioner);
 
@@ -301,7 +302,36 @@ router.post('/draft/open', aw(async (req, res) => {
     const prev = seasons[year - 1];
     const prevStandings = prev && prev.standings ? prev.standings : [];
     if (!prevStandings.length) return back(res, 'draft', `&year=${year}` + msg(`Enter final standings for ${year - 1} first — they set the pick order.`));
-    doc.order = [...prevStandings].reverse().map((oid, i) => ({ pos: i + 1, owner_id: oid, slot: null }));
+    // The selection order is NOT a naive reverse of the standings. It is:
+    //   • non-playoff six — reverse regular-season finish (last picks first), and
+    //   • playoff four — reverse BRACKET finish (4th, 3rd, runner-up, CHAMPION
+    //     last) — the bracket, not the regular-season seed, governs the four.
+    // Reverse-standings ordered the four by seed and was provably wrong whenever
+    // the bracket differed from the standings (draft/tests/draftorder.test.js,
+    // the 2025 case). The bracket finish comes from last year's playoff awards
+    // (playoff_1..4 = champ..4th). If they aren't recorded yet, we lock the six
+    // and leave the four PENDING — the honest two-stage state — rather than
+    // inventing an order from the seeds.
+    // Awards for a COMPLETED prior season live in the history doc
+    // (history.awards[year]); the live-ledger year keeps them in the ledger. Read
+    // history first (that's where last season's bracket is), fall back to the ledger.
+    const history = await getDoc('history', {});
+    const histAwards = (history.awards && history.awards[year - 1]) || [];
+    const prevAwards = histAwards.length ? histAwards : L.awardsForYear(await L.allEntries(), year - 1);
+    const bracket = ['playoff_1', 'playoff_2', 'playoff_3', 'playoff_4']
+      .map(cat => (prevAwards.find(a => a.category === cat) || {}).owner_id)
+      .filter(x => x != null);
+    const playoffTeams = 4;
+    const complete = bracket.length >= playoffTeams;
+    const result = DO.computeSelectionOrder(prevStandings, complete ? bracket : null, playoffTeams);
+    doc.order = result.picks.map(p => ({ pos: p.pick, owner_id: p.owner_id, slot: null, source: p.source }));
+    if (!complete) {
+      // Bracket not decided/recorded: append the four seeds as pending so the
+      // board shows who's still to be placed, without faking their order.
+      result.pending.forEach((oid, i) =>
+        doc.order.push({ pos: result.picks.length + i + 1, owner_id: oid, slot: null, source: 'playoff', pending: true }));
+    }
+    doc.stage = complete ? 'complete' : 'awaiting-bracket';
     await setDoc(`draft:${year}`, doc);
   }
   season.draft_open = true;
