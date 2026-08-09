@@ -191,6 +191,7 @@ a { color: var(--gold); }
   border-bottom: 1px solid var(--line);
   background: rgba(255, 255, 255, .025);
   display: flex; justify-content: space-between; align-items: center; gap: .5rem;
+  flex-wrap: wrap;   /* header buttons (Compare / One Answer) drop to a new line instead of clipping at narrow widths */
   position: relative;
 }
 .card > h2::before {
@@ -585,7 +586,7 @@ details.bal-row.me > summary { box-shadow: inset 3px 0 0 var(--gold); }
 .paths-coinflip {
   background: rgba(245,196,69,.1); border: 1px solid rgba(245,196,69,.45);
   border-radius: 10px; padding: .5rem .7rem; margin-bottom: .6rem;
-  font-size: .85rem; color: #f2e2b4;
+  font-size: .85rem; color: var(--ink);
 }
 .path-card {
   display: flex; flex-direction: column; gap: .35rem;
@@ -596,16 +597,16 @@ details.bal-row.me > summary { box-shadow: inset 3px 0 0 var(--gold); }
 .path-card.coinflip { outline: 1px dashed rgba(245,196,69,.5); outline-offset: 2px; }
 /* wraps so the doctrine badge (§4) can join the row without crushing the name */
 .path-head { display: flex; align-items: baseline; justify-content: space-between; gap: .4rem; flex-wrap: wrap; }
-.path-name { font-family: var(--font-display); font-weight: 900; color: #fff; font-size: .98rem; }
+.path-name { font-family: var(--font-display); font-weight: 900; color: var(--ink); font-size: .98rem; }
 .path-price {
   font-size: .68rem; font-weight: 800; letter-spacing: .03em; white-space: nowrap;
-  color: #ffb4bb; background: rgba(255,70,85,.14); padding: .1rem .4rem; border-radius: 5px;
+  color: var(--red); background: rgba(212,36,47,.12); padding: .1rem .4rem; border-radius: 5px;
 }
 .path-price.top { color: var(--navy-deep); background: var(--gold); }
 /* A path that would strand a mandatory starting slot. Dimmed and labelled, not
    removed — the reason is the point, and a vanished option teaches nothing. */
 .path-card.suppressed { opacity: .55; border-color: rgba(255,70,85,.5); }
-.path-illegal { font-size: .72rem; font-weight: 800; color: #ffb4bb;
+.path-illegal { font-size: .72rem; font-weight: 800; color: var(--red);
   background: rgba(255,70,85,.12); border-radius: 5px; padding: .15rem .4rem;
   margin-bottom: .35rem; }
 
@@ -653,8 +654,8 @@ details[open] > .layer-sum::before { content: '▾ '; }
 .dv-tier { font-size: .6rem; font-weight: 900; letter-spacing: .08em;
   padding: .05rem .35rem; border-radius: 4px; }
 .dv-t-LEAN { background: rgba(255,255,255,.12); color: var(--muted); }
-.dv-t-LIKELY { background: rgba(245,196,69,.22); color: #ffd873; }
-.dv-t-CERTIFIED { background: rgba(47,213,118,.25); color: #b9f5d3; }
+.dv-t-LIKELY { background: rgba(185,130,42,.16); color: var(--gold-bright); }
+.dv-t-CERTIFIED { background: rgba(15,138,77,.16); color: var(--green); }
 .dv-body { margin-top: .35rem; padding: .4rem .5rem; border-radius: 8px;
   background: rgba(255,255,255,.04); border: 1px solid var(--line); }
 .dv-head { font-size: .72rem; color: var(--muted); margin-bottom: .25rem; }
@@ -665,8 +666,8 @@ details[open] > .layer-sum::before { content: '▾ '; }
 .dv-untested { background: rgba(255,70,85,.2); color: #ffb4bb; }
 .dv-weak { background: rgba(255,255,255,.1); color: var(--muted); }
 .dv-structural { background: rgba(143,166,208,.18); color: #4a5972; }
-.dv-moderate { background: rgba(47,213,118,.18); color: #8ef0b6; }
-.dv-counter { font-size: .74rem; font-style: italic; color: #ffd873; }
+.dv-moderate { background: rgba(15,138,77,.16); color: var(--green); }
+.dv-counter { font-size: .74rem; font-style: italic; color: var(--gold-bright); }
 .dv-disp { font-size: .7rem; color: var(--muted); margin-top: .25rem; }
 
 /* §4 vocabulary — the one path the enrolled doctrine actually takes. */
@@ -676,10 +677,10 @@ details[open] > .layer-sum::before { content: '▾ '; }
   padding: .05rem .35rem; border-radius: 5px; margin-left: auto;
 }
 .path-pick { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
-.path-player { font-weight: 800; color: #fff; display: flex; gap: .35rem; align-items: center; }
+.path-player { font-weight: 800; color: var(--ink); display: flex; gap: .35rem; align-items: center; }
 .path-score { font-family: var(--font-display); font-size: 1.15rem; font-weight: 900; color: var(--gold-bright); font-variant-numeric: tabular-nums; }
 .path-why { color: #4a5972; font-size: .78rem; }
-.path-when { color: #9fb0d8; font-size: .76rem; font-style: italic; }
+.path-when { color: var(--blue); font-size: .76rem; font-style: italic; }
 .path-plan { color: var(--muted); font-size: .72rem; font-variant-numeric: tabular-nums; }
 .path-actions { display: flex; flex-direction: column; gap: .3rem; margin-top: .2rem; }
 .path-more { font-size: .74rem; color: var(--muted); }
@@ -2450,7 +2451,25 @@ button.pd-team.pick:hover { background: rgba(245,196,69,.16); transform: transla
    compact); Zone 3 DEPTH full-width below (dense). Density gradient = the eye
    learns depth = detail. Collapses to a single column on phones. */
 .wr-decide { display: grid; grid-template-columns: 3fr 2fr; gap: 1rem; align-items: start; }
-.wr-zone1 { min-width: 0; }
+/* DECIDE-SURFACE ORDER (Cory: recommendation + Take buttons FIRST). The hosts
+   sit in source order for app.js, but flex `order` puts the recommendation card
+   at the top and drops THE PLAN / WATCH / pick-bar to context beneath it, then
+   the summary / strategies / deadline / branches / queue. Search + slip stay at
+   the very top (one tap; the slip alert is urgent). */
+.wr-zone1 { min-width: 0; display: flex; flex-direction: column; }
+.wr-zone1 > .wr-search      { order: 1; }
+.wr-zone1 > #search-tail    { order: 2; }
+.wr-zone1 > #queue-slip     { order: 3; }
+.wr-zone1 > #recs-card      { order: 4; }   /* THE recommendation — first */
+.wr-zone1 > #doctrine-banner{ order: 5; }   /* THE PLAN — context */
+.wr-zone1 > #doctrine-switch{ order: 6; }
+.wr-zone1 > #legality-strip { order: 7; }   /* WATCH — context */
+.wr-zone1 > #wr-statusbar   { order: 8; }   /* pick bar — context */
+.wr-zone1 > #mvs            { order: 9; }
+.wr-zone1 > #shadow-projection { order: 10; }
+.wr-zone1 > #lrm-card       { order: 11; }
+.wr-zone1 > #branch-card    { order: 12; }
+.wr-zone1 > #queue-card     { order: 13; }
 .wr-zone2 { display: flex; flex-direction: column; gap: 1rem; min-width: 0; }
 .wr-zone2 .card { margin: 0; }
 .wr-zone3 { margin-top: 1rem; }
@@ -2634,7 +2653,7 @@ button.pd-team.pick:hover { background: rgba(245,196,69,.16); transform: transla
    are calm (a deliberate K/DST punt is a strategy, not a fault), at-risk is
    amber, ILLEGAL is loud and cannot be missed. */
 .legality-strip {
-  position: sticky; top: var(--pin-legality, 0px); z-index: 41;
+  position: static; /* was sticky-top; now in-flow context below the recommendation (Cory: rec first) */
   display: flex; align-items: center; gap: .6rem; flex-wrap: wrap;
   padding: .35rem .9rem; margin-bottom: .35rem; border-radius: 10px;
   font-size: .8rem; font-weight: 700;
@@ -2665,7 +2684,7 @@ button.pd-team.pick:hover { background: rgba(245,196,69,.16); transform: transla
    from the board. A switch is an EVENT — the announcement row is a colour
    shift, not a toast, because it needs a decision, not a glance. */
 .doctrine-banner {
-  position: sticky; top: var(--pin-banner, 0px); z-index: 41;
+  position: static; /* was sticky-top; now in-flow context below the recommendation */
   display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
   padding: .5rem .9rem; margin-bottom: .35rem; border-radius: 10px;
   /* Field Office (light): paper card with a warm gold wash on the left, dark
@@ -2704,7 +2723,7 @@ button.pd-team.pick:hover { background: rgba(245,196,69,.16); transform: transla
 .doctrine-banner.control .db-name { color: var(--ink); }
 
 .doctrine-switch {
-  position: sticky; top: var(--pin-switch, 0px); z-index: 41;
+  position: static; /* was sticky-top; now in-flow context */
   display: flex; align-items: center; gap: .8rem; flex-wrap: wrap;
   padding: .5rem .9rem; margin-bottom: .5rem; border-radius: 10px;
   /* Field Office (light): a green-washed paper card, dark-green text. */
@@ -2728,7 +2747,7 @@ button.pd-team.pick:hover { background: rgba(245,196,69,.16); transform: transla
    the nav entirely. The offsets are computed, not hardcoded, because the nav
    wraps to two rows on narrow viewports. */
 .wr-statusbar {
-  position: sticky; top: var(--pin-status, 0px); z-index: 40;
+  position: static; /* was sticky-top; now in-flow context */
   display: flex; align-items: center; gap: .9rem; flex-wrap: wrap;
   padding: .4rem .8rem; margin-bottom: .8rem; border-radius: 10px;
   /* Field Office (light): paper card, dark ink. Was dark navy with dark-remapped
