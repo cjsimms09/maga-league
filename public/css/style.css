@@ -3048,3 +3048,236 @@ body.is-champ .tabbar { box-shadow: inset 0 2px 0 rgba(245, 196, 69, .5), 0 -8px
      global, restated here as the war-room contract). */
   #recs-card > h2 { row-gap: .4rem; }
 }
+/* ═══════════════════════════════════════════════════════════════════════════
+   PICK'EM — the league picks every game, tracked loud. Mobile-first: the pick
+   targets are thumb-sized (≥52px), the slate is a single column, and the
+   accuracy boards read the same at 390px as on a desktop.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* my accuracy, up top — two big numbers I can't scroll past */
+.pk-me { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; margin-bottom: 1.2rem; }
+.pk-me-stat {
+  background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: .85rem .9rem; text-align: center; display: flex; flex-direction: column; gap: .1rem;
+}
+.pk-me-num { font-family: var(--font-display); font-weight: 900; font-size: 2rem; line-height: 1; color: var(--ink); }
+.pk-me-num.gold { color: var(--gold-bright); text-shadow: var(--glow-gold); }
+.pk-me-num.muted { color: var(--muted); }
+.pk-me-lbl { font-family: var(--font-display); font-weight: 800; font-size: .6rem; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--muted); margin-top: .25rem; }
+.pk-me-sub { font-size: .72rem; }
+
+/* one game */
+.pk-game { padding: .7rem 1rem .8rem; border-bottom: 1px solid var(--line); }
+.pk-game:last-child { border-bottom: none; }
+.pk-game.mine { background: rgba(245, 196, 69, .045); border-left: 3px solid rgba(245,196,69,.5); }
+
+.pk-teams { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; }
+.pk-opt {
+  position: relative; display: flex; flex-direction: column; justify-content: center;
+  min-height: 52px; padding: .55rem .7rem; cursor: pointer;
+  background: rgba(255,255,255,.04); border: 1.5px solid var(--line); border-radius: 11px;
+  transition: border-color .12s ease, background .12s ease, transform .08s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.pk-opt:active { transform: scale(.98); }
+.pk-opt input { position: absolute; opacity: 0; width: 0; height: 0; }
+.pk-opt-name { font-family: var(--font-display); font-weight: 800; font-size: .92rem; color: #dfe6f5;
+  letter-spacing: .01em; line-height: 1.15; }
+.pk-you { font-family: var(--font-body); font-weight: 700; font-size: .58rem; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--gold-bright); vertical-align: middle; }
+.pk-opt-pts { font-variant-numeric: tabular-nums; font-size: .8rem; color: var(--muted); margin-top: .15rem; }
+.pk-opt-pts.up { color: var(--green); font-weight: 700; }
+.pk-opt-tag { font-family: var(--font-display); font-weight: 800; font-size: .56rem; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--gold-bright); margin-top: .2rem; }
+
+/* chosen (pre-lock) */
+.pk-opt.picked { border-color: var(--gold); background: rgba(245,196,69,.12); box-shadow: var(--glow-gold); }
+.pk-opt.picked .pk-opt-name { color: #fff; }
+/* graded (post-lock) */
+.pk-opt.win { border-color: rgba(47,213,118,.55); }
+.pk-opt.win .pk-opt-name { color: #eafff2; }
+.pk-opt.lose { opacity: .62; }
+.pk-opt.correct { background: rgba(47,213,118,.14); border-color: var(--green); box-shadow: none; }
+.pk-opt.correct .pk-opt-tag { color: var(--green); }
+.pk-opt.wrong { background: rgba(255,70,85,.12); border-color: rgba(255,70,85,.55); }
+.pk-opt.wrong .pk-opt-tag { color: var(--red-bright); }
+
+/* the split bar — how the league divided, majority (side a) from the left */
+.pk-splitbar { margin-top: .55rem; height: 7px; border-radius: 999px; overflow: hidden;
+  background: rgba(255,70,85,.28); }
+.pk-splitbar-a { height: 100%; background: linear-gradient(90deg, var(--gold), var(--gold-bright));
+  border-radius: 999px; }
+.pk-splitline { font-size: .74rem; margin-top: .35rem; }
+
+.pk-save { display: flex; align-items: center; gap: .8rem; flex-wrap: wrap; padding: 1rem; }
+.pk-save .btn { flex: 0 0 auto; }
+
+/* the leaderboards */
+.pk-board td, .pk-board th { padding: .5rem .7rem; }
+.pk-board tr.pk-mine td { background: rgba(245,196,69,.08); font-weight: 700; }
+.pk-board tr.pk-worst td { background: rgba(255,70,85,.09); }
+.pk-board tr.pk-worst td:first-child { box-shadow: inset 3px 0 0 var(--red); }
+
+/* Hall of Shame callout */
+.pk-shame-card { border-color: rgba(255,70,85,.45); background:
+  linear-gradient(180deg, rgba(255,70,85,.08), rgba(255,70,85,.02)); }
+.pk-shame { margin: 0; font-size: .92rem; line-height: 1.45; color: #ffd7db; }
+.pk-shame b { color: #fff; }
+
+/* a compact pick'em strip other pages (the matchup screen) drop in */
+.pk-strip { display: flex; align-items: center; gap: .7rem; flex-wrap: wrap;
+  padding: .8rem 1rem; margin-bottom: 1.2rem; border-radius: var(--radius);
+  background: linear-gradient(135deg, rgba(122,150,255,.10), rgba(245,196,69,.06));
+  border: 1px solid var(--line); }
+.pk-strip .pk-strip-txt { flex: 1 1 12rem; min-width: 0; }
+.pk-strip .pk-strip-txt b { color: #fff; }
+.pk-strip .pk-strip-sub { display: block; font-size: .76rem; color: var(--muted); margin-top: .1rem; }
+
+@media (max-width: 420px) {
+  .pk-me-num { font-size: 1.7rem; }
+  .pk-opt-name { font-size: .86rem; }
+}
+
+/* War-room "arm my-turn alert" button. Fixed bottom-right on desktop; on phones
+   it must clear the bottom tab bar (fixed, ~56px + safe-area, z-index 90) — at
+   bottom:16px it covered the LOCKER and MORE tabs and swallowed their taps. */
+.wr-arm { position: fixed; right: 14px; bottom: 16px; z-index: 80; }
+@media (max-width: 700px) {
+  .wr-arm { bottom: calc(60px + env(safe-area-inset-bottom, 0px) + 12px); }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE DISPATCH — transient popups. No-JS: a dismissible stack at the top of the
+   page. With JS (.js): a centered overlay that dims the page and clears card by
+   card. Either way, dismissal is server-side, so it never comes back.
+   ═══════════════════════════════════════════════════════════════════════════ */
+.dispatch-region { margin: 0 0 1.2rem; }
+.dispatch-backdrop { display: none; }
+.dispatch-head { display: flex; align-items: baseline; gap: .6rem; margin-bottom: .5rem; }
+.dispatch-kicker { font-family: var(--font-display); font-weight: 900; font-size: .72rem;
+  letter-spacing: .14em; text-transform: uppercase; color: var(--gold-bright); }
+.dispatch-count { font-size: .7rem; }
+
+.dispatch-card {
+  position: relative; background: var(--panel); border: 1px solid var(--line);
+  border-left: 3px solid var(--red); border-radius: var(--radius);
+  padding: .8rem .9rem; margin-bottom: .6rem;
+  animation: dispatch-in .22s ease-out;
+}
+.dispatch-card:last-child { margin-bottom: 0; }
+@keyframes dispatch-in { from { opacity: 0; transform: translateY(-6px); } }
+.dispatch-card-top { display: flex; align-items: center; gap: .5rem; }
+.dispatch-icon { font-size: 1.15rem; }
+.dispatch-title { font-family: var(--font-display); font-weight: 800; font-size: .82rem;
+  letter-spacing: .04em; text-transform: uppercase; color: #fff; flex: 1 1 auto; min-width: 0; }
+.dispatch-dismiss-form { margin: 0; flex: 0 0 auto; }
+.dispatch-x { background: none; border: none; color: var(--muted); cursor: pointer;
+  font-size: 1rem; line-height: 1; padding: .3rem .4rem; min-width: 40px; min-height: 40px;
+  border-radius: 8px; }
+.dispatch-x:hover { color: #fff; background: rgba(255,255,255,.08); }
+.dispatch-body { margin: .45rem 0 0; font-size: .92rem; line-height: 1.5; color: #dfe6f5; }
+
+/* JS overlay mode */
+html.dispatch-open { overflow: hidden; }
+.dispatch-region.js {
+  position: fixed; inset: 0; z-index: 200; margin: 0;
+  display: flex; align-items: center; justify-content: center; padding: 1rem;
+}
+.dispatch-region.js .dispatch-backdrop { display: block; position: absolute; inset: 0;
+  background: rgba(4,6,11,.72); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
+.dispatch-region.js .dispatch-stack {
+  position: relative; z-index: 1; width: 100%; max-width: 34rem;
+  max-height: 86vh; overflow-y: auto;
+  background: var(--panel-soft); border: 1px solid var(--line); border-radius: 18px;
+  padding: 1rem; box-shadow: 0 24px 60px rgba(0,0,0,.6);
+  animation: dispatch-pop .2s ease-out;
+}
+@keyframes dispatch-pop { from { opacity: 0; transform: scale(.97) translateY(8px); } }
+.dispatch-region.js .dispatch-card { background: rgba(255,255,255,.03); }
+.dispatch-card.gone { animation: dispatch-out .18s ease-in forwards; }
+@keyframes dispatch-out { to { opacity: 0; transform: translateX(12px); height: 0;
+  margin: 0; padding-top: 0; padding-bottom: 0; } }
+.dispatch-region.closing { animation: dispatch-fade .2s ease-in forwards; }
+@keyframes dispatch-fade { to { opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .dispatch-card, .dispatch-region.js .dispatch-stack { animation: none; }
+}
+
+/* ── THE FOLDED COLUMNS — playoff odds/movement + clinch/elim in the standings,
+   and the "what this is worth" line on the matchup screen. Kept narrow so the
+   standings table never needs to scroll sideways on a phone. */
+.po-th { min-width: 3.6em; }
+.po-cell { font-variant-numeric: tabular-nums; }
+.po-odds { font-weight: 700; color: #cfd6e6; }
+.po-arrow { font-size: .68rem; font-weight: 800; }
+.po-arrow.up { color: var(--green); }
+.po-arrow.down { color: var(--red-bright); }
+.po-badge { font-family: var(--font-display); font-weight: 800; font-size: .58rem;
+  letter-spacing: .06em; padding: .1rem .32rem; border-radius: 5px; white-space: nowrap; }
+.po-badge.in { color: var(--green); background: rgba(47,213,118,.12); border: 1px solid rgba(47,213,118,.4); }
+.po-badge.out { color: var(--muted); background: rgba(255,255,255,.05); border: 1px solid var(--line); }
+
+.stakes-line { display: flex; align-items: flex-start; gap: .6rem;
+  padding: .7rem .9rem; margin-bottom: 1.2rem; border-radius: var(--radius);
+  background: linear-gradient(135deg, rgba(47,213,118,.08), rgba(255,70,85,.06));
+  border: 1px solid var(--line); font-size: .9rem; line-height: 1.45; }
+.stakes-line .tag { font-size: 1.15rem; line-height: 1; }
+.stakes-line b { color: #fff; }
+
+/* very small screens: the PF column yields its padding so 5 columns still fit
+   without a sideways scroll (numbers stay, just tighter). */
+@media (max-width: 400px) {
+  table.roll td.po-cell, table.roll th.po-th { padding-left: .35rem; padding-right: .55rem; }
+  .po-badge { font-size: .54rem; }
+}
+
+/* ── TRASH TALK — the thread welded to a game. Mobile: full-width bubbles, a
+   thumb-height input, your own posts lit gold. */
+.tt-thread { list-style: none; margin: 0 0 .9rem; padding: 0; display: flex; flex-direction: column; gap: .55rem; }
+.tt-post { background: rgba(255,255,255,.04); border: 1px solid var(--line);
+  border-radius: 12px; padding: .55rem .7rem; }
+.tt-post.mine { background: rgba(245,196,69,.08); border-color: rgba(245,196,69,.35); }
+.tt-meta { display: flex; align-items: baseline; gap: .5rem; margin-bottom: .2rem; }
+.tt-who { font-family: var(--font-display); font-weight: 800; font-size: .8rem; color: #fff; }
+.tt-when { font-size: .68rem; }
+.tt-body { font-size: .92rem; line-height: 1.4; color: #e7eaf3; overflow-wrap: anywhere; }
+.tt-form { display: flex; gap: .5rem; }
+.tt-form input[type="text"] { flex: 1 1 auto; min-width: 0; min-height: 44px;
+  background: rgba(255,255,255,.05); border: 1px solid var(--line); border-radius: 10px;
+  padding: .5rem .7rem; color: var(--ink); font-family: var(--font-body); font-size: .95rem; }
+.tt-form input[type="text"]:focus { outline: none; border-color: var(--gold); }
+.tt-form .btn { flex: 0 0 auto; }
+
+/* ── WHAT TO WATCH — the Sunday/Monday sweat panel. Per-owner rows sorted by
+   watchability; the sweat meter is a single bar; colour tracks the state. */
+.wtw-band { margin: 0 0 1rem; font-size: .82rem; }
+.wtw-list { display: flex; flex-direction: column; gap: .6rem; }
+.wtw-row { background: var(--panel); border: 1px solid var(--line); border-left: 3px solid var(--muted);
+  border-radius: var(--radius); padding: .7rem .85rem; }
+.wtw-row.flip { border-left-color: var(--gold-bright); }
+.wtw-row.sweat { border-left-color: #ffb020; }
+.wtw-row.safe { border-left-color: var(--green); }
+.wtw-row.cooked { border-left-color: var(--red); }
+.wtw-row.mine { box-shadow: inset 0 0 0 1px rgba(245,196,69,.35); }
+.wtw-top { display: flex; align-items: center; gap: .5rem; }
+.wtw-icon { font-size: 1.1rem; }
+.wtw-who { flex: 1 1 auto; min-width: 0; font-size: .92rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wtw-who b { color: #fff; font-family: var(--font-display); }
+.wtw-pct { font-variant-numeric: tabular-nums; font-weight: 800; color: #cfd6e6; }
+.wtw-meter { margin: .5rem 0 .4rem; height: 8px; border-radius: 999px; overflow: hidden; background: rgba(255,255,255,.08); }
+.wtw-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--gold), var(--gold-bright)); }
+.wtw-row.safe .wtw-fill { background: linear-gradient(90deg, #1f9d57, var(--green)); }
+.wtw-row.cooked .wtw-fill { background: linear-gradient(90deg, #7a2630, var(--red)); }
+.wtw-row.flip .wtw-fill { background: linear-gradient(90deg, var(--gold), #ff8a3d); }
+.wtw-need { font-size: .82rem; color: #cfd6e6; }
+.wtw-word { font-family: var(--font-display); font-weight: 800; font-size: .66rem; letter-spacing: .06em;
+  text-transform: uppercase; }
+.wtw-word.flip { color: var(--gold-bright); } .wtw-word.sweat { color: #ffb020; }
+.wtw-word.safe { color: var(--green); } .wtw-word.cooked { color: var(--red-bright); }
+.wtw-high { color: var(--gold-bright); font-weight: 700; }
+
+/* Kansas City Chiefs arrowhead — the real mark, next to every KC player.
+   Inline SVG asset (public/icons/kc.svg), self-contained, scales with the text. */
+.kc-logo { height: .95em; width: auto; vertical-align: -0.14em; margin-left: .1em; }

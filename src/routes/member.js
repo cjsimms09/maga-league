@@ -7,6 +7,12 @@ const CHAMPS = require('../champs');       // the crown — defending champion, 
 const RIV = require('../rivalries');       // rivalry game-of-the-week billing (+ German egg)
 const LO = require('./lineup');            // the lineup optimizer engine (validated vs L0)
 const MOVE = require('./standings-movement'); // week-over-week rank arrows (dormant pre-season)
+const PE = require('./pickem');            // league pick'em — pick every game, tracked forever
+const DISPATCH = require('./dispatch');    // transient popups — awards / power poll / this-week-in-history
+const PO = require('./playoffs');          // folded columns — playoff odds/movement, clinch/elim, matchup leverage
+const TT = require('./trashtalk');         // trash talk attached to a specific game, permanent + archived
+const WW = require('./whatwatch');         // what-to-watch — the Sunday/Monday sweat meter + what each owner needs
+const MK = require('./marks');             // auto badges — GOAT on Mahomes' owner, Chiefs mark on KC players
 const L = require('../ledger');
 const SB = require('../sidebets');
 const BL = require('../betlogic');
@@ -307,6 +313,31 @@ router.get('/', aw(async (req, res) => {
     wireRows = await sleeper.wire(world.config.sleeper_league_id, sData.week || 1, sData, playersDb);
   }
   const playoffTeams = (sData && sData.league.settings && sData.league.settings.playoff_teams) || 4;
+
+  // THE FOLDED COLUMNS — the playoff picture, folded into the standings: odds
+  // with week-over-week movement + clinch/elimination markers. Derived (a seeded
+  // Monte-Carlo off records + points-for; labelled B's estimate, swaps for A's
+  // champ model later) and DORMANT until the season produces records, so it
+  // renders nothing pre-season. Odds are snapshotted per week to anchor the
+  // movement arrow to a real week-over-week change. Defensive: never break home.
+  let playoffPicture = null;
+  try {
+    const playedRows = sStandings.filter(r => r.owner_id != null
+      && ((r.wins || 0) + (r.losses || 0) + (r.ties || 0)) > 0);
+    if (sData && playedRows.length >= 4) {
+      const rows = playedRows.map(r => ({ owner_id: r.owner_id, wins: r.wins, losses: r.losses, pf: r.pf }));
+      const regWeeks = (sData.league.settings && sData.league.settings.playoff_week_start)
+        ? sData.league.settings.playoff_week_start - 1 : (season.weeks || 14);
+      const gamesLeft = PO.gamesRemaining(sData.week, regWeeks);
+      const cut = playoffTeams;
+      const odds = PO.simOdds(rows, gamesLeft, cut);
+      // Latest-in-week snapshot; movement compares against last week's snapshot.
+      await setDoc(`playoff-odds:${season.year}:${sData.week}`, { week: sData.week, odds, saved_at: now() });
+      const prev = await getDoc(`playoff-odds:${season.year}:${sData.week - 1}`, null);
+      playoffPicture = PO.picture(rows, gamesLeft, cut, prev ? prev.odds : null);
+    }
+  } catch (e) { /* the folded columns are a bonus; the standings render without them */ }
+
   let roast = null;
   if (sStandings.length >= 4) {
     const last = sStandings[sStandings.length - 1];
@@ -345,12 +376,33 @@ router.get('/', aw(async (req, res) => {
   // Which teams have side-bet money riding on them, so the standings can say so.
   const betMoney = SB.moneyOnTeams(await SB.all(), req.owner.id,
     id => (H.ownerById(owners, id) || {}).name || '?');
+
+  // THE DISPATCH — transient popups (weekly awards / power poll / this-week-in-
+  // history). Generated from data already in hand (no extra network), archived
+  // for the chronicle, then shown ONCE per owner and dismissed. Never persists on
+  // the page: only this owner's undismissed items render, and dismissing clears
+  // them for good. Wrapped defensively — a popup must never break the home page.
+  let dispatches = [];
+  try {
+    const map = world.config.sleeper_map || {};
+    const nameOfRoster = rid => (H.ownerById(owners, Number(map[String(rid)])) || {}).name || null;
+    const weeklyHistory = {};
+    for (const [yr, ids] of Object.entries((world.history && world.history.weekly) || {})) {
+      weeklyHistory[yr] = (ids || []).map(id => (H.ownerById(owners, id) || {}).name || null);
+    }
+    const items = DISPATCH.generate({
+      season: season.year, week: (sData && sData.week) || 1, reviewWeek, review,
+      nameOfRoster, standings: sStandings, weeklyHistory,
+    });
+    for (const it of items) { try { await DISPATCH.archive(it); } catch (e) { /* archive is best-effort */ } }
+    dispatches = DISPATCH.pending(items, await DISPATCH.getSeen(req.owner.id));
+  } catch (e) { /* the dispatch is a bonus; the dashboard renders without it */ }
   res.render('dashboard', {
     season, payouts: H.payoutTable(season), buyins, weekly, awards, standings, draft,
     openVotes, CATEGORY_LABELS: H.CATEGORY_LABELS, myBalance,
     sleeperData: sData, sleeperStandings: sStandings, sleeperBoard: sBoard, roast,
     whBand, whRace, rivalryOfWeek, rivalryMore,
-    review, reviewWeek, wireRows, playoffTeams, chatLatest, betMoney, owners, rankMoves,
+    review, reviewWeek, wireRows, playoffTeams, chatLatest, betMoney, owners, rankMoves, dispatches, playoffPicture,
     // Venmo nag (venmo-handles.md §2): fires for a logged-in owner with no
     // handle; the commissioner also sees who is still missing theirs.
     venmoNag: V.needsNag(req.owner && world.owners.find(o => o.id === req.owner.id)),
@@ -363,8 +415,9 @@ router.get('/', aw(async (req, res) => {
     // Each owner is nagged for their OWN data only. The commissioner's aggregate
     // view lives in the Commissioner Console, not on the home page.
     contactNag: contactMissingFields(world.owners.find(o => o.id === req.owner.id)),
-    // Nationality flags by owner id, from the one shared source.
-    flags: Object.fromEntries(owners.map(o => [o.id, flagOf(o.name)])),
+    // Owner flags: nationality + the GOAT auto-folded onto whoever rosters
+    // Mahomes (moves on its own as rosters change).
+    flags: MK.ownerFlags(owners, flagOf, MK.goatOwnerId(sData, world.config.sleeper_map || {})),
   });
 }));
 
@@ -721,7 +774,8 @@ router.get('/bank', aw(async (req, res) => {
     // Contact directory: shared card data + this owner's own record for the edit
     // form. Same one-record store the home page reads.
     contacts: owners.map(contactOf), myContact: contactOf(world.owners.find(o => o.id === req.owner.id) || req.owner),
-    flags: Object.fromEntries(owners.map(o => [o.id, flagOf(o.name)])),
+    flags: MK.ownerFlags(owners, flagOf,
+      MK.goatOwnerId(await sleeper.bundle(world.config.sleeper_league_id), world.config.sleeper_map || {})),
   });
 }));
 
@@ -1433,13 +1487,274 @@ router.get('/matchup', aw(async (req, res) => {
   }
 
   const nameOf = id => (H.ownerById(owners, id) || {}).name || '?';
+
+  // TRASH TALK — the thread welded to THIS game (season + week + owner pair),
+  // permanent and archived. Loaded only when there's an opponent to talk about.
+  let trash = [], trashGameId = null;
+  if (opp) {
+    const seasonY = (H.currentSeason(world.seasons) || {}).year || new Date().getFullYear();
+    trashGameId = TT.gameId(me.id, opp.id);
+    try { trash = await TT.forGame(seasonY, weekNo, trashGameId); } catch (e) { /* thread is a bonus */ }
+  }
+
+  // A compact pick'em hook — the matchup screen is where people already think
+  // about the week, so it points them at the league-wide picks (boards skipped;
+  // this is just the CTA + lock state, kept cheap).
+  let pickem = null;
+  try {
+    const pc = await pickemContext(world, me, { wantBoards: false });
+    pickem = { weekNo: pc.weekNo, locked: pc.locked, lockAt: pc.lockAt,
+      games: pc.games.length, picksMade: pc.picksMade };
+  } catch (e) { /* the strip is a bonus; never let it break the matchup page */ }
+
+  // WHAT THIS MATCHUP IS WORTH — one line: how much your playoff odds swing on a
+  // win vs a loss this week (the folded columns' leverage). Derived, dormant
+  // until there are records to run; defensive so it never breaks the page.
+  let stakes = null;
+  try {
+    const sStand = sleeper.standings(sData, world.config.sleeper_map || {}, owners)
+      .filter(r => r.owner_id != null && ((r.wins || 0) + (r.losses || 0) + (r.ties || 0)) > 0);
+    if (sData && sStand.length >= 4) {
+      const rows = sStand.map(r => ({ owner_id: r.owner_id, wins: r.wins, losses: r.losses, pf: r.pf }));
+      const regWeeks = (sData.league.settings && sData.league.settings.playoff_week_start)
+        ? sData.league.settings.playoff_week_start - 1 : 14;
+      const gamesLeft = PO.gamesRemaining(sData.week, regWeeks);
+      const cut = (sData.league.settings && sData.league.settings.playoff_teams) || 4;
+      const lev = PO.matchupLeverage(rows, gamesLeft, cut, me.id);
+      if (lev) stakes = lev;
+    }
+  } catch (e) { /* leverage is a bonus */ }
+
   res.render('matchup', {
     me, owners, opp, live, weekNo, matchup: liveMatchup, betWindow, record, rivalry,
-    perPlayer, proj, highBand, whBand, whRace,
+    perPlayer, proj, highBand, whBand, whRace, pickem, stakes, trash, trashGameId,
+    goatId: MK.goatOwnerId(sData, world.config.sleeper_map || {}),
     configured: !!world.config.sleeper_league_id,
     late: req.query.late === '1', sent: req.query.sent === '1',
     nameOf,
   });
+}));
+
+// ---------- PICK'EM — pick every game, every week, remembered forever ----------
+// League-visible (a pick is a RESULT, not a tool — ACCESS-RULE.md): everyone
+// picks a winner for each of the week's five games, the picks LOCK at the first
+// kickoff, the split goes public once locked ("7 of 10 took Michael"), and the
+// season/all-time accuracy boards — including the Hall of Shame that names the
+// worst picker — sit right here where the league already argues. The engine is
+// src/routes/pickem.js; this is the HTTP surface, same split as the optimizer.
+
+// Everything the pick'em pages need, gathered once. Shared by GET /pickem and
+// the compact strip the matchup page shows.
+async function pickemContext(world, me, { wantBoards = true } = {}) {
+  const owners = H.activeOwners(world.owners);
+  const season = H.currentSeason(world.seasons);
+  const seasonYear = season ? season.year : new Date().getFullYear();
+  const leagueId = world.config.sleeper_league_id;
+  const map = world.config.sleeper_map || {};
+  const seasonStart = world.config.season_start || null;
+
+  const sData = await sleeper.bundle(leagueId);
+  const weekNo = (sData && sData.week) || 1;
+  const anyScore = PE.anyScoreOnBoard(sData);
+  const locked = PE.isLocked({ week: weekNo, seasonStart, anyScore });
+  const lockAt = PE.lockAt(weekNo, seasonStart);
+
+  // Freeze (or refresh, while unlocked) this week's slate so scoring never has
+  // to re-reach Sleeper and a late schedule change can't rewrite picked games.
+  const liveGames = PE.weekGames(sData, map, owners);
+  const games = await PE.ensureSlate(seasonYear, weekNo, liveGames, { locked });
+
+  const myPicks = await PE.getMyPicks(seasonYear, weekNo, me.id);
+  const nameOf = id => (H.ownerById(owners, id) || {}).name || `#${id}`;
+  const myGame = games.find(g => g.a.id === me.id || g.b.id === me.id) || null;
+
+  // Live points for THIS week, straight off the scoreboard — provisional game
+  // leaders while the week is in play (final grading uses the cached week points).
+  let livePts = null;
+  if (sData && Array.isArray(sData.matchups)) {
+    livePts = {};
+    for (const m of sData.matchups) {
+      const oid = map[String(m.roster_id)];
+      if (oid != null) livePts[String(oid)] = Math.round((m.points || 0) * 100) / 100;
+    }
+  }
+
+  // The split + who-backed-whom is public only after lock — before that a pick
+  // is private, or the last picker just copies the crowd.
+  let allPicks = [], splits = {}, backers = [], liveResults = {};
+  if (locked) {
+    allPicks = await PE.allPicksForWeek(seasonYear, weekNo);
+    for (const g of games) {
+      splits[g.id] = { ...PE.gameSplit(g, allPicks), line: PE.splitLine(g, allPicks, nameOf) };
+      const res = livePts ? PE.gameResult(g, livePts) : null;
+      if (res) liveResults[g.id] = res;
+    }
+    if (myGame) backers = PE.backedAgainst(myGame, me.id, allPicks, nameOf);
+  }
+
+  const ctx = {
+    owners, seasonYear, weekNo, locked, lockAt, anyScore, seasonStart,
+    games, myPicks, myGame, splits, backers, allPicks, liveResults, livePts,
+    configured: !!leagueId, nameOf,
+    picksMade: Object.keys(myPicks).length,
+    goatId: MK.goatOwnerId(sData, map),
+  };
+  if (!wantBoards) return ctx;
+
+  // Only weeks that are safely FINAL grade into the boards — same lag the
+  // side-bet engine uses, so a Monday-night game never scores half a week.
+  const finalOnly = async w =>
+    (w <= weekNo - BL.CFG.GRADE_WEEK_LAG) ? await sleeper.weekPointsByOwner(leagueId, w, map) : null;
+  const sb = await PE.seasonBoard(seasonYear, weekNo, owners, finalOnly);
+
+  // All-time: every season with pick'em data, summed forever. Historical seasons
+  // predate pick'em (2026 is year one), so today all-time == this season; the
+  // resolver only knows this league's cache, which is exactly the season we have.
+  const slateKeys = await store.listKeys('pickem-slate:');
+  const seasonsWithData = [...new Set(slateKeys.map(k => Number(k.split(':')[1])).filter(Boolean))].sort();
+  const at = await PE.allTimeBoard(seasonsWithData, owners,
+    (s, w) => (s === seasonYear ? finalOnly(w) : Promise.resolve(null)),
+    (season && season.weeks) || 18);
+
+  ctx.seasonBoard = sb.board;
+  ctx.weeksGraded = sb.weeksGraded;
+  ctx.allTimeBoard = at.board;
+  ctx.allTimeSeasons = at.seasons;
+  ctx.worst = sb.board.find(r => r.worst) || at.board.find(r => r.worst) || null;
+  return ctx;
+}
+
+router.get('/pickem', aw(async (req, res) => {
+  const c = await pickemContext(req.world, req.owner, { wantBoards: true });
+  res.render('pickem', {
+    me: req.owner, ...c,
+    saved: req.query.saved === '1', late: req.query.late === '1',
+  });
+}));
+
+router.post('/pickem', aw(async (req, res) => {
+  const world = req.world;
+  const owners = H.activeOwners(world.owners);
+  const season = H.currentSeason(world.seasons);
+  const seasonYear = season ? season.year : new Date().getFullYear();
+  const map = world.config.sleeper_map || {};
+  const seasonStart = world.config.season_start || null;
+  const sData = await sleeper.bundle(world.config.sleeper_league_id);
+  const weekNo = (sData && sData.week) || 1;
+  const anyScore = PE.anyScoreOnBoard(sData);
+
+  // Server-side lock: picks in after kickoff are refused outright — the whole
+  // point of the feature is that a pick means you didn't know the result yet.
+  if (PE.isLocked({ week: weekNo, seasonStart, anyScore })) {
+    return res.redirect('/pickem?late=1');
+  }
+  const liveGames = PE.weekGames(sData, map, owners);
+  const games = await PE.ensureSlate(seasonYear, weekNo, liveGames, { locked: false });
+
+  // The form posts pick_<gameId>=<ownerId> per game.
+  const picks = {};
+  for (const g of games) {
+    const v = req.body['pick_' + g.id];
+    if (v != null && v !== '') picks[g.id] = v;
+  }
+  await PE.savePicks(seasonYear, weekNo, req.owner.id, picks, games);
+  res.redirect('/pickem?saved=1');
+}));
+
+// Trash talk on a specific game. Any logged-in owner can post to any game — it's
+// league banter — attributed and timestamped, permanent, archived for the
+// chapters. The game is derived from the two owners so the post welds to the
+// actual matchup, not a roster id. Redirects back to that matchup view.
+router.post('/matchup/trash', aw(async (req, res) => {
+  const world = req.world;
+  const owners = H.activeOwners(world.owners);
+  const oppId = parseInt(req.body.opp, 10) || null;
+  const week = parseInt(req.body.week, 10) || 1;
+  const seasonY = (H.currentSeason(world.seasons) || {}).year || new Date().getFullYear();
+  const opp = oppId ? H.ownerById(owners, oppId) : null;
+  if (opp && oppId !== req.owner.id) {
+    const gid = TT.gameId(req.owner.id, opp.id);
+    await TT.post(seasonY, week, gid, req.owner.id, req.body.body);
+  }
+  res.redirect('/matchup' + (oppId ? '?opp=' + oppId : '') + '#trash');
+}));
+
+// WHAT TO WATCH — Sunday & Monday night: the sweat meter + what each owner
+// needs + the weekly-hundred sweat. League-visible (the live race). Dormant off
+// its window and without live data; ?preview=1 rehearses it on sample data so the
+// first live Sunday is not the first time it has ever run.
+function pvEntries(owners) {
+  // A deterministic sample slate spanning the sweat states: a coin flip, a
+  // comeback, a lock, a blowout loss, a late lead. Labelled REHEARSAL in the UI.
+  const o = owners.slice(0, 10);
+  const nm = i => (o[i] || { name: 'Team ' + i }).name;
+  const P = (proj, sd = 7) => ({ proj, sd });
+  const games = [
+    { a: 0, b: 1, live: 88.4, oppLive: 87.9, remain: [P(11)], oppRemain: [P(12)] },   // 🔥 coin flip
+    { a: 2, b: 3, live: 61.2, oppLive: 96.8, remain: [P(14), P(9)], oppRemain: [] },   // 🟡 comeback
+    { a: 4, b: 5, live: 121.5, oppLive: 74.1, remain: [P(6)], oppRemain: [P(8)] },     // 🟢 in control
+    { a: 6, b: 7, live: 58.0, oppLive: 118.3, remain: [P(7)], oppRemain: [] },          // 🔴 cooked
+    { a: 8, b: 9, live: 103.6, oppLive: 99.2, remain: [P(4)], oppRemain: [P(13)] },     // 🟡 late lead
+  ];
+  const entries = [];
+  for (const g of games) {
+    entries.push({ owner_id: (o[g.a] || {}).id, name: nm(g.a), oppName: nm(g.b), live: g.live, oppLive: g.oppLive, remain: g.remain, oppRemain: g.oppRemain });
+    entries.push({ owner_id: (o[g.b] || {}).id, name: nm(g.b), oppName: nm(g.a), live: g.oppLive, oppLive: g.live, remain: g.oppRemain, oppRemain: g.remain });
+  }
+  return entries;
+}
+// Live entries from the scoreboard. Live scores are real; the "remaining
+// players + projections" that sharpen the sweat come from A's per-player data
+// when present (flagged in PARKED) — until then the meter runs off the live
+// scores, which is honest, just coarser, and improves automatically.
+function liveWatchEntries(sData, map, owners) {
+  if (!sData || !Array.isArray(sData.matchups)) return [];
+  const nameOf = id => (H.ownerById(owners, id) || {}).name || '?';
+  const byMatch = {};
+  for (const m of sData.matchups) {
+    const oid = Number(map[String(m.roster_id)]);
+    if (!oid) continue;
+    const key = m.matchup_id != null ? `m${m.matchup_id}` : `s${m.roster_id}`;
+    (byMatch[key] ??= []).push({ oid, pts: Math.round((m.points || 0) * 100) / 100 });
+  }
+  const entries = [];
+  for (const pair of Object.values(byMatch)) {
+    if (pair.length !== 2) continue;
+    const [a, b] = pair;
+    entries.push({ owner_id: a.oid, name: nameOf(a.oid), oppName: nameOf(b.oid), live: a.pts, oppLive: b.pts, remain: [], oppRemain: [] });
+    entries.push({ owner_id: b.oid, name: nameOf(b.oid), oppName: nameOf(a.oid), live: b.pts, oppLive: a.pts, remain: [], oppRemain: [] });
+  }
+  return entries;
+}
+router.get('/watch', aw(async (req, res) => {
+  const world = req.world;
+  const owners = H.activeOwners(world.owners);
+  const preview = req.query.preview === '1';
+  const etDay = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' })).getDay();
+  const inWindow = etDay === 0 || etDay === 1;   // Sunday or Monday, ET
+  const band = LO.weeklyHighBand();
+  const bandSamples = (band && band.samples) || [];
+  const sData = await sleeper.bundle(world.config.sleeper_league_id);
+  const weekNo = (sData && sData.week) || 1;
+  let rows = [], source = null;
+  if (preview) { rows = WW.panelRows(pvEntries(owners), bandSamples); source = 'preview'; }
+  else if (inWindow && sData) {
+    const anyScore = PE.anyScoreOnBoard(sData);
+    if (anyScore) { rows = WW.panelRows(liveWatchEntries(sData, world.config.sleeper_map || {}, owners), bandSamples); source = 'live'; }
+  }
+  res.render('watch', { me: req.owner, rows, source, inWindow, weekNo, band, preview });
+}));
+
+// A dispatch, dismissed. Marks it seen for THIS owner only, so it never shows
+// again — the popup is gone but the archived copy lives on for the chronicle.
+// Answers JSON to the fetch enhancement and redirects the no-JS form.
+router.post('/dispatch/dismiss', aw(async (req, res) => {
+  const key = req.body.key;
+  if (key) await DISPATCH.markSeen(req.owner.id, String(key));
+  if ((req.get('accept') || '').includes('application/json') || req.body.ajax) {
+    return res.json({ ok: true });
+  }
+  res.redirect('/');
 }));
 
 // ---------- THE LINEUP OPTIMIZER (in-season, the measured leak) ----------

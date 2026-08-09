@@ -8,6 +8,8 @@
       weekday: 'short', hour: 'numeric', minute: '2-digit' }) + ' ET';
   };
   const r = record;                         // head-to-head summary (may be null)
+  // GOAT next to whoever rosters Mahomes — moves on its own.
+  const goat = id => (typeof goatId !== 'undefined' && goatId === id) ? ' 🐐' : '';
   // Who's ahead, said in plain words from the viewer's side.
   let lead = null;
   if (r && r.played) {
@@ -18,6 +20,26 @@
 %>
 
 <h1 class="page-title">⚔️ The Matchup <span class="sub" style="font-weight:600">Week <%= weekNo %></span></h1>
+
+<%# ── Pick'em hook — the whole league's games, one tap away ─────────────────── %>
+<% if (typeof pickem !== 'undefined' && pickem && pickem.games) { %>
+  <a class="pk-strip" href="/pickem">
+    <span class="tag" style="font-size:1.3rem">🗳️</span>
+    <span class="pk-strip-txt">
+      <% if (pickem.locked) { %>
+        <b>Week <%= pickem.weekNo %> picks are locked.</b>
+        <span class="pk-strip-sub">See how the league split every game — and who backed you →</span>
+      <% } else if (pickem.picksMade >= pickem.games) { %>
+        <b>You've picked all <%= pickem.games %> games.</b>
+        <span class="pk-strip-sub">Change them until first kickoff, or check the accuracy board →</span>
+      <% } else { %>
+        <b>Pick'em: <%= pickem.picksMade %>/<%= pickem.games %> games picked.</b>
+        <span class="pk-strip-sub">Call every game this week before kickoff →</span>
+      <% } %>
+    </span>
+    <span class="btn gold small" style="pointer-events:none">Pick'em</span>
+  </a>
+<% } %>
 
 <% if (sent) { %>
   <div class="alert-banner" style="margin-bottom:1rem; border-color:rgba(74,222,128,.5)">
@@ -66,13 +88,13 @@
       <div class="mu-side <%= (matchup && matchup.me && matchup.me.points > matchup.opp.points) ? 'up' : '' %>">
         <span class="mu-team"><%= (matchup && matchup.me && matchup.me.team) || me.team_name || 'Your team' %></span>
         <span class="mu-pts"><%= (matchup && matchup.me) ? matchup.me.points.toFixed(2) : '—' %></span>
-        <span class="mu-who">you</span>
+        <span class="mu-who">you<%- goat(me.id) %></span>
       </div>
       <div class="mu-vs">vs</div>
       <div class="mu-side <%= (matchup && matchup.opp && matchup.opp.points > matchup.me.points) ? 'up' : '' %>">
         <span class="mu-team"><%= (matchup && matchup.opp && matchup.opp.team) || opp.team_name || opp.name + "'s team" %></span>
         <span class="mu-pts"><%= (matchup && matchup.opp) ? matchup.opp.points.toFixed(2) : '—' %></span>
-        <span class="mu-who"><%= opp.name %><%- include('partials/_owner_badges', { name: opp.name }) %></span>
+        <span class="mu-who"><%= opp.name %><%- include('partials/_owner_badges', { name: opp.name }) %><%- goat(opp.id) %></span>
       </div>
     </div>
     <% if (typeof defendingChamps !== 'undefined' && defendingChamps.indexOf(opp.name) !== -1) { %>
@@ -85,6 +107,16 @@
     <% } %>
   </div>
 </div>
+
+<%# ── What this matchup is worth — one folded line ──────────────────────────── %>
+<% if (typeof stakes !== 'undefined' && stakes) {
+     const w = Math.round(stakes.win * 100), l = Math.round(stakes.lose * 100), s = Math.round(stakes.swing * 100); %>
+  <div class="stakes-line">
+    <span class="tag">🎟️</span>
+    <span>What this is worth: a win puts you at <b class="pos"><%= w %>%</b> to make the playoffs, a loss drops you to <b class="neg"><%= l %>%</b><% if (s > 0) { %> — a <b><%= s %>-point</b> swing<% } %>.
+      <span class="muted" style="font-size:.74rem">(estimate — record + points, until the model lands)</span></span>
+  </div>
+<% } %>
 
 <%# ── HEAD TO HEAD — the centrepiece ───────────────────────────────────────── %>
 <div class="card h2h-card" style="margin-bottom:1.2rem">
@@ -162,6 +194,34 @@
         The site grades it and tells you both who won.
       </p>
     <% } %>
+  </div>
+</div>
+
+<%# ── TRASH TALK — welded to this game, permanent, quoted by the chapters later ─ %>
+<div class="card" id="trash" style="margin-bottom:1.2rem">
+  <h2>🗣️ Trash Talk <span class="sub">this game — on the record, forever</span></h2>
+  <div class="body">
+    <% const _tt = (typeof trash !== 'undefined' && trash) ? trash : []; %>
+    <% if (!_tt.length) { %>
+      <p class="muted" style="margin:0 0 .8rem">Nothing said yet. First word against <b><%= opp.name %></b> is free — and it's here for good, so the chapters can quote it after somebody loses by forty.</p>
+    <% } else { %>
+      <ul class="tt-thread">
+        <% for (const p of _tt) { %>
+          <li class="tt-post<%= p.owner_id === me.id ? ' mine' : '' %>">
+            <div class="tt-meta"><b class="tt-who"><%= nameOf(p.owner_id) %></b>
+              <span class="tt-when muted"><%= new Date(p.created_at).toLocaleString('en-US', { timeZone: 'America/New_York', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) %></span></div>
+            <div class="tt-body"><%= p.body %></div>
+          </li>
+        <% } %>
+      </ul>
+    <% } %>
+    <form method="post" action="/matchup/trash" class="tt-form">
+      <input type="hidden" name="opp" value="<%= opp.id %>">
+      <input type="hidden" name="week" value="<%= weekNo %>">
+      <input type="text" name="body" maxlength="500" placeholder="Say something to <%= opp.name %>…" autocomplete="off" required>
+      <button class="btn gold" type="submit">Post it</button>
+    </form>
+    <p class="muted" style="margin:.5rem 0 0; font-size:.74rem">Permanent. No takebacks. Keep it about fantasy.</p>
   </div>
 </div>
 

@@ -1356,3 +1356,79 @@ offline, high delight, "the best one"), then transient popups (awards/power/on-t
 day, offline-testable), then folded columns (playoff odds/matchup worth), then the
 live what-to-watch panel (needs deployed Sleeper), then the final design pass +
 Chiefs logo + GOAT last. Chiefs logo + GOAT are cheap and could ride along early.
+
+## ▶ SESSION B — 2026-08-09: PICK'EM shipped (unit 1 of the new order) + nav bug fixed
+**Branch `claude/pickems-feature-3ksf0l` (fresh off main; pushed). 🅰️: integrate + DEPLOY — Cory hasn't seen ANY of the prior branch work live yet, and this stacks on top.**
+
+### ✅ PICK'EM — complete, tested, mobile-verified (unit 1, "start here")
+League-visible (a pick is a RESULT, not a tool — ACCESS-RULE.md). New `/pickem`:
+- **Two-way pick per game**, each week's five games, thumb-sized targets, one
+  mobile column. Nav entry added; a compact hook on the matchup screen.
+- **Locks at first kickoff OR first point on the board** (reuses
+  `betlogic.kickoffOf` + the anyScore signal matchup bets use) — enforced
+  server-side in POST /pickem, not just hidden.
+- **Split goes public only once locked**: "7 of 10 took Michael" + a gold/red
+  split bar per game, and a "who backed you / who took the other guy" line on
+  your own game (names on record).
+- **Accuracy tracked conspicuously**: season leaderboard + all-time accumulation
+  (never resets), both up top, your row lit; #1 gets 👑.
+- **The worst picker is named** — Hall of Shame seat (lowest accuracy among the
+  eligible), gated by a graded-games floor so no one is shamed off a lucky week.
+- **Derived + durable**: games from the live Sleeper scoreboard; each week's
+  slate frozen on first sight so scoring never re-reaches the network; grading
+  reuses cached week points + the side-bet epsilon/grade-lag. All-time board is
+  the archive the chronicle quotes.
+- Engine `src/routes/pickem.js` (pure + thin store layer), HTTP in member.js,
+  view `views/pickem.ejs`, CSS block. **38 tests** (pure + over-HTTP: save,
+  refuse-after-lock, split-after-lock, boards grade a finished week) wired into
+  `ci.yml`. Screenshotted at 390px in open + locked states (sent to Cory).
+
+### ✅ NAV BUG FIXED (mobile mandate): "arm my-turn alert" covered LOCKER + MORE
+`#arm-alerts` was `position:fixed; bottom:16px; z-index:150`, sitting on the
+bottom tab bar and eating the LOCKER/MORE taps — same dropped-tap class that
+drifted a roster in mock #2. Moved to a `.wr-arm` class that lifts it above the
+bar on ≤700px and drops z-index below the bar. id + onclick (A's DraftAlerts
+contract) untouched.
+
+### ▶ NEXT (in the order): transient popups (weekly awards Tue AM / power rankings
+/ on-this-day, mean, archived, never sitting on a page) → folded columns (playoff
+odds + movement, matchup stakes line, clinch/elim markers) → what-to-watch panel
+(SNF/MNF, weekly-hundred race + sweat meter, needs deployed Sleeper) → trash talk
+on matchups → the final design pass (USA theme, Chiefs logos, GOAT-on-Mahomes).
+**Never deploying — 🅰️ owns it.**
+
+## ▶ SESSION B — RESUME MARKER 2026-08-09: 4 of 6 units shipped (Pick'em order)
+**Branch `claude/pickems-feature-3ksf0l` (fresh off main). All below committed + pushed + tested + screenshotted at 390px. 🅰️: integrate + DEPLOY — Cory has NOT seen any of this (or the prior branch work) live; it's stacking up unseen.**
+
+### ✅ DELIVERED THIS SESSION (in the order Cory gave)
+1. **PICK'EM** (`src/routes/pickem.js` + member.js + `views/pickem.ejs` + nav + matchup strip + CSS). Two-way pick per game; locks at first kickoff OR first point (server-enforced); split public only after lock ("7 of 10 took Michael" + bar); who-backed-you line; season leaderboard + all-time (never resets) up top; Hall of Shame names the worst (eligibility-floored); derived + durable (slate frozen on sight); archived for the chronicle. **38 tests.**
+2. **THE DISPATCH** (`src/routes/dispatch.js` + `public/js/dispatch.js` + dashboard + CSS). Transient popups — weekly awards / power poll / this-week-in-history, mean voice, DETERMINISTIC so the archive is stable. Appear→read→dismissed→gone (per owner, server-side); immutable archive + per-season index for chapters; no-JS stack / JS overlay. **21 tests.**
+3. **THE FOLDED COLUMNS** (`src/routes/playoffs.js` + dashboard PO% column + matchup leverage line + CSS). Exact clinch/elim bounds; SEEDED Monte-Carlo playoff odds (labelled B estimate, swaps for A's champ model); week-over-week ▲/▼ movement (per-week snapshot); "what this is worth" swing line on the matchup. NO h-scroll at 390px (verified). **19 tests.**
+5. **TRASH TALK ON MATCHUPS** (`src/routes/trashtalk.js` + POST /matchup/trash + matchup thread + CSS). Welded to a game (same identity as pick'em), one doc per post (concurrency-safe), permanent, league-visible, per-season archive for the chapters. **15 tests.**
+- **NAV BUG FIXED**: `.wr-arm` lifts the war-room "arm my-turn alert" above the mobile tab bar (was eating LOCKER/MORE taps).
+- All new tests wired into `ci.yml` (playoffs in the pure loop; pickem/dispatch/trashtalk as post-install app-boot steps).
+
+### ▶ REMAINING (next session, in order)
+- **UNIT 4 — WHAT-TO-WATCH PANEL** (SNF/MNF only: exactly what each owner needs, the live weekly-hundred race + the sweat meter). **Cory said "needs deployed Sleeper, build what you can and verify against the live site."** B CANNOT verify without a deploy (B never deploys) and the sandbox has no live game-state, so this was DEFERRED rather than shipped blind. Buildable-now pieces: the sweat-meter math (win-prob from remaining starters' projections) + reuse the existing weekly-hundred race (whRace/whBand already on home + matchup). **Do after A deploys the stack so it can be verified live.**
+- **UNIT 6 — FINAL DESIGN PASS (explicitly LAST)**: USA red/white/blue, everything clicking through to its story, Chiefs logo next to every KC player everywhere, GOAT next to whoever rosters Mahomes (auto). Note: a KC-accent + 🏹 egg already exists (STATUS earlier) — extend to logos + the Mahomes-GOAT marker.
+
+### NOTES FOR A (integration)
+- New B-lane files, all under B territory (src/routes/*, views/*, public/js/*, public/css/*): `src/routes/{pickem,dispatch,playoffs,trashtalk}.js`, `views/pickem.ejs`, `public/js/dispatch.js`. Shared append-only touched: `ci.yml` (test wiring), `draft/tests/*` (4 new tests). `territory-check.sh B` = clean.
+- B still requests A's **championship-probability model** (PARKED): the folded-columns odds + the matchup leverage line + pick'em nothing — swap the labelled Monte-Carlo for the real model when it lands; the surfaces read `odds`/`swing` unchanged.
+
+## ▶ SESSION B — cont. 2026-08-09: units 4, 5, 6-start shipped (all 6 now underway)
+**Branch `claude/pickems-feature-3ksf0l`. All committed + pushed + tested. 🅰️: integrate + DEPLOY — the whole stack is still unseen by Cory.**
+
+- **UNIT 5 — TRASH TALK** ✅ (`src/routes/trashtalk.js`): posts welded to a game (pick'em identity), one doc per post, permanent, league-visible, per-season archive for the chapters. Thread on the matchup screen. 15 tests.
+- **UNIT 4 — WHAT TO WATCH** ✅ engine + rehearsable panel (`src/routes/whatwatch.js`, `/watch`): sweat meter (P win from live + remaining proj, reuses LO.pWin/pClearHigh), the $100 sweat, the "what you need" line, 🟢🟡🔴🔥 buckets, most-watchable sort. Sun/Mon-gated, dormant off-window; `?preview=1` rehearses on sample data. 18 tests. **Live remainder (per-player remaining projections league-wide) = A's feed; flagged. Verify live after deploy.**
+- **UNIT 6 — DESIGN PASS (started)** ✅ the two auto-markers (`src/routes/marks.js`): GOAT 🐐 auto-moves to Mahomes' owner (folded into flags → standings + finances + matchup + pick'em), and the real Chiefs arrowhead **logo** (`public/icons/kc.svg`, replacing 🏹) next to KC players on the team roster. 9 tests.
+
+### FLAGS FOR A
+- **Matchup-starters KC logo + live sweat** both need A's per-player data (a `team` field + live proj/played flags on the matchup player rows in `src/sleeper.js`). B renders them the instant that shape lands — no surface change. (Extends the existing PARKED sleeper-data request.)
+- **Championship-probability model** (already PARKED): folded-columns odds + matchup leverage swap the labelled Monte-Carlo for it, unchanged surfaces.
+
+### UNIT 6 REMAINING (design pass, "full liberty" — best done on deployed output with Cory watching)
+Page-by-page USA-theme polish, everything clicking through to its story, the site as a decade time-capsule. The concrete auto-markers Cory named are done; the broad polish wants live eyes.
+
+### SESSION TALLY (this session, on the branch)
+Pick'em · The Dispatch · folded columns · trash talk · what-to-watch · GOAT+Chiefs marks · nav-bug fix — **~120 tests**, all green, CI-wired, screenshotted at 390px. **Nothing deployed yet.**

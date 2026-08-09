@@ -46,8 +46,7 @@ jobs:
       - name: JS suites
         run: |
           set -e
-          for t in alerts app-wiring attribution authority backtest betlogic bundling_guard champs engine h2h keeperlock keepers ledger \
-                   claimfix doctrine mcts movement_line predledger prefs rawarchive reconcile rivalries shadows sidebets sidebets_lifecycle pool_draft stack_routes strategies sync update venmo; do
+          for t in alerts app-wiring attribution authority backtest betlogic bundling_guard champs claimfix doctrine engine h2h keeperlock keepers ledger marks mcts movement_line playoffs predledger prefs rawarchive reconcile rivalries shadows sidebets sidebets_lifecycle pool_draft stack_routes strategies sync update venmo whatwatch; do
             echo "== $t =="
             node draft/tests/$t.test.js
           done
@@ -90,6 +89,25 @@ jobs:
         # archaeology is the commissioner's edge; this keeps it from leaking back
         # in by a stray column, an open tab, or a chapter rewrite.
         run: node draft/tests/access_guard.test.js
+      - name: Pick'em — pick every game, lock at kickoff, split + accuracy boards
+        # Pure grading/aggregation (gameId stability, weekGames pairing, isLocked
+        # by kickoff-or-score, scoreWeek, split, the eligibility-floored leaderboard
+        # and its single worst seat) plus the HTTP surface over the real app:
+        # picks save while unlocked, are REFUSED after kickoff, the split is hidden
+        # pre-lock and public after, and a finished week grades into the boards.
+        run: node draft/tests/pickem.test.js
+      - name: The Dispatch — transient popups (awards / power poll / this-week-in-history)
+        # Pure generation (mean voice, deterministic so the archive is stable),
+        # the immutable archive + per-owner seen store, and the HTTP surface: the
+        # popups render on the home page and a dismissal stays gone. Never sits on
+        # a page once dismissed; always archived for the chronicle.
+        run: node draft/tests/dispatch.test.js
+      - name: Trash talk on matchups — posts welded to a game, permanent + archived
+        # Pure engine (game-keyed like pick'em, per-post docs so concurrent
+        # posters don't clobber, trim/cap/empty-reject, season archive) + the HTTP
+        # round trip: a post redirects back to the game, renders attributed, and is
+        # league-visible to both parties who then both add to the one thread.
+        run: node draft/tests/trashtalk.test.js
       - name: Side-bet lifecycle over HTTP — declare→confirm→dispute + Venmo handoff
         # The two-party settling flow end to end: a result is declared, the OTHER
         # side confirms or disputes, a dispute is recorded not adjudicated, and the

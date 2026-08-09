@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 84" role="img" aria-label="Kansas City Chiefs">
+  <!-- The Chiefs arrowhead: white outline, Chiefs red field, interlocked "KC".
+       An original geometric rendition (not the copyrighted raster) so it stays
+       self-contained and renders under the artifact/CSP with no external fetch. -->
+  <defs>
+    <clipPath id="kcArrow">
+      <path d="M10 6 H74 Q86 6 94 15 L120 40 Q123 42 120 44 L94 69 Q86 78 74 78 H10 Q4 78 4 70 V14 Q4 6 10 6 Z"/>
+    </clipPath>
+  </defs>
+  <path d="M10 6 H74 Q86 6 94 15 L120 40 Q123 42 120 44 L94 69 Q86 78 74 78 H10 Q4 78 4 70 V14 Q4 6 10 6 Z"
+        fill="#E31837" stroke="#ffffff" stroke-width="6" stroke-linejoin="round"/>
+  <g clip-path="url(#kcArrow)" fill="#ffffff" font-family="Arial Black, Arial, sans-serif" font-weight="900">
+    <text x="60" y="56" text-anchor="middle" font-size="46" letter-spacing="-3">KC</text>
+  </g>
+</svg>
