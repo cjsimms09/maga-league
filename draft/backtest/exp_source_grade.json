@@ -1,0 +1,747 @@
+{
+  "experiment": "source grade \u2014 FFC vs MFL (+FantasyPros pending), per season",
+  "seasons": [
+    2023,
+    2024
+  ],
+  "per_season": {
+    "2023": {
+      "n_matched_mfl": 126,
+      "surfaces": {
+        "FFC": {
+          "cells": {
+            "r1-3": {
+              "QB": {
+                "rho": null,
+                "n": 3
+              },
+              "RB": {
+                "rho": 0.103,
+                "n": 10
+              },
+              "WR": {
+                "rho": 0.1964,
+                "n": 15
+              },
+              "TE": {
+                "rho": null,
+                "n": 2
+              },
+              "K": {
+                "rho": null,
+                "n": 0
+              },
+              "DEF": {
+                "rho": null,
+                "n": 0
+              }
+            },
+            "r4-7": {
+              "QB": {
+                "rho": null,
+                "n": 6
+              },
+              "RB": {
+                "rho": 0.1471,
+                "n": 16
+              },
+              "WR": {
+                "rho": 0.4476,
+                "n": 12
+              },
+              "TE": {
+                "rho": null,
+                "n": 6
+              },
+              "K": {
+                "rho": null,
+                "n": 0
+              },
+              "DEF": {
+                "rho": null,
+                "n": 0
+              }
+            },
+            "r8-11": {
+              "QB": {
+                "rho": null,
+                "n": 1
+              },
+              "RB": {
+                "rho": 0.4825,
+                "n": 12
+              },
+              "WR": {
+                "rho": 0.5404,
+                "n": 19
+              },
+              "TE": {
+                "rho": null,
+                "n": 3
+              },
+              "K": {
+                "rho": null,
+                "n": 0
+              },
+              "DEF": {
+                "rho": null,
+                "n": 0
+              }
+            },
+            "r12+": {
+              "QB": {
+                "rho": null,
+                "n": 6
+              },
+              "RB": {
+                "rho": -0.2381,
+                "n": 8
+              },
+              "WR": {
+                "rho": null,
+                "n": 6
+              },
+              "TE": {
+                "rho": null,
+                "n": 2
+              },
+              "K": {
+                "rho": null,
+                "n": 0
+              },
+              "DEF": {
+                "rho": null,
+                "n": 0
+              }
+            }
+          },
+          "weighted_rho": 0.281,
+          "ranked_n": 92
+        },
+        "MFL": {
+          "cells": {
+            "r1-3": {
+              "QB": {
+                "rho": null,
+                "n": 3
+              },
+              "RB": {
+                "rho": 0.1394,
+                "n": 10
+              },
+              "WR": {
+                "rho": 0.3214,
+                "n": 15
+              },
+              "TE": {
+                "rho": null,
+                "n": 2
+              },
+              "K": {
+                "rho": null,
+                "n": 0
+              },
+              "DEF": {
+                "rho": null,
+                "n": 0
+              }
+            },
+            "r4-7": {
+              "QB": {
+                "rho": null,
+                "n": 6
+              },
+              "RB": {
+                "rho": 0.2118,
+                "n": 16
+              },
+              "WR": {
+                "rho": 0.4266,
+                "n": 12
+              },
+              "TE": {
+                "rho": null,
+                "n": 6
+              },
+              "K": {
+                "rho": null,
+                "n": 0
+              },
+              "DEF": {
+                "rho": null,
+                "n": 0
+              }
+            },
+            "r8-11": {
+              "QB": {
+                "rho": null,
+                "n": 1
+              },
+              "RB": {
+                "rho": 0.4126,
+                "n": 12
+              },
+              "WR": {
+                "rho": 0.7193,
+                "n": 19
+              },
+              "TE": {
+                "rho": null,
+                "n": 3
+              },
+              "K": {
+                "rho": null,
+                "n": 0
+              },
+              "DEF": {
+                "rho": null,
+                "n": 0
+              }
+            },
+            "r12+": {
+              "QB": {
+                "rho": null,
+                "n": 6
+              },
+              "RB": {
+                "rho": null,
+                "n": 7
+              },
+              "WR": {
+                "rho": null,
+                "n": 6
+              },
+              "TE": {
+                "rho": null,
+                "n": 2
+              },
+              "K": {
+                "rho": null,
+                "n": 0
+              },
+              "DEF": {
+                "rho": null,
+                "n": 0
+              }
+            }
+          },
+          "weighted_rho": 0.3969,
+          "ranked_n": 84
+        },
+        "composite": {
+          "cells": {
+            "r1-3": {
+              "QB": {
+                "rho": null,
+                "n": 3
+              },
+              "RB": {
+                "rho": 0.1394,
+                "n": 10
+              },
+              "WR": {
+                "rho": 0.2571,
+                "n": 15
+              },
+              "TE": {
+                "rho": null,
+                "n": 2
+              },
+              "K": {
+                "rho": null,
+                "n": 0
+              },
+              "DEF": {
+                "rho": null,
+                "n": 0
+              }
+            },
+            "r4-7": {
+              "QB": {
+                "rho": null,
+                "n": 6
+              },
+              "RB": {
+                "rho": 0.1794,
+                "n": 16
+              },
+              "WR": {
+                "rho": 0.4476,
+                "n": 12
+              },
+              "TE": {
+                "rho": null,
+                "n": 6
+              },
+              "K": {
+                "rho": null,
+                "n": 0
+              },
+              "DEF": {
+                "rho": null,
+                "n": 0
+              }
+            },
+            "r8-11": {
+              "QB": {
+                "rho": null,
+                "n": 1
+              },
+              "RB": {
+                "rho": 0.4545,
+                "n": 12
+              },
+              "WR": {
+                "rho": 0.6526,
+                "n": 19
+              },
+              "TE": {
+                "rho": null,
+                "n": 3
+              },
+              "K": {
+                "rho": null,
+                "n": 0
+              },
+              "DEF": {
+                "rho": null,
+                "n": 0
+              }
+            },
+            "r12+": {
+              "QB": {
+                "rho": null,
+                "n": 6
+              },
+              "RB": {
+                "rho": null,
+                "n": 7
+              },
+              "WR": {
+                "rho": null,
+                "n": 6
+              },
+              "TE": {
+                "rho": null,
+                "n": 2
+              },
+              "K": {
+                "rho": null,
+                "n": 0
+              },
+              "DEF": {
+                "rho": null,
+                "n": 0
+              }
+            }
+          },
+          "weighted_rho": 0.3732,
+          "ranked_n": 84
+        }
+      },
+      "best_single_source": "MFL",
+      "best_single_weighted_rho": 0.3969,
+      "composite_weighted_rho": 0.3732,
+      "composite_beats_best_member": false,
+      "per_region_winner": {
+        "r1-3|RB": {
+          "winner": "MFL",
+          "rho": 0.1394
+        },
+        "r1-3|WR": {
+          "winner": "MFL",
+          "rho": 0.3214
+        },
+        "r4-7|RB": {
+          "winner": "MFL",
+          "rho": 0.2118
+        },
+        "r4-7|WR": {
+          "winner": "FFC",
+          "rho": 0.4476
+        },
+        "r8-11|RB": {
+          "winner": "FFC",
+          "rho": 0.4825
+        },
+        "r8-11|WR": {
+          "winner": "MFL",
+          "rho": 0.7193
+        },
+        "r12+|RB": {
+          "winner": "FFC",
+          "rho": -0.2381
+        }
+      },
+      "verdict": "use MFL alone"
+    },
+    "2024": {
+      "n_matched_mfl": 105,
+      "surfaces": {
+        "FFC": {
+          "cells": {
+            "r1-3": {
+              "QB": {
+                "rho": null,
+                "n": 0
+              },
+              "RB": {
+                "rho": null,
+                "n": 4
+              },
+              "WR": {
+                "rho": null,
+                "n": 3
+              },
+              "TE": {
+                "rho": null,
+                "n": 0
+              },
+              "K": {
+                "rho": null,
+                "n": 0
+              },
+              "DEF": {
+                "rho": null,
+                "n": 0
+              }
+            },
+            "r4-7": {
+              "QB": {
+                "rho": null,
+                "n": 6
+              },
+              "RB": {
+                "rho": 0.3333,
+                "n": 9
+              },
+              "WR": {
+                "rho": 0.1228,
+                "n": 18
+              },
+              "TE": {
+                "rho": null,
+                "n": 7
+              },
+              "K": {
+                "rho": null,
+                "n": 0
+              },
+              "DEF": {
+                "rho": null,
+                "n": 0
+              }
+            },
+            "r8-11": {
+              "QB": {
+                "rho": null,
+                "n": 3
+              },
+              "RB": {
+                "rho": -0.3808,
+                "n": 18
+              },
+              "WR": {
+                "rho": -0.4341,
+                "n": 13
+              },
+              "TE": {
+                "rho": null,
+                "n": 3
+              },
+              "K": {
+                "rho": null,
+                "n": 0
+              },
+              "DEF": {
+                "rho": null,
+                "n": 0
+              }
+            },
+            "r12+": {
+              "QB": {
+                "rho": null,
+                "n": 5
+              },
+              "RB": {
+                "rho": null,
+                "n": 4
+              },
+              "WR": {
+                "rho": 0.5833,
+                "n": 9
+              },
+              "TE": {
+                "rho": null,
+                "n": 3
+              },
+              "K": {
+                "rho": null,
+                "n": 0
+              },
+              "DEF": {
+                "rho": null,
+                "n": 0
+              }
+            }
+          },
+          "weighted_rho": -0.0304,
+          "ranked_n": 67
+        },
+        "MFL": {
+          "cells": {
+            "r1-3": {
+              "QB": {
+                "rho": null,
+                "n": 0
+              },
+              "RB": {
+                "rho": null,
+                "n": 4
+              },
+              "WR": {
+                "rho": null,
+                "n": 3
+              },
+              "TE": {
+                "rho": null,
+                "n": 0
+              },
+              "K": {
+                "rho": null,
+                "n": 0
+              },
+              "DEF": {
+                "rho": null,
+                "n": 0
+              }
+            },
+            "r4-7": {
+              "QB": {
+                "rho": null,
+                "n": 6
+              },
+              "RB": {
+                "rho": 0.15,
+                "n": 9
+              },
+              "WR": {
+                "rho": 0.323,
+                "n": 18
+              },
+              "TE": {
+                "rho": null,
+                "n": 7
+              },
+              "K": {
+                "rho": null,
+                "n": 0
+              },
+              "DEF": {
+                "rho": null,
+                "n": 0
+              }
+            },
+            "r8-11": {
+              "QB": {
+                "rho": null,
+                "n": 3
+              },
+              "RB": {
+                "rho": -0.1517,
+                "n": 18
+              },
+              "WR": {
+                "rho": -0.2582,
+                "n": 13
+              },
+              "TE": {
+                "rho": null,
+                "n": 3
+              },
+              "K": {
+                "rho": null,
+                "n": 0
+              },
+              "DEF": {
+                "rho": null,
+                "n": 0
+              }
+            },
+            "r12+": {
+              "QB": {
+                "rho": null,
+                "n": 5
+              },
+              "RB": {
+                "rho": null,
+                "n": 4
+              },
+              "WR": {
+                "rho": 0.4,
+                "n": 9
+              },
+              "TE": {
+                "rho": null,
+                "n": 3
+              },
+              "K": {
+                "rho": null,
+                "n": 0
+              },
+              "DEF": {
+                "rho": null,
+                "n": 0
+              }
+            }
+          },
+          "weighted_rho": 0.0698,
+          "ranked_n": 67
+        },
+        "composite": {
+          "cells": {
+            "r1-3": {
+              "QB": {
+                "rho": null,
+                "n": 0
+              },
+              "RB": {
+                "rho": null,
+                "n": 4
+              },
+              "WR": {
+                "rho": null,
+                "n": 3
+              },
+              "TE": {
+                "rho": null,
+                "n": 0
+              },
+              "K": {
+                "rho": null,
+                "n": 0
+              },
+              "DEF": {
+                "rho": null,
+                "n": 0
+              }
+            },
+            "r4-7": {
+              "QB": {
+                "rho": null,
+                "n": 6
+              },
+              "RB": {
+                "rho": 0.3167,
+                "n": 9
+              },
+              "WR": {
+                "rho": 0.2157,
+                "n": 18
+              },
+              "TE": {
+                "rho": null,
+                "n": 7
+              },
+              "K": {
+                "rho": null,
+                "n": 0
+              },
+              "DEF": {
+                "rho": null,
+                "n": 0
+              }
+            },
+            "r8-11": {
+              "QB": {
+                "rho": null,
+                "n": 3
+              },
+              "RB": {
+                "rho": -0.2982,
+                "n": 18
+              },
+              "WR": {
+                "rho": -0.3626,
+                "n": 13
+              },
+              "TE": {
+                "rho": null,
+                "n": 3
+              },
+              "K": {
+                "rho": null,
+                "n": 0
+              },
+              "DEF": {
+                "rho": null,
+                "n": 0
+              }
+            },
+            "r12+": {
+              "QB": {
+                "rho": null,
+                "n": 5
+              },
+              "RB": {
+                "rho": null,
+                "n": 4
+              },
+              "WR": {
+                "rho": 0.3833,
+                "n": 9
+              },
+              "TE": {
+                "rho": null,
+                "n": 3
+              },
+              "K": {
+                "rho": null,
+                "n": 0
+              },
+              "DEF": {
+                "rho": null,
+                "n": 0
+              }
+            }
+          },
+          "weighted_rho": 0.0015,
+          "ranked_n": 67
+        }
+      },
+      "best_single_source": "MFL",
+      "best_single_weighted_rho": 0.0698,
+      "composite_weighted_rho": 0.0015,
+      "composite_beats_best_member": false,
+      "per_region_winner": {
+        "r4-7|RB": {
+          "winner": "FFC",
+          "rho": 0.3333
+        },
+        "r4-7|WR": {
+          "winner": "MFL",
+          "rho": 0.323
+        },
+        "r8-11|RB": {
+          "winner": "MFL",
+          "rho": -0.1517
+        },
+        "r8-11|WR": {
+          "winner": "MFL",
+          "rho": -0.2582
+        },
+        "r12+|WR": {
+          "winner": "FFC",
+          "rho": 0.5833
+        }
+      },
+      "verdict": "use MFL alone"
+    }
+  },
+  "pooled_region_wins": {
+    "MFL": 7,
+    "FFC": 5
+  },
+  "composite_beat_best_in_n_seasons": 0,
+  "caveat": "points-reliability (Spearman) like exp36; MFL is full-PPR/12-team, compared by RANK so scale/format offset cancels in the head-to-head. FantasyPros joins when its CSV parser lands. B0-per-source dollars is the bridge follow-on. No install \u2014 picks the board the keeper-need rule ranks by."
+}
