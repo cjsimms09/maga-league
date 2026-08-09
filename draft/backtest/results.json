@@ -1,6 +1,6 @@
 {
  "meta": {
-  "git_head": "af0c57031cef519e9524f725f3cee73684d09449",
+  "git_head": "0812dc8753d0d8166293bb25024b20d412ee852a",
   "uncommitted_when_run": [],
   "seasons": [
    2023,
@@ -12,17 +12,17 @@
    {
     "season": 2023,
     "method": "walk_forward",
-    "spearman": 0.5965
+    "spearman": 0.5966
    },
    {
     "season": 2024,
     "method": "walk_forward",
-    "spearman": 0.5327
+    "spearman": 0.5325
    },
    {
     "season": 2025,
     "method": "walk_forward",
-    "spearman": 0.5434
+    "spearman": 0.5436
    }
   ],
   "caveats": [
@@ -34,22 +34,22 @@
   ]
  },
  "headline": {
-  "b0_mean": 213.62,
-  "b1_mean": 188.97,
+  "b0_mean": 219.13,
+  "b1_mean": 203.64,
   "b2_mean": 139.09,
-  "b3_mean": 138.16,
-  "mean_gain_per_pick": -75.46,
-  "ci95_per_pick": 40.77,
-  "mean_gain_per_draft": -633.85,
-  "ci95_per_draft": 660.26,
+  "b3_mean": 122.11,
+  "mean_gain_per_pick": -97.02,
+  "ci95_per_pick": 38.53,
+  "mean_gain_per_draft": -902.29,
+  "ci95_per_draft": 498.75,
   "drafts_counted": 20
  },
  "disagreement": {
-  "n": 165,
-  "share_of_picks": 0.982,
-  "win_rate": 0.212,
-  "mean_gain": -76.83,
-  "ci95": 41.49
+  "n": 183,
+  "share_of_picks": 0.984,
+  "win_rate": 0.23,
+  "mean_gain": -98.61,
+  "ci95": 39.12
  },
  "per_round": [
   {
@@ -67,74 +67,74 @@
   {
    "round": 3,
    "n": 14,
-   "mean_gain": 184.81,
-   "ci95": 195.05
+   "mean_gain": 143.15,
+   "ci95": 188.53
   },
   {
    "round": 4,
    "n": 17,
-   "mean_gain": -65.73,
-   "ci95": 67.89
+   "mean_gain": -80.44,
+   "ci95": 51.66
   },
   {
    "round": 5,
-   "n": 11,
-   "mean_gain": -259.35,
-   "ci95": 134.68
+   "n": 12,
+   "mean_gain": -259.69,
+   "ci95": 124.77
   },
   {
    "round": 6,
-   "n": 12,
-   "mean_gain": -105.47,
-   "ci95": 99.52
+   "n": 14,
+   "mean_gain": -48.54,
+   "ci95": 104.35
   },
   {
    "round": 7,
-   "n": 14,
-   "mean_gain": -118.67,
-   "ci95": 43.51
+   "n": 15,
+   "mean_gain": -59.42,
+   "ci95": 66.18
   },
   {
    "round": 8,
-   "n": 16,
-   "mean_gain": -110.37,
-   "ci95": 41.9
+   "n": 17,
+   "mean_gain": -104.7,
+   "ci95": 53.6
   },
   {
    "round": 9,
-   "n": 15,
-   "mean_gain": -121.81,
-   "ci95": 55.89
+   "n": 18,
+   "mean_gain": -154.69,
+   "ci95": 44.7
   },
   {
    "round": 10,
-   "n": 15,
-   "mean_gain": -275.5,
-   "ci95": 47.09
+   "n": 19,
+   "mean_gain": -286.61,
+   "ci95": 52.03
   },
   {
    "round": 11,
-   "n": 15,
-   "mean_gain": -271.74,
-   "ci95": 29.88
+   "n": 18,
+   "mean_gain": -319.33,
+   "ci95": 9.14
   },
   {
    "round": 12,
-   "n": 16,
-   "mean_gain": -252.92,
-   "ci95": 31.2
+   "n": 19,
+   "mean_gain": -300.98,
+   "ci95": 23.42
   }
  ],
  "value_cut": {
   "headline": {
-   "b0_mean": -19.07,
-   "b1_mean": -152.63,
+   "b0_mean": -16.57,
+   "b1_mean": -138.27,
    "b2_mean": -197.94,
-   "b3_mean": -176.58,
-   "mean_gain_per_pick": -157.52,
-   "ci95_per_pick": 34.86,
-   "mean_gain_per_draft": -1323.14,
-   "ci95_per_draft": 738.13,
+   "b3_mean": -145.07,
+   "mean_gain_per_pick": -128.49,
+   "ci95_per_pick": 32,
+   "mean_gain_per_draft": -1194.99,
+   "ci95_per_draft": 585.53,
    "drafts_counted": 20
   },
   "per_round": [
@@ -153,77 +153,77 @@
    {
     "round": 3,
     "n": 14,
-    "mean_gain": 21.17,
-    "ci95": 194.15
+    "mean_gain": 2.6,
+    "ci95": 189.03
    },
    {
     "round": 4,
     "n": 17,
-    "mean_gain": -153.38,
-    "ci95": 84.47
+    "mean_gain": -162.53,
+    "ci95": 78.92
    },
    {
     "round": 5,
-    "n": 11,
-    "mean_gain": -295.36,
-    "ci95": 115.03
+    "n": 12,
+    "mean_gain": -286.34,
+    "ci95": 106.5
    },
    {
     "round": 6,
-    "n": 12,
-    "mean_gain": -208.03,
-    "ci95": 106.4
+    "n": 14,
+    "mean_gain": -104.79,
+    "ci95": 104.33
    },
    {
     "round": 7,
-    "n": 14,
-    "mean_gain": -217.57,
-    "ci95": 42.94
+    "n": 15,
+    "mean_gain": -91.1,
+    "ci95": 86.05
    },
    {
     "round": 8,
-    "n": 16,
-    "mean_gain": -217.25,
-    "ci95": 6.46
+    "n": 17,
+    "mean_gain": -124.02,
+    "ci95": 61.12
    },
    {
     "round": 9,
-    "n": 15,
-    "mean_gain": -229.04,
-    "ci95": 23.25
+    "n": 18,
+    "mean_gain": -173.85,
+    "ci95": 34.8
    },
    {
     "round": 10,
-    "n": 15,
-    "mean_gain": -274.26,
-    "ci95": 26.22
+    "n": 19,
+    "mean_gain": -225.97,
+    "ci95": 42.89
    },
    {
     "round": 11,
-    "n": 15,
-    "mean_gain": -260.76,
-    "ci95": 30.66
+    "n": 18,
+    "mean_gain": -246.12,
+    "ci95": 29.77
    },
    {
     "round": 12,
-    "n": 16,
-    "mean_gain": -261.86,
-    "ci95": 33.81
+    "n": 19,
+    "mean_gain": -247.82,
+    "ci95": 32.03
    }
   ],
   "disagreement": {
-   "n": 165,
-   "share_of_picks": 0.982,
-   "win_rate": 0.206,
-   "mean_gain": -160.38,
-   "ci95": 35.35
+   "n": 183,
+   "share_of_picks": 0.984,
+   "win_rate": 0.235,
+   "mean_gain": -130.6,
+   "ci95": 32.44
   }
  },
  "vs_human": {
-  "n": 159,
-  "win_rate": 0.296,
-  "mean_gain": -43.53,
-  "ci95": 33.39
+  "n": 173,
+  "win_rate": 0.243,
+  "mean_gain": -55.5,
+  "ci95": 30.34
  },
  "calibration": [
   {
@@ -297,5 +297,5 @@
    "error": -0.006
   }
  ],
- "graded_picks": 168
+ "graded_picks": 186
 }
