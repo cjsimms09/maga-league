@@ -1218,3 +1218,20 @@ on matchups → the final design pass (USA theme, Chiefs logos, GOAT-on-Mahomes)
 ### NOTES FOR A (integration)
 - New B-lane files, all under B territory (src/routes/*, views/*, public/js/*, public/css/*): `src/routes/{pickem,dispatch,playoffs,trashtalk}.js`, `views/pickem.ejs`, `public/js/dispatch.js`. Shared append-only touched: `ci.yml` (test wiring), `draft/tests/*` (4 new tests). `territory-check.sh B` = clean.
 - B still requests A's **championship-probability model** (PARKED): the folded-columns odds + the matchup leverage line + pick'em nothing — swap the labelled Monte-Carlo for the real model when it lands; the surfaces read `odds`/`swing` unchanged.
+
+## ▶ SESSION B — cont. 2026-08-09: units 4, 5, 6-start shipped (all 6 now underway)
+**Branch `claude/pickems-feature-3ksf0l`. All committed + pushed + tested. 🅰️: integrate + DEPLOY — the whole stack is still unseen by Cory.**
+
+- **UNIT 5 — TRASH TALK** ✅ (`src/routes/trashtalk.js`): posts welded to a game (pick'em identity), one doc per post, permanent, league-visible, per-season archive for the chapters. Thread on the matchup screen. 15 tests.
+- **UNIT 4 — WHAT TO WATCH** ✅ engine + rehearsable panel (`src/routes/whatwatch.js`, `/watch`): sweat meter (P win from live + remaining proj, reuses LO.pWin/pClearHigh), the $100 sweat, the "what you need" line, 🟢🟡🔴🔥 buckets, most-watchable sort. Sun/Mon-gated, dormant off-window; `?preview=1` rehearses on sample data. 18 tests. **Live remainder (per-player remaining projections league-wide) = A's feed; flagged. Verify live after deploy.**
+- **UNIT 6 — DESIGN PASS (started)** ✅ the two auto-markers (`src/routes/marks.js`): GOAT 🐐 auto-moves to Mahomes' owner (folded into flags → standings + finances + matchup + pick'em), and the real Chiefs arrowhead **logo** (`public/icons/kc.svg`, replacing 🏹) next to KC players on the team roster. 9 tests.
+
+### FLAGS FOR A
+- **Matchup-starters KC logo + live sweat** both need A's per-player data (a `team` field + live proj/played flags on the matchup player rows in `src/sleeper.js`). B renders them the instant that shape lands — no surface change. (Extends the existing PARKED sleeper-data request.)
+- **Championship-probability model** (already PARKED): folded-columns odds + matchup leverage swap the labelled Monte-Carlo for it, unchanged surfaces.
+
+### UNIT 6 REMAINING (design pass, "full liberty" — best done on deployed output with Cory watching)
+Page-by-page USA-theme polish, everything clicking through to its story, the site as a decade time-capsule. The concrete auto-markers Cory named are done; the broad polish wants live eyes.
+
+### SESSION TALLY (this session, on the branch)
+Pick'em · The Dispatch · folded columns · trash talk · what-to-watch · GOAT+Chiefs marks · nav-bug fix — **~120 tests**, all green, CI-wired, screenshotted at 390px. **Nothing deployed yet.**
