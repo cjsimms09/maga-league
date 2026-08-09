@@ -963,3 +963,23 @@ DEPLOYED == main HEAD after this commit.
 ### ▶ QUEUED (in order): read exp35 result (firms/refutes over-regression?) → **third composite arm** (composite vs ADP on dollars — the number Cory actually wants; pre-registered; needs the JS replay path) → naive-as-source run → exp 41 paired-room race → auto-adjuster conditional mining → what-would-have-worked → upsideBonus gated sweep. Keep the Lab saturated.
 
 ### NOTE: main advanced past the deploy (B's weekly-high strip `ba2390b` + exp35) — those ship on the next deploy; the major B site work + restore is live at `df19f98`.
+
+### 🅱️ update: DESIGN SWEEP started (design-first per Cory, ahead of Sunday alert)
+- **Weekly-high strip** (`_weekly_high_strip.ejs`) — the $100-a-week race as bars on
+  every season page; photo-finishes glow red; who-owned-it chips. Reusable for the
+  live home "this week's race". DONE.
+- **Record Book** — Dynasty Tracker → crown ladder (👑/title, half for co-titles,
+  leader gold-lit); weekly-high hunters → gold bars. DONE.
+- Both offline-renderable, screenshotted, sent to Cory.
+**DESIGN SWEEP REMAINING:** standings rank-movement arrows (live — needs prev-week
+rank, activates on deploy); live home "this week's weekly-high race" meter (reuse
+the strip); money-colour on the side-bet grid; side-bet grid sparklines; page
+hierarchy pass (home/bank); "propose-from-anywhere" one-tap (standings/franchise);
+PROPOSED-not-OPEN wording; Chiefs/Mahomes + Bates eggs. THEN: Sunday alert →
+instrumentation check.
+**⚠️ A/B PROTOCOL:** A struck main-only in TERRITORY.md (claims harness forces
+branches). NOT true for B — every B commit pushes to main fine (per Cory's
+directive). B added a clarification: B is on main, no B branch to integrate, A's
+one action is DEPLOY main. A still on branch `claude/exp34-dollar-arm-*`.
+**BEST-UNSEEN-THING for Cory when deployed:** `/lineup` → The Proof tab (commish-
+only) — validated-to-the-dollar leak, the $2,100 bench tab, per-week drill-down.
