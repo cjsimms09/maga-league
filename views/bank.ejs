@@ -290,7 +290,7 @@ season until settled.</p>
        ].filter(Boolean) })); %>
     <% for (const p of pays) { if (!p.has.length && !p.o.email && !p.o.phone) continue; %>
       <div class="pay-row">
-        <button type="button" class="contact-link" data-contact="<%= p.o.id %>"><b><%= p.o.name %><%= p.o.id === owner.id ? ' (you)' : '' %></b></button>
+        <button type="button" class="contact-link" data-contact="<%= p.o.id %>"><b><%= p.o.name %><%= p.o.id === owner.id ? ' (you)' : '' %></b></button><% if (typeof flags !== 'undefined' && flags[p.o.id]) { %> <span class="flag"><%= flags[p.o.id] %></span><% } %>
         <span class="pay-handles">
           <% for (const [kind, handle] of p.has) { %>
             <button type="button" class="pay-chip" data-copy="<%= handle %>"><%= kind %> <code><%= handle %></code></button>

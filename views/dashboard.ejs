@@ -96,7 +96,8 @@
           <% const bm = r.owner_id != null ? betMoney[r.owner_id] : null; %>
           <tr class="<%= seasonStarted && r.rank === sleeperStandings.length ? 'last-place' : '' %>">
             <% if (seasonStarted) { %><td><%= r.rank %><%= r.rank === 1 ? ' 👑' : r.rank === sleeperStandings.length ? ' 🚽' : '' %></td><% } %>
-            <td><% if (r.owner_id != null) { %><button type="button" class="contact-link" data-contact="<%= r.owner_id %>"><b><%= r.owner_name || r.team %></b></button><% } else { %><b><%= r.owner_name || r.team %></b><% } %><% if (bm) { %><span
+            <% const _fl = (typeof flags !== 'undefined' && r.owner_id != null) ? (flags[r.owner_id] || '') : ''; %>
+            <td><% if (r.owner_id != null) { %><button type="button" class="contact-link" data-contact="<%= r.owner_id %>"><b><%= r.owner_name || r.team %></b></button><% if (_fl) { %> <span class="flag"><%= _fl %></span><% } %><% } else { %><b><%= r.owner_name || r.team %></b><% } %><% if (bm) { %><span
                 class="bet-money<%= bm.mine ? ' mine' : '' %>"
                 title="<%= bm.notes.join(' · ').replace(/"/g, '&quot;') %>">💰<% if (bm.mine) { %><%= money(bm.mine) %><% } %></span><% } %><% if (r.owner_name && r.owner_name !== r.team) { %> <span class="muted"><%= r.team %></span><% } %></td>
             <td class="num" style="white-space:nowrap"><%= r.wins %>-<%= r.losses %><%= r.ties ? '-' + r.ties : '' %></td>
@@ -232,7 +233,7 @@
         <tr><th>Owner</th><th>Buy-in</th><th class="num">Net Tab</th></tr>
         <% for (const b of buyins) { %>
           <tr>
-            <td><button type="button" class="contact-link" data-contact="<%= b.owner.id %>"><b><%= b.owner.name %></b></button></td>
+            <td><button type="button" class="contact-link" data-contact="<%= b.owner.id %>"><b><%= b.owner.name %></b></button><% if (typeof flags !== 'undefined' && flags[b.owner.id]) { %> <span class="flag"><%= flags[b.owner.id] %></span><% } %></td>
             <td><% if (b.paid) { %><span class="badge paid">Paid</span><% } else { %><span class="badge owes">Owes <%= money(season.buy_in) %></span><% } %></td>
             <td class="num <%= b.balance > 0 ? 'pos' : b.balance < 0 ? 'neg' : '' %>"><%= b.balance === 0 ? '—' : money(b.balance) %></td>
           </tr>

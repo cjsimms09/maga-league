@@ -178,9 +178,13 @@ const CHAT_ON_HOME = 5;
 // ---------- contact directory (contact-directory.md) ----------
 // One record per owner — Venmo + email + phone — rendered by the shared card
 // wherever a person appears. "Complete" means all three are on file.
+// Nationality flag from ONE source — the engine's GERMAN set — never hardcoded
+// per page. David and Marian are German; everyone else American.
+function flagOf(name) { return HIST.GERMAN.has(name) ? '🇩🇪' : '🇺🇸'; }
 function contactOf(o) {
   return { id: o.id, name: o.name, team_name: o.team_name || '',
-    venmo: o.venmo || '', email: o.email || '', phone: o.phone || '' };
+    venmo: o.venmo || '', email: o.email || '', phone: o.phone || '',
+    flag: flagOf(o.name) };
 }
 function contactMissingFields(o) {
   const m = [];
@@ -267,6 +271,8 @@ router.get('/', aw(async (req, res) => {
     // Each owner is nagged for their OWN data only. The commissioner's aggregate
     // view lives in the Commissioner Console, not on the home page.
     contactNag: contactMissingFields(world.owners.find(o => o.id === req.owner.id)),
+    // Nationality flags by owner id, from the one shared source.
+    flags: Object.fromEntries(owners.map(o => [o.id, flagOf(o.name)])),
   });
 }));
 
@@ -559,6 +565,7 @@ router.get('/bank', aw(async (req, res) => {
     // Contact directory: shared card data + this owner's own record for the edit
     // form. Same one-record store the home page reads.
     contacts: owners.map(contactOf), myContact: contactOf(world.owners.find(o => o.id === req.owner.id) || req.owner),
+    flags: Object.fromEntries(owners.map(o => [o.id, flagOf(o.name)])),
   });
 }));
 

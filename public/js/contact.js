@@ -44,7 +44,7 @@
     var c = contacts[String(id)];
     if (!c) return;
     var html = '<button class="cc-close" aria-label="Close">✕</button>';
-    html += '<div class="cc-name">' + esc(c.name) + '</div>';
+    html += '<div class="cc-name">' + esc(c.name) + (c.flag ? ' <span class="flag">' + esc(c.flag) + '</span>' : '') + '</div>';
     if (c.team_name) html += '<div class="cc-team">' + esc(c.team_name) + '</div>';
 
     if (c.phone) {
