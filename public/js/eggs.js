@@ -61,6 +61,40 @@
     });
   }
 
+  // --- typed-word eggs: "mahomes" / "chiefs" -------------------------------
+  // Everyone in this league is a Chiefs fan. Type the words anywhere (outside an
+  // input) and get an arrowhead-red flourish. Discoverable, harmless, on-brand.
+  var wordBuf = '';
+  var WORDS = {
+    mahomes: { emoji: '🏈', line: 'MAHOMES SAYS SET YOUR LINEUP.' },
+    chiefs:  { emoji: '🏹', line: 'RUN IT BACK. AND BACK. AND BACK.' },
+    kingdom: { emoji: '🏹', line: 'CHIEFS KINGDOM — even the German wing.' },
+  };
+  document.addEventListener('keydown', function (e) {
+    var t = e.target;
+    if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+    if (e.key && e.key.length === 1 && /[a-z]/i.test(e.key)) {
+      wordBuf = (wordBuf + e.key.toLowerCase()).slice(-8);
+      for (var w in WORDS) { if (wordBuf.endsWith(w)) { wordBuf = ''; arrowhead(WORDS[w]); break; } }
+    }
+  });
+  function arrowhead(word) {
+    if (document.getElementById('arrowhead-egg')) return;
+    var wrap = document.createElement('div');
+    wrap.id = 'arrowhead-egg'; wrap.setAttribute('role', 'status');
+    wrap.innerHTML = '<div class="arrowhead-card">' + word.emoji + ' <b>' + word.line + '</b></div>';
+    document.body.appendChild(wrap);
+    for (var i = 0; i < 24; i++) {
+      var c = document.createElement('i');
+      c.className = 'konami-bit'; c.style.left = (Math.random() * 100) + 'vw';
+      c.style.animationDelay = (Math.random() * 0.5) + 's';
+      c.style.setProperty('--h', (Math.random() * 40 - 10) + 'deg');
+      wrap.appendChild(c);
+    }
+    setTimeout(function () { wrap.classList.add('konami-out'); }, 2200);
+    setTimeout(function () { wrap.remove(); }, 3000);
+  }
+
   // --- Konami code: ↑↑↓↓←→←→ B A -------------------------------------------
   var KONAMI = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
   var buf = [];
