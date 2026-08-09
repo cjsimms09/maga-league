@@ -575,3 +575,14 @@ instrument), D "Field Office" (the synthesis / B's recommendation: daylight base
 4. **Season sealing** — current-season page live→permanent chapter; archive that year's transients into history where chapters can quote them: pick'em results (`pickem-slate`/`pickem:` + PE.seasonBoard), the Dispatch archive (`dispatch-index:<season>` — already immutable), trash talk (`TT.archiveForSeason`), weekly awards/power polls (dispatch archive). The archives were BUILT to be quotable — this wires them into the sealed chapter.
 
 **Coordination flag → A:** expose B's content generation as a function A's workflow calls after grading (pass the corrected season table + final standings). Agree the call signature + the ordering barrier. B does NOT touch the workflow YAML/dispatch/PR creation (A's lane).
+
+### ↳ ANNUAL BUTTON add-on (parked) — DRAFT-SELECTION BOARD RESET (two-stage order)
+League-visible; one of the most-watched offseason things. Part of the Annual Button unit above.
+- **Selection order = reverse regular-season finish for positions 5–10** (last place picks first; those six lock the moment the regular season ends), **then positions 1–4 = the four playoff teams ordered by BRACKET finish** (not reg-season seed) — can't compute until the championship is decided.
+- **Two-stage resolve, shown honestly:** at regular-season end, 5–10 lock + display locked, 1–4 show "pending playoffs"; when the bracket completes, 1–4 fill in. No half-empty board, no wrong guess in the interim.
+- **Claim board resets** for the new season (cleared, correctly ordered, ready to claim in turn); **last season's claims archive into history** (not deleted) — reuses the `draft:<year>` docs + `H.draftState`.
+- **The dinner:** last place buys dinner on draft day — recorded + displayed + in the history (chronicle-referenceable).
+- **Tiebreak:** total points (PF) per the payouts config — **DEFAULT ASSUMPTION unless Cory says the selection-order tiebreak differs from the standings tiebreak** (open question, below).
+- **VERIFY AGAINST HISTORY (build gate):** reproduce the ACTUAL selection order for ≥1 of 2023–25 from that year's reg-season finish + bracket + the draft order that followed (seed-data STANDINGS/DRAFTS). If it doesn't reproduce, the rule is wrong — find it now, not in January.
+
+**❓ OPEN QUESTION FOR CORY (DECISIONS-NEEDED):** is the selection-order tiebreak the same as the standings tiebreak (total points/PF), or different? Proceeding on PF unless told otherwise.
