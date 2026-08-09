@@ -170,6 +170,21 @@
        The compare tray is a floating overlay, so it lives outside the zones. %>
   <div class="wr-decide">
   <div class="wr-zone1">
+  <%# ── SEARCH, always one tap (Cory) — type a name and act from the results.
+      The #search input + #search-tail results host moved up here from the draft
+      board header; app.js binds them by id and its handlers are delegated, so the
+      board still filters and the results still render — they just live where the
+      hand already is on the clock. #pos-filter stays on the board. %>
+  <div class="wr-search">
+    <span class="wr-search-icon" aria-hidden="true">🔎</span>
+    <input type="text" id="search" placeholder="Search any player — take, queue or compare" autocomplete="off">
+  </div>
+  <div id="search-tail" hidden></div>
+  <%# QUEUE SLIP ALERT (Cory: "impossible to miss when my guy is slipping"). An
+      IN-FLOW banner — never floating — that app.js fills when a queued player is
+      about a turn from gone (the LRM/branch survival math it already runs).
+      Hidden when nothing is slipping so it never becomes furniture. %>
+  <div id="queue-slip" class="queue-slip" role="status" aria-live="polite" style="display:none"></div>
   <%# ── THE MINIMUM VIABLE SURFACE ────────────────────────────────────────
       Five truthful lines, and TWO MARKED EXPLICITLY ABSENT.
 
@@ -252,6 +267,28 @@
   <div class="card" id="branch-card" style="margin-bottom:1rem; display:none">
     <h2>🔀 If You Take… <span class="sub" id="branch-head">what's likely left at your next pick</span></h2>
     <div class="body tight scroll-x"><div id="branches"></div></div>
+  </div>
+
+  <%# ── THE QUEUE — promoted from Layer 3 to the decide surface (Cory). The list
+      you read when the clock is at 8 seconds; you watch it every pick, so it sits
+      here under the recommendation, always visible, not two taps down by the
+      audits. Ids unchanged (#queue, #queue-head, the action buttons) so app.js
+      renders into it exactly as before. %>
+  <div class="card wr-queue-card" id="queue-card">
+    <h2>📋 Queue <span class="sub" id="queue-head"></span></h2>
+    <div class="body">
+      <div id="queue"></div>
+      <div class="queue-actions">
+        <button class="btn small navy" id="queue-fill" title="Append the board's top 15, then reorder">✨ Fill from board</button>
+        <button class="btn small ghost" id="queue-copy" title="Plain text on the clipboard">📋 Copy</button>
+        <button class="btn small ghost" id="queue-print" title="One page, designed for paper">🖨 Print sheet</button>
+        <button class="btn small ghost" id="queue-tidy" hidden></button>
+      </div>
+      <p class="muted" id="sheet-note" style="margin:.5rem 0 0; font-size:.74rem"></p>
+      <p class="muted" style="margin:.35rem 0 0; font-size:.72rem">
+        Your order, never re-sorted — the decision already made. Add anyone with the ➕ on any row or the board. Print it the night before; if the wifi dies at the table, paper still works.
+      </p>
+    </div>
   </div>
   </div><%# /wr-zone1 %>
 
@@ -373,28 +410,9 @@
       </div>
     </div>
 
-    <div class="card">
-      <h2>📋 Queue &amp; paper sheet <span class="sub" id="queue-head"></span></h2>
-      <div class="body">
-        <p class="muted" style="margin:0 0 .6rem; font-size:.78rem">
-          The list you read when the clock is at 8 seconds. <b>Your order, never
-          re-sorted</b> — everything else here is analysis, this is the decision
-          already made. Add anyone with ➕ on the draft board.
-        </p>
-        <div id="queue"></div>
-        <div class="queue-actions">
-          <button class="btn small navy" id="queue-fill" title="Append the board's top 15, then reorder">✨ Fill from board</button>
-          <button class="btn small ghost" id="queue-copy" title="Plain text on the clipboard">📋 Copy</button>
-          <button class="btn small ghost" id="queue-print" title="One page, designed for paper">🖨 Print sheet</button>
-          <button class="btn small ghost" id="queue-tidy" hidden></button>
-        </div>
-        <p class="muted" id="sheet-note" style="margin:.5rem 0 0; font-size:.74rem"></p>
-        <p class="muted" style="margin:.35rem 0 0; font-size:.74rem">
-          Print it the night before. If your phone dies or the wifi goes at the
-          table, paper is the only thing left that still works.
-        </p>
-      </div>
-    </div>
+    <%# The Queue moved UP to the decide surface (Cory: it's what you touch every
+        pick, it was buried next to the audits). It now lives at the bottom of
+        Zone 1, always visible under the recommendation — see #queue there. %>
 
     <div class="card">
       <h2>⭐ Targets &amp; 🚫 Never <span class="sub">your own read — saved on this device</span></h2>
@@ -430,10 +448,10 @@
           <option value="ALL">All</option>
           <% for (const p of ['QB','RB','WR','TE','K','DEF']) { %><option value="<%= p %>"><%= p %></option><% } %>
         </select>
-        <input type="text" id="search" placeholder="Search" style="width:130px">
+        <%# player search moved to the top of the decide surface (#search); the
+            board keeps its position filter. %>
       </span>
     </h2>
-    <div id="search-tail" hidden></div>
     <div class="body tight scroll-x">
       <table class="roll" id="board">
         <thead><tr>

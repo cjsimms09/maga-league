@@ -698,3 +698,41 @@ can't retroactively evict what's already there — one manual reset is needed:
 the deploy lands. From then on every future deploy reaches the installed app on
 its own, because the pages now tell iOS to revalidate. No need to clear all of
 Safari — just delete + re-add the one icon.
+
+---
+
+## 🅱️→🅰️ WIRING HOOK — the draft-day ergonomics build (Session B, 2026-08-09)
+B promoted the queue + search onto the war-room decide surface and added a slip
+alert, per Cory. The SHELL, layout, CSS and hosts are done and shipped on
+`claude/pickems-feature-3ksf0l`. Two things need A's engine — please wire in one pass:
+
+### 1. Populate `#queue-slip` — "your guy is a turn from gone" (the piece Cory most wants)
+A new IN-FLOW host sits at the top of `.wr-zone1`:
+`<div id="queue-slip" class="queue-slip" ...>`. It's `display:none` by default.
+- When a QUEUED player's probability of surviving to the user's NEXT pick drops
+  below a threshold, set `display:flex` and fill it with a short line naming the
+  player(s), e.g. `Your #1 — Puka Nacua — likely gone before pick 47 (2 of 3 sims).`
+  You already compute this survival/branch math (the LRM + `renderBranches` path);
+  this just surfaces it against the queue instead of the board.
+- Add class `urgent` (`el.classList.add('urgent')`) when the slipping player is at
+  the TOP of the queue — the CSS swaps it to red + 🚨. Plain (amber ⏳) otherwise.
+- When nothing is slipping, set `display:none` (empty => it must not sit as furniture).
+- Suggested threshold: the same "likely gone" bar the branch forecast uses; tune to taste.
+
+### 2. Confirm Take / Queue / Compare on EVERY player-row surface
+Rows already emit `data-draft-me` ("I took him"), `data-draft-other` ("Gone"),
+`data-queue`, `data-compare`, and the handlers are delegated (so B reparenting the
+hosts did not break them — verified). Please confirm all four appear on each of:
+`#recs` (ranked list — CONFIRMED present), the paths panel, `#search-tail` (search
+results), `#best-avail-strip`, `#pos-recs-out` (best-available-by-position), and the
+`#queue` rows themselves (a one-tap **Take** on each queued player — that's the
+"tap my guy from wherever I'm looking and it drafts + re-projects" loop). Add the
+missing ones using the same classes so B's styling picks them up.
+
+### Host moves B made (ids unchanged, per the host-id contract)
+- `#search` + `#search-tail` moved from the draft-board header to the top of
+  `.wr-zone1` (`.wr-search`). Board keeps `#pos-filter`. Bind-by-id + delegation
+  means board filtering and results still work; no app.js change needed for this.
+- `#queue` + `#queue-head` + the queue action buttons moved from Layer 3 to the
+  bottom of `.wr-zone1` (`#queue-card`, blue-edged). Same ids.
+- No ids renamed or deleted; no change to what app.js reads or emits.
