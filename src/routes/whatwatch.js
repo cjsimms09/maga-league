@@ -77,7 +77,8 @@ function sweatLabel(p) {
 function needLine(s) {
   const behind = s.oppProj - s.myProj;   // projected points behind
   if (s.playersLeft === 0) {
-    return s.margin >= 0
+    if (Math.abs(s.margin) < 0.05) return 'Done — dead even, a tie.';
+    return s.margin > 0
       ? `Done — projected to win by ${r1(Math.abs(s.margin))}.`
       : `Done — projected to lose by ${r1(Math.abs(s.margin))}. Nothing left on the field.`;
   }

@@ -188,6 +188,11 @@ jobs:
         # The real scoreboard (dollars, not wins). Unit arithmetic plus a sweep
         # over every seeded season asserting pot conservation on real entries.
         run: node draft/tests/money_position.test.js
+      - name: In-season display sweep — Sunday alert + what-to-watch over real weeks
+        # Runs both weekly-read surfaces over hundreds of real 2023-25 states and
+        # asserts nothing malformed reaches the screen (no NaN/undefined, no label
+        # out of set, no probability out of [0,1], no hallucinated player).
+        run: node draft/tests/in_season_sweep.test.js
       - name: Robot mock draft — the safety net
         # A full snake draft from every seat through the real engine and
         # attribution modules, plus every bug this session as a regression
