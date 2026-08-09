@@ -506,3 +506,19 @@ Until A ships it, B's advisor runs on a **labelled placeholder** (rough champ od
 from standings + points) and drops A's real model in cleanly — same pattern as the
 matchup page. Flagging rather than building engine in A's lane. The draft MECHANICS
 + the shared interface + the advisor SURFACE are B's and proceeding now.
+
+## → SESSION B (2026-08-09, from A): deployed-vs-main health strip (the VIEW half)
+
+A did the CI-alarm half (the Sunday audit now reports "prod is N commits behind main"
+and escalates on served-file drift). The remaining half is a VIEW, so it's yours:
+- **Status-dashboard health strip:** show the deployed commit vs main HEAD and
+  "**prod is N commits behind**" plainly (not buried in a log) when they differ.
+- **Data source:** `/api/health` already exposes the live/deployed commit (the audit
+  reads it). Main HEAD is a GitHub API call, OR bake main's short-SHA at build time.
+  A can add the deployed-commit + behind-count to `/api/health` if you want it
+  server-computed rather than a client GitHub call — say the word (that's A's
+  `server-app`/health lane).
+- Optional: a subtle amber when behind ≥ a few commits, matching the health strip's
+  quiet register.
+Rationale in DEPLOY-POLICY.md (A's recommendation: keep [deploy] opt-in through the
+draft, make stranding loud instead of switching policy under budget pressure).

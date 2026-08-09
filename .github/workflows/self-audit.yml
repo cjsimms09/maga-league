@@ -61,16 +61,31 @@ jobs:
           ctx=$(echo "$health" | python3 -c "import sys,json;print(json.load(sys.stdin).get('context') or '')" 2>/dev/null)
           if [ -z "$commit" ]; then amber+=("live /api/health unreachable or no commit"); fi
           if [ -n "$commit" ] && [ "${commit:0:12}" != "${WANT_SHA:0:12}" ]; then
-            amber+=("live commit ${commit:0:12} != HEAD ${WANT_SHA:0:12} (deploy lag?)")
+            # QUANTIFY the drift: how many commits is production behind main? Silent
+            # stranding (a [deploy] marker forgotten, or buried before Netlify read the
+            # tip) has bitten us twice — make it loud with a number, not a vibe.
+            behind=$(git rev-list --count "${commit}..${WANT_SHA}" 2>/dev/null || echo "?")
+            msg="prod is ${behind} commit(s) behind main (live ${commit:0:12} != HEAD ${WANT_SHA:0:12})"
+            # A few commits behind is normal batching; a large or served-file drift is a
+            # stranded deploy — escalate so it cannot be ignored.
+            served_drift=$(git diff --name-only "${commit}..${WANT_SHA}" 2>/dev/null | grep -cE '^(views/|public/|src/|server-app\.js|package\.json|netlify\.toml)' || echo 0)
+            if [ "$behind" != "?" ] && [ "$behind" -ge 10 ] || [ "${served_drift:-0}" -ge 1 -a "${behind:-0}" -ge 5 ]; then
+              hard+=("$msg — includes ${served_drift} served-file change(s); ship a [deploy] (or it silently stranded)")
+            else
+              amber+=("$msg — served-file changes: ${served_drift}")
+            fi
           fi
           if [ "$ctx" = "production" ] && [ "$backend" != "blobs" ]; then
             hard+=("live storage_backend=$backend, not durable blobs")
           fi
 
-          echo "== branch protocol: only main should exist (TERRITORY.md § Branch protocol) =="
+          echo "== branch protocol: feature branches are EXPECTED (TERRITORY.md — main-only is VOID) =="
+          # The harness FORCES feature branches; main-only cannot be honoured. A stray
+          # branch is no longer a violation — only report FYI, never fail. What matters
+          # now is that main == deployed, checked above.
           others=$(git ls-remote --heads origin | awk '{print $2}' | sed 's#refs/heads/##' | grep -v '^main$' || true)
           if [ -n "$others" ]; then
-            hard+=("stray branch(es) other than main: $(echo "$others" | paste -sd, -) — sessions must commit to main, not branch")
+            echo "  note (not a failure): feature branches present: $(echo "$others" | paste -sd, -)"
           fi
 
           echo "== scheduled crons present =="

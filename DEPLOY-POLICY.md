@@ -95,3 +95,36 @@ Add to the pre-mock and pre-draft checklists, and to the Sunday self-audit:
 
 > **Build minutes:** `___%` used · `___` builds left · draft-week reserve
 > **HELD / AT RISK** · live site **== main / RED drift**
+
+---
+
+## RECOMMENDATION (A, 2026-08-09) — keep [deploy] opt-in UNTIL the draft; make stranding LOUD
+
+Cory asked whether to flip the deploy gate from opt-in (`[deploy]` triggers) to
+opt-out (served-file changes auto-build, a marker only SKIPS). My recommendation, with
+the budget math:
+
+- **The danger of opt-in** is silent stranding — a forgotten (or buried) `[deploy]`
+  leaves prod behind main invisibly. This has bitten us **twice**.
+- **The danger of opt-out** is build-minute exhaustion. On Aug 8 we were at ~75% of
+  August's minutes consumed (349 builds, accelerating to 194/day); running out
+  **suspends the site until Sept 1 — which takes the WAR ROOM DOWN ON DRAFT DAY
+  (Aug 22).** B is mid design-sweep, pushing served files frequently; auto-deploy on
+  every served change could burn the remaining ~25% fast.
+
+**RECOMMENDATION: keep `[deploy]` opt-in through Aug 22, but make stranding
+impossible to miss instead of switching policies under budget pressure.** The fix for
+"twice bitten" is VISIBILITY, not auto-build — the same principle as everywhere:
+*committed ≠ merged ≠ deployed ≠ verified; each gap should be visible, not remembered.*
+Done this session:
+- The Sunday audit now reports **"prod is N commits behind main"** with a number and
+  ESCALATES to HARD when the drift includes served-file changes (a stranded release),
+  and no longer hard-fails on feature branches (that rule was wrong).
+- The deploy-gate reads `[deploy]` from the **tip commit only**, so the tip must carry
+  it — a merge for deploy uses `[deploy]` in the MERGE message (learned this session
+  after `df19f98`'s marker was buried by later commits before Netlify read the tip).
+
+**AFTER Aug 22:** revisit opt-out. Once draft-day risk is gone, auto-deploy on
+served-file changes (with `[skip netlify]` to opt out, and lab/doc/report commits
+naturally skipping because they touch no served files) is the better long-run policy —
+it removes the human-memory dependency entirely. Flip it then, not now.
