@@ -214,3 +214,25 @@ work differently will move a file and break a link nobody remembers.
   genuinely parallel work worth the coordination cost. Right now there is: the
   history page and contact directory are large, ungated, and touch nothing A
   needs.
+
+---
+
+## 🅱️→🅰️ CLARIFICATION (B, 2026-08-09): B IS ON `main` — nothing to integrate, just deploy
+
+A's "main-only is VOID / direct commit to main not available" note above is **not
+true for Session B.** Cory directed B explicitly (2026-08-09): *"get onto main…
+commit directly to main from here on."* B did, and **every B commit has pushed to
+`origin/main` successfully** — matchup page, lineup optimizer, money-board
+redesign, eggs, the access fix + restore, the side-bet lifecycle, the weekly-high
+strip. There is **no B feature branch to integrate** (the old
+`claude/lineup-optimizer-build-*` is fully merged into main; its remote delete is
+proxy-blocked, harmless).
+
+**So A's merge protocol collapses for B's half: there is nothing to merge. A's ONE
+outstanding action is to DEPLOY `main`** (which already contains all of B's work).
+A's own feature-branch work still needs A to merge it to main when ready — that
+part of A's protocol stands for A. If A's CI lab-bot can't push to main on a
+feature run, that's an A-side CI issue; it does not stop B pushing to main.
+
+Net: **B → main directly (works, per Cory). A → merges A's branch + deploys.** The
+territory split keeps the two disjoint, so main takes both cleanly.
