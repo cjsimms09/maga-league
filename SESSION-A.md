@@ -55,6 +55,21 @@ the outcome is mine.
    mirror: when Cory (or anyone) asserts something is a big edge and the evidence
    contradicts it, say so THAT TURN — the sliders are not a top edge, and saying it back
    beats executing the request.
+10. **Prior-guided search — the front half of the science (2026-08-09).** Deciding WHAT
+    to test is a skill, and the weak one. Three arbitrary configs raced = an anecdote;
+    sweeping thousands against thin data = multiplicity, winner is noise. Between them:
+    reason about where an effect is most likely to live and concentrate there. Before ANY
+    search: (a) FORM A PRIOR AND WRITE IT DOWN — from mechanism (a term acting on a
+    quantity the payout rewards, or a region the market is measurably unreliable in, beats
+    one that doesn't); (b) RANK candidates by expected information per unit of search —
+    cheap-and-decisive first, say why; (c) search DEEPLY where the prior is strong,
+    SHALLOWLY where weak (a dense sweep of two promising terms beats a sparse sweep of
+    eight); (d) STATE THE POWER — if the search can't detect an effect below size S at the
+    available n, say so BEFORE running; an underpowered null means "couldn't see it," not
+    "absent." Mirror: when the prior is inverted by data (ceiling ramp, endgame, the
+    anchor's bind-hard-early premise all flipped), that's a finding — our mechanistic
+    intuition about this game is often backwards, so weight measurement over intuition,
+    including Cory's.
 9. **A null is only as strong as the space that was searched (2026-08-09).** Every
    conclusion carries an implicit scope: what was tested, over what range, with what
    instrument. When you report a null, state WHAT WAS SEARCHED — "beat 3 hand-picked
