@@ -169,3 +169,40 @@ jobs:
             draft/backtest/bridge-results.json
             draft/backtest/tournament-results.json
           retention-days: 30
+
+  # EXPERIMENT 34 — recommendation-vs-market, policy-level (forgone-value unit).
+  #
+  # Egress: FFC historical ADP per season + nflverse realized/prior points. The
+  # ANALYSIS (rank correlation, top-N, forgone-value + distance bands, sensitivity
+  # curves, cliff split) is the verified pure core — test_exp34*.py run FIRST as a
+  # gate, without egress, so a broken statistic is a red build before any fetch.
+  # Separate job: a nflverse/FFC outage must not take down certification + L0.
+  exp34:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - name: GATE — the pure measuring-stick tests (no egress)
+        run: |
+          pip install pytest -q
+          python -m pytest draft/tests/test_exp34.py draft/tests/test_exp34_metrics.py -q
+      - name: Fire exp 34 (FFC + nflverse egress)
+        run: |
+          pip install -r draft/requirements.txt -q
+          python draft/backtest/exp34.py --out draft/backtest
+      - name: Commit the exp 34 report
+        run: |
+          stamp=$(date -u +%Y-%m-%dT%H:%MZ)
+          git config user.name "lab-bot"; git config user.email "actions@github.com"
+          git add draft/backtest/EXP34.md draft/backtest/exp34.json
+          git commit -m "Exp 34 report $stamp" || { echo "no change"; exit 0; }
+          git pull --rebase origin main && git push || echo "push skipped"
+      - name: Upload exp 34 results (artifact — inputs are egress-built)
+        uses: actions/upload-artifact@v4
+        with:
+          name: exp34-results
+          path: |
+            draft/backtest/exp34.json
+            draft/backtest/EXP34.md
+          retention-days: 30

@@ -240,25 +240,43 @@ def build_result(all_rows: list[dict]) -> dict:
 
 
 # ───────────────────────────────────────────────────────────── egress main ──
+# CI ONLY. Thin glue: it fetches (FFC ADP + nflverse realized/priors) and delegates
+# ALL analysis to the verified pure functions (assemble + exp34_metrics). It cannot
+# run in the sandbox (no egress); the analysis it calls is unit-tested there.
+def _weekly_games(weekly_df, season: int, crosswalk: dict) -> dict[str, int]:
+    """{sleeper_id: games played} for a season — how many weeks a player has a row.
+    Feeds walk_forward's small-sample shrink."""
+    out: dict[str, int] = {}
+    if weekly_df is None or len(weekly_df) == 0:
+        return out
+    cols = set(weekly_df.columns)
+    id_col = "player_id" if "player_id" in cols else "gsis_id"
+    df = weekly_df[weekly_df["season"] == season] if "season" in cols else weekly_df
+    for row in df.to_dict("records"):
+        sid = crosswalk.get(str(row.get(id_col)))
+        if sid:
+            out[sid] = out.get(sid, 0) + 1
+    return out
+
+
 def _egress_main(out_dir: Path) -> int:
-    """CI only. Loads Sleeper players, real FFC ADP per season, and realized
-    weekly points (cli.py's year-by-year loader), aligns Cory's decisions, and
-    writes EXP34.md + exp34.json. Never invoked by the pure-core unit test."""
-    sys.path.insert(0, str(HERE.parent))          # draft/ on path for adp, sleeper_import
+    sys.path.insert(0, str(HERE.parent))          # draft/ on path
     sys.path.insert(0, str(HERE.parent.parent))   # repo root
     import adp as ADP
     import sleeper_import as SL
     from backtest import grade as GR
+    from backtest import projections as PROJ
+    import exp34_metrics as MET
     import nfl_data_py as nfl
-    import pandas as pd
 
     history = json.loads((HERE.parent / "data" / "league_history.json").read_text())
     seasons = [s for s in history["seasons"] if real_draft(s)]
-    season_nums = sorted({int(s["season"]) for s in seasons})
-    print("exp34 seasons:", season_nums)
+    print("exp34 seasons:", sorted({int(s["season"]) for s in seasons}))
 
     players_raw = SL.load_players()
     index = ADP.build_index(players_raw)
+    positions = {str(pid): p.get("position") for pid, p in players_raw.items()}
+    ages = {str(pid): p.get("age") for pid, p in players_raw.items()}
     players_meta = [{"player_id": str(pid), "name": p.get("full_name"),
                      "position": p.get("position"), "team": p.get("team"),
                      "gsis_id": p.get("gsis_id")}
@@ -269,64 +287,127 @@ def _egress_main(out_dir: Path) -> int:
         print("  ! import_ids unavailable:", e); ids_df = None
     crosswalk = GR.crosswalk_gsis_to_sleeper(players_meta, ids_df)
 
-    all_rows, caveats = [], []
+    # weekly per year, year-by-year so one 404 can't kill the run (cli.py's lesson).
+    need = sorted({y for s in seasons for y in (int(s["season"]) - 2,
+                   int(s["season"]) - 1, int(s["season"]))})
+    weekly_by_year, caveats = {}, []
+    for y in need:
+        try:
+            weekly_by_year[y] = nfl.import_weekly_data([y])
+            print(f"  weekly {y}: {len(weekly_by_year[y])} rows")
+        except Exception as e:
+            caveats.append(f"weekly {y} UNAVAILABLE ({type(e).__name__}); seasons needing it lose that prior")
+
+    all_pools, all_decisions = [], []
     for s in seasons:
         yr = int(s["season"])
         scoring_cfg = s.get("scoring_settings") or {}
         teams = ((s.get("settings") or {}).get("teams")) or 10
-        # ARM A input: real contemporaneous FFC ADP -> {sleeper_id: adp}
+        if yr not in weekly_by_year:
+            caveats.append(f"{yr}: realized weekly unavailable; season SKIPPED (not scored zero)")
+            continue
+        realized = GR.rest_of_season_points(weekly_by_year[yr], yr, scoring_cfg, crosswalk, from_week=1)
+        # our walk-forward projection from strictly PRIOR realized points (no leak).
+        prior_pts, prior_games = {}, {}
+        for py in (yr - 2, yr - 1):
+            if py in weekly_by_year:
+                prior_pts[py] = GR.rest_of_season_points(weekly_by_year[py], py, scoring_cfg, crosswalk)
+                prior_games[py] = _weekly_games(weekly_by_year[py], py, crosswalk)
+        proj = PROJ.walk_forward(yr, prior_pts, prior_games, positions, ages)
+        if not proj:
+            caveats.append(f"{yr}: no prior seasons to project from; season SKIPPED")
+            continue
+        # market: real contemporaneous FFC ADP + published dispersion.
         try:
             payload = ADP.fetch_adp("half-ppr", teams, yr)
         except Exception as e:
-            caveats.append(f"{yr}: FFC ADP unavailable ({e}); ARM A skipped this season")
-            payload = {"players": []}
-        adp_rank = {}
+            caveats.append(f"{yr}: FFC ADP unavailable ({type(e).__name__}); season SKIPPED"); continue
+        adp_rank, dispersion = {}, {}
         for entry in payload.get("players") or []:
             sid, _how = ADP.match_player(entry, index)
             if sid and entry.get("adp") is not None:
                 adp_rank[str(sid)] = float(entry["adp"])
-        # realized points for the season (year-by-year; one 404 must not kill it)
-        try:
-            weekly = nfl.import_weekly_data([yr])
-        except Exception as e:
-            caveats.append(f"{yr}: weekly UNAVAILABLE ({e}); season SKIPPED (not scored zero)")
-            continue
-        points = GR.rest_of_season_points(weekly, yr, scoring_cfg, crosswalk, from_week=1)
+                sd = entry.get("stdev") or entry.get("std_dev") or entry.get("sd")
+                if sd is not None:
+                    dispersion[str(sid)] = float(sd)
         rid = cory_roster_id(s)
         if rid is None:
-            caveats.append(f"{yr}: could not resolve Cory's roster_id; season skipped")
-            continue
-        rows = align_decisions(yr, real_draft(s), rid, adp_rank, points)
-        print(f"  {yr}: {len(rows)} gradeable decisions, {len(adp_rank)} ADP-matched players")
-        all_rows.extend(rows)
+            caveats.append(f"{yr}: could not resolve Cory's roster_id; season skipped"); continue
+        # tiers deliberately omitted for now -> cliff analysis degrades to 'thin' rather
+        # than inventing tier boundaries; a measured tier model is exp 36's job.
+        pools, decisions = assemble(yr, real_draft(s), rid, proj=proj, adp_rank=adp_rank,
+                                    realized=realized, tiers=None, dispersion=dispersion)
+        print(f"  {yr}: {len(decisions)} decisions, {len(adp_rank)} ADP-matched, "
+              f"{len(proj)} projected")
+        all_pools.extend(pools); all_decisions.extend(decisions)
 
-    result = build_result(all_rows)
-    result["caveats"] = caveats
-    (out_dir / "exp34.json").write_text(json.dumps(result, indent=2) + "\n")
+    # ── the measuring stick: delegate to the verified metrics ────────────────
+    fv_edges, fv_labels = [1e-6, 10, 30], ["value(<=0)", "near-zero", "moderate", "large"]
+    dist_edges, dist_labels = [5, 15, 30], ["<5", "5-15", "15-30", ">30"]
+    disp_edges, disp_labels = [4, 8], ["unanimous", "mid", "contested"]
+    result = {
+        "experiment": "34 — recommendation-vs-market, policy-level (forgone-value unit)",
+        "n_decisions": len(all_decisions), "n_pool_picks": len(all_pools),
+        "underpowered": True,
+        "note": "n~41, underpowered; inconclusive => anchor binds HARDER (PRE-REGISTRATION-34)",
+        "rank_correlation": MET.aggregate_correlations(all_pools),
+        "top5_set_value": MET.topn_value(all_pools, 5),
+        "top10_set_value": MET.topn_value(all_pools, 10),
+        "bands_forgone_value": MET.bands(all_decisions, "forgone_value", fv_edges, fv_labels),
+        "bands_adp_distance": MET.bands(all_decisions, "adp_distance", dist_edges, dist_labels),
+        "sensitivity_by_round": MET.bands(all_decisions, "round", [4, 8, 12], ["r1-3", "r4-7", "r8-11", "r12+"]),
+        "sensitivity_by_dispersion": MET.bands(all_decisions, "dispersion", disp_edges, disp_labels),
+        "cliff": MET.cliff_split(all_decisions),
+        "caveats": caveats,
+        "decisions": all_decisions,
+    }
+    (out_dir / "exp34.json").write_text(json.dumps(result, indent=2, default=str) + "\n")
     (out_dir / "EXP34.md").write_text(_report(result))
     print("\n" + _report(result))
     return 0
 
 
 def _report(r: dict) -> str:
-    A, B = r["arm_A_market_adp"], r["arm_B_room_revealed"]
-    def line(name, arm):
-        return (f"- **{name}**: mean {arm['mean_delta']:+} pts/decision, "
-                f"95% CI [{arm['ci95'][0]}, {arm['ci95'][1]}], n={arm['n']}, "
-                f"**{arm['verdict'].upper()}** · per-season signs {arm['per_season_sign']}"
-                f" ({'consistent' if arm['sign_consistent'] else 'mixed'})")
-    L = ["# EXPERIMENT 34 — recommendation-vs-market scoreboard", "",
-         f"_{r['n_decisions']} real decisions, realized rest-of-season points, "
-         f"my pick minus best-available-by-source. Underpowered by construction (n~41)._", "",
-         "## The two arms", "",
-         line("ARM A — did we beat the MARKET (FFC ADP)", A),
-         line("ARM B — did we beat the ROOM (revealed order)", B), "",
-         "## Reading (pre-registered, binding)", "",
-         "An inconclusive CI spanning zero argues for the anchor binding HARDER, not "
-         "looser — exactly as strongly as a loss. The blocked third arm (what the TOOL "
-         "would recommend) needs decision-time projections that are not archived.", ""]
+    rc = r["rank_correlation"]
+    L = ["# EXPERIMENT 34 — recommendation vs market (policy-level)", "",
+         f"_{r['n_decisions']} real decisions across three seasons; our ordering =",
+         "walk-forward projected value. Underpowered by construction (n~41); an",
+         "inconclusive CI (spans zero) reads as the anchor binding HARDER, not looser._", "",
+         "## PRIMARY — rank correlation over the available pool", "",
+         f"- our ordering: mean rho {rc['rho_our_mean']} CI {rc['rho_our_ci']}",
+         f"- market (ADP): mean rho {rc['rho_market_mean']} CI {rc['rho_market_ci']}",
+         f"- **difference (our - market): {rc['diff_mean']} CI {rc['diff_ci']} -> {rc['verdict'].upper()}** "
+         f"over {rc['n_picks']} picks", "",
+         "## Top-N set value (realized pts, our set vs market set)", "",
+         f"- top-5: our {r['top5_set_value']['our_mean']} vs market {r['top5_set_value']['market_mean']} "
+         f"(delta {r['top5_set_value']['delta_mean']}, {r['top5_set_value']['verdict']})",
+         f"- top-10: our {r['top10_set_value']['our_mean']} vs market {r['top10_set_value']['market_mean']} "
+         f"(delta {r['top10_set_value']['delta_mean']}, {r['top10_set_value']['verdict']})", "",
+         "## The deviation-edge surface (hit rate = took beat ADP-preferred available)", ""]
+    def band_block(title, bands, unit):
+        out = [f"### by {title} ({unit})", ""]
+        for b in bands:
+            thin = " ⚠THIN" if b.get("thin") else ""
+            out.append(f"- {b['band']}: n={b['n']} hit={b['hit_rate']} "
+                       f"mean_delta={b['mean_delta']} CI {b['ci']} {b['verdict']}{thin}")
+        return out + [""]
+    L += band_block("FORGONE VALUE (primary)", r["bands_forgone_value"], "projected pts given up")
+    L += band_block("ADP DISTANCE (comparison — which unit predicts better is a finding)",
+                    r["bands_adp_distance"], "spots")
+    L += band_block("ROUND / remaining-picks decay", r["sensitivity_by_round"], "round band")
+    L += band_block("MARKET DISPERSION", r["sensitivity_by_dispersion"], "ADP stdev")
+    cl = r["cliff"]
+    L += ["### tier-cliff proximity", "",
+          f"- crosses cliff: n={cl['crosses_cliff']['n']} hit={cl['crosses_cliff']['hit_rate']} "
+          f"(tiers omitted this run -> expect thin/empty; measured tiers are exp 36)",
+          f"- within tier:  n={cl['within_tier']['n']} hit={cl['within_tier']['hit_rate']}", ""]
     if r.get("caveats"):
         L += ["## Caveats", ""] + [f"- {c}" for c in r["caveats"]] + [""]
+    L += ["## What this does NOT settle", "",
+          "Correct cost accounting on unvalidated projections is still unvalidated: if our",
+          "player evaluations are wrong, a correctly-priced deviation is still wrong. That is",
+          "exp 33's job. And the composite-ordering variant (E.recommend, not just projections)",
+          "is a labelled follow-up needing the JS replay path.", ""]
     return "\n".join(L)
 
 
