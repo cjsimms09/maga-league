@@ -186,3 +186,54 @@ writing it up as a live decision; record the ones that don't survive as RETIRED-
   conclusion, not via a remembered audit) are queued BEHIND the slate rails and the weekly
   cron per Cory — they are the process fix that prevents the next backlog, worth more than
   clearing this one.
+
+## 5. IN-SEASON MARKET SIGNALS + MOCK-DRAFT FORWARD EVIDENCE — sequenced 2026-08-09
+Cory raised three in-season/forward inputs. Sequencing verdict (dollars × soonness),
+recorded so the calls don't evaporate. My recommendations; Cory's to override.
+
+**5a. Betting-market movement as a Sunday start-sit input — IN-SEASON, no window, test-before-build.**
+- **The signal:** implied team total (spread+total) is the workhorse; game total = shootout/
+  ceiling (matters doubly — 37.5% of the pot pays weekly-high); spread = game script; props
+  where they exist; **line MOVEMENT** = info that arrived after projections were built.
+- **Key correction to the ADP analogy:** betting movement is NOT an archival-window problem.
+  Opening lines, closing lines, and outcomes are all public HISTORICAL data — testable today,
+  no archiving needed. (Contrast ADP: no history, archive started 2026-08-09, predictive half
+  blocked.) We DO NOT retain as-built weekly projection snapshots, so "moved since OUR Tuesday
+  projection" is not reconstructable from our history — but the thread is validated without it.
+- **LEVEL vs MOVEMENT:** level likely already in our projections (double-count risk, expensive
+  to disentangle). Movement is cleaner, is the un-priced part, and self-gates (silent when
+  nothing changed). Cory's instinct confirmed.
+- **The ~$0 gate (do FIRST):** does line movement predict outcome-vs-OPENING? Pure external
+  data, no dependence on our projection archive. Fails → thread dies cheap. Passes → THEN the
+  harder "incremental over our projection" build earns it, and we start stamping projection
+  build-time going forward.
+- **Kalshi:** probe for game-level depth/volume, but expect thin player-prop coverage (a thin
+  market is not a wise one); props likely need a sportsbook odds aggregator. Implied team total
+  is derivable from Kalshi's spread+total if volume carries.
+- **Recommendation:** QUEUE post-draft. Zero cost to waiting. Post-draft slack → run the
+  movement-vs-outcome backtest; if it passes, build the movement signal into the Sunday alert,
+  attached to a specific chase-vs-protect call (render nothing that doesn't change a decision).
+
+**5b. Mock drafts as forward evidence — PRE-22nd WINDOW, in Session A's lane (survival + ledger).**
+- **What they are:** real picks/boards/behaviour, run on demand. NOT a strategy-earning
+  substitute for MFL (no season outcomes). Three uses, judged against the overfit objection:
+  - **Use 2 — calibrate survival: STRONGEST, survives.** Survival = board-depletion rate at a
+    position, not opponent psychology; mocks deplete too. "91% to last to my next pick" has
+    NEVER been graded. Caveat to STAMP: mock autopickers deplete ADP-strict → curve may run
+    slightly optimistic vs our noisier real room. "Never graded → graded" is strict progress.
+  - **Use 3 — forward evidence: valid, same activity as Use 2.** Pre-pick prediction answered
+    by reality, no re-running. The ONLY non-retrospective source we have. Window closes 22nd.
+  - **Use 1 — opponent model vs strangers: run it, but a NULL is INCONCLUSIVE.** Mocks lack
+    keepers/money/rivalries and half autopick/abandon → a non-firing run-detector can't be told
+    apart from behaviorally-degenerate mocks. Pre-register that a mock null doesn't convict the
+    mechanism. Downweight.
+- **Clean interface:** I don't need the live war room driven through a mock. Give me the ordered
+  PICK LOG; I replay it through the survival estimator at each of "my" picks and grade offline.
+  B's open question (can mocks be driven/logged programmatically?) gates only how fast logs
+  arrive, not whether I can consume them. Human-only is fine — Cory clicks, log still captures.
+- **Recommendation:** BUILD the offline survival-calibration grader (Session A lane), sequenced
+  AFTER the FP-anchor wiring, still pre-22nd. Live data collection gates on B's driving check.
+
+**Sequence (unchanged draft work first):** (1) FP-anchor wiring [active] → (2) mock survival
+grader [new, pre-22nd, windowed] → (3) betting movement-vs-outcome backtest [post-draft, no
+window] → (4) betting LEVEL [lowest, only if movement proves out].

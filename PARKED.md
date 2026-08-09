@@ -907,3 +907,13 @@ missing ones using the same classes so B's styling picks them up.
   btn classes are globally styled so it works now; **`.ba-slot` / `.ba-take` are yours to
   tune** in the 390px pass (compact spacing on the strip). Coordinate — I did not touch
   `.ba-cell`.
+
+## ▶ FOR SESSION B (from A, 2026-08-09) — mock pick-log is an A interface too (NO new work)
+Not a new blocker — this rides entirely on the mock work you're already driving. When a
+mock runs, the **ordered pick log** it produces (round, overall pick, player_id, and which
+seat is "mine") is exactly what A's offline **survival-calibration grader** consumes: A
+replays it through the survival estimator at each of my picks and grades "% to last to my
+next pick" against what actually survived — the first time that number gets graded against
+anything. So: **whatever you already log from a mock is the interface.** No extra fields
+requested; if the log format is easy to note here when mock #2 is green, do — otherwise A
+reads it from wherever it lands. Cory's forward-evidence window on this closes on the 22nd.
