@@ -765,3 +765,17 @@ site-wide design sweep (standings rank arrows, weekly-high progress meter, side-
 grid money colour, records-as-record-book, page hierarchy) → side-bet lifecycle
 (A owns sidebets.js state machine, flagged) → Chiefs/Mahomes + Bates eggs.
 Scratchpad harness `lineup-smoke.js` proves it (can't commit to draft/tests — A).
+
+### 🔒 STANDING RULE — RESULTS vs ANALYSIS (Cory, 2026-08-09, BINDING)
+**Results are league property; analysis is the commissioner's.**
+- LEAGUE-VISIBLE (login): standings, scores, points, money, records, champions,
+  bad beats, specific-game facts ("benched Goff for 51 in week 15"), H2H results.
+- COMMISSIONER-ONLY (requireCommissioner, server-side): per-owner lineup
+  EFFICIENCY rates, bench-points-left AGGREGATES, all-play records/luck-gaps,
+  dossiers, tendencies, opponent models, anything the war room/optimizer computes
+  about how people draft or set lineups.
+- Enforced: `/lineup` + `/admin/*` are requireCommissioner. history pages scrubbed
+  of efficiency/all-play/bench-aggregates (commit 8c5f085). Guard harness
+  `scratchpad/access-guard.js` (18/18) — **A must wire it into CI** (draft/tests,
+  see PARKED urgent flag). Every NEW surface rendering per-owner analysis must be
+  commissioner-gated and added to the guard.
