@@ -827,3 +827,27 @@ immediately.
 in PARKED); wire `lineup-validate` engine test if wanted; clean stray remote branches.
 Scratchpad harnesses: shoot / h2h-verify / lineup-validate / matchup-smoke /
 egg-check / access-guard / lifecycle.
+
+### 🔒 STANDING RULE — CORRECTED (Cory, 2026-08-09): TOOLS mine, HISTORY the league's
+**Supersedes the earlier results-vs-analysis wording above, which over-restricted.**
+The private list is the recommendation TOOLS ONLY:
+- COMMISSIONER-ONLY (requireCommissioner, server-side): the war room + everything
+  it computes; `/lineup` + the lineup optimizer + its proof tab; the in-season
+  recommendation tools (waiver calls, streaming, trade radar, the Sunday alert);
+  the draft tools; anything that produces a RECOMMENDATION for the commissioner.
+- LEAGUE-VISIBLE (login): **the entire history/record — including analytical
+  framings.** All-play records, luck-gap rankings, robbery records, lineup
+  efficiency % (per-owner + per-season, on season/franchise pages and in the
+  chapters), season bench-point totals — all league property. Money board, career
+  earnings, per-season winnings, the live 2026 column, payouts, amendments, buy-
+  ins, the pot, who won what, settlement + Venmo, side bets + grid, standings,
+  scores, records, champions, bad beats, box-score facts.
+THE LINE: anything that generates a recommendation FOR the commissioner is
+private; anything that describes what ALREADY HAPPENED — however it was computed —
+is the league's. "Michael won $1,325 in 2025" ✅ league. "Michael runs 89%
+efficiency, exploit him this week" ✅ private (a live tool). A chapter noting a
+past season's worst efficiency ✅ league (it happened).
+Guard: `access_guard.test.js` now asserts /lineup + /lineup/log 403 non-commish
+(200 commish) AND that history pages STAY league-visible with their analytical
+framings (a re-strip regresses the test). The over-strip of 2026-08-09 was
+RESTORED byte-identical to the approved prose (commit below).

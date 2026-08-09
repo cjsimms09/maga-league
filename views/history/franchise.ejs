@@ -40,7 +40,7 @@
     <h2>📅 Year by Year <span class="sub">the box-score era</span></h2>
     <div class="body chron-scroll">
       <table class="ledger">
-        <thead><tr><th>Year</th><th class="name">Team</th><th>W-L</th><th>PF</th><th>PA</th><th>Finish</th></tr></thead>
+        <thead><tr><th>Year</th><th class="name">Team</th><th>W-L</th><th>PF</th><th>PA</th><th>Eff%</th><th>Finish</th></tr></thead>
         <tbody>
           <% for (const y of years) { const s = o.seasons[y]; %>
             <tr>
@@ -49,7 +49,7 @@
               <td><%= s.wins %>-<%= s.losses %><%= s.ties ? '-' + s.ties : '' %></td>
               <td><%= fmt(s.pf) %></td>
               <td><%= fmt(s.pa) %></td>
-              <%# Per-owner efficiency REMOVED — commissioner-only analysis. %>
+              <td><%= s.eff != null ? s.eff + '%' : '—' %></td>
               <td class="<%= s.rank === 1 ? 'money' : (s.rank >= 9 ? 'neg' : '') %>">#<%= s.rank %></td>
             </tr>
           <% } %>
