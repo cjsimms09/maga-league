@@ -82,6 +82,12 @@ jobs:
         # harvested target on its own. Asserts it renders and that no per-owner
         # efficiency analysis leaks onto this league-visible page.
         run: node draft/tests/matchup_weekly_high.test.js
+      - name: Pick'em all-time freeze — completed seasons survive the rollover
+        # The "never resets" all-time board silently dropped every completed season
+        # (a new league id can't refetch a past season's points). Asserts frozen
+        # points keep a prior season scored, and the old current-season-only
+        # resolver zeroed it.
+        run: node draft/tests/pickem_alltime_freeze.test.js
       - name: Vote → ledger sync — enacting a buy-in vote re-charges the tabs
         # Annual-audit money hole: enacting a passed buy-in vote raised the pot in
         # config but left every owner's tab (and the settlement) at the old buy-in.

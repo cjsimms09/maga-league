@@ -1672,17 +1672,36 @@ async function pickemContext(world, me, { wantBoards = true } = {}) {
 
   // Only weeks that are safely FINAL grade into the boards — same lag the
   // side-bet engine uses, so a Monday-night game never scores half a week.
-  const finalOnly = async w =>
-    (w <= weekNo - BL.CFG.GRADE_WEEK_LAG) ? await sleeper.weekPointsByOwner(leagueId, w, map) : null;
+  //
+  // FREEZE-ON-READ (Annual audit fix): a finalized week's points are stored under
+  // pickem-points:<season>:<week> the first time they're read. Without this the
+  // all-time board silently DROPPED every completed season at rollover — a new
+  // Sleeper league id can't refetch a PAST season's scores, so the resolver
+  // returned null and the "never resets" board zeroed prior years. Freezing as
+  // weeks finalize means the current season is fully captured by the time it
+  // rolls, and the all-time board reads frozen points for every season.
+  const frozenKey = (s, w) => `pickem-points:${s}:${w}`;
+  const finalOnly = async w => {
+    if (!(w <= weekNo - BL.CFG.GRADE_WEEK_LAG)) return null;
+    const cached = await getDoc(frozenKey(seasonYear, w), null);
+    if (cached && Object.keys(cached).length) return cached;
+    const wp = await sleeper.weekPointsByOwner(leagueId, w, map);
+    if (wp && Object.keys(wp).length) { try { await setDoc(frozenKey(seasonYear, w), wp); } catch (e) { /* freeze is best-effort */ } }
+    return wp;
+  };
   const sb = await PE.seasonBoard(seasonYear, weekNo, owners, finalOnly);
 
-  // All-time: every season with pick'em data, summed forever. Historical seasons
-  // predate pick'em (2026 is year one), so today all-time == this season; the
-  // resolver only knows this league's cache, which is exactly the season we have.
+  // All-time: every season with pick'em data, summed forever. The resolver reads
+  // FROZEN points for any season (so prior years survive the rollover), falling
+  // back to a live fetch only for the current season's not-yet-frozen weeks.
   const slateKeys = await store.listKeys('pickem-slate:');
   const seasonsWithData = [...new Set(slateKeys.map(k => Number(k.split(':')[1])).filter(Boolean))].sort();
   const at = await PE.allTimeBoard(seasonsWithData, owners,
-    (s, w) => (s === seasonYear ? finalOnly(w) : Promise.resolve(null)),
+    async (s, w) => {
+      const frozen = await getDoc(frozenKey(s, w), null);
+      if (frozen && Object.keys(frozen).length) return frozen;
+      return s === seasonYear ? await finalOnly(w) : null;
+    },
     (season && season.weeks) || 18);
 
   ctx.seasonBoard = sb.board;

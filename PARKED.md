@@ -776,3 +776,63 @@ number) — that honesty is the point per exp-37 wording ("$X realised on decisi
 where the tool recommended Y", never "the tool earned $X").
 
 No B action remains once these are written; the page + nav link + 20 tests are live.
+
+---
+
+## 🅱️→🅰️ ANNUAL-RESET HOLE HUNT — A-lane items (Session B, 2026-08-09)
+B ran the full reset audit (3 sweeps: season literals, carry-forward survival, rule/
+money derivation) and FIXED its own lane (vote→ledger tab re-sync; the Leak-analyzer
+literals; chapter/timeline literals earlier; the draft-order reset). These remaining
+holes are A-lane or shared-archive — specific questions, not a re-audit:
+
+### 1. RULE PROVENANCE (highest correctness cost). Only PAYOUTS are per-season.
+`SCORING` / `ROSTER` / `RULES` (src/seed-data.js:124-144) and `scoring` in
+`draft/config/league_config.json` are single GLOBAL constants; `history-data.js`
+REG_WEEKS=15 (:48) and SLOT_POS (:180) are hardcoded and used for every historical
+season's optimal-lineup/efficiency. **Q for A:** if the league votes a scoring/roster/
+keeper-count/trade-deadline change, nothing records that 2025 was measured under
+different rules than 2027 — every historical efficiency/records number silently
+recomputes under current rules with no era stamp. Payouts already solved this
+(payouts.json `by_season`, era-correct — the model to copy). Should scoring/roster/
+keeper be stamped per-season the same way? This is the "measured under a world that
+no longer exists" risk Cory flagged.
+
+### 2. AMENDMENTS don't derive from the live vote/config (history-data.js — archive lane).
+`buildAmendments` (history-data.js:902-931) reads the STATIC committed
+`master_sheet_archive.json` / `payouts.json`, not the live `seasons` doc the vote
+writes. So an enacted buy-in/payout change produces NO dated amendment until someone
+hand-edits those files (the enact code comment claiming the amendment "DERIVES" from
+the config is wrong — different source). Also: scoring/roster/keeper changes have no
+amendment path at all (buildAmendments only knows buy-in + payout), and
+`votes_pending` on the Amendments page is a stale hand-maintained master copy, not
+the live votes. **Q for A:** should the amendment ledger read the live seasons/vote
+docs (or the Annual should write an amendment entry on seal)?
+
+### 3. MONEY BOARD / CAREER TOTALS from static master, and two divergent computations.
+`buildMoneyBoard` + per-owner career (history-data.js:884-897, 643-651) read
+`master.total_winnings` (static) — nothing updates when a buy-in vote passes or live
+ledger entries land, incl. the "reads live" 2026 column (money.ejs:56-59) which still
+reads the static master. Separately, career money is computed TWO ways — live
+`helpers.winningsGrid` (ledger-derived) vs archive `buildMoneyBoard` (master-derived)
+— which can silently disagree after any live ledger activity. **Q for A:** reconcile
+to one source on seal?
+
+### 4. HARVEST PIPELINE GAP — a finished season enters records/money/H2H only on manual re-harvest.
+`history-data.build()` filters `season !== '2026'` (:87) and reads only committed
+`draft/data/*.json`. A just-finished season appears in the record book / money board /
+H2H ONLY after someone re-harvests Sleeper and re-commits `league_history.json` +
+`master_sheet_archive.json` (A's `draft/data`). If the Annual skips that harvest, the
+season is missing from all three permanent surfaces. **This is the season-sealing data
+step — A's lane** (harvest + commit); B's chapter/records surfaces are ready to render
+it the moment it lands.
+
+### 5. ROLLOVER doesn't migrate season-keyed store docs — needs the orchestrator.
+`voteenact.skeletonFrom` / admin only advance the season CONFIG; nothing re-points or
+surfaces the season-keyed store docs (`pickem:<s>`, `trash:<s>`, `dispatch-index:<s>`,
+`playoff-odds:<s>`). They persist but are only as alive as the surface that reads them
+(see B-lane orphan fixes below). The Annual orchestrator (A) should call B's sealing
+hooks in order and HALT on any failure.
+
+### B-lane orphans B is fixing next (not A's): pick'em all-time board silently drops
+prior seasons; trash-talk + dispatch archives are written but read by no surface.
+Tracked in B's queue.
