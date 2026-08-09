@@ -133,7 +133,17 @@
    * second place to remember.
    */
   var EVIDENCE_STATE = {
-    33: { name: 'projection source bake-off', status: 'unrun', finding: null },
+    // 33 REPORTED 2026-08-09 (draft/backtest/EXP33.md). THE PRE-REGISTERED LOSS
+    // CONDITION FIRED: our walk-forward blend LOSES to a naive prior-year+
+    // availability baseline on top-decile hit rate (0.41 vs 0.57–0.59, both
+    // seasons, both from strictly-prior data) — worse at finding the elite players
+    // who decide seasons. 'lost', not softened. (A Sleeper source that "won" was a
+    // leak — an in-season-updated endpoint, ~0.80 corr with realized — and was
+    // DISQUALIFIED, not reported as a winner.) This is a standing surface banner,
+    // per the pre-registration, naming the better source.
+    33: { name: 'projection source bake-off', status: 'lost',
+          finding: 'our projections LOSE to a simple prior-year+opportunity baseline at ' +
+                   'identifying the top decile — the players who actually matter (exp 33)' },
     // 34 REPORTED 2026-08-09 (draft/backtest/EXP34.md). The result is an ORDERING
     // edge — our walk-forward ranking of the pool beats ADP's (rho diff +0.12,
     // CI[0.008,0.233], n=19) — which is a LEAN, and a DIFFERENT claim from any
@@ -189,6 +199,31 @@
   function tierVoices() {
     return { LEAN: tierVoice('LEAN'), LIKELY: tierVoice('LIKELY'),
              CERTIFIED: tierVoice('CERTIFIED') };
+  }
+
+  /* THE PROJECTION PROVENANCE BANNER, derived from EVIDENCE_STATE[33] — the
+   * standing banner exp 33's pre-registration owes the surface when our blend
+   * loses. It also carries the exp-34/36 RECONCILIATION so neither result is ever
+   * cited alone: we order the pool slightly better than a WEAK market (exp 34 beat
+   * a weak benchmark — exp 36 shows ADP is a sub-0.5 ranker at every position), yet
+   * we are WORSE than a naive baseline at finding the elite (exp 33). Both are true
+   * and the banner says both. Returns null when 33 has not lost (nothing to warn).
+   */
+  function projectionProvenance() {
+    var e = EVIDENCE_STATE[33];
+    if (!e || e.status === 'unrun' || e.status === 'won') return null;
+    if (e.status === 'lost') {
+      return {
+        severity: 'warn',
+        headline: 'Projections lose to a naive baseline at finding the elite (exp 33)',
+        detail: (e.finding || 'our projections lose to a naive baseline on top-decile') +
+                '. Reconciled: we rank the pool slightly better than a WEAK market ' +
+                '(exp 34 vs ADP, which exp 36 shows is a sub-0.5 ranker everywhere), ' +
+                'but worse than a simple baseline at the players who decide seasons. ' +
+                'Lean on tier structure and scarcity, not on point projections.',
+      };
+    }
+    return { severity: 'note', headline: e.name + ': ' + e.status, detail: e.finding };
   }
 
   /** Record an experiment's result. Rewrites every surface that shows a tier. */
@@ -300,7 +335,8 @@
               tierFor: tierFor, dispersion: dispersion, badge: badge,
               summary: summary, counterLine: counterLine,
               tierVoice: tierVoice, tierLine: tierLine, tierVoices: tierVoices,
-              EVIDENCE_STATE: EVIDENCE_STATE, recordEvidence: recordEvidence };
+              EVIDENCE_STATE: EVIDENCE_STATE, recordEvidence: recordEvidence,
+              projectionProvenance: projectionProvenance };
   global.DraftDeviation = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);

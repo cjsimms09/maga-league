@@ -216,3 +216,59 @@ with the board is not a verdict.
     fixed, optimal-lineup ceiling. It is a LEAN toward "construction matters," not a
     dollar verdict on the tool. The correlation arm still carries the ranking claim;
     this arm carries the construction claim; neither is a 74%-deviation licence.
+
+## THE THIRD ARM — COMPOSITE vs ADP on dollars (pre-registered 2026-08-09, BEFORE it runs)
+
+The dollar arm as fired answered "value-greedy vs ADP." That was the correct
+isolation for the correlation arm, but it means the dollar arm compared VALUE-ONLY
+against ADP — **not the composite we would actually draft with.** The need and
+ceiling terms carry 72% of our deviations and were never in that test.
+
+- **What the fired result establishes:** a pure value-greedy ranks players better
+  than ADP yet builds worse rosters, because ADP encodes positional construction and
+  value-greedy ignores it. So SOME construction layer is necessary — which was never
+  in doubt (nobody drafts value-only).
+- **What it does NOT establish:** that OUR construction layer is the right one.
+
+**ADD THE THIRD ARM:** run the dollar arm again with the FULL COMPOSITE as the ranker
+(`E.recommend` — need, ceiling, tier, risk included), at Cory's real seats, same
+grader, same seasons, same decomposition. Report all three together:
+1. value-greedy vs ADP on RANKING (correlation arm, n=19→recovered): value-greedy ranks better.
+2. value-greedy vs ADP on DOLLARS: value-greedy earns less, because construction.
+3. **composite vs ADP on DOLLARS: the actual question — did the model I will draft with earn more than the market.**
+
+**PRE-REGISTERED READING (fixed before the number exists, because this is where it
+gets slippery):**
+- **Composite also LOSES to ADP in dollars →** a serious finding about OUR construction
+  layer, and it argues the anchor should bind hard after all.
+- **Composite BEATS ADP in dollars →** the first real evidence the deviations pay.
+- **Inconclusive at this n →** say so plainly and let exp 36 carry the calibration question.
+
+**Build note:** a faithful composite ranking is `E.recommend` and needs the JS replay
+path (the same one `dump-replay.js` + the bridge already exercise), because the
+composite's `need` term depends on the roster built so far. `build_policy_roster`
+already threads the roster as it builds, so the wiring is: expose a per-seat composite
+ranking from the replay and pass it as the `pick_fn`. Egress/Node — the next unit.
+
+## VENDOR AS-OF DISCIPLINE (added 2026-08-09, from exp 33's caught leak)
+
+Exp 33's first fire pulled Sleeper's `/projections/nfl/regular/{season}` and it "won"
+every metric at a ~0.80 rank-corr with realized (the real market manages ~0.4). That
+is contamination, not skill: the endpoint is updated IN-SEASON, so a past season's
+stored projection carries post-draft information. **Binding rule: any EXTERNAL
+projection or ranking source must be verified FROZEN-AT-PRESEASON before it may enter
+a comparison — the same as-of discipline we apply to our own code, applied to vendors.**
+A source that cannot be shown decision-time-safe is scored for transparency and
+EXCLUDED from the verdict, never reported as a winner. (exp 33 implements this via a
+`decision_time_safe` flag through `bake_off`.)
+
+## NAIVE-AS-PROJECTION-SOURCE (pre-registered 2026-08-09, BEFORE it runs)
+
+Exp 33 found the naive prior-year+availability baseline BEATS our blend at top-decile.
+The obvious follow-up, and it is cheap: **run the dollar arm AND the correlation arm
+with the naive baseline as the projection source.** Pre-registered reading: if the
+naive input produces better rosters (dollars) and/or ranks realized value better
+(correlation) than our blend, **the fix is to REPLACE the blend's input, not to tune
+the blend** — a simpler input that wins is the finding. If our blend wins on
+construction despite losing on top-decile, that isolates where each adds value. Ships
+nothing without the null + leave-one-season-out gates.

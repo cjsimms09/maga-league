@@ -6,6 +6,47 @@ recommendations relate to the market, not a tweak to a slider.
 > **Consensus ADP is the PRIOR. Every deviation from it must be paid for with
 > evidence, and deviation size scales with evidence strength.**
 
+> ## ⚠️ AMENDMENT (2026-08-09) — exp 36 INVERTED this doctrine's central shape
+>
+> This doctrine was written on a designed premise: **the market is efficient EARLY**
+> (thousands of drafters agreeing on the first thirty picks) **and loose LATE**,
+> therefore the anchor should **bind hard early and relax late**. **Experiment 36
+> measured it over 255 board picks and found the OPPOSITE.**
+>
+> - Early-round ADP is a **weak** ranker: R1-3 RB efficiency **0.12**, WR **0.26**.
+> - The market orders value best in the **MIDDLE** (R4-7 QB **0.58**, TE **0.62**)
+>   and in **late WR** (R12+ **0.72**); late RB/QB anti-correlate (shrink 0).
+> - **Pooled, NO position clears 0.5** (WR 0.49, RB 0.45, QB 0.38, TE 0.28) — ADP is
+>   a weak ranker overall. Context for exp 34's "our ordering beats the market": **we
+>   beat a WEAK benchmark**, not an efficient one. Say that plainly; do not let the
+>   comparison flatter us.
+>
+> **The practical inversion:** we are most free to deviate exactly where the doctrine
+> told us to be most careful (early), and most obligated to respect the market in the
+> middle and late rounds where it is genuinely informative. The "bind hard early,
+> loosen late" premise is **STRUCK** — it was a designed assumption refuted by
+> measurement. **Anchor strength varies by round AND position per the exp-36
+> reliability surface, not by any monotonic rule.**
+>
+> **THE STAGE-2 LINK, recorded so no future session hand-sets it:** if Stage 2 (a
+> real market anchor) is ever built, its per-region binding function comes FROM the
+> exp-36 reliability surface (`draft/backtest/exp36.json`, each cell's `shrink`
+> weight), NOT from a threshold anyone picks. That is the whole point of measuring it.
+>
+> **THE PATTERN, noted because it is telling us something.** This is the THIRD time a
+> designed shape has been inverted by data: the **phase-ceiling ramp** (refuted,
+> deleted), the **upsideBonus endgame** (refuted, flagged for a gated sweep), and now
+> the **anchor's early/late premise**. Three designed priors, three inversions. The
+> lesson is not about any one term — it is about **how little to trust our own
+> shape-of-the-world intuitions relative to a measurement**, and to register every
+> such prior as a hypothesis to be tested, never a fact to be encoded.
+>
+> **Actionable on the surface TODAY, without waiting for Stage 2:** the deviation
+> explainer can already say whether we are deviating in a region the market ranks
+> **weakly** (cheap to deviate) or **well** (respect it). "ADP is a poor ranker here"
+> is a real thing to know at pick 34 and it is available now from exp 36 — wire it
+> into the deviation card. (Filed for the draft surface.)
+
 ## 1. Restructure the composite as market-anchored
 
 **Start from the consensus rank**, then apply our terms as **evidence-weighted
