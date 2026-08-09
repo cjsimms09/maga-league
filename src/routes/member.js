@@ -1355,6 +1355,13 @@ router.post('/draft/pick', aw(async (req, res) => {
   const doc = await getDoc(`draft:${season.year}`, { order: [] });
   const current = doc.order.find(p => p.slot == null);
   if (!current) return res.redirect('/draft?error=' + encodeURIComponent('All spots are taken.'));
+  // Two-stage guard: if the draft was opened before the bracket was recorded, the
+  // playoff four sit in the order as PENDING (their reverse-bracket order isn't
+  // decided yet). Nobody is on the clock until it is — recording the playoff
+  // results resolves their order. Prevents a pending seat claiming out of turn.
+  if (current.pending) {
+    return res.redirect('/draft?error=' + encodeURIComponent('The playoff four choose once the bracket is decided — record the playoff results to set their order.'));
+  }
   if (current.owner_id !== req.owner.id) {
     const who = (H.ownerById(world.owners, current.owner_id) || {}).name || 'someone else';
     return res.redirect('/draft?error=' + encodeURIComponent(`It is ${who}'s turn to pick, not yours.`));
