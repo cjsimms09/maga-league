@@ -123,8 +123,79 @@ def compare_sources(realized, meta, adp_by_source):
     }
 
 
+def _fetch_mfl(year, teams=12, timeout=30):   # pragma: no cover  (egress, CI only)
+    """MFL adp + players export for one year (JSON). Returns (adp_json, players_json)
+    or (None, None) on failure — a season that 404s is skipped, not fatal."""
+    import urllib.request
+    ua = {"User-Agent": "Mozilla/5.0 mfga-source-grade"}
+    def get(url):
+        try:
+            with urllib.request.urlopen(urllib.request.Request(url, headers=ua), timeout=timeout) as r:
+                return json.loads(r.read().decode("utf-8", "ignore"))
+        except Exception as e:
+            print(f"  MFL {year} fetch skip: {type(e).__name__}"); return None
+    base = f"https://api.myfantasyleague.com/{year}/export"
+    adp = get(base + f"?TYPE=adp&PERIOD=DRAFT&IS_PPR=1&IS_KEEPER=N&IS_MOCK=-1&INJURED=-1"
+              f"&CUTOFF=5&FCOUNT={teams}&JSON=1")
+    players = get(base + "?TYPE=players&DETAILS=1&JSON=1")
+    return adp, players
+
+
+def egress_main():   # pragma: no cover  (CI only)
+    """Consume exp36_picks.json (FFC adp + realized + meta, per season) and add MFL via
+    the SAME crosswalk exp36 uses, then compare per season. FantasyPros joins once its
+    CSV parser lands. Writes exp_source_grade.json."""
+    import mfl_adp as MFL
+    import adp as ADP
+    import sleeper_import as SL
+    picks_path = HERE / "exp36_picks.json"
+    if not picks_path.exists():
+        print("exp36_picks.json missing — run exp36 first (same job)"); return 0
+    picks = (json.loads(picks_path.read_text()).get("picks")) or []
+    index = ADP.build_index(SL.fetch_players())
+
+    per_season, seasons = {}, sorted({p["season"] for p in picks if p.get("season")})
+    for yr in seasons:
+        rows = [p for p in picks if p.get("season") == yr]
+        realized = {p["player_id"]: p["realized"] for p in rows if p.get("realized") is not None}
+        meta = {p["player_id"]: {"position": p["position"], "round": p["round"]} for p in rows}
+        adp_ffc = {p["player_id"]: p["adp"] for p in rows if p.get("adp") is not None}
+        adp_json, players_json = _fetch_mfl(yr)
+        adp_mfl = {}
+        if adp_json and players_json:
+            for r in MFL.parse(adp_json, players_json):
+                sid, _how = ADP.match_player(r, index)
+                if sid and str(sid) in realized:
+                    adp_mfl[str(sid)] = r["adp"]
+        sources = {"FFC": adp_ffc}
+        if len(adp_mfl) >= 20:
+            sources["MFL"] = adp_mfl
+        else:
+            print(f"  {yr}: MFL matched only {len(adp_mfl)} — excluded (thin/unreachable)")
+        per_season[yr] = {"n_matched_mfl": len(adp_mfl),
+                          **compare_sources(realized, meta, sources)}
+
+    # pooled headline: across seasons, how often does each source win a region, and
+    # does the composite beat its best member in most seasons?
+    wins = {}
+    comp_beats = 0
+    for yr, res in per_season.items():
+        for _region, w in res["per_region_winner"].items():
+            wins[w["winner"]] = wins.get(w["winner"], 0) + 1
+        comp_beats += 1 if res.get("composite_beats_best_member") else 0
+    out = {"experiment": "source grade — FFC vs MFL (+FantasyPros pending), per season",
+           "seasons": seasons, "per_season": per_season,
+           "pooled_region_wins": wins,
+           "composite_beat_best_in_n_seasons": comp_beats,
+           "caveat": "points-reliability (Spearman) like exp36; MFL is full-PPR/12-team, "
+                     "compared by RANK so scale/format offset cancels in the head-to-head. "
+                     "FantasyPros joins when its CSV parser lands. B0-per-source dollars is "
+                     "the bridge follow-on. No install — picks the board the keeper-need rule ranks by."}
+    (HERE / "exp_source_grade.json").write_text(json.dumps(out, indent=2))
+    print(json.dumps({"seasons": seasons, "pooled_region_wins": wins,
+                      "composite_beat_best_in_n_seasons": comp_beats}, indent=2))
+    return 0
+
+
 if __name__ == "__main__":   # pragma: no cover
-    # Egress main (CI): build realized + meta from exp36's spine, adp per source from
-    # FFC (adp.py) + MFL (mfl_adp.py) [+ FantasyPros when its CSV parser lands], then
-    # compare. Kept thin; the heavy joins live in exp36 which this imports.
-    print("exp_source_grade: pure core. Egress main runs in CI (fetches FFC+MFL+FP).")
+    raise SystemExit(egress_main())
