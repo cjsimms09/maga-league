@@ -678,3 +678,25 @@ Per the assignment: **produced ONE chapter (2024) and stopped for review before 
 ### ▶ RESUME (after voice sign-off), in order
 1. Generate remaining chapters: **2023, 2025** (full box-score seasons), then the ceremonial **2016–2022** chapters (money + amendments only — the archive states plainly what pre-Sleeper data does/doesn't support; never invent detail). Add each year to `CHAPTERS` in member.js as it lands.
 2. Then the site backlog: **contact directory** (email/phone alongside Venmo, one profile store, tappable owner cards from home standings) → **side-bet tracker drill-down grid** → **dashboard widening** (collapsible "full program" panel) → site-opt Phase 2 items in my lane.
+
+---
+
+## ▶ SESSION B (SITE LANE) — RESUME MARKER 2026-08-09
+
+**Context ran low mid-grind; landing clean.** Main only, pull --rebase before every commit, pushed each unit. Never deployed (A owns deploys). No draft-surface file touched.
+
+### ✅ DONE & PUSHED (on main; last [deploy] was 9fbdc75 — commits after it need A to deploy)
+- **League history page — COMPLETE.** Hub `/history` (crude 2-3 page essay: verbatim opening + year-by-year decade walk, each linking to its chapter; every shot stat-traceable; Chiefs joke CUT — no historical ADP; 2022 Hamlin stated once at #asterisk). Chapters: `/history/early` (2016-22 ceremonial), season/2023, /2024, /2025 — all in the new dry/mean voice. Record Book, Money Board, Bad Beats HOF, Absurdity Catalogue, Amendments (name lineage BWL→WLBL→MFGA, buy-in ladder, payout revisions, Rolls w/ winnings, 2027 votes), franchise pages. Engine `src/routes/history-data.js` (deterministic, provenance-stamped). Factual corrections locked in lore: rebrand 2024, keepers 2024, weekly-high introduced 2023, turnover Brandon/Taylor Hagen/Tori→Sam/Dylan/Jeremy (data only preserves a "Ben"; noted). Money-board attribution-gap flag (Dylan 2017-18, Jeremy 2017 pre-join $ likely predecessors').
+- **Contact directory** — email/phone + Venmo, one record; per-owner nag (home) + commissioner aggregate (console); shared tappable card (`public/js/contact.js`).
+- **Flags site-wide** from the one engine `GERMAN` source — home standings, buy-in tracker, settlement, contact cards, chronicle.
+- **Side-bet tracker (#1)** — drill-down grid (names×years, net/cell, career col, name/cell/year filters, OPEN+Venmo) was already built; added a VISIBLE zero-sum assertion. Firewalled to the side-bets section.
+- **Live 2026 column (#2)** on the Money Board — "'26 in progress", reads by_year live, never a $0-as-earned-nothing.
+
+### ▶ REMAINING SITE BACKLOG (in order)
+4. **MATCHUP PAGE** (`/team?section=week`) — real Sleeper scores (both totals, starters w/ points, projections in-week, live Sun, final after), where the week's high point stands league-wide + distance to the $100 band, one-tap side-bet vs the week's opponent w/ H2H. **CROSS-LANE:** the view/route/betting is mine; per-player points, projections, and the weekly-high band need `src/sleeper.js` (A's lane) to expose them — see PARKED request for A. Current page already shows team totals + a pre-filled bet form.
+5. **DASHBOARD WIDENING** — collapsible "full program" panel (my lane, `views/dashboard.ejs`).
+
+### ▶ THEN IN-SEASON BUILD (parked spec, big — one tool rehearsed, not the suite)
+6. **LINEUP OPTIMIZER** — biggest leak ($445-595/team/season; Cory 86% eff 3yrs). Validate against replayed 2023-25 weeks. Dual objective priced in $: P(win matchup) AND P(clear week's high band). Confidence sentence + ledger-at-decision-time w/ counterfactual. **TERRITORY: likely needs A-lane files (`src/sleeper.js`, `src/predledger.js`, projections) — coordinate the split before building.**
+7. **SUNDAY ALERT** — pre-kickoff start/sit calls priced in $.
+8. **INSTRUMENTATION CHECK** — confirm the in-season ledger kinds capture what exp-37 needs at decision time.

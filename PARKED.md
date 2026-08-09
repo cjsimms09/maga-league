@@ -235,3 +235,14 @@ ceiling term's role, and the Money Meter's crude proxy — five hand-built
 approximations of one quantity, replaced by the quantity itself. Fewer terms,
 each measured, rather than more terms each guessed. That is the opposite
 direction from everything else in the queue.
+
+---
+
+## ▶ SESSION B → A REQUEST (2026-08-09): Sleeper data for the matchup-page upgrade
+
+The matchup-page upgrade (site backlog #4) needs `src/sleeper.js` (A's lane) to expose, per matchup:
+- **per-player starter points** (not just team totals) — for the starters-with-points view;
+- **projections** (pre-game / in-week) vs **live** vs **final** state, with a staleness signal so a stale copy never renders as live;
+- **this week's league-wide high-point value + band** (the harvested winning band, e.g. "144 leads; typical winning score 139") and each team's distance to the $100.
+
+B will build the view/route/one-tap-side-bet side against whatever shape A returns. Flagging rather than editing sleeper.js.
