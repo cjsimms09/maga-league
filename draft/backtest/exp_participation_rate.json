@@ -1,0 +1,96 @@
+{
+  "experiment": "participation rate \u2014 fraction of Cory's picks each term flips vs the core",
+  "rooms": 200,
+  "note": "flat money + HIGH flip-rate = real null; flat money + LOW flip-rate = scale finding (higher weights untested). Walks the core path; per-decision counterfactual, no cascade.",
+  "by_probe": [
+    {
+      "term": "need",
+      "weight": 0.5,
+      "flip_rate": 0.051,
+      "flips": 122,
+      "decisions": 2400,
+      "avg_vorp_cost_when_flips": 2.7
+    },
+    {
+      "term": "need",
+      "weight": 1.0,
+      "flip_rate": 0.085,
+      "flips": 205,
+      "decisions": 2400,
+      "avg_vorp_cost_when_flips": 5.3
+    },
+    {
+      "term": "need",
+      "weight": 3.0,
+      "flip_rate": 0.085,
+      "flips": 205,
+      "decisions": 2400,
+      "avg_vorp_cost_when_flips": 5.3
+    },
+    {
+      "term": "ceiling",
+      "weight": 0.65,
+      "flip_rate": 0.487,
+      "flips": 1169,
+      "decisions": 2400,
+      "avg_vorp_cost_when_flips": 13.6
+    },
+    {
+      "term": "ceiling",
+      "weight": 1.0,
+      "flip_rate": 0.58,
+      "flips": 1391,
+      "decisions": 2400,
+      "avg_vorp_cost_when_flips": 14.2
+    },
+    {
+      "term": "ceiling",
+      "weight": 3.0,
+      "flip_rate": 0.792,
+      "flips": 1901,
+      "decisions": 2400,
+      "avg_vorp_cost_when_flips": 21.5
+    },
+    {
+      "term": "bye",
+      "weight": 1.0,
+      "flip_rate": 0.404,
+      "flips": 970,
+      "decisions": 2400,
+      "avg_vorp_cost_when_flips": 3.3
+    },
+    {
+      "term": "bye",
+      "weight": 3.0,
+      "flip_rate": 0.427,
+      "flips": 1024,
+      "decisions": 2400,
+      "avg_vorp_cost_when_flips": 4.1
+    },
+    {
+      "term": "stack",
+      "weight": 0.5,
+      "flip_rate": 0.176,
+      "flips": 422,
+      "decisions": 2400,
+      "avg_vorp_cost_when_flips": 9.9
+    },
+    {
+      "term": "tier",
+      "weight": 1.0,
+      "flip_rate": 0.917,
+      "flips": 2201,
+      "decisions": 2400,
+      "avg_vorp_cost_when_flips": 46.2
+    },
+    {
+      "term": "risk",
+      "weight": 1.0,
+      "flip_rate": 0.673,
+      "flips": 1615,
+      "decisions": 2400,
+      "avg_vorp_cost_when_flips": 9.8
+    }
+  ],
+  "reading": "need: barely moves picks even at w=3.0 (8%) \u2014 the value anchor dominates; this term is near-inert at every strength tried, so its money-flatness says little \u00b7 ceiling: participates at default (49% of picks) \u2014 its flat money is a REAL null, not a scale artifact \u00b7 bye: participates at default (40% of picks) \u2014 its flat money is a REAL null, not a scale artifact"
+}

@@ -117,15 +117,18 @@ Audit date: 2026-08-09 (swept every recorded verdict in draft/backtest/*.json + 
      at **0** and **stack ~0.5** (exp6 winner). This is the "flat preset" Cory floated.
      **REVISED 2026-08-09 by the interior look (Cory's flat-vs-structured question) — two numbers
      move off Cory's approved "need & ceiling at zero":**
-     - **need-weight ≈ 0.5, NOT 0.** The strength CURVE peaks at w≈0.5 (+$17 [+6,+28], separable)
-       and REPLICATES in exp_need_phase (+$16 [+3,+30]). The "decoration" call was read off the
-       DEFAULT point (w=1.0, +6.5 ~0), which sits past the peak — zeroing it leaves a small,
-       separable, replicated +$16 on the table. Clears the keep-or-drop bar (prior +, beats w=0,
-       cheap). MC-harness-tier magnitude.
-     - **ceiling: do NOT zero — leave at default 0.65 (or test 1.0), pending replication.** The
-       curve is separably positive at w≈1.0-1.5 (+$23-26, CI excludes 0) — ABOVE the 0.65 default
-       where build-up read ~0. Single-run + murky mechanism (weekly-high split ~0), so replicate
-       before raising; but zeroing it turns off a separably-positive term.
+     - **need-weight: 0 or 0.5 barely matters — it's NEAR-INERT (redundant with the mask).**
+       Participation-rate probe (exp_participation_rate): need-weight flips only **5% of picks at
+       w=0.5, 8% even at w=3.0** — because within the startable-cap MASK the need signal is nearly
+       uniform, so the additive weight rarely changes the argmax. The +$16 peak at w=0.5 is real
+       but comes from that ~5% slice. So the mask IS the need mechanism; the weight is a marginal
+       tweak. Cory's approved 0 is fine; 0.5 captures a thin +$16 — his call, low-stakes either way.
+     - **ceiling: do NOT zero — it GENUINELY participates and has a real positive region.** Probe:
+       ceiling flips **49% of picks at default, 58% at w=1.0** (giving up ~14 VORP/flip to chase
+       upside) — so its flatness at DEFAULT is a REAL null (moves half the picks, nets ~0), NOT a
+       scale artifact. But at w≈1.0-1.5 it's separably **+$23-26** (CI excludes 0) — a real,
+       well-participating positive. Single-run + murky mechanism (weekly-high split ~0) → REPLICATE
+       before raising, but zeroing it turns off a separably-positive term that clearly participates.
      - tier/risk stay 0 (negative or fading everywhere sampled; risk-late is a dead zone, not a
        positive). **Cory's call to confirm the two revised numbers before wiring.**
   3. **BEFORE ripping the live terms out of engine.js:** build the faithful JS-engine ablation
