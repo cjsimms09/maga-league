@@ -20,11 +20,15 @@ unavailable upstream → that season SKIPPED and said plainly.
 
 - **Reach distance** = `pick_no − adp`. Positive = drafted EARLIER than the market
   (a reach); negative = fell to the owner (value). Units: overall pick slots.
-- **Market-relative outcome (residual)** = `realized − E[realized | adp]`, where
-  `E[realized | adp]` is the leaguewide realized-vs-ADP curve, estimated as the mean
-  realized within the pick's ADP decile (isotonic-free, decile bins so it is robust
-  and transparent). Residual > 0 = beat what that draft slot returned on average.
-  This is the market-relative "was it a good pick" — roster-AGNOSTIC (see caveat).
+- **Market-relative outcome (residual)** = `realized − E[realized | adp, POSITION]`,
+  where the expectation is the realized-vs-ADP curve **estimated within the pick's
+  position** (decile/quantile bins, robust + transparent). WITHIN-POSITION is
+  mandatory: a cross-position curve is confounded by scoring scale — QBs score far
+  more raw points than the all-position mean at their ADP, so a pooled curve reads
+  every QB hugely positive and every RB/WR/TE negative from scale alone (the first
+  run exposed exactly this; the instrument was fixed, not the data). Residual > 0 =
+  beat what that draft slot returned on average FOR THAT POSITION. Roster-AGNOSTIC
+  (see caveat).
 - **Forgone value (descriptive companion)** = realized of this pick minus the best
   realized among players with ADP within ±6 of this pick still undrafted at pick_no.
   Roster-agnostic; reported as a cross-check, not the headline.

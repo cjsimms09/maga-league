@@ -109,48 +109,68 @@ def bh_flags(pvals, q=FDR_Q):
     return survive
 
 
-# ---- residual model: E[realized | adp] via ADP deciles ------------------------
-def expected_by_adp_decile(rows):
-    """Leaguewide realized-vs-ADP curve as decile-bin means. Returns a function
-    adp -> expected realized. Robust + transparent (pre-registered)."""
+# ---- residual model: E[realized | adp, POSITION] via within-position deciles ---
+# CRITICAL (the confound the first run exposed): a CROSS-position curve is confounded
+# by position scoring baselines — QBs score far more raw points than the all-position
+# mean at their ADP, so QB residuals read hugely positive and RB/WR/TE hugely
+# negative, purely from scoring scale (the same QB-scale confound that killed the
+# value-pockets first pass). The residual MUST be within position: a pick is compared
+# only to other players AT ITS POSITION at a similar ADP.
+def _decile_curve(rows):
+    """One position's realized-vs-ADP curve as decile-bin means. (fn adp->exp, edges)."""
     graded = [r for r in rows if r.get("adp") is not None and r.get("realized") is not None]
     if not graded:
         return (lambda a: None), []
     ordered = sorted(graded, key=lambda r: r["adp"])
     n = len(ordered)
-    edges = [ordered[min(n - 1, int(round(k / 10 * n)))]["adp"] for k in range(1, 10)]
-    bins = [[] for _ in range(10)]
+    # coarser bins when a position has few players, so a bin is never a single point
+    nb = max(2, min(10, n // 4))
+    edges = [ordered[min(n - 1, int(round(k / nb * n)))]["adp"] for k in range(1, nb)]
+    bins = [[] for _ in range(nb)]
     for r in ordered:
         b = 0
-        while b < 9 and r["adp"] > edges[b]:
+        while b < nb - 1 and r["adp"] > edges[b]:
             b += 1
         bins[b].append(r["realized"])
     means = [(_mean(b) if b else None) for b in bins]
-    # fill empty bins from nearest non-empty (rare)
-    for i in range(10):
+    for i in range(nb):
         if means[i] is None:
-            for j in list(range(i, 10)) + list(range(i, -1, -1)):
+            for j in list(range(i, nb)) + list(range(i, -1, -1)):
                 if means[j] is not None:
-                    means[i] = means[j]
-                    break
+                    means[i] = means[j]; break
 
     def expected(adp):
         if adp is None:
             return None
         b = 0
-        while b < 9 and adp > edges[b]:
+        while b < nb - 1 and adp > edges[b]:
             b += 1
         return means[b]
     return expected, edges
 
 
+def expected_by_adp_decile(rows):
+    """Per-POSITION realized-vs-ADP curves. Returns expected(adp, position). A
+    position with no data falls back to the pooled curve (rare; flagged by caller)."""
+    curves = {}
+    for pos in POSITIONS:
+        curves[pos], _ = _decile_curve([r for r in rows if r.get("position") == pos])
+    pooled, _ = _decile_curve(rows)     # fallback only
+
+    def expected(adp, position=None):
+        fn = curves.get(position)
+        e = fn(adp) if fn else None
+        return e if e is not None else pooled(adp)
+    return expected
+
+
 def with_residuals(rows):
-    """Attach residual = realized - E[realized|adp] and reach = pick_no - adp."""
-    expected, _edges = expected_by_adp_decile(rows)
+    """Attach residual = realized - E[realized|adp,POSITION] and reach = pick_no - adp."""
+    expected = expected_by_adp_decile(rows)
     out = []
     for r in rows:
         rr = dict(r)
-        exp = expected(r.get("adp"))
+        exp = expected(r.get("adp"), r.get("position"))
         rr["expected"] = round(exp, 2) if exp is not None else None
         rr["residual"] = (round(r["realized"] - exp, 2)
                           if (exp is not None and r.get("realized") is not None) else None)
@@ -316,10 +336,11 @@ def run(rows, cory_seat=None, name_by_seat=None):
                                           for pos in ("RB", "WR", "QB", "TE")},
         "who_drafts_well": who_drafts_well(rows, name_by_seat=name_by_seat),
         "deadzone_crosscheck": deadzone_crosscheck(rows),
-        "caveat": ("Market-relative (residual vs the leaguewide realized-vs-ADP curve). "
-                   "'Was it a good pick' (answered) != 'good pick FOR CORY' (roster-conditional, "
-                   "deferred to the strategy grid exp 44). Leads in points-residual; dollars are "
-                   "roster-dependent. No install — a skill/reliability surface."),
+        "caveat": ("Market-relative residual vs the WITHIN-POSITION realized-vs-ADP curve "
+                   "(cross-position pooling is confounded by scoring scale — QBs would read "
+                   "hugely positive from scale alone; fixed). 'Was it a good pick' (answered) != "
+                   "'good pick FOR CORY' (roster-conditional, deferred to the strategy grid exp 44). "
+                   "Leads in points-residual; dollars are roster-dependent. No install — a surface."),
         "multiplicity": "each family prints n tested; BH FDR q=0.10 flags survivors (fdr_survive).",
         "source_tier": "league-primary",
     }

@@ -37,6 +37,22 @@ def test_residual_is_relative_to_adp_curve():
     assert bust_r["residual"] < -100     # missed its (~200-value) slot massively
 
 
+def test_residual_is_within_position_qb_does_not_confound():
+    # QBs score ~300 raw, WRs ~120. A CROSS-position curve would make every QB read
+    # hugely positive and every WR negative from scale alone. Within-position, an
+    # AVERAGE QB and an AVERAGE WR both read ~0.
+    rows = []
+    for i in range(16):
+        rows.append(_row(2023, 1, 100 + i, 10, "QB", 100 + i, 300))   # QBs, high scale
+    for i in range(16):
+        rows.append(_row(2023, 2, 40 + i, 4, "WR", 40 + i, 120))      # WRs, low scale
+    rr = FB.with_residuals(rows)
+    qb = [r["residual"] for r in rr if r["position"] == "QB"]
+    wr = [r["residual"] for r in rr if r["position"] == "WR"]
+    # an average member of each position sits near 0 residual — no scale confound
+    assert abs(FB._mean(qb)) < 30 and abs(FB._mean(wr)) < 30
+
+
 def test_floor_marks_thin_cells():
     rows = [_row(2023, 1, i + 1, 4, "TE", i + 1, 100) for i in range(3)]  # n=3 < 8
     out = FB.run(rows)
