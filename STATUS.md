@@ -1030,3 +1030,34 @@ championship-probability model for the advisor.
 
 ## 💡 A MONEY EDGE NOBODY HAS RAISED (per Cory's invite to flag them)
 **The weekly-high pool is 37.5% of the pot and rewards DISTRIBUTION SHAPE (ceiling/variance), and the league drafts for H2H floor.** Almost nobody optimizes roster construction for spike-weeks. This is likely the single most underexploited edge on the board because it's structurally ignored — and it's DRAFT-relevant (you draft the ceiling shape) AND in-season-relevant (you start for the high). BBM's spike-week framing (grade by spike-COUNT, not mean) is the exact instrument to measure what ceiling-shaped construction wins the weekly-high pool under our payouts. **I'd fold this into the exp-24 build as a primary question, not an afterthought** — "what roster shape wins the 37.5% weekly-high pool" may be worth more than any refinement to the small/fragile head-to-head draft edge.
+
+### 🅱️ update: design sweep + pool draft + instrumentation (all on main, deployed by A)
+This grind, all coordinated-pushed to main (rebase over A each time, no races):
+- **Propose-from-anywhere** (§5): franchise pages have "🤝 Bet <name>" → bet builder
+  opens pre-filled (4/4).
+- **Chiefs/Mahomes eggs**: type "mahomes/chiefs/kingdom" → arrowhead-red flourish;
+  KC roster players get a red accent + 🏹 (live). (Bates-reaches-for-Chiefs counter
+  deferred — needs player→team history the harvest lacks.)
+- **Home weekly-high panel**: the bar to clear from the harvested band now
+  (renders on the deployed site), the live "this week's race" meter in-season.
+- **INSTRUMENTATION CHECK (task 5) DONE**: 18/18 — every in-season kind enforces
+  its counterfactual, decision_at server-stamped, lineup_call capture end-to-end
+  via /lineup/log. Rail ready; waiver/stream/trade capture awaits their tools.
+- Earlier this session: pool bets → franchise snake draft + commissioner advisor
+  (VONA), side-bet declare/confirm/dispute lifecycle + Venmo handoff, weekly-high
+  strip, Record Book crown ladder, Money Board sparklines, matchup page + H2H,
+  lineup optimizer engine+page (validated to the dollar), the history strip+restore
+  (results=league, tools=commissioner), main consolidation, territory reassignment.
+
+**COORDINATION:** B pushes to main directly (works); A merges A's branch + deploys.
+Coordinated pushes (fetch→pull --rebase→push, rebase over A) — no more deploy races.
+
+**NEXT (in order):**
+- **SUNDAY ALERT (task 4)** — content exists (the /lineup live tab: start/sit +
+  dollar values); remaining = DELIVERY before kickoff (a scheduler + notify/email),
+  commissioner-only. Season-time (needs live projections); build the generator +
+  a preview now, wire the cron for week 1.
+- Standings rank-movement arrows (live), health-strip VIEW (A parked it),
+  side-bet grid sparklines, remaining page-hierarchy polish.
+- When A ships the championship-probability model: the pool advisor's placeholder
+  odds swap for the real model (no interface change).
