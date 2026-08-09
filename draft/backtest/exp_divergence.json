@@ -1,0 +1,49 @@
+{
+  "experiment": "edge map \u2014 FantasyPros vs the room's revealed picks, graded on realized",
+  "per_season": {
+    "2025": {
+      "n_room": 130,
+      "n_fp": 389,
+      "n_realized": 0,
+      "n": 0,
+      "underpowered": true
+    },
+    "2024": {
+      "n_room": 127,
+      "n_fp": 343,
+      "n_realized": 105,
+      "n": 105,
+      "board_orders_realized_rho": 0.2203,
+      "room_order_realized_rho": 0.1655,
+      "board_beats_room_order": true,
+      "n_fallers": 33,
+      "n_reaches": 34,
+      "faller_minus_reach_realized_matched": 82.18,
+      "reading": "EDGE: the best board orders realized value better than the room's own picks, AND board-fallers out-return board-reaches at matched slots \u2014 target where FP and the room diverge and FP likes the faller."
+    },
+    "2023": {
+      "n_room": 150,
+      "n_fp": 358,
+      "n_realized": 127,
+      "n": 126,
+      "board_orders_realized_rho": 0.4992,
+      "room_order_realized_rho": 0.4308,
+      "board_beats_room_order": true,
+      "n_fallers": 43,
+      "n_reaches": 34,
+      "faller_minus_reach_realized_matched": 37.54,
+      "reading": "EDGE: the best board orders realized value better than the room's own picks, AND board-fallers out-return board-reaches at matched slots \u2014 target where FP and the room diverge and FP likes the faller."
+    }
+  },
+  "pooled": {
+    "n": 231,
+    "board_orders_realized_rho": 0.3896,
+    "room_order_realized_rho": 0.325,
+    "board_beats_room_order": true,
+    "n_fallers": 76,
+    "n_reaches": 68,
+    "faller_minus_reach_realized_matched": 68.88,
+    "reading": "EDGE: the best board orders realized value better than the room's own picks, AND board-fallers out-return board-reaches at matched slots \u2014 target where FP and the room diverge and FP likes the faller."
+  },
+  "caveat": "room slot = actual non-keeper pick_no in our 3 drafts (revealed behavior, not national FFC ADP). Best board = FantasyPros (source-grade winner). Realized from exp36_picks. Thin (~350 players, 3 seasons); rho gaps have no CI \u2014 directional. This is the 'where is my edge' question, distinct from 'which board is best' (exp_source_grade)."
+}
