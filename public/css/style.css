@@ -1047,9 +1047,9 @@ button.is-busy, .btn.is-busy {
 /* §C override-reason toast — one tap, bottom-center, never blocks the clock. */
 .override-reason-toast {
   position: fixed; left: 50%; bottom: 1.2rem; transform: translateX(-50%);
-  z-index: 60; max-width: min(94vw, 30rem);
-  background: var(--navy-deep, #0b1020); border: 1px solid rgba(245,196,69,.55);
-  border-radius: 12px; padding: .7rem .8rem; box-shadow: 0 10px 30px rgba(0,0,0,.4);
+  z-index: 60; max-width: min(94vw, 30rem); color: var(--ink);
+  background: var(--panel); border: 1px solid var(--gold);
+  border-radius: 12px; padding: .7rem .8rem; box-shadow: 0 10px 30px rgba(0,0,0,.28);
 }
 .override-reason-toast .orr-head { font-size: .82rem; margin-bottom: .5rem; line-height: 1.4; }
 .override-reason-toast .orr-btns { display: flex; flex-wrap: wrap; gap: .4rem; }
@@ -2434,29 +2434,31 @@ button.pd-team.pick:hover { background: rgba(245,196,69,.16); transform: transla
 .compare-tray {
   position: fixed; left: 50%; bottom: 1rem; transform: translateX(-50%);
   width: min(560px, 94vw); z-index: 90;
-  background: var(--navy-deep, #0b1020); border: 1px solid rgba(245,196,69,.55);
-  border-radius: 16px; box-shadow: 0 12px 40px rgba(0,0,0,.55); padding: .9rem 1rem;
+  /* Field Office (light): paper tray, dark ink — was dark navy with a mix of
+     white and dark-remapped text, half of it unreadable. */
+  background: var(--panel); border: 1px solid var(--gold);
+  border-radius: 16px; box-shadow: 0 12px 40px rgba(0,0,0,.28); padding: .9rem 1rem;
 }
 .cmp-inner { position: relative; }
-.cmp-close { position: absolute; top: -.3rem; right: -.3rem; background: rgba(255,255,255,.08);
-  border: 1px solid var(--line); color: #17263a; border-radius: 50%; width: 1.7rem; height: 1.7rem; cursor: pointer; }
+.cmp-close { position: absolute; top: -.3rem; right: -.3rem; background: var(--panel-soft);
+  border: 1px solid var(--line); color: var(--ink); border-radius: 50%; width: 1.7rem; height: 1.7rem; cursor: pointer; }
 .cmp-cols { display: flex; gap: .6rem; }
-.cmp-col { flex: 1; border: 1px solid var(--line); border-radius: 10px; padding: .5rem .6rem; background: rgba(255,255,255,.03); }
-.cmp-col.lead { border-color: rgba(245,196,69,.6); background: rgba(245,196,69,.07); }
-.cmp-name { font-family: var(--font-display); font-weight: 800; color: #fff; display: flex; gap: .35rem; align-items: center; }
+.cmp-col { flex: 1; border: 1px solid var(--line); border-radius: 10px; padding: .5rem .6rem; background: var(--panel-soft); }
+.cmp-col.lead { border-color: var(--gold); background: rgba(185,130,42,.08); }
+.cmp-name { font-family: var(--font-display); font-weight: 800; color: var(--ink); display: flex; gap: .35rem; align-items: center; }
 .cmp-stat { font-size: .74rem; color: var(--muted); margin-top: .2rem; }
-.cmp-stat b { color: #fff; }
+.cmp-stat b { color: var(--ink); }
 /* THE dominant number — gold, biggest thing in the tray. */
 .cmp-hero { text-align: center; margin: .7rem 0 .5rem; }
 .cmp-hero-num { display: block; font-family: var(--font-display); font-weight: 900;
-  font-size: 1.9rem; color: var(--gold-bright, #f5c445); line-height: 1.05; }
-.cmp-hero.even .cmp-hero-num { color: #9fb0d8; }
+  font-size: 1.9rem; color: var(--gold-bright); line-height: 1.05; }
+.cmp-hero.even .cmp-hero-num { color: var(--muted); }
 .cmp-hero-sub { display: block; font-size: .72rem; color: var(--muted); margin-top: .15rem; }
-.cmp-hero-sub b { color: #ffb4bb; }
+.cmp-hero-sub b { color: var(--red); }
 .cmp-bars { display: flex; flex-direction: column; gap: .25rem; }
 .cmp-bar-row { display: flex; align-items: center; gap: .5rem; font-size: .72rem; color: var(--muted); }
 .cmp-bar-lbl { flex: 0 0 5.2rem; }
-.cmp-bar-track { flex: 1; height: 7px; background: rgba(255,255,255,.07); border-radius: 4px; position: relative; }
+.cmp-bar-track { flex: 1; height: 7px; background: var(--panel-soft); border-radius: 4px; position: relative; }
 .cmp-bar-fill { position: absolute; top: 0; bottom: 0; border-radius: 4px; }
 .cmp-bar-fill.a { left: 50%; background: var(--gold, #f5c445); }
 .cmp-bar-fill.b { right: 50%; background: rgba(76,133,255,.7); }
@@ -2536,15 +2538,16 @@ button.pd-team.pick:hover { background: rgba(245,196,69,.16); transform: transla
 .system-strip {
   display: flex; align-items: center; gap: .7rem; flex-wrap: wrap;
   padding: .35rem .8rem; margin-bottom: .3rem; border-radius: 10px;
-  font-size: .78rem; background: rgba(11,16,32,.9);
-  border: 1px solid var(--line); color: #4a5972;
+  /* Field Office (light): paper, dark ink. Was dark navy with dark text. */
+  font-size: .78rem; background: var(--panel);
+  border: 1px solid var(--line); color: var(--muted);
 }
-.system-strip.warn { border-color: rgba(245,196,69,.5); }
-.system-strip.bad { border-color: rgba(255,70,85,.7); }
+.system-strip.warn { border-color: rgba(185,130,42,.6); }
+.system-strip.bad { border-color: var(--red); }
 .ss-mode { font-size: .62rem; font-weight: 900; letter-spacing: .1em;
-  padding: .1rem .4rem; border-radius: 4px; background: rgba(255,255,255,.1); }
-.ss-mode.rehearsal { background: var(--gold,#f5c445); color: var(--navy-deep,#0b1020); }
-.ss-mode.live { background: rgba(47,213,118,.3); color: #b9f5d3; }
+  padding: .1rem .4rem; border-radius: 4px; background: var(--panel-soft); color: var(--muted); }
+.ss-mode.rehearsal { background: var(--gold,#b9822a); color: #fff; }
+.ss-mode.live { background: rgba(15,138,77,.18); color: var(--green); }
 /* WHICH rehearsal mode is live, stated next to the mode badge. The TAKE variant
    is amber because it is the deliberate opt-out and must never be mistaken for
    the default — the keeper-overwrite bug was found by noticing a wrong roster,
@@ -2595,22 +2598,22 @@ button.pd-team.pick:hover { background: rgba(245,196,69,.16); transform: transla
 
 .ss-rmode { font-size: .62rem; font-weight: 700; padding: .1rem .4rem;
   border-radius: 4px; white-space: nowrap;
-  background: rgba(245,196,69,.16); color: #f5c445; }
-.ss-rmode.warn { background: rgba(255,150,60,.22); color: #ffb765; }
+  background: rgba(185,130,42,.16); color: var(--gold-bright); }
+.ss-rmode.warn { background: rgba(212,36,47,.14); color: var(--red); }
 /* Governance state on the doctrine banner. The OFF variant is deliberately
    plain and grey rather than alarming: it is a true statement about the tool,
    not an error, and it must read as information rather than as a fault. */
 .db-governs { font-size: .62rem; font-weight: 700; padding: .08rem .38rem;
   border-radius: 4px; margin-left: .45rem; white-space: nowrap;
-  background: rgba(47,213,118,.18); color: #b9f5d3; }
-.db-governs.off { background: rgba(255,255,255,.09); color: var(--muted, #9aa4bb); }
+  background: rgba(15,138,77,.16); color: var(--green); }
+.db-governs.off { background: var(--panel-soft); color: var(--muted); }
 .path-doctrine.inert { opacity: .72; }
 .pd-inert { font-weight: 400; opacity: .8; }
 .ss-seat { color: #17263a; }
 .ss-age { color: var(--muted); }
 .ss-dot { margin-left: auto; white-space: nowrap; }
 .ss-issues { color: var(--muted); font-size: .72rem; }
-.system-strip.bad .ss-issues { color: #ffb4bb; }
+.system-strip.bad .ss-issues { color: var(--red); }
 
 .system-details { margin-bottom: .6rem; }
 .system-details > summary { cursor: pointer; font-size: .74rem; color: var(--muted);
@@ -2649,24 +2652,25 @@ button.pd-team.pick:hover { background: rgba(245,196,69,.16); transform: transla
   display: flex; align-items: center; gap: .6rem; flex-wrap: wrap;
   padding: .35rem .9rem; margin-bottom: .35rem; border-radius: 10px;
   font-size: .8rem; font-weight: 700;
-  background-color: rgba(11,16,32,.97);
-  border: 1px solid var(--line); color: #4a5972;
-  backdrop-filter: blur(6px);
+  /* Field Office (light): dark ink on paper. Was dark-on-dark and unreadable. */
+  background-color: var(--panel);
+  border: 1px solid var(--line); color: var(--muted);
 }
-.legality-strip.legal { border-color: rgba(47,213,118,.45); color: #b9f5d3; }
-.legality-strip.streamable { border-color: rgba(245,196,69,.35); color: #17263a; }
-.legality-strip.at-risk { border-color: rgba(245,196,69,.7); color: #ffd873; }
+.legality-strip.legal { border-color: rgba(15,138,77,.5); color: var(--green); }
+.legality-strip.streamable { border-color: rgba(185,130,42,.45); color: var(--ink); }
+.legality-strip.at-risk { border-color: rgba(185,130,42,.7); color: var(--gold-bright); }
 .legality-strip.ILLEGAL {
-  border-color: rgba(255,70,85,.85); color: #fff;
+  border-color: var(--red); color: #fff;
+  background-color: var(--red);
   background-image: repeating-linear-gradient(45deg,
-    rgba(255,70,85,.20) 0 12px, rgba(255,70,85,.32) 12px 24px);
+    rgba(0,0,0,.10) 0 12px, rgba(0,0,0,.18) 12px 24px);
   font-weight: 900; letter-spacing: .02em;
 }
 .ls-tag { font-size: .62rem; font-weight: 900; letter-spacing: .1em;
   text-transform: uppercase; padding: .1rem .4rem; border-radius: 4px;
-  background: rgba(255,255,255,.1); }
-.legality-strip.ILLEGAL .ls-tag { background: #ff4655; color: #fff; }
-.legality-strip.legal .ls-tag { background: rgba(47,213,118,.25); }
+  background: var(--panel-soft); color: var(--muted); }
+.legality-strip.ILLEGAL .ls-tag { background: #fff; color: var(--red); }
+.legality-strip.legal .ls-tag { background: rgba(15,138,77,.15); color: var(--green); }
 
 /* ── THE DOCTRINE BANNER ──────────────────────────────────────────────────
    Top of screen, above the status bar: the plan being executed, its
@@ -2678,51 +2682,50 @@ button.pd-team.pick:hover { background: rgba(245,196,69,.16); transform: transla
   position: sticky; top: var(--pin-banner, 0px); z-index: 41;
   display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
   padding: .5rem .9rem; margin-bottom: .35rem; border-radius: 10px;
-  /* Opaque base UNDER the gold tint. A single rgba gradient leaves the left end
-     near-transparent, and once the banner is pinned the board scrolls visibly
-     through the most important text on the page. */
-  background-color: rgba(11,16,32,.97);
-  background-image: linear-gradient(90deg, rgba(245,196,69,.15), rgba(245,196,69,0) 62%);
-  border: 1px solid rgba(245,196,69,.45);
-  backdrop-filter: blur(6px);
+  /* Field Office (light): paper card with a warm gold wash on the left, dark
+     ink text. Was dark-on-dark — the plan, the confidence and the alt price
+     were all but invisible. */
+  background-color: var(--panel);
+  background-image: linear-gradient(90deg, rgba(185,130,42,.12), rgba(185,130,42,0) 62%);
+  border: 1px solid var(--gold);
 }
 .doctrine-banner .db-main { flex: 1 1 320px; min-width: 0; }
 .doctrine-banner .db-side { flex: 0 1 auto; text-align: right; margin-left: auto; }
 .db-name {
   font-family: var(--font-display); font-weight: 900; font-size: 1.02rem;
-  letter-spacing: .01em; color: #ffd873; line-height: 1.15;
+  letter-spacing: .01em; color: var(--gold-bright); line-height: 1.15;
 }
 .db-eyebrow {
   display: block; font-size: .6rem; font-weight: 800; letter-spacing: .14em;
   text-transform: uppercase; color: var(--muted); margin-bottom: .1rem;
 }
-.db-edge { font-size: .72rem; font-weight: 700; color: #8ef0b6; margin-left: .45rem; }
-.db-creed { font-size: .78rem; color: #4a5972; font-style: italic; margin-top: .1rem; }
-.db-confidence { font-size: .78rem; font-weight: 700; color: #17263a; white-space: nowrap; }
+.db-edge { font-size: .72rem; font-weight: 700; color: var(--green); margin-left: .45rem; }
+.db-creed { font-size: .78rem; color: var(--muted); font-style: italic; margin-top: .1rem; }
+.db-confidence { font-size: .78rem; font-weight: 700; color: var(--ink); white-space: nowrap; }
 .db-alt { font-size: .74rem; color: var(--muted); white-space: nowrap; }
-.db-alt b { color: #17263a; font-variant-numeric: tabular-nums; }
+.db-alt b { color: var(--ink); font-variant-numeric: tabular-nums; }
 /* Contested = the alternative is inside the noise band. Amber, not red: the
    plan still holds, it just is not clear of the band. */
-.doctrine-banner.contested { border-color: rgba(245,196,69,.75); }
-.doctrine-banner.contested .db-confidence { color: #ffd873; }
+.doctrine-banner.contested { border-color: var(--gold-bright); }
+.doctrine-banner.contested .db-confidence { color: var(--gold-bright); }
 /* Neutral — no doctrine changes this pick. Dimmed on purpose: the banner is
    telling you it has nothing to say here, and it should look that way. */
 .doctrine-banner.neutral { border-color: var(--line); }
 .doctrine-banner.neutral .db-confidence { color: var(--muted); font-weight: 600; }
 /* Unenrolled — nothing won its race, so this is the control and it says so. */
 .doctrine-banner.control { border-color: var(--line);
-  background-image: linear-gradient(90deg, rgba(255,255,255,.06), rgba(255,255,255,0) 62%); }
-.doctrine-banner.control .db-name { color: #17263a; }
+  background-image: linear-gradient(90deg, rgba(12,26,43,.04), rgba(12,26,43,0) 62%); }
+.doctrine-banner.control .db-name { color: var(--ink); }
 
 .doctrine-switch {
   position: sticky; top: var(--pin-switch, 0px); z-index: 41;
   display: flex; align-items: center; gap: .8rem; flex-wrap: wrap;
   padding: .5rem .9rem; margin-bottom: .5rem; border-radius: 10px;
-  background-color: rgba(11,16,32,.97);
-  background-image: linear-gradient(90deg, rgba(47,213,118,.22), rgba(47,213,118,.1));
-  border: 1px solid rgba(47,213,118,.6);
-  backdrop-filter: blur(6px);
-  font-size: .86rem; font-weight: 700; color: #b9f5d3;
+  /* Field Office (light): a green-washed paper card, dark-green text. */
+  background-color: var(--panel);
+  background-image: linear-gradient(90deg, rgba(15,138,77,.16), rgba(15,138,77,.06));
+  border: 1px solid var(--green);
+  font-size: .86rem; font-weight: 700; color: var(--green);
 }
 .doctrine-switch .btn { margin-left: auto; flex: 0 0 auto; }
 
@@ -2742,23 +2745,41 @@ button.pd-team.pick:hover { background: rgba(245,196,69,.16); transform: transla
   position: sticky; top: var(--pin-status, 0px); z-index: 40;
   display: flex; align-items: center; gap: .9rem; flex-wrap: wrap;
   padding: .4rem .8rem; margin-bottom: .8rem; border-radius: 10px;
-  /* .92 was invisible-by-accident tolerable; now that the bar actually pins in
-     view, the board scrolling through it is legible enough to misread. */
-  background: rgba(11,16,32,.97); border: 1px solid var(--line);
-  backdrop-filter: blur(6px); font-size: .82rem;
+  /* Field Office (light): paper card, dark ink. Was dark navy with dark-remapped
+     text — the pick/seat/connection all read as smudges. */
+  background: var(--panel); border: 1px solid var(--line);
+  font-size: .82rem;
 }
-.wr-statusbar.on-clock { border-color: rgba(47,213,118,.5); background: rgba(47,213,118,.08); }
-.sb-pick { font-family: var(--font-display); font-weight: 800; color: #fff; }
-.wr-statusbar.on-clock .sb-pick { color: #8ef0b6; }
+.wr-statusbar.on-clock { border-color: var(--green); background: rgba(15,138,77,.08); }
+.sb-pick { font-family: var(--font-display); font-weight: 800; color: var(--ink); }
+.wr-statusbar.on-clock .sb-pick { color: var(--green); }
 .sb-next { color: var(--muted); }
 /* The seat identity — rendered here and nowhere else. `warn` when it is an
    assumption or unresolved, because a guessed seat drafts the wrong roster. */
-.sb-seat { color: #4a5972; font-variant-numeric: tabular-nums; }
-.sb-seat.warn { color: #ffd873; font-weight: 700; }
-.sb-conn.on { color: #8ef0b6; }
+.sb-seat { color: var(--muted); font-variant-numeric: tabular-nums; }
+.sb-seat.warn { color: var(--gold-bright); font-weight: 700; }
+.sb-conn.on { color: var(--green); }
 .sb-conn.off { color: var(--muted); }
 .sb-mock { margin-left: auto; font-weight: 900; font-size: .64rem; letter-spacing: .1em;
   color: var(--navy-deep,#0b1020); background: var(--gold,#f5c445); padding: .1rem .4rem; border-radius: 4px; }
+
+/* MOBILE FURNITURE (≤700px, where the fixed bottom tab bar exists) — nothing in
+   the war room may float over content or the nav (Cory, 3rd report of the pick
+   bar / arm button covering a card). The pinned strips derive their sticky `top`
+   from --pin-* offsets that app.js measures; on a phone that measurement went
+   wrong and stranded the status bar MID-SCREEN, on top of the recommendation.
+   On a phone they belong in NORMAL DOCUMENT FLOW — they scroll with the page and
+   cannot cover anything. And every bottom-anchored overlay must clear the tab
+   bar (fixed, ~60px + safe-area, z-90) rather than sit under or over it. */
+@media (max-width: 700px) {
+  .wr-statusbar, .doctrine-banner, .doctrine-switch, .legality-strip {
+    position: static; top: auto;
+  }
+  .override-reason-toast, .compare-tray {
+    bottom: calc(60px + env(safe-area-inset-bottom, 0px) + 12px);
+  }
+  .compare-tray { z-index: 95; }        /* above the tab bar so its close tap lands */
+}
 
 /* §2(d) — condensed opponent strip (Zone 2). Compact: seat · likely · tell. */
 .threat-strip .ts-head { font-size: .72rem; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin-bottom: .4rem; }
@@ -3159,7 +3180,14 @@ body.is-champ .tabbar { box-shadow: inset 0 2px 0 rgba(245, 196, 69, .5), 0 -8px
    bottom:16px it covered the LOCKER and MORE tabs and swallowed their taps. */
 .wr-arm { position: fixed; right: 14px; bottom: 16px; z-index: 80; }
 @media (max-width: 700px) {
-  .wr-arm { bottom: calc(60px + env(safe-area-inset-bottom, 0px) + 12px); }
+  /* On a phone the fixed bottom tab bar owns the bottom-right corner, and a
+     floating action button there has covered the nav three times running.
+     Lifting it a few pixels was never enough — a floating control still layers
+     over content. Put it in NORMAL DOCUMENT FLOW instead: it reserves its own
+     space and cannot collide with the tab bar or any card. (It removes itself
+     1.5s after arming, so an in-flow button at the top is unobtrusive.) */
+  .wr-arm { position: static; display: block; width: 100%;
+    right: auto; bottom: auto; margin: .2rem 0 .9rem; }
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
