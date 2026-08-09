@@ -107,7 +107,7 @@
               "RB": {
                 "n": 104,
                 "mae": 46.94,
-                "rank_corr": 0.758,
+                "rank_corr": 0.757,
                 "top_decile": {
                   "n": 104,
                   "k": 10,
@@ -378,7 +378,7 @@
               "WR": {
                 "n": 164,
                 "mae": 46.97,
-                "rank_corr": 0.754,
+                "rank_corr": 0.755,
                 "top_decile": {
                   "n": 164,
                   "k": 16,
@@ -441,7 +441,7 @@
               "RB": {
                 "n": 111,
                 "mae": 53.37,
-                "rank_corr": 0.587,
+                "rank_corr": 0.586,
                 "top_decile": {
                   "n": 111,
                   "k": 11,
