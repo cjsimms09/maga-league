@@ -1350,18 +1350,52 @@
     // dossier's league-wide tendencies are still true and still shown; what is
     // suppressed is any claim about WHO sits where.
     const unassigned = !state.profilesMappedFromDraft;
+
+    // FEATURE C — OPPONENT POSITIONAL NEEDS. Who still needs a starter where, both
+    // among the seats before my turn (imminent runs) and league-wide (what I can
+    // wait on). Turns a generic survival number into WHO specifically wants WHAT.
+    let needsHtml = '', perTeamNeed = {};
+    try {
+      if (typeof DraftNeeds !== 'undefined' && state.rosters
+          && Object.keys(state.rosters).some(k => (state.rosters[k] || []).length)) {
+        const starters = (state.data.league || {}).starters || {};
+        const slotsBefore = t.rows.map(r => r.team_slot).filter(s => s != null);
+        const before = DraftNeeds.needsBeforePick(state.rosters, starters, slotsBefore);
+        const league = DraftNeeds.leagueNeeds(state.rosters, starters);
+        perTeamNeed = before.perTeam || {};
+        // Imminent: "3 of the 4 before you need RB" — the run about to happen.
+        const imm = DraftNeeds.pressure(before, league, (state.data.league || {}).teams || 10)
+          .filter(p => p.before > 0).slice(0, 3)
+          .map(p => '<b>' + p.before + '</b>/' + before.n + ' need ' + p.pos).join(' · ');
+        // League-wide: "QB only 2 still need one — you can wait".
+        const scarce = Object.keys(league).filter(p => p !== 'FLEX')
+          .sort((a, b) => league[a] - league[b])
+          .slice(0, 3).map(p => p + ' <b>' + league[p] + '</b>').join(' · ');
+        needsHtml = (imm ? '<div class="ts-needs">before your turn: ' + imm + '</div>' : '')
+          + (scarce ? '<div class="ts-needs ts-needs-lg">still need a starter — ' + scarce
+            + ' <span class="muted">(low = wait)</span></div>' : '');
+      }
+    } catch (e) { /* needs never block the strip */ }
+
     host.innerHTML = '<div class="ts-head">' + t.picksUntilNext + ' pick'
       + (t.picksUntilNext === 1 ? '' : 's') + ' before your turn'
       + (unassigned ? ' <span class="muted">· seats unassigned until Sleeper '
         + 'names them</span>' : '') + '</div>'
+      + needsHtml
       + t.rows.slice(0, 6).map(r => {
         const who = r.manager ? escapeHtml(r.manager) : 'Seat ' + r.team_slot;
         const names = r.likely.length
           ? r.likely.slice(0, 2).map(l => escapeHtml(l.name)).join(', ')
           : '<span class="muted">nothing stands out</span>';
         const tell = r.tells.length ? escapeHtml(r.tells[0].text) : '';
+        // Cross the dossier with need: a team that NEEDS a position it also
+        // historically reaches for is the sharpest threat — show what it needs
+        // right next to how it drafts.
+        const need = (perTeamNeed[r.team_slot] || []).filter(p => p !== 'FLEX');
+        const needStr = need.length ? '<span class="ts-need">needs ' + need.slice(0, 3).join('/') + '</span>' : '';
         return '<div class="ts-row"><span class="ts-seat"><b>' + r.pick_no + '</b> ' + who + '</span>'
           + '<span class="ts-likely">' + names + '</span>'
+          + needStr
           + (tell ? '<span class="ts-tell">' + tell + '</span>' : '') + '</div>';
       }).join('');
   }
