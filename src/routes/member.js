@@ -1322,12 +1322,33 @@ router.get('/matchup', aw(async (req, res) => {
   // A-lane data, read defensively: present => render; absent => a labelled slot.
   const perPlayer = (liveMatchup && liveMatchup.players) || null;   // A supplies
   const proj = (liveMatchup && liveMatchup.proj) || null;           // A supplies
-  const highBand = (liveMatchup && liveMatchup.highBand) || null;   // A supplies
+  const highBand = (liveMatchup && liveMatchup.highBand) || null;   // A supplies (richer, live projections)
+
+  // The weekly-high TARGET, served now from the harvested band (a RESULT: what it
+  // has historically taken to win the $100 — the same band the home page shows),
+  // plus THIS week's live race off the scoreboard. This lit the panel that used to
+  // sit dark waiting on A's richer live band; when A's highBand lands it wins.
+  const whBand = LO.weeklyHighBand();
+  let whRace = null;
+  if (sData && Array.isArray(sData.matchups)) {
+    const map = world.config.sleeper_map || {};
+    const nm = id => (H.ownerById(owners, id) || {}).name || '?';
+    const scores = sData.matchups
+      .map(m => ({ owner: Number(map[String(m.roster_id)]), pts: Number(m.points) || 0 }))
+      .filter(s => s.owner);
+    if (scores.some(s => s.pts > 0)) {
+      const top = Math.max(...scores.map(s => s.pts));
+      const leader = scores.find(s => s.pts === top);
+      const mineS = scores.find(s => s.owner === me.id);
+      whRace = { week: sData.week, top, leaderName: nm(leader.owner),
+        mine: mineS ? mineS.pts : null, iLead: mineS && mineS.pts === top };
+    }
+  }
 
   const nameOf = id => (H.ownerById(owners, id) || {}).name || '?';
   res.render('matchup', {
     me, owners, opp, live, weekNo, matchup: liveMatchup, betWindow, record,
-    perPlayer, proj, highBand,
+    perPlayer, proj, highBand, whBand, whRace,
     configured: !!world.config.sleeper_league_id,
     late: req.query.late === '1', sent: req.query.sent === '1',
     nameOf,

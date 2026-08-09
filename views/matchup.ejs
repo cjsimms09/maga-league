@@ -172,11 +172,13 @@
   </div>
 </div>
 
-<%# ── Reserved for Session A's data — renders only when it lands ────────────────
-    Per-player Sleeper points, projections, and this week's high-point band are
-    parked in sleeper.js (A's lane). The moment myMatchup() returns `players`,
-    `proj`, or `highBand`, these slots fill with no reflow. Until then, nothing
-    is shown rather than an empty promise. %>
+<%# ── THE WEEKLY HIGH — the $100 target, live ──────────────────────────────────
+    Two data sources, best first. A's richer live band (typical + leader + your
+    live score) wins when present; otherwise the harvested band (what it has
+    taken to win the $100 across three seasons — a league-visible RESULT) plus
+    THIS week's race off the scoreboard. Either way the manager sees the bar and
+    how far off it they are, on the page where they're already thinking about the
+    week. Only truly absent when there's no band at all. %>
 <% if (highBand) { %>
   <div class="card" style="margin-bottom:1.2rem">
     <h2>🎯 The Weekly High <span class="sub">the $100 band this week</span></h2>
@@ -184,6 +186,30 @@
       <p style="margin:0"><b><%= highBand.leader != null ? highBand.leader.toFixed(1) : '—' %></b> leads ·
         typical winning score <b><%= highBand.typical != null ? highBand.typical.toFixed(1) : '—' %></b><% if (highBand.mine != null) { %> ·
         you're at <b><%= highBand.mine.toFixed(1) %></b> (<%= (highBand.mine - highBand.typical >= 0 ? '+' : '') + (highBand.mine - highBand.typical).toFixed(1) %> vs typical)<% } %></p>
+    </div>
+  </div>
+<% } else if (whBand && whBand.n) { %>
+  <div class="card" style="margin-bottom:1.2rem">
+    <h2>🎯 The Weekly High <span class="sub">the $100 you can also win this week</span></h2>
+    <div class="body">
+      <% if (whRace) {
+           const pct = whRace.top ? Math.max(4, Math.min(100, Math.round((whRace.mine || 0) / whRace.top * 100))) : 0;
+           const toBar = whRace.mine != null ? (whBand.median - whRace.mine) : null; %>
+        <div class="wh-race">
+          <div class="wh-race-top">
+            <span class="wh-race-lead"><%= whRace.iLead ? '🟢 You lead week ' + whRace.week : '🏈 ' + whRace.leaderName + ' leads week ' + whRace.week %> · <b><%= whRace.top.toFixed(1) %></b></span>
+            <% if (whRace.mine != null && !whRace.iLead) { %><span class="wh-race-gap muted">you're <%= (whRace.top - whRace.mine).toFixed(1) %> back of the lead</span><% } %>
+          </div>
+          <div class="wh-race-bar"><div class="wh-race-fill<%= whRace.iLead ? ' lead' : '' %>" style="width:<%= pct %>%"></div></div>
+          <div class="wh-race-scale muted"><span>you: <%= whRace.mine != null ? whRace.mine.toFixed(1) : '—' %></span><span>$100 at the top</span></div>
+        </div>
+        <p class="wh-band-note" style="margin:.7rem 0 0">
+          Typically <b><%= Math.round(whBand.median) %></b> wins the week (three-season range <%= Math.round(whBand.min) %>–<%= Math.round(whBand.max) %>).
+          <% if (toBar != null && toBar > 0) { %>You're <b><%= toBar.toFixed(1) %></b> short of that bar.<% } else if (toBar != null) { %>You're <b>already past</b> the typical winning score — hold on.<% } %>
+        </p>
+      <% } else { %>
+        <p class="wh-band-note" style="margin:0">🎯 <b>$100</b> to the week's top score, on top of this matchup. The bar, from three seasons: typically <b><%= Math.round(whBand.median) %></b> wins it — range <%= Math.round(whBand.min) %>–<%= Math.round(whBand.max) %>. It comes alive here once games are on.</p>
+      <% } %>
     </div>
   </div>
 <% } %>

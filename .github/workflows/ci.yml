@@ -72,6 +72,11 @@ jobs:
         # cumulative standings — no snapshot to drift. Asserts dormancy pre-season
         # and correct climbed/fell/held deltas once two weeks exist.
         run: node draft/tests/standings_movement.test.js
+      - name: Matchup weekly-high panel — the $100 target renders (no dark slot)
+        # The panel used to sit dark waiting on A's live band; it now serves the
+        # harvested target on its own. Asserts it renders and that no per-owner
+        # efficiency analysis leaks onto this league-visible page.
+        run: node draft/tests/matchup_weekly_high.test.js
       - name: Access guard — analysis is commissioner-only, never league-visible
         # STANDING RULE (results = league property, analysis = commissioner's):
         # asserts /lineup + /lineup/log 403 a non-commissioner, and NO league-
