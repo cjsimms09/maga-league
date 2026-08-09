@@ -1234,3 +1234,30 @@ TERRITORY.md (line 124 still excludes `warroom.ejs` from B); A on Python/BBM lan
 When A encodes it + is out-of-mock, the shell furniture-collapse jumps to front
 (draft ~12 days out, screen unusable at a glance). **A must also integrate+deploy
 this branch** for Cory to see the shell fixes (last session) and derive (this one).
+
+### ▶ SESSION B RESUME MARKER — 2026-08-09 (rivalry pages)
+**Ritual:** "You are session B, read SESSION-B.md and STATUS.md, then continue."
+**Branch:** `claude/warroom-shell-redesign-9j1th0` (pushed, clean). B never deploys.
+
+**Shipped this session — RIVALRY (career H2H, one page, many entry points):**
+- `src/routes/h2h.js` enriched: bracket-tags each game from Sleeper's winners/losers
+  brackets (championship vs toilet-bowl — "knocked out of the playoffs" never means
+  a consolation game), + per-game weekly-high & benched-more-than-scored flags, +
+  summary stats (decided-by-<5, longest streak either way, total points, playoff
+  meetings + the final). Backward-compatible (matchup card still works).
+- **New `/rivalry?a=&b=` route + `views/rivalry.ejs`** — league-visible (it's the
+  record). Rivalry card: running record on top, summary stats, a playoff-history
+  callout naming knockouts precisely, then every meeting reverse-chron with scores,
+  margin, winner, notable badges. Era stated honestly ("box-score era / 2023").
+- **Entry points:** matchup card record links through (and shows playoff/close
+  counts inline); franchise H2H grid rows open the same rivalry history.
+- **Tests:** `draft/tests/h2h.test.js` (17, fixture) wired into CI (`ci.yml` loop);
+  HTTP integration confirmed /rivalry + franchise rows + matchup link render 200.
+
+**Still gated on A (unchanged):** war-room boundary NOT in TERRITORY.md yet (line
+124 still excludes `warroom.ejs` from B). PARKED "WAR-ROOM SHELL" stands. **A must
+integrate+deploy this branch** — war-room shell CSS (session 1), derive pattern
+(session 2), and rivalry (this session) are all on the branch, not yet on main.
+
+**Derive next targets (still open):** payout amounts, side-bet net tab, franchise
+career totals. Rivalry could also gain: per-game bench-bust detail on tap (derive).
