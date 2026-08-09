@@ -229,8 +229,11 @@
    *   - value 1.0   : the anchor; removing it costs ~$362. Half the whole edge.
    *   - stack 0.5   : the ONE adjuster that earns (exp6/stack_sweep, +$196 @ 0.5); its
    *                   correlation mechanism isn't in the money-MC, so trust stack_sweep.
-   *   - need 0.5    : near-inert (flips ~5% of picks — redundant with the MASK, which IS
-   *                   the need mechanism); the small +$16 lives in that thin slice.
+   *   - need 0     : INERT by mask redundancy — the additive weight flips only ~5% of picks
+   *                   at 0.5 and still 8% at 3.0, because the need signal is ~uniform inside
+   *                   the startable-cap MASK (which IS the need mechanism). Not "untested" —
+   *                   unexplorable by this lever. Settled at 0 (the simpler number). The mask
+   *                   still carries all of need; participation-rate probe, Cory-confirmed.
    *   - ceiling 0.65: a real, separably-positive term at w~1.0 (single-run, replicate) —
    *                   kept at its default rather than zeroed.
    *   - tier 0, risk 0 : measured DRAG — they pull picks off the value anchor toward a
@@ -243,7 +246,7 @@
    * Magnitudes are MC-harness-tier; the SIGN/ordering is the robust claim. See
    * DECISIONS-NEEDED #3. Auto mode still carries its own (older, grid-guarded) phase
    * ramp — this is the DEFAULT the tool loads on, not a change to Auto. */
-  const MEASURED_WEIGHTS = { value: 1.0, tier: 0.0, need: 0.5, risk: 0.0, ceiling: 0.65,
+  const MEASURED_WEIGHTS = { value: 1.0, tier: 0.0, need: 0.0, risk: 0.0, ceiling: 0.65,
     keeper: 1.0, bye: 0.0, stack: 0.5 };
 
   /* Named strategies, as weight sets.
@@ -265,7 +268,7 @@
         + 'need nudge on top of the always-on lineup MASK, and a modest ceiling. Tier and risk '
         + 'are OFF — they measured as a drag, not a knob you are declining to turn. This is the '
         + 'honest panel: the sliders that are near zero are near zero because they did nothing.',
-      weights: { value: 1.0, tier: 0.0, need: 0.5, risk: 0.0, ceiling: 0.65, keeper: 1.0, bye: 0.0, stack: 0.5 },
+      weights: { value: 1.0, tier: 0.0, need: 0.0, risk: 0.0, ceiling: 0.65, keeper: 1.0, bye: 0.0, stack: 0.5 },
     },
     {
       key: 'balanced', label: 'Balanced',
