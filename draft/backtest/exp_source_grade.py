@@ -182,8 +182,15 @@ def egress_main():   # pragma: no cover  (CI only)
         # SELF-DIAGNOSE: a parse miss must LOOK like a miss, not an absent source. If FP
         # came back but parsed thin, save the raw head so the next run shows the real table.
         if html and len(adp_fp) < 20:
+            # center the dump on a real ADP ROW so the next run shows the row structure,
+            # not the <head>. If no row marker exists in the server HTML, the table is
+            # client-rendered and we need FP's data endpoint, not HTML — report which.
+            marks = [html.find(m) for m in ('player-label', '/nfl/players/', 'id="data"', 'averagePick')]
+            mark = max([m for m in marks if m >= 0] or [-1])
+            slc = html[max(0, mark - 300): mark + 4000] if mark >= 0 else html[:4000]
             fp_diag[yr] = {"url": fp_url, "parsed_rows": len(fp_rows), "crosswalked": len(adp_fp),
-                           "raw_head": html[:3000]}
+                           "row_marker_found": mark >= 0, "html_len": len(html),
+                           "table_slice": slc}
             print(f"  {yr}: FantasyPros parsed {len(fp_rows)} rows, {len(adp_fp)} crosswalked "
                   f"(<20) — raw head saved for structure inspection")
 
