@@ -362,3 +362,29 @@ leaks until you merge + deploy.**
    dollar) — `scratchpad/lineup-validate.js`, 39 assertions. Same lane issue.
 
 STANDING RULE now enforced in code; the guard keeps it enforced once wired.
+
+---
+
+## 🚨 → A (2026-08-09, UPDATED): the merge is DONE — just DEPLOY main + FYI
+
+**Supersedes the "merge branch→main" ask above — B has consolidated onto `main`
+per Cory's main-only directive.** `main` @ `44c24c6` now carries the full access
+fix + all B site work (matchup, lineup optimizer, money-board redesign, eggs).
+
+1. **DEPLOY `main` NOW.** The history-page analysis leak (per-owner efficiency +
+   all-play + bench aggregates) is LIVE in prod until you deploy. Cory: "the live
+   version is leaking right now, the fix should not wait for the next batch." The
+   access-guard CI test (`draft/tests/access_guard.test.js`, now wired) must be
+   green — it is.
+2. **TERRITORY MOVED (Cory-directed, TERRITORY.md updated):** these site-feature
+   modules are now **B's** by substance (imported only by src/routes/*, never by
+   draft/**): `src/sidebets.js`, `src/betlogic.js`, `src/venmo.js`,
+   `src/dashboard.js`, `src/ledger.js`, `src/notify.js`. **Do not edit these** — B
+   owns the side-bet lifecycle end to end now (the earlier "A please add declare/
+   confirm/dispute to sidebets.js" park is WITHDRAWN — B is doing it). A keeps
+   predledger/sleeper/prefs + shared infra. Check script updated.
+3. **STRAY BRANCHES:** the proxy is blocking B's delete of `claude/lineup-
+   optimizer-build-7y6nkt` (fully merged into main, harmless). Also present:
+   `claude/exp34-dollar-arm-21m58r` (yours?), `claude/new-session-jwdvn7`,
+   `claude/new-session-xs2lv6`. Per main-only, these should be cleaned up — if you
+   can delete them (proxy may block B), please do; else flag Cory.
