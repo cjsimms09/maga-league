@@ -114,3 +114,30 @@ wire weekly `forecast_grade` → calibration ledger BEFORE the season's predicti
 resolving, else January inherits an ungraded pile. Then wire `evidence_weight` to consume
 that ledger (step 4). The Annual's headless mandate is not a substitute for the wired
 weekly grading — it needs a graded record to read.
+
+## BUILD ORDER + DETERMINISTIC-UPDATE PRINCIPLE (Cory 2026-08-09)
+
+Order (sequencing stays A's, but this is the dependency chain):
+1. **Weekly grading cron** — `forecast_grade` on resolved predictions → calibration
+   ledger. **HARD DEADLINE ~Sep 1** (see STATUS 🔴). Everything below needs its record.
+2. **Wire `evidence_weight` to consume that ledger** — weights move from graded
+   outcomes instead of sitting dormant (today only `bbm_translate` calls it).
+3. **Annual model-update over the deterministic record** — the headless prompt becomes
+   a PROPOSAL layer over an inspectable computation, not the mechanism.
+
+**DETERMINISTIC-UPDATE PRINCIPLE (binding):** as much of the update as possible is
+CODE Cory can inspect, not a prompt. A prompt deciding how to re-weight evidence is
+unauditable and drifts year to year.
+- **Computation MOVES the weights:** `evidence_weight.recompute` (inverse-variance
+  precision from the graded {estimate, se, n}) + `append_trajectory`. Fully
+  deterministic and inspectable — this is already built; it just needs the ledger fed
+  to it. Retire/strengthen is a **pre-registered threshold** on graded calibration
+  (a computed flag), not a prompt's opinion. Dossier deepening = recompute opponent
+  models from new data (deterministic).
+- **The prompt only PROPOSES:** writes the chapter, drafts the recalibration ARGUMENT
+  (prose explaining what moved and why), summarizes what changed — all as PRs Cory
+  reviews. It never sets a number.
+- **The one part that can't be fully deterministic:** novel hypothesis generation from
+  residuals (inherently generative). That stays a PROPOSAL (a reviewable PR that
+  registers a pre-registered experiment), never an auto-install. Practical everywhere
+  else — the weight movement is already a function.

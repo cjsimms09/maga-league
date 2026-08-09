@@ -13,6 +13,20 @@
 > **🚀 DEPLOYED vs main:** targeting `main` @ the branch-protocol commit (this push carries `[deploy]`). Live URL `https://makefbgreatagain.netlify.app`; `site-check.yml` compares deployed commit to `main` HEAD and the Sunday audit flags drift. **Both sessions now commit to `main` directly — no branches (TERRITORY.md § Branch protocol).**
 > **🔀 BRANCH PROTOCOL LANDED (2026-08-08):** the jwdvn7/xs2lv6 divergence is merged to `main` (both sides, STATUS.md unioned, nothing lost) and cannot recur — `scripts/branch-check.sh` gates commits to main, the Sunday audit asserts no stray branches + deployed==HEAD. **Session B: the protocol is in TERRITORY.md — pull main, commit there, push immediately.**
 
+> **🔴 HARD DEADLINE — WEEKLY GRADING CRON LIVE BEFORE ~SEP 1, 2026 (unrecoverable if missed).**
+> The learning half is the least-built part of the system (audit: `docs/queued/annual-button.md`
+> § LEARNING-HALF STATUS): forward predictions are emitted + recorded, but **nothing grades them
+> as they resolve** — no weekly cron, no calibration ledger. A season of ungraded predictions can
+> only be graded in bulk afterward, which is NOT the same thing, so this is instrumentation with a
+> real deadline like the in-season pools. **KEYSTONE (Cory 2026-08-09):** wire `forecast_grade` to
+> run weekly on resolved predictions → append to a calibration ledger, live **before the first
+> predictions resolve (early September at the latest)**. Everything else in the learning half
+> depends on the record it produces. **RED UNTIL IT RUNS.** Post-draft-relevant (predictions
+> resolve in-season), so it sits behind the pre-draft five but must NOT slip behind whatever is
+> loud in three weeks. Build order: (1) this cron → ledger; (2) wire `evidence_weight` to consume
+> the ledger so weights move from graded outcomes; (3) the Annual's model-update over that
+> deterministic record (prompt PROPOSES, computation MOVES the weights).
+
 ## 🚨 THE NUMBER THAT MATTERS MOST THIS WEEK (2026-08-08)
 
 **The model deviates from consensus on 73.7% of picks — 8.8 per draft, mean 17.1
