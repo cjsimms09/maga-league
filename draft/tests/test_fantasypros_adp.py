@@ -44,3 +44,15 @@ def test_accepts_bare_rows_list_and_normalizes_dst():
 def test_no_rows_blob_returns_empty_not_crash():
     assert FP.parse("<html>no data here</html>") == []
     assert FP.parse("") == []
+
+
+def test_picks_the_largest_rows_array_and_is_string_aware():
+    # an earlier 1-row widget with a ']' inside a string, THEN the real ADP table (3 rows).
+    html = ('window.A={"rows":[{"note":"top pick [lock]","avg":1}]};'
+            'window.FP={"rows":[' 
+            '{"player":{"name":"A B","team":"KC (10)"},"pos":"RB1","avg":1.2},'
+            '{"player":{"name":"C D [x]","team":"SF"},"pos":"WR1","avg":2.1},'
+            '{"player":{"name":"E F","team":"BUF"},"pos":"WR2","avg":3.4}]};')
+    rows = FP.parse(html)
+    assert len(rows) == 3, [r["name"] for r in rows]      # the 3-row ADP table, not the 1-row widget
+    assert rows[1]["name"] == "C D [x]"                    # a ']' inside a name did not truncate

@@ -33,23 +33,51 @@ def _norm_pos(p):
     return "DEF" if p == "DST" else p
 
 
-def _extract_rows_json(html):
-    """FantasyPros server-renders the ADP data as a JSON blob (window.FP SSR): a
-    `"rows":[ {...}, ... ]` array. Find it and bracket-match to the closing ]."""
-    m = _ROWS.search(html or "")
-    if not m:
-        return None
-    i = m.end() - 1                          # index of the opening '['
-    depth = 0
+def _match_array(html, i):
+    """Bracket-match a JSON array starting at html[i]=='[', STRING-AWARE (a ] inside a
+    "..." value must not close the array — the bug that stopped the first parse at 5 rows).
+    Returns the array substring or None."""
+    depth, in_str, esc = 0, False, False
     for j in range(i, len(html)):
         c = html[j]
-        if c == "[":
+        if in_str:
+            if esc:
+                esc = False
+            elif c == "\\":
+                esc = True
+            elif c == '"':
+                in_str = False
+            continue
+        if c == '"':
+            in_str = True
+        elif c == "[":
             depth += 1
         elif c == "]":
             depth -= 1
             if depth == 0:
                 return html[i:j + 1]
     return None
+
+
+def _extract_rows_json(html):
+    """FantasyPros server-renders the ADP data as a JSON blob (window.FP SSR). The page can
+    hold MORE THAN ONE `"rows":[...]` (a small widget + the big ADP table), so scan ALL of
+    them, string-aware, and keep the one that yields the most player rows — the ADP table."""
+    best = None
+    best_n = 0
+    for m in _ROWS.finditer(html or ""):
+        arr = _match_array(html, m.end() - 1)
+        if not arr:
+            continue
+        try:
+            data = json.loads(arr)
+        except (ValueError, TypeError):
+            continue
+        n = sum(1 for o in data if isinstance(o, dict) and (o.get("player") or o.get("avg") is not None
+                                                            or o.get("averagePick") is not None))
+        if n > best_n:
+            best, best_n = arr, n
+    return best
 
 
 def parse(html):
