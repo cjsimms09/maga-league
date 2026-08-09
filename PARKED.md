@@ -877,3 +877,35 @@ Ran the full pure JS suite locally against B's branch. Two things:
 Everything else in the pure suite + all B app-boot suites (route_smoke, accuracy,
 vault, pickem_alltime_freeze, vote_ledger_sync, matchup_spectator, pwa_entry,
 warroom_mobile, season_form, history_smoke, access_guard) is green.
+
+---
+
+## ▶ SESSION B → A NOTE (2026-08-09): the home-screen icon was a navy square — fixed, and make-icons.js is now stale
+
+Cory's fifth pass on the PWA turned out to be the ICON ARTWORK, not the launch.
+The committed `public/icons/*.png` were a solid navy square (and the iOS splash an
+empty box): the previous generator loaded `icon.svg` via an `<img src=…>` that
+FAILED, so it captured a broken-image placeholder instead of the eagle. iOS won't
+accept SVG for `apple-touch-icon`, so a dead PNG was all the home screen had.
+
+**FIXED (B lane — regenerated `public/icons/*.png` only):** every icon size, the
+maskables, `apple-touch-icon.png`, and all six iOS splashes are re-rendered FROM
+`icon.svg` by INLINING the SVG markup into the page (no external `<img>` load to
+fail) and screenshotting via Chromium. Verified by eye at 512/180/76/maskable/
+splash — the eagle-on-football now renders. No markup change: filenames are
+unchanged, so `header.ejs` + `manifest.webmanifest` already point at them.
+
+**HEADS-UP — `scripts/make-icons.js` (A lane) is now STALE. Do not re-run it:**
+- it draws the OLD star+stripes mark, not the eagle → it would overwrite the eagle
+  PNGs with the wrong art;
+- it only emits `icon-180/192/512` + `icon-maskable-512` → wrong/incomplete size
+  set (no `apple-touch-icon.png`, no 16/32/48/76/120/152/167, no `-maskable-192`,
+  no splashes), so it can't reproduce what ships.
+Please delete it or replace it with an eagle renderer. The one I used (inline-SVG
++ Chromium screenshot, all icon sizes + splashes) is in B's scratchpad as
+`render-all.js`; happy to hand it over to commit into `scripts/` (your lane) so the
+regeneration is tracked. The SVG source of truth (`public/icons/icon.svg`) is
+unchanged and correct.
+
+**Cory needs to delete + re-add the home-screen icon** once this deploys — iOS
+caches home-screen artwork aggressively.
