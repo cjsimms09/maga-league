@@ -1261,3 +1261,35 @@ integrate+deploy this branch** — war-room shell CSS (session 1), derive patter
 
 **Derive next targets (still open):** payout amounts, side-bet net tab, franchise
 career totals. Rivalry could also gain: per-game bench-bust detail on tap (derive).
+
+### ▶ SESSION B RESUME MARKER — 2026-08-09 (crown, trophy, rivalry billing)
+**Ritual:** "You are session B, read SESSION-B.md and STATUS.md, then continue."
+**Branch:** `claude/warroom-shell-redesign-9j1th0` (pushed, clean). B never deploys.
+
+**Shipped this session (all league-visible, tested, on the branch):**
+1. **THE CROWN** — defending champ (derived, `src/champs.js`) marked league-wide:
+   standings, matchup, money board, franchise, locker, rivalry; dynasty count
+   (Marian 3×* disputed-aware); champ-only home ribbon; NOT in the war room.
+2. **THE TROPHY** (`/trophy`) — rendered cup + engraved plaque 2016→, plates open the
+   season chapter, current holder marked, 2022 asterisk. Linked in history subnav.
+3. **"Playing the champ"** note on the matchup screen.
+4. **RIVALRY GAME OF THE WEEK** (`src/rivalries.js`) — 7 named rivalries in league
+   voice, billed on matchup (front & centre) + home page (ranked, marquee first),
+   backed by h2h record + notable facts (closest/blowout/knockouts). Click through
+   to the rivalry page.
+5. **GERMAN EGG** — Marian–David fires DIE HERMANNSSCHLACHT (banner in real German,
+   black-red-gold, war Gesamtbilanz). Full screen-translation parked.
+Tests: champs 12, rivalries 24, both wired to CI; HTTP integration 14 + 11.
+
+**PARKED (see PARKED.md "spec items deferred, with findings"):**
+- **Start/sit Vegas signals** (commissioner-only): PROBED — odds APIs unreachable
+  from THIS sandbox (proxy allow-list = registries only; ESPN = http 000). Likely
+  reachable in the deployed fn (as Sleeper is). Plan + source (ESPN free odds →
+  implied totals) parked; build where the deployed network is exercisable so it
+  isn't shipped blind. DFS salary only if a free delta source proves reachable.
+- Full German screen translation; franchise rivalry section; chronicle/recap
+  rivalry refs; permanent history note on a rivalry deciding a playoff spot / weekly high.
+
+**Still gated on A (unchanged):** war-room boundary NOT in TERRITORY.md (line 124).
+**A must integrate+deploy the branch** — warroom shell CSS, derive, rivalry pages,
+crown+trophy, and rivalry billing are all on it, not yet on main.

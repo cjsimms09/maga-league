@@ -580,3 +580,54 @@ status furniture (doctrine banner + WATCH + pick-state + statusbar) into ONE
 tappable line, give the recommendation the fold, and make the tool quiet-by-default
 / loud only on a tier cliff, a contested split, or a plan deviation. B will bring a
 class-level contract proposal so your `app.js` render targets don't move under you.
+
+---
+
+## 🅱️ PARKED (2026-08-09) — spec items deferred, with findings
+
+### START/SIT VEGAS SIGNALS (commissioner-only) — BLOCKED ON DATA, probed
+Spec: implied team total (spread + O/U), game total/shootout flag, spread/game
+script, line movement; DFS salary week-over-week movement (probe first). Inputs to
+the DISPLAY beside each start/sit call, not model terms, until measured for
+incremental value against realized outcomes (projections may already price
+opportunity — measure before installing). Chase-vs-protect mode drives which
+players to point at. All on `/lineup` (commissioner-gated), never league-visible.
+
+**PROBE FINDING (this build env):** external odds APIs are UNREACHABLE from the
+sandbox — `curl` to ESPN's scoreboard and core APIs returns `http_code=000`; the
+agent proxy's allow-list is package registries only (npm/pypi/crates…), not the
+open internet. Sleeper 403s here too yet works in the DEPLOYED function, so odds
+are *likely* reachable in production — but I cannot build+verify live-odds code
+here without shipping it blind. Not skipping on "paid feed" grounds (ESPN's
+`competitions[].odds` is free, no key, carries spread + O/U → implied team totals);
+skipping on "can't exercise the network to test it here."
+
+**PLAN when built (in an env where the deployed fn's network is exercisable):**
+- Source: ESPN NFL scoreboard `events[].competitions[0].odds[0]` → `spread`,
+  `overUnder`. Implied team total = O/U/2 ± spread/2. Free, no key. Cache per week.
+- A `src/odds.js` (B-substance) with a labelled-empty fallback (same pattern as the
+  matchup page: render "odds not available" honestly, never a fabricated number).
+- Attach each signal to a specific start/sit call on `/lineup`; render nothing when
+  it doesn't change the call. Extremes only (top/bottom implied totals; shootout =
+  high O/U; large line moves). DFS salary movement only if a free delta source
+  proves reachable — else drop it (Vegas carries most of the signal).
+- Chase-vs-protect: compare projected score to `LO.weeklyHighBand()`; below-band +
+  likely-lost → point at the highest-O/U shootout; protecting → the opposite.
+- Measure incremental value (does implied total predict OUR players' scoring by
+  position) before any term enters the recommendation, through the normal gates.
+
+### GERMAN EGG — full screen translation (banner DONE)
+DIE HERMANNSSCHLACHT billing/banner/flag/war-record is live. Remaining: translate
+the ENTIRE matchup screen (labels, headers, buttons) into real German when
+Marian–David. Approach: a `de` label map keyed on `rivalry.egg`, applied in
+matchup.ejs (and its partials) — a `t(key)` helper defaulting to English, German
+when the egg is live. Sizeable but mechanical; keep the German real, not machine.
+
+### RIVALRY — franchise section + chronicle refs (billing DONE)
+- Franchise pages: a "Rivalries" section listing that owner's named rivalries +
+  record in each (RIV.RIVALRIES filtered by name, h2h for the record), each linking
+  to the rivalry page.
+- Chronicle / weekly recaps: reference the rivalry when one of these games happens,
+  in the league voice.
+- Permanent history note when a rivalry game decides a playoff spot or a weekly
+  high (extra billing + a durable mark).
