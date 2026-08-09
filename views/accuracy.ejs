@@ -1,0 +1,183 @@
+<%- include('partials/header', { title: 'Model Accuracy' }) %>
+<%
+  const v = view;
+  const s = v.summary;
+  const pct = n => n == null ? '—' : Math.round(n * 100) + '%';
+  const f2 = n => n == null ? '—' : (Math.round(n * 1000) / 1000).toFixed(3);
+  const money = n => n == null ? '—' : (n < 0 ? '−$' + Math.abs(Math.round(n)) : '$' + Math.round(n));
+%>
+
+<h1 class="page-title">📈 Model Accuracy
+  <span class="sub" style="font-weight:600"><%= season %> · commissioner only — model internals, not league results</span>
+</h1>
+
+<%# ── SUMMARY / PIPELINE STATE — honest before there's data ──────────────────── %>
+<div class="card" style="margin-bottom:1.2rem; border-color:<%= v.graded ? 'rgba(15,138,77,.4)' : 'var(--line)' %>">
+  <div class="body">
+    <div class="acc-stats">
+      <div class="acc-stat"><span class="acc-num"><%= s.forecasts %></span><span class="acc-lbl">predictions logged</span></div>
+      <div class="acc-stat"><span class="acc-num"><%= s.resolved %></span><span class="acc-lbl">resolved</span></div>
+      <div class="acc-stat"><span class="acc-num"><%= s.graded %></span><span class="acc-lbl">graded</span></div>
+      <div class="acc-stat"><span class="acc-num"><%= s.pending %></span><span class="acc-lbl">pending reality</span></div>
+      <% if (s.disqualified) { %><div class="acc-stat"><span class="acc-num"><%= s.disqualified %></span><span class="acc-lbl">disqualified</span></div><% } %>
+    </div>
+    <% if (!s.everRun) { %>
+      <p class="acc-empty" style="margin:.9rem 0 0">
+        <b>Grading hasn't run yet.</b>
+        <%= s.rawCount %> prediction record<%= s.rawCount === 1 ? '' : 's' %> <%= s.rawCount === 1 ? 'is' : 'are' %> logged and waiting.
+        Calibration, the weekly grade, the attribution table and the misses all light up here once the weekly grading runs and writes the calibration ledger — nothing is faked in the meantime.
+      </p>
+    <% } else { %>
+      <p class="muted" style="margin:.9rem 0 0; font-size:.8rem">
+        Graded through <%= s.throughWeek != null ? 'week ' + s.throughWeek : '—' %><% if (s.generatedAt) { %> · last graded <%= new Date(s.generatedAt).toLocaleString('en-US', { timeZone: 'America/New_York', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) %> ET<% } %>.
+        Every forecast is graded only if it was committed strictly before it resolved — no backdating counts.
+      </p>
+    <% } %>
+  </div>
+</div>
+
+<%# ── CALIBRATION — when it says 70%, does it happen 70%? ─────────────────────── %>
+<div class="card" style="margin-bottom:1.2rem">
+  <h2>🎯 Calibration <span class="sub">when it says 70%, does it happen 70%?</span></h2>
+  <div class="body">
+    <% if (!v.graded || !v.calibration) { %>
+      <p class="acc-empty" style="margin:0">Not yet graded — 0 predictions resolved. The calibration curve draws itself once probability forecasts start resolving.</p>
+    <% } else { const c = v.calibration; %>
+      <div class="acc-metric-row">
+        <div class="acc-metric">
+          <span class="acc-metric-lbl">Probability (Brier)</span>
+          <span class="acc-metric-val"><%= f2(c.probability.brier) %></span>
+          <span class="acc-metric-sub"><%= c.probability.n %> calls · lower is better, .250 = a coin</span>
+        </div>
+        <div class="acc-metric">
+          <span class="acc-metric-lbl">Point (bias / MAE)</span>
+          <span class="acc-metric-val"><%= c.point.bias == null ? '—' : (c.point.bias >= 0 ? '+' : '') + c.point.bias %></span>
+          <span class="acc-metric-sub"><%= c.point.n %> calls · <%= c.point.mae == null ? '—' : 'off by ' + c.point.mae %> avg<%= c.point.bias > 0 ? ' · runs high' : c.point.bias < 0 ? ' · runs low' : '' %></span>
+        </div>
+        <div class="acc-metric">
+          <span class="acc-metric-lbl">Categorical (accuracy)</span>
+          <span class="acc-metric-val"><%= pct(c.categorical.accuracy) %></span>
+          <span class="acc-metric-sub"><%= c.categorical.n %> calls</span>
+        </div>
+      </div>
+
+      <% if (c.probability.reliability && c.probability.reliability.length) { %>
+        <h3 class="acc-subhead">The reliability curve — said vs happened</h3>
+        <div class="acc-rel">
+          <% for (const b of c.probability.reliability) { if (!b.n) continue; %>
+            <div class="acc-rel-row">
+              <span class="acc-rel-said">said ~<%= pct(b.mid) %></span>
+              <div class="acc-rel-track">
+                <div class="acc-rel-ideal" style="left:<%= Math.round((b.mid||0)*100) %>%" title="perfectly calibrated"></div>
+                <div class="acc-rel-fill" style="width:<%= Math.round((b.observed||0)*100) %>%"></div>
+              </div>
+              <span class="acc-rel-obs">happened <%= pct(b.observed) %> <span class="muted">(<%= b.n %>)</span></span>
+            </div>
+          <% } %>
+          <p class="muted" style="margin:.5rem 0 0; font-size:.74rem">The tick is perfect calibration; the bar is what actually happened. Bar short of the tick = overconfident, past it = underconfident.</p>
+        </div>
+      <% } %>
+
+      <% if (v.byKind && v.byKind.length) { %>
+        <h3 class="acc-subhead">By prediction type</h3>
+        <div class="scroll-x"><table class="roll">
+          <tr><th>Type</th><th class="num">n</th><th class="num">Brier</th><th class="num">Accuracy</th><th class="num">MAE</th></tr>
+          <% for (const k of v.byKind) { %>
+            <tr><td><%= k.label %></td><td class="num"><%= k.n %></td>
+              <td class="num"><%= k.brier == null ? '—' : f2(k.brier) %></td>
+              <td class="num"><%= k.accuracy == null ? '—' : pct(k.accuracy) %></td>
+              <td class="num"><%= k.mae == null ? '—' : k.mae %></td></tr>
+          <% } %>
+        </table></div>
+      <% } %>
+
+      <% if (v.byWeek && v.byWeek.length) { %>
+        <h3 class="acc-subhead">Over time</h3>
+        <div class="scroll-x"><table class="roll">
+          <tr><th>Week</th><th class="num">graded</th><th class="num">Brier</th><th class="num">Accuracy</th></tr>
+          <% for (const w of v.byWeek) { %>
+            <tr><td>wk <%= w.week %></td><td class="num"><%= w.n_graded || 0 %></td>
+              <td class="num"><%= w.brier == null ? '—' : f2(w.brier) %></td>
+              <td class="num"><%= w.accuracy == null ? '—' : pct(w.accuracy) %></td></tr>
+          <% } %>
+        </table></div>
+      <% } %>
+    <% } %>
+  </div>
+</div>
+
+<%# ── WHAT GOT GRADED — readable, not a data dump ────────────────────────────── %>
+<div class="card" style="margin-bottom:1.2rem">
+  <h2>🧾 Recently graded <span class="sub">what it claimed · what happened · right?</span></h2>
+  <div class="body">
+    <% if (!v.recently || !v.recently.length) { %>
+      <p class="acc-empty" style="margin:0">Nothing graded yet. As predictions resolve, the latest ones land here in plain language.</p>
+    <% } else { %>
+      <ul class="acc-graded">
+        <% for (const g of v.recently) { %>
+          <li class="acc-graded-row <%= g.hit === true ? 'hit' : g.hit === false ? 'miss' : '' %>">
+            <span class="acc-graded-mark"><%= g.hit === true ? '✓' : g.hit === false ? '✗' : '·' %></span>
+            <span class="acc-graded-claim"><%= g.claim %><% if (g.week != null) { %> <span class="muted">wk <%= g.week %></span><% } %></span>
+            <span class="acc-graded-out">said <b><%= g.said %></b> → <%= g.happened %><% if (g.metric) { %> <span class="muted">(<%= g.metric %>)</span><% } %></span>
+          </li>
+        <% } %>
+      </ul>
+    <% } %>
+  </div>
+</div>
+
+<%# ── BIGGEST MISSES — the failure modes, not just the aggregate ──────────────── %>
+<div class="card" style="margin-bottom:1.2rem">
+  <h2>💥 Where it was most wrong <span class="sub">the failure modes, ranked</span></h2>
+  <div class="body">
+    <% if (!v.biggestMisses || !v.biggestMisses.length) { %>
+      <p class="acc-empty" style="margin:0">No graded misses yet — this ranks the most confident wrong calls once there are any.</p>
+    <% } else { %>
+      <ol class="acc-misses">
+        <% for (const m of v.biggestMisses) { const g = m.line; %>
+          <li>
+            <span class="acc-miss-claim"><%= g.claim %></span>
+            <span class="acc-miss-detail muted">said <b><%= g.said %></b> → <%= g.happened %><% if (g.metric) { %> · <%= g.metric %><% } %></span>
+          </li>
+        <% } %>
+      </ol>
+    <% } %>
+  </div>
+</div>
+
+<%# ── ATTRIBUTION — the table filling in, unmeasured cells honest ─────────────── %>
+<div class="card" style="margin-bottom:1.2rem">
+  <h2>🧮 Attribution <span class="sub">what each component has actually been worth</span></h2>
+  <div class="body">
+    <% if (!v.attribution || !v.attribution.components.length) { %>
+      <p class="acc-empty" style="margin:0">The attribution table fills in as the season grades decisions. Nothing measured yet — no cells are guessed to look full.</p>
+    <% } else { const a = v.attribution; %>
+      <p class="muted" style="margin:0 0 .7rem; font-size:.8rem">
+        <%= a.measuredN %> of <%= a.components.length %> component<%= a.components.length === 1 ? '' : 's' %> measured;
+        <%= a.unmeasuredN %> still <b>unmeasured</b> and shown as such rather than filled with a number that doesn't exist.
+        Read as “$X realised on decisions where the tool recommended Y”, never “the tool earned $X”.
+      </p>
+      <div class="scroll-x"><table class="roll">
+        <tr><th>Component</th><th class="num">Realised</th><th class="num">Interval</th><th class="num">n</th></tr>
+        <% for (const c of a.components) { %>
+          <tr class="<%= c.measured ? '' : 'acc-unmeasured' %>">
+            <td><%= c.label %><% if (c.note) { %><br><span class="muted" style="font-size:.72rem"><%= c.note %></span><% } %></td>
+            <% if (c.measured) { %>
+              <td class="num"><%= money(c.realized) %></td>
+              <td class="num"><%= (c.ciLow == null || c.ciHigh == null) ? '—' : money(c.ciLow) + ' … ' + money(c.ciHigh) %></td>
+              <td class="num"><%= c.n %></td>
+            <% } else { %>
+              <td class="num muted" colspan="3">unmeasured — <%= c.note || 'no graded evidence yet' %></td>
+            <% } %>
+          </tr>
+        <% } %>
+      </table></div>
+    <% } %>
+  </div>
+</div>
+
+<p style="text-align:center; margin-top:1rem">
+  <a class="btn navy" href="/lineup">← Lineup Optimizer</a>
+  <a class="btn navy" href="/admin/warroom">War Room</a>
+</p>
+<%- include('partials/footer') %>

@@ -907,3 +907,121 @@ missing ones using the same classes so B's styling picks them up.
   btn classes are globally styled so it works now; **`.ba-slot` / `.ba-take` are yours to
   tune** in the 390px pass (compact spacing on the strip). Coordinate — I did not touch
   `.ba-cell`.
+
+## 🅱️→🅰️ MODEL-ACCURACY DISPLAY — the two docs A's grading must write (Session B, 2026-08-09)
+B built the commissioner-only **/lineup/accuracy** page (calibration, recently-graded,
+biggest misses, attribution table filling in) — the "places the graded data goes"
+Cory asked for. Shipped on `claude/pickems-feature-3ksf0l`. It reads two store docs
+A's weekly grading writes; both may be null and the page degrades honestly ("not yet
+graded, N logged"), so nothing breaks before the cron exists. Write these and the
+page lights up with zero further B work:
+
+### `calibration:<season>`  (getDoc/setDoc) — the scorecard
+Exactly the shape `draft/backtest/forecast_grade.py` `grade()` already returns, plus
+two cheap optional roll-ups. B reads it defensively (missing fields tolerated):
+```
+{ generated_at, week,
+  n_forecasts, n_resolved, n_graded, n_pending, n_disqualified,
+  probability: { n, brier, reliability: [ { predicted_mid, n, observed_rate } ] },
+  point:       { n, bias, mae },
+  categorical: { n, accuracy },
+  graded: [ { key, ftype:'probability'|'point'|'categorical', claim, value, outcome,
+              method, forecast_at, week?, kind?,   // kind = survival|lineup_call|waiver_claim|forecast…
+              brier? | error? | abs_error? | hit? } ],
+  by_kind?: { <kind>: { n, brier?, accuracy?, mae? } },   // optional — powers "by prediction type"
+  by_week?: [ { week, n_graded, brier?, accuracy? } ] }    // optional — powers "over time"
+```
+`graded[].claim` is the one human-readable line B shows; `kind`/`week` let B group
+and label. If you already run `grade()`, this is essentially `JSON.stringify` of its
+output + stamping `week` on each graded record.
+
+### `attribution:<season>`  (getDoc/setDoc) — the component table filling in
+```
+{ generated_at,
+  components: [ { key, label, realized, ci_low, ci_high, n, measured:boolean, note } ] }
+```
+`measured:false` cells render as **unmeasured** with the `note` (never a fabricated
+number) — that honesty is the point per exp-37 wording ("$X realised on decisions
+where the tool recommended Y", never "the tool earned $X").
+
+No B action remains once these are written; the page + nav link + 20 tests are live.
+
+---
+
+## 🅱️→🅰️ ANNUAL-RESET HOLE HUNT — A-lane items (Session B, 2026-08-09)
+B ran the full reset audit (3 sweeps: season literals, carry-forward survival, rule/
+money derivation) and FIXED its own lane (vote→ledger tab re-sync; the Leak-analyzer
+literals; chapter/timeline literals earlier; the draft-order reset). These remaining
+holes are A-lane or shared-archive — specific questions, not a re-audit:
+
+### 1. RULE PROVENANCE (highest correctness cost). Only PAYOUTS are per-season.
+`SCORING` / `ROSTER` / `RULES` (src/seed-data.js:124-144) and `scoring` in
+`draft/config/league_config.json` are single GLOBAL constants; `history-data.js`
+REG_WEEKS=15 (:48) and SLOT_POS (:180) are hardcoded and used for every historical
+season's optimal-lineup/efficiency. **Q for A:** if the league votes a scoring/roster/
+keeper-count/trade-deadline change, nothing records that 2025 was measured under
+different rules than 2027 — every historical efficiency/records number silently
+recomputes under current rules with no era stamp. Payouts already solved this
+(payouts.json `by_season`, era-correct — the model to copy). Should scoring/roster/
+keeper be stamped per-season the same way? This is the "measured under a world that
+no longer exists" risk Cory flagged.
+
+### 2. AMENDMENTS don't derive from the live vote/config (history-data.js — archive lane).
+`buildAmendments` (history-data.js:902-931) reads the STATIC committed
+`master_sheet_archive.json` / `payouts.json`, not the live `seasons` doc the vote
+writes. So an enacted buy-in/payout change produces NO dated amendment until someone
+hand-edits those files (the enact code comment claiming the amendment "DERIVES" from
+the config is wrong — different source). Also: scoring/roster/keeper changes have no
+amendment path at all (buildAmendments only knows buy-in + payout), and
+`votes_pending` on the Amendments page is a stale hand-maintained master copy, not
+the live votes. **Q for A:** should the amendment ledger read the live seasons/vote
+docs (or the Annual should write an amendment entry on seal)?
+
+### 3. MONEY BOARD / CAREER TOTALS from static master, and two divergent computations.
+`buildMoneyBoard` + per-owner career (history-data.js:884-897, 643-651) read
+`master.total_winnings` (static) — nothing updates when a buy-in vote passes or live
+ledger entries land, incl. the "reads live" 2026 column (money.ejs:56-59) which still
+reads the static master. Separately, career money is computed TWO ways — live
+`helpers.winningsGrid` (ledger-derived) vs archive `buildMoneyBoard` (master-derived)
+— which can silently disagree after any live ledger activity. **Q for A:** reconcile
+to one source on seal?
+
+### 4. HARVEST PIPELINE GAP — a finished season enters records/money/H2H only on manual re-harvest.
+`history-data.build()` filters `season !== '2026'` (:87) and reads only committed
+`draft/data/*.json`. A just-finished season appears in the record book / money board /
+H2H ONLY after someone re-harvests Sleeper and re-commits `league_history.json` +
+`master_sheet_archive.json` (A's `draft/data`). If the Annual skips that harvest, the
+season is missing from all three permanent surfaces. **This is the season-sealing data
+step — A's lane** (harvest + commit); B's chapter/records surfaces are ready to render
+it the moment it lands.
+
+### 5. ROLLOVER doesn't migrate season-keyed store docs — needs the orchestrator.
+`voteenact.skeletonFrom` / admin only advance the season CONFIG; nothing re-points or
+surfaces the season-keyed store docs (`pickem:<s>`, `trash:<s>`, `dispatch-index:<s>`,
+`playoff-odds:<s>`). They persist but are only as alive as the surface that reads them
+(see B-lane orphan fixes below). The Annual orchestrator (A) should call B's sealing
+hooks in order and HALT on any failure.
+
+### B-lane orphans B is fixing next (not A's): pick'em all-time board silently drops
+prior seasons; trash-talk + dispatch archives are written but read by no surface.
+Tracked in B's queue.
+
+---
+
+## 🅱️→🅰️ CI heads-up before integration (Session B, 2026-08-09)
+Ran the full pure JS suite locally against B's branch. Two things:
+
+1. **FIXED (B): `authority.test.js` — `scores (c)`.** B's trash-talk route
+   `/matchup/trash` (unit 5) tripped the "no route writes scores/matchups/results"
+   substring scan because its path contains "matchup". It writes banter, not
+   points. Exempted it explicitly in the test (doctrine intact). This would have
+   gone RED on your merge-to-main since CI only runs on `main`.
+
+2. **A-LANE (still failing): `app-wiring.test.js` 20/22** — `renderRecommendations
+   calls the stack line` and `...the movement line`, both in `public/js/draft/app.js`
+   (not in B's diff — pre-existing). Flagging so it doesn't surprise you at
+   integration; it's your lane to resolve.
+
+Everything else in the pure suite + all B app-boot suites (route_smoke, accuracy,
+vault, pickem_alltime_freeze, vote_ledger_sync, matchup_spectator, pwa_entry,
+warroom_mobile, season_form, history_smoke, access_guard) is green.

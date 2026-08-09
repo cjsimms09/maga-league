@@ -15,15 +15,19 @@ const ROOT = path.join(__dirname, '..', '..');
 
 // Live, season-current code. Excluded on purpose: history-data.js + views/history
 // (the chronicle IS years), seed-data.js/data.js (seeded history), rawarchive.js
-// (archive years), predledger.js (ledger years), lineup.js (harvest window — its
-// own dated tables, flagged for the Annual separately).
+// (archive years), predledger.js (ledger years).
+// lineup.js/lineup.ejs (the Leak analyzer) USED to be excluded ("flagged for the
+// Annual separately") — the Annual audit found + removed their literals (the
+// `!== '2026'` current-season exclusion, the frozen season dropdown, the year-keyed
+// RS_PRIZE map), so they're now IN the guard and can't regress.
 const FILES = [
   'src/betlogic.js', 'src/venmo.js', 'src/sidebets.js', 'src/dashboard.js', 'src/ledger.js', 'src/notify.js',
   'src/routes/member.js', 'src/routes/pickem.js', 'src/routes/dispatch.js', 'src/routes/playoffs.js',
   'src/routes/whatwatch.js', 'src/routes/marks.js', 'src/routes/trashtalk.js', 'src/routes/h2h.js',
-  'src/routes/standings-movement.js', 'src/routes/pooladvisor.js',
+  'src/routes/standings-movement.js', 'src/routes/pooladvisor.js', 'src/routes/lineup.js',
+  'src/routes/accuracy.js',
   'views/dashboard.ejs', 'views/matchup.ejs', 'views/pickem.ejs', 'views/watch.ejs', 'views/bank.ejs',
-  'views/team.ejs', 'views/partials/header.ejs', 'views/partials/footer.ejs',
+  'views/team.ejs', 'views/partials/header.ejs', 'views/partials/footer.ejs', 'views/lineup.ejs',
 ];
 
 // The three silent-stale mechanisms, as line-level patterns.

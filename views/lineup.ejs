@@ -197,7 +197,10 @@
         <input type="hidden" name="tab" value="proof">
         <div class="fit"><label class="field">Season
           <select name="replay">
-            <% ['2023','2024','2025'].forEach(y => { %><option value="<%= y %>" <%= (drill && drill.season === y) ? 'selected' : '' %>><%= y %></option><% }) %>
+            <%# Seasons come from the analyzed set (proof), not a frozen literal
+                array — so a newly completed season appears here automatically at
+                rollover instead of being stuck at 2023–2025. %>
+            <% (proof || []).map(p => String(p.season)).forEach(y => { %><option value="<%= y %>" <%= (drill && String(drill.season) === y) ? 'selected' : '' %>><%= y %></option><% }) %>
           </select></label></div>
         <div class="fit"><label class="field">Week
           <input type="number" name="week" min="1" max="15" value="<%= drill ? drill.week : 6 %>" style="width:5rem"></label></div>

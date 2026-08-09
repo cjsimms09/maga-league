@@ -22,6 +22,9 @@
   <p class="chron-eyebrow">Est. 2016 · Not Quite the Same Ten Men · A Decade of Receipts</p>
   <h1 class="chron-title">The <span class="gold">MFGA</span> Archive</h1>
   <p class="chron-sub">Every dollar, every champion, every humiliation — written down at last.</p>
+  <% if (typeof topYear !== 'undefined' && topYear) { %>
+    <p style="text-align:center; margin:.2rem 0 0"><a class="btn navy small" href="/history/vault/<%= topYear %>">🗄️ The Vault — this season's trash talk &amp; dispatches →</a></p>
+  <% } %>
 
   <!-- 2. THE STORY OF THE LEAGUE (the centerpiece) -->
   <div class="card">

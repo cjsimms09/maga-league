@@ -15,6 +15,7 @@ const WW = require('./whatwatch');         // what-to-watch — the Sunday/Monda
 const MK = require('./marks');             // auto badges — GOAT on Mahomes' owner, Chiefs mark on KC players
 const RIVN = require('./rivalries');       // named rivalries (German derby, Dylan-Sam, Bates-Richard)
 const SET = require('./settlement');       // the settlement report — who pays whom, with Venmo
+const ACC = require('./accuracy');          // model-accuracy display — reads A's calibration/attribution output
 const L = require('../ledger');
 const SB = require('../sidebets');
 const BL = require('../betlogic');
@@ -656,7 +657,44 @@ router.get('/history/season/:year', aw(async (req, res) => {
   const chapterInclude = chapterYears().has(year) ? `history/chapters/${year}` : null;
   // required cast (§2) computed from the all-play instrument, plus the champion.
   const cast = seasonCast(season);
-  res.render('history/season', { A, season, chapterInclude, cast, chapters: chapterYears() });
+  // Does this season have a vault (trash + dispatches) worth linking to? Cheap
+  // existence check so the season page only offers the link when there's something.
+  let hasVault = false;
+  try {
+    const [tk, di] = await Promise.all([
+      store.listKeys(`trash:${year}:`),
+      getDoc(`dispatch-index:${year}`, []),
+    ]);
+    hasVault = (tk && tk.length > 0) || (di && di.length > 0);
+  } catch (e) { /* the link is a bonus */ }
+  res.render('history/season', { A, season, chapterInclude, cast, chapters: chapterYears(), hasVault });
+}));
+
+// THE VAULT — a season's trash talk + dispatches, the permanent record that
+// nothing read until now (the archive functions existed but no surface called
+// them — "an archive nothing reads is the same as a deletion"). Un-gated on the
+// harvest, so the CURRENT season's vault is reachable too, and every week's
+// thread survives (the matchup page only ever showed the current week).
+router.get('/history/vault/:year', aw(async (req, res) => {
+  const year = Number(req.params.year);
+  if (!Number.isFinite(year)) {
+    return res.status(404).render('error', { title: 'No such season', message: 'That year is not a season.' });
+  }
+  const owners = req.world.owners;
+  const nameOf = id => (H.ownerById(owners, id) || {}).name || '?';
+  let dispatches = [], trash = [];
+  try { dispatches = await DISPATCH.getArchive(year); } catch (e) { /* best-effort */ }
+  try { trash = await TT.archiveForSeason(year); } catch (e) { /* best-effort */ }
+  // Group trash by week so a season reads as a timeline, newest week first.
+  const byWeek = {};
+  for (const p of trash) { (byWeek[p.week] = byWeek[p.week] || []).push(p); }
+  const weeks = Object.keys(byWeek).map(Number).sort((a, b) => b - a)
+    .map(w => ({ week: w, posts: byWeek[w] }));
+  res.render('history/vault', {
+    year, dispatches, weeks, nameOf,
+    total: trash.length,
+    currentYear: (H.currentSeason(req.world.seasons) || {}).year || null,
+  });
 }));
 
 // The All-Time Records Book (the crown jewel).
@@ -1396,6 +1434,13 @@ router.post('/draft/pick', aw(async (req, res) => {
   const doc = await getDoc(`draft:${season.year}`, { order: [] });
   const current = doc.order.find(p => p.slot == null);
   if (!current) return res.redirect('/draft?error=' + encodeURIComponent('All spots are taken.'));
+  // Two-stage guard: if the draft was opened before the bracket was recorded, the
+  // playoff four sit in the order as PENDING (their reverse-bracket order isn't
+  // decided yet). Nobody is on the clock until it is — recording the playoff
+  // results resolves their order. Prevents a pending seat claiming out of turn.
+  if (current.pending) {
+    return res.redirect('/draft?error=' + encodeURIComponent('The playoff four choose once the bracket is decided — record the playoff results to set their order.'));
+  }
   if (current.owner_id !== req.owner.id) {
     const who = (H.ownerById(world.owners, current.owner_id) || {}).name || 'someone else';
     return res.redirect('/draft?error=' + encodeURIComponent(`It is ${who}'s turn to pick, not yours.`));
@@ -1758,17 +1803,36 @@ async function pickemContext(world, me, { wantBoards = true } = {}) {
 
   // Only weeks that are safely FINAL grade into the boards — same lag the
   // side-bet engine uses, so a Monday-night game never scores half a week.
-  const finalOnly = async w =>
-    (w <= weekNo - BL.CFG.GRADE_WEEK_LAG) ? await sleeper.weekPointsByOwner(leagueId, w, map) : null;
+  //
+  // FREEZE-ON-READ (Annual audit fix): a finalized week's points are stored under
+  // pickem-points:<season>:<week> the first time they're read. Without this the
+  // all-time board silently DROPPED every completed season at rollover — a new
+  // Sleeper league id can't refetch a PAST season's scores, so the resolver
+  // returned null and the "never resets" board zeroed prior years. Freezing as
+  // weeks finalize means the current season is fully captured by the time it
+  // rolls, and the all-time board reads frozen points for every season.
+  const frozenKey = (s, w) => `pickem-points:${s}:${w}`;
+  const finalOnly = async w => {
+    if (!(w <= weekNo - BL.CFG.GRADE_WEEK_LAG)) return null;
+    const cached = await getDoc(frozenKey(seasonYear, w), null);
+    if (cached && Object.keys(cached).length) return cached;
+    const wp = await sleeper.weekPointsByOwner(leagueId, w, map);
+    if (wp && Object.keys(wp).length) { try { await setDoc(frozenKey(seasonYear, w), wp); } catch (e) { /* freeze is best-effort */ } }
+    return wp;
+  };
   const sb = await PE.seasonBoard(seasonYear, weekNo, owners, finalOnly);
 
-  // All-time: every season with pick'em data, summed forever. Historical seasons
-  // predate pick'em (2026 is year one), so today all-time == this season; the
-  // resolver only knows this league's cache, which is exactly the season we have.
+  // All-time: every season with pick'em data, summed forever. The resolver reads
+  // FROZEN points for any season (so prior years survive the rollover), falling
+  // back to a live fetch only for the current season's not-yet-frozen weeks.
   const slateKeys = await store.listKeys('pickem-slate:');
   const seasonsWithData = [...new Set(slateKeys.map(k => Number(k.split(':')[1])).filter(Boolean))].sort();
   const at = await PE.allTimeBoard(seasonsWithData, owners,
-    (s, w) => (s === seasonYear ? finalOnly(w) : Promise.resolve(null)),
+    async (s, w) => {
+      const frozen = await getDoc(frozenKey(s, w), null);
+      if (frozen && Object.keys(frozen).length) return frozen;
+      return s === seasonYear ? await finalOnly(w) : null;
+    },
     (season && season.weeks) || 18);
 
   ctx.seasonBoard = sb.board;
@@ -2090,6 +2154,24 @@ router.get('/lineup', requireCommissioner, aw(async (req, res) => {
     sent: req.query.sent === '1',
     emailOn: notify.configured(),
   });
+}));
+
+// ---------- MODEL ACCURACY (commissioner-only — model internals, not results) ----------
+// The display half of the learning loop. A's weekly grading writes a calibration
+// ledger and an attribution table; this reads them and shows how well the model
+// has predicted, what got graded, the attribution table filling in, and the
+// biggest misses. Commissioner-only for the same reason as the optimizer: this is
+// model internals, not league property. Degrades honestly before A has graded
+// anything — the engine (accuracy.js) is pure; this is just the gather + render.
+router.get('/lineup/accuracy', requireCommissioner, aw(async (req, res) => {
+  const world = req.world;
+  const season = String(H.currentSeason(world.seasons).year || new Date().getUTCFullYear());
+  const calibration = await getDoc(`calibration:${season}`, null);
+  const attribution = await getDoc(`attribution:${season}`, null);
+  let rawCount = 0;
+  try { rawCount = (await store.listKeys(`pred:${season}:`)).length; } catch (e) { /* count is a bonus */ }
+  const view = ACC.buildAccuracyView(calibration, attribution, rawCount);
+  res.render('accuracy', { me: req.owner, season, view });
 }));
 
 // Send the Sunday alert to the commissioner now (rehearsal, and the manual fire).

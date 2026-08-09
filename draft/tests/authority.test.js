@@ -91,12 +91,12 @@ function check(name, cond, detail) {
     return out;
   };
   const posts = postBodies(member).concat(postBodies(admin));
-  // Routes whose PATH trips the score-writer heuristic but whose handler writes
-  // chat/UI, not scores — verified by reading each. Scores still come ONLY from
-  // Sleeper, so the guard's intent (no route fabricates scores) is intact.
-  const SCORE_SAFE = ['/matchup/trash'];   // trash-talk post (TT.gameId), never scores
-  const scoreWriters = posts.filter(p => /score|matchup|result|points/i.test(p)
-    && !SCORE_SAFE.includes(p));
+  // /matchup/trash writes TRASH TALK welded to a game — banter, not a score or a
+  // matchup RESULT. Its path contains "matchup" so the substring scan flags it,
+  // but it enters no points; exempt it explicitly. The doctrine the check
+  // enforces (scores come from Sleeper, never a hand-entry route) is intact.
+  const SCORE_EXEMPT = new Set(['/matchup/trash']);
+  const scoreWriters = posts.filter(p => /score|matchup|result|points/i.test(p) && !SCORE_EXEMPT.has(p));
   check('scores (c): NO route exists that writes scores/matchups/results',
     scoreWriters.length === 0, JSON.stringify(scoreWriters));
 }
