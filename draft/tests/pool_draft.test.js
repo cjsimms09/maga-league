@@ -1,5 +1,5 @@
 'use strict';
-const path=require('path');const ROOT='/home/user/maga-league';
+const path=require('path');const ROOT=path.join(__dirname,'..','..');
 const mem={};const store={async get(k,d){return k in mem?mem[k]:(d===undefined?null:d);},async set(k,v){mem[k]=v;},async listKeys(p){return Object.keys(mem).filter(k=>k.startsWith(p));},async getMany(ks){return ks.map(k=>mem[k]);},async del(k){delete mem[k];}};
 require.cache[path.join(ROOT,'src','data.js')]={exports:{store,getDoc:store.get,setDoc:store.set,newId:()=>Math.random().toString(36).slice(2,10),now:()=>new Date(2026,0,1).toISOString()}};
 const SB=require(path.join(ROOT,'src','sidebets'));
