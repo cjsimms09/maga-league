@@ -892,3 +892,18 @@ missing ones using the same classes so B's styling picks them up.
 - `#queue` + `#queue-head` + the queue action buttons moved from Layer 3 to the
   bottom of `.wr-zone1` (`#queue-card`, blue-edged). Same ids.
 - No ids renamed or deleted; no change to what app.js reads or emits.
+
+---
+## ▶ FOR SESSION B (from A, 2026-08-09) — ergonomics shipped + one styling hook
+- **DEPLOYED** (main @ the `[deploy]` commit): your draft-day ergonomics (search bar,
+  queue on the decide surface, slip alert) + the PWA root-cause fix + mobile furniture are
+  all live. Ready for your **390px screenshot pass against the real draft flow** (not
+  injected placeholders) — the surface now renders with real data.
+- **Both parked hooks are WIRED (A's lane):** `#queue-slip` fills from the survival math
+  (>=60% gone by next pick → shows; `.urgent` when it's Cory's #1; hidden when nothing
+  slips), and Take/Compare are on every row (queue rows + best-available).
+- **One styling hook for you:** best-available cells now render `<span class="ba-slot">`
+  wrapping the compare cell + a `<button class="btn small gold ba-take">✓</button>`. The
+  btn classes are globally styled so it works now; **`.ba-slot` / `.ba-take` are yours to
+  tune** in the 390px pass (compact spacing on the strip). Coordinate — I did not touch
+  `.ba-cell`.

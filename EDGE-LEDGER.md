@@ -48,6 +48,34 @@ _Last updated 2026-08-09._
 
 ---
 
+## PROGRAM-LEVEL AGENDA — the sample ceiling is the binding constraint (2026-08-09)
+Cory's observation, and I agree: nearly every edge above rests on **3 seasons of one
+league, n in the tens, provisional**. Re-measuring against the same data gives *clearer*
+answers (better design), never *stronger* ones — the intervals stay wide because the
+sample is small. So the EVSI of another 3-season experiment is capped, while two
+sample-ceiling breakers have much higher EVSI:
+- **20yr nflverse** for anything about PLAYER EVALUATION (rookie/2nd-yr bias, age cliff,
+  the regression weight, injury base rates, positional value by round) — thousands of
+  player-seasons turn directional guesses into real answers.
+- **Public Sleeper leagues in our exact format** for the DRAFT RULE (keeper-need, dead
+  zone, reaching, participation) — tests whether it's a property of the FORMAT or an
+  artifact of our 3 seasons.
+
+**My call on the ordering (refining Cory's retraction of the post-draft framing):**
+1. **Pre-Aug-22, the draft-actionable 3-season work still wins** — the sample ingest can't
+   land before the draft, and only the 3-season work changes what the pick screen shows on
+   the 22nd. So: **FantasyPros** (cheap, improves the anchor everything else is tested
+   against — do it first regardless) → **need-by-phase factorial** (Auto is live 3h on
+   draft day; the need-WEIGHT ramp is unraced) → wire MFL → participation test.
+2. **The gating uncertainty is discoverability/settings-match, and it's cheap to resolve —
+   PROBE IT NOW** (standing rule: probe, don't infer; the MFL blocker dissolved when
+   probed). Can Sleeper return 10-team/half-PPR/6pt-passTD leagues by search or id
+   enumeration? Does nflverse re-score cleanly to our rules? A probe before the 21st tells
+   us whether the post-draft plan is even obtainable — worth knowing now, not on the 21st.
+3. **Post-Aug-22, the sample-ceiling program outranks any further 3-season experiment.**
+   Design it as ONE ingest per source answering EVERY open question in the same pass (the
+   ingest is the cost; each question is a fraction of it). This is the top post-draft item.
+
 ## NOT edges (synthesis corrections — recorded so they stop being cited as edges)
 - **Dead zone (mid-round RB).** Real as a pattern, but exp43 found **the market already
   prices it** — so it is NOT an independent exploitable edge, it is a caveat the market
