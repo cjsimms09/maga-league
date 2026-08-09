@@ -100,7 +100,15 @@
                 <tr<%= isBates ? ' style="background:rgba(214,42,42,.08)"' : '' %>>
                   <td class="rk"><%= r.rank %></td>
                   <td class="name"><%= r.owner %><% if (isLead) { %> <span title="the actual Chiefs homer">🏹</span><% } %><% if (isBates) { %> <span class="muted">(the reputation)</span><% } %></td>
-                  <td style="font-variant-numeric:tabular-nums;"><b><%= r.kc %></b></td>
+                  <td style="font-variant-numeric:tabular-nums; font-weight:700;"><% if (r.kc && r.kcPicks && r.kcPicks.length) {
+                       const _kc = r.kcPicks.slice()
+                         .sort(function (a, b) { return b.year - a.year || (a.round || 0) - (b.round || 0); })
+                         .map(function (p) { return { k: p.player, v: p.year + (p.round ? ' · R' + p.round : '') }; }); %><%- include('../partials/_derive', {
+                         val: String(r.kc),
+                         label: r.owner + ' — the actual Chiefs',
+                         rows: _kc,
+                         foot: 'Non-keeper picks; team defenses excluded.'
+                       }) %><% } else { %><%= r.kc %><% } %></td>
                   <td class="muted" style="font-variant-numeric:tabular-nums;"><%= r.total %></td>
                   <td style="font-variant-numeric:tabular-nums;"><%= (100*r.share).toFixed(1) %>%</td>
                   <td class="muted" style="font-variant-numeric:tabular-nums;"><%= r.vsLeague ? r.vsLeague.toFixed(2)+'×' : '0×' %></td>
