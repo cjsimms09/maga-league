@@ -14,12 +14,26 @@ of this list (see the note at the bottom)._
   visitor would see ships automatically; only docs/Lab/CI skip (netlify-ignore.sh, 7/7).
 - ✅ **Fresh sessions bootstrap from the repo, not a retyped prompt** (SESSION-A.md,
   SESSION-B.md, ACCESS-RULE.md on main).
-- ◻ **EXTERNAL DATA (Underdog BBM → exp 24) — NEW #1.** Millions of outcome-labeled rosters,
-  re-scored to our rules, break the n-ceiling and answer 'what roster shape wins under our
-  payouts' — the construction question where exp 34 measured us losing money. Build: probe →
-  ingest → translate (verified) → exp 24. Draft-relevant; highest expected dollars.
-- ◻ **The weekly-high pool (37.5% of the pot) rewards ceiling/distribution shape — nobody drafts
-  for it.** Likely the most underexploited edge; fold spike-week construction into the exp-24 build.
+- 🔶 **EXTERNAL DATA (Underdog BBM → exp 24) — PARTIAL, FIRED.** The GCS host is reachable from
+  the sandbox (only the landing pages are blocked), so the finals dump ingested HERE: exp 24 ran
+  on BBM IV finals (n=441, 16× our n). Result is an honest NEAR-NULL — at the elite ceiling,
+  positional count-shape barely separates finals winners from the field (only a sign-stable mild
+  RB-over/WR-under tilt, <1 slot), which supports the spike-week lens over count-shape and routes
+  the real construction/dead-zone question to the full field (EXP24.md). **Blocked:** the full
+  field (R1, 4.8 GB) needs `bbm-probe.yml` in CI, which needs integration to main to be
+  dispatchable (see WAITING ON YOU).
+- 🔶 **The weekly-high pool (37.5% of the pot) rewards ceiling shape — nobody drafts for it.**
+  exp 24 folded it in as a first-class question; the near-null says gross allocation isn't the
+  edge — the spike-week instrument (bar now derived from the harvested winning-score median) is
+  the better lens. Full-field spike-week validation is queued on the CI stream.
+- ✅ **Two hand-set values DERIVED** (DERIVED-VS-DECLARED-AUDIT): the deviation silence band is now
+  per-region off the exp-36 surface (tight where the market ranks well, wide where it ranks
+  backwards); the spike-week bar is the harvested weekly-high median, not a round number.
+- 🔶 **FORWARD PREDICTION — built (Cory's raise).** The model can now commit timestamped,
+  resolution-ruled forecasts (survival %, ADP falls, who the room takes, roster $; weekly:
+  weekly-high winner, champ prob, bust) and grade them FORWARD (backdated claims disqualified) —
+  the one thing no backtest can give. Infra + slate + grader done + tested; draft-time emission
+  wire-up owed (forward-prediction.md).
 - ◻ **Third arm — composite vs ADP in dollars** (the deviation-trust verdict; thin at n≈27, so #2).
 - ◻ **Mock #4 + the degraded drill → the one-page failure card.** Parked until you say GO.
 - ◻ **Whether to build Stage 2 as a real market anchor** (D14). Recommendation stands:
@@ -27,6 +41,10 @@ of this list (see the note at the bottom)._
 
 ## WAITING ON YOU (Cory) — nothing moves until you rule
 
+- ◻ **Integrate to main so `bbm-probe.yml` can fire?** The workflow is written + pushed to my
+  branch, but `workflow_dispatch` needs it on main to be dispatchable. It runs the full-field
+  dead-zone (4.8 GB stream) + discovers BBM V's URL (CI has egress the sandbox lacks). Needs
+  your authorization to merge my branch to main (per branch protocol), OR you dispatch it after.
 - ◻ **D14:** build the real Stage-2 anchor now, or keep holding? (I recommend hold.)
 - ◻ **GO for mock #4 + the degraded drill?** (parked on your word).
 - ◻ **Open a gated REGRESSION_WEIGHT change?** exp 35 confirmed we over-regress

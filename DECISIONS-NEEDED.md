@@ -470,3 +470,22 @@ narrowed form, it answers a narrower question — and the pre-registered
 consequence in `PRE-REGISTRATION-34.md` should be read against that narrower
 claim, not the one it was written for. **The pre-registration still binds; what
 changes is what counts as its evidence.**
+
+## D15 — Integrate to main so `bbm-probe.yml` can fire (2026-08-09)
+
+**The ask.** The BBM external-data CI job (`bbm-probe.yml`) is written, tested,
+and pushed to `claude/derived-values-bbm-tier-xxto5m`. It cannot be dispatched
+from the branch — `workflow_dispatch` requires the workflow to exist on `main`
+(confirmed: 404 dispatching against the branch ref). It runs the full-field BBM IV
+regular-season dead-zone at full N (a 4.8 GB memory-safe stream) and discovers BBM
+V's exact CSV URL by scraping its landing page (CI has egress the sandbox lacks).
+
+**Why it waits on you.** Branch protocol: A owns integration to main but merges
+only on your authorization. The high-value BBM result (finals winning-shape,
+n=441) already ran in the sandbox and is committed on the branch — this is the
+full-N escalation, not the whole tier.
+
+**My recommendation.** Authorize the merge of this branch to main when you next
+integrate (it also carries the two derived values + forward prediction, all
+lane-clean and tested). Then either the scheduled/dispatched run fires, or I
+dispatch it. Until then the finals cut stands as the in-hand BBM finding.
