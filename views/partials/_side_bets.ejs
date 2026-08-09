@@ -1,17 +1,24 @@
 <%
   const myId = owner.id;
   const inIt = b => (b.parties || []).some(p => p.owner_id === myId);
-  const myTurn = b => b.status === 'proposed'
-    && (b.parties || []).some(p => p.owner_id === myId && !p.accepted);
+  // Your turn = a proposal you haven't answered, OR a declared result the OTHER
+  // side put up that you must now confirm or dispute.
+  const myTurn = b => (b.status === 'proposed'
+      && (b.parties || []).some(p => p.owner_id === myId && !p.accepted))
+    || (b.status === 'awaiting_confirm' && b.declared && inIt(b) && Number(b.declared.by) !== myId);
   const waiting = b => (b.parties || []).filter(p => !p.accepted).map(p => betNames(p.owner_id));
   const pending = bets.filter(myTurn);
+  // Someone declared, you're the one who called it, waiting on the other side.
+  const iDeclared = b => b.status === 'awaiting_confirm' && b.declared && Number(b.declared.by) === myId;
   // Everything you've offered that nobody has answered yet. Its own section
   // because "what did I send, and is it still live?" is a question the list of
   // everyone's bets cannot answer.
   const sent = bets.filter(b => b.proposer_id === myId
     && ['proposed', 'open'].includes(b.status));
   const market  = bets.filter(b => b.status === 'open');
-  const live    = bets.filter(b => b.status === 'locked');
+  // "Live" now spans a running bet AND the settling handshake (declared-awaiting-
+  // confirm, disputed) — all still-open, all rendered with their lifecycle controls.
+  const live    = bets.filter(b => ['locked', 'awaiting_confirm', 'disputed'].includes(b.status));
   const proposed = bets.filter(b => b.status === 'proposed' && !myTurn(b));
   const done = bets.filter(b => b.status === 'settled');
   const dead = bets.filter(b => b.status === 'declined');
@@ -197,6 +204,17 @@
           <div class="sb-meta"><%= r.legs.map(l => (l.direction === 'in' ? '+' : '−') + money(l.amount) + ' · ' + l.bet.terms.slice(0, 48)).join(' · ') %></div>
         </div>
         <div class="owe-actions">
+          <%# You owe: hand you the winner's Venmo with the amount ready, so
+              settling is one tap. Loud when there's no handle on file. %>
+          <% if (r.net < 0) { const cred = owners.find(o => o.name === r.name);
+               const h = cred && cred.venmo ? String(cred.venmo).replace(/^@/, '') : null; %>
+            <% if (h) { %>
+              <a class="btn small gold" href="https://venmo.com/u/<%= h %>" target="_blank" rel="noopener"
+                 title="Pay <%= r.name %> the <%= money(Math.abs(r.net)) %> you owe">💸 Venmo <%= r.name %> <%= money(Math.abs(r.net)) %></a>
+            <% } else { %>
+              <span class="owe-novenmo">no Venmo on file for <%= r.name %></span>
+            <% } %>
+          <% } %>
           <% for (const l of r.legs) { %>
             <form class="asis" method="post" action="/sidebets/<%= l.bet.id %>/leg/<%= l.id %>">
               <button class="btn small <%= l.direction === 'in' ? 'gold' : 'navy' %>"
@@ -435,8 +453,75 @@ function betCard(b, kind) {
         </ul>
       <% } %>
 
-      <%# ── The engine's opinion. Never applied without a human. ────────── %>
-      <% if (v) { %>
+      <%# ── The settling handshake: declare → confirm → dispute ──────────
+          Nothing settles on its own and nothing settles silently — a result is
+          DECLARED by one side and CONFIRMED by the other before a dollar moves; a
+          disagreement is recorded, never adjudicated. %>
+      <% if (b.status === 'locked' && inIt(b)) { %>
+        <details class="sb-declare">
+          <summary>🏁 Declare the result</summary>
+          <div class="sb-declare-body">
+            <p class="muted">Say who won. The other side confirms before any money moves.</p>
+            <form method="post" action="/sidebets/<%= b.id %>/declare" class="sb-declare-form">
+              <% for (const p of b.parties) { %>
+                <button class="btn small ghost" type="submit" name="winner" value="<%= p.owner_id %>"><%= betNames(p.owner_id) %> won</button>
+              <% } %>
+              <button class="btn small ghost" type="submit" name="push" value="1">Push — no winner</button>
+            </form>
+          </div>
+        </details>
+      <% } %>
+
+      <% if (b.status === 'awaiting_confirm' && b.declared) { %>
+        <div class="sb-lifecycle awaiting">
+          <div class="sb-lc-head">⚖️ Awaiting confirmation<%= b.declared.source === 'sleeper' ? ' · auto-detected from Sleeper' : '' %></div>
+          <div class="sb-lc-body">
+            <b><%= b.declared.push ? 'Push — no winner, money goes back' : b.declared.winner_ids.map(betNames).join(' & ') + ' won' %></b>
+            <span class="muted">— called by <%= betNames(b.declared.by) %><%= b.declared.why ? ' · ' + b.declared.why : '' %></span>
+          </div>
+          <% if (inIt(b) && Number(b.declared.by) !== owner.id) { %>
+            <div class="sb-lc-actions">
+              <form class="asis" method="post" action="/sidebets/<%= b.id %>/confirm">
+                <button class="btn small gold" type="submit">✅ Confirm &amp; settle</button>
+              </form>
+              <details class="sb-dispute">
+                <summary>✋ That's not what happened</summary>
+                <form method="post" action="/sidebets/<%= b.id %>/dispute" class="sb-dispute-form">
+                  <input type="text" name="why" maxlength="400" placeholder="because…">
+                  <button class="btn small ghost" type="submit">Dispute it</button>
+                </form>
+              </details>
+            </div>
+          <% } else if (inIt(b)) { %>
+            <p class="sb-lc-wait muted">Waiting on <%= b.parties.filter(p => p.owner_id !== b.declared.by).map(p => betNames(p.owner_id)).join(', ') %> to confirm or dispute.</p>
+          <% } %>
+        </div>
+      <% } %>
+
+      <% if (b.status === 'disputed' && b.dispute) { %>
+        <div class="sb-lifecycle disputed">
+          <div class="sb-lc-head">⚠️ DISPUTED</div>
+          <div class="sb-lc-body">
+            <%= betNames(b.dispute.by) %> disputed the call<%= b.dispute.why ? ': ' + b.dispute.why : '' %>.
+            <span class="muted">The site records it, it doesn't referee — sort it out and declare again.</span>
+          </div>
+          <% if (inIt(b)) { %>
+            <details class="sb-declare">
+              <summary>🏁 Declare again</summary>
+              <form method="post" action="/sidebets/<%= b.id %>/declare" class="sb-declare-form">
+                <% for (const p of b.parties) { %>
+                  <button class="btn small ghost" type="submit" name="winner" value="<%= p.owner_id %>"><%= betNames(p.owner_id) %> won</button>
+                <% } %>
+                <button class="btn small ghost" type="submit" name="push" value="1">Push</button>
+              </form>
+            </details>
+          <% } %>
+        </div>
+      <% } %>
+
+      <%# ── The engine's opinion. Never applied without a human. It DECLARES
+          the verdict (both sides still confirm), it never settles silently. ── %>
+      <% if (v && (b.status === 'locked' || b.status === 'disputed')) { %>
         <details class="verdict <%= v.decided ? 'ready' : 'open' %>"<%= v.decided ? ' open' : '' %>>
           <summary><%= v.decided ? '⚖️' : '⏳' %> <%= v.headline %></summary>
           <% if (v.lines.length) { %>
@@ -444,12 +529,12 @@ function betCard(b, kind) {
           <% } %>
           <% if (v.decided && (inIt(b) || owner.is_commissioner)) { %>
             <form class="asis" method="post" action="/sidebets/<%= b.id %>/settle-auto">
-              <button class="btn small gold" type="submit">
-                <%= v.push ? 'Settle as a push' : `Settle it — ${v.winner_ids.map(betNames).join(' & ')} won` %>
+              <button class="btn small navy" type="submit">
+                <%= v.push ? 'Declare it a push' : `Declare ${v.winner_ids.map(betNames).join(' & ')} the winner` %>
               </button>
             </form>
             <p class="muted" style="margin:.4rem 0 0; font-size:.74rem">
-              The site works it out; one of you confirms. Nothing settles on its own.
+              This offers the Sleeper result; the other side still confirms. Nothing settles on its own.
             </p>
           <% } %>
         </details>

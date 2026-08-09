@@ -69,6 +69,12 @@ jobs:
         # archaeology is the commissioner's edge; this keeps it from leaking back
         # in by a stray column, an open tab, or a chapter rewrite.
         run: node draft/tests/access_guard.test.js
+      - name: Side-bet lifecycle over HTTP — declare→confirm→dispute + Venmo handoff
+        # The two-party settling flow end to end: a result is declared, the OTHER
+        # side confirms or disputes, a dispute is recorded not adjudicated, and the
+        # loser gets the winner's Venmo link with the amount ready. Nothing settles
+        # silently. Complements sidebets_lifecycle (the pure state machine).
+        run: node draft/tests/sidebets_lifecycle_ui.test.js
       - name: Robot mock draft — the safety net
         # A full snake draft from every seat through the real engine and
         # attribution modules, plus every bug this session as a regression
