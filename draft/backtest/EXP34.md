@@ -1,48 +1,51 @@
 # EXPERIMENT 34 — recommendation vs market (policy-level)
 
-_19 real decisions across three seasons; our ordering =
+_27 real decisions across three seasons; our ordering =
 walk-forward projected value. Underpowered by construction (n~41); an
 inconclusive CI (spans zero) reads as the anchor binding HARDER, not looser._
 
+**n by season: {'2025': 8, '2024': 7, '2023': 12}** · realized source: {2025: 'harvest', 2024: 'nflverse', 2023: 'nflverse'}
+_(a season marked `harvest` had its realized recovered from league_history players_points after nflverse's pbp rebuild was refused by cross-validation — roster-gated, so a mid-season drop is truncated.)_
+
 ## PRIMARY — rank correlation over the available pool
 
-- our ordering: mean rho 0.391 CI (0.3, 0.475)
-- market (ADP): mean rho 0.269 CI (0.176, 0.349)
-- **difference (our - market): 0.122 CI [0.007, 0.232] -> BEAT** over 19 picks
+- our ordering: mean rho 0.408 CI (0.335, 0.482)
+- market (ADP): mean rho 0.268 CI (0.2, 0.329)
+- **difference (our - market): 0.14 CI [0.053, 0.224] -> BEAT** over 26 picks
 
 ## Top-N set value (realized pts, our set vs market set)
 
-- top-5: our 319.252 vs market 197.414 (delta 121.838, beat)
-- top-10: our 259.174 vs market 187.45 (delta 71.724, beat)
+- top-5: our 309.313 vs market 187.778 (delta 121.535, beat)
+- top-10: our 251.908 vs market 179.571 (delta 72.336, beat)
 
 ## The deviation-edge surface (hit rate = took beat ADP-preferred available)
 
 ### by FORGONE VALUE (primary) (projected pts given up)
 
-- value(<=0): n=7 hit=0.286 mean_delta=20.229 CI [-23.929, 73.7] inconclusive ⚠THIN
-- near-zero: n=1 hit=1.0 mean_delta=42.52 CI [nan, nan] inconclusive ⚠THIN
-- moderate: n=4 hit=0.5 mean_delta=-1.525 CI [-23.925, 22.25] inconclusive ⚠THIN
-- large: n=6 hit=0.5 mean_delta=-87.483 CI [-203.623, 19.807] inconclusive ⚠THIN
+- value(<=0): n=11 hit=0.364 mean_delta=38.164 CI [-2.891, 82.655] inconclusive
+- near-zero: n=2 hit=1.0 mean_delta=40.35 CI [38.18, 42.52] beat ⚠THIN
+- moderate: n=5 hit=0.4 mean_delta=-5.38 CI [-23.1, 15.28] inconclusive ⚠THIN
+- large: n=8 hit=0.5 mean_delta=-75.02 CI [-163.207, 6.212] inconclusive
 
 ### by ADP DISTANCE (comparison — which unit predicts better is a finding) (spots)
 
-- <5: n=13 hit=0.231 mean_delta=-50.845 CI [-112.754, -2.011] lost
-- 5-15: n=4 hit=0.75 mean_delta=46.0 CI [-2.9, 110.175] inconclusive ⚠THIN
+- <5: n=18 hit=0.333 mean_delta=-19.144 CI [-72.538, 24.808] inconclusive
+- 5-15: n=5 hit=0.8 mean_delta=37.344 CI [-1.776, 95.16] inconclusive ⚠THIN
 - 15-30: n=1 hit=1.0 mean_delta=50.3 CI [nan, nan] inconclusive ⚠THIN
-- >30: n=1 hit=1.0 mean_delta=76.4 CI [nan, nan] inconclusive ⚠THIN
+- >30: n=3 hit=0.333 mean_delta=-7.46 CI [-77.98, 76.4] inconclusive ⚠THIN
 
 ### by ROUND / remaining-picks decay (round band)
 
 - r1-3: n=4 hit=0.75 mean_delta=49.03 CI [3.55, 112.5] beat ⚠THIN
-- r4-7: n=7 hit=0.571 mean_delta=12.5 CI [-8.486, 32.829] inconclusive ⚠THIN
-- r8-11: n=5 hit=0.2 mean_delta=-16.752 CI [-64.552, 30.56] inconclusive ⚠THIN
-- r12+: n=3 hit=0.0 mean_delta=-183.38 CI [-301.62, 0.0] inconclusive ⚠THIN
+- r4-7: n=10 hit=0.6 mean_delta=12.84 CI [-2.748, 28.478] inconclusive
+- r8-11: n=8 hit=0.375 mean_delta=14.557 CI [-43.38, 78.227] inconclusive
+- r12+: n=5 hit=0.0 mean_delta=-114.188 CI [-230.676, -4.16] lost ⚠THIN
 
 ### by MARKET DISPERSION (ADP stdev)
 
 - unanimous: n=3 hit=1.0 mean_delta=28.34 CI [10.5, 42.52] beat ⚠THIN
-- mid: n=10 hit=0.2 mean_delta=-39.648 CI [-94.958, 1.474] inconclusive
-- contested: n=6 hit=0.5 mean_delta=-6.47 CI [-136.943, 87.117] inconclusive ⚠THIN
+- mid: n=13 hit=0.308 mean_delta=-16.223 CI [-67.603, 26.754] inconclusive
+- contested: n=11 hit=0.455 mean_delta=-0.371 CI [-75.076, 60.4] inconclusive
 
 ### tier-cliff proximity
 
@@ -52,7 +55,7 @@ inconclusive CI (spans zero) reads as the anchor binding HARDER, not looser._
 ## Caveats
 
 - [2025] NOT recovered: pbp rebuild disagreed with the library on 2024
-- 2025: realized weekly unavailable (incl. pbp); season SKIPPED (not scored zero)
+- 2025: nflverse realized unavailable (pbp rebuild refused by cross-validation on 2024 — the gate working); RECOVERED from the harvest (league_history players_points, season totals, 254 players; roster-gated so a mid-season drop is truncated).
 
 ## What this does NOT settle
 

@@ -754,13 +754,13 @@
     }
   },
   "correlation_arm": {
-    "diff_mean": 0.122,
+    "diff_mean": 0.14,
     "diff_ci": [
-      0.007,
-      0.232
+      0.053,
+      0.224
     ],
     "verdict": "beat",
-    "n_picks": 19
+    "n_picks": 26
   },
   "agreement": {
     "state": "THE INTERESTING RESULT: ranks better but earns same-or-less \u2014 the edge is in evaluating players, not in constructing rosters that fit this payout structure. Points at the PORTFOLIO DOCTRINE, not the projections.",

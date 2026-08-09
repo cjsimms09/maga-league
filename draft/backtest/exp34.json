@@ -1,123 +1,133 @@
 {
   "experiment": "34 \u2014 recommendation-vs-market, policy-level (forgone-value unit)",
-  "n_decisions": 19,
-  "n_pool_picks": 19,
+  "n_decisions": 27,
+  "n_pool_picks": 27,
+  "n_by_season": {
+    "2025": 8,
+    "2024": 7,
+    "2023": 12
+  },
+  "realized_source": {
+    "2025": "harvest",
+    "2024": "nflverse",
+    "2023": "nflverse"
+  },
   "underpowered": true,
   "note": "n~41, underpowered; inconclusive => anchor binds HARDER (PRE-REGISTRATION-34)",
   "rank_correlation": {
-    "n_picks": 19,
-    "rho_our_mean": 0.391,
+    "n_picks": 26,
+    "rho_our_mean": 0.408,
     "rho_our_ci": [
-      0.3,
-      0.475
+      0.335,
+      0.482
     ],
-    "rho_market_mean": 0.269,
+    "rho_market_mean": 0.268,
     "rho_market_ci": [
-      0.176,
-      0.349
+      0.2,
+      0.329
     ],
-    "diff_mean": 0.122,
+    "diff_mean": 0.14,
     "diff_ci": [
-      0.007,
-      0.232
+      0.053,
+      0.224
     ],
     "verdict": "beat"
   },
   "top5_set_value": {
     "n": 5,
-    "picks": 19,
-    "our_mean": 319.252,
-    "market_mean": 197.414,
-    "delta_mean": 121.838,
+    "picks": 26,
+    "our_mean": 309.313,
+    "market_mean": 187.778,
+    "delta_mean": 121.535,
     "delta_ci": [
-      98.085,
-      143.959
+      101.227,
+      140.801
     ],
     "verdict": "beat"
   },
   "top10_set_value": {
     "n": 10,
-    "picks": 18,
-    "our_mean": 259.174,
-    "market_mean": 187.45,
-    "delta_mean": 71.724,
+    "picks": 24,
+    "our_mean": 251.908,
+    "market_mean": 179.571,
+    "delta_mean": 72.336,
     "delta_ci": [
-      52.309,
-      91.343
+      55.831,
+      88.026
     ],
     "verdict": "beat"
   },
   "bands_forgone_value": [
     {
       "band": "value(<=0)",
-      "n": 7,
-      "hit_rate": 0.286,
-      "mean_delta": 20.229,
+      "n": 11,
+      "hit_rate": 0.364,
+      "mean_delta": 38.164,
       "ci": [
-        -23.929,
-        73.7
+        -2.891,
+        82.655
       ],
       "verdict": "inconclusive",
-      "thin": true
+      "thin": false
     },
     {
       "band": "near-zero",
-      "n": 1,
+      "n": 2,
       "hit_rate": 1.0,
-      "mean_delta": 42.52,
+      "mean_delta": 40.35,
       "ci": [
-        NaN,
-        NaN
+        38.18,
+        42.52
       ],
-      "verdict": "inconclusive",
+      "verdict": "beat",
       "thin": true
     },
     {
       "band": "moderate",
-      "n": 4,
-      "hit_rate": 0.5,
-      "mean_delta": -1.525,
+      "n": 5,
+      "hit_rate": 0.4,
+      "mean_delta": -5.38,
       "ci": [
-        -23.925,
-        22.25
+        -23.1,
+        15.28
       ],
       "verdict": "inconclusive",
       "thin": true
     },
     {
       "band": "large",
-      "n": 6,
+      "n": 8,
       "hit_rate": 0.5,
-      "mean_delta": -87.483,
+      "mean_delta": -75.02,
       "ci": [
-        -203.623,
-        19.807
+        -163.207,
+        6.212
       ],
       "verdict": "inconclusive",
-      "thin": true
+      "thin": false
     }
   ],
   "bands_adp_distance": [
     {
       "band": "<5",
-      "n": 13,
-      "hit_rate": 0.231,
-      "mean_delta": -50.845,
+      "n": 18,
+      "hit_rate": 0.333,
+      "mean_delta": -19.144,
       "ci": [
-        -112.754,
-        -2.011
+        -72.538,
+        24.808
       ],
-      "verdict": "lost",
+      "verdict": "inconclusive",
       "thin": false
     },
     {
       "band": "5-15",
-      "n": 4,
-      "hit_rate": 0.75,
-      "mean_delta": 46.0,
+      "n": 5,
+      "hit_rate": 0.8,
+      "mean_delta": 37.344,
       "ci": [
-        -2.9,
-        110.175
+        -1.776,
+        95.16
       ],
       "verdict": "inconclusive",
       "thin": true
@@ -136,12 +146,12 @@
     },
     {
       "band": ">30",
-      "n": 1,
-      "hit_rate": 1.0,
-      "mean_delta": 76.4,
+      "n": 3,
+      "hit_rate": 0.333,
+      "mean_delta": -7.46,
       "ci": [
-        NaN,
-        NaN
+        -77.98,
+        76.4
       ],
       "verdict": "inconclusive",
       "thin": true
@@ -162,38 +172,38 @@
     },
     {
       "band": "r4-7",
-      "n": 7,
-      "hit_rate": 0.571,
-      "mean_delta": 12.5,
+      "n": 10,
+      "hit_rate": 0.6,
+      "mean_delta": 12.84,
       "ci": [
-        -8.486,
-        32.829
+        -2.748,
+        28.478
       ],
       "verdict": "inconclusive",
-      "thin": true
+      "thin": false
     },
     {
       "band": "r8-11",
-      "n": 5,
-      "hit_rate": 0.2,
-      "mean_delta": -16.752,
+      "n": 8,
+      "hit_rate": 0.375,
+      "mean_delta": 14.557,
       "ci": [
-        -64.552,
-        30.56
+        -43.38,
+        78.227
       ],
       "verdict": "inconclusive",
-      "thin": true
+      "thin": false
     },
     {
       "band": "r12+",
-      "n": 3,
+      "n": 5,
       "hit_rate": 0.0,
-      "mean_delta": -183.38,
+      "mean_delta": -114.188,
       "ci": [
-        -301.62,
-        0.0
+        -230.676,
+        -4.16
       ],
-      "verdict": "inconclusive",
+      "verdict": "lost",
       "thin": true
     }
   ],
@@ -212,27 +222,27 @@
     },
     {
       "band": "mid",
-      "n": 10,
-      "hit_rate": 0.2,
-      "mean_delta": -39.648,
+      "n": 13,
+      "hit_rate": 0.308,
+      "mean_delta": -16.223,
       "ci": [
-        -94.958,
-        1.474
+        -67.603,
+        26.754
       ],
       "verdict": "inconclusive",
       "thin": false
     },
     {
       "band": "contested",
-      "n": 6,
-      "hit_rate": 0.5,
-      "mean_delta": -6.47,
+      "n": 11,
+      "hit_rate": 0.455,
+      "mean_delta": -0.371,
       "ci": [
-        -136.943,
-        87.117
+        -75.076,
+        60.4
       ],
       "verdict": "inconclusive",
-      "thin": true
+      "thin": false
     }
   ],
   "cliff": {
@@ -259,9 +269,145 @@
   },
   "caveats": [
     "[2025] NOT recovered: pbp rebuild disagreed with the library on 2024",
-    "2025: realized weekly unavailable (incl. pbp); season SKIPPED (not scored zero)"
+    "2025: nflverse realized unavailable (pbp rebuild refused by cross-validation on 2024 \u2014 the gate working); RECOVERED from the harvest (league_history players_points, season totals, 254 players; roster-gated so a mid-season drop is truncated)."
   ],
   "decisions": [
+    {
+      "season": 2025,
+      "round": 4,
+      "pick_no": 37,
+      "took": "4217",
+      "took_proj": 128.07,
+      "took_realized": 133.0,
+      "adp_best": "11566",
+      "adp_best_proj": 313.68,
+      "adp_best_realized": 130.28,
+      "forgone_value": 185.61,
+      "adp_distance": 8.8,
+      "dispersion": 8.2,
+      "crosses_cliff": null,
+      "took_tier": null,
+      "adp_best_tier": null
+    },
+    {
+      "season": 2025,
+      "round": 5,
+      "pick_no": 44,
+      "took": "6770",
+      "took_proj": 311.64,
+      "took_realized": 168.46,
+      "adp_best": "11566",
+      "adp_best_proj": 313.68,
+      "adp_best_realized": 130.28,
+      "forgone_value": 2.04,
+      "adp_distance": -16.0,
+      "dispersion": 7.3,
+      "crosses_cliff": null,
+      "took_tier": null,
+      "adp_best_tier": null
+    },
+    {
+      "season": 2025,
+      "round": 6,
+      "pick_no": 57,
+      "took": "8151",
+      "took_proj": 173.29,
+      "took_realized": 176.4,
+      "adp_best": "8151",
+      "adp_best_proj": 173.29,
+      "adp_best_realized": 176.4,
+      "forgone_value": 0.0,
+      "adp_distance": -13.6,
+      "dispersion": 5.6,
+      "crosses_cliff": null,
+      "took_tier": null,
+      "adp_best_tier": null
+    },
+    {
+      "season": 2025,
+      "round": 8,
+      "pick_no": 77,
+      "took": "5872",
+      "took_proj": 122.07,
+      "took_realized": 152.2,
+      "adp_best": "4981",
+      "adp_best_proj": 117.16,
+      "adp_best_realized": 21.4,
+      "forgone_value": -4.91,
+      "adp_distance": -10.0,
+      "dispersion": 8.5,
+      "crosses_cliff": null,
+      "took_tier": null,
+      "adp_best_tier": null
+    },
+    {
+      "season": 2025,
+      "round": 9,
+      "pick_no": 84,
+      "took": "8144",
+      "took_proj": 119.4,
+      "took_realized": 218.0,
+      "adp_best": "11638",
+      "adp_best_proj": 109.0,
+      "adp_best_realized": 70.6,
+      "forgone_value": -10.4,
+      "adp_distance": -9.4,
+      "dispersion": 7.6,
+      "crosses_cliff": null,
+      "took_tier": null,
+      "adp_best_tier": null
+    },
+    {
+      "season": 2025,
+      "round": 10,
+      "pick_no": 97,
+      "took": "8154",
+      "took_proj": 129.15,
+      "took_realized": 11.8,
+      "adp_best": "5849",
+      "adp_best_proj": 271.34,
+      "adp_best_realized": 89.78,
+      "forgone_value": 142.19,
+      "adp_distance": 62.4,
+      "dispersion": 33.5,
+      "crosses_cliff": null,
+      "took_tier": null,
+      "adp_best_tier": null
+    },
+    {
+      "season": 2025,
+      "round": 13,
+      "pick_no": 124,
+      "took": "11576",
+      "took_proj": 79.47,
+      "took_realized": 8.0,
+      "adp_best": "11637",
+      "adp_best_proj": 95.08,
+      "adp_best_realized": 28.8,
+      "forgone_value": 15.61,
+      "adp_distance": 30.0,
+      "dispersion": 18.5,
+      "crosses_cliff": null,
+      "took_tier": null,
+      "adp_best_tier": null
+    },
+    {
+      "season": 2025,
+      "round": 14,
+      "pick_no": 137,
+      "took": "11637",
+      "took_proj": 95.08,
+      "took_realized": 28.8,
+      "adp_best": "11637",
+      "adp_best_proj": 95.08,
+      "adp_best_realized": 28.8,
+      "forgone_value": 0.0,
+      "adp_distance": -44.7,
+      "dispersion": 8.1,
+      "crosses_cliff": null,
+      "took_tier": null,
+      "adp_best_tier": null
+    },
     {
       "season": 2024,
       "round": 3,
