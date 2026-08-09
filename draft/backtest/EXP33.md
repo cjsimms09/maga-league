@@ -36,7 +36,7 @@ Sources raced: our_blend, naive, ffc_adp, sleeper_proj
   | source | MAE | rank_corr | top-decile | in verdict |
   |---|---|---|---|---|
   | our_blend | 56.68 | 0.608 | 0.413 | yes |
-  | naive | 46.25 | 0.704 | 0.565 | yes |
+  | naive | 46.25 | 0.705 | 0.565 | yes |
   | ffc_adp | None | 0.446 | 0.222 | yes |
   | sleeper_proj | 35.27 | 0.798 | 0.627 | **NO — leak-suspect** |
 

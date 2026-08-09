@@ -54,7 +54,7 @@
               "TE": {
                 "n": 98,
                 "mae": 33.35,
-                "rank_corr": 0.617,
+                "rank_corr": 0.618,
                 "top_decile": {
                   "n": 98,
                   "k": 10,
@@ -368,7 +368,7 @@
               "RB": {
                 "n": 111,
                 "mae": 59.87,
-                "rank_corr": 0.541,
+                "rank_corr": 0.542,
                 "top_decile": {
                   "n": 111,
                   "k": 11,
@@ -421,7 +421,7 @@
           "naive": {
             "n": 455,
             "mae": 46.25,
-            "rank_corr": 0.704,
+            "rank_corr": 0.705,
             "top_decile": {
               "n": 455,
               "k": 46,
@@ -441,7 +441,7 @@
               "RB": {
                 "n": 111,
                 "mae": 53.37,
-                "rank_corr": 0.586,
+                "rank_corr": 0.587,
                 "top_decile": {
                   "n": 111,
                   "k": 11,
@@ -451,7 +451,7 @@
               "WR": {
                 "n": 164,
                 "mae": 37.47,
-                "rank_corr": 0.773,
+                "rank_corr": 0.774,
                 "top_decile": {
                   "n": 164,
                   "k": 16,
