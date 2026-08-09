@@ -18,18 +18,18 @@
     "n_picks": 26,
     "rho_our_mean": 0.408,
     "rho_our_ci": [
-      0.335,
+      0.334,
       0.482
     ],
     "rho_market_mean": 0.268,
     "rho_market_ci": [
-      0.2,
+      0.201,
       0.329
     ],
-    "diff_mean": 0.14,
+    "diff_mean": 0.139,
     "diff_ci": [
-      0.053,
-      0.224
+      0.052,
+      0.223
     ],
     "verdict": "beat"
   },

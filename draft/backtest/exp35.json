@@ -1,0 +1,289 @@
+{
+  "experiment": "35 \u2014 REGRESSION_WEIGHT sweep (pre-registered; measures, does not install)",
+  "grid": [
+    0.0,
+    0.1,
+    0.2,
+    0.35,
+    0.5,
+    0.7,
+    1.0
+  ],
+  "shipped": 0.35,
+  "pre_registered": "top-decile improves as weight falls below 0.35; flat => not the lever; peak at/above 0.35 => over-regression refuted.",
+  "pooled_curve": [
+    {
+      "regression_weight": 0.0,
+      "n": 764,
+      "top_decile": 0.513,
+      "rank_corr": 0.641,
+      "mae": 47.74,
+      "is_shipped": false
+    },
+    {
+      "regression_weight": 0.1,
+      "n": 764,
+      "top_decile": 0.487,
+      "rank_corr": 0.634,
+      "mae": 49.05,
+      "is_shipped": false
+    },
+    {
+      "regression_weight": 0.2,
+      "n": 764,
+      "top_decile": 0.461,
+      "rank_corr": 0.627,
+      "mae": 50.51,
+      "is_shipped": false
+    },
+    {
+      "regression_weight": 0.35,
+      "n": 764,
+      "top_decile": 0.395,
+      "rank_corr": 0.608,
+      "mae": 53.0,
+      "is_shipped": true
+    },
+    {
+      "regression_weight": 0.5,
+      "n": 764,
+      "top_decile": 0.355,
+      "rank_corr": 0.583,
+      "mae": 55.87,
+      "is_shipped": false
+    },
+    {
+      "regression_weight": 0.7,
+      "n": 764,
+      "top_decile": 0.329,
+      "rank_corr": 0.533,
+      "mae": 60.35,
+      "is_shipped": false
+    },
+    {
+      "regression_weight": 1.0,
+      "n": 764,
+      "top_decile": 0.276,
+      "rank_corr": 0.251,
+      "mae": 67.74,
+      "is_shipped": false
+    }
+  ],
+  "pooled_verdict": {
+    "peak_weight": 0.0,
+    "peak_top_decile": 0.513,
+    "shipped_top_decile": 0.395,
+    "verdict": "CONFIRMS the pre-registration: top-decile peaks BELOW the shipped 0.35 (peak at 0.0). Over-regression is a real lever \u2014 but installing a new value is a separate gated SHIP decision, not done here."
+  },
+  "pooled_naive_top_decile": 0.566,
+  "per_season": [
+    {
+      "season": 2025,
+      "curve": [
+        {
+          "regression_weight": 0.0,
+          "n": 172,
+          "top_decile": 0.529,
+          "rank_corr": 0.624,
+          "mae": 70.41,
+          "is_shipped": false
+        },
+        {
+          "regression_weight": 0.1,
+          "n": 172,
+          "top_decile": 0.588,
+          "rank_corr": 0.62,
+          "mae": 68.41,
+          "is_shipped": false
+        },
+        {
+          "regression_weight": 0.2,
+          "n": 172,
+          "top_decile": 0.529,
+          "rank_corr": 0.612,
+          "mae": 67.22,
+          "is_shipped": false
+        },
+        {
+          "regression_weight": 0.35,
+          "n": 172,
+          "top_decile": 0.529,
+          "rank_corr": 0.605,
+          "mae": 67.25,
+          "is_shipped": true
+        },
+        {
+          "regression_weight": 0.5,
+          "n": 172,
+          "top_decile": 0.529,
+          "rank_corr": 0.579,
+          "mae": 68.72,
+          "is_shipped": false
+        },
+        {
+          "regression_weight": 0.7,
+          "n": 172,
+          "top_decile": 0.529,
+          "rank_corr": 0.546,
+          "mae": 71.95,
+          "is_shipped": false
+        },
+        {
+          "regression_weight": 1.0,
+          "n": 172,
+          "top_decile": 0.353,
+          "rank_corr": 0.246,
+          "mae": 81.18,
+          "is_shipped": false
+        }
+      ],
+      "verdict": {
+        "peak_weight": 0.1,
+        "peak_top_decile": 0.588,
+        "shipped_top_decile": 0.529,
+        "verdict": "CONFIRMS the pre-registration: top-decile peaks BELOW the shipped 0.35 (peak at 0.1). Over-regression is a real lever \u2014 but installing a new value is a separate gated SHIP decision, not done here."
+      },
+      "naive_top_decile": 0.471
+    },
+    {
+      "season": 2024,
+      "curve": [
+        {
+          "regression_weight": 0.0,
+          "n": 458,
+          "top_decile": 0.543,
+          "rank_corr": 0.617,
+          "mae": 53.61,
+          "is_shipped": false
+        },
+        {
+          "regression_weight": 0.1,
+          "n": 458,
+          "top_decile": 0.543,
+          "rank_corr": 0.611,
+          "mae": 54.25,
+          "is_shipped": false
+        },
+        {
+          "regression_weight": 0.2,
+          "n": 458,
+          "top_decile": 0.522,
+          "rank_corr": 0.601,
+          "mae": 55.13,
+          "is_shipped": false
+        },
+        {
+          "regression_weight": 0.35,
+          "n": 458,
+          "top_decile": 0.413,
+          "rank_corr": 0.581,
+          "mae": 57.09,
+          "is_shipped": true
+        },
+        {
+          "regression_weight": 0.5,
+          "n": 458,
+          "top_decile": 0.391,
+          "rank_corr": 0.554,
+          "mae": 59.68,
+          "is_shipped": false
+        },
+        {
+          "regression_weight": 0.7,
+          "n": 458,
+          "top_decile": 0.391,
+          "rank_corr": 0.508,
+          "mae": 64.01,
+          "is_shipped": false
+        },
+        {
+          "regression_weight": 1.0,
+          "n": 458,
+          "top_decile": 0.304,
+          "rank_corr": 0.194,
+          "mae": 71.95,
+          "is_shipped": false
+        }
+      ],
+      "verdict": {
+        "peak_weight": 0.0,
+        "peak_top_decile": 0.543,
+        "shipped_top_decile": 0.413,
+        "verdict": "CONFIRMS the pre-registration: top-decile peaks BELOW the shipped 0.35 (peak at 0.0). Over-regression is a real lever \u2014 but installing a new value is a separate gated SHIP decision, not done here."
+      },
+      "naive_top_decile": 0.587
+    },
+    {
+      "season": 2023,
+      "curve": [
+        {
+          "regression_weight": 0.0,
+          "n": 455,
+          "top_decile": 0.5,
+          "rank_corr": 0.649,
+          "mae": 52.69,
+          "is_shipped": false
+        },
+        {
+          "regression_weight": 0.1,
+          "n": 455,
+          "top_decile": 0.478,
+          "rank_corr": 0.64,
+          "mae": 53.57,
+          "is_shipped": false
+        },
+        {
+          "regression_weight": 0.2,
+          "n": 455,
+          "top_decile": 0.457,
+          "rank_corr": 0.63,
+          "mae": 54.63,
+          "is_shipped": false
+        },
+        {
+          "regression_weight": 0.35,
+          "n": 455,
+          "top_decile": 0.413,
+          "rank_corr": 0.608,
+          "mae": 56.68,
+          "is_shipped": true
+        },
+        {
+          "regression_weight": 0.5,
+          "n": 455,
+          "top_decile": 0.391,
+          "rank_corr": 0.578,
+          "mae": 59.24,
+          "is_shipped": false
+        },
+        {
+          "regression_weight": 0.7,
+          "n": 455,
+          "top_decile": 0.391,
+          "rank_corr": 0.527,
+          "mae": 63.54,
+          "is_shipped": false
+        },
+        {
+          "regression_weight": 1.0,
+          "n": 455,
+          "top_decile": 0.326,
+          "rank_corr": 0.211,
+          "mae": 70.88,
+          "is_shipped": false
+        }
+      ],
+      "verdict": {
+        "peak_weight": 0.0,
+        "peak_top_decile": 0.5,
+        "shipped_top_decile": 0.413,
+        "verdict": "CONFIRMS the pre-registration: top-decile peaks BELOW the shipped 0.35 (peak at 0.0). Over-regression is a real lever \u2014 but installing a new value is a separate gated SHIP decision, not done here."
+      },
+      "naive_top_decile": 0.565
+    }
+  ],
+  "caveats": [
+    "2025: realized from harvest (nflverse unavailable)"
+  ],
+  "install_note": "NOTHING installs here. A weight change is a separate SHIP decision gated on null + leave-one-season-out CV, cited and reversible."
+}
