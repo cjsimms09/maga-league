@@ -8,6 +8,8 @@
   const mineIn = board => (board || []).find(r => r.owner_id === me.id) || null;
   const myS = mineIn(seasonBoard);
   const myA = mineIn(allTimeBoard);
+  // GOAT next to whoever rosters Mahomes — moves on its own.
+  const goat = id => (typeof goatId !== 'undefined' && goatId === id) ? ' 🐐' : '';
 %>
 
 <h1 class="page-title">🗳️ Pick'em <span class="sub" style="font-weight:600">Week <%= weekNo %></span></h1>
@@ -77,7 +79,7 @@
                 <label class="<%= sideClass(side) %>">
                   <input type="radio" name="pick_<%= g.id %>" value="<%= side.id %>"
                     <%= myPick === side.id ? 'checked' : '' %> <%= locked ? 'disabled' : '' %>>
-                  <span class="pk-opt-name"><%= side.name %><% if (iAmIn && side.id === me.id) { %> <span class="pk-you">you</span><% } %></span>
+                  <span class="pk-opt-name"><%= side.name %><%- goat(side.id) %><% if (iAmIn && side.id === me.id) { %> <span class="pk-you">you</span><% } %></span>
                   <% if (locked && res) { %>
                     <span class="pk-opt-pts<%= winner === side.id ? ' up' : '' %>"><%= (side.id === g.a.id ? res.a : res.b).toFixed(1) %></span>
                   <% } %>
@@ -135,7 +137,7 @@
         <% for (const r of seasonBoard) { %>
           <tr class="<%= r.owner_id === me.id ? 'pk-mine' : '' %><%= r.worst ? ' pk-worst' : '' %>">
             <td><%= r.eligible || r.graded ? r.rank : '—' %></td>
-            <td><%= r.name %><% if (r.worst) { %> <span class="badge owes">DEAD LAST</span><% } else if (r.rank === 1 && r.graded) { %> 👑<% } %></td>
+            <td><%= r.name %><%- goat(r.owner_id) %><% if (r.worst) { %> <span class="badge owes">DEAD LAST</span><% } else if (r.rank === 1 && r.graded) { %> 👑<% } %></td>
             <td class="num"><b><%= r.graded ? Math.round(r.pct * 100) + '%' : '—' %></b></td>
             <td class="num"><%= r.graded ? rec(r) : '—' %></td>
             <td class="num muted"><%= r.weeks || '—' %></td>
@@ -166,7 +168,7 @@
         <% for (const r of allTimeBoard) { if (!r.graded) continue; %>
           <tr class="<%= r.owner_id === me.id ? 'pk-mine' : '' %>">
             <td><%= r.rank %></td>
-            <td><%= r.name %></td>
+            <td><%= r.name %><%- goat(r.owner_id) %></td>
             <td class="num"><b><%= Math.round(r.pct * 100) %>%</b></td>
             <td class="num"><%= rec(r) %></td>
           </tr>

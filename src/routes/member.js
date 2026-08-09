@@ -10,6 +10,7 @@ const DISPATCH = require('./dispatch');    // transient popups — awards / powe
 const PO = require('./playoffs');          // folded columns — playoff odds/movement, clinch/elim, matchup leverage
 const TT = require('./trashtalk');         // trash talk attached to a specific game, permanent + archived
 const WW = require('./whatwatch');         // what-to-watch — the Sunday/Monday sweat meter + what each owner needs
+const MK = require('./marks');             // auto badges — GOAT on Mahomes' owner, Chiefs mark on KC players
 const L = require('../ledger');
 const SB = require('../sidebets');
 const BL = require('../betlogic');
@@ -369,8 +370,9 @@ router.get('/', aw(async (req, res) => {
     // Each owner is nagged for their OWN data only. The commissioner's aggregate
     // view lives in the Commissioner Console, not on the home page.
     contactNag: contactMissingFields(world.owners.find(o => o.id === req.owner.id)),
-    // Nationality flags by owner id, from the one shared source.
-    flags: Object.fromEntries(owners.map(o => [o.id, flagOf(o.name)])),
+    // Owner flags: nationality + the GOAT auto-folded onto whoever rosters
+    // Mahomes (moves on its own as rosters change).
+    flags: MK.ownerFlags(owners, flagOf, MK.goatOwnerId(sData, world.config.sleeper_map || {})),
   });
 }));
 
@@ -693,7 +695,8 @@ router.get('/bank', aw(async (req, res) => {
     // Contact directory: shared card data + this owner's own record for the edit
     // form. Same one-record store the home page reads.
     contacts: owners.map(contactOf), myContact: contactOf(world.owners.find(o => o.id === req.owner.id) || req.owner),
-    flags: Object.fromEntries(owners.map(o => [o.id, flagOf(o.name)])),
+    flags: MK.ownerFlags(owners, flagOf,
+      MK.goatOwnerId(await sleeper.bundle(world.config.sleeper_league_id), world.config.sleeper_map || {})),
   });
 }));
 
@@ -1438,6 +1441,7 @@ router.get('/matchup', aw(async (req, res) => {
   res.render('matchup', {
     me, owners, opp, live, weekNo, matchup: liveMatchup, betWindow, record,
     perPlayer, proj, highBand, whBand, whRace, pickem, stakes, trash, trashGameId,
+    goatId: MK.goatOwnerId(sData, world.config.sleeper_map || {}),
     configured: !!world.config.sleeper_league_id,
     late: req.query.late === '1', sent: req.query.sent === '1',
     nameOf,
@@ -1506,6 +1510,7 @@ async function pickemContext(world, me, { wantBoards = true } = {}) {
     games, myPicks, myGame, splits, backers, allPicks, liveResults, livePts,
     configured: !!leagueId, nameOf,
     picksMade: Object.keys(myPicks).length,
+    goatId: MK.goatOwnerId(sData, map),
   };
   if (!wantBoards) return ctx;
 

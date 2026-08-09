@@ -2959,3 +2959,7 @@ html.dispatch-open { overflow: hidden; }
 .wtw-word.flip { color: var(--gold-bright); } .wtw-word.sweat { color: #ffb020; }
 .wtw-word.safe { color: var(--green); } .wtw-word.cooked { color: var(--red-bright); }
 .wtw-high { color: var(--gold-bright); font-weight: 700; }
+
+/* Kansas City Chiefs arrowhead — the real mark, next to every KC player.
+   Inline SVG asset (public/icons/kc.svg), self-contained, scales with the text. */
+.kc-logo { height: .95em; width: auto; vertical-align: -0.14em; margin-left: .1em; }

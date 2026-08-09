@@ -8,6 +8,8 @@
       weekday: 'short', hour: 'numeric', minute: '2-digit' }) + ' ET';
   };
   const r = record;                         // head-to-head summary (may be null)
+  // GOAT next to whoever rosters Mahomes — moves on its own.
+  const goat = id => (typeof goatId !== 'undefined' && goatId === id) ? ' 🐐' : '';
   // Who's ahead, said in plain words from the viewer's side.
   let lead = null;
   if (r && r.played) {
@@ -81,13 +83,13 @@
       <div class="mu-side <%= (matchup && matchup.me && matchup.me.points > matchup.opp.points) ? 'up' : '' %>">
         <span class="mu-team"><%= (matchup && matchup.me && matchup.me.team) || me.team_name || 'Your team' %></span>
         <span class="mu-pts"><%= (matchup && matchup.me) ? matchup.me.points.toFixed(2) : '—' %></span>
-        <span class="mu-who">you</span>
+        <span class="mu-who">you<%- goat(me.id) %></span>
       </div>
       <div class="mu-vs">vs</div>
       <div class="mu-side <%= (matchup && matchup.opp && matchup.opp.points > matchup.me.points) ? 'up' : '' %>">
         <span class="mu-team"><%= (matchup && matchup.opp && matchup.opp.team) || opp.team_name || opp.name + "'s team" %></span>
         <span class="mu-pts"><%= (matchup && matchup.opp) ? matchup.opp.points.toFixed(2) : '—' %></span>
-        <span class="mu-who"><%= opp.name %></span>
+        <span class="mu-who"><%= opp.name %><%- goat(opp.id) %></span>
       </div>
     </div>
     <% if (!live) { %>
