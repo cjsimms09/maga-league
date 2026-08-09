@@ -304,5 +304,15 @@ check('the badge carries a deadZone line for an RB deep on the board',
   (function () { var b = D.badge(entry({ tier: 9 }, { position: 'RB', adjusted_adp: 40, raw_adp: 40 }), 65);
     return b && /RB dead zone/.test(b.deadZone || ''); })());
 
+// The weak/well band edges are DERIVED tertiles of the measured efficiency
+// distribution, not the hand-set 0.2/0.5 (DERIVED-VS-DECLARED audit).
+check('market-quality cuts are derived from the surface, not the old 0.2/0.5 constants',
+  D.EFF_CUTS && D.EFF_CUTS.weak !== 0.2 && D.EFF_CUTS.well !== 0.5
+  && D.EFF_CUTS.weak > 0 && D.EFF_CUTS.weak < D.EFF_CUTS.well, JSON.stringify(D.EFF_CUTS));
+check('a region below the derived weak cut reads WEAKLY',
+  /WEAKLY/.test(D.marketQualityLine(3, 'RB')));   // r1-3 RB 0.121 < weak tertile
+check('a region above the derived well cut reads WELL',
+  /WELL/.test(D.marketQualityLine(115, 'WR')));    // r12+ WR 0.718 > well tertile
+
 console.log(`\n${pass}/${pass + fail} deviation checks passed`);
 process.exit(fail ? 1 : 0);

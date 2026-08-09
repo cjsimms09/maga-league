@@ -383,6 +383,28 @@
     return null;
   }
 
+  /* The weak/moderate/well band edges are DERIVED (not the hand-set 0.2/0.5): they
+   * are the TERTILES of the measured positive-efficiency distribution, so "weak"
+   * means "bottom third of the regions the market at least orders correctly" and
+   * the language moves as more cells are measured (DERIVED-VS-DECLARED-AUDIT.md).
+   * `<=0` (BACKWARDS) stays an absolute constant — zero correlation is a real
+   * boundary, not a quantile. Recomputes from the surface on a re-fire. */
+  function _quantile(sorted, q) {
+    if (!sorted.length) return null;
+    var idx = (sorted.length - 1) * q, lo = Math.floor(idx), hi = Math.ceil(idx);
+    return lo === hi ? sorted[lo] : sorted[lo] + (sorted[hi] - sorted[lo]) * (idx - lo);
+  }
+  var EFF_CUTS = (function () {
+    var xs = [];
+    Object.keys(MARKET_EFFICIENCY).forEach(function (b) {
+      var row = MARKET_EFFICIENCY[b] || {};
+      Object.keys(row).forEach(function (p) { if (typeof row[p] === 'number' && row[p] > 0) xs.push(row[p]); });
+    });
+    xs.sort(function (a, b) { return a - b; });
+    // Fall back to the old absolute cuts only if the surface is somehow empty.
+    return { weak: _quantile(xs, 1 / 3) || 0.2, well: _quantile(xs, 2 / 3) || 0.5 };
+  })();
+
   // The plain-language draft line (no options costume): weak -> freer, well -> respect.
   function marketQualityLine(pickNo, position) {
     var m = marketEfficiency(pickNo, position);
@@ -390,8 +412,8 @@
     if (m.value === null) return 'market rank-quality here is unmeasured — anchor to market (conservative)';
     var cite = ' (' + (m.source === 'pooled' ? 'pos avg ' : '') + m.value.toFixed(2) + ', exp 36)';
     if (m.value <= 0) return 'the market ranks ' + where + ' BACKWARDS' + cite + ' — a deviation here is cheap';
-    if (m.value < 0.2) return 'the market ranks ' + where + ' WEAKLY' + cite + ' — you are freer to deviate';
-    if (m.value < 0.5) return 'the market is a MODERATE ranker in ' + where + cite + ' — deviate only on real evidence';
+    if (m.value < EFF_CUTS.weak) return 'the market ranks ' + where + ' WEAKLY' + cite + ' — you are freer to deviate';
+    if (m.value < EFF_CUTS.well) return 'the market is a MODERATE ranker in ' + where + cite + ' — deviate only on real evidence';
     return 'the market ranks ' + where + ' WELL' + cite + ' — respect it, deviations here are expensive';
   }
 
@@ -478,7 +500,7 @@
               projectionProvenance: projectionProvenance,
               marketEfficiency: marketEfficiency, marketQualityLine: marketQualityLine,
               noiseBandFor: noiseBandFor, RHO_BAR: RHO_BAR,
-              deadZoneLine: deadZoneLine, DEADZONE: DEADZONE };
+              deadZoneLine: deadZoneLine, DEADZONE: DEADZONE, EFF_CUTS: EFF_CUTS };
   global.DraftDeviation = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);
