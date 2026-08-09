@@ -81,7 +81,11 @@ a question, distrust the frame it arrived in:
   frame whose real limit is elsewhere? Diagnose a push you didn't reach yourself as FACT
   (you lacked a number — get it, add no rule), FRAME (you lacked a habit that combines what
   you had — add it in general form), or WRONG PREMISE (say so). Confusing these bloats the
-  foundation with rules that never fire.
+  foundation with rules that never fire. **And the narrower cousin: turn a new fact on
+  results you've already BANKED, not just current work.** When a detail surfaces (FantasyPros
+  is half-PPR → MFL's full-PPR board carries a format tilt for a game we don't play), ask
+  FIRST "does this undermine something we've already acted on?" A finding we've installed is
+  higher-priority to re-examine than a new experiment, because we are using it right now.
 
 ### 2. Be ruthless about what is true
 The only thing that makes this tool worth anything is that its numbers are real — Cory

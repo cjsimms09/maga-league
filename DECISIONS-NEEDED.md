@@ -22,8 +22,16 @@ Audit date: 2026-08-09 (swept every recorded verdict in draft/backtest/*.json + 
   near-zero for both); thin per-cell n (10-18).
 - **Cost of inaction:** the whole draft rule ranks by the worse board through Aug 22.
 - **Recommendation:** swap, MFL-alone (hybrid doesn't beat it), FFC fallback for the 28%
-  uncovered (all deep; top-130 ~100% covered). **APPROVED by Cory — wiring at build.py
-  adp seam; stamp `adp_source: mfl+ffc-fallback`.** (EXP-MFL-SWAP.md)
+  uncovered (all deep; top-130 ~100% covered). Approved by Cory — but **WIRING ON HOLD
+  pending the three-way grade (2026-08-09), because a FORMAT CONFOUND surfaced that we
+  hadn't turned on this banked result:** MFL is FULL-PPR, which tilts receivers/pass-catching
+  backs up for a game we don't play; the grade never isolated "better ordering" from "a
+  receiver-lean that aligned with a receiver-friendly 2023" (and the finding rests on 2023).
+  FantasyPros is **half-PPR (our format)** and is the natural de-confounding CONTROL: if FP
+  beats FFC like MFL does, it's crowd quality not format tilt → **anchor on FP (cleaner, no
+  handicap), not MFL**; if only MFL wins, the edge is provisional and we do NOT swap on it.
+  So the swap is still on, but the SOURCE (MFL vs FP) and whether it survives format-matching
+  are settled by the three-way — do not wire until it lands. (EXP-MFL-SWAP.md)
 
 ## 2. REGRESSION / SHRINKAGE WEIGHT: the blend over-regresses at the top — OPEN
 - **Found:** exp33 — the blend over-regresses and loses to a naive baseline at
