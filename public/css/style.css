@@ -1657,6 +1657,29 @@ table .num.zero { color: var(--muted); font-weight: 400; }
   border-radius: 1px; animation: konamiFall 2.6s linear forwards; transform: rotate(var(--h, 0deg)); }
 @keyframes konamiFall { to { transform: translateY(105vh) rotate(360deg); opacity: .2; } }
 
+/* ── WEEKLY-HIGH STRIP — the $100-a-week race, made visible ─────────────────── */
+.wh-strip { margin: .2rem 0 .4rem; }
+.wh-bars { display: flex; align-items: flex-end; gap: 3px; height: 120px; padding: 0 .1rem; }
+.wh-col {
+  flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center;
+  justify-content: flex-end; height: 100%; position: relative;
+}
+.wh-score { font-size: .58rem; color: var(--muted); font-variant-numeric: tabular-nums; margin-bottom: 2px; }
+.wh-bar {
+  width: 100%; max-width: 26px; border-radius: 3px 3px 0 0;
+  background: linear-gradient(180deg, var(--gold-bright), var(--gold));
+  transition: height .5s cubic-bezier(.2,.8,.3,1);
+}
+.wh-col.tight .wh-bar { background: linear-gradient(180deg, #ff8a94, var(--red-bright)); box-shadow: 0 0 8px rgba(255,95,108,.5); }
+.wh-col.mine .wh-bar { outline: 2px solid #fff; outline-offset: -1px; }
+.wh-wk { font-size: .56rem; color: var(--muted); margin-top: 3px; font-variant-numeric: tabular-nums; }
+.wh-legend { display: flex; justify-content: space-between; align-items: center; gap: .6rem; margin-top: .5rem; flex-wrap: wrap; }
+.wh-leg-lead { display: flex; gap: .35rem; flex-wrap: wrap; }
+.wh-chip { font-size: .68rem; padding: .1rem .45rem; border-radius: 999px; background: rgba(255,255,255,.05); border: 1px solid var(--line); color: var(--ink); }
+.wh-chip.top { background: rgba(245,196,69,.14); border-color: rgba(245,196,69,.4); color: var(--gold-bright); font-weight: 700; }
+.wh-leg-note { font-size: .68rem; display: flex; align-items: center; gap: .3rem; }
+.wh-dot-tight { display: inline-block; width: 8px; height: 8px; border-radius: 2px; background: var(--red-bright); }
+
 /* ── SIDE-BET LIFECYCLE (declare → confirm → dispute) ───────────────────────── */
 .sb-declare { margin-top: .6rem; }
 .sb-declare > summary {

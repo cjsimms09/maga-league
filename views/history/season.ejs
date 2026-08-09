@@ -71,6 +71,11 @@
   <!-- THE WEEKLY-HIGH LEDGER ------------------------------------------------>
   <div class="card">
     <h2>💵 The Weekly-High Ledger <span class="sub">$100 a week, weeks 1–15</span></h2>
+    <div class="body">
+      <%# The season's $100-a-week race at a glance — who owned it, and the
+          photo-finishes. The table below keeps every number. %>
+      <%- include('../partials/_weekly_high_strip', { weeks: S.weeklyHigh, flag: flag }) %>
+    </div>
     <div class="body chron-scroll">
       <table class="ledger">
         <thead><tr><th>Wk</th><th class="name">Winner</th><th>Score</th><th class="name">Runner-up</th><th>By</th></tr></thead>
