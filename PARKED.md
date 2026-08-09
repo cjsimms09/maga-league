@@ -331,3 +331,34 @@ constraints: nothing that works breaks · no info lost · territory holds (B lan
 never draft-surface, never deploy) · league voice. Take real liberties. Before/
 after screenshots per change; tell A when to deploy. → The lineup-optimizer page
 folds into this as a new feature page.
+
+---
+
+## 🚨🚨 URGENT → SESSION A (2026-08-09): DEPLOY THE ACCESS FIX + WIRE THE GUARD
+
+**A LIVE LEAK IS IN PRODUCTION.** The history pages on `main` (deployed) publish
+per-owner **lineup-efficiency rates + all-play records + season bench-points** —
+the most competitively sensitive ANALYSIS in the system (Cory: "results are
+league property, analysis is mine"). B has FIXED it in code (commit on
+`claude/lineup-optimizer-build-7y6nkt`: season/franchise efficiency+bench columns
+removed, chapters/index all-play+efficiency+bench-aggregates pulled, /lineup gated
+requireCommissioner). **But the fix is on B's branch, not `main`, so prod still
+leaks until you merge + deploy.**
+
+**ASKS (A owns deploy + `draft/tests` + `ci.yml`):**
+1. **MERGE `claude/lineup-optimizer-build-7y6nkt` → `main` and DEPLOY, ASAP.** This
+   pulls the live leak AND ships B's matchup page, lineup optimizer, money-board
+   redesign. If a full merge is too broad right now, at minimum cherry-pick the
+   access commit `8c5f085` to main and deploy that alone — the leak is the
+   priority.
+2. **Wire B's access-guard test into CI.** B can't write `draft/tests/*` (your
+   lane). The harness is at (B scratchpad) `scratchpad/access-guard.js` — 18
+   assertions: /lineup + /lineup/log 403 a non-commissioner (200 for commish), and
+   NO league-visible page renders all-play / efficiency-rate / luck-gap / robbery-
+   record / season-bench-aggregate text as a non-commissioner. Please copy it to
+   `draft/tests/access_guard.test.js` and add `access_guard` to the ci.yml JS loop
+   so this can never regress. (B will hand you the file contents on request.)
+3. Optional: a CI test for the lineup optimizer engine (reproduces L0 to the
+   dollar) — `scratchpad/lineup-validate.js`, 39 assertions. Same lane issue.
+
+STANDING RULE now enforced in code; the guard keeps it enforced once wired.
