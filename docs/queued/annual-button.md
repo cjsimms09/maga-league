@@ -54,6 +54,7 @@ Every one of these lands in the **same single PR set** the button opens, each as
 ### 2. The button itself
 A `workflow_dispatch` GitHub Actions workflow — "Run Annual Improvement Cycle" — triggerable from the GitHub mobile app with one tap:
 - Spins up Claude Code headless (the claude-code GitHub Action / SDK path) with the Anthropic API key stored as a repo secret
+  - **SECRET NAME PINNED:** the repo secret is `ANTHROPIC_API_KEY` (GitHub → Settings → Secrets and variables → **Actions**, a *secret* not a variable). The workflow references `${{ secrets.ANTHROPIC_API_KEY }}`. NEVER Netlify env, never committed, never served. Cory can add it any time; it's read at workflow-run time, no redeploy.
 - Points it at SELF-IMPROVE.md and lets it run the full cycle: read, analyze, implement gated items, open PRs, write the report
 - Full test suite + robot mock must pass inside the workflow before any PR opens; a cycle that breaks the build produces a report and zero PRs
 - Budget-capped and time-capped in the workflow config so a runaway session can't burn tokens indefinitely; the report says if it hit the cap mid-cycle
