@@ -34,6 +34,44 @@
         "K": 11.67,
         "DEF": 14.33
       },
+      "timing_by_position": {
+        "QB": {
+          "mean": 8.67,
+          "sd": 2.87,
+          "n_seasons": 3,
+          "confidence": "loose"
+        },
+        "RB": {
+          "mean": 5.67,
+          "sd": 3.4,
+          "n_seasons": 3,
+          "confidence": "loose"
+        },
+        "WR": {
+          "mean": 3.67,
+          "sd": 1.7,
+          "n_seasons": 3,
+          "confidence": "firm"
+        },
+        "TE": {
+          "mean": 9.33,
+          "sd": 4.11,
+          "n_seasons": 3,
+          "confidence": "loose"
+        },
+        "K": {
+          "mean": 11.67,
+          "sd": 0.47,
+          "n_seasons": 3,
+          "confidence": "hard"
+        },
+        "DEF": {
+          "mean": 14.33,
+          "sd": 0.94,
+          "n_seasons": 3,
+          "confidence": "hard"
+        }
+      },
       "early_lean": {
         "RB": 0.25,
         "WR": 0.75
@@ -43,7 +81,8 @@
         "TE": 9.33,
         "K": 11.67,
         "DEF": 14.33
-      }
+      },
+      "predictability": "medium"
     },
     "Jreis": {
       "n_decisions": 44,
@@ -76,6 +115,44 @@
         "K": 13.33,
         "DEF": 11.33
       },
+      "timing_by_position": {
+        "QB": {
+          "mean": 6.0,
+          "sd": 0.82,
+          "n_seasons": 3,
+          "confidence": "hard"
+        },
+        "RB": {
+          "mean": 1.33,
+          "sd": 0.47,
+          "n_seasons": 3,
+          "confidence": "hard"
+        },
+        "WR": {
+          "mean": 3.0,
+          "sd": 0.0,
+          "n_seasons": 3,
+          "confidence": "hard"
+        },
+        "TE": {
+          "mean": 6.33,
+          "sd": 0.47,
+          "n_seasons": 3,
+          "confidence": "hard"
+        },
+        "K": {
+          "mean": 13.33,
+          "sd": 0.47,
+          "n_seasons": 3,
+          "confidence": "hard"
+        },
+        "DEF": {
+          "mean": 11.33,
+          "sd": 2.62,
+          "n_seasons": 3,
+          "confidence": "loose"
+        }
+      },
       "early_lean": {
         "RB": 0.625,
         "WR": 0.375
@@ -85,7 +162,8 @@
         "TE": 6.33,
         "K": 13.33,
         "DEF": 11.33
-      }
+      },
+      "predictability": "high"
     },
     "MarianSaar": {
       "n_decisions": 37,
@@ -118,6 +196,44 @@
         "K": 12.33,
         "DEF": 13.0
       },
+      "timing_by_position": {
+        "QB": {
+          "mean": 7.0,
+          "sd": 3.56,
+          "n_seasons": 3,
+          "confidence": "loose"
+        },
+        "RB": {
+          "mean": 5.67,
+          "sd": 1.25,
+          "n_seasons": 3,
+          "confidence": "firm"
+        },
+        "WR": {
+          "mean": 3.67,
+          "sd": 2.05,
+          "n_seasons": 3,
+          "confidence": "firm"
+        },
+        "TE": {
+          "mean": 8.0,
+          "sd": 1.63,
+          "n_seasons": 3,
+          "confidence": "firm"
+        },
+        "K": {
+          "mean": 12.33,
+          "sd": 0.94,
+          "n_seasons": 3,
+          "confidence": "hard"
+        },
+        "DEF": {
+          "mean": 13.0,
+          "sd": 1.0,
+          "n_seasons": 2,
+          "confidence": "hard"
+        }
+      },
       "early_lean": {
         "WR": 1.0
       },
@@ -126,7 +242,8 @@
         "TE": 8.0,
         "K": 12.33,
         "DEF": 13.0
-      }
+      },
+      "predictability": "high"
     },
     "Richard2121": {
       "n_decisions": 40,
@@ -159,6 +276,44 @@
         "K": 13.33,
         "DEF": 14.0
       },
+      "timing_by_position": {
+        "QB": {
+          "mean": 6.33,
+          "sd": 3.68,
+          "n_seasons": 3,
+          "confidence": "loose"
+        },
+        "RB": {
+          "mean": 6.0,
+          "sd": 2.45,
+          "n_seasons": 3,
+          "confidence": "firm"
+        },
+        "WR": {
+          "mean": 2.67,
+          "sd": 1.25,
+          "n_seasons": 3,
+          "confidence": "firm"
+        },
+        "TE": {
+          "mean": 6.0,
+          "sd": 1.0,
+          "n_seasons": 2,
+          "confidence": "hard"
+        },
+        "K": {
+          "mean": 13.33,
+          "sd": 0.47,
+          "n_seasons": 3,
+          "confidence": "hard"
+        },
+        "DEF": {
+          "mean": 14.0,
+          "sd": 0.82,
+          "n_seasons": 3,
+          "confidence": "hard"
+        }
+      },
       "early_lean": {
         "QB": 0.25,
         "RB": 0.25,
@@ -169,7 +324,8 @@
         "TE": 6.0,
         "K": 13.33,
         "DEF": 14.0
-      }
+      },
+      "predictability": "high"
     },
     "Sadbru": {
       "n_decisions": 42,
@@ -202,6 +358,44 @@
         "K": 12.33,
         "DEF": 11.0
       },
+      "timing_by_position": {
+        "QB": {
+          "mean": 5.0,
+          "sd": 1.63,
+          "n_seasons": 3,
+          "confidence": "firm"
+        },
+        "RB": {
+          "mean": 3.0,
+          "sd": 0.82,
+          "n_seasons": 3,
+          "confidence": "hard"
+        },
+        "WR": {
+          "mean": 3.0,
+          "sd": 1.63,
+          "n_seasons": 3,
+          "confidence": "firm"
+        },
+        "TE": {
+          "mean": 7.67,
+          "sd": 0.47,
+          "n_seasons": 3,
+          "confidence": "hard"
+        },
+        "K": {
+          "mean": 12.33,
+          "sd": 0.94,
+          "n_seasons": 3,
+          "confidence": "hard"
+        },
+        "DEF": {
+          "mean": 11.0,
+          "sd": 0.82,
+          "n_seasons": 3,
+          "confidence": "hard"
+        }
+      },
       "early_lean": {
         "QB": 0.167,
         "RB": 0.333,
@@ -212,7 +406,8 @@
         "TE": 7.67,
         "K": 12.33,
         "DEF": 11.0
-      }
+      },
+      "predictability": "high"
     },
     "Schmelley": {
       "n_decisions": 40,
@@ -245,6 +440,44 @@
         "K": 14.67,
         "DEF": 13.33
       },
+      "timing_by_position": {
+        "QB": {
+          "mean": 7.0,
+          "sd": 1.41,
+          "n_seasons": 3,
+          "confidence": "firm"
+        },
+        "RB": {
+          "mean": 3.67,
+          "sd": 2.49,
+          "n_seasons": 3,
+          "confidence": "firm"
+        },
+        "WR": {
+          "mean": 4.67,
+          "sd": 0.47,
+          "n_seasons": 3,
+          "confidence": "hard"
+        },
+        "TE": {
+          "mean": 5.67,
+          "sd": 3.3,
+          "n_seasons": 3,
+          "confidence": "loose"
+        },
+        "K": {
+          "mean": 14.67,
+          "sd": 0.47,
+          "n_seasons": 3,
+          "confidence": "hard"
+        },
+        "DEF": {
+          "mean": 13.33,
+          "sd": 0.47,
+          "n_seasons": 3,
+          "confidence": "hard"
+        }
+      },
       "early_lean": {
         "RB": 0.75,
         "TE": 0.25
@@ -254,7 +487,8 @@
         "TE": 5.67,
         "K": 14.67,
         "DEF": 13.33
-      }
+      },
+      "predictability": "high"
     },
     "cashworth": {
       "n_decisions": 42,
@@ -287,6 +521,44 @@
         "K": 13.33,
         "DEF": 14.33
       },
+      "timing_by_position": {
+        "QB": {
+          "mean": 4.0,
+          "sd": 2.0,
+          "n_seasons": 2,
+          "confidence": "firm"
+        },
+        "RB": {
+          "mean": 3.33,
+          "sd": 2.05,
+          "n_seasons": 3,
+          "confidence": "firm"
+        },
+        "WR": {
+          "mean": 2.67,
+          "sd": 1.25,
+          "n_seasons": 3,
+          "confidence": "firm"
+        },
+        "TE": {
+          "mean": 6.67,
+          "sd": 1.25,
+          "n_seasons": 3,
+          "confidence": "firm"
+        },
+        "K": {
+          "mean": 13.33,
+          "sd": 1.25,
+          "n_seasons": 3,
+          "confidence": "firm"
+        },
+        "DEF": {
+          "mean": 14.33,
+          "sd": 0.47,
+          "n_seasons": 3,
+          "confidence": "hard"
+        }
+      },
       "early_lean": {
         "QB": 0.167,
         "RB": 0.5,
@@ -297,7 +569,8 @@
         "TE": 6.67,
         "K": 13.33,
         "DEF": 14.33
-      }
+      },
+      "predictability": "high"
     },
     "coryjsimms": {
       "n_decisions": 37,
@@ -330,6 +603,44 @@
         "K": 13.0,
         "DEF": 15.0
       },
+      "timing_by_position": {
+        "QB": {
+          "mean": 7.33,
+          "sd": 2.62,
+          "n_seasons": 3,
+          "confidence": "loose"
+        },
+        "RB": {
+          "mean": 6.67,
+          "sd": 2.49,
+          "n_seasons": 3,
+          "confidence": "firm"
+        },
+        "WR": {
+          "mean": 4.0,
+          "sd": 2.83,
+          "n_seasons": 3,
+          "confidence": "loose"
+        },
+        "TE": {
+          "mean": 5.33,
+          "sd": 1.25,
+          "n_seasons": 3,
+          "confidence": "firm"
+        },
+        "K": {
+          "mean": 13.0,
+          "sd": 0.82,
+          "n_seasons": 3,
+          "confidence": "hard"
+        },
+        "DEF": {
+          "mean": 15.0,
+          "sd": 0.0,
+          "n_seasons": 3,
+          "confidence": "hard"
+        }
+      },
       "early_lean": {
         "WR": 1.0
       },
@@ -338,7 +649,8 @@
         "TE": 5.33,
         "K": 13.0,
         "DEF": 15.0
-      }
+      },
+      "predictability": "medium"
     },
     "ds7mmet": {
       "n_decisions": 39,
@@ -371,6 +683,44 @@
         "K": 13.0,
         "DEF": 12.0
       },
+      "timing_by_position": {
+        "QB": {
+          "mean": 4.0,
+          "sd": 0.82,
+          "n_seasons": 3,
+          "confidence": "hard"
+        },
+        "RB": {
+          "mean": 5.67,
+          "sd": 2.49,
+          "n_seasons": 3,
+          "confidence": "firm"
+        },
+        "WR": {
+          "mean": 4.0,
+          "sd": 1.63,
+          "n_seasons": 3,
+          "confidence": "firm"
+        },
+        "TE": {
+          "mean": 3.5,
+          "sd": 2.5,
+          "n_seasons": 2,
+          "confidence": "firm"
+        },
+        "K": {
+          "mean": 13.0,
+          "sd": 1.41,
+          "n_seasons": 3,
+          "confidence": "firm"
+        },
+        "DEF": {
+          "mean": 12.0,
+          "sd": 0.82,
+          "n_seasons": 3,
+          "confidence": "hard"
+        }
+      },
       "early_lean": {
         "QB": 0.25,
         "RB": 0.25,
@@ -382,7 +732,8 @@
         "TE": 3.5,
         "K": 13.0,
         "DEF": 12.0
-      }
+      },
+      "predictability": "high"
     },
     "mhagen": {
       "n_decisions": 39,
@@ -415,6 +766,44 @@
         "K": 14.0,
         "DEF": 13.33
       },
+      "timing_by_position": {
+        "QB": {
+          "mean": 8.0,
+          "sd": 4.0,
+          "n_seasons": 2,
+          "confidence": "loose"
+        },
+        "RB": {
+          "mean": 4.33,
+          "sd": 2.36,
+          "n_seasons": 3,
+          "confidence": "firm"
+        },
+        "WR": {
+          "mean": 3.33,
+          "sd": 0.94,
+          "n_seasons": 3,
+          "confidence": "hard"
+        },
+        "TE": {
+          "mean": 6.0,
+          "sd": 1.41,
+          "n_seasons": 3,
+          "confidence": "firm"
+        },
+        "K": {
+          "mean": 14.0,
+          "sd": 0.82,
+          "n_seasons": 3,
+          "confidence": "hard"
+        },
+        "DEF": {
+          "mean": 13.33,
+          "sd": 0.47,
+          "n_seasons": 3,
+          "confidence": "hard"
+        }
+      },
       "early_lean": {
         "RB": 0.333,
         "WR": 0.667
@@ -424,7 +813,8 @@
         "TE": 6.0,
         "K": 14.0,
         "DEF": 13.33
-      }
+      },
+      "predictability": "high"
     }
   },
   "caveat": "timing/lean/share only (ADP-free); REACH tendency + which-board-they-draft-from ride exp36_picks.json (adp+owner) in CI. 3 seasons \u2014 a lean <0.05 vs field or a single-season pattern is noise, not a tendency. Feeds the survival/room model per-seat + the war-room matchup read. No install.",
