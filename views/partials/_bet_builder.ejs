@@ -18,7 +18,7 @@
   const others = owners.filter(o => o.id !== owner.id);
   const thisWeek = (typeof currentWeek !== 'undefined' && currentWeek) ? currentWeek : 1;
 %>
-<details class="card entry-card bet-builder" id="propose" style="margin-bottom:1.2rem">
+<details class="card entry-card bet-builder" id="propose" style="margin-bottom:1.2rem"<%= (typeof prefillParty !== 'undefined' && prefillParty) ? ' open' : '' %>>
   <summary>➕ Start a bet <span class="sub">pick the kind, fill in two things, send it</span></summary>
   <div class="body">
     <form method="post" action="/sidebets" class="entry-form" id="bet-form">
@@ -138,9 +138,10 @@
         <div class="field" style="flex:1 1 100%">Send this bet to
           <span class="muted">(they get an alert and have to accept)</span>
           <div class="sb-people">
+            <% const _pref = (typeof prefillParty !== 'undefined') ? prefillParty : null; %>
             <% for (const o of others) { %>
               <label class="sb-person">
-                <input type="checkbox" name="party" value="<%= o.id %>"> <%= o.name %>
+                <input type="checkbox" name="party" value="<%= o.id %>"<%= _pref && o.id === _pref ? ' checked' : '' %>> <%= o.name %>
               </label>
             <% } %>
           </div>

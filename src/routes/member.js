@@ -452,7 +452,13 @@ router.get('/history/franchise/:name', aw(async (req, res) => {
     return res.status(404).render('error', { title: 'No such franchise',
       message: 'There is no owner by that name in the archive. The same ten men, a decade — check the spelling.' });
   }
-  res.render('history/franchise', { A, owner: A.owners[name] });
+  // Resolve the league owner_id so "bet him" from a franchise page can pre-fill
+  // the opponent (propose-from-anywhere). Archive owners key on name only.
+  const leagueOwners = H.activeOwners(req.world.owners);
+  const leagueOwner = leagueOwners.find(o => o.name === name);
+  res.render('history/franchise', { A, owner: A.owners[name],
+    betOwnerId: (leagueOwner && leagueOwner.id !== req.owner.id) ? leagueOwner.id : null,
+    betOwnerName: name });
 }));
 
 // The required cast for a modern season — champion + fraud/robbed/lucky/collapse,
@@ -579,6 +585,9 @@ router.get('/bank', aw(async (req, res) => {
 
   res.render('bank', {
     poolAdvice,
+    // Propose-from-anywhere: a ?betvs=<id> link (matchup, standings, franchise)
+    // pre-selects that opponent in the bet builder.
+    prefillParty: Number(req.query.betvs) || null,
     cards, season, totalOwedToLeague, totalLeagueOwes, viewCard, leagueEntries,
     TYPE_LABELS: L.TYPE_LABELS,
     section, bets, tallies, owners, betNames, sbLedger, sbOwed, sbOwedMine, verdicts, liveOrder,

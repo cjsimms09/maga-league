@@ -26,6 +26,10 @@
         <div style="color:var(--muted)">No titles. Yet.</div>
       <% } %>
       <% if (o.money) { %><div style="color:var(--gold-bright); font-weight:700;"><%= dollars(o.money.career) %> all-time</div><% } %>
+      <%# Propose-from-anywhere: one tap to bet this owner, opponent pre-filled. %>
+      <% if (typeof betOwnerId !== 'undefined' && betOwnerId) { %>
+        <a class="btn small gold" style="margin-top:.4rem" href="/bank?section=sidebets&betvs=<%= betOwnerId %>#propose">🤝 Bet <%= betOwnerName %></a>
+      <% } %>
     </div>
   </div>
 
