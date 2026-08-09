@@ -76,6 +76,41 @@ def probe(year=2026, board_path=None):   # pragma: no cover  (egress, CI only)
          "mfl_adp": round(mfl_by_id[pid], 1), "ffc_rank": ffc_rank[pid], "mfl_rank": mfl_rank[pid],
          "rank_move": mfl_rank[pid] - ffc_rank[pid]}      # negative = MFL ranks him HIGHER
         for pid in diffs]
+
+    # #2 + #4 (Cory): the edge only matters where Cory DRAFTS. Movement + coverage by
+    # rank-band, computed over the FULL FFC ordering (not just crosswalked), so the
+    # uncovered 28% shows up as a coverage hole in its band rather than vanishing.
+    all_ffc_rank = {pid: i + 1 for i, pid in enumerate(sorted(ffc_by_id, key=lambda p: ffc_by_id[p]))}
+    bands = [("top50", 1, 50), ("r51_100", 51, 100), ("r101_130", 101, 130),
+             ("r131_200", 131, 200), ("deep200plus", 201, 10 ** 9)]
+    band_stats = {}
+    for name, lo, hi in bands:
+        ids = [pid for pid in ffc_by_id if lo <= all_ffc_rank[pid] <= hi]
+        covered = [pid for pid in ids if pid in mfl_by_id]
+        moves = [abs(ffc_rank[pid] - mfl_rank[pid]) for pid in covered]
+        band_stats[name] = {
+            "players": len(ids), "mfl_covered": len(covered),
+            "coverage": round(len(covered) / max(1, len(ids)), 2),
+            "mean_abs_rank_move": round(sum(moves) / len(moves), 1) if moves else None,
+            "median_abs_rank_move": round(sorted(moves)[len(moves) // 2], 1) if moves else None,
+        }
+    out["movement_by_band"] = band_stats
+    # the exact picks Cory owns first (34/41/54): what sits at those FFC ranks and where MFL puts it
+    at_picks = {}
+    for pk in (34, 41, 54):
+        pid = next((p for p, r in all_ffc_rank.items() if r == pk), None)
+        if pid:
+            at_picks[str(pk)] = {"player": name_by_id.get(pid), "ffc_rank": pk,
+                                 "mfl_rank": mfl_rank.get(pid), "has_mfl": pid in mfl_by_id,
+                                 "rank_move": (mfl_rank[pid] - pk) if pid in mfl_by_id else None}
+    out["at_my_picks"] = at_picks
+    # #4 fallback: uncovered players keep their FFC adp (the anchor never leaves a hole);
+    # count how many uncovered sit inside the draftable top-200.
+    uncovered_top200 = [pid for pid in ffc_by_id if pid not in mfl_by_id and all_ffc_rank[pid] <= 200]
+    out["uncovered_in_top200"] = len(uncovered_top200)
+    out["fallback_rule"] = ("uncovered players (no MFL number) KEEP their FFC adp — a swap blends "
+                            "MFL where present, FFC elsewhere; nobody is dropped or mis-priced to a "
+                            "guess. Report counts so a coverage hole in the draftable range is visible.")
     out["note"] = ("RETRIEVABLE — 2026 MFL ADP is live at our format. Coverage + the biggest "
                    "FFC-vs-MFL disagreements are the preview of what swapping the anchor moves. "
                    "Wiring MFL as the live anchor is the follow-on (build.py adp seam).") \
