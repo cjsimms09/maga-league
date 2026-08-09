@@ -111,7 +111,11 @@
     <% }) %>
     </tbody>
   </table>
-  <p style="color:var(--muted);font-size:12px">Side bets are their own book — never mixed into league money. Click a name, a cell, or a year to drill in.</p>
+  <%# Zero-sum invariant, asserted on screen: every dollar won is a dollar lost,
+      so the career column must sum to 0. If it doesn't, something is wrong. %>
+  <% const _zs = sbGrid.rows.reduce((s, r) => s + (r.career || 0), 0); %>
+  <p style="color:var(--muted);font-size:12px">Side bets are their own book — never mixed into league money. Click a name, a cell, or a year to drill in.
+    <% if (Math.abs(_zs) < 0.01) { %><span class="sb-pos">✓ the book balances to zero</span><% } else { %><span class="sb-neg">⚠️ off by <%= sbMoney(_zs) %> — tell the commissioner</span><% } %></p>
 <% } %>
 </div>
 

@@ -32,6 +32,8 @@
         <thead><tr>
           <th class="name">#</th><th class="name">Owner</th><th>Career $</th><th>W-L-T</th>
           <% for (const y of MB.years) { %><th><%= String(y).slice(2) %></th><% } %>
+          <% const LIVE_YEAR = 2026; const showLive = !MB.years.includes(LIVE_YEAR); %>
+          <% if (showLive) { %><th title="2026 — in progress" style="color:var(--green)">'26<span style="display:block;font-size:.5rem;color:var(--muted);font-weight:500">in progress</span></th><% } %>
         </tr></thead>
         <tbody>
           <% MB.rows.forEach((r, i) => { %>
@@ -43,6 +45,14 @@
               <% for (const y of MB.years) { const v = (r.by_year || {})[y] || (r.by_year || {})[String(y)] || 0; %>
                 <td class="<%= v ? '' : '' %>" style="<%= v ? '' : 'color:var(--muted)' %>">
                   <%= v ? dollars(v) : '·' %><% if (r.name === 'Marian' && Number(y) === 2022) { %><a class="aster" href="/history#asterisk">*</a><% } %>
+                </td>
+              <% } %>
+              <%# 2026 — in progress: reads live from the same by_year money the
+                  weekly pipeline writes. Banked dollars show as money; nothing yet
+                  shows "in progress", never a $0 that reads as earned-nothing. %>
+              <% if (showLive) { const v26 = (r.by_year || {})[LIVE_YEAR] || (r.by_year || {})[String(LIVE_YEAR)] || 0; %>
+                <td style="<%= v26 ? '' : 'color:var(--muted);font-style:italic' %>">
+                  <%= v26 ? dollars(v26) : 'in progress' %>
                 </td>
               <% } %>
             </tr>
