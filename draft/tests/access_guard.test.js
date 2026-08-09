@@ -1,9 +1,25 @@
 'use strict';
-// ACCESS GUARD — analysis is the commissioner's, results are league property.
-// Asserts (a) /lineup + /lineup/log 403 a non-commissioner, and (b) no
-// league-visible page (as a NON-commissioner) renders per-owner efficiency
-// rates, all-play records, or bench-points-left. This is the test Cory asked for
-// so the leak can never come back by accident. Run: node access-guard.js
+// ACCESS GUARD — the settled rule is TOOLS vs HISTORY, not raw-data vs analysis.
+//
+//   COMMISSIONER-ONLY: the tools, and ONLY the tools — the war room and everything
+//   it computes, /lineup + the optimizer + its proof tab, and the in-season
+//   recommendation surfaces (waiver calls, streaming, trade radar, Sunday alert).
+//   Anything that GENERATES A RECOMMENDATION for the commissioner.
+//
+//   LEAGUE-VISIBLE: everything that DESCRIBES WHAT ALREADY HAPPENED, however it was
+//   computed — all-play records, luck-gap and robbery rankings, per-owner/per-season
+//   lineup-efficiency %, season bench-point totals, all money/standings/records, and
+//   every analytical framing in the history chapters. History is the league's shared
+//   record; results are league property.
+//
+// HISTORY OF THIS FILE (so the change is auditable): it originally also asserted
+// that NO league-visible page renders all-play / efficiency / luck-gap / robbery /
+// bench-aggregate text. That encoded an EARLIER, since-CORRECTED reading (raw-data
+// vs analysis). Cory corrected it 2026-08-09: the distinction is TOOLS vs HISTORY,
+// the earlier instruction was wrong, and B implemented the earlier instruction
+// correctly — the correction is Cory's, not a bug. So those negative assertions are
+// REMOVED; they are now wrong. The /lineup gating below is the real, standing rule
+// and stays. Run: node draft/tests/access_guard.test.js
 const os=require('os'),fs=require('fs'),path=require('path');
 const ROOT=require('path').join(__dirname,'..','..');
 process.env.DATA_DIR=fs.mkdtempSync(path.join(os.tmpdir(),'guard-'));
@@ -14,27 +30,9 @@ const {createApp}=require(path.join(ROOT,'server-app'));
 const cookieFrom=res=>res.headers.getSetCookie().map(s=>s.split(';')[0]).join('; ');
 let pass=0,fail=0;const ck=(n,c,d)=>{c?(pass++,console.log('PASS '+n)):(fail++,console.log('FAIL '+n+(d?' -> '+d:'')))};
 
-// Phrases that are ANALYSIS (must never appear on a league-visible page for a
-// non-commissioner). Word-boundary-ish, case-insensitive. "efficiency" as a
-// bare word appears in code comments only, not rendered text, so we target the
-// rendered forms: "lineup efficiency", "N% efficiency", "all-play", "NN-NN all-play".
-const BANNED = [
-  /all[- ]play/i,
-  /lineup efficiency/i,
-  /efficiency (?:at|in the league|rate)/i,
-  /biggest (?:positive )?luck gap/i,
-  /largest robbery on record/i,
-  // SEASON bench-points aggregate (intel), e.g. "left 297 on the bench",
-  // "308 points rotting on his bench". Does NOT match a specific-game benching
-  // like "benched Goff for 51" — that's a fact about a game and stays.
-  /(?:left|leaving)\s+[\d,]+\s+(?:points?\s+)?(?:rotting\s+)?on (?:his|the) bench/i,
-  /[\d,]+\s+points?\s+(?:rotting\s+)?on (?:his|the) bench/i,
-];
-
 (async function(){
   await data.ensureSeeded();
   const owners=await store.get('owners');
-  // a NON-commissioner owner
   const notComm=owners.find(o=>!o.is_commissioner);
   notComm.password_hash=hashPassword('pw123456');notComm.must_change_password=false;
   const comm=owners.find(o=>o.is_commissioner);
@@ -47,23 +45,19 @@ const BANNED = [
   const cc=await loginAs(comm.username);
   const get=async(p,cookie)=>{const r=await fetch(b+p,{headers:{Cookie:cookie},redirect:'manual'});return{status:r.status,body:r.status===200?await r.text():''};};
 
-  // (a) /lineup gated
+  // THE STANDING RULE: the TOOLS are commissioner-only. A non-commissioner gets 403;
+  // the commissioner gets 200. This is what must never regress.
   ck('/lineup 403 for a non-commissioner',(await get('/lineup',nc)).status===403);
   ck('/lineup?tab=proof 403 for a non-commissioner',(await get('/lineup?tab=proof',nc)).status===403);
   ck('/lineup 200 for the commissioner',(await get('/lineup',cc)).status===200);
   const logNc=await fetch(b+'/lineup/log',{method:'POST',headers:{Cookie:nc,'Content-Type':'application/x-www-form-urlencoded'},body:'counterfactual=%5B%5D&recommended=%5B%5D',redirect:'manual'});
   ck('/lineup/log 403 for a non-commissioner',logNc.status===403,String(logNc.status));
 
-  // (b) no league-visible page leaks analysis, viewed AS a non-commissioner
-  const PAGES=['/','/history','/history/season/2023','/history/season/2024','/history/season/2025',
-    '/history/records','/history/money','/history/badbeats','/history/catalogue',
-    '/history/franchise/Cory','/history/franchise/Jeremy','/matchup?opp=3','/bank','/team?section=roster'];
-  for(const p of PAGES){
-    const {status,body}=await get(p,nc);
-    if(status!==200){ck('page loads: '+p,false,String(status));continue;}
-    const hit=BANNED.find(re=>re.test(body));
-    ck('no analysis leak on '+p,!hit,hit?('matched '+hit):'');
-  }
+  // History pages are LEAGUE-VISIBLE by the settled rule; there is deliberately no
+  // assertion that they hide all-play / efficiency / bench analysis. (A positive
+  // guard — that the history pages DO render that league-visible analysis to a
+  // non-commissioner — is the natural follow-up once B's restore commit lands, and
+  // belongs here then, coordinated with B on the exact rendered phrases.)
 
   server.close();
   console.log(`\n${pass} passed, ${fail} failed`);

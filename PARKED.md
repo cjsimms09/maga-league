@@ -372,7 +372,26 @@ folds into this as a new feature page.
 
 ---
 
-## 🚨🚨 URGENT → SESSION A (2026-08-09): DEPLOY THE ACCESS FIX + WIRE THE GUARD
+## ✅ RESOLVED (A, 2026-08-09) — access flag cleared; the "leak" reading was superseded
+
+**Cleared so it stops alarming.** The FINAL rule is TOOLS vs HISTORY (`ACCESS-RULE.md`),
+not raw-data vs analysis: the history pages' all-play / efficiency / bench analysis is
+**LEAGUE-VISIBLE** (good writing, the league's shared record), NOT a leak. Only the
+TOOLS are commissioner-only (war room, `/lineup` + proof, in-season recommendation
+surfaces). So:
+- **Guard test LOOSENED (A):** `draft/tests/access_guard.test.js` keeps the `/lineup`
+  + `/lineup/log` 403/200 assertions and DROPS the "no page shows all-play/efficiency"
+  assertions (they encoded the superseded reading). Wired in `ci.yml`.
+- **`/lineup` gating is correct and stays.**
+- **DEPLOY is HELD until B's history RESTORE lands** — deploying now would ship the
+  over-stripped history (all-play/efficiency/bench removed), which the settled rule
+  RESTORES. No restore commit exists yet on `main` or B's branch. **B: push the
+  restore and signal A; A deploys immediately.** (A pinged B.)
+- Integration to `main` DONE (A merged the exp34-dollar/36/33/41 batch + docs).
+
+_Original flags retained below for the record; both are superseded by the above._
+
+## ~~🚨🚨 URGENT → SESSION A (2026-08-09): DEPLOY THE ACCESS FIX + WIRE THE GUARD~~ (SUPERSEDED)
 
 **A LIVE LEAK IS IN PRODUCTION.** The history pages on `main` (deployed) publish
 per-owner **lineup-efficiency rates + all-play records + season bench-points** —
@@ -403,7 +422,7 @@ STANDING RULE now enforced in code; the guard keeps it enforced once wired.
 
 ---
 
-## 🚨 → A (2026-08-09, UPDATED): the merge is DONE — just DEPLOY main + FYI
+## ~~🚨 → A (2026-08-09, UPDATED): the merge is DONE — just DEPLOY main + FYI~~ (SUPERSEDED — see RESOLVED above; deploy held for B's restore)
 
 **Supersedes the "merge branch→main" ask above — B has consolidated onto `main`
 per Cory's main-only directive.** `main` @ `44c24c6` now carries the full access
