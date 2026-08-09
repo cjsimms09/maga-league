@@ -145,6 +145,8 @@ def egress_main():   # pragma: no cover  (CI only)
     """Consume exp36_picks.json (FFC adp + realized + meta, per season) and add MFL via
     the SAME crosswalk exp36 uses, then compare per season. FantasyPros joins once its
     CSV parser lands. Writes exp_source_grade.json."""
+    sys.path.insert(0, str(HERE.parent))          # draft/ — where adp.py + sleeper_import.py live
+    sys.path.insert(0, str(HERE.parent.parent))   # repo root (matches exp36's resolution)
     import mfl_adp as MFL
     import adp as ADP
     import sleeper_import as SL
