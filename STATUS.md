@@ -753,3 +753,15 @@ validation harnesses `scratchpad/{h2h-verify,lineup-validate,matchup-smoke,egg-c
 (can't commit to draft/tests — A's lane; a CI test for the optimizer is flagged for A).
 
 **Deploy:** ask A to merge branch→main + deploy when Cory wants it live.
+
+### 🅱️ update (same session, later): LINEUP OPTIMIZER PAGE DONE
+`/lineup` shipped (`views/lineup.ejs`, route + POST /lineup/log, `LO.weekDrill`,
+nav, lo-* CSS). Live tab (dollar-optimal lineup + priced start/sit + decision-time
+`lineup_call` write with enforced counterfactual) and Proof tab (reproduces
+$470/595/445 + Cory's $2,100 + per-team efficiency + per-week drill-down). 13/13
+e2e. Live tab needs A's projections (season-avg fallback until then). REMAINING
+top of queue now: Sunday alert (task 4) → instrumentation check (task 5) → the
+site-wide design sweep (standings rank arrows, weekly-high progress meter, side-bet
+grid money colour, records-as-record-book, page hierarchy) → side-bet lifecycle
+(A owns sidebets.js state machine, flagged) → Chiefs/Mahomes + Bates eggs.
+Scratchpad harness `lineup-smoke.js` proves it (can't commit to draft/tests — A).
