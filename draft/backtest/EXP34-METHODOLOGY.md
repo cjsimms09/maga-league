@@ -45,6 +45,36 @@ always was: no archived decision-time composite.
    actual draft order as the "market" instead of ADP: did we beat these nine
    humans, not just the national board.
 
+## THE UNIT OF DEVIATION COST — FORGONE VALUE, not spots or composite points
+
+_Adopted 2026-08-09 (Cory), for Stage 2 and exp 34. This changes the band cut and
+Stage 2's cost function; adopt before building either further._
+
+Deviation measured in ADP **spots** is close to meaningless: 15 spots can be
+nothing (15 interchangeable WRs within a point) or catastrophic (crossing a tier
+cliff where the drop is 20 points). Raw **composite points** are no better — which
+is exactly why the T=4.0 cap was inert; 4 composite points has no consistent
+relationship to what a deviation costs. You do not pay points for a player, you pay
+a **pick**, and the pick has a market price.
+
+> **DEVIATION COST = value(ADP-preferred available player) − value(the player we
+> recommend), in projected points.** Taking a player 15 spots early means paying
+> pick-34 price for pick-49 value; the cost is the value of the best player you
+> could have taken at market and did not. A deviation is justified **only when our
+> evidence supports that our player clears that gap.**
+
+Why this is the right unit: it is **comparable across rounds, positions and board
+states** (a threshold in forgone value means the same thing at pick 34 and pick
+120 — spots do not); it **prices tier cliffs for free** (reaching across a cliff
+has large forgone value by construction, reaching inside a tier almost none — the
+convexity comes without a separate cliff term); and it gives Stage 2 a cost
+function that can **bind proportionally** instead of a flat gate.
+
+**What this does NOT fix (stated so nobody overreads it):** better cost accounting
+on top of **unvalidated projections is still unvalidated.** If our player
+evaluations are wrong, a correctly-priced deviation is still a wrong deviation.
+That is what 33 and 34 are for; no reframing substitutes for them.
+
 ## THE DELIVERABLE — the deviation-edge surface (named plainly, no options costume)
 
 Not a pass/fail. A surface: **the deviation edge as a function of four measurable
@@ -65,6 +95,21 @@ name them plainly:
 | **tier-cliff proximity** | hit-rate on deviations that CROSS a tier boundary vs stay INSIDE one | crossing a cliff is the expensive bet → **if we lose anywhere it is crossing cliffs; anchor stronger near cliffs, relaxed inside tiers.** |
 | **round / draft decay** | realized COST of a bad deviation by round (early picks recover, late don't) | **a miss at 34 is absorbed by later picks; a miss at 141 is a wasted spot** → cost of a bad deviation rises late; interacts with board position. |
 | **market dispersion** | edge on CONTESTED (high ADP stdev) vs UNANIMOUS players (FFC published stdev where available, fitted sd otherwise) | our deviation is cheap where the market disagrees with itself → **if we have an edge it concentrates in contested players, narrow but real.** |
+
+## THE BANDS — cut by FORGONE VALUE (primary), ADP-distance kept as a comparison
+
+The deviation bands are cut by **how much value we gave up**, not how many spots:
+**near-zero · small · moderate · large** forgone projected points. For each band,
+our hit rate = did the player we took out-produce the ADP-preferred available
+player, on realized ROS points. That curve is the anchor's calibration — it says
+**how much forgone value our evidence has historically been able to justify**, and
+it feeds Stage 2's cost function directly.
+
+**Also report the ADP-distance bands (within 5 / 5–15 / 15–30 / >30 spots)** over
+the same decisions, so we can see directly **whether distance or forgone value is
+the better predictor of our hit rate. That comparison is itself a finding** — if
+forgone value predicts and distance does not, it confirms the unit change was real
+and not cosmetic.
 
 ## MULTI-BOARD BASELINE — no single ADP is truth
 

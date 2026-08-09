@@ -1,5 +1,18 @@
 # WHAT A REAL STAGE 2 COSTS — a plan with a number
 
+> **⚑ COST UNIT REVISED 2026-08-09 (Cory) — FORGONE VALUE, not spots or composite
+> points.** The anchor's rule is: the market has set a price on this pick;
+> deviating requires evidence that our player **clears that price**. The cost of a
+> deviation = `value(ADP-preferred available) − value(our pick)` in projected
+> points — comparable across rounds/positions/boards, and it prices tier cliffs for
+> free. Evidence scaling by class (untested/weak/structural) applies to **whether
+> the gap is cleared**, NOT to an arbitrary threshold — which is why the flat T=4.0
+> cap was inert (4 composite points has no consistent relationship to cost). The
+> re-weighting below is re-expressed in this unit; exp 34's forgone-value bands say
+> how much of that gap our evidence has historically been able to justify, and that
+> curve IS the binding function. (Caveat unchanged: correct pricing on top of
+> unvalidated projections is still unvalidated — 33/34's job.)
+
 _Written 2026-08-08 after `--diff` proved 0/300 picks changed identity: the tree
 is a labeling layer, Stage 2 is not behavioral. This answers "what would it take
 to make it real" concretely, not as options._
