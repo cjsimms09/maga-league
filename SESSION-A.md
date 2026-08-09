@@ -71,8 +71,12 @@ Direct commit to `main` is not available to you by default. So (per TERRITORY.md
 - **PushNotification** on completion, at a resume boundary, and when blocked on Cory —
   success AND failure (a silent failure in an unwatched run is indistinguishable from
   success).
-- **Deploy** when Cory needs something live; one per batch; draft-week build reserve
-  protected (`DEPLOY-POLICY.md`).
+- **Deploys are OPT-OUT (since 2026-08-09).** Any served-file change on `main`
+  (`views/`, `public/`, `src/`, `server-app.js`, `package*.json`, `netlify.toml`,
+  `netlify/functions/`) auto-ships; docs/Lab/reports/CI skip; `[skip deploy]` on the
+  tip suppresses. The gate reads the RANGE since the last build, so a buried change
+  still ships — no marker to forget (`netlify-ignore.sh`, `DEPLOY-POLICY.md`). A still
+  owns integration to `main`; the Sunday audit reports "prod is N behind" as the alarm.
 
 ## Evidence discipline (this is the whole point of the Lab)
 
@@ -100,6 +104,8 @@ Direct commit to `main` is not available to you by default. So (per TERRITORY.md
 **ACCESS-RULE.md** — read it before touching anything that renders analysis.
 
 ## Where the current queue is
+
+**Plain-English current queue: `TODO.md`** (grouped before-draft / waiting-on-you / waiting-on-the-world / post-draft / Lab). Deeper detail:
 
 The live queue lives in the newest Session-A section of **STATUS.md** and in
 **PARKED.md** (scoped deferred increments). The Lab's registered experiments are in

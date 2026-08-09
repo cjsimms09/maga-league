@@ -3,8 +3,8 @@
 > **🧭 SESSION BOOTSTRAP:** a fresh session should start from its role file, not a
 > pasted prompt. **Session A → `SESSION-A.md`**, **Session B → `SESSION-B.md`** (both
 > at repo root); the shared rules live there and change there. Access rule (tools vs
-> history): **`ACCESS-RULE.md`**. Resume ritual: _"You are session A, read SESSION-A.md
-> and STATUS.md, then continue."_
+> history): **`ACCESS-RULE.md`**. Plain-English current queue: **`TODO.md`**. Resume
+> ritual: _"You are session A, read SESSION-A.md and STATUS.md, then continue."_
 
 > **🩹 HOTFIX (2026-08-08): /history 500'd in production — `included_files` gap, NOT the merge.** The merge was clean (every B file byte-identical to `e2b7ce9`, all pages render 200 locally incl. `/history/season/2024`). But `history-data.js` reads its harvest (`draft/data/**`, `draft/config/**`, `public/draft_data.json`) from disk at request time, and `netlify.toml`'s `included_files` never bundled them → `ENOENT` in the function → every `/history` route 500s while Blob-backed pages stayed up. Proven by simulating the bundle (build() throws ENOENT on `league_history.json`) and by the fix (build() OK, 2024 present). Fixed forward with `[deploy]` — no rollback, since the cause was one config line, not the merge.
 > **🔧 DEPLOY-VERIFY WAS SILENTLY DEAD (pre-existing, found during the hotfix).** `deploy-verify.yml`'s heredoc terminator `PY` sat at column 0 inside a 10-space `run: |` block scalar → **invalid YAML**, so GitHub could not parse its triggers and every run created-and-instantly-failed with **zero jobs**. The deploy verifier — the one check that proves "deployed == HEAD" — had never actually run. Fixed (indent `PY` into the block; bash still gets a bare terminator after YAML dedent). Added a **CI workflow-YAML lint** so an unparseable workflow is a red build, not a silent hole. (`ci.yml` itself passes on every commit — that was never broken.)

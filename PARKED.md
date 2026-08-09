@@ -522,3 +522,12 @@ and escalates on served-file drift). The remaining half is a VIEW, so it's yours
   quiet register.
 Rationale in DEPLOY-POLICY.md (A's recommendation: keep [deploy] opt-in through the
 draft, make stranding loud instead of switching policy under budget pressure).
+
+## → SESSION B (2026-08-09, from A): regenerate your queue slice + prune like A did
+
+A built `TODO.md` (root) — the plain-English current queue, grouped before-draft /
+waiting-on-you / waiting-on-the-world / post-draft / Lab, with done items cited. It
+covers the Lab + draft lane. **B: add your site/in-season slice** (matchup follow-ups,
+Sunday alert, lineup optimizer in-season surfaces, the deployed-vs-main health strip
+parked to you, the design sweep) and prune your own queue the same way Cory asked:
+verify-then-remove with a citation in the commit, dedupe keeping the NEWEST version.
