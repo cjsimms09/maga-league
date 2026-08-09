@@ -1697,6 +1697,39 @@ table .num.zero { color: var(--muted); font-weight: 400; }
 .wh-leg-note { font-size: .68rem; display: flex; align-items: center; gap: .3rem; }
 .wh-dot-tight { display: inline-block; width: 8px; height: 8px; border-radius: 2px; background: var(--red-bright); }
 
+/* ── FRANCHISE POOL DRAFT ROOM ──────────────────────────────────────────────── */
+.pdraft { margin-top: .7rem; border-radius: 12px; border: 1px solid var(--line);
+  background: rgba(255,255,255,.02); padding: .7rem .8rem; }
+.pdraft-head { display: flex; align-items: center; justify-content: space-between; gap: .6rem; flex-wrap: wrap; }
+.pdraft-badge { font-size: .78rem; font-weight: 800; letter-spacing: .02em; padding: .2rem .55rem;
+  border-radius: 999px; background: rgba(255,255,255,.05); border: 1px solid var(--line); color: var(--ink); }
+.pdraft-badge.you { background: rgba(47,213,118,.14); border-color: rgba(47,213,118,.45); color: var(--green); }
+.pdraft-badge.done { background: rgba(245,196,69,.12); border-color: rgba(245,196,69,.4); color: var(--gold-bright); }
+.pdraft-prog { font-size: .74rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.pdraft-why { font-size: .78rem; margin: .4rem 0 .6rem; }
+.pdraft-board { display: grid; grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr)); gap: .4rem; }
+.pd-team { display: flex; align-items: center; justify-content: space-between; gap: .4rem;
+  padding: .45rem .6rem; border-radius: 9px; border: 1px solid var(--line); background: rgba(255,255,255,.03);
+  font-size: .82rem; width: 100%; text-align: left; }
+.pd-name { font-weight: 700; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pd-holder { font-size: .7rem; color: var(--muted); white-space: nowrap; }
+.pd-team.taken { opacity: .72; }
+.pd-team.taken.mine { opacity: 1; border-color: rgba(47,213,118,.45); background: rgba(47,213,118,.08); }
+.pd-team.taken.mine .pd-holder { color: var(--green); font-weight: 700; }
+.pd-team.open { border-style: dashed; }
+button.pd-team.pick { cursor: pointer; border-color: rgba(245,196,69,.45); background: rgba(245,196,69,.08); transition: transform .12s, background .12s; }
+button.pd-team.pick:hover { background: rgba(245,196,69,.16); transform: translateY(-1px); }
+.pd-take { font-size: .7rem; color: var(--gold-bright); font-weight: 800; }
+.pdraft-rosters { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; margin-top: .7rem; }
+.pd-roster { padding: .5rem .6rem; border-radius: 10px; border: 1px solid var(--line); background: rgba(255,255,255,.03); }
+.pd-roster.mine { border-color: rgba(47,213,118,.4); }
+.pd-roster-head { font-size: .74rem; font-weight: 800; color: var(--muted); margin-bottom: .35rem; }
+.pd-roster.mine .pd-roster-head { color: var(--green); }
+.pd-roster-teams { display: flex; flex-wrap: wrap; gap: .25rem; }
+.pd-chip { font-size: .72rem; padding: .1rem .4rem; border-radius: 6px; background: rgba(255,255,255,.06); color: var(--ink); }
+.pdraft-pending { font-size: .84rem; color: var(--ink); padding: .5rem .2rem 0; line-height: 1.5; }
+@media (max-width: 480px) { .pdraft-rosters { grid-template-columns: 1fr; } }
+
 /* ── SIDE-BET LIFECYCLE (declare → confirm → dispute) ───────────────────────── */
 .sb-declare { margin-top: .6rem; }
 .sb-declare > summary {

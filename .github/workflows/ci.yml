@@ -75,6 +75,8 @@ jobs:
         # loser gets the winner's Venmo link with the amount ready. Nothing settles
         # silently. Complements sidebets_lifecycle (the pure state machine).
         run: node draft/tests/sidebets_lifecycle_ui.test.js
+      - name: Pool draft over HTTP — franchise snake draft + order-from-standings
+        run: node draft/tests/pool_draft_ui.test.js
       - name: Robot mock draft — the safety net
         # A full snake draft from every seat through the real engine and
         # attribution modules, plus every bug this session as a regression

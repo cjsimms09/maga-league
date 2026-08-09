@@ -695,6 +695,35 @@ function safeJson(v) {
   try { return JSON.parse(String(v)); } catch (e) { return String(v).slice(0, 2000); }
 }
 
+// Franchise-pool draft order: whoever finished HIGHER in the most recent
+// completed season picks first (computed, not entered). Returns the ordered
+// bettor ids and the human "why" the draft room shows.
+function ordinal(n) {
+  const s = ['th', 'st', 'nd', 'rd'], v = n % 100;
+  return n + (s[(v - 20) % 10] || s[v] || s[0]);
+}
+function poolDraftOrder(world, owners, aId, bId) {
+  const nameOf = id => (H.ownerById(owners, id) || {}).name || '?';
+  // The archive carries the real per-season standings (world.seasons.standings is
+  // empty in the store). Use the most recent completed season with standings.
+  let s = null;
+  try {
+    const A = HIST.build();
+    const years = Object.keys(A.byYear || {}).map(Number).sort((x, y) => y - x);
+    for (const y of years) { const ss = A.byYear[y]; if (ss && (ss.standings || []).length) { s = ss; break; } }
+  } catch (e) { s = null; }
+  const rankOf = name => { if (!s) return null; const row = (s.standings || []).find(r => r.name === name); return row ? row.rank : null; };
+  const ra = rankOf(nameOf(aId)), rb = rankOf(nameOf(bId));
+  let first = aId, second = bId, why;
+  if (ra != null && rb != null) {
+    if (rb < ra) { first = bId; second = aId; }
+    why = `${nameOf(first)} picks first — finished ${ordinal(rankOf(nameOf(first)))} to ${nameOf(second)}'s ${ordinal(rankOf(nameOf(second)))} in ${s.year}.`;
+  } else {
+    why = `${nameOf(first)} picks first (proposer's edge — no prior-season standings to rank by).`;
+  }
+  return { order: [first, second], why };
+}
+
 router.post('/sidebets', aw(async (req, res) => {
   const ids = [].concat(req.body.party || []).map(Number).filter(Boolean);
   const stake = parseFloat(req.body.stake);
@@ -712,10 +741,17 @@ router.post('/sidebets', aw(async (req, res) => {
   }
   if (terms && Number.isFinite(stake) && stake > 0 && (ids.length || openSlots)) {
     try {
+      // A pool bet is a DRAFT: every league franchise is in play and NOBODY
+      // picks at propose time — the alternating draft opens on accept. So the
+      // teams-in-play are all active owners, and the proposer's picks are ignored.
+      const poolTeams = format === 'pool' ? owners.map(o => o.id) : [];
+      const poolWins = format === 'pool'
+        ? (String(req.body.pool_outcome || '').trim() || 'holds the eventual league champion')
+        : '';
       const bet = await SB.propose({
         proposer_id: req.owner.id, party_ids: ids, terms, stake,
         position: String(req.body.position || '').trim(),
-        picks: picksFrom(req.body),
+        picks: format === 'pool' ? [] : picksFrom(req.body),
         resolves: String(req.body.resolves || '').trim(),
         format, conditions, logic: req.body.logic, kind: String(req.body.kind || ''),
         // Ordered: the first rule that separates the field wins, the rest are
@@ -723,6 +759,7 @@ router.post('/sidebets', aw(async (req, res) => {
         pool_rules: [].concat(req.body.pool_rules || []).map(String).filter(Boolean),
         picks_required: Number(req.body.picks_required) || 0,
         open_slots: openSlots,
+        pool_teams: poolTeams, pool_wins: poolWins,
       });
       // Nobody checks a website for a bet they do not know exists.
       const targets = owners.filter(o => ids.includes(o.id));
@@ -787,11 +824,26 @@ router.post('/sidebets/:id/accept', aw(async (req, res) => {
     return res.redirect(req.body.back === 'team'
       ? '/team?late=1' : '/bank?section=sidebets&late=1');
   }
-  await SB.accept(req.params.id, req.owner.id, req.owner.name, {
+  const accepted = await SB.accept(req.params.id, req.owner.id, req.owner.name, {
     position: String(req.body.position || '').trim(),
     picks: picksFrom(req.body),
   });
+  // A pool bet is a DRAFT: the moment both are in, open the franchise draft with
+  // the order computed from the prior season's finish (higher finisher first).
+  if (accepted && accepted.format === 'pool' && accepted.status === SB.STATUS.LOCKED
+      && !accepted.draft && accepted.parties.length >= 2) {
+    const owners = H.activeOwners(req.world.owners);
+    const [aId, bId] = accepted.parties.map(p => p.owner_id);
+    const { order, why } = poolDraftOrder(req.world, owners, aId, bId);
+    await SB.startPoolDraft(accepted.id, order, why);
+  }
   res.redirect(req.body.back === 'team' ? '/team' : '/bank?section=sidebets');
+}));
+
+// One franchise-draft pick. Must be your turn; the team leaves the shared pool.
+router.post('/sidebets/:id/draft-pick', aw(async (req, res) => {
+  await SB.poolDraftPick(req.params.id, req.owner.id, Number(req.body.team));
+  res.redirect('/bank?section=sidebets#bet-' + req.params.id);
 }));
 
 // Take the other side of a bet somebody posted to the market. Taking IS the

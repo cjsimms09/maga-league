@@ -404,36 +404,57 @@ function betCard(b, kind) {
       <%# A pool's picks belong in standings order, so it reads as the league
           table with everyone's stake marked on it — which is the whole appeal
           of the bet. Falls back to plain order before a ball is kicked. %>
-      <% if (b.format === 'pool') {
-           const pickerOf = {};
-           for (const p of b.parties) for (const id of p.picks) (pickerOf[id] ??= []).push(p.owner_id);
-           const ordered = (liveOrder && liveOrder.length ? liveOrder : owners.map(o => o.id));
-           const rest = owners.map(o => o.id).filter(id => !ordered.includes(id));
-      %>
-        <table class="pool-board">
-          <tbody>
-          <% [...ordered, ...rest].forEach((id, i) => { const hs = pickerOf[id] || []; %>
-            <tr class="<%= hs.includes(owner.id) ? 'mine' : hs.length ? 'theirs' : 'unpicked' %>">
-              <td class="pb-rank"><%= liveOrder && liveOrder.length ? i + 1 : '·' %></td>
-              <td class="pb-team"><%= betNames(id) %></td>
-              <td class="pb-who">
-                <% if (!hs.length) { %><span class="muted">nobody</span>
-                <% } else { %><% for (const h of hs) { %><span class="pb-chip <%= h === owner.id ? 'me' : '' %>"><%= betNames(h) %></span><% } %><% } %>
-              </td>
-            </tr>
-          <% }) %>
-          </tbody>
-        </table>
-        <%# Your picks stay editable until the bet is settled. Somebody will
-            always accept first and enter their teams second. %>
-        <% if (b.parties.some(p => p.owner_id === owner.id) && b.status !== 'settled') { %>
-          <details class="pick-edit">
-            <summary><%= myPicks(b).length ? '✏️ Change my picks' : '⚠️ Pick your teams' %></summary>
-            <form method="post" action="/sidebets/<%= b.id %>/position">
-              <% pickGrid(b, 'picks'); %>
-              <button class="btn small gold" type="submit">Save my picks</button>
-            </form>
-          </details>
+      <%# ── THE FRANCHISE DRAFT ROOM — a pool bet is a draft, not a form ─────
+          The two bettors alternate (snake) picking the league's teams; whoever
+          ends up holding the champion wins. Whose turn, the board (taken /
+          available), and one-tap picking when it's you. %>
+      <% if (b.format === 'pool') { %>
+        <% if (b.draft) { const d = b.draft;
+             const myTurn = !d.complete && Number(d.turn) === owner.id;
+             const iAmIn = b.parties.some(p => p.owner_id === owner.id); %>
+          <div class="pdraft" id="bet-<%= b.id %>">
+            <div class="pdraft-head">
+              <% if (d.complete) { %>
+                <span class="pdraft-badge done">✅ Draft complete — the pool is set</span>
+              <% } else { %>
+                <span class="pdraft-badge<%= myTurn ? ' you' : '' %>"><%= myTurn ? '🟢 YOUR PICK' : '⏳ ' + betNames(d.turn) + ' on the clock' %></span>
+                <span class="pdraft-prog"><%= d.sequence.length %>/<%= d.pool.length %> drafted</span>
+              <% } %>
+            </div>
+            <% if (d.why) { %><div class="pdraft-why muted"><%= d.why %></div><% } %>
+            <div class="pdraft-board">
+              <% for (const teamId of d.pool) { const holder = d.taken[teamId];
+                   const mine = holder != null && Number(holder) === owner.id; %>
+                <% if (holder != null) { %>
+                  <div class="pd-team taken<%= mine ? ' mine' : '' %>">
+                    <span class="pd-name"><%= betNames(teamId) %></span>
+                    <span class="pd-holder"><%= mine ? 'you' : betNames(holder) %></span>
+                  </div>
+                <% } else if (myTurn) { %>
+                  <form class="asis" method="post" action="/sidebets/<%= b.id %>/draft-pick">
+                    <input type="hidden" name="team" value="<%= teamId %>">
+                    <button class="pd-team pick" type="submit"><span class="pd-name"><%= betNames(teamId) %></span><span class="pd-take">draft →</span></button>
+                  </form>
+                <% } else { %>
+                  <div class="pd-team open"><span class="pd-name"><%= betNames(teamId) %></span><span class="pd-holder muted">on the board</span></div>
+                <% } %>
+              <% } %>
+            </div>
+            <% if (d.complete) { %>
+              <div class="pdraft-rosters">
+                <% for (const p of b.parties) { %>
+                  <div class="pd-roster<%= p.owner_id === owner.id ? ' mine' : '' %>">
+                    <div class="pd-roster-head"><%= betNames(p.owner_id) %><%= p.owner_id === owner.id ? ' (you)' : '' %> — <%= (p.picks || []).length %> franchises</div>
+                    <div class="pd-roster-teams"><% for (const tt of (p.picks || [])) { %><span class="pd-chip"><%= betNames(tt) %></span><% } %></div>
+                  </div>
+                <% } %>
+              </div>
+              <p class="muted" style="font-size:.76rem; margin:.4rem 0 0">Whoever holds the champion wins the <%= money(b.stake) %>. Settle it when the season ends — declare → confirm, same as any bet.</p>
+            <% } %>
+          </div>
+        <% } else { %>
+          <p class="pdraft-pending">🏆 <b>Franchise pool</b> — <%= (b.pool && b.pool.wins) || 'whoever holds the champion' %>.
+            The draft opens the moment <b><%= waiting(b).join(', ') || 'the other side' %></b> accepts; the order comes from last season's finish, higher finisher first.</p>
         <% } %>
       <% } else { %>
         <%# Everyone's side, listed. On an elaborate bet this IS the bet. %>
