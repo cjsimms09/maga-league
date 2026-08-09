@@ -45,6 +45,27 @@ the outcome is mine.
    state (the actual keeper slate, the actual pool), not a full/average one. Same
    habit as attacking the frame, applied to the board. The Lab should surface these
    interactions on its own, not wait for Cory to name them one at a time.
+8. **Synthesize, don't accumulate (2026-08-09).** After every finding, ask three things:
+   (a) what does it imply COMBINED with everything else we know (not what the experiment
+   concluded)? (b) does it change WHICH EDGE IS LARGEST? (c) does the queue still match
+   that ranking — if the largest edge moved, the work that sharpens it moves above work
+   that sharpens smaller ones, without being asked. Keep **EDGE-LEDGER.md** current: each
+   verified edge, its size, confidence, what it rests on, what would sharpen it. When a
+   finding lands, update it; when the order changes, say so and re-sequence. And the
+   mirror: when Cory (or anyone) asserts something is a big edge and the evidence
+   contradicts it, say so THAT TURN — the sliders are not a top edge, and saying it back
+   beats executing the request.
+9. **A null is only as strong as the space that was searched (2026-08-09).** Every
+   conclusion carries an implicit scope: what was tested, over what range, with what
+   instrument. When you report a null, state WHAT WAS SEARCHED — "beat 3 hand-picked
+   shapes" and "beat a swept grid" are different claims and must never read the same. When
+   anyone cites a null as settled (including Cory), check the search was adequate before
+   agreeing. Before citing ANY prior finding as settled: (a) how much of the space was
+   searched/measured; (b) was the INSTRUMENT sound then (we've since fixed a within-
+   position confound, moved to heterogeneous rooms, fixed a can't-fail fixture, caught a
+   leaking source — a null before those may be an artifact); (c) has anything changed
+   (new data, corrected method, different anchor, rule change). If any answer is
+   unfavorable, mark it provisional or re-open it, and say which.
 7. **A finding that implies a change must become a DECISION, not a JSON file (2026-08-09).**
    The source grade concluded MFL > FFC and nothing happened — the verdict sat inert
    until Cory asked. For EVERY finding, ask three questions and act: (1) does it imply
