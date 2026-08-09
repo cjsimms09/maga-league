@@ -75,6 +75,35 @@ on top of **unvalidated projections is still unvalidated.** If our player
 evaluations are wrong, a correctly-priced deviation is still a wrong deviation.
 That is what 33 and 34 are for; no reframing substitutes for them.
 
+## THE DOLLAR ARM — because the system grades in E[dollars], not points (added 2026-08-09)
+
+Rank correlation and top-N are POINTS claims. In this league points ≠ money: a
+pick's dollar value depends on the roster it joins, not the player in isolation,
+and the thing we actually care about is *would our draft have earned more money.*
+So the primary metrics stay (robust at thin n where a dollar figure is noise), and
+a dollar arm is ADDED:
+
+- **Construct the policy rosters.** At each of my real picks across the graded
+  seasons, "follow our ordering" takes the highest walk-forward-projected available
+  player; "follow ADP" takes the ADP-best available — carried forward so each
+  policy yields a full seat roster (keepers + its own picks).
+- **Grade through the CERTIFIED money grader** (`money_grade.grade_substituted`):
+  substitute my seat with each policy roster, re-grade the season with era-correct
+  payouts, harvested per-week high thresholds, and the real field. Decompose into
+  **high-pool / entry / regular-season** dollars. Report **our-policy minus
+  ADP-policy dollars with its interval.**
+- **Thinness, stated:** the dollar arm is NOISIER than correlation — one roster's
+  realized dollars ride on which specific players broke out. If the CI spans zero,
+  say so plainly and let the correlation arm carry the statistical weight. Never
+  present a dollar point estimate as if it settles anything.
+- **Report both, and whether they AGREE.** Ranks-better AND earns-more → coherent.
+  Ranks-better but earns-same-or-less → the MORE INTERESTING result: our edge is in
+  evaluating players, not in constructing rosters that fit this payout structure —
+  which points at the **portfolio doctrine**, not at the projections.
+- **Same for the bands:** every deviation band reports **dollars per band alongside
+  hit rate** — how much money each class of deviation actually made or cost. That
+  is the calibration surface in the language the rest of the system speaks.
+
 ## THE DELIVERABLE — the deviation-edge surface (named plainly, no options costume)
 
 Not a pass/fail. A surface: **the deviation edge as a function of four measurable

@@ -322,3 +322,32 @@ experiment must test exactly that: is a rostered handcuff worth more than the
 waiver-claim OPTION on the same player post-injury? **If the wire makes insurance
 redundant, that is the finding and the bench goes back to ceiling.** No surface until
 measured past the gates.
+
+---
+
+## STANDING RULE + AUDIT — report in dollars where the grader supports it (2026-08-09)
+
+**Rule (Cory):** every experiment producing a verdict about DRAFT DECISIONS reports
+in **E[dollars]** (era-correct payouts, harvested weekly-high thresholds, real
+field, decomposed high-pool/entry/RS) as the answer, with points-based metrics
+(rank correlation, MAE, top-N) as the statistically-robust COMPANION at thin n —
+never the whole answer. Points ≠ money in this league: ranking players well does
+not mean building rosters that clear the weekly-high band or buy the top-4 door.
+
+**Audit of the registry against this rule:**
+- **exp 34** — WAS the outlier (points-only). FIXED: dollar arm added to
+  `EXP34-METHODOLOGY.md` (policy rosters through `grade_substituted`, dollars per
+  band alongside hit rate, report-both-and-whether-they-agree). Points kept primary
+  at n≈19; the interesting case is ranks-better-but-earns-same → portfolio doctrine,
+  not projections.
+- **exp 2 (tournament) · 6 (stack) · 19b · 21 (frontier) · what-would-have-worked**
+  — already dollar-graded, null-baselined, CV'd. Compliant.
+- **exp 36** — its spec already grades ADP as a predictor of realized season
+  DOLLARS (per (round×position) cell). Compliant.
+- **exp 33** — accuracy by nature (MAE / rank correlation / top-decile). Its
+  DOLLAR pricing lives downstream in **exp 39** ("price the improvement in dollars
+  through the money grader"). Acceptable, but 33's report must LINK to that pricing
+  so its accuracy verdict is never read as a value verdict on its own.
+- **exp 40/41/42** — registered with dollar-graded success criteria already.
+
+No other experiment produces a draft-decision verdict in points alone.
