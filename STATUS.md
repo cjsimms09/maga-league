@@ -779,3 +779,51 @@ Scratchpad harness `lineup-smoke.js` proves it (can't commit to draft/tests — 
   `scratchpad/access-guard.js` (18/18) — **A must wire it into CI** (draft/tests,
   see PARKED urgent flag). Every NEW surface rendering per-owner analysis must be
   commissioner-gated and added to the guard.
+
+---
+
+## 🅱️ SESSION B RESUME MARKER — 2026-08-09 (on MAIN now)
+
+**On `main`** (Cory's main-only directive; branch merged + deleted locally, remote
+delete proxy-blocked but fully merged). `pull --rebase` before each commit, push
+immediately.
+
+**DONE this session (all on main, tested):**
+1. Matchup page `/matchup` — H2H from box scores + one-tap bet.
+2. Lineup optimizer: engine (validated to the dollar vs certified L0 — $470/595/445,
+   Cory $2,100, eff 86.6/87.7/89.0%) + page `/lineup` (live + proof faces, decision-
+   time lineup_call write). **`/lineup` is requireCommissioner.**
+3. Money Board redesign + design foundations (sparkline partial, money-colour,
+   rank arrows) + 4 easter eggs (German medal, 2022 asterisk, star-row origin, Konami).
+4. **ACCESS FIX (was a live prod leak): results=league, analysis=commissioner.**
+   `/lineup` gated; history pages scrubbed of efficiency%/all-play/bench-aggregates
+   (columns + prose + the badbeats note); guard test `draft/tests/access_guard.test.js`
+   (18/18) wired to CI. Standing rule in STATUS above.
+5. **TERRITORY:** sidebets/betlogic/venmo/dashboard/ledger/notify → B by substance
+   (TERRITORY.md + check updated; A told). draft/tests + ci.yml = shared test infra.
+6. **Side-bet lifecycle** declare→confirm→dispute: state machine (`src/sidebets.js`,
+   AWAITING_CONFIRM + DISPUTED, declareResult/confirmResult/disputeResult, awaiting()
+   extended, disputed(); 16/16 `sidebets_lifecycle.test.js`) + routes
+   (/declare /confirm /dispute, auto-settle→declare-from-Sleeper). **Nothing settles
+   silently; disputes recorded not adjudicated; append-only audit.**
+
+**NEXT (priority order):**
+- **Side-bet lifecycle VIEWS** — render AWAITING CONFIRMATION (one-tap confirm /
+  dispute for the non-declarer) + DISPUTED (visible, social pressure) on the bank
+  side-bet rows + the matchup "Waiting on You" section; the settle screen hands the
+  loser the winner's Venmo + amount (venmo.js is B's now). "PROPOSED not OPEN" on
+  named-but-unaccepted bets. Propose-from-anywhere (standings/franchise one-tap).
+- **Sunday alert** (task 4) — before kickoff, start/sit calls + dollar value (the
+  optimizer engine is ready: LO.optimize + LO.weeklyHighBand). Cron/notify.
+- **Instrumentation check** (task 5) — confirm the in-season ledger kinds capture
+  what exp 37 needs at decision time (predledger lineup_call already writes the
+  counterfactual; verify waiver/stream/trade coverage).
+- **Design sweep** — standings rank arrows, weekly-high progress meter (flagship,
+  currently invisible), side-bet grid money-colour, records-as-record-book, page
+  hierarchy, per-page before/after screenshots (`scratchpad/shoot.js`).
+- **Eggs** — Chiefs/Mahomes (fires on a Chiefs player), Bates-reaches-for-Chiefs.
+
+**BLOCKED ON A:** deploy `main` (live history leak until deployed — flagged urgent
+in PARKED); wire `lineup-validate` engine test if wanted; clean stray remote branches.
+Scratchpad harnesses: shoot / h2h-verify / lineup-validate / matchup-smoke /
+egg-check / access-guard / lifecycle.
