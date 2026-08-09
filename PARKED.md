@@ -246,3 +246,40 @@ The matchup-page upgrade (site backlog #4) needs `src/sleeper.js` (A's lane) to 
 - **this week's league-wide high-point value + band** (the harvested winning band, e.g. "144 leads; typical winning score 139") and each team's distance to the $100.
 
 B will build the view/route/one-tap-side-bet side against whatever shape A returns. Flagging rather than editing sleeper.js.
+
+---
+
+## ▶ SESSION A (model lane) — deferred increments after the 34-dollar/36/33/41 batch (2026-08-09)
+
+These are ACKNOWLEDGED and scoped, not dropped. Ordered by the resume list.
+
+1. **EXP 41 — the paired-room money race (egress increment).** The combiner core is
+   BUILT + tested (`exp41.py`, `test_exp41.py` 9/9): calibration-weighted Borda
+   aggregation, agreement-as-confidence, the structural "deviate only on a weighted
+   majority" collapse rule, intervention-rate-vs-74%. DEFERRED: feed it each of the 8
+   profiles' per-pick rankings by scoring the board under each `strategies.js` PROFILE
+   through the replay path (Node + nflverse/FFC), then race ensemble-vs-composite
+   money-graded behind the green bridge gate, null + LOSO, same gates as the
+   tournament. Weights = each profile's Lab-measured accuracy (tournament paired
+   dollar edge and/or exp 36 per-cell efficiency). Pre-registered: ensemble deviates
+   LESS often; if not, profiles aren't diverse — that's the finding.
+2. **Auto-adjuster conditional mining on heterogeneous rooms** — mine which room
+   conditions (heterogeneity, run state) predict when a deviation pays, from the
+   tournament/heterogeneous-validation corpus.
+3. **WHAT WOULD HAVE WORKED** — every registered strategy/doctrine against the 3
+   historical drafts, which earned most each year, whether any is consistently ahead.
+   Reuses the dollar-arm value-greedy grader + strategies.js profiles.
+4. **upsideBonus endgame gated sweep** — the one residual dead-term flip
+   (upsideBonus endgame 1.6), measured via a gated tournament sweep, not a blind flip.
+5. **Dynamic seam-consumer guard · DOCTRINE DRIFT line · movement LOG + ledger kind ·
+   covariance rho verdict** when CI lands it.
+
+**A measured agenda the batch produced (for whoever calibrates Stage 2):** exp 36 says
+early-round ADP is WEAK (shrink ~0.12–0.26 for R1-3 RB/WR) and mid/late pockets are
+strong (R4-7 QB 0.58 / TE 0.62, R12+ WR 0.72) — the shrinkage should be region-specific
+and in places INVERTED from the "bind hard early" prior. exp 33 says our BLEND
+over-regresses (loses to naive on top-decile). exp 34 says value-only rosters lose money
+to ADP's positional construction. Through-line: **evaluation ≠ construction; the blend's
+regression is too strong; the anchor should come from measured per-region efficiency
+(exp 36) and member agreement (exp 41), not a flat gate.** None of this ships without the
+gates.
