@@ -1852,8 +1852,12 @@
         .map(function (r) { return r.position + ' −' + Math.round(r.loss); }).join(' · ');
       const extras = p.candidates.slice(1, 5);
       // THE DEVIATION BADGE, Zone 1, non-optional — and silent inside the band.
+      // Band omitted -> deviation.js derives it PER-REGION from the exp-36 surface
+      // (tight where the market ranks well, wide where it ranks weakly). The old
+      // flat DG_NOISE_BAND was a dollar constant used as a pick band — the derived
+      // per-region band is the right instrument here (DERIVED-VS-DECLARED-AUDIT.md).
       const dev = (typeof DraftDeviation !== 'undefined')
-        ? DraftDeviation.badge(p.pick, currentPick(), E.CFG.DG_NOISE_BAND) : null;
+        ? DraftDeviation.badge(p.pick, currentPick(), null) : null;
       const devHtml = dev ? renderDeviationBadge(dev, p.key) : '';
       const block = p.legality_block
         ? '<div class="path-illegal">🚫 suppressed — ' + escapeHtml(p.legality_block) + '</div>'
@@ -3156,8 +3160,9 @@
     const top = scored && scored.length ? scored[0] : null;
     if (!top) { recHost.innerHTML = '<span class="muted">no recommendation yet</span>'; }
     else {
+      // Per-region band (exp 36); see the paired call above.
       const dev = (typeof DraftDeviation !== 'undefined')
-        ? DraftDeviation.badge(top, currentPick(), E.CFG.DG_NOISE_BAND) : null;
+        ? DraftDeviation.badge(top, currentPick(), null) : null;
       recHost.innerHTML =
         '<span class="mvs-name">' + esc(top.player.name) + '</span>'
         + '<span class="rec-pos ' + top.player.position + '">' + top.player.position + '</span>'

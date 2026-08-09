@@ -302,6 +302,57 @@
     if (position && position in MARKET_EFFICIENCY_POOLED) return { value: MARKET_EFFICIENCY_POOLED[position], source: 'pooled' };
     return { value: null, source: 'unmeasured' };
   }
+  /* EXP 36 → PER-REGION DEVIATION BAND (derived, replacing the old flat 4.0).
+   *
+   * The silence band is the deviation the surface won't bother flagging. It must
+   * NOT be one flat number: where the market ranks a region WELL, a deviation is a
+   * real bet against a reliable prior and deserves a badge even when small (TIGHT
+   * band); where the market ranks WEAKLY or backwards, deviating is cheap and
+   * expected, so don't clutter the surface (WIDE band). "One flat band on a board
+   * whose reliability varies by an order of magnitude" was the T=4.0 inertness
+   * symptom (DERIVED-VS-DECLARED-AUDIT.md). So band = f(measured reliability),
+   * DECREASING in efficiency.
+   *
+   * DERIVATION — mean-anchored, so this redistributes the band BY REGION without
+   * globally loosening or tightening it (a pure SHAPE derivation, not a smuggled
+   * level change that would need its own gate):
+   *
+   *     band(cell) = BASE * (1 - rho) / (1 - rho_bar)
+   *
+   * where rho is the cell's measured efficiency (pooled position average if the
+   * cell is thin, BASE if the position is unmeasured), rho_bar is the mean
+   * efficiency across the ranked cells, and BASE = the old 4.0 — now the band the
+   * AVERAGE-reliability region keeps. Clamped to [BAND_MIN, BAND_MAX] as
+   * GUARDRAILS (not measurements) so a near-perfect market can't drive the band to
+   * 0 (a badge on every pick) nor a backwards region to an absurd width. rho_bar
+   * recomputes from the surface on any re-fire — never hand-set. Delta is measured
+   * in PICKS, and reliability is a ranking property, so this band is correctly in
+   * picks (the old code passed a DOLLAR config here — a latent unit slip this
+   * closes). */
+  var NOISE_BAND_BASE = 4.0;            // the flat band this replaces; now the mean-region band
+  var BAND_MIN = 1.5, BAND_MAX = 6.0;   // guardrails, not measurements
+
+  var RHO_BAR = (function () {
+    var xs = [];
+    Object.keys(MARKET_EFFICIENCY).forEach(function (band) {
+      var row = MARKET_EFFICIENCY[band] || {};
+      Object.keys(row).forEach(function (pos) {
+        if (typeof row[pos] === 'number') xs.push(row[pos]);
+      });
+    });
+    if (!xs.length) return 0;
+    return xs.reduce(function (a, b) { return a + b; }, 0) / xs.length;
+  })();
+
+  // The per-region silence band, in picks. Unmeasured region -> the conservative
+  // BASE (the same "anchor to market" default marketQuality falls back to).
+  function noiseBandFor(pickNo, position) {
+    var m = marketEfficiency(pickNo, position);
+    if (m.value === null) return NOISE_BAND_BASE;
+    var raw = NOISE_BAND_BASE * (1 - m.value) / (1 - RHO_BAR);
+    return Math.max(BAND_MIN, Math.min(BAND_MAX, Math.round(raw * 100) / 100));
+  }
+
   // The plain-language draft line (no options costume): weak -> freer, well -> respect.
   function marketQualityLine(pickNo, position) {
     var m = marketEfficiency(pickNo, position);
@@ -324,8 +375,10 @@
     // POSITIVE = we take him EARLIER than the market does (a reach we are
     // choosing to pay for). Negative = he has fallen to us.
     var delta = Math.round((adp - ourPick) * 10) / 10;
+    // An explicit finite band is honoured (tests, overrides); otherwise DERIVE the
+    // per-region band from the exp-36 reliability surface (noiseBandFor).
     var band = Number(noiseBand);
-    if (!Number.isFinite(band)) band = 4.0;
+    if (!Number.isFinite(band)) band = noiseBandFor(ourPick, p.position);
 
     // SILENCE INSIDE THE BAND. Most picks are market picks.
     if (Math.abs(delta) < band) return null;
@@ -359,6 +412,9 @@
       // where ADP is a weak ranker, respect it where ADP is strong.
       marketQuality: marketQualityLine(ourPick, p.position),
       marketEfficiency: marketEfficiency(ourPick, p.position),
+      // The band this deviation had to clear — derived per-region (exp 36), so a
+      // small deviation shows in a well-ranked region and is silenced in a weak one.
+      noiseBand: band,
     };
   }
 
@@ -387,7 +443,8 @@
               tierVoice: tierVoice, tierLine: tierLine, tierVoices: tierVoices,
               EVIDENCE_STATE: EVIDENCE_STATE, recordEvidence: recordEvidence,
               projectionProvenance: projectionProvenance,
-              marketEfficiency: marketEfficiency, marketQualityLine: marketQualityLine };
+              marketEfficiency: marketEfficiency, marketQualityLine: marketQualityLine,
+              noiseBandFor: noiseBandFor, RHO_BAR: RHO_BAR };
   global.DraftDeviation = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);

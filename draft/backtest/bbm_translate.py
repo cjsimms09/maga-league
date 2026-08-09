@@ -39,6 +39,7 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent))   # draft/ on path for scoring
+sys.path.insert(0, str(HERE))          # draft/backtest/ on path for money_grade
 import scoring as SC                    # noqa: E402  the certified re-scoring engine
 
 # The differences that CANNOT be translated away — they travel with every BBM finding.
@@ -79,6 +80,30 @@ def verify_rescoring(cases: list[dict], scoring_cfg: dict, tol: float = 0.01) ->
 
 
 # ─────────────────────────────────────────── the SPIKE-WEEK instrument ──
+def weekly_high_bar(history: dict | None = None, seasons: list[str] | None = None,
+                    quantile: float = 0.5) -> float:
+    """The spike-week bar, DERIVED from the harvested weekly-high winning scores, not
+    a round number. The score that actually WINS a weekly-high IS the bar a ceiling
+    week has to clear — so the bar is a measurement, not a constant
+    (DERIVED-VS-DECLARED-AUDIT.md). Default = the median winning score (~148.5 on the
+    three real seasons); `quantile` lets a caller ask for a TYPICAL win (0.5) vs a
+    monster week (e.g. 0.9). Reads money_grade.weekly_high_threshold_distribution so
+    the bar recomputes as seasons accrue — never hand-set. Raises rather than falling
+    back to a magic number if the harvest has no winning scores to derive from."""
+    import money_grade as MG
+    h = history if history is not None else MG.load_history()
+    if seasons is None:
+        seasons = [str(s.get("season")) for s in (h.get("seasons") or [])]
+    dist = MG.weekly_high_threshold_distribution(h, seasons)
+    samples = dist["samples"]
+    if not samples:
+        raise ValueError("no harvested weekly-high scores to derive the spike-week bar from")
+    if abs(quantile - 0.5) < 1e-9:
+        return dist["median"]
+    idx = min(len(samples) - 1, max(0, int(round(quantile * (len(samples) - 1)))))
+    return samples[idx]
+
+
 def spike_weeks(weekly_points: list[float], bar: float) -> int:
     """How many weeks a player cleared a weekly-high-class bar — the ceiling signal our
     37.5%-of-the-pot weekly-high pool rewards. Graded by COUNT, not mean, on purpose:

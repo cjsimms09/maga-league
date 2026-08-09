@@ -257,5 +257,35 @@ check('K is unmeasured -> anchor conservative', /unmeasured/.test(D.marketQualit
 check('a thin cell falls back to the pooled position average',
   D.marketEfficiency(3, 'QB').source === 'pooled' && Math.abs(D.marketEfficiency(3,'QB').value - 0.381) < 1e-9);
 
+// EXP 36 -> PER-REGION NOISE BAND — the silence band derives from measured
+// reliability instead of one flat 4.0: tight where the market ranks well (flag
+// even small deviations), wide where it ranks weakly/backwards (deviate freely).
+{
+  const wellRanked = D.noiseBandFor(115, 'WR');   // r12+ WR, rho 0.718 — market nails it
+  const backwards  = D.noiseBandFor(115, 'RB');   // r12+ RB, rho -0.147 — market is backwards
+  const midRB      = D.noiseBandFor(45, 'RB');    // r4-7 RB, rho 0.13 — near the mean
+  check('a well-ranked region gets a TIGHT band', wellRanked <= 2.0, String(wellRanked));
+  check('a backwards region gets a WIDE band', backwards >= 5.0, String(backwards));
+  check('the band is monotone: tighter where the market ranks better',
+    wellRanked < midRB && midRB < backwards, `${wellRanked} < ${midRB} < ${backwards}`);
+  check('the band is clamped to its guardrails', wellRanked >= 1.5 && backwards <= 6.0);
+  check('an unmeasured region falls back to the conservative BASE band',
+    D.noiseBandFor(150, 'K') === 4.0, String(D.noiseBandFor(150, 'K')));
+  check('rho_bar is the mean of the ranked cells (derived, not hand-set)',
+    Math.abs(D.RHO_BAR - 0.228) < 0.01, String(D.RHO_BAR));
+}
+
+// badge DERIVES the band when none is passed — a deviation that would be silenced
+// by a flat 4.0 in a well-ranked region should now SPEAK (its band is tighter).
+{
+  // r12+ WR at pick 115, ADP 118 -> delta -3. Flat band 4 -> silent; derived ~1.5 -> speaks.
+  const wr = entry({ ceiling: 9 }, { position: 'WR', adjusted_adp: 118, raw_adp: 118 });
+  check('a small deviation in a well-ranked region is SILENT under the flat band',
+    D.badge(wr, 115, 4) === null);
+  check('the SAME deviation SPEAKS under the derived per-region band',
+    D.badge(wr, 115) !== null && D.badge(wr, 115).noiseBand <= 2.0,
+    JSON.stringify(D.badge(wr, 115)));
+}
+
 console.log(`\n${pass}/${pass + fail} deviation checks passed`);
 process.exit(fail ? 1 : 0);

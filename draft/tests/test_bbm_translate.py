@@ -43,6 +43,24 @@ def test_spike_weeks_counts_ceiling_not_mean():
     assert B.roster_spike_count(roster, 25.0) == 3
 
 
+def test_weekly_high_bar_is_derived_from_the_harvest():
+    # The spike-week bar is the MEDIAN winning weekly-high score, not a round number.
+    # On the three real seasons that is ~148.5 (n=45 RS weeks). This pins that the bar
+    # is a measurement off the harvest, and that a higher quantile asks a harder bar.
+    bar = B.weekly_high_bar()
+    assert 140.0 <= bar <= 160.0, bar          # median winning score, derived
+    monster = B.weekly_high_bar(quantile=0.9)
+    assert monster > bar                         # a monster week clears a higher bar
+    typical = B.weekly_high_bar(quantile=0.5)
+    assert typical == bar                         # 0.5 is the median path
+
+
+def test_weekly_high_bar_raises_rather_than_inventing_a_number():
+    import pytest
+    with pytest.raises(ValueError):
+        B.weekly_high_bar(history={"seasons": []})   # no harvest -> no magic fallback
+
+
 def test_winning_shape_reports_the_delta():
     pos = {"1": "RB", "2": "RB", "3": "WR", "4": "WR", "5": "WR", "6": "QB", "7": "TE"}
     # winners load WR; the field is balanced
