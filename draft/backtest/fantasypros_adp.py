@@ -202,11 +202,17 @@ def fetch(year, half_ppr=True, timeout=30):   # pragma: no cover  (egress, CI on
 
     # 2) try discovered tokens + blind candidates + direct page variants (csv/json export the
     #    React app may hit) with the key. First to yield >=20 rows wins.
-    page_variants = [page_url + "&csv=1", page_url + "&json=1", page_url + "&export=csv"]
-    templates = list(diag["bundle_api_urls"]) + page_variants + _API_CANDIDATES
+    # export/data variants of THIS page first (the untried levers), then the blind API
+    # candidates, then any discovered tokens EXCEPT the plain year/position nav links (proven
+    # top-5 teasers — don't spend the budget re-hitting them).
+    page_variants = [page_url + "&csv=1", page_url + "&json=1", page_url + "&export=csv",
+                     page_url + "&scoring=HALF&json=1", page_url.replace(".php", ".json")]
+    nav = _re.compile(r'/nfl/adp/.*\.php(\?year=\d+)?$')
+    tokens = [t for t in diag["bundle_api_urls"] if not nav.search(t) and "/nfl/players/" not in t]
+    templates = page_variants + _API_CANDIDATES + tokens
     tried = 0
     for tmpl in templates:
-        if "consensus-rankings" not in tmpl and "adp" not in tmpl.lower():
+        if "consensus-rankings" not in tmpl and "adp" not in tmpl.lower() and ".json" not in tmpl:
             continue
         if tried >= 14:                                    # bound CI runtime; all 40 are dumped above
             break
