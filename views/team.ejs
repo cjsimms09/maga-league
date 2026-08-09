@@ -261,10 +261,10 @@
   <div class="body tight scroll-x">
     <table class="roll">
       <tr><th></th><th>Player</th><th>Pos</th><th>Team</th><th class="num">Wk <%= roster.lastWeek %></th><th class="num">Season</th><th>Status</th></tr>
-      <% for (const r of roster.rows) { %>
-        <tr class="<%= r.starter ? '' : 'muted-row' %>">
+      <% for (const r of roster.rows) { const kc = r.team === 'KC'; %>
+        <tr class="<%= r.starter ? '' : 'muted-row' %><%= kc ? ' kc-row' : '' %>">
           <td><%= r.starter ? '🟢' : '' %></td>
-          <td><b><%= r.name %></b><% if (r.rank && r.rank <= 50) { %> <span class="badge gold" title="Sleeper overall rank">#<%= r.rank %></span><% } %></td>
+          <td><b><%= r.name %></b><% if (r.rank && r.rank <= 50) { %> <span class="badge gold" title="Sleeper overall rank">#<%= r.rank %></span><% } %><% if (kc) { %> <span class="kc-mark" title="Chiefs Kingdom">🏹</span><% } %></td>
           <td><%= r.pos %></td>
           <td class="muted"><%= r.team %></td>
           <td class="num"><%= r.wkPts == null ? '—' : r.wkPts.toFixed(1) %></td>
