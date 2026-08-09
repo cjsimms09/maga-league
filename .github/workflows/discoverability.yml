@@ -34,9 +34,12 @@ jobs:
       - name: Route probe — is there ANY route to public leagues (Sleeper listing + MFL leagueSearch)
         continue-on-error: true
         run: python draft/backtest/exp_route_probe.py
+      - name: FP 2026 board-coverage go/no-go (before wiring FP as the live anchor)
+        continue-on-error: true
+        run: python draft/backtest/exp_fp_board_coverage.py
       - name: Commit the results
         run: |
           git config user.name "lab-bot"; git config user.email "actions@github.com"
-          git add draft/backtest/exp_discoverability.json draft/backtest/exp_route_probe.json 2>/dev/null || true
+          git add draft/backtest/exp_discoverability.json draft/backtest/exp_route_probe.json draft/backtest/exp_fp_board_coverage.json 2>/dev/null || true
           git commit -m "Discoverability + route probe results $(date -u +%Y-%m-%dT%H:%MZ)" || { echo "no change"; exit 0; }
           git pull --rebase origin "${GITHUB_REF_NAME}" && git push || echo "push skipped"
