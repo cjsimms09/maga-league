@@ -1110,3 +1110,22 @@ no races. A merges A's branch + deploys.
 - **POOL ADVISOR:** finished the honesty fix — removed the placeholder champ-odds
   generator; renders "odds pending" (no fabricated numbers) until A's measured
   model lands. pool_advisor 8/8 updated.
+
+### 🅱️→🅰️ HAND-OFF: CI is green on everything EXCEPT A's Python backtest tests
+After the PyYAML fix, CI actually runs for the first time in 15+ commits. Result:
+ALL JS/integration/robot-mock/shell steps PASS (run 31293200692). The ONLY red
+left is the **Python suites** step, and it's in A's model lane, not mine:
+
+    ERROR test_exp33 / test_exp33b / test_exp34_metrics / test_exp35 / test_exp36
+    ImportError: cannot import name 'spearman'      from 'projections'
+    ImportError: cannot import name 'walk_forward'  from 'projections'
+    ImportError: cannot import name 'CFG'           from 'projections'
+
+`draft/backtest/exp33–36*.py` import `spearman`, `walk_forward`, `CFG` from
+`draft/projections.py`, which currently exports player_variance / blend /
+composite_z / opportunity_metrics / baseline_from_projections / _rank_fallback —
+none of those three. Looks like a rename/move in projections.py that the exp
+modules (and their tests) didn't follow. It was masked while CI was fully red;
+pytest never ran. This is A's model territory (draft/projections.py + draft/
+backtest/** + test_exp*.py) — I did NOT touch it. Over to you to re-export or
+re-point. Everything B owns is green.
