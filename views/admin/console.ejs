@@ -508,6 +508,45 @@
     </table>
   </div>
 </div>
+
+<%# Enact a passed measure INTO the season config — the pot, weekly-high, payout
+    table, finances, money board and the amendment ledger all follow from it. %>
+<% const enactable = votes.filter(v => v.passed && !v.enacted_at); %>
+<div class="card" style="margin-top:1rem">
+  <h2>Enact a passed measure <span class="sub">writes the result into the season config — everything downstream follows</span></h2>
+  <div class="body">
+    <% if (!enactable.length) { %>
+      <p class="muted" style="margin:0">Nothing to enact. A measure shows here once it has passed (<%= threshold %> yes) and hasn't been enacted yet.
+        <% const done = votes.filter(v => v.enacted_at); if (done.length) { %><br><br>Already enacted: <%= done.map(v => `“${v.question}” — ${v.enacted_change || ''}`).join(' · ') %><% } %></p>
+    <% } else { %>
+      <% for (const v of enactable) { %>
+        <form method="post" action="/admin/votes/<%= v.id %>/enact" class="enact-form" style="border:1px solid var(--line);border-radius:12px;padding:.8rem;margin-bottom:.7rem">
+          <div style="font-weight:700;margin-bottom:.5rem">✅ <%= v.question %></div>
+          <div class="fit" style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:end">
+            <label class="field">Change
+              <select name="effect_type">
+                <option value="buy_in">Buy-in ($)</option>
+                <option value="weekly_payout">Weekly-high payout ($)</option>
+                <option value="payouts">Payout structure (%)</option>
+                <option value="config">Other config key</option>
+              </select>
+            </label>
+            <label class="field">Value <input type="text" name="value" placeholder="500" style="width:6rem"></label>
+            <label class="field">Season <input type="number" name="effect_season" placeholder="next" style="width:5.5rem"></label>
+          </div>
+          <div class="fit" style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.4rem">
+            <label class="field">reg % (csv) <input type="text" name="reg" placeholder="0.10,0.05" style="width:9rem"></label>
+            <label class="field">playoff % (csv) <input type="text" name="playoff" placeholder="0.27,0.22,0.20,0.16" style="width:12rem"></label>
+            <label class="field">config key <input type="text" name="config_key" placeholder="keeper_count" style="width:8rem"></label>
+            <label class="field">config value <input type="text" name="config_value" style="width:6rem"></label>
+          </div>
+          <div style="margin-top:.5rem"><button class="btn gold" type="submit">Enact → season config</button>
+            <span class="muted" style="font-size:.75rem">Fill only the fields your change needs. Season blank = the upcoming one.</span></div>
+        </form>
+      <% } %>
+    <% } %>
+  </div>
+</div>
 <% } %>
 
 <%# ============================ OWNERS ============================ %>

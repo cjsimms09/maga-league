@@ -46,7 +46,7 @@ jobs:
       - name: JS suites
         run: |
           set -e
-          for t in alerts app-wiring attribution authority backtest betlogic bundling_guard champs claimfix doctrine engine h2h keeperlock keepers ledger marks mcts movement_line playoffs predledger prefs rawarchive reconcile rivalries shadows sidebets sidebets_lifecycle pool_draft stack_routes strategies sync update venmo whatwatch; do
+          for t in alerts app-wiring attribution authority backtest betlogic bundling_guard champs claimfix doctrine draftorder engine h2h keeperlock keepers ledger marks mcts movement_line no_season_literals playoffs predledger prefs rawarchive reconcile rivalries settlement shadows sidebets sidebets_lifecycle pool_draft stack_routes strategies sync update venmo voteenact whatwatch; do
             echo "== $t =="
             node draft/tests/$t.test.js
           done

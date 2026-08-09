@@ -89,10 +89,12 @@ const CFG = {
   // The fantasy week turns over on Tuesday — after Monday night, before Thursday.
   MATCHUP_WEEK_START_DAY: 2,    // Tuesday
 
-  // Thursday of NFL week 1, in New York. Every other week's kickoff is derived
-  // from it, so one date pins the whole calendar. Commissioner-overridable via
-  // config.season_start.
-  SEASON_START: '2026-09-10',
+  // Thursday of NFL week 1, in New York — pins the whole calendar. The REAL
+  // value comes from config.season_start (set per season / from Sleeper); this
+  // is only the last-resort fallback, and its YEAR is DERIVED (never hardcoded)
+  // via defaultSeasonStart() below, so a missing config can never pin a past
+  // season's dates as if they were current (the silent-stale failure).
+  SEASON_START_MONTHDAY: '09-10',
   // Every offer dies after this long, whatever it is about. A season-long bet
   // is legitimately acceptable in October — but not because it has been sitting
   // in a list since August and somebody just noticed it is now free money. If
@@ -138,9 +140,19 @@ function weekLockAt(at = new Date()) {
   return new Date(lock.getTime() + off * 60000);
 }
 
+/**
+ * Last-resort season start when nothing is configured — the current year's
+ * approximate NFL week-1 Thursday. The YEAR is derived from `at` so this can
+ * never freeze a past season; the real value should always come from
+ * config.season_start. `at` is injectable for deterministic tests.
+ */
+function defaultSeasonStart(at = new Date()) {
+  return `${at.getUTCFullYear()}-${CFG.SEASON_START_MONTHDAY}`;
+}
+
 /** Kickoff of a given NFL week: week 1's Thursday plus seven days per week. */
 function kickoffOf(week, seasonStart) {
-  const base = new Date(`${seasonStart || CFG.SEASON_START}T12:00:00Z`);
+  const base = new Date(`${seasonStart || defaultSeasonStart()}T12:00:00Z`);
   const day = new Date(base.getTime() + (Math.max(1, Number(week) || 1) - 1) * 7 * 86400000);
   const off = etOffsetMinutes(day);
   const et = new Date(day.getTime() - off * 60000);
@@ -164,7 +176,7 @@ function kickoffOf(week, seasonStart) {
  * @returns { at: Date|null, why: string, open: boolean, reason: string }
  */
 function acceptDeadline(bet, ctx = {}, at = new Date()) {
-  const start = ctx.seasonStart || CFG.SEASON_START;
+  const start = ctx.seasonStart || defaultSeasonStart();
   const playoffWeek = Number(ctx.playoffWeek) || CFG.PLAYOFF_WEEK_DEFAULT;
   const weeks = (bet.conditions || [])
     .filter(c => c.when === 'week' && c.week).map(c => Number(c.week));
@@ -761,5 +773,5 @@ function evaluateProposition(bet, ctx, nameOf) {
 module.exports = {
   CFG, TESTS, PLACES, POOL_OUTCOMES, POOL_RULES, poolRules,
   conditionText, betText, makeContext, weeksNeeded, evalCondition, evaluate,
-  weekLockAt, matchupWindow, kickoffOf, acceptDeadline,
+  weekLockAt, matchupWindow, kickoffOf, acceptDeadline, defaultSeasonStart,
 };
