@@ -81,5 +81,25 @@ const KEEPERS = [P('WR', 3, { name: 'Chase' }), P('RB', 1, { name: 'Henry' }), P
   check('confidence carries the MC-harness tier caveat', /MC-harness tier/.test(rec.confidence));
 }
 
+// --- DOMAIN: only K/DEF open (skill starters+flex covered) -> the mask DEFERS ------
+// Cory 2026-08-09: the mask was measured filling expensive skill starters, not cheap bench
+// slots. Once only onesies remain, "never a 4th RB" is past its evidence — a high-upside
+// bench skill player has value independent of my slots, so the rule opens up and says so.
+{
+  const roster = KEEPERS.concat([
+    P('RB', 10), P('WR', 11), P('WR', 12), P('TE', 13), P('TE', 14), P('QB', 15),
+  ]); // RB 3(cap), WR 3(cap), TE 2(cap), QB 1(cap) -> only K & DEF open
+  const board = [P('RB', 50, { name: 'Upside RB' }), P('K', 60), P('DEF', 65)];
+  const rec = NR.recommend(board, roster);
+  check('out_of_domain fires when only K/DEF remain', rec.out_of_domain === true,
+    JSON.stringify(rec.open_positions));
+  check('...the mask DEFERS: bench upside is not excluded to force a onesie',
+    rec.pick && rec.pick.position === 'RB', JSON.stringify(rec.pick));
+  check('...the reason says we are past the measured region',
+    /past the rule.s measured region/.test(rec.reason), rec.reason);
+  check('...confidence flags it as the human\'s call, not a masked rec',
+    /PAST THE MEASURED REGION/.test(rec.confidence));
+}
+
 console.log(`\n${pass}/${pass + fail} needrule checks passed`);
 process.exit(fail ? 1 : 0);

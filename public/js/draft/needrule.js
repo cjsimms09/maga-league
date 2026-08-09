@@ -99,8 +99,12 @@
   }
 
   /* The reason line, in the RULE'S OWN TERMS. */
-  function reasonFor(pick, roster, capped) {
+  function reasonFor(pick, roster, capped, ood) {
     if (!pick) return 'no players available';
+    if (ood) return 'past the rule\'s measured region — starters + flex are covered and only '
+      + 'K/DEF remain; the mask was measured on expensive skill picks, not cheap bench slots, '
+      + 'so a high-upside ' + pick.position + ' here is worth its own bench spot — take the '
+      + 'upside or fill the onesie, your call';
     var open = openPositions(roster);
     var openList = Object.keys(open);
     var pos = pick.position;
@@ -122,21 +126,41 @@
     return lead + tail + (openList.length ? '' : '');
   }
 
+  /* THE RULE'S DOMAIN. b0_need/value_depth measured the mask where it was measured: the
+   * EARLY/MID board, filling expensive skill starters, where over-drafting a filled slot
+   * costs real value ($443 mask vs no-mask). It says nothing about the state where all
+   * skill starter+flex slots are covered and only K/DEF remain open — cheap bench territory
+   * where a slot's opportunity cost is ~0 and a high-upside skill player has value
+   * INDEPENDENT of my starting slots (insurance, trade, a role opening). There the mask
+   * would exclude that player to force a onesie — asserting evidence it does not have. So
+   * the rule EXPRESSES its domain and DEFERS outside it rather than masking confidently. */
+  function outOfDomain(roster) {
+    var open = Object.keys(openPositions(roster));
+    return open.length > 0 && open.every(function (p) { return p === 'K' || p === 'DEF'; });
+  }
+
   /* THE RECOMMENDATION. board: available players; roster: my keepers + picks so far. */
   function recommend(board, roster) {
     var capped = isAllCapped(board, roster);
-    var mask = capped ? (board || []) : withinCap(board, roster);
+    var ood = !capped && outOfDomain(roster);
+    // In-domain: mask to startable need (measured). Capped OR out-of-domain: open the mask so
+    // bench upside competes with the onesie — the rule defers instead of asserting past its evidence.
+    var mask = (capped || ood) ? (board || []) : withinCap(board, roster);
     var pick = null;
     mask.forEach(function (p) { if (!pick || adpOf(p) < adpOf(pick)) pick = p; });
     return {
       pick: pick,
-      within_need: !capped && !!pick,
+      within_need: !capped && !ood && !!pick,
       capped: capped,
-      reason: reasonFor(pick, roster, capped),
+      out_of_domain: ood,
+      reason: reasonFor(pick, roster, capped, ood),
       open_positions: openPositions(roster),
       bye_stack: byeStack(pick, roster),
-      confidence: 'rule ranking is measured & robust (holds across seats, opponent '
-        + 'models, keeper slates); any $ figure is MC-harness tier, not a season projection',
+      confidence: ood
+        ? 'PAST THE MEASURED REGION — the mask was measured filling expensive skill starters, '
+          + 'not cheap bench/onesie slots; this is your call, not a masked recommendation'
+        : 'rule ranking is measured & robust (holds across seats, opponent models, keeper '
+          + 'slates); any $ figure is MC-harness tier, not a season projection',
     };
   }
 

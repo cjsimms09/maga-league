@@ -61,8 +61,14 @@ a question, distrust the frame it arrived in:
   level, keepers, runs, tier cliffs, the dead zone, survival — is conditional on what
   everyone else does. Price against the *actual expected board* (the real keeper slate,
   the real pool), never a generic/full one.
-- **Was the space actually searched?** A null over 3 hand-picked configs and a null over a
-  swept grid are different claims and must never read the same. State what was searched.
+- **Was the space actually searched? (nulls) — and does a POSITIVE rule fire only in the
+  domain it was measured?** A null over 3 configs ≠ a null over a swept grid — state what was
+  searched. The mirror we kept missing: a POSITIVE rule has a DOMAIN too (the board region,
+  roster states, phases the evidence covered), and a rule firing outside it asserts evidence
+  it doesn't have. The need mask earned filling expensive skill starters; "never a 4th RB"
+  applied to cheap bench slots claimed more than we knew. So every installed rule must
+  EXPRESS its domain and DEFER outside it (weaken, hand to the market, or say "past the
+  measured region — your call") rather than a confident rec built on evidence from pick 34.
 - **Is a "settled" finding still sound?** Before citing one: how much was searched, was the
   INSTRUMENT sound then (we've since fixed a within-position confound, gone to
   heterogeneous rooms, killed a can't-fail fixture, caught a leaking source), has anything
