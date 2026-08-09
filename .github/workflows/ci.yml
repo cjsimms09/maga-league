@@ -79,6 +79,8 @@ jobs:
         run: node draft/tests/pool_draft_ui.test.js
       - name: Pool advisor — commissioner-only portfolio advice
         run: node draft/tests/pool_advisor.test.js
+      - name: Instrumentation check — in-season decision-time capture (exp 37)
+        run: node draft/tests/instrumentation_check.test.js
       - name: Robot mock draft — the safety net
         # A full snake draft from every seat through the real engine and
         # attribution modules, plus every bug this session as a regression
