@@ -1,5 +1,5 @@
 {
-  "experiment": "source grade \u2014 FFC vs MFL (+FantasyPros pending), per season",
+  "experiment": "source grade \u2014 FFC vs MFL vs FantasyPros, per season",
   "seasons": [
     2023,
     2024
@@ -7,6 +7,7 @@
   "per_season": {
     "2023": {
       "n_matched_mfl": 126,
+      "n_matched_fp": 0,
       "surfaces": {
         "FFC": {
           "cells": {
@@ -377,6 +378,7 @@
     },
     "2024": {
       "n_matched_mfl": 105,
+      "n_matched_fp": 0,
       "surfaces": {
         "FFC": {
           "cells": {
@@ -743,5 +745,19 @@
     "FFC": 5
   },
   "composite_beat_best_in_n_seasons": 0,
-  "caveat": "points-reliability (Spearman) like exp36; MFL is full-PPR/12-team, compared by RANK so scale/format offset cancels in the head-to-head. FantasyPros joins when its CSV parser lands. B0-per-source dollars is the bridge follow-on. No install \u2014 picks the board the keeper-need rule ranks by."
+  "fantasypros_parse_diagnostics": {
+    "2023": {
+      "url": "https://www.fantasypros.com/nfl/adp/half-point-ppr-overall.php?year=2023",
+      "parsed_rows": 0,
+      "crosswalked": 0,
+      "raw_head": "<!DOCTYPE html>\n<html lang=\"en\">\n\n<head>\n    \n    <title>Average Draft Position (ADP) - Half PPR Leagues 2023 | FantasyPros</title>\n    <meta property=\"og:title\" content=\"Average Draft Position (ADP) - Half PPR Leagues 2023\" />\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n    <link rel=\"preconnect\" href=\"https://cdn.fantasypros.com\" crossorigin=\"anonymous\" />\n    <link rel=\"preconnect\" href=\"https://images.fantasypros.com\" crossorigin=\"anonymous\" />\n\n    <meta name=\"description\" content=\"FantasyPros combines Half PPR Average Draft Position rankings from major league commissioner sites to produce a consensus ADP.\" />\n<meta property=\"og:description\" content=\"FantasyPros combines Half PPR Average Draft Position rankings from major league commissioner sites to produce a consensus ADP.\" />\n<meta name=\"robots\" content=\"max-image-preview:large\">\n<link rel=\"canonical\" href=\"https://www.fantasypros.com/nfl/adp/half-point-ppr-overall.php?year=2023\" />\n\n    <link rel=\"icon\" sizes=\"192x192\" href=\"/apple-touch-icon.png\" />\n    <link rel=\"icon\" sizes=\"32x32\" href=\"/fantasypros-favicon.ico\" />\n    <meta property=\"fb:pages\" content=\"184352014941166\"/>\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n\n    <script type=\"text/javascript\">\n        (()=>{\"use strict\";const e=/dwtest\\./.test(window.location.host),t=(()=>{if(window.location.hostname.includes(\"local\")&&window.location.port.includes(\"8080\"))return!0;return/dwtest\\.|localhost\\.|dev-[a-z]+-p1\\./.test(window.location.host)})(),n=/draftwizard\\.|stagedw\\.|private-drafts\\./.test(window.location.host),o=t||n,a=/rod\\.|jmo\\.|tom\\.|will\\.|anthony\\.|brandon\\.|josh\\.|logan\\.|fuentes\\.|kari\\.|clinton\\.|jay\\.|justin\\.|ryan\\.|kitzman\\.|beta\\.|local\\.fantasypros|\\.dev\\.fantasypros\\.com|fp\\.dev|fp\\.test/.test(window.location.host);(()=>{if(window?.PLAYERCARDS_CONFIG?.isChromeExtension)return!0;const{protocol:e}=window.location;[\"chrome-extension:\",\"moz-extension:\"].includes(e)})();const r={timeout:3e4,defaultHeaders:{\"Content-Type\":\"application/json\"},credentials:\"same-origin\"},s={GET:\"GET\",POST:\"POST\",PUT:\"PUT\",DELETE:\"DELETE\",PATCH:\"PATCH\"},i=\"application/json\",c=\"application/x-www-form-urlencoded\",u=\"multipart/form-data\";class l extends Error{constructor(e,t,n,o){super(e),this.name=\"ApiError\",this.status=t,this.statusText=n,this.response=o}}const d=new class{constructor(){this.config={...r},this.baseUrls=new Map,this.apiKeys=new Map}setBaseUrl(e,t){this.baseUrls.set(e,t)}getBaseUrl(e){return this.baseUrls.get(e)||\"\"}setApiKey(e,t){this.apiKeys.set(e,t)}getApiKey(e){return this.apiKeys.get(e)}updateConfig(e){this.config={...this.config,...e}}getConfig(){return{...this.config}}};const p=new class{async request(e={}){const{url:t,method:n=s.GET,data:o,params:a,headers:r={},service:p,contentType:f,credentials:h,timeout:g}=e,w=d.getConfig(),y=function(e,t={}){if(!t||!(t instanceof URLSearchParams)&&0===Object.keys(t).length)return e;const n=t instanceof URLSearchParam"
+    },
+    "2024": {
+      "url": "https://www.fantasypros.com/nfl/adp/half-point-ppr-overall.php?year=2024",
+      "parsed_rows": 0,
+      "crosswalked": 0,
+      "raw_head": "<!DOCTYPE html>\n<html lang=\"en\">\n\n<head>\n    \n    <title>Average Draft Position (ADP) - Half PPR Leagues 2024 | FantasyPros</title>\n    <meta property=\"og:title\" content=\"Average Draft Position (ADP) - Half PPR Leagues 2024\" />\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n    <link rel=\"preconnect\" href=\"https://cdn.fantasypros.com\" crossorigin=\"anonymous\" />\n    <link rel=\"preconnect\" href=\"https://images.fantasypros.com\" crossorigin=\"anonymous\" />\n\n    <meta name=\"description\" content=\"FantasyPros combines Half PPR Average Draft Position rankings from major league commissioner sites to produce a consensus ADP.\" />\n<meta property=\"og:description\" content=\"FantasyPros combines Half PPR Average Draft Position rankings from major league commissioner sites to produce a consensus ADP.\" />\n<meta name=\"robots\" content=\"max-image-preview:large\">\n<link rel=\"canonical\" href=\"https://www.fantasypros.com/nfl/adp/half-point-ppr-overall.php?year=2024\" />\n\n    <link rel=\"icon\" sizes=\"192x192\" href=\"/apple-touch-icon.png\" />\n    <link rel=\"icon\" sizes=\"32x32\" href=\"/fantasypros-favicon.ico\" />\n    <meta property=\"fb:pages\" content=\"184352014941166\"/>\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n\n    <script type=\"text/javascript\">\n        (()=>{\"use strict\";const e=/dwtest\\./.test(window.location.host),t=(()=>{if(window.location.hostname.includes(\"local\")&&window.location.port.includes(\"8080\"))return!0;return/dwtest\\.|localhost\\.|dev-[a-z]+-p1\\./.test(window.location.host)})(),n=/draftwizard\\.|stagedw\\.|private-drafts\\./.test(window.location.host),o=t||n,a=/rod\\.|jmo\\.|tom\\.|will\\.|anthony\\.|brandon\\.|josh\\.|logan\\.|fuentes\\.|kari\\.|clinton\\.|jay\\.|justin\\.|ryan\\.|kitzman\\.|beta\\.|local\\.fantasypros|\\.dev\\.fantasypros\\.com|fp\\.dev|fp\\.test/.test(window.location.host);(()=>{if(window?.PLAYERCARDS_CONFIG?.isChromeExtension)return!0;const{protocol:e}=window.location;[\"chrome-extension:\",\"moz-extension:\"].includes(e)})();const r={timeout:3e4,defaultHeaders:{\"Content-Type\":\"application/json\"},credentials:\"same-origin\"},s={GET:\"GET\",POST:\"POST\",PUT:\"PUT\",DELETE:\"DELETE\",PATCH:\"PATCH\"},i=\"application/json\",c=\"application/x-www-form-urlencoded\",u=\"multipart/form-data\";class l extends Error{constructor(e,t,n,o){super(e),this.name=\"ApiError\",this.status=t,this.statusText=n,this.response=o}}const d=new class{constructor(){this.config={...r},this.baseUrls=new Map,this.apiKeys=new Map}setBaseUrl(e,t){this.baseUrls.set(e,t)}getBaseUrl(e){return this.baseUrls.get(e)||\"\"}setApiKey(e,t){this.apiKeys.set(e,t)}getApiKey(e){return this.apiKeys.get(e)}updateConfig(e){this.config={...this.config,...e}}getConfig(){return{...this.config}}};const p=new class{async request(e={}){const{url:t,method:n=s.GET,data:o,params:a,headers:r={},service:p,contentType:f,credentials:h,timeout:g}=e,w=d.getConfig(),y=function(e,t={}){if(!t||!(t instanceof URLSearchParams)&&0===Object.keys(t).length)return e;const n=t instanceof URLSearchParam"
+    }
+  },
+  "caveat": "points-reliability (Spearman) like exp36; compared by RANK so scale/format offset cancels. FantasyPros is HALF-PPR (our format \u2014 a closer match than MFL's full-PPR); FFC half-PPR; MFL full-PPR/12-team. Three-way now decides whether a 4th source (NFFC=different crowd) is worth building (EDGE-LEDGER). No install \u2014 picks the board the keeper-need rule ranks by."
 }
