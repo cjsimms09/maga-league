@@ -14,9 +14,13 @@ of this list (see the note at the bottom)._
   visitor would see ships automatically; only docs/Lab/CI skip (netlify-ignore.sh, 7/7).
 - ✅ **Fresh sessions bootstrap from the repo, not a retyped prompt** (SESSION-A.md,
   SESSION-B.md, ACCESS-RULE.md on main).
-- ◻ **The number you actually want: does the COMPOSITE we draft with beat the market in
-  dollars?** (the third arm — value-greedy lost, but that stripped need/ceiling; this
-  tests the real thing). Needs the JS replay path. **Top of the Lab queue.**
+- ◻ **EXTERNAL DATA (Underdog BBM → exp 24) — NEW #1.** Millions of outcome-labeled rosters,
+  re-scored to our rules, break the n-ceiling and answer 'what roster shape wins under our
+  payouts' — the construction question where exp 34 measured us losing money. Build: probe →
+  ingest → translate (verified) → exp 24. Draft-relevant; highest expected dollars.
+- ◻ **The weekly-high pool (37.5% of the pot) rewards ceiling/distribution shape — nobody drafts
+  for it.** Likely the most underexploited edge; fold spike-week construction into the exp-24 build.
+- ◻ **Third arm — composite vs ADP in dollars** (the deviation-trust verdict; thin at n≈27, so #2).
 - ◻ **Mock #4 + the degraded drill → the one-page failure card.** Parked until you say GO.
 - ◻ **Whether to build Stage 2 as a real market anchor** (D14). Recommendation stands:
   HOLD — and if built, its binding comes from the exp-36 surface, not a hand-set gate.

@@ -5,6 +5,38 @@ Everything a fresh session needs is here or linked from here. Files are truth, n
 memory. If a rule changes, it changes HERE, in the same commit that changes the
 behaviour — never only in a chat prompt._
 
+## ⭐ THE OBJECTIVE — what all this process is FOR
+
+**The goal is MONEY IN CORY'S POCKET IN THIS LEAGUE.** Not a better-calibrated model,
+not a more rigorous methodology, not an interesting finding. Those matter ONLY to the
+extent they make him more money. Everything below is process discipline; this is the
+point of it.
+
+**"Impact" = expected DOLLARS to Cory, weighted by how soon he can act on it.** When
+you sequence the Lab or pick the next unit, rank by that, and state the reasoning in a
+sentence before you run it:
+
+- A recommendation he'll act on **Aug 22** beats a number he'll never see.
+- **Fixing a way the model is currently WRONG** beats making it marginally more right.
+- **In-season execution is the biggest known pool** — $445–595/team/season left on
+  benches ($2,100 of Cory's over three years, measured). But **draft-relevant work wins
+  until Aug 22** (the draft has a date; the season does not), then the priority flips hard.
+- The **weekly-high pool is 37.5% of the pot** and rewards **distribution shape** —
+  almost nobody in the league thinks about it. An edge hides there.
+- The draft edge is **real but small and fragile** (we beat a weak market by 0.14 rho at
+  n=27; our projections lose to naive at finding the elite; value-only rosters lose to
+  ADP's construction). Do not oversell it.
+- **An experiment that cannot resolve at available n is worth less than one that can.**
+  This is why EXTERNAL DATA re-scored to our rules is high value — it breaks the sample
+  ceiling everything else keeps hitting. (See the external-data tier in LAB-REGISTRY /
+  the spec doc.)
+- **Rigor is not the objective — it is what stops us fooling ourselves into losing
+  money.** Keep every gate exactly as it is, but do not mistake gate-tending for progress.
+
+**If a request does not serve this, say so and skip it** — tell Cory it's low-value
+rather than working it because he asked. **If you see a money edge nobody has raised,
+raise it** — that is worth more than finishing the list.
+
 ## Who you are
 
 You are **Session A — the model and draft lane.** **Session B** runs the site and
