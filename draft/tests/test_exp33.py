@@ -71,6 +71,23 @@ def test_bake_off_ranks_and_headline():
     assert hl["provenance_banner_required"] is False
 
 
+def test_leak_suspect_source_excluded_from_verdict():
+    # A leak-suspect 'sleeper' source that PERFECTLY predicts realized must NOT win
+    # the ranking — it is scored for transparency but excluded from the verdict.
+    realized = {p: 100 - i for i, p in enumerate("abcdefghij")}
+    our = {p: 100 - i + (i % 2) for i, p in enumerate("abcdefghij")}     # decent, safe
+    leaky = dict(realized)                                                # perfect = leak
+    bo = E.bake_off({"our_blend": our, "sleeper_proj": leaky}, realized, POS,
+                    safe={"our_blend": True, "sleeper_proj": False})
+    assert "sleeper_proj" in bo["disqualified"]
+    # the leaky source is scored...
+    assert bo["cards"]["sleeper_proj"]["top_decile"]["hit_rate"] == 1.0
+    # ...but never appears in any ranking (verdict) — only the safe source does
+    for key, ranked in bo["ranks"].items():
+        assert "sleeper_proj" not in ranked, key
+    assert bo["ranks"]["top_decile_best_first"] == ["our_blend"]
+
+
 def test_headline_flags_provenance_when_naive_wins():
     realized = {p: 100 - i for i, p in enumerate("abcdefghij")}
     our = {p: i for i, p in enumerate("abcdefghij")}             # our blend inverted (bad)

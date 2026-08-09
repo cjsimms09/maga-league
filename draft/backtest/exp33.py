@@ -147,24 +147,33 @@ def naive_projection(prior_points: dict, prior_games: dict, positions: dict,
 
 # ─────────────────────────────────────────────────────── head-to-head ──
 def bake_off(sources: dict, realized: dict, positions: dict,
-             point_scale: dict | None = None) -> dict:
+             point_scale: dict | None = None, safe: dict | None = None) -> dict:
     """Score every source and rank them. `sources`: {name: projection_dict}.
-    `point_scale`: {name: bool} (default True; set False for ADP-as-ranking)."""
+    `point_scale`: {name: bool} (default True; set False for ADP-as-ranking).
+    `safe`: {name: bool} — is the source DECISION-TIME-SAFE (no outcome leakage)?
+    A source that is not provably safe still gets a scorecard (for transparency)
+    but is EXCLUDED from the rankings and the verdict — a leaked 'projection' that
+    correlates with outcomes it secretly contains is not a projection, and letting
+    it win would report a leak as a finding (the cardinal sin this project guards).
+    """
     point_scale = point_scale or {}
+    safe = safe or {}
     cards = {name: scorecard(proj, realized, positions,
                              point_scale=point_scale.get(name, True))
              for name, proj in sources.items()}
+    for name in cards:
+        cards[name]["decision_time_safe"] = safe.get(name, True)
     def rank_on(key_fn, reverse):
-        ranked = sorted((n for n in cards), key=lambda n: (key_fn(cards[n]) is None, key_fn(cards[n]) if key_fn(cards[n]) is not None else 0), reverse=reverse)
-        # keep only sources with a value, best first
-        valued = [n for n in cards if key_fn(cards[n]) is not None]
+        # ONLY decision-time-safe sources with a value are ranked, best first.
+        valued = [n for n in cards if key_fn(cards[n]) is not None and cards[n]["decision_time_safe"]]
         return sorted(valued, key=lambda n: key_fn(cards[n]), reverse=reverse)
     ranks = {
         "mae_best_first": rank_on(lambda c: c["mae"], reverse=False),            # lower better
         "rank_corr_best_first": rank_on(lambda c: c["rank_corr"], reverse=True),
         "top_decile_best_first": rank_on(lambda c: c["top_decile"]["hit_rate"], reverse=True),
     }
-    return {"cards": cards, "ranks": ranks}
+    disqualified = [n for n in cards if not cards[n]["decision_time_safe"]]
+    return {"cards": cards, "ranks": ranks, "disqualified": disqualified}
 
 
 def headline(bo: dict, our: str = "our_blend", naive: str = "naive") -> dict:
@@ -274,12 +283,21 @@ def _egress_main(out_dir: Path) -> int:
                 adp_rank[str(sid)] = -float(entry["adp"])     # negate: higher = better, for ranking
         sources = {"our_blend": our, "naive": naive, "ffc_adp": adp_rank}
         point_scale = {"our_blend": True, "naive": True, "ffc_adp": False}
-        # Sleeper historical projections: probe by looking; never proxy.
+        safe = {"our_blend": True, "naive": True, "ffc_adp": True}
+        # Sleeper's season projection endpoint: probe by looking. IT IS NOT
+        # DECISION-TIME-SAFE — `/projections/nfl/regular/{season}` is updated
+        # in-season, so a past season's stored projection can carry information that
+        # did not exist at the draft. Its scorecard is computed for transparency but
+        # it is DISQUALIFIED from the verdict (safe=False), per the anti-leak
+        # pre-registration. (Its implausibly high rank-corr with realized — ~0.8 vs
+        # the real market's ~0.4 — is itself the leak's fingerprint.)
         sl_proj = _try_sleeper_projections(yr, positions)
         if sl_proj:
-            sources["sleeper_proj"] = sl_proj; point_scale["sleeper_proj"] = True
+            sources["sleeper_proj"] = sl_proj
+            point_scale["sleeper_proj"] = True
+            safe["sleeper_proj"] = False
             sleeper_available = True
-        bo = bake_off(sources, realized, positions, point_scale)
+        bo = bake_off(sources, realized, positions, point_scale, safe)
         hl = headline(bo)
         # dollars per source: the value-greedy roster it builds in Cory's seat
         dollars = _dollar_by_source(history, payouts, s, {k: v for k, v in sources.items()})
@@ -288,10 +306,17 @@ def _egress_main(out_dir: Path) -> int:
         print(f"  {yr}: top-decile winner {hl['top_decile_winner']} "
               f"(our {hl['our_top_decile']} vs naive {hl['naive_top_decile']})")
 
-    if not sleeper_available:
+    if sleeper_available:
+        caveats.append("Sleeper's season projection WAS retrievable but is DISQUALIFIED, not "
+                       "reported as a winner: `/projections/nfl/regular/{season}` is updated "
+                       "in-season, so a past season's stored projection is NOT decision-time-"
+                       "safe. Its ~0.8 rank-corr with realized (vs the real market's ~0.4) is "
+                       "the leak's fingerprint. Its scorecard is shown for transparency and "
+                       "EXCLUDED from the verdict, per the anti-leak pre-registration.")
+    else:
         caveats.append("Sleeper historical preseason projections NOT retrievable for past "
-                       "seasons — the bake-off ran the other three sources; the fourth is "
-                       "UNAVAILABLE, not proxied (registry partial-gate).")
+                       "seasons — the bake-off ran the decision-time-safe sources; the fourth "
+                       "is UNAVAILABLE, not proxied (registry partial-gate).")
     pooled = _pool_headline(per_season)
     result = {
         "experiment": "33 — projection-source bake-off (by position, priced in $)",
@@ -309,9 +334,11 @@ def _egress_main(out_dir: Path) -> int:
 
 
 def _try_sleeper_projections(year: int, positions: dict) -> dict | None:
-    """Probe for historical Sleeper preseason projections BY LOOKING. Returns a
-    {player_id: projected_points} dict or None. Never fabricates a proxy — an
-    absent source is reported absent (registry partial-gate)."""
+    """Probe Sleeper's season projection endpoint BY LOOKING. Returns a
+    {player_id: projected_points} dict or None. NOTE: the caller marks this source
+    NOT decision-time-safe — the endpoint is updated in-season, so for a past season
+    it can carry post-draft information. It is scored for transparency but excluded
+    from the verdict. Never fabricates a proxy — an absent source is reported absent."""
     try:
         import sleeper_import as SL
         fn = getattr(SL, "fetch_projections", None) or getattr(SL, "fetch_preseason_projections", None)
@@ -356,19 +383,27 @@ def _pool_headline(per_season: list[dict]) -> dict:
     if not per_season:
         return {"n_seasons": 0}
     from collections import Counter
+    disqualified = sorted({n for ps in per_season for n in ps["bake_off"].get("disqualified", [])})
     winners = Counter(ps["headline"]["top_decile_winner"] for ps in per_season
                       if ps["headline"]["top_decile_winner"])
     our_beats = sum(1 for ps in per_season if ps["headline"]["our_beats_naive_on_top_decile"])
+    # dollars: decision-time-safe sources only in the verdict ranking; disqualified
+    # (leak-suspect) sources are reported separately, never in the 'best' ranking.
     dollar_tot: dict[str, float] = {}
+    dollar_disq: dict[str, float] = {}
     for ps in per_season:
         for name, d in (ps["dollars"] or {}).items():
-            if d is not None:
-                dollar_tot[name] = round(dollar_tot.get(name, 0.0) + d, 2)
+            if d is None:
+                continue
+            (dollar_disq if name in disqualified else dollar_tot)[name] = \
+                round((dollar_disq if name in disqualified else dollar_tot).get(name, 0.0) + d, 2)
     dollar_rank = sorted(dollar_tot, key=lambda k: dollar_tot[k], reverse=True)
     return {"n_seasons": len(per_season),
+            "disqualified_leak_suspect": disqualified,
             "top_decile_winner_counts": dict(winners),
             "our_beats_naive_seasons": f"{our_beats}/{len(per_season)}",
             "dollars_by_source_total": dollar_tot,
+            "dollars_disqualified_total": dollar_disq,
             "dollars_best_first": dollar_rank,
             "provenance_banner_required": bool(
                 any(ps["headline"]["provenance_banner_required"] for ps in per_season))}
@@ -382,24 +417,29 @@ def _report(r: dict) -> str:
          "A LOSS IS THE HEADLINE; no tuning inside this experiment._", "",
          f"Sources raced: {', '.join(r['sources'])}", ""]
     p = r["pooled"]
-    L += ["## POOLED VERDICT", "",
+    disq = p.get("disqualified_leak_suspect") or []
+    L += ["## POOLED VERDICT (decision-time-safe sources only)", "",
           f"- top-decile winner by season: {p.get('top_decile_winner_counts')}",
           f"- our blend beats naive on top-decile: {p.get('our_beats_naive_seasons')} seasons",
           f"- dollars by source (value-greedy roster, summed): {p.get('dollars_by_source_total')}",
           f"- dollars ranking (best first): {p.get('dollars_best_first')}",
           f"- **provenance banner required: {p.get('provenance_banner_required')}** "
-          "(true = a source beats our blend and the War Room must say so)", "",
-          "## Per season", ""]
+          "(true = a decision-time-safe source beats our blend and the War Room must say so)"]
+    if disq:
+        L += [f"- **⚠ DISQUALIFIED (leak-suspect, NOT in the verdict): {disq}** — "
+              f"their summed value-greedy $ (shown, not ranked): {p.get('dollars_disqualified_total')}"]
+    L += ["", "## Per season", ""]
     for ps in r["per_season"]:
         hl = ps["headline"]
         L += [f"### {ps['season']}",
-              f"- top-decile: winner **{hl['top_decile_winner']}** "
+              f"- top-decile (safe sources): winner **{hl['top_decile_winner']}** "
               f"(our {hl['our_top_decile']} vs naive {hl['naive_top_decile']}; our rank "
               f"{hl['our_rank_on_top_decile']})",
               f"- dollars (value-greedy roster): {ps['dollars']}",
-              "", "  | source | MAE | rank_corr | top-decile |", "  |---|---|---|---|"]
+              "", "  | source | MAE | rank_corr | top-decile | in verdict |", "  |---|---|---|---|---|"]
         for name, c in ps["bake_off"]["cards"].items():
-            L.append(f"  | {name} | {c['mae']} | {c['rank_corr']} | {c['top_decile']['hit_rate']} |")
+            safe = "yes" if c.get("decision_time_safe", True) else "**NO — leak-suspect**"
+            L.append(f"  | {name} | {c['mae']} | {c['rank_corr']} | {c['top_decile']['hit_rate']} | {safe} |")
         L.append("")
     if r.get("caveats"):
         L += ["## Caveats", ""] + [f"- {c}" for c in r["caveats"]] + [""]
