@@ -66,12 +66,27 @@ def need_filter(board, roster):
     return board
 
 
+def startable_cap_filter(board, roster):
+    """VALUE-DEPTH mask: allow the lowest-ADP player at any position still under its
+    STARTABLE capacity — dedicated starters PLUS one flex share for RB/WR/TE — even
+    if a DIFFERENT starter slot (say TE) is still empty. This lets a great-value WR3
+    (flex/depth) jump ahead of filling a weak TE. Still caps at flex capacity, so it
+    never re-opens the 4th-RB trap. Contrast to need_filter's strict fill-first."""
+    c = _counts(roster)
+    cap = dict(CC.STARTERS)
+    for pos in CC.FLEX_POS:                     # one flex share of depth per flex position
+        cap[pos] = cap.get(pos, 0) + CC.FLEX
+    avail = [p for p in board if c.get(p["position"], 0) < cap.get(p["position"], 0)]
+    return avail if avail else board            # all capped -> bench = best available
+
+
 def candidates():
     # Each returns a SINGLETON so draft_room's max(vorp) yields exactly the ADP pick.
     return {
-        "balanced": lambda b, i, r: b,                                  # VORP-greedy control
-        "b0_pure":  lambda b, i, r: [min(b, key=_adp)],                 # follow ADP, ignore roster
-        "b0_need":  lambda b, i, r: [min(need_filter(b, r), key=_adp)], # follow ADP within need
+        "balanced":    lambda b, i, r: b,                                    # VORP-greedy control
+        "b0_pure":     lambda b, i, r: [min(b, key=_adp)],                   # follow ADP, ignore roster
+        "b0_need":     lambda b, i, r: [min(need_filter(b, r), key=_adp)],   # STRICT fill-first (installed)
+        "value_depth": lambda b, i, r: [min(startable_cap_filter(b, r), key=_adp)],  # value/flex depth allowed
     }
 
 
@@ -95,6 +110,7 @@ def race(n_rooms=200, seed=SEED, my_picks_override=None, my_keepers_override=Non
     cand = candidates()
     per_seed = {k: [] for k in cand}
     rb_taken = {k: [] for k in cand}      # how many RB each policy drafts (the 4th-RB tell)
+    pos_comp = {k: [] for k in cand}      # full position composition of MY roster
     for s in range(n_rooms):
         opp_state = random.Random(seed + s).getstate()
         rosters_by = {}
@@ -106,12 +122,31 @@ def race(n_rooms=200, seed=SEED, my_picks_override=None, my_keepers_override=Non
         for k, rosters in rosters_by.items():
             g = random.Random(); g.setstate(grade_state)   # SAME weekly luck for every candidate
             per_seed[k].append(CC.grade_room(rosters, g)["total"])
-            # RB count on MY roster (seat 0), keepers included
             rb_taken[k].append(sum(1 for p in rosters[0] if p["position"] == "RB"))
-    return per_seed, rb_taken
+            pos_comp[k].append(_counts(rosters[0]))
+    return per_seed, rb_taken, pos_comp
 
 
-def _summary(per_seed, rb_taken):
+def _paired(per_seed, a, b, seed=SEED):
+    hh = [x - y for x, y in zip(per_seed[a], per_seed[b])]
+    m = sum(hh) / len(hh)
+    lo, hi = CC.bootstrap_ci(hh, random.Random(seed + 1))
+    return {"mean": round(m, 2), "ci95": [round(lo, 2), round(hi, 2)], "beats": bool(lo > 0)}
+
+
+def _avg_comp(pos_comp):
+    """Mean roster composition per policy across rooms (the mechanism)."""
+    out = {}
+    for k, rooms in pos_comp.items():
+        agg = {}
+        for c in rooms:
+            for pos, n in c.items():
+                agg[pos] = agg.get(pos, 0) + n
+        out[k] = {pos: round(v / len(rooms), 2) for pos, v in sorted(agg.items())}
+    return out
+
+
+def _summary(per_seed, rb_taken, pos_comp):
     rng = random.Random(SEED)
     ctrl = per_seed["balanced"]
     out = {}
@@ -122,28 +157,32 @@ def _summary(per_seed, rb_taken):
         out[k] = {"mean_vs_balanced": round(mean, 2), "ci95": [round(lo, 2), round(hi, 2)],
                   "mean_total": round(sum(per_seed[k]) / len(per_seed[k]), 2),
                   "avg_RB_on_my_roster": round(sum(rb_taken[k]) / len(rb_taken[k]), 2)}
-    # the head-to-head that answers the question: b0_need vs b0_pure (paired)
-    hh = [a - b for a, b in zip(per_seed["b0_need"], per_seed["b0_pure"])]
-    hmean = sum(hh) / len(hh)
-    hlo, hhi = CC.bootstrap_ci(hh, random.Random(SEED + 1))
-    return out, {"mean": round(hmean, 2), "ci95": [round(hlo, 2), round(hhi, 2)],
-                 "b0_need_beats_b0_pure": bool(hlo > 0)}
+    heads = {
+        "b0_need_vs_b0_pure": _paired(per_seed, "b0_need", "b0_pure"),       # the keeper-need result
+        "value_depth_vs_fill_first": _paired(per_seed, "value_depth", "b0_need"),  # this run's question
+    }
+    return out, heads, _avg_comp(pos_comp)
 
 
 def run(n_rooms=200):
-    per_seed, rb_taken = race(n_rooms=n_rooms)
-    per_policy, head = _summary(per_seed, rb_taken)
+    per_seed, rb_taken, pos_comp = race(n_rooms=n_rooms)
+    per_policy, heads, comp = _summary(per_seed, rb_taken, pos_comp)
     return {
-        "experiment": "keeper-conditional B0 — follow-the-market vs follow-within-need, Cory's seat",
+        "experiment": "keeper-conditional B0 — fill-first vs value-depth, within need, Cory's seat",
         "n_rooms": n_rooms, "seat": "Cory (roster 0)",
         "keepers": "Chase (WR), Henry (RB), Walker (RB) — RB starters + 1 WR pre-filled",
         "control": "balanced (VORP-greedy)",
+        "policies": ("b0_pure=follow ADP ignore roster; b0_need=STRICT fill-first (installed); "
+                     "value_depth=allow flex/depth value to jump ahead of a weak starter slot"),
         "per_policy_vs_balanced": per_policy,
-        "b0_need_vs_b0_pure_head_to_head": head,
-        "reads": ("If b0_need beats b0_pure past the null (CI clear of $0), the draft-day rule is "
-                  "'follow the market WITHIN NEED' and the tool must mask filled positions. If they "
-                  "tie, pure ADP already handles Cory's construction. avg_RB_on_my_roster exposes the "
-                  "4th-RB problem: b0_pure should carry more RB than b0_need given the RB keepers."),
+        "head_to_heads": heads,
+        "avg_roster_composition": comp,
+        "reads": ("b0_need_vs_b0_pure: the keeper-need result (don't over-draft filled positions). "
+                  "value_depth_vs_fill_first: does letting a great-value flex/depth player jump ahead "
+                  "of filling a weak starter EARN more? beats=True (CI clear of $0) -> the board should "
+                  "allow value-depth; beats=False and negative -> strict fill-first is right; straddling "
+                  "$0 -> they tie and fill-first is the safe default. avg_roster_composition shows WHERE "
+                  "they differ (which slots value_depth leaves for later)."),
         "source_tier": "league-primary (MC room from dossiers; paired null)",
     }
 
@@ -170,7 +209,7 @@ def robustness(n_rooms=100):
     # 1. ACROSS SEATS — does need>pure hold from every draft slot?
     seats = {}
     for seat in range(1, 11):
-        ps, rb = race(n_rooms=n_rooms, my_picks_override=snake_picks(seat))
+        ps, rb, _ = race(n_rooms=n_rooms, my_picks_override=snake_picks(seat))
         m, ci, beats = _head_to_head(ps)
         seats[seat] = {"need_minus_pure": m, "ci95": ci, "holds": beats,
                        "avg_RB": _avg_rb(rb)}
@@ -182,7 +221,7 @@ def robustness(n_rooms=100):
     #    contrast for "does the room model drive the result".
     model = {}
     for name, het in (("dossier", True), ("uniform", False)):
-        ps, rb = race(n_rooms=n_rooms, heterogeneous=het)
+        ps, rb, _ = race(n_rooms=n_rooms, heterogeneous=het)
         m, ci, beats = _head_to_head(ps)
         model[name] = {"need_minus_pure": m, "ci95": ci, "holds": beats}
     result["opponent_model"] = model
@@ -205,7 +244,7 @@ def robustness(n_rooms=100):
               "one RB instead a TE": swap("RB", "TE")}
     ks = {}
     for name, kp in slates.items():
-        ps, rb = race(n_rooms=n_rooms, my_keepers_override=kp)
+        ps, rb, _ = race(n_rooms=n_rooms, my_keepers_override=kp)
         m, ci, beats = _head_to_head(ps)
         ks[name] = {"need_minus_pure": m, "ci95": ci, "holds": beats,
                     "kept_RB": sum(1 for p in kp if p["position"] == "RB")}
@@ -240,4 +279,4 @@ if __name__ == "__main__":   # pragma: no cover
     print(json.dumps({"per_policy": {k: {"vs_balanced": v["mean_vs_balanced"], "ci95": v["ci95"],
                                           "avg_RB": v["avg_RB_on_my_roster"]}
                                      for k, v in res["per_policy_vs_balanced"].items()},
-                      "b0_need_vs_b0_pure": res["b0_need_vs_b0_pure_head_to_head"]}, indent=2))
+                      "head_to_heads": res["head_to_heads"], "avg_comp": res["avg_roster_composition"]}, indent=2))

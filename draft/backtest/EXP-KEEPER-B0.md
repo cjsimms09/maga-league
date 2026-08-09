@@ -85,6 +85,33 @@ The +$258 headline is **not fragile**:
   absolute `avg_RB` (~6) is inflated vs the real keeper-reduced roster (~4.5) — the
   *relative* need−pure margin is unaffected.
 
+## Fill-first vs value-depth — the board should allow value-depth (+$51)
+
+Cory's follow-up: `b0_need` proved don't over-draft FILLED positions; it did NOT
+settle whether an UNFILLED slot must be filled before taking depth elsewhere. Added a
+third arm, same harness/seat/keepers/paired null:
+- **b0_need (STRICT fill-first, was installed):** mask to unfilled starter needs;
+  never take a filled-position player until starters are covered.
+- **value_depth:** take best-ADP among positions under STARTABLE capacity (dedicated
+  starters + 1 flex share for RB/WR/TE), letting a great-value flex/depth player jump
+  ahead of a weak starter slot; still capped so it never re-opens the 4th-RB trap.
+
+**Result: value_depth − fill_first = +$50.75, CI [16.75, 88.12] — clears $0.** Modest
+vs the $258 keeper-need result, but real. Mechanism (avg composition): value_depth
+**defers QB (1.47 vs 1.88) and DEF (1.40 vs 1.74)** and takes more flex-eligible
+depth (RB 3.90 vs 3.48, TE 2.46 vs 1.89) — and STILL fills every starter (no holes),
+just later from a worse tier. That is exactly the position-specific answer the
+market-reliability surface predicts: **ADP prices QB/TE well in the middle rounds, so
+waiting on the onesie starters is cheap; concentrate early value in flex-eligible
+depth.**
+
+**Refined board rule (supersedes strict fill-first):** recommend the best-ADP player
+among positions **under startable capacity** (starters + flex depth for RB/WR/TE),
+which (a) never over-drafts a filled position — the $258 rule — and (b) lets a strong
+flex/depth value jump ahead of a weak starter, **deferring QB/DEF to their cheaper
+mid/late ADP**. Never leave a starter slot empty at the end; onesies fill by their own
+late ADP. This is what the resolver wires to the pick-34 screen.
+
 ## Discipline / limits
 
 - **Relative result is the robust one.** Both arms run the SAME rooms and the SAME
