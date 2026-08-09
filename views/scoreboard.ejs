@@ -1,0 +1,67 @@
+<%- include('partials/header', { title: 'This Week' }) %>
+<%
+  const goat = id => (typeof goatId !== 'undefined' && goatId === id) ? ' 🐐' : '';
+  const oppFor = g => (g.a.id === me.id ? g.b.id : g.a.id);   // viewer-relevant deep link
+  const fmt = n => n == null ? '—' : n.toFixed(1);
+%>
+
+<h1 class="page-title">🏈 This Week <span class="sub" style="font-weight:600">Week <%= weekNo %> — every game</span></h1>
+
+<% if (!cards.length) { %>
+  <div class="card"><div class="body">
+    <p class="muted" style="margin:0"><% if (!configured) { %>Sleeper isn't connected yet — the week's games show up here once the league is mapped.<% } else { %>Week <%= weekNo %>'s slate isn't posted yet. When it is, all five games land here — leave it open on Sunday.<% } %></p>
+  </div></div>
+<% } else { %>
+
+  <%# the $100 race — invisible on a normal scoreboard, 37.5% of the pot ───────── %>
+  <% if (whRace) { const bar = Math.max(4, Math.min(100, Math.round((whRace.top / (whBand && whBand.median ? whBand.median : whRace.top)) * 100))); %>
+    <div class="sb-wh">
+      <div class="sb-wh-top"><span>🎯 <b>The Weekly $100</b></span>
+        <span class="sb-wh-lead"><%= whRace.leaderName %><%- goat(whRace.leaderId) %> leads · <b><%= fmt(whRace.top) %></b></span></div>
+      <div class="bar"><i style="width:<%= bar %>%"></i></div>
+      <div class="sb-wh-foot muted"><% if (whBand && whBand.median) { %>typically <b><%= Math.round(whBand.median) %></b> wins the week<% } %> — still up for grabs in every live game</div>
+    </div>
+  <% } %>
+
+  <div class="sb-list">
+    <% for (const c of cards) { const g = c.g; %>
+      <a class="sb-card<%= c.riv ? ' rivalry' : '' %>" href="/matchup?opp=<%= oppFor(g) %>">
+        <% if (c.riv) { %><div class="sb-riv"><%= c.riv.emoji %> <%= c.riv.label %></div><% } %>
+        <div class="sb-teams">
+          <div class="sb-side<%= c.leader && c.leader.id === g.a.id ? ' win' : '' %>">
+            <span class="sb-name"><%= g.a.name %><%- goat(g.a.id) %></span>
+            <span class="sb-score"><%= fmt(c.aPts) %></span>
+          </div>
+          <div class="sb-mid">
+            <% if (c.hasScore) { %><span class="sb-badge live">LIVE</span>
+            <% } else if (locked) { %><span class="sb-badge">locked</span>
+            <% } else { %><span class="sb-badge open">picks open</span><% } %>
+          </div>
+          <div class="sb-side<%= c.leader && c.leader.id === g.b.id ? ' win' : ''; %>" style="text-align:right">
+            <span class="sb-name"><%= g.b.name %><%- goat(g.b.id) %></span>
+            <span class="sb-score"><%= fmt(c.bPts) %></span>
+          </div>
+        </div>
+
+        <div class="sb-detail">
+          <% if (c.split && c.split.total) { %><span class="sb-chip">🗳️ <%= c.split.line %></span><% } %>
+          <% if (c.inWHRace) { %><span class="sb-chip hot">🎯 in the $100 race</span><% } %>
+          <% if (c.worth) { %><span class="sb-chip">🎟️ worth <b><%= c.worth.swing %>%</b> to <%= c.worth.name %>'s playoff odds</span><% } %>
+          <% if (c.po) { for (const side of [['a',g.a],['b',g.b]]) { const p = c.po[side[0]]; if (p && p.status === 'clinched') { %><span class="sb-chip in">🔒 <%= side[1].name %> clinched</span><% } else if (p && p.status === 'eliminated') { %><span class="sb-chip out">❌ <%= side[1].name %> out</span><% } } } %>
+          <% if (c.sweat) { %><span class="sb-chip sweat"><%= c.sweat.icon %> <%= c.sweat.leader ? c.sweat.leader + ' up ' + c.sweat.margin : c.sweat.word %></span><% } %>
+        </div>
+        <div class="sb-open muted">Open the matchup →</div>
+      </a>
+    <% } %>
+  </div>
+
+  <p class="muted" style="margin:1rem 0 0; font-size:.76rem">
+    <% if (!live) { %>Scores go live when games kick off — projected before, final after.<% } else { %>Live from Sleeper. Tap a game for the head-to-head, the trash talk, the side bet and the starters.<% } %>
+  </p>
+<% } %>
+
+<p style="text-align:center; margin-top:1rem">
+  <a class="btn navy" href="/pickem">🗳️ Pick'em</a>
+  <a class="btn navy" href="/">🏛 League Office</a>
+</p>
+<%- include('partials/footer') %>

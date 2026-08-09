@@ -13,6 +13,8 @@ const PO = require('./playoffs');          // folded columns — playoff odds/mo
 const TT = require('./trashtalk');         // trash talk attached to a specific game, permanent + archived
 const WW = require('./whatwatch');         // what-to-watch — the Sunday/Monday sweat meter + what each owner needs
 const MK = require('./marks');             // auto badges — GOAT on Mahomes' owner, Chiefs mark on KC players
+const RIVN = require('./rivalries');       // named rivalries (German derby, Dylan-Sam, Bates-Richard)
+const SET = require('./settlement');       // the settlement report — who pays whom, with Venmo
 const L = require('../ledger');
 const SB = require('../sidebets');
 const BL = require('../betlogic');
@@ -671,6 +673,14 @@ router.get('/bank', aw(async (req, res) => {
   const totalOwedToLeague = cards.reduce((s, c) => s + Math.min(c.balance, 0), 0);
   const totalLeagueOwes = cards.reduce((s, c) => s + Math.max(c.balance, 0), 0);
 
+  // THE SETTLEMENT REPORT — minimal who-pays-whom to square everyone to zero,
+  // computed from the same balances, with the payee's Venmo attached. The
+  // machine that tracks the money writes the invoice. (The Annual emits this as
+  // the sealed-season artifact; here it renders live off current balances.)
+  const settlement = SET.settlementReport(
+    owners.map(o => ({ owner_id: o.id, name: o.name, net: bal[o.id] ? bal[o.id].balance : 0 })),
+    id => { const o = H.ownerById(owners, id); const h = o && V.handle(o); return h ? { handle: h, url: `https://venmo.com/u/${h}` } : null; });
+
   // Whose ledger sits at the top. Yours by default; clicking a name in the
   // league ledger below swaps it, which is how you get from "who owes what" to
   // "why does he owe that" without a separate page.
@@ -763,7 +773,7 @@ router.get('/bank', aw(async (req, res) => {
     // Propose-from-anywhere: a ?betvs=<id> link (matchup, standings, franchise)
     // pre-selects that opponent in the bet builder.
     prefillParty: Number(req.query.betvs) || null,
-    cards, season, totalOwedToLeague, totalLeagueOwes, viewCard, leagueEntries,
+    cards, season, totalOwedToLeague, totalLeagueOwes, viewCard, leagueEntries, settlement,
     TYPE_LABELS: L.TYPE_LABELS,
     section, bets, tallies, owners, betNames, sbLedger, sbOwed, sbOwedMine, verdicts, liveOrder,
     sbGrid, sbView, sbDrill,
@@ -1757,6 +1767,104 @@ router.post('/dispatch/dismiss', aw(async (req, res) => {
   res.redirect('/');
 }));
 
+// ---------- THE SUNDAY SCOREBOARD — all of the week's games at once ----------
+// League-visible. Every game as a compact card with the interesting detail on
+// its face (pick'em split, rivalry billing, weekly-high stakes, playoff swing,
+// clinch/elim, the live sweat) and the depth one tap down (→ the full matchup).
+// Mostly WIRING the engines already built (PE, PO, WW, LO, RIV) — the page Cory
+// leaves open on a Sunday. The natural game-day landing.
+router.get('/scoreboard', aw(async (req, res) => {
+  const world = req.world;
+  const owners = H.activeOwners(world.owners);
+  const me = req.owner;
+  const season = H.currentSeason(world.seasons);
+  const seasonYear = season ? season.year : new Date().getUTCFullYear();
+  const map = world.config.sleeper_map || {};
+  const seasonStart = world.config.season_start || null;
+  const sData = await sleeper.bundle(world.config.sleeper_league_id);
+  const weekNo = (sData && sData.week) || 1;
+  const nameOf = id => (H.ownerById(owners, id) || {}).name || '?';
+
+  const games = PE.weekGames(sData, map, owners);
+  const anyScore = PE.anyScoreOnBoard(sData);
+  const locked = PE.isLocked({ week: weekNo, seasonStart, anyScore });
+
+  // live points per owner (from the scoreboard)
+  let livePts = null;
+  if (sData && Array.isArray(sData.matchups)) {
+    livePts = {};
+    for (const m of sData.matchups) {
+      const oid = map[String(m.roster_id)];
+      if (oid != null) livePts[String(oid)] = Math.round((m.points || 0) * 100) / 100;
+    }
+  }
+
+  // pick'em splits (public only after lock)
+  let allPicks = [];
+  if (locked) { try { allPicks = await PE.allPicksForWeek(seasonYear, weekNo); } catch (e) {} }
+
+  // playoff picture (odds + clinch/elim) + per-game leverage, when there's a race
+  let picture = null, gamesLeft = 0, cut = (sData && sData.league.settings && sData.league.settings.playoff_teams) || 4;
+  try {
+    const sStand = sleeper.standings(sData, map, owners).filter(r => r.owner_id != null && ((r.wins || 0) + (r.losses || 0) + (r.ties || 0)) > 0);
+    if (sData && sStand.length >= 4) {
+      const rows = sStand.map(r => ({ owner_id: r.owner_id, wins: r.wins, losses: r.losses, pf: r.pf }));
+      const regWeeks = (sData.league.settings && sData.league.settings.playoff_week_start) ? sData.league.settings.playoff_week_start - 1 : (season.weeks || 14);
+      gamesLeft = PO.gamesRemaining(weekNo, regWeeks);
+      const prev = await getDoc(`playoff-odds:${seasonYear}:${weekNo - 1}`, null);
+      picture = PO.picture(rows, gamesLeft, cut, prev ? prev.odds : null);
+      picture._rows = rows;
+    }
+  } catch (e) { /* dormant pre-season */ }
+
+  // this week's weekly-high race (the $100)
+  const whBand = LO.weeklyHighBand();
+  let whRace = null;
+  if (livePts) {
+    const scores = Object.entries(livePts).map(([oid, pts]) => ({ owner: Number(oid), pts })).filter(s => s.pts > 0);
+    if (scores.length) {
+      const top = Math.max(...scores.map(s => s.pts));
+      const leader = scores.find(s => s.pts === top);
+      whRace = { top, leaderName: nameOf(leader.owner), leaderId: leader.owner, band: whBand };
+    }
+  }
+
+  // ET day → the what-to-watch line only lights up Sun/Mon nights
+  const etDay = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' })).getDay();
+  const primetime = etDay === 0 || etDay === 1;
+
+  const cards = games.map(g => {
+    const aPts = livePts ? livePts[String(g.a.id)] : null;
+    const bPts = livePts ? livePts[String(g.b.id)] : null;
+    const hasScore = (aPts != null && aPts > 0) || (bPts != null && bPts > 0);
+    const leader = (aPts != null && bPts != null) ? (aPts > bPts ? g.a : (bPts > aPts ? g.b : null)) : null;
+    const split = locked ? { ...PE.gameSplit(g, allPicks), line: PE.splitLine(g, allPicks, nameOf) } : null;
+    const riv = RIVN.rivalryFor(g.a.name, g.b.name);
+    const inWHRace = whRace && (whRace.leaderId === g.a.id || whRace.leaderId === g.b.id);
+    // playoff stakes: each owner's odds + status, and the game's swing for owner a
+    const po = picture ? { a: picture[g.a.id], b: picture[g.b.id] } : null;
+    let worth = null;
+    if (picture && gamesLeft && cut < (picture._rows || []).length) {
+      const lev = PO.matchupLeverage(picture._rows, gamesLeft, cut, g.a.id);
+      if (lev && lev.swing > 0.005) worth = { name: g.a.name, swing: Math.round(lev.swing * 100) };
+    }
+    // the live sweat line (Sun/Mon, undecided) — basic from live margin
+    let sweat = null;
+    if (primetime && hasScore && aPts != null && bPts != null) {
+      const s = WW.sweat({ live: aPts, oppLive: bPts, remain: [], oppRemain: [] });
+      sweat = { ...WW.sweatLabel(s.pWin), leader: leader ? leader.name : null, margin: Math.abs(Math.round((aPts - bPts) * 10) / 10) };
+    }
+    return { g, aPts, bPts, hasScore, leader, split, riv, inWHRace, po, worth, sweat };
+  });
+
+  res.render('scoreboard', {
+    me, owners, weekNo, cards, locked, whRace, whBand,
+    live: !!(livePts && Object.values(livePts).some(p => p > 0)),
+    configured: !!world.config.sleeper_league_id, primetime,
+    goatId: MK.goatOwnerId(sData, map), nameOf,
+  });
+}));
+
 // ---------- THE LINEUP OPTIMIZER (in-season, the measured leak) ----------
 // The tool that attacks $445–595/team/season left on the bench. Two faces:
 //   • LIVE: your roster + projections → the dollar-optimal lineup and priced
@@ -1809,7 +1917,7 @@ router.get('/lineup', requireCommissioner, aw(async (req, res) => {
   const owners = H.activeOwners(world.owners);
   const me = req.owner;
   const tab = req.query.tab === 'proof' ? 'proof' : 'live';
-  const season = String(H.currentSeason(world.seasons).year || 2026);
+  const season = String(H.currentSeason(world.seasons).year || new Date().getUTCFullYear());
 
   const { live, roster, matchup, projSource, band, weekNo } = await liveOptimizeFor(world, owners, me);
   // The Sunday alert exactly as it would fire — so it can be rehearsed before week 1.
@@ -1855,7 +1963,7 @@ router.post('/lineup/sunday/send', requireCommissioner, aw(async (req, res) => {
 // "start your studs" lineup) so January can grade what the tool recommended vs
 // what would have happened otherwise. The predledger enforces the counterfactual.
 router.post('/lineup/log', requireCommissioner, aw(async (req, res) => {
-  const season = String(H.currentSeason(req.world.seasons).year || 2026);
+  const season = String(H.currentSeason(req.world.seasons).year || new Date().getUTCFullYear());
   const predledger = require('../predledger');
   try {
     await predledger.append(store, {
