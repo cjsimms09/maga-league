@@ -99,6 +99,7 @@ jobs:
           python draft/backtest/frontier.py --rooms 150           # exp 21 (+ exp 2 §5 slice)
           python draft/backtest/policy_tournament.py --rooms 120  # exp 2 §5/§6
           python draft/backtest/stack_sweep.py --rooms 120        # exp 6
+          python draft/backtest/exp_keeper_nabers.py --rooms 200  # keeper decision w/ Nabers (Aug-20 lock)
           python draft/backtest/sim_validation.py --rooms 24      # simulator fidelity + limits
           python draft/opening_script.py                          # inherits any new verdict
           # The doctrine banner reads the enrolled plan off the BOARD artifact,
@@ -116,6 +117,7 @@ jobs:
                   draft/backtest/FRONTIER.md draft/backtest/frontier.json \
                   draft/backtest/POLICY-TOURNAMENT.md draft/backtest/policy-tournament.json \
                   draft/backtest/STACK-SWEEP.md draft/backtest/stack-sweep.json \
+                  draft/backtest/EXP-KEEPER-NABERS.md draft/backtest/exp_keeper_nabers.json \
                   draft/backtest/SIM-FIDELITY.md draft/backtest/sim-fidelity.json \
                   draft/backtest/HETEROGENEOUS-VALIDATION.md \
                   draft/backtest/PLAYOFF-MONEY-VALIDATION.md \

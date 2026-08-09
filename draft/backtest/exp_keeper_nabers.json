@@ -1,0 +1,418 @@
+{
+  "experiment": "keeper decision with Nabers \u2014 surplus + best-draft + bias flag",
+  "anchor": "ffc",
+  "mfl_live": false,
+  "round_cost_vorp": [
+    103.91,
+    62.08,
+    36.2
+  ],
+  "candidates": {
+    "Chase": {
+      "pos": "WR",
+      "proj_mean": 295.1,
+      "vorp": 115.44,
+      "adp": 4.1,
+      "years_exp": 5
+    },
+    "Henry": {
+      "pos": "RB",
+      "proj_mean": 274.2,
+      "vorp": 85.63,
+      "adp": 10.5,
+      "years_exp": 10
+    },
+    "Walker": {
+      "pos": "RB",
+      "proj_mean": 255.8,
+      "vorp": 67.23,
+      "adp": 26.4,
+      "years_exp": 4
+    },
+    "Nabers": {
+      "pos": "WR",
+      "proj_mean": 199.6,
+      "vorp": 19.99,
+      "adp": 31.8,
+      "years_exp": 2
+    }
+  },
+  "surplus_ranked": [
+    {
+      "slate": [
+        "Chase",
+        "Henry",
+        "Walker"
+      ],
+      "k": 3,
+      "keeper_vorp": 268.3,
+      "cost_vorp": 202.19,
+      "surplus": 66.11,
+      "has_nabers": false,
+      "rb_kept": 2,
+      "wr_kept": 1
+    },
+    {
+      "slate": [
+        "Chase",
+        "Henry"
+      ],
+      "k": 2,
+      "keeper_vorp": 201.07,
+      "cost_vorp": 165.99,
+      "surplus": 35.08,
+      "has_nabers": false,
+      "rb_kept": 1,
+      "wr_kept": 1
+    },
+    {
+      "slate": [
+        "Chase",
+        "Henry",
+        "Nabers"
+      ],
+      "k": 3,
+      "keeper_vorp": 221.06,
+      "cost_vorp": 202.19,
+      "surplus": 18.87,
+      "has_nabers": true,
+      "rb_kept": 1,
+      "wr_kept": 2
+    },
+    {
+      "slate": [
+        "Chase",
+        "Walker"
+      ],
+      "k": 2,
+      "keeper_vorp": 182.67,
+      "cost_vorp": 165.99,
+      "surplus": 16.68,
+      "has_nabers": false,
+      "rb_kept": 1,
+      "wr_kept": 1
+    },
+    {
+      "slate": [
+        "Chase"
+      ],
+      "k": 1,
+      "keeper_vorp": 115.44,
+      "cost_vorp": 103.91,
+      "surplus": 11.53,
+      "has_nabers": false,
+      "rb_kept": 0,
+      "wr_kept": 1
+    },
+    {
+      "slate": [
+        "Chase",
+        "Walker",
+        "Nabers"
+      ],
+      "k": 3,
+      "keeper_vorp": 202.66,
+      "cost_vorp": 202.19,
+      "surplus": 0.47,
+      "has_nabers": true,
+      "rb_kept": 1,
+      "wr_kept": 2
+    },
+    {
+      "slate": [],
+      "k": 0,
+      "keeper_vorp": 0,
+      "cost_vorp": 0,
+      "surplus": 0,
+      "has_nabers": false,
+      "rb_kept": 0,
+      "wr_kept": 0
+    },
+    {
+      "slate": [
+        "Henry",
+        "Walker"
+      ],
+      "k": 2,
+      "keeper_vorp": 152.86,
+      "cost_vorp": 165.99,
+      "surplus": -13.13,
+      "has_nabers": false,
+      "rb_kept": 2,
+      "wr_kept": 0
+    },
+    {
+      "slate": [
+        "Henry"
+      ],
+      "k": 1,
+      "keeper_vorp": 85.63,
+      "cost_vorp": 103.91,
+      "surplus": -18.28,
+      "has_nabers": false,
+      "rb_kept": 1,
+      "wr_kept": 0
+    },
+    {
+      "slate": [
+        "Henry",
+        "Walker",
+        "Nabers"
+      ],
+      "k": 3,
+      "keeper_vorp": 172.85,
+      "cost_vorp": 202.19,
+      "surplus": -29.34,
+      "has_nabers": true,
+      "rb_kept": 2,
+      "wr_kept": 1
+    },
+    {
+      "slate": [
+        "Chase",
+        "Nabers"
+      ],
+      "k": 2,
+      "keeper_vorp": 135.43,
+      "cost_vorp": 165.99,
+      "surplus": -30.56,
+      "has_nabers": true,
+      "rb_kept": 0,
+      "wr_kept": 2
+    },
+    {
+      "slate": [
+        "Walker"
+      ],
+      "k": 1,
+      "keeper_vorp": 67.23,
+      "cost_vorp": 103.91,
+      "surplus": -36.68,
+      "has_nabers": false,
+      "rb_kept": 1,
+      "wr_kept": 0
+    },
+    {
+      "slate": [
+        "Henry",
+        "Nabers"
+      ],
+      "k": 2,
+      "keeper_vorp": 105.62,
+      "cost_vorp": 165.99,
+      "surplus": -60.37,
+      "has_nabers": true,
+      "rb_kept": 1,
+      "wr_kept": 1
+    },
+    {
+      "slate": [
+        "Walker",
+        "Nabers"
+      ],
+      "k": 2,
+      "keeper_vorp": 87.22,
+      "cost_vorp": 165.99,
+      "surplus": -78.77,
+      "has_nabers": true,
+      "rb_kept": 1,
+      "wr_kept": 1
+    },
+    {
+      "slate": [
+        "Nabers"
+      ],
+      "k": 1,
+      "keeper_vorp": 19.99,
+      "cost_vorp": 103.91,
+      "surplus": -83.92,
+      "has_nabers": true,
+      "rb_kept": 0,
+      "wr_kept": 1
+    }
+  ],
+  "nabers_breakeven_vorp": {
+    "displace_Walker": 67.23,
+    "displace_Henry": 85.63,
+    "current_nabers_vorp": 19.99
+  },
+  "nabers_market_implied_vorp": {
+    "implied_vorp": 27.58,
+    "adp_rank": 32,
+    "model_vorp": 19.99
+  },
+  "draft_mc": {
+    "rooms": 200,
+    "rule": "value_depth (live keeper-need)",
+    "rows": [
+      {
+        "slate": [
+          "Chase",
+          "Henry",
+          "Walker"
+        ],
+        "mean_dollars": 745.62,
+        "vs_current": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "beats": false
+        },
+        "rb_kept": 2,
+        "rb_drafted_mean": 1.9,
+        "rb_drafted_mean_vorp": -42.5,
+        "avg_roster_comp": {
+          "DEF": 1.4,
+          "K": 1.4,
+          "QB": 1.5,
+          "RB": 3.9,
+          "TE": 2.5,
+          "WR": 4.3
+        }
+      },
+      {
+        "slate": [
+          "Chase",
+          "Henry",
+          "Nabers"
+        ],
+        "mean_dollars": 619.38,
+        "vs_current": {
+          "mean": -126.25,
+          "ci95": [
+            -157.0,
+            -96.25
+          ],
+          "beats": false
+        },
+        "rb_kept": 1,
+        "rb_drafted_mean": 2.9,
+        "rb_drafted_mean_vorp": -39.4,
+        "avg_roster_comp": {
+          "DEF": 1.4,
+          "K": 1.4,
+          "QB": 1.5,
+          "RB": 3.9,
+          "TE": 2.5,
+          "WR": 4.3
+        }
+      },
+      {
+        "slate": [
+          "Chase",
+          "Henry"
+        ],
+        "mean_dollars": 581.75,
+        "vs_current": {
+          "mean": -163.88,
+          "ci95": [
+            -204.88,
+            -124.25
+          ],
+          "beats": false
+        },
+        "rb_kept": 1,
+        "rb_drafted_mean": 2.63,
+        "rb_drafted_mean_vorp": -42.3,
+        "avg_roster_comp": {
+          "DEF": 1.3,
+          "K": 1.6,
+          "QB": 1.3,
+          "RB": 3.6,
+          "TE": 2.3,
+          "WR": 3.9
+        }
+      },
+      {
+        "slate": [
+          "Chase",
+          "Nabers",
+          "Walker"
+        ],
+        "mean_dollars": 581.5,
+        "vs_current": {
+          "mean": -164.12,
+          "ci95": [
+            -199.5,
+            -131.12
+          ],
+          "beats": false
+        },
+        "rb_kept": 1,
+        "rb_drafted_mean": 2.9,
+        "rb_drafted_mean_vorp": -39.2,
+        "avg_roster_comp": {
+          "DEF": 1.4,
+          "K": 1.4,
+          "QB": 1.5,
+          "RB": 3.9,
+          "TE": 2.5,
+          "WR": 4.3
+        }
+      }
+    ]
+  },
+  "opp_keeper_sensitivity": {
+    "Chase|Henry|Walker": {
+      "vs_current_no_oppkeepers": {
+        "mean": 0.0
+      }
+    },
+    "Chase|Henry|Nabers": {
+      "vs_current_no_oppkeepers": {
+        "mean": -72.0,
+        "ci95": [
+          -108.25,
+          -37.5
+        ],
+        "beats": false
+      }
+    },
+    "Chase|Nabers|Walker": {
+      "vs_current_no_oppkeepers": {
+        "mean": -126.25,
+        "ci95": [
+          -172.5,
+          -81.75
+        ],
+        "beats": false
+      }
+    },
+    "Chase|Henry": {
+      "vs_current_no_oppkeepers": {
+        "mean": -81.5,
+        "ci95": [
+          -126.25,
+          -36.5
+        ],
+        "beats": false
+      }
+    }
+  },
+  "experience_bias_probe": {
+    "rookie(0)": {
+      "n": 39,
+      "mean_rank_gap_vorp_minus_adp": 52.3
+    },
+    "2nd-yr(1)": {
+      "n": 50,
+      "mean_rank_gap_vorp_minus_adp": 61.6
+    },
+    "3rd-yr(2)": {
+      "n": 43,
+      "mean_rank_gap_vorp_minus_adp": 63.5
+    },
+    "vet(3+)": {
+      "n": 226,
+      "mean_rank_gap_vorp_minus_adp": 43.0
+    }
+  },
+  "caveats": [
+    "anchor = FFC; MFL not live yet, so ranked by FFC (source grade prefers MFL directionally \u2014 flagged, not yet wired to the live board)",
+    "surplus is flat-cost (top_picks_flat): keeping k forfeits your first k picks",
+    "MC dollars are the v1 proxy (proj-normal weeks + weekly-high + regular-season); rankings travel, absolute $ are harness-dependent",
+    "bias probe is model-vs-MARKET cross-sectional; a bias SHARED by model+market needs realized outcomes (Lab test #1) and BBM at scale (test #3)"
+  ]
+}
