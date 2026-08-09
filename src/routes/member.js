@@ -20,6 +20,8 @@ const V = require('../venmo');
 const sleeper = require('../sleeper');
 const notify = require('../notify');
 const crypto = require('crypto');
+const fs = require('fs');
+const path = require('path');
 const { store, getDoc, setDoc, newId, now } = require('../data');
 const { hashPassword, verifyPassword, requireLogin, requireCommissioner, aw } = require('../auth');
 const { RULES, SCORING, ROSTER } = require('../seed-data');
@@ -481,9 +483,35 @@ async function moneySection(req) {
 }
 
 // Which seasons have a written chapter committed under views/history/chapters/.
-// Prose is generated once and reviewed for voice before it ships — this set is
-// the switch that turns a chapter on. Add a year here when its chapter lands.
-const CHAPTERS = new Set([2023, 2024, 2025]);
+// DERIVED FROM DISK, not a hardcoded list: a chapter turns on the moment its
+// prose file (views/history/chapters/<year>.ejs) is committed — no second edit,
+// nothing to forget when a season seals. A hardcoded [2023,2024,2025] was a
+// silent-stale trap (and one the no-season-literals guard's patterns don't
+// even catch, since a bare year in an array isn't an identifier/date/fallback).
+// Memoised: the files are committed content, they don't appear at runtime.
+let _chapterYears = null;
+function chapterYears() {
+  if (_chapterYears) return _chapterYears;
+  const dirs = [
+    path.join(__dirname, '..', '..', 'views', 'history', 'chapters'),
+    path.join(process.cwd(), 'views', 'history', 'chapters'),
+    '/var/task/views/history/chapters',
+  ];
+  const years = new Set();
+  for (const d of dirs) {
+    try {
+      for (const f of fs.readdirSync(d)) {
+        const m = /^(\d{4})\.ejs$/.exec(f);
+        if (m) years.add(Number(m[1]));
+      }
+    } catch (e) { /* try the next candidate root */ }
+    if (years.size) break;
+  }
+  // Only memoise a non-empty result: an empty read (e.g. views not yet resolved
+  // on a cold function) must not pin the chapter switch permanently off.
+  if (years.size) _chapterYears = years;
+  return years;
+}
 
 // Safe access to the archive engine: a data problem should render a readable
 // error, not crash the request. Memoised inside history-data.build().
@@ -505,7 +533,11 @@ router.get('/history', aw(async (req, res) => {
     return res.render('history', Object.assign({ section }, data));
   }
   const A = archive();
-  res.render('history/index', { A, chapters: CHAPTERS });
+  // Top of the chronicle timeline = the current season, derived (not a literal),
+  // so a new season appears the moment it opens instead of waiting on an edit.
+  const _season = H.currentSeason(req.world.seasons);
+  const topYear = (_season && _season.year) || new Date().getUTCFullYear();
+  res.render('history/index', { A, chapters: chapterYears(), topYear });
 }));
 
 // The Age Before Records — a single ceremonial chapter for the pre-Sleeper years
@@ -525,10 +557,10 @@ router.get('/history/season/:year', aw(async (req, res) => {
     return res.status(404).render('error', { title: 'No such season',
       message: `The ${req.params.year} chapter has not been written into the archive.` });
   }
-  const chapterInclude = CHAPTERS.has(year) ? `history/chapters/${year}` : null;
+  const chapterInclude = chapterYears().has(year) ? `history/chapters/${year}` : null;
   // required cast (§2) computed from the all-play instrument, plus the champion.
   const cast = seasonCast(season);
-  res.render('history/season', { A, season, chapterInclude, cast, chapters: CHAPTERS });
+  res.render('history/season', { A, season, chapterInclude, cast, chapters: chapterYears() });
 }));
 
 // The All-Time Records Book (the crown jewel).

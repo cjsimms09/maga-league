@@ -6,7 +6,14 @@
   const champByYear = {};
   for (const c of A.champions) champByYear[c.year] = c;
   const years = [];
-  for (let y = 2026; y >= (A.lore.foundingYear || 2016); y--) years.push(y);
+  // The timeline tops out at the CURRENT season, passed in from the route — not
+  // a hardcoded 2026, which would silently omit next season the moment it opens
+  // and nobody would notice until a chapter went missing. Falls back to the
+  // newest harvested season if the live year wasn't supplied.
+  const _top = (typeof topYear !== 'undefined' && topYear)
+    ? topYear
+    : Math.max(A.lore.foundingYear || 2016, ...Object.keys(A.byYear).map(Number));
+  for (let y = _top; y >= (A.lore.foundingYear || 2016); y--) years.push(y);
   const linkFor = y => A.byYear[y] ? `/history/season/${y}` : (y >= 2016 && y <= 2022 ? '/history/early' : null);
 %>
 
