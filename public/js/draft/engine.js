@@ -221,6 +221,31 @@
   const DEFAULT_WEIGHTS = { value: 1.0, tier: 1.0, need: 1.0, risk: 1.0, ceiling: 0.65,
     keeper: 1.0, bye: 1.0, stack: 1.0 };
 
+  /* THE MEASURED CONFIG — what the tool loads on, 2026-08-09 (Cory-confirmed).
+   *
+   * The all-terms participation test (exp_participation, 400 paired rooms) and its
+   * follow-ups measured which adjusters actually earn on top of the defensible core
+   * (the startable-cap MASK — always on, in needrule.js — plus the VALUE anchor):
+   *   - value 1.0   : the anchor; removing it costs ~$362. Half the whole edge.
+   *   - stack 0.5   : the ONE adjuster that earns (exp6/stack_sweep, +$196 @ 0.5); its
+   *                   correlation mechanism isn't in the money-MC, so trust stack_sweep.
+   *   - need 0.5    : near-inert (flips ~5% of picks — redundant with the MASK, which IS
+   *                   the need mechanism); the small +$16 lives in that thin slice.
+   *   - ceiling 0.65: a real, separably-positive term at w~1.0 (single-run, replicate) —
+   *                   kept at its default rather than zeroed.
+   *   - tier 0, risk 0 : measured DRAG — they pull picks off the value anchor toward a
+   *                   mechanism no payout rewards (tier −$235, risk −$143 pooled), worst
+   *                   in the early rounds where the anchor is strongest.
+   *   - bye 0       : a real null (flips ~40% of picks, earns nothing).
+   *   - keeper 1.0  : unmeasured (a cross-season option value a single-season grade can't
+   *                   price); left on because it only nudges keeper-eligible players and
+   *                   drives the informational KEEPER-TARGET badge, not normal picks.
+   * Magnitudes are MC-harness-tier; the SIGN/ordering is the robust claim. See
+   * DECISIONS-NEEDED #3. Auto mode still carries its own (older, grid-guarded) phase
+   * ramp — this is the DEFAULT the tool loads on, not a change to Auto. */
+  const MEASURED_WEIGHTS = { value: 1.0, tier: 0.0, need: 0.5, risk: 0.0, ceiling: 0.65,
+    keeper: 1.0, bye: 0.0, stack: 0.5 };
+
   /* Named strategies, as weight sets.
    *
    * Seven sliders is six too many to reason about on the clock, and a knob you
@@ -234,9 +259,18 @@
    */
   const WEIGHT_PRESETS = [
     {
+      key: 'measured', label: 'Measured core',
+      why: 'What the tool loads on, and what the Lab could actually MEASURE earning money: '
+        + 'rank off the board (value), a stack tilt (the one adjuster that earned), a light '
+        + 'need nudge on top of the always-on lineup MASK, and a modest ceiling. Tier and risk '
+        + 'are OFF — they measured as a drag, not a knob you are declining to turn. This is the '
+        + 'honest panel: the sliders that are near zero are near zero because they did nothing.',
+      weights: { value: 1.0, tier: 0.0, need: 0.5, risk: 0.0, ceiling: 0.65, keeper: 1.0, bye: 0.0, stack: 0.5 },
+    },
+    {
       key: 'balanced', label: 'Balanced',
-      why: 'The defaults. Value and lineup need traded off evenly — right until '
-        + 'you have a reason it is not.',
+      why: 'The old defaults — every term on at ~1. Kept as a reference point; the Lab '
+        + 'found several of these terms earn nothing (see Measured core).',
       weights: { value: 1.0, tier: 1.0, need: 1.0, risk: 1.0, ceiling: 0.5, keeper: 1.0, bye: 1.0, stack: 1.0 },
     },
     {
@@ -2259,7 +2293,7 @@
     demoteFlaggedOnesies, computeRailBudget, railFireSig, bestFlexAlt, liveStackRoutes, movementLine,
     confidence, branchForecast, computePaths, dollarGap, playerDollars, applyPersonalLists, onTheClock, rosterPlan, byeGrid,
     cheatSheet, sheetText, managerTells, threatBoard,
-    WEIGHT_PRESETS, matchPreset, rankDiff, autoWeights,
+    WEIGHT_PRESETS, matchPreset, rankDiff, autoWeights, MEASURED_WEIGHTS,
     formatDefaults, applyFormatDefaults,
     // A2/A3 surfaces, re-exported so callers need only one handle.
     survivalModel: S, compositeTerms: C,
