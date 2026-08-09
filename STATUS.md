@@ -1235,3 +1235,27 @@ Page-by-page USA-theme polish, everything clicking through to its story, the sit
 
 ### SESSION TALLY (this session, on the branch)
 Pick'em · The Dispatch · folded columns · trash talk · what-to-watch · GOAT+Chiefs marks · nav-bug fix — **~120 tests**, all green, CI-wired, screenshotted at 390px. **Nothing deployed yet.**
+
+## ▶ SESSION B — RESUME MARKER 2026-08-09: Field Office redesign underway (Cory picked D)
+**Branch `claude/pickems-feature-3ksf0l`. A already shipped the earlier stack (`[deploy]` c03671e — Pick'em/Dispatch/folded columns/what-to-watch/trash talk/GOAT+Chiefs are LIVE). The Field Office redesign is NEW commits on the branch, NOT yet integrated/deployed by A.**
+
+### DESIGN DIRECTION — settled
+Explored 4 directions (A Broadcast Deck / B Daylight / C Terminal / D Field Office synthesis; screenshots sent). **Cory picked D — "Field Office"**: modern-americana in daylight + mono broadcast data discipline + terminal // accents. Editorial calm for the record, broadcast precision for the live stuff, crude chronicle voice (serif-italic) against clean chrome.
+
+### ✅ INCREMENT 1 — FOUNDATION (committed 6f93669), verified on the real app
+- Token flip: `:root` → Field Office palette under the SAME names (site-wide flip; CSS was ~73% var()-driven). Added --blue, --font-mono, --font-serif; softened glows.
+- Cascade-last "FIELD OFFICE" override layer in `public/css/style.css`: light masthead + tricolor accent, light nav + tab bar, hairline borders, mono tabular numbers everywhere, // micro-labels, solid buttons, light alerts, serif-italic voice.
+- Regression sweep (GLOBAL, so it covers the whole site, not just judged pages): remapped ~90 light-on-dark text colors in style.css + ~10 in chronicle.css to dark; fixed gradient-clipped white text (.hero-value) and white components (.mu-pts/.stakes-line/.pk-strip/.wh-race).
+- Verified home + matchup + history at 390px & 1280px: light, readable, no h-scroll, all personality intact. history_smoke 13/13. territory clean. CSS braces balanced.
+
+### ▶ REMAINING (Increment 2+, the "great" polish — page-by-page)
+Because the flip + remap were GLOBAL, non-judged pages (bank, team, votes, rules) already inherit Field Office via shared cards/tables/tokens — but need a **verification + polish pass** each (screenshot at 390/1280, fix any component-specific dark hardcodes). Known specific TODOs:
+1. **Type scale + spacing pass** (Cory's #1 lever): a deliberate scale + more generous, less-even spacing across pages. The foundation set tokens/mono/labels; the per-page rhythm is the "great" step.
+2. **Side-bet grid** (`_side_bets.ejs`) + **team roster** + **bank ledger** — verify + polish.
+3. **War-room shell** (`warroom.ejs`, commish-only): has hardcoded dark overlays (#0b1020 statusbar, rehearsal ribbons) that stayed dark — needs a dedicated Field Office pass (not a judged page; lower priority, but it's B's shell).
+4. **Remaining tinted text** (#ffd7db/#f0dca5/#ffb4bb badge text) — audit on colored chips for contrast on light.
+5. Self-host a display face (already on backlog) — sharpens the whole type story.
+- Then: tell A to integrate + deploy the redesign so Cory sees it live.
+
+### WATCH
+The A-ship Monitor already FIRED (A shipped the pre-redesign stack). If more live verification is wanted post-redeploy, re-arm `scratchpad/ship-check.sh`.
