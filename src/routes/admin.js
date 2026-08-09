@@ -547,11 +547,31 @@ router.post('/votes/:id/enact', aw(async (req, res) => {
   catch (e) { return back(res, 'votes', msg('Could not enact: ' + e.message)); }
 
   await setDoc('seasons', result.seasons);
+
+  // THE GAP the Annual audit found: enacting a BUY-IN vote raised the pot and the
+  // payout table in config, but every owner's tab (and therefore the settlement
+  // invoice) still squared the OLD buy-in — because only the season form
+  // re-synced the ledger, never this enact path. So a passed "raise buy-in to
+  // $500" vote left the bank showing −$400 tabs. Re-sync unpaid buy-in charges to
+  // the enacted amount here too, exactly as the season form does, so balances and
+  // the settlement follow the vote with no separate step.
+  let tabs = 0;
+  if (type === 'buy_in') {
+    const newBuyIn = (result.seasons[targetYear] || {}).buy_in;
+    if (Number.isFinite(newBuyIn)) {
+      const ledger = await L.allEntries();
+      for (const e of ledger) {
+        if (e.type === 'buy_in' && e.year === Number(targetYear) && !e.settled && e.amount !== -newBuyIn) { e.amount = -newBuyIn; tabs++; }
+      }
+      if (tabs) await setDoc('ledger', ledger);
+    }
+  }
+
   // Mark the vote enacted on its own doc (the amendment ledger DERIVES the dated
   // entry from the season-config change — no separate write needed).
   const vdoc = await getDoc(`vote:${vote.id}`, null);
   if (vdoc) { vdoc.enacted_at = now(); vdoc.enacted_by = req.owner.id; vdoc.enacted_change = result.changed; vdoc.enacted_year = targetYear; await setDoc(`vote:${vote.id}`, vdoc); }
-  back(res, 'votes', msg('Enacted: ' + result.changed + ' The pot, payouts, finances and amendment ledger now follow it.'));
+  back(res, 'votes', msg('Enacted: ' + result.changed + (tabs ? ` ${tabs} unpaid tab(s) re-charged to the new buy-in.` : '') + ' Pot, payouts and finances now follow it.'));
 }));
 
 // ---------- league settings ----------

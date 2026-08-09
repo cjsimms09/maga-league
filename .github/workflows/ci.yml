@@ -82,6 +82,12 @@ jobs:
         # harvested target on its own. Asserts it renders and that no per-owner
         # efficiency analysis leaks onto this league-visible page.
         run: node draft/tests/matchup_weekly_high.test.js
+      - name: Vote → ledger sync — enacting a buy-in vote re-charges the tabs
+        # Annual-audit money hole: enacting a passed buy-in vote raised the pot in
+        # config but left every owner's tab (and the settlement) at the old buy-in.
+        # Asserts the enact path now re-charges unpaid tabs to the new amount and
+        # leaves already-settled tabs alone.
+        run: node draft/tests/vote_ledger_sync.test.js
       - name: Model accuracy — the display half of the learning loop (reads A's grades)
         # Pure engine (buildAccuracyView never grades — it shapes A's calibration/
         # attribution output and degrades honestly before there's data) + the
