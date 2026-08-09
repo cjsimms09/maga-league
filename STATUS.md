@@ -1061,3 +1061,22 @@ Coordinated pushes (fetch→pull --rebase→push, rebase over A) — no more dep
   side-bet grid sparklines, remaining page-hierarchy polish.
 - When A ships the championship-probability model: the pool advisor's placeholder
   odds swap for the real model (no interface change).
+
+### 🅱️ update: SUNDAY ALERT (task 4) DONE — all 5 original tasks complete
+- LO.sundayAlert generator + notify.sundayAlert email + commissioner preview on
+  /lineup (rehearsable now) + "send it to me" + secret-gated /api/sunday-alert cron
+  endpoint + sunday-alert.yml (Sun ~10:40am ET). Quiet week says so plainly.
+  sunday_alert 9/9. Season-time activation: set SUNDAY_ALERT_KEY + SITE_URL;
+  live projections drop in from A. Workflows marked shared infra in the check.
+**ORIGINAL 5 TASKS: all done** — dashboard ✅, matchup ✅, lineup optimizer
+(engine+page, validated to the dollar) ✅, Sunday alert ✅, instrumentation ✅.
+**DESIGN BRIEF: substantially done** — Money Board sparklines, weekly-high strip +
+home panel, Record Book crown ladder, easter eggs (German/2022*/star-row/Konami/
+mahomes-chiefs), side-bet declare/confirm/dispute lifecycle + Venmo handoff, pool
+bets → franchise snake draft + commissioner advisor, propose-from-anywhere.
+**REMAINING (lower priority / live-gated):** standings rank-movement arrows (live),
+side-bet grid sparklines, health-strip VIEW (A parked), Bates-reaches-for-Chiefs
+counter (needs player→team data), full page-hierarchy polish pass. When A ships the
+championship-probability model → the pool advisor's placeholder swaps for real.
+**COORDINATION:** B pushes to main directly (works); coordinated fetch→rebase→push,
+no races. A merges A's branch + deploys.
