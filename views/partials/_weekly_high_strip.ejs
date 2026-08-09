@@ -1,0 +1,47 @@
+<%
+/*
+ * WEEKLY-HIGH STRIP — the biggest recurring prize in the league, made visible.
+ * $100 a week rides on the top score; this renders the whole season's race as a
+ * row of bars so "who owned the weekly high" reads at a glance instead of hiding
+ * in a table. Photo-finishes (won by under $2) glow red — a hundred dollars lost
+ * to a rounding error, which is the league's favourite kind of pain.
+ *
+ * locals:
+ *   weeks   [{ week, name, score, margin, second_name }]  the season's winners
+ *   flag    (name) => '🇩🇪' | '🇺🇸'    optional, for the winner chip
+ *   me      string   optional owner name to highlight ("your weeks")
+ */
+  const _wh = (typeof weeks !== 'undefined' && Array.isArray(weeks)) ? weeks : [];
+  const _flag = (typeof flag === 'function') ? flag : (() => '');
+  const _me = (typeof me !== 'undefined') ? me : null;
+  const _scores = _wh.map(w => Number(w.score) || 0).filter(Boolean);
+  const _min = _scores.length ? Math.min(..._scores) : 0;
+  const _max = _scores.length ? Math.max(..._scores) : 1;
+  // Bar height 30–100% of the track, scaled within the season's own winning band
+  // so the spread is legible (a flat 120–170 range would otherwise look uniform).
+  const _pct = s => { const span = (_max - _min) || 1; return 30 + Math.round(((Number(s) - _min) / span) * 70); };
+  // count of weekly-high $ per owner, for the mini-leaderboard under the strip
+  const _tally = {};
+  for (const w of _wh) _tally[w.name] = (_tally[w.name] || 0) + 1;
+  const _leaders = Object.entries(_tally).map(([name, n]) => ({ name, n })).sort((a, b) => b.n - a.n);
+%>
+<% if (_wh.length) { %>
+<div class="wh-strip" role="img" aria-label="weekly-high winners by week">
+  <div class="wh-bars">
+    <% _wh.forEach(w => { const tight = (w.margin != null && w.margin < 2);
+         const mine = _me && String(w.name) === String(_me); %>
+      <div class="wh-col<%= tight ? ' tight' : '' %><%= mine ? ' mine' : '' %>" title="Week <%= w.week %>: <%= w.name %> — <%= Number(w.score).toFixed(2) %><%= w.margin != null ? ' (by ' + Number(w.margin).toFixed(2) + ')' : '' %>">
+        <span class="wh-score"><%= Math.round(Number(w.score)) %></span>
+        <span class="wh-bar" style="height:<%= _pct(w.score) %>%"></span>
+        <span class="wh-wk"><%= w.week %></span>
+      </div>
+    <% }) %>
+  </div>
+  <div class="wh-legend">
+    <span class="wh-leg-lead">
+      <% _leaders.slice(0, 3).forEach((l, i) => { %><span class="wh-chip<%= i === 0 ? ' top' : '' %>"><%= l.name %> <%= _flag(l.name) %> ×<%= l.n %></span><% }) %>
+    </span>
+    <span class="wh-leg-note muted">$100 a week · <span class="wh-dot-tight"></span> won by under $2</span>
+  </div>
+</div>
+<% } %>
