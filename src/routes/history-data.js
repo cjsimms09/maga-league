@@ -135,10 +135,10 @@ function build() {
     // the earliest year the master sheet names owners — so the exact seasons
     // predate the record and are not establishable. Stated, not invented.
     turnover: {
-      departed: ['Brandon', 'Taylor Hagen', 'Ben'],
+      departed: ['Brandon', 'Taylor Hagen', 'Tori'],
       added: ['Sam', 'Dylan', 'Jeremy'],
       yearsKnown: false,
-      note: 'Sam, Dylan and Jeremy replaced Brandon, Taylor Hagen and Ben. The master sheet names owners only from 2019 (all current ten already present); Brandon and Taylor Hagen appear nowhere, and Ben survives in the record only as an entry in the 2024 draft order — so the exact seasons of the changes are not fully establishable from the data.',
+      note: 'Sam, Dylan and Jeremy replaced Brandon, Taylor Hagen and Tori. The master sheet names owners only from 2019 (all current ten already present), so the exact seasons are not in the data. Name caveat: the records preserve a "Ben" (a single 2024 draft-order entry) and nothing for "Tori"; the third departed name is Cory\'s recollection and the data cannot confirm it either way.',
       // Data-integrity flag: pre-join winnings attributed to the replacements
       // that likely belong to their predecessors — surfaced, not silently kept.
       moneyCaveat: 'The master sheet credits Dylan with $406.25 (2017) and $187.50 (2018) and Jeremy with $156.25 (2017) — before either is known to have joined. Those dollars most likely belong to the owners they replaced; the true split is not recoverable from the data.',
