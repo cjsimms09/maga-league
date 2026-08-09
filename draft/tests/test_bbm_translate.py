@@ -66,8 +66,17 @@ def test_bbm_finding_labels_and_blocks_untranslatable():
     assert blocked["crosses_wall"] is False
 
 
-def test_combine_tiers_agreement_and_disagreement():
-    assert "AGREE" in B.combine_tiers({"direction": 1}, {"direction": 1})["state"]
-    assert "DISAGREE" in B.combine_tiers({"direction": 1}, {"direction": -1})["state"]
-    # league primary always
-    assert B.combine_tiers({"direction": 1}, {"direction": -1})["primary"] == B.SOURCE_TIER_LEAGUE
+def test_combine_tiers_is_now_DERIVED_not_a_fixed_primary():
+    # direction-only (no intervals) -> the weight is UNDETERMINED, flagged, NOT the old
+    # static tier standing in as finished.
+    bare = B.combine_tiers({"direction": 1}, {"direction": -1})
+    assert "DISAGREE" in bare["state"]
+    assert "warning" in bare and "UNDETERMINED" in bare["warning"]
+    # WITH intervals, the weight is computed from precision x transferability. A rich league
+    # (tight se) dominates a well-transferring but coarser external source.
+    rich = B.combine_tiers(
+        {"direction": 1, "estimate": 0.2, "se": 0.05, "n": 500},
+        {"direction": 1, "estimate": 0.2, "se": 0.2, "n": 1_000_000}, transferability=0.9)
+    assert "AGREE" in rich["state"]
+    assert rich["weights"]["league"] > rich["weights"]["external"]
+    assert rich["dominant"] == "league"

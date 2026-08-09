@@ -37,6 +37,40 @@ sentence before you run it:
 rather than working it because he asked. **If you see a money edge nobody has raised,
 raise it** — that is worth more than finishing the list.
 
+## ⭐ THE DESIGN PRINCIPLE — PREFER DERIVED OVER DECLARED (above every specific rule)
+
+**Any value, weight, threshold, tier, or policy that could be computed from evidence
+should be computed from evidence — and keep recomputing as the evidence changes.** A
+hand-set value freezes 2026's judgment into 2030's model; a derived value lets the
+model's confidence, priorities, and thresholds evolve with what it has actually seen.
+That is the difference between accumulating data and learning.
+
+**When you find yourself writing a constant, ask: is this a real constant, or a
+measurement we have not taken yet?** Almost every number that has been WRONG in this
+project was the second kind — the ceiling ramp, the endgame aggression, the anchor's
+bind-hard-early premise, the flat T=4.0 threshold, the modeled ρ=0.35, the static
+evidence tier. Each was a hand-set value standing in for something measurable, and each
+was wrong in a direction nobody predicted.
+
+This obliges:
+1. **If a value could be derived, derive it.** If it cannot be derived *yet*, mark it an
+   explicit PLACEHOLDER with the measurement that would replace it, so it can't calcify.
+2. **If a rule is fixed but the world it describes changes, make the rule a FUNCTION of
+   the thing that changes.** Evidence weight = f(sample size, measured transferability)
+   (`evidence_weight.py`). Anchor strength = f(measured per-region market reliability)
+   (exp 36 surface). Confidence language = f(what experiments reported) (`EVIDENCE_STATE`).
+   Look for others.
+3. **If a policy would need a human to update it as conditions change, that is a design
+   smell — build the update in.** The Annual is the natural recompute point for anything
+   seasonal.
+4. **If the answer differs by context — question, round, position, season — do not apply
+   one global policy. Compute which applies where.** A single global answer to a locally-
+   varying question is almost always wrong somewhere.
+5. **Say so when you spot one.** A hand-set value that should be measured, or a static
+   rule that should be dynamic → raise it and propose the derived version, without waiting
+   to be asked. (Live audit: `DERIVED-VS-DECLARED-AUDIT.md`.) Nothing installs without the
+   usual gates — this is about what SHOULD be measured, never about lowering a bar.
+
 ## Who you are
 
 You are **Session A — the model and draft lane.** **Session B** runs the site and

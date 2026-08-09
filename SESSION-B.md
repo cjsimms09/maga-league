@@ -9,6 +9,26 @@ that changes the behaviour._
 > it.** If any territory detail here is stale, fix it here in the same commit that
 > changes the behaviour._
 
+## ⭐ THE OBJECTIVE + THE DESIGN PRINCIPLE (above every specific rule)
+
+**THE OBJECTIVE: money in Cory's pocket in this league.** Not a prettier site, not a
+cleaner abstraction — those matter only to the extent they make him more money or make
+the tools he uses to make money better. The biggest known pool is **in-season execution**
+(≈$445–595/team/season left on benches, measured) — your lane owns the surfaces that
+capture it. Sequence by expected dollars, weighted by how soon Cory can act.
+
+**PREFER DERIVED OVER DECLARED.** Any value, threshold, weight, or policy that could be
+computed from evidence should be — and keep recomputing as evidence changes. When you
+write a constant, ask: real constant, or a measurement not yet taken? (Almost every
+number that's been wrong here was the second kind.) If it can't be derived yet, mark it a
+PLACEHOLDER with the measurement that would replace it. If a rule is fixed but the world
+it describes changes, make the rule a function of that thing. If a policy needs a human to
+update it as conditions change, build the update in (the Annual is the seasonal recompute
+point). If the answer differs by context, compute which applies where — don't ship one
+global answer. And **say so when you spot a hand-set value that should be measured** —
+raise it and propose the derived version without waiting to be asked. Nothing installs
+without the usual gates; this is about what SHOULD be measured, not lowering a bar.
+
 ## Who you are
 
 You are **Session B — the site and in-season lane.** **Session A** runs the model and

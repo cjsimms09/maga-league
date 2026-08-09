@@ -144,18 +144,37 @@ def bbm_finding(value, note: str, *, depends_on: list[str] | None = None) -> dic
     }
 
 
-def combine_tiers(league: dict, bbm: dict) -> dict:
-    """The honest combination: agreement raises confidence, disagreement is a finding.
-    `league`/`bbm` each: {direction: +1/-1/0, ...}. League is primary."""
+def combine_tiers(league: dict, bbm: dict, transferability: float | None = None) -> dict:
+    """DERIVED combination — the weight is computed from precision × measured
+    transferability, NOT a fixed tier (see evidence_weight.py). `league`/`bbm` each carry
+    {estimate, se, n} (se from the finding's own CI via evidence_weight.se_from_ci) and a
+    `direction`. The weighting is dynamic: as our league accumulates seasons its se tightens
+    and its weight rises automatically; BBM's weight follows whether it actually predicts our
+    outcomes. Agreement raises confidence; disagreement is itself a finding.
+
+    Backward-compatible: if only `direction` is supplied (no se), it falls back to the old
+    tier language but FLAGS that the weight is undetermined — a reminder to feed it real
+    intervals rather than let the static version stand."""
+    import evidence_weight as EW
     ld, bd = league.get("direction", 0), bbm.get("direction", 0)
+    have_precision = league.get("se") is not None or bbm.get("se") is not None
+    combined = (EW.combine(league, bbm, transferability=transferability) if have_precision
+                else {"weights": None, "dominant": "undetermined",
+                      "transferability_is_placeholder": transferability is None})
     if ld == 0:
         state = "league inconclusive — BBM proposes a hypothesis to test on our data, does not settle it"
     elif bd == 0:
         state = "league stands alone; BBM could not speak to it"
     elif ld == bd:
-        state = "AGREE — confidence up meaningfully (thin league result + strong external point)"
+        state = "AGREE — confidence up (weighted by precision × measured transferability, not a fixed tier)"
     else:
         state = ("DISAGREE — a finding in itself: our league behaves unlike the field here, and "
-                 "unusual is where edges live. League result stands (primary); investigate why.")
-    return {"league_direction": ld, "bbm_direction": bd, "state": state,
-            "primary": SOURCE_TIER_LEAGUE}
+                 "unusual is where edges live. The derived weight decides how much each speaks; "
+                 "as our n grows our side wins automatically.")
+    out = {"league_direction": ld, "bbm_direction": bd, "state": state,
+           "weights": combined.get("weights"), "dominant": combined.get("dominant"),
+           "transferability_is_placeholder": combined.get("transferability_is_placeholder")}
+    if not have_precision:
+        out["warning"] = ("no intervals supplied — weight is UNDETERMINED, not the old static tier. "
+                          "Feed {estimate, se, n} so the weight derives itself (evidence_weight.py).")
+    return out
