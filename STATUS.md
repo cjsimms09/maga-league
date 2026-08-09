@@ -948,3 +948,18 @@ hierarchy, per-page before/after screenshots) → Chiefs/Mahomes + Bates eggs �
 ## ▶ DEPLOY 2026-08-09 (A) — main shipped after B's restore landed [deploy]
 Restore (`4a4deec`, all-play/efficiency/bench back on the league-visible history pages) is on main, so the deploy is unblocked per Cory. Shipping `main` @ integration `7fba39c`: B's design pass + matchup page + H2H + lineup optimizer page + side-bet lifecycle (declare→confirm→dispute) + the history restore, AND A's integrated Lab batch (exp34 dollar arm, exp36, exp33, exp41 core, 2025 recovery) + the session bootstrap files. Access rule enforced by the loosened guard (tools 403, history league-visible). First time B's site work is live.
 DEPLOYED == main HEAD after this commit.
+
+## ▶ SESSION A — RESUME MARKER 2026-08-09 (bootstrap + integration + deploy + exp35)
+**Now integrating directly to `main`** (Cory authorized; B is on main too per 8acc45e). My branch `claude/exp34-dollar-arm-21m58r` == main.
+
+### ✅ DELIVERED this turn (all on main)
+- **Session bootstrap files** `SESSION-A.md` / `SESSION-B.md` (root) + `ACCESS-RULE.md` (SSOT: tools-vs-history) + STATUS top pointer. Resume ritual is one line: _"You are session A, read SESSION-A.md and STATUS.md, then continue."_ B owns SESSION-B.md's lane content going forward (edit in place, don't recreate).
+- **Integrated the whole Lab batch to main** (exp34_dollars/36/33/41 + 2025 recovery + docs) — was stranded on the branch. Clean merge; B's work fully preserved; my delta lane-clean.
+- **2025 recovery** shipped in exp34 (harvest fallback): correlation arm n 19→27, edge firmed (0.14, CI [0.053,0.224]); "better early not late" firmed (r12+ now a measured loss), "better on unanimous not contested" holds.
+- **Access rule settled + enforced:** guard test loosened (took B's superior version — /lineup 403/200 kept, history league-visible asserted). PARKED urgent flag cleared.
+- **DEPLOYED main** (`df19f98` [deploy]) — B's matchup/lineup/H2H/side-bet lifecycle + history restore LIVE for the first time, alongside the Lab batch.
+- **EXP 35 — REGRESSION_WEIGHT sweep** built + pre-registered + wired (`exp35_regression_sweep.py`, `test_exp35.py` 4/4). Pre-registered: top-decile improves below the shipped 0.35 (exp 33 said we over-regress). Measures the full curve in top-decile+rank-corr+MAE+naive reference; installs NOTHING (a change is a separate gated SHIP). `walk_forward` gained a backward-compatible `regression_weight` override (shipped path byte-identical). Fires on the push to main.
+
+### ▶ QUEUED (in order): read exp35 result (firms/refutes over-regression?) → **third composite arm** (composite vs ADP on dollars — the number Cory actually wants; pre-registered; needs the JS replay path) → naive-as-source run → exp 41 paired-room race → auto-adjuster conditional mining → what-would-have-worked → upsideBonus gated sweep. Keep the Lab saturated.
+
+### NOTE: main advanced past the deploy (B's weekly-high strip `ba2390b` + exp35) — those ship on the next deploy; the major B site work + restore is live at `df19f98`.
