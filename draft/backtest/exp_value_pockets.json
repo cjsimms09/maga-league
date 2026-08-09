@@ -1,0 +1,280 @@
+{
+  "experiment": "value pockets \u2014 under/over-priced regions by position (league-conditional)",
+  "source": "LOCAL (exp25 spine): league_history + roster_sim realized + board positions",
+  "n_picks": 395,
+  "per_season": {
+    "2025": 125,
+    "2024": 124,
+    "2023": 146
+  },
+  "thresholds": {
+    "underpriced_ratio": 0.8,
+    "overpriced_ratio": 0.6,
+    "thin_n": 8
+  },
+  "surface": [
+    {
+      "band": "21-30",
+      "lo": 21,
+      "hi": 30,
+      "pos": {
+        "WR": {
+          "mean": 164.8,
+          "n": 11,
+          "persistence": 1.0,
+          "baseline": 164.8,
+          "verdict": "fair"
+        }
+      }
+    },
+    {
+      "band": "31-40",
+      "lo": 31,
+      "hi": 40,
+      "pos": {
+        "RB": {
+          "mean": 182.5,
+          "n": 13,
+          "persistence": 1.0,
+          "baseline": 182.5,
+          "verdict": "fair"
+        },
+        "WR": {
+          "mean": 133.1,
+          "n": 11,
+          "persistence": 0.81,
+          "baseline": 164.8,
+          "verdict": "fair"
+        }
+      }
+    },
+    {
+      "band": "41-50",
+      "lo": 41,
+      "hi": 50,
+      "pos": {
+        "WR": {
+          "mean": 183.8,
+          "n": 13,
+          "persistence": 1.12,
+          "baseline": 164.8,
+          "verdict": "fair"
+        }
+      }
+    },
+    {
+      "band": "51-60",
+      "lo": 51,
+      "hi": 60,
+      "pos": {
+        "RB": {
+          "mean": 166.1,
+          "n": 9,
+          "persistence": 0.91,
+          "baseline": 182.5,
+          "verdict": "underpriced"
+        },
+        "WR": {
+          "mean": 133.3,
+          "n": 10,
+          "persistence": 0.81,
+          "baseline": 164.8,
+          "verdict": "underpriced"
+        }
+      }
+    },
+    {
+      "band": "61-70",
+      "lo": 61,
+      "hi": 70,
+      "pos": {
+        "RB": {
+          "mean": 126.0,
+          "n": 9,
+          "persistence": 0.69,
+          "baseline": 182.5,
+          "verdict": "fair"
+        },
+        "WR": {
+          "mean": 142.5,
+          "n": 13,
+          "persistence": 0.86,
+          "baseline": 164.8,
+          "verdict": "underpriced"
+        }
+      }
+    },
+    {
+      "band": "71-80",
+      "lo": 71,
+      "hi": 80,
+      "pos": {
+        "RB": {
+          "mean": 101.6,
+          "n": 10,
+          "persistence": 0.56,
+          "baseline": 182.5,
+          "verdict": "overpriced"
+        },
+        "WR": {
+          "mean": 130.2,
+          "n": 15,
+          "persistence": 0.79,
+          "baseline": 164.8,
+          "verdict": "fair"
+        }
+      }
+    },
+    {
+      "band": "81-90",
+      "lo": 81,
+      "hi": 90,
+      "pos": {
+        "RB": {
+          "mean": 130.3,
+          "n": 10,
+          "persistence": 0.71,
+          "baseline": 182.5,
+          "verdict": "fair"
+        },
+        "WR": {
+          "mean": 103.2,
+          "n": 17,
+          "persistence": 0.63,
+          "baseline": 164.8,
+          "verdict": "fair"
+        }
+      }
+    },
+    {
+      "band": "91-100",
+      "lo": 91,
+      "hi": 100,
+      "pos": {
+        "RB": {
+          "mean": 104.8,
+          "n": 11,
+          "persistence": 0.57,
+          "baseline": 182.5,
+          "verdict": "overpriced"
+        },
+        "WR": {
+          "mean": 91.0,
+          "n": 12,
+          "persistence": 0.55,
+          "baseline": 164.8,
+          "verdict": "overpriced"
+        }
+      }
+    },
+    {
+      "band": "101-110",
+      "lo": 101,
+      "hi": 110,
+      "pos": {
+        "RB": {
+          "mean": 94.7,
+          "n": 14,
+          "persistence": 0.52,
+          "baseline": 182.5,
+          "verdict": "overpriced"
+        }
+      }
+    },
+    {
+      "band": "111-120",
+      "lo": 111,
+      "hi": 120,
+      "pos": {
+        "QB": {
+          "mean": 187.1,
+          "n": 10,
+          "persistence": 1.0,
+          "baseline": 187.1,
+          "verdict": "underpriced"
+        }
+      }
+    }
+  ],
+  "pockets": {
+    "underpriced_pockets": [
+      {
+        "position": "QB",
+        "band": "111-120",
+        "overall_pick": 111,
+        "persistence": 1.0,
+        "mean": 187.1,
+        "baseline": 187.1,
+        "n": 10
+      },
+      {
+        "position": "RB",
+        "band": "51-60",
+        "overall_pick": 51,
+        "persistence": 0.91,
+        "mean": 166.1,
+        "baseline": 182.5,
+        "n": 9
+      },
+      {
+        "position": "WR",
+        "band": "61-70",
+        "overall_pick": 61,
+        "persistence": 0.86,
+        "mean": 142.5,
+        "baseline": 164.8,
+        "n": 13
+      },
+      {
+        "position": "WR",
+        "band": "51-60",
+        "overall_pick": 51,
+        "persistence": 0.81,
+        "mean": 133.3,
+        "baseline": 164.8,
+        "n": 10
+      }
+    ],
+    "overpriced_dead_zones": [
+      {
+        "position": "RB",
+        "band": "101-110",
+        "overall_pick": 101,
+        "persistence": 0.52,
+        "mean": 94.7,
+        "baseline": 182.5,
+        "n": 14
+      },
+      {
+        "position": "WR",
+        "band": "91-100",
+        "overall_pick": 91,
+        "persistence": 0.55,
+        "mean": 91.0,
+        "baseline": 164.8,
+        "n": 12
+      },
+      {
+        "position": "RB",
+        "band": "71-80",
+        "overall_pick": 71,
+        "persistence": 0.56,
+        "mean": 101.6,
+        "baseline": 182.5,
+        "n": 10
+      },
+      {
+        "position": "RB",
+        "band": "91-100",
+        "overall_pick": 91,
+        "persistence": 0.57,
+        "mean": 104.8,
+        "baseline": 182.5,
+        "n": 11
+      }
+    ]
+  },
+  "prereg_check_rb_dead_zone_reproduced": true,
+  "caveat": "~395 picks / 3 seasons \u2014 thin; cells n<8 excluded. Value ratio is realized vs the band's cross-position average (a proxy for the slot's return), not vs ADP dollars. Corroborates + locates; installs nothing without the money gate.",
+  "source_tier": "league-primary"
+}

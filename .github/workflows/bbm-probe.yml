@@ -104,30 +104,60 @@ jobs:
               print('no BBM V finals URL discovered — IV stands alone this run')
           PY
 
-      - name: Stream the full-field R1 dead-zone at full N (memory-safe)
+      - name: Stream the full-field R1 dead-zone at full N (memory-safe) — IV + current-era V/VI
         continue-on-error: true
-        timeout-minutes: 40
+        timeout-minutes: 90
         run: |
           python3 - <<'PY'
           import json, urllib.request, io, sys
           sys.path.insert(0, 'draft/backtest')
           import bbm_ingest as ING
-          url = 'https://storage.googleapis.com/underdog-inc/underblog/BBM_IV_Rosters/best_ball_mania_iv_2023_r1_results_pick_by_pick.csv'
-          req = urllib.request.Request(url, headers={'user-agent':'mfga-bbm-probe'})
-          with urllib.request.urlopen(req, timeout=60) as r:
-              # decode the byte stream to text lines without materialising the file
-              text = io.TextIOWrapper(r, encoding='utf-8', errors='ignore')
-              agg = ING.stream_positional_by_round(text)
-          out = {'source': url, 'note': 'BBM IV full-field regular season — dead-zone at full N',
-                 'by_position_round': agg}
-          json.dump(out, open('draft/backtest/bbm_deadzone.json','w'), indent=2)
-          # quick dead-zone read: RB vs WR mean pick_points, rounds 3-6
-          for pos in ('RB','WR'):
-              rounds = agg.get(pos, {})
-              cells = [(r, rounds[str(r)] if str(r) in rounds else rounds.get(r)) for r in range(3,7)]
-              vals = [(r,c['points_mean'],c['n']) for r,c in cells if c]
-              print(pos, 'rounds 3-6 mean pts:', vals)
-          print('wrote draft/backtest/bbm_deadzone.json')
+
+          # BBM IV (2023) is the hardcoded prior; V (2024) + VI (2025) come from the
+          # discovered rd1 GCS URLs so the dead-zone is tested in the CURRENT scoring
+          # era — the era that actually shapes the 2026 draft. Each ~5 GB dump streams
+          # line-by-line (never materialised); a season that 404s or times out is
+          # skipped, not fatal (continue-on-error + per-target try).
+          targets = {
+              'bbm_deadzone.json': (
+                  'https://storage.googleapis.com/underdog-inc/underblog/BBM_IV_Rosters/best_ball_mania_iv_2023_r1_results_pick_by_pick.csv',
+                  'BBM IV full-field regular season — dead-zone at full N'),
+          }
+          disc = {}
+          try:
+              disc = json.load(open('draft/data/bbm/discovered.json')).get('discovered', {})
+          except Exception as e:
+              print('no discovered.json:', e)
+          def find(frag):
+              for u in disc:
+                  lu = u.lower()
+                  if frag in lu and 'rd1' in lu:
+                      return u
+              return None
+          v_url, vi_url = find('best_ball_mania_v_'), find('best_ball_mania_vi_')
+          if v_url:
+              targets['bbm_deadzone_v.json'] = (v_url, 'BBM V (2024) full-field regular season — dead-zone at full N')
+          if vi_url:
+              targets['bbm_deadzone_vi.json'] = (vi_url, 'BBM VI (2025) full-field regular season — dead-zone at full N')
+
+          for out_file, (url, note) in targets.items():
+              try:
+                  req = urllib.request.Request(url, headers={'user-agent': 'mfga-bbm-probe'})
+                  with urllib.request.urlopen(req, timeout=90) as r:
+                      text = io.TextIOWrapper(r, encoding='utf-8', errors='ignore')
+                      agg = ING.stream_positional_by_round(text)
+                  out = {'source': url, 'note': note, 'by_position_round': agg}
+                  json.dump(out, open('draft/backtest/' + out_file, 'w'), indent=2)
+                  # quick dead-zone read: RB vs WR mean pick_points, rounds 3-6
+                  print('==', out_file, '==')
+                  for pos in ('RB', 'WR'):
+                      rounds = agg.get(pos, {})
+                      cells = [(rd, rounds[str(rd)] if str(rd) in rounds else rounds.get(rd)) for rd in range(3, 7)]
+                      vals = [(rd, c['points_mean'], c['n']) for rd, c in cells if c]
+                      print(' ', pos, 'rounds 3-6 mean pts:', vals)
+                  print('  wrote draft/backtest/' + out_file)
+              except Exception as e:
+                  print('SKIP', out_file, '-', type(e).__name__, e)
           PY
 
       - name: Commit BBM results to the run's own ref
@@ -139,7 +169,8 @@ jobs:
           # the WHOLE add, so run 1 staged nothing and committed "no change" while
           # the real results lived only in the upload-artifact. Guard per file.
           for f in draft/backtest/exp24.json draft/backtest/exp24_v.json \
-                   draft/backtest/bbm_deadzone.json draft/data/bbm/discovered.json; do
+                   draft/backtest/bbm_deadzone.json draft/backtest/bbm_deadzone_v.json \
+                   draft/backtest/bbm_deadzone_vi.json draft/data/bbm/discovered.json; do
             [ -f "$f" ] && git add "$f"
           done
           git commit -m "BBM probe + exp 24 + dead-zone $stamp" || { echo "no change"; exit 0; }
@@ -153,4 +184,6 @@ jobs:
             draft/backtest/exp24.json
             draft/backtest/exp24_v.json
             draft/backtest/bbm_deadzone.json
+            draft/backtest/bbm_deadzone_v.json
+            draft/backtest/bbm_deadzone_vi.json
             draft/data/bbm/discovered.json
