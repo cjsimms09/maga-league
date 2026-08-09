@@ -295,8 +295,15 @@ def _egress_main(out_dir: Path) -> int:
             pos = positions.get(pid)
             if not pos:
                 continue
+            owners = s.get("owners") or {}
+            rid = p.get("roster_id")
             row = {"season": yr, "player_id": pid, "round": p.get("round"),
-                   "position": pos, "adp": adp_rank[pid], "realized": realized[pid]}
+                   "position": pos, "adp": adp_rank[pid], "realized": realized[pid],
+                   # exp43 (full-board pick audit) fields — additive, ignored by the
+                   # cell-grading below which reads only adp/realized/round/position:
+                   "pick_no": p.get("pick_no"), "roster_id": rid,
+                   "owner": (owners.get(str(rid)) or {}).get("display_name") if rid is not None else None,
+                   "is_keeper": bool(p.get("is_keeper"))}
             all_picks.append(row)
             if pos == "QB":
                 qb_format.append({**row, "realized_6pt": realized[pid],
@@ -328,6 +335,17 @@ def _egress_main(out_dir: Path) -> int:
     }
     (out_dir / "exp36.json").write_text(json.dumps(result, indent=2, default=str) + "\n")
     (out_dir / "EXP36.md").write_text(_report(result))
+    # Sidecar for exp43 (full-board pick audit): the richer per-pick rows, plus
+    # Cory's stable owner identity and the seat->name map. Non-keeper decisions only.
+    decisions = [p for p in all_picks if not p.get("is_keeper")]
+    name_by_seat = {}
+    for s in seasons:
+        for rid, own in (s.get("owners") or {}).items():
+            name_by_seat.setdefault(str(rid), (own or {}).get("display_name"))
+    (out_dir / "exp36_picks.json").write_text(json.dumps(
+        {"picks": decisions, "cory_seat": "coryjsimms",
+         "cory_note": "grouped by owner display_name (stable across seasons); Cory = coryjsimms (seat 1)",
+         "name_by_seat": name_by_seat}, indent=2, default=str) + "\n")
     print("\n" + _report(result))
     return 0
 
