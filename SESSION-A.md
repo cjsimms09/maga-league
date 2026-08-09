@@ -93,14 +93,25 @@ Three times B's finished served work sat stranded because deploying is A's and A
 didn't look. The gate (`netlify-ignore.sh`) is already OPT-OUT — served changes in
 the range since the last build auto-ship — but that is not enough on its own, so:
 
-**BOUNDARY CHECK (do this before starting any new unit, and at every boundary):**
+**BOUNDARY CHECK (do this before starting any new unit, and at every boundary) —
+TWO stages, because the 4th stranding (pickems batch) was an UNMERGED BRANCH, not a
+stale deploy; main was current with prod, the work was one level further back:**
 ```
-git fetch origin main -q
-# is main ahead of the deployed commit on SERVED files?
+git fetch origin -q
+# STAGE 1 — is any B branch ahead of main on SERVED files (needs INTEGRATION)?
+for b in $(git branch -r | grep origin/claude/ | grep -v HEAD); do
+  n=$(git diff --name-only origin/main...$b 2>/dev/null | grep -cE '^(views/|public/|src/|netlify)')
+  [ "$n" -gt 0 ] && echo "INTEGRATE: $b ($n served changes ahead of main)"
+done
+# STAGE 2 — is main ahead of the DEPLOYED commit on served files (needs DEPLOY)?
 git log --oneline <deployed>..origin/main -- views/ public/ src/ netlify.toml netlify/functions/ server-app.js
 ```
-If served files changed and prod is behind, **ship it**: push a `[deploy]` commit to
-main (empty commit is fine). Deployed commit is at `/api/health` (`commit`) or
+Stage 1 finds B's finished-but-unmerged work; Stage 2 finds merged-but-unshipped
+work. If Stage 1 hits, integrate the branch (resolve conflicts, run the FULL test
+suite — B's ~120 + A's — before shipping). If served files ended up on main and prod
+is behind, **ship it**: push a `[deploy]` commit to main (empty commit is fine).
+**Do NOT push any follow-up commit to main until deploy-verify confirms** — a later
+commit leapfrogs the verify's target SHA and reports a false failure (cost us once). Deployed commit is at `/api/health` (`commit`) or
 `build-stamp.json`; `site-check.yml` (daily) and `deploy-verify.yml` (per-push) are
 the drift alarms — but the daily one is why stranding lasted DAYS, so the per-boundary
 check above is the real fix. It costs seconds. It has cost us three times.
