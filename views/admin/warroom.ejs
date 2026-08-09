@@ -182,6 +182,19 @@
     <div class="mvs-line" id="mvs-roster"></div>
     <div class="mvs-line mvs-absent" id="mvs-absent"></div>
   </div>
+  <%# THE STRATEGY-SPLIT PANEL — what each strategy would take from the board RIGHT
+      NOW, projected live (shadows.js project()). One line by default (the split),
+      the full per-strategy list one tap away. When the strategies disagree that is
+      the contested-decision signal — the pick worth slowing down for — so a split
+      lights the panel up instead of sitting quiet. Context zone: below the
+      recommendation, above the deadline strip; never competing with Zone 1. %>
+  <div id="shadow-projection" class="shadow-proj" style="display:none">
+    <div class="shadow-proj-line" id="shadow-proj-line"></div>
+    <details id="shadow-proj-details">
+      <summary>what each strategy would take →</summary>
+      <div id="shadow-proj-body"></div>
+    </details>
+  </div>
   <%# LAYER 1, FIRST: the LRM strip is a DEADLINE — "elite QB gone by 41"
       changes what you do RIGHT NOW. It sat in the right rail, and then at the
       bottom of Layer 1 at 1676px; a deadline below the fold is a deadline you

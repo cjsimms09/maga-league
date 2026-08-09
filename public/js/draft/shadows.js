@@ -173,6 +173,73 @@
     return out;
   }
 
+  /* THE PROJECTION (read-only) — what each strategy would take from the board AS
+   * IT STANDS RIGHT NOW, committing NOTHING.
+   *
+   * onMyPick() BUILDS counterfactual rosters over the draft: stateful, fires only
+   * at my picks, mutates each shadow's roster. That is the 2026-grading record.
+   * This is the OTHER question the war-room panel asks — "what does each strategy
+   * WANT at this decision" — and it must be answerable at EVERY pick, from the
+   * live board and my current roster, whether or not I have picked yet. It runs
+   * each strategy's weights through the same E.recommend (same legality rails, no
+   * taste lists) and returns the top choice, without touching any shadow state. So
+   * the strategy-split panel is always populated and always honest, instead of
+   * blank until the first shadow commit — the "it renders empty" failure mode.
+   *
+   * Returns [{key, name, player_id, player, position, score}] — one per strategy,
+   * ordered as profiles() declares them. */
+  function project(board, baseCtx, round, myRoster) {
+    if (!board || !board.length) return [];
+    const mine = new Set((myRoster || []).map(p => String(p.player_id)));
+    const avail = board.filter(p => !mine.has(String(p.player_id)));
+    if (!avail.length) return [];
+    const out = [];
+    profiles().forEach(def => {
+      const ctx = Object.assign({}, baseCtx, {
+        board: avail,
+        roster: myRoster || [],
+        weights: def.weights(round || 1),
+      });
+      const scored = E.recommend(ctx);
+      const choice = scored.length ? scored[0].player : avail[0];
+      out.push({
+        key: def.key, name: def.name,
+        player_id: String(choice.player_id), player: choice.name,
+        position: choice.position,
+        score: scored.length ? scored[0].score : null,
+      });
+    });
+    return out;
+  }
+
+  /* The consensus/dissent summary over a projection (or any [{player_id, player,
+   * key}] list). Pure, so the panel and a test read the same split. `contested`
+   * is true when the leader has less than a 75% supermajority — the signal that
+   * this is a decision worth slowing down for (the tournaments said ~2 picks per
+   * draft carry the edge, and strategy disagreement detects them better than any
+   * hand-tuned threshold). Returns null on an empty projection. */
+  function consensus(projection) {
+    const rows = (projection || []).filter(r => r && r.player_id);
+    if (!rows.length) return null;
+    const byPlayer = {};
+    rows.forEach(r => { (byPlayer[r.player_id] = byPlayer[r.player_id]
+      || { player: r.player, position: r.position, keys: [] }).keys.push(r.key); });
+    const ranked = Object.keys(byPlayer).sort(
+      (a, b) => byPlayer[b].keys.length - byPlayer[a].keys.length);
+    const n = rows.length;
+    const lead = byPlayer[ranked[0]];
+    const agree = lead.keys.length;
+    const dissenters = ranked.slice(1).map(pid => ({
+      player: byPlayer[pid].player, position: byPlayer[pid].position,
+      keys: byPlayer[pid].keys,
+    }));
+    return {
+      n, agree, lead: lead.player, lead_position: lead.position,
+      contested: agree < Math.ceil(n * 0.75),
+      dissenters,
+    };
+  }
+
   /* Requirement 3: freeze at draft end. After this, no shadow moves. */
   function freeze(shadows, meta) {
     shadows.frozen = true;
@@ -200,7 +267,8 @@
     return { ok: true };
   }
 
-  const api = { profiles, boardHash, weightHash, create, onMyPick, freeze, gradeGuard };
+  const api = { profiles, boardHash, weightHash, create, onMyPick, project,
+                consensus, freeze, gradeGuard };
   global.DraftShadows = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);

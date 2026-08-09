@@ -155,5 +155,51 @@ function ctxAt(pick, board) {
   check('mock shadow picks carry rehearsal:true', mp.every(p => p.rehearsal === true));
 }
 
+// --- the LIVE PROJECTION (read-only): what each strategy would take NOW --------
+{
+  const board = makeBoard();
+  const proj = SH.project(board, ctxAt(9, board), 1, []);
+  check('project returns one row per strategy', proj.length === 7, String(proj.length));
+  check('every projected row names a player + strategy',
+    proj.every(r => r.player_id && r.player && r.key));
+  check('project commits NOTHING (it is read-only — a re-run is identical)',
+    JSON.stringify(SH.project(board, ctxAt(9, board), 1, [])) === JSON.stringify(proj));
+  check('project excludes players already on my roster',
+    (function () {
+      const mine = [board[0]];
+      const p = SH.project(board, ctxAt(9, board), 1, mine);
+      return p.every(r => r.player_id !== String(board[0].player_id));
+    })());
+  check('project is populated with an EMPTY roster (the "renders empty" fix)',
+    SH.project(board, ctxAt(9, board), 1, []).length === 7);
+  check('empty board projects nothing (no fabricated pick)',
+    SH.project([], ctxAt(9, []), 1, []).length === 0);
+
+  // consensus/split summary
+  const cons = SH.consensus(proj);
+  check('consensus reports n, a leader, and a contested flag',
+    cons && cons.n === 7 && cons.lead && typeof cons.contested === 'boolean',
+    JSON.stringify(cons));
+  check('consensus on unanimity is NOT contested',
+    (function () {
+      const all = [{ player_id: 'x', player: 'A', position: 'RB', key: 'k1' },
+                   { player_id: 'x', player: 'A', position: 'RB', key: 'k2' },
+                   { player_id: 'x', player: 'A', position: 'RB', key: 'k3' },
+                   { player_id: 'x', player: 'A', position: 'RB', key: 'k4' }];
+      return SH.consensus(all).contested === false && SH.consensus(all).agree === 4;
+    })());
+  check('consensus on a real split IS contested (the slow-down signal)',
+    (function () {
+      const split = [{ player_id: 'a', player: 'A', position: 'RB', key: 'k1' },
+                     { player_id: 'a', player: 'A', position: 'RB', key: 'k2' },
+                     { player_id: 'b', player: 'B', position: 'WR', key: 'k3' },
+                     { player_id: 'c', player: 'C', position: 'TE', key: 'k4' }];
+      const c = SH.consensus(split);
+      return c.contested === true && c.dissenters.length === 2;
+    })());
+  check('consensus on an empty projection is null (never a fabricated majority)',
+    SH.consensus([]) === null);
+}
+
 console.log(`\n${pass}/${pass + fail} shadow-roster checks passed`);
 process.exit(fail ? 1 : 0);

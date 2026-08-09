@@ -2043,6 +2043,10 @@
     // panel beneath it.
     try { renderMVS(out.scored, out.paths); }
     catch (e) { console.error('[mvs]', e && e.message); }
+    // The strategy-split panel rides the same render — projected from the live
+    // board, so it is populated at every pick and never blank.
+    try { renderShadowProjection(); }
+    catch (e) { console.error('[shadow-proj]', e && e.message); }
     renderBestAvailStrip(out.scored, (context() || {}).nextPick);
     // Stack line runs BEFORE the rec cards below so stackBadge() can read its
     // route map. Same scored board — never a second computation.
@@ -3210,6 +3214,73 @@
       'SOURCE: <i>absent — needs a behavioral Stage 2</i> '
       + '<span class="muted">(the stages label the pick, they do not choose it — D14)</span>'
       + ' · NEAR-MISS: <i>absent — needs Stage 4 thresholds (D13)</i>';
+  }
+
+  /* THE STRATEGY-SPLIT PANEL — restored 2026-08-09 (mid-mock).
+   *
+   * What each strategy would TAKE from the board as it stands right now, projected
+   * live. This is a READ-ONLY projection (DraftShadows.project), not the committed
+   * shadow rosters — so it renders at EVERY pick from the current board and my
+   * current roster, whether or not I have picked yet, instead of going blank
+   * (the "renders empty" failure that made it look gone). Same engine, same
+   * legality rails, no taste lists — the split is honest.
+   *
+   * One line by default: the consensus and the sharpest dissent. The full
+   * per-strategy list is one tap away (<details>). When the strategies split (no
+   * 75% supermajority) the panel flags CONTESTED — that is the decision worth
+   * slowing down for, a better detector of the ~2 edge-carrying picks per draft
+   * than any hand-tuned threshold. */
+  function renderShadowProjection() {
+    const host = document.getElementById('shadow-projection');
+    if (!host) return;
+    const line = document.getElementById('shadow-proj-line');
+    const body = document.getElementById('shadow-proj-body');
+    if (typeof DraftShadows === 'undefined' || !state.board || !state.board.length
+        || !state.data) { host.style.display = 'none'; return; }
+    let proj, cons;
+    try {
+      const teams = ((state.data.league || {}).teams) || 10;
+      const round = Math.max(1, Math.ceil(currentPick() / teams));
+      proj = DraftShadows.project(state.board, context(), round, state.myRoster);
+      cons = DraftShadows.consensus(proj);
+    } catch (e) { host.style.display = 'none'; return; }
+    if (!cons || !proj.length) { host.style.display = 'none'; return; }
+    host.style.display = '';
+    host.className = 'shadow-proj' + (cons.contested ? ' contested' : '');
+
+    // One line: "6 of 7 → Judkins (RB)" plus the sharpest dissent, or a loud
+    // CONTESTED flag when the room of strategies actually splits.
+    const esc = escapeHtml;
+    const leadTxt = '<b>' + cons.agree + ' of ' + cons.n + '</b> → '
+      + esc(shortName(cons.lead)) + (cons.lead_position ? ' <span class="sp-pos">'
+        + esc(cons.lead_position) + '</span>' : '');
+    let dissentTxt = '';
+    if (cons.dissenters.length) {
+      const d = cons.dissenters[0];
+      dissentTxt = ' · <span class="sp-dissent">'
+        + esc(d.keys.map(strategyName).join(', ')) + ': '
+        + esc(shortName(d.player)) + '</span>';
+    }
+    line.innerHTML = (cons.contested
+        ? '<span class="sp-flag">⚠ STRATEGIES SPLIT — slow down</span> '
+        : '<span class="sp-tag">🧭 strategies</span> ')
+      + leadTxt + dissentTxt;
+
+    // The full list, one tap away: every strategy and the player it would take.
+    body.innerHTML = proj.map(function (r) {
+      return '<div class="sp-row"><span class="sp-strat">' + esc(r.name) + '</span>'
+        + '<span class="sp-pick">' + esc(shortName(r.player))
+        + (r.position ? ' <span class="sp-pos">' + esc(r.position) + '</span>' : '')
+        + '</span></div>';
+    }).join('');
+  }
+
+  /* A strategy KEY -> its display name, from the shadow profile table (so the
+   * dissent line reads "Ceiling-Chase", not "upside_late"). */
+  function strategyName(key) {
+    if (typeof DraftShadows === 'undefined') return key;
+    var p = DraftShadows.profiles().find(function (d) { return d.key === key; });
+    return p ? p.name : key;
   }
 
   /* Shadow consensus/dissent, from the shadows that already exist. Returns null

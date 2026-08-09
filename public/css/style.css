@@ -2532,6 +2532,28 @@ button.pd-team.pick:hover { background: rgba(245,196,69,.16); transform: transla
 .mvs-absent i { font-style: normal; opacity: .75; }
 @media (max-width: 620px) { .mvs-line { font-size: .78rem; } }
 
+/* THE STRATEGY-SPLIT PANEL — calm by default, loud only when it matters.
+   Quiet: a thin muted line + a tap-to-open list. Contested: it lights up amber,
+   because a split is the pick worth slowing down for. */
+.shadow-proj { margin: 0 0 .8rem; padding: .45rem .6rem; border-radius: 8px;
+  background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.10); }
+.shadow-proj.contested { background: rgba(245,196,69,.10);
+  border-color: rgba(245,196,69,.55); }
+.shadow-proj-line { font-size: .82rem; line-height: 1.35; color: #cdd6ea;
+  white-space: nowrap; overflow-x: auto; }
+.shadow-proj .sp-tag { color: var(--muted,#9aa4bb); margin-right: .3rem; }
+.shadow-proj .sp-flag { color: #ffb765; font-weight: 800; margin-right: .35rem; }
+.shadow-proj .sp-dissent { color: #ffb765; }
+.shadow-proj .sp-pos { font-size: .7rem; color: var(--muted,#9aa4bb); font-weight: 600; }
+.shadow-proj details { margin-top: .35rem; }
+.shadow-proj summary { font-size: .74rem; color: var(--muted,#9aa4bb);
+  cursor: pointer; list-style: revert; }
+.shadow-proj .sp-row { display: flex; justify-content: space-between; gap: .8rem;
+  font-size: .8rem; padding: .18rem 0; border-top: 1px solid rgba(255,255,255,.06); }
+.shadow-proj .sp-strat { color: var(--muted,#9aa4bb); }
+.shadow-proj .sp-pick { color: #dfe6f5; font-weight: 600; text-align: right; }
+@media (max-width: 620px) { .shadow-proj-line { font-size: .78rem; } }
+
 .ss-rmode { font-size: .62rem; font-weight: 700; padding: .1rem .4rem;
   border-radius: 4px; white-space: nowrap;
   background: rgba(245,196,69,.16); color: #f5c445; }
