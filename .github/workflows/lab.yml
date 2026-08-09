@@ -40,6 +40,9 @@ on:
       - 'draft/tests/test_exp36.py'
       - 'draft/backtest/exp33.py'
       - 'draft/tests/test_exp33.py'
+      - 'draft/backtest/exp35_regression_sweep.py'
+      - 'draft/tests/test_exp35.py'
+      - 'draft/backtest/projections.py'
       - 'draft/data/league_history.json'
       - 'draft/config/payouts.json'
       - '.github/workflows/lab.yml'
@@ -315,4 +318,39 @@ jobs:
           path: |
             draft/backtest/exp33.json
             draft/backtest/EXP33.md
+          retention-days: 30
+
+  # EXPERIMENT 35 — REGRESSION_WEIGHT sweep. Pre-registered: top-decile improves as
+  # the weight falls below the shipped 0.35 (exp 33 said we over-regress). Measures
+  # the full curve in top-decile + rank-corr + MAE; installs nothing. Pure core
+  # (curve + verdict) gates first without egress; the shipped walk_forward path is
+  # asserted byte-identical to the override at the shipped value.
+  exp35:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - name: GATE — the pure sweep tests (no egress)
+        run: |
+          pip install pytest -q
+          python -m pytest draft/tests/test_exp35.py -q
+      - name: Fire exp 35 (nflverse + FFC egress)
+        run: |
+          pip install -r draft/requirements.txt -q
+          python draft/backtest/exp35_regression_sweep.py --out draft/backtest
+      - name: Commit the exp 35 report
+        run: |
+          stamp=$(date -u +%Y-%m-%dT%H:%MZ)
+          git config user.name "lab-bot"; git config user.email "actions@github.com"
+          git add draft/backtest/EXP35.md draft/backtest/exp35.json
+          git commit -m "Exp 35 report $stamp" || { echo "no change"; exit 0; }
+          git pull --rebase origin "${GITHUB_REF_NAME}" && git push || echo "push skipped"
+      - name: Upload exp 35 results (artifact — inputs are egress-built)
+        uses: actions/upload-artifact@v4
+        with:
+          name: exp35-results
+          path: |
+            draft/backtest/exp35.json
+            draft/backtest/EXP35.md
           retention-days: 30

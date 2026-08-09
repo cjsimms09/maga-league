@@ -86,7 +86,8 @@ def _age_multiplier(pos: str, age) -> float:
 
 
 def walk_forward(season: int, prior_seasons_points: dict, games: dict,
-                 positions: dict, ages: dict | None = None) -> dict:
+                 positions: dict, ages: dict | None = None,
+                 regression_weight: float | None = None) -> dict:
     """Project per-season points for `season` from strictly prior production.
 
     `prior_seasons_points[year][player_id]` -> fantasy points that year, ALREADY
@@ -94,7 +95,13 @@ def walk_forward(season: int, prior_seasons_points: dict, games: dict,
     provider's points: a provider's number encodes a different league's rules,
     and the whole point of this project is that the board is built for OUR
     scoring.
+
+    `regression_weight` overrides `CFG["REGRESSION_WEIGHT"]` for the pull toward the
+    positional mean — used ONLY by the exp-35 regression sweep to measure the curve
+    (default None = the shipped constant; the shipped path is unchanged). The sweep
+    MEASURES; it does not install a new value here.
     """
+    rw = CFG["REGRESSION_WEIGHT"] if regression_weight is None else float(regression_weight)
     years = sorted((y for y in prior_seasons_points if int(y) < int(season)), reverse=True)
     if not years:
         return {}
@@ -131,7 +138,7 @@ def walk_forward(season: int, prior_seasons_points: dict, games: dict,
         # four-game rookie sample is not evidence of a rate.
         trust = min(1.0, g / max(1.0, CFG["MIN_GAMES_FOR_RATE"] * 2.0))
         own = trust * rate + (1 - trust) * base
-        regressed = (1 - CFG["REGRESSION_WEIGHT"]) * own + CFG["REGRESSION_WEIGHT"] * base
+        regressed = (1 - rw) * own + rw * base
         out[pid] = round(regressed * _age_multiplier(pos, ages.get(pid))
                          * CFG["EXPECTED_GAMES"], 2)
     return out
