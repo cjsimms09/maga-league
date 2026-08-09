@@ -44,12 +44,20 @@ jobs:
       - name: Python deps
         run: pip install pytest
       - name: JS suites
+        id: js
+        # RUN ALL of them, then fail if any failed — do NOT `set -e` abort on the
+        # first. The abort-on-first hid a truth: app-wiring failing here aborted the
+        # step before Python suites / robot / shell guards ever ran, so the whole
+        # suite read red-but-uninspected for days (the "reads as success" family). A
+        # collected failure names every broken suite in one run instead of one-per-push.
         run: |
-          set -e
+          failed=""
           for t in alerts app-wiring attribution authority backtest betlogic bundling_guard champs claimfix doctrine draftorder engine h2h keeperlock keepers ledger marks mcts movement_line no_season_literals playoffs predledger prefs rawarchive reconcile rivalries settlement shadows sidebets sidebets_lifecycle pool_draft stack_routes strategies sync update venmo voteenact whatwatch; do
             echo "== $t =="
-            node draft/tests/$t.test.js
+            if ! node draft/tests/$t.test.js; then failed="$failed $t"; fi
           done
+          if [ -n "$failed" ]; then echo "FAILED SUITES:$failed"; exit 1; fi
+          echo "all JS suites passed"
       - name: Server integration — prediction ledger over real HTTP
         # Needs express etc.; the pure suites above do not. Guards the JSON-body
         # parser: without it every fetch()-posted prediction 400s and draft
@@ -126,14 +134,51 @@ jobs:
         # A full snake draft from every seat through the real engine and
         # attribution modules, plus every bug this session as a regression
         # scenario. Red here means the app is unsafe to ship unattended.
+        # if: always() so a JS-suite failure can no longer skip the safety net.
+        if: always()
         run: node draft/tests/robot-mock.js
       - name: Python suites
+        id: py
+        # if: always() — independent of the JS suites; a JS failure must not hide a
+        # Python regression by skipping this step (the vacuous-CI failure, 2026-08-09).
+        if: always()
         run: python -m pytest draft/tests -q
 
-      - name: Shell guards — deploy gate + territory check (both directions)
+      - name: Shell guards — deploy gate + territory check + merge completeness
         # These enforce infra invariants and are easy to break silently: the deploy
-        # gate's exit-code contract, and the territory check's merge-awareness (a
-        # clean integration must pass; an actual cross-lane edit must fail + name it).
+        # gate's exit-code contract, the territory check's merge-awareness, and the
+        # merge-completeness guard (a half-landed merge must fail loudly — 2026-08-09).
+        # On a real merge commit (HEAD has 2 parents), assert every file the merged-in
+        # branch changed is reflected in HEAD; skip cleanly for ordinary commits.
+        if: always()
         run: |
           bash netlify-ignore.test.sh
           bash scripts/territory-check.test.sh
+          if git rev-parse -q --verify HEAD^2 >/dev/null; then
+            mb=$(git merge-base HEAD^1 HEAD^2)
+            echo "merge commit detected — checking completeness (base HEAD^1, source HEAD^2)"
+            python draft/tools/merge_completeness.py "$mb" HEAD^1 HEAD^2 HEAD
+          else
+            echo "not a merge commit — merge-completeness check N/A"
+          fi
+
+      # A silently-SKIPPED step reads as success. This sentinel runs last, always,
+      # and fails if any critical suite step did not actually run (skipped/cancelled)
+      # — the guard Cory asked for against a step vanishing rather than failing.
+      - name: Guard — every critical step actually ran (no silent skips)
+        if: always()
+        # Outcomes are success/failure/skipped/cancelled. A real failure is reported by
+        # the step itself and reddens the run honestly. This sentinel catches the
+        # INVISIBLE case Cory named: a critical step that was skipped/cancelled rather
+        # than run at all — which would otherwise leave the run green-looking.
+        run: |
+          bad=0
+          for pair in "JS:${{ steps.js.conclusion }}" "Python:${{ steps.py.conclusion }}"; do
+            name="${pair%%:*}"; res="${pair##*:}"
+            if [ "$res" = "skipped" ] || [ "$res" = "cancelled" ] || [ -z "$res" ]; then
+              echo "SILENT SKIP: the $name suite did not run (conclusion='$res')"; bad=1
+            else
+              echo "ran: $name suite (conclusion='$res')"
+            fi
+          done
+          [ "$bad" = "0" ] || { echo "a critical suite was skipped rather than run — failing loudly"; exit 1; }

@@ -99,6 +99,13 @@ jobs:
               '[hidden]',        # the rule that stops JS-gated controls rendering
               '.clock-card',     # one-answer mode
               '.tail-none',      # search fallback for players off the board
+              # B's latest batch — asserting CONTENT, not just that a stylesheet exists.
+              # A half-merged deploy served the OLD css (these absent) while every asset
+              # was still 200 and the old selectors above still matched. Presence is not
+              # proof of the redesign; these selectors only exist in the COMPLETE merge.
+              '.sb-card',        # Sunday scoreboard cards
+              '.settle-row',     # settlement report rows (the invoice)
+              '.sb-wh-lead',     # scoreboard weekly-high leader
           ])
           if css:
               print(f'      {len(css):,} bytes')
