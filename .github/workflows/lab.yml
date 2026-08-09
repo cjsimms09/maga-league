@@ -41,6 +41,8 @@ on:
       - 'draft/backtest/exp33.py'
       - 'draft/tests/test_exp33.py'
       - 'draft/backtest/exp35_regression_sweep.py'
+      - 'draft/backtest/exp33b_naive_source.py'
+      - 'draft/tests/test_exp33b.py'
       - 'draft/tests/test_exp35.py'
       - 'draft/backtest/projections.py'
       - 'draft/data/league_history.json'
@@ -353,4 +355,42 @@ jobs:
           path: |
             draft/backtest/exp35.json
             draft/backtest/EXP35.md
+          retention-days: 30
+
+  # EXPERIMENT 33b — naive as the projection source (tune-vs-replace). Races the
+  # shipped blend vs the naive prior-year model vs the market on ranking AND dollars,
+  # to decide whether exp 33/35's over-regression finding means LOWER the weight or
+  # REPLACE the source. Pure comparison core gates first; installs nothing.
+  exp33b:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - name: GATE — the pure comparison tests (no egress)
+        run: |
+          pip install pytest -q
+          python -m pytest draft/tests/test_exp33b.py -q
+      - name: CERTIFICATION GATE — the $ side grades through the certified layer
+        run: |
+          python -m pytest draft/tests/test_money_grade_certification.py \
+                           draft/tests/test_roster_sim.py draft/tests/test_exp34_dollars.py -q
+      - name: Fire exp 33b (nflverse + FFC egress)
+        run: |
+          pip install -r draft/requirements.txt -q
+          python draft/backtest/exp33b_naive_source.py --out draft/backtest
+      - name: Commit the exp 33b report
+        run: |
+          stamp=$(date -u +%Y-%m-%dT%H:%MZ)
+          git config user.name "lab-bot"; git config user.email "actions@github.com"
+          git add draft/backtest/EXP33B.md draft/backtest/exp33b.json
+          git commit -m "Exp 33b report $stamp" || { echo "no change"; exit 0; }
+          git pull --rebase origin "${GITHUB_REF_NAME}" && git push || echo "push skipped"
+      - name: Upload exp 33b results (artifact — inputs are egress-built)
+        uses: actions/upload-artifact@v4
+        with:
+          name: exp33b-results
+          path: |
+            draft/backtest/exp33b.json
+            draft/backtest/EXP33B.md
           retention-days: 30
