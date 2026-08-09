@@ -2147,11 +2147,70 @@
       + '</div>';
   }
 
+  // THE RULE ON THE BOARD (EXP-KEEPER-B0): best-ADP within startable capacity, stated
+  // in the rule's own terms, never a 4th RB, with the bye hole visible and the honest
+  // dollar tier attached. A creates its own element inside B's card (no warroom.ejs
+  // edit); classes rh-* are B's to style. Additive headline above the composite panel.
+  function renderRuleHeadline(out) {
+    if (typeof DraftNeedRule === 'undefined') return;
+    const card = document.getElementById('recs-card');
+    if (!card) return;
+    const body = card.querySelector('.body') || card;
+    let host = document.getElementById('rule-headline');
+    if (!host) {
+      host = document.createElement('div');
+      host.id = 'rule-headline';
+      host.className = 'rule-headline';
+      host.style.cssText = 'margin:0 0 .6rem;padding:.55rem .7rem;border-radius:8px;'
+        + 'background:rgba(245,196,69,.10);border:1px solid rgba(245,196,69,.45)';
+      body.insertBefore(host, document.getElementById('confidence-note') || body.firstChild);
+    }
+    const board = state.board || [], roster = state.myRoster || [];
+    if (!board.length) { host.innerHTML = ''; return; }
+    const rec = DraftNeedRule.recommend(board, roster);
+    if (!rec.pick) { host.innerHTML = ''; return; }
+    const nm = p => escapeHtml((p.name || p.player_id) + '') + ' <span class="rh-pos" style="opacity:.7">'
+      + escapeHtml(p.position || '') + '</span>';
+    const field = DraftNeedRule.fieldWithinNeed(board, roster, 4);
+    const gap = field.length > 1 ? (DraftNeedRule.adpOf(field[1]) - DraftNeedRule.adpOf(field[0])) : 99;
+    let html = '<div class="rh-pick" style="font-weight:700">🎯 ' + nm(rec.pick) + '</div>'
+      + '<div class="rh-why" style="font-size:.82rem;opacity:.9">' + escapeHtml(rec.reason) + '</div>';
+    // The FIELD when it's close — human chooses; ledger records which (already wired).
+    if (gap < 8 && field.length > 1) {
+      html += '<div class="rh-field" style="font-size:.78rem;margin-top:.35rem">Close — your call: '
+        + field.map(p => nm(p) + ' <span style="opacity:.6">(adp ' + Math.round(DraftNeedRule.adpOf(p)) + ')</span>').join(' · ')
+        + '</div>';
+    }
+    // BYE STACK — the one thing the rule does NOT price, made visible (Cory #3).
+    if (rec.bye_stack) {
+      html += '<div class="rh-bye" style="font-size:.78rem;margin-top:.35rem;color:#e6b800">'
+        + '⚠ bye stack: this would put ' + rec.bye_stack.count + ' starters on week '
+        + rec.bye_stack.week + ' — the rule does not price byes; your call.</div>';
+    }
+    // GUARD — if the composite wants a player the rule has CAPPED (e.g. a 4th RB),
+    // say so plainly rather than letting two tools disagree silently (Cory #1).
+    const comp = out && out.scored && out.scored[0] && out.scored[0].player;
+    if (comp) {
+      const capset = DraftNeedRule.withinCap(board, roster);
+      const inCap = capset.indexOf(comp) >= 0 || capset.some(p => String(p.player_id) === String(comp.player_id));
+      if (!inCap && String(comp.player_id) !== String(rec.pick.player_id)) {
+        html += '<div class="rh-warn" style="font-size:.78rem;margin-top:.35rem;color:#ff8a8a">'
+          + '↔ the composite suggests ' + nm(comp) + ' but that over-fills ' + escapeHtml(comp.position || '')
+          + ' — the rule recommends ' + nm(rec.pick) + '.</div>';
+      }
+    }
+    // HONEST TIER — the rule is confident; the dollars are MC-harness, not a projection (Cory #2).
+    html += '<div class="rh-caveat" style="font-size:.7rem;opacity:.6;margin-top:.35rem">'
+      + 'measured rule (robust across seats/rooms/keepers); dollar magnitudes are lab-tier, not a season projection</div>';
+    host.innerHTML = html;
+  }
+
   function renderRecommendations() {
     // One call so the recommendation, the confidence line and the branch
     // forecasts can never come from three different boards.
     const out = E.onTheClock(context(), state.lists);
     state.lastClock = out;
+    try { renderRuleHeadline(out); } catch (e) { console.error('[rule-headline]', e && e.message); }
     // L1 capture: the board I made a decision from, once per (pick, build).
     // Logged BEFORE the outcome is known — the whole point of decision-time
     // capture. Not on mocks. Deduped in PredLedger so re-renders don't flood.
