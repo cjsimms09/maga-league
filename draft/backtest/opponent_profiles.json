@@ -1,0 +1,432 @@
+{
+  "experiment": "opponent tendency profiles (local: league_history + draft_data, no egress)",
+  "n_picks": 480,
+  "n_position_matched": 468,
+  "profiles": {
+    "B8T3S": {
+      "n_decisions": 40,
+      "seasons": [
+        "2023",
+        "2024",
+        "2025"
+      ],
+      "position_share": {
+        "QB": 0.1,
+        "RB": 0.225,
+        "WR": 0.425,
+        "TE": 0.1,
+        "K": 0.075,
+        "DEF": 0.075
+      },
+      "position_share_vs_field": {
+        "QB": -0.013,
+        "RB": -0.07,
+        "WR": 0.08,
+        "TE": 0.002,
+        "K": -0.002,
+        "DEF": 0.003
+      },
+      "first_round_by_position": {
+        "QB": 8.67,
+        "RB": 5.67,
+        "WR": 3.67,
+        "TE": 9.33,
+        "K": 11.67,
+        "DEF": 14.33
+      },
+      "early_lean": {
+        "RB": 0.25,
+        "WR": 0.75
+      },
+      "onesie_timing": {
+        "QB": 8.67,
+        "TE": 9.33,
+        "K": 11.67,
+        "DEF": 14.33
+      }
+    },
+    "Jreis": {
+      "n_decisions": 44,
+      "seasons": [
+        "2023",
+        "2024",
+        "2025"
+      ],
+      "position_share": {
+        "QB": 0.114,
+        "RB": 0.318,
+        "WR": 0.295,
+        "TE": 0.136,
+        "K": 0.068,
+        "DEF": 0.068
+      },
+      "position_share_vs_field": {
+        "QB": 0.001,
+        "RB": 0.023,
+        "WR": -0.05,
+        "TE": 0.038,
+        "K": -0.009,
+        "DEF": -0.004
+      },
+      "first_round_by_position": {
+        "QB": 6.0,
+        "RB": 1.33,
+        "WR": 3.0,
+        "TE": 6.33,
+        "K": 13.33,
+        "DEF": 11.33
+      },
+      "early_lean": {
+        "RB": 0.625,
+        "WR": 0.375
+      },
+      "onesie_timing": {
+        "QB": 6.0,
+        "TE": 6.33,
+        "K": 13.33,
+        "DEF": 11.33
+      }
+    },
+    "MarianSaar": {
+      "n_decisions": 37,
+      "seasons": [
+        "2023",
+        "2024",
+        "2025"
+      ],
+      "position_share": {
+        "QB": 0.108,
+        "RB": 0.297,
+        "WR": 0.351,
+        "TE": 0.108,
+        "K": 0.081,
+        "DEF": 0.054
+      },
+      "position_share_vs_field": {
+        "QB": -0.005,
+        "RB": 0.002,
+        "WR": 0.006,
+        "TE": 0.01,
+        "K": 0.004,
+        "DEF": -0.018
+      },
+      "first_round_by_position": {
+        "QB": 7.0,
+        "RB": 5.67,
+        "WR": 3.67,
+        "TE": 8.0,
+        "K": 12.33,
+        "DEF": 13.0
+      },
+      "early_lean": {
+        "WR": 1.0
+      },
+      "onesie_timing": {
+        "QB": 7.0,
+        "TE": 8.0,
+        "K": 12.33,
+        "DEF": 13.0
+      }
+    },
+    "Richard2121": {
+      "n_decisions": 40,
+      "seasons": [
+        "2023",
+        "2024",
+        "2025"
+      ],
+      "position_share": {
+        "QB": 0.15,
+        "RB": 0.2,
+        "WR": 0.4,
+        "TE": 0.075,
+        "K": 0.1,
+        "DEF": 0.075
+      },
+      "position_share_vs_field": {
+        "QB": 0.037,
+        "RB": -0.095,
+        "WR": 0.055,
+        "TE": -0.023,
+        "K": 0.023,
+        "DEF": 0.003
+      },
+      "first_round_by_position": {
+        "QB": 6.33,
+        "RB": 6.0,
+        "WR": 2.67,
+        "TE": 6.0,
+        "K": 13.33,
+        "DEF": 14.0
+      },
+      "early_lean": {
+        "QB": 0.25,
+        "RB": 0.25,
+        "WR": 0.5
+      },
+      "onesie_timing": {
+        "QB": 6.33,
+        "TE": 6.0,
+        "K": 13.33,
+        "DEF": 14.0
+      }
+    },
+    "Sadbru": {
+      "n_decisions": 42,
+      "seasons": [
+        "2023",
+        "2024",
+        "2025"
+      ],
+      "position_share": {
+        "QB": 0.143,
+        "RB": 0.31,
+        "WR": 0.31,
+        "TE": 0.095,
+        "K": 0.071,
+        "DEF": 0.071
+      },
+      "position_share_vs_field": {
+        "QB": 0.03,
+        "RB": 0.015,
+        "WR": -0.035,
+        "TE": -0.003,
+        "K": -0.006,
+        "DEF": -0.001
+      },
+      "first_round_by_position": {
+        "QB": 5.0,
+        "RB": 3.0,
+        "WR": 3.0,
+        "TE": 7.67,
+        "K": 12.33,
+        "DEF": 11.0
+      },
+      "early_lean": {
+        "QB": 0.167,
+        "RB": 0.333,
+        "WR": 0.5
+      },
+      "onesie_timing": {
+        "QB": 5.0,
+        "TE": 7.67,
+        "K": 12.33,
+        "DEF": 11.0
+      }
+    },
+    "Schmelley": {
+      "n_decisions": 40,
+      "seasons": [
+        "2023",
+        "2024",
+        "2025"
+      ],
+      "position_share": {
+        "QB": 0.15,
+        "RB": 0.325,
+        "WR": 0.3,
+        "TE": 0.075,
+        "K": 0.075,
+        "DEF": 0.075
+      },
+      "position_share_vs_field": {
+        "QB": 0.037,
+        "RB": 0.03,
+        "WR": -0.045,
+        "TE": -0.023,
+        "K": -0.002,
+        "DEF": 0.003
+      },
+      "first_round_by_position": {
+        "QB": 7.0,
+        "RB": 3.67,
+        "WR": 4.67,
+        "TE": 5.67,
+        "K": 14.67,
+        "DEF": 13.33
+      },
+      "early_lean": {
+        "RB": 0.75,
+        "TE": 0.25
+      },
+      "onesie_timing": {
+        "QB": 7.0,
+        "TE": 5.67,
+        "K": 14.67,
+        "DEF": 13.33
+      }
+    },
+    "cashworth": {
+      "n_decisions": 42,
+      "seasons": [
+        "2023",
+        "2024",
+        "2025"
+      ],
+      "position_share": {
+        "QB": 0.071,
+        "RB": 0.357,
+        "WR": 0.333,
+        "TE": 0.095,
+        "K": 0.071,
+        "DEF": 0.071
+      },
+      "position_share_vs_field": {
+        "QB": -0.042,
+        "RB": 0.062,
+        "WR": -0.012,
+        "TE": -0.003,
+        "K": -0.006,
+        "DEF": -0.001
+      },
+      "first_round_by_position": {
+        "QB": 4.0,
+        "RB": 3.33,
+        "WR": 2.67,
+        "TE": 6.67,
+        "K": 13.33,
+        "DEF": 14.33
+      },
+      "early_lean": {
+        "QB": 0.167,
+        "RB": 0.5,
+        "WR": 0.333
+      },
+      "onesie_timing": {
+        "QB": 4.0,
+        "TE": 6.67,
+        "K": 13.33,
+        "DEF": 14.33
+      }
+    },
+    "coryjsimms": {
+      "n_decisions": 37,
+      "seasons": [
+        "2023",
+        "2024",
+        "2025"
+      ],
+      "position_share": {
+        "QB": 0.108,
+        "RB": 0.324,
+        "WR": 0.324,
+        "TE": 0.081,
+        "K": 0.081,
+        "DEF": 0.081
+      },
+      "position_share_vs_field": {
+        "QB": -0.005,
+        "RB": 0.029,
+        "WR": -0.021,
+        "TE": -0.017,
+        "K": 0.004,
+        "DEF": 0.009
+      },
+      "first_round_by_position": {
+        "QB": 7.33,
+        "RB": 6.67,
+        "WR": 4.0,
+        "TE": 5.33,
+        "K": 13.0,
+        "DEF": 15.0
+      },
+      "early_lean": {
+        "WR": 1.0
+      },
+      "onesie_timing": {
+        "QB": 7.33,
+        "TE": 5.33,
+        "K": 13.0,
+        "DEF": 15.0
+      }
+    },
+    "ds7mmet": {
+      "n_decisions": 39,
+      "seasons": [
+        "2023",
+        "2024",
+        "2025"
+      ],
+      "position_share": {
+        "QB": 0.103,
+        "RB": 0.333,
+        "WR": 0.333,
+        "TE": 0.077,
+        "K": 0.077,
+        "DEF": 0.077
+      },
+      "position_share_vs_field": {
+        "QB": -0.01,
+        "RB": 0.038,
+        "WR": -0.012,
+        "TE": -0.021,
+        "K": 0.0,
+        "DEF": 0.005
+      },
+      "first_round_by_position": {
+        "QB": 4.0,
+        "RB": 5.67,
+        "WR": 4.0,
+        "TE": 3.5,
+        "K": 13.0,
+        "DEF": 12.0
+      },
+      "early_lean": {
+        "QB": 0.25,
+        "RB": 0.25,
+        "WR": 0.25,
+        "TE": 0.25
+      },
+      "onesie_timing": {
+        "QB": 4.0,
+        "TE": 3.5,
+        "K": 13.0,
+        "DEF": 12.0
+      }
+    },
+    "mhagen": {
+      "n_decisions": 39,
+      "seasons": [
+        "2023",
+        "2024",
+        "2025"
+      ],
+      "position_share": {
+        "QB": 0.077,
+        "RB": 0.256,
+        "WR": 0.385,
+        "TE": 0.128,
+        "K": 0.077,
+        "DEF": 0.077
+      },
+      "position_share_vs_field": {
+        "QB": -0.036,
+        "RB": -0.039,
+        "WR": 0.04,
+        "TE": 0.03,
+        "K": 0.0,
+        "DEF": 0.005
+      },
+      "first_round_by_position": {
+        "QB": 8.0,
+        "RB": 4.33,
+        "WR": 3.33,
+        "TE": 6.0,
+        "K": 14.0,
+        "DEF": 13.33
+      },
+      "early_lean": {
+        "RB": 0.333,
+        "WR": 0.667
+      },
+      "onesie_timing": {
+        "QB": 8.0,
+        "TE": 6.0,
+        "K": 14.0,
+        "DEF": 13.33
+      }
+    }
+  },
+  "caveat": "timing/lean/share only (ADP-free); REACH tendency + which-board-they-draft-from ride exp36_picks.json (adp+owner) in CI. 3 seasons \u2014 a lean <0.05 vs field or a single-season pattern is noise, not a tendency. Feeds the survival/room model per-seat + the war-room matchup read. No install.",
+  "source_tier": "league-primary"
+}
