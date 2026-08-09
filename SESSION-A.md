@@ -108,6 +108,18 @@ bets money on them. A small true edge beats a large flattering one.
 - **Say what's true even when it's ours or his.** When something we built doesn't work,
   say so plainly and fast. When Cory asserts an edge the evidence contradicts, say it that
   turn (the sliders are not a top edge) — that beats executing the request.
+- **Keep-or-drop a small effect: prior + best-alternative + legibility, NOT significance
+  (2026-08-09).** Significance is a publication threshold, not a decision one — a basket of
+  genuinely +EV mechanisms is worth keeping even if none is individually significant. BUT
+  that holds only WITHOUT SELECTION: keeping a mechanism BECAUSE its point came out positive
+  conditions on the up-side of noise (winner's curse), and in OUR harness a small effect
+  whose CI spans zero wanders in sign on re-run (the ones that hold clear the interval). So
+  keep a mechanism iff (a) a genuine causal PRIOR says it's positive — not post-hoc; (b)
+  nothing SIMPLER measured BETTER (the competitor is usually "flat," not "nothing"); (c) its
+  EV exceeds its LEGIBILITY/maintenance cost — machinery nobody can reason about (stages.js,
+  the inert cap, PushNotification) is net-negative even at ~0 EV. A positive point estimate
+  with a zero-spanning CI and no prior is noise; drop it. A small positive with a real
+  mechanism and no simpler-better rival is an edge; keep it.
 
 ### 3. A finding is worthless until it moves money
 There must be a step between "experiment finished" and "thing changed."
