@@ -113,9 +113,21 @@ Audit date: 2026-08-09 (swept every recorded verdict in draft/backtest/*.json + 
 - **Recommendation (GATED — the live pick screen, 13 days out):**
   1. **DO NOW (robust+faithful):** flatten Auto's need-weight ramp to a flat ~0.5 (or drop the
      additive need term; mask stays). Zero risk to the measured edge.
-  2. **DRAFT-DAY PRESET (recommended):** run Auto as **mask + value(1.0)**, with tier/risk/
-     ceiling/bye at **0** (ceiling ~0, harmless) and **stack ~0.5** (exp6 winner). This is the "flat preset on draft day" Cory floated — defensible, legible,
-     sheds the measured drag.
+  2. **DRAFT-DAY PRESET (recommended):** run Auto as **mask + value(1.0)**, with tier/risk/bye
+     at **0** and **stack ~0.5** (exp6 winner). This is the "flat preset" Cory floated.
+     **REVISED 2026-08-09 by the interior look (Cory's flat-vs-structured question) — two numbers
+     move off Cory's approved "need & ceiling at zero":**
+     - **need-weight ≈ 0.5, NOT 0.** The strength CURVE peaks at w≈0.5 (+$17 [+6,+28], separable)
+       and REPLICATES in exp_need_phase (+$16 [+3,+30]). The "decoration" call was read off the
+       DEFAULT point (w=1.0, +6.5 ~0), which sits past the peak — zeroing it leaves a small,
+       separable, replicated +$16 on the table. Clears the keep-or-drop bar (prior +, beats w=0,
+       cheap). MC-harness-tier magnitude.
+     - **ceiling: do NOT zero — leave at default 0.65 (or test 1.0), pending replication.** The
+       curve is separably positive at w≈1.0-1.5 (+$23-26, CI excludes 0) — ABOVE the 0.65 default
+       where build-up read ~0. Single-run + murky mechanism (weekly-high split ~0), so replicate
+       before raising; but zeroing it turns off a separably-positive term.
+     - tier/risk stay 0 (negative or fading everywhere sampled; risk-late is a dead zone, not a
+       positive). **Cory's call to confirm the two revised numbers before wiring.**
   3. **BEFORE ripping the live terms out of engine.js:** build the faithful JS-engine ablation
      to convict tier/risk on the real functions (proxy caveat); stack's mechanism (within-team correlation) needs a correlation-aware grader, which stack_sweep already is. Until then, the *preset*
      (weights→0) achieves the same draft-day effect without deleting code.
