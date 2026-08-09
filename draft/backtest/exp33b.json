@@ -14,9 +14,9 @@
       "verdict": "negative"
     },
     "naive_minus_adp": {
-      "mean": 0.106,
+      "mean": 0.107,
       "ci95": [
-        -0.018,
+        -0.017,
         0.22
       ],
       "verdict": "inconclusive"
@@ -24,8 +24,8 @@
     "blend_minus_adp": {
       "mean": 0.161,
       "ci95": [
-        0.077,
-        0.245
+        0.078,
+        0.246
       ],
       "verdict": "positive"
     }
