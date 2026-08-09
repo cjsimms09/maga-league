@@ -7,7 +7,7 @@ inconclusive CI (spans zero) reads as the anchor binding HARDER, not looser._
 ## PRIMARY — rank correlation over the available pool
 
 - our ordering: mean rho 0.391 CI (0.3, 0.475)
-- market (ADP): mean rho 0.269 CI (0.176, 0.35)
+- market (ADP): mean rho 0.269 CI (0.176, 0.349)
 - **difference (our - market): 0.122 CI [0.007, 0.232] -> BEAT** over 19 picks
 
 ## Top-N set value (realized pts, our set vs market set)
