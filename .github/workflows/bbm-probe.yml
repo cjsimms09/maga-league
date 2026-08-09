@@ -1,0 +1,150 @@
+name: BBM PROBE + INGEST — external best-ball data to the Lab
+
+# The external-data tier (docs/queued/bbm-ingestion.md). Underdog Best Ball Mania
+# pick-by-pick dumps break the n≈27 ceiling every league experiment hits and answer
+# the roster-CONSTRUCTION question exp 34 located the money leak in.
+#
+# Reachability finding (2026-08-09): the GCS host storage.googleapis.com/underdog-inc
+# is reachable and the small FINALS dumps were ingested in the sandbox (exp24 already
+# ran on BBM IV finals). This workflow does the two things the sandbox cannot:
+#   (1) DISCOVER BBM V's exact CSV URL — its landing page is egress-blocked locally;
+#   (2) STREAM the multi-GB full-field regular-season dumps (~4.8 GB) through the
+#       memory-safe aggregator for the DEAD-ZONE at full N and full-field shape.
+#
+# Reports success AND failure in the run summary (the [skip ci] standing rule: a
+# silent failure in an unwatched run is indistinguishable from success). Commits
+# results to the run's OWN ref, never main (so lab-bot never fights integration).
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  bbm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+
+      - name: Pure-core gate (no egress) — parser/translation must be green first
+        run: |
+          pip install pytest -q
+          python -m pytest draft/tests/test_bbm_ingest.py draft/tests/test_bbm_translate.py -q
+
+      - name: Probe reachability + discover BBM V URL
+        run: |
+          python3 - <<'PY'
+          import re, json, urllib.request, urllib.error
+          def head(url, timeout=30):
+              try:
+                  req = urllib.request.Request(url, method='HEAD',
+                        headers={'user-agent':'mfga-bbm-probe'})
+                  with urllib.request.urlopen(req, timeout=timeout) as r:
+                      return r.status, r.headers.get('content-length')
+              except urllib.error.HTTPError as e:
+                  return e.code, None
+              except Exception as e:                      # noqa: BLE001
+                  return 0, str(e)[:80]
+          def get_text(url, timeout=30):
+              try:
+                  req = urllib.request.Request(url, headers={'user-agent':'mfga-bbm-probe'})
+                  with urllib.request.urlopen(req, timeout=timeout) as r:
+                      return r.read(2_000_000).decode('utf-8','ignore')
+              except Exception as e:                      # noqa: BLE001
+                  return f'ERROR {e}'
+
+          print('=== KNOWN BBM IV URLs (verified reachable from the sandbox) ===')
+          KNOWN = {
+            'IV R4 finals': 'https://storage.googleapis.com/underdog-inc/underblog/BBM_IV_Rosters/best_ball_mania_iv_2023_r4_results_pick_by_pick.csv',
+            'IV R1 full-field': 'https://storage.googleapis.com/underdog-inc/underblog/BBM_IV_Rosters/best_ball_mania_iv_2023_r1_results_pick_by_pick.csv',
+          }
+          for name,u in KNOWN.items():
+              s,cl = head(u); print(f'  {name}: HTTP {s}  bytes={cl}')
+
+          print('\n=== DISCOVER BBM V (landing page egress-blocked in sandbox) ===')
+          found = {}
+          for page in (
+              'https://underdognetwork.com/football/best-ball-research/best-ball-mania-v-downloadable-pick-by-pick-data-2024',
+              'https://underdognetwork.com/football/best-ball-research/best-ball-mania-vi-downloadable-pick-by-pick-data'):
+              html = get_text(page)
+              urls = sorted(set(re.findall(r'https://storage\.googleapis\.com/[^\s"\'<>]+\.csv', html)))
+              print(f'  {page.split("/")[-1]}: {len(urls)} csv link(s)')
+              for u in urls:
+                  s,cl = head(u); print(f'     HTTP {s} bytes={cl}  {u}')
+                  if s == 200: found[u] = cl
+          json.dump({'discovered': found}, open('draft/data/bbm/discovered.json','w'), indent=2)
+          print('\nwrote draft/data/bbm/discovered.json')
+          PY
+
+      - name: Ingest finals dumps + run exp 24 (winning ceiling shape)
+        continue-on-error: true
+        run: |
+          set -e
+          mkdir -p draft/data/bbm
+          IV=https://storage.googleapis.com/underdog-inc/underblog/BBM_IV_Rosters/best_ball_mania_iv_2023_r4_results_pick_by_pick.csv
+          curl -sSL --max-time 300 -o draft/data/bbm/best_ball_mania_iv_2023_r4_finals.csv "$IV"
+          python3 draft/backtest/exp24_bbm_shape.py draft/data/bbm/best_ball_mania_iv_2023_r4_finals.csv draft/backtest/exp24.json
+          # BBM V finals, if discovered
+          python3 - <<'PY'
+          import json, subprocess, os
+          disc = json.load(open('draft/data/bbm/discovered.json')).get('discovered', {})
+          finals = [u for u in disc if 'finals' in u.lower() or '_r4_' in u.lower() or '_r5_' in u.lower()]
+          # smallest discovered finals dump = the per-round finals file, not the full field
+          finals = sorted(finals, key=lambda u: int(disc[u] or 1<<62))
+          if finals:
+              u = finals[0]
+              local = 'draft/data/bbm/bbm_v_finals.csv'
+              subprocess.run(['curl','-sSL','--max-time','300','-o',local,u], check=True)
+              subprocess.run(['python3','draft/backtest/exp24_bbm_shape.py',local,'draft/backtest/exp24_v.json'], check=True)
+              print('ran exp24 on BBM V:', u)
+          else:
+              print('no BBM V finals URL discovered — IV stands alone this run')
+          PY
+
+      - name: Stream the full-field R1 dead-zone at full N (memory-safe)
+        continue-on-error: true
+        timeout-minutes: 40
+        run: |
+          python3 - <<'PY'
+          import json, urllib.request, io, sys
+          sys.path.insert(0, 'draft/backtest')
+          import bbm_ingest as ING
+          url = 'https://storage.googleapis.com/underdog-inc/underblog/BBM_IV_Rosters/best_ball_mania_iv_2023_r1_results_pick_by_pick.csv'
+          req = urllib.request.Request(url, headers={'user-agent':'mfga-bbm-probe'})
+          with urllib.request.urlopen(req, timeout=60) as r:
+              # decode the byte stream to text lines without materialising the file
+              text = io.TextIOWrapper(r, encoding='utf-8', errors='ignore')
+              agg = ING.stream_positional_by_round(text)
+          out = {'source': url, 'note': 'BBM IV full-field regular season — dead-zone at full N',
+                 'by_position_round': agg}
+          json.dump(out, open('draft/backtest/bbm_deadzone.json','w'), indent=2)
+          # quick dead-zone read: RB vs WR mean pick_points, rounds 3-6
+          for pos in ('RB','WR'):
+              rounds = agg.get(pos, {})
+              cells = [(r, rounds[str(r)] if str(r) in rounds else rounds.get(r)) for r in range(3,7)]
+              vals = [(r,c['points_mean'],c['n']) for r,c in cells if c]
+              print(pos, 'rounds 3-6 mean pts:', vals)
+          print('wrote draft/backtest/bbm_deadzone.json')
+          PY
+
+      - name: Commit BBM results to the run's own ref
+        run: |
+          stamp=$(date -u +%Y-%m-%dT%H:%MZ)
+          git config user.name "lab-bot"; git config user.email "actions@github.com"
+          git add draft/backtest/exp24.json draft/backtest/exp24_v.json \
+                  draft/backtest/bbm_deadzone.json draft/data/bbm/discovered.json 2>/dev/null || true
+          git commit -m "BBM probe + exp 24 + dead-zone $stamp" || { echo "no change"; exit 0; }
+          git pull --rebase origin "${GITHUB_REF_NAME}" && git push || echo "push skipped"
+
+      - name: Upload BBM results (raw dumps are egress-built, not committed)
+        uses: actions/upload-artifact@v4
+        with:
+          name: bbm-results
+          path: |
+            draft/backtest/exp24.json
+            draft/backtest/exp24_v.json
+            draft/backtest/bbm_deadzone.json
+            draft/data/bbm/discovered.json

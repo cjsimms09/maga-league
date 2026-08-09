@@ -1,0 +1,194 @@
+{
+  "experiment": "24 \u2014 BBM winning ceiling shape (finals rosters)",
+  "source": "draft/data/bbm/best_ball_mania_iv_2023_r4_finals.csv",
+  "sha256": "ab30ca6104230c018ac4116b1aea31d775e162d0b72269b8d6bfd3484705c208",
+  "n_rosters": 441,
+  "n_with_outcome": 441,
+  "analysis": {
+    "by_cut": {
+      "0.05": {
+        "n": 441,
+        "n_winners": 22,
+        "winner_count_shape": {
+          "WR": 6.909,
+          "RB": 5.818,
+          "QB": 2.636,
+          "TE": 2.636
+        },
+        "field_count_shape": {
+          "WR": 7.39,
+          "RB": 5.442,
+          "QB": 2.526,
+          "TE": 2.642
+        },
+        "winner_fraction": {
+          "WR": 0.3839,
+          "RB": 0.3232,
+          "QB": 0.1465,
+          "TE": 0.1465
+        },
+        "field_fraction": {
+          "WR": 0.4106,
+          "RB": 0.3023,
+          "QB": 0.1403,
+          "TE": 0.1468
+        },
+        "winner_minus_field_fraction": {
+          "TE": -0.0003,
+          "QB": 0.0062,
+          "WR": -0.0267,
+          "RB": 0.0209
+        },
+        "winner_minus_field_count": {
+          "TE": -0.006,
+          "QB": 0.11,
+          "WR": -0.481,
+          "RB": 0.376
+        },
+        "translated_to_our_15": {
+          "WR": 5.76,
+          "RB": 4.85,
+          "QB": 2.2,
+          "TE": 2.2
+        }
+      },
+      "0.10": {
+        "n": 441,
+        "n_winners": 44,
+        "winner_count_shape": {
+          "WR": 7.159,
+          "RB": 5.614,
+          "QB": 2.477,
+          "TE": 2.75
+        },
+        "field_count_shape": {
+          "WR": 7.39,
+          "RB": 5.442,
+          "QB": 2.526,
+          "TE": 2.642
+        },
+        "winner_fraction": {
+          "WR": 0.3977,
+          "RB": 0.3119,
+          "QB": 0.1376,
+          "TE": 0.1528
+        },
+        "field_fraction": {
+          "WR": 0.4106,
+          "RB": 0.3023,
+          "QB": 0.1403,
+          "TE": 0.1468
+        },
+        "winner_minus_field_fraction": {
+          "TE": 0.006,
+          "QB": -0.0027,
+          "WR": -0.0129,
+          "RB": 0.0096
+        },
+        "winner_minus_field_count": {
+          "TE": 0.108,
+          "QB": -0.049,
+          "WR": -0.231,
+          "RB": 0.172
+        },
+        "translated_to_our_15": {
+          "WR": 5.97,
+          "RB": 4.68,
+          "QB": 2.06,
+          "TE": 2.29
+        }
+      },
+      "0.25": {
+        "n": 441,
+        "n_winners": 110,
+        "winner_count_shape": {
+          "WR": 7.264,
+          "RB": 5.564,
+          "QB": 2.482,
+          "TE": 2.691
+        },
+        "field_count_shape": {
+          "WR": 7.39,
+          "RB": 5.442,
+          "QB": 2.526,
+          "TE": 2.642
+        },
+        "winner_fraction": {
+          "WR": 0.4035,
+          "RB": 0.3091,
+          "QB": 0.1379,
+          "TE": 0.1495
+        },
+        "field_fraction": {
+          "WR": 0.4106,
+          "RB": 0.3023,
+          "QB": 0.1403,
+          "TE": 0.1468
+        },
+        "winner_minus_field_fraction": {
+          "TE": 0.0027,
+          "QB": -0.0024,
+          "WR": -0.0071,
+          "RB": 0.0068
+        },
+        "winner_minus_field_count": {
+          "TE": 0.049,
+          "QB": -0.044,
+          "WR": -0.126,
+          "RB": 0.122
+        },
+        "translated_to_our_15": {
+          "WR": 6.05,
+          "RB": 4.64,
+          "QB": 2.07,
+          "TE": 2.24
+        }
+      }
+    },
+    "sign_stable_across_cuts": {
+      "TE": false,
+      "QB": false,
+      "RB": true,
+      "WR": true
+    }
+  },
+  "finding": {
+    "value": {
+      "winner_minus_field_fraction": {
+        "TE": 0.006,
+        "QB": -0.0027,
+        "WR": -0.0129,
+        "RB": 0.0096
+      },
+      "translated_to_our_15": {
+        "WR": 5.97,
+        "RB": 4.68,
+        "QB": 2.06,
+        "TE": 2.29
+      }
+    },
+    "note": "Among BBM finalists, the top-decile scorers vs the typical finalist: RB +1.0% of roster; TE +0.6% of roster; QB -0.3% of roster; WR -1.3% of roster. SHAPE/direction only (BBM-scored, 12-team/18-round) \u2014 a prior for a league-conditional, money-graded test, never a board install.",
+    "source_tier": "bbm-supporting",
+    "label": "BBM-derived, translated",
+    "caveats": {
+      "team_size": "BBM is 12-team; we are 10-team. Their replacement level and scarcity are deeper.",
+      "rounds_keepers": "BBM is 18 rounds, no keepers; we are 15 rounds with keepers.",
+      "economics": "BBM pays advance-rate (a tournament ladder); we pay weekly-high + regular-season + a resimulated H2H bracket. Advance-rate ~ our high-pool + entry blend, NOT our full economy.",
+      "scoring_is_bbm": "the pick-by-pick dumps carry BBM-SCORED points (half-PPR, 4-pt passing TD), not raw stat lines \u2014 so they cannot be re-scored to our 6-pt passing TD. Ranking rosters by BBM points is robust for POSITIONAL SHAPE (a 4-vs-6 pt QB shift barely reorders 18-man best-ball rosters), but a finding that turns on absolute QB value does NOT cross the wall."
+    },
+    "crosses_wall": true,
+    "weighting": "SUPPORTING \u2014 raises/lowers confidence in a league result and settles what our n cannot; never overrides a contradicting league finding."
+  },
+  "pre_registered": {
+    "question": "what positional SHAPE separates top-of-pool ceiling rosters from the field",
+    "reading": "a positive winner-minus-field fraction for a position means winners OVER-weight it; sign-stability across top-fractions is required before the direction is trusted",
+    "gate": "BBM proposes; our data disposes \u2014 league-conditional + money-graded + null/CV before any install"
+  },
+  "caveats": {
+    "team_size": "BBM is 12-team; we are 10-team. Their replacement level and scarcity are deeper.",
+    "rounds_keepers": "BBM is 18 rounds, no keepers; we are 15 rounds with keepers.",
+    "economics": "BBM pays advance-rate (a tournament ladder); we pay weekly-high + regular-season + a resimulated H2H bracket. Advance-rate ~ our high-pool + entry blend, NOT our full economy.",
+    "scoring_is_bbm": "the pick-by-pick dumps carry BBM-SCORED points (half-PPR, 4-pt passing TD), not raw stat lines \u2014 so they cannot be re-scored to our 6-pt passing TD. Ranking rosters by BBM points is robust for POSITIONAL SHAPE (a 4-vs-6 pt QB shift barely reorders 18-man best-ball rosters), but a finding that turns on absolute QB value does NOT cross the wall."
+  },
+  "source_tier": "bbm-supporting"
+}

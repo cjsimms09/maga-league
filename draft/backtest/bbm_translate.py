@@ -53,6 +53,11 @@ CAVEAT_WALL = {
     "economics": ("BBM pays advance-rate (a tournament ladder); we pay weekly-high + "
                   "regular-season + a resimulated H2H bracket. Advance-rate ~ our high-pool + "
                   "entry blend, NOT our full economy."),
+    "scoring_is_bbm": ("the pick-by-pick dumps carry BBM-SCORED points (half-PPR, 4-pt "
+                       "passing TD), not raw stat lines — so they cannot be re-scored to our "
+                       "6-pt passing TD. Ranking rosters by BBM points is robust for POSITIONAL "
+                       "SHAPE (a 4-vs-6 pt QB shift barely reorders 18-man best-ball rosters), "
+                       "but a finding that turns on absolute QB value does NOT cross the wall."),
 }
 SOURCE_TIER_LEAGUE = "league-primary"
 SOURCE_TIER_BBM = "bbm-supporting"      # re-scored, translated, weighted below league data

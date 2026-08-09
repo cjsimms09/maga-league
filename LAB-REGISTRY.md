@@ -116,7 +116,7 @@ Cory's correction: "queued behind mocks" was never a gate. Every experiment re-a
 | 26 | Konami QB premium | spec | runnable NOW (board rushing splits) | none — queued |
 | 5 | LRM threshold tuning | spec | **needs LRM modeled in the sim** — a build, not a gate | none — queued |
 | 8 | survival calibration | partial | runs behind the bridge gate (egress) | none |
-| 24 | best-ball translation | spec | needs BBM ingestion (CI egress) | none — ingestion first |
+| 24 | best-ball translation | **PARTIAL — FIRED (finals cut)** | BBM GCS host reachable from sandbox; finals dump ingested, winning-shape run (EXP24.md); full-field dead-zone → `bbm-probe.yml` (CI, 4.8 GB stream) | finding is `bbm-supporting`, caveat-walled; no install |
 | 27 | championship-week stacking | spec | **needs the playoff bracket resim** (a build) | none — queued behind resim |
 | 28, 29 | ambiguous backfields · availability curves | spec | runnable NOW (depth-chart + games-expected on the board) | none — queued |
 | **9, 20, 31(1)** | behavior-ADP split · herding fade · historical adherence | spec | **GATED — data that does not exist** | historical Sleeper rankings for 2023–25 are NOT archived; LEAN-capped vs proxy |
