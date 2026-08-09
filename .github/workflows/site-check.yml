@@ -138,6 +138,44 @@ jobs:
               print(f'      value_coverage  {prov.get("value_coverage")}')
               print(f'      opportunity     {prov.get("opportunity_adjustment")} '
                     f'({prov.get("opportunity_coverage")})')
+              # SLATE RAILS alarm: as the draft nears, a board built on an UNCONFIRMED
+              # keeper slate is a real hazard (Cory's Aug-20 48h window). Read the honest
+              # status the build stamped and escalate with days-to-draft.
+              try:
+                  import sys as _sys
+                  _sys.path.insert(0, 'draft')
+                  import keeper_slate as _ks
+                  slate = d.get('keeper_slate')
+                  if slate:
+                      dtd = None
+                      try:
+                          cfg0 = json.load(open('draft/config/league_config.json'))
+                          req0 = urllib.request.Request(
+                              f'https://api.sleeper.app/v1/league/{cfg0.get("league_id")}/drafts',
+                              headers={'accept': 'application/json'})
+                          with urllib.request.urlopen(req0, timeout=20) as r0:
+                              drafts0 = json.loads(r0.read()) or []
+                          up = next((x for x in drafts0 if x.get('status') in ('pre_draft', 'drafting', 'paused')), None)
+                          st_ms = (up or {}).get('start_time')
+                          if st_ms:
+                              draft_dt = datetime.datetime.fromtimestamp(st_ms / 1000, datetime.timezone.utc)
+                              dtd = (draft_dt - datetime.datetime.now(datetime.timezone.utc)).days
+                      except Exception:                    # noqa: BLE001
+                          pass
+                      level, msg = _ks.draft_week_alarm(slate, dtd)
+                      print(f'      keeper slate    {slate.get("status")} '
+                            f'(safe_to_treat_as_truth={slate.get("safe_to_treat_as_truth")}, '
+                            f'days_to_draft={dtd})')
+                      if level == 'alarm':
+                          problems.append('keeper slate — ' + msg)
+                      elif level == 'warn':
+                          notes.append('keeper slate — ' + msg)
+                  else:
+                      notes.append('deployed board has no keeper_slate stamp yet — redeploy after '
+                                   'the slate-rails build lands so status is visible')
+              except Exception as e:                       # noqa: BLE001
+                  notes.append(f'could not evaluate keeper-slate status: {type(e).__name__} {e}')
+
               adp = prov.get('adp') or {}
               print(f'      adp source      {adp.get("adp_source")} '
                     f'· {adp.get("fallback_count_in_play")} guessed in play')

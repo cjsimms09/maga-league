@@ -24,6 +24,7 @@ import keepers as keepers_mod  # noqa: E402
 import projections as proj_mod  # noqa: E402
 import vorp as vorp_mod  # noqa: E402
 import managers as managers_mod  # noqa: E402
+import keeper_slate as keeper_slate_mod  # noqa: E402
 
 ARTIFACT_VERSION = 2
 
@@ -156,6 +157,51 @@ def _load_predicted_keepers() -> dict | None:
     print(f"  predicted keepers: {n} across {len(preds)} owners (rehearsal input)")
     return {"provenance": v.get("provenance"), "note": v.get("note"),
             "predictions": preds}
+
+
+def _assess_keeper_slate(cfg: dict, offline: bool) -> dict:
+    """SLATE RAILS (keeper_slate.py): stamp an honest CONFIRMED/PREDICTED status so the
+    board can never present a wrong/incomplete slate as truth. Sleeper is the source:
+    roster.keepers = DESIGNATIONS (intentions); the upcoming draft's is_keeper picks =
+    PLACEMENTS (the confirmed signal). Offline builds are always 'predicted'."""
+    teams = int(cfg.get("teams") or 10)
+    if offline:
+        return keeper_slate_mod.assess_slate(teams, {}, placements=None)
+    try:
+        import sleeper_import as si
+        lid = cfg["league_id"]
+        rosters = si.fetch_rosters(lid) or []
+        # designations: a team is present ONLY if it actually carries a keepers list;
+        # absent teams are UNKNOWN (empty!=none), never modelled as keeping zero.
+        designations = {}
+        for r in rosters:
+            ks = r.get("keepers") or (r.get("metadata") or {}).get("keepers")
+            if ks:
+                designations[str(r.get("roster_id"))] = [str(x) for x in ks]
+        # placements: the upcoming draft's keeper picks (is_keeper). None until placed.
+        placements = None
+        drafts = si.fetch_drafts(lid) or []
+        upcoming = next((d for d in drafts if d.get("status") in ("pre_draft", "drafting", "paused")), None)
+        if upcoming and upcoming.get("draft_id"):
+            picks = si.fetch_draft_picks(upcoming["draft_id"]) or []
+            kp = {}
+            for p in picks:
+                if p.get("is_keeper"):
+                    kp.setdefault(str(p.get("roster_id")), []).append(str(p.get("player_id")))
+            if kp:
+                placements = kp
+        slate = keeper_slate_mod.assess_slate(teams, designations, placements=placements)
+        print(f"  keeper slate: {slate['status']} — {slate['teams_designated']}/{teams} designated, "
+              f"placements={'yes' if slate['placements_present'] else 'no'}"
+              + (f", {len(slate['mismatches'])} MISMATCH" if slate['mismatches'] else ""))
+        return slate
+    except Exception as exc:                              # noqa: BLE001
+        # Loudly: 'could not verify' must never read as 'verified'. Unknown -> not confirmed.
+        print(f"  ! keeper-slate verification failed ({type(exc).__name__}: {exc}) — status UNKNOWN")
+        s = keeper_slate_mod.assess_slate(teams, {}, placements=None)
+        s["status"] = "unverified"; s["confirmed"] = False; s["safe_to_treat_as_truth"] = False
+        s["reason"] = f"could not reach Sleeper to verify the slate ({type(exc).__name__})"
+        return s
 
 
 def fetch_authoritative_confirmed(cfg: dict) -> dict:
@@ -669,6 +715,12 @@ def build(cfg: dict, *, offline: bool = False, force_profiles: bool = False,
         # REHEARSAL ONLY. Predicted, not confirmed — kept separate from
         # `kept_players` so a prediction can never be read as the real slate.
         "predicted_keepers": _load_predicted_keepers(),
+        # SLATE RAILS: the honest status of the keeper slate the board is built on.
+        # status 'confirmed' ONLY when Sleeper placements exist for all teams and match
+        # designations; otherwise 'predicted'/'partial'/'mismatch'/'unverified'. The
+        # War Room reads safe_to_treat_as_truth; the live-site check alarms as the draft
+        # nears an unconfirmed slate. Empty designations are UNKNOWN, never zero.
+        "keeper_slate": _assess_keeper_slate(cfg, offline),
         "notes": {
             "adp_blend_weight": cfg.get("adp_blend_weight"),
             "opportunity_cap": cfg.get("opportunity_cap"),
