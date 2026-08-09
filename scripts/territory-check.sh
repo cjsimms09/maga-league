@@ -49,20 +49,44 @@ shared() {
   esac
 }
 
-trespass=0; shared_n=0
+# MERGE-AWARENESS. During an integration (A owns merging both lanes into `main`),
+# the working tree legitimately contains the OTHER lane's files. A check that failed
+# on every integration would train us to ignore it — the deploy-verify failure mode.
+# So a would-be trespass is EXEMPT when the file is byte-identical to the integration
+# source ref: a MERGED file matches its source exactly; an EDITED one does not. This
+# passes a clean integration and still fails loudly if you actually modified a file in
+# the other lane. Override the ref with TERRITORY_INTEGRATION_REF (default origin/main).
+INTEG_REF="${TERRITORY_INTEGRATION_REF:-origin/main}"
+has_ref=0
+git rev-parse --verify -q "$INTEG_REF^{commit}" >/dev/null 2>&1 && has_ref=1
+
+# 0 (true) when the working-tree file is byte-identical to INTEG_REF's version —
+# i.e. it was merged in from the integration source, not edited here.
+matches_source() {
+  [ "$has_ref" = 1 ] || return 1
+  git cat-file -e "$INTEG_REF:$1" 2>/dev/null || return 1   # not on the source ref -> a real add
+  git diff --quiet "$INTEG_REF" -- "$1" 2>/dev/null         # empty diff -> identical -> merged
+}
+
+trespass=0; shared_n=0; merged_n=0
+report_trespass() {   # $1=file $2=who
+  if matches_source "$1"; then merged_n=$((merged_n+1)); return; fi
+  echo "TRESPASS ($2): $1"; trespass=$((trespass+1))
+}
 while IFS= read -r f; do
   [ -n "$f" ] || continue
   if shared "$f"; then shared_n=$((shared_n+1)); continue; fi
   if [ "$SIDE" = "B" ]; then
-    b_owns "$f" || { echo "TRESPASS (B touched A's file): $f"; trespass=$((trespass+1)); }
+    b_owns "$f" || report_trespass "$f" "B touched A's file"
   else
-    if b_owns "$f"; then echo "TRESPASS (A touched B's file): $f"; trespass=$((trespass+1)); fi
+    if b_owns "$f"; then report_trespass "$f" "A touched B's file"; fi
   fi
 done < <(git diff --name-only; git diff --cached --name-only; git ls-files --others --exclude-standard)
 
 [ "$shared_n" -gt 0 ] && echo "note: $shared_n shared file(s) touched — APPEND ONLY, rebase before push"
+[ "$merged_n" -gt 0 ] && echo "note: $merged_n file(s) from the other lane are byte-identical to $INTEG_REF — merged, not edited (integration-exempt)"
 if [ "$trespass" -gt 0 ]; then
-  echo "FAIL: $trespass file(s) outside side $SIDE's territory. See TERRITORY.md."
+  echo "FAIL: $trespass file(s) outside side $SIDE's territory (and NOT a clean merge from $INTEG_REF). See TERRITORY.md."
   exit 1
 fi
 echo "OK: side $SIDE stayed in its territory"

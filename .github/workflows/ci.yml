@@ -82,3 +82,11 @@ jobs:
         run: node draft/tests/robot-mock.js
       - name: Python suites
         run: python -m pytest draft/tests -q
+
+      - name: Shell guards — deploy gate + territory check (both directions)
+        # These enforce infra invariants and are easy to break silently: the deploy
+        # gate's exit-code contract, and the territory check's merge-awareness (a
+        # clean integration must pass; an actual cross-lane edit must fail + name it).
+        run: |
+          bash netlify-ignore.test.sh
+          bash scripts/territory-check.test.sh
