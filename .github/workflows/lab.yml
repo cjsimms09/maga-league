@@ -32,6 +32,10 @@ on:
       - 'draft/backtest/stack_sweep.py'
       - 'draft/backtest/sim_validation.py'
       - 'draft/backtest/opponent_model.py'
+      - 'draft/backtest/exp34.py'
+      - 'draft/backtest/exp34_metrics.py'
+      - 'draft/backtest/exp34_dollars.py'
+      - 'draft/tests/test_exp34_dollars.py'
       - 'draft/data/league_history.json'
       - 'draft/config/payouts.json'
       - '.github/workflows/lab.yml'
@@ -184,19 +188,38 @@ jobs:
       - uses: actions/setup-python@v5
         with: { python-version: "3.11" }
       - name: GATE — the pure measuring-stick tests (no egress)
+        # The dollar arm's grading is pure over the harvest, so its pipeline is
+        # gated here in the sandbox too — a broken statistic or roster build is a
+        # red build BEFORE any fetch, same discipline as the correlation arm.
         run: |
           pip install pytest -q
-          python -m pytest draft/tests/test_exp34.py draft/tests/test_exp34_metrics.py -q
-      - name: Fire exp 34 (FFC + nflverse egress)
+          python -m pytest draft/tests/test_exp34.py draft/tests/test_exp34_metrics.py \
+                           draft/tests/test_exp34_dollars.py -q
+      - name: CERTIFICATION GATE — the dollar arm grades through the certified layer
+        # The dollar arm consumes money_grade.grade_substituted + roster_sim; it may
+        # not grade until they reproduce history to the dollar (the same gate the
+        # rest of the Lab honours). A red cert here means the money layer is untrusted,
+        # so the dollar arm must not fire on it.
+        run: |
+          python -m pytest draft/tests/test_money_grade_certification.py \
+                           draft/tests/test_money_grade.py draft/tests/test_roster_sim.py -q
+      - name: Fire exp 34 — correlation arm (FFC + nflverse egress)
         run: |
           pip install -r draft/requirements.txt -q
           python draft/backtest/exp34.py --out draft/backtest
-      - name: Commit the exp 34 report
+      - name: Fire exp 34 — DOLLAR arm (reads the correlation result for agreement)
+        # Runs AFTER the correlation arm so it can cross-read exp34.json and state
+        # whether the two arms agree. Grades all 3 seasons from the harvest (incl.
+        # 2025, which the correlation arm skips) using FFC ADP + nflverse priors as
+        # the ranker only.
+        run: python draft/backtest/exp34_dollars.py --out draft/backtest
+      - name: Commit the exp 34 reports
         run: |
           stamp=$(date -u +%Y-%m-%dT%H:%MZ)
           git config user.name "lab-bot"; git config user.email "actions@github.com"
-          git add draft/backtest/EXP34.md draft/backtest/exp34.json
-          git commit -m "Exp 34 report $stamp" || { echo "no change"; exit 0; }
+          git add draft/backtest/EXP34.md draft/backtest/exp34.json \
+                  draft/backtest/EXP34-DOLLARS.md draft/backtest/exp34_dollars.json
+          git commit -m "Exp 34 report (correlation + dollar arms) $stamp" || { echo "no change"; exit 0; }
           git pull --rebase origin main && git push || echo "push skipped"
       - name: Upload exp 34 results (artifact — inputs are egress-built)
         uses: actions/upload-artifact@v4
@@ -205,4 +228,6 @@ jobs:
           path: |
             draft/backtest/exp34.json
             draft/backtest/EXP34.md
+            draft/backtest/exp34_dollars.json
+            draft/backtest/EXP34-DOLLARS.md
           retention-days: 30

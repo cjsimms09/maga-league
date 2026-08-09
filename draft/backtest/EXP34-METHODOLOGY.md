@@ -165,10 +165,25 @@ with the board is not a verdict.
   `test_exp34.py` 7/7): Cory's roster_id resolved per season (his slot moves),
   keepers excluded, **41 non-keeper decisions reproduced** (2023:15 / 2024:14 /
   2025:12), ungradeable picks dropped not zeroed.
-- ▶ **NEXT UNIT — the surface implementation** (fresh context): the five metrics +
-  the four-greek surface as pure functions over per-pick pool records
-  {player_id, our_proj, adp_by_source, realized, dispersion, tier}, unit-tested
-  with fixtures; then the egress main assembles the pool from `walk_forward`
-  projections + multi-board ADP + `rest_of_season_points` realized, and fires as a
-  `lab.yml` job (FFC + nflverse egress). Points primary, dollars secondary, room
-  arm separate. **The single-pick summary is superseded and will not be reported.**
+- ✅ **The surface implementation FIRED** (correlation arm): `exp34.py` +
+  `exp34_metrics.py`, five metrics + the four-dimension surface, unit-tested
+  (`test_exp34*.py`), fired via `lab.yml`. Result `EXP34.md`: our ordering BEATS
+  the market at ranking realized value, rho 0.391 vs 0.269, diff +0.122 CI
+  [0.007, 0.232] at n=19 (2025 not recovered — nflverse pbp disagreed on 2024).
+  Recorded as a LEAN, not a vindication of the 74% deviation rate.
+- ✅ **THE DOLLAR ARM BUILT + WIRED** (2026-08-09, fresh context):
+  `exp34_dollars.py` — constructs the two policy rosters (our ordering vs ADP,
+  keepers + one seat per real non-keeper pick, room held fixed) and grades each
+  through the CERTIFIED `money_grade.grade_substituted` (era-correct payouts,
+  harvested weekly-high bar, resimulated bracket, real field), decomposed into
+  weekly-high / regular-season / playoff dollars, our-minus-ADP with a
+  season-level interval (thin by construction). Per-forgone-value-band dollars via
+  single-pick-swap marginal attribution (approximate, flagged). Pure core
+  unit-tested + certified in-sandbox over the harvest (`test_exp34_dollars.py`
+  9/9; grades Cory's actual roster to $1,200/2024 champ, $700/2023, the full money
+  path incl. the playoff resim proven alive). **Grades ALL THREE seasons incl.
+  2025** — the harvest is the grading source (complete for 2025) and the ranker's
+  2025 projection comes from 2023/24 priors nflverse does serve, so this arm's n
+  exceeds the correlation arm's. Fires in the `lab.yml` exp34 job right after the
+  correlation arm and cross-reads `exp34.json` to state whether the two arms
+  agree. **The single-pick summary is superseded and will not be reported.**
