@@ -1,0 +1,211 @@
+{
+  "year": 2026,
+  "retrievable": true,
+  "mfl_rows": 702,
+  "crosswalked": 447,
+  "pool_size": 576,
+  "pool_coverage": 0.72,
+  "top_disagreements": [
+    {
+      "player": "John Metchie",
+      "ffc_adp": 122.2,
+      "mfl_adp": 444.6,
+      "ffc_rank": 122,
+      "mfl_rank": 406,
+      "rank_move": 284
+    },
+    {
+      "player": "Jacoby Brissett",
+      "ffc_adp": 1320.1,
+      "mfl_adp": 139.1,
+      "ffc_rank": 388,
+      "mfl_rank": 129,
+      "rank_move": -259
+    },
+    {
+      "player": "Chig Okonkwo",
+      "ffc_adp": 1364.2,
+      "mfl_adp": 156.2,
+      "ffc_rank": 396,
+      "mfl_rank": 143,
+      "rank_move": -253
+    },
+    {
+      "player": "Dalton Schultz",
+      "ffc_adp": 1404.1,
+      "mfl_adp": 174.4,
+      "ffc_rank": 404,
+      "mfl_rank": 160,
+      "rank_move": -244
+    },
+    {
+      "player": "Fernando Mendoza",
+      "ffc_adp": 987.6,
+      "mfl_adp": 87.7,
+      "ffc_rank": 322,
+      "mfl_rank": 84,
+      "rank_move": -238
+    },
+    {
+      "player": "Jonah Coleman",
+      "ffc_adp": 1235.4,
+      "mfl_adp": 155.4,
+      "ffc_rank": 375,
+      "mfl_rank": 142,
+      "rank_move": -233
+    },
+    {
+      "player": "Nicholas Singleton",
+      "ffc_adp": 1195.5,
+      "mfl_adp": 170.9,
+      "ffc_rank": 368,
+      "mfl_rank": 159,
+      "rank_move": -209
+    },
+    {
+      "player": "Devontez Walker",
+      "ffc_adp": 396.8,
+      "mfl_adp": 451.6,
+      "ffc_rank": 203,
+      "mfl_rank": 409,
+      "rank_move": 206
+    },
+    {
+      "player": "Ted Hurst",
+      "ffc_adp": 1376.8,
+      "mfl_adp": 207.9,
+      "ffc_rank": 399,
+      "mfl_rank": 199,
+      "rank_move": -200
+    },
+    {
+      "player": "David Njoku",
+      "ffc_adp": 1411.1,
+      "mfl_adp": 214.6,
+      "ffc_rank": 406,
+      "mfl_rank": 208,
+      "rank_move": -198
+    },
+    {
+      "player": "Deshaun Watson",
+      "ffc_adp": 1347.4,
+      "mfl_adp": 206.3,
+      "ffc_rank": 393,
+      "mfl_rank": 197,
+      "rank_move": -196
+    },
+    {
+      "player": "Colby Parkinson",
+      "ffc_adp": 1456.6,
+      "mfl_adp": 219.8,
+      "ffc_rank": 414,
+      "mfl_rank": 220,
+      "rank_move": -194
+    },
+    {
+      "player": "Jaleel McLaughlin",
+      "ffc_adp": 392.6,
+      "mfl_adp": 397.3,
+      "ffc_rank": 201,
+      "mfl_rank": 389,
+      "rank_move": 188
+    },
+    {
+      "player": "Mike Washington",
+      "ffc_adp": 1213.0,
+      "mfl_adp": 196.2,
+      "ffc_rank": 371,
+      "mfl_rank": 186,
+      "rank_move": -185
+    },
+    {
+      "player": "Ty Simpson",
+      "ffc_adp": 977.1,
+      "mfl_adp": 144.1,
+      "ffc_rank": 319,
+      "mfl_rank": 135,
+      "rank_move": -184
+    },
+    {
+      "player": "AJ Barner",
+      "ffc_adp": 1121.3,
+      "mfl_adp": 181.6,
+      "ffc_rank": 347,
+      "mfl_rank": 164,
+      "rank_move": -183
+    },
+    {
+      "player": "Demarcus Robinson",
+      "ffc_adp": 572.5,
+      "mfl_adp": 482.0,
+      "ffc_rank": 233,
+      "mfl_rank": 412,
+      "rank_move": 179
+    },
+    {
+      "player": "Ray Davis",
+      "ffc_adp": 1420.2,
+      "mfl_adp": 226.8,
+      "ffc_rank": 407,
+      "mfl_rank": 232,
+      "rank_move": -175
+    },
+    {
+      "player": "Jack Endries",
+      "ffc_adp": 464.7,
+      "mfl_adp": 396.9,
+      "ffc_rank": 215,
+      "mfl_rank": 388,
+      "rank_move": 173
+    },
+    {
+      "player": "Mac Jones",
+      "ffc_adp": 1385.9,
+      "mfl_adp": 223.5,
+      "ffc_rank": 400,
+      "mfl_rank": 228,
+      "rank_move": -172
+    },
+    {
+      "player": "Ryan Flournoy",
+      "ffc_adp": 1308.2,
+      "mfl_adp": 220.5,
+      "ffc_rank": 386,
+      "mfl_rank": 222,
+      "rank_move": -164
+    },
+    {
+      "player": "CJ Daniels",
+      "ffc_adp": 461.2,
+      "mfl_adp": 381.3,
+      "ffc_rank": 213,
+      "mfl_rank": 377,
+      "rank_move": 164
+    },
+    {
+      "player": "Chicago Bears",
+      "ffc_adp": 1249.4,
+      "mfl_adp": 216.6,
+      "ffc_rank": 376,
+      "mfl_rank": 213,
+      "rank_move": -163
+    },
+    {
+      "player": "Jeremy McNichols",
+      "ffc_adp": 613.8,
+      "mfl_adp": 432.7,
+      "ffc_rank": 242,
+      "mfl_rank": 405,
+      "rank_move": 163
+    },
+    {
+      "player": "Kansas City Chiefs",
+      "ffc_adp": 1428.6,
+      "mfl_adp": 240.5,
+      "ffc_rank": 410,
+      "mfl_rank": 249,
+      "rank_move": -161
+    }
+  ],
+  "note": "RETRIEVABLE \u2014 2026 MFL ADP is live at our format. Coverage + the biggest FFC-vs-MFL disagreements are the preview of what swapping the anchor moves. Wiring MFL as the live anchor is the follow-on (build.py adp seam)."
+}
