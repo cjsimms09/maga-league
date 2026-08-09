@@ -10,6 +10,14 @@ Audit date: 2026-08-09 (swept every recorded verdict in draft/backtest/*.json + 
 
 ---
 
+## 1. ANCHOR SOURCE: ✅ WIRED & VERIFIED LIVE 2026-08-09 — board anchors on FantasyPros
+> **LANDED (main @ FP-anchor commit + real egress rebuild):** the live board now ranks by
+> FantasyPros PRIMARY, FFC gap-fill, search_rank last. Verified on the rebuilt board:
+> `primary_source=fantasypros`, 342 FP rows matched, **primary_priced 342 / ffc_gap_fill 3**
+> (Pearsall/Metchie/Wease — the exact probe gap), top-200 = 197 FP / 3 FFC / 0 search_rank,
+> fallback_rate 0.0. Coverage-gated so a thin/failed FP fetch keeps FFC untouched. The
+> record below is the evidence that drove the swap.
+
 ## 1. ANCHOR SOURCE: the three-way LANDED — anchor on FantasyPros (our format), not MFL — 2026-08-09
 - **Three-way result (FantasyPros now IN the grade, 126/105 players):** n-weighted ρ —
   2023: FFC 0.281 · MFL **0.397** · FP 0.307; 2024: FFC −0.03 · MFL 0.070 · FP **0.075**.
