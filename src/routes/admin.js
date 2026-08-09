@@ -7,6 +7,7 @@ const sleeper = require('../sleeper');
 const notify = require('../notify');
 const { getDoc, setDoc, store, newId, now } = require('../data');
 const { hashPassword, requireCommissioner, aw } = require('../auth');
+const VE = require('./voteenact');   // vote → season-config enactment
 
 router.use(requireCommissioner);
 
@@ -442,6 +443,48 @@ router.post('/season', aw(async (req, res) => {
   }
   if (touched) await setDoc('ledger', ledger);
   back(res, 'season', `&year=${year}` + msg(`Season ${year} saved.${touched ? ` ${touched} unpaid buy-in charge(s) updated to ${H.money(buy_in)}.` : ''}`));
+}));
+
+// ---------- enact a passed vote INTO the season config ----------
+// The missing link the audit found: a passed vote was display-only. This applies
+// its result to the target season's config, after which every money number
+// (pot, weekly-high, payout table, finances, money board, the DERIVED amendment
+// ledger) follows with no further step. Commissioner-confirmed — the commish
+// reviews the change before it lands — and idempotent. The same VE.applyVoteEffect
+// is callable headless from the Annual's rollover for any passed-but-unenacted vote.
+router.post('/votes/:id/enact', aw(async (req, res) => {
+  const owners = H.activeOwners(req.world.owners);
+  const threshold = H.voteThreshold(req.world.config);
+  const vote = (await H.allVotes(owners, threshold)).find(v => v.id === req.params.id);
+  if (!vote) return back(res, 'votes', msg('That vote no longer exists.'));
+  if (!vote.passed) return back(res, 'votes', msg('That vote has not passed yet — nothing to enact.'));
+  if (vote.enacted_at) return back(res, 'votes', msg('That vote was already enacted.'));
+
+  // The effect is commissioner-confirmed at enact time (the vote text is a
+  // yes/no; the commish states the concrete config change it enacts).
+  const type = req.body.effect_type;
+  const effect = { type, season: parseInt(req.body.effect_season, 10) || undefined };
+  if (type === 'payouts') {
+    effect.reg = String(req.body.reg || '').split(',').map(s => Number(s.trim())).filter(n => !isNaN(n));
+    effect.playoff = String(req.body.playoff || '').split(',').map(s => Number(s.trim())).filter(n => !isNaN(n));
+  } else if (type === 'config') {
+    effect.key = req.body.config_key; effect.value = req.body.config_value;
+  } else {
+    effect.value = Number(req.body.value);
+  }
+
+  const seasons = await getDoc('seasons', {});
+  const targetYear = effect.season || VE.defaultTargetYear(seasons);
+  let result;
+  try { result = VE.applyVoteEffect(seasons, effect, targetYear, owners.length); }
+  catch (e) { return back(res, 'votes', msg('Could not enact: ' + e.message)); }
+
+  await setDoc('seasons', result.seasons);
+  // Mark the vote enacted on its own doc (the amendment ledger DERIVES the dated
+  // entry from the season-config change — no separate write needed).
+  const vdoc = await getDoc(`vote:${vote.id}`, null);
+  if (vdoc) { vdoc.enacted_at = now(); vdoc.enacted_by = req.owner.id; vdoc.enacted_change = result.changed; vdoc.enacted_year = targetYear; await setDoc(`vote:${vote.id}`, vdoc); }
+  back(res, 'votes', msg('Enacted: ' + result.changed + ' The pot, payouts, finances and amendment ledger now follow it.'));
 }));
 
 // ---------- league settings ----------
