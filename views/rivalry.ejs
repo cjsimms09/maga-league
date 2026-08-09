@@ -1,0 +1,134 @@
+<%- include('partials/header', { title: aName + ' vs ' + bName }) %>
+<%
+  // Rivalry page — the full head-to-head the matchup card and franchise grid click
+  // through to. Framed from the a-side ("You" when the viewer is a); every game we
+  // have a box score for, most-recent first, with the running record on top.
+  const nameA = viewerIsA ? 'You' : aName;
+  const verbA = viewerIsA ? '' : 's';                 // "You lead" vs "David leads"
+  const handleA = oa && oa.handle ? '@' + oa.handle : '';
+  const handleB = ob && ob.handle ? '@' + ob.handle : '';
+  const fmt = n => Number(n || 0).toFixed(2);
+  const one = n => Number(n || 0).toFixed(1);
+
+  let lead = null;
+  if (rec.played) {
+    if (rec.a.wins > rec.b.wins) lead = { who: 'a', text: `${nameA} lead${verbA} ${rec.a.wins}–${rec.b.wins}${rec.ties ? '–' + rec.ties : ''}` };
+    else if (rec.b.wins > rec.a.wins) lead = { who: 'b', text: `${bName} leads ${rec.b.wins}–${rec.a.wins}${rec.ties ? '–' + rec.ties : ''}` };
+    else lead = { who: 'even', text: `All square ${rec.a.wins}–${rec.b.wins}${rec.ties ? '–' + rec.ties : ''}` };
+  }
+
+  // Longest run either way, with who.
+  const longWho = rec.longest.a >= rec.longest.b ? 'a' : 'b';
+  const longN = Math.max(rec.longest.a, rec.longest.b);
+  const longName = longWho === 'a' ? nameA : bName;
+
+  // A precise, honest line for a championship-bracket meeting — the games people
+  // remember. A round-1 loss is an elimination ("knocked out"); a final is a title;
+  // the 3rd-place game (placement 3) is neither.
+  const winnerName = g => g.winner === 'a' ? aName : bName;
+  const loserName  = g => g.winner === 'a' ? bName : aName;
+  function playoffLine(g) {
+    if (g.winner === 'tie') return `${g.season}: a playoff tie — the box score swears it happened`;
+    if (g.final) return `${winnerName(g)} won the ${g.season} championship over ${loserName(g)}, ${one(Math.max(g.a, g.b))}–${one(Math.min(g.a, g.b))}`;
+    if (g.placement === 3) return `${winnerName(g)} took ${g.season} third over ${loserName(g)}`;
+    return `${winnerName(g)} knocked ${loserName(g)} out of the ${g.season} playoffs, ${one(Math.max(g.a, g.b))}–${one(Math.min(g.a, g.b))}`;
+  }
+%>
+
+<p style="margin:.2rem 0 0"><a class="back-link" href="<%= viewerIsA ? '/matchup?opp=' + (betOwnerId || '') : '/history/franchise/' + aName.toLowerCase() %>">← Back</a></p>
+
+<div class="rv-head">
+  <h1 class="page-title" style="margin-bottom:.1rem">⚔️ <%= aName %> <span class="rv-vs">vs</span> <%= bName %></h1>
+  <p class="page-sub" style="margin-top:0">
+    <% if (rec.played) { %>The rivalry — <%= rec.played %> meeting<%= rec.played === 1 ? '' : 's' %>, <%= rec.firstSeason %>–<%= rec.lastSeason %> (the box-score era)
+    <% } else { %>No box scores between them yet<% } %>
+  </p>
+</div>
+
+<% if (!rec.played) { %>
+  <div class="card"><div class="body">
+    <p class="muted" style="margin:0"><b><%= aName %></b> and <b><%= bName %></b> have no games on record. Head-to-head starts in <b>2023</b>, where the box scores begin — anything before that lives in the <a href="/history">league history</a> as money, not game pairings.</p>
+  </div></div>
+<% } else { %>
+
+<%# ── THE VERDICT — the running record, on top ─────────────────────────────── %>
+<div class="card rv-verdict <%= lead.who === 'a' ? 'a' : (lead.who === 'b' ? 'b' : 'even') %>">
+  <div class="body">
+    <div class="rv-record"><%= lead.text %></div>
+    <% if (rec.streak) { %>
+      <div class="rv-streak"><%= rec.streak.who === 'a' ? nameA : bName %> <%= (rec.streak.who === 'a' && viewerIsA) ? 'have' : 'has' %> won <b><%= rec.streak.n %></b> straight<%= rec.streak.n >= 3 ? ' 🔥' : '' %></div>
+    <% } %>
+    <div class="rv-pts muted"><%= nameA %> <b><%= one(rec.a.pointsFor) %></b> · <%= bName %> <b><%= one(rec.b.pointsFor) %></b> total &nbsp;·&nbsp; <%= one(rec.a.avg) %>–<%= one(rec.b.avg) %> per game</div>
+  </div>
+</div>
+
+<%# ── SUMMARY STATS ────────────────────────────────────────────────────────── %>
+<div class="stat-grid rv-stats">
+  <div class="stat-card"><p class="label">Meetings</p><div class="big"><%= rec.played %></div><div class="sub"><%= rec.firstSeason %>–<%= rec.lastSeason %></div></div>
+  <div class="stat-card"><p class="label">Total points</p><div class="big"><%= one(rec.totalPoints) %></div><div class="sub">across every meeting</div></div>
+  <div class="stat-card"><p class="label">Decided by &lt;5</p><div class="big"><%= rec.close %></div><div class="sub"><%= rec.close ? 'games that came down to the wire' : 'none — no nail-biters yet' %></div></div>
+  <div class="stat-card"><p class="label">Longest streak</p><div class="big"><%= longN %></div><div class="sub"><%= longN ? longName + (longWho === 'a' && viewerIsA ? '' : '') + ' in a row' : '—' %></div></div>
+  <% if (rec.playoffs) { %><div class="stat-card"><p class="label">Playoff meetings</p><div class="big"><%= rec.playoffs %></div><div class="sub">the ones people remember</div></div><% } %>
+</div>
+
+<%# ── PLAYOFF HISTORY — the knockouts ──────────────────────────────────────── %>
+<% if (rec.playoffGames.length) { %>
+  <div class="card rv-playoffs">
+    <h2>🏆 Playoff history <span class="sub">championship bracket only</span></h2>
+    <div class="body">
+      <% for (const g of rec.playoffGames) { %>
+        <div class="rv-po-line<%= g.final ? ' final' : '' %>"><span class="rv-po-badge"><%= g.final ? '👑' : '🥊' %></span><%= playoffLine(g) %></div>
+      <% } %>
+    </div>
+  </div>
+<% } %>
+
+<%# ── EVERY MEETING — reverse chronological ────────────────────────────────── %>
+<div class="card">
+  <h2>📜 Every meeting <span class="sub">most recent first</span></h2>
+  <div class="body">
+    <% for (const g of rec.games) {
+         const aWon = g.winner === 'a', bWon = g.winner === 'b';
+         // The week's own label: what kind of game was this.
+         let when;
+         if (g.final) when = g.season + ' · Championship Final';
+         else if (g.championship) when = g.season + ' · Playoffs R' + g.round;
+         else if (g.consolation) when = g.season + ' · Toilet Bowl';
+         else if (g.playoff) when = g.season + ' · Wk ' + g.week + ' (postseason)';
+         else when = g.season + ' · Week ' + g.week;
+         // Notable flags — the things people bring up.
+         const notes = [];
+         if (g.margin < 2 && g.winner !== 'tie') notes.push({ c: 'nail', t: one(g.margin) + '-pt nail-biter' });
+         else if (g.margin < 5 && g.winner !== 'tie') notes.push({ c: 'close', t: 'decided by ' + one(g.margin) });
+         if (g.aWeekHigh || g.bWeekHigh) notes.push({ c: 'high', t: (g.aWeekHigh && g.bWeekHigh ? 'both' : (g.aWeekHigh ? aName : bName)) + " top score, week " + g.week });
+         if (g.aBenchBust) notes.push({ c: 'bench', t: aName + ' benched ' + one(g.aBench) + ' — more than played' });
+         if (g.bBenchBust) notes.push({ c: 'bench', t: bName + ' benched ' + one(g.bBench) + ' — more than played' });
+    %>
+      <div class="rv-game">
+        <div class="rv-when"><%= when %></div>
+        <div class="rv-score">
+          <span class="rv-team <%= aWon ? 'won' : (bWon ? 'lost' : '') %>"><%= aName %> <b><%= fmt(g.a) %></b></span>
+          <span class="rv-dash">–</span>
+          <span class="rv-team <%= bWon ? 'won' : (aWon ? 'lost' : '') %>"><b><%= fmt(g.b) %></b> <%= bName %></span>
+        </div>
+        <div class="rv-verdict-line">
+          <% if (g.winner === 'tie') { %><span class="rv-tie">tie</span>
+          <% } else { %><span class="rv-by"><%= aWon ? aName : bName %> by <%= one(g.margin) %></span><% } %>
+        </div>
+        <% if (notes.length) { %>
+          <div class="rv-notes"><% for (const n of notes) { %><span class="rv-note <%= n.c %>"><%= n.t %></span><% } %></div>
+        <% } %>
+      </div>
+    <% } %>
+  </div>
+</div>
+
+<% if (betOwnerId) { %>
+  <p style="text-align:center; margin-top:1.1rem">
+    <a class="btn gold" href="/bank?section=sidebets&betvs=<%= betOwnerId %>#propose">🤝 Bet <%= bName %> on the next one</a>
+  </p>
+<% } %>
+
+<% } %><%# /played %>
+
+<%- include('partials/footer') %>

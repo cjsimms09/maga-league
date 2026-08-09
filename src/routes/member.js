@@ -506,6 +506,32 @@ router.get('/history/franchise/:name', aw(async (req, res) => {
     betOwnerName: name });
 }));
 
+// A RIVALRY page — every game two owners ever played, the full head-to-head that
+// the matchup card and the franchise grid both click through to. League-visible:
+// this is the record of what happened (results), not a recommendation tool, so it
+// sits behind the member login like the rest of the history, not the commish gate.
+// Name-keyed (?a=Cory&b=David) so both entry points — one holding owner_ids, one
+// holding names — reach the same page; names are the stable key across seasons.
+router.get('/rivalry', aw(async (req, res) => {
+  const A = archive();
+  const canon = q => Object.keys(A.owners).find(n => n.toLowerCase() === String(q || '').toLowerCase()) || null;
+  const aName = canon(req.query.a) || (req.owner && canon(req.owner.name));
+  const bName = canon(req.query.b);
+  if (!aName || !bName || aName === bName) {
+    return res.status(404).render('error', { title: 'No such rivalry',
+      message: 'Pick two different owners from the same ten men — e.g. /rivalry?a=Cory&b=David.' });
+  }
+  const rec = H2H.headToHead(H2H.userIdForName(aName), H2H.userIdForName(bName));
+  const viewerIsA = !!(req.owner && req.owner.name && req.owner.name.toLowerCase() === aName.toLowerCase());
+  // One-tap bet from the rivalry page: resolve b's league id when it isn't the viewer.
+  const leagueOwners = H.activeOwners(req.world.owners);
+  const bLeague = leagueOwners.find(o => o.name === bName);
+  res.render('rivalry', {
+    A, rec, aName, bName, oa: A.owners[aName], ob: A.owners[bName], viewerIsA,
+    betOwnerId: (bLeague && req.owner && bLeague.id !== req.owner.id) ? bLeague.id : null,
+  });
+}));
+
 // The required cast for a modern season — champion + fraud/robbed/lucky/collapse,
 // each from the honest instrument (all-play gap) so the roast is traceable (§2).
 function seasonCast(season) {

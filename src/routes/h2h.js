@@ -47,6 +47,36 @@ function harvest() {
 const r2 = n => Math.round(n * 100) / 100;
 const PLAYOFF_START = 16;   // weeks 16+ are the bracket in this league
 
+// A postseason week can be a CHAMPIONSHIP game (winners bracket) or a TOILET-BOWL
+// game (losers bracket) — and "did he ever knock me out of the playoffs" only
+// means the former. Sleeper hands us both brackets per season, each match as
+// { w: winner_roster, l: loser_roster, r: round, p: placement }. Match a game to
+// its bracket by the roster PAIR (single-elim, so a pair meets at most once in a
+// postseason), and only for postseason weeks so a regular-season meeting between
+// two owners who ALSO met in that season's bracket is never mislabelled.
+function bracketTag(brackets, ra, rb) {
+  if (!brackets) return null;
+  for (const [kind, key] of [['championship', 'winners'], ['consolation', 'losers']]) {
+    for (const g of (brackets[key] || [])) {
+      if (g.w == null || g.l == null) continue;
+      if ((g.w === ra && g.l === rb) || (g.w === rb && g.l === ra)) {
+        return { kind, round: g.r != null ? Number(g.r) : null, placement: g.p != null ? Number(g.p) : null };
+      }
+    }
+  }
+  return null;
+}
+
+// Points a team left on its bench that week: everyone they rostered minus the
+// nine they started. "Benched more than they scored" is a real, cheap, memorable
+// flag — the game where a boom sat while they lost.
+function benchPoints(row) {
+  if (!row) return 0;
+  const total = Object.values(row.players_points || {}).reduce((s, v) => s + (Number(v) || 0), 0);
+  const started = (row.starters_points || []).reduce((s, v) => s + (Number(v) || 0), 0);
+  return r2(Math.max(0, total - started));
+}
+
 /**
  * Every game owner A ever played against owner B, most-recent first, plus the
  * tallies the page wants to show. Pure over `data` so a test can pass a fixture.
@@ -80,14 +110,29 @@ function headToHead(uidA, uidB, dataOrNull) {
 
       const pa = Number(ra.points) || 0;
       const pb = Number(rb.points) || 0;
+      const isPost = Number(wk) >= PLAYOFF_START;
+      const tag = isPost ? bracketTag(s.brackets, ra.roster_id, rb.roster_id) : null;
+      // Was either team the WHOLE LEAGUE's top score that week? (the $100 game.)
+      const weekMax = rows.reduce((m, rr) => Math.max(m, Number(rr.points) || 0), 0);
+      const aBench = benchPoints(ra), bBench = benchPoints(rb);
       games.push({
         season: String(s.season),
         week: Number(wk),
-        playoff: Number(wk) >= PLAYOFF_START,
+        playoff: isPost,
+        championship: tag ? tag.kind === 'championship' : false,
+        consolation: tag ? tag.kind === 'consolation' : false,
+        round: tag ? tag.round : null,
+        placement: tag ? tag.placement : null,
+        final: !!(tag && tag.kind === 'championship' && tag.placement === 1),
         a: r2(pa),
         b: r2(pb),
         margin: r2(Math.abs(pa - pb)),
         winner: pa > pb ? 'a' : (pb > pa ? 'b' : 'tie'),
+        aWeekHigh: weekMax > 0 && pa === weekMax,
+        bWeekHigh: weekMax > 0 && pb === weekMax,
+        aBench, bBench,
+        aBenchBust: aBench > pa,
+        bBenchBust: bBench > pb,
       });
     }
   }
@@ -100,11 +145,13 @@ function headToHead(uidA, uidB, dataOrNull) {
 function summarize(games) {
   let aWins = 0, bWins = 0, ties = 0, aPts = 0, bPts = 0;
   let aBig = null, bBig = null;   // biggest win each way
+  let close = 0;                  // meetings decided by under five points
   for (const g of games) {
     aPts += g.a; bPts += g.b;
     if (g.winner === 'a') { aWins++; if (!aBig || g.margin > aBig.margin) aBig = g; }
     else if (g.winner === 'b') { bWins++; if (!bBig || g.margin > bBig.margin) bBig = g; }
     else ties++;
+    if (g.winner !== 'tie' && g.margin < 5) close++;
   }
   const played = games.length;
 
@@ -119,6 +166,17 @@ function summarize(games) {
     }
   }
 
+  // Longest run either way, over the whole history (a tie breaks a run).
+  let longA = 0, longB = 0, runWho = null, run = 0;
+  for (const g of games) {
+    if (g.winner === 'tie') { run = 0; runWho = null; continue; }
+    if (g.winner === runWho) run++; else { runWho = g.winner; run = 1; }
+    if (runWho === 'a') longA = Math.max(longA, run); else longB = Math.max(longB, run);
+  }
+
+  // The games people remember: championship-bracket meetings, most-recent first.
+  const playoffGames = games.filter(g => g.championship);
+
   return {
     played,
     a: { wins: aWins, pointsFor: r2(aPts), avg: played ? r2(aPts / played) : 0, biggest: aBig },
@@ -127,6 +185,11 @@ function summarize(games) {
     games,
     lastMeeting: games[0] || null,
     streak,
+    longest: { a: longA, b: longB },
+    close,
+    totalPoints: r2(aPts + bPts),
+    playoffGames,
+    playoffs: playoffGames.length,
     firstSeason: played ? games[games.length - 1].season : null,
     lastSeason: played ? games[0].season : null,
     // A one-line record from A's point of view: "4-3" or "4-3-1".

@@ -2806,3 +2806,61 @@ button.pd-team.pick:hover { background: rgba(245,196,69,.16); transform: transla
   margin-top: .4rem; font-size: .68rem; color: var(--muted);
   border-top: 1px dashed rgba(255, 255, 255, .08); padding-top: .32rem; font-weight: 400;
 }
+
+/* ── RIVALRY PAGE (B) — the full head-to-head, the click-through from the matchup
+   card and the franchise grid. Reads as a rivalry card, not a stat block. ─────── */
+.rv-head { text-align: center; margin-bottom: 1rem; }
+.rv-vs { color: var(--muted); font-weight: 600; font-size: .7em; margin: 0 .15em; }
+
+.rv-verdict { margin-bottom: 1.1rem; border-color: var(--line); text-align: center; }
+.rv-verdict.a { border-color: rgba(47, 213, 118, .5); }
+.rv-verdict.b { border-color: rgba(255, 70, 85, .5); }
+.rv-verdict .body { padding: 1.1rem 1rem; }
+.rv-record { font-family: var(--font-display); font-size: 1.5rem; font-weight: 900; letter-spacing: .01em; color: #fff; }
+.rv-verdict.a .rv-record { color: #b9f5d3; }
+.rv-verdict.b .rv-record { color: #ffb4bb; }
+.rv-streak { margin-top: .3rem; font-size: .9rem; color: var(--gold-bright); font-weight: 700; }
+.rv-pts { margin-top: .45rem; font-size: .78rem; }
+
+.rv-stats { margin-bottom: 1.1rem; }
+
+.rv-playoffs { margin-bottom: 1.1rem; border-color: rgba(245, 196, 69, .4); }
+.rv-po-line { display: flex; gap: .5rem; align-items: baseline; padding: .3rem 0; font-size: .9rem; color: #dfe6f5; line-height: 1.4; }
+.rv-po-line + .rv-po-line { border-top: 1px dashed rgba(255, 255, 255, .07); }
+.rv-po-line.final { color: #fff; font-weight: 600; }
+.rv-po-badge { flex: 0 0 auto; }
+
+.rv-game { padding: .7rem 0; border-bottom: 1px solid var(--line); }
+.rv-game:last-child { border-bottom: 0; }
+.rv-when { font-family: var(--font-display); font-size: .64rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: .25rem; }
+.rv-score { display: flex; align-items: center; justify-content: center; gap: .6rem; font-size: 1.02rem; flex-wrap: wrap; }
+.rv-team { color: var(--muted); font-variant-numeric: tabular-nums; }
+.rv-team b { color: #cdd6ea; font-variant-numeric: tabular-nums; }
+.rv-team.won { color: #fff; }
+.rv-team.won b { color: var(--gold-bright); }
+.rv-team.lost { opacity: .72; }
+.rv-dash { color: var(--muted); }
+.rv-verdict-line { text-align: center; margin-top: .2rem; }
+.rv-by { font-size: .8rem; color: #c6cfe0; font-weight: 600; }
+.rv-tie { font-size: .8rem; color: var(--muted); font-style: italic; }
+.rv-notes { display: flex; flex-wrap: wrap; gap: .35rem; justify-content: center; margin-top: .45rem; }
+.rv-note { font-size: .68rem; font-weight: 700; letter-spacing: .02em; padding: .12rem .5rem; border-radius: 999px; border: 1px solid var(--line); color: #c6cfe0; white-space: nowrap; }
+.rv-note.nail { border-color: rgba(255, 70, 85, .5); color: #ffb4bb; }
+.rv-note.close { border-color: rgba(245, 196, 69, .35); color: #ffd873; }
+.rv-note.high { border-color: rgba(47, 213, 118, .45); color: #b9f5d3; }
+.rv-note.bench { border-color: rgba(255, 255, 255, .12); color: var(--muted); }
+
+/* Rivalry entry points — the matchup card record + "every meeting" link, and the
+   clickable franchise H2H rows (B). */
+.h2h-lead-link { text-decoration: none; display: inline-block; }
+.h2h-lead-link .h2h-lead-cue { opacity: .5; font-weight: 700; transition: opacity .12s, transform .12s; display: inline-block; }
+.h2h-lead-link:hover .h2h-lead-cue { opacity: 1; transform: translateX(3px); }
+.h2h-full-link {
+  display: block; margin-top: .9rem; padding-top: .8rem; border-top: 1px solid var(--line);
+  text-align: center; font-weight: 700; font-size: .86rem; color: var(--gold-bright); text-decoration: none;
+}
+.h2h-full-link:hover { color: #fff; }
+.h2h-row { cursor: pointer; }
+.h2h-row:hover { background: rgba(255, 255, 255, .04); }
+.h2h-row-cue { text-align: right; opacity: .4; transition: opacity .12s, transform .12s; }
+.h2h-row:hover .h2h-row-cue { opacity: 1; transform: translateX(2px); }

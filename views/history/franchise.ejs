@@ -63,17 +63,20 @@
   </div>
 
   <div class="card">
-    <h2>⚔️ Head to Head <span class="sub">regular-season, box-score era</span></h2>
+    <h2>⚔️ Head to Head <span class="sub">tap a row for the full rivalry</span></h2>
     <div class="body chron-scroll">
       <table class="ledger h2h-grid">
-        <thead><tr><th class="name">Opponent</th><th>W</th><th>L</th><th>Record</th></tr></thead>
+        <thead><tr><th class="name">Opponent</th><th>W</th><th>L</th><th>Record</th><th></th></tr></thead>
         <tbody>
           <% for (const opp of opponents) { const h = o.h2h[opp]; if (!h) continue; %>
-            <tr>
-              <td class="name"><a href="/history/franchise/<%= opp.toLowerCase() %>" style="color:inherit; text-decoration:none;"><%= opp %></a></td>
+            <%# Each row opens that rivalry's full history — same page the matchup
+                card clicks through to. One component, many entry points. %>
+            <tr class="h2h-row" onclick="location.href='/rivalry?a=<%= encodeURIComponent(o.name) %>&b=<%= encodeURIComponent(opp) %>'">
+              <td class="name"><a href="/rivalry?a=<%= encodeURIComponent(o.name) %>&b=<%= encodeURIComponent(opp) %>" style="color:inherit; text-decoration:none;"><%= opp %></a></td>
               <td class="win"><%= h.w %></td>
               <td class="lose"><%= h.l %></td>
               <td class="<%= h.w > h.l ? 'win' : (h.l > h.w ? 'lose' : '') %>"><%= h.w %>-<%= h.l %><%= h.t ? '-' + h.t : '' %></td>
+              <td class="muted h2h-row-cue" aria-hidden="true">→</td>
             </tr>
           <% } %>
         </tbody>
