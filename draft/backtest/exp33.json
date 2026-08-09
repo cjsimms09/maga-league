@@ -24,7 +24,7 @@
               "QB": {
                 "n": 68,
                 "mae": 125.53,
-                "rank_corr": 0.541,
+                "rank_corr": 0.54,
                 "top_decile": {
                   "n": 68,
                   "k": 7,
@@ -34,7 +34,7 @@
               "RB": {
                 "n": 104,
                 "mae": 58.75,
-                "rank_corr": 0.705,
+                "rank_corr": 0.704,
                 "top_decile": {
                   "n": 104,
                   "k": 10,
@@ -44,7 +44,7 @@
               "WR": {
                 "n": 172,
                 "mae": 46.73,
-                "rank_corr": 0.67,
+                "rank_corr": 0.671,
                 "top_decile": {
                   "n": 172,
                   "k": 17,
@@ -54,7 +54,7 @@
               "TE": {
                 "n": 98,
                 "mae": 33.35,
-                "rank_corr": 0.619,
+                "rank_corr": 0.618,
                 "top_decile": {
                   "n": 98,
                   "k": 10,
@@ -81,7 +81,8 @@
                   "hit_rate": null
                 }
               }
-            }
+            },
+            "decision_time_safe": true
           },
           "naive": {
             "n": 458,
@@ -96,7 +97,7 @@
               "QB": {
                 "n": 68,
                 "mae": 91.05,
-                "rank_corr": 0.616,
+                "rank_corr": 0.615,
                 "top_decile": {
                   "n": 68,
                   "k": 7,
@@ -106,7 +107,7 @@
               "RB": {
                 "n": 104,
                 "mae": 46.94,
-                "rank_corr": 0.758,
+                "rank_corr": 0.757,
                 "top_decile": {
                   "n": 104,
                   "k": 10,
@@ -116,7 +117,7 @@
               "WR": {
                 "n": 172,
                 "mae": 40.8,
-                "rank_corr": 0.738,
+                "rank_corr": 0.739,
                 "top_decile": {
                   "n": 172,
                   "k": 17,
@@ -126,7 +127,7 @@
               "TE": {
                 "n": 98,
                 "mae": 27.27,
-                "rank_corr": 0.681,
+                "rank_corr": 0.682,
                 "top_decile": {
                   "n": 98,
                   "k": 10,
@@ -153,7 +154,8 @@
                   "hit_rate": null
                 }
               }
-            }
+            },
+            "decision_time_safe": true
           },
           "ffc_adp": {
             "n": 159,
@@ -225,7 +227,8 @@
                   "hit_rate": null
                 }
               }
-            }
+            },
+            "decision_time_safe": true
           },
           "sleeper_proj": {
             "n": 521,
@@ -297,36 +300,37 @@
                   "hit_rate": null
                 }
               }
-            }
+            },
+            "decision_time_safe": false
           }
         },
         "ranks": {
           "mae_best_first": [
-            "sleeper_proj",
             "naive",
             "our_blend"
           ],
           "rank_corr_best_first": [
-            "sleeper_proj",
             "naive",
             "our_blend",
             "ffc_adp"
           ],
           "top_decile_best_first": [
-            "sleeper_proj",
             "naive",
             "our_blend",
             "ffc_adp"
           ]
-        }
+        },
+        "disqualified": [
+          "sleeper_proj"
+        ]
       },
       "headline": {
         "our_top_decile": 0.413,
         "naive_top_decile": 0.587,
         "our_beats_naive_on_top_decile": false,
-        "top_decile_winner": "sleeper_proj",
-        "our_rank_on_top_decile": 3,
-        "verdict": "sleeper_proj-leads-top-decile",
+        "top_decile_winner": "naive",
+        "our_rank_on_top_decile": 2,
+        "verdict": "naive-leads-top-decile",
         "provenance_banner_required": true
       },
       "dollars": {
@@ -364,7 +368,7 @@
               "RB": {
                 "n": 111,
                 "mae": 59.87,
-                "rank_corr": 0.541,
+                "rank_corr": 0.542,
                 "top_decile": {
                   "n": 111,
                   "k": 11,
@@ -374,7 +378,7 @@
               "WR": {
                 "n": 164,
                 "mae": 46.97,
-                "rank_corr": 0.755,
+                "rank_corr": 0.754,
                 "top_decile": {
                   "n": 164,
                   "k": 16,
@@ -384,7 +388,7 @@
               "TE": {
                 "n": 92,
                 "mae": 33.66,
-                "rank_corr": 0.64,
+                "rank_corr": 0.642,
                 "top_decile": {
                   "n": 92,
                   "k": 9,
@@ -411,7 +415,8 @@
                   "hit_rate": null
                 }
               }
-            }
+            },
+            "decision_time_safe": true
           },
           "naive": {
             "n": 455,
@@ -436,7 +441,7 @@
               "RB": {
                 "n": 111,
                 "mae": 53.37,
-                "rank_corr": 0.587,
+                "rank_corr": 0.586,
                 "top_decile": {
                   "n": 111,
                   "k": 11,
@@ -483,7 +488,8 @@
                   "hit_rate": null
                 }
               }
-            }
+            },
+            "decision_time_safe": true
           },
           "ffc_adp": {
             "n": 175,
@@ -555,7 +561,8 @@
                   "hit_rate": null
                 }
               }
-            }
+            },
+            "decision_time_safe": true
           },
           "sleeper_proj": {
             "n": 510,
@@ -627,36 +634,37 @@
                   "hit_rate": null
                 }
               }
-            }
+            },
+            "decision_time_safe": false
           }
         },
         "ranks": {
           "mae_best_first": [
-            "sleeper_proj",
             "naive",
             "our_blend"
           ],
           "rank_corr_best_first": [
-            "sleeper_proj",
             "naive",
             "our_blend",
             "ffc_adp"
           ],
           "top_decile_best_first": [
-            "sleeper_proj",
             "naive",
             "our_blend",
             "ffc_adp"
           ]
-        }
+        },
+        "disqualified": [
+          "sleeper_proj"
+        ]
       },
       "headline": {
         "our_top_decile": 0.413,
         "naive_top_decile": 0.565,
         "our_beats_naive_on_top_decile": false,
-        "top_decile_winner": "sleeper_proj",
-        "our_rank_on_top_decile": 3,
-        "verdict": "sleeper_proj-leads-top-decile",
+        "top_decile_winner": "naive",
+        "our_rank_on_top_decile": 2,
+        "verdict": "naive-leads-top-decile",
         "provenance_banner_required": true
       },
       "dollars": {
@@ -670,26 +678,31 @@
   ],
   "pooled": {
     "n_seasons": 2,
+    "disqualified_leak_suspect": [
+      "sleeper_proj"
+    ],
     "top_decile_winner_counts": {
-      "sleeper_proj": 2
+      "naive": 2
     },
     "our_beats_naive_seasons": "0/2",
     "dollars_by_source_total": {
       "our_blend": 200.0,
       "naive": 100.0,
-      "ffc_adp": 1200.0,
+      "ffc_adp": 1200.0
+    },
+    "dollars_disqualified_total": {
       "sleeper_proj": 0.0
     },
     "dollars_best_first": [
       "ffc_adp",
       "our_blend",
-      "naive",
-      "sleeper_proj"
+      "naive"
     ],
     "provenance_banner_required": true
   },
   "caveats": [
-    "2025: realized weekly unavailable; season SKIPPED"
+    "2025: realized weekly unavailable; season SKIPPED",
+    "Sleeper's season projection WAS retrievable but is DISQUALIFIED, not reported as a winner: `/projections/nfl/regular/{season}` is updated in-season, so a past season's stored projection is NOT decision-time-safe. Its ~0.8 rank-corr with realized (vs the real market's ~0.4) is the leak's fingerprint. Its scorecard is shown for transparency and EXCLUDED from the verdict, per the anti-leak pre-registration."
   ],
   "discipline": "A LOSS IS THE HEADLINE. No tuning inside this experiment. A source change ships only on null + leave-one-season-out CV, which are not run here."
 }
