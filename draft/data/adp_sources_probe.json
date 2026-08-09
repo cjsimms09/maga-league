@@ -1,0 +1,128 @@
+{
+  "sources": {
+    "fantasypros": {
+      "2023": {
+        "overall": {
+          "status": 200,
+          "ok": true,
+          "approx_rows": 0
+        },
+        "rb": {
+          "status": 200,
+          "ok": true,
+          "approx_rows": 0
+        },
+        "wr": {
+          "status": 200,
+          "ok": true,
+          "approx_rows": 0
+        },
+        "qb": {
+          "status": 200,
+          "ok": true,
+          "approx_rows": 0
+        },
+        "te": {
+          "status": 200,
+          "ok": true,
+          "approx_rows": 0
+        }
+      },
+      "2024": {
+        "overall": {
+          "status": 200,
+          "ok": true,
+          "approx_rows": 0
+        },
+        "rb": {
+          "status": 200,
+          "ok": true,
+          "approx_rows": 0
+        },
+        "wr": {
+          "status": 200,
+          "ok": true,
+          "approx_rows": 0
+        },
+        "qb": {
+          "status": 200,
+          "ok": true,
+          "approx_rows": 0
+        },
+        "te": {
+          "status": 200,
+          "ok": true,
+          "approx_rows": 0
+        }
+      },
+      "2025": {
+        "overall": {
+          "status": 200,
+          "ok": true,
+          "approx_rows": 0
+        },
+        "rb": {
+          "status": 200,
+          "ok": true,
+          "approx_rows": 0
+        },
+        "wr": {
+          "status": 200,
+          "ok": true,
+          "approx_rows": 0
+        },
+        "qb": {
+          "status": 200,
+          "ok": true,
+          "approx_rows": 0
+        },
+        "te": {
+          "status": 200,
+          "ok": true,
+          "approx_rows": 0
+        }
+      }
+    },
+    "myfantasyleague": {
+      "2023": {
+        "status": 200,
+        "has_players": true,
+        "sample": "{\"version\":\"1.0\",\"adp\":{\"totalPicks\":\"1346\",\"totalDrafts\":\"5011\",\"player\":[{\"draftsSelectedIn\":\"3510\",\"rank\":\"1\",\"minPick\":\"1\",\"id\":\"14836\",\"draftSelPct\":\"70\",\"averagePick\":\"3.04\",\"maxPick\":\"200\"},{\"m"
+      },
+      "2024": {
+        "status": 200,
+        "has_players": true,
+        "sample": "{\"encoding\":\"utf-8\",\"adp\":{\"timestamp\":\"1786287973\",\"totalPicks\":\"1359\",\"totalDrafts\":\"4485\",\"player\":[{\"maxPick\":\"164\",\"averagePick\":\"3.24\",\"draftsSelectedIn\":\"3133\",\"rank\":\"1\",\"minPick\":\"1\",\"id\":\"13"
+      },
+      "2025": {
+        "status": 200,
+        "has_players": true,
+        "sample": "{\"version\":\"1.0\",\"encoding\":\"utf-8\",\"adp\":{\"totalPicks\":\"947\",\"timestamp\":\"1786284077\",\"player\":[{\"draftsSelectedIn\":\"778\",\"maxPick\":\"11\",\"minPick\":\"1\",\"draftSelPct\":\"92\",\"rank\":\"1\",\"averagePick\":\"2.8"
+      }
+    },
+    "wayback": {
+      "sleeper.com/football/nfl/adp": {
+        "status": null,
+        "snapshots": 0
+      },
+      "fantasyfootballcalculator.com/adp": {
+        "status": null,
+        "snapshots": 0
+      }
+    },
+    "fantasydata": {
+      "status": 200,
+      "looks_like_adp": true
+    },
+    "nffc": {
+      "status": 200,
+      "looks_like_adp": true
+    }
+  },
+  "fantasypros_structure": {
+    "url": "https://www.fantasypros.com/nfl/adp/half-point-ppr-overall.php?year=2024",
+    "has_export_csv": true,
+    "embedded_json": false,
+    "table_slice": "<table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" id=\"experts\" class=\"table table-bordered table-full table-striped table-hover\">\n            <caption class=\"hidden-aria\">Pick Experts Modal</caption>\n            <thead>\n                <tr>\n                    <th class=\"sorter-false\" style=\"width:20px;\">\n                        <input type=\"checkbox\" id=\"select-all\" name=\"select-all\"  checked = checked value=\"\"  checked=\"checked\">\n                    </th>\n                    <th>Expert</th>\n                    <th>Site</th>\n                                        <th style=\"width:50px;\">Date</th>\n                </tr>\n            </thead>\n            <tbody>\n                <tr><td><input type=\"checkbox\" name=\"expert[]\" value=\"236\" class=\"expert default\" />\n</td><td><a href=\"/experts/yahoo-adp.php\">ADP</a></td><td><a href=\"http://football.fantasysports.yahoo.com/f1/draftanalysis\" target=\"_blank\" onClick=\"ga('send', 'event', 'Site', 'Yahoo! Sports', 'NFL Rankings');\">Yahoo! Sports</a></td><td data-sort=\"1725408000\">9/03</td></tr>\n<tr><td><input type=\"checkbox\" name=\"expert[]\" value=\"439\" class=\"expert default\" />\n</td><td><a href=\"/experts/rtsports-adp.php\">ADP</a></td><td><a href=\"http://www.rtsports.com/\" target=\"_blank\" onClick=\"ga('send', 'event', 'Site', 'RTSports', 'NFL Rankings');\">RTSports</a></td><td data-sort=\"1725321600\">9/02</td></tr>\n<tr><td><input type=\"checkbox\" name=\"expert[]\" value=\"4350\" class=\"expert default\" />\n</td><td><a href=\"/experts/sleeper-adp.php\">Sleeper ADP</a></td><td><a href=\"https://sleeper.app/fantasy-football\" target=\"_blank\" onClick=\"ga('send', 'event', 'Site', 'Sleeper', 'NFL Rankings');\">Sleeper</a></td><td data-sort=\"1725408000\">9/03</td></tr>\n            </tbody>\n        </table>\n    </div>\n</form>\n</div>\r\n          <div class=\"modal-footer\"><div class=\"clearfix\" style=\"padding-top: 10px;\"><a href=\"javascript:;\" class=\"btn pull-left btn-secondary experts-modal-submit\" type=\"submit\">Update</a>\n          <a href=\"javascript:;\" class=\"btn pull-right close-experts\" data-dismiss=\"modal\" aria-hidden=\"true\">Close</a></div></div>\r\n        </div><!-- /.modal-content -->\r\n      </div><!-- /.modal-dialog -->\r\n    </div><!-- /.modal --><script type=\"text/javascript\">\ndocument.addEventListener('DOMContentLoaded', function() {\n    var sortcol = document.querySelectorAll('#experts th').length - 1;\n\n    FPTableSorter.init('#experts', {\n        sortList: [[sortcol, 1]],\n        textExtraction: function(node) {\n            var sortVal"
+  }
+}
