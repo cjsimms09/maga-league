@@ -36,6 +36,8 @@ on:
       - 'draft/backtest/exp34_metrics.py'
       - 'draft/backtest/exp34_dollars.py'
       - 'draft/tests/test_exp34_dollars.py'
+      - 'draft/backtest/exp36.py'
+      - 'draft/tests/test_exp36.py'
       - 'draft/data/league_history.json'
       - 'draft/config/payouts.json'
       - '.github/workflows/lab.yml'
@@ -230,4 +232,44 @@ jobs:
             draft/backtest/EXP34.md
             draft/backtest/exp34_dollars.json
             draft/backtest/EXP34-DOLLARS.md
+          retention-days: 30
+
+  # EXPERIMENT 36 — ADP-efficiency audit (reliability surface by round × position).
+  #
+  # The Anchor Doctrine's per-region shrinkage dependency: where is consensus ADP
+  # actually right? Grades ADP as a predictor of realized value over the FULL board
+  # (every owner's pick, all seasons) sliced by round × position — far more data per
+  # cell than exp 34's 19 decisions. The ANALYSIS (cell stats, floor/thin rule,
+  # efficiency->shrink mapping, tier-cliff detector) is the verified pure core —
+  # test_exp36.py runs FIRST as a gate, no egress, so a broken shrinkage weight is a
+  # red build before any fetch. Separate job: a nflverse/FFC outage must not take
+  # down certification + L0.
+  exp36:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - name: GATE — the pure surface tests (no egress)
+        run: |
+          pip install pytest -q
+          python -m pytest draft/tests/test_exp36.py -q
+      - name: Fire exp 36 (FFC + nflverse egress)
+        run: |
+          pip install -r draft/requirements.txt -q
+          python draft/backtest/exp36.py --out draft/backtest
+      - name: Commit the exp 36 report
+        run: |
+          stamp=$(date -u +%Y-%m-%dT%H:%MZ)
+          git config user.name "lab-bot"; git config user.email "actions@github.com"
+          git add draft/backtest/EXP36.md draft/backtest/exp36.json
+          git commit -m "Exp 36 report $stamp" || { echo "no change"; exit 0; }
+          git pull --rebase origin main && git push || echo "push skipped"
+      - name: Upload exp 36 results (artifact — inputs are egress-built)
+        uses: actions/upload-artifact@v4
+        with:
+          name: exp36-results
+          path: |
+            draft/backtest/exp36.json
+            draft/backtest/EXP36.md
           retention-days: 30
