@@ -71,6 +71,17 @@ a question, distrust the frame it arrived in:
   habits.) Our mechanistic intuition about this game is often backwards — the ceiling ramp,
   the endgame, the anchor's bind-early premise all flipped — so weight measurement over
   intuition, including Cory's.
+- **Attack the frame of your OWN work, not just the question (2026-08-09).** The recurring
+  miss this month was optimizing *inside* the frame — running the next experiment, ranking
+  the edges we have — while the binding constraint sat one level up. Almost every edge is
+  capped by the SAMPLE (3 seasons, n in the tens); no amount of better design against the
+  same data makes it stronger, so the highest-value move is often a *different class* of
+  work (break the sample ceiling) rather than a better experiment. Periodically zoom out:
+  is the class of work I'm doing the highest-EVSI class available, or am I refining inside a
+  frame whose real limit is elsewhere? Diagnose a push you didn't reach yourself as FACT
+  (you lacked a number — get it, add no rule), FRAME (you lacked a habit that combines what
+  you had — add it in general form), or WRONG PREMISE (say so). Confusing these bloats the
+  foundation with rules that never fire.
 
 ### 2. Be ruthless about what is true
 The only thing that makes this tool worth anything is that its numbers are real — Cory
