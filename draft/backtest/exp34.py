@@ -283,7 +283,7 @@ def _egress_main(out_dir: Path) -> int:
     import adp as ADP
     import sleeper_import as SL
     from backtest import grade as GR
-    from backtest import projections as PROJ
+    from backtest import lab_projections as PROJ
     import exp34_metrics as MET
     import nfl_data_py as nfl
 

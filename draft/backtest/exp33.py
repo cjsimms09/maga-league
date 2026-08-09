@@ -57,7 +57,7 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
-from projections import spearman, walk_forward, CFG   # noqa: E402  our blend, unit-tested
+from lab_projections import spearman, walk_forward, CFG   # noqa: E402  our blend, unit-tested
 import exp34_dollars as DOLL                           # noqa: E402  value-greedy $ grader
 
 POSITIONS = ["QB", "RB", "WR", "TE", "K", "DEF"]

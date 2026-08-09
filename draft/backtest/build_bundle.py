@@ -20,7 +20,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import scoring                                     # our engine, never a provider's
 import vorp as VORP
 from backtest import grade as GR
-from backtest import projections as WF
+from backtest import lab_projections as WF
 
 
 def weekly_points_by_season(weekly_df, seasons, scoring_cfg, crosswalk):

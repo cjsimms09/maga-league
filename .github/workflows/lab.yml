@@ -44,7 +44,7 @@ on:
       - 'draft/backtest/exp33b_naive_source.py'
       - 'draft/tests/test_exp33b.py'
       - 'draft/tests/test_exp35.py'
-      - 'draft/backtest/projections.py'
+      - 'draft/backtest/lab_projections.py'
       - 'draft/data/league_history.json'
       - 'draft/config/payouts.json'
       - '.github/workflows/lab.yml'

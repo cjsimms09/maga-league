@@ -39,7 +39,7 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
-from projections import walk_forward, CFG          # noqa: E402
+from lab_projections import walk_forward, CFG          # noqa: E402
 import exp33 as B33                                # noqa: E402  metrics (top-decile, rank-corr)
 import exp34_dollars as DOLL                       # noqa: E402  value-greedy $ grader
 

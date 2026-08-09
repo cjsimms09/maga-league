@@ -20,7 +20,7 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from projections import spearman   # reused, already unit-tested in the Lab
+from lab_projections import spearman   # reused, already unit-tested in the Lab
 
 
 # ─────────────────────────────────────────────────────────────── bootstrap ──

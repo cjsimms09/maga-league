@@ -11,7 +11,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "backtest"))
 import exp35_regression_sweep as E  # noqa: E402
-from projections import walk_forward, CFG  # noqa: E402
+from lab_projections import walk_forward, CFG  # noqa: E402
 
 
 def test_override_leaves_shipped_path_identical():

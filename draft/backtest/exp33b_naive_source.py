@@ -41,7 +41,7 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
-from projections import spearman, walk_forward      # noqa: E402
+from lab_projections import spearman, walk_forward      # noqa: E402
 from exp34_metrics import bootstrap_ci              # noqa: E402
 import exp33 as B33                                 # noqa: E402  naive_projection
 import exp34_dollars as DOLL                        # noqa: E402  roster grading

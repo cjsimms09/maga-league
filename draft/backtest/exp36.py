@@ -71,7 +71,7 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
-from projections import spearman           # noqa: E402  reused, unit-tested
+from lab_projections import spearman           # noqa: E402  reused, unit-tested
 from exp34_metrics import bootstrap_ci     # noqa: E402  same interval machinery
 
 # ── pre-registered pooling (module constants so the tests pin them) ──

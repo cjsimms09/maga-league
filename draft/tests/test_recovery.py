@@ -8,7 +8,7 @@ import sys, os
 import pytest
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 from backtest import grade as GR
-from backtest import projections as WF
+from backtest import lab_projections as WF
 
 pd = pytest.importorskip("pandas")
 

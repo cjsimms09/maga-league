@@ -7,7 +7,7 @@ projecting.
 """
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-from backtest.projections import (walk_forward, sanity_check, adp_implied,
+from backtest.lab_projections import (walk_forward, sanity_check, adp_implied,
                                   spearman, CFG)
 
 POS = {"a": "RB", "b": "RB", "c": "WR", "d": "WR"}
