@@ -46,6 +46,20 @@ def test_no_rows_blob_returns_empty_not_crash():
     assert FP.parse("") == []
 
 
+def test_parses_data_api_players_shape():
+    # the client-hydrated data-API shape (the full board, not the SSR top-5 teaser):
+    # {"players":[{player_name, player_position_id, player_team_id, adp/rank_ave}]}
+    api = ('{"players":['
+           '{"player_name":"Bijan Robinson","player_position_id":"RB","player_team_id":"ATL","adp":3.1},'
+           '{"player_name":"Sam LaPorta","player_position_id":"TE","player_team_id":"DET","rank_ave":24.5},'
+           '{"player_name":"A Team Def","player_position_id":"DST","player_team_id":"BAL","adp":150}]}')
+    rows = FP.parse(api)
+    assert [r["name"] for r in rows] == ["Bijan Robinson", "Sam LaPorta", "A Team Def"]
+    assert rows[0]["position"] == "RB" and rows[0]["adp"] == 3.1
+    assert rows[1]["adp"] == 24.5                          # falls back to rank_ave when no adp
+    assert rows[2]["position"] == "DEF"                    # DST -> DEF
+
+
 def test_picks_the_largest_rows_array_and_is_string_aware():
     # an earlier 1-row widget with a ']' inside a string, THEN the real ADP table (3 rows).
     html = ('window.A={"rows":[{"note":"top pick [lock]","avg":1}]};'
