@@ -21,7 +21,7 @@
   --navy: #12294a;            /* heading ink (legacy var name used in views) */
   --navy-deep: #0a1322;
   --navy-soft: #eef1f6;
-  --muted: #4a5972;
+  --muted: #3c4a60;   /* darkened for AA contrast on paper (Cory: contrast pass) */
   /* signal */
   --red: #d4242f;             /* flag red */
   --red-bright: #e0313c;
@@ -3080,3 +3080,29 @@ td.pos, .pos{ color:var(--green); } td.neg, .neg{ color:var(--red); }
 .wh-race-lead b{ color:var(--navy); }
 .wh-race-bar{ background:#eceadf; }
 .mu-side.up{ background:rgba(15,138,77,.07); border-color:rgba(15,138,77,.4); }
+
+/* ============================================================================
+   DIRECTION B — "DAYLIGHT" (Cory's pick). The foundation above was the D
+   synthesis; this block pulls it to pure B: editorial, no terminal/mono accents.
+   Drops the // micro-labels and the mono-everywhere numerals, sets an editorial
+   number face, navy links with a red hover, and tightens contrast. Cascade-last.
+   ============================================================================ */
+.card > h2 .sub::before{ content:""; }                 /* no // micro-labels in B */
+.page-label::before{ content:""; }
+/* editorial numerals — confident sans, still tabular for alignment (not mono) */
+.num, td.num, th.num, .mu-pts, .hg-score, .pk-me-num, .pot-n, .wtw-pct,
+.po-odds, .money, .tab-balance, .h2h-stat-val, .hero-item .hero-value{
+  font-family: var(--font-display); font-variant-numeric: tabular-nums; }
+/* links: navy, red on hover (B uses red as the signal accent) */
+a{ color: var(--navy); } a:hover{ color: var(--red); }
+.more, .card > h2 .sub{ } /* keep muted subs */
+
+/* ---- CONTRAST PASS (Cory) — nothing pale on paper ---- */
+/* muted is darkened at the token; these were lighter still or low-contrast */
+.hero-item .hero-label{ color: var(--muted); }
+.hero-item .hero-sub{ color: var(--muted); }
+.muted{ color: var(--muted); }
+table.roll td.num, .pf, .wh-race-scale, .wh-band-note{ color: var(--ink); }
+.wh-race-scale{ color: var(--muted); }
+/* secondary/muted small caps labels a touch darker so they don't wash out */
+.hero-label, .tb-label, .nav-badge, .page-sub{ color: var(--muted); }
