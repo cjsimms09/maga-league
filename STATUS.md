@@ -1271,3 +1271,22 @@ The A-ship Monitor already FIRED (A shipped the pre-redesign stack). If more liv
 ### ▶ NEXT: Annual Button — content half (parked with full plan in PARKED.md). Then: page-by-page "great" polish (type scale/spacing; side-bet grid; war-room shell dark overlays).
 
 ### 🅰️ ACTION: integrate + DEPLOY the branch so Cory sees the redesign + icon live. (Cory to notify A.)
+
+## ▶ SESSION B — RESUME MARKER 2026-08-09: Annual content-half in progress + Sunday scoreboard
+**Branch `claude/pickems-feature-3ksf0l`. All committed/pushed/tested. A has NOT integrated the redesign/icon/Annual work yet.**
+
+### ✅ DELIVERED THIS STRETCH
+- **Silent-stale fixes** (the dangerous bucket): betlogic SEASON_START year-derived; `||2026` fallbacks killed; **no_season_literals guard** in CI (fails if a year-in-key / hardcoded date-string / `||year` reappears).
+- **Draft-selection order engine** (`draftorder.js`) + **history verification**: non-playoff six reproduce both prior years; **playoff-four MISMATCH flagged** (2026 = champ last ✓; 2025 = champ picked 7th ✗). Rule marked ⚠️ UNCONFIRMED in code + `PLAYOFF_RULE_CONFIRMED:false`. **Awaiting Cory: which playoff-four rule + is STANDINGS reg-season or final?**
+- **Vote → config** (`voteenact.js` + admin "Enact"): a passed vote writes its result into season config; pot/weekly-high/payout/finances/money-board/amendment-ledger all DERIVE and follow. Handles buy_in/weekly_payout/payout-STRUCTURE/config-key; fails loud. Callable headless by the Annual. (Admin season FORM still hardcoded to 2+4 payout inputs — small follow-up.)
+- **THE SUNDAY SCOREBOARD** (`/scoreboard`): every game one screen — scores+leader+LIVE, pick'em split, rivalry billing (`rivalries.js`), weekly-$100 race, playoff-worth swing, clinch/elim, live sweat, tap→matchup. Home hero CTA + nav entry. (Follow-up: deep view for a game the viewer isn't in — currently viewer-relative.)
+- **Settlement report** (`settlement.js` + Finances "Square Up"): minimal who-pays-whom + Venmo, surfaces imbalance. Annual emits it for a sealed season.
+
+### ▶ REMAINING Annual content-half (needs Cory or A)
+- Draft-board reset + two-stage claim UI — **gated on Cory's playoff-four rule** (six-team + reset + dinner buildable now; render top-4 provisional).
+- Records-recompute + chapter/hub-paragraph wiring + season sealing (live→permanent + archive transients) — **callable from A's workflow AFTER grading; A owns the orchestrator (halt-on-failure, grading-before-content).**
+- Config-driven draft-day alert on rollover; CHAPTERS/RS_PRIZE/harvest derive-on-seal.
+
+### ▶ CHAIN-2 → A (worries Cory most): SCORING/ROSTER/keeper/deadline are hardcoded, NOT synced from Sleeper — model could optimize against changed rules mid-season. Confirm watchdog scope + change-handling + auto-continue re-point. (A's lane.)
+
+### 🅰️ ACTION: integrate + deploy the branch (redesign + icon + all the above still unseen live).
