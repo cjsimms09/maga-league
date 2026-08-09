@@ -103,6 +103,56 @@ def _reliability_table(prob_points: list[tuple], bins: int = 10) -> list[dict]:
     return out
 
 
+def build_resolutions(forecasts: list[dict], draft: dict) -> list[dict]:
+    """Given committed forecasts + the completed draft, produce the resolution
+    entries that grade them — reality answering the claims. Pure; the caller appends
+    the returned entries to the ledger (deduped by forecast_key).
+
+    `draft`: {"picks": [{"overall": int, "player_id": str}, ...]} — the finished
+    board. room_seat resolves to the player at that overall pick; survival resolves
+    to 1 iff the target was still undrafted when its pick arrived.
+
+    Only forecasts whose trigger has actually happened are resolved — a forecast
+    whose pick has not been reached yet stays PENDING (no fabricated outcome)."""
+    picks = draft.get("picks") or []
+    at_overall = {}
+    drafted_before = {}   # overall -> set of player_ids taken strictly before it
+    taken = set()
+    for p in sorted(picks, key=lambda x: x.get("overall") or 0):
+        ov = p.get("overall")
+        pid = str(p.get("player_id"))
+        drafted_before[ov] = set(taken)
+        at_overall[ov] = pid
+        taken.add(pid)
+    max_overall = max(at_overall) if at_overall else 0
+
+    out = []
+    for f in forecasts:
+        pay = f.get("payload") or {}
+        key = pay.get("key") or ""
+        if key.startswith("room_seat:r1p"):
+            try:
+                seat = int(key.split("r1p", 1)[1])
+            except (ValueError, IndexError):
+                continue
+            if seat in at_overall:
+                out.append({"kind": "forecast_resolution", "method": "forecast-resolution-v1",
+                            "payload": {"forecast_key": key, "outcome": at_overall[seat],
+                                        "source": "completed draft"}})
+        elif key.startswith("survival:") and "@pick" in key:
+            pid, _, tail = key[len("survival:"):].partition("@pick")
+            try:
+                npk = int(tail)
+            except ValueError:
+                continue
+            if npk <= max_overall:   # that pick has arrived
+                survived = pid not in drafted_before.get(npk, set())
+                out.append({"kind": "forecast_resolution", "method": "forecast-resolution-v1",
+                            "payload": {"forecast_key": key, "outcome": 1 if survived else 0,
+                                        "source": "completed draft"}})
+    return out
+
+
 def grade(entries: list[dict]) -> dict:
     """Grade a ledger export. `entries` is any list of ledger dicts; only
     kind=='forecast' and kind=='forecast_resolution' are consulted. Returns a

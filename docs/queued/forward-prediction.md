@@ -92,7 +92,27 @@ said P and reality returned X," never a causal claim about dollars earned. This 
 the model, for the first time, putting its judgment on the record where it can be
 wrong in public and learn from it.
 
-## Status / next
+## Status (2026-08-09) — the loop is live
+
+- **Commit — LIVE on the real board.** `forecast.js` assembles the two strongest,
+  model-backed, gradeable claims (room_seat by ADP; survival from `survival_to_next`)
+  and `app.js` fires them via `PredLedger.forecast` on the REAL draft only (a mock is
+  not forward evidence), deduped by key. From now until the draft the model
+  accumulates timestamped, resolution-ruled predictions.
+- **Resolve — built.** `forecast_grade.build_resolutions(forecasts, draft)` grades
+  room_seat (who actually went at that seat) and survival (undrafted when the pick
+  arrived) from the completed draft; unreached picks stay PENDING (no fabricated
+  outcome).
+- **Grade — built + hardened.** `forecast_grade.grade` with the forward guarantee,
+  and it keeps the EARLIEST forecast per key so a cross-session re-commit can never
+  move the timestamp closer to reality.
+- **Remaining plumbing:** a post-draft step that reads the committed forecasts +
+  the completed Sleeper draft and appends the resolutions (admin action or CI). Not
+  deadline-critical — resolutions grade reality that arrives at/after the draft.
+- **Still on the E[$] model:** roster_dollars and adp_fall (no fabricated precision
+  until the September quantile / a fall model exists).
+
+## Original status / next
 
 - Built + tested this session: ledger kinds, grader (forward guarantee), slate,
   materializer. `test_forecast_grade.py` + `test_forecast_slate.py` +

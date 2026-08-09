@@ -94,6 +94,34 @@ def test_re_commit_uses_the_earliest_forecast_per_key():
     assert abs(g["probability"]["brier"] - 0.01) < 1e-6
 
 
+def test_build_resolutions_grades_room_seat_and_survival_from_the_draft():
+    forecasts = [
+        fc("room_seat:r1p3", "categorical", "bijan", "2026-08-10T00:00:00Z"),
+        fc("survival:jefferson@pick14", "probability", 0.6, "2026-08-10T00:00:00Z"),
+        fc("survival:chase@pick14", "probability", 0.3, "2026-08-10T00:00:00Z"),
+        fc("room_seat:r1p9", "categorical", "guy9", "2026-08-10T00:00:00Z"),  # pick 9 not in draft -> pending
+    ]
+    draft = {"picks": [
+        {"overall": 3, "player_id": "mcbride"},        # seat 3 actually took mcbride (miss)
+        {"overall": 10, "player_id": "chase"},          # chase gone before pick 14 -> did NOT survive
+        {"overall": 14, "player_id": "someone"},        # pick 14 arrived; jefferson never taken -> survived
+    ]}
+    res = FG.build_resolutions(forecasts, draft)
+    by_key = {r["payload"]["forecast_key"]: r["payload"]["outcome"] for r in res}
+    assert by_key["room_seat:r1p3"] == "mcbride"          # outcome = who actually went at 3
+    assert by_key["survival:jefferson@pick14"] == 1       # undrafted when pick 14 arrived
+    assert by_key["survival:chase@pick14"] == 0           # taken at 10, before 14
+    assert "room_seat:r1p9" not in by_key                 # pick 9 never happened -> not resolved
+
+    # end-to-end: feed forecasts + these resolutions through grade()
+    stamped = []
+    for r in res:
+        r = dict(r); r["decision_at"] = "2026-08-22T20:00:00Z"; stamped.append(r)
+    g = FG.grade(forecasts + stamped)
+    assert g["categorical"]["n"] == 1 and g["categorical"]["accuracy"] == 0.0   # seat 3 missed
+    assert g["probability"]["n"] == 2                                            # two survival claims graded
+
+
 def test_pending_and_orphans_reported():
     entries = [
         fc("open", "point", 5, "2026-08-22T00:00:00Z"),      # no resolution yet
