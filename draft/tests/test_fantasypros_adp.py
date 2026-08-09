@@ -1,4 +1,5 @@
-"""FantasyPros ADP — pure regex parser.
+"""FantasyPros ADP — parser of the embedded JSON blob (the real page structure,
+confirmed 2026-08-09 from the live page via the self-diagnosing dump).
 Run: python -m pytest draft/tests/test_fantasypros_adp.py -q
 """
 import sys
@@ -7,41 +8,39 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "backtest"))
 import fantasypros_adp as FP  # noqa: E402
 
-# A synthetic FP-shaped ADP table (the real column layout is unconfirmed; this pins the
-# parser's CONTRACT — linked name, (TEAM), a POS token, AVG as the last float per row).
-SAMPLE = """
-<table id="data"><tbody>
-<tr><td>1</td><td class="player-label"><a href="/nfl/players/x">Ja'Marr Chase</a> <small>(CIN)</small></td>
-    <td class="center">WR1</td><td>1.0</td><td>2.0</td><td>1.8</td></tr>
-<tr><td>2</td><td class="player-label"><a href="/nfl/players/y">Bijan Robinson</a> <small>(ATL)</small></td>
-    <td class="center">RB1</td><td>2.0</td><td>3.0</td><td>2.4</td></tr>
-<tr><td>3</td><td class="player-label"><a href="/nfl/players/z">Malik Nabers</a> <small>(NYG)</small></td>
-    <td class="center">WR5</td><td>30</td><td>35</td><td>31.8</td></tr>
-</tbody></table>
-"""
+# The real shape: FP embeds `"rows":[ {rank, player:{name,team,url}, pos, avg} ]` in a
+# window.FP SSR script. team is "MIN (13)" (team + bye); avg is the consensus ADP.
+SAMPLE = ('window.FP.report = {"columns":[{"key":"avg","label":"AVG"}],"rows":['
+          '{"id":19236,"rank":1,"player":{"id":19236,"name":"Justin Jefferson","team":"MIN (13)","url":"/x"},"pos":"WR1","avg":1},'
+          '{"id":16393,"rank":2,"player":{"id":16393,"name":"Christian McCaffrey","team":"SF (9)","url":"/y"},"pos":"RB1","avg":2},'
+          '{"id":15802,"rank":5,"player":{"id":15802,"name":"Tyreek Hill","team":"","url":"/z"},"pos":"WR3","avg":5.3}'
+          '],"defaultSort":[{"key":"rank"}]};\nwindow.FP.isLoggedIn=false;')
 
 
-def test_parses_name_team_pos_and_avg_adp():
+def test_parses_embedded_json_name_team_pos_avg():
     rows = FP.parse(SAMPLE)
     assert len(rows) == 3
     r = {x["name"]: x for x in rows}
-    assert r["Ja'Marr Chase"]["team"] == "CIN"
-    assert r["Ja'Marr Chase"]["position"] == "WR"
-    assert r["Ja'Marr Chase"]["adp"] == 1.8            # the AVG column (last float), not 1.0/2.0
-    assert r["Malik Nabers"]["adp"] == 31.8
+    assert r["Justin Jefferson"]["team"] == "MIN"          # "MIN (13)" -> team, bye stripped
+    assert r["Justin Jefferson"]["position"] == "WR"       # "WR1" -> WR
+    assert r["Justin Jefferson"]["adp"] == 1.0             # the avg (consensus) column
+    assert r["Tyreek Hill"]["adp"] == 5.3
+    assert r["Tyreek Hill"]["team"] is None                # empty team -> None, not ""
 
 
-def test_sorted_ascending_and_dst_normalized():
-    html = ('<tr><td><a href="/p">Some Defense</a> <small>(SF)</small></td>'
-            '<td>DST</td><td>90.0</td></tr>'
-            '<tr><td><a href="/p">Early Guy</a> <small>(KC)</small></td><td>QB2</td><td>5.5</td></tr>')
-    rows = FP.parse(html)
-    assert [r["name"] for r in rows] == ["Early Guy", "Some Defense"]   # sorted by adp
-    assert rows[1]["position"] == "DEF"                                  # DST -> DEF
+def test_sorted_ascending():
+    rows = FP.parse(SAMPLE)
+    assert [r["adp"] for r in rows] == sorted(r["adp"] for r in rows)
 
 
-def test_skips_rows_without_name_or_adp():
-    html = ('<tr><td>header</td><td>no link no float</td></tr>'
-            '<tr><td><a href="/p">Real Guy</a> <small>(BUF)</small></td><td>RB3</td><td>12.3</td></tr>')
-    rows = FP.parse(html)
-    assert len(rows) == 1 and rows[0]["name"] == "Real Guy"
+def test_accepts_bare_rows_list_and_normalizes_dst():
+    bare = ('[{"player":{"name":"Some Defense","team":"SF"},"pos":"DST","avg":90.0},'
+            '{"player":{"name":"Early Guy","team":"KC"},"pos":"QB2","avg":5.5}]')
+    rows = FP.parse(bare)
+    assert [r["name"] for r in rows] == ["Early Guy", "Some Defense"]
+    assert rows[1]["position"] == "DEF"                    # DST -> DEF
+
+
+def test_no_rows_blob_returns_empty_not_crash():
+    assert FP.parse("<html>no data here</html>") == []
+    assert FP.parse("") == []

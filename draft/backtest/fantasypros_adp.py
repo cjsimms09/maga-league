@@ -18,20 +18,12 @@ real structure instead of silently contributing nothing — a parse miss must lo
 miss, not an absent source. Unit-tested on a synthetic FP-shaped table.
 """
 from __future__ import annotations
+import json
 import re
 
 PARSE_FLOOR = 20
 _POS = re.compile(r"\b(QB|RB|WR|TE|K|DST|DEF)\d*\b")   # FP prints "WR1"/"RB12" — allow the rank suffix
-_TEAM_PARENS = re.compile(r"\(([A-Z]{2,3})\)")
-_FLOAT = re.compile(r"\d+\.\d+")
-_TR = re.compile(r"<tr\b[^>]*>(.*?)</tr>", re.I | re.S)
-_TD = re.compile(r"<td\b[^>]*>(.*?)</td>", re.I | re.S)
-_ATAG = re.compile(r"<a\b[^>]*>(.*?)</a>", re.I | re.S)
-_TAGS = re.compile(r"<[^>]+>")
-
-
-def _text(html):
-    return re.sub(r"\s+", " ", _TAGS.sub(" ", html or "")).strip()
+_ROWS = re.compile(r'"rows"\s*:\s*\[')
 
 
 def _norm_pos(p):
@@ -41,39 +33,57 @@ def _norm_pos(p):
     return "DEF" if p == "DST" else p
 
 
+def _extract_rows_json(html):
+    """FantasyPros server-renders the ADP data as a JSON blob (window.FP SSR): a
+    `"rows":[ {...}, ... ]` array. Find it and bracket-match to the closing ]."""
+    m = _ROWS.search(html or "")
+    if not m:
+        return None
+    i = m.end() - 1                          # index of the opening '['
+    depth = 0
+    for j in range(i, len(html)):
+        c = html[j]
+        if c == "[":
+            depth += 1
+        elif c == "]":
+            depth -= 1
+            if depth == 0:
+                return html[i:j + 1]
+    return None
+
+
 def parse(html):
-    """FantasyPros ADP HTML -> [{name, position, team, adp}] sorted by adp ascending.
-    Defensive: reads each row, takes the linked player name, the (TEAM) in parens, the
-    first QB/RB/WR/TE/K/DST token as position, and the ADP as the LAST float in the row
-    (the AVG/consensus column on FP's board). Rows without a name+adp are skipped."""
+    """FantasyPros ADP page -> [{name, position, team, adp}] sorted by adp ascending.
+    FP embeds the data as JSON, NOT an HTML table (confirmed 2026-08-09 from the live page):
+    rows are {rank, player:{name, team:"MIN (13)", url}, pos:"WR1", avg}. `avg` is the
+    consensus ADP. Also accepts a bare JSON list (a saved fixture)."""
+    raw = _extract_rows_json(html)
+    if raw is None:
+        # tolerate being handed the rows array / list directly (fixtures, tests)
+        s = (html or "").strip()
+        raw = s if s.startswith("[") else None
+    try:
+        data = json.loads(raw) if raw else []
+    except (ValueError, TypeError):
+        data = []
     rows = []
-    for tr in _TR.findall(html or ""):
-        tds = _TD.findall(tr)
-        if len(tds) < 2:
+    for o in data:
+        if not isinstance(o, dict):
             continue
-        # player name: the first <a> text in the row (the player-label link)
-        name = None
-        for td in tds:
-            a = _ATAG.search(td)
-            if a:
-                cand = _text(a.group(1))
-                if cand and not cand.isdigit():
-                    name = cand
-                    break
-        if not name:
-            continue
-        rowtext = _text(tr)
-        team_m = _TEAM_PARENS.search(rowtext)
-        pos_m = _POS.search(rowtext)
-        floats = _FLOAT.findall(rowtext)
-        if not floats:
+        pl = o.get("player") or {}
+        name = pl.get("name") or o.get("name")
+        avg = o.get("avg", o.get("averagePick", o.get("adp")))
+        if not name or avg is None:
             continue
         try:
-            adp = float(floats[-1])          # AVG column = last float on FP's row
-        except ValueError:
+            adp = float(avg)
+        except (TypeError, ValueError):
             continue
+        team_raw = (pl.get("team") or o.get("team") or "")
+        team = team_raw.split(" (")[0].strip()          # "MIN (13)" -> "MIN"; "" -> ""
+        pos_m = _POS.search(str(o.get("pos") or o.get("position") or ""))
         rows.append({"name": name, "position": _norm_pos(pos_m.group(1)) if pos_m else None,
-                     "team": team_m.group(1) if team_m else None, "adp": adp})
+                     "team": team if team and not team.isdigit() else None, "adp": adp})
     rows.sort(key=lambda r: r["adp"])
     return rows
 
