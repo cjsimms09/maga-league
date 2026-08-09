@@ -112,7 +112,7 @@ Cory's correction: "queued behind mocks" was never a gate. Every experiment re-a
 | 10 | slot-conditional strategy | "no wf" | **runnable NOW** (race from all 10 slots; pick numbers derive from the snake) | none — next fire |
 | 11 | keeper-decision retro | "no wf" | **runnable NOW** (2024/25 keeps vs the optimizer; local history) | none — next fire |
 | 12, 23 | pick-trade valuator + loser's-curse prior | "no wf" | runnable NOW (MC rooms) | none — queued behind 10/11 |
-| 25 | RB dead zone | spec | runnable NOW (local history + sim) | none — queued |
+| 25 | RB dead zone | **BBM prior FIRED (full N)** | streamed BBM IV full field: RB cliffs after R4 (137→80→63, n≈200k/cell) vs WR gentle (131→109→106→105) — EXP25-DEADZONE.md. League-conditional test on our data still owed. | `bbm-supporting` prior; no install without our gate |
 | 26 | Konami QB premium | spec | runnable NOW (board rushing splits) | none — queued |
 | 5 | LRM threshold tuning | spec | **needs LRM modeled in the sim** — a build, not a gate | none — queued |
 | 8 | survival calibration | partial | runs behind the bridge gate (egress) | none |

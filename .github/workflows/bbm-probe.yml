@@ -134,8 +134,14 @@ jobs:
         run: |
           stamp=$(date -u +%Y-%m-%dT%H:%MZ)
           git config user.name "lab-bot"; git config user.email "actions@github.com"
-          git add draft/backtest/exp24.json draft/backtest/exp24_v.json \
-                  draft/backtest/bbm_deadzone.json draft/data/bbm/discovered.json 2>/dev/null || true
+          # Add each artifact only if it exists — a single missing path (e.g.
+          # exp24_v.json when BBM V wasn't discovered) makes `git add a b c` abort
+          # the WHOLE add, so run 1 staged nothing and committed "no change" while
+          # the real results lived only in the upload-artifact. Guard per file.
+          for f in draft/backtest/exp24.json draft/backtest/exp24_v.json \
+                   draft/backtest/bbm_deadzone.json draft/data/bbm/discovered.json; do
+            [ -f "$f" ] && git add "$f"
+          done
           git commit -m "BBM probe + exp 24 + dead-zone $stamp" || { echo "no change"; exit 0; }
           git pull --rebase origin "${GITHUB_REF_NAME}" && git push || echo "push skipped"
 
