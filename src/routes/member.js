@@ -842,13 +842,49 @@ router.post('/sidebets/:id/settle', aw(async (req, res) => {
   res.redirect('/bank?section=sidebets');
 }));
 
+// The bet's own back-link: a declare/confirm/dispute done from the matchup page
+// returns there; everywhere else lands on the side-bet book.
+function betBack(req) {
+  return req.body.back === 'matchup' ? '/matchup' : (req.body.back === 'team' ? '/team' : '/bank?section=sidebets');
+}
+
+// ── DECLARE → CONFIRM → DISPUTE — the settling flow ──────────────────────────
+// Either party declares the outcome; the OTHER confirms or disputes. Nothing
+// moves money until a confirm, and a dispute is recorded, never adjudicated.
+router.post('/sidebets/:id/declare', aw(async (req, res) => {
+  const bet = await SB.get(req.params.id);
+  if (bet && SB.isParty(bet, req.owner.id)) {
+    const winners = [].concat(req.body.winner || []).map(Number).filter(Boolean);
+    await SB.declareResult(req.params.id, req.owner.id, req.owner.name, {
+      winner_ids: winners, push: req.body.push === '1', why: String(req.body.why || '').trim(),
+    });
+  }
+  res.redirect(betBack(req));
+}));
+
+router.post('/sidebets/:id/confirm', aw(async (req, res) => {
+  const bet = await SB.get(req.params.id);
+  if (bet && SB.isParty(bet, req.owner.id)) {
+    await SB.confirmResult(req.params.id, req.owner.id, req.owner.name);
+  }
+  res.redirect(betBack(req));
+}));
+
+router.post('/sidebets/:id/dispute', aw(async (req, res) => {
+  const bet = await SB.get(req.params.id);
+  if (bet && SB.isParty(bet, req.owner.id)) {
+    await SB.disputeResult(req.params.id, req.owner.id, req.owner.name, String(req.body.why || '').trim());
+  }
+  res.redirect(betBack(req));
+}));
+
 /**
- * Settle a bet the way the engine called it.
- *
- * This is the confirm half of "the engine never settles a bet". The verdict is
- * recomputed here rather than trusted from the form — otherwise the winner ids
- * would be attacker-supplied, and the button would be a way to award yourself
- * anybody's money.
+ * AUTO-SETTLE, redesigned: where Sleeper objectively decides the outcome, the
+ * site OFFERS the verdict by DECLARING it — it does not settle. Both parties
+ * still confirm. Never settle silently (Cory, side-bet §5). The verdict is
+ * recomputed here, never trusted from the form, so the winner ids can't be
+ * attacker-supplied. The commissioner keeps the direct /settle override for
+ * adjudicating a dispute.
  */
 router.post('/sidebets/:id/settle-auto', aw(async (req, res) => {
   const bet = await SB.get(req.params.id);
@@ -859,11 +895,12 @@ router.post('/sidebets/:id/settle-auto', aw(async (req, res) => {
     const { verdicts } = await gradeBets([bet], world, owners, nameOf);
     const v = verdicts[bet.id];
     if (v && v.decided) {
-      await SB.settle(bet.id, v.winner_ids, req.owner.id, req.owner.name,
-        { push: v.push, why: v.headline });
+      // DECLARE the Sleeper verdict (source-tagged), then both parties confirm.
+      await SB.declareResult(bet.id, req.owner.id, req.owner.name,
+        { winner_ids: v.winner_ids, push: v.push, why: v.headline, source: 'sleeper' });
     }
   }
-  res.redirect('/bank?section=sidebets');
+  res.redirect(betBack(req));
 }));
 
 /**
