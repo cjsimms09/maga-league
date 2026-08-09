@@ -34,7 +34,7 @@ _control: `arch:balanced` · seasons 2023, 2024 · null p95 **$30.00** (200 outc
 | arch:late_qb | +0.00 | 0th | no | 2023:QB×29,WR×10,RB×5 · 2024:RB×4,TE×2,WR×1 · 2025:QB×13,RB×8,WR×3 | — |
 | arch:robust_rb | +0.00 | 0th | no | 2024:RB×4,DT×1 · 2025:WR×1 | — |
 | arch:wr_anchor | +0.00 | 0th | no | 2023:WR×19,RB×18 · 2024:RB×1,WR×1 · 2025:WR×2,DE×1 | — |
-| arch:zero_rb | +0.00 | 0th | no | 2023:RB×18,TE×7,WR×1 · 2025:RB×10,TE×3,QB×3 | — |
+| arch:zero_rb | +0.00 | 0th | no | 2023:RB×18,TE×7,WR×1 · 2025:RB×10,QB×3,TE×3 | — |
 | profile:default | +0.00 | 0th | no | — | — |
 | profile:keeper_builder | +0.00 | 0th | no | 2023:TE×4,QB×3,RB×1 · 2024:TE×1 · 2025:TE×5,RB×2,QB×2 | — |
 | profile:scarcity | +0.00 | 0th | no | 2023:DB×3,FB×1 · 2024:DB×2,RB×1,TE×1 · 2025:DT×1,T×1 | — |
