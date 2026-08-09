@@ -42,8 +42,12 @@ const badgeNow = () => D.badge(entry, 64, 4);
 {
   const restore = JSON.parse(JSON.stringify(D.EVIDENCE_STATE[34]));
 
+  // Establish the pre-experiment baseline EXPLICITLY: 34 has now reported
+  // (default is its lean_ordering sentence, 2026-08-09), so to test link C's
+  // propagation from the honest prior we set 'unrun' first rather than assume it.
+  D.recordEvidence(34, 'unrun', null);
   const before = badgeNow();
-  check('SETUP: the draft surface currently speaks from the pre-experiment state',
+  check('SETUP: with 34 set unrun, the surface speaks from the pre-experiment state',
     /unvalidated vs market/.test(before.tierLine), before.tierLine);
 
   // The January verdict. This is the season half writing a result.

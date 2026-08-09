@@ -150,10 +150,13 @@ const entry = (weighted, over) => ({
 // consensus must not speak in the same voice as a validated call.
 {
   const b = D.badge(entry({ tier: 9 }), 64, 4);
+  // The default is now 34's reported lean_ordering sentence (not 'unvalidated vs
+  // market'), so assert INTENT: LEAN renders as a sentence that names the market
+  // and still marks the deviation unvalidated — never a bare grade.
   check('the tier renders as a SENTENCE, not a bare grade',
-    b.tierLine === 'LEAN — unvalidated vs market', b.tierLine);
-  check('LEAN says explicitly that it is unvalidated AGAINST THE MARKET',
-    /unvalidated vs market/.test(D.tierLine('LEAN')));
+    b.tierLine.indexOf('LEAN — ') === 0 && b.tierLine.length > 'LEAN — '.length + 8, b.tierLine);
+  check('LEAN still says it is unvalidated AGAINST THE MARKET',
+    /unvalidated/.test(D.tierLine('LEAN')) && /market/.test(D.tierLine('LEAN')));
   check('LIKELY and CERTIFIED do not borrow LEAN\'s disclaimer',
     !/unvalidated/.test(D.tierLine('LIKELY'))
     && !/unvalidated/.test(D.tierLine('CERTIFIED')),
@@ -194,9 +197,23 @@ const entry = (weighted, over) => ({
   check('the BADGE follows the evidence state (it does not snapshot the wording)',
     !/unvalidated/.test(live.tierLine), live.tierLine);
 
-  D.recordEvidence(34, restore.status, restore.finding);
-  check('restored: the pre-experiment sentence returns when 34 is unrun again',
+  // The pre-experiment sentence must still be reachable — set 'unrun' explicitly
+  // (the DEFAULT is no longer unrun: 34 reported as 'lean_ordering', 2026-08-09).
+  D.recordEvidence(34, 'unrun', null);
+  check('the pre-experiment sentence returns when 34 is set unrun again',
     /unvalidated vs market/.test(D.tierLine('LEAN')), D.tierLine('LEAN'));
+
+  // 34's real result: an ORDERING lean that must NOT read as a per-deviation
+  // license. The sentence records the edge AND that this deviation is unvalidated.
+  D.recordEvidence(34, 'lean_ordering', 'our ranking edges the market (LEAN, n=19) — this deviation still unvalidated');
+  const s = D.tierLine('LEAN');
+  check('lean_ordering says our ranking edges the market', /ranking edges the market/.test(s), s);
+  check('lean_ordering does NOT read as this-deviation-validated (still a LEAN, not a license)',
+    /unvalidated/.test(s) && !/beat market when measured/.test(s), s);
+
+  D.recordEvidence(34, restore.status, restore.finding);
+  check('restored: the default is now the lean_ordering sentence (34 has reported)',
+    /ranking edges the market/.test(D.tierLine('LEAN')), D.tierLine('LEAN'));
 }
 
 // --- SSOT: NO SECOND COPY OF THIS SENTENCE ANYWHERE -------------------------

@@ -134,7 +134,15 @@
    */
   var EVIDENCE_STATE = {
     33: { name: 'projection source bake-off', status: 'unrun', finding: null },
-    34: { name: 'recommendation-vs-market scoreboard', status: 'unrun', finding: null },
+    // 34 REPORTED 2026-08-09 (draft/backtest/EXP34.md). The result is an ORDERING
+    // edge — our walk-forward ranking of the pool beats ADP's (rho diff +0.12,
+    // CI[0.008,0.233], n=19) — which is a LEAN, and a DIFFERENT claim from any
+    // individual deviation being justified. Recorded as 'lean_ordering', NOT
+    // 'won', on purpose: 'won' would read as "our picks beat market", which 34
+    // did NOT show (the per-pick surface is all thin/inconclusive, 2025 skipped).
+    // Anyone citing 34 as vindication of the 74% deviation rate is MISREADING it.
+    34: { name: 'recommendation-vs-market scoreboard', status: 'lean_ordering',
+          finding: 'our ranking edges the market (LEAN, n=19) — this deviation still unvalidated' },
   };
 
   /* THE SENTENCE, DERIVED. `status` is one of:
@@ -151,6 +159,12 @@
     }
     if (e.status === 'lost') return e.finding || 'lost to market when measured';
     if (e.status === 'won') return e.finding || 'beat market when measured';
+    // ORDERING edge measured, but NOT a per-deviation license (exp 34). The
+    // sentence must say both: the small aggregate edge AND that THIS deviation is
+    // not thereby validated — otherwise 34 gets misread as vindicating the rate.
+    if (e.status === 'lean_ordering') {
+      return e.finding || 'our ranking edges the market (LEAN) — this deviation still unvalidated';
+    }
     return 'unvalidated vs market';
   }
 
