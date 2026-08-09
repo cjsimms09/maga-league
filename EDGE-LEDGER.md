@@ -103,6 +103,16 @@ sample-ceiling breakers have much higher EVSI:
   it raced 3 hand-picked shapes, NOT a swept grid** — so "sliders are settled" overstates
   it. Correct reading: sliders are near-zero on the evidence we have, and the participation
   test should confirm which terms are decoration; but the null is provisional, not a grid.
+- **The keeper-need MASK vs the need-WEIGHT ramp (MEASURED 2026-08-09, exp_need_phase).**
+  The MASK (startable-cap) is a real, large earner — **~$443** vs no-mask over 300 paired
+  rooms (consistent with the $258 keeper-B0). Auto's additive need-**WEIGHT ramp**
+  (0.35→0.9→1.45→1.3), by contrast, is **near-decoration**: the flat response curve peaks at
+  a small w≈0.5 (+$16, barely separable) and decays; **Auto's actual ramp is +$4.9, CI
+  [−13,+23] — not separable from zero — and is beaten by a flat 0.5** (ramp−best_flat −11.3).
+  Ramping the need-weight by phase adds nothing. This is a *raced* result (a swept curve +
+  schedules, not a 3-point race), so unlike the sliders-null above it is not weak-scope —
+  though still 3-season/our-league (public leagues would firm it). → DECISIONS-NEEDED:
+  simplify Auto (keep the mask, flatten/drop the need-weight ramp).
 
 ## ⚠️ Findings to RE-OPEN or mark provisional (habit 9 instrument/scope audit)
 - **Conditional-mining null (policy_tournament §6).** Ran **before heterogeneous rooms and

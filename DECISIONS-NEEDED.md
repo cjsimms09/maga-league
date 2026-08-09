@@ -50,7 +50,26 @@ Audit date: 2026-08-09 (swept every recorded verdict in draft/backtest/*.json + 
 - **Recommendation:** run the sweep's dollar arm + held-out, then bring a specific
   proposed weight here. NOT ready to install blind. (queued behind slate rails + cron)
 
-## 3. FANTASYPROS AS A THIRD SOURCE — PENDING MEASUREMENT (not yet a decision)
+## 3. SIMPLIFY AUTO: flatten/drop the need-WEIGHT ramp (keep the mask) — OPEN
+- **Found (exp_need_phase, 300 paired rooms):** the keeper-need MASK earns **~$443** (vs
+  no-mask); Auto's additive need-WEIGHT ramp (0.35→0.9→1.45→1.3) is **not separable from
+  zero** (+$4.9, CI [−13,+23]) and is **beaten by a flat w≈0.5**. Ramping by phase adds
+  nothing. A *raced* result (swept curve + schedules), not a 3-point race.
+- **Implies:** keep the mask; replace Auto's need-weight ramp with a small flat weight
+  (~0.5) or drop the additive need term entirely. Makes Auto smaller and more defensible.
+- **Magnitude:** the ramp itself is ≤~$25 (underpowered to separate from zero); the
+  simplification is a *robustness/honesty* win more than a dollar win — it stops Auto
+  running an unraced schedule on the term we rely on, for 3 hours on draft day.
+- **Confidence:** good for "the ramp isn't separable and doesn't beat flat"; the small-w
+  +$16 is barely separable (thin). 3-season/our-league (sample ceiling; public leagues firm it).
+- **Cost of inaction:** Auto keeps driving `need` on a hand-built ramp that earns nothing
+  measurable — exactly the designed-not-derived risk flagged in the Auto audit.
+- **Recommendation:** GATED (affects the live pick screen). For DRAFT DAY: leave Auto as-is
+  (safe, moderate, rails hold) OR set the need-weight to a flat ~0.5 — both fine; the ramp
+  isn't hurting, it just isn't earning. Post-draft: flatten/drop it and re-confirm on public
+  leagues. Cory's call on whether to touch it before Aug 22.
+
+## 4. FANTASYPROS AS A THIRD SOURCE — PENDING MEASUREMENT (not yet a decision)
 - **Found:** source grade is FFC-vs-MFL only; FantasyPros structure captured in the probe
   but the parser isn't built.
 - **Implies:** could corroborate, sharpen per-region, or change the anchor verdict.
