@@ -325,6 +325,37 @@ function lineupStats(starters, projById, sigmaById) {
   return { mean: r2(mean), varc: r2(varc), sd: r2(Math.sqrt(varc)) };
 }
 
+// --- ACTIVE-PROJECTION GUARD -------------------------------------------------
+// The optimizer has no calendar: it seats whoever carries the highest projection
+// for a slot. That is correct ONLY when a player who will not play this week
+// carries a ZERO projection. The live path's projection fallbacks do not
+// guarantee that — a season-average or last-week number is a full, positive
+// projection for a player who is on bye or ruled OUT this week. Left unguarded,
+// the tool recommends starting a benched player. So a player known not to be
+// playing has his projection forced to zero BEFORE the roster reaches the solver.
+//
+// Two signals, both read defensively so an absent field is simply not a match:
+//   • injury — Sleeper's injury_status (rosterView already carries it as row.inj)
+//              for the statuses that mean "not playing". Questionable/Doubtful are
+//              deliberately left alone: they MIGHT play, and that uncertainty is
+//              exactly what the variance model already prices.
+//   • bye    — row.bye === the week being optimized. No live source exposes a
+//              per-player bye week yet (flagged to A); until it does this arm is a
+//              no-op, and it activates automatically the moment the field appears.
+const INACTIVE_INJURY = new Set(['OUT', 'IR', 'PUP', 'SUS', 'NA', 'DNR', 'COV', 'RES', 'DNP']);
+function isInactive(row, weekNo) {
+  if (!row) return false;
+  const inj = row.inj != null ? String(row.inj).toUpperCase().replace(/[^A-Z]/g, '') : '';
+  if (inj && INACTIVE_INJURY.has(inj)) return true;
+  if (weekNo != null && row.bye != null && Number(row.bye) === Number(weekNo)) return true;
+  return false;
+}
+// Zero the projection of a player who will not play this week; pass others
+// through unchanged. Pure — the caller owns where it applies (member.js live path).
+function activeProjection(proj, row, weekNo) {
+  return isInactive(row, weekNo) ? 0 : Number(proj || 0);
+}
+
 /**
  * THE FORWARD OPTIMIZER — this week's E[$]-maximising lineup and priced calls.
  *
@@ -737,6 +768,7 @@ function sundayAlert(result, opts = {}) {
 module.exports = {
   // engine
   optimize, bestLineup, inferPositions, slotsFromTemplate, DEFAULT_SLOTS, weekDrill, sundayAlert,
+  activeProjection, isInactive, INACTIVE_INJURY, FLEX_ELIGIBLE,
   positionSigmas, sigmaOf, weeklyHighBand,
   pWin, pClearHigh, normCdf, lineupStats,
   // data

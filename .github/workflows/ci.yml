@@ -179,6 +179,11 @@ jobs:
         run: node draft/tests/instrumentation_check.test.js
       - name: Sunday alert — generator + secret-gated cron fire + commissioner send
         run: node draft/tests/sunday_alert.test.js
+      - name: Lineup sanity sweep — legal/rosterable/no-bye advice over 2023-25
+        # Runs the in-season optimizer over every real team-week and asserts it
+        # can never emit an illegal, hallucinated, or on-bye/OUT lineup. The
+        # first live Sunday must not be the first Sunday the tool has ever run.
+        run: node draft/tests/lineup_sanity.test.js
       - name: Robot mock draft — the safety net
         # A full snake draft from every seat through the real engine and
         # attribution modules, plus every bug this session as a regression
