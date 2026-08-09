@@ -586,3 +586,34 @@ League-visible; one of the most-watched offseason things. Part of the Annual But
 - **VERIFY AGAINST HISTORY (build gate):** reproduce the ACTUAL selection order for ≥1 of 2023–25 from that year's reg-season finish + bracket + the draft order that followed (seed-data STANDINGS/DRAFTS). If it doesn't reproduce, the rule is wrong — find it now, not in January.
 
 **❓ OPEN QUESTION FOR CORY (DECISIONS-NEEDED):** is the selection-order tiebreak the same as the standings tiebreak (total points/PF), or different? Proceeding on PF unless told otherwise.
+
+---
+
+## ▶ SLEEPER LINEUP-WRITE PROBE (Session B, 2026-08-09) — VERDICT: NOT safely writable → build the frictionless manual tool
+Probed for real (WebSearch + docs + the community undocumented-endpoints catalog), not inferred:
+- **Documented API is read-only.** `api.sleeper.app/v1` and `api.sleeper.com` expose GET only — users/leagues/rosters/drafts/stats/projections/schedule/depth-charts. No POST/PUT/PATCH for lineup/starters/roster moves anywhere in the docs.
+- **No known write endpoint.** The community catalog of UNDOCUMENTED endpoints (joeyagreco/sleeper disc. #11) lists only more reads (stats/projections/schedule/depth chart/headshots). The app's own writes go through an internal authed GraphQL that is undocumented and not offered for third-party use.
+- **Terms:** Sleeper's General Terms prohibit "unauthorized scripts or other automated means." Driving an undocumented authed endpoint with Cory's credentials to change his roster is exactly that → **per Cory's rule ("if it would violate them, say so and stop — I am not risking my league account"), STOP the write path.**
+- **No official write integration / partner API** found.
+- **DECISION: do NOT build auto-set.** Build the **next best thing** (already ~80% in place): the `/lineup` optimizer already computes the optimal lineup + dollar deltas, and the Sunday alert already fires pre-kickoff. Remaining B work = a **one-tap "set this" screen in SLEEPER'S OWN SLOT ORDER** so Cory copies it in ~15s, with the current-information pass (injuries/inactives/scratches) at the final pre-kickoff run. No A write-layer needed (read-only stays); no ownership question.
+
+---
+
+## ▶ ANNUAL RESET — SEASON-SPECIFIC AUDIT (Session B first pass; verify page-by-page during the build)
+Everything that changes year-to-year, categorized. **The dangerous column is ⚠️ SILENT-STALE (shows last year as current).**
+
+**✅ AUTO (derive from live data / season-keyed — reset on the new season with no step):**
+standings · scoreboard · matchups · playoff odds/clinch/elim · weekly-high race · what-to-watch/sweat · rank-movement arrows · GOAT+Chiefs marks (live rosters) · pick'em (season-keyed keys) · the Dispatch popups (season-keyed) · trash talk (season+game keyed). H2H / rivalry / pick'em all-time EXTEND automatically once the new season's box scores are in the source.
+
+**🔧 NEEDS THE ANNUAL (wire to trigger — mostly built, run headless & in order AFTER A's grading):**
+history chapter + hub paragraph · records book · Money Board new column · franchise pages · Bad Beats HOF · champion crown → new winner · trophy plaque · season sealing (live→permanent) · financial settlement report + Venmo · draft-selection board (two-stage) · dues tracker reset · keeper slate reset + deadline move · side-bet grid new-year column · buy-in/payout from the live VOTE → config (vote result feeds config, not a file edit) · league-id re-point (A) + settings watchdog diff (A).
+
+**⚠️ SILENT-STALE (shows last year as current if untouched — MUST derive):**
+- **Hardcoded dates/deadlines** — `betlogic.CFG.SEASON_START = '2026-09-10'`, `PLAYOFF_WEEK_DEFAULT = 16`, draft-day alert (`config.draft_day_alert_2026` — year baked into the key), keeper lock / trade deadline wherever written. → derive ALL from `config`/Sleeper per season.
+- **Hardcoded season-year labels** in views ("2026", chapter years) that aren't reading `season.year`.
+- **`config.season_start` / `season.buy_in` / `total_pot` / `weekly_payout`** if the new season record isn't created + set active (H.currentSeason falls back to latest-year, so a missing new-season record silently serves the old one).
+- **Buy-in/pot** everywhere if the vote passes but config isn't re-pointed (pot, weekly-high amount, finances, money-board column, amendment ledger dated entry, every money calc).
+
+**Short list that genuinely needs a HUMAN:** (1) approve the Annual's PRs (the whole point), (2) confirm the new Sleeper league mapping when auto-continue spawns it (A's watchdog surfaces diffs; a human confirms), (3) enter/confirm the new keeper designations (owner action, by deadline), (4) the buy-in vote itself (already a human vote — but its RESULT should flow to config automatically).
+
+**❓→A:** (a) API key for the Annual's headless run → GitHub **Actions secrets** (the Annual runs in Actions), not Netlify env — B's understanding; **A confirm before Cory pastes a key.** (b) B needs the Annual workflow to call B's content generators AFTER grading, passing the corrected season table + final standings + bracket order; agree the call signature + ordering barrier.
