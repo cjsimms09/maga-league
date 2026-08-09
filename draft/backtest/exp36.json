@@ -1,0 +1,590 @@
+{
+  "experiment": "36 \u2014 ADP-efficiency audit (reliability surface by round \u00d7 position)",
+  "sources_reached": [
+    "ffc"
+  ],
+  "n_board_picks": 255,
+  "pre_registered": {
+    "round_bands": [
+      "r1-3",
+      "r4-7",
+      "r8-11",
+      "r12+"
+    ],
+    "positions": [
+      "QB",
+      "RB",
+      "WR",
+      "TE",
+      "K",
+      "DEF"
+    ],
+    "cell_floor": 8,
+    "thin_shrink": 1.0,
+    "efficiency": "within-cell Spearman(-adp, realized), clamped [0,1] = shrink"
+  },
+  "surface": {
+    "cells": {
+      "r1-3": {
+        "QB": {
+          "n": 5,
+          "thin": true,
+          "ranked": false,
+          "efficiency": null,
+          "efficiency_ci": [
+            NaN,
+            NaN
+          ],
+          "shrink": 1.0,
+          "mean_realized": 386.6,
+          "note": "n<8: thin -> no shrinkage, defaults to full market anchor"
+        },
+        "RB": {
+          "n": 24,
+          "thin": false,
+          "ranked": true,
+          "efficiency": 0.121,
+          "efficiency_ci": [
+            -0.324,
+            0.565
+          ],
+          "shrink": 0.121,
+          "mean_realized": 223.52,
+          "verdict": "inefficient"
+        },
+        "WR": {
+          "n": 28,
+          "thin": false,
+          "ranked": true,
+          "efficiency": 0.256,
+          "efficiency_ci": [
+            -0.097,
+            0.579
+          ],
+          "shrink": 0.256,
+          "mean_realized": 213.02,
+          "verdict": "weak"
+        },
+        "TE": {
+          "n": 3,
+          "thin": true,
+          "ranked": false,
+          "efficiency": null,
+          "efficiency_ci": [
+            NaN,
+            NaN
+          ],
+          "shrink": 1.0,
+          "mean_realized": 178.4,
+          "note": "n<8: thin -> no shrinkage, defaults to full market anchor"
+        },
+        "K": {
+          "n": 0,
+          "thin": true,
+          "ranked": false,
+          "efficiency": null,
+          "efficiency_ci": [
+            NaN,
+            NaN
+          ],
+          "shrink": 1.0,
+          "mean_realized": null,
+          "note": "n<8: thin -> no shrinkage, defaults to full market anchor"
+        },
+        "DEF": {
+          "n": 0,
+          "thin": true,
+          "ranked": false,
+          "efficiency": null,
+          "efficiency_ci": [
+            NaN,
+            NaN
+          ],
+          "shrink": 1.0,
+          "mean_realized": null,
+          "note": "n<8: thin -> no shrinkage, defaults to full market anchor"
+        }
+      },
+      "r4-7": {
+        "QB": {
+          "n": 12,
+          "thin": false,
+          "ranked": true,
+          "efficiency": 0.58,
+          "efficiency_ci": [
+            -0.028,
+            0.979
+          ],
+          "shrink": 0.58,
+          "mean_realized": 332.88,
+          "verdict": "efficient"
+        },
+        "RB": {
+          "n": 25,
+          "thin": false,
+          "ranked": true,
+          "efficiency": 0.13,
+          "efficiency_ci": [
+            -0.255,
+            0.489
+          ],
+          "shrink": 0.13,
+          "mean_realized": 183.88,
+          "verdict": "inefficient"
+        },
+        "WR": {
+          "n": 30,
+          "thin": false,
+          "ranked": true,
+          "efficiency": 0.199,
+          "efficiency_ci": [
+            -0.2,
+            0.572
+          ],
+          "shrink": 0.199,
+          "mean_realized": 160.88,
+          "verdict": "inefficient"
+        },
+        "TE": {
+          "n": 13,
+          "thin": false,
+          "ranked": true,
+          "efficiency": 0.615,
+          "efficiency_ci": [
+            0.077,
+            0.857
+          ],
+          "shrink": 0.615,
+          "mean_realized": 132.98,
+          "verdict": "efficient"
+        },
+        "K": {
+          "n": 0,
+          "thin": true,
+          "ranked": false,
+          "efficiency": null,
+          "efficiency_ci": [
+            NaN,
+            NaN
+          ],
+          "shrink": 1.0,
+          "mean_realized": null,
+          "note": "n<8: thin -> no shrinkage, defaults to full market anchor"
+        },
+        "DEF": {
+          "n": 0,
+          "thin": true,
+          "ranked": false,
+          "efficiency": null,
+          "efficiency_ci": [
+            NaN,
+            NaN
+          ],
+          "shrink": 1.0,
+          "mean_realized": null,
+          "note": "n<8: thin -> no shrinkage, defaults to full market anchor"
+        }
+      },
+      "r8-11": {
+        "QB": {
+          "n": 4,
+          "thin": true,
+          "ranked": false,
+          "efficiency": null,
+          "efficiency_ci": [
+            NaN,
+            NaN
+          ],
+          "shrink": 1.0,
+          "mean_realized": 343.14,
+          "note": "n<8: thin -> no shrinkage, defaults to full market anchor"
+        },
+        "RB": {
+          "n": 30,
+          "thin": false,
+          "ranked": true,
+          "efficiency": -0.024,
+          "efficiency_ci": [
+            -0.423,
+            0.402
+          ],
+          "shrink": 0.0,
+          "mean_realized": 125.99,
+          "verdict": "inefficient"
+        },
+        "WR": {
+          "n": 32,
+          "thin": false,
+          "ranked": true,
+          "efficiency": 0.134,
+          "efficiency_ci": [
+            -0.249,
+            0.468
+          ],
+          "shrink": 0.134,
+          "mean_realized": 138.62,
+          "verdict": "inefficient"
+        },
+        "TE": {
+          "n": 6,
+          "thin": true,
+          "ranked": false,
+          "efficiency": null,
+          "efficiency_ci": [
+            NaN,
+            NaN
+          ],
+          "shrink": 1.0,
+          "mean_realized": 146.52,
+          "note": "n<8: thin -> no shrinkage, defaults to full market anchor"
+        },
+        "K": {
+          "n": 0,
+          "thin": true,
+          "ranked": false,
+          "efficiency": null,
+          "efficiency_ci": [
+            NaN,
+            NaN
+          ],
+          "shrink": 1.0,
+          "mean_realized": null,
+          "note": "n<8: thin -> no shrinkage, defaults to full market anchor"
+        },
+        "DEF": {
+          "n": 0,
+          "thin": true,
+          "ranked": false,
+          "efficiency": null,
+          "efficiency_ci": [
+            NaN,
+            NaN
+          ],
+          "shrink": 1.0,
+          "mean_realized": null,
+          "note": "n<8: thin -> no shrinkage, defaults to full market anchor"
+        }
+      },
+      "r12+": {
+        "QB": {
+          "n": 11,
+          "thin": false,
+          "ranked": true,
+          "efficiency": -0.073,
+          "efficiency_ci": [
+            -0.636,
+            0.591
+          ],
+          "shrink": 0.0,
+          "mean_realized": 274.48,
+          "verdict": "inefficient"
+        },
+        "RB": {
+          "n": 12,
+          "thin": false,
+          "ranked": true,
+          "efficiency": -0.147,
+          "efficiency_ci": [
+            -0.741,
+            0.657
+          ],
+          "shrink": 0.0,
+          "mean_realized": 87.19,
+          "verdict": "inefficient"
+        },
+        "WR": {
+          "n": 15,
+          "thin": false,
+          "ranked": true,
+          "efficiency": 0.718,
+          "efficiency_ci": [
+            0.371,
+            0.914
+          ],
+          "shrink": 0.718,
+          "mean_realized": 120.28,
+          "verdict": "efficient"
+        },
+        "TE": {
+          "n": 5,
+          "thin": true,
+          "ranked": false,
+          "efficiency": null,
+          "efficiency_ci": [
+            NaN,
+            NaN
+          ],
+          "shrink": 1.0,
+          "mean_realized": 119.33,
+          "note": "n<8: thin -> no shrinkage, defaults to full market anchor"
+        },
+        "K": {
+          "n": 0,
+          "thin": true,
+          "ranked": false,
+          "efficiency": null,
+          "efficiency_ci": [
+            NaN,
+            NaN
+          ],
+          "shrink": 1.0,
+          "mean_realized": null,
+          "note": "n<8: thin -> no shrinkage, defaults to full market anchor"
+        },
+        "DEF": {
+          "n": 0,
+          "thin": true,
+          "ranked": false,
+          "efficiency": null,
+          "efficiency_ci": [
+            NaN,
+            NaN
+          ],
+          "shrink": 1.0,
+          "mean_realized": null,
+          "note": "n<8: thin -> no shrinkage, defaults to full market anchor"
+        }
+      }
+    },
+    "n_cells_ranked": 11,
+    "n_cells_thin": 5,
+    "n_picks": 255
+  },
+  "by_position_pooled": {
+    "QB": {
+      "n": 32,
+      "thin": false,
+      "ranked": true,
+      "efficiency": 0.381,
+      "efficiency_ci": [
+        0.007,
+        0.66
+      ],
+      "shrink": 0.381,
+      "mean_realized": 322.48,
+      "verdict": "weak"
+    },
+    "RB": {
+      "n": 91,
+      "thin": false,
+      "ranked": true,
+      "efficiency": 0.445,
+      "efficiency_ci": [
+        0.256,
+        0.615
+      ],
+      "shrink": 0.445,
+      "mean_realized": 162.5,
+      "verdict": "weak"
+    },
+    "WR": {
+      "n": 105,
+      "thin": false,
+      "ranked": true,
+      "efficiency": 0.486,
+      "efficiency_ci": [
+        0.32,
+        0.631
+      ],
+      "shrink": 0.486,
+      "mean_realized": 162.2,
+      "verdict": "weak"
+    },
+    "TE": {
+      "n": 27,
+      "thin": false,
+      "ranked": true,
+      "efficiency": 0.28,
+      "efficiency_ci": [
+        -0.098,
+        0.584
+      ],
+      "shrink": 0.28,
+      "mean_realized": 138.51,
+      "verdict": "weak"
+    },
+    "K": {
+      "n": 0,
+      "thin": true,
+      "ranked": false,
+      "efficiency": null,
+      "efficiency_ci": [
+        NaN,
+        NaN
+      ],
+      "shrink": 1.0,
+      "mean_realized": null,
+      "note": "n<8: thin -> no shrinkage, defaults to full market anchor"
+    },
+    "DEF": {
+      "n": 0,
+      "thin": true,
+      "ranked": false,
+      "efficiency": null,
+      "efficiency_ci": [
+        NaN,
+        NaN
+      ],
+      "shrink": 1.0,
+      "mean_realized": null,
+      "note": "n<8: thin -> no shrinkage, defaults to full market anchor"
+    }
+  },
+  "tier_cliffs": {
+    "QB": {
+      "position": "QB",
+      "n": 32,
+      "thin": false,
+      "mean_adjacent_drop": 11.15,
+      "drop_sd": 180.76,
+      "cliffs": [
+        {
+          "after_adp_rank": 25,
+          "drop": 409.18,
+          "z": 2.2
+        },
+        {
+          "after_adp_rank": 8,
+          "drop": 384.38,
+          "z": 2.06
+        },
+        {
+          "after_adp_rank": 31,
+          "drop": 328.2,
+          "z": 1.75
+        },
+        {
+          "after_adp_rank": 17,
+          "drop": 238.44,
+          "z": 1.26
+        }
+      ]
+    },
+    "RB": {
+      "position": "RB",
+      "n": 40,
+      "thin": false,
+      "mean_adjacent_drop": -2.0,
+      "drop_sd": 134.56,
+      "cliffs": [
+        {
+          "after_adp_rank": 3,
+          "drop": 277.4,
+          "z": 2.08
+        },
+        {
+          "after_adp_rank": 18,
+          "drop": 236.9,
+          "z": 1.78
+        },
+        {
+          "after_adp_rank": 9,
+          "drop": 230.0,
+          "z": 1.72
+        },
+        {
+          "after_adp_rank": 5,
+          "drop": 191.3,
+          "z": 1.44
+        },
+        {
+          "after_adp_rank": 38,
+          "drop": 190.1,
+          "z": 1.43
+        }
+      ]
+    },
+    "WR": {
+      "position": "WR",
+      "n": 40,
+      "thin": false,
+      "mean_adjacent_drop": -1.75,
+      "drop_sd": 90.59,
+      "cliffs": [
+        {
+          "after_adp_rank": 15,
+          "drop": 188.2,
+          "z": 2.1
+        },
+        {
+          "after_adp_rank": 25,
+          "drop": 170.1,
+          "z": 1.9
+        },
+        {
+          "after_adp_rank": 38,
+          "drop": 148.5,
+          "z": 1.66
+        },
+        {
+          "after_adp_rank": 8,
+          "drop": 134.18,
+          "z": 1.5
+        },
+        {
+          "after_adp_rank": 4,
+          "drop": 118.88,
+          "z": 1.33
+        }
+      ]
+    },
+    "TE": {
+      "position": "TE",
+      "n": 27,
+      "thin": false,
+      "mean_adjacent_drop": 4.18,
+      "drop_sd": 51.04,
+      "cliffs": [
+        {
+          "after_adp_rank": 8,
+          "drop": 103.0,
+          "z": 1.94
+        },
+        {
+          "after_adp_rank": 11,
+          "drop": 86.8,
+          "z": 1.62
+        },
+        {
+          "after_adp_rank": 22,
+          "drop": 82.66,
+          "z": 1.54
+        },
+        {
+          "after_adp_rank": 1,
+          "drop": 66.0,
+          "z": 1.21
+        },
+        {
+          "after_adp_rank": 2,
+          "drop": 61.5,
+          "z": 1.12
+        }
+      ]
+    },
+    "K": {
+      "position": "K",
+      "n": 0,
+      "thin": true,
+      "cliffs": []
+    },
+    "DEF": {
+      "position": "DEF",
+      "n": 0,
+      "thin": true,
+      "cliffs": []
+    }
+  },
+  "qb_format_match": {
+    "n": 32,
+    "efficiency_6pt_our_league": 0.381,
+    "efficiency_4pt_adp_source": 0.416,
+    "delta": -0.035,
+    "note": "6-pt is our era-correct scoring; 4-pt is the ADP source's world. A gap means the market's QB order is being judged against a different currency than it was set in \u2014 the underpricing the late-QB verdict compounds."
+  },
+  "caveats": [
+    "[2025] NOT recovered: pbp disagreed with the library on 2024",
+    "2025: realized weekly unavailable; season SKIPPED"
+  ],
+  "note": "Points-reliability surface (per-player dollars are not a clean quantity; the money-graded companion is exp 34's dollar arm + exp 39). Efficiency = within-cell Spearman; thin cells (n<floor) contribute no shrinkage and default to full market anchoring. Multi-source + composite pending a second reachable board (FFC confirmed; Sleeper/Underdog probed, not assumed)."
+}
