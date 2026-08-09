@@ -1,6 +1,6 @@
 {
  "meta": {
-  "git_head": "0812dc8753d0d8166293bb25024b20d412ee852a",
+  "git_head": "3578be1ac53d69f4049393eab7e93be3de9a348f",
   "uncommitted_when_run": [],
   "seasons": [
    2023,
@@ -12,12 +12,12 @@
    {
     "season": 2023,
     "method": "walk_forward",
-    "spearman": 0.5966
+    "spearman": 0.5965
    },
    {
     "season": 2024,
     "method": "walk_forward",
-    "spearman": 0.5325
+    "spearman": 0.5324
    },
    {
     "season": 2025,
