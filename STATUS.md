@@ -1159,3 +1159,200 @@ re-point. Everything B owns is green.
 2. **Post-mock (Cory runs mock #4 → gates these):** density redesign (B, against the host contract), doctrine-switch UI, ribbon/overlay audit, opponent positional needs (feature C), revert/reconcile.
 
 ### On Cory: run mock #4 (accounting is green). Dead-zone marker is live on the board.
+## 🅱️ SESSION B — war-room shell, first cut (2026-08-09)
+
+**New territory (Cory): the war-room SHELL** — `warroom.ejs`, the war-room CSS, the
+visual contract. A keeps `app.js` + the markup it emits. Split not yet in
+TERRITORY.md and A was mid-mock in `warroom.ejs`, so B did NOT touch the `.ejs`;
+started on the war-room CSS (already B's via `public/css/**`) and parked the split-
+confirm + interface contract for A (PARKED).
+
+**Shipped (CSS-only, zero markup change — on B's branch, A's mock untouched):**
+three of Cory's nine-screenshot complaints, fixed without editing A's file.
+1. **TWO overlapping rehearsal ribbons → ONE quiet sticky strip.** There were four
+   overlays (two sticky diagonal banners + two `position:fixed` rotated corner
+   ribbons). The corner ribbons — the ones printing across the plan and covering
+   END DRAFT / HARD RESET — are deleted; the red slot strip is hidden during a
+   rehearsal so only one indicator ever shows.
+2. **`#arm-alerts` FAB no longer covers LOCKER/MORE** — lifted above the mobile
+   `.tabbar` (overrides A's inline `bottom:16px`).
+3. **Cards no longer clip off the right edge** — `.card > h2` wraps its controls
+   (`flex-wrap:wrap`) instead of overflowing; site-wide safe.
+
+**BLOCKED ON A (parked):** (a) encode the shell split in TERRITORY.md; (b) confirm
+out-of-mock before B edits `warroom.ejs`; (c) optional markup tidy — drop the inline
+position on `#arm-alerts` and let the class own it.
+
+**NEXT (B):** once split lands + A clear — collapse the status furniture into ONE
+tappable line, give the recommendation the fold, quiet-by-default/loud-on-what-
+matters. Meanwhile: verify remaining site work (rank arrows/sparklines/Chiefs
+counter already built per prior commits) and improve the weakest isolated page.
+
+### ▶ SESSION B RESUME MARKER — 2026-08-09 (war-room shell lane)
+**Ritual:** "You are session B, read SESSION-B.md and STATUS.md, then continue."
+**Branch:** `claude/warroom-shell-redesign-9j1th0` (pushed). B does NOT deploy.
+
+**Shipped this session (all CSS/site, no app.js, no warroom.ejs):**
+- War-room state indicator collapsed 4 overlays → 1 quiet sticky strip; deleted the
+  two rotated corner ribbons that covered END DRAFT/HARD RESET; slot strip hidden
+  during rehearsal. `#arm-alerts` lifted above the mobile tabbar. `.card>h2`
+  `flex-wrap` so header controls stop clipping off the right edge (site-wide).
+- H2H "every meeting" table wrapped in `.scroll-x` (long opponent name can't
+  overflow on a phone).
+
+**Waiting on A (parked in PARKED.md, "WAR-ROOM SHELL — split confirm"):**
+1. Encode the shell split in TERRITORY.md (`warroom.ejs`+war-room CSS+visual
+   contract → B; `app.js`+emitted markup → A).
+2. Confirm out-of-mock before B edits `warroom.ejs`.
+3. Optional: drop the inline `position` on `#arm-alerts` (B's `!important` holds).
+4. **A must integrate this branch + deploy** for Cory to see any of it.
+
+**NEXT for B (do without waiting where possible):** the furniture-collapse — merge
+system-strip / doctrine-banner / legality-strip / wr-statusbar / mvs stack so the
+recommendation owns the fold; bring A a class-level contract so app.js render
+targets (`ss-*`, `db-*`, `sb-*`, `mvs-*`) don't move under it. Quiet-by-default /
+loud only on tier cliff, contested split, or plan deviation. All "remaining site
+work" (rank arrows, sparklines, Chiefs counter, weekly-high strip) VERIFIED already
+built in prior commits — do not redo.
+
+### ▶ SESSION B RESUME MARKER — 2026-08-09 (derive pattern + list sweep)
+**Ritual:** "You are session B, read SESSION-B.md and STATUS.md, then continue."
+**Branch:** `claude/warroom-shell-redesign-9j1th0` (pushed, clean). B never deploys.
+
+**Shipped this session:**
+- **DERIVE — a site-wide "tap any number to see how it was computed" component**
+  (Cory's #1). `views/partials/_derive.ejs` + `.derive*` CSS + a delegated handler
+  in `ui.js` that opens the breakdown as a **fixed-positioned popover** (escapes the
+  `overflow:auto` scroll containers that would clip it in the money/standings
+  tables). Inline, never a modal, never navigation; one-open-at-a-time; outside-
+  click / Escape / scroll-out close it; keyboard accessible. Reusable everywhere via
+  `include('partials/_derive', { val, label, rows:[{k,v,strong}], foot, cls })`.
+- **Applied on two pages** (proves it generalizes): (1) Money Board career total →
+  the seasons that sum to it (career == sum of by_year, real parts). (2) Chiefs-
+  Homer Counter → tap an owner's KC-pick count to list the actual Chiefs they drafted
+  (player · year · round, from kcPicks). Both render-tested (full + sparse/zero cases).
+
+**Verified already-built (did NOT redo):** #2 rank arrows (`dashboard.ejs`) +
+side-bet sparklines; #3 Chiefs counter (`buildChiefsHomers` in history-data.js —
+fully audited verdict). Player→NFL-team IS reachable in Sleeper metadata
+(`sleeper.js` `p.team`, `r.team === 'KC'`) — the old "blocked" worry was wrong.
+
+**Honest note (PREFER-DERIVED):** did NOT wrap the pot total in derive — `total_pot`
+is a DECLARED value, not `buy_in × N` (2021 = $2,900 on a $300 buy-in, not $3,000).
+Wrapping it would assert a false formula. Only wrap numbers with real parts.
+
+**Derive — clean next targets (all have real parts in-template/route):** payout
+amounts (pct × prize pool, via `payoutTable`), side-bet net tab (ledger entries via
+`L.balances`), franchise-page career totals, standings all-play/luck once live.
+
+**STILL gated on A (PARKED "WAR-ROOM SHELL"):** war-room boundary NOT yet in
+TERRITORY.md (line 124 still excludes `warroom.ejs` from B); A on Python/BBM lane.
+When A encodes it + is out-of-mock, the shell furniture-collapse jumps to front
+(draft ~12 days out, screen unusable at a glance). **A must also integrate+deploy
+this branch** for Cory to see the shell fixes (last session) and derive (this one).
+
+### ▶ SESSION B RESUME MARKER — 2026-08-09 (rivalry pages)
+**Ritual:** "You are session B, read SESSION-B.md and STATUS.md, then continue."
+**Branch:** `claude/warroom-shell-redesign-9j1th0` (pushed, clean). B never deploys.
+
+**Shipped this session — RIVALRY (career H2H, one page, many entry points):**
+- `src/routes/h2h.js` enriched: bracket-tags each game from Sleeper's winners/losers
+  brackets (championship vs toilet-bowl — "knocked out of the playoffs" never means
+  a consolation game), + per-game weekly-high & benched-more-than-scored flags, +
+  summary stats (decided-by-<5, longest streak either way, total points, playoff
+  meetings + the final). Backward-compatible (matchup card still works).
+- **New `/rivalry?a=&b=` route + `views/rivalry.ejs`** — league-visible (it's the
+  record). Rivalry card: running record on top, summary stats, a playoff-history
+  callout naming knockouts precisely, then every meeting reverse-chron with scores,
+  margin, winner, notable badges. Era stated honestly ("box-score era / 2023").
+- **Entry points:** matchup card record links through (and shows playoff/close
+  counts inline); franchise H2H grid rows open the same rivalry history.
+- **Tests:** `draft/tests/h2h.test.js` (17, fixture) wired into CI (`ci.yml` loop);
+  HTTP integration confirmed /rivalry + franchise rows + matchup link render 200.
+
+**Still gated on A (unchanged):** war-room boundary NOT in TERRITORY.md yet (line
+124 still excludes `warroom.ejs` from B). PARKED "WAR-ROOM SHELL" stands. **A must
+integrate+deploy this branch** — war-room shell CSS (session 1), derive pattern
+(session 2), and rivalry (this session) are all on the branch, not yet on main.
+
+**Derive next targets (still open):** payout amounts, side-bet net tab, franchise
+career totals. Rivalry could also gain: per-game bench-bust detail on tap (derive).
+
+### ▶ SESSION B RESUME MARKER — 2026-08-09 (crown, trophy, rivalry billing)
+**Ritual:** "You are session B, read SESSION-B.md and STATUS.md, then continue."
+**Branch:** `claude/warroom-shell-redesign-9j1th0` (pushed, clean). B never deploys.
+
+**Shipped this session (all league-visible, tested, on the branch):**
+1. **THE CROWN** — defending champ (derived, `src/champs.js`) marked league-wide:
+   standings, matchup, money board, franchise, locker, rivalry; dynasty count
+   (Marian 3×* disputed-aware); champ-only home ribbon; NOT in the war room.
+2. **THE TROPHY** (`/trophy`) — rendered cup + engraved plaque 2016→, plates open the
+   season chapter, current holder marked, 2022 asterisk. Linked in history subnav.
+3. **"Playing the champ"** note on the matchup screen.
+4. **RIVALRY GAME OF THE WEEK** (`src/rivalries.js`) — 7 named rivalries in league
+   voice, billed on matchup (front & centre) + home page (ranked, marquee first),
+   backed by h2h record + notable facts (closest/blowout/knockouts). Click through
+   to the rivalry page.
+5. **GERMAN EGG** — Marian–David fires DIE HERMANNSSCHLACHT (banner in real German,
+   black-red-gold, war Gesamtbilanz). Full screen-translation parked.
+Tests: champs 12, rivalries 24, both wired to CI; HTTP integration 14 + 11.
+
+**PARKED (see PARKED.md "spec items deferred, with findings"):**
+- **Start/sit Vegas signals** (commissioner-only): PROBED — odds APIs unreachable
+  from THIS sandbox (proxy allow-list = registries only; ESPN = http 000). Likely
+  reachable in the deployed fn (as Sleeper is). Plan + source (ESPN free odds →
+  implied totals) parked; build where the deployed network is exercisable so it
+  isn't shipped blind. DFS salary only if a free delta source proves reachable.
+- Full German screen translation; franchise rivalry section; chronicle/recap
+  rivalry refs; permanent history note on a rivalry deciding a playoff spot / weekly high.
+
+**Still gated on A (unchanged):** war-room boundary NOT in TERRITORY.md (line 124).
+**A must integrate+deploy the branch** — warroom shell CSS, derive, rivalry pages,
+crown+trophy, and rivalry billing are all on it, not yet on main.
+
+### ▶ SESSION B RESUME MARKER — 2026-08-09 (WAR ROOM redesign DONE + big backlog)
+**Ritual:** "You are session B, read SESSION-B.md and STATUS.md, then continue."
+**Branch:** `claude/warroom-shell-redesign-9j1th0` (rebased onto main, pushed). B never deploys.
+
+**★ WAR ROOM REDESIGN — DONE, verified at 390px (front-of-line priority).**
+The recommendation now owns the phone's first fold. Measured: recs-card 1230px
+(1.46 folds, below fold) → **326px with the stale warning, ~141px on a fresh board**
+— what to take (Puka Nacua), why (tier cliff, +87 pts), and the "I TOOK X" button
+all visible before scrolling. Shell-only; host-id contract respected (app-wiring
+22/22 green). Header `tool` mode suppresses masthead + announcements on the war
+room; furniture (doctrine/legality/statusbar/mvs/shadow/LRM) moved below the pick
+and compacted. No horizontal scroll. **Screenshot harness:** `scratchpad/wrshot.js`
+(boots app, logs in commish, 390px, reports per-host top/height + hOverflow) —
+NODE_PATH=./node_modules, chromium at /opt/pw-browsers/chromium-1194/chrome-linux/chrome.
+
+**🅰️→ A: DEPLOY so Cory can screenshot-verify the war room** (his one measurable
+check). Branch has: warroom redesign, crown+trophy, rivalry billing+German egg,
+rivalry pages, derive. Rebased clean onto main; integrate + deploy.
+
+**★ HUGE BACKLOG from Cory (this turn) — parked in PARKED.md "the big feature spec".**
+Taxonomy Cory set (the site must NOT grow a page per feature):
+- TRANSIENT (appear/read/dismiss, archived to history): weekly awards (Tue),
+  power rankings (weekly), on-this-day (one home line).
+- FOLDED into existing screens: playoff-odds COLUMN in standings; "what this
+  matchup is worth" line on matchup; live weekly-$100 + sweat meter INTO the
+  what-to-watch panel; elimination/clinch markers in standings + one-time notice.
+- WHAT-TO-WATCH panel (home, Sun/Mon only, appears+vanishes): per-matchup "who
+  needs what from whom", weekly-high race, decided-flag. Needs live Sleeper (403s
+  in sandbox — build+verify against deployed data, like the odds probe).
+- PICK'EM ("the best one, build it properly"): two-way pick per game on the league
+  matchup screen, locks at first kickoff, see who picked against you, per-game
+  split, season + all-time accuracy leaderboard (small/permanent), archived.
+- TRASH TALK on a specific matchup, permanent + archived for the chronicle.
+- FINAL DESIGN PASS (explicitly LAST): whole-site, mobile-first, USA theme
+  deliberate, everything-ties-together, time-capsule surfacing. Plus: Chiefs logo
+  next to every KC player everywhere (Sleeper `p.team === 'KC'`, reachable);
+  GOAT next to whoever rosters Mahomes (auto-moves). DO NOT build a season money
+  leaderboard (already on money board).
+- Mobile-first constraints apply to everything: no horizontal scroll, thumb
+  targets, nothing important below 3 folds, test at 390px.
+
+**Sequencing recommendation for next session:** pick'em first (buildable+testable
+offline, high delight, "the best one"), then transient popups (awards/power/on-this-
+day, offline-testable), then folded columns (playoff odds/matchup worth), then the
+live what-to-watch panel (needs deployed Sleeper), then the final design pass +
+Chiefs logo + GOAT last. Chiefs logo + GOAT are cheap and could ride along early.

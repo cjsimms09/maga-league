@@ -176,6 +176,11 @@ a { color: var(--gold); }
   border-bottom: 1px solid var(--line);
   background: rgba(255, 255, 255, .025);
   display: flex; justify-content: space-between; align-items: center; gap: .5rem;
+  /* Card headers that pack controls (war room: ⚖️ Compare / ⏱ One answer; the
+     Draft Board's filter + search) overflowed the right edge on a phone because
+     flex children can't wrap. Wrap them onto a second line instead of clipping.
+     Single title+sub headers are unaffected — they never need the extra row. */
+  flex-wrap: wrap; row-gap: .35rem;
   position: relative;
 }
 .card > h2::before {
@@ -1044,35 +1049,54 @@ button.is-busy, .btn.is-busy {
 .lrm-elite { color: #ff8a95; font-weight: 700; }
 .lrm-now { color: #ff8a95; font-weight: 700; }
 
-/* §D.2 rehearsal watermark — impossible to mistake sim state for the real draft. */
-.rehearsal-watermark {
-  position: sticky; top: 0; z-index: 80; text-align: center;
-  background: repeating-linear-gradient(45deg, rgba(245,196,69,.22) 0 14px, rgba(245,196,69,.32) 14px 28px);
-  color: #f2e2b4; font-weight: 900; letter-spacing: .12em; text-transform: uppercase;
-  padding: .45rem; border-bottom: 2px solid rgba(245,196,69,.6); font-size: .82rem;
-}
-body.is-rehearsal::after {
-  content: "REHEARSAL"; position: fixed; right: -46px; top: 34px; z-index: 79;
-  transform: rotate(45deg); background: rgba(245,196,69,.85); color: #0b1020;
-  font-weight: 900; letter-spacing: .1em; padding: .3rem 3.4rem; pointer-events: none;
-  box-shadow: 0 4px 14px rgba(0,0,0,.35);
-}
+/* ── ONE STATE INDICATOR (B, war-room shell) ────────────────────────────────
+   Cory's #1 complaint: TWO diagonal ribbons over live text, one printing across
+   the plan and covering END DRAFT / HARD RESET. There were FOUR overlays here —
+   two sticky diagonal banners AND two fixed rotated corner ribbons. That is the
+   opposite of "one rehearsal indicator, placed where it cannot cover content."
 
-/* A2 — SLOT UNVERIFIED. A quieter cousin of the rehearsal banner: the slot is a
-   placeholder until Sleeper confirms it, and everything slot-derived is
-   provisional. Same sticky-banner + corner-ribbon pattern, in caution red so it
-   reads as "trust this number less", not "you are in a sim". */
+   Now: ONE quiet, flat, sticky strip at the very top. Rehearsal (gold) subsumes
+   slot-unverified (red) — a rehearsal is already provisional, so only one shows
+   at a time (rule below). The rotated corner ribbons are GONE: a fixed overlay
+   at the top-right corner is guaranteed to land on the doctrine banner and the
+   setup buttons, which is exactly what it was doing.
+
+   The markup (the two divs, the `is-rehearsal` / `slot-unverified` body classes,
+   and app.js toggling their `display`) is A's and UNCHANGED — this is styling
+   only. The strip stays impossible to miss (it is a safety indicator) without
+   being a construction-zone stripe painted over the decision. */
+.rehearsal-watermark,
 .slot-watermark {
-  position: sticky; top: 0; z-index: 78; text-align: center;
-  background: repeating-linear-gradient(45deg, rgba(255,70,85,.16) 0 14px, rgba(255,70,85,.26) 14px 28px);
-  color: #ffd3d7; font-weight: 800; letter-spacing: .1em; text-transform: uppercase;
-  padding: .4rem; border-bottom: 2px solid rgba(255,70,85,.5); font-size: .76rem;
+  position: sticky; top: 0; z-index: 80; text-align: center;
+  padding: .35rem .6rem; font-size: .74rem; font-weight: 800;
+  letter-spacing: .1em; text-transform: uppercase; line-height: 1.2;
 }
-body.slot-unverified:not(.is-rehearsal)::before {
-  content: "SLOT UNVERIFIED"; position: fixed; right: -46px; top: 92px; z-index: 77;
-  transform: rotate(45deg); background: rgba(255,70,85,.82); color: #0b1020;
-  font-weight: 900; letter-spacing: .08em; padding: .28rem 3.2rem; pointer-events: none;
-  box-shadow: 0 4px 14px rgba(0,0,0,.35);
+.rehearsal-watermark {
+  background: rgba(245,196,69,.14); color: #f2e2b4;
+  border-bottom: 1px solid rgba(245,196,69,.55);
+  box-shadow: inset 3px 0 0 rgba(245,196,69,.9);
+}
+.slot-watermark {
+  z-index: 78;
+  background: rgba(255,70,85,.11); color: #ffd3d7;
+  border-bottom: 1px solid rgba(255,70,85,.45);
+  box-shadow: inset 3px 0 0 rgba(255,70,85,.85);
+  font-size: .7rem;
+}
+/* One indicator at a time: a rehearsal already means every slot number is
+   provisional, so the red slot strip never stacks under the gold one. */
+body.is-rehearsal .slot-watermark { display: none !important; }
+
+/* ARM-MY-TURN FAB — clear the mobile bottom nav (B, war-room shell).
+   In every phone screenshot the fixed "🔔 Arm my-turn alert" button sat at
+   bottom:16px, landing squarely on the .tabbar and hiding LOCKER + MORE. The
+   button's inline bottom is A's markup; we lift it above the ~52px tabbar (plus
+   the safe-area inset) from the CSS side so no markup change is needed. Desktop
+   has no tabbar, so the inline bottom is left alone there. */
+@media (max-width: 700px) {
+  #arm-alerts {
+    bottom: calc(52px + env(safe-area-inset-bottom, 0px) + 12px) !important;
+  }
 }
 
 /* ---------- draft-day staleness gate ----------
@@ -2729,3 +2753,298 @@ button.pd-team.pick:hover { background: rgba(245,196,69,.16); transform: transla
 .ts-seat b { color: #fff; font-variant-numeric: tabular-nums; }
 .ts-likely { display: block; font-size: .78rem; color: #c7cddd; }
 .ts-tell { display: block; font-size: .72rem; color: var(--muted); font-style: italic; margin-top: .1rem; }
+
+/* ── DERIVE: tap any number to see how it was computed (B, site-wide) ────────
+   Inline, never a modal, never navigation. The trigger reads as the number it
+   wraps with a faint dotted underline + an ⓘ cue; ui.js opens the panel as a
+   fixed-positioned popover so it escapes any scroll container (money board,
+   standings) instead of being clipped. The panel shows the real parts a figure
+   is built from — this is what lets every number on the site be traced. */
+.derive { position: relative; display: inline; }
+.derive-trigger {
+  font: inherit; color: inherit; background: none; border: 0; padding: 0; margin: 0;
+  display: inline; text-align: inherit; cursor: pointer;
+  border-bottom: 1px dotted rgba(245, 196, 69, .45);
+}
+.derive-trigger:hover,
+.derive-trigger[aria-expanded="true"] { border-bottom-color: var(--gold); }
+.derive-trigger:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; border-radius: 2px; }
+.derive-cue::after {
+  content: '\24D8'; /* ⓘ */ font-size: .62em; margin-left: .18em; opacity: .5;
+  vertical-align: super; font-style: normal; font-weight: 700;
+}
+.derive-trigger:hover .derive-cue::after,
+.derive-trigger[aria-expanded="true"] .derive-cue::after { opacity: 1; color: var(--gold); }
+
+.derive-panel {
+  position: fixed; z-index: 220; min-width: 190px; max-width: min(88vw, 320px);
+  display: flex; flex-direction: column;
+  background: var(--panel-soft); color: var(--ink);
+  border: 1px solid var(--line); border-radius: 10px;
+  box-shadow: 0 14px 38px rgba(0, 0, 0, .55);
+  padding: .55rem .65rem; font-size: .78rem; line-height: 1.35;
+  text-align: left; white-space: normal; font-weight: 400; letter-spacing: normal;
+  text-transform: none; font-variant-numeric: normal;
+  animation: derive-in .12s ease-out;
+}
+.derive-panel[hidden] { display: none; }
+@keyframes derive-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+.derive-head {
+  font-family: var(--font-display); font-size: .62rem; font-weight: 800;
+  letter-spacing: .09em; text-transform: uppercase; color: var(--muted);
+  margin-bottom: .35rem;
+}
+.derive-row { display: flex; justify-content: space-between; gap: 1.1rem; padding: .09rem 0; }
+.derive-k { color: #c6cfe0; }
+.derive-v { font-variant-numeric: tabular-nums; font-weight: 600; color: #fff; white-space: nowrap; }
+.derive-row.is-sum {
+  margin-top: .2rem; padding-top: .3rem; border-top: 1px solid var(--line);
+}
+.derive-row.is-sum .derive-k { font-weight: 700; color: #fff; }
+.derive-row.is-sum .derive-v { color: var(--gold); }
+.derive-foot {
+  margin-top: .4rem; font-size: .68rem; color: var(--muted);
+  border-top: 1px dashed rgba(255, 255, 255, .08); padding-top: .32rem; font-weight: 400;
+}
+
+/* ── RIVALRY PAGE (B) — the full head-to-head, the click-through from the matchup
+   card and the franchise grid. Reads as a rivalry card, not a stat block. ─────── */
+.rv-head { text-align: center; margin-bottom: 1rem; }
+.rv-vs { color: var(--muted); font-weight: 600; font-size: .7em; margin: 0 .15em; }
+
+.rv-verdict { margin-bottom: 1.1rem; border-color: var(--line); text-align: center; }
+.rv-verdict.a { border-color: rgba(47, 213, 118, .5); }
+.rv-verdict.b { border-color: rgba(255, 70, 85, .5); }
+.rv-verdict .body { padding: 1.1rem 1rem; }
+.rv-record { font-family: var(--font-display); font-size: 1.5rem; font-weight: 900; letter-spacing: .01em; color: #fff; }
+.rv-verdict.a .rv-record { color: #b9f5d3; }
+.rv-verdict.b .rv-record { color: #ffb4bb; }
+.rv-streak { margin-top: .3rem; font-size: .9rem; color: var(--gold-bright); font-weight: 700; }
+.rv-pts { margin-top: .45rem; font-size: .78rem; }
+
+.rv-stats { margin-bottom: 1.1rem; }
+
+.rv-playoffs { margin-bottom: 1.1rem; border-color: rgba(245, 196, 69, .4); }
+.rv-po-line { display: flex; gap: .5rem; align-items: baseline; padding: .3rem 0; font-size: .9rem; color: #dfe6f5; line-height: 1.4; }
+.rv-po-line + .rv-po-line { border-top: 1px dashed rgba(255, 255, 255, .07); }
+.rv-po-line.final { color: #fff; font-weight: 600; }
+.rv-po-badge { flex: 0 0 auto; }
+
+.rv-game { padding: .7rem 0; border-bottom: 1px solid var(--line); }
+.rv-game:last-child { border-bottom: 0; }
+.rv-when { font-family: var(--font-display); font-size: .64rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: .25rem; }
+.rv-score { display: flex; align-items: center; justify-content: center; gap: .6rem; font-size: 1.02rem; flex-wrap: wrap; }
+.rv-team { color: var(--muted); font-variant-numeric: tabular-nums; }
+.rv-team b { color: #cdd6ea; font-variant-numeric: tabular-nums; }
+.rv-team.won { color: #fff; }
+.rv-team.won b { color: var(--gold-bright); }
+.rv-team.lost { opacity: .72; }
+.rv-dash { color: var(--muted); }
+.rv-verdict-line { text-align: center; margin-top: .2rem; }
+.rv-by { font-size: .8rem; color: #c6cfe0; font-weight: 600; }
+.rv-tie { font-size: .8rem; color: var(--muted); font-style: italic; }
+.rv-notes { display: flex; flex-wrap: wrap; gap: .35rem; justify-content: center; margin-top: .45rem; }
+.rv-note { font-size: .68rem; font-weight: 700; letter-spacing: .02em; padding: .12rem .5rem; border-radius: 999px; border: 1px solid var(--line); color: #c6cfe0; white-space: nowrap; }
+.rv-note.nail { border-color: rgba(255, 70, 85, .5); color: #ffb4bb; }
+.rv-note.close { border-color: rgba(245, 196, 69, .35); color: #ffd873; }
+.rv-note.high { border-color: rgba(47, 213, 118, .45); color: #b9f5d3; }
+.rv-note.bench { border-color: rgba(255, 255, 255, .12); color: var(--muted); }
+
+/* Rivalry entry points — the matchup card record + "every meeting" link, and the
+   clickable franchise H2H rows (B). */
+.h2h-lead-link { text-decoration: none; display: inline-block; }
+.h2h-lead-link .h2h-lead-cue { opacity: .5; font-weight: 700; transition: opacity .12s, transform .12s; display: inline-block; }
+.h2h-lead-link:hover .h2h-lead-cue { opacity: 1; transform: translateX(3px); }
+.h2h-full-link {
+  display: block; margin-top: .9rem; padding-top: .8rem; border-top: 1px solid var(--line);
+  text-align: center; font-weight: 700; font-size: .86rem; color: var(--gold-bright); text-decoration: none;
+}
+.h2h-full-link:hover { color: #fff; }
+.h2h-row { cursor: pointer; }
+.h2h-row:hover { background: rgba(255, 255, 255, .04); }
+.h2h-row-cue { text-align: right; opacity: .4; transition: opacity .12s, transform .12s; }
+.h2h-row:hover .h2h-row-cue { opacity: 1; transform: translateX(2px); }
+
+/* ── THE CROWN — the defending champion, marked league-wide all season (B) ──────
+   Derived from the champions roll; transfers on its own in January. A small gold
+   crown next to the name, and a dynasty count for anyone with more than one. */
+.champ-crown {
+  display: inline-block; margin-left: .28em; font-size: .82em; line-height: 1;
+  filter: drop-shadow(0 0 5px rgba(245, 196, 69, .55));
+  animation: champ-shimmer 3.2s ease-in-out infinite;
+  vertical-align: baseline;
+}
+@keyframes champ-shimmer {
+  0%, 100% { transform: translateY(0) rotate(0deg); filter: drop-shadow(0 0 4px rgba(245, 196, 69, .45)); }
+  50%      { transform: translateY(-1px) rotate(-4deg); filter: drop-shadow(0 0 8px rgba(245, 196, 69, .8)); }
+}
+@media (prefers-reduced-motion: reduce) { .champ-crown { animation: none; } }
+.champ-rings {
+  display: inline-block; margin-left: .3em; padding: 0 .34em;
+  font-family: var(--font-display); font-size: .62em; font-weight: 800;
+  letter-spacing: .02em; vertical-align: middle;
+  color: var(--gold-bright); border: 1px solid rgba(245, 196, 69, .4); border-radius: 999px;
+  background: rgba(245, 196, 69, .1);
+}
+
+/* The defending champ's OWN screen — a subtle, earned flourish, not a shout.
+   Set by body.is-champ (the member router flags viewerIsChamp). */
+body.is-champ .page-title,
+body.is-champ .chron-title { position: relative; }
+body.is-champ .navbar::after,
+body.is-champ .tabbar { box-shadow: inset 0 2px 0 rgba(245, 196, 69, .5), 0 -8px 24px rgba(0, 0, 0, .45); }
+.champ-ribbon {
+  display: block; text-align: center; font-family: var(--font-display);
+  font-size: .64rem; font-weight: 800; letter-spacing: .16em; text-transform: uppercase;
+  color: #0b1020; padding: .22rem;
+  background: linear-gradient(90deg, var(--gold), var(--gold-bright), var(--gold));
+  background-size: 200% 100%; animation: champ-sheen 6s linear infinite;
+}
+@keyframes champ-sheen { 0% { background-position: 0 0; } 100% { background-position: 200% 0; } }
+@media (prefers-reduced-motion: reduce) { .champ-ribbon { animation: none; } }
+
+/* "You're playing the champ" — the matchup callout when your opponent holds the
+   crown (B). Fun, not loud. */
+.mu-champ-note {
+  margin: .7rem 0 0; text-align: center; font-size: .82rem; color: #f2e2b4;
+  background: rgba(245, 196, 69, .1); border: 1px solid rgba(245, 196, 69, .4);
+  border-radius: 8px; padding: .5rem .7rem;
+}
+
+/* ── THE TROPHY (B) — the league's cup, rendered, and the engraved plaque. One of
+   the few places a little indulgence is the right call. ────────────────────────── */
+.trophy { display: inline-block; margin: 1.6rem auto .3rem; position: relative; }
+.trophy-cup {
+  width: 128px; height: 94px; margin: 0 auto; position: relative;
+  background: linear-gradient(160deg, #fff3c4, var(--gold) 42%, #a9760f 100%);
+  border-radius: 14px 14px 64px 64px / 14px 14px 92px 92px;
+  box-shadow: inset 0 6px 12px rgba(255, 255, 255, .55), inset 0 -16px 26px rgba(0, 0, 0, .35),
+    0 12px 34px rgba(245, 196, 69, .3);
+  overflow: hidden;
+}
+.trophy-cup::before, .trophy-cup::after {
+  content: ''; position: absolute; top: 10px; width: 28px; height: 44px;
+  border: 8px solid var(--gold); border-radius: 40px;
+}
+.trophy-cup::before { left: -28px; border-right: none; border-radius: 40px 0 0 40px; }
+.trophy-cup::after { right: -28px; border-left: none; border-radius: 0 40px 40px 0; }
+.trophy-shine {
+  position: absolute; top: 0; left: -60%; width: 38%; height: 100%;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, .72), transparent);
+  transform: skewX(-18deg); animation: trophy-sweep 5s ease-in-out infinite;
+}
+@keyframes trophy-sweep { 0%, 55% { left: -60%; } 100% { left: 135%; } }
+.trophy-star { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: rgba(120, 80, 0, .45); font-size: 2rem; }
+.trophy-stem { width: 14px; height: 24px; margin: -2px auto 0; background: linear-gradient(var(--gold), #a9760f); }
+.trophy-base {
+  width: 82px; margin: 0 auto; padding: .38rem; border-radius: 4px;
+  background: linear-gradient(#d9a441, #8a5a12); box-shadow: 0 8px 18px rgba(0, 0, 0, .4);
+  font-family: var(--font-display); font-size: .55rem; font-weight: 800; letter-spacing: .1em; color: #3a2600;
+}
+@media (prefers-reduced-motion: reduce) { .trophy-shine { animation: none; } }
+.trophy-holder { color: var(--gold-bright); font-weight: 700; margin: .5rem 0 1.5rem; }
+
+.plaque { text-align: left; max-width: 540px; margin: 0 auto; }
+.plate {
+  display: flex; align-items: center; gap: .8rem; padding: .55rem .7rem; margin-bottom: .4rem;
+  text-decoration: none; color: var(--ink); border: 1px solid var(--line); border-radius: 8px;
+  background: linear-gradient(90deg, rgba(245, 196, 69, .06), transparent);
+  transition: border-color .12s, background .12s, transform .12s;
+}
+.plate:hover { border-color: var(--gold); background: linear-gradient(90deg, rgba(245, 196, 69, .18), transparent); transform: translateX(3px); }
+.plate-year { font-family: var(--font-display); font-weight: 800; color: var(--muted); min-width: 3.2ch; }
+.plate-name { font-weight: 700; flex: 1; }
+.plate-payout { font-size: .78rem; font-variant-numeric: tabular-nums; }
+.plate-crown { margin-left: .2rem; }
+.plate-aster { color: var(--gold-bright); }
+.plate.current { border-color: rgba(245, 196, 69, .6); background: linear-gradient(90deg, rgba(245, 196, 69, .22), transparent); }
+.plate.current .plate-name { color: #fff; }
+
+/* ── RIVALRY GAME OF THE WEEK (B) — billed on the matchup screen and the home page.
+   Tone drives the palette: grudge is hostile, friendship is warm, german is the
+   flag. Front and centre, in the league voice. ────────────────────────────────── */
+.riv-banner {
+  margin: 0 0 1.2rem; padding: 1rem 1.1rem; border-radius: 12px; text-align: center;
+  border: 1px solid var(--line); background: var(--panel-soft); position: relative; overflow: hidden;
+}
+.riv-banner-eyebrow {
+  font-family: var(--font-display); font-size: .64rem; font-weight: 800;
+  letter-spacing: .16em; text-transform: uppercase; color: var(--muted);
+  display: flex; align-items: center; justify-content: center; gap: .5rem;
+}
+.riv-marquee {
+  font-size: .58rem; padding: .1rem .45rem; border-radius: 999px; letter-spacing: .12em;
+  background: var(--red); color: #fff;
+}
+.riv-banner-name {
+  font-family: var(--font-display); font-size: 1.55rem; font-weight: 900; letter-spacing: .04em;
+  color: #fff; margin: .25rem 0 .1rem; line-height: 1.05;
+}
+.riv-banner-tag { font-size: .8rem; color: var(--muted); font-style: italic; margin-bottom: .5rem; }
+.riv-banner-record { font-size: .95rem; color: #fff; font-weight: 700; font-variant-numeric: tabular-nums; }
+.riv-banner-note { font-size: .74rem; color: #c6cfe0; margin-top: .2rem; }
+.riv-banner-blurb { font-size: .84rem; line-height: 1.5; color: #dfe6f5; margin: .6rem auto 0; max-width: 46ch; }
+.riv-banner-link {
+  display: inline-block; margin-top: .7rem; font-weight: 700; font-size: .82rem;
+  color: var(--gold-bright); text-decoration: none;
+}
+.riv-banner-link:hover { color: #fff; }
+
+/* Tones. A left/right accent bar carries the colour so the palette reads at a glance. */
+.riv-banner.tone-grudge   { border-color: rgba(255,70,85,.6); box-shadow: inset 0 0 0 1px rgba(255,70,85,.15), 0 0 26px rgba(255,70,85,.12); background: linear-gradient(180deg, rgba(255,70,85,.08), var(--panel-soft)); }
+.riv-banner.tone-grudge   .riv-banner-name { color: #ff8a95; text-shadow: 0 0 18px rgba(255,70,85,.4); }
+.riv-banner.tone-lovehate { border-color: rgba(214,120,255,.55); background: linear-gradient(180deg, rgba(214,120,255,.08), var(--panel-soft)); }
+.riv-banner.tone-lovehate .riv-banner-name { color: #e2a8ff; }
+.riv-banner.tone-friendship { border-color: rgba(47,213,118,.45); background: linear-gradient(180deg, rgba(47,213,118,.07), var(--panel-soft)); }
+.riv-banner.tone-friendship .riv-banner-name { color: #9bf0c0; }
+.riv-banner.tone-rivalry  { border-color: rgba(245,196,69,.55); background: linear-gradient(180deg, rgba(245,196,69,.08), var(--panel-soft)); }
+.riv-banner.tone-rivalry  .riv-banner-name { color: var(--gold-bright); }
+/* The two Germans — black / red / gold. */
+.riv-banner.tone-german {
+  border: none; color: #fff;
+  background:
+    linear-gradient(180deg, rgba(0,0,0,.55), rgba(0,0,0,.25)),
+    linear-gradient(180deg, #111 0 33%, #d4232e 33% 66%, #f5c445 66% 100%);
+}
+.riv-banner.tone-german .riv-banner-eyebrow,
+.riv-banner.tone-german .riv-banner-tag { color: #ffe9a8; }
+.riv-banner.tone-german .riv-banner-name { color: #fff; text-shadow: 0 2px 8px rgba(0,0,0,.6); }
+.riv-banner.tone-german .riv-banner-blurb,
+.riv-banner.tone-german .riv-banner-record,
+.riv-banner.tone-german .riv-banner-note { color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,.55); }
+.riv-banner.tone-german .riv-banner-link { color: #0b1020; font-weight: 800; }
+
+/* ── WAR ROOM v3 — mobile-first density (B). The recommendation owns the first
+   fold; the plan / guarantee / status furniture moved beneath it and compacted.
+   The masthead is suppressed on this tool (header tool mode). ──────────────────── */
+.wr-titlebar {
+  display: flex; align-items: baseline; gap: .5rem; margin: 0 0 .5rem; padding: 0 .1rem;
+}
+.wr-title { font-family: var(--font-display); font-size: 1.05rem; font-weight: 900; letter-spacing: .04em; color: #fff; }
+.wr-title-sub { font-size: .62rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--red-bright); }
+
+/* The recommendation card leads — give it a touch more presence, tighten the rest. */
+#recs-card { margin-top: .2rem; }
+/* Compact the secondary furniture now sitting BELOW the pick, so a glance down is
+   cheap and nothing shouts over the recommendation. */
+.doctrine-banner { padding: .5rem .7rem; gap: .4rem; margin: 0 0 .6rem; }
+.doctrine-banner .db-name { font-size: .92rem; }
+.legality-strip { margin: 0 0 .6rem; }
+.mvs { margin: .2rem 0 .6rem; }
+.shadow-proj { margin: 0 0 .6rem; }
+.wr-statusbar { margin: 0 0 .6rem; }
+#lrm-card { margin-bottom: .5rem; }
+#lrm-card .body { padding: .5rem .7rem; }
+/* A deadline card with nothing in it is pure furniture — collapse it when empty
+   (app.js toggles #lrm-strip display; :has keeps the card out of the fold until
+   there is actually a deadline to show). */
+#lrm-card:has(#lrm-strip[style*="display: none"]),
+#lrm-card:has(#lrm-strip[style*="display:none"]) { display: none; }
+
+@media (max-width: 700px) {
+  /* Bigger thumb targets in the war room's dense control rows. */
+  .wr-decide .btn.small, .system-details .btn.small { min-height: 40px; }
+  /* The recommendation card's own header buttons wrap rather than clip (already
+     global, restated here as the war-room contract). */
+  #recs-card > h2 { row-gap: .4rem; }
+}

@@ -54,6 +54,11 @@
 <% } %>
 
 <% if (opp) { %>
+<%# ── RIVALRY GAME OF THE WEEK — billed front and centre when these two have a
+     real history in this league (the marquee grudge down to the friendly). ────── %>
+<% if (typeof rivalry !== 'undefined' && rivalry) { %>
+  <%- include('partials/_rivalry_banner', { rivalry, aName: me.name, bName: opp.name, rivalryRank: rivalry.rank }) %>
+<% } %>
 <%# ── The scoreboard tile ──────────────────────────────────────────────────── %>
 <div class="card matchup-card" style="margin-bottom:1.2rem">
   <div class="body">
@@ -67,9 +72,12 @@
       <div class="mu-side <%= (matchup && matchup.opp && matchup.opp.points > matchup.me.points) ? 'up' : '' %>">
         <span class="mu-team"><%= (matchup && matchup.opp && matchup.opp.team) || opp.team_name || opp.name + "'s team" %></span>
         <span class="mu-pts"><%= (matchup && matchup.opp) ? matchup.opp.points.toFixed(2) : '—' %></span>
-        <span class="mu-who"><%= opp.name %></span>
+        <span class="mu-who"><%= opp.name %><%- include('partials/_owner_badges', { name: opp.name }) %></span>
       </div>
     </div>
+    <% if (typeof defendingChamps !== 'undefined' && defendingChamps.indexOf(opp.name) !== -1) { %>
+      <p class="mu-champ-note">👑 You're playing the champ — <b><%= opp.name %></b> is defending the <%= reigningYear %> title. Knock the crown off.</p>
+    <% } %>
     <% if (!live) { %>
       <p class="muted" style="text-align:center; margin:.7rem 0 0; font-size:.76rem">
         No live scoreboard<%= configured ? ' for this week yet' : ' (Sleeper not connected)' %> — showing the head-to-head and letting you bet it.
@@ -86,11 +94,13 @@
       <p class="muted" style="margin:0">No games on record against <b><%= opp.name %></b> yet — this is your first meeting since the box scores begin (2023). Everything before that lives in the <a href="/history">league history</a>.</p>
     <% } else { %>
       <div class="h2h-hero">
-        <div class="h2h-lead <%= lead.who === 'you' ? 'you' : (lead.who === 'them' ? 'them' : 'even') %>"><%= lead.text %></div>
+        <a class="h2h-lead-link" href="/rivalry?b=<%= encodeURIComponent(opp.name) %>" title="Every game you've ever played against <%= opp.name %>">
+          <div class="h2h-lead <%= lead.who === 'you' ? 'you' : (lead.who === 'them' ? 'them' : 'even') %>"><%= lead.text %> <span class="h2h-lead-cue">→</span></div>
+        </a>
         <% if (r.streak) { %>
           <div class="h2h-streak"><%= r.streak.who === 'a' ? 'You have' : opp.name + ' has' %> won <b><%= r.streak.n %></b> straight<% if (r.streak.n >= 3) { %> 🔥<% } %></div>
         <% } %>
-        <div class="h2h-span muted"><%= r.played %> game<%= r.played === 1 ? '' : 's' %> · <%= r.firstSeason %>–<%= r.lastSeason %></div>
+        <div class="h2h-span muted"><%= r.played %> game<%= r.played === 1 ? '' : 's' %> · <%= r.firstSeason %>–<%= r.lastSeason %><% if (r.playoffs) { %> · <b><%= r.playoffs %></b> in the playoffs<% } %><% if (r.close) { %> · <%= r.close %> under 5<% } %></div>
       </div>
 
       <div class="h2h-stats">
@@ -111,26 +121,9 @@
         </div>
       </div>
 
-      <details class="h2h-log">
-        <summary>Every meeting (<%= r.played %>)</summary>
-        <table class="roll" style="margin-top:.5rem">
-          <tr><th>Season</th><th>Wk</th><th class="num">You</th><th class="num"><%= opp.name %></th><th>Result</th></tr>
-          <% for (const g of r.games) { %>
-            <tr>
-              <td><%= g.season %></td>
-              <td><%= g.week %><% if (g.playoff) { %> <span class="badge gold" title="playoffs">PO</span><% } %></td>
-              <td class="num <%= g.winner === 'a' ? 'h2h-w' : '' %>"><%= g.a.toFixed(2) %></td>
-              <td class="num <%= g.winner === 'b' ? 'h2h-w' : '' %>"><%= g.b.toFixed(2) %></td>
-              <td>
-                <% if (g.winner === 'a') { %><span class="badge open">W</span>
-                <% } else if (g.winner === 'b') { %><span class="badge owes">L</span>
-                <% } else { %><span class="badge closed">T</span><% } %>
-                <span class="muted" style="font-size:.72rem">by <%= g.margin.toFixed(1) %></span>
-              </td>
-            </tr>
-          <% } %>
-        </table>
-      </details>
+      <a class="h2h-full-link" href="/rivalry?b=<%= encodeURIComponent(opp.name) %>">
+        📜 Every meeting, scored — the full rivalry <span class="muted">(<%= r.played %> game<%= r.played === 1 ? '' : 's' %>)</span> →
+      </a>
     <% } %>
   </div>
 </div>
