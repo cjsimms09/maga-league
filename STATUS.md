@@ -1171,3 +1171,30 @@ position on `#arm-alerts` and let the class own it.
 tappable line, give the recommendation the fold, quiet-by-default/loud-on-what-
 matters. Meanwhile: verify remaining site work (rank arrows/sparklines/Chiefs
 counter already built per prior commits) and improve the weakest isolated page.
+
+### ▶ SESSION B RESUME MARKER — 2026-08-09 (war-room shell lane)
+**Ritual:** "You are session B, read SESSION-B.md and STATUS.md, then continue."
+**Branch:** `claude/warroom-shell-redesign-9j1th0` (pushed). B does NOT deploy.
+
+**Shipped this session (all CSS/site, no app.js, no warroom.ejs):**
+- War-room state indicator collapsed 4 overlays → 1 quiet sticky strip; deleted the
+  two rotated corner ribbons that covered END DRAFT/HARD RESET; slot strip hidden
+  during rehearsal. `#arm-alerts` lifted above the mobile tabbar. `.card>h2`
+  `flex-wrap` so header controls stop clipping off the right edge (site-wide).
+- H2H "every meeting" table wrapped in `.scroll-x` (long opponent name can't
+  overflow on a phone).
+
+**Waiting on A (parked in PARKED.md, "WAR-ROOM SHELL — split confirm"):**
+1. Encode the shell split in TERRITORY.md (`warroom.ejs`+war-room CSS+visual
+   contract → B; `app.js`+emitted markup → A).
+2. Confirm out-of-mock before B edits `warroom.ejs`.
+3. Optional: drop the inline `position` on `#arm-alerts` (B's `!important` holds).
+4. **A must integrate this branch + deploy** for Cory to see any of it.
+
+**NEXT for B (do without waiting where possible):** the furniture-collapse — merge
+system-strip / doctrine-banner / legality-strip / wr-statusbar / mvs stack so the
+recommendation owns the fold; bring A a class-level contract so app.js render
+targets (`ss-*`, `db-*`, `sb-*`, `mvs-*`) don't move under it. Quiet-by-default /
+loud only on tier cliff, contested split, or plan deviation. All "remaining site
+work" (rank arrows, sparklines, Chiefs counter, weekly-high strip) VERIFIED already
+built in prior commits — do not redo.

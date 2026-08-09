@@ -113,6 +113,7 @@
 
       <details class="h2h-log">
         <summary>Every meeting (<%= r.played %>)</summary>
+        <div class="scroll-x">
         <table class="roll" style="margin-top:.5rem">
           <tr><th>Season</th><th>Wk</th><th class="num">You</th><th class="num"><%= opp.name %></th><th>Result</th></tr>
           <% for (const g of r.games) { %>
@@ -130,6 +131,7 @@
             </tr>
           <% } %>
         </table>
+        </div>
       </details>
     <% } %>
   </div>
