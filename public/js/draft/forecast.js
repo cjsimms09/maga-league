@@ -111,8 +111,48 @@
     return out;
   }
 
+  /* RESOLVE — reality answering the committed claims, from the completed draft.
+   * Mirror of forecast_grade.build_resolutions (kept in step by parallel tests).
+   *   forecasts: the committed forecast entries (from GET /api/ledger/predict).
+   *   draft:     {picks:[{overall, player_id}]} — the finished board.
+   * room_seat resolves to who actually went at that overall pick; survival to 1 iff
+   * the target was undrafted when its pick arrived. A forecast whose pick has not
+   * been reached stays PENDING (no fabricated outcome). Returns resolution payloads;
+   * the caller fires them via PredLedger.forecastResolution (deduped by key). */
+  function buildResolutions(forecasts, draft) {
+    var picks = ((draft || {}).picks || []).slice()
+      .sort(function (a, b) { return (a.overall || 0) - (b.overall || 0); });
+    var atOverall = {}, draftedBefore = {}, taken = {}, maxOverall = 0;
+    picks.forEach(function (p) {
+      var ov = p.overall, pid = String(p.player_id);
+      draftedBefore[ov] = Object.assign({}, taken);
+      atOverall[ov] = pid;
+      taken[pid] = 1;
+      if (ov > maxOverall) maxOverall = ov;
+    });
+    var out = [];
+    (forecasts || []).forEach(function (f) {
+      var key = ((f.payload || {}).key) || '';
+      if (key.indexOf('room_seat:r1p') === 0) {
+        var seat = parseInt(key.split('r1p')[1], 10);
+        if (atOverall.hasOwnProperty(seat)) {
+          out.push({ payload: { forecast_key: key, outcome: atOverall[seat], source: 'completed draft' } });
+        }
+      } else if (key.indexOf('survival:') === 0 && key.indexOf('@pick') > 0) {
+        var body = key.slice('survival:'.length);
+        var parts = body.split('@pick');
+        var pid = parts[0], npk = parseInt(parts[1], 10);
+        if (npk <= maxOverall) {
+          var survived = !(draftedBefore[npk] && draftedBefore[npk][pid]);
+          out.push({ payload: { forecast_key: key, outcome: survived ? 1 : 0, source: 'completed draft' } });
+        }
+      }
+    });
+    return out;
+  }
+
   var api = { buildForecasts: buildForecasts, roomSeatForecasts: roomSeatForecasts,
-              survivalForecasts: survivalForecasts };
+              survivalForecasts: survivalForecasts, buildResolutions: buildResolutions };
   global.DraftForecast = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);
