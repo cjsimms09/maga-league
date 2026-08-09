@@ -620,8 +620,29 @@
    * is its OWN alarm — a board/slate disagreement is a different problem from a
    * clock fault and from a misplaced keeper, and collapsing them into one
    * boolean would lose the diagnosis. */
+  /* The draft CONTEXT this pick count belongs to. The monotonic guard below is
+   * only meaningful WITHIN one context: a sync room, a mock, or manual entry.
+   * Ending a draft, importing a mock, or connecting to a different room legitimately
+   * resets the clock to 1 — that is not a pick going "backwards", it is a new draft.
+   * Keying the guard on this id is what stops the false "pick went BACKWARDS: 10 -> 1"
+   * that fired because the reset cleared recentPicks/drafted but left lastPickSeen
+   * stale (the only reset site, endDraft, never touched it). */
+  function pickContextId() {
+    if (state.sync && state.sync.draftId) return 'sync:' + state.sync.draftId;
+    if (state.mockMode) return 'mock:' + (state.mockMode.picks || 0) + 'x'
+      + (state.mockMode.teams || 0) + 'x' + (state.mockMode.rounds || 0);
+    return 'manual';
+  }
+
   function assertPickState() {
     const ps = pickState();
+    // A context switch resets the monotonic baseline — a new draft starts at 1, and
+    // that must not read as a regression. Only a decrease WITHIN one context is a bug.
+    const ctx = pickContextId();
+    if (ctx !== state.pickContextId) {
+      state.pickContextId = ctx;
+      state.lastPickSeen = null;
+    }
     const last = state.lastPickSeen == null ? -1 : state.lastPickSeen;
     const problems = [];
     if (ps.currentPick < last) {
@@ -633,6 +654,31 @@
         + (ps.rehearsalRemovals ? ' + ' + ps.rehearsalRemovals + ' rehearsal removals' : ''));
     }
     ps.placementErrors.forEach(function (e) { problems.push('KEEPER PLACEMENT: ' + e.why); });
+
+    // THE RECONCILER — itemize the roster by source and cross-check the coordinate
+    // systems. It adds the invariants pickState() does not check (phantom roster
+    // entries; roster marked-picks == picks actually made, the dilution/need-bias
+    // guard; picks made+left == my total slots). Board/slate is already covered
+    // above, so only the reconciler's NEW problems are merged — no double-report.
+    try {
+      if (typeof DraftAccounting !== 'undefined') {
+        state.accounting = DraftAccounting.reconcile({
+          roster: state.myRoster,
+          drafted: state.drafted,
+          recentPicks: state.recentPicks,
+          syncPickNumber: state.sync ? state.sync.currentPickNumber() : null,
+          myPicks: (state.data && state.data.pick_order && state.data.pick_order.my_picks) || [],
+          currentPick: ps.currentPick,
+          keeperPlacements: ps.keeperPlacements,
+          rehearsalRemovals: ps.rehearsalRemovals,
+          isMock: !!state.mockMode,
+        });
+        state.accounting.problems.forEach(function (p) {
+          if (!/off the board/.test(p)) problems.push(p);   // board/slate already added
+        });
+      }
+    } catch (e) { /* the reconciler is a guard, never a blocker */ }
+
     state.lastPickSeen = Math.max(last, ps.currentPick);
     state.pickStateProblems = problems;
     if (problems.length) console.error('[pick-state] ' + problems.join(' · '));
@@ -853,6 +899,7 @@
     renderPicksFeed();
     renderManagers();
     try { assertPickState(); } catch (e) { /* never blocks the clock */ }
+    try { renderAccountingNote(); } catch (e) { /* never blocks the clock */ }
     try { renderSystemStrip(); } catch (e) { /* never blocks the clock */ }
     try { renderUnrecordedPicks(); } catch (e) { /* never blocks the clock */ }
     try { renderLegality(); } catch (e) { /* never blocks the clock */ }
@@ -1545,6 +1592,26 @@
   /* ── Pre-draft checklist ────────────────────────────────────────────────
      Every line is checked live against real state. A checklist you have to
      verify by hand is one nobody runs on the morning of the draft. */
+  /* Commissioner-only: the reconciled accounting, itemized. Shows the roster
+   * composition (keepers vs marked picks) and the pick coordinates on one line,
+   * and lists any disagreement the reconciler found — so "5/9 starters" is never
+   * an unexplained number again, and a real over-count is named, not hidden. */
+  function renderAccountingNote() {
+    const host = $('#accounting-note');
+    if (!host) return;
+    const a = state.accounting;
+    if (!a) { host.style.display = 'none'; return; }
+    host.style.display = '';
+    host.className = 'prov-note ' + (a.agree ? '' : 'bad');
+    let html = '<b>🧮 Accounting</b> <span>' + escapeHtml(a.line) + '</span>';
+    if (!a.agree) {
+      html += '<ul style="margin:.3rem 0 0 1rem;padding:0">'
+        + a.problems.map(function (p) { return '<li>' + escapeHtml(p) + '</li>'; }).join('')
+        + '</ul>';
+    }
+    host.innerHTML = html;
+  }
+
   function renderChecklist() {
     const host = $('#check-items');
     if (!host) return;
@@ -4506,6 +4573,10 @@
     state.myRoster = [];
     state.rosters = {};
     state.recentPicks = [];
+    // The clock resets to 1 — clear the monotonic baseline so the next render does
+    // not report the reset as "pick went BACKWARDS" (the stale-lastPickSeen bug).
+    state.lastPickSeen = null;
+    state.pickContextId = null;
     state.runMults = {};
     state.reconcile = null;
     state.clockMode = false;

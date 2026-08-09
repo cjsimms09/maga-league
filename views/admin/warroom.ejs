@@ -25,6 +25,10 @@
     <div class="sd-body">
       <div id="check-count-inline" class="sd-count"></div>
       <div id="check-items"></div>
+      <%# Commissioner-only accounting reconciliation: roster itemized by source
+          (keepers vs marked picks vs phantom) and the pick coordinates cross-checked,
+          so a disagreement is a named line here instead of three silent numbers. %>
+      <div id="accounting-note" style="display:none"></div>
       <div id="provenance" style="display:none"></div>
       <div id="drift-note" style="display:none"></div>
       <div id="slot-note" style="display:none"></div>
@@ -466,6 +470,7 @@
 <script src="/js/draft/shadows.js"></script>
 <script src="/js/draft/seat.js"></script>
 <script src="/js/draft/legality.js"></script>
+<script src="/js/draft/accounting.js"></script>
 <script src="/js/draft/deviation.js"></script>
 <script src="/js/draft/session.js"></script>
 <script src="/js/draft/doctrine.js"></script>
