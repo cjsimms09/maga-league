@@ -630,15 +630,21 @@
           </select>
         </div>
       </div>
-      <p class="muted" style="margin:.9rem 0 .3rem">Payout percentages (of the pot remaining after weekly payouts — should add to 100):</p>
-      <div class="grid cols-3">
-        <div><label class="field">Reg. season 1st (%)</label><input type="number" step="0.1" name="reg_1" value="<%= p.reg[0] * 100 %>"></div>
-        <div><label class="field">Reg. season 2nd (%)</label><input type="number" step="0.1" name="reg_2" value="<%= p.reg[1] * 100 %>"></div>
-        <div></div>
-        <div><label class="field">Playoffs 1st (%)</label><input type="number" step="0.1" name="playoff_1" value="<%= p.playoff[0] * 100 %>"></div>
-        <div><label class="field">Playoffs 2nd (%)</label><input type="number" step="0.1" name="playoff_2" value="<%= p.playoff[1] * 100 %>"></div>
-        <div><label class="field">Playoffs 3rd (%)</label><input type="number" step="0.1" name="playoff_3" value="<%= p.playoff[2] * 100 %>"></div>
-        <div><label class="field">Playoffs 4th (%)</label><input type="number" step="0.1" name="playoff_4" value="<%= p.playoff[3] * 100 %>"></div>
+      <%# Payout STRUCTURE — any number of places, not a fixed 2+4. Enter the
+          percentages in finishing order, comma-separated. The number of entries
+          IS the number of paid places, so a vote that adds or drops a prize is a
+          one-field edit here. Stored as fractions; the pot, finances, money board
+          and amendment ledger all derive from this. %>
+      <% const pctList = a => (Array.isArray(a) ? a : []).map(x => +(x * 100).toFixed(1)).join(', '); %>
+      <% const sumPct = a => (Array.isArray(a) ? a : []).reduce((t, x) => t + x, 0) * 100; %>
+      <% const total = sumPct(p.reg) + sumPct(p.playoff); %>
+      <p class="muted" style="margin:.9rem 0 .3rem">
+        Payout percentages, in finishing order, comma-separated (of the pot remaining after weekly payouts — the two groups should add to 100).
+        <span style="font-weight:700; color:<%= Math.abs(total - 100) < 0.05 ? 'var(--blue)' : 'var(--red)' %>">Currently <%= +total.toFixed(1) %>%<%= Math.abs(total - 100) < 0.05 ? ' ✓' : ' — does not add to 100' %>.</span>
+      </p>
+      <div class="grid cols-2">
+        <div><label class="field">Regular-season prizes (%, e.g. <code>10, 5</code>)</label><input type="text" name="reg_pcts" value="<%= pctList(p.reg) %>" placeholder="10, 5"></div>
+        <div><label class="field">Playoff prizes (%, e.g. <code>50, 30, 15, 5</code>)</label><input type="text" name="playoff_pcts" value="<%= pctList(p.playoff) %>" placeholder="50, 30, 15, 5"></div>
       </div>
       <div style="margin-top:1rem"><button class="btn" type="submit">Save Season</button></div>
       <p class="muted" style="margin-top:.6rem">

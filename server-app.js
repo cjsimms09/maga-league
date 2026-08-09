@@ -48,6 +48,11 @@ function createApp() {
           maxAge: 30 * 24 * 60 * 60 * 1000,
           httpOnly: true,
           sameSite: 'lax',
+          // Hardening (B parked this for A's lane): only send the session cookie
+          // over HTTPS. Gated on the Netlify runtime — prod is always HTTPS, while
+          // local dev and the CI server tests run over plain HTTP and must still
+          // set the cookie, so `secure:true` there would silently break login.
+          secure: !!process.env.NETLIFY,
         });
         sessionMw(req, res, next);
       })

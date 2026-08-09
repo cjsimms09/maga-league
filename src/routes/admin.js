@@ -11,6 +11,13 @@ const VE = require('./voteenact');   // vote → season-config enactment
 
 router.use(requireCommissioner);
 
+// Same home-screen-PWA reason as the member router: rendered pages carry no
+// Cache-Control by default, which iOS WebKit heuristically caches and pins in
+// the chromeless standalone app. The commissioner runs the console from the
+// installed app too, so these pages must revalidate rather than serve a build
+// stale by a deploy. Mounted at /admin as its own router, so it needs its own.
+router.use((req, res, next) => { res.set('Cache-Control', 'no-cache, must-revalidate'); next(); });
+
 const back = (res, tab, extra = '') => res.redirect(`/admin?tab=${tab}${extra}`);
 const msg = m => '&msg=' + encodeURIComponent(m);
 
@@ -411,10 +418,40 @@ router.post('/season', aw(async (req, res) => {
   const weeks = parseInt(req.body.weeks, 10) || 0;
   const weekly_payout = parseFloat(req.body.weekly_payout) || 0;
   const total_pot = Number.isFinite(parseFloat(req.body.total_pot)) ? parseFloat(req.body.total_pot) : buy_in * active.length;
-  const pct = k => (parseFloat(req.body[k]) || 0) / 100;
+  // Payout STRUCTURE — variable length, not the hardcoded 2-reg + 4-playoff.
+  // The data model has always been "an array of fractions per group of any
+  // length" (H.payoutTable, applyVoteEffect both handle it); the form was the
+  // only thing pinning it to 2+4. A new season can now change how many places
+  // pay (a vote could add a 3rd reg-season prize, or drop to top-2 playoff)
+  // straight from this form. Input is a CSV of PERCENTAGES ("50,30,15,5");
+  // stored as fractions. Legacy numbered fields (reg_1…/playoff_1…) are still
+  // read as a fallback so an old cached form, or A's harvest tooling, keeps
+  // working. Empty CSV + no numbered fields => keep the season's current shape.
+  const csvPct = raw => String(raw == null ? '' : raw)
+    .split(',').map(s => s.trim()).filter(s => s !== '')
+    .map(s => parseFloat(s)).filter(n => Number.isFinite(n)).map(n => n / 100);
+  const numberedPct = prefix => {
+    const out = [];
+    for (let i = 1; i <= 20; i++) {
+      const v = req.body[`${prefix}_${i}`];
+      if (v === undefined || v === '') { if (i <= 2) { out.push(0); continue; } break; }
+      out.push((parseFloat(v) || 0) / 100);
+    }
+    // trim trailing zeros the legacy 4-field playoff group pads with
+    while (out.length > 1 && out[out.length - 1] === 0) out.pop();
+    return out;
+  };
+  const groupPcts = (csvKey, numPrefix, current) => {
+    const csv = csvPct(req.body[csvKey]);
+    if (csv.length) return csv;
+    const nums = numberedPct(numPrefix);
+    if (nums.some(n => n > 0)) return nums;
+    return Array.isArray(current) ? current : [];
+  };
+  const prev = (seasons[year] && seasons[year].payouts) || { reg: [], playoff: [] };
   const payouts = {
-    reg: [pct('reg_1'), pct('reg_2')],
-    playoff: [pct('playoff_1'), pct('playoff_2'), pct('playoff_3'), pct('playoff_4')],
+    reg: groupPcts('reg_pcts', 'reg', prev.reg),
+    playoff: groupPcts('playoff_pcts', 'playoff', prev.playoff),
   };
   const status = ['upcoming', 'active', 'complete'].includes(req.body.status) ? req.body.status : 'upcoming';
   const isNew = !seasons[year];

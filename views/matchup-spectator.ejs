@@ -1,0 +1,129 @@
+<%- include('partials/header', { title: 'The Matchup' }) %>
+<%
+  // A game the viewer is NOT in, opened from the scoreboard. Read-only: two
+  // owners, their live score, all-time head-to-head, and the trash thread — no
+  // "you", no bet, no posting. record.a is A, record.b is B (uids passed in that
+  // order). goat() marks whoever rosters Mahomes.
+  const r = record;
+  const goat = id => (typeof goatId !== 'undefined' && goatId === id) ? ' 🐐' : '';
+  const fmt = n => n == null ? '—' : n.toFixed(2);
+  let lead = null;
+  if (r && r.played) {
+    if (r.a.wins > r.b.wins) lead = { cls: 'you', text: `${A.name} leads ${r.a.wins}–${r.b.wins}${r.ties ? '–' + r.ties : ''}` };
+    else if (r.b.wins > r.a.wins) lead = { cls: 'them', text: `${B.name} leads ${r.b.wins}–${r.a.wins}${r.ties ? '–' + r.ties : ''}` };
+    else lead = { cls: 'even', text: `All square ${r.a.wins}–${r.b.wins}${r.ties ? '–' + r.ties : ''}` };
+  }
+  const aUp = aPts != null && bPts != null && aPts > bPts;
+  const bUp = aPts != null && bPts != null && bPts > aPts;
+%>
+
+<h1 class="page-title">⚔️ The Matchup <span class="sub" style="font-weight:600">Week <%= weekNo %> — you're watching</span></h1>
+
+<%# ── The scoreboard tile ──────────────────────────────────────────────────── %>
+<div class="card matchup-card" style="margin-bottom:1.2rem">
+  <div class="body">
+    <div class="mu">
+      <div class="mu-side <%= aUp ? 'up' : '' %>">
+        <span class="mu-team"><%= A.team_name || A.name + "'s team" %></span>
+        <span class="mu-pts"><%= fmt(aPts) %></span>
+        <span class="mu-who"><%= A.name %><%- goat(A.id) %></span>
+      </div>
+      <div class="mu-vs">vs</div>
+      <div class="mu-side <%= bUp ? 'up' : '' %>">
+        <span class="mu-team"><%= B.team_name || B.name + "'s team" %></span>
+        <span class="mu-pts"><%= fmt(bPts) %></span>
+        <span class="mu-who"><%= B.name %><%- goat(B.id) %></span>
+      </div>
+    </div>
+    <% if (!live) { %>
+      <p class="muted" style="text-align:center; margin:.7rem 0 0; font-size:.76rem">
+        No live score<%= configured ? ' for this game yet' : ' (Sleeper not connected)' %> — showing the all-time head-to-head.
+      </p>
+    <% } %>
+  </div>
+</div>
+
+<%# ── HEAD TO HEAD — neutral, third-person ──────────────────────────────────── %>
+<div class="card h2h-card" style="margin-bottom:1.2rem">
+  <h2>📈 Head to Head <span class="sub"><%= A.name %> vs <%= B.name %> · since 2023</span></h2>
+  <div class="body">
+    <% if (!r || !r.played) { %>
+      <p class="muted" style="margin:0">No games on record between <b><%= A.name %></b> and <b><%= B.name %></b> yet since the box scores begin (2023). Everything before that lives in the <a href="/history">league history</a>.</p>
+    <% } else { %>
+      <div class="h2h-hero">
+        <div class="h2h-lead <%= lead.cls %>"><%= lead.text %></div>
+        <% if (r.streak) { %>
+          <div class="h2h-streak"><%= (r.streak.who === 'a' ? A.name : B.name) %> has won <b><%= r.streak.n %></b> straight<% if (r.streak.n >= 3) { %> 🔥<% } %></div>
+        <% } %>
+        <div class="h2h-span muted"><%= r.played %> game<%= r.played === 1 ? '' : 's' %> · <%= r.firstSeason %>–<%= r.lastSeason %></div>
+      </div>
+
+      <div class="h2h-stats">
+        <div class="h2h-stat">
+          <span class="h2h-stat-lbl">Avg points</span>
+          <span class="h2h-stat-val"><%= r.a.avg.toFixed(1) %> <span class="muted">– </span><%= r.b.avg.toFixed(1) %></span>
+          <span class="h2h-stat-sub"><%= A.name %> – <%= B.name %></span>
+        </div>
+        <div class="h2h-stat">
+          <span class="h2h-stat-lbl"><%= A.name %>'s best</span>
+          <span class="h2h-stat-val"><%= r.a.biggest ? ('+' + r.a.biggest.margin.toFixed(1)) : '—' %></span>
+          <span class="h2h-stat-sub"><%= r.a.biggest ? (r.a.biggest.season + ' wk' + r.a.biggest.week) : 'no wins yet' %></span>
+        </div>
+        <div class="h2h-stat">
+          <span class="h2h-stat-lbl"><%= B.name %>'s best</span>
+          <span class="h2h-stat-val"><%= r.b.biggest ? ('+' + r.b.biggest.margin.toFixed(1)) : '—' %></span>
+          <span class="h2h-stat-sub"><%= r.b.biggest ? (r.b.biggest.season + ' wk' + r.b.biggest.week) : 'no wins yet' %></span>
+        </div>
+      </div>
+
+      <details class="h2h-log">
+        <summary>Every meeting (<%= r.played %>)</summary>
+        <table class="roll" style="margin-top:.5rem">
+          <tr><th>Season</th><th>Wk</th><th class="num"><%= A.name %></th><th class="num"><%= B.name %></th><th>Result</th></tr>
+          <% for (const g of r.games) { %>
+            <tr>
+              <td><%= g.season %></td>
+              <td><%= g.week %><% if (g.playoff) { %> <span class="badge gold" title="playoffs">PO</span><% } %></td>
+              <td class="num <%= g.winner === 'a' ? 'h2h-w' : '' %>"><%= g.a.toFixed(2) %></td>
+              <td class="num <%= g.winner === 'b' ? 'h2h-w' : '' %>"><%= g.b.toFixed(2) %></td>
+              <td>
+                <% if (g.winner === 'a') { %><span class="badge open"><%= A.name %></span>
+                <% } else if (g.winner === 'b') { %><span class="badge open"><%= B.name %></span>
+                <% } else { %><span class="badge closed">Tie</span><% } %>
+                <span class="muted" style="font-size:.72rem">by <%= g.margin.toFixed(1) %></span>
+              </td>
+            </tr>
+          <% } %>
+        </table>
+      </details>
+    <% } %>
+  </div>
+</div>
+
+<%# ── TRASH TALK — read-only for a spectator ───────────────────────────────── %>
+<div class="card" id="trash" style="margin-bottom:1.2rem">
+  <h2>🗣️ Trash Talk <span class="sub">their game — on the record, forever</span></h2>
+  <div class="body">
+    <% const _tt = (typeof trash !== 'undefined' && trash) ? trash : []; %>
+    <% if (!_tt.length) { %>
+      <p class="muted" style="margin:0">Nothing said between <b><%= A.name %></b> and <b><%= B.name %></b> yet. It's their thread to fill — you're just watching.</p>
+    <% } else { %>
+      <ul class="tt-thread">
+        <% for (const p of _tt) { %>
+          <li class="tt-post">
+            <div class="tt-meta"><b class="tt-who"><%= nameOf(p.owner_id) %></b>
+              <span class="tt-when muted"><%= new Date(p.created_at).toLocaleString('en-US', { timeZone: 'America/New_York', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) %></span></div>
+            <div class="tt-body"><%= p.body %></div>
+          </li>
+        <% } %>
+      </ul>
+      <p class="muted" style="margin:.6rem 0 0; font-size:.74rem">Only the two of them can post here.</p>
+    <% } %>
+  </div>
+</div>
+
+<p style="text-align:center; margin-top:1rem">
+  <a class="btn navy" href="/scoreboard">← Back to this week</a>
+  <a class="btn navy" href="/matchup">My matchup</a>
+</p>
+<%- include('partials/footer') %>

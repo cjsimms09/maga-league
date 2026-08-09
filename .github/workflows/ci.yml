@@ -52,7 +52,7 @@ jobs:
         # collected failure names every broken suite in one run instead of one-per-push.
         run: |
           failed=""
-          for t in alerts app-wiring attribution authority backtest betlogic bundling_guard champs claimfix doctrine draftorder engine h2h keeperlock keepers ledger marks mcts movement_line no_season_literals playoffs predledger prefs rawarchive reconcile rivalries settlement shadows sidebets sidebets_lifecycle pool_draft stack_routes strategies sync update venmo voteenact whatwatch; do
+          for t in alerts app-wiring attribution authority backtest betlogic bundling_guard champs claimfix doctrine draftorder engine h2h keeperlock keepers ledger marks matchup_spectator mcts movement_line no_season_literals playoffs predledger prefs rawarchive reconcile rivalries season_form settlement shadows sidebets sidebets_lifecycle pool_draft stack_routes strategies sync update venmo voteenact whatwatch; do
             echo "== $t =="
             if ! node draft/tests/$t.test.js; then failed="$failed $t"; fi
           done
@@ -89,6 +89,20 @@ jobs:
         # harvested target on its own. Asserts it renders and that no per-owner
         # efficiency analysis leaks onto this league-visible page.
         run: node draft/tests/matchup_weekly_high.test.js
+      - name: Matchup spectator — opening someone else's game shows THAT pairing
+        # The scoreboard deep link used to be viewer-relative (?opp=), so tapping
+        # a game you weren't in reframed it as "you vs one of them." Asserts a
+        # non-viewer pair (?a=&b=) renders a read-only spectator view (neutral
+        # H2H, no bet, no trash post), the viewer's own game keeps the full
+        # participant matchup, and a malformed pair doesn't crash.
+        run: node draft/tests/matchup_spectator.test.js
+      - name: Season form — payout structure is variable-length (not a fixed 2+4)
+        # The admin season form was the only thing pinning payouts to 2 reg + 4
+        # playoff; the data model always handled any length. Asserts a new season
+        # can set 3+3, shrink to top-2, that legacy numbered fields still parse,
+        # and that an empty-payout edit keeps the prior shape rather than wiping
+        # it. Boots the real app and POSTs as the commissioner.
+        run: node draft/tests/season_form.test.js
       - name: Access guard — analysis is commissioner-only, never league-visible
         # STANDING RULE (results = league property, analysis = commissioner's):
         # asserts /lineup + /lineup/log 403 a non-commissioner, and NO league-

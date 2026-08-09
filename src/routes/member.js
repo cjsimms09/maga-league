@@ -22,9 +22,26 @@ const V = require('../venmo');
 const sleeper = require('../sleeper');
 const notify = require('../notify');
 const crypto = require('crypto');
+const fs = require('fs');
+const path = require('path');
 const { store, getDoc, setDoc, newId, now } = require('../data');
 const { hashPassword, verifyPassword, requireLogin, requireCommissioner, aw } = require('../auth');
 const { RULES, SCORING, ROSTER } = require('../seed-data');
+
+// ---------- home-screen PWA: rendered pages must never be pinned ----------
+// The installed iOS app is chromeless — no address bar, no pull-to-refresh — so
+// there is no user gesture that can force a reload. iOS WebKit HEURISTICALLY
+// caches any 200 text/html that carries no Cache-Control and reuses it, which
+// pins the standalone app to whatever build it first loaded. That is the
+// reported "seeing old versions / not working": every page here rendered with
+// NO Cache-Control, so the phone cached the HTML and never came back for the new
+// deploy. Declaring the pages uncacheable makes the browser revalidate on every
+// launch, so a fresh deploy reaches the installed instance. Static assets
+// (icons, css, manifest) are served by the CDN under netlify.toml's own
+// long-cache rules and never reach this router, so they keep their caching. The
+// JSON /api/* routes below set 'no-store' explicitly AFTER this runs, so they
+// stay stricter — this only supplies the default the HTML pages were missing.
+router.use((req, res, next) => { res.set('Cache-Control', 'no-cache, must-revalidate'); next(); });
 
 // ---------- THE CROWN — defending champion on every league-visible page ----------
 // Derived from the champions roll (never hand-set; transfers on its own in January).
@@ -511,9 +528,35 @@ async function moneySection(req) {
 }
 
 // Which seasons have a written chapter committed under views/history/chapters/.
-// Prose is generated once and reviewed for voice before it ships — this set is
-// the switch that turns a chapter on. Add a year here when its chapter lands.
-const CHAPTERS = new Set([2023, 2024, 2025]);
+// DERIVED FROM DISK, not a hardcoded list: a chapter turns on the moment its
+// prose file (views/history/chapters/<year>.ejs) is committed — no second edit,
+// nothing to forget when a season seals. A hardcoded [2023,2024,2025] was a
+// silent-stale trap (and one the no-season-literals guard's patterns don't
+// even catch, since a bare year in an array isn't an identifier/date/fallback).
+// Memoised: the files are committed content, they don't appear at runtime.
+let _chapterYears = null;
+function chapterYears() {
+  if (_chapterYears) return _chapterYears;
+  const dirs = [
+    path.join(__dirname, '..', '..', 'views', 'history', 'chapters'),
+    path.join(process.cwd(), 'views', 'history', 'chapters'),
+    '/var/task/views/history/chapters',
+  ];
+  const years = new Set();
+  for (const d of dirs) {
+    try {
+      for (const f of fs.readdirSync(d)) {
+        const m = /^(\d{4})\.ejs$/.exec(f);
+        if (m) years.add(Number(m[1]));
+      }
+    } catch (e) { /* try the next candidate root */ }
+    if (years.size) break;
+  }
+  // Only memoise a non-empty result: an empty read (e.g. views not yet resolved
+  // on a cold function) must not pin the chapter switch permanently off.
+  if (years.size) _chapterYears = years;
+  return years;
+}
 
 // Safe access to the archive engine: a data problem should render a readable
 // error, not crash the request. Memoised inside history-data.build().
@@ -535,7 +578,11 @@ router.get('/history', aw(async (req, res) => {
     return res.render('history', Object.assign({ section }, data));
   }
   const A = archive();
-  res.render('history/index', { A, chapters: CHAPTERS });
+  // Top of the chronicle timeline = the current season, derived (not a literal),
+  // so a new season appears the moment it opens instead of waiting on an edit.
+  const _season = H.currentSeason(req.world.seasons);
+  const topYear = (_season && _season.year) || new Date().getUTCFullYear();
+  res.render('history/index', { A, chapters: chapterYears(), topYear });
 }));
 
 // The Age Before Records — a single ceremonial chapter for the pre-Sleeper years
@@ -555,10 +602,10 @@ router.get('/history/season/:year', aw(async (req, res) => {
     return res.status(404).render('error', { title: 'No such season',
       message: `The ${req.params.year} chapter has not been written into the archive.` });
   }
-  const chapterInclude = CHAPTERS.has(year) ? `history/chapters/${year}` : null;
+  const chapterInclude = chapterYears().has(year) ? `history/chapters/${year}` : null;
   // required cast (§2) computed from the all-play instrument, plus the champion.
   const cast = seasonCast(season);
-  res.render('history/season', { A, season, chapterInclude, cast, chapters: CHAPTERS });
+  res.render('history/season', { A, season, chapterInclude, cast, chapters: chapterYears() });
 }));
 
 // The All-Time Records Book (the crown jewel).
@@ -1444,7 +1491,22 @@ router.get('/matchup', aw(async (req, res) => {
   // before the season starts, and in the sandbox where Sleeper is unreachable.
   let opp = (liveMatchup && liveMatchup.opp && liveMatchup.opp.owner) ? liveMatchup.opp.owner : null;
   const live = !!opp;
-  const oppParam = parseInt(req.query.opp, 10) || null;
+
+  // A SPECIFIC game can be opened by pair (?a=&b=) — the scoreboard links every
+  // card that way. If the viewer is one of the two, they get the full
+  // participant view against the other side; if the viewer is NOT in that game,
+  // they get a read-only SPECTATOR view of that exact pairing (its all-time
+  // head-to-head + score + trash thread) instead of the old bug where a
+  // viewer-relative ?opp= silently reframed it as "you vs one of them."
+  const aParam = parseInt(req.query.a, 10) || null;
+  const bParam = parseInt(req.query.b, 10) || null;
+  let spectator = null, pairOtherId = null;
+  if (aParam && bParam && aParam !== bParam && H.ownerById(owners, aParam) && H.ownerById(owners, bParam)) {
+    if (me.id === aParam || me.id === bParam) pairOtherId = (me.id === aParam ? bParam : aParam);
+    else spectator = { A: H.ownerById(owners, aParam), B: H.ownerById(owners, bParam) };
+  }
+
+  const oppParam = pairOtherId || parseInt(req.query.opp, 10) || null;
   if (!opp && oppParam && oppParam !== me.id) opp = H.ownerById(owners, oppParam) || null;
 
   const weekNo = (liveMatchup && liveMatchup.week) || (sData && sData.week) || 1;
@@ -1459,6 +1521,38 @@ router.get('/matchup', aw(async (req, res) => {
     for (const [uid, oid] of Object.entries(um)) invUserMap[oid] = uid;
   }
   const uidOf = (o) => (invUserMap && invUserMap[o.id]) || H2H.userIdForName(o.name, o.alias);
+
+  // SPECTATOR VIEW — a game the viewer isn't in, opened from the scoreboard.
+  // Read-only: the two owners' live score, their all-time head-to-head, and the
+  // trash thread welded to that game (visible but not postable — you can't talk
+  // trash in a game you're not playing). None of the me-relative machinery (bet,
+  // pick'em strip, stakes, starters, your weekly-high) applies, so we return
+  // before computing any of it.
+  if (spectator) {
+    const { A, B } = spectator;
+    const map = world.config.sleeper_map || {};
+    let aPts = null, bPts = null;
+    if (sData && Array.isArray(sData.matchups)) {
+      for (const m of sData.matchups) {
+        const oid = Number(map[String(m.roster_id)]);
+        if (oid === A.id) aPts = Math.round((Number(m.points) || 0) * 100) / 100;
+        if (oid === B.id) bPts = Math.round((Number(m.points) || 0) * 100) / 100;
+      }
+    }
+    const specRecord = H2H.headToHead(uidOf(A), uidOf(B));
+    const seasonY = (H.currentSeason(world.seasons) || {}).year || new Date().getFullYear();
+    let specTrash = [];
+    const specGameId = TT.gameId(A.id, B.id);
+    try { specTrash = await TT.forGame(seasonY, weekNo, specGameId); } catch (e) { /* thread is a bonus */ }
+    const nameOfS = id => (H.ownerById(owners, id) || {}).name || '?';
+    return res.render('matchup-spectator', {
+      me, A, B, aPts, bPts, record: specRecord, weekNo,
+      live: (aPts != null || bPts != null),
+      trash: specTrash, nameOf: nameOfS,
+      goatId: MK.goatOwnerId(sData, map),
+      configured: !!world.config.sleeper_league_id,
+    });
+  }
 
   const record = opp ? H2H.headToHead(uidOf(me), uidOf(opp)) : null;
 

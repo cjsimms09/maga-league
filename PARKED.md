@@ -810,3 +810,47 @@ Done this session: silent-stale code fixes + the no-season-literals guard; draft
 
 ## ▶ NEXT UNIT (parked, acknowledged) — THE WEEK'S-MATCHUPS SCOREBOARD (the Sunday landing)
 Cory (2026-08-09): one page, all five of the week's games as compact cards — both owners/scores (live/projected/final + who's winning), and the interesting detail visible without tapping: **pick'em split** (tap → who took whom), **rivalry billing** (Dylan–Sam, Bates–Richard, the German derby), **weekly-high race** (leader, gap, which games can still change it), **what each game is worth** (playoff/money) + **clinch/elim** consequences, and the **what-to-watch line** on SNF/MNF undecided games. Tap a card → the full matchup screen (H2H, trash talk, side bet, starters). Mostly WIRING engines already built (PE.gameSplit/weekGames, playoffs.picture/matchupLeverage, whatwatch.sweat, rivalry, weeklyHighBand). Mobile-first, league-visible. **Nav: make it the obvious Sunday landing — a prominent home entry (or home BECOMES it on game days), not buried.** No existing page does this: home's "Week N Scoreboard" is bare scores; /watch is Sun/Mon sweat only. **Build next.**
+
+---
+
+## ▶ iPhone home-screen PWA — DIAGNOSED + FIXED in B's lane (Session B, 2026-08-09)
+Cory reported the installed home-screen app "not working / seeing old versions."
+
+**Root cause (the real bug):** the standalone app is chromeless — no address
+bar, no pull-to-refresh — so no gesture can force a reload. Rendered pages
+carried **no `Cache-Control`**, and iOS WebKit **heuristically caches** any 200
+text/html without one, pinning the installed app to whatever build it first
+loaded. A new deploy never reached the phone. Confirmed with a standalone-path
+diagnostic (cold launch → `/login` → authed `/`, `/scoreboard`): every HTML
+response came back `cc:null`.
+
+**FIXED (B-owned files, shipped `ac0e05d` on `claude/pickems-feature-3ksf0l`):**
+- `src/routes/member.js` + `src/routes/admin.js` now set
+  `Cache-Control: no-cache, must-revalidate` on every rendered page. `/api/*`
+  still sets `no-store` afterward (stricter). CDN assets (icons/css/manifest)
+  keep netlify.toml's long-cache — they never hit these routers.
+- `views/partials/header.ejs`: removed the Google Fonts `<link>` (dead weight —
+  CSS is 100% system fonts — and a render-blocking external fetch a chromeless
+  launch cannot afford).
+- Verified external links (Venmo/Sleeper/GitHub) already `target=_blank
+  rel=noopener` → open in Safari, no back-button trap. No change needed.
+
+**Session cookie in standalone:** persists correctly today — 30-day expiry,
+httponly, samesite=lax. iOS gives the standalone app its own cookie jar, so the
+user logs in once *inside* the installed app; that works.
+
+### 🅰️ ONE A-LANE ITEM (server-app.js, optional hardening — NOT the bug)
+The session cookie has no `secure` flag. It's set in `server-app.js`'s
+`cookieSession({...})` (A's lane), so B did not touch it. It is **hardening, not
+the fix** — cookies persist fine over HTTPS without it. If A wants it: add
+`secure: process.env.NODE_ENV === 'production' || !!process.env.NETLIFY` to the
+`cookieSession` options (gate on prod so the local http dev server, which
+rejects secure cookies, keeps working). Low priority.
+
+### 📱 WHAT CORY MUST DO ON HIS PHONE (once, after A deploys this)
+The old stale HTML is already pinned in the installed app's cache, so the fix
+can't retroactively evict what's already there — one manual reset is needed:
+**delete the home-screen app and re-add it** (Share → Add to Home Screen) after
+the deploy lands. From then on every future deploy reaches the installed app on
+its own, because the pages now tell iOS to revalidate. No need to clear all of
+Safari — just delete + re-add the one icon.
