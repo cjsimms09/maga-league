@@ -560,3 +560,18 @@ telemetry), B "Daylight" (light editorial departure), C "Terminal" (bold mono
 instrument), D "Field Office" (the synthesis / B's recommendation: daylight base
 + mono data discipline + terminal accents, with all of the above shown intact).
 **Awaiting Cory's pick (one, or pieces combined) before the site-wide build-out.**
+
+---
+
+## ▶ NEXT UNIT (parked, acknowledged) — THE ANNUAL BUTTON: content half (Session B)
+**Sequenced after the design work + preservation audit (both done), before anything speculative. Not urgent — fires January, fall dry-run. Building now while the generators are fresh. Full spec: `docs/queued/annual-button.md`. All league-visible (results/money/history).**
+
+**THE SPLIT:** A owns the workflow plumbing (headless dispatch, PR creation, engine/Lab grading passes, season rollover re-pointing config). **B owns the content + site artifacts**, wired to be CALLABLE FROM A's workflow (not run separately), and running AFTER A's corrections/grading complete — a chapter must never cite a number the same run later fixes.
+
+**B's four pieces:**
+1. **History chapter** — new season's full chapter in the chronicle voice + the hub story's new paragraph appended. Generators already exist in `src/routes/history-data.js` — this is WIRING them to run on the Annual trigger (export a callable that takes the corrected season data → writes the chapter view/data), not rebuilding them.
+2. **Records-book recomputation** — all-time records, Money Board, franchise pages, Bad Beats HOF, champion crown → new winner, trophy gains its plaque. All derived from the season results with no manual step (history-data.js already computes most; make it regenerate from the sealed season).
+3. **Financial settlement report** — final who-gets-paid / who-owes from the verified season money table via the payouts config (`src/ledger.js` + helpers.payoutTable), rendered on the league-visible Finances page with Venmo links attached (`src/venmo.js`).
+4. **Season sealing** — current-season page live→permanent chapter; archive that year's transients into history where chapters can quote them: pick'em results (`pickem-slate`/`pickem:` + PE.seasonBoard), the Dispatch archive (`dispatch-index:<season>` — already immutable), trash talk (`TT.archiveForSeason`), weekly awards/power polls (dispatch archive). The archives were BUILT to be quotable — this wires them into the sealed chapter.
+
+**Coordination flag → A:** expose B's content generation as a function A's workflow calls after grading (pass the corrected season table + final standings). Agree the call signature + the ordering barrier. B does NOT touch the workflow YAML/dispatch/PR creation (A's lane).

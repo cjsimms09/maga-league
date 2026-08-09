@@ -1259,3 +1259,15 @@ Because the flip + remap were GLOBAL, non-judged pages (bank, team, votes, rules
 
 ### WATCH
 The A-ship Monitor already FIRED (A shipped the pre-redesign stack). If more live verification is wanted post-redeploy, re-arm `scratchpad/ship-check.sh`.
+
+## ▶ SESSION B — RESUME MARKER 2026-08-09: design pivot to B + icon/PWA DONE; audit clean; Annual Button queued
+**Branch `claude/pickems-feature-3ksf0l`. A already shipped the pre-redesign stack; the REDESIGN + ICON are new commits A has NOT integrated/deployed yet.**
+
+### ✅ DONE THIS STRETCH
+- **Direction B (Daylight)** built site-wide via token flip + override layer; pivoted from the D synthesis to pure B (dropped //+mono accents). Contrast pass per Cory (darkened --muted + PF/secondary text; fixed the pale hero/balance boxes, gradient-clipped white text, and white components).
+- **App icon** — heraldic eagle + stars-and-stripes shield, standing on a football (`public/icons/icon.svg`); legible at 60px, light+dark. Rasterized to ALL iOS/Android sizes + maskable + apple-touch. **PWA**: manifest (short_name MFGA, standalone, portrait, navy splash bg / paper theme), iOS meta + branded launch (splash) images, favicon = the mark, masthead logo = the mark. Standalone hygiene (install card hidden in-app; no back-nav dependency; alerts work in standalone).
+- **AUDIT (Cory's double-check):** route audit 35/35 pages+assets load, nothing errors; franchise/season confirmed on their real path-params. All 17 B/shared suites green. CSS braces balanced. Access gating untouched. **Nothing lost — info, tools, features, personality, connectivity all intact.**
+
+### ▶ NEXT: Annual Button — content half (parked with full plan in PARKED.md). Then: page-by-page "great" polish (type scale/spacing; side-bet grid; war-room shell dark overlays).
+
+### 🅰️ ACTION: integrate + DEPLOY the branch so Cory sees the redesign + icon live. (Cory to notify A.)
