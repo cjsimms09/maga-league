@@ -7,14 +7,11 @@
   for (const c of A.champions) champByYear[c.year] = c;
   const years = [];
   for (let y = 2026; y >= (A.lore.foundingYear || 2016); y--) years.push(y);
-  // Season pages exist where box scores do (2023-2025); the pre-Sleeper years
-  // (2016-2022) share one ceremonial chapter at /history/early. 2026 is live,
-  // no page yet.
   const linkFor = y => A.byYear[y] ? `/history/season/${y}` : (y >= 2016 && y <= 2022 ? '/history/early' : null);
 %>
 
 <div class="chron">
-  <!-- 1. HEADER (turnover-corrected eyebrow) -->
+  <!-- 1. HEADER -->
   <p class="chron-eyebrow">Est. 2016 · Not Quite the Same Ten Men · A Decade of Receipts</p>
   <h1 class="chron-title">The <span class="gold">MFGA</span> Archive</h1>
   <p class="chron-sub">Every dollar, every champion, every humiliation — written down at last.</p>
@@ -42,75 +39,243 @@
         — two are scrubbed out entirely, one survives as a name in a single draft
         order. They're in here anyway.</p>
 
-        <h3><span class="n">§</span> The Decade</h3>
+        <h3><span class="n">§</span> The Dark Ages (2016–2022)</h3>
 
-        <p><strong><a href="/history/early">2016.</a></strong> Balls and Wieners, year
-        one, <span class="stat">$100</span> a man. David won it for
-        <span class="stat">$300</span>. No box scores survive, so that's all there is.</p>
+        <p>There are no box scores from the first seven years, which is the single
+        greatest act of mercy this league has ever performed for most of you. What
+        survives is a list of champions and the checks that went with them, and even
+        that is enough to start fights. The whole prehistoric era lives at
+        <a href="/history/early">the early years</a>, such as it is.</p>
 
-        <p><strong><a href="/history/early">2017.</a></strong> Cory won it,
-        <span class="stat">$375</span>, buy-in up to $125.</p>
+        <p>Year one, <strong>David</strong> won it for <span class="stat">$300</span>
+        back when the buy-in was a friendly little <span class="stat">$100</span> and
+        nobody had started lying to each other yet. This matters because David has
+        spent every season since standing on the floor objecting to the buy-in going
+        up, which is a bold position for a man who has cashed exactly one title in ten
+        years and clings to it like a birth certificate. Then <strong>Cory</strong> —
+        yes, the same guy who built this website, the guy narrating this to you right
+        now, keep that in your back pocket — went back-to-back in
+        <span class="stat">2017</span> for <span class="stat">$375</span> and
+        <span class="stat">2018</span> for <span class="stat">$450</span>. Write those
+        years down. Circle them. That's the whole résumé. He has not won since. Six
+        years and counting, a man maintaining a shrine to a championship old enough to
+        be in second grade.</p>
 
-        <p><strong><a href="/history/early">2018.</a></strong> Cory won it again,
-        <span class="stat">$450</span>, back-to-back. He hasn't won since. It's been
-        six years.</p>
+        <p>And then the ceiling fell in, and his name was <strong>Marian</strong>.
+        <span class="stat">2019</span> for <span class="stat">$600</span>.
+        <span class="stat">2020</span> for <span class="stat">$750</span>.
+        <span class="stat">2021</span> for <span class="stat">$900</span>. Three in a
+        row, an actual, undisputed, look-it-up three-peat while the rest of us paid
+        the escalating buy-in like it was a subscription to watching Marian collect.
+        Nine other guys funding one man's dynasty and calling it a hobby.</p>
 
-        <p><strong><a href="/history/early">2019.</a></strong> Marian, <span class="stat">$600</span>.
-        The start of the run.</p>
+        <h3 id="asterisk"><span class="n">§</span> The One With the Asterisk</h3>
 
-        <p><strong><a href="/history/early">2020.</a></strong> Marian again, <span class="stat">$750</span>.</p>
+        <p>Then came <span class="stat">2022</span>, and this one gets said straight
+        and said once. The final week's Bills–Bengals game was cancelled after Damar
+        Hamlin went into cardiac arrest on the field. That is the whole of the serious
+        part, and it stays serious. What happened next in our little world of pretend
+        is that Marian was losing his matchup, the game that would have finished him
+        simply vanished, and he and <strong>Sam</strong> agreed to split first and
+        second — a shared <span class="stat">$1050</span>. Marian will tell you it's a
+        four-peat. Everyone else will tell you it's a coin that never landed. The ring
+        has been disputed at every draft since, and it will be disputed at every draft
+        until we're dead. The trophy is fake and the argument is forever, which is
+        honestly the most this league has ever gotten for its money.</p>
 
-        <p><strong><a href="/history/early">2021.</a></strong> Marian a third straight
-        time, <span class="stat">$900</span>. Nobody else had gotten a look in three
-        years.</p>
+        <h3><span class="n">§</span> 2023 — The Box-Score Era Opens</h3>
 
-        <p><strong><a href="/history/early">2022.</a></strong> Marian and Sam split the
-        title, <span class="stat">$1,050</span> between them — the fourth Marian ring
-        in four years and the only one anyone disputes. That's the asterisk; it's
-        explained at the bottom.</p>
+        <p>Everything changes here, because in <span class="stat">2023</span> — our
+        last year as the Whiny Little Bitch League — we started keeping every number,
+        and we bolted a <span class="stat">$100</span>-a-week weekly-high bounty onto
+        the pot without understanding what we'd built. The full ledger is at
+        <a href="/history/season/2023">the 2023 season</a>, and it is a rich, rich
+        document.</p>
 
-        <p><strong><a href="/history/season/2023">2023.</a></strong> Last year as the
-        Whiny Little Bitch League, and the year the weekly hundred quietly appeared.
-        Michael won it clean — <span class="stat">95–40</span> against the field and
-        the most points in the league — the first of his. Dylan made the final and
-        lost it, still the closest he's ever gotten. Justin went
-        <span class="stat">71–64</span> against everyone and finished 6–9 with
-        <span class="stat">$0</span>; Cory finished 9–6 and cashed on a
-        <span class="stat">.422</span> team, the worst-scoring lineup of anyone who
-        made money. David dropped the year's high, <span class="stat">171.50</span>,
-        and blew Sam out by <span class="stat">98.40</span>.
-        <a href="/history/season/2023">Full chapter →</a></p>
+        <p><strong>Michael</strong> won it, and he won it clean, which he will never
+        let you forget. He went <span class="stat">95</span>–<span class="stat">40</span>
+        against the whole field — the best all-play in the league — and poured in
+        <span class="stat">1852.22</span> points, the most of anyone. No cancelled
+        games, no split, no coin. Just the best team taking the money. First ring of
+        what would become a problem.</p>
 
-        <p><strong><a href="/history/season/2024">2024.</a></strong> We became Make
-        Football Great Again and added keepers. Jeremy won it off the two-seed. David
-        took the regular season and the biggest check, then went out fourth in the
-        playoffs. Cory scored the <em>second-most points in the league</em> and
-        missed the bracket entirely — <span class="stat">8.20</span> behind Marian on
-        the season tiebreaker, with <span class="stat">297</span> left on his bench.
-        Michael's Josh Allen went for <span class="stat">57.88</span> and Michael
-        still went 6–9. <a href="/history/season/2024">Full chapter →</a></p>
+        <p>Now. <strong>Cory.</strong> Website Cory finished
+        <span class="stat">9</span>–<span class="stat">6</span> and cashed
+        <span class="stat">$400</span> while running, by a comfortable margin, the
+        worst-scoring team of anyone who touched the money — a
+        <span class="stat">.422</span> all-play, a <span class="stat">57</span>–<span class="stat">78</span>
+        record against the field, meaning if he'd played everyone every week he'd have
+        lost more than half his life. He backed into that check fully sideways. The
+        team was named <em>Herbert the Pervert</em>. A man who peaked in 2018 naming
+        his fraud lineup after a Family Guy creep and then getting <em>paid</em> for
+        it — that's the 2023 season in one sentence.</p>
 
-        <p><strong><a href="/history/season/2025">2025.</a></strong> Michael again —
-        <span class="stat">12–3</span>, <span class="stat">$1,325</span>, the richest
-        year on record — two titles in three years now. Richard scored
-        <span class="stat">1,711</span> points, third-most in the league, and finished
-        <em>dead last</em> at <span class="stat">4–11</span>, the worst luck anyone's
-        ever had here. Bates rode Gibbs to a runner-up and is still without a ring;
-        Cory went 5–10 and named the team Scheisse. <a href="/history/season/2025">Full chapter →</a></p>
+        <p>Meanwhile <strong>Justin</strong> went <span class="stat">71</span>–<span class="stat">64</span>
+        against the field, a genuinely competent year, and finished
+        <span class="stat">6</span>–<span class="stat">9</span> with
+        <span class="stat">$0</span> in his pocket, robbed blind by the schedule while
+        the pervert cashed. That's the game. That's the whole game.</p>
 
-        <p><strong>2026.</strong> In progress. Buy-in's $400 with a vote to make it
-        five. For the record: Marian's up about <span class="stat">$5,000</span>
-        all-time, Justin's barely cleared <span class="stat">$600</span>, and Dylan,
-        Bates, Richard and Justin have never won the thing. The buy-in ladder, the
-        payouts and the pending votes live in <a href="/history/amendments">the
-        Amendments</a>; everything else is below.</p>
+        <p><strong>David</strong> — playing that year under the flag of
+        <em>El Travesty</em>, which turned out to be less a team name than a scouting
+        report — had the loudest season on record. He posted the year's single highest
+        score, <span class="stat">171.50</span> in Week 4, and blew Sam off the earth
+        by <span class="stat">98.40</span> in one of the great beatdowns. He also
+        dropped <span class="stat">140.76</span> in a game and <em>lost</em>, missed a
+        weekly-high bounty by <span class="stat">0.52</span> — fifty-two cents of a
+        football point standing between him and free money — and, in the crown jewel,
+        benched Justin Fields for <span class="stat">40.98</span> in a week his
+        starters coughed up a combined <span class="stat">69.12</span>. He sat more
+        than half his final total on the bench and called himself a contender.</p>
+
+        <p><strong>Jeremy</strong> had the best single performance of the entire year
+        — C.J. Stroud went nuclear for <span class="stat">51.80</span> — and finished
+        <span class="stat">5</span>–<span class="stat">10</span> with a
+        <span class="stat">7</span>-game losing streak wrapped around it, which takes a
+        special kind of man to own the year's high point and still lose seven
+        straight. <strong>Bates</strong> opened the season with a
+        <span class="stat">52.20</span>, the lowest score anybody put up all year,
+        setting a tone he'd honor for a decade. And <strong>Dylan</strong> made the
+        championship game and lost it — the closest that man has ever come to a ring,
+        a fact that will matter more and more the longer this goes.</p>
+
+        <h3><span class="n">§</span> 2024 — Make Football Great Again</h3>
+
+        <p>New name, new rules — <span class="stat">2024</span> is when we rebranded to
+        MFGA and added keepers, so now you could hold your mistakes over from year to
+        year. The <a href="/history/season/2024">full 2024 story</a> is a monument to a
+        single stat line, and we'll get to it, but the champion was
+        <strong>Jeremy</strong>, off the 2-seed, running the best all-play in the
+        league at <span class="stat">88</span>–<span class="stat">47</span> and the
+        best lineup efficiency at <span class="stat">91.8%</span>. Actually good,
+        actually deserved, took the ring and <span class="stat">$900</span>. And here
+        is the beautiful part: in his Week 15 loss on the way there, Jeremy
+        <em>benched Jared Goff for <span class="stat">51.06</span></em> and won the
+        title anyway. Left fifty on the pine and got fitted for jewelry regardless.
+        Some guys are just lucky, and we'll come back to that too.</p>
+
+        <p><strong>David</strong> — this time as <em>Cream Hunt</em>, and no, don't —
+        won the regular season and <span class="stat">$950</span> on an
+        <span class="stat">11</span>–<span class="stat">4</span> record built on a
+        <span class="stat">.593</span> all-play, the luckiest man in the league that
+        year, and then face-planted to <span class="stat">4th</span> in the playoffs
+        the second the schedule stopped carrying his water. Eleven-and-four in
+        September, tourist in January.</p>
+
+        <p>But 2024 belongs to <strong>Cory</strong>, forever, and not the way he'd
+        like. Website Cory scored the <span class="stat">2nd</span>-most points in the
+        entire league — <span class="stat">1830.64</span>, a genuinely great total —
+        and <em>missed the playoffs.</em> He lost the final seed to Marian on the
+        season-points tiebreaker by <span class="stat">8.20</span> points, roughly one
+        bad handoff across an entire year, while leaving <span class="stat">297</span>
+        points rotting on his bench. Then, because the football gods have a sense of
+        humor, he missed the Week 15 weekly-high bounty by <span class="stat">1.06</span>.
+        The man's team name that year was <em>Zero Mistakes Were Made.</em> He wrote
+        that. About that team. On purpose. It is the single funniest thing in the
+        archive and he built the archive.</p>
+
+        <p>The rest of the misery got spread around generously.
+        <strong>Marian</strong> posted the season high, <span class="stat">166.18</span>
+        in Week 2, and rode Cory's own tiebreaker into the last playoff spot Cory
+        earned and lost. <strong>Sam</strong>, sailing under <em>Don of a new age</em>,
+        went <span class="stat">3</span>–<span class="stat">12</span> with the lowest
+        point total in the league (<span class="stat">1493</span>), the most points
+        against (<span class="stat">1857</span>), and the only sub-<span class="stat">70</span>
+        game anyone managed all year, a <span class="stat">67.98</span> — Cory beat him
+        by <span class="stat">75.08</span> in Week 5, which for Cory qualifies as a
+        career highlight. <strong>Michael</strong>, the reigning champ, watched Josh
+        Allen detonate for <span class="stat">57.88</span> — the best single game of
+        the year — and still went <span class="stat">6</span>–<span class="stat">9</span>
+        and missed everything, proof that one great player can't save you and that
+        nobody in this league is safe. <strong>Jeremy</strong> missed the Week 1
+        bounty by <span class="stat">0.12</span> before it stopped mattering, and
+        <strong>Richard</strong> beat him by <span class="stat">1.10</span> in the
+        closest game of the year, a margin thinner than a rounding error.</p>
+
+        <h3><span class="n">§</span> 2025 — Michael Again</h3>
+
+        <p>And then <span class="stat">2025</span>, laid out in full at
+        <a href="/history/season/2025">the 2025 season</a>, where
+        <strong>Michael</strong> stopped being a champion and started being a trend.
+        He went <span class="stat">12</span>–<span class="stat">3</span>,
+        <span class="stat">90</span>–<span class="stat">45</span> against the field,
+        ripped off a <span class="stat">6</span>-game win streak, and cashed
+        <span class="stat">$1325</span> — the richest single year in league history —
+        for his <span class="stat">2nd</span> ring in three seasons. Two of the last
+        three are his. Marian built the old empire; Michael is quietly building the
+        new one while everyone else argues about a coin flip from 2022.</p>
+
+        <p>The real story of 2025, though, is <strong>Richard</strong>, and it is a
+        tragedy. Running as <em>Doener</em>, Richard scored
+        <span class="stat">1711.20</span> points — the <span class="stat">3rd</span>-most
+        in the entire league — and finished <span class="stat">4</span>–<span class="stat">11</span>,
+        stone dead last. His all-play was <span class="stat">74</span>–<span class="stat">61</span>,
+        a genuinely good team by every measure that isn't the standings. In Week 15 he
+        dropped <span class="stat">142.72</span>, a top-three score that week, and
+        <em>lost.</em> It is the largest robbery on record in a league that keeps
+        detailed records of robbery. He scored like a contender and finished like
+        roadkill, and he still doesn't have a ring to show for any of it.</p>
+
+        <p><strong>Bates</strong>, on the other hand, named his team
+        <em>Carried by Gibbs*</em> — the asterisk his own, a rare moment of
+        self-awareness — strapped himself to Jahmyr Gibbs (<span class="stat">49.90</span>
+        in Week 12), rode him all the way to runner-up, and <em>still</em> has no ring,
+        because that's the Bates experience: getting close on someone else's back and
+        coming home empty. <strong>Dylan</strong> posted the worst lineup efficiency in
+        the league at <span class="stat">84.3%</span> and left
+        <span class="stat">308</span> points on his bench, which is a full extra decent
+        player he simply chose not to play, all season, on purpose. And
+        <strong>Jeremy</strong> and <strong>David</strong> were once again the two
+        luckiest men on the field, the biggest positive luck gaps in the league — the
+        universe continuing its long tradition of handing wins to guys who benched a
+        quarterback.</p>
+
+        <p>Which brings us, as it must, back to <strong>Cory.</strong> Website Cory,
+        custodian of ten years of everyone's shame, went
+        <span class="stat">5</span>–<span class="stat">10</span> and won
+        <span class="stat">$0</span>. The team was named <em>Scheisse.</em> He is a man
+        so fluent in his own failure he had to reach into German for it. Seven years
+        since a title, an archive of his own greatest hits, and a lineup named after
+        the word for shit. He built a cathedral to remember the whole league by and
+        the loudest thing in it is the echo of his own 2018.</p>
+
+        <h3><span class="n">§</span> Where It Stands</h3>
+
+        <p>Ten years of checks add up, and the all-time money board is its own kind of
+        scoreboard. <strong>Marian</strong> leads at roughly <span class="stat">$5,083</span>,
+        disputed coin and all. <strong>David</strong> sits second at about
+        <span class="stat">$4,038</span>, funded largely by regular seasons he couldn't
+        finish. <strong>Michael</strong> is third and climbing fast at
+        <span class="stat">$3,675</span>, and given the last three years he isn't
+        stopping. Then <strong>Cory</strong> at <span class="stat">$3,520</span> —
+        fourth in career earnings, first in self-documentation — followed by
+        <strong>Bates</strong> (<span class="stat">$2,995</span>),
+        <strong>Jeremy</strong> (<span class="stat">$2,346</span>),
+        <strong>Dylan</strong> (<span class="stat">$1,694</span>),
+        <strong>Sam</strong> (<span class="stat">$1,250</span>), and down at the bottom
+        the two men the schedule hates most: <strong>Richard</strong> at
+        <span class="stat">$950</span> and <strong>Justin</strong> dead last at
+        <span class="stat">$600</span>. Four men have never won a single title — Dylan,
+        Bates, Richard, Justin — and three of them scored their way to the doorstep
+        only to have it slammed on their fingers.</p>
+
+        <p>Now the buy-in sits at <span class="stat">$400</span> with a vote on the
+        floor to push it to <span class="stat">$500</span>, and David is objecting
+        again, on schedule, because it's an even year. The weekly-high bounty nobody
+        thought about has quietly become <span class="stat">37.5%</span> of the whole
+        pot — the biggest prize in the league is a thing none of us voted to make the
+        biggest prize in the league, and it's the reason a last-place Richard can
+        outscore half the field and go home broke. Whatever we vote in 2026, the full
+        record of every increase, every rename, every rule we bolted on drunk lives at
+        <a href="/history/amendments">the Amendments</a>. Ten years in, and it still
+        started with a dick joke.</p>
       </div>
     </div>
   </div>
 
   <!-- 3. THE SEASONS timeline -->
   <div class="card">
-    <h2>📖 The Seasons <span class="sub">tap a year with a chapter</span></h2>
+    <h2>📖 The Seasons <span class="sub">tap a year</span></h2>
     <div class="body">
       <div class="timeline">
         <% for (const y of years) {
@@ -139,7 +304,7 @@
           <% if (href) { %></a><% } else { %></div><% } %>
         <% } %>
       </div>
-      <p class="tl-note">Full box scores survive from <b>2023</b> on. 2016–2022 are the age before Sleeper — champions and money only; their chapters are on the way.</p>
+      <p class="tl-note">Full box scores survive from <b>2023</b> on. 2016–2022 are the age before Sleeper — champions and money only.</p>
     </div>
   </div>
 
@@ -167,8 +332,7 @@
     </a>
   </div>
 
-  <!-- 5. THE 2022 ASTERISK (closing footnote) -->
-  <%- include('_asterisk') %>
+  <!-- The 2022 asterisk is stated once, in the story above (#asterisk). -->
 
   <p class="provenance">
     Derived from the master sheet (<%= A.provenance.master_sha256.slice(0, 12) %>…)
