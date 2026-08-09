@@ -216,6 +216,57 @@ router.post('/password', aw(async (req, res) => {
   res.redirect('/');
 }));
 
+// THE PWA ENTRY POINT. The home-screen app launches at start_url "/" with an
+// empty cookie jar (iOS gives standalone apps their own), so the very first
+// launch is unauthenticated. iOS standalone sits on the navy background_color
+// splash forever if the launch URL REDIRECTS instead of rendering — which is
+// exactly the "solid navy screen" report: "/" was 302-ing to /login (via the
+// requireLogin guard below), and the installed app never followed the redirect.
+// So "/" must return a rendered 200 in BOTH states: the login form when signed
+// out, the dashboard (the handler further down) when signed in. Signed-in →
+// fall through. This sits ABOVE requireLogin so the signed-out case never hits
+// the redirect.
+router.get('/', (req, res, next) => {
+  if (!req.owner) return res.render('login', { error: null });
+  next();
+});
+
+// STANDALONE DIAGNOSTIC — a completely self-contained page: no login, no
+// redirect, no external CSS/JS, so it renders even if everything else is broken.
+// It's the "way to see the error" for the home-screen app: launch it (or add it
+// to the home screen) and it proves the shell can load at all, and reports the
+// display mode, whether the session cookie survived into the standalone cookie
+// jar, and the running build. If THIS shows navy too, the failure is the shell
+// load itself (network/cache), not auth or a redirect.
+router.get('/standalone', (req, res) => {
+  const build = process.env.COMMIT_REF || process.env.HEAD || 'dev';
+  res.type('html').send(`<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MFGA — standalone check</title>
+<style>
+  html,body{margin:0;background:#0c1c36;color:#f7f6f2;font-family:system-ui,-apple-system,sans-serif}
+  .wrap{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;padding:1.5rem;text-align:center}
+  .ok{font-size:1.4rem;font-weight:800;color:#8ef0b6}
+  .row{font-size:.95rem;opacity:.9} .row b{color:#ffd873}
+  a.btn{display:inline-block;margin-top:.6rem;padding:.7rem 1.3rem;border-radius:10px;background:#f5c445;color:#0c1c36;font-weight:800;text-decoration:none}
+</style></head><body><div class="wrap">
+  <div class="ok">✅ MFGA app shell loaded</div>
+  <div class="row">If you can read this in the installed app, the page renders — the problem is not the shell.</div>
+  <div class="row">Display mode: <b id="dm">checking…</b></div>
+  <div class="row">iOS standalone: <b id="ios">checking…</b></div>
+  <div class="row">Session cookie present: <b id="ck">checking…</b></div>
+  <div class="row">Build: <b>${build.slice(0, 12)}</b></div>
+  <a class="btn" href="/">Go to the League Office →</a>
+</div><script>
+  try{
+    var sa = window.matchMedia && window.matchMedia('(display-mode: standalone)').matches;
+    document.getElementById('dm').textContent = sa ? 'standalone (home-screen app)' : 'browser tab';
+    document.getElementById('ios').textContent = (('standalone' in navigator) ? (navigator.standalone ? 'yes' : 'no') : 'n/a');
+    document.getElementById('ck').textContent = /(^|;\\s*)maga_league=/.test(document.cookie) ? 'yes' : 'no (first launch is normal)';
+  }catch(e){ document.getElementById('dm').textContent = 'JS error: ' + e.message; }
+</script></body></html>`);
+});
+
 // ---------- everything below requires login ----------
 router.use(requireLogin);
 

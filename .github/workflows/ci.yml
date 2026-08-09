@@ -82,6 +82,12 @@ jobs:
         # harvested target on its own. Asserts it renders and that no per-owner
         # efficiency analysis leaks onto this league-visible page.
         run: node draft/tests/matchup_weekly_high.test.js
+      - name: PWA entry point — "/" renders (never redirects) so the home-screen app launches
+        # iOS standalone sits on the navy background_color splash forever if the
+        # launch URL redirects. Asserts cold (unauthenticated) "/" returns a 200
+        # login render, not a 302; the self-contained /standalone diagnostic
+        # renders with no external deps; and authed "/" is the dashboard.
+        run: node draft/tests/pwa_entry.test.js
       - name: Matchup spectator — opening someone else's game shows THAT pairing
         # The scoreboard deep link used to be viewer-relative (?opp=), so tapping
         # a game you weren't in reframed it as "you vs one of them." Asserts a
