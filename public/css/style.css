@@ -2215,7 +2215,9 @@ button.pd-team.pick:hover { background: rgba(245,196,69,.16); transform: transla
 .check-item.todo .check-label { color: #fff; }
 .check-item.ok .check-label { color: var(--muted); }
 .check-label { flex: 1 1 180px; }
-.check-fix { flex: 0 0 auto; font-size: .74rem; color: var(--gold-bright); }
+/* Was `flex: 0 0 auto` — a long fix-hint refused to shrink and overflowed the
+   row (and the page). Let it take its own line and wrap. */
+.check-fix { flex: 1 1 100%; min-width: 0; overflow-wrap: anywhere; font-size: .74rem; color: var(--gold-bright); }
 
 /* ---------- a rendered document ---------- */
 .doc-body { font-size: .88rem; line-height: 1.6; color: #17263a; }
@@ -2532,11 +2534,16 @@ button.pd-team.pick:hover { background: rgba(245,196,69,.16); transform: transla
    Five lines, each one line tall, readable without scrolling on a phone. The
    ABSENT line is deliberately quiet: it states a fact about the tool rather
    than warning about a fault. */
-.mvs { display: flex; flex-direction: column; gap: .3rem;
+.mvs { display: flex; flex-direction: column; gap: .3rem; min-width: 0;
   padding: .6rem .7rem; margin-bottom: .8rem; border-radius: 8px;
   background: rgba(255,255,255,.04); border: 1px solid rgba(245,196,69,.35); }
+/* WRAP, don't nowrap+scroll: a long recommendation line (ADP · LEAN · reasoning)
+   was `white-space: nowrap; overflow-x: auto`, which — because the content is
+   A-emitted and can be long — overflowed the whole PAGE to ~776px on every pick
+   instead of scrolling inside itself. On a phone the reasoning must wrap and be
+   readable, never force a hidden sideways scroll. (Found in the war-room E2E.) */
 .mvs-line { font-size: .82rem; line-height: 1.35; color: #17263a;
-  white-space: nowrap; overflow-x: auto; }
+  white-space: normal; overflow-wrap: anywhere; min-width: 0; }
 .mvs-line.contested { color: #ffb765; }
 .mvs-rec { font-size: 1rem; display: flex; align-items: center; gap: .4rem; flex-wrap: wrap; }
 .mvs-name { font-weight: 800; }
@@ -2587,7 +2594,10 @@ button.pd-team.pick:hover { background: rgba(245,196,69,.16); transform: transla
 .pd-inert { font-weight: 400; opacity: .8; }
 .ss-seat { color: #17263a; }
 .ss-age { color: var(--muted); }
-.ss-dot { margin-left: auto; white-space: nowrap; }
+/* The health dot is right-aligned and short in the normal case, but it can carry
+   a long diagnostic string ("PICK STATE: …") — which, at nowrap, overflowed the
+   page. Let it wrap rather than push the layout sideways. */
+.ss-dot { margin-left: auto; white-space: normal; overflow-wrap: anywhere; min-width: 0; }
 .ss-issues { color: var(--muted); font-size: .72rem; }
 .system-strip.bad .ss-issues { color: var(--red); }
 
