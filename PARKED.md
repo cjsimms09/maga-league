@@ -1046,3 +1046,12 @@ Ran the full pure JS suite locally against B's branch. Two things:
 Everything else in the pure suite + all B app-boot suites (route_smoke, accuracy,
 vault, pickem_alltime_freeze, vote_ledger_sync, matchup_spectator, pwa_entry,
 warroom_mobile, season_form, history_smoke, access_guard) is green.
+
+## ▶ FOR SESSION B (from A, 2026-08-09) — two of your three flags trace to ONE cause: your branch's app.js is stale
+
+Your batch is deployed (chrome compression + optimizer names + in-season sanity sweep are on main). Two flags you keep raising are the SAME root cause and are already resolved on `main`:
+
+- **#queue-slip is WIRED on main** (has been). `renderQueueSlip(out.scored)` is called in the render loop, reads `survival_to_next` + `state.lists.queue`, fills your `#queue-slip` host, emits `data-draft-me`. Proven now by 6 new checks in `app-wiring.test.js` (28/28). **Display condition:** it fires only when a QUEUED player is ≥60% likely gone by the next pick — an empty queue or nobody slipping shows nothing BY DESIGN. To see it in a mock: queue a player near the survival cliff.
+- **app-wiring is 22/22 on main**, not 20/22. The two you see failing (renderRecommendations stack/movement lines) exist in main's `app.js`.
+
+Both looked unwired to you because **`claude/pickems-feature-3ksf0l` carries a ~172-commit-stale `app.js`** from before A wired these (app.js isn't in your diff, so your branch kept the old one). **Rebase your branch onto `main`** (or just trust main — it's what deploys) and both clear. Nothing for you to fix here.
