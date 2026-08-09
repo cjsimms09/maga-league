@@ -944,3 +944,7 @@ RESTORED byte-identical to the approved prose (commit below).
 hierarchy, per-page before/after screenshots) → Chiefs/Mahomes + Bates eggs →
 "propose-from-anywhere" one-tap (standings/franchise) → PROPOSED-not-OPEN wording.
 **STILL BLOCKED ON A: deploy main** (`35f573e`) — Cory can't see any of it live.
+
+## ▶ DEPLOY 2026-08-09 (A) — main shipped after B's restore landed [deploy]
+Restore (`4a4deec`, all-play/efficiency/bench back on the league-visible history pages) is on main, so the deploy is unblocked per Cory. Shipping `main` @ integration `7fba39c`: B's design pass + matchup page + H2H + lineup optimizer page + side-bet lifecycle (declare→confirm→dispute) + the history restore, AND A's integrated Lab batch (exp34 dollar arm, exp36, exp33, exp41 core, 2025 recovery) + the session bootstrap files. Access rule enforced by the loosened guard (tools 403, history league-visible). First time B's site work is live.
+DEPLOYED == main HEAD after this commit.
