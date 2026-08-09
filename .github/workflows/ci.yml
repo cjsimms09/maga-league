@@ -67,6 +67,11 @@ jobs:
         # loyalty half is measured from real draft picks; the "overpay" half stays
         # explicitly UNMEASURED (no archived ADP) rather than fabricated.
         run: node draft/tests/chiefs_homer.test.js
+      - name: Standings rank-movement — week-over-week arrows, dormant until week 2
+        # Arrows are computed by subtracting the latest completed week from the
+        # cumulative standings — no snapshot to drift. Asserts dormancy pre-season
+        # and correct climbed/fell/held deltas once two weeks exist.
+        run: node draft/tests/standings_movement.test.js
       - name: Access guard — analysis is commissioner-only, never league-visible
         # STANDING RULE (results = league property, analysis = commissioner's):
         # asserts /lineup + /lineup/log 403 a non-commissioner, and NO league-

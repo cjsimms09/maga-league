@@ -103,6 +103,7 @@
       <% sbGrid.years.forEach(y => { %>
         <th><a href="/bank?section=sidebets&sbview=year&year=<%= y %>"><%= y %></a></th>
       <% }) %>
+      <th class="sb-trend-h" title="running side-bet book, year by year">Trend</th>
       <th class="sb-career">Career</th></tr></thead>
     <tbody>
     <% sbGrid.rows.forEach(row => { %>
@@ -113,6 +114,14 @@
             <% if (c == null) { %>—<% } else { %><a href="/bank?section=sidebets&sbview=cell&owner=<%= row.owner.id %>&year=<%= y %>" class="<%= sbCls(c) %>"><%= sbMoney(c) %></a><% } %>
           </td>
         <% }) %>
+        <%# Running-net sparkline: cumulative book position across the years an
+            owner actually has a settled figure. Two points minimum, so it stays a
+            dash until there's a real trajectory — then it lights up on its own.
+            Green when the book is above water, red below. %>
+        <% let _run = 0; const _series = sbGrid.years
+             .filter(y => row.cells[y] != null)
+             .map(y => (_run += row.cells[y])); %>
+        <td class="sb-trend"><%- include('_sparkline', { values: _series, w: 72, h: 20, tone: (row.career || 0) >= 0 ? 'green' : 'red', title: row.owner.name + ' running side-bet net' }) %></td>
         <td class="sb-career <%= sbCls(row.career) %>"><%= sbMoney(row.career) %></td>
       </tr>
     <% }) %>

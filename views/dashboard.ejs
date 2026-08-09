@@ -95,7 +95,12 @@
               means it's YOUR money. %>
           <% const bm = r.owner_id != null ? betMoney[r.owner_id] : null; %>
           <tr class="<%= seasonStarted && r.rank === sleeperStandings.length ? 'last-place' : '' %>">
-            <% if (seasonStarted) { %><td><%= r.rank %><%= r.rank === 1 ? ' 👑' : r.rank === sleeperStandings.length ? ' 🚽' : '' %></td><% } %>
+            <% if (seasonStarted) { %><td style="white-space:nowrap"><%= r.rank %><%= r.rank === 1 ? ' 👑' : r.rank === sleeperStandings.length ? ' 🚽' : '' %><%
+              // Rank-movement arrow — lights up on its own once week 2 lands.
+              const mv = (typeof rankMoves !== 'undefined' && r.owner_id != null) ? rankMoves[r.owner_id] : null;
+              if (mv && mv.delta > 0) { %> <span class="rank-arrow up" title="up <%= mv.delta %> from last week (was <%= mv.prevRank %>)">▲<%= mv.delta %></span><%
+              } else if (mv && mv.delta < 0) { %> <span class="rank-arrow down" title="down <%= -mv.delta %> from last week (was <%= mv.prevRank %>)">▼<%= -mv.delta %></span><%
+              } else if (mv) { %> <span class="rank-arrow same" title="held at <%= mv.curRank %>">–</span><% } %></td><% } %>
             <% const _fl = (typeof flags !== 'undefined' && r.owner_id != null) ? (flags[r.owner_id] || '') : ''; %>
             <td><% if (r.owner_id != null) { %><button type="button" class="contact-link" data-contact="<%= r.owner_id %>"><b><%= r.owner_name || r.team %></b></button><% if (_fl) { %> <span class="flag"><%= _fl %></span><% } %><% } else { %><b><%= r.owner_name || r.team %></b><% } %><% if (bm) { %><span
                 class="bet-money<%= bm.mine ? ' mine' : '' %>"

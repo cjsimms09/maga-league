@@ -1644,6 +1644,12 @@ table .num.zero { color: var(--muted); font-weight: 400; }
 .mb-trend, .mb-trend-h { text-align: center; white-space: nowrap; }
 .mb-trend .spark { opacity: .9; }
 
+/* Side-bet tracker trend column: cumulative book position, green above water /
+   red below. Dormant (a dash) until an owner has two settled years. */
+.sb-trend, .sb-trend-h { text-align: center; white-space: nowrap; }
+.sb-trend .spark { opacity: .92; vertical-align: middle; }
+.sb-trend .spark-empty { opacity: .5; }
+
 /* Konami reward — arrowhead red, deliberately loud, gone in 4s. */
 #konami-egg { position: fixed; inset: 0; z-index: 9999; pointer-events: none;
   display: flex; align-items: center; justify-content: center; }

@@ -4,6 +4,7 @@ const H = require('../helpers');
 const HIST = require('./history-data');   // the MFGA Archive — chronicle data engine
 const H2H = require('./h2h');              // all-time head-to-head, from the box scores
 const LO = require('./lineup');            // the lineup optimizer engine (validated vs L0)
+const MOVE = require('./standings-movement'); // week-over-week rank arrows (dormant pre-season)
 const L = require('../ledger');
 const SB = require('../sidebets');
 const BL = require('../betlogic');
@@ -268,11 +269,16 @@ router.get('/', aw(async (req, res) => {
   }
   // Last completed week's mini-awards + the transaction wire.
   let review = null, reviewWeek = null, wireRows = [];
+  // Rank-movement arrows: dormant until a previous week exists to compare, then
+  // computed by subtracting the latest completed week from the cumulative
+  // standings (no snapshot to keep in sync). { owner_id: {delta, prevRank, curRank} }
+  let rankMoves = {};
   if (sData) {
     reviewWeek = (sData.week || 1) - 1;
     if (reviewWeek >= 1) {
       const rm = await sleeper.matchupsForWeek(world.config.sleeper_league_id, reviewWeek);
       review = sleeper.weekReview(rm, sData);
+      rankMoves = MOVE.rankMovement(sStandings, rm);
     }
     const playersDb = await sleeper.players();
     wireRows = await sleeper.wire(world.config.sleeper_league_id, sData.week || 1, sData, playersDb);
@@ -299,7 +305,7 @@ router.get('/', aw(async (req, res) => {
     openVotes, CATEGORY_LABELS: H.CATEGORY_LABELS, myBalance,
     sleeperData: sData, sleeperStandings: sStandings, sleeperBoard: sBoard, roast,
     whBand, whRace,
-    review, reviewWeek, wireRows, playoffTeams, chatLatest, betMoney, owners,
+    review, reviewWeek, wireRows, playoffTeams, chatLatest, betMoney, owners, rankMoves,
     // Venmo nag (venmo-handles.md §2): fires for a logged-in owner with no
     // handle; the commissioner also sees who is still missing theirs.
     venmoNag: V.needsNag(req.owner && world.owners.find(o => o.id === req.owner.id)),
