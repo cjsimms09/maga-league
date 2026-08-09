@@ -61,6 +61,12 @@ jobs:
         # Complements bundling_guard: the guard proves the files SHIP, this proves
         # the render POPULATES.
         run: node draft/tests/history_smoke.test.js
+      - name: Chiefs-homer counter — the Bates reputation, audited (league-visible)
+        # Locks the finding that refutes the running joke: Bates is the 3rd-biggest
+        # Chiefs drafter in his own league, out-Chiefed by the two Germans. The
+        # loyalty half is measured from real draft picks; the "overpay" half stays
+        # explicitly UNMEASURED (no archived ADP) rather than fabricated.
+        run: node draft/tests/chiefs_homer.test.js
       - name: Access guard — analysis is commissioner-only, never league-visible
         # STANDING RULE (results = league property, analysis = commissioner's):
         # asserts /lineup + /lineup/log 403 a non-commissioner, and NO league-

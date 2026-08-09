@@ -69,10 +69,13 @@ function build() {
   const payouts = readJSON('draft/config/payouts.json');
   const board = readJSON('public/draft_data.json');
 
-  // player id -> { name, pos }.  DST are team codes (PHI, KC…) => DEF.
+  // player id -> { name, pos, team }.  DST are team codes (PHI, KC…) => DEF.
   const players = {};
   for (const p of (board.players || [])) {
-    players[String(p.player_id)] = { name: p.name, pos: p.position };
+    players[String(p.player_id)] = { name: p.name, pos: p.position, team: p.team };
+  }
+  for (const p of (board.kept_players || [])) {
+    if (!players[String(p.player_id)]) players[String(p.player_id)] = { name: p.name, pos: p.position, team: p.team };
   }
   const playerName = id => (players[String(id)] || {}).name || `#${id}`;
   const playerPos = id => {
@@ -95,6 +98,7 @@ function build() {
   const badBeats = buildBadBeats(seasons, owners);
   const champions = buildChampionsRoll(master);
   const catalogue = buildCatalogue(seasons, owners);
+  const chiefsHomers = buildChiefsHomers(seasons, board);
 
   // LEAGUE-NAME LINEAGE + dated amendments — corrected against ground truth.
   // 2016 founding name is "Balls and Wieners League" (owner-confirmed). The
@@ -152,7 +156,7 @@ function build() {
       master_sha256: master.source_sha256,
       note: master.note,
     },
-    seasons, byYear, owners, records, moneyBoard, amendments, badBeats, champions, catalogue, lore,
+    seasons, byYear, owners, records, moneyBoard, amendments, badBeats, champions, catalogue, chiefsHomers, lore,
     firstName: FIRST_NAME, german: GERMAN,
     modernYears: seasons.map(s => s.year),        // 2023-2025 (full box scores)
     votesPending: master.votes_pending || [],
@@ -448,6 +452,82 @@ function buildDraftRecap(drafts, teams, playerName, playerPos) {
     is_keeper: !!p.is_keeper,
   }));
   return { rounds: d.settings ? d.settings.rounds : null, firstTwo: picks.filter(p => p.round <= 2), picks };
+}
+
+// ---- THE CHIEFS-HOMER COUNTER ----------------------------------------------
+// Bates carries a reputation as the league's Chiefs homer who overpays for KC
+// players. This tests the LOYALTY half of that claim (the "overpay" half is not
+// computable — no archived ADP for 2023-25 — so it is not asserted). This IS a
+// RESULT (who drafted whom), so it is league-visible, not a commissioner tool.
+//
+// Method: non-keeper draft picks only (a keeper is not a draft decision),
+// skeleton positions only (team DEFs are team codes, not "players"). Player→NFL
+// team comes from the 2026 board, so a player who has since changed clubs is
+// attributed to his current one — noise in both directions, favours no one.
+function buildChiefsHomers(seasons, board) {
+  const teamOf = {};
+  for (const p of (board.players || [])) teamOf[String(p.player_id)] = p.team;
+  for (const p of (board.kept_players || [])) if (teamOf[String(p.player_id)] == null) teamOf[String(p.player_id)] = p.team;
+
+  const tally = {};   // owner name -> { kc, total, matched, seasons:Set }
+  let leagueKC = 0, leagueTotal = 0;
+  const years = [];
+  for (const s of seasons) {
+    if (!s.draft || !s.draft.picks) continue;
+    years.push(s.year);
+    for (const p of s.draft.picks) {
+      if (p.is_keeper) continue;
+      if (p.pos === 'DEF') continue;
+      const o = p.owner;
+      const t = teamOf[String(p.player_id)] || null;
+      const row = tally[o] || (tally[o] = { owner: o, kc: 0, total: 0, matched: 0, kcPicks: [] });
+      row.total++;
+      if (t != null) row.matched++;
+      if (t === 'KC') { row.kc++; leagueKC++; row.kcPicks.push({ year: s.year, player: p.player, round: p.round }); }
+      leagueTotal++;
+    }
+  }
+
+  const leagueRate = leagueTotal ? leagueKC / leagueTotal : 0;
+  const rows = Object.values(tally).map(r => ({
+    ...r,
+    share: r.total ? r.kc / r.total : 0,
+    vsLeague: leagueRate ? (r.total ? (r.kc / r.total) / leagueRate : 0) : 0,
+  })).sort((a, b) => b.kc - a.kc || b.share - a.share);
+
+  // ranking + the honest verdict about Bates specifically
+  rows.forEach((r, i) => { r.rank = i + 1; });
+  const batesRow = rows.find(r => r.owner === 'Bates') || null;
+  const leaders = rows.filter(r => r.kc === rows[0].kc);   // ties at the top
+  const batesRank = batesRow ? batesRow.rank : null;
+
+  // one honest sentence — the reputation without the receipts
+  let verdict;
+  if (batesRow && leaders.length && !leaders.some(l => l.owner === 'Bates')) {
+    const names = leaders.map(l => l.owner);
+    const nm = names.length > 1 ? names.slice(0, -1).join(', ') + ' and ' + names[names.length - 1] : names[0];
+    verdict = `Bates is the ${ordinalRank(batesRank)}-biggest Chiefs drafter in his own league — out-Chiefed by ${nm}. `
+      + `${batesRow.kc} KC picks in ${years.length} seasons isn't a signature, it's a rounding error. `
+      + `The reputation runs on vibes, not receipts — and the actual Chiefs homer${leaders.length > 1 ? 's are' : ' is'} ${nm}, who ${leaders.length > 1 ? 'have' : 'has'} never been accused of caring about Kansas City in ${leaders.length > 1 ? 'their' : 'his'} life.`;
+  } else if (batesRow && leaders.some(l => l.owner === 'Bates')) {
+    verdict = `Bates does lead the league in Chiefs picks (${batesRow.kc} in ${years.length} seasons) — the one time the reputation holds.`;
+  } else {
+    verdict = `Not enough draft data to rule on the Bates reputation.`;
+  }
+
+  return {
+    years, leagueKC, leagueTotal, leagueRate: round2(leagueRate * 100),
+    rows, leaders: leaders.map(l => l.owner), bates: batesRow, batesRank,
+    verdict,
+    // The overpay claim stays UNMEASURED, not fabricated.
+    overpayNote: 'The "overpay" half of the reputation is not computable — no archived draft-market (ADP) for 2023-25 exists in the data. Only loyalty is measured here.',
+    teamAttributionNote: 'Player→NFL team is the current-season board, so a player who has since changed clubs is counted for his present team. Noise favours no one.',
+  };
+}
+
+function ordinalRank(n) {
+  const s = ['th', 'st', 'nd', 'rd'], v = n % 100;
+  return n + (s[(v - 20) % 10] || s[v] || s[0]);
 }
 
 // ---- per-season superlatives ----------------------------------------------
