@@ -1,0 +1,772 @@
+{
+  "experiment": "34 dollar arm \u2014 policy rosters graded in E[$] (certified grader)",
+  "n_seasons": 3,
+  "aggregate": {
+    "n_seasons": 3,
+    "per_season_total_delta": {
+      "2025": -100.0,
+      "2024": -825.0,
+      "2023": -800.0
+    },
+    "mean_season_delta": -575.0,
+    "sum_delta": -1725.0,
+    "ci95_mean_season": [
+      -825.0,
+      -100.0
+    ],
+    "verdict": "adp-earns-more",
+    "per_season_sign": {
+      "2025": -1,
+      "2024": -1,
+      "2023": -1
+    },
+    "sign_consistent": true,
+    "by_component": {
+      "weekly_high": {
+        "mean": -200.0,
+        "sum": -600.0,
+        "n": 3
+      },
+      "regular_season": {
+        "mean": -108.33,
+        "sum": -325.0,
+        "n": 3
+      },
+      "playoff": {
+        "mean": -266.67,
+        "sum": -800.0,
+        "n": 3
+      }
+    },
+    "thin": true
+  },
+  "seasons": [
+    {
+      "season": "2025",
+      "our": {
+        "weekly_high": 100.0,
+        "regular_season": 0.0,
+        "playoff": 0.0,
+        "total": 100.0,
+        "playoff_place": null,
+        "made_playoffs": false,
+        "partial": false
+      },
+      "adp": {
+        "weekly_high": 200.0,
+        "regular_season": 0.0,
+        "playoff": 0.0,
+        "total": 200.0,
+        "playoff_place": null,
+        "made_playoffs": false,
+        "partial": false
+      },
+      "delta": {
+        "weekly_high": -100.0,
+        "regular_season": 0.0,
+        "playoff": 0.0,
+        "total": -100.0
+      }
+    },
+    {
+      "season": "2024",
+      "our": {
+        "weekly_high": 200.0,
+        "regular_season": 0.0,
+        "playoff": 0.0,
+        "total": 200.0,
+        "playoff_place": null,
+        "made_playoffs": false,
+        "partial": false
+      },
+      "adp": {
+        "weekly_high": 400.0,
+        "regular_season": 125.0,
+        "playoff": 500.0,
+        "total": 1025.0,
+        "playoff_place": 3,
+        "made_playoffs": true,
+        "partial": false
+      },
+      "delta": {
+        "weekly_high": -200.0,
+        "regular_season": -125.0,
+        "playoff": -500.0,
+        "total": -825.0
+      }
+    },
+    {
+      "season": "2023",
+      "our": {
+        "weekly_high": 0.0,
+        "regular_season": 0.0,
+        "playoff": 0.0,
+        "total": 0.0,
+        "playoff_place": null,
+        "made_playoffs": false,
+        "partial": false
+      },
+      "adp": {
+        "weekly_high": 300.0,
+        "regular_season": 200.0,
+        "playoff": 300.0,
+        "total": 800.0,
+        "playoff_place": 4,
+        "made_playoffs": true,
+        "partial": false
+      },
+      "delta": {
+        "weekly_high": -300.0,
+        "regular_season": -200.0,
+        "playoff": -300.0,
+        "total": -800.0
+      }
+    }
+  ],
+  "bands_dollars": [
+    {
+      "band": "value(<=0)",
+      "n": 29,
+      "n_deviations": 27,
+      "sum_dollars": -2350.0,
+      "mean_dollars": -81.03
+    },
+    {
+      "band": "near-zero",
+      "n": 1,
+      "n_deviations": 1,
+      "sum_dollars": 0.0,
+      "mean_dollars": 0.0
+    },
+    {
+      "band": "moderate",
+      "n": 2,
+      "n_deviations": 2,
+      "sum_dollars": -150.0,
+      "mean_dollars": -75.0
+    },
+    {
+      "band": "large",
+      "n": 3,
+      "n_deviations": 3,
+      "sum_dollars": -250.0,
+      "mean_dollars": -83.33
+    }
+  ],
+  "traces": {
+    "2025": {
+      "our": [
+        {
+          "pick_no": 37,
+          "round": 4,
+          "chosen": "11566",
+          "real": "4217",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 44,
+          "round": 5,
+          "chosen": "6770",
+          "real": "6770",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 57,
+          "round": 6,
+          "chosen": "11563",
+          "real": "8151",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 64,
+          "round": 7,
+          "chosen": "3163",
+          "real": "12530",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 77,
+          "round": 8,
+          "chosen": "5849",
+          "real": "5872",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 84,
+          "round": 9,
+          "chosen": "6797",
+          "real": "8144",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 97,
+          "round": 10,
+          "chosen": "3294",
+          "real": "8154",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 104,
+          "round": 11,
+          "chosen": "9758",
+          "real": "12533",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 117,
+          "round": 12,
+          "chosen": "7591",
+          "real": "8259",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 124,
+          "round": 13,
+          "chosen": "8151",
+          "real": "11576",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 137,
+          "round": 14,
+          "chosen": "10222",
+          "real": "11637",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 144,
+          "round": 15,
+          "chosen": "8676",
+          "real": "DET",
+          "used_fallback": false
+        }
+      ],
+      "adp": [
+        {
+          "pick_no": 37,
+          "round": 4,
+          "chosen": "11566",
+          "real": "4217",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 44,
+          "round": 5,
+          "chosen": "6770",
+          "real": "6770",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 57,
+          "round": 6,
+          "chosen": "8151",
+          "real": "8151",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 64,
+          "round": 7,
+          "chosen": "4217",
+          "real": "12530",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 77,
+          "round": 8,
+          "chosen": "4981",
+          "real": "5872",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 84,
+          "round": 9,
+          "chosen": "5872",
+          "real": "8144",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 97,
+          "round": 10,
+          "chosen": "12530",
+          "real": "8154",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 104,
+          "round": 11,
+          "chosen": "8144",
+          "real": "12533",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 117,
+          "round": 12,
+          "chosen": "11637",
+          "real": "8259",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 124,
+          "round": 13,
+          "chosen": "3163",
+          "real": "11576",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 137,
+          "round": 14,
+          "chosen": "12533",
+          "real": "11637",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 144,
+          "round": 15,
+          "chosen": "10222",
+          "real": "DET",
+          "used_fallback": false
+        }
+      ],
+      "our_fallbacks": 0,
+      "adp_fallbacks": 0
+    },
+    "2024": {
+      "our": [
+        {
+          "pick_no": 15,
+          "round": 2,
+          "chosen": "4984",
+          "real": "11628",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 26,
+          "round": 3,
+          "chosen": "6904",
+          "real": "3198",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 35,
+          "round": 4,
+          "chosen": "4881",
+          "real": "8112",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 46,
+          "round": 5,
+          "chosen": "3294",
+          "real": "11632",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 55,
+          "round": 6,
+          "chosen": "5849",
+          "real": "7611",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 66,
+          "round": 7,
+          "chosen": "6768",
+          "real": "7553",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 75,
+          "round": 8,
+          "chosen": "8183",
+          "real": "11583",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 86,
+          "round": 9,
+          "chosen": "3163",
+          "real": "7588",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 95,
+          "round": 10,
+          "chosen": "6804",
+          "real": "9224",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 106,
+          "round": 11,
+          "chosen": "1426",
+          "real": "11560",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 115,
+          "round": 12,
+          "chosen": "7611",
+          "real": "11566",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 126,
+          "round": 13,
+          "chosen": "7588",
+          "real": "9488",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 135,
+          "round": 14,
+          "chosen": "8112",
+          "real": "5119",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 146,
+          "round": 15,
+          "chosen": "3198",
+          "real": "PHI",
+          "used_fallback": false
+        }
+      ],
+      "adp": [
+        {
+          "pick_no": 15,
+          "round": 2,
+          "chosen": "9509",
+          "real": "11628",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 26,
+          "round": 3,
+          "chosen": "9221",
+          "real": "3198",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 35,
+          "round": 4,
+          "chosen": "3198",
+          "real": "8112",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 46,
+          "round": 5,
+          "chosen": "11628",
+          "real": "11632",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 55,
+          "round": 6,
+          "chosen": "8112",
+          "real": "7611",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 66,
+          "round": 7,
+          "chosen": "11632",
+          "real": "7553",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 75,
+          "round": 8,
+          "chosen": "4950",
+          "real": "11583",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 86,
+          "round": 9,
+          "chosen": "4988",
+          "real": "7588",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 95,
+          "round": 10,
+          "chosen": "8183",
+          "real": "9224",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 106,
+          "round": 11,
+          "chosen": "7611",
+          "real": "11560",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 115,
+          "round": 12,
+          "chosen": "11583",
+          "real": "11566",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 126,
+          "round": 13,
+          "chosen": "7553",
+          "real": "9488",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 135,
+          "round": 14,
+          "chosen": "9224",
+          "real": "5119",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 146,
+          "round": 15,
+          "chosen": "9488",
+          "real": "PHI",
+          "used_fallback": false
+        }
+      ],
+      "our_fallbacks": 0,
+      "adp_fallbacks": 0
+    },
+    "2023": {
+      "our": [
+        {
+          "pick_no": 5,
+          "round": 1,
+          "chosen": "4984",
+          "real": "7564",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 16,
+          "round": 2,
+          "chosen": "6904",
+          "real": "7526",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 26,
+          "round": 3,
+          "chosen": "4881",
+          "real": "2133",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 38,
+          "round": 4,
+          "chosen": "6797",
+          "real": "4199",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 46,
+          "round": 5,
+          "chosen": "3294",
+          "real": "4217",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 55,
+          "round": 6,
+          "chosen": "6768",
+          "real": "6797",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 66,
+          "round": 7,
+          "chosen": "1166",
+          "real": "8138",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 75,
+          "round": 8,
+          "chosen": "3163",
+          "real": "7588",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 86,
+          "round": 9,
+          "chosen": "1373",
+          "real": "5892",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 95,
+          "round": 10,
+          "chosen": "96",
+          "real": "8137",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 106,
+          "round": 11,
+          "chosen": "7564",
+          "real": "9754",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 115,
+          "round": 12,
+          "chosen": "2133",
+          "real": "4147",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 126,
+          "round": 13,
+          "chosen": "7526",
+          "real": "7042",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 135,
+          "round": 14,
+          "chosen": "7588",
+          "real": "8168",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 146,
+          "round": 15,
+          "chosen": "4217",
+          "real": "KC",
+          "used_fallback": false
+        }
+      ],
+      "adp": [
+        {
+          "pick_no": 5,
+          "round": 1,
+          "chosen": "6794",
+          "real": "7564",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 16,
+          "round": 2,
+          "chosen": "7564",
+          "real": "7526",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 26,
+          "round": 3,
+          "chosen": "9509",
+          "real": "2133",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 38,
+          "round": 4,
+          "chosen": "2133",
+          "real": "4199",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 46,
+          "round": 5,
+          "chosen": "7526",
+          "real": "4217",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 55,
+          "round": 6,
+          "chosen": "4199",
+          "real": "6797",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 66,
+          "round": 7,
+          "chosen": "6797",
+          "real": "8138",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 75,
+          "round": 8,
+          "chosen": "4217",
+          "real": "7588",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 86,
+          "round": 9,
+          "chosen": "5892",
+          "real": "5892",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 95,
+          "round": 10,
+          "chosen": "7588",
+          "real": "8137",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 106,
+          "round": 11,
+          "chosen": "8138",
+          "real": "9754",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 115,
+          "round": 12,
+          "chosen": "8137",
+          "real": "4147",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 126,
+          "round": 13,
+          "chosen": "6768",
+          "real": "7042",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 135,
+          "round": 14,
+          "chosen": "1166",
+          "real": "8168",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 146,
+          "round": 15,
+          "chosen": "4147",
+          "real": "KC",
+          "used_fallback": false
+        }
+      ],
+      "our_fallbacks": 0,
+      "adp_fallbacks": 0
+    }
+  },
+  "correlation_arm": {
+    "diff_mean": 0.122,
+    "diff_ci": [
+      0.007,
+      0.232
+    ],
+    "verdict": "beat",
+    "n_picks": 19
+  },
+  "agreement": {
+    "state": "THE INTERESTING RESULT: ranks better but earns same-or-less \u2014 the edge is in evaluating players, not in constructing rosters that fit this payout structure. Points at the PORTFOLIO DOCTRINE, not the projections.",
+    "ranks_better": true,
+    "dollar_verdict": "adp-earns-more"
+  },
+  "caveats": [],
+  "note": "both policies graded on the optimal-lineup ceiling (delta holds it constant); room held fixed; harvest-graded so 2025 is included even where the correlation arm skipped it. Dollar CI is thin (n=seasons) \u2014 if it spans zero the correlation arm carries the weight."
+}
