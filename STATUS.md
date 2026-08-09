@@ -700,3 +700,56 @@ Per the assignment: **produced ONE chapter (2024) and stopped for review before 
 6. **LINEUP OPTIMIZER** — biggest leak ($445-595/team/season; Cory 86% eff 3yrs). Validate against replayed 2023-25 weeks. Dual objective priced in $: P(win matchup) AND P(clear week's high band). Confidence sentence + ledger-at-decision-time w/ counterfactual. **TERRITORY: likely needs A-lane files (`src/sleeper.js`, `src/predledger.js`, projections) — coordinate the split before building.**
 7. **SUNDAY ALERT** — pre-kickoff start/sit calls priced in $.
 8. **INSTRUMENTATION CHECK** — confirm the in-season ledger kinds capture what exp-37 needs at decision time.
+
+---
+
+## 🅱️ SESSION B RESUME MARKER — 2026-08-09 (design-overhaul lane)
+
+**Branch:** `claude/lineup-optimizer-build-7y6nkt` (per this session's Git orders;
+NOT main — A deploys from main, so a merge is needed for Cory to see it live).
+Pull latest before continuing. All work below pushed.
+
+**DONE this session (committed + tested + screenshotted):**
+1. **Dashboard widening** — confirmed already-landed (TASK-AUDIT.md full-program
+   panel renders; verified, no work needed).
+2. **Matchup page** `/matchup` (`src/routes/h2h.js`, `views/matchup.ejs`, route +
+   nav) — all-time head-to-head from the harvest, one-tap side-bet (both parties,
+   OPEN), A-lane data slots reserved (players/proj/highBand drop in). h2h 19 +
+   e2e 15 green.
+3. **Lineup optimizer ENGINE** (`src/routes/lineup.js`) — VALIDATED TO THE DOLLAR
+   vs the certified L0: leak $470/595/445, high-pool $330/420/345, Cory $2,100,
+   eff 86.6/87.7/89.0%; band n=45 median 148.48. Dual objective (P(win)·value +
+   P(clear band)·$100), picks variance for the high-chase when trailing. 39
+   assertions. **Engine only — the PAGE is not built yet.**
+4. **Design foundations + Money Board redesign** (`views/partials/_sparkline.ejs`,
+   `public/js/eggs.js`, viz/money/rank/egg CSS, `views/history/money.ejs`,
+   footer) — earnings sparklines, gold money, 4 easter eggs (German medal, 2022
+   self-arguing asterisk, star-row origin, Konami). 5/5 eggs verified.
+
+**PERF BASELINE (2026-08-09, for before/after):** regular-page wire ≈ style.css
+30.8KB gz + eggs.js 1.7KB gz + ui.js 2.2KB gz + render-blocking Google Fonts.
+style.css 133.7KB raw (likely war-room rules unused on member pages — split
+candidate). Board artifact 1.25MB is war-room-only (A's lane). Phone nav-timing
+per page: NOT yet measured (needs a playwright timing pass).
+
+**NEXT (design brief, in `PARKED.md` verbatim), priority order:**
+- **Lineup optimizer PAGE** `/lineup` — flagship new feature; build the rehearsal/
+  validation face (works offline off the harvest, shows the $2,100 finding + the
+  per-week drill-down) + live face that drops in A's projections + decision-time
+  `lineup_call` ledger write (kind landed in predledger; POST /admin/api/ledger/
+  predict; counterfactual = naive "start your studs"). Also wire the benched-points
+  easter egg (engine already computes Cory's leak).
+- **Sunday alert** (task 4) + **instrumentation check** (task 5).
+- Site-wide: apply money-color + sparklines to side-bet grid, standings rank
+  arrows, weekly-high progress meter (flagship, currently invisible), records as a
+  record book, page-by-page hierarchy.
+- **Side-bet lifecycle** (§5): B owns views/routes/Venmo-handoff; **A owns the
+  `src/sidebets.js` state machine** (declare→confirm→dispute) — flagged in PARKED.
+- Chiefs/Mahomes + Bates-reaches-for-Chiefs eggs; self-host fonts (needs files;
+  egress-blocked in sandbox).
+
+**Tooling:** screenshot harness `scratchpad/shoot.js` (before/after, phone+desktop);
+validation harnesses `scratchpad/{h2h-verify,lineup-validate,matchup-smoke,egg-check}.js`
+(can't commit to draft/tests — A's lane; a CI test for the optimizer is flagged for A).
+
+**Deploy:** ask A to merge branch→main + deploy when Cory wants it live.
