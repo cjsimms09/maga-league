@@ -16,7 +16,7 @@ Pre-registration: top-decile improves as weight falls below 0.35; flat => not th
 | 0.35 ← shipped | 764 | 0.395 | 0.608 | 53.0 |
 | 0.5 | 764 | 0.355 | 0.583 | 55.87 |
 | 0.7 | 764 | 0.329 | 0.533 | 60.35 |
-| 1.0 | 764 | 0.276 | 0.252 | 67.74 |
+| 1.0 | 764 | 0.276 | 0.253 | 67.74 |
 
 - naive baseline top-decile (reference, no regression): **0.566**
 - **CONFIRMS the pre-registration: top-decile peaks BELOW the shipped 0.35 (peak at 0.0). Over-regression is a real lever — but installing a new value is a separate gated SHIP decision, not done here.**
@@ -29,11 +29,11 @@ Pre-registration: top-decile improves as weight falls below 0.35; flat => not th
 |---|---|---|---|
 | 0.0 | 0.529 | 0.624 |  |
 | 0.1 | 0.588 | 0.62 |  |
-| 0.2 | 0.529 | 0.612 |  |
+| 0.2 | 0.529 | 0.611 |  |
 | 0.35 | 0.529 | 0.605 | ← shipped |
 | 0.5 | 0.529 | 0.579 |  |
 | 0.7 | 0.529 | 0.546 |  |
-| 1.0 | 0.353 | 0.245 |  |
+| 1.0 | 0.353 | 0.234 |  |
 
 ### 2024 — peak 0.0, naive td 0.587
 | w | top-decile | rank-corr |  |
@@ -44,18 +44,18 @@ Pre-registration: top-decile improves as weight falls below 0.35; flat => not th
 | 0.35 | 0.413 | 0.581 | ← shipped |
 | 0.5 | 0.391 | 0.554 |  |
 | 0.7 | 0.391 | 0.508 |  |
-| 1.0 | 0.326 | 0.198 |  |
+| 1.0 | 0.304 | 0.199 |  |
 
 ### 2023 — peak 0.0, naive td 0.565
 | w | top-decile | rank-corr |  |
 |---|---|---|---|
-| 0.0 | 0.5 | 0.649 |  |
+| 0.0 | 0.5 | 0.648 |  |
 | 0.1 | 0.478 | 0.64 |  |
 | 0.2 | 0.457 | 0.629 |  |
 | 0.35 | 0.413 | 0.608 | ← shipped |
 | 0.5 | 0.391 | 0.578 |  |
-| 0.7 | 0.391 | 0.527 |  |
-| 1.0 | 0.326 | 0.211 |  |
+| 0.7 | 0.391 | 0.526 |  |
+| 1.0 | 0.326 | 0.215 |  |
 
 ## Caveats
 
