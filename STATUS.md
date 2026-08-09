@@ -1080,3 +1080,33 @@ counter (needs player→team data), full page-hierarchy polish pass. When A ship
 championship-probability model → the pool advisor's placeholder swaps for real.
 **COORDINATION:** B pushes to main directly (works); coordinated fetch→rebase→push,
 no races. A merges A's branch + deploys.
+
+### 🅱️ update (2026-08-09, cont.): the three-item follow-up list, done + a CI unblock
+1. **BATES CHIEFS COUNTER — it WAS computable; I was wrong to block it.** Probed as
+   directed: the 2026 board (public/draft_data.json) carries player_id→team, the
+   harvest carries player_id on every draft pick, 100% resolution on current
+   rosters. Built `buildChiefsHomers` in history-data.js + a 🏹 card in the
+   Absurdity Catalogue. Reproduces the documented finding exactly: Bates has 3 KC
+   picks and ranks THIRD, out-Chiefed by the two Germans (David & Marian, 4 each).
+   Loyalty measured & refuted; the "overpay" half stays UNMEASURED (no archived
+   ADP), not fabricated. League-visible (a RESULT). chiefs_homer 12/12, in CI.
+2. **RANK ARROWS + SIDE-BET SPARKLINES — built, dormant, auto-activating.**
+   New pure helper standings-movement.js computes week-over-week rank change by
+   subtracting the latest completed week from Sleeper's cumulative standings (no
+   snapshot to drift); ▲n/▼n/– on the home standings from week 2. Side-bet tracker
+   grid gains a cumulative running-net sparkline column (green up / red down),
+   dashes until 2 settled years. Both light up on their own. standings_movement
+   9/9, in CI. (src/sleeper.js is A's, so the math lives in a B-owned route helper.)
+3. **WEAKEST PAGE — lit the matchup's dark weekly-high slot.** It rendered only on
+   A's live band, so it showed nothing on the page a manager watches all week. Now
+   served from LO.weeklyHighBand() (the harvested $100 target, already league-
+   visible on home) + this week's live race: the bar, where you stand, points to
+   the bar. A's richer band still wins when present. matchup_weekly_high 5/5, in CI.
+- **CI UNBLOCK (shared infra):** the 'Lint workflow YAML' step's `import yaml` sat
+  outside its try/except and setup-python ships no PyYAML → ModuleNotFoundError
+  red-failed the step and SKIPPED all ~18 test jobs. CI had been red on main for
+  15+ commits across BOTH lanes with zero test signal. One line (pip install
+  pyyaml) restores the whole suite. Confirmed from the job log.
+- **POOL ADVISOR:** finished the honesty fix — removed the placeholder champ-odds
+  generator; renders "odds pending" (no fabricated numbers) until A's measured
+  model lands. pool_advisor 8/8 updated.
