@@ -593,6 +593,22 @@ value-only gate can't tame the rate. Sharpens exp 34's question to *"is the
 need/ceiling evidence backing our deviations correct vs real ADP?"* Full
 re-weighting stays gated on 34. Flag OFF, SOURCE absent. `STAGE2-CAP-RESULT.md`.
 
+**🔬 EXP 34 — MEASURING STICK REDESIGNED, NOT YET FIRED (2026-08-09).** The
+single-pick scoreboard was **rejected (correctly) and NOT fired** — 41 my-guy-vs-
+their-guy comparisons are coin flips. Redesigned to measure the POLICY:
+`EXP34-METHODOLOGY.md` pre-registers rank correlation over the pool (primary) +
+top-N set value + a **deviation-edge SURFACE** across board position / tier-cliff
+proximity / round decay / market dispersion, multi-board (FFC+BBM), dollars
+secondary, room arm separate, inconclusive→bind-harder. "Our ordering" = walk-
+forward projected value (decision-time-honest; composite-ordering via the JS replay
+path is a follow-up). **Pure alignment core BUILT + verified** (`test_exp34.py` 7/7;
+41 decisions reproduced 15/14/12). The options frame is filed as **exp 40 — a Lab
+HYPOTHESIS not a doctrine**, no options vocabulary on any surface; its draft slice
+(survival slope · cliff convexity priced · realized-cost-by-round) + in-season
+folds (weekly-high chase→exp 35, trade decay, waiver need) registered. ▶ **NEXT
+UNIT (fresh context): build the surface** — pure metric functions + fixtures, then
+the egress `lab.yml` job (FFC+nflverse).
+
 **STAGE 3 IS COMPLETE.** The doctrine governs, inside a measured band, and
 discloses in both directions.
 

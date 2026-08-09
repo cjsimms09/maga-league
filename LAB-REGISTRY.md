@@ -219,3 +219,55 @@ All 18 + Exp-19 + the research slate 20–30 are **registered (pre-reg criteria 
 - **`test_bridge.py`, two layers:** STRUCTURAL (5 tests, run everywhere — reconstruction, 'actual' identity, dedupe, coverage, money wiring on real history) + **CI GATE** (3 tests, skip cleanly without the egress artifacts): 'actual' reproduces each seat's true drafted roster, every policy grades bounded, actual-roster coverage ≥ 0.6.
 - **`lab.yml` `replay-bridge` job** (needs: lab, so certification runs first): build bundles+weekly points → dump replay → **BRIDGE GATE** → run bridge → upload `bridge-results.json` as an artifact. Deliberately a separate job so a nflverse outage can't take down certification + L0. **Experiments consuming the full replay path (1/2/19, money-graded parts of 20/21/24/25/26) run only behind this gate.**
 - Still open: the **substituted-seat playoff resim** (entry/title $ for counterfactual rosters) — the one remaining grader increment; weekly-high + RS are exact today.
+
+---
+
+## Exp 40 — THE DEVIATION-EDGE SURFACE (sensitivity lens) — a HYPOTHESIS, not a doctrine
+
+_Registered 2026-08-09 (Cory's options frame). **Deliberately not a doctrine:** a
+doctrine governs something the system does; this is a lens for choosing what to
+measure and it has produced no measured finding yet. Writing a constitution for an
+untested frame would be "surface no mechanism the code does not have" applied to
+governance. If the measurements pay, the doctrine writes itself from the evidence.
+No options vocabulary reaches any surface — measure the quantities, name them plainly._
+
+**The frame:** the cost and value of deviating from consensus are not constant
+across the board; a single threshold T ignores dimensions that are all measurable
+(the cap's inertness at flat T=4.0 is the symptom). The primary application is
+**exp 34's deviation-edge surface** (`EXP34-METHODOLOGY.md`) — board position, tier
+proximity, round decay, market dispersion — which turns Stage 2's threshold into a
+calibrated function. THAT MEASUREMENT COMES FIRST.
+
+**Three quantities already implicit in the engine, currently expressed badly
+(draft-relevant, measurable from existing data):**
+
+1. **Survival SLOPE, not just level.** The board shows "72% to survive to your next
+   pick"; the rate of change matters more — 90→40% across three picks is a different
+   decision than flat 65%. A steep negative slope is the real urgency signal and is
+   currently invisible. Measure and (once it clears a gate) surface the slope.
+2. **Cliff convexity, PRICED not flagged.** "Last of Tier 1, 100% gone by next pick"
+   is convexity in words. Price it continuously: value lost per pick of delay as a
+   function of proximity to the tier boundary — spikes near a cliff, ~flat inside a
+   tier. That curve should feed the recommendation, not a binary flag.
+3. **Remaining-picks decay.** Eleven picks left to recover at 34, none at 141. The
+   only current expression is the phase-based ceiling ramp, which **the Lab refuted**
+   (−$37 → the reversal was playoff-driven, not phase) — so the mechanism is real
+   but our implementation was wrong. Measure the realized cost of a bad pick by round
+   and let THAT shape late-draft risk weighting, from data not a guessed ramp.
+
+**Where the frame is likely strongest — IN-SEASON (registered now, built with those systems):**
+
+4. **The weekly-high chase is an option** — mostly out of the money. Chase-variance
+   vs protect-the-matchup is a moneyness question (distance from the week's winning
+   band × how much variance moves P(clear)). The lineup optimizer's dual objective
+   already; the frame says the chase threshold is state-dependent, not fixed.
+   **Folds into exp 35's design.**
+5. **Trade timing has decay** — the week-11 deadline is an expiry; a player's value to
+   a contender vs a seller diverges as it approaches. The trade radar's desperation
+   index is this, unnamed. Folds into the in-season trade spec.
+6. **Waiver claims have sensitivity to roster need** — the same add is worth wildly
+   different amounts by what the roster is missing and weeks remaining to use him.
+   Folds into the waiver spec.
+
+**Gate:** nothing here reaches the surface until measured and past the gates, same
+as everything else. Items 1–3 are the draft slice; 4–6 wait for their systems.
