@@ -445,25 +445,33 @@ function betCard(b, kind) {
                 champion, what's likely gone before the next turn, live P(win). %>
             <% const adv = (typeof poolAdvice !== 'undefined' && poolAdvice) ? poolAdvice[b.id] : null; %>
             <% if (owner.is_commissioner && adv && iAmIn) { %>
-              <div class="pd-advisor">
-                <div class="pd-adv-head">🧠 Your advisor <span class="pd-adv-src"><%= adv.placeholder ? 'rough odds — awaiting the championship model' : 'live model' %></span></div>
-                <div class="pd-adv-conf"><%= adv.confidence %></div>
-                <div class="pd-adv-meters">
-                  <span>Title odds you hold: <b class="money-up"><%= Math.round(adv.pHoldChampMe * 100) %>%</b></span>
-                  <span>Opponent: <b class="money-down"><%= Math.round(adv.pHoldChampOpp * 100) %>%</b></span>
-                  <span>Live P(win): <b class="money-gold"><%= Math.round(adv.pWin * 100) %>%</b></span>
+              <% if (adv.pending) { %>
+                <%# No measured championship model yet → NO fabricated odds. Say so. %>
+                <div class="pd-advisor pending">
+                  <div class="pd-adv-head">🧠 Your advisor <span class="pd-adv-src">odds pending</span></div>
+                  <div class="pd-adv-conf">The pick advisor ranks each franchise by its <b>marginal contribution to holding the champion</b> — VONA, with a bracket-collision discount and "likely gone before your next turn." It lights up the moment the measured league-championship model is wired in; until then it shows nothing rather than a number nobody measured.</div>
                 </div>
-                <% if (!d.complete && adv.recs && adv.recs.length) { %>
-                  <div class="pd-adv-recs">
-                    <% adv.recs.slice(0, 4).forEach((r, i) => { %>
-                      <span class="pd-adv-rec<%= i === 0 ? ' best' : '' %>"><%= r.name %> <span class="muted"><%= Math.round(r.champProb * 100) %>%</span></span>
-                    <% }) %>
+              <% } else { %>
+                <div class="pd-advisor">
+                  <div class="pd-adv-head">🧠 Your advisor <span class="pd-adv-src">measured model</span></div>
+                  <div class="pd-adv-conf"><%= adv.confidence %></div>
+                  <div class="pd-adv-meters">
+                    <span>Title odds you hold: <b class="money-up"><%= Math.round(adv.pHoldChampMe * 100) %>%</b></span>
+                    <span>Opponent: <b class="money-down"><%= Math.round(adv.pHoldChampOpp * 100) %>%</b></span>
+                    <span>Live P(win): <b class="money-gold"><%= Math.round(adv.pWin * 100) %>%</b></span>
                   </div>
-                  <% if (adv.likelyGone && adv.likelyGone.length) { %>
-                    <div class="pd-adv-gone muted">Likely gone before your next turn: <b><%= adv.likelyGone.join(', ') %></b></div>
+                  <% if (!d.complete && adv.recs && adv.recs.length) { %>
+                    <div class="pd-adv-recs">
+                      <% adv.recs.slice(0, 4).forEach((r, i) => { %>
+                        <span class="pd-adv-rec<%= i === 0 ? ' best' : '' %>"><%= r.name %> <span class="muted"><%= Math.round(r.champProb * 100) %>%</span></span>
+                      <% }) %>
+                    </div>
+                    <% if (adv.likelyGone && adv.likelyGone.length) { %>
+                      <div class="pd-adv-gone muted">Likely gone before your next turn: <b><%= adv.likelyGone.join(', ') %></b></div>
+                    <% } %>
                   <% } %>
-                <% } %>
-              </div>
+                </div>
+              <% } %>
             <% } %>
 
             <% if (d.complete) { %>

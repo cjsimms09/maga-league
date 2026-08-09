@@ -11,37 +11,18 @@
 // franchise's probability of winning the league (roster + owner efficiency +
 // schedule), and ideally `meetProb["a:b"]` — the chance two teams meet in a
 // playoff round, so correlated picks (two titans who'd eliminate each other in
-// the semi) are priced below their standalone odds. Until A ships it, this runs
-// on a LABELLED placeholder (`placeholderChampProbs`) and drops A's model in with
-// no interface change — same pattern as the matchup page.
+// the semi) are priced below their standalone odds. Until A ships that MEASURED
+// model, the advisor renders a "pending" state — no numbers — and drops A's model
+// in with no interface change the moment it lands.
+//
+// There is deliberately NO placeholder champion-odds generator (Cory, 2026-08-09:
+// "do not manufacture odds nobody measured. Better it says 'odds pending' than
+// shows a number nobody measured"). `advise()` is called ONLY once a MEASURED
+// { owner_id: p(win league) } model exists; the route renders pending otherwise.
 //
 // The DRAFT interface is shared; THIS analysis is the commissioner's.
 
 const r3 = n => Math.round(n * 1000) / 1000;
-
-/**
- * Placeholder league-championship odds until A's model lands. Strength from the
- * most recent standings (better finish → higher odds), squared so contenders
- * separate from the field, then normalised to sum to 1. Clearly a stand-in.
- *
- * @param teamIds     franchise owner_ids in play
- * @param rankByName  { ownerName: finishRank } from last completed season
- * @param nameOf      (owner_id) => name
- */
-function placeholderChampProbs(teamIds, rankByName, nameOf) {
-  const n = teamIds.length || 1;
-  const strength = {};
-  let total = 0;
-  for (const id of teamIds) {
-    const rank = rankByName[nameOf(id)];
-    // Unknown rank → middle of the pack. Better rank (smaller) → more strength.
-    const s = rank != null ? Math.pow((n - rank + 1), 2) : Math.pow(n / 2, 2);
-    strength[id] = s; total += s;
-  }
-  const out = {};
-  for (const id of teamIds) out[id] = total ? strength[id] / total : 1 / n;
-  return out;
-}
 
 /** Which bettor picks at overall pick `made` (0-indexed), snake order. */
 function snakeAt(order, made) {
@@ -69,11 +50,11 @@ function oppPicksBeforeMyNextTurn(order, made, myId) {
  *
  * @param draft     bet.draft { order, pool, taken, sequence, turn, complete }
  * @param myId      the commissioner's bettor id
- * @param champProb { owner_id: p(win league) }  A's model or the placeholder
+ * @param champProb { owner_id: p(win league) }  A's MEASURED model (required)
  * @param nameOf    (owner_id) => name
- * @param source    'model' | 'placeholder'  provenance, shown honestly
+ * @param source    'model'  provenance, shown honestly (only measured odds reach here)
  */
-function advise({ draft, myId, champProb, nameOf, source = 'placeholder' }) {
+function advise({ draft, myId, champProb, nameOf, source = 'model' }) {
   if (!draft) return null;
   const oppId = (draft.order || []).find(id => Number(id) !== Number(myId));
   const held = draft.taken || {};
@@ -133,4 +114,4 @@ function advise({ draft, myId, champProb, nameOf, source = 'placeholder' }) {
   };
 }
 
-module.exports = { advise, placeholderChampProbs, snakeAt, oppPicksBeforeMyNextTurn };
+module.exports = { advise, snakeAt, oppPicksBeforeMyNextTurn };

@@ -21,8 +21,10 @@ let pass=0,fail=0;const ck=(n,c,d)=>{c?(pass++,console.log('PASS '+n)):(fail++,c
   await post(`/sidebets/${bet.id}/accept`,rc,'');
   const coryView=await get('/bank?section=sidebets',cc);
   const richView=await get('/bank?section=sidebets',rc);
-  ck('commissioner (Cory) SEES the pick advisor',/Your advisor/.test(coryView)&&/Live P\(win\)/.test(coryView));
-  ck('advisor shows a recommendation + rough-odds label',/awaiting the championship model/.test(coryView));
+  ck('commissioner (Cory) SEES the pick advisor',/Your advisor/.test(coryView));
+  ck('advisor is HONEST: odds pending, no measured model yet',/odds pending/.test(coryView));
+  ck('advisor shows NO fabricated Live P(win) while pending',!/Live P\(win\)/.test(coryView));
+  ck('advisor shows NO fabricated percentage while pending',!/Title odds you hold/.test(coryView));
   ck('opponent (Richard, non-commish) does NOT see the advisor',!/Your advisor/.test(richView));
   ck('but Richard DOES see the shared draft room',/on the clock|YOUR PICK|drafted/.test(richView));
   server.close();console.log(`\n${pass} passed, ${fail} failed`);process.exit(fail?1:0);
