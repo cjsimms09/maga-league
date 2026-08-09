@@ -7,8 +7,8 @@ inconclusive CI (spans zero) reads as the anchor binding HARDER, not looser._
 ## PRIMARY — rank correlation over the available pool
 
 - our ordering: mean rho 0.391 CI (0.3, 0.475)
-- market (ADP): mean rho 0.268 CI (0.176, 0.349)
-- **difference (our - market): 0.123 CI [0.008, 0.233] -> BEAT** over 19 picks
+- market (ADP): mean rho 0.269 CI (0.176, 0.35)
+- **difference (our - market): 0.122 CI [0.007, 0.232] -> BEAT** over 19 picks
 
 ## Top-N set value (realized pts, our set vs market set)
 
@@ -51,8 +51,8 @@ inconclusive CI (spans zero) reads as the anchor binding HARDER, not looser._
 
 ## Caveats
 
-- weekly 2025 UNAVAILABLE (HTTPError); seasons needing it lose that prior
-- 2025: realized weekly unavailable; season SKIPPED (not scored zero)
+- [2025] NOT recovered: pbp rebuild disagreed with the library on 2024
+- 2025: realized weekly unavailable (incl. pbp); season SKIPPED (not scored zero)
 
 ## What this does NOT settle
 

@@ -11,15 +11,15 @@
       0.3,
       0.475
     ],
-    "rho_market_mean": 0.268,
+    "rho_market_mean": 0.269,
     "rho_market_ci": [
       0.176,
-      0.349
+      0.35
     ],
-    "diff_mean": 0.123,
+    "diff_mean": 0.122,
     "diff_ci": [
-      0.008,
-      0.233
+      0.007,
+      0.232
     ],
     "verdict": "beat"
   },
@@ -258,8 +258,8 @@
     }
   },
   "caveats": [
-    "weekly 2025 UNAVAILABLE (HTTPError); seasons needing it lose that prior",
-    "2025: realized weekly unavailable; season SKIPPED (not scored zero)"
+    "[2025] NOT recovered: pbp rebuild disagreed with the library on 2024",
+    "2025: realized weekly unavailable (incl. pbp); season SKIPPED (not scored zero)"
   ],
   "decisions": [
     {
