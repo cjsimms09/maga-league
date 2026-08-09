@@ -1,0 +1,35 @@
+name: MFL live probe
+
+# One question, deadline-driven (Cory): is CURRENT-SEASON (2026) MFL ADP retrievable
+# at our format, so we can rank the live board by the source the grade prefers? The
+# sandbox proxy blocks myfantasyleague.com; CI has open egress. Read-only — does not
+# touch the live board. Commits the probe JSON so the answer is durable, not just logs.
+
+on:
+  workflow_dispatch:
+    inputs:
+      year:
+        description: 'Season to probe'
+        required: false
+        default: '2026'
+
+permissions:
+  contents: write
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - name: Install deps
+        run: pip install -r draft/requirements.txt -q || pip install requests -q
+      - name: Probe MFL current-season ADP + crosswalk to our board
+        run: python draft/backtest/mfl_live_probe.py --year "${{ github.event.inputs.year || '2026' }}"
+      - name: Commit the probe result
+        run: |
+          git config user.name "lab-bot"; git config user.email "actions@github.com"
+          git add draft/backtest/mfl_live_probe.json || true
+          git commit -m "MFL live probe result (${{ github.event.inputs.year || '2026' }})" || { echo "no change"; exit 0; }
+          git pull --rebase origin main && git push || echo "push skipped"
