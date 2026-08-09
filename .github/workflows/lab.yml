@@ -289,12 +289,18 @@ jobs:
       - name: Fire source grade — FFC vs MFL per region (consumes exp36_picks.json + MFL egress)
         continue-on-error: true
         run: python draft/backtest/exp_source_grade.py
+      - name: GATE — edge-map pure core (no egress)
+        run: python -m pytest draft/tests/test_divergence.py -q
+      - name: Fire edge map — FantasyPros vs the room's revealed picks (consumes exp36_picks + FP)
+        continue-on-error: true
+        run: python draft/backtest/exp_divergence.py
       - name: Commit the exp 36 + exp 43 + source-grade reports
         run: |
           stamp=$(date -u +%Y-%m-%dT%H:%MZ)
           git config user.name "lab-bot"; git config user.email "actions@github.com"
           for f in draft/backtest/EXP36.md draft/backtest/exp36.json draft/backtest/exp43.json \
-                   draft/backtest/exp_source_grade.json; do
+                   draft/backtest/exp_source_grade.json \
+                   draft/backtest/exp_divergence.json; do
             [ -f "$f" ] && git add "$f"
           done
           git commit -m "Exp 36 + full-board pick audit + source grade $stamp" || { echo "no change"; exit 0; }
@@ -309,6 +315,7 @@ jobs:
             draft/backtest/exp36_picks.json
             draft/backtest/exp43.json
             draft/backtest/exp_source_grade.json
+            draft/backtest/exp_divergence.json
           retention-days: 30
 
   # EXPERIMENT 33 — projection-source bake-off (the foundational weak link).
