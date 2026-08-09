@@ -9,6 +9,7 @@ const PE = require('./pickem');            // league pick'em — pick every game
 const DISPATCH = require('./dispatch');    // transient popups — awards / power poll / this-week-in-history
 const PO = require('./playoffs');          // folded columns — playoff odds/movement, clinch/elim, matchup leverage
 const TT = require('./trashtalk');         // trash talk attached to a specific game, permanent + archived
+const WW = require('./whatwatch');         // what-to-watch — the Sunday/Monday sweat meter + what each owner needs
 const L = require('../ledger');
 const SB = require('../sidebets');
 const BL = require('../betlogic');
@@ -1584,6 +1585,72 @@ router.post('/matchup/trash', aw(async (req, res) => {
     await TT.post(seasonY, week, gid, req.owner.id, req.body.body);
   }
   res.redirect('/matchup' + (oppId ? '?opp=' + oppId : '') + '#trash');
+}));
+
+// WHAT TO WATCH — Sunday & Monday night: the sweat meter + what each owner
+// needs + the weekly-hundred sweat. League-visible (the live race). Dormant off
+// its window and without live data; ?preview=1 rehearses it on sample data so the
+// first live Sunday is not the first time it has ever run.
+function pvEntries(owners) {
+  // A deterministic sample slate spanning the sweat states: a coin flip, a
+  // comeback, a lock, a blowout loss, a late lead. Labelled REHEARSAL in the UI.
+  const o = owners.slice(0, 10);
+  const nm = i => (o[i] || { name: 'Team ' + i }).name;
+  const P = (proj, sd = 7) => ({ proj, sd });
+  const games = [
+    { a: 0, b: 1, live: 88.4, oppLive: 87.9, remain: [P(11)], oppRemain: [P(12)] },   // 🔥 coin flip
+    { a: 2, b: 3, live: 61.2, oppLive: 96.8, remain: [P(14), P(9)], oppRemain: [] },   // 🟡 comeback
+    { a: 4, b: 5, live: 121.5, oppLive: 74.1, remain: [P(6)], oppRemain: [P(8)] },     // 🟢 in control
+    { a: 6, b: 7, live: 58.0, oppLive: 118.3, remain: [P(7)], oppRemain: [] },          // 🔴 cooked
+    { a: 8, b: 9, live: 103.6, oppLive: 99.2, remain: [P(4)], oppRemain: [P(13)] },     // 🟡 late lead
+  ];
+  const entries = [];
+  for (const g of games) {
+    entries.push({ owner_id: (o[g.a] || {}).id, name: nm(g.a), oppName: nm(g.b), live: g.live, oppLive: g.oppLive, remain: g.remain, oppRemain: g.oppRemain });
+    entries.push({ owner_id: (o[g.b] || {}).id, name: nm(g.b), oppName: nm(g.a), live: g.oppLive, oppLive: g.live, remain: g.oppRemain, oppRemain: g.remain });
+  }
+  return entries;
+}
+// Live entries from the scoreboard. Live scores are real; the "remaining
+// players + projections" that sharpen the sweat come from A's per-player data
+// when present (flagged in PARKED) — until then the meter runs off the live
+// scores, which is honest, just coarser, and improves automatically.
+function liveWatchEntries(sData, map, owners) {
+  if (!sData || !Array.isArray(sData.matchups)) return [];
+  const nameOf = id => (H.ownerById(owners, id) || {}).name || '?';
+  const byMatch = {};
+  for (const m of sData.matchups) {
+    const oid = Number(map[String(m.roster_id)]);
+    if (!oid) continue;
+    const key = m.matchup_id != null ? `m${m.matchup_id}` : `s${m.roster_id}`;
+    (byMatch[key] ??= []).push({ oid, pts: Math.round((m.points || 0) * 100) / 100 });
+  }
+  const entries = [];
+  for (const pair of Object.values(byMatch)) {
+    if (pair.length !== 2) continue;
+    const [a, b] = pair;
+    entries.push({ owner_id: a.oid, name: nameOf(a.oid), oppName: nameOf(b.oid), live: a.pts, oppLive: b.pts, remain: [], oppRemain: [] });
+    entries.push({ owner_id: b.oid, name: nameOf(b.oid), oppName: nameOf(a.oid), live: b.pts, oppLive: a.pts, remain: [], oppRemain: [] });
+  }
+  return entries;
+}
+router.get('/watch', aw(async (req, res) => {
+  const world = req.world;
+  const owners = H.activeOwners(world.owners);
+  const preview = req.query.preview === '1';
+  const etDay = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' })).getDay();
+  const inWindow = etDay === 0 || etDay === 1;   // Sunday or Monday, ET
+  const band = LO.weeklyHighBand();
+  const bandSamples = (band && band.samples) || [];
+  const sData = await sleeper.bundle(world.config.sleeper_league_id);
+  const weekNo = (sData && sData.week) || 1;
+  let rows = [], source = null;
+  if (preview) { rows = WW.panelRows(pvEntries(owners), bandSamples); source = 'preview'; }
+  else if (inWindow && sData) {
+    const anyScore = PE.anyScoreOnBoard(sData);
+    if (anyScore) { rows = WW.panelRows(liveWatchEntries(sData, world.config.sleeper_map || {}, owners), bandSamples); source = 'live'; }
+  }
+  res.render('watch', { me: req.owner, rows, source, inWindow, weekNo, band, preview });
 }));
 
 // A dispatch, dismissed. Marks it seen for THIS owner only, so it never shows

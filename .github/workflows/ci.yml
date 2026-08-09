@@ -47,7 +47,7 @@ jobs:
         run: |
           set -e
           for t in alerts app-wiring attribution authority backtest betlogic bundling_guard engine keeperlock keepers ledger \
-                   claimfix doctrine mcts movement_line playoffs predledger prefs rawarchive reconcile shadows sidebets sidebets_lifecycle pool_draft stack_routes strategies sync update venmo; do
+                   claimfix doctrine mcts movement_line playoffs predledger prefs rawarchive reconcile shadows sidebets sidebets_lifecycle pool_draft stack_routes strategies sync update venmo whatwatch; do
             echo "== $t =="
             node draft/tests/$t.test.js
           done

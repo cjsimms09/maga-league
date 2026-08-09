@@ -2931,3 +2931,31 @@ html.dispatch-open { overflow: hidden; }
   padding: .5rem .7rem; color: var(--ink); font-family: var(--font-body); font-size: .95rem; }
 .tt-form input[type="text"]:focus { outline: none; border-color: var(--gold); }
 .tt-form .btn { flex: 0 0 auto; }
+
+/* ── WHAT TO WATCH — the Sunday/Monday sweat panel. Per-owner rows sorted by
+   watchability; the sweat meter is a single bar; colour tracks the state. */
+.wtw-band { margin: 0 0 1rem; font-size: .82rem; }
+.wtw-list { display: flex; flex-direction: column; gap: .6rem; }
+.wtw-row { background: var(--panel); border: 1px solid var(--line); border-left: 3px solid var(--muted);
+  border-radius: var(--radius); padding: .7rem .85rem; }
+.wtw-row.flip { border-left-color: var(--gold-bright); }
+.wtw-row.sweat { border-left-color: #ffb020; }
+.wtw-row.safe { border-left-color: var(--green); }
+.wtw-row.cooked { border-left-color: var(--red); }
+.wtw-row.mine { box-shadow: inset 0 0 0 1px rgba(245,196,69,.35); }
+.wtw-top { display: flex; align-items: center; gap: .5rem; }
+.wtw-icon { font-size: 1.1rem; }
+.wtw-who { flex: 1 1 auto; min-width: 0; font-size: .92rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wtw-who b { color: #fff; font-family: var(--font-display); }
+.wtw-pct { font-variant-numeric: tabular-nums; font-weight: 800; color: #cfd6e6; }
+.wtw-meter { margin: .5rem 0 .4rem; height: 8px; border-radius: 999px; overflow: hidden; background: rgba(255,255,255,.08); }
+.wtw-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--gold), var(--gold-bright)); }
+.wtw-row.safe .wtw-fill { background: linear-gradient(90deg, #1f9d57, var(--green)); }
+.wtw-row.cooked .wtw-fill { background: linear-gradient(90deg, #7a2630, var(--red)); }
+.wtw-row.flip .wtw-fill { background: linear-gradient(90deg, var(--gold), #ff8a3d); }
+.wtw-need { font-size: .82rem; color: #cfd6e6; }
+.wtw-word { font-family: var(--font-display); font-weight: 800; font-size: .66rem; letter-spacing: .06em;
+  text-transform: uppercase; }
+.wtw-word.flip { color: var(--gold-bright); } .wtw-word.sweat { color: #ffb020; }
+.wtw-word.safe { color: var(--green); } .wtw-word.cooked { color: var(--red-bright); }
+.wtw-high { color: var(--gold-bright); font-weight: 700; }

@@ -1,0 +1,56 @@
+<%- include('partials/header', { title: 'What to Watch' }) %>
+<%
+  const meId = me.id;
+  const bar = p => Math.max(2, Math.min(100, Math.round(p * 100)));
+%>
+
+<h1 class="page-title">📺 What to Watch <span class="sub" style="font-weight:600">Week <%= weekNo %></span></h1>
+
+<% if (source === 'preview') { %>
+  <div class="alert-banner" style="margin-bottom:1rem; border-color:rgba(245,196,69,.5)">
+    <span class="tag">🎭</span><span><b>Rehearsal.</b> Sample data, so the first live Sunday isn't the first time this panel has ever run. The real thing lights up Sunday & Monday nights, off the live scoreboard.</span>
+  </div>
+<% } %>
+
+<% if (!rows.length) { %>
+  <div class="card"><div class="body">
+    <p class="muted" style="margin:0">
+      <% if (!inWindow) { %>Nothing on right now. This panel is for <b>Sunday and Monday nights</b> — when there are games on and players still on the field, it shows exactly what everyone needs, live. <a href="/watch?preview=1">Preview it →</a>
+      <% } else { %>Games are scheduled but nobody's scored yet. The sweat meter comes alive the moment the ball's in the air. <a href="/watch?preview=1">Preview it →</a><% } %>
+    </p>
+  </div></div>
+<% } else { %>
+
+  <% if (band && band.median) { %>
+    <p class="wtw-band muted">🎯 The $100 is out there too — it usually takes <b><%= Math.round(band.median) %></b> to win the week.</p>
+  <% } %>
+
+  <div class="wtw-list">
+    <% for (const r of rows) { const mine = r.owner_id === meId; %>
+      <div class="wtw-row <%= r.label.level %><%= mine ? ' mine' : '' %>">
+        <div class="wtw-top">
+          <span class="wtw-icon" aria-hidden="true"><%= r.label.icon %></span>
+          <span class="wtw-who"><b><%= r.name %></b><% if (mine) { %> <span class="pk-you">you</span><% } %> <span class="muted">vs <%= r.oppName %></span></span>
+          <span class="wtw-pct"><%= Math.round(r.pWin * 100) %>%</span>
+        </div>
+        <div class="wtw-meter"><div class="wtw-fill" style="width:<%= bar(r.pWin) %>%"></div></div>
+        <div class="wtw-need">
+          <span class="wtw-word <%= r.label.level %>"><%= r.label.word %></span>
+          · <%= r.need %>
+          <% if (r.highP != null && r.highP >= 0.05) { %> · <span class="wtw-high">🎯 <%= Math.round(r.highP * 100) %>% at the $100</span><% } %>
+        </div>
+      </div>
+    <% } %>
+  </div>
+
+  <p class="muted" style="margin:1rem 0 0; font-size:.76rem">
+    Sweat = your live score plus what your players left are projected to add, against the same for your opponent.
+    <% if (source === 'live') { %>Live scores are exact; the remaining-player projections sharpen as the model's live feed lands.<% } %>
+  </p>
+<% } %>
+
+<p style="text-align:center; margin-top:1rem">
+  <a class="btn navy" href="/matchup">⚔️ Your matchup</a>
+  <a class="btn navy" href="/pickem">🗳️ Pick'em</a>
+</p>
+<%- include('partials/footer') %>
