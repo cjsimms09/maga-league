@@ -144,6 +144,8 @@ module B owns the rest of is the line drawn in the wrong place.
 - **`src/champs.js`** (added 2026-08-09) — the crown: defending champion + dynasty
   counts, derived from the champions roll. League-visible site feature, imported
   only by `src/routes/member`; never by `draft/**`. → **B**
+- **`src/rivalries.js`** (added 2026-08-09) — Rivalry Game of the Week billing +
+  the German easter egg. League-visible, imported only by `src/routes/member`. → **B**
 
 **Stays with A (genuinely dual-use or A-substance):** `src/predledger.js` (the
 prediction ledger — draft + in-season instrumentation; B writes via the HTTP

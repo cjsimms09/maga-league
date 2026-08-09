@@ -2959,3 +2959,57 @@ body.is-champ .tabbar { box-shadow: inset 0 2px 0 rgba(245, 196, 69, .5), 0 -8px
 .plate-aster { color: var(--gold-bright); }
 .plate.current { border-color: rgba(245, 196, 69, .6); background: linear-gradient(90deg, rgba(245, 196, 69, .22), transparent); }
 .plate.current .plate-name { color: #fff; }
+
+/* ── RIVALRY GAME OF THE WEEK (B) — billed on the matchup screen and the home page.
+   Tone drives the palette: grudge is hostile, friendship is warm, german is the
+   flag. Front and centre, in the league voice. ────────────────────────────────── */
+.riv-banner {
+  margin: 0 0 1.2rem; padding: 1rem 1.1rem; border-radius: 12px; text-align: center;
+  border: 1px solid var(--line); background: var(--panel-soft); position: relative; overflow: hidden;
+}
+.riv-banner-eyebrow {
+  font-family: var(--font-display); font-size: .64rem; font-weight: 800;
+  letter-spacing: .16em; text-transform: uppercase; color: var(--muted);
+  display: flex; align-items: center; justify-content: center; gap: .5rem;
+}
+.riv-marquee {
+  font-size: .58rem; padding: .1rem .45rem; border-radius: 999px; letter-spacing: .12em;
+  background: var(--red); color: #fff;
+}
+.riv-banner-name {
+  font-family: var(--font-display); font-size: 1.55rem; font-weight: 900; letter-spacing: .04em;
+  color: #fff; margin: .25rem 0 .1rem; line-height: 1.05;
+}
+.riv-banner-tag { font-size: .8rem; color: var(--muted); font-style: italic; margin-bottom: .5rem; }
+.riv-banner-record { font-size: .95rem; color: #fff; font-weight: 700; font-variant-numeric: tabular-nums; }
+.riv-banner-note { font-size: .74rem; color: #c6cfe0; margin-top: .2rem; }
+.riv-banner-blurb { font-size: .84rem; line-height: 1.5; color: #dfe6f5; margin: .6rem auto 0; max-width: 46ch; }
+.riv-banner-link {
+  display: inline-block; margin-top: .7rem; font-weight: 700; font-size: .82rem;
+  color: var(--gold-bright); text-decoration: none;
+}
+.riv-banner-link:hover { color: #fff; }
+
+/* Tones. A left/right accent bar carries the colour so the palette reads at a glance. */
+.riv-banner.tone-grudge   { border-color: rgba(255,70,85,.6); box-shadow: inset 0 0 0 1px rgba(255,70,85,.15), 0 0 26px rgba(255,70,85,.12); background: linear-gradient(180deg, rgba(255,70,85,.08), var(--panel-soft)); }
+.riv-banner.tone-grudge   .riv-banner-name { color: #ff8a95; text-shadow: 0 0 18px rgba(255,70,85,.4); }
+.riv-banner.tone-lovehate { border-color: rgba(214,120,255,.55); background: linear-gradient(180deg, rgba(214,120,255,.08), var(--panel-soft)); }
+.riv-banner.tone-lovehate .riv-banner-name { color: #e2a8ff; }
+.riv-banner.tone-friendship { border-color: rgba(47,213,118,.45); background: linear-gradient(180deg, rgba(47,213,118,.07), var(--panel-soft)); }
+.riv-banner.tone-friendship .riv-banner-name { color: #9bf0c0; }
+.riv-banner.tone-rivalry  { border-color: rgba(245,196,69,.55); background: linear-gradient(180deg, rgba(245,196,69,.08), var(--panel-soft)); }
+.riv-banner.tone-rivalry  .riv-banner-name { color: var(--gold-bright); }
+/* The two Germans — black / red / gold. */
+.riv-banner.tone-german {
+  border: none; color: #fff;
+  background:
+    linear-gradient(180deg, rgba(0,0,0,.55), rgba(0,0,0,.25)),
+    linear-gradient(180deg, #111 0 33%, #d4232e 33% 66%, #f5c445 66% 100%);
+}
+.riv-banner.tone-german .riv-banner-eyebrow,
+.riv-banner.tone-german .riv-banner-tag { color: #ffe9a8; }
+.riv-banner.tone-german .riv-banner-name { color: #fff; text-shadow: 0 2px 8px rgba(0,0,0,.6); }
+.riv-banner.tone-german .riv-banner-blurb,
+.riv-banner.tone-german .riv-banner-record,
+.riv-banner.tone-german .riv-banner-note { color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,.55); }
+.riv-banner.tone-german .riv-banner-link { color: #0b1020; font-weight: 800; }

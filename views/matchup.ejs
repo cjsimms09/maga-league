@@ -54,6 +54,11 @@
 <% } %>
 
 <% if (opp) { %>
+<%# ── RIVALRY GAME OF THE WEEK — billed front and centre when these two have a
+     real history in this league (the marquee grudge down to the friendly). ────── %>
+<% if (typeof rivalry !== 'undefined' && rivalry) { %>
+  <%- include('partials/_rivalry_banner', { rivalry, aName: me.name, bName: opp.name, rivalryRank: rivalry.rank }) %>
+<% } %>
 <%# ── The scoreboard tile ──────────────────────────────────────────────────── %>
 <div class="card matchup-card" style="margin-bottom:1.2rem">
   <div class="body">

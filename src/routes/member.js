@@ -4,6 +4,7 @@ const H = require('../helpers');
 const HIST = require('./history-data');   // the MFGA Archive — chronicle data engine
 const H2H = require('./h2h');              // all-time head-to-head, from the box scores
 const CHAMPS = require('../champs');       // the crown — defending champion, derived
+const RIV = require('../rivalries');       // rivalry game-of-the-week billing (+ German egg)
 const LO = require('./lineup');            // the lineup optimizer engine (validated vs L0)
 const MOVE = require('./standings-movement'); // week-over-week rank arrows (dormant pre-season)
 const L = require('../ledger');
@@ -314,6 +315,28 @@ router.get('/', aw(async (req, res) => {
     }
   }
 
+  // RIVALRY GAME OF THE WEEK — from this week's live pairings. Rank them (the
+  // marquee grudge outranks the friendlies) and bill the top one on the home page.
+  // Silent off-season / when Sleeper is unreachable; it lights up on its own.
+  let rivalryOfWeek = null, rivalryMore = 0;
+  if (sData && Array.isArray(sData.matchups)) {
+    const map = world.config.sleeper_map || {};
+    const nameOfRoster = rid => (H.ownerById(owners, Number(map[String(rid)])) || {}).name || null;
+    const byGame = {};
+    for (const m of sData.matchups) {
+      if (m.matchup_id == null) continue;
+      (byGame[m.matchup_id] = byGame[m.matchup_id] || []).push(nameOfRoster(m.roster_id));
+    }
+    const pairs = Object.values(byGame).filter(g => g.length === 2 && g[0] && g[1]).map(g => ({ a: g[0], b: g[1] }));
+    const hits = RIV.billingForSlate(pairs);
+    if (hits.length) {
+      const top = hits[0];
+      const rec = H2H.headToHead(H2H.userIdForName(top.pair.a), H2H.userIdForName(top.pair.b));
+      rivalryOfWeek = Object.assign({}, top, { notable: RIV.notableFrom(rec, top.pair.a, top.pair.b) });
+      rivalryMore = hits.length - 1;
+    }
+  }
+
   // The locker room lives at the bottom of this page now. A tab nobody opens is
   // a tab nobody posts in; putting the last few messages under the standings —
   // with a box to reply — is the difference between a chat and a ghost town.
@@ -326,7 +349,7 @@ router.get('/', aw(async (req, res) => {
     season, payouts: H.payoutTable(season), buyins, weekly, awards, standings, draft,
     openVotes, CATEGORY_LABELS: H.CATEGORY_LABELS, myBalance,
     sleeperData: sData, sleeperStandings: sStandings, sleeperBoard: sBoard, roast,
-    whBand, whRace,
+    whBand, whRace, rivalryOfWeek, rivalryMore,
     review, reviewWeek, wireRows, playoffTeams, chatLatest, betMoney, owners, rankMoves,
     // Venmo nag (venmo-handles.md §2): fires for a logged-in owner with no
     // handle; the commissioner also sees who is still missing theirs.
@@ -1375,6 +1398,14 @@ router.get('/matchup', aw(async (req, res) => {
 
   const record = opp ? H2H.headToHead(uidOf(me), uidOf(opp)) : null;
 
+  // RIVALRY GAME OF THE WEEK — bill the matchup when these two have a real history.
+  // The record is already computed (A-side = me), so the billing facts come free.
+  let rivalry = null;
+  if (opp) {
+    const riv = RIV.billingFor(me.name, opp.name);
+    if (riv) rivalry = Object.assign({}, riv, { notable: RIV.notableFrom(record, me.name, opp.name) });
+  }
+
   // A-lane data, read defensively: present => render; absent => a labelled slot.
   const perPlayer = (liveMatchup && liveMatchup.players) || null;   // A supplies
   const proj = (liveMatchup && liveMatchup.proj) || null;           // A supplies
@@ -1403,7 +1434,7 @@ router.get('/matchup', aw(async (req, res) => {
 
   const nameOf = id => (H.ownerById(owners, id) || {}).name || '?';
   res.render('matchup', {
-    me, owners, opp, live, weekNo, matchup: liveMatchup, betWindow, record,
+    me, owners, opp, live, weekNo, matchup: liveMatchup, betWindow, record, rivalry,
     perPlayer, proj, highBand, whBand, whRace,
     configured: !!world.config.sleeper_league_id,
     late: req.query.late === '1', sent: req.query.sent === '1',

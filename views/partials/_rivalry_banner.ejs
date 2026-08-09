@@ -1,0 +1,26 @@
+<%
+  // RIVALRY GAME OF THE WEEK billing. Callers pass { rivalry, aName, bName }.
+  // rivalry = a registry entry enriched with .notable (record + a facts line).
+  const _r = rivalry;
+  const _german = _r.tone === 'german';
+  const _n = _r.notable || {};
+  const _a = typeof aName !== 'undefined' ? aName : _r.a;
+  const _b = typeof bName !== 'undefined' ? bName : _r.b;
+%>
+<div class="riv-banner tone-<%= _r.tone %>">
+  <div class="riv-banner-eyebrow">
+    <%= _german ? '🇩🇪 Spiel der Woche' : '🔥 Rivalry Game of the Week' %>
+    <% if (typeof rivalryRank !== 'undefined' && rivalryRank === 1) { %><span class="riv-marquee">THE MARQUEE</span><% } %>
+  </div>
+  <div class="riv-banner-name"><%= _r.name %></div>
+  <div class="riv-banner-tag"><%= _r.tag %></div>
+  <% if (_n.record) { %>
+    <div class="riv-banner-record">
+      <% if (_german) { %>Gesamtbilanz: <b><%= _a %> <%= _n.aWins %></b> — <b><%= _n.bWins %> <%= _b %></b>
+      <% } else { %><b><%= _a %></b> <%= _n.aWins %>–<%= _n.bWins %> <b><%= _b %></b> <span class="muted">all-time</span><% } %>
+    </div>
+    <% if (_n.line) { %><div class="riv-banner-note"><%= _n.line %></div><% } %>
+  <% } %>
+  <p class="riv-banner-blurb"><%= _r.blurb %></p>
+  <a class="riv-banner-link" href="/rivalry?a=<%= encodeURIComponent(_a) %>&b=<%= encodeURIComponent(_b) %>"><%= _german ? 'Die ganze Geschichte →' : 'The whole rivalry →' %></a>
+</div>
