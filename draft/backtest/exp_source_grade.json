@@ -749,7 +749,7 @@
     "2023": {
       "parsed_rows": 5,
       "crosswalked": 5,
-      "text_len": 300369,
+      "text_len": 300295,
       "fetch_diag": {
         "page_url": "https://www.fantasypros.com/nfl/adp/half-point-ppr-overall.php?year=2023",
         "api_tried": [
@@ -765,14 +765,15 @@
           }
         ],
         "bundle_key_found": false,
-        "bundle_api_urls": []
+        "bundle_api_urls": [],
+        "bundle_len": 201953
       },
       "sample": "sortable\":true},{\"key\":\"src_4350\",\"label\":\"Sleeper\",\"sortable\":true},{\"key\":\"src_439\",\"label\":\"RTSports\",\"sortable\":true},{\"key\":\"avg\",\"label\":\"AVG\",\"sortable\":true,\"format\":\"decimal\",\"decimals\":1}],\"rows\":[{\"id\":19236,\"rank\":1,\"player\":{\"id\":19236,\"name\":\"Justin Jefferson\",\"team\":\"MIN (13)\",\"url\":\"/nfl/players/justin-jefferson.php\"},\"pos\":\"WR1\",\"src_236\":1,\"src_4350\":1,\"src_439\":1,\"avg\":1},{\"id\":16393,\"rank\":2,\"player\":{\"id\":16393,\"name\":\"Christian McCaffrey\",\"team\":\"SF (9)\",\"url\":\"/nfl/players/christian-mccaffrey.php\"},\"pos\":\"RB1\",\"src_236\":2,\"src_4350\":2,\"src_439\":2,\"avg\":2},{\"id\":19788,\"rank\":3,\"player\":{\"id\":19788,\"name\":\"Ja'Marr Chase\",\"team\":\"CIN (7)\",\"url\":\"/nfl/players/jamarr-chase.php\"},\"pos\":\"WR2\",\"src_236\":3,\"src_4350\":3,\"src_439\":3,\"avg\":3},{\"id\":16483,\"rank\":4,\"player\":{\"id\":16483,\"name\":\"Austin Ekeler\",\"team\":\"\",\"url\":\"/nfl/players/austin-ekeler.php\"},\"pos\":\"RB2\",\"src_236\":4,\"src_4350\":4,\"src_439\":4,\"avg\":4},{\"id\":15802,\"rank\":5,\"player\":{\"id\":15802,\"name\":\"Tyreek Hill\",\"team\":\"\",\"url\":\"/nfl/players/tyreek-hill.php\"},\"pos\":\"WR3\",\"src_236\":5,\"src_4350\":6,\"src_439\":5,\"avg\":5.3}],\"defaultSort\":[{\"key\":\"rank\",\"direction\":\"asc\"}],\"compact\":true,\"stickyColumns\":2,\"emptyMessage\":\"Sorry, this report is not available at the moment\"},\"footerHtml\":\"\\u003Cp class=\\\"reports__sources\\\"\\u003E\\u003Cstrong\\u003EADP Sources:\\u003C/strong\\u003E \\u003Ca href=\\\"http://football.fantasysports.yahoo.com/f1/draftanalysis\\\" target=\\\"_blank\\\" rel=\\\"noopener noreferrer\\\"\\u003EYahoo! Sports\\u003C/a\\u003E, \\u003Ca href=\\\"http://www.rtsports.com/\\\" target=\\\"_blank\\\" rel=\\\"noopener noreferrer\\\"\\u003ERTSports\\u003C/a\\u003E, \\u003Ca href=\\\"https://sleeper.app/fantasy-football\\\" target=\\\"_blank\\\" rel=\\\"noopener noreferrer\\\"\\u003ESleeper\\u003C/a\\u003E\\u003C/p\\u003E\",\"footerLabel\":\"ADP sources\",\"primaryCta\":{\"text\":\"Mock Draft\",\"href\":\"https://draftwizard.fantasypros.com/?sport=nfl&partner=fpros\"},\"pickSources\":{\"label\":\"Pick Sources\"},\"ssrHeader\":true};\n    window.FP.isLoggedIn = false;\n</script>\n\n    <script src=\"//cdn.fantasypros.com/assets/js/min/pages/myplaybook/mpb/bundle-dc83df8d8a6b4cddd771.js\"></script>\n\n<script fetchpriority=\"high\" src=\"//cdn.fantasypros.com/assets/js/min/pages/reports/bundle-65cb2b9470c5c52ec1e8.js\"></script>\n\n<script type=\"text/javascript\">\r\n    window."
     },
     "2024": {
       "parsed_rows": 5,
       "crosswalked": 0,
-      "text_len": 300372,
+      "text_len": 300298,
       "fetch_diag": {
         "page_url": "https://www.fantasypros.com/nfl/adp/half-point-ppr-overall.php?year=2024",
         "api_tried": [
@@ -788,7 +789,8 @@
           }
         ],
         "bundle_key_found": false,
-        "bundle_api_urls": []
+        "bundle_api_urls": [],
+        "bundle_len": 201953
       },
       "sample": "ortable\":true},{\"key\":\"src_4350\",\"label\":\"Sleeper\",\"sortable\":true},{\"key\":\"src_439\",\"label\":\"RTSports\",\"sortable\":true},{\"key\":\"avg\",\"label\":\"AVG\",\"sortable\":true,\"format\":\"decimal\",\"decimals\":1}],\"rows\":[{\"id\":16393,\"rank\":1,\"player\":{\"id\":16393,\"name\":\"Christian McCaffrey\",\"team\":\"SF (9)\",\"url\":\"/nfl/players/christian-mccaffrey.php\"},\"pos\":\"RB1\",\"src_236\":1,\"src_4350\":1,\"src_439\":1,\"avg\":1},{\"id\":15802,\"rank\":2,\"player\":{\"id\":15802,\"name\":\"Tyreek Hill\",\"team\":\"\",\"url\":\"/nfl/players/tyreek-hill.php\"},\"pos\":\"WR1\",\"src_236\":2,\"src_4350\":2,\"src_439\":3,\"avg\":2.3},{\"id\":19202,\"rank\":3,\"player\":{\"id\":19202,\"name\":\"CeeDee Lamb\",\"team\":\"DAL (7)\",\"url\":\"/nfl/players/ceedee-lamb.php\"},\"pos\":\"WR2\",\"src_236\":3,\"src_4350\":3,\"src_439\":2,\"avg\":2.7},{\"id\":22982,\"rank\":4,\"player\":{\"id\":22982,\"name\":\"Breece Hall\",\"team\":\"NYJ (12)\",\"url\":\"/nfl/players/breece-hall.php\"},\"pos\":\"RB2\",\"src_236\":4,\"src_4350\":8,\"src_439\":4,\"avg\":5.3},{\"id\":23133,\"rank\":5,\"player\":{\"id\":23133,\"name\":\"Bijan Robinson\",\"team\":\"ATL (12)\",\"url\":\"/nfl/players/bijan-robinson.php\"},\"pos\":\"RB3\",\"src_236\":5,\"src_4350\":6,\"src_439\":5,\"avg\":5.3}],\"defaultSort\":[{\"key\":\"rank\",\"direction\":\"asc\"}],\"compact\":true,\"stickyColumns\":2,\"emptyMessage\":\"Sorry, this report is not available at the moment\"},\"footerHtml\":\"\\u003Cp class=\\\"reports__sources\\\"\\u003E\\u003Cstrong\\u003EADP Sources:\\u003C/strong\\u003E \\u003Ca href=\\\"http://football.fantasysports.yahoo.com/f1/draftanalysis\\\" target=\\\"_blank\\\" rel=\\\"noopener noreferrer\\\"\\u003EYahoo! Sports\\u003C/a\\u003E, \\u003Ca href=\\\"http://www.rtsports.com/\\\" target=\\\"_blank\\\" rel=\\\"noopener noreferrer\\\"\\u003ERTSports\\u003C/a\\u003E, \\u003Ca href=\\\"https://sleeper.app/fantasy-football\\\" target=\\\"_blank\\\" rel=\\\"noopener noreferrer\\\"\\u003ESleeper\\u003C/a\\u003E\\u003C/p\\u003E\",\"footerLabel\":\"ADP sources\",\"primaryCta\":{\"text\":\"Mock Draft\",\"href\":\"https://draftwizard.fantasypros.com/?sport=nfl&partner=fpros\"},\"pickSources\":{\"label\":\"Pick Sources\"},\"ssrHeader\":true};\n    window.FP.isLoggedIn = false;\n</script>\n\n    <script src=\"//cdn.fantasypros.com/assets/js/min/pages/myplaybook/mpb/bundle-dc83df8d8a6b4cddd771.js\"></script>\n\n<script fetchpriority=\"high\" src=\"//cdn.fantasypros.com/assets/js/min/pages/reports/bundle-65cb2b9470c5c52ec1e8.js\"></script>\n\n<script type=\"text/javascript\">\r\n    windo"
     }
