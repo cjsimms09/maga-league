@@ -175,31 +175,42 @@ def fetch(year, half_ppr=True, timeout=30):   # pragma: no cover  (egress, CI on
         print(f"  FantasyPros {year} page fetch skip: {type(e).__name__}")
         return None, page_url, {**diag, "page_error": type(e).__name__}
 
-    # 1) discover the data endpoint + key from the reports bundle
+    # 1) MAXIMAL discovery: grab EVERY bundle on the page + the page itself, and dump every
+    #    endpoint-looking token (any path with a data word, or /api|/v1|/v2, or .php/.json/csv).
+    #    Two narrow passes found nothing, so this is the "search the space properly before
+    #    declaring the endpoint isn't a literal" pass (null-scope discipline).
+    import re as _re
     key = None
-    bm = __import__("re").search(r'//cdn\.fantasypros\.com/[^"\']*pages/reports/bundle-[^"\']+\.js', html)
-    if bm:
+    tok_re = _re.compile(r'["\'`]((?:https?:)?/[A-Za-z0-9/_.\-]{2,80}?'
+                         r'(?:adp|consensus|ranking|projection|players?|/api/|/v[12]/|\.php|\.json|csv)'
+                         r'[A-Za-z0-9/_.\-?=&]{0,60})["\'`]', _re.I)
+    sources = {"page": html}
+    for bname in _re.findall(r'//cdn\.fantasypros\.com/[^"\']*bundle-[^"\']+\.js', html):
         try:
-            bundle = _get("https:" + bm.group(0), timeout)
-            km = _KEY_RE.search(bundle)
-            if km:
-                key = km.group(1); diag["bundle_key_found"] = True
-            found = sorted({m.strip('"\'') for m in _APIURL_RE.findall(bundle)})
-            diag["bundle_api_urls"] = found[:20]
-            diag["bundle_len"] = len(bundle)
+            sources[bname[-40:]] = _get("https:" + bname, timeout)
         except Exception as e:
-            diag["bundle_error"] = type(e).__name__
-    # also try a key embedded directly on the page
-    if not key:
-        km = _KEY_RE.search(html)
-        if km:
-            key = km.group(1); diag["page_key_found"] = True
+            diag.setdefault("bundle_errors", {})[bname[-40:]] = type(e).__name__
+    toks = set()
+    for name, txt in sources.items():
+        km = _KEY_RE.search(txt)
+        if km and not key:
+            key = km.group(1); diag["key_found_in"] = name
+        for m in tok_re.findall(txt):
+            toks.add(m)
+    diag["bundle_api_urls"] = sorted(toks)[:40]
+    diag["bundle_len"] = sum(len(t) for t in sources.values())
 
-    # 2) try the API (discovered endpoint template first, then candidates) with the key
-    templates = list(diag["bundle_api_urls"]) + _API_CANDIDATES
+    # 2) try discovered tokens + blind candidates + direct page variants (csv/json export the
+    #    React app may hit) with the key. First to yield >=20 rows wins.
+    page_variants = [page_url + "&csv=1", page_url + "&json=1", page_url + "&export=csv"]
+    templates = list(diag["bundle_api_urls"]) + page_variants + _API_CANDIDATES
+    tried = 0
     for tmpl in templates:
         if "consensus-rankings" not in tmpl and "adp" not in tmpl.lower():
             continue
+        if tried >= 14:                                    # bound CI runtime; all 40 are dumped above
+            break
+        tried += 1
         api_url = tmpl.replace("{y}", str(year)).replace("{k}", key or "").replace("{year}", str(year))
         if api_url.startswith("/"):                       # relative endpoint discovered in the bundle
             api_url = "https://www.fantasypros.com" + api_url
