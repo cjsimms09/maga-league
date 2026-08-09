@@ -1,0 +1,35 @@
+name: Discoverability probe — public leagues at our format
+
+# One-shot (dispatch-only) probe: can we obtain public Sleeper leagues at OUR exact format
+# (10-team, half-PPR, 6-pt pass TD, 1QB/2RB/2WR/1TE/FLEX/K/DEF, keeper) at VOLUME, by crawling
+# the user↔league graph? This is the GATE on the external-sample program (the interior-adjuster
+# question, source-grade CI, keeper generalization). Not on a schedule — it hits Sleeper a few
+# hundred times, so it runs only when asked.
+
+on:
+  workflow_dispatch:
+    inputs:
+      budget:
+        description: 'API-call budget for the crawl'
+        required: false
+        default: '800'
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - name: GATE — pure format matcher (no egress)
+        run: |
+          pip install pytest -q
+          python -m pytest draft/tests/test_discoverability.py -q
+      - name: Crawl (Sleeper egress)
+        run: python draft/backtest/exp_discoverability.py --budget ${{ inputs.budget || '800' }}
+      - name: Commit the result
+        run: |
+          git config user.name "lab-bot"; git config user.email "actions@github.com"
+          git add draft/backtest/exp_discoverability.json
+          git commit -m "Discoverability probe result $(date -u +%Y-%m-%dT%H:%MZ)" || { echo "no change"; exit 0; }
+          git pull --rebase origin "${GITHUB_REF_NAME}" && git push || echo "push skipped"
