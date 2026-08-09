@@ -1016,3 +1016,8 @@ weekly-high race" meter, side-bet grid money-colour, propose-from-anywhere,
 Chiefs/Mahomes + Bates eggs. THEN Sunday alert → instrumentation check.
 **A OUTSTANDING:** deploy main (still not deployed — Cory can't see any of it live);
 championship-probability model for the advisor.
+
+## ▶ SESSION A — 2026-08-09: exp 33b fired + re-sequenced by impact (Cory's new rule)
+- **exp 33b (naive-as-source) FIRED** (EXP33B.md): the blend RANKS BETTER than naive at Cory's actual picks (0.404 vs 0.35; naive−blend CI [−0.112,−0.002]) and beats the market (+0.166); naive earns −$200. **Replacement CLOSED — keep the blend.** Reconciles exp 33/35 (naive wins whole-board top-decile of the ELITE; the blend wins the pool Cory actually drafts from, which is rarely the elite).
+- **RE-SEQUENCING (impact order):** (1) naive-source is done → dropped. (2) The **REGRESSION_WEIGHT install gate** is now the one remaining projection lever (exp 35's over-regression is whole-board; test whether a lower weight also helps at Cory's picks + clears null+LOSO before installing). (3) The **third composite arm** rose in value — value-ranking is now validated (exp 34/33b), so the open verdict is purely whether the composite's CONSTRUCTION earns money vs the market, which sets how much to trust deviations on draft night; needs the JS replay path.
+- **Deprioritized, with reason:** I will NOT build a naive-source projection (exp 33b closed it). The REGRESSION_WEIGHT install is worth the gate but its draft payoff is now less certain (the blend already out-ranks at the decision points), so it ranks below the third arm's verdict if JS-replay build cost is comparable — I'll confirm once I scope the replay path.

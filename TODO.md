@@ -44,10 +44,18 @@ of this list (see the note at the bottom)._
 
 ## THE LAB — the experiment queue, in order
 
-- ◻ **Third arm — composite vs ADP in dollars** (the construction-layer test; needs JS replay).
+- ◻ **REGRESSION_WEIGHT install gate** — the one remaining projection lever now that replace is
+  closed: exp 35 showed the blend over-regresses on the whole board; run a candidate lower weight
+  through null + leave-one-season-out AND the exp-33b pool check at your picks. Install only if it
+  clears both (cited, reversible). Draft-relevant: it changes the board you draft off.
+- ◻ **Third arm — composite vs ADP in dollars** (now the key VERDICT: value-ranking is validated by
+  exp 34/33b, so the open question is whether the composite's construction earns money vs the market —
+  tells you how much to trust the tool's deviations on draft night; needs JS replay).
 - ◻ **Dollar-grade the exp 35 sweep** — points curve is done (EXP35.md); the dollar-per-weight
   curve through the grader is the flagged increment.
-- ◻ **Naive-as-projection-source run** — pre-registered; if a simpler input wins, replace not tune.
+- ✅ **Naive-as-source (exp 33b)** — CLOSED: KEEP the blend. It out-ranks naive at your
+  actual picks (0.404 vs 0.35) and beats the market (+0.166); naive earns −$200. Replacement
+  is off the table (EXP33B.md).
 - ◻ **Exp 41 paired-room race** — the calibration-weighted ensemble; combiner core is built
   + tested (exp41.py), the money-graded race vs the composite is the increment.
 - ◻ **Auto-adjuster conditional mining** on heterogeneous rooms.
