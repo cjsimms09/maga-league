@@ -963,3 +963,6 @@ DEPLOYED == main HEAD after this commit.
 ### ▶ QUEUED (in order): read exp35 result (firms/refutes over-regression?) → **third composite arm** (composite vs ADP on dollars — the number Cory actually wants; pre-registered; needs the JS replay path) → naive-as-source run → exp 41 paired-room race → auto-adjuster conditional mining → what-would-have-worked → upsideBonus gated sweep. Keep the Lab saturated.
 
 ### NOTE: main advanced past the deploy (B's weekly-high strip `ba2390b` + exp35) — those ship on the next deploy; the major B site work + restore is live at `df19f98`.
+
+## ▶ DEPLOY 2026-08-09 (A) — ship current main; the earlier [deploy] was buried before Netlify evaluated it [deploy]
+`df19f98`'s [deploy] marker was overtaken by lab-bot + B commits before Netlify read the tip, so the build skipped and nothing went live — the exact silent-stranding gap. Re-deploying main HEAD (restore + lineup optimizer + matchup + H2H + Money Board redesign + eggs + side-bet lifecycle + the Lab batch). This commit touches only STATUS.md (not a lab.yml trigger path) so the lab-bot cannot bury it before the build fires. Restore is live-safe (byte-identical to the approved prose), guard loosened (tools 403 / history visible), URGENT flag cleared.
