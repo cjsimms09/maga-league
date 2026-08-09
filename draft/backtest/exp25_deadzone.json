@@ -1,0 +1,415 @@
+{
+  "experiment": "25 \u2014 RB dead zone located on our data (league-conditional)",
+  "source": "LOCAL: league_history drafts + roster_sim realized + board positions",
+  "n_picks": 395,
+  "per_season": {
+    "2025": 125,
+    "2024": 124,
+    "2023": 146
+  },
+  "band_size_overall_picks": 10,
+  "surface": [
+    {
+      "band": "1-10",
+      "lo": 1,
+      "hi": 10,
+      "RB": {
+        "n": 6,
+        "mean": 226.7,
+        "thin": true
+      },
+      "WR": {
+        "n": 4,
+        "mean": 210.1,
+        "thin": true
+      },
+      "TE": {
+        "n": 1,
+        "mean": 172.9,
+        "thin": true
+      },
+      "QB": {
+        "n": 0,
+        "mean": null,
+        "thin": true
+      }
+    },
+    {
+      "band": "11-20",
+      "lo": 11,
+      "hi": 20,
+      "RB": {
+        "n": 5,
+        "mean": 198.5,
+        "thin": true
+      },
+      "WR": {
+        "n": 6,
+        "mean": 214.7,
+        "thin": true
+      },
+      "TE": {
+        "n": 1,
+        "mean": 112.9,
+        "thin": true
+      },
+      "QB": {
+        "n": 2,
+        "mean": 368.5,
+        "thin": true
+      }
+    },
+    {
+      "band": "21-30",
+      "lo": 21,
+      "hi": 30,
+      "RB": {
+        "n": 6,
+        "mean": 148.2,
+        "thin": true
+      },
+      "WR": {
+        "n": 11,
+        "mean": 164.8,
+        "thin": false
+      },
+      "TE": {
+        "n": 0,
+        "mean": null,
+        "thin": true
+      },
+      "QB": {
+        "n": 2,
+        "mean": 217.0,
+        "thin": true
+      }
+    },
+    {
+      "band": "31-40",
+      "lo": 31,
+      "hi": 40,
+      "RB": {
+        "n": 13,
+        "mean": 182.5,
+        "thin": false
+      },
+      "WR": {
+        "n": 11,
+        "mean": 133.1,
+        "thin": false
+      },
+      "TE": {
+        "n": 2,
+        "mean": 138.8,
+        "thin": true
+      },
+      "QB": {
+        "n": 3,
+        "mean": 364.0,
+        "thin": true
+      }
+    },
+    {
+      "band": "41-50",
+      "lo": 41,
+      "hi": 50,
+      "RB": {
+        "n": 4,
+        "mean": 74.3,
+        "thin": true
+      },
+      "WR": {
+        "n": 13,
+        "mean": 183.8,
+        "thin": false
+      },
+      "TE": {
+        "n": 6,
+        "mean": 142.1,
+        "thin": true
+      },
+      "QB": {
+        "n": 6,
+        "mean": 292.0,
+        "thin": true
+      }
+    },
+    {
+      "band": "51-60",
+      "lo": 51,
+      "hi": 60,
+      "RB": {
+        "n": 9,
+        "mean": 166.1,
+        "thin": false
+      },
+      "WR": {
+        "n": 10,
+        "mean": 133.3,
+        "thin": false
+      },
+      "TE": {
+        "n": 4,
+        "mean": 123.1,
+        "thin": true
+      },
+      "QB": {
+        "n": 6,
+        "mean": 219.9,
+        "thin": true
+      }
+    },
+    {
+      "band": "61-70",
+      "lo": 61,
+      "hi": 70,
+      "RB": {
+        "n": 9,
+        "mean": 126.0,
+        "thin": false
+      },
+      "WR": {
+        "n": 13,
+        "mean": 142.5,
+        "thin": false
+      },
+      "TE": {
+        "n": 5,
+        "mean": 81.6,
+        "thin": true
+      },
+      "QB": {
+        "n": 2,
+        "mean": 298.7,
+        "thin": true
+      }
+    },
+    {
+      "band": "71-80",
+      "lo": 71,
+      "hi": 80,
+      "RB": {
+        "n": 10,
+        "mean": 101.6,
+        "thin": false
+      },
+      "WR": {
+        "n": 15,
+        "mean": 130.2,
+        "thin": false
+      },
+      "TE": {
+        "n": 5,
+        "mean": 109.0,
+        "thin": true
+      },
+      "QB": {
+        "n": 0,
+        "mean": null,
+        "thin": true
+      }
+    },
+    {
+      "band": "81-90",
+      "lo": 81,
+      "hi": 90,
+      "RB": {
+        "n": 10,
+        "mean": 130.3,
+        "thin": false
+      },
+      "WR": {
+        "n": 17,
+        "mean": 103.2,
+        "thin": false
+      },
+      "TE": {
+        "n": 0,
+        "mean": null,
+        "thin": true
+      },
+      "QB": {
+        "n": 2,
+        "mean": 347.0,
+        "thin": true
+      }
+    },
+    {
+      "band": "91-100",
+      "lo": 91,
+      "hi": 100,
+      "RB": {
+        "n": 11,
+        "mean": 104.8,
+        "thin": false
+      },
+      "WR": {
+        "n": 12,
+        "mean": 91.0,
+        "thin": false
+      },
+      "TE": {
+        "n": 4,
+        "mean": 93.8,
+        "thin": true
+      },
+      "QB": {
+        "n": 1,
+        "mean": 414.8,
+        "thin": true
+      }
+    },
+    {
+      "band": "101-110",
+      "lo": 101,
+      "hi": 110,
+      "RB": {
+        "n": 14,
+        "mean": 94.7,
+        "thin": false
+      },
+      "WR": {
+        "n": 4,
+        "mean": 84.9,
+        "thin": true
+      },
+      "TE": {
+        "n": 3,
+        "mean": 95.3,
+        "thin": true
+      },
+      "QB": {
+        "n": 3,
+        "mean": 262.8,
+        "thin": true
+      }
+    },
+    {
+      "band": "111-120",
+      "lo": 111,
+      "hi": 120,
+      "RB": {
+        "n": 6,
+        "mean": 56.6,
+        "thin": true
+      },
+      "WR": {
+        "n": 6,
+        "mean": 76.4,
+        "thin": true
+      },
+      "TE": {
+        "n": 1,
+        "mean": 13.0,
+        "thin": true
+      },
+      "QB": {
+        "n": 10,
+        "mean": 187.1,
+        "thin": false
+      }
+    },
+    {
+      "band": "121-130",
+      "lo": 121,
+      "hi": 130,
+      "RB": {
+        "n": 6,
+        "mean": 37.7,
+        "thin": true
+      },
+      "WR": {
+        "n": 2,
+        "mean": 105.0,
+        "thin": true
+      },
+      "TE": {
+        "n": 2,
+        "mean": 160.9,
+        "thin": true
+      },
+      "QB": {
+        "n": 1,
+        "mean": 365.1,
+        "thin": true
+      }
+    },
+    {
+      "band": "131-140",
+      "lo": 131,
+      "hi": 140,
+      "RB": {
+        "n": 5,
+        "mean": 67.1,
+        "thin": true
+      },
+      "WR": {
+        "n": 5,
+        "mean": 97.3,
+        "thin": true
+      },
+      "TE": {
+        "n": 2,
+        "mean": 87.0,
+        "thin": true
+      },
+      "QB": {
+        "n": 3,
+        "mean": 256.9,
+        "thin": true
+      }
+    },
+    {
+      "band": "141-150",
+      "lo": 141,
+      "hi": 150,
+      "RB": {
+        "n": 4,
+        "mean": 6.8,
+        "thin": true
+      },
+      "WR": {
+        "n": 6,
+        "mean": 40.0,
+        "thin": true
+      },
+      "TE": {
+        "n": 3,
+        "mean": 76.9,
+        "thin": true
+      },
+      "QB": {
+        "n": 3,
+        "mean": 207.0,
+        "thin": true
+      }
+    }
+  ],
+  "rb_cliff": {
+    "cliff": {
+      "from_band": "51-60",
+      "to_band": "61-70",
+      "from_mean": 166.1,
+      "to_mean": 126.0,
+      "drop": 40.1,
+      "boundary_overall_pick": 61
+    },
+    "crossover": {
+      "band": "61-70",
+      "overall_pick": 61,
+      "RB": 126.0,
+      "WR": 142.5
+    }
+  },
+  "bbm_agreement": {
+    "prior": "RB collapses after round 4 (BBM 12-team: 137\u219280\u219263); WR gentle",
+    "bbm_boundary_round": 5,
+    "our_boundary_overall_pick": 61,
+    "our_boundary_round_10team": 7,
+    "our_drop": 40.1,
+    "agrees": true,
+    "note": "our RB cliff falls at overall pick ~61 (our round 7); BBM's is after round 4 \u2014 same DIRECTION (RB collapses mid-draft, WR holds), located in our coordinates"
+  },
+  "caveat": "~395 picks over 3 seasons \u2014 thin vs BBM's 200k/cell; cells with n<8 are flagged and excluded from the cliff. Corroborates + locates; installs nothing without the money-graded gate.",
+  "source_tier": "league-primary (BBM is the supporting prior)"
+}

@@ -287,5 +287,22 @@ check('a thin cell falls back to the pooled position average',
     JSON.stringify(D.badge(wr, 115)));
 }
 
+// EXP 25 DEAD-ZONE marker — informational labeled prior on the card.
+check('an RB INSIDE the dead zone (pick 61+) is flagged, prefer WR',
+  /INSIDE the RB dead zone/.test(D.deadZoneLine(65, 'RB') || '') && /prefer WR/.test(D.deadZoneLine(65, 'RB') || ''));
+check('an RB ENTERING the zone (51-60) gets the early warning',
+  /ENTERING the RB dead zone/.test(D.deadZoneLine(55, 'RB') || ''));
+check('an early RB (before pick 51) gets NO dead-zone flag',
+  D.deadZoneLine(20, 'RB') === null);
+check('a WR inside the region reads as HOLDS (the mid-round lean)',
+  /WR HOLDS/.test(D.deadZoneLine(65, 'WR') || ''));
+check('a QB in the region gets no dead-zone line (RB/WR only)',
+  D.deadZoneLine(65, 'QB') === null);
+check('the dead-zone cites the evidence (exp 25 + BBM), not a bare claim',
+  /exp 25/.test(D.deadZoneLine(65, 'RB') || '') && /BBM/.test(D.deadZoneLine(65, 'RB') || ''));
+check('the badge carries a deadZone line for an RB deep on the board',
+  (function () { var b = D.badge(entry({ tier: 9 }, { position: 'RB', adjusted_adp: 40, raw_adp: 40 }), 65);
+    return b && /RB dead zone/.test(b.deadZone || ''); })());
+
 console.log(`\n${pass}/${pass + fail} deviation checks passed`);
 process.exit(fail ? 1 : 0);

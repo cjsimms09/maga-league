@@ -3682,6 +3682,9 @@
       // The single most actionable line for draft night — deviate freely where ADP is
       // a weak ranker, respect it where ADP is strong. Measured, cited, not a slider.
       + (d.marketQuality ? '<div class="dv-market">where: ' + escapeHtml(d.marketQuality) + '</div>' : '')
+      // EXP 25 dead-zone prior (informational): RB value collapses past ~pick 61 while
+      // WR holds. Amber on an RB inside the zone, affirming on a WR.
+      + (d.deadZone ? '<div class="dv-deadzone">🕳️ ' + escapeHtml(d.deadZone) + '</div>' : '')
       + (d.dispersion
         ? '<div class="dv-disp">market: ADP ' + d.adp + ' ±' + d.dispersion.sd
           + ' — ' + escapeHtml(d.dispersion.text) + '</div>'

@@ -353,6 +353,36 @@
     return Math.max(BAND_MIN, Math.min(BAND_MAX, Math.round(raw * 100) / 100));
   }
 
+  /* EXP 25 DEAD-ZONE PRIOR — RB realized value collapses mid-draft while WR holds.
+   * BBM full field (200k picks/cell): RB 137→80→63 after round 4, WR gentle. Located
+   * on OUR three seasons (exp25_deadzone.json): RB averages ~170 through overall pick
+   * 60 then drops to ~110; WR holds ~140 and OVERTAKES RB at overall pick ~61. Overall
+   * pick is the cross-league invariant, so the region is in overall picks, not rounds.
+   * INFORMATIONAL — a labeled prior shown on the card like the exp-36 surface, NOT a
+   * re-weighting (a board change waits on the money-graded gate). Cited + reversible:
+   * regenerate the boundary from exp25 on a re-fire. */
+  var DEADZONE = { position: 'RB', enter: 51, inside: 61, holds: 'WR' };
+
+  function deadZoneLine(pickNo, position) {
+    var pk = Number(pickNo);
+    if (!Number.isFinite(pk) || pk < DEADZONE.enter) return null;
+    if (position === 'RB') {
+      if (pk >= DEADZONE.inside) {
+        return 'INSIDE the RB dead zone (overall pick ' + pk + '): RB realized value '
+          + 'historically collapses here while ' + DEADZONE.holds + ' holds — BBM 200k-pick '
+          + 'prior, corroborated on our 3 seasons (exp 25). A mid-round RB is the board’s '
+          + 'worst-evidenced value; prefer ' + DEADZONE.holds + '.';
+      }
+      return 'ENTERING the RB dead zone (~pick ' + DEADZONE.inside + '+): RB value is about to '
+        + 'collapse while ' + DEADZONE.holds + ' holds (exp 25 + BBM prior).';
+    }
+    if (position === DEADZONE.holds && pk >= DEADZONE.inside) {
+      return DEADZONE.holds + ' HOLDS its value here where RB collapses (overall pick ' + pk
+        + ') — the best-evidenced mid-round lean (exp 25 + BBM prior).';
+    }
+    return null;
+  }
+
   // The plain-language draft line (no options costume): weak -> freer, well -> respect.
   function marketQualityLine(pickNo, position) {
     var m = marketEfficiency(pickNo, position);
@@ -412,6 +442,9 @@
       // where ADP is a weak ranker, respect it where ADP is strong.
       marketQuality: marketQualityLine(ourPick, p.position),
       marketEfficiency: marketEfficiency(ourPick, p.position),
+      // EXP 25: is this pick in the RB dead zone (RB value collapses, WR holds)?
+      // An informational labeled prior, null outside the region / off RB & WR.
+      deadZone: deadZoneLine(ourPick, p.position),
       // The band this deviation had to clear — derived per-region (exp 36), so a
       // small deviation shows in a well-ranked region and is silenced in a weak one.
       noiseBand: band,
@@ -444,7 +477,8 @@
               EVIDENCE_STATE: EVIDENCE_STATE, recordEvidence: recordEvidence,
               projectionProvenance: projectionProvenance,
               marketEfficiency: marketEfficiency, marketQualityLine: marketQualityLine,
-              noiseBandFor: noiseBandFor, RHO_BAR: RHO_BAR };
+              noiseBandFor: noiseBandFor, RHO_BAR: RHO_BAR,
+              deadZoneLine: deadZoneLine, DEADZONE: DEADZONE };
   global.DraftDeviation = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);
