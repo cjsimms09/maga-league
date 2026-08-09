@@ -78,8 +78,38 @@ const KINDS = ['recommendation', 'pick', 'survival', 'override', 'lrm', 'run',
                'trade_eval',       // an offer priced, accepted or declined
                'weekly_brief',     // the brief as delivered — what I was told,
                                    // when, so a later grade reads what I saw
-               'inseason_override'];  // I went against the recommendation, and
+               'inseason_override',   // I went against the recommendation, and
                                       // what I did instead
+
+               /* ── FORWARD PREDICTION (the one thing no backtest can give) ──
+                *
+                * Every experiment in the Lab is RETROSPECTIVE — it replays
+                * 2023-25 and grades against outcomes that already exist, and
+                * whoever builds the analysis has seen the answers. That is why
+                * three self-agreeing backtests slipped through this month. A
+                * FORECAST is different in kind: the model commits IN WRITING,
+                * timestamped, to a claim about something that has NOT happened
+                * yet — a survival %, which players fall past ADP, the roster's
+                * dollar value, who the room takes at each seat, the weekly-high
+                * winner. Reality answers once; there is no second run and no
+                * researcher degree of freedom. Calibration ("91% survival") is
+                * only measurable this way: forward, over many live claims.
+                *
+                * 'forecast'            — a committed claim (see assertForecast:
+                *                         it MUST carry ftype + value + a
+                *                         resolution rule + a key, or it is
+                *                         ungradeable and refused, the same
+                *                         discipline the counterfactual gets).
+                * 'forecast_resolution' — what reality returned, a SEPARATE
+                *                         append joined by key, written only when
+                *                         the outcome is known. The original
+                *                         forecast is never mutated (contamination
+                *                         rule), and the grader disqualifies any
+                *                         forecast whose decision_at is not
+                *                         strictly before its resolution — the
+                *                         guarantee that makes it forward. */
+               'forecast',
+               'forecast_resolution'];
 
 /* EVERY KIND THE CLIENT EMITS MUST BE REGISTERED ABOVE.
  *
@@ -117,6 +147,45 @@ function assertCounterfactual(kind, payload) {
   }
 }
 
+/* A forecast without a resolution rule is not a prediction, it is a mood — it
+ * can be reinterpreted after the fact, which is exactly the freedom a forward
+ * prediction is supposed to remove. So the gradeable skeleton is ENFORCED, not
+ * documented: ftype, a value, a stated resolution rule, and a stable key the
+ * later resolution joins on. The three types the grader knows:
+ *   probability — value in [0,1], graded by Brier + reliability bin;
+ *   point       — a numeric estimate, graded by signed error + |error|;
+ *   categorical — a label, graded hit/miss. */
+const FORECAST_TYPES = ['probability', 'point', 'categorical'];
+
+function assertForecast(kind, payload) {
+  const p = payload || {};
+  if (kind === 'forecast') {
+    if (!p.key || typeof p.key !== 'string') {
+      throw new Error("forecast requires payload.key — a stable id its resolution joins on");
+    }
+    if (FORECAST_TYPES.indexOf(p.ftype) < 0) {
+      throw new Error(`forecast requires payload.ftype in ${JSON.stringify(FORECAST_TYPES)}`);
+    }
+    if (p.value === undefined || p.value === null) {
+      throw new Error('forecast requires payload.value — the committed prediction');
+    }
+    if (p.ftype === 'probability' && !(Number(p.value) >= 0 && Number(p.value) <= 1)) {
+      throw new Error('a probability forecast needs value in [0,1]');
+    }
+    if (!p.resolution_rule || typeof p.resolution_rule !== 'string') {
+      throw new Error('forecast requires payload.resolution_rule — how reality decides it, '
+        + 'stated BEFORE the outcome so a null cannot be reinterpreted');
+    }
+  } else if (kind === 'forecast_resolution') {
+    if (!p.forecast_key || typeof p.forecast_key !== 'string') {
+      throw new Error('forecast_resolution requires payload.forecast_key — the forecast it resolves');
+    }
+    if (p.outcome === undefined || p.outcome === null) {
+      throw new Error('forecast_resolution requires payload.outcome — what reality returned');
+    }
+  }
+}
+
 function seqKey(season, seq) {
   // Zero-padded so lexical key order equals numeric order for cheap listing.
   return `pred:${season}:${String(seq).padStart(9, '0')}`;
@@ -137,6 +206,7 @@ function buildEntry(raw, { nowIso, seq }) {
   const kind = String(raw.kind || '');
   if (KINDS.indexOf(kind) < 0) throw new Error(`unknown ledger kind: ${kind || '(none)'}`);
   assertCounterfactual(kind, raw.payload);
+  assertForecast(kind, raw.payload);
   if (raw.season == null) throw new Error('ledger entry needs a season');
   const entry = {
     id: `${raw.season}-${String(seq).padStart(9, '0')}`,
@@ -216,7 +286,8 @@ async function readAll(store, season) {
 }
 
 module.exports = {
-  KINDS, COUNTERFACTUAL_KINDS, assertCounterfactual,
+  KINDS, COUNTERFACTUAL_KINDS, FORECAST_TYPES,
+  assertCounterfactual, assertForecast,
   seqKey, counterKey, buildEntry, assertFreshKey,
   nextSeq, append, readAll,
 };

@@ -245,6 +245,52 @@ function memStore() {
       JSON.stringify(P.COUNTERFACTUAL_KINDS));
   }
 
+  /* --- FORWARD PREDICTION: the gradeable skeleton is ENFORCED --------------
+   *
+   * A forecast without a resolution rule can be reinterpreted after the fact —
+   * exactly the freedom a forward prediction removes. So 'forecast' refuses to
+   * build unless it carries ftype + value + a resolution rule + a join key, and
+   * 'forecast_resolution' refuses without the key + an outcome. Registered
+   * before the draft because draft night is the first and densest harvest of
+   * committable claims (who the room takes at each seat, which players fall).
+   */
+  {
+    check('forecast + forecast_resolution are registered kinds',
+      P.KINDS.indexOf('forecast') >= 0 && P.KINDS.indexOf('forecast_resolution') >= 0);
+
+    const ok = P.buildEntry({ kind: 'forecast', season: 2026, method: 'forecast-draft-v1',
+      payload: { key: 'seat3-take', ftype: 'categorical', value: 'Bijan',
+        claim: 'seat 3 takes Bijan', resolution_rule: 'the actual pick at overall 3' } },
+      { nowIso: '2026-08-22T00:00:00Z', seq: 1 });
+    check('a well-formed forecast builds', ok.kind === 'forecast' && ok.payload.key === 'seat3-take');
+
+    const bad = (payload) => {
+      try { P.buildEntry({ kind: 'forecast', season: 2026, payload }, { nowIso: 'z', seq: 1 }); return null; }
+      catch (e) { return e.message; }
+    };
+    check('a forecast with no resolution_rule is REFUSED',
+      /resolution_rule/.test(bad({ key: 'k', ftype: 'point', value: 5 }) || ''));
+    check('a forecast with no key is REFUSED (its resolution could never join)',
+      /key/.test(bad({ ftype: 'point', value: 5, resolution_rule: 'r' }) || ''));
+    check('a probability forecast outside [0,1] is REFUSED',
+      /\[0,1\]/.test(bad({ key: 'k', ftype: 'probability', value: 1.4, resolution_rule: 'r' }) || ''));
+    check('an unknown ftype is REFUSED',
+      /ftype/.test(bad({ key: 'k', ftype: 'vibes', value: 5, resolution_rule: 'r' }) || ''));
+
+    const badRes = (payload) => {
+      try { P.buildEntry({ kind: 'forecast_resolution', season: 2026, payload }, { nowIso: 'z', seq: 1 }); return null; }
+      catch (e) { return e.message; }
+    };
+    check('a resolution with no forecast_key is REFUSED',
+      /forecast_key/.test(badRes({ outcome: 1 }) || ''));
+    check('a resolution with no outcome is REFUSED',
+      /outcome/.test(badRes({ forecast_key: 'k' }) || ''));
+
+    // A forecast is NOT a counterfactual kind — reality grades it directly.
+    check('forecast is deliberately NOT a counterfactual kind',
+      P.COUNTERFACTUAL_KINDS.indexOf('forecast') < 0);
+  }
+
   console.log('\n' + pass + '/' + (pass + fail) + ' predledger checks passed');
   process.exit(fail ? 1 : 0);
 })();
