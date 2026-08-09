@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const H = require('../helpers');
 const HIST = require('./history-data');   // the MFGA Archive — chronicle data engine
+const H2H = require('./h2h');              // all-time head-to-head, from the box scores
 const L = require('../ledger');
 const SB = require('../sidebets');
 const BL = require('../betlogic');
@@ -720,6 +721,11 @@ router.post('/sidebets', aw(async (req, res) => {
       notify.sideBetProposed(targets, bet, req.owner.name, terms).catch(() => {});
     } catch (e) { /* needs someone on the other side; the form enforces it too */ }
   }
+  // The matchup page sends people back to it, not the finance page — the bet was
+  // made in the flow of "who am I playing", so that is where the confirmation lands.
+  if (req.body.back === 'matchup') {
+    return res.redirect('/matchup?sent=1' + (req.body.party ? '&opp=' + Number(req.body.party) : ''));
+  }
   res.redirect('/bank?section=sidebets');
 }));
 
@@ -1098,6 +1104,62 @@ router.get('/team', aw(async (req, res) => {
     section: req.query.section === 'week' ? 'week' : 'roster',
     weekNo: (matchup && matchup.week) || (sData && sData.week) || 1,
     configured: !!world.config.sleeper_league_id });
+}));
+
+// ---------- the matchup, up close (dedicated page) ----------
+// The team page answers "who am I playing" in passing; this page is that
+// question and only that question: the opponent, the all-time head-to-head, and
+// a one-tap bet against them — the bet lands in the side-bet ledger with both
+// parties named and OPEN (unsettled), settled straight-up when the week ends.
+//
+// The per-player Sleeper points, the projections, and this week's high-point
+// band are Session A's data (parked in sleeper.js). This page RESERVES their
+// slots and renders cleanly without them, so A's numbers drop in with no reflow:
+// `players`, `proj`, and `highBand` are read defensively and shown only when
+// present — see views/matchup.ejs.
+router.get('/matchup', aw(async (req, res) => {
+  const world = req.world;
+  const owners = H.activeOwners(world.owners);
+  const me = req.owner;
+  const sData = await sleeper.bundle(world.config.sleeper_league_id);
+  const liveMatchup = sleeper.myMatchup(sData, world.config.sleeper_map || {}, me.id, owners);
+
+  // Opponent: this week's live opponent when Sleeper is reachable; otherwise an
+  // explicit ?opp= pick, so the page — and its head-to-head — works off-season,
+  // before the season starts, and in the sandbox where Sleeper is unreachable.
+  let opp = (liveMatchup && liveMatchup.opp && liveMatchup.opp.owner) ? liveMatchup.opp.owner : null;
+  const live = !!opp;
+  const oppParam = parseInt(req.query.opp, 10) || null;
+  if (!opp && oppParam && oppParam !== me.id) opp = H.ownerById(owners, oppParam) || null;
+
+  const weekNo = (liveMatchup && liveMatchup.week) || (sData && sData.week) || 1;
+  const betWindow = BL.matchupWindow(liveMatchup);
+
+  // owner -> stable Sleeper user_id. Live bundle is authoritative when present;
+  // the harvest-backed name map is the offline fallback (both proven to agree).
+  let invUserMap = null;
+  if (sData) {
+    const um = sleeper.userMap(sData, world.config.sleeper_map || {});   // { user_id: owner_id }
+    invUserMap = {};
+    for (const [uid, oid] of Object.entries(um)) invUserMap[oid] = uid;
+  }
+  const uidOf = (o) => (invUserMap && invUserMap[o.id]) || H2H.userIdForName(o.name, o.alias);
+
+  const record = opp ? H2H.headToHead(uidOf(me), uidOf(opp)) : null;
+
+  // A-lane data, read defensively: present => render; absent => a labelled slot.
+  const perPlayer = (liveMatchup && liveMatchup.players) || null;   // A supplies
+  const proj = (liveMatchup && liveMatchup.proj) || null;           // A supplies
+  const highBand = (liveMatchup && liveMatchup.highBand) || null;   // A supplies
+
+  const nameOf = id => (H.ownerById(owners, id) || {}).name || '?';
+  res.render('matchup', {
+    me, owners, opp, live, weekNo, matchup: liveMatchup, betWindow, record,
+    perPlayer, proj, highBand,
+    configured: !!world.config.sleeper_league_id,
+    late: req.query.late === '1', sent: req.query.sent === '1',
+    nameOf,
+  });
 }));
 
 // ---------- the locker room ----------

@@ -1589,6 +1589,39 @@ table .num.zero { color: var(--muted); font-weight: 400; }
 }
 .mu-bet-body { padding: .7rem .2rem 0; }
 
+/* Head-to-head — the matchup page's centrepiece. Quiet register: it's history,
+   not a live number, so it never out-shouts the scoreboard above it. */
+.h2h-hero { text-align: center; margin-bottom: 1rem; }
+.h2h-lead { font-size: 1.35rem; font-weight: 800; letter-spacing: -.01em; }
+.h2h-lead.you  { color: var(--green); }
+.h2h-lead.them { color: var(--red-bright); }
+.h2h-lead.even { color: var(--gold-bright); }
+.h2h-streak { font-size: .82rem; color: var(--ink); margin-top: .25rem; }
+.h2h-span { font-size: .74rem; margin-top: .15rem; }
+.h2h-stats {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem;
+  margin: 0 0 .4rem;
+}
+.h2h-stat {
+  text-align: center; padding: .55rem .4rem; border-radius: 10px;
+  border: 1px solid var(--line); background: rgba(255, 255, 255, .03); min-width: 0;
+}
+.h2h-stat-lbl { display: block; font-size: .66rem; text-transform: uppercase;
+                letter-spacing: .07em; color: var(--muted); font-weight: 800; }
+.h2h-stat-val { display: block; font-size: 1.05rem; font-weight: 800;
+                font-variant-numeric: tabular-nums; color: #fff; margin: .15rem 0; }
+.h2h-stat-sub { display: block; font-size: .68rem; color: var(--muted);
+                overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.h2h-log { margin-top: .8rem; }
+.h2h-log > summary {
+  cursor: pointer; padding: .45rem .6rem; border-radius: 10px; font-size: .8rem; font-weight: 700;
+  background: rgba(255, 255, 255, .04); border: 1px solid var(--line); color: var(--ink);
+}
+.h2h-w { color: var(--green); font-weight: 800; }
+@media (max-width: 480px) {
+  .h2h-stat-val { font-size: .92rem; }
+}
+
 /* Pick-your-teams, wherever it appears (accepting a pool, taking one off the
    board, changing your mind). The label matters: without it a bare grid of ten
    names next to an Accept button reads as "who else is in", not "choose". */
