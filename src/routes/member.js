@@ -1722,7 +1722,7 @@ router.get('/lineup', requireCommissioner, aw(async (req, res) => {
   const owners = H.activeOwners(world.owners);
   const me = req.owner;
   const tab = req.query.tab === 'proof' ? 'proof' : 'live';
-  const season = String(H.currentSeason(world.seasons).year || 2026);
+  const season = String(H.currentSeason(world.seasons).year || new Date().getUTCFullYear());
 
   const { live, roster, matchup, projSource, band, weekNo } = await liveOptimizeFor(world, owners, me);
   // The Sunday alert exactly as it would fire — so it can be rehearsed before week 1.
@@ -1768,7 +1768,7 @@ router.post('/lineup/sunday/send', requireCommissioner, aw(async (req, res) => {
 // "start your studs" lineup) so January can grade what the tool recommended vs
 // what would have happened otherwise. The predledger enforces the counterfactual.
 router.post('/lineup/log', requireCommissioner, aw(async (req, res) => {
-  const season = String(H.currentSeason(req.world.seasons).year || 2026);
+  const season = String(H.currentSeason(req.world.seasons).year || new Date().getUTCFullYear());
   const predledger = require('../predledger');
   try {
     await predledger.append(store, {
