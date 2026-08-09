@@ -247,5 +247,15 @@ const entry = (weighted, over) => ({
     /unvalidated vs market/.test(selfCheck));
 }
 
+
+// EXP 36 market-quality line — the deviation card says whether we deviate where the
+// market ranks well or poorly, from the measured surface (the anchor inversion, actionable).
+check('R1-3 RB reads WEAK (freer to deviate)', /WEAKLY|BACKWARDS/.test(D.marketQualityLine(3, 'RB')));
+check('late WR (R12+) reads WELL (respect it)', /WELL/.test(D.marketQualityLine(115, 'WR')));
+check('mid TE (R4-7) reads WELL', /WELL/.test(D.marketQualityLine(45, 'TE')));
+check('K is unmeasured -> anchor conservative', /unmeasured/.test(D.marketQualityLine(150, 'K')));
+check('a thin cell falls back to the pooled position average',
+  D.marketEfficiency(3, 'QB').source === 'pooled' && Math.abs(D.marketEfficiency(3,'QB').value - 0.381) < 1e-9);
+
 console.log(`\n${pass}/${pass + fail} deviation checks passed`);
 process.exit(fail ? 1 : 0);

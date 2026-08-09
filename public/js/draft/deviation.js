@@ -269,6 +269,51 @@
    *
    * Returns null when there is nothing worth saying.
    */
+  /* EXP 36 MARKET-EFFICIENCY SURFACE — where is consensus ADP actually a good
+   * ranker? Measured 2026-08-09 over 255 board picks (`draft/backtest/exp36.json`):
+   * within-cell Spearman(-adp, realized) per (round-band × position). This is the
+   * region-quality the deviation card reads so it can say, at pick 34, whether we
+   * are deviating where the market ranks WEAKLY (freer) or WELL (respect it) — the
+   * anchor-doctrine inversion made actionable without waiting for Stage 2. Cited +
+   * reversible: regenerate these numbers from exp36.json on a re-fire, never hand-set.
+   * (The doctrine's early/late premise was REFUTED here — early RB/WR are weak; the
+   * market orders value best mid and in late WR.) */
+  var MARKET_EFFICIENCY = {
+    'r1-3':  { RB: 0.121, WR: 0.256 },
+    'r4-7':  { QB: 0.58, RB: 0.13, WR: 0.199, TE: 0.615 },
+    'r8-11': { RB: -0.024, WR: 0.134 },
+    'r12+':  { QB: -0.073, RB: -0.147, WR: 0.718 },
+  };
+  var MARKET_EFFICIENCY_POOLED = { QB: 0.381, RB: 0.445, WR: 0.486, TE: 0.28 };
+  var MARKET_TEAMS = 10;   // league size; a round is MARKET_TEAMS picks
+
+  function roundBandOfPick(pickNo) {
+    var r = Math.ceil((Number(pickNo) || 0) / MARKET_TEAMS);
+    if (r <= 3) return 'r1-3';
+    if (r <= 7) return 'r4-7';
+    if (r <= 11) return 'r8-11';
+    return 'r12+';
+  }
+  // {value, source} — the measured cell if ranked, else the position pooled average,
+  // else null (unmeasured -> the card says anchor, the conservative default).
+  function marketEfficiency(pickNo, position) {
+    var cell = MARKET_EFFICIENCY[roundBandOfPick(pickNo)] || {};
+    if (position && position in cell) return { value: cell[position], source: 'cell' };
+    if (position && position in MARKET_EFFICIENCY_POOLED) return { value: MARKET_EFFICIENCY_POOLED[position], source: 'pooled' };
+    return { value: null, source: 'unmeasured' };
+  }
+  // The plain-language draft line (no options costume): weak -> freer, well -> respect.
+  function marketQualityLine(pickNo, position) {
+    var m = marketEfficiency(pickNo, position);
+    var where = roundBandOfPick(pickNo) + (position ? ' ' + position : '');
+    if (m.value === null) return 'market rank-quality here is unmeasured — anchor to market (conservative)';
+    var cite = ' (' + (m.source === 'pooled' ? 'pos avg ' : '') + m.value.toFixed(2) + ', exp 36)';
+    if (m.value <= 0) return 'the market ranks ' + where + ' BACKWARDS' + cite + ' — a deviation here is cheap';
+    if (m.value < 0.2) return 'the market ranks ' + where + ' WEAKLY' + cite + ' — you are freer to deviate';
+    if (m.value < 0.5) return 'the market is a MODERATE ranker in ' + where + cite + ' — deviate only on real evidence';
+    return 'the market ranks ' + where + ' WELL' + cite + ' — respect it, deviations here are expensive';
+  }
+
   function badge(entry, ourPick, noiseBand) {
     if (!entry || !entry.player) return null;
     var p = entry.player;
@@ -309,6 +354,11 @@
       // thing you doubt, the same pick is a reach — and you should be told that
       // in the same breath as the argument for it.
       counter: counterLine(lead, delta),
+      // WHERE ON THE BOARD (exp 36): is this a region the market ranks well or
+      // poorly? The single most actionable thing for draft night — deviate freely
+      // where ADP is a weak ranker, respect it where ADP is strong.
+      marketQuality: marketQualityLine(ourPick, p.position),
+      marketEfficiency: marketEfficiency(ourPick, p.position),
     };
   }
 
@@ -336,7 +386,8 @@
               summary: summary, counterLine: counterLine,
               tierVoice: tierVoice, tierLine: tierLine, tierVoices: tierVoices,
               EVIDENCE_STATE: EVIDENCE_STATE, recordEvidence: recordEvidence,
-              projectionProvenance: projectionProvenance };
+              projectionProvenance: projectionProvenance,
+              marketEfficiency: marketEfficiency, marketQualityLine: marketQualityLine };
   global.DraftDeviation = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);

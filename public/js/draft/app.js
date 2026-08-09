@@ -3497,6 +3497,10 @@
         : '<div class="dv-head">he is priced below the market — what we see that it does not:</div>')
       + '<ul class="dv-terms">' + terms + '</ul>'
       + '<div class="dv-counter">' + escapeHtml(d.counter) + '</div>'
+      // WHERE ON THE BOARD (exp 36): is this a region the market ranks well or poorly?
+      // The single most actionable line for draft night — deviate freely where ADP is
+      // a weak ranker, respect it where ADP is strong. Measured, cited, not a slider.
+      + (d.marketQuality ? '<div class="dv-market">where: ' + escapeHtml(d.marketQuality) + '</div>' : '')
       + (d.dispersion
         ? '<div class="dv-disp">market: ADP ' + d.adp + ' ±' + d.dispersion.sd
           + ' — ' + escapeHtml(d.dispersion.text) + '</div>'
