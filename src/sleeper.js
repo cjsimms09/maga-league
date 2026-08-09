@@ -2,6 +2,7 @@
 // Everything here fails soft — the site must work fine when Sleeper is
 // unreachable or unconfigured. Base URL is overridable for tests.
 const { getDoc, setDoc, now } = require('./data');
+const NFL_BYES = require('./nfl_byes.json');   // {season: {team: byeWeek}} — derived from the board
 
 const BASE = process.env.SLEEPER_BASE || 'https://api.sleeper.app';
 const TTL_MS = 5 * 60 * 1000;            // live bundle cache
@@ -445,6 +446,14 @@ async function rosterView(data, sleeperMap, ownerId) {
   const roster = data.rosters.find(r => String(r.roster_id) === String(rosterId));
   if (!roster) return null;
   const playersDb = await players();
+  // Per-player BYE, so the lineup solver's dormant bye guard activates: a player on bye must
+  // carry no projection or the projection-driven solver seats him on a Sunday (the 540-week
+  // sweep's finding). Team byes are fixed per season; we join on the player's CURRENT team so
+  // an in-season trade resolves to the new team's bye. Map is DERIVED from the board
+  // (src/nfl_byes.json). A season without a map leaves bye null → guard dormant (no
+  // regression; the injury guard still fires) rather than guessing a wrong bye (which would
+  // false-zero a playing player — the opposite, equally costly error).
+  const byeMap = (NFL_BYES[String(data.state.season)] || {});
   const lastWeek = Math.max(1, (data.state.week || 2) - 1);
   const [wk, seas] = await Promise.all([
     weekStats(data.state.season, lastWeek),
@@ -458,6 +467,7 @@ async function rosterView(data, sleeperMap, ownerId) {
     const se = seas ? seas[pid] : null;
     return {
       id: pid, ...info,
+      bye: byeMap[info.team] != null ? Number(byeMap[info.team]) : null,
       starter: starters.has(pid),
       wkPts: pts(w), seasonPts: pts(se),
       gp: se ? (se.gp || se.gms_active || null) : null,

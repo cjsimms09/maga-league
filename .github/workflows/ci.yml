@@ -95,6 +95,11 @@ jobs:
         # commissioner (and commissioner-only routes as a member) and fails on any
         # 500 or template error. Caught /admin?tab=votes throwing `threshold`.
         run: node draft/tests/route_smoke.test.js
+      - name: Bye guard — the per-player bye source zeroes a bye player before the solver
+        # The 540-week sweep found the projection-driven solver would seat a bye player
+        # (season-average hands him a full projection). Proves A's bye source activates B's
+        # guard: inactive in the bye week, active otherwise, injury half intact, null-bye safe.
+        run: node draft/tests/bye_guard.test.js
       - name: The Vault — trash + dispatch archives are actually read (de-orphaned)
         # Both archives stored permanently but no surface called archiveForSeason/
         # getArchive ("an archive nothing reads is the same as a deletion").
