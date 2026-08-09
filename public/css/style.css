@@ -3106,3 +3106,15 @@ table.roll td.num, .pf, .wh-race-scale, .wh-band-note{ color: var(--ink); }
 .wh-race-scale{ color: var(--muted); }
 /* secondary/muted small caps labels a touch darker so they don't wash out */
 .hero-label, .tb-label, .nav-badge, .page-sub{ color: var(--muted); }
+
+/* ---- THE MARK — one logo, used consistently (masthead here; icon/splash via PNGs) ---- */
+.masthead .eagle{ line-height:0; }
+.masthead .eagle img{ width:2.5rem; height:2.5rem; display:inline-block; vertical-align:middle;
+  border-radius:24%; box-shadow:0 2px 6px rgba(12,26,43,.22); }
+.masthead.compact .eagle img{ width:1.75rem; height:1.75rem; }
+@media(max-width:700px){
+  .masthead .eagle img{ width:2rem; height:2rem; }
+  .masthead.compact .eagle img{ width:1.55rem; height:1.55rem; }
+}
+/* already an installed app → don't nag to install it */
+@media (display-mode: standalone){ .install-card{ display:none !important; } }

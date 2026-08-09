@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="MFGA — eagle on a football">
+  <defs>
+    <linearGradient id="tileg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#183964"/><stop offset="1" stop-color="#0c1c36"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="512" height="512" rx="112" fill="url(#tileg)"/>
+  <g fill="#ffffff" opacity="0.13">
+    <circle cx="60" cy="70" r="4"/><circle cx="452" cy="70" r="4"/>
+    <circle cx="98" cy="58" r="3"/><circle cx="414" cy="58" r="3"/>
+    <circle cx="60" cy="112" r="3"/><circle cx="452" cy="112" r="3"/>
+  </g>
+
+  <!-- ============ EAGLE — connected wings (read as a bird), fierce head ============ -->
+  <!-- back wings (steel) for depth -->
+  <g fill="#c2cee0">
+    <path d="M250 252 C176 158 104 130 66 158 C126 158 156 202 182 254 C156 242 128 244 106 258 C158 268 196 274 240 300 Z"/>
+    <path d="M262 252 C336 158 408 130 446 158 C386 158 356 202 330 254 C356 242 384 244 406 258 C354 268 316 274 272 300 Z"/>
+  </g>
+  <!-- front wings (white), raised, connected, 3 feather scallops -->
+  <g fill="#ffffff">
+    <path d="M256 264 C198 180 122 154 86 182 C142 186 170 228 192 270 C172 260 148 262 130 278 C170 286 198 290 230 302 C216 294 210 308 216 322 C234 316 248 304 256 288 Z"/>
+    <path d="M256 264 C314 180 390 154 426 182 C370 186 342 228 320 270 C340 260 364 262 382 278 C342 286 314 290 282 302 C296 294 302 308 296 322 C278 316 264 304 256 288 Z"/>
+  </g>
+
+  <!-- head (white), angular; brow + hooked beak = fierce -->
+  <path d="M256 138
+           C235 138 222 156 224 182
+           C225 199 236 214 252 224
+           L260 224
+           C277 215 289 199 289 178
+           C289 154 276 138 256 138 Z" fill="#ffffff"/>
+  <path d="M234 168 L272 160 L268 178 L238 182 Z" fill="#0c1c36"/>
+  <circle cx="266" cy="178" r="7.5" fill="#0c1c36"/>
+  <path d="M258 198 q30 4 40 24 q-14 14 -34 4 q-12 -6 -6 -32 Z" fill="#e6a52b"/>
+  <path d="M258 198 q30 4 40 24 q-14 14 -34 4 q-12 -6 -6 -32 Z" fill="none" stroke="#c07d12" stroke-width="2.5"/>
+
+  <!-- chest shield — the flag -->
+  <path d="M220 234 h72 v30 q0 36 -36 52 q-36 -16 -36 -52 Z" fill="#ffffff"/>
+  <path d="M220 234 h27 v42 h-27 Z" fill="#183964"/>
+  <g fill="#c8202f"><rect x="247" y="234" width="45" height="8"/><rect x="247" y="250" width="45" height="8"/><rect x="247" y="266" width="45" height="8"/></g>
+  <g fill="#ffffff"><circle cx="229" cy="246" r="2.5"/><circle cx="240" cy="246" r="2.5"/><circle cx="234.5" cy="261" r="2.5"/></g>
+
+  <!-- talons -->
+  <g stroke="#e6a52b" stroke-width="10" stroke-linecap="round" fill="none">
+    <path d="M236 322 l-7 24 M247 324 l-1 26 M258 324 l1 26"/>
+    <path d="M276 322 l7 24 M265 324 l1 26 M254 324 l-1 26"/>
+  </g>
+
+  <!-- football — eagle stands on it -->
+  <g transform="rotate(-14 256 376)">
+    <ellipse cx="256" cy="376" rx="108" ry="58" fill="#7c4a22"/>
+    <ellipse cx="256" cy="376" rx="108" ry="58" fill="none" stroke="#54300e" stroke-width="7"/>
+    <path d="M190 376 h132" stroke="#ffffff" stroke-width="9" stroke-linecap="round"/>
+    <g stroke="#ffffff" stroke-width="8" stroke-linecap="round">
+      <path d="M208 361 v30"/><path d="M234 358 v36"/><path d="M260 358 v36"/><path d="M286 358 v36"/><path d="M312 361 v30"/>
+    </g>
+  </g>
+</svg>
