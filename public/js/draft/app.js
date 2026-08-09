@@ -1501,12 +1501,19 @@
           + (isGone ? '<span class="q-gone">drafted</span>' : '')
         + '</span>'
         + '<span class="q-move">'
+          // Take + Compare on every queue row (Cory): drafting a queued guy — or
+          // comparing him — is one tap from the list you read on the clock, same
+          // classes as the recs rows so B's styling picks them up.
+          + (isGone ? '' : '<button class="btn small gold" data-draft-me="' + escapeHtml(String(id))
+            + '" title="I took him">✓</button>')
+          + '<button class="btn small ghost" data-compare="' + escapeHtml(String(id))
+            + '" title="Compare — dollar gap">⚖️</button>'
           + '<button class="btn small ghost" data-qmove="-1" data-id="' + escapeHtml(String(id))
             + '"' + (i === 0 ? ' disabled' : '') + ' title="Up">▲</button>'
           + '<button class="btn small ghost" data-qmove="1" data-id="' + escapeHtml(String(id))
             + '"' + (i === q.length - 1 ? ' disabled' : '') + ' title="Down">▼</button>'
           + '<button class="btn small ghost" data-queue="' + escapeHtml(String(id))
-            + '" title="Remove">✕</button>'
+            + '" title="Remove from queue">✕</button>'
         + '</span>'
         + '</div>';
     }).join('');
@@ -1881,16 +1888,57 @@
         const sv = s.survival_to_next;
         const gone = (sv == null || !nextPick) ? null : Math.round((1 - sv) * 100);
         const hot = gone != null && gone >= 60;
-        return '<button class="ba-cell' + (hot ? ' hot' : '') + '" data-compare="' + s.player.player_id + '" '
+        // name-tap = compare (B's cell), plus a one-tap Take so drafting a
+        // best-available guy is one tap from the glance (Cory). btn classes are
+        // globally styled; .ba-take is a hook for B to tune in its pass.
+        return '<span class="ba-slot">'
+          + '<button class="ba-cell' + (hot ? ' hot' : '') + '" data-compare="' + s.player.player_id + '" '
           + 'title="tap to compare — ' + escapeHtml(s.player.name) + '">'
           + escapeHtml(s.player.name.split(' ').slice(-1)[0])
-          + (gone == null ? '' : ' <span class="ba-gone">' + gone + '%</span>') + '</button>';
+          + (gone == null ? '' : ' <span class="ba-gone">' + gone + '%</span>') + '</button>'
+          + '<button class="btn small gold ba-take" data-draft-me="' + s.player.player_id
+          + '" title="I took ' + escapeHtml(s.player.name) + '">✓</button>'
+          + '</span>';
       }).join('');
       return '<div class="ba-row"><span class="ba-pos rec-pos ' + pos + '">' + pos + '</span>' + cells + '</div>';
     }).join('');
     host.innerHTML = rows
       ? '<div class="ba-head">Best available <span class="muted">· top 3/pos · % = gone by your next pick · tap to compare</span></div>' + rows
       : '';
+  }
+
+  /* #queue-slip — the banner Cory most wanted from the queue promotion: watch a
+   * queued guy slip. Fed by the SAME survival-to-next the recommendations already
+   * compute (never re-run). A queued, still-undrafted player >=60% gone by my next
+   * pick is "about a turn from gone." Urgent when it's my #1. Hidden when nothing
+   * slips, so it never becomes furniture. In document flow — never floating. */
+  function renderQueueSlip(scored) {
+    const host = $('#queue-slip');
+    if (!host) return;
+    const q = state.lists.queue || [];
+    const svById = {};
+    (scored || []).forEach(s => { svById[String(s.player.player_id)] = s.survival_to_next; });
+    const slipping = [];
+    q.forEach((id, i) => {
+      if (state.drafted.has(String(id))) return;
+      const sv = svById[String(id)];
+      if (sv == null) return;
+      const gone = Math.round((1 - sv) * 100);
+      if (gone >= 60) {
+        const p = (state.data.players || []).find(x => String(x.player_id) === String(id));
+        slipping.push({ id: id, rank: i + 1, gone: gone, name: p ? p.name : id });
+      }
+    });
+    if (!slipping.length) { host.style.display = 'none'; host.className = 'queue-slip'; return; }
+    slipping.sort((a, b) => b.gone - a.gone);
+    const urgent = slipping.some(s => s.rank === 1);   // your #1 is slipping
+    const lead = slipping[0];
+    const more = slipping.length > 1 ? ' · +' + (slipping.length - 1) + ' more slipping' : '';
+    host.className = 'queue-slip' + (urgent ? ' urgent' : '');
+    host.innerHTML = '⚠️ <b>' + escapeHtml(lead.name) + '</b> (queue #' + lead.rank
+      + ') is ' + lead.gone + '% gone by your next pick' + escapeHtml(more)
+      + ' <button class="btn small gold" data-draft-me="' + escapeHtml(String(lead.id)) + '">I took him</button>';
+    host.style.display = '';
   }
 
   function renderPositionRecs() {
@@ -2276,6 +2324,7 @@
     try { renderShadowProjection(); }
     catch (e) { console.error('[shadow-proj]', e && e.message); }
     renderBestAvailStrip(out.scored, (context() || {}).nextPick);
+    renderQueueSlip(out.scored);   // fill #queue-slip from the same survival math
     // Stack line runs BEFORE the rec cards below so stackBadge() can read its
     // route map. Same scored board — never a second computation.
     try { renderStackLine(out.scored); } catch (e) { console.error('[stack]', e && e.message); }
