@@ -76,6 +76,22 @@ _Last updated 2026-08-09 (all-terms participation test + FP SSR discovery)._
 ---
 
 ## PROGRAM-LEVEL AGENDA — the sample ceiling is the binding constraint (2026-08-09)
+
+**ROUTE TO THE EXTERNAL SAMPLE — FOUND (2026-08-09, exp_route_probe).** The gate on this whole
+program is "can we obtain real leagues at our format at volume." Answer, after a proper search:
+- **Sleeper is a dead end:** crawl-from-our-league exhausts at 16 calls (members cluster); ID
+  enumeration is precluded (snowflakes, ~1e-11 hit rate); no listing/search endpoint (4x 404).
+- **MFL is the route:** `TYPE=leagueSearch` returns THOUSANDS of PUBLIC leagues (11,283 across
+  terms) with readable settings (franchises, scoring, keepers, starters) → format-filterable to
+  10-team/half-PPR/6ptTD/keeper. We already have an MFL fetcher (mfl_adp.py). **The post-draft
+  sample program is VIABLE.** Concrete build: leagueSearch → filter to our format → pull
+  TYPE=draftResults + weeklyResults per matched league → the real-rooms sample for the
+  strategy/interior questions; grade by RANK (per-league scoring varies) to cancel offsets.
+- **Decomposition that matters:** the PLAYER-VALUE questions (pace→projection error, exp33
+  over-regression, does ceiling/tier predict realized value) need PLAYER-SEASONS, not leagues →
+  20yr nflverse, obtainable regardless. Only the STRATEGY-in-real-rooms question needs leagues →
+  MFL. In-season data accrues weekly regardless. So NONE of the three halves is blocked.
+
 Cory's observation, and I agree: nearly every edge above rests on **3 seasons of one
 league, n in the tens, provisional**. Re-measuring against the same data gives *clearer*
 answers (better design), never *stronger* ones — the intervals stay wide because the
