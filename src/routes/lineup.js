@@ -57,6 +57,17 @@ function harvest() {
   _harvest = JSON.parse(fs.readFileSync(findFile('draft/data/league_history.json'), 'utf8'));
   return _harvest;
 }
+// Era-correct payouts per season (weekly-high amount + regular-season prize both
+// changed across eras). Read from the committed by_season config rather than a
+// hardcoded per-year map, so the Leak analysis stays correct at every rollover
+// instead of needing a new literal added each January.
+let _payouts = null;
+function payoutsBySeason() {
+  if (_payouts) return _payouts;
+  try { _payouts = (JSON.parse(fs.readFileSync(findFile('draft/config/payouts.json'), 'utf8')) || {}).by_season || {}; }
+  catch (e) { _payouts = {}; }
+  return _payouts;
+}
 function seasonOf(history, season) {
   return (history.seasons || []).find(s => String(s.season) === String(season)) || null;
 }
@@ -198,10 +209,17 @@ function weeklyHighBand(history, seasons) {
   };
 }
 
-function defaultSeasons(history) {
+// The Leak analyzes COMPLETED seasons only. Exclude the current (in-progress)
+// season DYNAMICALLY — was `y !== '2026'`, a literal that at the January rollover
+// silently drops the just-finished 2026 (now analyzable) and stops excluding the
+// new in-progress 2027. `currentYear` defaults to the calendar year (so Jan 2027
+// excludes 2027, includes 2026); the route can pass the season-config year for
+// precision.
+function defaultSeasons(history, currentYear) {
+  const cur = String(currentYear || new Date().getUTCFullYear());
   return (history.seasons || [])
     .map(s => String(s.season))
-    .filter(y => y !== '2026' && seasonOf(history, y) && Object.keys(seasonOf(history, y).weeks || {}).length)
+    .filter(y => y !== cur && seasonOf(history, y) && Object.keys(seasonOf(history, y).weeks || {}).length)
     .sort();
 }
 
@@ -545,9 +563,9 @@ function weeklyHighLeak(history, seasons) {
 function ceilingLeak(history, seasons) {
   history = history || harvest();
   seasons = seasons || defaultSeasons(history);
-  const WH = 100;
-  const RS_PRIZE = { 2023: { champ: 200, ru: 100 }, 2024: { champ: 250, ru: 125 },
-                     2025: { champ: 250, ru: 125 }, 2026: { champ: 250, ru: 125 } };
+  // Era-correct, from the by_season payouts config — not a hardcoded per-year map
+  // that goes stale every rollover (and was wrong the moment a payout vote passed).
+  const PBS = payoutsBySeason();
   const out = [];
   for (const season of seasons) {
     const s = seasonOf(history, season); if (!s) continue;
@@ -555,7 +573,11 @@ function ceilingLeak(history, seasons) {
     const field = fieldWeeklyScores(s);
     const rsw = regularSeasonWeeks(s);
     const matchups = weeklyMatchups(s);
-    const prize = RS_PRIZE[season] || { champ: 250, ru: 125 };
+    const pcfg = PBS[season] || {};
+    const wh = (pcfg.weekly_high && pcfg.weekly_high.amount != null) ? pcfg.weekly_high.amount : 100;
+    const prize = pcfg.regular_season
+      ? { champ: pcfg.regular_season.champ, ru: pcfg.regular_season.runner_up }
+      : { champ: 250, ru: 125 };
 
     const whDollars = (fieldScores, rid) => {
       let total = 0;
@@ -564,7 +586,7 @@ function ceilingLeak(history, seasons) {
         if (!vals.length) continue;
         const top = Math.max(...vals);
         const winners = Object.keys(sc).filter(k => sc[k] === top);
-        if (winners.includes(String(rid))) total += WH / winners.length;
+        if (winners.includes(String(rid))) total += wh / winners.length;
       }
       return total;
     };
