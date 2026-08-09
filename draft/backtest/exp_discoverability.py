@@ -145,25 +145,37 @@ def crawl(seed_league_id, season, spec, budget=800):   # pragma: no cover  (CI o
 
 
 def _verdict(stats, budget):
-    """Yield-based call. If a bounded crawl reaches few on-format leagues, volume is not
-    obtainable this way and the external-sample program is blocked."""
+    """Yield-based call — BUT first distinguish 'the format is sparse' (spent the budget, found
+    few) from 'the seed graph ran dry' (crawl exhausted far below budget). The second is a
+    METHOD limitation, not evidence about the world: a private league's members mostly play in
+    each other's leagues, so crawling from our seed cannot reach the public-league space at all.
+    Reporting that as 'not obtainable' would be a null of the wrong instrument."""
     lo = stats["loose_matches"]
     checked = stats["leagues_checked"] or 1
     hit_rate = lo / checked
-    # extrapolate: at this hit-rate, calls to reach ~500 on-format leagues (a workable sample)
     per_match_calls = (stats["api_calls"] / lo) if lo else None
     reach_500 = round(per_match_calls * 500) if per_match_calls else None
+    exhausted = stats["api_calls"] < 0.5 * budget      # frontier dried up before the budget
+
     if lo >= 40 and hit_rate >= 0.05:
         return (f"OBTAINABLE — {lo} on-format leagues in {stats['api_calls']} calls "
                 f"({hit_rate*100:.0f}% of leagues checked); ~{reach_500:,} calls to reach 500. "
                 f"The external-sample program is viable — the crawl scales.")
+    if exhausted:
+        return (f"INCONCLUSIVE (method, not answer) — the crawl EXHAUSTED at {stats['api_calls']} "
+                f"calls (budget {budget}), reaching only {stats['users_seen']} users and {lo} "
+                f"on-format leagues. Crawling from OUR league's members is a dead end: they mostly "
+                f"play in each other's leagues, so this route never enters the public-league space. "
+                f"This is NOT evidence the format is sparse — it's evidence the SEED is too small. "
+                f"A real volume test needs a different entry into Sleeper's public leagues (there is "
+                f"no settings-search API), which is a bigger build. TELL CORY: cheap path is a dead "
+                f"end; obtainability is still OPEN, not proven-negative.")
     if lo >= 5:
-        return (f"THIN — only {lo} on-format in {stats['api_calls']} calls ({hit_rate*100:.0f}%). "
-                f"Reaching a 500-league sample needs ~{reach_500:,} calls — possibly viable but "
-                f"expensive; the format is sparse in the crawlable graph. FLAG to Cory.")
-    return (f"NOT OBTAINABLE at volume via graph crawl — {lo} on-format leagues in "
-            f"{stats['api_calls']} calls. Our exact format is too sparse to reach in bulk this "
-            f"way; the interior/external-sample program stays BLOCKED. TELL CORY IMMEDIATELY.")
+        return (f"THIN — {lo} on-format in {stats['api_calls']} calls ({hit_rate*100:.0f}%); "
+                f"~{reach_500:,} calls to reach 500 — possibly viable but expensive. FLAG to Cory.")
+    return (f"NOT OBTAINABLE at volume — spent {stats['api_calls']} of {budget} calls and found only "
+            f"{lo} on-format leagues ({hit_rate*100:.0f}%). The format is genuinely sparse in the "
+            f"reachable graph; the external-sample program stays BLOCKED. TELL CORY IMMEDIATELY.")
 
 
 def egress_main():   # pragma: no cover  (CI only)

@@ -53,6 +53,15 @@ def test_twelve_team_rejected():
 
 def test_verdict_thresholds():
     assert "OBTAINABLE" in D._verdict({"loose_matches": 60, "leagues_checked": 400,
-                                       "api_calls": 800, "strict_matches": 20}, 800)
+                                       "api_calls": 800, "users_seen": 300, "strict_matches": 20}, 800)
+    # spent the budget, found few → genuinely sparse
     assert "NOT OBTAINABLE" in D._verdict({"loose_matches": 1, "leagues_checked": 400,
-                                           "api_calls": 800, "strict_matches": 0}, 800)
+                                           "api_calls": 800, "users_seen": 300, "strict_matches": 0}, 800)
+
+
+def test_verdict_distinguishes_exhausted_from_sparse():
+    # crawl dried up at 16 calls (<< budget) → INCONCLUSIVE method, not a proven negative
+    v = D._verdict({"loose_matches": 2, "leagues_checked": 3, "api_calls": 16,
+                    "users_seen": 10, "strict_matches": 2}, 800)
+    assert "INCONCLUSIVE" in v and "dead end" in v
+    assert "NOT OBTAINABLE" not in v
