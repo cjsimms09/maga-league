@@ -851,3 +851,18 @@ Guard: `access_guard.test.js` now asserts /lineup + /lineup/log 403 non-commish
 (200 commish) AND that history pages STAY league-visible with their analytical
 framings (a re-strip regresses the test). The over-strip of 2026-08-09 was
 RESTORED byte-identical to the approved prose (commit below).
+
+### 🅱️ update (same session): SIDE-BET LIFECYCLE COMPLETE + history RESTORED
+- **History restore DONE** — over-strip fully reversed, byte-identical to approved
+  prose (guard loosened in the same commit; A only needs to DEPLOY, flagged).
+  Standing rule corrected: TOOLS private, HISTORY league's.
+- **Side-bet declare→confirm→dispute lifecycle COMPLETE**: state machine + routes +
+  VIEWS (_side_bets.ejs: declare / AWAITING CONFIRMATION with one-tap confirm+
+  dispute / DISPUTED / auto-settle→declare) + **Venmo handoff** (loser gets winner's
+  venmo.com/u/<handle> + amount). Tests: state machine 16/16, UI-over-HTTP 12/12,
+  both in CI. Nothing settles silently; disputes recorded not adjudicated.
+**NEXT:** Sunday alert (LO.optimize is ready) → instrumentation check → design sweep
+(standings rank arrows, weekly-high progress meter, records-as-record-book, page
+hierarchy, per-page before/after screenshots) → Chiefs/Mahomes + Bates eggs →
+"propose-from-anywhere" one-tap (standings/franchise) → PROPOSED-not-OPEN wording.
+**STILL BLOCKED ON A: deploy main** (`35f573e`) — Cory can't see any of it live.
