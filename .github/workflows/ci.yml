@@ -184,6 +184,10 @@ jobs:
         # can never emit an illegal, hallucinated, or on-bye/OUT lineup. The
         # first live Sunday must not be the first Sunday the tool has ever run.
         run: node draft/tests/lineup_sanity.test.js
+      - name: Money scoreboard — banked $ + rank, unit + real-ledger sweep
+        # The real scoreboard (dollars, not wins). Unit arithmetic plus a sweep
+        # over every seeded season asserting pot conservation on real entries.
+        run: node draft/tests/money_position.test.js
       - name: Robot mock draft — the safety net
         # A full snake draft from every seat through the real engine and
         # attribution modules, plus every bug this session as a regression

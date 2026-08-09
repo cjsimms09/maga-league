@@ -164,6 +164,52 @@ function ledgerWinningsByOwnerYear(ledger) {
   return grid;
 }
 
+// THE MONEY SCOREBOARD — where each owner actually stands in the pot this season.
+//
+// The site's standings show WINS. The league plays for DOLLARS, and 37.5% of a
+// $4,000 pot pays out weekly during the regular season — so the real scoreboard
+// is invisible while the fake one is on every page. This makes it visible.
+//
+//   won     prize money BANKED this season — weekly highs + season awards, by the
+//           isPrize definition. A buy-in payment is money moving, not money won,
+//           so it never counts here (that mistake is why isPrize exists).
+//   net     won minus the buy-in. Positive net = you are playing with house money.
+//   rank    standard competition ranking by winnings; equal winnings tie.
+//
+// League-level: how much of the pot is still unclaimed, and the weekly-high pool's
+// progress (weeks paid vs the 15-week regular season).
+function moneyStandings(ledger, owners, season) {
+  const r2 = n => Math.round(n * 100) / 100;
+  const year = Number(season.year);
+  const buyIn = Math.abs(Number(season.buy_in || 0));
+  const totalPot = Number(season.total_pot || 0);
+  const rows = owners.map(o => {
+    const won = r2(ledger
+      .filter(e => e.owner_id === o.id && Number(e.year) === year && isPrize(e))
+      .reduce((s, e) => s + e.amount, 0));
+    return { owner_id: o.id, name: o.name, won, net: r2(won - buyIn) };
+  }).sort((a, b) => b.won - a.won || a.name.localeCompare(b.name));
+  // Standard competition ranking ("1224"): equal winnings share a rank.
+  let rank = 0, prev = null;
+  rows.forEach((row, i) => { if (prev === null || row.won !== prev) rank = i + 1; row.rank = rank; prev = row.won; });
+
+  const distributed = r2(rows.reduce((s, row) => s + row.won, 0));
+  const weeklyAmount = Number(season.weekly_payout || 0);
+  const weeklyWeeks = Number(season.weeks || 0);
+  const weeklyPool = r2(weeklyAmount * weeklyWeeks);
+  // Weeks actually paid = distinct weeks with a 'weekly' entry this year.
+  const paidWeeks = new Set(ledger
+    .filter(e => e.type === 'weekly' && Number(e.year) === year && e.week != null)
+    .map(e => Number(e.week)));
+  const weeklyPaid = r2(paidWeeks.size * weeklyAmount);
+  return {
+    year, rows, buyIn, totalPot,
+    distributed, onTheTable: r2(totalPot - distributed),
+    weeklyPool, weeklyPaid, weeklyRemaining: r2(weeklyPool - weeklyPaid),
+    weeksPaid: paidWeeks.size, weeklyWeeks, weeklyAmount,
+  };
+}
+
 function weeklyForYear(ledger, year) {
   return ledger.filter(e => e.type === 'weekly' && e.year === Number(year))
     .sort((a, b) => (a.week || 0) - (b.week || 0));
@@ -177,6 +223,6 @@ function awardsForYear(ledger, year) {
 
 module.exports = {
   TYPE_LABELS, allEntries, addEntry, updateEntry, removeEntry, setSettled, settleAll,
-  balances, ledgerWinningsByOwnerYear, weeklyForYear, awardsForYear,
+  balances, moneyStandings, ledgerWinningsByOwnerYear, weeklyForYear, awardsForYear,
   isPrize, isPayment, isCarryover, seasonSummary,
 };

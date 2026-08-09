@@ -105,6 +105,9 @@
 
 <div class="grid cols-2">
 
+  <%# THE MONEY — the real scoreboard, in dollars, beside the wins standings. %>
+  <%- include('partials/money-line') %>
+
   <% if (sleeperStandings.length) { %>
   <%
     // STATE AWARENESS: a ranked table with a crown, a playoff line and a toilet

@@ -426,6 +426,8 @@ router.get('/', aw(async (req, res) => {
   res.render('dashboard', {
     season, payouts: H.payoutTable(season), buyins, weekly, awards, standings, draft,
     openVotes, CATEGORY_LABELS: H.CATEGORY_LABELS, myBalance,
+    // The money scoreboard: banked dollars + rank this season, from the ledger.
+    moneyBoard: L.moneyStandings(world.ledger, owners, season), meId: req.owner.id,
     sleeperData: sData, sleeperStandings: sStandings, sleeperBoard: sBoard, roast,
     whBand, whRace,
     review, reviewWeek, wireRows, playoffTeams, chatLatest, betMoney, owners, rankMoves, dispatches, playoffPicture,
@@ -1981,6 +1983,7 @@ router.get('/scoreboard', aw(async (req, res) => {
 
   res.render('scoreboard', {
     me, owners, weekNo, cards, locked, whRace, whBand,
+    moneyBoard: L.moneyStandings(world.ledger, owners, season), meId: me.id,
     live: !!(livePts && Object.values(livePts).some(p => p > 0)),
     configured: !!world.config.sleeper_league_id, primetime,
     goatId: MK.goatOwnerId(sData, map), nameOf,

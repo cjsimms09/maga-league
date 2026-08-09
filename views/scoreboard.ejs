@@ -14,6 +14,10 @@
 
 <h1 class="page-title">🏈 This Week <span class="sub" style="font-weight:600">Week <%= weekNo %> — every game</span></h1>
 
+<%# THE SEASON MONEY POSITION — the pot to date, shown whether or not this week's
+    slate is posted. The real scoreboard; the weekly race below is one week of it. %>
+<%- include('partials/money-line') %>
+
 <% if (!cards.length) { %>
   <div class="card"><div class="body">
     <p class="muted" style="margin:0"><% if (!configured) { %>Sleeper isn't connected yet — the week's games show up here once the league is mapped.<% } else { %>Week <%= weekNo %>'s slate isn't posted yet. When it is, all five games land here — leave it open on Sunday.<% } %></p>

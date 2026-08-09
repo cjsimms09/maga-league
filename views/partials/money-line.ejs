@@ -1,0 +1,51 @@
+<%# THE MONEY SCOREBOARD — the real one, in dollars, next to the wins standings.
+    Locals: moneyBoard (ledger.moneyStandings output), meId (viewer's owner id).
+    Uses the global money() helper. Renders from the ledger, so it works pre-season
+    and when Sleeper is down — money is money whether or not the slate is posted. %>
+<% if (typeof moneyBoard !== 'undefined' && moneyBoard && moneyBoard.rows && moneyBoard.rows.length) {
+     const mb = moneyBoard;
+     const me = mb.rows.find(r => r.owner_id === meId) || null;
+     const leader = mb.rows[0];
+     const anyWon = mb.distributed > 0;
+     const ord = n => { const v = n % 100; if (v >= 11 && v <= 13) return n + 'th';
+       return n + (['th','st','nd','rd'][n % 10] || 'th'); };
+%>
+<div class="card money-board">
+  <h2>💰 The Money <span class="sub">where the pot actually stands — <%= money(mb.totalPot) %> in play</span></h2>
+  <div class="body">
+    <%# The viewer's own line first — the one number they came to see. %>
+    <% if (me) { %>
+      <div class="mb-you">
+        <% if (me.won > 0) { %>
+          <span class="mb-you-amt"><%= money(me.won) %> banked</span>
+          <span class="mb-you-rank"><%= ord(me.rank) %> of <%= mb.rows.length %></span>
+          <span class="mb-you-net <%= me.net >= 0 ? 'good' : '' %>"><%= me.net >= 0 ? '✓ in the black' : money(Math.abs(me.net)) + ' to break even' %></span>
+        <% } else { %>
+          <span class="mb-you-amt muted">Nothing banked yet</span>
+          <span class="mb-you-net muted"><%= money(mb.onTheTable) %> still on the table</span>
+        <% } %>
+      </div>
+    <% } %>
+
+    <%# The board — everyone, ranked by dollars. This is the scoreboard. %>
+    <ol class="mb-list">
+      <% for (const r of mb.rows) { %>
+        <li class="mb-row<%= r.owner_id === meId ? ' me' : '' %><%= r.owner_id === leader.owner_id && r.won > 0 ? ' lead' : '' %>">
+          <span class="mb-rank"><%= r.won > 0 ? r.rank : '—' %></span>
+          <span class="mb-name"><%= r.name %><% if (r.owner_id === leader.owner_id && r.won > 0) { %> 👑<% } %></span>
+          <span class="mb-won"><%= r.won > 0 ? money(r.won) : '—' %></span>
+          <% if (r.net > 0) { %><span class="mb-chip">+<%= money(r.net) %></span><% } %>
+        </li>
+      <% } %>
+    </ol>
+
+    <div class="mb-foot muted">
+      <% if (mb.weeklyWeeks) { %>
+        Weekly $<%= mb.weeklyAmount %>: <b><%= mb.weeksPaid %></b> of <%= mb.weeklyWeeks %> weeks paid<%
+          if (mb.weeklyRemaining > 0) { %> · <%= money(mb.weeklyRemaining) %> of weekly money left<% } %>.
+      <% } %>
+      <% if (mb.onTheTable > 0 && anyWon) { %> <%= money(mb.onTheTable) %> of the pot is still unclaimed.<% } %>
+    </div>
+  </div>
+</div>
+<% } %>

@@ -3251,6 +3251,29 @@ table.roll td.num, .pf, .wh-race-scale, .wh-band-note{ color: var(--ink); }
 .sb-wh .bar i{ display:block; height:100%; background:linear-gradient(90deg,var(--gold),#e8a52e); border-radius:99px; }
 .sb-wh-foot{ font-size:.75rem; }
 
+/* THE MONEY SCOREBOARD — dollars, ranked, viewer highlighted. The real one. */
+.money-board .body{ padding-top:.2rem; }
+.mb-you{ display:flex; flex-wrap:wrap; align-items:baseline; gap:.4rem .7rem;
+  padding:.55rem .7rem; margin:.15rem 0 .7rem; border-radius:10px;
+  background:var(--panel-soft); border:1px solid var(--line); border-left:3px solid var(--gold); }
+.mb-you-amt{ font-family:var(--font-display); font-weight:800; font-size:1.15rem; color:var(--navy);
+  font-variant-numeric:tabular-nums; }
+.mb-you-rank{ font-size:.8rem; color:var(--muted); font-weight:700; }
+.mb-you-net{ margin-left:auto; font-size:.78rem; font-weight:700; color:var(--muted); }
+.mb-you-net.good{ color:var(--green); }
+.mb-list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; }
+.mb-row{ display:flex; align-items:center; gap:.6rem; padding:.4rem .55rem; border-radius:8px;
+  font-size:.9rem; border-bottom:1px solid var(--line); }
+.mb-row:last-child{ border-bottom:0; }
+.mb-row.me{ background:rgba(185,130,42,.09); }
+.mb-row.lead .mb-name{ font-weight:800; }
+.mb-rank{ width:1.6em; text-align:center; color:var(--muted); font-variant-numeric:tabular-nums; font-weight:700; flex:none; }
+.mb-name{ flex:1 1 auto; color:var(--ink); min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.mb-won{ font-variant-numeric:tabular-nums; font-weight:800; color:var(--navy); flex:none; }
+.mb-chip{ flex:none; font-size:.68rem; font-weight:800; color:var(--green);
+  background:rgba(15,138,77,.10); border-radius:99px; padding:.08rem .4rem; }
+.mb-foot{ font-size:.74rem; margin-top:.6rem; line-height:1.45; }
+
 .sb-list{ display:flex; flex-direction:column; gap:.7rem; }
 .sb-card{ display:block; text-decoration:none; color:var(--ink);
   background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:.85rem 1rem;
