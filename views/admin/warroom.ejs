@@ -1,13 +1,7 @@
-<%# TOOL mode: suppress the full masthead so the decision surface starts at the top
-    of the phone (mobile target: what to take + why + the button, before scrolling). %>
-<%- include('../partials/header', { title: 'War Room', tool: true }) %>
+<%- include('../partials/header', { title: 'War Room' }) %>
 
-<%# One slim title line — identity without eating the fold. The full "commissioner
-    eyes only / VONA-driven…" blurb is a tooltip now, not two lines of the screen. %>
-<div class="wr-titlebar" title="Commissioner eyes only. VONA-driven draft optimization — keeper-adjusted, tier-aware, live.">
-  <span class="wr-title">🧠 War Room</span>
-  <span class="wr-title-sub">commissioner only</span>
-</div>
+<h1 class="page-title">🧠 The War Room</h1>
+<p class="page-sub">Commissioner eyes only. VONA-driven draft optimization — keeper-adjusted, tier-aware, live.</p>
 
 <div id="loading"><div class="card"><div class="body"><p class="muted" style="margin:0">Loading the board…</p></div></div></div>
 
@@ -128,13 +122,37 @@
     </div>
   </div>
 
-
+  <%# ── THE DOCTRINE BANNER (war-room-v2-doctrine-banner.md) ───────────────
+      Above the status bar, the most prominent strategic element on the page:
+      what plan is being executed, how confident it is, and what the live
+      alternative costs. Switches are announced as EVENTS with a one-tap
+      decline. Populated by app.js renderDoctrine(); hidden until the board
+      loads so an empty bar never occupies the top of the screen. %>
+  <div id="doctrine-banner" class="doctrine-banner" style="display:none">
+    <div class="db-main">
+      <div class="db-name" id="db-name">—</div>
+      <div class="db-creed" id="db-creed"></div>
+    </div>
+    <div class="db-side">
+      <div class="db-confidence" id="db-confidence"></div>
+      <div class="db-alt" id="db-alt"></div>
+    </div>
+  </div>
+  <div id="doctrine-switch" class="doctrine-switch" style="display:none">
+    <span id="db-switch-text"></span>
+    <button class="btn small ghost" id="db-decline" title="Keep the prior doctrine — my draft, my call">Decline — keep the plan</button>
+  </div>
 
   <%# In-page typed confirm for END DRAFT. window.prompt was the mock-#1
       swallowing mechanism — Chrome suppresses repeated dialogs and a suppressed
       prompt returns null silently, so the button read as dead. %>
   <div id="end-confirm" class="end-confirm" style="display:none"></div>
 
+  <%# THE LEGALITY STRIP — the running guarantee, visible at all times.
+      Mock #1 ended with no defense and the tool never said a word; a silent
+      guarantee cannot visibly stop being true. Informational for streamable
+      onesies, alarming for mandatory slots. Populated by renderLegality(). %>
+  <div id="legality-strip" class="legality-strip" style="display:none"></div>
 
   <%# §2(d) — slim pinned status bar: pick state + connection stay visible when
       scrolled down to the board. Populated by app.js renderStatusBar(). %>
@@ -152,9 +170,60 @@
        The compare tray is a floating overlay, so it lives outside the zones. %>
   <div class="wr-decide">
   <div class="wr-zone1">
+  <%# ── SEARCH, always one tap (Cory) — type a name and act from the results.
+      The #search input + #search-tail results host moved up here from the draft
+      board header; app.js binds them by id and its handlers are delegated, so the
+      board still filters and the results still render — they just live where the
+      hand already is on the clock. #pos-filter stays on the board. %>
+  <div class="wr-search">
+    <span class="wr-search-icon" aria-hidden="true">🔎</span>
+    <input type="text" id="search" placeholder="Search any player — take, queue or compare" autocomplete="off">
+  </div>
+  <div id="search-tail" hidden></div>
+  <%# QUEUE SLIP ALERT (Cory: "impossible to miss when my guy is slipping"). An
+      IN-FLOW banner — never floating — that app.js fills when a queued player is
+      about a turn from gone (the LRM/branch survival math it already runs).
+      Hidden when nothing is slipping so it never becomes furniture. %>
+  <div id="queue-slip" class="queue-slip" role="status" aria-live="polite" style="display:none"></div>
+  <%# ── THE MINIMUM VIABLE SURFACE ────────────────────────────────────────
+      Five truthful lines, and TWO MARKED EXPLICITLY ABSENT.
 
+      The absent pair is the point. SOURCE needs the decision tree's stages and
+      NEAR-MISS needs its thresholds; neither exists. Rendering them as empty
+      containers would mean rehearsing a layout whose two most information-dense
+      elements are placeholders — so they say what they are instead, and mock #4
+      rehearses something real.
 
-
+      Every line here composes data that already exists. Nothing below invents a
+      number. %>
+  <div id="mvs" class="mvs" style="display:none">
+    <div class="mvs-line" id="mvs-status"></div>
+    <div class="mvs-line" id="mvs-plan"></div>
+    <div class="mvs-line mvs-rec" id="mvs-rec"></div>
+    <div class="mvs-line" id="mvs-alts"></div>
+    <div class="mvs-line" id="mvs-roster"></div>
+    <div class="mvs-line mvs-absent" id="mvs-absent"></div>
+  </div>
+  <%# THE STRATEGY-SPLIT PANEL — what each strategy would take from the board RIGHT
+      NOW, projected live (shadows.js project()). One line by default (the split),
+      the full per-strategy list one tap away. When the strategies disagree that is
+      the contested-decision signal — the pick worth slowing down for — so a split
+      lights the panel up instead of sitting quiet. Context zone: below the
+      recommendation, above the deadline strip; never competing with Zone 1. %>
+  <div id="shadow-projection" class="shadow-proj" style="display:none">
+    <div class="shadow-proj-line" id="shadow-proj-line"></div>
+    <details id="shadow-proj-details">
+      <summary>what each strategy would take →</summary>
+      <div id="shadow-proj-body"></div>
+    </details>
+  </div>
+  <%# LAYER 1, FIRST: the LRM strip is a DEADLINE — "elite QB gone by 41"
+      changes what you do RIGHT NOW. It sat in the right rail, and then at the
+      bottom of Layer 1 at 1676px; a deadline below the fold is a deadline you
+      read after it passed. One thin line, above the decision surface. %>
+  <div class="card" id="lrm-card" style="margin-bottom:.6rem">
+    <div class="body"><div id="lrm-strip" class="lrm-strip" style="display:none"></div></div>
+  </div>
   <div class="card" style="margin-bottom:1rem; border-color:rgba(245,196,69,.5)" id="recs-card">
     <h2>🎯 Take This Player
       <span class="sub">2–4 priced directions · the ranked list is underneath</span>
@@ -194,83 +263,32 @@
     </div>
   </div>
 
-
-  <%# ── SECONDARY (below the recommendation): the plan, the guarantee, the
-      minimum-viable lines, the strategy split, the pinned status. Moved beneath
-      the pick so the phone shows WHAT TO TAKE first; each stays one glance away. %>
-  <%# LAYER 1, FIRST: the LRM strip is a DEADLINE — "elite QB gone by 41"
-      changes what you do RIGHT NOW. It sat in the right rail, and then at the
-      bottom of Layer 1 at 1676px; a deadline below the fold is a deadline you
-      read after it passed. One thin line, above the decision surface. %>
-  <div class="card" id="lrm-card" style="margin-bottom:.6rem">
-    <div class="body"><div id="lrm-strip" class="lrm-strip" style="display:none"></div></div>
-  </div>
-
-  <%# ── THE DOCTRINE BANNER (war-room-v2-doctrine-banner.md) ───────────────
-      Above the status bar, the most prominent strategic element on the page:
-      what plan is being executed, how confident it is, and what the live
-      alternative costs. Switches are announced as EVENTS with a one-tap
-      decline. Populated by app.js renderDoctrine(); hidden until the board
-      loads so an empty bar never occupies the top of the screen. %>
-  <div id="doctrine-banner" class="doctrine-banner" style="display:none">
-    <div class="db-main">
-      <div class="db-name" id="db-name">—</div>
-      <div class="db-creed" id="db-creed"></div>
-    </div>
-    <div class="db-side">
-      <div class="db-confidence" id="db-confidence"></div>
-      <div class="db-alt" id="db-alt"></div>
-    </div>
-  </div>
-  <div id="doctrine-switch" class="doctrine-switch" style="display:none">
-    <span id="db-switch-text"></span>
-    <button class="btn small ghost" id="db-decline" title="Keep the prior doctrine — my draft, my call">Decline — keep the plan</button>
-  </div>
-  <%# THE LEGALITY STRIP — the running guarantee, visible at all times.
-      Mock #1 ended with no defense and the tool never said a word; a silent
-      guarantee cannot visibly stop being true. Informational for streamable
-      onesies, alarming for mandatory slots. Populated by renderLegality(). %>
-  <div id="legality-strip" class="legality-strip" style="display:none"></div>
-  <%# §2(d) — slim pinned status bar: pick state + connection stay visible when
-      scrolled down to the board. Populated by app.js renderStatusBar(). %>
-  <div id="wr-statusbar" class="wr-statusbar" style="display:flex"></div>
-  <span id="prefs-sync" style="display:none;font-size:.68rem;color:#8fa6d0;position:absolute;top:2px;right:8px;z-index:5" title="prefs sync state"></span>
-  <%# ── THE MINIMUM VIABLE SURFACE ────────────────────────────────────────
-      Five truthful lines, and TWO MARKED EXPLICITLY ABSENT.
-
-      The absent pair is the point. SOURCE needs the decision tree's stages and
-      NEAR-MISS needs its thresholds; neither exists. Rendering them as empty
-      containers would mean rehearsing a layout whose two most information-dense
-      elements are placeholders — so they say what they are instead, and mock #4
-      rehearses something real.
-
-      Every line here composes data that already exists. Nothing below invents a
-      number. %>
-  <div id="mvs" class="mvs" style="display:none">
-    <div class="mvs-line" id="mvs-status"></div>
-    <div class="mvs-line" id="mvs-plan"></div>
-    <div class="mvs-line mvs-rec" id="mvs-rec"></div>
-    <div class="mvs-line" id="mvs-alts"></div>
-    <div class="mvs-line" id="mvs-roster"></div>
-    <div class="mvs-line mvs-absent" id="mvs-absent"></div>
-  </div>
-  <%# THE STRATEGY-SPLIT PANEL — what each strategy would take from the board RIGHT
-      NOW, projected live (shadows.js project()). One line by default (the split),
-      the full per-strategy list one tap away. When the strategies disagree that is
-      the contested-decision signal — the pick worth slowing down for — so a split
-      lights the panel up instead of sitting quiet. Context zone: below the
-      recommendation, above the deadline strip; never competing with Zone 1. %>
-  <div id="shadow-projection" class="shadow-proj" style="display:none">
-    <div class="shadow-proj-line" id="shadow-proj-line"></div>
-    <details id="shadow-proj-details">
-      <summary>what each strategy would take →</summary>
-      <div id="shadow-proj-body"></div>
-    </details>
-  </div>
   <%# ── What each option costs you at your next pick ──────────────────────── %>
   <div class="card" id="branch-card" style="margin-bottom:1rem; display:none">
     <h2>🔀 If You Take… <span class="sub" id="branch-head">what's likely left at your next pick</span></h2>
     <div class="body tight scroll-x"><div id="branches"></div></div>
+  </div>
+
+  <%# ── THE QUEUE — promoted from Layer 3 to the decide surface (Cory). The list
+      you read when the clock is at 8 seconds; you watch it every pick, so it sits
+      here under the recommendation, always visible, not two taps down by the
+      audits. Ids unchanged (#queue, #queue-head, the action buttons) so app.js
+      renders into it exactly as before. %>
+  <div class="card wr-queue-card" id="queue-card">
+    <h2>📋 Queue <span class="sub" id="queue-head"></span></h2>
+    <div class="body">
+      <div id="queue"></div>
+      <div class="queue-actions">
+        <button class="btn small navy" id="queue-fill" title="Append the board's top 15, then reorder">✨ Fill from board</button>
+        <button class="btn small ghost" id="queue-copy" title="Plain text on the clipboard">📋 Copy</button>
+        <button class="btn small ghost" id="queue-print" title="One page, designed for paper">🖨 Print sheet</button>
+        <button class="btn small ghost" id="queue-tidy" hidden></button>
+      </div>
+      <p class="muted" id="sheet-note" style="margin:.5rem 0 0; font-size:.74rem"></p>
+      <p class="muted" style="margin:.35rem 0 0; font-size:.72rem">
+        Your order, never re-sorted — the decision already made. Add anyone with the ➕ on any row or the board. Print it the night before; if the wifi dies at the table, paper still works.
+      </p>
+    </div>
   </div>
   </div><%# /wr-zone1 %>
 
@@ -392,28 +410,9 @@
       </div>
     </div>
 
-    <div class="card">
-      <h2>📋 Queue &amp; paper sheet <span class="sub" id="queue-head"></span></h2>
-      <div class="body">
-        <p class="muted" style="margin:0 0 .6rem; font-size:.78rem">
-          The list you read when the clock is at 8 seconds. <b>Your order, never
-          re-sorted</b> — everything else here is analysis, this is the decision
-          already made. Add anyone with ➕ on the draft board.
-        </p>
-        <div id="queue"></div>
-        <div class="queue-actions">
-          <button class="btn small navy" id="queue-fill" title="Append the board's top 15, then reorder">✨ Fill from board</button>
-          <button class="btn small ghost" id="queue-copy" title="Plain text on the clipboard">📋 Copy</button>
-          <button class="btn small ghost" id="queue-print" title="One page, designed for paper">🖨 Print sheet</button>
-          <button class="btn small ghost" id="queue-tidy" hidden></button>
-        </div>
-        <p class="muted" id="sheet-note" style="margin:.5rem 0 0; font-size:.74rem"></p>
-        <p class="muted" style="margin:.35rem 0 0; font-size:.74rem">
-          Print it the night before. If your phone dies or the wifi goes at the
-          table, paper is the only thing left that still works.
-        </p>
-      </div>
-    </div>
+    <%# The Queue moved UP to the decide surface (Cory: it's what you touch every
+        pick, it was buried next to the audits). It now lives at the bottom of
+        Zone 1, always visible under the recommendation — see #queue there. %>
 
     <div class="card">
       <h2>⭐ Targets &amp; 🚫 Never <span class="sub">your own read — saved on this device</span></h2>
@@ -449,10 +448,10 @@
           <option value="ALL">All</option>
           <% for (const p of ['QB','RB','WR','TE','K','DEF']) { %><option value="<%= p %>"><%= p %></option><% } %>
         </select>
-        <input type="text" id="search" placeholder="Search" style="width:130px">
+        <%# player search moved to the top of the decide surface (#search); the
+            board keeps its position filter. %>
       </span>
     </h2>
-    <div id="search-tail" hidden></div>
     <div class="body tight scroll-x">
       <table class="roll" id="board">
         <thead><tr>
