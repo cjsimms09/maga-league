@@ -50,6 +50,42 @@ is weak, change course. **And challenge Cory** — every pushback that a premise
 sequencing, or measure was wrong has improved the work. The most useful thing I can
 be is the one that says he's working on the wrong problem.
 
+## 🖥️ THE PRODUCT — what the tool is FOR (2026-08-09, next to the core directive)
+
+Everything — the Lab, the experiments, the doctrines, the gates — exists to make
+this one thing correct.
+
+**At every pick, tell Cory who to draft.** Not who is best in the abstract — who is
+the best choice FOR HIS ROSTER, at THIS moment, in THIS league, from THIS seat,
+given everything true right now: who is gone, who is left, picks until his next
+turn, what his roster + keepers already fill, what the room needs, what the market
+says, and everything the Lab has proven. **One recommendation, with the reasoning,
+at the moment he needs it.**
+
+- **"Take the market's guy" IS a valid recommendation** — stated plainly and
+  confidently. Following the market when the evidence says the market is right here
+  is the model WORKING, not failing.
+- **When it's close, show the field.** If ~4 players are within a meaningful
+  distance, don't manufacture one answer. Give all four, each with: (1) why it's a
+  candidate (the specific reason), (2) what it costs vs the others in the units that
+  matter, (3) confidence AS AN INTERVAL, not a fake point estimate, (4) what would
+  have to be true for it to be the right pick. Then Cory chooses; the ledger records
+  which he took so January grades his choices vs the model's.
+- **Every signal on that screen must serve the one question.** If a number doesn't
+  help decide who to take right now, it goes behind a tap or nowhere.
+- **One voice.** Plan, deviation explainer, dead zone, market-reliability, strategy
+  split, LRM — if any two disagree, the tool resolves it or names it CONTESTED.
+  Cory never arbitrates between his own tools at pick 34. (This is what
+  `coherence.js` is for.)
+
+**What this means for the Lab:** the Lab is the INPUT, not the product. Every
+experiment must answer "how does this change what the tool tells Cory to draft?" A
+number that never reaches that screen has not paid for itself. The dead zone reached
+it; exp 36 reached it via the deviation band; **B0 has NOT fully reached it — and it
+is the only edge that clears a null. Closing that gap is the most important thing on
+the list.** The Aug-22 test: at pick 34, one screen either tells Cory clearly who to
+take and why, or it does not. Everything is judged by that.
+
 ## 🚀 DEPLOY DISCIPLINE — B's finished work must never sit invisible (2026-08-09)
 
 A owns integration + deploy; B cannot deploy and cannot reach a session directly.
