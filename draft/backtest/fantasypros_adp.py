@@ -153,7 +153,11 @@ _API_CANDIDATES = [
     "https://api.fantasypros.com/public/v2/json/nfl/{y}/consensus-rankings?type=adp&scoring=HALF&position=ALL&week=0",
 ]
 _KEY_RE = __import__("re").compile(r'["\']?(?:x-api-key|apiKey|api_key)["\']?\s*[:=]\s*["\']([A-Za-z0-9]{20,})["\']')
-_APIURL_RE = __import__("re").compile(r'https?://api\.fantasypros\.com/[A-Za-z0-9/_.\-{}?&=]+')
+# broadened: catch ANY endpoint-looking string (absolute or relative) that mentions the data —
+# the reports bundle referenced no api.fantasypros.com host, so the endpoint is relative/other-host.
+_APIURL_RE = __import__("re").compile(
+    r'["\'](?:https?:)?/[A-Za-z0-9/_.\-]*(?:adp|consensus|ranking|projections?)[A-Za-z0-9/_.\-]*'
+    r'(?:\.php|\.json)?["\']', __import__("re").I)
 
 
 def fetch(year, half_ppr=True, timeout=30):   # pragma: no cover  (egress, CI only)
@@ -180,7 +184,9 @@ def fetch(year, half_ppr=True, timeout=30):   # pragma: no cover  (egress, CI on
             km = _KEY_RE.search(bundle)
             if km:
                 key = km.group(1); diag["bundle_key_found"] = True
-            diag["bundle_api_urls"] = sorted(set(_APIURL_RE.findall(bundle)))[:12]
+            found = sorted({m.strip('"\'') for m in _APIURL_RE.findall(bundle)})
+            diag["bundle_api_urls"] = found[:20]
+            diag["bundle_len"] = len(bundle)
         except Exception as e:
             diag["bundle_error"] = type(e).__name__
     # also try a key embedded directly on the page
@@ -194,9 +200,11 @@ def fetch(year, half_ppr=True, timeout=30):   # pragma: no cover  (egress, CI on
     for tmpl in templates:
         if "consensus-rankings" not in tmpl and "adp" not in tmpl.lower():
             continue
-        api_url = tmpl.replace("{y}", str(year)).replace("{k}", key or "")
-        if "{year}" in api_url:
-            api_url = api_url.replace("{year}", str(year))
+        api_url = tmpl.replace("{y}", str(year)).replace("{k}", key or "").replace("{year}", str(year))
+        if api_url.startswith("/"):                       # relative endpoint discovered in the bundle
+            api_url = "https://www.fantasypros.com" + api_url
+        if not api_url.startswith("http"):
+            continue
         try:
             txt = _get(api_url, timeout, headers=({"x-api-key": key} if key else None))
             n = len(parse(txt))
