@@ -7,20 +7,20 @@
  "leaderboard": [
   {
    "archetype": "early_qb",
-   "mean_edge": 200.62,
+   "mean_edge": 213.75,
    "ci95": [
-    156.5,
-    247.62
+    169.12,
+    260.5
    ],
    "mean_divergence": 0.5,
    "verdict": "WINNER \u2014 enroll as THE PLAN"
   },
   {
    "archetype": "wr_anchor",
-   "mean_edge": 187.25,
+   "mean_edge": 172.25,
    "ci95": [
-    150.38,
-    223.62
+    135.62,
+    210.12
    ],
    "mean_divergence": 1.9,
    "verdict": "WINNER \u2014 enroll as THE PLAN"
@@ -67,22 +67,22 @@
   },
   {
    "archetype": "late_qb",
-   "mean_edge": -211.5,
+   "mean_edge": -188.75,
    "ci95": [
-    -256.5,
-    -168.5
+    -232.12,
+    -147.5
    ],
-   "mean_divergence": 0.6,
+   "mean_divergence": 0.5,
    "verdict": "parked: CI includes $0"
   }
  ],
  "head_to_head": {
   "leader": "early_qb",
   "runner_up": "wr_anchor",
-  "paired_mean": 13.38,
+  "paired_mean": 41.5,
   "ci95": [
-   -53.75,
-   78.0
+   -23.25,
+   108.62
   ],
   "separable": false,
   "resolution": "CO-LEADERS \u2014 inseparable; retained wr_anchor"
