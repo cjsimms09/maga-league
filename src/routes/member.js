@@ -5,6 +5,7 @@ const HIST = require('./history-data');   // the MFGA Archive — chronicle data
 const H2H = require('./h2h');              // all-time head-to-head, from the box scores
 const LO = require('./lineup');            // the lineup optimizer engine (validated vs L0)
 const MOVE = require('./standings-movement'); // week-over-week rank arrows (dormant pre-season)
+const PE = require('./pickem');            // league pick'em — pick every game, tracked forever
 const L = require('../ledger');
 const SB = require('../sidebets');
 const BL = require('../betlogic');
@@ -1346,13 +1347,149 @@ router.get('/matchup', aw(async (req, res) => {
   }
 
   const nameOf = id => (H.ownerById(owners, id) || {}).name || '?';
+
+  // A compact pick'em hook — the matchup screen is where people already think
+  // about the week, so it points them at the league-wide picks (boards skipped;
+  // this is just the CTA + lock state, kept cheap).
+  let pickem = null;
+  try {
+    const pc = await pickemContext(world, me, { wantBoards: false });
+    pickem = { weekNo: pc.weekNo, locked: pc.locked, lockAt: pc.lockAt,
+      games: pc.games.length, picksMade: pc.picksMade };
+  } catch (e) { /* the strip is a bonus; never let it break the matchup page */ }
+
   res.render('matchup', {
     me, owners, opp, live, weekNo, matchup: liveMatchup, betWindow, record,
-    perPlayer, proj, highBand, whBand, whRace,
+    perPlayer, proj, highBand, whBand, whRace, pickem,
     configured: !!world.config.sleeper_league_id,
     late: req.query.late === '1', sent: req.query.sent === '1',
     nameOf,
   });
+}));
+
+// ---------- PICK'EM — pick every game, every week, remembered forever ----------
+// League-visible (a pick is a RESULT, not a tool — ACCESS-RULE.md): everyone
+// picks a winner for each of the week's five games, the picks LOCK at the first
+// kickoff, the split goes public once locked ("7 of 10 took Michael"), and the
+// season/all-time accuracy boards — including the Hall of Shame that names the
+// worst picker — sit right here where the league already argues. The engine is
+// src/routes/pickem.js; this is the HTTP surface, same split as the optimizer.
+
+// Everything the pick'em pages need, gathered once. Shared by GET /pickem and
+// the compact strip the matchup page shows.
+async function pickemContext(world, me, { wantBoards = true } = {}) {
+  const owners = H.activeOwners(world.owners);
+  const season = H.currentSeason(world.seasons);
+  const seasonYear = season ? season.year : new Date().getFullYear();
+  const leagueId = world.config.sleeper_league_id;
+  const map = world.config.sleeper_map || {};
+  const seasonStart = world.config.season_start || null;
+
+  const sData = await sleeper.bundle(leagueId);
+  const weekNo = (sData && sData.week) || 1;
+  const anyScore = PE.anyScoreOnBoard(sData);
+  const locked = PE.isLocked({ week: weekNo, seasonStart, anyScore });
+  const lockAt = PE.lockAt(weekNo, seasonStart);
+
+  // Freeze (or refresh, while unlocked) this week's slate so scoring never has
+  // to re-reach Sleeper and a late schedule change can't rewrite picked games.
+  const liveGames = PE.weekGames(sData, map, owners);
+  const games = await PE.ensureSlate(seasonYear, weekNo, liveGames, { locked });
+
+  const myPicks = await PE.getMyPicks(seasonYear, weekNo, me.id);
+  const nameOf = id => (H.ownerById(owners, id) || {}).name || `#${id}`;
+  const myGame = games.find(g => g.a.id === me.id || g.b.id === me.id) || null;
+
+  // Live points for THIS week, straight off the scoreboard — provisional game
+  // leaders while the week is in play (final grading uses the cached week points).
+  let livePts = null;
+  if (sData && Array.isArray(sData.matchups)) {
+    livePts = {};
+    for (const m of sData.matchups) {
+      const oid = map[String(m.roster_id)];
+      if (oid != null) livePts[String(oid)] = Math.round((m.points || 0) * 100) / 100;
+    }
+  }
+
+  // The split + who-backed-whom is public only after lock — before that a pick
+  // is private, or the last picker just copies the crowd.
+  let allPicks = [], splits = {}, backers = [], liveResults = {};
+  if (locked) {
+    allPicks = await PE.allPicksForWeek(seasonYear, weekNo);
+    for (const g of games) {
+      splits[g.id] = { ...PE.gameSplit(g, allPicks), line: PE.splitLine(g, allPicks, nameOf) };
+      const res = livePts ? PE.gameResult(g, livePts) : null;
+      if (res) liveResults[g.id] = res;
+    }
+    if (myGame) backers = PE.backedAgainst(myGame, me.id, allPicks, nameOf);
+  }
+
+  const ctx = {
+    owners, seasonYear, weekNo, locked, lockAt, anyScore, seasonStart,
+    games, myPicks, myGame, splits, backers, allPicks, liveResults, livePts,
+    configured: !!leagueId, nameOf,
+    picksMade: Object.keys(myPicks).length,
+  };
+  if (!wantBoards) return ctx;
+
+  // Only weeks that are safely FINAL grade into the boards — same lag the
+  // side-bet engine uses, so a Monday-night game never scores half a week.
+  const finalOnly = async w =>
+    (w <= weekNo - BL.CFG.GRADE_WEEK_LAG) ? await sleeper.weekPointsByOwner(leagueId, w, map) : null;
+  const sb = await PE.seasonBoard(seasonYear, weekNo, owners, finalOnly);
+
+  // All-time: every season with pick'em data, summed forever. Historical seasons
+  // predate pick'em (2026 is year one), so today all-time == this season; the
+  // resolver only knows this league's cache, which is exactly the season we have.
+  const slateKeys = await store.listKeys('pickem-slate:');
+  const seasonsWithData = [...new Set(slateKeys.map(k => Number(k.split(':')[1])).filter(Boolean))].sort();
+  const at = await PE.allTimeBoard(seasonsWithData, owners,
+    (s, w) => (s === seasonYear ? finalOnly(w) : Promise.resolve(null)),
+    (season && season.weeks) || 18);
+
+  ctx.seasonBoard = sb.board;
+  ctx.weeksGraded = sb.weeksGraded;
+  ctx.allTimeBoard = at.board;
+  ctx.allTimeSeasons = at.seasons;
+  ctx.worst = sb.board.find(r => r.worst) || at.board.find(r => r.worst) || null;
+  return ctx;
+}
+
+router.get('/pickem', aw(async (req, res) => {
+  const c = await pickemContext(req.world, req.owner, { wantBoards: true });
+  res.render('pickem', {
+    me: req.owner, ...c,
+    saved: req.query.saved === '1', late: req.query.late === '1',
+  });
+}));
+
+router.post('/pickem', aw(async (req, res) => {
+  const world = req.world;
+  const owners = H.activeOwners(world.owners);
+  const season = H.currentSeason(world.seasons);
+  const seasonYear = season ? season.year : new Date().getFullYear();
+  const map = world.config.sleeper_map || {};
+  const seasonStart = world.config.season_start || null;
+  const sData = await sleeper.bundle(world.config.sleeper_league_id);
+  const weekNo = (sData && sData.week) || 1;
+  const anyScore = PE.anyScoreOnBoard(sData);
+
+  // Server-side lock: picks in after kickoff are refused outright — the whole
+  // point of the feature is that a pick means you didn't know the result yet.
+  if (PE.isLocked({ week: weekNo, seasonStart, anyScore })) {
+    return res.redirect('/pickem?late=1');
+  }
+  const liveGames = PE.weekGames(sData, map, owners);
+  const games = await PE.ensureSlate(seasonYear, weekNo, liveGames, { locked: false });
+
+  // The form posts pick_<gameId>=<ownerId> per game.
+  const picks = {};
+  for (const g of games) {
+    const v = req.body['pick_' + g.id];
+    if (v != null && v !== '') picks[g.id] = v;
+  }
+  await PE.savePicks(seasonYear, weekNo, req.owner.id, picks, games);
+  res.redirect('/pickem?saved=1');
 }));
 
 // ---------- THE LINEUP OPTIMIZER (in-season, the measured leak) ----------

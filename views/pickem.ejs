@@ -1,0 +1,184 @@
+<%- include('partials/header', { title: "Pick'em" }) %>
+<%
+  const fmtLock = d => d ? new Date(d).toLocaleString('en-US', { timeZone: 'America/New_York',
+      weekday: 'short', hour: 'numeric', minute: '2-digit' }) + ' ET' : '';
+  const pct = r => r.graded ? Math.round(r.pct * 100) : null;
+  const rec = r => `${r.correct}–${r.graded - r.correct}`;   // W–L over graded games
+  // My row across a board, for the "you're X-Y" framing.
+  const mineIn = board => (board || []).find(r => r.owner_id === me.id) || null;
+  const myS = mineIn(seasonBoard);
+  const myA = mineIn(allTimeBoard);
+%>
+
+<h1 class="page-title">🗳️ Pick'em <span class="sub" style="font-weight:600">Week <%= weekNo %></span></h1>
+
+<% if (saved) { %>
+  <div class="alert-banner" style="margin-bottom:1rem; border-color:rgba(47,213,118,.5)">
+    <span class="tag">✅</span><span>Picks saved. You can change them right up until <b><%= fmtLock(lockAt) %></b> — then they lock and the league sees who took who.</span>
+  </div>
+<% } %>
+<% if (late) { %>
+  <div class="alert-banner alert-warning" style="margin-bottom:1rem">
+    <span class="tag">🔒</span><span>Too late — Week <%= weekNo %> has kicked off, so picks are locked. A pick after kickoff isn't a pick.</span>
+  </div>
+<% } %>
+
+<%# ── my season/all-time accuracy, up top where I can't miss it ─────────────── %>
+<div class="pk-me">
+  <div class="pk-me-stat">
+    <span class="pk-me-num<%= myS && pct(myS) != null ? (myS.rank === 1 ? ' gold' : '') : ' muted' %>"><%= myS && pct(myS) != null ? pct(myS) + '%' : '—' %></span>
+    <span class="pk-me-lbl">this season</span>
+    <span class="pk-me-sub muted"><%= myS && myS.graded ? rec(myS) + ' · ' + (myS.rank ? ('#' + myS.rank + ' of ' + seasonBoard.length) : '') : 'no games graded yet' %></span>
+  </div>
+  <div class="pk-me-stat">
+    <span class="pk-me-num<%= myA && pct(myA) != null ? '' : ' muted' %>"><%= myA && pct(myA) != null ? pct(myA) + '%' : '—' %></span>
+    <span class="pk-me-lbl">all-time</span>
+    <span class="pk-me-sub muted"><%= myA && myA.graded ? rec(myA) + ' career' : 'the number that never resets' %></span>
+  </div>
+</div>
+
+<%# ── THE SLATE ─────────────────────────────────────────────────────────────── %>
+<% if (!games.length) { %>
+  <div class="card" style="margin-bottom:1.2rem">
+    <div class="body">
+      <p class="muted" style="margin:0">
+        <% if (!configured) { %>Sleeper isn't connected yet, so there's no slate to pick. Once the league is mapped, every week's five games show up here.
+        <% } else { %>Week <%= weekNo %>'s slate isn't posted yet. As soon as the matchups are set, you'll pick a winner for each game right here — and you've got until first kickoff to do it.<% } %>
+      </p>
+    </div>
+  </div>
+<% } else { %>
+
+  <div class="card pk-slate-card" style="margin-bottom:1.2rem">
+    <h2>The Slate
+      <span class="sub"><% if (locked) { %>🔒 locked — Week <%= weekNo %> is on<% } else { %>picks lock <%= fmtLock(lockAt) %> · <%= picksMade %>/<%= games.length %> picked<% } %></span>
+    </h2>
+    <div class="body tight">
+      <form method="post" action="/pickem" id="pk-form">
+        <% for (const g of games) {
+             const myPick = myPicks[g.id] != null ? Number(myPicks[g.id]) : null;
+             const s = splits[g.id];
+             const res = liveResults[g.id];
+             const winner = res ? res.winner : null;
+             const iAmIn = g.a.id === me.id || g.b.id === me.id;
+             const sideClass = side => {
+               let c = 'pk-opt';
+               if (myPick === side.id) c += ' picked';
+               if (locked && winner != null && winner !== 'tie') c += (winner === side.id ? ' win' : ' lose');
+               if (locked && myPick === side.id && winner != null && winner !== 'tie') c += (winner === side.id ? ' correct' : ' wrong');
+               return c;
+             };
+             // split bar widths (post-lock)
+             const aW = s && s.total ? Math.round(s.a / s.total * 100) : 50;
+        %>
+          <div class="pk-game<%= iAmIn ? ' mine' : '' %>">
+            <div class="pk-teams">
+              <% for (const side of [g.a, g.b]) { %>
+                <label class="<%= sideClass(side) %>">
+                  <input type="radio" name="pick_<%= g.id %>" value="<%= side.id %>"
+                    <%= myPick === side.id ? 'checked' : '' %> <%= locked ? 'disabled' : '' %>>
+                  <span class="pk-opt-name"><%= side.name %><% if (iAmIn && side.id === me.id) { %> <span class="pk-you">you</span><% } %></span>
+                  <% if (locked && res) { %>
+                    <span class="pk-opt-pts<%= winner === side.id ? ' up' : '' %>"><%= (side.id === g.a.id ? res.a : res.b).toFixed(1) %></span>
+                  <% } %>
+                  <% if (locked && myPick === side.id) { %>
+                    <span class="pk-opt-tag"><%= (winner != null && winner !== 'tie') ? (winner === side.id ? '✓ your pick' : '✗ your pick') : 'your pick' %></span>
+                  <% } %>
+                </label>
+              <% } %>
+            </div>
+            <% if (locked && s) { %>
+              <div class="pk-splitbar" title="<%= s.line %>">
+                <div class="pk-splitbar-a" style="width:<%= aW %>%"></div>
+              </div>
+              <div class="pk-splitline muted"><%= s.line %><% if (res && winner === 'tie') { %> · dead tie, counts for nobody<% } %></div>
+            <% } else if (!locked) { %>
+              <div class="pk-splitline muted">picks hidden until kickoff</div>
+            <% } %>
+          </div>
+        <% } %>
+
+        <% if (!locked) { %>
+          <div class="pk-save">
+            <button class="btn gold" type="submit">Lock in my picks</button>
+            <span class="muted" style="font-size:.75rem">You can change them until <%= fmtLock(lockAt) %>.</span>
+          </div>
+        <% } %>
+      </form>
+    </div>
+  </div>
+
+  <%# who had your back this week ─────────────────────────────────────────────── %>
+  <% if (locked && myGame) { const s = splits[myGame.id];
+       const forMe = (s ? (myGame.a.id === me.id ? s.a : s.b) : 0);
+  %>
+    <div class="card" style="margin-bottom:1.2rem">
+      <h2>Your game <span class="sub">week <%= weekNo %></span></h2>
+      <div class="body">
+        <p style="margin:0 0 .4rem"><b><%= forMe %></b> of the league backed you to win.
+          <% if (backers.length) { %><b class="neg"><%= backers.length %></b> took the other guy: <%= backers.join(', ') %>.<% } else { %>Nobody picked against you.<% } %></p>
+        <p class="muted" style="margin:0; font-size:.8rem">They're on record now. If you win, they'll hear about it.</p>
+      </div>
+    </div>
+  <% } %>
+<% } %>
+
+<%# ── SEASON LEADERBOARD — the conspicuous part ─────────────────────────────── %>
+<div class="card" style="margin-bottom:1.2rem">
+  <h2>🏆 Accuracy — <%= seasonYear %> <span class="sub">who reads football, who guesses</span></h2>
+  <div class="body tight">
+    <% if (!seasonBoard || !seasonBoard.length || !weeksGraded) { %>
+      <p class="muted" style="padding:1rem">The board fills in the moment Week 1 grades. Make your picks and check back.</p>
+    <% } else { %>
+      <table class="roll pk-board">
+        <tr><th>#</th><th>Owner</th><th class="num">Acc</th><th class="num">Rec</th><th class="num">Wks</th></tr>
+        <% for (const r of seasonBoard) { %>
+          <tr class="<%= r.owner_id === me.id ? 'pk-mine' : '' %><%= r.worst ? ' pk-worst' : '' %>">
+            <td><%= r.eligible || r.graded ? r.rank : '—' %></td>
+            <td><%= r.name %><% if (r.worst) { %> <span class="badge owes">DEAD LAST</span><% } else if (r.rank === 1 && r.graded) { %> 👑<% } %></td>
+            <td class="num"><b><%= r.graded ? Math.round(r.pct * 100) + '%' : '—' %></b></td>
+            <td class="num"><%= r.graded ? rec(r) : '—' %></td>
+            <td class="num muted"><%= r.weeks || '—' %></td>
+          </tr>
+        <% } %>
+      </table>
+    <% } %>
+  </div>
+</div>
+
+<%# ── HALL OF SHAME — the worst picker, to his face ─────────────────────────── %>
+<% if (worst && worst.graded) { %>
+  <div class="card pk-shame-card" style="margin-bottom:1.2rem">
+    <div class="body">
+      <p class="pk-shame">🚨 <b><%= worst.name %></b> is the worst picker in the league — <b><%= Math.round(worst.pct * 100) %>%</b> (<%= rec(worst) %>).
+        <% if (worst.owner_id === me.id) { %>That's you. Everyone can see this page.<% } else { %>A coin would do better, and a coin doesn't talk trash in the group chat.<% } %></p>
+    </div>
+  </div>
+<% } %>
+
+<%# ── ALL-TIME — the number that never resets ───────────────────────────────── %>
+<% if (allTimeBoard && allTimeBoard.length && allTimeBoard.some(r => r.graded)) { %>
+  <div class="card" style="margin-bottom:1.2rem">
+    <h2>📚 All-time accuracy <span class="sub">every pick, every season, kept forever</span></h2>
+    <div class="body tight">
+      <table class="roll pk-board">
+        <tr><th>#</th><th>Owner</th><th class="num">Acc</th><th class="num">Rec</th></tr>
+        <% for (const r of allTimeBoard) { if (!r.graded) continue; %>
+          <tr class="<%= r.owner_id === me.id ? 'pk-mine' : '' %>">
+            <td><%= r.rank %></td>
+            <td><%= r.name %></td>
+            <td class="num"><b><%= Math.round(r.pct * 100) %>%</b></td>
+            <td class="num"><%= rec(r) %></td>
+          </tr>
+        <% } %>
+      </table>
+      <p class="muted" style="padding:.6rem 1rem 0; font-size:.76rem">This is what the chronicle quotes years from now — "he went <%= worst && worst.graded ? rec(worst) : '4–11' %> picking games the year he finished last, which tells you everything."</p>
+    </div>
+  </div>
+<% } %>
+
+<p style="text-align:center; margin-top:1rem">
+  <a class="btn navy" href="/matchup">⚔️ Your matchup</a>
+  <a class="btn navy" href="/">🏛 League Office</a>
+</p>
+<%- include('partials/footer') %>

@@ -2729,3 +2729,94 @@ button.pd-team.pick:hover { background: rgba(245,196,69,.16); transform: transla
 .ts-seat b { color: #fff; font-variant-numeric: tabular-nums; }
 .ts-likely { display: block; font-size: .78rem; color: #c7cddd; }
 .ts-tell { display: block; font-size: .72rem; color: var(--muted); font-style: italic; margin-top: .1rem; }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   PICK'EM — the league picks every game, tracked loud. Mobile-first: the pick
+   targets are thumb-sized (≥52px), the slate is a single column, and the
+   accuracy boards read the same at 390px as on a desktop.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* my accuracy, up top — two big numbers I can't scroll past */
+.pk-me { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; margin-bottom: 1.2rem; }
+.pk-me-stat {
+  background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: .85rem .9rem; text-align: center; display: flex; flex-direction: column; gap: .1rem;
+}
+.pk-me-num { font-family: var(--font-display); font-weight: 900; font-size: 2rem; line-height: 1; color: var(--ink); }
+.pk-me-num.gold { color: var(--gold-bright); text-shadow: var(--glow-gold); }
+.pk-me-num.muted { color: var(--muted); }
+.pk-me-lbl { font-family: var(--font-display); font-weight: 800; font-size: .6rem; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--muted); margin-top: .25rem; }
+.pk-me-sub { font-size: .72rem; }
+
+/* one game */
+.pk-game { padding: .7rem 1rem .8rem; border-bottom: 1px solid var(--line); }
+.pk-game:last-child { border-bottom: none; }
+.pk-game.mine { background: rgba(245, 196, 69, .045); border-left: 3px solid rgba(245,196,69,.5); }
+
+.pk-teams { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; }
+.pk-opt {
+  position: relative; display: flex; flex-direction: column; justify-content: center;
+  min-height: 52px; padding: .55rem .7rem; cursor: pointer;
+  background: rgba(255,255,255,.04); border: 1.5px solid var(--line); border-radius: 11px;
+  transition: border-color .12s ease, background .12s ease, transform .08s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.pk-opt:active { transform: scale(.98); }
+.pk-opt input { position: absolute; opacity: 0; width: 0; height: 0; }
+.pk-opt-name { font-family: var(--font-display); font-weight: 800; font-size: .92rem; color: #dfe6f5;
+  letter-spacing: .01em; line-height: 1.15; }
+.pk-you { font-family: var(--font-body); font-weight: 700; font-size: .58rem; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--gold-bright); vertical-align: middle; }
+.pk-opt-pts { font-variant-numeric: tabular-nums; font-size: .8rem; color: var(--muted); margin-top: .15rem; }
+.pk-opt-pts.up { color: var(--green); font-weight: 700; }
+.pk-opt-tag { font-family: var(--font-display); font-weight: 800; font-size: .56rem; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--gold-bright); margin-top: .2rem; }
+
+/* chosen (pre-lock) */
+.pk-opt.picked { border-color: var(--gold); background: rgba(245,196,69,.12); box-shadow: var(--glow-gold); }
+.pk-opt.picked .pk-opt-name { color: #fff; }
+/* graded (post-lock) */
+.pk-opt.win { border-color: rgba(47,213,118,.55); }
+.pk-opt.win .pk-opt-name { color: #eafff2; }
+.pk-opt.lose { opacity: .62; }
+.pk-opt.correct { background: rgba(47,213,118,.14); border-color: var(--green); box-shadow: none; }
+.pk-opt.correct .pk-opt-tag { color: var(--green); }
+.pk-opt.wrong { background: rgba(255,70,85,.12); border-color: rgba(255,70,85,.55); }
+.pk-opt.wrong .pk-opt-tag { color: var(--red-bright); }
+
+/* the split bar — how the league divided, majority (side a) from the left */
+.pk-splitbar { margin-top: .55rem; height: 7px; border-radius: 999px; overflow: hidden;
+  background: rgba(255,70,85,.28); }
+.pk-splitbar-a { height: 100%; background: linear-gradient(90deg, var(--gold), var(--gold-bright));
+  border-radius: 999px; }
+.pk-splitline { font-size: .74rem; margin-top: .35rem; }
+
+.pk-save { display: flex; align-items: center; gap: .8rem; flex-wrap: wrap; padding: 1rem; }
+.pk-save .btn { flex: 0 0 auto; }
+
+/* the leaderboards */
+.pk-board td, .pk-board th { padding: .5rem .7rem; }
+.pk-board tr.pk-mine td { background: rgba(245,196,69,.08); font-weight: 700; }
+.pk-board tr.pk-worst td { background: rgba(255,70,85,.09); }
+.pk-board tr.pk-worst td:first-child { box-shadow: inset 3px 0 0 var(--red); }
+
+/* Hall of Shame callout */
+.pk-shame-card { border-color: rgba(255,70,85,.45); background:
+  linear-gradient(180deg, rgba(255,70,85,.08), rgba(255,70,85,.02)); }
+.pk-shame { margin: 0; font-size: .92rem; line-height: 1.45; color: #ffd7db; }
+.pk-shame b { color: #fff; }
+
+/* a compact pick'em strip other pages (the matchup screen) drop in */
+.pk-strip { display: flex; align-items: center; gap: .7rem; flex-wrap: wrap;
+  padding: .8rem 1rem; margin-bottom: 1.2rem; border-radius: var(--radius);
+  background: linear-gradient(135deg, rgba(122,150,255,.10), rgba(245,196,69,.06));
+  border: 1px solid var(--line); }
+.pk-strip .pk-strip-txt { flex: 1 1 12rem; min-width: 0; }
+.pk-strip .pk-strip-txt b { color: #fff; }
+.pk-strip .pk-strip-sub { display: block; font-size: .76rem; color: var(--muted); margin-top: .1rem; }
+
+@media (max-width: 420px) {
+  .pk-me-num { font-size: 1.7rem; }
+  .pk-opt-name { font-size: .86rem; }
+}

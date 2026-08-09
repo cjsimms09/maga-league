@@ -90,6 +90,13 @@ jobs:
         # archaeology is the commissioner's edge; this keeps it from leaking back
         # in by a stray column, an open tab, or a chapter rewrite.
         run: node draft/tests/access_guard.test.js
+      - name: Pick'em — pick every game, lock at kickoff, split + accuracy boards
+        # Pure grading/aggregation (gameId stability, weekGames pairing, isLocked
+        # by kickoff-or-score, scoreWeek, split, the eligibility-floored leaderboard
+        # and its single worst seat) plus the HTTP surface over the real app:
+        # picks save while unlocked, are REFUSED after kickoff, the split is hidden
+        # pre-lock and public after, and a finished week grades into the boards.
+        run: node draft/tests/pickem.test.js
       - name: Side-bet lifecycle over HTTP — declare→confirm→dispute + Venmo handoff
         # The two-party settling flow end to end: a result is declared, the OTHER
         # side confirms or disputes, a dispute is recorded not adjudicated, and the

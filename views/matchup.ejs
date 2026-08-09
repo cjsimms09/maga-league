@@ -19,6 +19,26 @@
 
 <h1 class="page-title">⚔️ The Matchup <span class="sub" style="font-weight:600">Week <%= weekNo %></span></h1>
 
+<%# ── Pick'em hook — the whole league's games, one tap away ─────────────────── %>
+<% if (typeof pickem !== 'undefined' && pickem && pickem.games) { %>
+  <a class="pk-strip" href="/pickem">
+    <span class="tag" style="font-size:1.3rem">🗳️</span>
+    <span class="pk-strip-txt">
+      <% if (pickem.locked) { %>
+        <b>Week <%= pickem.weekNo %> picks are locked.</b>
+        <span class="pk-strip-sub">See how the league split every game — and who backed you →</span>
+      <% } else if (pickem.picksMade >= pickem.games) { %>
+        <b>You've picked all <%= pickem.games %> games.</b>
+        <span class="pk-strip-sub">Change them until first kickoff, or check the accuracy board →</span>
+      <% } else { %>
+        <b>Pick'em: <%= pickem.picksMade %>/<%= pickem.games %> games picked.</b>
+        <span class="pk-strip-sub">Call every game this week before kickoff →</span>
+      <% } %>
+    </span>
+    <span class="btn gold small" style="pointer-events:none">Pick'em</span>
+  </a>
+<% } %>
+
 <% if (sent) { %>
   <div class="alert-banner" style="margin-bottom:1rem; border-color:rgba(74,222,128,.5)">
     <span class="tag">✅</span><span>Bet sent<% if (opp) { %> to <b><%= opp.name %></b><% } %>. It's in the ledger as <b>OPEN</b> —
