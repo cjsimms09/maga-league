@@ -942,6 +942,7 @@
     try { renderAccountingNote(); } catch (e) { /* never blocks the clock */ }
     try { renderSystemStrip(); } catch (e) { /* never blocks the clock */ }
     try { renderUnrecordedPicks(); } catch (e) { /* never blocks the clock */ }
+    try { renderPickControls(); } catch (e) { /* never blocks the clock */ }
     try { renderLegality(); } catch (e) { /* never blocks the clock */ }
     // Last: the pinned offsets depend on the heights everything above just set
     // (the banner grows a line when a doctrine switches, the watermarks appear
@@ -4070,6 +4071,108 @@
   // an inline duplicate of a tested module is a second implementation the tests
   // do not cover, and it is exactly where the Loveland bug hid.
   const ATTR = (typeof window !== 'undefined' && window.DraftAttribution) || null;
+
+  /* REVERT + RECONCILE (feature A). A mis-marked pick corrupts every downstream
+   * number, so undo must never be locked behind a 5-second toast. Two controls:
+   *   revertLastPick()      — one tap undoes my most recent LOCAL mark (the
+   *                           sync-dead fallback), anytime, not just in the toast
+   *                           window.
+   *   reconcileWithSleeper()— the clean fix: pull Sleeper's authoritative picks
+   *                           for my seat, remove local mis-marks, add anything I
+   *                           missed. Keepers are never touched.
+   * Both write CORRECTIONS to the ledger; neither deletes history. */
+  function unmarkPickById(id) {
+    id = String(id);
+    const p = playerById(id)
+      || (state.myRoster || []).find(x => String(x.player_id) === id)
+      || { player_id: id, name: id };
+    if (ATTR) ATTR.unmarkLocal(state, p);
+    else {
+      state.drafted.delete(id);
+      Object.keys(state.rosters).forEach(s2 => {
+        state.rosters[s2] = (state.rosters[s2] || []).filter(x => String(x.player_id) !== id);
+      });
+      state.myRoster = state.myRoster.filter(x => String(x.player_id) !== id);
+    }
+    if (state.markedLocally) state.markedLocally.delete(id);
+    if (p.position && !state.board.some(x => String(x.player_id) === id)) {
+      state.board.push(p);
+      if (typeof DraftSurvival !== 'undefined') DraftSurvival.bumpBoard(state.board);
+    }
+    for (let i = state.recentPicks.length - 1; i >= 0; i--) {
+      if (String(state.recentPicks[i].player_id) === id) { state.recentPicks.splice(i, 1); break; }
+    }
+    return true;
+  }
+
+  function revertLastPick() {
+    if (typeof DraftPickReconcile === 'undefined') return;
+    const marked = state.markedLocally ? Array.from(state.markedLocally) : [];
+    const id = DraftPickReconcile.lastMark(state.recentPicks, marked);
+    if (!id) return;
+    const name = (playerById(id) || {}).name || id;
+    unmarkPickById(id);
+    if (typeof PredLedger !== 'undefined' && !state.mockMode) {
+      const c = ledgerCtx();
+      PredLedger.capture('correction', { season: c.season, build_at: c.build_at, pick: c.pick,
+        method: 'revert-v1', payload: { reverted: String(id), name: name, via: 'revert-last-pick' } });
+    }
+    recomputeRuns();
+    renderAll();
+  }
+
+  function reconcileWithSleeper() {
+    if (!state.sync || typeof DraftPickReconcile === 'undefined') return;
+    const keepers = (state.myRoster || []).filter(p => p.is_keeper).map(p => String(p.player_id));
+    const marked = state.markedLocally ? Array.from(state.markedLocally) : [];
+    const diff = DraftPickReconcile.reconcileMine(marked, state.sync.allPicks(), mySlot(), keepers);
+    diff.misMarks.forEach(id => unmarkPickById(id));
+    diff.missing.forEach(id => {
+      const p = playerById(id);
+      if (!p) return;
+      state.drafted.add(String(id));
+      const slot = mySlot();
+      if (slot) (state.rosters[slot] = state.rosters[slot] || []).push(p);
+      state.myRoster.push(p);
+      if (state.markedLocally) state.markedLocally.add(String(id));
+      state.board = state.board.filter(x => String(x.player_id) !== String(id));
+    });
+    if (typeof DraftSurvival !== 'undefined') DraftSurvival.bumpBoard(state.board);
+    if (typeof PredLedger !== 'undefined' && !state.mockMode) {
+      const c = ledgerCtx();
+      PredLedger.capture('pick_reconciled', { season: c.season, build_at: c.build_at, pick: c.pick,
+        method: 'reconcile-v1', payload: { removed: diff.misMarks, added: diff.missing,
+          note: 'pulled from Sleeper (authoritative) — local mis-marks discarded' } });
+    }
+    recomputeRuns();
+    renderAll();
+  }
+
+  /* A-created control (like the undo toast) so the fix needs no B-shell edit: a
+   * slim bar with Revert (when I have a local mark) and Reconcile (when synced). */
+  function renderPickControls() {
+    if (typeof document === 'undefined') return;
+    const wr = document.getElementById('warroom');
+    if (!wr || wr.style.display === 'none') return;
+    const hasMark = state.markedLocally && state.markedLocally.size > 0;
+    const synced = !!state.sync;
+    let bar = document.getElementById('pick-controls');
+    if (!hasMark && !synced) { if (bar) bar.style.display = 'none'; return; }
+    if (!bar) {
+      bar = document.createElement('div');
+      bar.id = 'pick-controls';
+      bar.className = 'pick-controls';
+      wr.insertBefore(bar, wr.firstChild);
+    }
+    bar.style.display = 'flex';
+    bar.innerHTML =
+      (hasMark ? '<button class="btn small ghost" id="pc-revert">↩ Revert last pick</button>' : '')
+      + (synced ? '<button class="btn small navy" id="pc-reconcile" title="Pull Sleeper as authoritative — discard any mis-marks">⟳ Reconcile with Sleeper</button>' : '');
+    const rv = document.getElementById('pc-revert');
+    if (rv) rv.onclick = revertLastPick;
+    const rc = document.getElementById('pc-reconcile');
+    if (rc) rc.onclick = reconcileWithSleeper;
+  }
 
   // ----------------------------------------------------------------- actions
 
