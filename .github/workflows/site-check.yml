@@ -123,6 +123,13 @@ jobs:
               print('      OK    the deployed sync can parse a pasted draft URL')
           else:
               problems.append('deployed sync.js predates the draft-URL fix — Netlify has not redeployed')
+          # the measured config (2026-08-09): a marker that exists ONLY in this deploy, so a
+          # green check proves the config Cory drafts on is live, not the old all-on defaults.
+          _, _, eng = fetch('/js/draft/engine.js')
+          if 'MEASURED_WEIGHTS' in eng:
+              print('      OK    the deployed engine carries the measured default config')
+          else:
+              problems.append('deployed engine.js predates the measured config — Netlify has not redeployed')
 
           print('\n--- THE DRAFT BOARD THE WAR ROOM ACTUALLY DOWNLOADS ---')
           status, headers, raw = fetch('/draft_data.json')
