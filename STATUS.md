@@ -584,6 +584,15 @@ the site is in the repaired deploy-verify's hands (sandbox has no egress).
   suppresses deviations for a MEASURED reason, not a guess. Now that ADP is
   reachable, exp 34 can run and feed that decision. Recommendation stands: HOLD.
 
+**⚓ CRUDE STAGE 2 CAP — BUILT, MEASURED, INERT AT T=4.0 (2026-08-09).** Cory
+approved the 2h evidence-gated spike; pre-registered (`STAGE2-CAP-PREREG.md`),
+flag OFF by default, measured immediately. Result: **3/300 picks changed, rate
+73.7%→73.3%** — essentially inert. **T was NOT retuned** (finding, not knob). The
+load-bearing why: ~72% of deviations carry ≥4 pts of `need`/`ceiling`, so a
+value-only gate can't tame the rate. Sharpens exp 34's question to *"is the
+need/ceiling evidence backing our deviations correct vs real ADP?"* Full
+re-weighting stays gated on 34. Flag OFF, SOURCE absent. `STAGE2-CAP-RESULT.md`.
+
 **STAGE 3 IS COMPLETE.** The doctrine governs, inside a measured band, and
 discloses in both directions.
 
