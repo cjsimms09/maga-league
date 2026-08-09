@@ -19,6 +19,11 @@ jobs:
         # none: it looks present. This parses every workflow so the next such
         # break is a red build, not a silent hole in the deploy pipeline.
         run: |
+          # setup-python's interpreter ships without PyYAML, so `import yaml`
+          # below was raising ModuleNotFoundError and red-failing this step —
+          # which SKIPPED every test job beneath it. The lint meant to catch a
+          # silent hole in CI had quietly become one. Install the dep first.
+          pip install --quiet pyyaml
           python3 - <<'PY'
           import glob, sys, yaml
           bad = []
