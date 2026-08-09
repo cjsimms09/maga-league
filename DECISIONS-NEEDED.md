@@ -126,9 +126,12 @@ Audit date: 2026-08-09 (swept every recorded verdict in draft/backtest/*.json + 
      - **ceiling: do NOT zero — it GENUINELY participates and has a real positive region.** Probe:
        ceiling flips **49% of picks at default, 58% at w=1.0** (giving up ~14 VORP/flip to chase
        upside) — so its flatness at DEFAULT is a REAL null (moves half the picks, nets ~0), NOT a
-       scale artifact. But at w≈1.0-1.5 it's separably **+$23-26** (CI excludes 0) — a real,
-       well-participating positive. Single-run + murky mechanism (weekly-high split ~0) → REPLICATE
-       before raising, but zeroing it turns off a separably-positive term that clearly participates.
+       scale artifact. The single-seed curve showed +$23-26 at w≈1.0-1.5, but **REPLICATION across
+       3 fresh seeds (exp_ceiling_replicate, 2026-08-09): w=1.0 = +6/+7/+18 (mean +$10, positive
+       every seed but separable in 0/3)** — the +$23 was the high end of a thin effect (winner's
+       curse on the peak). VERDICT: **draft at 0.65 (settled, unchanged); w=1.0 stays an OPEN
+       question — it leans positive so do NOT zero it, but not enough to raise it.** Ceiling is the
+       live lead for the public-league scale-up (37.5% of the pot pays weekly-high — the mechanism).
      - tier/risk stay 0 (negative or fading everywhere sampled; risk-late is a dead zone, not a
        positive). **Cory's call to confirm the two revised numbers before wiring.**
   3. **BEFORE ripping the live terms out of engine.js:** build the faithful JS-engine ablation
