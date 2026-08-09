@@ -441,7 +441,11 @@
 <script src="/js/draft/keepers.js"></script>
 <script src="/js/draft/keeperlock.js"></script>
 <script src="/js/draft/reconcile.js"></script>
-<script src="/js/draft/stages.js"></script>
+<%# stages.js DELIBERATELY NOT LOADED (dead-weight audit 2026-08-09): it is an inert
+    label utility — the --diff proved it changed 0/300 picks, and SOURCE renders
+    absent. Unloaded so it cannot be wired to a surface. The file + test are kept as
+    the reserved vocabulary for a genuinely behavioral Stage 2 (the re-weighting,
+    gated on exp 34); re-load it ONLY when E.recommend actually starts at consensus. %>
 <script src="/js/draft/survival.js"></script>
 <script src="/js/draft/composite.js"></script>
 <script src="/js/draft/engine.js"></script>

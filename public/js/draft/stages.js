@@ -1,4 +1,20 @@
-/* THE DECISION TREE — an ordered, auditable set of stages.
+/* ⚠️⚠️⚠️ NON-FUNCTIONAL — INERT LABEL UTILITY, NOT WIRED TO ANYTHING ⚠️⚠️⚠️
+ *
+ * DEAD-WEIGHT AUDIT (2026-08-09): this file changes NOTHING about which player is
+ * recommended. The `--diff` proved it: 0 of 300 picks changed identity when the
+ * "decision tree" landed (draft/backtest/POST-TREE-DIFF.md). It is a taxonomy
+ * printed over the composite, not a decision procedure. SOURCE renders explicitly
+ * absent, and this file is NO LONGER LOADED by the war room (script tag removed).
+ *
+ * IT IS KEPT ONLY as reserved vocabulary for a GENUINELY BEHAVIORAL Stage 2 — the
+ * re-weighting in draft/backtest/STAGE2-COST.md that makes E.recommend start at
+ * consensus and earn deviations, gated on exp 34. DO NOT wire this to any surface
+ * (SOURCE, a badge, a label) until that mechanism exists. A stage name next to a
+ * pick that the stages did not choose is the display-without-governing bug, in its
+ * most convincing costume. If exp 34 kills the re-weighting, DELETE this file.
+ * ───────────────────────────────────────────────────────────────────────────────
+ *
+ * THE DECISION TREE — an ordered, auditable set of stages.
  *
  * Replaces "composite-then-explain" with a structure that produces the SAME
  * answer for the same board every time and SHOWS which branch fired. The point
