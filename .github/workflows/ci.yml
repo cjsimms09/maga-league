@@ -82,6 +82,12 @@ jobs:
         # harvested target on its own. Asserts it renders and that no per-owner
         # efficiency analysis leaks onto this league-visible page.
         run: node draft/tests/matchup_weekly_high.test.js
+      - name: War-room mobile furniture — nothing fixed/sticky floats over content
+        # After the pick bar floated mid-screen and the arm button covered the nav
+        # (3rd report), the rule is: on a phone the war-room pinned strips drop to
+        # normal document flow and the arm button is in-flow. Source guard so a
+        # regression back to fixed/sticky-on-mobile fails here, not on a phone.
+        run: node draft/tests/warroom_mobile.test.js
       - name: PWA entry point — "/" renders (never redirects) so the home-screen app launches
         # iOS standalone sits on the navy background_color splash forever if the
         # launch URL redirects. Asserts cold (unauthenticated) "/" returns a 200
