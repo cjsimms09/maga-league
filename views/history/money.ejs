@@ -41,7 +41,7 @@
                const series = MB.years.map(y => (r.by_year || {})[y] || (r.by_year || {})[String(y)] || 0); %>
             <tr class="<%= i === 0 ? 'champ' : '' %>">
               <td class="name rk"><%= i + 1 %></td>
-              <td class="name"><%= r.name %>
+              <td class="name"><%= r.name %><%- include('../partials/_owner_badges', { name: r.name }) %>
                 <span class="flag<%= isGerman ? ' egg-flag' : '' %>"<% if (isGerman) { %> data-egg="wwc" title="🇩🇪" role="button" tabindex="0"<% } %>><%= flag(r.name) %></span>
                 <% if (isGerman) { %><span class="egg-medal egg-reveal" data-egg-medal="wwc">🎖️ back-to-back world war champs</span><% } %>
               </td>

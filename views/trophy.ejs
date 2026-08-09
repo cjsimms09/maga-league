@@ -1,0 +1,49 @@
+<%- include('partials/header', { title: 'The Trophy' }) %>
+<%
+  // The cup + the engraving. Champions in order from 2016 (the way a real trophy
+  // accumulates plates); the newest is the current holder. Marian's 2022 keeps its
+  // asterisk, same as everywhere. Each plate opens that season.
+  const champs = (champions || []).slice().sort((a, b) => a.year - b.year);
+  const reign = champs.length ? champs[champs.length - 1] : null;
+  const linkFor = y => y >= 2023 ? '/history/season/' + y : '/history/early';
+%>
+
+<div class="chron chron-wide" style="text-align:center">
+  <a class="back-link" href="/history">← The Chronicle</a>
+  <p class="chron-eyebrow">The Whole Reason Ten Guys Pay $400 a Year</p>
+  <h1 class="chron-title">The <span class="gold">Cup</span></h1>
+
+  <div class="trophy" role="img" aria-label="The league championship trophy">
+    <div class="trophy-cup">
+      <span class="trophy-shine" aria-hidden="true"></span>
+      <span class="trophy-star" aria-hidden="true">★</span>
+    </div>
+    <div class="trophy-stem" aria-hidden="true"></div>
+    <div class="trophy-base"><span>MFGA · EST. 2016</span></div>
+  </div>
+
+  <% if (reign) { %>
+    <p class="trophy-holder">Currently held by <b><%= reign.champion.replace('/', ' &amp; ') %></b> — <%= reign.year %> champion<%= reign.co_championship ? 's' : '' %></p>
+  <% } %>
+
+  <div class="card plaque">
+    <h2>🏆 The Engraving <span class="sub">every champion, 2016 →</span></h2>
+    <div class="body">
+      <% for (const c of champs) {
+           const isReign = reign && c.year === reign.year; %>
+        <a class="plate<%= isReign ? ' current' : '' %><%= c.asterisk ? ' disputed' : '' %>" href="<%= linkFor(c.year) %>" title="Open the <%= c.year %> season">
+          <span class="plate-year"><%= c.year %></span>
+          <span class="plate-name"><%= c.champion.replace('/', ' & ') %><% if (c.asterisk) { %><span class="plate-aster" title="the disputed, shared 2022 title">*</span><% } %></span>
+          <span class="plate-payout muted"><%= '$' + Number(c.payout || 0).toLocaleString('en-US') %></span>
+          <% if (isReign) { %><span class="plate-crown" title="current holder">👑</span><% } %>
+        </a>
+      <% } %>
+      <p class="muted" style="font-size:.75rem; margin:.9rem 0 0; text-align:left">
+        Tap a plate to open that season. Marian's 2022 carries the asterisk — the
+        disputed, shared title. <a href="/history#asterisk">why →</a>
+      </p>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

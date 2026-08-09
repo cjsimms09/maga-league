@@ -28,6 +28,9 @@ b_owns() {
     # see TERRITORY.md § Substance reassignment). Imported only by src/routes/*,
     # never by draft/**. A keeps predledger/sleeper/prefs + shared infra.
     src/sidebets.js|src/betlogic.js|src/venmo.js|src/dashboard.js|src/ledger.js|src/notify.js) return 0 ;;
+    # src/champs.js — the crown (defending champion, derived). League-visible site
+    # feature, imported only by src/routes/member; never by draft/**. B by substance.
+    src/champs.js) return 0 ;;
     views/*|src/routes/*|public/css/*|public/icons/*|public/*.webmanifest) return 0 ;;
     public/js/*) case "$1" in public/js/draft/*) return 1 ;; *) return 0 ;; esac ;;
     docs/queued/league-history-page.md|docs/queued/history-chronicle-voice.md) return 0 ;;

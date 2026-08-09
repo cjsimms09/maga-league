@@ -38,7 +38,7 @@
 <p style="margin:.2rem 0 0"><a class="back-link" href="<%= viewerIsA ? '/matchup?opp=' + (betOwnerId || '') : '/history/franchise/' + aName.toLowerCase() %>">← Back</a></p>
 
 <div class="rv-head">
-  <h1 class="page-title" style="margin-bottom:.1rem">⚔️ <%= aName %> <span class="rv-vs">vs</span> <%= bName %></h1>
+  <h1 class="page-title" style="margin-bottom:.1rem">⚔️ <%= aName %><%- include('partials/_owner_badges', { name: aName }) %> <span class="rv-vs">vs</span> <%= bName %><%- include('partials/_owner_badges', { name: bName }) %></h1>
   <p class="page-sub" style="margin-top:0">
     <% if (rec.played) { %>The rivalry — <%= rec.played %> meeting<%= rec.played === 1 ? '' : 's' %>, <%= rec.firstSeason %>–<%= rec.lastSeason %> (the box-score era)
     <% } else { %>No box scores between them yet<% } %>

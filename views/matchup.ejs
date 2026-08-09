@@ -67,9 +67,12 @@
       <div class="mu-side <%= (matchup && matchup.opp && matchup.opp.points > matchup.me.points) ? 'up' : '' %>">
         <span class="mu-team"><%= (matchup && matchup.opp && matchup.opp.team) || opp.team_name || opp.name + "'s team" %></span>
         <span class="mu-pts"><%= (matchup && matchup.opp) ? matchup.opp.points.toFixed(2) : '—' %></span>
-        <span class="mu-who"><%= opp.name %></span>
+        <span class="mu-who"><%= opp.name %><%- include('partials/_owner_badges', { name: opp.name }) %></span>
       </div>
     </div>
+    <% if (typeof defendingChamps !== 'undefined' && defendingChamps.indexOf(opp.name) !== -1) { %>
+      <p class="mu-champ-note">👑 You're playing the champ — <b><%= opp.name %></b> is defending the <%= reigningYear %> title. Knock the crown off.</p>
+    <% } %>
     <% if (!live) { %>
       <p class="muted" style="text-align:center; margin:.7rem 0 0; font-size:.76rem">
         No live scoreboard<%= configured ? ' for this week yet' : ' (Sleeper not connected)' %> — showing the head-to-head and letting you bet it.

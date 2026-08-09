@@ -16,7 +16,7 @@
 
   <div class="fran-head">
     <div>
-      <span class="name"><%= o.name %><span class="flag"><%= flag %></span></span>
+      <span class="name"><%= o.name %><%- include('../partials/_owner_badges', { name: o.name }) %><span class="flag"><%= flag %></span></span>
       <div style="color:var(--muted); font-size:.85rem;">@<%= o.handle %></div>
     </div>
     <div style="text-align:right;">

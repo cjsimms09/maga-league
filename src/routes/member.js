@@ -3,6 +3,7 @@ const router = express.Router();
 const H = require('../helpers');
 const HIST = require('./history-data');   // the MFGA Archive — chronicle data engine
 const H2H = require('./h2h');              // all-time head-to-head, from the box scores
+const CHAMPS = require('../champs');       // the crown — defending champion, derived
 const LO = require('./lineup');            // the lineup optimizer engine (validated vs L0)
 const MOVE = require('./standings-movement'); // week-over-week rank arrows (dormant pre-season)
 const L = require('../ledger');
@@ -15,6 +16,27 @@ const crypto = require('crypto');
 const { store, getDoc, setDoc, newId, now } = require('../data');
 const { hashPassword, verifyPassword, requireLogin, requireCommissioner, aw } = require('../auth');
 const { RULES, SCORING, ROSTER } = require('../seed-data');
+
+// ---------- THE CROWN — defending champion on every league-visible page ----------
+// Derived from the champions roll (never hand-set; transfers on its own in January).
+// Injected here on the MEMBER router only, so it lights the crown across standings,
+// matchup, money board, franchise, locker room and the trophy — and never in the
+// war room, which hangs off the /admin router. Templates read `defendingChamps`
+// (names wearing the crown), `titleCounts` (dynasty), and `viewerIsChamp` (the
+// logged-in owner's own-screen flourish); the _owner_badges partial renders them.
+router.use((req, res, next) => {
+  try {
+    const defs = CHAMPS.defendingChampions();
+    res.locals.defendingChamps = defs;
+    res.locals.titleCounts = CHAMPS.titleCounts();
+    res.locals.reigningYear = CHAMPS.reigningYear();
+    res.locals.viewerIsChamp = !!(req.owner && req.owner.name && defs.includes(req.owner.name));
+  } catch (e) {
+    res.locals.defendingChamps = []; res.locals.titleCounts = {};
+    res.locals.reigningYear = null; res.locals.viewerIsChamp = false;
+  }
+  next();
+});
 
 // ---------- public: deploy health, NO league data ----------
 // Everything CI's deploy verification and the pre-draft checklist need to trust
@@ -530,6 +552,14 @@ router.get('/rivalry', aw(async (req, res) => {
     A, rec, aName, bName, oa: A.owners[aName], ob: A.owners[bName], viewerIsA,
     betOwnerId: (bLeague && req.owner && bLeague.id !== req.owner.id) ? bLeague.id : null,
   });
+}));
+
+// THE TROPHY — the league's cup, rendered, with every champion engraved below in
+// order from 2016. League-visible (results, not analysis); tapping a plate opens
+// that season (a written chapter from 2023, the Age-Before-Records page before).
+router.get('/trophy', aw(async (req, res) => {
+  const A = archive();
+  res.render('trophy', { A, champions: A.champions || [] });
 }));
 
 // The required cast for a modern season — champion + fraud/robbed/lucky/collapse,

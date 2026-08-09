@@ -141,6 +141,9 @@ module B owns the rest of is the line drawn in the wrong place.
 - **`src/dashboard.js`** — the `/admin/status` dashboard model (B's dashboard). → **B**
 - **`src/ledger.js`** — the league money ledger (the `/bank` finances). → **B**
 - **`src/notify.js`** — email (side-bet proposals + password reset), site-lane. → **B**
+- **`src/champs.js`** (added 2026-08-09) — the crown: defending champion + dynasty
+  counts, derived from the champions roll. League-visible site feature, imported
+  only by `src/routes/member`; never by `draft/**`. → **B**
 
 **Stays with A (genuinely dual-use or A-substance):** `src/predledger.js` (the
 prediction ledger — draft + in-season instrumentation; B writes via the HTTP

@@ -1,0 +1,13 @@
+<%
+  // Crown + dynasty marks for an owner, wherever a name appears (league-visible).
+  // Reads res.locals set by the member router (defendingChamps / titleCounts /
+  // reigningYear) — includes inherit them, so callers pass only { name }.
+  // Usage: include partials/_owner_badges with { name: r.owner_name }.
+  const _n   = (typeof name !== 'undefined' && name) ? String(name) : '';
+  const _defs = (typeof defendingChamps !== 'undefined') ? defendingChamps : [];
+  const _tc  = (typeof titleCounts !== 'undefined' && titleCounts[_n]) ? titleCounts[_n] : null;
+  const _yr  = (typeof reigningYear !== 'undefined' && reigningYear) ? reigningYear : '';
+  const _crown = !!(_n && _defs.indexOf(_n) !== -1);
+  const _rings = !!(_tc && _tc.total > 1);
+  const _ringN = _tc ? (_tc.clean || _tc.total) : 0;
+%><% if (_crown) { %><span class="champ-crown" title="Defending champion<%= _yr ? ' — ' + _yr : '' %>">👑</span><% } %><% if (_rings) { %><span class="champ-rings" title="<%= _ringN %> championship<%= _ringN === 1 ? '' : 's' %><%= _tc.disputed ? ' + the disputed 2022 co-title' : '' %>"><%= _ringN %>×<%= _tc.disputed ? '*' : '' %></span><% } %>
