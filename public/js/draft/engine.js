@@ -243,7 +243,7 @@
    * Magnitudes are MC-harness-tier; the SIGN/ordering is the robust claim. See
    * DECISIONS-NEEDED #3. Auto mode still carries its own (older, grid-guarded) phase
    * ramp — this is the DEFAULT the tool loads on, not a change to Auto. */
-  const MEASURED_WEIGHTS = { value: 1.0, tier: 0.0, need: 0.5, risk: 0.0, ceiling: 0.65,
+  const MEASURED_WEIGHTS = { value: 1.0, tier: 0.0, need: 0.0, risk: 0.0, ceiling: 0.65,
     keeper: 1.0, bye: 0.0, stack: 0.5 };
 
   /* Named strategies, as weight sets.
@@ -265,7 +265,7 @@
         + 'need nudge on top of the always-on lineup MASK, and a modest ceiling. Tier and risk '
         + 'are OFF — they measured as a drag, not a knob you are declining to turn. This is the '
         + 'honest panel: the sliders that are near zero are near zero because they did nothing.',
-      weights: { value: 1.0, tier: 0.0, need: 0.5, risk: 0.0, ceiling: 0.65, keeper: 1.0, bye: 0.0, stack: 0.5 },
+      weights: { value: 1.0, tier: 0.0, need: 0.0, risk: 0.0, ceiling: 0.65, keeper: 1.0, bye: 0.0, stack: 0.5 },
     },
     {
       key: 'balanced', label: 'Balanced',
