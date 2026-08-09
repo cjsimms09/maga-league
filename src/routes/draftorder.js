@@ -55,8 +55,15 @@ function computeSelectionOrder(regOrder, playoffFinish, playoffTeams = 4) {
   }
 
   // Stage 2 — playoff teams, final finishes 1..playoffTeams (champ..lowest).
-  // Selection order is reverse: the lowest bracket finisher selects first among
-  // them, the champion selects last (dead last overall).
+  // ⚠️ UNCONFIRMED ASSUMPTION (awaiting Cory) — the PLAYOFF-FOUR rule:
+  //   Selection order is reverse of bracket finish: 4th picks 7th overall, 3rd
+  //   picks 8th, runner-up 9th, CHAMPION picks 10th (dead last).
+  //   Verified: the 2026 draft reproduces this exactly; the 2025 draft does NOT
+  //   (the 2024 champion picked 7th, first among the four). The non-playoff-six
+  //   half is confirmed by history; ONLY this four-team ordering is unconfirmed.
+  //   Until Cory confirms, treat this order as provisional — a plausible-wrong
+  //   draft order is a silent failure, and this is the offseason's most-watched
+  //   output. See draft/tests/draftorder.test.js + PARKED.md.
   const reversedPlayoff = [...playoffFinish].reverse();     // worst bracket → champ
   reversedPlayoff.forEach((oid, i) =>
     picks.push({ pick: reversedNon.length + i + 1, owner_id: oid, source: 'playoff', locked: true }));
@@ -64,4 +71,7 @@ function computeSelectionOrder(regOrder, playoffFinish, playoffTeams = 4) {
   return { picks, pending: [], dinner, complete: true };
 }
 
-module.exports = { regSeasonOrder, computeSelectionOrder };
+module.exports = { regSeasonOrder, computeSelectionOrder,
+  // ⚠️ flip to true only when Cory confirms the playoff-four rule; surfaces
+  // rendering the top-4 order should label it provisional while this is false.
+  PLAYOFF_RULE_CONFIRMED: false };
