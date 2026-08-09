@@ -22,6 +22,20 @@ _Last updated 2026-08-09._
 - **Sharpen:** ① **FantasyPros as a 3rd source** (free, CSV to 2015, revealed behavior) —
   turns the directional 2-season finding firmer, enables a real per-region-hybrid test, is
   the tiebreaker. ② 20yr nflverse + public leagues at scale. **Queue: FantasyPros is next.**
+- **A 4th/5th source (NFFC, FantasyData) — GATED ON THE THREE-WAY RESULT (Cory, 2026-08-09).**
+  The probe flagged both, untouched. They are NOT equivalent: **NFFC is a different CROWD**
+  (high-stakes real-money drafters), a structurally different signal — the way Underdog's
+  ceiling-weighted best-ball board could price differently from redraft consensus.
+  **FantasyData is just another free consensus** (redundant if FFC/MFL/FP already agree).
+  **Decision rule:** run the three-way first. If FFC/MFL/FP **correlate tightly by region**,
+  a 4th free-consensus source lands in the same place → **close the question** (skip
+  FantasyData; NFFC only marginal, since its value would be in disagreement that isn't
+  there). If they **disagree meaningfully by region**, a different crowd becomes MORE
+  interesting → **NFFC earns a parser** (test whether the money crowd prices the
+  disagreement regions differently); FantasyData still skippable. Caveat if NFFC is built:
+  it's a different-format context too (deep/high-stakes), so grade by RANK to cancel the
+  format offset, same discipline as MFL. **The three-way grade decides this — don't build a
+  4th blind.**
 - **Status:** MFL swap APPROVED (DECISIONS-NEEDED #1); wire after the 3rd-source result.
 
 ## 2. KEEPER-NEED RULE — follow ADP within startable need  ← LIVE
