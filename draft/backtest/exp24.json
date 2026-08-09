@@ -34,15 +34,15 @@
           "TE": 0.1468
         },
         "winner_minus_field_fraction": {
-          "TE": -0.0003,
           "QB": 0.0062,
           "WR": -0.0267,
+          "TE": -0.0003,
           "RB": 0.0209
         },
         "winner_minus_field_count": {
-          "TE": -0.006,
           "QB": 0.11,
           "WR": -0.481,
+          "TE": -0.006,
           "RB": 0.376
         },
         "translated_to_our_15": {
@@ -80,15 +80,15 @@
           "TE": 0.1468
         },
         "winner_minus_field_fraction": {
-          "TE": 0.006,
           "QB": -0.0027,
           "WR": -0.0129,
+          "TE": 0.006,
           "RB": 0.0096
         },
         "winner_minus_field_count": {
-          "TE": 0.108,
           "QB": -0.049,
           "WR": -0.231,
+          "TE": 0.108,
           "RB": 0.172
         },
         "translated_to_our_15": {
@@ -126,15 +126,15 @@
           "TE": 0.1468
         },
         "winner_minus_field_fraction": {
-          "TE": 0.0027,
           "QB": -0.0024,
           "WR": -0.0071,
+          "TE": 0.0027,
           "RB": 0.0068
         },
         "winner_minus_field_count": {
-          "TE": 0.049,
           "QB": -0.044,
           "WR": -0.126,
+          "TE": 0.049,
           "RB": 0.122
         },
         "translated_to_our_15": {
@@ -146,18 +146,18 @@
       }
     },
     "sign_stable_across_cuts": {
-      "TE": false,
       "QB": false,
-      "RB": true,
-      "WR": true
+      "WR": true,
+      "TE": false,
+      "RB": true
     }
   },
   "finding": {
     "value": {
       "winner_minus_field_fraction": {
-        "TE": 0.006,
         "QB": -0.0027,
         "WR": -0.0129,
+        "TE": 0.006,
         "RB": 0.0096
       },
       "translated_to_our_15": {
