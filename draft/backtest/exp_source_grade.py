@@ -148,6 +148,7 @@ def egress_main():   # pragma: no cover  (CI only)
     sys.path.insert(0, str(HERE.parent))          # draft/ — where adp.py + sleeper_import.py live
     sys.path.insert(0, str(HERE.parent.parent))   # repo root (matches exp36's resolution)
     import mfl_adp as MFL
+    import fantasypros_adp as FP
     import adp as ADP
     import sleeper_import as SL
     picks_path = HERE / "exp36_picks.json"
@@ -156,6 +157,7 @@ def egress_main():   # pragma: no cover  (CI only)
     picks = (json.loads(picks_path.read_text()).get("picks")) or []
     index = ADP.build_index(SL.fetch_players())
 
+    fp_diag = {}   # self-diagnosing: raw head saved when a FP season parses thin
     per_season, seasons = {}, sorted({p["season"] for p in picks if p.get("season")})
     for yr in seasons:
         rows = [p for p in picks if p.get("season") == yr]
@@ -169,12 +171,32 @@ def egress_main():   # pragma: no cover  (CI only)
                 sid, _how = ADP.match_player(r, index)
                 if sid and str(sid) in realized:
                     adp_mfl[str(sid)] = r["adp"]
+        # FantasyPros — half-PPR (our format), crosswalked the same way.
+        html, fp_url = FP.fetch(yr)
+        fp_rows = FP.parse(html) if html else []
+        adp_fp = {}
+        for r in fp_rows:
+            sid, _how = ADP.match_player(r, index)
+            if sid and str(sid) in realized:
+                adp_fp[str(sid)] = r["adp"]
+        # SELF-DIAGNOSE: a parse miss must LOOK like a miss, not an absent source. If FP
+        # came back but parsed thin, save the raw head so the next run shows the real table.
+        if html and len(adp_fp) < 20:
+            fp_diag[yr] = {"url": fp_url, "parsed_rows": len(fp_rows), "crosswalked": len(adp_fp),
+                           "raw_head": html[:3000]}
+            print(f"  {yr}: FantasyPros parsed {len(fp_rows)} rows, {len(adp_fp)} crosswalked "
+                  f"(<20) — raw head saved for structure inspection")
+
         sources = {"FFC": adp_ffc}
         if len(adp_mfl) >= 20:
             sources["MFL"] = adp_mfl
         else:
             print(f"  {yr}: MFL matched only {len(adp_mfl)} — excluded (thin/unreachable)")
-        per_season[yr] = {"n_matched_mfl": len(adp_mfl),
+        if len(adp_fp) >= 20:
+            sources["FantasyPros"] = adp_fp
+        else:
+            print(f"  {yr}: FantasyPros matched only {len(adp_fp)} — excluded (thin/unreachable)")
+        per_season[yr] = {"n_matched_mfl": len(adp_mfl), "n_matched_fp": len(adp_fp),
                           **compare_sources(realized, meta, sources)}
 
     # pooled headline: across seasons, how often does each source win a region, and
@@ -185,14 +207,16 @@ def egress_main():   # pragma: no cover  (CI only)
         for _region, w in res["per_region_winner"].items():
             wins[w["winner"]] = wins.get(w["winner"], 0) + 1
         comp_beats += 1 if res.get("composite_beats_best_member") else 0
-    out = {"experiment": "source grade — FFC vs MFL (+FantasyPros pending), per season",
+    out = {"experiment": "source grade — FFC vs MFL vs FantasyPros, per season",
            "seasons": seasons, "per_season": per_season,
            "pooled_region_wins": wins,
            "composite_beat_best_in_n_seasons": comp_beats,
-           "caveat": "points-reliability (Spearman) like exp36; MFL is full-PPR/12-team, "
-                     "compared by RANK so scale/format offset cancels in the head-to-head. "
-                     "FantasyPros joins when its CSV parser lands. B0-per-source dollars is "
-                     "the bridge follow-on. No install — picks the board the keeper-need rule ranks by."}
+           "fantasypros_parse_diagnostics": fp_diag,   # empty = parsed fine; populated = inspect the raw head
+           "caveat": "points-reliability (Spearman) like exp36; compared by RANK so scale/format "
+                     "offset cancels. FantasyPros is HALF-PPR (our format — a closer match than "
+                     "MFL's full-PPR); FFC half-PPR; MFL full-PPR/12-team. Three-way now decides "
+                     "whether a 4th source (NFFC=different crowd) is worth building (EDGE-LEDGER). "
+                     "No install — picks the board the keeper-need rule ranks by."}
     (HERE / "exp_source_grade.json").write_text(json.dumps(out, indent=2))
     print(json.dumps({"seasons": seasons, "pooled_region_wins": wins,
                       "composite_beat_best_in_n_seasons": comp_beats}, indent=2))
