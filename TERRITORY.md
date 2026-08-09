@@ -2,7 +2,51 @@
 
 _Answered 2026-08-08 with evidence, not assertion._
 
-## 🚦 BRANCH PROTOCOL — both sessions work directly on `main` (Cory, 2026-08-08, BINDING)
+## ⛔ THE MAIN-ONLY PROTOCOL BELOW IS VOID — the harness forces feature branches (2026-08-09)
+
+**The question, answered plainly:** direct commit to `main` is NOT available under
+this harness. The git remote can physically reach `main` (CI's lab-bot even pushes
+to it), so it is not a hard network block — but each session is ASSIGNED a designated
+feature branch by the harness and instructed, explicitly and repeatedly, to develop
+only there and to *never push to a different branch without permission*. A is on
+`claude/exp34-dollar-arm-*`, B is on its own branch. **So branches are forced by
+policy, and the "both sessions on `main`" rule below cannot be honoured — it is
+struck, not merely amended, per the stale-claim discipline.**
+
+**This already cost us:** the CI Lab's commit steps ran `git pull --rebase origin
+main && git push`, which assumes main-based development. On a feature-branch run it
+hit an add/add conflict against `main` and silently skipped the push, stranding a
+fired experiment result in CI (recovered from the job log). Fixed: those commit
+steps now rebase onto the run's OWN ref (`$GITHUB_REF_NAME`), so lab-bot commits land
+on the branch the run is on, never fighting `main`.
+
+### THE MERGE PROTOCOL (replaces main-only)
+
+1. **Territory is still the isolation.** A and B edit disjoint files (the split
+   below), so branches add integration *timing*, not content conflicts. A rebase
+   that conflicts is a territory violation → STOP and report, exactly as before.
+2. **A owns integration to `main` AND deploys.** A merges both branches into `main`
+   (A is already the single deploy owner; merge and deploy are one responsibility).
+   B never merges to `main`; B signals a ready commit and A integrates it.
+3. **Cadence:** A merges to `main` at unit boundaries and whenever B signals a ready
+   commit (e.g. B's history-restore commit), at minimum once per work session if
+   either branch advanced — the same cadence as deploys.
+4. **Before merging a branch:** rebase it onto `origin/main` first. Under the clean
+   split this does not conflict; a conflict is the territory alarm.
+5. **CI auto-commits target the run's own branch ref** (`$GITHUB_REF_NAME`), never
+   `main`. When a branch merges to `main`, main's own scheduled Lab run regenerates
+   those results cleanly.
+6. **Deploy stays A-only, from `main` after merge,** draft-week build reserve
+   protected (`DEPLOY-POLICY.md`).
+7. **The Sunday audit's "no remote branch other than `main`" assertion is now WRONG**
+   and must be relaxed to "feature branches are expected; assert `main` == deployed
+   HEAD instead." Flagged for update (do not let a stale audit rule fail green work).
+
+_The original main-only text is retained below for the record of WHY it was written
+(the stale-`main`/stranded-work failure it was reacting to is real and the merge
+protocol above is what actually prevents it under a branch-forcing harness)._
+
+## 🚦 BRANCH PROTOCOL — both sessions work directly on `main` (Cory, 2026-08-08, ~~BINDING~~ VOID per above)
 
 **What went wrong (so it is on the record):** A committed to
 `claude/new-session-jwdvn7` and B to `claude/new-session-xs2lv6`. Neither was

@@ -259,6 +259,24 @@ def _weekly_games(weekly_df, season: int, crosswalk: dict) -> dict[str, int]:
     return out
 
 
+def _harvest_realized(season: dict) -> dict[str, float]:
+    """Season-total realized fantasy points per player from the HARVEST
+    (league_history players_points), summed across every harvested week. The
+    obvious in-repo source when nflverse cannot serve a season's realized — the
+    same source the dollar arm grades all three seasons from. ROSTER-GATED: a
+    player only scores weeks he was rostered, so a mid-season drop is truncated
+    (the accepted limit roster_sim documents). Scored under Sleeper's engine =
+    the league's own scoring, so it is in the same currency as our projection."""
+    sys.path.insert(0, str(HERE))
+    import roster_sim as RS
+    gpp = RS.global_player_points(season)          # {week: {player_id: points}}
+    out: dict[str, float] = {}
+    for _wk, pts in gpp.items():
+        for pid, v in pts.items():
+            out[str(pid)] = round(out.get(str(pid), 0.0) + float(v or 0.0), 2)
+    return out
+
+
 def _egress_main(out_dir: Path) -> int:
     sys.path.insert(0, str(HERE.parent))          # draft/ on path
     sys.path.insert(0, str(HERE.parent.parent))   # repo root
@@ -329,14 +347,31 @@ def _egress_main(out_dir: Path) -> int:
         if "season" in weekly.columns else set()
 
     all_pools, all_decisions = [], []
+    realized_source = {}
     for s in seasons:
         yr = int(s["season"])
         scoring_cfg = s.get("scoring_settings") or {}
         teams = ((s.get("settings") or {}).get("teams")) or 10
         if yr not in have_years:
-            caveats.append(f"{yr}: realized weekly unavailable (incl. pbp); season SKIPPED (not scored zero)")
-            continue
-        realized = GR.rest_of_season_points(weekly, yr, scoring_cfg, crosswalk, from_week=1)
+            # nflverse (incl. the cross-validation-gated pbp rebuild) could not serve
+            # this season's realized. Before skipping, PROBE THE OBVIOUS IN-REPO
+            # SOURCE: the harvest (league_history players_points) — the same source
+            # the dollar arm grades all three seasons from, complete where nflverse
+            # 404s. Roster-gated (a player only scores weeks he was rostered, so a
+            # dropped bust is truncated), which is the accepted limit roster_sim
+            # already carries; flagged, never smuggled.
+            realized = _harvest_realized(s)
+            if not realized:
+                caveats.append(f"{yr}: realized unavailable from nflverse AND the harvest; SKIPPED")
+                continue
+            realized_source[yr] = "harvest"
+            caveats.append(f"{yr}: nflverse realized unavailable (pbp rebuild refused by cross-"
+                           f"validation on 2024 — the gate working); RECOVERED from the harvest "
+                           f"(league_history players_points, season totals, {len(realized)} players; "
+                           f"roster-gated so a mid-season drop is truncated).")
+        else:
+            realized = GR.rest_of_season_points(weekly, yr, scoring_cfg, crosswalk, from_week=1)
+            realized_source[yr] = "nflverse"
         # our walk-forward projection from strictly PRIOR realized points (no leak).
         prior_pts, prior_games = {}, {}
         for py in (yr - 2, yr - 1):
@@ -368,16 +403,19 @@ def _egress_main(out_dir: Path) -> int:
         pools, decisions = assemble(yr, real_draft(s), rid, proj=proj, adp_rank=adp_rank,
                                     realized=realized, tiers=None, dispersion=dispersion)
         print(f"  {yr}: {len(decisions)} decisions, {len(adp_rank)} ADP-matched, "
-              f"{len(proj)} projected")
+              f"{len(proj)} projected [realized: {realized_source.get(yr)}]")
         all_pools.extend(pools); all_decisions.extend(decisions)
 
     # ── the measuring stick: delegate to the verified metrics ────────────────
     fv_edges, fv_labels = [1e-6, 10, 30], ["value(<=0)", "near-zero", "moderate", "large"]
     dist_edges, dist_labels = [5, 15, 30], ["<5", "5-15", "15-30", ">30"]
     disp_edges, disp_labels = [4, 8], ["unanimous", "mid", "contested"]
+    from collections import Counter as _Counter
+    n_by_season = dict(_Counter(str(d["season"]) for d in all_decisions))
     result = {
         "experiment": "34 — recommendation-vs-market, policy-level (forgone-value unit)",
         "n_decisions": len(all_decisions), "n_pool_picks": len(all_pools),
+        "n_by_season": n_by_season, "realized_source": realized_source,
         "underpowered": True,
         "note": "n~41, underpowered; inconclusive => anchor binds HARDER (PRE-REGISTRATION-34)",
         "rank_correlation": MET.aggregate_correlations(all_pools),
@@ -403,6 +441,10 @@ def _report(r: dict) -> str:
          f"_{r['n_decisions']} real decisions across three seasons; our ordering =",
          "walk-forward projected value. Underpowered by construction (n~41); an",
          "inconclusive CI (spans zero) reads as the anchor binding HARDER, not looser._", "",
+         f"**n by season: {r.get('n_by_season')}** · realized source: {r.get('realized_source')}",
+         "_(a season marked `harvest` had its realized recovered from league_history "
+         "players_points after nflverse's pbp rebuild was refused by cross-validation — "
+         "roster-gated, so a mid-season drop is truncated.)_", "",
          "## PRIMARY — rank correlation over the available pool", "",
          f"- our ordering: mean rho {rc['rho_our_mean']} CI {rc['rho_our_ci']}",
          f"- market (ADP): mean rho {rc['rho_market_mean']} CI {rc['rho_market_ci']}",

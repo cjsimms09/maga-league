@@ -119,3 +119,14 @@ def test_build_result_shape():
     r = X.build_result(rows)
     assert r["underpowered"] is True
     assert set(("arm_A_market_adp", "arm_B_room_revealed", "decisions")) <= set(r)
+
+
+def test_harvest_realized_recovers_a_season_from_players_points():
+    # A tiny harvested season: two weeks of players_points -> summed season totals.
+    season = {"weeks": {
+        "1": [{"roster_id": 1, "players_points": {"x": 10.0, "y": 5.0}}],
+        "2": [{"roster_id": 1, "players_points": {"x": 12.0}}],   # y dropped after wk1
+    }}
+    r = X._harvest_realized(season)
+    assert r["x"] == 22.0           # summed across weeks
+    assert r["y"] == 5.0            # truncated (roster-gated) — dropped after week 1
