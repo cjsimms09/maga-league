@@ -555,7 +555,30 @@ router.get('/bank', aw(async (req, res) => {
   const deadlines = {};
   for (const b of bets) deadlines[b.id] = BL.acceptDeadline(b, gateCtx);
 
+  // COMMISSIONER-ONLY franchise-pool advisor (the tools rule: analysis is the
+  // commissioner's). For each pool the commissioner is drafting, the portfolio
+  // advice on his picks. Runs on a LABELLED placeholder for champ odds until A's
+  // league-championship model lands (flagged in PARKED); it drops in cleanly.
+  const poolAdvice = {};
+  if (req.owner.is_commissioner) {
+    const PA = require('./pooladvisor');
+    let rankByName = {};
+    try {
+      const A = HIST.build();
+      const years = Object.keys(A.byYear || {}).map(Number).sort((x, y) => y - x);
+      for (const y of years) { const ss = A.byYear[y]; if (ss && (ss.standings || []).length) { for (const rr of ss.standings) rankByName[rr.name] = rr.rank; break; } }
+    } catch (e) { /* placeholder still works with empty ranks */ }
+    const nameOfId = id => (H.ownerById(owners, id) || {}).name || '?';
+    for (const b of bets) {
+      if (b.format === 'pool' && b.draft && SB.isParty(b, req.owner.id)) {
+        const champProb = PA.placeholderChampProbs(b.draft.pool, rankByName, nameOfId);
+        poolAdvice[b.id] = PA.advise({ draft: b.draft, myId: req.owner.id, champProb, nameOf: nameOfId, source: 'placeholder' });
+      }
+    }
+  }
+
   res.render('bank', {
+    poolAdvice,
     cards, season, totalOwedToLeague, totalLeagueOwes, viewCard, leagueEntries,
     TYPE_LABELS: L.TYPE_LABELS,
     section, bets, tallies, owners, betNames, sbLedger, sbOwed, sbOwedMine, verdicts, liveOrder,

@@ -1728,6 +1728,18 @@ button.pd-team.pick:hover { background: rgba(245,196,69,.16); transform: transla
 .pd-roster-teams { display: flex; flex-wrap: wrap; gap: .25rem; }
 .pd-chip { font-size: .72rem; padding: .1rem .4rem; border-radius: 6px; background: rgba(255,255,255,.06); color: var(--ink); }
 .pdraft-pending { font-size: .84rem; color: var(--ink); padding: .5rem .2rem 0; line-height: 1.5; }
+/* Commissioner-only pick advisor — visually set apart as "yours". */
+.pd-advisor { margin-top: .7rem; border-radius: 10px; padding: .6rem .7rem;
+  background: linear-gradient(180deg, rgba(122,150,255,.08), rgba(122,150,255,.02));
+  border: 1px solid rgba(122,150,255,.35); }
+.pd-adv-head { font-size: .74rem; font-weight: 800; color: #a9bcff; letter-spacing: .02em; display: flex; justify-content: space-between; gap: .5rem; align-items: baseline; flex-wrap: wrap; }
+.pd-adv-src { font-size: .64rem; font-weight: 600; color: var(--muted); text-transform: none; letter-spacing: 0; }
+.pd-adv-conf { font-size: .84rem; line-height: 1.45; margin: .35rem 0; color: var(--ink); }
+.pd-adv-meters { display: flex; flex-wrap: wrap; gap: .8rem; font-size: .76rem; color: var(--muted); }
+.pd-adv-recs { display: flex; flex-wrap: wrap; gap: .35rem; margin-top: .5rem; }
+.pd-adv-rec { font-size: .74rem; padding: .12rem .45rem; border-radius: 999px; background: rgba(255,255,255,.05); border: 1px solid var(--line); }
+.pd-adv-rec.best { background: rgba(47,213,118,.14); border-color: rgba(47,213,118,.45); color: var(--green); font-weight: 700; }
+.pd-adv-gone { font-size: .72rem; margin-top: .4rem; }
 @media (max-width: 480px) { .pdraft-rosters { grid-template-columns: 1fr; } }
 
 /* ── SIDE-BET LIFECYCLE (declare → confirm → dispute) ───────────────────────── */

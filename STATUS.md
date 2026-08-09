@@ -996,3 +996,23 @@ Integrating directly to main (Cory authorized). Branch == main.
 - **Deploy-drift made LOUD:** self-audit now reports "prod is N commits behind main" and HARD-fails when a stranded release includes served files; the stray-branch rule relaxed to FYI (feature branches are expected). Budget recommendation in DEPLOY-POLICY.md: keep `[deploy]` opt-in through Aug 22 (auto-deploy risks build-minute exhaustion → war room down on draft day), flip to opt-out after. Health-strip VIEW parked for B.
 
 ### ▶ QUEUE (unchanged, in order): **third composite arm** (composite vs ADP on dollars — the number that tests our construction layer; pre-registered; needs the JS replay path) → dollar-grade the exp35 sweep (I built points only; the dollar-per-weight curve is the flagged increment) → naive-as-source run → exp 41 paired-room race → auto-adjuster conditional mining → what-would-have-worked.
+
+### 🅱️ update: POOL BETS = A FRANCHISE SNAKE DRAFT + commissioner advisor (COMPLETE)
+Rebuilt pool bets as a draft, not a form (Cory). All on main, all tested:
+- State machine (`sidebets.js`: startPoolDraft/poolDraftPick/snakeTurn; pool_draft
+  12/12) — propose→PROPOSED(all teams, nobody picked)→accept opens draft→snake
+  picks (mutual exclusion, even split)→complete.
+- Routes + draft ORDER from prior-season standings w/ why + draft-room UI
+  (whose-turn, board taken/available one-tap, rosters on complete) — pool_draft_ui
+  9/9.
+- **Commissioner-only advisor** (`pooladvisor.js`) — VONA-for-franchises: marginal
+  contribution to P(hold champion) + bracket-collision discount + likely-gone +
+  live P(win); commissioner-only, opponent never sees it — pool_advisor 6/6. Runs
+  on LABELLED placeholder champ odds until **A's championship-probability model**
+  (flagged PARKED; feeds League Outlook + in-season too) drops in.
+Screenshots (draft room + advisor) sent to Cory.
+**DESIGN SWEEP still remaining:** standings rank arrows (live), home "this week's
+weekly-high race" meter, side-bet grid money-colour, propose-from-anywhere,
+Chiefs/Mahomes + Bates eggs. THEN Sunday alert → instrumentation check.
+**A OUTSTANDING:** deploy main (still not deployed — Cory can't see any of it live);
+championship-probability model for the advisor.
