@@ -836,3 +836,23 @@ hooks in order and HALT on any failure.
 ### B-lane orphans B is fixing next (not A's): pick'em all-time board silently drops
 prior seasons; trash-talk + dispatch archives are written but read by no surface.
 Tracked in B's queue.
+
+---
+
+## 🅱️→🅰️ CI heads-up before integration (Session B, 2026-08-09)
+Ran the full pure JS suite locally against B's branch. Two things:
+
+1. **FIXED (B): `authority.test.js` — `scores (c)`.** B's trash-talk route
+   `/matchup/trash` (unit 5) tripped the "no route writes scores/matchups/results"
+   substring scan because its path contains "matchup". It writes banter, not
+   points. Exempted it explicitly in the test (doctrine intact). This would have
+   gone RED on your merge-to-main since CI only runs on `main`.
+
+2. **A-LANE (still failing): `app-wiring.test.js` 20/22** — `renderRecommendations
+   calls the stack line` and `...the movement line`, both in `public/js/draft/app.js`
+   (not in B's diff — pre-existing). Flagging so it doesn't surprise you at
+   integration; it's your lane to resolve.
+
+Everything else in the pure suite + all B app-boot suites (route_smoke, accuracy,
+vault, pickem_alltime_freeze, vote_ledger_sync, matchup_spectator, pwa_entry,
+warroom_mobile, season_form, history_smoke, access_guard) is green.

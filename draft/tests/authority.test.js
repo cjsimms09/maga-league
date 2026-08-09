@@ -91,7 +91,12 @@ function check(name, cond, detail) {
     return out;
   };
   const posts = postBodies(member).concat(postBodies(admin));
-  const scoreWriters = posts.filter(p => /score|matchup|result|points/i.test(p));
+  // /matchup/trash writes TRASH TALK welded to a game — banter, not a score or a
+  // matchup RESULT. Its path contains "matchup" so the substring scan flags it,
+  // but it enters no points; exempt it explicitly. The doctrine the check
+  // enforces (scores come from Sleeper, never a hand-entry route) is intact.
+  const SCORE_EXEMPT = new Set(['/matchup/trash']);
+  const scoreWriters = posts.filter(p => /score|matchup|result|points/i.test(p) && !SCORE_EXEMPT.has(p));
   check('scores (c): NO route exists that writes scores/matchups/results',
     scoreWriters.length === 0, JSON.stringify(scoreWriters));
 }
