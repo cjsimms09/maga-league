@@ -122,41 +122,16 @@
     </div>
   </div>
 
-  <%# ── THE DOCTRINE BANNER (war-room-v2-doctrine-banner.md) ───────────────
-      Above the status bar, the most prominent strategic element on the page:
-      what plan is being executed, how confident it is, and what the live
-      alternative costs. Switches are announced as EVENTS with a one-tap
-      decline. Populated by app.js renderDoctrine(); hidden until the board
-      loads so an empty bar never occupies the top of the screen. %>
-  <div id="doctrine-banner" class="doctrine-banner" style="display:none">
-    <div class="db-main">
-      <div class="db-name" id="db-name">—</div>
-      <div class="db-creed" id="db-creed"></div>
-    </div>
-    <div class="db-side">
-      <div class="db-confidence" id="db-confidence"></div>
-      <div class="db-alt" id="db-alt"></div>
-    </div>
-  </div>
-  <div id="doctrine-switch" class="doctrine-switch" style="display:none">
-    <span id="db-switch-text"></span>
-    <button class="btn small ghost" id="db-decline" title="Keep the prior doctrine — my draft, my call">Decline — keep the plan</button>
-  </div>
+  <%# THE PLAN (doctrine banner), WATCH (legality strip) and the pick-bar status
+      moved DOWN into the decide surface as context BELOW the recommendation
+      (Cory: the recommendation + Take buttons come first, before scrolling). Their
+      hosts now live inside .wr-zone1 and CSS `order` arranges them under the
+      recs card. Ids/classes unchanged, so app.js renders into them as before. %>
 
   <%# In-page typed confirm for END DRAFT. window.prompt was the mock-#1
       swallowing mechanism — Chrome suppresses repeated dialogs and a suppressed
       prompt returns null silently, so the button read as dead. %>
   <div id="end-confirm" class="end-confirm" style="display:none"></div>
-
-  <%# THE LEGALITY STRIP — the running guarantee, visible at all times.
-      Mock #1 ended with no defense and the tool never said a word; a silent
-      guarantee cannot visibly stop being true. Informational for streamable
-      onesies, alarming for mandatory slots. Populated by renderLegality(). %>
-  <div id="legality-strip" class="legality-strip" style="display:none"></div>
-
-  <%# §2(d) — slim pinned status bar: pick state + connection stay visible when
-      scrolled down to the board. Populated by app.js renderStatusBar(). %>
-  <div id="wr-statusbar" class="wr-statusbar" style="display:flex"></div>
   <span id="prefs-sync" style="display:none;font-size:.68rem;color:#8fa6d0;position:absolute;top:2px;right:8px;z-index:5" title="prefs sync state"></span>
   <%# Position lives in CSS (.wr-arm) so it can lift ABOVE the mobile tab bar —
       at bottom:16px it sat on top of LOCKER and MORE (z-index 150 > the bar's
@@ -185,6 +160,27 @@
       about a turn from gone (the LRM/branch survival math it already runs).
       Hidden when nothing is slipping so it never becomes furniture. %>
   <div id="queue-slip" class="queue-slip" role="status" aria-live="polite" style="display:none"></div>
+
+  <%# CONTEXT STRIPS — THE PLAN, WATCH, pick-bar. In the DOM here, but CSS `order`
+      (on .wr-zone1) places them BELOW the recommendation card. Populated by
+      app.js renderDoctrine()/renderLegality()/renderStatusBar(). %>
+  <div id="doctrine-banner" class="doctrine-banner" style="display:none">
+    <div class="db-main">
+      <div class="db-name" id="db-name">—</div>
+      <div class="db-creed" id="db-creed"></div>
+    </div>
+    <div class="db-side">
+      <div class="db-confidence" id="db-confidence"></div>
+      <div class="db-alt" id="db-alt"></div>
+    </div>
+  </div>
+  <div id="doctrine-switch" class="doctrine-switch" style="display:none">
+    <span id="db-switch-text"></span>
+    <button class="btn small ghost" id="db-decline" title="Keep the prior doctrine — my draft, my call">Decline — keep the plan</button>
+  </div>
+  <div id="legality-strip" class="legality-strip" style="display:none"></div>
+  <div id="wr-statusbar" class="wr-statusbar" style="display:flex"></div>
+
   <%# ── THE MINIMUM VIABLE SURFACE ────────────────────────────────────────
       Five truthful lines, and TWO MARKED EXPLICITLY ABSENT.
 

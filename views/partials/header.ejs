@@ -37,7 +37,14 @@
 <link rel="apple-touch-startup-image" media="(device-width:375px) and (device-height:812px) and (-webkit-device-pixel-ratio:3)" href="/icons/splash-1125x2436.png">
 <link rel="apple-touch-startup-image" media="(device-width:375px) and (device-height:667px) and (-webkit-device-pixel-ratio:2)" href="/icons/splash-750x1334.png">
 </head>
-<body class="<%= (typeof viewerIsChamp !== 'undefined' && viewerIsChamp) ? 'is-champ' : '' %>">
+<%# Body classes UNION two independent needs: `is-champ` (main — champion styling) and
+    `warroom-page` (B — collapses masthead/announcements server-side so the draft tool's
+    recommendation is above the fold with no flash before app.js runs; app.js re-adds it +
+    sim-state classes, idempotent). Neither may drop the other. %>
+<body class="<%= [
+      (typeof viewerIsChamp !== 'undefined' && viewerIsChamp) ? 'is-champ' : '',
+      (typeof currentPath !== 'undefined' && /^\/admin\/warroom/.test(currentPath)) ? 'warroom-page' : ''
+    ].filter(Boolean).join(' ') %>">
 <%
   // Guard everything: the error page renders this header even when the
   // request died before locals were populated.
