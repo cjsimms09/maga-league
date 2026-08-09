@@ -1,0 +1,41 @@
+<%
+/*
+ * SPARKLINE — a tiny inline-SVG trend line. Reusable across the site (money over
+ * seasons, points per week, efficiency). Pure server-rendered SVG: no client JS,
+ * no external lib, and it shows up in screenshots and with JS disabled. Colors
+ * ride CSS custom properties so it is theme-aware and matches the design system.
+ *
+ * locals:
+ *   values   number[]  the series (required; <2 points renders a flat dash)
+ *   w,h      viewBox size (default 96 x 24)
+ *   tone     'gold' | 'green' | 'red' | 'muted'  stroke/fill colour (default gold)
+ *   fill     boolean   draw the soft area under the line (default true)
+ *   dot      boolean   mark the last point (default true)
+ *   title    string    accessible label
+ */
+  const _vals = (typeof values !== 'undefined' && Array.isArray(values)) ? values.map(Number) : [];
+  const _w = (typeof w !== 'undefined') ? w : 96;
+  const _h = (typeof h !== 'undefined') ? h : 24;
+  const _tone = (typeof tone !== 'undefined') ? tone : 'gold';
+  const _fill = (typeof fill !== 'undefined') ? fill : true;
+  const _dot = (typeof dot !== 'undefined') ? dot : true;
+  const _title = (typeof title !== 'undefined') ? title : 'trend';
+  const _pad = 2;
+  const n = _vals.length;
+  let _pts = [], _last = null;
+  if (n >= 2) {
+    const min = Math.min(..._vals), max = Math.max(..._vals);
+    const span = (max - min) || 1;
+    const stepX = (_w - _pad * 2) / (n - 1);
+    _pts = _vals.map((v, i) => {
+      const x = _pad + i * stepX;
+      // Invert Y (SVG y grows downward); a flat series sits on the mid-line.
+      const y = (max === min) ? _h / 2 : (_h - _pad) - ((v - min) / span) * (_h - _pad * 2);
+      return [Math.round(x * 100) / 100, Math.round(y * 100) / 100];
+    });
+    _last = _pts[_pts.length - 1];
+  }
+  const _line = _pts.map(p => p.join(',')).join(' ');
+  const _area = _pts.length ? `${_pad},${_h - _pad} ${_line} ${_w - _pad},${_h - _pad}` : '';
+%>
+<% if (n >= 2) { %><svg class="spark spark-<%= _tone %>" viewBox="0 0 <%= _w %> <%= _h %>" width="<%= _w %>" height="<%= _h %>" preserveAspectRatio="none" role="img" aria-label="<%= _title %>"><% if (_fill) { %><polygon class="spark-area" points="<%= _area %>"/><% } %><polyline class="spark-line" points="<%= _line %>" fill="none"/><% if (_dot && _last) { %><circle class="spark-dot" cx="<%= _last[0] %>" cy="<%= _last[1] %>" r="1.8"/><% } %></svg><% } else { %><span class="spark-empty" aria-label="not enough data">—</span><% } %>

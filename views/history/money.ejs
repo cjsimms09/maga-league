@@ -30,21 +30,27 @@
       <% } else { %>
       <table class="ledger">
         <thead><tr>
-          <th class="name">#</th><th class="name">Owner</th><th>Career $</th><th>W-L-T</th>
+          <th class="name">#</th><th class="name">Owner</th><th>Career $</th><th class="mb-trend-h">Trend</th><th>W-L-T</th>
           <% for (const y of MB.years) { %><th><%= String(y).slice(2) %></th><% } %>
           <% const LIVE_YEAR = 2026; const showLive = !MB.years.includes(LIVE_YEAR); %>
           <% if (showLive) { %><th title="2026 — in progress" style="color:var(--green)">'26<span style="display:block;font-size:.5rem;color:var(--muted);font-weight:500">in progress</span></th><% } %>
         </tr></thead>
         <tbody>
           <% MB.rows.forEach((r, i) => { %>
+            <% const isGerman = [...german].some(g => String(r.name).includes(g));
+               const series = MB.years.map(y => (r.by_year || {})[y] || (r.by_year || {})[String(y)] || 0); %>
             <tr class="<%= i === 0 ? 'champ' : '' %>">
               <td class="name rk"><%= i + 1 %></td>
-              <td class="name"><%= r.name %> <span class="flag"><%= flag(r.name) %></span></td>
-              <td class="money"><%= dollars(r.career) %></td>
+              <td class="name"><%= r.name %>
+                <span class="flag<%= isGerman ? ' egg-flag' : '' %>"<% if (isGerman) { %> data-egg="wwc" title="🇩🇪" role="button" tabindex="0"<% } %>><%= flag(r.name) %></span>
+                <% if (isGerman) { %><span class="egg-medal egg-reveal" data-egg-medal="wwc">🎖️ back-to-back world war champs</span><% } %>
+              </td>
+              <td class="money money-gold"><%= dollars(r.career) %></td>
+              <td class="mb-trend"><%- include('../partials/_sparkline', { values: series, w: 84, h: 22, tone: 'gold', title: r.name + ' earnings by season' }) %></td>
               <td style="color:var(--muted)"><%= r.wins %>-<%= r.loss %><%= r.tie ? '-' + r.tie : '' %></td>
               <% for (const y of MB.years) { const v = (r.by_year || {})[y] || (r.by_year || {})[String(y)] || 0; %>
                 <td class="<%= v ? '' : '' %>" style="<%= v ? '' : 'color:var(--muted)' %>">
-                  <%= v ? dollars(v) : '·' %><% if (r.name === 'Marian' && Number(y) === 2022) { %><a class="aster" href="/history#asterisk">*</a><% } %>
+                  <%= v ? dollars(v) : '·' %><% if (r.name === 'Marian' && Number(y) === 2022) { %><span class="egg-aster" data-egg="aster2022" role="button" tabindex="0" title="the disputed 2022 title">*</span><span class="egg-aster-note egg-reveal" data-egg-note="aster2022">2022 was <em>shared</em>. Well — co-champions. Which is to say Marian won it. Jointly. Alone, together. The asterisk stays until someone proves the asterisk wrong, which the asterisk was invented to prevent. <a href="/history#asterisk">the long version →</a></span><% } %>
                 </td>
               <% } %>
               <%# 2026 — in progress: reads live from the same by_year money the

@@ -1,9 +1,12 @@
 </main>
 <footer class="footer">
-  <span class="stars">🦅 ★ ★ ★ 🦅</span>
+  <%# Five taps on the star row reveals where it all started. Rewards discovery. %>
+  <span class="stars" id="star-row" role="button" tabindex="0" aria-label="league stars">🦅 ★ ★ ★ 🦅</span>
+  <span class="egg-origin egg-reveal" data-egg-origin="1">Est. 2016 as the <b>Balls and Wieners League</b>. It became the Whiny Little Bitch League, then this. The name keeps getting more honest.</span><br>
   Make Football Great Again — the Fantasy Football League — Est. 2016<br>
   <em><%= typeof quip !== 'undefined' && quip ? quip : "Winners win. Losers pick first. That's the deal." %></em>
 </footer>
 <script src="/js/ui.js" defer></script>
+<script src="/js/eggs.js" defer></script>
 </body>
 </html>

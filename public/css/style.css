@@ -1589,6 +1589,74 @@ table .num.zero { color: var(--muted); font-weight: 400; }
 }
 .mu-bet-body { padding: .7rem .2rem 0; }
 
+/* ── SPARKLINES — inline trend lines, theme-aware, shared site-wide ─────────── */
+.spark { display: inline-block; vertical-align: middle; overflow: visible; }
+.spark-line { stroke-width: 1.5; vector-effect: non-scaling-stroke; stroke-linejoin: round; stroke-linecap: round; }
+.spark-area { opacity: .14; stroke: none; }
+.spark-dot { stroke: var(--navy-deep); stroke-width: .6; }
+.spark-gold  .spark-line { stroke: var(--gold-bright); } .spark-gold  .spark-area { fill: var(--gold-bright); } .spark-gold  .spark-dot { fill: var(--gold-bright); }
+.spark-green .spark-line { stroke: var(--green); }        .spark-green .spark-area { fill: var(--green); }        .spark-green .spark-dot { fill: var(--green); }
+.spark-red   .spark-line { stroke: var(--red-bright); }   .spark-red   .spark-area { fill: var(--red-bright); }   .spark-red   .spark-dot { fill: var(--red-bright); }
+.spark-muted .spark-line { stroke: var(--muted); }        .spark-muted .spark-area { fill: var(--muted); }        .spark-muted .spark-dot { fill: var(--muted); }
+.spark-empty { color: var(--muted); font-variant-numeric: tabular-nums; }
+
+/* ── MONEY COLOUR — one treatment, everywhere money moves ───────────────────── */
+/* Gold is the league's brand for a banked total; green/red are for deltas (a
+   side-bet swing, a week's gain). Use .money-delta with the sign helpers. */
+.money-up   { color: var(--green); font-variant-numeric: tabular-nums; }
+.money-down { color: var(--red-bright); font-variant-numeric: tabular-nums; }
+.money-flat { color: var(--muted); font-variant-numeric: tabular-nums; }
+.money-gold { color: var(--gold-bright); font-weight: 800; font-variant-numeric: tabular-nums; }
+
+/* ── RANK-MOVEMENT ARROWS — standings, records ─────────────────────────────── */
+.rank-arrow { font-size: .72rem; font-weight: 800; vertical-align: middle; }
+.rank-arrow.up   { color: var(--green); }
+.rank-arrow.down { color: var(--red-bright); }
+.rank-arrow.same { color: var(--muted); }
+
+/* ── EASTER-EGG reveals (discovery-rewarding, league voice) ─────────────────── */
+.egg-reveal { display: none; }
+.egg-reveal.show { display: inline-block; animation: eggPop .4s cubic-bezier(.2,1.4,.4,1); }
+@keyframes eggPop { from { transform: scale(.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.egg-flag { cursor: pointer; user-select: none; -webkit-user-select: none; }
+.egg-medal {
+  margin-left: .35rem; padding: .05rem .4rem; border-radius: 999px;
+  font-size: .66rem; font-weight: 800; letter-spacing: .02em; white-space: nowrap;
+  background: linear-gradient(90deg, rgba(245,196,69,.16), rgba(245,196,69,.06));
+  border: 1px solid rgba(245,196,69,.4); color: var(--gold-bright);
+}
+.egg-flag:hover, .egg-flag:focus { outline: none; filter: brightness(1.25); }
+#star-row { cursor: default; user-select: none; -webkit-user-select: none; }
+.egg-origin.show { display: block; max-width: 30rem; margin: .5rem auto 0;
+  font-size: .74rem; line-height: 1.5; color: var(--muted); }
+.egg-origin.show b { color: var(--gold-bright); }
+/* The self-arguing footnote. Reveals under the cell on tap/hover of the asterisk. */
+.egg-aster { color: var(--gold-bright); cursor: help; font-weight: 800; padding: 0 .1rem; }
+.egg-aster-note.show {
+  display: block; position: relative; margin-top: .3rem; max-width: 20rem;
+  font-size: .7rem; line-height: 1.4; color: var(--ink); font-weight: 400;
+  background: rgba(255,255,255,.05); border: 1px solid var(--line); border-radius: 8px; padding: .5rem .6rem;
+}
+.egg-aster-note.show em { color: var(--gold-bright); font-style: italic; }
+
+/* Money-board trend column: the sparkline that summarises the wide year grid so
+   the story reads without a horizontal scroll. */
+.mb-trend, .mb-trend-h { text-align: center; white-space: nowrap; }
+.mb-trend .spark { opacity: .9; }
+
+/* Konami reward — arrowhead red, deliberately loud, gone in 4s. */
+#konami-egg { position: fixed; inset: 0; z-index: 9999; pointer-events: none;
+  display: flex; align-items: center; justify-content: center; }
+#konami-egg.konami-out { opacity: 0; transition: opacity .8s; }
+.konami-card { background: #0b1f3a; border: 2px solid #e31837; border-radius: 14px;
+  padding: 1rem 1.4rem; text-align: center; box-shadow: 0 0 40px rgba(227,24,55,.5);
+  animation: eggPop .5s cubic-bezier(.2,1.4,.4,1); max-width: 92vw; }
+.konami-card b { display: block; color: #ffd968; font-size: 1rem; letter-spacing: .01em; }
+.konami-card span { display: block; color: var(--muted); font-size: .78rem; margin-top: .3rem; }
+.konami-bit { position: fixed; top: -10px; width: 8px; height: 12px; background: #e31837;
+  border-radius: 1px; animation: konamiFall 2.6s linear forwards; transform: rotate(var(--h, 0deg)); }
+@keyframes konamiFall { to { transform: translateY(105vh) rotate(360deg); opacity: .2; } }
+
 /* Head-to-head — the matchup page's centrepiece. Quiet register: it's history,
    not a live number, so it never out-shouts the scoreboard above it. */
 .h2h-hero { text-align: center; margin-bottom: 1rem; }
