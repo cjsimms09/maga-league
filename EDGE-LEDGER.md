@@ -6,7 +6,7 @@ a finding lands, update this and re-sequence the queue to match. Ranking is by e
 dollars weighted by breadth (an edge touching every pick outranks one at the margin, at
 equal per-decision size).
 
-_Last updated 2026-08-09._
+_Last updated 2026-08-09 (all-terms participation test + FP SSR discovery)._
 
 ---
 
@@ -19,9 +19,15 @@ _Last updated 2026-08-09._
 - **Rests on:** exp_source_grade (EXP-SOURCE-GRADE.md, EXP-MFL-SWAP.md).
 - **Uncopyable:** required 3 seasons of outcomes + a grading harness; no opponent has graded
   their source. This is why it's the biggest verified edge — breadth + moat.
-- **Sharpen:** ① **FantasyPros as a 3rd source** (free, CSV to 2015, revealed behavior) —
-  turns the directional 2-season finding firmer, enables a real per-region-hybrid test, is
-  the tiebreaker. ② 20yr nflverse + public leagues at scale. **Queue: FantasyPros is next.**
+- **Why it's #1, now CONFIRMED by the participation test (2026-08-09):** the all-terms test
+  found our whole measured edge is **the mask + the VALUE ANCHOR** (removing the anchor costs
+  $362; every adjuster is decoration or a drag). The value anchor = *ranking off the ADP
+  board*. So board quality directly sets the value of our single biggest term — the source
+  question isn't a side control, it's the input to the largest earner. This elevates it.
+- **Sharpen:** ① **FantasyPros as a 3rd source** (free, revealed behavior, half-PPR = our
+  format) — the tiebreaker + format de-confounder. **BLOCKED: FP server-renders only a top-5
+  teaser; the full board is client-hydrated from an endpoint discovery hasn't surfaced yet
+  (DECISIONS-NEEDED #4).** ② 20yr nflverse + public leagues at scale.
 - **A 4th/5th source (NFFC, FantasyData) — GATED ON THE THREE-WAY RESULT (Cory, 2026-08-09).**
   The probe flagged both, untouched. They are NOT equivalent: **NFFC is a different CROWD**
   (high-stakes real-money drafters), a structurally different signal — the way Underdog's
@@ -96,13 +102,18 @@ sample-ceiling breakers have much higher EVSI:
   read already captures. Reclassified from "edge" to "priced."
 - **Reaching early.** Neither pays nor hurts (exp43, within-position, FDR-survived) —
   scope: our league only.
-- **Adjuster sliders / ceiling tilt / auto-adjust.** **NOT a top edge — the opposite of how
-  it's been cited.** The hand-built defaults beat their challengers, the late-ceiling ramp
-  was refuted twice, the endgame grid says aggressive is worse, the crude cap was inert, the
-  conditional mining found nothing. **BUT the "defaults win" null is weak-scope (habit 9):
-  it raced 3 hand-picked shapes, NOT a swept grid** — so "sliders are settled" overstates
-  it. Correct reading: sliders are near-zero on the evidence we have, and the participation
-  test should confirm which terms are decoration; but the null is provisional, not a grid.
+- **Adjuster sliders / ceiling tilt / auto-adjust.** **NOT a top edge — and now MEASURED as a
+  net DRAG.** The all-terms participation test (exp_participation, 400 paired rooms, 2026-08-09)
+  built each adjuster up from the mask+value core: **core $704; core + all six adjusters at
+  engine default $407.** On the clean core NOTHING earns beyond mask+value — need-weight +6.5
+  [−8,+20], ceiling −4.8 [−26,+17] (no clean weekly-high gain — my "shape pays" prereg guess
+  did NOT survive de-confounding), bye ~0; **tier −235, risk −143, stack −63 actively hurt** at
+  fair-fight strength. This RETIRES the weak-scope "defaults win" null (it raced 3 shapes; this
+  is a build-up over the whole panel). **Scope honesty:** need+value are faithful to the
+  harness; tier/risk/ceiling/bye/stack are PROXIES (same board fields, not the engine's exact
+  functions), so the SIGN is robust but the harmful dollar magnitudes are an upper bound at a
+  uniform ~30-pt nudge — convicting the live terms needs a faithful JS-engine ablation. →
+  DECISIONS-NEEDED #3: draft-day Auto = mask + value, adjusters at/near zero.
 - **The keeper-need MASK vs the need-WEIGHT ramp (MEASURED 2026-08-09, exp_need_phase).**
   The MASK (startable-cap) is a real, large earner — **~$443** vs no-mask over 300 paired
   rooms (consistent with the $258 keeper-B0). Auto's additive need-**WEIGHT ramp**
@@ -119,5 +130,6 @@ sample-ceiling breakers have much higher EVSI:
   before the within-position confound fix** — instrument since corrected. Mark **provisional**;
   re-run under the current harness before citing "no conditional edges exist."
 - **Slider-defaults null.** Scope = 3 configurations, not a grid (above). Provisional.
-- **Source grade.** Directional (2 seasons); the FantasyPros 3rd source is the re-open that
-  firms or complicates it — in progress.
+- **Source grade.** Directional (2 seasons); the FantasyPros 3rd source would firm/complicate
+  it but is **blocked on endpoint discovery** (FP SSR carries only a top-5 teaser) — the
+  format confound on the MFL lean therefore stays unresolved and MFL wiring stays HELD.

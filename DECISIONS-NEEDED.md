@@ -50,31 +50,61 @@ Audit date: 2026-08-09 (swept every recorded verdict in draft/backtest/*.json + 
 - **Recommendation:** run the sweep's dollar arm + held-out, then bring a specific
   proposed weight here. NOT ready to install blind. (queued behind slate rails + cron)
 
-## 3. SIMPLIFY AUTO: flatten/drop the need-WEIGHT ramp (keep the mask) — OPEN
-- **Found (exp_need_phase, 300 paired rooms):** the keeper-need MASK earns **~$443** (vs
-  no-mask); Auto's additive need-WEIGHT ramp (0.35→0.9→1.45→1.3) is **not separable from
-  zero** (+$4.9, CI [−13,+23]) and is **beaten by a flat w≈0.5**. Ramping by phase adds
-  nothing. A *raced* result (swept curve + schedules), not a 3-point race.
-- **Implies:** keep the mask; replace Auto's need-weight ramp with a small flat weight
-  (~0.5) or drop the additive need term entirely. Makes Auto smaller and more defensible.
-- **Magnitude:** the ramp itself is ≤~$25 (underpowered to separate from zero); the
-  simplification is a *robustness/honesty* win more than a dollar win — it stops Auto
-  running an unraced schedule on the term we rely on, for 3 hours on draft day.
-- **Confidence:** good for "the ramp isn't separable and doesn't beat flat"; the small-w
-  +$16 is barely separable (thin). 3-season/our-league (sample ceiling; public leagues firm it).
-- **Cost of inaction:** Auto keeps driving `need` on a hand-built ramp that earns nothing
-  measurable — exactly the designed-not-derived risk flagged in the Auto audit.
-- **Recommendation:** GATED (affects the live pick screen). For DRAFT DAY: leave Auto as-is
-  (safe, moderate, rails hold) OR set the need-weight to a flat ~0.5 — both fine; the ramp
-  isn't hurting, it just isn't earning. Post-draft: flatten/drop it and re-confirm on public
-  leagues. Cory's call on whether to touch it before Aug 22.
+## 3. SIMPLIFY AUTO: mask + value is the WHOLE measured edge — the 6 adjusters don't earn — OPEN
+- **Found (exp_participation, 400 paired rooms — the all-terms test):** built each adjuster UP
+  from the defensible core (mask + value anchor). **Core = $704; core + every adjuster at
+  engine default = $407** — the adjuster panel, at fair-fight strength, *loses ~$300*. On the
+  clean core NOTHING earns a place: **need-weight +6.5 [−8,+20]** (decoration — confirms
+  exp_need_phase; it's the always-on MASK that earns, not the additive weight), **ceiling −4.8
+  [−26,+17] with no clean weekly-high gain** (my pre-registered "shape pays" guess did NOT
+  survive de-confounding — the apparent weekly-high win was a confound of the ablation-from-full
+  frame), **bye ~0**, and **tier −235 / risk −143 / stack −63 actively HURT** (they pull picks
+  off the value anchor toward a mechanism no payout rewards). Value anchor removal costs $362 —
+  it and the mask are the earners.
+- **Implies:** Auto should collapse to **mask ON + value anchor at default + all additive
+  adjusters at/near zero.** The war-room slider panel should say which controls do anything
+  rather than presenting eight equals.
+- **Magnitude:** the harmful dollar figures are an **upper bound at a uniform ~30-pt nudge**
+  (see caveat) — the ROBUST claim is the SIGN/ordering: no adjuster earns; at any strength big
+  enough to move a pick, tier/risk/stack lose. The win is a large **robustness/legibility**
+  gain plus removing a measured drag.
+- **Confidence — split by faithfulness:** **need-weight (drop/flatten): STRONG & FAITHFUL** —
+  need_signal is the exact harness term, and exp_need_phase agrees. **tier/risk/ceiling/bye/
+  stack: DIRECTIONAL via PROXY** — computed from the same board fields the engine uses but not
+  the engine's exact functions, so a proxy null bounds the *mechanism*, it doesn't by itself
+  convict the *live term*. The proper instrument to convict them is a faithful JS-engine
+  ablation (queued, not built).
+- **Cost of inaction:** Auto drives six hand-built terms on draft day, at least two of which
+  (tier, risk) measurably drag against the value anchor; the panel teaches distrust by
+  presenting inert/harmful controls as equal to the two that matter.
+- **Recommendation (GATED — the live pick screen, 13 days out):**
+  1. **DO NOW (robust+faithful):** flatten Auto's need-weight ramp to a flat ~0.5 (or drop the
+     additive need term; mask stays). Zero risk to the measured edge.
+  2. **DRAFT-DAY PRESET (recommended):** run Auto as **mask + value(1.0)**, with tier/risk/
+     ceiling/bye/stack at **0** (or ceiling left at its harmless default 0.65 — it's ~0, not
+     negative). This is the "flat preset on draft day" Cory floated — defensible, legible,
+     sheds the measured drag.
+  3. **BEFORE ripping the live terms out of engine.js:** build the faithful JS-engine ablation
+     to convict tier/risk/stack on the real functions (proxy caveat). Until then, the *preset*
+     (weights→0) achieves the same draft-day effect without deleting code.
+  - The autoWeights edit is staged and ready to bundle; **Cory's call on scope before Aug 22.**
 
-## 4. FANTASYPROS AS A THIRD SOURCE — PENDING MEASUREMENT (not yet a decision)
-- **Found:** source grade is FFC-vs-MFL only; FantasyPros structure captured in the probe
-  but the parser isn't built.
-- **Implies:** could corroborate, sharpen per-region, or change the anchor verdict.
-- **Status:** measurement pending — build the parser, add it to the grade, THEN this
-  becomes a decision (or confirms #1). Not inert; it's on the model queue.
+## 4. FANTASYPROS AS A THIRD SOURCE — BLOCKED ON ENDPOINT DISCOVERY (not yet measurable)
+- **Found:** the parser is correct, but the FantasyPros ADP page **server-renders only the
+  top-5 rows** (a teaser; `ssrHeader:true`) — players 6-300 are hydrated client-side from a
+  data endpoint the initial HTML never contains. So the grade only ever saw 5 rows (self-
+  diagnosing dump caught it — a miss looked like a miss, not an absent source). First discovery
+  probe: the reports bundle references **no `api.fantasypros.com` host** and two guessed
+  endpoints 403'd, so the endpoint is a relative/other-host path; a broadened discovery pass is
+  in flight.
+- **Implies:** until the data endpoint is found, FP **cannot** de-confound the MFL swap (#1),
+  so the three-way stays unresolved and **the MFL wiring stays HELD** and format-confounded.
+- **Confidence/cost:** FP feeds the input to our LARGEST earner (the value anchor — see the
+  participation test), so it's worth the discovery iterations; but it may not be cheaply
+  scrapable (endpoint could be constructed dynamically in minified JS). If two more discovery
+  passes don't surface it, fall back: keep FFC (our format) as the live anchor, hold MFL, and
+  record the source question as format-confounded-and-parked rather than burn more egress.
+- **Status:** measurement blocked on discovery; NOT a decision yet. On the model queue.
 
 ---
 
