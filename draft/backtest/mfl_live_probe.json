@@ -207,5 +207,67 @@
       "rank_move": -161
     }
   ],
-  "note": "RETRIEVABLE \u2014 2026 MFL ADP is live at our format. Coverage + the biggest FFC-vs-MFL disagreements are the preview of what swapping the anchor moves. Wiring MFL as the live anchor is the follow-on (build.py adp seam)."
+  "note": "RETRIEVABLE \u2014 2026 MFL ADP is live at our format. Coverage + the biggest FFC-vs-MFL disagreements are the preview of what swapping the anchor moves. Wiring MFL as the live anchor is the follow-on (build.py adp seam).",
+  "movement_by_band": {
+    "top50": {
+      "players": 50,
+      "mfl_covered": 50,
+      "coverage": 1.0,
+      "mean_abs_rank_move": 18.6,
+      "median_abs_rank_move": 18
+    },
+    "r51_100": {
+      "players": 50,
+      "mfl_covered": 50,
+      "coverage": 1.0,
+      "mean_abs_rank_move": 37.3,
+      "median_abs_rank_move": 34
+    },
+    "r101_130": {
+      "players": 30,
+      "mfl_covered": 28,
+      "coverage": 0.93,
+      "mean_abs_rank_move": 55.4,
+      "median_abs_rank_move": 36
+    },
+    "r131_200": {
+      "players": 70,
+      "mfl_covered": 69,
+      "coverage": 0.99,
+      "mean_abs_rank_move": 50.5,
+      "median_abs_rank_move": 47
+    },
+    "deep200plus": {
+      "players": 376,
+      "mfl_covered": 218,
+      "coverage": 0.58,
+      "mean_abs_rank_move": 81.0,
+      "median_abs_rank_move": 73
+    }
+  },
+  "at_my_picks": {
+    "34": {
+      "player": "Tetairoa McMillan",
+      "ffc_rank": 34,
+      "mfl_rank": 34,
+      "has_mfl": true,
+      "rank_move": 0
+    },
+    "41": {
+      "player": "Bucky Irving",
+      "ffc_rank": 41,
+      "mfl_rank": 66,
+      "has_mfl": true,
+      "rank_move": 25
+    },
+    "54": {
+      "player": "TreVeyon Henderson",
+      "ffc_rank": 54,
+      "mfl_rank": 55,
+      "has_mfl": true,
+      "rank_move": 1
+    }
+  },
+  "uncovered_in_top200": 3,
+  "fallback_rule": "uncovered players (no MFL number) KEEP their FFC adp \u2014 a swap blends MFL where present, FFC elsewhere; nobody is dropped or mis-priced to a guess. Report counts so a coverage hole in the draftable range is visible."
 }
