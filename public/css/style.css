@@ -1657,6 +1657,29 @@ table .num.zero { color: var(--muted); font-weight: 400; }
   border-radius: 1px; animation: konamiFall 2.6s linear forwards; transform: rotate(var(--h, 0deg)); }
 @keyframes konamiFall { to { transform: translateY(105vh) rotate(360deg); opacity: .2; } }
 
+/* ── SIDE-BET LIFECYCLE (declare → confirm → dispute) ───────────────────────── */
+.sb-declare { margin-top: .6rem; }
+.sb-declare > summary {
+  cursor: pointer; padding: .4rem .7rem; border-radius: 10px; font-size: .82rem; font-weight: 700;
+  background: rgba(245,196,69,.1); border: 1px solid rgba(245,196,69,.35); color: var(--gold-bright); display: inline-block;
+}
+.sb-declare-body { padding: .6rem .2rem 0; }
+.sb-declare-body .muted { font-size: .76rem; margin: 0 0 .4rem; }
+.sb-declare-form { display: flex; flex-wrap: wrap; gap: .4rem; }
+.sb-lifecycle { margin-top: .7rem; border-radius: 10px; padding: .7rem .8rem; }
+.sb-lifecycle.awaiting { background: rgba(245,196,69,.08); border: 1px solid rgba(245,196,69,.4); }
+.sb-lifecycle.disputed { background: rgba(255,95,108,.09); border: 1px solid rgba(255,95,108,.5); }
+.sb-lc-head { font-size: .74rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
+.sb-lifecycle.awaiting .sb-lc-head { color: var(--gold-bright); }
+.sb-lifecycle.disputed .sb-lc-head { color: var(--red-bright); }
+.sb-lc-body { font-size: .86rem; margin: .3rem 0; line-height: 1.45; }
+.sb-lc-actions { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin-top: .5rem; }
+.sb-lc-wait { font-size: .78rem; margin: .35rem 0 0; }
+.sb-dispute > summary { cursor: pointer; font-size: .8rem; font-weight: 700; color: var(--muted); padding: .3rem 0; }
+.sb-dispute-form { display: flex; gap: .4rem; margin-top: .3rem; flex-wrap: wrap; }
+.sb-dispute-form input { flex: 1 1 12rem; }
+.owe-novenmo { font-size: .72rem; color: var(--red-bright); font-weight: 600; }
+
 /* ── LINEUP OPTIMIZER ───────────────────────────────────────────────────────── */
 .lo-hero .body { padding-top: 1rem; }
 .lo-edge { text-align: center; margin-bottom: .6rem; }

@@ -445,3 +445,37 @@ fix + all B site work (matchup, lineup optimizer, money-board redesign, eggs).
    `claude/exp34-dollar-arm-21m58r` (yours?), `claude/new-session-jwdvn7`,
    `claude/new-session-xs2lv6`. Per main-only, these should be cleaned up — if you
    can delete them (proxy may block B), please do; else flag Cory.
+
+---
+
+## 🚨 → A (2026-08-09, DEPLOY-READY): restore is IN + guard ALREADY loosened — just DEPLOY
+
+**The deploy is no longer blocked by content. Everything is on `main` @ `4a4deec`.**
+
+Chain correction — the guard does NOT still encode the over-strip; **B already
+loosened it in the SAME commit as the restore.** So there is nothing for A to
+loosen. The steps left collapse to ONE: **deploy `main`.**
+
+State on `main`:
+1. **History RESTORED** to league-visible, byte-identical to the approved prose
+   (`git diff 8c5f085^ -- views/history/...` is EMPTY): all-play, luck-gap,
+   robbery, lineup-efficiency %, season bench totals — all back on season/
+   franchise/hub/chapters. The over-strip is fully reversed.
+2. **Guard LOOSENED** (`draft/tests/access_guard.test.js`): keeps ONLY the
+   /lineup + /lineup/log 403-non-commish / 200-commish assertions, and now ALSO
+   asserts the history pages STAY league-visible WITH all-play/efficiency (so a
+   re-strip fails CI). 7/7 green. history_smoke 13/13.
+3. **Tools still gated** (unchanged, correct): /lineup + optimizer + proof tab +
+   war room = commissioner-only.
+
+**THE FINAL RULE (Cory, settled, A has it too):** commissioner-only = the TOOLS
+only (war room, /lineup + optimizer proof, in-season recommendation surfaces —
+waiver/streaming/trade radar/Sunday alert, anything that generates a
+recommendation). League-visible = everything describing WHAT HAPPENED regardless
+of how computed (all-play, luck-gap, efficiency %, bench totals, money, standings,
+records, champions, bad beats, chapter framings). TOOLS vs HISTORY, not
+raw-data vs analysis.
+
+If A has a SEPARATE guard/assertion encoding the old rule, reconcile it to the
+above (B's `access_guard.test.js` is the current one). Then **deploy main** — Cory
+has been unable to see days of design work stranded behind this.
