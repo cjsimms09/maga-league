@@ -127,5 +127,27 @@ async function passwordReset(owner, token) {
 
 const fmt = n => '$' + Math.abs(Math.round(n * 100) / 100).toLocaleString('en-US');
 
+// THE SUNDAY ALERT — before kickoff, the specific start/sit calls and what each
+// is worth. Commissioner-only content (a recommendation tool); the caller gates.
+async function sundayAlert(owner, alert) {
+  if (!owner || !owner.email || !alert) return { skipped: true };
+  const week = alert.week ? `Week ${alert.week}` : 'This week';
+  let body = `<b>${alert.headline}</b>`;
+  if (alert.hasCalls) {
+    body += '<br><br>' + alert.calls.map(c =>
+      `▲ <b>Start ${c.start}</b> over ${c.sit} — <b style="color:#4ade80">$${Math.round(c.dollars)}</b> <span style="color:#8a92a6">(${c.why})</span>`
+    ).join('<br>');
+  }
+  if (alert.band && alert.band.median) {
+    body += `<br><br><span style="color:#8a92a6">The bar: ~${alert.band.median} usually wins the week's $100.` +
+      (alert.projected ? ` You project ${alert.projected.toFixed(0)}.` : '') + '</span>';
+  }
+  return sendMail({
+    to: [owner.email],
+    subject: `🎯 ${week} lineup: ${alert.hasCalls ? `$${Math.round(alert.edge)} on the table` : 'you\'re optimal'}`,
+    html: wrap(`${week} — set your lineup`, body, { path: '/lineup', label: 'Open the optimizer' }),
+  });
+}
+
 module.exports = { configured, sendMail, draftTurn, moneySettled, newVote, alertPosted,
-                   sideBetProposed, passwordReset, SITE };
+                   sideBetProposed, passwordReset, sundayAlert, SITE };

@@ -1,0 +1,24 @@
+name: Sunday lineup alert
+# Fires the commissioner's before-kickoff start/sit alert. Sundays ~10:40am ET
+# (14:40 UTC during DST), before the 1pm ET games. The endpoint no-ops off-season
+# (no live lineup) and only emails the commissioner, so a year-round schedule is
+# harmless. Gated by the SUNDAY_ALERT_KEY secret; SITE_URL is the live base URL.
+on:
+  schedule:
+    - cron: '40 14 * * 0'
+  workflow_dispatch: {}
+jobs:
+  fire:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Hit the Sunday-alert endpoint
+        run: |
+          set -e
+          if [ -z "${{ secrets.SUNDAY_ALERT_KEY }}" ]; then
+            echo "SUNDAY_ALERT_KEY not set — skipping (configure it to enable)"; exit 0
+          fi
+          BASE="${{ vars.SITE_URL }}"
+          [ -n "$BASE" ] || BASE="https://makefbgreatagain.netlify.app"
+          echo "Firing Sunday alert at $BASE"
+          curl -sS -m 30 "$BASE/api/sunday-alert?key=${{ secrets.SUNDAY_ALERT_KEY }}" | tee /tmp/out.json
+          grep -q '"ok":true' /tmp/out.json

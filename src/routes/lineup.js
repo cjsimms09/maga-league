@@ -667,9 +667,39 @@ function weekDrill(season, week, ownerDisplayName) {
   };
 }
 
+// THE SUNDAY ALERT — the thing that actually captures the leak: fires before
+// kickoff with the specific start/sit calls and what each is worth in dollars.
+// Formats an optimize() result into a concise, deliverable alert (email + the
+// on-page preview). No calls worth making => it says so plainly (a quiet week is
+// a real answer, not a bug).
+function sundayAlert(result, opts = {}) {
+  if (!result) return null;
+  const band = opts.band || null;
+  const calls = (result.calls || []).filter(c => c.dollars > 0.5).slice(0, 4).map(c => ({
+    start: c.startName, sit: c.sitName, pos: c.startPos,
+    dollars: r2(c.dollars),
+    high: r2(c.dollarsHigh), win: r2(c.dollarsWin),
+    why: `${c.dollarsHigh >= 0 ? '+' : ''}$${Math.round(c.dollarsHigh)} weekly-high · ${c.dollarsWin >= 0 ? '+' : ''}$${Math.round(c.dollarsWin)} win-prob`,
+  }));
+  const edge = r2(result.edge || 0);
+  return {
+    week: opts.week || null,
+    hasCalls: calls.length > 0,
+    headline: calls.length
+      ? `${calls.length} start/sit call${calls.length === 1 ? '' : 's'} worth ≈ $${Math.round(edge)} this week`
+      : "You're already starting the dollar-optimal lineup — nothing to change.",
+    calls, edge,
+    band: band ? { median: Math.round(band.median) } : null,
+    pWin: result.ev && result.ev.pWin != null ? Math.round(result.ev.pWin * 100) : null,
+    pHigh: result.ev && result.ev.pHigh != null ? Math.round(result.ev.pHigh * 100) : null,
+    confidence: result.confidence,
+    projected: result.ev ? result.ev.mean : null,
+  };
+}
+
 module.exports = {
   // engine
-  optimize, bestLineup, inferPositions, slotsFromTemplate, DEFAULT_SLOTS, weekDrill,
+  optimize, bestLineup, inferPositions, slotsFromTemplate, DEFAULT_SLOTS, weekDrill, sundayAlert,
   positionSigmas, sigmaOf, weeklyHighBand,
   pWin, pClearHigh, normCdf, lineupStats,
   // data

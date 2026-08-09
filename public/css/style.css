@@ -1787,6 +1787,17 @@ button.pd-team.pick:hover { background: rgba(245,196,69,.16); transform: transla
 .sb-dispute-form input { flex: 1 1 12rem; }
 .owe-novenmo { font-size: .72rem; color: var(--red-bright); font-weight: 600; }
 
+/* ── THE SUNDAY ALERT preview ───────────────────────────────────────────────── */
+.sa-preview { border-color: rgba(245,196,69,.3); }
+.sa-head { font-size: 1rem; font-weight: 800; color: #fff; margin-bottom: .5rem; }
+.sa-calls { list-style: none; margin: 0; padding: 0; }
+.sa-calls li { display: flex; align-items: baseline; gap: .6rem; flex-wrap: wrap;
+  padding: .4rem 0; border-bottom: 1px solid var(--line); }
+.sa-calls li:last-child { border-bottom: none; }
+.sa-move { font-size: .88rem; } .sa-move b { color: #fff; }
+.sa-dollars { font-weight: 800; font-variant-numeric: tabular-nums; }
+.sa-why { font-size: .72rem; flex: 1 1 100%; }
+
 /* ── LINEUP OPTIMIZER ───────────────────────────────────────────────────────── */
 .lo-hero .body { padding-top: 1rem; }
 .lo-edge { text-align: center; margin-bottom: .6rem; }

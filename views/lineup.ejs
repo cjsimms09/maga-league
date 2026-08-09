@@ -28,8 +28,38 @@
     ledger — January grades the difference in dollars.</span>
   </div>
 <% } %>
+<% if (typeof sent !== 'undefined' && sent) { %>
+  <div class="alert-banner" style="margin-bottom:1rem; border-color:rgba(74,222,128,.5)">
+    <span class="tag">📣</span><span>Sunday alert sent to your inbox<%= (typeof emailOn !== 'undefined' && !emailOn) ? ' (email isn\'t configured yet, so it was a dry run)' : '' %>.</span>
+  </div>
+<% } %>
 
 <% if (tab === 'live') { %>
+  <%# ── THE SUNDAY ALERT — rehearse exactly what fires before kickoff ──────── %>
+  <% if (typeof alert !== 'undefined' && alert) { %>
+    <div class="card sa-preview" style="margin-bottom:1.1rem">
+      <h2>📣 The Sunday Alert <span class="sub">what fires to your inbox before kickoff</span></h2>
+      <div class="body">
+        <div class="sa-head"><%= alert.headline %></div>
+        <% if (alert.hasCalls) { %>
+          <ul class="sa-calls">
+            <% alert.calls.forEach(c => { %>
+              <li><span class="sa-move">▲ Start <b><%= c.start %></b> over <%= c.sit %></span>
+                <span class="sa-dollars money-up">+$<%= Math.round(c.dollars) %></span>
+                <span class="sa-why muted"><%= c.why %></span></li>
+            <% }) %>
+          </ul>
+        <% } %>
+        <% if (alert.band && alert.band.median) { %>
+          <p class="muted" style="font-size:.78rem; margin:.4rem 0 0">The bar: ~<%= alert.band.median %> usually takes the week's $100<% if (alert.projected) { %> · you project <%= Math.round(alert.projected) %><% } %>.</p>
+        <% } %>
+        <form method="post" action="/lineup/sunday/send" style="margin-top:.7rem">
+          <button class="btn small navy" type="submit">📤 Send it to me now (rehearsal)</button>
+          <span class="muted" style="font-size:.74rem; margin-left:.5rem">The weekly cron fires this before kickoff once the season's on.</span>
+        </form>
+      </div>
+    </div>
+  <% } %>
   <% if (!live) { %>
     <div class="card"><div class="body">
       <p class="muted" style="margin:0 0 .6rem">

@@ -63,6 +63,26 @@ router.get('/api/draft-config-status', aw(async (req, res) => {
   });
 }));
 
+// ---------- THE SUNDAY ALERT — cron fire (secret-gated, session-less) ----------
+// The weekly workflow hits this before kickoff. Not login-gated (a cron has no
+// session), but gated by SUNDAY_ALERT_KEY so only the scheduler can trigger it.
+// It only EMAILS the commissioner their start/sit calls — it never returns the
+// analysis, so the secret guards the trigger, not the content. No-ops off-season
+// (no live lineup), so a year-round schedule is harmless.
+router.get('/api/sunday-alert', aw(async (req, res) => {
+  const secret = process.env.SUNDAY_ALERT_KEY || process.env.CRON_SECRET;
+  if (!secret || req.query.key !== secret) return res.status(403).json({ ok: false, error: 'forbidden' });
+  const world = req.world;
+  const owners = H.activeOwners(world.owners);
+  const commish = world.owners.find(o => o.is_commissioner && o.active);
+  if (!commish) return res.json({ ok: true, sent: 0, note: 'no commissioner' });
+  const { live, band, weekNo } = await liveOptimizeFor(world, owners, commish);
+  if (!live) return res.json({ ok: true, sent: 0, note: 'no live lineup (off-season / Sleeper down)' });
+  const alert = LO.sundayAlert(live, { week: weekNo, band });
+  const r = await notify.sundayAlert(commish, alert).catch(() => ({ skipped: true }));
+  res.json({ ok: true, sent: (r && !r.skipped) ? 1 : 0, week: weekNo, hasCalls: alert.hasCalls });
+}));
+
 // ---------- auth ----------
 router.get('/login', (req, res) => {
   if (req.owner) return res.redirect('/');
@@ -1323,28 +1343,20 @@ router.get('/matchup', aw(async (req, res) => {
 // sensitive ANALYSIS in the system. STANDING RULE: results are league property,
 // analysis is the commissioner's. requireCommissioner 403s every non-commissioner
 // BEFORE the handler runs, so it can never leak by a stray link or open tab.
-router.get('/lineup', requireCommissioner, aw(async (req, res) => {
-  const world = req.world;
-  const owners = H.activeOwners(world.owners);
-  const me = req.owner;
-  const tab = req.query.tab === 'proof' ? 'proof' : 'live';
-  const season = String(H.currentSeason(world.seasons).year || 2026);
-
-  // Shared context (cheap, harvest-backed).
+// Shared: build this week's live optimizer result for one owner. Used by the
+// /lineup page, the Sunday-alert preview, the manual send, and the cron fire.
+// Projections come from A's sleeper.js when present; a labelled season-average
+// fallback until then, so it runs before A's projections land.
+async function liveOptimizeFor(world, owners, me) {
   const band = LO.weeklyHighBand();
   const sigmaByPos = LO.positionSigmas();
-
-  let live = null;                       // the live optimizer result, when data allows
-  let projSource = null;                 // 'sleeper' | 'season-avg' | null
-  let roster = null, matchup = null;
+  let live = null, projSource = null, roster = null, matchup = null;
   const sData = await sleeper.bundle(world.config.sleeper_league_id);
   if (sData) {
     roster = await sleeper.rosterView(sData, world.config.sleeper_map || {}, me.id);
     matchup = sleeper.myMatchup(sData, world.config.sleeper_map || {}, me.id, owners);
   }
   if (roster && roster.rows && roster.rows.length) {
-    // Projection per player: A's live projection if present, else this season's
-    // per-game average (honest fallback), else last week's points, else 0.
     const rosterIn = roster.rows.filter(r => r.pos && r.pos !== '?').map(r => {
       let proj = null, src = null;
       if (r.proj != null) { proj = Number(r.proj); src = 'sleeper'; }
@@ -1355,14 +1367,26 @@ router.get('/lineup', requireCommissioner, aw(async (req, res) => {
       else if (projSource !== 'sleeper') projSource = src;
       return { id: r.id, name: r.name, pos: r.pos, proj: Math.round(proj * 10) / 10, sd: r.sd };
     });
-    // Opponent's projected total: their live projection sum if available, else a
-    // typical competitive score (the band median) as a labelled proxy.
     let oppMean = 0, oppKnown = false;
     if (matchup && matchup.opp && matchup.opp.points > 0) { oppMean = matchup.opp.points; oppKnown = true; }
     else { oppMean = band.median; }
     live = LO.optimize(rosterIn, { band, sigmaByPos, oppMean, matchupValue: 25 });
     live.oppKnown = oppKnown;
   }
+  const weekNo = (matchup && matchup.week) || (sData && sData.week) || 1;
+  return { live, roster, matchup, projSource, band, weekNo };
+}
+
+router.get('/lineup', requireCommissioner, aw(async (req, res) => {
+  const world = req.world;
+  const owners = H.activeOwners(world.owners);
+  const me = req.owner;
+  const tab = req.query.tab === 'proof' ? 'proof' : 'live';
+  const season = String(H.currentSeason(world.seasons).year || 2026);
+
+  const { live, roster, matchup, projSource, band, weekNo } = await liveOptimizeFor(world, owners, me);
+  // The Sunday alert exactly as it would fire — so it can be rehearsed before week 1.
+  const alert = live ? LO.sundayAlert(live, { week: weekNo, band }) : null;
 
   // PROOF face: L0 reproduction + a per-week drill-down.
   const proof = LO.ceilingLeak();                    // per-season leak (to the dollar)
@@ -1379,11 +1403,25 @@ router.get('/lineup', requireCommissioner, aw(async (req, res) => {
   if (tab === 'proof' && dY && dW) drill = LO.weekDrill(String(dY), dW, req.query.owner || 'coryjsimms');
 
   res.render('lineup', {
-    me, owners, tab, season, band, live, projSource, roster, matchup,
+    me, owners, tab, season, band, live, projSource, roster, matchup, weekNo, alert,
     proof, eff, myLeak: Math.round(myLeak), drill,
     configured: !!world.config.sleeper_league_id,
     logged: req.query.logged === '1',
+    sent: req.query.sent === '1',
+    emailOn: notify.configured(),
   });
+}));
+
+// Send the Sunday alert to the commissioner now (rehearsal, and the manual fire).
+// The weekly cron hits the same logic via /api/sunday-alert with a secret.
+router.post('/lineup/sunday/send', requireCommissioner, aw(async (req, res) => {
+  const owners = H.activeOwners(req.world.owners);
+  const { live, band, weekNo } = await liveOptimizeFor(req.world, owners, req.owner);
+  if (live) {
+    const alert = LO.sundayAlert(live, { week: weekNo, band });
+    await notify.sundayAlert(req.owner, alert).catch(() => {});
+  }
+  res.redirect('/lineup?sent=1');
 }));
 
 // Decision-time write: log THIS lineup call with its counterfactual (the naive
