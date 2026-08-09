@@ -97,6 +97,12 @@ jobs:
         # picks save while unlocked, are REFUSED after kickoff, the split is hidden
         # pre-lock and public after, and a finished week grades into the boards.
         run: node draft/tests/pickem.test.js
+      - name: The Dispatch — transient popups (awards / power poll / this-week-in-history)
+        # Pure generation (mean voice, deterministic so the archive is stable),
+        # the immutable archive + per-owner seen store, and the HTTP surface: the
+        # popups render on the home page and a dismissal stays gone. Never sits on
+        # a page once dismissed; always archived for the chronicle.
+        run: node draft/tests/dispatch.test.js
       - name: Side-bet lifecycle over HTTP — declare→confirm→dispute + Venmo handoff
         # The two-party settling flow end to end: a result is declared, the OTHER
         # side confirms or disputes, a dispute is recorded not adjudicated, and the

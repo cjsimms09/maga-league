@@ -6,6 +6,7 @@ const H2H = require('./h2h');              // all-time head-to-head, from the bo
 const LO = require('./lineup');            // the lineup optimizer engine (validated vs L0)
 const MOVE = require('./standings-movement'); // week-over-week rank arrows (dormant pre-season)
 const PE = require('./pickem');            // league pick'em — pick every game, tracked forever
+const DISPATCH = require('./dispatch');    // transient popups — awards / power poll / this-week-in-history
 const L = require('../ledger');
 const SB = require('../sidebets');
 const BL = require('../betlogic');
@@ -301,12 +302,33 @@ router.get('/', aw(async (req, res) => {
   // Which teams have side-bet money riding on them, so the standings can say so.
   const betMoney = SB.moneyOnTeams(await SB.all(), req.owner.id,
     id => (H.ownerById(owners, id) || {}).name || '?');
+
+  // THE DISPATCH — transient popups (weekly awards / power poll / this-week-in-
+  // history). Generated from data already in hand (no extra network), archived
+  // for the chronicle, then shown ONCE per owner and dismissed. Never persists on
+  // the page: only this owner's undismissed items render, and dismissing clears
+  // them for good. Wrapped defensively — a popup must never break the home page.
+  let dispatches = [];
+  try {
+    const map = world.config.sleeper_map || {};
+    const nameOfRoster = rid => (H.ownerById(owners, Number(map[String(rid)])) || {}).name || null;
+    const weeklyHistory = {};
+    for (const [yr, ids] of Object.entries((world.history && world.history.weekly) || {})) {
+      weeklyHistory[yr] = (ids || []).map(id => (H.ownerById(owners, id) || {}).name || null);
+    }
+    const items = DISPATCH.generate({
+      season: season.year, week: (sData && sData.week) || 1, reviewWeek, review,
+      nameOfRoster, standings: sStandings, weeklyHistory,
+    });
+    for (const it of items) { try { await DISPATCH.archive(it); } catch (e) { /* archive is best-effort */ } }
+    dispatches = DISPATCH.pending(items, await DISPATCH.getSeen(req.owner.id));
+  } catch (e) { /* the dispatch is a bonus; the dashboard renders without it */ }
   res.render('dashboard', {
     season, payouts: H.payoutTable(season), buyins, weekly, awards, standings, draft,
     openVotes, CATEGORY_LABELS: H.CATEGORY_LABELS, myBalance,
     sleeperData: sData, sleeperStandings: sStandings, sleeperBoard: sBoard, roast,
     whBand, whRace,
-    review, reviewWeek, wireRows, playoffTeams, chatLatest, betMoney, owners, rankMoves,
+    review, reviewWeek, wireRows, playoffTeams, chatLatest, betMoney, owners, rankMoves, dispatches,
     // Venmo nag (venmo-handles.md §2): fires for a logged-in owner with no
     // handle; the commissioner also sees who is still missing theirs.
     venmoNag: V.needsNag(req.owner && world.owners.find(o => o.id === req.owner.id)),
@@ -1490,6 +1512,18 @@ router.post('/pickem', aw(async (req, res) => {
   }
   await PE.savePicks(seasonYear, weekNo, req.owner.id, picks, games);
   res.redirect('/pickem?saved=1');
+}));
+
+// A dispatch, dismissed. Marks it seen for THIS owner only, so it never shows
+// again — the popup is gone but the archived copy lives on for the chronicle.
+// Answers JSON to the fetch enhancement and redirects the no-JS form.
+router.post('/dispatch/dismiss', aw(async (req, res) => {
+  const key = req.body.key;
+  if (key) await DISPATCH.markSeen(req.owner.id, String(key));
+  if ((req.get('accept') || '').includes('application/json') || req.body.ajax) {
+    return res.json({ ok: true });
+  }
+  res.redirect('/');
 }));
 
 // ---------- THE LINEUP OPTIMIZER (in-season, the measured leak) ----------

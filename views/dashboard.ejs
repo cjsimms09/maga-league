@@ -1,5 +1,35 @@
 <%- include('partials/header', { title: 'League Office' }) %>
 
+<%# ── THE DISPATCH — transient popups. They appear, get read, get dismissed,
+    and are gone (server-side per owner). With JS this is an overlay that clears
+    instantly; without JS it's a dismissible stack at the top of the page. Never
+    persists once dismissed. Archived elsewhere for the chronicle. %>
+<% const _dsp = (typeof dispatches !== 'undefined' && dispatches) ? dispatches : []; %>
+<% if (_dsp.length) { %>
+<div class="dispatch-region" id="dispatch-region" data-count="<%= _dsp.length %>">
+  <div class="dispatch-backdrop" aria-hidden="true"></div>
+  <div class="dispatch-stack" role="region" aria-label="League dispatch">
+    <div class="dispatch-head">
+      <span class="dispatch-kicker">📣 The Dispatch</span>
+      <% if (_dsp.length > 1) { %><span class="dispatch-count muted"><%= _dsp.length %> new</span><% } %>
+    </div>
+    <% for (const d of _dsp) { %>
+      <article class="dispatch-card" data-key="<%= d.key %>">
+        <div class="dispatch-card-top">
+          <span class="dispatch-icon" aria-hidden="true"><%= d.icon %></span>
+          <span class="dispatch-title"><%= d.title %></span>
+          <form method="post" action="/dispatch/dismiss" class="dispatch-dismiss-form" data-no-busy>
+            <input type="hidden" name="key" value="<%= d.key %>">
+            <button type="submit" class="dispatch-x" aria-label="Dismiss">✕</button>
+          </form>
+        </div>
+        <p class="dispatch-body"><%= d.body %></p>
+      </article>
+    <% } %>
+  </div>
+</div>
+<% } %>
+
 <% if (roast) { %>
 <div class="roast-banner">🚨 <%= roast %></div>
 <% } %>
