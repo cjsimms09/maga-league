@@ -593,7 +593,14 @@ value-only gate can't tame the rate. Sharpens exp 34's question to *"is the
 need/ceiling evidence backing our deviations correct vs real ADP?"* Full
 re-weighting stays gated on 34. Flag OFF, SOURCE absent. `STAGE2-CAP-RESULT.md`.
 
-**🔬 EXP 34 — MEASURING STICK REDESIGNED, NOT YET FIRED (2026-08-09).** The
+**🔬 EXP 34 — BUILT, VERIFIED, FIRED (2026-08-09).** Analytical core complete +
+verified in-sandbox (18 pure checks: alignment/41 decisions, all metrics, assemble,
+forgone-value bands). Egress main + `lab.yml exp34` job shipped and **DISPATCHED** —
+pure-test gate → FFC+nflverse egress → commits `EXP34.md`/`exp34.json`. **Result
+pending CI; read it next turn and report with the pre-registered reading**
+(inconclusive→bind harder). exp 41 (calibration-weighted ensemble) + exp 42 (bench
+as contingent claims) registered behind it. _(history of the redesign below.)_
+**🔬 EXP 34 — MEASURING STICK REDESIGNED (2026-08-09).** The
 single-pick scoreboard was **rejected (correctly) and NOT fired** — 41 my-guy-vs-
 their-guy comparisons are coin flips. Redesigned to measure the POLICY:
 `EXP34-METHODOLOGY.md` pre-registers rank correlation over the pool (primary) +
