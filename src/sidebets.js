@@ -46,12 +46,14 @@ const newId = () => Math.random().toString(36).slice(2, 10) + Date.now().toStrin
 const r2 = n => Math.round(n * 100) / 100;
 
 const STATUS = {
-  OPEN: 'open',           // on the market, anyone can take the other side
-  PROPOSED: 'proposed',   // waiting on at least one named party
-  LOCKED: 'locked',       // everyone in; it is on
-  SETTLED: 'settled',     // a result was recorded
-  DECLINED: 'declined',   // somebody said no
-  VOID: 'void',           // called off
+  OPEN: 'open',                       // on the market, anyone can take the other side
+  PROPOSED: 'proposed',               // named parties, waiting on acceptance — NOT a bet yet
+  LOCKED: 'locked',                   // everyone in; it is on, running
+  AWAITING_CONFIRM: 'awaiting_confirm', // one party DECLARED a result; the other must confirm
+  DISPUTED: 'disputed',               // the parties disagree on the outcome — the site records, never adjudicates
+  SETTLED: 'settled',                 // a result was confirmed; legs say who pays whom
+  DECLINED: 'declined',               // somebody said no
+  VOID: 'void',                       // called off
 };
 
 // Free text caps. Generous, because "side bets can be elaborate" — but bounded,
@@ -85,6 +87,10 @@ function normalize(b) {
   b.for_id ??= b.proposer_id;
   b.open_slots ??= 0;
   b.push ??= false;
+  // Lifecycle fields (declare→confirm→dispute). Default at read time so a bet
+  // made before this shipped reads cleanly rather than needing a migration.
+  b.declared ??= null;
+  b.dispute ??= null;
   for (const p of b.parties || []) { p.position ??= ''; p.picks ??= []; }
   if (b.status === STATUS.SETTLED && !b.legs) b.legs = buildLegs(b);
   b.legs ??= [];
@@ -288,6 +294,88 @@ async function settle(id, winner_ids, by_id, by_name, { push = false, why = '' }
   bet.settle_note = String(why || '').slice(0, 400);
   bet.audit.push({ at: now(), by: Number(by_id),
     what: `${by_name || 'Someone'} recorded the result${why ? ` — ${why}` : ''}` });
+  await store.set(KEY(bet.id), bet);
+  return bet;
+}
+
+/**
+ * DECLARE the outcome — the first half of settling. Either party states who won
+ * (or that it pushed); the OTHER party must confirm before a dollar moves. This
+ * is what makes "never settle silently" true: a declaration is a claim, not a
+ * settlement. Valid while the bet is LOCKED (running), or as a RE-declaration
+ * from AWAITING_CONFIRM / DISPUTED (a fresh declaration resets the handshake and
+ * clears the dispute — the parties are trying again).
+ */
+async function declareResult(id, by_id, by_name, { winner_ids = [], push = false, why = '', source = 'manual' } = {}) {
+  const bet = await get(id);
+  if (!bet) return null;
+  if (![STATUS.LOCKED, STATUS.AWAITING_CONFIRM, STATUS.DISPUTED].includes(bet.status)) return null;
+  if (!isParty(bet, by_id)) return null;
+  const winners = [...new Set((winner_ids || []).map(Number))].filter(w => isParty(bet, w));
+  if (!winners.length && !push) return null;
+  bet.declared = {
+    by: Number(by_id),
+    winner_ids: winners,
+    push: !!push && !winners.length,
+    why: String(why || '').slice(0, 400),
+    source: source === 'sleeper' ? 'sleeper' : 'manual',   // auto-detected vs hand-declared
+    at: now(),
+    confirmed_by: [],
+  };
+  bet.status = STATUS.AWAITING_CONFIRM;
+  bet.dispute = null;
+  bet.audit.push({ at: now(), by: Number(by_id),
+    what: `${by_name || 'Someone'} declared the result${bet.declared.push ? ' — push, no winner' : ''}${bet.declared.source === 'sleeper' ? ' (auto-detected from Sleeper)' : ''}${why ? ` — ${why}` : ''}. Waiting on the other side to confirm.` });
+  await store.set(KEY(bet.id), bet);
+  return bet;
+}
+
+/**
+ * CONFIRM a declared result — the second half, and the ONLY path a two-party bet
+ * reaches SETTLED. Must be a party who is NOT the declarer: you cannot confirm
+ * your own call. On confirm, legs are built and the result is on the record.
+ */
+async function confirmResult(id, by_id, by_name) {
+  const bet = await get(id);
+  if (!bet || bet.status !== STATUS.AWAITING_CONFIRM || !bet.declared) return null;
+  if (!isParty(bet, by_id)) return null;
+  if (Number(by_id) === Number(bet.declared.by)) return bet;   // the declarer cannot self-confirm
+  const winners = (bet.declared.winner_ids || []).map(Number);
+  bet.status = STATUS.SETTLED;
+  bet.winner_ids = winners;
+  bet.push = !!bet.declared.push && !winners.length;
+  bet.legs = bet.push ? [] : buildLegs(bet);
+  bet.settled_at = now();
+  bet.settled_by = Number(by_id);
+  bet.settle_note = bet.declared.why || '';
+  bet.declared.confirmed_by = [Number(by_id)];
+  bet.audit.push({ at: now(), by: Number(by_id),
+    what: `${by_name || 'Someone'} confirmed the result — settled${bet.push ? ' as a push (no money moves)' : ''}.` });
+  await store.set(KEY(bet.id), bet);
+  return bet;
+}
+
+/**
+ * DISPUTE a declared result. The other party says "that's not what happened."
+ * The bet goes to DISPUTED and STAYS THERE — the site records the disagreement,
+ * it does not adjudicate it. A visible dispute is its own social pressure; the
+ * group chat handles it, and either party can DECLARE again to re-open the
+ * handshake once they've sorted it out.
+ */
+async function disputeResult(id, by_id, by_name, why = '') {
+  const bet = await get(id);
+  if (!bet || bet.status !== STATUS.AWAITING_CONFIRM || !bet.declared) return null;
+  if (!isParty(bet, by_id)) return null;
+  if (Number(by_id) === Number(bet.declared.by)) return bet;   // the declarer isn't the disputer
+  bet.status = STATUS.DISPUTED;
+  bet.dispute = {
+    by: Number(by_id),
+    at: now(),
+    why: String(why || '').slice(0, 400),
+    over: { winner_ids: bet.declared.winner_ids, push: bet.declared.push, declared_by: bet.declared.by },
+  };
+  bet.audit.push({ at: now(), by: Number(by_id),
+    what: `${by_name || 'Someone'} DISPUTED the declared result${why ? ` — ${why}` : ''}. On the record until you two sort it out.` });
   await store.set(KEY(bet.id), bet);
   return bet;
 }
@@ -741,16 +829,36 @@ function leagueLedgerForYear(bets, year, nameOf) {
   };
 }
 
-/** Bets waiting on this person to say yes. Drives the nav badge and the email. */
+/**
+ * Bets waiting on this person to ACT. Drives the nav badge and the email. Two
+ * kinds of waiting now: a PROPOSED bet you haven't accepted, and an
+ * AWAITING_CONFIRM bet where the OTHER side declared a result you must confirm or
+ * dispute (you're a party and not the declarer).
+ */
 function awaiting(bets, owner_id) {
-  return bets.filter(b => b.status === STATUS.PROPOSED
-    && (b.parties || []).some(p => p.owner_id === Number(owner_id) && !p.accepted));
+  const me = Number(owner_id);
+  return bets.filter(b => {
+    if (b.status === STATUS.PROPOSED) {
+      return (b.parties || []).some(p => p.owner_id === me && !p.accepted);
+    }
+    if (b.status === STATUS.AWAITING_CONFIRM && b.declared) {
+      return isParty(b, me) && Number(b.declared.by) !== me;
+    }
+    return false;
+  });
+}
+
+/** Bets sitting in DISPUTED that this person is a party to (a nudge, not a task). */
+function disputed(bets, owner_id) {
+  const me = Number(owner_id);
+  return bets.filter(b => b.status === STATUS.DISPUTED && isParty(b, me));
 }
 
 module.exports = {
   STATUS, MAX_OPEN_SLOTS,
   all, get, propose, accept, take, decline, settle, reopen, remove,
+  declareResult, confirmResult, disputeResult,
   setPosition, markLeg, isParty, offerBuyout, acceptBuyout, clearBuyout, resend,
-  tallies, ledgerFor, settlementsFor, awaiting, moneyOnTeams, betsAbout,
+  tallies, ledgerFor, settlementsFor, awaiting, disputed, moneyOnTeams, betsAbout,
   betYear, partyDelta, gridByYear, leagueLedgerForYear,
 };

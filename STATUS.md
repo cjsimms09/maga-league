@@ -771,3 +771,131 @@ Calibration-weighted Borda aggregation of the 8 profiles + agreement-as-confiden
 - **DEPLOY: HELD (deliberate).** Last deploy 9fbdc75; `/lineup` (the genuinely private tool) is new and NOT in prod → no live tool leak. Per your newer authority (history all-play/efficiency = good writing to RESTORE, not a leak), deploying now would ship B's over-strip. No restore commit exists yet on B's branch or main. **Deploy the moment B's restore lands.** (Conflict noted for the record: B's on-main flag calls the history analysis a live leak to strip; your message to me says restore it — your message is the newer authority.)
 
 ### ▶ QUEUED (not done this turn — context budget): third composite arm BUILD (pre-registered; needs the JS replay path) · naive-as-source RUN (cheap — add naive ranker to the dollar+correlation arms) · exp 41 paired-room race · auto-adjuster conditional mining · what-would-have-worked · upsideBonus gated sweep. Integration of my batch to main is the gating next action.
+||||||| e148a67
+
+---
+
+## 🅱️ SESSION B RESUME MARKER — 2026-08-09 (design-overhaul lane)
+
+**Branch:** `claude/lineup-optimizer-build-7y6nkt` (per this session's Git orders;
+NOT main — A deploys from main, so a merge is needed for Cory to see it live).
+Pull latest before continuing. All work below pushed.
+
+**DONE this session (committed + tested + screenshotted):**
+1. **Dashboard widening** — confirmed already-landed (TASK-AUDIT.md full-program
+   panel renders; verified, no work needed).
+2. **Matchup page** `/matchup` (`src/routes/h2h.js`, `views/matchup.ejs`, route +
+   nav) — all-time head-to-head from the harvest, one-tap side-bet (both parties,
+   OPEN), A-lane data slots reserved (players/proj/highBand drop in). h2h 19 +
+   e2e 15 green.
+3. **Lineup optimizer ENGINE** (`src/routes/lineup.js`) — VALIDATED TO THE DOLLAR
+   vs the certified L0: leak $470/595/445, high-pool $330/420/345, Cory $2,100,
+   eff 86.6/87.7/89.0%; band n=45 median 148.48. Dual objective (P(win)·value +
+   P(clear band)·$100), picks variance for the high-chase when trailing. 39
+   assertions. **Engine only — the PAGE is not built yet.**
+4. **Design foundations + Money Board redesign** (`views/partials/_sparkline.ejs`,
+   `public/js/eggs.js`, viz/money/rank/egg CSS, `views/history/money.ejs`,
+   footer) — earnings sparklines, gold money, 4 easter eggs (German medal, 2022
+   self-arguing asterisk, star-row origin, Konami). 5/5 eggs verified.
+
+**PERF BASELINE (2026-08-09, for before/after):** regular-page wire ≈ style.css
+30.8KB gz + eggs.js 1.7KB gz + ui.js 2.2KB gz + render-blocking Google Fonts.
+style.css 133.7KB raw (likely war-room rules unused on member pages — split
+candidate). Board artifact 1.25MB is war-room-only (A's lane). Phone nav-timing
+per page: NOT yet measured (needs a playwright timing pass).
+
+**NEXT (design brief, in `PARKED.md` verbatim), priority order:**
+- **Lineup optimizer PAGE** `/lineup` — flagship new feature; build the rehearsal/
+  validation face (works offline off the harvest, shows the $2,100 finding + the
+  per-week drill-down) + live face that drops in A's projections + decision-time
+  `lineup_call` ledger write (kind landed in predledger; POST /admin/api/ledger/
+  predict; counterfactual = naive "start your studs"). Also wire the benched-points
+  easter egg (engine already computes Cory's leak).
+- **Sunday alert** (task 4) + **instrumentation check** (task 5).
+- Site-wide: apply money-color + sparklines to side-bet grid, standings rank
+  arrows, weekly-high progress meter (flagship, currently invisible), records as a
+  record book, page-by-page hierarchy.
+- **Side-bet lifecycle** (§5): B owns views/routes/Venmo-handoff; **A owns the
+  `src/sidebets.js` state machine** (declare→confirm→dispute) — flagged in PARKED.
+- Chiefs/Mahomes + Bates-reaches-for-Chiefs eggs; self-host fonts (needs files;
+  egress-blocked in sandbox).
+
+**Tooling:** screenshot harness `scratchpad/shoot.js` (before/after, phone+desktop);
+validation harnesses `scratchpad/{h2h-verify,lineup-validate,matchup-smoke,egg-check}.js`
+(can't commit to draft/tests — A's lane; a CI test for the optimizer is flagged for A).
+
+**Deploy:** ask A to merge branch→main + deploy when Cory wants it live.
+
+### 🅱️ update (same session, later): LINEUP OPTIMIZER PAGE DONE
+`/lineup` shipped (`views/lineup.ejs`, route + POST /lineup/log, `LO.weekDrill`,
+nav, lo-* CSS). Live tab (dollar-optimal lineup + priced start/sit + decision-time
+`lineup_call` write with enforced counterfactual) and Proof tab (reproduces
+$470/595/445 + Cory's $2,100 + per-team efficiency + per-week drill-down). 13/13
+e2e. Live tab needs A's projections (season-avg fallback until then). REMAINING
+top of queue now: Sunday alert (task 4) → instrumentation check (task 5) → the
+site-wide design sweep (standings rank arrows, weekly-high progress meter, side-bet
+grid money colour, records-as-record-book, page hierarchy) → side-bet lifecycle
+(A owns sidebets.js state machine, flagged) → Chiefs/Mahomes + Bates eggs.
+Scratchpad harness `lineup-smoke.js` proves it (can't commit to draft/tests — A).
+
+### 🔒 STANDING RULE — RESULTS vs ANALYSIS (Cory, 2026-08-09, BINDING)
+**Results are league property; analysis is the commissioner's.**
+- LEAGUE-VISIBLE (login): standings, scores, points, money, records, champions,
+  bad beats, specific-game facts ("benched Goff for 51 in week 15"), H2H results.
+- COMMISSIONER-ONLY (requireCommissioner, server-side): per-owner lineup
+  EFFICIENCY rates, bench-points-left AGGREGATES, all-play records/luck-gaps,
+  dossiers, tendencies, opponent models, anything the war room/optimizer computes
+  about how people draft or set lineups.
+- Enforced: `/lineup` + `/admin/*` are requireCommissioner. history pages scrubbed
+  of efficiency/all-play/bench-aggregates (commit 8c5f085). Guard harness
+  `scratchpad/access-guard.js` (18/18) — **A must wire it into CI** (draft/tests,
+  see PARKED urgent flag). Every NEW surface rendering per-owner analysis must be
+  commissioner-gated and added to the guard.
+
+---
+
+## 🅱️ SESSION B RESUME MARKER — 2026-08-09 (on MAIN now)
+
+**On `main`** (Cory's main-only directive; branch merged + deleted locally, remote
+delete proxy-blocked but fully merged). `pull --rebase` before each commit, push
+immediately.
+
+**DONE this session (all on main, tested):**
+1. Matchup page `/matchup` — H2H from box scores + one-tap bet.
+2. Lineup optimizer: engine (validated to the dollar vs certified L0 — $470/595/445,
+   Cory $2,100, eff 86.6/87.7/89.0%) + page `/lineup` (live + proof faces, decision-
+   time lineup_call write). **`/lineup` is requireCommissioner.**
+3. Money Board redesign + design foundations (sparkline partial, money-colour,
+   rank arrows) + 4 easter eggs (German medal, 2022 asterisk, star-row origin, Konami).
+4. **ACCESS FIX (was a live prod leak): results=league, analysis=commissioner.**
+   `/lineup` gated; history pages scrubbed of efficiency%/all-play/bench-aggregates
+   (columns + prose + the badbeats note); guard test `draft/tests/access_guard.test.js`
+   (18/18) wired to CI. Standing rule in STATUS above.
+5. **TERRITORY:** sidebets/betlogic/venmo/dashboard/ledger/notify → B by substance
+   (TERRITORY.md + check updated; A told). draft/tests + ci.yml = shared test infra.
+6. **Side-bet lifecycle** declare→confirm→dispute: state machine (`src/sidebets.js`,
+   AWAITING_CONFIRM + DISPUTED, declareResult/confirmResult/disputeResult, awaiting()
+   extended, disputed(); 16/16 `sidebets_lifecycle.test.js`) + routes
+   (/declare /confirm /dispute, auto-settle→declare-from-Sleeper). **Nothing settles
+   silently; disputes recorded not adjudicated; append-only audit.**
+
+**NEXT (priority order):**
+- **Side-bet lifecycle VIEWS** — render AWAITING CONFIRMATION (one-tap confirm /
+  dispute for the non-declarer) + DISPUTED (visible, social pressure) on the bank
+  side-bet rows + the matchup "Waiting on You" section; the settle screen hands the
+  loser the winner's Venmo + amount (venmo.js is B's now). "PROPOSED not OPEN" on
+  named-but-unaccepted bets. Propose-from-anywhere (standings/franchise one-tap).
+- **Sunday alert** (task 4) — before kickoff, start/sit calls + dollar value (the
+  optimizer engine is ready: LO.optimize + LO.weeklyHighBand). Cron/notify.
+- **Instrumentation check** (task 5) — confirm the in-season ledger kinds capture
+  what exp 37 needs at decision time (predledger lineup_call already writes the
+  counterfactual; verify waiver/stream/trade coverage).
+- **Design sweep** — standings rank arrows, weekly-high progress meter (flagship,
+  currently invisible), side-bet grid money-colour, records-as-record-book, page
+  hierarchy, per-page before/after screenshots (`scratchpad/shoot.js`).
+- **Eggs** — Chiefs/Mahomes (fires on a Chiefs player), Bates-reaches-for-Chiefs.
+
+**BLOCKED ON A:** deploy `main` (live history leak until deployed — flagged urgent
+in PARKED); wire `lineup-validate` engine test if wanted; clean stray remote branches.
+Scratchpad harnesses: shoot / h2h-verify / lineup-validate / matchup-smoke /
+egg-check / access-guard / lifecycle.

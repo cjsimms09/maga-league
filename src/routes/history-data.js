@@ -927,7 +927,10 @@ function buildBadBeats(seasons, owners) {
       const gap = round2(inLast.pf - outFirst.pf);
       beats.push({ kind: 'tiebreak_miss', year: s.year, week: null, owner: outFirst.name,
         points: gap,
-        note: `Missed the playoffs on a tiebreak — same ${outFirst.wins}-${outFirst.losses} record as ${inLast.name}, out by ${gap.toFixed(2)} total points across the season. ${outFirst.benchLeft != null ? `Left ${outFirst.benchLeft.toFixed(0)} on the bench.` : ''}`.trim() });
+        // The tiebreak miss is a bad beat (league-visible). The season
+        // bench-points aggregate that used to tail this note was per-owner
+        // efficiency intel — pulled per the results-vs-analysis rule.
+        note: `Missed the playoffs on a tiebreak — same ${outFirst.wins}-${outFirst.losses} record as ${inLast.name}, out by ${gap.toFixed(2)} total points across the season.` });
     }
   }
   return beats.sort((a, b) => b.points - a.points || a.year - b.year);

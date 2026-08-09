@@ -22,6 +22,10 @@ b_owns() {
     # surface — the split is by SUBSTANCE, not by directory, and this exception
     # was found by the check failing on A's own legitimate work.
     views/admin/warroom.ejs) return 1 ;;
+    # Site-feature src/*.js modules — reassigned to B by SUBSTANCE (2026-08-09;
+    # see TERRITORY.md § Substance reassignment). Imported only by src/routes/*,
+    # never by draft/**. A keeps predledger/sleeper/prefs + shared infra.
+    src/sidebets.js|src/betlogic.js|src/venmo.js|src/dashboard.js|src/ledger.js|src/notify.js) return 0 ;;
     views/*|src/routes/*|public/css/*|public/icons/*|public/*.webmanifest) return 0 ;;
     public/js/*) case "$1" in public/js/draft/*) return 1 ;; *) return 0 ;; esac ;;
     docs/queued/league-history-page.md|docs/queued/history-chronicle-voice.md) return 0 ;;
@@ -34,7 +38,13 @@ b_owns() {
 # append-only, never rewrite, and rebase before push.
 shared() {
   case "$1" in
-    STATUS.md|PARKED.md|DECISIONS-NEEDED.md|TASK-AUDIT.md) return 0 ;;
+    STATUS.md|PARKED.md|DECISIONS-NEEDED.md|TASK-AUDIT.md|TERRITORY.md) return 0 ;;
+    # Shared coordination infra: the split's own enforcement, maintained by both.
+    scripts/territory-check.sh|scripts/branch-check.sh) return 0 ;;
+    # Shared TEST infra: draft/tests holds tests for BOTH lanes — a test follows
+    # the substance of the module it tests (venmo/sidebets/access_guard are B's,
+    # engine/mcts are A's). ci.yml wires them. Append-only, rebase before push.
+    draft/tests/*|.github/workflows/ci.yml) return 0 ;;
     *) return 1 ;;
   esac
 }

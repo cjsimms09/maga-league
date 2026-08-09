@@ -1,0 +1,215 @@
+<%- include('partials/header', { title: 'The Matchup' }) %>
+<%
+  const fmtLock = d => {
+    if (!d) return '';
+    // Always New York — the NFL kicks off Eastern and half this league is not,
+    // so a bare "8:15pm" is a trap.
+    return new Date(d).toLocaleString('en-US', { timeZone: 'America/New_York',
+      weekday: 'short', hour: 'numeric', minute: '2-digit' }) + ' ET';
+  };
+  const r = record;                         // head-to-head summary (may be null)
+  // Who's ahead, said in plain words from the viewer's side.
+  let lead = null;
+  if (r && r.played) {
+    if (r.a.wins > r.b.wins) lead = { who: 'you', text: `You lead ${r.a.wins}–${r.b.wins}${r.ties ? '–' + r.ties : ''}` };
+    else if (r.b.wins > r.a.wins) lead = { who: 'them', text: `${opp.name} leads ${r.b.wins}–${r.a.wins}${r.ties ? '–' + r.ties : ''}` };
+    else lead = { who: 'even', text: `All square ${r.a.wins}–${r.b.wins}${r.ties ? '–' + r.ties : ''}` };
+  }
+%>
+
+<h1 class="page-title">⚔️ The Matchup <span class="sub" style="font-weight:600">Week <%= weekNo %></span></h1>
+
+<% if (sent) { %>
+  <div class="alert-banner" style="margin-bottom:1rem; border-color:rgba(74,222,128,.5)">
+    <span class="tag">✅</span><span>Bet sent<% if (opp) { %> to <b><%= opp.name %></b><% } %>. It's in the ledger as <b>OPEN</b> —
+    it locks in once they accept, and closes at kickoff. You'll both see who won.</span>
+  </div>
+<% } %>
+<% if (late) { %>
+  <div class="alert-banner alert-warning" style="margin-bottom:1rem">
+    <span class="tag">⏰</span><span>Too late — that game already started, so the bet couldn't be accepted. Nobody's money moved.</span>
+  </div>
+<% } %>
+
+<%# ── No opponent yet: let them pick one so H2H + the bet still work ────────── %>
+<% if (!opp) { %>
+  <div class="card" style="margin-bottom:1.2rem">
+    <h2>Who are you looking at? <span class="sub"><%= live ? '' : (configured ? "no live matchup yet — the season hasn't started, or Sleeper isn't mapped" : "Sleeper isn't connected yet") %></span></h2>
+    <div class="body">
+      <p class="muted" style="margin:0 0 .8rem">Pick an opponent to see your all-time record against them and put a bet up.</p>
+      <form method="get" action="/matchup" class="inline-form">
+        <div class="fit">
+          <label class="field">Opponent
+            <select name="opp" onchange="this.form.submit()">
+              <option value="">Pick someone…</option>
+              <% for (const o of owners) { if (o.id === me.id) continue; %>
+                <option value="<%= o.id %>"><%= o.name %></option>
+              <% } %>
+            </select>
+          </label>
+        </div>
+      </form>
+    </div>
+  </div>
+<% } %>
+
+<% if (opp) { %>
+<%# ── The scoreboard tile ──────────────────────────────────────────────────── %>
+<div class="card matchup-card" style="margin-bottom:1.2rem">
+  <div class="body">
+    <div class="mu">
+      <div class="mu-side <%= (matchup && matchup.me && matchup.me.points > matchup.opp.points) ? 'up' : '' %>">
+        <span class="mu-team"><%= (matchup && matchup.me && matchup.me.team) || me.team_name || 'Your team' %></span>
+        <span class="mu-pts"><%= (matchup && matchup.me) ? matchup.me.points.toFixed(2) : '—' %></span>
+        <span class="mu-who">you</span>
+      </div>
+      <div class="mu-vs">vs</div>
+      <div class="mu-side <%= (matchup && matchup.opp && matchup.opp.points > matchup.me.points) ? 'up' : '' %>">
+        <span class="mu-team"><%= (matchup && matchup.opp && matchup.opp.team) || opp.team_name || opp.name + "'s team" %></span>
+        <span class="mu-pts"><%= (matchup && matchup.opp) ? matchup.opp.points.toFixed(2) : '—' %></span>
+        <span class="mu-who"><%= opp.name %></span>
+      </div>
+    </div>
+    <% if (!live) { %>
+      <p class="muted" style="text-align:center; margin:.7rem 0 0; font-size:.76rem">
+        No live scoreboard<%= configured ? ' for this week yet' : ' (Sleeper not connected)' %> — showing the head-to-head and letting you bet it.
+      </p>
+    <% } %>
+  </div>
+</div>
+
+<%# ── HEAD TO HEAD — the centrepiece ───────────────────────────────────────── %>
+<div class="card h2h-card" style="margin-bottom:1.2rem">
+  <h2>📈 Head to Head <span class="sub">all-time, since the Sleeper era (2023)</span></h2>
+  <div class="body">
+    <% if (!r || !r.played) { %>
+      <p class="muted" style="margin:0">No games on record against <b><%= opp.name %></b> yet — this is your first meeting since the box scores begin (2023). Everything before that lives in the <a href="/history">league history</a>.</p>
+    <% } else { %>
+      <div class="h2h-hero">
+        <div class="h2h-lead <%= lead.who === 'you' ? 'you' : (lead.who === 'them' ? 'them' : 'even') %>"><%= lead.text %></div>
+        <% if (r.streak) { %>
+          <div class="h2h-streak"><%= r.streak.who === 'a' ? 'You have' : opp.name + ' has' %> won <b><%= r.streak.n %></b> straight<% if (r.streak.n >= 3) { %> 🔥<% } %></div>
+        <% } %>
+        <div class="h2h-span muted"><%= r.played %> game<%= r.played === 1 ? '' : 's' %> · <%= r.firstSeason %>–<%= r.lastSeason %></div>
+      </div>
+
+      <div class="h2h-stats">
+        <div class="h2h-stat">
+          <span class="h2h-stat-lbl">Avg points</span>
+          <span class="h2h-stat-val"><%= r.a.avg.toFixed(1) %> <span class="muted">– </span><%= r.b.avg.toFixed(1) %></span>
+          <span class="h2h-stat-sub">you – <%= opp.name %></span>
+        </div>
+        <div class="h2h-stat">
+          <span class="h2h-stat-lbl">Your best</span>
+          <span class="h2h-stat-val"><%= r.a.biggest ? ('+' + r.a.biggest.margin.toFixed(1)) : '—' %></span>
+          <span class="h2h-stat-sub"><%= r.a.biggest ? (r.a.biggest.season + ' wk' + r.a.biggest.week) : 'no wins yet' %></span>
+        </div>
+        <div class="h2h-stat">
+          <span class="h2h-stat-lbl">Their best</span>
+          <span class="h2h-stat-val"><%= r.b.biggest ? ('+' + r.b.biggest.margin.toFixed(1)) : '—' %></span>
+          <span class="h2h-stat-sub"><%= r.b.biggest ? (r.b.biggest.season + ' wk' + r.b.biggest.week) : 'no wins yet' %></span>
+        </div>
+      </div>
+
+      <details class="h2h-log">
+        <summary>Every meeting (<%= r.played %>)</summary>
+        <table class="roll" style="margin-top:.5rem">
+          <tr><th>Season</th><th>Wk</th><th class="num">You</th><th class="num"><%= opp.name %></th><th>Result</th></tr>
+          <% for (const g of r.games) { %>
+            <tr>
+              <td><%= g.season %></td>
+              <td><%= g.week %><% if (g.playoff) { %> <span class="badge gold" title="playoffs">PO</span><% } %></td>
+              <td class="num <%= g.winner === 'a' ? 'h2h-w' : '' %>"><%= g.a.toFixed(2) %></td>
+              <td class="num <%= g.winner === 'b' ? 'h2h-w' : '' %>"><%= g.b.toFixed(2) %></td>
+              <td>
+                <% if (g.winner === 'a') { %><span class="badge open">W</span>
+                <% } else if (g.winner === 'b') { %><span class="badge owes">L</span>
+                <% } else { %><span class="badge closed">T</span><% } %>
+                <span class="muted" style="font-size:.72rem">by <%= g.margin.toFixed(1) %></span>
+              </td>
+            </tr>
+          <% } %>
+        </table>
+      </details>
+    <% } %>
+  </div>
+</div>
+
+<%# ── One-tap bet against them ─────────────────────────────────────────────── %>
+<div class="card matchup-card" style="margin-bottom:1.2rem">
+  <h2>🤝 Bet <%= opp.name %> on it <span class="sub">straight up, this week</span></h2>
+  <div class="body">
+    <% if (!betWindow.open) { %>
+      <p class="mu-closed">🔒 <%= betWindow.reason %> Bets on week <%= weekNo %> are closed.</p>
+    <% } else { %>
+      <form method="post" action="/sidebets" class="inline-form">
+        <input type="hidden" name="format" value="prop">
+        <input type="hidden" name="kind" value="matchup">
+        <input type="hidden" name="back" value="matchup">
+        <input type="hidden" name="party" value="<%= opp.id %>">
+        <input type="hidden" name="resolves" value="end of week <%= weekNo %>">
+        <%# The condition the bet builder would have produced, prefilled — same
+            field names, same parser, a shortcut into the same machinery. %>
+        <input type="hidden" name="cond_test" value="outscores">
+        <input type="hidden" name="cond_subject" value="<%= me.id %>">
+        <input type="hidden" name="cond_target_owner" value="<%= opp.id %>">
+        <input type="hidden" name="cond_when" value="week">
+        <input type="hidden" name="cond_week" value="<%= weekNo %>">
+        <input type="hidden" name="logic" value="all">
+        <div class="fit">
+          <label class="field">Wager each
+            <input type="number" name="stake" step="1" min="1" placeholder="20" required style="width:6.5rem">
+          </label>
+        </div>
+        <div class="fit"><button class="btn gold" type="submit">Send it to <%= opp.name %></button></div>
+      </form>
+      <p class="muted" style="margin:.55rem 0 0; font-size:.78rem">
+        Straight up: <b>your team outscores <%= opp.name %> in week <%= weekNo %></b>, settled when the week ends.
+        They have to accept, and <b>acceptance closes <%= fmtLock(betWindow.locks_at) %></b> — once football starts nobody can take it.
+        The site grades it and tells you both who won.
+      </p>
+    <% } %>
+  </div>
+</div>
+
+<%# ── Reserved for Session A's data — renders only when it lands ────────────────
+    Per-player Sleeper points, projections, and this week's high-point band are
+    parked in sleeper.js (A's lane). The moment myMatchup() returns `players`,
+    `proj`, or `highBand`, these slots fill with no reflow. Until then, nothing
+    is shown rather than an empty promise. %>
+<% if (highBand) { %>
+  <div class="card" style="margin-bottom:1.2rem">
+    <h2>🎯 The Weekly High <span class="sub">the $100 band this week</span></h2>
+    <div class="body">
+      <p style="margin:0"><b><%= highBand.leader != null ? highBand.leader.toFixed(1) : '—' %></b> leads ·
+        typical winning score <b><%= highBand.typical != null ? highBand.typical.toFixed(1) : '—' %></b><% if (highBand.mine != null) { %> ·
+        you're at <b><%= highBand.mine.toFixed(1) %></b> (<%= (highBand.mine - highBand.typical >= 0 ? '+' : '') + (highBand.mine - highBand.typical).toFixed(1) %> vs typical)<% } %></p>
+    </div>
+  </div>
+<% } %>
+<% if (perPlayer && (perPlayer.me || perPlayer.opp)) { %>
+  <div class="card" style="margin-bottom:1.2rem">
+    <h2>🏈 Starters <span class="sub">points<%= proj ? ' vs projection' : '' %></span></h2>
+    <div class="body tight scroll-x">
+      <table class="roll">
+        <tr><th>You</th><th class="num">Pts</th><% if (proj) { %><th class="num">Proj</th><% } %><th><%= opp.name %></th><th class="num">Pts</th><% if (proj) { %><th class="num">Proj</th><% } %></tr>
+        <% const rowsMe = perPlayer.me || []; const rowsOpp = perPlayer.opp || []; const n = Math.max(rowsMe.length, rowsOpp.length); %>
+        <% for (let i = 0; i < n; i++) { const a = rowsMe[i] || {}; const b = rowsOpp[i] || {}; %>
+          <tr>
+            <td><%= a.name || '' %></td><td class="num"><%= a.points != null ? a.points.toFixed(1) : '' %></td>
+            <% if (proj) { %><td class="num muted"><%= a.proj != null ? a.proj.toFixed(1) : '' %></td><% } %>
+            <td><%= b.name || '' %></td><td class="num"><%= b.points != null ? b.points.toFixed(1) : '' %></td>
+            <% if (proj) { %><td class="num muted"><%= b.proj != null ? b.proj.toFixed(1) : '' %></td><% } %>
+          </tr>
+        <% } %>
+      </table>
+    </div>
+  </div>
+<% } %>
+
+<% } %><%# /opp %>
+
+<p style="text-align:center; margin-top:1rem">
+  <a class="btn navy" href="/team?section=week">← Full team &amp; roster</a>
+</p>
+<%- include('partials/footer') %>

@@ -42,7 +42,7 @@ jobs:
         run: |
           set -e
           for t in alerts app-wiring attribution authority backtest betlogic bundling_guard engine keeperlock keepers ledger \
-                   claimfix doctrine mcts movement_line predledger prefs rawarchive reconcile shadows sidebets stack_routes strategies sync update venmo; do
+                   claimfix doctrine mcts movement_line predledger prefs rawarchive reconcile shadows sidebets sidebets_lifecycle stack_routes strategies sync update venmo; do
             echo "== $t =="
             node draft/tests/$t.test.js
           done
@@ -61,6 +61,14 @@ jobs:
         # Complements bundling_guard: the guard proves the files SHIP, this proves
         # the render POPULATES.
         run: node draft/tests/history_smoke.test.js
+      - name: Access guard — analysis is commissioner-only, never league-visible
+        # STANDING RULE (results = league property, analysis = commissioner's):
+        # asserts /lineup + /lineup/log 403 a non-commissioner, and NO league-
+        # visible page renders per-owner efficiency, all-play, luck-gap, robbery-
+        # record, or season-bench-aggregate text. The three-season lineup
+        # archaeology is the commissioner's edge; this keeps it from leaking back
+        # in by a stray column, an open tab, or a chapter rewrite.
+        run: node draft/tests/access_guard.test.js
       - name: Robot mock draft — the safety net
         # A full snake draft from every seat through the real engine and
         # attribution modules, plus every bug this session as a regression

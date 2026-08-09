@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const H = require('../helpers');
 const HIST = require('./history-data');   // the MFGA Archive — chronicle data engine
+const H2H = require('./h2h');              // all-time head-to-head, from the box scores
+const LO = require('./lineup');            // the lineup optimizer engine (validated vs L0)
 const L = require('../ledger');
 const SB = require('../sidebets');
 const BL = require('../betlogic');
@@ -10,7 +12,7 @@ const sleeper = require('../sleeper');
 const notify = require('../notify');
 const crypto = require('crypto');
 const { store, getDoc, setDoc, newId, now } = require('../data');
-const { hashPassword, verifyPassword, requireLogin, aw } = require('../auth');
+const { hashPassword, verifyPassword, requireLogin, requireCommissioner, aw } = require('../auth');
 const { RULES, SCORING, ROSTER } = require('../seed-data');
 
 // ---------- public: deploy health, NO league data ----------
@@ -685,6 +687,13 @@ function parseConditions(body) {
 }
 
 const picksFrom = body => [].concat(body.picks || []).map(Number).filter(Boolean);
+// Parse a JSON string from a form field without ever throwing (a bad body must
+// never 500 the log write). Returns the parsed value, or the raw string, or null.
+function safeJson(v) {
+  if (v == null) return null;
+  if (typeof v === 'object') return v;
+  try { return JSON.parse(String(v)); } catch (e) { return String(v).slice(0, 2000); }
+}
 
 router.post('/sidebets', aw(async (req, res) => {
   const ids = [].concat(req.body.party || []).map(Number).filter(Boolean);
@@ -719,6 +728,11 @@ router.post('/sidebets', aw(async (req, res) => {
       const targets = owners.filter(o => ids.includes(o.id));
       notify.sideBetProposed(targets, bet, req.owner.name, terms).catch(() => {});
     } catch (e) { /* needs someone on the other side; the form enforces it too */ }
+  }
+  // The matchup page sends people back to it, not the finance page — the bet was
+  // made in the flow of "who am I playing", so that is where the confirmation lands.
+  if (req.body.back === 'matchup') {
+    return res.redirect('/matchup?sent=1' + (req.body.party ? '&opp=' + Number(req.body.party) : ''));
   }
   res.redirect('/bank?section=sidebets');
 }));
@@ -828,13 +842,49 @@ router.post('/sidebets/:id/settle', aw(async (req, res) => {
   res.redirect('/bank?section=sidebets');
 }));
 
+// The bet's own back-link: a declare/confirm/dispute done from the matchup page
+// returns there; everywhere else lands on the side-bet book.
+function betBack(req) {
+  return req.body.back === 'matchup' ? '/matchup' : (req.body.back === 'team' ? '/team' : '/bank?section=sidebets');
+}
+
+// ── DECLARE → CONFIRM → DISPUTE — the settling flow ──────────────────────────
+// Either party declares the outcome; the OTHER confirms or disputes. Nothing
+// moves money until a confirm, and a dispute is recorded, never adjudicated.
+router.post('/sidebets/:id/declare', aw(async (req, res) => {
+  const bet = await SB.get(req.params.id);
+  if (bet && SB.isParty(bet, req.owner.id)) {
+    const winners = [].concat(req.body.winner || []).map(Number).filter(Boolean);
+    await SB.declareResult(req.params.id, req.owner.id, req.owner.name, {
+      winner_ids: winners, push: req.body.push === '1', why: String(req.body.why || '').trim(),
+    });
+  }
+  res.redirect(betBack(req));
+}));
+
+router.post('/sidebets/:id/confirm', aw(async (req, res) => {
+  const bet = await SB.get(req.params.id);
+  if (bet && SB.isParty(bet, req.owner.id)) {
+    await SB.confirmResult(req.params.id, req.owner.id, req.owner.name);
+  }
+  res.redirect(betBack(req));
+}));
+
+router.post('/sidebets/:id/dispute', aw(async (req, res) => {
+  const bet = await SB.get(req.params.id);
+  if (bet && SB.isParty(bet, req.owner.id)) {
+    await SB.disputeResult(req.params.id, req.owner.id, req.owner.name, String(req.body.why || '').trim());
+  }
+  res.redirect(betBack(req));
+}));
+
 /**
- * Settle a bet the way the engine called it.
- *
- * This is the confirm half of "the engine never settles a bet". The verdict is
- * recomputed here rather than trusted from the form — otherwise the winner ids
- * would be attacker-supplied, and the button would be a way to award yourself
- * anybody's money.
+ * AUTO-SETTLE, redesigned: where Sleeper objectively decides the outcome, the
+ * site OFFERS the verdict by DECLARING it — it does not settle. Both parties
+ * still confirm. Never settle silently (Cory, side-bet §5). The verdict is
+ * recomputed here, never trusted from the form, so the winner ids can't be
+ * attacker-supplied. The commissioner keeps the direct /settle override for
+ * adjudicating a dispute.
  */
 router.post('/sidebets/:id/settle-auto', aw(async (req, res) => {
   const bet = await SB.get(req.params.id);
@@ -845,11 +895,12 @@ router.post('/sidebets/:id/settle-auto', aw(async (req, res) => {
     const { verdicts } = await gradeBets([bet], world, owners, nameOf);
     const v = verdicts[bet.id];
     if (v && v.decided) {
-      await SB.settle(bet.id, v.winner_ids, req.owner.id, req.owner.name,
-        { push: v.push, why: v.headline });
+      // DECLARE the Sleeper verdict (source-tagged), then both parties confirm.
+      await SB.declareResult(bet.id, req.owner.id, req.owner.name,
+        { winner_ids: v.winner_ids, push: v.push, why: v.headline, source: 'sleeper' });
     }
   }
-  res.redirect('/bank?section=sidebets');
+  res.redirect(betBack(req));
 }));
 
 /**
@@ -1098,6 +1149,164 @@ router.get('/team', aw(async (req, res) => {
     section: req.query.section === 'week' ? 'week' : 'roster',
     weekNo: (matchup && matchup.week) || (sData && sData.week) || 1,
     configured: !!world.config.sleeper_league_id });
+}));
+
+// ---------- the matchup, up close (dedicated page) ----------
+// The team page answers "who am I playing" in passing; this page is that
+// question and only that question: the opponent, the all-time head-to-head, and
+// a one-tap bet against them — the bet lands in the side-bet ledger with both
+// parties named and OPEN (unsettled), settled straight-up when the week ends.
+//
+// The per-player Sleeper points, the projections, and this week's high-point
+// band are Session A's data (parked in sleeper.js). This page RESERVES their
+// slots and renders cleanly without them, so A's numbers drop in with no reflow:
+// `players`, `proj`, and `highBand` are read defensively and shown only when
+// present — see views/matchup.ejs.
+router.get('/matchup', aw(async (req, res) => {
+  const world = req.world;
+  const owners = H.activeOwners(world.owners);
+  const me = req.owner;
+  const sData = await sleeper.bundle(world.config.sleeper_league_id);
+  const liveMatchup = sleeper.myMatchup(sData, world.config.sleeper_map || {}, me.id, owners);
+
+  // Opponent: this week's live opponent when Sleeper is reachable; otherwise an
+  // explicit ?opp= pick, so the page — and its head-to-head — works off-season,
+  // before the season starts, and in the sandbox where Sleeper is unreachable.
+  let opp = (liveMatchup && liveMatchup.opp && liveMatchup.opp.owner) ? liveMatchup.opp.owner : null;
+  const live = !!opp;
+  const oppParam = parseInt(req.query.opp, 10) || null;
+  if (!opp && oppParam && oppParam !== me.id) opp = H.ownerById(owners, oppParam) || null;
+
+  const weekNo = (liveMatchup && liveMatchup.week) || (sData && sData.week) || 1;
+  const betWindow = BL.matchupWindow(liveMatchup);
+
+  // owner -> stable Sleeper user_id. Live bundle is authoritative when present;
+  // the harvest-backed name map is the offline fallback (both proven to agree).
+  let invUserMap = null;
+  if (sData) {
+    const um = sleeper.userMap(sData, world.config.sleeper_map || {});   // { user_id: owner_id }
+    invUserMap = {};
+    for (const [uid, oid] of Object.entries(um)) invUserMap[oid] = uid;
+  }
+  const uidOf = (o) => (invUserMap && invUserMap[o.id]) || H2H.userIdForName(o.name, o.alias);
+
+  const record = opp ? H2H.headToHead(uidOf(me), uidOf(opp)) : null;
+
+  // A-lane data, read defensively: present => render; absent => a labelled slot.
+  const perPlayer = (liveMatchup && liveMatchup.players) || null;   // A supplies
+  const proj = (liveMatchup && liveMatchup.proj) || null;           // A supplies
+  const highBand = (liveMatchup && liveMatchup.highBand) || null;   // A supplies
+
+  const nameOf = id => (H.ownerById(owners, id) || {}).name || '?';
+  res.render('matchup', {
+    me, owners, opp, live, weekNo, matchup: liveMatchup, betWindow, record,
+    perPlayer, proj, highBand,
+    configured: !!world.config.sleeper_league_id,
+    late: req.query.late === '1', sent: req.query.sent === '1',
+    nameOf,
+  });
+}));
+
+// ---------- THE LINEUP OPTIMIZER (in-season, the measured leak) ----------
+// The tool that attacks $445–595/team/season left on the bench. Two faces:
+//   • LIVE: your roster + projections → the dollar-optimal lineup and priced
+//     start/sit calls. Projections come from A's sleeper.js when they land; until
+//     then it runs on this season's per-game average (labelled), so it works now.
+//   • PROOF: the validation — reproduces the certified L0 leak to the dollar, and
+//     a per-week drill-down of any real week's optimal-vs-actual. This is the
+//     "proven before week 1" face; it works fully offline off the harvest.
+// COMMISSIONER-ONLY, server-side (gated like the war room). This tab renders
+// per-owner lineup efficiency and bench-points-left — the most competitively
+// sensitive ANALYSIS in the system. STANDING RULE: results are league property,
+// analysis is the commissioner's. requireCommissioner 403s every non-commissioner
+// BEFORE the handler runs, so it can never leak by a stray link or open tab.
+router.get('/lineup', requireCommissioner, aw(async (req, res) => {
+  const world = req.world;
+  const owners = H.activeOwners(world.owners);
+  const me = req.owner;
+  const tab = req.query.tab === 'proof' ? 'proof' : 'live';
+  const season = String(H.currentSeason(world.seasons).year || 2026);
+
+  // Shared context (cheap, harvest-backed).
+  const band = LO.weeklyHighBand();
+  const sigmaByPos = LO.positionSigmas();
+
+  let live = null;                       // the live optimizer result, when data allows
+  let projSource = null;                 // 'sleeper' | 'season-avg' | null
+  let roster = null, matchup = null;
+  const sData = await sleeper.bundle(world.config.sleeper_league_id);
+  if (sData) {
+    roster = await sleeper.rosterView(sData, world.config.sleeper_map || {}, me.id);
+    matchup = sleeper.myMatchup(sData, world.config.sleeper_map || {}, me.id, owners);
+  }
+  if (roster && roster.rows && roster.rows.length) {
+    // Projection per player: A's live projection if present, else this season's
+    // per-game average (honest fallback), else last week's points, else 0.
+    const rosterIn = roster.rows.filter(r => r.pos && r.pos !== '?').map(r => {
+      let proj = null, src = null;
+      if (r.proj != null) { proj = Number(r.proj); src = 'sleeper'; }
+      else if (r.seasonPts != null && r.gp) { proj = Number(r.seasonPts) / Number(r.gp); src = 'season-avg'; }
+      else if (r.wkPts != null) { proj = Number(r.wkPts); src = 'last-week'; }
+      else { proj = 0; src = 'none'; }
+      if (src === 'sleeper') projSource = 'sleeper';
+      else if (projSource !== 'sleeper') projSource = src;
+      return { id: r.id, name: r.name, pos: r.pos, proj: Math.round(proj * 10) / 10, sd: r.sd };
+    });
+    // Opponent's projected total: their live projection sum if available, else a
+    // typical competitive score (the band median) as a labelled proxy.
+    let oppMean = 0, oppKnown = false;
+    if (matchup && matchup.opp && matchup.opp.points > 0) { oppMean = matchup.opp.points; oppKnown = true; }
+    else { oppMean = band.median; }
+    live = LO.optimize(rosterIn, { band, sigmaByPos, oppMean, matchupValue: 25 });
+    live.oppKnown = oppKnown;
+  }
+
+  // PROOF face: L0 reproduction + a per-week drill-down.
+  const proof = LO.ceilingLeak();                    // per-season leak (to the dollar)
+  const eff = LO.replayEfficiency();                 // per-team efficiency
+  // Cory's benched-points tragedy (the easter egg + the business case, one number).
+  const myLeak = proof.reduce((a, s) => {
+    const row = (s.teams || []).find(t => t.owner === 'coryjsimms');
+    return a + (row ? row.totalLeak : 0);
+  }, 0);
+
+  // Optional week drill-down (?proof + replay=YEAR&week=W&owner=display_name).
+  let drill = null;
+  const dY = req.query.replay, dW = parseInt(req.query.week, 10);
+  if (tab === 'proof' && dY && dW) drill = LO.weekDrill(String(dY), dW, req.query.owner || 'coryjsimms');
+
+  res.render('lineup', {
+    me, owners, tab, season, band, live, projSource, roster, matchup,
+    proof, eff, myLeak: Math.round(myLeak), drill,
+    configured: !!world.config.sleeper_league_id,
+    logged: req.query.logged === '1',
+  });
+}));
+
+// Decision-time write: log THIS lineup call with its counterfactual (the naive
+// "start your studs" lineup) so January can grade what the tool recommended vs
+// what would have happened otherwise. The predledger enforces the counterfactual.
+router.post('/lineup/log', requireCommissioner, aw(async (req, res) => {
+  const season = String(H.currentSeason(req.world.seasons).year || 2026);
+  const predledger = require('../predledger');
+  try {
+    await predledger.append(store, {
+      kind: 'lineup_call',
+      method: 'lineup-optimizer-v1',
+      season,
+      payload: {
+        owner_id: req.owner.id,
+        week: req.body.week ? Number(req.body.week) : null,
+        recommended: safeJson(req.body.recommended),
+        // REQUIRED: what I'd have played without the tool (start-your-studs).
+        counterfactual: safeJson(req.body.counterfactual),
+        dollars: req.body.dollars != null ? Number(req.body.dollars) : null,
+        confidence: String(req.body.confidence || '').slice(0, 600),
+        opp_mean: req.body.opp_mean != null ? Number(req.body.opp_mean) : null,
+      },
+    });
+  } catch (e) { /* fail soft on the redirect; the API path surfaces errors */ }
+  res.redirect('/lineup?logged=1');
 }));
 
 // ---------- the locker room ----------

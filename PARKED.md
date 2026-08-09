@@ -283,3 +283,146 @@ to ADP's positional construction. Through-line: **evaluation ≠ construction; t
 regression is too strong; the anchor should come from measured per-region efficiency
 (exp 36) and member agreement (exp 41), not a flat gate.** None of this ships without the
 gates.
+||||||| e148a67
+
+---
+
+## ▶ SITE DESIGN BRIEF (Cory, 2026-08-09) — acknowledged, in progress (Session B)
+
+**Received mid-grind; captured verbatim so nothing is lost. Mostly B-lane; the
+side-bet state machine (§5) touches `src/sidebets.js` = A's lane → coordinated
+below.** Order of attack (B): finish the lineup-optimizer boundary → perf
+BASELINE (measure-first) → design-system tokens (spacing/type/card/button/money
+color) → page-by-page redesign (home, standings, team, matchup, finances, side
+bets, history+subs, locker, voting, rules, dashboard) → data-viz (sparklines,
+rank arrows, weekly-high progress, money color) → easter eggs → side-bet flow.
+
+**THE HARD CONSTRAINT: nothing gets deleted.** Every number/table/feature stays.
+Hierarchy, density, polish — not subtraction.
+
+**§1 DESIGN** — page by page: one dominant element, everything subordinate, ref
+one tap down. Intentional americana (navy/gold/eagle/stars), consistent
+spacing+type+card+button scale. Mobile-first (Cory on a phone): no horizontal
+scroll, thumb tap targets, nothing important 3 folds down. Motion means state
+change, not decoration. Everything legible on sight; label any bare number.
+
+**§2 DATA FUN** — sparklines on trends (pts/wk, money/season, efficiency); money
+color-coded consistently site-wide (up/down, same treatment); rank-movement
+arrows in standings; weekly-high progress rendered VISUALLY (biggest prize,
+currently invisible); small charts where a table says less; records/superlatives
+as a record book.
+
+**§3 PERFORMANCE** — measure FIRST (page weight, phone-viewport load, interaction
+latency, bundle size, anything loaded a page doesn't need), fix real bottlenecks,
+report before/after. No guessing.
+
+**§4 DETAIL + EASTER EGGS** (league voice: crude/funny about FANTASY only, no
+slurs, nothing genuinely political):
+- Chiefs/Mahomes woven in (fires on a Chiefs player drafted/big score; a Mahomes
+  reference somewhere unexpected; arrowhead-red accents sparingly).
+- "Back to back world war champs" for the two Germans (David, Marian) — hidden,
+  rewards discovery.
+- Bates reaching for Chiefs players — small badge/counter when data supports it.
+- 2022 asterisk does something clever on hover/tap — a footnote that argues with
+  itself.
+- Balls and Wieners origin appearing somewhere unexpected.
+- Hidden counter of Cory's benched points (the league's funniest ongoing tragedy
+  — NOTE: the lineup optimizer already computes this; wire it here).
+- A Konami code / long-press on the eagle / five taps on the star row → something
+  ridiculous.
+
+**§5 SIDE-BET WORKFLOW REDESIGN** (flow, not form) — **coordination with A on
+`src/sidebets.js`:**
+- PROPOSING: from anywhere an opponent appears (matchup/standings/franchise), one
+  tap "bet him", opponent pre-filled, stake + plain terms + deadline, 15s total.
+  *(B owns these surfaces + routes; the matchup one-tap already ships.)*
+- ACCEPTING: pending invitation, accept/decline. **Unaccepted = PROPOSED, not
+  OPEN.** *(sidebets.js already distinguishes; the wording "OPEN" on a market
+  listing vs "PROPOSED" on a named bet must be enforced in the views.)*
+- LIVE: shows on both parties' screens with terms + live scores where Sleeper
+  determines it.
+- SETTLING (design carefully): either party DECLARES outcome → other CONFIRMS;
+  until confirmed = **AWAITING CONFIRMATION** to both; on confirm → settle
+  (ledger records, both grids update, loser gets winner's Venmo + amount). If they
+  disagree → stays open + **DISPUTED** (site records, doesn't adjudicate; visible
+  dispute = social pressure). Where Sleeper objectively decides → offer auto-settle
+  but BOTH still confirm; never settle silently.
+- **THE LEDGER IS THE POINT:** every state change recorded with who+when —
+  proposed/accepted/declined/declared/confirmed/disputed/settled/paid. Immutable.
+
+  **⚠️ A-LANE FLAG (`src/sidebets.js`):** the new states DECLARED / AWAITING
+  CONFIRMATION / DISPUTED and the declare→confirm handshake are a state-machine
+  extension in sidebets.js (A's file per territory-check). Requested: add
+  `declare(id, owner, outcome)` (sets AWAITING_CONFIRM + records declarer),
+  `confirmSettle(id, owner)` (→ SETTLED, builds legs), `dispute(id, owner)` (→
+  DISPUTED), each pushing an audit row. B builds all the views, the settle/confirm
+  routes, the Venmo-handoff, and the live-score rendering against whatever shape A
+  returns. Flagging rather than editing sidebets.js.
+
+**HOW TO WORK IT:** screenshot key pages before/after; page-by-page; commit at
+every boundary; tell A when to deploy so Cory can look.
+
+**CORRECTION (Cory, 2026-08-09):** the "act as a designer, not a feature builder"
+framing is WITHDRAWN. Build whatever makes the site better — new components, a new
+side-bet interface, new charts, unasked-for improvements (say why). Only
+constraints: nothing that works breaks · no info lost · territory holds (B lane,
+never draft-surface, never deploy) · league voice. Take real liberties. Before/
+after screenshots per change; tell A when to deploy. → The lineup-optimizer page
+folds into this as a new feature page.
+
+---
+
+## 🚨🚨 URGENT → SESSION A (2026-08-09): DEPLOY THE ACCESS FIX + WIRE THE GUARD
+
+**A LIVE LEAK IS IN PRODUCTION.** The history pages on `main` (deployed) publish
+per-owner **lineup-efficiency rates + all-play records + season bench-points** —
+the most competitively sensitive ANALYSIS in the system (Cory: "results are
+league property, analysis is mine"). B has FIXED it in code (commit on
+`claude/lineup-optimizer-build-7y6nkt`: season/franchise efficiency+bench columns
+removed, chapters/index all-play+efficiency+bench-aggregates pulled, /lineup gated
+requireCommissioner). **But the fix is on B's branch, not `main`, so prod still
+leaks until you merge + deploy.**
+
+**ASKS (A owns deploy + `draft/tests` + `ci.yml`):**
+1. **MERGE `claude/lineup-optimizer-build-7y6nkt` → `main` and DEPLOY, ASAP.** This
+   pulls the live leak AND ships B's matchup page, lineup optimizer, money-board
+   redesign. If a full merge is too broad right now, at minimum cherry-pick the
+   access commit `8c5f085` to main and deploy that alone — the leak is the
+   priority.
+2. **Wire B's access-guard test into CI.** B can't write `draft/tests/*` (your
+   lane). The harness is at (B scratchpad) `scratchpad/access-guard.js` — 18
+   assertions: /lineup + /lineup/log 403 a non-commissioner (200 for commish), and
+   NO league-visible page renders all-play / efficiency-rate / luck-gap / robbery-
+   record / season-bench-aggregate text as a non-commissioner. Please copy it to
+   `draft/tests/access_guard.test.js` and add `access_guard` to the ci.yml JS loop
+   so this can never regress. (B will hand you the file contents on request.)
+3. Optional: a CI test for the lineup optimizer engine (reproduces L0 to the
+   dollar) — `scratchpad/lineup-validate.js`, 39 assertions. Same lane issue.
+
+STANDING RULE now enforced in code; the guard keeps it enforced once wired.
+
+---
+
+## 🚨 → A (2026-08-09, UPDATED): the merge is DONE — just DEPLOY main + FYI
+
+**Supersedes the "merge branch→main" ask above — B has consolidated onto `main`
+per Cory's main-only directive.** `main` @ `44c24c6` now carries the full access
+fix + all B site work (matchup, lineup optimizer, money-board redesign, eggs).
+
+1. **DEPLOY `main` NOW.** The history-page analysis leak (per-owner efficiency +
+   all-play + bench aggregates) is LIVE in prod until you deploy. Cory: "the live
+   version is leaking right now, the fix should not wait for the next batch." The
+   access-guard CI test (`draft/tests/access_guard.test.js`, now wired) must be
+   green — it is.
+2. **TERRITORY MOVED (Cory-directed, TERRITORY.md updated):** these site-feature
+   modules are now **B's** by substance (imported only by src/routes/*, never by
+   draft/**): `src/sidebets.js`, `src/betlogic.js`, `src/venmo.js`,
+   `src/dashboard.js`, `src/ledger.js`, `src/notify.js`. **Do not edit these** — B
+   owns the side-bet lifecycle end to end now (the earlier "A please add declare/
+   confirm/dispute to sidebets.js" park is WITHDRAWN — B is doing it). A keeps
+   predledger/sleeper/prefs + shared infra. Check script updated.
+3. **STRAY BRANCHES:** the proxy is blocking B's delete of `claude/lineup-
+   optimizer-build-7y6nkt` (fully merged into main, harmless). Also present:
+   `claude/exp34-dollar-arm-21m58r` (yours?), `claude/new-session-jwdvn7`,
+   `claude/new-session-xs2lv6`. Per main-only, these should be cleaned up — if you
+   can delete them (proxy may block B), please do; else flag Cory.
