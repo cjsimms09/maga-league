@@ -158,6 +158,7 @@ def egress_main():   # pragma: no cover  (CI only)
     index = ADP.build_index(SL.fetch_players())
 
     fp_diag = {}   # self-diagnosing: raw head saved when a FP season parses thin
+    fp_source = {}  # self-documenting: which endpoint served the full board, per season
     per_season, seasons = {}, sorted({p["season"] for p in picks if p.get("season")})
     for yr in seasons:
         rows = [p for p in picks if p.get("season") == yr]
@@ -181,6 +182,11 @@ def egress_main():   # pragma: no cover  (CI only)
             sid, _how = ADP.match_player(r, index)
             if sid and str(sid) in realized:
                 adp_fp[str(sid)] = r["adp"]
+        # SELF-DOCUMENT SUCCESS too (not only failure): record which endpoint served the full
+        # board + row counts, so a later run can tell a genuine full board from a teaser and we
+        # know the working URL is reproducible, not a fluke.
+        fp_source[yr] = {"url": (fetch_diag or {}).get("api_ok") or fp_url,
+                         "parsed_rows": len(fp_rows), "crosswalked": len(adp_fp)}
         # SELF-DIAGNOSE: a parse miss must LOOK like a miss, not an absent source. Record the
         # discovery attempt ALWAYS when thin (which endpoints/keys were tried) so the next run
         # shows the real data-API instead of silently contributing nothing.
@@ -219,6 +225,7 @@ def egress_main():   # pragma: no cover  (CI only)
            "pooled_region_wins": wins,
            "composite_beat_best_in_n_seasons": comp_beats,
            "fantasypros_parse_diagnostics": fp_diag,   # empty = parsed fine; populated = inspect the raw head
+           "fantasypros_source": fp_source,            # which endpoint served the full board (reproducibility)
            "caveat": "points-reliability (Spearman) like exp36; compared by RANK so scale/format "
                      "offset cancels. FantasyPros is HALF-PPR (our format — a closer match than "
                      "MFL's full-PPR); FFC half-PPR; MFL full-PPR/12-team. Three-way now decides "
