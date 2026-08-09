@@ -1198,3 +1198,39 @@ targets (`ss-*`, `db-*`, `sb-*`, `mvs-*`) don't move under it. Quiet-by-default 
 loud only on tier cliff, contested split, or plan deviation. All "remaining site
 work" (rank arrows, sparklines, Chiefs counter, weekly-high strip) VERIFIED already
 built in prior commits — do not redo.
+
+### ▶ SESSION B RESUME MARKER — 2026-08-09 (derive pattern + list sweep)
+**Ritual:** "You are session B, read SESSION-B.md and STATUS.md, then continue."
+**Branch:** `claude/warroom-shell-redesign-9j1th0` (pushed, clean). B never deploys.
+
+**Shipped this session:**
+- **DERIVE — a site-wide "tap any number to see how it was computed" component**
+  (Cory's #1). `views/partials/_derive.ejs` + `.derive*` CSS + a delegated handler
+  in `ui.js` that opens the breakdown as a **fixed-positioned popover** (escapes the
+  `overflow:auto` scroll containers that would clip it in the money/standings
+  tables). Inline, never a modal, never navigation; one-open-at-a-time; outside-
+  click / Escape / scroll-out close it; keyboard accessible. Reusable everywhere via
+  `include('partials/_derive', { val, label, rows:[{k,v,strong}], foot, cls })`.
+- **Applied on two pages** (proves it generalizes): (1) Money Board career total →
+  the seasons that sum to it (career == sum of by_year, real parts). (2) Chiefs-
+  Homer Counter → tap an owner's KC-pick count to list the actual Chiefs they drafted
+  (player · year · round, from kcPicks). Both render-tested (full + sparse/zero cases).
+
+**Verified already-built (did NOT redo):** #2 rank arrows (`dashboard.ejs`) +
+side-bet sparklines; #3 Chiefs counter (`buildChiefsHomers` in history-data.js —
+fully audited verdict). Player→NFL-team IS reachable in Sleeper metadata
+(`sleeper.js` `p.team`, `r.team === 'KC'`) — the old "blocked" worry was wrong.
+
+**Honest note (PREFER-DERIVED):** did NOT wrap the pot total in derive — `total_pot`
+is a DECLARED value, not `buy_in × N` (2021 = $2,900 on a $300 buy-in, not $3,000).
+Wrapping it would assert a false formula. Only wrap numbers with real parts.
+
+**Derive — clean next targets (all have real parts in-template/route):** payout
+amounts (pct × prize pool, via `payoutTable`), side-bet net tab (ledger entries via
+`L.balances`), franchise-page career totals, standings all-play/luck once live.
+
+**STILL gated on A (PARKED "WAR-ROOM SHELL"):** war-room boundary NOT yet in
+TERRITORY.md (line 124 still excludes `warroom.ejs` from B); A on Python/BBM lane.
+When A encodes it + is out-of-mock, the shell furniture-collapse jumps to front
+(draft ~12 days out, screen unusable at a glance). **A must also integrate+deploy
+this branch** for Cory to see the shell fixes (last session) and derive (this one).
