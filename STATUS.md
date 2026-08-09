@@ -1159,3 +1159,43 @@ re-point. Everything B owns is green.
 2. **Post-mock (Cory runs mock #4 → gates these):** density redesign (B, against the host contract), doctrine-switch UI, ribbon/overlay audit, opponent positional needs (feature C), revert/reconcile.
 
 ### On Cory: run mock #4 (accounting is green). Dead-zone marker is live on the board.
+
+## ▶ SESSION B — 2026-08-09: PICK'EM shipped (unit 1 of the new order) + nav bug fixed
+**Branch `claude/pickems-feature-3ksf0l` (fresh off main; pushed). 🅰️: integrate + DEPLOY — Cory hasn't seen ANY of the prior branch work live yet, and this stacks on top.**
+
+### ✅ PICK'EM — complete, tested, mobile-verified (unit 1, "start here")
+League-visible (a pick is a RESULT, not a tool — ACCESS-RULE.md). New `/pickem`:
+- **Two-way pick per game**, each week's five games, thumb-sized targets, one
+  mobile column. Nav entry added; a compact hook on the matchup screen.
+- **Locks at first kickoff OR first point on the board** (reuses
+  `betlogic.kickoffOf` + the anyScore signal matchup bets use) — enforced
+  server-side in POST /pickem, not just hidden.
+- **Split goes public only once locked**: "7 of 10 took Michael" + a gold/red
+  split bar per game, and a "who backed you / who took the other guy" line on
+  your own game (names on record).
+- **Accuracy tracked conspicuously**: season leaderboard + all-time accumulation
+  (never resets), both up top, your row lit; #1 gets 👑.
+- **The worst picker is named** — Hall of Shame seat (lowest accuracy among the
+  eligible), gated by a graded-games floor so no one is shamed off a lucky week.
+- **Derived + durable**: games from the live Sleeper scoreboard; each week's
+  slate frozen on first sight so scoring never re-reaches the network; grading
+  reuses cached week points + the side-bet epsilon/grade-lag. All-time board is
+  the archive the chronicle quotes.
+- Engine `src/routes/pickem.js` (pure + thin store layer), HTTP in member.js,
+  view `views/pickem.ejs`, CSS block. **38 tests** (pure + over-HTTP: save,
+  refuse-after-lock, split-after-lock, boards grade a finished week) wired into
+  `ci.yml`. Screenshotted at 390px in open + locked states (sent to Cory).
+
+### ✅ NAV BUG FIXED (mobile mandate): "arm my-turn alert" covered LOCKER + MORE
+`#arm-alerts` was `position:fixed; bottom:16px; z-index:150`, sitting on the
+bottom tab bar and eating the LOCKER/MORE taps — same dropped-tap class that
+drifted a roster in mock #2. Moved to a `.wr-arm` class that lifts it above the
+bar on ≤700px and drops z-index below the bar. id + onclick (A's DraftAlerts
+contract) untouched.
+
+### ▶ NEXT (in the order): transient popups (weekly awards Tue AM / power rankings
+/ on-this-day, mean, archived, never sitting on a page) → folded columns (playoff
+odds + movement, matchup stakes line, clinch/elim markers) → what-to-watch panel
+(SNF/MNF, weekly-hundred race + sweat meter, needs deployed Sleeper) → trash talk
+on matchups → the final design pass (USA theme, Chiefs logos, GOAT-on-Mahomes).
+**Never deploying — 🅰️ owns it.**
