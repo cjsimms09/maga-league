@@ -1067,10 +1067,10 @@ button.is-busy, .btn.is-busy {
   padding: .45rem; border-bottom: 2px solid rgba(245,196,69,.6); font-size: .82rem;
 }
 body.is-rehearsal::after {
-  content: "REHEARSAL"; position: fixed; right: -46px; top: 34px; z-index: 79;
-  transform: rotate(45deg); background: rgba(245,196,69,.85); color: #0b1020;
-  font-weight: 900; letter-spacing: .1em; padding: .3rem 3.4rem; pointer-events: none;
-  box-shadow: 0 4px 14px rgba(0,0,0,.35);
+  content: "REHEARSAL"; position: fixed; right: -30px; top: 6px; z-index: 79;
+  transform: rotate(45deg); background: rgba(245,196,69,.9); color: #0b1020;
+  font-weight: 900; letter-spacing: .08em; font-size: .58rem; padding: .12rem 2.4rem;
+  pointer-events: none; box-shadow: 0 3px 10px rgba(0,0,0,.3);
 }
 
 /* A2 — SLOT UNVERIFIED. A quieter cousin of the rehearsal banner: the slot is a
@@ -1084,10 +1084,10 @@ body.is-rehearsal::after {
   padding: .4rem; border-bottom: 2px solid rgba(255,70,85,.5); font-size: .76rem;
 }
 body.slot-unverified:not(.is-rehearsal)::before {
-  content: "SLOT UNVERIFIED"; position: fixed; right: -46px; top: 92px; z-index: 77;
-  transform: rotate(45deg); background: rgba(255,70,85,.82); color: #0b1020;
-  font-weight: 900; letter-spacing: .08em; padding: .28rem 3.2rem; pointer-events: none;
-  box-shadow: 0 4px 14px rgba(0,0,0,.35);
+  content: "SLOT UNVERIFIED"; position: fixed; right: -34px; top: 6px; z-index: 77;
+  transform: rotate(45deg); background: rgba(255,70,85,.9); color: #fff;
+  font-weight: 900; letter-spacing: .06em; font-size: .56rem; padding: .12rem 2.5rem;
+  pointer-events: none; box-shadow: 0 3px 10px rgba(0,0,0,.3);
 }
 
 /* ---------- draft-day staleness gate ----------
