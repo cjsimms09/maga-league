@@ -1,0 +1,70 @@
+name: Annual key — plumbing smoke test
+# WHY THIS EXISTS (Cory, 2026-08-09): "I want to have watched it work once before
+# January." This exercises the EXACT wiring the Annual depends on — the GitHub
+# ENVIRONMENT secret, the required-reviewer approval gate, main-only branch
+# restriction, and a real authenticated call to Anthropic — for pennies, on demand,
+# months before the run that matters. If this goes green you have SEEN the key path
+# work; if it fails it says precisely which link is broken, instead of "nothing
+# happened when I pressed the button" in January.
+#
+# HOW TO WATCH IT: trigger from the GitHub mobile app (Actions -> this workflow ->
+# Run workflow, on main). It will PAUSE for your "Review deployments" approval (that
+# is the required-reviewer gate doing its job) — approve it, and the step below runs.
+# Cost: ~$0.0001 (one Haiku call, 8 tokens). No PRs, no installs, reads nothing.
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    # THE LINE THAT MATTERS: an Environment secret is invisible to a job that does
+    # not name its environment. This is the same declaration the Annual's key-using
+    # job must carry. If Cory later renames the environment to "annual", change this
+    # one line (and the Annual's) to match.
+    environment: ANTHROPIC_API_KEY
+    steps:
+      - name: Prove the environment secret resolves
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          if [ -z "$ANTHROPIC_API_KEY" ]; then
+            echo "❌ KEY NOT VISIBLE. The secret exists but did not reach this job."
+            echo "   Fix: the job must declare 'environment: ANTHROPIC_API_KEY', the run"
+            echo "   must be on main (branch restriction), and the secret must live INSIDE"
+            echo "   that environment. One of those is off."
+            exit 1
+          fi
+          echo "✅ environment secret resolved into the job."
+
+      - name: Authenticate to Anthropic (free — /v1/models, no tokens spent)
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          code=$(curl -s -o /tmp/models.json -w '%{http_code}' https://api.anthropic.com/v1/models \
+            -H "x-api-key: $ANTHROPIC_API_KEY" -H "anthropic-version: 2023-06-01")
+          echo "GET /v1/models -> HTTP $code"
+          case "$code" in
+            200) echo "✅ key authenticates.";;
+            401|403) echo "❌ AUTH FAILED ($code) — the key is invalid, revoked, or malformed."; exit 1;;
+            *) echo "⚠️ unexpected $code from /v1/models:"; cat /tmp/models.json; exit 1;;
+          esac
+
+      - name: One real message call (proves spend + the messages path works)
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          code=$(curl -s -o /tmp/msg.json -w '%{http_code}' https://api.anthropic.com/v1/messages \
+            -H "x-api-key: $ANTHROPIC_API_KEY" -H "anthropic-version: 2023-06-01" \
+            -H "content-type: application/json" \
+            -d '{"model":"claude-haiku-4-5-20251001","max_tokens":8,"messages":[{"role":"user","content":"Reply with the single word: OK"}]}')
+          echo "POST /v1/messages -> HTTP $code"; cat /tmp/msg.json; echo
+          case "$code" in
+            200) echo "✅ FULL KEY PATH WORKS: env secret -> approval -> auth -> messages -> spend. You have watched it work.";;
+            400|404) echo "⚠️ key authenticated but the model id was rejected ($code) — the KEY PATH is fine; just update the model id before January.";;
+            401|403) echo "❌ AUTH FAILED ($code) on messages."; exit 1;;
+            429) echo "⚠️ rate/spend limited ($code) — key path works; check the Anthropic spend cap.";;
+            *) echo "⚠️ unexpected $code:"; cat /tmp/msg.json; exit 1;;
+          esac
