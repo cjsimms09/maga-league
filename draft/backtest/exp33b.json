@@ -3,7 +3,7 @@
   "ranking": {
     "n_picks": 38,
     "rho_blend": 0.404,
-    "rho_naive": 0.349,
+    "rho_naive": 0.35,
     "rho_adp": 0.239,
     "naive_minus_blend": {
       "mean": -0.055,
@@ -17,14 +17,14 @@
       "mean": 0.111,
       "ci95": [
         -0.013,
-        0.225
+        0.224
       ],
       "verdict": "inconclusive"
     },
     "blend_minus_adp": {
-      "mean": 0.166,
+      "mean": 0.165,
       "ci95": [
-        0.082,
+        0.081,
         0.251
       ],
       "verdict": "positive"
