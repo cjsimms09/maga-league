@@ -55,6 +55,13 @@ Every one of these lands in the **same single PR set** the button opens, each as
 A `workflow_dispatch` GitHub Actions workflow — "Run Annual Improvement Cycle" — triggerable from the GitHub mobile app with one tap:
 - Spins up Claude Code headless (the claude-code GitHub Action / SDK path) with the Anthropic API key stored as a repo secret
   - **SECRET NAME PINNED:** the repo secret is `ANTHROPIC_API_KEY` (GitHub → Settings → Secrets and variables → **Actions**, a *secret* not a variable). The workflow references `${{ secrets.ANTHROPIC_API_KEY }}`. NEVER Netlify env, never committed, never served. Cory can add it any time; it's read at workflow-run time, no redeploy.
+  - **KEY IS PLACED (Cory, 2026-08-09) as a GitHub ENVIRONMENT secret — the workflow MUST match this or the key is invisible even though it exists:**
+    - Environment name: `ANTHROPIC_API_KEY`; secret inside it: `ANTHROPIC_API_KEY`.
+      The key-using job MUST declare `environment: ANTHROPIC_API_KEY` (env secrets are NOT available without the job-level `environment:` line). Reference: `anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}`.
+    - Branch restriction: the environment allows **main only** → the workflow runs from main (workflow_dispatch defaults to the default branch — fine; never a feature branch).
+    - **Required reviewer = Cory** → the run PAUSES at the key-using job for his GitHub 'Review deployments' approval. This is the intended human gate, NOT a failure, and it waits up to ~30 days (no January timeout risk). DESIGN CONSTRAINT: keep the key to a SINGLE job so approval is requested ONCE, not per-job. So there are exactly two human touchpoints: (a) approve the run to start, (b) review/merge the resulting PRs.
+    - Spend: Cory set ~$50/mo at Anthropic; the Annual is ~$10-25/run → safe headroom for one run/month. The only risk is STACKING (fall dry-run + a retry, or annual + a mid-season check) in the SAME calendar month; space them across months or raise the cap temporarily. The design does not need more than $50/mo.
+    - Optional: renaming the environment to `annual` would be clearer than a secret-named environment, but it is not required — the workflow will match whatever name exists; a rename is a one-line change on our side.
 - Points it at SELF-IMPROVE.md and lets it run the full cycle: read, analyze, implement gated items, open PRs, write the report
 - Full test suite + robot mock must pass inside the workflow before any PR opens; a cycle that breaks the build produces a report and zero PRs
 - Budget-capped and time-capped in the workflow config so a runaway session can't burn tokens indefinitely; the report says if it hit the cap mid-cycle
