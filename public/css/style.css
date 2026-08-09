@@ -1657,6 +1657,39 @@ table .num.zero { color: var(--muted); font-weight: 400; }
   border-radius: 1px; animation: konamiFall 2.6s linear forwards; transform: rotate(var(--h, 0deg)); }
 @keyframes konamiFall { to { transform: translateY(105vh) rotate(360deg); opacity: .2; } }
 
+/* ── LINEUP OPTIMIZER ───────────────────────────────────────────────────────── */
+.lo-hero .body { padding-top: 1rem; }
+.lo-edge { text-align: center; margin-bottom: .6rem; }
+.lo-edge-num { font-size: 2.4rem; font-weight: 800; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.lo-edge-lbl { font-size: .82rem; color: var(--muted); margin-top: .1rem; }
+.lo-conf { font-size: .9rem; line-height: 1.5; color: var(--ink); margin: .4rem 0 .3rem; }
+.lo-src { font-size: .76rem; margin: 0; }
+.lo-call { display: flex; align-items: center; justify-content: space-between; gap: .8rem;
+  padding: .6rem 0; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+.lo-call:last-child { border-bottom: none; }
+.lo-call-main { display: flex; flex-direction: column; gap: .15rem; min-width: 0; }
+.lo-start { font-size: .9rem; } .lo-sit { font-size: .82rem; color: var(--muted); }
+.lo-call-price { text-align: right; white-space: nowrap; }
+.lo-dollars { display: block; font-size: 1.15rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+.lo-split { display: block; font-size: .68rem; }
+.lo-proof-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: .6rem; margin-top: .3rem; }
+.lo-proof-cell { text-align: center; padding: .7rem .4rem; border-radius: 10px;
+  border: 1px solid var(--line); background: rgba(245,196,69,.04); }
+.lo-proof-season { font-size: .72rem; font-weight: 800; color: var(--muted); }
+.lo-proof-total { font-size: 1.5rem; font-weight: 800; margin: .1rem 0; }
+.lo-proof-sub { font-size: .64rem; }
+.lo-proof-split { font-size: .62rem; margin-top: .25rem; }
+.lo-eff-season { font-size: .82rem; margin: .2rem 0 .4rem; }
+.lo-drill-head { display: flex; justify-content: space-between; align-items: baseline; gap: .6rem;
+  font-weight: 700; margin-bottom: .5rem; flex-wrap: wrap; }
+.lo-drill-leak { font-size: .9rem; font-weight: 800; }
+.lo-drill-cols { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; }
+.lo-drill-lbl { font-size: .78rem; color: var(--muted); font-weight: 700; margin-bottom: .3rem;
+  border-bottom: 1px solid var(--line); padding-bottom: .25rem; }
+.lo-drill-row { display: flex; justify-content: space-between; font-size: .82rem; padding: .12rem 0;
+  font-variant-numeric: tabular-nums; }
+@media (max-width: 480px) { .lo-proof-total { font-size: 1.2rem; } .lo-edge-num { font-size: 2rem; } }
+
 /* Head-to-head — the matchup page's centrepiece. Quiet register: it's history,
    not a live number, so it never out-shouts the scoreboard above it. */
 .h2h-hero { text-align: center; margin-bottom: 1rem; }

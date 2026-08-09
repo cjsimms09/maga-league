@@ -623,9 +623,53 @@ function weeklyMatchups(season) {
   return out;
 }
 
+// A single real week, up close: what a manager actually started vs the optimal
+// lineup from the SAME roster that week, and the points left on the bench. Makes
+// the leak tangible ("week 6, 2024, you left 23.4 on the bench"). Read-only.
+function weekDrill(season, week, ownerDisplayName) {
+  const history = harvest();
+  const s = seasonOf(history, season);
+  if (!s || !s.weeks || !s.weeks[String(week)]) return null;
+  const pos = inferPositions(s);
+  // resolve owner display_name -> roster_id for this season
+  const rid = Object.keys(s.owners || {}).find(k => (s.owners[k] || {}).display_name === ownerDisplayName);
+  if (rid == null) return null;
+  const entry = (s.weeks[String(week)] || []).find(e => Number(e.roster_id) === Number(rid));
+  if (!entry) return null;
+
+  const template = s.roster_positions || [];
+  const pts = {};
+  for (const [pid, v] of Object.entries(entry.players_points || {})) pts[String(pid)] = Number(v || 0);
+  const nameFallback = pid => pid;   // no name DB here; the UI can map ids it knows
+
+  // Actual started: the harvest's starters array (ordered to roster_positions).
+  const startedIds = (entry.starters || []).map(String);
+  const startedSet = new Set(startedIds);
+  const actualPoints = r2((entry.starters_points || []).reduce((a, b) => a + Number(b || 0), 0)) || Number(entry.points || 0);
+
+  // Optimal from the same week's roster.
+  const opt = bestLineup(pts, pos, Object.keys(pts), DEFAULT_SLOTS);
+  const optSet = new Set(opt.starters.map(s2 => s2.pid));
+
+  // The specific mistakes: players who should have started but were benched, and
+  // who they'd replace.
+  const shouldHaveStarted = opt.starters
+    .filter(s2 => !startedSet.has(s2.pid))
+    .map(s2 => ({ pid: s2.pid, slot: s2.slot, points: s2.points }));
+  const benchedByMistake = shouldHaveStarted;
+
+  return {
+    season: String(season), week: Number(week), owner: ownerDisplayName,
+    actual: { starters: startedIds.map(pid => ({ pid, points: pts[pid] != null ? r2(pts[pid]) : null, pos: pos[pid] || '?' })), points: r2(actualPoints) },
+    optimal: { starters: opt.starters.map(s2 => ({ pid: s2.pid, points: r2(s2.points), pos: pos[s2.pid] || s2.slot, slot: s2.slot })), points: opt.points },
+    leak: r2(opt.points - actualPoints),
+    benchedByMistake,
+  };
+}
+
 module.exports = {
   // engine
-  optimize, bestLineup, inferPositions, slotsFromTemplate, DEFAULT_SLOTS,
+  optimize, bestLineup, inferPositions, slotsFromTemplate, DEFAULT_SLOTS, weekDrill,
   positionSigmas, sigmaOf, weeklyHighBand,
   pWin, pClearHigh, normCdf, lineupStats,
   // data

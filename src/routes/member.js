@@ -3,6 +3,7 @@ const router = express.Router();
 const H = require('../helpers');
 const HIST = require('./history-data');   // the MFGA Archive — chronicle data engine
 const H2H = require('./h2h');              // all-time head-to-head, from the box scores
+const LO = require('./lineup');            // the lineup optimizer engine (validated vs L0)
 const L = require('../ledger');
 const SB = require('../sidebets');
 const BL = require('../betlogic');
@@ -686,6 +687,13 @@ function parseConditions(body) {
 }
 
 const picksFrom = body => [].concat(body.picks || []).map(Number).filter(Boolean);
+// Parse a JSON string from a form field without ever throwing (a bad body must
+// never 500 the log write). Returns the parsed value, or the raw string, or null.
+function safeJson(v) {
+  if (v == null) return null;
+  if (typeof v === 'object') return v;
+  try { return JSON.parse(String(v)); } catch (e) { return String(v).slice(0, 2000); }
+}
 
 router.post('/sidebets', aw(async (req, res) => {
   const ids = [].concat(req.body.party || []).map(Number).filter(Boolean);
@@ -1160,6 +1168,103 @@ router.get('/matchup', aw(async (req, res) => {
     late: req.query.late === '1', sent: req.query.sent === '1',
     nameOf,
   });
+}));
+
+// ---------- THE LINEUP OPTIMIZER (in-season, the measured leak) ----------
+// The tool that attacks $445–595/team/season left on the bench. Two faces:
+//   • LIVE: your roster + projections → the dollar-optimal lineup and priced
+//     start/sit calls. Projections come from A's sleeper.js when they land; until
+//     then it runs on this season's per-game average (labelled), so it works now.
+//   • PROOF: the validation — reproduces the certified L0 leak to the dollar, and
+//     a per-week drill-down of any real week's optimal-vs-actual. This is the
+//     "proven before week 1" face; it works fully offline off the harvest.
+router.get('/lineup', aw(async (req, res) => {
+  const world = req.world;
+  const owners = H.activeOwners(world.owners);
+  const me = req.owner;
+  const tab = req.query.tab === 'proof' ? 'proof' : 'live';
+  const season = String(H.currentSeason(world.seasons).year || 2026);
+
+  // Shared context (cheap, harvest-backed).
+  const band = LO.weeklyHighBand();
+  const sigmaByPos = LO.positionSigmas();
+
+  let live = null;                       // the live optimizer result, when data allows
+  let projSource = null;                 // 'sleeper' | 'season-avg' | null
+  let roster = null, matchup = null;
+  const sData = await sleeper.bundle(world.config.sleeper_league_id);
+  if (sData) {
+    roster = await sleeper.rosterView(sData, world.config.sleeper_map || {}, me.id);
+    matchup = sleeper.myMatchup(sData, world.config.sleeper_map || {}, me.id, owners);
+  }
+  if (roster && roster.rows && roster.rows.length) {
+    // Projection per player: A's live projection if present, else this season's
+    // per-game average (honest fallback), else last week's points, else 0.
+    const rosterIn = roster.rows.filter(r => r.pos && r.pos !== '?').map(r => {
+      let proj = null, src = null;
+      if (r.proj != null) { proj = Number(r.proj); src = 'sleeper'; }
+      else if (r.seasonPts != null && r.gp) { proj = Number(r.seasonPts) / Number(r.gp); src = 'season-avg'; }
+      else if (r.wkPts != null) { proj = Number(r.wkPts); src = 'last-week'; }
+      else { proj = 0; src = 'none'; }
+      if (src === 'sleeper') projSource = 'sleeper';
+      else if (projSource !== 'sleeper') projSource = src;
+      return { id: r.id, name: r.name, pos: r.pos, proj: Math.round(proj * 10) / 10, sd: r.sd };
+    });
+    // Opponent's projected total: their live projection sum if available, else a
+    // typical competitive score (the band median) as a labelled proxy.
+    let oppMean = 0, oppKnown = false;
+    if (matchup && matchup.opp && matchup.opp.points > 0) { oppMean = matchup.opp.points; oppKnown = true; }
+    else { oppMean = band.median; }
+    live = LO.optimize(rosterIn, { band, sigmaByPos, oppMean, matchupValue: 25 });
+    live.oppKnown = oppKnown;
+  }
+
+  // PROOF face: L0 reproduction + a per-week drill-down.
+  const proof = LO.ceilingLeak();                    // per-season leak (to the dollar)
+  const eff = LO.replayEfficiency();                 // per-team efficiency
+  // Cory's benched-points tragedy (the easter egg + the business case, one number).
+  const myLeak = proof.reduce((a, s) => {
+    const row = (s.teams || []).find(t => t.owner === 'coryjsimms');
+    return a + (row ? row.totalLeak : 0);
+  }, 0);
+
+  // Optional week drill-down (?proof + replay=YEAR&week=W&owner=display_name).
+  let drill = null;
+  const dY = req.query.replay, dW = parseInt(req.query.week, 10);
+  if (tab === 'proof' && dY && dW) drill = LO.weekDrill(String(dY), dW, req.query.owner || 'coryjsimms');
+
+  res.render('lineup', {
+    me, owners, tab, season, band, live, projSource, roster, matchup,
+    proof, eff, myLeak: Math.round(myLeak), drill,
+    configured: !!world.config.sleeper_league_id,
+    logged: req.query.logged === '1',
+  });
+}));
+
+// Decision-time write: log THIS lineup call with its counterfactual (the naive
+// "start your studs" lineup) so January can grade what the tool recommended vs
+// what would have happened otherwise. The predledger enforces the counterfactual.
+router.post('/lineup/log', aw(async (req, res) => {
+  const season = String(H.currentSeason(req.world.seasons).year || 2026);
+  const predledger = require('../predledger');
+  try {
+    await predledger.append(store, {
+      kind: 'lineup_call',
+      method: 'lineup-optimizer-v1',
+      season,
+      payload: {
+        owner_id: req.owner.id,
+        week: req.body.week ? Number(req.body.week) : null,
+        recommended: safeJson(req.body.recommended),
+        // REQUIRED: what I'd have played without the tool (start-your-studs).
+        counterfactual: safeJson(req.body.counterfactual),
+        dollars: req.body.dollars != null ? Number(req.body.dollars) : null,
+        confidence: String(req.body.confidence || '').slice(0, 600),
+        opp_mean: req.body.opp_mean != null ? Number(req.body.opp_mean) : null,
+      },
+    });
+  } catch (e) { /* fail soft on the redirect; the API path surfaces errors */ }
+  res.redirect('/lineup?logged=1');
 }));
 
 // ---------- the locker room ----------

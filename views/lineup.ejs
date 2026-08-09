@@ -1,0 +1,204 @@
+<%- include('partials/header', { title: 'Lineup Optimizer' }) %>
+<%
+  const money0 = n => '$' + Math.round(Number(n || 0)).toLocaleString('en-US');
+  const signed = n => (n >= 0 ? '+' : '') + money0(n);
+  const SRC_LABEL = {
+    sleeper: 'live projections',
+    'season-avg': "this season's per-game average (live projections drop in when Sleeper supplies them)",
+    'last-week': "last week's points (a stopgap until projections land)",
+    none: 'no projection data yet',
+  };
+%>
+
+<h1 class="page-title">🎯 Lineup Optimizer
+  <span class="sub" style="font-weight:600">the money you leave on the bench</span></h1>
+
+<nav class="section-tabs">
+  <a href="/lineup?tab=live" class="<%= tab === 'live' ? 'active' : '' %>">
+    <b>▶ This Week</b><span>your dollar-optimal lineup</span>
+  </a>
+  <a href="/lineup?tab=proof" class="<%= tab === 'proof' ? 'active' : '' %>">
+    <b>📊 The Proof</b><span>validated on 2023–25, to the dollar</span>
+  </a>
+</nav>
+
+<% if (logged) { %>
+  <div class="alert-banner" style="margin-bottom:1rem; border-color:rgba(74,222,128,.5)">
+    <span class="tag">✅</span><span>Logged. The recommendation and what you'd have played instead are both in the
+    ledger — January grades the difference in dollars.</span>
+  </div>
+<% } %>
+
+<% if (tab === 'live') { %>
+  <% if (!live) { %>
+    <div class="card"><div class="body">
+      <p class="muted" style="margin:0 0 .6rem">
+        <% if (!configured) { %>Sleeper isn't connected yet (Commish → Sleeper), so there's no live roster to optimize.
+        <% } else { %>No live roster yet — the season hasn't started, or your team isn't mapped (Commish → Sleeper → Team Mapping).<% } %>
+      </p>
+      <p style="margin:0">The optimizer is <b>proven and ready</b> — see <a href="/lineup?tab=proof">The Proof</a>,
+        validated to the dollar on 2023–25. It goes live the moment there's a roster and a slate.</p>
+    </div></div>
+  <% } else { %>
+    <%# ── The dollar edge headline ─────────────────────────────────────────── %>
+    <div class="card lo-hero" style="margin-bottom:1.1rem">
+      <div class="body">
+        <div class="lo-edge">
+          <div class="lo-edge-num <%= live.edge > 0 ? 'money-up' : 'money-flat' %>"><%= signed(live.edge) %></div>
+          <div class="lo-edge-lbl"><%= live.edge > 0 ? 'the optimizer beats starting your studs this week' : "your gut lineup is already the dollar-optimal one" %></div>
+        </div>
+        <p class="lo-conf"><%= live.confidence %></p>
+        <p class="muted lo-src">Projections: <%= SRC_LABEL[projSource] || 'unknown source' %>.
+          <% if (!live.oppKnown) { %> Opponent modelled as a typical winning-band score (<%= Math.round(band.median) %>) until their projection lands.<% } %></p>
+      </div>
+    </div>
+
+    <%# ── The start/sit calls, each priced ─────────────────────────────────── %>
+    <% if (live.calls && live.calls.length) { %>
+      <div class="card" style="margin-bottom:1.1rem">
+        <h2>🔀 Start/Sit Calls <span class="sub">vs "start your highest projection"</span></h2>
+        <div class="body">
+          <% live.calls.forEach(c => { %>
+            <div class="lo-call">
+              <div class="lo-call-main">
+                <span class="lo-start">▲ Start <b><%= c.startName %></b> <span class="muted">(<%= c.startPos %>, proj <%= c.startProj.toFixed(1) %>)</span></span>
+                <span class="lo-sit">▼ over <b><%= c.sitName %></b> <span class="muted">(<%= c.sitPos %>, proj <%= c.sitProj.toFixed(1) %>)</span></span>
+              </div>
+              <div class="lo-call-price">
+                <span class="lo-dollars <%= c.dollars >= 0 ? 'money-up' : 'money-down' %>"><%= signed(c.dollars) %></span>
+                <span class="lo-split muted">
+                  <%= c.dollarsHigh >= 0 ? '+' : '' %><%= money0(c.dollarsHigh) %> high-chase ·
+                  <%= c.dollarsWin >= 0 ? '+' : '' %><%= money0(c.dollarsWin) %> win-prob
+                </span>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      </div>
+    <% } %>
+
+    <%# ── The recommended lineup ───────────────────────────────────────────── %>
+    <div class="card" style="margin-bottom:1.1rem">
+      <h2>✅ Play This <span class="sub">projected <%= live.ev.mean.toFixed(1) %> · P(clear the high band) <%= Math.round(live.ev.pHigh * 100) %>%<% if (live.ev.pWin != null) { %> · P(win) <%= Math.round(live.ev.pWin * 100) %>%<% } %></span></h2>
+      <div class="body tight">
+        <table class="roll">
+          <tr><th>Slot</th><th>Player</th><th>Pos</th><th class="num">Proj</th></tr>
+          <% live.lineup.forEach(s => { %>
+            <tr><td class="muted"><%= s.slot %></td><td><b><%= s.name %></b></td><td class="muted"><%= s.pos %></td><td class="num"><%= Number(s.proj).toFixed(1) %></td></tr>
+          <% }) %>
+        </table>
+      </div>
+    </div>
+
+    <%# ── Log the decision (writes to the ledger with its counterfactual) ───── %>
+    <form method="post" action="/lineup/log" class="card" style="margin-bottom:1rem">
+      <div class="body" style="display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap">
+        <div>
+          <b>Playing this?</b> <span class="muted" style="font-size:.82rem">Logs the call + what you'd have played instead, so January can grade the difference.</span>
+        </div>
+        <input type="hidden" name="week" value="<%= (matchup && matchup.week) || '' %>">
+        <input type="hidden" name="dollars" value="<%= live.edge %>">
+        <input type="hidden" name="opp_mean" value="<%= (live && live.ev && band) ? Math.round(band.median) : '' %>">
+        <input type="hidden" name="confidence" value="<%= live.confidence.replace(/"/g, '&quot;') %>">
+        <input type="hidden" name="recommended" value="<%= JSON.stringify(live.lineup.map(s => ({ id: s.pid, name: s.name, pos: s.pos, proj: s.proj }))).replace(/"/g, '&quot;') %>">
+        <input type="hidden" name="counterfactual" value="<%= JSON.stringify(live.naive.map(s => ({ id: s.pid, name: s.name, pos: s.pos, proj: s.proj }))).replace(/"/g, '&quot;') %>">
+        <button class="btn gold" type="submit">Log this lineup</button>
+      </div>
+    </form>
+  <% } %>
+
+<% } else { %>
+  <%# ══════════════════ THE PROOF ══════════════════ %>
+  <div class="card lo-hero" style="margin-bottom:1.1rem">
+    <div class="body">
+      <p style="margin:0 0 .5rem"><b>This optimizer reproduces the certified leak measurement to the dollar</b> —
+        the same numbers the Lab's cert-gated grader produces, computed here in the site's own engine.</p>
+      <div class="lo-proof-grid">
+        <% proof.forEach(s => { %>
+          <div class="lo-proof-cell">
+            <div class="lo-proof-season"><%= s.season %></div>
+            <div class="lo-proof-total money-gold"><%= money0(s.meanTotalLeak) %></div>
+            <div class="lo-proof-sub muted">/team left on the bench</div>
+            <div class="lo-proof-split muted"><%= money0(s.meanHighPoolLeak) %> weekly-high · <%= money0(s.meanMatchupLeak) %> record</div>
+          </div>
+        <% }) %>
+      </div>
+      <p class="muted" style="margin:.7rem 0 0; font-size:.8rem">
+        Weekly-high is ~70–75% of it: $100 a week rides on the top score and one benched boom decides it.
+        Playoff dollars aren't in these figures yet, so they're a lower bound.
+      </p>
+    </div>
+  </div>
+
+  <%# The benched-points tragedy — the business case as one number. %>
+  <div class="card" style="margin-bottom:1.1rem; border-color:rgba(245,196,69,.35)">
+    <div class="body" style="text-align:center">
+      <div class="muted" style="font-size:.72rem; text-transform:uppercase; letter-spacing:.08em; font-weight:800">Cory's three-year bench tab</div>
+      <div class="money-gold" style="font-size:2.2rem; font-weight:800; margin:.2rem 0"><%= money0(myLeak) %></div>
+      <div class="muted" style="font-size:.82rem">left on the bench across 2023–25 — the league's funniest ongoing tragedy, and the reason this tool exists.</div>
+    </div>
+  </div>
+
+  <%# Per-team efficiency (who leaves the most on the bench). %>
+  <div class="card" style="margin-bottom:1.1rem">
+    <h2>🪑 Lineup Efficiency <span class="sub">realized ÷ optimal, regular season</span></h2>
+    <div class="body tight scroll-x">
+      <% eff.forEach(seasonRow => { %>
+        <div class="lo-eff-season"><b><%= seasonRow.season %></b> <span class="muted">— league average <%= (seasonRow.meanEfficiency * 100).toFixed(1) %>%, <%= money0(seasonRow.meanPointLeak) %> pts/team left on the bench</span></div>
+        <table class="roll" style="margin-bottom:.9rem">
+          <tr><th>Owner</th><th class="num">Efficiency</th><th class="num">Pts left</th></tr>
+          <% seasonRow.teams.slice(0, 10).forEach(t => { %>
+            <tr class="<%= t.owner === 'coryjsimms' ? 'champ' : '' %>">
+              <td><%= t.owner || ('roster ' + t.roster_id) %></td>
+              <td class="num"><%= (t.efficiency * 100).toFixed(1) %>%</td>
+              <td class="num muted"><%= t.leak.toFixed(1) %></td>
+            </tr>
+          <% }) %>
+        </table>
+      <% }) %>
+    </div>
+  </div>
+
+  <%# Per-week drill-down. %>
+  <div class="card" style="margin-bottom:1rem">
+    <h2>🔎 A Week Up Close <span class="sub">what was started vs what was optimal</span></h2>
+    <div class="body">
+      <form method="get" action="/lineup" class="inline-form" style="margin-bottom:.8rem">
+        <input type="hidden" name="tab" value="proof">
+        <div class="fit"><label class="field">Season
+          <select name="replay">
+            <% ['2023','2024','2025'].forEach(y => { %><option value="<%= y %>" <%= (drill && drill.season === y) ? 'selected' : '' %>><%= y %></option><% }) %>
+          </select></label></div>
+        <div class="fit"><label class="field">Week
+          <input type="number" name="week" min="1" max="15" value="<%= drill ? drill.week : 6 %>" style="width:5rem"></label></div>
+        <div class="fit"><button class="btn navy" type="submit">Show me</button></div>
+      </form>
+      <% if (drill) { %>
+        <div class="lo-drill">
+          <div class="lo-drill-head">
+            <span>Week <%= drill.week %>, <%= drill.season %> — <%= drill.owner %></span>
+            <span class="lo-drill-leak <%= drill.leak > 0 ? 'money-down' : 'money-flat' %>"><%= drill.leak > 0 ? money0(drill.leak) + ' left on the bench' : 'optimal lineup — nothing left' %></span>
+          </div>
+          <div class="lo-drill-cols">
+            <div>
+              <div class="lo-drill-lbl">Started · <b><%= drill.actual.points.toFixed(1) %></b></div>
+              <% drill.actual.starters.forEach(p => { %><div class="lo-drill-row"><span class="muted"><%= p.pos %></span><span><%= p.points != null ? p.points.toFixed(1) : '—' %></span></div><% }) %>
+            </div>
+            <div>
+              <div class="lo-drill-lbl">Optimal · <b class="money-up"><%= drill.optimal.points.toFixed(1) %></b></div>
+              <% drill.optimal.starters.forEach(p => { %><div class="lo-drill-row"><span class="muted"><%= p.pos %></span><span><%= p.points.toFixed(1) %></span></div><% }) %>
+            </div>
+          </div>
+          <p class="muted" style="font-size:.76rem; margin:.5rem 0 0">Player names fill in when the historical player map lands (A's board); the points and the bench tab are exact today.</p>
+        </div>
+      <% } else { %>
+        <p class="muted" style="margin:0">Pick a season and week to see the exact lineup that was started against the one that should have been.</p>
+      <% } %>
+    </div>
+  </div>
+<% } %>
+
+<p style="text-align:center; margin-top:1rem">
+  <a class="btn navy" href="/team?section=week">← Team &amp; matchup</a>
+</p>
+<%- include('partials/footer') %>
