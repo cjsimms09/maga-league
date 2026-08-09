@@ -86,6 +86,11 @@ a question, distrust the frame it arrived in:
   most urgently where you have none, since that's where a buried lead is likeliest and least
   expected. (Read regional cells only at full power: the tier/risk cut showed a false "+44 mid"
   at n=20 that vanished at n=400 — a small effect wanders in sign until the CI clears zero.)
+  Look at the SURFACE inside a null before closing it: a flat average with one strange cell is
+  not the same as a flat average over a flat surface, and only the second closes the question.
+  That look is nearly FREE on REALIZED-outcome surfaces (exp36_picks carries per-player realized
+  × round × position — slice post-hoc), but NOT on the MC money grade, which books dollars to the
+  SEASON not the pick, so each finer cell needs a fresh full-n arm (compute, gated on power).
 - **Is a "settled" finding still sound?** Before citing one: how much was searched, was the
   INSTRUMENT sound then (we've since fixed a within-position confound, gone to
   heterogeneous rooms, killed a can't-fail fixture, caught a leaking source), has anything
@@ -170,6 +175,26 @@ because it turns thin findings into real ones.
   (a term acting on a quantity the payout rewards; a region the market is measurably
   unreliable). Rank candidates by information-per-search; search DEEP where the prior is
   strong, SHALLOW where weak — a dense sweep of two terms beats a sparse sweep of eight.
+- **Two-stage search: broad-shallow scan → powered, pre-registered follow-up (2026-08-09).**
+  A term is not one thing (tier@1/round4/RB ≠ tier@0.3/round13/TE); testing one configuration
+  and concluding about the whole space is under-sampling. The right shape is: (1) a wide
+  SHALLOW scan across the dimensions that plausibly matter (round × position × strength × board
+  state), explicitly EXPLORATORY — installs nothing, its only job is to surface leads (a lone
+  positive in a negative field, a trend across rounds, a position behaving differently); then
+  (2) chase each lead with a follow-up that is PRE-REGISTERED and POWERED, with the null
+  searching the SAME space. The failure mode that makes this worse than not looking: a lead
+  "confirmed" by a second thin, underpowered test. If the follow-up can't be powered, the lead
+  stays a lead — do not promote it. **Gate the scan on power FIRST** (next bullet): a broad scan
+  the sample can't support generates phantoms, not hypotheses (risk-earns-mid at n=20 was one).
+- **Answer "can the sample support this cut?" BEFORE running it — with a number.** Our binding
+  wall is REAL observations per cell, not compute. Measured 2026-08-09: at (band × position) the
+  realized-outcome grade holds a MEDIAN OF 6 obs/cell (55/90 cells < 8); a round×pos×strength
+  grid is ~1-2/cell — empty. The MC money harness's ±20-28 floor shrinks with rooms (compute),
+  but it grades ONE projection, so a resolved cell there is a fact about the model, not football;
+  generalizable cell-level claims need the realized harness, capped at 3 seasons. Cell-level
+  needs ~50-100 obs/cell ≈ 20-40 seasons; 20yr nflverse ≈ ~55/cell (~8-10× ours) is the sample
+  that turns the broad scan from noise-generator into hypothesis-generator. If a cut isn't
+  supported, say so and name the sample that would — that number IS the scale-up's ROI.
 - **Design for information, not a result:** map the response SHAPE across a range (the
   ceiling inverted-U was worth more than any win/lose race), go FACTORIAL over terms that
   might interact, reuse the same rooms/seeds/opponents across arms (paired). Report curves

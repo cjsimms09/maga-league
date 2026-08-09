@@ -83,7 +83,12 @@ sample is small. So the EVSI of another 3-season experiment is capped, while two
 sample-ceiling breakers have much higher EVSI:
 - **20yr nflverse** for anything about PLAYER EVALUATION (rookie/2nd-yr bias, age cliff,
   the regression weight, injury base rates, positional value by round) — thousands of
-  player-seasons turn directional guesses into real answers.
+  player-seasons turn directional guesses into real answers. **Quantified ROI (2026-08-09):**
+  the realized-outcome grade holds a MEDIAN OF 6 obs/cell at (band × position) today; a
+  round×pos×strength scan is ~1-2/cell (empty). nflverse ≈ 3-4k player-seasons ≈ **~55 obs/cell,
+  an ~8-10× jump** — precisely the threshold where the broad exploratory scan (SESSION-A: two-
+  stage search) stops generating phantoms and its follow-up becomes powerable. THAT number is
+  what the ingest buys; below it, a broad term-by-region-by-strength scan is a noise generator.
 - **Public Sleeper leagues in our exact format** for the DRAFT RULE (keeper-need, dead
   zone, reaching, participation) — tests whether it's a property of the FORMAT or an
   artifact of our 3 seasons.
