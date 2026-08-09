@@ -126,7 +126,11 @@ check('the app bumps the board version on in-place mutation',
 //     supplying its ctx trips this guard instead of failing silently.
 {
   const doctrineSrc = fs.readFileSync(path.join(DIR, 'doctrine.js'), 'utf8');
-  const dReads = [...new Set((doctrineSrc.match(/ctx\.[a-zA-Z_][a-zA-Z0-9_]*/g) || [])
+  // Extract ctx reads from CODE only. A `ctx.foo` inside a comment (e.g. a
+  // sentence like "ctx.doctrine reads `current`") is prose, not a runtime read;
+  // matching it would demand the app pass a field nothing actually consumes.
+  const doctrineCode = doctrineSrc.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\n]*/g, '');
+  const dReads = [...new Set((doctrineCode.match(/ctx\.[a-zA-Z_][a-zA-Z0-9_]*/g) || [])
     .map(m => m.slice(4)))].filter(f => !f.startsWith('_'));
   check('doctrine.js is a real consumer (non-vacuity)', dReads.length > 0, dReads.join(','));
   // The app feeds doctrine at the update() call site, NOT via context().
@@ -149,8 +153,13 @@ check('the app bumps the board version on in-place mutation',
 // render path forgets to call reaches production as dead code. Assert the SEAM:
 // renderRecommendations must invoke both, and each must consult its engine helper.
 {
-  const rr = appSrc.slice(appSrc.indexOf('function renderRecommendations'),
-    appSrc.indexOf('function renderRecommendations') + 3000);
+  // Slice the WHOLE renderRecommendations body, not a fixed char count: the
+  // function grows (rule headline, design passes) and a fixed window silently
+  // drops the calls off its end, failing green code. End at the next top-level
+  // `function ` decl (two-space indent inside the IIFE) or EOF.
+  const rrStart = appSrc.indexOf('function renderRecommendations');
+  const rrNext = appSrc.indexOf('\n  function ', rrStart + 1);
+  const rr = appSrc.slice(rrStart, rrNext === -1 ? undefined : rrNext);
   check('renderRecommendations calls the stack line', /renderStackLine\(/.test(rr));
   check('renderRecommendations calls the movement line', /updateMovement\(/.test(rr));
   check('the stack line consults E.liveStackRoutes', /E\.liveStackRoutes\(/.test(appSrc));
