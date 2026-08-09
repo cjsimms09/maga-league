@@ -17,7 +17,7 @@
     board: [],            // available players
     drafted: new Set(),
     myRoster: [],
-    weights: Object.assign({}, E.DEFAULT_WEIGHTS),
+    weights: Object.assign({}, E.MEASURED_WEIGHTS || E.DEFAULT_WEIGHTS),
     runMults: {},
     recentPicks: [],
     // Movement line: the top-of-board snapshot from the LAST pick, and the frozen
