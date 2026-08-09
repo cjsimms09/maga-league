@@ -1,0 +1,153 @@
+{
+  "experiment": "route probe \u2014 any route to public leagues at our format?",
+  "q1_id_enumeration": "PRECLUDED \u2014 Sleeper IDs are snowflakes (epoch ~2016, 22-bit shift; our leagues decode to real creation dates). Per-ms sequence space 4.2M, ~1e-11 random hit rate \u2192 ~1e13 probes for 500. Out.",
+  "q2_sleeper_listing": [
+    {
+      "url": "https://api.sleeper.app/v1/leagues/nfl/2024",
+      "status": 404,
+      "leagues": false,
+      "head": "HTTPError: HTTP Error 404: Not Found"
+    },
+    {
+      "url": "https://api.sleeper.app/v1/leagues/public/nfl/2024",
+      "status": 404,
+      "leagues": false,
+      "head": "HTTPError: HTTP Error 404: Not Found"
+    },
+    {
+      "url": "https://api.sleeper.app/v1/league/search?sport=nfl",
+      "status": 404,
+      "leagues": false,
+      "head": "HTTPError: HTTP Error 404: Not Found"
+    },
+    {
+      "url": "https://api.sleeper.app/v1/leagues?sport=nfl&season=2024",
+      "status": 404,
+      "leagues": false,
+      "head": "HTTPError: HTTP Error 404: Not Found"
+    }
+  ],
+  "q4_mfl_leaguesearch": {
+    "searches": [
+      {
+        "term": "football",
+        "status": 200,
+        "n_leagues": 5155,
+        "sample": [
+          [
+            "10011",
+            "Dunbar Fantasy Football"
+          ],
+          [
+            "10017",
+            "The Great American Armchair Football League"
+          ],
+          [
+            "10040",
+            "San Diego Fantasy Football League"
+          ]
+        ]
+      },
+      {
+        "term": "ppr",
+        "status": 200,
+        "n_leagues": 59,
+        "sample": [
+          [
+            "12210",
+            "Tight End PPR"
+          ],
+          [
+            "13703",
+            "The Malcolm Butler appreciation league"
+          ],
+          [
+            "14854",
+            "Zealots Field PPR 36"
+          ]
+        ]
+      },
+      {
+        "term": "keeper",
+        "status": 200,
+        "n_leagues": 330,
+        "sample": [
+          [
+            "10013",
+            "keeper"
+          ],
+          [
+            "10076",
+            "Top Dawg Keeper League"
+          ],
+          [
+            "10320",
+            "The Boys Keeper League"
+          ]
+        ]
+      },
+      {
+        "term": "dynasty",
+        "status": 200,
+        "n_leagues": 5683,
+        "sample": [
+          [
+            "10005",
+            "Masters Copper Dynasty 170487 - Classic 4"
+          ],
+          [
+            "10007",
+            "Masters Tin Dynasty 170268 - Bravo 1902"
+          ],
+          [
+            "10010",
+            "Apex Amateur Dynasty 203"
+          ]
+        ]
+      },
+      {
+        "term": "redraft",
+        "status": 200,
+        "n_leagues": 56,
+        "sample": [
+          [
+            "12012",
+            "SafeLeagues Redraft 07 - Basic (SF/TE)"
+          ],
+          [
+            "13487",
+            "Master Of None Redraft Combo League"
+          ],
+          [
+            "15525",
+            "SafeLeagues Redraft 03 - Basic (SF/TE)"
+          ]
+        ]
+      }
+    ],
+    "sample_settings": {
+      "league_id": "10011",
+      "status": 200,
+      "franchises": "10",
+      "has_scoring_keys": true,
+      "keys": [
+        "minKeepers",
+        "usesContractYear",
+        "victoryPointsTie",
+        "lastRegularSeasonWeek",
+        "usesSalaries",
+        "taxiSquad",
+        "draftTimer",
+        "mobileAlerts",
+        "starters",
+        "partialLineupAllowed",
+        "draftPlayerPool",
+        "endWeek",
+        "victoryPointsWin",
+        "victoryPointsStartWeek",
+        "injuredReserve"
+      ]
+    }
+  },
+  "verdict": "OPEN via MFL \u2014 leagueSearch returned 11283 public leagues across terms and their settings are readable (franchise count, scoring) \u2192 format-filterable. This is the route: search \u2192 filter to 10-team/half-PPR/6ptTD \u2192 pull drafts+results. Next: a format-match crawl over MFL leagueSearch, and grade by RANK (MFL default full-PPR, so format-filter or offset). The post-draft sample program is VIABLE here."
+}
