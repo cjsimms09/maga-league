@@ -356,6 +356,73 @@ def build_adp_table(sleeper_players: dict, *, fmt: str, teams: int, year: int,
     return {"adp": rows, "report": report}
 
 
+def build_fantasypros_table(sleeper_players: dict, *, year: int, half_ppr: bool = True,
+                            min_rows: int = STRICT_TOP_N) -> tuple[dict | None, dict]:
+    """FantasyPros ADP (our half-PPR format), crosswalked to Sleeper ids, shaped EXACTLY
+    like build_adp_table's rows so it can be merged as the PRIMARY anchor over FFC.
+
+    Returns (table, diag) — or (None, diag) when the fetch is too thin to trust, in which
+    case the caller keeps FFC. That guard is the whole safety story: a bad FP fetch can
+    never degrade the board below its FFC baseline.
+
+    Why FP is primary: the 2023-24 source grade found FP orders realized value best AND is
+    our exact format (half-PPR), de-confounding the full-PPR handicap MFL carried. The
+    2026 board-coverage probe confirmed 98% of the top 150 crosswalk and ρ=0.885 vs FFC
+    (the swap moves picks without being a wholesale re-rank). Egress — CI only.
+    """
+    import sys as _sys
+    from pathlib import Path as _Path
+    bt = str(_Path(__file__).resolve().parent / "backtest")
+    if bt not in _sys.path:
+        _sys.path.insert(0, bt)
+    import fantasypros_adp as FP  # self-contained Lab fetcher (export-variant full board)
+
+    text, url, _fdiag = FP.fetch(year, half_ppr=half_ppr)
+    parsed = FP.parse(text) if text else []
+    diag = {"fp_url": url, "fp_rows_parsed": len(parsed)}
+    if len(parsed) < min_rows:
+        diag["reason"] = f"only {len(parsed)} FP rows parsed (< {min_rows}); keeping FFC anchor"
+        return None, diag
+
+    index = build_index(sleeper_players)
+    rows, unmatched = {}, 0
+    for i, entry in enumerate(parsed):
+        pid, method = match_player(entry, index)
+        if not pid:
+            unmatched += 1
+            continue
+        adp = float(entry.get("adp") or (i + 1))
+        sd, sd_src = fitted_sd(adp, None)          # FP publishes no sd -> fit from the mean
+        rows[str(pid)] = {
+            "adp": adp, "adp_sd": sd, "adp_sd_source": sd_src,
+            "adp_source": "fantasypros", "match_method": "fp:" + method, "fp_rank": i + 1,
+        }
+    diag.update({"fp_matched": len(rows), "fp_unmatched": unmatched})
+    if len(rows) < min_rows:
+        diag["reason"] = f"only {len(rows)} FP rows crosswalked (< {min_rows}); keeping FFC anchor"
+        return None, diag
+    return rows, diag
+
+
+def merge_primary_over_ffc(ffc_table: dict, primary_table: dict) -> tuple[dict, dict]:
+    """Merge a primary ADP table (e.g. FantasyPros) OVER the FFC table. The primary sets
+    the price wherever it covers a player; FFC fills every player the primary misses;
+    FFC's bye is preserved on primary rows (the primary source carries no bye). Returns
+    (merged, stats). Same {pid: row} shape apply_with_fallback consumes — it then handles
+    only the search_rank tier, so the fallback chain is primary -> FFC -> search_rank."""
+    merged = dict(ffc_table)                        # FFC is the coverage backbone (+ bye)
+    for pid, prow in primary_table.items():
+        row = dict(prow)
+        base = ffc_table.get(pid, {})
+        if base.get("bye") not in (None, "", 0):
+            row["bye"] = base["bye"]
+        merged[pid] = row
+    primary_n = sum(1 for r in merged.values() if r.get("adp_source") == "fantasypros")
+    ffc_n = sum(1 for r in merged.values() if r.get("adp_source") == "ffc")
+    return merged, {"primary_priced": primary_n, "ffc_gap_fill": ffc_n,
+                    "total_in_table": len(merged)}
+
+
 def _print_report(report: dict, strict_top_n: int) -> None:
     print(f"  ADP: matched {report['matched']}, unmatched {report['unmatched_count']}")
     if report["unmatched"]:

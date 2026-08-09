@@ -374,14 +374,43 @@ def load_players(cfg: dict, offline: bool) -> list[dict]:
     # *declared* fallback — recorded per player, surfaced in the UI above a
     # threshold — never as a silent one.
     try:
+        year_n = int(cfg.get("season") or time.gmtime().tm_year)
         table = adp_mod.build_adp_table(
-            raw, fmt=_ffc_format(cfg), teams=int(cfg.get("teams") or 10),
-            year=int(cfg.get("season") or time.gmtime().tm_year))
+            raw, fmt=_ffc_format(cfg), teams=int(cfg.get("teams") or 10), year=year_n)
         teams_n = int(cfg.get("teams") or 10)
         # Draft length from the ONE source (config_schema.draft_rounds).
         rounds_n = config_schema.draft_rounds(cfg)
+
+        # PRIMARY ANCHOR = FantasyPros, FFC gap-fill, search_rank last. FP is the
+        # source-grade winner (orders realized value best AND is our exact half-PPR
+        # format, de-confounding the full-PPR handicap MFL carried); the 2026 probe
+        # confirmed 98% top-150 coverage, ρ=0.885 vs FFC. Coverage-gated: a thin or
+        # failed FP fetch keeps FFC untouched, so this can NEVER drop the board below
+        # its FFC baseline. (DECISIONS-NEEDED #1)
+        anchor_table = table["adp"]
+        try:
+            fp_table, fp_diag = adp_mod.build_fantasypros_table(raw, year=year_n)
+            if fp_table:
+                anchor_table, merge_stats = adp_mod.merge_primary_over_ffc(table["adp"], fp_table)
+                ADP_PROVENANCE["primary_source"] = "fantasypros"
+                ADP_PROVENANCE["fantasypros"] = {**fp_diag, **merge_stats}
+                print(f"  ADP anchor: FantasyPros PRIMARY — {merge_stats['primary_priced']} "
+                      f"priced by FP, {merge_stats['ffc_gap_fill']} gap-filled by FFC")
+            else:
+                ADP_PROVENANCE["primary_source"] = "ffc"
+                ADP_PROVENANCE["fantasypros"] = fp_diag
+                print(f"  ADP anchor: FFC (FantasyPros not used — {fp_diag.get('reason')})")
+        except Exception as fpx:  # noqa: BLE001 — FP is an upgrade, never a dependency
+            ADP_PROVENANCE["primary_source"] = "ffc"
+            ADP_PROVENANCE["fantasypros"] = {"error": f"{type(fpx).__name__}: {fpx}"}
+            print(f"  ! FantasyPros anchor skipped ({type(fpx).__name__}: {fpx}); FFC stands")
+
         ADP_PROVENANCE.update(adp_mod.apply_with_fallback(
-            players, table["adp"], teams=teams_n, draft_picks=teams_n * rounds_n))
+            players, anchor_table, teams=teams_n, draft_picks=teams_n * rounds_n))
+        # apply_with_fallback hardcodes adp_source='ffc' in its provenance; the per-player
+        # rows already carry the true source, so correct the top-level label to the real
+        # primary now (it drives the War Room's "priced by" banner).
+        ADP_PROVENANCE["adp_source"] = ADP_PROVENANCE.get("primary_source", "ffc")
         ADP_PROVENANCE["report"] = table["report"]
     except Exception as exc:  # noqa: BLE001 — reported loudly below, not swallowed
         print(f"  ! ADP unavailable ({exc}); the whole board falls back to search_rank")
