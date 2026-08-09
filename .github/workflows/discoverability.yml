@@ -29,10 +29,14 @@ jobs:
           pip install pytest -q
           python -m pytest draft/tests/test_discoverability.py -q
       - name: Crawl (Sleeper egress)
+        continue-on-error: true
         run: python draft/backtest/exp_discoverability.py --budget ${{ inputs.budget || '800' }}
-      - name: Commit the result
+      - name: Route probe — is there ANY route to public leagues (Sleeper listing + MFL leagueSearch)
+        continue-on-error: true
+        run: python draft/backtest/exp_route_probe.py
+      - name: Commit the results
         run: |
           git config user.name "lab-bot"; git config user.email "actions@github.com"
-          git add draft/backtest/exp_discoverability.json
-          git commit -m "Discoverability probe result $(date -u +%Y-%m-%dT%H:%MZ)" || { echo "no change"; exit 0; }
+          git add draft/backtest/exp_discoverability.json draft/backtest/exp_route_probe.json 2>/dev/null || true
+          git commit -m "Discoverability + route probe results $(date -u +%Y-%m-%dT%H:%MZ)" || { echo "no change"; exit 0; }
           git pull --rebase origin "${GITHUB_REF_NAME}" && git push || echo "push skipped"
