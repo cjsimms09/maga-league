@@ -50,6 +50,32 @@ is weak, change course. **And challenge Cory** — every pushback that a premise
 sequencing, or measure was wrong has improved the work. The most useful thing I can
 be is the one that says he's working on the wrong problem.
 
+## 🚀 DEPLOY DISCIPLINE — B's finished work must never sit invisible (2026-08-09)
+
+A owns integration + deploy; B cannot deploy and cannot reach a session directly.
+Three times B's finished served work sat stranded because deploying is A's and A
+didn't look. The gate (`netlify-ignore.sh`) is already OPT-OUT — served changes in
+the range since the last build auto-ship — but that is not enough on its own, so:
+
+**BOUNDARY CHECK (do this before starting any new unit, and at every boundary):**
+```
+git fetch origin main -q
+# is main ahead of the deployed commit on SERVED files?
+git log --oneline <deployed>..origin/main -- views/ public/ src/ netlify.toml netlify/functions/ server-app.js
+```
+If served files changed and prod is behind, **ship it**: push a `[deploy]` commit to
+main (empty commit is fine). Deployed commit is at `/api/health` (`commit`) or
+`build-stamp.json`; `site-check.yml` (daily) and `deploy-verify.yml` (per-push) are
+the drift alarms — but the daily one is why stranding lasted DAYS, so the per-boundary
+check above is the real fix. It costs seconds. It has cost us three times.
+
+**Build-minute budget:** deploys are the constrained resource (349 builds Aug 1–8 =
+75% of August; exhaustion suspends the site — fatal on draft day). Opt-out already
+protects this: Lab/docs/CI commits touch no served files and skip; only served
+changes build, and the range logic coalesces a burst into one build. So the boundary
+check is safe — it ships served work without re-introducing per-push build spam. Do
+NOT flip anything further; the gate is correct as-is.
+
 ## ⭐ THE OBJECTIVE — what all this process is FOR
 
 **The goal is MONEY IN CORY'S POCKET IN THIS LEAGUE.** Not a better-calibrated model,
