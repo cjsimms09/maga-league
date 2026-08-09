@@ -49,7 +49,15 @@ def _pair(forecasts: list[dict], resolutions: list[dict]):
     by_key = {}
     for f in forecasts:
         k = (f.get("payload") or {}).get("key")
-        if k:
+        if not k:
+            continue
+        # Keep the EARLIEST commitment per key. The client dedups within a session,
+        # but the same claim can be re-committed across page-loads/days; grading the
+        # earliest one keeps the record maximally forward (furthest before the
+        # outcome) and makes a later re-commit harmless — it can never move the
+        # timestamp closer to reality.
+        prev = by_key.get(k)
+        if prev is None or (f.get("decision_at") or "") < (prev.get("decision_at") or ""):
             by_key[k] = f
     res_by_key = {}
     for r in resolutions:

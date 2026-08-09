@@ -2133,6 +2133,32 @@
           confidence: out.confidence ? out.confidence.level : null,
         } });
     }
+
+    // FORWARD PREDICTION — commit the model's timestamped claims about what has NOT
+    // happened yet (who the room takes in R1, whether my targets survive to my next
+    // pick). REAL draft only — a mock is not forward evidence — and deduped by key
+    // in PredLedger, so calling it every render commits each claim exactly once.
+    // The one evidence about THIS model deciding in real conditions; the window
+    // closes at the draft. Never blocks the clock.
+    if (typeof PredLedger !== 'undefined' && typeof DraftForecast !== 'undefined'
+        && !state.mockMode && out.scored && out.scored.length) {
+      try {
+        var fctx = context();
+        var fc = DraftForecast.buildForecasts({
+          scored: out.scored,
+          myPicks: (state.data.pick_order || {}).my_picks || [],
+          currentPick: currentPick(),
+          nextPick: (fctx || {}).nextPick,
+          teams: (state.data.league || {}).teams || 10,
+        });
+        var fcSeason = ledgerCtx().season;
+        fc.forEach(function (f) {
+          PredLedger.forecast({ season: fcSeason, method: f.method,
+            pick: currentPick(), payload: f.payload });
+        });
+      } catch (e) { console.error('[forecast]', e && e.message); }
+    }
+
     renderConfidence(out.confidence);
     renderBranches(out.branches);
     renderClock(out);

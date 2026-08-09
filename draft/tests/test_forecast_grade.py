@@ -82,6 +82,18 @@ def test_missing_timestamp_fails_closed():
     assert g["n_graded"] == 0 and g["n_disqualified"] == 1   # no stamp -> not provably forward
 
 
+def test_re_commit_uses_the_earliest_forecast_per_key():
+    # The same claim committed on two days; the grader must use the EARLIEST (most
+    # forward), so a later re-commit can't sneak the timestamp closer to the outcome.
+    early = fc("k", "probability", 0.9, "2026-08-10T00:00:00Z")
+    late = fc("k", "probability", 0.1, "2026-08-21T00:00:00Z")   # different value, later
+    r = res("k", 1, "2026-12-01T00:00:00Z")
+    g = FG.grade([late, early, r])   # order shouldn't matter
+    assert g["n_graded"] == 1
+    # graded the EARLY one (0.9 -> brier 0.01), not the late one (0.1 -> 0.81)
+    assert abs(g["probability"]["brier"] - 0.01) < 1e-6
+
+
 def test_pending_and_orphans_reported():
     entries = [
         fc("open", "point", 5, "2026-08-22T00:00:00Z"),      # no resolution yet
