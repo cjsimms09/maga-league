@@ -3013,3 +3013,38 @@ body.is-champ .tabbar { box-shadow: inset 0 2px 0 rgba(245, 196, 69, .5), 0 -8px
 .riv-banner.tone-german .riv-banner-record,
 .riv-banner.tone-german .riv-banner-note { color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,.55); }
 .riv-banner.tone-german .riv-banner-link { color: #0b1020; font-weight: 800; }
+
+/* ── WAR ROOM v3 — mobile-first density (B). The recommendation owns the first
+   fold; the plan / guarantee / status furniture moved beneath it and compacted.
+   The masthead is suppressed on this tool (header tool mode). ──────────────────── */
+.wr-titlebar {
+  display: flex; align-items: baseline; gap: .5rem; margin: 0 0 .5rem; padding: 0 .1rem;
+}
+.wr-title { font-family: var(--font-display); font-size: 1.05rem; font-weight: 900; letter-spacing: .04em; color: #fff; }
+.wr-title-sub { font-size: .62rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--red-bright); }
+
+/* The recommendation card leads — give it a touch more presence, tighten the rest. */
+#recs-card { margin-top: .2rem; }
+/* Compact the secondary furniture now sitting BELOW the pick, so a glance down is
+   cheap and nothing shouts over the recommendation. */
+.doctrine-banner { padding: .5rem .7rem; gap: .4rem; margin: 0 0 .6rem; }
+.doctrine-banner .db-name { font-size: .92rem; }
+.legality-strip { margin: 0 0 .6rem; }
+.mvs { margin: .2rem 0 .6rem; }
+.shadow-proj { margin: 0 0 .6rem; }
+.wr-statusbar { margin: 0 0 .6rem; }
+#lrm-card { margin-bottom: .5rem; }
+#lrm-card .body { padding: .5rem .7rem; }
+/* A deadline card with nothing in it is pure furniture — collapse it when empty
+   (app.js toggles #lrm-strip display; :has keeps the card out of the fold until
+   there is actually a deadline to show). */
+#lrm-card:has(#lrm-strip[style*="display: none"]),
+#lrm-card:has(#lrm-strip[style*="display:none"]) { display: none; }
+
+@media (max-width: 700px) {
+  /* Bigger thumb targets in the war room's dense control rows. */
+  .wr-decide .btn.small, .system-details .btn.small { min-height: 40px; }
+  /* The recommendation card's own header buttons wrap rather than clip (already
+     global, restated here as the war-room contract). */
+  #recs-card > h2 { row-gap: .4rem; }
+}
