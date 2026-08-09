@@ -626,3 +626,31 @@ Engine + verification built (`src/routes/draftorder.js`, `draft/tests/draftorder
 
 ### ANNUAL CONTENT-HALF — remaining after this session (in order)
 Done this session: silent-stale code fixes + the no-season-literals guard; draft-order engine + history verification (finding above). **Remaining:** draft board reset/archive + the two-stage UI (pending the rule answer) · buy-in vote → config flow (typed vote outcome → season config; the clearest config-flow test) · config-driven draft-day alert on season rollover (replaces the frozen 2026 migration) · CHAPTERS/RS_PRIZE/harvest-window derive-on-seal · history chapter + hub paragraph wiring · records-book recompute · settlement report + Venmo · season sealing (live→permanent + archive the transients). All callable from A's workflow AFTER grading (coordinate signature + ordering barrier).
+
+---
+
+## ▶ THREE-CHAIN VERIFICATION (Session B, 2026-08-09) — traced in code, honest state
+
+### CHAIN 1 — vote → config → money.  WAS BROKEN; now FIXED (vote→config), one gap remains.
+- **Recording:** votes have NO close moment / status transition / writer. `allVotes` computes `passed = yes>=threshold` as a tally on READ. It was **display-only**.
+- **Flow to config:** did NOT exist. Only writer of buy_in/pot/payout was the commissioner's manual season form (`admin.js`).
+- **FIXED:** `voteenact.applyVoteEffect` + commissioner "Enact" (admin votes tab) now write a passed vote's result into the season config; pot/weekly-high/payout table/finances/money-board/amendment-ledger all DERIVE from that config, so they follow automatically. Callable headless by the Annual.
+- **Payout STRUCTURE:** the data model IS percentages per season (`payouts.{reg,playoff}`, any length) and `applyVoteEffect`/`payoutTable` handle a re-shaped table. **Remaining gap: the ADMIN SEASON FORM is hardcoded to 2 reg + 4 playoff inputs** — changing the NUMBER of paid places works via the vote-enact `payouts` effect (csv) but the season form UI needs generalizing. (Small B follow-up.)
+
+### CHAIN 2 — Sleeper sync vs assumed.  PARTIAL — a real stale-rules risk (A's lane to close).
+- **Read LIVE from Sleeper:** playoff_teams, playoff_week_start, draft rounds, rosters, scores, standings (wins/PF), current week.
+- **HARDCODED copies (NOT synced):** `SCORING`, `ROSTER` shape, `RULES` (seed-data) — display + the OPTIMIZER's roster slots. Keeper count / trade deadline / waiver type aren't read from Sleeper at all.
+- **Failure mode Cory named is REAL:** change scoring or roster shape in Sleeper and nothing on our side notices — the optimizer would optimize against stale rules. **A's settings watchdog (self-audit.yml/authority.test.js) — confirm scope: does it diff scoring/roster/keeper/deadline, or only part? (A question.)**
+- **Auto-continue re-point:** `config.sleeper_league_id` is set ONCE (seed migration); a new league in January needs re-pointing → A's rollover, not automatic today.
+
+### CHAIN 3 — honest Annual state.
+- **RUN against real data (render-time):** the content generators (chapter, hub story, records book, money board, franchise, bad beats, settlement via payoutTable) all render correct CURRENT data on their pages. **But never as a season-SEALING pass.**
+- **Built, verified, not yet run as an Annual:** draft-order engine (tests only), vote→config (tests + manual enact).
+- **Does NOT exist:** the Annual orchestrator itself (A), season sealing (live→permanent), draft-board reset/UI, config-driven draft-day alert on rollover, CHAPTERS/RS_PRIZE/harvest derive-on-seal.
+- **Fail silent vs loud:** the render-time generators fail SILENTLY (a stale buy-in → plausible-wrong money that looks normal; the unconfirmed playoff-four draft rule → plausible-wrong order). `applyVoteEffect` and the no-season-literals guard fail LOUD by design.
+- **Partial-run risk (Cory's worst case):** there is no orchestrator yet, so **A's Annual workflow must (a) run corrections/grading FIRST, (b) call B's generators after, (c) HALT on any failed link rather than continue** — else the site ends half-updated with plausible-wrong numbers. Flag for A's workflow design.
+
+---
+
+## ▶ NEXT UNIT (parked, acknowledged) — THE WEEK'S-MATCHUPS SCOREBOARD (the Sunday landing)
+Cory (2026-08-09): one page, all five of the week's games as compact cards — both owners/scores (live/projected/final + who's winning), and the interesting detail visible without tapping: **pick'em split** (tap → who took whom), **rivalry billing** (Dylan–Sam, Bates–Richard, the German derby), **weekly-high race** (leader, gap, which games can still change it), **what each game is worth** (playoff/money) + **clinch/elim** consequences, and the **what-to-watch line** on SNF/MNF undecided games. Tap a card → the full matchup screen (H2H, trash talk, side bet, starters). Mostly WIRING engines already built (PE.gameSplit/weekGames, playoffs.picture/matchupLeverage, whatwatch.sweat, rivalry, weeklyHighBand). Mobile-first, league-visible. **Nav: make it the obvious Sunday landing — a prominent home entry (or home BECOMES it on game days), not buried.** No existing page does this: home's "Week N Scoreboard" is bare scores; /watch is Sun/Mon sweat only. **Build next.**
