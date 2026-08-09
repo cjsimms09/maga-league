@@ -158,7 +158,10 @@
       scrolled down to the board. Populated by app.js renderStatusBar(). %>
   <div id="wr-statusbar" class="wr-statusbar" style="display:flex"></div>
   <span id="prefs-sync" style="display:none;font-size:.68rem;color:#8fa6d0;position:absolute;top:2px;right:8px;z-index:5" title="prefs sync state"></span>
-  <button id="arm-alerts" class="btn small gold" style="position:fixed;bottom:16px;right:14px;z-index:150" title="iOS will not play audio without a tap — arm once, alert forever" onclick="if(window.DraftAlerts&&DraftAlerts.arm()){this.textContent='🔔 armed';this.disabled=true;setTimeout(()=>this.remove(),1500);}else{this.textContent='🔕 audio unavailable';}">🔔 Arm my-turn alert</button>
+  <%# Position lives in CSS (.wr-arm) so it can lift ABOVE the mobile tab bar —
+      at bottom:16px it sat on top of LOCKER and MORE (z-index 150 > the bar's
+      90) and ate those taps. id + onclick are A's contract, untouched. %>
+  <button id="arm-alerts" class="btn small gold wr-arm" title="iOS will not play audio without a tap — arm once, alert forever" onclick="if(window.DraftAlerts&&DraftAlerts.arm()){this.textContent='🔔 armed';this.disabled=true;setTimeout(()=>this.remove(),1500);}else{this.textContent='🔕 audio unavailable';}">🔔 Arm my-turn alert</button>
 
   <%# ── Part 2 §2 — THREE-ZONE LAYOUT ──────────────────────────────────────
        Zone 1 DECIDE (left ~60%): the Paths panel + ranked list + branch forecast.

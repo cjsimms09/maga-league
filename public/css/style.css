@@ -2820,3 +2820,11 @@ button.pd-team.pick:hover { background: rgba(245,196,69,.16); transform: transla
   .pk-me-num { font-size: 1.7rem; }
   .pk-opt-name { font-size: .86rem; }
 }
+
+/* War-room "arm my-turn alert" button. Fixed bottom-right on desktop; on phones
+   it must clear the bottom tab bar (fixed, ~56px + safe-area, z-index 90) — at
+   bottom:16px it covered the LOCKER and MORE tabs and swallowed their taps. */
+.wr-arm { position: fixed; right: 14px; bottom: 16px; z-index: 80; }
+@media (max-width: 700px) {
+  .wr-arm { bottom: calc(60px + env(safe-area-inset-bottom, 0px) + 12px); }
+}
