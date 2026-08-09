@@ -1,9 +1,9 @@
 {
-  "note": "BBM raw pick-by-pick archive — provenance manifest. Raw CSVs are gitignored (raw-forever L2 lives outside the repo per the founding rule); this manifest is the content-hashed record so any re-pull is provably the same bytes. The GCS host (storage.googleapis.com/underdog-inc) is reachable from the sandbox AND CI; the underdognetwork.com landing pages are egress-blocked (BBM V's exact URL must be discovered in CI).",
+  "note": "BBM raw pick-by-pick archive \u2014 provenance manifest. Raw CSVs are gitignored (raw-forever L2 lives outside the repo per the founding rule); this manifest is the content-hashed record so any re-pull is provably the same bytes. The GCS host (storage.googleapis.com/underdog-inc) is reachable from the sandbox AND CI; the underdognetwork.com landing pages are egress-blocked (BBM V's exact URL must be discovered in CI).",
   "reachability_finding_2026-08-09": "storage.googleapis.com/underdog-inc/underblog/... returns HTTP 200 text/csv from the sandbox. Small per-round FINALS dumps (2-3 MB) ingest here; the full-field regular-season dumps (_r1_..., ~4.8 GB) are CI-stream-only (memory-safe via bbm_ingest.stream_positional_by_round).",
   "files": [
     {
-      "tournament": "BBM IV (2023) — Round 4 (Finals)",
+      "tournament": "BBM IV (2023) \u2014 Round 4 (Finals)",
       "url": "https://storage.googleapis.com/underdog-inc/underblog/BBM_IV_Rosters/best_ball_mania_iv_2023_r4_results_pick_by_pick.csv",
       "local": "best_ball_mania_iv_2023_r4_finals.csv",
       "bytes": 2659503,
@@ -13,17 +13,37 @@
       "used_by": "exp24_bbm_shape.py (winning ceiling shape)"
     },
     {
-      "tournament": "BBM IV (2023) — Round 1 (full-field regular season)",
+      "tournament": "BBM IV (2023) \u2014 Round 1 (full-field regular season)",
       "url": "https://storage.googleapis.com/underdog-inc/underblog/BBM_IV_Rosters/best_ball_mania_iv_2023_r1_results_pick_by_pick.csv",
       "bytes": 4805397501,
-      "sha256": "PENDING — CI stream only (4.8 GB); hash recorded by bbm-probe.yml",
+      "sha256": "PENDING \u2014 CI stream only (4.8 GB); hash recorded by bbm-probe.yml",
       "status": "reachable (HTTP 200); NOT downloaded to sandbox (exceeds disk allowance)",
       "used_by": "dead-zone at full N + full-field winning shape (CI)"
     },
     {
       "tournament": "BBM V (2024)",
-      "url": "PENDING — landing page egress-blocked from sandbox; CI (bbm-probe.yml) scrapes underdognetwork.com for the exact GCS CSV URL",
+      "url": "PENDING \u2014 landing page egress-blocked from sandbox; CI (bbm-probe.yml) scrapes underdognetwork.com for the exact GCS CSV URL",
       "status": "URL discovery deferred to CI"
     }
-  ]
+  ],
+  "durable_archive": {
+    "note": "Gzipped column-subset of the finals dump \u2014 committed as the raw-forever record so a re-run does not depend on Underdog still hosting the CSV. Reproduces exp24 exactly (441 rosters). Full raw stays gitignored; the 4.8 GB full-field durable record is the derived aggregate, re-stream to recover.",
+    "file": "best_ball_mania_iv_2023_r4_finals.subset.csv.gz",
+    "bytes": 121829,
+    "raw_bytes": 2659503,
+    "rows": 7938,
+    "sha256": "a2b00ff923056a1eb1cf3260914c0bc033d8f2d9f366ac13369a99ab8bace8f3",
+    "columns": [
+      "tournament_round_draft_entry_id",
+      "player_id",
+      "position_name",
+      "team_pick_number",
+      "overall_pick_number",
+      "projection_adp",
+      "pick_points",
+      "roster_points",
+      "made_playoffs"
+    ],
+    "reader": "bbm_archive.read_archive"
+  }
 }
