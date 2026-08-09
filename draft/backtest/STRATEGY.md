@@ -2,7 +2,7 @@
 ==============================================================================
 STRATEGY TABLE — which weighting would have won our drafts
 ==============================================================================
-git HEAD   0812dc8753d0d8166293bb25024b20d412ee852a
+git HEAD   3578be1ac53d69f4049393eab7e93be3de9a348f
 seasons    2023, 2024, 2025   (N=2)
 
 With N this small we are CHOOSING AMONG PROFILES, not tuning eight dials.
@@ -41,9 +41,6 @@ per-season edge over Default:
   beating it is NECESSARY, NOT SUFFICIENT. Upside-Late is a
   CANDIDATE; it installs ONLY if it also clears the tournament null
   (LAB-TOURNAMENT.md, arch:balanced control, 200-draw shuffle p95).
-  As of the last tournament run profile:upside_late scored $0 at the 0th
-  percentile there (its tilt washes out to extra QBs through the composite),
-  so it does NOT install.
 
 STRATEGY-TABLE VERDICT: CANDIDATE — Upside-Late (robust vs Default; PENDING the tournament null gate before any install)
 
@@ -55,5 +52,10 @@ STRATEGY-TABLE VERDICT: CANDIDATE — Upside-Late (robust vs Default; PENDING th
   * Seasons replayed: [2023, 2024, 2025]
   * 2 seasons. The Part 8 C2 rule applies to reading this table:
     three drafts can pick a profile, they cannot tune weights.
+  * NO OUTCOME-SHUFFLE NULL here. Control is Default weighting; the only gate is
+    weight-jitter robustness. A profile can beat Default handily and still score
+    ~$0 at a low percentile in the tournament (arch:balanced control + 200-draw
+    shuffle null) — that has happened, and the tournament verdict governs. Nothing
+    installs from this table alone.
 ==============================================================================
 ```
