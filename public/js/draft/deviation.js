@@ -369,9 +369,10 @@
     if (position === 'RB') {
       if (pk >= DEADZONE.inside) {
         return 'INSIDE the RB dead zone (overall pick ' + pk + '): RB realized value '
-          + 'historically collapses here while ' + DEADZONE.holds + ' holds — BBM 200k-pick '
-          + 'prior, corroborated on our 3 seasons (exp 25). A mid-round RB is the board’s '
-          + 'worst-evidenced value; prefer ' + DEADZONE.holds + '.';
+          + 'usually collapses here while ' + DEADZONE.holds + ' holds — 2 of 3 BBM '
+          + 'full-field seasons + our exp 25 (the 2024 injury year is the exception, so '
+          + 'don’t let this override a genuinely elite RB value). Otherwise a mid-round RB '
+          + 'is the board’s worst-evidenced value; prefer ' + DEADZONE.holds + '.';
       }
       return 'ENTERING the RB dead zone (~pick ' + DEADZONE.inside + '+): RB value is about to '
         + 'collapse while ' + DEADZONE.holds + ' holds (exp 25 + BBM prior).';
