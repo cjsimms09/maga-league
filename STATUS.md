@@ -985,3 +985,14 @@ directive). B added a clarification: B is on main, no B branch to integrate, A's
 one action is DEPLOY main. A still on branch `claude/exp34-dollar-arm-*`.
 **BEST-UNSEEN-THING for Cory when deployed:** `/lineup` → The Proof tab (commish-
 only) — validated-to-the-dollar leak, the $2,100 bench tab, per-week drill-down.
+
+## ▶ SESSION A — RESUME MARKER 2026-08-09 (deploy + recurrence-gaps + deviation explainer)
+Integrating directly to main (Cory authorized). Branch == main.
+
+### ✅ DELIVERED this turn (on main)
+- **DEPLOY fixed + shipped.** Root cause of "nothing is live": the deploy gate reads `[deploy]` from the TIP commit only, and `df19f98`'s marker was buried by later commits before Netlify read the tip → build skipped. Fixed by putting `[deploy]` on the actual tip (merge/commit message). Shipped B's site work (matchup, /lineup, H2H, Money Board redesign, eggs, side-bet lifecycle) + history restore + the Lab batch. **I cannot verify liveness from the sandbox (proxy blocks the prod URL); deploy-verify.yml/site-check.yml confirm in CI.**
+- **Deviation explainer with exp 36 — ON THE SURFACE** (the #1 draft-day ask). `deviation.js` carries the exp-36 market-efficiency surface (cited, reversible); the war-room deviation card now renders a `where:` line — "market ranks R1-3 RB WEAKLY (0.12) — freer to deviate" vs "late WR WELL (0.72) — respect it". Thin→pooled avg, unmeasured→anchor. 46/46 deviation + 22/22 wiring. Shipped `[deploy]`.
+- **Territory check made MERGE-AWARE** (stops crying wolf during integration): a would-be trespass byte-identical to the integration source is exempt (merged, not edited); an actual cross-lane edit still fails + names the file. `scripts/territory-check.test.sh` proves both directions (4/4), wired into ci.yml.
+- **Deploy-drift made LOUD:** self-audit now reports "prod is N commits behind main" and HARD-fails when a stranded release includes served files; the stray-branch rule relaxed to FYI (feature branches are expected). Budget recommendation in DEPLOY-POLICY.md: keep `[deploy]` opt-in through Aug 22 (auto-deploy risks build-minute exhaustion → war room down on draft day), flip to opt-out after. Health-strip VIEW parked for B.
+
+### ▶ QUEUE (unchanged, in order): **third composite arm** (composite vs ADP on dollars — the number that tests our construction layer; pre-registered; needs the JS replay path) → dollar-grade the exp35 sweep (I built points only; the dollar-per-weight curve is the flagged increment) → naive-as-source run → exp 41 paired-room race → auto-adjuster conditional mining → what-would-have-worked.
