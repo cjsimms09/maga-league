@@ -61,6 +61,14 @@ jobs:
         # Complements bundling_guard: the guard proves the files SHIP, this proves
         # the render POPULATES.
         run: node draft/tests/history_smoke.test.js
+      - name: Access guard — analysis is commissioner-only, never league-visible
+        # STANDING RULE (results = league property, analysis = commissioner's):
+        # asserts /lineup + /lineup/log 403 a non-commissioner, and NO league-
+        # visible page renders per-owner efficiency, all-play, luck-gap, robbery-
+        # record, or season-bench-aggregate text. The three-season lineup
+        # archaeology is the commissioner's edge; this keeps it from leaking back
+        # in by a stray column, an open tab, or a chapter rewrite.
+        run: node draft/tests/access_guard.test.js
       - name: Robot mock draft — the safety net
         # A full snake draft from every seat through the real engine and
         # attribution modules, plus every bug this session as a regression

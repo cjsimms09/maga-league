@@ -41,6 +41,10 @@ shared() {
     STATUS.md|PARKED.md|DECISIONS-NEEDED.md|TASK-AUDIT.md|TERRITORY.md) return 0 ;;
     # Shared coordination infra: the split's own enforcement, maintained by both.
     scripts/territory-check.sh|scripts/branch-check.sh) return 0 ;;
+    # Shared TEST infra: draft/tests holds tests for BOTH lanes — a test follows
+    # the substance of the module it tests (venmo/sidebets/access_guard are B's,
+    # engine/mcts are A's). ci.yml wires them. Append-only, rebase before push.
+    draft/tests/*|.github/workflows/ci.yml) return 0 ;;
     *) return 1 ;;
   esac
 }
