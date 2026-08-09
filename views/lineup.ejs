@@ -179,7 +179,7 @@
           <tr><th>Owner</th><th class="num">Efficiency</th><th class="num">Pts left</th></tr>
           <% seasonRow.teams.slice(0, 10).forEach(t => { %>
             <tr class="<%= t.owner === 'coryjsimms' ? 'champ' : '' %>">
-              <td><%= t.owner || ('roster ' + t.roster_id) %></td>
+              <td><%= t.name || t.owner || ('roster ' + t.roster_id) %></td>
               <td class="num"><%= (t.efficiency * 100).toFixed(1) %>%</td>
               <td class="num muted"><%= t.leak.toFixed(1) %></td>
             </tr>

@@ -2101,6 +2101,7 @@ async function liveOptimizeFor(world, owners, me) {
     matchup = sleeper.myMatchup(sData, world.config.sleeper_map || {}, me.id, owners);
   }
   if (roster && roster.rows && roster.rows.length) {
+    const wk = (matchup && matchup.week) || (sData && sData.state && sData.state.week) || null;
     const rosterIn = roster.rows.filter(r => r.pos && r.pos !== '?').map(r => {
       let proj = null, src = null;
       if (r.proj != null) { proj = Number(r.proj); src = 'sleeper'; }
@@ -2109,7 +2110,12 @@ async function liveOptimizeFor(world, owners, me) {
       else { proj = 0; src = 'none'; }
       if (src === 'sleeper') projSource = 'sleeper';
       else if (projSource !== 'sleeper') projSource = src;
-      return { id: r.id, name: r.name, pos: r.pos, proj: Math.round(proj * 10) / 10, sd: r.sd };
+      // A player ruled OUT (or on bye once A exposes it) cannot score — force the
+      // projection to zero so the solver never seats him. Without this, the
+      // season-avg/last-week fallbacks above hand a benched player a full
+      // projection and the tool would recommend starting him.
+      const guarded = LO.activeProjection(Math.round(proj * 10) / 10, r, wk);
+      return { id: r.id, name: r.name, pos: r.pos, proj: guarded, sd: r.sd };
     });
     let oppMean = 0, oppKnown = false;
     if (matchup && matchup.opp && matchup.opp.points > 0) { oppMean = matchup.opp.points; oppKnown = true; }

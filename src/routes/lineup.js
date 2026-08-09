@@ -68,6 +68,21 @@ function payoutsBySeason() {
   catch (e) { _payouts = {}; }
   return _payouts;
 }
+// Sleeper handle -> real FIRST name, from the identity map. The proof/efficiency
+// tables come off the harvest keyed by Sleeper display_name (coryjsimms, ds7mmet,
+// B8T3S…); the commissioner reads these weekly and should see Cory / David /
+// Bates, the same names the rest of the site uses. Falls back to the handle.
+let _nameByHandle = null;
+function ownerName(handle) {
+  if (!_nameByHandle) {
+    _nameByHandle = {};
+    try {
+      const m = (JSON.parse(fs.readFileSync(findFile('draft/config/identity_map.json'), 'utf8')) || {}).by_real_name || {};
+      for (const [real, v] of Object.entries(m)) if (v && v.handle) _nameByHandle[v.handle] = String(real).split(' ')[0];
+    } catch (e) { _nameByHandle = {}; }
+  }
+  return _nameByHandle[handle] || handle;
+}
 function seasonOf(history, season) {
   return (history.seasons || []).find(s => String(s.season) === String(season)) || null;
 }
@@ -310,6 +325,37 @@ function lineupStats(starters, projById, sigmaById) {
   return { mean: r2(mean), varc: r2(varc), sd: r2(Math.sqrt(varc)) };
 }
 
+// --- ACTIVE-PROJECTION GUARD -------------------------------------------------
+// The optimizer has no calendar: it seats whoever carries the highest projection
+// for a slot. That is correct ONLY when a player who will not play this week
+// carries a ZERO projection. The live path's projection fallbacks do not
+// guarantee that — a season-average or last-week number is a full, positive
+// projection for a player who is on bye or ruled OUT this week. Left unguarded,
+// the tool recommends starting a benched player. So a player known not to be
+// playing has his projection forced to zero BEFORE the roster reaches the solver.
+//
+// Two signals, both read defensively so an absent field is simply not a match:
+//   • injury — Sleeper's injury_status (rosterView already carries it as row.inj)
+//              for the statuses that mean "not playing". Questionable/Doubtful are
+//              deliberately left alone: they MIGHT play, and that uncertainty is
+//              exactly what the variance model already prices.
+//   • bye    — row.bye === the week being optimized. No live source exposes a
+//              per-player bye week yet (flagged to A); until it does this arm is a
+//              no-op, and it activates automatically the moment the field appears.
+const INACTIVE_INJURY = new Set(['OUT', 'IR', 'PUP', 'SUS', 'NA', 'DNR', 'COV', 'RES', 'DNP']);
+function isInactive(row, weekNo) {
+  if (!row) return false;
+  const inj = row.inj != null ? String(row.inj).toUpperCase().replace(/[^A-Z]/g, '') : '';
+  if (inj && INACTIVE_INJURY.has(inj)) return true;
+  if (weekNo != null && row.bye != null && Number(row.bye) === Number(weekNo)) return true;
+  return false;
+}
+// Zero the projection of a player who will not play this week; pass others
+// through unchanged. Pure — the caller owns where it applies (member.js live path).
+function activeProjection(proj, row, weekNo) {
+  return isInactive(row, weekNo) ? 0 : Number(proj || 0);
+}
+
 /**
  * THE FORWARD OPTIMIZER — this week's E[$]-maximising lineup and priced calls.
  *
@@ -476,7 +522,7 @@ function replayEfficiency(history, seasons) {
       if (!rsw.has(w)) continue;
       for (const e of (entries || [])) {
         const rid = e.roster_id;
-        const t = (teams[rid] = teams[rid] || { real: 0, opt: 0, weeks: 0, owner: (s.owners[rid] || {}).display_name });
+        const t = (teams[rid] = teams[rid] || { real: 0, opt: 0, weeks: 0, owner: (s.owners[rid] || {}).display_name, name: ownerName((s.owners[rid] || {}).display_name) });
         t.real += Number(e.points || 0);
         const pts = {};
         for (const [pid, v] of Object.entries(e.players_points || {})) pts[String(pid)] = Number(v || 0);
@@ -485,7 +531,7 @@ function replayEfficiency(history, seasons) {
       }
     }
     const rows = Object.entries(teams).map(([rid, t]) => ({
-      roster_id: Number(rid), owner: t.owner,
+      roster_id: Number(rid), owner: t.owner, name: t.name,
       realized: r2(t.real), optimal: r2(t.opt),
       leak: r2(t.opt - t.real),
       efficiency: t.opt > 0 ? r4(t.real / t.opt) : 1,
@@ -547,7 +593,7 @@ function weeklyHighLeak(history, seasons) {
         if (optSeries[rid][w] != null) sub[w][rid] = optSeries[rid][w];
       }
       const optimal = whDollars(sub, rid);
-      rows.push({ roster_id: Number(rid), owner: (s.owners[rid] || {}).display_name,
+      rows.push({ roster_id: Number(rid), owner: (s.owners[rid] || {}).display_name, name: ownerName((s.owners[rid] || {}).display_name),
         actualWH: r2(actual), optimalWH: r2(optimal), leakWH: r2(optimal - actual) });
     }
     rows.sort((a, b) => b.leakWH - a.leakWH);
@@ -618,7 +664,7 @@ function ceilingLeak(history, seasons) {
       const dWk = whDollars(sub, rid) - whDollars(field, rid);
       const dRs = rsDollars(sub, rid) - rsDollars(field, rid);
       sumWk += dWk; sumRs += dRs; sumTot += dWk + dRs;
-      rows.push({ roster_id: rid, owner: (s.owners[rid] || {}).display_name,
+      rows.push({ roster_id: rid, owner: (s.owners[rid] || {}).display_name, name: ownerName((s.owners[rid] || {}).display_name),
         highPoolLeak: r2(dWk), matchupLeak: r2(dRs), totalLeak: r2(dWk + dRs) });
     }
     const n = rows.length;
@@ -681,7 +727,7 @@ function weekDrill(season, week, ownerDisplayName) {
   const benchedByMistake = shouldHaveStarted;
 
   return {
-    season: String(season), week: Number(week), owner: ownerDisplayName,
+    season: String(season), week: Number(week), owner: ownerName(ownerDisplayName),
     actual: { starters: startedIds.map(pid => ({ pid, points: pts[pid] != null ? r2(pts[pid]) : null, pos: pos[pid] || '?' })), points: r2(actualPoints) },
     optimal: { starters: opt.starters.map(s2 => ({ pid: s2.pid, points: r2(s2.points), pos: pos[s2.pid] || s2.slot, slot: s2.slot })), points: opt.points },
     leak: r2(opt.points - actualPoints),
@@ -722,6 +768,7 @@ function sundayAlert(result, opts = {}) {
 module.exports = {
   // engine
   optimize, bestLineup, inferPositions, slotsFromTemplate, DEFAULT_SLOTS, weekDrill, sundayAlert,
+  activeProjection, isInactive, INACTIVE_INJURY, FLEX_ELIGIBLE,
   positionSigmas, sigmaOf, weeklyHighBand,
   pWin, pClearHigh, normCdf, lineupStats,
   // data

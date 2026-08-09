@@ -247,6 +247,27 @@ The matchup-page upgrade (site backlog #4) needs `src/sleeper.js` (A's lane) to 
 
 B will build the view/route/one-tap-side-bet side against whatever shape A returns. Flagging rather than editing sleeper.js.
 
+### ADD (2026-08-09): per-player BYE WEEK on `rosterView` rows — for the lineup guard
+
+The in-season lineup sanity sweep (`draft/tests/lineup_sanity.test.js`) found a real,
+current hole: the optimizer is projection-driven with no calendar, and the live
+path's fallbacks (`season-avg`/`last-week`, member.js `liveOptimizeFor`) hand a
+player who is **on bye** or **ruled OUT** a full positive projection — so the tool
+would recommend *starting a benched player*.
+
+- **INJURY arm — FIXED in B now.** `rosterView.rows` already carries `inj`
+  (injury_status). `lineup.activeProjection()` (new, B-lane) zeroes a player whose
+  status means "not playing" (Out/IR/PUP/Sus/NA/DNR/COV/RES/DNP); Questionable/
+  Doubtful pass through (uncertainty is priced by the variance model). Wired into
+  `liveOptimizeFor`. No A dependency.
+- **BYE arm — needs A.** There is no per-player bye source in `rosterView` today.
+  The guard already checks `row.bye === weekBeingOptimized` and is a **no-op until
+  the field exists** — it activates automatically the moment `rosterView` rows carry
+  a `bye` (integer NFL week). Please add it (Sleeper's players DB has team bye weeks).
+
+Until then a bye player is only protected if the projection source happens to zero
+him; with season-avg it does not. This is the one known in-season correctness gap.
+
 ---
 
 ## ▶ SESSION A (model lane) — deferred increments after the 34-dollar/36/33/41 batch (2026-08-09)
