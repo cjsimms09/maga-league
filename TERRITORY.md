@@ -76,8 +76,34 @@ result was already reported.
 
 | side | owns |
 |---|---|
-| **A — model** | `public/js/draft/**`, `draft/**` (Lab, backtest, tools, tests), `src/predledger.js`, `netlify.toml`, the doctrine/spec docs |
-| **B — site** | `views/**` **except `views/admin/warroom.ejs`** (that file IS the draft surface — the split is by SUBSTANCE, not directory; found by the check failing on A's own legitimate work), `src/routes/**`, `public/css/**`, `public/icons/**`, `public/js/**` *except* `public/js/draft/**`, and the site-facing specs (history page, chronicle voice, contact directory) |
+| **A — model** | `public/js/draft/**`, `draft/**` (Lab, backtest, tools, tests), `src/predledger.js`, `src/sleeper.js`, `src/prefs.js`, `netlify.toml`, the doctrine/spec docs |
+| **B — site** | `views/**` **except `views/admin/warroom.ejs`** (that file IS the draft surface — the split is by SUBSTANCE, not directory; found by the check failing on A's own legitimate work), `src/routes/**`, **the site-feature `src/*.js` modules: `src/sidebets.js`, `src/betlogic.js`, `src/venmo.js`, `src/dashboard.js`, `src/ledger.js`, `src/notify.js`** (see reassignment note below), `public/css/**`, `public/icons/**`, `public/js/**` *except* `public/js/draft/**`, and the site-facing specs (history page, chronicle voice, contact directory) |
+
+### 🔀 SUBSTANCE REASSIGNMENT (Cory, 2026-08-09) — `src/*.js` site modules → B
+Same principle that put `views/admin/warroom.ejs` with A despite its directory:
+**ownership follows what a file SERVES, not where it sits.** The by-directory rule
+(everything under `src/` except `src/routes/` → A) mislabeled a cluster of pure
+site-feature modules as A's. Audited by imports: **none of these are required by
+any `draft/**` or `public/js/draft/**` code — they are imported only by
+`src/routes/*`.** A has no context on them; parking a request with A to edit a
+module B owns the rest of is the line drawn in the wrong place.
+
+- **`src/sidebets.js`** — the side-bet ledger. B's feature end-to-end (grid,
+  zero-sum, matchup one-tap, and now the declare→confirm→dispute lifecycle). → **B**
+- **`src/betlogic.js`** — side-bet condition/settlement logic (`betText`,
+  `matchupWindow`, `acceptDeadline`). The engine of the bet feature, coupled to
+  sidebets; B needs it for the lifecycle. **(the "third instance".)** → **B**
+- **`src/venmo.js`** — payment handles (B built the Venmo-handles feature). → **B**
+- **`src/dashboard.js`** — the `/admin/status` dashboard model (B's dashboard). → **B**
+- **`src/ledger.js`** — the league money ledger (the `/bank` finances). → **B**
+- **`src/notify.js`** — email (side-bet proposals + password reset), site-lane. → **B**
+
+**Stays with A (genuinely dual-use or A-substance):** `src/predledger.js` (the
+prediction ledger — draft + in-season instrumentation; B writes via the HTTP
+endpoint, never edits the module), `src/sleeper.js` (harvest + projections; B
+reads only), `src/prefs.js` (war-room personal prefs). **Shared infra (neither
+rewrites the other's section):** `src/helpers.js`, `src/store.js`, `src/data.js`,
+`src/auth.js`, `src/seed-data.js`. `scripts/territory-check.sh` updated to match.
 
 Verified: **no file under B's territory imports anything from `public/js/draft/`.**
 That is what makes it clean.
