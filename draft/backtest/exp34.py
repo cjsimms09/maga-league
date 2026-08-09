@@ -135,6 +135,53 @@ def align_decisions(season_num: int, picks: list[dict], rid: int,
     return out
 
 
+def assemble(season_num: int, picks: list[dict], rid: int, *,
+             proj: dict[str, float], adp_rank: dict[str, float],
+             realized: dict[str, float], tiers: dict[str, int] | None = None,
+             dispersion: dict[str, float] | None = None) -> tuple[list[list[dict]], list[dict]]:
+    """PURE. Turn loaded season data into the two record shapes the metrics need:
+
+      pools     — per real decision, the AVAILABLE pool [{pid, our_proj, adp,
+                  realized}] over players that carry all three (correlation/top-N).
+      decisions — per real decision, my pick vs the ADP-preferred available, with
+                  FORGONE VALUE (our proj gap), ADP distance, tier-cross, dispersion.
+
+    Only the egress fetch is unverifiable; this — where the analysis actually lives
+    — is unit-tested with a fixture in test_exp34.py."""
+    tiers = tiers or {}
+    dispersion = dispersion or {}
+    pools, decisions = [], []
+    for p in cory_decisions(picks, rid):
+        pn = p.get("pick_no") or 0
+        took = str(p.get("player_id"))
+        if took not in realized or took not in proj:
+            continue  # ungradeable or unprojectable pick: missing, not zero
+        board = board_before(picks, pn)
+        pool = [{"pid": pid, "our_proj": proj[pid], "adp": adp_rank[pid],
+                 "realized": realized.get(pid)}
+                for pid in board if pid in proj and pid in adp_rank]
+        pools.append(pool)
+        adp_best = best_available_by_adp(board & set(adp_rank), adp_rank)
+        if adp_best is None:
+            continue
+        tt, at = tiers.get(took), tiers.get(adp_best)
+        decisions.append({
+            "season": season_num, "round": p.get("round"), "pick_no": pn,
+            "took": took, "took_proj": proj.get(took), "took_realized": realized.get(took),
+            "adp_best": adp_best, "adp_best_proj": proj.get(adp_best),
+            "adp_best_realized": realized.get(adp_best),
+            # deviation cost in FORGONE VALUE (our projected points), the adopted unit
+            "forgone_value": (round(proj[adp_best] - proj[took], 2)
+                              if adp_best in proj and took in proj else None),
+            # ADP distance kept as the comparison unit: spots I reached past market
+            "adp_distance": (round(adp_rank[took] - pn, 1) if took in adp_rank else None),
+            "dispersion": dispersion.get(took),
+            "crosses_cliff": (None if tt is None or at is None else (tt != at)),
+            "took_tier": tt, "adp_best_tier": at,
+        })
+    return pools, decisions
+
+
 def _bootstrap_ci(deltas: list[float], iters: int = 10000, seed: int = 34) -> tuple[float, float]:
     """Percentile bootstrap 95% CI of the mean. Deterministic seed — a metric
     that moves between runs is not a metric."""

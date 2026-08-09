@@ -93,6 +93,27 @@ def test_clear_win_and_loss_verdicts():
     assert loss["verdict"] == "lost" and loss["sign_consistent"] is True
 
 
+def test_assemble_builds_pools_and_forgone_value_decisions():
+    # proj = our walk-forward value; adp = market; realized = outcome; tiers for cliffs.
+    proj = {"b": 100, "c": 130, "e": 90, "f": 70, "a": 200}
+    adp = {"a": 1.0, "c": 2.0, "e": 3.0, "b": 4.0, "f": 5.0}
+    realized = {"a": 100, "b": 200, "c": 150, "e": 120, "f": 10}
+    tiers = {"a": 1, "c": 1, "e": 2, "b": 2, "f": 3}
+    pools, decisions = X.assemble(2024, PICKS, 2, proj=proj, adp_rank=adp,
+                                  realized=realized, tiers=tiers)
+    # two decisions (b at pick 2, f at pick 6); 'd' keeper excluded, ungradeable dropped.
+    assert [d["took"] for d in decisions] == ["b", "f"]
+    b = decisions[0]
+    # at pick 2, board=b,c,d,e,f; ADP-preferred available = 'c' (a gone).
+    assert b["adp_best"] == "c"
+    # forgone value = proj[c] - proj[b] = 130 - 100 = 30 projected points paid to reach.
+    assert b["forgone_value"] == 30
+    # 'b' is tier 2, 'c' is tier 1 -> the deviation crosses a cliff.
+    assert b["crosses_cliff"] is True
+    # the pool carries our_proj/adp/realized for correlation.
+    assert pools[0] and all(set(("pid", "our_proj", "adp", "realized")) <= set(r) for r in pools[0])
+
+
 def test_build_result_shape():
     rows = X.align_decisions(2024, PICKS, 2, ADP, PTS)
     r = X.build_result(rows)
