@@ -1,0 +1,46 @@
+{
+  "experiment": "keeper-conditional B0 \u2014 follow-the-market vs follow-within-need, Cory's seat",
+  "n_rooms": 200,
+  "seat": "Cory (roster 0)",
+  "keepers": "Chase (WR), Henry (RB), Walker (RB) \u2014 RB starters + 1 WR pre-filled",
+  "control": "balanced (VORP-greedy)",
+  "per_policy_vs_balanced": {
+    "balanced": {
+      "mean_vs_balanced": 0.0,
+      "ci95": [
+        0.0,
+        0.0
+      ],
+      "mean_total": 261.88,
+      "avg_RB_on_my_roster": 2.0
+    },
+    "b0_pure": {
+      "mean_vs_balanced": 121.12,
+      "ci95": [
+        67.62,
+        176.88
+      ],
+      "mean_total": 383.0,
+      "avg_RB_on_my_roster": 4.55
+    },
+    "b0_need": {
+      "mean_vs_balanced": 379.12,
+      "ci95": [
+        326.0,
+        431.38
+      ],
+      "mean_total": 641.0,
+      "avg_RB_on_my_roster": 3.48
+    }
+  },
+  "b0_need_vs_b0_pure_head_to_head": {
+    "mean": 258.0,
+    "ci95": [
+      206.5,
+      309.25
+    ],
+    "b0_need_beats_b0_pure": true
+  },
+  "reads": "If b0_need beats b0_pure past the null (CI clear of $0), the draft-day rule is 'follow the market WITHIN NEED' and the tool must mask filled positions. If they tie, pure ADP already handles Cory's construction. avg_RB_on_my_roster exposes the 4th-RB problem: b0_pure should carry more RB than b0_need given the RB keepers.",
+  "source_tier": "league-primary (MC room from dossiers; paired null)"
+}
