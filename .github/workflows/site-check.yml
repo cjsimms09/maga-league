@@ -206,6 +206,34 @@ jobs:
                   got = lset.get(key)
                   if got is not None and ours_v is not None and int(got) != int(ours_v):
                       drift.append(f'{key}: config {ours_v}, Sleeper {got}')
+              # --- gaps B flagged (2026-08-09): rules the optimizer/keeper model uses
+              #     that were NOT diffed, so a mid-season change bit silently. Now loud. ---
+              pt_cfg, pt_live = cfg.get('playoff_teams'), lset.get('playoff_teams')
+              if pt_cfg is not None and pt_live is not None and int(pt_cfg) != int(pt_live):
+                  drift.append(f'playoff_teams: config {pt_cfg}, Sleeper {pt_live}')
+              kc_cfg = (cfg.get('keepers') or {}).get('count')
+              kc_live = lset.get('max_keepers')            # Sleeper's keeper count, when set
+              if kc_cfg is not None and kc_live is not None and int(kc_cfg) != int(kc_live):
+                  drift.append(f'keeper count: config {kc_cfg}, Sleeper max_keepers {kc_live}')
+              wv = cfg.get('waivers') or {}
+              for cfg_k, live_k, label in (('type_code', 'waiver_type', 'waiver type'),
+                                           ('budget', 'waiver_budget', 'waiver budget'),
+                                           ('day_of_week', 'waiver_day_of_week', 'waiver day')):
+                  cv, lv = wv.get(cfg_k), lset.get(live_k)
+                  if cv is not None and lv is not None and int(cv) != int(lv):
+                      drift.append(f'{label}: config {cv}, Sleeper {lv}')
+              td_live = lset.get('trade_deadline')          # not tracked in config yet
+              if td_live is not None and 'trade_deadline' not in cfg:
+                  notes.append(f'trade_deadline: Sleeper says {td_live}, config does not track it '
+                               '— add it to league_config to lock drift detection')
+              # January re-point guard: if the live league we are configured against has
+              # SPAWNED a successor (a newer season exists), the config still points at the
+              # old id and nothing else would notice. Flag it so the re-point is not missed.
+              if (live.get('status') == 'complete') or (live.get('season') and cfg.get('season')
+                      and str(live.get('season')) != str(cfg.get('season'))):
+                  notes.append(f'league season/status: config season {cfg.get("season")} vs live '
+                               f'{live.get("season")}/{live.get("status")} — if the league has rolled '
+                               'over, re-point league_config.league_id to the new season (manual today)')
 
               # Roster shape. Sleeper gives roster_positions as a flat list.
               rp = live.get('roster_positions') or []

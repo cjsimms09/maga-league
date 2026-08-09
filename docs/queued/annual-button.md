@@ -141,3 +141,23 @@ unauditable and drifts year to year.
   residuals (inherently generative). That stays a PROPOSAL (a reviewable PR that
   registers a pre-registered experiment), never an auto-install. Practical everywhere
   else — the weight movement is already a function.
+
+## ORCHESTRATOR REQUIREMENTS (B's audit routed these, Cory 2026-08-09)
+
+The orchestrator does NOT exist yet; B's render-time generators FAIL SILENTLY (a
+stale buy-in → plausible-wrong money; an unconfirmed draft rule → plausible-wrong
+order — both look normal). So the orchestrator MUST:
+1. **GRADING + CORRECTIONS FIRST, then B's generators from the corrected numbers**
+   (the ordering contract, already recorded above). Enforce it in code, not by hope.
+2. **HALT ON ANY FAILED LINK.** Never continue past a failure and leave the site
+   half-updated with numbers that look right. A loud stop beats a quiet wrong answer —
+   this is the failure Cory would not catch. Each stage checks its precondition
+   (corrected money table present, draft rule confirmed, standings final) and aborts
+   the whole run on a miss, leaving nothing half-written.
+3. **CALL B's VOTE-ENACT for any passed-but-unenacted vote.** B built
+   `applyVoteEffect`; the rollover invokes it so a passed buy-in change flows to config
+   without Cory remembering (e.g. the $400→$500 vote). Enact BEFORE the money table is
+   settled so the corrected numbers use the enacted rule.
+4. **IDEMPOTENT.** Two presses must not double or corrupt anything — guard by a
+   run-key / already-applied check on every mutation (vote-enact, config write, season
+   seal, PR creation), so a re-press is a no-op or resumes cleanly.
