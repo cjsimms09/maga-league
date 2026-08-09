@@ -120,8 +120,8 @@ result was already reported.
 
 | side | owns |
 |---|---|
-| **A — model** | `public/js/draft/**`, `draft/**` (Lab, backtest, tools, tests), `src/predledger.js`, `src/sleeper.js`, `src/prefs.js`, `netlify.toml`, the doctrine/spec docs |
-| **B — site** | `views/**` **except `views/admin/warroom.ejs`** (that file IS the draft surface — the split is by SUBSTANCE, not directory; found by the check failing on A's own legitimate work), `src/routes/**`, **the site-feature `src/*.js` modules: `src/sidebets.js`, `src/betlogic.js`, `src/venmo.js`, `src/dashboard.js`, `src/ledger.js`, `src/notify.js`** (see reassignment note below), `public/css/**`, `public/icons/**`, `public/js/**` *except* `public/js/draft/**`, and the site-facing specs (history page, chronicle voice, contact directory) |
+| **A — model** | `public/js/draft/**` (incl. `app.js` and the markup it emits), `views/admin/_warroom_scripts.ejs` (A's draft module include list), `draft/**` (Lab, backtest, tools, tests), `src/predledger.js`, `src/sleeper.js`, `src/prefs.js`, `netlify.toml`, the doctrine/spec docs |
+| **B — site** | `views/**` **including `views/admin/warroom.ejs`** (the war-room SHELL — see the presentation split below; A keeps the logic in `app.js` and its module includes in the A-owned partial), `src/routes/**`, **the site-feature `src/*.js` modules: `src/sidebets.js`, `src/betlogic.js`, `src/venmo.js`, `src/dashboard.js`, `src/ledger.js`, `src/notify.js`** (see reassignment note below), `public/css/**` (incl. the war-room CSS block), `public/icons/**`, `public/js/**` *except* `public/js/draft/**`, and the site-facing specs (history page, chronicle voice, contact directory) |
 
 ### 🔀 SUBSTANCE REASSIGNMENT (Cory, 2026-08-09) — `src/*.js` site modules → B
 Same principle that put `views/admin/warroom.ejs` with A despite its directory:
@@ -151,6 +151,57 @@ rewrites the other's section):** `src/helpers.js`, `src/store.js`, `src/data.js`
 
 Verified: **no file under B's territory imports anything from `public/js/draft/`.**
 That is what makes it clean.
+
+### 🎨 WAR-ROOM PRESENTATION SPLIT (Cory, approved 2026-08-09) — B takes the shell
+
+The war room was the least-designed surface (equal-weight stacked cards, a sticky
+plan block eating the top third, two rehearsal ribbons printing over content and
+over END DRAFT). B does the site's design better than the draft lane has. So the
+war room splits **by LAYER**, and the ruling is: the shell IS cleanly divisible;
+the in-JS markup is not (89 `innerHTML` builders in `app.js` are welded to the
+functions that compute them — two sessions editing `app.js` would collide).
+
+- **B OWNS** `views/admin/warroom.ejs` (layout, hierarchy, spacing, mobile
+  behavior, the ONE rehearsal indicator), the war-room CSS block in
+  `public/css/style.css`, and the design system. B may restructure the shell and
+  restyle freely.
+- **A KEEPS** `app.js` and the markup it emits (rendered to B's classes), and the
+  draft module include list in the A-owned partial `views/admin/_warroom_scripts.ejs`
+  (so A loads a new module without touching B's shell).
+
+**THE INTERFACE (so neither starts before the boundary is written):**
+
+1. **Host-id contract.** A renders into element `id`s in the shell. B may move,
+   wrap, restyle, or reparent a host, but must **not delete or rename** an id A
+   writes to — that silently blanks a surface. Current hosts A writes to (grep
+   `getElementById`/`$('#` in `app.js`): `system-strip`, `system-details`,
+   `check-items`, `accounting-note`, `mvs` + `mvs-status/plan/rec/alts/roster/absent`,
+   `shadow-projection` + `shadow-proj-line/details/body`, `lrm-strip`,
+   `confidence-note`, `paths-panel`, `paths-coinflip`, `mvs`-adjacent recs,
+   `hdr-pick/next/league/built`, `slot-input/apply/picks`, `clock-*`,
+   `doctrine-banner`, `mock-note`, `reconciled-note`, `unrecorded-note`,
+   `run-banner`, `rehearsal-watermark`, `slot-watermark`, `compare-tray`. When A
+   adds a host it lands here as a one-line note in the same commit.
+2. **Data contract.** The server locals the shell passes to A's JS
+   (`window.LEAGUE_ID`, `CFG_OVERRIDES`, `CLAIMED_SLOT`, `SLOT_PROVENANCE`) stay in
+   `warroom.ejs`'s inline bootstrap `<script>` — that is B's server-data handoff to
+   A; A reads them, B supplies them.
+3. **CSS classes.** A emits B's class names in its `innerHTML`. B owns what those
+   classes look like; A owns which class a given element gets (semantics). A rename
+   of a class B owns is coordinated in `STATUS.md`.
+4. **What B must NOT do:** change what `app.js` reads or emits (logic), or edit
+   `_warroom_scripts.ejs` (A's module load order). **What A must NOT do:** restyle
+   the shell or change the layout/hierarchy after the handoff.
+
+The density redesign Cory asked for (collapse the status banners into one line;
+give the recommendation the fold; the candidate list; one rehearsal indicator not
+two, off the buttons) is **B's**, working against this host contract. The
+accounting/pick-state numbers behind those hosts are **A's** and come first — the
+numbers must be right before the layout matters.
+
+**🅱️ heads-up (B): do not start the war-room shell redesign until you have read
+this interface and the host-id contract above.** A has just landed the
+accounting/pick-state fixes into these hosts; pull latest first.
 
 **B's work is real and ungated** — per `docs/POST-DRAFT-LABEL-AUDIT.md`, the
 league history page (Founding + Chronicle of Amendments + The Rolls + the

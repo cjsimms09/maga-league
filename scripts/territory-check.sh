@@ -18,10 +18,12 @@ SIDE="${1:-}"
 # B (site) owns these. A owns everything else.
 b_owns() {
   case "$1" in
-    # THE WAR ROOM VIEW IS A's, despite living under views/. It IS the draft
-    # surface — the split is by SUBSTANCE, not by directory, and this exception
-    # was found by the check failing on A's own legitimate work.
-    views/admin/warroom.ejs) return 1 ;;
+    # WAR-ROOM PRESENTATION SPLIT (Cory, approved 2026-08-09). The war-room SHELL
+    # is B's now — layout, hierarchy, CSS, mobile, the single rehearsal indicator.
+    # A keeps app.js (the logic + the markup it emits) and the draft module include
+    # list, which lives in the A-owned partial below so A never edits B's shell.
+    views/admin/_warroom_scripts.ejs) return 1 ;;   # A owns its module includes
+    views/admin/warroom.ejs) return 0 ;;            # B owns the shell
     # Site-feature src/*.js modules — reassigned to B by SUBSTANCE (2026-08-09;
     # see TERRITORY.md § Substance reassignment). Imported only by src/routes/*,
     # never by draft/**. A keeps predledger/sleeper/prefs + shared infra.
