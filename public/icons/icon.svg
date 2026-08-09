@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="MFGA — eagle on a football">
+  <defs>
+    <linearGradient id="tileg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1a3d6a"/><stop offset="1" stop-color="#0b1a33"/>
+    </linearGradient>
+    <linearGradient id="feather" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#cdd7e6"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="512" height="512" rx="112" fill="url(#tileg)"/>
+  <g fill="#ffffff" opacity="0.12">
+    <circle cx="58" cy="66" r="4"/><circle cx="454" cy="66" r="4"/>
+    <circle cx="96" cy="54" r="3"/><circle cx="416" cy="54" r="3"/>
+    <circle cx="58" cy="108" r="3"/><circle cx="454" cy="108" r="3"/>
+  </g>
+
+  <!-- ================= EAGLE — fierce, layered wings ================= -->
+  <!-- outer flight feathers (steel), swept up and out -->
+  <g fill="#aebfd6">
+    <path d="M250 262 C170 176 92 150 52 176 C104 176 138 214 168 262 C120 300 96 316 82 344 C150 320 206 300 246 296 Z"/>
+    <path d="M262 262 C342 176 420 150 460 176 C408 176 374 214 344 262 C392 300 416 316 430 344 C362 320 306 300 266 296 Z"/>
+  </g>
+  <!-- inner coverts (white) with defined feather tips -->
+  <g fill="url(#feather)">
+    <path d="M256 268 C200 190 128 166 92 192 C146 196 176 236 196 276 C176 266 150 268 132 284 C172 292 200 296 232 306 C216 298 210 312 218 326 C236 320 250 306 256 290 Z"/>
+    <path d="M256 268 C312 190 384 166 420 192 C366 196 336 236 316 276 C336 266 362 268 380 284 C340 292 312 296 280 306 C296 298 302 312 294 326 C276 320 262 306 256 290 Z"/>
+  </g>
+  <!-- feather-separation lines (suggest layered plumage → more realistic) -->
+  <g stroke="#9fb0c9" stroke-width="3" fill="none" opacity="0.9">
+    <path d="M150 214 C176 232 196 250 214 276"/>
+    <path d="M120 246 C150 262 178 276 206 292"/>
+    <path d="M362 214 C336 232 316 250 298 276"/>
+    <path d="M392 246 C362 262 334 276 306 292"/>
+  </g>
+
+  <!-- neck collar (jagged white nape → bald-eagle read) -->
+  <path d="M224 250 L240 236 L250 250 L256 238 L262 250 L272 236 L288 250 L280 284 L232 284 Z" fill="#ffffff"/>
+
+  <!-- HEAD — fierce bald eagle, 3/4 turn: white head, heavy hooked beak, brow -->
+  <path d="M256 128
+           C232 128 216 148 218 178
+           C219 197 230 214 248 226
+           L262 226
+           C282 216 294 198 294 174
+           C294 148 278 128 256 128 Z" fill="#ffffff"/>
+  <!-- fierce brow (angular, over the eye) -->
+  <path d="M232 162 L280 152 L286 168 L276 172 L240 180 Z" fill="#0b1a33"/>
+  <!-- piercing eye -->
+  <circle cx="270" cy="176" r="8.5" fill="#0b1a33"/>
+  <circle cx="273" cy="173" r="2.4" fill="#ffffff"/>
+  <!-- heavy gold hooked beak -->
+  <path d="M262 190 L312 196 C312 210 304 220 292 222 L298 236 C286 240 274 234 268 222 C260 210 258 198 262 190 Z" fill="#f0b429"/>
+  <path d="M262 190 L312 196 C312 210 304 220 292 222 L298 236 C286 240 274 234 268 222 C260 210 258 198 262 190 Z" fill="none" stroke="#c9860e" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M266 205 L300 209" stroke="#c9860e" stroke-width="2.4"/>
+
+  <!-- chest shield — the flag, worked into the eagle -->
+  <path d="M220 240 h72 v30 q0 36 -36 52 q-36 -16 -36 -52 Z" fill="#ffffff"/>
+  <path d="M220 240 h27 v42 h-27 Z" fill="#1a3d6a"/>
+  <g fill="#c8202f"><rect x="247" y="240" width="45" height="8"/><rect x="247" y="256" width="45" height="8"/><rect x="247" y="272" width="45" height="8"/></g>
+  <g fill="#ffffff"><circle cx="229" cy="252" r="2.5"/><circle cx="240" cy="252" r="2.5"/><circle cx="234.5" cy="267" r="2.5"/></g>
+
+  <!-- talons gripping the ball -->
+  <g stroke="#f0b429" stroke-width="11" stroke-linecap="round" fill="none">
+    <path d="M236 328 l-8 24 M247 330 l-1 26 M258 330 l1 26"/>
+    <path d="M276 328 l8 24 M265 330 l1 26 M254 330 l-1 26"/>
+  </g>
+
+  <!-- football — eagle stands on it -->
+  <g transform="rotate(-13 256 382)">
+    <ellipse cx="256" cy="382" rx="110" ry="58" fill="#7c4a22"/>
+    <ellipse cx="256" cy="382" rx="110" ry="58" fill="none" stroke="#502d0d" stroke-width="7"/>
+    <path d="M188 382 h136" stroke="#ffffff" stroke-width="9" stroke-linecap="round"/>
+    <g stroke="#ffffff" stroke-width="8" stroke-linecap="round">
+      <path d="M206 366 v32"/><path d="M233 363 v38"/><path d="M260 363 v38"/><path d="M287 363 v38"/><path d="M314 366 v32"/>
+    </g>
+  </g>
+</svg>

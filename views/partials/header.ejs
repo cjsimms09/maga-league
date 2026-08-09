@@ -14,16 +14,27 @@
 <% if (typeof currentPath !== 'undefined' && /^\/history(\/|$|\?)/.test(currentPath) && !(typeof section !== 'undefined' && section)) { %>
 <link rel="stylesheet" href="/css/chronicle.css">
 <% } %>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='48' fill='%230b1f3a'/><text x='50' y='68' font-size='52' text-anchor='middle'>🦅</text></svg>">
+<link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16.png">
 <%# Home-screen install. The manifest covers Android/Chrome; the apple-* tags
-    are what iOS reads, because Safari still ignores the manifest for this. %>
+    are what iOS reads, because Safari still ignores the manifest for this. The
+    eagle-on-a-football mark is the single mark used for the icon, splash and
+    the header logo (public/icons/icon.svg → rasterized PNGs). %>
 <link rel="manifest" href="/manifest.webmanifest">
-<link rel="apple-touch-icon" href="/icons/icon-180.png">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="MFGA League">
-<meta name="theme-color" content="#0b1f3a">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="MFGA">
+<meta name="theme-color" content="#f7f6f2">
+<%# iOS launch (splash) images — a branded navy screen with the mark instead of
+    a white flash, for the common iPhone sizes. Others fall back gracefully. %>
+<link rel="apple-touch-startup-image" media="(device-width:393px) and (device-height:852px) and (-webkit-device-pixel-ratio:3)" href="/icons/splash-1179x2556.png">
+<link rel="apple-touch-startup-image" media="(device-width:430px) and (device-height:932px) and (-webkit-device-pixel-ratio:3)" href="/icons/splash-1290x2796.png">
+<link rel="apple-touch-startup-image" media="(device-width:428px) and (device-height:926px) and (-webkit-device-pixel-ratio:3)" href="/icons/splash-1284x2778.png">
+<link rel="apple-touch-startup-image" media="(device-width:390px) and (device-height:844px) and (-webkit-device-pixel-ratio:3)" href="/icons/splash-1170x2532.png">
+<link rel="apple-touch-startup-image" media="(device-width:375px) and (device-height:812px) and (-webkit-device-pixel-ratio:3)" href="/icons/splash-1125x2436.png">
+<link rel="apple-touch-startup-image" media="(device-width:375px) and (device-height:667px) and (-webkit-device-pixel-ratio:2)" href="/icons/splash-750x1334.png">
 </head>
 <body class="<%= (typeof viewerIsChamp !== 'undefined' && viewerIsChamp) ? 'is-champ' : '' %>">
 <%
@@ -49,7 +60,7 @@
 <a class="skip-link" href="#main">Skip to content</a>
 <% if (!_tool) { %>
 <header class="masthead <%= _home ? '' : 'compact' %>">
-  <div class="eagle" title="Back-to-back World War champs. Undefeated since 1776.">🦅</div>
+  <div class="eagle" title="Back-to-back World War champs. Undefeated since 1776."><img src="/icons/icon.svg" alt="MFGA" width="512" height="512" loading="eager"></div>
   <h1><a href="/"><span class="flag">🇺🇸</span> Make Football <span class="gold">Great Again</span> <span class="flag">🇺🇸</span></a></h1>
   <p class="tagline">Fantasy Football League &nbsp;•&nbsp; Est. 2016 &nbsp;•&nbsp; The Greatest League in the History of Leagues, Maybe Ever</p>
   <div class="stars">★ ★ ★ ★ ★</div>

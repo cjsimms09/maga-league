@@ -690,3 +690,86 @@ Two specific adds: (1) CHIEFS LOGO next to every KC player everywhere (Sleeper
 `p.team === 'KC'`, reachable — confirmed); (2) a GOAT next to whoever rosters
 Mahomes, auto-moving. DO NOT build a season money leaderboard (dup of money board).
 Screenshot before/after each page; bold over timid.
+## ▶ REDESIGN — PERSONALITY-PRESERVATION CHECKLIST (Session B, 2026-08-09)
+
+**Cory's rule for the redesign: NOTHING is lost — not a feature, a number, or a
+tool. Regrouping/rearranging for better function is encouraged. But every bit of
+personality stays and stays EASY TO FIND. If the redesign makes any of this
+harder to find, that is a failure of the redesign.** This is the guardrail the
+build-out (whichever direction is chosen) verifies against. Grep-verified
+locations as of this commit:
+
+| # | Personality element | Lives in | Preserve rule |
+|---|---|---|---|
+| 1 | **Easter eggs** — German-flag "back-to-back world war champs" medal (tap a 🇩🇪), the 2022 asterisk that argues with itself (tap the *), star-row 5-tap → Balls & Wieners origin, typed "mahomes/chiefs/kingdom" flourishes, Konami confetti + Mahomes line | `public/js/eggs.js`; hooks: `.egg-flag[data-egg]`, `.egg-aster[data-egg]`, `#star-row`, `[data-egg-origin]`, typed-word listener, `KONAMI` | Keep every hook id/class the JS binds to. A redesign may restyle, never delete these anchors. |
+| 2 | **Chiefs arrowhead logo** next to every KC player | `public/icons/kc.svg`, `.kc-logo` in `views/team.ejs` | Real arrowhead (not 🏹). Keep on the roster; extend to matchup starters when A's per-player `team` field lands. |
+| 3 | **GOAT 🐐 on Mahomes' owner** (auto-moves) | `src/routes/marks.js` → `flags`; rendered in dashboard standings, bank, matchup, pick'em | Must appear everywhere owner names render; re-derives live. |
+| 4 | **Crown 👑 + trophy / dynasty** | dashboard standings (rank 1), `views/history/records.ejs` crown ladder | Champions + leader marks stay. |
+| 5 | **Rivalry billing** | rivalry pages (A) + matchup framing | The "billed as a rivalry" treatment stays. |
+| 6 | **German matchup treatment** ("Auswärtsspiel"/back-to-back when facing a German) | eggs.js + matchup | Stays as a discoverable flourish. |
+| 7 | **Chronicle voice** (crude, funny, italic) | `views/history/**` chapters/catalogue/amendments, `src/routes/dispatch.js`, roast-banner, footer quips | The voice is the point. Render it as serif-italic against clean chrome — the crude/clean contrast IS the design. |
+| 8 | **The Dispatch popups · Hall of Shame · the toilet 🚽 · weekly-high $100 · money color · side-bet grid** | dispatch.js, pickem.ejs, dashboard, bank | All stay; regroup freely, delete nothing. |
+| 9 | **Origin lore** — Balls & Wieners / Whiny Little Bitch League, Est. 1776 gags, "cleared by U.S. Customs" | `views/partials/footer.ejs` | Stays. |
+
+**Directions explored (screenshots sent to Cory):** A "Broadcast Deck" (dark
+telemetry), B "Daylight" (light editorial departure), C "Terminal" (bold mono
+instrument), D "Field Office" (the synthesis / B's recommendation: daylight base
++ mono data discipline + terminal accents, with all of the above shown intact).
+**Awaiting Cory's pick (one, or pieces combined) before the site-wide build-out.**
+
+---
+
+## ▶ NEXT UNIT (parked, acknowledged) — THE ANNUAL BUTTON: content half (Session B)
+**Sequenced after the design work + preservation audit (both done), before anything speculative. Not urgent — fires January, fall dry-run. Building now while the generators are fresh. Full spec: `docs/queued/annual-button.md`. All league-visible (results/money/history).**
+
+**THE SPLIT:** A owns the workflow plumbing (headless dispatch, PR creation, engine/Lab grading passes, season rollover re-pointing config). **B owns the content + site artifacts**, wired to be CALLABLE FROM A's workflow (not run separately), and running AFTER A's corrections/grading complete — a chapter must never cite a number the same run later fixes.
+
+**B's four pieces:**
+1. **History chapter** — new season's full chapter in the chronicle voice + the hub story's new paragraph appended. Generators already exist in `src/routes/history-data.js` — this is WIRING them to run on the Annual trigger (export a callable that takes the corrected season data → writes the chapter view/data), not rebuilding them.
+2. **Records-book recomputation** — all-time records, Money Board, franchise pages, Bad Beats HOF, champion crown → new winner, trophy gains its plaque. All derived from the season results with no manual step (history-data.js already computes most; make it regenerate from the sealed season).
+3. **Financial settlement report** — final who-gets-paid / who-owes from the verified season money table via the payouts config (`src/ledger.js` + helpers.payoutTable), rendered on the league-visible Finances page with Venmo links attached (`src/venmo.js`).
+4. **Season sealing** — current-season page live→permanent chapter; archive that year's transients into history where chapters can quote them: pick'em results (`pickem-slate`/`pickem:` + PE.seasonBoard), the Dispatch archive (`dispatch-index:<season>` — already immutable), trash talk (`TT.archiveForSeason`), weekly awards/power polls (dispatch archive). The archives were BUILT to be quotable — this wires them into the sealed chapter.
+
+**Coordination flag → A:** expose B's content generation as a function A's workflow calls after grading (pass the corrected season table + final standings). Agree the call signature + the ordering barrier. B does NOT touch the workflow YAML/dispatch/PR creation (A's lane).
+
+### ↳ ANNUAL BUTTON add-on (parked) — DRAFT-SELECTION BOARD RESET (two-stage order)
+League-visible; one of the most-watched offseason things. Part of the Annual Button unit above.
+- **Selection order = reverse regular-season finish for positions 5–10** (last place picks first; those six lock the moment the regular season ends), **then positions 1–4 = the four playoff teams ordered by BRACKET finish** (not reg-season seed) — can't compute until the championship is decided.
+- **Two-stage resolve, shown honestly:** at regular-season end, 5–10 lock + display locked, 1–4 show "pending playoffs"; when the bracket completes, 1–4 fill in. No half-empty board, no wrong guess in the interim.
+- **Claim board resets** for the new season (cleared, correctly ordered, ready to claim in turn); **last season's claims archive into history** (not deleted) — reuses the `draft:<year>` docs + `H.draftState`.
+- **The dinner:** last place buys dinner on draft day — recorded + displayed + in the history (chronicle-referenceable).
+- **Tiebreak:** total points (PF) per the payouts config — **DEFAULT ASSUMPTION unless Cory says the selection-order tiebreak differs from the standings tiebreak** (open question, below).
+- **VERIFY AGAINST HISTORY (build gate):** reproduce the ACTUAL selection order for ≥1 of 2023–25 from that year's reg-season finish + bracket + the draft order that followed (seed-data STANDINGS/DRAFTS). If it doesn't reproduce, the rule is wrong — find it now, not in January.
+
+**❓ OPEN QUESTION FOR CORY (DECISIONS-NEEDED):** is the selection-order tiebreak the same as the standings tiebreak (total points/PF), or different? Proceeding on PF unless told otherwise.
+
+---
+
+## ▶ SLEEPER LINEUP-WRITE PROBE (Session B, 2026-08-09) — VERDICT: NOT safely writable → build the frictionless manual tool
+Probed for real (WebSearch + docs + the community undocumented-endpoints catalog), not inferred:
+- **Documented API is read-only.** `api.sleeper.app/v1` and `api.sleeper.com` expose GET only — users/leagues/rosters/drafts/stats/projections/schedule/depth-charts. No POST/PUT/PATCH for lineup/starters/roster moves anywhere in the docs.
+- **No known write endpoint.** The community catalog of UNDOCUMENTED endpoints (joeyagreco/sleeper disc. #11) lists only more reads (stats/projections/schedule/depth chart/headshots). The app's own writes go through an internal authed GraphQL that is undocumented and not offered for third-party use.
+- **Terms:** Sleeper's General Terms prohibit "unauthorized scripts or other automated means." Driving an undocumented authed endpoint with Cory's credentials to change his roster is exactly that → **per Cory's rule ("if it would violate them, say so and stop — I am not risking my league account"), STOP the write path.**
+- **No official write integration / partner API** found.
+- **DECISION: do NOT build auto-set.** Build the **next best thing** (already ~80% in place): the `/lineup` optimizer already computes the optimal lineup + dollar deltas, and the Sunday alert already fires pre-kickoff. Remaining B work = a **one-tap "set this" screen in SLEEPER'S OWN SLOT ORDER** so Cory copies it in ~15s, with the current-information pass (injuries/inactives/scratches) at the final pre-kickoff run. No A write-layer needed (read-only stays); no ownership question.
+
+---
+
+## ▶ ANNUAL RESET — SEASON-SPECIFIC AUDIT (Session B first pass; verify page-by-page during the build)
+Everything that changes year-to-year, categorized. **The dangerous column is ⚠️ SILENT-STALE (shows last year as current).**
+
+**✅ AUTO (derive from live data / season-keyed — reset on the new season with no step):**
+standings · scoreboard · matchups · playoff odds/clinch/elim · weekly-high race · what-to-watch/sweat · rank-movement arrows · GOAT+Chiefs marks (live rosters) · pick'em (season-keyed keys) · the Dispatch popups (season-keyed) · trash talk (season+game keyed). H2H / rivalry / pick'em all-time EXTEND automatically once the new season's box scores are in the source.
+
+**🔧 NEEDS THE ANNUAL (wire to trigger — mostly built, run headless & in order AFTER A's grading):**
+history chapter + hub paragraph · records book · Money Board new column · franchise pages · Bad Beats HOF · champion crown → new winner · trophy plaque · season sealing (live→permanent) · financial settlement report + Venmo · draft-selection board (two-stage) · dues tracker reset · keeper slate reset + deadline move · side-bet grid new-year column · buy-in/payout from the live VOTE → config (vote result feeds config, not a file edit) · league-id re-point (A) + settings watchdog diff (A).
+
+**⚠️ SILENT-STALE (shows last year as current if untouched — MUST derive):**
+- **Hardcoded dates/deadlines** — `betlogic.CFG.SEASON_START = '2026-09-10'`, `PLAYOFF_WEEK_DEFAULT = 16`, draft-day alert (`config.draft_day_alert_2026` — year baked into the key), keeper lock / trade deadline wherever written. → derive ALL from `config`/Sleeper per season.
+- **Hardcoded season-year labels** in views ("2026", chapter years) that aren't reading `season.year`.
+- **`config.season_start` / `season.buy_in` / `total_pot` / `weekly_payout`** if the new season record isn't created + set active (H.currentSeason falls back to latest-year, so a missing new-season record silently serves the old one).
+- **Buy-in/pot** everywhere if the vote passes but config isn't re-pointed (pot, weekly-high amount, finances, money-board column, amendment ledger dated entry, every money calc).
+
+**Short list that genuinely needs a HUMAN:** (1) approve the Annual's PRs (the whole point), (2) confirm the new Sleeper league mapping when auto-continue spawns it (A's watchdog surfaces diffs; a human confirms), (3) enter/confirm the new keeper designations (owner action, by deadline), (4) the buy-in vote itself (already a human vote — but its RESULT should flow to config automatically).
+
+**❓→A:** (a) API key for the Annual's headless run → GitHub **Actions secrets** (the Annual runs in Actions), not Netlify env — B's understanding; **A confirm before Cory pastes a key.** (b) B needs the Annual workflow to call B's content generators AFTER grading, passing the corrected season table + final standings + bracket order; agree the call signature + ordering barrier.
