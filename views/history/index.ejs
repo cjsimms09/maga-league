@@ -7,9 +7,10 @@
   for (const c of A.champions) champByYear[c.year] = c;
   const years = [];
   for (let y = 2026; y >= (A.lore.foundingYear || 2016); y--) years.push(y);
-  // Season pages exist only where box scores do (2023-2025). Pre-Sleeper years
-  // are not yet clickable (their ceremonial chapter is pending).
-  const linkFor = y => A.byYear[y] ? `/history/season/${y}` : null;
+  // Season pages exist where box scores do (2023-2025); the pre-Sleeper years
+  // (2016-2022) share one ceremonial chapter at /history/early. 2026 is live,
+  // no page yet.
+  const linkFor = y => A.byYear[y] ? `/history/season/${y}` : (y >= 2016 && y <= 2022 ? '/history/early' : null);
 %>
 
 <div class="chron">
@@ -25,83 +26,78 @@
         <p>It began, as the great institutions do, with a dick joke. In
         <strong>2016</strong> ten men put down a hundred dollars apiece and founded
         the <strong>Balls and Wieners League</strong> — a name chosen by grown adults
-        with jobs, and the first of three, because this league has never once been
-        able to leave well enough alone. Balls and Wieners became the <em>Whiny
-        Little Bitch League</em>, which lasted years and told you everything you
-        needed to know about the customer-service tone of the group chat, and in
-        <strong>2024</strong> it finally became <strong>Make Football Great Again</strong>.
-        Three names in a decade. Not one of them a name you'd say in front of your
-        mother.</p>
+        with jobs. <strong>David</strong>, the German who has bitched about every
+        buy-in increase since, won the very first one, which is the funniest possible
+        result: the man who hates paying got paid first. What follows is the whole
+        decade, year by year, every dollar and every humiliation. Each season links
+        to its full chapter. Start at the top; it only gets worse for everyone.</p>
 
-        <p>The buy-in climbed like a fever: <span class="stat">$100</span> to
-        <span class="stat">$125</span> to <span class="stat">$150</span> and on up,
-        a hundred a rung, to <span class="stat">$400</span> today — with a vote on
-        the floor right now to make it five. And at every single increase
-        <strong>David</strong>, the German, has objected, the way other men object
-        to sunrise: annually, loudly, and to no effect. He was the league's first
-        champion in 2016 and he has been bitching about the cost of playing in it
-        ever since. Somewhere along the way the league bolted on <strong>keepers</strong>
-        (2024, the first draft anyone actually protected a player), and — the quiet
-        revolution — in <strong>2023</strong> it added the <strong>weekly-high $100</strong>,
-        a hundred bucks to the top score each week of the regular season. Nobody
-        clocked it at the time. It is now <span class="stat">37.5%</span> of the
-        entire pot. The biggest money in the league is the prize nobody voted to
-        make the biggest money in the league.</p>
+        <p><strong><a href="/history/early">2017–2018 — the Cory interregnum.</a></strong>
+        The commissioner-to-be won back-to-back, the only dominance he will ever
+        taste, which is presumably why he later built a website that goes strangely
+        quiet after 2018. The buy-in ticked to <span class="stat">$125</span> then
+        <span class="stat">$150</span>; the German objected both times, on schedule.
+        Somewhere in these dim years the league renamed itself the <strong>Whiny
+        Little Bitch League</strong>, and — in the dark, unrecorded — swapped three
+        owners: <strong>Sam</strong>, <strong>Dylan</strong> and <strong>Jeremy</strong>
+        took the chairs of <strong>Brandon</strong>, <strong>Taylor Hagen</strong>
+        and <strong>Ben</strong>, who the ledger has all but erased.</p>
 
-        <p>The chairs have not all held the same asses, either — whatever the old
-        tagline claimed. <strong>Three men left and three men took their seats</strong>:
-        <strong>Sam</strong>, <strong>Dylan</strong> and <strong>Jeremy</strong>
-        replaced <strong>Brandon</strong>, <strong>Taylor Hagen</strong> and
-        <strong>Ben</strong>. The league does not keep good records of its own
-        casualties — Brandon and Taylor Hagen have been scrubbed from the ledger
-        entirely, and Ben survives only as a name in one draft order, a ghost at
-        the table. The chronicle names them anyway, because a league that erases
-        the men it replaced is just lying to itself with extra steps.</p>
+        <p><strong><a href="/history/early">2019–2021 — the reign of Marian.</a></strong>
+        Then one man simply took the thing and would not give it back. A clean,
+        undisputed <strong>three-peat</strong> — 2019, 2020, 2021 — worth $600, then
+        $750, then $900 as the pot swelled beneath him. For three straight years
+        every other owner was playing for second. It is the most dominant run in
+        league history, and the only one nobody argues about.</p>
 
-        <p>What the money remembers is the dynasties. <strong>Marian</strong> owns
-        the early book — a genuine three-peat, <span class="stat">2019</span>,
-        <span class="stat">2020</span>, <span class="stat">2021</span>, and then a
-        fourth ring in <span class="stat">2022</span> that the league has refused
-        to fully honor for reasons we will get to. Then the crown moved to
-        <strong>Michael</strong>, who took <span class="stat">2023</span> and
-        <span class="stat">2025</span> and turned Dixie Wrecked into the closest
-        thing this league has to a modern dynasty. In between,
-        <strong>Jeremy</strong> — the doctor, and yes, the league mocks him for
-        being a doctor — diagnosed the whole field in 2024 and walked off with the
-        ring while everyone else bled out.</p>
+        <p><strong><a href="/history/early">2022 — the asterisk.</a></strong> Marian's
+        fourth banner, and the one the league will fight over until it dies. In the
+        final week the Bills–Bengals game was cancelled after Damar Hamlin's on-field
+        cardiac arrest; Marian was losing, the game vanished, and he and
+        <strong>Sam</strong> agreed to split the top two prizes. Stated once, plainly,
+        with respect: that is what happened. The joke, forever, is the disputed ring
+        and the decade of arguing — never the reason. It carries the asterisk on
+        every board on this site.</p>
 
-        <p>And then there's everyone else, which is the good part. <strong>Dylan</strong>
-        named his team after himself and still can't get over the hump. <strong>Bates</strong>
-        has spent years branded the league's Chiefs homer, a reputation that
-        collapses the instant you check the receipts — <span class="stat">three</span>
-        Kansas City picks in three seasons, fewer than the two Germans, so the most
-        notorious KC fan in the league got out-Chiefed by men who've never claimed
-        to give a shit about Missouri. <strong>Richard</strong> is the league's
-        patron saint of the bad beat: in 2025 he scored <span class="stat">1,711</span>
-        points, third-most in the whole league, and finished <em>dead last</em> at
-        <span class="stat">4–11</span>. <strong>Sam</strong> owns a co-championship
-        and, more recently, the wooden spoon — the man contains multitudes.
-        <strong>Justin</strong> keeps quietly cashing checks nobody sees him earn.
-        And <strong>Cory</strong>, the commissioner, runs a team called <em>Zero
-        Mistakes Were Made</em> and in 2024 missed the playoffs by
-        <span class="stat">8.20</span> points while leaving <span class="stat">297</span>
-        on his own bench — the man built the scoreboard and then benched his own
-        money on it. He gets ripped hardest in here, on purpose. It's his page.</p>
+        <p><strong><a href="/history/season/2023">2023 — the dynasty begins, the
+        commissioner steals one.</a></strong> The Whiny Little Bitch League's last
+        year, and the year it quietly added the <strong>weekly-high $100</strong>
+        that is now the biggest money in the pot. <strong>Michael</strong> won it
+        clean — a league-best 95–40 all-play — the first brick of a real dynasty.
+        And <strong>Cory</strong>, running <em>Herbert the Pervert</em>, laundered
+        the <em>worst-scoring roster in the money</em> (a .422 all-play) into 9–6 and
+        a playoff check. A heist, certified by the man who ran the heist.
+        <a href="/history/season/2023">The full 2023 chapter →</a></p>
 
-        <p>The one story told in a lower voice is the <strong>2022 asterisk</strong>
-        — Marian's fourth title, shared with Sam, disputed to this day. That one
-        gets stated straight, once, at the bottom of this page, because the joke is
-        the ring and the decade of arguing about it, never the reason it happened.</p>
+        <p><strong><a href="/history/season/2024">2024 — the rebrand, and Cory by
+        8.20.</a></strong> The league became <strong>Make Football Great Again</strong>
+        and finally added <strong>keepers</strong>. <strong>Jeremy</strong> the
+        doctor diagnosed the field and took the ring; <strong>David</strong> won the
+        regular season on the flimsiest luck in the league and choked to fourth in
+        the playoffs; and the commissioner, in <em>Zero Mistakes Were Made</em>,
+        missed the playoffs by <span class="stat">8.20</span> points while leaving
+        <span class="stat">297</span> on his own bench. He built the scoreboard and
+        benched his own money on it. <a href="/history/season/2024">The full 2024
+        chapter →</a></p>
 
-        <p>A decade in, the Balls and Wieners League has a buy-in of four hundred
-        dollars, ten owners who aren't quite the ten it started with, a
-        controversial banner year nobody agrees on, and — finally — a website that
-        remembers <em>every single dollar</em> any of them has ever won or lost.
-        That's what this archive is. The full constitution — the amendment ledger,
-        the buy-in ladder, the payout revisions and the pending votes — lives in
-        <a href="/history/amendments" style="color:var(--gold-bright)">the Amendments</a>.
-        The rest is the seasons. Read them and weep, or read them and gloat. Those
-        are the only two options this league has ever offered.</p>
+        <p><strong><a href="/history/season/2025">2025 — the dynasty confirmed, and
+        Richard crucified.</a></strong> <strong>Michael</strong> went 12–3 for a
+        second ring in three years and the richest single season on record
+        ($1,325). But 2025 belongs to <strong>Richard</strong>, who scored
+        <span class="stat">1,711</span> points — third-most in the league — and
+        finished <em>dead last</em> at <span class="stat">4–11</span>, the largest
+        robbery the archive has ever measured. Cory, meanwhile, named his team
+        <em>Scheisse</em> and went 5–10, which is German for "accurate."
+        <a href="/history/season/2025">The full 2025 chapter →</a></p>
+
+        <p><strong>2026 — in progress.</strong> The buy-in is $400 with a vote on
+        the floor to make it five (the German is, we assume, apoplectic). And a
+        decade in, this thing finally has a website that remembers <em>every single
+        dollar</em> anyone has ever won or lost. The full constitution — the buy-in
+        ladder, the payout revisions, the roster changes and the pending votes —
+        lives in <a href="/history/amendments">the Amendments</a>. Everything else is
+        the seasons below. Read them and weep, or read them and gloat. Those are the
+        only two options this league has ever offered.</p>
       </div>
     </div>
   </div>

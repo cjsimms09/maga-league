@@ -385,6 +385,13 @@ router.get('/history', aw(async (req, res) => {
   res.render('history/index', { A, chapters: CHAPTERS });
 }));
 
+// The Age Before Records — a single ceremonial chapter for the pre-Sleeper years
+// (2016-2022). Money and champions only; no box scores survive, and the page
+// says so rather than faking detail.
+router.get('/history/early', aw(async (req, res) => {
+  res.render('history/early', { A: archive() });
+}));
+
 // A single season chapter — prose (when written) plus the season's whole record:
 // standings + money, the weekly-high ledger, the bracket, the draft, superlatives.
 router.get('/history/season/:year', aw(async (req, res) => {

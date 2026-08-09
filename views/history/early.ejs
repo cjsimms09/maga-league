@@ -1,0 +1,111 @@
+<%- include('../partials/header', { title: 'The Age Before Records' }) %>
+<%
+  const german = A.german;
+  const flag = name => [...german].some(g => String(name).includes(g)) ? '🇩🇪' : '🇺🇸';
+  const dollars = n => (n == null ? '—' : '$' + Number(n).toLocaleString('en-US'));
+  const L = A.lore;
+  // pre-Sleeper champions (2016-2022) from the Rolls
+  const early = A.champions.filter(c => c.year <= 2022).sort((a, b) => a.year - b.year);
+%>
+
+<div class="chron">
+  <a class="back-link" href="/history">← The Chronicle</a>
+  <p class="chron-eyebrow">2016 – 2022</p>
+  <h1 class="chron-title">The <span class="gold">Age Before Records</span></h1>
+  <p class="chron-sub">Before Sleeper, before the box scores — an era known only by who took the money.</p>
+
+  <div class="card">
+    <div class="body">
+      <div class="chapter">
+        <p>Here the record goes dark, and honesty demands we say so up front: for the
+        first seven years of this league <strong>the box scores do not survive</strong>.
+        No starters, no benchings, no weekly highs — the weekly-high hundred didn't
+        even exist yet. What comes down to us from the age before Sleeper is what a
+        spreadsheet chose to keep: the buy-in, the pot, and the name of whoever
+        walked off with the money. So this is a shorter tale, and it names only what
+        it can prove. There will be no invented benchings here to make a dead year
+        feel alive. The gap is itself the story — an age remembered only by its
+        champions.</p>
+
+        <p>It opened in <strong>2016</strong> with ten men, a hundred dollars each,
+        and a banner reading <strong>Balls and Wieners League</strong> — a name that
+        tells you everything about the founding spirit and nothing you'd repeat in
+        polite company. <strong>David</strong>, the German who has objected to every
+        buy-in increase since, won the first one, which is a joke that writes itself:
+        the man who hates paying got the first payout. From there the buy-in began
+        its long march — <span class="stat">$100</span>, <span class="stat">$125</span>,
+        <span class="stat">$150</span>, and on up a hundred a year — and somewhere in
+        these unrecorded seasons the league renamed itself the <strong>Whiny Little
+        Bitch League</strong>, a title it would carry, earned, into the Sleeper era.</p>
+
+        <p>Then came a brief age of <strong>Cory</strong>. The commissioner-to-be
+        won back-to-back in <span class="stat">2017</span> and
+        <span class="stat">2018</span> — the only stretch of dominance he will ever
+        have, and he knows it, which is why he built a whole website that quietly
+        stops bragging right around 2019. Because in 2019 the crown passed to a man
+        who would not give it back.</p>
+
+        <p><strong>Marian</strong> won <span class="stat">2019</span>. Then he won
+        <span class="stat">2020</span>. Then he won <span class="stat">2021</span> —
+        a genuine, undisputed <strong>three-peat</strong>, the most dominant run in
+        league history, worth <span class="stat">$600</span>, <span class="stat">$750</span>,
+        and <span class="stat">$900</span> as the pot swelled beneath him. For three
+        years the German-not-named-David simply owned this thing. And then came
+        2022, and the one title the league will argue about until it dies.</p>
+
+        <div class="asterisk-note" id="asterisk">
+          <h4>* The 2022 Title — Stated Once, Plainly</h4>
+          <p>In the final week of <strong>2022</strong>, the Bills–Bengals game was
+          cancelled following <strong>Damar Hamlin's on-field cardiac arrest</strong>.
+          Marian was losing his matchup when the game vanished. With the week
+          unfinished, he and <strong>Sam</strong> agreed to split first and second,
+          and the record shows a shared championship worth <span class="stat">$1,050</span>
+          between them.</p>
+          <p>The league has disputed the legitimacy of that ring ever since — it is
+          the league's LeBron-bubble-ring argument, a fourth banner for Marian with
+          a footnote welded to it forever. The joke, now and always, is the disputed
+          trophy and the decade of arguing about it — never the reason the game was
+          cancelled.</p>
+        </div>
+
+        <p>One more thing the spreadsheet will not tell you, because the league kept
+        no good record of its own turnover: somewhere in these years,
+        <strong>three men left and three took their chairs</strong>.
+        <strong>Sam</strong>, <strong>Dylan</strong> and <strong>Jeremy</strong>
+        replaced <strong>Brandon</strong>, <strong>Taylor Hagen</strong> and
+        <strong>Ben</strong>. By 2019, the first season anyone's name is written
+        down, the current ten are already in their seats — so the exact changings of
+        the guard happened here, in the dark, and cannot be dated. Brandon and Taylor
+        Hagen survive nowhere in the numbers at all; Ben lingers as a single entry in
+        one draft order, a ghost at a table he no longer sits at. The chronicle names
+        them because a league that erases the men it replaced is lying to itself.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>👑 Champions of the Age <span class="sub">what the money remembers</span></h2>
+    <div class="body chron-scroll">
+      <table class="ledger">
+        <thead><tr><th>Year</th><th class="name">Champion</th><th>Buy-in</th><th>Title paid</th></tr></thead>
+        <tbody>
+          <% for (const c of early) { %>
+            <tr class="champ">
+              <td class="rk"><%= c.year %></td>
+              <td class="name"><%= c.champion %> <span class="flag"><%= flag(c.champion) %></span><% if (c.asterisk) { %> <a class="aster" href="#asterisk">*</a><% } %></td>
+              <td style="color:var(--muted)">$<%= c.buy_in %></td>
+              <td class="money"><%= dollars(c.payout) %></td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+      <p style="color:var(--muted); font-size:.8rem; margin:.6rem 0 0;">
+        Box scores begin in 2023 — from there, every season gets its full chapter.
+        See <a class="back-link" style="display:inline" href="/history/amendments">the Amendments</a> for the buy-in ladder and the full ledger.</p>
+    </div>
+  </div>
+
+  <p class="provenance">Source: the master sheet — the league's founding document. The pre-Sleeper years exist nowhere else.</p>
+</div>
+
+<%- include('../partials/footer') %>
