@@ -24,6 +24,21 @@ const { store, getDoc, setDoc, newId, now } = require('../data');
 const { hashPassword, verifyPassword, requireLogin, requireCommissioner, aw } = require('../auth');
 const { RULES, SCORING, ROSTER } = require('../seed-data');
 
+// ---------- home-screen PWA: rendered pages must never be pinned ----------
+// The installed iOS app is chromeless — no address bar, no pull-to-refresh — so
+// there is no user gesture that can force a reload. iOS WebKit HEURISTICALLY
+// caches any 200 text/html that carries no Cache-Control and reuses it, which
+// pins the standalone app to whatever build it first loaded. That is the
+// reported "seeing old versions / not working": every page here rendered with
+// NO Cache-Control, so the phone cached the HTML and never came back for the new
+// deploy. Declaring the pages uncacheable makes the browser revalidate on every
+// launch, so a fresh deploy reaches the installed instance. Static assets
+// (icons, css, manifest) are served by the CDN under netlify.toml's own
+// long-cache rules and never reach this router, so they keep their caching. The
+// JSON /api/* routes below set 'no-store' explicitly AFTER this runs, so they
+// stay stricter — this only supplies the default the HTML pages were missing.
+router.use((req, res, next) => { res.set('Cache-Control', 'no-cache, must-revalidate'); next(); });
+
 // ---------- public: deploy health, NO league data ----------
 // Everything CI's deploy verification and the pre-draft checklist need to trust
 // the live site, and NOTHING that requires a login or leaks league data. Netlify

@@ -11,6 +11,13 @@ const VE = require('./voteenact');   // vote → season-config enactment
 
 router.use(requireCommissioner);
 
+// Same home-screen-PWA reason as the member router: rendered pages carry no
+// Cache-Control by default, which iOS WebKit heuristically caches and pins in
+// the chromeless standalone app. The commissioner runs the console from the
+// installed app too, so these pages must revalidate rather than serve a build
+// stale by a deploy. Mounted at /admin as its own router, so it needs its own.
+router.use((req, res, next) => { res.set('Cache-Control', 'no-cache, must-revalidate'); next(); });
+
 const back = (res, tab, extra = '') => res.redirect(`/admin?tab=${tab}${extra}`);
 const msg = m => '&msg=' + encodeURIComponent(m);
 
