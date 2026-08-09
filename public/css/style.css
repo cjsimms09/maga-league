@@ -1657,6 +1657,23 @@ table .num.zero { color: var(--muted); font-weight: 400; }
   border-radius: 1px; animation: konamiFall 2.6s linear forwards; transform: rotate(var(--h, 0deg)); }
 @keyframes konamiFall { to { transform: translateY(105vh) rotate(360deg); opacity: .2; } }
 
+/* ── DYNASTY LADDER — the record book's crown jewel ─────────────────────────── */
+.dynasty-ladder { display: flex; flex-direction: column; gap: .4rem; }
+.dyn-row {
+  display: flex; align-items: center; gap: .6rem; padding: .5rem .7rem; border-radius: 10px;
+  background: rgba(255,255,255,.03); border: 1px solid var(--line);
+}
+.dyn-row.dyn-top { background: linear-gradient(90deg, rgba(245,196,69,.12), rgba(245,196,69,.03)); border-color: rgba(245,196,69,.4); }
+.dyn-name { flex: 0 0 auto; font-weight: 700; color: var(--ink); min-width: 5.5rem; }
+.dyn-crowns { flex: 1 1 auto; font-size: 1.05rem; letter-spacing: .05em; line-height: 1; overflow: hidden; }
+.dyn-half { opacity: .45; }
+.dyn-count { flex: 0 0 auto; font-size: .8rem; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.dyn-count .muted { font-size: .72rem; }
+/* weekly-high hunters: a gold bar behind the count */
+.wh-hunt-bar { display: inline-block; height: 8px; border-radius: 4px; vertical-align: middle;
+  background: linear-gradient(90deg, var(--gold), var(--gold-bright)); margin-right: .5rem; min-width: 4px; max-width: 120px; }
+.wh-hunt-n { font-variant-numeric: tabular-nums; }
+
 /* ── WEEKLY-HIGH STRIP — the $100-a-week race, made visible ─────────────────── */
 .wh-strip { margin: .2rem 0 .4rem; }
 .wh-bars { display: flex; align-items: flex-end; gap: 3px; height: 120px; padding: 0 .1rem; }
