@@ -967,5 +967,17 @@
   },
   "composite_beat_best_in_n_seasons": 0,
   "fantasypros_parse_diagnostics": {},
+  "fantasypros_source": {
+    "2023": {
+      "url": "https://api.fantasypros.com/v2/json/nfl/2023/consensus-rankings?type=adp&scoring=HALF&position=ALL&week=0",
+      "parsed_rows": 358,
+      "crosswalked": 126
+    },
+    "2024": {
+      "url": "https://api.fantasypros.com/v2/json/nfl/2024/consensus-rankings?type=adp&scoring=HALF&position=ALL&week=0",
+      "parsed_rows": 343,
+      "crosswalked": 105
+    }
+  },
   "caveat": "points-reliability (Spearman) like exp36; compared by RANK so scale/format offset cancels. FantasyPros is HALF-PPR (our format \u2014 a closer match than MFL's full-PPR); FFC half-PPR; MFL full-PPR/12-team. Three-way now decides whether a 4th source (NFFC=different crowd) is worth building (EDGE-LEDGER). No install \u2014 picks the board the keeper-need rule ranks by."
 }
