@@ -17,7 +17,9 @@ def test_dropped_modification_is_caught():
     merged     = {"admin.js": "a0", "keep.js": "k0", "voteenact.js": "v1"}    # NEW file in, edit dropped
     v = MC.assess(merge_base, base, source, merged)
     kinds = {x["path"]: x["kind"] for x in v}
+    sev = {x["path"]: x["severity"] for x in v}
     assert kinds.get("admin.js") == "modification_dropped"
+    assert sev.get("admin.js") == "fail"        # a definite drop must block
     assert "voteenact.js" not in kinds          # the new file DID land — not a violation
 
 
@@ -47,4 +49,4 @@ def test_union_merge_flags_only_when_merged_equals_base():
     assert MC.assess(mb, base, source, ok) == []
     dropped = {"ci.yml": "c_main"}      # merged == base -> source's change likely dropped
     v = MC.assess(mb, base, source, dropped)
-    assert v and v[0]["kind"] == "possible_union_drop"
+    assert v and v[0]["kind"] == "possible_union_drop" and v[0]["severity"] == "warn"
