@@ -91,6 +91,10 @@ function normalize(b) {
   // made before this shipped reads cleanly rather than needing a migration.
   b.declared ??= null;
   b.dispute ??= null;
+  // Pool-draft fields: `pool` is the config (which teams are in play, what wins),
+  // `draft` is the live alternating-snake-draft state. Null on a prop bet.
+  b.pool ??= null;
+  b.draft ??= null;
   for (const p of b.parties || []) { p.position ??= ''; p.picks ??= []; }
   if (b.status === STATUS.SETTLED && !b.legs) b.legs = buildLegs(b);
   b.legs ??= [];
@@ -133,6 +137,7 @@ async function propose({
   position = '', picks = [], resolves = '', week = null,
   format = 'prop', conditions = [], logic = 'all', pool_rules = [], picks_required = 0,
   open_slots = 0, kind = '',
+  pool_teams = [], pool_wins = '',
 }) {
   const others = [...new Set(party_ids.map(Number))].filter(id => id && id !== Number(proposer_id));
   const slots = Math.min(Math.max(Number(open_slots) || 0, 0), MAX_OPEN_SLOTS);
@@ -160,6 +165,14 @@ async function propose({
     // Ordered rules; the first that separates the field decides it.
     pool_rules: (Array.isArray(pool_rules) ? pool_rules : [pool_rules]).filter(Boolean).map(String),
     picks_required: Math.min(Math.max(Number(picks_required) || 0, 0), 10),
+    // Pool-DRAFT config: the franchises in play + what wins it. The draft itself
+    // (order, picks, whose turn) is initialised on accept via startPoolDraft, so
+    // nothing is picked until both sides are in — a pool bet is a draft, not a form.
+    pool: format === 'pool'
+      ? { team_pool: [...new Set((pool_teams || []).map(Number))].filter(Boolean),
+          wins: String(pool_wins || 'holds the league champion').slice(0, 200) }
+      : null,
+    draft: null,
     // 'matchup' means this is a bet on one week's game, and acceptance is
     // closed at kickoff — see BL.matchupWindow. Everything else is untimed.
     kind: String(kind || ''),
@@ -379,6 +392,83 @@ async function disputeResult(id, by_id, by_name, why = '') {
   await store.set(KEY(bet.id), bet);
   return bet;
 }
+
+// ── POOL BETS AS A SNAKE DRAFT OF FRANCHISES ─────────────────────────────────
+// A pool bet is a DRAFT, not a form: the two bettors split the league's teams by
+// ALTERNATING picks (snake order), each pick locks a team out of the shared pool,
+// and whoever ends up holding the eventual champion wins. Nobody picks until both
+// are in, and no team can be held by both sides.
+
+/** Whose pick it is, given the draft order and how many picks have been made.
+ *  SNAKE: the order reverses each round, so for [A,B] the sequence is A B B A A B… */
+function snakeTurn(order, made) {
+  const n = order.length;
+  if (!n) return null;
+  const round = Math.floor(made / n);
+  const pos = made % n;
+  const idx = (round % 2 === 0) ? pos : (n - 1 - pos);
+  return order[idx];
+}
+
+/**
+ * Open the draft once both sides are in. The ROUTE computes `order` from the
+ * prior season's finish (higher finisher picks first) and passes the human `why`
+ * ("Richard picks first — finished 4th to your 7th in 2025"). Idempotent-safe:
+ * refuses if a draft is already under way.
+ */
+async function startPoolDraft(id, orderedBettorIds, why = '') {
+  const bet = await get(id);
+  if (!bet || bet.format !== 'pool' || !bet.pool) return null;
+  if (bet.status !== STATUS.LOCKED) return null;          // both must have accepted
+  if (bet.draft) return bet;                              // already started
+  const order = [...new Set((orderedBettorIds || []).map(Number))].filter(n => isParty(bet, n));
+  const pool = [...new Set((bet.pool.team_pool || []).map(Number))].filter(Boolean);
+  if (order.length < 2 || !pool.length) return null;
+  bet.draft = {
+    order,
+    why: String(why || '').slice(0, 300),
+    pool,                       // every franchise in play
+    taken: {},                  // team_owner_id -> bettor_id who holds it
+    sequence: [],               // [{ by, team, at }] in pick order
+    turn: order[0],
+    complete: false,
+    started_at: now(),
+  };
+  // Picks reset — the draft is the source of truth now.
+  for (const p of bet.parties) p.picks = [];
+  bet.audit.push({ at: now(), what: `Franchise draft opened — ${why || 'order set by prior-season finish'}. ${betNamesSafe(order[0])} on the clock.` });
+  await store.set(KEY(bet.id), bet);
+  return bet;
+}
+
+/** One draft pick: it must be your turn, the team must still be on the board. */
+async function poolDraftPick(id, owner_id, team_id) {
+  const bet = await get(id);
+  if (!bet || !bet.draft || bet.draft.complete) return null;
+  const me = Number(owner_id), team = Number(team_id);
+  if (Number(bet.draft.turn) !== me) return bet;                 // not your turn
+  if (!bet.draft.pool.includes(team)) return bet;                // not a team in play
+  if (bet.draft.taken[team] != null) return bet;                 // already held
+  bet.draft.taken[team] = me;
+  bet.draft.sequence.push({ by: me, team, at: now() });
+  const party = (bet.parties || []).find(p => p.owner_id === me);
+  if (party) party.picks = [...new Set([...(party.picks || []), team])];
+  bet.audit.push({ at: now(), by: me, what: `drafted a franchise (pick ${bet.draft.sequence.length}/${bet.draft.pool.length})` });
+  // Advance, or finish when every franchise is allocated.
+  if (bet.draft.sequence.length >= bet.draft.pool.length) {
+    bet.draft.complete = true;
+    bet.draft.turn = null;
+    bet.audit.push({ at: now(), what: 'Draft complete — the pool is set and the bet is live.' });
+  } else {
+    bet.draft.turn = snakeTurn(bet.draft.order, bet.draft.sequence.length);
+  }
+  await store.set(KEY(bet.id), bet);
+  return bet;
+}
+
+// A best-effort name for audit strings (the module has ids, not names; the routes
+// pass names elsewhere). Falls back to the id so the trail is never blank.
+function betNamesSafe(id) { return `#${id}`; }
 
 /** Mark one payment leg paid, or un-mark it. Either side of that leg can. */
 async function markLeg(id, leg_id, owner_id, by_name, paid = true) {
@@ -858,6 +948,7 @@ module.exports = {
   STATUS, MAX_OPEN_SLOTS,
   all, get, propose, accept, take, decline, settle, reopen, remove,
   declareResult, confirmResult, disputeResult,
+  startPoolDraft, poolDraftPick, snakeTurn,
   setPosition, markLeg, isParty, offerBuyout, acceptBuyout, clearBuyout, resend,
   tallies, ledgerFor, settlementsFor, awaiting, disputed, moneyOnTeams, betsAbout,
   betYear, partyDelta, gridByYear, leagueLedgerForYear,
