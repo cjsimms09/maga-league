@@ -91,3 +91,26 @@ A lighter workflow_dispatch — "Run Mid-Season Check" — same headless setup, 
 - The planted-noise proposal test runs inside the cycle and the report shows it rejected
 - One deliberately-broken cron in a test branch → the mini-cycle's plumbing check names it
 - README loop documentation exists and I can follow it cold
+
+## ⚠️ LEARNING-HALF STATUS AUDIT (honest, 2026-08-09) — plumbing built, learning NOT
+
+The chain is predict → record → grade → update. Steps 1–2 compound today; 3–4 do not.
+- **emission + recording (1–2): BUILT & WIRED** — live draft render commits timestamped
+  predictions to `predledger` (forward-guarantee).
+- **grading logic (3): BUILT BUT DORMANT** — `forecast_grade.py` (8/8) exists; nothing
+  runs it but tests.
+- **weekly automatic grading (3, wired): NOT BUILT** — no cron grades resolved
+  predictions; no calibration ledger accumulates. **KEYSTONE.**
+- **derived evidence-weight fn (4 substrate): BUILT BUT DORMANT** — `evidence_weight.py`
+  exists (inverse-variance + trajectory); only `bbm_translate` calls it. Nothing
+  re-weights the live board from graded outcomes.
+- **model update — move confidence / deepen dossiers / retire-strengthen findings (4):
+  SPEC-ONLY** — the Annual delegates it to a headless PROMPT, not deterministic code,
+  and it depends on the missing graded record.
+
+**VERDICT: as-is, January TIDIES (chapter/money/reset) but does not COMPOUND (no graded
+season to learn from, no wired re-weighting).** TOP POST-DRAFT BUILD, **September deadline**:
+wire weekly `forecast_grade` → calibration ledger BEFORE the season's predictions start
+resolving, else January inherits an ungraded pile. Then wire `evidence_weight` to consume
+that ledger (step 4). The Annual's headless mandate is not a substitute for the wired
+weekly grading — it needs a graded record to read.
