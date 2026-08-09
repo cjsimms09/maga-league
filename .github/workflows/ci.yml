@@ -103,6 +103,12 @@ jobs:
         # popups render on the home page and a dismissal stays gone. Never sits on
         # a page once dismissed; always archived for the chronicle.
         run: node draft/tests/dispatch.test.js
+      - name: Trash talk on matchups — posts welded to a game, permanent + archived
+        # Pure engine (game-keyed like pick'em, per-post docs so concurrent
+        # posters don't clobber, trim/cap/empty-reject, season archive) + the HTTP
+        # round trip: a post redirects back to the game, renders attributed, and is
+        # league-visible to both parties who then both add to the one thread.
+        run: node draft/tests/trashtalk.test.js
       - name: Side-bet lifecycle over HTTP — declare→confirm→dispute + Venmo handoff
         # The two-party settling flow end to end: a result is declared, the OTHER
         # side confirms or disputes, a dispute is recorded not adjudicated, and the

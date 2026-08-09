@@ -202,6 +202,34 @@
   </div>
 </div>
 
+<%# ── TRASH TALK — welded to this game, permanent, quoted by the chapters later ─ %>
+<div class="card" id="trash" style="margin-bottom:1.2rem">
+  <h2>🗣️ Trash Talk <span class="sub">this game — on the record, forever</span></h2>
+  <div class="body">
+    <% const _tt = (typeof trash !== 'undefined' && trash) ? trash : []; %>
+    <% if (!_tt.length) { %>
+      <p class="muted" style="margin:0 0 .8rem">Nothing said yet. First word against <b><%= opp.name %></b> is free — and it's here for good, so the chapters can quote it after somebody loses by forty.</p>
+    <% } else { %>
+      <ul class="tt-thread">
+        <% for (const p of _tt) { %>
+          <li class="tt-post<%= p.owner_id === me.id ? ' mine' : '' %>">
+            <div class="tt-meta"><b class="tt-who"><%= nameOf(p.owner_id) %></b>
+              <span class="tt-when muted"><%= new Date(p.created_at).toLocaleString('en-US', { timeZone: 'America/New_York', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) %></span></div>
+            <div class="tt-body"><%= p.body %></div>
+          </li>
+        <% } %>
+      </ul>
+    <% } %>
+    <form method="post" action="/matchup/trash" class="tt-form">
+      <input type="hidden" name="opp" value="<%= opp.id %>">
+      <input type="hidden" name="week" value="<%= weekNo %>">
+      <input type="text" name="body" maxlength="500" placeholder="Say something to <%= opp.name %>…" autocomplete="off" required>
+      <button class="btn gold" type="submit">Post it</button>
+    </form>
+    <p class="muted" style="margin:.5rem 0 0; font-size:.74rem">Permanent. No takebacks. Keep it about fantasy.</p>
+  </div>
+</div>
+
 <%# ── THE WEEKLY HIGH — the $100 target, live ──────────────────────────────────
     Two data sources, best first. A's richer live band (typical + leader + your
     live score) wins when present; otherwise the harvested band (what it has

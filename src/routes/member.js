@@ -8,6 +8,7 @@ const MOVE = require('./standings-movement'); // week-over-week rank arrows (dor
 const PE = require('./pickem');            // league pick'em — pick every game, tracked forever
 const DISPATCH = require('./dispatch');    // transient popups — awards / power poll / this-week-in-history
 const PO = require('./playoffs');          // folded columns — playoff odds/movement, clinch/elim, matchup leverage
+const TT = require('./trashtalk');         // trash talk attached to a specific game, permanent + archived
 const L = require('../ledger');
 const SB = require('../sidebets');
 const BL = require('../betlogic');
@@ -1396,6 +1397,15 @@ router.get('/matchup', aw(async (req, res) => {
 
   const nameOf = id => (H.ownerById(owners, id) || {}).name || '?';
 
+  // TRASH TALK — the thread welded to THIS game (season + week + owner pair),
+  // permanent and archived. Loaded only when there's an opponent to talk about.
+  let trash = [], trashGameId = null;
+  if (opp) {
+    const seasonY = (H.currentSeason(world.seasons) || {}).year || new Date().getFullYear();
+    trashGameId = TT.gameId(me.id, opp.id);
+    try { trash = await TT.forGame(seasonY, weekNo, trashGameId); } catch (e) { /* thread is a bonus */ }
+  }
+
   // A compact pick'em hook — the matchup screen is where people already think
   // about the week, so it points them at the league-wide picks (boards skipped;
   // this is just the CTA + lock state, kept cheap).
@@ -1426,7 +1436,7 @@ router.get('/matchup', aw(async (req, res) => {
 
   res.render('matchup', {
     me, owners, opp, live, weekNo, matchup: liveMatchup, betWindow, record,
-    perPlayer, proj, highBand, whBand, whRace, pickem, stakes,
+    perPlayer, proj, highBand, whBand, whRace, pickem, stakes, trash, trashGameId,
     configured: !!world.config.sleeper_league_id,
     late: req.query.late === '1', sent: req.query.sent === '1',
     nameOf,
@@ -1556,6 +1566,24 @@ router.post('/pickem', aw(async (req, res) => {
   }
   await PE.savePicks(seasonYear, weekNo, req.owner.id, picks, games);
   res.redirect('/pickem?saved=1');
+}));
+
+// Trash talk on a specific game. Any logged-in owner can post to any game — it's
+// league banter — attributed and timestamped, permanent, archived for the
+// chapters. The game is derived from the two owners so the post welds to the
+// actual matchup, not a roster id. Redirects back to that matchup view.
+router.post('/matchup/trash', aw(async (req, res) => {
+  const world = req.world;
+  const owners = H.activeOwners(world.owners);
+  const oppId = parseInt(req.body.opp, 10) || null;
+  const week = parseInt(req.body.week, 10) || 1;
+  const seasonY = (H.currentSeason(world.seasons) || {}).year || new Date().getFullYear();
+  const opp = oppId ? H.ownerById(owners, oppId) : null;
+  if (opp && oppId !== req.owner.id) {
+    const gid = TT.gameId(req.owner.id, opp.id);
+    await TT.post(seasonY, week, gid, req.owner.id, req.body.body);
+  }
+  res.redirect('/matchup' + (oppId ? '?opp=' + oppId : '') + '#trash');
 }));
 
 // A dispatch, dismissed. Marks it seen for THIS owner only, so it never shows

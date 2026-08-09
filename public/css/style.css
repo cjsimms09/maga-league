@@ -2914,3 +2914,20 @@ html.dispatch-open { overflow: hidden; }
   table.roll td.po-cell, table.roll th.po-th { padding-left: .35rem; padding-right: .55rem; }
   .po-badge { font-size: .54rem; }
 }
+
+/* ── TRASH TALK — the thread welded to a game. Mobile: full-width bubbles, a
+   thumb-height input, your own posts lit gold. */
+.tt-thread { list-style: none; margin: 0 0 .9rem; padding: 0; display: flex; flex-direction: column; gap: .55rem; }
+.tt-post { background: rgba(255,255,255,.04); border: 1px solid var(--line);
+  border-radius: 12px; padding: .55rem .7rem; }
+.tt-post.mine { background: rgba(245,196,69,.08); border-color: rgba(245,196,69,.35); }
+.tt-meta { display: flex; align-items: baseline; gap: .5rem; margin-bottom: .2rem; }
+.tt-who { font-family: var(--font-display); font-weight: 800; font-size: .8rem; color: #fff; }
+.tt-when { font-size: .68rem; }
+.tt-body { font-size: .92rem; line-height: 1.4; color: #e7eaf3; overflow-wrap: anywhere; }
+.tt-form { display: flex; gap: .5rem; }
+.tt-form input[type="text"] { flex: 1 1 auto; min-width: 0; min-height: 44px;
+  background: rgba(255,255,255,.05); border: 1px solid var(--line); border-radius: 10px;
+  padding: .5rem .7rem; color: var(--ink); font-family: var(--font-body); font-size: .95rem; }
+.tt-form input[type="text"]:focus { outline: none; border-color: var(--gold); }
+.tt-form .btn { flex: 0 0 auto; }
