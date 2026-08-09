@@ -82,6 +82,13 @@ jobs:
         # harvested target on its own. Asserts it renders and that no per-owner
         # efficiency analysis leaks onto this league-visible page.
         run: node draft/tests/matchup_weekly_high.test.js
+      - name: Matchup spectator — opening someone else's game shows THAT pairing
+        # The scoreboard deep link used to be viewer-relative (?opp=), so tapping
+        # a game you weren't in reframed it as "you vs one of them." Asserts a
+        # non-viewer pair (?a=&b=) renders a read-only spectator view (neutral
+        # H2H, no bet, no trash post), the viewer's own game keeps the full
+        # participant matchup, and a malformed pair doesn't crash.
+        run: node draft/tests/matchup_spectator.test.js
       - name: Season form — payout structure is variable-length (not a fixed 2+4)
         # The admin season form was the only thing pinning payouts to 2 reg + 4
         # playoff; the data model always handled any length. Asserts a new season

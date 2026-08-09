@@ -1380,7 +1380,22 @@ router.get('/matchup', aw(async (req, res) => {
   // before the season starts, and in the sandbox where Sleeper is unreachable.
   let opp = (liveMatchup && liveMatchup.opp && liveMatchup.opp.owner) ? liveMatchup.opp.owner : null;
   const live = !!opp;
-  const oppParam = parseInt(req.query.opp, 10) || null;
+
+  // A SPECIFIC game can be opened by pair (?a=&b=) — the scoreboard links every
+  // card that way. If the viewer is one of the two, they get the full
+  // participant view against the other side; if the viewer is NOT in that game,
+  // they get a read-only SPECTATOR view of that exact pairing (its all-time
+  // head-to-head + score + trash thread) instead of the old bug where a
+  // viewer-relative ?opp= silently reframed it as "you vs one of them."
+  const aParam = parseInt(req.query.a, 10) || null;
+  const bParam = parseInt(req.query.b, 10) || null;
+  let spectator = null, pairOtherId = null;
+  if (aParam && bParam && aParam !== bParam && H.ownerById(owners, aParam) && H.ownerById(owners, bParam)) {
+    if (me.id === aParam || me.id === bParam) pairOtherId = (me.id === aParam ? bParam : aParam);
+    else spectator = { A: H.ownerById(owners, aParam), B: H.ownerById(owners, bParam) };
+  }
+
+  const oppParam = pairOtherId || parseInt(req.query.opp, 10) || null;
   if (!opp && oppParam && oppParam !== me.id) opp = H.ownerById(owners, oppParam) || null;
 
   const weekNo = (liveMatchup && liveMatchup.week) || (sData && sData.week) || 1;
@@ -1395,6 +1410,38 @@ router.get('/matchup', aw(async (req, res) => {
     for (const [uid, oid] of Object.entries(um)) invUserMap[oid] = uid;
   }
   const uidOf = (o) => (invUserMap && invUserMap[o.id]) || H2H.userIdForName(o.name, o.alias);
+
+  // SPECTATOR VIEW — a game the viewer isn't in, opened from the scoreboard.
+  // Read-only: the two owners' live score, their all-time head-to-head, and the
+  // trash thread welded to that game (visible but not postable — you can't talk
+  // trash in a game you're not playing). None of the me-relative machinery (bet,
+  // pick'em strip, stakes, starters, your weekly-high) applies, so we return
+  // before computing any of it.
+  if (spectator) {
+    const { A, B } = spectator;
+    const map = world.config.sleeper_map || {};
+    let aPts = null, bPts = null;
+    if (sData && Array.isArray(sData.matchups)) {
+      for (const m of sData.matchups) {
+        const oid = Number(map[String(m.roster_id)]);
+        if (oid === A.id) aPts = Math.round((Number(m.points) || 0) * 100) / 100;
+        if (oid === B.id) bPts = Math.round((Number(m.points) || 0) * 100) / 100;
+      }
+    }
+    const specRecord = H2H.headToHead(uidOf(A), uidOf(B));
+    const seasonY = (H.currentSeason(world.seasons) || {}).year || new Date().getFullYear();
+    let specTrash = [];
+    const specGameId = TT.gameId(A.id, B.id);
+    try { specTrash = await TT.forGame(seasonY, weekNo, specGameId); } catch (e) { /* thread is a bonus */ }
+    const nameOfS = id => (H.ownerById(owners, id) || {}).name || '?';
+    return res.render('matchup-spectator', {
+      me, A, B, aPts, bPts, record: specRecord, weekNo,
+      live: (aPts != null || bPts != null),
+      trash: specTrash, nameOf: nameOfS,
+      goatId: MK.goatOwnerId(sData, map),
+      configured: !!world.config.sleeper_league_id,
+    });
+  }
 
   const record = opp ? H2H.headToHead(uidOf(me), uidOf(opp)) : null;
 

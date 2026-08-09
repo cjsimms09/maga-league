@@ -1,7 +1,14 @@
 <%- include('partials/header', { title: 'This Week' }) %>
 <%
   const goat = id => (typeof goatId !== 'undefined' && goatId === id) ? ' 🐐' : '';
-  const oppFor = g => (g.a.id === me.id ? g.b.id : g.a.id);   // viewer-relevant deep link
+  // Deep link: the viewer's OWN game opens the full participant matchup (bet,
+  // trash, starters — ?opp=). Every other game opens a read-only spectator view
+  // of that exact pairing (?a=&b=) — NOT the old viewer-relative ?opp= that
+  // silently reframed someone else's game as "you vs one of them."
+  const linkFor = g => (g.a.id === me.id || g.b.id === me.id)
+    ? `/matchup?opp=${g.a.id === me.id ? g.b.id : g.a.id}`
+    : `/matchup?a=${g.a.id}&b=${g.b.id}`;
+  const mine = g => (g.a.id === me.id || g.b.id === me.id);
   const fmt = n => n == null ? '—' : n.toFixed(1);
 %>
 
@@ -25,7 +32,7 @@
 
   <div class="sb-list">
     <% for (const c of cards) { const g = c.g; %>
-      <a class="sb-card<%= c.riv ? ' rivalry' : '' %>" href="/matchup?opp=<%= oppFor(g) %>">
+      <a class="sb-card<%= c.riv ? ' rivalry' : '' %><%= mine(g) ? ' mine' : '' %>" href="<%= linkFor(g) %>">
         <% if (c.riv) { %><div class="sb-riv"><%= c.riv.emoji %> <%= c.riv.label %></div><% } %>
         <div class="sb-teams">
           <div class="sb-side<%= c.leader && c.leader.id === g.a.id ? ' win' : '' %>">
@@ -50,7 +57,7 @@
           <% if (c.po) { for (const side of [['a',g.a],['b',g.b]]) { const p = c.po[side[0]]; if (p && p.status === 'clinched') { %><span class="sb-chip in">🔒 <%= side[1].name %> clinched</span><% } else if (p && p.status === 'eliminated') { %><span class="sb-chip out">❌ <%= side[1].name %> out</span><% } } } %>
           <% if (c.sweat) { %><span class="sb-chip sweat"><%= c.sweat.icon %> <%= c.sweat.leader ? c.sweat.leader + ' up ' + c.sweat.margin : c.sweat.word %></span><% } %>
         </div>
-        <div class="sb-open muted">Open the matchup →</div>
+        <div class="sb-open muted"><%= mine(g) ? 'Open your matchup →' : 'Watch this game →' %></div>
       </a>
     <% } %>
   </div>
