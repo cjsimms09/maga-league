@@ -10,8 +10,8 @@ _(a season marked `harvest` had its realized recovered from league_history playe
 ## PRIMARY — rank correlation over the available pool
 
 - our ordering: mean rho 0.408 CI (0.335, 0.482)
-- market (ADP): mean rho 0.268 CI (0.2, 0.329)
-- **difference (our - market): 0.14 CI [0.052, 0.223] -> BEAT** over 26 picks
+- market (ADP): mean rho 0.268 CI (0.201, 0.329)
+- **difference (our - market): 0.14 CI [0.053, 0.223] -> BEAT** over 26 picks
 
 ## Top-N set value (realized pts, our set vs market set)
 
