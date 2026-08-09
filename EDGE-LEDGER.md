@@ -24,10 +24,16 @@ _Last updated 2026-08-09 (all-terms participation test + FP SSR discovery)._
   $362; every adjuster is decoration or a drag). The value anchor = *ranking off the ADP
   board*. So board quality directly sets the value of our single biggest term — the source
   question isn't a side control, it's the input to the largest earner. This elevates it.
-- **Sharpen:** ① **FantasyPros as a 3rd source** (free, revealed behavior, half-PPR = our
-  format) — the tiebreaker + format de-confounder. **BLOCKED: FP server-renders only a top-5
-  teaser; the full board is client-hydrated from an endpoint discovery hasn't surfaced yet
-  (DECISIONS-NEEDED #4).** ② 20yr nflverse + public leagues at scale.
+- **THREE-WAY LANDED (2026-08-09): FantasyPros beats FFC in BOTH seasons → the edge is REAL
+  and FORMAT-INDEPENDENT.** n-weighted ρ: 2023 FFC 0.281 / MFL 0.397 / FP 0.307; 2024 FFC −0.03
+  / MFL 0.070 / FP 0.075. FP (half-PPR, OUR format) > FFC (half-PPR) both years, so the
+  market-read edge is not a format artifact. MFL edges FP in 2023 only, carrying a full-PPR
+  handicap (2023 receiver-friendly) — the confound we refused to act on. **Anchor decision:
+  FantasyPros** (same format, no handicap, wins the early rounds where Cory drafts, feeds the
+  value anchor the participation test showed is half our edge). Composite beats no single
+  source — blend nothing. Still 2 seasons/thin/leans-on-2023. (DECISIONS-NEEDED #1)
+- **Sharpen:** ① wire FP onto the live 2026 board (block cleared). ② 20yr nflverse + public
+  leagues at scale for a real CI on the source gap.
 - **A 4th/5th source (NFFC, FantasyData) — GATED ON THE THREE-WAY RESULT (Cory, 2026-08-09).**
   The probe flagged both, untouched. They are NOT equivalent: **NFFC is a different CROWD**
   (high-stakes real-money drafters), a structurally different signal — the way Underdog's
@@ -42,7 +48,8 @@ _Last updated 2026-08-09 (all-terms participation test + FP SSR discovery)._
   it's a different-format context too (deep/high-stakes), so grade by RANK to cancel the
   format offset, same discipline as MFL. **The three-way grade decides this — don't build a
   4th blind.**
-- **Status:** MFL swap APPROVED (DECISIONS-NEEDED #1); wire after the 3rd-source result.
+- **Status:** three-way landed → **anchor on FantasyPros** (DECISIONS-NEEDED #1, supersedes the
+  MFL-only lean); wire FP onto the live 2026 board once the endpoint reproduces.
 
 ## 2. KEEPER-NEED RULE — follow ADP within startable need  ← LIVE
 - **Size:** b0_need beats b0_pure **+$258** [CI 206,309]; value-depth beats fill-first
@@ -132,6 +139,6 @@ sample-ceiling breakers have much higher EVSI:
   before the within-position confound fix** — instrument since corrected. Mark **provisional**;
   re-run under the current harness before citing "no conditional edges exist."
 - **Slider-defaults null.** Scope = 3 configurations, not a grid (above). Provisional.
-- **Source grade.** Directional (2 seasons); the FantasyPros 3rd source would firm/complicate
-  it but is **blocked on endpoint discovery** (FP SSR carries only a top-5 teaser) — the
-  format confound on the MFL lean therefore stays unresolved and MFL wiring stays HELD.
+- **Source grade.** Three-way now COMPLETE (FP endpoint found): FP > FFC both seasons resolves
+  the format confound (edge is real, format-independent) → anchor on FantasyPros, not MFL.
+  Still 2 seasons/thin — a real CI needs the nflverse/public-league scale-up. (DECISIONS-NEEDED #1)

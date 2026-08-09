@@ -10,7 +10,28 @@ Audit date: 2026-08-09 (swept every recorded verdict in draft/backtest/*.json + 
 
 ---
 
-## 1. ANCHOR SOURCE: rank the live board by MFL, not FFC — ✅ APPROVED 2026-08-09, WIRING
+## 1. ANCHOR SOURCE: the three-way LANDED — anchor on FantasyPros (our format), not MFL — 2026-08-09
+- **Three-way result (FantasyPros now IN the grade, 126/105 players):** n-weighted ρ —
+  2023: FFC 0.281 · MFL **0.397** · FP 0.307; 2024: FFC −0.03 · MFL 0.070 · FP **0.075**.
+  Region wins FP 5 / MFL 4 / FFC 3; **composite beats no single source** (blend nothing).
+- **The format confound is resolved:** **FantasyPros (half-PPR, OUR format) beats FFC
+  (half-PPR) in BOTH seasons** — so the market-read edge is REAL and format-independent, not
+  an artifact. MFL edges FP only in 2023 (0.397 vs 0.307) and ties in 2024, but MFL carries a
+  full-PPR handicap (2023 was receiver-friendly, which full-PPR over-weights) — exactly the
+  confound we refused to act on. Per the pre-registered rule (FP beats FFC like MFL did →
+  crowd quality, anchor on the clean same-format source): **anchor on FantasyPros.**
+- **Recommendation:** swap the live anchor FFC → **FantasyPros** (single source; composite
+  doesn't beat it; FFC fallback for deep gaps). FP wins the EARLY regions (r1-3, r4-7) where
+  Cory drafts, and it feeds the value anchor that the participation test showed is half our
+  edge. **Still thin (2 seasons, n~90/67, no CI on gaps, 2024 ~0 for all — leans on 2023),**
+  so directional; but FP is our exact format with no handicap, so it's the *cleaner* anchor
+  regardless of the thinness. MFL's residual 2023 edge is format-confounded — do not chase it.
+- **Cost of inaction:** the live board ranks by FFC, which FP beats in both graded seasons.
+- **Status:** supersedes the earlier MFL lean. Wiring = ingest FP 2026 ADP onto the live
+  board (was HELD on this result; the block is cleared). Confirm the FP endpoint reproduces
+  (re-fire in flight) before wiring. (EXP-SOURCE-GRADE.md, exp_source_grade.json)
+
+## 1b. (superseded) ANCHOR SOURCE: MFL over FFC — the MFL-only lean, now replaced by #1
 - **Found:** source grade — MFL orders realized value better than FFC (ρ 0.40 vs 0.28
   in 2023; 0.07 vs −0.03 in 2024; MFL won 7 pooled regions to 5; composite/hybrid does
   not beat MFL alone). Decomposition: MFL's edge is strongest in **rounds 1-7** (where
@@ -92,7 +113,15 @@ Audit date: 2026-08-09 (swept every recorded verdict in draft/backtest/*.json + 
      (weights→0) achieves the same draft-day effect without deleting code.
   - The autoWeights edit is staged and ready to bundle; **Cory's call on scope before Aug 22.**
 
-## 4. FANTASYPROS AS A THIRD SOURCE — BLOCKED ON ENDPOINT DISCOVERY (not yet measurable)
+## 4. FANTASYPROS AS A THIRD SOURCE — ✅ RESOLVED (endpoint found, in the grade) → folds into #1
+- **Found:** the FP page SSR-renders only a top-5 teaser; the full board is served by an
+  export/data variant of the ADP URL, surfaced by the self-discovering fetch after prioritizing
+  export variants over the proven-teaser nav links. FP now crosswalks 126 (2023) / 105 (2024)
+  players and is IN the three-way grade. See #1 for the result and the anchor decision.
+- **Status:** measurement DONE; the decision is #1 (anchor on FantasyPros). Reproducibility of
+  the endpoint re-firing in CI; endpoint recorded in `fantasypros_source` for future runs.
+
+### (historical) FANTASYPROS — the discovery path, kept for the record
 - **Found:** the parser is correct, but the FantasyPros ADP page **server-renders only the
   top-5 rows** (a teaser; `ssrHeader:true`) — players 6-300 are hydrated client-side from a
   data endpoint the initial HTML never contains. So the grade only ever saw 5 rows (self-
