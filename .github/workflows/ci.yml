@@ -82,6 +82,12 @@ jobs:
         # harvested target on its own. Asserts it renders and that no per-owner
         # efficiency analysis leaks onto this league-visible page.
         run: node draft/tests/matchup_weekly_high.test.js
+      - name: The Vault — trash + dispatch archives are actually read (de-orphaned)
+        # Both archives stored permanently but no surface called archiveForSeason/
+        # getArchive ("an archive nothing reads is the same as a deletion").
+        # Asserts /history/vault/:year renders both, groups trash by week, and the
+        # empty state is honest.
+        run: node draft/tests/vault.test.js
       - name: Pick'em all-time freeze — completed seasons survive the rollover
         # The "never resets" all-time board silently dropped every completed season
         # (a new league id can't refetch a past season's points). Asserts frozen

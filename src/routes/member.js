@@ -612,7 +612,44 @@ router.get('/history/season/:year', aw(async (req, res) => {
   const chapterInclude = chapterYears().has(year) ? `history/chapters/${year}` : null;
   // required cast (§2) computed from the all-play instrument, plus the champion.
   const cast = seasonCast(season);
-  res.render('history/season', { A, season, chapterInclude, cast, chapters: chapterYears() });
+  // Does this season have a vault (trash + dispatches) worth linking to? Cheap
+  // existence check so the season page only offers the link when there's something.
+  let hasVault = false;
+  try {
+    const [tk, di] = await Promise.all([
+      store.listKeys(`trash:${year}:`),
+      getDoc(`dispatch-index:${year}`, []),
+    ]);
+    hasVault = (tk && tk.length > 0) || (di && di.length > 0);
+  } catch (e) { /* the link is a bonus */ }
+  res.render('history/season', { A, season, chapterInclude, cast, chapters: chapterYears(), hasVault });
+}));
+
+// THE VAULT — a season's trash talk + dispatches, the permanent record that
+// nothing read until now (the archive functions existed but no surface called
+// them — "an archive nothing reads is the same as a deletion"). Un-gated on the
+// harvest, so the CURRENT season's vault is reachable too, and every week's
+// thread survives (the matchup page only ever showed the current week).
+router.get('/history/vault/:year', aw(async (req, res) => {
+  const year = Number(req.params.year);
+  if (!Number.isFinite(year)) {
+    return res.status(404).render('error', { title: 'No such season', message: 'That year is not a season.' });
+  }
+  const owners = req.world.owners;
+  const nameOf = id => (H.ownerById(owners, id) || {}).name || '?';
+  let dispatches = [], trash = [];
+  try { dispatches = await DISPATCH.getArchive(year); } catch (e) { /* best-effort */ }
+  try { trash = await TT.archiveForSeason(year); } catch (e) { /* best-effort */ }
+  // Group trash by week so a season reads as a timeline, newest week first.
+  const byWeek = {};
+  for (const p of trash) { (byWeek[p.week] = byWeek[p.week] || []).push(p); }
+  const weeks = Object.keys(byWeek).map(Number).sort((a, b) => b - a)
+    .map(w => ({ week: w, posts: byWeek[w] }));
+  res.render('history/vault', {
+    year, dispatches, weeks, nameOf,
+    total: trash.length,
+    currentYear: (H.currentSeason(req.world.seasons) || {}).year || null,
+  });
 }));
 
 // The All-Time Records Book (the crown jewel).

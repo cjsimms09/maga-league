@@ -18,6 +18,9 @@
     <p class="chron-sub">Champion: <b style="color:var(--gold-bright)"><%= cast.champion.name %></b>
       · Wooden spoon: <b style="color:var(--red-bright)"><%= cast.last.name %></b></p>
   <% } %>
+  <% if (typeof hasVault !== 'undefined' && hasVault) { %>
+    <p style="text-align:center; margin:.2rem 0 0"><a class="btn navy small" href="/history/vault/<%= S.year %>">🗄️ The Vault — trash talk &amp; dispatches →</a></p>
+  <% } %>
 
   <!-- THE CHAPTER (prose) --------------------------------------------------->
   <div class="card">

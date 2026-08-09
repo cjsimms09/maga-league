@@ -3287,3 +3287,16 @@ table.roll td.num, .pf, .wh-race-scale, .wh-band-note{ color: var(--ink); }
   .acc-graded-out { flex-basis: 100%; text-align: left; }
   .acc-rel-obs { flex-basis: 6.5rem; }
 }
+
+/* THE VAULT — a season's trash + dispatches (reuses .tt-thread/.tt-post). */
+.vault-dispatches { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .7rem; }
+.vault-dispatch { display: flex; gap: .6rem; align-items: flex-start; }
+.vault-d-icon { font-size: 1.2rem; flex: 0 0 auto; line-height: 1.3; }
+.vault-d-title { font-family: var(--font-display); font-weight: 800; font-size: .78rem;
+  letter-spacing: .04em; text-transform: uppercase; color: var(--ink); }
+.vault-d-body { font-size: .9rem; color: var(--muted); line-height: 1.5; margin-top: .1rem; }
+.vault-week { margin-bottom: 1.1rem; }
+.vault-week:last-child { margin-bottom: 0; }
+.vault-week-head { font-family: var(--font-display); font-weight: 800; font-size: .72rem;
+  letter-spacing: .08em; text-transform: uppercase; color: var(--gold-bright);
+  margin-bottom: .4rem; border-bottom: 1px solid var(--line); padding-bottom: .2rem; }
