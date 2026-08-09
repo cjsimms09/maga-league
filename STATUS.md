@@ -1142,3 +1142,20 @@ re-point. Everything B owns is green.
 - **`bbm-probe.yml` cannot fire until integrated to main.** `workflow_dispatch` requires the workflow on main to be dispatchable (404 on the branch ref, confirmed). It runs the full-field R1 dead-zone (4.8 GB stream, memory-safe) + discovers BBM V's exact CSV URL (CI has the egress the sandbox lacks). **Needs your authorization to merge my branch → main, OR you dispatch it after a merge.** The high-value finals result is already in-hand and committed; this is the full-N escalation.
 
 ### ▶ QUEUED (unchanged priority): full-field BBM dead-zone (CI, above) → forward-prediction draft-time emission wire-up (war room calls `forecast_slate.materialize` → POST /admin/api/ledger/predict per committed claim) → third composite arm → dollar-grade exp35 → exp41 race → auto-adjuster mining → what-would-have-worked. **On Cory:** mock #4 + degraded drill still parked on your GO (12 days out; treat as next after current unit when you say go).
+
+## ▶ SESSION A — RESUME MARKER 2026-08-09 (dead-zone located + board marker · BBM archive · forecast emitters)
+**Branch `claude/derived-values-bbm-tier-xxto5m`; all below committed, tested, and INTEGRATED to main (deployed where served).**
+
+### ✅ DELIVERED this session (continuing from the accounting + territory + red-build fixes already on main)
+- **Red Python build FIXED + guarded** (earlier this session): two `projections` modules collided in sys.modules; renamed backtest one → `lab_projections.py`, updated all importers. `test_ci_loop_integrity.py` guards against zero-test files + same-name module collisions. CI green on main.
+- **Accounting pass COMPLETE** (mock #4 gate): `pickCoordinate()` single source (killed the stale `state.data.current_pick` reader on the clock card); reconciler itemizes roster by source + asserts coordinates agree, with a MUTATION test proving it can fail; rehearsal-keeper separation asserted; alarms NAME the disagreeing coordinate. Deployed. **Ready for mock #4.**
+- **Territory boundary ENCODED** on main: B owns `warroom.ejs` shell + war-room CSS + design system; A keeps `app.js` + emitted markup + the A-owned `_warroom_scripts.ejs` include partial. Interface note (host-id/data/CSS contracts) + B heads-up in TERRITORY.md. **B is unblocked for the density redesign.**
+- **EXP 25 dead-zone LOCATED on our data** (`exp25_deadzone.py`, LOCAL, n=395): RB ~170 through overall pick 60 → ~110 after; WR holds ~140, overtakes RB at **overall pick ~61**. Agrees with BBM in the overall-pick invariant (~50–61). **Board marker shipped** in deviation.js (`deadZoneLine`, informational labeled prior, emits `.dv-deadzone` for B to style). Keeper interaction stated: Henry+Walker fill RB → dead-zone + keeper-fill + WR Feast all agree → **mid-round WR past pick ~60 is the best-evidenced positional call.** EXP25-OURS.md.
+- **BBM durable archive**: `bbm_archive.py` gzips the finals column-subset (2.6 MB → 122 KB), reproduces exp24 exactly, committed (no Underdog-hosting dependency). MANIFEST updated.
+- **Forecast slate client emitters**: `PredLedger.forecast()/forecastResolution()` (deduped by key), tested with a fetch stub. The stack (server kinds+validation, grader+forward-guarantee, slate+materialize, client emitters) is complete + tested.
+
+### ▶ NEXT (in order; none gated on mock #4)
+1. **Forecast emission hook (app.js)** — commit the pre-draft slate at decision time (survival at my picks, room_seat per seat, adp_fall on the top board, roster_dollars at draft end) + the resolution pass. The one piece to build+verify against the running app / mock #4. **Hard deadline: before Aug 22.**
+2. **Post-mock (Cory runs mock #4 → gates these):** density redesign (B, against the host contract), doctrine-switch UI, ribbon/overlay audit, opponent positional needs (feature C), revert/reconcile.
+
+### On Cory: run mock #4 (accounting is green). Dead-zone marker is live on the board.
