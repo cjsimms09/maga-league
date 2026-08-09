@@ -13,6 +13,7 @@ const WW = require('./whatwatch');         // what-to-watch — the Sunday/Monda
 const MK = require('./marks');             // auto badges — GOAT on Mahomes' owner, Chiefs mark on KC players
 const RIV = require('./rivalries');        // named rivalries (German derby, Dylan-Sam, Bates-Richard)
 const SET = require('./settlement');       // the settlement report — who pays whom, with Venmo
+const ACC = require('./accuracy');          // model-accuracy display — reads A's calibration/attribution output
 const L = require('../ledger');
 const SB = require('../sidebets');
 const BL = require('../betlogic');
@@ -2003,6 +2004,24 @@ router.get('/lineup', requireCommissioner, aw(async (req, res) => {
     sent: req.query.sent === '1',
     emailOn: notify.configured(),
   });
+}));
+
+// ---------- MODEL ACCURACY (commissioner-only — model internals, not results) ----------
+// The display half of the learning loop. A's weekly grading writes a calibration
+// ledger and an attribution table; this reads them and shows how well the model
+// has predicted, what got graded, the attribution table filling in, and the
+// biggest misses. Commissioner-only for the same reason as the optimizer: this is
+// model internals, not league property. Degrades honestly before A has graded
+// anything — the engine (accuracy.js) is pure; this is just the gather + render.
+router.get('/lineup/accuracy', requireCommissioner, aw(async (req, res) => {
+  const world = req.world;
+  const season = String(H.currentSeason(world.seasons).year || new Date().getUTCFullYear());
+  const calibration = await getDoc(`calibration:${season}`, null);
+  const attribution = await getDoc(`attribution:${season}`, null);
+  let rawCount = 0;
+  try { rawCount = (await store.listKeys(`pred:${season}:`)).length; } catch (e) { /* count is a bonus */ }
+  const view = ACC.buildAccuracyView(calibration, attribution, rawCount);
+  res.render('accuracy', { me: req.owner, season, view });
 }));
 
 // Send the Sunday alert to the commissioner now (rehearsal, and the manual fire).

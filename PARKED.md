@@ -736,3 +736,43 @@ missing ones using the same classes so B's styling picks them up.
 - `#queue` + `#queue-head` + the queue action buttons moved from Layer 3 to the
   bottom of `.wr-zone1` (`#queue-card`, blue-edged). Same ids.
 - No ids renamed or deleted; no change to what app.js reads or emits.
+
+---
+
+## 🅱️→🅰️ MODEL-ACCURACY DISPLAY — the two docs A's grading must write (Session B, 2026-08-09)
+B built the commissioner-only **/lineup/accuracy** page (calibration, recently-graded,
+biggest misses, attribution table filling in) — the "places the graded data goes"
+Cory asked for. Shipped on `claude/pickems-feature-3ksf0l`. It reads two store docs
+A's weekly grading writes; both may be null and the page degrades honestly ("not yet
+graded, N logged"), so nothing breaks before the cron exists. Write these and the
+page lights up with zero further B work:
+
+### `calibration:<season>`  (getDoc/setDoc) — the scorecard
+Exactly the shape `draft/backtest/forecast_grade.py` `grade()` already returns, plus
+two cheap optional roll-ups. B reads it defensively (missing fields tolerated):
+```
+{ generated_at, week,
+  n_forecasts, n_resolved, n_graded, n_pending, n_disqualified,
+  probability: { n, brier, reliability: [ { predicted_mid, n, observed_rate } ] },
+  point:       { n, bias, mae },
+  categorical: { n, accuracy },
+  graded: [ { key, ftype:'probability'|'point'|'categorical', claim, value, outcome,
+              method, forecast_at, week?, kind?,   // kind = survival|lineup_call|waiver_claim|forecast…
+              brier? | error? | abs_error? | hit? } ],
+  by_kind?: { <kind>: { n, brier?, accuracy?, mae? } },   // optional — powers "by prediction type"
+  by_week?: [ { week, n_graded, brier?, accuracy? } ] }    // optional — powers "over time"
+```
+`graded[].claim` is the one human-readable line B shows; `kind`/`week` let B group
+and label. If you already run `grade()`, this is essentially `JSON.stringify` of its
+output + stamping `week` on each graded record.
+
+### `attribution:<season>`  (getDoc/setDoc) — the component table filling in
+```
+{ generated_at,
+  components: [ { key, label, realized, ci_low, ci_high, n, measured:boolean, note } ] }
+```
+`measured:false` cells render as **unmeasured** with the `note` (never a fabricated
+number) — that honesty is the point per exp-37 wording ("$X realised on decisions
+where the tool recommended Y", never "the tool earned $X").
+
+No B action remains once these are written; the page + nav link + 20 tests are live.

@@ -82,6 +82,12 @@ jobs:
         # harvested target on its own. Asserts it renders and that no per-owner
         # efficiency analysis leaks onto this league-visible page.
         run: node draft/tests/matchup_weekly_high.test.js
+      - name: Model accuracy — the display half of the learning loop (reads A's grades)
+        # Pure engine (buildAccuracyView never grades — it shapes A's calibration/
+        # attribution output and degrades honestly before there's data) + the
+        # commissioner-only HTTP surface: 403s a non-commissioner, shows the honest
+        # empty state before grading, and populates from a written calibration doc.
+        run: node draft/tests/accuracy.test.js
       - name: War-room mobile furniture — nothing fixed/sticky floats over content
         # After the pick bar floated mid-screen and the arm button covered the nav
         # (3rd report), the rule is: on a phone the war-room pinned strips drop to
