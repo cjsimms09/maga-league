@@ -15,7 +15,7 @@ _(core+term) − core, paired. The decision-relevant question: what to turn ON b
 | risk | -142.8 | [-170.31, -114.56] | HURTS (-143, CI excludes 0) |
 | ceiling | -4.8 | [-25.81, 17.25] | decoration (≤$25; CI tight around 0) |
 | bye | -19.6 | [-42.75, 3.5] | decoration (≤$25; CI tight around 0) |
-| stack | -63.4 | [-86.69, -41.19] | HURTS (-63, CI excludes 0) |
+| stack | -63.4 | [-86.69, -41.19] | INSTRUMENT-LIMITED — grade_room has no within-team weekly correlation — the stack mechanism is absent, so this arm can't reward it. Sound instrument = exp6/stack_sweep (WINNER +$196 @ dose 0.5). |
 
 ## ABLATION — full − term-off (confounded: 'full' carries the harmful tilts)
 
@@ -65,9 +65,11 @@ _value MAGNITUDE is ill-posed in isolation (with no competing term any w>0 gives
 | weekly-high (37.5% of pot) | -0.8 | [-7.25, 6.25] |
 | regular-season | +2.8 | [-3.12, 9.06] |
 
-**Verdict:** Core (mask + value anchor) = $704. Adding to the core: EARNS nothing; HURTS tier, risk, stack; decoration need, ceiling, bye. Ceiling shows NO clean weekly-high gain on the core (wk-high -1 CI[-7.25, 6.25], RS +3 CI[-3.12, 9.06]) — my prereg guess did NOT survive de-confounding. Value anchor is decisive (removing it from full costs +362 CI[328.75, 394.06]).
+**Verdict:** Core (mask + value anchor) = $704. Adding to the core: EARNS nothing; HURTS tier, risk; decoration need, ceiling, bye; stack INSTRUMENT-LIMITED (defer to exp6/stack_sweep, WINNER +$196). Ceiling shows NO clean weekly-high gain on the core (wk-high -1 CI[-7.25, 6.25], RS +3 CI[-3.12, 9.06]) — my prereg guess did NOT survive de-confounding. Value anchor is decisive (removing it from full costs +362 CI[328.75, 394.06]).
 
-**Draft-day Auto:** mask ON (the earner), value anchor at default, all additive adjusters at/near zero. Nothing measured earns a place beyond mask+value.
+**Stack reconciliation (instrument limit):** stack reads -$63 HERE but that is an instrument artifact — grade_room draws weekly scores independently (no within-team correlation), so this harness cannot reward a stack. exp6/stack_sweep models rho=0.35 and found stack a WINNER (+$196 @ dose 0.5, CI[131,268]). stack_sweep is authoritative for stack; the exp6 dose-pays verdict STANDS, not retired.
+
+**Draft-day Auto:** mask ON (earner) + value anchor 1.0 (earner) + STACK ~0.5 (exp6 winner, the one adjuster that earns — its mechanism just is not in THIS harness); need/ceiling/bye ~0 (decoration), tier/risk 0 (measured drag). The panel collapses to mask + value + a stack tilt.
 
 **Pre-registration outcome:** Cory's prior (need earns, most others don't) — CONFIRMED, with one correction: even the additive need-WEIGHT is decoration; it's the MASK (always on) that earns. My prereg guess that CEILING earns via weekly-high — NOT supported on the clean core (weekly-high ~0); the apparent weekly-high gain was a confound of the ablation-from-full frame.
 

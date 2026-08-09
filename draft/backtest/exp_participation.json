@@ -60,7 +60,8 @@
         -41.19
       ],
       "separable_from_zero": true,
-      "reading": "HURTS (-63, CI excludes 0)"
+      "reading": "INSTRUMENT-LIMITED \u2014 grade_room has no within-team weekly correlation \u2014 the stack mechanism is absent, so this arm can't reward it. Sound instrument = exp6/stack_sweep (WINNER +$196 @ dose 0.5).",
+      "instrument_limited": true
     }
   },
   "ablation_from_full": {
@@ -270,8 +271,7 @@
   "survivors": [],
   "hurts": [
     "tier",
-    "risk",
-    "stack"
+    "risk"
   ],
   "decoration": [
     "need",
@@ -279,9 +279,13 @@
     "bye"
   ],
   "faithfulness": "need + value map exactly onto this harness (accepted results use them); tier/risk/ceiling/bye/stack are proxies from the same board fields the engine uses, scaled to a fair ~30-pt nudge \u2014 a proxy null bounds the mechanism here, it does not by itself convict the live term.",
-  "verdict": "Core (mask + value anchor) = $704. Adding to the core: EARNS nothing; HURTS tier, risk, stack; decoration need, ceiling, bye. Ceiling shows NO clean weekly-high gain on the core (wk-high -1 CI[-7.25, 6.25], RS +3 CI[-3.12, 9.06]) \u2014 my prereg guess did NOT survive de-confounding. Value anchor is decisive (removing it from full costs +362 CI[328.75, 394.06]).",
+  "verdict": "Core (mask + value anchor) = $704. Adding to the core: EARNS nothing; HURTS tier, risk; decoration need, ceiling, bye; stack INSTRUMENT-LIMITED (defer to exp6/stack_sweep, WINNER +$196). Ceiling shows NO clean weekly-high gain on the core (wk-high -1 CI[-7.25, 6.25], RS +3 CI[-3.12, 9.06]) \u2014 my prereg guess did NOT survive de-confounding. Value anchor is decisive (removing it from full costs +362 CI[328.75, 394.06]).",
   "scale_caveat": "SCALE caveat (load-bearing): each adjuster is scaled to a uniform ~30-pt VORP-equivalent nudge at weight 1 so none is handicapped \u2014 but the LIVE engine's tier/risk/stack terms are smaller than a 30-pt nudge, so their harmful DOLLAR magnitudes here (tier/risk/stack) are an upper bound at fair-fight strength, not the live-engine loss. The ROBUST, decision-relevant claim is the SIGN and ordering: on the clean mask+value core, no adjuster EARNS; at any strength large enough to move picks, tier/risk/stack LOSE (they pull off the anchor toward a mechanism no payout rewards). At the engine's smaller real strength they shade from mild harm to decoration. Either way: nothing to turn up beyond the core.",
   "frame_note": "Build-up (add one term to the core) is the truth; ablation (remove one from 'full') is CONFOUNDED because 'full' carries the harmful tilts \u2014 e.g. ceiling reads +150 in ablation but \u22125 in build-up: in 'full' it looks good only by partially offsetting tier/risk damage. Read build-up.",
   "prereg_outcome": "Cory's prior (need earns, most others don't) \u2014 CONFIRMED, with one correction: even the additive need-WEIGHT is decoration; it's the MASK (always on) that earns. My prereg guess that CEILING earns via weekly-high \u2014 NOT supported on the clean core (weekly-high ~0); the apparent weekly-high gain was a confound of the ablation-from-full frame.",
-  "draft_day_auto": "mask ON (the earner), value anchor at default, all additive adjusters at/near zero. Nothing measured earns a place beyond mask+value."
+  "draft_day_auto": "mask ON (earner) + value anchor 1.0 (earner) + STACK ~0.5 (exp6 winner, the one adjuster that earns \u2014 its mechanism just is not in THIS harness); need/ceiling/bye ~0 (decoration), tier/risk 0 (measured drag). The panel collapses to mask + value + a stack tilt.",
+  "instrument_limited": {
+    "stack": "grade_room has no within-team weekly correlation \u2014 the stack mechanism is absent, so this arm can't reward it. Sound instrument = exp6/stack_sweep (WINNER +$196 @ dose 0.5)."
+  },
+  "stack_reconciliation": "stack reads -$63 HERE but that is an instrument artifact \u2014 grade_room draws weekly scores independently (no within-team correlation), so this harness cannot reward a stack. exp6/stack_sweep models rho=0.35 and found stack a WINNER (+$196 @ dose 0.5, CI[131,268]). stack_sweep is authoritative for stack; the exp6 dose-pays verdict STANDS, not retired."
 }

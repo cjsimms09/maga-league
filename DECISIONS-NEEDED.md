@@ -58,22 +58,26 @@ Audit date: 2026-08-09 (swept every recorded verdict in draft/backtest/*.json + 
   exp_need_phase; it's the always-on MASK that earns, not the additive weight), **ceiling −4.8
   [−26,+17] with no clean weekly-high gain** (my pre-registered "shape pays" guess did NOT
   survive de-confounding — the apparent weekly-high win was a confound of the ablation-from-full
-  frame), **bye ~0**, and **tier −235 / risk −143 / stack −63 actively HURT** (they pull picks
-  off the value anchor toward a mechanism no payout rewards). Value anchor removal costs $362 —
-  it and the mask are the earners.
-- **Implies:** Auto should collapse to **mask ON + value anchor at default + all additive
-  adjusters at/near zero.** The war-room slider panel should say which controls do anything
-  rather than presenting eight equals.
+  frame), **bye ~0**, and **tier −235 / risk −143 actively HURT** (they pull picks off the value
+  anchor toward a mechanism no payout rewards). **stack reads −63 but that is an INSTRUMENT
+  ARTIFACT** — grade_room draws weekly scores independently (no within-team correlation), so
+  this harness can't reward a stack; exp6/stack_sweep (rho=0.35) is the sound instrument and
+  found stack a **WINNER (+$196 @ dose 0.5)** — kept ON. Value anchor removal costs $362 — it
+  and the mask are the earners.
+- **Implies:** Auto collapses to **mask + value anchor + a STACK tilt (~0.5)**; drop tier/risk
+  (measured drag) and need-weight/ceiling/bye (decoration). The slider panel should say which
+  controls do anything rather than presenting eight equals.
 - **Magnitude:** the harmful dollar figures are an **upper bound at a uniform ~30-pt nudge**
   (see caveat) — the ROBUST claim is the SIGN/ordering: no adjuster earns; at any strength big
-  enough to move a pick, tier/risk/stack lose. The win is a large **robustness/legibility**
+  enough to move a pick, tier/risk lose (stack is instrument-limited here — see below). The win is a large **robustness/legibility**
   gain plus removing a measured drag.
 - **Confidence — split by faithfulness:** **need-weight (drop/flatten): STRONG & FAITHFUL** —
-  need_signal is the exact harness term, and exp_need_phase agrees. **tier/risk/ceiling/bye/
-  stack: DIRECTIONAL via PROXY** — computed from the same board fields the engine uses but not
-  the engine's exact functions, so a proxy null bounds the *mechanism*, it doesn't by itself
-  convict the *live term*. The proper instrument to convict them is a faithful JS-engine
-  ablation (queued, not built).
+  need_signal is the exact harness term, and exp_need_phase agrees. **tier/risk/ceiling/bye:
+  DIRECTIONAL via PROXY** — computed from the same board fields the engine uses but not the
+  engine's exact functions, so a proxy null bounds the *mechanism*, it doesn't by itself convict
+  the *live term*. **stack: NOT JUDGED HERE** — grade_room has no within-team correlation, so
+  the harness can't reward it; stack_sweep (+$196) is authoritative. The proper instrument to
+  convict tier/risk is a faithful JS-engine ablation (queued, not built).
 - **Cost of inaction:** Auto drives six hand-built terms on draft day, at least two of which
   (tier, risk) measurably drag against the value anchor; the panel teaches distrust by
   presenting inert/harmful controls as equal to the two that matter.
@@ -81,11 +85,10 @@ Audit date: 2026-08-09 (swept every recorded verdict in draft/backtest/*.json + 
   1. **DO NOW (robust+faithful):** flatten Auto's need-weight ramp to a flat ~0.5 (or drop the
      additive need term; mask stays). Zero risk to the measured edge.
   2. **DRAFT-DAY PRESET (recommended):** run Auto as **mask + value(1.0)**, with tier/risk/
-     ceiling/bye/stack at **0** (or ceiling left at its harmless default 0.65 — it's ~0, not
-     negative). This is the "flat preset on draft day" Cory floated — defensible, legible,
+     ceiling/bye at **0** (ceiling ~0, harmless) and **stack ~0.5** (exp6 winner). This is the "flat preset on draft day" Cory floated — defensible, legible,
      sheds the measured drag.
   3. **BEFORE ripping the live terms out of engine.js:** build the faithful JS-engine ablation
-     to convict tier/risk/stack on the real functions (proxy caveat). Until then, the *preset*
+     to convict tier/risk on the real functions (proxy caveat); stack's mechanism (within-team correlation) needs a correlation-aware grader, which stack_sweep already is. Until then, the *preset*
      (weights→0) achieves the same draft-day effect without deleting code.
   - The autoWeights edit is staged and ready to bundle; **Cory's call on scope before Aug 22.**
 

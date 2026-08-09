@@ -105,15 +105,17 @@ sample-ceiling breakers have much higher EVSI:
 - **Adjuster sliders / ceiling tilt / auto-adjust.** **NOT a top edge — and now MEASURED as a
   net DRAG.** The all-terms participation test (exp_participation, 400 paired rooms, 2026-08-09)
   built each adjuster up from the mask+value core: **core $704; core + all six adjusters at
-  engine default $407.** On the clean core NOTHING earns beyond mask+value — need-weight +6.5
-  [−8,+20], ceiling −4.8 [−26,+17] (no clean weekly-high gain — my "shape pays" prereg guess
-  did NOT survive de-confounding), bye ~0; **tier −235, risk −143, stack −63 actively hurt** at
-  fair-fight strength. This RETIRES the weak-scope "defaults win" null (it raced 3 shapes; this
-  is a build-up over the whole panel). **Scope honesty:** need+value are faithful to the
-  harness; tier/risk/ceiling/bye/stack are PROXIES (same board fields, not the engine's exact
-  functions), so the SIGN is robust but the harmful dollar magnitudes are an upper bound at a
-  uniform ~30-pt nudge — convicting the live terms needs a faithful JS-engine ablation. →
-  DECISIONS-NEEDED #3: draft-day Auto = mask + value, adjusters at/near zero.
+  engine default $407.** On the clean core NOTHING new earns beyond mask+value — need-weight
+  +6.5 [−8,+20], ceiling −4.8 [−26,+17] (no clean weekly-high gain — my "shape pays" prereg
+  guess did NOT survive de-confounding), bye ~0; **tier −235, risk −143 actively hurt** at
+  fair-fight strength. **stack reads −63 here but that is an INSTRUMENT ARTIFACT** — grade_room
+  draws weekly scores independently (no within-team correlation), so this harness *can't* reward
+  a stack; the sound instrument is exp6/stack_sweep (rho=0.35), which found stack a **WINNER
+  (+$196 @ dose 0.5)** — that verdict STANDS. This RETIRES the weak-scope "defaults win" null
+  (it raced 3 shapes; this is a build-up over the panel). **Scope honesty:** need+value faithful;
+  tier/risk/ceiling/bye are PROXIES (SIGN robust, harmful $ an upper bound at a ~30-pt nudge);
+  stack instrument-limited here. → DECISIONS-NEEDED #3: draft-day Auto = mask + value + a stack
+  tilt (~0.5); tier/risk off; need/ceiling/bye ~0.
 - **The keeper-need MASK vs the need-WEIGHT ramp (MEASURED 2026-08-09, exp_need_phase).**
   The MASK (startable-cap) is a real, large earner — **~$443** vs no-mask over 300 paired
   rooms (consistent with the $258 keeper-B0). Auto's additive need-**WEIGHT ramp**

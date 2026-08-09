@@ -165,6 +165,16 @@ def _chooser(w, st):
 ADJ = ("need", "tier", "risk", "ceiling", "bye", "stack")   # the 7th (keeper) is scoped out
 _CORE = {"value": 1.0, "need": 0.0, "tier": 0.0, "risk": 0.0, "ceiling": 0.0, "bye": 0.0, "stack": 0.0}
 
+# INSTRUMENT LIMIT: grade_room draws each starter's weekly score INDEPENDENTLY — it has no
+# within-team weekly CORRELATION, which is the entire mechanism a stack exploits. So this
+# harness CANNOT reward stacking; a stack tilt here only distorts the anchor. The stack arm is
+# therefore measuring the wrong thing — the SOUND instrument for stack is exp6/stack_sweep
+# (rho=0.35 modelled), which found stack a WINNER (+$196 @ dose 0.5). Report stack as
+# instrument-limited here, NOT as decoration/drag; defer to stack_sweep.
+INSTRUMENT_LIMITED = {"stack": "grade_room has no within-team weekly correlation — the stack "
+                               "mechanism is absent, so this arm can't reward it. Sound "
+                               "instrument = exp6/stack_sweep (WINNER +$196 @ dose 0.5)."}
+
 
 def choosers(st):
     out = {
@@ -278,7 +288,11 @@ def main():
     build_up = {}
     for term in ADJ:
         v = _paired(totals, f"core_plus_{term}", base="core")
-        v["reading"] = _term_verdict(v)
+        if term in INSTRUMENT_LIMITED:
+            v["reading"] = "INSTRUMENT-LIMITED — " + INSTRUMENT_LIMITED[term]
+            v["instrument_limited"] = True
+        else:
+            v["reading"] = _term_verdict(v)
         build_up[term] = v
     core_mean = sum(totals["core"]["total"]) / n
 
@@ -295,9 +309,11 @@ def main():
     }
 
     # survivors/decoration keyed off the CLEAN build-up frame, not the confounded ablation.
-    survivors = [t for t, v in build_up.items() if v["separable_from_zero"] and v["edge"] > 0]
-    hurts = [t for t, v in build_up.items() if v["separable_from_zero"] and v["edge"] < 0]
-    decoration = [t for t, v in build_up.items()
+    # Instrument-limited terms (stack) are EXCLUDED from all three — the harness can't judge them.
+    judged = {t: v for t, v in build_up.items() if not v.get("instrument_limited")}
+    survivors = [t for t, v in judged.items() if v["separable_from_zero"] and v["edge"] > 0]
+    hurts = [t for t, v in judged.items() if v["separable_from_zero"] and v["edge"] < 0]
+    decoration = [t for t, v in judged.items()
                   if not v["separable_from_zero"] and abs(v["edge"]) < 25]
     out = {
         "experiment": "all-terms participation test — which of the 8 adjusters earn $?",
@@ -319,6 +335,13 @@ def main():
         "ceiling_weight_curve": ceiling_curve,
         "ceiling_by_payout_component": ceiling_split,
         "survivors": survivors, "hurts": hurts, "decoration": decoration,
+        "instrument_limited": INSTRUMENT_LIMITED,
+        "stack_reconciliation": "stack reads −$63 HERE but that is an instrument artifact — "
+                                "grade_room draws weekly scores independently (no within-team "
+                                "correlation), so this harness can't reward a stack. exp6/"
+                                "stack_sweep models rho=0.35 and found stack a WINNER (+$196 @ "
+                                "dose 0.5, CI[131,268]). stack_sweep is authoritative for stack; "
+                                "the exp6 'dose pays' verdict STANDS, not retired.",
         "faithfulness": "need + value map exactly onto this harness (accepted results use them); "
                         "tier/risk/ceiling/bye/stack are proxies from the same board fields the "
                         "engine uses, scaled to a fair ~30-pt nudge — a proxy null bounds the "
@@ -330,8 +353,10 @@ def main():
                           "(always on) that earns. My prereg guess that CEILING earns via "
                           "weekly-high — NOT supported on the clean core (weekly-high ~0); the "
                           "apparent weekly-high gain was a confound of the ablation-from-full frame.",
-        "draft_day_auto": "mask ON (the earner), value anchor at default, all additive adjusters "
-                          "at/near zero. Nothing measured earns a place beyond mask+value.",
+        "draft_day_auto": "mask ON (earner) + value anchor 1.0 (earner) + STACK ~0.5 (exp6 winner, "
+                          "the one adjuster that earns — its mechanism just isn't in THIS harness); "
+                          "need/ceiling/bye ~0 (decoration), tier/risk 0 (measured drag). The panel "
+                          "collapses to mask + value + a stack tilt.",
         "verdict": "",
     }
     out["verdict"] = _headline(out)
@@ -346,7 +371,8 @@ def _headline(out):
     parts = [f"Core (mask + value anchor) = ${out['core_mean_dollars']:.0f}. "
              f"Adding to the core: EARNS {', '.join(surv) if surv else 'nothing'}"
              + (f"; HURTS {', '.join(hurt)}" if hurt else "")
-             + f"; decoration {', '.join(dec) if dec else 'none'}."]
+             + f"; decoration {', '.join(dec) if dec else 'none'}"
+             + "; stack INSTRUMENT-LIMITED (defer to exp6/stack_sweep, WINNER +$196)."]
     cs = out["ceiling_by_payout_component"]
     wh, rs = cs["weekly_high"], cs["regular_season"]
     if wh["separable_from_zero"] and wh["edge"] > 0:
@@ -397,6 +423,7 @@ def _report(out):
           f"| weekly-high (37.5% of pot) | {cs['weekly_high']['edge']:+.1f} | {cs['weekly_high']['ci95']} |",
           f"| regular-season | {cs['regular_season']['edge']:+.1f} | {cs['regular_season']['ci95']} |", "",
           f"**Verdict:** {out['verdict']}", "",
+          f"**Stack reconciliation (instrument limit):** {out.get('stack_reconciliation', '')}", "",
           f"**Draft-day Auto:** {out.get('draft_day_auto', '')}", "",
           f"**Pre-registration outcome:** {out.get('prereg_outcome', '')}", "",
           f"**Frame:** {out.get('frame_note', '')}", "",
