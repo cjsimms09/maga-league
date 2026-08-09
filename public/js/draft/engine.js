@@ -29,6 +29,15 @@
     BENCH_DISCOUNT: 0.35,     // 12-team default; formatDefaults() overrides it
     SURVIVOR_CUTOFF: 0.005,   // stop the VONA product once mass is negligible
     TIE_THRESHOLD: 2.0,       // composite points within which we call it a tie
+    // STAGE 2 CAP — the crude, evidence-gated deviation anchor (pre-registered in
+    // draft/backtest/STAGE2-CAP-PREREG.md). OFF by default: shipping it on before
+    // it is measured would be the exact sin the pre-registration guards against.
+    // When on, a candidate keeps its deviation-boosted score only if its EARNED
+    // evidence (material drivers classed structural/moderate/validated — need,
+    // ceiling) >= STAGE2_CAP_T; otherwise it is scored at its consensus baseline.
+    // Enabled for measurement via env STAGE2_CAP=1 (see the boot line below).
+    STAGE2_CAP: false,
+    STAGE2_CAP_T: 4.0,        // one noise band's worth of TESTED evidence to move
 
     // --- on the clock (Part 6: the buddy layer) ---
     // How wide the gap to second has to be before the board is telling you
@@ -189,6 +198,12 @@
     AUTO_FILL_ROUNDS: 10,       // holes start costing real points
     AUTO_TIGHT_PICKS: 4,        // picks left below which a gap is an emergency
   };
+
+  // Measurement override: the intervention-rate diff enables the cap via env so
+  // it can measure the cap WITHOUT shipping it on. Node only; no effect in the app.
+  if (typeof process !== 'undefined' && process.env && process.env.STAGE2_CAP === '1') {
+    CFG.STAGE2_CAP = true;
+  }
 
   /* CEILING = 0.65 — installed 2026-08-08 per DECISION D9 (Cory: "INSTALL, the
    * conservative end"). EVIDENCE: Lab experiment 21 (mean-variance frontier,
@@ -1024,9 +1039,46 @@
       overBudget: fires.length > budget, unacked, allAcked: unacked.length === 0 };
   }
 
+  /* THE CRUDE STAGE 2 CAP — evidence-gated deviation, pre-registered.
+   *
+   * OFF unless CFG.STAGE2_CAP. When on: a candidate keeps its deviation-boosted
+   * composite score only if its EARNED evidence — material drivers classed
+   * structural/moderate/validated (need, ceiling), summed absolute points — clears
+   * CFG.STAGE2_CAP_T. Otherwise it is scored at its consensus baseline (score minus
+   * ALL material driver contributions), which strips the untested-`value` and weak
+   * boosts and pulls the pick back toward market/VONA order.
+   *
+   * Rule, threshold and predictions are fixed in STAGE2-CAP-PREREG.md BEFORE the
+   * measurement. This is crude by intent (a hard bar, not proportional scaling) —
+   * a real anchor we can measure now, not the elegant fake of a post-hoc re-sort.
+   */
+  function applyStage2Cap(scored) {
+    if (!CFG.STAGE2_CAP) return scored;
+    const DEV = (typeof DraftDeviation !== 'undefined') ? DraftDeviation
+      : (typeof require === 'function' ? require('./deviation.js') : null);
+    if (!DEV || typeof DEV.drivers !== 'function') return scored;
+    const EARNED = { structural: true, moderate: true, validated: true };
+    scored.forEach(s => {
+      const drivers = DEV.drivers((s.components || {}).weighted);
+      let earned = 0, allMaterial = 0;
+      drivers.forEach(d => {
+        allMaterial += d.points;                       // signed
+        if (EARNED[d.klass]) earned += Math.abs(d.points);
+      });
+      s.stage2_earned = earned;
+      s.stage2_capped = earned >= CFG.STAGE2_CAP_T ? s.score : (s.score - allMaterial);
+      s.stage2_held = earned < CFG.STAGE2_CAP_T;       // reverted toward consensus
+    });
+    scored.sort((a, b) => b.stage2_capped - a.stage2_capped);
+    return scored;
+  }
+
   function recommend(ctx) {
     const all = ctx.board.map(p => scorePlayer(p, ctx));
     all.sort((a, b) => b.score - a.score);
+    // Stage 2 anchor (crude, pre-registered, OFF by default) reorders BEFORE
+    // legality/rails so those still apply to the anchored order.
+    applyStage2Cap(all);
 
     const legality = applyRosterLegality(all, ctx);
     // Rails first — they decide who gets demoted. Computed against the
