@@ -43,6 +43,13 @@ jobs:
           PY
       - name: Python deps
         run: pip install pytest
+      - name: Node deps (BEFORE the JS suites)
+        # The JS-suites step used to run with no node_modules, so any suite that
+        # boots the real app (express) could only live in a later step. That
+        # ordering trap is why app-booting tests drifted into separate steps and
+        # then out of CI entirely. Install first; then every suite can run in the
+        # one collected loop below.
+        run: npm install --no-audit --no-fund
       - name: JS suites
         id: js
         # RUN ALL of them, then fail if any failed — do NOT `set -e` abort on the
@@ -60,7 +67,18 @@ jobs:
         # break the build on someone else's open decision rather than surface it.
         run: |
           failed=""
-          for t in alerts app-wiring attribution authority backtest betlogic bundling_guard champs claimfix dashboard doctrine draft_banner draftorder engine grabby grade_cron h2h keeperlock keepers ledger marks matchup_spectator matchup_starters mcts mock_calib movement_line no_season_literals playoffs predledger prefs rawarchive reconcile rivalries season_form settlement shadows sidebets sidebets_lifecycle pool_draft stack_routes strategies sync update venmo voteenact watch_clickable week_hero matchup_placed_bet draft_sheet c3_lineup_disagree analyzer_surface inseason_design email_theme accuracy_wiring bank_career admin_destructive live_stale whatwatch accounting client_forecast coherence creed-signal-parity deviation doctrine-governance forecast legality needrule needs organism pickreconcile playerref sanity-sweep session shadow-availability slider_sync slotpicker standings survival-memo valuation waivers; do
+          # GLOB, don't enumerate. A hand-maintained list is how 23 suites ended
+          # up existing but never running — the most-repeated failure in this
+          # project, at the CI level. The Python side already globs
+          # (`pytest draft/tests`), so a new python test is covered the day it
+          # lands; JS now works the same way. Anything deliberately excluded must
+          # be named in SKIP below, with a reason, so a silent hole is impossible.
+          #   intervention-rate: RED — the rate drifted 73.7% -> 90.8% and it is
+          #   A's metric to adjudicate (see PARKED). Re-enable once the pin is settled.
+          SKIP="intervention-rate"
+          for f in draft/tests/*.test.js; do
+            t=$(basename "$f" .test.js)
+            case " $SKIP " in *" $t "*) echo "== $t (SKIPPED, see ci.yml) =="; continue;; esac
             echo "== $t =="
             if ! node draft/tests/$t.test.js; then failed="$failed $t"; fi
           done

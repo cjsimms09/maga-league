@@ -402,11 +402,29 @@ router.post('/votes/:id/reopen', aw(async (req, res) => {
   if (v) { v.status = 'open'; v.closed_at = null; await setDoc(`vote:${v.id}`, v); }
   back(res, 'votes');
 }));
+// Deleting a vote destroys the vote AND every ballot AND every comment — the
+// league's governance record, which the amendment ledger derives from. It hangs
+// off a bare "✕", so a mis-tap is easier here than on any other destructive
+// button, and the browser confirm behind it is not a server-side guard. Same
+// remedy as the draft reset: snapshot everything first, so the action is
+// reversible instead of merely regrettable. (No typed confirm here — this is
+// routine list cleanup, and the fix that matters is recoverability, not friction.)
 router.post('/votes/:id/delete', aw(async (req, res) => {
-  await store.del(`vote:${req.params.id}`);
-  for (const k of await store.listKeys(`ballot:${req.params.id}:`)) await store.del(k);
-  for (const k of await store.listKeys(`vcomment:${req.params.id}:`)) await store.del(k);
-  back(res, 'votes');
+  const id = req.params.id;
+  const vote = await getDoc(`vote:${id}`, null);
+  const ballotKeys = await store.listKeys(`ballot:${id}:`);
+  const commentKeys = await store.listKeys(`vcomment:${id}:`);
+  if (vote || ballotKeys.length || commentKeys.length) {
+    const ballots = {}, comments = {};
+    for (const k of ballotKeys) ballots[k] = await store.get(k);
+    for (const k of commentKeys) comments[k] = await store.get(k);
+    await setDoc(`vote-backup:${id}:${new Date().toISOString()}`,
+      { vote, ballots, comments, deleted_at: now(), deleted_by: req.owner.id });
+  }
+  await store.del(`vote:${id}`);
+  for (const k of ballotKeys) await store.del(k);
+  for (const k of commentKeys) await store.del(k);
+  back(res, 'votes', msg(`Vote deleted — ${ballotKeys.length} ballot${ballotKeys.length === 1 ? '' : 's'} snapshotted, recoverable from vote-backup:${id}.`));
 }));
 
 // ---------- owners ----------

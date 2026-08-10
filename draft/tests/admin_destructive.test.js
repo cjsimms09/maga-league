@@ -65,6 +65,31 @@ const form = { 'Content-Type': 'application/x-www-form-urlencoded' };
   ck('  the snapshot holds the actual claimed spots', !!snap && (snap.order || []).length === 2
     && snap.order.some(p => p.slot === 3) && snap.order.some(p => p.slot === 1));
 
+  // ── DELETING A VOTE destroys the vote AND every ballot AND every comment —
+  // the governance record the amendment ledger derives from — behind a bare "✕".
+  // It must be recoverable.
+  {
+    const VID = 'v-audit-1';
+    await setDoc(`vote:${VID}`, { id: VID, question: 'Raise the buy-in?', status: 'closed' });
+    await store.set(`ballot:${VID}:${cory.id}`, { owner_id: cory.id, choice: 'yes' });
+    await store.set(`ballot:${VID}:${member.id}`, { owner_id: member.id, choice: 'no' });
+    await store.set(`vcomment:${VID}:c1`, { body: 'no thanks' });
+
+    await fetch(b + `/admin/votes/${VID}/delete`, { method: 'POST', headers: { ...form, Cookie: cc }, body: '', redirect: 'manual' });
+    ck('deleting a vote clears the vote and its ballots', (await getDoc(`vote:${VID}`, null)) === null
+      && (await store.listKeys(`ballot:${VID}:`)).length === 0);
+
+    const vb = (await store.listKeys(`vote-backup:${VID}:`)) || [];
+    ck('  but a snapshot was taken first (recoverable)', vb.length === 1, vb.join(','));
+    const snap = vb.length ? await store.get(vb[0]) : null;
+    ck('  the snapshot holds the vote, BOTH ballots and the comment',
+      !!snap && snap.vote && snap.vote.id === VID
+      && Object.keys(snap.ballots || {}).length === 2
+      && Object.keys(snap.comments || {}).length === 1,
+      snap && JSON.stringify({ b: Object.keys(snap.ballots || {}).length, c: Object.keys(snap.comments || {}).length }));
+    ck('  and it records who deleted it and when', !!snap && snap.deleted_by === cory.id && !!snap.deleted_at);
+  }
+
   server.close();
   console.log(`\n${pass} passed, ${fail} failed`);
   process.exit(fail ? 1 : 0);
