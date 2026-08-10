@@ -1497,5 +1497,33 @@ check('weight sliders change the ranking', heavyCeiling[0].score !== scored[0].s
       .every(p => !p.distinction));
 }
 
+// --- Cory's model: ceiling is late-only + a same-tier tiebreaker --------------
+{
+  // ceiling contributes NOTHING to the composite early/mid, ramps in late rounds
+  const p = { proj_mean: 100, proj_ceiling: 160 };
+  const early = E.upsideBonus(p, 20, 180, 14);
+  const mid = E.upsideBonus(p, 90, 180, 12);
+  const late = E.upsideBonus(p, 170, 180, 3);
+  check('ceiling term is ZERO early (mean+VONA+tiers decide)', early === 0, `early=${early}`);
+  check('ceiling term is ZERO mid-draft too', mid === 0, `mid=${mid}`);
+  check('ceiling term powers the late throwaway rounds', late > 0, `late=${late}`);
+
+  const wr = (id, mean, ceil, vorp) => ({ player_id: id, name: id, position: 'WR',
+    proj_mean: mean, proj_ceiling: ceil, vorp: vorp, adjusted_adp: 40, raw_adp: 40,
+    tier: 2, tier_drop: 5, tier_size: 4 });
+  const tbCtx = b => ({ board: b, roster: [], league: { teams: 10,
+    starters: { QB: 1, RB: 2, WR: 2, TE: 1, FLEX: 1, K: 1, DEF: 1 } },
+    weights: E.DEFAULT_WEIGHTS, currentPick: 40, nextPick: 53, totalPicks: 150,
+    myPicksLeft: 11, roundsLeft: 11, runMultipliers: {} });
+  // equal mean + vorp, same tier + position -> the higher ceiling wins the tie
+  const tie = E.recommend(tbCtx([wr('steady', 150, 175, 50), wr('boom', 150, 230, 50)]));
+  check('same-tier/same-position near-tie leans to the higher ceiling',
+    tie[0].player.name === 'boom', tie.map(s => s.player.name).join(','));
+  // a REAL value gap is never overridden by the tiebreak
+  const gap = E.recommend(tbCtx([wr('steady', 180, 190, 80), wr('boom', 150, 230, 50)]));
+  check('a real mean/VORP gap is NOT overridden by the ceiling tiebreak',
+    gap[0].player.name === 'steady', gap.map(s => s.player.name).join(','));
+}
+
 console.log(`\n${pass}/${pass + fail} engine checks passed`);
 process.exit(fail ? 1 : 0);

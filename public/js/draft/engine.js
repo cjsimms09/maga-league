@@ -164,6 +164,14 @@
 
     CEILING_SPREAD_SHARE: 0.15,   // fraction of theoretical upside treated as collectable
     CEILING_MAX_BONUS: 20.0,      // hard cap, in the composite's own points
+    /* CEILING IS LATE-ROUNDS-ONLY (Cory's model, 2026-08-10). Projections (mean) +
+     * VONA + tiers decide early and mid picks; ceiling contributes NOTHING to the
+     * composite until the throwaway rounds, where it becomes the lottery-ticket term.
+     * Between two players in the SAME tier and position it still breaks the tie toward
+     * the higher ceiling (the weekly-payout lean) — that lives in the recommend() sort,
+     * not the composite. CEILING_LATE_FROM is the draft-fraction the ramp starts at. */
+    CEILING_LATE_FROM: 0.6,       // ceiling term = 0 until 60% of the draft, then ramps to full
+    CEILING_TIEBREAK: true,       // same-tier/same-position near-ties lean to higher ceiling
     RAIL_COMPONENT_RATIO: 1.0,    // a component larger than the player's own VORP
     RAIL_RUNAWAY_RATIO: 3.0,      // top score this many times the runner-up
     RAIL_DEFAULT_POS_CAP: { QB: 3, K: 2, DEF: 2, TE: 3 },
@@ -532,10 +540,14 @@
     // VORP near zero and upside is the entire reason to take him. Capping there
     // would delete the lottery-ticket behaviour the next line exists to create.
     const raw = (player.proj_ceiling || player.proj_mean) - player.proj_mean;
-    // Late picks should be lottery tickets, not safe floors.
+    // Ceiling is LATE-ONLY: zero until CEILING_LATE_FROM of the draft, then ramps to
+    // full. Early/mid picks are decided by mean + VONA + tiers; the throwaway rounds
+    // get the lottery ticket. (Same-tier ties still lean ceiling — in recommend().)
     const lateness = totalPicks ? Math.min(1, pickNumber / totalPicks) : 0.5;
+    const from = CFG.CEILING_LATE_FROM != null ? CFG.CEILING_LATE_FROM : 0.6;
+    const gate = Math.max(0, (lateness - from)) / Math.max(1e-6, 1 - from);
     const endgame = myPicksLeft != null && myPicksLeft <= 5 ? 1.6 : 1.0;
-    const scaled = raw * CFG.CEILING_SPREAD_SHARE * (0.3 + 0.7 * lateness) * endgame;
+    const scaled = raw * CFG.CEILING_SPREAD_SHARE * gate * endgame;
     return Math.max(-CFG.CEILING_MAX_BONUS, Math.min(CFG.CEILING_MAX_BONUS, scaled));
   }
 
@@ -1132,9 +1144,33 @@
     return scored;
   }
 
+  /* Same-tier / same-position TIEBREAKER (Cory's model): projections+VONA+tiers set
+   * the order; when two players are the SAME position AND SAME tier AND their scores
+   * are within TIE_THRESHOLD, lean to the higher ceiling — in this league a coin-flip
+   * between equals goes to the one with more weekly-high upside. Bounded to genuine
+   * near-ties, so it never overrides a real value gap. */
+  function applyCeilingTiebreak(list) {
+    if (!CFG.CEILING_TIEBREAK) return list;
+    const cap = (p) => (p.proj_ceiling != null ? p.proj_ceiling : (p.proj_mean || 0));
+    for (let pass = 0; pass < 3; pass++) {
+      let swapped = false;
+      for (let i = 0; i < list.length - 1; i++) {
+        const a = list[i].player, b = list[i + 1].player;
+        if (a.position === b.position && (a.tier || 0) === (b.tier || 0)
+            && Math.abs(list[i].score - list[i + 1].score) < CFG.TIE_THRESHOLD
+            && cap(b) > cap(a)) {
+          const t = list[i]; list[i] = list[i + 1]; list[i + 1] = t; swapped = true;
+        }
+      }
+      if (!swapped) break;
+    }
+    return list;
+  }
+
   function recommend(ctx) {
     const all = ctx.board.map(p => scorePlayer(p, ctx));
     all.sort((a, b) => b.score - a.score);
+    applyCeilingTiebreak(all);   // same-tier/same-position near-ties lean to higher ceiling
     // Stage 2 anchor (crude, pre-registered, OFF by default) reorders BEFORE
     // legality/rails so those still apply to the anchored order.
     applyStage2Cap(all);
