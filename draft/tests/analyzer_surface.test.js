@@ -57,6 +57,41 @@ const ck = (n, c, d) => { c ? (pass++, console.log('PASS ' + n)) : (fail++, cons
     [...new Set(postures)].join(','));
   ck('explains what each posture means in plain words', /will overpay to swing it/i.test(html) && /only live money/i.test(html));
 
+  // ── ARITHMETIC INVARIANTS on the engine the page renders ────────────────────
+  // Probabilities that should sum to something, checked rather than assumed.
+  // Exactly PLAYOFF_SPOTS teams make it in EVERY simulation, so the playoff
+  // probabilities must sum to exactly that; every game has exactly one winner, so
+  // expected wins must sum to teams x weeks / 2; and a team's seed distribution
+  // must sum to its own playoff probability. These are the checks that catch a
+  // silent engine regression the rendering tests would happily pass.
+  {
+    const LO = require(path.join(ROOT, 'src', 'routes', 'lineup'));
+    const ST = require(path.join(ROOT, 'src', 'routes', 'standings'));
+    const hist = LO.harvest();
+    const yr = LO.defaultSeasons(hist).slice(-1)[0];
+    const sObj = LO.seasonOf(hist, yr);
+    if (sObj) {
+      const proj = ST.projectStandings(sObj, { throughWeek: 9, sims: 2000, seed: 4242 }).projections;
+      const sumP = proj.reduce((a, r) => a + r.playoff_prob, 0);
+      ck(`Σ playoff probability == playoff spots (${ST.PLAYOFF_SPOTS})`,
+        Math.abs(sumP - ST.PLAYOFF_SPOTS) < 0.01, sumP.toFixed(3));
+
+      const weeks = LO.regularSeasonWeeks(sObj).length;
+      const expectedWins = (proj.length * weeks) / 2;   // one winner per game
+      const sumW = proj.reduce((a, r) => a + r.exp_wins, 0);
+      ck(`Σ expected wins == games played (${expectedWins})`,
+        Math.abs(sumW - expectedWins) < 0.51, sumW.toFixed(1));
+
+      const seedErr = Math.max(...proj.map(r =>
+        Math.abs(Object.values(r.seed_dist || {}).reduce((a, b) => a + b, 0) - r.playoff_prob)));
+      ck('each team\'s seed distribution sums to its own playoff probability',
+        seedErr < 0.001, seedErr.toFixed(4));
+
+      ck('every probability is a real number in [0,1]',
+        proj.every(r => r.playoff_prob >= 0 && r.playoff_prob <= 1 && isFinite(r.playoff_prob)));
+    }
+  }
+
   // ACCESS RULE: in-season recommendation surfaces are commissioner-only.
   const mc = await login(member.username);
   const mres = await fetch(b + '/analyzer', { headers: { Cookie: mc }, redirect: 'manual' });
