@@ -1559,3 +1559,60 @@ the sequence.
 - GUARD-BREAK: neutering the accounting reconciler's dilution check
   (`public/js/draft/accounting.js`) took the suite 19/19 → 17/19 RED and named the
   invariant. The guard is real, not vacuous. (Reverted; worktree discarded.)
+
+## ▶ WAR ROOM CRITIQUE (pro-player review, 2026-08-10) — triaged by lane
+
+Cory relayed a professional drafter's critique of the live War Room. The underlying
+intelligence rated better than 95% of tools (path framing, VORP discipline, coin-flip
+honesty, offline fallback all praised). The problem is draft-day usability + a few
+TRUST bugs. Split by the presentation boundary (B owns the shell: layout/hierarchy/
+CSS/mobile/collapse; A owns app.js — the panel CONTENT + the markup it emits).
+
+### → A (app.js / content + honesty — DRAFT-CRITICAL, these erode trust at the table)
+
+1. **WR Feast is enrolled AND headlined while ranking LAST.** The banner "WR Feast
+   +$149 season edge enrolled — tilting recommendations" sits next to a tournament that
+   ranked WR Feast last on both real and injury-neutralized dollars. The UI is
+   advertising a last-place strategy as the current plan and letting it tilt the primary
+   rec. **Un-enroll it or stop headlining it** — a last-place strategy must not tilt the
+   #1. (A's doctrine/enrollment + banner.)
+2. **Adjuster panel misrepresents the loaded weights — SAME DEFECT FAMILY AS AUDIT FLAG 3.**
+   The panel shows every slider at 1.0 under "MEASURED CORE / AUTO ON," but the actual
+   loaded preset is value 1.0 / tier 0 / need 0 / risk 0 / ceiling 0.65 / keeper 1.0 /
+   bye 0 / stack 0.5. A user opening it believes the full term set is running at full
+   strength when most are zeroed — false advertising, and the same "UI ≠ the measured
+   preset" bug as the reset button (audit flag 3). **Make the adjuster UI reflect the
+   actual loaded weights** (show ceiling 0.65, tier/need/risk/bye at 0). (A's app.js/
+   config-screen markup.)
+3. **Strategy radio list is mostly zero-edge noise.** 6 of 7 strategies show +$0 / −$2.
+   Radio buttons imply meaningful alternatives; they aren't. Remove the near-zero
+   options or move them to a "what would other plans do" debug view — off the primary
+   surface. (A's strategy panel content.)
+4. **Survival table is mostly league-average.** When 8–9 of 10 seats read "no history —
+   modelled as league average," the per-seat table is low-signal. Show the AGGREGATE
+   "gone by your next pick" first; expand to per-seat only when real history exists.
+   (Content decision A owns; B can collapse the panel by default — see B brief.)
+   NOTE: this is the same panel as the earlier "Before your pick shows the same top-2
+   for every seat" flag — same root (no profiles → league-average).
+5. **Surface two numbers A already computes:** (a) a single confidence/agreement score
+   for the #1 (how much the composite and the mask agree — magnitude, not just the
+   explainer), (b) the model-vs-market delta on the primary card. Both are computed;
+   neither is headlined.
+
+### → B (shell / layout / mobile — my lane, queued)
+
+The shell already 3-layers (`wr-layer2` open, `wr-layer3` collapsed). The critique wants
+the top sharpened and more collapsed by default:
+- **#1 Hierarchy:** the primary recommendation (clock-card + recs-card) should own the
+  top ~35–40%; everything else secondary/collapsed. Consider collapsing `wr-layer2` by
+  default so Survival/threat aren't loud, keeping only the TAKE + paths + closest-2 loud.
+- **#4 Survival collapse-by-default** (shell side of A's aggregate-first content).
+- **#7 Full board is a wall** (200×10) — wrap the Draft Board in a collapsed `<details>`
+  so it's one tap, not competing at the bottom.
+- **#6 Phone reachability:** sticky TAKE + bigger tap targets + less vertical scroll;
+  a sticky header (seat/pick/clock) and a sticky "next 3 picks at this seat" strip.
+  (`warroom_mobile.test.js` guards mobile; extend it.)
+- **Make Queue / Print Sheet more prominent** (offline fallback), not buried.
+DEPENDENCY: the hierarchy redesign benefits from eyes on the LIVE commissioner-only
+screen (which B cannot view from the sandbox) — best done with Cory watching, or against
+a screenshot. Blind restructuring of a screen I can't render is the one risky part.
