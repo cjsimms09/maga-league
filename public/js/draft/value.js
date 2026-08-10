@@ -112,6 +112,28 @@
   }
 
   /** Replacement level per position — from the artifact where it exists. */
+  /* REPLACEMENT LEVEL IS A PROPERTY OF THE LEAGUE, NOT OF THE LIST YOU HAND IN.
+   *
+   * THE THIN-POOL BUG (C1 class, 2026-08-10). The derived branch indexed
+   * (starters x teams) into whatever array it was given and clamped with
+   * Math.min(length - 1, ...). Hand it a SUBSET — a waiver pool, a post-claim
+   * board, a position-filtered list — and the clamp lands on the WORST player in
+   * the subset, so the baseline collapses and every VORP above it inflates.
+   * Measured on the live board: RB replacement 189 on the full pool vs 225 on a
+   * 25-player subset, QB and TE straight to 0, and the same RB (proj 200) pricing
+   * at VORP +11.5 full versus -24.5 thin. A SIGN FLIP on the same player under
+   * the same rules — the draft board and the waiver tool would disagree about
+   * what he is worth, which is exactly the C1 contract.
+   *
+   * The invariant: a subset may never INVENT a replacement level. Two honest
+   * sources, in order:
+   *   1. `p.replacement` — precomputed by the pipeline over the FULL pool. This
+   *      is the production path and it is subset-independent by construction.
+   *   2. derivation, but ONLY when the pool actually reaches the replacement rank.
+   * Anything else FAILS CLOSED: the position comes back `null`, never a number,
+   * and the result carries `__thin` naming the positions that could not be
+   * resolved. A caller that prices off null gets NaN and notices; a caller that
+   * priced off a silently-wrong baseline never did. */
   function replacementLevels(players, league) {
     const teams = (league || {}).teams || 10;
     const starters = (league || {}).starters || {};
@@ -121,13 +143,34 @@
       if (p.replacement != null && out[p.position] == null) out[p.position] = p.replacement;
       (byPos[p.position] = byPos[p.position] || []).push(p);
     });
+    const thin = [];
     Object.keys(byPos).forEach(function (pos) {
-      if (out[pos] != null) return;
+      if (out[pos] != null) return;              // pipeline value — full-pool, trusted
+      const needed = Math.max(0, (starters[pos] || 1) * teams);
       byPos[pos].sort(function (a, b) { return (b.proj_mean || 0) - (a.proj_mean || 0); });
-      const idx = Math.min(byPos[pos].length - 1, Math.max(0, (starters[pos] || 1) * teams));
-      out[pos] = (byPos[pos][idx] || {}).proj_mean || 0;
+      if (byPos[pos].length <= needed) {
+        // The subset does not even reach the replacement rank, so there is no
+        // honest baseline to compute. Refuse rather than clamp to the worst man.
+        out[pos] = null;
+        thin.push(pos);
+        return;
+      }
+      out[pos] = (byPos[pos][needed] || {}).proj_mean || 0;
     });
+    try {
+      Object.defineProperty(out, '__thin', { value: thin, enumerable: false });
+    } catch (e) { /* frozen/exotic host — the null levels still carry the signal */ }
     return out;
+  }
+
+  /* Did every position resolve to a real, full-pool baseline? Callers that must
+   * not price on a thin pool (the waiver tool, the lineup optimiser, any C1
+   * consumer) gate on this instead of discovering NaN downstream. */
+  function replacementIsComplete(levels) {
+    if (!levels) return false;
+    const thin = levels.__thin;
+    if (thin && thin.length) return false;
+    return Object.keys(levels).every(function (k) { return levels[k] != null; });
   }
 
   /* A stable key for a roster: the same SET of players is the same roster,
@@ -224,6 +267,12 @@
       calibrate: calibrate,
       range: function () { return { lo: lo, hi: hi }; },
       replacement: replacement,
+      // C1 GUARD: was every position priced off a real full-pool baseline? A
+      // valuer built on a thin pool must be REFUSED by its caller, not quietly
+      // used — that is how the draft board and the waiver tool came to disagree
+      // about the same player. Surfaces check this before showing a dollar.
+      complete: replacementIsComplete(replacement),
+      thinPositions: (replacement && replacement.__thin) || [],
       // What this V is, for the card to say out loud rather than imply.
       describe: function () {
         return { units: 'projected season points',
@@ -234,7 +283,7 @@
     };
   }
 
-  const api = { CFG, bestLineup, replacementLevels, rosterKey, makeValuer };
+  const api = { CFG, bestLineup, replacementLevels, replacementIsComplete, rosterKey, makeValuer };
   global.DraftValue = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);
