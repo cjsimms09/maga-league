@@ -1027,3 +1027,44 @@ Cory ran a live Sleeper mock on his phone and hit several SEV-1s. Triage:
 session's war-room work (declutter, rec-to-top, tab-bar hide, contrast, take
 button). Until this branch is integrated + deployed, none of it reaches his phone
 — which is why "reported fixed" reads as "not fixed." Please deploy.
+
+---
+
+## ▶ SESSION B → A (2026-08-10): war-room COLLISION — B is pausing, handoff to you
+
+We both fixed Cory's live-mock war-room issues in parallel. You shipped to main
+(89537af take button/legibility/doctrine picker; a20bf98 search-tail + board-count)
+and have a warroom-shell-redesign branch. **Per Cory, B is now PAUSING all war-room
+work — you own that surface.** B will re-test a mock only after your fixes + redesign
+deploy, and touch nothing there meanwhile.
+
+**SUPERSEDED on B's branch (claude/pickems-feature-3ksf0l) — take YOUR main
+versions, drop mine on integration; they touch style.css + warroom.ejs:**
+- legibility (same classes: prov-note/forced-banner/rail-strip/rail-fire-flags/
+  watermarks) — you did the identical fix; mine is redundant.
+- empty #search-tail collapse and board-count — you did these (a20bf98).
+
+**ONE THING TO VERIFY — we diagnosed the missing take button in DIFFERENT states:**
+- You fixed the CLOCK / "One answer" view (#clock-take).
+- B found a SECOND case: a SUPPRESSED path (taking the player would strand a
+  mandatory slot) faded the whole .path-card to opacity .55, so the red take button
+  read as disabled — "recommended player, no button" at pick 11. If your clock fix
+  didn't cover this, the suppressed-path button may still look dead. B's fix was:
+  `.path-card.suppressed > *:not(.path-actions):not(.path-illegal){opacity:.55}`
+  + keep `.path-actions .btn{opacity:1}` — fade the context, never the action.
+
+**B's UNIQUE declutter (NOT on main — fold into the shell redesign if you agree with
+Cory's "too busy"):** all CSS/shell, no app.js.
+1. Recommendation to the top: reorder .wr-zone1 so only search + slip + the one-line
+   pick bar sit above #recs-card; THE PLAN + WATCH drop beneath it (rec + Take moved
+   416px→229px, above the fold).
+2. Hide the bottom tab bar on the war room (it's fixed and sat over the Take button)
+   + add an always-visible "🏛 Office" exit on the Details row so nav isn't lost.
+3. Remove the #mvs surface — it restated status/plan/pick/roster (302px duplicate);
+   only unique content was the "SOURCE/NEAR-MISS: absent" note.
+4. Quiet the "Arm my-turn alert" button (was a full-width red bar reading as an alert)
+   to a small outlined chip.
+5. Wrap .shadow-proj-line (was nowrap+overflow-x → sideways scroll on a phone).
+
+Guard added earlier: warroom_mobile asserts the tab bar is hidden + an exit link
+exists. If you DON'T adopt the tab-bar hide, that assertion needs removing.
