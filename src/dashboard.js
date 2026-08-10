@@ -73,13 +73,19 @@ function parseDecisions(decText) {
   const seen = {};
   const out = [];
   lines.forEach(l => {
-    const m = l.match(/^##\s+(D\d+)\s*[—-]\s*(.+)$/);
+    // Two heading formats, both live: the legacy "## D3 — title" and the current
+    // numbered "## 1. TITLE — ✅ APPROVED" that DECISIONS-NEEDED.md migrated to.
+    // Matching only the first made the status dashboard show ZERO decisions once
+    // the file was renumbered (caught by the real-file test).
+    const m = l.match(/^##\s+(D\d+)\s*[—-]\s*(.+)$/)     // legacy: "## D3 — title"
+           || l.match(/^##\s+(\d+)\.\s+(.+)$/);           // current: "## 1. TITLE — status"
     if (!m) return;
     const id = m[1];
     if (seen[id]) return;            // first occurrence wins (current status)
     seen[id] = true;
     const title = m[2];
-    const resolved = /\b(resolved|done|implemented)\b/i.test(title) || /✅/.test(title);
+    // "✅ APPROVED" is a decided (resolved) decision; OPEN / PENDING are not.
+    const resolved = /\b(resolved|done|implemented|approved)\b/i.test(title) || /✅/.test(title);
     out.push({
       id: id,
       title: clean(title),
@@ -87,7 +93,7 @@ function parseDecisions(decText) {
     });
   });
   // Open decisions first (they need action), then resolved, each in D-order.
-  const num = d => parseInt(d.id.slice(1), 10);
+  const num = d => parseInt(String(d.id).replace(/\D/g, ''), 10);
   return out.sort((a, b) => {
     if ((a.status === 'open') !== (b.status === 'open')) return a.status === 'open' ? -1 : 1;
     return num(a) - num(b);
