@@ -1,0 +1,86 @@
+name: MFL schema probe
+
+# WHY THIS RUNS IN CI AND NOT IN THE SANDBOX
+#
+# The sandbox proxy blocks myfantasyleague.com (CONNECT 403); CI has open egress.
+# Same split `mfl-probe.yml` already lives with.
+#
+# WHAT IT ANSWERS. The ingest needs an adapter from MFL's league/draft exports
+# into the shape `ingest_filters.screen()` reads. This repo has real samples of
+# TYPE=adp and TYPE=players and NONE of TYPE=leagueSearch, TYPE=league or
+# TYPE=draftResults — so writing that adapter now would mean coding against an
+# imagined schema. A league that fails to PARSE looks exactly like a league that
+# fails the FILTERS, so a guessed adapter would make the attrition report lie
+# about why leagues were dropped.
+#
+# Read-only, manual, and small on purpose: it commits the observed SHAPE (key
+# paths, types, cardinality, truncated samples), not a copy of anyone's league.
+# No schedule — it answers a question once and then the adapter gets written.
+
+on:
+  workflow_dispatch:
+    inputs:
+      year:
+        description: 'Season to probe'
+        required: false
+        default: '2025'
+      search:
+        description: 'leagueSearch term (discovery)'
+        required: false
+        default: 'redraft'
+      leagues:
+        description: 'Comma-separated MFL league ids to inspect'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+
+      # The pure half is unit-tested; run those FIRST so a probe never writes an
+      # artifact from a module whose own tests are red.
+      - name: Test the probe's pure half before trusting its output
+        run: python -m pytest draft/tests/test_mfl_schema_probe.py -q
+
+      - name: Probe MFL league / draftResults / leagueSearch schemas
+        run: |
+          python draft/backtest/mfl_schema_probe.py \
+            --year "${{ github.event.inputs.year || '2025' }}" \
+            --search "${{ github.event.inputs.search }}" \
+            --leagues "${{ github.event.inputs.leagues }}"
+
+      # A probe that finds nothing must SAY so rather than commit an empty file
+      # that later reads as "checked, nothing there". Every endpoint reporting
+      # zero observations means the fetch failed, not that MFL is empty.
+      - name: Fail if no endpoint returned anything
+        run: |
+          python3 - <<'PY'
+          import json, sys, pathlib
+          p = pathlib.Path('draft/backtest/mfl_schema_probe.json')
+          if not p.exists():
+              print('::error::probe wrote no artifact'); sys.exit(1)
+          d = json.loads(p.read_text())
+          obs = {k: v.get('observed', 0) for k, v in (d.get('endpoints') or {}).items()}
+          print('observations per endpoint:', obs)
+          for k, err in (d.get('errors') or {}).items():
+              print(f'::warning::{k}: {err}')
+          if not any(obs.values()):
+              print('::error::every endpoint returned zero observations — the probe '
+                    'did not reach MFL, so this artifact records nothing')
+              sys.exit(1)
+          PY
+
+      - name: Commit the observed schema
+        run: |
+          git config user.name "lab-bot"; git config user.email "actions@github.com"
+          git add draft/backtest/mfl_schema_probe.json || true
+          git commit -m "MFL schema probe: observed export shapes (${{ github.event.inputs.year || '2025' }})" \
+            || { echo "no change"; exit 0; }
+          git pull --rebase origin main && git push || echo "push skipped"
