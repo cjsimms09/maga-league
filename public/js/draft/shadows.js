@@ -201,12 +201,25 @@
         weights: def.weights(round || 1),
       });
       const scored = E.recommend(ctx);
-      const choice = scored.length ? scored[0].player : avail[0];
+      const top = scored.length ? scored[0] : null;
+      const choice = top ? top.player : avail[0];
+      // WHICH TERM drove THIS shadow's pick — the largest-magnitude weighted
+      // component — plus the runner-up it beat and by how much. Lets the panel
+      // show whether 7/7 agreement is real value agreement or an artifact of one
+      // term (the need double-count was exactly such an artifact).
+      const wc = (top && top.components && top.components.weighted) || {};
+      let driver = null, dmax = -Infinity;
+      Object.keys(wc).forEach(k => { const m = Math.abs(wc[k] || 0); if (m > dmax) { dmax = m; driver = k; } });
+      const runnerUp = scored.length > 1 ? scored[1].player.name : null;
+      const gap = (top && top.gap_to_second != null) ? top.gap_to_second
+        : (scored.length > 1 ? top.score - scored[1].score : null);
       out.push({
         key: def.key, name: def.name,
         player_id: String(choice.player_id), player: choice.name,
         position: choice.position,
-        score: scored.length ? scored[0].score : null,
+        score: top ? top.score : null,
+        driver, driver_value: driver ? wc[driver] : null,
+        runner_up: runnerUp, gap_to_second: gap,
       });
     });
     return out;
@@ -233,9 +246,27 @@
       player: byPlayer[pid].player, position: byPlayer[pid].position,
       keys: byPlayer[pid].keys,
     }));
+    // WHY the lead leads, and what it beat — so unanimity is auditable, never a
+    // silent 7/7. Over the shadows that PICKED the lead: the modal driver term
+    // (value/need/tier/…), the most common runner-up it edged, and the median
+    // margin. A 7/7 driven by `need` is the artifact flag; a 7/7 driven by
+    // `value` is real agreement. `contested` stays visible at every agreement level.
+    const leadRows = rows.filter(r => r.player_id === ranked[0]);
+    const tally = {};
+    leadRows.forEach(r => { if (r.driver) tally[r.driver] = (tally[r.driver] || 0) + 1; });
+    const leadDriver = Object.keys(tally).sort((a, b) => tally[b] - tally[a])[0] || null;
+    const ruTally = {};
+    leadRows.forEach(r => { if (r.runner_up) ruTally[r.runner_up] = (ruTally[r.runner_up] || 0) + 1; });
+    const runnerUp = Object.keys(ruTally).sort((a, b) => ruTally[b] - ruTally[a])[0] || null;
+    const gaps = leadRows.map(r => r.gap_to_second).filter(g => g != null).sort((a, b) => a - b);
+    const medianGap = gaps.length ? gaps[Math.floor((gaps.length - 1) / 2)] : null;
     return {
       n, agree, lead: lead.player, lead_position: lead.position,
       contested: agree < Math.ceil(n * 0.75),
+      lead_driver: leadDriver,                 // which term drove the agreement
+      driver_is_artifact: leadDriver === 'need',   // the fingerprint of the old bug
+      runner_up: runnerUp,                     // the "contested vs <2nd>" name, always shown
+      gap_to_second: medianGap,                // median margin over that runner-up
       dissenters,
     };
   }
