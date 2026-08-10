@@ -36,6 +36,8 @@ on:
       - 'draft/backtest/exp34_metrics.py'
       - 'draft/backtest/exp34_dollars.py'
       - 'draft/tests/test_exp34_dollars.py'
+      - 'draft/backtest/exp_construction_objective.py'
+      - 'draft/tests/test_exp_construction_objective.py'
       - 'draft/backtest/exp36.py'
       - 'draft/tests/test_exp36.py'
       - 'draft/backtest/exp43_fullboard.py'
@@ -220,7 +222,8 @@ jobs:
         run: |
           pip install pytest -q
           python -m pytest draft/tests/test_exp34.py draft/tests/test_exp34_metrics.py \
-                           draft/tests/test_exp34_dollars.py -q
+                           draft/tests/test_exp34_dollars.py \
+                           draft/tests/test_exp_construction_objective.py -q
       - name: CERTIFICATION GATE — the dollar arm grades through the certified layer
         # The dollar arm consumes money_grade.grade_substituted + roster_sim; it may
         # not grade until they reproduce history to the dollar (the same gate the
@@ -239,12 +242,20 @@ jobs:
         # 2025, which the correlation arm skips) using FFC ADP + nflverse priors as
         # the ranker only.
         run: python draft/backtest/exp34_dollars.py --out draft/backtest
+      - name: Fire construction-objective — points vs ceiling vs floor, graded in E[$]
+        # Reuses the dollar arm's CERTIFIED policy-roster construction + money grader
+        # (build_policy_roster + roster_dollars) and the same nflverse priors already
+        # fetched above. Leak-free: boom/bust + availability come from PRIOR-season
+        # weekly only. Asks whether the board's points objective is the money-maximizing
+        # roster SHAPE, or whether a ceiling/floor tilt banks more.
+        run: python draft/backtest/exp_construction_objective.py
       - name: Commit the exp 34 reports
         run: |
           stamp=$(date -u +%Y-%m-%dT%H:%MZ)
           git config user.name "lab-bot"; git config user.email "actions@github.com"
           git add draft/backtest/EXP34.md draft/backtest/exp34.json \
-                  draft/backtest/EXP34-DOLLARS.md draft/backtest/exp34_dollars.json
+                  draft/backtest/EXP34-DOLLARS.md draft/backtest/exp34_dollars.json \
+                  draft/backtest/exp_construction_objective.json
           git commit -m "Exp 34 report (correlation + dollar arms) $stamp" || { echo "no change"; exit 0; }
           git pull --rebase origin "${GITHUB_REF_NAME}" && git push || echo "push skipped"
       - name: Upload exp 34 results (artifact — inputs are egress-built)
@@ -256,6 +267,7 @@ jobs:
             draft/backtest/EXP34.md
             draft/backtest/exp34_dollars.json
             draft/backtest/EXP34-DOLLARS.md
+            draft/backtest/exp_construction_objective.json
           retention-days: 30
 
   # EXPERIMENT 36 — ADP-efficiency audit (reliability surface by round × position).
