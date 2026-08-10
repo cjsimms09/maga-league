@@ -892,6 +892,45 @@ router.get('/slot-picker/state.json', requireCory, aw(async (req, res) => {
   res.json(model);
 }));
 
+// THE ONE-PAGE DRAFT-DAY FALLBACK (program item 2). A fully SERVER-RENDERED,
+// no-JavaScript printable board — the thing that covers Cory if everything else
+// is gone at 5pm on the 22nd (bad deploy, Sleeper down, the war-room JS won't
+// load, phone dies). It reads the same draft_data.json artifact the war room
+// does, but needs none of the war room's machinery to render, so it survives a
+// total front-end failure. Print it the night before; paper works with no wifi.
+router.get('/draft-sheet', requireCory, aw(async (req, res) => {
+  const fs = require('fs'), path = require('path');
+  let artifact = {};
+  try { artifact = JSON.parse(fs.readFileSync(path.join(__dirname, '..', '..', 'public', 'draft_data.json'), 'utf8')); } catch (e) { artifact = {}; }
+  const kept = new Set((artifact.kept_player_ids || []).map(String));
+  const r1 = n => (n == null ? null : Math.round(Number(n) * 10) / 10);
+  const adpOf = p => (p.adjusted_adp != null ? p.adjusted_adp : (p.adp != null ? p.adp : 9999));
+  const all = (artifact.players || [])
+    .filter(p => p && p.name && p.position)
+    .sort((a, b) => adpOf(a) - adpOf(b));
+  const rows = all.slice(0, 180).map((p, i) => ({
+    rank: i + 1, name: p.name, pos: p.position, team: p.team || '',
+    adp: r1(adpOf(p) === 9999 ? null : adpOf(p)), vorp: p.vorp != null ? Math.round(p.vorp) : null,
+    tier: p.tier != null ? p.tier : null, bye: p.bye != null ? p.bye : null,
+    kept: kept.has(String(p.player_id)),
+  }));
+  // Best available by position (the "within startable need" cut) — top of each.
+  const byPos = {};
+  for (const pos of ['QB', 'RB', 'WR', 'TE', 'K', 'DEF']) {
+    byPos[pos] = all.filter(p => p.position === pos && !kept.has(String(p.player_id)))
+      .slice(0, 14).map(p => ({ name: p.name, team: p.team || '', adp: r1(adpOf(p) === 9999 ? null : adpOf(p)), bye: p.bye, tier: p.tier }));
+  }
+  const season = H.currentSeason(req.world.seasons);
+  const lg = artifact.league || {};
+  res.render('admin/draft-sheet', {
+    rows, byPos, builtAt: artifact.built_at || null,
+    seasonYear: season ? season.year : (lg.season || ''),
+    rounds: lg.rounds || 15, teams: lg.teams || 10,
+    // The decision rule, one sentence, for the card (Cory's exact wording).
+    rule: 'Best available within startable need — QB and DEF deferred — never over-draft a filled position.',
+  });
+}));
+
 // ---------- CLAIM CORRECTION (commissioner-only, live during selection) ----
 // The fat-finger fix: reassign or void any owner's slot claim mid-process.
 // Atomic at the document level (one read-modify-write of the ONE claim doc),

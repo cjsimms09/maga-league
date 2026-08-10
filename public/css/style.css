@@ -795,7 +795,7 @@ details[open] > .layer-sum::before { content: '▾ '; }
   color: var(--navy-deep); background: var(--gold); border-radius: 5px; padding: .05rem .3rem;
   vertical-align: middle; white-space: nowrap;
 }
-#roster-list li.keeper { color: var(--gold-bright); }  /* was pale #f2e2b4 — low contrast on cream */
+#roster-list li.keeper { color: var(--gold-bright); font-weight: 700; }  /* gold-bright, bold — readable on cream */
 .slot-label { display: block; font-family: var(--font-display); font-size: .55rem; letter-spacing: .12em; color: var(--muted); }
 
 /* survival bars */
@@ -2189,15 +2189,20 @@ details.sa-preview[open] > summary { border-bottom: 1px solid var(--line); }
 }
 .clock-name {
   font-family: var(--font-display); font-weight: 900; line-height: 1.05;
-  font-size: clamp(1.9rem, 9vw, 3rem); color: #fff; margin: .2rem 0 .1rem;
+  /* was #fff — a dark-theme holdover that rendered the player's NAME white-on-white
+     (invisible) after the site flipped to the light theme. The one word you most
+     need on the clock. Dark heading ink on the light card. */
+  font-size: clamp(1.9rem, 9vw, 3rem); color: var(--navy); margin: .2rem 0 .1rem;
   display: flex; align-items: center; gap: .5rem; flex-wrap: wrap;
 }
 .clock-meta { font-size: .82rem; color: var(--muted); }
 .clock-why { font-size: .95rem; color: #17263a; line-height: 1.45; margin-top: .5rem; }
 .clock-confidence { margin-top: .5rem; font-size: .82rem; }
 .clock-confidence .coin-flip { color: var(--gold-bright); font-weight: 700; }
-.clock-confidence .close { color: #fcd34d; }
-.clock-confidence .clear { color: #86efac; }
+/* were light-on-dark holdovers (#fcd34d / #86efac) — low-contrast on the light
+   clock card. Readable semantic colors for the light theme. */
+.clock-confidence .close { color: var(--gold-bright); font-weight: 700; }
+.clock-confidence .clear { color: var(--green); font-weight: 700; }
 .clock-actions { display: flex; gap: .4rem; margin-top: .9rem; flex-wrap: wrap; }
 
 /* How much to trust the ranking, said above it rather than hidden in a tooltip. */
@@ -2329,7 +2334,7 @@ details.sa-preview[open] > summary { border-bottom: 1px solid var(--line); }
   padding: .35rem .2rem; border-bottom: 1px solid var(--line); font-size: .82rem;
 }
 .check-item:last-child { border-bottom: none; }
-.check-item.todo .check-label { color: #fff; }
+.check-item.todo .check-label { color: var(--ink); }
 .check-item.ok .check-label { color: var(--muted); }
 .check-label { flex: 1 1 180px; }
 /* Was `flex: 0 0 auto` — a long fix-hint refused to shrink and overflowed the
@@ -2392,8 +2397,8 @@ details.sa-preview[open] > summary { border-bottom: 1px solid var(--line); }
   font-size: .68rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted);
 }
 .preset-why { font-size: .74rem; color: var(--muted); margin: 0 0 .8rem; line-height: 1.4; }
-.slider-when { font-size: .71rem; color: #96a0b6; line-height: 1.35; }
-.slider-when b { color: #b9c2d4; font-weight: 600; }
+.slider-when { font-size: .71rem; color: var(--muted); line-height: 1.35; }
+.slider-when b { color: var(--ink); font-weight: 600; }
 .weights-effect.changed { color: var(--gold-bright, #f5c445); }
 #auto-note { margin: 0 0 .8rem; }
 .auto-phase { font-size: .8rem; font-weight: 700; color: var(--gold-bright, #f5c445); margin-bottom: .2rem; }
@@ -2768,7 +2773,7 @@ body.warroom-page #doctrine-banner .db-confidence { white-space: normal; overflo
   background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.10); }
 .shadow-proj.contested { background: rgba(245,196,69,.10);
   border-color: rgba(245,196,69,.55); }
-.shadow-proj-line { font-size: .82rem; line-height: 1.35; color: #cdd6ea;
+.shadow-proj-line { font-size: .82rem; line-height: 1.35; color: var(--muted);
   /* Was nowrap + overflow-x:auto — on a phone the dissent ("2 strategies would
      take X instead") ran off the right edge and needed a sideways scroll to read.
      It sits below the recommendation, so wrapping costs no fold and shows it all. */

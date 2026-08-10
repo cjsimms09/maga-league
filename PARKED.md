@@ -1782,3 +1782,65 @@ the top sharpened and more collapsed by default:
 DEPENDENCY: the hierarchy redesign benefits from eyes on the LIVE commissioner-only
 screen (which B cannot view from the sandbox) — best done with Cory watching, or against
 a screenshot. Blind restructuring of a screen I can't render is the one risky part.
+
+## ▶ SESSION B → A FLAG (2026-08-10): board-age contradiction — one threshold, read twice
+
+From Cory's war-room render review (item 1), routed to A because the logic is
+entirely in `public/js/draft/app.js` (A's lane; B does not edit it — same as the
+rules-page seam).
+
+**The contradiction:** at 7h old the board reads BOTH verdicts at once —
+- checklist item "**Board is fresh**", `ok: ageH != null && ageH < 48`
+  (`app.js:~1752`) → ✅ at 7h, and
+- the top warning "**This board is 7 hours old — consider rebuilding**",
+  fires at `hours > 6` (`app.js:~1134-1138`), blocks at `> 18`.
+
+One fact (`built_at`), two thresholds (48 vs 6), adjacent on screen. Cory: "pick
+one threshold and have both read it — if 7h is fine drop the warning, if not drop
+the checkmark."
+
+**Fix (A):** a SINGLE freshness threshold constant (e.g. `BOARD_FRESH_MAX_H = 6`,
+plus the existing `> 18` block) read by BOTH the checklist item and the banner —
+not two comparisons that happen to (dis)agree. The checklist's own comment already
+says "these two read the SAME provenance the banner reads"; the miss is that they
+read the same `built_at` but apply different numbers. Make the number one variable.
+(B reverted a one-line attempt here on Cory's instruction — this is A's to own so
+the constant lands with A's other app.js work and there's no two-cooks merge.)
+
+## ▶ SESSION B → A FLAG (2026-08-10): strategy picker footprint when spread is flat (critique #3)
+
+Cory's war-room review item 3: the doctrine-plan picker (`#doctrine-picker`, filled
+by app.js `renderDoctrinePicker`, radios `dp-toggle`) shows nine strategies, five at
++$0 and two at −$2 — nine choices implying a decision that doesn't exist.
+
+**Why this is an A-seam, not a pure B style fix:** the honest presentation is
+CONDITIONAL on the spread — collapse to a one-line "at this pick the strategies are
+indistinguishable" (full list one tap down, exactly like `#shadow-projection` already
+does) WHEN the gaps are within noise, but surface it WHEN a real spread exists. B
+can't tell $0 from −$2 from the emitted markup (`.dp-gap` only carries an `up` class
+for gap>0), and A deliberately made this picker "ALWAYS VISIBLE and compact (Cory)"
+— so a static B collapse would either undo that or wrongly bury a real spread.
+
+**Ask (A):** when the top-to-bottom strategy gap is within noise, emit the compact
+"indistinguishable" summary as the always-visible line and put the nine rows behind
+the `<details>` you already use for `#shadow-projection`; when the spread is real,
+render it as now. **B will style whatever compact/collapsed form you emit** — the
+`.dp-*` classes are already B's. (Differentiation itself is on A's list.)
+
+## ▶ SESSION B → A / Cory — war-room take affordances (critique #6b): partial
+
+Drove the war room and audited all 221 take affordances (elements carrying
+`data-draft-me`). Finding: **the take buttons are already consistent red**
+(`.btn.gold` → rgb(212,36,47) white text, everywhere including the clock's
+"✓ Take Gibbs" and the per-row "I took X"). **I could not reproduce a GREY
+"✓ TAKE JAHMYR GIBBS"** in the seeded/live-board state — it may be a pre-fix
+render or a state-specific one. If it persists after this branch deploys, Cory:
+send the screenshot + what pick/state you were in and I'll catch it in a re-drive.
+
+The remaining real point — **three ways to record the same take** — is an
+affordance-COUNT reduction, not a style bug: (1) the per-row `.btn.gold` "I took
+X", (2) the near-transparent `.path-alt` alternatives in a path card, (3) the
+branch-card "I took X". Which buttons appear in which panel is app.js's emission
+(A's), so **→ A:** decide the ONE canonical take per context (keep the row take;
+drop or demote the duplicate branch-card / path-alt takes). B will style the
+survivor as the clear primary; the `.path-alt`/`.btn` classes are already B's.

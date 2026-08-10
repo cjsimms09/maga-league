@@ -41,7 +41,6 @@
       <div id="override-count" style="display:none"></div>
       <div id="mock-note" style="display:none"></div>
       <div id="rehearsal-keeper-note" style="display:none"></div>
-      <div id="keeper-lock-note" style="display:none"></div>
       <div id="reconcile-note" style="display:none"></div>
       <%# SETUP + CONNECT live here now. "On the clock" already renders in the
           pinned status bar, and slot/sync/nav are pre-draft controls touched
@@ -94,6 +93,14 @@
       roster change I did not make myself. Neither is status. %>
   <div id="unrecorded-note" style="display:none"></div>
   <div id="reconciled-note" style="display:none"></div>
+  <%# KEEPER-LOCK banner — SEVERITY-1 and BLOCKING: the slate is the one input
+      that can be wrong while every derived number (adjusted ADP, pick order, my
+      pick numbers) still looks normal. It was buried fourth in the collapsed
+      "Details & checklist" stack behind advisory warnings; moved OUT of the
+      fold-away to sit first and alone above the decision surface, alongside the
+      other rec-invalidating banners. app.js fills it by id — placement is the
+      shell's. (Cory, war-room review item 2.) %>
+  <div id="keeper-lock-note" style="display:none"></div>
   <div id="run-banner" class="roast-banner" style="display:none"></div>
   <%# Retained hosts: the checklist summary is now inline in the details panel,
       but these ids are still written to by renderChecklist(). Keeping them as
@@ -144,7 +151,7 @@
       swallowing mechanism — Chrome suppresses repeated dialogs and a suppressed
       prompt returns null silently, so the button read as dead. %>
   <div id="end-confirm" class="end-confirm" style="display:none"></div>
-  <span id="prefs-sync" style="display:none;font-size:.68rem;color:#8fa6d0;position:absolute;top:2px;right:8px;z-index:5" title="prefs sync state"></span>
+  <span id="prefs-sync" style="display:none;font-size:.68rem;color:var(--muted);position:absolute;top:2px;right:8px;z-index:5" title="prefs sync state"></span>
   <%# Position lives in CSS (.wr-arm) so it can lift ABOVE the mobile tab bar —
       at bottom:16px it sat on top of LOCKER and MORE (z-index 150 > the bar's
       90) and ate those taps. id + onclick are A's contract, untouched. %>
@@ -292,6 +299,9 @@
         <button class="btn small ghost" id="queue-print" title="One page, designed for paper">🖨 Print sheet</button>
         <button class="btn small ghost" id="queue-tidy" hidden></button>
       </div>
+      <%# THE DRAFT-DAY FALLBACK — a server-rendered, no-JS printable board that
+          works even if this war room won't load. Print it the night before. %>
+      <p style="margin:.55rem 0 0"><a class="btn small navy" href="/admin/draft-sheet" target="_blank" rel="noopener" title="Server-rendered board + the rule + a manual pick log — works with no network, prints on paper">🖨 Full board fallback sheet →</a></p>
       <p class="muted" id="sheet-note" style="margin:.5rem 0 0; font-size:.74rem"></p>
       <p class="muted" style="margin:.35rem 0 0; font-size:.72rem">
         Your order, never re-sorted — the decision already made. Add anyone with the ➕ on any row or the board. Print it the night before; if the wifi dies at the table, paper still works.
@@ -306,8 +316,17 @@
       free; collapsed on a phone where it would push Layer 1 off the screen.
       Nothing is deleted — demotion is a change of depth, not of existence. %>
   <details class="wr-layer2" id="layer-2" open>
-    <summary class="layer-sum">Layer 2 — roster, byes, survival, opponents</summary>
+    <summary class="layer-sum">Layer 2 — opponents, roster, byes, survival</summary>
   <aside class="wr-zone2">
+    <%# KNOW YOUR LEAGUE — the most valuable panel on the page: real read on the
+        nine people you're drafting against. Was buried at the bottom of the
+        collapsed Layer 3, below survival and targets; lifted to the top of the
+        always-open Layer 2 so opponent intelligence sits right under the decision.
+        app.js fills #managers by id — placement is the shell's. (Cory review 6a.) %>
+    <div class="card">
+      <h2>🕵️ Know Your League <span class="sub" id="managers-head"></span></h2>
+      <div class="body"><div id="managers" class="mgr-grid"></div></div>
+    </div>
     <div class="card">
       <h2>My Roster <span class="sub">starting slots first</span></h2>
       <div class="body">
@@ -468,10 +487,6 @@
     </div>
   </div>
 
-  <div class="card" style="margin-top:1rem">
-    <h2>🕵️ Know Your League <span class="sub" id="managers-head"></span></h2>
-    <div class="body"><div id="managers" class="mgr-grid"></div></div>
-  </div>
 
   <div class="card" style="margin-top:1rem">
     <h2>
