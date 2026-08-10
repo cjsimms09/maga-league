@@ -2043,6 +2043,32 @@
           : state.slotRecomputed
           ? 'Rebuild: Actions → Build draft board → slot ' + state.slotRecomputed.slot
           : '' },
+      // OPPONENT KEEPER SLATES — the input that silently sets every pick number.
+      // Under top_picks_flat each team's keepers forfeit THAT team's rounds 1..k,
+      // so until the other seats declare, the pick order assumes all nine of them
+      // pick in rounds 1-3. On the live board only my 3 keepers are confirmed, so
+      // only my seat forfeits and my first pick prices at overall 34. If the room
+      // keeps ~3 each, rounds 1-3 nearly empty out and every overall number, every
+      // gap between my turns and every survival window moves with them. The
+      // pipeline handles this correctly the moment it HAS the slates
+      // (keepers.build_true_pick_order forfeits per team) — this line exists
+      // because nothing else on the page looks wrong while it is missing.
+      (function () {
+        const teams = (d.league || {}).teams || 10;
+        const kept = d.kept_players || [];
+        const slotsWithKeepers = {};
+        kept.forEach(k => { if (k.team_slot != null) slotsWithKeepers[k.team_slot] = 1; });
+        const known = Object.keys(slotsWithKeepers).length;
+        return {
+          ok: known >= teams,
+          label: 'Opponent keeper slates in the pick order',
+          detail: known >= teams ? 'all ' + teams + ' seats declared'
+            : known + ' of ' + teams + ' seats — pick numbers assume the other '
+              + (teams - known) + ' draft in rounds 1-3',
+          fix: 'Rebuild the board once the commissioner locks every keeper slate; '
+            + 'until then treat overall pick numbers as provisional',
+        };
+      })(),
       { ok: !!(window.LEAGUE_ID), label: 'Sleeper connected',
         detail: window.LEAGUE_ID ? 'league ' + String(window.LEAGUE_ID).slice(-6) : 'not connected',
         fix: 'Commish → Sleeper' },
