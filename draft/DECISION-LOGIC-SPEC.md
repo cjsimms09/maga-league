@@ -91,7 +91,12 @@ player, P(he is the best survivor) = P(he lasts to my next pick) × Π P(everyon
 better is taken by then). Survival probabilities come from the three-layer model
 in A4. If I have no next pick, VONA = the player's full projection (everything is
 at stake now). **[HARD-CODED]** as an identity; its *inputs* (survival) are
-partly measured, partly designed — see A4.
+partly measured, partly designed — see A4. **Review catch:** that "no next pick"
+fallback is a *discontinuity*, not a limit — at the very last pick VONA jumps to
+the full projection scale (~150-250) while every other pick's VONA is a small
+difference (~0-30). Harmless in practice (it only affects the final pick, where
+the choice barely matters), but a reviewer should know the metric is not
+continuous at the boundary.
 - Weight: **value = 1.0**, floored at 0.25 so the slider can never fully unanchor
   the board. **[MEASURED]**: removing the value anchor costs ~$362 in backtest —
   roughly half the entire edge. This is the most confidently-positive term we have.
@@ -149,11 +154,21 @@ Crucially it is **late-only**: the term is exactly **zero until 60% of the draft
 is gone** (`CEILING_LATE_FROM = 0.6`), then ramps to full by the end, times a 1.6
 end-game multiplier when I have ≤5 picks left. This encodes Cory's explicit rule:
 mean + VONA + tiers decide the early and middle rounds; ceiling is for the
-throwaway late-round lottery tickets only.
-- Weight: **ceiling = 0.65.** **[MEASURED]** as separably positive (single-run,
-  replicated); kept at the structural default rather than zeroed. The 0.15 share,
-  the 20-point cap, the 0.6 gate, and the 1.6 end-game bump are all
-  **[DESIGNED-GUESS]**.
+throwaway late-round lottery tickets only. **Clarification (review catch):** the
+60% is measured on the **overall draft by absolute pick number** (`currentPick /
+totalPicks`), not on my personal pick count. In a 150-pick draft it switches on
+around pick ~90 (≈ round 9). Because my keepers consume rounds 1-3, my first pick
+is round 4, so ceiling stays off for my first ~5-6 picks and turns on for my last
+~7 — which is the intended "throwaway rounds," but it keys off the room's
+progress, not mine. Whether it *should* key off my remaining picks instead is an
+open design question, noted not decided.
+- Weight: **ceiling = 0.65.** **[MEASURED]** as separably positive but **from a
+  SINGLE run, not yet replicated** (review catch: the earlier "single-run,
+  replicated" was self-contradictory — resolving it, ceiling is the *single-run*
+  finding, `need`/`stack` are the replicated ones, so treat ceiling's positive
+  sign as **provisional**, firmer than a guess but not yet confirmed). Kept at the
+  structural default rather than zeroed. The 0.15 share, the 20-point cap, the 0.6
+  gate, and the 1.6 end-game bump are all **[DESIGNED-GUESS]**.
 
 **6. Keeper option value.** A cross-season value that only fires for
 keeper-eligible young players and only ramps in late; drives the informational
@@ -191,9 +206,16 @@ then two multiplicative/additive gates:
   already have filled, the whole assembled score is multiplied by 0.10
   (`ONESIE_KEEP`) — priced as a backup — unless a stated exception fires. Applied
   last so no slider can argue a bench QB into a starter.
-- **Doctrine tilt** (A9): a flat ±2.5 points if an enrolled draft plan prefers him.
-  Additive and bounded, applied after the discount so a plan can't rescue a player
-  construction just priced down.
+- **Doctrine tilt** (A9): a flat ±2.5 points if an enrolled draft plan prefers him,
+  **scaled by the onesie discount when one applies** (fixed 2026-08-10). The
+  earlier code added the flat tilt *after* the 0.10 multiply at full magnitude —
+  which did the opposite of the intent: a +2.5 tilt on a score cut to a tenth was
+  10× more influential on exactly the unstartable backups the discount was meant
+  to bury (skeptical-review catch). Multiplying the tilt by the same discount
+  restores the intent. **Known remaining limit:** the tilt is still a flat ±2.5
+  against a score whose scale shrinks late (a bench composite tops out ~6 pts), so
+  its *share* of the decision grows in the throwaway rounds — a deliberate
+  flat-tiebreaker design, but its late-round weight is real and on the agenda.
 
 **For a BENCH-ONLY candidate the composition changes** (this is the fix for a real
 bug — see A5c): VONA and tier-urgency are *dropped entirely*, because "value over
@@ -205,10 +227,24 @@ score = ceiling·upside + stack·stackAdj + keeper·KOV
       + max(0, need·insurance) − max(0, bye·penalty) + risk·min(0, riskAdj)
 ```
 
-The top bench pick is by construction the highest-ceiling player left, so the
-model's #1 stays positive on its own; keeper/bye/risk still order the depth below
-it. **[DESIGNED-GUESS]** — the *structure* (bench = upside, not scarcity) is a
-sound response to a demonstrated failure, but the exact term list is a judgment.
+**CORRECTION (skeptical-review catch, 2026-08-10).** An earlier draft of this
+spec said "keeper/bye/risk still order the depth below it." That is false in the
+live preset: **bye and risk are both weight 0.0**, so of the six bench terms only
+three are live — **ceiling, stack, and keeper**. Every bench pick is decided by
+those three alone.
+
+That puts **keeper (weight 1.0, unmeasured) as one of only three live terms in
+exactly the region where it fires** (KOV ramps in late). Everywhere else the
+policy was strict — tier, risk, bye turned off as drag-or-null, need settled at 0
+as the simpler number — so keeper is the lone full-strength term with no point
+estimate. We ran the sensitivity the reviewer asked for: across four late-draft
+board states, dropping keeper 1.0→0.5 changed the **#1 pick in 0 of 4** and the
+top-5 in 1 of 4. Low live impact, because `keeperOptionValue` is narrowly gated
+(only keeper-eligible young players, ramped), so most late board players carry
+~0 KOV regardless of the weight. So the term is *on at full strength but rarely
+decisive* — the honest state, and a reason the unmeasured 1.0 is tolerable rather
+than dangerous. The **[DESIGNED-GUESS]** structure (bench = upside, not scarcity)
+stands; the correction is to the claim about which terms are live.
 
 ### A4. Survival — how "will he last to my next pick" is computed
 
@@ -327,15 +363,23 @@ The #1 scored player is the recommendation. Alongside it:
 
 ### A10. The resolver — one voice on disagreement
 
-Every panel above derives from **one** scored board and **one** resolved seat
-identity (which draft slot is me). If two surfaces would otherwise disagree — the
-paths panel wanting one direction, the doctrine wanting another — the resolver
-makes them read the *same* underlying scored list, and the doctrine banner is
-computed from that list rather than a parallel one. The design rule: **one
-canonical fact, one derivation.** A reviewer's test is to check whether any panel
-uses a number the top-line recommendation didn't — if so, that's the seam to
-attack. As built, they share the board, the survival model, the seat, and the
-weights.
+**CORRECTION (skeptical-review catch, 2026-08-10).** The earlier claim — "one
+canonical fact, one derivation" — was an overstatement, and the reviewer's
+suggested test (find a panel using a number the recommendation didn't) would miss
+the real seam. What is actually built is **two derivations with a stated
+precedence**: (1) the engine **composite** (VONA + adjusters), and (2) the
+startable-capacity **mask** (§A5), which lives outside the composite in the app
+layer and *overrides* it, plus (3) an **explainer** that fires when they differ —
+the on-screen line "the composite suggests X but that over-fills RB; the rule
+recommends Y." Every panel except that headline reads the one scored board and
+the one resolved seat; the mask is the deliberate second voice. **Surfacing the
+disagreement is correct and we are keeping it** — it is the tool telling you the
+measured-money rule and the value engine want different things, which is real
+information, not a bug. The honest description is: a composite, a mask that
+overrides it within its measured domain, and an explainer at the one seam where
+they diverge. (Cory's separate request to make the *list and headline agree* is
+handled by gating the composite list to within-cap so it never headlines an
+over-fill — the explainer for genuine value-vs-need disagreement stays.)
 
 ### A11. What the draft engine does NOT know (limits worth stating)
 
@@ -361,6 +405,21 @@ Not points. **Expected dollars**, under a dual objective:
 ```
 E[$] = P(win the matchup) · matchupValue  +  P(clear the weekly-high band) · $100
 ```
+
+**matchupValue is now DERIVED, not guessed** (corrected 2026-08-10). It shipped at
+$25, described as "a typical side-bet stake" — wrong twice over: (1) side bets
+live *outside* fantasy and must never enter the optimizer, and (2) a matchup win
+is worth its **playoff equity**, not a side bet. Our standings-tied money is
+$2,125 in playoffs (top 4 of 10) + $375 in regular-season prizes, and a
+regular-season win's only value is moving you up those standings.
+`draft/backtest/matchup_value.py` measures it two ways that converge: the direct
+playoff-probability slope peaks at ~0.19 dP(playoff)/win at the 7-8-win bubble,
+which × ~$530 playoff-entry equity ≈ **$100**; and a flip-and-rerank Monte Carlo
+gives an ex-ante average of **$110**. Shipped default is now **$110**
+**[MEASURED]** (one stated modelling input — the game-level win-probability
+spread — swept in the script). At $110 it is ≈ the $100 weekly-high, so **the two
+objectives are comparable** — not the 4:1 the old $25 implied, which had the tool
+chasing the weekly-high roughly four times harder than the real stakes justify.
 
 The two objectives pull *against* each other: chasing the weekly-high rewards
 variance (a boom bench play can clear a high bar a safe floor never will), while
@@ -438,13 +497,16 @@ explained rather than silent.
 
 ### B5. The dual-objective tradeoff and how the lineup is chosen
 
-`matchupValue` defaults to **$25** (a typical side-bet stake) **[DESIGNED-GUESS]** —
-and this number *is the tradeoff dial.* It sets how many dollars a percentage point
-of win-probability is worth against the fixed **$100** weekly-high prize
-**[HARD-CODED, league rule]**. Raise it and the tool protects the head-to-head;
-lower it and the tool chases the $100 harder. A reviewer who thinks the tool
-chases variance too hard (or too little) should argue with this $25, because that
-is precisely the knob that decides it.
+`matchupValue` defaults to **$110** **[MEASURED]** — playoff equity, derived in
+B0 above — and this number *is the tradeoff dial.* It sets how many dollars a
+percentage point of win-probability is worth against the fixed **$100**
+weekly-high prize **[HARD-CODED, league rule]**. Raise it and the tool protects
+the head-to-head; lower it and the tool chases the $100 harder. It is no longer
+the soft spot it was at $25 — it is derived from the payout table and a swept
+win-probability model — but the one remaining modelling input (the game-level
+strength spread) is worth a reviewer's eye, and refining it against three seasons
+of *real* standings would upgrade it from "measured with one assumption" to fully
+empirical.
 
 **The search:** start from the naive lineup (highest projections = the E[points]
 optimum), then hill-climb — try every legal single bench-for-starter swap, keep the
@@ -460,7 +522,7 @@ weeks — that's the honest test of this shortcut.
 
 - **Calls.** Every difference between the recommended lineup and the naive one,
   each priced *in isolation against naive*: "start X over Y, worth +$Z," split into
-  the win-dollars (ΔP(win) × $25) and high-dollars (ΔP(high) × $100) it buys.
+  the win-dollars (ΔP(win) × $110) and high-dollars (ΔP(high) × $100) it buys.
   Sorted by dollars.
 - **Weekly posture.** A plain-language read of the week's incentive, driven by
   P(win):
@@ -490,9 +552,16 @@ agree by construction (shared config), not yet by learned feedback.
 
 ### B8. What the in-season tool does NOT do (limits)
 
-- Starters are independent — no same-game correlation (B2). Conservative for stacks.
+- Starters are independent — no same-game correlation (B2). Conservative for
+  stacks, and the draft is *engineered to build stacks* (stack weight 0.5), so the
+  optimizer systematically underprices the ceiling of exactly the rosters this
+  system builds. **This is the single highest-value modelling fix on the list**
+  and belongs with the scale-up work (review catch: the same correlation blind
+  spot shows up three times — here, in the money Monte-Carlo, and in why the stack
+  finding needs a separate sweep).
 - Hill-climb, not exhaustive search (B5).
-- `matchupValue = $25` is a guess and it drives everything (B5).
+- `matchupValue = $110` is now DERIVED (B0/B5), with one modelling input (the
+  game-level strength spread) still to be pinned against real standings.
 - Opponent variance is a flat 24 (B4).
 - No calendar beyond the injury/bye guard — it trusts the projection feed's weekly
   numbers and the two zeroing signals.
@@ -506,14 +575,24 @@ The places most likely to be wrong, ranked:
 1. **The league rules in `league_config`** (A2) and the **$100 weekly-high /
    payout structure** (B5). If any league rule is wrong, everything downstream is
    wrong. Verify against actual settings first.
-2. **`matchupValue = $25`** (B5) — one designed number that decides every in-season
-   variance/floor tradeoff.
+2. **Starter independence + the stack blind spot** (B2/B8) — the optimizer models
+   starters as independent, but the draft is built to create QB↔WR correlation
+   (ρ = 0.357). It therefore underprices the stacked-roster ceiling this system
+   exists to build. **Now the top structural fix**, promoted from a footnote after
+   the review; belongs with scale-up.
 3. **Survival constants** (A4) — interim, not calibrated; VONA rides on them.
-4. **Starter independence** (B2) — biases the high-chase conservative for stacks.
+4. **Keeper at 1.0, unmeasured** (A3/A6) — one of only three live bench terms, in
+   the region where it fires. Sensitivity: 0/4 late #1 picks flipped at 1.0→0.5,
+   so low live impact, but it is the lone full-strength unmeasured term.
 5. **Hill-climb vs exhaustive** (B5) — a shortcut that *should* land the optimum
    but isn't proven to on every roster.
 6. **The bench-reprice term list** (A3/A5c) — a sound-structure fix to a real bug,
    but the exact terms kept are a judgment.
+
+**RESOLVED since the first draft** (skeptical-review round, 2026-08-10):
+`matchupValue` was a side-bet guess ($25) — now derived playoff equity ($110,
+B0). The doctrine tilt applied at full strength after the onesie discount — now
+scaled by it (A3/A9). Both were the review's top actionable catches; both fixed.
 
 The claims we would defend hardest, because they were measured against realized
 dollars:

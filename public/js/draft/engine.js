@@ -857,15 +857,31 @@
       score = score * onesie.discount;
     }
 
-    /* THE DOCTRINE TILT. Additive and bounded, applied after the discounts so
-     * it cannot rescue a player the construction rules just priced down — a
-     * plan may not talk you into an unstartable backup.
+    /* THE DOCTRINE TILT. Additive and bounded. It must be SCALED BY THE ONESIE
+     * DISCOUNT so the plan cannot rescue a player construction just priced down.
+     *
+     * Earlier this added the flat tilt AFTER the 0.10 multiply, at full
+     * magnitude — which did the OPPOSITE of the stated intent: a +2.5 tilt on a
+     * score cut to a tenth is ten times more influential on exactly the
+     * unstartable backups the discount was meant to bury (skeptical-review
+     * catch, 2026-08-10). Multiplying the tilt by the same discount restores the
+     * intent: a discounted onesie's tilt shrinks with the rest of its score, so
+     * no plan talks you into a QB2 you cannot start.
      *
      * `doctrineAllows` is the SAME LIVE_CONSTRAINTS predicate the banner uses
      * to name the doctrine's branch, so the surface and the score cannot
-     * disagree about what the plan wants. One canonical fact, one derivation. */
+     * disagree about what the plan wants. One canonical fact, one derivation.
+     *
+     * KNOWN LIMIT (not fixed here): the tilt is still a FLAT ±2.5 against a
+     * score whose scale shrinks late (a bench composite tops out ~6 pts), so its
+     * SHARE of the decision grows in the throwaway rounds. That is a deliberate
+     * flat-tiebreaker design (see doctrineTilt), but its late-round dominance is
+     * real and is on the agenda, not silently accepted. */
     var tilt = doctrineTilt(player, ctx);
-    if (tilt) score += tilt;
+    if (tilt) {
+      if (onesie.duplicate && onesie.discount < 1) tilt *= onesie.discount;
+      score += tilt;
+    }
 
     const survivalToNext = ctx.nextPick ? survival(player, ctx.nextPick, ctx) : 0;
     const reasons = [];

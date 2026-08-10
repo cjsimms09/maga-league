@@ -302,8 +302,15 @@ function lineupStats(starters, projById, sigmaById) {
  *   oppMean      opponent's projected total (0 disables the matchup term)
  *   oppSd        opponent's projected SD (defaults to a team-typical value)
  *   band         { samples }  harvested weekly-high thresholds
- *   matchupValue $ weight on P(win) — the assumed value of the head-to-head result
- *                (default $25, a typical side-bet stake; tune to your RS/playoff stakes)
+ *   matchupValue $ weight on P(win) — the PLAYOFF EQUITY of a head-to-head win:
+ *                what one regular-season win is worth toward the $2,125 playoff pool
+ *                (top 4 of 10) + $375 RS prizes. DERIVED, not guessed — see
+ *                draft/backtest/matchup_value.py: dP(playoff)/win ~0.19 at the bubble
+ *                x ~$530 entry equity ~= $110 (ex-ante average; two methods converge).
+ *                Default $110. This is NOT a side bet — side bets live outside fantasy
+ *                and must never enter the optimizer (Cory, 2026-08-10). The old $25
+ *                "side-bet stake" undervalued a win ~4x and made the tool chase the
+ *                weekly high far harder than the real stakes justify.
  *   weeklyHigh   $ weight on P(clear high) — default $100 (the league's weekly prize)
  * }
  * @returns { lineup, naive, calls[], ev, confidence }
@@ -312,7 +319,7 @@ function optimize(roster, ctx = {}) {
   const slots = ctx.slots || DEFAULT_SLOTS;
   const sigmaByPos = ctx.sigmaByPos || FALLBACK_SIGMA;
   const bandSamples = (ctx.band && ctx.band.samples) || [];
-  const matchupValue = ctx.matchupValue == null ? 25 : Number(ctx.matchupValue);
+  const matchupValue = ctx.matchupValue == null ? 110 : Number(ctx.matchupValue);
   const weeklyHigh = ctx.weeklyHigh == null ? 100 : Number(ctx.weeklyHigh);
   const oppMean = Number(ctx.oppMean || 0);
   const oppVar = Math.pow(Number(ctx.oppSd || 24), 2);   // team SD ~ 24 by default
