@@ -34,6 +34,9 @@ b_owns() {
     # src/rivalries.js — Rivalry Game of the Week billing (+ the German egg). Same
     # substance: league-visible, imported only by src/routes/member. B.
     src/rivalries.js) return 0 ;;
+    # src/matchup.js — slot-aligned matchup starters (QB vs QB). In-season site
+    # surface, imported only by src/routes/member; never by draft/**. B by substance.
+    src/matchup.js) return 0 ;;
     views/*|src/routes/*|public/css/*|public/icons/*|public/*.webmanifest) return 0 ;;
     public/js/*) case "$1" in public/js/draft/*) return 1 ;; *) return 0 ;; esac ;;
     docs/queued/league-history-page.md|docs/queued/history-chronicle-voice.md) return 0 ;;

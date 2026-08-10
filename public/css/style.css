@@ -228,6 +228,22 @@ table.roll tr:last-child td { border-bottom: none; }
 table.roll tbody tr:hover td, table.roll tr:hover td { background: rgba(255, 255, 255, .025); }
 table.roll td.num, table.roll th.num { text-align: right; font-variant-numeric: tabular-nums; }
 table.roll tr.total td { font-weight: 700; background: rgba(245, 196, 69, .06); border-top: 1px solid rgba(245, 196, 69, .35); color: var(--gold-bright); }
+
+/* MATCHUP STARTERS — the centre Slot column is the pairing made visible: the two
+   names on a row are the SAME lineup slot (QB vs QB, FLEX vs FLEX). */
+table.roll.mu-starters td.mu-slot, table.roll.mu-starters th.mu-slot-h {
+  text-align: center; width: 3.2rem; color: var(--muted);
+  font-family: var(--font-display); font-size: .6rem; letter-spacing: .1em; font-weight: 800;
+  background: rgba(255, 255, 255, .02); border-left: 1px solid var(--line); border-right: 1px solid var(--line);
+}
+table.roll.mu-starters th.mu-slot-h { text-align: center; }
+.mu-flag {
+  display: inline-block; margin-left: .28rem; padding: 0 .3rem; border-radius: .28rem;
+  font-family: var(--font-display); font-size: .56rem; font-weight: 800; letter-spacing: .05em;
+  vertical-align: middle;
+}
+.mu-flag.out { background: rgba(248, 113, 113, .16); color: #f87171; }
+.mu-flag.q { background: rgba(245, 196, 69, .16); color: var(--gold-bright); }
 .scroll-x { overflow-x: auto; }
 
 /* ---------- badges & buttons ---------- */

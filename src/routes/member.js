@@ -14,6 +14,7 @@ const TT = require('./trashtalk');         // trash talk attached to a specific 
 const WW = require('./whatwatch');         // what-to-watch — the Sunday/Monday sweat meter + what each owner needs
 const MK = require('./marks');             // auto badges — GOAT on Mahomes' owner, Chiefs mark on KC players
 const RIVN = require('./rivalries');       // named rivalries (German derby, Dylan-Sam, Bates-Richard)
+const MU = require('../matchup');          // slot-aligned matchup starters (QB vs QB, not row-vs-row)
 const SET = require('./settlement');       // the settlement report — who pays whom, with Venmo
 const ACC = require('./accuracy');          // model-accuracy display — reads A's calibration/attribution output
 const L = require('../ledger');
@@ -1663,9 +1664,29 @@ router.get('/matchup', aw(async (req, res) => {
   }
 
   // A-lane data, read defensively: present => render; absent => a labelled slot.
-  const perPlayer = (liveMatchup && liveMatchup.players) || null;   // A supplies
-  const proj = (liveMatchup && liveMatchup.proj) || null;           // A supplies
+  const proj = (liveMatchup && liveMatchup.proj) || null;           // A supplies (per-player projections, optional)
   const highBand = (liveMatchup && liveMatchup.highBand) || null;   // A supplies (richer, live projections)
+
+  // THE STARTERS CARD — assembled here, in B's lane, from the raw Sleeper matchup
+  // rows so the two lineups are aligned BY LINEUP SLOT (QB vs QB, FLEX vs FLEX),
+  // not by an independently-sorted row index. See src/matchup.js for why the old
+  // index pairing was wrong. Needs the live bundle (starters + points) and the
+  // player name DB; absent either, the card stays folded rather than half-drawn.
+  let starters = null;
+  if (opp && live && sData && Array.isArray(sData.matchups) && liveMatchup && liveMatchup.me) {
+    const myRid = liveMatchup.me.roster_id;
+    const oppRid = liveMatchup.opp && liveMatchup.opp.roster_id;
+    const myRow = sData.matchups.find(m => Number(m.roster_id) === Number(myRid)) || null;
+    const oppRow = oppRid != null ? (sData.matchups.find(m => Number(m.roster_id) === Number(oppRid)) || null) : null;
+    if (myRow) {
+      try {
+        const playersDb = await sleeper.players();
+        const rosterPositions = (sData.league && sData.league.roster_positions)
+          || (H.currentSeason(world.seasons) || {}).roster_positions || null;
+        starters = MU.pairStarters(myRow, oppRow, rosterPositions, playersDb, proj);
+      } catch (e) { starters = null; /* the card is a bonus — never break the page */ }
+    }
+  }
 
   // The weekly-high TARGET, served now from the harvested band (a RESULT: what it
   // has historically taken to win the $100 — the same band the home page shows),
@@ -1729,7 +1750,7 @@ router.get('/matchup', aw(async (req, res) => {
 
   res.render('matchup', {
     me, owners, opp, live, weekNo, matchup: liveMatchup, betWindow, record, rivalry,
-    perPlayer, proj, highBand, whBand, whRace, pickem, stakes, trash, trashGameId,
+    starters, proj, highBand, whBand, whRace, pickem, stakes, trash, trashGameId,
     goatId: MK.goatOwnerId(sData, world.config.sleeper_map || {}),
     configured: !!world.config.sleeper_league_id,
     late: req.query.late === '1', sent: req.query.sent === '1',

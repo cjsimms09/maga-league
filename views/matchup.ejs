@@ -266,22 +266,48 @@
     </div>
   </div>
 <% } %>
-<% if (perPlayer && (perPlayer.me || perPlayer.opp)) { %>
+<% if (live) {
+     const S = (typeof starters !== 'undefined' && starters) ? starters : null;
+     const showProj = S && S.hasProj;
+     // Slot column carries the pairing on its face: QB vs QB, FLEX vs FLEX. The
+     // flag reads a bye/injury tag next to a name (what a manager checks mid-game).
+     const flag = c => {
+       if (!c || c.empty) return '';
+       const t = (c.inj || '').toUpperCase();
+       if (t === 'OUT' || t === 'IR' || t === 'SUS') return ' <span class="mu-flag out">' + t + '</span>';
+       if (t === 'DOUBTFUL' || t === 'D') return ' <span class="mu-flag out">DBT</span>';
+       if (t === 'QUESTIONABLE' || t === 'Q') return ' <span class="mu-flag q">Q</span>';
+       if (t) return ' <span class="mu-flag q">' + t + '</span>';
+       return '';
+     }; %>
   <div class="card" style="margin-bottom:1.2rem">
-    <h2>🏈 Starters <span class="sub">points<%= proj ? ' vs projection' : '' %></span></h2>
+    <h2>🏈 Starters <span class="sub">your lineup vs theirs, slot by slot<%= showProj ? ' — points vs projection' : '' %></span></h2>
     <div class="body tight scroll-x">
-      <table class="roll">
-        <tr><th>You</th><th class="num">Pts</th><% if (proj) { %><th class="num">Proj</th><% } %><th><%= opp.name %></th><th class="num">Pts</th><% if (proj) { %><th class="num">Proj</th><% } %></tr>
-        <% const rowsMe = perPlayer.me || []; const rowsOpp = perPlayer.opp || []; const n = Math.max(rowsMe.length, rowsOpp.length); %>
-        <% for (let i = 0; i < n; i++) { const a = rowsMe[i] || {}; const b = rowsOpp[i] || {}; %>
-          <tr>
-            <td><%= a.name || '' %></td><td class="num"><%= a.points != null ? a.points.toFixed(1) : '' %></td>
-            <% if (proj) { %><td class="num muted"><%= a.proj != null ? a.proj.toFixed(1) : '' %></td><% } %>
-            <td><%= b.name || '' %></td><td class="num"><%= b.points != null ? b.points.toFixed(1) : '' %></td>
-            <% if (proj) { %><td class="num muted"><%= b.proj != null ? b.proj.toFixed(1) : '' %></td><% } %>
-          </tr>
+      <% if (!S || !S.rows.length) { %>
+        <p class="muted" style="margin:0">Lineups appear here once Sleeper posts this week's starters — usually by Sunday morning. Your live score is up top; this fills in slot by slot when the games are set.</p>
+      <% } else { %>
+        <% if (S.misaligned) { %>
+          <p class="muted" style="margin:0 0 .6rem; font-size:.74rem">⚠️ One slot didn't line up cleanly against the opponent's — showing Sleeper's slot order as-is.</p>
         <% } %>
-      </table>
+        <table class="roll mu-starters">
+          <tr>
+            <th><%= me.name || 'You' %></th><th class="num">Pts</th><% if (showProj) { %><th class="num">Proj</th><% } %>
+            <th class="mu-slot-h">Slot</th>
+            <th><%= opp.name %></th><th class="num">Pts</th><% if (showProj) { %><th class="num">Proj</th><% } %>
+          </tr>
+          <% for (const row of S.rows) { const a = row.me, b = row.opp; %>
+            <tr>
+              <td class="<%= a.empty ? 'muted' : '' %>"><%= a.empty ? '—' : a.name %><%- flag(a) %></td>
+              <td class="num"><%= a.points != null ? a.points.toFixed(1) : (a.empty ? '' : '·') %></td>
+              <% if (showProj) { %><td class="num muted"><%= a.proj != null ? a.proj.toFixed(1) : '' %></td><% } %>
+              <td class="mu-slot"><%= row.slot %></td>
+              <td class="<%= b.empty ? 'muted' : '' %>"><%= b.empty ? '—' : b.name %><%- flag(b) %></td>
+              <td class="num"><%= b.points != null ? b.points.toFixed(1) : (b.empty ? '' : '·') %></td>
+              <% if (showProj) { %><td class="num muted"><%= b.proj != null ? b.proj.toFixed(1) : '' %></td><% } %>
+            </tr>
+          <% } %>
+        </table>
+      <% } %>
     </div>
   </div>
 <% } %>
