@@ -203,3 +203,25 @@ sample-ceiling breakers have much higher EVSI:
   below the top real strategy — within noise of most).
 - **Scope:** 1 seat × 3 seasons, threshold-lumpy $, fixed (untuned) positional rules; injury
   rule fills byes too (~1/17, equal to all). Installs nothing. (exp_strategy_tournament.json, 6/6)
+
+## INVERSE ADJUSTER — where would the dial be set to get the best per-round picks? (2026-08-10, Cory's Q)
+- **Q:** take the top-3-by-value players available at each of Cory's picks and solve backwards for
+  the adjuster setting that selects one; report where none reaches. Signals (in-hand): MARKET = the
+  room's draft order that year (all 3 seasons); VALUE = walk_forward from prior season (2024-25).
+- **TWO self-corrections en route (the valuable part):** (1) ranking by RAW realized crowned a QB
+  every round — fixed the target to VORP (points over positional replacement). (2) the best-VORP
+  "unreachable" bucket was then dominated by K/DEF — unforecastable, trivially streamed (the
+  injury-analog) — so scored SKILL only (QB/RB/WR/TE); K/DEF reported as correctly-unreachable.
+- **ANSWER:** best-available by MARKET already surfaces the top-3-VORP skill player in its top-3
+  at **19/41 picks (46%)** — no special dial. A value-over-market TILT recovers **4 more** (2024-25).
+  **8 are UNREACHABLE** by either signal — breakouts (rookie Jayden Daniels, JSN's leap) no setting
+  reaches without fitting noise. **Third independent confirmation of the measured mask+value rule**
+  (after participation + strategy tournament): the knobs that earn are value + best-available.
+- **BIG CAVEAT (kept, not buried):** 25/41 "best value available" were ELITE QBs the market faded —
+  but single-QB VORP OVERSTATES value in our 1-QB league (start one; top-10 QB is streamable),
+  which is why the dollar-graded tournament did NOT reward QB-early. VORP flags QB as unclaimed,
+  the dollars say the room is right to fade it → do NOT tune the adjuster to chase QB.
+- **The real leak is Cory's own reaching**, not a missing adjuster: repeated deep-negative-VORP
+  picks (Quentin Johnston -163, Joe Burrow '25 -160, Braelon Allen -136, Keon Coleman -110) — value
+  destroyed by reaching past best-available. The fix is behavioral (take best-available value), not
+  a new knob. (exp_inverse_adjuster.json, 4/4 tests)

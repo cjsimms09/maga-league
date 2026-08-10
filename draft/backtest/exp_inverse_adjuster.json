@@ -1,0 +1,1994 @@
+{
+  "experiment": "inverse adjuster \u2014 where the dial recovers the best per-round outcomes",
+  "seasons": [
+    "2023",
+    "2024",
+    "2025"
+  ],
+  "topk": 3,
+  "top_outcomes_scored": 3,
+  "signals": {
+    "market": "room draft order (all seasons)",
+    "value": "walk_forward from prior season (2024-25 only)"
+  },
+  "per_season": {
+    "2023": {
+      "has_value_signal": false,
+      "rounds": [
+        {
+          "round": 1,
+          "pick_no": 5,
+          "n_available": 145,
+          "class": "unreachable_marketonly",
+          "best_kdef_noise": {
+            "player": "Dallas Cowboys",
+            "pos": "DEF",
+            "vorp": 107.0
+          },
+          "best_available": {
+            "player": "Josh Allen",
+            "pos": "QB",
+            "vorp": 188.5,
+            "realized": 450.6,
+            "market_rank": 29,
+            "value_rank": null
+          },
+          "top3": [
+            {
+              "player": "Josh Allen",
+              "pos": "QB",
+              "vorp": 188.5,
+              "realized": 450.6,
+              "market_rank": 29,
+              "value_rank": null
+            },
+            {
+              "player": "CeeDee Lamb",
+              "pos": "WR",
+              "vorp": 168.0,
+              "realized": 335.7,
+              "market_rank": 8,
+              "value_rank": null
+            },
+            {
+              "player": "Dak Prescott",
+              "pos": "QB",
+              "vorp": 152.7,
+              "realized": 414.8,
+              "market_rank": 94,
+              "value_rank": null
+            }
+          ],
+          "cory_took": "7564",
+          "cory_took_vorp": 45.0,
+          "cory_vorp_rank_of_avail": 42
+        },
+        {
+          "round": 2,
+          "pick_no": 16,
+          "n_available": 134,
+          "class": "unreachable_marketonly",
+          "best_kdef_noise": {
+            "player": "Dallas Cowboys",
+            "pos": "DEF",
+            "vorp": 107.0
+          },
+          "best_available": {
+            "player": "Josh Allen",
+            "pos": "QB",
+            "vorp": 188.5,
+            "realized": 450.6,
+            "market_rank": 18,
+            "value_rank": null
+          },
+          "top3": [
+            {
+              "player": "Josh Allen",
+              "pos": "QB",
+              "vorp": 188.5,
+              "realized": 450.6,
+              "market_rank": 18,
+              "value_rank": null
+            },
+            {
+              "player": "Dak Prescott",
+              "pos": "QB",
+              "vorp": 152.7,
+              "realized": 414.8,
+              "market_rank": 83,
+              "value_rank": null
+            },
+            {
+              "player": "Jalen Hurts",
+              "pos": "QB",
+              "vorp": 140.6,
+              "realized": 402.8,
+              "market_rank": 5,
+              "value_rank": null
+            }
+          ],
+          "cory_took": "Jaylen Waddle",
+          "cory_took_vorp": -5.1,
+          "cory_vorp_rank_of_avail": 71
+        },
+        {
+          "round": 3,
+          "pick_no": 26,
+          "n_available": 124,
+          "class": "unreachable_marketonly",
+          "best_kdef_noise": {
+            "player": "Dallas Cowboys",
+            "pos": "DEF",
+            "vorp": 107.0
+          },
+          "best_available": {
+            "player": "Josh Allen",
+            "pos": "QB",
+            "vorp": 188.5,
+            "realized": 450.6,
+            "market_rank": 8,
+            "value_rank": null
+          },
+          "top3": [
+            {
+              "player": "Josh Allen",
+              "pos": "QB",
+              "vorp": 188.5,
+              "realized": 450.6,
+              "market_rank": 8,
+              "value_rank": null
+            },
+            {
+              "player": "Dak Prescott",
+              "pos": "QB",
+              "vorp": 152.7,
+              "realized": 414.8,
+              "market_rank": 73,
+              "value_rank": null
+            },
+            {
+              "player": "Lamar Jackson",
+              "pos": "QB",
+              "vorp": 117.0,
+              "realized": 379.2,
+              "market_rank": 15,
+              "value_rank": null
+            }
+          ],
+          "cory_took": "Davante Adams",
+          "cory_took_vorp": 46.2,
+          "cory_vorp_rank_of_avail": 30
+        },
+        {
+          "round": 4,
+          "pick_no": 38,
+          "n_available": 112,
+          "class": "market",
+          "best_kdef_noise": {
+            "player": "Dallas Cowboys",
+            "pos": "DEF",
+            "vorp": 107.0
+          },
+          "best_available": {
+            "player": "Dak Prescott",
+            "pos": "QB",
+            "vorp": 152.7,
+            "realized": 414.8,
+            "market_rank": 61,
+            "value_rank": null
+          },
+          "top3": [
+            {
+              "player": "Dak Prescott",
+              "pos": "QB",
+              "vorp": 152.7,
+              "realized": 414.8,
+              "market_rank": 61,
+              "value_rank": null
+            },
+            {
+              "player": "Lamar Jackson",
+              "pos": "QB",
+              "vorp": 117.0,
+              "realized": 379.2,
+              "market_rank": 3,
+              "value_rank": null
+            },
+            {
+              "player": "Raheem Mostert",
+              "pos": "RB",
+              "vorp": 95.3,
+              "realized": 255.2,
+              "market_rank": 64,
+              "value_rank": null
+            }
+          ],
+          "cory_took": "Aaron Jones",
+          "cory_took_vorp": -40.0,
+          "cory_vorp_rank_of_avail": 64
+        },
+        {
+          "round": 5,
+          "pick_no": 46,
+          "n_available": 104,
+          "class": "unreachable_marketonly",
+          "best_kdef_noise": {
+            "player": "Dallas Cowboys",
+            "pos": "DEF",
+            "vorp": 107.0
+          },
+          "best_available": {
+            "player": "Dak Prescott",
+            "pos": "QB",
+            "vorp": 152.7,
+            "realized": 414.8,
+            "market_rank": 53,
+            "value_rank": null
+          },
+          "top3": [
+            {
+              "player": "Dak Prescott",
+              "pos": "QB",
+              "vorp": 152.7,
+              "realized": 414.8,
+              "market_rank": 53,
+              "value_rank": null
+            },
+            {
+              "player": "Raheem Mostert",
+              "pos": "RB",
+              "vorp": 95.3,
+              "realized": 255.2,
+              "market_rank": 56,
+              "value_rank": null
+            },
+            {
+              "player": "Evan Engram",
+              "pos": "TE",
+              "vorp": 77.3,
+              "realized": 173.3,
+              "market_rank": 28,
+              "value_rank": null
+            }
+          ],
+          "cory_took": "George Kittle",
+          "cory_took_vorp": 74.7,
+          "cory_vorp_rank_of_avail": 11
+        },
+        {
+          "round": 6,
+          "pick_no": 55,
+          "n_available": 95,
+          "class": "unreachable_marketonly",
+          "best_kdef_noise": {
+            "player": "Dallas Cowboys",
+            "pos": "DEF",
+            "vorp": 107.0
+          },
+          "best_available": {
+            "player": "Dak Prescott",
+            "pos": "QB",
+            "vorp": 152.7,
+            "realized": 414.8,
+            "market_rank": 44,
+            "value_rank": null
+          },
+          "top3": [
+            {
+              "player": "Dak Prescott",
+              "pos": "QB",
+              "vorp": 152.7,
+              "realized": 414.8,
+              "market_rank": 44,
+              "value_rank": null
+            },
+            {
+              "player": "Raheem Mostert",
+              "pos": "RB",
+              "vorp": 95.3,
+              "realized": 255.2,
+              "market_rank": 47,
+              "value_rank": null
+            },
+            {
+              "player": "Evan Engram",
+              "pos": "TE",
+              "vorp": 77.3,
+              "realized": 173.3,
+              "market_rank": 19,
+              "value_rank": null
+            }
+          ],
+          "cory_took": "Justin Herbert",
+          "cory_took_vorp": 11.5,
+          "cory_vorp_rank_of_avail": 34
+        },
+        {
+          "round": 7,
+          "pick_no": 66,
+          "n_available": 84,
+          "class": "unreachable_marketonly",
+          "best_kdef_noise": {
+            "player": "Dallas Cowboys",
+            "pos": "DEF",
+            "vorp": 107.0
+          },
+          "best_available": {
+            "player": "Dak Prescott",
+            "pos": "QB",
+            "vorp": 152.7,
+            "realized": 414.8,
+            "market_rank": 33,
+            "value_rank": null
+          },
+          "top3": [
+            {
+              "player": "Dak Prescott",
+              "pos": "QB",
+              "vorp": 152.7,
+              "realized": 414.8,
+              "market_rank": 33,
+              "value_rank": null
+            },
+            {
+              "player": "Raheem Mostert",
+              "pos": "RB",
+              "vorp": 95.3,
+              "realized": 255.2,
+              "market_rank": 36,
+              "value_rank": null
+            },
+            {
+              "player": "Evan Engram",
+              "pos": "TE",
+              "vorp": 77.3,
+              "realized": 173.3,
+              "market_rank": 8,
+              "value_rank": null
+            }
+          ],
+          "cory_took": "James Cook",
+          "cory_took_vorp": 50.8,
+          "cory_vorp_rank_of_avail": 18
+        },
+        {
+          "round": 8,
+          "pick_no": 75,
+          "n_available": 75,
+          "class": "unreachable_marketonly",
+          "best_kdef_noise": {
+            "player": "Dallas Cowboys",
+            "pos": "DEF",
+            "vorp": 107.0
+          },
+          "best_available": {
+            "player": "Dak Prescott",
+            "pos": "QB",
+            "vorp": 152.7,
+            "realized": 414.8,
+            "market_rank": 24,
+            "value_rank": null
+          },
+          "top3": [
+            {
+              "player": "Dak Prescott",
+              "pos": "QB",
+              "vorp": 152.7,
+              "realized": 414.8,
+              "market_rank": 24,
+              "value_rank": null
+            },
+            {
+              "player": "Raheem Mostert",
+              "pos": "RB",
+              "vorp": 95.3,
+              "realized": 255.2,
+              "market_rank": 27,
+              "value_rank": null
+            },
+            {
+              "player": "Rachaad White",
+              "pos": "RB",
+              "vorp": 76.0,
+              "realized": 235.9,
+              "market_rank": 9,
+              "value_rank": null
+            }
+          ],
+          "cory_took": "Javonte Williams",
+          "cory_took_vorp": -4.2,
+          "cory_vorp_rank_of_avail": 30
+        },
+        {
+          "round": 9,
+          "pick_no": 86,
+          "n_available": 64,
+          "class": "unreachable_marketonly",
+          "best_kdef_noise": {
+            "player": "Dallas Cowboys",
+            "pos": "DEF",
+            "vorp": 107.0
+          },
+          "best_available": {
+            "player": "Dak Prescott",
+            "pos": "QB",
+            "vorp": 152.7,
+            "realized": 414.8,
+            "market_rank": 13,
+            "value_rank": null
+          },
+          "top3": [
+            {
+              "player": "Dak Prescott",
+              "pos": "QB",
+              "vorp": 152.7,
+              "realized": 414.8,
+              "market_rank": 13,
+              "value_rank": null
+            },
+            {
+              "player": "Raheem Mostert",
+              "pos": "RB",
+              "vorp": 95.3,
+              "realized": 255.2,
+              "market_rank": 16,
+              "value_rank": null
+            },
+            {
+              "player": "Tua Tagovailoa",
+              "pos": "QB",
+              "vorp": 66.2,
+              "realized": 328.4,
+              "market_rank": 38,
+              "value_rank": null
+            }
+          ],
+          "cory_took": "David Montgomery",
+          "cory_took_vorp": 39.3,
+          "cory_vorp_rank_of_avail": 18
+        },
+        {
+          "round": 10,
+          "pick_no": 95,
+          "n_available": 55,
+          "class": "unreachable_marketonly",
+          "best_kdef_noise": {
+            "player": "Dallas Cowboys",
+            "pos": "DEF",
+            "vorp": 107.0
+          },
+          "best_available": {
+            "player": "Dak Prescott",
+            "pos": "QB",
+            "vorp": 152.7,
+            "realized": 414.8,
+            "market_rank": 5,
+            "value_rank": null
+          },
+          "top3": [
+            {
+              "player": "Dak Prescott",
+              "pos": "QB",
+              "vorp": 152.7,
+              "realized": 414.8,
+              "market_rank": 5,
+              "value_rank": null
+            },
+            {
+              "player": "Raheem Mostert",
+              "pos": "RB",
+              "vorp": 95.3,
+              "realized": 255.2,
+              "market_rank": 8,
+              "value_rank": null
+            },
+            {
+              "player": "Tua Tagovailoa",
+              "pos": "QB",
+              "vorp": 66.2,
+              "realized": 328.4,
+              "market_rank": 30,
+              "value_rank": null
+            }
+          ],
+          "cory_took": "George Pickens",
+          "cory_took_vorp": -75.3,
+          "cory_vorp_rank_of_avail": 31
+        },
+        {
+          "round": 11,
+          "pick_no": 106,
+          "n_available": 44,
+          "class": "market",
+          "best_kdef_noise": {
+            "player": "Baltimore Ravens",
+            "pos": "DEF",
+            "vorp": 103.0
+          },
+          "best_available": {
+            "player": "Tua Tagovailoa",
+            "pos": "QB",
+            "vorp": 66.2,
+            "realized": 328.4,
+            "market_rank": 21,
+            "value_rank": null
+          },
+          "top3": [
+            {
+              "player": "Tua Tagovailoa",
+              "pos": "QB",
+              "vorp": 66.2,
+              "realized": 328.4,
+              "market_rank": 21,
+              "value_rank": null
+            },
+            {
+              "player": "David Njoku",
+              "pos": "TE",
+              "vorp": 64.7,
+              "realized": 160.7,
+              "market_rank": 2,
+              "value_rank": null
+            },
+            {
+              "player": "Jared Goff",
+              "pos": "QB",
+              "vorp": 64.2,
+              "realized": 326.3,
+              "market_rank": 26,
+              "value_rank": null
+            }
+          ],
+          "cory_took": "Quentin Johnston",
+          "cory_took_vorp": -163.5,
+          "cory_vorp_rank_of_avail": 40
+        },
+        {
+          "round": 12,
+          "pick_no": 115,
+          "n_available": 35,
+          "class": "unreachable_marketonly",
+          "best_kdef_noise": {
+            "player": "Baltimore Ravens",
+            "pos": "DEF",
+            "vorp": 103.0
+          },
+          "best_available": {
+            "player": "Tua Tagovailoa",
+            "pos": "QB",
+            "vorp": 66.2,
+            "realized": 328.4,
+            "market_rank": 13,
+            "value_rank": null
+          },
+          "top3": [
+            {
+              "player": "Tua Tagovailoa",
+              "pos": "QB",
+              "vorp": 66.2,
+              "realized": 328.4,
+              "market_rank": 13,
+              "value_rank": null
+            },
+            {
+              "player": "Jared Goff",
+              "pos": "QB",
+              "vorp": 64.2,
+              "realized": 326.3,
+              "market_rank": 18,
+              "value_rank": null
+            },
+            {
+              "player": "Cole Kmet",
+              "pos": "TE",
+              "vorp": -4.5,
+              "realized": 91.5,
+              "market_rank": 9,
+              "value_rank": null
+            }
+          ],
+          "cory_took": "Samaje Perine",
+          "cory_took_vorp": -146.2,
+          "cory_vorp_rank_of_avail": 26
+        },
+        {
+          "round": 13,
+          "pick_no": 126,
+          "n_available": 24,
+          "class": "market",
+          "best_kdef_noise": {
+            "player": "Baltimore Ravens",
+            "pos": "DEF",
+            "vorp": 103.0
+          },
+          "best_available": {
+            "player": "Tua Tagovailoa",
+            "pos": "QB",
+            "vorp": 66.2,
+            "realized": 328.4,
+            "market_rank": 5,
+            "value_rank": null
+          },
+          "top3": [
+            {
+              "player": "Tua Tagovailoa",
+              "pos": "QB",
+              "vorp": 66.2,
+              "realized": 328.4,
+              "market_rank": 5,
+              "value_rank": null
+            },
+            {
+              "player": "Jared Goff",
+              "pos": "QB",
+              "vorp": 64.2,
+              "realized": 326.3,
+              "market_rank": 10,
+              "value_rank": null
+            },
+            {
+              "player": "Cole Kmet",
+              "pos": "TE",
+              "vorp": -4.5,
+              "realized": 91.5,
+              "market_rank": 1,
+              "value_rank": null
+            }
+          ],
+          "cory_took": "Tyler Bass",
+          "cory_took_vorp": 15.0,
+          "cory_vorp_rank_of_avail": 10
+        },
+        {
+          "round": 14,
+          "pick_no": 135,
+          "n_available": 15,
+          "class": "market",
+          "best_kdef_noise": {
+            "player": "Jason Sanders",
+            "pos": "K",
+            "vorp": 70.0
+          },
+          "best_available": {
+            "player": "Tua Tagovailoa",
+            "pos": "QB",
+            "vorp": 66.2,
+            "realized": 328.4,
+            "market_rank": 3,
+            "value_rank": null
+          },
+          "top3": [
+            {
+              "player": "Tua Tagovailoa",
+              "pos": "QB",
+              "vorp": 66.2,
+              "realized": 328.4,
+              "market_rank": 3,
+              "value_rank": null
+            },
+            {
+              "player": "Jared Goff",
+              "pos": "QB",
+              "vorp": 64.2,
+              "realized": 326.3,
+              "market_rank": 8,
+              "value_rank": null
+            },
+            {
+              "player": "Ezekiel Elliott",
+              "pos": "RB",
+              "vorp": -16.7,
+              "realized": 143.2,
+              "market_rank": 2,
+              "value_rank": null
+            }
+          ],
+          "cory_took": "Skyy Moore",
+          "cory_took_vorp": -167.3,
+          "cory_vorp_rank_of_avail": 15
+        },
+        {
+          "round": 15,
+          "pick_no": 146,
+          "n_available": 4,
+          "class": "market",
+          "best_kdef_noise": {
+            "player": "Kansas City Chiefs",
+            "pos": "DEF",
+            "vorp": 53.0
+          },
+          "best_available": {
+            "player": "Jared Goff",
+            "pos": "QB",
+            "vorp": 64.2,
+            "realized": 326.3,
+            "market_rank": 2,
+            "value_rank": null
+          },
+          "top3": [
+            {
+              "player": "Jared Goff",
+              "pos": "QB",
+              "vorp": 64.2,
+              "realized": 326.3,
+              "market_rank": 2,
+              "value_rank": null
+            },
+            {
+              "player": "Kirk Cousins",
+              "pos": "QB",
+              "vorp": -101.5,
+              "realized": 160.7,
+              "market_rank": 1,
+              "value_rank": null
+            },
+            {
+              "player": "Elijah Moore",
+              "pos": "WR",
+              "vorp": -154.4,
+              "realized": 13.3,
+              "market_rank": 3,
+              "value_rank": null
+            }
+          ],
+          "cory_took": "Kansas City Chiefs",
+          "cory_took_vorp": 53.0,
+          "cory_vorp_rank_of_avail": 2
+        }
+      ]
+    },
+    "2024": {
+      "has_value_signal": true,
+      "rounds": [
+        {
+          "round": 2,
+          "pick_no": 15,
+          "n_available": 135,
+          "class": "market",
+          "best_kdef_noise": {
+            "player": "Brandon Aubrey",
+            "pos": "K",
+            "vorp": 84.0
+          },
+          "best_available": {
+            "player": "Lamar Jackson",
+            "pos": "QB",
+            "vorp": 205.5,
+            "realized": 512.4,
+            "market_rank": 34,
+            "value_rank": 5
+          },
+          "top3": [
+            {
+              "player": "Lamar Jackson",
+              "pos": "QB",
+              "vorp": 205.5,
+              "realized": 512.4,
+              "market_rank": 34,
+              "value_rank": 5
+            },
+            {
+              "player": "Saquon Barkley",
+              "pos": "RB",
+              "vorp": 179.4,
+              "realized": 338.8,
+              "market_rank": 2,
+              "value_rank": 35
+            },
+            {
+              "player": "Jahmyr Gibbs",
+              "pos": "RB",
+              "vorp": 177.5,
+              "realized": 336.9,
+              "market_rank": 16,
+              "value_rank": 29
+            }
+          ],
+          "cory_took": "Marvin Harrison",
+          "cory_took_vorp": 7.3,
+          "cory_vorp_rank_of_avail": 60
+        },
+        {
+          "round": 3,
+          "pick_no": 26,
+          "n_available": 124,
+          "class": "market",
+          "best_kdef_noise": {
+            "player": "Brandon Aubrey",
+            "pos": "K",
+            "vorp": 84.0
+          },
+          "best_available": {
+            "player": "Lamar Jackson",
+            "pos": "QB",
+            "vorp": 205.5,
+            "realized": 512.4,
+            "market_rank": 23,
+            "value_rank": 4
+          },
+          "top3": [
+            {
+              "player": "Lamar Jackson",
+              "pos": "QB",
+              "vorp": 205.5,
+              "realized": 512.4,
+              "market_rank": 23,
+              "value_rank": 4
+            },
+            {
+              "player": "Jahmyr Gibbs",
+              "pos": "RB",
+              "vorp": 177.5,
+              "realized": 336.9,
+              "market_rank": 5,
+              "value_rank": 22
+            },
+            {
+              "player": "3198",
+              "pos": "RB",
+              "vorp": 167.5,
+              "realized": 326.9,
+              "market_rank": 1,
+              "value_rank": 16
+            }
+          ],
+          "cory_took": "3198",
+          "cory_took_vorp": 167.5,
+          "cory_vorp_rank_of_avail": 3
+        },
+        {
+          "round": 4,
+          "pick_no": 35,
+          "n_available": 115,
+          "class": "unreachable",
+          "best_kdef_noise": {
+            "player": "Brandon Aubrey",
+            "pos": "K",
+            "vorp": 84.0
+          },
+          "best_available": {
+            "player": "Lamar Jackson",
+            "pos": "QB",
+            "vorp": 205.5,
+            "realized": 512.4,
+            "market_rank": 14,
+            "value_rank": 4
+          },
+          "top3": [
+            {
+              "player": "Lamar Jackson",
+              "pos": "QB",
+              "vorp": 205.5,
+              "realized": 512.4,
+              "market_rank": 14,
+              "value_rank": 4
+            },
+            {
+              "player": "Joe Burrow",
+              "pos": "QB",
+              "vorp": 152.0,
+              "realized": 458.8,
+              "market_rank": 27,
+              "value_rank": 11
+            },
+            {
+              "player": "Brock Bowers",
+              "pos": "TE",
+              "vorp": 131.8,
+              "realized": 206.7,
+              "market_rank": 39,
+              "value_rank": 86
+            }
+          ],
+          "cory_took": "Drake London",
+          "cory_took_vorp": 72.6,
+          "cory_vorp_rank_of_avail": 11
+        },
+        {
+          "round": 5,
+          "pick_no": 46,
+          "n_available": 104,
+          "class": "market",
+          "best_kdef_noise": {
+            "player": "Brandon Aubrey",
+            "pos": "K",
+            "vorp": 84.0
+          },
+          "best_available": {
+            "player": "Lamar Jackson",
+            "pos": "QB",
+            "vorp": 205.5,
+            "realized": 512.4,
+            "market_rank": 3,
+            "value_rank": 4
+          },
+          "top3": [
+            {
+              "player": "Lamar Jackson",
+              "pos": "QB",
+              "vorp": 205.5,
+              "realized": 512.4,
+              "market_rank": 3,
+              "value_rank": 4
+            },
+            {
+              "player": "Joe Burrow",
+              "pos": "QB",
+              "vorp": 152.0,
+              "realized": 458.8,
+              "market_rank": 16,
+              "value_rank": 11
+            },
+            {
+              "player": "Brock Bowers",
+              "pos": "TE",
+              "vorp": 131.8,
+              "realized": 206.7,
+              "market_rank": 28,
+              "value_rank": 75
+            }
+          ],
+          "cory_took": "Malik Nabers",
+          "cory_took_vorp": 60.9,
+          "cory_vorp_rank_of_avail": 13
+        },
+        {
+          "round": 6,
+          "pick_no": 55,
+          "n_available": 95,
+          "class": "unreachable",
+          "best_kdef_noise": {
+            "player": "Brandon Aubrey",
+            "pos": "K",
+            "vorp": 84.0
+          },
+          "best_available": {
+            "player": "Joe Burrow",
+            "pos": "QB",
+            "vorp": 152.0,
+            "realized": 458.8,
+            "market_rank": 7,
+            "value_rank": 8
+          },
+          "top3": [
+            {
+              "player": "Joe Burrow",
+              "pos": "QB",
+              "vorp": 152.0,
+              "realized": 458.8,
+              "market_rank": 7,
+              "value_rank": 8
+            },
+            {
+              "player": "Brock Bowers",
+              "pos": "TE",
+              "vorp": 131.8,
+              "realized": 206.7,
+              "market_rank": 19,
+              "value_rank": 71
+            },
+            {
+              "player": "George Kittle",
+              "pos": "TE",
+              "vorp": 122.7,
+              "realized": 197.6,
+              "market_rank": 6,
+              "value_rank": 36
+            }
+          ],
+          "cory_took": "Rhamondre Stevenson",
+          "cory_took_vorp": 0.0,
+          "cory_vorp_rank_of_avail": 41
+        },
+        {
+          "round": 7,
+          "pick_no": 66,
+          "n_available": 84,
+          "class": "value_only",
+          "best_kdef_noise": {
+            "player": "Brandon Aubrey",
+            "pos": "K",
+            "vorp": 84.0
+          },
+          "best_available": {
+            "player": "Brock Bowers",
+            "pos": "TE",
+            "vorp": 131.8,
+            "realized": 206.7,
+            "market_rank": 8,
+            "value_rank": 60
+          },
+          "top3": [
+            {
+              "player": "Brock Bowers",
+              "pos": "TE",
+              "vorp": 131.8,
+              "realized": 206.7,
+              "market_rank": 8,
+              "value_rank": 60
+            },
+            {
+              "player": "Jayden Daniels",
+              "pos": "QB",
+              "vorp": 99.0,
+              "realized": 405.8,
+              "market_rank": 46,
+              "value_rank": 65
+            },
+            {
+              "player": "Jared Goff",
+              "pos": "QB",
+              "vorp": 91.1,
+              "realized": 398.0,
+              "market_rank": 48,
+              "value_rank": 2
+            }
+          ],
+          "cory_took": "Kyle Pitts",
+          "cory_took_vorp": 10.0,
+          "cory_vorp_rank_of_avail": 25
+        },
+        {
+          "round": 8,
+          "pick_no": 75,
+          "n_available": 75,
+          "class": "value_only",
+          "best_kdef_noise": {
+            "player": "Brandon Aubrey",
+            "pos": "K",
+            "vorp": 84.0
+          },
+          "best_available": {
+            "player": "Jayden Daniels",
+            "pos": "QB",
+            "vorp": 99.0,
+            "realized": 405.8,
+            "market_rank": 37,
+            "value_rank": 56
+          },
+          "top3": [
+            {
+              "player": "Jayden Daniels",
+              "pos": "QB",
+              "vorp": 99.0,
+              "realized": 405.8,
+              "market_rank": 37,
+              "value_rank": 56
+            },
+            {
+              "player": "Jared Goff",
+              "pos": "QB",
+              "vorp": 91.1,
+              "realized": 398.0,
+              "market_rank": 39,
+              "value_rank": 2
+            },
+            {
+              "player": "Brian Thomas",
+              "pos": "WR",
+              "vorp": 82.3,
+              "realized": 240.5,
+              "market_rank": 31,
+              "value_rank": 51
+            }
+          ],
+          "cory_took": "Jonathon Brooks",
+          "cory_took_vorp": -153.1,
+          "cory_vorp_rank_of_avail": 69
+        },
+        {
+          "round": 9,
+          "pick_no": 86,
+          "n_available": 64,
+          "class": "value_only",
+          "best_kdef_noise": {
+            "player": "Brandon Aubrey",
+            "pos": "K",
+            "vorp": 84.0
+          },
+          "best_available": {
+            "player": "Jayden Daniels",
+            "pos": "QB",
+            "vorp": 99.0,
+            "realized": 405.8,
+            "market_rank": 27,
+            "value_rank": 46
+          },
+          "top3": [
+            {
+              "player": "Jayden Daniels",
+              "pos": "QB",
+              "vorp": 99.0,
+              "realized": 405.8,
+              "market_rank": 27,
+              "value_rank": 46
+            },
+            {
+              "player": "Jared Goff",
+              "pos": "QB",
+              "vorp": 91.1,
+              "realized": 398.0,
+              "market_rank": 29,
+              "value_rank": 2
+            },
+            {
+              "player": "Brian Thomas",
+              "pos": "WR",
+              "vorp": 82.3,
+              "realized": 240.5,
+              "market_rank": 21,
+              "value_rank": 42
+            }
+          ],
+          "cory_took": "Javonte Williams",
+          "cory_took_vorp": -56.8,
+          "cory_vorp_rank_of_avail": 41
+        },
+        {
+          "round": 10,
+          "pick_no": 95,
+          "n_available": 55,
+          "class": "value_only",
+          "best_kdef_noise": {
+            "player": "Brandon Aubrey",
+            "pos": "K",
+            "vorp": 84.0
+          },
+          "best_available": {
+            "player": "Jayden Daniels",
+            "pos": "QB",
+            "vorp": 99.0,
+            "realized": 405.8,
+            "market_rank": 18,
+            "value_rank": 37
+          },
+          "top3": [
+            {
+              "player": "Jayden Daniels",
+              "pos": "QB",
+              "vorp": 99.0,
+              "realized": 405.8,
+              "market_rank": 18,
+              "value_rank": 37
+            },
+            {
+              "player": "Jared Goff",
+              "pos": "QB",
+              "vorp": 91.1,
+              "realized": 398.0,
+              "market_rank": 20,
+              "value_rank": 2
+            },
+            {
+              "player": "Brian Thomas",
+              "pos": "WR",
+              "vorp": 82.3,
+              "realized": 240.5,
+              "market_rank": 12,
+              "value_rank": 33
+            }
+          ],
+          "cory_took": "Chase Brown",
+          "cory_took_vorp": 68.6,
+          "cory_vorp_rank_of_avail": 6
+        },
+        {
+          "round": 11,
+          "pick_no": 106,
+          "n_available": 44,
+          "class": "market",
+          "best_kdef_noise": {
+            "player": "Brandon Aubrey",
+            "pos": "K",
+            "vorp": 84.0
+          },
+          "best_available": {
+            "player": "Jayden Daniels",
+            "pos": "QB",
+            "vorp": 99.0,
+            "realized": 405.8,
+            "market_rank": 8,
+            "value_rank": 27
+          },
+          "top3": [
+            {
+              "player": "Jayden Daniels",
+              "pos": "QB",
+              "vorp": 99.0,
+              "realized": 405.8,
+              "market_rank": 8,
+              "value_rank": 27
+            },
+            {
+              "player": "Jared Goff",
+              "pos": "QB",
+              "vorp": 91.1,
+              "realized": 398.0,
+              "market_rank": 10,
+              "value_rank": 1
+            },
+            {
+              "player": "Brian Thomas",
+              "pos": "WR",
+              "vorp": 82.3,
+              "realized": 240.5,
+              "market_rank": 2,
+              "value_rank": 25
+            }
+          ],
+          "cory_took": "Caleb Williams",
+          "cory_took_vorp": -173.5,
+          "cory_vorp_rank_of_avail": 44
+        },
+        {
+          "round": 12,
+          "pick_no": 115,
+          "n_available": 35,
+          "class": "market",
+          "best_kdef_noise": {
+            "player": "Brandon Aubrey",
+            "pos": "K",
+            "vorp": 84.0
+          },
+          "best_available": {
+            "player": "Jayden Daniels",
+            "pos": "QB",
+            "vorp": 99.0,
+            "realized": 405.8,
+            "market_rank": 1,
+            "value_rank": 20
+          },
+          "top3": [
+            {
+              "player": "Jayden Daniels",
+              "pos": "QB",
+              "vorp": 99.0,
+              "realized": 405.8,
+              "market_rank": 1,
+              "value_rank": 20
+            },
+            {
+              "player": "Jared Goff",
+              "pos": "QB",
+              "vorp": 91.1,
+              "realized": 398.0,
+              "market_rank": 3,
+              "value_rank": 1
+            },
+            {
+              "player": "Jameson Williams",
+              "pos": "WR",
+              "vorp": 25.0,
+              "realized": 183.2,
+              "market_rank": 12,
+              "value_rank": 9
+            }
+          ],
+          "cory_took": "Jayden Daniels",
+          "cory_took_vorp": 99.0,
+          "cory_vorp_rank_of_avail": 1
+        },
+        {
+          "round": 13,
+          "pick_no": 126,
+          "n_available": 24,
+          "class": "market",
+          "best_kdef_noise": {
+            "player": "Ka'imi Fairbairn",
+            "pos": "K",
+            "vorp": 72.0
+          },
+          "best_available": {
+            "player": "Jameson Williams",
+            "pos": "WR",
+            "vorp": 25.0,
+            "realized": 183.2,
+            "market_rank": 6,
+            "value_rank": 5
+          },
+          "top3": [
+            {
+              "player": "Jameson Williams",
+              "pos": "WR",
+              "vorp": 25.0,
+              "realized": 183.2,
+              "market_rank": 6,
+              "value_rank": 5
+            },
+            {
+              "player": "Rico Dowdle",
+              "pos": "RB",
+              "vorp": 11.8,
+              "realized": 171.2,
+              "market_rank": 2,
+              "value_rank": 12
+            },
+            {
+              "player": "Dallas Goedert",
+              "pos": "TE",
+              "vorp": 7.7,
+              "realized": 82.6,
+              "market_rank": 7,
+              "value_rank": 9
+            }
+          ],
+          "cory_took": "Jaxon Smith-Njigba",
+          "cory_took_vorp": 4.4,
+          "cory_vorp_rank_of_avail": 9
+        },
+        {
+          "round": 14,
+          "pick_no": 135,
+          "n_available": 16,
+          "class": "market",
+          "best_kdef_noise": {
+            "player": "Pittsburgh Steelers",
+            "pos": "DEF",
+            "vorp": 42.0
+          },
+          "best_available": {
+            "player": "Jameson Williams",
+            "pos": "WR",
+            "vorp": 25.0,
+            "realized": 183.2,
+            "market_rank": 1,
+            "value_rank": 4
+          },
+          "top3": [
+            {
+              "player": "Jameson Williams",
+              "pos": "WR",
+              "vorp": 25.0,
+              "realized": 183.2,
+              "market_rank": 1,
+              "value_rank": 4
+            },
+            {
+              "player": "Dallas Goedert",
+              "pos": "TE",
+              "vorp": 7.7,
+              "realized": 82.6,
+              "market_rank": 2,
+              "value_rank": 7
+            },
+            {
+              "player": "Taysom Hill",
+              "pos": "TE",
+              "vorp": -9.7,
+              "realized": 65.2,
+              "market_rank": 9,
+              "value_rank": 5
+            }
+          ],
+          "cory_took": "Jason Sanders",
+          "cory_took_vorp": 19.0,
+          "cory_vorp_rank_of_avail": 4
+        },
+        {
+          "round": 15,
+          "pick_no": 146,
+          "n_available": 5,
+          "class": "market",
+          "best_kdef_noise": {
+            "player": "Pittsburgh Steelers",
+            "pos": "DEF",
+            "vorp": 42.0
+          },
+          "best_available": {
+            "player": "Taysom Hill",
+            "pos": "TE",
+            "vorp": -9.7,
+            "realized": 65.2,
+            "market_rank": 2,
+            "value_rank": 1
+          },
+          "top3": [
+            {
+              "player": "Taysom Hill",
+              "pos": "TE",
+              "vorp": -9.7,
+              "realized": 65.2,
+              "market_rank": 2,
+              "value_rank": 1
+            },
+            {
+              "player": "Carson Steele",
+              "pos": "RB",
+              "vorp": -152.4,
+              "realized": 7.0,
+              "market_rank": 1,
+              "value_rank": 2
+            }
+          ],
+          "cory_took": "Philadelphia Eagles",
+          "cory_took_vorp": 41.0,
+          "cory_vorp_rank_of_avail": 2
+        }
+      ]
+    },
+    "2025": {
+      "has_value_signal": true,
+      "rounds": [
+        {
+          "round": 4,
+          "pick_no": 37,
+          "n_available": 110,
+          "class": "unreachable",
+          "best_kdef_noise": {
+            "player": "Brandon Aubrey",
+            "pos": "K",
+            "vorp": 104.6
+          },
+          "best_available": {
+            "player": "Jaxon Smith-Njigba",
+            "pos": "WR",
+            "vorp": 161.0,
+            "realized": 300.4,
+            "market_rank": 11,
+            "value_rank": 21
+          },
+          "top3": [
+            {
+              "player": "Jaxon Smith-Njigba",
+              "pos": "WR",
+              "vorp": 161.0,
+              "realized": 300.4,
+              "market_rank": 11,
+              "value_rank": 21
+            },
+            {
+              "player": "George Pickens",
+              "pos": "WR",
+              "vorp": 106.0,
+              "realized": 245.4,
+              "market_rank": 29,
+              "value_rank": 52
+            },
+            {
+              "player": "Travis Etienne",
+              "pos": "RB",
+              "vorp": 91.8,
+              "realized": 235.9,
+              "market_rank": 50,
+              "value_rank": 62
+            }
+          ],
+          "cory_took": "George Kittle",
+          "cory_took_vorp": 39.8,
+          "cory_vorp_rank_of_avail": 24
+        },
+        {
+          "round": 5,
+          "pick_no": 44,
+          "n_available": 103,
+          "class": "unreachable",
+          "best_kdef_noise": {
+            "player": "Brandon Aubrey",
+            "pos": "K",
+            "vorp": 104.6
+          },
+          "best_available": {
+            "player": "Jaxon Smith-Njigba",
+            "pos": "WR",
+            "vorp": 161.0,
+            "realized": 300.4,
+            "market_rank": 4,
+            "value_rank": 20
+          },
+          "top3": [
+            {
+              "player": "Jaxon Smith-Njigba",
+              "pos": "WR",
+              "vorp": 161.0,
+              "realized": 300.4,
+              "market_rank": 4,
+              "value_rank": 20
+            },
+            {
+              "player": "George Pickens",
+              "pos": "WR",
+              "vorp": 106.0,
+              "realized": 245.4,
+              "market_rank": 22,
+              "value_rank": 46
+            },
+            {
+              "player": "Travis Etienne",
+              "pos": "RB",
+              "vorp": 91.8,
+              "realized": 235.9,
+              "market_rank": 43,
+              "value_rank": 56
+            }
+          ],
+          "cory_took": "Joe Burrow",
+          "cory_took_vorp": -160.7,
+          "cory_vorp_rank_of_avail": 99
+        },
+        {
+          "round": 6,
+          "pick_no": 57,
+          "n_available": 90,
+          "class": "unreachable",
+          "best_kdef_noise": {
+            "player": "Brandon Aubrey",
+            "pos": "K",
+            "vorp": 104.6
+          },
+          "best_available": {
+            "player": "George Pickens",
+            "pos": "WR",
+            "vorp": 106.0,
+            "realized": 245.4,
+            "market_rank": 9,
+            "value_rank": 36
+          },
+          "top3": [
+            {
+              "player": "George Pickens",
+              "pos": "WR",
+              "vorp": 106.0,
+              "realized": 245.4,
+              "market_rank": 9,
+              "value_rank": 36
+            },
+            {
+              "player": "Travis Etienne",
+              "pos": "RB",
+              "vorp": 91.8,
+              "realized": 235.9,
+              "market_rank": 30,
+              "value_rank": 45
+            },
+            {
+              "player": "Javonte Williams",
+              "pos": "RB",
+              "vorp": 81.2,
+              "realized": 225.3,
+              "market_rank": 49,
+              "value_rank": 26
+            }
+          ],
+          "cory_took": "8151",
+          "cory_took_vorp": 32.3,
+          "cory_vorp_rank_of_avail": 22
+        },
+        {
+          "round": 7,
+          "pick_no": 64,
+          "n_available": 83,
+          "class": "market",
+          "best_kdef_noise": {
+            "player": "Brandon Aubrey",
+            "pos": "K",
+            "vorp": 104.6
+          },
+          "best_available": {
+            "player": "George Pickens",
+            "pos": "WR",
+            "vorp": 106.0,
+            "realized": 245.4,
+            "market_rank": 2,
+            "value_rank": 32
+          },
+          "top3": [
+            {
+              "player": "George Pickens",
+              "pos": "WR",
+              "vorp": 106.0,
+              "realized": 245.4,
+              "market_rank": 2,
+              "value_rank": 32
+            },
+            {
+              "player": "Travis Etienne",
+              "pos": "RB",
+              "vorp": 91.8,
+              "realized": 235.9,
+              "market_rank": 23,
+              "value_rank": 40
+            },
+            {
+              "player": "Javonte Williams",
+              "pos": "RB",
+              "vorp": 81.2,
+              "realized": 225.3,
+              "market_rank": 42,
+              "value_rank": 23
+            }
+          ],
+          "cory_took": "12530",
+          "cory_took_vorp": null,
+          "cory_vorp_rank_of_avail": null
+        },
+        {
+          "round": 8,
+          "pick_no": 77,
+          "n_available": 71,
+          "class": "unreachable",
+          "best_kdef_noise": {
+            "player": "Brandon Aubrey",
+            "pos": "K",
+            "vorp": 104.6
+          },
+          "best_available": {
+            "player": "Travis Etienne",
+            "pos": "RB",
+            "vorp": 91.8,
+            "realized": 235.9,
+            "market_rank": 11,
+            "value_rank": 31
+          },
+          "top3": [
+            {
+              "player": "Travis Etienne",
+              "pos": "RB",
+              "vorp": 91.8,
+              "realized": 235.9,
+              "market_rank": 11,
+              "value_rank": 31
+            },
+            {
+              "player": "Javonte Williams",
+              "pos": "RB",
+              "vorp": 81.2,
+              "realized": 225.3,
+              "market_rank": 30,
+              "value_rank": 18
+            },
+            {
+              "player": "Chris Olave",
+              "pos": "WR",
+              "vorp": 78.6,
+              "realized": 218.0,
+              "market_rank": 8,
+              "value_rank": 40
+            }
+          ],
+          "cory_took": "Deebo Samuel",
+          "cory_took_vorp": 12.8,
+          "cory_vorp_rank_of_avail": 25
+        },
+        {
+          "round": 9,
+          "pick_no": 84,
+          "n_available": 64,
+          "class": "market",
+          "best_kdef_noise": {
+            "player": "Brandon Aubrey",
+            "pos": "K",
+            "vorp": 104.6
+          },
+          "best_available": {
+            "player": "Travis Etienne",
+            "pos": "RB",
+            "vorp": 91.8,
+            "realized": 235.9,
+            "market_rank": 4,
+            "value_rank": 26
+          },
+          "top3": [
+            {
+              "player": "Travis Etienne",
+              "pos": "RB",
+              "vorp": 91.8,
+              "realized": 235.9,
+              "market_rank": 4,
+              "value_rank": 26
+            },
+            {
+              "player": "Javonte Williams",
+              "pos": "RB",
+              "vorp": 81.2,
+              "realized": 225.3,
+              "market_rank": 23,
+              "value_rank": 15
+            },
+            {
+              "player": "Chris Olave",
+              "pos": "WR",
+              "vorp": 78.6,
+              "realized": 218.0,
+              "market_rank": 1,
+              "value_rank": 35
+            }
+          ],
+          "cory_took": "Chris Olave",
+          "cory_took_vorp": 78.6,
+          "cory_vorp_rank_of_avail": 4
+        },
+        {
+          "round": 10,
+          "pick_no": 97,
+          "n_available": 51,
+          "class": "unreachable",
+          "best_kdef_noise": {
+            "player": "Brandon Aubrey",
+            "pos": "K",
+            "vorp": 104.6
+          },
+          "best_available": {
+            "player": "Javonte Williams",
+            "pos": "RB",
+            "vorp": 81.2,
+            "realized": 225.3,
+            "market_rank": 11,
+            "value_rank": 13
+          },
+          "top3": [
+            {
+              "player": "Javonte Williams",
+              "pos": "RB",
+              "vorp": 81.2,
+              "realized": 225.3,
+              "market_rank": 11,
+              "value_rank": 13
+            },
+            {
+              "player": "Kyle Pitts",
+              "pos": "TE",
+              "vorp": 73.6,
+              "realized": 166.8,
+              "market_rank": 20,
+              "value_rank": 21
+            },
+            {
+              "player": "Dallas Goedert",
+              "pos": "TE",
+              "vorp": 61.9,
+              "realized": 155.1,
+              "market_rank": 22,
+              "value_rank": 26
+            }
+          ],
+          "cory_took": "Brian Robinson",
+          "cory_took_vorp": -132.3,
+          "cory_vorp_rank_of_avail": 41
+        },
+        {
+          "round": 11,
+          "pick_no": 104,
+          "n_available": 44,
+          "class": "unreachable",
+          "best_kdef_noise": {
+            "player": "Chase McLaughlin",
+            "pos": "K",
+            "vorp": 77.0
+          },
+          "best_available": {
+            "player": "Javonte Williams",
+            "pos": "RB",
+            "vorp": 81.2,
+            "realized": 225.3,
+            "market_rank": 5,
+            "value_rank": 10
+          },
+          "top3": [
+            {
+              "player": "Javonte Williams",
+              "pos": "RB",
+              "vorp": 81.2,
+              "realized": 225.3,
+              "market_rank": 5,
+              "value_rank": 10
+            },
+            {
+              "player": "Kyle Pitts",
+              "pos": "TE",
+              "vorp": 73.6,
+              "realized": 166.8,
+              "market_rank": 14,
+              "value_rank": 15
+            },
+            {
+              "player": "Dallas Goedert",
+              "pos": "TE",
+              "vorp": 61.9,
+              "realized": 155.1,
+              "market_rank": 16,
+              "value_rank": 20
+            }
+          ],
+          "cory_took": "Jacory Croskey-Merritt",
+          "cory_took_vorp": -63.0,
+          "cory_vorp_rank_of_avail": 31
+        },
+        {
+          "round": 12,
+          "pick_no": 117,
+          "n_available": 31,
+          "class": "market",
+          "best_kdef_noise": {
+            "player": "Chase McLaughlin",
+            "pos": "K",
+            "vorp": 77.0
+          },
+          "best_available": {
+            "player": "Kyle Pitts",
+            "pos": "TE",
+            "vorp": 73.6,
+            "realized": 166.8,
+            "market_rank": 2,
+            "value_rank": 6
+          },
+          "top3": [
+            {
+              "player": "Kyle Pitts",
+              "pos": "TE",
+              "vorp": 73.6,
+              "realized": 166.8,
+              "market_rank": 2,
+              "value_rank": 6
+            },
+            {
+              "player": "Dallas Goedert",
+              "pos": "TE",
+              "vorp": 61.9,
+              "realized": 155.1,
+              "market_rank": 4,
+              "value_rank": 11
+            },
+            {
+              "player": "Jared Goff",
+              "pos": "QB",
+              "vorp": 35.9,
+              "realized": 365.1,
+              "market_rank": 5,
+              "value_rank": 1
+            }
+          ],
+          "cory_took": "Cameron Dicker",
+          "cory_took_vorp": 76.0,
+          "cory_vorp_rank_of_avail": 2
+        },
+        {
+          "round": 13,
+          "pick_no": 124,
+          "n_available": 26,
+          "class": "market",
+          "best_kdef_noise": {
+            "player": "Chase McLaughlin",
+            "pos": "K",
+            "vorp": 77.0
+          },
+          "best_available": {
+            "player": "Dallas Goedert",
+            "pos": "TE",
+            "vorp": 61.9,
+            "realized": 155.1,
+            "market_rank": 2,
+            "value_rank": 9
+          },
+          "top3": [
+            {
+              "player": "Dallas Goedert",
+              "pos": "TE",
+              "vorp": 61.9,
+              "realized": 155.1,
+              "market_rank": 2,
+              "value_rank": 9
+            },
+            {
+              "player": "Jared Goff",
+              "pos": "QB",
+              "vorp": 35.9,
+              "realized": 365.1,
+              "market_rank": 3,
+              "value_rank": 1
+            },
+            {
+              "player": "Justin Herbert",
+              "pos": "QB",
+              "vorp": 9.7,
+              "realized": 338.9,
+              "market_rank": 4,
+              "value_rank": 3
+            }
+          ],
+          "cory_took": "Braelon Allen",
+          "cory_took_vorp": -136.1,
+          "cory_vorp_rank_of_avail": 23
+        },
+        {
+          "round": 14,
+          "pick_no": 137,
+          "n_available": 13,
+          "class": "market",
+          "best_kdef_noise": {
+            "player": "Chase McLaughlin",
+            "pos": "K",
+            "vorp": 77.0
+          },
+          "best_available": {
+            "player": "Hunter Henry",
+            "pos": "TE",
+            "vorp": 0.0,
+            "realized": 93.2,
+            "market_rank": 4,
+            "value_rank": 4
+          },
+          "top3": [
+            {
+              "player": "Hunter Henry",
+              "pos": "TE",
+              "vorp": 0.0,
+              "realized": 93.2,
+              "market_rank": 4,
+              "value_rank": 4
+            },
+            {
+              "player": "Rashid Shaheed",
+              "pos": "WR",
+              "vorp": -24.3,
+              "realized": 115.1,
+              "market_rank": 6,
+              "value_rank": 3
+            },
+            {
+              "player": "Keon Coleman",
+              "pos": "WR",
+              "vorp": -110.6,
+              "realized": 28.8,
+              "market_rank": 1,
+              "value_rank": 2
+            }
+          ],
+          "cory_took": "Keon Coleman",
+          "cory_took_vorp": -110.6,
+          "cory_vorp_rank_of_avail": 10
+        },
+        {
+          "round": 15,
+          "pick_no": 144,
+          "n_available": 6,
+          "class": "market",
+          "best_kdef_noise": {
+            "player": "Chase McLaughlin",
+            "pos": "K",
+            "vorp": 77.0
+          },
+          "best_available": {
+            "player": "Rashid Shaheed",
+            "pos": "WR",
+            "vorp": -24.3,
+            "realized": 115.1,
+            "market_rank": 2,
+            "value_rank": 1
+          },
+          "top3": [
+            {
+              "player": "Rashid Shaheed",
+              "pos": "WR",
+              "vorp": -24.3,
+              "realized": 115.1,
+              "market_rank": 2,
+              "value_rank": 1
+            },
+            {
+              "player": "Jaydon Blue",
+              "pos": "RB",
+              "vorp": -144.1,
+              "realized": 0.0,
+              "market_rank": 1,
+              "value_rank": 2
+            }
+          ],
+          "cory_took": "Detroit Lions",
+          "cory_took_vorp": -26.0,
+          "cory_vorp_rank_of_avail": 3
+        }
+      ]
+    }
+  },
+  "tally": {
+    "market": 19,
+    "value_only": 4,
+    "unreachable": 8,
+    "rounds": 41,
+    "value_rounds": 26
+  },
+  "qb_share_of_best_value": 25,
+  "verdict": "WORKING BACKWARDS: the adjuster setting that recovers the most best-value skill players is a VALUE ANCHOR AT ~BEST-AVAILABLE \u2014 the market already surfaces the top-3-VORP player in its top 3 available at 19/41 picks (46%), no special dial needed. A value-over-market TILT recovers 4 more of the 26 value-signal picks (2024-25). 8 are UNREACHABLE by either signal \u2014 no setting gets them without fitting noise. This is a THIRD independent confirmation of the measured mask+value rule (after the participation test and the strategy tournament): the knobs that earn are value + best-available, and tuning the others chases the unreachable. BIG CAVEAT: 25/41 of the 'best value available' were ELITE QBs the market faded \u2014 but single-QB VORP OVERSTATES value in our 1-QB league (you start one; a top-10 QB is streamable), which is exactly why the dollar-graded tournament did NOT reward QB-early. So VORP flags QB as unclaimed, the dollars say the room is right to fade it \u2014 do NOT tune the adjuster to chase QB. The real recoverable value is the non-QB skill our value signal caught (e.g. Brock Bowers); the real leak in Cory's own drafts is REACHING past best-available onto busts (Quentin Johnston -163, Joe Burrow '25 -160 VORP).",
+  "caveat": "Two reconstructable signals (market always, value 2024-25). REALIZED defines the targets only. 'Recovered' = a top-3-realized available player ranks in a signal's top-3 available. 2023 is market-only (no prior for walk_forward). Value signal is our walk_forward model, which is weaker than the consensus the board uses, so value-recovery here is a FLOOR \u2014 the real board's consensus would recover more. Installs nothing; maps what the adjusters can and cannot reach.",
+  "source_tier": "league-primary"
+}
