@@ -1,14 +1,1302 @@
 {
+  "discovered": [
+    "10466",
+    "11039",
+    "11306"
+  ],
   "endpoints": {
     "draftResults": {
-      "note": "no successful response",
-      "observed": 0,
-      "shape": {}
+      "observed": 3,
+      "shape": {
+        "$": {
+          "always_present": true,
+          "keys": [
+            "draftResults",
+            "encoding",
+            "version"
+          ],
+          "of": 3,
+          "seen_in": 3,
+          "types": [
+            "object"
+          ]
+        },
+        "$.draftResults": {
+          "always_present": true,
+          "keys": [
+            "draftUnit"
+          ],
+          "of": 3,
+          "seen_in": 3,
+          "types": [
+            "object"
+          ]
+        },
+        "$.draftResults.draftUnit": {
+          "always_present": true,
+          "keys": [
+            "draftPick",
+            "draftType",
+            "round1DraftOrder",
+            "static_url",
+            "unit"
+          ],
+          "of": 3,
+          "seen_in": 3,
+          "types": [
+            "object"
+          ]
+        },
+        "$.draftResults.draftUnit.draftPick": {
+          "always_present": true,
+          "len_range": [
+            64,
+            420
+          ],
+          "of": 3,
+          "seen_in": 3,
+          "types": [
+            "array"
+          ]
+        },
+        "$.draftResults.draftUnit.draftPick[0]": {
+          "always_present": true,
+          "keys": [
+            "comments",
+            "franchise",
+            "pick",
+            "player",
+            "round",
+            "timestamp"
+          ],
+          "of": 3,
+          "seen_in": 3,
+          "types": [
+            "object"
+          ]
+        },
+        "$.draftResults.draftUnit.draftPick[0].comments": {
+          "always_present": true,
+          "of": 3,
+          "seen_in": 3,
+          "types": [
+            "str"
+          ]
+        },
+        "$.draftResults.draftUnit.draftPick[0].franchise": {
+          "always_present": true,
+          "of": 3,
+          "samples": [
+            "0014",
+            "0007",
+            "0002"
+          ],
+          "seen_in": 3,
+          "types": [
+            "str"
+          ]
+        },
+        "$.draftResults.draftUnit.draftPick[0].pick": {
+          "always_present": true,
+          "of": 3,
+          "samples": [
+            "01",
+            "01",
+            "01"
+          ],
+          "seen_in": 3,
+          "types": [
+            "str"
+          ]
+        },
+        "$.draftResults.draftUnit.draftPick[0].player": {
+          "always_present": true,
+          "of": 3,
+          "samples": [
+            "16641",
+            "13589"
+          ],
+          "seen_in": 3,
+          "types": [
+            "str"
+          ]
+        },
+        "$.draftResults.draftUnit.draftPick[0].round": {
+          "always_present": true,
+          "of": 3,
+          "samples": [
+            "01",
+            "01",
+            "01"
+          ],
+          "seen_in": 3,
+          "types": [
+            "str"
+          ]
+        },
+        "$.draftResults.draftUnit.draftPick[0].timestamp": {
+          "always_present": true,
+          "of": 3,
+          "samples": [
+            "1754013254",
+            "1754318940"
+          ],
+          "seen_in": 3,
+          "types": [
+            "str"
+          ]
+        },
+        "$.draftResults.draftUnit.draftType": {
+          "always_present": true,
+          "of": 3,
+          "samples": [
+            "SFIRSTRANDOM",
+            "SFIRSTRANDOM"
+          ],
+          "seen_in": 3,
+          "types": [
+            "str"
+          ]
+        },
+        "$.draftResults.draftUnit.round1DraftOrder": {
+          "always_present": true,
+          "of": 3,
+          "samples": [
+            "0014,0010,0001,0008,0007,0011,0002,0013,\u2026",
+            "0007,0004,0006,0001,0009,0010,0002,0008,\u2026",
+            "0002,0004,0003,0001,"
+          ],
+          "seen_in": 3,
+          "types": [
+            "str"
+          ]
+        },
+        "$.draftResults.draftUnit.static_url": {
+          "always_present": true,
+          "of": 3,
+          "samples": [
+            "https://www48.myfantasyleague.com/fflnet\u2026",
+            "https://www47.myfantasyleague.com/fflnet\u2026",
+            "https://www45.myfantasyleague.com/fflnet\u2026"
+          ],
+          "seen_in": 3,
+          "types": [
+            "str"
+          ]
+        },
+        "$.draftResults.draftUnit.unit": {
+          "always_present": true,
+          "of": 3,
+          "samples": [
+            "LEAGUE",
+            "LEAGUE",
+            "LEAGUE"
+          ],
+          "seen_in": 3,
+          "types": [
+            "str"
+          ]
+        },
+        "$.encoding": {
+          "always_present": true,
+          "of": 3,
+          "samples": [
+            "utf-8",
+            "utf-8",
+            "utf-8"
+          ],
+          "seen_in": 3,
+          "types": [
+            "str"
+          ]
+        },
+        "$.version": {
+          "always_present": true,
+          "of": 3,
+          "samples": [
+            "1.0",
+            "1.0",
+            "1.0"
+          ],
+          "seen_in": 3,
+          "types": [
+            "str"
+          ]
+        }
+      }
     },
     "league": {
-      "note": "no successful response",
-      "observed": 0,
-      "shape": {}
+      "observed": 3,
+      "shape": {
+        "$": {
+          "always_present": true,
+          "keys": [
+            "encoding",
+            "league",
+            "version"
+          ],
+          "of": 3,
+          "seen_in": 3,
+          "types": [
+            "object"
+          ]
+        },
+        "$.encoding": {
+          "always_present": true,
+          "of": 3,
+          "samples": [
+            "utf-8",
+            "utf-8",
+            "utf-8"
+          ],
+          "seen_in": 3,
+          "types": [
+            "str"
+          ]
+        },
+        "$.league": {
+          "always_present": true,
+          "keys": [
+            "baseURL",
+            "bbidConditional",
+            "bbidFCFSCharge",
+            "bbidIncrement",
+            "bbidSeasonLimit",
+            "bbidTiebreaker",
+            "bestLineup",
+            "currentWaiverType",
+            "defaultTradeExpirationDays",
+            "divisions",
+            "draftLimitHours",
+            "draftPlayerPool",
+            "draftTimer",
+            "draftTimerSusp",
+            "draft_kind",
+            "endWeek",
+            "fantasyPoolEndWeek",
+            "fantasyPoolStartWeek",
+            "fantasyPoolType",
+            "franchises",
+            "h2h",
+            "history",
+            "id",
+            "injuredReserve",
+            "keeperType",
+            "lastRegularSeasonWeek",
+            "loadRosters",
+            "lockout",
+            "maxWaiverRounds",
+            "mobileAlerts",
+            "name",
+            "nflPoolEndWeek",
+            "nflPoolStartWeek",
+            "nflPoolType",
+            "partialLineupAllowed",
+            "playerLimitUnit",
+            "precision",
+            "rosterLimits",
+            "rosterSize",
+            "rostersPerPlayer",
+            "standingsSort",
+            "startWeek",
+            "starters",
+            "survivorPool",
+            "survivorPoolEndWeek",
+            "survivorPoolStartWeek",
+            "taxiSquad",
+            "usesContractYear",
+            "usesSalaries"
+          ],
+          "of": 3,
+          "seen_in": 3,
+          "types": [
+            "object"
+          ]
+        },
+        "$.league.baseURL": {
+          "always_present": true,
+          "of": 3,
+          "samples": [
+            "https://www48.myfantasyleague.com",
+            "https://www47.myfantasyleague.com",
+            "https://www45.myfantasyleague.com"
+          ],
+          "seen_in": 3,
+          "types": [
+            "str"
+          ]
+        },
+        "$.league.bbidConditional": {
+          "always_present": false,
+          "of": 3,
+          "samples": [
+            "No",
+            "No"
+          ],
+          "seen_in": 2,
+          "types": [
+            "str"
+          ]
+        },
+        "$.league.bbidFCFSCharge": {
+          "always_present": false,
+          "of": 3,
+          "seen_in": 1,
+          "types": [
+            "str"
+          ]
+        },
+        "$.league.bbidIncrement": {
+          "always_present": false,
+          "of": 3,
+          "samples": [
+            "0.01",
+            "1"
+          ],
+          "seen_in": 2,
+          "types": [
+            "str"
+          ]
+        },
+        "$.league.bbidSeasonLimit": {
+          "always_present": false,
+          "of": 3,
+          "samples": [
+            "200",
+            "1000"
+          ],
+          "seen_in": 2,
+          "types": [
+            "str"
+          ]
+        },
+        "$.league.bbidTiebreaker": {
+          "always_present": false,
+          "of": 3,
+          "samples": [
+            "TURN",
+            "TIMESTAMP"
+          ],
+          "seen_in": 2,
+          "types": [
+            "str"
+          ]
+        },
+        "$.league.bestLineup": {
+          "always_present": false,
+          "of": 3,
+          "samples": [
+            "Yes",
+            "No"
+          ],
+          "seen_in": 2,
+          "types": [
+            "str"
+          ]
+        },
+        "$.league.currentWaiverType": {
+          "always_present": true,
+          "of": 3,
+          "samples": [
+            "BBID_FCFS",
+            "BBID_FCFS",
+            "WAIVERS_FCFS"
+          ],
+          "seen_in": 3,
+          "types": [
+            "str"
+          ]
+        },
+        "$.league.defaultTradeExpirationDays": {
+          "always_present": true,
+          "of": 3,
+          "samples": [
+            "7",
+            "3",
+            "7"
+          ],
+          "seen_in": 3,
+          "types": [
+            "str"
+          ]
+        },
+        "$.league.divisions": {
+          "always_present": false,
+          "keys": [
+            "count",
+            "division"
+          ],
+          "of": 3,
+          "seen_in": 1,
+          "types": [
+            "object"
+          ]
+        },
+        "$.league.divisions.count": {
+          "always_present": false,
+          "of": 3,
+          "samples": [
+            "2"
+          ],
+          "seen_in": 1,
+          "types": [
+            "str"
+          ]
+        },
+        "$.league.divisions.division": {
+          "always_present": false,
+          "len_range": [
+            2,
+            2
+          ],
+          "of": 3,
+          "seen_in": 1,
+          "types": [
+            "array"
+          ]
+        },
+        "$.league.divisions.division[0]": {
+          "always_present": false,
+          "keys": [
+            "id",
+            "name"
+          ],
+          "of": 3,
+          "seen_in": 1,
+          "types": [
+            "object"
+          ]
+        },
+        "$.league.divisions.division[0].id": {
+          "always_present": false,
+          "of": 3,
+          "samples": [
+            "00"
+          ],
+          "seen_in": 1,
+          "types": [
+            "str"
+          ]
+        },
+        "$.league.divisions.division[0].name": {
+          "always_present": false,
+          "of": 3,
+          "samples": [
+            "Division 1"
+          ],
+          "seen_in": 1,
+          "types": [
+            "str"
+          ]
+        },
+        "$.league.draftLimitHours": {
+          "always_present": false,
+          "of": 3,
+          "samples": [
+            "4:00",
+            "4:00"
+          ],
+          "seen_in": 2,
+          "types": [
+            "str"
+          ]
+        },
+        "$.league.draftPlayerPool": {
+          "always_present": false,
+          "of": 3,
+          "samples": [
+            "Both",
+            "Both"
+          ],
+          "seen_in": 2,
+          "types": [
+            "str"
+          ]
+        },
+        "$.league.draftTimer": {
+          "always_present": false,
+          "of": 3,
+          "samples": [
+            "ONS",
+            "ONS"
+          ],
+          "seen_in": 2,
+          "types": [
+            "str"
+          ]
+        },
+        "$.league.draftTimerSusp": {
+          "always_present": false,
+          "of": 3,
+          "samples": [
+            "01 07",
+            "00 08"
+          ],
+          "seen_in": 2,
+          "types": [
+            "str"
+          ]
+        },
+        "$.league.draft_kind": {
+          "always_present": true,
+          "of": 3,
+          "samples": [
+            "email",
+            "email",
+            "email"
+          ],
+          "seen_in": 3,
+          "types": [
+            "str"
+          ]
+        },
+        "$.league.endWeek": {
+          "always_present": true,
+          "of": 3,
+          "samples": [
+            "17",
+            "17",
+            "18"
+          ],
+          "seen_in": 3,
+          "types": [
+            "str"
+          ]
+        },
+        "$.league.fantasyPoolEndWeek": {
+          "always_present": false,
+          "of": 3,
+          "samples": [
+            "18"
+          ],
+          "seen_in": 1,
+          "types": [
+            "str"
+          ]
+        },
+        "$.league.fantasyPoolStartWeek": {
+          "always_present": false,
+          "of": 3,
+          "samples": [
+            "1"
+          ],
+          "seen_in": 1,
+          "types": [
+            "str"
+          ]
+        },
+        "$.league.fantasyPoolType": {
+          "always_present": false,
+          "of": 3,
+          "seen_in": 1,
+          "types": [
+            "str"
+          ]
+        },
+        "$.league.franchises": {
+          "always_present": true,
+          "keys": [
+            "count",
+            "franchise"
+          ],
+          "of": 3,
+          "seen_in": 3,
+          "types": [
+            "object"
+          ]
+        },
+        "$.league.franchises.count": {
+          "always_present": true,
+          "of": 3,
+          "samples": [
+            "14",
+            "12",
+            "8"
+          ],
+          "seen_in": 3,
+          "types": [
+            "str"
+          ]
+        },
+        "$.league.franchises.franchise": {
+          "always_present": true,
+          "len_range": [
+            8,
+            14
+          ],
+          "of": 3,
+          "seen_in": 3,
+          "types": [
+            "array"
+          ]
+        },
+        "$.league.franchises.franchise[0]": {
+          "always_present": true,
+          "keys": [
+            "abbrev",
+            "bbidAvailableBalance",
+            "division",
+            "icon",
+            "id",
+            "logo",
+            "name",
+            "waiverSortOrder"
+          ],
+          "of": 3,
+          "seen_in": 3,
+          "types": [
+            "object"
+          ]
+        },
+        "$.league.franchises.franchise[0].abbrev": {
+          "always_present": false,
+          "of": 3,
+          "samples": [
+            "YN"
+          ],
+          "seen_in": 1,
+          "types": [
+            "str"
+          ]
+        },
+        "$.league.franchises.franchise[0].bbidAvailableBalance": {
+          "always_present": false,
+          "of": 3,
+          "samples": [
+            "200.00",
+            "553.00"
+          ],
+          "seen_in": 2,
+          "types": [
+            "str"
+          ]
+        },
+        "$.league.franchises.franchise[0].division": {
+          "always_present": false,
+          "of": 3,
+          "samples": [
+            "00"
+          ],
+          "seen_in": 1,
+          "types": [
+            "str"
+          ]
+        },
+        "$.league.franchises.franchise[0].icon": {
+          "always_present": false,
+          "of": 3,
+          "samples": [
+            "https://www48.myfantasyleague.com/fflnet\u2026",
+            "https://www47.myfantasyleague.com/fflnet\u2026"
+          ],
+          "seen_in": 2,
+          "types": [
+            "str"
+          ]
+        },
+        "$.league.franchises.franchise[0].id": {
+          "always_present": true,
+          "of": 3,
+          "samples": [
+            "0001",
+            "0001",
+            "0001"
+          ],
+          "seen_in": 3,
+          "types": [
+            "str"
+          ]
+        },
+        "$.league.franchises.franchise[0].logo": {
+          "always_present": false,
+          "of": 3,
+          "samples": [
+            "https://www48.myfantasyleague.com/fflnet\u2026",
+            "https://www47.myfantasyleague.com/fflnet\u2026"
+          ],
+          "seen_in": 2,
+          "types": [
+            "str"
+          ]
+        },
+        "$.league.franchises.franchise[0].name": {
+          "always_present": true,
+          "of": 3,
+          "samples": [
+            "Lowered Expectations",
+            "YN",
+            "Franchise 1"
+          ],
+          "seen_in": 3,
+          "types": [
+            "str"
+          ]
+        },
+        "$.league.franchises.franchise[0].waiverSortOrder": {
+          "always_present": true,
+          "of": 3,
+          "samples": [
+            "2",
+            "7",
+            "8"
+          ],
+          "seen_in": 3,
+          "types": [
+            "str"
+          ]
+        },
+        "$.league.h2h": {
+          "always_present": true,
+          "of": 3,
+          "samples": [
+            "YES",
+            "YES"
+          ],
+          "seen_in": 3,
+          "types": [
+            "str"
+          ]
+        },
+        "$.league.history": {
+          "always_present": true,
+          "keys": [
+            "league"
+          ],
+          "of": 3,
+          "seen_in": 3,
+          "types": [
+            "object"
+          ]
+        },
+        "$.league.history.league": {
+          "always_present": true,
+          "keys": [
+            "url",
+            "year"
+          ],
+          "len_range": [
+            2,
+            2
+          ],
+          "of": 3,
+          "seen_in": 3,
+          "types": [
+            "array",
+            "object"
+          ]
+        },
+        "$.league.history.league.url": {
+          "always_present": false,
+          "of": 3,
+          "samples": [
+            "https://www47.myfantasyleague.com/2025/h\u2026",
+            "https://www45.myfantasyleague.com/2025/h\u2026"
+          ],
+          "seen_in": 2,
+          "types": [
+            "str"
+          ]
+        },
+        "$.league.history.league.year": {
+          "always_present": false,
+          "of": 3,
+          "samples": [
+            "2025",
+            "2025"
+          ],
+          "seen_in": 2,
+          "types": [
+            "str"
+          ]
+        },
+        "$.league.history.league[0]": {
+          "always_present": false,
+          "keys": [
+            "url",
+            "year"
+          ],
+          "of": 3,
+          "seen_in": 1,
+          "types": [
+            "object"
+          ]
+        },
+        "$.league.history.league[0].url": {
+          "always_present": false,
+          "of": 3,
+          "samples": [
+            "https://www48.myfantasyleague.com/2025/h\u2026"
+          ],
+          "seen_in": 1,
+          "types": [
+            "str"
+          ]
+        },
+        "$.league.history.league[0].year": {
+          "always_present": false,
+          "of": 3,
+          "samples": [
+            "2025"
+          ],
+          "seen_in": 1,
+          "types": [
+            "str"
+          ]
+        },
+        "$.league.id": {
+          "always_present": true,
+          "of": 3,
+          "samples": [
+            "10466",
+            "11039",
+            "11306"
+          ],
+          "seen_in": 3,
+          "types": [
+            "str"
+          ]
+        },
+        "$.league.injuredReserve": {
+          "always_present": true,
+          "of": 3,
+          "samples": [
+            "0",
+            "5",
+            "0"
+          ],
+          "seen_in": 3,
+          "types": [
+            "str"
+          ]
+        },
+        "$.league.keeperType": {
+          "always_present": false,
+          "of": 3,
+          "samples": [
+            "dynasty"
+          ],
+          "seen_in": 1,
+          "types": [
+            "str"
+          ]
+        },
+        "$.league.lastRegularSeasonWeek": {
+          "always_present": true,
+          "of": 3,
+          "samples": [
+            "13",
+            "14",
+            "1"
+          ],
+          "seen_in": 3,
+          "types": [
+            "str"
+          ]
+        },
+        "$.league.loadRosters": {
+          "always_present": true,
+          "of": 3,
+          "samples": [
+            "email_draft",
+            "email_draft",
+            "email_draft"
+          ],
+          "seen_in": 3,
+          "types": [
+            "str"
+          ]
+        },
+        "$.league.lockout": {
+          "always_present": true,
+          "of": 3,
+          "samples": [
+            "Yes",
+            "No",
+            "No"
+          ],
+          "seen_in": 3,
+          "types": [
+            "str"
+          ]
+        },
+        "$.league.maxWaiverRounds": {
+          "always_present": false,
+          "of": 3,
+          "samples": [
+            "4",
+            "4"
+          ],
+          "seen_in": 2,
+          "types": [
+            "str"
+          ]
+        },
+        "$.league.mobileAlerts": {
+          "always_present": true,
+          "of": 3,
+          "samples": [
+            "0003,0011,",
+            "0005,0009,"
+          ],
+          "seen_in": 3,
+          "types": [
+            "str"
+          ]
+        },
+        "$.league.name": {
+          "always_present": true,
+          "of": 3,
+          "samples": [
+            "z Redraft - Brent League - Bestball",
+            "SafeLeagues Redraft 02 - Basic (SF/TE)",
+            "2026 Redraft Conference and Division"
+          ],
+          "seen_in": 3,
+          "types": [
+            "str"
+          ]
+        },
+        "$.league.nflPoolEndWeek": {
+          "always_present": false,
+          "of": 3,
+          "samples": [
+            "18"
+          ],
+          "seen_in": 1,
+          "types": [
+            "str"
+          ]
+        },
+        "$.league.nflPoolStartWeek": {
+          "always_present": false,
+          "of": 3,
+          "samples": [
+            "1"
+          ],
+          "seen_in": 1,
+          "types": [
+            "str"
+          ]
+        },
+        "$.league.nflPoolType": {
+          "always_present": false,
+          "of": 3,
+          "seen_in": 1,
+          "types": [
+            "str"
+          ]
+        },
+        "$.league.partialLineupAllowed": {
+          "always_present": true,
+          "of": 3,
+          "samples": [
+            "NO",
+            "NO",
+            "NO"
+          ],
+          "seen_in": 3,
+          "types": [
+            "str"
+          ]
+        },
+        "$.league.playerLimitUnit": {
+          "always_present": true,
+          "of": 3,
+          "samples": [
+            "LEAGUE",
+            "LEAGUE",
+            "LEAGUE"
+          ],
+          "seen_in": 3,
+          "types": [
+            "str"
+          ]
+        },
+        "$.league.precision": {
+          "always_present": true,
+          "of": 3,
+          "samples": [
+            "2",
+            "2",
+            "0"
+          ],
+          "seen_in": 3,
+          "types": [
+            "str"
+          ]
+        },
+        "$.league.rosterLimits": {
+          "always_present": false,
+          "keys": [
+            "position"
+          ],
+          "of": 3,
+          "seen_in": 2,
+          "types": [
+            "object"
+          ]
+        },
+        "$.league.rosterLimits.position": {
+          "always_present": false,
+          "len_range": [
+            4,
+            5
+          ],
+          "of": 3,
+          "seen_in": 2,
+          "types": [
+            "array"
+          ]
+        },
+        "$.league.rosterLimits.position[0]": {
+          "always_present": false,
+          "keys": [
+            "limit",
+            "name"
+          ],
+          "of": 3,
+          "seen_in": 2,
+          "types": [
+            "object"
+          ]
+        },
+        "$.league.rosterLimits.position[0].limit": {
+          "always_present": false,
+          "of": 3,
+          "samples": [
+            "0-0",
+            "0-0"
+          ],
+          "seen_in": 2,
+          "types": [
+            "str"
+          ]
+        },
+        "$.league.rosterLimits.position[0].name": {
+          "always_present": false,
+          "of": 3,
+          "samples": [
+            "QB",
+            "QB"
+          ],
+          "seen_in": 2,
+          "types": [
+            "str"
+          ]
+        },
+        "$.league.rosterSize": {
+          "always_present": true,
+          "of": 3,
+          "samples": [
+            "30",
+            "38",
+            "16"
+          ],
+          "seen_in": 3,
+          "types": [
+            "str"
+          ]
+        },
+        "$.league.rostersPerPlayer": {
+          "always_present": true,
+          "of": 3,
+          "samples": [
+            "1",
+            "1",
+            "1"
+          ],
+          "seen_in": 3,
+          "types": [
+            "str"
+          ]
+        },
+        "$.league.standingsSort": {
+          "always_present": true,
+          "of": 3,
+          "samples": [
+            "PTS,PWR,",
+            "PCT,PTS,PCT,OPP_PTS,",
+            "PCT,PTS"
+          ],
+          "seen_in": 3,
+          "types": [
+            "str"
+          ]
+        },
+        "$.league.startWeek": {
+          "always_present": true,
+          "of": 3,
+          "samples": [
+            "1",
+            "1",
+            "1"
+          ],
+          "seen_in": 3,
+          "types": [
+            "str"
+          ]
+        },
+        "$.league.starters": {
+          "always_present": true,
+          "keys": [
+            "count",
+            "position"
+          ],
+          "of": 3,
+          "seen_in": 3,
+          "types": [
+            "object"
+          ]
+        },
+        "$.league.starters.count": {
+          "always_present": true,
+          "of": 3,
+          "samples": [
+            "12",
+            "9",
+            "8"
+          ],
+          "seen_in": 3,
+          "types": [
+            "str"
+          ]
+        },
+        "$.league.starters.position": {
+          "always_present": true,
+          "len_range": [
+            4,
+            6
+          ],
+          "of": 3,
+          "seen_in": 3,
+          "types": [
+            "array"
+          ]
+        },
+        "$.league.starters.position[0]": {
+          "always_present": true,
+          "keys": [
+            "limit",
+            "name"
+          ],
+          "of": 3,
+          "seen_in": 3,
+          "types": [
+            "object"
+          ]
+        },
+        "$.league.starters.position[0].limit": {
+          "always_present": true,
+          "of": 3,
+          "samples": [
+            "1-2",
+            "1-2",
+            "1"
+          ],
+          "seen_in": 3,
+          "types": [
+            "str"
+          ]
+        },
+        "$.league.starters.position[0].name": {
+          "always_present": true,
+          "of": 3,
+          "samples": [
+            "QB",
+            "QB",
+            "QB"
+          ],
+          "seen_in": 3,
+          "types": [
+            "str"
+          ]
+        },
+        "$.league.survivorPool": {
+          "always_present": false,
+          "of": 3,
+          "samples": [
+            "Yes"
+          ],
+          "seen_in": 1,
+          "types": [
+            "str"
+          ]
+        },
+        "$.league.survivorPoolEndWeek": {
+          "always_present": false,
+          "of": 3,
+          "samples": [
+            "18"
+          ],
+          "seen_in": 1,
+          "types": [
+            "str"
+          ]
+        },
+        "$.league.survivorPoolStartWeek": {
+          "always_present": false,
+          "of": 3,
+          "samples": [
+            "1"
+          ],
+          "seen_in": 1,
+          "types": [
+            "str"
+          ]
+        },
+        "$.league.taxiSquad": {
+          "always_present": true,
+          "of": 3,
+          "samples": [
+            "0",
+            "0",
+            "0"
+          ],
+          "seen_in": 3,
+          "types": [
+            "str"
+          ]
+        },
+        "$.league.usesContractYear": {
+          "always_present": true,
+          "of": 3,
+          "samples": [
+            "0",
+            "0",
+            "0"
+          ],
+          "seen_in": 3,
+          "types": [
+            "str"
+          ]
+        },
+        "$.league.usesSalaries": {
+          "always_present": true,
+          "of": 3,
+          "samples": [
+            "0",
+            "0",
+            "0"
+          ],
+          "seen_in": 3,
+          "types": [
+            "str"
+          ]
+        },
+        "$.version": {
+          "always_present": true,
+          "of": 3,
+          "samples": [
+            "1.0",
+            "1.0",
+            "1.0"
+          ],
+          "seen_in": 3,
+          "types": [
+            "str"
+          ]
+        }
+      }
     },
     "leagueSearch": {
       "observed": 1,
