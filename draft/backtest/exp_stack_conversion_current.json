@@ -1,0 +1,94 @@
+{
+  "power": {
+    "predicted_effect_pts_per_week": 2.343,
+    "by_channel": {
+      "weekly_points": {
+        "ci_half_width": 5.404,
+        "can_resolve_predicted_effect": false
+      },
+      "weekly_sd": {
+        "ci_half_width": 6.482,
+        "can_resolve_predicted_effect": false
+      },
+      "upper_tail_rate": {
+        "ci_half_width": 0.116,
+        "can_resolve_predicted_effect": null
+      }
+    },
+    "underpowered_channels": [
+      "weekly_points",
+      "weekly_sd"
+    ],
+    "reading": "UNDERPOWERED \u2014 the CI is wider than the effect being hunted, so 'spans zero' is CANNOT-RESOLVE, not evidence against stacking. Do not record this as a null."
+  },
+  "experiment": "stack conversion \u2014 does realized same-team correlation convert to money?",
+  "closes": [
+    "stack weight (ships 0.5)",
+    "correlated-variance gap",
+    "proxy->dollars link"
+  ],
+  "design": "WITHIN-ROSTER: each roster-season compares its own stacked weeks against its own unstacked weeks, so roster quality, manager and schedule are held fixed. Outcome is the weekly-HIGH channel (the only dollar channel this seat ever activated) plus the continuous proxy.",
+  "team_resolution": "current",
+  "team_resolution_caveat": "current-team labels mis-tag players who changed teams in older seasons; that misclassification is toward the NULL (real stacks land in the unstacked bucket), so a POSITIVE result survives it and a NULL here is ambiguous, not a finding.",
+  "seasons": [
+    2023,
+    2024,
+    2025
+  ],
+  "roster_weeks": 540,
+  "stacked_roster_weeks": 89,
+  "contributing_roster_seasons": 14,
+  "weekly_points": {
+    "n": 14,
+    "mean": 0.1029,
+    "ci95": [
+      -5.3008,
+      5.5066
+    ],
+    "separable": false,
+    "label": "stacked minus unstacked weekly points, within roster"
+  },
+  "weekly_high_rate": {
+    "n": 14,
+    "mean": 0.0243,
+    "ci95": [
+      -0.0359,
+      0.0845
+    ],
+    "separable": false,
+    "label": "stacked minus unstacked weekly-HIGH rate, within roster"
+  },
+  "proxy_win_probability": {
+    "n": 14,
+    "mean": -0.0017,
+    "ci95": [
+      -0.0454,
+      0.042
+    ],
+    "separable": false,
+    "label": "stacked minus unstacked smoothed win PROBABILITY (proxy)"
+  },
+  "weekly_sd": {
+    "n": 14,
+    "mean": -3.4425,
+    "ci95": [
+      -9.9245,
+      3.0395
+    ],
+    "separable": false,
+    "label": "stacked minus unstacked weekly SD (the moment stacking moves)"
+  },
+  "upper_tail_rate": {
+    "n": 14,
+    "mean": -0.0869,
+    "ci95": [
+      -0.2032,
+      0.0294
+    ],
+    "separable": false,
+    "label": "stacked minus unstacked rate of a top-quartile week (own p75)"
+  },
+  "illustrative_dollars_per_season": 34.0,
+  "verdict": "stacked minus unstacked weekly points, within roster: +0.1029 CI spans zero (n=14 roster-seasons) | stacked minus unstacked weekly-HIGH rate, within roster: +0.0243 CI spans zero (n=14 roster-seasons) | stacked minus unstacked smoothed win PROBABILITY (proxy): -0.0017 CI spans zero (n=14 roster-seasons) | stacked minus unstacked weekly SD (the moment stacking moves): -3.4425 CI spans zero (n=14 roster-seasons) | stacked minus unstacked rate of a top-quartile week (own p75): -0.0869 CI spans zero (n=14 roster-seasons)",
+  "installs": "NOTHING. This is evidence for the graduation gate, not a weight change."
+}

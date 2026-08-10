@@ -140,6 +140,50 @@ sample-ceiling breakers have much higher EVSI:
    Design it as ONE ingest per source answering EVERY open question in the same pass (the
    ingest is the cost; each question is a fraction of it). This is the top post-draft item.
 
+## STACK CONVERSION (D3) — built, run, and it CANNOT RESOLVE. Not a null. (2026-08-10)
+
+**The gap it targets.** Three ledger questions rest on one unclosed link: the stack weight
+(ships 0.5), the correlated-variance gap, and the proxy→dollars link. We had a measured
+CAUSE — realized QB-WR1 ρ=**0.357**, ~2.34 ceiling pts/week (exp_stack_correlation) — and a
+simulated EFFECT whose own caveat admits the circularity: *"the sweep prices a benefit it
+actually simulates"* (stack_sweep assumed ρ=0.35, then measured the value of that
+assumption). Nothing joined them on real outcomes.
+
+**Design.** WITHIN-ROSTER on 3 seasons of real weekly data (540 roster-weeks, 89 stacked):
+each roster-season compares its own stacked weeks against its own unstacked weeks, so roster
+quality, manager and schedule are held fixed by construction.
+
+**A design error I caught before recording anything.** My first cut tested the MEAN. That is
+the wrong moment — correlation between a QB and his receiver does not raise the expected
+lineup total, it raises the VARIANCE of the sum, which fattens the upper tail where the $100
+weekly high lives. The correlation experiment says so itself: *"Ceiling effect only; the
+projection is never touched."* Added weekly-SD and own-p75 upper-tail channels.
+
+**Result — all five channels span zero, and that is NOT the finding:**
+
+| channel | Δ (stacked − unstacked) | CI95 |
+|---|---|---|
+| weekly points | +0.10 | [−5.30, +5.51] |
+| weekly-high rate | +0.024 | [−0.036, +0.085] |
+| proxy win probability | −0.002 | [−0.045, +0.042] |
+| weekly SD *(the right moment)* | −3.44 | [−9.92, +3.04] |
+| top-quartile week rate | −0.087 | [−0.203, +0.029] |
+
+**POWER IS THE VERDICT.** Only **14 roster-seasons** have ≥3 weeks on both sides. The CI
+half-widths are **±5.4 pts (mean) and ±6.5 pts (SD)** against a hunted effect of **2.34
+pts/week** — the instrument is roughly 3× too coarse to see it. So "spans zero" here means
+**CANNOT RESOLVE**, not "stacking does not convert". Recording it as a null would be the
+threshold-artifact mistake in a new costume.
+
+- **Stack stays at 0.5**, still justified only by the circular sweep. Honestly: *unconfirmed*,
+  not *confirmed*.
+- **What would give it power:** more roster-weeks with both states — i.e. the MFL/nflverse
+  ingest, which is the same binding constraint as everywhere else. The authoritative
+  `--teams=nflverse` arm (per-season historical teams) is wired and should run in CI; the
+  local arm uses current-team labels, which attenuates toward null, so it cannot rescue a
+  null either.
+- **Installs nothing.** Evidence for the graduation gate.
+
 ## ⚠️ CEILING IS UNSETTLED — the two measurement arms disagree (graduation gate, 2026-08-10)
 
 **Surfaced by the gate on its first run, and it is a real gap in the ceiling decision.**
