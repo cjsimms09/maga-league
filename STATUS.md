@@ -1501,3 +1501,32 @@ The A-ship Monitor already FIRED (A shipped the pre-redesign stack). If more liv
 ### ▶ CHAIN-2 → A (worries Cory most): SCORING/ROSTER/keeper/deadline are hardcoded, NOT synced from Sleeper — model could optimize against changed rules mid-season. Confirm watchdog scope + change-handling + auto-continue re-point. (A's lane.)
 
 ### 🅰️ ACTION: integrate + deploy the branch (redesign + icon + all the above still unseen live).
+
+## ▶ SESSION B — RESUME MARKER 2026-08-10: parallel program underway (surface half)
+**Branch `claude/in-season-surface-fixes-6nyayc`. All committed + pushed + tested. A to integrate + deploy. My branch is now BEHIND A's integrated main (missing `public/js/draft/consensus.js` and any waiver/standings surfaces) — the next stretch must rebase onto latest `origin/main` before C3.**
+
+### ✅ SHIPPED THIS SESSION (all green, CI-wired)
+- **Matchup starters bug** — was pairing lineups by row index (your QB vs their WR) AND reading data never supplied; now slot-aligned via new B-owned `src/matchup.js`, with a Slot column. + bench points, bye flags (derived in-repo from `nfl_byes.json`), injury flags, already-placed-bet surface. (Win-prob + projected-total wait on A's projection feed — parked.)
+- **Clickability** — Watch rows + dashboard Week-Scoreboard cards tap through (participant/spectator like the scoreboard); dead Season Buy-In hero tile now clickable.
+- **Dashboard hero** — your game/score/opp/lineup-problem leads the home page in-season.
+- **Draft-day alert** — derived from config (date/time/place), countdown banner, self-healing the stale "5:00 PM" alert; admin form.
+- **Icon `?v=2` cache-bust** (kept the eagle; the artwork was fine, delivery wasn't).
+- **Square-Up bank routing** — league money runs through the commissioner; side bets stay peer-to-peer.
+- **Audit of A's engine** (findings parked → A; ceiling reclassified OPEN not settled).
+- **War room, driven in a headless browser at phone width:** found + fixed the on-the-clock player NAME rendering **white-on-white** (contrast ~1 → 14.6); a contrast sweep cleared a batch of sibling dark-holdovers; lifted the sev-1 keeper banner out of the collapsed advisory stack (critique #2); moved Know Your League up to Layer 2 (#6a).
+- **Program #2 — the one-page draft-day fallback**: `/admin/draft-sheet`, server-rendered, no-JS, printable (rule + best-available + top-180 board + manual pick log), survives a dead front-end.
+
+### ▶ PROGRAM QUEUE (Cory's order) — where I am
+1. Phone usability / take-reachability — **substantially done** via the browser drive (clock take verified present/named/red/above-fold/unoccluded; name fixed). Re-drive after A deploys + Cory runs a mock with screenshots.
+2. **One-page printable fallback — DONE.**
+3. **C3 breadth — NEXT.** Consensus projection next to every dollar in waiver/lineup/standings views. Consume A's `public/js/draft/consensus.js` (on main, not yet on this branch — REBASE FIRST). Do NOT build a second consensus. `views/lineup.ejs` is the first target; waiver/standings surfaces may need to exist first (coordinate w/ A).
+4. Rules page — when A hands the derived source (parked).
+5. Remaining matchup gaps — win-prob + projected total when A's projection feed lands (parked, wired to activate).
+6. Human-override surface — when A defines the ledger kind/shape (park requirements early: one-tap, in-flow capture).
+7. Calibration surfaces — resolver is live; verify the accuracy page shows real grades as they arrive.
+8. Bank reference numbers (banked total + money rank) — LAST.
+
+### ▶ PARKED FOR A (precise flags in PARKED.md)
+Audit findings (rules-page drift CLASS, reset-preset SEV-1, C1 framing, thin-pool CLASS, SUS regex, spec-drift); **ceiling weight OPEN/highest-urgency** (loaded 0.65 vs ledger −4.8); board-age one-threshold; strategy-picker collapse-when-flat; take-affordance reduction; per-player projection feed (+ its blocked consumers: win-prob, projected total, sweat, hero margin).
+
+### ▶ BLOCKED ON A (skip until delivered): adjuster help-text copy (needs slider-value fix), seat-panel presentation (needs seat math/profiles), win-prob/projected-total (projection feed), override surface (ledger shape).
