@@ -123,6 +123,52 @@ def merge_shapes(shapes: list) -> dict:
     return out
 
 
+def ids_from_search(search_json, limit: int = 3) -> list:
+    """League ids out of a leagueSearch response — the DISCOVERY step.
+
+    Observed shape (probe run 1, 2025): `$.leagues.league` is an array of
+    {homeURL, id, name, year}, 65 results for "redraft". Written against that
+    artifact rather than against a guess, which is the whole reason the probe
+    ran before this function existed.
+
+    Tolerates the singleton case (a bare dict when one league matches) because
+    MFL does that on other endpoints and there is no reason to assume this one is
+    different — `mfl_adp._players_index` already carries the same special case.
+    """
+    d = json.loads(search_json) if isinstance(search_json, str) else (search_json or {})
+    node = ((d.get("leagues") or {}).get("league")) or []
+    if isinstance(node, dict):
+        node = [node]
+    out = []
+    for lg in node:
+        lid = lg.get("id")
+        if lid and str(lid) not in out:
+            out.append(str(lid))
+        if len(out) >= limit:
+            break
+    return out
+
+
+def host_from_home_url(home_url: str) -> str | None:
+    """The per-league SERVER host, from its homeURL.
+
+    A REAL FINDING FROM PROBE RUN 1, and one a guessed adapter would have missed:
+    MFL leagues live on numbered hosts (`www48.myfantasyleague.com`), not only on
+    `api.`. An export aimed at the wrong host can redirect or come back empty,
+    and "empty" is indistinguishable from "this league does not qualify" once it
+    reaches the filters — the exact misattribution the probe exists to prevent.
+
+    MFL's own homeURL sample is malformed ('https//www48…', no colon), so this
+    parses defensively rather than trusting urlparse.
+    """
+    if not home_url:
+        return None
+    s = str(home_url).replace("https//", "").replace("http//", "")
+    s = s.split("://")[-1]
+    host = s.split("/")[0].strip()
+    return host or None
+
+
 def probe(league_ids: list, year: int = 2025, search: str = "") -> dict:  # pragma: no cover
     """CI ONLY — the sandbox cannot reach myfantasyleague.com (proxy CONNECT 403).
 
@@ -140,12 +186,18 @@ def probe(league_ids: list, year: int = 2025, search: str = "") -> dict:  # prag
         with urllib.request.urlopen(req, timeout=30) as r:
             return json.loads(r.read().decode("utf-8"))
 
-    result = {"year": year, "endpoints": {}, "errors": {}}
+    result = {"year": year, "endpoints": {}, "errors": {}, "discovered": []}
     per: dict = {k: [] for k in ENDPOINTS}
     if search:
         try:
-            per["leagueSearch"].append(
-                describe(get(base + ENDPOINTS["leagueSearch"].format(q=search))))
+            raw = get(base + ENDPOINTS["leagueSearch"].format(q=search))
+            per["leagueSearch"].append(describe(raw))
+            # DISCOVERY CHAIN: run 1 probed leagueSearch with no ids to feed the
+            # other two, so they recorded nothing. Harvest ids here so one run
+            # answers all three.
+            if not league_ids:
+                league_ids = ids_from_search(raw, limit=3)
+                result["discovered"] = league_ids
         except Exception as e:                                  # noqa: BLE001
             result["errors"]["leagueSearch"] = f"{type(e).__name__}: {e}"
     for lid in league_ids:

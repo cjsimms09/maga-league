@@ -103,3 +103,54 @@ def test_the_three_unseen_endpoints_are_the_ones_probed():
     """These are exactly the exports the ingest needs and this repo has never
     seen. adp/players are NOT here — they already have real fixtures."""
     assert set(P.ENDPOINTS) == {"leagueSearch", "league", "draftResults"}
+
+
+# ── discovery: written against the REAL leagueSearch artifact ───────────────
+# Shape observed in probe run 1 (2025): $.leagues.league is an array of
+# {homeURL, id, name, year}, 65 results for "redraft".
+REAL_SEARCH = {"encoding": "utf-8", "version": "1.0", "leagues": {"league": [
+    {"homeURL": "https//www48.myfantasyleague.com/2025/home/10466", "id": "10466",
+     "name": "z Redraft - Brent League - Bestball", "year": "2025"},
+    {"homeURL": "https//www03.myfantasyleague.com/2025/home/22222", "id": "22222",
+     "name": "Some Redraft", "year": "2025"},
+]}}
+
+
+def test_ids_are_harvested_from_a_real_search_response():
+    assert P.ids_from_search(REAL_SEARCH) == ["10466", "22222"]
+
+
+def test_id_harvest_respects_the_limit():
+    assert P.ids_from_search(REAL_SEARCH, limit=1) == ["10466"]
+
+
+def test_id_harvest_tolerates_the_singleton_dict():
+    """MFL returns a bare dict when exactly one row matches — mfl_adp already
+    carries the same special case."""
+    one = {"leagues": {"league": {"id": "77", "name": "x"}}}
+    assert P.ids_from_search(one) == ["77"]
+
+
+def test_id_harvest_on_an_empty_search_returns_nothing():
+    assert P.ids_from_search({"leagues": {}}) == []
+    assert P.ids_from_search({}) == []
+
+
+def test_id_harvest_deduplicates():
+    dup = {"leagues": {"league": [{"id": "5"}, {"id": "5"}, {"id": "6"}]}}
+    assert P.ids_from_search(dup) == ["5", "6"]
+
+
+def test_the_per_league_server_host_is_recovered():
+    """Leagues live on numbered hosts, not only api. — an export aimed at the
+    wrong host can come back empty, and empty is indistinguishable from 'does
+    not qualify' once it reaches the filters."""
+    assert P.host_from_home_url(
+        "https//www48.myfantasyleague.com/2025/home/10466") == "www48.myfantasyleague.com"
+
+
+def test_host_parsing_survives_MFLs_malformed_url():
+    """MFL's own sample is 'https//...' with no colon; urlparse would return ''."""
+    assert P.host_from_home_url("https://www03.myfantasyleague.com/x") == "www03.myfantasyleague.com"
+    assert P.host_from_home_url("") is None
+    assert P.host_from_home_url(None) is None
