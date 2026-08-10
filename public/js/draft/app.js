@@ -1129,14 +1129,42 @@
       // fallback is EXPECTED — never a warning — and is excluded from the trigger.
       const teams = (d.league || {}).teams || 10;
       const coreDepth = teams * 13;   // the draftable skill core (10-team → ~130)
-      const isFallback = pl => pl.adp_source && pl.adp_source !== 'ffc' && pl.adp_source !== 'consensus';
+      // WHAT COUNTS AS "REAL ADP" IS DERIVED FROM PROVENANCE, NOT HARDCODED.
+      // This predicate used to be `source !== 'ffc' && source !== 'consensus'` —
+      // written when FFC was the anchor. After the swap to FantasyPros every
+      // correctly FP-priced player counted as a FALLBACK, so the warning named
+      // Gibbs/Robinson/Nacua/McCaffrey as "lacking real ADP" while they showed
+      // ADP 1/2/3/4 on the same page, and blamed a "possible FFC coverage/match
+      // regression" that had not happened (2026-08-10 critique: the checklist said
+      // FantasyPros, the footer said FFC, the warning diagnosed FFC — three claims
+      // that could not all be true). Verified on the live artifact:
+      // primary_source=fantasypros, 342/342 matched, fallback_count_in_play=0,
+      // and all 84 top-130 skill players are adp_source='fantasypros'.
+      //
+      // A real ADP source is the board's own PRIMARY plus any declared gap-fill;
+      // the true fallback is the search_rank sentinel (the 913 rows Cory spotted —
+      // 1,423 of them, all OUTSIDE the draftable core, which is why in-play is 0).
+      const primarySrc = (p.adp || {}).primary_source || (p.adp || {}).adp_source || 'ffc';
+      const REAL_ADP_SOURCES = [primarySrc, 'ffc', 'fantasypros', 'consensus', 'mfl']
+        .filter(function (v, i, a) { return v && a.indexOf(v) === i; });
+      const isFallback = pl => pl.adp_source && REAL_ADP_SOURCES.indexOf(pl.adp_source) === -1;
       const skillCore = (d.players || []).filter(pl =>
         (pl.overall_rank || pl.consensus_rank || 1e9) <= coreDepth
         && ['QB', 'RB', 'WR', 'TE'].indexOf(pl.position) !== -1
         && isFallback(pl));
       const rep = adp.report || {};
-      const matchStr = rep.matched != null
-        ? ' (FFC ' + rep.matched + '/' + (rep.matched + (rep.unmatched_count || 0)) + ' matched)' : '';
+      // Name the ACTUAL source, never a hardcoded 'FFC' (the footer/checklist/warning
+      // disagreement). Prefer the primary source's own match counts when present.
+      const fpRep = adp[primarySrc] || {};
+      const matchedN = fpRep.fp_matched != null ? fpRep.fp_matched : rep.matched;
+      const totalN = fpRep.fp_matched != null
+        ? (fpRep.fp_matched + (fpRep.fp_unmatched || 0))
+        : (rep.matched != null ? rep.matched + (rep.unmatched_count || 0) : null);
+      const srcLabel = primarySrc === 'fantasypros' ? 'FantasyPros'
+        : primarySrc === 'ffc' ? 'FFC' : String(primarySrc);
+      const matchStr = matchedN != null
+        ? ' (' + srcLabel + ' ' + matchedN + '/' + totalN + ' matched'
+          + (fpRep.ffc_gap_fill ? ', ' + fpRep.ffc_gap_fill + ' FFC gap-fill' : '') + ')' : '';
       if (skillCore.length > 0) {
         // Fallback penetrated the draft-relevant top with skill players — a real
         // FFC coverage / name-match regression worth diagnosing. Report by position.
@@ -1147,20 +1175,51 @@
           text: skillCore.length + ' skill player' + (skillCore.length === 1 ? '' : 's')
             + ' inside the top ' + coreDepth + ' lack real ADP ('
             + Object.keys(byPos).map(k => byPos[k] + ' ' + k).join(', ')
-            + ') — possible FFC coverage/match regression: '
+            + ') — possible ' + srcLabel + ' coverage/match regression: '
             + skillCore.slice(0, 4).map(pl => pl.name).join(', ')
             + (skillCore.length > 4 ? '…' : '') + '.',
         });
       } else {
         // The expected, benign case (A4): the top is on real ADP; only the deep
-        // pool + K/DEF fall back.
+        // pool + K/DEF fall back. Say the SOURCE and name the sentinel, so the deep
+        // pool's identical raw value (913 = search_rank, 1,423 rows on the live
+        // board) reads as the placeholder it is rather than an ADP nobody can trust.
         notes.push({
           level: 'ok',
-          text: 'Top ' + coreDepth + ': real ADP' + matchStr + '. Deep pool ('
-            + adp.fallback_count + ') priced by fallback — fine for late fliers.',
+          text: 'Top ' + coreDepth + ': real ADP from ' + srcLabel + matchStr
+            + '. Deep pool (' + adp.fallback_count + ', all outside the draftable core) '
+            + 'priced by the search_rank placeholder — identical raw values there are the '
+            + 'sentinel, not an ADP. Fine for late fliers.',
         });
       }
     }
+
+    // THE FOOTER CREDIT, from the same provenance the checklist and the warning
+    // read — so the three can never name different sources again (2026-08-10).
+    (function () {
+      const credit = $('#adp-credit');
+      if (!credit) return;
+      const a = p.adp || {};
+      const src = a.primary_source || a.adp_source;
+      if (!src) return;
+      const LINKS = {
+        fantasypros: { label: 'FantasyPros', href: 'https://www.fantasypros.com/nfl/adp/half-point-ppr-overall.php' },
+        ffc: { label: 'Fantasy Football Calculator', href: 'https://fantasyfootballcalculator.com/adp' },
+        mfl: { label: 'MyFantasyLeague', href: 'https://www.myfantasyleague.com' },
+      };
+      const prim = LINKS[src] || { label: String(src), href: null };
+      const rep = a[src] || {};
+      const link = o => o.href
+        ? '<a href="' + o.href + '" rel="noopener">' + escapeHtml(o.label) + '</a>'
+        : escapeHtml(o.label);
+      let html = 'ADP from ' + link(prim);
+      const fmt = ((a.report || {}).format) || '';
+      if (fmt) html += ' (' + escapeHtml(fmt) + ', our format)';
+      if (rep.ffc_gap_fill) {
+        html += ', ' + rep.ffc_gap_fill + ' gap-filled from ' + link(LINKS.ffc);
+      }
+      credit.innerHTML = html;
+    })();
 
     const opp = p.opportunity_adjustment;
     if (opp && opp !== 'ok' && opp !== 'unknown') {

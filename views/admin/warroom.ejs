@@ -528,8 +528,14 @@
     TERRITORY.md § war-room presentation split. %>
 <%- include('_warroom_scripts') %>
 
+<%# The ADP credit is FILLED BY app.js from the board's own provenance (id
+    adp-credit), never hardcoded: this line said "Fantasy Football Calculator"
+    while the anchor had swapped to FantasyPros and the checklist said so — the
+    footer/checklist/warning three-way disagreement Cory caught 2026-08-10. The
+    static text below is the no-JS fallback and names both sources honestly. %>
 <p class="muted" style="text-align:center; font-size:.7rem; margin-top:1.2rem">
-  ADP from <a href="https://fantasyfootballcalculator.com/adp" rel="noopener">Fantasy Football Calculator</a>
+  <span id="adp-credit">ADP from <a href="https://www.fantasypros.com/nfl/adp/half-point-ppr-overall.php" rel="noopener">FantasyPros</a>
+  (half-PPR, our format), gap-filled from <a href="https://fantasyfootballcalculator.com/adp" rel="noopener">Fantasy Football Calculator</a></span>
   · play-by-play from nflfastR · league data from Sleeper
 </p>
 
