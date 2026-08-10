@@ -145,6 +145,101 @@ def objective_scores(proj: dict[str, float], ceiling_z: dict[str, float],
     return {"points": points, "ceiling": ceiling, "floor": floor}
 
 
+# ───────────────────────────────────── finer proxy (higher power) ──
+# The dollar grade on a single fixed seat is starved: the seat misses the playoffs,
+# so playoff/regular-season $ are 0 for every variant and only the coarse $100
+# weekly-high (winner-take-all per week) moves. These proxies give the SAME three
+# rosters a higher-power test against the SAME real field, activating the channels
+# the dollar signal can't see even when the seat never cashes:
+#   * expected weekly-high wins  — the $100/week smoothed into a WIN PROBABILITY by
+#     integrating over week-to-week noise, so losing the high by 0.5 pts is ~0.45,
+#     not 0 (the CEILING thesis lives here),
+#   * mean weekly rank           — consistency a boom-or-bust roster never shows in
+#     dollars (the FLOOR thesis lives here),
+#   * playoff-window points      — weeks 15-17 lineup points, the playoff channel
+#     made continuous so it fires without the seat making the bracket.
+import math
+
+
+def normal_cdf(z: float) -> float:
+    return 0.5 * (1.0 + math.erf(z / math.sqrt(2.0)))
+
+
+def residual_weekly_sigma(field: dict, weeks: list[int]) -> float | None:
+    """The typical week-to-week SWING: pooled SD of (a team's weekly score minus its
+    own mean over these weeks). This is the scale at which a weekly-high could have
+    gone the other way — the right noise for smoothing the winner-take-all bonus.
+    Pre-registered as the smoothing scale (data-set, not tuned to the answer)."""
+    by_team: dict[int, list[float]] = {}
+    for w in weeks:
+        for rid, sc in (field.get(w) or {}).items():
+            by_team.setdefault(rid, []).append(float(sc))
+    resid: list[float] = []
+    for scores in by_team.values():
+        if len(scores) < 2:
+            continue
+        m = sum(scores) / len(scores)
+        resid.extend(s - m for s in scores)
+    if len(resid) < 2:
+        return None
+    return math.sqrt(sum(r * r for r in resid) / len(resid))   # mean ~0 by construction
+
+
+def week_win_prob(my: float, others: list[float], sigma: float | None,
+                  lo: float = -5.0, hi: float = 5.0, step: float = 0.05) -> float:
+    """P(my seat posts the strict weekly high) with every score carrying iid N(0,sigma)
+    noise — numeric integration over my seat's noise, deterministic (no RNG, no scipy).
+    sigma None/<=0 falls back to the hard indicator (ties shared)."""
+    if not others:
+        return 1.0
+    top = max(others)
+    if sigma is None or sigma <= 0:
+        if my > top:
+            return 1.0
+        if my < top:
+            return 0.0
+        return 1.0 / (1 + sum(1 for o in others if o == my))
+    total = dens = 0.0
+    z = lo
+    while z <= hi + 1e-9:
+        phi = math.exp(-0.5 * z * z)             # unnormalized N(0,1) density
+        x = my + z * sigma
+        prod = 1.0
+        for o in others:
+            prod *= normal_cdf((x - o) / sigma)
+        total += phi * prod
+        dens += phi
+        z += step
+    return total / dens if dens else 0.0
+
+
+def grade_policy_proxies(field: dict, my_weekly: dict[int, float], roster_id: int,
+                         rs_weeks: list[int], po_weeks: list[int],
+                         sigma: float | None) -> dict:
+    """The three finer metrics for one policy roster against the real field (my seat
+    substituted). Pure over dicts; unit-tested with synthetic fields."""
+    sub = {w: dict(scores) for w, scores in field.items()}
+    for w, pts in my_weekly.items():
+        if int(w) in sub and roster_id in sub[int(w)]:
+            sub[int(w)][roster_id] = float(pts)
+    exp_wins = exact_wins = 0.0
+    ranks: list[int] = []
+    for w in rs_weeks:
+        scores = sub.get(w) or {}
+        if roster_id not in scores:
+            continue
+        my = scores[roster_id]
+        others = [sc for rid, sc in scores.items() if rid != roster_id]
+        exp_wins += week_win_prob(my, others, sigma)
+        exact_wins += 1.0 if (others and my > max(others)) else 0.0
+        ranks.append(1 + sum(1 for o in others if o > my))
+    playoff_pts = sum(float(my_weekly.get(w, 0.0)) for w in po_weeks)
+    return {"exp_weekly_high_wins": round(exp_wins, 4),
+            "exact_weekly_high_wins": round(exact_wins, 1),
+            "mean_weekly_rank": round(sum(ranks) / len(ranks), 3) if ranks else None,
+            "playoff_window_points": round(playoff_pts, 2)}
+
+
 # ─────────────────────────────────────────────────────── egress main ──
 def _egress_main(out_dir: Path) -> int:   # pragma: no cover  (CI only)
     sys.path.insert(0, str(HERE.parent))          # draft/
@@ -156,6 +251,7 @@ def _egress_main(out_dir: Path) -> int:   # pragma: no cover  (CI only)
     import exp34 as X
     import exp34_dollars as XD
     import roster_sim as RS
+    import money_grade as MG
     import nfl_data_py as nfl
     import pandas as pd
 
@@ -241,20 +337,44 @@ def _egress_main(out_dir: Path) -> int:   # pragma: no cover  (CI only)
                   for obj in ("ceiling", "floor")}
         # did the objectives even produce different rosters?
         distinct = {obj: len(set(rosters[obj]) - set(rosters["points"])) for obj in ("ceiling", "floor")}
+
+        # finer proxy (higher power than the coarse $): same rosters, same real field
+        s_hist = MG.season_of(history, yr)
+        field = MG.field_weekly_scores(s_hist)
+        rs_weeks = MG.regular_season_weeks(s_hist)
+        po_weeks = MG.playoff_weeks(s_hist)
+        sigma = residual_weekly_sigma(field, rs_weeks)
+        proxy = {}
+        for obj in OBJECTIVES:
+            my_weekly = RS.roster_weekly_scores(s_hist, rosters[obj], pos_by_id)
+            proxy[obj] = grade_policy_proxies(field, my_weekly, rid, rs_weeks, po_weeks, sigma)
+        proxy_delta = {obj: {m: (round(proxy[obj][m] - proxy["points"][m], 4)
+                                 if proxy[obj].get(m) is not None and proxy["points"].get(m) is not None
+                                 else None)
+                             for m in ("exp_weekly_high_wins", "mean_weekly_rank", "playoff_window_points")}
+                       for obj in ("ceiling", "floor")}
+
         season_rows.append({"season": str(yr), "graded": graded, "delta_vs_points": deltas,
-                            "players_changed_vs_points": distinct, "fallbacks": fallbacks})
-        print(f"  {yr}: points ${graded['points']['total']} | "
-              f"ceiling ${graded['ceiling']['total']} (Δ{deltas['ceiling']['total']}, "
-              f"{distinct['ceiling']} changed) | "
-              f"floor ${graded['floor']['total']} (Δ{deltas['floor']['total']}, "
-              f"{distinct['floor']} changed)")
+                            "players_changed_vs_points": distinct, "fallbacks": fallbacks,
+                            "sigma_weekly": round(sigma, 2) if sigma else None,
+                            "proxy": proxy, "proxy_delta_vs_points": proxy_delta})
+        print(f"  {yr}: E[wh-wins] points {proxy['points']['exp_weekly_high_wins']} | "
+              f"ceiling {proxy['ceiling']['exp_weekly_high_wins']} "
+              f"(Δ{proxy_delta['ceiling']['exp_weekly_high_wins']}) | "
+              f"floor {proxy['floor']['exp_weekly_high_wins']} "
+              f"(Δ{proxy_delta['floor']['exp_weekly_high_wins']}) ;; "
+              f"mean-rank points {proxy['points']['mean_weekly_rank']} "
+              f"ceiling {proxy['ceiling']['mean_weekly_rank']} floor {proxy['floor']['mean_weekly_rank']}")
 
     agg = _aggregate(season_rows)
+    proxy_agg = _proxy_aggregate(season_rows)
     result = {
-        "experiment": "construction objective — points vs ceiling vs floor, graded in E[$]",
+        "experiment": "construction objective — points vs ceiling vs floor, E[$] + finer proxy",
         "beta": BETA, "n_seasons": len(season_rows),
-        "aggregate": agg, "seasons": season_rows, "caveats": caveats,
+        "aggregate": agg, "proxy_aggregate": proxy_agg,
+        "seasons": season_rows, "caveats": caveats,
         "verdict": _verdict(agg, season_rows),
+        "proxy_verdict": _proxy_verdict(proxy_agg, season_rows),
         "note": ("leak-free: projection is walk-forward, boom/bust + availability from "
                  "PRIOR-season weekly only. beta pre-registered at 0.15 (board's opportunity "
                  "nudge). Both alt objectives graded on the SAME optimal-lineup ceiling and "
@@ -284,6 +404,67 @@ def _aggregate(rows: list[dict]) -> dict:
         out[obj] = comp
     out["thin"] = len(rows) < 4
     return out
+
+
+def _proxy_aggregate(rows: list[dict]) -> dict:
+    """Pool the finer-proxy deltas (ceiling/floor vs points) across seasons. For each
+    metric: sum, mean, per-season, and sign consistency. Direction is metric-specific
+    (higher wins/points better; LOWER mean-rank better) — recorded so the verdict reads
+    it right."""
+    metrics = ("exp_weekly_high_wins", "mean_weekly_rank", "playoff_window_points")
+    lower_is_better = {"mean_weekly_rank"}
+    out = {"lower_is_better": sorted(lower_is_better)}
+    for obj in ("ceiling", "floor"):
+        m_out = {}
+        for m in metrics:
+            vals = [r["proxy_delta_vs_points"][obj][m] for r in rows
+                    if r.get("proxy_delta_vs_points", {}).get(obj, {}).get(m) is not None]
+            signs = [(1 if v > 0 else (-1 if v < 0 else 0)) for v in vals]
+            m_out[m] = {"sum": round(sum(vals), 4) if vals else None,
+                        "mean": round(sum(vals) / len(vals), 4) if vals else None, "n": len(vals),
+                        "per_season": {r["season"]: r["proxy_delta_vs_points"][obj][m] for r in rows
+                                       if r.get("proxy_delta_vs_points", {}).get(obj, {}).get(m) is not None},
+                        "sign_consistent": bool(vals) and len(set(signs)) == 1 and 0 not in signs,
+                        "helped": (None if not vals else
+                                   ((sum(vals) < 0) if m in lower_is_better else (sum(vals) > 0)))}
+        out[obj] = m_out
+    out["thin"] = len(rows) < 4
+    return out
+
+
+def _proxy_verdict(pagg: dict, rows: list[dict]) -> str:
+    if not rows:
+        return "no seasons graded."
+    def line(obj, m, unit, better):
+        c = pagg[obj][m]
+        if c["sum"] is None:
+            return f"{obj}:{m} n/a"
+        helped = "HELPED" if c["helped"] else ("hurt" if c["helped"] is False else "flat")
+        cons = "same sign every season" if c["sign_consistent"] else "mixed by season"
+        return (f"{obj.upper()} {m}: Δ{c['sum']}{unit} vs points ({better}) -> {helped} "
+                f"[{c['n']} seasons, {cons}]")
+    parts = [
+        line("ceiling", "exp_weekly_high_wins", " wins", "higher better"),
+        line("floor", "mean_weekly_rank", "", "lower better"),
+        line("floor", "playoff_window_points", " pts", "higher better"),
+        line("ceiling", "mean_weekly_rank", "", "lower better"),
+        line("floor", "exp_weekly_high_wins", " wins", "higher better"),
+        line("ceiling", "playoff_window_points", " pts", "higher better"),
+    ]
+    ceil_boom = pagg["ceiling"]["exp_weekly_high_wins"]["helped"]
+    floor_cons = pagg["floor"]["mean_weekly_rank"]["helped"]
+    floor_po = pagg["floor"]["playoff_window_points"]["helped"]
+    if ceil_boom or floor_cons or floor_po:
+        head = ("SIGNAL on the finer proxy the dollar was blind to: "
+                + ", ".join(x for x, ok in [("ceiling raises weekly-high win prob", ceil_boom),
+                                            ("floor improves weekly consistency", floor_cons),
+                                            ("floor lifts playoff-window points", floor_po)] if ok)
+                + ". Worth a board tilt to test live; confirm on the post-draft simulator. ")
+    else:
+        head = ("NULL even on the finer proxy: neither shape beats the points objective on "
+                "weekly-high win probability, consistency, or playoff-window points. The board's "
+                "value ranking IS the money-maximizing shape at this seat. ")
+    return head + " ;; ".join(parts) + " Thin (n=seasons); directional."
 
 
 def _verdict(agg: dict, rows: list[dict]) -> str:
