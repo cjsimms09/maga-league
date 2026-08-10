@@ -313,8 +313,17 @@
       free; collapsed on a phone where it would push Layer 1 off the screen.
       Nothing is deleted — demotion is a change of depth, not of existence. %>
   <details class="wr-layer2" id="layer-2" open>
-    <summary class="layer-sum">Layer 2 — roster, byes, survival, opponents</summary>
+    <summary class="layer-sum">Layer 2 — opponents, roster, byes, survival</summary>
   <aside class="wr-zone2">
+    <%# KNOW YOUR LEAGUE — the most valuable panel on the page: real read on the
+        nine people you're drafting against. Was buried at the bottom of the
+        collapsed Layer 3, below survival and targets; lifted to the top of the
+        always-open Layer 2 so opponent intelligence sits right under the decision.
+        app.js fills #managers by id — placement is the shell's. (Cory review 6a.) %>
+    <div class="card">
+      <h2>🕵️ Know Your League <span class="sub" id="managers-head"></span></h2>
+      <div class="body"><div id="managers" class="mgr-grid"></div></div>
+    </div>
     <div class="card">
       <h2>My Roster <span class="sub">starting slots first</span></h2>
       <div class="body">
@@ -450,10 +459,6 @@
     </div>
   </div>
 
-  <div class="card" style="margin-top:1rem">
-    <h2>🕵️ Know Your League <span class="sub" id="managers-head"></span></h2>
-    <div class="body"><div id="managers" class="mgr-grid"></div></div>
-  </div>
 
   <div class="card" style="margin-top:1rem">
     <h2>
