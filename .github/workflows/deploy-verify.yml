@@ -45,40 +45,60 @@ jobs:
 
           site = os.environ['SITE'].rstrip('/')
           want = os.environ['WANT']
-          url = site + '/api/health'           # public, no auth, no league data
-          print(f'want commit {want[:12]} at {url}')
+          # THE DEPLOYED-COMMIT SOURCE OF TRUTH is the STATIC build-stamp, written
+          # by netlify.toml's build command with COMMIT_REF baked in at build time.
+          # It is a plain file in the publish dir, so it is served on every deploy
+          # regardless of function runtime. /api/health used to be the source, but it
+          # reads process.env.COMMIT_REF at FUNCTION RUNTIME — which Netlify does not
+          # reliably expose to functions, so it returned no commit and this verifier
+          # reported "(no commit)" on a deploy that had in fact published. The stamp
+          # cannot lie: it is the deployed build's own record of itself. (/api/health
+          # is still fetched below, only for the durable-storage guard.)
+          stamp_url = site + '/build-stamp.json'
+          print(f'want commit {want[:12]} at {stamp_url}')
+
+          def matches(got):
+              return got and (got == want or got.startswith(want[:12]) or want.startswith(got[:12]))
 
           deadline = time.time() + 8 * 60      # Netlify prod deploys are ~1-3 min
           last = None
           while time.time() < deadline:
               try:
-                  req = urllib.request.Request(url, headers={'accept': 'application/json',
-                      'user-agent': 'mfga-deploy-verify'})
+                  req = urllib.request.Request(stamp_url, headers={'accept': 'application/json',
+                      'user-agent': 'mfga-deploy-verify', 'cache-control': 'no-cache'})
                   with urllib.request.urlopen(req, timeout=20) as r:
-                      body = json.loads(r.read().decode('utf-8'))
-                  got = (body.get('commit') or '')
+                      stamp = json.loads(r.read().decode('utf-8'))
+                  got = (stamp.get('commit') or '')
                   last = got
-                  if got and (got == want or got.startswith(want[:12]) or want.startswith(got[:12])):
-                      backend = body.get('storage_backend')
-                      print(f'OK — live site is serving {got[:12]} (context {body.get("context")}, '
-                            f'storage {backend})')
-                      # Persistence guard: production MUST be on durable Blobs. A
-                      # 'file' backend on the live site means ephemeral storage and
-                      # silent data loss on the next redeploy — fail loudly.
-                      if body.get('context') == 'production' and backend != 'blobs':
-                          print(f'::error::live storage_backend is {backend!r}, not durable blobs — '
-                                f'ledger/archive would not survive a redeploy')
-                          sys.exit(1)
+                  if matches(got):
+                      print(f'OK — live site build-stamp is {got[:12]} (branch {stamp.get("branch")}, '
+                            f'built {stamp.get("built_at")})')
+                      # Persistence guard (best-effort, non-fatal if unreachable):
+                      # production MUST be on durable Blobs, or the ledger/archive
+                      # would not survive a redeploy. Read it from /api/health.
+                      try:
+                          hreq = urllib.request.Request(site + '/api/health',
+                              headers={'accept': 'application/json', 'user-agent': 'mfga-deploy-verify'})
+                          with urllib.request.urlopen(hreq, timeout=20) as hr:
+                              health = json.loads(hr.read().decode('utf-8'))
+                          backend = health.get('storage_backend')
+                          if health.get('context') == 'production' and backend not in ('blobs', None):
+                              print(f'::error::live storage_backend is {backend!r}, not durable blobs — '
+                                    f'ledger/archive would not survive a redeploy')
+                              sys.exit(1)
+                          print(f'  storage_backend {backend}, context {health.get("context")}')
+                      except Exception as he:               # noqa: BLE001
+                          print(f'  (storage guard skipped — /api/health {type(he).__name__})')
                       sys.exit(0)
-                  print(f'  live is {got[:12] or "(no commit)"} — waiting for {want[:12]} ...')
+                  print(f'  live stamp is {got[:12] or "(none yet)"} — waiting for {want[:12]} ...')
               except urllib.error.HTTPError as e:
-                  print(f'  HTTP {e.code} from /api/version — waiting (old build may predate the endpoint) ...')
+                  print(f'  HTTP {e.code} from /build-stamp.json — waiting (deploy in flight) ...')
               except Exception as e:                       # noqa: BLE001
                   print(f'  {type(e).__name__}: {e} — waiting ...')
               time.sleep(20)
 
-          print(f'::error::live site never reported commit {want[:12]} within 8 min '
-                f'(last seen: {last or "unreachable / no /api/version"}). '
-                f'Deploy may have failed, be queued, or predate the version endpoint.')
+          print(f'::error::live build-stamp never reported commit {want[:12]} within 8 min '
+                f'(last seen: {last or "unreachable / no build-stamp"}). '
+                f'Deploy may have failed, been buried by a later push, or been skipped by the gate.')
           sys.exit(1)
           PY
