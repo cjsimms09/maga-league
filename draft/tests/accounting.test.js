@@ -156,5 +156,34 @@ const pick = id => ({ player_id: id, name: 'P' + id });
     r.agree && r.itemization.keepers === 2 && r.picksMade === 4, JSON.stringify(r.problems));
 }
 
+
+// ── INVARIANT 5: keepers vs my pick count (2026-08-10 critique) ─────────────
+// The live surface reported "3 keepers + 0 picks = 3 on roster · 15 of 15 picks
+// left · ✓ reconciled" — reconciled while carrying a number that contradicts the
+// keeper count in the same sentence. Under top_picks_flat I own rounds - keepers
+// picks (15 - 3 = 12), so my_picks carrying 15 means the seat and the slate
+// disagree and every pick number below it is wrong.
+{
+  const keepers = n => Array.from({ length: n }, (_, i) => ({ player_id: 'k' + i, is_keeper: true, name: 'K' + i }));
+  const base = {
+    roster: keepers(3), drafted: new Set(['k0', 'k1', 'k2']), recentPicks: [],
+    syncPickNumber: null, currentPick: 1, keeperPlacements: 3, rehearsalRemovals: 0, rounds: 15,
+  };
+  const bad = A.reconcile(Object.assign({}, base, { myPicks: Array.from({ length: 15 }, (_, i) => i * 10 + 8) }));
+  check('3 keepers with 15 my_picks in a 15-round draft does NOT reconcile',
+    bad.agree === false && /keepers vs my_picks/.test(bad.problems.join(' ')), JSON.stringify(bad.problems));
+  const good = A.reconcile(Object.assign({}, base,
+    { myPicks: [34, 41, 54, 61, 74, 81, 94, 101, 114, 121, 134, 141] }));
+  check('the REAL artifact (3 keepers, 12 picks, 15 rounds) reconciles',
+    good.agree === true, JSON.stringify(good.problems));
+  check('the summary line reports 12 of 12, not 15 of 15',
+    /12 of 12 picks left/.test(good.line), good.line);
+  // rounds omitted -> invariant is skipped rather than firing falsely
+  const noRounds = A.reconcile(Object.assign({}, base,
+    { myPicks: Array.from({ length: 15 }, (_, i) => i * 10 + 8), rounds: null }));
+  check('without a rounds value the keeper invariant stays silent',
+    !/keepers vs my_picks/.test(noRounds.problems.join(' ')));
+}
+
 console.log(`\n${pass}/${pass + fail} accounting checks passed`);
 process.exit(fail ? 1 : 0);

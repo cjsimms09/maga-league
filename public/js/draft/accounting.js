@@ -107,6 +107,28 @@
         + ' != [my_picks total] ' + myPicks.length);
     }
 
+    // 5. KEEPERS vs PICK COUNT — the invariant that was MISSING, which is how
+    //    "3 keepers + 0 picks = 3 on roster · 15 of 15 picks left · ✓ reconciled"
+    //    could report reconciled while carrying a number that contradicts the
+    //    keeper count in the same sentence (2026-08-10 critique).
+    //
+    //    Under top_picks_flat a keeper does NOT shorten the draft — it forfeits a
+    //    SPECIFIC round (the k-th keeper forfeits round k) — so the draft is
+    //    `rounds` long for everyone but I only own `rounds - myKeeperCount` picks
+    //    (15 - 3 = 12, in rounds 4-15). If my_picks carries the full 15 while I
+    //    hold 3 keepers, then either my_picks was built for a seat with no keepers
+    //    (a slot/keeper-owner mismatch — the live symptom) or the keeper slate
+    //    never applied. Both make every downstream pick number wrong.
+    if (myPicks.length && s.rounds) {
+      var expectedMine = Number(s.rounds) - keeperPlacements;
+      if (expectedMine >= 0 && myPicks.length !== expectedMine) {
+        problems.push('[keepers vs my_picks] I hold ' + keeperPlacements + ' keeper'
+          + (keeperPlacements === 1 ? '' : 's') + ' in a ' + s.rounds + '-round draft, so I own '
+          + expectedMine + ' picks — but [my_picks total] is ' + myPicks.length
+          + '. The seat and the keeper slate disagree; every pick number below is suspect');
+      }
+    }
+
     return {
       itemization: {
         keepers: item.keepers.length,

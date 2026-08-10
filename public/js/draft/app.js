@@ -710,6 +710,9 @@
           keeperPlacements: ps.keeperPlacements,
           rehearsalRemovals: ps.rehearsalRemovals,
           isMock: !!state.mockMode,
+          // Draft LENGTH, so the reconciler can check keepers against my pick count
+          // (invariant 5): under top_picks_flat I own rounds - myKeeperCount picks.
+          rounds: Number(((state.data || {}).league || {}).rounds) || null,
         });
         state.accounting.problems.forEach(function (p) {
           if (!/off the board/.test(p)) problems.push(p);   // board/slate already added
@@ -1949,14 +1952,38 @@
         label: 'Targets or never-draft set',
         detail: state.lists.targets.length + ' starred, ' + state.lists.avoid.length + ' blocked',
         fix: 'Optional, but it is your read' },
-      // URGENT — the league settings showed draft_rounds:3. Verify the DRAFT
-      // OBJECT reports 15 once it exists; a 3-round draft is a catastrophe.
-      { ok: state.syncedDraftRounds === 15,
-        label: 'Draft object rounds == 15',
-        detail: state.syncedDraftRounds == null ? 'no draft object synced yet (league setting showed 3 — VERIFY)'
-          : (state.syncedDraftRounds === 15 ? 'yes — from Sleeper draft object'
-            : 'DRAFT OBJECT SAYS ' + state.syncedDraftRounds + ' — TEXT THE COMMISSIONER'),
-        fix: 'Connect the Sleeper draft room; if not 15, the commissioner must fix it before the draft' },
+      // ROUNDS — corrected 2026-08-10. The old copy said "league setting showed 3 —
+      // VERIFY", which was a STALE SCARE: the 3 came from the long-fixed
+      // `roster_size - keepers.count` bug (a 'keepers shrink the draft' model that
+      // is not ours), not from Sleeper. Under top_picks_flat the draft is
+      // roster_size rounds for EVERYONE and a keeper forfeits a SPECIFIC round —
+      // 15 rounds, 12 live picks in rounds 4-15 (confirmed by Cory 2026-08-08;
+      // config_schema.draft_rounds carries the reasoning). So this now checks the
+      // BOARD we are actually drafting off, and only escalates to the commissioner
+      // if a synced Sleeper draft object genuinely disagrees.
+      (function () {
+        const boardRounds = Number(((state.data || {}).league || {}).rounds) || null;
+        const synced = state.syncedDraftRounds;
+        const mine = ((state.data || {}).pick_order || {}).my_picks || [];
+        const kn = keeperRounds();
+        const expectMine = boardRounds != null ? boardRounds - kn : null;
+        // Disagreement between a synced draft object and the board is the ONLY
+        // commissioner-grade alarm here.
+        const conflict = synced != null && boardRounds != null && synced !== boardRounds;
+        const picksOk = expectMine == null || mine.length === expectMine;
+        return {
+          ok: boardRounds === 15 && picksOk && !conflict,
+          label: 'Draft length: 15 rounds, ' + (expectMine == null ? '?' : expectMine) + ' live picks',
+          detail: conflict
+            ? 'CONFLICT — Sleeper draft object says ' + synced + ', board says ' + boardRounds
+              + ' — TEXT THE COMMISSIONER'
+            : boardRounds == null ? 'board carries no rounds value'
+            : boardRounds + ' rounds − ' + kn + ' keepers = ' + expectMine + ' live picks; board has '
+              + mine.length + (picksOk ? ' ✓' : ' ✗ MISMATCH')
+              + (synced != null ? ' · Sleeper draft object agrees (' + synced + ')' : ' · no draft object yet'),
+          fix: 'If the Sleeper draft object ever disagrees with the board, the commissioner must fix it before the draft',
+        };
+      })(),
       // Money function: the payout table is ground truth — confirm it loaded and
       // sums correctly (re-verify vs the league site if the commissioner edits it).
       (function () {
