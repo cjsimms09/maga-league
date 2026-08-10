@@ -138,10 +138,21 @@ const SCORING = {
   Rushing: [ ['Rushing Yards', '0.1 / yd'], ['Rushing TD', '6'], ['2-pt Conversion', '2'], ['Fumble Lost', '-2'] ],
   Receiving: [ ['Reception', '0.5'], ['Receiving Yards', '0.1 / yd'], ['Receiving TD', '6'] ],
   Kicking: [ ['FG (0-49 yd)', '3'], ['FG (50+ yd)', '5'], ['PAT Made', '1'], ['PAT Missed', '-1'] ],
-  'Defense / ST': [ ['TD', '6'], ['0 points allowed', '10'], ['1-6 points allowed', '7'], ['7-13 points allowed', '4'], ['14-20 points allowed', '1'], ['28-34 points allowed', '1'], ['35+ points allowed', '-4'], ['Sack', '1'], ['Interception', '2'], ['Fumble Recovery', '2'], ['Safety', '2'] ],
+  // CORRECTED 2026-08-10 against the imported Sleeper config. Three faults, all
+  // the signature of a hand-kept copy: 28-34 read "1" when Sleeper says -1.0 (a
+  // SIGN ERROR — the page said a bad defensive week EARNED a point), the 21-27
+  // bracket was missing entirely so the table showed a hole between 20 and 28,
+  // and Blocked kick was absent. Human phrasing is kept deliberately; only the
+  // NUMBERS are Sleeper's. draft/tests/rules_page.test.js now cross-checks every
+  // value against draft/config/league_config.json, so this can drift once and
+  // never twice.
+  'Defense / ST': [ ['TD', '6'], ['0 points allowed', '10'], ['1-6 points allowed', '7'], ['7-13 points allowed', '4'], ['14-20 points allowed', '1'], ['21-27 points allowed', '0'], ['28-34 points allowed', '-1'], ['35+ points allowed', '-4'], ['Sack', '1'], ['Interception', '2'], ['Fumble Recovery', '2'], ['Safety', '2'], ['Blocked Kick', '0'] ],
 };
 
-const ROSTER = [ ['QB', 1], ['RB', 2], ['WR', 2], ['WR/RB/TE (Flex)', 1], ['DEF', 1], ['K', 1], ['Bench', 6], ['IR', 1] ];
+// CORRECTED 2026-08-10: TE — an actual STARTING POSITION — was missing from the
+// list of starting positions, and IR:1 was listed though this league has no IR
+// slot. Derived shape now lives in src/rules-derived.js and is asserted equal.
+const ROSTER = [ ['QB', 1], ['RB', 2], ['WR', 2], ['TE', 1], ['WR/RB/TE (Flex)', 1], ['DEF', 1], ['K', 1], ['Bench', 6] ];
 
 // Auto-roasts for whoever is in last place. {name} gets substituted.
 const ROASTS = [
