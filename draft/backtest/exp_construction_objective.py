@@ -158,86 +158,12 @@ def objective_scores(proj: dict[str, float], ceiling_z: dict[str, float],
 #     dollars (the FLOOR thesis lives here),
 #   * playoff-window points      — weeks 15-17 lineup points, the playoff channel
 #     made continuous so it fires without the seat making the bracket.
-import math
-
-
-def normal_cdf(z: float) -> float:
-    return 0.5 * (1.0 + math.erf(z / math.sqrt(2.0)))
-
-
-def residual_weekly_sigma(field: dict, weeks: list[int]) -> float | None:
-    """The typical week-to-week SWING: pooled SD of (a team's weekly score minus its
-    own mean over these weeks). This is the scale at which a weekly-high could have
-    gone the other way — the right noise for smoothing the winner-take-all bonus.
-    Pre-registered as the smoothing scale (data-set, not tuned to the answer)."""
-    by_team: dict[int, list[float]] = {}
-    for w in weeks:
-        for rid, sc in (field.get(w) or {}).items():
-            by_team.setdefault(rid, []).append(float(sc))
-    resid: list[float] = []
-    for scores in by_team.values():
-        if len(scores) < 2:
-            continue
-        m = sum(scores) / len(scores)
-        resid.extend(s - m for s in scores)
-    if len(resid) < 2:
-        return None
-    return math.sqrt(sum(r * r for r in resid) / len(resid))   # mean ~0 by construction
-
-
-def week_win_prob(my: float, others: list[float], sigma: float | None,
-                  lo: float = -5.0, hi: float = 5.0, step: float = 0.05) -> float:
-    """P(my seat posts the strict weekly high) with every score carrying iid N(0,sigma)
-    noise — numeric integration over my seat's noise, deterministic (no RNG, no scipy).
-    sigma None/<=0 falls back to the hard indicator (ties shared)."""
-    if not others:
-        return 1.0
-    top = max(others)
-    if sigma is None or sigma <= 0:
-        if my > top:
-            return 1.0
-        if my < top:
-            return 0.0
-        return 1.0 / (1 + sum(1 for o in others if o == my))
-    total = dens = 0.0
-    z = lo
-    while z <= hi + 1e-9:
-        phi = math.exp(-0.5 * z * z)             # unnormalized N(0,1) density
-        x = my + z * sigma
-        prod = 1.0
-        for o in others:
-            prod *= normal_cdf((x - o) / sigma)
-        total += phi * prod
-        dens += phi
-        z += step
-    return total / dens if dens else 0.0
-
-
-def grade_policy_proxies(field: dict, my_weekly: dict[int, float], roster_id: int,
-                         rs_weeks: list[int], po_weeks: list[int],
-                         sigma: float | None) -> dict:
-    """The three finer metrics for one policy roster against the real field (my seat
-    substituted). Pure over dicts; unit-tested with synthetic fields."""
-    sub = {w: dict(scores) for w, scores in field.items()}
-    for w, pts in my_weekly.items():
-        if int(w) in sub and roster_id in sub[int(w)]:
-            sub[int(w)][roster_id] = float(pts)
-    exp_wins = exact_wins = 0.0
-    ranks: list[int] = []
-    for w in rs_weeks:
-        scores = sub.get(w) or {}
-        if roster_id not in scores:
-            continue
-        my = scores[roster_id]
-        others = [sc for rid, sc in scores.items() if rid != roster_id]
-        exp_wins += week_win_prob(my, others, sigma)
-        exact_wins += 1.0 if (others and my > max(others)) else 0.0
-        ranks.append(1 + sum(1 for o in others if o > my))
-    playoff_pts = sum(float(my_weekly.get(w, 0.0)) for w in po_weeks)
-    return {"exp_weekly_high_wins": round(exp_wins, 4),
-            "exact_weekly_high_wins": round(exact_wins, 1),
-            "mean_weekly_rank": round(sum(ranks) / len(ranks), 3) if ranks else None,
-            "playoff_window_points": round(playoff_pts, 2)}
+# The continuous proxy is now STANDARD and lives in ONE place — grade_proxy.py —
+# so money_grade and every experiment call the same definition (never a second
+# copy; that is the two-places disease the graduation gate exists to kill). This
+# module keeps the same names via re-export for its existing call sites.
+from grade_proxy import (normal_cdf, residual_weekly_sigma, week_win_prob,  # noqa: F401
+                         grade_policy_proxies)
 
 
 # ─────────────────────────────────────────────────────── egress main ──

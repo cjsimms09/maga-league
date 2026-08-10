@@ -24,9 +24,13 @@ scores that already exist, so it can never leak outcome data into a decision.
 """
 from __future__ import annotations
 import json
+import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
+if str(HERE) not in sys.path:
+    sys.path.insert(0, str(HERE))
+import grade_proxy as GP   # noqa: E402 — the ONE continuous-proxy definition (E1)
 HIST = HERE.parent / "data" / "league_history.json"
 PAYOUTS = HERE.parent / "config" / "payouts.json"
 
@@ -433,6 +437,19 @@ def grade_substituted(history: dict, payouts: dict, season, roster_id: int,
     }
     if po_note:
         out["substituted_playoff_note"] = po_note
+
+    # THE CONTINUOUS PROXY (E1, standard 2026-08-10) — the SENSITIVITY reported
+    # alongside the dollar objective. The dollar grade is threshold-lumpy: a seat
+    # that never cashes the playoff channels grades most policies at $0 across
+    # $2,500 of dead channels, so a 5th-place and a 10th-place roster read
+    # identically. The proxy sees roster quality even when nothing cashes. It is a
+    # SENSITIVITY, not a currency — read "changed roster quality without cashing",
+    # NEVER "earns $X"; the proxy->$ link is the same unclosed question as the
+    # stack weight and the correlated-variance gap (closed by D3).
+    sigma = GP.residual_weekly_sigma(field, rs_weeks)
+    out["proxy"] = GP.grade_policy_proxies(field, my_weekly, roster_id, rs_weeks,
+                                           bracket_weeks, sigma)
+    out["proxy_is_sensitivity_not_dollars"] = True
     # `graded_total` is the full money function when playoff $ resolved; the
     # `_partial` key stays so a withheld bracket is never silently read as a
     # complete grade by something summing the wrong field.
