@@ -1,0 +1,107 @@
+{
+  "experiment": "projection source \u2014 Sleeper vs FantasyPros divergence (pre-draft) + FP freeze",
+  "year": 2026,
+  "fp_rows_parsed": 523,
+  "fp_matched": 479,
+  "fp_url": "https://api.fantasypros.com/v2/json/nfl/2026/projections?position=ALL&scoring=HALF&week=draft",
+  "sleeper_players": 578,
+  "divergence_overall": {
+    "n": 404,
+    "rank_corr": 0.9327
+  },
+  "divergence_top150": {
+    "n": 148,
+    "rank_corr": 0.9273
+  },
+  "biggest_disagreements_top150": [
+    {
+      "player": "Rachaad White",
+      "sleeper_rank": 148,
+      "fp_rank": 100,
+      "sleeper_pts": 111.1,
+      "fp_pts": 128.64
+    },
+    {
+      "player": "Jacory Croskey-Merritt",
+      "sleeper_rank": 142,
+      "fp_rank": 95,
+      "sleeper_pts": 118.4,
+      "fp_pts": 132.49
+    },
+    {
+      "player": "Jacoby Brissett",
+      "sleeper_rank": 71,
+      "fp_rank": 30,
+      "sleeper_pts": 183.0,
+      "fp_pts": 261.37
+    },
+    {
+      "player": "Aaron Jones",
+      "sleeper_rank": 141,
+      "fp_rank": 101,
+      "sleeper_pts": 120.1,
+      "fp_pts": 127.06
+    },
+    {
+      "player": "Deshaun Watson",
+      "sleeper_rank": 147,
+      "fp_rank": 108,
+      "sleeper_pts": 112.06,
+      "fp_pts": 117.21
+    },
+    {
+      "player": "RJ Harvey",
+      "sleeper_rank": 135,
+      "fp_rank": 96,
+      "sleeper_pts": 125.6,
+      "fp_pts": 131.34
+    },
+    {
+      "player": "Tua Tagovailoa",
+      "sleeper_rank": 90,
+      "fp_rank": 51,
+      "sleeper_pts": 157.94,
+      "fp_pts": 187.86
+    },
+    {
+      "player": "Rico Dowdle",
+      "sleeper_rank": 107,
+      "fp_rank": 70,
+      "sleeper_pts": 142.1,
+      "fp_pts": 155.7
+    },
+    {
+      "player": "Jayden Reed",
+      "sleeper_rank": 83,
+      "fp_rank": 116,
+      "sleeper_pts": 162.6,
+      "fp_pts": 113.3
+    },
+    {
+      "player": "Bhayshul Tuten",
+      "sleeper_rank": 88,
+      "fp_rank": 55,
+      "sleeper_pts": 158.8,
+      "fp_pts": 179.23
+    },
+    {
+      "player": "Josh Downs",
+      "sleeper_rank": 104,
+      "fp_rank": 136,
+      "sleeper_pts": 143.4,
+      "fp_pts": 98.34
+    },
+    {
+      "player": "Tony Pollard",
+      "sleeper_rank": 100,
+      "fp_rank": 68,
+      "sleeper_pts": 146.1,
+      "fp_pts": 159.13
+    }
+  ],
+  "fetch_diag": {
+    "api_ok": "https://api.fantasypros.com/v2/json/nfl/2026/projections?position=ALL&scoring=HALF&week=draft",
+    "bundle_key_found": true
+  },
+  "verdict": "FP 2026 projections parsed 523, matched 479 to the board. Sleeper-vs-FP rank agreement: overall \u03c1=0.9327, top-150 \u03c1=0.9273. HIGH agreement -> the projection source barely moves picks; the board is settled on either. Which source is BETTER is graded against realized AFTER 2026 \u2014 this is agreement only."
+}

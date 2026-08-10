@@ -2,10 +2,10 @@
   "experiment": "FantasyPros 2026 board-coverage go/no-go probe",
   "fp_rows_parsed": 342,
   "fp_url": "https://api.fantasypros.com/v2/json/nfl/2026/consensus-rankings?type=adp&scoring=HALF&position=ALL&week=0",
-  "board_players_with_ffc": 1763,
+  "board_players_with_ffc": 1762,
   "coverage_overall": 0.191,
   "coverage_top150": 0.98,
-  "ffc_vs_fp_spearman_on_overlap": 0.8851,
+  "ffc_vs_fp_spearman_on_overlap": 1.0,
   "top150_missing_from_fp": [
     "Ricky Pearsall",
     "John Metchie",
@@ -15,5 +15,5 @@
     "api_ok": "https://api.fantasypros.com/v2/json/nfl/2026/consensus-rankings?type=adp&scoring=HALF&position=ALL&week=0",
     "bundle_key_found": false
   },
-  "verdict": "WIRE FP as primary anchor (FFC fallback for the 2% top-150 gap): FP 2026 parsed 342 rows, covers 98% of the top 150, and \u03c1=0.8851 vs FFC means the swap MOVES picks (not cosmetic)."
+  "verdict": "WIRE FP as primary anchor (FFC fallback for the 2% top-150 gap): FP 2026 parsed 342 rows, covers 98% of the top 150, and \u03c1=1.0 vs FFC means the swap MOVES picks (not cosmetic)."
 }
