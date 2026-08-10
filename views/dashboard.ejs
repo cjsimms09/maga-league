@@ -19,6 +19,38 @@
   </a>
 <% } %>
 
+<%# ── THE IN-SEASON HERO — your game, first thing, during a season week. Score,
+    opponent, who's leading, and a lineup problem if there's a real one. Taps
+    through to your full matchup. Absent off-season (the draft banner leads then). %>
+<% const _wh = (typeof weekHero !== 'undefined' && weekHero) ? weekHero : null; %>
+<% if (_wh) { %>
+  <a class="week-hero<%= _wh.leading === 'you' ? ' up' : _wh.leading === 'them' ? ' down' : '' %>" href="/matchup" title="Your full matchup — bet, trash talk, starters">
+    <div class="week-hero-top">
+      <span class="week-hero-kicker">⚔️ Week <%= _wh.weekNo %> — your game</span>
+      <% if (_wh.live) { %><span class="week-hero-state <%= _wh.leading %>"><%= _wh.leading === 'you' ? 'you lead by ' + _wh.margin : _wh.leading === 'them' ? 'down ' + _wh.margin : 'dead even' %></span>
+      <% } else { %><span class="week-hero-state pre">not kicked off</span><% } %>
+    </div>
+    <div class="week-hero-score">
+      <span class="whs-side">
+        <span class="whs-team"><%= _wh.meTeam %></span>
+        <span class="whs-pts"><%= _wh.live ? _wh.mePts.toFixed(1) : '—' %></span>
+        <span class="whs-who">you</span>
+      </span>
+      <span class="whs-vs">vs</span>
+      <span class="whs-side">
+        <span class="whs-team"><%= _wh.oppTeam %></span>
+        <span class="whs-pts"><%= _wh.live ? _wh.oppPts.toFixed(1) : '—' %></span>
+        <span class="whs-who"><%= _wh.oppName %></span>
+      </span>
+    </div>
+    <% if (_wh.lineupWarn) { %>
+      <div class="week-hero-warn">⚠️ Lineup problem: <%= _wh.lineupWarn.items.map(i => i.text).join(', ') %><% if (_wh.lineupWarn.count > _wh.lineupWarn.items.length) { %> +<%= _wh.lineupWarn.count - _wh.lineupWarn.items.length %> more<% } %> — fix it before kickoff →</div>
+    <% } else { %>
+      <div class="week-hero-foot">Open your matchup — bet it, talk trash, watch the starters <span class="week-hero-cue">→</span></div>
+    <% } %>
+  </a>
+<% } %>
+
 <%# RIVALRY GAME OF THE WEEK — billed on the home page when one of the league's real
     rivalries is on this week's slate; the highest-billed one wins the top spot. %>
 <% if (typeof rivalryOfWeek !== 'undefined' && rivalryOfWeek) { %>

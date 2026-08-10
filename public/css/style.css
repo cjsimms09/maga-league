@@ -3709,6 +3709,33 @@ table.roll td.num, .pf, .wh-race-scale, .wh-band-note{ color: var(--ink); }
 .weekhub-cta .whc-txt b{ font-family:var(--font-display); font-size:1rem; }
 .weekhub-cta .whc-sub{ font-size:.78rem; color:#cdd9ea; }
 
+/* THE IN-SEASON HERO — your game, first thing during a season week. Navy card,
+   score front and centre, a red bar when your lineup has a real problem. */
+.week-hero{ display:block; text-decoration:none; color:#fff; border-radius:var(--radius);
+  background:linear-gradient(135deg, var(--navy), #1c3a63); padding:.9rem 1.1rem; margin-bottom:1rem;
+  box-shadow:0 2px 10px rgba(12,26,43,.16); border-left:4px solid var(--muted);
+  transition:box-shadow .12s, transform .12s; }
+.week-hero:hover{ box-shadow:0 4px 16px rgba(12,26,43,.24); }
+.week-hero:active{ transform:translateY(1px); }
+.week-hero.up{ border-left-color:var(--green); }
+.week-hero.down{ border-left-color:var(--red); }
+.week-hero-top{ display:flex; justify-content:space-between; align-items:baseline; gap:.6rem; margin-bottom:.5rem; }
+.week-hero-kicker{ font-family:var(--font-display); font-size:.7rem; letter-spacing:.1em; text-transform:uppercase; font-weight:800; color:#cdd9ea; }
+.week-hero-state{ font-size:.78rem; font-weight:800; font-variant-numeric:tabular-nums; }
+.week-hero-state.you{ color:#4ade80; } .week-hero-state.them{ color:#ff8a94; }
+.week-hero-state.even, .week-hero-state.pre{ color:#cdd9ea; }
+.week-hero-score{ display:flex; align-items:center; gap:.6rem; }
+.week-hero .whs-side{ flex:1 1 0; min-width:0; display:flex; flex-direction:column; }
+.week-hero .whs-side:last-child{ text-align:right; }
+.week-hero .whs-team{ font-family:var(--font-display); font-size:.9rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.week-hero .whs-pts{ font-size:1.9rem; font-weight:800; font-variant-numeric:tabular-nums; line-height:1.1; }
+.week-hero .whs-who{ font-size:.72rem; color:#cdd9ea; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.week-hero .whs-vs{ flex:0 0 auto; font-size:.72rem; color:#9fb2cc; font-weight:700; }
+.week-hero-warn{ margin-top:.6rem; padding:.45rem .6rem; border-radius:8px; background:rgba(255,70,85,.16);
+  color:#ffd7db; font-size:.8rem; font-weight:700; }
+.week-hero-foot{ margin-top:.55rem; font-size:.78rem; color:#cdd9ea; }
+.week-hero-cue{ font-weight:800; }
+
 /* DRAFT DAY BANNER — the pre-draft headline, clickable through to the board.
    Gold-forward so it reads as the marquee item, distinct from the navy week CTA. */
 .draft-banner{ display:flex; align-items:center; gap:.85rem; text-decoration:none;

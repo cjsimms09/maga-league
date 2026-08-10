@@ -397,6 +397,54 @@ router.get('/', aw(async (req, res) => {
         mine: mine ? mine.pts : null, iLead: mine && mine.pts === top };
     }
   }
+  // THE IN-SEASON HERO — during a season week, the most important thing on the
+  // home page is YOUR game: your score, your opponent, and whether your lineup
+  // has a problem. It belongs at the very top, above the money tiles. Silent
+  // off-season / pre-draft (no live matchup), so it never crowds the pre-season
+  // page. Tap → your full matchup.
+  let weekHero = null;
+  if (sData && Array.isArray(sData.matchups)) {
+    const myGame = sleeper.myMatchup(sData, world.config.sleeper_map || {}, req.owner.id, owners);
+    if (myGame && myGame.opp) {
+      const mePts = myGame.me.points, oppPts = myGame.opp.points;
+      const anyScore = (mePts || 0) > 0 || (oppPts || 0) > 0;
+      // Lineup problem: a starter who is OUT or a slot left empty. Deliberately
+      // NARROW — the optimizer deviates from "start your best" only ~11% of weeks
+      // (A's finding), so a hero that cried "fix your lineup" every week would
+      // overstate it. Only a genuine can't-score problem lights the flag; bye
+      // detection waits on the per-player bye source (flagged to A).
+      let lineupWarn = null;
+      try {
+        const myRow = sData.matchups.find(m => Number(m.roster_id) === Number(myGame.me.roster_id));
+        if (myRow && (myRow.starters || []).length) {
+          const playersDb = await sleeper.players();
+          const rp = (sData.league && sData.league.roster_positions) || null;
+          const paired = MU.pairStarters(myRow, null, rp, playersDb);
+          const problems = [];
+          for (const row of (paired ? paired.rows : [])) {
+            const c = row.me;
+            if (c.empty) problems.push({ slot: row.slot, why: 'empty', text: 'empty ' + row.slot + ' slot' });
+            else if (['OUT', 'IR', 'SUS', 'PUP', 'DNR', 'NA', 'DOUBTFUL'].includes((c.inj || '').toUpperCase())) {
+              problems.push({ slot: row.slot, why: 'out', text: c.name + ' (' + c.inj + ')' });
+            }
+          }
+          if (problems.length) lineupWarn = { count: problems.length, items: problems.slice(0, 3) };
+        }
+      } catch (e) { /* the hero renders without the warning */ }
+      weekHero = {
+        weekNo: myGame.week || sData.week,
+        meTeam: myGame.me.team, mePts,
+        oppName: (myGame.opp.owner && myGame.opp.owner.name) || myGame.opp.team,
+        oppId: (myGame.opp.owner && myGame.opp.owner.id) || null,
+        oppTeam: myGame.opp.team, oppPts,
+        live: anyScore,
+        leading: anyScore ? (mePts > oppPts ? 'you' : oppPts > mePts ? 'them' : 'even') : null,
+        margin: anyScore ? Math.abs(Math.round((mePts - oppPts) * 10) / 10) : null,
+        lineupWarn,
+      };
+    }
+  }
+
   // Last completed week's mini-awards + the transaction wire.
   let review = null, reviewWeek = null, wireRows = [];
   // Rank-movement arrows: dormant until a previous week exists to compare, then
@@ -500,7 +548,7 @@ router.get('/', aw(async (req, res) => {
   } catch (e) { /* the dispatch is a bonus; the dashboard renders without it */ }
   res.render('dashboard', {
     season, payouts: H.payoutTable(season), buyins, weekly, awards, standings, draft,
-    openVotes, CATEGORY_LABELS: H.CATEGORY_LABELS, myBalance, draftInfo,
+    openVotes, CATEGORY_LABELS: H.CATEGORY_LABELS, myBalance, draftInfo, weekHero,
     // The money scoreboard: banked dollars + rank this season, from the ledger.
     moneyBoard: L.moneyStandings(world.ledger, owners, season), meId: req.owner.id,
     sleeperData: sData, sleeperStandings: sStandings, sleeperBoard: sBoard, roast,
