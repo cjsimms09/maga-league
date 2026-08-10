@@ -1,0 +1,30 @@
+{
+  "errors": {},
+  "sources": {
+    "kalshi": {
+      "markets_scanned": 1000,
+      "nfl_markets": 0,
+      "player_production_markets": 0,
+      "reachable": true,
+      "sample_titles": [],
+      "volume_median": 0,
+      "volume_total": 0,
+      "zero_volume_share": null
+    },
+    "odds_api": {
+      "key_configured": false,
+      "note": "no ODDS_API_KEY secret is configured, so the free-tier allowance could not be measured. This is a SETUP gap, not evidence the source is unusable \u2014 do not record it as a dead end.",
+      "reachable": null
+    },
+    "sleeper_trending": {
+      "note": "adds/drops = what people are REACTING to; ADP = what they PAID",
+      "player_resolvable": true,
+      "reachable": true,
+      "rows": 25,
+      "shape": [
+        "count",
+        "player_id"
+      ]
+    }
+  }
+}
