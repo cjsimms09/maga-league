@@ -21,15 +21,15 @@
       0.334,
       0.482
     ],
-    "rho_market_mean": 0.269,
+    "rho_market_mean": 0.268,
     "rho_market_ci": [
-      0.202,
-      0.33
+      0.201,
+      0.329
     ],
-    "diff_mean": 0.139,
+    "diff_mean": 0.14,
     "diff_ci": [
-      0.051,
-      0.222
+      0.052,
+      0.223
     ],
     "verdict": "beat"
   },
