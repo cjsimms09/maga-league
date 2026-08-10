@@ -124,3 +124,50 @@ def test_conversion_uses_the_shared_scoring_engine_not_a_local_copy():
     code = "".join(body[::2])                    # strip docstrings
     assert "SCORING.score_stat_line" in code
     assert "0.5" not in code, "a hard-coded half-PPR constant means a second engine"
+
+
+# ── source feasibility arithmetic (the probe's pure half) ───────────────────
+import market_probe as P  # noqa: E402
+
+
+def test_credits_per_snapshot_multiplies_when_billing_is_per_market_per_book():
+    """The unit that matters. 1 request x 4 markets x 2 books is 8 credits, and
+    nobody would guess that from the headline 'one request'."""
+    assert P.credits_per_snapshot(4, 2, True)["credits_per_snapshot"] == 8
+    assert P.credits_per_snapshot(4, 2, False)["credits_per_snapshot"] == 1
+
+
+def test_the_allowance_PERIOD_changes_the_verdict():
+    """500 monthly and 500 once-ever are completely different sources. Comparing
+    a monthly allowance against a whole-season requirement is a units error that
+    would call a comfortable source infeasible."""
+    monthly = P.season_feasible(500, 8, 2, period="month")
+    once = P.season_feasible(500, 8, 2, period="season")
+    assert monthly["season_feasible"] is True
+    assert once["season_feasible"] is False
+
+
+def test_the_safety_margin_is_applied_not_merely_recorded():
+    """An allowance that exactly covers a perfect season covers nothing the first
+    week a call needs a retry."""
+    tight = P.season_feasible(352, 8, 2, period="season")   # exactly the raw need
+    assert tight["season_feasible"] is False
+    assert tight["credits_needed_per_period_with_margin"] == 528
+
+
+def test_the_arithmetic_is_stated_not_just_the_verdict():
+    a = P.season_feasible(500, 8, 2, period="month")["arithmetic"]
+    assert "8 credits/snapshot" in a and "x1.5 margin" in a and "vs 500" in a
+
+
+def test_an_unknown_period_refuses_rather_than_guessing():
+    assert P.season_feasible(500, 8, 2, period="fortnight")["season_feasible"] is None
+
+
+def test_every_candidate_records_its_exact_host_and_docs():
+    """'The Odds API' is not a sufficient identifier — there is a real naming
+    collision and the products differ in NFL coverage. A feasibility verdict
+    against an unnamed host is not one anyone can re-check."""
+    for name, c in P.CANDIDATES.items():
+        assert c["host"].startswith("https://"), name
+        assert c["docs"].startswith("https://"), name

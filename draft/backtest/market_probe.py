@@ -35,7 +35,38 @@ OUT = HERE / "market_probe.json"
 # Kalshi's public market list. Series/tickers are what we need to see; whether any
 # of them are player-level is the open question.
 KALSHI_BASE = "https://api.elections.kalshi.com/trade-api/v2"
-ODDS_BASE = "https://api.the-odds-api.com/v4"
+# ── THE NAMING COLLISION, RECORDED RATHER THAN ASSUMED ──────────────────────
+# "The Odds API" is not a sufficient identifier. There are at least three similar
+# names in this space and they are different products with different NFL coverage.
+# So every candidate records the EXACT hostname and docs URL that was queried, and
+# the artifact carries them — a feasibility verdict against an unnamed host is
+# not a verdict anyone can re-check.
+CANDIDATES = {
+    "odds_api_io": {
+        "host": "https://api.odds-api.io",
+        "docs": "https://odds-api.io/",
+        "published_free_tier": "100 requests/hour, 500/day, NFL included, "
+                               "2 recreational books, permanent, no card",
+        "priority": 1,
+    },
+    "the_odds_api_com": {
+        "host": "https://api.the-odds-api.com/v4",
+        "docs": "https://the-odds-api.com/",
+        "note": "the host the existing ODDS_API_KEY is assumed to belong to; the "
+                "site carries an explicit impersonator warning, which is why the "
+                "hostname is recorded rather than the brand name",
+        "priority": 2,
+    },
+    "parlayapi": {
+        "host": "https://api.parlayapi.com",
+        "docs": "https://parlayapi.com/",
+        "note": "PROBED, NOT BUILT AGAINST. Advertises props from 30+ books and a "
+                "closing archive; ships llms.txt / agents.json.",
+        "priority": 3,
+    },
+}
+
+ODDS_BASE = CANDIDATES["the_odds_api_com"]["host"]
 SLEEPER_TRENDING = "https://api.sleeper.app/v1/players/nfl/trending/add?lookback_hours=48&limit=25"
 
 # The ONLY props that map to our scoring. Not hundreds of markets — four, plus the
@@ -121,6 +152,61 @@ def cadence_from_allowance(remaining, used, per_pull: int = 1) -> dict:
         "weeks_in_season": WEEKS, "pulls_per_week": round(per_week, 2),
         "supported_cadence": cadence,
         "signal_c_measurable": per_week >= 2,
+    }
+
+
+def credits_per_snapshot(markets: int, books: int, per_market_per_book: bool) -> dict:
+    """THE UNIT THAT ACTUALLY MATTERS: credits per useful SNAPSHOT, not per request.
+
+    A request might cost one credit, or one credit per market per book — 1 request
+    x 10 markets x 20 books is 200 credits, and nobody would guess that from the
+    headline number. Getting this wrong is not a small error: it is the difference
+    between an allowance that funds a season and one that funds three days.
+    """
+    cost = (markets * books) if per_market_per_book else 1
+    return {"markets_requested": markets, "books_requested": books,
+            "billing": "per market per book" if per_market_per_book else "per request",
+            "credits_per_snapshot": cost}
+
+
+def season_feasible(allowance: int, credits_per_snap: int, snaps_per_week: int,
+                    weeks: int = 22, margin: float = 1.5, period: str = "season") -> dict:
+    """`period` says WHAT RESETS AND WHEN — "season", "month", "day" or "hour".
+
+    A 500-credit allowance means completely different things monthly and
+    once-ever, and comparing a MONTHLY allowance against a SEASON requirement is
+    a units error that would call a comfortable source infeasible (or the
+    reverse). Part 2 asks how consumption is measured and what resets it; this is
+    where that answer changes the verdict rather than sitting in a note.
+    """
+
+    """Season feasible, yes or no, WITH THE ARITHMETIC and a safety margin.
+
+    The margin is not decoration: an allowance that exactly covers a perfect
+    season covers nothing the first week a call needs a retry.
+    """
+    PER_PERIOD = {"season": weeks, "month": 4.35, "week": 1.0, "day": 1 / 7, "hour": 1 / 168}
+    span = PER_PERIOD.get(period)
+    if span is None:
+        return {"season_feasible": None, "why": f"unknown allowance period {period!r}"}
+    # Compare like with like: what the allowance funds IN ONE PERIOD against what
+    # one period actually costs.
+    need_per_period = credits_per_snap * snaps_per_week * span
+    need = credits_per_snap * snaps_per_week * weeks
+    need_with_margin = int(need_per_period * margin) or 1
+    return {
+        "allowance": allowance, "allowance_period": period,
+        "credits_per_snapshot": credits_per_snap,
+        "snapshots_per_week": snaps_per_week, "weeks": weeks,
+        "credits_needed_whole_season": need,
+        "credits_needed_per_period": round(need_per_period, 1),
+        "safety_margin": margin,
+        "credits_needed_per_period_with_margin": need_with_margin,
+        "season_feasible": allowance >= need_with_margin,
+        "arithmetic": (f"{credits_per_snap} credits/snapshot x {snaps_per_week}/wk "
+                       f"x {span:.2f} wk-per-{period} = {need_per_period:.1f}, "
+                       f"x{margin} margin = {need_with_margin} vs {allowance} per {period} "
+                       f"(whole season would be {need})"),
     }
 
 
@@ -216,10 +302,47 @@ def probe() -> dict:                                        # pragma: no cover (
     except Exception as e:                                  # noqa: BLE001
         out["errors"]["kalshi"] = f"{type(e).__name__}: {e}"
 
+    # ── ODDS-API.IO — priority 1: published free tier needs no card ────────
+    # Probed WITHOUT a key first, because the question "is the free tier usable
+    # without payment" is answered by trying it, not by reading the pricing page.
+    c = CANDIDATES["odds_api_io"]
+    io = {"host": c["host"], "docs": c["docs"],
+          "published_free_tier": c["published_free_tier"]}
+    try:
+        data, hdrs = get(f"{c['host']}/sports")
+        io.update(reachable=True, needs_key=False,
+                  payload_keys=sorted(data.keys()) if isinstance(data, dict) else "list",
+                  rate_headers={k: v for k, v in hdrs.items()
+                                if "limit" in k.lower() or "remain" in k.lower()})
+    except Exception as e:                                  # noqa: BLE001
+        # A 401 is a FINDING (key required), not a failure. Distinguish them.
+        code = getattr(e, "code", None)
+        io.update(reachable=(code is not None), needs_key=(code in (401, 403)),
+                  status=code, error=f"{type(e).__name__}: {e}")
+    out["sources"]["odds_api_io"] = io
+
+    # ── PARLAYAPI — priority 3: probed, NOT built against ──────────────────
+    c = CANDIDATES["parlayapi"]
+    pa = {"host": c["host"], "docs": c["docs"], "note": c["note"]}
+    try:
+        # llms.txt is the cheapest possible existence check and tells us whether
+        # the provider really is designed for programmatic consumption.
+        import urllib.request as _u
+        req = _u.Request(c["docs"].rstrip("/") + "/llms.txt",
+                         headers={"user-agent": "mfga-market-probe"})
+        with _u.urlopen(req, timeout=20) as r:
+            body = r.read(4000).decode("utf-8", "replace")
+        pa.update(reachable=True, llms_txt=True, llms_txt_head=body[:400])
+    except Exception as e:                                  # noqa: BLE001
+        pa.update(reachable=False, llms_txt=False, error=f"{type(e).__name__}: {e}")
+    out["sources"]["parlayapi"] = pa
+
     # ── THE ODDS API — needs a key; ABSENCE IS A FINDING, not a failure ─────
     key = os.environ.get("ODDS_API_KEY", "").strip()
     if not key:
         out["sources"]["odds_api"] = {
+            "host": CANDIDATES["the_odds_api_com"]["host"],
+            "docs": CANDIDATES["the_odds_api_com"]["docs"],
             "reachable": None, "key_configured": False,
             "note": "no ODDS_API_KEY secret is configured, so the free-tier allowance "
                     "could not be measured. This is a SETUP gap, not evidence the "
