@@ -68,5 +68,20 @@ ck('#search-tail collapses when it has no content',
   /#search-tail:empty\s*\{[^}]*display:\s*none/.test(css),
   'empty search tail not collapsed — a blank box shows on an available-player search');
 
+// DECLUTTER GUARD (Cory "too busy"): the recommendation must sit ABOVE THE PLAN
+// and WATCH in the flex order — a future shell edit that pushes it back down
+// (rec was buried 416px on main) fails here. Parse the .wr-zone1 > #X { order: N }.
+const orderOf = id => { const m = css.match(new RegExp('\\.wr-zone1\\s*>\\s*#' + id + '\\s*\\{[^}]*order:\\s*(\\d+)')); return m ? Number(m[1]) : null; };
+const recOrd = orderOf('recs-card'), planOrd = orderOf('doctrine-banner'), watchOrd = orderOf('legality-strip');
+ck('the recommendation is ordered ABOVE THE PLAN and WATCH (rec-to-top)',
+  recOrd != null && planOrd != null && watchOrd != null && recOrd < planOrd && recOrd < watchOrd,
+  `recs:${recOrd} plan:${planOrd} watch:${watchOrd} — rec must be the smallest`);
+
+// The duplicate MVS surface stays hidden on the war room (it restated four other
+// surfaces; 302px of noise Cory flagged).
+ck('the duplicate MVS surface is hidden on the war room',
+  /body\.warroom-page\s+#mvs\s*\{[^}]*display:\s*none/.test(css),
+  'MVS no longer hidden — the 302px duplicate is back on the decide surface');
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
