@@ -5,6 +5,184 @@
     "11306"
   ],
   "endpoints": {
+    "allRules": {
+      "observed": 1,
+      "shape": {
+        "$": {
+          "always_present": true,
+          "keys": [
+            "allRules",
+            "encoding",
+            "version"
+          ],
+          "of": 1,
+          "seen_in": 1,
+          "types": [
+            "object"
+          ]
+        },
+        "$.allRules": {
+          "always_present": true,
+          "keys": [
+            "rule"
+          ],
+          "of": 1,
+          "seen_in": 1,
+          "types": [
+            "object"
+          ]
+        },
+        "$.allRules.rule": {
+          "always_present": true,
+          "len_range": [
+            153,
+            153
+          ],
+          "of": 1,
+          "seen_in": 1,
+          "types": [
+            "array"
+          ]
+        },
+        "$.allRules.rule[0]": {
+          "always_present": true,
+          "keys": [
+            "abbreviation",
+            "detailedDescription",
+            "isCoach",
+            "isPlayer",
+            "isTeam",
+            "shortDescription"
+          ],
+          "of": 1,
+          "seen_in": 1,
+          "types": [
+            "object"
+          ]
+        },
+        "$.allRules.rule[0].abbreviation": {
+          "always_present": true,
+          "keys": [
+            "$t"
+          ],
+          "of": 1,
+          "seen_in": 1,
+          "types": [
+            "object"
+          ]
+        },
+        "$.allRules.rule[0].abbreviation.$t": {
+          "always_present": true,
+          "of": 1,
+          "samples": [
+            "#P"
+          ],
+          "seen_in": 1,
+          "types": [
+            "str"
+          ]
+        },
+        "$.allRules.rule[0].detailedDescription": {
+          "always_present": true,
+          "keys": [
+            "$t"
+          ],
+          "of": 1,
+          "seen_in": 1,
+          "types": [
+            "object"
+          ]
+        },
+        "$.allRules.rule[0].detailedDescription.$t": {
+          "always_present": true,
+          "of": 1,
+          "samples": [
+            "This is the total number of Passing TDs \u2026"
+          ],
+          "seen_in": 1,
+          "types": [
+            "str"
+          ]
+        },
+        "$.allRules.rule[0].isCoach": {
+          "always_present": true,
+          "of": 1,
+          "samples": [
+            "0"
+          ],
+          "seen_in": 1,
+          "types": [
+            "str"
+          ]
+        },
+        "$.allRules.rule[0].isPlayer": {
+          "always_present": true,
+          "of": 1,
+          "samples": [
+            "1"
+          ],
+          "seen_in": 1,
+          "types": [
+            "str"
+          ]
+        },
+        "$.allRules.rule[0].isTeam": {
+          "always_present": true,
+          "of": 1,
+          "samples": [
+            "1"
+          ],
+          "seen_in": 1,
+          "types": [
+            "str"
+          ]
+        },
+        "$.allRules.rule[0].shortDescription": {
+          "always_present": true,
+          "keys": [
+            "$t"
+          ],
+          "of": 1,
+          "seen_in": 1,
+          "types": [
+            "object"
+          ]
+        },
+        "$.allRules.rule[0].shortDescription.$t": {
+          "always_present": true,
+          "of": 1,
+          "samples": [
+            "Number of Passing TDs"
+          ],
+          "seen_in": 1,
+          "types": [
+            "str"
+          ]
+        },
+        "$.encoding": {
+          "always_present": true,
+          "of": 1,
+          "samples": [
+            "utf-8"
+          ],
+          "seen_in": 1,
+          "types": [
+            "str"
+          ]
+        },
+        "$.version": {
+          "always_present": true,
+          "of": 1,
+          "samples": [
+            "1.0"
+          ],
+          "seen_in": 1,
+          "types": [
+            "str"
+          ]
+        }
+      }
+    },
     "draftResults": {
       "observed": 3,
       "shape": {
@@ -1510,7 +1688,7 @@
           "always_present": false,
           "of": 3,
           "samples": [
-            "Def",
+            "QB|RB",
             "TE"
           ],
           "seen_in": 2,
@@ -1526,8 +1704,8 @@
             "range"
           ],
           "len_range": [
-            17,
-            17
+            28,
+            28
           ],
           "of": 3,
           "seen_in": 2,
@@ -1630,7 +1808,7 @@
           "always_present": false,
           "of": 3,
           "samples": [
-            "FC"
+            "#P"
           ],
           "seen_in": 1,
           "types": [
@@ -1652,7 +1830,7 @@
           "always_present": false,
           "of": 3,
           "samples": [
-            "*2"
+            "*6"
           ],
           "seen_in": 1,
           "types": [
@@ -1698,5 +1876,160 @@
     }
   },
   "errors": {},
+  "event_codes": {
+    "{'$t': '#A'}": "{'$t': 'This is the total number of field goal attempts in a game.'}",
+    "{'$t': '#BF'}": "{'$t': 'This is the number of blocked field goals that are returned all the way for a TD. ",
+    "{'$t': '#BP'}": "{'$t': 'This is the number of blocked punts that are returned all the way for a TD.  The p",
+    "{'$t': '#C'}": "{'$t': 'This is the total number of Receiving TDs in a game by a player or team.'}",
+    "{'$t': '#D'}": "{'$t': 'This is the total number of Defensive TDs scored.  It includes Interception Return",
+    "{'$t': '#DR'}": "{'$t': \"This is the number of fumble recoveries that are returned all the way for a TD.  T",
+    "{'$t': '#F'}": "{'$t': 'This is the number of successful field goals in a game.'}",
+    "{'$t': '#FR'}": "{'$t': \"This is the number of fumble recoveries that are returned all the way for a TD aft",
+    "{'$t': '#FT'}": "{'$t': 'This is the number of fumbles lost by a player in a game that are returned all the",
+    "{'$t': '#IR'}": "{'$t': 'This is the number of interceptions in a game that are returned all the way for a ",
+    "{'$t': '#IT'}": "{'$t': 'This is the number of pass interceptions that a player throws in a game that end u",
+    "{'$t': '#K'}": "{'$t': 'This is the number of kickoff returns in a game.'}",
+    "{'$t': '#KT'}": "{'$t': 'This is the number of kickoff returns in a game that are returned all the way for ",
+    "{'$t': '#M'}": "{'$t': \"This is the number of missed field goals in a game.  This includes field goal atte",
+    "{'$t': '#MF'}": "{'$t': 'This is the number of missed field goals in a game that are returned all the way f",
+    "{'$t': '#N'}": "{'$t': 'This is the number of punts in a game.  It does not include punt attempts that wer",
+    "{'$t': '#P'}": "{'$t': 'This is the total number of Passing TDs in a game by a player or team.'}",
+    "{'$t': '#R'}": "{'$t': 'This is the total number of Rushing TDs in a game by a player or team.'}",
+    "{'$t': '#T'}": "{'$t': 'This is the number of Defensive and Special Teams TDs scored. It includes Intercep",
+    "{'$t': '#TD'}": "{'$t': 'This is the Total Number of TDs scored by a player or team.  It includes all types",
+    "{'$t': '#U'}": "{'$t': 'This is the number of punt returns in a game.'}",
+    "{'$t': '#UT'}": "{'$t': 'This is the number of punt returns in a game that are returned all the way for a T",
+    "{'$t': '1C'}": "{'$t': 'This is the number of Receiving First Downs gained by the player.'}",
+    "{'$t': '1F'}": "{'$t': 'This is the number of First Downs gained because of Penalties.'}",
+    "{'$t': '1P'}": "{'$t': 'This is the number of Passing First Downs gained by the team or player.'}",
+    "{'$t': '1R'}": "{'$t': 'This is the number of Rushing First Downs gained by the team or player.'}",
+    "{'$t': '3D'}": "{'$t': 'This is the number of successful third down conversions by the entire team.'}",
+    "{'$t': '3F'}": "{'$t': 'This is the number of failed third down conversion attempts by the entire team.'}",
+    "{'$t': '4D'}": "{'$t': 'This is the number of successful fourth down conversions by the entire team.'}",
+    "{'$t': '4F'}": "{'$t': 'This is the number of failed fourth down conversion attempts by the entire team.'}",
+    "{'$t': 'ACY'}": "{'$t': 'This is the total receiving yardage divided by the number of receptions in a game.",
+    "{'$t': 'AKY'}": "{'$t': 'This is the total kickoff return yardage divided by the number of kickoff returns.",
+    "{'$t': 'ANY'}": "{'$t': 'The is the total punt yardage divided by the number of punts.'}",
+    "{'$t': 'APY'}": "{'$t': 'This is the total passing yardage divided by the number of pass completions in a g",
+    "{'$t': 'APYAG'}": "{'$t': 'Average Passing Yards Allowed per Game'}",
+    "{'$t': 'APYAR'}": "{'$t': 'Passing Defense Rank'}",
+    "{'$t': 'ARY'}": "{'$t': 'This is the total rushing yardage divided by the number of rush attempts in a game",
+    "{'$t': 'ARYAG'}": "{'$t': 'Average Rushing Yards Allowed per Game'}",
+    "{'$t': 'ARYAR'}": "{'$t': 'Rushing Defense Rank'}",
+    "{'$t': 'AS'}": "{'$t': 'This is the total number of assisted tackles in a game by a player.  It includes a",
+    "{'$t': 'AS2'}": "{'$t': 'Assists Divided by 2'}",
+    "{'$t': 'ASD'}": "{'$t': 'This is the number of assisted tackles in a game by a defensive player.  It does n",
+    "{'$t': 'AUY'}": "{'$t': 'This is the total punt return yardage divided by the number of punt returns.'}",
+    "{'$t': 'BF'}": "{'$t': 'This is the length in yards of a blocked field goal TD.  This rule is evaluated fo",
+    "{'$t': 'BLE'}": "{'$t': 'This is the number of extra point attempts that are blocked by a defensive player ",
+    "{'$t': 'BLF'}": "{'$t': 'This is the number of field goal attempts in a game that are blocked by a defensiv",
+    "{'$t': 'BLP'}": "{'$t': 'This is the number of punt attempts in a game that are blocked by a defensive play",
+    "{'$t': 'BP'}": "{'$t': 'This is the length in yards of a blocked punt TD.  This rule is evaluated for EACH",
+    "{'$t': 'C2'}": "{'$t': 'This is the number of successful two point conversion receptions in a game by a pl",
+    "{'$t': 'C20'}": "{'$t': 'This is the number of receptions in a game that result in a gain of 20 or more yar",
+    "{'$t': 'C40'}": "{'$t': 'This is the number of receptions in a game that result in a gain of 40 or more yar",
+    "{'$t': 'CC'}": "{'$t': 'This is the number of receptions in a game.'}",
+    "{'$t': 'CY'}": "{'$t': 'This is the total receiving yardage in a game.'}",
+    "{'$t': 'D2'}": "{'$t': 'This is the number of defensive two point conversion returns in a game.  This can ",
+    "{'$t': 'DD'}": "{'$t': 'This is the length in yards of a Defensive TD.  It includes Interception Return TD",
+    "{'$t': 'DIF'}": "{'$t': 'This is the difference in score between the team and the opponent.  It can be posi",
+    "{'$t': 'DR'}": "{'$t': 'This is the length in yards of a defensive or special teams fumble recovery TD.  T",
+    "{'$t': 'EA'}": "{'$t': 'This is the number of extra points attempted in a game.'}",
+    "{'$t': 'EM'}": "{'$t': 'This is the number of missed extra points in a game.  This includes extra point at",
+    "{'$t': 'EP'}": "{'$t': 'This is the number of successful extra points in a game.'}",
+    "{'$t': 'EPP'}": "{'$t': 'This is the number of successful extra points divided by the total number of extra",
+    "{'$t': 'F'}": "{'$t': 'This is the total number of penalties for the team or player.  It is not divided b",
+    "{'$t': 'F2'}": "{'$t': 'This is the total number of failed two point conversion attempts.'}",
+    "{'$t': 'FC'}": "{'$t': \"This is the total number of fumbles that are recovered by a player or team.  This ",
+    "{'$t': 'FCD'}": "{'$t': 'This is the total number of fumbles that are recovered by a player or team while o",
+    "{'$t': 'FCS'}": "{'$t': 'This is the total number of fumbles that are recovered by a player or team while o",
+    "{'$t': 'FCY'}": "{'$t': 'This is the total number of yards that a player or team returned the ball after re",
+    "{'$t': 'FD'}": "{'$t': 'This is the total number of First Downs for the team or player.'}",
+    "{'$t': 'FF'}": "{'$t': 'This is the number of Forced Fumbles by a player in a game.'}",
+    "{'$t': 'FG'}": "{'$t': 'This is the length in yards of a successful field goal.  This rule is evaluated fo",
+    "{'$t': 'FGP'}": "{'$t': 'This is the number of successful field goals divided by the total number of field ",
+    "{'$t': 'FL'}": "{'$t': \"This is the total number of fumbles by a player or team that end up being recovere",
+    "{'$t': 'FLD'}": "{'$t': 'Includes anytime a player or team fumbles (and the opposing team recovers) while o",
+    "{'$t': 'FLO'}": "{'$t': 'Includes anytime a player or team fumbles (and the opposing team recovers) while o",
+    "{'$t': 'FLS'}": "{'$t': 'Includes anytime a player or team fumbles (and the opposing team recovers) while o",
+    "{'$t': 'FR'}": "{'$t': \"This is the length in yards of an offensive fumble recovery that is returned all t",
+    "{'$t': 'FT'}": "{'$t': 'This is the length in yards of a lost fumble that ends up being returned all the w",
+    "{'$t': 'FU'}": "{'$t': 'This is the total number of fumbles by a player or a team in a game.  This include",
+    "{'$t': 'FUD'}": "{'$t': 'Includes anytime a player or team fumbles while on defense.'}",
+    "{'$t': 'FUO'}": "{'$t': 'Includes anytime a player or team fumbles while on offense.'}",
+    "{'$t': 'FUS'}": "{'$t': 'Includes anytime a player or team fumbles while on special teams.'}",
+    "{'$t': 'FY'}": "{'$t': 'This is the total yardage lost on all of the penalties by the team or player.  Not",
+    "{'$t': 'HBE'}": "{'$t': 'This is the number of extra points in a game that a kicker had blocked.'}",
+    "{'$t': 'HBF'}": "{'$t': 'This is the total number of field goal attempts in a game that a kicker had blocke",
+    "{'$t': 'HBP'}": "{'$t': 'This is the number of punts in a game that a punter had blocked by the opponent.'}",
+    "{'$t': 'IC'}": "{'$t': 'This is the number of interceptions by a defensive player or team defense in a gam",
+    "{'$t': 'ICY'}": "{'$t': 'This is the total return yardage by a player or team after an interception.'}",
+    "{'$t': 'IN'}": "{'$t': 'This is the number of pass interceptions thrown by a player in a game.  Do not use",
+    "{'$t': 'INC'}": "{'$t': 'This is the number of incomplete passes in a game.  This includes Interceptions.'}",
+    "{'$t': 'IR'}": "{'$t': 'This is the length in yards of an interception return TD.  This rule is evaluated ",
+    "{'$t': 'IT'}": "{'$t': 'This is the length in yards of a pass interception that ends up begin returned all",
+    "{'$t': 'K40'}": "{'$t': 'This is the number of kickoff returns in a game that result in a gain of 40 or mor",
+    "{'$t': 'KO'}": "{'$t': 'This is the length in yards of a kickoff return TD.  This rule is evaluated for EA",
+    "{'$t': 'KY'}": "{'$t': 'This is the total kickoff return yardage in a game.'}",
+    "{'$t': 'L'}": "{'$t': 'This is the number of losses a coach has.'}",
+    "{'$t': 'M2'}": "{'$t': 'This is the total number of successful two point conversions.'}",
+    "{'$t': 'MF'}": "{'$t': 'This is the length in yards of a missed field goal return TD. This rule is evaluat",
+    "{'$t': 'MG'}": "{'$t': 'This is the length in yards of a missed field goal attempt.  This rule is evaluate",
+    "{'$t': 'OFC'}": "{'$t': \"This is the number of own fumble recoveries.  This ONLY includes fumbles that are ",
+    "{'$t': 'OFCY'}": "{'$t': \"This is the total yardage all offensive fumble recoveries.  This ONLY includes fum",
+    "{'$t': 'OPA'}": "{'$t': 'This is the points scored against a team on Offense, which only includes points sc",
+    "{'$t': 'OPS'}": "{'$t': 'This is the offensive points scored by a team.  It includes Passing and Rushing TD",
+    "{'$t': 'OTA'}": "{'$t': 'This is the total number of TDs allowed on Offense, which only includes Passing an",
+    "{'$t': 'P2'}": "{'$t': 'This is the number of successful two point conversion passes in a game by a player",
+    "{'$t': 'P20'}": "{'$t': 'This is the number of pass completions in a game that result in a gain of 20 or mo",
+    "{'$t': 'P30'}": "{'$t': 'This is the number of pass completions in a game that result in a gain of 30 or mo",
+    "{'$t': 'P40'}": "{'$t': 'This is the number of pass completions in a game that result in a gain of 40 or mo",
+    "{'$t': 'P50'}": "{'$t': 'This is the number of pass completions in a game that result in a gain of 50 or mo",
+    "{'$t': 'PA'}": "{'$t': 'This is the number of pass attempts in a game.  It usually applies to the QB posit",
+    "{'$t': 'PC'}": "{'$t': 'The is the number of pass completions in a game.  It usually applies to the QB pos",
+    "{'$t': 'PCP'}": "{'$t': 'This is the number of pass completions in a game divided by the total number of pa",
+    "{'$t': 'PD'}": "{'$t': 'This is the number of time a defensive player breaks up a pass, either by knocking",
+    "{'$t': 'PI'}": "{'$t': \"This is the number of punts that end up inside the opponent's 20 yard line.\"}",
+    "{'$t': 'PNY'}": "{'$t': 'This is the GROSS punt yardage in a game.'}",
+    "{'$t': 'PR'}": "{'$t': 'This is the length in yards of a punt return TD.  This rule is evaluated for EACH ",
+    "{'$t': 'PRY'}": "{'$t': 'This is the total Passing plus Rushing yards'}",
+    "{'$t': 'PS'}": "{'$t': 'This is the length in yards of a passing TD in a game.  This rule is evaluated for",
+    "{'$t': 'PY'}": "{'$t': 'This is the total passing yardage in a game.  For individual player positions like",
+    "{'$t': 'QH'}": "{'$t': 'This is the number of times a defensive player makes a hit on a Quarterback behind",
+    "{'$t': 'R2'}": "{'$t': 'This is the number of successful two point conversion rushes in a game by a player",
+    "{'$t': 'R20'}": "{'$t': 'This is the number of rush attempts in a game that result in a gain of 20 or more ",
+    "{'$t': 'R40'}": "{'$t': 'This is the number of rush attempts in a game that result in a gain of 40 or more ",
+    "{'$t': 'RA'}": "{'$t': 'This is the number of rush attempts in a game.'}",
+    "{'$t': 'RATE'}": "{'$t': 'Passer Rating'}",
+    "{'$t': 'RC'}": "{'$t': 'This is the length in yards of a Receiving TD.  This rule is evaluated for EACH re",
+    "{'$t': 'RCY'}": "{'$t': 'This is the total Rushing plus Receiving Yards'}",
+    "{'$t': 'RS'}": "{'$t': 'This is the length in yards of a Rushing TD.  This rule is evaluated for EACH rush",
+    "{'$t': 'RY'}": "{'$t': 'This is the total rushing yardage in a game.'}",
+    "{'$t': 'SF'}": "{'$t': 'This is the total number of Safeties in a game by a defensive player or a team def",
+    "{'$t': 'SF1'}": "{'$t': 'This is the number of one point safeties in a game.  This can be scored on a 2-poi",
+    "{'$t': 'SK'}": "{'$t': 'This is the number of sacks in a game by a defensive player or the team defense po",
+    "{'$t': 'SKY'}": "{'$t': 'This is the total lost yardage of the sacks in a game by a defensive player or a t",
+    "{'$t': 'STPA'}": "{'$t': 'This is the points scored against a team on Special Teams, which only includes poi",
+    "{'$t': 'STTA'}": "{'$t': 'This is the total number of TDs allowed on Special Teams, which only includes Punt",
+    "{'$t': 'T'}": "{'$t': 'This is the number of ties a coach has.'}",
+    "{'$t': 'TGT'}": "{'$t': 'This is the number of times the player was targeted as the intended receiver on a ",
+    "{'$t': 'TIME'}": "{'$t': 'This is the time of possession in minutes for a team.'}",
+    "{'$t': 'TK'}": "{'$t': 'This is the total number of tackles in a game by a player.  It includes tackles by",
+    "{'$t': 'TKD'}": "{'$t': 'This is the number of tackles in a game by a defensive player.  It does not includ",
+    "{'$t': 'TKL'}": "{'$t': 'This is the number of Tackles for a Loss in a game by a defensive player. This sta",
+    "{'$t': 'TPA'}": "{'$t': 'This is the total points scored against a team in a game.  (This matches the score",
+    "{'$t': 'TPS'}": "{'$t': 'This is the total points scored by a team.'}",
+    "{'$t': 'TSK'}": "{'$t': 'This is the number of times a QB is sacked in a game.  It can also be used for tea",
+    "{'$t': 'TSY'}": "{'$t': 'This is the total sack yards lost by a QB in a game.  It can also be used for team",
+    "{'$t': 'TT'}": "{'$t': 'This is the length in yards of a Defensive or Special Teams TD. It includes Interc",
+    "{'$t': 'TY'}": "{'$t': 'This is the total yards.  It includes Passing, Rushing, Receiving, Punt Return, an",
+    "{'$t': 'TYA'}": "{'$t': 'This is the total yardage allowed by a team in a game.'}",
+    "{'$t': 'TYP'}": "{'$t': 'This the total passing yardage allowed by a team in a game.'}",
+    "{'$t': 'TYR'}": "{'$t': 'This is the total rushing yardage allowed by a team in a game.'}",
+    "{'$t': 'TYS'}": "{'$t': 'This is the total yards from scrimmage.  It include Passing, Rushing, and Receivin",
+    "{'$t': 'U40'}": "{'$t': 'This is the number of punt returns in a game that result in a gain of 40 or more y",
+    "{'$t': 'UY'}": "{'$t': 'This is the total punt return yardage in a game.'}",
+    "{'$t': 'W'}": "{'$t': 'This is the number of wins a coach has.'}"
+  },
   "year": 2025
 }
