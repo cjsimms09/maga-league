@@ -174,6 +174,45 @@ because it turns thin findings into real ones.
 
 ---
 
+## RULE 9 — PROCESS MUST EARN ITS KEEP (outranks the other eight)
+
+**THE TEST: has this rule or layer produced more protection or more graded signal than
+the attention it consumes? If not, simplify or suspend it.** This is the only rule that can
+REMOVE rules, and without it the constitution can only grow. **It applies to itself.**
+
+Eight rules plus a gate plus a frozen baseline plus a shadow layer plus the proxy plus
+override logging plus pre-registration is a great deal of machinery for a system whose
+measured edge is a few hundred dollars a season on a thin sample. **The failure mode above
+all the individual protections is a system so procedurally heavy that SATISFYING THE RULES
+BECOMES THE WORK** — worse than any corruption the rules prevent, because it is
+self-inflicted and slow enough that nobody calls it a failure.
+
+**PREFER "THIS MUST BE TRUE" OVER "THIS MUST SPAWN A RECURRING WORKSTREAM."** A rule
+constraining how evidence is handled is nearly free. A rule spawning a process has an ongoing
+cost and must justify it.
+
+**THE DISTINCTION THAT ACTUALLY MATTERS (my amendment, and it changes the sums).** The
+expensive axis is not rule-vs-workstream, it is **enforced-by-a-machine-that-runs-anyway vs
+requires-human-attention-on-a-schedule**. A CI assertion costs seconds of compute and zero
+attention no matter how many there are; a review cadence spends the only scarce resource in
+this project. So the right move when a rule needs teeth is almost always to make it an
+assertion in a suite that already runs, NOT a new recurring obligation. Most of what is built
+is already the cheap kind, and that is why the constitution is affordable — not because it is
+small.
+
+**THE STANDING CHECK.** At every review cycle, apply rule 9 to the constitution: report which
+rules have actually FIRED — caught something, prevented something, changed a decision — and
+which have only been complied with. A rule that has never fired is redundant, too abstract to
+act on, or wrong. This is the test that found PushNotification had never fired once in its
+existence.
+
+> **FIRST AUDIT, 2026-08-10 (see the ledger below for detail).** Of the eight: five are
+> binding statements costing nothing ongoing, two are now enforced by assertions in a suite
+> that already runs, and one (rule 5) was genuinely overweight as written and has been cut
+> down. Three pieces of machinery I had proposed were killed outright before being built.
+
+---
+
 ## THE EIGHT BINDING RULES (constitutional — not judgment calls)
 
 Cory, 2026-08-10, three parties converged. **These are rules, not tasks.** They are in force
@@ -228,15 +267,23 @@ data turns a clean sample into a confirmation machine. **Escape hatch:** some fi
 become obvious on first contact (data quality, incomplete drafts, extreme format mismatch).
 Changing one is a NEW pre-registration with the old recorded, never a quiet adjustment.
 
-**5. PROTECTIONS MUST BE REACHABLE UNDER REAL CONDITIONS, REPEATEDLY.** Every protection is
-demonstrated under the conditions it exists for, and re-demonstrated periodically. The revert
-is tested **from a phone, not a terminal**. A regression failure is deliberately triggered to
-confirm it **blocks rather than warns**. The baseline comparison is checked **after** a
-deploy, not before. A protection that exists in code but is unreachable or ignorable under
-real conditions is decorative — and this week produced four guards that existed and did not
-guard: a fixture that could not fail, a CI step aborting before most of the suite ran, a test
-asserting the bug it should have caught, and a materiality gate collapsed by a null coercion.
-A revert demonstrated in August may not work in January; this is a recurring obligation.
+**5. PROTECTIONS MUST BE DEMONSTRATED TO FIRE, NOT ASSUMED TO.** A protection that exists in
+code but is unreachable or ignorable under real conditions is decorative — this week produced
+four guards that existed and did not guard: a fixture that could not fail, a CI step aborting
+before most of the suite ran, a test asserting the bug it should have caught, and a
+materiality gate collapsed by a null coercion.
+> **CUT DOWN UNDER RULE 9 (2026-08-10).** As first written this said "re-demonstrated
+> periodically" — a recurring calendar obligation with no natural trigger, which is exactly
+> the shape rule 9 forbids. It is now **trigger-based and mostly free**:
+> - **When you build or change a guard, break it once** and watch it fail. ~2 minutes, done at
+>   the moment you already have the context. This is already habit (C1, the baseline, rule 7)
+>   and it has FIRED — breaking the rule-7 guard revealed it was whitelisting one exact phrase
+>   rather than the actual rule.
+> - **Anything automatable belongs in the suite that already runs**, not in a drill. Zero
+>   marginal attention.
+> - **The ONE thing that cannot be automated is the phone test of the revert**, and that is
+>   Cory's action, once, before the 22nd — not a standing workstream.
+> No calendar. No periodic re-demonstration ritual.
 
 **6. THE WRITTEN RULES AND THE RUNNING SYSTEM MUST NOT DIVERGE.** Any change affecting
 **recommendation behaviour** either updates the frozen baseline reference or explicitly
@@ -268,6 +315,38 @@ inclusion: if calibration is poor on a channel, that is the first line. This is 
 of the NARRATIVE rather than of the data, a distinct category — and it is the failure mode a
 self-reporting system is most prone to, because the model writes its own reports and Cory is
 the only one who reads them.
+
+---
+
+### RULE 9 AUDIT OF THE EIGHT — cost, and whether it has FIRED (2026-08-10)
+
+| # | rule | kind | ongoing cost | has it FIRED? |
+|---|---|---|---|---|
+| 1 | evidence purity | **statement** | none | **yes** — the Sleeper-projection retraction; and it flagged my own borderline channel-adding in the stack test |
+| 2 | overrides as data | statement + **grader** | ~none until data exists | not yet (empty ledger) — pre-positioned for unrecoverable draft-night data |
+| 3 | proxy stays diagnostic | **statement** | none | **yes** — kept the tournament's proxy re-ranking as evidence rather than a promotion |
+| 4 | pre-registered filters | **statement** | none | n/a — no external ingest exists yet |
+| 5 | protections must fire | **habit** (was a drill) | ~2 min when building a guard | **yes** — breaking the rule-7 guard exposed it was too narrow |
+| 6 | no doc/code divergence | statement + **CI assertion** | zero (automated) | **yes** — three reviewers misread the ceiling weight from a stale spec |
+| 7 | language discipline | **CI assertion** | zero (automated) | **yes** — found four live violations; now blocks a relapse |
+| 8 | lead with failures | **statement** | none | **yes** — the stack test reported "cannot resolve" instead of a flattering null |
+
+**Five statements, two automated assertions, one cheap habit. Nothing on a calendar.**
+
+**THREE PIECES OF MACHINERY KILLED BEFORE BEING BUILT** (I proposed all three; rule 9 says
+they do not earn it):
+- ~~`draft/preregistration/` directory with dated superseded versions~~ → a dated section in
+  the ingest's own doc. Zero ingests exist; a directory structure for none is ceremony.
+- ~~a recurring reachability drill~~ → the trigger-based habit in rule 5 above.
+- ~~a report template that orders failures first~~ → rule 8 IS the instruction. A template to
+  enforce a one-line writing habit is process for its own sake.
+
+**MY HONEST READ ON WHAT IS STILL HEAVIEST.** Not any of the eight — it is the **shadow
+layer**, and it has not been built. Its cost is real (a decision-time hook, a registry, a
+review cycle, a multiplicity guard) and its expected value at three seasons of one seat is
+low by our own measurement. It stays parked at thin infrastructure until the ingest, and
+**if even the thin version generates more process than signal, it gets parked entirely** —
+that is rule 9 applied before the spend, not after.
 
 ---
 
