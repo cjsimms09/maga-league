@@ -1405,7 +1405,10 @@ check('weight sliders change the ranking', heavyCeiling[0].score !== scored[0].s
     `tier=${m.tier} risk=${m.risk}`);
   check('measured: stack at 0.5 (the one adjuster that earned)', m.stack === 0.5, String(m.stack));
   check('measured: need at 0 (inert by mask redundancy — settled)', m.need === 0, String(m.need));
-  check('measured: ceiling kept at 0.65, not zeroed', m.ceiling === 0.65, String(m.ceiling));
+  check('measured: ceiling SETTLED TO ZERO — the ledger measured -4.8 [-26,+17], a sign we '
+    + 'cannot distinguish from zero, yet at 0.65 it decided a third of late #1s (flip diag). '
+    + 'The weekly-payout lean lives in the same-tier tiebreak + Ceiling Chase doctrine now.',
+    m.ceiling === 0, String(m.ceiling));
   check('measured: bye OFF (a real null)', m.bye === 0, String(m.bye));
   // it must be a real, selectable preset AND the thing matchPreset names it
   const preset = E.WEIGHT_PRESETS.find(p => p.key === 'measured');

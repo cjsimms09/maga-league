@@ -257,8 +257,18 @@
    *                   the startable-cap MASK (which IS the need mechanism). Not "untested" —
    *                   unexplorable by this lever. Settled at 0 (the simpler number). The mask
    *                   still carries all of need; participation-rate probe, Cory-confirmed.
-   *   - ceiling 0.65: a real, separably-positive term at w~1.0 (single-run, replicate) —
-   *                   kept at its default rather than zeroed.
+   *   - ceiling 0     : SETTLED TO ZERO 2026-08-10 (Cory's call, reviewer-driven). The
+   *                   ledger's de-confounded measurement is ceiling -4.8 [-26, +17] — a
+   *                   sign we CANNOT distinguish from zero. Yet at 0.65 the flip diagnostic
+   *                   showed it deciding 2 of 6 late-round #1s and 4 of 6 top-5s: a third of
+   *                   the late board ridden by a term with no defensible sign. The 0.65 was a
+   *                   stale single-run guess that outlived its measurement (there was no gate
+   *                   between MEASURED and LOADED — the structural bug the graduation gate
+   *                   will close). At 0, late picks order by the VALUE ANCHOR + board = "best
+   *                   available late", which is the conventional answer and what "don't
+   *                   deviate without backing" demands. The weekly-payout ceiling LEAN is NOT
+   *                   lost: it lives in the same-tier CEILING TIEBREAK (acts only on genuine
+   *                   ties, where value is silent) and in the opt-in "Ceiling Chase" doctrine.
    *   - tier 0, risk 0 : measured DRAG — they pull picks off the value anchor toward a
    *                   mechanism no payout rewards (tier −$235, risk −$143 pooled), worst
    *                   in the early rounds where the anchor is strongest.
@@ -269,7 +279,7 @@
    * Magnitudes are MC-harness-tier; the SIGN/ordering is the robust claim. See
    * DECISIONS-NEEDED #3. Auto mode still carries its own (older, grid-guarded) phase
    * ramp — this is the DEFAULT the tool loads on, not a change to Auto. */
-  const MEASURED_WEIGHTS = { value: 1.0, tier: 0.0, need: 0.0, risk: 0.0, ceiling: 0.65,
+  const MEASURED_WEIGHTS = { value: 1.0, tier: 0.0, need: 0.0, risk: 0.0, ceiling: 0.0,
     keeper: 1.0, bye: 0.0, stack: 0.5 };
 
   /* Named strategies, as weight sets.
@@ -287,11 +297,16 @@
     {
       key: 'measured', label: 'Measured core',
       why: 'What the tool loads on, and what the Lab could actually MEASURE earning money: '
-        + 'rank off the board (value), a stack tilt (the one adjuster that earned), a light '
-        + 'need nudge on top of the always-on lineup MASK, and a modest ceiling. Tier and risk '
-        + 'are OFF — they measured as a drag, not a knob you are declining to turn. This is the '
-        + 'honest panel: the sliders that are near zero are near zero because they did nothing.',
-      weights: { value: 1.0, tier: 0.0, need: 0.0, risk: 0.0, ceiling: 0.65, keeper: 1.0, bye: 0.0, stack: 0.5 },
+        + 'rank off the board (value) and a stack tilt (the one adjuster that earned). Tier, '
+        + 'risk, need, bye AND ceiling are OFF — tier/risk measured as a drag, need is redundant '
+        + 'with the always-on lineup MASK, bye is a null, and ceiling could not be signed '
+        + '(-4.8 [-26,+17]) so it no longer decides late picks. This is the honest panel: the '
+        + 'sliders at zero are at zero because they did nothing.',
+      // ONE SOURCE OF TRUTH: reference MEASURED_WEIGHTS, never a second literal. A
+      // duplicated copy here is exactly how ceiling stayed 0.65 in one place after
+      // it was zeroed in the other (the two-places disease); matchPreset now compares
+      // against the same object it loads.
+      weights: MEASURED_WEIGHTS,
     },
     {
       key: 'balanced', label: 'Balanced',

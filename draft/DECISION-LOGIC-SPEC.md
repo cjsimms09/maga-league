@@ -162,7 +162,16 @@ is round 4, so ceiling stays off for my first ~5-6 picks and turns on for my las
 ~7 — which is the intended "throwaway rounds," but it keys off the room's
 progress, not mine. Whether it *should* key off my remaining picks instead is an
 open design question, noted not decided.
-- Weight: **ceiling = 0.65.** **[MEASURED]** as separably positive but **from a
+- Weight: **ceiling = 0 (SETTLED 2026-08-10).** The ledger's de-confounded
+  measurement is **−4.8 [−26, +17]** — a sign we cannot distinguish from zero.
+  It had been loaded at 0.65, and a flip diagnostic showed that deciding **2 of 6
+  late-round #1s and 4 of 6 top-5s** — a third of the late board ridden by a term
+  with no defensible sign. Zeroed: late picks now order by the value anchor + board
+  ("best available late"). The weekly-payout ceiling *lean* survives in the
+  same-tier **tiebreak** (genuine ties only) and the opt-in **Ceiling Chase**
+  doctrine. The stale 0.65 is a case study for the graduation gate (no gate existed
+  between MEASURED and LOADED). Prior note kept for the record: it was —
+- **[SUPERSEDED] Weight: ceiling = 0.65.** **[MEASURED]** as separably positive but **from a
   SINGLE run, not yet replicated** (review catch: the earlier "single-run,
   replicated" was self-contradictory — resolving it, ceiling is the *single-run*
   finding, `need`/`stack` are the replicated ones, so treat ceiling's positive
@@ -415,7 +424,7 @@ regular-season win's only value is moving you up those standings.
 `draft/backtest/matchup_value.py` measures it two ways that converge: the direct
 playoff-probability slope peaks at ~0.19 dP(playoff)/win at the 7-8-win bubble,
 which × ~$530 playoff-entry equity ≈ **$100**; and a flip-and-rerank Monte Carlo
-gives an ex-ante average of **$110**. Shipped default is now **$110**
+gives an ex-ante average of **$110**. Shipped default is $110 but the honest range is **\$70-110, UNSETTLED**
 **[MEASURED]** (one stated modelling input — the game-level win-probability
 spread — swept in the script). At $110 it is ≈ the $100 weekly-high, so **the two
 objectives are comparable** — not the 4:1 the old $25 implied, which had the tool
@@ -497,7 +506,7 @@ explained rather than silent.
 
 ### B5. The dual-objective tradeoff and how the lineup is chosen
 
-`matchupValue` defaults to **$110** **[MEASURED]** — playoff equity, derived in
+`matchupValue` = $110 in code but cite it as **\$70-110 (UNSETTLED)** — playoff equity, from
 B0 above — and this number *is the tradeoff dial.* It sets how many dollars a
 percentage point of win-probability is worth against the fixed **$100**
 weekly-high prize **[HARD-CODED, league rule]**. Raise it and the tool protects
@@ -560,7 +569,7 @@ agree by construction (shared config), not yet by learned feedback.
   spot shows up three times — here, in the money Monte-Carlo, and in why the stack
   finding needs a separate sweep).
 - Hill-climb, not exhaustive search (B5).
-- `matchupValue = $110` is now DERIVED (B0/B5), with one modelling input (the
+- `matchupValue` = $110 in code, cite $70-110 UNSETTLED (B0/B5), with one modelling input (the
   game-level strength spread) still to be pinned against real standings.
 - Opponent variance is a flat 24 (B4).
 - No calendar beyond the injury/bye guard — it trusts the projection feed's weekly
