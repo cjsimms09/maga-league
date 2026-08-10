@@ -1204,8 +1204,16 @@
     // ONE coordinate, live — never state.data.current_pick (baked at build, stale),
     // which is what made this card disagree with the status bar.
     $('#clock-pick').textContent = pickCoordinate().current || '—';
-    $('#clock-name').innerHTML = escapeHtml(p.name)
+    const clockNameEl = $('#clock-name');
+    clockNameEl.innerHTML = escapeHtml(p.name)
       + '<span class="rec-pos ' + p.position + '">' + p.position + '</span>';
+    // LEGIBILITY HOTFIX (phone, 2026-08-10): style.css sets .clock-name to #fff
+    // (white) — a dark-theme leftover — but the clock-card renders on a light,
+    // gold-tinted PAPER background, so the player's name was white-on-white and
+    // unreadable (the "text I could not read"). Force the theme ink inline so it
+    // is legible now; this overrides the bug without touching B's stylesheet.
+    // B: the real fix is `.clock-name { color: var(--ink); }` in style.css.
+    clockNameEl.style.color = 'var(--ink, #17263a)';
     $('#clock-meta').textContent = (p.team || '') + (p.bye ? ' · bye ' + p.bye : '')
       + ' · ADP ' + Math.round(p.adjusted_adp) + ' · proj ' + Math.round(p.proj_mean);
     // The star goes on the name as a badge, not into the reason line. On the
@@ -1220,14 +1228,27 @@
     $('#clock-confidence').innerHTML = i > 0
       ? '<span class="muted">Option ' + (i + 1) + ' — you skipped ' + escapeHtml(list[0].player.name) + '</span>'
       : '<span class="' + c.level + '">' + escapeHtml(c.message) + '</span>';
-    // THE TAKE BUTTON (SEV1): point it at the player THIS view is showing and name
-    // him, so "ONE ANSWER" can actually draft. The delegated data-draft-me handler
-    // (see wireEvents) does the rest — same path as the recs-card take button.
-    const take = $('#clock-take');
-    if (take) {
-      take.setAttribute('data-draft-me', String(p.player_id));
-      take.textContent = '✓ Take ' + (p.name ? p.name.split(' ').slice(-1)[0] : 'him');
+    // THE TAKE BUTTON (SEV1, phone-blocker fix 2026-08-10): the "One answer" view
+    // is the primary MOBILE surface, and it shipped with NO take button — the shell
+    // never had a #clock-take element, so this block used to no-op and you could
+    // read the recommendation but not draft it. Now we CREATE the button if it is
+    // missing and place it FIRST in the actions row (the primary action, always
+    // present and reachable), so "One answer" can always actually draft.
+    let take = $('#clock-take');
+    if (!take) {
+      take = document.createElement('button');
+      take.id = 'clock-take';
+      take.className = 'btn gold clock-take';
+      // inline so it is prominent and full-width even before B styles .clock-take
+      take.style.cssText = 'display:block;width:100%;margin:.5rem 0;font-size:1.05rem;padding:.7rem';
+      const actions = $('#clock-actions') || (($('#clock-confidence') || {}).parentNode);
+      const anchor = document.querySelector('.clock-actions');
+      if (anchor) anchor.parentNode.insertBefore(take, anchor);   // above next/full-board
+      else if (actions) actions.appendChild(take);
     }
+    take.setAttribute('data-draft-me', String(p.player_id));
+    take.textContent = '✓ Take ' + (p.name || 'him');
+    take.style.display = 'block';
   }
 
   /* ── Your own read ──────────────────────────────────────────────────────── */
@@ -2260,16 +2281,22 @@
     if (!board.length) { host.innerHTML = ''; return; }
     const rec = DraftNeedRule.recommend(board, roster);
     if (!rec.pick) { host.innerHTML = ''; return; }
-    const nm = p => escapeHtml((p.name || p.player_id) + '') + ' <span class="rh-pos" style="opacity:.7">'
+    const nm = p => escapeHtml((p.name || p.player_id) + '') + ' <span class="rh-pos" style="opacity:.88">'
       + escapeHtml(p.position || '') + '</span>';
     const field = DraftNeedRule.fieldWithinNeed(board, roster, 4);
     const gap = field.length > 1 ? (DraftNeedRule.adpOf(field[1]) - DraftNeedRule.adpOf(field[0])) : 99;
     let html = '<div class="rh-pick" style="font-weight:700">🎯 ' + nm(rec.pick) + '</div>'
-      + '<div class="rh-why" style="font-size:.82rem;opacity:.9">' + escapeHtml(rec.reason) + '</div>';
+      + '<div class="rh-why" style="font-size:.9rem;opacity:.95">' + escapeHtml(rec.reason) + '</div>'
+      // TAKE BUTTON on the headline (phone-blocker fix 2026-08-10): the most
+      // prominent recommendation on the page named a player but gave no way to
+      // draft him. A full-width take, always present, right under the pick.
+      + '<button class="btn gold rh-take" data-draft-me="' + escapeHtml(String(rec.pick.player_id))
+      + '" style="display:block;width:100%;margin:.5rem 0 .2rem;padding:.6rem;font-size:1rem">✓ Take '
+      + escapeHtml(rec.pick.name || 'him') + '</button>';
     // The FIELD when it's close — human chooses; ledger records which (already wired).
     if (gap < 8 && field.length > 1) {
       html += '<div class="rh-field" style="font-size:.78rem;margin-top:.35rem">Close — your call: '
-        + field.map(p => nm(p) + ' <span style="opacity:.6">(adp ' + Math.round(DraftNeedRule.adpOf(p)) + ')</span>').join(' · ')
+        + field.map(p => nm(p) + ' <span style="opacity:.82">(adp ' + Math.round(DraftNeedRule.adpOf(p)) + ')</span>').join(' · ')
         + '</div>';
     }
     // BYE STACK — the one thing the rule does NOT price, made visible (Cory #3).
@@ -2291,7 +2318,7 @@
       }
     }
     // HONEST TIER — the rule is confident; the dollars are MC-harness, not a projection (Cory #2).
-    html += '<div class="rh-caveat" style="font-size:.7rem;opacity:.6;margin-top:.35rem">'
+    html += '<div class="rh-caveat" style="font-size:.78rem;opacity:.82;margin-top:.35rem">'
       + 'measured rule (robust across seats/rooms/keepers); dollar magnitudes are lab-tier, not a season projection</div>';
 
     // GRAB-BY (live) — "stick to value, know when to grab QB/TE". Recomputed every
