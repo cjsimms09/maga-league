@@ -50,6 +50,13 @@ ENDPOINTS = {
     # cannot be evaluated, so every league would have been screened on the wrong
     # criteria or dropped for the wrong reason.
     "rules": "export?TYPE=rules&L={league_id}&JSON=1",
+    # THE SCORING-EVENT DICTIONARY. Added after probe run 3. Rules arrive as event
+    # CODES (`CC`, `FC`, …) with no inline meaning, and F1 v2 has to find the
+    # RECEPTION event to read a league's PPR value. Guessing which code that is
+    # would be finding P4 all over again — the reason this probe exists. MFL
+    # publishes the map, so it is fetched rather than assumed. League-independent,
+    # so it takes no L parameter.
+    "allRules": "export?TYPE=allRules&JSON=1",
 }
 
 # Values are never committed verbatim beyond this length — a probe artifact is a
@@ -195,6 +202,22 @@ def probe(league_ids: list, year: int = 2025, search: str = "") -> dict:  # prag
 
     result = {"year": year, "endpoints": {}, "errors": {}, "discovered": []}
     per: dict = {k: [] for k in ENDPOINTS}
+    try:
+        ar = get(base + ENDPOINTS["allRules"])
+        per["allRules"].append(describe(ar))
+        # The one endpoint whose VALUES are kept: it is MFL's public code
+        # dictionary, not anyone's league, and the codes are the whole point.
+        node = ((ar.get("allRules") or {}).get("rule")) or []
+        if isinstance(node, dict):
+            node = [node]
+        result["event_codes"] = {
+            str(r.get("abbreviation") or r.get("id") or ""): str(r.get("detailedDescription")
+                                                                 or r.get("shortDescription") or "")[:90]
+            for r in node if isinstance(r, dict)
+        }
+    except Exception as e:                                      # noqa: BLE001
+        result["errors"]["allRules"] = f"{type(e).__name__}: {e}"
+
     if search:
         try:
             raw = get(base + ENDPOINTS["leagueSearch"].format(q=search))
