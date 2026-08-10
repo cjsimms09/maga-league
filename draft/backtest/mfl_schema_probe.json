@@ -1418,6 +1418,274 @@
           ]
         }
       }
+    },
+    "rules": {
+      "observed": 3,
+      "shape": {
+        "$": {
+          "always_present": true,
+          "keys": [
+            "encoding",
+            "error",
+            "rules",
+            "version"
+          ],
+          "of": 3,
+          "seen_in": 3,
+          "types": [
+            "object"
+          ]
+        },
+        "$.encoding": {
+          "always_present": true,
+          "of": 3,
+          "samples": [
+            "utf-8",
+            "utf-8",
+            "utf-8"
+          ],
+          "seen_in": 3,
+          "types": [
+            "str"
+          ]
+        },
+        "$.error": {
+          "always_present": false,
+          "keys": [
+            "$t"
+          ],
+          "of": 3,
+          "seen_in": 1,
+          "types": [
+            "object"
+          ]
+        },
+        "$.error.$t": {
+          "always_present": false,
+          "of": 3,
+          "samples": [
+            "Error - No League Scoring Rules"
+          ],
+          "seen_in": 1,
+          "types": [
+            "str"
+          ]
+        },
+        "$.rules": {
+          "always_present": false,
+          "keys": [
+            "positionRules"
+          ],
+          "of": 3,
+          "seen_in": 2,
+          "types": [
+            "object"
+          ]
+        },
+        "$.rules.positionRules": {
+          "always_present": false,
+          "len_range": [
+            2,
+            4
+          ],
+          "of": 3,
+          "seen_in": 2,
+          "types": [
+            "array"
+          ]
+        },
+        "$.rules.positionRules[0]": {
+          "always_present": false,
+          "keys": [
+            "positions",
+            "rule"
+          ],
+          "of": 3,
+          "seen_in": 2,
+          "types": [
+            "object"
+          ]
+        },
+        "$.rules.positionRules[0].positions": {
+          "always_present": false,
+          "of": 3,
+          "samples": [
+            "TE",
+            "TE"
+          ],
+          "seen_in": 2,
+          "types": [
+            "str"
+          ]
+        },
+        "$.rules.positionRules[0].rule": {
+          "always_present": false,
+          "keys": [
+            "event",
+            "points",
+            "range"
+          ],
+          "len_range": [
+            22,
+            22
+          ],
+          "of": 3,
+          "seen_in": 2,
+          "types": [
+            "array",
+            "object"
+          ]
+        },
+        "$.rules.positionRules[0].rule.event": {
+          "always_present": false,
+          "keys": [
+            "$t"
+          ],
+          "of": 3,
+          "seen_in": 1,
+          "types": [
+            "object"
+          ]
+        },
+        "$.rules.positionRules[0].rule.event.$t": {
+          "always_present": false,
+          "of": 3,
+          "samples": [
+            "CC"
+          ],
+          "seen_in": 1,
+          "types": [
+            "str"
+          ]
+        },
+        "$.rules.positionRules[0].rule.points": {
+          "always_present": false,
+          "keys": [
+            "$t"
+          ],
+          "of": 3,
+          "seen_in": 1,
+          "types": [
+            "object"
+          ]
+        },
+        "$.rules.positionRules[0].rule.points.$t": {
+          "always_present": false,
+          "of": 3,
+          "samples": [
+            "*1"
+          ],
+          "seen_in": 1,
+          "types": [
+            "str"
+          ]
+        },
+        "$.rules.positionRules[0].rule.range": {
+          "always_present": false,
+          "keys": [
+            "$t"
+          ],
+          "of": 3,
+          "seen_in": 1,
+          "types": [
+            "object"
+          ]
+        },
+        "$.rules.positionRules[0].rule.range.$t": {
+          "always_present": false,
+          "of": 3,
+          "samples": [
+            "0-99"
+          ],
+          "seen_in": 1,
+          "types": [
+            "str"
+          ]
+        },
+        "$.rules.positionRules[0].rule[0]": {
+          "always_present": false,
+          "keys": [
+            "event",
+            "points",
+            "range"
+          ],
+          "of": 3,
+          "seen_in": 1,
+          "types": [
+            "object"
+          ]
+        },
+        "$.rules.positionRules[0].rule[0].event": {
+          "always_present": false,
+          "keys": [
+            "$t"
+          ],
+          "of": 3,
+          "seen_in": 1,
+          "types": [
+            "object"
+          ]
+        },
+        "$.rules.positionRules[0].rule[0].event.$t": {
+          "always_present": false,
+          "of": 3,
+          "seen_in": 1,
+          "types": [
+            "\u2026"
+          ]
+        },
+        "$.rules.positionRules[0].rule[0].points": {
+          "always_present": false,
+          "keys": [
+            "$t"
+          ],
+          "of": 3,
+          "seen_in": 1,
+          "types": [
+            "object"
+          ]
+        },
+        "$.rules.positionRules[0].rule[0].points.$t": {
+          "always_present": false,
+          "of": 3,
+          "seen_in": 1,
+          "types": [
+            "\u2026"
+          ]
+        },
+        "$.rules.positionRules[0].rule[0].range": {
+          "always_present": false,
+          "keys": [
+            "$t"
+          ],
+          "of": 3,
+          "seen_in": 1,
+          "types": [
+            "object"
+          ]
+        },
+        "$.rules.positionRules[0].rule[0].range.$t": {
+          "always_present": false,
+          "of": 3,
+          "seen_in": 1,
+          "types": [
+            "\u2026"
+          ]
+        },
+        "$.version": {
+          "always_present": true,
+          "of": 3,
+          "samples": [
+            "1.0",
+            "1.0",
+            "1.0"
+          ],
+          "seen_in": 3,
+          "types": [
+            "str"
+          ]
+        }
+      }
     }
   },
   "errors": {},
