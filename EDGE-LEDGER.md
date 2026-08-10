@@ -245,3 +245,28 @@ sample-ceiling breakers have much higher EVSI:
   endpoint updates in-season (Sleeper, likely FP) can't be graded retroactively without leaking. So the
   only honest path is to snapshot 2026 preseason projections NOW (Sleeper + FP) and grade after the
   season — same shape as the ADP archive. → DECISIONS-NEEDED #6.
+
+## NULL (with a design flaw the run itself exposed) — construction OBJECTIVE vs dollars (2026-08-10)
+- **The question (Cory):** the board maximizes VALUE (points over replacement), but the league pays for
+  weekly-highs and playoff finishes. Does a roster built for CEILING (boom weeks) or FLOOR+AVAILABILITY
+  (playoff robustness) earn MORE than the board's points objective?
+- **The build:** `exp_construction_objective.py` — three policy rosters from the SAME walk-forward
+  projection, room fixed, differing only in objective (β=0.15 pre-registered = board's opportunity
+  nudge; availability discount capped 15%). Graded through the CERTIFIED dollar layer
+  (build_policy_roster + roster_dollars → money_grade), all 3 seasons. Leak-free (boom/bust +
+  availability from PRIOR-season weekly only). Pure core 7/7; ran green in CI (lab.yml exp34 job).
+- **The headline number:** vs POINTS, CEILING −$100 and FLOOR −$200 total across 2023/24/25.
+- **Why that number is NOT "the board's objective is validated" (the real finding):** in the single-seat,
+  room-fixed counterfactual **Cory's seat missed the playoffs all three seasons** (made_playoffs=False
+  for EVERY variant). So **playoff $ = $0 and regular-season $ = $0 for every policy, every season.** The
+  two payout channels the FLOOR/robustness thesis is designed to win **never activated.** The only money
+  that moved was the coarse winner-take-all **$100 weekly-high**, and with n=3 that is a knife-edge coin
+  flip, not a test. The experiment could not exercise its own hypothesis.
+- **Honest status:** INCONCLUSIVE, not a validation. The one faint micro-signal (2024: FLOOR gave up a
+  $100 weekly-high that POINTS/CEILING caught) is n=1 and not actionable.
+- **What it would take to answer it properly:** rosters must actually REACH the money rounds, which the
+  single fixed seat can't guarantee. Two paths: (a) POST-DRAFT season-forward / multi-room simulator
+  (task #9) where rosters make playoffs across many simulated worlds; or (b) a finer PRE-DRAFT proxy than
+  the $100 weekly-high — expected weekly-high WIN PROBABILITY across all weeks + total playoff-window
+  lineup points — which activate even when the seat doesn't literally cash. (b) is cheap and reuses the
+  whole harness.
