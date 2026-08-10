@@ -3150,16 +3150,43 @@
       my_draft_slot: mySlot || (Number(league.my_draft_slot) <= teams
         ? Number(league.my_draft_slot) : 0) || 1,
       adp_blend_weight: 0.7,
-      // Mocks have no keepers. Saying count:0 is not a guess — it is what makes
-      // the rebuilt sequence match what the mock will actually do.
-      keepers: { count: 0, cost_model: 'no_cost' },
+      // MY keepers are real in a mock. Earlier this said `count:0`, which
+      // forfeited NOTHING — yet populateKeepers still seeds my 3 keepers onto
+      // the roster, so I ended up with keepers PLUS a pick in every round: a
+      // roster over-sized by the keeper count, my first live picks stacking on
+      // top of players I already hold. The mock must forfeit my top picks the
+      // same way the league draft does. So carry the league's real keeper
+      // config and forfeit MY rounds (top_picks_flat / count:3) — my first mock
+      // pick then lands in round (count+1), matching draft night.
+      //
+      // Opponents' keepers are handled separately by rehearsal-keeper mode
+      // (predicted keepers pulled from the BOARD, not the pick order), so only
+      // MY seat forfeits picks here — the seat whose sequence I actually draft.
+      keepers: (league.keeper_rules && (league.keeper_rules.count || 0) > 0)
+        ? Object.assign({}, league.keeper_rules)
+        : { count: 0, cost_model: 'no_cost' },
     };
-    const out = window.DraftKeepers.reapply(state.data.players, cfg, {});
+    // My keepers, looked up by my LEAGUE seat (kept_players.team_slot is stamped
+    // [league-seat]); they forfeit picks at my ROOM seat in this mock.
+    const myLeagueSeat = Number(league.my_draft_slot) || 0;
+    let myKeepers = [];
+    if ((cfg.keepers.count || 0) > 0 && myLeagueSeat) {
+      myKeepers = (state.data.kept_players || [])
+        .filter(k => Number(k.team_slot) === myLeagueSeat);
+      if (!myKeepers.length) {
+        myKeepers = ((state.data.pick_order || {}).forfeited || [])
+          .filter(f => Number(f.team_slot) === myLeagueSeat);
+      }
+    }
+    const keepersByTeam = myKeepers.length ? { [cfg.my_draft_slot]: myKeepers } : {};
+    const out = window.DraftKeepers.reapply(state.data.players, cfg, keepersByTeam);
     state.data.pick_order = {
       picks: out.order.picks.map(p => ({ overall: p.overall, round: p.round, slot: p.team_slot })),
       my_picks: out.order.my_picks,
       my_picks_before_keepers: out.order.my_original_picks,
-      forfeited: [],
+      // My forfeited rounds (keepers eat them), so the accounting invariant and
+      // the picks-remaining math see the keepers as real rounds given up.
+      forfeited: out.order.forfeited || [],
     };
     state.data.players = out.players;
     state.board = out.players.filter(p => !state.drafted.has(String(p.player_id)));
@@ -3200,9 +3227,15 @@
       host.className = 'prov-note warn';
       host.innerHTML = '<b>\ud83e\uddea</b> <span><b>Mock mode.</b> This draft is '
         + teams + ' teams \u00d7 ' + rounds + ' rounds (' + escapeHtml(cfg.draft_type)
-        + '), which is not your league\u2019s shape. Pick order rebuilt from the mock '
-        + 'with no keepers \u2014 <b>' + escapeHtml(DraftSeat.describe(state.seat))
-        + '</b>, so you pick at '
+        + '), which is not your league\u2019s shape. '
+        + ((myKeepers.length)
+            ? ('Your ' + myKeepers.length + ' keepers forfeit rounds 1\u2013' + myKeepers.length
+               + ' (as on draft night), ')
+            : 'Pick order rebuilt from the mock, ')
+        + '\u2014 <b>' + escapeHtml(DraftSeat.describe(state.seat))
+        + '</b>, so your first pick is '
+        + escapeHtml(String((state.data.pick_order.my_picks || [])[0] || '?'))
+        + ' and you pick at '
         + escapeHtml((state.data.pick_order.my_picks || []).slice(0, 6).join(', '))
         + ((state.data.pick_order.my_picks || []).length > 6 ? '\u2026' : '')
         + '. Keeper-adjusted ADP is <b>not</b> applied here, so treat the values as a '
