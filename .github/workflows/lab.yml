@@ -267,8 +267,7 @@ jobs:
           git add draft/backtest/EXP34.md draft/backtest/exp34.json \
                   draft/backtest/EXP34-DOLLARS.md draft/backtest/exp34_dollars.json \
                   draft/backtest/exp_construction_objective.json \
-                  draft/backtest/exp_stack_correlation.json
-            draft/backtest/exp_tier_ceiling.json \
+                  draft/backtest/exp_stack_correlation.json \
                   draft/backtest/exp_tier_ceiling.json
           git commit -m "Exp 34 report (correlation + dollar arms) $stamp" || { echo "no change"; exit 0; }
           git pull --rebase origin "${GITHUB_REF_NAME}" && git push || echo "push skipped"
