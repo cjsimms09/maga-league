@@ -202,8 +202,13 @@ check('the app bumps the board version on in-place mutation',
   check('clock take: the one-answer card has a take button (warroom.ejs #clock-take)',
     /id="clock-take"[^>]*data-draft-me/.test(warroom),
     'the ONE ANSWER view must carry a take control, or it recommends a player you cannot draft');
-  const rc = appSrc.slice(appSrc.indexOf('function renderClock'),
-    appSrc.indexOf('function renderClock') + 3000);
+  // Slice the WHOLE renderClock body (to the next function def), not a fixed
+  // char window: the take-button setAttribute sits ~5500 chars in — past the old
+  // 3000 cap once the C3 raw-projection block landed above it — so the guard went
+  // falsely red while the code was correct. A body-scoped slice can't truncate.
+  const rcStart = appSrc.indexOf('function renderClock');
+  const rcEnd = appSrc.indexOf('\n  function ', rcStart + 1);
+  const rc = appSrc.slice(rcStart, rcEnd > rcStart ? rcEnd : rcStart + 6000);
   check('clock take: renderClock points it at the shown player',
     /clock-take/.test(rc) && /setAttribute\('data-draft-me'/.test(rc),
     'renderClock must set #clock-take data-draft-me to the player the view is showing');

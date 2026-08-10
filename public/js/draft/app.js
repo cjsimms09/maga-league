@@ -175,7 +175,7 @@
     try {
       if (p.lists) state.lists = { targets: p.lists.targets || [], avoid: p.lists.avoid || [],
                                    queue: p.lists.queue || [] };
-      if (p.weights) state.weights = Object.assign({}, E.DEFAULT_WEIGHTS, p.weights);
+      if (p.weights) { state.weights = Object.assign({}, E.DEFAULT_WEIGHTS, p.weights); syncSliders(); }
       if (typeof p.autoWeights === 'boolean') state.autoWeights = p.autoWeights;
       if (p.playerOverrides) state.playerOverrides = p.playerOverrides;
       if (p.railAcks) state.railAcks = p.railAcks;
@@ -1320,12 +1320,7 @@
     state.lastAuto = a;
     if (same) { renderAutoNote(a, false); return; }
     state.weights = Object.assign({}, a.weights);
-    $$('.weight-slider').forEach(sl => {
-      const v = state.weights[sl.dataset.weight];
-      sl.value = v;
-      const lab = $('#w-' + sl.dataset.weight);
-      if (lab) lab.textContent = v.toFixed(1);
-    });
+    syncSliders();
     saveWeights();
     renderAutoNote(a, true);
   }
@@ -1338,6 +1333,24 @@
       + ' <span class="muted">round ' + a.round + (changed ? ' · adjusted' : '') + '</span></div>'
       + a.reasons.map(r => '<div class="auto-reason ' + r.kind + '">'
           + escapeHtml(r.text) + '</div>').join('');
+  }
+
+  /* Push state.weights into the slider DOM + labels — the ONE writer of the
+   * slider surface, so the panel can never say a weight the engine isn't loaded
+   * with. The markup ships hardcoded at value="1"/label 1.0 (a static EJS
+   * default), and the tool boots on the MEASURED core, which zeroes tier, need,
+   * risk, ceiling and bye. Without this call on init the panel showed every
+   * slider at 1.0 under a highlighted "Measured" preset — the same lie the reset
+   * button told: a surface claiming the weights are one thing while the engine
+   * loads another. Called on init and after server-pref adoption. */
+  function syncSliders() {
+    $$('.weight-slider').forEach(sl => {
+      const v = state.weights[sl.dataset.weight];
+      if (v == null) return;
+      sl.value = v;
+      const lab = $('#w-' + sl.dataset.weight);
+      if (lab) lab.textContent = Number(v).toFixed(1);
+    });
   }
 
   function renderPresets() {
@@ -1372,11 +1385,7 @@
     if (!p) return;
     const before = state.lastClock ? state.lastClock.scored : null;
     state.weights = Object.assign({}, p.weights);
-    $$('.weight-slider').forEach(sl => {
-      const v = state.weights[sl.dataset.weight];
-      sl.value = v;
-      $('#w-' + sl.dataset.weight).textContent = v.toFixed(1);
-    });
+    syncSliders();
     saveWeights();
     renderRecommendations();
     reportWeightEffect(before, prefix || (p.label + ' applied.'));
@@ -5474,6 +5483,7 @@
       applyPreset('measured', 'Reset to the Measured core (what the tool ships on): '
         + 'value + stack, everything the Lab measured as drag or null turned off.');
     });
+    syncSliders();   // hardcoded value="1" markup -> the MEASURED core we boot on
     renderPresets();
     document.body.addEventListener('click', ev => {
       const btn = ev.target.closest('[data-preset]');
