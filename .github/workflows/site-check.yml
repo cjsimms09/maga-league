@@ -111,6 +111,10 @@ jobs:
               '.acc-graded',     # the graded-forecast rows on /lineup/accuracy
               '.acc-metric',     # the calibration scorecard metrics
               '.acc-rel-fill',   # the reliability-curve bars
+              # B's declutter + money-scoreboard merge (2026-08-10) — .mb-* exist ONLY in
+              # that merge, so their presence proves THIS integration is live, not the prior one.
+              '.mb-row',         # money-scoreboard rows
+              '.mb-you',         # the "you" row in the money scoreboard
           ])
           if css:
               print(f'      {len(css):,} bytes')
@@ -130,6 +134,15 @@ jobs:
               print('      OK    the deployed engine carries the measured default config')
           else:
               problems.append('deployed engine.js predates the measured config — Netlify has not redeployed')
+          # THE TAKE BUTTON in the one-answer view (SEV1, live mock): the served app.js must
+          # wire #clock-take, or the ONE ANSWER screen recommends a player with no way to draft
+          # him — the exact failure Cory hit. Asserting the SERVED content, not just a 200.
+          _, _, appjs = fetch('/js/draft/app.js')
+          if 'clock-take' in appjs:
+              print('      OK    the deployed app wires the take button in the one-answer view')
+          else:
+              problems.append('deployed app.js has no #clock-take — the one-answer view cannot draft; '
+                              'Netlify is serving a build older than the take-button fix')
 
           print('\n--- THE DRAFT BOARD THE WAR ROOM ACTUALLY DOWNLOADS ---')
           status, headers, raw = fetch('/draft_data.json')
