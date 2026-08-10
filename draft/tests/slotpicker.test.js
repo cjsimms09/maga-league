@@ -73,5 +73,54 @@ check('access: a commissioner (Cory) is admitted', requireCory({ is_commissioner
 check('access: a non-commissioner owner is DENIED', requireCory({ is_commissioner: false }) === false);
 check('access: a missing owner is DENIED', requireCory(null) === false);
 
+// ── RULE 11, REQUIREMENT 3: compare ACROSS derivation paths ─────────────────
+// The slot picker's pick numbers and the pipeline/war-room pick order are the
+// SAME quantity. They used to be computed two ways: a local `rawSnake` here with
+// snake parity hard-coded and a flat keeper subtraction, versus
+// keepers.buildTruePickOrder everywhere else. For this league they agreed — but
+// only because it is a snake draft. Under third_round_reversal or linear they
+// disagreed at EVERY seat, because rawSnake never read draft_type at all. That
+// is reachable: sleeper_import.py maps settings.reversal_round to
+// third_round_reversal. A seat recommendation built on pick numbers that do not
+// exist, with nothing failing.
+{
+  const K2 = require('../../public/js/draft/keepers.js');
+  const ART = require('../../public/draft_data.json');
+  const lg = ART.league;
+  const kc = (lg.keeper_rules || {}).count || 0;
+  const opts = { draftType: lg.draft_type, keeperRules: lg.keeper_rules,
+                 keepers: (ART.pick_order || {}).forfeited || [] };
+
+  // KNOWN-CORRECT CASE (requirement 2): the shipped artifact's own my_picks,
+  // established by the pipeline independently of this module.
+  check('slotpicker agrees with the SHIPPED artifact at the real seat',
+     JSON.stringify(SP.myPicks(lg.my_draft_slot, lg.teams, lg.rounds, kc, opts))
+       === JSON.stringify(ART.pick_order.my_picks),
+     JSON.stringify(SP.myPicks(lg.my_draft_slot, lg.teams, lg.rounds, kc, opts)));
+
+  // CROSS-PATH, EVERY SEAT, EVERY DRAFT TYPE the importer can produce.
+  ['snake', 'third_round_reversal', 'linear'].forEach(type => {
+    let bad = [];
+    for (let s = 1; s <= lg.teams; s++) {
+      const mine = SP.myPicks(s, lg.teams, lg.rounds, kc, Object.assign({}, opts, { draftType: type }));
+      const truth = K2.buildTruePickOrder(
+        { teams: lg.teams, rounds: lg.rounds, draft_type: type, my_draft_slot: s,
+          keepers: lg.keeper_rules },
+        { [s]: (opts.keepers || []).map(k => Object.assign({}, k, { team_slot: s })) }).my_picks;
+      if (JSON.stringify(mine) !== JSON.stringify(truth)) bad.push(s);
+    }
+    check('slotpicker == shared pick order at every seat (' + type + ')',
+       bad.length === 0, 'seats disagreeing: ' + JSON.stringify(bad));
+  });
+
+  // ABSENT IS NOT A GUESS (requirement 4): with the shared derivation missing,
+  // refuse rather than fall back to a private snake formula.
+  check('an unknown draft type does not silently become a snake',
+     JSON.stringify(SP.myPicks(1, lg.teams, lg.rounds, kc, Object.assign({}, opts, { draftType: 'linear' })))
+       !== JSON.stringify(SP.myPicks(1, lg.teams, lg.rounds, kc, Object.assign({}, opts, { draftType: 'snake' }))),
+     'linear and snake produced identical picks — draft_type is being ignored');
+}
+
 console.log((fail ? '' : '\n') + pass + '/' + (pass + fail) + ' slot-picker checks passed');
 process.exit(fail ? 1 : 0);
+

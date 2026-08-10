@@ -334,6 +334,62 @@ should," and in every case the answer was no until someone actually tried it.
 the guard is written, by whoever is already writing it — no schedule, no artifact, no human
 attention on a cadence. Nothing to maintain, so nothing to rot.
 
+**11. CORRECTNESS AT EVERY BOUNDARY.** Cory, 2026-08-10. **Any data or derived value crossing
+a system boundary must have its completeness, validity and unknown state established at that
+boundary.** Not correctness in the absolute sense — we cannot prove Sleeper is right that a
+bye is week 8. Only that our representation of Sleeper is faithful. The rule is: **do not
+silently accept, transform or represent data without establishing what we know about it.**
+
+*Four kinds of boundary,* and the fourth matters most because the failure that prompted this
+was not an ingestion problem:
+1. **External → system** — a fetch, an API response, a file.
+2. **Source → canonical** — a crosswalk, a join, an import.
+3. **Canonical → derived** — projections → replacement → VORP → score.
+4. **One derivation path → another,** whenever the same quantity is independently computed.
+
+*Four requirements:*
+- **Coverage is reported** by every external ingest, join, crosswalk and record-level
+  derivation, visible where the data is used. Scoped to where records can be missing or
+  unmatched — not a demand that every function emit a percentage. "342 of 342 matched" is a
+  fact; silence is not.
+- **Every transformation has at least one known-correct case with an independently
+  established expected answer.** A test, not a memory: "I checked it by hand once" satisfies
+  nothing after the implementation changes.
+- **Consistency checks compare ACROSS derivation paths, not only within one.** The most
+  important of the four. Two paths that are each internally coherent and disagree with each
+  other pass a self-consistency test forever.
+- **Absent is not zero, and unknown is not a value.** Missing data is excluded and COUNTED,
+  never coerced into something that reads as measured — a coerced zero is indistinguishable
+  from a real one and drags every downstream number toward the null.
+
+*Three things are visible, not one,* and "coverage" must not become a catch-all:
+**COMPLETENESS** (how many records matched) · **VALIDITY** (whether present values are usable
+— the 48 undefined positions) · **APPLICABILITY** (whether this is the right data for this
+use — the ADP warning hardcoding two source names and reporting 84 correctly-priced players
+as missing).
+
+*Why it is missing:* rule 10 tests whether a GUARD catches a bug. It says nothing about
+whether the DATA or the DERIVATION is right. WR replacement came out 172.67 by one path and
+199 by another — 26 points of VORP on every WR, enough to reorder the board wherever WR sits
+near RB or TE — **and C1 stayed green, because each path was internally self-consistent.** The
+contract passed while the thing it exists to prevent was happening. Same family: DEF byes
+missing for 16 of 32 defenses, 48 of 254 players with an undefined position, thin-pool VORP
+inflation. Every one a correctness failure, none caught by a rule, all caught because someone
+happened to look.
+
+*The binding diagnostic,* applied **once per area, never as a system-wide sweep:* when this
+rule is first applied to an existing area, **identify the quantities that have multiple
+derivation paths and determine whether those paths are actually compared.** Three have been
+hit by accident — the WR replacement paths, the thin-pool recompute, and the local consensus
+implementation inside the waiver route. Three by luck suggests more.
+
+*Rule 9 standing:* a **statement**, not a workstream. No new directory, no recurring audit,
+no validation framework. The coverage number goes in the artifact it describes; the
+known-answer case goes in the test that already exists for that transformation; the cross-path
+check goes where the existing consistency check lives — done by whoever is already writing
+that code, in the moment they write it. **If satisfying this ever starts generating its own
+workstream, it has been implemented wrong.**
+
 ---
 
 ### RULE 9 AUDIT OF THE EIGHT — cost, and whether it has FIRED (2026-08-10)

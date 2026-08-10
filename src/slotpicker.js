@@ -12,16 +12,56 @@ const path = require('path');
 let S = null;
 try { S = require(path.join(__dirname, '..', 'public', 'js', 'draft', 'survival.js')); } catch (e) { S = null; }
 
-// Cory forfeits rounds 1..N to keepers; his first LIVE pick is round N+1. Passed
-// in so a heterogeneous future (different keep-count) is a one-arg change.
-function rawSnake(slot, round, teams) {
-  const odd = round % 2 === 1;
-  return (round - 1) * teams + (odd ? slot : (teams - slot + 1));
-}
-function myPicks(slot, teams, rounds, keeperRounds) {
-  const out = [];
-  for (let r = keeperRounds + 1; r <= rounds; r++) out.push(rawSnake(slot, r, teams) - keeperRounds);
-  return out;
+let K = null;
+try { K = require(path.join(__dirname, '..', 'public', 'js', 'draft', 'keepers.js')); } catch (e) { K = null; }
+
+/* MY PICK NUMBERS AT A CANDIDATE SEAT — via the SHARED derivation.
+ *
+ * A SECOND DERIVATION PATH, FOUND BY RULE 11's BINDING DIAGNOSTIC (2026-08-10).
+ * This file used to compute pick numbers itself: a local `rawSnake` with snake
+ * parity hard-coded, minus a flat keeperRounds. `keepers.buildTruePickOrder` —
+ * the derivation the pipeline, the war room and `setSlot` all use — computes the
+ * same quantity a different way.
+ *
+ * Compared across paths for the live config, they AGREE at all ten seats. They
+ * agree only because this league is snake:
+ *
+ *     snake                  0/10 seats disagree
+ *     third_round_reversal  10/10 disagree  (seat 1: [37,38,57,58] vs [28,47,48,67])
+ *     linear                10/10 disagree  (seat 1: [37,38,57,58] vs [28,38,48,58])
+ *
+ * `rawSnake` never read draft_type at all, so it silently answered as though
+ * every draft were a snake. That is reachable, not theoretical: sleeper_import.py
+ * explicitly maps `settings.reversal_round` to `third_round_reversal`. The slot
+ * picker's whole job is telling Cory which SEAT to claim — it would have done so
+ * from pick numbers that do not exist, with nothing failing.
+ *
+ * So the second path is deleted rather than cross-checked. Keeping two and
+ * comparing them would be two-places-with-a-test; one derivation cannot disagree
+ * with itself. It also picks up the real keeper cost model (top_picks_flat and
+ * the collision roll) instead of assuming a flat subtraction.
+ */
+function myPicks(slot, teams, rounds, keeperRounds, opts) {
+  const o = opts || {};
+  if (K) {
+    const cfg = {
+      teams: teams, rounds: rounds,
+      draft_type: o.draftType || 'snake',
+      my_draft_slot: slot,
+      keepers: o.keeperRules || { count: keeperRounds, cost_model: 'top_picks_flat' },
+    };
+    // Keepers are only needed as COUNT-many charges against this seat; the real
+    // slate (when the caller has it) keeps the cost model honest.
+    const list = (o.keepers && o.keepers.length)
+      ? o.keepers.map(k => Object.assign({}, k, { team_slot: slot }))
+      : Array.from({ length: keeperRounds }, (_, i) => ({ player_id: 'k' + i, team_slot: slot }));
+    const byTeam = keeperRounds > 0 ? { [slot]: list } : {};
+    const out = K.buildTruePickOrder(cfg, byTeam);
+    if (out && (out.my_picks || []).length) return out.my_picks;
+  }
+  // FAIL LOUD, not silently back to a private snake formula. A wrong seat
+  // recommendation is worse than none, and this module is Cory-only.
+  throw new Error('slotpicker: keepers.js unavailable — refusing to invent pick numbers');
 }
 
 /** claimOrder: [{pos, owner_id, slot}] from the draft:<year> doc. */
@@ -33,6 +73,13 @@ function analyze(opts) {
   const rounds = o.rounds || league.rounds || 15;
   const keeperRounds = o.keeperRounds != null ? o.keeperRounds : 3;
   const claimOrder = o.claimOrder || [];
+  // The draft's real SHAPE, carried to the shared pick derivation. Defaulting
+  // draft_type to 'snake' silently is what the deleted rawSnake did.
+  const pickOpts = {
+    draftType: o.draftType || league.draft_type || 'snake',
+    keeperRules: league.keeper_rules || null,
+    keepers: (art.pick_order || {}).forfeited || [],
+  };
   const ownerName = o.ownerName || (id => 'Owner ' + id);
   const myOwnerId = o.myOwnerId;
 
@@ -64,7 +111,7 @@ function analyze(opts) {
   const cards = [];
   for (let slot = 1; slot <= teams; slot++) {
     if (slotToOwner[slot] != null) continue;   // taken — not a candidate
-    const picks = myPicks(slot, teams, rounds, keeperRounds);
+    const picks = myPicks(slot, teams, rounds, keeperRounds, pickOpts);
     const first = picks[0];
     const second = picks[1];
     const backToBack = second != null && (second - first) <= 2;
@@ -107,7 +154,7 @@ function analyze(opts) {
     keeperRounds: keeperRounds,
     myClaim: myClaim,
     claimed: myClaim != null,
-    myClaimPicks: myClaim != null ? myPicks(myClaim, teams, rounds, keeperRounds) : null,
+    myClaimPicks: myClaim != null ? myPicks(myClaim, teams, rounds, keeperRounds, pickOpts) : null,
     open: cards,
     taken: takenSlots.sort((a, b) => a - b).map(s => ({ slot: s, ownerId: slotToOwner[s], ownerName: ownerName(slotToOwner[s]) })),
     recommendation: recommendation,
@@ -116,4 +163,4 @@ function analyze(opts) {
   };
 }
 
-module.exports = { analyze: analyze, myPicks: myPicks, rawSnake: rawSnake };
+module.exports = { analyze: analyze, myPicks: myPicks };
