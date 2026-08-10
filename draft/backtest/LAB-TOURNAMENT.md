@@ -27,9 +27,9 @@ _control: `arch:balanced` · seasons 2023, 2024 · null p95 **$25.00** (200 outc
 |---|---|---|---|---|---|
 | B0 | +55.00 | 100th | YES | 2023:RB×51,WR×46,QB×36 · 2024:WR×66,QB×42,RB×15 · 2025:WR×67,QB×42,RB×3 | CANDIDATE |
 | B3 | +0.00 | 0th | no | — | — |
-| arch:early_qb | +0.00 | 0th | no | 2023:RB×3,WR×2,FB×2 · 2024:TE×1 · 2025:RB×1,DT×1,QB×1 | — |
+| arch:early_qb | +0.00 | 0th | no | 2023:RB×3,WR×2,QB×2 · 2024:TE×1 · 2025:RB×1,DT×1,QB×1 | — |
 | arch:elite_te | +0.00 | 0th | no | 2023:RB×9,TE×4,WR×3 · 2024:TE×2 · 2025:TE×8,RB×5,DT×2 | — |
-| arch:hero_rb | +0.00 | 0th | no | 2023:FB×5,TE×4,RB×3 · 2024:RB×4,DEF×4,DB×3 · 2025:DE×7,QB×4,DT×4 | — |
+| arch:hero_rb | +0.00 | 0th | no | 2023:FB×5,TE×4,WR×3 · 2024:DEF×4,RB×4,DB×3 · 2025:DE×7,QB×4,DT×4 | — |
 | arch:late_qb | +0.00 | 0th | no | 2023:QB×25,RB×8,WR×4 · 2024:RB×4,WR×1 · 2025:QB×6,RB×5,DT×2 | — |
 | arch:robust_rb | +0.00 | 0th | no | 2023:QB×11,RB×3 · 2024:RB×2,TE×1,DT×1 | — |
 | arch:wr_anchor | +0.00 | 0th | no | 2023:QB×14,WR×10,RB×2 · 2024:WR×1 · 2025:DE×2,RB×1,DT×1 | — |
