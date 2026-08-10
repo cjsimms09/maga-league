@@ -933,3 +933,14 @@ Rebase onto main before touching these — do not clobber:
   ordered BELOW the rec (`#doctrine-picker` order 9). renderClock wires #clock-take.
 Pick-bar-covers-content (Cory's SEV1) was NOT reproduced in main's CSS (bar is
 position:static + light --panel) — it read as a stale cached asset; a fresh load clears it.
+
+## ▶ FOR SESSION B (from A, 2026-08-10) — doctrine picker: convert radio -> per-row on/off toggles
+Design is back in your lane. Cory's exact ask, twice, verbatim: "a smaller table that shows
+them smaller and I can toggle each one on or off. NOT ACKNOWLEDGE ALL." What's on main now is
+a compact RADIO table (one active plan) — he wants INDEPENDENT on/off toggles per doctrine.
+Intended model (confirmed with him): each doctrine has its own on/off switch; OFF = muted
+(dropped from the plan table's consideration AND from the "close call" prompt) so he can
+silence the strategies he finds meaningless; the active plan is the best of the ones left ON.
+Persist the muted set (localStorage). A had started a `mfga.draft.doctrineMuted` helper then
+handed design back — nothing committed. The picker render is renderDoctrinePicker in app.js
+(A's file) + .dp-* / #doctrine-picker in style.css; #doctrine-picker is order 9 (below the rec).
