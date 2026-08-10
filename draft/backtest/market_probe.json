@@ -106,19 +106,38 @@
       "player_production_series_count": 48,
       "reachable": true,
       "sample_titles": [],
-      "series_listed": 12623,
+      "series_listed": 12626,
       "series_prefixes_seen": {
-        "KXMVECROSSCATE": 5782,
-        "KXMVESPORTSMUL": 6218
+        "KXMVECROSSCATE": 5352,
+        "KXMVESPORTSMUL": 6648
       },
       "volume_median": 0,
       "volume_total": 0,
       "zero_volume_share": null
     },
     "odds_api": {
+      "docs": "https://the-odds-api.com/",
+      "host": "https://api.the-odds-api.com/v4",
       "key_configured": false,
       "note": "no ODDS_API_KEY secret is configured, so the free-tier allowance could not be measured. This is a SETUP gap, not evidence the source is unusable \u2014 do not record it as a dead end.",
       "reachable": null
+    },
+    "odds_api_io": {
+      "docs": "https://odds-api.io/",
+      "error": "HTTPError: HTTP Error 404: Not Found",
+      "host": "https://api.odds-api.io",
+      "needs_key": false,
+      "published_free_tier": "100 requests/hour, 500/day, NFL included, 2 recreational books, permanent, no card",
+      "reachable": true,
+      "status": 404
+    },
+    "parlayapi": {
+      "docs": "https://parlayapi.com/",
+      "error": "HTTPError: HTTP Error 404: Not Found",
+      "host": "https://api.parlayapi.com",
+      "llms_txt": false,
+      "note": "PROBED, NOT BUILT AGAINST. Advertises props from 30+ books and a closing archive; ships llms.txt / agents.json.",
+      "reachable": false
     },
     "sleeper_trending": {
       "note": "adds/drops = what people are REACTING to; ADP = what they PAID",
