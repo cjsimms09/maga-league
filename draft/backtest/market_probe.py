@@ -183,9 +183,17 @@ def probe() -> dict:                                        # pragma: no cover (
         try:
             sdata, _ = get(f"{KALSHI_BASE}/series?limit=500")
             series = sdata.get("series") or []
-            sport = [s for s in series if any(
-                w in (str(s.get("ticker", "")) + str(s.get("title", ""))).lower()
-                for w in ("nfl", "football"))]
+            # A NAIVE "nfl" SUBSTRING MATCHES iNFLation. The first cut of this
+            # filter reported 478 football series; the list was full of CPI,
+            # ARGINFLATION and gas-price markets. Match the TICKER PREFIX (which
+            # is structured) or "football" as a word in the title.
+            def _is_football(sr):
+                tick = str(sr.get("ticker") or "").upper()
+                title = str(sr.get("title") or "").lower()
+                if tick.startswith(("KXNFL", "NFL", "KXNCAAF", "KXLEADERNFL", "KXCFB")):
+                    return True
+                return "football" in title or " nfl " in f" {title} "
+            sport = [s for s in series if _is_football(s)]
             # THE ACTUAL QUESTION: not "does Kalshi run NFL markets" (it does —
             # 12,622 series, many NFL) but "does it price PLAYER PRODUCTION",
             # which is the only kind that maps to a fantasy projection. Team
