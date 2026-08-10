@@ -50,9 +50,17 @@ jobs:
         # step before Python suites / robot / shell guards ever ran, so the whole
         # suite read red-but-uninspected for days (the "reads as success" family). A
         # collected failure names every broken suite in one run instead of one-per-push.
+        # AUDIT 2026-08-10 (B): 23 suites existed and were executed by NO workflow —
+        # including `valuation` (the C1 one-shared-valuation guard), `waivers` (its
+        # other half), `coherence`, and `accounting` (the money reconciler). Guards
+        # that never run are the "looks like protection, isn't" class. A full local
+        # sweep proved 22 of them green, so they are switched on here. The 23rd,
+        # `intervention-rate`, is RED (the rate drifted 73.7% -> 90.8%) and is held
+        # out deliberately: it is A's metric to adjudicate, and turning it on would
+        # break the build on someone else's open decision rather than surface it.
         run: |
           failed=""
-          for t in alerts app-wiring attribution authority backtest betlogic bundling_guard champs claimfix dashboard doctrine draft_banner draftorder engine grabby grade_cron h2h keeperlock keepers ledger marks matchup_spectator matchup_starters mcts mock_calib movement_line no_season_literals playoffs predledger prefs rawarchive reconcile rivalries season_form settlement shadows sidebets sidebets_lifecycle pool_draft stack_routes strategies sync update venmo voteenact watch_clickable week_hero matchup_placed_bet draft_sheet c3_lineup_disagree analyzer_surface inseason_design email_theme accuracy_wiring bank_career whatwatch; do
+          for t in alerts app-wiring attribution authority backtest betlogic bundling_guard champs claimfix dashboard doctrine draft_banner draftorder engine grabby grade_cron h2h keeperlock keepers ledger marks matchup_spectator matchup_starters mcts mock_calib movement_line no_season_literals playoffs predledger prefs rawarchive reconcile rivalries season_form settlement shadows sidebets sidebets_lifecycle pool_draft stack_routes strategies sync update venmo voteenact watch_clickable week_hero matchup_placed_bet draft_sheet c3_lineup_disagree analyzer_surface inseason_design email_theme accuracy_wiring bank_career whatwatch accounting client_forecast coherence creed-signal-parity deviation doctrine-governance forecast legality needrule needs organism pickreconcile playerref sanity-sweep session shadow-availability slider_sync slotpicker standings survival-memo valuation waivers; do
             echo "== $t =="
             if ! node draft/tests/$t.test.js; then failed="$failed $t"; fi
           done

@@ -2042,3 +2042,48 @@ credit): `draft_sheet.test.js` had `ck(..., !X || X)` — a tautology — now as
 the stale flag against the artifact's REAL age in both directions; and an
 `A || B` in `accuracy_wiring.test.js` was tightened to assert the graded state
 positively rather than merely "not empty".
+
+## ▶ SESSION B → A — CI AUDIT (2026-08-10): 23 guards never ran + the intervention rate has drifted
+
+Ran every suite in `draft/tests/` (105 of them) and cross-checked each against
+every workflow. Two findings, the second is draft-relevant.
+
+### 1. TWENTY-THREE SUITES WERE EXECUTED BY NO WORKFLOW
+Verified by exact match on `draft/tests/<name>.test.js` across `.github/workflows/*`
+AND against the ci.yml loop word-list (a first pass over-reported; this is the
+checked number). The list included load-bearing guards:
+- **`valuation`** — the C1 "one shared valuation, byte-identical" test. **The
+  contract's permanent guard was not running.** (It passes; nothing enforced it.)
+- **`waivers`** — the other half of C1 (waiver ↔ engine agreement).
+- **`coherence`** — cross-tool coherence.
+- **`accounting`** — the money reconciler (B break-tested it earlier today: neuter
+  the dilution check and it goes 19/19 → 17/19, so it is a real guard — it just
+  never ran).
+- plus `sanity-sweep`, `legality`, `needrule`, `needs`, `deviation`,
+  `doctrine-governance`, `survival-memo`, `slotpicker`, `standings`,
+  `pickreconcile`, `playerref`, `organism`, `session`, `slider_sync`,
+  `shadow-availability`, `forecast`, `client_forecast`, `creed-signal-parity`.
+
+**B switched on the 22 that are GREEN** (proven by the sweep) in ci.yml — shared
+infra, append-only per TERRITORY. No test content was changed.
+
+### 2. ⚠️ THE INTERVENTION RATE HAS DRIFTED — 73.7% → 90.8% (A's call, DRAFT-RELEVANT)
+`intervention-rate.test.js` is a drift guard pinned to its 2026-08-08 measurement.
+It is currently **RED**:
+```
+FAIL intervention rate is pinned near its 2026-08-08 measurement (73.7%)
+  -> rate=90.8%
+  measured: 90.8% · 10.9/draft · 18.5 picks · dead: bye,survival
+```
+The tool now deviates from the market on **~91% of picks instead of ~74%**, and
+mean deviation magnitude moved 17.1 → 18.5 picks. Nobody has seen this because the
+suite never ran. Plausibly a consequence of the recent engine changes (ceiling → 0,
+adjuster/slider sync, seat-list fix) — but it is a large behavioural change **12
+days before the draft**, and it is unexplained.
+
+**B deliberately did NOT add this suite to CI**: it is A's metric to adjudicate,
+and switching it on would break the build on an open decision rather than surface
+it. **Ask (A):** decide whether 90.8% is intended. If yes, update the pin AND the
+number quoted in `intervention_rate.js` and the report, then add
+`intervention-rate` to the ci.yml loop. If no, it is a regression worth finding
+before the 22nd.
