@@ -2732,7 +2732,23 @@ router.post('/chat', aw(async (req, res) => {
 
 router.get('/rules', aw(async (req, res) => {
   const season = H.currentSeason(req.world.seasons);
-  res.render('rules', { RULES, SCORING, ROSTER, season, payouts: H.payoutTable(season) });
+  // THE CONSTITUTION MUST NOT DISAGREE WITH THE BALLOT.
+  //
+  // The vote threshold is live-settable (Commish → Season, 1–20), and /votes
+  // renders it from `H.voteThreshold(config)` — but this page hardcoded "6", in
+  // its subtitle and in the stored rules list. Change the threshold and the two
+  // surfaces disagree about the rule that governs changing the rules, with the
+  // wrong number on the page people actually cite in an argument.
+  //
+  // The stored list lives in seed-data (A's lane), so the substitution happens
+  // here at the render seam. It is anchored on the exact sentence: if that rule
+  // is ever reworded, this becomes a no-op rather than corrupting the text.
+  const threshold = H.voteThreshold(req.world.config);
+  const rules = RULES.map(r =>
+    r.replace(/^All rule changes approved by \d+ votes$/i,
+      `All rule changes approved by ${threshold} votes`));
+  res.render('rules', { RULES: rules, SCORING, ROSTER, season, threshold,
+    payouts: H.payoutTable(season) });
 }));
 
 module.exports = router;

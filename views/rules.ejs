@@ -1,7 +1,9 @@
 <%- include('partials/header', { title: 'Rules' }) %>
 
 <h1 class="page-title">The League Constitution</h1>
-<p class="page-sub">Ratified by the owners. Amended only by 6 votes. We the people, etc.</p>
+<%# Derived, not typed: /votes reads the same H.voteThreshold(config), so the
+    constitution and the ballot can never quote different numbers. %>
+<p class="page-sub">Ratified by the owners. Amended only by <%= typeof threshold !== 'undefined' ? threshold : 6 %> votes. We the people, etc.</p>
 
 <div class="grid cols-2">
   <div class="card col-span-2">

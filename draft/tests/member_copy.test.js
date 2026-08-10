@@ -123,6 +123,32 @@ const strip = h => h.replace(/<[^>]*>/g, ' ').replace(/&#39;/g, "'").replace(/&l
       (t.match(/Your game[\s\S]{0,220}/) || ['(absent)'])[0]);
   }
 
+  // ── 4) THE CONSTITUTION MUST NOT DISAGREE WITH THE BALLOT.
+  // The vote threshold is live-settable (Commish → Season, 1-20). /votes renders
+  // it from H.voteThreshold(config); /rules hardcoded "6" in its subtitle AND in
+  // the stored rules list. Change it and the two surfaces quote different
+  // numbers for the rule that governs changing the rules — with the wrong one on
+  // the page people cite in an argument.
+  {
+    const c = await store.get('config');
+    c.vote_threshold = 8;
+    await store.set('config', c);
+    const rules = strip(await get('/rules'));
+    const votes = strip(await get('/votes'));
+    ck('the ballot reflects a changed threshold', /8 YES votes/.test(votes),
+      (votes.match(/Democracy in action[^.]*\./) || ['(absent)'])[0]);
+    ck('the constitution agrees with it', /Amended only by 8 votes/.test(rules),
+      (rules.match(/Ratified by the owners[^.]*\.[^.]*\./) || ['(absent)'])[0]);
+    ck('  and so does the rules list itself', /All rule changes approved by 8 votes/.test(rules),
+      (rules.match(/All rule changes approved by \d+ votes/) || ['(absent)'])[0]);
+    ck('  with no stale 6 left behind on the page',
+      !/approved by 6 votes/.test(rules) && !/Amended only by 6 votes/.test(rules));
+    // Back to the default: absent config, both must still read 6.
+    delete c.vote_threshold; await store.set('config', c);
+    const r2 = strip(await get('/rules')), v2 = strip(await get('/votes'));
+    ck('the default is still 6 on both', /Amended only by 6 votes/.test(r2) && /6 YES votes/.test(v2));
+  }
+
   srv.close();
   console.log(`\n${pass} passed, ${fail} failed`);
   process.exit(fail ? 1 : 0);
