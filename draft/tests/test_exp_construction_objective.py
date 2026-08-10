@@ -72,3 +72,39 @@ def test_objective_scores_produce_a_different_pick():
     avail_pool = {"boom", "steady"}
     assert XD.our_pick_fn(sc["ceiling"])(avail_pool) == "boom"
     assert XD.our_pick_fn(sc["floor"])(avail_pool) == "steady"
+
+
+# ── finer proxy ───────────────────────────────────────────────────────
+def test_week_win_prob_is_smooth_not_knife_edge():
+    # losing the high by a hair is NOT 0 — that is the whole point of the smoothing
+    p_hair = E.week_win_prob(99.5, [100.0], sigma=20.0)
+    assert 0.35 < p_hair < 0.5                              # close loss -> nearly a coin flip
+    p_clear = E.week_win_prob(160.0, [100.0], sigma=20.0)
+    assert p_clear > 0.98                                   # 3 sigma ahead -> near-certain
+    # a hard tie with no noise splits
+    assert E.week_win_prob(100.0, [100.0], sigma=0.0) == 0.5
+
+
+def test_week_win_prob_beats_more_opponents_is_harder():
+    one = E.week_win_prob(120.0, [100.0], sigma=20.0)
+    many = E.week_win_prob(120.0, [100.0, 110.0, 115.0], sigma=20.0)
+    assert many < one                                       # more rivals -> lower win prob
+
+
+def test_residual_sigma_removes_team_means():
+    # two teams, one always ~100 one always ~150, each with +/-10 weekly swing
+    field = {1: {"a": 90, "b": 140}, 2: {"a": 110, "b": 160}}
+    sig = E.residual_weekly_sigma(field, [1, 2])
+    assert 8.0 < sig < 12.0            # ~10 (within-team swing), NOT ~30 (cross-team spread)
+
+
+def test_grade_proxies_reads_rank_and_playoff_window():
+    # my seat (rid 1) beats the field in wk1, loses wk2; playoff wk15 counted from my_weekly
+    field = {1: {1: 120, 2: 100, 3: 80}, 2: {1: 90, 2: 130, 3: 110}, 15: {1: 0, 2: 0, 3: 0}}
+    my_weekly = {1: 120.0, 2: 90.0, 15: 145.0}
+    out = E.grade_policy_proxies(field, my_weekly, roster_id=1,
+                                 rs_weeks=[1, 2], po_weeks=[15], sigma=15.0)
+    assert out["exact_weekly_high_wins"] == 1.0            # won wk1 only
+    assert out["mean_weekly_rank"] == 2.0                  # rank 1 then rank 3 -> mean 2
+    assert out["playoff_window_points"] == 145.0           # from my_weekly, not the zeroed field
+    assert 0.0 < out["exp_weekly_high_wins"] < 2.0         # smoothed, between the two weeks
