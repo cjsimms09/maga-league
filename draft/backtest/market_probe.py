@@ -215,6 +215,37 @@ def summarise_odds_markets(sports: list) -> dict:
     return {"nfl_sport_keys": [s.get("key") for s in nfl], "sports_listed": len(sports or [])}
 
 
+def _discover_paths(get, docs_url, host, candidates):    # pragma: no cover (egress)
+    """Read the docs page for advertised paths, then try a bounded candidate set.
+
+    Bounded on purpose: this either finds the endpoint or produces a negative that
+    was actually earned. It does not become a provider hunt.
+    """
+    import re
+    import urllib.request as _u
+    found = {"docs_paths": [], "tried": {}}
+    try:
+        req = _u.Request(docs_url, headers={"user-agent": "mfga-market-probe"})
+        with _u.urlopen(req, timeout=25) as r:
+            html = r.read(400_000).decode("utf-8", "replace")
+        # Any absolute api URL or quoted /path the page advertises.
+        found["docs_paths"] = sorted(set(
+            re.findall(r"https?://api\.[a-z0-9.\-]+/[A-Za-z0-9/_\-]{2,40}", html)
+        ))[:15]
+        found["docs_reachable"] = True
+    except Exception as e:                                  # noqa: BLE001
+        found["docs_reachable"] = False
+        found["docs_error"] = f"{type(e).__name__}: {e}"
+    for path in candidates:
+        try:
+            get(host + path)
+            found["tried"][path] = 200
+        except Exception as e:                              # noqa: BLE001
+            found["tried"][path] = getattr(e, "code", str(type(e).__name__))
+    found["responding"] = [p for p, c in found["tried"].items() if c == 200]
+    return found
+
+
 def probe() -> dict:                                        # pragma: no cover (egress)
     import urllib.error
     import urllib.request
@@ -308,6 +339,15 @@ def probe() -> dict:                                        # pragma: no cover (
     c = CANDIDATES["odds_api_io"]
     io = {"host": c["host"], "docs": c["docs"],
           "published_free_tier": c["published_free_tier"]}
+    # PATH DISCOVERY, because /sports was a GUESS and returned 404. A 404 on a
+    # guessed path says nothing about the provider — reporting it as a negative
+    # would repeat the Kalshi mistake, where "0 NFL markets" turned out to be
+    # pagination. So: read the docs page, extract the api paths it advertises,
+    # and try a bounded candidate set. Whatever this finds, the hunt stops here.
+    io["path_probe"] = _discover_paths(get, c["docs"], c["host"], [
+        "/sports", "/v1/sports", "/api/sports", "/v3/sports",
+        "/leagues", "/v1/leagues", "/fixtures", "/v1/fixtures", "/odds", "/v1/odds",
+    ])
     try:
         data, hdrs = get(f"{c['host']}/sports")
         io.update(reachable=True, needs_key=False,
