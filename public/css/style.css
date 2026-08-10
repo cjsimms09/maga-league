@@ -2229,22 +2229,32 @@ details.sa-preview[open] > summary { border-bottom: 1px solid var(--line); }
   font-weight: 700; color: #a3121d;
 }
 .risk-pct.hot { color: var(--red-bright, #ff6b7a); }
-.risk-name { flex: 1 1 auto; display: flex; align-items: center; gap: .3rem; flex-wrap: wrap; }
+.risk-name { flex: 1 1 auto; display: flex; align-items: center; gap: .3rem; flex-wrap: wrap; color: var(--ink); font-weight: 600; }
 .risk-by { flex: 0 0 auto; font-size: .72rem; color: var(--muted); }
-.threat-row { padding: .45rem 0; border-top: 1px solid rgba(255,255,255,.07); }
+.threat-row { padding: .55rem 0 .5rem; border-top: 1px solid var(--line); }  /* was rgba(255,255,255,.07) — invisible separator on cream */
 .threat-row:first-child { border-top: 0; }
 .threat-head { display: flex; align-items: center; gap: .4rem; flex-wrap: wrap; font-size: .84rem; }
+.threat-head b { color: var(--ink); }
 .threat-pick {
-  flex: 0 0 auto; font-size: .68rem; color: var(--muted); border: 1px solid var(--line);
-  border-radius: 6px; padding: .05rem .3rem; font-variant-numeric: tabular-nums;
+  flex: 0 0 auto; font-size: .68rem; color: var(--navy); border: 1px solid var(--line);
+  border-radius: 6px; padding: .05rem .3rem; font-variant-numeric: tabular-nums; font-weight: 700;
 }
+/* Tag each piece of data so the numbers aren't ambiguous. */
 .threat-pos { display: flex; align-items: center; gap: .2rem; font-size: .7rem; }
-.threat-names { display: flex; flex-wrap: wrap; gap: .3rem; margin: .25rem 0 .1rem; }
+.threat-pos::before { content: "may target"; color: var(--muted); font-size: .62rem;
+  text-transform: uppercase; letter-spacing: .05em; margin-right: .1rem; }
+.threat-names { display: flex; flex-wrap: wrap; gap: .3rem; margin: .3rem 0 .12rem; }
+.threat-names::before { content: "Likely to take"; flex: 1 0 100%; font-size: .62rem;
+  text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: .05rem; }
 .threat-name {
-  font-size: .74rem; padding: .1rem .35rem; border-radius: 6px;
-  background: rgba(255,255,255,.05); border: 1px solid var(--line);
+  font-size: .74rem; padding: .1rem .35rem; border-radius: 6px; color: var(--ink);
+  background: rgba(18,41,74,.06); border: 1px solid var(--line);
 }
-.threat-tell { font-size: .73rem; color: var(--muted); margin-top: .12rem; }
+.threat-tell { font-size: .73rem; color: var(--muted); margin-top: .18rem; }
+.threat-tell::before { content: "Tendency"; display: inline-block; font-size: .58rem;
+  font-weight: 800; text-transform: uppercase; letter-spacing: .05em; color: var(--navy);
+  background: rgba(18,41,74,.08); border-radius: 4px; padding: .02rem .3rem; margin-right: .35rem;
+  vertical-align: .05em; }
 
 /* ---------- war room: the plan, the byes, the checklist ---------- */
 .plan-note {
@@ -2983,11 +2993,12 @@ body.warroom-page #doctrine-banner .db-confidence { white-space: normal; overflo
 
 /* §2(d) — condensed opponent strip (Zone 2). Compact: seat · likely · tell. */
 .threat-strip .ts-head { font-size: .72rem; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin-bottom: .4rem; }
-.ts-row { padding: .35rem 0; border-bottom: 1px solid rgba(255,255,255,.05); }
+.ts-row { padding: .4rem 0; border-bottom: 1px solid var(--line); }  /* was rgba(255,255,255,.05) — invisible on cream */
 .ts-row:last-child { border-bottom: none; }
-.ts-seat { display: block; font-size: .82rem; color: #17263a; }
-.ts-seat b { color: #fff; font-variant-numeric: tabular-nums; }
-.ts-likely { display: block; font-size: .78rem; color: #4a5972; }
+.ts-seat { display: block; font-size: .82rem; color: var(--ink); font-weight: 700; }
+.ts-seat b { color: var(--navy); font-variant-numeric: tabular-nums; }  /* was #fff — invisible pick number */
+.ts-likely { display: block; font-size: .78rem; color: var(--muted); margin-top: .05rem; }
+.ts-likely::before { content: "likely: "; color: var(--navy); font-weight: 700; }
 .ts-tell { display: block; font-size: .72rem; color: var(--muted); font-style: italic; margin-top: .1rem; }
 
 /* ── DERIVE: tap any number to see how it was computed (B, site-wide) ────────
