@@ -33,6 +33,10 @@
     the live board + roster (VONA aimed one pick ahead). Replaces the dead pre-draft
     grab_by snapshot the audit found unwired. app.js renders it in the rule headline. %>
 <script src="/js/draft/grabby.js"></script>
+<%# consensus.js — C3: the raw, unmodelled projection shown next to our valuation
+    as a sanity check, labelled honestly by source count (Sleeper-only today, so it
+    reads "Sleeper proj", never "consensus"). app.js renders it in the clock + recs. %>
+<script src="/js/draft/consensus.js"></script>
 <%# coherence.js — the ONE-VOICE resolver (ARCHITECTURE.md L2). Pure; consumes the
     outputs of deviation/doctrine/needs/LRM/recommendation and returns a single
     verdict so the war room never leaves Cory to arbitrate between his own tools.

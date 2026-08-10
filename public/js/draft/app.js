@@ -1204,10 +1204,49 @@
     // ONE coordinate, live — never state.data.current_pick (baked at build, stale),
     // which is what made this card disagree with the status bar.
     $('#clock-pick').textContent = pickCoordinate().current || '—';
-    $('#clock-name').innerHTML = escapeHtml(p.name)
+    const clockNameEl = $('#clock-name');
+    clockNameEl.innerHTML = escapeHtml(p.name)
       + '<span class="rec-pos ' + p.position + '">' + p.position + '</span>';
+    // LEGIBILITY HOTFIX (phone, 2026-08-10): style.css sets .clock-name to #fff
+    // (white) — a dark-theme leftover — but the clock-card renders on a light,
+    // gold-tinted PAPER background, so the player's name was white-on-white and
+    // unreadable (the "text I could not read"). Force the theme ink inline so it
+    // is legible now; this overrides the bug without touching B's stylesheet.
+    // B: the real fix is `.clock-name { color: var(--ink); }` in style.css.
+    clockNameEl.style.color = 'var(--ink, #17263a)';
     $('#clock-meta').textContent = (p.team || '') + (p.bye ? ' · bye ' + p.bye : '')
-      + ' · ADP ' + Math.round(p.adjusted_adp) + ' · proj ' + Math.round(p.proj_mean);
+      + ' · ADP ' + Math.round(p.adjusted_adp);
+    // C3 — the RAW projection as a sanity check, next to our valuation, labelled
+    // honestly by source (Sleeper-only today, so "Sleeper proj", never "consensus").
+    // Placed prominently on the clock (the primary mobile surface), not tucked in a
+    // detail row — the point is Cory NOTICES when our pick and the raw projection
+    // disagree, which only works if both are in front of him at the moment of a pick.
+    if (typeof DraftConsensus !== 'undefined') {
+      let projEl = $('#clock-proj');
+      if (!projEl) {
+        projEl = document.createElement('div');
+        projEl.id = 'clock-proj';
+        projEl.style.cssText = 'margin:.35rem 0;font-size:.95rem';
+        const meta = $('#clock-meta');
+        if (meta && meta.parentNode) meta.parentNode.insertBefore(projEl, meta.nextSibling);
+      }
+      const prov = (state.data || {}).provenance;
+      const rp = DraftConsensus.rawProjection(p, prov);
+      const alt = DraftConsensus.higherProjectionAlt(s2, list, prov, 6);
+      let html = '<span style="opacity:.75">' + escapeHtml(rp.label) + '</span> <b>'
+        + (rp.value == null ? '—' : Math.round(rp.value)) + '</b>'
+        + '<span style="opacity:.6"> · our valuation VONA ' + (s2.components && s2.components.vona != null
+            ? Math.round(s2.components.vona) : Math.round(s2.score)) + '</span>';
+      if (alt) {
+        // the disagreement moment: we're recommending a LOWER-projection player.
+        html += '<div style="margin-top:.25rem;font-size:.85rem;color:#b45309">⚠ '
+          + escapeHtml(alt.alt.name) + ' projects higher (' + Math.round(alt.alt_proj) + ' vs '
+          + Math.round(alt.rec_proj) + ') — we prefer ' + escapeHtml(p.name ? p.name.split(' ').slice(-1)[0] : 'him')
+          + ' on ' + escapeHtml(String((s2.reasons || [])[0] || 'value').slice(0, 60))
+          + '. Both shown so you can judge.</div>';
+      }
+      projEl.innerHTML = html;
+    }
     // The star goes on the name as a badge, not into the reason line. On the
     // clock the one sentence you get has to tell you why he is GOOD — "you
     // starred him" is a restatement of your own click, not information.
@@ -1220,14 +1259,27 @@
     $('#clock-confidence').innerHTML = i > 0
       ? '<span class="muted">Option ' + (i + 1) + ' — you skipped ' + escapeHtml(list[0].player.name) + '</span>'
       : '<span class="' + c.level + '">' + escapeHtml(c.message) + '</span>';
-    // THE TAKE BUTTON (SEV1): point it at the player THIS view is showing and name
-    // him, so "ONE ANSWER" can actually draft. The delegated data-draft-me handler
-    // (see wireEvents) does the rest — same path as the recs-card take button.
-    const take = $('#clock-take');
-    if (take) {
-      take.setAttribute('data-draft-me', String(p.player_id));
-      take.textContent = '✓ Take ' + (p.name ? p.name.split(' ').slice(-1)[0] : 'him');
+    // THE TAKE BUTTON (SEV1, phone-blocker fix 2026-08-10): the "One answer" view
+    // is the primary MOBILE surface, and it shipped with NO take button — the shell
+    // never had a #clock-take element, so this block used to no-op and you could
+    // read the recommendation but not draft it. Now we CREATE the button if it is
+    // missing and place it FIRST in the actions row (the primary action, always
+    // present and reachable), so "One answer" can always actually draft.
+    let take = $('#clock-take');
+    if (!take) {
+      take = document.createElement('button');
+      take.id = 'clock-take';
+      take.className = 'btn gold clock-take';
+      // inline so it is prominent and full-width even before B styles .clock-take
+      take.style.cssText = 'display:block;width:100%;margin:.5rem 0;font-size:1.05rem;padding:.7rem';
+      const actions = $('#clock-actions') || (($('#clock-confidence') || {}).parentNode);
+      const anchor = document.querySelector('.clock-actions');
+      if (anchor) anchor.parentNode.insertBefore(take, anchor);   // above next/full-board
+      else if (actions) actions.appendChild(take);
     }
+    take.setAttribute('data-draft-me', String(p.player_id));
+    take.textContent = '✓ Take ' + (p.name || 'him');
+    take.style.display = 'block';
   }
 
   /* ── Your own read ──────────────────────────────────────────────────────── */
@@ -2260,16 +2312,22 @@
     if (!board.length) { host.innerHTML = ''; return; }
     const rec = DraftNeedRule.recommend(board, roster);
     if (!rec.pick) { host.innerHTML = ''; return; }
-    const nm = p => escapeHtml((p.name || p.player_id) + '') + ' <span class="rh-pos" style="opacity:.7">'
+    const nm = p => escapeHtml((p.name || p.player_id) + '') + ' <span class="rh-pos" style="opacity:.88">'
       + escapeHtml(p.position || '') + '</span>';
     const field = DraftNeedRule.fieldWithinNeed(board, roster, 4);
     const gap = field.length > 1 ? (DraftNeedRule.adpOf(field[1]) - DraftNeedRule.adpOf(field[0])) : 99;
     let html = '<div class="rh-pick" style="font-weight:700">🎯 ' + nm(rec.pick) + '</div>'
-      + '<div class="rh-why" style="font-size:.82rem;opacity:.9">' + escapeHtml(rec.reason) + '</div>';
+      + '<div class="rh-why" style="font-size:.9rem;opacity:.95">' + escapeHtml(rec.reason) + '</div>'
+      // TAKE BUTTON on the headline (phone-blocker fix 2026-08-10): the most
+      // prominent recommendation on the page named a player but gave no way to
+      // draft him. A full-width take, always present, right under the pick.
+      + '<button class="btn gold rh-take" data-draft-me="' + escapeHtml(String(rec.pick.player_id))
+      + '" style="display:block;width:100%;margin:.5rem 0 .2rem;padding:.6rem;font-size:1rem">✓ Take '
+      + escapeHtml(rec.pick.name || 'him') + '</button>';
     // The FIELD when it's close — human chooses; ledger records which (already wired).
     if (gap < 8 && field.length > 1) {
       html += '<div class="rh-field" style="font-size:.78rem;margin-top:.35rem">Close — your call: '
-        + field.map(p => nm(p) + ' <span style="opacity:.6">(adp ' + Math.round(DraftNeedRule.adpOf(p)) + ')</span>').join(' · ')
+        + field.map(p => nm(p) + ' <span style="opacity:.82">(adp ' + Math.round(DraftNeedRule.adpOf(p)) + ')</span>').join(' · ')
         + '</div>';
     }
     // BYE STACK — the one thing the rule does NOT price, made visible (Cory #3).
@@ -2291,7 +2349,7 @@
       }
     }
     // HONEST TIER — the rule is confident; the dollars are MC-harness, not a projection (Cory #2).
-    html += '<div class="rh-caveat" style="font-size:.7rem;opacity:.6;margin-top:.35rem">'
+    html += '<div class="rh-caveat" style="font-size:.78rem;opacity:.82;margin-top:.35rem">'
       + 'measured rule (robust across seats/rooms/keepers); dollar magnitudes are lab-tier, not a season projection</div>';
 
     // GRAB-BY (live) — "stick to value, know when to grab QB/TE". Recomputed every
@@ -2330,6 +2388,29 @@
       } catch (e) { console.error('[grab-by]', e && e.message); }
     }
     host.innerHTML = html;
+  }
+
+  /* C3 helpers — the raw projection + the disagreement line, shared by the recs
+   * cards. Reads DraftConsensus (one derivation) and the artifact provenance so the
+   * label states the true source (Sleeper today; "Consensus (N)" only when >=2
+   * real sources land). Defensive if the module didn't load. */
+  function recRawProj(p) {
+    if (typeof DraftConsensus === 'undefined') {
+      return { value: p.proj_mean == null ? null : p.proj_mean, label: 'Sleeper proj', isConsensus: false };
+    }
+    return DraftConsensus.rawProjection(p, (state.data || {}).provenance);
+  }
+  function recDisagreementLine(s, scored) {
+    if (typeof DraftConsensus === 'undefined') return '';
+    const alt = DraftConsensus.higherProjectionAlt(s, scored, (state.data || {}).provenance, 6);
+    if (!alt) return '';
+    const rp = recRawProj(s.player);
+    return '<div class="rec-disagree" style="margin-top:.3rem;font-size:.82rem;color:#b45309">'
+      + '⚠ ' + escapeHtml(alt.alt.name) + ' projects higher ('
+      + Math.round(alt.alt_proj) + ' vs ' + Math.round(alt.rec_proj) + ' ' + escapeHtml(rp.label.replace(/ proj$/, ''))
+      + ') — we prefer ' + escapeHtml((s.player.name || '').split(' ').slice(-1)[0])
+      + ' on ' + escapeHtml(String((s.reasons || [])[0] || 'value').slice(0, 60))
+      + '. Both shown so you can judge the machinery.</div>';
   }
 
   function renderRecommendations() {
@@ -2452,11 +2533,20 @@
             : '') +
           '<div class="rec-stats">' +
             '<span title="Value Over Next Available — what you lose by waiting">VONA <b>' + s.components.vona.toFixed(1) + '</b></span>' +
-            '<span>Proj <b>' + Math.round(p.proj_mean) + '</b></span>' +
+            // C3 — the raw projection, labelled by its true source (Sleeper today,
+            // never "consensus" until a 2nd source lands), sat next to our VONA so a
+            // disagreement is visible on the card, not buried.
+            '<span title="Raw, unmodelled projection — the sanity check on our valuation">'
+              + escapeHtml(recRawProj(p).label.replace(/ proj$/, '')) + ' <b>'
+              + (recRawProj(p).value == null ? '—' : Math.round(recRawProj(p).value)) + '</b></span>' +
             '<span>Tier <b>' + p.tier + '</b> (' + p.tier_rank + '/' + p.tier_size + ')</span>' +
             '<span>ADP <b>' + Math.round(p.adjusted_adp) + '</b></span>' +
             (pct ? '<span class="' + (pct > 70 ? 'neg' : '') + '">' + pct + '% gone by next</span>' : '') +
           '</div>' +
+          // The disagreement line on the TOP card: if a same-position candidate
+          // projects higher than the one we're recommending, say so — that is the
+          // moment both numbers matter (machinery found something, or it's broken).
+          (i === 0 ? recDisagreementLine(s, scored) : '') +
         '</div>' +
         '<div class="rec-actions">' +
           '<div class="rec-score" title="Composite score">' + s.score.toFixed(1) + '</div>' +
@@ -3150,16 +3240,43 @@
       my_draft_slot: mySlot || (Number(league.my_draft_slot) <= teams
         ? Number(league.my_draft_slot) : 0) || 1,
       adp_blend_weight: 0.7,
-      // Mocks have no keepers. Saying count:0 is not a guess — it is what makes
-      // the rebuilt sequence match what the mock will actually do.
-      keepers: { count: 0, cost_model: 'no_cost' },
+      // MY keepers are real in a mock. Earlier this said `count:0`, which
+      // forfeited NOTHING — yet populateKeepers still seeds my 3 keepers onto
+      // the roster, so I ended up with keepers PLUS a pick in every round: a
+      // roster over-sized by the keeper count, my first live picks stacking on
+      // top of players I already hold. The mock must forfeit my top picks the
+      // same way the league draft does. So carry the league's real keeper
+      // config and forfeit MY rounds (top_picks_flat / count:3) — my first mock
+      // pick then lands in round (count+1), matching draft night.
+      //
+      // Opponents' keepers are handled separately by rehearsal-keeper mode
+      // (predicted keepers pulled from the BOARD, not the pick order), so only
+      // MY seat forfeits picks here — the seat whose sequence I actually draft.
+      keepers: (league.keeper_rules && (league.keeper_rules.count || 0) > 0)
+        ? Object.assign({}, league.keeper_rules)
+        : { count: 0, cost_model: 'no_cost' },
     };
-    const out = window.DraftKeepers.reapply(state.data.players, cfg, {});
+    // My keepers, looked up by my LEAGUE seat (kept_players.team_slot is stamped
+    // [league-seat]); they forfeit picks at my ROOM seat in this mock.
+    const myLeagueSeat = Number(league.my_draft_slot) || 0;
+    let myKeepers = [];
+    if ((cfg.keepers.count || 0) > 0 && myLeagueSeat) {
+      myKeepers = (state.data.kept_players || [])
+        .filter(k => Number(k.team_slot) === myLeagueSeat);
+      if (!myKeepers.length) {
+        myKeepers = ((state.data.pick_order || {}).forfeited || [])
+          .filter(f => Number(f.team_slot) === myLeagueSeat);
+      }
+    }
+    const keepersByTeam = myKeepers.length ? { [cfg.my_draft_slot]: myKeepers } : {};
+    const out = window.DraftKeepers.reapply(state.data.players, cfg, keepersByTeam);
     state.data.pick_order = {
       picks: out.order.picks.map(p => ({ overall: p.overall, round: p.round, slot: p.team_slot })),
       my_picks: out.order.my_picks,
       my_picks_before_keepers: out.order.my_original_picks,
-      forfeited: [],
+      // My forfeited rounds (keepers eat them), so the accounting invariant and
+      // the picks-remaining math see the keepers as real rounds given up.
+      forfeited: out.order.forfeited || [],
     };
     state.data.players = out.players;
     state.board = out.players.filter(p => !state.drafted.has(String(p.player_id)));
@@ -3200,9 +3317,15 @@
       host.className = 'prov-note warn';
       host.innerHTML = '<b>\ud83e\uddea</b> <span><b>Mock mode.</b> This draft is '
         + teams + ' teams \u00d7 ' + rounds + ' rounds (' + escapeHtml(cfg.draft_type)
-        + '), which is not your league\u2019s shape. Pick order rebuilt from the mock '
-        + 'with no keepers \u2014 <b>' + escapeHtml(DraftSeat.describe(state.seat))
-        + '</b>, so you pick at '
+        + '), which is not your league\u2019s shape. '
+        + ((myKeepers.length)
+            ? ('Your ' + myKeepers.length + ' keepers forfeit rounds 1\u2013' + myKeepers.length
+               + ' (as on draft night), ')
+            : 'Pick order rebuilt from the mock, ')
+        + '\u2014 <b>' + escapeHtml(DraftSeat.describe(state.seat))
+        + '</b>, so your first pick is '
+        + escapeHtml(String((state.data.pick_order.my_picks || [])[0] || '?'))
+        + ' and you pick at '
         + escapeHtml((state.data.pick_order.my_picks || []).slice(0, 6).join(', '))
         + ((state.data.pick_order.my_picks || []).length > 6 ? '\u2026' : '')
         + '. Keeper-adjusted ADP is <b>not</b> applied here, so treat the values as a '

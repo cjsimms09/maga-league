@@ -404,6 +404,56 @@ def build_fantasypros_table(sleeper_players: dict, *, year: int, half_ppr: bool 
     return rows, diag
 
 
+def build_fantasypros_projections(sleeper_players: dict, *, year: int, scoring: dict,
+                                  min_rows: int = 60) -> tuple[dict | None, dict]:
+    """FantasyPros SEASON PROJECTIONS, scored under OUR league scoring and crosswalked to
+    Sleeper ids — the SECOND projection source that turns the C3 sanity-check column from a
+    single-source number (which can be wrong in the same direction our machinery is wrong)
+    into a real consensus where two sources DISAGREEING is the informative event.
+
+    Returns ({sleeper_id: our_points}, diag) or (None, diag) when the fetch/crosswalk is too
+    thin to trust — in which case the caller attaches nothing and the board stays honestly
+    single-source. Same coverage-gate safety story as build_fantasypros_table.
+
+    Egress — CI only (FantasyPros is unreachable from the dev sandbox; it IS reachable in CI,
+    which is how the FP ADP anchor already works). This runs there and records coverage as
+    EVIDENCE: whether FP actually serves projections and how many crosswalk — the empirical
+    test of 'is it obtainable', not an assumption from our empty archive.
+    """
+    import sys as _sys
+    from pathlib import Path as _Path
+    bt = str(_Path(__file__).resolve().parent / "backtest")
+    if bt not in _sys.path:
+        _sys.path.insert(0, bt)
+    import fantasypros_adp as FP
+    from scoring import score_stat_line
+
+    text, url, fdiag = FP.fetch_projections(year)
+    parsed = FP.parse_projections(text) if text else []
+    diag = {"fp_proj_url": url, "fp_proj_rows_parsed": len(parsed), "fp_proj_fetch": fdiag}
+    if len(parsed) < min_rows:
+        diag["reason"] = f"only {len(parsed)} FP projection rows parsed (< {min_rows}); single-source"
+        return None, diag
+
+    index = build_index(sleeper_players)
+    out, unmatched, zero = {}, 0, 0
+    for i, entry in enumerate(parsed):
+        pid, method = match_player(entry, index)
+        if not pid:
+            unmatched += 1
+            continue
+        pts = score_stat_line(entry.get("stats") or {}, scoring)
+        if not pts:            # a crosswalked player with no scorable stats adds no signal
+            zero += 1
+            continue
+        out[str(pid)] = round(float(pts), 2)
+    diag.update({"fp_proj_matched": len(out), "fp_proj_unmatched": unmatched, "fp_proj_zero": zero})
+    if len(out) < min_rows:
+        diag["reason"] = f"only {len(out)} FP projections crosswalked (< {min_rows}); single-source"
+        return None, diag
+    return out, diag
+
+
 def merge_primary_over_ffc(ffc_table: dict, primary_table: dict) -> tuple[dict, dict]:
     """Merge a primary ADP table (e.g. FantasyPros) OVER the FFC table. The primary sets
     the price wherever it covers a player; FFC fills every player the primary misses;

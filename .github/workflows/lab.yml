@@ -109,6 +109,9 @@ jobs:
           python draft/backtest/stack_sweep.py --rooms 120        # exp 6
           python draft/backtest/exp_keeper_nabers.py --rooms 200  # keeper decision w/ Nabers (Aug-20 lock)
           python draft/backtest/exp_need_phase.py --rooms 300     # need-weight ramp vs the mask
+          python draft/backtest/exp_participation.py --rooms 400  # all-terms participation (draft-day Auto)
+          python draft/backtest/exp_participation_regional.py --rooms 400  # disaggregate-before-discard
+          python draft/backtest/exp_participation_rate.py --rooms 200  # do terms actually change picks?
           python draft/backtest/sim_validation.py --rooms 24      # simulator fidelity + limits
           python draft/opening_script.py                          # inherits any new verdict
           # The doctrine banner reads the enrolled plan off the BOARD artifact,
@@ -128,6 +131,9 @@ jobs:
                   draft/backtest/STACK-SWEEP.md draft/backtest/stack-sweep.json \
                   draft/backtest/EXP-KEEPER-NABERS.md draft/backtest/exp_keeper_nabers.json \
                   draft/backtest/EXP-NEED-PHASE.md draft/backtest/exp_need_phase.json \
+                  draft/backtest/EXP-PARTICIPATION.md draft/backtest/exp_participation.json \
+                  draft/backtest/EXP-PARTICIPATION-REGIONAL.md draft/backtest/exp_participation_regional.json \
+                  draft/backtest/EXP-PARTICIPATION-RATE.md draft/backtest/exp_participation_rate.json \
                   draft/backtest/SIM-FIDELITY.md draft/backtest/sim-fidelity.json \
                   draft/backtest/HETEROGENEOUS-VALIDATION.md \
                   draft/backtest/PLAYOFF-MONEY-VALIDATION.md \
@@ -318,12 +324,18 @@ jobs:
       - name: Fire source grade — FFC vs MFL per region (consumes exp36_picks.json + MFL egress)
         continue-on-error: true
         run: python draft/backtest/exp_source_grade.py
+      - name: GATE — edge-map pure core (no egress)
+        run: python -m pytest draft/tests/test_divergence.py -q
+      - name: Fire edge map — FantasyPros vs the room's revealed picks (consumes exp36_picks + FP)
+        continue-on-error: true
+        run: python draft/backtest/exp_divergence.py
       - name: Commit the exp 36 + exp 43 + source-grade reports
         run: |
           stamp=$(date -u +%Y-%m-%dT%H:%MZ)
           git config user.name "lab-bot"; git config user.email "actions@github.com"
           for f in draft/backtest/EXP36.md draft/backtest/exp36.json draft/backtest/exp43.json \
-                   draft/backtest/exp_source_grade.json; do
+                   draft/backtest/exp_source_grade.json \
+                   draft/backtest/exp_divergence.json; do
             [ -f "$f" ] && git add "$f"
           done
           git commit -m "Exp 36 + full-board pick audit + source grade $stamp" || { echo "no change"; exit 0; }
@@ -338,6 +350,7 @@ jobs:
             draft/backtest/exp36_picks.json
             draft/backtest/exp43.json
             draft/backtest/exp_source_grade.json
+            draft/backtest/exp_divergence.json
           retention-days: 30
 
   # EXPERIMENT 33 — projection-source bake-off (the foundational weak link).

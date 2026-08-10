@@ -60,6 +60,16 @@
     const model = rules.cost_model;
     if (model === 'no_cost') return null;
     if (model === 'fixed_round') return parseInt(rules.fixed_round, 10);
+    if (model === 'top_picks_flat') {
+      // POSITIONAL (mirrors keepers.py): keeping N keepers forfeits rounds 1..N.
+      // Per-player the cost cannot be resolved (it depends on rank within the
+      // team's kept set), so every keeper 'wants' round 1 and
+      // buildTruePickOrder's collision-roll assigns 1,2,3… — which IS rounds
+      // 1..N. Falling through to original_round (the old JS behaviour) was a
+      // silent divergence from Python: a keeper first drafted in round 5 would
+      // wrongly forfeit round 5 instead of the flat top pick.
+      return 1;
+    }
 
     let original = keeper.original_round;
     if (original == null) {

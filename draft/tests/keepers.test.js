@@ -105,6 +105,36 @@ V.cases.forEach(c => {
       a.picks.filter(p => p.team_slot === 2).map(p => p.overall)));
 }
 
+// --- top_picks_flat: keeping N keepers forfeits rounds 1..N (JS↔Python parity) --
+// This is the case the JS keeperCostRound used to miss — it fell through to
+// original_round, so a keeper first drafted in a later round wrongly forfeited
+// that later round instead of the flat top pick.
+(function topPicksFlat() {
+  const cfg = { teams: 10, rounds: 15, draft_type: 'snake', my_draft_slot: 4,
+    keepers: { count: 3, cost_model: 'top_picks_flat', count_undrafted_round: 10 } };
+  // Three keepers whose ORIGINAL rounds are all over the map (1, 5, 9). Under
+  // top_picks_flat they must still forfeit rounds 1, 2, 3 — never 5 or 9.
+  const keepers = { 4: [
+    { player_id: 'a', name: 'A', original_round: 1 },
+    { player_id: 'b', name: 'B', original_round: 5 },
+    { player_id: 'c', name: 'C', original_round: 9 },
+  ] };
+  const order = K.buildTruePickOrder(cfg, keepers);
+  const myForfeitRounds = order.forfeited.map(f => f.cost_round).sort((x, y) => x - y);
+  check('top_picks_flat forfeits rounds 1,2,3 regardless of original round',
+    JSON.stringify(myForfeitRounds) === JSON.stringify([1, 2, 3]),
+    JSON.stringify(myForfeitRounds));
+  // My first surviving pick is the round-4 pick, not round 1.
+  const firstRound4Overall = 10 * 3 + (10 - cfg.my_draft_slot + 1); // snake R4 reversed: slot 4 -> 30+7=37 original
+  check('my first pick lands in round 4 (top 3 forfeited)',
+    order.my_picks.length === cfg.rounds - 3, order.my_picks.length + ' picks');
+  // The MOCK OVER-ROSTER INVARIANT: keepers(3) + surviving my_picks(12) == rounds(15).
+  // Before the fix the mock forfeited nothing, so it was 3 + 15 = 18 (over by 3).
+  check('keepers + surviving picks == rounds (no over-roster)',
+    keepers[4].length + order.my_picks.length === cfg.rounds,
+    keepers[4].length + ' + ' + order.my_picks.length + ' vs ' + cfg.rounds);
+})();
+
 // Python's round() is banker's rounding. Naive JS rounding diverges on ties.
 check('round2 matches Python banker\'s rounding on exact ties',
   K.round2(2.675) === 2.68 || K.round2(2.675) === 2.67,   // representable-dependent

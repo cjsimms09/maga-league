@@ -1,0 +1,94 @@
+{
+  "experiment": "ceiling replication across fresh seeds",
+  "rooms": 400,
+  "seeds": [
+    20268727,
+    20365537,
+    21560517
+  ],
+  "per_seed": [
+    {
+      "seed": 20268727,
+      "w0.65": {
+        "edge": -9.62,
+        "ci95": [
+          -30.94,
+          12.06
+        ],
+        "separable": false
+      },
+      "w1.0": {
+        "edge": 5.94,
+        "ci95": [
+          -14.62,
+          25.44
+        ],
+        "separable": false
+      },
+      "w1.5": {
+        "edge": 22.69,
+        "ci95": [
+          -0.25,
+          45.38
+        ],
+        "separable": false
+      }
+    },
+    {
+      "seed": 20365537,
+      "w0.65": {
+        "edge": -8.81,
+        "ci95": [
+          -29.56,
+          13.31
+        ],
+        "separable": false
+      },
+      "w1.0": {
+        "edge": 7.31,
+        "ci95": [
+          -16.12,
+          30.94
+        ],
+        "separable": false
+      },
+      "w1.5": {
+        "edge": 13.75,
+        "ci95": [
+          -9.88,
+          39.12
+        ],
+        "separable": false
+      }
+    },
+    {
+      "seed": 21560517,
+      "w0.65": {
+        "edge": 18.81,
+        "ci95": [
+          -3.12,
+          41.25
+        ],
+        "separable": false
+      },
+      "w1.0": {
+        "edge": 17.62,
+        "ci95": [
+          -8.06,
+          41.56
+        ],
+        "separable": false
+      },
+      "w1.5": {
+        "edge": 50.38,
+        "ci95": [
+          26.5,
+          73.62
+        ],
+        "separable": true
+      }
+    }
+  ],
+  "mean_w1_0": 10.3,
+  "verdict": "LEANS positive \u2014 w=1.0 positive in all seeds (mean +$10.3) but separable in only 0/3. Directional; keep 0.65, treat 1.0 as favored-but-thin."
+}

@@ -2128,7 +2128,9 @@ async function liveOptimizeFor(world, owners, me) {
     let oppMean = 0, oppKnown = false;
     if (matchup && matchup.opp && matchup.opp.points > 0) { oppMean = matchup.opp.points; oppKnown = true; }
     else { oppMean = band.median; }
-    live = LO.optimize(rosterIn, { band, sigmaByPos, oppMean, matchupValue: 25 });
+    // matchupValue omitted -> optimize() uses its derived playoff-equity default
+    // ($110, draft/backtest/matchup_value.py). NOT a side bet (Cory, 2026-08-10).
+    live = LO.optimize(rosterIn, { band, sigmaByPos, oppMean });
     live.oppKnown = oppKnown;
     live.inactive = inactive;
   }

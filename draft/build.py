@@ -438,7 +438,43 @@ def load_players(cfg: dict, offline: bool) -> list[dict]:
         p["consensus_rank"] = p["raw_adp"]
 
     opportunity = _rekey_opportunity(load_opportunity(cfg, offline), raw)
-    return proj_mod.blend(players, baseline, opportunity, cfg)
+    board = proj_mod.blend(players, baseline, opportunity, cfg)
+
+    # SECOND PROJECTION SOURCE (C3 real consensus). The projection column is a check
+    # on our OWN machinery, and a single-source check can be wrong in the same
+    # direction the machinery is wrong — two sources DISAGREEING is most of the point
+    # of the feature (Cory, 2026-08-10). So attach FantasyPros projections, scored
+    # under OUR scoring, alongside the raw Sleeper baseline. When FP lands, each
+    # player carries BOTH raw sources (proj_sleeper + proj_fantasypros) and the client
+    # shows a true consensus; when it doesn't, nothing is attached and the client
+    # stays honestly single-source (proj_mean labelled 'Sleeper proj').
+    #
+    # Coverage-gated and never a build dependency (FP is an upgrade). Egress — CI
+    # only; this IS the empirical probe of 'does FP serve projections', recording
+    # coverage as evidence rather than assuming from our once-empty archive.
+    try:
+        fp_proj, fpp_diag = adp_mod.build_fantasypros_projections(
+            raw, year=year_n, scoring=cfg["scoring"])
+        PROJECTION_PROVENANCE["fantasypros"] = fpp_diag
+        if fp_proj:
+            attached = 0
+            for p in board:
+                v = fp_proj.get(str(p.get("player_id")))
+                if v is not None and p.get("proj_baseline") is not None:
+                    p["proj_sleeper"] = round(float(p["proj_baseline"]), 2)  # raw, unmodelled
+                    p["proj_fantasypros"] = v
+                    attached += 1
+            PROJECTION_PROVENANCE["fantasypros_attached"] = attached
+            PROJECTION_PROVENANCE["consensus_sources"] = 2 if attached else 1
+            print(f"  projections: FantasyPros 2nd source on {attached} players — CONSENSUS live")
+        else:
+            PROJECTION_PROVENANCE["consensus_sources"] = 1
+            print(f"  projections: single-source Sleeper (FP not used — {fpp_diag.get('reason')})")
+    except Exception as fppx:  # noqa: BLE001 — FP is an upgrade, never a dependency
+        PROJECTION_PROVENANCE["fantasypros"] = {"error": f"{type(fppx).__name__}: {fppx}"}
+        PROJECTION_PROVENANCE["consensus_sources"] = 1
+        print(f"  ! FantasyPros projections skipped ({type(fppx).__name__}); single-source Sleeper")
+    return board
 
 
 def _id_crosswalk(sleeper_players: dict) -> dict:
