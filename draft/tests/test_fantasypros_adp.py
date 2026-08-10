@@ -70,3 +70,20 @@ def test_picks_the_largest_rows_array_and_is_string_aware():
     rows = FP.parse(html)
     assert len(rows) == 3, [r["name"] for r in rows]      # the 3-row ADP table, not the 1-row widget
     assert rows[1]["name"] == "C D [x]"                    # a ']' inside a name did not truncate
+
+
+def test_parse_projections_maps_stats_to_our_keys():
+    import json as _j
+    import fantasypros_adp as FP
+    fixture = _j.dumps({"players": [
+        {"player_name": "Josh Allen", "player_position_id": "QB", "player_team_id": "BUF",
+         "stats": {"pass_yds": 4200, "pass_tds": 32, "rush_yds": 500, "rush_tds": 6}},
+        {"player_name": "Bijan Robinson", "player_position_id": "RB", "player_team_id": "ATL",
+         "rush_yds": 1300, "rush_tds": 11, "rec": 60, "rec_yds": 500},
+    ]})
+    rows = FP.parse_projections(fixture)
+    assert len(rows) == 2
+    a = next(r for r in rows if r["name"] == "Josh Allen")
+    assert a["stats"]["pass_yd"] == 4200.0 and a["stats"]["pass_td"] == 32.0
+    b = next(r for r in rows if r["name"] == "Bijan Robinson")
+    assert b["stats"]["rec"] == 60.0 and b["position"] == "RB"       # top-level stats also read

@@ -235,6 +235,110 @@ def fetch(year, half_ppr=True, timeout=30):   # pragma: no cover  (egress, CI on
     return html, page_url, diag   # fall back to the (thin) SSR HTML — diag shows why
 
 
+# ── FANTASYPROS PROJECTIONS (Cory Q2: grade a projection source we already parse) ──────────
+# FP publishes projected STAT LINES; we convert them with OUR score_stat_line (same as Sleeper's
+# baseline_from_projections) so any Sleeper-vs-FP difference is the SOURCE, not the scoring math.
+# FP stat field -> our Sleeper-vocabulary scoring key.
+_FP_STAT_MAP = {
+    "pass_yds": "pass_yd", "pass_tds": "pass_td", "pass_ints": "pass_int", "interceptions": "pass_int",
+    "rush_yds": "rush_yd", "rush_tds": "rush_td", "rush_att": "rush_att",
+    "rec": "rec", "receptions": "rec", "rec_yds": "rec_yd", "rec_tds": "rec_td",
+    "fumbles": "fum_lost", "fumbles_lost": "fum_lost",
+}
+
+_PROJ_API_CANDIDATES = [
+    "https://api.fantasypros.com/v2/json/nfl/{y}/projections?position=ALL&scoring=HALF&week=draft",
+    "https://api.fantasypros.com/v2/json/nfl/{y}/projections?position=ALL&scoring=HALF&week=0",
+    "https://api.fantasypros.com/public/v2/json/nfl/{y}/projections?position=ALL&scoring=HALF&week=draft",
+]
+
+
+def parse_projections(text):
+    """FP projections -> [{name, position, team, stats:{our_scoring_keys: value}}]. Accepts the
+    data-API JSON ({players:[{player_name, player_position_id, player_team_id, stats/top-level
+    stat fields}]}) and a bare list. Numbers are coerced; unknown stat keys are dropped."""
+    s = (text or "").strip()
+    data = None
+    if s.startswith("{") or s.startswith("["):
+        try:
+            data = json.loads(s)
+        except (ValueError, TypeError):
+            data = None
+    if data is None:
+        raw = _extract_rows_json(text)
+        try:
+            data = json.loads(raw) if raw else []
+        except (ValueError, TypeError):
+            data = []
+    rows = []
+    for o in _rows_from(data):
+        if not isinstance(o, dict):
+            continue
+        pl = o.get("player") or {}
+        name = pl.get("name") or o.get("name") or o.get("player_name")
+        if not name:
+            continue
+        team_raw = str(pl.get("team") or o.get("team") or o.get("player_team_id") or "")
+        team = team_raw.split(" (")[0].strip()
+        pos_m = _POS.search(str(o.get("pos") or o.get("position") or o.get("player_position_id") or ""))
+        # stats can be nested ("stats") or top-level fields on the row
+        src = o.get("stats") if isinstance(o.get("stats"), dict) else o
+        stats = {}
+        for fp_key, our_key in _FP_STAT_MAP.items():
+            v = src.get(fp_key)
+            if v is None:
+                continue
+            try:
+                stats[our_key] = stats.get(our_key, 0.0) + float(str(v).replace(",", ""))
+            except (TypeError, ValueError):
+                continue
+        # some feeds also carry a precomputed fpts — keep it as a cross-check, not the value
+        fpts = src.get("fpts") or o.get("fpts")
+        if not stats and fpts is None:
+            continue
+        rows.append({"name": name,
+                     "position": _norm_pos(pos_m.group(1)) if pos_m else None,
+                     "team": team if team and not team.isdigit() else None,
+                     "stats": stats,
+                     "fp_fpts": (float(str(fpts).replace(",", "")) if fpts not in (None, "") else None)})
+    return rows
+
+
+def fetch_projections(year, timeout=30):   # pragma: no cover  (egress, CI only)
+    """Return (text, url, diag) for FP season projections — self-discovering like fetch(), but
+    aimed at the projections endpoint. Reuses the bundle key discovered on the projections page."""
+    import re as _re
+    page_url = f"https://www.fantasypros.com/nfl/projections/qb.php?scoring=HALF&week=draft&year={year}"
+    diag = {"page_url": page_url, "api_tried": []}
+    key = None
+    try:
+        html = _get(page_url, timeout)
+        km = _KEY_RE.search(html)
+        if km:
+            key = km.group(1); diag["bundle_key_found"] = True
+        for bname in _re.findall(r'//cdn\.fantasypros\.com/[^"\']*bundle-[^"\']+\.js', html)[:6]:
+            try:
+                b = _get("https:" + bname, timeout)
+                if not key and (km := _KEY_RE.search(b)):
+                    key = km.group(1); diag["bundle_key_found"] = True
+            except Exception:
+                pass
+    except Exception as e:
+        return None, page_url, {**diag, "page_error": type(e).__name__}
+    for tmpl in _PROJ_API_CANDIDATES:
+        api_url = tmpl.replace("{y}", str(year))
+        try:
+            txt = _get(api_url, timeout, headers=({"x-api-key": key} if key else None))
+            n = len(parse_projections(txt))
+            diag["api_tried"].append({"url": api_url[:150], "rows": n, "keyed": bool(key)})
+            if n >= 20:
+                diag["api_ok"] = api_url[:150]
+                return txt, api_url, diag
+        except Exception as e:
+            diag["api_tried"].append({"url": api_url[:150], "err": type(e).__name__})
+    return html, page_url, diag
+
+
 if __name__ == "__main__":   # pragma: no cover
     import json
     import sys
