@@ -1,0 +1,234 @@
+{
+  "experiment": "construction objective \u2014 points vs ceiling vs floor, graded in E[$]",
+  "beta": 0.15,
+  "n_seasons": 3,
+  "aggregate": {
+    "ceiling": {
+      "weekly_high": {
+        "sum": -100.0,
+        "mean": -33.33,
+        "n": 3
+      },
+      "regular_season": {
+        "sum": 0,
+        "mean": 0.0,
+        "n": 3
+      },
+      "playoff": {
+        "sum": 0,
+        "mean": 0.0,
+        "n": 3
+      },
+      "total": {
+        "sum": -100.0,
+        "mean": -33.33,
+        "n": 3
+      },
+      "sign_consistent": false,
+      "per_season_total": {
+        "2025": -100.0,
+        "2024": 0.0,
+        "2023": 0
+      }
+    },
+    "floor": {
+      "weekly_high": {
+        "sum": -200.0,
+        "mean": -66.67,
+        "n": 3
+      },
+      "regular_season": {
+        "sum": 0,
+        "mean": 0.0,
+        "n": 3
+      },
+      "playoff": {
+        "sum": 0,
+        "mean": 0.0,
+        "n": 3
+      },
+      "total": {
+        "sum": -200.0,
+        "mean": -66.67,
+        "n": 3
+      },
+      "sign_consistent": false,
+      "per_season_total": {
+        "2025": -100.0,
+        "2024": -100.0,
+        "2023": 0
+      }
+    },
+    "thin": true
+  },
+  "seasons": [
+    {
+      "season": "2025",
+      "graded": {
+        "points": {
+          "weekly_high": 100.0,
+          "regular_season": 0.0,
+          "playoff": 0.0,
+          "total": 100.0,
+          "playoff_place": null,
+          "made_playoffs": false,
+          "partial": false
+        },
+        "ceiling": {
+          "weekly_high": 0.0,
+          "regular_season": 0.0,
+          "playoff": 0.0,
+          "total": 0.0,
+          "playoff_place": null,
+          "made_playoffs": false,
+          "partial": false
+        },
+        "floor": {
+          "weekly_high": 0.0,
+          "regular_season": 0.0,
+          "playoff": 0.0,
+          "total": 0.0,
+          "playoff_place": null,
+          "made_playoffs": false,
+          "partial": false
+        }
+      },
+      "delta_vs_points": {
+        "ceiling": {
+          "weekly_high": -100.0,
+          "regular_season": 0,
+          "playoff": 0,
+          "total": -100.0
+        },
+        "floor": {
+          "weekly_high": -100.0,
+          "regular_season": 0,
+          "playoff": 0,
+          "total": -100.0
+        }
+      },
+      "players_changed_vs_points": {
+        "ceiling": 1,
+        "floor": 4
+      },
+      "fallbacks": {
+        "points": 0,
+        "ceiling": 0,
+        "floor": 0
+      }
+    },
+    {
+      "season": "2024",
+      "graded": {
+        "points": {
+          "weekly_high": 200.0,
+          "regular_season": 0.0,
+          "playoff": 0.0,
+          "total": 200.0,
+          "playoff_place": null,
+          "made_playoffs": false,
+          "partial": false
+        },
+        "ceiling": {
+          "weekly_high": 200.0,
+          "regular_season": 0.0,
+          "playoff": 0.0,
+          "total": 200.0,
+          "playoff_place": null,
+          "made_playoffs": false,
+          "partial": false
+        },
+        "floor": {
+          "weekly_high": 100.0,
+          "regular_season": 0.0,
+          "playoff": 0.0,
+          "total": 100.0,
+          "playoff_place": null,
+          "made_playoffs": false,
+          "partial": false
+        }
+      },
+      "delta_vs_points": {
+        "ceiling": {
+          "weekly_high": 0.0,
+          "regular_season": 0,
+          "playoff": 0,
+          "total": 0.0
+        },
+        "floor": {
+          "weekly_high": -100.0,
+          "regular_season": 0,
+          "playoff": 0,
+          "total": -100.0
+        }
+      },
+      "players_changed_vs_points": {
+        "ceiling": 1,
+        "floor": 1
+      },
+      "fallbacks": {
+        "points": 0,
+        "ceiling": 0,
+        "floor": 0
+      }
+    },
+    {
+      "season": "2023",
+      "graded": {
+        "points": {
+          "weekly_high": 0.0,
+          "regular_season": 0.0,
+          "playoff": 0.0,
+          "total": 0.0,
+          "playoff_place": null,
+          "made_playoffs": false,
+          "partial": false
+        },
+        "ceiling": {
+          "weekly_high": 0.0,
+          "regular_season": 0.0,
+          "playoff": 0.0,
+          "total": 0.0,
+          "playoff_place": null,
+          "made_playoffs": false,
+          "partial": false
+        },
+        "floor": {
+          "weekly_high": 0.0,
+          "regular_season": 0.0,
+          "playoff": 0.0,
+          "total": 0.0,
+          "playoff_place": null,
+          "made_playoffs": false,
+          "partial": false
+        }
+      },
+      "delta_vs_points": {
+        "ceiling": {
+          "weekly_high": 0,
+          "regular_season": 0,
+          "playoff": 0,
+          "total": 0
+        },
+        "floor": {
+          "weekly_high": 0,
+          "regular_season": 0,
+          "playoff": 0,
+          "total": 0
+        }
+      },
+      "players_changed_vs_points": {
+        "ceiling": 1,
+        "floor": 1
+      },
+      "fallbacks": {
+        "points": 0,
+        "ceiling": 0,
+        "floor": 0
+      }
+    }
+  ],
+  "caveats": [],
+  "verdict": "Both alternative shapes ~tie the points objective \u2014 the board's value ranking is already close to the money-maximizing shape; the objective is not where the edge is. CEILING trails points by $-100.0 total across 3 seasons (weekly-high \u0394$-100.0, playoff \u0394$0; mixed by season). FLOOR trails points by $-200.0 total across 3 seasons (weekly-high \u0394$-200.0, playoff \u0394$0; mixed by season). Thin (n=seasons); directional, not significant.",
+  "note": "leak-free: projection is walk-forward, boom/bust + availability from PRIOR-season weekly only. beta pre-registered at 0.15 (board's opportunity nudge). Both alt objectives graded on the SAME optimal-lineup ceiling and the SAME fixed room as POINTS, so the delta isolates the objective. Thin (n=seasons) \u2014 per-season sign + component split is the read, not the CI."
+}
