@@ -1631,3 +1631,27 @@ the top sharpened and more collapsed by default:
 DEPENDENCY: the hierarchy redesign benefits from eyes on the LIVE commissioner-only
 screen (which B cannot view from the sandbox) — best done with Cory watching, or against
 a screenshot. Blind restructuring of a screen I can't render is the one risky part.
+
+## ▶ SESSION B → A FLAG (2026-08-10): board-age contradiction — one threshold, read twice
+
+From Cory's war-room render review (item 1), routed to A because the logic is
+entirely in `public/js/draft/app.js` (A's lane; B does not edit it — same as the
+rules-page seam).
+
+**The contradiction:** at 7h old the board reads BOTH verdicts at once —
+- checklist item "**Board is fresh**", `ok: ageH != null && ageH < 48`
+  (`app.js:~1752`) → ✅ at 7h, and
+- the top warning "**This board is 7 hours old — consider rebuilding**",
+  fires at `hours > 6` (`app.js:~1134-1138`), blocks at `> 18`.
+
+One fact (`built_at`), two thresholds (48 vs 6), adjacent on screen. Cory: "pick
+one threshold and have both read it — if 7h is fine drop the warning, if not drop
+the checkmark."
+
+**Fix (A):** a SINGLE freshness threshold constant (e.g. `BOARD_FRESH_MAX_H = 6`,
+plus the existing `> 18` block) read by BOTH the checklist item and the banner —
+not two comparisons that happen to (dis)agree. The checklist's own comment already
+says "these two read the SAME provenance the banner reads"; the miss is that they
+read the same `built_at` but apply different numbers. Make the number one variable.
+(B reverted a one-line attempt here on Cory's instruction — this is A's to own so
+the constant lands with A's other app.js work and there's no two-cooks merge.)
