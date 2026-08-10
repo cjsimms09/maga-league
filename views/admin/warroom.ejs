@@ -299,6 +299,9 @@
         <button class="btn small ghost" id="queue-print" title="One page, designed for paper">🖨 Print sheet</button>
         <button class="btn small ghost" id="queue-tidy" hidden></button>
       </div>
+      <%# THE DRAFT-DAY FALLBACK — a server-rendered, no-JS printable board that
+          works even if this war room won't load. Print it the night before. %>
+      <p style="margin:.55rem 0 0"><a class="btn small navy" href="/admin/draft-sheet" target="_blank" rel="noopener" title="Server-rendered board + the rule + a manual pick log — works with no network, prints on paper">🖨 Full board fallback sheet →</a></p>
       <p class="muted" id="sheet-note" style="margin:.5rem 0 0; font-size:.74rem"></p>
       <p class="muted" style="margin:.35rem 0 0; font-size:.72rem">
         Your order, never re-sorted — the decision already made. Add anyone with the ➕ on any row or the board. Print it the night before; if the wifi dies at the table, paper still works.
