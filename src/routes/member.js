@@ -2105,6 +2105,7 @@ async function liveOptimizeFor(world, owners, me) {
   }
   if (roster && roster.rows && roster.rows.length) {
     const wk = (matchup && matchup.week) || (sData && sData.state && sData.state.week) || null;
+    const inactive = [];   // players the guard zeroed — surfaced so an absence is explained
     const rosterIn = roster.rows.filter(r => r.pos && r.pos !== '?').map(r => {
       let proj = null, src = null;
       if (r.proj != null) { proj = Number(r.proj); src = 'sleeper'; }
@@ -2118,6 +2119,10 @@ async function liveOptimizeFor(world, owners, me) {
       // season-avg/last-week fallbacks above hand a benched player a full
       // projection and the tool would recommend starting him.
       const guarded = LO.activeProjection(Math.round(proj * 10) / 10, r, wk);
+      if (LO.isInactive(r, wk)) {
+        const onBye = wk != null && r.bye != null && Number(r.bye) === Number(wk);
+        inactive.push({ name: r.name, pos: r.pos, reason: onBye ? ('bye ' + r.bye) : (String(r.inj || 'out').trim()) });
+      }
       return { id: r.id, name: r.name, pos: r.pos, proj: guarded, sd: r.sd };
     });
     let oppMean = 0, oppKnown = false;
@@ -2125,6 +2130,7 @@ async function liveOptimizeFor(world, owners, me) {
     else { oppMean = band.median; }
     live = LO.optimize(rosterIn, { band, sigmaByPos, oppMean, matchupValue: 25 });
     live.oppKnown = oppKnown;
+    live.inactive = inactive;
   }
   const weekNo = (matchup && matchup.week) || (sData && sData.week) || 1;
   return { live, roster, matchup, projSource, band, weekNo };
@@ -2157,6 +2163,7 @@ router.get('/lineup', requireCommissioner, aw(async (req, res) => {
 
   res.render('lineup', {
     me, owners, tab, season, band, live, projSource, roster, matchup, weekNo, alert,
+    posture: live ? LO.weeklyPosture(live, band) : null,   // chase vs protect — the week's one real call
     proof, eff, myLeak: Math.round(myLeak), drill,
     configured: !!world.config.sleeper_league_id,
     logged: req.query.logged === '1',

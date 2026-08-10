@@ -132,7 +132,15 @@ const fmt = n => '$' + Math.abs(Math.round(n * 100) / 100).toLocaleString('en-US
 async function sundayAlert(owner, alert) {
   if (!owner || !owner.email || !alert) return { skipped: true };
   const week = alert.week ? `Week ${alert.week}` : 'This week';
-  let body = `<b>${alert.headline}</b>`;
+  // Lead with the one real call — chase the $100 or protect the matchup — the same
+  // verdict the on-page optimizer now leads with, so the email and the site agree.
+  let body = '';
+  if (alert.posture) {
+    const tag = alert.posture.mode === 'chase' ? '🎯 CHASE' : '🛡️ PROTECT';
+    body += `<div style="font-weight:800;font-size:16px">${tag} — ${alert.posture.headline}</div>`
+          + `<div style="color:#3c4a60;margin:4px 0 12px">${alert.posture.why}</div>`;
+  }
+  body += `<b>${alert.headline}</b>`;
   if (alert.hasCalls) {
     body += '<br><br>' + alert.calls.map(c =>
       `▲ <b>Start ${c.start}</b> over ${c.sit} — <b style="color:#4ade80">$${Math.round(c.dollars)}</b> <span style="color:#8a92a6">(${c.why})</span>`

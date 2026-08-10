@@ -324,7 +324,7 @@ form.asis { display: inline; }
   padding: .75rem .4rem; background: rgba(255, 255, 255, .02);
 }
 .slot .n { font-family: var(--font-display); font-size: .6rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
-.slot .who { font-family: var(--font-display); font-size: .98rem; font-weight: 800; color: #fff; text-transform: uppercase; letter-spacing: .05em; }
+.slot .who { font-family: var(--font-display); font-size: .98rem; font-weight: 800; color: var(--navy); text-transform: uppercase; letter-spacing: .05em; }  /* was #fff — the taken-slot name (e.g. SPOT #10 winner) was invisible on the light theme */
 .slot.taken { border-color: rgba(245, 196, 69, .45); background: rgba(245, 196, 69, .06); }
 .slot.open-slot { border-style: dashed; }
 .slot form { margin-top: .35rem; }
@@ -1844,9 +1844,32 @@ button.pd-team.pick:hover { background: rgba(245,196,69,.16); transform: transla
 .sb-dispute-form input { flex: 1 1 12rem; }
 .owe-novenmo { font-size: .72rem; color: var(--red-bright); font-weight: 600; }
 
-/* ── THE SUNDAY ALERT preview ───────────────────────────────────────────────── */
+/* ── THE WEEKLY VERDICT — chase vs protect, the one real call, led like the war
+   room's recommendation: one tag, one line, one sentence. ─────────────────── */
+.lo-verdict { border-width: 2px; }
+.lo-verdict.lo-chase   { border-color: var(--gold-bright); }
+.lo-verdict.lo-protect { border-color: var(--navy); }
+.lo-verdict-head { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; margin-bottom: .45rem; }
+.lo-verdict-tag { flex: 0 0 auto; font-family: var(--font-display); font-weight: 900; font-size: .72rem;
+  letter-spacing: .08em; padding: .2rem .55rem; border-radius: 999px; }
+.lo-chase   .lo-verdict-tag { background: rgba(185,130,42,.16); color: var(--gold-bright); }
+.lo-protect .lo-verdict-tag { background: rgba(18,41,74,.10);  color: var(--navy); }
+.lo-verdict-line { font-family: var(--font-display); font-weight: 800; font-size: 1.05rem; color: var(--ink); line-height: 1.2; }
+.lo-verdict-why { font-size: .9rem; line-height: 1.5; color: var(--ink); margin: 0 0 .35rem; }
+/* Mark the variance play inside "Play This" so a CHASE verdict is concrete. */
+.lo-chase-row { background: rgba(185,130,42,.07); }
+.lo-chase-badge { font-family: var(--font-display); font-weight: 800; font-size: .58rem;
+  letter-spacing: .06em; text-transform: uppercase; color: var(--gold-bright);
+  background: rgba(185,130,42,.14); border-radius: 999px; padding: .08rem .4rem; white-space: nowrap; }
+.lo-inactive { font-size: .78rem; margin: .6rem 0 0; line-height: 1.45; }
+
+/* ── THE SUNDAY ALERT preview (demoted to a <details> below the call) ────────── */
 .sa-preview { border-color: rgba(245,196,69,.3); }
-.sa-head { font-size: 1rem; font-weight: 800; color: #fff; margin-bottom: .5rem; }
+details.sa-preview > summary { cursor: pointer; font-weight: 700; color: var(--navy);
+  padding: .7rem .9rem; list-style: none; }
+details.sa-preview > summary::-webkit-details-marker { display: none; }
+details.sa-preview[open] > summary { border-bottom: 1px solid var(--line); }
+.sa-head { font-size: 1rem; font-weight: 800; color: var(--ink); margin-bottom: .5rem; }
 .sa-calls { list-style: none; margin: 0; padding: 0; }
 .sa-calls li { display: flex; align-items: baseline; gap: .6rem; flex-wrap: wrap;
   padding: .4rem 0; border-bottom: 1px solid var(--line); }
@@ -3478,6 +3501,9 @@ html.dispatch-open { overflow: hidden; }
    watchability; the sweat meter is a single bar; colour tracks the state. */
 .wtw-band { margin: 0 0 1rem; font-size: .82rem; }
 .wtw-list { display: flex; flex-direction: column; gap: .6rem; }
+.wtw-sec { font-family: var(--font-display); font-weight: 800; font-size: .68rem;
+  letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin: .5rem 0 -.1rem; }
+.wtw-sec:first-child { margin-top: 0; }
 .wtw-row { background: var(--panel); border: 1px solid var(--line); border-left: 3px solid var(--muted);
   border-radius: var(--radius); padding: .7rem .85rem; }
 .wtw-row.flip { border-left-color: var(--gold-bright); }
@@ -3488,7 +3514,7 @@ html.dispatch-open { overflow: hidden; }
 .wtw-top { display: flex; align-items: center; gap: .5rem; }
 .wtw-icon { font-size: 1.1rem; }
 .wtw-who { flex: 1 1 auto; min-width: 0; font-size: .92rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.wtw-who b { color: #fff; font-family: var(--font-display); }
+.wtw-who b { color: var(--ink); font-family: var(--font-display); }  /* was #fff — invisible on the light theme */
 .wtw-pct { font-variant-numeric: tabular-nums; font-weight: 800; color: #4a5972; }
 .wtw-meter { margin: .5rem 0 .4rem; height: 8px; border-radius: 999px; overflow: hidden; background: rgba(255,255,255,.08); }
 .wtw-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--gold), var(--gold-bright)); }

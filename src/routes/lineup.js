@@ -504,6 +504,60 @@ function confidenceSentence(calls, ev, naiveEv, band) {
   return bits.join(' ');
 }
 
+// THE ONE NON-OBVIOUS WEEKLY CALL — chase the $100, or protect the matchup?
+//
+// Every week a manager faces the same fork: start a boom-or-bust player to chase
+// the weekly high, or start the safe floor to bank the head-to-head. The E[$]
+// solver already resolves it, but it never SAYS which mode you're in — and that
+// is the single most valuable thing this tool can tell you. This reads the answer
+// straight off what the solver did:
+//   • the naive lineup is your highest-projection studs (the highest floor); the
+//     solver only ever deviates to ADD ceiling for the high-chase, so a positive
+//     edge means "the tool is trading floor for ceiling" = CHASE, and ~zero edge
+//     means "your studs are already optimal" = PROTECT.
+//   • WHY is read off P(win) and P(clear the high): a nearly-won or nearly-lost
+//     matchup frees you to chase; a coin-flip matchup with the $100 out of reach
+//     is the case to protect.
+// Returns a plain headline + one honest sentence. Pure — no live data of its own.
+function weeklyPosture(res, band) {
+  const ev = (res && res.ev) || {};
+  const pWin = ev.pWin;                 // null when the opponent isn't set yet
+  const pHigh = Number(ev.pHigh || 0);
+  const edge = Number((res && res.edge) || 0);
+  const pct = p => p == null ? '—' : Math.round(p * 100) + '%';
+  const dol = n => (n >= 0 ? '+$' : '−$') + Math.abs(Math.round(n));
+  const chasing = edge >= 1;            // the solver traded floor for ceiling
+
+  if (!chasing) {
+    const coinflip = pWin != null && pWin >= 0.35 && pWin <= 0.65;
+    return {
+      mode: 'protect',
+      headline: coinflip ? 'Protect the matchup — it’s a coin flip'
+                         : 'Start your studs — no chase this week',
+      why: pWin != null
+        ? `Your highest-projection lineup is also the dollar-optimal one. P(win) ${pct(pWin)}, P($100) ${pct(pHigh)} — `
+          + (coinflip
+              ? 'the matchup is the live money; a boom-or-bust play would risk a winnable game for a lottery ticket you probably won’t hit. Play the floor.'
+              : 'not enough weekly-high upside to trade any floor for it. Play the floor.')
+        : 'Your highest-projection lineup is also the dollar-optimal one — no start/sit call to make.',
+    };
+  }
+  if (pWin != null && pWin >= 0.75) {
+    return { mode: 'chase', headline: 'Chase the weekly $100 — your matchup is nearly won',
+      why: `P(win) ${pct(pWin)}: the win is close to banked, so the live money is the $100. Starting your ceiling can clear it and can’t cost you the matchup — worth ${dol(edge)} over your studs.` };
+  }
+  if (pWin != null && pWin <= 0.25) {
+    return { mode: 'chase', headline: 'Swing for the $100 — the matchup is a long shot',
+      why: `P(win) ${pct(pWin)}: the matchup is likely lost, so the $100 is your only live money. Go maximum ceiling — worth ${dol(edge)} over your studs.` };
+  }
+  if (pWin == null) {
+    return { mode: 'chase', headline: 'Chase the weekly $100',
+      why: `Opponent not set yet — with no matchup to protect, the priced lineup swings for the $100 (P ${pct(pHigh)}), worth ${dol(edge)}. Re-check when their projection lands.` };
+  }
+  return { mode: 'chase', headline: 'Chase the $100 — worth trading some floor',
+    why: `P(win) ${pct(pWin)}, P($100) ${pct(pHigh)}: enough weekly-high upside that trading a little floor for ceiling pays — worth ${dol(edge)} over your studs.` };
+}
+
 // -----------------------------------------------------------------------------
 // VALIDATION — reproduce L0's realized-vs-optimal efficiency on 2023-25.
 // This is the proof the solver is correct: the same bestLineup() that recommends
@@ -752,9 +806,11 @@ function sundayAlert(result, opts = {}) {
     why: `${c.dollarsHigh >= 0 ? '+' : ''}$${Math.round(c.dollarsHigh)} weekly-high · ${c.dollarsWin >= 0 ? '+' : ''}$${Math.round(c.dollarsWin)} win-prob`,
   }));
   const edge = r2(result.edge || 0);
+  const posture = weeklyPosture(result, band);   // chase vs protect — the alert's lead
   return {
     week: opts.week || null,
     hasCalls: calls.length > 0,
+    posture,
     headline: calls.length
       ? `${calls.length} start/sit call${calls.length === 1 ? '' : 's'} worth ≈ $${Math.round(edge)} this week`
       : "You're already starting the dollar-optimal lineup — nothing to change.",
@@ -769,7 +825,7 @@ function sundayAlert(result, opts = {}) {
 
 module.exports = {
   // engine
-  optimize, bestLineup, inferPositions, slotsFromTemplate, DEFAULT_SLOTS, weekDrill, sundayAlert,
+  optimize, bestLineup, inferPositions, slotsFromTemplate, DEFAULT_SLOTS, weekDrill, sundayAlert, weeklyPosture,
   activeProjection, isInactive, INACTIVE_INJURY, FLEX_ELIGIBLE,
   positionSigmas, sigmaOf, weeklyHighBand,
   pWin, pClearHigh, normCdf, lineupStats,

@@ -35,31 +35,6 @@
 <% } %>
 
 <% if (tab === 'live') { %>
-  <%# ── THE SUNDAY ALERT — rehearse exactly what fires before kickoff ──────── %>
-  <% if (typeof alert !== 'undefined' && alert) { %>
-    <div class="card sa-preview" style="margin-bottom:1.1rem">
-      <h2>📣 The Sunday Alert <span class="sub">what fires to your inbox before kickoff</span></h2>
-      <div class="body">
-        <div class="sa-head"><%= alert.headline %></div>
-        <% if (alert.hasCalls) { %>
-          <ul class="sa-calls">
-            <% alert.calls.forEach(c => { %>
-              <li><span class="sa-move">▲ Start <b><%= c.start %></b> over <%= c.sit %></span>
-                <span class="sa-dollars money-up">+$<%= Math.round(c.dollars) %></span>
-                <span class="sa-why muted"><%= c.why %></span></li>
-            <% }) %>
-          </ul>
-        <% } %>
-        <% if (alert.band && alert.band.median) { %>
-          <p class="muted" style="font-size:.78rem; margin:.4rem 0 0">The bar: ~<%= alert.band.median %> usually takes the week's $100<% if (alert.projected) { %> · you project <%= Math.round(alert.projected) %><% } %>.</p>
-        <% } %>
-        <form method="post" action="/lineup/sunday/send" style="margin-top:.7rem">
-          <button class="btn small navy" type="submit">📤 Send it to me now (rehearsal)</button>
-          <span class="muted" style="font-size:.74rem; margin-left:.5rem">The weekly cron fires this before kickoff once the season's on.</span>
-        </form>
-      </div>
-    </div>
-  <% } %>
   <% if (!live) { %>
     <div class="card"><div class="body">
       <p class="muted" style="margin:0 0 .6rem">
@@ -70,23 +45,49 @@
         validated to the dollar on 2023–25. It goes live the moment there's a roster and a slate.</p>
     </div></div>
   <% } else { %>
-    <%# ── The dollar edge headline ─────────────────────────────────────────── %>
-    <div class="card lo-hero" style="margin-bottom:1.1rem">
-      <div class="body">
-        <div class="lo-edge">
-          <div class="lo-edge-num <%= live.edge > 0 ? 'money-up' : 'money-flat' %>"><%= signed(live.edge) %></div>
-          <div class="lo-edge-lbl"><%= live.edge > 0 ? 'the optimizer beats starting your studs this week' : "your gut lineup is already the dollar-optimal one" %></div>
+    <%# ── THE CALL: chase the $100 or protect the matchup — the week's one real
+        decision, stated plainly, first (the war-room lesson). ──────────────── %>
+    <% if (posture) { %>
+      <div class="card lo-verdict lo-<%= posture.mode %>" style="margin-bottom:1.1rem">
+        <div class="body">
+          <div class="lo-verdict-head">
+            <span class="lo-verdict-tag"><%= posture.mode === 'chase' ? '🎯 CHASE' : '🛡️ PROTECT' %></span>
+            <span class="lo-verdict-line"><%= posture.headline %></span>
+          </div>
+          <p class="lo-verdict-why"><%= posture.why %></p>
+          <p class="muted lo-src">Projections: <%= SRC_LABEL[projSource] || 'unknown source' %>.<% if (projSource && projSource !== 'sleeper') { %> <b>Treat the dollar figures as directional, not precise, until live projections land.</b><% } %><% if (!live.oppKnown) { %> Opponent modelled as a typical winning-band score (<%= Math.round(band.median) %>) until theirs lands.<% } %></p>
         </div>
-        <p class="lo-conf"><%= live.confidence %></p>
-        <p class="muted lo-src">Projections: <%= SRC_LABEL[projSource] || 'unknown source' %>.
-          <% if (!live.oppKnown) { %> Opponent modelled as a typical winning-band score (<%= Math.round(band.median) %>) until their projection lands.<% } %></p>
+      </div>
+    <% } %>
+
+    <%# ── Play this — the action ───────────────────────────────────────────── %>
+    <div class="card" style="margin-bottom:1.1rem">
+      <h2>✅ Play This <span class="sub">projected <%= live.ev.mean.toFixed(1) %> · P($100) <%= Math.round(live.ev.pHigh * 100) %>%<% if (live.ev.pWin != null) { %> · P(win) <%= Math.round(live.ev.pWin * 100) %>%<% } %></span></h2>
+      <div class="body tight">
+        <%# The variance play(s): every player the solver started OVER a higher-floor
+            stud (the calls) is the ceiling bet. Mark them so "chase" is concrete —
+            you see exactly who the boom is, not just that there is one. %>
+        <% const chasePids = new Set((live.calls || []).map(c => String(c.startId))); %>
+        <table class="roll">
+          <tr><th>Slot</th><th>Player</th><th>Pos</th><th class="num">Proj</th></tr>
+          <% live.lineup.forEach(s => { const chase = chasePids.has(String(s.pid)); %>
+            <tr class="<%= chase ? 'lo-chase-row' : '' %>"><td class="muted"><%= s.slot %></td><td><b><%= s.name %></b><% if (chase) { %> <span class="lo-chase-badge">🎯 the chase</span><% } %></td><td class="muted"><%= s.pos %></td><td class="num"><%= Number(s.proj).toFixed(1) %></td></tr>
+          <% }) %>
+        </table>
+        <%# Explain any absence: a player ruled OUT or on bye is zeroed by the
+            guard, so a stud can vanish from the lineup. Say why, so it reads as
+            a deliberate sit, not a bug. %>
+        <% if (live.inactive && live.inactive.length) { %>
+          <p class="lo-inactive muted">🚫 Not eligible this week (can't score, left out):
+            <%= live.inactive.map(p => p.name + ' (' + p.reason + ')').join(' · ') %>.</p>
+        <% } %>
       </div>
     </div>
 
-    <%# ── The start/sit calls, each priced ─────────────────────────────────── %>
+    <%# ── What changed vs your studs — the priced moves, secondary ──────────── %>
     <% if (live.calls && live.calls.length) { %>
       <div class="card" style="margin-bottom:1.1rem">
-        <h2>🔀 Start/Sit Calls <span class="sub">vs "start your highest projection"</span></h2>
+        <h2>🔀 What changed vs your studs <span class="sub">each move priced in dollars</span></h2>
         <div class="body">
           <% live.calls.forEach(c => { %>
             <div class="lo-call">
@@ -107,19 +108,6 @@
       </div>
     <% } %>
 
-    <%# ── The recommended lineup ───────────────────────────────────────────── %>
-    <div class="card" style="margin-bottom:1.1rem">
-      <h2>✅ Play This <span class="sub">projected <%= live.ev.mean.toFixed(1) %> · P(clear the high band) <%= Math.round(live.ev.pHigh * 100) %>%<% if (live.ev.pWin != null) { %> · P(win) <%= Math.round(live.ev.pWin * 100) %>%<% } %></span></h2>
-      <div class="body tight">
-        <table class="roll">
-          <tr><th>Slot</th><th>Player</th><th>Pos</th><th class="num">Proj</th></tr>
-          <% live.lineup.forEach(s => { %>
-            <tr><td class="muted"><%= s.slot %></td><td><b><%= s.name %></b></td><td class="muted"><%= s.pos %></td><td class="num"><%= Number(s.proj).toFixed(1) %></td></tr>
-          <% }) %>
-        </table>
-      </div>
-    </div>
-
     <%# ── Log the decision (writes to the ledger with its counterfactual) ───── %>
     <form method="post" action="/lineup/log" class="card" style="margin-bottom:1rem">
       <div class="body" style="display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap">
@@ -135,6 +123,35 @@
         <button class="btn gold" type="submit">Log this lineup</button>
       </div>
     </form>
+
+    <%# ── The email that fires before kickoff — a rehearsal/preview, demoted:
+        on a Sunday you want the call above, not a copy of the email. ────────── %>
+    <% if (typeof alert !== 'undefined' && alert) { %>
+      <details class="card sa-preview" style="margin-bottom:1rem">
+        <summary>📣 Preview the Sunday alert email &amp; send yourself a test</summary>
+        <div class="body">
+          <% if (alert.posture) { %><div class="sa-head"><%= alert.posture.mode === 'chase' ? '🎯 CHASE' : '🛡️ PROTECT' %> — <%= alert.posture.headline %></div>
+          <p class="muted" style="margin:0 0 .6rem; font-size:.82rem"><%= alert.posture.why %></p><% } %>
+          <div class="sa-head"><%= alert.headline %></div>
+          <% if (alert.hasCalls) { %>
+            <ul class="sa-calls">
+              <% alert.calls.forEach(c => { %>
+                <li><span class="sa-move">▲ Start <b><%= c.start %></b> over <%= c.sit %></span>
+                  <span class="sa-dollars money-up">+$<%= Math.round(c.dollars) %></span>
+                  <span class="sa-why muted"><%= c.why %></span></li>
+              <% }) %>
+            </ul>
+          <% } %>
+          <% if (alert.band && alert.band.median) { %>
+            <p class="muted" style="font-size:.78rem; margin:.4rem 0 0">The bar: ~<%= alert.band.median %> usually takes the week's $100<% if (alert.projected) { %> · you project <%= Math.round(alert.projected) %><% } %>.</p>
+          <% } %>
+          <form method="post" action="/lineup/sunday/send" style="margin-top:.7rem">
+            <button class="btn small navy" type="submit">📤 Send it to me now (rehearsal)</button>
+            <span class="muted" style="font-size:.74rem; margin-left:.5rem">The weekly cron fires this before kickoff once the season's on.</span>
+          </form>
+        </div>
+      </details>
+    <% } %>
   <% } %>
 
 <% } else { %>

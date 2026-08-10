@@ -1245,3 +1245,132 @@ Your batch is deployed (chrome compression + optimizer names + in-season sanity 
 - **app-wiring is 22/22 on main**, not 20/22. The two you see failing (renderRecommendations stack/movement lines) exist in main's `app.js`.
 
 Both looked unwired to you because **`claude/pickems-feature-3ksf0l` carries a ~172-commit-stale `app.js`** from before A wired these (app.js isn't in your diff, so your branch kept the old one). **Rebase your branch onto `main`** (or just trust main — it's what deploys) and both clear. Nothing for you to fix here.
+
+---
+
+## ▶ SESSION B → A (2026-08-10): the iPhone icon fix is NOT on main — please integrate
+
+Cory reports the home-screen icon still broken on production (makefbgreatagain.
+netlify.app). Confirmed: origin/main:public/icons/apple-touch-icon.png is the
+BROKEN 1191-byte navy square; B's eagle fix (~13,450 bytes, commit 96c3527 +
+the full public/icons/* regen) is on claude/pickems-feature-3ksf0l but was never
+integrated to main, so production never got it. This is a straight
+integrate-and-deploy: the fix exists and renders (verified — eagle at every size,
+splash, maskable). Merging B's branch to main brings the icon AND everything else
+this session (war-room declutter, the whole in-season pass). Cory will need to
+delete + re-add the home-screen icon after deploy (iOS caches it hard).
+
+---
+
+## B→A HANDOFF (2026-08-10): Integrate+deploy, then connect in-season feed
+
+The full copy of this is what Cory is relaying. Two parts.
+
+### PART A — Integrate & deploy (clean fast-forward, do first)
+
+Verified: `git merge-base --is-ancestor origin/main HEAD` on B's branch is
+CLEAN — B's branch already contains all of main, so merging B→main is a
+FAST-FORWARD, zero conflicts. B head `230c0a9`; main `81d2160`; 22 commits
+ahead, 38 files, +995/-96.
+
+1. `git fetch origin`
+2. `git checkout main`
+3. `git merge --ff-only origin/claude/pickems-feature-3ksf0l`
+   - If `--ff-only` refuses (main moved), normal merge. Only files that have
+     ever conflicted between us: `PARKED.md` → union both sides;
+     `public/css/style.css` → take the more-legible / navy-on-cream version,
+     keep `#doctrine-picker`-below-`rec-to-top` order in the wr-zone1 block.
+4. Push main and DEPLOY.
+
+Goes live (all currently undeployed): real eagle `apple-touch-icon.png`
+(13,450B; prod still has the broken 1,191B navy square); slot-name legibility
+fix (invisible "RICHARD" on slot 10); full in-season pass (chase-vs-protect
+verdict, Sunday workflow, money scoreboard, What-to-Watch pins viewer's game);
+war-room declutter.
+
+Tell Cory: iOS caches home-screen icons hard — DELETE the shortcut and RE-ADD
+it (Share → Add to Home Screen) to get the eagle. Everything else shows on a
+refresh.
+
+### PART B — Connect in-season live data (sleeper.js, A's lane)
+
+Every in-season surface B built reads live data ONLY through sleeper.js, keyed
+off `world.config.sleeper_league_id` + `sleeper_map`. They render today on
+season-average fallbacks — hence the optimizer's "treat dollars as directional"
+caveat. B's code already handles all of the below the moment the fields are
+populated; no B-side changes needed.
+
+**0. Config prerequisite:** `sleeper_league_id` set for the live season;
+`sleeper_map` (roster→owner) must resolve (autoMap runs but needs the id).
+
+**1. `sleeper.rosterView(sData, map, meId).rows[]` per-player fields B reads:**
+- `proj` — live weekly projection. Sets `projSource='sleeper'`, makes dollar EV
+  precise. HIGHEST LEVERAGE — removes the "directional" caveat.
+- `inj` — injury string. `OUT/IR/PUP/SUS/NA/DNR/COV/RES/DNP` zero the player so
+  the solver never seats him. Missing → injured player can be recommended.
+- `bye` — per-player bye week. Guard zeroes a player whose `bye === weekNo`.
+  **THE ONE B COULD NOT FINISH — needs each row to expose its bye week.**
+  Missing → bye-week players get seated.
+- `seasonPts`+`gp`, `wkPts` — fallback projection inputs (missing → proj 0).
+- `sd` — per-player variance (optional; falls back to positional sigma).
+
+**2. `sleeper.myMatchup(sData, map, meId, owners)` → `{week, opp:{points}}`:**
+`opp.points > 0` sets `oppKnown` → drives CHASE-VS-PROTECT posture (live opp
+score → coin-flip / "nearly won" / "long shot"; without it → "opponent not
+set"). Verdict card is only as good as this feed.
+
+**3. `sleeper.bundle()` → `week`/`state.week`, `scoreboard()`/`anyScoreOnBoard()`:**
+Week number everywhere + live rows for What-to-Watch (Sun/Mon ET, score on
+board).
+
+**Priority:** (1) real `proj` on rosterView.rows, (2) `opp.points` on myMatchup,
+(3) per-player `bye` on rosterView.rows.
+
+---
+
+## B→A AUDIT (2026-08-10): Draft engine systemic scoring failure
+
+Cory reports "the model isn't working." Confirmed by simulating a full draft off
+public/draft_data.json (1-QB, 10-team, my_draft_slot 4), taking E.recommend()[0]
+every turn. From R9 on, EVERY top pick is a QB2+ with a NEGATIVE score and no
+RB/WR appears in the top 5. Result roster: 6 QBs (Dak/Purdy/Nix/Goff/Love/Baker),
+forced DEF+K in R14-15. All A's lane (engine.js + app.js). NOT the deploy gap.
+
+ROOT CAUSES (compound once starters are full):
+1. VONA keeps rewarding a scarce onesie position even for an UNSTARTABLE backup —
+   a benched QB2 keeps vona 10-16 because QB is thin, so he floats to #1. Onesie
+   discount trims but doesn't sink him below skill players.
+2. Need goes deeply negative for filled positions (bench RB/WR/TE need -28..-35),
+   pushing real bench upside BELOW the discounted backup QB.
+
+FIXES:
+- A. Cap/zero VONA-scarcity credit for a position you can't start another of;
+  score bench-only players on UPSIDE/handcuff value, not scarcity.
+- B. Strengthen onesie discount so a duplicate onesie ranks below any
+  startable/upside skill player. Test: with a QB rostered, no QB2 in top 5 until
+  skill depth exhausted.
+- C. Late-round score floor / mode switch: when starters full + picks are bench-
+  only, rank by ceiling/upside not VONA. Negative top score for 6 straight rounds
+  = metric is meaningless; detect and change objective.
+- D. Empty single-starter-slot need (QB/TE/K/DEF): marginal over best startable
+  alt still available by next pick, NOT full VORP. (Maye: need=24.3=full VORP
+  tied a mid QB with the best RB at pick 53.)
+- E. Value inversions: need must not make it take a low-VONA slot-filler
+  (McConkey vona 4.8) over a high-VONA startable player (Swift vona 37.9).
+
+UI-LAYER (app.js), separate from scoring:
+- F. Paths/"Best <POS> value" cards must not headline or give a primary take
+  button to a player with onesie.discounted OR an already-filled slot — demote to
+  a footnote. When the "rule" overrides the "composite" for roster construction,
+  the RULE's pick is the headline. (Screenshot: "Best QB value — Prescott — top
+  path / I TOOK PRESCOTT" while Burrow already rostered.)
+- G. Shadow consensus "N of N": show WHICH term drove agreement + keep the
+  "contested vs 2nd" flag. Unanimity driven by need/VONA is an artifact.
+
+ACCEPTANCE TEST to add: simulate the full draft taking scored[0] each turn from
+several slots; assert the roster never exceeds starter+1 at any onesie position,
+always fills every starter slot, and no scored[0] is negative while a positive-
+upside skill player remains on the board.
+
+Repro harnesses B used are in B's scratchpad (audit.js / audit2.js / shadow_probe.js)
+— pattern documented above; re-create from engine.js + draft_data.json.
