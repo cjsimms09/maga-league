@@ -4038,3 +4038,36 @@ table.roll td.num, .pf, .wh-race-scale, .wh-band-note{ color: var(--ink); }
 .lo-ov-chips { display: flex; flex-wrap: wrap; gap: .4rem; }
 .lo-ov-chips .btn { flex: 0 1 auto; }
 @media (max-width: 460px) { .lo-ov-chips .btn { flex: 1 1 auto; } }
+
+/* ── THE DRAFT BOARD ARCHIVE — owners across the top, rounds down the side, the
+   way it looked on the wall. Wide by nature (10 seats × 16 rounds), so it lives
+   inside .scroll-x and never widens the page; the round column stays pinned. */
+.db-board { border-collapse: separate; border-spacing: 0; font-size: .74rem; width: max-content; }
+.db-board th, .db-board td { border-bottom: 1px solid var(--line); border-right: 1px solid var(--line); }
+.db-board thead th { position: sticky; top: 0; z-index: 2; background: var(--navy); color: #fff;
+  font-family: var(--font-display); font-size: .66rem; letter-spacing: .06em; text-transform: uppercase;
+  padding: .45rem .5rem; white-space: nowrap; }
+.db-board th.db-rnd { position: sticky; left: 0; z-index: 3; background: var(--navy); color: #fff;
+  width: 2.1rem; min-width: 2.1rem; text-align: center; font-weight: 800; }
+.db-board tbody th.db-rnd { z-index: 1; }
+.db-cell { padding: .38rem .5rem; min-width: 8.4rem; max-width: 10rem; background: var(--panel);
+  border-left: 3px solid transparent; vertical-align: top; }
+.db-cell.db-empty { background: #faf9f5; }
+.db-name { display: block; font-weight: 700; color: var(--ink); line-height: 1.2;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.db-meta { display: block; font-size: .64rem; color: var(--muted); letter-spacing: .02em; }
+/* On a phone the default cell showed barely two of ten seats before you had to
+   scroll. Tighter cells fit three and a half, which is enough to read a round
+   as a row rather than as a series of single names. */
+@media (max-width: 560px) {
+  .db-board { font-size: .68rem; }
+  .db-cell { min-width: 6.4rem; max-width: 6.4rem; padding: .32rem .38rem; }
+  .db-name { font-size: .7rem; }
+  .db-board thead th { padding: .38rem .38rem; }
+}
+/* Position rails — the same colours the rest of the site uses for a position. */
+.db-cell.pos-qb { border-left-color: #b3453c; }
+.db-cell.pos-rb { border-left-color: #0f8a4d; }
+.db-cell.pos-wr { border-left-color: #1f5fa8; }
+.db-cell.pos-te { border-left-color: #96681c; }
+.db-cell.pos-k, .db-cell.pos-def, .db-cell.pos-dst { border-left-color: #5b6b86; }

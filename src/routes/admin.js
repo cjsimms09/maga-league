@@ -9,6 +9,7 @@ const { getDoc, setDoc, store, newId, now } = require('../data');
 const { hashPassword, requireCommissioner, aw } = require('../auth');
 const VE = require('./voteenact');   // vote → season-config enactment
 const DO = require('./draftorder');   // selection order: reverse reg-season + reverse bracket
+const DB = require('./draftboard');   // the completed board as a grid + its raw capture
 
 router.use(requireCommissioner);
 
@@ -1146,6 +1147,42 @@ router.post('/api/archive', aw(async (req, res) => {
     res.json({ ok: true, deduped: result.deduped, seq: result.seq,
       snapshot: result.snapshot ? { id: result.snapshot.id, seq: result.snapshot.seq,
         kind: result.snapshot.kind, archived_at: result.snapshot.archived_at, hash: result.snapshot.hash } : null });
+  } catch (e) {
+    res.status(400).json({ ok: false, error: String(e.message || e) });
+  }
+}));
+
+// ARCHIVE THE COMPLETED DRAFT, SERVER-SIDE.
+//
+// The pick stream is already captured from the war room as picks land — the
+// right primary, and it stays. But that path runs only while that tab is open:
+// close the laptop when the last pick is in and the final batch may never post,
+// leaving no server-side record at all. This is the independent second path.
+// It fetches the finished draft from Sleeper and writes kind `draft_complete`,
+// which was a registered raw kind with no writer. Content-hash deduped by the
+// archive itself, so pressing it twice is free and pressing it mid-draft and
+// again at the end keeps both distinct states.
+router.post('/api/archive/draft', aw(async (req, res) => {
+  const world = req.world;
+  const season = String(H.currentSeason(world.seasons).year);
+  const leagueId = world.config.sleeper_league_id;
+  if (!leagueId) return res.status(400).json({ ok: false, error: 'no Sleeper league configured' });
+  const info = await sleeper.draftInfo(leagueId);
+  if (!info || !Array.isArray(info.picks) || !info.picks.length) {
+    return res.status(409).json({ ok: false, error: 'Sleeper has no picks for this draft yet' });
+  }
+  const owners = H.activeOwners(world.owners);
+  const expected = owners.length * Number((info.draft && info.draft.settings && info.draft.settings.rounds) || 0);
+  const complete = DB.isComplete(info, expected);
+  const payload = DB.completePayload(info, world.config.sleeper_map || {}, now());
+  try {
+    const result = await rawarchive.snapshot(store, {
+      kind: 'draft_complete', season,
+      source_at: (info.draft && info.draft.last_picked) ? new Date(info.draft.last_picked).toISOString() : null,
+      payload,
+    });
+    res.json({ ok: true, complete, deduped: result.deduped, seq: result.seq,
+      picks: info.picks.length, expected });
   } catch (e) {
     res.status(400).json({ ok: false, error: String(e.message || e) });
   }

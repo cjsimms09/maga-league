@@ -742,6 +742,19 @@
       <form method="post" action="/admin/sleeper/refresh-records" style="margin-top:.6rem">
         <button class="btn navy" type="submit">♻️ Rebuild Record Book Now</button>
       </form>
+      <%# ARCHIVE THE BOARD. The war room captures picks as they land, but only
+          while that tab is open — close the laptop on the last pick and the
+          final batch may never post. This is the independent second path, and
+          it is safe to press any number of times (the archive is content-hash
+          deduped, so an unchanged board is skipped). %>
+      <form method="post" action="/admin/api/archive/draft" style="margin-top:.6rem">
+        <button class="btn navy" type="submit">🗒️ Archive the completed draft board</button>
+        <span class="muted" style="font-size:.76rem; margin-left:.5rem">
+          Pulls the finished draft from Sleeper into the permanent archive, independently of the war room.
+          Safe to press twice — an unchanged board is deduped. Shows up under
+          <a href="/history/board/<%= (season && season.year) || '' %>">the season's draft board</a>.
+        </span>
+      </form>
     </div>
   </div>
   <div class="card">

@@ -10,6 +10,7 @@ const MOVE = require('./standings-movement'); // week-over-week rank arrows (dor
 const PE = require('./pickem');            // league pick'em — pick every game, tracked forever
 const DISPATCH = require('./dispatch');    // transient popups — awards / power poll / this-week-in-history
 const PO = require('./playoffs');          // folded columns — playoff odds/movement, clinch/elim, matchup leverage
+const DB = require('./draftboard');        // the completed draft board as a grid (history click-through)
 const TT = require('./trashtalk');         // trash talk attached to a specific game, permanent + archived
 const WW = require('./whatwatch');         // what-to-watch — the Sunday/Monday sweat meter + what each owner needs
 const MK = require('./marks');             // auto badges — GOAT on Mahomes' owner, Chiefs mark on KC players
@@ -782,8 +783,60 @@ router.get('/history/season/:year', aw(async (req, res) => {
     ]);
     hasVault = (tk && tk.length > 0) || (di && di.length > 0);
   } catch (e) { /* the link is a bonus */ }
-  res.render('history/season', { A, season, chapterInclude, cast, chapters: chapterYears(), hasVault });
+  // Same cheap existence check for the draft board — offer the click-through
+  // only for years that actually have one archived.
+  let hasBoard = false;
+  try { hasBoard = (await draftBoardSnapshots(year)).picks.length > 0; } catch (e) { /* bonus */ }
+  res.render('history/season', { A, season, chapterInclude, cast, chapters: chapterYears(), hasVault, hasBoard });
 }));
+
+// THE DRAFT BOARD — that year's completed board as a grid, owners across the
+// top and rounds down the side, the way it looked on the wall.
+//
+// Behind a click-through from the season page rather than on it: a 10×16 grid is
+// the largest single object in the archive and would crowd out everything else
+// on the year page, but it is also the artifact people actually want to look
+// back at. Reads the raw-forever archive — `draft_complete` first (the
+// server-side capture of the finished draft), falling back to the war room's
+// live `draft_picks` stream, so a year captured by only one path still renders.
+router.get('/history/board/:year', aw(async (req, res) => {
+  const year = Number(req.params.year);
+  if (!Number.isFinite(year)) {
+    return res.status(404).render('error', { title: 'No such season', message: 'That year is not a season.' });
+  }
+  const owners = req.world.owners;
+  const snaps = await draftBoardSnapshots(year);
+  const grid = snaps.picks.length
+    ? DB.buildGrid(snaps.picks, snaps.map || req.world.config.sleeper_map || {}, owners)
+    : { rounds: 0, slots: 0, columns: [], grid: [] };
+  res.render('history/board', { year, grid, source: snaps.source, capturedAt: snaps.capturedAt,
+    count: snaps.picks.length });
+}));
+
+// Newest snapshot of the completed draft, preferring the server-side capture.
+// The sleeper_map is read from the snapshot when it carries one — roster ids
+// only mean anything against the mapping in force at the time, so resolving them
+// against today's map would silently reattribute every pick of an old draft.
+async function draftBoardSnapshots(year) {
+  const rawarchive = require('../rawarchive');
+  const pick = async kind => {
+    try {
+      const rows = await rawarchive.readAll(store, String(year), kind);
+      return (rows && rows.length) ? rows[rows.length - 1] : null;
+    } catch (e) { return null; }
+  };
+  const complete = await pick('draft_complete');
+  if (complete && complete.payload && (complete.payload.picks || []).length) {
+    return { picks: complete.payload.picks, map: complete.payload.sleeper_map,
+      source: 'complete', capturedAt: complete.archived_at || null };
+  }
+  const stream = await pick('draft_picks');
+  if (stream && stream.payload && (stream.payload.picks || []).length) {
+    return { picks: stream.payload.picks, map: null,
+      source: 'stream', capturedAt: stream.archived_at || null };
+  }
+  return { picks: [], map: null, source: null, capturedAt: null };
+}
 
 // THE VAULT — a season's trash talk + dispatches, the permanent record that
 // nothing read until now (the archive functions existed but no surface called
