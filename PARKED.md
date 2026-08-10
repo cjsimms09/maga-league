@@ -2299,3 +2299,27 @@ words rather than showing a blank column.
 **Related, already flagged above and still open:** `attribution:<season>` has no
 writer, so the attribution table renders its honest "nothing measured yet" state
 indefinitely. The reader has been ready since it was built.
+
+## 🚧 → SESSION A — PLAYOFF ODDS ARE OVERCONFIDENT ON A POINTS TIEBREAK (B, 2026-08-10)
+
+**INSTANCE, possibly a class.** `PO.matchupLeverage` gives a **4–2 team in week 7
+with eight games left** playoff odds of **win 0.55% / lose 0.05%**.
+
+Repro (ten teams, all 4–2, separated only on points-for; viewer ninth on points):
+
+```js
+const rows = Array.from({length:10},(_,i)=>({owner_id:i+1,wins:4,losses:2,pf:700+i*6}));
+PO.matchupLeverage(rows, 8, 4, 2)   // -> {win:0.0055, lose:0.0005, swing:0.005}
+```
+
+With identical records, points-for becomes the entire signal and the model treats
+it as nearly decisive — but eight unplayed games is a lot of variance to assign
+~0. The same call on a normal spread of records looks right (a 3–3 team returns
+33% / 13%), so this is specifically the tied-records case. Worth a look at how
+much weight `pf` carries when records don't separate the field.
+
+**Not blocking, and B has stopped it printing as a falsehood** either way: the
+matchup page now renders `<1%` rather than a rounded `0%`, because a flat 0%
+asserts elimination for a team that is mathematically alive, and derives the
+swing from the two figures the reader can see so the line cannot contradict
+itself. That is a display fix; the estimate underneath is yours.

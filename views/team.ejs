@@ -272,7 +272,25 @@
           <td><% if (r.inj) { %><span class="badge owes"><%= r.inj %></span><% } else { %><span class="muted">healthy</span><% } %></td>
         </tr>
       <% } %>
-      <% if (!roster.rows.length) { %><tr><td class="muted" style="padding:1rem" colspan="7">Empty roster — draft hasn't happened yet. The Wk/Season columns come alive once games are played.</td></tr><% } %>
+      <%# An empty roster has more than one cause, and this used to assert the
+          friendliest one. Sitting under a 4–2 record it read "Empty roster —
+          draft hasn't happened yet", which is two mutually exclusive claims on
+          one screen: you cannot be 4–2 in a season that hasn't drafted. A roster
+          is also empty when the owner isn't mapped to a Sleeper team or Sleeper
+          is unreachable — and those are the cases where a wrong explanation
+          costs you, because it sends you to wait instead of to the fix. Say
+          which one it is, from what the page already knows. %>
+      <% if (!roster.rows.length) { %>
+        <% const played = /\d+\s*-\s*\d+/.test(String(roster.record || '')) && !/^0\s*-\s*0/.test(String(roster.record || '')); %>
+        <tr><td class="muted" style="padding:1rem" colspan="7">
+          <% if (played) { %>
+            <b>No roster came back from Sleeper</b>, even though there's a <%= roster.record %> record this season —
+            so this is a connection or mapping problem, not an empty team. Check Sleeper team mapping with the commissioner.
+          <% } else { %>
+            Empty roster — the draft hasn't happened yet. The Wk/Season columns come alive once games are played.
+          <% } %>
+        </td></tr>
+      <% } %>
     </table>
   </div>
 </div>

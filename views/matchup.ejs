@@ -118,11 +118,23 @@
 </div>
 
 <%# ── What this matchup is worth — one folded line ──────────────────────────── %>
+<%# ROUNDING MUST NOT BECOME A CLAIM. This printed Math.round(p * 100), so a
+    4–2 team in week 7 with eight games left — real odds 0.55% and 0.05% — was
+    told "a win puts you at 1%, a loss drops you to 0%". A flat 0% asserts
+    elimination for a team that is mathematically alive, and the two numbers
+    printed as different sat next to a swing that rounded to nothing, so the
+    line didn't even reconcile with itself. Near-zero and near-certain now say
+    so as bounds, and the swing is derived from the SAME rounded figures the
+    reader can see, so it can never contradict them. %>
 <% if (typeof stakes !== 'undefined' && stakes) {
-     const w = Math.round(stakes.win * 100), l = Math.round(stakes.lose * 100), s = Math.round(stakes.swing * 100); %>
+     const pctText = p => p <= 0 ? '0%' : p >= 1 ? '100%'
+       : p < 0.005 ? '<1%' : p > 0.995 ? '>99%' : Math.round(p * 100) + '%';
+     const w = Math.round(stakes.win * 100), l = Math.round(stakes.lose * 100);
+     const s = w - l;                       // reconciles with the two shown figures
+     const tiny = stakes.swing < 0.005; %>
   <div class="stakes-line">
     <span class="tag">🎟️</span>
-    <span>What this is worth: a win puts you at <b class="pos"><%= w %>%</b> to make the playoffs, a loss drops you to <b class="neg"><%= l %>%</b><% if (s > 0) { %> — a <b><%= s %>-point</b> swing<% } %>.
+    <span>What this is worth: a win puts you at <b class="pos"><%= pctText(stakes.win) %></b> to make the playoffs, a loss drops you to <b class="neg"><%= pctText(stakes.lose) %></b><% if (tiny) { %> — barely a swing either way<% } else if (s > 0) { %> — a <b><%= s %>-point</b> swing<% } %>.
       <span class="muted" style="font-size:.74rem">(estimate — record + points, until the model lands)</span></span>
   </div>
 <% } %>
