@@ -27,6 +27,7 @@ import managers as managers_mod  # noqa: E402
 import keeper_slate as keeper_slate_mod  # noqa: E402
 import adp_series as adp_series_mod  # noqa: E402
 import proj_series as proj_series_mod  # noqa: E402
+import grab_by as grab_by_mod  # noqa: E402
 
 ARTIFACT_VERSION = 2
 
@@ -793,6 +794,21 @@ def build(cfg: dict, *, offline: bool = False, force_profiles: bool = False,
     available, vorp_diag = vorp_mod.apply_vorp(available, cfg)
     available = vorp_mod.assign_tiers(available)
 
+    # GRAB-BY — "stick to value, know when to grab". Per-position EVLW (value lost to
+    # waiting one pick) + grab-by pick, aware of MY keepers' filled slots. Forecast
+    # mode so the pre-draft snapshot shows the board I'll really face; the client
+    # recomputes it live as picks land. See grab_by.py.
+    my_keeper_roster = [{"player_id": k.get("player_id"), "position": k.get("position"),
+                         "name": k.get("name")}
+                        for k in keeper_map.get(cfg.get("my_draft_slot"), [])]
+    try:
+        grab_by_block = grab_by_mod.report(available, set(), my_keeper_roster,
+                                           order.my_picks, cfg, forecast_first=True)
+        print(f"  grab-by: {grab_by_block.get('headline')}")
+    except Exception as exc:   # never let the decision aid break the board build
+        print(f"  ! grab-by unavailable ({type(exc).__name__}: {exc})")
+        grab_by_block = None
+
     artifact = {
         "version": ARTIFACT_VERSION,
         "built_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
@@ -816,6 +832,7 @@ def build(cfg: dict, *, offline: bool = False, force_profiles: bool = False,
             "forfeited": order.forfeited,
         },
         "replacement": vorp_diag,
+        "grab_by": grab_by_block,
         "manager_profiles": profiles,
         "players": available,
         "kept_player_ids": sorted(kept_ids),
