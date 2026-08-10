@@ -1217,6 +1217,14 @@
     $('#clock-confidence').innerHTML = i > 0
       ? '<span class="muted">Option ' + (i + 1) + ' — you skipped ' + escapeHtml(list[0].player.name) + '</span>'
       : '<span class="' + c.level + '">' + escapeHtml(c.message) + '</span>';
+    // THE TAKE BUTTON (SEV1): point it at the player THIS view is showing and name
+    // him, so "ONE ANSWER" can actually draft. The delegated data-draft-me handler
+    // (see wireEvents) does the rest — same path as the recs-card take button.
+    const take = $('#clock-take');
+    if (take) {
+      take.setAttribute('data-draft-me', String(p.player_id));
+      take.textContent = '✓ Take ' + (p.name ? p.name.split(' ').slice(-1)[0] : 'him');
+    }
   }
 
   /* ── Your own read ──────────────────────────────────────────────────────── */
@@ -3862,24 +3870,20 @@
     const st = state.doctrine;
     if (!st) return;
     // A-owned picker element, created once and inserted right after the banner.
+    // ALWAYS VISIBLE and compact (Cory): no display:none, no banner-tap-toggle, no
+    // auto-expanding wall. Its flex `order` (CSS) puts it BELOW the rec + take button.
     let pick = document.getElementById('doctrine-picker');
     if (!pick) {
       pick = document.createElement('div');
       pick.id = 'doctrine-picker';
       pick.className = 'doctrine-picker';
-      pick.style.display = 'none';
       banner.parentNode.insertBefore(pick, banner.nextSibling);
-      // Tap the banner to toggle the picker open/closed.
-      banner.style.cursor = 'pointer';
-      banner.setAttribute('title', 'tap to change the plan');
-      banner.addEventListener('click', function (e) {
-        if (e.target.closest && e.target.closest('#db-decline')) return;  // let decline handle itself
-        pick.style.display = pick.style.display === 'none' ? '' : 'none';
-      });
     }
     const cur = st.current;
+    const auto = st.enrolledKey;                 // the tool's recommended (auto) plan
     const contested = /within the band/.test(out.confidence || '');
-    // Ranked by live dollars; each doctrine its score + gap to the current plan.
+    // Ranked by live dollars; each doctrine a RADIO — one active plan at a time. The
+    // auto pick is badged so you can see what the tool chose vs what you switched to.
     const curScore = scores && scores[cur] != null ? scores[cur] : 0;
     const rows = Object.keys(scores || {})
       .map(function (k) { return { key: k, meta: DraftDoctrine.doctrineMeta(k), score: scores[k] }; })
@@ -3887,39 +3891,31 @@
       .map(function (r) {
         const gap = r.score - curScore;
         const isCur = r.key === cur;
-        const gapTxt = isCur ? '<span class="dp-cur">current plan</span>'
-          : (gap >= 0 ? '+$' + gap.toFixed(0) : '−$' + Math.abs(gap).toFixed(0));
-        return '<div class="dp-row' + (isCur ? ' dp-is-cur' : '') + '">'
-          + '<span class="dp-name">' + escapeHtml(r.meta.name) + '</span>'
-          + '<span class="dp-creed muted">' + escapeHtml(r.meta.creed) + '</span>'
-          + '<span class="dp-gap">' + gapTxt + '</span>'
-          + (isCur ? '' : '<button class="btn small gold dp-switch" data-doctrine="'
-              + escapeHtml(r.key) + '">switch</button>')
-          + '</div>';
+        const isAuto = r.key === auto;
+        const gapTxt = isCur ? 'active' : (gap >= 0 ? '+$' + gap.toFixed(0) : '−$' + Math.abs(gap).toFixed(0));
+        return '<label class="dp-row' + (isCur ? ' dp-on' : '') + '" title="' + escapeHtml(r.meta.creed) + '">'
+          + '<input type="radio" name="doctrine-plan" class="dp-toggle" value="' + escapeHtml(r.key) + '"'
+            + (isCur ? ' checked' : '') + '>'
+          + '<span class="dp-name">' + escapeHtml(r.meta.name)
+            + (isAuto ? ' <span class="dp-auto" title="the tool’s recommended plan">auto</span>' : '')
+          + '</span>'
+          + '<span class="dp-gap' + (gap > 0 && !isCur ? ' up' : '') + '">' + escapeHtml(gapTxt) + '</span>'
+          + '</label>';
       }).join('');
-    const header = contested && out.alternative
-      ? '<div class="dp-head dp-contested">⚖️ close call — ' + escapeHtml(out.alternative)
-        + ' is within the band. A coin-flip is your call: tap to switch.</div>'
-      : '<div class="dp-head">Change the plan — each doctrine’s live dollar score at this pick:</div>';
-    const returnBtn = st.manual
-      ? '<button class="btn small navy dp-return">↩ back to the recommended plan ('
-        + escapeHtml(DraftDoctrine.doctrineMeta(st.enrolledKey).name) + ')</button>'
-      : '';
-    pick.innerHTML = header + rows + returnBtn;
-    // Contested is a prompt: open the picker so the coin-flip is in front of me.
-    if (contested && pick.dataset.autoOpenedPick !== String(currentPick())) {
-      pick.style.display = '';
-      pick.dataset.autoOpenedPick = String(currentPick());
-    }
-    // Wire the switch + return buttons (fresh each render; simple + robust).
-    Array.prototype.forEach.call(pick.querySelectorAll('.dp-switch'), function (b) {
-      b.onclick = function (e) {
-        e.stopPropagation();
-        doctrineChoose(b.getAttribute('data-doctrine'));
+    const head = '<div class="dp-head' + (contested ? ' dp-contested' : '') + '">'
+      + (contested && out.alternative
+          ? '⚖️ close call — ' + escapeHtml(out.alternative) + ' is within the band'
+          : 'Plan — tap to switch')
+      + '</div>';
+    pick.innerHTML = head + '<div class="dp-grid">' + rows + '</div>';
+    // A radio switches the active plan; choosing the AUTO plan while on a manual
+    // override returns to the recommended one (same logged events as before).
+    Array.prototype.forEach.call(pick.querySelectorAll('.dp-toggle'), function (inp) {
+      inp.onchange = function () {
+        if (inp.value === auto && st.manual) doctrineReturn();
+        else if (inp.value !== cur) doctrineChoose(inp.value);
       };
     });
-    const rb = pick.querySelector('.dp-return');
-    if (rb) rb.onclick = function (e) { e.stopPropagation(); doctrineReturn(); };
   }
 
   /* Commit a human doctrine switch: set it, log it at decision time, re-render so
