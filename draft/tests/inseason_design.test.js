@@ -55,5 +55,37 @@ const css = fs.readFileSync(path.join(ROOT, 'public', 'css', 'style.css'), 'utf8
     using.length >= 3, using.join(','));
 }
 
+// 4) THE NORMAL WEEK MUST NOT LOOK LIKE AN EMPTY PAGE. A's measurement: the
+// dual-objective optimizer beats "start your highest projections" only ~11% of
+// weeks (~$9/season). So the no-change week is the common one — and the moves
+// card used to VANISH on it, which both changes the page's shape week to week
+// and makes the rare week look like the default. The quiet answer must be said
+// out loud, with its measured frequency, and the loud one marked as rare.
+{
+  const ejs = require('ejs');
+  const tplPath2 = path.join(ROOT, 'views', 'lineup.ejs');
+  const tpl2 = fs.readFileSync(tplPath2, 'utf8').replace(/<%-\s*include\([^%]+%>/g, '');
+  const locals2 = calls => ({
+    me: { id: 1, name: 'Cory' }, owners: [], tab: 'live', season: { year: 2026 },
+    band: { median: 140 }, projSource: 'sleeper', roster: [], matchup: null, weekNo: 3,
+    alert: null, posture: null, proof: null, eff: null, myLeak: 0, drill: null,
+    configured: true, logged: false,
+    live: { calls, lineup: [{ slot: 'WR', name: 'X', pos: 'WR', proj: 10, pid: 'z' }],
+      naive: [], ev: { mean: 100, pHigh: 0.3, pWin: 0.5 }, edge: 10,
+      projPending: false, oppKnown: true, confidence: 'ok' },
+  });
+  const render2 = calls => ejs.render(tpl2, locals2(calls), { filename: tplPath2 });
+  const none = render2([]);
+  ck('a no-change week SAYS so instead of the card vanishing', /Nothing to change this week/.test(none));
+  ck('  and states the measured frequency rather than implying a puzzle',
+    /9 weeks in 10/.test(none) && /11%/.test(none));
+  ck('  it does not render the moves card', !/What changed vs your studs/.test(none));
+  const some = render2([{ startId: 'a', startName: 'Boom', startPos: 'WR', startProj: 9.1,
+    sitName: 'Safe', sitPos: 'WR', sitProj: 12.4, dollars: 6, dollarsHigh: 8, dollarsWin: -2 }]);
+  ck('a week WITH moves shows them, marked as the rare case',
+    /What changed vs your studs/.test(some) && /a rare week/.test(some));
+  ck('  and the no-change card is absent then', !/lo-nochange/.test(some));
+}
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

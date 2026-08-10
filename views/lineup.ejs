@@ -84,10 +84,30 @@
       </div>
     </div>
 
-    <%# ── What changed vs your studs — the priced moves, secondary ──────────── %>
-    <% if (live.calls && live.calls.length) { %>
+    <%# ── What changed vs your studs — the priced moves, secondary ────────────
+        MEASURED CONTEXT (A, 2026-08-10): the dual-objective optimizer deviates
+        from "start your highest projections" only ~11% of weeks, worth ~$9/season.
+        So the NO-CHANGE week is the normal one — nine in ten. This card used to
+        vanish on those weeks, which is the worst of both: the page silently
+        changes shape, and the rare week when it DOES speak looks like the
+        default. Say the quiet answer out loud instead, and let the loud one earn
+        its noise. %>
+    <% if (!live.calls || !live.calls.length) { %>
+      <div class="card lo-nochange" style="margin-bottom:1.1rem">
+        <div class="body">
+          <p style="margin:0"><b>✅ Nothing to change this week.</b>
+            Your highest-projection lineup is already the dollar-optimal one — the tool agrees with you.</p>
+          <p class="muted" style="margin:.45rem 0 0; font-size:.78rem">
+            That's the normal week. Starting your best projections is the right call about
+            <b>9 weeks in 10</b>; the optimizer only finds a better lineup ~11% of the time
+            (worth ~$9 across a season). When it does, this card fills with the specific
+            swap and what it's worth — so a week with moves in it is worth a second look.
+          </p>
+        </div>
+      </div>
+    <% } else { %>
       <div class="card" style="margin-bottom:1.1rem">
-        <h2>🔀 What changed vs your studs <span class="sub">each move priced in dollars</span></h2>
+        <h2>🔀 What changed vs your studs <span class="sub">each move priced in dollars — a rare week</span></h2>
         <div class="body">
           <% live.calls.forEach(c => { %>
             <div class="lo-call">
