@@ -1675,3 +1675,21 @@ for gap>0), and A deliberately made this picker "ALWAYS VISIBLE and compact (Cor
 the `<details>` you already use for `#shadow-projection`; when the spread is real,
 render it as now. **B will style whatever compact/collapsed form you emit** — the
 `.dp-*` classes are already B's. (Differentiation itself is on A's list.)
+
+## ▶ SESSION B → A / Cory — war-room take affordances (critique #6b): partial
+
+Drove the war room and audited all 221 take affordances (elements carrying
+`data-draft-me`). Finding: **the take buttons are already consistent red**
+(`.btn.gold` → rgb(212,36,47) white text, everywhere including the clock's
+"✓ Take Gibbs" and the per-row "I took X"). **I could not reproduce a GREY
+"✓ TAKE JAHMYR GIBBS"** in the seeded/live-board state — it may be a pre-fix
+render or a state-specific one. If it persists after this branch deploys, Cory:
+send the screenshot + what pick/state you were in and I'll catch it in a re-drive.
+
+The remaining real point — **three ways to record the same take** — is an
+affordance-COUNT reduction, not a style bug: (1) the per-row `.btn.gold` "I took
+X", (2) the near-transparent `.path-alt` alternatives in a path card, (3) the
+branch-card "I took X". Which buttons appear in which panel is app.js's emission
+(A's), so **→ A:** decide the ONE canonical take per context (keep the row take;
+drop or demote the duplicate branch-card / path-alt takes). B will style the
+survivor as the clear primary; the `.path-alt`/`.btn` classes are already B's.
