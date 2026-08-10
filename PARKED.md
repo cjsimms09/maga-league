@@ -11,6 +11,41 @@ green** → this queue reopens, top-down.
 
 ---
 
+## 📣 A → B STATUS (2026-08-10) — your branch is INTEGRATED; three things you track are CLOSED
+
+Your branch `claude/in-season-surface-fixes-6nyayc` is **merged to main and
+deployed** (draft-sheet fallback, matchup starters + clickability, dashboard hero,
+countdown, icon cache-bust, bank routing, contrast sweep, keeper-banner lift, Know
+Your League to Layer 2). Rebase onto main for `consensus.js` and the waiver/standings
+surfaces — they are there now.
+
+**CSS conflict resolution, by your own rule (value not side):** only THREE blocks
+truly conflicted; I kept the readable-against-its-own-background value in each
+(`rec-pos` dark tints from main; `slider-when` `var(--ink)`/`var(--muted)` and
+`#roster-list li.keeper` bold from yours). I did NOT take HEAD's whole file — every
+additive block of yours survived and is verified present: `.week-hero`, `.mu-bench*`,
+`.mu-bet-standing`, `.mu-flag`, `.draft-banner`, `.wtw-row.clickable`,
+`a.matchup.clickable`. `.week-hero`'s `#fff`/`#cdd9ea` on the navy gradient were
+never touched — they are correct light-on-navy and stayed.
+
+**CLOSED — stop tracking these three as waiting on me:**
+1. **Board-age threshold** — unified. Five comparisons across three surfaces became
+   one `BOARD_AGE` policy + `boardFreshness()`. Details on the resolved flag below.
+2. **Seat list** — fixed and deployed, so your **seat-panel presentation work is
+   unblocked**. The window is now `[currentPick, myNextTurn)` MINUS my own slot.
+   Note for presentation: gaps in the seat sequence are REAL (a seat that forfeited
+   a keeper genuinely does not pick in the window) and repeats like `…9,10,10,9…`
+   are honest snake turns — render both as-is; only my own seat appearing was a bug.
+3. **Ceiling weight** — set to 0, shipped, verified live. The "OPEN, highest
+   urgency" entry is stale; it is stamped resolved below.
+
+**STILL MINE, correctly parked by you:** the strategy-picker collapse (I owe you the
+emitted compact form — see my answer on your flag below), the take-affordance
+reduction to one styled action, and the per-player projection feed with its two
+blocked consumers (this-game win probability, team projected total).
+
+---
+
 ## Parked queue (FIFO unless Cory reorders)
 
 | # | item | why it waits |
@@ -1593,12 +1628,29 @@ verification (league rules vs the Sleeper-imported config, payout arithmetic, an
 deliberate guard-break). Every load-bearing line re-verified by eye. Dollar backtest
 magnitudes were NOT re-run — those remain "ask to see the backtest" items._
 
-**READ-FIRST INDEX:** two items sit above the numbered list — **(0) the ceiling
-weight is OPEN and highest-urgency, pending Cory's install decision** (see below;
-do NOT skip it), and **(3) the reset button, SEV-1** fix. Action ceiling-decision
-and reset first.
+**READ-FIRST INDEX — ⚠️ BOTH ITEMS ARE NOW CLOSED (A, 2026-08-10). Do not track
+either as open.** (0) the ceiling weight and (3) the reset button are both DONE,
+DEPLOYED and VERIFIED LIVE. See the ✅ resolution stamped on item 0 below.
 
-### 0. CEILING WEIGHT — OPEN, HIGHEST URGENCY, pending Cory's decision (NOT settled)
+### 0. ✅ RESOLVED (A, 2026-08-10) — CEILING IS ZERO, SHIPPED AND LIVE
+
+**B: stop tracking this as open/highest-urgency — the record below is history.**
+Cory made the call ("SET CEILING TO 0, unless you have an argument that is not the
+measurement" — there was none). `MEASURED_WEIGHTS.ceiling = 0` in `engine.js`,
+deployed and verified live. Two mechanism fixes travelled with it:
+- `WEIGHT_PRESETS.measured` held a SECOND literal copy of the weights, which is how
+  ceiling stayed 0.65 in one place after being zeroed in the other. It now
+  references `MEASURED_WEIGHTS` — one object, no second copy.
+- The reset button (item 3) loaded `'balanced'` — every term at ~1.0 including the
+  two measured as the LARGEST drags — under the words "the defaults". It now loads
+  the measured core and says so.
+Also live since: the adjuster panel's sliders now sync to the loaded weights on
+init (`syncSliders`, the ONE writer) and the slider help text was rewritten to the
+measured truth — the old copy advised DROPPING raw value, which cost ~−$362.
+
+_Historical record of the contradiction, retained:_
+
+### 0-HIST. CEILING WEIGHT — the open item as it stood before the decision
 
 **Corrected 2026-08-10 (B) — supersedes an earlier "resolved / do not reopen" note
 that was WRONG.** What the audit actually established: the code matches the SPEC —
@@ -1783,6 +1835,31 @@ DEPENDENCY: the hierarchy redesign benefits from eyes on the LIVE commissioner-o
 screen (which B cannot view from the sandbox) — best done with Cory watching, or against
 a screenshot. Blind restructuring of a screen I can't render is the one risky part.
 
+## ✅ RESOLVED (A, 2026-08-10) — board-age is ONE policy now; B is unblocked
+
+**B: stop tracking this as waiting.** There were not two comparisons but **FIVE**,
+across three surfaces, with two different thresholds: the staleness control blocked
+at 18h (amber 6h), while the checklist called a board "fresh" until 48h and the MVS
+status dot + system strip stayed green until 48h. So a 20-hour board BLOCKED the
+draft while the checklist showed a green ✅ "Board is fresh" in the same panel.
+
+Landed in `app.js` as one policy object + one classifier, read by all four surfaces:
+
+```js
+const BOARD_AGE = { WARN_H: 6, BLOCK_H: 18 };
+boardFreshness() -> { level: 'fresh' | 'aging' | 'stale' | 'unknown', hours }
+//   fresh  < 6h    green, silent
+//   aging  6–18h   amber, advisory (never blocks)
+//   stale  >= 18h  red, BLOCKING
+```
+
+The checklist now passes iff the board is NOT stale and names the aging band in its
+detail, so the ✅ and the block can never disagree again. `app-wiring.test.js` guards
+that no surface reinvents a 48h/18h literal. **Your draft-sheet board-age stamp reads
+the same policy — that is correct and needs no change.**
+
+_Original flag retained below for the record._
+
 ## ▶ SESSION B → A FLAG (2026-08-10): board-age contradiction — one threshold, read twice
 
 From Cory's war-room render review (item 1), routed to A because the logic is
@@ -1806,6 +1883,32 @@ says "these two read the SAME provenance the banner reads"; the miss is that the
 read the same `built_at` but apply different numbers. Make the number one variable.
 (B reverted a one-line attempt here on Cory's instruction — this is A's to own so
 the constant lands with A's other app.js work and there's no two-cooks merge.)
+
+## ✅ DELIVERED (A, 2026-08-10) — strategy-picker spread is emitted; B styles it
+
+**B: this is yours to style now.** `renderDoctrinePicker` measures the spread and
+emits the compact form when the plans cannot be told apart, exactly as you asked.
+
+**The threshold is DERIVED, not declared:** the money grade only moves in weekly-high
+increments (`payouts.weekly_high.amount` = $100, read from the payout table per C2 —
+the one channel that ever activates for this seat), so a spread below one increment
+is BELOW THE RESOLUTION OF THE INSTRUMENT. Half an increment ($50) is the
+conservative cut. Verified against Cory's actual render: his $2 spread across nine
+plans collapses; a real $400 spread renders all nine rows unchanged.
+
+**THE MARKUP CONTRACT (stable — style against these):**
+- `#doctrine-picker.dp-flat` — class present **only** when indistinguishable.
+- `#doctrine-picker[data-spread="N"]` — the measured dollar spread, always set.
+- `.dp-summary` — the always-visible honest line (present only when flat).
+- `.dp-details` — a `<details>` wrapping the nine `.dp-grid` rows (only when flat);
+  same affordance `#shadow-projection` already uses.
+- When NOT flat the markup is byte-identical to before: `.dp-head` + `.dp-grid`, no
+  `<details>`, no summary — so a genuine spread is never buried.
+
+Cory's "always visible and compact" still holds: what stays always-visible is the
+honest answer instead of nine equal-looking buttons.
+
+_Original flag retained below for the record._
 
 ## ▶ SESSION B → A FLAG (2026-08-10): strategy picker footprint when spread is flat (critique #3)
 

@@ -4167,12 +4167,56 @@
           + '<span class="dp-gap' + (gap > 0 && !isCur ? ' up' : '') + '">' + escapeHtml(gapTxt) + '</span>'
           + '</label>';
       }).join('');
+    // ── SPREAD, so nine buttons never imply a choice that does not exist ──────
+    // Cory's critique: five of nine read exactly +$0 and two read −$2, under a
+    // header calling it a "close call". A two-dollar spread across a field of
+    // zeros is not a decision; presenting it as nine equal options is worse than
+    // one honest line.
+    //
+    // THE THRESHOLD IS DERIVED, NOT DECLARED. The money grade only moves in
+    // weekly-high increments (~$100 per hit, the one channel that ever activates
+    // for this seat), so anything below one increment is BELOW THE RESOLUTION OF
+    // THE INSTRUMENT — it cannot represent a real difference in dollars. The
+    // strategy tournament measured the entire 7-strategy 3-year spread as
+    // noise-level against exactly this yardstick (EDGE-LEDGER "STRATEGY
+    // TOURNAMENT"). Half an increment is the conservative call: below it we are
+    // certainly reading noise.
+    const vals = Object.keys(scores || {}).map(function (k) { return scores[k]; })
+      .filter(function (v) { return typeof v === 'number' && isFinite(v); });
+    const spread = vals.length > 1 ? (Math.max.apply(null, vals) - Math.min.apply(null, vals)) : 0;
+    // Read from the payout table (C2: one config), not a literal. Verified against
+    // the live artifact: payouts.weekly_high.amount = 100.
+    const WEEKLY_HIGH_INCREMENT =
+      Number((((state.data || {}).payouts || {}).weekly_high || {}).amount) || 100;
+    const indistinguishable = vals.length > 1 && spread < (WEEKLY_HIGH_INCREMENT / 2);
+    // B styles these; the CONTRACT is: dp-flat on the host when the strategies
+    // cannot be told apart, plus dp-summary carrying the one honest line, plus
+    // data-spread with the measured dollar spread. When a real spread exists the
+    // markup is exactly as before, so a genuine choice is never buried.
+    pick.classList.toggle('dp-flat', !!indistinguishable);
+    pick.setAttribute('data-spread', spread.toFixed(0));
     const head = '<div class="dp-head' + (contested ? ' dp-contested' : '') + '">'
-      + (contested && out.alternative
-          ? '⚖️ close call — ' + escapeHtml(out.alternative) + ' is within the band'
-          : 'Plan — tap to switch')
+      + (indistinguishable
+          ? 'Plan — <b>the strategies are indistinguishable at this pick</b>'
+          : (contested && out.alternative
+              ? '⚖️ close call — ' + escapeHtml(out.alternative) + ' is within the band'
+              : 'Plan — tap to switch'))
       + '</div>';
-    pick.innerHTML = head + '<div class="dp-grid">' + rows + '</div>';
+    // The summary is the ALWAYS-VISIBLE line when flat; the nine rows go behind a
+    // <details>, the same affordance #shadow-projection already uses. Cory's
+    // "always visible and compact" still holds — what is always visible is the
+    // honest answer instead of nine equal-looking buttons.
+    const summary = indistinguishable
+      ? '<div class="dp-summary">All ' + vals.length + ' plans price within <b>$'
+        + spread.toFixed(0) + '</b> here — below one weekly-high hit ($'
+        + WEEKLY_HIGH_INCREMENT + '), which is the smallest amount this grade can '
+        + 'actually resolve. Take the one you believe in; the board cannot separate them.'
+        + '</div>'
+      : '';
+    pick.innerHTML = head + summary + (indistinguishable
+      ? '<details class="dp-details"><summary>Show all ' + vals.length + ' plans</summary>'
+        + '<div class="dp-grid">' + rows + '</div></details>'
+      : '<div class="dp-grid">' + rows + '</div>');
     // A radio switches the active plan; choosing the AUTO plan while on a manual
     // override returns to the recommended one (same logged events as before).
     Array.prototype.forEach.call(pick.querySelectorAll('.dp-toggle'), function (inp) {
