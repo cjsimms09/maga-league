@@ -23,6 +23,14 @@ jobs:
   verify:
     runs-on: ubuntu-latest
     steps:
+      # NEEDED so the verifier can RUN the deploy gate rather than restate its
+      # rule. fetch-depth: 0 because the gate reasons over the RANGE since the
+      # last successful build (CACHED_COMMIT_REF..COMMIT_REF) and cannot diff
+      # what it cannot see — a shallow clone would make it fail conservative and
+      # verify every push, which is wrong in the harmless direction but still wrong.
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+
       - name: Poll the deployed build stamp
         env:
           # Repo variable SITE_URL wins; falls back to the known production URL.
@@ -31,14 +39,63 @@ jobs:
           EVENT: ${{ github.event_name }}
           # Via env, never inlined into the script — a commit message is untrusted.
           MSG: ${{ github.event.head_commit.message }}
+          # Fallback only — see the CACHED_COMMIT_REF note below for why the live
+          # build-stamp is preferred over this.
+          BEFORE: ${{ github.event.before }}
         run: |
           # Only a [deploy] push (or a tag/manual run) actually rebuilds the site
           # — netlify-ignore.sh skips everything else. Polling for a SHA Netlify
           # never built would fail forever and train everyone to ignore the red X.
           # So verify ONLY when a build was expected; otherwise skip cleanly.
-          if [ "$EVENT" = "push" ] && ! printf '%s' "$MSG" | grep -qF '[deploy]'; then
-            echo "no [deploy] marker — Netlify skips this build, nothing to verify. OK."
-            exit 0
+          # ASK THE GATE, DO NOT RESTATE IT. This used to test for a [deploy]
+          # marker itself, on the premise "only a [deploy] push rebuilds the
+          # site". That premise WAS true and became false when the gate was
+          # inverted to OPT-OUT: netlify-ignore.sh now BUILDS on any change under
+          # views/ public/ src/ server-app.js package*.json netlify.toml or
+          # netlify/functions/, marker or not. B verified it empirically — an
+          # icon-only change with no marker returns BUILD.
+          #
+          # So every ordinary served change has been deploying with NO
+          # verification, while the guard sat visibly in place. That is the
+          # stranded-deploy failure with a green tick over it, and it plausibly
+          # explains a chunk of the five stranded deploys.
+          #
+          # Two copies of a rule are only safe when something forces them to
+          # agree; here there is no reason to have two. The verifier now RUNS the
+          # gate and reads its exit-code contract:
+          #     exit 0 -> Netlify SKIPS  -> nothing will be published -> skip
+          #     exit 1 -> Netlify BUILDS -> a deploy is expected      -> verify
+          # Drift is now impossible rather than merely fixed once.
+          # CACHED_COMMIT_REF MUST BE THE LAST BUILT COMMIT, NOT THE PREVIOUS TIP.
+          # Netlify passes the commit of the last SUCCESSFUL build. `github.event.before`
+          # is the previous tip of the branch, and those diverge the moment a push
+          # does not build: gate SKIPS a docs push (or a build fails), main advances
+          # anyway, and from then on Netlify's range is WIDER than the push range.
+          # Concretely — push 1 changes a served file and its build fails, push 2 is
+          # docs-only: Netlify sees C0..push2 (served -> BUILDS and publishes), while
+          # `before` gives push1..push2 (docs -> SKIP). The verifier would sit out a
+          # real deploy. Same class of bug as the one being fixed, one layer in.
+          #
+          # The live build-stamp IS the last built commit — it is the deployed build's
+          # own record of itself, which is precisely what Netlify's cache pointer means.
+          # So ask the site, and fall back to `before` only if it is unreachable. Every
+          # failure here (no stamp, unknown commit, unrelated history) makes the gate
+          # fail conservative and BUILD, so the verifier over-verifies rather than
+          # skipping a real deploy.
+          if [ "$EVENT" = "push" ]; then
+            LAST_BUILT="$(curl -fsS --max-time 20 "$SITE/build-stamp.json" 2>/dev/null \
+              | python3 -c 'import json,sys; print(json.load(sys.stdin).get("commit") or "")' 2>/dev/null || echo '')"
+            if [ -n "$LAST_BUILT" ] && git cat-file -e "${LAST_BUILT}^{commit}" 2>/dev/null; then
+              echo "last built commit (from the live build-stamp): ${LAST_BUILT:0:12}"
+            else
+              echo "live build-stamp unreadable or unknown to git (${LAST_BUILT:-none}) — falling back to github.event.before"
+              LAST_BUILT="$BEFORE"
+            fi
+            if COMMIT_REF="$WANT" CACHED_COMMIT_REF="$LAST_BUILT" bash netlify-ignore.sh; then
+              echo "the deploy gate SKIPS this push (no served change) — nothing to verify. OK."
+              exit 0
+            fi
+            echo "the deploy gate BUILDS this push — a deploy is expected, verifying."
           fi
           python3 - <<'PY'
           import json, os, sys, time, urllib.request, urllib.error
