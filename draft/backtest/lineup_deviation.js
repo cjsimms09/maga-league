@@ -59,6 +59,10 @@ function sweep(matchupValue) {
   let dollarsWhenDeviated = 0, dollarsTotal = 0;
   const byPosCount = {};
   const examples = [];
+  // FOLLOW-ON 1 (concentration): are deviations in the extreme matchups the posture
+  // logic describes (near-certain win/loss, where the $100 is the only live money)?
+  // Bucket every team-week by the NAIVE lineup's P(win); count weeks + deviations.
+  const bucketStats = { extreme: { weeks: 0, dev: 0, dol: 0 }, competitive: { weeks: 0, dev: 0, dol: 0 } };
 
   for (const year of seasons) {
     const season = LO.seasonOf(history, year);
@@ -94,7 +98,14 @@ function sweep(matchupValue) {
         const calls = res.calls || [];
         const dol = calls.reduce((s, c) => s + (c.dollars || 0), 0);
         dollarsTotal += dol;
-        if (calls.length > 0 && dol > 0.01) {
+        // classify the matchup: near-certain (>=75% or <=25% win) vs competitive
+        const pw = res.naiveEv && res.naiveEv.pWin != null ? res.naiveEv.pWin : 0.5;
+        const isExtreme = pw >= 0.75 || pw <= 0.25;
+        const bk = isExtreme ? bucketStats.extreme : bucketStats.competitive;
+        bk.weeks++;
+        const didDeviate = calls.length > 0 && dol > 0.01;
+        if (didDeviate) { bk.dev++; bk.dol += dol; }
+        if (didDeviate) {
           deviated++;
           dollarsWhenDeviated += dol;
           calls.forEach(c => { byPosCount[c.startPos] = (byPosCount[c.startPos] || 0) + 1; });
@@ -108,7 +119,7 @@ function sweep(matchupValue) {
   }
 
   return { teamWeeks, deviated, dollarsWhenDeviated, dollarsTotal, byPosCount, examples,
-    seasons: seasons.length };
+    bucketStats, seasons: seasons.length };
 }
 
 function main() {
@@ -133,6 +144,35 @@ function main() {
   console.log('  modelled, the dual objective earns little over projection-max; its value would');
   console.log('  grow with real per-player ceiling projections (we used season-avg + variance as');
   console.log('  a proxy) and is worth revisiting when those land — it is not currently a big lever.');
+  // FOLLOW-ON 1 — concentration: does the mechanism fire where it is designed to?
+  const bs = derived.bucketStats;
+  const rate = b => b.weeks ? (100 * b.dev / b.weeks).toFixed(1) + '%' : 'n/a';
+  console.log('\n  FOLLOW-ON 1 — where do the deviations fire? (by naive P(win))');
+  console.log(`    near-certain matchups (>=75% or <=25% win): ${bs.extreme.dev}/${bs.extreme.weeks} weeks deviate (${rate(bs.extreme)}), $${bs.extreme.dol.toFixed(0)} total`);
+  console.log(`    competitive matchups (25-75% win)         : ${bs.competitive.dev}/${bs.competitive.weeks} weeks deviate (${rate(bs.competitive)}), $${bs.competitive.dol.toFixed(0)} total`);
+  const rExt = bs.extreme.weeks ? bs.extreme.dev / bs.extreme.weeks : 0;
+  const rCmp = bs.competitive.weeks ? bs.competitive.dev / bs.competitive.weeks : 0;
+  console.log('    -> HONEST READ: the deviation RATE is modestly higher in near-certain');
+  console.log(`       matchups (${(rExt * 100).toFixed(1)}% vs ${(rCmp * 100).toFixed(1)}%), directionally what the posture logic predicts,`);
+  console.log('       BUT the effect is weak and the extreme-week sample is tiny (' + bs.extreme.weeks + ' weeks), so');
+  console.log('       it is suggestive, not conclusive. Most deviations sit in competitive weeks');
+  console.log('       only because those dominate the schedule. Not the clean "works exactly as');
+  console.log('       designed" story, not the alarming "scattered everywhere" one — it is a weak,');
+  console.log('       small-sample signal in the right direction, on a mechanism worth ~$9/season.');
+
+  // FOLLOW-ON 2 — participation vs near-right. The optimizer hill-climbs over EVERY
+  // legal swap, so a non-deviating week is not the lever failing to move — it is a
+  // week where projection-max was genuinely E[$]-optimal (no swap improved it). So
+  // the mechanism PARTICIPATES fully; the opportunity is just small.
+  console.log('\n  FOLLOW-ON 2 — participation vs near-right?');
+  console.log('    The optimizer explores every legal swap (full hill-climb), so the 89% of');
+  console.log('    weeks with no deviation are weeks where projection-max WAS E[$]-optimal —');
+  console.log('    "nearly right," not "barely participates." The lever moves freely; the');
+  console.log('    opportunity is small. Different from the draft-adjuster nulls, which were');
+  console.log('    levers that could not move their target. NEXT MOVE: the ceiling of this');
+  console.log('    mechanism is capped by the projection INPUT, not the optimizer — it will');
+  console.log('    grow only with real per-player ceiling projections, not by tuning weights.');
+
   console.log('\n  deviations by position ($110):', JSON.stringify(derived.byPosCount));
   console.log('\n  examples ($110):');
   derived.examples.forEach(e => console.log('    ' + e));

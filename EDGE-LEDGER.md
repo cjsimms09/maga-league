@@ -63,6 +63,22 @@ _Last updated 2026-08-09 (all-terms participation test + FP SSR discovery)._
 - **Size:** large — 37.5% of the pot pays on weekly-high, and the league underplays it.
 - **Confidence:** structural (an accounting fact, not an estimate).
 - **Sharpen:** the in-season lineup-capture work (exp35) + the weekly grade.
+- **⚠️ BUT THE LINEUP-DEVIATION MECHANISM IS A NEAR-NULL (2026-08-10, measured, stated
+  plainly per Cory).** The dual-objective optimizer — the thing described as the heart of
+  the in-season edge, deviating from "start your highest projections" to chase the $100 —
+  **deviates only 10.9% of team-weeks and is worth ~$9/season** (draft/backtest/
+  lineup_deviation.js, 450 real team-weeks 2023-25, matchupValue $110). For ~9 weeks in 10
+  the right lineup is simply the highest projections. **The sophistication is not earning.**
+  Two follow-ons: (1) the deviations that fire are *mildly* concentrated in near-certain
+  matchups (14.7% vs 10.6% rate) — directionally what the posture logic predicts, but weak
+  and small-sample (34 extreme weeks), suggestive not conclusive. (2) It is "nearly right,"
+  NOT "barely participates": the optimizer hill-climbs every legal swap, so the 89% no-dev
+  weeks are weeks projection-max WAS E[$]-optimal. **Implication — where the weekly-high edge
+  actually lives:** you capture the $100 by drafting a high-CEILING roster (the ceiling +
+  stack draft terms) and by roster construction, NOT by weekly lineup gymnastics. The
+  optimizer's ceiling is capped by the projection INPUT, not the weights — it grows only with
+  real per-player ceiling projections, not tuning. The 37.5%-of-pot OPPORTUNITY is real; this
+  particular MECHANISM barely captures it. Do not keep calling the in-season optimizer central.
 
 ## 4. PLAYER-EVALUATION BIASES — young underranked / aging overranked  (potential, unsized)
 - **Size:** unmeasured in dollars. 2nd-year players are the most underranked-vs-market
