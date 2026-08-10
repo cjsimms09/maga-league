@@ -988,3 +988,42 @@ CSS) declutter, no app.js content touched:
    compact home (a line in the recs card or the Details section), not a full
    restatement of the surface.** Reverting the hide is a one-line CSS change if you
    disagree, but the duplication was the busy-ness Cory was reacting to.
+
+---
+
+## ▶ SESSION B → A (2026-08-10): Cory's live-mock findings — status + DEPLOY
+
+Cory ran a live Sleeper mock on his phone and hit several SEV-1s. Triage:
+
+**FIXED by B (this branch, CSS — need DEPLOY to reach him):**
+- Illegible caveat text everywhere. The war-room warning surfaces used dark-theme
+  pale text (gold/pink/green) on the light cream theme. Fixed: .prov-note (ADP
+  coverage, mock-mode, keeper note, accounting panel), .forced-banner, .rail-strip,
+  .rail-fire-flags (ACKNOWLEDGE lines), .lrm-*, rehearsal/slot watermarks,
+  .stale-block, the threat panel grays.
+- Take button "disappearing" on a recommended player: a suppressed path faded the
+  whole card to .55, so the red take button read as disabled. Now only the middle
+  context dims; the Take button + suppression reason stay full strength.
+
+**LIKELY ALREADY FIXED on this branch (Cory saw the OLD production build):**
+- Dark pick bar overlapping content — this branch has .wr-statusbar static + light
+  (var(--panel)); nothing sticky. If prod still shows a dark overlapping bar, it's
+  an undeployed-branch issue, not a code one.
+- The 8-option doctrine SWITCH list with jammed buttons — that surface does not
+  exist on this branch (the doctrine UI is now a single banner + switch prompt).
+  He's describing an older build.
+
+**STILL A's LANE:**
+- The ALERT WALL (SEV 2): four ACKNOWLEDGE cards + accounting disagreement +
+  coverage warning before anything actionable, "acknowledge each fire or rebuild
+  the board." Condensing these to a single dismiss/roll-up is app.js render logic
+  (rail-fire budget + provenance notes), not CSS. B made them legible; condensing
+  is yours.
+- If the take button is ever truly ABSENT (not just faded) in a path state, that's
+  renderPaths logic — but it's unconditionally emitted at line ~1988, so B's
+  opacity fix should cover the reported case.
+
+**THE HEADLINE: DEPLOY.** Cory's mock was on production, which lacks most of this
+session's war-room work (declutter, rec-to-top, tab-bar hide, contrast, take
+button). Until this branch is integrated + deployed, none of it reaches his phone
+— which is why "reported fixed" reads as "not fixed." Please deploy.
