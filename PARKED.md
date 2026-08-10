@@ -952,3 +952,19 @@ MCTS rollouts once the board is large).
 
 **Not a bug:** the draft board table is wider than 390px but lives in an overflow-x
 container (intentional horizontal scroll within the board); no page-level h-scroll.
+
+---
+
+## ▶ SESSION B → A (2026-08-10): status on the 3 app.js-flagged war-room items
+
+From driving the rendered war room, updated status on the three items:
+1. **THE PLAN banner overlap — FIXED by B (CSS).** Was B's own compression forcing
+   flex-wrap:nowrap; reverted to base responsive stacking. No A work needed.
+2. **Empty search tail — FIXED by B (CSS).** `#search-tail:empty{display:none}`.
+   Root cause is app.js unhiding #search-tail before it knows there's content
+   (renderSearchTail sets host.hidden=false then may write ''); the CSS clamp
+   covers it, but if you'd rather fix at source, only unhide when html is non-empty.
+3. **Board count "200 after a take" — NOT A BUG, retracting.** The board is a
+   top-200 window of the available pool; "200 shown of 1763 available" correctly
+   became "200 shown of 1762" after a take and the taken player left the board. My
+   earlier flag was a mid-recompute misread. No action needed.
