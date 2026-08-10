@@ -451,19 +451,37 @@ def _proxy_verdict(pagg: dict, rows: list[dict]) -> str:
         line("floor", "exp_weekly_high_wins", " wins", "higher better"),
         line("ceiling", "playoff_window_points", " pts", "higher better"),
     ]
-    ceil_boom = pagg["ceiling"]["exp_weekly_high_wins"]["helped"]
-    floor_cons = pagg["floor"]["mean_weekly_rank"]["helped"]
-    floor_po = pagg["floor"]["playoff_window_points"]["helped"]
+    # A claim of SIGNAL must clear three honesty gates, not just "the sum helped":
+    #   (1) the metric helped in the hypothesized direction,
+    #   (2) it did so with the SAME SIGN every season (mixed-by-season on n=3 is noise),
+    #   (3) for the shape-SPECIFIC channel it must BEAT the other shape — a playoff-points
+    #       bump that BOTH ceiling and floor produce is generic, not a floor/robustness effect.
+    def gated(obj, m, rival=None):
+        c = pagg[obj][m]
+        if not (c["helped"] and c["sign_consistent"]):
+            return False
+        if rival is not None:                      # must beat the rival shape on this metric
+            lower = m in set(pagg.get("lower_is_better", []))
+            a, b = c["sum"], pagg[rival][m]["sum"]
+            if a is None or b is None:
+                return False
+            return (a < b) if lower else (a > b)
+        return True
+    ceil_boom = gated("ceiling", "exp_weekly_high_wins")
+    floor_cons = gated("floor", "mean_weekly_rank")
+    floor_po = gated("floor", "playoff_window_points", rival="ceiling")
     if ceil_boom or floor_cons or floor_po:
-        head = ("SIGNAL on the finer proxy the dollar was blind to: "
+        head = ("SIGNAL on the finer proxy (sign-consistent + shape-specific): "
                 + ", ".join(x for x, ok in [("ceiling raises weekly-high win prob", ceil_boom),
                                             ("floor improves weekly consistency", floor_cons),
-                                            ("floor lifts playoff-window points", floor_po)] if ok)
+                                            ("floor lifts playoff-window points beyond ceiling", floor_po)] if ok)
                 + ". Worth a board tilt to test live; confirm on the post-draft simulator. ")
     else:
-        head = ("NULL even on the finer proxy: neither shape beats the points objective on "
-                "weekly-high win probability, consistency, or playoff-window points. The board's "
-                "value ranking IS the money-maximizing shape at this seat. ")
+        head = ("NULL even on the finer proxy: no shape beats the points objective with a "
+                "sign-consistent, shape-specific edge on weekly-high win probability, consistency, "
+                "or playoff-window points. Positive sums exist but are mixed by season and/or shared "
+                "by BOTH tilts (generic, not the hypothesized effect). The board's value ranking IS "
+                "the money-maximizing shape at this seat. ")
     return head + " ;; ".join(parts) + " Thin (n=seasons); directional."
 
 
