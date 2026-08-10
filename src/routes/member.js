@@ -2313,11 +2313,46 @@ router.get('/lineup', requireCommissioner, aw(async (req, res) => {
 router.get('/lineup/accuracy', requireCommissioner, aw(async (req, res) => {
   const world = req.world;
   const season = String(H.currentSeason(world.seasons).year || new Date().getUTCFullYear());
-  const calibration = await getDoc(`calibration:${season}`, null);
+  // THE GRADER WRITES AN APPEND-ONLY LEDGER, not a flat doc: grade-cron stores
+  // `calibration:<season>:<ISO>` per run. This route used to read a flat
+  // `calibration:<season>` that NOTHING EVER WRITES, so the page would have sat
+  // at "nothing graded yet" forever — the whole learning loop invisible on the
+  // one page that exists to show it. Read the ledger, newest snapshot wins, and
+  // keep the series for calibration-over-time.
+  let snapshots = [];
+  try {
+    const keys = (await store.listKeys(`calibration:${season}:`)).sort();   // ISO keys sort chronologically
+    for (const k of keys) { const s = await store.get(k); if (s) snapshots.push(s); }
+  } catch (e) { snapshots = []; }
+  const latest = snapshots.length ? snapshots[snapshots.length - 1] : null;
+
+  // Map the grader's nested snapshot onto the flat shape the view engine reads.
+  // A owns the snapshot shape; B adapts at the seam rather than asking A to
+  // reshape output that other consumers (evidence weights) already depend on.
+  // Ledger first (what the cron writes); fall back to a flat doc if one is ever
+  // present, so the page renders from whichever exists rather than depending on
+  // one writer. A snapshot that is already flat is used as-is.
+  const flat = await getDoc(`calibration:${season}`, null);
+  const calibration = latest && latest.forecasts
+    ? Object.assign({}, latest.forecasts, { generated_at: latest.graded_at || null })
+    : (latest && latest.n_graded != null
+        ? Object.assign({}, latest, { generated_at: latest.graded_at || latest.generated_at || null })
+        : flat);
+  // The decision/override half — already graded by the cron, never surfaced.
+  const decisions = latest && latest.decisions ? latest.decisions : null;
+  // Calibration OVER TIME: one point per grading run.
+  const series = snapshots.map(s => ({
+    at: s.graded_at || null,
+    graded: (s.forecasts && s.forecasts.n_graded) || 0,
+    brier: s.forecasts && s.forecasts.probability ? s.forecasts.probability.brier : null,
+  })).filter(p => p.at);
+
+  // No `attribution:<season>` writer exists yet (parked for A) — stays null, and
+  // the view renders an honest "not yet" rather than an empty table.
   const attribution = await getDoc(`attribution:${season}`, null);
   let rawCount = 0;
   try { rawCount = (await store.listKeys(`pred:${season}:`)).length; } catch (e) { /* count is a bonus */ }
-  const view = ACC.buildAccuracyView(calibration, attribution, rawCount);
+  const view = ACC.buildAccuracyView(calibration, attribution, rawCount, { series, decisions });
   res.render('accuracy', { me: req.owner, season, view });
 }));
 

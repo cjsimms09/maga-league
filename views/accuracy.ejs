@@ -36,6 +36,58 @@
   </div>
 </div>
 
+<%# ── THE OVERRIDE RECORD — am I adding value on top of the tool, or subtracting?
+    The grader has been computing this since the loop closed; nothing rendered it. %>
+<% const D = v.decisions; %>
+<% if (D && D.n > 0) { %>
+  <div class="card" style="margin-bottom:1.2rem">
+    <h2>🙋 Your overrides <span class="sub">when you went against the tool, how did it turn out?</span></h2>
+    <div class="body">
+      <div class="acc-ov">
+        <div class="acc-ov-cell"><span class="acc-ov-num"><%= D.n %></span><span class="acc-ov-lbl">decisions logged</span></div>
+        <div class="acc-ov-cell"><span class="acc-ov-num"><%= D.overridden %></span><span class="acc-ov-lbl">you overrode</span></div>
+        <div class="acc-ov-cell"><span class="acc-ov-num"><%= D.scored %></span><span class="acc-ov-lbl">scored so far</span></div>
+        <div class="acc-ov-cell"><span class="acc-ov-num <%= D.rate != null && D.rate >= 50 ? 'pos' : '' %>"><%= D.rate != null ? D.rate + '%' : '—' %></span><span class="acc-ov-lbl">of those you won</span></div>
+      </div>
+      <p class="muted" style="margin:.6rem 0 0; font-size:.78rem">
+        <% if (D.scored === 0) { %>
+          Nothing scored yet — an override is only graded once its week resolves. The count above is what's waiting.
+        <% } else if (D.scored < 8) { %>
+          <b>Too few to read as a verdict</b> (<%= D.scored %> scored). This is the honest sample, not a judgement — it takes a season to mean anything.
+        <% } else { %>
+          Across <%= D.scored %> scored overrides you were right <b><%= D.rate %>%</b> of the time. Nothing else in the system measures whether the human is adding value on top of the model.
+        <% } %>
+      </p>
+    </div>
+  </div>
+<% } %>
+
+<%# ── CALIBRATION OVER TIME — one point per grading run. A single snapshot says
+    how calibrated it is now; the series says whether it's getting better. %>
+<% const S = v.series || []; %>
+<% if (S.length > 1) { %>
+  <% const pts = S.filter(p => p.brier != null); %>
+  <% if (pts.length > 1) { const worst = Math.max(...pts.map(p => p.brier), 0.25); %>
+    <div class="card" style="margin-bottom:1.2rem">
+      <h2>📉 Calibration over time <span class="sub">Brier score per grading run — lower is better</span></h2>
+      <div class="body">
+        <div class="acc-series">
+          <% for (const p of pts) { const h = Math.max(4, Math.round((p.brier / worst) * 100)); %>
+            <div class="acc-bar" title="<%= new Date(p.at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) %> — Brier <%= p.brier.toFixed(3) %> (<%= p.graded %> graded)">
+              <i style="height:<%= h %>%"></i>
+              <span><%= p.brier.toFixed(2) %></span>
+            </div>
+          <% } %>
+        </div>
+        <p class="muted" style="margin:.5rem 0 0; font-size:.78rem">
+          <%= pts.length %> grading runs. Brier is mean squared error on the probability calls
+          (0 = perfect, 0.25 = a coin flip). Falling bars mean the model is learning; flat or rising means it isn't.
+        </p>
+      </div>
+    </div>
+  <% } %>
+<% } %>
+
 <%# ── CALIBRATION — when it says 70%, does it happen 70%? ─────────────────────── %>
 <div class="card" style="margin-bottom:1.2rem">
   <h2>🎯 Calibration <span class="sub">when it says 70%, does it happen 70%?</span></h2>
