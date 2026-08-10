@@ -65,6 +65,19 @@ _SAMPLE_CHARS = 40
 _MAX_KEYS = 60
 
 
+def _t(v) -> str:
+    """Unwrap MFL's {"$t": value} scalar wrapper.
+
+    MFL wraps every scalar this way — rule.event, rule.points, rule.range, and the
+    allRules descriptions. A caller that forgets gets a dict where it expected a
+    string, which stringifies happily and silently ("{\'$t\': \'CC\'}") rather than
+    raising. That is how the first cut of the event-code map came back unusable.
+    """
+    if isinstance(v, dict):
+        v = v.get("$t")
+    return "" if v is None else str(v)
+
+
 def describe(node, path: str = "$", depth: int = 0, max_depth: int = 9) -> dict:
     """A JSON value's SHAPE: {path: {type, sample|len|keys}}.
 
@@ -210,9 +223,12 @@ def probe(league_ids: list, year: int = 2025, search: str = "") -> dict:  # prag
         node = ((ar.get("allRules") or {}).get("rule")) or []
         if isinstance(node, dict):
             node = [node]
+        # MFL wraps EVERY scalar as {"$t": value} — including these. The first
+        # cut keyed the map on the wrapper dict, producing keys like
+        # "{'$t': 'CC'}". Unwrap, or the dictionary is unusable as a lookup.
         result["event_codes"] = {
-            str(r.get("abbreviation") or r.get("id") or ""): str(r.get("detailedDescription")
-                                                                 or r.get("shortDescription") or "")[:90]
+            _t(r.get("abbreviation") or r.get("id")): _t(r.get("detailedDescription")
+                                                        or r.get("shortDescription"))[:90]
             for r in node if isinstance(r, dict)
         }
     except Exception as e:                                      # noqa: BLE001
