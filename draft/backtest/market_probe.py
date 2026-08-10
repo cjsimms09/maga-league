@@ -65,7 +65,20 @@ def summarise_kalshi(markets: list) -> dict:
         if any(w in low for w in ("yards", "receptions", "touchdowns", "rushing", "passing", "receiving")):
             player_level.append(m)
     vols = [int(m.get("volume") or 0) for m in nfl]
+    # WHAT DID WE ACTUALLY SEE? A bare "0 NFL markets" is not a trustworthy
+    # negative — it looks identical whether Kalshi has no football markets or we
+    # queried the wrong surface, filtered wrongly, or read one page of many. So
+    # the scan reports its own composition, and the negative can be judged.
+    from collections import Counter
+    cats = Counter()
+    for m in markets or []:
+        tick = str(m.get("ticker") or "")
+        cats[tick.split("-")[0][:14] or "?"] += 1
     return {
+        "series_prefixes_seen": dict(cats.most_common(12)),
+        "any_sport_words": sum(1 for m in (markets or []) if any(
+            w in " ".join(str(m.get(k) or "") for k in ("ticker", "title", "subtitle")).lower()
+            for w in ("nfl", "football", "touchdown", "quarterback", "super bowl"))),
         "nfl_markets": len(nfl),
         "player_production_markets": len(player_level),
         "volume_total": sum(vols),
