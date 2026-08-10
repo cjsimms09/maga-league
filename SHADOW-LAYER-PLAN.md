@@ -160,3 +160,78 @@ flip; ≤1–2 promotion candidates per cycle regardless of field size; a minimu
 evidence threshold before a proposal may appear; and **nothing graduates
 permanently** — a promoted strategy stays under measurement and can be demoted on
 the same terms.
+
+---
+
+# ADDENDUM (Cory, 2026-08-10) — two narrowings, not loosenings
+
+## A1. VISIBILITY — silent live, visible everywhere else
+
+I asked whether shadows could be visible during a live pick "just to look at behind the
+scenes." **The answer is no**, and the reasoning is recorded because it is easy to talk
+yourself back into.
+
+The protection is not about the TOOL being influenced. **It is about ME.** If a shadow's pick
+is on screen at pick 34 I have seen it and I cannot unsee it; my decision is then made in the
+presence of an unvalidated alternative, which is exactly the degree of freedom the measured
+core exists to remove. And the failure is gradual rather than obvious — glance at it eleven
+times, agree ten, and on the twelfth it looks better and I take it. **That override then
+enters the log as MY judgment, with nothing recording that a shadow suggested it.**
+
+| context | shadows |
+|---|---|
+| **live draft / live waiver / live lineup** | **completely invisible.** No badge, no alternative view, no indicator of any kind. |
+| **after a live decision LOCKS** | **show every shadow's pick.** Same information, curiosity satisfied, zero contamination — the decision is already made. Also *better* evidence than a live glance: comparable across the whole draft instead of one row read under time pressure. |
+| **in a mock** | **show everything, live and inline.** A mock is not forward evidence by our own rule, so nothing is contaminated — and a mock is exactly where I would learn whether any shadow is worth taking seriously. |
+
+**THE DOCTRINE DISTINCTION, so the two are never confused.** The nine PLANS in the strategy
+picker stay visible during a draft. They are part of the tool, they have been through the
+gate, and Cory can switch between them deliberately. SHADOWS are unvalidated candidates
+accumulating records precisely because nobody knows yet whether they work. **The line is
+whether a strategy has passed the gate: gated things may be visible live, ungated things may
+not.**
+
+*Implementation consequence (mine).* The reveal hangs off the LOCK EVENT, not a timer or a
+panel toggle — the same `markDrafted` / claim-submit / lineup-lock path the override log
+already hooks. And the visibility predicate is exactly two conditions, so it cannot drift into
+a third: `mockMode || decisionLocked`. Anything reading a shadow outside that predicate is a
+bug, and it is cheap to assert in the source guard the way the app-wiring suite already
+asserts seat and window invariants.
+
+## A2. SHADOWS IMPROVE UNDER THE SAME DISCIPLINE AS THE CORE
+
+A shadow is not a fixed guess that either wins or loses. Each is searchable and improvable —
+**under exactly the rules everything else obeys, not looser ones because it is "only a
+shadow."**
+
+- **Its parameters are searchable.** The VONA-tiered candidate is the clearest case: the
+  mean-to-ceiling schedule by tier is the thing to FIND, not the thing to assume. Same for any
+  candidate I generate — **the shape is the hypothesis, the parameters are what the search is
+  for.**
+- **Every version emits gradeable predictions**, with its own record, on the same cadence,
+  through the same grader.
+- **A TUNED SHADOW IS A NEW REGISTERED CANDIDATE, NOT A QUIETLY UPDATED OLD ONE.** Its record
+  starts fresh; its predecessor's record stays on the books. Otherwise a shadow could be
+  adjusted until it wins and then presented with a graded history it never earned — which is
+  re-fitting until the numbers agree, wearing a different hat. (This is binding rule 1(b) in
+  the shadow registry's own shape.)
+- **The parameter search is subject to the same multiplicity guard as the field.** Searching a
+  schedule across many settings and reporting the best is the same arithmetic problem as
+  racing many candidates; the null must search the same space.
+
+*Implementation consequence (mine), and it sharpens the multiplicity arithmetic.* **The
+effective N for the multiplicity correction is candidates × parameter settings searched, not
+the number of candidates.** Three candidates over twenty schedule settings is an N of sixty,
+and a report saying "of 3 candidates" while sixty were searched understates the false-positive
+rate by a factor that matters. So the registry stores, and every report prints, **both** the
+candidate count and the total settings evaluated — the second is the number the null searches
+over. Registry IDs are therefore immutable and versioned (`vona_tiered@v1`, `@v2`, …), never
+mutated in place, which is what makes "predecessor's record stays on the books" enforceable
+rather than a promise.
+
+## THE PRINCIPLE UNDERNEATH BOTH
+
+**A shadow gets to be exploratory in what it PROPOSES and gets no latitude at all in how it is
+MEASURED.** The freedom is in the hypothesis space; the discipline is identical to the core's
+— because the whole value of the layer is that a shadow which eventually beats the core has
+earned it under the same conditions, and a shadow measured loosely could never earn anything.
