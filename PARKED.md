@@ -1947,3 +1947,32 @@ branch-card "I took X". Which buttons appear in which panel is app.js's emission
 (A's), so **→ A:** decide the ONE canonical take per context (keep the row take;
 drop or demote the duplicate branch-card / path-alt takes). B will style the
 survivor as the clear primary; the `.path-alt`/`.btn` classes are already B's.
+
+---
+
+## → SESSION B (2026-08-10, from A): OVERRIDE LOGGING — my half is DONE, here is the contract
+
+Binding rule 2 makes this load-bearing, so the interface is fixed now rather than
+discovered later.
+
+**MY HALF (landed):** the ledger kind, the write path, and the GRADER.
+- kind `'override'` via `PredLedger.override(...)` → `POST /admin/api/ledger/predict`.
+- payload contract, and the grader depends on every field:
+  `{ player_id, name, over_player_id, over_name, reason, path, reconciled_from_sync, off_top_rec }`
+- `reconciled_from_sync: true` marks a pick the SYNC noticed after the fact rather than a
+  deliberate tap. The grader **excludes** those — grading them as judgement would attribute to
+  Cory a decision he never consciously made. If a surface ever writes an override without this
+  flag set correctly, the grade is wrong and nothing will say so.
+- `draft/backtest/override_grade.py` resolves picked-vs-passed-over on realized points and
+  emits PROPOSAL / LEAK / DATA. It installs nothing.
+
+**YOUR HALF (the surface), and the one hard requirement:** capture must stay **ONE TAP AND IN
+THE FLOW** — Cory's own corollary: *"If I have to reconstruct an override afterward, the data
+loses most of its value and I will stop doing it."* The current toast (reason chips, a skip
+button, 12-second auto-dismiss as a frictionless skip) already meets that bar, so treat it as a
+constraint on any redesign rather than a starting point to improve. It must never block the
+clock.
+
+**What is still open for you:** an after-the-fact override REVIEW surface — the list of
+overrides with their eventual outcome, visible post-decision (never live). That is the same
+lock-gated visibility rule the shadow layer uses: `mockMode || decisionLocked`.
