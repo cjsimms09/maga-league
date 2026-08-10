@@ -140,6 +140,21 @@ strategies (already measured, so no new hypothesis is spent). Cory's tiered VONA
 candidate is PARKED pending a real ranged set; the schedule stays a searchable
 parameter when it unparks.
 
+**P0 — Mechanisms the eight binding rules imply** (the rules themselves are in force now in
+SESSION-A.md; this is the machinery, queued here):
+- **Rule 2** — override-pattern detector: persistent + material + measured-value bar, emitting
+  a formal gate proposal (or naming the leak). Needs the override ledger kind defined first,
+  which is program item 9 and is B's surface once I define the write path.
+- **Rule 4** — `draft/preregistration/` holding a dated filter spec per external ingest, with
+  superseded versions retained, never edited in place.
+- **Rule 5** — a reachability drill: revert exercised FROM A PHONE, a regression failure
+  deliberately induced to prove it BLOCKS not warns, baseline compared AFTER a deploy. Recurring,
+  not once.
+- **Rule 7** — rename the live preset when the frozen baseline lands (see the recorded
+  violation in SESSION-A.md): "Measured core" becomes the frozen object's name only.
+- **Rule 8** — report template that ORDERS failing channels first; a review that leads with
+  wins is malformed regardless of completeness.
+
 **P4 — Promotion via the graduation gate only.** Proposal with evidence, never a
 flip; ≤1–2 promotion candidates per cycle regardless of field size; a minimum
 evidence threshold before a proposal may appear; and **nothing graduates

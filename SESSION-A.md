@@ -174,6 +174,103 @@ because it turns thin findings into real ones.
 
 ---
 
+## THE EIGHT BINDING RULES (constitutional — not judgment calls)
+
+Cory, 2026-08-10, three parties converged. **These are rules, not tasks.** They are in force
+from the moment they were written, including for work already in flight; the *machinery* some
+of them imply (override proposals, pre-registration files, reachability drills) is queued, but
+the prohibitions bind now.
+
+The frozen baseline, the graduation gate and the silent shadow layer guard the obvious paths
+to ruin. These guard the quiet ones. **Every one prevents the same thing: the system
+continuing confidently down a path it never deliberately chose.** None of the failures is
+dramatic — each is a small, locally reasonable step — which is exactly why they are rules.
+Judgment is what wears down across a long season, and the point of this system is that it
+should be harder to fool than Cory is.
+
+**1. EVIDENCE PURITY — the highest remaining risk.** Any data entering a grade, a
+participation test or a promotion proposal is decision-time clean, or is explicitly labelled
+SIMULATION or PRIOR. Three contaminations forbidden by rule, not vigilance: (a) **no
+in-season-updating projection source may grade historical performance** — the Sleeper
+retraction is now a standing prohibition, not a lesson learned once; (b) **no re-running or
+re-bucketing the same three seasons until a preferred result appears** — the failure that
+cannot be detected from outside, which is why it must be a rule; (c) **no external or
+hierarchical data influencing parameters that must stay LOCAL** (opponent tendencies, our
+room, our keeper structure) — nothing pools before the pooled-vs-local split document exists
+and Cory has read it, and any pooled parameter names its sources at the point of use.
+*This outranks the gate: contaminated evidence moves a weight the gate then faithfully
+approves. The gate protects the process; this protects the input.*
+
+**2. OVERRIDES MUST NOT BECOME AN UNEXAMINED PARALLEL POLICY.** Overrides are first-class
+data, and the HUMAN-PLUS-MODEL system gets graded, not only the model. If Cory overrides 30-40%
+of the time and those are never graded as a system, the real operating policy is "the model
+plus Cory's taste" and the measured core is advisory — a parallel policy accumulating in click
+history, never measured, never gated. **Persistent, material, high-value overrides that beat
+the core must surface as formal proposals through the gate, or be named to him as a leak.**
+Set the persistent-and-material bar so a single disagreement is data and only a repeated
+pattern with measured value becomes a proposal. He would rather be told he is costing himself
+money than have his habits quietly become the model.
+
+**3. THE PROXY IS DIAGNOSTIC AND MAY NEVER BECOME THE OBJECTIVE.** The continuous proxy may
+never be a promotion or demotion criterion on its own; a dollar-negative or dollar-flat result
+cannot be promoted on proxy strength. The proxy exists to reveal that a dollar-zero result was
+measured by a blind instrument — not to replace the dollar grade. Once a secondary metric
+appears in every report, the thing being optimised drifts from the payout table to the
+measurement instrument, and that drift is cultural rather than technical, so it needs a bright
+line rather than judgment.
+
+**4. EXTERNAL-INGEST FILTERS ARE PRE-REGISTERED.** All inclusion/exclusion criteria for
+external data are fixed **before the data is examined**. Post-hoc filtering of an external
+sample is the same offence as re-fitting the home league until it agrees. Every filter is a
+degree of freedom — which leagues count as format-matched, which player-seasons are usable,
+what counts as a valid draft, how partial data is handled — and filtering after seeing the
+data turns a clean sample into a confirmation machine. **Escape hatch:** some filters only
+become obvious on first contact (data quality, incomplete drafts, extreme format mismatch).
+Changing one is a NEW pre-registration with the old recorded, never a quiet adjustment.
+
+**5. PROTECTIONS MUST BE REACHABLE UNDER REAL CONDITIONS, REPEATEDLY.** Every protection is
+demonstrated under the conditions it exists for, and re-demonstrated periodically. The revert
+is tested **from a phone, not a terminal**. A regression failure is deliberately triggered to
+confirm it **blocks rather than warns**. The baseline comparison is checked **after** a
+deploy, not before. A protection that exists in code but is unreachable or ignorable under
+real conditions is decorative — and this week produced four guards that existed and did not
+guard: a fixture that could not fail, a CI step aborting before most of the suite ran, a test
+asserting the bug it should have caught, and a materiality gate collapsed by a null coercion.
+A revert demonstrated in August may not work in January; this is a recurring obligation.
+
+**6. THE WRITTEN RULES AND THE RUNNING SYSTEM MUST NOT DIVERGE.** Any change affecting
+**recommendation behaviour** either updates the frozen baseline reference or explicitly
+declares itself a deliberate, gated departure. There is no third option where the docs are
+merely behind. Scope stays sharp — not every internal change needs a baseline update, only
+those altering what the tool recommends. "Slightly stale documentation" is not hygiene here:
+three reviewers reached a wrong conclusion about the ceiling weight from a stale spec, and a
+test was found asserting a label that locked a lie in place. Staleness is the mechanism by
+which the core erodes without anyone deciding to erode it.
+
+**7. LANGUAGE DISCIPLINE — what may be called "the core".** **The frozen baseline is the ONLY
+object that may be called "the measured core."** Everything running is **"live policy under
+continuous measurement."** Any report saying "the core says X" is either citing the frozen
+reference or it is wrong — which makes drift detectable in the language itself, not only in
+the code.
+> **KNOWN VIOLATION, recorded rather than quietly fixed (2026-08-10):** the war room currently
+> ships a preset labelled **"Measured core"** and a button reading **"Reset to Measured core"**,
+> and those name the LIVE weights. Under this rule that language belongs to the frozen
+> baseline, which does not exist yet (Part 1 of the shadow-layer brief). **When the baseline
+> lands, the live preset is renamed** (to "Live policy" or similar) and "Measured core" is
+> reserved for the frozen object. Flagged now so the rename is a deliberate step rather than
+> something discovered later.
+
+**8. NO HIGHLIGHTS-ONLY REPORTING.** Every periodic review — seasonal, half-seasonal, or any
+major promotion cycle — presents the FULL reliability and calibration picture including the
+channels and terms that are failing, and **leads with what is failing**. Buried-but-present is
+how selective attention survives a completeness rule, so the requirement is ordering, not
+inclusion: if calibration is poor on a channel, that is the first line. This is contamination
+of the NARRATIVE rather than of the data, a distinct category — and it is the failure mode a
+self-reporting system is most prone to, because the model writes its own reports and Cory is
+the only one who reads them.
+
+---
+
 ## THE HABITS (the concrete practices, tied to the principle they serve)
 
 **Running an experiment (principles 1 & 2):**
