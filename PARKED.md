@@ -1465,3 +1465,64 @@ duplicates a filled single-starter slot without saying it's a flex/bench play;
 (2) when the board is picked-over and a strategy's pick is VONA-driven not need-
 driven, say so, so the label stops implying a need that isn't there. Same family
 as the need-term / consensus-artifact items above.
+
+---
+
+## B→A (2026-08-10): DRAFT-BUDDY VISION + roster-projection builder spec (#1 priority)
+
+Cory wants the war room built into a real draft buddy: clear, useful, expansive,
+well-organized/tagged. Most organs already exist but are buried; the marquee NEW
+build is the roster-projection tool. Cory picked it as the #1 priority.
+
+B has already done (shell/CSS, on branch): clarified the "Before your pick" and
+"Survival odds" boxes + tagged their data + fixed their legibility; ranked-list
+legibility. Remaining is A-lane (engine + app.js rendering).
+
+### #1 — ROSTER-PROJECTION BUILDER (new). B prototyped it; ref in scratchpad
+rosterplan.js — proven on draft_data.json. Port into engine.js (rosterPlan is the
+stub to grow).
+
+GOAL: given draft state (my roster, board, my remaining picks + their overall
+pick numbers, opponent survival), project the best way to fill the rest of the
+roster, per-position "best value window", and answer "if not QB now, when?".
+
+ALGORITHM (proven):
+- availableAt(P): players whose adjusted_adp + 0.5*adp_sd >= P (likely still there
+  at my pick P).
+- bestAt(P,pos): highest-VORP available at pos. **RANK ON VORP, NOT proj_mean** —
+  raw proj_mean is cross-position apples/oranges (QB passing ~400 vs RB/WR PPR
+  ~290) and picks Josh Allen R2; VORP flips it to Bowers R2, correctly. THIS IS
+  THE SAME ROOT AS THE QB-HOARDING AUDIT — fixing the builder and the live recs
+  to use VORP-vs-replacement per position fixes both.
+- Forward greedy: at each of my picks, take the still-needed slot whose VORP
+  decays most before my NEXT pick (VONA projected forward). Value that holds (QB
+  ~9 flat after R6) defers; value that cliffs (RB after R1-2) goes now.
+- Value windows: per position, best-available VORP at each of my picks; flag the
+  round it falls below 80% of round-1 value. (QB 62→24→9: elite early or wait for
+  the flat tier; RB/WR cliff after R1-2; answers "when's the QB value?".)
+
+REFERENCE OUTPUT (slot 4, empty roster): R1 CMC(RB) · R2 Bowers(TE) · R3 Hall(RB)
+· R4 Loveland(FLEX) · R5 Maye(QB) · R6-7 Evans/Odunze(WR) · R8 DEF · R9 K · R10+
+WR/RB depth. Each row carries proj + floor–ceiling + a "take-now" flag when VORP
+decays.
+
+MULTIPLE BUILDS (Cory asked): generate Plan A (greedy above) + Plan B/C by
+re-running under a constraint — e.g. force-early-RB (hero-RB), zero-RB (WR/TE
+early, RB later), or best-player-available (ignore need). Show each as a full
+projected roster with a projected starter total so Cory can compare.
+
+UI (A renders; B places/styles in warroom.ejs shell): a "Roster Plan" card with
+(a) my roster so far + byes, (b) the projected remaining picks as a timeline with
+take-now flags, (c) per-position value windows, (d) Plan A/B/C toggle w/ totals.
+
+### #2 — LIVE SHADOW LIST (surface what exists)
+DraftShadows.project() already returns what EACH strategy would take with THIS
+pick (the "7 of 7 → Maye" strip). Cory wants it as a clear per-strategy list with
+easy model toggling + why each chose it. Render project() as a labeled list (one
+row per strategy: name · its pick · one-line why from that strategy's top
+reason), with the active/enrolled model highlighted and a tap to switch.
+
+### #3 — RECS REDESIGN (top-5 + why + CI) and #4 STRATEGY TOGGLE + BYES IN ROSTER
+Per earlier PARKED sections: top-5 with reasons and a proj_floor–proj_ceiling
+confidence interval; strategy/doctrine picker made prominent with a plain "why
+this model"; show each rostered player's bye in the roster panel (data has bye).
