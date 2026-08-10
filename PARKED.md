@@ -1418,3 +1418,127 @@ returns — `atRisk` ("most likely gone before your pick") — or label the name
 generic value-order, not a per-seat read. One accurate list beats six identical rows.
 B owns the war-room SHELL but not app.js's emitted markup, so flagging rather than
 editing. Happy to take it if you'd rather reassign this panel's render to B.
+
+## ▶ SESSION B → A — CORRECTNESS AUDIT FINDINGS (2026-08-10)
+
+_Audit of A's implementation vs `draft/DECISION-LOGIC-SPEC.md`, read at integrated
+`origin/main` (commit 1d059e9). Method: three parallel deep code reads + hands-on
+verification (league rules vs the Sleeper-imported config, payout arithmetic, and a
+deliberate guard-break). Every load-bearing line re-verified by eye. Dollar backtest
+magnitudes were NOT re-run — those remain "ask to see the backtest" items._
+
+**READ-FIRST SEVERITY INDEX:** the list keeps the audit's cost order, but the
+highest-severity item is **flag 3 (reset button), SEV-1** — action it first.
+
+### Settled arguments (state plainly so nobody re-litigates)
+
+- **CEILING WEIGHT IS RESOLVED — the code carries 0.65 and it IS the live preset.**
+  `MEASURED_WEIGHTS.ceiling = 0.65` (`engine.js:272`) is exactly what the tool loads
+  (`app.js:52`); the ledger's −4.8 was a *test reading that never became the install
+  decision*. The spec is accurate. Three document-only reviewers inferred a stale
+  0.65 vs a newer "recommend zero"; the CODE says otherwise. This is why a code audit
+  outranks a document audit — do not reopen.
+- **C1 "one valuation everywhere" is a FRAMING overstatement, not a defect** (flag 4).
+- **`league_config.confirmed: false`.** Scoring + roster check out against Sleeper
+  (authoritative for those). The payout SPLIT is the league's agreement, not
+  Sleeper's — **awaiting Cory's sign-off**, do not mark verified until he confirms.
+
+---
+
+**FLAG 1 — Rules-page drift  [CLASS]  [SEV-2, league-visible to all members]**
+- WHERE: `src/seed-data.js` — `ROSTER` (line 144) and `SCORING['Defense / ST']`
+  (line 141); rendered by `src/routes/member.js:2257` → `views/rules.ejs:20,36`.
+- WRONG (two symptoms, one cause): (a) `ROSTER` omits the **TE** starter slot — it
+  lists QB1/RB2/WR2/FLEX1/DEF1/K1 = 8 starters; the real league runs **9** (adds TE1,
+  per the Sleeper-imported `draft/config/league_config.json` roster_slots and
+  `lineup.js:96`). (b) DEF scoring shows "28–34 points allowed → **+1**"; Sleeper says
+  `pts_allow_28_34 = -1.0` (a sign flip that *rewards* a bad defense), and it drops the
+  "21–27 → 0" bracket. The MODEL is correct (it scores off the imported config); only
+  the members-facing rules page is wrong.
+- CLASS, not instance: both symptoms come from a **hand-maintained copy** in
+  seed-data.js drifting from the imported config. Correcting the two values leaves the
+  drift mechanism.
+- FIX (structural): derive the rules-page ROSTER + SCORING from the same
+  `league_config.json` the engine scores under (roster_slots + scoring), so the page
+  cannot drift from the league again. (B owns `rules.ejs`; the wrong data + the
+  derivation source are A's — flagging, not fixing, per audit rules.)
+
+**FLAG 2 — Rules-page DEF sign/bracket** — FOLDED INTO FLAG 1 (same CLASS/cause/fix).
+
+**FLAG 3 — "Reset weights / Back to the defaults" loads the WRONG preset  [INSTANCE]  [SEV-1]**
+- WHERE: `public/js/draft/app.js`, `#reset-weights` click handler →
+  `applyPreset('balanced', 'Back to the defaults.')` (~line 5428).
+- WRONG: `balanced` sets every term to ~1.0 — including **tier and risk, the two the
+  Lab measured as the biggest drags**. One tap mid-draft silently switches the board to
+  the weighting that measured WORST, and the drafter would not notice. "Defaults" here
+  is NOT what the tool ships/loads on (`MEASURED_WEIGHTS`).
+- FIX: reset to the **measured** preset (`applyPreset('measured', …)`), and relabel the
+  button to name its target (e.g. "Reset to measured defaults") so it says what it does.
+
+**FLAG 4 — "One valuation across all four surfaces / byte-identical everywhere" overstated  [FRAMING, not a defect]**
+- WHERE: `draft/DECISION-LOGIC-SPEC.md` SUMMARY headline (§A10/§B7 already scope it correctly).
+- WHAT: **Draft ↔ waiver genuinely share it, byte-identical** — verified by two GREEN
+  tests I ran (`valuation.test.js` 13/13 = engine's inline `starterSlotMarginal` vs
+  shared `SharedValuation.startableValue`; `waivers.test.js` 11/11 = waiver vs engine),
+  and the one thin-pool VORP violation A caught in waivers is fixed. BUT **lineup**
+  (`src/routes/lineup.js` `optimize`, prices weekly E[$]) and **standings**
+  (`src/routes/standings.js` `teamStrength`, prices teams by realized scores) compute
+  *different quantities* — a player's canonical VORP is never evaluated there, so
+  "identical everywhere" is not even evaluable for 2 of the 4. Code for each surface is
+  internally correct; only the summary claim overreaches.
+- FIX: make the SUMMARY headline match §A10/§B7 — "draft and waiver share one valuation;
+  lineup and standings price different quantities by design."
+
+**FLAG 5 — Dormant thin-pool VORP/replacement recompute  [CLASS]  [SEV-3, latent]**
+- WHERE (known instance): `public/js/draft/value.js:115` `replacementLevels` / `:156`
+  `makeValuer` recompute replacement over whatever `players` array they're handed;
+  `draft/tests/mcts.test.js` feeds them the **thinning board** — the exact pool-subset
+  inflation A already fixed in waivers. Harmless TODAY: only live-ish caller is
+  `draft/tournament/run.js` (a Lab tool), and it's a projected-points valuer, not the
+  VORP path. app.js does NOT call it.
+- CLASS statement (per Cory): **any path that recomputes VORP or replacement level over
+  a SUBSET of the pool can diverge from the canonical artifact** (`draft/vorp.py` →
+  `public/draft_data.json`, full-pool replacement). Two callers are known; the mechanism
+  is the risk.
+- FIX (cover the class, not the callers): a structural invariant/guard asserting that
+  every value surface's per-position replacement equals the artifact's
+  (`proj_mean − vorp`, the full-pool constant) — so a thin-pool recompute is caught
+  wherever it appears, including before MCTS is ever wired live.
+
+**FLAG 6 — Onesie injury-exception regex misses Sleeper's `SUS` code  [INSTANCE]  [low]**
+- WHERE: `public/js/draft/engine.js:620` —
+  `/^(out|doubtful|ir|injured[ _-]?reserve|pup|nfi|suspended)$/i`.
+- WRONG: matches the word `suspended`, not the **`SUS`** code Sleeper emits — so a
+  suspended starter carried as `"SUS"` won't trigger the "starter hurt" onesie
+  exception. Inconsistent with the in-season guard (§B3), which correctly uses `SUS`.
+  Also includes `doubtful`, which the spec's "OUT/IR/PUP/SUS — not Questionable" logic
+  arguably shouldn't. Effect is bounded: it only decides whether a rare *surfaced*
+  duplicate gets a spoken insurance-exception vs the default discount — it cannot
+  promote an unstartable player.
+- FIX: align the draft-side status set to the §B3 in-season set and match CODES
+  (`SUS`, `NA`, `DNR`, …), not words; reconcile the `doubtful` inclusion.
+
+**FLAG 7 — Spec-drift (doc corrections, code is correct)  [low]**
+- `BENCH_DISCOUNT`: spec says flat 0.35; code derives it per-league at runtime
+  (`engine.js:1075`, ~0.175 for this 10-team/3-keeper league). Inert (need weight = 0),
+  but the spec's stated number is wrong for this league — correct the spec.
+- Doctrine tilt "flat ±2.5": code is a bounded **continuous** tilt `pref × 2.5`,
+  `pref ∈ [−1,1]` (`engine.js:671`, `doctrine.js` continuous-weights note). Only reorders
+  near-ties. Correct the spec wording.
+- Survival "Layer 2" (spec) vs "Layer 3" (code label, `survival.js:6-8`) for run
+  detection — cosmetic; every constant matches.
+
+---
+
+### Verified CORRECT (so A doesn't re-audit these)
+- League rules in the engine config (Sleeper-imported): 6-pt pass TD, half-PPR,
+  QB1/RB2/WR2/TE1/FLEX1/K1/DEF1, playoff top-4, keepers 3/max-3.
+- Payout arithmetic reconciles exactly: $4,000 pot, $1,500 weekly, $2,500 remainder
+  split 85/15 → $2,125 playoff / $375 reg; "$530 equity" = $2,125/4.
+- All 8 live weights + every constant match `MEASURED_WEIGHTS`; no OFF term leaks.
+- The 2026-08-10 doctrine-tilt fix is LIVE (`engine.js:885`, `tilt *= onesie.discount`
+  before add). Onesie-multiply-last, bench reprice, survival, ceiling late-gate all
+  confirmed.
+- GUARD-BREAK: neutering the accounting reconciler's dilution check
+  (`public/js/draft/accounting.js`) took the suite 19/19 → 17/19 RED and named the
+  invariant. The guard is real, not vacuous. (Reverted; worktree discarded.)
