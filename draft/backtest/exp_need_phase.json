@@ -3,13 +3,13 @@
   "rooms": 300,
   "baseline": "mask_only (startable-cap, VORP-greedy)",
   "need_scale": 30.0,
-  "baseline_mean_dollars": 700.5,
+  "baseline_mean_dollars": 787.2,
   "power_note": "n=300; min reliably detectable ~$25-35; |edge|<that with CI spanning 0 = underpowered, not zero.",
   "mask_value_vs_no_mask": {
-    "edge": -443.33,
+    "edge": -475.83,
     "ci95": [
-      -486.17,
-      -401.67
+      -517.0,
+      -436.25
     ],
     "beats": false,
     "separable_from_zero": true
@@ -27,96 +27,96 @@
     },
     {
       "w": 0.5,
-      "edge": 16.25,
+      "edge": -29.08,
       "ci95": [
-        3.08,
-        29.83
+        -46.58,
+        -11.75
       ],
-      "beats": true,
+      "beats": false,
       "separable_from_zero": true
     },
     {
       "w": 1.0,
-      "edge": 9.92,
+      "edge": -31.42,
       "ci95": [
-        -7.58,
-        26.42
+        -48.42,
+        -14.17
       ],
       "beats": false,
-      "separable_from_zero": false
+      "separable_from_zero": true
     },
     {
       "w": 1.5,
-      "edge": 5.67,
+      "edge": -31.42,
       "ci95": [
-        -12.0,
-        23.5
+        -48.42,
+        -14.17
       ],
       "beats": false,
-      "separable_from_zero": false
+      "separable_from_zero": true
     },
     {
       "w": 2.0,
-      "edge": 4.58,
+      "edge": -31.42,
       "ci95": [
-        -13.33,
-        22.17
+        -48.42,
+        -14.17
       ],
       "beats": false,
-      "separable_from_zero": false
+      "separable_from_zero": true
     },
     {
       "w": 3.0,
-      "edge": 4.25,
+      "edge": -33.33,
       "ci95": [
-        -15.42,
-        23.67
+        -50.75,
+        -16.33
       ],
       "beats": false,
-      "separable_from_zero": false
+      "separable_from_zero": true
     }
   ],
   "schedules_vs_mask": {
     "auto_ramp": {
-      "edge": 4.92,
+      "edge": -31.42,
       "ci95": [
-        -12.67,
-        22.83
+        -48.42,
+        -14.17
       ],
       "beats": false,
-      "separable_from_zero": false
+      "separable_from_zero": true
     },
     "early_heavy": {
-      "edge": 15.67,
+      "edge": -31.42,
       "ci95": [
-        -2.0,
-        32.83
+        -48.42,
+        -14.17
       ],
       "beats": false,
-      "separable_from_zero": false
+      "separable_from_zero": true
     },
     "late_heavy": {
-      "edge": 15.83,
+      "edge": -31.08,
       "ci95": [
-        2.58,
-        29.25
+        -48.0,
+        -14.0
       ],
-      "beats": true,
+      "beats": false,
       "separable_from_zero": true
     }
   },
   "best_flat": {
-    "w": 0.5,
-    "edge": 16.25,
+    "w": 0.0,
+    "edge": 0.0,
     "ci95": [
-      3.08,
-      29.83
+      0.0,
+      0.0
     ],
-    "beats": true,
-    "separable_from_zero": true
+    "beats": false,
+    "separable_from_zero": false
   },
-  "ramp_minus_best_flat": -11.33,
-  "small_flat_earns": true,
+  "ramp_minus_best_flat": -31.42,
+  "small_flat_earns": false,
   "heavy_flat_earns": false,
   "auto_ramp_earns": false,
   "verdict": "The MASK is the earner. Auto's need-WEIGHT ramp is NOT separable from zero and is beaten by a flat w\u22480.5 \u2014 near-DECORATION. Simplify Auto: keep the mask, replace the need-weight ramp with a small flat weight (~0.5) or drop it.",

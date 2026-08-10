@@ -7,28 +7,28 @@
  "rivals": [
   {
    "policy": "h1_phase",
-   "edge": -100.0,
+   "edge": -153.33,
    "ci95": [
-    -150.21,
-    -48.75
+    -203.33,
+    -104.17
    ],
    "beats_defaults": false
   },
   {
    "policy": "uniform_boom",
-   "edge": -167.29,
+   "edge": -359.38,
    "ci95": [
-    -225.42,
-    -113.12
+    -418.75,
+    -296.04
    ],
    "beats_defaults": false
   },
   {
    "policy": "floor_heavy",
-   "edge": -377.92,
+   "edge": -590.83,
    "ci95": [
-    -443.54,
-    -307.71
+    -658.96,
+    -521.04
    ],
    "beats_defaults": false
   }
@@ -37,21 +37,21 @@
   "core": [
    {
     "ceiling_w": 0.0,
-    "edge": -45.62,
+    "edge": -563.33,
     "ci95": [
-     -114.58,
-     20.83
+     -630.42,
+     -496.04
     ],
-    "straddles_default": true
+    "straddles_default": false
    },
    {
     "ceiling_w": 0.25,
-    "edge": -29.58,
+    "edge": -304.58,
     "ci95": [
-     -65.42,
-     2.08
+     -377.08,
+     -229.17
     ],
-    "straddles_default": true
+    "straddles_default": false
    },
    {
     "ceiling_w": 0.5,
@@ -64,66 +64,66 @@
    },
    {
     "ceiling_w": 1.0,
-    "edge": 29.38,
+    "edge": -203.54,
     "ci95": [
-     -27.5,
-     84.58
+     -264.58,
+     -143.75
     ],
-    "straddles_default": true
+    "straddles_default": false
    },
    {
     "ceiling_w": 2.0,
-    "edge": 39.58,
+    "edge": -453.54,
     "ci95": [
-     -25.62,
-     102.71
+     -522.71,
+     -387.71
     ],
-    "straddles_default": true
+    "straddles_default": false
    }
   ],
   "endgame": [
    {
     "ceiling_w": 0.0,
-    "edge": -26.88,
+    "edge": 12.08,
     "ci95": [
-     -79.17,
-     23.54
+     -10.62,
+     37.08
     ],
     "straddles_default": true
    },
    {
     "ceiling_w": 0.5,
-    "edge": 44.58,
+    "edge": -5.42,
     "ci95": [
-     1.04,
-     92.5
+     -26.67,
+     16.88
     ],
-    "straddles_default": false
+    "straddles_default": true
    },
    {
     "ceiling_w": 1.0,
-    "edge": -100.62,
+    "edge": -122.29,
     "ci95": [
-     -152.29,
-     -50.21
+     -166.88,
+     -79.58
     ],
     "straddles_default": false
    },
    {
     "ceiling_w": 2.0,
-    "edge": -100.0,
+    "edge": -153.33,
     "ci95": [
-     -152.08,
-     -49.38
+     -202.71,
+     -104.58
     ],
     "straddles_default": false
    },
    {
     "ceiling_w": 3.0,
-    "edge": -114.79,
+    "edge": -146.04,
     "ci95": [
-     -163.12,
-     -67.71
+     -197.29,
+     -99.17
     ],
     "straddles_default": false
    }
@@ -131,99 +131,15 @@
  },
  "conditional_rules": [
   {
-   "state": "run_pressure",
-   "setting": "floor_heavy",
-   "edge": -334.27,
-   "ci95": [
-    -411.24,
-    -261.52
-   ],
-   "in_minus_out": 168.96,
-   "n_rooms": 89,
-   "clears_conditional_null": false,
-   "machine_detectable": true,
-   "disposition": "LEAN \u2192 manual-override cheat sheet, never automated"
-  },
-  {
-   "state": "run_pressure",
-   "setting": "uniform_boom",
-   "edge": -136.8,
-   "ci95": [
-    -198.03,
-    -77.81
-   ],
-   "in_minus_out": 118.04,
-   "n_rooms": 89,
-   "clears_conditional_null": false,
-   "machine_detectable": true,
-   "disposition": "LEAN \u2192 manual-override cheat sheet, never automated"
-  },
-  {
    "state": "thin_board_early",
    "setting": "floor_heavy",
-   "edge": -331.25,
+   "edge": -527.46,
    "ci95": [
-    -422.08,
-    -243.75
+    -617.21,
+    -431.97
    ],
-   "in_minus_out": 93.33,
-   "n_rooms": 60,
-   "clears_conditional_null": false,
-   "machine_detectable": true,
-   "disposition": "LEAN \u2192 manual-override cheat sheet, never automated"
-  },
-  {
-   "state": "thin_board_early",
-   "setting": "uniform_boom",
-   "edge": -160.0,
-   "ci95": [
-    -235.0,
-    -86.25
-   ],
-   "in_minus_out": 14.58,
-   "n_rooms": 60,
-   "clears_conditional_null": false,
-   "machine_detectable": true,
-   "disposition": "LEAN \u2192 manual-override cheat sheet, never automated"
-  },
-  {
-   "state": "run_pressure",
-   "setting": "h1_phase",
-   "edge": -96.63,
-   "ci95": [
-    -152.53,
-    -38.48
-   ],
-   "in_minus_out": 13.05,
-   "n_rooms": 89,
-   "clears_conditional_null": false,
-   "machine_detectable": true,
-   "disposition": "LEAN \u2192 manual-override cheat sheet, never automated"
-  },
-  {
-   "state": "rb_drain_early",
-   "setting": "uniform_boom",
-   "edge": -173.33,
-   "ci95": [
-    -257.92,
-    -86.25
-   ],
-   "in_minus_out": -12.08,
-   "n_rooms": 60,
-   "clears_conditional_null": false,
-   "machine_detectable": true,
-   "disposition": "LEAN \u2192 manual-override cheat sheet, never automated"
-  },
-  {
-   "state": "rb_drain_early",
-   "setting": "h1_phase",
-   "edge": -106.67,
-   "ci95": [
-    -178.75,
-    -31.67
-   ],
-   "in_minus_out": -13.34,
-   "n_rooms": 60,
+   "in_minus_out": 128.9,
+   "n_rooms": 61,
    "clears_conditional_null": false,
    "machine_detectable": true,
    "disposition": "LEAN \u2192 manual-override cheat sheet, never automated"
@@ -231,13 +147,83 @@
   {
    "state": "thin_board_early",
    "setting": "h1_phase",
-   "edge": -120.83,
+   "edge": -119.26,
    "ci95": [
-    -185.42,
-    -60.42
+    -193.03,
+    -52.87
    ],
-   "in_minus_out": -41.66,
-   "n_rooms": 60,
+   "in_minus_out": 69.3,
+   "n_rooms": 61,
+   "clears_conditional_null": false,
+   "machine_detectable": true,
+   "disposition": "LEAN \u2192 manual-override cheat sheet, never automated"
+  },
+  {
+   "state": "run_pressure",
+   "setting": "floor_heavy",
+   "edge": -560.29,
+   "ci95": [
+    -678.92,
+    -448.04
+   ],
+   "in_minus_out": 53.12,
+   "n_rooms": 51,
+   "clears_conditional_null": false,
+   "machine_detectable": true,
+   "disposition": "LEAN \u2192 manual-override cheat sheet, never automated"
+  },
+  {
+   "state": "run_pressure",
+   "setting": "uniform_boom",
+   "edge": -343.63,
+   "ci95": [
+    -451.47,
+    -242.16
+   ],
+   "in_minus_out": 27.38,
+   "n_rooms": 51,
+   "clears_conditional_null": false,
+   "machine_detectable": true,
+   "disposition": "LEAN \u2192 manual-override cheat sheet, never automated"
+  },
+  {
+   "state": "thin_board_early",
+   "setting": "uniform_boom",
+   "edge": -351.23,
+   "ci95": [
+    -433.2,
+    -270.49
+   ],
+   "in_minus_out": 16.57,
+   "n_rooms": 61,
+   "clears_conditional_null": false,
+   "machine_detectable": true,
+   "disposition": "LEAN \u2192 manual-override cheat sheet, never automated"
+  },
+  {
+   "state": "run_pressure",
+   "setting": "h1_phase",
+   "edge": -202.45,
+   "ci95": [
+    -290.69,
+    -120.1
+   ],
+   "in_minus_out": -85.42,
+   "n_rooms": 51,
+   "clears_conditional_null": false,
+   "machine_detectable": true,
+   "disposition": "LEAN \u2192 manual-override cheat sheet, never automated"
+  },
+  {
+   "state": "rb_drain_early",
+   "setting": "h1_phase",
+   "edge": -211.31,
+   "ci95": [
+    -313.69,
+    -113.69
+   ],
+   "in_minus_out": -89.19,
+   "n_rooms": 42,
    "clears_conditional_null": false,
    "machine_detectable": true,
    "disposition": "LEAN \u2192 manual-override cheat sheet, never automated"
@@ -245,23 +231,37 @@
   {
    "state": "rb_drain_early",
    "setting": "floor_heavy",
-   "edge": -421.67,
+   "edge": -659.52,
    "ci95": [
-    -522.92,
-    -327.5
+    -758.93,
+    -553.57
    ],
-   "in_minus_out": -87.5,
-   "n_rooms": 60,
+   "in_minus_out": -105.67,
+   "n_rooms": 42,
+   "clears_conditional_null": false,
+   "machine_detectable": true,
+   "disposition": "LEAN \u2192 manual-override cheat sheet, never automated"
+  },
+  {
+   "state": "rb_drain_early",
+   "setting": "uniform_boom",
+   "edge": -473.81,
+   "ci95": [
+    -586.9,
+    -355.36
+   ],
+   "in_minus_out": -176.05,
+   "n_rooms": 42,
    "clears_conditional_null": false,
    "machine_detectable": true,
    "disposition": "LEAN \u2192 manual-override cheat sheet, never automated"
   }
  ],
- "conditional_null_p95": 174.17,
+ "conditional_null_p95": 158.97,
  "state_coverage_rooms": {
-  "run_pressure": 89,
-  "rb_drain_early": 60,
-  "thin_board_early": 60
+  "run_pressure": 51,
+  "rb_drain_early": 42,
+  "thin_board_early": 61
  },
  "rejected_states": [],
  "incidence_band": [

@@ -1,15 +1,15 @@
 # KEEPER DECISION WITH NABERS — surplus, best-draft, and the bias flag
 
-_anchor: **FFC** (MFL live: False) · flat-cost keeper model · 200 paired rooms · live keeper-need rule_
+_anchor: **FANTASYPROS** (MFL live: False) · flat-cost keeper model · 200 paired rooms · live keeper-need rule_
 
 ## The four candidates (board VORP = proj_mean − replacement)
 
 | player | pos | proj | VORP | ADP | exp |
 |---|---|---|---|---|---|
-| Chase | WR | 295.1 | 115.44 | 4.1 | 5 |
-| Henry | RB | 274.2 | 85.63 | 10.5 | 10 |
-| Walker | RB | 255.8 | 67.23 | 26.4 | 4 |
-| Nabers | WR | 199.6 | 19.99 | 31.8 | 2 |
+| Chase | WR | 295.1 | 115.44 | 3.0 | 5 |
+| Henry | RB | 274.2 | 85.63 | 21.7 | 10 |
+| Walker | RB | 255.8 | 67.23 | 18.7 | 4 |
+| Nabers | WR | 199.6 | 19.99 | 29.4 | 2 |
 
 ## (A) Raw surplus — every slate, ranked
 
@@ -37,14 +37,14 @@ _surplus = Σ keeper VORP − Σ cost of the first k picks (103.91+62.08+36.2)_
 
 | slate | E[$] | vs current (95% CI) | RB kept | RB drafted (mean, VORP) |
 |---|---|---|---|---|
-| Chase+Henry+Walker | 746 | — (control) | 2 | 1.9 @ -42.5 |
-| Chase+Henry+Nabers | 619 | -126.2 [-157.0, -96.25] | 1 | 2.9 @ -39.4 |
-| Chase+Henry | 582 | -163.9 [-204.88, -124.25] | 1 | 2.63 @ -42.3 |
-| Chase+Nabers+Walker | 582 | -164.1 [-199.5, -131.12] | 1 | 2.9 @ -39.2 |
+| Chase+Henry+Walker | 748 | — (control) | 2 | 1.97 @ -53.6 |
+| Chase+Henry+Nabers | 602 | -145.5 [-179.0, -111.38] | 1 | 2.96 @ -46.8 |
+| Chase+Nabers+Walker | 585 | -162.6 [-196.88, -129.0] | 1 | 2.96 @ -47.1 |
+| Chase+Henry | 543 | -204.5 [-245.0, -161.25] | 1 | 2.72 @ -44.7 |
 
 ## The bias flag (Cory's hypothesis, applied to THIS decision)
 
-- Nabers model VORP **19.99**; market-implied VORP (his ADP rank 32) **27.58** — model and market roughly agree.
+- Nabers model VORP **19.99**; market-implied VORP (his ADP rank 29) **30.8** — model and market roughly agree.
 - Breakeven to keep Nabers over **Walker**: VORP **67.23**; over **Henry**: VORP **85.63**.
 - So even trusting the market over our model, Nabers' value does not reach the breakeven; the bias would have to be very large AND unshared by the market to flip it.
 
@@ -52,9 +52,9 @@ _surplus = Σ keeper VORP − Σ cost of the first k picks (103.91+62.08+36.2)_
 
 | experience | n | VORP rank − ADP rank (+ = we rank below market) |
 |---|---|---|
-| rookie(0) | 39 | +52.3 |
-| 2nd-yr(1) | 50 | +61.6 |
-| 3rd-yr(2) | 43 | +63.5 |
-| vet(3+) | 226 | +43.0 |
+| rookie(0) | 49 | +34.8 |
+| 2nd-yr(1) | 60 | +44.8 |
+| 3rd-yr(2) | 52 | +43.2 |
+| vet(3+) | 237 | +21.6 |
 
-**Caveats:** anchor = FFC; MFL not live yet, so ranked by FFC (source grade prefers MFL directionally — flagged, not yet wired to the live board) · surplus is flat-cost (top_picks_flat): keeping k forfeits your first k picks · MC dollars are the v1 proxy (proj-normal weeks + weekly-high + regular-season); rankings travel, absolute $ are harness-dependent · bias probe is model-vs-MARKET cross-sectional; a bias SHARED by model+market needs realized outcomes (Lab test #1) and BBM at scale (test #3)
+**Caveats:** anchor = FANTASYPROS; MFL not live yet, so ranked by FFC (source grade prefers MFL directionally — flagged, not yet wired to the live board) · surplus is flat-cost (top_picks_flat): keeping k forfeits your first k picks · MC dollars are the v1 proxy (proj-normal weeks + weekly-high + regular-season); rankings travel, absolute $ are harness-dependent · bias probe is model-vs-MARKET cross-sectional; a bias SHARED by model+market needs realized outcomes (Lab test #1) and BBM at scale (test #3)
