@@ -258,6 +258,11 @@ def run():
     totals = {name: {"real": 0.0, "neutralized": 0.0, "wins": 0} for name in STRATEGIES}
     totals["cory_actual"] = {"real": 0.0, "neutralized": 0.0, "wins": 0}
     totals["oracle_realized"] = {"real": 0.0, "neutralized": 0.0, "wins": 0}
+    # E1 continuous-proxy accumulators (neutralized treatment). exp_weekly_high_wins
+    # and playoff_window_points are additive over seasons; mean_weekly_rank is
+    # collected per-season and averaged (equal season weight).
+    proxy_acc = {name: {"exp_weekly_high_wins": 0.0, "playoff_window_points": 0.0,
+                        "ranks": []} for name in list(totals)}
 
     for yr in SEASONS:
         s = MG.season_of(hist, yr)
@@ -279,25 +284,34 @@ def run():
                              for w in RS.global_player_points(s)) for pid in ppg}
 
         rows = {}
+        season_proxy = {}   # name -> proxy dict for this season (neutralized treatment)
 
         def grade_roster(roster):
             real = MG.grade_substituted(hist, pay, yr, rid,
                     RS.roster_weekly_scores(s, [str(r) for r in roster], positions))
             neut = MG.grade_substituted(hist, pay, yr, rid,
                     neutralized_weekly(s, roster, positions, ppg))
-            return round(_total(real), 1), round(_total(neut), 1)
+            # E1: carry the neutralized grade's CONTINUOUS PROXY alongside the dollar
+            # totals. wr_feast/zero_rb sit at the $ bottom, but the seat never cashed
+            # the playoff channels in any season, so the dollar spread lives entirely
+            # in the weekly-high channel — the exact place the proxy smooths. If the
+            # bottom ranks are a threshold artifact, the proxy will disagree with $.
+            return round(_total(real), 1), round(_total(neut), 1), neut.get("proxy") or {}
 
         # the strategies
         for name, fn in STRATEGIES.items():
             roster, fb = build_roster(fn, decisions, picks, cory_real, keepers, positions, adp)
-            r_real, r_neut = grade_roster(roster)
+            r_real, r_neut, r_proxy = grade_roster(roster)
             rows[name] = {"real": r_real, "neutralized": r_neut, "fallbacks": fb,
-                          "n_picks": len(roster)}
+                          "n_picks": len(roster), "proxy": r_proxy}
+            season_proxy[name] = r_proxy
 
         # references
         cory_roster = keepers + cory_real
-        rows["cory_actual"] = dict(zip(("real", "neutralized"), grade_roster(cory_roster)))
-        rows["cory_actual"]["fallbacks"] = 0
+        cr_real, cr_neut, cr_proxy = grade_roster(cory_roster)
+        rows["cory_actual"] = {"real": cr_real, "neutralized": cr_neut,
+                               "fallbacks": 0, "proxy": cr_proxy}
+        season_proxy["cory_actual"] = cr_proxy
         # oracle: best-available by REALIZED points (lookahead ceiling; mask + starter backstop)
         def oracle_fn(avail, positions, roster, rnd, picks_left, adp_ignored):
             bk = _legality_first(avail, positions, roster, picks_left,
@@ -308,8 +322,10 @@ def run():
             ranked = [(realized.get(pid, 0.0), pid) for pid in cands]
             return max(ranked)[1] if ranked else None
         oracle_roster, ofb = build_roster(oracle_fn, decisions, picks, cory_real, keepers, positions, adp)
-        rows["oracle_realized"] = dict(zip(("real", "neutralized"), grade_roster(oracle_roster)))
-        rows["oracle_realized"]["fallbacks"] = ofb
+        or_real, or_neut, or_proxy = grade_roster(oracle_roster)
+        rows["oracle_realized"] = {"real": or_real, "neutralized": or_neut,
+                                   "fallbacks": ofb, "proxy": or_proxy}
+        season_proxy["oracle_realized"] = or_proxy
 
         # season winner (by neutralized total, strategies only — not the references)
         strat_only = {k: rows[k]["neutralized"] for k in STRATEGIES}
@@ -322,11 +338,65 @@ def run():
             totals[name]["real"] += rows[name]["real"]
             totals[name]["neutralized"] += rows[name]["neutralized"]
         totals[winner]["wins"] += 1
+        for name, px in season_proxy.items():
+            if not px:
+                continue
+            proxy_acc[name]["exp_weekly_high_wins"] += px.get("exp_weekly_high_wins") or 0.0
+            proxy_acc[name]["playoff_window_points"] += px.get("playoff_window_points") or 0.0
+            if px.get("mean_weekly_rank") is not None:
+                proxy_acc[name]["ranks"].append(px["mean_weekly_rank"])
         per_season[yr] = rows
 
     ranked_neut = sorted(STRATEGIES, key=lambda n: totals[n]["neutralized"], reverse=True)
     ranked_real = sorted(STRATEGIES, key=lambda n: totals[n]["real"], reverse=True)
     champ_neut, champ_real = ranked_neut[0], ranked_real[0]
+
+    # E1 — the CONTINUOUS-PROXY reading, the whole reason to retrofit this tournament.
+    # exp_weekly_high_wins is the smoothed analogue of the ONE dollar channel that
+    # activated (weekly high; the seat never cashed a playoff in any season), so it is
+    # the direct sensitivity test of the dollar ranking. mean_weekly_rank (lower is
+    # better) is the floor/consistency channel dollars never show.
+    def proxy_agg(name):
+        a = proxy_acc[name]
+        rr = a["ranks"]
+        return {"exp_weekly_high_wins": round(a["exp_weekly_high_wins"], 3),
+                "mean_weekly_rank": round(sum(rr) / len(rr), 3) if rr else None,
+                "playoff_window_points": round(a["playoff_window_points"], 1)}
+    proxy_totals = {name: proxy_agg(name) for name in list(totals)}
+    ranked_proxy = sorted(STRATEGIES,
+                          key=lambda n: proxy_totals[n]["exp_weekly_high_wins"], reverse=True)
+    # Does the dollar bottom survive the proxy? Compare each strategy's rank under $
+    # vs under the smoothed weekly-high. A strategy that JUMPS up under the proxy was
+    # penalised by threshold-lumpiness, not by real roster quality.
+    ranked_rank = sorted(STRATEGIES,   # the floor/consistency channel: lower mean rank = better
+                         key=lambda n: (proxy_totals[n]["mean_weekly_rank"] is None,
+                                        proxy_totals[n]["mean_weekly_rank"] if
+                                        proxy_totals[n]["mean_weekly_rank"] is not None else 99))
+    dollar_rank = {n: i for i, n in enumerate(ranked_neut)}
+    proxy_rank = {n: i for i, n in enumerate(ranked_proxy)}
+    rank_shift = {n: dollar_rank[n] - proxy_rank[n] for n in STRATEGIES}  # +ve = proxy ranks it higher
+    # the strategy dollars most UNDER-rated vs the smoothed weekly-high (biggest artifact)
+    most_underrated = max(STRATEGIES, key=lambda n: rank_shift[n])
+    wr_shift = rank_shift['wr_feast']
+    proxy_verdict = (
+        f"PROXY vs DOLLARS (neutralized, 3yr). weekly-high-wins rank: {ranked_proxy}. "
+        f"mean-weekly-rank (floor) rank: {ranked_rank}. dollar rank: {ranked_neut}. "
+        f"THE QUESTION (wr_feast a threshold artifact?): NO. wr_feast is #{dollar_rank['wr_feast']+1} "
+        f"on dollars but #{proxy_rank['wr_feast']+1} on the smoothed weekly-high (shift {wr_shift:+d}) "
+        f"— it posted the FEWEST near-high weeks ({proxy_totals['wr_feast']['exp_weekly_high_wins']:.2f}/3yr "
+        f"vs {proxy_totals[ranked_proxy[0]]['exp_weekly_high_wins']:.2f} top). Its low doctrine "
+        f"ranking is confirmed and if anything reinforced; dollars FLATTERED it. "
+        f"THE SURPRISE, cutting the other way: {most_underrated} is #{dollar_rank[most_underrated]+1} "
+        f"on dollars but #{proxy_rank[most_underrated]+1} on the proxy (shift {rank_shift[most_underrated]:+d}) "
+        f"— dollars ranked the measured mask+value rule the tool SHIPS ON near the bottom purely "
+        f"because it never cashed a playoff in the 3-season sample, while the proxy says it produced "
+        f"the most near-high weeks. That is a real threshold artifact, and it favors the shipped rule. "
+        f"CAVEAT: the two proxy channels DISAGREE ({ranked_rank[0]} has the best mean rank, "
+        f"{ranked_proxy[0]} the most weekly-high wins), so this is a sensitivity that reopens "
+        f"questions, not a new ranking. It does not install anything; it says the dollar bottom was "
+        f"partly lumpiness and need_value was undersold — feed it to the graduation gate as evidence, "
+        f"not a flip."
+    )
     # per-season winners (neutralized) — is there ONE strategy that won every year?
     season_winners = [rows["_winner"] for rows in per_season.values()]
     won_all_three = len(set(season_winners)) == 1
@@ -359,6 +429,16 @@ def run():
         "totals_3yr": totals,
         "ranking_by_neutralized_total": ranked_neut,
         "ranking_by_real_total": ranked_real,
+        "ranking_by_proxy_weekly_high": ranked_proxy,
+        "proxy_totals_3yr": proxy_totals,
+        "proxy_rank_shift_vs_dollars": rank_shift,
+        "proxy_verdict": proxy_verdict,
+        "proxy_note": ("SENSITIVITY, not a second currency (E1). exp_weekly_high_wins is the "
+                       "smoothed weekly-high channel — the only dollar channel that ever "
+                       "activated for this seat — so it directly tests whether the dollar "
+                       "ranking is a threshold artifact. mean_weekly_rank: lower is better. "
+                       "Report 'changed roster quality', never 'earns $X'; the proxy->$ link is "
+                       "the same unclosed question as the stack weight (closed by D3)."),
         "won_all_three_seasons": won_all_three,
         "season_winners": season_winners,
         "verdict": verdict,
@@ -374,6 +454,8 @@ if __name__ == "__main__":
     out = run()
     (HERE / "exp_strategy_tournament.json").write_text(json.dumps(out, indent=2, default=str))
     print(json.dumps(out["verdict"], indent=2))
+    print("\nPROXY (E1 continuous sensitivity):")
+    print(json.dumps(out["proxy_verdict"], indent=2))
     print("\nPER SEASON (neutralized $ / real $):")
     for yr, rows in out["per_season"].items():
         print(f"  {yr} (winner: {rows['_winner']}):")

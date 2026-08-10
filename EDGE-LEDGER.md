@@ -219,6 +219,23 @@ sample-ceiling breakers have much higher EVSI:
   below the top real strategy — within noise of most).
 - **Scope:** 1 seat × 3 seasons, threshold-lumpy $, fixed (untuned) positional rules; injury
   rule fills byes too (~1/17, equal to all). Installs nothing. (exp_strategy_tournament.json, 6/6)
+- **PROXY RETROFIT (E1 continuous sensitivity, 2026-08-10) — was the dollar bottom a threshold
+  artifact?** Re-graded every strategy under the smoothed weekly-high WIN PROBABILITY (the one
+  dollar channel that ever activated for this never-cashing seat), so a roster that missed the
+  cash line by half a point is no longer read as identical to one that missed by 40.
+  - **wr_feast: NOT an artifact — confirmed and reinforced.** #4 on neutralized dollars but
+    **DEAD LAST (#7) on the proxy** (shift −3): it posted the *fewest* near-high weeks (7.40/3yr
+    vs 9.63 top). Dollars FLATTERED the WR-first script; the finer instrument buries it. Retiring
+    WR-first as a general edge was not a lumpiness mistake.
+  - **THE SURPRISE — need_value (the measured mask+value rule the tool SHIPS ON) was undersold.**
+    Last (#7) on *neutralized* dollars but **#1 on the proxy** (shift +6). The neutralized rank was
+    a **$75 noise band** (ranks 2–7 span $2400–2475) collapsed by lumpiness; on the finer channel
+    it produced the most near-high weeks of any strategy. Consistent with its **#2 on REAL** $2250 —
+    the tool ships on the right rule; the neutralized-$ "last place" was an artifact, not a finding.
+  - **Honesty caveat:** the two proxy channels DISAGREE — robust_rb has the best mean weekly rank
+    (floor), need_value the most weekly-high wins (ceiling). This is a SENSITIVITY that reopens the
+    question, not a new ranking, and the proxy→$ link is the same unclosed one as the stack weight
+    (D3). Feed to the graduation gate as evidence, never as a silent flip. (proxy_verdict in json)
 
 ## INVERSE ADJUSTER — where would the dial be set to get the best per-round picks? (2026-08-10, Cory's Q)
 - **Q:** take the top-3-by-value players available at each of Cory's picks and solve backwards for

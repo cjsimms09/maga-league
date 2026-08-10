@@ -29,53 +29,107 @@
         "real": 200.0,
         "neutralized": 800.0,
         "fallbacks": 0,
-        "n_picks": 15
+        "n_picks": 15,
+        "proxy": {
+          "exp_weekly_high_wins": 2.0606,
+          "exact_weekly_high_wins": 2.0,
+          "mean_weekly_rank": 4.867,
+          "playoff_window_points": 216.31
+        }
       },
       "need_value": {
         "real": 900.0,
         "neutralized": 1050.0,
         "fallbacks": 0,
-        "n_picks": 15
+        "n_picks": 15,
+        "proxy": {
+          "exp_weekly_high_wins": 3.1291,
+          "exact_weekly_high_wins": 3.0,
+          "mean_weekly_rank": 4.4,
+          "playoff_window_points": 263.98
+        }
       },
       "zero_rb": {
         "real": 800.0,
         "neutralized": 1050.0,
         "fallbacks": 0,
-        "n_picks": 15
+        "n_picks": 15,
+        "proxy": {
+          "exp_weekly_high_wins": 2.6495,
+          "exact_weekly_high_wins": 3.0,
+          "mean_weekly_rank": 4.067,
+          "playoff_window_points": 250.13
+        }
       },
       "robust_rb": {
         "real": 900.0,
         "neutralized": 1050.0,
         "fallbacks": 0,
-        "n_picks": 15
+        "n_picks": 15,
+        "proxy": {
+          "exp_weekly_high_wins": 3.0288,
+          "exact_weekly_high_wins": 4.0,
+          "mean_weekly_rank": 3.933,
+          "playoff_window_points": 224.81
+        }
       },
       "hero_rb": {
         "real": 1000.0,
         "neutralized": 1150.0,
         "fallbacks": 0,
-        "n_picks": 15
+        "n_picks": 15,
+        "proxy": {
+          "exp_weekly_high_wins": 3.2625,
+          "exact_weekly_high_wins": 5.0,
+          "mean_weekly_rank": 4.0,
+          "playoff_window_points": 247.01
+        }
       },
       "elite_te": {
         "real": 500.0,
         "neutralized": 1000.0,
         "fallbacks": 0,
-        "n_picks": 15
+        "n_picks": 15,
+        "proxy": {
+          "exp_weekly_high_wins": 2.4766,
+          "exact_weekly_high_wins": 4.0,
+          "mean_weekly_rank": 4.0,
+          "playoff_window_points": 216.31
+        }
       },
       "wr_feast": {
         "real": 500.0,
         "neutralized": 950.0,
         "fallbacks": 0,
-        "n_picks": 15
+        "n_picks": 15,
+        "proxy": {
+          "exp_weekly_high_wins": 2.3938,
+          "exact_weekly_high_wins": 3.0,
+          "mean_weekly_rank": 4.6,
+          "playoff_window_points": 230.01
+        }
       },
       "cory_actual": {
         "real": 700.0,
         "neutralized": 800.0,
-        "fallbacks": 0
+        "fallbacks": 0,
+        "proxy": {
+          "exp_weekly_high_wins": 1.9584,
+          "exact_weekly_high_wins": 2.0,
+          "mean_weekly_rank": 4.867,
+          "playoff_window_points": 214.31
+        }
       },
       "oracle_realized": {
         "real": 1550.0,
         "neutralized": 1550.0,
-        "fallbacks": 0
+        "fallbacks": 0,
+        "proxy": {
+          "exp_weekly_high_wins": 6.3411,
+          "exact_weekly_high_wins": 9.0,
+          "mean_weekly_rank": 1.867,
+          "playoff_window_points": 283.48
+        }
       },
       "_winner": "hero_rb"
     },
@@ -84,53 +138,107 @@
         "real": 1275.0,
         "neutralized": 1525.0,
         "fallbacks": 0,
-        "n_picks": 15
+        "n_picks": 15,
+        "proxy": {
+          "exp_weekly_high_wins": 4.6876,
+          "exact_weekly_high_wins": 6.0,
+          "mean_weekly_rank": 3.2,
+          "playoff_window_points": 323.76
+        }
       },
       "need_value": {
         "real": 1250.0,
         "neutralized": 1250.0,
         "fallbacks": 0,
-        "n_picks": 15
+        "n_picks": 15,
+        "proxy": {
+          "exp_weekly_high_wins": 5.6303,
+          "exact_weekly_high_wins": 6.0,
+          "mean_weekly_rank": 2.933,
+          "playoff_window_points": 231.64
+        }
       },
       "zero_rb": {
         "real": 500.0,
         "neutralized": 1275.0,
         "fallbacks": 0,
-        "n_picks": 15
+        "n_picks": 15,
+        "proxy": {
+          "exp_weekly_high_wins": 4.3725,
+          "exact_weekly_high_wins": 6.0,
+          "mean_weekly_rank": 3.333,
+          "playoff_window_points": 300.32
+        }
       },
       "robust_rb": {
         "real": 1500.0,
         "neutralized": 1725.0,
         "fallbacks": 0,
-        "n_picks": 15
+        "n_picks": 15,
+        "proxy": {
+          "exp_weekly_high_wins": 5.2474,
+          "exact_weekly_high_wins": 8.0,
+          "mean_weekly_rank": 1.867,
+          "playoff_window_points": 336.06
+        }
       },
       "hero_rb": {
         "real": 500.0,
         "neutralized": 1300.0,
         "fallbacks": 0,
-        "n_picks": 15
+        "n_picks": 15,
+        "proxy": {
+          "exp_weekly_high_wins": 4.2434,
+          "exact_weekly_high_wins": 5.0,
+          "mean_weekly_rank": 3.467,
+          "playoff_window_points": 316.96
+        }
       },
       "elite_te": {
         "real": 1275.0,
         "neutralized": 1525.0,
         "fallbacks": 0,
-        "n_picks": 15
+        "n_picks": 15,
+        "proxy": {
+          "exp_weekly_high_wins": 4.6876,
+          "exact_weekly_high_wins": 6.0,
+          "mean_weekly_rank": 3.2,
+          "playoff_window_points": 323.76
+        }
       },
       "wr_feast": {
         "real": 500.0,
         "neutralized": 1425.0,
         "fallbacks": 0,
-        "n_picks": 15
+        "n_picks": 15,
+        "proxy": {
+          "exp_weekly_high_wins": 4.2089,
+          "exact_weekly_high_wins": 5.0,
+          "mean_weekly_rank": 3.2,
+          "playoff_window_points": 314.06
+        }
       },
       "cory_actual": {
         "real": 1300.0,
         "neutralized": 1425.0,
-        "fallbacks": 0
+        "fallbacks": 0,
+        "proxy": {
+          "exp_weekly_high_wins": 5.0096,
+          "exact_weekly_high_wins": 5.0,
+          "mean_weekly_rank": 3.067,
+          "playoff_window_points": 329.76
+        }
       },
       "oracle_realized": {
         "real": 1925.0,
         "neutralized": 1925.0,
-        "fallbacks": 0
+        "fallbacks": 0,
+        "proxy": {
+          "exp_weekly_high_wins": 7.2226,
+          "exact_weekly_high_wins": 10.0,
+          "mean_weekly_rank": 1.933,
+          "playoff_window_points": 337.62
+        }
       },
       "_winner": "robust_rb"
     },
@@ -139,53 +247,107 @@
         "real": 100.0,
         "neutralized": 100.0,
         "fallbacks": 0,
-        "n_picks": 15
+        "n_picks": 15,
+        "proxy": {
+          "exp_weekly_high_wins": 0.9391,
+          "exact_weekly_high_wins": 1.0,
+          "mean_weekly_rank": 5.867,
+          "playoff_window_points": 327.22
+        }
       },
       "need_value": {
         "real": 100.0,
         "neutralized": 100.0,
         "fallbacks": 0,
-        "n_picks": 15
+        "n_picks": 15,
+        "proxy": {
+          "exp_weekly_high_wins": 0.8667,
+          "exact_weekly_high_wins": 1.0,
+          "mean_weekly_rank": 6.133,
+          "playoff_window_points": 334.53
+        }
       },
       "zero_rb": {
         "real": 100.0,
         "neutralized": 100.0,
         "fallbacks": 0,
-        "n_picks": 15
+        "n_picks": 15,
+        "proxy": {
+          "exp_weekly_high_wins": 0.9391,
+          "exact_weekly_high_wins": 1.0,
+          "mean_weekly_rank": 5.867,
+          "playoff_window_points": 327.22
+        }
       },
       "robust_rb": {
         "real": 100.0,
         "neutralized": 100.0,
         "fallbacks": 0,
-        "n_picks": 15
+        "n_picks": 15,
+        "proxy": {
+          "exp_weekly_high_wins": 0.9391,
+          "exact_weekly_high_wins": 1.0,
+          "mean_weekly_rank": 5.867,
+          "playoff_window_points": 327.22
+        }
       },
       "hero_rb": {
         "real": 0.0,
         "neutralized": 675.0,
         "fallbacks": 0,
-        "n_picks": 15
+        "n_picks": 15,
+        "proxy": {
+          "exp_weekly_high_wins": 1.267,
+          "exact_weekly_high_wins": 0.0,
+          "mean_weekly_rank": 5.2,
+          "playoff_window_points": 341.42
+        }
       },
       "elite_te": {
         "real": 100.0,
         "neutralized": 100.0,
         "fallbacks": 0,
-        "n_picks": 15
+        "n_picks": 15,
+        "proxy": {
+          "exp_weekly_high_wins": 0.9391,
+          "exact_weekly_high_wins": 1.0,
+          "mean_weekly_rank": 5.867,
+          "playoff_window_points": 327.22
+        }
       },
       "wr_feast": {
         "real": 100.0,
         "neutralized": 100.0,
         "fallbacks": 0,
-        "n_picks": 15
+        "n_picks": 15,
+        "proxy": {
+          "exp_weekly_high_wins": 0.7987,
+          "exact_weekly_high_wins": 1.0,
+          "mean_weekly_rank": 5.933,
+          "playoff_window_points": 322.42
+        }
       },
       "cory_actual": {
         "real": 100.0,
         "neutralized": 100.0,
-        "fallbacks": 0
+        "fallbacks": 0,
+        "proxy": {
+          "exp_weekly_high_wins": 0.6188,
+          "exact_weekly_high_wins": 1.0,
+          "mean_weekly_rank": 6.467,
+          "playoff_window_points": 317.25
+        }
       },
       "oracle_realized": {
         "real": 1525.0,
         "neutralized": 1625.0,
-        "fallbacks": 0
+        "fallbacks": 0,
+        "proxy": {
+          "exp_weekly_high_wins": 5.2655,
+          "exact_weekly_high_wins": 7.0,
+          "mean_weekly_rank": 2.267,
+          "playoff_window_points": 340.48
+        }
       },
       "_winner": "hero_rb"
     }
@@ -255,6 +417,73 @@
     "zero_rb",
     "wr_feast"
   ],
+  "ranking_by_proxy_weekly_high": [
+    "need_value",
+    "robust_rb",
+    "hero_rb",
+    "elite_te",
+    "zero_rb",
+    "market",
+    "wr_feast"
+  ],
+  "proxy_totals_3yr": {
+    "market": {
+      "exp_weekly_high_wins": 7.687,
+      "mean_weekly_rank": 4.645,
+      "playoff_window_points": 867.3
+    },
+    "need_value": {
+      "exp_weekly_high_wins": 9.626,
+      "mean_weekly_rank": 4.489,
+      "playoff_window_points": 830.1
+    },
+    "zero_rb": {
+      "exp_weekly_high_wins": 7.961,
+      "mean_weekly_rank": 4.422,
+      "playoff_window_points": 877.7
+    },
+    "robust_rb": {
+      "exp_weekly_high_wins": 9.215,
+      "mean_weekly_rank": 3.889,
+      "playoff_window_points": 888.1
+    },
+    "hero_rb": {
+      "exp_weekly_high_wins": 8.773,
+      "mean_weekly_rank": 4.222,
+      "playoff_window_points": 905.4
+    },
+    "elite_te": {
+      "exp_weekly_high_wins": 8.103,
+      "mean_weekly_rank": 4.356,
+      "playoff_window_points": 867.3
+    },
+    "wr_feast": {
+      "exp_weekly_high_wins": 7.401,
+      "mean_weekly_rank": 4.578,
+      "playoff_window_points": 866.5
+    },
+    "cory_actual": {
+      "exp_weekly_high_wins": 7.587,
+      "mean_weekly_rank": 4.8,
+      "playoff_window_points": 861.3
+    },
+    "oracle_realized": {
+      "exp_weekly_high_wins": 18.829,
+      "mean_weekly_rank": 2.022,
+      "playoff_window_points": 961.6
+    }
+  },
+  "proxy_rank_shift_vs_dollars": {
+    "market": -1,
+    "need_value": 6,
+    "zero_rb": 1,
+    "robust_rb": 0,
+    "hero_rb": -2,
+    "elite_te": -1,
+    "wr_feast": -3
+  },
+  "proxy_verdict": "PROXY vs DOLLARS (neutralized, 3yr). weekly-high-wins rank: ['need_value', 'robust_rb', 'hero_rb', 'elite_te', 'zero_rb', 'market', 'wr_feast']. mean-weekly-rank (floor) rank: ['robust_rb', 'hero_rb', 'elite_te', 'zero_rb', 'need_value', 'wr_feast', 'market']. dollar rank: ['hero_rb', 'robust_rb', 'elite_te', 'wr_feast', 'market', 'zero_rb', 'need_value']. THE QUESTION (wr_feast a threshold artifact?): NO. wr_feast is #4 on dollars but #7 on the smoothed weekly-high (shift -3) \u2014 it posted the FEWEST near-high weeks (7.40/3yr vs 9.63 top). Its low doctrine ranking is confirmed and if anything reinforced; dollars FLATTERED it. THE SURPRISE, cutting the other way: need_value is #7 on dollars but #1 on the proxy (shift +6) \u2014 dollars ranked the measured mask+value rule the tool SHIPS ON near the bottom purely because it never cashed a playoff in the 3-season sample, while the proxy says it produced the most near-high weeks. That is a real threshold artifact, and it favors the shipped rule. CAVEAT: the two proxy channels DISAGREE (robust_rb has the best mean rank, need_value the most weekly-high wins), so this is a sensitivity that reopens questions, not a new ranking. It does not install anything; it says the dollar bottom was partly lumpiness and need_value was undersold \u2014 feed it to the graduation gate as evidence, not a flip.",
+  "proxy_note": "SENSITIVITY, not a second currency (E1). exp_weekly_high_wins is the smoothed weekly-high channel \u2014 the only dollar channel that ever activated for this seat \u2014 so it directly tests whether the dollar ranking is a threshold artifact. mean_weekly_rank: lower is better. Report 'changed roster quality', never 'earns $X'; the proxy->$ link is the same unclosed question as the stack weight (closed by D3).",
   "won_all_three_seasons": false,
   "season_winners": [
     "hero_rb",
