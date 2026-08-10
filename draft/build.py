@@ -26,6 +26,7 @@ import vorp as vorp_mod  # noqa: E402
 import managers as managers_mod  # noqa: E402
 import keeper_slate as keeper_slate_mod  # noqa: E402
 import adp_series as adp_series_mod  # noqa: E402
+import proj_series as proj_series_mod  # noqa: E402
 
 ARTIFACT_VERSION = 2
 
@@ -60,6 +61,9 @@ PREDICTED_PATH = HERE / "data" / "predicted_keepers.json"
 # without this the only series is git history (~2 days). This file is committed by
 # the nightly workflow; every un-retained day before the draft is unrecoverable.
 ADP_SERIES_PATH = HERE / "data" / "adp_series.json"
+# Frozen preseason projection snapshots (Sleeper from the board; FP added by the CI probe).
+# The clean grade-input a retroactive fetch can never give (exp33 leak lesson).
+PROJ_SERIES_PATH = HERE / "data" / "proj_series.json"
 
 # Positions the draft board cares about. IDP leagues would extend this.
 DRAFTABLE = {"QB", "RB", "WR", "TE", "K", "DEF"}
@@ -651,6 +655,33 @@ def build_manager_profiles(cfg: dict, offline: bool, force: bool = False) -> dic
     return profiles
 
 
+def _update_proj_series(artifact: dict, *, today: str, path: Path = PROJ_SERIES_PATH) -> None:
+    """Freeze today's Sleeper PRESEASON projection (the board's proj_baseline) into the dated,
+    append-only snapshot archive. proj_baseline is the consensus projection converted to our
+    scoring BEFORE any opportunity adjustment — the honest 'what the source projected preseason'.
+    Deduped by (date, source). Non-fatal by contract."""
+    players = artifact.get("players", [])
+    proj_by_id = {str(p["player_id"]): p["proj_baseline"]
+                  for p in players if p.get("proj_baseline") is not None}
+    if not proj_by_id:
+        return
+    series = []
+    if path.exists():
+        try:
+            doc = json.loads(path.read_text())
+            series = doc.get("series", []) if isinstance(doc, dict) else (doc or [])
+        except (ValueError, OSError):
+            series = []
+    series = proj_series_mod.append_snapshot(series, today, "sleeper", proj_by_id)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(
+        {"_note": "Preseason projection snapshots (append-only, deduped by date+source). Frozen "
+                  "for a CLEAN post-season grade — retroactive fetches leak (exp33). "
+                  "See draft/proj_series.py.",
+         "series": series}, separators=(",", ":")))
+    print(f"  projection snapshot: sleeper preseason frozen ({len(proj_by_id)} players, {today})")
+
+
 def _update_adp_series(artifact: dict, *, today: str, path: Path = ADP_SERIES_PATH) -> None:
     """Append today's board ADP to the retained series, persist it, and stamp
     adp_velocity / adp_stale on each board player from the accumulated series.
@@ -1098,6 +1129,13 @@ def main() -> None:
         _update_adp_series(artifact, today=artifact["built_at"][:10])
     except Exception as exc:  # noqa: BLE001 — the board ships without the stamps
         print(f"  ! ADP series not updated ({exc}); board ships without velocity stamps")
+    # Freeze today's Sleeper PRESEASON projection into the dated snapshot archive, so a
+    # CLEAN projection grade is possible after the season (a retroactive fetch leaks — exp33).
+    # Non-fatal. FantasyPros projections are added by the CI probe (needs egress).
+    try:
+        _update_proj_series(artifact, today=artifact["built_at"][:10])
+    except Exception as exc:  # noqa: BLE001 — the board ships regardless
+        print(f"  ! projection snapshot not updated ({exc})")
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(artifact, separators=(",", ":")))
