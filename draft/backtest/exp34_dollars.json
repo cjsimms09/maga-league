@@ -754,7 +754,7 @@
     }
   },
   "correlation_arm": {
-    "diff_mean": 0.139,
+    "diff_mean": 0.14,
     "diff_ci": [
       0.052,
       0.223
