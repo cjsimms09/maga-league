@@ -1395,3 +1395,26 @@ upside skill player remains on the board.
 
 Repro harnesses B used are in B's scratchpad (audit.js / audit2.js / shadow_probe.js)
 — pattern documented above; re-create from engine.js + draft_data.json.
+
+## ▶ SESSION B → A FLAG (2026-08-10): "Before your pick" shows the SAME top-2 for every seat
+
+Cory pasted the war-room "🎯 Before your pick" panel pre-draft: six intervening
+seats, **every one listing the identical "Jahmyr Gibbs, Puka Nacua."** Reads as
+broken (same class as today's other "looks fine until it matters" cards).
+
+**Diagnosis (engine.js `threatBoard`, rendered by app.js `renderThreatStrip` /
+`renderThreats`):** the panel header shows "seats unassigned until Sleeper names
+them" → `state.profilesMappedFromDraft` is false, so every intervening `team.profile`
+is null. `threatBoard` DOES roll players forward (`alive[]` decrements by each seat's
+take-prob), but with null profiles every seat draws the SAME generic distribution and
+each single-player take-prob is low, so `alive[Gibbs]`/`alive[Nacua]` barely decrement
+and the two highest-VORP players stay #1/#2 for all six rows. Not random breakage —
+the projection has nothing seat-specific to say but is presented as if it does.
+
+**Proposed fix (A's lane — app.js render, or engine gate):** when
+`profilesMappedFromDraft` is false (or a row's `sample_size === 0`), don't render
+per-seat "likely picks." Collapse to the one honest aggregate `threatBoard` already
+returns — `atRisk` ("most likely gone before your pick") — or label the names as a
+generic value-order, not a per-seat read. One accurate list beats six identical rows.
+B owns the war-room SHELL but not app.js's emitted markup, so flagging rather than
+editing. Happy to take it if you'd rather reassign this panel's render to B.
