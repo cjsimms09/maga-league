@@ -108,8 +108,9 @@
       "sample_titles": [],
       "series_listed": 12626,
       "series_prefixes_seen": {
-        "KXMVECROSSCATE": 5352,
-        "KXMVESPORTSMUL": 6648
+        "KXCLAUDE": 5,
+        "KXMVECROSSCATE": 5492,
+        "KXMVESPORTSMUL": 6503
       },
       "volume_median": 0,
       "volume_total": 0,
@@ -127,6 +128,25 @@
       "error": "HTTPError: HTTP Error 404: Not Found",
       "host": "https://api.odds-api.io",
       "needs_key": false,
+      "path_probe": {
+        "docs_paths": [],
+        "docs_reachable": true,
+        "responding": [
+          "/v3/sports"
+        ],
+        "tried": {
+          "/api/sports": 404,
+          "/fixtures": 404,
+          "/leagues": 404,
+          "/odds": 404,
+          "/sports": 404,
+          "/v1/fixtures": 404,
+          "/v1/leagues": 404,
+          "/v1/odds": 404,
+          "/v1/sports": 404,
+          "/v3/sports": 200
+        }
+      },
       "published_free_tier": "100 requests/hour, 500/day, NFL included, 2 recreational books, permanent, no card",
       "reachable": true,
       "status": 404
