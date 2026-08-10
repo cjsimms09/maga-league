@@ -2830,9 +2830,22 @@
     const upcoming = myNextPicks();
     const next = upcoming.length > 1 ? upcoming[1] : null;
     if (!next) { $('#survival').innerHTML = '<p class="muted">No later pick to wait for.</p>'; return; }
-    const top = state.board.slice(0, 12).map(p => ({
-      p, s: E.survival(p, next, state.runMults),
-    }));
+    // ONE survival number, read straight off the scored board — the SAME
+    // survival_to_next field Best Available and the queue slip display — never a
+    // second computation. This panel used to recompute E.survival(p, next,
+    // state.runMults), passing runMults as the ENTIRE context, so it was blind to
+    // the intervening picks and the opponent model the composite survival sees.
+    // That is why the same player read 100% gone in Best Available but 65%
+    // surviving here on one screen (2026-08-10 critique). Both now read the
+    // composite, computed once against ctx.nextPick (= upcoming[1], the same
+    // target this panel names).
+    const scoredSurv = (state.lastClock && state.lastClock.scored) || [];
+    const svById = {};
+    scoredSurv.forEach(s => { svById[String(s.player.player_id)] = s.survival_to_next; });
+    const top = state.board.slice(0, 12)
+      .map(p => ({ p, s: svById[String(p.player_id)] }))
+      .filter(x => x.s != null);
+    if (!top.length) { $('#survival').innerHTML = '<p class="muted">No survival read yet.</p>'; return; }
     // MOCK CALIBRATION: record the survival estimates AS DISPLAYED, only at my pick
     // (on the clock), where `next` is genuinely my next pick and this number is the
     // one Cory reads. Deduped per (session, pick, player) so re-renders don't inflate
