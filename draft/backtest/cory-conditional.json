@@ -3,27 +3,47 @@
  "rooms": 200,
  "seed": 20260808,
  "control": "balanced",
- "enrolled": "wr_anchor",
+ "enrolled": "early_qb",
  "leaderboard": [
   {
    "archetype": "early_qb",
-   "mean_edge": 196.12,
+   "mean_edge": 429.75,
    "ci95": [
-    154.5,
-    239.62
+    381.62,
+    478.5
    ],
-   "mean_divergence": 0.5,
+   "mean_divergence": 1.0,
    "verdict": "WINNER \u2014 enroll as THE PLAN"
   },
   {
-   "archetype": "wr_anchor",
-   "mean_edge": 148.75,
+   "archetype": "elite_te",
+   "mean_edge": 48.12,
    "ci95": [
-    112.75,
-    188.0
+    12.5,
+    85.75
    ],
    "mean_divergence": 1.1,
    "verdict": "WINNER \u2014 enroll as THE PLAN"
+  },
+  {
+   "archetype": "zero_rb",
+   "mean_edge": 0.0,
+   "ci95": [
+    0.0,
+    0.0
+   ],
+   "mean_divergence": 0.0,
+   "verdict": "parked: CI includes $0"
+  },
+  {
+   "archetype": "hero_rb",
+   "mean_edge": 0.0,
+   "ci95": [
+    0.0,
+    0.0
+   ],
+   "mean_divergence": 0.0,
+   "verdict": "parked: CI includes $0"
   },
   {
    "archetype": "robust_rb",
@@ -36,56 +56,36 @@
    "verdict": "parked: CI includes $0"
   },
   {
-   "archetype": "zero_rb",
-   "mean_edge": -2.25,
+   "archetype": "wr_anchor",
+   "mean_edge": 0.0,
    "ci95": [
-    -24.38,
-    19.38
+    0.0,
+    0.0
    ],
-   "mean_divergence": 0.4,
-   "verdict": "parked: CI includes $0"
-  },
-  {
-   "archetype": "hero_rb",
-   "mean_edge": -2.25,
-   "ci95": [
-    -24.62,
-    19.25
-   ],
-   "mean_divergence": 0.4,
+   "mean_divergence": 0.0,
    "verdict": "parked: CI includes $0"
   },
   {
    "archetype": "late_qb",
-   "mean_edge": -162.88,
+   "mean_edge": -31.88,
    "ci95": [
-    -204.38,
-    -123.88
+    -55.38,
+    -12.88
    ],
-   "mean_divergence": 0.5,
-   "verdict": "parked: CI includes $0"
-  },
-  {
-   "archetype": "elite_te",
-   "mean_edge": -200.5,
-   "ci95": [
-    -240.38,
-    -158.75
-   ],
-   "mean_divergence": 0.8,
+   "mean_divergence": 0.1,
    "verdict": "parked: CI includes $0"
   }
  ],
  "head_to_head": {
   "leader": "early_qb",
-  "runner_up": "wr_anchor",
-  "paired_mean": 47.38,
+  "runner_up": "elite_te",
+  "paired_mean": 381.62,
   "ci95": [
-   -12.75,
-   112.62
+   337.38,
+   426.75
   ],
-  "separable": false,
-  "resolution": "CO-LEADERS \u2014 inseparable; retained wr_anchor"
+  "separable": true,
+  "resolution": "leader separates from the runner-up"
  },
  "caveats": [
   "money proxy v1: simulated weeks from proj_mean/weekly_sd normals",
