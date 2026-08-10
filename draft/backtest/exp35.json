@@ -40,7 +40,7 @@
       "regression_weight": 0.35,
       "n": 764,
       "top_decile": 0.395,
-      "rank_corr": 0.608,
+      "rank_corr": 0.609,
       "mae": 53.0,
       "is_shipped": true
     },
@@ -48,7 +48,7 @@
       "regression_weight": 0.5,
       "n": 764,
       "top_decile": 0.355,
-      "rank_corr": 0.583,
+      "rank_corr": 0.584,
       "mae": 55.87,
       "is_shipped": false
     },
@@ -56,7 +56,7 @@
       "regression_weight": 0.7,
       "n": 764,
       "top_decile": 0.329,
-      "rank_corr": 0.533,
+      "rank_corr": 0.534,
       "mae": 60.35,
       "is_shipped": false
     },
@@ -64,7 +64,7 @@
       "regression_weight": 1.0,
       "n": 764,
       "top_decile": 0.276,
-      "rank_corr": 0.254,
+      "rank_corr": 0.253,
       "mae": 67.74,
       "is_shipped": false
     }
@@ -132,7 +132,7 @@
           "regression_weight": 1.0,
           "n": 172,
           "top_decile": 0.353,
-          "rank_corr": 0.237,
+          "rank_corr": 0.23,
           "mae": 81.18,
           "is_shipped": false
         }
@@ -200,7 +200,7 @@
           "regression_weight": 1.0,
           "n": 458,
           "top_decile": 0.304,
-          "rank_corr": 0.199,
+          "rank_corr": 0.2,
           "mae": 71.95,
           "is_shipped": false
         }
@@ -268,7 +268,7 @@
           "regression_weight": 1.0,
           "n": 455,
           "top_decile": 0.326,
-          "rank_corr": 0.214,
+          "rank_corr": 0.212,
           "mae": 70.88,
           "is_shipped": false
         }
