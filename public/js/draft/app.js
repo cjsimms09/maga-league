@@ -2460,7 +2460,11 @@
             + '" title="Somebody else took him">✕</button></td>' +
       '</tr>').join('');
     renderSearchTail(rows.length, takenHits);
-    $('#board-count').textContent = rows.length + ' shown of ' + state.board.length + ' available';
+    // Lead with the number that MOVES. The visible list is capped at 200, so
+    // "200 shown" holds steady as picks come off and reads as if nothing updated
+    // (reported from a mock). The available count IS decrementing every pick —
+    // make it the salient number so a take visibly ticks the board down.
+    $('#board-count').textContent = state.board.length + ' available · showing top ' + rows.length;
   }
 
   /**
@@ -2480,7 +2484,6 @@
     const host = $('#search-tail');
     if (!host) return;
     if (!state.search) { host.innerHTML = ''; host.hidden = true; return; }
-    host.hidden = false;
 
     const whoHas = id => {
       const slot = Object.keys(state.rosters).find(k =>
@@ -2514,6 +2517,10 @@
         + '</form></div>';
     }
     host.innerHTML = html;
+    // Only occupy space when there's actually something to say. When the searched
+    // player IS on the board (shown > 0, nothing taken), html is empty — an empty
+    // #search-tail box mid-draft reads as broken, so stay hidden. (mock report)
+    host.hidden = !html;
   }
 
   /**
