@@ -56,16 +56,26 @@
   <div class="wtw-list">
     <% ordered.forEach((r, i) => { const mine = r.owner_id === meId; %>
       <% if (mineRow && i === 0) { %><div class="wtw-sec">Your game</div><% } %>
-      <% if (mineRow && i === 1) { %><div class="wtw-sec">Around the league — most watchable first</div><% } %>
+      <%# The "around the league" header used to be tied to i === 1, so a week
+          where you aren't on the slate rendered the whole list with no header
+          at all. Show it at the top of the others list either way. %>
+      <% if (i === (mineRow ? 1 : 0)) { %><div class="wtw-sec">Around the league — most watchable first</div><% } %>
       <% const _lnk = rowLink(r); const _tag = _lnk ? 'a' : 'div'; %>
       <<%= _tag %> class="wtw-row <%= r.label.level %><%= mine ? ' mine' : '' %><%= _lnk ? ' clickable' : '' %>"<% if (_lnk) { %> href="<%= _lnk %>" title="<%= mine ? 'Open your matchup' : 'See ' + r.name + ' vs ' + r.oppName %>"<% } %>>
         <div class="wtw-top">
           <span class="wtw-icon" aria-hidden="true"><%= r.label.icon %></span>
           <span class="wtw-who"><b><%= r.name %></b><% if (mine) { %> <span class="pk-you">you</span><% } %> <span class="muted">vs <%= r.oppName %></span></span>
-          <span class="wtw-pct"><%= Math.round(r.pWin * 100) %>%</span>
+          <% if (r.pWin != null) { %><span class="wtw-pct"><%= Math.round(r.pWin * 100) %>%</span><% } %>
           <% if (_lnk) { %><span class="wtw-cue" aria-hidden="true">→</span><% } %>
         </div>
-        <div class="wtw-meter"><div class="wtw-fill" style="width:<%= bar(r.pWin) %>%"></div></div>
+        <%# THE SCORE. It was computed on every row and rendered on none — on a
+            page called What to Watch, during the game, you could not see the
+            score. It leads now, because it is the one number that is real
+            whether or not the projection feed exists. %>
+        <div class="wtw-score"><b><%= r.live %></b><span class="wtw-dash">–</span><b><%= r.oppLive %></b><% if (r.remainKnown && (r.playersLeft || r.oppPlayersLeft)) { %> <span class="wtw-proj">projected <%= r.myProj %>–<%= r.oppProj %></span><% } %></div>
+        <% if (r.pWin != null) { %>
+          <div class="wtw-meter"><div class="wtw-fill" style="width:<%= bar(r.pWin) %>%"></div></div>
+        <% } %>
         <div class="wtw-need">
           <span class="wtw-word <%= r.label.level %>"><%= r.label.word %></span>
           · <%= r.need %>
@@ -76,8 +86,14 @@
   </div>
 
   <p class="muted" style="margin:1rem 0 0; font-size:.76rem">
-    Sweat = your live score plus what your players left are projected to add, against the same for your opponent.
-    <% if (source === 'live') { %>Live scores are exact; the remaining-player projections sharpen as the model's live feed lands.<% } %>
+    <% if (ordered.some(r => r.pWin == null)) { %>
+      <b>Scores are live and exact.</b> The sweat meter — your chance of winning from here — needs
+      the per-player feed to know who is still on the field, and that isn't wired up yet, so this
+      panel is ranking by how close each game is on the board. It turns into the real meter on its
+      own the week the feed lands. <a href="/watch?preview=1">See what that looks like →</a>
+    <% } else { %>
+      Sweat = your live score plus what your players left are projected to add, against the same for your opponent.
+    <% } %>
   </p>
 <% } %>
 

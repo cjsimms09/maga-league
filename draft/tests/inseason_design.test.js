@@ -87,5 +87,57 @@ const css = fs.readFileSync(path.join(ROOT, 'public', 'css', 'style.css'), 'utf8
   ck('  and the no-change card is absent then', !/lo-nochange/.test(some));
 }
 
+// 5) WHAT TO WATCH — the live Sunday panel. Two design defects on the surface
+// the league stares at during games:
+//   • the SCORE was computed on every row and rendered on none. On a page called
+//     What to Watch, mid-game, you could not see the score.
+//   • the sweat meter's track was rgba(255,255,255,.08) — a dark-theme value on
+//     a #fff panel, 1.00:1, invisible. With no track the fill can't be read as a
+//     proportion.
+//   • the state words were all dark-theme too; SWEATING at 1.83:1 was the worst,
+//     and it labels exactly the games worth watching.
+{
+  const ejs = require('ejs');
+  const tp = path.join(ROOT, 'views', 'watch.ejs');
+  const tpl = fs.readFileSync(tp, 'utf8').replace(/<%-\s*include\([^%]+%>/g, '');
+  const row = o => ({ owner_id: 1, opp_id: 2, name: 'Cory', oppName: 'Mike', live: 84.2,
+    oppLive: 84.1, myProj: 84.2, oppProj: 84.1, margin: 0.1, playersLeft: 0, oppPlayersLeft: 0,
+    remainKnown: true, pWin: 0.5, highP: null, label: { icon: '🔥', word: 'coin flip', level: 'flip' },
+    need: 'Up 0.1 projected.', ...o });
+  const render = rows => ejs.render(tpl, { me: { id: 1 }, rows, source: 'live', inWindow: true,
+    weekNo: 3, band: { median: 141 }, preview: false }, { filename: tp });
+
+  const priced = render([row({})]);
+  ck('the live score is on the row (it was computed and never rendered)',
+    /wtw-score/.test(priced) && /84\.2/.test(priced) && /84\.1/.test(priced));
+  ck('  a priced row still shows the meter and the percentage',
+    /wtw-meter/.test(priced) && /wtw-pct/.test(priced));
+
+  const unpriced = render([row({ pWin: null, remainKnown: false,
+    label: { icon: '🏈', word: 'in progress', level: 'live' }, need: 'Up 0.1 on the board.' })]);
+  ck('with no per-player feed the score still shows', /84\.2/.test(unpriced));
+  ck('  but no invented percentage', !/wtw-pct/.test(unpriced));
+  ck('  and no meter drawn from a probability we do not have', !/wtw-meter/.test(unpriced));
+  ck('  the footnote says plainly which half is missing',
+    /sweat meter[\s\S]{0,120}isn't wired up yet/.test(unpriced));
+
+  ck('the meter track is visible on the light panel (was 1.00:1 white-on-white)',
+    /\.wtw-meter \{[^}]*background:\s*rgba\(12,26,43/.test(css));
+  // Every state word must clear 4.5:1 on #fff — .66rem uppercase is small text.
+  {
+    const hx = h => { h = h.replace('#', ''); return [0, 2, 4].map(i => parseInt(h.substr(i, 2), 16)); };
+    const lum = c => { const s = hx(c).map(v => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }); return .2126 * s[0] + .7152 * s[1] + .0722 * s[2]; };
+    const ratio = c => (Math.max(lum(c), 1) + .05) / (Math.min(lum(c), 1) + .05);
+    for (const lvl of ['flip', 'sweat', 'safe', 'cooked']) {
+      const m = css.match(new RegExp('\\.wtw-word\\.' + lvl + ' \\{[^}]*color:\\s*(#[0-9a-fA-F]{6})'));
+      ck(`  .wtw-word.${lvl} is a literal that clears AA on white`, !!m && ratio(m[1]) >= 4.5,
+        m ? m[1] + ' = ' + ratio(m[1]).toFixed(2) + ':1' : 'no hex literal');
+    }
+  }
+  // A week you aren't playing in must still get the section header.
+  const noMine = render([row({ owner_id: 9, opp_id: 8, name: 'Ann', oppName: 'Bo' })]);
+  ck('the list is headed even when you are not on the slate', /Around the league/.test(noMine));
+}
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

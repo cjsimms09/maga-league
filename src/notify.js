@@ -148,29 +148,54 @@ const fmt = n => '$' + Math.abs(Math.round(n * 100) / 100).toLocaleString('en-US
 async function sundayAlert(owner, alert) {
   if (!owner || !owner.email || !alert) return { skipped: true };
   const week = alert.week ? `Week ${alert.week}` : 'This week';
-  // Lead with the one real call — chase the $100 or protect the matchup — the same
-  // verdict the on-page optimizer now leads with, so the email and the site agree.
+  // The badge must cover every posture the engine can return. It was a two-way
+  // ternary over three modes, so `pending` came out branded 🛡️ PROTECT above its
+  // own headline "No projections yet — nothing to optimize" — and the on-page
+  // rehearsal (lineup.ejs) got it right, so the preview showed a badge the real
+  // email would never send. Same table both places now.
+  const MODE = { chase: '🎯 CHASE', protect: '🛡️ PROTECT', pending: '⏳ PENDING' };
+  const mode = (alert.posture && alert.posture.mode) || null;
+  const tag = MODE[mode] || MODE.protect;
   let body = '';
-  if (alert.posture) {
-    const tag = alert.posture.mode === 'chase' ? '🎯 CHASE' : '🛡️ PROTECT';
-    body += `<div style="font-weight:800;font-size:16px">${tag} — ${alert.posture.headline}</div>`
-          + `<div style="color:#3c4a60;margin:4px 0 12px">${alert.posture.why}</div>`;
-  }
-  body += `<b>${alert.headline}</b>`;
+
   if (alert.hasCalls) {
+    // THE RARE WEEK — ~11% of them. Lead with the call and the money.
+    if (alert.posture) {
+      body += `<div style="font-weight:800;font-size:16px">${tag} — ${alert.posture.headline}</div>`
+            + `<div style="color:#3c4a60;margin:4px 0 12px">${alert.posture.why}</div>`;
+    }
+    body += `<b>${alert.headline}</b>`;
     // Dollar figure in the site's dark green (#0f8a4d), not the old #4ade80 —
     // the old bright green was a dark-theme value and is barely legible on white.
     body += '<br><br>' + alert.calls.map(c =>
       `▲ <b>Start ${c.start}</b> over ${c.sit} — <b style="color:#0d7a44">$${Math.round(c.dollars)}</b> <span style="color:#3c4a60">(${c.why})</span>`
     ).join('<br>');
+  } else {
+    // THE ORDINARY WEEK — the common one. It used to lead with a 16px "🎯 CHASE"
+    // call to action and then say, underneath, that there was nothing to do:
+    // the loudest element in the email was a decision that didn't exist. The
+    // answer leads now, the reasoning supports it, and the frequency is stated
+    // so a quiet email reads as the expected result rather than a dud — the
+    // same framing as the optimizer page.
+    body += `<div style="font-weight:800;font-size:16px">${mode === 'pending' ? '⏳' : '✅'} ${alert.headline}</div>`;
+    if (alert.posture) {
+      body += `<div style="color:#3c4a60;margin:6px 0 0">${alert.posture.why}</div>`;
+    }
+    if (mode !== 'pending') {
+      body += '<div style="color:#3c4a60;margin:10px 0 0;font-size:13px">That\'s the normal week. '
+            + 'Starting your best projections is the right call about 9 weeks in 10 — no need to open anything.</div>';
+    }
   }
+
   if (alert.band && alert.band.median) {
     body += `<br><br><span style="color:#3c4a60">The bar: ~${alert.band.median} usually wins the week's $100.` +
       (alert.projected ? ` You project ${alert.projected.toFixed(0)}.` : '') + '</span>';
   }
   return sendMail({
     to: [owner.email],
-    subject: `🎯 ${week} lineup: ${alert.hasCalls ? `$${Math.round(alert.edge)} on the table` : 'you\'re optimal'}`,
+    subject: alert.hasCalls
+      ? `🎯 ${week} lineup: $${Math.round(alert.edge)} on the table`
+      : `✅ ${week} lineup: nothing to change`,
     html: wrap(`${week} — set your lineup`, body, { path: '/lineup', label: 'Open the optimizer' }),
   });
 }

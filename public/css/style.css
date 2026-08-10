@@ -3586,7 +3586,8 @@ a.wtw-row.clickable:active { transform: translateY(1px); }
 a.wtw-row.clickable.mine:hover { box-shadow: inset 0 0 0 1px rgba(245,196,69,.35), 0 2px 10px rgba(12,26,43,.12); }
 .wtw-cue { color: var(--muted); font-weight: 800; flex: 0 0 auto; }
 .wtw-row.flip { border-left-color: var(--gold-bright); }
-.wtw-row.sweat { border-left-color: #ffb020; }
+.wtw-row.sweat { border-left-color: #a86f0c; }
+.wtw-row.live { border-left-color: #5b6b86; }
 .wtw-row.safe { border-left-color: var(--green); }
 .wtw-row.cooked { border-left-color: var(--red); }
 .wtw-row.mine { box-shadow: inset 0 0 0 1px rgba(245,196,69,.35); }
@@ -3595,7 +3596,17 @@ a.wtw-row.clickable.mine:hover { box-shadow: inset 0 0 0 1px rgba(245,196,69,.35
 .wtw-who { flex: 1 1 auto; min-width: 0; font-size: .92rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .wtw-who b { color: var(--ink); font-family: var(--font-display); }  /* was #fff — invisible on the light theme */
 .wtw-pct { font-variant-numeric: tabular-nums; font-weight: 800; color: #4a5972; }
-.wtw-meter { margin: .5rem 0 .4rem; height: 8px; border-radius: 999px; overflow: hidden; background: rgba(255,255,255,.08); }
+/* The score line — the number the page exists to show, so it outranks the
+   percentage. Tabular so the digits don't dance as points land. */
+.wtw-score { margin: .45rem 0 .1rem; font-family: var(--font-display); font-size: 1.25rem;
+  font-weight: 900; color: var(--ink); font-variant-numeric: tabular-nums; letter-spacing: .01em; }
+.wtw-dash { color: var(--muted); font-weight: 700; margin: 0 .3rem; }
+.wtw-proj { font-family: var(--font-body); font-size: .72rem; font-weight: 600;
+  color: var(--muted); letter-spacing: 0; margin-left: .55rem; }
+/* Track was rgba(255,255,255,.08) — a dark-theme holdover sitting on a #fff
+   panel, i.e. 1.00:1, invisible. With no track you cannot read the fill as a
+   proportion: an 8% sweat looked like a stray gold tick floating in nothing. */
+.wtw-meter { margin: .5rem 0 .4rem; height: 8px; border-radius: 999px; overflow: hidden; background: rgba(12,26,43,.12); }
 .wtw-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--gold), var(--gold-bright)); }
 .wtw-row.safe .wtw-fill { background: linear-gradient(90deg, #1f9d57, var(--green)); }
 .wtw-row.cooked .wtw-fill { background: linear-gradient(90deg, #7a2630, var(--red)); }
@@ -3603,9 +3614,16 @@ a.wtw-row.clickable.mine:hover { box-shadow: inset 0 0 0 1px rgba(245,196,69,.35
 .wtw-need { font-size: .82rem; color: #4a5972; }
 .wtw-word { font-family: var(--font-display); font-weight: 800; font-size: .66rem; letter-spacing: .06em;
   text-transform: uppercase; }
-.wtw-word.flip { color: var(--gold-bright); } .wtw-word.sweat { color: #ffb020; }
-.wtw-word.safe { color: var(--green); } .wtw-word.cooked { color: var(--red-bright); }
-.wtw-high { color: var(--gold-bright); font-weight: 700; }
+/* State words, .66rem uppercase = small text, so 4.5:1 on white is the bar.
+   All four were dark-theme values: SWEATING (#ffb020) read at 1.83:1 — the
+   single most important state on the panel, the games that are actually close,
+   effectively unreadable — and flip/safe/cooked all sat just under at ~4.4. */
+.wtw-word.flip { color: #96681c; }   /* 4.89 */
+.wtw-word.sweat { color: #8a5f14; }  /* 5.63 */
+.wtw-word.safe { color: #0d7a44; }   /* 5.41 */
+.wtw-word.cooked { color: #c8202c; } /* 5.68 */
+.wtw-word.live { color: var(--muted); }
+.wtw-high { color: #8a5f14; font-weight: 700; }
 
 /* Kansas City Chiefs arrowhead — the real mark, next to every KC player.
    Inline SVG asset (public/icons/kc.svg), self-contained, scales with the text. */

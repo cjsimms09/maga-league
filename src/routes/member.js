@@ -2109,8 +2109,13 @@ function pvEntries(owners) {
 }
 // Live entries from the scoreboard. Live scores are real; the "remaining
 // players + projections" that sharpen the sweat come from A's per-player data
-// when present (flagged in PARKED) — until then the meter runs off the live
-// scores, which is honest, just coarser, and improves automatically.
+// when present (flagged in PARKED) — until then we have NO view of who is still
+// to play, and `remainKnown: false` says so. It used to send a bare `remain: []`,
+// which the engine could not tell apart from "the week is finished": zero
+// variance, so every live game rendered a 100%/0% certainty and "Done — nothing
+// left on the field" while the ball was in the air. Declaring the gap makes the
+// panel fall back to the score, and it upgrades to the real sweat meter by
+// itself the moment the feed exists.
 function liveWatchEntries(sData, map, owners) {
   if (!sData || !Array.isArray(sData.matchups)) return [];
   const nameOf = id => (H.ownerById(owners, id) || {}).name || '?';
@@ -2125,8 +2130,8 @@ function liveWatchEntries(sData, map, owners) {
   for (const pair of Object.values(byMatch)) {
     if (pair.length !== 2) continue;
     const [a, b] = pair;
-    entries.push({ owner_id: a.oid, opp_id: b.oid, name: nameOf(a.oid), oppName: nameOf(b.oid), live: a.pts, oppLive: b.pts, remain: [], oppRemain: [] });
-    entries.push({ owner_id: b.oid, opp_id: a.oid, name: nameOf(b.oid), oppName: nameOf(a.oid), live: b.pts, oppLive: a.pts, remain: [], oppRemain: [] });
+    entries.push({ owner_id: a.oid, opp_id: b.oid, name: nameOf(a.oid), oppName: nameOf(b.oid), live: a.pts, oppLive: b.pts, remain: [], oppRemain: [], remainKnown: false });
+    entries.push({ owner_id: b.oid, opp_id: a.oid, name: nameOf(b.oid), oppName: nameOf(a.oid), live: b.pts, oppLive: a.pts, remain: [], oppRemain: [], remainKnown: false });
   }
   return entries;
 }
@@ -2243,10 +2248,13 @@ router.get('/scoreboard', aw(async (req, res) => {
       const lev = PO.matchupLeverage(picture._rows, gamesLeft, cut, g.a.id);
       if (lev && lev.swing > 0.005) worth = { name: g.a.name, swing: Math.round(lev.swing * 100) };
     }
-    // the live sweat line (Sun/Mon, undecided) — basic from live margin
+    // the live sweat line (Sun/Mon, undecided) — basic from live margin.
+    // remainKnown:false for the same reason as the /watch panel: without the
+    // per-player feed we cannot see who is still to play, so the icon must be
+    // the neutral 🏈 rather than a 🟢/🔴 verdict on a one-point game.
     let sweat = null;
     if (primetime && hasScore && aPts != null && bPts != null) {
-      const s = WW.sweat({ live: aPts, oppLive: bPts, remain: [], oppRemain: [] });
+      const s = WW.sweat({ live: aPts, oppLive: bPts, remain: [], oppRemain: [], remainKnown: false });
       sweat = { ...WW.sweatLabel(s.pWin), leader: leader ? leader.name : null, margin: Math.abs(Math.round((aPts - bPts) * 10) / 10) };
     }
     return { g, aPts, bPts, hasScore, leader, split, riv, inWHRace, po, worth, sweat };
