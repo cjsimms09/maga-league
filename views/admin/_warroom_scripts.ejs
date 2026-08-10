@@ -40,4 +40,8 @@
 <script src="/js/draft/prefsync.js"></script>
 <script src="/js/draft/predledger.js"></script>
 <script src="/js/draft/sync.js"></script>
+<%# mock_calib.js — pure core for MOCK survival calibration ("% to last to my next
+    pick", graded within the session). app.js feeds it during a mock; it persists to
+    localStorage and never posts to the real ledger. Loaded before app.js. %>
+<script src="/js/draft/mock_calib.js"></script>
 <script src="/js/draft/app.js"></script>
