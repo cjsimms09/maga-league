@@ -37,6 +37,27 @@ def _mean(xs):
     return round(sum(xs) / len(xs), 2) if xs else None
 
 
+def _sd(xs):
+    """Population SD across seasons — the SPREAD of a timing tendency. None if <2 samples
+    (a one-season 'tendency' has no measurable consistency and must not masquerade as one)."""
+    if not xs or len(xs) < 2:
+        return None
+    m = sum(xs) / len(xs)
+    return round((sum((x - m) ** 2 for x in xs) / len(xs)) ** 0.5, 2)
+
+
+def _timing_confidence(sd, n_seasons):
+    """Turn a mean+spread into an actionable tag. A round-9-QB with sd 0.5 across 3 seasons is
+    a HARD rule you can plan around; the same mean with sd 4 is a loose lean; <2 seasons is thin."""
+    if n_seasons < 2 or sd is None:
+        return "thin"                # one season — a data point, not a pattern
+    if sd <= 1.0:
+        return "hard"                # takes it in essentially the same round every year
+    if sd <= 2.5:
+        return "firm"
+    return "loose"                   # ranges widely — the mean is nearly meaningless
+
+
 def build_profiles(rows):
     """rows: [{season, owner, pick_no, round, position, is_keeper}]. Non-keeper picks
     are the decisions. Returns {owner: profile}."""
@@ -46,8 +67,10 @@ def build_profiles(rows):
     out = {}
     for o in owners:
         mine = [r for r in decisions if r["owner"] == o]
-        # first pick at each position per (owner, season), then mean the round across seasons
-        first_round = {}
+        # first pick at each position per (owner, season): mean AND spread across seasons.
+        # The spread is the "push further" Cory asked for — a mean round is only actionable
+        # if you know whether it's a hard rule or a wide range.
+        first_round, timing = {}, {}
         for pos in POSITIONS:
             firsts = []
             for s in {r["season"] for r in mine}:
@@ -55,20 +78,44 @@ def build_profiles(rows):
                 if at:
                     firsts.append(min(r["round"] for r in at))
             if firsts:
+                sd = _sd(firsts)
                 first_round[pos] = _mean(firsts)
+                timing[pos] = {"mean": _mean(firsts), "sd": sd, "n_seasons": len(firsts),
+                               "confidence": _timing_confidence(sd, len(firsts))}
         early = [r["position"] for r in mine if (r.get("round") or 99) <= EARLY_ROUNDS]
         early_lean = _position_share([{"position": p} for p in early]) if early else {}
+        share = _position_share(mine)
         out[o] = {
             "n_decisions": len(mine),
             "seasons": sorted({r["season"] for r in mine}),
-            "position_share": _position_share(mine),
-            "position_share_vs_field": {p: round((_position_share(mine).get(p, 0)
-                                                  - field_share.get(p, 0)), 3) for p in POSITIONS},
+            "position_share": share,
+            "position_share_vs_field": {p: round((share.get(p, 0) - field_share.get(p, 0)), 3)
+                                        for p in POSITIONS},
             "first_round_by_position": first_round,
+            "timing_by_position": timing,              # {pos: {mean, sd, n_seasons, confidence}}
             "early_lean": early_lean,
             "onesie_timing": {p: first_round.get(p) for p in ONESIES},
+            "predictability": _predictability(len(mine), timing),
         }
     return out
+
+
+def _predictability(n_decisions, timing):
+    """How much to TRUST this owner's reads overall: enough picks + tight timing = plan around
+    them; thin sample or wide spreads = treat as league-average. Guards a thin sample from
+    masquerading as a personality (the shrinkage discipline, stated as a tag)."""
+    # count consistency in SKILL positions only — everyone streams K/DEF late, so onesie-late
+    # consistency is universal and doesn't discriminate one owner from another.
+    skill = ("QB", "RB", "WR", "TE")
+    hard = sum(1 for pos, t in timing.items()
+               if pos in skill and t["confidence"] in ("hard", "firm"))
+    if n_decisions < 12:
+        return "thin"                 # <~4 picks/season — pulled toward league average
+    if hard >= 3:
+        return "high"                 # several SKILL positions taken in a consistent round each year
+    if hard >= 1:
+        return "medium"
+    return "low"                      # skill picks vary too much year to year to plan around
 
 
 def _position_share(rows):
@@ -99,12 +146,27 @@ def _signature(prof):
 
 
 def matchup_read(profiles, upcoming_owners):
-    """For the war room: the owners picking before my next turn, each with what they do."""
-    return [{"owner": o, "signature": _signature(profiles.get(o, {})),
-             "qb_first_round": (profiles.get(o, {}).get("onesie_timing") or {}).get("QB"),
-             "leans": {p: v for p, v in (profiles.get(o, {}).get("position_share_vs_field") or {}).items()
-                       if abs(v) >= 0.05}}
-            for o in upcoming_owners if o in profiles]
+    """For the war room: the owners picking before my next turn, each with what they do — now
+    with the SPREAD, so a read is labelled hard/firm/loose, not just a bare mean. `hard_reads`
+    are the positions this owner takes in a consistent round every year (plan around them);
+    `predictability` says how much to trust the whole profile."""
+    out = []
+    for o in upcoming_owners:
+        if o not in profiles:
+            continue
+        p = profiles[o]
+        timing = p.get("timing_by_position") or {}
+        hard_reads = {pos: {"round": t["mean"], "sd": t["sd"], "confidence": t["confidence"]}
+                      for pos, t in timing.items() if t.get("confidence") in ("hard", "firm")}
+        out.append({
+            "owner": o, "signature": _signature(p),
+            "predictability": p.get("predictability"),
+            "qb_first_round": (p.get("onesie_timing") or {}).get("QB"),
+            "hard_reads": hard_reads,     # positions they take in the same round yearly
+            "leans": {pos: v for pos, v in (p.get("position_share_vs_field") or {}).items()
+                      if abs(v) >= 0.05},
+        })
+    return out
 
 
 def _load_local_rows():   # pragma: no cover  (I/O)

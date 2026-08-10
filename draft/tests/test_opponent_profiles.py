@@ -54,3 +54,27 @@ def test_single_season_lean_is_visible_but_seasons_tracked():
     rows = [_pick(2023, "A", 1, 1, "RB"), _pick(2024, "A", 1, 1, "WR")]
     prof = OP.build_profiles(rows)["A"]
     assert prof["seasons"] == [2023, 2024]
+
+
+def test_timing_spread_hard_vs_loose():
+    # A takes QB in round 9 every season (hard); B ranges 4/8/12 (loose).
+    rows = ([_pick(s, "A", 90, 9, "QB") for s in (2023, 2024, 2025)]
+            + [_pick(2023, "B", 40, 4, "QB"), _pick(2024, "B", 80, 8, "QB"), _pick(2025, "B", 120, 12, "QB")])
+    prof = OP.build_profiles(rows)
+    ta, tb = prof["A"]["timing_by_position"]["QB"], prof["B"]["timing_by_position"]["QB"]
+    assert ta["sd"] == 0.0 and ta["confidence"] == "hard"      # same round every year
+    assert tb["mean"] == 8.0 and tb["sd"] > 2.5 and tb["confidence"] == "loose"
+
+
+def test_single_season_timing_is_thin_not_a_pattern():
+    rows = [_pick(2023, "A", 90, 9, "QB")]
+    t = OP.build_profiles(rows)["A"]["timing_by_position"]["QB"]
+    assert t["sd"] is None and t["n_seasons"] == 1 and t["confidence"] == "thin"
+
+
+def test_matchup_read_exposes_hard_reads_and_predictability():
+    rows = ([_pick(s, "A", 90, 9, "QB") for s in (2023, 2024, 2025)]
+            + [_pick(s, "A", i, i, "RB") for s in (2023, 2024, 2025) for i in (1, 2, 3, 4)])
+    read = OP.matchup_read(OP.build_profiles(rows), ["A"])[0]
+    assert "QB" in read["hard_reads"] and read["hard_reads"]["QB"]["confidence"] == "hard"
+    assert read["predictability"] in ("high", "medium")        # enough picks + a hard read
