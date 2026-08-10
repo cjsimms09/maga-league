@@ -1696,6 +1696,21 @@ router.get('/matchup', aw(async (req, res) => {
   const weekNo = (liveMatchup && liveMatchup.week) || (sData && sData.week) || 1;
   const betWindow = BL.matchupWindow(liveMatchup);
 
+  // An already-placed bet on THIS game, so the page shows the standing wager
+  // instead of only offering to create another. A matchup bet between the two of
+  // you, this week — newest first if there's more than one. Defensive: a failed
+  // lookup just hides the panel, never breaks the page.
+  let matchupBet = null;
+  if (opp) {
+    try {
+      const _bets = await SB.all();
+      matchupBet = _bets
+        .filter(b => b.kind === 'matchup' && Number(b.week) === Number(weekNo)
+          && SB.isParty(b, me.id) && SB.isParty(b, opp.id))
+        .sort((a, b) => (a.created_at < b.created_at ? 1 : -1))[0] || null;
+    } catch (e) { matchupBet = null; }
+  }
+
   // owner -> stable Sleeper user_id. Live bundle is authoritative when present;
   // the harvest-backed name map is the offline fallback (both proven to agree).
   let invUserMap = null;
@@ -1838,7 +1853,7 @@ router.get('/matchup', aw(async (req, res) => {
 
   res.render('matchup', {
     me, owners, opp, live, weekNo, matchup: liveMatchup, betWindow, record, rivalry,
-    starters, bench, proj, highBand, whBand, whRace, pickem, stakes, trash, trashGameId,
+    starters, bench, matchupBet, proj, highBand, whBand, whRace, pickem, stakes, trash, trashGameId,
     goatId: MK.goatOwnerId(sData, world.config.sleeper_map || {}),
     configured: !!world.config.sleeper_league_id,
     late: req.query.late === '1', sent: req.query.sent === '1',

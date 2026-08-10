@@ -257,6 +257,14 @@ table.roll.mu-starters th.mu-slot-h { text-align: center; }
 .mu-bench-list li:last-child { border-bottom: none; }
 .mu-bench-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .mu-bench-list .num { font-variant-numeric: tabular-nums; color: var(--muted); flex: 0 0 auto; }
+
+/* MATCHUP standing-bet banner — the already-placed wager on this game. */
+.mu-bet-standing { display: flex; align-items: center; gap: .55rem; text-decoration: none; color: inherit;
+  background: var(--panel-soft); border: 1px solid var(--line); border-left: 3px solid var(--gold);
+  border-radius: 10px; padding: .6rem .75rem; margin-bottom: .8rem; font-size: .86rem; }
+.mu-bet-standing.on { border-left-color: var(--green); }
+.mu-bet-standing .tag { font-size: 1.15rem; }
+.mu-bet-standing:hover { box-shadow: 0 2px 8px rgba(12,26,43,.1); }
 .scroll-x { overflow-x: auto; }
 
 /* ---------- badges & buttons ---------- */

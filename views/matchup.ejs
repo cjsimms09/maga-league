@@ -164,9 +164,27 @@
 <div class="card matchup-card" style="margin-bottom:1.2rem">
   <h2>🤝 Bet <%= opp.name %> on it <span class="sub">straight up, this week</span></h2>
   <div class="body">
-    <% if (!betWindow.open) { %>
+    <%# Already-placed bet on this game — show the standing wager so you don't
+        double-bet, and link to the tab where you act on it. %>
+    <% const _mb = (typeof matchupBet !== 'undefined' && matchupBet) ? matchupBet : null;
+       const _active = _mb && ['proposed','open','locked','awaiting_confirm','disputed'].includes(_mb.status);
+       let _mbMsg = null, _mbCue = 'See it on the side-bet tab →';
+       if (_active) {
+         const mine = _mb.proposer_id === me.id;
+         if (_mb.status === 'proposed' && mine) { _mbMsg = "You've bet " + opp.name + " $" + _mb.stake + " on this game — waiting on them to accept."; _mbCue = 'Track it →'; }
+         else if (_mb.status === 'proposed') { _mbMsg = opp.name + " bet you $" + _mb.stake + " on this game."; _mbCue = 'Accept or decline →'; }
+         else if (_mb.status === 'open') { _mbMsg = "Your $" + _mb.stake + " bet on this game is on the market, waiting for a taker."; _mbCue = 'Track it →'; }
+         else if (_mb.status === 'locked') { _mbMsg = "It's on — you and " + opp.name + " have $" + _mb.stake + " each riding on this game."; _mbCue = 'See the bet →'; }
+         else { _mbMsg = "A result's been declared on your $" + _mb.stake + " bet on this game."; _mbCue = 'Confirm or dispute →'; }
+       } %>
+    <% if (_active) { %>
+      <a class="mu-bet-standing<%= _mb.status === 'locked' ? ' on' : '' %>" href="/bank?section=sidebets">
+        <span class="tag">🎟️</span><span><b><%= _mbMsg %></b> <span class="muted"><%= _mbCue %></span></span>
+      </a>
+    <% } %>
+    <% if (!betWindow.open && !_active) { %>
       <p class="mu-closed">🔒 <%= betWindow.reason %> Bets on week <%= weekNo %> are closed.</p>
-    <% } else { %>
+    <% } else if (!_active) { %>
       <form method="post" action="/sidebets" class="inline-form">
         <input type="hidden" name="format" value="prop">
         <input type="hidden" name="kind" value="matchup">
