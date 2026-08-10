@@ -1510,7 +1510,7 @@
           "always_present": false,
           "of": 3,
           "samples": [
-            "TE",
+            "Def",
             "TE"
           ],
           "seen_in": 2,
@@ -1526,8 +1526,8 @@
             "range"
           ],
           "len_range": [
-            22,
-            22
+            17,
+            17
           ],
           "of": 3,
           "seen_in": 2,
@@ -1629,9 +1629,12 @@
         "$.rules.positionRules[0].rule[0].event.$t": {
           "always_present": false,
           "of": 3,
+          "samples": [
+            "FC"
+          ],
           "seen_in": 1,
           "types": [
-            "\u2026"
+            "str"
           ]
         },
         "$.rules.positionRules[0].rule[0].points": {
@@ -1648,9 +1651,12 @@
         "$.rules.positionRules[0].rule[0].points.$t": {
           "always_present": false,
           "of": 3,
+          "samples": [
+            "*2"
+          ],
           "seen_in": 1,
           "types": [
-            "\u2026"
+            "str"
           ]
         },
         "$.rules.positionRules[0].rule[0].range": {
@@ -1667,9 +1673,12 @@
         "$.rules.positionRules[0].rule[0].range.$t": {
           "always_present": false,
           "of": 3,
+          "samples": [
+            "0-10"
+          ],
           "seen_in": 1,
           "types": [
-            "\u2026"
+            "str"
           ]
         },
         "$.version": {
