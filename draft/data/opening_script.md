@@ -1,6 +1,6 @@
 # OPENING SCRIPT — generated, never typed
 
-_board `2026-08-09T23:57:30Z` · slot **4** (site-claimed — Sleeper draft order pending (regenerates on assignment)) · doctrine: **Early-QB Strike** (19b Cory-conditional race: +$196/season vs control (CI [154.5, 239.62], 0.5 contested decisions/draft; v1 money proxy, Sept quantile re-run pre-registered); runner-up WR Feast +$149)_
+_board `2026-08-10T03:35:00Z` · slot **4** (site-claimed — Sleeper draft order pending (regenerates on assignment)) · doctrine: **Early-QB Strike** (19b Cory-conditional race: +$196/season vs control (CI [154.5, 239.62], 0.5 contested decisions/draft; v1 money proxy, Sept quantile re-run pre-registered); runner-up WR Feast +$149)_
 
 My live picks: **34, 41, 54, 61, 74, 81…**
 
