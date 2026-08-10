@@ -44,6 +44,14 @@ jobs:
       - uses: actions/setup-python@v5
         with: { python-version: "3.11" }
 
+      # setup-python ships without pytest, so the pre-flight step below failed in
+      # under a second on ModuleNotFoundError — the same omission ci.yml already
+      # carries a "Python deps" step for. It failed SAFE (the probe was skipped
+      # rather than run unverified), which is the behaviour the ordering is for,
+      # but a guard that cannot run is not a guard.
+      - name: Python deps
+        run: pip install pytest -q
+
       # The pure half is unit-tested; run those FIRST so a probe never writes an
       # artifact from a module whose own tests are red.
       - name: Test the probe's pure half before trusting its output
