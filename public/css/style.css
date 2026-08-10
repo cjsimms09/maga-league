@@ -605,7 +605,14 @@ details.bal-row.me > summary { box-shadow: inset 3px 0 0 var(--gold); }
 .path-price.top { color: var(--navy-deep); background: var(--gold); }
 /* A path that would strand a mandatory starting slot. Dimmed and labelled, not
    removed — the reason is the point, and a vanished option teaches nothing. */
-.path-card.suppressed { opacity: .55; border-color: rgba(255,70,85,.5); }
+/* A suppressed path (taking this player would strand a mandatory slot) fades the
+   CARD — but never the Take button or the reason. The whole card at .55 made the
+   red take button read as disabled, so a recommended player had "no button to
+   take him" (Cory, live mock, pick 11). The action and its caveat stay full
+   strength; only the middle context dims. */
+.path-card.suppressed { border-color: rgba(255,70,85,.5); }
+.path-card.suppressed > *:not(.path-actions):not(.path-illegal) { opacity: .55; }
+.path-card.suppressed .path-actions .btn { opacity: 1; }
 .path-illegal { font-size: .72rem; font-weight: 800; color: var(--red);
   background: rgba(255,70,85,.12); border-radius: 5px; padding: .15rem .4rem;
   margin-bottom: .35rem; }
@@ -1005,10 +1012,14 @@ button.is-busy, .btn.is-busy {
   display: flex; gap: .5rem; align-items: flex-start;
   padding: .6rem .8rem; margin-bottom: .5rem;
   border-radius: 10px; font-size: .82rem; line-height: 1.45;
+  color: var(--ink);   /* readable default on the light theme */
 }
-.prov-note.warn { background: rgba(245, 196, 69, .09); border: 1px solid rgba(245, 196, 69, .45); color: #f2e2b4; }
-.prov-note.bad  { background: rgba(255, 70, 85, .10); border: 1px solid rgba(255, 70, 85, .55); color: #ffd3d7; }
-.prov-note.ok   { background: rgba(47, 213, 118, .08); border: 1px solid rgba(47, 213, 118, .35); color: #b8e8c9; }
+/* These carry the caveats that decide whether to trust the numbers (ADP coverage,
+   mock-mode dry-run, keeper predictions, accounting disagreements). They were pale
+   text for a navy background — illegible on cream. Dark text on the semantic tint. */
+.prov-note.warn { background: rgba(245, 196, 69, .16); border: 1px solid rgba(185, 130, 42, .6); color: #6e4e0a; font-weight: 600; }
+.prov-note.bad  { background: rgba(212, 36, 47, .10); border: 1px solid rgba(212, 36, 47, .55); color: #a3121d; font-weight: 600; }
+.prov-note.ok   { background: rgba(15, 138, 77, .10); border: 1px solid rgba(15, 138, 77, .45); color: #0c6b3b; }
 
 /* ---------- roster legality + plausibility rails (War Room) ----------
    Both exist to be noticed on the clock with forty seconds left. Neither is
@@ -1016,15 +1027,15 @@ button.is-busy, .btn.is-busy {
 .forced-banner {
   padding: .7rem .9rem; margin-bottom: .7rem; border-radius: 10px;
   background: rgba(255, 70, 85, .13); border: 1px solid rgba(255, 70, 85, .6);
-  color: #ffd3d7; font-weight: 700; font-size: .88rem; line-height: 1.45;
+  color: #a3121d; font-weight: 700; font-size: .88rem; line-height: 1.45;
 }
 .forced-banner.warn {
-  background: rgba(245, 196, 69, .1); border-color: rgba(245, 196, 69, .55); color: #f2e2b4;
+  background: rgba(245, 196, 69, .16); border-color: rgba(185, 130, 42, .6); color: #6e4e0a;
 }
 .rail-strip { display: flex; flex-wrap: wrap; gap: .3rem; margin-top: .35rem; }
 .rail-strip span {
-  background: rgba(245, 196, 69, .12); border: 1px solid rgba(245, 196, 69, .4);
-  color: #f2e2b4; border-radius: 6px; padding: .12rem .4rem; font-size: .68rem; line-height: 1.4;
+  background: rgba(245, 196, 69, .16); border: 1px solid rgba(185, 130, 42, .5);
+  color: #6e4e0a; border-radius: 6px; padding: .12rem .4rem; font-size: .68rem; line-height: 1.4; font-weight: 600;
 }
 
 /* Rail-fire budget: the acknowledge list under the checklist when the top 15
@@ -1037,7 +1048,7 @@ button.is-busy, .btn.is-busy {
 .rail-fire.open { border-color: rgba(255, 70, 85, .5); background: rgba(255, 70, 85, .07); }
 .rail-fire.acked { opacity: .75; }
 .rail-fire-head { display: flex; align-items: center; gap: .45rem; flex-wrap: wrap; }
-.rail-fire-flags { margin-top: .3rem; font-size: .7rem; color: #f2e2b4; line-height: 1.45; }
+.rail-fire-flags { margin-top: .3rem; font-size: .7rem; color: #6e4e0a; line-height: 1.45; font-weight: 600; }
 .rail-ack-note { font-size: .74rem; color: var(--muted); }
 
 /* §C override-reason toast — one tap, bottom-center, never blocks the clock. */
@@ -1056,15 +1067,15 @@ button.is-busy, .btn.is-busy {
 .lrm-strip .lrm-head { font-family: var(--font-display); font-weight: 800; font-size: .78rem;
   letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
 .lrm-row { font-size: .82rem; line-height: 1.45; }
-.lrm-cost { color: #f2c445; }
-.lrm-elite { color: #ff8a95; font-weight: 700; }
-.lrm-now { color: #ff8a95; font-weight: 700; }
+.lrm-cost { color: #7a5410; font-weight: 700; }
+.lrm-elite { color: #a3121d; font-weight: 700; }
+.lrm-now { color: #a3121d; font-weight: 700; }
 
 /* §D.2 rehearsal watermark — impossible to mistake sim state for the real draft. */
 .rehearsal-watermark {
   position: sticky; top: 0; z-index: 80; text-align: center;
-  background: repeating-linear-gradient(45deg, rgba(245,196,69,.22) 0 14px, rgba(245,196,69,.32) 14px 28px);
-  color: #f2e2b4; font-weight: 900; letter-spacing: .12em; text-transform: uppercase;
+  background: repeating-linear-gradient(45deg, rgba(245,196,69,.28) 0 14px, rgba(245,196,69,.42) 14px 28px);
+  color: #5a3f06; font-weight: 900; letter-spacing: .12em; text-transform: uppercase;
   padding: .45rem; border-bottom: 2px solid rgba(245,196,69,.6); font-size: .82rem;
 }
 /* Corner ribbon removed: A's `main` replaced it with a flat strip because the
@@ -1078,8 +1089,8 @@ button.is-busy, .btn.is-busy {
    reads as "trust this number less", not "you are in a sim". */
 .slot-watermark {
   position: sticky; top: 0; z-index: 78; text-align: center;
-  background: repeating-linear-gradient(45deg, rgba(255,70,85,.16) 0 14px, rgba(255,70,85,.26) 14px 28px);
-  color: #ffd3d7; font-weight: 800; letter-spacing: .1em; text-transform: uppercase;
+  background: repeating-linear-gradient(45deg, rgba(255,70,85,.18) 0 14px, rgba(255,70,85,.3) 14px 28px);
+  color: #8f1019; font-weight: 800; letter-spacing: .1em; text-transform: uppercase;
   padding: .4rem; border-bottom: 2px solid rgba(255,70,85,.5); font-size: .76rem;
 }
 /* Corner ribbon removed (see rehearsal note above): flat strip is A's solution
@@ -1094,8 +1105,8 @@ button.is-busy, .btn.is-busy {
   background: rgba(255, 70, 85, .12); padding: 1rem 1.1rem; margin-bottom: 1rem;
   box-shadow: var(--glow-red);
 }
-.stale-block h3 { margin: 0 0 .4rem; font-family: var(--font-display); color: #fff; font-size: 1rem; }
-.stale-block p { margin: 0 0 .7rem; color: #ffd3d7; font-size: .86rem; line-height: 1.5; }
+.stale-block h3 { margin: 0 0 .4rem; font-family: var(--font-display); color: #8f1019; font-size: 1rem; }
+.stale-block p { margin: 0 0 .7rem; color: #a3121d; font-size: .86rem; line-height: 1.5; font-weight: 600; }
 #warroom.is-stale { opacity: .55; filter: grayscale(.35); pointer-events: none; }
 
 /* ==========================================================================
@@ -2129,7 +2140,7 @@ button.pd-team.pick:hover { background: rgba(245,196,69,.16); transform: transla
 }
 .q-row:last-child { border-bottom: 0; }
 .q-rank {
-  flex: 0 0 1.5rem; text-align: right; font-size: .74rem; color: #8f9ab3;
+  flex: 0 0 1.5rem; text-align: right; font-size: .74rem; color: var(--muted);
   font-variant-numeric: tabular-nums;
 }
 .q-name { flex: 1 1 auto; font-size: .82rem; display: flex; align-items: center; gap: .3rem; flex-wrap: wrap; }
@@ -2149,7 +2160,7 @@ button.pd-team.pick:hover { background: rgba(245,196,69,.16); transform: transla
 /* ---------- war room: who picks before you ---------- */
 .threat-sub {
   font-size: .68rem; text-transform: uppercase; letter-spacing: .06em;
-  color: #8f9ab3; margin-bottom: .3rem;
+  color: var(--muted); margin-bottom: .3rem;
 }
 .threat-risk {
   padding: .5rem .6rem; border-radius: 10px; margin-bottom: .7rem;
@@ -2158,16 +2169,16 @@ button.pd-team.pick:hover { background: rgba(245,196,69,.16); transform: transla
 .risk-row { display: flex; align-items: baseline; gap: .45rem; padding: .16rem 0; font-size: .8rem; }
 .risk-pct {
   flex: 0 0 2.4rem; text-align: right; font-variant-numeric: tabular-nums;
-  font-weight: 700; color: #e8b0b6;
+  font-weight: 700; color: #a3121d;
 }
 .risk-pct.hot { color: var(--red-bright, #ff6b7a); }
 .risk-name { flex: 1 1 auto; display: flex; align-items: center; gap: .3rem; flex-wrap: wrap; }
-.risk-by { flex: 0 0 auto; font-size: .72rem; color: #a7b0c4; }
+.risk-by { flex: 0 0 auto; font-size: .72rem; color: var(--muted); }
 .threat-row { padding: .45rem 0; border-top: 1px solid rgba(255,255,255,.07); }
 .threat-row:first-child { border-top: 0; }
 .threat-head { display: flex; align-items: center; gap: .4rem; flex-wrap: wrap; font-size: .84rem; }
 .threat-pick {
-  flex: 0 0 auto; font-size: .68rem; color: #8f9ab3; border: 1px solid var(--line);
+  flex: 0 0 auto; font-size: .68rem; color: var(--muted); border: 1px solid var(--line);
   border-radius: 6px; padding: .05rem .3rem; font-variant-numeric: tabular-nums;
 }
 .threat-pos { display: flex; align-items: center; gap: .2rem; font-size: .7rem; }
@@ -2176,7 +2187,7 @@ button.pd-team.pick:hover { background: rgba(245,196,69,.16); transform: transla
   font-size: .74rem; padding: .1rem .35rem; border-radius: 6px;
   background: rgba(255,255,255,.05); border: 1px solid var(--line);
 }
-.threat-tell { font-size: .73rem; color: #b9c2d4; margin-top: .12rem; }
+.threat-tell { font-size: .73rem; color: var(--muted); margin-top: .12rem; }
 
 /* ---------- war room: the plan, the byes, the checklist ---------- */
 .plan-note {
