@@ -28,6 +28,12 @@
     ledger — January grades the difference in dollars.</span>
   </div>
 <% } %>
+<% if (typeof overrode !== 'undefined' && overrode) { %>
+  <div class="alert-banner" style="margin-bottom:1rem; border-color:rgba(185,130,42,.5)">
+    <span class="tag">🙋</span><span>Override recorded — the tool's call and the dollar gap are both in the ledger.
+    That's the disagreement written down at decision time, which is the only moment it can be.</span>
+  </div>
+<% } %>
 <% if (typeof sent !== 'undefined' && sent) { %>
   <div class="alert-banner" style="margin-bottom:1rem; border-color:rgba(74,222,128,.5)">
     <span class="tag">📣</span><span>Sunday alert sent to your inbox<%= (typeof emailOn !== 'undefined' && !emailOn) ? ' (email isn\'t configured yet, so it was a dry run)' : '' %>.</span>
@@ -157,6 +163,38 @@
         <input type="hidden" name="recommended" value="<%= JSON.stringify(live.lineup.map(s => ({ id: s.pid, name: s.name, pos: s.pos, proj: s.proj }))).replace(/"/g, '&quot;') %>">
         <input type="hidden" name="counterfactual" value="<%= JSON.stringify(live.naive.map(s => ({ id: s.pid, name: s.name, pos: s.pos, proj: s.proj }))).replace(/"/g, '&quot;') %>">
         <button class="btn gold" type="submit">Log this lineup</button>
+      </div>
+    </form>
+
+    <%# ── ...AND THE OVERRIDE. The page could only record AGREEMENT: press "Log
+        this lineup" and the call is preserved, go against it and there was no
+        button at all, so every disagreement left no trace. `inseason_override`
+        has been a registered ledger kind the whole time with nothing writing one.
+        Each chip is itself the submit button, so picking a reason IS the tap
+        rather than a step after it — an override you have to reconstruct later
+        is worth almost nothing, so the capture never costs more than one press. %>
+    <form method="post" action="/lineup/override" class="card lo-override" style="margin-bottom:1rem">
+      <div class="body">
+        <div style="margin-bottom:.55rem">
+          <b>Not playing it?</b>
+          <span class="muted" style="font-size:.82rem">One tap says why. The gap is <b><%= live.edge >= 0 ? '$' : '−$' %><%= Math.abs(Math.round(live.edge)) %></b>
+            <% if (Math.abs(live.edge) < 2) { %>— close enough that going the other way costs about nothing<% } %>.</span>
+        </div>
+        <input type="hidden" name="week" value="<%= (matchup && matchup.week) || '' %>">
+        <input type="hidden" name="dollars" value="<%= live.edge %>">
+        <input type="hidden" name="confidence" value="<%= live.confidence.replace(/"/g, '&quot;') %>">
+        <input type="hidden" name="recommended" value="<%= JSON.stringify(live.lineup.map(s => ({ id: s.pid, name: s.name, pos: s.pos, proj: s.proj }))).replace(/"/g, '&quot;') %>">
+        <div class="lo-ov-chips">
+          <button class="btn small ghost" type="submit" name="reason" value="injury news">🏥 Injury news</button>
+          <button class="btn small ghost" type="submit" name="reason" value="matchup read">🎯 Matchup read</button>
+          <button class="btn small ghost" type="submit" name="reason" value="don't buy the projection">📉 Don't buy the projection</button>
+          <button class="btn small ghost" type="submit" name="reason" value="gut">🤙 Gut</button>
+          <button class="btn small ghost" type="submit" name="reason" value="unstated">Just record it</button>
+        </div>
+        <p class="muted" style="margin:.55rem 0 0; font-size:.74rem">
+          What you actually start is readable from Sleeper afterwards. What the tool told you <i>right now</i> isn't
+          recoverable from anything, so that's what gets written down.
+        </p>
       </div>
     </form>
 

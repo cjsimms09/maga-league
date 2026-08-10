@@ -2368,6 +2368,7 @@ router.get('/lineup', requireCommissioner, aw(async (req, res) => {
     proof, eff, myLeak: Math.round(myLeak), drill,
     configured: !!world.config.sleeper_league_id,
     logged: req.query.logged === '1',
+    overrode: req.query.overrode === '1',
     sent: req.query.sent === '1',
     emailOn: notify.configured(),
   });
@@ -2421,8 +2422,21 @@ router.get('/lineup/accuracy', requireCommissioner, aw(async (req, res) => {
   // the view renders an honest "not yet" rather than an empty table.
   const attribution = await getDoc(`attribution:${season}`, null);
   let rawCount = 0;
-  try { rawCount = (await store.listKeys(`pred:${season}:`)).length; } catch (e) { /* count is a bonus */ }
-  const view = ACC.buildAccuracyView(calibration, attribution, rawCount, { series, decisions });
+  const ledger = [];
+  try {
+    const keys = (await store.listKeys(`pred:${season}:`)).sort();
+    rawCount = keys.length;
+    for (const k of keys) { const e = await store.get(k); if (e) ledger.push(e); }
+  } catch (e) { /* count is a bonus */ }
+  // THE OVERRIDES AS CAPTURED, not as graded. The grader's decision join reads
+  // the DRAFT kinds (recommendation/pick/override); the in-season kinds this site
+  // writes — lineup_call and inseason_override — aren't in that join yet (parked
+  // for A). Without this the page would show nothing all season while the ledger
+  // filled up, which is the same "measured but never surfaced" failure the
+  // override card was built to fix. Read straight off the ledger and label it
+  // honestly as awaiting grading.
+  const captured = ACC.capturedOverrides(ledger);
+  const view = ACC.buildAccuracyView(calibration, attribution, rawCount, { series, decisions, captured });
   res.render('accuracy', { me: req.owner, season, view });
 }));
 
@@ -2525,6 +2539,59 @@ router.post('/lineup/log', requireCommissioner, aw(async (req, res) => {
     });
   } catch (e) { /* fail soft on the redirect; the API path surfaces errors */ }
   res.redirect('/lineup?logged=1');
+}));
+
+// THE OVERRIDE CAPTURE — the other half, and the half that was missing.
+//
+// `inseason_override` has been a registered ledger kind with an enforced
+// counterfactual since before the draft, and NOTHING EVER WROTE ONE. The page
+// could only record agreement: press "Log this lineup" and the tool's call is
+// preserved; go against it and there is no button, so the disagreement leaves no
+// trace at all. That is the exact record the attribution question needs — "how
+// often did the human override, and did it pay" is unanswerable from a ledger
+// that only stores the weeks he agreed.
+//
+// ONE TAP, IN THE FLOW. Every field below is already on the page at the moment
+// of the decision; nothing is asked of the user but the tap itself. The reason
+// chips are submit buttons, so choosing a reason IS the tap rather than a step
+// after it. Reconstructing an override afterwards loses most of its value, so
+// the capture is never allowed to cost more than one press.
+//
+// WHAT IT DOES NOT CAPTURE, deliberately: the lineup actually played. That is
+// recoverable from Sleeper after the fact. The tool's recommendation AT THE
+// MOMENT is not recoverable from anything, which is why it is what gets written.
+router.post('/lineup/override', requireCommissioner, aw(async (req, res) => {
+  const season = String(H.currentSeason(req.world.seasons).year || new Date().getUTCFullYear());
+  const predledger = require('../predledger');
+  const gap = req.body.dollars != null ? Number(req.body.dollars) : null;
+  try {
+    await predledger.append(store, {
+      kind: 'inseason_override',
+      method: 'lineup-override-v1',
+      season,
+      payload: {
+        owner_id: req.owner.id,
+        week: req.body.week ? Number(req.body.week) : null,
+        // What I went against. For an override the tool's lineup is BOTH the
+        // thing overridden and the counterfactual — "what I would plausibly have
+        // done otherwise" is precisely what the tool told me to do.
+        recommended: safeJson(req.body.recommended),
+        counterfactual: safeJson(req.body.recommended),
+        // THE GAP, raw. Stored as the dollar figure rather than only as a
+        // contested/not flag, so a threshold can be re-drawn later without
+        // having thrown away the number it was drawn from.
+        gap_dollars: gap,
+        // CONTESTED = the model was close to indifferent, so going the other way
+        // costs almost nothing and should not be scored against the human. The
+        // threshold is stated here rather than implied: under $2 of edge is
+        // inside the week-to-week noise of the projections it is computed from.
+        contested: gap != null ? Math.abs(gap) < 2 : null,
+        reason: String(req.body.reason || 'unstated').slice(0, 60),
+        confidence: String(req.body.confidence || '').slice(0, 600),
+      },
+    });
+  } catch (e) { /* fail soft on the redirect; the API path surfaces errors */ }
+  res.redirect('/lineup?overrode=1');
 }));
 
 // ---------- the locker room ----------

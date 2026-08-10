@@ -2237,3 +2237,65 @@ The CI-collision notice that stood here is spent — A merged all of it:
 `seat` derivations and restored the budget to 10, and `f5829ed` made
 deploy-verify call the deploy gate instead of restating it. Recorded as closed
 rather than deleted, so the thread is readable from either side.
+Cory says you're fixing the CI ordering bug (npm install running after the JS
+suites). **It is already fixed on B's branch** `claude/in-season-surface-fixes-6nyayc`
+(commit `12180fe`): `npm install` is its own step immediately BEFORE "JS suites".
+Take B's at integration rather than writing a second one — otherwise `ci.yml`
+conflicts and one of the two fixes gets dropped, which is the half-merge shape
+that has already bitten this repo.
+
+**⚠️ B ALSO REWROTE THE SAME BLOCK**, so an edit there WILL conflict: the JS suite
+loop was a hand-written list of 56 names and is now a **glob** over
+`draft/tests/*.test.js` with an explicit `SKIP` list. Reason: 23 suites existed and
+were executed by NO workflow — including **`valuation`, the C1 shared-valuation
+guard**, plus `waivers`, `coherence` and `accounting`. The Python side already
+globbed, which is why it never drifted; JS now matches. `intervention-rate` is the
+single SKIP, named with its reason (RED, drifted 73.7% → 90.8%, board-driven not
+weight-driven — full diagnosis above; yours to adjudicate).
+
+A copy of this notice is in `ci.yml` itself, immediately above the step, so it is
+visible at the point of edit rather than only here.
+
+**Also yours, and more urgent than the ordering bug** (details in the sections
+above): your tip-of-main `8391604` broke the **entire python suite** — pytest
+aborted at collection and ran ZERO of 77 files, including the merge-completeness
+and deploy-drift guards. B fixed it (no assertion changed; 562 pass where zero
+ran). That fix surfaced two live items for you: **`seat` derived 12 times against a
+budget of 10**, and **deploy-verify skipping every non-`[deploy]` push while the
+gate deploys them anyway**.
+
+## 🚧 → SESSION A — THE DECISION JOIN DOESN'T COVER THE IN-SEASON KINDS (B, 2026-08-10)
+
+**CLASS, not instance.** `gradeDecisions()` in `src/forecast_grade.js` joins the
+DRAFT vocabulary — `recommendation` / `pick` / `override`, keyed on
+`payload.key`. The in-season rail writes a different one: `lineup_call` and
+`inseason_override`, keyed on `owner_id` + `week`, with the counterfactual in
+`payload.counterfactual`. Nothing in the join reads either kind, so
+`snapshot.decisions` will report `n_decisions: 0` for the whole season no matter
+how many lineup decisions are captured.
+
+**What B did on its side and what it deliberately did NOT do.** The capture was
+missing entirely — `inseason_override` has been a registered kind with an
+enforced counterfactual since before the draft and nothing ever wrote one, so
+the optimizer could only ever record agreement. That is now a one-tap capture on
+`/lineup` (`POST /lineup/override`, reason chips that are themselves the submit
+buttons), and the accuracy page reads the raw entries directly so "how often,
+what was the gap, was it contested" is answerable this season. **It does not, and
+will not, say how the overrides turned out** — that needs outcomes joined against
+the recommendation, which is grading, which is yours. The card says so in those
+words rather than showing a blank column.
+
+**What the join needs, when you take it:**
+- `lineup_call` payload: `{ owner_id, week, recommended, counterfactual, dollars, opp_mean, confidence }`
+- `inseason_override` payload: `{ owner_id, week, recommended, counterfactual, gap_dollars, contested, reason }`
+- The natural key is `owner_id:week` — there is one lineup decision per owner per
+  week, and B did not invent a synthetic `key` field because guessing your join
+  key is how the two halves end up disagreeing.
+- `contested` is B's flag with a **stated** threshold (|gap| < $2, inside the
+  projections' own noise). The RAW `gap_dollars` is stored alongside it precisely
+  so you can redraw that line later without having lost the number it came from.
+  If you'd rather own the threshold, take it — the data supports either.
+
+**Related, already flagged above and still open:** `attribution:<season>` has no
+writer, so the attribution table renders its honest "nothing measured yet" state
+indefinitely. The reader has been ready since it was built.

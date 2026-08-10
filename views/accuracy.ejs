@@ -43,10 +43,51 @@
 
 <%# ── THE OVERRIDE RECORD — am I adding value on top of the tool, or subtracting?
     The grader has been computing this since the loop closed; nothing rendered it. %>
+<% const C = v.captured; %>
+<% if (C) { %>
+  <div class="card" style="margin-bottom:1.2rem">
+    <h2>🙋 Your overrides <span class="sub">how often you went against the tool, and by how much</span></h2>
+    <div class="body">
+      <div class="acc-ov">
+        <div class="acc-ov-cell"><span class="acc-ov-num"><%= C.decisions %></span><span class="acc-ov-lbl">lineup decisions</span></div>
+        <div class="acc-ov-cell"><span class="acc-ov-num"><%= C.overrides %></span><span class="acc-ov-lbl">you overrode</span></div>
+        <div class="acc-ov-cell"><span class="acc-ov-num"><%= C.rate %>%</span><span class="acc-ov-lbl">of the time</span></div>
+        <div class="acc-ov-cell"><span class="acc-ov-num"><%= C.gapMax != null ? '$' + C.gapMax : '—' %></span><span class="acc-ov-lbl">biggest gap</span></div>
+      </div>
+      <% if (C.overrides) { %>
+        <p class="muted" style="margin:.6rem 0 .2rem; font-size:.8rem">
+          <b><%= C.contested %></b> of <%= C.overrides %> <%= C.contested === 1 ? 'was' : 'were' %> <b>contested</b> —
+          the tool was within $2 of indifferent, so going the other way cost about nothing.
+          <% if (C.gapTotal != null) { %>Across all of them the tool said <b>$<%= Math.abs(C.gapTotal) %></b> was at stake;
+          that is the size of the disagreement, not a claim about who was right.<% } %>
+        </p>
+        <div class="scroll-x"><table class="roll">
+          <tr><th>Week</th><th>Why</th><th class="num">Gap</th><th class="num">Contested</th></tr>
+          <% for (const w of C.weeks) { %>
+            <tr><td><%= w.week != null ? 'wk ' + w.week : '—' %></td>
+              <td><%= w.reason %></td>
+              <td class="num"><%= w.gap == null ? '—' : (w.gap < 0 ? '−$' : '$') + Math.abs(Math.round(w.gap)) %></td>
+              <td class="num"><%= w.contested ? 'yes' : 'no' %></td></tr>
+          <% } %>
+        </table></div>
+      <% } else { %>
+        <p class="muted" style="margin:.6rem 0 0; font-size:.8rem">
+          You've followed the tool every logged week so far. The override button on the optimizer records the other case in one tap.
+        </p>
+      <% } %>
+      <p class="acc-empty" style="margin:.7rem 0 0">
+        <b>How they turned out isn't measured yet.</b> That needs each override's outcome joined against what
+        the tool recommended, which is the grading half — it covers the draft decisions today and not these.
+        The gaps above are real; the verdict column is deliberately absent rather than guessed.
+      </p>
+    </div>
+  </div>
+<% } %>
+
 <% const D = v.decisions; %>
 <% if (D && D.n > 0) { %>
   <div class="card" style="margin-bottom:1.2rem">
-    <h2>🙋 Your overrides <span class="sub">when you went against the tool, how did it turn out?</span></h2>
+    <h2>⚖️ Graded decisions <span class="sub">where an outcome is joined to the recommendation</span></h2>
     <div class="body">
       <div class="acc-ov">
         <div class="acc-ov-cell"><span class="acc-ov-num"><%= D.n %></span><span class="acc-ov-lbl">decisions logged</span></div>

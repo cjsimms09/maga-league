@@ -4031,3 +4031,10 @@ table.roll td.num, .pf, .wh-race-scale, .wh-band-note{ color: var(--ink); }
 .lo-nochange { border-left: 3px solid var(--green); }
 .lo-nochange .body > p:first-child { font-size: .95rem; }
 
+/* ── OVERRIDE CAPTURE (lineup optimizer). One tap, in the flow: every chip is a
+   submit button, so choosing a reason IS the tap. Amber rail so it reads as the
+   counterpart to the gold "log this lineup" card rather than a warning. */
+.lo-override { border-left: 3px solid var(--gold); }
+.lo-ov-chips { display: flex; flex-wrap: wrap; gap: .4rem; }
+.lo-ov-chips .btn { flex: 0 1 auto; }
+@media (max-width: 460px) { .lo-ov-chips .btn { flex: 1 1 auto; } }

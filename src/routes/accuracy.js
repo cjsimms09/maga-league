@@ -269,7 +269,60 @@ function buildAccuracyView(calibration, attribution, rawCount, extra) {
       rate: (extra.decisions.scored || 0) > 0
         ? Math.round(((extra.decisions.cory_beat_model || 0) / extra.decisions.scored) * 100) : null,
     } : null,
+
+    // The same question answered from the raw ledger, for the season before the
+    // grader's join covers the in-season kinds. Always shown when there is
+    // anything to show; the graded half sits alongside it when it exists.
+    captured: extra.captured || null,
   };
 }
 
-module.exports = { buildAccuracyView, biggestMisses, gradedLine, byKindRows, KIND_LABELS };
+/**
+ * The override record AS CAPTURED, straight off the prediction ledger.
+ *
+ * The grader's decision join reads the draft kinds (recommendation/pick/override)
+ * and does not yet cover the in-season ones this site writes (`lineup_call`,
+ * `inseason_override`) — that extension is A's, and is parked. Until it lands,
+ * "how often did I override and what was the gap" is answerable from the raw
+ * entries alone, and refusing to answer it would repeat exactly the failure the
+ * override card exists to fix: a number produced every week and rendered nowhere.
+ *
+ * What this CANNOT say is how the overrides turned out — that needs outcomes
+ * joined against the recommendation, which is the graded half. It says so.
+ */
+function capturedOverrides(ledger) {
+  const overrides = [], follows = [];
+  for (const e of ledger || []) {
+    if (e.kind === 'inseason_override') overrides.push(e);
+    else if (e.kind === 'lineup_call') follows.push(e);
+  }
+  const n = overrides.length + follows.length;
+  if (!n) return null;
+  const gaps = overrides.map(e => num((e.payload || {}).gap_dollars)).filter(g => g != null);
+  const reasons = {};
+  for (const e of overrides) {
+    const r = String((e.payload || {}).reason || 'unstated');
+    reasons[r] = (reasons[r] || 0) + 1;
+  }
+  return {
+    decisions: n,
+    overrides: overrides.length,
+    followed: follows.length,
+    rate: n ? Math.round((overrides.length / n) * 100) : null,
+    contested: overrides.filter(e => (e.payload || {}).contested === true).length,
+    // Total dollars the tool said were at stake in the weeks he went the other
+    // way — the size of the disagreement, NOT a claim about who was right.
+    gapTotal: gaps.length ? Math.round(gaps.reduce((a, b) => a + b, 0)) : null,
+    gapMax: gaps.length ? Math.round(Math.max(...gaps.map(Math.abs))) : null,
+    reasons: Object.entries(reasons).sort((a, b) => b[1] - a[1]).map(([reason, count]) => ({ reason, count })),
+    weeks: overrides.map(e => ({
+      week: (e.payload || {}).week != null ? (e.payload || {}).week : null,
+      gap: num((e.payload || {}).gap_dollars),
+      contested: (e.payload || {}).contested === true,
+      reason: String((e.payload || {}).reason || 'unstated'),
+      at: e.at || e.decision_at || null,
+    })).sort((a, b) => (b.week || 0) - (a.week || 0)).slice(0, 12),
+  };
+}
+
+module.exports = { buildAccuracyView, biggestMisses, gradedLine, byKindRows, capturedOverrides, KIND_LABELS };
