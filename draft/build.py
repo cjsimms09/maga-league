@@ -710,13 +710,25 @@ def _update_proj_series(artifact: dict, *, today: str, path: Path = PROJ_SERIES_
         except (ValueError, OSError):
             series = []
     series = proj_series_mod.append_snapshot(series, today, "sleeper", proj_by_id)
+    froze = ["sleeper(%d)" % len(proj_by_id)]
+    # SECOND SOURCE, frozen the same day (2026-08-10): the projection-source grade
+    # is only clean if EVERY source is frozen preseason, not just Sleeper — a FP
+    # snapshot that lands once and is never re-frozen is one build away from being
+    # lost. Freeze FantasyPros whenever the board carries it (build_fantasypros_
+    # projections attached proj_fantasypros), so the freeze is reliably multi-source
+    # and the source grade has a real comparison a year from now.
+    fp_by_id = {str(p["player_id"]): p["proj_fantasypros"]
+                for p in players if p.get("proj_fantasypros") is not None}
+    if fp_by_id:
+        series = proj_series_mod.append_snapshot(series, today, "fantasypros", fp_by_id)
+        froze.append("fantasypros(%d)" % len(fp_by_id))
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(
         {"_note": "Preseason projection snapshots (append-only, deduped by date+source). Frozen "
                   "for a CLEAN post-season grade — retroactive fetches leak (exp33). "
                   "See draft/proj_series.py.",
          "series": series}, separators=(",", ":")))
-    print(f"  projection snapshot: sleeper preseason frozen ({len(proj_by_id)} players, {today})")
+    print(f"  projection snapshot: preseason frozen — {', '.join(froze)} ({today})")
 
 
 def _update_adp_series(artifact: dict, *, today: str, path: Path = ADP_SERIES_PATH) -> None:
