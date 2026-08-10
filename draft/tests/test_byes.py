@@ -97,5 +97,26 @@ def_ok = [p for p in defs if p.get("bye") or team_byes.get(p.get("team"))]
 ck("every defense resolves a bye", len(def_ok) == len(defs) == 32,
    f"{len(def_ok)}/{len(defs)}")
 
+# RUN AS A SCRIPT, COLLECTED BY PYTEST. This file is a standalone checker, but it
+# is named test_*.py, so `pytest draft/tests` imports it during collection — and a
+# module-level sys.exit() during collection aborts the ENTIRE pytest run with
+# INTERNALERROR ("no tests ran"), taking all 77 python test files down with it.
+# CI runs exactly that command, so the whole python suite — including the
+# merge-completeness and deploy-drift guards — was silently not running.
+# Guarding the exit keeps `python draft/tests/test_byes.py` working (still exits
+# non-zero on failure) without hijacking the collector. No assertion changed.
 print(f"\n{len(fails)} failed")
-sys.exit(1 if fails else 0)
+
+
+def test_byes():
+    """The same checks, exposed to pytest.
+
+    Without this the file collects ZERO tests, which `test_ci_loop_integrity`
+    rightly flags: "a file that stopped testing reads as green". The checks above
+    run at import; this asserts their result so pytest reports it.
+    """
+    assert not fails, f"{len(fails)} bye check(s) failed:\n" + "\n".join(str(f) for f in fails)
+
+
+if __name__ == "__main__":
+    sys.exit(1 if fails else 0)

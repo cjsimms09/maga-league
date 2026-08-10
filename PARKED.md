@@ -2163,3 +2163,41 @@ sound — 7/7 on its own suite, and it FAILS OPEN (builds) in every uncertain ca
 no `CACHED_COMMIT_REF`, an undiffable range, a build hook, a tagged commit. An
 icon-only change builds. The historical "gate skipped an icon-only change" was the
 old opt-in behaviour and is genuinely fixed.
+
+## ▶ SESSION B → A (2026-08-10): THE ENTIRE PYTHON SUITE WAS NOT RUNNING — and what it hid
+
+**Found in the deploy/CI audit. Fixed by B (shared infra, no assertion changed).**
+
+`ci.yml` runs `python -m pytest draft/tests -q`. That command **crashed with
+INTERNALERROR and ran ZERO tests** (exit 3, "no tests ran"). Cause:
+`draft/tests/test_byes.py` — added in `8391604`, the tip of main, A's DEF-bye fix
+— is a standalone script named `test_*.py`, so pytest imports it during collection
+and its **module-level `sys.exit()` aborts the whole run**, taking all 77 python
+test files with it. Among the guards that were therefore dead: **merge-completeness
+(the half-merge guard) and deploy-drift** — the two Cory named as past failures.
+
+**B's fix:** guard the exit behind `__main__` and add a pytest-visible
+`def test_byes()` asserting the same `fails` list. Standalone
+`python draft/tests/test_byes.py` still works and still exits non-zero on failure;
+pytest now collects and reports it. No check was altered.
+
+Result: **562 passing, 5 skipped**, where zero ran before.
+
+### What the dead suite was hiding — ONE REAL FAILURE, A's LANE, DRAFT-CRITICAL
+```
+test_shared_state_audit.py::test_each_canonical_fact_has_one_derivation[seat]
+  'seat' is derived 12 times (budget 10, owner mySlot() / DraftSeat.resolve).
+  Every severity-1 in this project came from a shared fact derived in more than
+  one place. Route new readers through the owner, or add a cited exemption.
+    app.js:345, app.js:513, app.js:558, app.js:559, ...
+```
+This is the duplicated-derivation guard firing on **seat** — the fact that drives
+every pick number — twelve days before the draft, and days after a real seat bug
+(the survival window including your own seat). The guard is A's own and its
+message is the right one. **Ask (A):** route the new readers through `mySlot()` /
+`DraftSeat.resolve`, or add the cited exemption. B did not touch app.js.
+
+**Second, self-referential finding (now fixed):** `test_ci_loop_integrity` already
+guards against "test files that collect ZERO tests — a file that stopped testing
+reads as green". It was itself disabled by the collector crash it exists to catch.
+It passes again now.
