@@ -247,6 +247,42 @@ The matchup-page upgrade (site backlog #4) needs `src/sleeper.js` (A's lane) to 
 
 B will build the view/route/one-tap-side-bet side against whatever shape A returns. Flagging rather than editing sleeper.js.
 
+**UPDATE (2026-08-10, B): starter points no longer blocked on A — built in B's lane.**
+The Starters card now assembles itself from the raw Sleeper bundle member.js already
+holds (`sData.matchups[].starters` + `players_points`, slot order from
+`league.roster_positions`) via the new B-owned `src/matchup.js` — paired BY LINEUP
+SLOT (QB vs QB), which also fixes the old row-index pairing bug (my QB had lined up
+across from their WR). So bullet 1 (per-player starter points) is DONE without a
+sleeper.js change. **Still wanted from A:** bullet 2 — per-player **projections** with
+a live/final **staleness** signal; when A returns a `{me:{pid:proj}, opp:{pid:proj}}`
+map on `liveMatchup.proj`, `pairStarters` already wires it through and the Proj column
+lights up (no further B change needed). Bullet 3 (high-point band) already served from
+the harvested band.
+
+**BLOCKED CONSUMERS waiting on that projection feed (2026-08-10, B) — the concrete
+demand:** two ranked matchup-page gaps are built-out-except-for-projections and will
+light up the moment A ships per-player live projections (mean + SD, plus a
+"has this player's game finished" / remaining signal):
+- **This-game win probability** — `WW.sweat()` already computes `pWin` over the two
+  Normal finals; it needs each side's *remaining* (not-yet-played) starters as
+  `[{proj, sd}]`. Today the live watch entries pass `remain: []`, so pWin can't be
+  honest mid-game. Same feed unblocks the What-to-Watch sweat meter (currently
+  scores-only) and the home hero's projected margin.
+- **Team projected total** — live score + Σ(remaining projections); same input.
+B deliberately did NOT ship dormant win-prob/total cards (no honest fallback without
+projections — unlike the weekly-high band). They are a small B wire-up once the feed
+lands. Shipped now without A: bench points, bye flags (derived in-repo from
+`nfl_byes.json`), injury flags, and the already-placed-bet surface.
+
+**Also (2026-08-10, B): the pinned "DRAFT DAY" alert text is now DERIVED** from config
+(`draft_date`/`draft_time`/`draft_location`) via `dashboard.draftAnnouncement()`, and the
+home route self-heals the stored alert to it (the old seed text said "5:00 PM" and named
+no place). **→ A, small:** the hardcoded strings in `src/data.js` seed (line ~105) and
+`src/helpers.js` `DRAFT_DAY` (~75) still hand-type "08/22/26 at 5:00 PM" — please derive
+them from config too (or drop them, since B re-pins on load) so a FRESH install doesn't
+reintroduce the stale 5pm string. Not urgent: B's self-heal corrects any live store on
+the next home load.
+
 ### ADD (2026-08-09): per-player BYE WEEK on `rosterView` rows — for the lineup guard
 
 The in-season lineup sanity sweep (`draft/tests/lineup_sanity.test.js`) found a real,
@@ -1526,3 +1562,223 @@ reason), with the active/enrolled model highlighted and a tap to switch.
 Per earlier PARKED sections: top-5 with reasons and a proj_floor–proj_ceiling
 confidence interval; strategy/doctrine picker made prominent with a plain "why
 this model"; show each rostered player's bye in the roster panel (data has bye).
+## ▶ SESSION B → A FLAG (2026-08-10): "Before your pick" shows the SAME top-2 for every seat
+
+Cory pasted the war-room "🎯 Before your pick" panel pre-draft: six intervening
+seats, **every one listing the identical "Jahmyr Gibbs, Puka Nacua."** Reads as
+broken (same class as today's other "looks fine until it matters" cards).
+
+**Diagnosis (engine.js `threatBoard`, rendered by app.js `renderThreatStrip` /
+`renderThreats`):** the panel header shows "seats unassigned until Sleeper names
+them" → `state.profilesMappedFromDraft` is false, so every intervening `team.profile`
+is null. `threatBoard` DOES roll players forward (`alive[]` decrements by each seat's
+take-prob), but with null profiles every seat draws the SAME generic distribution and
+each single-player take-prob is low, so `alive[Gibbs]`/`alive[Nacua]` barely decrement
+and the two highest-VORP players stay #1/#2 for all six rows. Not random breakage —
+the projection has nothing seat-specific to say but is presented as if it does.
+
+**Proposed fix (A's lane — app.js render, or engine gate):** when
+`profilesMappedFromDraft` is false (or a row's `sample_size === 0`), don't render
+per-seat "likely picks." Collapse to the one honest aggregate `threatBoard` already
+returns — `atRisk` ("most likely gone before your pick") — or label the names as a
+generic value-order, not a per-seat read. One accurate list beats six identical rows.
+B owns the war-room SHELL but not app.js's emitted markup, so flagging rather than
+editing. Happy to take it if you'd rather reassign this panel's render to B.
+
+## ▶ SESSION B → A — CORRECTNESS AUDIT FINDINGS (2026-08-10)
+
+_Audit of A's implementation vs `draft/DECISION-LOGIC-SPEC.md`, read at integrated
+`origin/main` (commit 1d059e9). Method: three parallel deep code reads + hands-on
+verification (league rules vs the Sleeper-imported config, payout arithmetic, and a
+deliberate guard-break). Every load-bearing line re-verified by eye. Dollar backtest
+magnitudes were NOT re-run — those remain "ask to see the backtest" items._
+
+**READ-FIRST INDEX:** two items sit above the numbered list — **(0) the ceiling
+weight is OPEN and highest-urgency, pending Cory's install decision** (see below;
+do NOT skip it), and **(3) the reset button, SEV-1** fix. Action ceiling-decision
+and reset first.
+
+### 0. CEILING WEIGHT — OPEN, HIGHEST URGENCY, pending Cory's decision (NOT settled)
+
+**Corrected 2026-08-10 (B) — supersedes an earlier "resolved / do not reopen" note
+that was WRONG.** What the audit actually established: the code matches the SPEC —
+`MEASURED_WEIGHTS.ceiling = 0.65` (`engine.js:272`) is exactly what the tool loads
+(`app.js:52`). What the audit did NOT test: whether the loaded weight matches the
+MEASUREMENT. That is where the contradiction lives, and it is real:
+
+- The participation/ledger test measured ceiling at **−4.8, interval crossing zero**.
+- A's flip diagnostic (run after the audit): ceiling **0.65 vs 0 flips 2 of 6
+  late-round #1 picks and changes 4 of 6 top-fives.**
+
+So a term the measurement scored as drag-or-null is moving ~a third of the late
+board. **The loaded weight (0.65) and the ledger verdict (−4.8) disagree, and the
+disagreement is material.** This is NOT closed — it is the **highest-urgency live
+item**, a SHIP decision Cory still owes (lower ceiling toward 0 through the usual
+install gate: null + leave-one-season-out, cited, reversible). Do not treat "code
+matches spec" as "weight is correct" — the spec is accurate; the *install* is the
+open question. If A reads this as resolved it will skip the one thing at the top of
+the sequence.
+
+### Settled arguments (state plainly so nobody re-litigates)
+
+- **C1 "one valuation everywhere" is a FRAMING overstatement, not a defect** (flag 4).
+- **`league_config.confirmed: false`.** Scoring + roster check out against Sleeper
+  (authoritative for those). The payout SPLIT is the league's agreement, not
+  Sleeper's — **awaiting Cory's sign-off**, do not mark verified until he confirms.
+
+---
+
+**FLAG 1 — Rules-page drift  [CLASS]  [SEV-2, league-visible to all members]**
+- WHERE: `src/seed-data.js` — `ROSTER` (line 144) and `SCORING['Defense / ST']`
+  (line 141); rendered by `src/routes/member.js:2257` → `views/rules.ejs:20,36`.
+- WRONG (two symptoms, one cause): (a) `ROSTER` omits the **TE** starter slot — it
+  lists QB1/RB2/WR2/FLEX1/DEF1/K1 = 8 starters; the real league runs **9** (adds TE1,
+  per the Sleeper-imported `draft/config/league_config.json` roster_slots and
+  `lineup.js:96`). (b) DEF scoring shows "28–34 points allowed → **+1**"; Sleeper says
+  `pts_allow_28_34 = -1.0` (a sign flip that *rewards* a bad defense), and it drops the
+  "21–27 → 0" bracket. The MODEL is correct (it scores off the imported config); only
+  the members-facing rules page is wrong.
+- CLASS, not instance: both symptoms come from a **hand-maintained copy** in
+  seed-data.js drifting from the imported config. Correcting the two values leaves the
+  drift mechanism.
+- FIX (structural): derive the rules-page ROSTER + SCORING from the same
+  `league_config.json` the engine scores under (roster_slots + scoring), so the page
+  cannot drift from the league again. (B owns `rules.ejs`; the wrong data + the
+  derivation source are A's — flagging, not fixing, per audit rules.)
+
+**FLAG 2 — Rules-page DEF sign/bracket** — FOLDED INTO FLAG 1 (same CLASS/cause/fix).
+
+**FLAG 3 — "Reset weights / Back to the defaults" loads the WRONG preset  [INSTANCE]  [SEV-1]**
+- WHERE: `public/js/draft/app.js`, `#reset-weights` click handler →
+  `applyPreset('balanced', 'Back to the defaults.')` (~line 5428).
+- WRONG: `balanced` sets every term to ~1.0 — including **tier and risk, the two the
+  Lab measured as the biggest drags**. One tap mid-draft silently switches the board to
+  the weighting that measured WORST, and the drafter would not notice. "Defaults" here
+  is NOT what the tool ships/loads on (`MEASURED_WEIGHTS`).
+- FIX: reset to the **measured** preset (`applyPreset('measured', …)`), and relabel the
+  button to name its target (e.g. "Reset to measured defaults") so it says what it does.
+
+**FLAG 4 — "One valuation across all four surfaces / byte-identical everywhere" overstated  [FRAMING, not a defect]**
+- WHERE: `draft/DECISION-LOGIC-SPEC.md` SUMMARY headline (§A10/§B7 already scope it correctly).
+- WHAT: **Draft ↔ waiver genuinely share it, byte-identical** — verified by two GREEN
+  tests I ran (`valuation.test.js` 13/13 = engine's inline `starterSlotMarginal` vs
+  shared `SharedValuation.startableValue`; `waivers.test.js` 11/11 = waiver vs engine),
+  and the one thin-pool VORP violation A caught in waivers is fixed. BUT **lineup**
+  (`src/routes/lineup.js` `optimize`, prices weekly E[$]) and **standings**
+  (`src/routes/standings.js` `teamStrength`, prices teams by realized scores) compute
+  *different quantities* — a player's canonical VORP is never evaluated there, so
+  "identical everywhere" is not even evaluable for 2 of the 4. Code for each surface is
+  internally correct; only the summary claim overreaches.
+- FIX: make the SUMMARY headline match §A10/§B7 — "draft and waiver share one valuation;
+  lineup and standings price different quantities by design."
+
+**FLAG 5 — Dormant thin-pool VORP/replacement recompute  [CLASS]  [SEV-3, latent]**
+- WHERE (known instance): `public/js/draft/value.js:115` `replacementLevels` / `:156`
+  `makeValuer` recompute replacement over whatever `players` array they're handed;
+  `draft/tests/mcts.test.js` feeds them the **thinning board** — the exact pool-subset
+  inflation A already fixed in waivers. Harmless TODAY: only live-ish caller is
+  `draft/tournament/run.js` (a Lab tool), and it's a projected-points valuer, not the
+  VORP path. app.js does NOT call it.
+- CLASS statement (per Cory): **any path that recomputes VORP or replacement level over
+  a SUBSET of the pool can diverge from the canonical artifact** (`draft/vorp.py` →
+  `public/draft_data.json`, full-pool replacement). Two callers are known; the mechanism
+  is the risk.
+- FIX (cover the class, not the callers): a structural invariant/guard asserting that
+  every value surface's per-position replacement equals the artifact's
+  (`proj_mean − vorp`, the full-pool constant) — so a thin-pool recompute is caught
+  wherever it appears, including before MCTS is ever wired live.
+
+**FLAG 6 — Onesie injury-exception regex misses Sleeper's `SUS` code  [INSTANCE]  [low]**
+- WHERE: `public/js/draft/engine.js:620` —
+  `/^(out|doubtful|ir|injured[ _-]?reserve|pup|nfi|suspended)$/i`.
+- WRONG: matches the word `suspended`, not the **`SUS`** code Sleeper emits — so a
+  suspended starter carried as `"SUS"` won't trigger the "starter hurt" onesie
+  exception. Inconsistent with the in-season guard (§B3), which correctly uses `SUS`.
+  Also includes `doubtful`, which the spec's "OUT/IR/PUP/SUS — not Questionable" logic
+  arguably shouldn't. Effect is bounded: it only decides whether a rare *surfaced*
+  duplicate gets a spoken insurance-exception vs the default discount — it cannot
+  promote an unstartable player.
+- FIX: align the draft-side status set to the §B3 in-season set and match CODES
+  (`SUS`, `NA`, `DNR`, …), not words; reconcile the `doubtful` inclusion.
+
+**FLAG 7 — Spec-drift (doc corrections, code is correct)  [low]**
+- `BENCH_DISCOUNT`: spec says flat 0.35; code derives it per-league at runtime
+  (`engine.js:1075`, ~0.175 for this 10-team/3-keeper league). Inert (need weight = 0),
+  but the spec's stated number is wrong for this league — correct the spec.
+- Doctrine tilt "flat ±2.5": code is a bounded **continuous** tilt `pref × 2.5`,
+  `pref ∈ [−1,1]` (`engine.js:671`, `doctrine.js` continuous-weights note). Only reorders
+  near-ties. Correct the spec wording.
+- Survival "Layer 2" (spec) vs "Layer 3" (code label, `survival.js:6-8`) for run
+  detection — cosmetic; every constant matches.
+
+---
+
+### Verified CORRECT (so A doesn't re-audit these)
+- League rules in the engine config (Sleeper-imported): 6-pt pass TD, half-PPR,
+  QB1/RB2/WR2/TE1/FLEX1/K1/DEF1, playoff top-4, keepers 3/max-3.
+- Payout arithmetic reconciles exactly: $4,000 pot, $1,500 weekly, $2,500 remainder
+  split 85/15 → $2,125 playoff / $375 reg; "$530 equity" = $2,125/4.
+- All 8 live weights + every constant match `MEASURED_WEIGHTS`; no OFF term leaks.
+- The 2026-08-10 doctrine-tilt fix is LIVE (`engine.js:885`, `tilt *= onesie.discount`
+  before add). Onesie-multiply-last, bench reprice, survival, ceiling late-gate all
+  confirmed.
+- GUARD-BREAK: neutering the accounting reconciler's dilution check
+  (`public/js/draft/accounting.js`) took the suite 19/19 → 17/19 RED and named the
+  invariant. The guard is real, not vacuous. (Reverted; worktree discarded.)
+
+## ▶ WAR ROOM CRITIQUE (pro-player review, 2026-08-10) — triaged by lane
+
+Cory relayed a professional drafter's critique of the live War Room. The underlying
+intelligence rated better than 95% of tools (path framing, VORP discipline, coin-flip
+honesty, offline fallback all praised). The problem is draft-day usability + a few
+TRUST bugs. Split by the presentation boundary (B owns the shell: layout/hierarchy/
+CSS/mobile/collapse; A owns app.js — the panel CONTENT + the markup it emits).
+
+### → A (app.js / content + honesty — DRAFT-CRITICAL, these erode trust at the table)
+
+1. **WR Feast is enrolled AND headlined while ranking LAST.** The banner "WR Feast
+   +$149 season edge enrolled — tilting recommendations" sits next to a tournament that
+   ranked WR Feast last on both real and injury-neutralized dollars. The UI is
+   advertising a last-place strategy as the current plan and letting it tilt the primary
+   rec. **Un-enroll it or stop headlining it** — a last-place strategy must not tilt the
+   #1. (A's doctrine/enrollment + banner.)
+2. **Adjuster panel misrepresents the loaded weights — SAME DEFECT FAMILY AS AUDIT FLAG 3.**
+   The panel shows every slider at 1.0 under "MEASURED CORE / AUTO ON," but the actual
+   loaded preset is value 1.0 / tier 0 / need 0 / risk 0 / ceiling 0.65 / keeper 1.0 /
+   bye 0 / stack 0.5. A user opening it believes the full term set is running at full
+   strength when most are zeroed — false advertising, and the same "UI ≠ the measured
+   preset" bug as the reset button (audit flag 3). **Make the adjuster UI reflect the
+   actual loaded weights** (show ceiling 0.65, tier/need/risk/bye at 0). (A's app.js/
+   config-screen markup.)
+3. **Strategy radio list is mostly zero-edge noise.** 6 of 7 strategies show +$0 / −$2.
+   Radio buttons imply meaningful alternatives; they aren't. Remove the near-zero
+   options or move them to a "what would other plans do" debug view — off the primary
+   surface. (A's strategy panel content.)
+4. **Survival table is mostly league-average.** When 8–9 of 10 seats read "no history —
+   modelled as league average," the per-seat table is low-signal. Show the AGGREGATE
+   "gone by your next pick" first; expand to per-seat only when real history exists.
+   (Content decision A owns; B can collapse the panel by default — see B brief.)
+   NOTE: this is the same panel as the earlier "Before your pick shows the same top-2
+   for every seat" flag — same root (no profiles → league-average).
+5. **Surface two numbers A already computes:** (a) a single confidence/agreement score
+   for the #1 (how much the composite and the mask agree — magnitude, not just the
+   explainer), (b) the model-vs-market delta on the primary card. Both are computed;
+   neither is headlined.
+
+### → B (shell / layout / mobile — my lane, queued)
+
+The shell already 3-layers (`wr-layer2` open, `wr-layer3` collapsed). The critique wants
+the top sharpened and more collapsed by default:
+- **#1 Hierarchy:** the primary recommendation (clock-card + recs-card) should own the
+  top ~35–40%; everything else secondary/collapsed. Consider collapsing `wr-layer2` by
+  default so Survival/threat aren't loud, keeping only the TAKE + paths + closest-2 loud.
+- **#4 Survival collapse-by-default** (shell side of A's aggregate-first content).
+- **#7 Full board is a wall** (200×10) — wrap the Draft Board in a collapsed `<details>`
+  so it's one tap, not competing at the bottom.
+- **#6 Phone reachability:** sticky TAKE + bigger tap targets + less vertical scroll;
+  a sticky header (seat/pick/clock) and a sticky "next 3 picks at this seat" strip.
+  (`warroom_mobile.test.js` guards mobile; extend it.)
+- **Make Queue / Print Sheet more prominent** (offline fallback), not buried.
+DEPENDENCY: the hierarchy redesign benefits from eyes on the LIVE commissioner-only
+screen (which B cannot view from the sandbox) — best done with Cory watching, or against
+a screenshot. Blind restructuring of a screen I can't render is the one risky part.

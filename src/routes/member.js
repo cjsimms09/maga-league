@@ -14,6 +14,8 @@ const TT = require('./trashtalk');         // trash talk attached to a specific 
 const WW = require('./whatwatch');         // what-to-watch — the Sunday/Monday sweat meter + what each owner needs
 const MK = require('./marks');             // auto badges — GOAT on Mahomes' owner, Chiefs mark on KC players
 const RIVN = require('./rivalries');       // named rivalries (German derby, Dylan-Sam, Bates-Richard)
+const MU = require('../matchup');          // slot-aligned matchup starters (QB vs QB, not row-vs-row)
+const DASH = require('../dashboard');      // dashboard model + the derived draft-day announcement
 const SET = require('./settlement');       // the settlement report — who pays whom, with Venmo
 const ACC = require('./accuracy');          // model-accuracy display — reads A's calibration/attribution output
 const L = require('../ledger');
@@ -338,6 +340,27 @@ router.get('/', aw(async (req, res) => {
   const openVotes = (await H.allVotes(owners, H.voteThreshold(world.config))).filter(v => v.status === 'open')
     .map(v => ({ ...v, myChoice: (v.ballots.find(b => b.owner_id === req.owner.id) || {}).choice || null }));
 
+  // THE DRAFT-DAY ANNOUNCEMENT — derived from config (date/time/place) so it's
+  // one source of truth for the front-page banner AND the pinned site-wide alert.
+  // The pinned alert's text was hand-typed and had gone stale ("5:00 PM", no
+  // place); self-heal it to the derived line so the banner and the alert can never
+  // disagree. Only writes when the stored text actually differs (no churn).
+  const draftInfo = DASH.draftAnnouncement(world.config, new Date().toISOString(), season && season.year);
+  if (draftInfo.configured && !draftInfo.passed && draftInfo.message) {
+    try {
+      const alerts = await getDoc('alerts', []);
+      const pinned = alerts.find(a => a.id === 'draftday2026' || /^DRAFT DAY/i.test(a.message || ''));
+      if (pinned && pinned.message !== draftInfo.message) {
+        pinned.message = draftInfo.message; pinned.level = 'urgent'; pinned.active = true;
+        await setDoc('alerts', alerts);
+        // Patch this request's already-computed alert region so the fix shows now.
+        for (const a of (res.locals.alerts || [])) {
+          if (a.id === 'draftday2026' || /^DRAFT DAY/i.test(a.message || '')) a.message = draftInfo.message;
+        }
+      }
+    } catch (e) { /* the banner still renders even if the alert heal fails */ }
+  }
+
   // Sleeper live data (site works fine when unconfigured/unreachable).
   const sData = await sleeper.bundle(world.config.sleeper_league_id);
   if (sData && !Object.keys(world.config.sleeper_map || {}).length) {
@@ -349,6 +372,13 @@ router.get('/', aw(async (req, res) => {
   }
   const sStandings = sleeper.standings(sData, world.config.sleeper_map || {}, owners);
   const sBoard = sleeper.scoreboard(sData);
+  // Attach owner ids to each team on the mini-scoreboard so the dashboard can
+  // deep-link every game to its matchup — the same tap-through the full
+  // scoreboard page has (a dead row among clickable siblings reads as unfinished).
+  if (sBoard.length) {
+    const _smap = world.config.sleeper_map || {};
+    for (const game of sBoard) for (const t of game) t.owner_id = Number(_smap[String(t.roster_id)]) || null;
+  }
   // The weekly-high made visible: the harvested winning band (renders always),
   // and — once games are on — THIS week's live race for the $100.
   const whBand = LO.weeklyHighBand();
@@ -367,6 +397,56 @@ router.get('/', aw(async (req, res) => {
         mine: mine ? mine.pts : null, iLead: mine && mine.pts === top };
     }
   }
+  // THE IN-SEASON HERO — during a season week, the most important thing on the
+  // home page is YOUR game: your score, your opponent, and whether your lineup
+  // has a problem. It belongs at the very top, above the money tiles. Silent
+  // off-season / pre-draft (no live matchup), so it never crowds the pre-season
+  // page. Tap → your full matchup.
+  let weekHero = null;
+  if (sData && Array.isArray(sData.matchups)) {
+    const myGame = sleeper.myMatchup(sData, world.config.sleeper_map || {}, req.owner.id, owners);
+    if (myGame && myGame.opp) {
+      const mePts = myGame.me.points, oppPts = myGame.opp.points;
+      const anyScore = (mePts || 0) > 0 || (oppPts || 0) > 0;
+      // Lineup problem: a starter who is OUT or a slot left empty. Deliberately
+      // NARROW — the optimizer deviates from "start your best" only ~11% of weeks
+      // (A's finding), so a hero that cried "fix your lineup" every week would
+      // overstate it. Only a genuine can't-score problem lights the flag; bye
+      // detection waits on the per-player bye source (flagged to A).
+      let lineupWarn = null;
+      try {
+        const myRow = sData.matchups.find(m => Number(m.roster_id) === Number(myGame.me.roster_id));
+        if (myRow && (myRow.starters || []).length) {
+          const playersDb = await sleeper.players();
+          const rp = (sData.league && sData.league.roster_positions) || null;
+          const byeOpts = { byeMap: MU.byeMapFor(sData.state && sData.state.season), weekNo: myGame.week || sData.week };
+          const paired = MU.pairStarters(myRow, null, rp, playersDb, null, byeOpts);
+          const problems = [];
+          for (const row of (paired ? paired.rows : [])) {
+            const c = row.me;
+            if (c.empty) problems.push({ slot: row.slot, why: 'empty', text: 'empty ' + row.slot + ' slot' });
+            else if (c.onBye) problems.push({ slot: row.slot, why: 'bye', text: c.name + ' (bye)' });
+            else if (['OUT', 'IR', 'SUS', 'PUP', 'DNR', 'NA', 'DOUBTFUL'].includes((c.inj || '').toUpperCase())) {
+              problems.push({ slot: row.slot, why: 'out', text: c.name + ' (' + c.inj + ')' });
+            }
+          }
+          if (problems.length) lineupWarn = { count: problems.length, items: problems.slice(0, 3) };
+        }
+      } catch (e) { /* the hero renders without the warning */ }
+      weekHero = {
+        weekNo: myGame.week || sData.week,
+        meTeam: myGame.me.team, mePts,
+        oppName: (myGame.opp.owner && myGame.opp.owner.name) || myGame.opp.team,
+        oppId: (myGame.opp.owner && myGame.opp.owner.id) || null,
+        oppTeam: myGame.opp.team, oppPts,
+        live: anyScore,
+        leading: anyScore ? (mePts > oppPts ? 'you' : oppPts > mePts ? 'them' : 'even') : null,
+        margin: anyScore ? Math.abs(Math.round((mePts - oppPts) * 10) / 10) : null,
+        lineupWarn,
+      };
+    }
+  }
+
   // Last completed week's mini-awards + the transaction wire.
   let review = null, reviewWeek = null, wireRows = [];
   // Rank-movement arrows: dormant until a previous week exists to compare, then
@@ -470,7 +550,7 @@ router.get('/', aw(async (req, res) => {
   } catch (e) { /* the dispatch is a bonus; the dashboard renders without it */ }
   res.render('dashboard', {
     season, payouts: H.payoutTable(season), buyins, weekly, awards, standings, draft,
-    openVotes, CATEGORY_LABELS: H.CATEGORY_LABELS, myBalance,
+    openVotes, CATEGORY_LABELS: H.CATEGORY_LABELS, myBalance, draftInfo, weekHero,
     // The money scoreboard: banked dollars + rank this season, from the ledger.
     moneyBoard: L.moneyStandings(world.ledger, owners, season), meId: req.owner.id,
     sleeperData: sData, sleeperStandings: sStandings, sleeperBoard: sBoard, roast,
@@ -815,9 +895,15 @@ router.get('/bank', aw(async (req, res) => {
   // computed from the same balances, with the payee's Venmo attached. The
   // machine that tracks the money writes the invoice. (The Annual emits this as
   // the sealed-season artifact; here it renders live off current balances.)
+  // Route LEAGUE money through the commissioner (the bank): every debtor pays
+  // Cory, Cory pays every creditor — never peer-to-peer. Side bets are separate
+  // and stay peer-to-peer (SB.settlementsFor below). Hub is DERIVED (the
+  // commissioner flag), so it follows if the commissioner ever changes.
+  const bankId = (owners.find(o => o.is_commissioner) || {}).id;
   const settlement = SET.settlementReport(
     owners.map(o => ({ owner_id: o.id, name: o.name, net: bal[o.id] ? bal[o.id].balance : 0 })),
-    id => { const o = H.ownerById(owners, id); const h = o && V.handle(o); return h ? { handle: h, url: `https://venmo.com/u/${h}` } : null; });
+    id => { const o = H.ownerById(owners, id); const h = o && V.handle(o); return h ? { handle: h, url: `https://venmo.com/u/${h}` } : null; },
+    bankId != null ? bankId : null);
 
   // Whose ledger sits at the top. Yours by default; clicking a name in the
   // league ledger below swaps it, which is how you get from "who owes what" to
@@ -1610,6 +1696,21 @@ router.get('/matchup', aw(async (req, res) => {
   const weekNo = (liveMatchup && liveMatchup.week) || (sData && sData.week) || 1;
   const betWindow = BL.matchupWindow(liveMatchup);
 
+  // An already-placed bet on THIS game, so the page shows the standing wager
+  // instead of only offering to create another. A matchup bet between the two of
+  // you, this week — newest first if there's more than one. Defensive: a failed
+  // lookup just hides the panel, never breaks the page.
+  let matchupBet = null;
+  if (opp) {
+    try {
+      const _bets = await SB.all();
+      matchupBet = _bets
+        .filter(b => b.kind === 'matchup' && Number(b.week) === Number(weekNo)
+          && SB.isParty(b, me.id) && SB.isParty(b, opp.id))
+        .sort((a, b) => (a.created_at < b.created_at ? 1 : -1))[0] || null;
+    } catch (e) { matchupBet = null; }
+  }
+
   // owner -> stable Sleeper user_id. Live bundle is authoritative when present;
   // the harvest-backed name map is the offline fallback (both proven to agree).
   let invUserMap = null;
@@ -1663,9 +1764,32 @@ router.get('/matchup', aw(async (req, res) => {
   }
 
   // A-lane data, read defensively: present => render; absent => a labelled slot.
-  const perPlayer = (liveMatchup && liveMatchup.players) || null;   // A supplies
-  const proj = (liveMatchup && liveMatchup.proj) || null;           // A supplies
+  const proj = (liveMatchup && liveMatchup.proj) || null;           // A supplies (per-player projections, optional)
   const highBand = (liveMatchup && liveMatchup.highBand) || null;   // A supplies (richer, live projections)
+
+  // THE STARTERS CARD — assembled here, in B's lane, from the raw Sleeper matchup
+  // rows so the two lineups are aligned BY LINEUP SLOT (QB vs QB, FLEX vs FLEX),
+  // not by an independently-sorted row index. See src/matchup.js for why the old
+  // index pairing was wrong. Needs the live bundle (starters + points) and the
+  // player name DB; absent either, the card stays folded rather than half-drawn.
+  let starters = null, bench = null;
+  if (opp && live && sData && Array.isArray(sData.matchups) && liveMatchup && liveMatchup.me) {
+    const myRid = liveMatchup.me.roster_id;
+    const oppRid = liveMatchup.opp && liveMatchup.opp.roster_id;
+    const myRow = sData.matchups.find(m => Number(m.roster_id) === Number(myRid)) || null;
+    const oppRow = oppRid != null ? (sData.matchups.find(m => Number(m.roster_id) === Number(oppRid)) || null) : null;
+    if (myRow) {
+      try {
+        const playersDb = await sleeper.players();
+        const rosterPositions = (sData.league && sData.league.roster_positions)
+          || (H.currentSeason(world.seasons) || {}).roster_positions || null;
+        // Bye flags derived in-repo (nfl_byes.json) — no wait on A's feed.
+        const byeOpts = { byeMap: MU.byeMapFor(sData.state && sData.state.season), weekNo };
+        starters = MU.pairStarters(myRow, oppRow, rosterPositions, playersDb, proj, byeOpts);
+        bench = MU.benchRows(myRow, oppRow, playersDb, byeOpts);
+      } catch (e) { starters = null; bench = null; /* the card is a bonus — never break the page */ }
+    }
+  }
 
   // The weekly-high TARGET, served now from the harvested band (a RESULT: what it
   // has historically taken to win the $100 — the same band the home page shows),
@@ -1729,7 +1853,7 @@ router.get('/matchup', aw(async (req, res) => {
 
   res.render('matchup', {
     me, owners, opp, live, weekNo, matchup: liveMatchup, betWindow, record, rivalry,
-    perPlayer, proj, highBand, whBand, whRace, pickem, stakes, trash, trashGameId,
+    starters, bench, matchupBet, proj, highBand, whBand, whRace, pickem, stakes, trash, trashGameId,
     goatId: MK.goatOwnerId(sData, world.config.sleeper_map || {}),
     configured: !!world.config.sleeper_league_id,
     late: req.query.late === '1', sent: req.query.sent === '1',
@@ -1919,8 +2043,8 @@ function pvEntries(owners) {
   ];
   const entries = [];
   for (const g of games) {
-    entries.push({ owner_id: (o[g.a] || {}).id, name: nm(g.a), oppName: nm(g.b), live: g.live, oppLive: g.oppLive, remain: g.remain, oppRemain: g.oppRemain });
-    entries.push({ owner_id: (o[g.b] || {}).id, name: nm(g.b), oppName: nm(g.a), live: g.oppLive, oppLive: g.live, remain: g.oppRemain, oppRemain: g.remain });
+    entries.push({ owner_id: (o[g.a] || {}).id, opp_id: (o[g.b] || {}).id, name: nm(g.a), oppName: nm(g.b), live: g.live, oppLive: g.oppLive, remain: g.remain, oppRemain: g.oppRemain });
+    entries.push({ owner_id: (o[g.b] || {}).id, opp_id: (o[g.a] || {}).id, name: nm(g.b), oppName: nm(g.a), live: g.oppLive, oppLive: g.live, remain: g.oppRemain, oppRemain: g.remain });
   }
   return entries;
 }
@@ -1942,8 +2066,8 @@ function liveWatchEntries(sData, map, owners) {
   for (const pair of Object.values(byMatch)) {
     if (pair.length !== 2) continue;
     const [a, b] = pair;
-    entries.push({ owner_id: a.oid, name: nameOf(a.oid), oppName: nameOf(b.oid), live: a.pts, oppLive: b.pts, remain: [], oppRemain: [] });
-    entries.push({ owner_id: b.oid, name: nameOf(b.oid), oppName: nameOf(a.oid), live: b.pts, oppLive: a.pts, remain: [], oppRemain: [] });
+    entries.push({ owner_id: a.oid, opp_id: b.oid, name: nameOf(a.oid), oppName: nameOf(b.oid), live: a.pts, oppLive: b.pts, remain: [], oppRemain: [] });
+    entries.push({ owner_id: b.oid, opp_id: a.oid, name: nameOf(b.oid), oppName: nameOf(a.oid), live: b.pts, oppLive: a.pts, remain: [], oppRemain: [] });
   }
   return entries;
 }

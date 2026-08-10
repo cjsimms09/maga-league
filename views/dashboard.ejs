@@ -1,5 +1,56 @@
 <%- include('partials/header', { title: 'League Office' }) %>
 
+<%# ── DRAFT DAY — the headline until the board is set. Derived from config
+    (date/time/place), so this banner and the pinned alert cannot disagree.
+    Clickable through to the board, like everything else on the page. %>
+<% const _di = (typeof draftInfo !== 'undefined' && draftInfo) ? draftInfo : null; %>
+<% if (_di && _di.configured && !_di.passed) { %>
+  <a class="draft-banner<%= _di.today ? ' today' : '' %>" href="/draft" title="The draft board — spots, order, and the room">
+    <span class="draft-banner-ico">🏈</span>
+    <span class="draft-banner-txt">
+      <b>Draft Day — <%= _di.when %></b>
+      <span class="draft-banner-sub"><%= _di.place %><% if (_di.today) { %> · it's today — be there<% } %> <span class="draft-banner-cue">→</span></span>
+    </span>
+    <% if (_di.days != null && !_di.today) { %>
+      <span class="draft-banner-count"><b><%= _di.days %></b><small>day<%= _di.days === 1 ? '' : 's' %></small></span>
+    <% } else if (_di.today) { %>
+      <span class="draft-banner-count today"><b>TODAY</b></span>
+    <% } %>
+  </a>
+<% } %>
+
+<%# ── THE IN-SEASON HERO — your game, first thing, during a season week. Score,
+    opponent, who's leading, and a lineup problem if there's a real one. Taps
+    through to your full matchup. Absent off-season (the draft banner leads then). %>
+<% const _wh = (typeof weekHero !== 'undefined' && weekHero) ? weekHero : null; %>
+<% if (_wh) { %>
+  <a class="week-hero<%= _wh.leading === 'you' ? ' up' : _wh.leading === 'them' ? ' down' : '' %>" href="/matchup" title="Your full matchup — bet, trash talk, starters">
+    <div class="week-hero-top">
+      <span class="week-hero-kicker">⚔️ Week <%= _wh.weekNo %> — your game</span>
+      <% if (_wh.live) { %><span class="week-hero-state <%= _wh.leading %>"><%= _wh.leading === 'you' ? 'you lead by ' + _wh.margin : _wh.leading === 'them' ? 'down ' + _wh.margin : 'dead even' %></span>
+      <% } else { %><span class="week-hero-state pre">not kicked off</span><% } %>
+    </div>
+    <div class="week-hero-score">
+      <span class="whs-side">
+        <span class="whs-team"><%= _wh.meTeam %></span>
+        <span class="whs-pts"><%= _wh.live ? _wh.mePts.toFixed(1) : '—' %></span>
+        <span class="whs-who">you</span>
+      </span>
+      <span class="whs-vs">vs</span>
+      <span class="whs-side">
+        <span class="whs-team"><%= _wh.oppTeam %></span>
+        <span class="whs-pts"><%= _wh.live ? _wh.oppPts.toFixed(1) : '—' %></span>
+        <span class="whs-who"><%= _wh.oppName %></span>
+      </span>
+    </div>
+    <% if (_wh.lineupWarn) { %>
+      <div class="week-hero-warn">⚠️ Lineup problem: <%= _wh.lineupWarn.items.map(i => i.text).join(', ') %><% if (_wh.lineupWarn.count > _wh.lineupWarn.items.length) { %> +<%= _wh.lineupWarn.count - _wh.lineupWarn.items.length %> more<% } %> — fix it before kickoff →</div>
+    <% } else { %>
+      <div class="week-hero-foot">Open your matchup — bet it, talk trash, watch the starters <span class="week-hero-cue">→</span></div>
+    <% } %>
+  </a>
+<% } %>
+
 <%# RIVALRY GAME OF THE WEEK — billed on the home page when one of the league's real
     rivalries is on this week's slate; the highest-billed one wins the top spot. %>
 <% if (typeof rivalryOfWeek !== 'undefined' && rivalryOfWeek) { %>
@@ -76,11 +127,11 @@
     <span class="hero-value"><%= myBalance === 0 ? '✓ Even' : money(Math.abs(myBalance)) %></span>
     <span class="hero-sub"><%= myBalance > 0 ? 'the league owes you →' : myBalance < 0 ? 'you owe the league →' : 'see your ledger →' %></span>
   </a>
-  <div class="hero-item">
+  <a class="hero-item clickable" href="/votes">
     <span class="hero-label"><%= season.year %> Buy-In</span>
     <span class="hero-value"><%= money(season.buy_in) %></span>
-    <span class="hero-sub">set by league vote</span>
-  </div>
+    <span class="hero-sub">set by league vote →</span>
+  </a>
   <a class="hero-item clickable" href="#pot-split" data-opens="#pot-split">
     <span class="hero-label">Total Pot</span>
     <span class="hero-value"><%= money(season.total_pot) %></span>
@@ -182,14 +233,27 @@
   <div class="card">
     <h2>Week <%= sleeperData.week %> Scoreboard <span class="sub">live from Sleeper</span></h2>
     <div class="body">
-      <% for (const m of sleeperBoard) { const hi = Math.max(...m.map(t => t.points)); %>
-        <div class="matchup">
+      <%# Each game taps through to its matchup — your own game opens your full
+          matchup (?opp=), any other opens the read-only spectator view (?a=&b=),
+          the same rule as the /scoreboard page. Falls back to a plain block only
+          when the owner ids aren't mapped yet. %>
+      <% for (const m of sleeperBoard) { const hi = Math.max(...m.map(t => t.points));
+         const ids = m.map(t => t.owner_id).filter(x => x != null);
+         let _mlnk = null;
+         if (ids.length === 2) {
+           _mlnk = ids.indexOf(meId) !== -1
+             ? '/matchup?opp=' + ids[ids.indexOf(meId) === 0 ? 1 : 0]
+             : '/matchup?a=' + ids[0] + '&b=' + ids[1];
+         }
+         const _mtag = _mlnk ? 'a' : 'div'; %>
+        <<%= _mtag %> class="matchup<%= _mlnk ? ' clickable' : '' %>"<% if (_mlnk) { %> href="<%= _mlnk %>" title="See this matchup"<% } %>>
           <% for (const t of m) { %>
             <div class="mrow <%= t.points === hi && m.length > 1 && hi > 0 ? 'winning' : '' %>">
               <span><%= t.team %></span><b><%= t.points.toFixed(2) %></b>
             </div>
           <% } %>
-        </div>
+          <% if (_mlnk) { %><span class="mrow-cue" aria-hidden="true">→</span><% } %>
+        </<%= _mtag %>>
       <% } %>
     </div>
   </div>

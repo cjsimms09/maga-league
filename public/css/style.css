@@ -228,6 +228,43 @@ table.roll tr:last-child td { border-bottom: none; }
 table.roll tbody tr:hover td, table.roll tr:hover td { background: rgba(255, 255, 255, .025); }
 table.roll td.num, table.roll th.num { text-align: right; font-variant-numeric: tabular-nums; }
 table.roll tr.total td { font-weight: 700; background: rgba(245, 196, 69, .06); border-top: 1px solid rgba(245, 196, 69, .35); color: var(--gold-bright); }
+
+/* MATCHUP STARTERS — the centre Slot column is the pairing made visible: the two
+   names on a row are the SAME lineup slot (QB vs QB, FLEX vs FLEX). */
+table.roll.mu-starters td.mu-slot, table.roll.mu-starters th.mu-slot-h {
+  text-align: center; width: 3.2rem; color: var(--muted);
+  font-family: var(--font-display); font-size: .6rem; letter-spacing: .1em; font-weight: 800;
+  background: rgba(255, 255, 255, .02); border-left: 1px solid var(--line); border-right: 1px solid var(--line);
+}
+table.roll.mu-starters th.mu-slot-h { text-align: center; }
+.mu-flag {
+  display: inline-block; margin-left: .28rem; padding: 0 .3rem; border-radius: .28rem;
+  font-family: var(--font-display); font-size: .56rem; font-weight: 800; letter-spacing: .05em;
+  vertical-align: middle;
+}
+.mu-flag.out { background: rgba(248, 113, 113, .16); color: #f87171; }
+.mu-flag.q { background: rgba(245, 196, 69, .16); color: var(--gold-bright); }
+.mu-flag.bye { background: rgba(120, 130, 150, .18); color: var(--muted); }
+
+/* MATCHUP BENCH — two independent lists (yours | theirs), points on the pine. */
+.mu-bench-head { display: flex; justify-content: space-between; align-items: baseline; gap: .5rem;
+  font-family: var(--font-display); font-size: .64rem; letter-spacing: .12em; text-transform: uppercase;
+  font-weight: 800; color: var(--muted); margin-bottom: .4rem; }
+.mu-bench { display: grid; grid-template-columns: 1fr 1fr; gap: .3rem 1.1rem; }
+.mu-bench-list { list-style: none; margin: 0; padding: 0; font-size: .82rem; }
+.mu-bench-list li { display: flex; justify-content: space-between; gap: .5rem; padding: .18rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, .04); }
+.mu-bench-list li:last-child { border-bottom: none; }
+.mu-bench-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mu-bench-list .num { font-variant-numeric: tabular-nums; color: var(--muted); flex: 0 0 auto; }
+
+/* MATCHUP standing-bet banner — the already-placed wager on this game. */
+.mu-bet-standing { display: flex; align-items: center; gap: .55rem; text-decoration: none; color: inherit;
+  background: var(--panel-soft); border: 1px solid var(--line); border-left: 3px solid var(--gold);
+  border-radius: 10px; padding: .6rem .75rem; margin-bottom: .8rem; font-size: .86rem; }
+.mu-bet-standing.on { border-left-color: var(--green); }
+.mu-bet-standing .tag { font-size: 1.15rem; }
+.mu-bet-standing:hover { box-shadow: 0 2px 8px rgba(12,26,43,.1); }
 .scroll-x { overflow-x: auto; }
 
 /* ---------- badges & buttons ---------- */
@@ -468,6 +505,12 @@ td.neg, .neg { color: var(--red-bright); font-weight: 700; }
 .matchup .mrow + .mrow { border-top: 1px solid rgba(255, 255, 255, .05); }
 .matchup .mrow.winning { background: rgba(47, 213, 118, .07); }
 .matchup .mrow.winning b { color: var(--green); }
+/* Tap-through game card on the dashboard mini-scoreboard, same as /scoreboard. */
+a.matchup.clickable { display: block; text-decoration: none; color: inherit; position: relative; transition: box-shadow .12s, transform .12s; }
+a.matchup.clickable:hover { box-shadow: 0 2px 10px rgba(12,26,43,.12); }
+a.matchup.clickable:active { transform: translateY(1px); }
+a.matchup.clickable .mrow-cue { position: absolute; right: .55rem; top: 50%; transform: translateY(-50%);
+  color: var(--muted); font-weight: 800; opacity: .55; }
 tr.last-place td { background: rgba(255, 70, 85, .07); }
 
 /* ---------- wall of shame ---------- */
@@ -3522,6 +3565,12 @@ html.dispatch-open { overflow: hidden; }
 .wtw-sec:first-child { margin-top: 0; }
 .wtw-row { background: var(--panel); border: 1px solid var(--line); border-left: 3px solid var(--muted);
   border-radius: var(--radius); padding: .7rem .85rem; }
+/* Tap-through rows: an <a> that keeps the block look but reads as clickable. */
+a.wtw-row.clickable { display: block; text-decoration: none; color: inherit; transition: box-shadow .12s, transform .12s; }
+a.wtw-row.clickable:hover { box-shadow: 0 2px 10px rgba(12,26,43,.12); }
+a.wtw-row.clickable:active { transform: translateY(1px); }
+a.wtw-row.clickable.mine:hover { box-shadow: inset 0 0 0 1px rgba(245,196,69,.35), 0 2px 10px rgba(12,26,43,.12); }
+.wtw-cue { color: var(--muted); font-weight: 800; flex: 0 0 auto; }
 .wtw-row.flip { border-left-color: var(--gold-bright); }
 .wtw-row.sweat { border-left-color: #ffb020; }
 .wtw-row.safe { border-left-color: var(--green); }
@@ -3696,6 +3745,52 @@ table.roll td.num, .pf, .wh-race-scale, .wh-band-note{ color: var(--ink); }
 .weekhub-cta .whc-txt{ display:flex; flex-direction:column; line-height:1.25; }
 .weekhub-cta .whc-txt b{ font-family:var(--font-display); font-size:1rem; }
 .weekhub-cta .whc-sub{ font-size:.78rem; color:#cdd9ea; }
+
+/* THE IN-SEASON HERO — your game, first thing during a season week. Navy card,
+   score front and centre, a red bar when your lineup has a real problem. */
+.week-hero{ display:block; text-decoration:none; color:#fff; border-radius:var(--radius);
+  background:linear-gradient(135deg, var(--navy), #1c3a63); padding:.9rem 1.1rem; margin-bottom:1rem;
+  box-shadow:0 2px 10px rgba(12,26,43,.16); border-left:4px solid var(--muted);
+  transition:box-shadow .12s, transform .12s; }
+.week-hero:hover{ box-shadow:0 4px 16px rgba(12,26,43,.24); }
+.week-hero:active{ transform:translateY(1px); }
+.week-hero.up{ border-left-color:var(--green); }
+.week-hero.down{ border-left-color:var(--red); }
+.week-hero-top{ display:flex; justify-content:space-between; align-items:baseline; gap:.6rem; margin-bottom:.5rem; }
+.week-hero-kicker{ font-family:var(--font-display); font-size:.7rem; letter-spacing:.1em; text-transform:uppercase; font-weight:800; color:#cdd9ea; }
+.week-hero-state{ font-size:.78rem; font-weight:800; font-variant-numeric:tabular-nums; }
+.week-hero-state.you{ color:#4ade80; } .week-hero-state.them{ color:#ff8a94; }
+.week-hero-state.even, .week-hero-state.pre{ color:#cdd9ea; }
+.week-hero-score{ display:flex; align-items:center; gap:.6rem; }
+.week-hero .whs-side{ flex:1 1 0; min-width:0; display:flex; flex-direction:column; }
+.week-hero .whs-side:last-child{ text-align:right; }
+.week-hero .whs-team{ font-family:var(--font-display); font-size:.9rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.week-hero .whs-pts{ font-size:1.9rem; font-weight:800; font-variant-numeric:tabular-nums; line-height:1.1; }
+.week-hero .whs-who{ font-size:.72rem; color:#cdd9ea; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.week-hero .whs-vs{ flex:0 0 auto; font-size:.72rem; color:#9fb2cc; font-weight:700; }
+.week-hero-warn{ margin-top:.6rem; padding:.45rem .6rem; border-radius:8px; background:rgba(255,70,85,.16);
+  color:#ffd7db; font-size:.8rem; font-weight:700; }
+.week-hero-foot{ margin-top:.55rem; font-size:.78rem; color:#cdd9ea; }
+.week-hero-cue{ font-weight:800; }
+
+/* DRAFT DAY BANNER — the pre-draft headline, clickable through to the board.
+   Gold-forward so it reads as the marquee item, distinct from the navy week CTA. */
+.draft-banner{ display:flex; align-items:center; gap:.85rem; text-decoration:none;
+  background:linear-gradient(135deg, var(--gold), #e8a52e); color:var(--navy);
+  border-radius:var(--radius); padding:.9rem 1.1rem; margin-bottom:1rem;
+  box-shadow:0 2px 10px rgba(200,150,30,.22); border:1px solid rgba(120,84,10,.25); }
+.draft-banner .draft-banner-ico{ font-size:1.7rem; line-height:1; }
+.draft-banner .draft-banner-txt{ display:flex; flex-direction:column; line-height:1.25; min-width:0; }
+.draft-banner .draft-banner-txt b{ font-family:var(--font-display); font-size:1.02rem; letter-spacing:.01em; }
+.draft-banner .draft-banner-sub{ font-size:.8rem; color:#4a3606; font-weight:700; }
+.draft-banner .draft-banner-cue{ font-weight:800; }
+.draft-banner .draft-banner-count{ margin-left:auto; text-align:center; line-height:1; flex:0 0 auto;
+  background:rgba(20,32,54,.12); border-radius:10px; padding:.4rem .55rem; }
+.draft-banner .draft-banner-count b{ font-family:var(--font-display); font-size:1.35rem; font-variant-numeric:tabular-nums; display:block; }
+.draft-banner .draft-banner-count small{ font-size:.6rem; text-transform:uppercase; letter-spacing:.1em; font-weight:800; opacity:.8; }
+.draft-banner.today{ background:linear-gradient(135deg, #d84343, var(--gold)); color:#fff; }
+.draft-banner.today .draft-banner-sub{ color:#ffe9c8; }
+.draft-banner .draft-banner-count.today b{ font-size:1rem; letter-spacing:.05em; }
 
 .sb-wh{ background:var(--panel); border:1px solid var(--line); border-left:3px solid var(--gold);
   border-radius:var(--radius); padding:.8rem 1rem; margin-bottom:1rem; }

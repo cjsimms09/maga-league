@@ -109,6 +109,50 @@ function daysUntil(draftISO, nowISO) {
 }
 
 /**
+ * THE DRAFT-DAY ANNOUNCEMENT — derived from config so ONE edit (date, time, or
+ * place) moves the front-page banner, the countdown, and the pinned alert
+ * together. Three hand-typed strings had already drifted: the pinned alert said
+ * "5:00 PM" and named no place. Defaults are the 2026 draft as Cory set it
+ * (Sat 8/22, 6:00 PM, Cory's House); the weekday is DERIVED from the date, so it
+ * can never say a day the date isn't.
+ *
+ * @param {object} config      world.config (draft_date 'YYYY-MM-DD', draft_time, draft_location)
+ * @param {string} nowISO      the clock (route passes real; tests fix it)
+ * @param {number} [seasonYear] current season year — the fallback draft year DERIVES
+ *                              from it (never a hardcoded year literal, per the
+ *                              no-season-literals guard), so the default rolls forward
+ *                              on its own. `config.draft_date` is the real source; this
+ *                              only fills in a late-August placeholder until Cory sets it.
+ */
+function draftAnnouncement(config, nowISO, seasonYear) {
+  const cfg = config || {};
+  // Fallback DATE derives its year from the season; the month-day is a placeholder
+  // (late-August draft) that the admin form overrides. No quoted YYYY-MM-DD literal.
+  const fallbackDate = seasonYear ? (seasonYear + '-08-22') : null;
+  const date = cfg.draft_date || fallbackDate;
+  const time = cfg.draft_time || '6:00 PM';
+  const place = cfg.draft_location || "Cory's House";
+  if (!date) return { date: null, time, place, weekday: '', longDate: '', when: '', days: null, passed: false, today: false, countdownText: null, message: null, configured: false };
+  const days = nowISO ? daysUntil(date, nowISO) : null;
+  // Fixed UTC frame so the label never shifts by the server's timezone.
+  const d = new Date(date + 'T12:00:00Z');
+  const ok = !isNaN(d.getTime());
+  const weekday = ok ? d.toLocaleDateString('en-US', { weekday: 'long', timeZone: 'UTC' }) : '';
+  const longDate = ok ? d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', timeZone: 'UTC' }) : date;
+  const when = (weekday ? weekday + ' ' : '') + longDate + ' at ' + time;
+  // The canonical one-line alert text (also self-heals the pinned alert).
+  const message = 'DRAFT DAY: ' + when + ' — ' + place + '. Be there.';
+  const passed = days != null && days < 0;
+  const today = days === 0;
+  // A short human countdown for the banner ("12 days out", "TODAY", "tomorrow").
+  let countdownText = null;
+  if (days != null) {
+    countdownText = today ? 'TODAY' : days === 1 ? 'Tomorrow' : passed ? 'Draft complete' : days + ' days out';
+  }
+  return { date, time, place, weekday, longDate, when, days, passed, today, countdownText, message, configured: true };
+}
+
+/**
  * Assemble the full dashboard model. `inputs`:
  *   statusText, decText  — the two source files
  *   now                  — ISO string (route passes the real clock; test fixes it)
@@ -137,4 +181,4 @@ function buildModel(inputs) {
   };
 }
 
-module.exports = { parseQueue, parseDecisions, daysUntil, buildModel, clean, DEADLINE_KEYWORDS };
+module.exports = { parseQueue, parseDecisions, daysUntil, draftAnnouncement, buildModel, clean, DEADLINE_KEYWORDS };
