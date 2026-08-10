@@ -68,6 +68,35 @@
     return last;
   }
 
+  function survivalAt(player, pick) {
+    if (!E || typeof E.survival !== 'function' || pick == null) return 1;
+    return E.survival(player, pick, {});
+  }
+
+  /* The named players available NOW at a position who probably WON'T survive to my
+   * next pick (survival < thresh) — i.e. "these come off the board before you pick
+   * again." Capped for display. */
+  function likelyGone(availSamePos, pick, thresh, cap) {
+    var out = [];
+    for (var i = 0; i < availSamePos.length && out.length < (cap || 4); i++) {
+      var s = survivalAt(availSamePos[i], pick);
+      if (s < (thresh || SURVIVE_THRESH)) {
+        out.push({ name: availSamePos[i].name, player_id: availSamePos[i].player_id,
+          proj_mean: availSamePos[i].proj_mean, survival: Math.round(s * 100) / 100 });
+      }
+    }
+    return out;
+  }
+
+  /* The best player at a position LIKELY still on the board at `pick` (highest proj
+   * with survival >= thresh) — what you'd actually get if you wait. */
+  function bestSurvivor(availSamePos, pick, thresh) {
+    for (var i = 0; i < availSamePos.length; i++) {
+      if (survivalAt(availSamePos[i], pick) >= (thresh || SURVIVE_THRESH)) return availSamePos[i];
+    }
+    return availSamePos.length ? availSamePos[availSamePos.length - 1] : null;
+  }
+
   function verdict(evlw, need) {
     if (!need) return 'FILLED';
     var perWeek = evlw / WEEK_DIVISOR;
@@ -92,10 +121,15 @@
       var bestNext = secondPick != null ? expectedBestAt(avail, secondPick)
         : (avail[avail.length - 1].proj_mean || 0);
       var evlw = Math.round((bestNow - bestNext) * 100) / 100;
+      var survivor = secondPick != null ? bestSurvivor(avail, secondPick) : best;   // who you'd get if you wait
+      var gone = secondPick != null ? likelyGone(avail, secondPick) : [];           // who's off the board by then
       return {
         position: pos, need: live,
         best_now: { name: best.name, player_id: best.player_id, proj_mean: bestNow,
           tier: best.tier, tier_drop: best.tier_drop },
+        best_next: survivor ? { name: survivor.name, player_id: survivor.player_id,
+          proj_mean: survivor.proj_mean } : null,
+        likely_gone: gone,                                    // named players drafted before my next pick
         evlw: evlw, evlw_per_week: Math.round(evlw / WEEK_DIVISOR * 1000) / 1000,
         grab_by_pick: grabByPick(avail, remaining, bestNow),
         verdict: verdict(evlw, live),
@@ -116,7 +150,8 @@
   }
 
   global.DraftGrabBy = { report: report, positionalNeed: positionalNeed, isLiveNeed: isLiveNeed,
-    grabByPick: grabByPick, expectedBestAt: expectedBestAt };
+    grabByPick: grabByPick, expectedBestAt: expectedBestAt, likelyGone: likelyGone,
+    bestSurvivor: bestSurvivor };
 })(typeof window !== 'undefined' ? window : globalThis);
 
 if (typeof module !== 'undefined' && module.exports) {

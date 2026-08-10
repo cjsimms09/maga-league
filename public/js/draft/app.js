@@ -2312,8 +2312,20 @@
           };
           html += '<div class="rh-grabby" style="font-size:.78rem;margin-top:.4rem;'
             + 'padding-top:.35rem;border-top:1px dashed rgba(255,255,255,.15)">'
-            + '<span style="opacity:.75">⏱ timing: </span>' + line('QB') + line('TE') + line('RB') + line('WR')
-            + '</div>';
+            + '<span style="opacity:.75">⏱ timing: </span>' + line('QB') + line('TE') + line('RB') + line('WR');
+          // WHO's gone + the concrete drop, for the scarce onesies you asked about.
+          ['QB', 'TE', 'DEF', 'K'].forEach(pos => {
+            const r = (gb.positions || []).find(x => x.position === pos);
+            if (!r || !r.need || r.verdict === 'WAIT' || r.evlw == null || r.evlw < 3) return;
+            const gone = (r.likely_gone || []).slice(0, 3).map(g => escapeHtml(g.name || '')).join(', ');
+            const nextName = r.best_next ? escapeHtml(r.best_next.name || '') : '?';
+            html += '<div style="font-size:.74rem;opacity:.85;margin-top:.25rem">'
+              + '<b>' + pos + '</b>: ' + escapeHtml((r.best_now || {}).name || '') + ' now → '
+              + nextName + ' by pick ' + (r.grab_by_pick || '?')
+              + ' (−' + r.evlw + ' pts if you wait)'
+              + (gone ? ' · likely gone: ' + gone : '') + '</div>';
+          });
+          html += '</div>';
         }
       } catch (e) { console.error('[grab-by]', e && e.message); }
     }

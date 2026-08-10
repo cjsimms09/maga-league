@@ -65,5 +65,26 @@ const at = (pos, mean, adp) => ({ player_id: pos + adp, name: pos + adp, positio
     `early=${qbEarly} late=${qbLate}`);
 }
 
+// --- projects WHO will be gone + the concrete drop (Cory's ask #2) -----------
+{
+  // QB: an early-ADP stud gone before my next pick, a later-ADP arm that survives
+  const board = [
+    at('QB', 360, 30),   // adp 30 — gone well before pick 90
+    at('QB', 340, 55),   // adp 55 — likely gone by 90
+    at('QB', 320, 120),  // adp 120 — survives to pick 90
+    at('QB', 315, 130),
+  ];
+  const roster = [{ position: 'RB' }, { position: 'RB' }, { position: 'WR' }];
+  const rep = GB.report(board, roster, [78, 90], LEAGUE, ['QB']);
+  const qb = rep.positions[0];
+  const goneNames = (qb.likely_gone || []).map(g => g.name);
+  check('projects WHICH players are gone before my next pick', goneNames.indexOf('QB30') >= 0,
+    JSON.stringify(goneNames));
+  check('names the best arm that SURVIVES to my next pick', qb.best_next && /QB120|QB130/.test(qb.best_next.name),
+    JSON.stringify(qb.best_next));
+  check('quantifies the value drop if I wait (EVLW)', qb.evlw > 0, String(qb.evlw));
+  check('the survivor is not the early stud who will be gone', qb.best_next.name !== 'QB30');
+}
+
 console.log(`\n${pass}/${pass + fail} grabby checks passed`);
 process.exit(fail ? 1 : 0);
