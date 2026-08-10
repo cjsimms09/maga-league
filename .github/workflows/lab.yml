@@ -40,6 +40,8 @@ on:
       - 'draft/tests/test_exp_construction_objective.py'
       - 'draft/backtest/exp_stack_correlation.py'
       - 'draft/tests/test_exp_stack_correlation.py'
+      - 'draft/backtest/exp_tier_ceiling.py'
+      - 'draft/tests/test_exp_tier_ceiling.py'
       - 'draft/backtest/exp36.py'
       - 'draft/tests/test_exp36.py'
       - 'draft/backtest/exp43_fullboard.py'
@@ -220,7 +222,8 @@ jobs:
           python -m pytest draft/tests/test_exp34.py draft/tests/test_exp34_metrics.py \
                            draft/tests/test_exp34_dollars.py \
                            draft/tests/test_exp_construction_objective.py \
-                           draft/tests/test_exp_stack_correlation.py -q
+                           draft/tests/test_exp_stack_correlation.py \
+                           draft/tests/test_exp_tier_ceiling.py -q
       - name: CERTIFICATION GATE — the dollar arm grades through the certified layer
         # The dollar arm consumes money_grade.grade_substituted + roster_sim; it may
         # not grade until they reproduce history to the dollar (the same gate the
@@ -252,6 +255,11 @@ jobs:
         # TD, half-PPR). Measures ρ + the per-week ceiling premium a stack buys; sizes a
         # provisional concave bonus. The $ is confirmed by the step-3 grade.
         run: python draft/backtest/exp_stack_correlation.py
+      - name: Fire tier-ceiling — tier-graduated mean->ceiling blend + VONA (Cory's model)
+        # Does concentrating upside in the fungible tiers (mean-discipline up top) beat pure
+        # mean, where the FLAT ceiling tilt graded null? Swept + graded on the certified money
+        # + weekly-high win-prob harness. Reuses exp_construction_objective + exp34_dollars.
+        run: python draft/backtest/exp_tier_ceiling.py
       - name: Commit the exp 34 reports
         run: |
           stamp=$(date -u +%Y-%m-%dT%H:%MZ)
@@ -260,6 +268,8 @@ jobs:
                   draft/backtest/EXP34-DOLLARS.md draft/backtest/exp34_dollars.json \
                   draft/backtest/exp_construction_objective.json \
                   draft/backtest/exp_stack_correlation.json
+            draft/backtest/exp_tier_ceiling.json \
+                  draft/backtest/exp_tier_ceiling.json
           git commit -m "Exp 34 report (correlation + dollar arms) $stamp" || { echo "no change"; exit 0; }
           git pull --rebase origin "${GITHUB_REF_NAME}" && git push || echo "push skipped"
       - name: Upload exp 34 results (artifact — inputs are egress-built)
@@ -273,6 +283,7 @@ jobs:
             draft/backtest/EXP34-DOLLARS.md
             draft/backtest/exp_construction_objective.json
             draft/backtest/exp_stack_correlation.json
+            draft/backtest/exp_tier_ceiling.json
           retention-days: 30
 
   # EXPERIMENT 36 — ADP-efficiency audit (reliability surface by round × position).
