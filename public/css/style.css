@@ -2241,6 +2241,11 @@ button.pd-team.pick:hover { background: rgba(245,196,69,.16); transform: transla
    "He isn't here" and "he went four picks ago" are different answers, and only
    one of them means something is wrong. */
 #search-tail { padding: 0 .9rem .6rem; }
+/* app.js unhides #search-tail before it knows whether there's anything to add;
+   when the search matches an AVAILABLE player there is nothing to say and it
+   leaves the box empty but visible. Collapse it whenever it has no content.
+   (The unhide-then-fill order in app.js is flagged to A; this is the CSS clamp.) */
+#search-tail:empty { display: none !important; }
 .tail-taken {
   font-size: .8rem; color: #4a5972; padding: .5rem .7rem; border-radius: 8px;
   background: rgba(255,255,255,.04); border: 1px solid var(--line); margin-bottom: .45rem;
@@ -2498,14 +2503,17 @@ body.warroom-page #warroom > .page-title { display: none; }
    the instant of a pick, so it drops here to buy the fold back. */
 #doctrine-banner.doctrine-banner { padding: .3rem .7rem; gap: .2rem .7rem; }
 #doctrine-banner .db-name { font-size: .88rem; line-height: 1.1; }
-/* On the war room, compress THE PLAN to a tight two-line max: the plan name +
-   edge, then the confidence. The philosophy line (creed) and the alt-price drop
-   here — the creed you already know at the table, and the alt price is repeated
-   in the recs card's "next turn cost" line — so the recommendation clears the
-   fold comfortably. */
-body.warroom-page #doctrine-banner { flex-wrap: nowrap; align-items: baseline; }
-body.warroom-page #doctrine-banner .db-main { flex: 1 1 auto; }
-body.warroom-page #doctrine-banner .db-side { flex: 0 1 auto; margin-left: auto; }
+/* On the war room, compress THE PLAN: drop the philosophy line (creed) and the
+   alt-price — the creed you already know at the table, and the alt price is
+   repeated in the recs card's "next turn cost" line. The plan name + edge and
+   the confidence stay. Earlier this forced flex-wrap:nowrap to save a line, but
+   that dragged the right-side confidence back BESIDE the plan name, and the
+   "enrolled — tilting" governs tag then overflowed underneath it — a collision.
+   So each half takes its own full-width row (matching the base ≤620px stacking):
+   the governs tag now wraps inside full width instead of into the confidence. */
+body.warroom-page #doctrine-banner { flex-wrap: wrap; align-items: baseline; }
+body.warroom-page #doctrine-banner .db-main { flex: 1 1 100%; min-width: 0; }
+body.warroom-page #doctrine-banner .db-side { flex: 1 1 100%; margin-left: 0; text-align: left; }
 body.warroom-page #doctrine-banner .db-creed,
 body.warroom-page #doctrine-banner .db-alt { display: none; }
 body.warroom-page #doctrine-banner .db-confidence { white-space: normal; overflow-wrap: anywhere; }

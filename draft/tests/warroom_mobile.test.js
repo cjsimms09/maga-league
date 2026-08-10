@@ -62,5 +62,11 @@ ck('the war-room shell keeps an always-visible exit link',
   /class="wr-exit"[^>]*href="\/"|href="\/"[^>]*class="wr-exit"/.test(shell),
   'no wr-exit link — hiding the chrome would strand a standalone PWA user');
 
+// app.js unhides #search-tail before it knows whether there's anything to add, so
+// an available-player search leaves a blank box. It must collapse when empty.
+ck('#search-tail collapses when it has no content',
+  /#search-tail:empty\s*\{[^}]*display:\s*none/.test(css),
+  'empty search tail not collapsed — a blank box shows on an available-player search');
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
