@@ -100,7 +100,19 @@ jobs:
       # below it — which is how a run once reported green with 28 steps skipped,
       # and how the "every critical step actually ran" sentinel below could pass
       # while most of the job never executed. Deleting them removes the cascade
-      # structurally rather than guarding against it, and halves CI wall-clock.
+      # structurally rather than guarding against it.
+      #
+      # THE WALL-CLOCK CLAIM WAS MINE AND IT WAS WRONG. I predicted this would
+      # halve CI time. Measured: 129s without the duplicates vs 130s on the run
+      # immediately before with them, against 164s and 176s on the two runs before
+      # that. The spread among runs that ALL carried the duplicates (130-176s) is
+      # far wider than the difference the deletion made, so the saving is not
+      # established and n=1 could not establish it anyway. The suites are
+      # individually fast; the cost was never where I assumed.
+      #
+      # The deletion still stands on the reason that survives measurement: the
+      # cascade is gone and the redundancy is gone. Speed was a guess presented as
+      # a benefit, which is the thing this project keeps trying not to do.
       #
       # DO NOT RE-ADD A PER-SUITE STEP. A new `draft/tests/*.test.js` is picked up
       # by the glob the day it lands. Anything that must NOT run belongs in SKIP
