@@ -1,5 +1,24 @@
 <%- include('partials/header', { title: 'League Office' }) %>
 
+<%# ── DRAFT DAY — the headline until the board is set. Derived from config
+    (date/time/place), so this banner and the pinned alert cannot disagree.
+    Clickable through to the board, like everything else on the page. %>
+<% const _di = (typeof draftInfo !== 'undefined' && draftInfo) ? draftInfo : null; %>
+<% if (_di && _di.configured && !_di.passed) { %>
+  <a class="draft-banner<%= _di.today ? ' today' : '' %>" href="/draft" title="The draft board — spots, order, and the room">
+    <span class="draft-banner-ico">🏈</span>
+    <span class="draft-banner-txt">
+      <b>Draft Day — <%= _di.when %></b>
+      <span class="draft-banner-sub"><%= _di.place %><% if (_di.today) { %> · it's today — be there<% } %> <span class="draft-banner-cue">→</span></span>
+    </span>
+    <% if (_di.days != null && !_di.today) { %>
+      <span class="draft-banner-count"><b><%= _di.days %></b><small>day<%= _di.days === 1 ? '' : 's' %></small></span>
+    <% } else if (_di.today) { %>
+      <span class="draft-banner-count today"><b>TODAY</b></span>
+    <% } %>
+  </a>
+<% } %>
+
 <%# RIVALRY GAME OF THE WEEK — billed on the home page when one of the league's real
     rivalries is on this week's slate; the highest-billed one wins the top spot. %>
 <% if (typeof rivalryOfWeek !== 'undefined' && rivalryOfWeek) { %>

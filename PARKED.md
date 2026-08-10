@@ -247,6 +247,27 @@ The matchup-page upgrade (site backlog #4) needs `src/sleeper.js` (A's lane) to 
 
 B will build the view/route/one-tap-side-bet side against whatever shape A returns. Flagging rather than editing sleeper.js.
 
+**UPDATE (2026-08-10, B): starter points no longer blocked on A — built in B's lane.**
+The Starters card now assembles itself from the raw Sleeper bundle member.js already
+holds (`sData.matchups[].starters` + `players_points`, slot order from
+`league.roster_positions`) via the new B-owned `src/matchup.js` — paired BY LINEUP
+SLOT (QB vs QB), which also fixes the old row-index pairing bug (my QB had lined up
+across from their WR). So bullet 1 (per-player starter points) is DONE without a
+sleeper.js change. **Still wanted from A:** bullet 2 — per-player **projections** with
+a live/final **staleness** signal; when A returns a `{me:{pid:proj}, opp:{pid:proj}}`
+map on `liveMatchup.proj`, `pairStarters` already wires it through and the Proj column
+lights up (no further B change needed). Bullet 3 (high-point band) already served from
+the harvested band.
+
+**Also (2026-08-10, B): the pinned "DRAFT DAY" alert text is now DERIVED** from config
+(`draft_date`/`draft_time`/`draft_location`) via `dashboard.draftAnnouncement()`, and the
+home route self-heals the stored alert to it (the old seed text said "5:00 PM" and named
+no place). **→ A, small:** the hardcoded strings in `src/data.js` seed (line ~105) and
+`src/helpers.js` `DRAFT_DAY` (~75) still hand-type "08/22/26 at 5:00 PM" — please derive
+them from config too (or drop them, since B re-pins on load) so a FRESH install doesn't
+reintroduce the stale 5pm string. Not urgent: B's self-heal corrects any live store on
+the next home load.
+
 ### ADD (2026-08-09): per-player BYE WEEK on `rosterView` rows — for the lineup guard
 
 The in-season lineup sanity sweep (`draft/tests/lineup_sanity.test.js`) found a real,

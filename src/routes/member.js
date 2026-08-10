@@ -15,6 +15,7 @@ const WW = require('./whatwatch');         // what-to-watch — the Sunday/Monda
 const MK = require('./marks');             // auto badges — GOAT on Mahomes' owner, Chiefs mark on KC players
 const RIVN = require('./rivalries');       // named rivalries (German derby, Dylan-Sam, Bates-Richard)
 const MU = require('../matchup');          // slot-aligned matchup starters (QB vs QB, not row-vs-row)
+const DASH = require('../dashboard');      // dashboard model + the derived draft-day announcement
 const SET = require('./settlement');       // the settlement report — who pays whom, with Venmo
 const ACC = require('./accuracy');          // model-accuracy display — reads A's calibration/attribution output
 const L = require('../ledger');
@@ -339,6 +340,27 @@ router.get('/', aw(async (req, res) => {
   const openVotes = (await H.allVotes(owners, H.voteThreshold(world.config))).filter(v => v.status === 'open')
     .map(v => ({ ...v, myChoice: (v.ballots.find(b => b.owner_id === req.owner.id) || {}).choice || null }));
 
+  // THE DRAFT-DAY ANNOUNCEMENT — derived from config (date/time/place) so it's
+  // one source of truth for the front-page banner AND the pinned site-wide alert.
+  // The pinned alert's text was hand-typed and had gone stale ("5:00 PM", no
+  // place); self-heal it to the derived line so the banner and the alert can never
+  // disagree. Only writes when the stored text actually differs (no churn).
+  const draftInfo = DASH.draftAnnouncement(world.config, new Date().toISOString(), season && season.year);
+  if (draftInfo.configured && !draftInfo.passed && draftInfo.message) {
+    try {
+      const alerts = await getDoc('alerts', []);
+      const pinned = alerts.find(a => a.id === 'draftday2026' || /^DRAFT DAY/i.test(a.message || ''));
+      if (pinned && pinned.message !== draftInfo.message) {
+        pinned.message = draftInfo.message; pinned.level = 'urgent'; pinned.active = true;
+        await setDoc('alerts', alerts);
+        // Patch this request's already-computed alert region so the fix shows now.
+        for (const a of (res.locals.alerts || [])) {
+          if (a.id === 'draftday2026' || /^DRAFT DAY/i.test(a.message || '')) a.message = draftInfo.message;
+        }
+      }
+    } catch (e) { /* the banner still renders even if the alert heal fails */ }
+  }
+
   // Sleeper live data (site works fine when unconfigured/unreachable).
   const sData = await sleeper.bundle(world.config.sleeper_league_id);
   if (sData && !Object.keys(world.config.sleeper_map || {}).length) {
@@ -471,7 +493,7 @@ router.get('/', aw(async (req, res) => {
   } catch (e) { /* the dispatch is a bonus; the dashboard renders without it */ }
   res.render('dashboard', {
     season, payouts: H.payoutTable(season), buyins, weekly, awards, standings, draft,
-    openVotes, CATEGORY_LABELS: H.CATEGORY_LABELS, myBalance,
+    openVotes, CATEGORY_LABELS: H.CATEGORY_LABELS, myBalance, draftInfo,
     // The money scoreboard: banked dollars + rank this season, from the ledger.
     moneyBoard: L.moneyStandings(world.ledger, owners, season), meId: req.owner.id,
     sleeperData: sData, sleeperStandings: sStandings, sleeperBoard: sBoard, roast,

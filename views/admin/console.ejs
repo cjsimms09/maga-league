@@ -660,6 +660,24 @@
       </div>
       <div class="fit"><button class="btn navy" type="submit">Save</button></div>
     </form>
+    <%# DRAFT DAY — the front-page banner, countdown, and pinned alert all derive
+        from these three fields. Change one, they all move together. %>
+    <form method="post" action="/admin/draft-day" class="inline-form" style="margin-bottom:1rem">
+      <div class="fit">
+        <label class="field">Draft date</label>
+        <input type="date" name="draft_date" value="<%= (config && config.draft_date) || '2026-08-22' %>">
+      </div>
+      <div class="fit">
+        <label class="field">Time</label>
+        <input type="text" name="draft_time" value="<%= (config && config.draft_time) || '6:00 PM' %>" placeholder="6:00 PM" style="width:110px">
+      </div>
+      <div class="fit">
+        <label class="field">Place</label>
+        <input type="text" name="draft_location" value="<%= (config && config.draft_location) || "Cory's House" %>" placeholder="Cory's House">
+      </div>
+      <div class="fit"><button class="btn gold" type="submit">Save Draft Day</button></div>
+    </form>
+    <p class="muted" style="margin:-.4rem 0 1rem; font-size:.78rem">The home-page draft banner, its countdown, and the pinned league alert all read from these — one edit moves all three.</p>
     <a class="btn navy" href="/admin/export">⬇️ Export League Data (backup)</a>
     <span class="muted"> — download a JSON snapshot of everything once in a while. The books must survive.</span>
   </div>

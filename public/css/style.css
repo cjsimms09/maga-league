@@ -3697,6 +3697,25 @@ table.roll td.num, .pf, .wh-race-scale, .wh-band-note{ color: var(--ink); }
 .weekhub-cta .whc-txt b{ font-family:var(--font-display); font-size:1rem; }
 .weekhub-cta .whc-sub{ font-size:.78rem; color:#cdd9ea; }
 
+/* DRAFT DAY BANNER — the pre-draft headline, clickable through to the board.
+   Gold-forward so it reads as the marquee item, distinct from the navy week CTA. */
+.draft-banner{ display:flex; align-items:center; gap:.85rem; text-decoration:none;
+  background:linear-gradient(135deg, var(--gold), #e8a52e); color:var(--navy);
+  border-radius:var(--radius); padding:.9rem 1.1rem; margin-bottom:1rem;
+  box-shadow:0 2px 10px rgba(200,150,30,.22); border:1px solid rgba(120,84,10,.25); }
+.draft-banner .draft-banner-ico{ font-size:1.7rem; line-height:1; }
+.draft-banner .draft-banner-txt{ display:flex; flex-direction:column; line-height:1.25; min-width:0; }
+.draft-banner .draft-banner-txt b{ font-family:var(--font-display); font-size:1.02rem; letter-spacing:.01em; }
+.draft-banner .draft-banner-sub{ font-size:.8rem; color:#4a3606; font-weight:700; }
+.draft-banner .draft-banner-cue{ font-weight:800; }
+.draft-banner .draft-banner-count{ margin-left:auto; text-align:center; line-height:1; flex:0 0 auto;
+  background:rgba(20,32,54,.12); border-radius:10px; padding:.4rem .55rem; }
+.draft-banner .draft-banner-count b{ font-family:var(--font-display); font-size:1.35rem; font-variant-numeric:tabular-nums; display:block; }
+.draft-banner .draft-banner-count small{ font-size:.6rem; text-transform:uppercase; letter-spacing:.1em; font-weight:800; opacity:.8; }
+.draft-banner.today{ background:linear-gradient(135deg, #d84343, var(--gold)); color:#fff; }
+.draft-banner.today .draft-banner-sub{ color:#ffe9c8; }
+.draft-banner .draft-banner-count.today b{ font-size:1rem; letter-spacing:.05em; }
+
 .sb-wh{ background:var(--panel); border:1px solid var(--line); border-left:3px solid var(--gold);
   border-radius:var(--radius); padding:.8rem 1rem; margin-bottom:1rem; }
 .sb-wh-top{ display:flex; justify-content:space-between; align-items:baseline; gap:.6rem; flex-wrap:wrap; font-size:.9rem; }

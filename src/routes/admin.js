@@ -584,6 +584,34 @@ router.post('/settings', aw(async (req, res) => {
   back(res, 'season', msg(`Rule changes now need ${config.vote_threshold} YES votes.`));
 }));
 
+// DRAFT DAY — date, time, place. One edit here moves the front-page banner, the
+// countdown, and the pinned site-wide alert together (all derive from these).
+// A blank field clears the override so the derived default takes over again.
+router.post('/draft-day', aw(async (req, res) => {
+  const config = await getDoc('config', {});
+  const date = String(req.body.draft_date || '').trim();
+  const time = String(req.body.draft_time || '').trim();
+  const place = String(req.body.draft_location || '').trim();
+  // Accept only a real YYYY-MM-DD (a bad date would silently break the countdown).
+  if (/^\d{4}-\d{2}-\d{2}$/.test(date) && !isNaN(new Date(date + 'T12:00:00Z').getTime())) {
+    config.draft_date = date;
+  } else if (date === '') { delete config.draft_date; }
+  if (time) config.draft_time = time; else delete config.draft_time;
+  if (place) config.draft_location = place; else delete config.draft_location;
+  await setDoc('config', config);
+  // Re-pin the alert to the freshly derived text so it never lags the config.
+  try {
+    const curYear = (H.currentSeason(req.world.seasons) || {}).year;
+    const di = require('../dashboard').draftAnnouncement(config, new Date().toISOString(), curYear);
+    const alerts = await getDoc('alerts', []);
+    const pinned = alerts.find(a => a.id === 'draftday2026' || /^DRAFT DAY/i.test(a.message || ''));
+    if (pinned) { pinned.message = di.message; pinned.level = 'urgent'; pinned.active = !di.passed; }
+    else if (!di.passed) { alerts.unshift({ id: 'draftday2026', message: di.message, level: 'urgent', active: true, created_at: now() }); }
+    await setDoc('alerts', alerts);
+  } catch (e) { /* the config saved; the alert re-pin is best-effort */ }
+  back(res, 'season', msg('Draft day updated.'));
+}));
+
 // Freeze each owner's pre-Sleeper record, then track the Sleeper era live.
 // Seasons Sleeper never saw (the league's old site) are preserved exactly.
 router.post('/sync-records', aw(async (req, res) => {

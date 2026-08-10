@@ -69,6 +69,25 @@ check('daysUntil: 14 days out', D.daysUntil('2026-08-22', '2026-08-08T00:00:00Z'
 check('daysUntil: draft day is 0', D.daysUntil('2026-08-22', '2026-08-22T06:00:00Z') === 0);
 check('daysUntil: after the draft goes negative', D.daysUntil('2026-08-22', '2026-08-25T00:00:00Z') < 0);
 
+// ── draftAnnouncement — DERIVED from config, one source for banner+alert ─────
+{
+  // Fallback DATE derives its year from the season (never a hardcoded literal).
+  const di = D.draftAnnouncement({}, '2026-08-10T12:00:00Z', 2026);
+  check('draftAnnouncement: fallback is the season-year draft, Sat 8/22 6pm at Cory\'s', di.message === "DRAFT DAY: Saturday August 22 at 6:00 PM — Cory's House. Be there.");
+  check('draftAnnouncement: weekday is DERIVED from the date (Saturday)', di.weekday === 'Saturday');
+  check('draftAnnouncement: countdown reads 12 days out', di.days === 12 && di.countdownText === '12 days out');
+  check('draftAnnouncement: not passed / not today pre-draft', di.passed === false && di.today === false);
+  check('draftAnnouncement: fallback year FOLLOWS the season (2027 → 2027)', D.draftAnnouncement({}, '2027-01-01T00:00:00Z', 2027).date === '2027-08-22');
+  const over = D.draftAnnouncement({ draft_date: '2026-08-22', draft_time: '7:30 PM', draft_location: 'The Sports Bar' }, '2026-08-20T12:00:00Z', 2026);
+  check('draftAnnouncement: config overrides date + time + place', over.message === 'DRAFT DAY: Saturday August 22 at 7:30 PM — The Sports Bar. Be there.');
+  check('draftAnnouncement: today reads TODAY', D.draftAnnouncement({}, '2026-08-22T09:00:00Z', 2026).today === true && D.draftAnnouncement({}, '2026-08-22T09:00:00Z', 2026).countdownText === 'TODAY');
+  check('draftAnnouncement: after the draft is marked passed', D.draftAnnouncement({}, '2026-09-01T00:00:00Z', 2026).passed === true);
+  check('draftAnnouncement: a bad configured date does not throw and falls back to the raw string', D.draftAnnouncement({ draft_date: 'nonsense' }, '2026-08-10T00:00:00Z', 2026).longDate === 'nonsense');
+  // No config date AND no season year → unconfigured (banner hides, no throw).
+  const none = D.draftAnnouncement({}, '2026-08-10T00:00:00Z');
+  check('draftAnnouncement: no date + no season year → configured:false, no message', none.configured === false && none.message === null && none.date === null);
+}
+
 // ── buildModel on the fixture ──────────────────────────────────────────────
 {
   const m = D.buildModel({ statusText: FIX_STATUS, decText: FIX_DEC,
