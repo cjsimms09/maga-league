@@ -33,7 +33,25 @@ const ck = (n, c, d) => { c ? (pass++, console.log('PASS ' + n)) : (fail++, cons
   ck('renders best-available by every position', ['QB', 'RB', 'WR', 'TE', 'K', 'DEF'].every(p => new RegExp('<h3>' + p + '</h3>').test(html)));
   ck('renders a manual pick log for every pick (teams x rounds)', (html.match(/class="pick"/g) || []).length === 150);
   ck('carries a board-age stamp + the "print the night before" fallback line', /Print the night before/.test(html) && /board built|board age/.test(html));
-  ck('flags a stale board with the SAME 6h threshold the war room uses', !/rebuild before you draft off it/.test(html) || /rebuild before you draft off it/.test(html)); // presence tolerated; age-dependent
+  // THE STALE FLAG, asserted against the artifact's REAL age rather than tolerated.
+  // This check used to read `!X || X` — a tautology that could never fail, which is
+  // the exact "guard protecting nothing" class this project keeps finding. Compute
+  // the board's age from the same artifact the page reads and require the warning
+  // to agree with the 6h threshold in BOTH directions.
+  {
+    let builtAt = null;
+    try { builtAt = JSON.parse(fs.readFileSync(path.join(ROOT, 'public', 'draft_data.json'), 'utf8')).built_at; } catch (e) { /* no artifact */ }
+    const warned = /rebuild before you draft off it/.test(html);
+    if (builtAt) {
+      const hrs = (Date.now() - Date.parse(builtAt)) / 3.6e6;
+      const shouldWarn = hrs > 6;
+      ck(`stale flag agrees with the 6h threshold (board is ${hrs.toFixed(1)}h old, warning ${warned ? 'shown' : 'absent'})`,
+        warned === shouldWarn, `expected warning=${shouldWarn}`);
+    } else {
+      ck('with no artifact the sheet says the age is unknown rather than implying fresh',
+        /board age unknown/.test(html));
+    }
+  }
   ck('no template error', !/ReferenceError|is not defined|Cannot read/.test(html));
 
   // Commissioner-only: a plain member is refused.

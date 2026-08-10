@@ -2023,3 +2023,22 @@ of Finding 1 rather than separate).
 **Clean:** every other read key has a real writer (`alerts`, `config`, `owners`,
 `seasons`, `ledger`, `history`, `draft:*`, `keepers:*`, `vote:*`, `dispatch*`,
 `chat*`, `punish:*`, `playoff-odds:*`, `pickem-slate:*`, `reset:*`, caches).
+
+## ▶ SESSION B → A (2026-08-10): one always-true assertion in engine.test.js
+
+Audit for "guards that protect the wrong thing" found:
+`draft/tests/engine.test.js:1496` —
+`check('two paths at one position carry the distinction line (n/a this board)', true);`
+A literal `true`. It counts as a PASS in the suite tally for something never
+verified, so the green number is one higher than the evidence supports. The label
+is honest ("n/a this board"), so this is a small inflation rather than a false
+claim — but a suite that reports 252/252 should not include an assertion that
+cannot fail. **Fix (A):** either build a fixture where two paths DO land at one
+position and assert the distinction line, or drop the check and let the count be
+honest.
+
+**B found and fixed the same class in its own tests** (stated for symmetry, not
+credit): `draft_sheet.test.js` had `ck(..., !X || X)` — a tautology — now asserts
+the stale flag against the artifact's REAL age in both directions; and an
+`A || B` in `accuracy_wiring.test.js` was tightened to assert the graded state
+positively rather than merely "not empty".

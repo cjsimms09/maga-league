@@ -59,8 +59,11 @@ const snap = (at, nGraded, brier, decisions) => ({
   const c = cookieFrom(await fetch(b + '/login', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: 'username=cory&password=pw', redirect: 'manual' }));
   const html = await (await fetch(b + '/lineup/accuracy', { headers: { Cookie: c } })).text();
 
+  // Asserted POSITIVELY: the page must show the graded state, not merely fail to
+  // show the empty one. (An `A || B` here would pass on either, which is the weak
+  // form that lets a wiring break slide through.)
   ck('the page reads the grader\'s append-only ledger (not a flat key nothing writes)',
-    !/nothing graded yet|no grades yet/i.test(html) || /9/.test(html));
+    /Calibration/.test(html) && /\b9\b/.test(html) && !/nothing graded yet|no grades yet/i.test(html));
   ck('it shows the LATEST snapshot\'s graded count (9, not the earlier 4)', /\b9\b/.test(html));
   ck('calibration renders once grades exist', /Calibration/.test(html) && /0\.17|\.17/.test(html));
 
