@@ -55,7 +55,7 @@
             <span class="lo-verdict-line"><%= posture.headline %></span>
           </div>
           <p class="lo-verdict-why"><%= posture.why %></p>
-          <p class="muted lo-src">Projections: <%= SRC_LABEL[projSource] || 'unknown source' %>.<% if (!live.oppKnown) { %> Opponent modelled as a typical winning-band score (<%= Math.round(band.median) %>) until theirs lands.<% } %></p>
+          <p class="muted lo-src">Projections: <%= SRC_LABEL[projSource] || 'unknown source' %>.<% if (projSource && projSource !== 'sleeper') { %> <b>Treat the dollar figures as directional, not precise, until live projections land.</b><% } %><% if (!live.oppKnown) { %> Opponent modelled as a typical winning-band score (<%= Math.round(band.median) %>) until theirs lands.<% } %></p>
         </div>
       </div>
     <% } %>
