@@ -5426,7 +5426,13 @@
       });
     });
     $('#reset-weights').addEventListener('click', () => {
-      applyPreset('balanced', 'Back to the defaults.');
+      // SEV-1 FIX (B's audit, 2026-08-10): reset used to load 'balanced' — every
+      // term at ~1.0 including tier and risk, the two the Lab measured as the
+      // LARGEST DRAGS — and called it "the defaults". One tap mid-draft silently
+      // switched the board to the weighting measured as WORST. Reset now loads the
+      // MEASURED core the tool actually ships on, and says so.
+      applyPreset('measured', 'Reset to the Measured core (what the tool ships on): '
+        + 'value + stack, everything the Lab measured as drag or null turned off.');
     });
     renderPresets();
     document.body.addEventListener('click', ev => {
