@@ -363,14 +363,32 @@ def probe() -> dict:                                        # pragma: no cover (
                                 if any(w in k.lower() for w in
                                        ("limit", "remain", "quota", "reset", "credit"))})
         # Markets/props: try the documented shapes for a bookmakers/markets list.
-        for probe_path in ("/v3/bookmakers", "/v3/markets", "/v3/fixtures?sport=americanfootball_nfl"):
+        # THE NUMBER THAT MATTERS: does ONE request return the whole NFL slate, or
+        # one game per request? That is one call a week versus sixteen, and it is
+        # why "500/day is enormous" and "measure the real cost" only agree if a
+        # request is cheap. /v3 is the working prefix (path discovery, run 6).
+        for probe_path in ("/v3/bookmakers", "/v3/markets", "/v3/leagues",
+                           "/v3/events", "/v3/events?sport=american-football",
+                           "/v3/fixtures?sport=american-football",
+                           "/v3/odds?sport=american-football",
+                           "/v3/matches?sport=american-football"):
             try:
                 d2, h2 = get(c["host"] + probe_path)
+                body = json.dumps(d2)[:1200].lower()
                 io.setdefault("secondary", {})[probe_path] = {
                     "status": 200,
                     "keys": sorted(d2.keys())[:12] if isinstance(d2, dict) else f"list[{len(d2)}]",
+                    # SLATE vs PER-GAME: how many event-like rows came back from ONE
+                    # request. >1 means the slate is retrievable in a single call.
+                    "rows": (len(d2) if isinstance(d2, list) else
+                             len(d2.get("data") or d2.get("events") or d2.get("fixtures") or [])),
+                    # Do the four props and any TOUCHDOWN market appear at all?
+                    "mentions_props": [w for w in ("player_", "receptions", "reception_yds",
+                                                   "rush_yds", "pass_yds") if w in body],
+                    "mentions_touchdown": ("touchdown" in body or "_td" in body or "anytime" in body),
                     "rate_headers": {k: v for k, v in h2.items()
                                      if any(w in k.lower() for w in ("limit", "remain", "credit"))},
+                    "sample": body[:260],
                 }
             except Exception as e2:                         # noqa: BLE001
                 io.setdefault("secondary", {})[probe_path] = {
