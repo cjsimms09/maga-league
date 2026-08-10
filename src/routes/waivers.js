@@ -61,17 +61,28 @@ function dropCandidate(roster, league) {
   return pool.length ? pool[0] : null;
 }
 
-/* Consensus projection for a player — raw, unmodelled, averaged across sources
- * (C3). Reads whatever source fields are present; labelled raw so it is never
- * confused with our valuation. Extend sources here as they are wired. */
-function consensusProjection(player) {
-  const vals = [];
-  if (player.proj_sleeper != null) vals.push(Number(player.proj_sleeper));
-  if (player.proj_fantasypros != null) vals.push(Number(player.proj_fantasypros));
-  if (player.proj_mean != null && !vals.length) vals.push(Number(player.proj_mean));
-  const n = vals.length;
-  return n ? { value: vals.reduce((a, b) => a + b, 0) / n, sources: n, label: 'raw consensus' }
-           : { value: null, sources: 0, label: 'raw consensus (none)' };
+/* Consensus projection for a player — now DELEGATED to the ONE shared C3
+ * derivation (`public/js/draft/consensus.js`), so the wire and the draft board
+ * cannot label the same player differently.
+ *
+ * This used to be a second, local implementation. It returned the same VALUE but
+ * a dishonest LABEL: with only Sleeper wired it still said "raw consensus", the
+ * exact small-lie-in-the-sanity-check the shared module's honest-labelling rule
+ * exists to prevent (>=2 sources -> "Consensus (N src)"; 1 -> "<Source> proj").
+ * Second derivations of one quantity are the disease we keep finding; this is one
+ * fewer. Shape is preserved for existing callers (value/sources/label), with
+ * `sources` kept NUMERIC here (the shared module returns the source names).
+ */
+const SharedConsensus = require('../../public/js/draft/consensus.js');
+
+function consensusProjection(player, provenance) {
+  const r = SharedConsensus.rawProjection(player, provenance);
+  return {
+    value: r.value,
+    sources: (r.sources || []).length,
+    label: r.value == null ? 'no projection' : r.label,
+    isConsensus: !!r.isConsensus,
+  };
 }
 
 /* Evaluate the free-agent pool for MY roster. Returns ranked claims, each with the
