@@ -56,5 +56,29 @@ for (const args of [[0,0.5,0.05],[7,0.9,0.1],[7,0.1,0.2],[3,0.5,0.3],[5,null,0.2
     !!v && /^(chase|protect)$/.test(v.mode) && !!v.headline && !!v.why, v);
 }
 
+// NO PROJECTIONS YET. Post-draft, pre-week-1, every player projects 0 → the
+// lineup mean is ~0 and pWin collapses to ~0%. The verdict must read as "pending",
+// not "P(win) 0% — play the floor" (doom off an all-zero board).
+{
+  const zero = ['QB','RB','RB','WR','WR','TE','K','DEF']
+    .map((p, i) => ({ id: 'z' + i, name: 'Z' + i, pos: p, proj: 0, sd: null }));
+  const band = LO.weeklyHighBand();
+  const res = LO.optimize(zero, { band, oppMean: band.median, matchupValue: 25 });
+  const v = LO.weeklyPosture(res, band);
+  ck('all-zero board → pending verdict, not a 0%% doom read',
+    v.mode === 'pending' && /no projections/i.test(v.headline)
+      && !/play the floor|0%/i.test(v.why), v);
+}
+// A guard this blunt must NOT fire on a real (even weak) lineup.
+{
+  const weak = ['QB','RB','RB','WR','WR','TE','K','DEF']
+    .map((p, i) => ({ id: 'w' + i, name: 'W' + i, pos: p, proj: [14,9,8,9,8,6,5,4][i], sd: null }));
+  const band = LO.weeklyHighBand();
+  const res = LO.optimize(weak, { band, oppMean: band.median, matchupValue: 25 });
+  const v = LO.weeklyPosture(res, band);
+  ck('a real weak lineup stays a normal chase/protect verdict (not pending)',
+    /^(chase|protect)$/.test(v.mode), v);
+}
+
 console.log(`\n${pass}/${pass + fail} weekly-posture checks passed`);
 process.exit(fail ? 1 : 0);

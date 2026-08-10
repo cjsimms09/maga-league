@@ -51,18 +51,18 @@
       <div class="card lo-verdict lo-<%= posture.mode %>" style="margin-bottom:1.1rem">
         <div class="body">
           <div class="lo-verdict-head">
-            <span class="lo-verdict-tag"><%= posture.mode === 'chase' ? '🎯 CHASE' : '🛡️ PROTECT' %></span>
+            <span class="lo-verdict-tag"><%= posture.mode === 'chase' ? '🎯 CHASE' : posture.mode === 'pending' ? '⏳ PENDING' : '🛡️ PROTECT' %></span>
             <span class="lo-verdict-line"><%= posture.headline %></span>
           </div>
           <p class="lo-verdict-why"><%= posture.why %></p>
-          <p class="muted lo-src">Projections: <%= SRC_LABEL[projSource] || 'unknown source' %>.<% if (projSource && projSource !== 'sleeper') { %> <b>Treat the dollar figures as directional, not precise, until live projections land.</b><% } %><% if (!live.oppKnown) { %> Opponent modelled as a typical winning-band score (<%= Math.round(band.median) %>) until theirs lands.<% } %></p>
+          <p class="muted lo-src">Projections: <%= SRC_LABEL[projSource] || 'unknown source' %>.<% if (!live.projPending && projSource && projSource !== 'sleeper') { %> <b>Treat the dollar figures as directional, not precise, until live projections land.</b><% } %><% if (!live.projPending && !live.oppKnown) { %> Opponent modelled as a typical winning-band score (<%= Math.round(band.median) %>) until theirs lands.<% } %></p>
         </div>
       </div>
     <% } %>
 
     <%# ── Play this — the action ───────────────────────────────────────────── %>
     <div class="card" style="margin-bottom:1.1rem">
-      <h2>✅ Play This <span class="sub">projected <%= live.ev.mean.toFixed(1) %> · P($100) <%= Math.round(live.ev.pHigh * 100) %>%<% if (live.ev.pWin != null) { %> · P(win) <%= Math.round(live.ev.pWin * 100) %>%<% } %></span></h2>
+      <h2>✅ Play This <span class="sub"><% if (live.projPending) { %>projections pending — probabilities light up at kickoff<% } else { %>projected <%= live.ev.mean.toFixed(1) %> · P($100) <%= Math.round(live.ev.pHigh * 100) %>%<% if (live.ev.pWin != null) { %> · P(win) <%= Math.round(live.ev.pWin * 100) %>%<% } %><% } %></span></h2>
       <div class="body tight">
         <%# The variance play(s): every player the solver started OVER a higher-floor
             stud (the calls) is the ceiling bet. Mark them so "chase" is concrete —
@@ -130,7 +130,7 @@
       <details class="card sa-preview" style="margin-bottom:1rem">
         <summary>📣 Preview the Sunday alert email &amp; send yourself a test</summary>
         <div class="body">
-          <% if (alert.posture) { %><div class="sa-head"><%= alert.posture.mode === 'chase' ? '🎯 CHASE' : '🛡️ PROTECT' %> — <%= alert.posture.headline %></div>
+          <% if (alert.posture) { %><div class="sa-head"><%= alert.posture.mode === 'chase' ? '🎯 CHASE' : alert.posture.mode === 'pending' ? '⏳ PENDING' : '🛡️ PROTECT' %> — <%= alert.posture.headline %></div>
           <p class="muted" style="margin:0 0 .6rem; font-size:.82rem"><%= alert.posture.why %></p><% } %>
           <div class="sa-head"><%= alert.headline %></div>
           <% if (alert.hasCalls) { %>

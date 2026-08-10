@@ -531,6 +531,22 @@ function weeklyPosture(res, band) {
   const pWin = ev.pWin;                 // null when the opponent isn't set yet
   const pHigh = Number(ev.pHigh || 0);
   const edge = Number((res && res.edge) || 0);
+
+  // NO PROJECTIONS YET. After the draft but before the week's stats exist, every
+  // player falls to a zero projection, so the lineup's mean is ~0 and pWin
+  // collapses to ~0%. Read literally that becomes "P(win) 0% — play the floor",
+  // which is doom, not truth: there is simply nothing to optimize yet. A real
+  // eight-starter lineup always sums well above 1, so a near-zero mean can only
+  // be the all-zero fallback — say the honest thing instead of a scary call.
+  if (Number(ev.mean || 0) < 1 && res && res.lineup && res.lineup.length) {
+    return {
+      mode: 'pending',
+      headline: 'No projections yet — nothing to optimize',
+      why: 'Your roster is set, but there are no player projections for this week '
+        + 'yet. The start/sit and chase-versus-protect call lights up the moment '
+        + 'projections land — check back closer to kickoff.',
+    };
+  }
   const pct = p => p == null ? '—' : Math.round(p * 100) + '%';
   const dol = n => (n >= 0 ? '+$' : '−$') + Math.abs(Math.round(n));
   const chasing = edge >= 1;            // the solver traded floor for ceiling

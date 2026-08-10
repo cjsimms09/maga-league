@@ -339,8 +339,21 @@
 
     <%# §2(d) — condensed opponent strip (the full breakdown stays in Zone 3). %>
     <div class="card">
-      <h2>🎯 Before your pick <span class="sub">who's up · likely picks</span></h2>
-      <div class="body"><div id="threat-strip" class="threat-strip"></div></div>
+      <h2>🎯 Before your pick <span class="sub">will your guy make it back?</span></h2>
+      <div class="body">
+        <p class="muted" style="margin:0 0 .55rem; font-size:.78rem">
+          Everyone who picks between now and your next turn. Each row is one
+          seat: their pick number, who they are, the player(s) they're most
+          likely to take, and the starting slot they still need.
+          <b>How to use it:</b> if a player you want is listed as someone's
+          likely pick, take him now — he probably won't come back to you. If
+          nobody ahead needs his position, you can safely wait a round.
+          The lines up top summarize it: <i>“3/4 need RB”</i> is a run about to
+          happen; <i>“still need a starter — QB 2 (low = wait)”</i> means only
+          two teams still need a QB, so that position is safe to hold off on.
+        </p>
+        <div id="threat-strip" class="threat-strip"></div>
+      </div>
     </div>
   </aside><%# /wr-zone2 %>
   </details>
@@ -406,13 +419,19 @@
     </div>
 
     <div class="card">
-      <h2>🎯 Before your next pick <span class="sub" id="threats-head"></span></h2>
+      <h2>🔮 Survival odds — will your targets last? <span class="sub" id="threats-head"></span></h2>
       <div class="body">
         <p class="muted" style="margin:0 0 .6rem; font-size:.78rem">
-          Every seat between you and your next turn, what they need, and who
-          they are likely to take — built from <b>their own draft history on
-          Sleeper</b>. This has been driving the survival percentages all along;
-          this is it saying so out loud, so you can disagree with it.
+          The full answer to “can I wait on this guy?” for every seat between now
+          and your next turn.
+          <b>“Most likely to be gone”</b> lists the players at highest risk and,
+          where one stands out, the seat that will probably grab them —
+          if your target is near the top, take him now.
+          Below that, one row per seat before you: their pick number, the
+          <b>positions they’ll likely target</b> (with odds), the specific
+          <b>names</b> they tend to take, and their <b>draft tendency</b> —
+          all built from <b>their own past drafts on Sleeper</b>. No history →
+          modelled as league-average, and it says so, so you can overrule it.
         </p>
         <div id="threats"></div>
       </div>
