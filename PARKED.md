@@ -1425,3 +1425,43 @@ Ranked-list player names & stat numbers were #fff (invisible on cream); position
 badges used pale dark-theme pinks/greens/blues; manager-card names #fff; keeper
 roster names pale gold. All recolored to --ink / readable tints. So "can't read
 player names under Full ranked list" is fixed on the branch.
+
+---
+
+## B→A (2026-08-10, cont.): shadow-standings staleness CONFIRMED + Need-Filler label
+
+Two more from Cory live-testing. Both A-lane (public/js/draft/*).
+
+### CONFIRMED — shadow standings show already-picked players (was BUG 6 "verify")
+Cory: "Shadow standings still showing me players that have already been picked."
+Now happening in his mocks, so this is no longer hypothetical. renderShadowStrip
+(app.js ~4640) displays each strategy's committed counterfactual roster as-is,
+with NO re-filter. Two indistinguishable causes — A must resolve which:
+  (a) LEGIT counterfactual: the shadow drafted a player who was AVAILABLE at
+      Cory's pick but got taken by someone else afterward (Cory took a different
+      player). That player is legitimately on the shadow's alt-universe roster.
+  (b) REAL BUG: the shadow drafted a player who was ALREADY gone at that pick
+      because the mock board (boardAtPick) / state.drafted was stale — the mock
+      opponent picks aren't all routed into state.drafted, so the availability
+      gate had nothing to drop.
+Cory can't tell (a) from (b). Fix both: (1) add the updateShadows assert
+(boardAtPick minus state.drafted must be empty of players already seen leave the
+board) to kill (b); (2) LABEL the panel so (a) reads as intended — e.g. "counter-
+factual roster — may include players since taken by others," so a legit alt pick
+isn't mistaken for a bug. Verify the mock's opponent-pick path routes every pick
+through ATTR.markLocal/applyRemote (both add to state.drafted).
+
+### Need-Filler recommends a 2nd TE (Sam LaPorta) when a TE is already rostered
+Cory: "the need filler model says its choice is Sam LaPorta when I already have
+a TE — makes no sense." Probe (TE Bowers + 2 RB + WR rostered, pick 61): with a
+normal board Need-Filler picks a WR (Odunze), NOT LaPorta — the flex discount
+correctly gives LaPorta need=0.0 ("flex depth — marginal over the next flex
+option"). So in Cory's actual state the better WR/RB were already gone, leaving
+LaPorta as best-available, and Need-Filler took him on VONA (11), not on TE need.
+=> It's the degenerate-board-leftover problem again, made worse by a misleading
+label: the strategy is called "Need-Filler" but here it's taking best-available
+for the FLEX, not filling a need. Fixes: (1) don't surface a strategy pick that
+duplicates a filled single-starter slot without saying it's a flex/bench play;
+(2) when the board is picked-over and a strategy's pick is VONA-driven not need-
+driven, say so, so the label stops implying a need that isn't there. Same family
+as the need-term / consensus-artifact items above.
