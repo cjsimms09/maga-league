@@ -1325,3 +1325,52 @@ board).
 
 **Priority:** (1) real `proj` on rosterView.rows, (2) `opp.points` on myMatchup,
 (3) per-player `bye` on rosterView.rows.
+
+---
+
+## B→A AUDIT (2026-08-10): Draft engine systemic scoring failure
+
+Cory reports "the model isn't working." Confirmed by simulating a full draft off
+public/draft_data.json (1-QB, 10-team, my_draft_slot 4), taking E.recommend()[0]
+every turn. From R9 on, EVERY top pick is a QB2+ with a NEGATIVE score and no
+RB/WR appears in the top 5. Result roster: 6 QBs (Dak/Purdy/Nix/Goff/Love/Baker),
+forced DEF+K in R14-15. All A's lane (engine.js + app.js). NOT the deploy gap.
+
+ROOT CAUSES (compound once starters are full):
+1. VONA keeps rewarding a scarce onesie position even for an UNSTARTABLE backup —
+   a benched QB2 keeps vona 10-16 because QB is thin, so he floats to #1. Onesie
+   discount trims but doesn't sink him below skill players.
+2. Need goes deeply negative for filled positions (bench RB/WR/TE need -28..-35),
+   pushing real bench upside BELOW the discounted backup QB.
+
+FIXES:
+- A. Cap/zero VONA-scarcity credit for a position you can't start another of;
+  score bench-only players on UPSIDE/handcuff value, not scarcity.
+- B. Strengthen onesie discount so a duplicate onesie ranks below any
+  startable/upside skill player. Test: with a QB rostered, no QB2 in top 5 until
+  skill depth exhausted.
+- C. Late-round score floor / mode switch: when starters full + picks are bench-
+  only, rank by ceiling/upside not VONA. Negative top score for 6 straight rounds
+  = metric is meaningless; detect and change objective.
+- D. Empty single-starter-slot need (QB/TE/K/DEF): marginal over best startable
+  alt still available by next pick, NOT full VORP. (Maye: need=24.3=full VORP
+  tied a mid QB with the best RB at pick 53.)
+- E. Value inversions: need must not make it take a low-VONA slot-filler
+  (McConkey vona 4.8) over a high-VONA startable player (Swift vona 37.9).
+
+UI-LAYER (app.js), separate from scoring:
+- F. Paths/"Best <POS> value" cards must not headline or give a primary take
+  button to a player with onesie.discounted OR an already-filled slot — demote to
+  a footnote. When the "rule" overrides the "composite" for roster construction,
+  the RULE's pick is the headline. (Screenshot: "Best QB value — Prescott — top
+  path / I TOOK PRESCOTT" while Burrow already rostered.)
+- G. Shadow consensus "N of N": show WHICH term drove agreement + keep the
+  "contested vs 2nd" flag. Unanimity driven by need/VONA is an artifact.
+
+ACCEPTANCE TEST to add: simulate the full draft taking scored[0] each turn from
+several slots; assert the roster never exceeds starter+1 at any onesie position,
+always fills every starter slot, and no scored[0] is negative while a positive-
+upside skill player remains on the board.
+
+Repro harnesses B used are in B's scratchpad (audit.js / audit2.js / shadow_probe.js)
+— pattern documented above; re-create from engine.js + draft_data.json.
