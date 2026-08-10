@@ -1655,3 +1655,23 @@ says "these two read the SAME provenance the banner reads"; the miss is that the
 read the same `built_at` but apply different numbers. Make the number one variable.
 (B reverted a one-line attempt here on Cory's instruction — this is A's to own so
 the constant lands with A's other app.js work and there's no two-cooks merge.)
+
+## ▶ SESSION B → A FLAG (2026-08-10): strategy picker footprint when spread is flat (critique #3)
+
+Cory's war-room review item 3: the doctrine-plan picker (`#doctrine-picker`, filled
+by app.js `renderDoctrinePicker`, radios `dp-toggle`) shows nine strategies, five at
++$0 and two at −$2 — nine choices implying a decision that doesn't exist.
+
+**Why this is an A-seam, not a pure B style fix:** the honest presentation is
+CONDITIONAL on the spread — collapse to a one-line "at this pick the strategies are
+indistinguishable" (full list one tap down, exactly like `#shadow-projection` already
+does) WHEN the gaps are within noise, but surface it WHEN a real spread exists. B
+can't tell $0 from −$2 from the emitted markup (`.dp-gap` only carries an `up` class
+for gap>0), and A deliberately made this picker "ALWAYS VISIBLE and compact (Cory)"
+— so a static B collapse would either undo that or wrongly bury a real spread.
+
+**Ask (A):** when the top-to-bottom strategy gap is within noise, emit the compact
+"indistinguishable" summary as the always-visible line and put the nine rows behind
+the `<details>` you already use for `#shadow-projection`; when the spread is real,
+render it as now. **B will style whatever compact/collapsed form you emit** — the
+`.dp-*` classes are already B's. (Differentiation itself is on A's list.)
