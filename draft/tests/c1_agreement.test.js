@@ -39,6 +39,39 @@ const league = art.league;
 // the property the whole contract rests on, so assert it explicitly.
 const withRep = art.players.filter(p => p.proj_mean != null && p.replacement != null);
 if (withRep.length) {
+  /* THE GAP THIS SUITE HAD UNTIL 2026-08-10 (found by rule 10).
+   *
+   * Everything below compared a SUBSET's levels against `full` — but `full` is
+   * computed by the SAME function, so the comparison is self-referential. Delete
+   * the line that reads `p.replacement` and every position silently falls to
+   * DERIVATION; derived-vs-derived still agrees across these subsets, and the
+   * whole suite stayed GREEN while the production path was gone.
+   *
+   * That is not hypothetical drift. On the live board the two genuinely differ:
+   *
+   *     pos   pipeline   derived
+   *     WR    172.67     199.00      <- every WR repriced by 26.3 of VORP
+   *     QB    343.42     337.48
+   *     TE    150.72     146.90
+   *     DEF    99         96
+   *
+   * So the failure this suite exists to prevent — a valuation moving without
+   * anyone deciding it should — could happen with the suite passing, and it
+   * would be WORSE than the thin-pool bug: there both tools disagreed, which is
+   * detectable, whereas here both agree on the same wrong number.
+   *
+   * So assert the contract directly: where the pipeline published a value, that
+   * is the value, full stop. Nothing may be derived over the top of it.
+   */
+  const pipelineByPos = {};
+  withRep.forEach(p => { if (pipelineByPos[p.position] == null) pipelineByPos[p.position] = p.replacement; });
+  const levels = V.replacementLevels(withRep, league);
+  const overridden = Object.keys(pipelineByPos).filter(
+    pos => Math.abs(levels[pos] - pipelineByPos[pos]) >= 1e-9);
+  ck('the PIPELINE replacement is used verbatim, never re-derived over',
+     overridden.length === 0,
+     overridden.map(p => p + ': pipeline ' + pipelineByPos[p] + ' but got ' + levels[p]).join(', '));
+
   const full = V.replacementLevels(withRep, league);
   const states = {
     'thin (25)': withRep.slice(0, 25),

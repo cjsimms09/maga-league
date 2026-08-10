@@ -60,9 +60,22 @@ def test_no_two_source_modules_share_a_bare_name():
     """The `projections` trap: draft/projections.py and draft/backtest/projections.py
     were both importable as bare `projections`, so `sys.modules` served whichever
     loaded first and the exp modules got the wrong one. Assert no bare module name
-    is claimed by two files on the import roots the Lab actually inserts
-    (draft/ and draft/backtest/), so this collision cannot recur silently."""
-    roots = [DRAFT, DRAFT / "backtest"]
+    is claimed by two files on the import roots the Lab actually inserts, so this
+    collision cannot recur silently.
+
+    SCOPE WIDENED 2026-08-10 (found by rule 10: copying a module into draft/tools
+    produced a real collision that this guard did not notice). It scanned only
+    draft/ and draft/backtest/, but a sweep of every `sys.path.insert` in the Lab
+    shows `parents[1] / "tools"` and the tests directory itself are also inserted
+    — draft/tools holds five importable modules, including merge_completeness,
+    which is itself one of the guards this project relies on. A collision there
+    would poison sys.modules exactly as `projections` did, and silently.
+
+    The roots below are the ones actually inserted somewhere in draft/**. If a new
+    import root is added, add it here — the failure mode is silent, so an
+    unscanned root is worse than no guard, which is the whole lesson of the
+    original bug."""
+    roots = [DRAFT, DRAFT / "backtest", DRAFT / "tools", TESTS]
     by_name = defaultdict(list)
     for root in roots:
         for p in root.glob("*.py"):

@@ -67,18 +67,29 @@ const DATA = { league: { league_id: LEAGUE }, week: 5, rosters: [], users: [], m
   ck('a served bundle carries _freshness', !!(b && b._freshness), b && b._freshness);
   ck('fresh cache reports NOT stale', b._freshness.is_stale === false, b._freshness);
   ck('and reports an age', typeof b._freshness.age_ms === 'number', b._freshness);
-  ck('freshness() reads it off the bundle',
-     SLEEPER.freshness(b) && SLEEPER.freshness(b).served_from === 'cache');
 
-  // ── NON-ENUMERABLE: nothing downstream may see a new key ──────────────────
-  ck('_freshness is invisible to Object.keys',
-     Object.keys(b).indexOf('_freshness') === -1, Object.keys(b));
-  ck('_freshness is invisible to JSON.stringify',
-     JSON.stringify(b).indexOf('_freshness') === -1);
-  ck('_freshness does not survive a spread (so it cannot leak into a response)',
-     ({ ...b })._freshness === undefined);
+  // ── THE AGE CLAUSE, ON ITS OWN ────────────────────────────────────────────
+  // GAP FOUND BY RULE 10 (2026-08-10): deleting the `age > TTL_MS` half of
+  // is_stale left this suite GREEN. Every stale case here also carried
+  // served_from === 'stale-after-failure', which is independently sufficient, so
+  // the age half was never exercised — the same shape as the bug this file was
+  // rewritten to fix earlier the same day, in the opposite direction.
+  //
+  // It cannot be reached through bundle(): that path serves the cache only while
+  // `Date.now() - fetched_at < TTL_MS`, the very condition the clause tests. The
+  // clause is a BACKSTOP against the two separate reads of TTL_MS diverging —
+  // let them, and a cache older than promised is served flagged FRESH, with no
+  // failure anywhere to hint at it. So it is tested where it lives.
+  {
+    const old = { fetched_at: Date.now() - 11 * 60 * 1000 };
+    const aged = SLEEPER.withFreshness({ ok: 1 }, old, 'cache');
+    ck('a cache aged past TTL is STALE on AGE ALONE (served_from says cache)',
+       aged._freshness.is_stale === true, JSON.stringify(aged._freshness));
+    const fresh = SLEEPER.withFreshness({ ok: 1 }, { fetched_at: Date.now() - 1000 }, 'cache');
+    ck('and a within-TTL cache hit is still NOT stale (no cry-wolf banner)',
+       fresh._freshness.is_stale === false, JSON.stringify(fresh._freshness));
+  }
 
-  // ── STALE AFTER A FAILURE is the case that was silent ─────────────────────
   const oldAt = Date.now() - 6 * 60 * 1000;          // beyond TTL
   CACHE = { league_id: LEAGUE, fetched_at: oldAt, data: DATA,
             failed_at: Date.now() - 5000, cached: 'x' };

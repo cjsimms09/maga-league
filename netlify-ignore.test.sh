@@ -38,11 +38,48 @@ TMP="$(mktemp -d)"; trap 'rm -rf "$TMP"' EXIT
     echo "DEPLOYP=$(git rev-parse HEAD~1)"
     echo "SUPPRESS=$(git rev-parse HEAD)"
   } > refs.env
+
+  # ── EVERY SERVED ROOT, one commit each ────────────────────────────────────
+  # Until 2026-08-10 this suite only ever exercised `views/`. The fixture even
+  # created public/js and src and then never committed to them, so every other
+  # entry in the gate's served-file pattern was unasserted — drop `public/` and
+  # the entire war room stops deploying with this suite still green.
+  #
+  # That is the worst failure available here, because it is DOUBLE-silent: the
+  # gate says SKIP, and deploy-verify then reports "the deploy gate SKIPS this
+  # push (no served change) — nothing to verify. OK." Two green checks over code
+  # that never reached the site, which is the stranded-deploy class exactly.
+  prev="$(git rev-parse HEAD)"
+  : > served_refs.env
+  add_served () {  # <label> <path>
+    mkdir -p "$(dirname "$2")"
+    echo "served-$1" > "$2"
+    git add -A; git commit -qm "served: $1"
+    echo "SERVED_${1}_BEFORE=$prev"   >> served_refs.env
+    echo "SERVED_${1}_AFTER=$(git rev-parse HEAD)" >> served_refs.env
+    prev="$(git rev-parse HEAD)"
+  }
+  add_served PUBLIC   public/js/draft/app.js
+  add_served SRC      src/sleeper.js
+  add_served SERVERJS server-app.js
+  add_served PKG      package.json
+  add_served TOML     netlify.toml
+  add_served FUNCS    netlify/functions/api.js
 )
 . "$TMP/refs.env"
+. "$TMP/served_refs.env"
 
 # served change since last build -> BUILD
 run "a served change (views/) since last build deploys"            1 "$BASE"    "$SERVED"
+# EVERY OTHER SERVED ROOT. `public/` is the war room itself; if it ever falls out
+# of the gate's pattern, draft-night JS silently stops shipping and BOTH the gate
+# and deploy-verify report green over it.
+run "a served change under public/ deploys"          1 "$SERVED_PUBLIC_BEFORE"   "$SERVED_PUBLIC_AFTER"
+run "a served change under src/ deploys"             1 "$SERVED_SRC_BEFORE"      "$SERVED_SRC_AFTER"
+run "a change to server-app.js deploys"              1 "$SERVED_SERVERJS_BEFORE" "$SERVED_SERVERJS_AFTER"
+run "a change to package.json deploys"               1 "$SERVED_PKG_BEFORE"      "$SERVED_PKG_AFTER"
+run "a change to netlify.toml deploys"               1 "$SERVED_TOML_BEFORE"     "$SERVED_TOML_AFTER"
+run "a change under netlify/functions/ deploys"      1 "$SERVED_FUNCS_BEFORE"    "$SERVED_FUNCS_AFTER"
 # docs-only since last build -> SKIP (budget batching)
 run "a docs-only change does NOT deploy"                           0 "$SERVED"  "$DOC"
 # THE RACE FIX: a served change BURIED under a later docs commit still deploys,

@@ -533,6 +533,11 @@ async function rosterView(data, sleeperMap, ownerId) {
 
 module.exports = {
   freshness,
+  // Exported for the freshness suite. The `age > TTL_MS` half of is_stale is
+  // UNREACHABLE through bundle() — its cache path is guarded by the same TTL —
+  // so that clause is a backstop against the two reads of TTL_MS diverging, and
+  // a backstop nothing can reach is a backstop nothing can test. Rule 10.
+  withFreshness,
   bundle, matchupsForWeek, weekPointsByOwner, myMatchup,
   standings, scoreboard, highScorer, teamName,
   autoMap, userMap, records, players, draftInfo, trendingAdds, WAR_POSITIONS,
