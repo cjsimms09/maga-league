@@ -348,14 +348,34 @@ def probe() -> dict:                                        # pragma: no cover (
         "/sports", "/v1/sports", "/api/sports", "/v3/sports",
         "/leagues", "/v1/leagues", "/fixtures", "/v1/fixtures", "/odds", "/v1/odds",
     ])
+    # /v3/sports responds 200 WITHOUT a key (path discovery, run 6). Walk from
+    # there to the questions that decide feasibility: NFL coverage, which markets,
+    # and — the number that actually matters — what one useful snapshot costs.
     try:
-        data, hdrs = get(f"{c['host']}/sports")
-        io.update(reachable=True, needs_key=False,
-                  payload_keys=sorted(data.keys()) if isinstance(data, dict) else "list",
+        data, hdrs = get(f"{c['host']}/v3/sports")
+        rows = data if isinstance(data, list) else (data.get("data") or data.get("sports") or [])
+        def _blob(x):
+            return json.dumps(x).lower() if not isinstance(x, str) else x.lower()
+        nfl = [r for r in rows if "nfl" in _blob(r) or "american football" in _blob(r)]
+        io.update(reachable=True, needs_key=False, sports_listed=len(rows),
+                  nfl_present=bool(nfl), nfl_entries=[str(r)[:90] for r in nfl[:4]],
                   rate_headers={k: v for k, v in hdrs.items()
-                                if "limit" in k.lower() or "remain" in k.lower()})
+                                if any(w in k.lower() for w in
+                                       ("limit", "remain", "quota", "reset", "credit"))})
+        # Markets/props: try the documented shapes for a bookmakers/markets list.
+        for probe_path in ("/v3/bookmakers", "/v3/markets", "/v3/fixtures?sport=americanfootball_nfl"):
+            try:
+                d2, h2 = get(c["host"] + probe_path)
+                io.setdefault("secondary", {})[probe_path] = {
+                    "status": 200,
+                    "keys": sorted(d2.keys())[:12] if isinstance(d2, dict) else f"list[{len(d2)}]",
+                    "rate_headers": {k: v for k, v in h2.items()
+                                     if any(w in k.lower() for w in ("limit", "remain", "credit"))},
+                }
+            except Exception as e2:                         # noqa: BLE001
+                io.setdefault("secondary", {})[probe_path] = {
+                    "status": getattr(e2, "code", str(type(e2).__name__))}
     except Exception as e:                                  # noqa: BLE001
-        # A 401 is a FINDING (key required), not a failure. Distinguish them.
         code = getattr(e, "code", None)
         io.update(reachable=(code is not None), needs_key=(code in (401, 403)),
                   status=code, error=f"{type(e).__name__}: {e}")
