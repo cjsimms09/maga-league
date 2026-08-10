@@ -378,17 +378,41 @@ router.get('/', aw(async (req, res) => {
   // The pinned alert's text was hand-typed and had gone stale ("5:00 PM", no
   // place); self-heal it to the derived line so the banner and the alert can never
   // disagree. Only writes when the stored text actually differs (no churn).
+  //
+  // AND IT RETIRES ITSELF. Both halves used to be gated on `!passed`, so the day
+  // after the draft the code simply stopped touching the alert — leaving it
+  // pinned, `active: true`, `level: 'urgent'`, at the top of EVERY page for the
+  // rest of the season, telling ten people to show up to a draft that already
+  // happened. It also stranded the stale hand-typed text, because healing was
+  // gated the same way: what stayed up was "DRAFT DAY IS SET: 08/22/26 at 5:00
+  // PM" — wrong time, no place — with nothing left to correct it. The countdown
+  // banner did hide itself, which is what made this invisible: the loud element
+  // was the one that stayed. Found by driving the front page as a member with
+  // the draft date three weeks in the past.
+  const isDraftAlert = a => a.id === 'draftday2026' || /^DRAFT DAY/i.test(a.message || '');
   const draftInfo = DASH.draftAnnouncement(world.config, new Date().toISOString(), season && season.year);
-  if (draftInfo.configured && !draftInfo.passed && draftInfo.message) {
+  if (draftInfo.configured && draftInfo.message) {
     try {
       const alerts = await getDoc('alerts', []);
-      const pinned = alerts.find(a => a.id === 'draftday2026' || /^DRAFT DAY/i.test(a.message || ''));
-      if (pinned && pinned.message !== draftInfo.message) {
+      const pinned = alerts.find(isDraftAlert);
+      if (pinned && draftInfo.passed) {
+        // The draft happened. Retire it — reversibly: the commissioner can
+        // re-activate it from the alerts admin, and the text is left intact so
+        // there is something to re-activate.
+        if (pinned.active) {
+          pinned.active = false;
+          await setDoc('alerts', alerts);
+        }
+        // Drop it from this request too, so it goes the moment the day turns.
+        if (Array.isArray(res.locals.alerts)) {
+          res.locals.alerts = res.locals.alerts.filter(a => !isDraftAlert(a));
+        }
+      } else if (pinned && pinned.message !== draftInfo.message) {
         pinned.message = draftInfo.message; pinned.level = 'urgent'; pinned.active = true;
         await setDoc('alerts', alerts);
         // Patch this request's already-computed alert region so the fix shows now.
         for (const a of (res.locals.alerts || [])) {
-          if (a.id === 'draftday2026' || /^DRAFT DAY/i.test(a.message || '')) a.message = draftInfo.message;
+          if (isDraftAlert(a)) a.message = draftInfo.message;
         }
       }
     } catch (e) { /* the banner still renders even if the alert heal fails */ }
