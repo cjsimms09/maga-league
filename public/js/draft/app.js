@@ -4863,6 +4863,14 @@
 
   function onSyncPicks(picks) {
     const seatSlot = mySlot();
+    // SPEED (audit 2026-08-10): the Sleeper poll fires every 4s, but most polls
+    // return NO new pick. Sleeper's pick list is append-only, so an unchanged count
+    // means nothing happened — skip the full board re-score (~1700 players) + full
+    // re-render that used to run every cycle regardless. Recommendations still update
+    // the instant a real pick lands; idle polls are now free.
+    const nPicks = (picks || []).length;
+    if (state._syncedPickCount === nPicks) return;
+    state._syncedPickCount = nPicks;
     picks.forEach(pick => {
       const id = String(pick.player_id);
       // draft_slot is the seat; roster_id is the team. A MOCK draft has no
