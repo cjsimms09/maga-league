@@ -133,5 +133,61 @@ function whoElseNeeds(player, leagueRosters, league, postures) {
 
 function round2(x) { return Math.round(Number(x || 0) * 100) / 100; }
 
+/* LIVE ADAPTER — turn a real Sleeper bundle into waiver tool inputs.
+ *
+ * @param bundle     sleeper.bundle() result { rosters, ... }
+ * @param playersDb  sleeper.players() { players: {pid: {name,pos,team,inj,...}} }
+ * @param artifact   the draft artifact (draft_data.json) — the SOURCE OF TRUTH for
+ *                   VORP and projections. CRITICAL: VORP must come from here, at
+ *                   full-pool replacement, NOT be recomputed over the FA pool —
+ *                   the waiver_live_check probe proved that recomputing over the
+ *                   thin available pool inflates RB/WR VORP and makes the waiver
+ *                   disagree with the draft on the same player (a C1 violation).
+ * @param myRosterId my Sleeper roster_id
+ *
+ * Returns { freeAgents, myRoster } ready for evaluateClaims. A player without an
+ * artifact entry (a deep waiver name the draft never ranked) is priced at the
+ * artifact's positional replacement — the same baseline the draft uses — so the
+ * valuation stays consistent across tools.
+ *
+ * NOT yet run live: Sleeper egress is blocked from the sandbox and the 2026 season
+ * is undrafted. This is the wired path for when both clear; today the tool is
+ * exercised on real 2025 data via draft/backtest/waiver_live_check.js.
+ */
+function waiverInputsFromBundle(bundle, playersDb, artifact, myRosterId) {
+  const byId = {};
+  ((artifact && artifact.players) || []).forEach(p => { byId[String(p.player_id)] = p; });
+  // positional replacement from the artifact (full-pool), for players it never ranked
+  const replByPos = {};
+  ((artifact && artifact.players) || []).forEach(p => {
+    if (p.vorp == null || p.proj_mean == null) return;
+    const repl = p.proj_mean - p.vorp;   // proj - vorp == replacement level, per position
+    if (replByPos[p.position] == null) replByPos[p.position] = repl;
+  });
+  const enrich = pid => {
+    const info = (playersDb && playersDb.players && playersDb.players[pid]) || {};
+    const art = byId[String(pid)];
+    const position = art ? art.position : (info.pos || null);
+    const proj_mean = art ? art.proj_mean : null;
+    // CANONICAL vorp from the artifact; deep FAs get artifact positional replacement.
+    const vorp = art ? art.vorp
+      : (proj_mean != null && replByPos[position] != null ? proj_mean - replByPos[position] : 0);
+    return { player_id: String(pid), name: info.name || (art && art.name) || String(pid),
+      position, proj_mean, vorp,
+      proj_sleeper: info.proj != null ? Number(info.proj) : undefined,
+      bye: art ? art.bye : info.bye, injury_status: info.inj };
+  };
+  const rosters = (bundle && bundle.rosters) || [];
+  const mine = rosters.find(r => String(r.roster_id) === String(myRosterId));
+  const rosteredEverywhere = new Set();
+  rosters.forEach(r => (r.players || []).forEach(pid => rosteredEverywhere.add(String(pid))));
+  const myRoster = ((mine && mine.players) || []).map(enrich).filter(p => p.position);
+  // Free agents = in the players DB, on NO roster.
+  const freeAgents = Object.keys((playersDb && playersDb.players) || {})
+    .filter(pid => !rosteredEverywhere.has(String(pid)))
+    .map(enrich).filter(p => p.position && p.proj_mean != null);
+  return { freeAgents, myRoster };
+}
+
 module.exports = { evaluateClaims, dropCandidate, whoElseNeeds, dollarsPerPoint,
-                   consensusProjection };
+                   consensusProjection, waiverInputsFromBundle };
