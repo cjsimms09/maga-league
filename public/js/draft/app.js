@@ -2457,9 +2457,18 @@
           teams: (state.data.league || {}).teams || 10,
         });
         var fcSeason = ledgerCtx().season;
+        if (!state.committedForecasts) state.committedForecasts = [];
         fc.forEach(function (f) {
           PredLedger.forecast({ season: fcSeason, method: f.method,
             pick: currentPick(), payload: f.payload });
+          // Keep a local copy keyed once, so the resolver (below) can pair each
+          // committed claim against reality when the draft reaches its pick. This
+          // is the client-side memory the forward loop needs — the ledger POST is
+          // fire-and-forget, but resolution has to match by key.
+          var k = (f.payload || {}).key;
+          if (k && !state.committedForecasts.some(function (x) { return (x.payload || {}).key === k; })) {
+            state.committedForecasts.push({ method: f.method, payload: f.payload });
+          }
         });
       } catch (e) { console.error('[forecast]', e && e.message); }
     }
@@ -4984,6 +4993,35 @@
     return round >= 1 && round <= n;
   }
 
+  /* FORWARD-LOOP CLOSE (2026-08-10, the resolver wire). The resolver core
+   * (DraftForecast.buildResolutions), the fire method (PredLedger.forecastResolution)
+   * and the grader (forecast_grade / grade-cron) ALL already existed — the one
+   * missing wire was calling them from the completed picks. Without it, on draft
+   * night the model commits dozens of timestamped survival + room-seat predictions
+   * and NOTHING grades them: the record-but-never-grade failure in the one place the
+   * evidence cannot be faked, on a window (the survival model's first live
+   * calibration read) that does not reopen. Real draft only; deduped by key in
+   * PredLedger, so firing on every sync resolves each claim exactly once, the moment
+   * its pick arrives. */
+  function resolveCommittedForecasts(picks) {
+    if (state.mockMode) return;                       // a mock is not forward evidence
+    if (typeof DraftForecast === 'undefined' || typeof PredLedger === 'undefined') return;
+    const forecasts = state.committedForecasts || [];
+    if (!forecasts.length) return;
+    const pickLog = (picks || [])
+      .filter(function (pk) { return pk && pk.pick_no != null && pk.player_id != null; })
+      .map(function (pk) { return { overall: Number(pk.pick_no), player_id: String(pk.player_id) }; });
+    if (!pickLog.length) return;
+    try {
+      const resolutions = DraftForecast.buildResolutions(forecasts, { picks: pickLog });
+      const season = ledgerCtx().season;
+      resolutions.forEach(function (r) {
+        PredLedger.forecastResolution({ season: season, method: 'forecast-resolver-v1',
+          pick: currentPick(), payload: r.payload });
+      });
+    } catch (e) { console.error('[forecast-resolve]', e && e.message); }
+  }
+
   function onSyncPicks(picks) {
     const seatSlot = mySlot();
     // SPEED (audit 2026-08-10): the Sleeper poll fires every 4s, but most polls
@@ -5075,6 +5113,8 @@
     // sent it), immutable and content-hash deduped server-side. This is the
     // permanent raw record of what happened — independent of the board artifact.
     if (!state.mockMode && picks && picks.length) captureRawPicks(picks);
+    // FORWARD LOOP: let reality answer the committed forecasts the new picks resolve.
+    resolveCommittedForecasts(picks);
     recomputeRuns();
     alertTick();               // A-3: did that batch put me on the clock?
     renderAll();
