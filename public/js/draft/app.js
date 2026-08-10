@@ -936,6 +936,9 @@
       league: state.data.league,
       weights: state.weights,
       runMultipliers: state.runMults,
+      // LIVE recommendation is late-only ceiling (Cory's model). Only the strategy-
+      // exploration shadows set this true to explore ceiling-forward drafts.
+      ceilingAllStages: false,
       drift: state.drift || null,
       // A2 Layer 2
       intervening: next ? interveningPicks(cur, next) : [],
@@ -2290,6 +2293,30 @@
     // HONEST TIER — the rule is confident; the dollars are MC-harness, not a projection (Cory #2).
     html += '<div class="rh-caveat" style="font-size:.7rem;opacity:.6;margin-top:.35rem">'
       + 'measured rule (robust across seats/rooms/keepers); dollar magnitudes are lab-tier, not a season projection</div>';
+
+    // GRAB-BY (live) — "stick to value, know when to grab QB/TE". Recomputed every
+    // pick off the live board + my roster (DraftGrabBy). This is the model watching
+    // the draft and calling the right time for the scarce onesies, not a frozen
+    // pre-draft snapshot. QB/TE surfaced explicitly since they're the timing calls.
+    if (typeof DraftGrabBy !== 'undefined') {
+      try {
+        const gb = DraftGrabBy.report(board, roster, myNextPicks(), state.data.league || {});
+        if (gb && gb.headline) {
+          const pill = v => v === 'TAKE-NOW' ? '#ff8a8a' : (v === 'GRAB-SOON' ? '#f5c445' : '#8ac6ff');
+          const line = pos => {
+            const r = (gb.positions || []).find(x => x.position === pos);
+            if (!r || !r.need) return '';
+            const gbp = r.grab_by_pick != null ? ('grab-by ' + r.grab_by_pick) : '';
+            return '<span style="color:' + pill(r.verdict) + ';margin-right:.6rem">'
+              + pos + ': ' + r.verdict.toLowerCase() + (gbp ? ' (' + gbp + ')' : '') + '</span>';
+          };
+          html += '<div class="rh-grabby" style="font-size:.78rem;margin-top:.4rem;'
+            + 'padding-top:.35rem;border-top:1px dashed rgba(255,255,255,.15)">'
+            + '<span style="opacity:.75">⏱ timing: </span>' + line('QB') + line('TE') + line('RB') + line('WR')
+            + '</div>';
+        }
+      } catch (e) { console.error('[grab-by]', e && e.message); }
+    }
     host.innerHTML = html;
   }
 

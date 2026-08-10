@@ -511,7 +511,7 @@
     return { value: risk, reasons };
   }
 
-  function upsideBonus(player, pickNumber, totalPicks, myPicksLeft) {
+  function upsideBonus(player, pickNumber, totalPicks, myPicksLeft, allStages) {
     // UNIT MISMATCH — the bug this fixes.
     //
     // `raw` is proj_ceiling minus proj_mean, which is a SPREAD: it tracks
@@ -540,12 +540,15 @@
     // VORP near zero and upside is the entire reason to take him. Capping there
     // would delete the lottery-ticket behaviour the next line exists to create.
     const raw = (player.proj_ceiling || player.proj_mean) - player.proj_mean;
-    // Ceiling is LATE-ONLY: zero until CEILING_LATE_FROM of the draft, then ramps to
-    // full. Early/mid picks are decided by mean + VONA + tiers; the throwaway rounds
-    // get the lottery ticket. (Same-tier ties still lean ceiling — in recommend().)
+    // Ceiling is LATE-ONLY for the LIVE recommendation: zero until CEILING_LATE_FROM
+    // of the draft, then ramps to full (Cory's model — mean+VONA+tiers decide early/mid;
+    // throwaway rounds get the lottery). `allStages` restores the old full-draft ramp
+    // ONLY for the strategy-exploration shadows, whose whole purpose is to explore
+    // ceiling-forward drafts (ctx.ceilingAllStages); it never touches the live board.
     const lateness = totalPicks ? Math.min(1, pickNumber / totalPicks) : 0.5;
     const from = CFG.CEILING_LATE_FROM != null ? CFG.CEILING_LATE_FROM : 0.6;
-    const gate = Math.max(0, (lateness - from)) / Math.max(1e-6, 1 - from);
+    const gate = allStages ? (0.3 + 0.7 * lateness)
+      : Math.max(0, (lateness - from)) / Math.max(1e-6, 1 - from);
     const endgame = myPicksLeft != null && myPicksLeft <= 5 ? 1.6 : 1.0;
     const scaled = raw * CFG.CEILING_SPREAD_SHARE * gate * endgame;
     return Math.max(-CFG.CEILING_MAX_BONUS, Math.min(CFG.CEILING_MAX_BONUS, scaled));
@@ -770,7 +773,7 @@
     // THE ONESIE DUPLICATION DISCOUNT — see CFG.ONESIE_DISCOUNT.
     const onesie = onesieState(player, ctx);
     const risk = riskAdjustment(player);
-    const ceiling = upsideBonus(player, ctx.currentPick, ctx.totalPicks, ctx.myPicksLeft);
+    const ceiling = upsideBonus(player, ctx.currentPick, ctx.totalPicks, ctx.myPicksLeft, ctx.ceilingAllStages);
     const kov = C.keeperOptionValue(player, ctx);
     const bye = C.byeCollisionPenalty(player, ctx);
     const stack = C.correlationAdjustment(player, ctx);

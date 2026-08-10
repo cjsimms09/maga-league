@@ -108,10 +108,14 @@ function ctxAt(pick, board) {
                   mk('r5', 'My QB', 'QB', 55, 10, 30, 2)];
   const ctx = Object.assign({}, ctxAt(75, board), { roster, myPicksLeft: 9, roundsLeft: 9 });
   const sh = SH.create({});
-  const picks = SH.onMyPick(sh, board, ctx, 8);      // round 8: Upside-Late's ramp is live
+  const picks = SH.onMyPick(sh, board, ctx, 8);      // round 8: shadows explore ceiling all-stages
   const byKey = {}; picks.forEach(p => { byKey[p.strategy] = p.player_id; });
-  check('Default takes the floor on the close call', byKey.default === 'A', JSON.stringify(byKey));
-  check('Upside-Late round 8 takes the boom — strategies genuinely diverge',
+  // A value/need-forward strategy still holds the floor on the close call...
+  check('a value-forward strategy holds the floor on the close call', byKey.value_anchor === 'A',
+    JSON.stringify(byKey));
+  // ...while the ceiling-forward strategy takes the boom. (Default now leans ceiling too,
+  // via Cory's same-tier/same-position tiebreaker — the weekly-payout lean.)
+  check('Upside-Late takes the boom — strategies genuinely diverge',
     byKey.upside_late === 'B', JSON.stringify(byKey));
   check('divergent strategies produce divergent rosters',
     new Set(Object.values(byKey)).size >= 2);
