@@ -372,6 +372,13 @@ router.get('/', aw(async (req, res) => {
   }
   const sStandings = sleeper.standings(sData, world.config.sleeper_map || {}, owners);
   const sBoard = sleeper.scoreboard(sData);
+  // Attach owner ids to each team on the mini-scoreboard so the dashboard can
+  // deep-link every game to its matchup — the same tap-through the full
+  // scoreboard page has (a dead row among clickable siblings reads as unfinished).
+  if (sBoard.length) {
+    const _smap = world.config.sleeper_map || {};
+    for (const game of sBoard) for (const t of game) t.owner_id = Number(_smap[String(t.roster_id)]) || null;
+  }
   // The weekly-high made visible: the harvested winning band (renders always),
   // and — once games are on — THIS week's live race for the $100.
   const whBand = LO.weeklyHighBand();
@@ -838,9 +845,15 @@ router.get('/bank', aw(async (req, res) => {
   // computed from the same balances, with the payee's Venmo attached. The
   // machine that tracks the money writes the invoice. (The Annual emits this as
   // the sealed-season artifact; here it renders live off current balances.)
+  // Route LEAGUE money through the commissioner (the bank): every debtor pays
+  // Cory, Cory pays every creditor — never peer-to-peer. Side bets are separate
+  // and stay peer-to-peer (SB.settlementsFor below). Hub is DERIVED (the
+  // commissioner flag), so it follows if the commissioner ever changes.
+  const bankId = (owners.find(o => o.is_commissioner) || {}).id;
   const settlement = SET.settlementReport(
     owners.map(o => ({ owner_id: o.id, name: o.name, net: bal[o.id] ? bal[o.id].balance : 0 })),
-    id => { const o = H.ownerById(owners, id); const h = o && V.handle(o); return h ? { handle: h, url: `https://venmo.com/u/${h}` } : null; });
+    id => { const o = H.ownerById(owners, id); const h = o && V.handle(o); return h ? { handle: h, url: `https://venmo.com/u/${h}` } : null; },
+    bankId != null ? bankId : null);
 
   // Whose ledger sits at the top. Yours by default; clicking a name in the
   // league ledger below swaps it, which is how you get from "who owes what" to
@@ -1962,8 +1975,8 @@ function pvEntries(owners) {
   ];
   const entries = [];
   for (const g of games) {
-    entries.push({ owner_id: (o[g.a] || {}).id, name: nm(g.a), oppName: nm(g.b), live: g.live, oppLive: g.oppLive, remain: g.remain, oppRemain: g.oppRemain });
-    entries.push({ owner_id: (o[g.b] || {}).id, name: nm(g.b), oppName: nm(g.a), live: g.oppLive, oppLive: g.live, remain: g.oppRemain, oppRemain: g.remain });
+    entries.push({ owner_id: (o[g.a] || {}).id, opp_id: (o[g.b] || {}).id, name: nm(g.a), oppName: nm(g.b), live: g.live, oppLive: g.oppLive, remain: g.remain, oppRemain: g.oppRemain });
+    entries.push({ owner_id: (o[g.b] || {}).id, opp_id: (o[g.a] || {}).id, name: nm(g.b), oppName: nm(g.a), live: g.oppLive, oppLive: g.live, remain: g.oppRemain, oppRemain: g.remain });
   }
   return entries;
 }
@@ -1985,8 +1998,8 @@ function liveWatchEntries(sData, map, owners) {
   for (const pair of Object.values(byMatch)) {
     if (pair.length !== 2) continue;
     const [a, b] = pair;
-    entries.push({ owner_id: a.oid, name: nameOf(a.oid), oppName: nameOf(b.oid), live: a.pts, oppLive: b.pts, remain: [], oppRemain: [] });
-    entries.push({ owner_id: b.oid, name: nameOf(b.oid), oppName: nameOf(a.oid), live: b.pts, oppLive: a.pts, remain: [], oppRemain: [] });
+    entries.push({ owner_id: a.oid, opp_id: b.oid, name: nameOf(a.oid), oppName: nameOf(b.oid), live: a.pts, oppLive: b.pts, remain: [], oppRemain: [] });
+    entries.push({ owner_id: b.oid, opp_id: a.oid, name: nameOf(b.oid), oppName: nameOf(a.oid), live: b.pts, oppLive: a.pts, remain: [], oppRemain: [] });
   }
   return entries;
 }

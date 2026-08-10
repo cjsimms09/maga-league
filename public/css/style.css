@@ -484,6 +484,12 @@ td.neg, .neg { color: var(--red-bright); font-weight: 700; }
 .matchup .mrow + .mrow { border-top: 1px solid rgba(255, 255, 255, .05); }
 .matchup .mrow.winning { background: rgba(47, 213, 118, .07); }
 .matchup .mrow.winning b { color: var(--green); }
+/* Tap-through game card on the dashboard mini-scoreboard, same as /scoreboard. */
+a.matchup.clickable { display: block; text-decoration: none; color: inherit; position: relative; transition: box-shadow .12s, transform .12s; }
+a.matchup.clickable:hover { box-shadow: 0 2px 10px rgba(12,26,43,.12); }
+a.matchup.clickable:active { transform: translateY(1px); }
+a.matchup.clickable .mrow-cue { position: absolute; right: .55rem; top: 50%; transform: translateY(-50%);
+  color: var(--muted); font-weight: 800; opacity: .55; }
 tr.last-place td { background: rgba(255, 70, 85, .07); }
 
 /* ---------- wall of shame ---------- */
@@ -3522,6 +3528,12 @@ html.dispatch-open { overflow: hidden; }
 .wtw-sec:first-child { margin-top: 0; }
 .wtw-row { background: var(--panel); border: 1px solid var(--line); border-left: 3px solid var(--muted);
   border-radius: var(--radius); padding: .7rem .85rem; }
+/* Tap-through rows: an <a> that keeps the block look but reads as clickable. */
+a.wtw-row.clickable { display: block; text-decoration: none; color: inherit; transition: box-shadow .12s, transform .12s; }
+a.wtw-row.clickable:hover { box-shadow: 0 2px 10px rgba(12,26,43,.12); }
+a.wtw-row.clickable:active { transform: translateY(1px); }
+a.wtw-row.clickable.mine:hover { box-shadow: inset 0 0 0 1px rgba(245,196,69,.35), 0 2px 10px rgba(12,26,43,.12); }
+.wtw-cue { color: var(--muted); font-weight: 800; flex: 0 0 auto; }
 .wtw-row.flip { border-left-color: var(--gold-bright); }
 .wtw-row.sweat { border-left-color: #ffb020; }
 .wtw-row.safe { border-left-color: var(--green); }

@@ -95,11 +95,11 @@
     <span class="hero-value"><%= myBalance === 0 ? '✓ Even' : money(Math.abs(myBalance)) %></span>
     <span class="hero-sub"><%= myBalance > 0 ? 'the league owes you →' : myBalance < 0 ? 'you owe the league →' : 'see your ledger →' %></span>
   </a>
-  <div class="hero-item">
+  <a class="hero-item clickable" href="/votes">
     <span class="hero-label"><%= season.year %> Buy-In</span>
     <span class="hero-value"><%= money(season.buy_in) %></span>
-    <span class="hero-sub">set by league vote</span>
-  </div>
+    <span class="hero-sub">set by league vote →</span>
+  </a>
   <a class="hero-item clickable" href="#pot-split" data-opens="#pot-split">
     <span class="hero-label">Total Pot</span>
     <span class="hero-value"><%= money(season.total_pot) %></span>
@@ -201,14 +201,27 @@
   <div class="card">
     <h2>Week <%= sleeperData.week %> Scoreboard <span class="sub">live from Sleeper</span></h2>
     <div class="body">
-      <% for (const m of sleeperBoard) { const hi = Math.max(...m.map(t => t.points)); %>
-        <div class="matchup">
+      <%# Each game taps through to its matchup — your own game opens your full
+          matchup (?opp=), any other opens the read-only spectator view (?a=&b=),
+          the same rule as the /scoreboard page. Falls back to a plain block only
+          when the owner ids aren't mapped yet. %>
+      <% for (const m of sleeperBoard) { const hi = Math.max(...m.map(t => t.points));
+         const ids = m.map(t => t.owner_id).filter(x => x != null);
+         let _mlnk = null;
+         if (ids.length === 2) {
+           _mlnk = ids.indexOf(meId) !== -1
+             ? '/matchup?opp=' + ids[ids.indexOf(meId) === 0 ? 1 : 0]
+             : '/matchup?a=' + ids[0] + '&b=' + ids[1];
+         }
+         const _mtag = _mlnk ? 'a' : 'div'; %>
+        <<%= _mtag %> class="matchup<%= _mlnk ? ' clickable' : '' %>"<% if (_mlnk) { %> href="<%= _mlnk %>" title="See this matchup"<% } %>>
           <% for (const t of m) { %>
             <div class="mrow <%= t.points === hi && m.length > 1 && hi > 0 ? 'winning' : '' %>">
               <span><%= t.team %></span><b><%= t.points.toFixed(2) %></b>
             </div>
           <% } %>
-        </div>
+          <% if (_mlnk) { %><span class="mrow-cue" aria-hidden="true">→</span><% } %>
+        </<%= _mtag %>>
       <% } %>
     </div>
   </div>

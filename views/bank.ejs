@@ -240,8 +240,11 @@ season until settled.</p>
 <% const _st = (typeof settlement !== 'undefined' && settlement) ? settlement : null; %>
 <% if (_st && _st.transfers.length) { %>
 <div class="card" id="settlement" style="margin-top:1.3rem">
-  <h2>🧾 Square Up <span class="sub">the minimal payments that settle everyone — tap a Venmo</span></h2>
+  <h2>🧾 Square Up <span class="sub"><%= _st.hub != null ? 'league money runs through the bank — tap a Venmo' : 'the minimal payments that settle everyone — tap a Venmo' %></span></h2>
   <div class="body">
+    <% if (_st.hub != null) { %>
+      <p class="muted" style="margin:0 0 .7rem; font-size:.78rem">League finances settle through <b><%= _st.hubName %></b> — the bank. Everyone pays or gets paid by <%= _st.hubName %>, never each other. <span class="muted">(Side bets are separate — those settle person-to-person on the <a href="/bank?section=sidebets">side-bet tab</a>.)</span></p>
+    <% } %>
     <ul class="settle-list">
       <% for (const t of _st.transfers) { %>
         <li class="settle-row">

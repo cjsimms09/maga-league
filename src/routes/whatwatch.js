@@ -92,7 +92,7 @@ function needLine(s) {
 /**
  * Build the panel rows for a set of owners, sorted most-watchable first (coin
  * flips and live sweats to the top, decided games to the bottom).
- * @param entries [{ owner_id, name, oppName, live, oppLive, remain, oppRemain }]
+ * @param entries [{ owner_id, opp_id, name, oppName, live, oppLive, remain, oppRemain }]
  * @param bandSamples  the weekly-high thresholds for the $100 sweat (optional)
  * @returns rows with sweat + label + needLine + highP, sorted for watchability
  */
@@ -100,7 +100,7 @@ function panelRows(entries, bandSamples) {
   const rows = (entries || []).map(e => {
     const s = sweat(e);
     return {
-      owner_id: e.owner_id, name: e.name, oppName: e.oppName,
+      owner_id: e.owner_id, opp_id: e.opp_id, name: e.name, oppName: e.oppName,
       ...s, label: sweatLabel(s.pWin), need: needLine(s),
       highP: bandSamples && bandSamples.length ? highSweat(e, bandSamples) : null,
     };

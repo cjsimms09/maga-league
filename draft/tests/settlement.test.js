@@ -41,6 +41,29 @@ const ck = (n, c, d) => { c ? (pass++, console.log('PASS ' + n)) : (fail++, cons
   const even = settlementReport([{ owner_id: 1, name: 'A', net: 0 }, { owner_id: 2, name: 'B', net: 0 }]);
   ck('all-even → no transfers, balanced', even.transfers.length === 0 && even.balanced);
 
+  // ── HUB MODE — league money routes through the commissioner (the bank) ──────
+  // Cory (id 1) is the bank. Nobody pays anybody but Cory (never Michael→David).
+  const hub = settlementReport(nets, venmoOf, 1);
+  ck('hub: EVERY transfer touches the bank (id 1) — no peer-to-peer', hub.transfers.every(t => t.from_id === 1 || t.to_id === 1));
+  ck('hub: the bank never pays itself', hub.transfers.every(t => t.from_id !== t.to_id));
+  ck('hub: each debtor pays the bank their debt', (() => {
+    const paidToBank = {}; hub.transfers.filter(t => t.to_id === 1).forEach(t => { paidToBank[t.from_id] = t.amount; });
+    return paidToBank[3] === 150 && paidToBank[4] === 150 && paidToBank[5] === 100;
+  })(), JSON.stringify(hub.transfers));
+  ck('hub: the bank pays each creditor (Marian +100 comes FROM the bank)', (() => {
+    const fromBank = {}; hub.transfers.filter(t => t.from_id === 1).forEach(t => { fromBank[t.to_id] = t.amount; });
+    return fromBank[2] === 100;   // Cory (id 1) is also a creditor here but is the hub, absorbed
+  })(), JSON.stringify(hub.transfers));
+  ck('hub: reports the hub id + name', hub.hub === 1 && hub.hubName === 'Cory');
+  ck('hub: debtor→bank Venmo is the BANK\'s handle (you pay Cory)', hub.transfers.filter(t => t.to_id === 1).every(t => t.venmo && /cory-v/.test(t.venmo.url)));
+  ck('hub: bank→creditor Venmo is the CREDITOR\'s handle', hub.transfers.filter(t => t.from_id === 1).every(t => t.to_id === 2 ? t.venmo === null : true));
+
+  // Hub who is a pure debtor (bank owes nothing to itself, still collects).
+  const hub2 = settlementReport(
+    [{ owner_id: 9, name: 'Cory', net: -50 }, { owner_id: 2, name: 'A', net: 30 }, { owner_id: 3, name: 'B', net: 20 }],
+    () => null, 9);
+  ck('hub can itself be a debtor and is still absorbed (never a counterparty to itself)', hub2.transfers.every(t => !(t.from_id === 9 && t.to_id === 9)) && hub2.transfers.some(t => t.from_id === 9));
+
   console.log(`\n${pass} passed, ${fail} failed`);
   process.exit(fail ? 1 : 0);
 })();
