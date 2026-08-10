@@ -41,7 +41,6 @@
       <div id="override-count" style="display:none"></div>
       <div id="mock-note" style="display:none"></div>
       <div id="rehearsal-keeper-note" style="display:none"></div>
-      <div id="keeper-lock-note" style="display:none"></div>
       <div id="reconcile-note" style="display:none"></div>
       <%# SETUP + CONNECT live here now. "On the clock" already renders in the
           pinned status bar, and slot/sync/nav are pre-draft controls touched
@@ -94,6 +93,14 @@
       roster change I did not make myself. Neither is status. %>
   <div id="unrecorded-note" style="display:none"></div>
   <div id="reconciled-note" style="display:none"></div>
+  <%# KEEPER-LOCK banner — SEVERITY-1 and BLOCKING: the slate is the one input
+      that can be wrong while every derived number (adjusted ADP, pick order, my
+      pick numbers) still looks normal. It was buried fourth in the collapsed
+      "Details & checklist" stack behind advisory warnings; moved OUT of the
+      fold-away to sit first and alone above the decision surface, alongside the
+      other rec-invalidating banners. app.js fills it by id — placement is the
+      shell's. (Cory, war-room review item 2.) %>
+  <div id="keeper-lock-note" style="display:none"></div>
   <div id="run-banner" class="roast-banner" style="display:none"></div>
   <%# Retained hosts: the checklist summary is now inline in the details panel,
       but these ids are still written to by renderChecklist(). Keeping them as
