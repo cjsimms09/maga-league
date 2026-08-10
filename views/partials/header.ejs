@@ -22,7 +22,11 @@
     eagle-on-a-football mark is the single mark used for the icon, splash and
     the header logo (public/icons/icon.svg → rasterized PNGs). %>
 <link rel="manifest" href="/manifest.webmanifest">
-<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<%# ?v=2 cache-bust: iOS + the CDN hold /icons/* for 7 days, and a 404 cached at
+    the bare URL before the file existed on main could pin a blank navy square even
+    now that the correct PNG is deployed. A fresh URL cannot be serving that stale
+    404. Bump the version if the icon is ever replaced again. %>
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png?v=2">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
