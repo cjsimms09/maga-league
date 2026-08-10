@@ -300,6 +300,38 @@ router.use(requireLogin);
 // conversation is happening; few enough that the chat does not become the page.
 const CHAT_ON_HOME = 5;
 
+/* IS THE LIVE DATA ACTUALLY LIVE?
+ *
+ * `sleeper.bundle()` is well built for an outage: it caches, it remembers a
+ * failure so the next render doesn't pay five timeouts, and it serves the
+ * last-known-good bundle instead of breaking. But it returns that stale bundle
+ * with NO signal, and `failed_at` was surfaced only on the admin console — so if
+ * Sleeper went down mid-Sunday every page kept showing old scores AS IF LIVE.
+ * That is the worst version of the failure class this project keeps finding:
+ * not broken, just quietly wrong, on the surfaces whose whole point is live.
+ *
+ * B can't change sleeper.js (A's lane), but the cache is a plain doc — so read it
+ * and tell the truth. Returns null when the data is fresh (render nothing).
+ */
+async function liveFreshness() {
+  try {
+    const c = await getDoc('sleeper-cache', null);
+    if (!c || !c.failed_at) return null;                 // never failed → fresh
+    // ONLY warn when we are actually SHOWING stale numbers. With no cached bundle
+    // at all (off-season, never-connected, a fresh install) the pages already say
+    // "no live scoreboard" in their own words — a second banner repeating it every
+    // page load is noise, and a warning people learn to ignore is worse than none.
+    if (!c.data || !c.fetched_at) return null;
+    const ageMin = c.fetched_at ? Math.round((Date.now() - c.fetched_at) / 60000) : null;
+    return {
+      unreachable: true,
+      since: c.fetched_at ? new Date(c.fetched_at).toLocaleTimeString('en-US',
+        { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' }) + ' ET' : null,
+      ageMin,
+    };
+  } catch (e) { return null; }
+}
+
 // ---------- contact directory (contact-directory.md) ----------
 // One record per owner — Venmo + email + phone — rendered by the shared card
 // wherever a person appears. "Complete" means all three are on file.
@@ -551,6 +583,7 @@ router.get('/', aw(async (req, res) => {
   res.render('dashboard', {
     season, payouts: H.payoutTable(season), buyins, weekly, awards, standings, draft,
     openVotes, CATEGORY_LABELS: H.CATEGORY_LABELS, myBalance, draftInfo, weekHero,
+    liveStale: await liveFreshness(),
     // The money scoreboard: banked dollars + rank this season, from the ledger.
     moneyBoard: L.moneyStandings(world.ledger, owners, season), meId: req.owner.id,
     sleeperData: sData, sleeperStandings: sStandings, sleeperBoard: sBoard, roast,
@@ -1875,7 +1908,9 @@ router.get('/matchup', aw(async (req, res) => {
     }
   } catch (e) { /* leverage is a bonus */ }
 
+  const liveStale = await liveFreshness();
   res.render('matchup', {
+    liveStale,
     me, owners, opp, live, weekNo, matchup: liveMatchup, betWindow, record, rivalry,
     starters, bench, matchupBet, proj, highBand, whBand, whRace, pickem, stakes, trash, trashGameId,
     goatId: MK.goatOwnerId(sData, world.config.sleeper_map || {}),
@@ -2111,7 +2146,8 @@ router.get('/watch', aw(async (req, res) => {
     const anyScore = PE.anyScoreOnBoard(sData);
     if (anyScore) { rows = WW.panelRows(liveWatchEntries(sData, world.config.sleeper_map || {}, owners), bandSamples); source = 'live'; }
   }
-  res.render('watch', { me: req.owner, rows, source, inWindow, weekNo, band, preview });
+  res.render('watch', { me: req.owner, rows, source, inWindow, weekNo, band, preview,
+    liveStale: await liveFreshness() });
 }));
 
 // A dispatch, dismissed. Marks it seen for THIS owner only, so it never shows
@@ -2216,7 +2252,9 @@ router.get('/scoreboard', aw(async (req, res) => {
     return { g, aPts, bPts, hasScore, leader, split, riv, inWHRace, po, worth, sweat };
   });
 
+  const liveStale = await liveFreshness();
   res.render('scoreboard', {
+    liveStale,
     me, owners, weekNo, cards, locked, whRace, whBand,
     moneyBoard: L.moneyStandings(world.ledger, owners, season), meId: me.id,
     live: !!(livePts && Object.values(livePts).some(p => p > 0)),
