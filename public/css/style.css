@@ -4008,10 +4008,12 @@ table.roll td.num, .pf, .wh-race-scale, .wh-band-note{ color: var(--ink); }
   color: var(--navy); font-variant-numeric: tabular-nums; line-height: 1.1; }
 .acc-ov-num.pos { color: var(--green); }
 .acc-ov-lbl { display: block; font-size: .68rem; color: var(--muted); margin-top: .15rem; }
-.acc-series { display: flex; align-items: flex-end; gap: .3rem; height: 92px; padding-top: .2rem; }
-.acc-bar { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; justify-content: flex-end;
-  align-items: center; height: 100%; }
-.acc-bar i { display: block; width: 100%; background: var(--blue); border-radius: 3px 3px 0 0; min-height: 3px; }
+.acc-series { display: flex; align-items: flex-end; justify-content: flex-start; gap: .3rem; height: 92px; padding-top: .2rem; }
+/* Capped, or the first two grading runs render as two full-width slabs — a
+   chart that looks like a conclusion when it is two data points. */
+.acc-bar { flex: 1 1 0; min-width: 0; max-width: 46px; display: flex; flex-direction: column;
+  justify-content: flex-end; align-items: center; height: 100%; }
+.acc-bar i { display: block; width: 100%; background: var(--navy); border-radius: 3px 3px 0 0; min-height: 3px; }
 .acc-bar span { font-size: .56rem; color: var(--muted); margin-top: .15rem; font-variant-numeric: tabular-nums; }
 
 /* BANK — career money reference numbers (all-time banked / rank / per season). */

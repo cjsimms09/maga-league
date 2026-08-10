@@ -28,7 +28,12 @@
         Calibration, the weekly grade, the attribution table and the misses all light up here once the weekly grading runs and writes the calibration ledger — nothing is faked in the meantime.
       </p>
     <% } else { %>
-      <p class="muted" style="margin:.9rem 0 0; font-size:.8rem">
+      <% if (s.newlyGraded != null) { %>
+        <p style="margin:.9rem 0 0"><b><%= s.newlyGraded %> newly graded</b> in the latest run<% if (s.newlyGraded === 0) { %> — nothing new resolved since the run before it<% } %>.</p>
+      <% } else if (s.runs === 1) { %>
+        <p style="margin:.9rem 0 0"><b>First grading run.</b> From the next one on, this line says how many landed since the last.</p>
+      <% } %>
+      <p class="muted" style="margin:.4rem 0 0; font-size:.8rem">
         Graded through <%= s.throughWeek != null ? 'week ' + s.throughWeek : '—' %><% if (s.generatedAt) { %> · last graded <%= new Date(s.generatedAt).toLocaleString('en-US', { timeZone: 'America/New_York', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) %> ET<% } %>.
         Every forecast is graded only if it was committed strictly before it resolved — no backdating counts.
       </p>
@@ -80,8 +85,13 @@
           <% } %>
         </div>
         <p class="muted" style="margin:.5rem 0 0; font-size:.78rem">
-          <%= pts.length %> grading runs. Brier is mean squared error on the probability calls
-          (0 = perfect, 0.25 = a coin flip). Falling bars mean the model is learning; flat or rising means it isn't.
+          <%= pts.length %> grading run<%= pts.length === 1 ? '' : 's' %>. Brier is mean squared error on the
+          probability calls (0 = perfect, 0.25 = a coin flip).
+          <% if (pts.length < 5) { %>
+            <b>Too few runs to read as a trend</b> — this is the record so far, not a direction. Ask it again in a month.
+          <% } else { %>
+            Falling bars mean the model is learning; flat or rising means it isn't.
+          <% } %>
         </p>
       </div>
     </div>
@@ -99,17 +109,17 @@
         <div class="acc-metric">
           <span class="acc-metric-lbl">Probability (Brier)</span>
           <span class="acc-metric-val"><%= f2(c.probability.brier) %></span>
-          <span class="acc-metric-sub"><%= c.probability.n %> calls · lower is better, .250 = a coin</span>
+          <span class="acc-metric-sub"><%= c.probability.n %> call<%= c.probability.n === 1 ? '' : 's' %> · lower is better, .250 = a coin</span>
         </div>
         <div class="acc-metric">
           <span class="acc-metric-lbl">Point (bias / MAE)</span>
           <span class="acc-metric-val"><%= c.point.bias == null ? '—' : (c.point.bias >= 0 ? '+' : '') + c.point.bias %></span>
-          <span class="acc-metric-sub"><%= c.point.n %> calls · <%= c.point.mae == null ? '—' : 'off by ' + c.point.mae %> avg<%= c.point.bias > 0 ? ' · runs high' : c.point.bias < 0 ? ' · runs low' : '' %></span>
+          <span class="acc-metric-sub"><%= c.point.n %> call<%= c.point.n === 1 ? '' : 's' %> · <%= c.point.mae == null ? '—' : 'off by ' + c.point.mae %> avg<%= c.point.bias > 0 ? ' · runs high' : c.point.bias < 0 ? ' · runs low' : '' %></span>
         </div>
         <div class="acc-metric">
           <span class="acc-metric-lbl">Categorical (accuracy)</span>
           <span class="acc-metric-val"><%= pct(c.categorical.accuracy) %></span>
-          <span class="acc-metric-sub"><%= c.categorical.n %> calls</span>
+          <span class="acc-metric-sub"><%= c.categorical.n %> call<%= c.categorical.n === 1 ? '' : 's' %></span>
         </div>
       </div>
 

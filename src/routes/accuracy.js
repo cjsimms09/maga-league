@@ -76,8 +76,17 @@ function biggestMisses(graded, n) {
   // not "bigger" than a 90%-sure call that flopped.
   const scored = (graded || []).map(g => {
     let mag = 0;
-    if (g.ftype === 'probability' && g.brier != null) mag = g.brier;
-    else if (g.ftype === 'point' && g.abs_error != null) {
+    if (g.ftype === 'probability' && g.brier != null) {
+      // ONLY ACTUAL MISSES. Ranking every graded call by Brier put SUCCESSES in
+      // the failure-modes list — "said 90% → happened (Brier 0.01)" was showing
+      // up under "where it was most wrong", and with a small sample the list was
+      // more right answers than wrong ones. A probability call fails when the
+      // side it favoured is not the side that happened; a 55% call that hit is a
+      // mild call, not a failure mode. p == 0.5 favours neither, so it can't miss.
+      const p = num(g.value), o = num(g.outcome);
+      const wrong = p != null && o != null && p !== 0.5 && ((p > 0.5) !== (o >= 0.5));
+      mag = wrong ? g.brier : 0;
+    } else if (g.ftype === 'point' && g.abs_error != null) {
       const scale = Math.max(Math.abs(num(g.outcome) || 0), Math.abs(num(g.value) || 0), 1);
       mag = g.abs_error / scale;
     } else if (g.ftype === 'categorical') {
@@ -93,23 +102,72 @@ function biggestMisses(graded, n) {
   return scored.slice(0, n || 8);
 }
 
+// The kind of a graded record. `by_kind` is an OPTIONAL roll-up in the interface
+// and the grader does not emit one — so the "By prediction type" table never
+// rendered, on real data as much as on none. The kind is already in the record:
+// every forecast key is namespaced (`survival:<pid>@pick12`, `room_seat:r1p4`),
+// and `method` ("survival-forecast-v1") is the fallback. Derive it here rather
+// than asking A to add a roll-up whose inputs we already hold.
+function kindOf(g) {
+  const k = String(g.key || '');
+  const i = k.indexOf(':');
+  if (i > 0) return k.slice(0, i);
+  const m = String(g.method || '');
+  if (m) return m.replace(/-v\d+$/, '').replace(/-forecast$/, '').replace(/-/g, '_');
+  return g.ftype || 'other';
+}
+
+const meanOf = xs => xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null;
+
+function deriveByKind(graded) {
+  const buckets = new Map();
+  for (const g of graded || []) {
+    const k = kindOf(g);
+    if (!buckets.has(k)) buckets.set(k, { n: 0, brier: [], hits: 0, catN: 0, abs: [] });
+    const b = buckets.get(k);
+    b.n += 1;
+    if (g.ftype === 'probability' && num(g.brier) != null) {
+      b.brier.push(g.brier);
+      // A probability call "hit" when the side it favoured is the side that happened.
+      const p = num(g.value), o = num(g.outcome);
+      if (p != null && o != null) { b.catN += 1; if ((p >= 0.5) === (o >= 0.5)) b.hits += 1; }
+    } else if (g.ftype === 'point' && num(g.abs_error) != null) {
+      b.abs.push(g.abs_error);
+    } else if (g.ftype === 'categorical') {
+      b.catN += 1;
+      if (g.hit === true || (g.hit == null && String(g.value) === String(g.outcome))) b.hits += 1;
+    }
+  }
+  const out = {};
+  for (const [k, b] of buckets) {
+    out[k] = { n: b.n, brier: meanOf(b.brier), accuracy: b.catN ? b.hits / b.catN : null, mae: meanOf(b.abs) };
+  }
+  return out;
+}
+
 function byKindRows(cal) {
-  if (!cal || !cal.by_kind) return [];
+  if (!cal) return [];
+  // A's roll-up wins when present; otherwise derive it from the graded records.
+  const src = cal.by_kind || ((cal.graded || []).length ? deriveByKind(cal.graded) : null);
+  if (!src) return [];
+  const round3 = n => n == null ? null : Math.round(n * 1000) / 1000;
   const out = [];
   for (const [key, label] of KIND_LABELS) {
-    const r = cal.by_kind[key];
+    const r = src[key];
     if (!r) continue;
     out.push({ key, label,
       n: r.n || 0,
-      brier: num(r.brier),
+      brier: round3(num(r.brier)),
       accuracy: num(r.accuracy),
-      mae: num(r.mae) });
+      mae: round3(num(r.mae)),
+      derived: !cal.by_kind });
   }
-  // include any kinds A reports that we didn't pre-label, so nothing is hidden
-  for (const key of Object.keys(cal.by_kind)) {
+  // include any kinds we didn't pre-label, so nothing is hidden
+  for (const key of Object.keys(src)) {
     if (KIND_LABELS.some(k => k[0] === key)) continue;
-    const r = cal.by_kind[key];
-    out.push({ key, label: key, n: r.n || 0, brier: num(r.brier), accuracy: num(r.accuracy), mae: num(r.mae) });
+    const r = src[key];
+    out.push({ key, label: key, n: r.n || 0, brier: round3(num(r.brier)),
+      accuracy: num(r.accuracy), mae: round3(num(r.mae)), derived: !cal.by_kind });
   }
   return out;
 }
@@ -138,6 +196,17 @@ function buildAccuracyView(calibration, attribution, rawCount, extra) {
     generatedAt: cal ? (cal.generated_at || null) : null,
     rawCount,
     everRun: !!cal,
+    // WHAT GOT GRADED IN THE LATEST RUN. "How many total" answers a different
+    // question from "what landed this week", and only the second one tells you
+    // the loop is still turning. The append-only ledger already has it: the
+    // newest run's graded count minus the previous run's. Null on the first run,
+    // where there is no "since" to measure from.
+    newlyGraded: (() => {
+      const s = (extra.series || []).filter(p => p && p.at);
+      if (s.length < 2) return null;
+      return Math.max(0, (s[s.length - 1].graded || 0) - (s[s.length - 2].graded || 0));
+    })(),
+    runs: (extra.series || []).filter(p => p && p.at).length,
   };
 
   const prob = (cal && cal.probability) || null;
