@@ -806,9 +806,11 @@ function sundayAlert(result, opts = {}) {
     why: `${c.dollarsHigh >= 0 ? '+' : ''}$${Math.round(c.dollarsHigh)} weekly-high · ${c.dollarsWin >= 0 ? '+' : ''}$${Math.round(c.dollarsWin)} win-prob`,
   }));
   const edge = r2(result.edge || 0);
+  const posture = weeklyPosture(result, band);   // chase vs protect — the alert's lead
   return {
     week: opts.week || null,
     hasCalls: calls.length > 0,
+    posture,
     headline: calls.length
       ? `${calls.length} start/sit call${calls.length === 1 ? '' : 's'} worth ≈ $${Math.round(edge)} this week`
       : "You're already starting the dollar-optimal lineup — nothing to change.",

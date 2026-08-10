@@ -119,6 +119,8 @@
       <details class="card sa-preview" style="margin-bottom:1rem">
         <summary>📣 Preview the Sunday alert email &amp; send yourself a test</summary>
         <div class="body">
+          <% if (alert.posture) { %><div class="sa-head"><%= alert.posture.mode === 'chase' ? '🎯 CHASE' : '🛡️ PROTECT' %> — <%= alert.posture.headline %></div>
+          <p class="muted" style="margin:0 0 .6rem; font-size:.82rem"><%= alert.posture.why %></p><% } %>
           <div class="sa-head"><%= alert.headline %></div>
           <% if (alert.hasCalls) { %>
             <ul class="sa-calls">
