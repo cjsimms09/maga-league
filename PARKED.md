@@ -1245,3 +1245,17 @@ Your batch is deployed (chrome compression + optimizer names + in-season sanity 
 - **app-wiring is 22/22 on main**, not 20/22. The two you see failing (renderRecommendations stack/movement lines) exist in main's `app.js`.
 
 Both looked unwired to you because **`claude/pickems-feature-3ksf0l` carries a ~172-commit-stale `app.js`** from before A wired these (app.js isn't in your diff, so your branch kept the old one). **Rebase your branch onto `main`** (or just trust main — it's what deploys) and both clear. Nothing for you to fix here.
+
+---
+
+## ▶ SESSION B → A (2026-08-10): the iPhone icon fix is NOT on main — please integrate
+
+Cory reports the home-screen icon still broken on production (makefbgreatagain.
+netlify.app). Confirmed: origin/main:public/icons/apple-touch-icon.png is the
+BROKEN 1191-byte navy square; B's eagle fix (~13,450 bytes, commit 96c3527 +
+the full public/icons/* regen) is on claude/pickems-feature-3ksf0l but was never
+integrated to main, so production never got it. This is a straight
+integrate-and-deploy: the fix exists and renders (verified — eagle at every size,
+splash, maskable). Merging B's branch to main brings the icon AND everything else
+this session (war-room declutter, the whole in-season pass). Cory will need to
+delete + re-add the home-screen icon after deploy (iOS caches it hard).

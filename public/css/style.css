@@ -324,7 +324,7 @@ form.asis { display: inline; }
   padding: .75rem .4rem; background: rgba(255, 255, 255, .02);
 }
 .slot .n { font-family: var(--font-display); font-size: .6rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
-.slot .who { font-family: var(--font-display); font-size: .98rem; font-weight: 800; color: #fff; text-transform: uppercase; letter-spacing: .05em; }
+.slot .who { font-family: var(--font-display); font-size: .98rem; font-weight: 800; color: var(--navy); text-transform: uppercase; letter-spacing: .05em; }  /* was #fff — the taken-slot name (e.g. SPOT #10 winner) was invisible on the light theme */
 .slot.taken { border-color: rgba(245, 196, 69, .45); background: rgba(245, 196, 69, .06); }
 .slot.open-slot { border-style: dashed; }
 .slot form { margin-top: .35rem; }
