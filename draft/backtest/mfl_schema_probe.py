@@ -58,7 +58,7 @@ _SAMPLE_CHARS = 40
 _MAX_KEYS = 60
 
 
-def describe(node, path: str = "$", depth: int = 0, max_depth: int = 6) -> dict:
+def describe(node, path: str = "$", depth: int = 0, max_depth: int = 9) -> dict:
     """A JSON value's SHAPE: {path: {type, sample|len|keys}}.
 
     Lists are described by their FIRST element plus a length, because MFL is

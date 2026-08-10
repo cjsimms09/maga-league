@@ -119,3 +119,75 @@ Rule 9 applies here too. This pre-registers the filters; it does not promise the
 built before the draft. It is CI-only work (the sandbox has no egress), it does not help draft
 night, and the honest sequence is: ship draft-night correctness first, build this after the
 22nd when it can be done properly rather than squeezed.
+
+---
+
+# FINDINGS FROM THE SCHEMA PROBE (2026-08-10)
+
+**What has been seen: SCHEMA ONLY. No league outcomes, no draft results content, no
+grades.** That distinction is what makes the amendment below legitimate rather than
+post-hoc filtering — the pre-registration exists to stop filters being chosen to
+produce a result, and a shape cannot produce a result. Three 2025 leagues were
+probed (`10466`, `11039`, `11306`), discovered via `leagueSearch`.
+
+The probe ran before the adapter was written, which turned out to matter: **four of
+these would each have produced a confidently-wrong parser**, and a league that fails
+to PARSE is indistinguishable from a league that fails the FILTERS, so the attrition
+report — the thing that makes the sample judgeable — would have lied about why
+leagues were dropped.
+
+### P1 — `draftType` is `SFIRSTRANDOM`, not `snake`
+F1 checks `draft_type.lower() in ("snake",)`. MFL emits codes. A direct comparison
+would have rejected **every league in the sample** and reported it as `F1.draft_type`
+— a total-attrition result that looks exactly like "no public league matches our
+format." Needs a code map, and any unrecognised code must be counted separately
+rather than silently failing the snake test.
+
+### P2 — starter slots are RANGE STRINGS, and superflex has no slot name
+`starters.position[].limit` is `"1-2"`, not an integer. F1 does
+`int(slots.get("QB")) != 1` and separately looks for a `SUPER_FLEX` key. Against MFL
+that `int()` raises, and **the superflex check can never fire, because MFL expresses
+superflex as a QB limit of `1-2` rather than a distinct slot.** Superflex is the one
+exclusion F1 calls out as able to "swamp every positional finding," so this is the
+most dangerous of the four: the filter would have been silently inoperative.
+
+### P3 — `TYPE=league` carries no scoring at all, and `TYPE=rules` is often absent
+No `rec`, no PPR field, nothing. Scoring lives in `TYPE=rules` (now probed), and that
+export returned `{"error": "Error - No League Scoring Rules"}` for part of the
+sample — `$.rules` is NOT always present. **Leagues with no retrievable scoring must
+be their own attrition reason**, never folded into "not half-PPR", or the report
+conflates "we could not tell" with "we checked and it did not match."
+
+### P4 — MFL scoring is PER-POSITION, so "half-PPR" is not one number
+Rules arrive as `positionRules[].positions` (e.g. `"TE"`) with `rule[].event.$t`
+(event code, e.g. `CC`), `points.$t` (an expression like `*1`), and `range.$t`. A
+league can score 0.5/reception for WR and 1.0 for TE — TE premium, which our league
+is not. **F1 v1's `scoring.rec in [0.4, 0.6]` presumes a single scalar that MFL does
+not have.**
+
+### F1 AMENDMENT — v2 (2026-08-10), v1 RETAINED ABOVE, UNCHANGED
+Only the **scoring** clause changes, and only because v1 is inexpressible against
+the source — not to widen or narrow the sample:
+
+> **F1.scoring (v2):** the reception value must be in [0.4, 0.6] **for every skill
+> position independently** (RB, WR, TE). A league with per-position reception scoring
+> outside that band at ANY skill position is excluded as `F1.te_premium_or_split_ppr`.
+> A league whose scoring cannot be retrieved is excluded as `F4.no_scoring_rules` —
+> a distinct reason from failing the check.
+
+This is *stricter* than v1, not looser: v1 would have admitted TE-premium leagues by
+reading a single number that does not exist. Every other v1 filter stands as written.
+
+### STILL UNKNOWN, and not to be guessed
+- **Draft completeness.** `draftResults` carries no `status`; F2 checks
+  `status == "complete"`. Must be inferred (picks == franchises x rounds) and the
+  inference stated, or a separate export found.
+- **Autopick.** F2 excludes teams autopicking a majority. No autopick flag exists in
+  `draftResults` — only a `comments` string. Until a source is found, **F2's autopick
+  clause is unenforceable and must be reported as unenforced** rather than quietly
+  passing every league.
+
+Useful and confirmed: every pick carries a unix `timestamp`, which gives F5 a real
+per-pick draft time rather than a league-level guess; `franchises.count` gives F1's
+team count; `round1DraftOrder` gives the seat order; `keeperType` (when present) is
+the keeper covariate F1 records rather than filters on.
