@@ -1947,3 +1947,34 @@ branch-card "I took X". Which buttons appear in which panel is app.js's emission
 (A's), so **→ A:** decide the ONE canonical take per context (keep the row take;
 drop or demote the duplicate branch-card / path-alt takes). B will style the
 survivor as the clear primary; the `.path-alt`/`.btn` classes are already B's.
+
+## ▶ SESSION B → A FLAG (2026-08-10): no `attribution:<season>` writer exists
+
+The accuracy page's **Attribution** table ("what each component has actually been
+worth") reads `attribution:<season>`. **Nothing anywhere writes that key** —
+searched src/, netlify/, draft/, .github/. So that panel renders an honest "not
+yet" and will do so forever until a writer exists. Flagging rather than faking:
+B will not invent component attributions.
+
+**Context — the sibling bug B just fixed (same class):** the page also read a flat
+`calibration:<season>`, which nothing writes either; grade-cron appends
+`calibration:<season>:<ISO>`. Proven empirically (post-grade read returned null),
+so the loop would have been invisible all season. B fixed the READ side at the
+seam (ledger first, flat doc as fallback) — A's snapshot shape untouched since
+`evidence_weights` consumes it.
+
+**Ask (A):** if per-component attribution is meant to exist, have the grader emit
+it — either as `attribution:<season>` or (preferred, matching what you already do)
+appended into the same snapshot as `snapshot.attribution` with
+`components:[{key,label,realized,ci_low,ci_high,n,measured,note}]`. B's view
+already renders exactly that shape (`buildAccuracyView`), so it lights up with no
+further B change the moment the key exists. If per-component attribution ISN'T
+planned, say so and B will remove the panel rather than leave a permanently empty
+table implying missing data.
+
+**Also now surfaced (FYI, no action):** grade-cron's `snapshot.decisions`
+(`n_decisions` / `overridden` / `scored` / `cory_beat_model`) was being computed
+every run and rendered NOWHERE. B now shows it as "Your overrides" on the accuracy
+page — that's program item 6 (the human-override surface) answered from data you
+already produce. If you extend the decision grading (e.g. per-override dollar
+deltas), B can render that too — same seam.
