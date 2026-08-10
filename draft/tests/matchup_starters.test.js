@@ -89,6 +89,37 @@ ck('hasProj is false when no projections are supplied', out.hasProj === false);
 const withProj = MU.pairStarters(myRow, oppRow, ROSTER_POS, playersDb, { me: { m_qb: 22.5 }, opp: { o_qb: 26.0 } });
 ck('projections wire through per-player when supplied', withProj.hasProj === true && withProj.rows[0].me.proj === 22.5 && withProj.rows[0].opp.proj === 26.0);
 
+// BYE flag — derived from the in-repo bye map, joined on the player's team.
+{
+  const byeMap = { X: 6 };   // team X is off in week 6
+  const db2 = { players: { m_qb: { name: 'My QB', pos: 'QB', team: 'X' }, o_qb: { name: 'Opp QB', pos: 'QB', team: 'Y' } } };
+  const wk6 = MU.pairStarters(
+    { starters: ['m_qb'], starters_points: [0], players_points: {} },
+    { starters: ['o_qb'], starters_points: [22], players_points: {} },
+    ['QB'], db2, null, { byeMap, weekNo: 6 });
+  ck('a starter whose team is on bye this week is flagged onBye', wk6.rows[0].me.onBye === true && wk6.rows[0].me.bye === 6);
+  ck('the opponent (team not on bye) is not flagged', wk6.rows[0].opp.onBye === false);
+  const wk5 = MU.pairStarters(
+    { starters: ['m_qb'], starters_points: [18], players_points: {} }, null,
+    ['QB'], db2, null, { byeMap, weekNo: 5 });
+  ck('same player in a non-bye week is NOT flagged', wk5.rows[0].me.onBye === false);
+}
+
+// BENCH — roster minus starters, with points, sorted, totalled.
+{
+  const row = {
+    starters: ['m_qb', 'm_rb1'],
+    players: ['m_qb', 'm_rb1', 'm_wr2', 'm_te', 'm_k'],   // 3 on the bench
+    players_points: { m_qb: 24, m_rb1: 12, m_wr2: 6.2, m_te: 11.1, m_k: 7 },
+  };
+  const b = MU.benchRows(row, null, playersDb);
+  ck('bench = roster minus starters (3 players)', b.me.length === 3, b.me.length);
+  ck('bench excludes the starters', !b.me.some(c => c.id === 'm_qb' || c.id === 'm_rb1'));
+  ck('bench is sorted by points desc (TE 11.1 first)', b.me[0].name === 'My TE' && b.me[0].points === 11.1);
+  ck('bench total sums the pine (11.1+7+6.2 = 24.3)', b.meTotal === 24.3, b.meTotal);
+  ck('no opponent row → empty opp bench, zero total', b.opp.length === 0 && b.oppTotal === 0);
+}
+
 // Null guard.
 ck('null myRow returns null (no throw)', MU.pairStarters(null, oppRow, ROSTER_POS, playersDb) === null);
 

@@ -244,6 +244,19 @@ table.roll.mu-starters th.mu-slot-h { text-align: center; }
 }
 .mu-flag.out { background: rgba(248, 113, 113, .16); color: #f87171; }
 .mu-flag.q { background: rgba(245, 196, 69, .16); color: var(--gold-bright); }
+.mu-flag.bye { background: rgba(120, 130, 150, .18); color: var(--muted); }
+
+/* MATCHUP BENCH — two independent lists (yours | theirs), points on the pine. */
+.mu-bench-head { display: flex; justify-content: space-between; align-items: baseline; gap: .5rem;
+  font-family: var(--font-display); font-size: .64rem; letter-spacing: .12em; text-transform: uppercase;
+  font-weight: 800; color: var(--muted); margin-bottom: .4rem; }
+.mu-bench { display: grid; grid-template-columns: 1fr 1fr; gap: .3rem 1.1rem; }
+.mu-bench-list { list-style: none; margin: 0; padding: 0; font-size: .82rem; }
+.mu-bench-list li { display: flex; justify-content: space-between; gap: .5rem; padding: .18rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, .04); }
+.mu-bench-list li:last-child { border-bottom: none; }
+.mu-bench-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mu-bench-list .num { font-variant-numeric: tabular-nums; color: var(--muted); flex: 0 0 auto; }
 .scroll-x { overflow-x: auto; }
 
 /* ---------- badges & buttons ---------- */

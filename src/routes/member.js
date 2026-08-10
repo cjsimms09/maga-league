@@ -419,11 +419,13 @@ router.get('/', aw(async (req, res) => {
         if (myRow && (myRow.starters || []).length) {
           const playersDb = await sleeper.players();
           const rp = (sData.league && sData.league.roster_positions) || null;
-          const paired = MU.pairStarters(myRow, null, rp, playersDb);
+          const byeOpts = { byeMap: MU.byeMapFor(sData.state && sData.state.season), weekNo: myGame.week || sData.week };
+          const paired = MU.pairStarters(myRow, null, rp, playersDb, null, byeOpts);
           const problems = [];
           for (const row of (paired ? paired.rows : [])) {
             const c = row.me;
             if (c.empty) problems.push({ slot: row.slot, why: 'empty', text: 'empty ' + row.slot + ' slot' });
+            else if (c.onBye) problems.push({ slot: row.slot, why: 'bye', text: c.name + ' (bye)' });
             else if (['OUT', 'IR', 'SUS', 'PUP', 'DNR', 'NA', 'DOUBTFUL'].includes((c.inj || '').toUpperCase())) {
               problems.push({ slot: row.slot, why: 'out', text: c.name + ' (' + c.inj + ')' });
             }
@@ -1755,7 +1757,7 @@ router.get('/matchup', aw(async (req, res) => {
   // not by an independently-sorted row index. See src/matchup.js for why the old
   // index pairing was wrong. Needs the live bundle (starters + points) and the
   // player name DB; absent either, the card stays folded rather than half-drawn.
-  let starters = null;
+  let starters = null, bench = null;
   if (opp && live && sData && Array.isArray(sData.matchups) && liveMatchup && liveMatchup.me) {
     const myRid = liveMatchup.me.roster_id;
     const oppRid = liveMatchup.opp && liveMatchup.opp.roster_id;
@@ -1766,8 +1768,11 @@ router.get('/matchup', aw(async (req, res) => {
         const playersDb = await sleeper.players();
         const rosterPositions = (sData.league && sData.league.roster_positions)
           || (H.currentSeason(world.seasons) || {}).roster_positions || null;
-        starters = MU.pairStarters(myRow, oppRow, rosterPositions, playersDb, proj);
-      } catch (e) { starters = null; /* the card is a bonus — never break the page */ }
+        // Bye flags derived in-repo (nfl_byes.json) — no wait on A's feed.
+        const byeOpts = { byeMap: MU.byeMapFor(sData.state && sData.state.season), weekNo };
+        starters = MU.pairStarters(myRow, oppRow, rosterPositions, playersDb, proj, byeOpts);
+        bench = MU.benchRows(myRow, oppRow, playersDb, byeOpts);
+      } catch (e) { starters = null; bench = null; /* the card is a bonus — never break the page */ }
     }
   }
 
@@ -1833,7 +1838,7 @@ router.get('/matchup', aw(async (req, res) => {
 
   res.render('matchup', {
     me, owners, opp, live, weekNo, matchup: liveMatchup, betWindow, record, rivalry,
-    starters, proj, highBand, whBand, whRace, pickem, stakes, trash, trashGameId,
+    starters, bench, proj, highBand, whBand, whRace, pickem, stakes, trash, trashGameId,
     goatId: MK.goatOwnerId(sData, world.config.sleeper_map || {}),
     configured: !!world.config.sleeper_league_id,
     late: req.query.late === '1', sent: req.query.sent === '1',

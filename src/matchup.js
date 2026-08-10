@@ -44,9 +44,15 @@ function startingSlots(rosterPositions) {
 
 const r1 = n => (n == null ? null : Math.round(Number(n) * 10) / 10);
 
+// Team bye weeks, derived in-repo (no dependency on A's projection/roster feed).
+// Keyed by season → NFL team → bye week.
+const NFL_BYES = require('./nfl_byes.json');
+
 // One side of one slot. An empty pid (Sleeper uses '0' for an unfilled slot)
-// renders as a labelled blank rather than a phantom player.
-function cell(pid, ptsArr, ptsMap, idx, playersDb, projMap) {
+// renders as a labelled blank rather than a phantom player. `opts` may carry
+// { byeMap, weekNo } so the cell can flag a player whose team is off this week —
+// the mid-game "why is he at zero" question, answered on the row.
+function cell(pid, ptsArr, ptsMap, idx, playersDb, projMap, opts) {
   const id = pid == null ? '' : String(pid);
   if (!id || id === '0') return { name: '', points: null, proj: null, pos: null, empty: true };
   const info = (playersDb && playersDb.players && playersDb.players[id]) || {};
@@ -55,16 +61,51 @@ function cell(pid, ptsArr, ptsMap, idx, playersDb, projMap) {
   if (Array.isArray(ptsArr) && ptsArr[idx] != null) pts = Number(ptsArr[idx]);
   else if (ptsMap && ptsMap[id] != null) pts = Number(ptsMap[id]);
   const proj = projMap && projMap[id] != null ? Number(projMap[id]) : null;
+  const byeMap = opts && opts.byeMap;
+  const byeWeek = byeMap && info.team && byeMap[info.team] != null ? Number(byeMap[info.team]) : null;
+  const onBye = byeWeek != null && opts && opts.weekNo != null && byeWeek === Number(opts.weekNo);
   return {
     id,
     name: info.name || id,
     pos: info.pos || null,
     team: info.team || null,
     inj: info.inj || null,
+    bye: byeWeek,
+    onBye: !!onBye,
     points: r1(pts),
     proj: r1(proj),
     empty: false,
   };
+}
+
+// The bye map for a season ({} when the season isn't in the table → bye flags
+// simply don't fire, never a wrong flag).
+function byeMapFor(season) {
+  return (season != null && NFL_BYES[String(season)]) || {};
+}
+
+/**
+ * Bench players for each side, with points — "who's on my bench and what did
+ * they score" (the points-left-on-the-bench question). Bench = roster players
+ * not in the starters set; unpaired (the two benches are independent), each
+ * sorted by points descending. Carries the same inj/bye flags as the starters.
+ *
+ * @returns {{me: Array, opp: Array, meTotal: number, oppTotal: number}}
+ */
+function benchRows(myRow, oppRow, playersDb, opts) {
+  const side = row => {
+    if (!row) return [];
+    const starters = new Set((row.starters || []).map(String));
+    const pts = row.players_points || {};
+    return (row.players || [])
+      .filter(pid => !starters.has(String(pid)))
+      .map(pid => cell(pid, null, pts, -1, playersDb, null, opts))
+      .filter(c => !c.empty)
+      .sort((a, b) => (b.points || 0) - (a.points || 0));
+  };
+  const me = side(myRow), opp = side(oppRow);
+  const tot = arr => Math.round(arr.reduce((s, c) => s + (c.points || 0), 0) * 10) / 10;
+  return { me, opp, meTotal: tot(me), oppTotal: tot(opp) };
 }
 
 /**
@@ -77,7 +118,7 @@ function cell(pid, ptsArr, ptsMap, idx, playersDb, projMap) {
  * @param {object}   [proj]   optional {me:{pid:proj}, opp:{pid:proj}} — A's projections, defensive
  * @returns {{rows: Array, hasProj: boolean, misaligned: boolean}|null}
  */
-function pairStarters(myRow, oppRow, rosterPositions, playersDb, proj) {
+function pairStarters(myRow, oppRow, rosterPositions, playersDb, proj, opts) {
   if (!myRow) return null;
   const meStart = myRow.starters || [];
   const oppStart = (oppRow && oppRow.starters) || [];
@@ -92,8 +133,8 @@ function pairStarters(myRow, oppRow, rosterPositions, playersDb, proj) {
   let misaligned = false;
   for (let i = 0; i < n; i++) {
     const slotCode = slots[i] || null;
-    const me = cell(meStart[i], myRow.starters_points, myRow.players_points, i, playersDb, projMe);
-    const opp = cell(oppStart[i], oppRow && oppRow.starters_points, oppRow && oppRow.players_points, i, playersDb, projOpp);
+    const me = cell(meStart[i], myRow.starters_points, myRow.players_points, i, playersDb, projMe, opts);
+    const opp = cell(oppStart[i], oppRow && oppRow.starters_points, oppRow && oppRow.players_points, i, playersDb, projOpp, opts);
     if (slotCode && SLOT_ELIGIBLE[slotCode]) {
       const ok = c => c.empty || !c.pos || SLOT_ELIGIBLE[slotCode].includes(c.pos);
       if (!ok(me) || !ok(opp)) misaligned = true;   // a real position/slot conflict — do not hide it
@@ -104,4 +145,4 @@ function pairStarters(myRow, oppRow, rosterPositions, playersDb, proj) {
   return { rows, hasProj, misaligned };
 }
 
-module.exports = { pairStarters, startingSlots, SLOT_LABEL };
+module.exports = { pairStarters, benchRows, byeMapFor, startingSlots, SLOT_LABEL };
