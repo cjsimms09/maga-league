@@ -1939,6 +1939,11 @@ details.sa-preview[open] > summary { border-bottom: 1px solid var(--line); }
 .lo-call-main { display: flex; flex-direction: column; gap: .15rem; min-width: 0; }
 .lo-start { font-size: .9rem; } .lo-sit { font-size: .82rem; color: var(--muted); }
 .lo-call-price { text-align: right; white-space: nowrap; }
+/* C3 disagreement line — the tool is starting the LOWER-projection player; both
+   numbers on screen at the one moment that matters. Full-width under the call. */
+.lo-call-disagree { flex: 1 0 100%; margin: .4rem 0 0; padding: .45rem .6rem;
+  border-radius: 8px; background: rgba(245, 196, 69, .12);
+  border-left: 3px solid var(--gold); font-size: .8rem; line-height: 1.45; }
 .lo-dollars { display: block; font-size: 1.15rem; font-weight: 800; font-variant-numeric: tabular-nums; }
 .lo-split { display: block; font-size: .68rem; }
 .lo-proof-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: .6rem; margin-top: .3rem; }
