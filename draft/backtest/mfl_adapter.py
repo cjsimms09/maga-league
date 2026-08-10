@@ -21,6 +21,17 @@ indistinguishable from a measured one and would silently pass the filters.
 from __future__ import annotations
 
 import json
+import sys
+from pathlib import Path
+
+# `draft/adp.py` holds the authoritative matcher and lives one directory UP from
+# this one. Put it on the path HERE rather than relying on every caller to do it:
+# the crosswalk imported it lazily and worked only when the caller happened to
+# have arranged the path, which is a dependency that fails at the worst moment
+# (in CI, in a fresh process) rather than at import.
+_DRAFT = Path(__file__).resolve().parent.parent
+if str(_DRAFT) not in sys.path:
+    sys.path.insert(0, str(_DRAFT))
 
 # ── MFL's scalar wrapper ────────────────────────────────────────────────────
 def t(v) -> str:
@@ -261,3 +272,102 @@ def draft_is_complete(meta: dict, franchises: int, rounds: int) -> tuple:
     if got == expected:
         return True, "ok"
     return False, f"F2.draft_incomplete:{got}/{expected}"
+
+
+# ── the crosswalk, at scale ─────────────────────────────────────────────────
+def crosswalk_picks(picks: list, mfl_players, sleeper_index) -> tuple:
+    """MFL draft picks -> our board's sleeper ids. (rows, report).
+
+    NO NEW MATCHING LOGIC. `draft/adp.py:match_player` is the authoritative
+    matcher and already returns HOW it matched, so a later mismatch is traceable
+    to a method rather than just to "it matched". Writing a second matcher here
+    would be the multi-derivation failure rule 11 exists for — and a crosswalk is
+    precisely where it would hide, because a wrong-but-plausible match produces a
+    real player and never errors.
+
+    Two hops, and each is reported separately because they fail for different
+    reasons and F4 requires exclusions counted BY REASON:
+      1. MFL player id -> {name, position, team}, via MFL's own players export.
+         A pick whose id is absent from that export is `unknown_mfl_id`.
+      2. that record -> a sleeper id, via match_player. A miss here is
+         `no_sleeper_match` — the player exists in MFL and not on our board.
+
+    Conflating the two would report "our board is missing players" when the truth
+    is "MFL gave us an id we never fetched".
+    """
+    from collections import Counter
+
+    rows, unknown_id, unmatched = [], [], []
+    methods = Counter()
+    for p in picks:
+        meta = (mfl_players or {}).get(str(p.get("player")))
+        if not meta:
+            unknown_id.append(p.get("player"))
+            continue
+        sid, how = match_player_shared(meta, sleeper_index)
+        if not sid:
+            unmatched.append({"mfl_id": p.get("player"), "name": meta.get("name"),
+                              "pos": meta.get("position"), "team": meta.get("team")})
+            continue
+        methods[how or "unknown"] += 1
+        rows.append(dict(p, player_id=sid, matched_by=how,
+                         name=meta.get("name"), position=meta.get("position")))
+
+    n = len(picks or [])
+    report = {
+        "picks": n,
+        "crosswalked": len(rows),
+        # COMPLETENESS. F2's bar is >= 0.90; below that "the replay is guessing".
+        "crosswalk_rate": (len(rows) / n) if n else 0.0,
+        "unknown_mfl_id": len(unknown_id),
+        "no_sleeper_match": len(unmatched),
+        # VALIDITY / APPLICABILITY: how each match was made, so a systematic
+        # wrong-match (e.g. everything landing via loose initials) is visible as a
+        # distribution rather than discovered player by player.
+        "methods": dict(methods),
+        "unmatched_sample": unmatched[:10],
+    }
+    return rows, report
+
+
+def match_player_shared(meta: dict, sleeper_index):
+    """Thin seam onto draft/adp.py's matcher, so tests can inject a fake index."""
+    from adp import match_player
+    return match_player({"name": meta.get("name"), "position": meta.get("position"),
+                         "team": meta.get("team")}, sleeper_index)
+
+
+def crosswalk_verdict(report: dict, minimum: float = 0.90) -> tuple:
+    """F2's crosswalk bar. Returns (ok, reason), inclusive at the bar."""
+    rate = report.get("crosswalk_rate") or 0.0
+    if rate >= minimum:
+        return True, "ok"
+    return False, f"F2.crosswalk_below_90pct:{rate:.3f}"
+
+
+def board_index(board: dict):
+    """Our board -> the sleeper index the crosswalk matches against.
+
+    THE POOL MUST BE THE WHOLE POOL. `draft_data.json` splits the board: drafted
+    keepers are REMOVED from `players` and live in `kept_players`. An index built
+    from `players` alone is missing them — measured on the live artifact, all three
+    of Cory's keepers (Chase, Henry, Walker) fail to match while Gibbs succeeds.
+
+    That failure is doubly misleading. It reduces the crosswalk rate, which is F2's
+    admission bar, and it books the miss as `no_sleeper_match` — "our board does
+    not have this player" — when the truth is "we built the index from a partial
+    pool". Same reason-conflation the crosswalk guards against, one level up, and
+    the version that would have quietly failed leagues for our own bug.
+
+    Any future array that also holds board players belongs in this union.
+    """
+    out = {}
+    for key in ("players", "kept_players"):
+        for p in (board or {}).get(key) or []:
+            pid = p.get("player_id")
+            if pid is None:
+                continue
+            out[str(pid)] = {"full_name": p.get("name"), "position": p.get("position"),
+                             "team": p.get("team"), "search_rank": None}
+    from adp import build_index
+    return build_index(out)

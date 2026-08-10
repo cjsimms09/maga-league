@@ -217,3 +217,105 @@ def test_the_autopick_clause_is_reported_UNENFORCEABLE():
 def test_an_unknown_league_shape_does_not_claim_completeness():
     _, meta = A.draft_picks(REAL_DRAFT)
     assert A.draft_is_complete(meta, 0, 15)[1] == "F2.shape_unknown"
+
+
+# ── the crosswalk at scale ──────────────────────────────────────────────────
+# It composes draft/adp.py's matcher rather than reimplementing one. A crosswalk
+# is the single best hiding place for a multi-derivation bug: a wrong-but-plausible
+# match produces a REAL player and never errors, so the failure is invisible in
+# every downstream number.
+MFL_PLAYERS = {
+    "16641": {"name": "Ja'Marr Chase", "position": "WR", "team": "CIN"},
+    "13589": {"name": "Derrick Henry", "position": "RB", "team": "BAL"},
+}
+
+
+def _picks(*ids):
+    return [{"overall": i + 1, "player": p} for i, p in enumerate(ids)]
+
+
+def _fake_index(mapping):
+    """Stand-in for the sleeper index; the real matcher is covered by adp's own
+    tests, so this isolates the CROSSWALK's accounting."""
+    return {"__fake__": mapping}
+
+
+def _patch_matcher(monkeypatch, mapping):
+    monkeypatch.setattr(A, "match_player_shared",
+                        lambda meta, idx: (mapping.get(meta["name"]), "exact_name")
+                        if mapping.get(meta["name"]) else (None, ""))
+
+
+def test_crosswalk_reports_completeness(monkeypatch):
+    _patch_matcher(monkeypatch, {"Ja'Marr Chase": "7564", "Derrick Henry": "3198"})
+    rows, rep = A.crosswalk_picks(_picks("16641", "13589"), MFL_PLAYERS, _fake_index({}))
+    assert rep["crosswalk_rate"] == 1.0 and rep["crosswalked"] == 2
+    assert rows[0]["player_id"] == "7564"
+
+
+def test_an_unknown_MFL_id_is_its_own_reason(monkeypatch):
+    """'MFL gave us an id we never fetched' is NOT 'our board is missing players'.
+    Conflating them makes the attrition report blame the wrong side."""
+    _patch_matcher(monkeypatch, {"Ja'Marr Chase": "7564"})
+    _, rep = A.crosswalk_picks(_picks("16641", "99999"), MFL_PLAYERS, _fake_index({}))
+    assert rep["unknown_mfl_id"] == 1 and rep["no_sleeper_match"] == 0
+
+
+def test_a_player_absent_from_our_board_is_a_DIFFERENT_reason(monkeypatch):
+    _patch_matcher(monkeypatch, {"Ja'Marr Chase": "7564"})
+    _, rep = A.crosswalk_picks(_picks("16641", "13589"), MFL_PLAYERS, _fake_index({}))
+    assert rep["no_sleeper_match"] == 1 and rep["unknown_mfl_id"] == 0
+    assert rep["unmatched_sample"][0]["name"] == "Derrick Henry"
+
+
+def test_how_each_match_was_made_is_recorded(monkeypatch):
+    """A systematic wrong-match shows as a DISTRIBUTION (everything landing via a
+    loose method) rather than being found one player at a time."""
+    _patch_matcher(monkeypatch, {"Ja'Marr Chase": "7564", "Derrick Henry": "3198"})
+    rows, rep = A.crosswalk_picks(_picks("16641", "13589"), MFL_PLAYERS, _fake_index({}))
+    assert rep["methods"] == {"exact_name": 2}
+    assert all(r["matched_by"] for r in rows)
+
+
+def test_the_F2_bar_is_inclusive_at_90_percent():
+    assert A.crosswalk_verdict({"crosswalk_rate": 0.90})[0] is True
+    ok, why = A.crosswalk_verdict({"crosswalk_rate": 0.899})
+    assert ok is False and why.startswith("F2.crosswalk_below_90pct")
+
+
+def test_an_empty_pick_list_does_not_claim_full_coverage():
+    """0/0 must not read as 100% matched — a league we failed to fetch would
+    otherwise sail through F2 as perfectly crosswalked."""
+    _, rep = A.crosswalk_picks([], MFL_PLAYERS, _fake_index({}))
+    assert rep["crosswalk_rate"] == 0.0
+    assert A.crosswalk_verdict(rep)[0] is False
+
+
+# ── the crosswalk TARGET must be the whole board ────────────────────────────
+def test_board_index_includes_kept_players():
+    """draft_data.json REMOVES drafted keepers from `players` into `kept_players`.
+    An index from `players` alone misses them: measured on the live artifact, all
+    three of Cory's keepers fail while Gibbs succeeds — 1/4 instead of 4/4.
+
+    The miss is booked as `no_sleeper_match` ("our board lacks this player") when
+    the truth is "we built the index from a partial pool", so it would fail real
+    leagues for our own bug and blame the source."""
+    import json
+    board = json.loads((HERE.parent.parent / "public" / "draft_data.json").read_text())
+    kept = board.get("kept_players") or []
+    if not kept:
+        return                                  # nothing to prove on a keeperless board
+    idx = A.board_index(board)
+    mfl = {str(i): {"name": k["name"], "position": k["position"], "team": k.get("team")}
+           for i, k in enumerate(kept)}
+    picks = [{"overall": i + 1, "player": str(i)} for i in range(len(kept))]
+    _, rep = A.crosswalk_picks(picks, mfl, idx)
+    assert rep["crosswalk_rate"] == 1.0, rep["unmatched_sample"]
+
+    # And the partial index really does fail — so this test is not vacuous.
+    from adp import build_index
+    partial = build_index({str(p["player_id"]): {
+        "full_name": p["name"], "position": p["position"], "team": p.get("team"),
+        "search_rank": None} for p in board["players"]})
+    _, bad = A.crosswalk_picks(picks, mfl, partial)
+    assert bad["crosswalk_rate"] < 1.0, "the partial index should miss the keepers"
