@@ -59,6 +59,51 @@ const PICKS = [
   ck('an empty draft yields an empty grid, not a crash',
     DB.buildGrid([], map, owners).rounds === 0 && DB.buildGrid(null, map, owners).rounds === 0);
 
+  // ── COLUMNS RUN IN DRAFT ORDER: whoever picked first is leftmost.
+  //
+  // The fixture above happens to have slot order == pick order, so it passes
+  // either way and proves nothing about the rule. These two don't.
+
+  // (a) Sleeper's slot numbers need not start at the first pick. Here seat 7
+  //     picks first, then 5, then 6 — the board must read 7, 5, 6 left to right,
+  //     not 5, 6, 7. Ordering by draft_slot would put the first pick in the
+  //     middle of the board.
+  {
+    const shifted = [
+      { round: 1, pick_no: 1, draft_slot: 7, roster_id: 13, metadata: { first_name: 'First', last_name: 'Overall', position: 'RB' } },
+      { round: 1, pick_no: 2, draft_slot: 5, roster_id: 11, metadata: { first_name: 'Second', last_name: 'Pick', position: 'WR' } },
+      { round: 1, pick_no: 3, draft_slot: 6, roster_id: 12, metadata: { first_name: 'Third', last_name: 'Pick', position: 'TE' } },
+      { round: 2, pick_no: 4, draft_slot: 6, roster_id: 12, metadata: { first_name: 'Fourth', last_name: 'Pick', position: 'QB' } },
+    ];
+    const sg = DB.buildGrid(shifted, map, owners);
+    ck('the FIRST OVERALL PICK is the leftmost column',
+      sg.grid[0][0] && sg.grid[0][0].name === 'First Overall', sg.grid[0].map(c => c && c.name));
+    ck('  and the rest follow in pick order, not by Sleeper slot number',
+      sg.grid[0].map(c => c && c.name).join(',') === 'First Overall,Second Pick,Third Pick', sg.grid[0].map(c => c && c.name));
+    ck('  Sleeper\'s own seat number is kept alongside the board position',
+      sg.columns[0].draftSlot === 7 && sg.columns[0].slot === 1, sg.columns);
+    ck('  later rounds stay under the team that made the pick',
+      sg.grid[1][2] && sg.grid[1][2].name === 'Fourth Pick', sg.grid[1].map(c => c && c.name));
+  }
+
+  // (b) NO draft_slot at all. The old fallback used pick_no as the slot, so pick
+  //     11 became "seat 11" — one team's picks smeared across a row of phantom
+  //     columns instead of stacking in its own.
+  {
+    const noSlot = [
+      { round: 1, pick_no: 1, roster_id: 11, metadata: { first_name: 'A', last_name: 'One', position: 'RB' } },
+      { round: 1, pick_no: 2, roster_id: 12, metadata: { first_name: 'B', last_name: 'One', position: 'WR' } },
+      { round: 2, pick_no: 3, roster_id: 12, metadata: { first_name: 'B', last_name: 'Two', position: 'TE' } },
+      { round: 2, pick_no: 4, roster_id: 11, metadata: { first_name: 'A', last_name: 'Two', position: 'QB' } },
+    ];
+    const ng = DB.buildGrid(noSlot, map, owners);
+    ck('a draft with no slot field still has one column per TEAM', ng.slots === 2, ng.slots);
+    ck('  each team\'s picks stack in its own column',
+      ng.grid[0][0].name === 'A One' && ng.grid[1][0].name === 'A Two'
+      && ng.grid[0][1].name === 'B One' && ng.grid[1][1].name === 'B Two',
+      ng.grid.map(r => r.map(c => c && c.name)));
+  }
+
   // ── COMPLETENESS. The status flag is not always set promptly, so a full board
   // counts as complete on its own.
   ck('a flagged-complete draft is complete', DB.isComplete({ draft: { status: 'complete' }, picks: PICKS }, 99));

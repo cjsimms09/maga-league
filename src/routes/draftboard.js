@@ -32,52 +32,90 @@ function playerName(pick) {
 }
 
 /**
- * The grid. Columns are DRAFT SLOTS in order (that is how a board is read on the
- * wall — seat 1 on the left), each labelled with the owner who sat there; rows
- * are rounds. Snake order is preserved as-is: cell [round][slot] is whoever that
- * seat took in that round, which is what a board shows regardless of direction.
+ * The grid. Columns run in DRAFT ORDER — the team that made the first overall
+ * pick is leftmost — each labelled with the owner who sat there; rows are rounds.
+ * Snake order is preserved as-is: cell [round][column] is whoever that team took
+ * in that round, which is what a board shows regardless of direction.
  *
  * @param picks       Sleeper draft picks
  * @param sleeperMap  { roster_id: owner_id }
  * @param owners      league owners (for names)
- * @returns { rounds, slots, columns:[{slot,ownerId,name}], grid:[[cell|null]] }
+ * @returns { rounds, slots, columns:[{slot,draftSlot,ownerId,name}], grid:[[cell|null]] }
+ *          columns[0] made pick 1; `slot` is the board position, `draftSlot` is
+ *          Sleeper's own seat number, kept so the two can be compared.
  *          cell = { name, pos, team, pickNo, round, slot, ownerId, keeper }
  */
 function buildGrid(picks, sleeperMap, owners) {
   const list = (picks || []).filter(p => p && p.round != null);
   if (!list.length) return { rounds: 0, slots: 0, columns: [], grid: [] };
 
-  const slotOf = p => Number(p.draft_slot != null ? p.draft_slot : p.pick_no);
   const rounds = Math.max(...list.map(p => Number(p.round) || 0));
-  const slots = Math.max(...list.map(slotOf).filter(n => Number.isFinite(n) && n > 0), 0);
-  if (!rounds || !slots) return { rounds: 0, slots: 0, columns: [], grid: [] };
+  if (!rounds) return { rounds: 0, slots: 0, columns: [], grid: [] };
 
   const nameOf = id => {
     const o = (owners || []).find(x => Number(x.id) === Number(id));
     return o ? o.name : null;
   };
-  // Column headers: the owner who sat in each seat, read off round 1 (the round
-  // every seat certainly has) and falling back to any pick in that slot.
-  const columns = [];
-  for (let s = 1; s <= slots; s++) {
-    const inSlot = list.filter(p => slotOf(p) === s);
-    const first = inSlot.find(p => Number(p.round) === 1) || inSlot[0] || null;
-    const ownerId = first ? ownerForPick(first, sleeperMap) : null;
-    columns.push({ slot: s, ownerId, name: (ownerId != null && nameOf(ownerId)) || `Seat ${s}` });
+  const num = v => { const n = Number(v); return Number.isFinite(n) ? n : null; };
+
+  // COLUMNS RUN IN DRAFT ORDER: whoever picked first is leftmost.
+  //
+  // A seat is a TEAM, identified by roster_id, and its column position is set by
+  // the earliest pick it made — which is the overall pick order in round one, and
+  // is what "order of pick" means on a board. Ordering by `draft_slot` instead
+  // would be the same thing only when Sleeper's slot numbering happens to start
+  // at the first pick, and there is no reason to depend on that.
+  //
+  // The old code also fell back to `pick_no` when `draft_slot` was missing, which
+  // is wrong past round one: in a ten-team league pick 11 became "seat 11", so a
+  // draft with no slot field would have spread one team's picks across a row of
+  // phantom columns instead of stacking them in a single one.
+  const seatKeyOf = p => (p.roster_id != null ? 'r' + p.roster_id
+    : p.draft_slot != null ? 's' + p.draft_slot : null);
+
+  const seats = new Map();
+  for (const p of list) {
+    const key = seatKeyOf(p);
+    if (key == null) continue;
+    if (!seats.has(key)) seats.set(key, { key, firstPick: Infinity, firstRound: Infinity, sample: p });
+    const s = seats.get(key);
+    const pn = num(p.pick_no), r = num(p.round);
+    // Rank on the earliest pick this team made. Falls back to (round, slot) when
+    // pick_no is absent, so an incomplete stream still orders sensibly.
+    const rank = pn != null ? pn : (r != null ? r * 1000 + (num(p.draft_slot) || 0) : Infinity);
+    if (rank < s.firstPick) { s.firstPick = rank; s.sample = p; }
+    if (r != null && r < s.firstRound) s.firstRound = r;
   }
+  const ordered = [...seats.values()].sort((a, b) =>
+    (a.firstPick - b.firstPick) || String(a.key).localeCompare(String(b.key)));
+  const slots = ordered.length;
+  if (!slots) return { rounds: 0, slots: 0, columns: [], grid: [] };
+
+  const colIndex = new Map();
+  const columns = ordered.map((s, i) => {
+    colIndex.set(s.key, i);
+    const ownerId = ownerForPick(s.sample, sleeperMap);
+    return {
+      slot: i + 1,                                     // board position, 1 = first pick
+      draftSlot: num(s.sample.draft_slot),             // Sleeper's own seat number, kept
+      ownerId,
+      name: (ownerId != null && nameOf(ownerId)) || (num(s.sample.draft_slot) != null ? `Seat ${s.sample.draft_slot}` : `Seat ${i + 1}`),
+    };
+  });
 
   const grid = [];
   for (let r = 1; r <= rounds; r++) grid.push(new Array(slots).fill(null));
   for (const p of list) {
-    const r = Number(p.round), s = slotOf(p);
-    if (!(r >= 1 && r <= rounds && s >= 1 && s <= slots)) continue;
+    const r = Number(p.round), key = seatKeyOf(p);
+    const c = key == null ? undefined : colIndex.get(key);
+    if (c === undefined || !(r >= 1 && r <= rounds)) continue;
     const m = p.metadata || {};
-    grid[r - 1][s - 1] = {
+    grid[r - 1][c] = {
       name: playerName(p),
       pos: String(m.position || '').toUpperCase() || null,
       team: String(m.team || '').toUpperCase() || null,
-      pickNo: p.pick_no != null ? Number(p.pick_no) : null,
-      round: r, slot: s,
+      pickNo: num(p.pick_no),
+      round: r, slot: c + 1,
       ownerId: ownerForPick(p, sleeperMap),
       keeper: p.is_keeper === true,
     };

@@ -20,7 +20,7 @@
     <b><%= count %></b> picks · <%= grid.rounds %> rounds × <%= grid.slots %> seats ·
     <% if (source === 'complete') { %>from the completed draft<% } else { %>from the live pick stream<% } %><% if (capturedAt) { %>,
     archived <%= new Date(capturedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %><% } %>.
-    Seats read left to right the way the room sat; snake order runs down the columns.
+    Columns run in draft order — whoever made the first pick is on the left. Snake order runs down them.
   </p>
 
   <div class="scroll-x">
