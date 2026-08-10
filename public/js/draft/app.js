@@ -723,6 +723,32 @@
     return problems;
   }
 
+  /* ONE board-freshness policy for the whole war room.
+   *
+   * Three surfaces used to compare board age against three different thresholds:
+   * the staleness control BLOCKED at 18h (amber warn at 6h), the pre-draft
+   * checklist called a board "fresh" until 48h, and the status dot stayed green
+   * until 48h. So a 20-hour board BLOCKED you while the checklist showed a green
+   * ✅ "Board is fresh" in the same panel (2026-08-10 critique). One rule now,
+   * read everywhere via boardFreshness():
+   *   fresh   < 6h    green, no note
+   *   aging   6–18h   amber, advisory (never blocks)
+   *   stale   ≥ 18h   red, BLOCKING — drafting off yesterday's injury status.
+   * The checklist passes iff the board is not stale, so the ✅ and the block can
+   * never disagree again. */
+  const BOARD_AGE = { WARN_H: 6, BLOCK_H: 18 };
+  function boardAgeHours() {
+    const b = state.data && state.data.built_at ? Date.parse(state.data.built_at) : NaN;
+    return isFinite(b) ? (Date.now() - b) / 3.6e6 : null;
+  }
+  function boardFreshness(hours) {
+    const h = (hours == null) ? boardAgeHours() : hours;
+    if (h == null) return { level: 'unknown', hours: null };
+    if (h >= BOARD_AGE.BLOCK_H) return { level: 'stale', hours: h };
+    if (h >= BOARD_AGE.WARN_H) return { level: 'aging', hours: h };
+    return { level: 'fresh', hours: h };
+  }
+
   function currentPick() {
     if (state.sync) return state.sync.currentPickNumber();
     // MANUAL MODE HAD NO CLOCK. This returned `my_picks[0]` unconditionally, so
@@ -1148,15 +1174,16 @@
       });
     }
 
-    // Artifact age. Under 6h quiet, 6-18h amber, over 18h BLOCKING — a stale
-    // board on draft day means drafting off yesterday's injury status without
-    // knowing, and a warning you can scroll past is not a control.
-    const built = Date.parse(d.built_at || '');
-    if (built) {
-      const hours = (Date.now() - built) / 3.6e6;
-      if (hours > 18) {
+    // Artifact age — the ONE freshness policy (boardFreshness): fresh <6h quiet,
+    // aging 6-18h amber, stale ≥18h BLOCKING. A stale board on draft day means
+    // drafting off yesterday's injury status without knowing, and a warning you
+    // can scroll past is not a control.
+    const fresh = boardFreshness();
+    if (fresh.level !== 'unknown') {
+      const hours = fresh.hours;
+      if (fresh.level === 'stale') {
         blockOnStaleness(hours);
-      } else if (hours > 6) {
+      } else if (fresh.level === 'aging') {
         notes.push({ level: 'warn', text: 'This board is ' + Math.round(hours)
           + ' hours old — consider rebuilding before you draft off it.' });
       }
@@ -1827,14 +1854,19 @@
     if (!host) return;
     const d = state.data || {};
     const prov = d.provenance || {};
-    const ageH = d.built_at ? (Date.now() - new Date(d.built_at)) / 3600000 : null;
+    const freshCk = boardFreshness();           // ONE freshness policy — see boardFreshness()
+    const ageH = freshCk.hours;
     const slot = mySlot();
 
     const items = [
       { ok: !!d.players && d.players.length > 100,
         label: 'Board built', detail: (d.players || []).length + ' players' },
-      { ok: ageH != null && ageH < 48,
-        label: 'Board is fresh', detail: ageH == null ? 'never built' : Math.round(ageH) + 'h old',
+      // Passes iff NOT stale (< 18h). The ✅ and the staleness block read the same
+      // rule now, so the checklist can never call a board "fresh" while the control
+      // is blocking it. Detail flags the aging band so 6-18h still shows a caution.
+      { ok: freshCk.level === 'fresh' || freshCk.level === 'aging',
+        label: 'Board is fresh', detail: ageH == null ? 'never built'
+          : Math.round(ageH) + 'h old' + (freshCk.level === 'aging' ? ' — aging, rebuild soon' : ''),
         fix: 'Run the Draft Board action on GitHub' },
       // These two read the SAME provenance the banner at the top reads. A
       // checklist that invents its own idea of "fine" will eventually disagree
@@ -3680,11 +3712,12 @@
     // 1. STATUS — state, seat, board freshness, health, current pick.
     const seat = refreshSeat();
     const mode = state.mockMode ? 'REHEARSAL' : (state.sync ? 'LIVE' : 'MANUAL');
-    const ageH = state.data.built_at
-      ? (Date.now() - new Date(state.data.built_at)) / 3600000 : null;
+    const freshMvs = boardFreshness();          // ONE freshness policy — see boardFreshness()
+    const ageH = freshMvs.hours;
     const dot = (state.pickStateProblems || []).length ? '🔴'
       : (!seat || !seat.resolved) ? '🔴'
-      : (ageH != null && ageH >= 48) ? '🟡' : '🟢';
+      : freshMvs.level === 'stale' ? '🔴'
+      : freshMvs.level === 'aging' ? '🟡' : '🟢';
     document.getElementById('mvs-status').innerHTML =
       '<b>' + esc(mode) + '</b> · ' + esc(seat ? DraftSeat.describe(seat) : 'seat —')
       + ' · ' + (ageH == null ? 'board —' : ageH < 1 ? 'board fresh'
@@ -3878,7 +3911,8 @@
     if (!host || !state.data) return null;
     const d = state.data;
     const prov = d.provenance || {};
-    const ageH = d.built_at ? (Date.now() - new Date(d.built_at)) / 3600000 : null;
+    const freshSS = boardFreshness();           // ONE freshness policy — see boardFreshness()
+    const ageH = freshSS.hours;
     const seat = refreshSeat();
 
     // RED = a recommendation cannot be trusted. AMBER = trust it less.
@@ -3892,7 +3926,11 @@
     else if (seat.source === 'assumed') amber.push('seat assumed');
     else if (!state.mockMode && !state.slotVerified) amber.push('slot unverified');
     if (state.keeperLock && !state.keeperLock.locked && !state.mockMode) amber.push('slate unconfirmed');
-    if (ageH != null && ageH >= 48) amber.push('board ' + Math.round(ageH) + 'h old');
+    // Same rule as the checklist and the staleness control: stale (≥18h) is a
+    // BLOCKING red, aging (6-18h) an amber — never a green board here while the
+    // gate blocks it elsewhere.
+    if (freshSS.level === 'stale') red.push('board ' + Math.round(ageH) + 'h old — STALE');
+    else if (freshSS.level === 'aging') amber.push('board ' + Math.round(ageH) + 'h old');
     if ((prov.adp || {}).fallback_count_in_play > 0) amber.push(prov.adp.fallback_count_in_play + ' ADP guessed');
 
     const tone = red.length ? 'bad' : amber.length ? 'warn' : 'ok';

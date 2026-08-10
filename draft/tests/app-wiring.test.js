@@ -232,6 +232,18 @@ check('the app bumps the board version on in-place mutation',
     'window must close at min(my future picks), never at my SECOND upcoming pick');
 }
 
+// ── BOARD FRESHNESS: one policy, read everywhere (2026-08-10 critique) ─────
+// Three surfaces compared board age against different thresholds — the checklist
+// called a 40h board "fresh" (<48h) while the staleness control was BLOCKING it
+// (>18h). One boardFreshness() now; guard that no surface reinvents a threshold.
+check('board freshness: one policy object (BOARD_AGE with WARN_H/BLOCK_H)',
+  /const BOARD_AGE = \{[^}]*WARN_H[^}]*BLOCK_H/.test(appSrc));
+check('board freshness: boardFreshness() is the one classifier',
+  /function boardFreshness\(/.test(appSrc));
+check('board freshness: no surface hardcodes a 48h age threshold anymore',
+  !/ageH\s*[<>]=?\s*48/.test(appSrc) && !/hours\s*>\s*18/.test(appSrc),
+  'age comparisons must go through boardFreshness(), not raw 48/18h literals');
+
 // ── HONEST LIMIT, asserted so nobody mistakes this for more than it is ──────
 check('this suite knows what it cannot check (limitation is documented)',
   /catches "the app never mentions it", not "the app mentions it but computes it wrong"/
