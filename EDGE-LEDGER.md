@@ -270,3 +270,24 @@ sample-ceiling breakers have much higher EVSI:
   the $100 weekly-high — expected weekly-high WIN PROBABILITY across all weeks + total playoff-window
   lineup points — which activate even when the seat doesn't literally cash. (b) is cheap and reuses the
   whole harness.
+
+### RESOLUTION (same day) — finer proxy run: the construction-objective null HOLDS with real power
+- **The fix worked:** the higher-power proxy (weekly-high WIN PROBABILITY smoothed over week-to-week
+  noise; mean weekly RANK; playoff-window POINTS) gave the three rosters continuous signal even though
+  the seat never cashed — E[wh-wins] like 0.41 / 1.46, mean-rank differentiating to 0.1.
+- **Every hypothesis failed on the channel it was built for:**
+  * CEILING → weekly-high win prob: **−0.13 wins** over 3 yrs, mixed. Prior-year boom ≠ this-year boom.
+  * FLOOR → mean weekly rank (consistency): **+0.47 = WORSE**, mixed. Reliability tilt didn't steady the seat.
+  * Playoff-window points: floor **+27.5**, but ceiling **+29.5** — BOTH tilts moved it ~equally, mixed by
+    season, ~3 pts/playoff-week (~1%). So it is NOT a floor/robustness effect; it's generic noise.
+- **SELF-CORRECTION on my own tooling:** my first `_proxy_verdict` flagged "floor lifts playoff points →
+  worth a board tilt." That was an overclaim — it never checked that CEILING lifted it just as much, nor
+  that the effect was sign-consistent. Patched the verdict to gate a SIGNAL claim on (1) hypothesized
+  direction, (2) same sign every season, (3) beating the rival shape on shape-specific channels. Under the
+  honest gate the result is **NULL**.
+- **Bottom line (money saved):** roster-SHAPE tilting — ceiling, floor, or availability — is NOT an edge at
+  this seat under a fair, higher-power test. The board's VALUE (points-over-replacement) objective survives.
+  Combined with the projection-source finding (Sleeper≈FP, ρ=0.93), BOTH the projection side and the
+  construction-objective side of the board are now settled as ~optimal. The remaining edge is elsewhere:
+  ADP staleness, tiers/scarcity timing, and draft-day sequencing / room-read — not the point estimate or the
+  roster shape. Real-dollar confirmation still waits on the post-draft season-forward simulator (task #9).
