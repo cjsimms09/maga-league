@@ -2461,15 +2461,21 @@ button.pd-team.pick:hover { background: rgba(245,196,69,.16); transform: transla
    compact context sits just above the recommendation, and the redundant summary
    / strategies / deadline / branches / queue drop beneath it. Compression of the
    strips + chrome (below) is what lifts the rec over the fold. */
+/* DECLUTTER (Cory, 2026-08-10: "too busy"). The recommendation was buried under
+   ~416px: THE PLAN, WATCH and the pick bar all stacked between the search and the
+   pick. Only three things earn a spot ABOVE the recommendation — search (to find a
+   player), the slip alert (urgent), and the one-line pick bar (is it my turn, when
+   do I pick next). THE PLAN and WATCH are reference; they drop directly beneath the
+   recommendation, still one glance away but no longer in front of the decision. */
 .wr-zone1 > .wr-search         { order: 1; }
 .wr-zone1 > #search-tail       { order: 2; }
-.wr-zone1 > #queue-slip        { order: 3; }
-.wr-zone1 > #doctrine-banner   { order: 4; }   /* THE PLAN — compact context, above the rec */
-.wr-zone1 > #doctrine-switch   { order: 5; }
-.wr-zone1 > #legality-strip    { order: 6; }   /* WATCH — compact context */
-.wr-zone1 > #wr-statusbar      { order: 7; }   /* pick bar */
-.wr-zone1 > #recs-card         { order: 8; }   /* THE recommendation + Take button */
-.wr-zone1 > #mvs               { order: 9; }   /* redundant summary — beneath */
+.wr-zone1 > #queue-slip        { order: 3; }   /* urgent slip — stays above */
+.wr-zone1 > #wr-statusbar      { order: 4; }   /* one-line pick bar — is it my turn */
+.wr-zone1 > #recs-card         { order: 5; }   /* THE recommendation + Take button — up top now */
+.wr-zone1 > #doctrine-banner   { order: 6; }   /* THE PLAN — reference, beneath the rec */
+.wr-zone1 > #legality-strip    { order: 7; }   /* WATCH — reference, beneath the rec */
+.wr-zone1 > #doctrine-switch   { order: 8; }
+.wr-zone1 > #mvs               { order: 9; }
 .wr-zone1 > #shadow-projection { order: 10; }
 .wr-zone1 > #lrm-card          { order: 11; }
 .wr-zone1 > #branch-card       { order: 12; }
@@ -2980,9 +2986,17 @@ body.warroom-page #doctrine-banner .db-confidence { white-space: normal; overflo
      over content. Put it in NORMAL DOCUMENT FLOW instead: it reserves its own
      space and cannot collide with the tab bar or any card. (It removes itself
      1.5s after arming, so an in-flow button at the top is unobtrusive.) */
-  .wr-arm { position: static; display: block; width: 100%;
-    right: auto; bottom: auto; margin: .2rem 0 .9rem; }
+  .wr-arm { position: static; display: inline-flex; width: auto; align-items: center;
+    right: auto; bottom: auto; margin: .2rem 0 .8rem; }
 }
+/* It is SETUP, not an alert — arm audio once and it removes itself. A full-width
+   red bar made it read as the most urgent thing on screen, above the actual pick.
+   Calm it to a quiet outlined chip so it is noticeable but never competes with a
+   real alert or the recommendation. */
+.wr-arm.btn.gold, .wr-arm.btn { background: none; color: var(--navy);
+  border: 1px solid var(--line); box-shadow: none; font-weight: 700; }
+.wr-arm.btn.gold:hover, .wr-arm.btn:hover, .wr-arm.btn:focus-visible {
+  border-color: var(--navy); background: var(--panel-soft); }
 
 /* ═══════════════════════════════════════════════════════════════════════════
    THE DISPATCH — transient popups. No-JS: a dismissible stack at the top of the
