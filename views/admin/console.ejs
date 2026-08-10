@@ -422,8 +422,12 @@
           <input type="hidden" name="year" value="<%= season.year %>">
           <button class="btn gold" type="submit"><%= season.keepers_locked ? 'Unlock Keepers' : 'Lock Keepers' %></button>
         </form>
-        <form class="asis" method="post" action="/admin/draft/reset" onsubmit="return confirm('Wipe the entire <%= season.year %> draft order and all picks?')">
+        <%# Typed confirmation, checked SERVER-side (a browser confirm() is not a
+            guard — a stray POST walks past it). The route also snapshots the
+            claims before deleting, so a mistake is recoverable. %>
+        <form class="asis" method="post" action="/admin/draft/reset" onsubmit="return confirm('Wipe the entire <%= season.year %> draft order and all claimed spots?')">
           <input type="hidden" name="year" value="<%= season.year %>">
+          <input type="text" name="confirm" placeholder="type RESET" autocomplete="off" style="width:7.5rem" aria-label="Type RESET to confirm">
           <button class="btn ghost" type="submit">Reset Draft</button>
         </form>
       </div>

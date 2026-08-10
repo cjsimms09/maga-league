@@ -300,6 +300,38 @@ router.use(requireLogin);
 // conversation is happening; few enough that the chat does not become the page.
 const CHAT_ON_HOME = 5;
 
+/* IS THE LIVE DATA ACTUALLY LIVE?
+ *
+ * `sleeper.bundle()` is well built for an outage: it caches, it remembers a
+ * failure so the next render doesn't pay five timeouts, and it serves the
+ * last-known-good bundle instead of breaking. But it returns that stale bundle
+ * with NO signal, and `failed_at` was surfaced only on the admin console — so if
+ * Sleeper went down mid-Sunday every page kept showing old scores AS IF LIVE.
+ * That is the worst version of the failure class this project keeps finding:
+ * not broken, just quietly wrong, on the surfaces whose whole point is live.
+ *
+ * B can't change sleeper.js (A's lane), but the cache is a plain doc — so read it
+ * and tell the truth. Returns null when the data is fresh (render nothing).
+ */
+async function liveFreshness() {
+  try {
+    const c = await getDoc('sleeper-cache', null);
+    if (!c || !c.failed_at) return null;                 // never failed → fresh
+    // ONLY warn when we are actually SHOWING stale numbers. With no cached bundle
+    // at all (off-season, never-connected, a fresh install) the pages already say
+    // "no live scoreboard" in their own words — a second banner repeating it every
+    // page load is noise, and a warning people learn to ignore is worse than none.
+    if (!c.data || !c.fetched_at) return null;
+    const ageMin = c.fetched_at ? Math.round((Date.now() - c.fetched_at) / 60000) : null;
+    return {
+      unreachable: true,
+      since: c.fetched_at ? new Date(c.fetched_at).toLocaleTimeString('en-US',
+        { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' }) + ' ET' : null,
+      ageMin,
+    };
+  } catch (e) { return null; }
+}
+
 // ---------- contact directory (contact-directory.md) ----------
 // One record per owner — Venmo + email + phone — rendered by the shared card
 // wherever a person appears. "Complete" means all three are on file.
@@ -551,6 +583,7 @@ router.get('/', aw(async (req, res) => {
   res.render('dashboard', {
     season, payouts: H.payoutTable(season), buyins, weekly, awards, standings, draft,
     openVotes, CATEGORY_LABELS: H.CATEGORY_LABELS, myBalance, draftInfo, weekHero,
+    liveStale: await liveFreshness(),
     // The money scoreboard: banked dollars + rank this season, from the ledger.
     moneyBoard: L.moneyStandings(world.ledger, owners, season), meId: req.owner.id,
     sleeperData: sData, sleeperStandings: sStandings, sleeperBoard: sBoard, roast,
@@ -992,8 +1025,32 @@ router.get('/bank', aw(async (req, res) => {
     }
   }
 
+  // CAREER MONEY — cumulative banked total + all-time rank. The page shows this
+  // season's tab in detail but never answered "how much have I actually won here,
+  // ever, and where does that put me". Derived from the SAME winningsGrid /
+  // careerTotals the history page uses, so the two can't disagree.
+  let career = null;
+  try {
+    const grid = H.winningsGrid(world);
+    const totals = H.careerTotals(grid, owners);
+    const ranked = owners
+      .map(o => ({ owner_id: o.id, name: o.name, won: Math.round((totals[o.id] || 0) * 100) / 100 }))
+      .sort((a, b) => b.won - a.won || a.name.localeCompare(b.name));
+    // Standard competition ranking ("1224"), matching moneyStandings.
+    let rk = 0, prev = null;
+    ranked.forEach((r, i) => { if (prev === null || r.won !== prev) rk = i + 1; r.rank = rk; prev = r.won; });
+    const mine = ranked.find(r => r.owner_id === req.owner.id) || null;
+    // Seasons actually played (a denominator, so "per season" is honest).
+    const seasonsPlayed = Object.keys(grid[req.owner.id] || {}).length;
+    career = {
+      mine, ranked, of: ranked.length, seasonsPlayed,
+      perSeason: mine && seasonsPlayed ? Math.round((mine.won / seasonsPlayed) * 100) / 100 : null,
+      leader: ranked[0] || null,
+    };
+  } catch (e) { career = null; /* reference numbers are a bonus, never break the page */ }
+
   res.render('bank', {
-    poolAdvice,
+    poolAdvice, career,
     // Propose-from-anywhere: a ?betvs=<id> link (matchup, standings, franchise)
     // pre-selects that opponent in the bet builder.
     prefillParty: Number(req.query.betvs) || null,
@@ -1851,7 +1908,9 @@ router.get('/matchup', aw(async (req, res) => {
     }
   } catch (e) { /* leverage is a bonus */ }
 
+  const liveStale = await liveFreshness();
   res.render('matchup', {
+    liveStale,
     me, owners, opp, live, weekNo, matchup: liveMatchup, betWindow, record, rivalry,
     starters, bench, matchupBet, proj, highBand, whBand, whRace, pickem, stakes, trash, trashGameId,
     goatId: MK.goatOwnerId(sData, world.config.sleeper_map || {}),
@@ -2087,7 +2146,8 @@ router.get('/watch', aw(async (req, res) => {
     const anyScore = PE.anyScoreOnBoard(sData);
     if (anyScore) { rows = WW.panelRows(liveWatchEntries(sData, world.config.sleeper_map || {}, owners), bandSamples); source = 'live'; }
   }
-  res.render('watch', { me: req.owner, rows, source, inWindow, weekNo, band, preview });
+  res.render('watch', { me: req.owner, rows, source, inWindow, weekNo, band, preview,
+    liveStale: await liveFreshness() });
 }));
 
 // A dispatch, dismissed. Marks it seen for THIS owner only, so it never shows
@@ -2192,7 +2252,9 @@ router.get('/scoreboard', aw(async (req, res) => {
     return { g, aPts, bPts, hasScore, leader, split, riv, inWHRace, po, worth, sweat };
   });
 
+  const liveStale = await liveFreshness();
   res.render('scoreboard', {
+    liveStale,
     me, owners, weekNo, cards, locked, whRace, whBand,
     moneyBoard: L.moneyStandings(world.ledger, owners, season), meId: me.id,
     live: !!(livePts && Object.values(livePts).some(p => p > 0)),
@@ -2313,12 +2375,110 @@ router.get('/lineup', requireCommissioner, aw(async (req, res) => {
 router.get('/lineup/accuracy', requireCommissioner, aw(async (req, res) => {
   const world = req.world;
   const season = String(H.currentSeason(world.seasons).year || new Date().getUTCFullYear());
-  const calibration = await getDoc(`calibration:${season}`, null);
+  // THE GRADER WRITES AN APPEND-ONLY LEDGER, not a flat doc: grade-cron stores
+  // `calibration:<season>:<ISO>` per run. This route used to read a flat
+  // `calibration:<season>` that NOTHING EVER WRITES, so the page would have sat
+  // at "nothing graded yet" forever — the whole learning loop invisible on the
+  // one page that exists to show it. Read the ledger, newest snapshot wins, and
+  // keep the series for calibration-over-time.
+  let snapshots = [];
+  try {
+    const keys = (await store.listKeys(`calibration:${season}:`)).sort();   // ISO keys sort chronologically
+    for (const k of keys) { const s = await store.get(k); if (s) snapshots.push(s); }
+  } catch (e) { snapshots = []; }
+  const latest = snapshots.length ? snapshots[snapshots.length - 1] : null;
+
+  // Map the grader's nested snapshot onto the flat shape the view engine reads.
+  // A owns the snapshot shape; B adapts at the seam rather than asking A to
+  // reshape output that other consumers (evidence weights) already depend on.
+  // Ledger first (what the cron writes); fall back to a flat doc if one is ever
+  // present, so the page renders from whichever exists rather than depending on
+  // one writer. A snapshot that is already flat is used as-is.
+  const flat = await getDoc(`calibration:${season}`, null);
+  const calibration = latest && latest.forecasts
+    ? Object.assign({}, latest.forecasts, { generated_at: latest.graded_at || null })
+    : (latest && latest.n_graded != null
+        ? Object.assign({}, latest, { generated_at: latest.graded_at || latest.generated_at || null })
+        : flat);
+  // The decision/override half — already graded by the cron, never surfaced.
+  const decisions = latest && latest.decisions ? latest.decisions : null;
+  // Calibration OVER TIME: one point per grading run.
+  const series = snapshots.map(s => ({
+    at: s.graded_at || null,
+    graded: (s.forecasts && s.forecasts.n_graded) || 0,
+    brier: s.forecasts && s.forecasts.probability ? s.forecasts.probability.brier : null,
+  })).filter(p => p.at);
+
+  // No `attribution:<season>` writer exists yet (parked for A) — stays null, and
+  // the view renders an honest "not yet" rather than an empty table.
   const attribution = await getDoc(`attribution:${season}`, null);
   let rawCount = 0;
   try { rawCount = (await store.listKeys(`pred:${season}:`)).length; } catch (e) { /* count is a bonus */ }
-  const view = ACC.buildAccuracyView(calibration, attribution, rawCount);
+  const view = ACC.buildAccuracyView(calibration, attribution, rawCount, { series, decisions });
   res.render('accuracy', { me: req.owner, season, view });
+}));
+
+// THE ROSTER ANALYZER — league-wide projected rest-of-season: playoff odds,
+// expected wins, seed distribution, and the POSTURE the other tools consume
+// (lock / contender / desperate / chasing_high). Commissioner-only, same as the
+// other in-season recommendation surfaces (ACCESS-RULE): "who is desperate" is
+// analysis, not a league-visible result.
+//
+// Renders A's engine (src/routes/standings.js) — B builds the view, never a
+// second projection. The engine takes a SEASON OBJECT (LO.seasonOf), not a year
+// string: passing the bare string silently returns zero rows (its own comment
+// warns of this), which is exactly the "looks fine, means nothing" failure mode.
+router.get('/analyzer', requireCommissioner, aw(async (req, res) => {
+  const ST = require('./standings');
+  const history = LO.harvest();
+  const seasons = LO.defaultSeasons(history);           // harvested seasons, newest last
+  const wanted = String(req.query.season || seasons[seasons.length - 1] || '');
+  const seasonObj = LO.seasonOf(history, wanted);
+  const weeks = seasonObj ? LO.regularSeasonWeeks(seasonObj) : [];
+  const lastWeek = weeks.length ? weeks[weeks.length - 1] : 0;
+  const qWeek = parseInt(req.query.week, 10);
+  // DEFAULT to the LIVE week when the season is in flight, else a mid-season
+  // checkpoint. Defaulting to the final week is degenerate: with every game
+  // played the simulator has nothing left to simulate and every probability
+  // collapses to 100%/0% — a table that looks confident and says nothing.
+  let liveWeek = null;
+  try {
+    const sData = await sleeper.bundle(world.config.sleeper_league_id);
+    if (sData && String(sData.state && sData.state.season) === String(wanted)) liveWeek = sData.week;
+  } catch (e) { /* offline: fall through to the checkpoint */ }
+  const defaultWeek = liveWeek && liveWeek <= lastWeek ? liveWeek
+    : (lastWeek ? Math.max(1, Math.min(lastWeek - 1, Math.round(lastWeek * 0.6))) : 0);
+  const throughWeek = Number.isFinite(qWeek) ? Math.max(1, Math.min(qWeek, lastWeek)) : defaultWeek;
+
+  let rows = [], validation = null, err = null;
+  if (seasonObj) {
+    try {
+      const proj = ST.projectStandings(seasonObj, { throughWeek, sims: 3000, seed: 4242 });
+      const owners = seasonObj.owners || {};
+      // C3: the raw projection alongside every dollar/odds figure, from the ONE
+      // shared derivation. Here the team-level analogue is the strength mean —
+      // labelled as what it is (realized weekly average), never as our valuation.
+      rows = proj.projections.map(p => {
+        const o = owners[String(p.rid)] || {};
+        return {
+          rid: p.rid,
+          name: o.display_name || ('Roster ' + p.rid),
+          team: o.team_name || '',
+          expWins: Math.round(p.exp_wins * 10) / 10,
+          playoffProb: p.playoff_prob,
+          posture: p.posture,
+          strengthMean: p.strength_mean == null ? null : Math.round(p.strength_mean * 10) / 10,
+          topSeed: p.seed_dist && p.seed_dist['1'] != null ? p.seed_dist['1'] : null,
+        };
+      });
+    } catch (e) { err = e.message; }
+  }
+  try { validation = ST.validateStandings(); } catch (e) { /* the caveat is a bonus */ }
+
+  res.render('analyzer', {
+    me: req.owner, rows, seasons, season: wanted, throughWeek, lastWeek,
+    validation, err, playoffSpots: ST.PLAYOFF_SPOTS,
+  });
 }));
 
 // Send the Sunday alert to the commissioner now (rehearsal, and the manual fire).

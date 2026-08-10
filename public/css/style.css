@@ -1283,7 +1283,11 @@ table.ledger tr.is-settled td:nth-child(2) { text-decoration: line-through; text
   padding-bottom: .3rem; -webkit-overflow-scrolling: touch;
 }
 .section-tabs a {
-  flex: 1 0 auto; text-align: center; text-decoration: none;
+  /* was `flex: 1 0 auto` — the tabs refused to SHRINK, so a long sub-label
+     ("validated on 2023–25, to the dollar") pushed the strip past the viewport
+     and the text clipped at the right edge on a phone. `1 1 0` lets them share
+     the width evenly and wrap their sub-label instead of overflowing. */
+  flex: 1 1 0; text-align: center; text-decoration: none;
   padding: .5rem .8rem; border-radius: 12px; min-width: 106px;
   background: rgba(255, 255, 255, .04); border: 1px solid var(--line);
 }
@@ -1939,6 +1943,11 @@ details.sa-preview[open] > summary { border-bottom: 1px solid var(--line); }
 .lo-call-main { display: flex; flex-direction: column; gap: .15rem; min-width: 0; }
 .lo-start { font-size: .9rem; } .lo-sit { font-size: .82rem; color: var(--muted); }
 .lo-call-price { text-align: right; white-space: nowrap; }
+/* C3 disagreement line — the tool is starting the LOWER-projection player; both
+   numbers on screen at the one moment that matters. Full-width under the call. */
+.lo-call-disagree { flex: 1 0 100%; margin: .4rem 0 0; padding: .45rem .6rem;
+  border-radius: 8px; background: rgba(245, 196, 69, .12);
+  border-left: 3px solid var(--gold); font-size: .8rem; line-height: 1.45; }
 .lo-dollars { display: block; font-size: 1.15rem; font-weight: 800; font-variant-numeric: tabular-nums; }
 .lo-split { display: block; font-size: .68rem; }
 .lo-proof-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: .6rem; margin-top: .3rem; }
@@ -3657,6 +3666,17 @@ table.roll tbody tr:hover td, table.roll tr:hover td{ background:rgba(12,26,43,.
 
 /* headings + type scale */
 h1.page-title{ color:var(--navy); font-family:var(--font-display); font-weight:800; letter-spacing:-.02em; }
+/* THE PAGE SUBTITLE was never styled — only `.card > h2 .sub` was — so a
+   `<span class="sub">` inside an h1 inherited the FULL display face: 1.7rem,
+   uppercase, weight 900. "🎯 Lineup Optimizer / the money you leave on the bench"
+   therefore rendered as one run-on heading three lines deep on a phone, with no
+   visual hierarchy between title and subtitle. Make it properly subordinate:
+   its own line, sentence case, body face, muted. (7 pages use this pattern.) */
+h1.page-title .sub{
+  display:block; margin-top:.3rem;
+  font-family:var(--font-body); font-size:.86rem; font-weight:500;
+  letter-spacing:.01em; text-transform:none; color:var(--muted);
+}
 .card > h2{ color:var(--navy); }
 .card > h2 .sub{ color:var(--muted); }
 /* section labels read as terminal micro-labels — the techy accent */
@@ -3940,3 +3960,48 @@ table.roll td.num, .pf, .wh-race-scale, .wh-band-note{ color: var(--ink); }
 .sync-age.ok   { color: var(--muted); }
 .sync-age.warn { color: #b45309; font-weight: 600; }
 .sync-age.bad  { color: var(--red, #d4242f); font-weight: 800; }
+/* THE ANALYZER — league-wide rest-of-season projection (commissioner-only). */
+.az-table td, .az-table th { vertical-align: middle; }
+.az-team { font-size: .78rem; }
+.az-raw { display: block; font-size: .52rem; letter-spacing: .1em; color: var(--muted); font-weight: 700; }
+.az-cutline { padding: .15rem .8rem !important; font-size: .62rem; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--red-bright); border-bottom: 1px dashed rgba(255,70,85,.5) !important; }
+.az-prob { font-weight: 800; font-variant-numeric: tabular-nums; }
+.az-bar { display: block; height: 4px; width: 100%; max-width: 72px; margin: .18rem 0 0 auto;
+  background: rgba(60,74,96,.14); border-radius: 99px; overflow: hidden; }
+.az-bar i { display: block; height: 100%; background: var(--blue); border-radius: 99px; }
+.az-me td { background: rgba(245,196,69,.10); }
+.az-posture { display: inline-block; padding: .1rem .4rem; border-radius: .35rem;
+  font-size: .72rem; font-weight: 800; white-space: nowrap; }
+.az-posture.lock { background: rgba(15,138,77,.14); color: var(--green); }
+.az-posture.contender { background: rgba(37,99,235,.13); color: var(--blue); }
+.az-posture.desperate { background: rgba(245,196,69,.18); color: var(--gold-bright); }
+.az-posture.chasing_high { background: rgba(212,36,47,.12); color: var(--red); }
+.az-legend { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .4rem; }
+.az-legend li { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; font-size: .84rem; }
+.az-count { margin-left: auto; font-variant-numeric: tabular-nums; font-weight: 700; color: var(--muted); }
+
+/* ACCURACY — the override record + calibration-over-time series. */
+.acc-ov { display: grid; grid-template-columns: repeat(4, 1fr); gap: .5rem; }
+@media (max-width: 520px) { .acc-ov { grid-template-columns: repeat(2, 1fr); } }
+.acc-ov-cell { background: var(--panel-soft); border: 1px solid var(--line); border-radius: 10px;
+  padding: .5rem .4rem; text-align: center; }
+.acc-ov-num { display: block; font-family: var(--font-display); font-size: 1.5rem; font-weight: 800;
+  color: var(--navy); font-variant-numeric: tabular-nums; line-height: 1.1; }
+.acc-ov-num.pos { color: var(--green); }
+.acc-ov-lbl { display: block; font-size: .68rem; color: var(--muted); margin-top: .15rem; }
+.acc-series { display: flex; align-items: flex-end; gap: .3rem; height: 92px; padding-top: .2rem; }
+.acc-bar { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; justify-content: flex-end;
+  align-items: center; height: 100%; }
+.acc-bar i { display: block; width: 100%; background: var(--blue); border-radius: 3px 3px 0 0; min-height: 3px; }
+.acc-bar span { font-size: .56rem; color: var(--muted); margin-top: .15rem; font-variant-numeric: tabular-nums; }
+
+/* BANK — career money reference numbers (all-time banked / rank / per season). */
+.bk-career { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; }
+@media (max-width: 460px) { .bk-career { grid-template-columns: 1fr 1fr; } .bk-career-cell:first-child { grid-column: 1 / -1; } }
+.bk-career-cell { background: var(--panel-soft); border: 1px solid var(--line); border-radius: 10px;
+  padding: .6rem .5rem; text-align: center; }
+.bk-career-num { display: block; font-family: var(--font-display); font-size: 1.5rem; font-weight: 800;
+  color: var(--navy); font-variant-numeric: tabular-nums; line-height: 1.15; }
+.bk-career-of { font-size: .72rem; color: var(--muted); font-weight: 700; margin-left: .18rem; }
+.bk-career-lbl { display: block; font-size: .68rem; color: var(--muted); margin-top: .18rem; }

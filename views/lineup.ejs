@@ -92,8 +92,10 @@
           <% live.calls.forEach(c => { %>
             <div class="lo-call">
               <div class="lo-call-main">
-                <span class="lo-start">▲ Start <b><%= c.startName %></b> <span class="muted">(<%= c.startPos %>, proj <%= c.startProj.toFixed(1) %>)</span></span>
-                <span class="lo-sit">▼ over <b><%= c.sitName %></b> <span class="muted">(<%= c.sitPos %>, proj <%= c.sitProj.toFixed(1) %>)</span></span>
+                <%# proj can be null when the feed hasn't landed for a player — a bare
+                    .toFixed() here 500s the whole page (caught by the C3 null case). %>
+                <span class="lo-start">▲ Start <b><%= c.startName %></b> <span class="muted">(<%= c.startPos %>, proj <%= c.startProj != null ? c.startProj.toFixed(1) : '—' %>)</span></span>
+                <span class="lo-sit">▼ over <b><%= c.sitName %></b> <span class="muted">(<%= c.sitPos %>, proj <%= c.sitProj != null ? c.sitProj.toFixed(1) : '—' %>)</span></span>
               </div>
               <div class="lo-call-price">
                 <span class="lo-dollars <%= c.dollars >= 0 ? 'money-up' : 'money-down' %>"><%= signed(c.dollars) %></span>
@@ -102,6 +104,20 @@
                   <%= c.dollarsWin >= 0 ? '+' : '' %><%= money0(c.dollarsWin) %> win-prob
                 </span>
               </div>
+              <%# C3 — THE DISAGREEMENT MOMENT. When the tool starts the LOWER-
+                  projection player, both numbers must be on screen: that is exactly
+                  when the machinery is either finding something real (variance the
+                  mean can't see) or is broken, and one number can't tell you which.
+                  Silent when the recommendation also has the higher projection. %>
+              <% if (c.startProj != null && c.sitProj != null && c.startProj < c.sitProj) { %>
+                <div class="lo-call-disagree">
+                  ⚖️ <b>Lower projection, higher dollars.</b>
+                  <%= c.startName %> projects <b><%= c.startProj.toFixed(1) %></b> vs
+                  <%= c.sitName %>'s <b><%= c.sitProj.toFixed(1) %></b>
+                  (<%= (c.sitProj - c.startProj).toFixed(1) %> fewer pts) — the dollars come from
+                  variance, not points. <span class="muted">Raw projection, <%= SRC_LABEL[projSource] || 'source unknown' %> — not our valuation.</span>
+                </div>
+              <% } %>
             </div>
           <% }) %>
         </div>

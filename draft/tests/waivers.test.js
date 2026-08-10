@@ -65,10 +65,33 @@ check('the top claim is worth positive dollars', res.claims[0].dollars > 0, Stri
 check('dollars derive from the shared per-point exchange rate', res.dollars_per_point > 0,
   String(res.dollars_per_point));
 
-// 5) Consensus alongside dollars (C3): every claim carries a raw consensus number,
+// 5) Consensus alongside dollars (C3): every claim carries a raw projection number,
 // labelled, next to its dollar figure.
-check('every claim shows a raw consensus projection alongside the dollars',
-  res.claims.every(c => c.consensus_projection != null && /consensus/.test(c.consensus_label)));
+check('every claim shows a raw projection alongside the dollars',
+  res.claims.every(c => c.consensus_projection != null && !!c.consensus_label));
+
+// 5b) HONEST LABELLING (the shared C3 rule): the label must NOT say "consensus"
+// when only ONE source is wired — it must name that source ("Sleeper proj").
+// The old local implementation returned "raw consensus" for a single Sleeper
+// projection, which is a small lie in exactly the spot Cory asked for a sanity
+// check. Waivers now delegates to public/js/draft/consensus.js, so the wire and
+// the draft board can never label the same player differently.
+check('a single-source projection is labelled by its SOURCE, not "consensus"',
+  res.claims.every(c => c.consensus_label === 'no projection'
+    || /^Consensus \(\d+ src\)$/.test(c.consensus_label)
+    || (/ proj$/.test(c.consensus_label) && !/consensus/i.test(c.consensus_label))),
+  JSON.stringify(res.claims.slice(0, 3).map(c => c.consensus_label)));
+{
+  const W2 = require(path.join(__dirname, '..', '..', 'src', 'routes', 'waivers.js'));
+  const C2 = require(path.join(__dirname, '..', '..', 'public', 'js', 'draft', 'consensus.js'));
+  const one = W2.consensusProjection({ proj_mean: 226 });
+  const two = W2.consensusProjection({ proj_sleeper: 220, proj_fantasypros: 232 });
+  check('one source -> "<Source> proj", no "consensus" claim', one.label === 'Sleeper proj' && one.isConsensus === false, one.label);
+  check('two sources -> "Consensus (2 src)" and averaged', two.label === 'Consensus (2 src)' && two.value === 226 && two.isConsensus === true, JSON.stringify(two));
+  // The delegation itself: waivers must return the SAME value the shared module does.
+  check('waiver projection == the shared C3 derivation (one valuation, C1-style)',
+    W2.consensusProjection({ proj_mean: 181 }).value === C2.rawProjection({ proj_mean: 181 }).value);
+}
 
 // 6) Who-else-needs: a rival short at the position shows up; a full team does not.
 const leagueRosters = {

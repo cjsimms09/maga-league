@@ -120,10 +120,11 @@ function byKindRows(cal) {
  * @param attribution  A's attribution doc, or null.
  * @param rawCount     number of prediction records logged (store key count).
  */
-function buildAccuracyView(calibration, attribution, rawCount) {
+function buildAccuracyView(calibration, attribution, rawCount, extra) {
   const cal = calibration || null;
   const graded = !!(cal && (cal.n_graded || 0) > 0);
   rawCount = rawCount || 0;
+  extra = extra || {};
 
   const summary = {
     // Prefer A's numbers; fall back to the raw count so "nothing graded yet"
@@ -178,6 +179,27 @@ function buildAccuracyView(calibration, attribution, rawCount) {
     recently,
     biggestMisses: graded ? biggestMisses(cal.graded, 8) : [],
     attribution: attr,
+
+    // CALIBRATION OVER TIME — one point per grading run, from the append-only
+    // ledger. A single snapshot says "how calibrated am I now"; the series says
+    // "is it improving", which is the actual question the learning loop asks.
+    series: (extra.series || []).filter(p => p && p.at).map(p => ({
+      at: p.at, graded: p.graded || 0, brier: num(p.brier),
+    })),
+
+    // THE OVERRIDE RECORD — how often the human went against the tool and how it
+    // turned out. grade-cron has been computing this all along (snapshot.decisions)
+    // and nothing rendered it. `cory_beat_model` is the count of overrides that
+    // BEAT the recommendation; the rest is the honest denominator.
+    decisions: extra.decisions ? {
+      n: extra.decisions.n_decisions || 0,
+      overridden: extra.decisions.overridden || 0,
+      scored: extra.decisions.scored || 0,
+      humanWon: extra.decisions.cory_beat_model || 0,
+      // Only meaningful once something has actually been scored.
+      rate: (extra.decisions.scored || 0) > 0
+        ? Math.round(((extra.decisions.cory_beat_model || 0) / extra.decisions.scored) * 100) : null,
+    } : null,
   };
 }
 

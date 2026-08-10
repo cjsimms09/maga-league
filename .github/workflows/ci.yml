@@ -43,6 +43,13 @@ jobs:
           PY
       - name: Python deps
         run: pip install pytest
+      - name: Node deps (BEFORE the JS suites)
+        # The JS-suites step used to run with no node_modules, so any suite that
+        # boots the real app (express) could only live in a later step. That
+        # ordering trap is why app-booting tests drifted into separate steps and
+        # then out of CI entirely. Install first; then every suite can run in the
+        # one collected loop below.
+        run: npm install --no-audit --no-fund
       - name: JS suites
         id: js
         # RUN ALL of them, then fail if any failed — do NOT `set -e` abort on the
@@ -50,9 +57,33 @@ jobs:
         # step before Python suites / robot / shell guards ever ran, so the whole
         # suite read red-but-uninspected for days (the "reads as success" family). A
         # collected failure names every broken suite in one run instead of one-per-push.
+        # AUDIT 2026-08-10 (B): 23 suites existed and were executed by NO workflow —
+        # including `valuation` (the C1 one-shared-valuation guard), `waivers` (its
+        # other half), `coherence`, and `accounting` (the money reconciler). Guards
+        # that never run are the "looks like protection, isn't" class. A full local
+        # sweep proved 22 of them green, so they are switched on here. The 23rd,
+        # `intervention-rate`, is RED (the rate drifted 73.7% -> 90.8%) and is held
+        # out deliberately: it is A's metric to adjudicate, and turning it on would
+        # break the build on someone else's open decision rather than surface it.
         run: |
           failed=""
-          for t in alerts app-wiring attribution authority backtest betlogic bundling_guard champs claimfix dashboard doctrine draft_banner draftorder engine grabby grade_cron h2h keeperlock keepers ledger marks matchup_spectator matchup_starters mcts mock_calib movement_line no_season_literals playoffs predledger prefs rawarchive reconcile rivalries season_form settlement shadows sidebets sidebets_lifecycle pool_draft stack_routes strategies sync update venmo voteenact watch_clickable week_hero matchup_placed_bet draft_sheet whatwatch rules_page c1_agreement injury_vocab slider_sync sleeper_freshness intervention-rate; do
+          # GLOB, don't enumerate. A hand-maintained list is how 23 suites ended
+          # up existing but never running — the most-repeated failure in this
+          # project, at the CI level. The Python side already globs
+          # (`pytest draft/tests`), so a new python test is covered the day it
+          # lands; JS now works the same way. Anything deliberately excluded must
+          # be named in SKIP below, with a reason, so a silent hole is impossible.
+          #   (empty) — intervention-rate was held out as RED while A adjudicated
+          #   the drift. RESOLVED 2026-08-10: B's diagnosis was right that it was
+          #   board-driven not weight-driven, so the fix was to stop measuring the
+          #   board — it now runs against a FROZEN 300-player pool under the weights
+          #   the tool actually ships (MEASURED, not DEFAULT), re-pinned to 84.2%.
+          #   It is green and switched on. A skip list with nothing in it is the
+          #   goal state, not an oversight.
+          SKIP=""
+          for f in draft/tests/*.test.js; do
+            t=$(basename "$f" .test.js)
+            case " $SKIP " in *" $t "*) echo "== $t (SKIPPED, see ci.yml) =="; continue;; esac
             echo "== $t =="
             if ! node draft/tests/$t.test.js; then failed="$failed $t"; fi
           done

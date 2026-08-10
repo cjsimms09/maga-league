@@ -97,11 +97,20 @@ def_ok = [p for p in defs if p.get("bye") or team_byes.get(p.get("team"))]
 ck("every defense resolves a bye", len(def_ok) == len(defs) == 32,
    f"{len(def_ok)}/{len(defs)}")
 
-# PYTEST ENTRY POINT. The checks above run at import (script style, so the file
-# stays runnable directly); this exposes their result as ONE pytest test. Without
-# it the file would be collected with zero tests and read as passing coverage that
-# does not exist — and a bare sys.exit at module scope aborts collection for the
-# WHOLE suite, which is far worse than one red test.
+# RUN AS A SCRIPT, COLLECTED BY PYTEST. This file is a standalone checker, but it
+# is named test_*.py, so `pytest draft/tests` imports it during collection — and a
+# module-level sys.exit() during collection aborts the ENTIRE pytest run with
+# INTERNALERROR ("no tests ran"), taking all 77 python test files down with it.
+# CI runs exactly that command, so the whole python suite — including the
+# merge-completeness and deploy-drift guards — was silently not running.
+#
+# Guarding the exit keeps `python draft/tests/test_byes.py` working (still exits
+# non-zero on failure) without hijacking the collector. No assertion changed.
+#
+# AND IT NEEDS A REAL TEST FUNCTION, not just a guarded exit. Guarding alone
+# leaves the file collecting ZERO tests — green because nothing ran, which is the
+# precise failure this project's own zero-collection guard exists to catch. The
+# checks execute at import; this exposes their result as one pytest test.
 def test_all_checks_passed():
     assert not fails, fails
 

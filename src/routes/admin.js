@@ -345,12 +345,29 @@ router.post('/draft/close', aw(async (req, res) => {
   if (seasons[year]) { seasons[year].draft_open = false; await setDoc('seasons', seasons); }
   back(res, 'draft', `&year=${year}`);
 }));
+// WIPING THE DRAFT ORDER IS THE MOST DESTRUCTIVE BUTTON ON THE SITE: it hard-deletes
+// every owner's claimed spot with no undo, days before a draft, while claims are
+// being made live. Its only guard was a client-side confirm(), which a stray POST,
+// a double-tap or a resubmitted form walks straight past — and the nightly backup
+// would lose every claim made since. Two guards, matching the war room's typed-END
+// pattern for the comparable action:
+//   1. a SERVER-side typed confirmation (the browser dialog is not a guard), and
+//   2. a snapshot written BEFORE the delete, so a mistake is recoverable.
 router.post('/draft/reset', aw(async (req, res) => {
   const year = parseInt(req.body.year, 10);
+  if (String(req.body.confirm || '').trim().toUpperCase() !== 'RESET') {
+    return back(res, 'draft', `&year=${year}` + msg('Draft NOT cleared — type RESET to confirm.'));
+  }
+  const existing = await getDoc(`draft:${year}`, null);
+  if (existing) {
+    // Recoverable by design: the claims are gone from the live doc but not gone.
+    await setDoc(`draft-backup:${year}:${new Date().toISOString()}`, existing);
+  }
   await store.del(`draft:${year}`);
   const seasons = await getDoc('seasons', {});
   if (seasons[year]) { seasons[year].draft_open = false; await setDoc('seasons', seasons); }
-  back(res, 'draft', `&year=${year}` + msg('Draft cleared.'));
+  const n = existing && Array.isArray(existing.order) ? existing.order.filter(p => p.slot != null).length : 0;
+  back(res, 'draft', `&year=${year}` + msg(`Draft cleared. ${n} claimed spot${n === 1 ? '' : 's'} snapshotted — recoverable from draft-backup:${year}.`));
 }));
 router.post('/draft/override', aw(async (req, res) => {
   const year = parseInt(req.body.year, 10);
@@ -385,11 +402,29 @@ router.post('/votes/:id/reopen', aw(async (req, res) => {
   if (v) { v.status = 'open'; v.closed_at = null; await setDoc(`vote:${v.id}`, v); }
   back(res, 'votes');
 }));
+// Deleting a vote destroys the vote AND every ballot AND every comment — the
+// league's governance record, which the amendment ledger derives from. It hangs
+// off a bare "✕", so a mis-tap is easier here than on any other destructive
+// button, and the browser confirm behind it is not a server-side guard. Same
+// remedy as the draft reset: snapshot everything first, so the action is
+// reversible instead of merely regrettable. (No typed confirm here — this is
+// routine list cleanup, and the fix that matters is recoverability, not friction.)
 router.post('/votes/:id/delete', aw(async (req, res) => {
-  await store.del(`vote:${req.params.id}`);
-  for (const k of await store.listKeys(`ballot:${req.params.id}:`)) await store.del(k);
-  for (const k of await store.listKeys(`vcomment:${req.params.id}:`)) await store.del(k);
-  back(res, 'votes');
+  const id = req.params.id;
+  const vote = await getDoc(`vote:${id}`, null);
+  const ballotKeys = await store.listKeys(`ballot:${id}:`);
+  const commentKeys = await store.listKeys(`vcomment:${id}:`);
+  if (vote || ballotKeys.length || commentKeys.length) {
+    const ballots = {}, comments = {};
+    for (const k of ballotKeys) ballots[k] = await store.get(k);
+    for (const k of commentKeys) comments[k] = await store.get(k);
+    await setDoc(`vote-backup:${id}:${new Date().toISOString()}`,
+      { vote, ballots, comments, deleted_at: now(), deleted_by: req.owner.id });
+  }
+  await store.del(`vote:${id}`);
+  for (const k of ballotKeys) await store.del(k);
+  for (const k of commentKeys) await store.del(k);
+  back(res, 'votes', msg(`Vote deleted — ${ballotKeys.length} ballot${ballotKeys.length === 1 ? '' : 's'} snapshotted, recoverable from vote-backup:${id}.`));
 }));
 
 // ---------- owners ----------

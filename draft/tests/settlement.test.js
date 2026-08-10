@@ -58,6 +58,32 @@ const ck = (n, c, d) => { c ? (pass++, console.log('PASS ' + n)) : (fail++, cons
   ck('hub: debtor→bank Venmo is the BANK\'s handle (you pay Cory)', hub.transfers.filter(t => t.to_id === 1).every(t => t.venmo && /cory-v/.test(t.venmo.url)));
   ck('hub: bank→creditor Venmo is the CREDITOR\'s handle', hub.transfers.filter(t => t.from_id === 1).every(t => t.to_id === 2 ? t.venmo === null : true));
 
+  // ── SETTLEMENT ARITHMETIC: every non-bank owner must settle to EXACTLY their
+  // net, and the bank's residual must equal the imbalance (the pot it holds).
+  // This is the check that would catch a routing bug that still "looks balanced".
+  {
+    const nets2 = [
+      { owner_id: 1, name: 'Cory', net: 0 },      // the bank, square itself
+      { owner_id: 2, name: 'A', net: -400 },
+      { owner_id: 3, name: 'B', net: -400 },
+      { owner_id: 4, name: 'C', net: 150 },
+    ];
+    const h = settlementReport(nets2, () => null, 1);
+    const inflow = {}, outflow = {};
+    h.transfers.forEach(t => {
+      outflow[t.from_id] = (outflow[t.from_id] || 0) + t.amount;
+      inflow[t.to_id] = (inflow[t.to_id] || 0) + t.amount;
+    });
+    const worst = Math.max(...nets2.filter(n => n.owner_id !== 1).map(n =>
+      Math.abs(((inflow[n.owner_id] || 0) - (outflow[n.owner_id] || 0)) - n.net)));
+    ck('every non-bank owner settles to EXACTLY their net', worst < 0.005, worst);
+    const bankResidual = (inflow[1] || 0) - (outflow[1] || 0);
+    ck('the bank\'s residual equals the imbalance it is holding (the pot)',
+      Math.abs(bankResidual + h.imbalance) < 0.005, `${bankResidual} vs imbalance ${h.imbalance}`);
+    ck('a pot being held is reported as a NEGATIVE imbalance, not a positive one',
+      h.imbalance < 0, h.imbalance);
+  }
+
   // Hub who is a pure debtor (bank owes nothing to itself, still collects).
   const hub2 = settlementReport(
     [{ owner_id: 9, name: 'Cory', net: -50 }, { owner_id: 2, name: 'A', net: 30 }, { owner_id: 3, name: 'B', net: 20 }],

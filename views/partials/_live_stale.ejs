@@ -1,0 +1,14 @@
+<%# SLEEPER IS UNREACHABLE — say so, rather than showing old scores as if live.
+    The bundle serves last-known-good on failure (correct), but silently, and on
+    these pages "silently stale" is indistinguishable from "wrong". Renders
+    nothing when the feed is healthy. %>
+<% const _ls = (typeof liveStale !== 'undefined' && liveStale) ? liveStale : null; %>
+<% if (_ls) { %>
+  <div class="alert-banner alert-warning live-stale" style="margin-bottom:1rem">
+    <span class="tag">📡</span>
+    <span><b>Sleeper isn't responding.</b>
+      <% if (_ls.since) { %>These numbers are the last good read, from <b><%= _ls.since %></b><% if (_ls.ageMin != null && _ls.ageMin >= 1) { %> (<%= _ls.ageMin %> min ago)<% } %> — they are <b>not live</b> right now.
+      <% } else { %>No scores are available right now.<% } %>
+      It retries by itself; refresh in a minute.</span>
+  </div>
+<% } %>

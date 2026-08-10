@@ -1976,3 +1976,256 @@ clock.
 **What is still open for you:** an after-the-fact override REVIEW surface — the list of
 overrides with their eventual outcome, visible post-decision (never live). That is the same
 lock-gated visibility rule the shadow layer uses: `mockMode || decisionLocked`.
+## ▶ SESSION B → A FLAG (2026-08-10): no `attribution:<season>` writer exists
+
+The accuracy page's **Attribution** table ("what each component has actually been
+worth") reads `attribution:<season>`. **Nothing anywhere writes that key** —
+searched src/, netlify/, draft/, .github/. So that panel renders an honest "not
+yet" and will do so forever until a writer exists. Flagging rather than faking:
+B will not invent component attributions.
+
+**Context — the sibling bug B just fixed (same class):** the page also read a flat
+`calibration:<season>`, which nothing writes either; grade-cron appends
+`calibration:<season>:<ISO>`. Proven empirically (post-grade read returned null),
+so the loop would have been invisible all season. B fixed the READ side at the
+seam (ledger first, flat doc as fallback) — A's snapshot shape untouched since
+`evidence_weights` consumes it.
+
+**Ask (A):** if per-component attribution is meant to exist, have the grader emit
+it — either as `attribution:<season>` or (preferred, matching what you already do)
+appended into the same snapshot as `snapshot.attribution` with
+`components:[{key,label,realized,ci_low,ci_high,n,measured,note}]`. B's view
+already renders exactly that shape (`buildAccuracyView`), so it lights up with no
+further B change the moment the key exists. If per-component attribution ISN'T
+planned, say so and B will remove the panel rather than leave a permanently empty
+table implying missing data.
+
+**Also now surfaced (FYI, no action):** grade-cron's `snapshot.decisions`
+(`n_decisions` / `overridden` / `scored` / `cory_beat_model`) was being computed
+every run and rendered NOWHERE. B now shows it as "Your overrides" on the accuracy
+page — that's program item 6 (the human-override surface) answered from data you
+already produce. If you extend the decision grading (e.g. per-override dollar
+deltas), B can render that too — same seam.
+
+## ▶ SESSION B → A — WIRING AUDIT (2026-08-10): keys read that nothing writes
+
+Ran a systematic reads-vs-writes audit of every persisted doc key after finding
+the accuracy page reading a key nothing writes. Method: extract every
+`getDoc`/`store.get`/`listKeys` key and every `setDoc`/`store.set` key, then verify
+each candidate by hand (a line-based grep MISSES variable-keyed writes —
+`const k = \`dispatch:${x}\`; setDoc(k, …)` — so every hit was checked before being
+called an orphan; the dispatch archive looked orphaned and is in fact correctly
+wired, a false positive I discarded rather than reported).
+
+**FINDING 1 — `rules_era` cannot flip, because its inputs are never populated (A's lane).**
+`grade-cron.currentRules()` builds the era signature from `config.scoring`,
+`config.starters`, `config.roster_slots`, `config.teams` and a `payouts` doc.
+**The site's `config` doc contains NONE of those fields, and no writer anywhere
+adds them** (seed writes `{secret, sleeper_league_id, sleeper_map, seeded_at}`;
+admin writes `vote_threshold`, `draft_date`, `draft_time`, `draft_location`). The
+`payouts` doc is likewise never written — `store.get('payouts')` always returns
+null (it's try/caught as "optional", so it degrades silently).
+
+Consequence: `eraSignature()` hashes all-nulls, so the stamp is the CONSTANT
+`1la32x` forever. The hashing itself is fine — feed it real rules and it flips
+correctly (verified) — but **on this site it can never flip, so the guard that is
+supposed to stop grades from different rule eras being pooled is inert.** If the
+league changes scoring or roster slots on Sleeper, every old grade still carries
+the same era and gets pooled with the new ones. This is the "looks like
+protection, isn't" class, in the money-bearing path.
+
+**Fix (A):** feed `currentRules()` from the rules the engine already trusts — the
+Sleeper-imported `draft/config/league_config.json` (scoring / roster_slots /
+playoff_teams / keepers) and the season's payout table — rather than from `config`
+fields nobody populates. Then the era flips when the league actually changes.
+Alternatively populate those `config` fields at sync time. Either way the inputs
+must be real. **Do not "fix" this by removing the era stamp** — the stamp is right,
+its feed is empty.
+
+**FINDING 2 — `attribution:<season>` has no writer** (already parked separately).
+
+**FINDING 3 — `payouts` doc read, never written** (A's lane, above; harmless on its
+own because it's optional, but it is one of the era-signature inputs, so it is part
+of Finding 1 rather than separate).
+
+**Clean:** every other read key has a real writer (`alerts`, `config`, `owners`,
+`seasons`, `ledger`, `history`, `draft:*`, `keepers:*`, `vote:*`, `dispatch*`,
+`chat*`, `punish:*`, `playoff-odds:*`, `pickem-slate:*`, `reset:*`, caches).
+
+## ▶ SESSION B → A (2026-08-10): one always-true assertion in engine.test.js
+
+Audit for "guards that protect the wrong thing" found:
+`draft/tests/engine.test.js:1496` —
+`check('two paths at one position carry the distinction line (n/a this board)', true);`
+A literal `true`. It counts as a PASS in the suite tally for something never
+verified, so the green number is one higher than the evidence supports. The label
+is honest ("n/a this board"), so this is a small inflation rather than a false
+claim — but a suite that reports 252/252 should not include an assertion that
+cannot fail. **Fix (A):** either build a fixture where two paths DO land at one
+position and assert the distinction line, or drop the check and let the count be
+honest.
+
+**B found and fixed the same class in its own tests** (stated for symmetry, not
+credit): `draft_sheet.test.js` had `ck(..., !X || X)` — a tautology — now asserts
+the stale flag against the artifact's REAL age in both directions; and an
+`A || B` in `accuracy_wiring.test.js` was tightened to assert the graded state
+positively rather than merely "not empty".
+
+## ▶ SESSION B → A — CI AUDIT (2026-08-10): 23 guards never ran + the intervention rate has drifted
+
+Ran every suite in `draft/tests/` (105 of them) and cross-checked each against
+every workflow. Two findings, the second is draft-relevant.
+
+### 1. TWENTY-THREE SUITES WERE EXECUTED BY NO WORKFLOW
+Verified by exact match on `draft/tests/<name>.test.js` across `.github/workflows/*`
+AND against the ci.yml loop word-list (a first pass over-reported; this is the
+checked number). The list included load-bearing guards:
+- **`valuation`** — the C1 "one shared valuation, byte-identical" test. **The
+  contract's permanent guard was not running.** (It passes; nothing enforced it.)
+- **`waivers`** — the other half of C1 (waiver ↔ engine agreement).
+- **`coherence`** — cross-tool coherence.
+- **`accounting`** — the money reconciler (B break-tested it earlier today: neuter
+  the dilution check and it goes 19/19 → 17/19, so it is a real guard — it just
+  never ran).
+- plus `sanity-sweep`, `legality`, `needrule`, `needs`, `deviation`,
+  `doctrine-governance`, `survival-memo`, `slotpicker`, `standings`,
+  `pickreconcile`, `playerref`, `organism`, `session`, `slider_sync`,
+  `shadow-availability`, `forecast`, `client_forecast`, `creed-signal-parity`.
+
+**B switched on the 22 that are GREEN** (proven by the sweep) in ci.yml — shared
+infra, append-only per TERRITORY. No test content was changed.
+
+### 2. ⚠️ THE INTERVENTION RATE HAS DRIFTED — 73.7% → 90.8% (A's call, DRAFT-RELEVANT)
+`intervention-rate.test.js` is a drift guard pinned to its 2026-08-08 measurement.
+It is currently **RED**:
+```
+FAIL intervention rate is pinned near its 2026-08-08 measurement (73.7%)
+  -> rate=90.8%
+  measured: 90.8% · 10.9/draft · 18.5 picks · dead: bye,survival
+```
+The tool now deviates from the market on **~91% of picks instead of ~74%**, and
+mean deviation magnitude moved 17.1 → 18.5 picks. Nobody has seen this because the
+suite never ran. Plausibly a consequence of the recent engine changes (ceiling → 0,
+adjuster/slider sync, seat-list fix) — but it is a large behavioural change **12
+days before the draft**, and it is unexplained.
+
+**B deliberately did NOT add this suite to CI**: it is A's metric to adjudicate,
+and switching it on would break the build on an open decision rather than surface
+it.
+
+#### B's DIAGNOSIS (read-only; the fix is A's)
+Ran the harness under four weight sets on today's board:
+
+| weights | rate |
+|---|---|
+| `DEFAULT_WEIGHTS` (what the harness uses) | **91.7%** |
+| same, but `bye` 1.0 → 0 | 91.7% |
+| `tier/need/risk/bye` → 0 | 93.1% |
+| the full `MEASURED_WEIGHTS` preset | 93.1% |
+
+**The drift is NOT weight-driven.** Every configuration lands at 91–93% against a
+73.7% pin, so the recent engine changes (ceiling → 0, slider sync, seat-list fix)
+do not explain it. What DID change is the **board**: `public/draft_data.json` was
+rebuilt twice today (`f57e8ff`, `e23c09b`), including the DEF-bye fix that took bye
+coverage 201 → 773 players. The metric is dominated by the board's ADP/projection
+data, not by the composite's weights.
+
+**Consequence worth acting on:** a pin to a raw number will break **every time the
+board is rebuilt**, which is daily. As written this guard will be permanently
+flaky, and a guard that cries wolf is one people switch off — the failure mode
+this project keeps hitting. `intervention_rate.js` already exports
+`freezeBaseline()`; pinning the metric to a **frozen board snapshot** (or widening
+to a band with the board's build stamp recorded alongside) makes it measure the
+ENGINE rather than the data. That is the fix I would make, but it is A's call.
+
+**Second, independent finding in the same file:** `intervention_rate.js:109` runs
+`weights: E.DEFAULT_WEIGHTS` — tier/need/risk/bye at **1.0**, the terms measured
+as drag — while the tool actually loads `MEASURED_WEIGHTS` (those at 0, ceiling 0).
+So the headline "the tool deviates from the market on X% of picks" describes a
+board the tool never shows. Rate under the real preset is 93.1%. Worth pointing the
+harness at `MEASURED_WEIGHTS` so the number describes the shipped product.
+
+## ▶ SESSION B → A — DEPLOY-PATH AUDIT (2026-08-10): deploy-verify no longer verifies deploys
+
+**This is the stranded-deploy failure mode with the guard still in place, and it is
+a direct consequence of the gate inversion nobody propagated.**
+
+`.github/workflows/deploy-verify.yml` (A's, per TERRITORY) skips verification like
+this:
+```
+# Only a [deploy] push (or a tag/manual run) actually rebuilds the site
+# — netlify-ignore.sh skips everything else.
+if [ "$EVENT" = "push" ] && ! printf '%s' "$MSG" | grep -qF '[deploy]'; then
+  echo "no [deploy] marker — Netlify skips this build, nothing to verify. OK."
+  exit 0
+fi
+```
+**That premise is false now.** `netlify-ignore.sh` was inverted to OPT-OUT: any
+change touching `views/ public/ src/ server-app.js package*.json netlify.toml
+netlify/functions/` builds automatically, with no marker. B verified this
+empirically — a commit touching only `public/icons/icon-180.png`, no `[deploy]` in
+the message, returns **exit 1 (BUILDING)**.
+
+So today: an ordinary served change **deploys, and deploy-verify exits 0 without
+checking anything**. The verifier now runs only when someone happens to type
+`[deploy]` — which the gate no longer requires and which the gate's own log line
+tells you is unnecessary. Every normal deploy is unverified. In the lane that has
+already produced five stranded deploys and a verifier that false-failed, this is
+the same wound with the bandage still visibly on it.
+
+**Fix (A) — make it read the gate rather than restate it.** The two files encode
+the same decision in two places, which is the duplicated-derivation disease; the
+gate is the source of truth and already exits 1=BUILD / 0=SKIP:
+```
+if [ "$EVENT" = "push" ]; then
+  if bash netlify-ignore.sh >/dev/null 2>&1; then     # exit 0 = gate SKIPS
+    echo "gate skips this push — nothing to verify. OK."; exit 0
+  fi                                                   # exit 1 = gate BUILDS -> verify
+fi
+```
+Then the verifier can never drift from the gate again. (B did not edit it:
+deploy-verify + the deploy lane are explicitly A's.)
+
+**Verified GOOD in the same audit, so A needn't re-check:** the gate itself is
+sound — 7/7 on its own suite, and it FAILS OPEN (builds) in every uncertain case:
+no `CACHED_COMMIT_REF`, an undiffable range, a build hook, a tagged commit. An
+icon-only change builds. The historical "gate skipped an icon-only change" was the
+old opt-in behaviour and is genuinely fixed.
+
+## ▶ SESSION B → A (2026-08-10): THE ENTIRE PYTHON SUITE WAS NOT RUNNING — and what it hid
+
+**Found in the deploy/CI audit. Fixed by B (shared infra, no assertion changed).**
+
+`ci.yml` runs `python -m pytest draft/tests -q`. That command **crashed with
+INTERNALERROR and ran ZERO tests** (exit 3, "no tests ran"). Cause:
+`draft/tests/test_byes.py` — added in `8391604`, the tip of main, A's DEF-bye fix
+— is a standalone script named `test_*.py`, so pytest imports it during collection
+and its **module-level `sys.exit()` aborts the whole run**, taking all 77 python
+test files with it. Among the guards that were therefore dead: **merge-completeness
+(the half-merge guard) and deploy-drift** — the two Cory named as past failures.
+
+**B's fix:** guard the exit behind `__main__` and add a pytest-visible
+`def test_byes()` asserting the same `fails` list. Standalone
+`python draft/tests/test_byes.py` still works and still exits non-zero on failure;
+pytest now collects and reports it. No check was altered.
+
+Result: **562 passing, 5 skipped**, where zero ran before.
+
+### What the dead suite was hiding — ONE REAL FAILURE, A's LANE, DRAFT-CRITICAL
+```
+test_shared_state_audit.py::test_each_canonical_fact_has_one_derivation[seat]
+  'seat' is derived 12 times (budget 10, owner mySlot() / DraftSeat.resolve).
+  Every severity-1 in this project came from a shared fact derived in more than
+  one place. Route new readers through the owner, or add a cited exemption.
+    app.js:345, app.js:513, app.js:558, app.js:559, ...
+```
+This is the duplicated-derivation guard firing on **seat** — the fact that drives
+every pick number — twelve days before the draft, and days after a real seat bug
+(the survival window including your own seat). The guard is A's own and its
+message is the right one. **Ask (A):** route the new readers through `mySlot()` /
+`DraftSeat.resolve`, or add the cited exemption. B did not touch app.js.
+
+**Second, self-referential finding (now fixed):** `test_ci_loop_integrity` already
+guards against "test files that collect ZERO tests — a file that stopped testing
+reads as green". It was itself disabled by the collector crash it exists to catch.
+It passes again now.
