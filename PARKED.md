@@ -259,6 +259,21 @@ map on `liveMatchup.proj`, `pairStarters` already wires it through and the Proj 
 lights up (no further B change needed). Bullet 3 (high-point band) already served from
 the harvested band.
 
+**BLOCKED CONSUMERS waiting on that projection feed (2026-08-10, B) — the concrete
+demand:** two ranked matchup-page gaps are built-out-except-for-projections and will
+light up the moment A ships per-player live projections (mean + SD, plus a
+"has this player's game finished" / remaining signal):
+- **This-game win probability** — `WW.sweat()` already computes `pWin` over the two
+  Normal finals; it needs each side's *remaining* (not-yet-played) starters as
+  `[{proj, sd}]`. Today the live watch entries pass `remain: []`, so pWin can't be
+  honest mid-game. Same feed unblocks the What-to-Watch sweat meter (currently
+  scores-only) and the home hero's projected margin.
+- **Team projected total** — live score + Σ(remaining projections); same input.
+B deliberately did NOT ship dormant win-prob/total cards (no honest fallback without
+projections — unlike the weekly-high band). They are a small B wire-up once the feed
+lands. Shipped now without A: bench points, bye flags (derived in-repo from
+`nfl_byes.json`), injury flags, and the already-placed-bet surface.
+
 **Also (2026-08-10, B): the pinned "DRAFT DAY" alert text is now DERIVED** from config
 (`draft_date`/`draft_time`/`draft_location`) via `dashboard.draftAnnouncement()`, and the
 home route self-heals the stored alert to it (the old seed text said "5:00 PM" and named
