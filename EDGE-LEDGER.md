@@ -291,3 +291,22 @@ sample-ceiling breakers have much higher EVSI:
   construction-objective side of the board are now settled as ~optimal. The remaining edge is elsewhere:
   ADP staleness, tiers/scarcity timing, and draft-day sequencing / room-read — not the point estimate or the
   roster shape. Real-dollar confirmation still waits on the post-draft season-forward simulator (task #9).
+
+## POSITIVE (step 1 of the stack build) — realized QB-WR correlation validates the sweep (2026-08-10)
+- **Question:** the stack sweep (exp 6) said a modest stack pays +$196 — but priced on an ASSUMED within-team
+  ρ=0.35. Before building a board bonus we had to measure the correlation our league ACTUALLY produced.
+- **Result (`exp_stack_correlation.py`, realized weekly pts in OUR scoring, leak-free):**
+  * **QB-WR1 ρ = 0.357** (median 0.391), stable across both measured years (2023: 0.350, 2024: 0.364).
+    **Essentially dead-on the sweep's assumed 0.35 (implied dose ×1.02)** — so the +$196 modest-stack
+    finding rests on a correlation we really generate, not a wrong assumption.
+  * QB-TE1 ρ = 0.293 (weaker but positive); QB-WR-all ρ = 0.233 (WR2/WR3 co-move less, as expected).
+  * **Ceiling premium:** a WR1 stack buys **~2.3 ceiling pts/week** to the lineup (QB-TE1 ~1.4) — pure
+    variance math (Var(A+B)=VarA+VarB+2ρσσ), the mean/projection is never touched.
+  * Provisional concave bonus (pre-registered): partner #1 = +2.34 ceiling pts, #2 = +1.17, #3+ = 0.
+- **Caveats:** measured on 2 seasons — **2025 nflverse weekly is currently unavailable (HTTPError)**, 2026
+  not played. 61 WR1 pairs is a decent sample but re-run to fold in 2025 when nflverse serves it.
+- **THE GATE BEFORE INSTALL (do not skip):** this measures CEILING, and the construction-objective proxy
+  just showed individual-variance ceiling did NOT convert to weekly-high WINS (−0.13). Stacking's bet is
+  that CORRELATED ceiling (structural co-movement, more reliable than picking boom individuals) DOES
+  convert. That is exactly step 3: stacked-vs-unstacked policy rosters graded on realized weekly scores +
+  the weekly-high win-probability proxy. The bonus goes on the board ONLY if step 3 clears. Not installed.
