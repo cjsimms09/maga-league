@@ -764,8 +764,9 @@ details[open] > .layer-sum::before { content: '▾ '; }
 
 /* tier colour bands on the board */
 .tier-cell { font-weight: 800; }
-.tier-cell.t0 { color: #ffd968; } .tier-cell.t1 { color: #8ef0b6; } .tier-cell.t2 { color: #a9c4ff; }
-.tier-cell.t3 { color: #ff9aa4; } .tier-cell.t4 { color: #d7b8ff; } .tier-cell.t5 { color: #9fe8e0; }
+/* Dark, color-coded tier bands (were pale pastels invisible on the light board). */
+.tier-cell.t0 { color: var(--gold-bright); } .tier-cell.t1 { color: var(--green); } .tier-cell.t2 { color: var(--navy); }
+.tier-cell.t3 { color: var(--red); } .tier-cell.t4 { color: #6b3fa0; } .tier-cell.t5 { color: #0a7d75; }
 
 input[type=range] { accent-color: var(--gold); }
 
@@ -2345,9 +2346,9 @@ details.sa-preview[open] > summary { border-bottom: 1px solid var(--line); }
 /* ---------- war room: the adjusters ---------- */
 .preset-row { display: flex; flex-wrap: wrap; gap: .3rem; align-items: center; margin-bottom: .35rem; }
 .preset-custom {
-  font-size: .68rem; text-transform: uppercase; letter-spacing: .06em; color: #8f9ab3;
+  font-size: .68rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted);
 }
-.preset-why { font-size: .74rem; color: #b9c2d4; margin: 0 0 .8rem; line-height: 1.4; }
+.preset-why { font-size: .74rem; color: var(--muted); margin: 0 0 .8rem; line-height: 1.4; }
 .slider-when { font-size: .71rem; color: #96a0b6; line-height: 1.35; }
 .slider-when b { color: #b9c2d4; font-weight: 600; }
 .weights-effect.changed { color: var(--gold-bright, #f5c445); }
@@ -2390,10 +2391,10 @@ details.sa-preview[open] > summary { border-bottom: 1px solid var(--line); }
 .pick-strip { display: flex; flex-wrap: wrap; gap: .3rem; }
 .pick-chip {
   font-size: .78rem; padding: .2rem .45rem; border-radius: 8px; font-variant-numeric: tabular-nums;
-  background: rgba(255,255,255,.05); border: 1px solid var(--line);
+  background: rgba(18,41,74,.05); border: 1px solid var(--line);
 }
 .pick-chip.moved { border-color: var(--gold); color: var(--gold-bright, #f5c445); }
-.pick-chip .was { font-size: .64rem; color: #8f9ab3; margin-left: .25rem; }
+.pick-chip .was { font-size: .64rem; color: var(--muted); margin-left: .25rem; }
 
 /* ==========================================================================
    STATUS DASHBOARD (/admin/status) — the phone-readable face of STATUS.md +
@@ -2657,11 +2658,11 @@ body.warroom-page #doctrine-banner .db-confidence { white-space: normal; overflo
 .ba-cell:hover { background: rgba(245,196,69,.1); border-color: rgba(245,196,69,.4); }
 .ba-cell.hot { border-color: rgba(255,70,85,.5); }
 .ba-gone { font-size: .68rem; color: var(--muted); font-variant-numeric: tabular-nums; }
-.ba-cell.hot .ba-gone { color: #ffb4bb; }
+.ba-cell.hot .ba-gone { color: var(--red); }
 
 /* §2(d) recent-picks reach/fell tags — each pick as opponent-model evidence. */
-.pick-reach { color: #ffb4bb; font-size: .74rem; }
-.pick-fell { color: #8ef0b6; font-size: .74rem; }
+.pick-reach { color: var(--red); font-size: .74rem; }
+.pick-fell { color: var(--green); font-size: .74rem; }
 
 /* On a phone the page title and subtitle cost ~90px above the decision
    surface and say nothing the nav does not — the nav pill already reads WAR
@@ -3042,12 +3043,12 @@ body.warroom-page #doctrine-banner .db-confidence { white-space: normal; overflo
   margin-bottom: .35rem;
 }
 .derive-row { display: flex; justify-content: space-between; gap: 1.1rem; padding: .09rem 0; }
-.derive-k { color: #c6cfe0; }
-.derive-v { font-variant-numeric: tabular-nums; font-weight: 600; color: #fff; white-space: nowrap; }
+.derive-k { color: var(--muted); }
+.derive-v { font-variant-numeric: tabular-nums; font-weight: 600; color: var(--ink); white-space: nowrap; }
 .derive-row.is-sum {
   margin-top: .2rem; padding-top: .3rem; border-top: 1px solid var(--line);
 }
-.derive-row.is-sum .derive-k { font-weight: 700; color: #fff; }
+.derive-row.is-sum .derive-k { font-weight: 700; color: var(--ink); }
 .derive-row.is-sum .derive-v { color: var(--gold); }
 .derive-foot {
   margin-top: .4rem; font-size: .68rem; color: var(--muted);
