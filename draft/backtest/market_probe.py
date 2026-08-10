@@ -186,9 +186,22 @@ def probe() -> dict:                                        # pragma: no cover (
             sport = [s for s in series if any(
                 w in (str(s.get("ticker", "")) + str(s.get("title", ""))).lower()
                 for w in ("nfl", "football"))]
+            # THE ACTUAL QUESTION: not "does Kalshi run NFL markets" (it does —
+            # 12,622 series, many NFL) but "does it price PLAYER PRODUCTION",
+            # which is the only kind that maps to a fantasy projection. Team
+            # results, coach markets and season awards do not.
+            PROD = ("yard", "reception", "catch", "rushing", "passing", "receiving",
+                    "completions", "attempts", "targets", "touchdown")
+            prod = [s for s in sport if any(
+                w in (str(s.get("ticker", "")) + " " + str(s.get("title", ""))).lower()
+                for w in PROD)]
             summary["series_listed"] = len(series)
-            summary["series_matching_football"] = [
-                str(s.get("ticker") or "")[:24] for s in sport][:12]
+            summary["football_series_count"] = len(sport)
+            summary["football_series_tickers"] = sorted(
+                str(s.get("ticker") or "")[:28] for s in sport)[:60]
+            summary["player_production_series"] = sorted(
+                str(s.get("ticker") or "")[:28] for s in prod)[:30]
+            summary["player_production_series_count"] = len(prod)
         except Exception as se:                             # noqa: BLE001
             summary["series_endpoint_error"] = f"{type(se).__name__}: {se}"
         out["sources"]["kalshi"] = summary
