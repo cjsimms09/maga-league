@@ -3,14 +3,31 @@
   "sources": {
     "kalshi": {
       "any_sport_words": 0,
-      "markets_scanned": 1000,
+      "exhausted": false,
+      "markets_scanned": 12000,
       "nfl_markets": 0,
+      "pages_walked": 12,
       "player_production_markets": 0,
       "reachable": true,
       "sample_titles": [],
+      "series_listed": 12622,
+      "series_matching_football": [
+        "KXNFLMENTION",
+        "KXNFL4QWINNER",
+        "KXNCAAFTOTAL",
+        "KXNCAAF4QBTTS",
+        "KXNFLCOACH",
+        "KXNFLWINS-BAL",
+        "KXNFLENDSTREAK",
+        "KXNFLSUPDRAFTPICK",
+        "KXNFLSBMVPDEF",
+        "KXNFLWORSTTOFIRST",
+        "KXNFL4DOWNCONV",
+        "KXNFLDROTY"
+      ],
       "series_prefixes_seen": {
-        "KXMVECROSSCATE": 449,
-        "KXMVESPORTSMUL": 551
+        "KXMVECROSSCATE": 5682,
+        "KXMVESPORTSMUL": 6318
       },
       "volume_median": 0,
       "volume_total": 0,
