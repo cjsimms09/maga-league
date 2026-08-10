@@ -1,0 +1,251 @@
+{
+  "experiment": "stack correlation \u2014 realized same-team QB\u2194WR/TE weekly correlation (our scoring)",
+  "seasons": [
+    2023,
+    2024,
+    2025,
+    2026
+  ],
+  "n_pairs": 425,
+  "aggregate": {
+    "qb_wr_all": {
+      "n": 282,
+      "mean_rho": 0.2329,
+      "median_rho": 0.2653,
+      "mean_ceiling_premium_pts": 1.302
+    },
+    "qb_te_all": {
+      "n": 143,
+      "mean_rho": 0.215,
+      "median_rho": 0.2639,
+      "mean_ceiling_premium_pts": 0.886
+    },
+    "qb_wr1": {
+      "n": 61,
+      "mean_rho": 0.357,
+      "median_rho": 0.391,
+      "mean_ceiling_premium_pts": 2.343
+    },
+    "qb_te1": {
+      "n": 61,
+      "mean_rho": 0.2933,
+      "median_rho": 0.3428,
+      "mean_ceiling_premium_pts": 1.407
+    },
+    "implied_dose_vs_sweep": 1.02,
+    "provisional_bonus_wr1_pts": {
+      "partner_1": 2.343,
+      "partner_2": 1.171,
+      "partner_3plus": 0.0,
+      "dose_curve": [
+        1.0,
+        0.5,
+        0.0
+      ]
+    }
+  },
+  "per_season": {
+    "2023": {
+      "qb_wr_all": {
+        "n": 144,
+        "mean_rho": 0.2114,
+        "median_rho": 0.2133,
+        "mean_ceiling_premium_pts": 1.19
+      },
+      "qb_te_all": {
+        "n": 69,
+        "mean_rho": 0.2353,
+        "median_rho": 0.3219,
+        "mean_ceiling_premium_pts": 0.984
+      },
+      "qb_wr1": {
+        "n": 30,
+        "mean_rho": 0.3498,
+        "median_rho": 0.3699,
+        "mean_ceiling_premium_pts": 2.345
+      },
+      "qb_te1": {
+        "n": 29,
+        "mean_rho": 0.2928,
+        "median_rho": 0.3876,
+        "mean_ceiling_premium_pts": 1.446
+      },
+      "implied_dose_vs_sweep": 0.999,
+      "provisional_bonus_wr1_pts": {
+        "partner_1": 2.345,
+        "partner_2": 1.173,
+        "partner_3plus": 0.0,
+        "dose_curve": [
+          1.0,
+          0.5,
+          0.0
+        ]
+      }
+    },
+    "2024": {
+      "qb_wr_all": {
+        "n": 138,
+        "mean_rho": 0.2553,
+        "median_rho": 0.2849,
+        "mean_ceiling_premium_pts": 1.42
+      },
+      "qb_te_all": {
+        "n": 74,
+        "mean_rho": 0.1961,
+        "median_rho": 0.2404,
+        "mean_ceiling_premium_pts": 0.796
+      },
+      "qb_wr1": {
+        "n": 31,
+        "mean_rho": 0.3639,
+        "median_rho": 0.3941,
+        "mean_ceiling_premium_pts": 2.342
+      },
+      "qb_te1": {
+        "n": 32,
+        "mean_rho": 0.2937,
+        "median_rho": 0.2772,
+        "mean_ceiling_premium_pts": 1.372
+      },
+      "implied_dose_vs_sweep": 1.04,
+      "provisional_bonus_wr1_pts": {
+        "partner_1": 2.342,
+        "partner_2": 1.171,
+        "partner_3plus": 0.0,
+        "dose_curve": [
+          1.0,
+          0.5,
+          0.0
+        ]
+      }
+    },
+    "2025": {
+      "qb_wr_all": {
+        "n": 0,
+        "mean_rho": null,
+        "median_rho": null,
+        "mean_ceiling_premium_pts": null
+      },
+      "qb_te_all": {
+        "n": 0,
+        "mean_rho": null,
+        "median_rho": null,
+        "mean_ceiling_premium_pts": null
+      },
+      "qb_wr1": {
+        "n": 0,
+        "mean_rho": null,
+        "median_rho": null,
+        "mean_ceiling_premium_pts": null
+      },
+      "qb_te1": {
+        "n": 0,
+        "mean_rho": null,
+        "median_rho": null,
+        "mean_ceiling_premium_pts": null
+      }
+    },
+    "2026": {
+      "qb_wr_all": {
+        "n": 0,
+        "mean_rho": null,
+        "median_rho": null,
+        "mean_ceiling_premium_pts": null
+      },
+      "qb_te_all": {
+        "n": 0,
+        "mean_rho": null,
+        "median_rho": null,
+        "mean_ceiling_premium_pts": null
+      },
+      "qb_wr1": {
+        "n": 0,
+        "mean_rho": null,
+        "median_rho": null,
+        "mean_ceiling_premium_pts": null
+      },
+      "qb_te1": {
+        "n": 0,
+        "mean_rho": null,
+        "median_rho": null,
+        "mean_ceiling_premium_pts": null
+      }
+    }
+  },
+  "strongest_qb_wr1_pairs": [
+    {
+      "season": "2023",
+      "rho": 0.8029,
+      "n": 9,
+      "ceiling_premium_pts": 5.748
+    },
+    {
+      "season": "2023",
+      "rho": 0.7466,
+      "n": 13,
+      "ceiling_premium_pts": 6.3
+    },
+    {
+      "season": "2023",
+      "rho": 0.7418,
+      "n": 11,
+      "ceiling_premium_pts": 4.81
+    },
+    {
+      "season": "2024",
+      "rho": 0.7403,
+      "n": 11,
+      "ceiling_premium_pts": 6.324
+    },
+    {
+      "season": "2023",
+      "rho": 0.7311,
+      "n": 13,
+      "ceiling_premium_pts": 5.866
+    },
+    {
+      "season": "2024",
+      "rho": 0.7001,
+      "n": 14,
+      "ceiling_premium_pts": 3.111
+    },
+    {
+      "season": "2023",
+      "rho": 0.6809,
+      "n": 17,
+      "ceiling_premium_pts": 4.38
+    },
+    {
+      "season": "2023",
+      "rho": 0.656,
+      "n": 18,
+      "ceiling_premium_pts": 5.188
+    },
+    {
+      "season": "2023",
+      "rho": 0.6461,
+      "n": 16,
+      "ceiling_premium_pts": 3.316
+    },
+    {
+      "season": "2024",
+      "rho": 0.627,
+      "n": 18,
+      "ceiling_premium_pts": 2.972
+    },
+    {
+      "season": "2023",
+      "rho": 0.6267,
+      "n": 15,
+      "ceiling_premium_pts": 3.539
+    },
+    {
+      "season": "2024",
+      "rho": 0.6167,
+      "n": 18,
+      "ceiling_premium_pts": 4.394
+    }
+  ],
+  "verdict": "Realized QB-WR1 correlation \u03c1=0.357 (ABOVE the sweep's assumed 0.35; implied dose \u00d71.02) \u2014 meaningful. A WR1 stack buys ~2.343 ceiling pts/week (n=61 pairs). Supports a modest board stack bonus (first partner ~this size, halving for a second, off by the third), pending the step-3 money grade. Ceiling effect only; the projection is never touched.",
+  "note": "leak-free: realized weekly points through OUR scoring (6-pt pass TD, half-PPR). Correlation raises lineup CEILING, not the mean \u2014 the bonus is a roster-conditional ceiling premium, never a projection bump. Bonus size here is PROVISIONAL (ceiling points, pre-registered concave dose); the $ value is confirmed by the step-3 grade."
+}
