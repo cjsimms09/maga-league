@@ -149,6 +149,33 @@ const strip = h => h.replace(/<[^>]*>/g, ' ').replace(/&#39;/g, "'").replace(/&l
     ck('the default is still 6 on both', /Amended only by 6 votes/.test(r2) && /6 YES votes/.test(v2));
   }
 
+  // ── 5) A SCOPE NOTE THAT CONTRADICTS THE CARD BELOW IT.
+  // The Record Book's subtitle blanketed the whole page with "2023 to present",
+  // and the very first card under it — the Dynasty Tracker, "titles, all time" —
+  // visibly shows a 2022 crown. Two different scopes on one page, one of them
+  // stated wrongly over both. And the range was typed, so it would have gone
+  // stale the first year nobody remembered to edit it.
+  {
+    const t = strip(await get('/history/records'));
+    ck('the record book IS the record book', /Record Book/.test(t));
+    ck('the page no longer claims one scope over two different ones',
+      !/settle arguments — 2023 to present/.test(t),
+      (t.match(/settle arguments[^.]*\./) || ['(absent)'])[0]);
+    ck('  box-score records state their own range, derived from the seasons on file',
+      /Box-score records cover \d{4}/.test(t),
+      (t.match(/Box-score records cover[^.]*\./) || ['(absent)'])[0]);
+    ck('  and the titles above are still labelled all-time',
+      /titles, all time/i.test(t));
+    // The derived range must actually match the data, not a hardcoded pair.
+    const HIST = require(path.join(ROOT, 'src', 'routes', 'history-data'));
+    const yrs = (HIST.build().seasons || []).map(x => Number(x.year)).filter(Number.isFinite).sort((a, b) => a - b);
+    if (yrs.length) {
+      ck('  the range matches the harvested seasons exactly',
+        new RegExp('Box-score records cover ' + yrs[0] + (yrs.length > 1 ? '–' + yrs[yrs.length - 1] : '')).test(t),
+        { shown: (t.match(/Box-score records cover[^—]*/) || [])[0], expected: yrs[0] + '–' + yrs[yrs.length - 1] });
+    }
+  }
+
   srv.close();
   console.log(`\n${pass} passed, ${fail} failed`);
   process.exit(fail ? 1 : 0);
