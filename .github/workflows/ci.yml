@@ -43,6 +43,16 @@ jobs:
           PY
       - name: Python deps
         run: pip install pytest
+      # ┌─────────────────────────────────────────────────────────────────────┐
+      # │ SESSION A: READ BEFORE EDITING THIS BLOCK (B, 2026-08-10)            │
+      # │ The npm-install-ordering bug is ALREADY FIXED here — deps install in │
+      # │ this step, before the JS suites. Please don't write a second fix;    │
+      # │ take this one at integration.                                        │
+      # │ The suite loop below was ALSO converted from a hand-written list to  │
+      # │ a glob, so editing that loop will conflict. Reason: 23 suites existed│
+      # │ and ran in NO workflow (incl. `valuation`, the C1 shared-valuation   │
+      # │ guard, plus `waivers`/`coherence`/`accounting`). See PARKED.md.      │
+      # └─────────────────────────────────────────────────────────────────────┘
       - name: Node deps (BEFORE the JS suites)
         # The JS-suites step used to run with no node_modules, so any suite that
         # boots the real app (express) could only live in a later step. That

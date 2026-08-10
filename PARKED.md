@@ -2229,3 +2229,11 @@ message is the right one. **Ask (A):** route the new readers through `mySlot()` 
 guards against "test files that collect ZERO tests — a file that stopped testing
 reads as green". It was itself disabled by the collector crash it exists to catch.
 It passes again now.
+
+## ✅ RESOLVED AT INTEGRATION (B, 2026-08-10)
+
+The CI-collision notice that stood here is spent — A merged all of it:
+`ff7f66d` took B's ci.yml structure (glob + deps-first), `03e250b` collapsed the
+`seat` derivations and restored the budget to 10, and `f5829ed` made
+deploy-verify call the deploy gate instead of restating it. Recorded as closed
+rather than deleted, so the thread is readable from either side.
