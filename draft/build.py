@@ -325,6 +325,32 @@ def load_players(cfg: dict, offline: bool) -> list[dict]:
                            "starting point, not a forecast.",
             })
 
+    # TEAM -> BYE WEEK, derived from the pool itself. Sleeper populates
+    # metadata.bye_week on only SOME players per team, but a bye belongs to the
+    # TEAM, so one populated player is enough to fix it for the whole roster. Most
+    # common value per team wins (a stray bad row cannot outvote the real one).
+    # See the "bye" field below for why this is derived here rather than read from
+    # src/nfl_byes.json (that file is generated FROM this artifact — circular).
+    _bye_votes: dict = {}
+    for _p in raw.values():
+        _t = _p.get("team")
+        _b = (_p.get("metadata") or {}).get("bye_week")
+        if not _t or _t == "FA" or _b in (None, "", 0):
+            continue
+        try:
+            _b = int(_b)
+        except (TypeError, ValueError):
+            continue
+        _bye_votes.setdefault(_t, {})
+        _bye_votes[_t][_b] = _bye_votes[_t].get(_b, 0) + 1
+    team_byes = {t: max(v.items(), key=lambda kv: kv[1])[0] for t, v in _bye_votes.items() if v}
+    print(f"  byes: derived for {len(team_byes)} teams from the player pool")
+    if len(team_byes) < 32:
+        # Loud, not silent: a missing team means every one of its players will
+        # render "—" and any bye-collision guard is dormant for them.
+        print(f"  ! only {len(team_byes)}/32 teams have a derived bye — "
+              f"bye flags will be inert for the rest")
+
     players = []
     dst_kept = 0
     for pid, p in raw.items():
@@ -359,7 +385,19 @@ def load_players(cfg: dict, offline: bool) -> list[dict]:
             "name": p.get("full_name") or f"{p.get('first_name','')} {p.get('last_name','')}".strip() or str(pid),
             "position": pos,
             "team": p.get("team") or "FA",
-            "bye": (p.get("metadata") or {}).get("bye_week"),
+            # BYE: Sleeper's per-player metadata.bye_week is SPARSELY populated —
+            # on the 2026 board it was missing for 16 of 32 defenses, 90 of 107
+            # kickers and most of the deep pool, so B's bye flags silently did
+            # nothing for those rows and the bye card showed "—" (2026-08-10
+            # critique). A bye is a property of the TEAM, not the player, so we
+            # DERIVE a team->bye map from the pool itself (all 32 teams have at
+            # least one player carrying bye_week) and apply it to that team's whole
+            # roster. Deliberately NOT read from src/nfl_byes.json: that file is
+            # GENERATED FROM this artifact, so joining it here would be circular
+            # and an error could never self-correct. Deriving from the upstream
+            # Sleeper pool each build is self-healing. FA has no bye by definition
+            # (Daniel Carlson, team FA, correctly stays null).
+            "bye": team_byes.get(p.get("team")) or (p.get("metadata") or {}).get("bye_week"),
             "age": p.get("age"),
             "years_exp": p.get("years_exp"),
             "injury_status": p.get("injury_status"),
