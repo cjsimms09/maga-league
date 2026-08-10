@@ -74,6 +74,13 @@
             <tr class="<%= chase ? 'lo-chase-row' : '' %>"><td class="muted"><%= s.slot %></td><td><b><%= s.name %></b><% if (chase) { %> <span class="lo-chase-badge">🎯 the chase</span><% } %></td><td class="muted"><%= s.pos %></td><td class="num"><%= Number(s.proj).toFixed(1) %></td></tr>
           <% }) %>
         </table>
+        <%# Explain any absence: a player ruled OUT or on bye is zeroed by the
+            guard, so a stud can vanish from the lineup. Say why, so it reads as
+            a deliberate sit, not a bug. %>
+        <% if (live.inactive && live.inactive.length) { %>
+          <p class="lo-inactive muted">🚫 Not eligible this week (can't score, left out):
+            <%= live.inactive.map(p => p.name + ' (' + p.reason + ')').join(' · ') %>.</p>
+        <% } %>
       </div>
     </div>
 
