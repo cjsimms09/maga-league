@@ -27,6 +27,7 @@
     RUN_MAX: 1.8,             // clamp: a hot position can't exceed this
     RUN_BANNER_AT: 1.4,       // multiplier that earns a "RUN DETECTED" banner
     BENCH_DISCOUNT: 0.35,     // 12-team default; formatDefaults() overrides it
+    BENCH_SCORE_FLOOR: 0.0,   // a bench lottery ticket is never scored below ~0 (PARKED fix C)
     SURVIVOR_CUTOFF: 0.005,   // stop the VONA product once mass is negligible
     TIE_THRESHOLD: 2.0,       // composite points within which we call it a tie
     // STAGE 2 CAP — the crude, evidence-gated deviation anchor (pre-registered in
@@ -806,14 +807,41 @@
     // saying which it is matters: the slider still reaches 0 in the UI, it just
     // cannot switch the anchor off entirely.
     const wValue = Math.max(CFG.VALUE_WEIGHT_FLOOR, w.value == null ? 1 : w.value);
-    let score = wValue * v
-      + w.tier * tier
-      + w.need * need.value
-      + w.risk * risk.value
-      + w.ceiling * ceiling
-      + w.keeper * kov.value
-      - w.bye * bye.value
-      + w.stack * stack.value;
+    // BENCH-ONLY REPRICE (PARKED B→A audit, fixes A/C/E). A player who cannot reach a
+    // starting slot — a second QB behind your starter, a filled-position depth piece —
+    // is a LOTTERY TICKET, not a scarcity play. VONA (value over the next STARTER) and
+    // tier-cliff urgency are meaningless for a man you can't start, yet they were still
+    // floating a benched QB2 to #1 once starters filled. So for a bench-only pick we
+    // zero the starter-scarcity terms and score him on UPSIDE + handcuff insurance,
+    // floored non-negative so a real bench flier never sinks below a discounted backup
+    // and the top score never goes deeply negative for rounds on end.
+    const benchOnly = need.fills === 'bench';
+    let score;
+    if (benchOnly) {
+      // Score a bench pick on upside + handcuff insurance; keeper/bye/risk still
+      // participate so depth ranking stays meaningful. No hard floor — flooring
+      // flattened the ordering; the reprice alone already keeps the TOP pick positive
+      // (it is the highest-ceiling player left), which is what "no negative #1 while
+      // upside remains" requires. CFG.BENCH_SCORE_FLOOR only catches pathological lows.
+      score = w.ceiling * ceiling + w.stack * stack.value + w.keeper * kov.value
+        + Math.max(0, w.need * need.value)      // handcuff/insurance, never a penalty here
+        - Math.max(0, w.bye * bye.value)        // a bench bye still stings a little
+        + w.risk * Math.min(0, risk.value);     // real injury/age risk still counts
+      // No hard clamp to zero: the top bench pick is the highest-ceiling player
+      // left, so scored[0] stays positive on its own (that is all OPEN-1 requires),
+      // while keeper/bye/risk keep modulating the depth ranking below it. A clamp
+      // here flattened every low-ceiling flier to an identical 0 and erased those
+      // signals. CFG.BENCH_SCORE_FLOOR is retained only as a documented knob.
+    } else {
+      score = wValue * v
+        + w.tier * tier
+        + w.need * need.value
+        + w.risk * risk.value
+        + w.ceiling * ceiling
+        + w.keeper * kov.value
+        - w.bye * bye.value
+        + w.stack * stack.value;
+    }
 
     /* THE ONESIE DISCOUNT, applied to the assembled score.
      *
