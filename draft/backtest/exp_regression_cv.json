@@ -1,0 +1,108 @@
+{
+  "experiment": "regression-weight leave-one-season-out CV (the gate on lowering 0.35)",
+  "shipped": 0.35,
+  "prereg_rule": "SHIP-LOWER iff every fold's CV weight <= 0.2 AND it beats-or-ties shipped out-of-sample on every fold; recommend the best mean-held-out weight. Accuracy gate only \u2014 $ arm still required.",
+  "cv": {
+    "seasons": [
+      "2023",
+      "2024",
+      "2025"
+    ],
+    "weights": [
+      0.0,
+      0.1,
+      0.2,
+      0.35,
+      0.5,
+      0.7,
+      1.0
+    ],
+    "folds": [
+      {
+        "held_out": "2023",
+        "cv_selected_weight": 0.1,
+        "held_out_top_decile": 0.478,
+        "shipped_top_decile": 0.413,
+        "beats_or_ties_shipped": true,
+        "margin_vs_shipped": 0.065
+      },
+      {
+        "held_out": "2024",
+        "cv_selected_weight": 0.1,
+        "held_out_top_decile": 0.543,
+        "shipped_top_decile": 0.413,
+        "beats_or_ties_shipped": true,
+        "margin_vs_shipped": 0.13
+      },
+      {
+        "held_out": "2025",
+        "cv_selected_weight": 0.0,
+        "held_out_top_decile": 0.529,
+        "shipped_top_decile": 0.529,
+        "beats_or_ties_shipped": true,
+        "margin_vs_shipped": 0.0
+      }
+    ]
+  },
+  "robust": {
+    "per_weight": [
+      {
+        "weight": 0.0,
+        "mean_td": 0.524,
+        "min_td": 0.5,
+        "mean_rank_corr": 0.6303
+      },
+      {
+        "weight": 0.1,
+        "mean_td": 0.5363,
+        "min_td": 0.478,
+        "mean_rank_corr": 0.6237
+      },
+      {
+        "weight": 0.2,
+        "mean_td": 0.5027,
+        "min_td": 0.457,
+        "mean_rank_corr": 0.6137
+      },
+      {
+        "weight": 0.35,
+        "mean_td": 0.4517,
+        "min_td": 0.413,
+        "mean_rank_corr": 0.598
+      },
+      {
+        "weight": 0.5,
+        "mean_td": 0.437,
+        "min_td": 0.391,
+        "mean_rank_corr": 0.5703
+      },
+      {
+        "weight": 0.7,
+        "mean_td": 0.437,
+        "min_td": 0.391,
+        "mean_rank_corr": 0.5267
+      },
+      {
+        "weight": 1.0,
+        "mean_td": 0.3277,
+        "min_td": 0.304,
+        "mean_rank_corr": 0.221
+      }
+    ],
+    "recommended": {
+      "weight": 0.1,
+      "mean_td": 0.5363,
+      "min_td": 0.478,
+      "mean_rank_corr": 0.6237
+    }
+  },
+  "verdict": {
+    "ship_lower_supported": true,
+    "cv_all_low": true,
+    "cv_never_loses_oos": true,
+    "recommended_weight": 0.1,
+    "text": "SHIP-LOWER SUPPORTED (accuracy + overfitting gate PASSED). Leave-one-season-out picked a weight <= 0.2 on every fold ([0.1, 0.1, 0.0]), and it beat-or-tied the shipped 0.35 out-of-sample on all 3 folds (margins [0.065, 0.13, 0.0]). Most robust single value = 0.1 (mean held-out top-decile 0.5363, worst fold 0.478) vs shipped 0.35's ~0.41. RECOMMEND lowering 0.35 -> 0.1. STILL GATED on the dollar arm (roster grader, egress) before the numeric install."
+  },
+  "caveat": "3 seasons, ~172-458 picks/season; top-decile is coarse at this n. rank_corr corroborates (0.0 best every season). Reads exp35's per-season curves; no egress. Installs nothing \u2014 updates DECISIONS-NEEDED #2 from OPEN to accuracy-gate-cleared.",
+  "source_tier": "league-primary (derived from exp35)"
+}

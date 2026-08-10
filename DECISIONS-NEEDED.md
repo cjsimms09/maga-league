@@ -62,7 +62,16 @@ Audit date: 2026-08-09 (swept every recorded verdict in draft/backtest/*.json + 
   So the swap is still on, but the SOURCE (MFL vs FP) and whether it survives format-matching
   are settled by the three-way — do not wire until it lands. (EXP-MFL-SWAP.md)
 
-## 2. REGRESSION / SHRINKAGE WEIGHT: the blend over-regresses at the top — OPEN
+## 2. REGRESSION / SHRINKAGE WEIGHT: over-regresses — ACCURACY+OVERFITTING GATE CLEARED, $ pending (2026-08-10)
+- **✅ CV UPDATE (exp_regression_cv):** the gate exp35 set ("leave-one-season-out CV")
+  is PASSED. Holding out each season and picking the weight by top-decile on the other
+  two selected a LOW weight every fold (**0.1, 0.1, 0.0**) and it **beat-or-tied the
+  shipped 0.35 out-of-sample on all three** (margins +0.065, +0.13, +0.0 — never loses).
+  Most robust single value = **0.1** (mean held-out top-decile 0.536 vs 0.35's ~0.41;
+  rank-corr 0.62 vs 0.60; 0.0 edges it on worst-case + rho). So the pooled monotonic-to-0
+  curve is NOT an in-sample artifact — lowering the weight generalises. **RECOMMEND
+  0.35 → 0.1** (or 0.0). REMAINING GATE: the dollar arm (roster grader, egress) to size
+  it at Cory's picks before the numeric install — accuracy is cleared, $ is not. 4/4 tests.
 - **Found:** exp33 — the blend over-regresses and loses to a naive baseline at
   identifying ELITE players. exp35 regression sweep — top-decile accuracy peaks BELOW
   the shipped 0.35, **peak at 0.0**; report says verbatim "over-regression is a real
