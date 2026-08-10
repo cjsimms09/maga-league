@@ -3,8 +3,8 @@
   "ranking": {
     "n_picks": 38,
     "rho_blend": 0.404,
-    "rho_naive": 0.35,
-    "rho_adp": 0.239,
+    "rho_naive": 0.349,
+    "rho_adp": 0.243,
     "naive_minus_blend": {
       "mean": -0.055,
       "ci95": [
@@ -14,18 +14,18 @@
       "verdict": "negative"
     },
     "naive_minus_adp": {
-      "mean": 0.111,
+      "mean": 0.106,
       "ci95": [
-        -0.013,
-        0.225
+        -0.018,
+        0.22
       ],
       "verdict": "inconclusive"
     },
     "blend_minus_adp": {
-      "mean": 0.166,
+      "mean": 0.161,
       "ci95": [
-        0.082,
-        0.251
+        0.077,
+        0.246
       ],
       "verdict": "positive"
     }
