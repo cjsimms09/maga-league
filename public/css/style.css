@@ -1849,11 +1849,13 @@ button.pd-team.pick:hover { background: rgba(245,196,69,.16); transform: transla
 .lo-verdict { border-width: 2px; }
 .lo-verdict.lo-chase   { border-color: var(--gold-bright); }
 .lo-verdict.lo-protect { border-color: var(--navy); }
+.lo-verdict.lo-pending { border-color: var(--muted); }
 .lo-verdict-head { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; margin-bottom: .45rem; }
 .lo-verdict-tag { flex: 0 0 auto; font-family: var(--font-display); font-weight: 900; font-size: .72rem;
   letter-spacing: .08em; padding: .2rem .55rem; border-radius: 999px; }
 .lo-chase   .lo-verdict-tag { background: rgba(185,130,42,.16); color: var(--gold-bright); }
 .lo-protect .lo-verdict-tag { background: rgba(18,41,74,.10);  color: var(--navy); }
+.lo-pending .lo-verdict-tag { background: rgba(60,74,96,.10);   color: var(--muted); }
 .lo-verdict-line { font-family: var(--font-display); font-weight: 800; font-size: 1.05rem; color: var(--ink); line-height: 1.2; }
 .lo-verdict-why { font-size: .9rem; line-height: 1.5; color: var(--ink); margin: 0 0 .35rem; }
 /* Mark the variance play inside "Play This" so a CHASE verdict is concrete. */

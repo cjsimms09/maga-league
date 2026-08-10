@@ -2131,6 +2131,11 @@ async function liveOptimizeFor(world, owners, me) {
     live = LO.optimize(rosterIn, { band, sigmaByPos, oppMean, matchupValue: 25 });
     live.oppKnown = oppKnown;
     live.inactive = inactive;
+    // No live/season/last-week points anywhere yet (post-draft, pre-week-1): every
+    // projection fell to the zero fallback, so the probabilities are meaningless.
+    // Flag it so the view shows a calm "projections pending" state instead of a
+    // 0%-to-win doom read off an all-zero board.
+    live.projPending = projSource === 'none' || Number(live.ev.mean || 0) < 1;
   }
   const weekNo = (matchup && matchup.week) || (sData && sData.week) || 1;
   return { live, roster, matchup, projSource, band, weekNo };
