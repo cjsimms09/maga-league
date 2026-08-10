@@ -35,14 +35,27 @@ def test_primary_branch_excludes_every_predicted_keeper_and_mine():
 
 
 def test_contingency_returns_bowers_to_the_board():
+    # The contract: the primary removes Bowers (predicted kept by Marian); the
+    # contingency returns him to the pool. Whether he then SHOWS as a candidate is
+    # gated by survival — if his ADP puts him out of reach of my early picks, honestly
+    # listing him would be a lie, so the assertion is conditional on reachability.
     board, predicted = _inputs()
     s = OS.generate(board, predicted)
     names = {c["name"] for e in s["branches"]["contingency_bowers_available"]
              for c in e["candidates"]}
     prim = {c["name"] for e in s["branches"]["primary_both_tes_gone"]
             for c in e["candidates"]}
-    assert "Brock Bowers" in names        # available in the contingency…
-    assert "Brock Bowers" not in prim     # …and gone in the primary
+    assert "Brock Bowers" not in prim     # removed as a predicted keeper in the primary
+
+    bowers = next((p for p in board.get("players", []) if p.get("name") == "Brock Bowers"), None)
+    my_picks = (board.get("pick_order") or {}).get("my_picks") or []
+    assert bowers is not None and my_picks
+    adp = bowers.get("adjusted_adp") or bowers.get("raw_adp")
+    reachable = OS.survival_probability(float(adp), my_picks[0]) >= OS.SURVIVAL_FLOOR
+    if reachable:
+        assert "Brock Bowers" in names    # returned to the pool AND reachable -> surfaced
+    else:
+        assert "Brock Bowers" not in names   # his ADP now puts him out of reach even when available
 
 
 def test_candidates_carry_survival_and_respect_the_floor():
