@@ -221,6 +221,20 @@ jobs:
         if: always()
         run: python -m pytest draft/tests -q
 
+      - name: Graduation gate — loaded policy vs measured verdict
+        # THE TWO-PLACES DISEASE, closed for policy values. The ceiling weight sat
+        # at 0.65 in the loaded core for weeks after the ledger measured it at
+        # -4.8, and nothing failed. This compares what engine.js ACTUALLY LOADS
+        # against what the experiments ACTUALLY MEASURED and exits non-zero on any
+        # UNDOCUMENTED disagreement.
+        #
+        # It PROPOSES, it never flips: a row is cleared either by changing the
+        # loaded value or by recording the human decision in DECISIONS-NEEDED.md /
+        # EDGE-LEDGER.md. "Cory looked and chose otherwise" is a legitimate
+        # resolution; silence is not.
+        if: always()
+        run: python3 draft/backtest/graduation_gate.py
+
       - name: Shell guards — deploy gate + territory check + merge completeness
         # These enforce infra invariants and are easy to break silently: the deploy
         # gate's exit-code contract, the territory check's merge-awareness, and the

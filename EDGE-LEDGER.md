@@ -140,6 +140,33 @@ sample-ceiling breakers have much higher EVSI:
    Design it as ONE ingest per source answering EVERY open question in the same pass (the
    ingest is the cost; each question is a fraction of it). This is the top post-draft item.
 
+## ⚠️ CEILING IS UNSETTLED — the two measurement arms disagree (graduation gate, 2026-08-10)
+
+**Surfaced by the gate on its first run, and it is a real gap in the ceiling decision.**
+The participation test has two arms and they answer OPPOSITELY for ceiling:
+- `ablation_from_full` (turn it OFF from the full set): **+149.6, CI [124.6, 173.4] — EARNS,
+  CI excludes zero.**
+- `build_up_from_core` (add it TO the measured core): **−4.75, CI [−25.8, +17.3] —
+  decoration, CI straddles zero.**
+
+The ceiling→0 decision (Cory, 2026-08-10: *"SET CEILING TO 0, unless you have an argument
+that is not the measurement"*) rests on the **build-up arm**. The ablation arm is the
+argument-that-is-not-a-new-measurement he asked for, and it was sitting in the same file
+unread. This does **not** reverse the decision: the arms measure different things (marginal
+value ON TOP OF a full adjuster set vs marginal value ADDED TO a bare core), and the core is
+what ships, so the build-up arm is the more relevant one for a tool that loads value+keeper+
+stack only. But "the other arm says +150 with a CI excluding zero" is materially different
+from "measured as drag or null", which is how the decision has been described since.
+
+- **Status:** ceiling stays **0** (loaded), now recorded as **UNSETTLED rather than settled
+  null**. The gate reports it every run and does not block, because this entry documents it.
+- **What would settle it:** the arms differ because of interaction with tier/risk — both of
+  which are measured DRAGS. A ceiling arm run against the *measured core* with the drags
+  removed, at several doses, is the clean test. Cheap; not run.
+- **Discipline note:** this is exactly the failure the gate exists to catch — a policy value
+  justified by one number while another number in the same file disagreed, with nothing
+  forcing anyone to look at both.
+
 ## NOT edges (synthesis corrections — recorded so they stop being cited as edges)
 - **Dead zone (mid-round RB).** Real as a pattern, but exp43 found **the market already
   prices it** — so it is NOT an independent exploitable edge, it is a caveat the market

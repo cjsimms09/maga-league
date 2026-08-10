@@ -97,5 +97,15 @@ def_ok = [p for p in defs if p.get("bye") or team_byes.get(p.get("team"))]
 ck("every defense resolves a bye", len(def_ok) == len(defs) == 32,
    f"{len(def_ok)}/{len(defs)}")
 
-print(f"\n{len(fails)} failed")
-sys.exit(1 if fails else 0)
+# PYTEST ENTRY POINT. The checks above run at import (script style, so the file
+# stays runnable directly); this exposes their result as ONE pytest test. Without
+# it the file would be collected with zero tests and read as passing coverage that
+# does not exist — and a bare sys.exit at module scope aborts collection for the
+# WHOLE suite, which is far worse than one red test.
+def test_all_checks_passed():
+    assert not fails, fails
+
+
+if __name__ == "__main__":
+    print(f"\n{len(fails)} failed")
+    sys.exit(1 if fails else 0)
