@@ -214,6 +214,24 @@ check('the app bumps the board version on in-place mutation',
     'renderClock must set #clock-take data-draft-me to the player the view is showing');
 }
 
+// ── SEAT LIST: who picks before my turn (2026-08-10 critique) ──────────────
+// The window rendered malformed — my own seat in the list, a whole extra round
+// off the clock — because interveningPicks ran to upcoming[1] and never dropped
+// my slot. Guard the corrected window at the source: [currentPick, myNextTurn)
+// MINUS my own slot.
+{
+  const ivStart = appSrc.indexOf('function interveningPicks');
+  const ivEnd = appSrc.indexOf('\n  function ', ivStart + 1);
+  const iv = appSrc.slice(ivStart, ivEnd > ivStart ? ivEnd : ivStart + 2000);
+  check('seat list: interveningPicks excludes my own slot',
+    /p\.slot !== mine/.test(iv),
+    'the "before your turn" window must drop my own seat (on-clock pick + keeper-forfeit rounds)');
+  check('seat list: window ends at my immediate next turn, not upcoming[1]',
+    /myNextTurn/.test(iv) && /my_picks[\s\S]{0,80}filter\(p => p > cur\)/.test(iv) &&
+    !/interveningPicks\(cur, next\)/.test(appSrc),
+    'window must close at min(my future picks), never at my SECOND upcoming pick');
+}
+
 // ── HONEST LIMIT, asserted so nobody mistakes this for more than it is ──────
 check('this suite knows what it cannot check (limitation is documented)',
   /catches "the app never mentions it", not "the app mentions it but computes it wrong"/

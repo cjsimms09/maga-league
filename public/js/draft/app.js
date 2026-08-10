@@ -867,11 +867,34 @@
     return (state.profiles || {})[slot] || null;
   }
 
-  /** Teams picking between my current pick and my next — A2 Layer 2's input. */
-  function interveningPicks(from, to) {
+  /** OPPONENT picks between now and my IMMEDIATE next turn — A2 Layer 2's input,
+   * and the source for the "who picks before your turn" strip.
+   *
+   * Had two faults the 2026-08-10 seat-list critique caught (rendered as
+   * 1,2,3,5,6,7,8,9,10,10,9 with my own seat 8 in it):
+   *   - it ran to upcoming[1], my SECOND future pick, so OFF the clock it swept
+   *     in my own first pick plus a whole extra round of opponents; and
+   *   - it never excluded MY OWN seat, so the current pick (mine, on the clock)
+   *     and every keeper-forfeit round that still carries my seat showed up as
+   *     someone picking before me — and that phantom self-pick also thinned the
+   *     survival board against me.
+   * The window is [currentPick, myNextTurn) MINUS my own slot. myNextTurn is my
+   * first scheduled pick strictly after the current one, so the window closes the
+   * instant I am back on the clock, never a round late; excluding mySlot drops my
+   * own on-clock pick and any forfeited keeper round while keeping the current
+   * opponent when I am NOT on the clock. Seats that forfeited a keeper genuinely
+   * do not pick in the window (real gaps), and snake repeats like …9,10,10,9…
+   * are real — both are kept. On the clock myNextTurn === ctx.nextPick, so
+   * survival is unchanged there apart from losing the spurious self-pick. */
+  function interveningPicks() {
     const picks = (state.data.pick_order || {}).picks || [];
+    const cur = currentPick();
+    const mine = mySlot();
+    const future = ((state.data.pick_order || {}).my_picks || []).filter(p => p > cur);
+    if (!future.length) return [];
+    const myNextTurn = Math.min.apply(null, future);
     return picks
-      .filter(p => p.overall >= from && p.overall < to)
+      .filter(p => p.overall >= cur && p.overall < myNextTurn && p.slot !== mine)
       .map(p => ({
         team_slot: p.slot,
         pick_no: p.overall,
@@ -941,7 +964,7 @@
       ceilingAllStages: false,
       drift: state.drift || null,
       // A2 Layer 2
-      intervening: next ? interveningPicks(cur, next) : [],
+      intervening: interveningPicks(),
       roundsLeft: Math.max(0, Math.ceil((totalPicks - cur) / teams)),
     };
   }
