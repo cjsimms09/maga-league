@@ -1,0 +1,22 @@
+{
+  "experiment": "override grading \u2014 the human-plus-model system, not the model alone",
+  "rule": "SESSION-A binding rule 2",
+  "season": null,
+  "overrides_logged": 0,
+  "overrides_resolved": 0,
+  "unresolved_dropped": 0,
+  "overall": {
+    "n": 0,
+    "mean": null,
+    "ci95": null,
+    "separable": false,
+    "label": "ALL overrides, picked minus passed-over"
+  },
+  "reason_groups_tested": 0,
+  "multiplicity_note": "0 reason-groups were examined; a winner among 0 is not the same finding as a winner tested alone, and the null must search the same space.",
+  "groups": [],
+  "proposals": [],
+  "leaks": [],
+  "units": "realized fantasy points from the pick forward. POINTS, NOT DOLLARS \u2014 the points->dollars link is the same unclosed one the stack weight waits on (binding rule 3: the proxy and its relatives never become the objective).",
+  "installs": "NOTHING. Proposals go to the graduation gate for human review."
+}
