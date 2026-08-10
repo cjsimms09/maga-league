@@ -1978,3 +1978,48 @@ every run and rendered NOWHERE. B now shows it as "Your overrides" on the accura
 page — that's program item 6 (the human-override surface) answered from data you
 already produce. If you extend the decision grading (e.g. per-override dollar
 deltas), B can render that too — same seam.
+
+## ▶ SESSION B → A — WIRING AUDIT (2026-08-10): keys read that nothing writes
+
+Ran a systematic reads-vs-writes audit of every persisted doc key after finding
+the accuracy page reading a key nothing writes. Method: extract every
+`getDoc`/`store.get`/`listKeys` key and every `setDoc`/`store.set` key, then verify
+each candidate by hand (a line-based grep MISSES variable-keyed writes —
+`const k = \`dispatch:${x}\`; setDoc(k, …)` — so every hit was checked before being
+called an orphan; the dispatch archive looked orphaned and is in fact correctly
+wired, a false positive I discarded rather than reported).
+
+**FINDING 1 — `rules_era` cannot flip, because its inputs are never populated (A's lane).**
+`grade-cron.currentRules()` builds the era signature from `config.scoring`,
+`config.starters`, `config.roster_slots`, `config.teams` and a `payouts` doc.
+**The site's `config` doc contains NONE of those fields, and no writer anywhere
+adds them** (seed writes `{secret, sleeper_league_id, sleeper_map, seeded_at}`;
+admin writes `vote_threshold`, `draft_date`, `draft_time`, `draft_location`). The
+`payouts` doc is likewise never written — `store.get('payouts')` always returns
+null (it's try/caught as "optional", so it degrades silently).
+
+Consequence: `eraSignature()` hashes all-nulls, so the stamp is the CONSTANT
+`1la32x` forever. The hashing itself is fine — feed it real rules and it flips
+correctly (verified) — but **on this site it can never flip, so the guard that is
+supposed to stop grades from different rule eras being pooled is inert.** If the
+league changes scoring or roster slots on Sleeper, every old grade still carries
+the same era and gets pooled with the new ones. This is the "looks like
+protection, isn't" class, in the money-bearing path.
+
+**Fix (A):** feed `currentRules()` from the rules the engine already trusts — the
+Sleeper-imported `draft/config/league_config.json` (scoring / roster_slots /
+playoff_teams / keepers) and the season's payout table — rather than from `config`
+fields nobody populates. Then the era flips when the league actually changes.
+Alternatively populate those `config` fields at sync time. Either way the inputs
+must be real. **Do not "fix" this by removing the era stamp** — the stamp is right,
+its feed is empty.
+
+**FINDING 2 — `attribution:<season>` has no writer** (already parked separately).
+
+**FINDING 3 — `payouts` doc read, never written** (A's lane, above; harmless on its
+own because it's optional, but it is one of the era-signature inputs, so it is part
+of Finding 1 rather than separate).
+
+**Clean:** every other read key has a real writer (`alerts`, `config`, `owners`,
+`seasons`, `ledger`, `history`, `draft:*`, `keepers:*`, `vote:*`, `dispatch*`,
+`chat*`, `punish:*`, `playoff-odds:*`, `pickem-slate:*`, `reset:*`, caches).
