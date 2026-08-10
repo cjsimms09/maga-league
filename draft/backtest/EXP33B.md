@@ -8,7 +8,7 @@ grader). Pre-registered: if naive wins, REPLACE the input; ships nothing (gate f
 
 - blend 0.404 · naive 0.35 · market/ADP 0.239 (n=38 picks)
 - **naive − blend: -0.055 CI [-0.112, -0.002] → negative**
-- naive − market: 0.11 CI [-0.014, 0.224] → inconclusive
+- naive − market: 0.11 CI [-0.013, 0.224] → inconclusive
 - blend − market: 0.165 CI [0.081, 0.251] → positive
 
 ## DOLLARS (value-greedy roster per source)
