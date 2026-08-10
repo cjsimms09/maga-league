@@ -3947,8 +3947,85 @@
     const before = (state.data.pick_order.my_picks || []).slice();
 
     league.my_draft_slot = n;
-    const picks = state.data.pick_order.picks || [];
-    const derived = picks.filter(p => Number(p.slot) === n).map(p => p.overall);
+
+    /* THE BOARD IS BAKED FOR ONE SEAT. REBUILD IT, DO NOT FILTER IT.
+     *
+     * This used to read `picks.filter(p => p.slot === n)` — take the shipped
+     * pick_order and keep the rows belonging to the new seat. That is only
+     * correct for the ONE seat the pipeline built the board for, because keeper
+     * forfeits are baked into the board: the shipped board has 147 picks, not
+     * 150, and slot 4 has 12 of them while every other slot has 15. The three
+     * missing picks are Cory's rounds 1-3, forfeited to Henry / Chase / Walker.
+     *
+     * So filtering by any OTHER seat returns that seat's UNFORFEITED 15-pick
+     * sequence, and every overall number in it is drawn from a numbering that
+     * compressed three picks out of seat 4. Measured against the real module:
+     *
+     *   slot 4 -> 12 picks, first 34   (agrees; it is the baked seat)
+     *   slot 9 -> filter says 15 picks starting at 8 (round 1)
+     *             truth is 12 picks starting at 29 (round 4)
+     *   slot 1 -> filter says 15 picks starting at 1 (round 1)
+     *             truth is 12 picks starting at 37 (round 4)
+     *
+     * Three picks that do not exist, and a first pick wrong by 21 selections.
+     * Every pick number, every survival window, every VONA n_next reads off
+     * that sequence, so the whole tool would have been confidently wrong the
+     * moment Sleeper assigned a seat that was not 4 — with no error anywhere,
+     * because a filter over a real board always returns something plausible.
+     *
+     * `DraftKeepers.buildTruePickOrder` is the same function the pipeline and
+     * `applyDraftShape` already use, so this is the existing derivation reused
+     * at a new seat, not a second implementation of it. If it cannot run
+     * (module missing, no keepers to place) we fall back to the filter and SAY
+     * SO, rather than silently shipping the old behaviour.
+     */
+    let derived = null;
+    const myKeepers = ((state.data.kept_players || []).length
+      ? state.data.kept_players
+      : ((state.data.pick_order || {}).forfeited || []));
+    const shape = state.mockMode || {};
+    const teams = Number(shape.teams || league.teams || 10);
+    const rounds = Number(shape.rounds
+      || league.rounds
+      || Math.round(((state.data.pick_order.picks || []).length + myKeepers.length) / teams));
+    if (window.DraftKeepers && teams && rounds) {
+      const cfg = {
+        teams: teams,
+        rounds: rounds,
+        draft_type: shape.type || league.draft_type || 'snake',
+        my_draft_slot: n,
+        // The keeper rules are the league's; only the SEAT they are charged to
+        // moves. Re-key my keepers onto the new seat so the forfeited rounds
+        // travel with me instead of staying stapled to seat 4.
+        keepers: (league.keeper_rules && (league.keeper_rules.count || 0) > 0)
+          ? Object.assign({}, league.keeper_rules)
+          : { count: 0, cost_model: 'no_cost' },
+      };
+      const byTeam = ((cfg.keepers.count || 0) > 0 && myKeepers.length)
+        ? { [n]: myKeepers.map(k => Object.assign({}, k, { team_slot: n })) }
+        : {};
+      try {
+        const order = window.DraftKeepers.buildTruePickOrder(cfg, byTeam);
+        if (order && (order.my_picks || []).length) {
+          state.data.pick_order.picks = order.picks.map(p => ({
+            overall: p.overall, round: p.round, slot: p.team_slot }));
+          state.data.pick_order.my_picks_before_keepers = order.my_original_picks;
+          state.data.pick_order.forfeited = order.forfeited || [];
+          derived = order.my_picks;
+        }
+      } catch (e) {
+        console.warn('pick-order rebuild failed, falling back to filter:', e.message);
+      }
+    }
+    if (!derived) {
+      const picks = state.data.pick_order.picks || [];
+      derived = picks.filter(p => Number(p.slot) === n).map(p => p.overall);
+      if (derived.length && (league.keeper_rules || {}).count) {
+        showSlotNote('Could not rebuild the pick order for slot ' + n
+          + ' — these numbers do not account for your keeper forfeits. VERIFY THEM '
+          + 'AGAINST SLEEPER before trusting any pick number.', true);
+      }
+    }
     if (!derived.length) {
       showSlotNote('Slot ' + n + ' owns no picks in this board.', true);
       return;
