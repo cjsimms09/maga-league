@@ -86,6 +86,26 @@ const PICKS = [
       sg.grid[1][2] && sg.grid[1][2].name === 'Fourth Pick', sg.grid[1].map(c => c && c.name));
   }
 
+  // (a2) NO OWNER IS PRIVILEGED. Fixture (a) gave pick 1 to the first owner in
+  //      the list, which reads the same whether the rule is "draft order" or
+  //      "Cory first". Here the viewer picks THIRD and must appear third.
+  {
+    const late = [
+      { round: 1, pick_no: 1, draft_slot: 9, roster_id: 13, metadata: { first_name: 'Third', last_name: 'Owner' } },
+      { round: 1, pick_no: 2, draft_slot: 4, roster_id: 12, metadata: { first_name: 'Second', last_name: 'Owner' } },
+      { round: 1, pick_no: 3, draft_slot: 7, roster_id: 11, metadata: { first_name: 'First', last_name: 'Owner' } },
+      { round: 2, pick_no: 4, draft_slot: 7, roster_id: 11, metadata: { first_name: 'First', last_name: 'Again' } },
+    ];
+    const lg = DB.buildGrid(late, map, owners);
+    // roster 11 -> active[0] (the viewer, Cory in the real league) picked THIRD.
+    ck('the board is ordered by that year\'s draft order, not by any fixed owner',
+      lg.columns.map(c => c.name).join(',') === [active[2].name, active[1].name, active[0].name].join(','),
+      lg.columns.map(c => c.name));
+    ck('  a viewer who picked third sits in the third column',
+      lg.columns[2].ownerId === active[0].id && lg.grid[1][2].name === 'First Again',
+      lg.columns);
+  }
+
   // (b) NO draft_slot at all. The old fallback used pick_no as the slot, so pick
   //     11 became "seat 11" — one team's picks smeared across a row of phantom
   //     columns instead of stacking in its own.
