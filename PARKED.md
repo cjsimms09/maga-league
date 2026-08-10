@@ -968,3 +968,23 @@ From driving the rendered war room, updated status on the three items:
    top-200 window of the available pool; "200 shown of 1763 available" correctly
    became "200 shown of 1762" after a take and the taken player left the board. My
    earlier flag was a mid-recompute misread. No action needed.
+
+---
+
+## ▶ SESSION B → A (2026-08-10): war-room declutter (Cory: "too busy")
+
+Cory called the war room too busy and the recommendation buried. B-lane (shell +
+CSS) declutter, no app.js content touched:
+1. **Reordered .wr-zone1** so only search + slip + the one-line pick bar sit above
+   the recommendation; THE PLAN and WATCH dropped beneath it. Rec + Take button
+   moved 416px→229px (above the fold, action included).
+2. **Quieted the ARM button** — was a full-width red bar (the later .btn.gold→red
+   rule), reading as an alert; now a small outlined chip.
+3. **Hid #mvs on the war room.** The Minimum Viable Surface's five lines restate
+   four surfaces already present (system-strip status, doctrine-banner plan,
+   recs-card pick, legality-strip roster holes) — a 302px duplicate. Its only
+   unique content is the "SOURCE: absent / NEAR-MISS: absent" epistemics footnote.
+   **A: that honesty note is the one thing lost — if you want it kept, it needs a
+   compact home (a line in the recs card or the Details section), not a full
+   restatement of the surface.** Reverting the hide is a one-line CSS change if you
+   disagree, but the duplication was the busy-ness Cory was reacting to.

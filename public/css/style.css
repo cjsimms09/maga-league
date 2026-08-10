@@ -2495,6 +2495,14 @@ body.warroom-page .tabbar { display: none; }
 body.warroom-page { padding-bottom: 0; }   /* the 60px was tab-bar clearance */
 body.warroom-page > .wrap > .page-title,
 body.warroom-page #warroom > .page-title { display: none; }
+/* Hide the Minimum Viable Surface on the war room (Cory: "too busy"). Its five
+   lines restate what four other surfaces already show — status (system-strip),
+   the plan (doctrine-banner), the pick (recs-card) and roster holes (WATCH). The
+   only non-duplicate content is a "SOURCE/NEAR-MISS: absent" epistemics footnote,
+   which is meta, not a pick-time input. Flagged to A (the absent-markers were a
+   deliberate honesty note — if kept, they belong somewhere compact, not a 302px
+   restatement of the whole surface). */
+body.warroom-page #mvs { display: none; }
 /* The one always-visible exit, sharing the Details row so it costs no fold. */
 .wr-toprow { display: flex; align-items: flex-start; gap: .5rem; }
 .wr-toprow > .system-details { flex: 1 1 auto; min-width: 0; }
