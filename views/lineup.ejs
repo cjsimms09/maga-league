@@ -64,10 +64,14 @@
     <div class="card" style="margin-bottom:1.1rem">
       <h2>✅ Play This <span class="sub">projected <%= live.ev.mean.toFixed(1) %> · P($100) <%= Math.round(live.ev.pHigh * 100) %>%<% if (live.ev.pWin != null) { %> · P(win) <%= Math.round(live.ev.pWin * 100) %>%<% } %></span></h2>
       <div class="body tight">
+        <%# The variance play(s): every player the solver started OVER a higher-floor
+            stud (the calls) is the ceiling bet. Mark them so "chase" is concrete —
+            you see exactly who the boom is, not just that there is one. %>
+        <% const chasePids = new Set((live.calls || []).map(c => String(c.startId))); %>
         <table class="roll">
           <tr><th>Slot</th><th>Player</th><th>Pos</th><th class="num">Proj</th></tr>
-          <% live.lineup.forEach(s => { %>
-            <tr><td class="muted"><%= s.slot %></td><td><b><%= s.name %></b></td><td class="muted"><%= s.pos %></td><td class="num"><%= Number(s.proj).toFixed(1) %></td></tr>
+          <% live.lineup.forEach(s => { const chase = chasePids.has(String(s.pid)); %>
+            <tr class="<%= chase ? 'lo-chase-row' : '' %>"><td class="muted"><%= s.slot %></td><td><b><%= s.name %></b><% if (chase) { %> <span class="lo-chase-badge">🎯 the chase</span><% } %></td><td class="muted"><%= s.pos %></td><td class="num"><%= Number(s.proj).toFixed(1) %></td></tr>
           <% }) %>
         </table>
       </div>

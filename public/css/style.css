@@ -1856,6 +1856,11 @@ button.pd-team.pick:hover { background: rgba(245,196,69,.16); transform: transla
 .lo-protect .lo-verdict-tag { background: rgba(18,41,74,.10);  color: var(--navy); }
 .lo-verdict-line { font-family: var(--font-display); font-weight: 800; font-size: 1.05rem; color: var(--ink); line-height: 1.2; }
 .lo-verdict-why { font-size: .9rem; line-height: 1.5; color: var(--ink); margin: 0 0 .35rem; }
+/* Mark the variance play inside "Play This" so a CHASE verdict is concrete. */
+.lo-chase-row { background: rgba(185,130,42,.07); }
+.lo-chase-badge { font-family: var(--font-display); font-weight: 800; font-size: .58rem;
+  letter-spacing: .06em; text-transform: uppercase; color: var(--gold-bright);
+  background: rgba(185,130,42,.14); border-radius: 999px; padding: .08rem .4rem; white-space: nowrap; }
 
 /* ── THE SUNDAY ALERT preview (demoted to a <details> below the call) ────────── */
 .sa-preview { border-color: rgba(245,196,69,.3); }
