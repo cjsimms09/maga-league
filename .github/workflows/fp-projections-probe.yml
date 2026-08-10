@@ -1,0 +1,79 @@
+name: FP PROJECTIONS PROBE — does FantasyPros serve point projections?
+# Cory's push (2026-08-10): "our archive is empty" is evidence about US, not about
+# whether FantasyPros publishes projections. We already crack FP's ADP export in CI;
+# the same host almost certainly serves projections. PROBE it. This job runs the real
+# self-discovering FP projections fetch (draft/backtest/fantasypros_adp.fetch_projections),
+# scores a sample under OUR league scoring, and reports coverage as EVIDENCE — so the
+# answer to "is it obtainable" is measured, not assumed. Side-effect-free: it reads and
+# reports, it does NOT rebuild or commit the board.
+#
+# If FP genuinely does not serve projections (or they're paywalled), the diag records it
+# with the endpoints tried and single-source is then the honest, TESTED answer.
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+
+      - name: Probe FantasyPros projections for real
+        continue-on-error: true
+        timeout-minutes: 15
+        run: |
+          python3 - <<'PY'
+          import sys, json
+          sys.path.insert(0, "draft")
+          sys.path.insert(0, "draft/backtest")
+          import fantasypros_adp as FP
+          from scoring import score_stat_line, HALF_PPR_REFERENCE
+
+          # OUR scoring: half-PPR reference + the league's 6-point passing TD.
+          scoring = dict(HALF_PPR_REFERENCE); scoring["pass_td"] = 6.0
+
+          year = 2025
+          text, url, diag = FP.fetch_projections(year)
+          parsed = FP.parse_projections(text) if text else []
+          print("=" * 64)
+          print(f"FANTASYPROS PROJECTIONS PROBE — {year}")
+          print("=" * 64)
+          print("fetch url    :", url)
+          print("rows parsed  :", len(parsed))
+          print("fetch diag   :", json.dumps(diag)[:600])
+
+          scored = 0
+          sample = []
+          for r in parsed:
+              pts = score_stat_line(r.get("stats") or {}, scoring)
+              if pts:
+                  scored += 1
+                  if len(sample) < 12:
+                      sample.append((r["name"], r["position"], round(pts, 1), r.get("stats")))
+
+          print("rows scorable:", scored, f"({round(100*scored/max(1,len(parsed)))}% of parsed)")
+          print("\nSAMPLE (name, pos, OUR points, raw stats):")
+          for s in sample:
+              print(f"  {s[0]:22} {s[1] or '?':4} {s[2]:6}  {s[3]}")
+
+          # THE VERDICT, stated plainly.
+          print("\n" + "=" * 64)
+          if scored >= 60:
+              print(f"VERDICT: FantasyPros DOES serve projections — {scored} players scored under")
+              print("our format. Real 2-source consensus is obtainable. The build wiring")
+              print("(adp.build_fantasypros_projections) will populate proj_fantasypros on the")
+              print("next board rebuild and the client's column upgrades to 'Consensus (2 src)'.")
+          elif parsed:
+              print(f"VERDICT: FP served {len(parsed)} rows but only {scored} scored — parser or")
+              print("scoring-field mismatch. The diag + sample above show the real shape to fix.")
+          else:
+              print("VERDICT: FP served NO parseable projections at the endpoints tried (see diag).")
+              print("Either the endpoint moved or projections are gated. Single-source Sleeper is")
+              print("then the honest, TESTED answer — recorded here with the evidence.")
+          print("=" * 64)
+          PY
