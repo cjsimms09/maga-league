@@ -108,6 +108,9 @@
     // the link only exists for the commissioner, and the route 403s regardless.
     _nav.push({ href: '/lineup',         label: '🎯 Lineup Optimizer', short: 'Lineup', icon: '🎯', commish: true, match: '/lineup' });
     _nav.push({ href: '/lineup/accuracy', label: '📈 Model Accuracy', short: 'Accuracy', icon: '📈', commish: true, match: '/lineup/accuracy' });
+    // The Analyzer: league-wide playoff odds + the postures the other tools read.
+    // "Who is desperate" is analysis, not a league-visible result — commish-only.
+    _nav.push({ href: '/analyzer',       label: '📊 Analyzer',      short: 'Analyzer', icon: '📊', commish: true, match: '/analyzer' });
     _nav.push({ href: '/admin',          label: '⭐ Commish',   short: 'Commish',  icon: '⭐', commish: true });
     _nav.push({ href: '/admin/warroom',  label: '🧠 War Room',  short: 'War Room', icon: '🧠', commish: true });
   }

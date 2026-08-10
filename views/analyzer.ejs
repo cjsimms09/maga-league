@@ -1,0 +1,135 @@
+<%- include('partials/header', { title: 'The Analyzer' }) %>
+<%
+  const pct = p => Math.round(Number(p || 0) * 100);
+  // The posture vocabulary the other tools consume — said in plain words, because
+  // "chasing_high" on screen is a variable name, not a sentence.
+  const POSTURE = {
+    lock:         { icon: '🔒', label: 'Lock',        why: 'playoffs all but secured' },
+    contender:    { icon: '⚔️', label: 'Contender',   why: 'fighting for a spot' },
+    desperate:    { icon: '🎲', label: 'Desperate',   why: 'long shot — will overpay to swing it' },
+    chasing_high: { icon: '🎯', label: 'Chasing $100', why: 'the weekly high is their only live money' },
+  };
+%>
+
+<h1 class="page-title">📊 The Analyzer <span class="sub" style="font-weight:600">rest-of-season, every team</span></h1>
+
+<% if (err) { %>
+  <div class="alert-banner alert-warning" style="margin-bottom:1rem">
+    <span class="tag">⚠️</span><span>The projection didn't run: <%= err %></span>
+  </div>
+<% } %>
+
+<%# THE HONEST CAVEAT, ABOVE the numbers rather than under them. A's own
+    validation: the simulator picks the top four barely better than reading the
+    current standings. The value is the CALIBRATED PROBABILITIES — a 60% team
+    really does make it about 60% of the time — not the top-four pick. Saying so
+    here is the difference between a tool and a fortune teller. %>
+<% if (validation) { %>
+  <div class="card" style="margin-bottom:1.1rem; border-left:3px solid var(--gold)">
+    <div class="body">
+      <p style="margin:0; font-size:.86rem">
+        <b>What this is worth, measured.</b> Picking the top four, this simulator gets
+        <b><%= Math.round(validation.top4_accuracy * 100) %>%</b> against
+        <b><%= Math.round(validation.naive_accuracy * 100) %>%</b> for simply reading the current standings —
+        a modest edge, on <%= validation.top4_possible %> tries across <%= (validation.rows || []).length %> checkpoints.
+        <b>So don't read the top four as sharp.</b> The value is the <b>calibrated probabilities</b>:
+        a team shown at 60% really does make it about 60% of the time, which is what the
+        postures below (and the other tools) actually consume.
+      </p>
+    </div>
+  </div>
+<% } %>
+
+<%# Season + week picker — the projection is "as of" a week, so say which. %>
+<form method="get" action="/analyzer" class="inline-form" style="margin-bottom:1rem">
+  <div class="fit">
+    <label class="field">Season
+      <select name="season" onchange="this.form.submit()">
+        <% for (const s of seasons) { %><option value="<%= s %>" <%= String(s) === String(season) ? 'selected' : '' %>><%= s %></option><% } %>
+      </select>
+    </label>
+  </div>
+  <div class="fit">
+    <label class="field">Through week
+      <input type="number" name="week" min="1" max="<%= lastWeek || 17 %>" value="<%= throughWeek %>" style="width:5rem">
+    </label>
+  </div>
+  <div class="fit"><button class="btn navy small" type="submit">Project</button></div>
+</form>
+
+<% if (!rows.length) { %>
+  <div class="card"><div class="body">
+    <p class="muted" style="margin:0">No projection for <%= season %> yet — the analyzer runs off harvested weekly results, so it lights up once the season has played weeks.</p>
+  </div></div>
+<% } else { %>
+
+  <div class="card" style="margin-bottom:1.1rem">
+    <h2>Projected rest-of-season <span class="sub">through week <%= throughWeek %> · top <%= playoffSpots %> make the playoffs</span></h2>
+    <div class="body tight scroll-x">
+      <table class="roll az-table">
+        <tr>
+          <th>Team</th>
+          <th class="num">Playoff&nbsp;%</th>
+          <th class="num">Exp&nbsp;W</th>
+          <th>Posture</th>
+          <th class="num">Avg&nbsp;pts<span class="az-raw">raw</span></th>
+        </tr>
+        <% rows.forEach((r, i) => { const P = POSTURE[r.posture] || { icon: '·', label: r.posture || '—', why: '' }; %>
+          <% if (i === playoffSpots) { %>
+            <tr><td colspan="5" class="az-cutline">— playoff line (top <%= playoffSpots %>) —</td></tr>
+          <% } %>
+          <tr class="<%= r.name === (me.name || '') ? 'az-me' : '' %>">
+            <td>
+              <b><%= r.name %></b><% if (r.team) { %> <span class="muted az-team"><%= r.team %></span><% } %>
+            </td>
+            <td class="num">
+              <span class="az-prob"><%= pct(r.playoffProb) %>%</span>
+              <span class="az-bar"><i style="width:<%= Math.max(2, pct(r.playoffProb)) %>%"></i></span>
+            </td>
+            <td class="num"><%= r.expWins.toFixed(1) %></td>
+            <td><span class="az-posture <%= r.posture %>" title="<%= P.why %>"><%= P.icon %> <%= P.label %></span></td>
+            <td class="num muted"><%= r.strengthMean != null ? r.strengthMean.toFixed(1) : '—' %></td>
+          </tr>
+        <% }) %>
+      </table>
+    </div>
+    <div class="body" style="padding-top:0">
+      <%# C3 — the raw number next to the modelled ones, labelled honestly. The
+          odds are a long chain (points -> win prob -> playoff odds); the average
+          is the unmodelled input you can sanity-check them against. %>
+      <p class="muted" style="margin:0; font-size:.76rem">
+        <b>Avg pts</b> is each team's <b>realized weekly average</b> through week <%= throughWeek %> —
+        raw, unmodelled, not our valuation. It's here as the sanity check on the odds:
+        the probabilities are a chain (points → win probability → playoff odds), and when a
+        team's odds and its scoring disagree, that's the moment to look rather than trust.
+      </p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>What the postures mean <span class="sub">the classification the other tools consume</span></h2>
+    <div class="body tight">
+      <ul class="az-legend">
+        <% for (const key of ['lock','contender','desperate','chasing_high']) { const P = POSTURE[key];
+             const n = rows.filter(r => r.posture === key).length; %>
+          <li>
+            <span class="az-posture <%= key %>"><%= P.icon %> <%= P.label %></span>
+            <span class="muted"><%= P.why %></span>
+            <span class="az-count"><%= n %> team<%= n === 1 ? '' : 's' %></span>
+          </li>
+        <% } %>
+      </ul>
+      <p class="muted" style="margin:.6rem 0 0; font-size:.76rem">
+        These drive real decisions elsewhere: a <b>desperate</b> rival will overpay in a trade,
+        a team <b>chasing the $100</b> starts its highest-ceiling lineup regardless of matchup, and a
+        <b>lock</b> has nothing to play for but the weekly high.
+      </p>
+    </div>
+  </div>
+<% } %>
+
+<p style="text-align:center; margin-top:1rem">
+  <a class="btn navy" href="/lineup">🧮 Lineup optimizer</a>
+  <a class="btn navy" href="/scoreboard">🏈 This week</a>
+</p>
+<%- include('partials/footer') %>

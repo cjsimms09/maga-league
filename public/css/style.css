@@ -3937,3 +3937,24 @@ table.roll td.num, .pf, .wh-race-scale, .wh-band-note{ color: var(--ink); }
 .vault-week-head { font-family: var(--font-display); font-weight: 800; font-size: .72rem;
   letter-spacing: .08em; text-transform: uppercase; color: var(--gold-bright);
   margin-bottom: .4rem; border-bottom: 1px solid var(--line); padding-bottom: .2rem; }
+
+/* THE ANALYZER — league-wide rest-of-season projection (commissioner-only). */
+.az-table td, .az-table th { vertical-align: middle; }
+.az-team { font-size: .78rem; }
+.az-raw { display: block; font-size: .52rem; letter-spacing: .1em; color: var(--muted); font-weight: 700; }
+.az-cutline { padding: .15rem .8rem !important; font-size: .62rem; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--red-bright); border-bottom: 1px dashed rgba(255,70,85,.5) !important; }
+.az-prob { font-weight: 800; font-variant-numeric: tabular-nums; }
+.az-bar { display: block; height: 4px; width: 100%; max-width: 72px; margin: .18rem 0 0 auto;
+  background: rgba(60,74,96,.14); border-radius: 99px; overflow: hidden; }
+.az-bar i { display: block; height: 100%; background: var(--blue); border-radius: 99px; }
+.az-me td { background: rgba(245,196,69,.10); }
+.az-posture { display: inline-block; padding: .1rem .4rem; border-radius: .35rem;
+  font-size: .72rem; font-weight: 800; white-space: nowrap; }
+.az-posture.lock { background: rgba(15,138,77,.14); color: var(--green); }
+.az-posture.contender { background: rgba(37,99,235,.13); color: var(--blue); }
+.az-posture.desperate { background: rgba(245,196,69,.18); color: var(--gold-bright); }
+.az-posture.chasing_high { background: rgba(212,36,47,.12); color: var(--red); }
+.az-legend { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .4rem; }
+.az-legend li { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; font-size: .84rem; }
+.az-count { margin-left: auto; font-variant-numeric: tabular-nums; font-weight: 700; color: var(--muted); }

@@ -2321,6 +2321,69 @@ router.get('/lineup/accuracy', requireCommissioner, aw(async (req, res) => {
   res.render('accuracy', { me: req.owner, season, view });
 }));
 
+// THE ROSTER ANALYZER — league-wide projected rest-of-season: playoff odds,
+// expected wins, seed distribution, and the POSTURE the other tools consume
+// (lock / contender / desperate / chasing_high). Commissioner-only, same as the
+// other in-season recommendation surfaces (ACCESS-RULE): "who is desperate" is
+// analysis, not a league-visible result.
+//
+// Renders A's engine (src/routes/standings.js) — B builds the view, never a
+// second projection. The engine takes a SEASON OBJECT (LO.seasonOf), not a year
+// string: passing the bare string silently returns zero rows (its own comment
+// warns of this), which is exactly the "looks fine, means nothing" failure mode.
+router.get('/analyzer', requireCommissioner, aw(async (req, res) => {
+  const ST = require('./standings');
+  const history = LO.harvest();
+  const seasons = LO.defaultSeasons(history);           // harvested seasons, newest last
+  const wanted = String(req.query.season || seasons[seasons.length - 1] || '');
+  const seasonObj = LO.seasonOf(history, wanted);
+  const weeks = seasonObj ? LO.regularSeasonWeeks(seasonObj) : [];
+  const lastWeek = weeks.length ? weeks[weeks.length - 1] : 0;
+  const qWeek = parseInt(req.query.week, 10);
+  // DEFAULT to the LIVE week when the season is in flight, else a mid-season
+  // checkpoint. Defaulting to the final week is degenerate: with every game
+  // played the simulator has nothing left to simulate and every probability
+  // collapses to 100%/0% — a table that looks confident and says nothing.
+  let liveWeek = null;
+  try {
+    const sData = await sleeper.bundle(world.config.sleeper_league_id);
+    if (sData && String(sData.state && sData.state.season) === String(wanted)) liveWeek = sData.week;
+  } catch (e) { /* offline: fall through to the checkpoint */ }
+  const defaultWeek = liveWeek && liveWeek <= lastWeek ? liveWeek
+    : (lastWeek ? Math.max(1, Math.min(lastWeek - 1, Math.round(lastWeek * 0.6))) : 0);
+  const throughWeek = Number.isFinite(qWeek) ? Math.max(1, Math.min(qWeek, lastWeek)) : defaultWeek;
+
+  let rows = [], validation = null, err = null;
+  if (seasonObj) {
+    try {
+      const proj = ST.projectStandings(seasonObj, { throughWeek, sims: 3000, seed: 4242 });
+      const owners = seasonObj.owners || {};
+      // C3: the raw projection alongside every dollar/odds figure, from the ONE
+      // shared derivation. Here the team-level analogue is the strength mean —
+      // labelled as what it is (realized weekly average), never as our valuation.
+      rows = proj.projections.map(p => {
+        const o = owners[String(p.rid)] || {};
+        return {
+          rid: p.rid,
+          name: o.display_name || ('Roster ' + p.rid),
+          team: o.team_name || '',
+          expWins: Math.round(p.exp_wins * 10) / 10,
+          playoffProb: p.playoff_prob,
+          posture: p.posture,
+          strengthMean: p.strength_mean == null ? null : Math.round(p.strength_mean * 10) / 10,
+          topSeed: p.seed_dist && p.seed_dist['1'] != null ? p.seed_dist['1'] : null,
+        };
+      });
+    } catch (e) { err = e.message; }
+  }
+  try { validation = ST.validateStandings(); } catch (e) { /* the caveat is a bonus */ }
+
+  res.render('analyzer', {
+    me: req.owner, rows, seasons, season: wanted, throughWeek, lastWeek,
+    validation, err, playoffSpots: ST.PLAYOFF_SPOTS,
+  });
+}));
+
 // Send the Sunday alert to the commissioner now (rehearsal, and the manual fire).
 // The weekly cron hits the same logic via /api/sunday-alert with a secret.
 router.post('/lineup/sunday/send', requireCommissioner, aw(async (req, res) => {

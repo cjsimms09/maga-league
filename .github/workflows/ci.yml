@@ -52,7 +52,7 @@ jobs:
         # collected failure names every broken suite in one run instead of one-per-push.
         run: |
           failed=""
-          for t in alerts app-wiring attribution authority backtest betlogic bundling_guard champs claimfix dashboard doctrine draft_banner draftorder engine grabby grade_cron h2h keeperlock keepers ledger marks matchup_spectator matchup_starters mcts mock_calib movement_line no_season_literals playoffs predledger prefs rawarchive reconcile rivalries season_form settlement shadows sidebets sidebets_lifecycle pool_draft stack_routes strategies sync update venmo voteenact watch_clickable week_hero matchup_placed_bet draft_sheet c3_lineup_disagree whatwatch; do
+          for t in alerts app-wiring attribution authority backtest betlogic bundling_guard champs claimfix dashboard doctrine draft_banner draftorder engine grabby grade_cron h2h keeperlock keepers ledger marks matchup_spectator matchup_starters mcts mock_calib movement_line no_season_literals playoffs predledger prefs rawarchive reconcile rivalries season_form settlement shadows sidebets sidebets_lifecycle pool_draft stack_routes strategies sync update venmo voteenact watch_clickable week_hero matchup_placed_bet draft_sheet c3_lineup_disagree analyzer_surface whatwatch; do
             echo "== $t =="
             if ! node draft/tests/$t.test.js; then failed="$failed $t"; fi
           done
