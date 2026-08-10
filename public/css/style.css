@@ -776,11 +776,11 @@ details[open] > .layer-sum::before { content: '▾ '; }
   font-family: var(--font-display); font-size: .6rem; font-weight: 800; letter-spacing: .08em;
   padding: .1rem .4rem; border-radius: 4px; background: rgba(255,255,255,.1);
 }
-.rec-pos.QB { background: rgba(255,70,85,.22); color: #ff9aa4; }
-.rec-pos.RB { background: rgba(47,213,118,.2); color: #8ef0b6; }
-.rec-pos.WR { background: rgba(76,133,255,.22); color: #a9c4ff; }
+.rec-pos.QB { background: rgba(255,70,85,.16); color: var(--red); }
+.rec-pos.RB { background: rgba(47,213,118,.16); color: var(--green); }
+.rec-pos.WR { background: rgba(76,133,255,.16); color: var(--blue); }
 .rec-pos.TE { background: rgba(245,196,69,.2); color: var(--gold-bright); }
-.rec-pos.K, .rec-pos.DEF { background: rgba(255,255,255,.1); color: #4a5972; }
+.rec-pos.K, .rec-pos.DEF { background: rgba(60,74,96,.12); color: #4a5972; }
 
 /* roster slots */
 .slot-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: .4rem; }
@@ -793,7 +793,7 @@ details[open] > .layer-sum::before { content: '▾ '; }
   color: var(--navy-deep); background: var(--gold); border-radius: 5px; padding: .05rem .3rem;
   vertical-align: middle; white-space: nowrap;
 }
-#roster-list li.keeper { color: #f2e2b4; }
+#roster-list li.keeper { color: var(--gold-bright); font-weight: 700; }
 .slot-label { display: block; font-family: var(--font-display); font-size: .55rem; letter-spacing: .12em; color: var(--muted); }
 
 /* survival bars */
@@ -2319,7 +2319,7 @@ details.sa-preview[open] > summary { border-bottom: 1px solid var(--line); }
   padding: .35rem .2rem; border-bottom: 1px solid var(--line); font-size: .82rem;
 }
 .check-item:last-child { border-bottom: none; }
-.check-item.todo .check-label { color: #fff; }
+.check-item.todo .check-label { color: var(--ink); }
 .check-item.ok .check-label { color: var(--muted); }
 .check-label { flex: 1 1 180px; }
 /* Was `flex: 0 0 auto` — a long fix-hint refused to shrink and overflowed the
@@ -2381,9 +2381,9 @@ details.sa-preview[open] > summary { border-bottom: 1px solid var(--line); }
 .preset-custom {
   font-size: .68rem; text-transform: uppercase; letter-spacing: .06em; color: #8f9ab3;
 }
-.preset-why { font-size: .74rem; color: #b9c2d4; margin: 0 0 .8rem; line-height: 1.4; }
-.slider-when { font-size: .71rem; color: #96a0b6; line-height: 1.35; }
-.slider-when b { color: #b9c2d4; font-weight: 600; }
+.preset-why { font-size: .74rem; color: var(--muted); margin: 0 0 .8rem; line-height: 1.4; }
+.slider-when { font-size: .71rem; color: var(--muted); line-height: 1.35; }
+.slider-when b { color: var(--ink); font-weight: 600; }
 .weights-effect.changed { color: var(--gold-bright, #f5c445); }
 #auto-note { margin: 0 0 .8rem; }
 .auto-phase { font-size: .8rem; font-weight: 700; color: var(--gold-bright, #f5c445); margin-bottom: .2rem; }
@@ -2758,7 +2758,7 @@ body.warroom-page #doctrine-banner .db-confidence { white-space: normal; overflo
   background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.10); }
 .shadow-proj.contested { background: rgba(245,196,69,.10);
   border-color: rgba(245,196,69,.55); }
-.shadow-proj-line { font-size: .82rem; line-height: 1.35; color: #cdd6ea;
+.shadow-proj-line { font-size: .82rem; line-height: 1.35; color: var(--muted);
   /* Was nowrap + overflow-x:auto — on a phone the dissent ("2 strategies would
      take X instead") ran off the right edge and needed a sideways scroll to read.
      It sits below the recommendation, so wrapping costs no fold and shows it all. */

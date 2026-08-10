@@ -144,7 +144,7 @@
       swallowing mechanism — Chrome suppresses repeated dialogs and a suppressed
       prompt returns null silently, so the button read as dead. %>
   <div id="end-confirm" class="end-confirm" style="display:none"></div>
-  <span id="prefs-sync" style="display:none;font-size:.68rem;color:#8fa6d0;position:absolute;top:2px;right:8px;z-index:5" title="prefs sync state"></span>
+  <span id="prefs-sync" style="display:none;font-size:.68rem;color:var(--muted);position:absolute;top:2px;right:8px;z-index:5" title="prefs sync state"></span>
   <%# Position lives in CSS (.wr-arm) so it can lift ABOVE the mobile tab bar —
       at bottom:16px it sat on top of LOCKER and MORE (z-index 150 > the bar's
       90) and ate those taps. id + onclick are A's contract, untouched. %>
