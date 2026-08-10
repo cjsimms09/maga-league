@@ -130,6 +130,14 @@ bets money on them. A small true edge beats a large flattering one.
 - **Say what's true even when it's ours or his.** When something we built doesn't work,
   say so plainly and fast. When Cory asserts an edge the evidence contradicts, say it that
   turn (the sliders are not a top edge) — that beats executing the request.
+- **STANDING RULE — do not expand the hypothesis space faster than evidence arrives
+  (2026-08-10, promoted from caution).** Every term added on intuition has come back null
+  or negative: tier, risk, bye, the ceiling ramp, the need-weight ramp, the
+  construction-shape tilts. The space is already wider than the evidence supports, which is
+  why the graduation gate matters more than any new idea. A new adjuster, shape, or term is
+  not a free hypothesis — it is a claim that must be paid for with a pre-registered
+  measurement, and until it clears the gate it does not touch the board. When choosing
+  between a new mechanism and measuring an existing one better, measure first.
 - **Keep-or-drop a small effect: prior + best-alternative + legibility, NOT significance
   (2026-08-09).** Significance is a publication threshold, not a decision one — a basket of
   genuinely +EV mechanisms is worth keeping even if none is individually significant. BUT
