@@ -82,6 +82,36 @@ DRAFTABLE = {"QB", "RB", "WR", "TE", "K", "DEF"}
 CONFIG_STATUS_URL_ENV = "DRAFT_CONFIG_STATUS_URL"
 
 
+IDENTITY_PATH = HERE / "config" / "identity_map.json"
+# Whose seat this tool plays. The identity table is the ONE place real name <->
+# Sleeper handle <-> owner_id lives (money_history already keys on it), so this
+# reads it rather than introducing a second copy.
+MY_REAL_NAME = "Cory"
+
+
+def _my_owner_id() -> str | None:
+    """My Sleeper owner_id, for the client's opponent-room model (D6).
+
+    Returns None rather than guessing if the table is missing or shaped
+    differently — the client then keeps the whole room and labels it, which is a
+    ~1/10 dilution, where a WRONG id would silently delete a real opponent from
+    the model and leave me modelling myself as an opponent.
+    """
+    if not IDENTITY_PATH.exists():
+        print("  ! identity_map.json missing — client cannot drop me from the opponent room")
+        return None
+    try:
+        table = json.loads(IDENTITY_PATH.read_text()).get("by_real_name") or {}
+    except (json.JSONDecodeError, OSError) as exc:
+        print(f"  ! identity_map.json unreadable ({exc}) — opponent room keeps every manager")
+        return None
+    oid = (table.get(MY_REAL_NAME) or {}).get("owner_id")
+    if not oid:
+        print(f"  ! no owner_id for {MY_REAL_NAME} in identity_map — opponent room keeps every manager")
+        return None
+    return str(oid)
+
+
 def _load_payouts() -> dict | None:
     """The payout table (money function ground truth). Validates the checksum so a
     fat-fingered edit fails loud rather than corrupting every E[$] downstream."""
@@ -906,6 +936,12 @@ def build(cfg: dict, *, offline: bool = False, force_profiles: bool = False,
             "draft_type": cfg["draft_type"],
             "rounds": cfg.get("rounds"),
             "my_draft_slot": cfg.get("my_draft_slot"),
+            # MY OWN Sleeper owner_id, from the identity table. The client needs it
+            # to drop me from the "room" it mixes opponent tendencies over (D6):
+            # my profile is in manager_profiles but I never pick against myself, so
+            # leaving it in would model the room as ~10% me. Absent -> the client
+            # keeps the whole room and says so, rather than guessing which is me.
+            "my_manager_id": _my_owner_id(),
             "roster_slots": cfg["roster_slots"],
             "starters": cfg["starters"],
             "scoring": cfg["scoring"],

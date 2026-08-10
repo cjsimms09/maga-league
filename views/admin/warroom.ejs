@@ -343,6 +343,9 @@
 
     <div class="card">
       <h2>Survival Odds <span class="sub" id="survival-head"></span></h2>
+      <%# Conservation alarm: only as many players can go as there are picks. Filled
+          by app.js renderSurvival; hidden unless the sum genuinely violates it. %>
+      <div id="survival-conservation" style="display:none"></div>
       <div class="body"><div id="survival"></div></div>
     </div>
 

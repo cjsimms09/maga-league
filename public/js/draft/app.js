@@ -579,6 +579,18 @@
     const current = currentPick();
     return order.filter(p => p >= current);
   }
+  /* MY NEXT TURN — the single definition of "the pick I am waiting for", i.e. my
+   * first scheduled pick STRICTLY AFTER the current one. Every "by your next
+   * pick" number on the screen must be computed against this same pick, or the
+   * survival panel, the best-available strip and the seat strip end up narrating
+   * different windows (2026-08-10 critique). On the clock this is my following
+   * pick; off the clock it is the pick I am about to make. */
+  function myNextTurn() {
+    const order = (state.data.pick_order && state.data.pick_order.my_picks) || [];
+    const cur = currentPick();
+    const future = order.filter(p => p > cur);
+    return future.length ? Math.min.apply(null, future) : null;
+  }
   /* THE SINGLE SOURCE FOR PICK STATE — three invariants, three populations.
    *
    * WHICH POPULATION EACH TERM COUNTS. Read this before changing anything here;
@@ -919,11 +931,10 @@
     const picks = (state.data.pick_order || {}).picks || [];
     const cur = currentPick();
     const mine = mySlot();
-    const future = ((state.data.pick_order || {}).my_picks || []).filter(p => p > cur);
-    if (!future.length) return [];
-    const myNextTurn = Math.min.apply(null, future);
+    const turn = myNextTurn();
+    if (turn == null) return [];
     return picks
-      .filter(p => p.overall >= cur && p.overall < myNextTurn && p.slot !== mine)
+      .filter(p => p.overall >= cur && p.overall < turn && p.slot !== mine)
       .map(p => ({
         team_slot: p.slot,
         pick_no: p.overall,
@@ -936,13 +947,45 @@
         // it would put a real manager's tendencies on a stranger's seat and
         // invite a decision against them.
         profile: profileForSlot(p.slot),
+        // D6 — THE ROOM, when we cannot name the seat. profileForSlot stays null
+        // until the live draft object maps uids to seats (a named stranger is
+        // worse than an honest blank), but WHO IS IN THE ROOM is known regardless:
+        // the same 10 managers, profiled over 450 real picks. survival.js mixes
+        // over them for an unmapped seat instead of assuming a league-average
+        // manager — the measured room's spread is what carries the signal, and the
+        // mean of that spread IS the generic default, so ignoring it threw the
+        // whole dossier away. Ignored the moment `profile` is set.
+        room: profileForSlot(p.slot) ? null : roomProfiles(),
       }));
+  }
+
+  /* Every profiled manager in this league, as an array — the population an
+   * unmapped seat is drawn from. Cached: it is fixed for the artifact and read
+   * once per intervening seat per render. */
+  let _roomProfiles = null;
+  function roomProfiles() {
+    if (_roomProfiles) return _roomProfiles;
+    const mgrs = ((state.data || {}).manager_profiles || {}).managers || {};
+    const all = Object.keys(mgrs).map(k => mgrs[k]).filter(Boolean);
+    // MY OWN seat is in the profile set but never picks against me, so drop it —
+    // leaving it in would model the room as 10% "Cory" and dilute the opponents.
+    const me = (state.data.league || {}).my_manager_id || null;
+    _roomProfiles = all.filter(m => !me || String(m.manager_id) !== String(me));
+    return _roomProfiles;
   }
 
   function context() {
     const upcoming = myNextPicks();
     const cur = currentPick();
-    const next = upcoming.length > 1 ? upcoming[1] : null;
+    // MY NEXT TURN — the ONE definition, shared with interveningPicks(). It used
+    // to be upcoming[1], my SECOND upcoming pick, which is right only while I am
+    // ON the clock (upcoming[0] === cur). OFF the clock upcoming[0] IS my next
+    // pick, so nextPick pointed one turn too far and every survival number was
+    // computed over a ~17-pick window while the strip that counts the same window
+    // said 6 (2026-08-10 critique: the conservation violation — P(gone) summed to
+    // far more than the picks that will actually happen, and Best Available
+    // disagreed with Survival Odds about the same player on the same screen).
+    const next = myNextTurn();
     const totalPicks = (state.data.pick_order.picks || []).length;
     const teams = state.data.league.teams || 10;
     return {
@@ -2980,7 +3023,7 @@
 
   function renderSurvival() {
     const upcoming = myNextPicks();
-    const next = upcoming.length > 1 ? upcoming[1] : null;
+    const next = myNextTurn();   // the SAME pick every other panel counts to
     if (!next) { $('#survival').innerHTML = '<p class="muted">No later pick to wait for.</p>'; return; }
     // ONE survival number, read straight off the scored board — the SAME
     // survival_to_next field Best Available and the queue slip display — never a
@@ -3010,6 +3053,39 @@
         mockCalibSave();
       }
     }
+    // CONSERVATION (Cory, 2026-08-10): only as many players can go as there are
+    // picks, so sum over the WHOLE board of P(gone by my next turn) must equal
+    // the number of intervening picks. This is arithmetic, not judgment — if it
+    // fails, every wait-or-take number on the screen is wrong together, and the
+    // failure is otherwise invisible because each player's number looks sane on
+    // its own. Reported, never silently swallowed.
+    (function () {
+      const iv = (context() || {}).intervening || [];
+      const picksInWindow = iv.length;
+      let mass = 0;
+      scoredSurv.forEach(s => {
+        if (s.survival_to_next != null) mass += (1 - s.survival_to_next);
+      });
+      state.survivalMass = { expected: picksInWindow, actual: mass, to_pick: next };
+      // Tolerance is generous: the scored list is the legal board, not literally
+      // every rostered player, so a small shortfall is expected. A 25% relative
+      // error (or more expected departures than picks available) is a real fault.
+      const bad = picksInWindow > 0
+        && (mass > picksInWindow * 1.25 || mass < picksInWindow * 0.5);
+      const host = $('#survival-conservation');
+      if (host) {
+        host.style.display = bad ? '' : 'none';
+        if (bad) {
+          host.className = 'prov-note bad';
+          host.textContent = '⚠ Survival numbers do not conserve: ' + mass.toFixed(1)
+            + ' expected departures across the board, but only ' + picksInWindow
+            + ' pick' + (picksInWindow === 1 ? '' : 's') + ' happen before your turn ('
+            + next + '). Treat every wait-or-take % on this screen as unreliable.';
+        }
+      }
+      if (bad) console.warn('[survival] conservation violated: mass', mass.toFixed(2),
+        'vs picks', picksInWindow);
+    })();
     $('#survival-head').textContent = 'Chance they last to your pick ' + next;
     $('#survival').innerHTML = top.map(x =>
       '<div class="surv-row"><span>' + escapeHtml(x.p.name) + ' <span class="muted">' + x.p.position + '</span></span>' +

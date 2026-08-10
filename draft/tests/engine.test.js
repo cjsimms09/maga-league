@@ -1042,11 +1042,16 @@ check('weight sliders change the ranking', heavyCeiling[0].score !== scored[0].s
     JSON.stringify({ reacher: wp(fourth, prof(12)), avg: wp(fourth, prof(0)) }));
   check('a value drafter concentrates on the best man instead',
     wp(best, prof(-12)) > wp(best, prof(0)));
-  check('probabilities within a position still sum to 1 after the change',
+  // The in-pool mass is (1 - tail budget); the reserved remainder belongs to
+  // everyone OUTSIDE the candidate pool, so the full distribution — pool + tail —
+  // is what sums to 1. Asserting the pool alone summed to 1 while the tail ALSO
+  // got a constant each is what let a position sum to 1 + 0.01 x tailCount and
+  // broke board-wide conservation (Cory, 2026-08-10).
+  check('pool + tail is a proper distribution (sums to 1)',
     (function () {
       const tot = rbPool.slice(0, S.CFG.WITHIN_POS_CANDIDATES)
         .reduce((s, p) => s + wp(p, prof(12)), 0);
-      return tot > 0.999 && tot < 1.001;
+      return Math.abs((tot + S.CFG.WITHIN_POS_TAIL_P) - 1) < 1e-3;
     })());
 
   check('a profiled manager is named rather than numbered',

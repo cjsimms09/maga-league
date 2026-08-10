@@ -550,7 +550,13 @@
         .slice(0, CFG.WITHIN_POS_CANDIDATES);
       var idxById = new Map();
       for (var k = 0; k < pool.length; k++) idxById.set(String(pool[k].player_id), k);
-      slot = { pool: pool, idxById: idxById, byTeam: new Map() };
+      // How many players at this position sit OUTSIDE the candidate pool. Needed
+      // so the tail can SHARE a bounded mass instead of each member carrying a
+      // constant — see withinPositionProbability (conservation).
+      var posTotal = 0;
+      for (var q = 0; q < board.length; q++) if (board[q].position === position) posTotal++;
+      slot = { pool: pool, idxById: idxById, byTeam: new Map(),
+               tailCount: Math.max(0, posTotal - pool.length) };
       perBoard.byKey.set(position, slot);
     }
     var cached = slot.byTeam.get(team);
@@ -558,8 +564,48 @@
     MEMO.posSoftmaxBuilds++;
 
     var pool = slot.pool;
-    var out = { team: team, pool: pool, exps: null, sum: 0, idxById: slot.idxById };
+    var out = { team: team, pool: pool, exps: null, sum: 0, idxById: slot.idxById,
+                tailCount: slot.tailCount };
     if (pool.length) {
+      // ROOM MIXTURE for an UNMAPPED seat (D6, 2026-08-10). Before the live draft
+      // object maps uids to seats we cannot say WHO sits where — but we know
+      // exactly WHO IS IN THE ROOM: the same 10 managers, profiled over 450 real
+      // picks across 3 drafts. So an unmapped seat is not "a league-average
+      // manager", it is A DRAW FROM THIS ROOM, and the honest distribution is the
+      // MIXTURE over its members.
+      //
+      // WHY THE MIXTURE AND NOT AN AVERAGE PROFILE — measured, not assumed: the
+      // room's mean softmax alpha/beta is 0.999/1.001, i.e. EXACTLY the generic
+      // defaults, so averaging PARAMETERS is a provable no-op. All the information
+      // is in the SPREAD (reach_delta runs -6.96 to +12.92, a ~20-pick range), and
+      // precision -> probability is NONLINEAR, so averaging PROBABILITIES keeps
+      // what averaging parameters destroys. Measured effect on the live board: the
+      // top player at a position is 2.5-4.8 points more likely to be taken than
+      // the mean-manager model believes, and elite RB/WR/QB survival over an
+      // 11-pick window was OVERSTATED by 2.6-3.4 points — the error that makes you
+      // wait on a player who is already gone.
+      //
+      // Claims nothing about identity, so nothing to retract when the draft object
+      // lands: the moment a seat resolves to a real manager, team.profile is set
+      // and that seat uses HIS numbers instead of the mixture.
+      var room = (!(team && team.profile) && team && team.room && team.room.length)
+        ? team.room : null;
+      if (room) {
+        // Identical for every unmapped seat, so build it ONCE per (board,
+        // position) — this is the hottest frame in the profile and a per-seat
+        // mixture would multiply it by the size of the room for no new answer.
+        if (slot.mixture === undefined) slot.mixture = roomMixture(pool, room);
+        // A degenerate room (no usable profiles) falls THROUGH to the ordinary
+        // single-profile path rather than returning null exps — fail to the old
+        // behaviour, never to a crash on the clock.
+        if (slot.mixture) {
+          out.exps = slot.mixture;
+          out.sum = 1;                     // already normalised probabilities
+          out.room_mixture = true;
+          slot.byTeam.set(team, out);
+          return out;
+        }
+      }
       var temp = withinPrecision(team);
       var scores = pool.map(function (p) { return p.vorp == null ? p.proj_mean || 0 : p.vorp; });
       var max = Math.max.apply(null, scores);
@@ -578,12 +624,64 @@
     return out;
   }
 
+  /* P(this player | this position is taken) for a seat we know only as "someone
+   * in this room" — the average of each member's own distribution, NOT the
+   * distribution of an average member. Each manager brings his own precision
+   * (from his reach_delta) and his own repeat-target affinity, so a player some
+   * of the room has drafted before is correctly likelier to go. Returns
+   * probabilities that sum to 1. Pure over (pool, room). */
+  function roomMixture(pool, room) {
+    var scores = pool.map(function (p) { return p.vorp == null ? p.proj_mean || 0 : p.vorp; });
+    var max = Math.max.apply(null, scores);
+    var mix = pool.map(function () { return 0; });
+    var n = 0;
+    room.forEach(function (profile) {
+      if (!profile) return;
+      var temp = withinPrecision({ profile: profile });
+      var sum = 0;
+      var exps = scores.map(function (s, i) {
+        var e = Math.exp((s - max) * temp / 10)
+          * affinityMultiplier(profile, pool[i].player_id);
+        sum += e;
+        return e;
+      });
+      if (!(sum > 0)) return;
+      for (var i = 0; i < exps.length; i++) mix[i] += exps[i] / sum;
+      n++;
+    });
+    if (!n) return null;
+    for (var j = 0; j < mix.length; j++) mix[j] /= n;
+    return mix;
+  }
+
+  /* P(this player | a pick at this position). MUST SUM TO 1 ACROSS THE POSITION.
+   *
+   * CONSERVATION BUG (Cory, 2026-08-10): only as many players can be taken as
+   * there are picks, so summing P(gone) over the whole board has to equal the
+   * number of intervening picks. It came to 99 against 33 picks — 3x — and the
+   * excess was ALL in the tail. The floor below (see withinFromPool for why a
+   * floor is right: the room CAN take anyone, so claiming certainty is the worse
+   * error) was a per-player CONSTANT handed to every player outside the top-6 at
+   * his position. Within-position therefore summed to 1 + 0.01 x tailCount — for
+   * WR, with 668 players, 7.6x too much — and every wait-or-take number inherited
+   * it.
+   *
+   * The floor keeps its meaning but becomes a BUDGET: WITHIN_POS_TAIL_P is now
+   * the TOTAL probability that a pick at this position goes to someone outside
+   * the candidate pool, shared among them, with the pool scaled to (1 - that).
+   * Sums to exactly 1 for any tail size, so conservation holds by construction
+   * rather than by luck, and nobody is ever certain to survive. */
   function withinPositionProbability(player, board, team) {
     var sm = positionSoftmax(board, player.position, team);
     if (!sm.pool.length) return 0;
-    if (!sm.idxById.has(String(player.player_id))) return CFG.WITHIN_POS_TAIL_P; // see withinFromPool
+    var tailBudget = CFG.WITHIN_POS_TAIL_P;
+    if (!sm.idxById.has(String(player.player_id))) {
+      var n = sm.tailCount || 1;
+      return tailBudget / n;
+    }
     var idx = sm.idxById.get(String(player.player_id));
-    return sm.sum > 0 ? sm.exps[idx] / sm.sum : 0;
+    var share = sm.sum > 0 ? sm.exps[idx] / sm.sum : 0;
+    return share * (1 - tailBudget);
   }
 
   /**
@@ -668,7 +766,13 @@
           weights.push(avail[j]);
           mass += avail[j];
         }
-        if (pool.length) { topByPos[pos] = pool; availAt[pos] = weights; }
+        if (pool.length) {
+          // How many players at this position are OUTSIDE the candidate pool, so
+          // the tail can SHARE a bounded probability instead of each member
+          // carrying a constant (conservation — see withinFromPool).
+          pool.tailCount = Math.max(0, order.length - pool.length);
+          topByPos[pos] = pool; availAt[pos] = weights;
+        }
       });
 
       steps.push({ posProbs, topByPos, team, availAt });
@@ -791,12 +895,23 @@
       //
       // A small floor is not a model of the tail — it is a refusal to claim
       // certainty. Anyone outside the pool is unlikely to be taken, not unable.
-      return CFG.WITHIN_POS_TAIL_P;
+      //
+      // BUT IT IS A BUDGET, NOT A PER-PLAYER CONSTANT (conservation fix,
+      // 2026-08-10). Handing every tail member the same 0.01 on every step made
+      // the whole board's expected departures scale with the SIZE OF THE TAIL
+      // rather than the number of picks: summed over the board, 99 expected
+      // departures against 33 actual picks (3x), and 50 of that excess came from
+      // 1,262 players beyond ADP rank 500 whom Layer 1 correctly gave 0.00.
+      // WITHIN_POS_TAIL_P is now the TOTAL chance a pick at this position goes to
+      // someone outside the pool, shared among them — so nobody is certain to
+      // survive AND the sum stays tied to the number of picks.
+      return CFG.WITHIN_POS_TAIL_P / Math.max(1, pool.tailCount || 1);
     }
     // Availability weights the softmax: a player who is 20% likely to still be
     // on the board contributes 20% of the mass he would if he were certain.
     // (Both the weighting and the accumulation live in poolSoftmax now.)
-    return sm.sum > 0 ? sm.exps[idx] / sm.sum : 0;
+    // Scaled by (1 - tail budget) so pool + tail sums to exactly 1.
+    return sm.sum > 0 ? (sm.exps[idx] / sm.sum) * (1 - CFG.WITHIN_POS_TAIL_P) : 0;
   }
 
   /**
@@ -951,6 +1066,7 @@
     runMultipliers, detectRuns, layer2Weight, withinPrecision,
     roundOf, tendencyTilt, bucketMix, openingTilt, runFollowTilt,
     affinityMultiplier, tendencyReasons,
+    roomMixture,
     survivalProbability,
     positionSoftmax, poolSoftmax, memoStats, resetMemoStats,
     bumpBoard, boardVersion,

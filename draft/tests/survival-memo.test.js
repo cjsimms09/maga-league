@@ -277,8 +277,19 @@ const team = (slot, name) => ({ team_slot: slot, pick_no: slot, roster: [],
       sums[p.position] = (sums[p.position] || 0) + vals[i];
     }
   });
-  check('the in-pool mass at each position sums to 1 (it is a distribution)',
-    Object.keys(sums).every(k => Math.abs(sums[k] - 1) < 1e-9),
+  // POOL + TAIL = 1, not pool = 1. The pool deliberately keeps only
+  // (1 - WITHIN_POS_TAIL_P); the reserved remainder is SHARED by everyone outside
+  // the candidate pool. Asserting pool == 1 was the old invariant and it is
+  // exactly what broke conservation: with the tail ALSO getting a constant each,
+  // a position summed to 1 + 0.01 x tailCount (7.6x for WR), so the board's
+  // expected departures scaled with the size of the tail instead of the number of
+  // picks (Cory, 2026-08-10). The distribution is pool + tail.
+  const TAIL = S.CFG.WITHIN_POS_TAIL_P;
+  check('in-pool mass at each position is exactly (1 - tail budget)',
+    Object.keys(sums).every(k => Math.abs(sums[k] - (1 - TAIL)) < 1e-9),
+    JSON.stringify(sums));
+  check('pool + tail sums to exactly 1 (the real conservation law)',
+    Object.keys(sums).every(k => Math.abs((sums[k] + TAIL) - 1) < 1e-9),
     JSON.stringify(sums));
 }
 

@@ -226,10 +226,19 @@ check('the app bumps the board version on in-place mutation',
   check('seat list: interveningPicks excludes my own slot',
     /p\.slot !== mine/.test(iv),
     'the "before your turn" window must drop my own seat (on-clock pick + keeper-forfeit rounds)');
-  check('seat list: window ends at my immediate next turn, not upcoming[1]',
-    /myNextTurn/.test(iv) && /my_picks[\s\S]{0,80}filter\(p => p > cur\)/.test(iv) &&
-    !/interveningPicks\(cur, next\)/.test(appSrc),
-    'window must close at min(my future picks), never at my SECOND upcoming pick');
+  // ONE definition of "the pick I am waiting for", shared by the seat window and
+  // ctx.nextPick. They diverged once — intervening ran to my immediate next turn
+  // while nextPick still used upcoming[1], my SECOND pick — so the strip counted
+  // 6 picks while every survival number was computed over ~17 (2026-08-10).
+  check('seat list: window ends at myNextTurn(), the shared definition',
+    /myNextTurn\(\)/.test(iv),
+    'interveningPicks must close the window at myNextTurn(), not its own arithmetic');
+  check('one definition: myNextTurn() exists and nextPick uses it',
+    /function myNextTurn\(\)/.test(appSrc)
+    && /nextPick:\s*next/.test(appSrc)
+    && /const next = myNextTurn\(\);/.test(appSrc)
+    && !/upcoming\.length > 1 \? upcoming\[1\] : null/.test(appSrc),
+    'ctx.nextPick must be myNextTurn(), never upcoming[1]');
 }
 
 // ── BOARD FRESHNESS: one policy, read everywhere (2026-08-10 critique) ─────
