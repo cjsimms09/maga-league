@@ -1427,17 +1427,34 @@ verification (league rules vs the Sleeper-imported config, payout arithmetic, an
 deliberate guard-break). Every load-bearing line re-verified by eye. Dollar backtest
 magnitudes were NOT re-run — those remain "ask to see the backtest" items._
 
-**READ-FIRST SEVERITY INDEX:** the list keeps the audit's cost order, but the
-highest-severity item is **flag 3 (reset button), SEV-1** — action it first.
+**READ-FIRST INDEX:** two items sit above the numbered list — **(0) the ceiling
+weight is OPEN and highest-urgency, pending Cory's install decision** (see below;
+do NOT skip it), and **(3) the reset button, SEV-1** fix. Action ceiling-decision
+and reset first.
+
+### 0. CEILING WEIGHT — OPEN, HIGHEST URGENCY, pending Cory's decision (NOT settled)
+
+**Corrected 2026-08-10 (B) — supersedes an earlier "resolved / do not reopen" note
+that was WRONG.** What the audit actually established: the code matches the SPEC —
+`MEASURED_WEIGHTS.ceiling = 0.65` (`engine.js:272`) is exactly what the tool loads
+(`app.js:52`). What the audit did NOT test: whether the loaded weight matches the
+MEASUREMENT. That is where the contradiction lives, and it is real:
+
+- The participation/ledger test measured ceiling at **−4.8, interval crossing zero**.
+- A's flip diagnostic (run after the audit): ceiling **0.65 vs 0 flips 2 of 6
+  late-round #1 picks and changes 4 of 6 top-fives.**
+
+So a term the measurement scored as drag-or-null is moving ~a third of the late
+board. **The loaded weight (0.65) and the ledger verdict (−4.8) disagree, and the
+disagreement is material.** This is NOT closed — it is the **highest-urgency live
+item**, a SHIP decision Cory still owes (lower ceiling toward 0 through the usual
+install gate: null + leave-one-season-out, cited, reversible). Do not treat "code
+matches spec" as "weight is correct" — the spec is accurate; the *install* is the
+open question. If A reads this as resolved it will skip the one thing at the top of
+the sequence.
 
 ### Settled arguments (state plainly so nobody re-litigates)
 
-- **CEILING WEIGHT IS RESOLVED — the code carries 0.65 and it IS the live preset.**
-  `MEASURED_WEIGHTS.ceiling = 0.65` (`engine.js:272`) is exactly what the tool loads
-  (`app.js:52`); the ledger's −4.8 was a *test reading that never became the install
-  decision*. The spec is accurate. Three document-only reviewers inferred a stale
-  0.65 vs a newer "recommend zero"; the CODE says otherwise. This is why a code audit
-  outranks a document audit — do not reopen.
 - **C1 "one valuation everywhere" is a FRAMING overstatement, not a defect** (flag 4).
 - **`league_config.confirmed: false`.** Scoring + roster check out against Sleeper
   (authoritative for those). The payout SPLIT is the league's agreement, not
