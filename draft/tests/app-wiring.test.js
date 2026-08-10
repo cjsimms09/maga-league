@@ -170,6 +170,45 @@ check('the app bumps the board version on in-place mutation',
       + 'basis and every diff reads steady');
 }
 
+// ── #queue-slip: B builds the shell, A wires it. Proven here so "is it wired?"
+// is a green/red suite, not a recurring question. The slip alert is the feature
+// Cory most wanted from promoting the queue; it fires when a QUEUED player is
+// >=60% likely gone by the next pick — empty queue or nobody slipping shows
+// nothing BY DESIGN, which is not the same as unwired. ──────────────────────────
+{
+  const warroom = fs.readFileSync(path.join(DIR, '../../../views/admin/warroom.ejs'), 'utf8');
+  check('queue-slip: B\'s host div exists in warroom.ejs', /id="queue-slip"/.test(warroom));
+  check('queue-slip: renderQueueSlip is defined', /function renderQueueSlip\(/.test(appSrc));
+  check('queue-slip: the render loop CALLS it with the scored board',
+    /renderQueueSlip\(out\.scored\)/.test(appSrc));
+  check('queue-slip: it reads survival_to_next (the same math the recs use)',
+    /survival_to_next/.test(appSrc.slice(appSrc.indexOf('function renderQueueSlip'),
+      appSrc.indexOf('function renderQueueSlip') + 1200)));
+  check('queue-slip: it reads state.lists.queue (the queue is the source)',
+    /state\.lists\.queue/.test(appSrc.slice(appSrc.indexOf('function renderQueueSlip'),
+      appSrc.indexOf('function renderQueueSlip') + 1200)));
+  check('queue-slip: the alert carries the "I took him" action (data-draft-me)',
+    /data-draft-me/.test(appSrc.slice(appSrc.indexOf('function renderQueueSlip'),
+      appSrc.indexOf('function renderQueueSlip') + 1600)));
+}
+
+// ── THE TAKE BUTTON IN THE ONE-ANSWER VIEW ──────────────────────────────────
+// SEV1 from a live mock: the clock/one-answer card recommended a player with NO
+// way to draft him — the take button lived only on the full-board recs cards. It
+// lives in warroom.ejs (B's shell), so a clobber there silently re-breaks the
+// single most important control. Assert BOTH ends: the host button and the wiring.
+{
+  const warroom = fs.readFileSync(path.join(DIR, '../../../views/admin/warroom.ejs'), 'utf8');
+  check('clock take: the one-answer card has a take button (warroom.ejs #clock-take)',
+    /id="clock-take"[^>]*data-draft-me/.test(warroom),
+    'the ONE ANSWER view must carry a take control, or it recommends a player you cannot draft');
+  const rc = appSrc.slice(appSrc.indexOf('function renderClock'),
+    appSrc.indexOf('function renderClock') + 3000);
+  check('clock take: renderClock points it at the shown player',
+    /clock-take/.test(rc) && /setAttribute\('data-draft-me'/.test(rc),
+    'renderClock must set #clock-take data-draft-me to the player the view is showing');
+}
+
 // ── HONEST LIMIT, asserted so nobody mistakes this for more than it is ──────
 check('this suite knows what it cannot check (limitation is documented)',
   /catches "the app never mentions it", not "the app mentions it but computes it wrong"/

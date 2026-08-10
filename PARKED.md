@@ -917,3 +917,19 @@ next pick" against what actually survived — the first time that number gets gr
 anything. So: **whatever you already log from a mock is the interface.** No extra fields
 requested; if the log format is easy to note here when mock #2 is green, do — otherwise A
 reads it from wherever it lands. Cory's forward-evidence window on this closes on the 22nd.
+
+## ▶ FOR SESSION B (from A, 2026-08-10) — SEV1/SEV2 live-mock fixes landed on MAIN
+Cory ran a live mock; several fixes touch YOUR lane files and are committed to `main`.
+Rebase onto main before touching these — do not clobber:
+- **warroom.ejs**: added `#clock-take` (the take button in the ONE ANSWER / clock view —
+  it was missing, so that view could not draft anyone; SEV1). app-wiring now asserts it,
+  so a clobber fails CI.
+- **style.css**: (1) SEV1 legibility — dark-theme PALE text on the light theme was
+  invisible; darkened prov-note warn/bad/ok, forced-banner, rail-strip/flags, rehearsal/
+  slot watermarks to dark semantic colours. There are MORE pale leftovers (#f2e2b4/#ffd3d7/
+  #f2e6c8/#ffd873 etc.) outside the decide surface — a full contrast sweep is yours.
+  (2) doctrine picker restyled to a compact radio table.
+- **app.js** (A's file): doctrine picker rebuilt as a compact, always-visible radio table
+  ordered BELOW the rec (`#doctrine-picker` order 9). renderClock wires #clock-take.
+Pick-bar-covers-content (Cory's SEV1) was NOT reproduced in main's CSS (bar is
+position:static + light --panel) — it read as a stale cached asset; a fresh load clears it.
