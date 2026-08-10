@@ -382,38 +382,44 @@
         <div class="preset-row" id="presets"></div>
         <p class="preset-why" id="preset-why"></p>
         <div id="auto-note" hidden></div>
-        <% const sliders = [
-             ['value', 'Raw value (VONA)',
+        <%
+           /* MEASURED DEFAULTS (3rd tuple field), not a flat 1.0. These mirror
+              engine.js MEASURED_WEIGHTS — the core the tool loads on. The static
+              value= is a FALLBACK behind syncSliders() (which overwrites it from
+              state.weights on load); hardcoding it measured-accurate means the
+              panel never lies even if the JS never runs. */
+           const sliders = [
+             ['value', 'Raw value (VONA)', 1.0,
               'How much the board\u2019s own value gap drives the pick. This is the biggest term in the score.',
-              'This one used to be fixed, which is why the other six felt dead \u2014 they were competing with an anchor. DROP IT to let need, tier and risk actually decide. Raise it to take the best player available and ignore roster shape.'],
-             ['tier', 'Tier cliff urgency',
+              'Leave it at 1. This is roughly HALF the entire measured edge \u2014 the participation test cost the board about \u2212$362 when it was dropped. Raising it takes the best player available and ignores roster shape; there is no measured reason to lower it.'],
+             ['tier', 'Tier cliff urgency', 0.0,
               'How hard to chase the last good player at a position before the drop-off.',
-              'Raise it when a tier is about to empty and you would rather have the last one than the best one.'],
-             ['need', 'Starting-lineup need',
+              'OFF by default — the Lab measured tier-chasing as a net DRAG on dollars, not a gain. Raise it only if you specifically want the last man in an emptying tier and accept that measured cost.'],
+             ['need', 'Starting-lineup need', 0.0,
               'How much an empty starting slot outranks another bench body.',
-              'Raise it late, when unfilled slots start costing you real points. Drop it in round 1 — everything is empty and it just shouts.'],
-             ['risk', 'Risk penalty',
+              'OFF by default — the always-on startable-capacity MASK already refuses any pick that cannot start, so an explicit need term was redundant and measured as null. The mask does this job whether this slider is up or down.'],
+             ['risk', 'Risk penalty', 0.0,
               'Age, injury history, a crowded depth chart.',
-              'Raise it if your keepers already carry the team and you only need this draft not to blow up. Drop it if you need a swing.'],
-             ['ceiling', 'Upside bonus',
+              'OFF by default — measured as a DRAG, like tier. Raise it only if your keepers already carry the team and you want the draft merely not to blow up, knowing it costs expected points.'],
+             ['ceiling', 'Upside bonus', 0.0,
               'Rewards the wide range of outcomes over the safe median.',
-              'Raise it late, and raise it if you are chasing rather than protecting a lead. Default is 0.5 because most drafters overrate ceiling early.'],
-             ['keeper', 'Keeper option value',
+              'OFF by default — ceiling COULD NOT BE SIGNED: the measurement was −4.8 with a [−26, +17] interval straddling zero, so it no longer decides late picks. Raise it if you are deliberately chasing rather than protecting a lead, but know it is unmeasured.'],
+             ['keeper', 'Keeper option value', 1.0,
               'A late pick who becomes next year\'s cheap keeper is worth more than his projection.',
               'Raise it once you are out of the running for this year, or in the last four rounds when the marginal starter is worthless anyway.'],
-             ['bye', 'Bye collision penalty',
+             ['bye', 'Bye collision penalty', 0.0,
               'What it costs to stack your starters on the same bye week.',
-              'Raise it after round 8, when a real hole is a week you cannot field a lineup. It is noise before that — check the bye card.'],
-             ['stack', 'Correlation / stacking',
+              'OFF by default — bye-collision came back a null in the Lab. Raise it after round 8 if you want the board to avoid stacking starters on one bye; before that it is noise (check the bye card instead).'],
+             ['stack', 'Correlation / stacking', 0.5,
               'Your QB with his own receiver; two receivers competing for the same targets.',
-              'Raise it if you like the correlated boom weeks. Drop it to 0 if you think stacking is overrated — plenty of people do.'] ]; %>
-        <% for (const [key, label, hint, when] of sliders) { %>
-          <label class="field" style="margin-bottom:.1rem"><%= label %> — <span id="w-<%= key %>">1.0</span></label>
-          <input class="weight-slider" type="range" min="0" max="3" step="0.1" value="1" data-weight="<%= key %>" style="width:100%">
+              'The ONE adjuster that earned in testing, so it ships at 0.5 (not off). Raise it if you like correlated boom weeks; drop to 0 if you think stacking is overrated — plenty of people do.'] ]; %>
+        <% for (const [key, label, def, hint, when] of sliders) { %>
+          <label class="field" style="margin-bottom:.1rem"><%= label %> — <span id="w-<%= key %>"><%= def.toFixed(1) %></span></label>
+          <input class="weight-slider" type="range" min="0" max="3" step="0.1" value="<%= def %>" data-weight="<%= key %>" style="width:100%">
           <p class="muted" style="margin:.1rem 0 .1rem; font-size:.72rem"><%= hint %></p>
           <p class="slider-when" style="margin:0 0 .55rem"><b>When to move it:</b> <%= when %></p>
         <% } %>
-        <button class="btn small navy" id="reset-weights">Reset to defaults</button>
+        <button class="btn small navy" id="reset-weights">Reset to Measured core</button>
         <p class="muted" id="weights-effect" style="margin:.5rem 0 0; font-size:.76rem; min-height:1.1em"></p>
       </div>
     </div>

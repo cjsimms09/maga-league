@@ -25,12 +25,16 @@ let pass = 0, fail = 0;
 const ck = (n, c, d) => { c ? (pass++, console.log('PASS ' + n))
   : (fail++, console.log('FAIL ' + n + (d ? ' -> ' + d : ''))); };
 
-// The premise of the whole guard: the markup ships with a static default that
-// does NOT reflect the boot weights, so init MUST overwrite it. If someone makes
-// the markup dynamic this still holds (syncSliders is idempotent) — but if this
-// line changes, whoever changed it should re-read the reasoning above.
-ck('markup ships a hardcoded slider default (why init must sync)',
-   /class="weight-slider"[^>]*\bvalue="1"/.test(ejs));
+// HONEST FALLBACK: the markup must render a PER-SLIDER measured default (from the
+// sliders array's def field), never a flat literal 1.0. This is defense-in-depth
+// behind syncSliders — if the JS never runs, the static panel still shows the
+// weights the engine loads on, not a uniform 1.0 that lies about six of eight.
+// (The original bug WAS a flat value="1".) syncSliders still governs preset/auto/
+// server-pref states at runtime; this only guarantees the no-JS floor is honest.
+ck('markup renders a per-slider measured default (not a flat 1.0)',
+   /class="weight-slider"[^>]*\bvalue="<%= def %>"/.test(ejs) &&
+   /id="w-<%= key %>"><%= def\.toFixed\(1\) %>/.test(ejs) &&
+   !/class="weight-slider"[^>]*\bvalue="1"/.test(ejs));
 
 // Exactly one place writes a slider's .value — the single writer. Two writers is
 // the two-places disease: how ceiling stayed 0.65 in one copy after being zeroed
