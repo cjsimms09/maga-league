@@ -1962,16 +1962,26 @@
     const freshCk = boardFreshness();           // ONE freshness policy — see boardFreshness()
     const ageH = freshCk.hours;
     const slot = mySlot();
+    // THE ARITHMETIC INVARIANT every seat-derived check defers to: does my pick
+    // count match my keeper count (rounds - keepers)? Pure arithmetic, so when it
+    // fires nothing else on this checklist may report the same fact as "ok".
+    const seatSlateFault = !!(state.accounting && (state.accounting.problems || [])
+      .some(p => /keepers vs my_picks/.test(p)));
 
     const items = [
       { ok: !!d.players && d.players.length > 100,
         label: 'Board built', detail: (d.players || []).length + ' players' },
-      // Passes iff NOT stale (< 18h). The ✅ and the staleness block read the same
-      // rule now, so the checklist can never call a board "fresh" while the control
-      // is blocking it. Detail flags the aging band so 6-18h still shows a caution.
-      { ok: freshCk.level === 'fresh' || freshCk.level === 'aging',
+      // ONLY 'fresh' EARNS THE TICK. Passing the aging band produced "✅ Board is
+      // fresh — 9h old, aging, rebuild soon" sitting beside an amber "⚠️ this board
+      // is 9 hours old" — a tick and a warning about the same nine hours, and the
+      // tick is what you believe (Cory, 2026-08-10). If it warrants a warning it is
+      // not a tick, so aging now fails the item and says so in the same words the
+      // banner uses. Same boardFreshness() policy throughout.
+      { ok: freshCk.level === 'fresh',
         label: 'Board is fresh', detail: ageH == null ? 'never built'
-          : Math.round(ageH) + 'h old' + (freshCk.level === 'aging' ? ' — aging, rebuild soon' : ''),
+          : Math.round(ageH) + 'h old'
+            + (freshCk.level === 'aging' ? ' — aging, rebuild before you draft off it'
+               : freshCk.level === 'stale' ? ' — STALE, rebuild required' : ''),
         fix: 'Run the Draft Board action on GitHub' },
       // These two read the SAME provenance the banner at the top reads. A
       // checklist that invents its own idea of "fine" will eventually disagree
@@ -2014,20 +2024,40 @@
       // with. A board that is right about when you pick and wrong about what
       // will be there is the worst of both, so this is a checklist line rather
       // than only a banner.
-      { ok: !state.slotRecomputed,
+      // THESE TWO FOLLOW THE ARITHMETIC INVARIANT (Cory, 2026-08-10). A green tick,
+      // an amber warning and a red cross about the SAME fact on the SAME page is
+      // worse than any one of them: the tick is what you believe. `seatSlateFault`
+      // is the accounting reconciler's keepers-vs-my_picks finding — pure
+      // arithmetic — so when it fires, every seat-derived check defers to it
+      // instead of reporting its own narrower question as "ok".
+      { ok: !state.slotRecomputed && !seatSlateFault,
         label: 'Board built for your seat',
-        detail: state.slotRecomputed
+        detail: seatSlateFault
+          ? 'NO — the seat and your keeper slate disagree (see Accounting)'
+          : state.slotRecomputed
           ? 'built for seat ' + (state.slotRecomputed.from ? 'with picks ' + state.slotRecomputed.from : 'another seat')
             + ', you are now #' + state.slotRecomputed.slot
           : 'yes',
-        fix: state.slotRecomputed
+        fix: seatSlateFault
+          ? 'Set My Draft Slot to the seat whose picks match your keeper count'
+          : state.slotRecomputed
           ? 'Rebuild: Actions → Build draft board → slot ' + state.slotRecomputed.slot
           : '' },
       { ok: !!(window.LEAGUE_ID), label: 'Sleeper connected',
         detail: window.LEAGUE_ID ? 'league ' + String(window.LEAGUE_ID).slice(-6) : 'not connected',
         fix: 'Commish → Sleeper' },
-      { ok: !state.reconcile || !state.reconcile.halt,
-        label: 'Keepers reconcile', detail: state.reconcile && state.reconcile.halt ? 'mismatch' : 'ok' },
+      // TWO reconcilers sat behind this one label: the SLATE reconciler
+      // (state.reconcile.halt — do my keepers match the commissioner's slate) and
+      // the ACCOUNTING reconciler (does the pick count match the keeper count).
+      // Only the first was read, so the line said "ok" while Accounting showed
+      // "⚠ 1 disagreement(s)" two rows below. It now fails on either and names
+      // which one, so the label means what it says.
+      { ok: (!state.reconcile || !state.reconcile.halt) && !seatSlateFault,
+        label: 'Keepers reconcile',
+        detail: state.reconcile && state.reconcile.halt ? 'slate mismatch'
+          : seatSlateFault ? 'pick count disagrees with your keeper count (see Accounting)'
+          : 'ok',
+        fix: seatSlateFault ? 'Set My Draft Slot to the seat that matches your keepers' : '' },
       // Part 4 §3a: an unconfirmed slate is the one input that can be wrong
       // while every number derived from it still looks completely normal.
       { ok: !!(state.keeperLock && state.keeperLock.locked),
@@ -2539,10 +2569,41 @@
     if (comp) {
       const capset = DraftNeedRule.withinCap(board, roster);
       const inCap = capset.indexOf(comp) >= 0 || capset.some(p => String(p.player_id) === String(comp.player_id));
-      if (!inCap && String(comp.player_id) !== String(rec.pick.player_id)) {
+      const differs = String(comp.player_id) !== String(rec.pick.player_id);
+      if (!inCap && differs) {
         html += '<div class="rh-warn" style="font-size:.78rem;margin-top:.35rem;color:#ff8a8a">'
           + '↔ the composite suggests ' + nm(comp) + ' but that over-fills ' + escapeHtml(comp.position || '')
           + ' — the rule recommends ' + nm(rec.pick) + '.</div>';
+      } else if (differs) {
+        // THE MISSING HALF OF THE EXPLAINER (Cory, 2026-08-10). The guard above
+        // only covered the OVER-FILL case, so when both picks are legal — two RBs
+        // in round 1 — the card showed the rule's name up top, the composite's
+        // name in the confidence line ("Robinson is ahead of Gibbs by 2.1") and
+        // the composite's name again on the branch card as TOP PATH, with nothing
+        // reconciling them. Three statements, two answers, no voice.
+        //
+        // The spec (A10) is deliberate here: a composite, a mask that overrides it
+        // within its measured domain, and an EXPLAINER at the one seam where they
+        // diverge — surfacing the disagreement is correct, hiding it is not. So
+        // say it plainly, name the size of the gap, and say which one is measured.
+        const cs = out.scored[0], runner = (out.scored[1] || {});
+        const gapPts = (runner.player && String(runner.player.player_id) === String(rec.pick.player_id)
+          && cs.score != null && runner.score != null)
+          ? (cs.score - runner.score) : null;
+        html += '<div class="rh-split" style="font-size:.8rem;margin-top:.4rem;'
+          + 'padding:.35rem .5rem;border-left:3px solid rgba(245,196,69,.7);background:rgba(245,196,69,.07)">'
+          + '↔ <b>Two reads.</b> The rule takes ' + nm(rec.pick)
+          + ' (best ADP inside a startable need). The value engine prefers ' + nm(comp)
+          + (gapPts != null ? ' by <b>' + gapPts.toFixed(1) + '</b> pts' : '')
+          + '. <b>Follow the rule unless you have a reason not to</b> — it is the one '
+          + 'measured to earn money; the composite gap is a value opinion. '
+          // Only call it noise when it IS noise. COIN_FLIP_GAP is the board's own
+          // "cannot separate these" threshold, so borrowing it keeps this line and
+          // the confidence line from grading the same gap differently.
+          + (gapPts != null && Math.abs(gapPts) < (E.CFG && E.CFG.COIN_FLIP_GAP ? E.CFG.COIN_FLIP_GAP * 4 : 4)
+              ? 'A gap this small is inside what the board can resolve either way.'
+              : 'That is a real gap — if you take the value pick, log why.')
+          + '</div>';
       }
     }
     // HONEST TIER — the rule is confident; the dollars are MC-harness, not a projection (Cory #2).
@@ -2937,9 +2998,70 @@
     const flags = [];
     if (p.injury_status && !/^(healthy|active)$/i.test(p.injury_status)) flags.push('<span class="badge owes">' + escapeHtml(p.injury_status) + '</span>');
     if (p.age && p.age >= 30 && (p.position === 'RB')) flags.push('<span class="badge owes">age ' + p.age + '</span>');
-    if (p.opportunity_z > 1) flags.push('<span class="badge open">opp ↑</span>');
-    if (p.opportunity_z < -1) flags.push('<span class="badge owes">opp ↓</span>');
+    // OPPORTUNITY, STANDARDISED AGAINST THIS BOARD (Cory, 2026-08-10: "fires on
+    // roughly 90% of the top 200 — a flag that fires on nearly everything conveys
+    // nothing"). The field is NAMED a z-score but is not one: measured over the
+    // live top 200 it runs mean 0.79, sd 0.91, min -0.07. So the fixed ±1 cut
+    // fired the UP badge on 42% of rows and the DOWN badge on exactly ZERO — the
+    // opposite flag was unreachable code. Re-centre on the board's own mean and sd
+    // so the badge means "unusual FOR THIS BOARD", which is the only thing a flag
+    // can usefully mean, and both directions become possible again.
+    const z = opportunityVsPeers(p);
+    if (z != null) {
+      if (z > OPP_CUT) flags.push('<span class="badge open" title="unusually high opportunity for his draft cost">opp ↑</span>');
+      else if (z < -OPP_CUT) flags.push('<span class="badge owes" title="unusually low opportunity for his draft cost">opp ↓</span>');
+    }
     return flags.join(' ');
+  }
+
+  /* OPPORTUNITY RELATIVE TO DRAFT COST — what the badge should have meant.
+   *
+   * The old cut was a flat `opportunity_z > 1`, and the field is NAMED a z-score
+   * but is not one: over the live top 200 it runs mean 0.79, sd 0.91, min -0.07.
+   * So the UP badge fired on 42% of rows and the DOWN badge on exactly ZERO —
+   * unreachable code (Cory, 2026-08-10: "fires on nearly everything, conveys
+   * nothing").
+   *
+   * Re-centring on the whole board does NOT fix it, and measuring that is what
+   * settled the design: the top of the board genuinely HAS more opportunity, so a
+   * board-wide z still fired on 44% of the top 200 — the badge was simply
+   * restating "this player is good", which the rank already says.
+   *
+   * The informative question is opportunity ABOVE WHAT HIS PRICE IMPLIES, so the
+   * comparison set is his ADP NEIGHBOURS. Measured on the live board that gives
+   * ~6% up, ~6% down, 88% silent, and surfaces the late-round volume it exists to
+   * find (Jerry Jeudy at ADP 180, +2.9 vs his peers). A badge you notice because
+   * it is rare. */
+  const OPP_CUT = 1.5;
+  const OPP_BAND = 40;          // ADP neighbours compared against
+  let _oppByPlayer = null, _oppFor = null;
+  function opportunityVsPeers(p) {
+    if (!p || p.opportunity_z == null) return null;
+    const board = state.board || [];
+    if (board.length < 60) return null;
+    if (!_oppByPlayer || _oppFor !== board.length) {
+      const rows = board
+        .filter(q => typeof q.opportunity_z === 'number' && isFinite(q.opportunity_z)
+                     && (q.adjusted_adp || q.raw_adp))
+        .sort((a, b) => (a.adjusted_adp || a.raw_adp) - (b.adjusted_adp || b.raw_adp));
+      const map = {};
+      for (let i = 0; i < rows.length; i++) {
+        let lo = Math.max(0, i - (OPP_BAND >> 1));
+        const hi = Math.min(rows.length, lo + OPP_BAND);
+        lo = Math.max(0, hi - OPP_BAND);
+        let sum = 0, n = hi - lo;
+        for (let j = lo; j < hi; j++) sum += rows[j].opportunity_z;
+        const mean = sum / n;
+        let ss = 0;
+        for (let k = lo; k < hi; k++) ss += (rows[k].opportunity_z - mean) * (rows[k].opportunity_z - mean);
+        const sd = Math.sqrt(ss / n) || 1;
+        map[String(rows[i].player_id)] = (rows[i].opportunity_z - mean) / sd;
+      }
+      _oppByPlayer = map;
+      _oppFor = board.length;
+    }
+    const v = _oppByPlayer[String(p.player_id)];
+    return typeof v === 'number' ? v : null;
   }
 
   /* A1 — keepers pre-populate my roster.
@@ -3146,9 +3268,22 @@
       if (!elitePool.length) elitePool = atPos.slice(0, 3);
       var st = lrmLastSafe(startablePool, upcoming);
       var el = dual ? lrmLastSafe(elitePool, upcoming) : null;
+      // NO DEADLINE IS NOT A DEADLINE (Cory, 2026-08-10). K and DEF reported "safe
+      // until pick 145" in a 150-pick draft, naming Cam Little (ADP 171) and
+      // Baltimore (ADP 203) — men who go UNDRAFTED in a 10-team league, so the
+      // statement is trivially true and it was eating two lines of a panel whose
+      // whole job is real deadlines. If the last safe pick is my final pick AND the
+      // man I would get prices beyond the end of the draft, there is no deadline to
+      // report; say that in one short line instead of inventing one.
+      var totalPicks = ((state.data.pick_order || {}).picks || []).length || null;
+      var stTarget = st.target || atPos[0];
+      var tgtAdp = stTarget && (stTarget.adjusted_adp || stTarget.raw_adp) || null;
+      var noDeadline = !!(totalPicks && tgtAdp && tgtAdp > totalPicks
+        && st.by_pick === upcoming[upcoming.length - 1]);
       out.push({ position: pos, dual: dual, next_pick: upcoming[1],
         startable_by: st.by_pick, startable_early: st.picks_early,
-        startable_target: (st.target || atPos[0]).name,
+        startable_target: stTarget.name,
+        no_deadline: noDeadline,
         elite_by: el ? el.by_pick : null, elite_early: el ? el.picks_early : 0,
         elite_target: el && el.target ? el.target.name : null });
     });
@@ -3217,6 +3352,12 @@
     host.style.display = '';
     host.innerHTML = '<div class="lrm-head">Last responsible moment</div>' + lrm.map(function (r) {
       var badge = '<span class="rec-pos ' + r.position + '">' + r.position + '</span> ';
+      // A position with no real deadline gets ONE short line, not a fake one.
+      if (r.no_deadline) {
+        return '<div class="lrm-row lrm-none">' + badge
+          + '<span class="muted">no deadline — startable options go undrafted in a '
+          + ((state.data.league || {}).teams || 10) + '-team league; take one whenever.</span></div>';
+      }
       // Dual line for QB/TE where the two thresholds actually diverge.
       if (r.dual && r.elite_by !== r.startable_by) {
         var elite = r.elite_by

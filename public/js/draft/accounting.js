@@ -122,10 +122,25 @@
     if (myPicks.length && s.rounds) {
       var expectedMine = Number(s.rounds) - keeperPlacements;
       if (expectedMine >= 0 && myPicks.length !== expectedMine) {
-        problems.push('[keepers vs my_picks] I hold ' + keeperPlacements + ' keeper'
-          + (keeperPlacements === 1 ? '' : 's') + ' in a ' + s.rounds + '-round draft, so I own '
-          + expectedMine + ' picks — but [my_picks total] is ' + myPicks.length
-          + '. The seat and the keeper slate disagree; every pick number below is suspect');
+        // SAY WHICH SIDE IS PROBABLY WRONG AND WHAT TO DO (Cory, 2026-08-10). The
+        // first version named the disagreement and stopped there. On draft night
+        // this fires while he is setting the seat by hand under time pressure, so
+        // it has to point at the likely culprit and the one control that fixes it.
+        //
+        // The keeper slate is the confirmed, commissioner-locked object; the seat
+        // is a number typed into a box minutes ago. When they disagree the SEAT is
+        // the overwhelmingly more likely error, and the arithmetic even says which
+        // seat would be consistent: one holding (rounds - my_picks) keepers.
+        var impliedKeepers = Number(s.rounds) - myPicks.length;
+        problems.push('[keepers vs my_picks] Your ' + keeperPlacements + ' keeper'
+          + (keeperPlacements === 1 ? '' : 's') + ' mean you own ' + expectedMine
+          + ' picks in this ' + s.rounds + '-round draft, but the board is giving you '
+          + myPicks.length + ' — the seat currently set belongs to someone with '
+          + impliedKeepers + ' keeper' + (impliedKeepers === 1 ? '' : 's') + '. '
+          + 'THE SEAT IS THE LIKELY ERROR (the slate is commissioner-locked; the seat '
+          + 'is typed). Fix it in My Draft Slot at the top, then this line should read '
+          + expectedMine + ' of ' + expectedMine + '. Until it does, every pick number, '
+          + 'survival % and timing call on this page is computed for the wrong seat.');
       }
     }
 
