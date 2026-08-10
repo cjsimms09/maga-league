@@ -345,12 +345,29 @@ router.post('/draft/close', aw(async (req, res) => {
   if (seasons[year]) { seasons[year].draft_open = false; await setDoc('seasons', seasons); }
   back(res, 'draft', `&year=${year}`);
 }));
+// WIPING THE DRAFT ORDER IS THE MOST DESTRUCTIVE BUTTON ON THE SITE: it hard-deletes
+// every owner's claimed spot with no undo, days before a draft, while claims are
+// being made live. Its only guard was a client-side confirm(), which a stray POST,
+// a double-tap or a resubmitted form walks straight past — and the nightly backup
+// would lose every claim made since. Two guards, matching the war room's typed-END
+// pattern for the comparable action:
+//   1. a SERVER-side typed confirmation (the browser dialog is not a guard), and
+//   2. a snapshot written BEFORE the delete, so a mistake is recoverable.
 router.post('/draft/reset', aw(async (req, res) => {
   const year = parseInt(req.body.year, 10);
+  if (String(req.body.confirm || '').trim().toUpperCase() !== 'RESET') {
+    return back(res, 'draft', `&year=${year}` + msg('Draft NOT cleared — type RESET to confirm.'));
+  }
+  const existing = await getDoc(`draft:${year}`, null);
+  if (existing) {
+    // Recoverable by design: the claims are gone from the live doc but not gone.
+    await setDoc(`draft-backup:${year}:${new Date().toISOString()}`, existing);
+  }
   await store.del(`draft:${year}`);
   const seasons = await getDoc('seasons', {});
   if (seasons[year]) { seasons[year].draft_open = false; await setDoc('seasons', seasons); }
-  back(res, 'draft', `&year=${year}` + msg('Draft cleared.'));
+  const n = existing && Array.isArray(existing.order) ? existing.order.filter(p => p.slot != null).length : 0;
+  back(res, 'draft', `&year=${year}` + msg(`Draft cleared. ${n} claimed spot${n === 1 ? '' : 's'} snapshotted — recoverable from draft-backup:${year}.`));
 }));
 router.post('/draft/override', aw(async (req, res) => {
   const year = parseInt(req.body.year, 10);
