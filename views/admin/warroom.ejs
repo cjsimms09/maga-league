@@ -339,8 +339,21 @@
 
     <%# §2(d) — condensed opponent strip (the full breakdown stays in Zone 3). %>
     <div class="card">
-      <h2>🎯 Before your pick <span class="sub">who's up · likely picks</span></h2>
-      <div class="body"><div id="threat-strip" class="threat-strip"></div></div>
+      <h2>🎯 Before your pick <span class="sub">will your guy make it back?</span></h2>
+      <div class="body">
+        <p class="muted" style="margin:0 0 .55rem; font-size:.78rem">
+          Everyone who picks between now and your next turn. Each row is one
+          seat: their pick number, who they are, the player(s) they're most
+          likely to take, and the starting slot they still need.
+          <b>How to use it:</b> if a player you want is listed as someone's
+          likely pick, take him now — he probably won't come back to you. If
+          nobody ahead needs his position, you can safely wait a round.
+          The lines up top summarize it: <i>“3/4 need RB”</i> is a run about to
+          happen; <i>“still need a starter — QB 2 (low = wait)”</i> means only
+          two teams still need a QB, so that position is safe to hold off on.
+        </p>
+        <div id="threat-strip" class="threat-strip"></div>
+      </div>
     </div>
   </aside><%# /wr-zone2 %>
   </details>
