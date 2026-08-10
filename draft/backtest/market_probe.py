@@ -156,11 +156,42 @@ def probe() -> dict:                                        # pragma: no cover (
         out["errors"]["sleeper_trending"] = f"{type(e).__name__}: {e}"
 
     # ── KALSHI — coverage and volume, no key required for public markets ────
+    # PAGINATE. Run 2 scanned 1000 markets and found zero football — but every one
+    # came from just TWO series prefixes, so it was ONE PAGE of a default ordering,
+    # not a sample of the universe. A negative drawn from that would have been
+    # confidently wrong. Walk the cursor, and ALSO ask the series endpoint directly,
+    # so "no NFL markets" can only be concluded from evidence that could have shown
+    # otherwise.
     try:
-        data, _ = get(f"{KALSHI_BASE}/markets?limit=1000&status=open")
-        markets = data.get("markets") or []
-        out["sources"]["kalshi"] = dict(summarise_kalshi(markets),
-                                        reachable=True, markets_scanned=len(markets))
+        markets, cursor, pages = [], None, 0
+        while pages < 12:
+            url = f"{KALSHI_BASE}/markets?limit=1000&status=open"
+            if cursor:
+                url += f"&cursor={cursor}"
+            data, _ = get(url)
+            batch = data.get("markets") or []
+            markets.extend(batch)
+            cursor = data.get("cursor")
+            pages += 1
+            if not cursor or not batch:
+                break
+        summary = dict(summarise_kalshi(markets), reachable=True,
+                       markets_scanned=len(markets), pages_walked=pages,
+                       exhausted=not cursor)
+        # The series list is the authoritative catalogue of what Kalshi RUNS,
+        # independent of which markets happen to be open right now.
+        try:
+            sdata, _ = get(f"{KALSHI_BASE}/series?limit=500")
+            series = sdata.get("series") or []
+            sport = [s for s in series if any(
+                w in (str(s.get("ticker", "")) + str(s.get("title", ""))).lower()
+                for w in ("nfl", "football"))]
+            summary["series_listed"] = len(series)
+            summary["series_matching_football"] = [
+                str(s.get("ticker") or "")[:24] for s in sport][:12]
+        except Exception as se:                             # noqa: BLE001
+            summary["series_endpoint_error"] = f"{type(se).__name__}: {se}"
+        out["sources"]["kalshi"] = summary
     except Exception as e:                                  # noqa: BLE001
         out["errors"]["kalshi"] = f"{type(e).__name__}: {e}"
 
