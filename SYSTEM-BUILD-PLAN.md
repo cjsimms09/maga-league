@@ -16,7 +16,7 @@ worse than one known pending, so this file states the true status of each.
 | Tool | State | Note |
 |------|-------|------|
 | **Draft** | **exists, needs polish** | phone-usability, take-always-reachable, mock over-roster (DONE), QB-hoarding VORP root fix, roster-projection builder (new sub-feature) |
-| **Waiver** | **does not exist** | largest gap; net-new build |
+| **Waiver** | **core built + agreement proven** | src/routes/waivers.js: claim/drop/worth/who-else, prices via C1 (verified byte-identical to draft engine), dollars via shared $110/$100 machinery, consensus-alongside-dollars. PENDING: live FA pool + rosters (Sleeper), C4 ledger emit, route/UI (B) |
 | **Lineup** | **exists; audit partly closed** | matchupValue derived from playoff equity (DONE this session); dual-objective deviation readout over 540 weeks (pending) |
 | **Roster Analyzer** | **core built + validated** | projection engine done (src/routes/standings.js), 78% top-4 on real 2023-25, calibrated at extremes, posture classification live. PENDING: live wiring from current rosters, C3 consensus, C4 ledger emit, route/UI (B) |
 | **Consensus-alongside-dollars** | **partial** | Sleeper proj wired in lineup; needs multi-source consensus number shown next to every $ in all four |
