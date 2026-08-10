@@ -106,11 +106,10 @@
       "player_production_series_count": 48,
       "reachable": true,
       "sample_titles": [],
-      "series_listed": 12626,
+      "series_listed": 12627,
       "series_prefixes_seen": {
-        "KXCLAUDE": 5,
-        "KXMVECROSSCATE": 5434,
-        "KXMVESPORTSMUL": 6561
+        "KXMVECROSSCATE": 5274,
+        "KXMVESPORTSMUL": 6726
       },
       "volume_median": 0,
       "volume_total": 0,
@@ -156,14 +155,33 @@
       "secondary": {
         "/v3/bookmakers": {
           "keys": "list[274]",
+          "mentions_props": [],
+          "mentions_touchdown": false,
           "rate_headers": {},
+          "rows": 274,
+          "sample": "[{\"name\": \"10bet\", \"active\": true}, {\"name\": \"12bet\", \"active\": true}, {\"name\": \"188bet\", \"active\": false}, {\"name\": \"18bet\", \"active\": true}, {\"name\": \"1bet\", \"active\": true}, {\"name\": \"1xbet\", \"active\": true}, {\"name\": \"1xbit\", \"active\": true}, {\"name\": \"20b",
           "status": 200
         },
-        "/v3/fixtures?sport=americanfootball_nfl": {
+        "/v3/events": {
+          "status": 401
+        },
+        "/v3/events?sport=american-football": {
+          "status": 401
+        },
+        "/v3/fixtures?sport=american-football": {
           "status": 404
+        },
+        "/v3/leagues": {
+          "status": 401
         },
         "/v3/markets": {
           "status": 404
+        },
+        "/v3/matches?sport=american-football": {
+          "status": 404
+        },
+        "/v3/odds?sport=american-football": {
+          "status": 401
         }
       },
       "sports_listed": 34
