@@ -2497,6 +2497,7 @@ button.pd-team.pick:hover { background: rgba(245,196,69,.16); transform: transla
 .wr-zone1 > #legality-strip    { order: 6; }   /* WATCH — compact context */
 .wr-zone1 > #wr-statusbar      { order: 7; }   /* pick bar */
 .wr-zone1 > #recs-card         { order: 8; }   /* THE recommendation + Take button */
+.wr-zone1 > #doctrine-picker   { order: 9; }   /* the compact plan table — BELOW the rec, never a wall on top */
 .wr-zone1 > #mvs               { order: 9; }   /* redundant summary — beneath */
 .wr-zone1 > #shadow-projection { order: 10; }
 .wr-zone1 > #lrm-card          { order: 11; }
@@ -2793,29 +2794,34 @@ body.warroom-page #doctrine-banner .db-confidence { white-space: normal; overflo
 }
 .doctrine-switch .btn { margin-left: auto; flex: 0 0 auto; }
 
-/* THE DOCTRINE PICKER (change-the-plan list). SEV2 (2026-08-10 live mock): the
-   rows had NO layout rules, so name + creed + score + SWITCH ran together as raw
-   inline spans ("Balanced Valuebest expected dollars...+$0") with the buttons
-   jammed mid-sentence. Grid gives each row a clear structure: name and score on
-   the top line, the creed sentence on its own line below, the switch pinned right. */
+/* THE DOCTRINE PICKER — a COMPACT, always-visible plan table (Cory, 2026-08-10
+   live mock). It used to dump all nine strategies with big SWITCH buttons at the
+   very TOP of the page (it had no flex `order`, so it defaulted to 0, above the
+   recommendation). Now: radio-per-row (one active plan; the auto pick is badged),
+   small dense rows, and ordered BELOW the rec + take button — never a wall. */
 .doctrine-picker {
   background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
-  padding: .3rem .7rem .6rem; margin: 0 0 .6rem;
+  padding: .35rem .6rem .45rem; margin: 0 0 .6rem;
 }
-.dp-head { font-size: .8rem; font-weight: 700; color: var(--muted); margin: .5rem 0; line-height: 1.4; }
-.dp-head.dp-contested { color: #6b4e12; }
+.dp-head { font-size: .72rem; font-weight: 700; color: var(--muted); margin: .15rem 0 .3rem;
+  text-transform: uppercase; letter-spacing: .04em; }
+.dp-head.dp-contested { color: #6b4e12; text-transform: none; letter-spacing: 0; font-size: .78rem; }
+.dp-grid { display: flex; flex-direction: column; }
 .dp-row {
-  display: grid; grid-template-columns: 1fr auto auto; align-items: center;
-  column-gap: .7rem; row-gap: .15rem; padding: .55rem 0; border-top: 1px solid var(--line);
+  display: flex; align-items: center; gap: .5rem; cursor: pointer;
+  padding: .3rem .15rem; border-top: 1px solid var(--line); font-size: .82rem;
 }
-.dp-name { grid-column: 1; grid-row: 1; font-weight: 700; color: var(--ink); }
-.dp-gap  { grid-column: 2; grid-row: 1; font-variant-numeric: tabular-nums; font-weight: 800;
-           color: var(--gold-bright); white-space: nowrap; }
-.dp-switch { grid-column: 3; grid-row: 1; }
-.dp-creed { grid-column: 1 / -1; grid-row: 2; font-size: .74rem; font-weight: 400; line-height: 1.4; }
-.dp-cur { font-size: .68rem; font-weight: 700; color: var(--green); text-transform: uppercase; letter-spacing: .04em; white-space: nowrap; }
-.dp-row.dp-is-cur { opacity: .85; }
-.dp-return { margin-top: .6rem; }
+.dp-row:first-child { border-top: none; }
+.dp-toggle { flex: 0 0 auto; accent-color: var(--green); width: 16px; height: 16px; margin: 0; }
+.dp-name { flex: 1 1 auto; color: var(--ink); font-weight: 600; }
+.dp-row.dp-on .dp-name { font-weight: 800; }
+.dp-auto { font-size: .58rem; font-weight: 800; letter-spacing: .05em; text-transform: uppercase;
+  color: var(--green); background: rgba(15,138,77,.12); border: 1px solid rgba(15,138,77,.4);
+  border-radius: 4px; padding: .02rem .28rem; vertical-align: middle; }
+.dp-gap { flex: 0 0 auto; font-variant-numeric: tabular-nums; font-weight: 800; font-size: .78rem;
+  color: var(--muted); white-space: nowrap; }
+.dp-gap.up { color: var(--gold-bright); }
+.dp-row.dp-on .dp-gap { color: var(--green); }
 
 @media (max-width: 640px) {
   .doctrine-banner { gap: .35rem; padding: .45rem .6rem; }
