@@ -18,7 +18,7 @@ worse than one known pending, so this file states the true status of each.
 | **Draft** | **exists, needs polish** | phone-usability, take-always-reachable, mock over-roster (DONE), QB-hoarding VORP root fix, roster-projection builder (new sub-feature) |
 | **Waiver** | **does not exist** | largest gap; net-new build |
 | **Lineup** | **exists; audit partly closed** | matchupValue derived from playoff equity (DONE this session); dual-objective deviation readout over 540 weeks (pending) |
-| **Roster Analyzer** | **does not exist** | net-new; three tools consume it |
+| **Roster Analyzer** | **core built + validated** | projection engine done (src/routes/standings.js), 78% top-4 on real 2023-25, calibrated at extremes, posture classification live. PENDING: live wiring from current rosters, C3 consensus, C4 ledger emit, route/UI (B) |
 | **Consensus-alongside-dollars** | **partial** | Sleeper proj wired in lineup; needs multi-source consensus number shown next to every $ in all four |
 | **Predict-and-grade** | **partial** | PredLedger + weekly grader exist for draft/lineup; waiver + standings predictions not yet emitted; consensus not yet graded alongside our valuation |
 
