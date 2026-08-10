@@ -76,8 +76,16 @@ def predicted_kept_ids(predicted: dict) -> set[str]:
     return out
 
 
-def scripted_candidates(board: dict, removed_ids: set[str], my_picks: list[int]) -> list[dict]:
-    """Per scripted pick: the survival-ranked candidate slate on that board."""
+def scripted_candidates(board: dict, removed_ids: set[str], my_picks: list[int],
+                        pin_ids: set[str] | None = None) -> list[dict]:
+    """Per scripted pick: the survival-ranked candidate slate on that board.
+
+    `pin_ids` are the SUBJECT of the branch (e.g. Bowers in the "Bowers available"
+    contingency): a pinned player who is eligible and survives to a pick is surfaced
+    in that pick's slate even when raw VORP ranks him below the display cap — a branch
+    named for a player must show him. The slate length stays within the cap (the pin
+    takes the weakest non-pinned slot), so the length contract is preserved."""
+    pin_ids = pin_ids or set()
     pool = [p for p in board.get("players", [])
             if str(p.get("player_id")) not in removed_ids and (p.get("proj_mean") or 0) > 0]
     picks_out = []
@@ -94,7 +102,17 @@ def scripted_candidates(board: dict, removed_ids: set[str], my_picks: list[int])
                           "position": p.get("position"), "vorp": round(p.get("vorp") or 0, 1),
                           "survival": round(surv, 2)})
         cands.sort(key=lambda c: (-c["vorp"], -c["survival"]))
-        picks_out.append({"pick": pick, "candidates": cands[:CANDIDATES_PER_PICK]})
+        slate = cands[:CANDIDATES_PER_PICK]
+        if pin_ids:
+            ids = {c["player_id"] for c in slate}
+            for c in cands:                     # cands is survival-eligible + VORP-sorted
+                if c["player_id"] in pin_ids and c["player_id"] not in ids:
+                    if len(slate) < CANDIDATES_PER_PICK:
+                        slate.append(c)
+                    else:
+                        slate[-1] = c           # surface the branch's subject in the weakest slot
+                    ids.add(c["player_id"])
+        picks_out.append({"pick": pick, "candidates": slate})
     return picks_out
 
 
@@ -110,7 +128,8 @@ def generate(board: dict, predicted: dict) -> dict:
     bowers = next((str(p["player_id"]) for p in board.get("players", [])
                    if p.get("name") == "Brock Bowers"), None)
     contingency = scripted_candidates(
-        board, (pred_ids - {bowers}) | my_kept if bowers else pred_ids | my_kept, my_picks)
+        board, (pred_ids - {bowers}) | my_kept if bowers else pred_ids | my_kept, my_picks,
+        pin_ids={bowers} if bowers else None)
 
     # Doctrine enrollment: experiment 19b's Cory-conditional verdict, when it
     # exists, IS the plan (the doctrine-banner spec: winner feeds banner +
