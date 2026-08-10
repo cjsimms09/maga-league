@@ -1401,6 +1401,16 @@
     }
     const gap = scored[0].score - scored[1].score;
     const a = scored[0].player, b = scored[1].player;
+    // A NEGATIVE gap means the shown #1 is a PINNED personal-list pick scoring
+    // BELOW the board's own top — not a coin flip, and a distance is never
+    // negative (2026-08-10 critique: "score within -1.9"). Say what is true.
+    if (gap < 0) {
+      return {
+        level: 'pinned', gap,
+        message: a.name + ' is your pick, but the board scores ' + b.name + ' '
+          + Math.abs(gap).toFixed(1) + ' higher — keep him on purpose, or take ' + b.name + '.',
+      };
+    }
     if (gap < CFG.COIN_FLIP_GAP) {
       return {
         level: 'coin-flip', gap,

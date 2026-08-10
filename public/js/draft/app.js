@@ -2195,8 +2195,12 @@
           + '">◆ the ' + escapeHtml(planName) + ' branch'
           + (DraftDoctrine.governs() ? '' : ' <span class="pd-inert">(label only)</span>')
           + '</span>' : '';
+      // price is how many points this path is BELOW the top path (a cost, always
+      // >= 0). It was shown as '+11.0 vs top', which reads as 11 ABOVE — the
+      // opposite (2026-08-10 critique: a path scoring 11 below was labelled +11).
+      // Render it as the deficit it is.
       const priceBadge = p.price > 0
-        ? '<span class="path-price">+' + p.price.toFixed(1) + ' vs top</span>'
+        ? '<span class="path-price">−' + p.price.toFixed(1) + ' vs top</span>'
         : '<span class="path-price top">top path</span>';
       const plan = (p.plan || []).filter(function (r) { return r.loss > 0; }).slice(0, 2)
         .map(function (r) { return r.position + ' −' + Math.round(r.loss); }).join(' · ');
@@ -2635,8 +2639,15 @@
     const top = scored[0];
     $('#tiebreak').style.display = top && top.contested ? '' : 'none';
     if (top && top.contested) {
-      $('#tiebreak').textContent = 'Top two are within ' + top.gap_to_second.toFixed(1) +
-        ' pts — effectively a coin flip. Monte Carlo tiebreaker lands in the next build.';
+      // A distance is never negative: a negative gap_to_second means a pinned
+      // personal-list pick sits below the board's own top — an override, not a
+      // coin flip (2026-08-10 critique: "within -1.9 pts").
+      const g = top.gap_to_second;
+      $('#tiebreak').textContent = g < 0
+        ? 'Your pinned pick scores ' + Math.abs(g).toFixed(1) + ' pts below the board top — '
+          + 'a deliberate override, not a coin flip.'
+        : 'Top two are within ' + g.toFixed(1) + ' pts — effectively a coin flip. '
+          + 'Monte Carlo tiebreaker lands in the next build.';
     }
   }
 
