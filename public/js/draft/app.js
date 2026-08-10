@@ -830,6 +830,53 @@
     const b = state.data && state.data.built_at ? Date.parse(state.data.built_at) : NaN;
     return isFinite(b) ? (Date.now() - b) / 3.6e6 : null;
   }
+  /* SURVIVAL IS AN INTERIM MODEL, AND THE SCREEN MUST SAY SO IN THE NUMBER.
+   *
+   * MEASURED 2026-08-10, by enumerating the whole board at each of Cory's picks
+   * and summing P(gone) against the picks that actually happen in the window:
+   *
+   *     12-pick windows   ratio ~1.15
+   *      6-pick, early    1.22 - 1.29
+   *      6-pick, later    1.47 - 1.57
+   *
+   * So the model over-predicts departures by 15% at best and 57% at worst, and it
+   * is WORST in the short windows and later rounds — which is where nearly every
+   * one of Cory's picks lives. Its constants are designed guesses, not measured,
+   * and nothing has calibrated them against real outcomes yet.
+   *
+   * A number rendered as "64.8%" claims a precision this model does not have, and
+   * it renders beside genuinely measured quantities with identical confidence. So
+   * every survival-derived figure goes through HERE and comes out coarsened to 5%
+   * with a "~", which is the honest resolution: it still ranks players correctly
+   * (the ordering is far more trustworthy than the level), while refusing to imply
+   * a tenth of a percent.
+   *
+   * ONE WRITER. Every surface that shows a survival-derived percentage calls this,
+   * so the day calibration lands the rounding changes in one place.
+   */
+  const SURVIVAL_BUCKET = 5;
+  function survivalPct(s) {
+    if (s == null || isNaN(s)) return null;
+    const raw = Math.max(0, Math.min(1, Number(s))) * 100;
+    // Keep the extremes crisp: 0% and 100% are claims about certainty, and
+    // rounding 98 up to 100 would assert one the model has not earned.
+    if (raw >= 99.5) return 99;
+    if (raw <= 0.5) return 1;
+    return Math.max(1, Math.min(99, Math.round(raw / SURVIVAL_BUCKET) * SURVIVAL_BUCKET));
+  }
+  /** The display string. `~` is the whole point — it is not decoration. */
+  function survivalText(s) {
+    const p = survivalPct(s);
+    return p == null ? '' : '~' + p + '%';
+  }
+  /* Anything DERIVED from survival inherits its softness — next-turn cost,
+   * grab-by deadlines, VONA, "gone by pick X". Same treatment: a tilde, and no
+   * decimal places the model cannot support. */
+  function softNum(v, dp) {
+    if (v == null || isNaN(v)) return '';
+    return '~' + Number(v).toFixed(dp == null ? 0 : dp);
+  }
+
   function boardFreshness(hours) {
     const h = (hours == null) ? boardAgeHours() : hours;
     if (h == null) return { level: 'unknown', hours: null };
@@ -1906,7 +1953,7 @@
       + '<td class="s">' + (p.bye || '') + '</td>'
       + '<td class="s">' + (p.tier ? 'T' + p.tier : '') + '</td>'
       + '<td class="s">' + (p.adp == null ? '' : p.adp) + '</td>'
-      + '<td class="s">' + (p.survives_to_next == null ? '' : p.survives_to_next + '%') + '</td>';
+      + '<td class="s">' + (p.survives_to_next == null ? '' : survivalText(p.survives_to_next / 100)) + '</td>';
     const table = rows => '<table>' + rows + '</table>';
     const g = sheet.generated;
 
@@ -2922,7 +2969,7 @@
 
     host.innerHTML = head + scored.map((s, i) => {
       const p = s.player;
-      const pct = Math.round((1 - (s.survival_to_next || 0)) * 100);
+      const pct = survivalPct(1 - (s.survival_to_next || 0));
       return '<div class="rec-card' + (i === 0 ? ' top' : '') + (s.demoted ? ' demoted' : '') + '">' +
         '<div class="rec-rank">' + (s.demoted ? '↓' : (i + 1)) + '</div>' +
         '<div class="rec-main">' +
@@ -2947,7 +2994,7 @@
               + (recRawProj(p).value == null ? '—' : Math.round(recRawProj(p).value)) + '</b></span>' +
             '<span>Tier <b>' + p.tier + '</b> (' + p.tier_rank + '/' + p.tier_size + ')</span>' +
             '<span>ADP <b>' + Math.round(p.adjusted_adp) + '</b></span>' +
-            (pct ? '<span class="' + (pct > 70 ? 'neg' : '') + '">' + pct + '% gone by next</span>' : '') +
+            (pct ? '<span class="' + (pct > 70 ? 'neg' : '') + '">~' + pct + '% gone by next</span>' : '') +
           '</div>' +
           // The disagreement line on the TOP card: if a same-position candidate
           // projects higher than the one we're recommending, say so — that is the
@@ -3351,7 +3398,7 @@
     $('#survival').innerHTML = top.map(x =>
       '<div class="surv-row"><span>' + escapeHtml(x.p.name) + ' <span class="muted">' + x.p.position + '</span></span>' +
       '<div class="surv-bar"><div style="width:' + Math.round(x.s * 100) + '%"></div></div>' +
-      '<b class="' + (x.s > 0.6 ? 'pos' : x.s < 0.25 ? 'neg' : '') + '">' + Math.round(x.s * 100) + '%</b></div>').join('');
+      '<b class="' + (x.s > 0.6 ? 'pos' : x.s < 0.25 ? 'neg' : '') + '">' + survivalText(x.s) + '</b></div>').join('');
 
     // L1 capture: the survival estimates the tool showed at this pick, plus a
     // last-responsible-moment snapshot per onesie position, once per (pick,build).
@@ -3587,7 +3634,7 @@
     card.style.display = '';
     var fmt = function (r) {
       var odds = r.survival == null ? '' : ' <span class="muted">('
-        + Math.round(r.survival * 100) + '% at ' + (r.adp != null ? Math.round(r.adp) : '?') + ')</span>';
+        + survivalText(r.survival) + ' at ' + (r.adp != null ? Math.round(r.adp) : '?') + ')</span>';
       return escapeHtml(r.label) + odds;
     };
     var head = '<div class="stack-head">' + res.count + ' live route'
@@ -6339,7 +6386,7 @@
       'Projection ' + Math.round(p.proj_mean) + ' (floor ' + Math.round(p.proj_floor) +
       ', ceiling ' + Math.round(p.proj_ceiling) + ')\n' +
       'Adjusted ADP ' + Math.round(p.adjusted_adp) + ' vs raw ' + Math.round(p.raw_adp || 0) + '\n' +
-      'Survives to your next pick: ' + Math.round((s.survival_to_next || 0) * 100) + '%\n\n' +
+      'Survives to your next pick: ' + survivalText(s.survival_to_next) + ' (interim model — see the caveat)\n\n' +
       s.reasons.map(r => '• ' + r).join('\n')
     );
   }

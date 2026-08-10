@@ -72,6 +72,40 @@ if (withRep.length) {
      overridden.length === 0,
      overridden.map(p => p + ': pipeline ' + pipelineByPos[p] + ' but got ' + levels[p]).join(', '));
 
+  /* CROSS-PATH (rule 11 req 3) + INDEPENDENT ARITHMETIC (rule 12).
+   *
+   * The JS fallback and draft/vorp.py are two implementations of ONE definition:
+   * replacement is the LAST STARTER at a position once FLEX has been allocated
+   * iteratively to whichever position offers the best next-man-up. Forcing the
+   * fallback (strip p.replacement) must reproduce the pipeline's shipped numbers
+   * EXACTLY. Before this, it did not:
+   *      WR 199.00 vs 172.67 (flex-blind + off-by-one)  QB 337.48 vs 343.42
+   *      TE 146.90 vs 150.72                            RB 188.53 == 188.53
+   * RB agreeing by luck is the trap — a spot-check on RB alone would have cleared it.
+   */
+  {
+    const stripped = withRep.map(p => { const q = Object.assign({}, p); delete q.replacement; return q; });
+    const derived = V.replacementLevels(stripped, league);
+    const pipe = {};
+    withRep.forEach(p => { if (pipe[p.position] == null) pipe[p.position] = p.replacement; });
+    const off = Object.keys(pipe).filter(k => Math.abs(derived[k] - pipe[k]) >= 1e-9);
+    ck('the DERIVED fallback reproduces the pipeline at every position',
+       off.length === 0,
+       off.map(k => k + ': pipeline ' + pipe[k] + ' vs derived ' + derived[k]).join(', '));
+
+    // INDEPENDENT ARITHMETIC: recompute WR replacement here, from the sorted
+    // projections at the stated rank, without calling either implementation.
+    // 2 WR x 10 teams = 20 dedicated, + 9 of the 10 FLEX slots -> rank 29.
+    const wr = withRep.filter(p => p.position === 'WR')
+      .sort((a, b) => (b.proj_mean || 0) - (a.proj_mean || 0));
+    ck('WR replacement equals the 29th-ranked WR projection (hand arithmetic)',
+       Math.abs(pipe.WR - wr[28].proj_mean) < 1e-9,
+       'pipeline ' + pipe.WR + ' vs WR#29 ' + (wr[28] || {}).proj_mean);
+    ck('...and NOT the 21st, which is the flex-blind answer',
+       Math.abs(pipe.WR - wr[20].proj_mean) > 1,
+       'WR#21 is ' + (wr[20] || {}).proj_mean);
+  }
+
   const full = V.replacementLevels(withRep, league);
   const states = {
     'thin (25)': withRep.slice(0, 25),

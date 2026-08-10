@@ -383,6 +383,24 @@ derivation paths and determine whether those paths are actually compared.** Thre
 hit by accident — the WR replacement paths, the thin-pool recompute, and the local consensus
 implementation inside the waiver route. Three by luck suggests more.
 
+**12. THE OUTPUT MUST BE SANE, NOT ONLY THE PLUMBING.** Cory, 2026-08-10. Rule 11 asks
+whether the pipe leaks; **rule 12 asks whether what came out is water.** A system can be
+internally consistent and numerically wrong — every layer agreeing while a constant is off, a
+sign is inverted, or a lookup returns the right shape with the wrong content.
+
+**For each sampled output, verify every applicable transformation from authoritative input
+through projection, replacement and VORP, tier and score, to survival — using INDEPENDENT
+arithmetic and INDEPENDENT lookup.** "Every applicable" is deliberate, and **applicability
+must be ARGUED, not asserted**: marking something not-applicable requires saying why, or the
+rule is satisfied by declaring everything inapplicable.
+
+Done once now and again at each major change: **10-15 values spanning the board** — a top RB,
+a mid-round WR, an elite QB, a streaming DEF, a kicker, a deep flier — with **the arithmetic
+stated rather than the agreement asserted**.
+
+*Rule 9 standing:* a **statement**, not a workstream. A SAMPLE, not exhaustive verification:
+ten to fifteen values checked properly beats a thousand asserted.
+
 *Rule 9 standing:* a **statement**, not a workstream. No new directory, no recurring audit,
 no validation framework. The coverage number goes in the artifact it describes; the
 known-answer case goes in the test that already exists for that transformation; the cross-path

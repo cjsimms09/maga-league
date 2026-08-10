@@ -144,18 +144,71 @@
       (byPos[p.position] = byPos[p.position] || []).push(p);
     });
     const thin = [];
+    /* THE DERIVED FALLBACK NOW USES THE PIPELINE'S DEFINITION (2026-08-10).
+     *
+     * IT WAS WRONG IN TWO WAYS, and they compounded:
+     *
+     *   1. FLEX-BLIND. It used `starters[pos] * teams` dedicated slots only. This
+     *      league has 1 FLEX x 10 teams, and the iterative allocation gives NINE
+     *      of those ten to WR — so 29 WRs start every week, not 20. The 21st WR
+     *      is not freely available, which is what replacement level MEANS.
+     *   2. OFF BY ONE. It indexed `[needed]`, the FIRST BENCH player. Replacement
+     *      is the LAST STARTER — "the worst player who still starts somewhere in
+     *      the league every week" (draft/vorp.py). `[needed - 1]`.
+     *
+     * Measured against the shipped board, derived vs pipeline:
+     *      WR  199.00 vs 172.67   (flex + off-by-one, 26.33 points)
+     *      QB  337.48 vs 343.42   (off-by-one)
+     *      TE  146.90 vs 150.72   (off-by-one)
+     *      RB  188.53 vs 188.53   (AGREED — by luck: the off-by-one landed on the
+     *                              same rank the flex allocation produces, 21)
+     * RB agreeing is the dangerous part: a spot-check on RB would have cleared it.
+     *
+     * ONE DEFINITION, and the cross-path test in c1_agreement forces the two
+     * implementations to keep producing identical numbers on the real artifact.
+     * The pipeline value is still PREFERRED whenever present (every one of the
+     * 1762 projected players carries it); this path exists only for pools that
+     * have none, such as the synthetic MCTS boards.
+     */
+    const flexCounts = {};                     // pos -> starters incl. flex share
+    Object.keys(byPos).forEach(function (pos) {
+      byPos[pos].sort(function (a, b) { return (b.proj_mean || 0) - (a.proj_mean || 0); });
+      flexCounts[pos] = Math.max(0, (starters[pos] || 0) * teams);
+    });
+    // Allocate every flex slot to whichever eligible position offers the best
+    // next-man-up, one slot at a time. Mirrors vorp.py's convergence loop; a
+    // single pass suffices because the greedy order is already the fixed point.
+    let totalFlex = 0;
+    const eligible = {};
+    Object.keys(starters).forEach(function (slot) {
+      if (!FLEX_ELIGIBLE[slot]) return;
+      totalFlex += (starters[slot] || 0) * teams;
+      FLEX_ELIGIBLE[slot].forEach(function (p) { if (byPos[p]) eligible[p] = true; });
+    });
+    const eligiblePos = Object.keys(eligible).sort();
+    for (let s = 0; s < totalFlex; s++) {
+      let bestPos = null, bestVal = -Infinity;
+      for (let j = 0; j < eligiblePos.length; j++) {
+        const pos = eligiblePos[j], idx = flexCounts[pos] || 0;
+        if (idx < byPos[pos].length) {
+          const v = byPos[pos][idx].proj_mean || 0;
+          if (v > bestVal) { bestVal = v; bestPos = pos; }
+        }
+      }
+      if (!bestPos) break;
+      flexCounts[bestPos] = (flexCounts[bestPos] || 0) + 1;
+    }
     Object.keys(byPos).forEach(function (pos) {
       if (out[pos] != null) return;              // pipeline value — full-pool, trusted
-      const needed = Math.max(0, (starters[pos] || 1) * teams);
-      byPos[pos].sort(function (a, b) { return (b.proj_mean || 0) - (a.proj_mean || 0); });
-      if (byPos[pos].length <= needed) {
+      const n = Math.max(1, flexCounts[pos] || 0);
+      if (byPos[pos].length < n) {
         // The subset does not even reach the replacement rank, so there is no
         // honest baseline to compute. Refuse rather than clamp to the worst man.
         out[pos] = null;
         thin.push(pos);
         return;
       }
-      out[pos] = (byPos[pos][needed] || {}).proj_mean || 0;
+      out[pos] = (byPos[pos][n - 1] || {}).proj_mean || 0;   // LAST STARTER
     });
     try {
       Object.defineProperty(out, '__thin', { value: thin, enumerable: false });
