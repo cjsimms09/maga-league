@@ -2184,15 +2184,20 @@ details.sa-preview[open] > summary { border-bottom: 1px solid var(--line); }
 }
 .clock-name {
   font-family: var(--font-display); font-weight: 900; line-height: 1.05;
-  font-size: clamp(1.9rem, 9vw, 3rem); color: #fff; margin: .2rem 0 .1rem;
+  /* was #fff — a dark-theme holdover that rendered the player's NAME white-on-white
+     (invisible) after the site flipped to the light theme. The one word you most
+     need on the clock. Dark heading ink on the light card. */
+  font-size: clamp(1.9rem, 9vw, 3rem); color: var(--navy); margin: .2rem 0 .1rem;
   display: flex; align-items: center; gap: .5rem; flex-wrap: wrap;
 }
 .clock-meta { font-size: .82rem; color: var(--muted); }
 .clock-why { font-size: .95rem; color: #17263a; line-height: 1.45; margin-top: .5rem; }
 .clock-confidence { margin-top: .5rem; font-size: .82rem; }
 .clock-confidence .coin-flip { color: var(--gold-bright); font-weight: 700; }
-.clock-confidence .close { color: #fcd34d; }
-.clock-confidence .clear { color: #86efac; }
+/* were light-on-dark holdovers (#fcd34d / #86efac) — low-contrast on the light
+   clock card. Readable semantic colors for the light theme. */
+.clock-confidence .close { color: var(--gold-bright); font-weight: 700; }
+.clock-confidence .clear { color: var(--green); font-weight: 700; }
 .clock-actions { display: flex; gap: .4rem; margin-top: .9rem; flex-wrap: wrap; }
 
 /* How much to trust the ranking, said above it rather than hidden in a tooltip. */
