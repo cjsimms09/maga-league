@@ -430,8 +430,19 @@
     var delta = Math.round((adp - ourPick) * 10) / 10;
     // An explicit finite band is honoured (tests, overrides); otherwise DERIVE the
     // per-region band from the exp-36 reliability surface (noiseBandFor).
-    var band = Number(noiseBand);
-    if (!Number.isFinite(band)) band = noiseBandFor(ourPick, p.position);
+    //
+    // MATERIALITY BUG (2026-08-10 critique): the app passes noiseBand === null to
+    // ask for the derived band, but `Number(null)` is 0 — a FINITE number — so the
+    // isFinite guard passed, band stayed 0, and `|delta| < 0` was never true: every
+    // deviation showed the LEAN banner, including a 0.1-pick non-deviation (Gibbs,
+    // 'ADP 1.1 · we say now, 0.1 early'). null/undefined must derive, not collapse
+    // to a zero band that flags everything.
+    var band;
+    if (noiseBand == null || !Number.isFinite(Number(noiseBand))) {
+      band = noiseBandFor(ourPick, p.position);
+    } else {
+      band = Number(noiseBand);
+    }
 
     // SILENCE INSIDE THE BAND. Most picks are market picks.
     if (Math.abs(delta) < band) return null;

@@ -29,6 +29,14 @@ const entry = (weighted, over) => ({
     D.badge(e, 74, 4) !== null);
   check('no ADP at all = nothing to deviate from = silence',
     D.badge(entry({ tier: 9 }, { adjusted_adp: null, raw_adp: null }), 60, 4) === null);
+  // MATERIALITY (2026-08-10 critique): the app passes noiseBand === null to ask for
+  // the DERIVED per-region band. Number(null) is 0 (finite), which used to collapse
+  // the band to 0 and flag every 0.1-pick non-deviation as a LEAN. null must derive.
+  const tiny = D.badge(entry({ tier: 9 }, { adjusted_adp: 60.1 }), 60, null);  // 0.1 early
+  check('a 0.1-pick deviation with a null (derive) band is SILENT, not a LEAN',
+    tiny === null, JSON.stringify(tiny));
+  check('a real deviation with a null (derive) band still speaks',
+    D.badge(entry({ tier: 9 }, { adjusted_adp: 68 }), 60, null) !== null);  // 8 early > band
 }
 
 // --- THE DELTA, BOTH DIRECTIONS ---------------------------------------------
