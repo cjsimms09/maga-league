@@ -10,9 +10,9 @@ Pre-registration: top-decile improves as weight falls below 0.35; flat => not th
 
 | REGRESSION_WEIGHT | n | top-decile | rank-corr | MAE |
 |---|---|---|---|---|
-| 0.0 | 764 | 0.513 | 0.64 | 47.74 |
+| 0.0 | 764 | 0.513 | 0.641 | 47.74 |
 | 0.1 | 764 | 0.487 | 0.634 | 49.05 |
-| 0.2 | 764 | 0.461 | 0.626 | 50.51 |
+| 0.2 | 764 | 0.461 | 0.627 | 50.51 |
 | 0.35 ← shipped | 764 | 0.395 | 0.608 | 53.0 |
 | 0.5 | 764 | 0.355 | 0.583 | 55.87 |
 | 0.7 | 764 | 0.329 | 0.533 | 60.35 |
@@ -29,11 +29,11 @@ Pre-registration: top-decile improves as weight falls below 0.35; flat => not th
 |---|---|---|---|
 | 0.0 | 0.529 | 0.624 |  |
 | 0.1 | 0.588 | 0.62 |  |
-| 0.2 | 0.529 | 0.611 |  |
+| 0.2 | 0.529 | 0.612 |  |
 | 0.35 | 0.529 | 0.605 | ← shipped |
 | 0.5 | 0.529 | 0.579 |  |
 | 0.7 | 0.529 | 0.546 |  |
-| 1.0 | 0.353 | 0.234 |  |
+| 1.0 | 0.353 | 0.224 |  |
 
 ### 2024 — peak 0.0, naive td 0.587
 | w | top-decile | rank-corr |  |
@@ -44,7 +44,7 @@ Pre-registration: top-decile improves as weight falls below 0.35; flat => not th
 | 0.35 | 0.413 | 0.581 | ← shipped |
 | 0.5 | 0.391 | 0.554 |  |
 | 0.7 | 0.391 | 0.508 |  |
-| 1.0 | 0.304 | 0.199 |  |
+| 1.0 | 0.326 | 0.199 |  |
 
 ### 2023 — peak 0.0, naive td 0.565
 | w | top-decile | rank-corr |  |
@@ -52,10 +52,10 @@ Pre-registration: top-decile improves as weight falls below 0.35; flat => not th
 | 0.0 | 0.5 | 0.648 |  |
 | 0.1 | 0.478 | 0.64 |  |
 | 0.2 | 0.457 | 0.629 |  |
-| 0.35 | 0.413 | 0.608 | ← shipped |
+| 0.35 | 0.413 | 0.607 | ← shipped |
 | 0.5 | 0.391 | 0.578 |  |
 | 0.7 | 0.391 | 0.526 |  |
-| 1.0 | 0.326 | 0.215 |  |
+| 1.0 | 0.326 | 0.213 |  |
 
 ## Caveats
 
