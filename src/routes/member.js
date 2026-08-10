@@ -992,8 +992,32 @@ router.get('/bank', aw(async (req, res) => {
     }
   }
 
+  // CAREER MONEY — cumulative banked total + all-time rank. The page shows this
+  // season's tab in detail but never answered "how much have I actually won here,
+  // ever, and where does that put me". Derived from the SAME winningsGrid /
+  // careerTotals the history page uses, so the two can't disagree.
+  let career = null;
+  try {
+    const grid = H.winningsGrid(world);
+    const totals = H.careerTotals(grid, owners);
+    const ranked = owners
+      .map(o => ({ owner_id: o.id, name: o.name, won: Math.round((totals[o.id] || 0) * 100) / 100 }))
+      .sort((a, b) => b.won - a.won || a.name.localeCompare(b.name));
+    // Standard competition ranking ("1224"), matching moneyStandings.
+    let rk = 0, prev = null;
+    ranked.forEach((r, i) => { if (prev === null || r.won !== prev) rk = i + 1; r.rank = rk; prev = r.won; });
+    const mine = ranked.find(r => r.owner_id === req.owner.id) || null;
+    // Seasons actually played (a denominator, so "per season" is honest).
+    const seasonsPlayed = Object.keys(grid[req.owner.id] || {}).length;
+    career = {
+      mine, ranked, of: ranked.length, seasonsPlayed,
+      perSeason: mine && seasonsPlayed ? Math.round((mine.won / seasonsPlayed) * 100) / 100 : null,
+      leader: ranked[0] || null,
+    };
+  } catch (e) { career = null; /* reference numbers are a bonus, never break the page */ }
+
   res.render('bank', {
-    poolAdvice,
+    poolAdvice, career,
     // Propose-from-anywhere: a ?betvs=<id> link (matchup, standings, franchise)
     // pre-selects that opponent in the bet builder.
     prefillParty: Number(req.query.betvs) || null,

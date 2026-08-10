@@ -3988,3 +3988,13 @@ table.roll td.num, .pf, .wh-race-scale, .wh-band-note{ color: var(--ink); }
   align-items: center; height: 100%; }
 .acc-bar i { display: block; width: 100%; background: var(--blue); border-radius: 3px 3px 0 0; min-height: 3px; }
 .acc-bar span { font-size: .56rem; color: var(--muted); margin-top: .15rem; font-variant-numeric: tabular-nums; }
+
+/* BANK — career money reference numbers (all-time banked / rank / per season). */
+.bk-career { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; }
+@media (max-width: 460px) { .bk-career { grid-template-columns: 1fr 1fr; } .bk-career-cell:first-child { grid-column: 1 / -1; } }
+.bk-career-cell { background: var(--panel-soft); border: 1px solid var(--line); border-radius: 10px;
+  padding: .6rem .5rem; text-align: center; }
+.bk-career-num { display: block; font-family: var(--font-display); font-size: 1.5rem; font-weight: 800;
+  color: var(--navy); font-variant-numeric: tabular-nums; line-height: 1.15; }
+.bk-career-of { font-size: .72rem; color: var(--muted); font-weight: 700; margin-left: .18rem; }
+.bk-career-lbl { display: block; font-size: .68rem; color: var(--muted); margin-top: .18rem; }

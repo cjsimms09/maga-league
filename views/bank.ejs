@@ -185,6 +185,43 @@ season until settled.</p>
 </details>
 <% } %>
 
+<%# ── CAREER MONEY — the reference numbers: what you've actually banked here over
+    all the years, and where that puts you. The page detailed this season's tab
+    but never answered the all-time question. Same winningsGrid/careerTotals the
+    history page uses, so the two can never disagree. %>
+<% const CR = (typeof career !== 'undefined' && career && career.mine) ? career : null; %>
+<% if (CR) { %>
+  <div class="card" style="margin-bottom:1.2rem">
+    <h2>🏦 Your career money <span class="sub">every season, all-time — the long scoreboard</span></h2>
+    <div class="body">
+      <div class="bk-career">
+        <div class="bk-career-cell">
+          <span class="bk-career-num money-gold"><%= money(CR.mine.won) %></span>
+          <span class="bk-career-lbl">banked all-time</span>
+        </div>
+        <div class="bk-career-cell">
+          <span class="bk-career-num"><%= CR.mine.rank %><span class="bk-career-of">of <%= CR.of %></span></span>
+          <span class="bk-career-lbl">money rank</span>
+        </div>
+        <div class="bk-career-cell">
+          <span class="bk-career-num"><%= CR.perSeason != null ? money(CR.perSeason) : '—' %></span>
+          <span class="bk-career-lbl">per season (<%= CR.seasonsPlayed %>)</span>
+        </div>
+      </div>
+      <p class="muted" style="margin:.6rem 0 0; font-size:.78rem">
+        <% if (CR.mine.rank === 1) { %>
+          You lead the all-time money board. <b>Everything below is this season only.</b>
+        <% } else if (CR.leader) { %>
+          <b><%= CR.leader.name %></b> leads all-time with <b><%= money(CR.leader.won) %></b> —
+          you're <b><%= money(CR.leader.won - CR.mine.won) %></b> back.
+          <span class="muted">Winnings only; the tab below is this season's cash position.</span>
+        <% } %>
+        <a href="/history?section=money">The full money history →</a>
+      </p>
+    </div>
+  </div>
+<% } %>
+
 <%# ── The chart: who owes what, at a glance. Tap a name to open their ledger. ── %>
 <div class="card">
   <h2>📊 Where Everyone Stands <span class="sub"><%= season.year %> — tap a name for their ledger</span></h2>
