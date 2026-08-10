@@ -1283,7 +1283,11 @@ table.ledger tr.is-settled td:nth-child(2) { text-decoration: line-through; text
   padding-bottom: .3rem; -webkit-overflow-scrolling: touch;
 }
 .section-tabs a {
-  flex: 1 0 auto; text-align: center; text-decoration: none;
+  /* was `flex: 1 0 auto` — the tabs refused to SHRINK, so a long sub-label
+     ("validated on 2023–25, to the dollar") pushed the strip past the viewport
+     and the text clipped at the right edge on a phone. `1 1 0` lets them share
+     the width evenly and wrap their sub-label instead of overflowing. */
+  flex: 1 1 0; text-align: center; text-decoration: none;
   padding: .5rem .8rem; border-radius: 12px; min-width: 106px;
   background: rgba(255, 255, 255, .04); border: 1px solid var(--line);
 }
@@ -3662,6 +3666,17 @@ table.roll tbody tr:hover td, table.roll tr:hover td{ background:rgba(12,26,43,.
 
 /* headings + type scale */
 h1.page-title{ color:var(--navy); font-family:var(--font-display); font-weight:800; letter-spacing:-.02em; }
+/* THE PAGE SUBTITLE was never styled — only `.card > h2 .sub` was — so a
+   `<span class="sub">` inside an h1 inherited the FULL display face: 1.7rem,
+   uppercase, weight 900. "🎯 Lineup Optimizer / the money you leave on the bench"
+   therefore rendered as one run-on heading three lines deep on a phone, with no
+   visual hierarchy between title and subtitle. Make it properly subordinate:
+   its own line, sentence case, body face, muted. (7 pages use this pattern.) */
+h1.page-title .sub{
+  display:block; margin-top:.3rem;
+  font-family:var(--font-body); font-size:.86rem; font-weight:500;
+  letter-spacing:.01em; text-transform:none; color:var(--muted);
+}
 .card > h2{ color:var(--navy); }
 .card > h2 .sub{ color:var(--muted); }
 /* section labels read as terminal micro-labels — the techy accent */
