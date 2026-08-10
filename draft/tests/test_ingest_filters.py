@@ -56,6 +56,26 @@ ck("14 teams is rejected", F.screen(league(teams=14))[1] == "F1.teams")
 ck("12 teams is ACCEPTED (both sizes qualify)", F.screen(league(teams=12))[0])
 ck("full PPR is rejected", F.screen(league(scoring={"rec": 1.0}))[1] == "F1.scoring_not_half_ppr")
 ck("standard (no PPR) is rejected", F.screen(league(scoring={"rec": 0.0}))[1] == "F1.scoring_not_half_ppr")
+# ── F1 v2: scoring is PER-POSITION (MFL has no scalar `rec`) ────────────────
+# v1 read one number. MFL's scoring is per-position, so a 0.5/WR + 1.0/TE league
+# would have passed as half-PPR by reading a scalar that does not exist. v2 is
+# STRICTER: every skill position independently inside the band.
+ck("TE premium is rejected (v1 would have ADMITTED it)",
+   F.screen(league(scoring={"rec_by_position": {"RB": 0.5, "WR": 0.5, "TE": 1.0}}))[1]
+   .startswith("F1.te_premium_or_split_ppr"))
+ck("...and the reason names the offending position and its value",
+   "TE=1.0" in F.screen(league(scoring={"rec_by_position": {"RB": 0.5, "WR": 0.5, "TE": 1.0}}))[1])
+ck("genuine per-position half-PPR is ACCEPTED",
+   F.screen(league(scoring={"rec_by_position": {"RB": 0.5, "WR": 0.5, "TE": 0.5}}))[0])
+ck("a uniform out-of-band league is 'not half PPR', NOT 'TE premium'",
+   F.screen(league(scoring={"rec": 1.0}))[1] == "F1.scoring_not_half_ppr")
+ck("scoring we could not retrieve is its OWN reason, not a PPR failure",
+   F.screen(league(scoring={}))[1].startswith("F4.no_scoring_rules"))
+ck("a position with no reception rule is UNKNOWN, never 0.0",
+   F.screen(league(scoring={"rec_by_position": {"RB": 0.5, "WR": 0.5}}))[1]
+   .startswith("F4.no_scoring_rules"))
+ck("superflex flagged by the adapter is rejected (MFL has no SUPER_FLEX slot)",
+   F.screen(league(superflex=True, scoring={"rec": 0.5}))[1] == "F1.qb_slots")
 sf = {"QB": 1, "RB": 2, "WR": 2, "TE": 1, "FLEX": 1, "SUPER_FLEX": 1, "K": 1, "DEF": 1}
 ck("superflex is rejected (it swamps QB scarcity)",
    F.screen(league(roster_slots=sf))[1] == "F1.qb_slots")

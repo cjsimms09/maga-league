@@ -26,7 +26,7 @@ from __future__ import annotations
 
 from collections import Counter
 
-FILTER_VERSION = "v1 (2026-08-10)"
+FILTER_VERSION = "v2 (2026-08-10) — F1.scoring per-position; v1 retained in INGEST-PLAN.md"
 
 # F1 — format match
 TEAMS_ALLOWED = (10, 12)
@@ -43,6 +43,8 @@ MAX_AUTOPICK_SHARE = 0.50
 TARGET_MATCHED_LEAGUE_SEASONS = 200
 
 SKILL_SLOTS = ("RB", "WR", "TE", "FLEX", "REC_FLEX")
+# The positions F1 v2 checks reception scoring on, independently.
+SKILL_POSITIONS = ("RB", "WR", "TE")
 
 
 def _starting_skill(slots: dict) -> int:
@@ -62,12 +64,41 @@ def screen(league: dict) -> tuple[bool, str]:
     teams = league.get("teams")
     if teams not in TEAMS_ALLOWED:
         return False, "F1.teams"
-    rec = scoring.get("rec")
-    if rec is None or not (PPR_RANGE[0] <= float(rec) <= PPR_RANGE[1]):
-        return False, "F1.scoring_not_half_ppr"
+    # F1.scoring — v2. v1 read a single scalar `rec`, which MFL DOES NOT HAVE:
+    # its scoring is PER-POSITION, so a league can be 0.5/reception for WR and
+    # 1.0 for TE. v1 would have admitted that TE-premium league by reading a
+    # number that does not exist. v2 is STRICTER, not looser: every skill
+    # position independently inside the band.
+    #
+    # A scalar `rec` is still accepted — Sleeper genuinely has one — but it is
+    # expanded to all three positions rather than treated as a different rule.
+    by_pos = scoring.get("rec_by_position")
+    if by_pos is None and scoring.get("rec") is not None:
+        by_pos = {p: float(scoring["rec"]) for p in SKILL_POSITIONS}
+    if not by_pos:
+        # "We could not tell" is NOT "we checked and it did not match". Conflating
+        # them makes the attrition report claim a check it never performed.
+        return False, "F4.no_scoring_rules"
+    missing = [p for p in SKILL_POSITIONS if by_pos.get(p) is None]
+    if missing:
+        return False, "F4.no_scoring_rules:" + ",".join(missing)
+    vals = {p: float(by_pos[p]) for p in SKILL_POSITIONS}
+    outside = [p for p in SKILL_POSITIONS if not (PPR_RANGE[0] <= vals[p] <= PPR_RANGE[1])]
+    if outside:
+        # TWO DIFFERENT REJECTIONS, kept apart because the attrition report is
+        # only useful if its reasons are true. A league that is 1.0 at every
+        # position is full PPR — not "TE premium". Split scoring is the NEW
+        # exclusion v2 adds; uniform-but-outside is v1's, and still accurate.
+        if len(set(vals.values())) == 1:
+            return False, "F1.scoring_not_half_ppr"
+        return False, "F1.te_premium_or_split_ppr:" + ",".join(
+            f"{p}={vals[p]}" for p in outside)
     # Superflex changes QB scarcity so completely it would swamp every positional
-    # finding, so it is excluded rather than controlled for.
-    if int(slots.get("QB") or 0) != QB_SLOTS_REQUIRED or slots.get("SUPER_FLEX"):
+    # finding, so it is excluded rather than controlled for. MFL has NO SUPER_FLEX
+    # slot — it expresses superflex as a QB limit whose max exceeds its min — so
+    # the adapter sets `superflex` explicitly and it is checked here too.
+    if int(slots.get("QB") or 0) != QB_SLOTS_REQUIRED or slots.get("SUPER_FLEX") \
+            or league.get("superflex"):
         return False, "F1.qb_slots"
     skill = _starting_skill(slots)
     if not (STARTING_SKILL_RANGE[0] <= skill <= STARTING_SKILL_RANGE[1]):
