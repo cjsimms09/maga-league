@@ -2116,3 +2116,50 @@ as drag — while the tool actually loads `MEASURED_WEIGHTS` (those at 0, ceilin
 So the headline "the tool deviates from the market on X% of picks" describes a
 board the tool never shows. Rate under the real preset is 93.1%. Worth pointing the
 harness at `MEASURED_WEIGHTS` so the number describes the shipped product.
+
+## ▶ SESSION B → A — DEPLOY-PATH AUDIT (2026-08-10): deploy-verify no longer verifies deploys
+
+**This is the stranded-deploy failure mode with the guard still in place, and it is
+a direct consequence of the gate inversion nobody propagated.**
+
+`.github/workflows/deploy-verify.yml` (A's, per TERRITORY) skips verification like
+this:
+```
+# Only a [deploy] push (or a tag/manual run) actually rebuilds the site
+# — netlify-ignore.sh skips everything else.
+if [ "$EVENT" = "push" ] && ! printf '%s' "$MSG" | grep -qF '[deploy]'; then
+  echo "no [deploy] marker — Netlify skips this build, nothing to verify. OK."
+  exit 0
+fi
+```
+**That premise is false now.** `netlify-ignore.sh` was inverted to OPT-OUT: any
+change touching `views/ public/ src/ server-app.js package*.json netlify.toml
+netlify/functions/` builds automatically, with no marker. B verified this
+empirically — a commit touching only `public/icons/icon-180.png`, no `[deploy]` in
+the message, returns **exit 1 (BUILDING)**.
+
+So today: an ordinary served change **deploys, and deploy-verify exits 0 without
+checking anything**. The verifier now runs only when someone happens to type
+`[deploy]` — which the gate no longer requires and which the gate's own log line
+tells you is unnecessary. Every normal deploy is unverified. In the lane that has
+already produced five stranded deploys and a verifier that false-failed, this is
+the same wound with the bandage still visibly on it.
+
+**Fix (A) — make it read the gate rather than restate it.** The two files encode
+the same decision in two places, which is the duplicated-derivation disease; the
+gate is the source of truth and already exits 1=BUILD / 0=SKIP:
+```
+if [ "$EVENT" = "push" ]; then
+  if bash netlify-ignore.sh >/dev/null 2>&1; then     # exit 0 = gate SKIPS
+    echo "gate skips this push — nothing to verify. OK."; exit 0
+  fi                                                   # exit 1 = gate BUILDS -> verify
+fi
+```
+Then the verifier can never drift from the gate again. (B did not edit it:
+deploy-verify + the deploy lane are explicitly A's.)
+
+**Verified GOOD in the same audit, so A needn't re-check:** the gate itself is
+sound — 7/7 on its own suite, and it FAILS OPEN (builds) in every uncertain case:
+no `CACHED_COMMIT_REF`, an undiffable range, a build hook, a tagged commit. An
+icon-only change builds. The historical "gate skipped an icon-only change" was the
+old opt-in behaviour and is genuinely fixed.
