@@ -42,6 +42,14 @@
   </a>
 <% } %>
 
+<%# A bet the server refused must say so HERE too — this page used to show
+    "✅ Bet sent" regardless, so a failed proposal was confirmed rather than
+    reported. Same handler, both doors. %>
+<% if (typeof betFail !== 'undefined' && betFail) { %>
+  <div class="alert-banner" style="margin-bottom:1rem; border-color:rgba(212,36,47,.55)">
+    <span class="tag">⚠️</span><span><b>That bet wasn't created.</b> <%= betFail %></span>
+  </div>
+<% } %>
 <% if (sent) { %>
   <div class="alert-banner" style="margin-bottom:1rem; border-color:rgba(74,222,128,.5)">
     <span class="tag">✅</span><span>Bet sent<% if (opp) { %> to <b><%= opp.name %></b><% } %>. It's in the ledger as <b>OPEN</b> —

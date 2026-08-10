@@ -1112,6 +1112,7 @@ router.get('/bank', aw(async (req, res) => {
     section, bets, tallies, owners, betNames, sbLedger, sbOwed, sbOwedMine, verdicts, liveOrder,
     sbGrid, sbView, sbDrill,
     deadlines, late: req.query.late === '1',
+    betFail: betFailMessage(req.query.betfail),
     currentWeek: (await sleeper.bundle(world.config.sleeper_league_id) || {}).week || 1,
     BL, payDirectory: owners.filter(o => o.venmo || o.paypal || o.cashapp || o.zelle),
     V, ownerById: id => owners.find(o => o.id === Number(id)),
@@ -1276,6 +1277,20 @@ function poolDraftOrder(world, owners, aId, bId) {
   return { order: [first, second], why };
 }
 
+// Turn a refusal code into the sentence the proposer needs. Anything we don't
+// recognise still says SOMETHING — "no reason given" is the failure being fixed,
+// so the default must never be silence.
+function betFailMessage(code) {
+  const c = String(code || '');
+  if (!c) return null;
+  if (c === 'terms') return "That bet has no terms. Pick a bet type and fill it in, or write the terms yourself — otherwise there's nothing to settle later.";
+  if (c === 'stake-missing') return 'That bet has no stake. Put a dollar amount on it.';
+  if (c === 'stake-zero') return 'A stake has to be more than $0.';
+  if (c === 'nobody') return "Nobody's on the other side. Name at least one opponent, or post it to the board with open slots so someone can take it.";
+  if (c.startsWith('rejected:')) return 'The bet was refused: ' + c.slice(9) + '. Nothing was written — fix it and send again.';
+  return 'That bet was not created (' + c + '). Nothing was written — fix it and send again.';
+}
+
 router.post('/sidebets', aw(async (req, res) => {
   const ids = [].concat(req.body.party || []).map(Number).filter(Boolean);
   const stake = parseFloat(req.body.stake);
@@ -1291,7 +1306,23 @@ router.post('/sidebets', aw(async (req, res) => {
     terms = BL.betText({ format, conditions, logic: req.body.logic,
       pool_outcome: req.body.pool_outcome, terms: '' }, nameOf);
   }
-  if (terms && Number.isFinite(stake) && stake > 0 && (ids.length || openSlots)) {
+  // WHY THIS SAYS WHY IT REFUSED.
+  //
+  // This used to be one silent `if`: fail the guard and control fell straight
+  // through to the redirect at the bottom, so pressing "Send it" reloaded the
+  // page with no bet, no error, and no reason. The catch below did the same for
+  // anything SB.propose threw, on the reasoning that "the form enforces it too"
+  // — which is the whole problem, because a client-side `required` is not a
+  // guarantee and the one time it doesn't hold is the one time you need to be
+  // told. Found by driving the builder as a member: the bet was never written
+  // and the page said nothing about it.
+  const why = !terms ? 'terms'
+    : !Number.isFinite(stake) ? 'stake-missing'
+    : stake <= 0 ? 'stake-zero'
+    : !(ids.length || openSlots) ? 'nobody'
+    : null;
+  let failed = why;
+  if (!why) {
     try {
       // A pool bet is a DRAFT: every league franchise is in play and NOBODY
       // picks at propose time — the alternating draft opens on accept. So the
@@ -1316,14 +1347,24 @@ router.post('/sidebets', aw(async (req, res) => {
       // Nobody checks a website for a bet they do not know exists.
       const targets = owners.filter(o => ids.includes(o.id));
       notify.sideBetProposed(targets, bet, req.owner.name, terms).catch(() => {});
-    } catch (e) { /* needs someone on the other side; the form enforces it too */ }
+    } catch (e) {
+      // Carry the reason, don't swallow it. Truncated and query-escaped; the
+      // page renders it as text, never as markup.
+      failed = 'rejected:' + String(e && e.message || 'unknown').slice(0, 120);
+    }
   }
   // The matchup page sends people back to it, not the finance page — the bet was
   // made in the flow of "who am I playing", so that is where the confirmation lands.
   if (req.body.back === 'matchup') {
-    return res.redirect('/matchup?sent=1' + (req.body.party ? '&opp=' + Number(req.body.party) : ''));
+    // NEVER `sent=1` on a failure. This path used to redirect to "✅ Bet sent"
+    // whether or not a bet existed — a confirmation for something that never
+    // happened, which is worse than saying nothing at all.
+    const opp = req.body.party ? '&opp=' + Number(req.body.party) : '';
+    return res.redirect(failed
+      ? '/matchup?betfail=' + encodeURIComponent(failed) + opp
+      : '/matchup?sent=1' + opp);
   }
-  res.redirect('/bank?section=sidebets');
+  res.redirect('/bank?section=sidebets' + (failed ? '&betfail=' + encodeURIComponent(failed) : ''));
 }));
 
 /**
@@ -1969,6 +2010,7 @@ router.get('/matchup', aw(async (req, res) => {
     goatId: MK.goatOwnerId(sData, world.config.sleeper_map || {}),
     configured: !!world.config.sleeper_league_id,
     late: req.query.late === '1', sent: req.query.sent === '1',
+    betFail: betFailMessage(req.query.betfail),
     nameOf,
   });
 }));
