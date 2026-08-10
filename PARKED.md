@@ -1374,3 +1374,54 @@ upside skill player remains on the board.
 
 Repro harnesses B used are in B's scratchpad (audit.js / audit2.js / shadow_probe.js)
 — pattern documented above; re-create from engine.js + draft_data.json.
+
+---
+
+## B→A (2026-08-10): Mock keeper over-roster + recommendation-list redesign
+
+From Cory testing the live war room. Two A-lane items (public/js/draft/*).
+B already fixed the one CSS piece (see end). Both below are A's.
+
+### BUG — mock draft over-rosters by the keeper count
+Symptom: "on mock drafts it's still adding my first 3 picks to my roster; they
+should be overridden by my keepers." League keeper model is top_picks_flat,
+count 3 (draft_data.json), and the real board carries 3 forfeited picks.
+
+Root cause — a contradiction in the mock setup (app.js ~3117 & ~3156):
+  - The order is rebuilt with keepers:{count:0, cost_model:'no_cost'} and
+    forfeited:[] ("Mocks have no keepers") → you get ALL 15 picks.
+  - populateKeepers() then ALSO seeds the 3 keepers into state.myRoster.
+  => 3 keepers + 15 live picks = 18 players for 15 slots; the first 3 live picks
+     stack on top of the keepers.
+
+Fix (make the two agree): rebuild the mock order with the REAL keeper config
+(top_picks_flat, count = league.keeper_rules.count) instead of no_cost, so
+my_picks already has the top-N forfeited; then populateKeepers seeds those N
+keepers into the forfeited slots and the totals reconcile (12 live + 3 keepers
+= 15). Or, equivalently, keep no_cost but have populateKeepers NOT seed in mock
+— but that loses the need/bye/stack fidelity the seeding was added for, so the
+forfeit-the-top-N approach is the right one. INVARIANT 2 in pickState() should
+then hold in mocks too (removedFromBoard == picks + keeperPlacements).
+
+### REDESIGN — the main recommendation list (Cory's ask)
+"List the top 5 recommended players with some sort of confidence interval," and
+fix two confusions:
+1. Take button: the top player (e.g. James Cook) shows with no visible "I took
+   him" button on the primary surface. #recs rows carry data-draft-me, so verify
+   the PATHS-panel / clock-view top card always renders a visibly-primary take
+   button (the earlier .path-card.suppressed opacity issue is adjacent).
+2. Ordering confusion: the "Full ranked list" shows James Cook FIRST while the
+   headline recommends CeeDee Lamb. That's the composite-vs-rule split again
+   (James Cook tops the composite via the need term; the rule picks CeeDee Lamb).
+   Reconcile so the list order and the headline agree, or label plainly why they
+   differ. Ties to the engine audit's need-term over-ranking (above in PARKED).
+3. Confidence interval: the data already has proj_floor / proj_mean /
+   proj_ceiling / proj_sd per player (e.g. CeeDee Lamb 251, floor 210, ceil 315).
+   Render the rec as "Proj 251 (210–315)" instead of a bare composite score, so
+   the top-5 reads as a projection with a range, which is what Cory asked for.
+
+### DONE by B (CSS legibility, already pushed)
+Ranked-list player names & stat numbers were #fff (invisible on cream); position
+badges used pale dark-theme pinks/greens/blues; manager-card names #fff; keeper
+roster names pale gold. All recolored to --ink / readable tints. So "can't read
+player names under Full ranked list" is fixed on the branch.
