@@ -2126,6 +2126,45 @@
             + 'until then treat overall pick numbers as provisional',
         };
       })(),
+      // SURVIVAL CALIBRATION, made READABLE. The mock harness has been recording
+      // survival predictions AS DISPLAYED and resolving them for a while, and it
+      // computes a binned curve plus a Brier score — but the only way to read it
+      // was window.DraftMockCalib.report() in a browser console. Under rule 5 a
+      // protection that exists but is unreachable under real conditions is
+      // decorative, and Cory runs mocks from a phone. Data that accumulates and is
+      // never read is the same failure as overrides logged and never graded.
+      //
+      // This is the ONLY honest calibration path we have: a true backtest on
+      // 2023-25 would need those seasons' PRE-DRAFT ADP, which does not exist —
+      // adp_series.json starts 2026-08-09 — and substituting the realized draft
+      // order for ADP would make the test circular by construction. Mocks are
+      // forward-clean by our own rule, so this is the measurement, not a stopgap.
+      (function () {
+        var rep = null;
+        try { rep = window.DraftMockCalib ? window.DraftMockCalib.report() : null; }
+        catch (e) { rep = null; }
+        var n = rep ? (rep.n_resolved || 0) : 0;
+        if (!n) {
+          return { ok: false, label: 'Survival calibration (from mocks)',
+                   detail: 'no resolved predictions yet — run a mock to start the curve',
+                   fix: 'Rehearse against a Sleeper mock; predictions resolve as the mock passes your next pick' };
+        }
+        // Predicted-minus-empirical is the number that matters: a model that says
+        // 70% and delivers 45% is confidently wrong in the direction that makes
+        // you wait on players who are already gone.
+        var drift = (rep.mean_predicted != null && rep.empirical_survival != null)
+          ? (rep.mean_predicted - rep.empirical_survival) : null;
+        return {
+          ok: drift != null && Math.abs(drift) <= 0.10,
+          label: 'Survival calibration (from mocks)',
+          detail: n + ' resolved · Brier ' + (rep.brier == null ? '—' : rep.brier)
+            + ' · predicted ' + Math.round((rep.mean_predicted || 0) * 100) + '%'
+            + ' vs actual ' + Math.round((rep.empirical_survival || 0) * 100) + '%'
+            + (drift == null ? '' : (drift > 0 ? ' — OPTIMISTIC by ' : ' — pessimistic by ')
+               + Math.round(Math.abs(drift) * 100) + 'pts'),
+          fix: 'window.DraftMockCalib.report() for the binned curve',
+        };
+      })(),
       { ok: !!(window.LEAGUE_ID), label: 'Sleeper connected',
         detail: window.LEAGUE_ID ? 'league ' + String(window.LEAGUE_ID).slice(-6) : 'not connected',
         fix: 'Commish → Sleeper' },
