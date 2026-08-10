@@ -441,7 +441,10 @@
           <p class="muted" style="margin:.1rem 0 .1rem; font-size:.72rem"><%= hint %></p>
           <p class="slider-when" style="margin:0 0 .55rem"><b>When to move it:</b> <%= when %></p>
         <% } %>
-        <button class="btn small navy" id="reset-weights">Reset to Measured core</button>
+        <button class="btn small navy" id="reset-weights">Reset to live policy</button>
+        <%# RULE 7: the FROZEN baseline is the only thing called "the measured core";
+            what the sliders hold is live policy. app.js fills this host. %>
+        <div id="baseline-restore" style="margin-top:.4rem"></div>
         <p class="muted" id="weights-effect" style="margin:.5rem 0 0; font-size:.76rem; min-height:1.1em"></p>
       </div>
     </div>

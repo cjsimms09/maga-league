@@ -474,8 +474,65 @@
     });
   }
 
+  /* THE FROZEN MEASURED CORE — fetched once, cached, and restorable in one tap.
+   *
+   * Binding rule 7: THIS is the only object that may be called "the measured
+   * core". What the sliders hold is live policy under continuous measurement.
+   *
+   * Cached to localStorage deliberately, not as an optimisation: the revert has to
+   * work at 8pm on the 22nd with a bad connection or a deploy mid-flight. It
+   * restores POLICY, which is what a bad change corrupts — reverting the deployed
+   * build is a git revert plus a Netlify cycle and can never be one tap. */
+  const BASELINE_KEY = 'mfga.draft.baseline.v1';
+  function loadFrozenBaseline() {
+    try {
+      const cached = JSON.parse(localStorage.getItem(BASELINE_KEY) || 'null');
+      if (cached) state.frozenBaseline = cached;
+    } catch (e) { /* private mode */ }
+    fetch('/admin/api/baseline?version=v1', { cache: 'no-cache' })
+      .then(r => r.ok ? r.json() : null)
+      .then(d => {
+        if (!d || !d.ok || !d.baseline) return;
+        state.frozenBaseline = d.baseline;
+        try { localStorage.setItem(BASELINE_KEY, JSON.stringify(d.baseline)); } catch (e) {}
+        renderBaselineControl();
+      })
+      .catch(() => { /* cached copy is the fallback, which is the whole point */ });
+    renderBaselineControl();
+  }
+
+  /* One tap back to known ground. Placed next to Reset because that is where a
+   * hand goes under pressure, and it says what it restores rather than "revert". */
+  function renderBaselineControl() {
+    const host = $('#baseline-restore');
+    if (!host) return;
+    const b = state.frozenBaseline;
+    if (!b || !b.engine_policy) { host.innerHTML = ''; return; }
+    const frozenAt = (b.frozen_at || '').slice(0, 10);
+    host.innerHTML = '<button class="btn small navy" id="restore-baseline">'
+      + '⏮ Restore the measured core</button>'
+      + '<span class="muted" style="font-size:.72rem;margin-left:.4rem">frozen '
+      + escapeHtml(frozenAt) + '</span>';
+    const btn = $('#restore-baseline');
+    if (btn) btn.onclick = function () {
+      const w = (state.frozenBaseline.engine_policy || {}).MEASURED_WEIGHTS;
+      if (!w) return;
+      const before = state.lastClock ? state.lastClock.scored : null;
+      state.weights = Object.assign({}, w);
+      state.autoWeights = false;
+      try { localStorage.setItem(AUTO_KEY, '0'); } catch (e) {}
+      syncSliders();
+      saveWeights();
+      renderRecommendations();
+      renderPresets();
+      reportWeightEffect(before, 'Restored the FROZEN measured core (' + frozenAt
+        + ') — the immutable reference, not the live policy.');
+    };
+  }
+
   function init() {
     loadWeights();
+    loadFrozenBaseline();
     fetch('/draft_data.json', { cache: 'no-cache' })
       .then(r => {
         if (!r.ok) throw new Error('draft_data.json not found (HTTP ' + r.status + ')');
@@ -5938,7 +5995,7 @@
       // LARGEST DRAGS — and called it "the defaults". One tap mid-draft silently
       // switched the board to the weighting measured as WORST. Reset now loads the
       // MEASURED core the tool actually ships on, and says so.
-      applyPreset('measured', 'Reset to the Measured core (what the tool ships on): '
+      applyPreset('measured', 'Reset to LIVE POLICY (what the tool ships on today): '
         + 'value + stack, everything the Lab measured as drag or null turned off.');
     });
     syncSliders();   // hardcoded value="1" markup -> the MEASURED core we boot on

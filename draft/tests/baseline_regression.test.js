@@ -108,6 +108,38 @@ frozen.surfaces.forEach(f => {
      'mass ' + l.survival_mass + ' over ' + picks + ' picks');
 });
 
+// ── BINDING RULE 7: LANGUAGE DISCIPLINE ─────────────────────────────────────
+// "The measured core" names the FROZEN object and nothing else; what the sliders
+// hold is live policy under continuous measurement. The rule exists because drift
+// happens in the mental model before it happens in the code — the live weights
+// plus a couple of gated promotions start getting described as "what we really
+// run", and the idea of the core moves even though the frozen object does not.
+// Policing the WORDS makes that drift visible in a diff.
+{
+  const files = {
+    'engine.js': path.join(ROOT, 'public', 'js', 'draft', 'engine.js'),
+    'app.js': path.join(ROOT, 'public', 'js', 'draft', 'app.js'),
+    'warroom.ejs': path.join(ROOT, 'views', 'admin', 'warroom.ejs'),
+  };
+  Object.keys(files).forEach(name => {
+    const src = fs.readFileSync(files[name], 'utf8');
+    // Strip comments — the prohibition is on what the UI SAYS, not on explaining
+    // the rule. A comment describing the history is exactly how it stays fixed.
+    const code = src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '')
+      .replace(/<%#[\s\S]*?%>/g, '');
+    // Every occurrence must be ANCHORED to the frozen object — either by the word
+    // FROZEN or by the Restore control that only ever restores it. An unanchored
+    // "measured core" is the drift this rule exists to catch: it is the phrase
+    // quietly attaching itself to whatever is currently running.
+    const hits = (code.match(/.{0,40}[Mm]easured core/g) || []);
+    const unanchored = hits.filter(h => !/FROZEN|[Rr]estor/.test(h));
+    ck('[rule 7] "measured core" in ' + name + ' names only the frozen baseline',
+       unanchored.length === 0,
+       unanchored.length + ' unanchored: ' + JSON.stringify(unanchored.slice(0, 2))
+       + ' — live policy must not be called the measured core');
+  });
+}
+
 console.log('\n' + pass + '/' + (pass + fail) + ' baseline-regression checks passed');
 if (fail) {
   console.log('\nA FAILURE HERE MEANS RECOMMENDATION BEHAVIOUR CHANGED.');

@@ -295,7 +295,7 @@
    */
   const WEIGHT_PRESETS = [
     {
-      key: 'measured', label: 'Measured core',
+      key: 'measured', label: 'Live policy',
       why: 'What the tool loads on, and what the Lab could actually MEASURE earning money: '
         + 'rank off the board (value) and a stack tilt (the one adjuster that earned). Tier, '
         + 'risk, need, bye AND ceiling are OFF — tier/risk measured as a drag, need is redundant '
@@ -311,7 +311,7 @@
     {
       key: 'balanced', label: 'Balanced',
       why: 'The old defaults — every term on at ~1. Kept as a reference point; the Lab '
-        + 'found several of these terms earn nothing (see Measured core).',
+        + 'found several of these terms earn nothing (see Live policy).',
       weights: { value: 1.0, tier: 1.0, need: 1.0, risk: 1.0, ceiling: 0.5, keeper: 1.0, bye: 1.0, stack: 1.0 },
     },
     {

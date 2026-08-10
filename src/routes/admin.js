@@ -1016,6 +1016,30 @@ router.get('/draft-config', aw(async (req, res) => {
 // fit an outcome. Grading reads via GET and never writes.
 const predledger = require('../predledger');
 
+// ---------- THE FROZEN MEASURED CORE, for the one-tap revert ----------
+// Serves draft/baseline/v<N>.json so the war room can restore known ground under
+// draft pressure. Read-only by construction: there is no write path, because a
+// baseline that can be written from the browser is not a baseline.
+//
+// The client CACHES this in localStorage on load, and that is the point rather
+// than an optimisation: at 8pm on the 22nd the revert has to work when the
+// network is bad or a deploy is mid-flight. Reverting the deployed BUILD is a git
+// revert plus a Netlify cycle and can never be one tap — reverting the POLICY is
+// one tap, and policy is what a bad change corrupts.
+router.get('/api/baseline', aw(async (req, res) => {
+  const fsp = require('fs').promises;
+  const p = require('path');
+  const version = String(req.query.version || 'v1').replace(/[^a-z0-9._-]/gi, '');
+  const file = p.join(__dirname, '..', '..', 'draft', 'baseline', version + '.json');
+  try {
+    const raw = await fsp.readFile(file, 'utf8');
+    res.set('Cache-Control', 'no-store');
+    res.json({ ok: true, version, baseline: JSON.parse(raw) });
+  } catch (e) {
+    res.status(404).json({ ok: false, error: 'no frozen baseline ' + version });
+  }
+}));
+
 router.post('/api/ledger/predict', aw(async (req, res) => {
   const body = req.body || {};
   const season = body.season || H.currentSeason(req.world.seasons).year;
