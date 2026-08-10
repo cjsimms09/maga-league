@@ -199,6 +199,30 @@ function ctxAt(pick, board) {
     })());
   check('consensus on an empty projection is null (never a fabricated majority)',
     SH.consensus([]) === null);
+
+  // WHY the lead leads — the driver + runner-up, so unanimity is auditable.
+  check('consensus names the driver term that produced the agreement',
+    cons && typeof cons.lead_driver === 'string' && cons.lead_driver.length > 0,
+    JSON.stringify({ lead_driver: cons && cons.lead_driver }));
+  check('consensus flags a need-driven agreement as an artifact, value-driven as real',
+    (function () {
+      const rows = k => ([
+        { player_id: 'x', player: 'A', position: 'QB', key: k + '1', driver: k, runner_up: 'B', gap_to_second: 2 },
+        { player_id: 'x', player: 'A', position: 'QB', key: k + '2', driver: k, runner_up: 'B', gap_to_second: 4 },
+      ]);
+      const needC = SH.consensus(rows('need'));
+      const valC = SH.consensus(rows('value'));
+      return needC.lead_driver === 'need' && needC.driver_is_artifact === true
+        && valC.lead_driver === 'value' && valC.driver_is_artifact === false;
+    })());
+  check('consensus keeps the runner-up name + median gap visible even at unanimity',
+    (function () {
+      const c = SH.consensus([
+        { player_id: 'x', player: 'A', position: 'RB', key: 'k1', driver: 'value', runner_up: 'Bench Guy', gap_to_second: 1 },
+        { player_id: 'x', player: 'A', position: 'RB', key: 'k2', driver: 'value', runner_up: 'Bench Guy', gap_to_second: 3 },
+      ]);
+      return c.contested === false && c.runner_up === 'Bench Guy' && c.gap_to_second === 1;
+    })());
 }
 
 console.log(`\n${pass}/${pass + fail} shadow-roster checks passed`);

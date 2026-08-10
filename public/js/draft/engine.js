@@ -96,6 +96,20 @@
     FLEX_DISCOUNT: true,
     FLEX_ALT_WEIGHT: 1.0,
 
+    /* D3b — SINGLE-STARTER (onesie) empty-slot need discount (QB/TE/K/DEF).
+     * "fills an empty QB slot" used to award the player's FULL VORP as need. For a
+     * ONE-starter position that credit is a double-count: the marginal of taking him
+     * now — player minus the best replacement still available by my next pick — IS
+     * exactly what VONA already prices (a VORP difference equals a proj difference at
+     * a shared replacement level). Re-adding it front-loaded onesies (three QBs in the
+     * top 7 of a 1-QB league; a TE outscoring an RB with 2.7x its VONA). With this on,
+     * VONA prices the scarcity ONCE and the need term keeps only the residual VONA
+     * cannot see: a small insurance premium for holding a mandatory slot open. Set
+     * false to restore full-VORP need. Multi-starter slots (RB/WR) are untouched —
+     * there VONA is large and the distortion doesn't bite. */
+    ONESIE_NEED_DISCOUNT: true,
+    ONESIE_NEED_INSURANCE: 0.5,   // fraction of the injury-scaled VORP kept as urgency
+
     /* THE ONESIE DUPLICATION RULE.
      *
      * For a position with exactly one starting slot and no flex relief — QB, K,
@@ -732,6 +746,17 @@
       const marginal = Math.min(player.vorp || 0, Math.max(0, (player.vorp || 0) - CFG.FLEX_ALT_WEIGHT * alt));
       need.value = marginal;
       need.why = 'flex depth — marginal over the next flex option';
+    }
+    // D3b — single-starter empty-slot need: the scarcity marginal is what VONA (`v`)
+    // already prices for a one-starter position, so re-crediting full VORP double-counts
+    // it. Keep only the residual insurance and let VONA carry the scarcity. See
+    // CFG.ONESIE_NEED_DISCOUNT.
+    if (CFG.ONESIE_NEED_DISCOUNT && need.fills === 'starter'
+        && (((ctx.league || {}).starters || {})[player.position] === 1)) {
+      const insurance = (INJURY_RATE[player.position] || 0.15)
+        * Math.max(0, player.vorp || 0) * CFG.ONESIE_NEED_INSURANCE;
+      need.value = insurance;
+      need.why = `fills your empty ${player.position} slot — scarcity priced in value (VONA), not double-counted`;
     }
     // THE ONESIE DUPLICATION DISCOUNT — see CFG.ONESIE_DISCOUNT.
     const onesie = onesieState(player, ctx);
