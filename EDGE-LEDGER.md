@@ -163,3 +163,20 @@ sample-ceiling breakers have much higher EVSI:
 - **Source grade.** Three-way now COMPLETE (FP endpoint found): FP > FFC both seasons resolves
   the format confound (edge is real, format-independent) → anchor on FantasyPros, not MFL.
   Still 2 seasons/thin — a real CI needs the nflverse/public-league scale-up. (DECISIONS-NEEDED #1)
+
+## RB-vs-WR "dominance" (Cory's 2024 observation) — TESTED, it's a 2024 FLUKE (2026-08-10)
+- **Cory's read:** "5 RBs outscored every WR but Chase in 2024 — does the board reflect RB
+  dominance?" exp_value_pockets showed RB top-band realized (~182) > WR (~165) POOLED, which
+  looked like corroboration. **It was almost entirely 2024.**
+- **exp_positional_persistence (per-season split at Cory's early picks, overall 31-70):**
+  RB−WR realized gap by season — **2023: −8.7 · 2024: +69.3 · 2025: −41.3.** Pooled gap **+1.7**
+  (≈ zero). RB beat WR at his early picks in **1 of 3 seasons.** Cells are NOT thin (n 8-18),
+  so the split is powered enough to call — this is a real null, not an underpowered shrug.
+- **DECISION: do NOT tilt RB early.** Cory's 2024 observation is true for 2024 and does not
+  generalize; 2025 swung hard the other way (WR +41). Tilting the board toward RB on a 2024
+  memory is precisely the single-year-fluke mistake the persistence rule exists to catch.
+- **Methodological catch (habit 9):** the POOLED value_pockets "RB > WR at the top" was carried
+  by one season — pooling masked year-to-year sign instability, same shape as the regional-
+  structure diagnostic. Mark value_pockets' cross-position RB>WR read **provisional / 2024-driven**;
+  the within-position dead-zone finding is unaffected. Pre-registered rule + test locked so a
+  data refresh can't move the bar to fit a result. (exp_positional_persistence.json, test 4/4)

@@ -1,0 +1,427 @@
+{
+  "experiment": "RB-vs-WR at the top \u2014 persistence (fluke vs signal) check",
+  "question": "Does RB's realized-value edge over WR at Cory's early picks (31-70 overall) persist across seasons, or is it a 2024 artifact?",
+  "prereg_rule": "SUPPORTED iff RB>WR in >=2/3 usable seasons AND pooled early gap >= 15.0 pts at n>=8/pos/season; else NULL/fluke. Installs nothing without the money gate either way.",
+  "early_band": {
+    "lo": 31,
+    "hi": 70,
+    "by_season": {
+      "2023": {
+        "RB": {
+          "mean": 153.9,
+          "n": 15
+        },
+        "WR": {
+          "mean": 162.6,
+          "n": 12
+        },
+        "rb_minus_wr": -8.7,
+        "thin": false
+      },
+      "2024": {
+        "RB": {
+          "mean": 209.2,
+          "n": 8
+        },
+        "WR": {
+          "mean": 139.9,
+          "n": 18
+        },
+        "rb_minus_wr": 69.3,
+        "thin": false
+      },
+      "2025": {
+        "RB": {
+          "mean": 109.8,
+          "n": 12
+        },
+        "WR": {
+          "mean": 151.1,
+          "n": 17
+        },
+        "rb_minus_wr": -41.3,
+        "thin": false
+      }
+    }
+  },
+  "per_band_by_season": {
+    "1-10": {
+      "2023": {
+        "RB_mean": 216.8,
+        "RB_n": 4,
+        "WR_mean": 210.1,
+        "WR_n": 4,
+        "rb_minus_wr": 6.7
+      },
+      "2024": {
+        "RB_mean": 275.1,
+        "RB_n": 1,
+        "WR_mean": null,
+        "WR_n": 0,
+        "rb_minus_wr": null
+      },
+      "2025": {
+        "RB_mean": 217.6,
+        "RB_n": 1,
+        "WR_mean": null,
+        "WR_n": 0,
+        "rb_minus_wr": null
+      }
+    },
+    "11-20": {
+      "2023": {
+        "RB_mean": 162.6,
+        "RB_n": 1,
+        "WR_mean": 224.6,
+        "WR_n": 5,
+        "rb_minus_wr": -62.0
+      },
+      "2024": {
+        "RB_mean": 50.9,
+        "RB_n": 1,
+        "WR_mean": 165.5,
+        "WR_n": 1,
+        "rb_minus_wr": -114.6
+      },
+      "2025": {
+        "RB_mean": 259.7,
+        "RB_n": 3,
+        "WR_mean": null,
+        "WR_n": 0,
+        "rb_minus_wr": null
+      }
+    },
+    "21-30": {
+      "2023": {
+        "RB_mean": 148.9,
+        "RB_n": 4,
+        "WR_mean": 193.6,
+        "WR_n": 5,
+        "rb_minus_wr": -44.7
+      },
+      "2024": {
+        "RB_mean": 174.1,
+        "RB_n": 1,
+        "WR_mean": 152.3,
+        "WR_n": 2,
+        "rb_minus_wr": 21.8
+      },
+      "2025": {
+        "RB_mean": 119.7,
+        "RB_n": 1,
+        "WR_mean": 135.0,
+        "WR_n": 4,
+        "rb_minus_wr": -15.3
+      }
+    },
+    "31-40": {
+      "2023": {
+        "RB_mean": 185.6,
+        "RB_n": 7,
+        "WR_mean": null,
+        "WR_n": 0,
+        "rb_minus_wr": null
+      },
+      "2024": {
+        "RB_mean": 229.2,
+        "RB_n": 3,
+        "WR_mean": 157.8,
+        "WR_n": 5,
+        "rb_minus_wr": 71.4
+      },
+      "2025": {
+        "RB_mean": 128.8,
+        "RB_n": 3,
+        "WR_mean": 112.6,
+        "WR_n": 6,
+        "rb_minus_wr": 16.2
+      }
+    },
+    "41-50": {
+      "2023": {
+        "RB_mean": 42.4,
+        "RB_n": 2,
+        "WR_mean": 207.2,
+        "WR_n": 5,
+        "rb_minus_wr": -164.8
+      },
+      "2024": {
+        "RB_mean": null,
+        "RB_n": 0,
+        "WR_mean": 161.2,
+        "WR_n": 4,
+        "rb_minus_wr": null
+      },
+      "2025": {
+        "RB_mean": 106.2,
+        "RB_n": 2,
+        "WR_mean": 177.1,
+        "WR_n": 4,
+        "rb_minus_wr": -70.9
+      }
+    },
+    "51-60": {
+      "2023": {
+        "RB_mean": 69.0,
+        "RB_n": 2,
+        "WR_mean": 148.6,
+        "WR_n": 3,
+        "rb_minus_wr": -79.6
+      },
+      "2024": {
+        "RB_mean": 199.8,
+        "RB_n": 4,
+        "WR_mean": 118.5,
+        "WR_n": 4,
+        "rb_minus_wr": 81.3
+      },
+      "2025": {
+        "RB_mean": 185.7,
+        "RB_n": 3,
+        "WR_mean": 137.6,
+        "WR_n": 3,
+        "rb_minus_wr": 48.1
+      }
+    },
+    "61-70": {
+      "2023": {
+        "RB_mean": 196.5,
+        "RB_n": 4,
+        "WR_mean": 117.5,
+        "WR_n": 4,
+        "rb_minus_wr": 79.0
+      },
+      "2024": {
+        "RB_mean": 186.6,
+        "RB_n": 1,
+        "WR_mean": 121.9,
+        "WR_n": 5,
+        "rb_minus_wr": 64.7
+      },
+      "2025": {
+        "RB_mean": 40.4,
+        "RB_n": 4,
+        "WR_mean": 193.1,
+        "WR_n": 4,
+        "rb_minus_wr": -152.7
+      }
+    },
+    "71-80": {
+      "2023": {
+        "RB_mean": 115.2,
+        "RB_n": 4,
+        "WR_mean": 171.7,
+        "WR_n": 5,
+        "rb_minus_wr": -56.5
+      },
+      "2024": {
+        "RB_mean": 77.0,
+        "RB_n": 3,
+        "WR_mean": 121.5,
+        "WR_n": 5,
+        "rb_minus_wr": -44.5
+      },
+      "2025": {
+        "RB_mean": 108.3,
+        "RB_n": 3,
+        "WR_mean": 97.4,
+        "WR_n": 5,
+        "rb_minus_wr": 10.9
+      }
+    },
+    "81-90": {
+      "2023": {
+        "RB_mean": 217.6,
+        "RB_n": 2,
+        "WR_mean": 73.6,
+        "WR_n": 8,
+        "rb_minus_wr": 144.0
+      },
+      "2024": {
+        "RB_mean": 72.4,
+        "RB_n": 6,
+        "WR_mean": 141.2,
+        "WR_n": 2,
+        "rb_minus_wr": -68.8
+      },
+      "2025": {
+        "RB_mean": 216.5,
+        "RB_n": 2,
+        "WR_mean": 126.1,
+        "WR_n": 7,
+        "rb_minus_wr": 90.4
+      }
+    },
+    "91-100": {
+      "2023": {
+        "RB_mean": 111.6,
+        "RB_n": 4,
+        "WR_mean": 88.6,
+        "WR_n": 3,
+        "rb_minus_wr": 23.0
+      },
+      "2024": {
+        "RB_mean": 104.7,
+        "RB_n": 5,
+        "WR_mean": 93.1,
+        "WR_n": 5,
+        "rb_minus_wr": 11.6
+      },
+      "2025": {
+        "RB_mean": 91.6,
+        "RB_n": 2,
+        "WR_mean": 90.2,
+        "WR_n": 4,
+        "rb_minus_wr": 1.4
+      }
+    },
+    "101-110": {
+      "2023": {
+        "RB_mean": 112.7,
+        "RB_n": 3,
+        "WR_mean": 33.0,
+        "WR_n": 3,
+        "rb_minus_wr": 79.7
+      },
+      "2024": {
+        "RB_mean": 91.4,
+        "RB_n": 4,
+        "WR_mean": 240.5,
+        "WR_n": 1,
+        "rb_minus_wr": -149.1
+      },
+      "2025": {
+        "RB_mean": 88.9,
+        "RB_n": 7,
+        "WR_mean": null,
+        "WR_n": 0,
+        "rb_minus_wr": null
+      }
+    },
+    "111-120": {
+      "2023": {
+        "RB_mean": 27.1,
+        "RB_n": 2,
+        "WR_mean": 71.9,
+        "WR_n": 3,
+        "rb_minus_wr": -44.8
+      },
+      "2024": {
+        "RB_mean": 94.5,
+        "RB_n": 3,
+        "WR_mean": 89.5,
+        "WR_n": 1,
+        "rb_minus_wr": 5.0
+      },
+      "2025": {
+        "RB_mean": 1.9,
+        "RB_n": 1,
+        "WR_mean": 76.7,
+        "WR_n": 2,
+        "rb_minus_wr": -74.8
+      }
+    },
+    "121-130": {
+      "2023": {
+        "RB_mean": 11.7,
+        "RB_n": 4,
+        "WR_mean": null,
+        "WR_n": 0,
+        "rb_minus_wr": null
+      },
+      "2024": {
+        "RB_mean": 171.2,
+        "RB_n": 1,
+        "WR_mean": 105.0,
+        "WR_n": 2,
+        "rb_minus_wr": 66.2
+      },
+      "2025": {
+        "RB_mean": 8.0,
+        "RB_n": 1,
+        "WR_mean": null,
+        "WR_n": 0,
+        "rb_minus_wr": null
+      }
+    },
+    "131-140": {
+      "2023": {
+        "RB_mean": 75.0,
+        "RB_n": 2,
+        "WR_mean": 0.4,
+        "WR_n": 1,
+        "rb_minus_wr": 74.6
+      },
+      "2024": {
+        "RB_mean": null,
+        "RB_n": 0,
+        "WR_mean": 152.5,
+        "WR_n": 3,
+        "rb_minus_wr": null
+      },
+      "2025": {
+        "RB_mean": 61.7,
+        "RB_n": 3,
+        "WR_mean": 28.8,
+        "WR_n": 1,
+        "rb_minus_wr": 32.9
+      }
+    },
+    "141-150": {
+      "2023": {
+        "RB_mean": 19.8,
+        "RB_n": 1,
+        "WR_mean": 13.4,
+        "WR_n": 2,
+        "rb_minus_wr": 6.4
+      },
+      "2024": {
+        "RB_mean": 3.7,
+        "RB_n": 2,
+        "WR_mean": 32.7,
+        "WR_n": 3,
+        "rb_minus_wr": -29.0
+      },
+      "2025": {
+        "RB_mean": 0.0,
+        "RB_n": 1,
+        "WR_mean": 115.1,
+        "WR_n": 1,
+        "rb_minus_wr": -115.1
+      }
+    }
+  },
+  "totals_per_season": {
+    "2025": 125,
+    "2024": 124,
+    "2023": 146
+  },
+  "verdict": {
+    "seasons": [
+      "2023",
+      "2024",
+      "2025"
+    ],
+    "per_season_gap": {
+      "2023": -8.7,
+      "2024": 69.3,
+      "2025": -41.3
+    },
+    "usable_seasons": [
+      "2023",
+      "2024",
+      "2025"
+    ],
+    "rb_win_seasons": [
+      "2024"
+    ],
+    "thin_seasons": [],
+    "pooled_rb": 151.4,
+    "pooled_wr": 149.7,
+    "pooled_gap": 1.7,
+    "rb_tilt_supported": false,
+    "text": "NOT PERSISTENT / NULL \u2014 RB beat WR in only 1/3 usable seasons (pooled gap 1.7). The 2024 read does NOT generalize; the board should not tilt RB on it. Per-season gaps: {'2023': -8.7, '2024': 69.3, '2025': -41.3}."
+  },
+  "caveat": "~400 picks / 3 seasons; per-season early-band cells are ~10/pos. Realized is roster_sim season points (the dollar-arm currency), NOT realized-vs-ADP \u2014 so a SUPPORTED result is a tie-breaker candidate, never an install. Local data.",
+  "source_tier": "league-primary"
+}
