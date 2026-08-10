@@ -2624,7 +2624,10 @@ body.warroom-page #doctrine-banner .db-confidence { white-space: normal; overflo
 .shadow-proj.contested { background: rgba(245,196,69,.10);
   border-color: rgba(245,196,69,.55); }
 .shadow-proj-line { font-size: .82rem; line-height: 1.35; color: #cdd6ea;
-  white-space: nowrap; overflow-x: auto; }
+  /* Was nowrap + overflow-x:auto — on a phone the dissent ("2 strategies would
+     take X instead") ran off the right edge and needed a sideways scroll to read.
+     It sits below the recommendation, so wrapping costs no fold and shows it all. */
+  white-space: normal; overflow-wrap: anywhere; }
 .shadow-proj .sp-tag { color: var(--muted,#9aa4bb); margin-right: .3rem; }
 .shadow-proj .sp-flag { color: #ffb765; font-weight: 800; margin-right: .35rem; }
 .shadow-proj .sp-dissent { color: #ffb765; }
