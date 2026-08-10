@@ -221,6 +221,21 @@ jobs:
         if: always()
         run: python -m pytest draft/tests -q
 
+      - name: Baseline regression — live engine vs the FROZEN measured core
+        # EVERY RUN, NO FILE FILTER, by explicit instruction. This week's
+        # corruptions arrived through a display predicate, a merge that dropped
+        # edits, a null coercion inside a materiality gate, and a valuation
+        # re-implemented in a route file — no reasonable file-based filter would
+        # have caught any of them, and the classification step is where the miss
+        # happens. Canonical states through a pure function; it costs seconds.
+        #
+        # A FAILURE MEANS RECOMMENDATION BEHAVIOUR CHANGED. Either a bug caught the
+        # moment it landed, or a deliberate improvement — and binding rule 6 says
+        # there is no third state where the reference quietly follows the code. A
+        # deliberate change freezes a NEW version and says why; the old one stays.
+        if: always()
+        run: node draft/tests/baseline_regression.test.js
+
       - name: Graduation gate — loaded policy vs measured verdict
         # THE TWO-PLACES DISEASE, closed for policy values. The ceiling weight sat
         # at 0.65 in the loaded core for weeks after the ledger measured it at

@@ -1,0 +1,407 @@
+{
+  "_what": "THE MEASURED CORE, FROZEN. Immutable reference — never edited in place.",
+  "_rule": "SESSION-A binding rule 6: a change to recommendation behaviour either updates this reference deliberately or declares itself a gated departure. There is no third state where the reference silently follows the code.",
+  "_language": "SESSION-A binding rule 7: THIS object is \"the measured core\". Everything running is \"live policy under continuous measurement\".",
+  "frozen_at": "2026-08-10T19:58:15.619Z",
+  "engine_policy": {
+    "MEASURED_WEIGHTS": {
+      "value": 1,
+      "tier": 0,
+      "need": 0,
+      "risk": 0,
+      "ceiling": 0,
+      "keeper": 1,
+      "bye": 0,
+      "stack": 0.5
+    },
+    "CFG": {
+      "COIN_FLIP_GAP": 1,
+      "CLOSE_GAP": 3.5,
+      "TIE_THRESHOLD": 2,
+      "BENCH_DISCOUNT": 0.35,
+      "BENCH_SCORE_FLOOR": 0,
+      "ONESIE_KEEP": 0.1,
+      "DOCTRINE_TILT": 2.5,
+      "DOCTRINE_TILT_ON": true,
+      "THREAT_MIN_P": 0.01
+    },
+    "preset_keys": [
+      "measured",
+      "balanced",
+      "value",
+      "upside",
+      "safe"
+    ]
+  },
+  "anchor_source": "fantasypros",
+  "surfaces": [
+    {
+      "state": "early-empty-roster",
+      "current_pick": 34,
+      "next_pick": 41,
+      "board_size": 1729,
+      "top10": [
+        {
+          "player_id": "12517",
+          "name": "Colston Loveland",
+          "position": "TE",
+          "score": 14.707,
+          "survival_to_next": 0.4917
+        },
+        {
+          "player_id": "9997",
+          "name": "Zay Flowers",
+          "position": "WR",
+          "score": 6.828,
+          "survival_to_next": 0.3259
+        },
+        {
+          "player_id": "11564",
+          "name": "Drake Maye",
+          "position": "QB",
+          "score": 6.549,
+          "survival_to_next": 0.8897
+        },
+        {
+          "player_id": "7543",
+          "name": "Travis Etienne",
+          "position": "RB",
+          "score": 5.645,
+          "survival_to_next": 0.3652
+        },
+        {
+          "player_id": "6790",
+          "name": "D'Andre Swift",
+          "position": "RB",
+          "score": 5.704,
+          "survival_to_next": 0.9305
+        },
+        {
+          "player_id": "11533",
+          "name": "Brandon Aubrey",
+          "position": "K",
+          "score": 3,
+          "survival_to_next": 1
+        },
+        {
+          "player_id": "LAR",
+          "name": "Los Angeles Rams",
+          "position": "DEF",
+          "score": 2,
+          "survival_to_next": 1
+        },
+        {
+          "player_id": "11635",
+          "name": "Ladd McConkey",
+          "position": "WR",
+          "score": 0.831,
+          "survival_to_next": 0.6283
+        },
+        {
+          "player_id": "7526",
+          "name": "Jaylen Waddle",
+          "position": "WR",
+          "score": -1.899,
+          "survival_to_next": 0.7362
+        },
+        {
+          "player_id": "HOU",
+          "name": "Houston Texans",
+          "position": "DEF",
+          "score": -2,
+          "survival_to_next": 1
+        }
+      ],
+      "rule_headline": {
+        "player_id": "6801",
+        "name": "Tee Higgins",
+        "position": "WR",
+        "reason": "best available within your remaining need (WR); QB & DEF deferred (the market prices them well later)"
+      },
+      "gap_to_second": 7.879,
+      "confidence_level": "clear",
+      "firing_rates": {
+        "contested": 0,
+        "has_reasons": 1,
+        "survival_present": 1
+      },
+      "survival_mass": 7.279
+    },
+    {
+      "state": "mid-two-rb-one-wr",
+      "current_pick": 74,
+      "next_pick": 81,
+      "board_size": 1689,
+      "top10": [
+        {
+          "player_id": "9487",
+          "name": "Parker Washington",
+          "position": "WR",
+          "score": 20.079,
+          "survival_to_next": 0.6576
+        },
+        {
+          "player_id": "5967",
+          "name": "Tony Pollard",
+          "position": "RB",
+          "score": 5.769,
+          "survival_to_next": 0.6235
+        },
+        {
+          "player_id": "1466",
+          "name": "Travis Kelce",
+          "position": "TE",
+          "score": 5.352,
+          "survival_to_next": 0.9042
+        },
+        {
+          "player_id": "3294",
+          "name": "Dak Prescott",
+          "position": "QB",
+          "score": 3.335,
+          "survival_to_next": 0.6731
+        },
+        {
+          "player_id": "8183",
+          "name": "Brock Purdy",
+          "position": "QB",
+          "score": 1.228,
+          "survival_to_next": 0.9166
+        },
+        {
+          "player_id": "7021",
+          "name": "Rico Dowdle",
+          "position": "RB",
+          "score": -4.403,
+          "survival_to_next": 0.5799
+        },
+        {
+          "player_id": "4217",
+          "name": "George Kittle",
+          "position": "TE",
+          "score": -5.012,
+          "survival_to_next": 0.889
+        },
+        {
+          "player_id": "5012",
+          "name": "Mark Andrews",
+          "position": "TE",
+          "score": -6.711,
+          "survival_to_next": 0.9847
+        },
+        {
+          "player_id": "7523",
+          "name": "Trevor Lawrence",
+          "position": "QB",
+          "score": -9.303,
+          "survival_to_next": 0.7109
+        },
+        {
+          "player_id": "6806",
+          "name": "J.K. Dobbins",
+          "position": "RB",
+          "score": -9.855,
+          "survival_to_next": 0.8332
+        }
+      ],
+      "rule_headline": {
+        "player_id": "11628",
+        "name": "Marvin Harrison",
+        "position": "WR",
+        "reason": "best available within your remaining need (WR); QB & DEF deferred (the market prices them well later)"
+      },
+      "gap_to_second": 14.31,
+      "confidence_level": "clear",
+      "firing_rates": {
+        "contested": 0,
+        "has_reasons": 1,
+        "survival_present": 1
+      },
+      "survival_mass": 6.116
+    },
+    {
+      "state": "late-onesies-open",
+      "current_pick": 134,
+      "next_pick": 141,
+      "board_size": 1629,
+      "top10": [
+        {
+          "player_id": "PHI",
+          "name": "Philadelphia Eagles",
+          "position": "DEF",
+          "score": 3,
+          "survival_to_next": 0.7503
+        },
+        {
+          "player_id": "111",
+          "name": "Marcedes Lewis",
+          "position": "TE",
+          "score": -0.063,
+          "survival_to_next": 1
+        },
+        {
+          "player_id": "23",
+          "name": "Jason Witten",
+          "position": "TE",
+          "score": -0.162,
+          "survival_to_next": 1
+        },
+        {
+          "player_id": "11306",
+          "name": "Xavier Gipson",
+          "position": "WR",
+          "score": -0.244,
+          "survival_to_next": 1
+        },
+        {
+          "player_id": "5409",
+          "name": "Tanner Hudson",
+          "position": "TE",
+          "score": -0.256,
+          "survival_to_next": 1
+        },
+        {
+          "player_id": "4602",
+          "name": "Robert Tonyan",
+          "position": "TE",
+          "score": -0.247,
+          "survival_to_next": 1
+        },
+        {
+          "player_id": "3214",
+          "name": "Hunter Henry",
+          "position": "TE",
+          "score": -0.274,
+          "survival_to_next": 0.6858
+        },
+        {
+          "player_id": "616",
+          "name": "Jimmy Graham",
+          "position": "TE",
+          "score": -0.293,
+          "survival_to_next": 1
+        },
+        {
+          "player_id": "11304",
+          "name": "E.J. Jenkins",
+          "position": "TE",
+          "score": -0.295,
+          "survival_to_next": 1
+        },
+        {
+          "player_id": "6699",
+          "name": "Gunner Olszewski",
+          "position": "WR",
+          "score": -0.381,
+          "survival_to_next": 1
+        }
+      ],
+      "rule_headline": {
+        "player_id": "8161",
+        "name": "Malik Willis",
+        "position": "QB",
+        "reason": "best available within your remaining need (QB); QB & DEF deferred (the market prices them well later)"
+      },
+      "gap_to_second": 3.064,
+      "confidence_level": "close",
+      "firing_rates": {
+        "contested": 0,
+        "has_reasons": 1,
+        "survival_present": 1
+      },
+      "survival_mass": 5.615
+    },
+    {
+      "state": "keeper-loaded (our real condition)",
+      "current_pick": 34,
+      "next_pick": 41,
+      "board_size": 1729,
+      "top10": [
+        {
+          "player_id": "12517",
+          "name": "Colston Loveland",
+          "position": "TE",
+          "score": 14.707,
+          "survival_to_next": 0.4917
+        },
+        {
+          "player_id": "9997",
+          "name": "Zay Flowers",
+          "position": "WR",
+          "score": 6.828,
+          "survival_to_next": 0.3259
+        },
+        {
+          "player_id": "11564",
+          "name": "Drake Maye",
+          "position": "QB",
+          "score": 6.549,
+          "survival_to_next": 0.8897
+        },
+        {
+          "player_id": "7543",
+          "name": "Travis Etienne",
+          "position": "RB",
+          "score": 5.645,
+          "survival_to_next": 0.3652
+        },
+        {
+          "player_id": "6790",
+          "name": "D'Andre Swift",
+          "position": "RB",
+          "score": 5.704,
+          "survival_to_next": 0.9305
+        },
+        {
+          "player_id": "11635",
+          "name": "Ladd McConkey",
+          "position": "WR",
+          "score": 0.831,
+          "survival_to_next": 0.6283
+        },
+        {
+          "player_id": "7526",
+          "name": "Jaylen Waddle",
+          "position": "WR",
+          "score": -1.899,
+          "survival_to_next": 0.7362
+        },
+        {
+          "player_id": "12518",
+          "name": "Tyler Warren",
+          "position": "TE",
+          "score": -3.193,
+          "survival_to_next": 0.8538
+        },
+        {
+          "player_id": "6770",
+          "name": "Joe Burrow",
+          "position": "QB",
+          "score": -3.962,
+          "survival_to_next": 0.9049
+        },
+        {
+          "player_id": "6801",
+          "name": "Tee Higgins",
+          "position": "WR",
+          "score": -5.071,
+          "survival_to_next": 0.2456
+        }
+      ],
+      "rule_headline": {
+        "player_id": "6801",
+        "name": "Tee Higgins",
+        "position": "WR",
+        "reason": "best available within your remaining need (WR); QB & DEF deferred (the market prices them well later)"
+      },
+      "gap_to_second": 7.879,
+      "confidence_level": "clear",
+      "firing_rates": {
+        "contested": 0,
+        "has_reasons": 1,
+        "survival_present": 1
+      },
+      "survival_mass": 7.279
+    }
+  ]
+}
