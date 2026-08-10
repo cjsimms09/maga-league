@@ -7,43 +7,23 @@
  "leaderboard": [
   {
    "archetype": "early_qb",
-   "mean_edge": 213.75,
+   "mean_edge": 196.12,
    "ci95": [
-    169.12,
-    260.5
+    154.5,
+    239.62
    ],
    "mean_divergence": 0.5,
    "verdict": "WINNER \u2014 enroll as THE PLAN"
   },
   {
    "archetype": "wr_anchor",
-   "mean_edge": 172.25,
+   "mean_edge": 148.75,
    "ci95": [
-    135.62,
-    210.12
+    112.75,
+    188.0
    ],
-   "mean_divergence": 1.9,
+   "mean_divergence": 1.1,
    "verdict": "WINNER \u2014 enroll as THE PLAN"
-  },
-  {
-   "archetype": "zero_rb",
-   "mean_edge": 0.0,
-   "ci95": [
-    0.0,
-    0.0
-   ],
-   "mean_divergence": 0.0,
-   "verdict": "parked: CI includes $0"
-  },
-  {
-   "archetype": "hero_rb",
-   "mean_edge": 0.0,
-   "ci95": [
-    0.0,
-    0.0
-   ],
-   "mean_divergence": 0.0,
-   "verdict": "parked: CI includes $0"
   },
   {
    "archetype": "robust_rb",
@@ -56,33 +36,53 @@
    "verdict": "parked: CI includes $0"
   },
   {
-   "archetype": "elite_te",
-   "mean_edge": 0.0,
+   "archetype": "zero_rb",
+   "mean_edge": -2.25,
    "ci95": [
-    0.0,
-    0.0
+    -24.38,
+    19.38
    ],
-   "mean_divergence": 0.0,
+   "mean_divergence": 0.4,
+   "verdict": "parked: CI includes $0"
+  },
+  {
+   "archetype": "hero_rb",
+   "mean_edge": -2.25,
+   "ci95": [
+    -24.62,
+    19.25
+   ],
+   "mean_divergence": 0.4,
    "verdict": "parked: CI includes $0"
   },
   {
    "archetype": "late_qb",
-   "mean_edge": -188.75,
+   "mean_edge": -162.88,
    "ci95": [
-    -232.12,
-    -147.5
+    -204.38,
+    -123.88
    ],
    "mean_divergence": 0.5,
+   "verdict": "parked: CI includes $0"
+  },
+  {
+   "archetype": "elite_te",
+   "mean_edge": -200.5,
+   "ci95": [
+    -240.38,
+    -158.75
+   ],
+   "mean_divergence": 0.8,
    "verdict": "parked: CI includes $0"
   }
  ],
  "head_to_head": {
   "leader": "early_qb",
   "runner_up": "wr_anchor",
-  "paired_mean": 41.5,
+  "paired_mean": 47.38,
   "ci95": [
-   -23.25,
-   108.62
+   -12.75,
+   112.62
   ],
   "separable": false,
   "resolution": "CO-LEADERS \u2014 inseparable; retained wr_anchor"

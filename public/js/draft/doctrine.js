@@ -334,9 +334,41 @@
     this.noiseBand = opts.noiseBand == null ? DEFAULTS.noiseBand : opts.noiseBand;
     this.minPicks = opts.minPicks == null ? DEFAULTS.minPicks : opts.minPicks;
     this.current = enrolledKey;
+    this.enrolledKey = enrolledKey;               // the model's recommended plan (for "return")
     this._challenge = { key: null, picks: 0 };   // the pending challenger + its streak
+    this.manual = false;                          // true while a HUMAN override is in force
     this.log = [];                                // per-pick doctrine state (for the ledger)
   }
+
+  /* THE HUMAN OVERRIDES THE PLAN. Cory taps a doctrine to run it now; the choice
+   * re-tilts recommendations immediately (ctx.doctrine reads `current`) and is
+   * PROTECTED from the auto-hysteresis until he returns to the recommended plan —
+   * a switch the model keeps undoing is not a switch. Returns a ledger-ready record
+   * so January can grade whether the override earned or cost money (the one place
+   * my judgement vs the model's is cleanly measurable). */
+  DoctrineState.prototype.choose = function (key, pick) {
+    const from = this.current;
+    this.current = (ALIASES[key] || key);
+    this.manual = true;
+    this._challenge = { key: null, picks: 0 };
+    const rec = { pick: pick, doctrine: this.current, from: from, manual: true,
+                  event: 'manual_switch' };
+    this.log.push(rec);
+    return rec;
+  };
+
+  /* One tap back to the model's recommended plan, always available. Clears the
+   * manual hold so the auto-hysteresis resumes. */
+  DoctrineState.prototype.returnToRecommended = function (pick) {
+    const from = this.current;
+    this.current = this.enrolledKey;
+    this.manual = false;
+    this._challenge = { key: null, picks: 0 };
+    const rec = { pick: pick, doctrine: this.current, from: from, manual: false,
+                  event: 'return_to_recommended' };
+    this.log.push(rec);
+    return rec;
+  };
 
   /**
    * Feed this pick's doctrine scores. Returns:
@@ -350,7 +382,12 @@
       ? scoresByKey[this.current] : (leader ? leader.score : 0);
     let switched = false;
 
-    if (!leader || leader.key === this.current) {
+    if (this.manual) {
+      // A human override is in force — the auto-hysteresis does NOT move the plan
+      // out from under Cory. It still reports the live alternative + gap (so the
+      // banner can say "your plan trails by $X, tap to return"), but never switches.
+      this._challenge = { key: null, picks: 0 };
+    } else if (!leader || leader.key === this.current) {
       // The plan still leads. Reset any pending challenge.
       this._challenge = { key: null, picks: 0 };
     } else {

@@ -20,13 +20,28 @@
 <script src="/js/draft/shadows.js"></script>
 <script src="/js/draft/seat.js"></script>
 <script src="/js/draft/legality.js"></script>
+<script src="/js/draft/needs.js"></script>
+<script src="/js/draft/pickreconcile.js"></script>
 <script src="/js/draft/accounting.js"></script>
 <script src="/js/draft/forecast.js"></script>
 <script src="/js/draft/deviation.js"></script>
+<%# needrule.js — THE MEASURED DRAFT-DAY RULE (EXP-KEEPER-B0): best-ADP within
+    startable capacity, never a 4th RB, bye hole visible, honest $ tier. app.js
+    renders it as the headline of the recommendations card. %>
+<script src="/js/draft/needrule.js"></script>
+<%# coherence.js — the ONE-VOICE resolver (ARCHITECTURE.md L2). Pure; consumes the
+    outputs of deviation/doctrine/needs/LRM/recommendation and returns a single
+    verdict so the war room never leaves Cory to arbitrate between his own tools.
+    Loaded after its input surfaces, before app.js wires it into the render. %>
+<script src="/js/draft/coherence.js"></script>
 <script src="/js/draft/session.js"></script>
 <script src="/js/draft/doctrine.js"></script>
 <script src="/js/draft/alerts.js"></script>
 <script src="/js/draft/prefsync.js"></script>
 <script src="/js/draft/predledger.js"></script>
 <script src="/js/draft/sync.js"></script>
+<%# mock_calib.js — pure core for MOCK survival calibration ("% to last to my next
+    pick", graded within the session). app.js feeds it during a mock; it persists to
+    localStorage and never posts to the real ledger. Loaded before app.js. %>
+<script src="/js/draft/mock_calib.js"></script>
 <script src="/js/draft/app.js"></script>

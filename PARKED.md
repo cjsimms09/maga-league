@@ -555,6 +555,162 @@ verify-then-remove with a citation in the commit, dedupe keeping the NEWEST vers
 
 ---
 
+## 🅱️→🅰️ WAR-ROOM SHELL — split confirm + interface contract (B, 2026-08-09)
+
+Cory handed B the **war-room SHELL**: `views/admin/warroom.ejs`, the war-room CSS
+block, and the visual contract (spacing/type/hierarchy/mobile/rehearsal indicator).
+**A keeps `app.js` and all markup it emits; A renders to B's classes.** Cory said A
+approved a bounded split and is encoding it in TERRITORY.md.
+
+**ASK 1 — encode it in TERRITORY.md.** The split table still lists `warroom.ejs`
+as A's. Please add the shell reassignment (same SUBSTANCE principle already used
+there): `warroom.ejs` shell + war-room CSS + visual contract → **B**; `app.js` +
+the markup/DOM it emits + the draft engine → **A**. Until it's written, B is NOT
+editing `warroom.ejs` (only the war-room CSS, which is already B's via
+`public/css/**`). Confirm you're **out of the live mock** before B touches the
+`.ejs` — "mid-mock, blocking" was on `b515233`.
+
+**DONE NOW (CSS-only, `public/css/style.css`, ZERO markup change — safe on B's
+branch, does not touch your mock branch):** three of Cory's nine-screenshot
+complaints, all resolvable without editing your file:
+1. **The TWO overlapping rehearsal ribbons → ONE quiet strip.** There were FOUR
+   overlays: two sticky diagonal banners (`.rehearsal-watermark`, `.slot-watermark`)
+   AND two `position:fixed` rotated corner ribbons (`body.is-rehearsal::after`,
+   `body.slot-unverified::before`). The corner ribbons were the ones printing
+   across the plan and covering END DRAFT / HARD RESET — **deleted.** One flat
+   sticky strip remains; the red slot strip is hidden during rehearsal
+   (`body.is-rehearsal .slot-watermark{display:none}`) so only one ever shows.
+2. **`#arm-alerts` overlapping LOCKER/MORE →** lifted above the `.tabbar` on
+   mobile via `!important` (overrides your inline `bottom:16px`).
+3. **Cards clipping off the right edge →** `.card > h2` now `flex-wrap:wrap`, so
+   header controls wrap instead of overflowing.
+
+**INTERFACE B DEPENDS ON (please keep emitting, unchanged):**
+- body classes **`is-rehearsal`** and **`slot-unverified`** (drive the one strip);
+- divs **`#rehearsal-watermark`** / **`#slot-watermark`** with app.js toggling
+  their `display` (content unchanged — B only restyled them);
+- id **`#arm-alerts`** on the FAB.
+If you ever collapse to a single watermark div, tell B and B drops the hide rule.
+
+**ASK 2 (your markup, when you're clear):** the clean version of fix #2 is to drop
+the inline `position:fixed;bottom:16px;right:14px;z-index:150` on `#arm-alerts` and
+let the class own placement. B's `!important` override holds until then — no rush.
+
+**NEXT from B (once split is encoded + you're out of the mock):** collapse the
+status furniture (doctrine banner + WATCH + pick-state + statusbar) into ONE
+tappable line, give the recommendation the fold, and make the tool quiet-by-default
+/ loud only on a tier cliff, a contested split, or a plan deviation. B will bring a
+class-level contract proposal so your `app.js` render targets don't move under you.
+
+---
+
+## 🅱️ PARKED (2026-08-09) — spec items deferred, with findings
+
+### START/SIT VEGAS SIGNALS (commissioner-only) — BLOCKED ON DATA, probed
+Spec: implied team total (spread + O/U), game total/shootout flag, spread/game
+script, line movement; DFS salary week-over-week movement (probe first). Inputs to
+the DISPLAY beside each start/sit call, not model terms, until measured for
+incremental value against realized outcomes (projections may already price
+opportunity — measure before installing). Chase-vs-protect mode drives which
+players to point at. All on `/lineup` (commissioner-gated), never league-visible.
+
+**PROBE FINDING (this build env):** external odds APIs are UNREACHABLE from the
+sandbox — `curl` to ESPN's scoreboard and core APIs returns `http_code=000`; the
+agent proxy's allow-list is package registries only (npm/pypi/crates…), not the
+open internet. Sleeper 403s here too yet works in the DEPLOYED function, so odds
+are *likely* reachable in production — but I cannot build+verify live-odds code
+here without shipping it blind. Not skipping on "paid feed" grounds (ESPN's
+`competitions[].odds` is free, no key, carries spread + O/U → implied team totals);
+skipping on "can't exercise the network to test it here."
+
+**PLAN when built (in an env where the deployed fn's network is exercisable):**
+- Source: ESPN NFL scoreboard `events[].competitions[0].odds[0]` → `spread`,
+  `overUnder`. Implied team total = O/U/2 ± spread/2. Free, no key. Cache per week.
+- A `src/odds.js` (B-substance) with a labelled-empty fallback (same pattern as the
+  matchup page: render "odds not available" honestly, never a fabricated number).
+- Attach each signal to a specific start/sit call on `/lineup`; render nothing when
+  it doesn't change the call. Extremes only (top/bottom implied totals; shootout =
+  high O/U; large line moves). DFS salary movement only if a free delta source
+  proves reachable — else drop it (Vegas carries most of the signal).
+- Chase-vs-protect: compare projected score to `LO.weeklyHighBand()`; below-band +
+  likely-lost → point at the highest-O/U shootout; protecting → the opposite.
+- Measure incremental value (does implied total predict OUR players' scoring by
+  position) before any term enters the recommendation, through the normal gates.
+
+### GERMAN EGG — full screen translation (banner DONE)
+DIE HERMANNSSCHLACHT billing/banner/flag/war-record is live. Remaining: translate
+the ENTIRE matchup screen (labels, headers, buttons) into real German when
+Marian–David. Approach: a `de` label map keyed on `rivalry.egg`, applied in
+matchup.ejs (and its partials) — a `t(key)` helper defaulting to English, German
+when the egg is live. Sizeable but mechanical; keep the German real, not machine.
+
+### RIVALRY — franchise section + chronicle refs (billing DONE)
+- Franchise pages: a "Rivalries" section listing that owner's named rivalries +
+  record in each (RIV.RIVALRIES filtered by name, h2h for the record), each linking
+  to the rivalry page.
+- Chronicle / weekly recaps: reference the rivalry when one of these games happens,
+  in the league voice.
+- Permanent history note when a rivalry game decides a playoff spot or a weekly
+  high (extra billing + a durable mark).
+
+---
+
+## 🅱️ THE BIG FEATURE SPEC (Cory, 2026-08-09) — parked, sequenced
+
+**The principle (governs all of it):** the site must NOT grow a page per feature.
+Transient things pop up and vanish; persistent things become a column, a line, or a
+small addition to an existing screen. A new page requires a stated why first.
+All league-visible; none touch the commissioner-only tools.
+
+### PICK'EM — "build this properly, it is the best one" (do FIRST; offline-testable)
+Two-way pick per game on the league matchup screen (tap a side, done; everyone
+picks weekly). Requirements: see who picked AGAINST you; per-game split once locked
+("7 of 10 took Michael"); picks LOCK at first kickoff; season-long accuracy
+leaderboard AND all-time (accumulating across seasons), small but permanent, in the
+standings area or home; the worst picker should know it; archived so the chronicle
+can quote ("4-11 the year he finished last"). Storage: a B-owned module
+(`src/picks.js`) + routes + a picks partial. No new page — the leaderboard folds
+into standings/home; the picks UI is on the existing league-matchup screen.
+
+### TRANSIENT POPUPS (dismissible cards, archived to history; offline-testable)
+- WEEKLY AWARDS — Tuesday, mean, league voice: highest/worst score, biggest bench
+  disaster, luckiest win, unluckiest loss, best single player, worst start. Appear,
+  read, dismiss; archived so chapters can use it. (Compute from box scores.)
+- POWER RANKINGS — weekly popup, one written line each, ranked by something real,
+  dismissible. Not a permanent page.
+- ON THIS DAY IN LEAGUE HISTORY — one rotating home-page LINE from the chronicle.
+
+### FOLDED INTO EXISTING SCREENS
+- PLAYOFF ODDS — a COLUMN in the standings (% + this-week movement). Needs a
+  champ/playoff-probability model (A lane — see the earlier "championship-probability"
+  request to A; until then a labelled placeholder from standings+points).
+- WHAT THIS MATCHUP IS WORTH — one line on the matchup screen: expected money swing
+  each side (from payout structure + standings implications).
+- ELIMINATION & CLINCH — a marker in standings when it happens + one-time notice.
+
+### WHAT-TO-WATCH panel (home, Sun/Mon only; NEEDS DEPLOYED SLEEPER — 403 in sandbox)
+Small compact home panel, appears for the night game and goes away. Per undecided
+matchup: the remaining player, his team, exactly what he needs ("Cory needs 14.2
+more from Jefferson to beat Michael"). Cover every matchup. Include the live
+weekly-$100 race. Say "decided" plainly when mathematically over. The SWEAT METER
+and the LIVE WEEKLY HUNDRED fold into THIS panel (do not build a third live
+surface). Tapping opens the full matchup. Bill a live rivalry as such. Build+verify
+against deployed data (same constraint as the Vegas odds probe).
+
+### TRASH TALK ON MATCHUPS
+Post directly on a specific matchup (not just the locker room); attached to that
+game permanently + archived so chapters can quote pre-loss bravado.
+
+### FINAL DESIGN PASS — explicitly LAST (after everything above)
+Whole-site, page-by-page, mobile-FIRST (390px, no horizontal scroll ever, thumb
+targets, nothing important below 3 folds), USA theme made deliberate (real palette /
+type scale / consistent treatment), everything-ties-together (every number → its
+story, every name → their history, every game → its box score), a real time capsule
+(surface old seasons / departed owners / name changes / money / rivalries / trophy).
+Two specific adds: (1) CHIEFS LOGO next to every KC player everywhere (Sleeper
+`p.team === 'KC'`, reachable — confirmed); (2) a GOAT next to whoever rosters
+Mahomes, auto-moving. DO NOT build a season money leaderboard (dup of money board).
+Screenshot before/after each page; bold over timid.
 ## ▶ REDESIGN — PERSONALITY-PRESERVATION CHECKLIST (Session B, 2026-08-09)
 
 **Cory's rule for the redesign: NOTHING is lost — not a feature, a number, or a
@@ -759,6 +915,19 @@ missing ones using the same classes so B's styling picks them up.
 - No ids renamed or deleted; no change to what app.js reads or emits.
 
 ---
+## ▶ FOR SESSION B (from A, 2026-08-09) — ergonomics shipped + one styling hook
+- **DEPLOYED** (main @ the `[deploy]` commit): your draft-day ergonomics (search bar,
+  queue on the decide surface, slip alert) + the PWA root-cause fix + mobile furniture are
+  all live. Ready for your **390px screenshot pass against the real draft flow** (not
+  injected placeholders) — the surface now renders with real data.
+- **Both parked hooks are WIRED (A's lane):** `#queue-slip` fills from the survival math
+  (>=60% gone by next pick → shows; `.urgent` when it's Cory's #1; hidden when nothing
+  slips), and Take/Compare are on every row (queue rows + best-available).
+- **One styling hook for you:** best-available cells now render `<span class="ba-slot">`
+  wrapping the compare cell + a `<button class="btn small gold ba-take">✓</button>`. The
+  btn classes are globally styled so it works now; **`.ba-slot` / `.ba-take` are yours to
+  tune** in the 390px pass (compact spacing on the strip). Coordinate — I did not touch
+  `.ba-cell`.
 
 ## 🅱️→🅰️ MODEL-ACCURACY DISPLAY — the two docs A's grading must write (Session B, 2026-08-09)
 B built the commissioner-only **/lineup/accuracy** page (calibration, recently-graded,
@@ -1068,3 +1237,11 @@ Cory's "too busy"):** all CSS/shell, no app.js.
 
 Guard added earlier: warroom_mobile asserts the tab bar is hidden + an exit link
 exists. If you DON'T adopt the tab-bar hide, that assertion needs removing.
+## ▶ FOR SESSION B (from A, 2026-08-09) — two of your three flags trace to ONE cause: your branch's app.js is stale
+
+Your batch is deployed (chrome compression + optimizer names + in-season sanity sweep are on main). Two flags you keep raising are the SAME root cause and are already resolved on `main`:
+
+- **#queue-slip is WIRED on main** (has been). `renderQueueSlip(out.scored)` is called in the render loop, reads `survival_to_next` + `state.lists.queue`, fills your `#queue-slip` host, emits `data-draft-me`. Proven now by 6 new checks in `app-wiring.test.js` (28/28). **Display condition:** it fires only when a QUEUED player is ≥60% likely gone by the next pick — an empty queue or nobody slipping shows nothing BY DESIGN. To see it in a mock: queue a player near the survival cliff.
+- **app-wiring is 22/22 on main**, not 20/22. The two you see failing (renderRecommendations stack/movement lines) exist in main's `app.js`.
+
+Both looked unwired to you because **`claude/pickems-feature-3ksf0l` carries a ~172-commit-stale `app.js`** from before A wired these (app.js isn't in your diff, so your branch kept the old one). **Rebase your branch onto `main`** (or just trust main — it's what deploys) and both clear. Nothing for you to fix here.

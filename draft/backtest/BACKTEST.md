@@ -3,31 +3,31 @@
 HISTORICAL BACKTEST — does the composite beat ADP on our own drafts?
 ==============================================================================
 
-git HEAD        af0c57031cef519e9524f725f3cee73684d09449
+git HEAD        3578be1ac53d69f4049393eab7e93be3de9a348f
 seasons         2023, 2024, 2025
-graded picks    168  (rounds 1-12)
+graded picks    186  (rounds 1-12)
 
 --- 1. HEADLINE ---
   mean actual points of the recommended player
-    B0  ADP                 213.62
-    B1  projected points    188.97
+    B0  ADP                 219.13
+    B1  projected points    203.64
     B2  VORP                139.09
-    B3  full composite      138.16
-  B3 - B0 per pick          -75.46  +/- 40.77
-  B3 - B0 per draft         -633.85  +/- 660.26   (n=20 drafts)
+    B3  full composite      122.11
+  B3 - B0 per pick          -97.02  +/- 38.53
+  B3 - B0 per draft         -902.29  +/- 498.75   (n=20 drafts)
 
   VERDICT AGAINST THE PRE-REGISTERED BAR (10 pts/draft):
-    INCONCLUSIVE. The confidence interval crosses zero, so this sample
-    cannot distinguish the composite from ADP in either direction.
-    That is a statement about N, not a verdict on the model.
+    BELOW THE BAR. The composite gains -902.29 points per draft,
+    under the 10 the spec set. Said plainly: on this evidence the
+    sophistication is not paying for itself. That is a finding, not a failure.
 
     NOTE: B3 does not beat plain VORP (B2). Whatever edge exists is in the
     value model, not in the survival/tier/need machinery above it.
 
 --- 2. THE DISAGREEMENT SUBSET (where the model claims edge) ---
-  picks where B3 != B0      165  (98.2% of graded)
-  win rate on those         21.2%
-  mean gain on those        -76.83  +/- 41.49
+  picks where B3 != B0      183  (98.4% of graded)
+  win rate on those         23.0%
+  mean gain on those        -98.61  +/- 39.12
   (Picks where the two agree cannot show edge either way — this is the
    honest denominator, and it is always smaller than the headline sample.)
 
@@ -35,16 +35,16 @@ graded picks    168  (rounds 1-12)
   round      n   mean gain      95% CI
       1     11      288.98   +/- 128.61
       2     12      358.55   +/- 191.80
-      3     14      184.81   +/- 195.05
-      4     17      -65.73    +/- 67.89
-      5     11     -259.35   +/- 134.68
-      6     12     -105.47    +/- 99.52
-      7     14     -118.67    +/- 43.51
-      8     16     -110.37    +/- 41.90
-      9     15     -121.81    +/- 55.89
-     10     15     -275.50    +/- 47.09
-     11     15     -271.74    +/- 29.88
-     12     16     -252.92    +/- 31.20
+      3     14      143.15   +/- 188.53
+      4     17      -80.44    +/- 51.66
+      5     12     -259.69   +/- 124.77
+      6     14      -48.54   +/- 104.35
+      7     15      -59.42    +/- 66.18
+      8     17     -104.70    +/- 53.60
+      9     18     -154.69    +/- 44.70
+     10     19     -286.61    +/- 52.03
+     11     18     -319.33     +/- 9.14
+     12     19     -300.98    +/- 23.42
 
   PRE-REGISTERED EXPECTATION (written before any result): edge concentrates
   in rounds 3-9, near zero in round 1.
@@ -72,9 +72,9 @@ graded picks    168  (rounds 1-12)
   drafts, this is thousands of individual predictions.
 
 --- 5. MODEL vs HUMAN ---
-  picks where B3 disagreed with the manager  159
-  B3 scored more often                       29.6%
-  mean gain over the human                   -43.53  +/- 33.39
+  picks where B3 disagreed with the manager  173
+  B3 scored more often                       24.3%
+  mean gain over the human                   -55.50  +/- 30.34
   (Includes my own picks. Seeds the override analysis with real history.)
 
 --- 6. CAVEATS (mandatory) ---
@@ -99,22 +99,22 @@ D1 CUT — VALUE OVER POSITIONAL REPLACEMENT (points minus replacement)
   This discounts an elite QB's raw total by the high replacement QB —
   the reason ADP sends QBs late. Reported alongside the raw metric; no
   install happens off either until D1 is ruled.
-  B0 -19.07  B2(VORP) -197.94  B3 -176.58
-  B3-B0 per pick   -157.52 +/- 34.86
-  B3-B0 per draft  -1323.14 +/- 738.13
+  B0 -16.57  B2(VORP) -197.94  B3 -145.07
+  B3-B0 per pick   -128.49 +/- 32
+  B3-B0 per draft  -1194.99 +/- 585.53
   round-1 gain     130.24 +/- 129.04
   ROUND-1 ALARM STILL FIRES under value grading — the composite genuinely over-drafts QBs in round 1; that is an ENGINE finding, not a metric one.
   per-round value gain (B3-B0):
     r1  130.24 +/- 129.04
     r2  194.46 +/- 190.97
-    r3  21.17 +/- 194.15
-    r4  -153.38 +/- 84.47
-    r5  -295.36 +/- 115.03
-    r6  -208.03 +/- 106.4
-    r7  -217.57 +/- 42.94
-    r8  -217.25 +/- 6.46
-    r9  -229.04 +/- 23.25
-    r10  -274.26 +/- 26.22
-    r11  -260.76 +/- 30.66
-    r12  -261.86 +/- 33.81
+    r3  2.6 +/- 189.03
+    r4  -162.53 +/- 78.92
+    r5  -286.34 +/- 106.5
+    r6  -104.79 +/- 104.33
+    r7  -91.1 +/- 86.05
+    r8  -124.02 +/- 61.12
+    r9  -173.85 +/- 34.8
+    r10  -225.97 +/- 42.89
+    r11  -246.12 +/- 29.77
+    r12  -247.82 +/- 32.03
 ```

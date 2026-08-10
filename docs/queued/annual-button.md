@@ -54,6 +54,18 @@ Every one of these lands in the **same single PR set** the button opens, each as
 ### 2. The button itself
 A `workflow_dispatch` GitHub Actions workflow — "Run Annual Improvement Cycle" — triggerable from the GitHub mobile app with one tap:
 - Spins up Claude Code headless (the claude-code GitHub Action / SDK path) with the Anthropic API key stored as a repo secret
+  - **SECRET NAME PINNED:** the repo secret is `ANTHROPIC_API_KEY` (GitHub → Settings → Secrets and variables → **Actions**, a *secret* not a variable). The workflow references `${{ secrets.ANTHROPIC_API_KEY }}`. NEVER Netlify env, never committed, never served. Cory can add it any time; it's read at workflow-run time, no redeploy.
+  - **KEY IS PLACED (Cory, 2026-08-09) as a GitHub ENVIRONMENT secret — the workflow MUST match this or the key is invisible even though it exists:**
+    - Environment name: `ANTHROPIC_API_KEY`; secret inside it: `ANTHROPIC_API_KEY`.
+      The key-using job MUST declare `environment: ANTHROPIC_API_KEY` (env secrets are NOT available without the job-level `environment:` line). Reference: `anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}`.
+    - Branch restriction: the environment allows **main only** → the workflow runs from main (workflow_dispatch defaults to the default branch — fine; never a feature branch).
+    - **Required reviewer = Cory** → the run PAUSES at the key-using job for his GitHub 'Review deployments' approval. This is the intended human gate, NOT a failure, and it waits up to ~30 days (no January timeout risk). DESIGN CONSTRAINT: keep the key to a SINGLE job so approval is requested ONCE, not per-job. So there are exactly two human touchpoints: (a) approve the run to start, (b) review/merge the resulting PRs.
+    - Spend: Cory set ~$50/mo at Anthropic; the Annual is ~$10-25/run → safe headroom for one run/month. The only risk is STACKING (fall dry-run + a retry, or annual + a mid-season check) in the SAME calendar month; space them across months or raise the cap temporarily. The design does not need more than $50/mo.
+
+  - **THE KEY PATH MUST BE EXERCISED, NOT JUST DESIGNED (Cory, 2026-08-09): "I want to have watched it work once before January."**
+    - `annual-key-smoke.yml` exists NOW: a pennies-cost workflow_dispatch that fires the SAME environment secret + required-reviewer approval + a real authenticated Anthropic call. Run it from the GitHub app any time to watch the wiring work months early; green = the key path is proven.
+    - The FALL DRY RUN must exercise the REAL key path end to end — its 'dry-ness' gates the INSTALL/merge ONLY, never authentication. So the dry run genuinely: hits the approval gate, resolves the env secret, makes real authenticated headless calls (real spend, ~$10-25), and OPENS the PRs — it just marks them DRY-RUN / does not merge. A dry run that stubs or skips the key would leave the January path untested, which is the exact failure Cory is guarding against. NEVER build the dry run to bypass auth.
+    - Optional: renaming the environment to `annual` would be clearer than a secret-named environment, but it is not required — the workflow will match whatever name exists; a rename is a one-line change on our side.
 - Points it at SELF-IMPROVE.md and lets it run the full cycle: read, analyze, implement gated items, open PRs, write the report
 - Full test suite + robot mock must pass inside the workflow before any PR opens; a cycle that breaks the build produces a report and zero PRs
 - Budget-capped and time-capped in the workflow config so a runaway session can't burn tokens indefinitely; the report says if it hit the cap mid-cycle
@@ -79,3 +91,73 @@ A lighter workflow_dispatch — "Run Mid-Season Check" — same headless setup, 
 - The planted-noise proposal test runs inside the cycle and the report shows it rejected
 - One deliberately-broken cron in a test branch → the mini-cycle's plumbing check names it
 - README loop documentation exists and I can follow it cold
+
+## ⚠️ LEARNING-HALF STATUS AUDIT (honest, 2026-08-09) — plumbing built, learning NOT
+
+The chain is predict → record → grade → update. Steps 1–2 compound today; 3–4 do not.
+- **emission + recording (1–2): BUILT & WIRED** — live draft render commits timestamped
+  predictions to `predledger` (forward-guarantee).
+- **grading logic (3): BUILT BUT DORMANT** — `forecast_grade.py` (8/8) exists; nothing
+  runs it but tests.
+- **weekly automatic grading (3, wired): NOT BUILT** — no cron grades resolved
+  predictions; no calibration ledger accumulates. **KEYSTONE.**
+- **derived evidence-weight fn (4 substrate): BUILT BUT DORMANT** — `evidence_weight.py`
+  exists (inverse-variance + trajectory); only `bbm_translate` calls it. Nothing
+  re-weights the live board from graded outcomes.
+- **model update — move confidence / deepen dossiers / retire-strengthen findings (4):
+  SPEC-ONLY** — the Annual delegates it to a headless PROMPT, not deterministic code,
+  and it depends on the missing graded record.
+
+**VERDICT: as-is, January TIDIES (chapter/money/reset) but does not COMPOUND (no graded
+season to learn from, no wired re-weighting).** TOP POST-DRAFT BUILD, **September deadline**:
+wire weekly `forecast_grade` → calibration ledger BEFORE the season's predictions start
+resolving, else January inherits an ungraded pile. Then wire `evidence_weight` to consume
+that ledger (step 4). The Annual's headless mandate is not a substitute for the wired
+weekly grading — it needs a graded record to read.
+
+## BUILD ORDER + DETERMINISTIC-UPDATE PRINCIPLE (Cory 2026-08-09)
+
+Order (sequencing stays A's, but this is the dependency chain):
+1. **Weekly grading cron** — `forecast_grade` on resolved predictions → calibration
+   ledger. **HARD DEADLINE ~Sep 1** (see STATUS 🔴). Everything below needs its record.
+2. **Wire `evidence_weight` to consume that ledger** — weights move from graded
+   outcomes instead of sitting dormant (today only `bbm_translate` calls it).
+3. **Annual model-update over the deterministic record** — the headless prompt becomes
+   a PROPOSAL layer over an inspectable computation, not the mechanism.
+
+**DETERMINISTIC-UPDATE PRINCIPLE (binding):** as much of the update as possible is
+CODE Cory can inspect, not a prompt. A prompt deciding how to re-weight evidence is
+unauditable and drifts year to year.
+- **Computation MOVES the weights:** `evidence_weight.recompute` (inverse-variance
+  precision from the graded {estimate, se, n}) + `append_trajectory`. Fully
+  deterministic and inspectable — this is already built; it just needs the ledger fed
+  to it. Retire/strengthen is a **pre-registered threshold** on graded calibration
+  (a computed flag), not a prompt's opinion. Dossier deepening = recompute opponent
+  models from new data (deterministic).
+- **The prompt only PROPOSES:** writes the chapter, drafts the recalibration ARGUMENT
+  (prose explaining what moved and why), summarizes what changed — all as PRs Cory
+  reviews. It never sets a number.
+- **The one part that can't be fully deterministic:** novel hypothesis generation from
+  residuals (inherently generative). That stays a PROPOSAL (a reviewable PR that
+  registers a pre-registered experiment), never an auto-install. Practical everywhere
+  else — the weight movement is already a function.
+
+## ORCHESTRATOR REQUIREMENTS (B's audit routed these, Cory 2026-08-09)
+
+The orchestrator does NOT exist yet; B's render-time generators FAIL SILENTLY (a
+stale buy-in → plausible-wrong money; an unconfirmed draft rule → plausible-wrong
+order — both look normal). So the orchestrator MUST:
+1. **GRADING + CORRECTIONS FIRST, then B's generators from the corrected numbers**
+   (the ordering contract, already recorded above). Enforce it in code, not by hope.
+2. **HALT ON ANY FAILED LINK.** Never continue past a failure and leave the site
+   half-updated with numbers that look right. A loud stop beats a quiet wrong answer —
+   this is the failure Cory would not catch. Each stage checks its precondition
+   (corrected money table present, draft rule confirmed, standings final) and aborts
+   the whole run on a miss, leaving nothing half-written.
+3. **CALL B's VOTE-ENACT for any passed-but-unenacted vote.** B built
+   `applyVoteEffect`; the rollover invokes it so a passed buy-in change flows to config
+   without Cory remembering (e.g. the $400→$500 vote). Enact BEFORE the money table is
+   settled so the corrected numbers use the enacted rule.
+4. **IDEMPOTENT.** Two presses must not double or corrupt anything — guard by a
+   run-key / already-applied check on every mutation (vote-enact, config write, season
+   seal, PR creation), so a re-press is a no-op or resumes cleanly.

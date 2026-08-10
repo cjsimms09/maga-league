@@ -136,4 +136,76 @@
   document.querySelectorAll('.scroll-x').forEach(function (el) {
     el.addEventListener('scroll', markScrollers, { passive: true });
   });
+
+  /* ------------------------------------------------------------------
+   * 6. Derive — tap any number to see how it was computed.
+   *
+   * A site-wide pattern: any figure wrapped in partials/_derive.ejs becomes a
+   * trigger that opens an inline panel showing the real parts it is built from.
+   * Never a modal, never navigation. The panel is fixed-positioned here (not in
+   * flow) so it escapes any overflow:auto scroll container — the money board and
+   * standings tables would otherwise clip it. One open at a time; outside-click,
+   * Escape, and scroll-out all close it; the panel tracks its number on scroll.
+   * ------------------------------------------------------------------ */
+  var deriveOpen = null; // { trigger, panel }
+
+  function closeDerive() {
+    if (!deriveOpen) return;
+    deriveOpen.trigger.setAttribute('aria-expanded', 'false');
+    deriveOpen.panel.hidden = true;
+    deriveOpen = null;
+  }
+
+  function positionDerive() {
+    if (!deriveOpen) return;
+    var t = deriveOpen.trigger, p = deriveOpen.panel;
+    var r = t.getBoundingClientRect();
+    // Scrolled out of view (e.g. behind a sticky bar or off a scroll container) → close.
+    if (r.bottom < 0 || r.top > window.innerHeight || r.right < 0 || r.left > window.innerWidth) {
+      closeDerive();
+      return;
+    }
+    // Measure while visible, then clamp to the viewport with an 8px gutter.
+    p.style.left = '0px'; p.style.top = '0px';
+    var pw = p.offsetWidth, ph = p.offsetHeight, gut = 8;
+    var left = Math.min(Math.max(gut, r.left), window.innerWidth - pw - gut);
+    var top = r.bottom + 6;
+    if (top + ph > window.innerHeight - gut) {
+      var above = r.top - ph - 6;
+      if (above >= gut) top = above; // flip above when there is no room below
+      else top = Math.max(gut, window.innerHeight - ph - gut);
+    }
+    p.style.left = Math.round(left) + 'px';
+    p.style.top = Math.round(top) + 'px';
+  }
+
+  document.addEventListener('click', function (e) {
+    var trigger = e.target.closest('.derive-trigger');
+    if (trigger) {
+      e.preventDefault();
+      var wrap = trigger.closest('.derive');
+      var panel = wrap && wrap.querySelector('.derive-panel');
+      if (!panel) return;
+      var wasOpen = deriveOpen && deriveOpen.trigger === trigger;
+      closeDerive();
+      if (wasOpen) return; // second tap on the same number closes it
+      trigger.setAttribute('aria-expanded', 'true');
+      panel.hidden = false;
+      deriveOpen = { trigger: trigger, panel: panel };
+      positionDerive();
+      return;
+    }
+    if (deriveOpen && !e.target.closest('.derive-panel')) closeDerive();
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && deriveOpen) {
+      var t = deriveOpen.trigger;
+      closeDerive();
+      if (t && t.focus) t.focus();
+    }
+  });
+
+  window.addEventListener('scroll', positionDerive, { passive: true, capture: true });
+  window.addEventListener('resize', positionDerive, { passive: true });
 })();

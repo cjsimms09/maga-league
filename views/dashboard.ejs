@@ -1,5 +1,11 @@
 <%- include('partials/header', { title: 'League Office' }) %>
 
+<%# RIVALRY GAME OF THE WEEK — billed on the home page when one of the league's real
+    rivalries is on this week's slate; the highest-billed one wins the top spot. %>
+<% if (typeof rivalryOfWeek !== 'undefined' && rivalryOfWeek) { %>
+  <%- include('partials/_rivalry_banner', { rivalry: rivalryOfWeek, aName: rivalryOfWeek.pair.a, bName: rivalryOfWeek.pair.b, rivalryRank: rivalryOfWeek.rank }) %>
+  <% if (rivalryMore > 0) { %><p class="muted" style="text-align:center; margin:-.7rem 0 1.1rem; font-size:.76rem">+ <%= rivalryMore %> more rivalry game<%= rivalryMore === 1 ? '' : 's' %> on the slate this week</p><% } %>
+<% } %>
 <%# ── THE DISPATCH — transient popups. They appear, get read, get dismissed,
     and are gone (server-side per owner). With JS this is an overlay that clears
     instantly; without JS it's a dismissible stack at the top of the page. Never
@@ -158,7 +164,7 @@
               } else if (mv && mv.delta < 0) { %> <span class="rank-arrow down" title="down <%= -mv.delta %> from last week (was <%= mv.prevRank %>)">▼<%= -mv.delta %></span><%
               } else if (mv) { %> <span class="rank-arrow same" title="held at <%= mv.curRank %>">–</span><% } %></td><% } %>
             <% const _fl = (typeof flags !== 'undefined' && r.owner_id != null) ? (flags[r.owner_id] || '') : ''; %>
-            <td><% if (r.owner_id != null) { %><button type="button" class="contact-link" data-contact="<%= r.owner_id %>"><b><%= r.owner_name || r.team %></b></button><% if (_fl) { %> <span class="flag"><%= _fl %></span><% } %><% } else { %><b><%= r.owner_name || r.team %></b><% } %><% if (bm) { %><span
+            <td><% if (r.owner_id != null) { %><button type="button" class="contact-link" data-contact="<%= r.owner_id %>"><b><%= r.owner_name || r.team %></b></button><%- include('partials/_owner_badges', { name: r.owner_name }) %><% if (_fl) { %> <span class="flag"><%= _fl %></span><% } %><% } else { %><b><%= r.owner_name || r.team %></b><%- include('partials/_owner_badges', { name: r.owner_name }) %><% } %><% if (bm) { %><span
                 class="bet-money<%= bm.mine ? ' mine' : '' %>"
                 title="<%= bm.notes.join(' · ').replace(/"/g, '&quot;') %>">💰<% if (bm.mine) { %><%= money(bm.mine) %><% } %></span><% } %><% if (r.owner_name && r.owner_name !== r.team) { %> <span class="muted"><%= r.team %></span><% } %></td>
             <td class="num" style="white-space:nowrap"><%= r.wins %>-<%= r.losses %><%= r.ties ? '-' + r.ties : '' %></td>

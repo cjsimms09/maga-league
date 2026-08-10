@@ -14,39 +14,43 @@ of this list (see the note at the bottom)._
   visitor would see ships automatically; only docs/Lab/CI skip (netlify-ignore.sh, 7/7).
 - ✅ **Fresh sessions bootstrap from the repo, not a retyped prompt** (SESSION-A.md,
   SESSION-B.md, ACCESS-RULE.md on main).
-- 🔶 **EXTERNAL DATA (Underdog BBM → exp 24) — PARTIAL, FIRED.** The GCS host is reachable from
-  the sandbox (only the landing pages are blocked), so the finals dump ingested HERE: exp 24 ran
-  on BBM IV finals (n=441, 16× our n). Result is an honest NEAR-NULL — at the elite ceiling,
-  positional count-shape barely separates finals winners from the field (only a sign-stable mild
-  RB-over/WR-under tilt, <1 slot), which supports the spike-week lens over count-shape and routes
-  the real construction/dead-zone question to the full field (EXP24.md). **Blocked:** the full
-  field (R1, 4.8 GB) needs `bbm-probe.yml` in CI, which needs integration to main to be
-  dispatchable (see WAITING ON YOU).
-- 🔶 **The weekly-high pool (37.5% of the pot) rewards ceiling shape — nobody drafts for it.**
-  exp 24 folded it in as a first-class question; the near-null says gross allocation isn't the
-  edge — the spike-week instrument (bar now derived from the harvested winning-score median) is
-  the better lens. Full-field spike-week validation is queued on the CI stream.
-- ✅ **Two hand-set values DERIVED** (DERIVED-VS-DECLARED-AUDIT): the deviation silence band is now
-  per-region off the exp-36 surface (tight where the market ranks well, wide where it ranks
-  backwards); the spike-week bar is the harvested weekly-high median, not a round number.
-- 🔶 **FORWARD PREDICTION — built (Cory's raise).** The model can now commit timestamped,
-  resolution-ruled forecasts (survival %, ADP falls, who the room takes, roster $; weekly:
-  weekly-high winner, champ prob, bust) and grade them FORWARD (backdated claims disqualified) —
-  the one thing no backtest can give. Infra + slate + grader done + tested; draft-time emission
-  wire-up owed (forward-prediction.md).
-- ◻ **Third arm — composite vs ADP in dollars** (the deviation-trust verdict; thin at n≈27, so #2).
-- ◻ **Mock #4 + the degraded drill → the one-page failure card.** Parked until you say GO.
+- ✅ **EXTERNAL DATA (Underdog BBM) — FIRED, full field.** GCS host reachable from the sandbox;
+  finals dump ingested here (exp 24, n=441, honest near-null on count-shape). The 4.8 GB full field
+  STREAMED in CI (bbm-probe.yml ran): **RB dead zone confirmed at 200k picks/cell** — RB 137→80→63
+  after round 4, WR gentle (EXP25-DEADZONE.md). Durable gzipped archive committed (no Underdog
+  dependency).
+- ✅ **RB DEAD ZONE located on OUR data + on the board.** exp25 (n=395): RB collapses at overall
+  pick ~61, WR overtakes there; agrees with BBM in the overall-pick invariant. Deviation card now
+  flags "INSIDE the RB dead zone — prefer WR" (informational prior). **Keeper compound:** Henry+Walker
+  fill RB → dead-zone + keeper-fill + WR Feast all agree → mid-round WR past pick ~60 is the
+  best-evidenced call (EXP25-OURS.md).
+- ✅ **Three hand-set values DERIVED** (DERIVED-VS-DECLARED-AUDIT): per-region deviation silence band
+  (exp 36 surface), spike-week bar (harvested median), market-quality cuts (exp-36 tertiles, was
+  0.2/0.5).
+- ✅ **FORWARD PREDICTION — LIVE (Cory's raise).** The model now commits timestamped, resolution-ruled
+  forecasts on the real board (room-takes by ADP + survival %); the forward guarantee disqualifies
+  backdated claims and keeps the earliest per key; resolve+grade loop built (JS + Python). The one
+  thing no backtest can give. roster_dollars/adp_fall wait on the E[$] model; the resolution TRIGGER
+  is the one deliberate follow-up (verify against a live draft). forward-prediction.md.
+- ✅ **The war-room numbers are right** (accounting): one pick coordinate (killed the stale clock
+  reader), reconciler itemizes roster by source + asserts coordinates agree (mutation-proven),
+  alarms name the conflict, pick-went-BACKWARDS fixed. **Mock #4 runs on correct numbers.**
+- ✅ **Red build fixed + guarded** (projections module collision renamed; CI-loop integrity guard).
+- ✅ **War-room presentation handed to B** (shell/CSS/design), A keeps logic — boundary + interface
+  in TERRITORY.md; B unblocked for the density redesign.
+- ◻ **Third arm — composite vs ADP in dollars** (deviation-trust verdict; needs the JS replay path → CI).
+- ◻ **Mock #4 + the degraded drill → the one-page failure card.** Accounting green — ready on your GO.
 - ◻ **Whether to build Stage 2 as a real market anchor** (D14). Recommendation stands:
   HOLD — and if built, its binding comes from the exp-36 surface, not a hand-set gate.
 
 ## WAITING ON YOU (Cory) — nothing moves until you rule
 
-- ◻ **Integrate to main so `bbm-probe.yml` can fire?** The workflow is written + pushed to my
-  branch, but `workflow_dispatch` needs it on main to be dispatchable. It runs the full-field
-  dead-zone (4.8 GB stream) + discovers BBM V's URL (CI has egress the sandbox lacks). Needs
-  your authorization to merge my branch to main (per branch protocol), OR you dispatch it after.
+- ✅ **Integrate to main so `bbm-probe.yml` can fire** — DONE (authorized + merged; the probe ran,
+  streamed the 4.8 GB full field, confirmed the dead zone).
+- ◻ **GO for mock #4?** Accounting is green + deployed and the numbers reconcile — it runs on
+  correct numbers now. Everything post-mock (density redesign, doctrine-switch UI, ribbon audit,
+  opponent needs, revert/reconcile) waits on this rehearsal.
 - ◻ **D14:** build the real Stage-2 anchor now, or keep holding? (I recommend hold.)
-- ◻ **GO for mock #4 + the degraded drill?** (parked on your word).
 - ◻ **Open a gated REGRESSION_WEIGHT change?** exp 35 confirmed we over-regress
   (top-decile 0.51 at weight 0 vs 0.40 shipped); lowering it is a separate SHIP
   decision (null + leave-one-season-out), not auto-installed.

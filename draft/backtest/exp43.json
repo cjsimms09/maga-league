@@ -1,0 +1,663 @@
+{
+  "experiment": "43 \u2014 full-board pick audit (every pick, every owner, market-relative)",
+  "n_gradeable_picks": 232,
+  "seasons": [
+    2023,
+    2024
+  ],
+  "prereg": "EXP43-PREREG.md",
+  "floor": 8,
+  "by_round_position_residual": {
+    "R1-3": {
+      "QB": {
+        "n": 3,
+        "thin": true,
+        "mean_residual": -66.33
+      },
+      "RB": {
+        "n": 14,
+        "thin": false,
+        "mean_residual": -3.32,
+        "ci95": [
+          -52.85,
+          55.51
+        ],
+        "beats_market": false,
+        "p": 0.929,
+        "fdr_survive": false
+      },
+      "WR": {
+        "n": 18,
+        "thin": false,
+        "mean_residual": 2.91,
+        "ci95": [
+          -23.69,
+          30.36
+        ],
+        "beats_market": false,
+        "p": 0.841,
+        "fdr_survive": false
+      },
+      "TE": {
+        "n": 2,
+        "thin": true,
+        "mean_residual": 6.97
+      },
+      "K": {
+        "n": 0,
+        "thin": true,
+        "mean_residual": null
+      },
+      "DEF": {
+        "n": 0,
+        "thin": true,
+        "mean_residual": null
+      }
+    },
+    "R4-7": {
+      "QB": {
+        "n": 12,
+        "thin": false,
+        "mean_residual": 7.25,
+        "ci95": [
+          -40.2,
+          61.67
+        ],
+        "beats_market": false,
+        "p": 0.819,
+        "fdr_survive": false
+      },
+      "RB": {
+        "n": 25,
+        "thin": false,
+        "mean_residual": 10.87,
+        "ci95": [
+          -11.89,
+          31.82
+        ],
+        "beats_market": false,
+        "p": 0.322,
+        "fdr_survive": false
+      },
+      "WR": {
+        "n": 30,
+        "thin": false,
+        "mean_residual": 1.2,
+        "ci95": [
+          -19.47,
+          20.65
+        ],
+        "beats_market": false,
+        "p": 0.902,
+        "fdr_survive": false
+      },
+      "TE": {
+        "n": 13,
+        "thin": false,
+        "mean_residual": -4.64,
+        "ci95": [
+          -23.63,
+          14.85
+        ],
+        "beats_market": false,
+        "p": 0.65,
+        "fdr_survive": false
+      },
+      "K": {
+        "n": 0,
+        "thin": true,
+        "mean_residual": null
+      },
+      "DEF": {
+        "n": 0,
+        "thin": true,
+        "mean_residual": null
+      }
+    },
+    "R8-11": {
+      "QB": {
+        "n": 4,
+        "thin": true,
+        "mean_residual": 57.96
+      },
+      "RB": {
+        "n": 30,
+        "thin": false,
+        "mean_residual": 1.61,
+        "ci95": [
+          -22.21,
+          26.41
+        ],
+        "beats_market": false,
+        "p": 0.91,
+        "fdr_survive": false
+      },
+      "WR": {
+        "n": 32,
+        "thin": false,
+        "mean_residual": -1.48,
+        "ci95": [
+          -1.48,
+          -1.48
+        ],
+        "beats_market": false,
+        "p": 0.0,
+        "fdr_survive": true
+      },
+      "TE": {
+        "n": 6,
+        "thin": true,
+        "mean_residual": 20.02
+      },
+      "K": {
+        "n": 0,
+        "thin": true,
+        "mean_residual": null
+      },
+      "DEF": {
+        "n": 0,
+        "thin": true,
+        "mean_residual": null
+      }
+    },
+    "R12+": {
+      "QB": {
+        "n": 11,
+        "thin": false,
+        "mean_residual": -10.9,
+        "ci95": [
+          -100.15,
+          63.37
+        ],
+        "beats_market": false,
+        "p": 0.802,
+        "fdr_survive": false
+      },
+      "RB": {
+        "n": 12,
+        "thin": false,
+        "mean_residual": -22.8,
+        "ci95": [
+          -50.37,
+          6.43
+        ],
+        "beats_market": false,
+        "p": 0.129,
+        "fdr_survive": false
+      },
+      "WR": {
+        "n": 15,
+        "thin": false,
+        "mean_residual": -2.75,
+        "ci95": [
+          -25.76,
+          21.0
+        ],
+        "beats_market": false,
+        "p": 0.813,
+        "fdr_survive": false
+      },
+      "TE": {
+        "n": 5,
+        "thin": true,
+        "mean_residual": -14.75
+      },
+      "K": {
+        "n": 0,
+        "thin": true,
+        "mean_residual": null
+      },
+      "DEF": {
+        "n": 0,
+        "thin": true,
+        "mean_residual": null
+      }
+    }
+  },
+  "does_reaching_pay_overall": {
+    "fell_far": {
+      "n": 17,
+      "thin": false,
+      "mean_residual": 6.55,
+      "ci95": [
+        -17.04,
+        32.18
+      ],
+      "beats_market": false,
+      "p": 0.605,
+      "fdr_survive": false
+    },
+    "fell": {
+      "n": 42,
+      "thin": false,
+      "mean_residual": -3.13,
+      "ci95": [
+        -30.71,
+        22.57
+      ],
+      "beats_market": false,
+      "p": 0.814,
+      "fdr_survive": false
+    },
+    "at_market": {
+      "n": 73,
+      "thin": false,
+      "mean_residual": 4.47,
+      "ci95": [
+        -10.27,
+        19.64
+      ],
+      "beats_market": false,
+      "p": 0.535,
+      "fdr_survive": false
+    },
+    "reached": {
+      "n": 65,
+      "thin": false,
+      "mean_residual": -6.88,
+      "ci95": [
+        -25.75,
+        10.79
+      ],
+      "beats_market": false,
+      "p": 0.479,
+      "fdr_survive": false
+    },
+    "big_reach": {
+      "n": 35,
+      "thin": false,
+      "mean_residual": 4.01,
+      "ci95": [
+        -16.72,
+        25.99
+      ],
+      "beats_market": false,
+      "p": 0.7,
+      "fdr_survive": false
+    }
+  },
+  "does_reaching_pay_by_position": {
+    "RB": {
+      "fell_far": {
+        "n": 2,
+        "thin": true,
+        "mean_residual": -6.3
+      },
+      "fell": {
+        "n": 18,
+        "thin": false,
+        "mean_residual": 16.2,
+        "ci95": [
+          -17.63,
+          49.99
+        ],
+        "beats_market": false,
+        "p": 0.342,
+        "fdr_survive": false
+      },
+      "at_market": {
+        "n": 29,
+        "thin": false,
+        "mean_residual": 3.46,
+        "ci95": [
+          -20.74,
+          29.03
+        ],
+        "beats_market": false,
+        "p": 0.783,
+        "fdr_survive": false
+      },
+      "reached": {
+        "n": 23,
+        "thin": false,
+        "mean_residual": -3.57,
+        "ci95": [
+          -36.01,
+          26.53
+        ],
+        "beats_market": false,
+        "p": 0.843,
+        "fdr_survive": false
+      },
+      "big_reach": {
+        "n": 9,
+        "thin": false,
+        "mean_residual": -33.03,
+        "ci95": [
+          -64.16,
+          3.01
+        ],
+        "beats_market": false,
+        "p": 0.077,
+        "fdr_survive": false
+      }
+    },
+    "WR": {
+      "fell_far": {
+        "n": 5,
+        "thin": true,
+        "mean_residual": 24.47
+      },
+      "fell": {
+        "n": 10,
+        "thin": false,
+        "mean_residual": -3.08,
+        "ci95": [
+          -39.68,
+          35.83
+        ],
+        "beats_market": false,
+        "p": 0.832,
+        "fdr_survive": false
+      },
+      "at_market": {
+        "n": 33,
+        "thin": false,
+        "mean_residual": 2.47,
+        "ci95": [
+          -20.13,
+          23.61
+        ],
+        "beats_market": false,
+        "p": 0.843,
+        "fdr_survive": false
+      },
+      "reached": {
+        "n": 31,
+        "thin": false,
+        "mean_residual": -8.35,
+        "ci95": [
+          -26.88,
+          12.28
+        ],
+        "beats_market": false,
+        "p": 0.397,
+        "fdr_survive": false
+      },
+      "big_reach": {
+        "n": 16,
+        "thin": false,
+        "mean_residual": 5.35,
+        "ci95": [
+          5.35,
+          5.35
+        ],
+        "beats_market": true,
+        "p": 0.0,
+        "fdr_survive": true
+      }
+    },
+    "QB": {
+      "fell_far": {
+        "n": 0,
+        "thin": true,
+        "mean_residual": null
+      },
+      "fell": {
+        "n": 6,
+        "thin": true,
+        "mean_residual": -72.22
+      },
+      "at_market": {
+        "n": 7,
+        "thin": true,
+        "mean_residual": 12.37
+      },
+      "reached": {
+        "n": 8,
+        "thin": false,
+        "mean_residual": -1.45,
+        "ci95": [
+          -1.45,
+          -1.45
+        ],
+        "beats_market": false,
+        "p": 0.0,
+        "fdr_survive": true
+      },
+      "big_reach": {
+        "n": 9,
+        "thin": false,
+        "mean_residual": 39.81,
+        "ci95": [
+          -19.12,
+          94.22
+        ],
+        "beats_market": false,
+        "p": 0.167,
+        "fdr_survive": false
+      }
+    },
+    "TE": {
+      "fell_far": {
+        "n": 10,
+        "thin": false,
+        "mean_residual": 0.16,
+        "ci95": [
+          -23.96,
+          24.74
+        ],
+        "beats_market": false,
+        "p": 0.984,
+        "fdr_survive": false
+      },
+      "fell": {
+        "n": 8,
+        "thin": false,
+        "mean_residual": 5.15,
+        "ci95": [
+          5.15,
+          5.15
+        ],
+        "beats_market": true,
+        "p": 0.0,
+        "fdr_survive": true
+      },
+      "at_market": {
+        "n": 4,
+        "thin": true,
+        "mean_residual": 14.5
+      },
+      "reached": {
+        "n": 3,
+        "thin": true,
+        "mean_residual": -31.6
+      },
+      "big_reach": {
+        "n": 1,
+        "thin": true,
+        "mean_residual": -6.05
+      }
+    }
+  },
+  "who_drafts_well": {
+    "B8T3S": {
+      "n": 23,
+      "thin": false,
+      "mean_residual": -1.08,
+      "ci95": [
+        -35.52,
+        28.49
+      ],
+      "beats_market": false,
+      "p": 0.965,
+      "owner": "B8T3S",
+      "fdr_survive": false
+    },
+    "Jreis": {
+      "n": 25,
+      "thin": false,
+      "mean_residual": -12.92,
+      "ci95": [
+        -43.73,
+        17.91
+      ],
+      "beats_market": false,
+      "p": 0.399,
+      "owner": "Jreis",
+      "fdr_survive": false
+    },
+    "MarianSaar": {
+      "n": 23,
+      "thin": false,
+      "mean_residual": 18.84,
+      "ci95": [
+        -8.1,
+        48.96
+      ],
+      "beats_market": false,
+      "p": 0.195,
+      "owner": "MarianSaar",
+      "fdr_survive": false
+    },
+    "Richard2121": {
+      "n": 23,
+      "thin": false,
+      "mean_residual": -23.92,
+      "ci95": [
+        -40.98,
+        -8.42
+      ],
+      "beats_market": false,
+      "p": 0.002,
+      "owner": "Richard2121",
+      "fdr_survive": true
+    },
+    "Sadbru": {
+      "n": 23,
+      "thin": false,
+      "mean_residual": 2.81,
+      "ci95": [
+        -27.02,
+        35.74
+      ],
+      "beats_market": false,
+      "p": 0.84,
+      "owner": "Sadbru",
+      "fdr_survive": false
+    },
+    "Schmelley": {
+      "n": 22,
+      "thin": false,
+      "mean_residual": -2.27,
+      "ci95": [
+        -32.21,
+        27.01
+      ],
+      "beats_market": false,
+      "p": 0.901,
+      "owner": "Schmelley",
+      "fdr_survive": false
+    },
+    "cashworth": {
+      "n": 23,
+      "thin": false,
+      "mean_residual": -24.29,
+      "ci95": [
+        -50.58,
+        0.29
+      ],
+      "beats_market": false,
+      "p": 0.054,
+      "owner": "cashworth",
+      "fdr_survive": false
+    },
+    "coryjsimms": {
+      "n": 25,
+      "thin": false,
+      "mean_residual": 18.88,
+      "ci95": [
+        -6.81,
+        45.71
+      ],
+      "beats_market": false,
+      "p": 0.148,
+      "owner": "coryjsimms",
+      "fdr_survive": false
+    },
+    "ds7mmet": {
+      "n": 22,
+      "thin": false,
+      "mean_residual": 7.54,
+      "ci95": [
+        -18.99,
+        33.7
+      ],
+      "beats_market": false,
+      "p": 0.616,
+      "owner": "ds7mmet",
+      "fdr_survive": false
+    },
+    "mhagen": {
+      "n": 23,
+      "thin": false,
+      "mean_residual": 16.12,
+      "ci95": [
+        -15.57,
+        49.97
+      ],
+      "beats_market": false,
+      "p": 0.357,
+      "owner": "mhagen",
+      "fdr_survive": false
+    }
+  },
+  "deadzone_crosscheck": {
+    "RB": {
+      "n": 25,
+      "thin": false,
+      "mean_residual": 0.3,
+      "ci95": [
+        -24.7,
+        24.79
+      ],
+      "beats_market": false,
+      "p": 0.956
+    },
+    "WR": {
+      "n": 36,
+      "thin": false,
+      "mean_residual": -6.6,
+      "ci95": [
+        -23.39,
+        10.32
+      ],
+      "beats_market": false,
+      "p": 0.434
+    },
+    "window": [
+      51,
+      90
+    ]
+  },
+  "caveat": "Market-relative residual vs the WITHIN-POSITION realized-vs-ADP curve (cross-position pooling is confounded by scoring scale \u2014 QBs would read hugely positive from scale alone; fixed). 'Was it a good pick' (answered) != 'good pick FOR CORY' (roster-conditional, deferred to the strategy grid exp 44). Leads in points-residual; dollars are roster-dependent. No install \u2014 a surface.",
+  "multiplicity": "each family prints n tested; BH FDR q=0.10 flags survivors (fdr_survive).",
+  "source_tier": "league-primary",
+  "cory_vs_field": {
+    "cory": {
+      "n": 25,
+      "mean_residual": 18.88,
+      "ci95": [
+        -6.34,
+        44.58
+      ]
+    },
+    "field": {
+      "n": 207,
+      "mean_residual": -2.28,
+      "ci95": [
+        -11.92,
+        7.68
+      ]
+    },
+    "difference": {
+      "mean": 21.16,
+      "ci95": [
+        -5.37,
+        49.13
+      ]
+    },
+    "verdict": "not separable (CI includes 0)"
+  },
+  "cory_seat": "coryjsimms"
+}

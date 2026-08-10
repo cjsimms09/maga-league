@@ -69,5 +69,28 @@ const board = [
     !fc.some(f => f.payload.key.indexOf('room_seat') === 0));
 }
 
+// --- buildResolutions: grade room_seat + survival from the completed draft -------
+// Kept in step with the Python forecast_grade.build_resolutions (parallel test).
+{
+  const forecasts = [
+    { payload: { key: 'room_seat:r1p3' } },
+    { payload: { key: 'survival:jefferson@pick14' } },
+    { payload: { key: 'survival:chase@pick14' } },
+    { payload: { key: 'room_seat:r1p9' } },   // pick 9 not in draft -> pending
+  ];
+  const draft = { picks: [
+    { overall: 3, player_id: 'mcbride' },
+    { overall: 10, player_id: 'chase' },
+    { overall: 14, player_id: 'someone' },
+  ] };
+  const res = F.buildResolutions(forecasts, draft);
+  const byKey = {};
+  res.forEach(r => { byKey[r.payload.forecast_key] = r.payload.outcome; });
+  check('room_seat resolves to who ACTUALLY went at that seat', byKey['room_seat:r1p3'] === 'mcbride');
+  check('survival=1 when the target was undrafted at the pick', byKey['survival:jefferson@pick14'] === 1);
+  check('survival=0 when the target was taken before the pick', byKey['survival:chase@pick14'] === 0);
+  check('an unreached pick stays PENDING (no fabricated outcome)', !('room_seat:r1p9' in byKey));
+}
+
 console.log(`\n${pass}/${pass + fail} forecast checks passed`);
 process.exit(fail ? 1 : 0);

@@ -24,7 +24,7 @@
               "QB": {
                 "n": 68,
                 "mae": 125.53,
-                "rank_corr": 0.541,
+                "rank_corr": 0.54,
                 "top_decile": {
                   "n": 68,
                   "k": 7,
@@ -54,7 +54,7 @@
               "TE": {
                 "n": 98,
                 "mae": 33.35,
-                "rank_corr": 0.617,
+                "rank_corr": 0.618,
                 "top_decile": {
                   "n": 98,
                   "k": 10,
@@ -97,7 +97,7 @@
               "QB": {
                 "n": 68,
                 "mae": 91.05,
-                "rank_corr": 0.616,
+                "rank_corr": 0.615,
                 "top_decile": {
                   "n": 68,
                   "k": 7,
@@ -127,7 +127,7 @@
               "TE": {
                 "n": 98,
                 "mae": 27.27,
-                "rank_corr": 0.681,
+                "rank_corr": 0.682,
                 "top_decile": {
                   "n": 98,
                   "k": 10,
@@ -348,7 +348,7 @@
           "our_blend": {
             "n": 455,
             "mae": 56.68,
-            "rank_corr": 0.608,
+            "rank_corr": 0.607,
             "top_decile": {
               "n": 455,
               "k": 46,
@@ -368,7 +368,7 @@
               "RB": {
                 "n": 111,
                 "mae": 59.87,
-                "rank_corr": 0.542,
+                "rank_corr": 0.541,
                 "top_decile": {
                   "n": 111,
                   "k": 11,
@@ -378,7 +378,7 @@
               "WR": {
                 "n": 164,
                 "mae": 46.97,
-                "rank_corr": 0.755,
+                "rank_corr": 0.754,
                 "top_decile": {
                   "n": 164,
                   "k": 16,
@@ -441,7 +441,7 @@
               "RB": {
                 "n": 111,
                 "mae": 53.37,
-                "rank_corr": 0.587,
+                "rank_corr": 0.586,
                 "top_decile": {
                   "n": 111,
                   "k": 11,

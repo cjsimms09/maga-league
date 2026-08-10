@@ -122,7 +122,12 @@
       <div class="clock-meta" id="clock-meta"></div>
       <div class="clock-why" id="clock-why"></div>
       <div class="clock-confidence" id="clock-confidence"></div>
+      <%# THE TAKE BUTTON — the single most important control, and it was MISSING
+          from this view (only the full-board recs cards had it), so the ONE ANSWER
+          screen recommended a player with no way to draft him. app.js sets its
+          data-draft-me + label to the shown player each render (SEV1, live mock). %>
       <div class="clock-actions">
+        <button class="btn gold" id="clock-take" data-draft-me="">✓ Take him</button>
         <button class="btn small navy" id="clock-next">Show the next one</button>
         <button class="btn small ghost" id="clock-off">Full board</button>
       </div>

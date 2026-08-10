@@ -339,9 +339,11 @@ function lineupStats(starters, projById, sigmaById) {
 //              for the statuses that mean "not playing". Questionable/Doubtful are
 //              deliberately left alone: they MIGHT play, and that uncertainty is
 //              exactly what the variance model already prices.
-//   • bye    — row.bye === the week being optimized. No live source exposes a
-//              per-player bye week yet (flagged to A); until it does this arm is a
-//              no-op, and it activates automatically the moment the field appears.
+//   • bye    — row.bye === the week being optimized. WIRED (A, 2026-08-09):
+//              rosterView now stamps row.bye from src/nfl_byes.json (team→bye,
+//              derived from the board), joined on the player's CURRENT team so a
+//              trade resolves to the new team's bye. A season with no map leaves
+//              bye null and this arm stays a no-op (injury guard still fires).
 const INACTIVE_INJURY = new Set(['OUT', 'IR', 'PUP', 'SUS', 'NA', 'DNR', 'COV', 'RES', 'DNP']);
 function isInactive(row, weekNo) {
   if (!row) return false;

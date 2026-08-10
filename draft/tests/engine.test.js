@@ -1394,6 +1394,27 @@ check('weight sliders change the ranking', heavyCeiling[0].score !== scored[0].s
     lateU > earlyU, 'early=' + earlyU.toFixed(1) + ' late=' + lateU.toFixed(1));
 }
 
+// --- THE MEASURED CONFIG (2026-08-09, Cory-confirmed) — what the tool loads on ---
+// The participation test + follow-ups: mask (always on) + value anchor is the edge; stack
+// 0.5 earns (exp6); need 0.5 is near-inert (mask does it); ceiling 0.65 kept; tier/risk are
+// a measured drag → 0; bye a null → 0; keeper unmeasured → left at 1.0.
+{
+  const m = E.MEASURED_WEIGHTS;
+  check('measured: value anchor at 1.0', m.value === 1.0, String(m.value));
+  check('measured: tier and risk OFF (measured drag)', m.tier === 0 && m.risk === 0,
+    `tier=${m.tier} risk=${m.risk}`);
+  check('measured: stack at 0.5 (the one adjuster that earned)', m.stack === 0.5, String(m.stack));
+  check('measured: need at 0 (inert by mask redundancy — settled)', m.need === 0, String(m.need));
+  check('measured: ceiling kept at 0.65, not zeroed', m.ceiling === 0.65, String(m.ceiling));
+  check('measured: bye OFF (a real null)', m.bye === 0, String(m.bye));
+  // it must be a real, selectable preset AND the thing matchPreset names it
+  const preset = E.WEIGHT_PRESETS.find(p => p.key === 'measured');
+  check('measured: is the first (default) preset', E.WEIGHT_PRESETS[0].key === 'measured',
+    E.WEIGHT_PRESETS[0].key);
+  check('measured: matchPreset identifies the config as "measured"',
+    E.matchPreset(m) === 'measured', String(E.matchPreset(m)));
+}
+
 
 
 // --- MOCK #1 FIX #1 + #2: path names read SLOT STATE, not need magnitude -----

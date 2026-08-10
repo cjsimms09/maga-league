@@ -1,0 +1,28 @@
+{
+  "experiment": "discoverability \u2014 public leagues at our format, obtainable at volume?",
+  "our_format": {
+    "teams": 10,
+    "rec": 0.5,
+    "pass_td": 6.0,
+    "roster": {
+      "QB": 1,
+      "RB": 2,
+      "WR": 2,
+      "TE": 1,
+      "FLEX": 1,
+      "K": 1,
+      "DEF": 1
+    }
+  },
+  "season_crawled": "2023",
+  "budget": 800,
+  "stats": {
+    "api_calls": 16,
+    "leagues_checked": 3,
+    "users_seen": 10,
+    "loose_matches": 2,
+    "strict_matches": 2
+  },
+  "verdict": "INCONCLUSIVE (method, not answer) \u2014 the crawl EXHAUSTED at 16 calls (budget 800), reaching only 10 users and 2 on-format leagues. Crawling from OUR league's members is a dead end: they mostly play in each other's leagues, so this route never enters the public-league space. This is NOT evidence the format is sparse \u2014 it's evidence the SEED is too small. A real volume test needs a different entry into Sleeper's public leagues (there is no settings-search API), which is a bigger build. TELL CORY: cheap path is a dead end; obtainability is still OPEN, not proven-negative.",
+  "caveat": "graph crawl from our league's users; Sleeper has no settings-search, so this is the only route. loose = scoring+lineup (supports need/risk/bye); strict adds keeper. A THIN/NOT-OBTAINABLE verdict is the gate: it means the interior-adjuster question stays permanently open, not queued."
+}

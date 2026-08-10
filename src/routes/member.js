@@ -3,6 +3,8 @@ const router = express.Router();
 const H = require('../helpers');
 const HIST = require('./history-data');   // the MFGA Archive — chronicle data engine
 const H2H = require('./h2h');              // all-time head-to-head, from the box scores
+const CHAMPS = require('../champs');       // the crown — defending champion, derived
+const RIV = require('../rivalries');       // rivalry game-of-the-week billing (+ German egg)
 const LO = require('./lineup');            // the lineup optimizer engine (validated vs L0)
 const MOVE = require('./standings-movement'); // week-over-week rank arrows (dormant pre-season)
 const PE = require('./pickem');            // league pick'em — pick every game, tracked forever
@@ -11,7 +13,7 @@ const PO = require('./playoffs');          // folded columns — playoff odds/mo
 const TT = require('./trashtalk');         // trash talk attached to a specific game, permanent + archived
 const WW = require('./whatwatch');         // what-to-watch — the Sunday/Monday sweat meter + what each owner needs
 const MK = require('./marks');             // auto badges — GOAT on Mahomes' owner, Chiefs mark on KC players
-const RIV = require('./rivalries');        // named rivalries (German derby, Dylan-Sam, Bates-Richard)
+const RIVN = require('./rivalries');       // named rivalries (German derby, Dylan-Sam, Bates-Richard)
 const SET = require('./settlement');       // the settlement report — who pays whom, with Venmo
 const ACC = require('./accuracy');          // model-accuracy display — reads A's calibration/attribution output
 const L = require('../ledger');
@@ -41,6 +43,27 @@ const { RULES, SCORING, ROSTER } = require('../seed-data');
 // JSON /api/* routes below set 'no-store' explicitly AFTER this runs, so they
 // stay stricter — this only supplies the default the HTML pages were missing.
 router.use((req, res, next) => { res.set('Cache-Control', 'no-cache, must-revalidate'); next(); });
+
+// ---------- THE CROWN — defending champion on every league-visible page ----------
+// Derived from the champions roll (never hand-set; transfers on its own in January).
+// Injected here on the MEMBER router only, so it lights the crown across standings,
+// matchup, money board, franchise, locker room and the trophy — and never in the
+// war room, which hangs off the /admin router. Templates read `defendingChamps`
+// (names wearing the crown), `titleCounts` (dynasty), and `viewerIsChamp` (the
+// logged-in owner's own-screen flourish); the _owner_badges partial renders them.
+router.use((req, res, next) => {
+  try {
+    const defs = CHAMPS.defendingChampions();
+    res.locals.defendingChamps = defs;
+    res.locals.titleCounts = CHAMPS.titleCounts();
+    res.locals.reigningYear = CHAMPS.reigningYear();
+    res.locals.viewerIsChamp = !!(req.owner && req.owner.name && defs.includes(req.owner.name));
+  } catch (e) {
+    res.locals.defendingChamps = []; res.locals.titleCounts = {};
+    res.locals.reigningYear = null; res.locals.viewerIsChamp = false;
+  }
+  next();
+});
 
 // ---------- public: deploy health, NO league data ----------
 // Everything CI's deploy verification and the pre-draft checklist need to trust
@@ -394,6 +417,28 @@ router.get('/', aw(async (req, res) => {
     }
   }
 
+  // RIVALRY GAME OF THE WEEK — from this week's live pairings. Rank them (the
+  // marquee grudge outranks the friendlies) and bill the top one on the home page.
+  // Silent off-season / when Sleeper is unreachable; it lights up on its own.
+  let rivalryOfWeek = null, rivalryMore = 0;
+  if (sData && Array.isArray(sData.matchups)) {
+    const map = world.config.sleeper_map || {};
+    const nameOfRoster = rid => (H.ownerById(owners, Number(map[String(rid)])) || {}).name || null;
+    const byGame = {};
+    for (const m of sData.matchups) {
+      if (m.matchup_id == null) continue;
+      (byGame[m.matchup_id] = byGame[m.matchup_id] || []).push(nameOfRoster(m.roster_id));
+    }
+    const pairs = Object.values(byGame).filter(g => g.length === 2 && g[0] && g[1]).map(g => ({ a: g[0], b: g[1] }));
+    const hits = RIV.billingForSlate(pairs);
+    if (hits.length) {
+      const top = hits[0];
+      const rec = H2H.headToHead(H2H.userIdForName(top.pair.a), H2H.userIdForName(top.pair.b));
+      rivalryOfWeek = Object.assign({}, top, { notable: RIV.notableFrom(rec, top.pair.a, top.pair.b) });
+      rivalryMore = hits.length - 1;
+    }
+  }
+
   // The locker room lives at the bottom of this page now. A tab nobody opens is
   // a tab nobody posts in; putting the last few messages under the standings —
   // with a box to reply — is the difference between a chat and a ghost town.
@@ -429,7 +474,7 @@ router.get('/', aw(async (req, res) => {
     // The money scoreboard: banked dollars + rank this season, from the ledger.
     moneyBoard: L.moneyStandings(world.ledger, owners, season), meId: req.owner.id,
     sleeperData: sData, sleeperStandings: sStandings, sleeperBoard: sBoard, roast,
-    whBand, whRace,
+    whBand, whRace, rivalryOfWeek, rivalryMore,
     review, reviewWeek, wireRows, playoffTeams, chatLatest, betMoney, owners, rankMoves, dispatches, playoffPicture,
     // Venmo nag (venmo-handles.md §2): fires for a logged-in owner with no
     // handle; the commissioner also sees who is still missing theirs.
@@ -697,6 +742,40 @@ router.get('/history/franchise/:name', aw(async (req, res) => {
   res.render('history/franchise', { A, owner: A.owners[name],
     betOwnerId: (leagueOwner && leagueOwner.id !== req.owner.id) ? leagueOwner.id : null,
     betOwnerName: name });
+}));
+
+// A RIVALRY page — every game two owners ever played, the full head-to-head that
+// the matchup card and the franchise grid both click through to. League-visible:
+// this is the record of what happened (results), not a recommendation tool, so it
+// sits behind the member login like the rest of the history, not the commish gate.
+// Name-keyed (?a=Cory&b=David) so both entry points — one holding owner_ids, one
+// holding names — reach the same page; names are the stable key across seasons.
+router.get('/rivalry', aw(async (req, res) => {
+  const A = archive();
+  const canon = q => Object.keys(A.owners).find(n => n.toLowerCase() === String(q || '').toLowerCase()) || null;
+  const aName = canon(req.query.a) || (req.owner && canon(req.owner.name));
+  const bName = canon(req.query.b);
+  if (!aName || !bName || aName === bName) {
+    return res.status(404).render('error', { title: 'No such rivalry',
+      message: 'Pick two different owners from the same ten men — e.g. /rivalry?a=Cory&b=David.' });
+  }
+  const rec = H2H.headToHead(H2H.userIdForName(aName), H2H.userIdForName(bName));
+  const viewerIsA = !!(req.owner && req.owner.name && req.owner.name.toLowerCase() === aName.toLowerCase());
+  // One-tap bet from the rivalry page: resolve b's league id when it isn't the viewer.
+  const leagueOwners = H.activeOwners(req.world.owners);
+  const bLeague = leagueOwners.find(o => o.name === bName);
+  res.render('rivalry', {
+    A, rec, aName, bName, oa: A.owners[aName], ob: A.owners[bName], viewerIsA,
+    betOwnerId: (bLeague && req.owner && bLeague.id !== req.owner.id) ? bLeague.id : null,
+  });
+}));
+
+// THE TROPHY — the league's cup, rendered, with every champion engraved below in
+// order from 2016. League-visible (results, not analysis); tapping a plate opens
+// that season (a written chapter from 2023, the Age-Before-Records page before).
+router.get('/trophy', aw(async (req, res) => {
+  const A = archive();
+  res.render('trophy', { A, champions: A.champions || [] });
 }));
 
 // The required cast for a modern season — champion + fraud/robbed/lucky/collapse,
@@ -1575,6 +1654,14 @@ router.get('/matchup', aw(async (req, res) => {
 
   const record = opp ? H2H.headToHead(uidOf(me), uidOf(opp)) : null;
 
+  // RIVALRY GAME OF THE WEEK — bill the matchup when these two have a real history.
+  // The record is already computed (A-side = me), so the billing facts come free.
+  let rivalry = null;
+  if (opp) {
+    const riv = RIV.billingFor(me.name, opp.name);
+    if (riv) rivalry = Object.assign({}, riv, { notable: RIV.notableFrom(record, me.name, opp.name) });
+  }
+
   // A-lane data, read defensively: present => render; absent => a labelled slot.
   const perPlayer = (liveMatchup && liveMatchup.players) || null;   // A supplies
   const proj = (liveMatchup && liveMatchup.proj) || null;           // A supplies
@@ -1641,7 +1728,7 @@ router.get('/matchup', aw(async (req, res) => {
   } catch (e) { /* leverage is a bonus */ }
 
   res.render('matchup', {
-    me, owners, opp, live, weekNo, matchup: liveMatchup, betWindow, record,
+    me, owners, opp, live, weekNo, matchup: liveMatchup, betWindow, record, rivalry,
     perPlayer, proj, highBand, whBand, whRace, pickem, stakes, trash, trashGameId,
     goatId: MK.goatOwnerId(sData, world.config.sleeper_map || {}),
     configured: !!world.config.sleeper_league_id,
@@ -1963,7 +2050,7 @@ router.get('/scoreboard', aw(async (req, res) => {
     const hasScore = (aPts != null && aPts > 0) || (bPts != null && bPts > 0);
     const leader = (aPts != null && bPts != null) ? (aPts > bPts ? g.a : (bPts > aPts ? g.b : null)) : null;
     const split = locked ? { ...PE.gameSplit(g, allPicks), line: PE.splitLine(g, allPicks, nameOf) } : null;
-    const riv = RIV.rivalryFor(g.a.name, g.b.name);
+    const riv = RIVN.rivalryFor(g.a.name, g.b.name);
     const inWHRace = whRace && (whRace.leaderId === g.a.id || whRace.leaderId === g.b.id);
     // playoff stakes: each owner's odds + status, and the game's swing for owner a
     const po = picture ? { a: picture[g.a.id], b: picture[g.b.id] } : null;

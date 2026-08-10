@@ -2,7 +2,7 @@
  "meta": {
   "generated_from": "opening_script.py \u2014 derives from board + predicted slates; regenerate on any input change",
   "fingerprint": {
-   "board_built_at": "2026-08-09T08:53:56Z",
+   "board_built_at": "2026-08-09T23:57:30Z",
    "my_slot": 4,
    "my_keepers_hash": "bbd8bddb8d18",
    "predicted_slates_hash": "08d78875e626"
@@ -10,7 +10,7 @@
   "slot_provenance": "site-claimed \u2014 Sleeper draft order pending (regenerates on assignment)",
   "doctrine": {
    "enrolled": "Early-QB Strike",
-   "why": "19b Cory-conditional race: +$214/season vs control (CI [169.12, 260.5], 0.5 contested decisions/draft; v1 money proxy, Sept quantile re-run pre-registered); runner-up WR Feast +$172"
+   "why": "19b Cory-conditional race: +$196/season vs control (CI [154.5, 239.62], 0.5 contested decisions/draft; v1 money proxy, Sept quantile re-run pre-registered); runner-up WR Feast +$149"
   }
  },
  "my_picks": [
@@ -37,35 +37,35 @@
       "name": "Colston Loveland",
       "position": "TE",
       "vorp": 37.9,
-      "survival": 0.99
+      "survival": 0.73
+     },
+     {
+      "player_id": "7525",
+      "name": "DeVonta Smith",
+      "position": "WR",
+      "vorp": 37.9,
+      "survival": 0.33
+     },
+     {
+      "player_id": "9997",
+      "name": "Zay Flowers",
+      "position": "WR",
+      "vorp": 36.2,
+      "survival": 0.61
+     },
+     {
+      "player_id": "8155",
+      "name": "Breece Hall",
+      "position": "RB",
+      "vorp": 36.0,
+      "survival": 0.28
      },
      {
       "player_id": "11635",
       "name": "Ladd McConkey",
       "position": "WR",
       "vorp": 30.8,
-      "survival": 0.87
-     },
-     {
-      "player_id": "4881",
-      "name": "Lamar Jackson",
-      "position": "QB",
-      "vorp": 28.6,
-      "survival": 0.94
-     },
-     {
-      "player_id": "7526",
-      "name": "Jaylen Waddle",
-      "position": "WR",
-      "vorp": 28.6,
-      "survival": 0.93
-     },
-     {
-      "player_id": "7543",
-      "name": "Travis Etienne",
-      "position": "RB",
-      "vorp": 27.6,
-      "survival": 0.61
+      "survival": 0.8
      }
     ]
    },
@@ -77,35 +77,35 @@
       "name": "Colston Loveland",
       "position": "TE",
       "vorp": 37.9,
-      "survival": 0.95
+      "survival": 0.42
+     },
+     {
+      "player_id": "9997",
+      "name": "Zay Flowers",
+      "position": "WR",
+      "vorp": 36.2,
+      "survival": 0.27
      },
      {
       "player_id": "11635",
       "name": "Ladd McConkey",
       "position": "WR",
       "vorp": 30.8,
-      "survival": 0.67
-     },
-     {
-      "player_id": "4881",
-      "name": "Lamar Jackson",
-      "position": "QB",
-      "vorp": 28.6,
-      "survival": 0.81
+      "survival": 0.54
      },
      {
       "player_id": "7526",
       "name": "Jaylen Waddle",
       "position": "WR",
       "vorp": 28.6,
-      "survival": 0.79
+      "survival": 0.64
      },
      {
       "player_id": "7543",
       "name": "Travis Etienne",
       "position": "RB",
       "vorp": 27.6,
-      "survival": 0.27
+      "survival": 0.31
      }
     ]
    },
@@ -113,39 +113,39 @@
     "pick": 54,
     "candidates": [
      {
-      "player_id": "12517",
-      "name": "Colston Loveland",
-      "position": "TE",
-      "vorp": 37.9,
-      "survival": 0.78
-     },
-     {
-      "player_id": "4881",
-      "name": "Lamar Jackson",
-      "position": "QB",
-      "vorp": 28.6,
-      "survival": 0.4
-     },
-     {
-      "player_id": "7526",
-      "name": "Jaylen Waddle",
-      "position": "WR",
-      "vorp": 28.6,
-      "survival": 0.36
-     },
-     {
       "player_id": "11564",
       "name": "Drake Maye",
       "position": "QB",
       "vorp": 24.3,
-      "survival": 0.3
+      "survival": 0.35
      },
      {
       "player_id": "12518",
       "name": "Tyler Warren",
       "position": "TE",
       "vorp": 24.2,
-      "survival": 0.84
+      "survival": 0.3
+     },
+     {
+      "player_id": "6790",
+      "name": "D'Andre Swift",
+      "position": "RB",
+      "vorp": 23.6,
+      "survival": 0.44
+     },
+     {
+      "player_id": "2216",
+      "name": "Mike Evans",
+      "position": "WR",
+      "vorp": 21.8,
+      "survival": 0.62
+     },
+     {
+      "player_id": "8148",
+      "name": "Jameson Williams",
+      "position": "WR",
+      "vorp": 19.4,
+      "survival": 0.55
      }
     ]
    }
@@ -155,39 +155,39 @@
     "pick": 34,
     "candidates": [
      {
-      "player_id": "11604",
-      "name": "Brock Bowers",
-      "position": "TE",
-      "vorp": 82.2,
-      "survival": 0.84
-     },
-     {
       "player_id": "12517",
       "name": "Colston Loveland",
       "position": "TE",
       "vorp": 37.9,
-      "survival": 0.99
+      "survival": 0.73
+     },
+     {
+      "player_id": "7525",
+      "name": "DeVonta Smith",
+      "position": "WR",
+      "vorp": 37.9,
+      "survival": 0.33
+     },
+     {
+      "player_id": "9997",
+      "name": "Zay Flowers",
+      "position": "WR",
+      "vorp": 36.2,
+      "survival": 0.61
+     },
+     {
+      "player_id": "8155",
+      "name": "Breece Hall",
+      "position": "RB",
+      "vorp": 36.0,
+      "survival": 0.28
      },
      {
       "player_id": "11635",
       "name": "Ladd McConkey",
       "position": "WR",
       "vorp": 30.8,
-      "survival": 0.87
-     },
-     {
-      "player_id": "4881",
-      "name": "Lamar Jackson",
-      "position": "QB",
-      "vorp": 28.6,
-      "survival": 0.94
-     },
-     {
-      "player_id": "7526",
-      "name": "Jaylen Waddle",
-      "position": "WR",
-      "vorp": 28.6,
-      "survival": 0.93
+      "survival": 0.8
      }
     ]
    },
@@ -195,39 +195,39 @@
     "pick": 41,
     "candidates": [
      {
-      "player_id": "11604",
-      "name": "Brock Bowers",
-      "position": "TE",
-      "vorp": 82.2,
-      "survival": 0.6
-     },
-     {
       "player_id": "12517",
       "name": "Colston Loveland",
       "position": "TE",
       "vorp": 37.9,
-      "survival": 0.95
+      "survival": 0.42
+     },
+     {
+      "player_id": "9997",
+      "name": "Zay Flowers",
+      "position": "WR",
+      "vorp": 36.2,
+      "survival": 0.27
      },
      {
       "player_id": "11635",
       "name": "Ladd McConkey",
       "position": "WR",
       "vorp": 30.8,
-      "survival": 0.67
-     },
-     {
-      "player_id": "4881",
-      "name": "Lamar Jackson",
-      "position": "QB",
-      "vorp": 28.6,
-      "survival": 0.81
+      "survival": 0.54
      },
      {
       "player_id": "7526",
       "name": "Jaylen Waddle",
       "position": "WR",
       "vorp": 28.6,
-      "survival": 0.79
+      "survival": 0.64
+     },
+     {
+      "player_id": "7543",
+      "name": "Travis Etienne",
+      "position": "RB",
+      "vorp": 27.6,
+      "survival": 0.31
      }
     ]
    },
@@ -235,39 +235,39 @@
     "pick": 54,
     "candidates": [
      {
-      "player_id": "12517",
-      "name": "Colston Loveland",
-      "position": "TE",
-      "vorp": 37.9,
-      "survival": 0.78
-     },
-     {
-      "player_id": "4881",
-      "name": "Lamar Jackson",
-      "position": "QB",
-      "vorp": 28.6,
-      "survival": 0.4
-     },
-     {
-      "player_id": "7526",
-      "name": "Jaylen Waddle",
-      "position": "WR",
-      "vorp": 28.6,
-      "survival": 0.36
-     },
-     {
       "player_id": "11564",
       "name": "Drake Maye",
       "position": "QB",
       "vorp": 24.3,
-      "survival": 0.3
+      "survival": 0.35
      },
      {
       "player_id": "12518",
       "name": "Tyler Warren",
       "position": "TE",
       "vorp": 24.2,
-      "survival": 0.84
+      "survival": 0.3
+     },
+     {
+      "player_id": "6790",
+      "name": "D'Andre Swift",
+      "position": "RB",
+      "vorp": 23.6,
+      "survival": 0.44
+     },
+     {
+      "player_id": "2216",
+      "name": "Mike Evans",
+      "position": "WR",
+      "vorp": 21.8,
+      "survival": 0.62
+     },
+     {
+      "player_id": "8148",
+      "name": "Jameson Williams",
+      "position": "WR",
+      "vorp": 19.4,
+      "survival": 0.55
      }
     ]
    }

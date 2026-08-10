@@ -12,12 +12,44 @@
   const $$ = sel => Array.from(document.querySelectorAll(sel));
   const WEIGHT_KEY = 'mfga.draft.weights';
 
+  // ── MOCK SURVIVAL CALIBRATION ───────────────────────────────────────────────
+  // Grade "% to last to my next pick" — the number Cory reads most, never once
+  // graded. Fires ONLY inside a mock and persists to localStorage; it NEVER posts
+  // to the real prediction ledger (mock noise must not contaminate real grading).
+  // Pure core + the two stamped caveats live in mock_calib.js. Feeds: renderSurvival
+  // records the displayed estimates at my pick; markDrafted observes every pick and
+  // resolves matured predictions as the mock proceeds.
+  const MOCK_CALIB_KEY = 'maga:mockcalib:v1';
+  let mockCalib = null;
+  function mockCalibReady() {
+    if (typeof MockCalib === 'undefined') return null;
+    if (!mockCalib) {
+      mockCalib = MockCalib.create();
+      try { mockCalib.load(JSON.parse(localStorage.getItem(MOCK_CALIB_KEY) || 'null')); }
+      catch (e) { /* corrupt store starts fresh */ }
+    }
+    return mockCalib;
+  }
+  function mockCalibSave() {
+    if (!mockCalib) return;
+    try { localStorage.setItem(MOCK_CALIB_KEY, JSON.stringify(mockCalib.toJSON())); }
+    catch (e) { /* quota/private-mode: capture stays in memory for this session */ }
+  }
+  // Readout for a handful of mocks -> a real curve. Exposed for console/export so a
+  // panel is not on the critical path to START capturing (the data is the windowed
+  // part; the readout can be prettied any time).
+  window.DraftMockCalib = {
+    report: function () { const mc = mockCalibReady(); return mc ? mc.calibration() : null; },
+    raw: function () { const mc = mockCalibReady(); return mc ? mc.toJSON() : null; },
+    reset: function () { const mc = mockCalibReady(); if (mc) { mc.reset(); mockCalibSave(); } },
+  };
+
   const state = {
     data: null,
     board: [],            // available players
     drafted: new Set(),
     myRoster: [],
-    weights: Object.assign({}, E.DEFAULT_WEIGHTS),
+    weights: Object.assign({}, E.MEASURED_WEIGHTS || E.DEFAULT_WEIGHTS),
     runMults: {},
     recentPicks: [],
     // Movement line: the top-of-board snapshot from the LAST pick, and the frozen
@@ -873,8 +905,11 @@
       // scoring exactly as it did before while the banner claimed the plan was
       // driving. Caught by the MVS plan line reading "no preference" at pick 1
       // on a board whose top pick was a WR under WR Feast.
-      doctrine: (doctrineState() && state.doctrineEnrollment
-                 && state.doctrineEnrollment.enrolled) ? state.doctrine.current : null,
+      // The tilt applies when the model's plan is enrolled OR when Cory has
+      // manually chosen a doctrine — a human override must re-tilt the board too,
+      // not just the auto-enrolled plan.
+      doctrine: (doctrineState() && ((state.doctrineEnrollment && state.doctrineEnrollment.enrolled)
+                 || (state.doctrine && state.doctrine.manual))) ? state.doctrine.current : null,
       // THE THREE THE ENGINE READ AND THE APP NEVER SENT.
       //   totalPicks   drives draft progress -> urgency curves and the ceiling
       //                term. Absent, progress was computed off undefined.
@@ -939,6 +974,7 @@
     try { renderAccountingNote(); } catch (e) { /* never blocks the clock */ }
     try { renderSystemStrip(); } catch (e) { /* never blocks the clock */ }
     try { renderUnrecordedPicks(); } catch (e) { /* never blocks the clock */ }
+    try { renderPickControls(); } catch (e) { /* never blocks the clock */ }
     try { renderLegality(); } catch (e) { /* never blocks the clock */ }
     // Last: the pinned offsets depend on the heights everything above just set
     // (the banner grows a line when a doctrine switches, the watermarks appear
@@ -1181,6 +1217,14 @@
     $('#clock-confidence').innerHTML = i > 0
       ? '<span class="muted">Option ' + (i + 1) + ' — you skipped ' + escapeHtml(list[0].player.name) + '</span>'
       : '<span class="' + c.level + '">' + escapeHtml(c.message) + '</span>';
+    // THE TAKE BUTTON (SEV1): point it at the player THIS view is showing and name
+    // him, so "ONE ANSWER" can actually draft. The delegated data-draft-me handler
+    // (see wireEvents) does the rest — same path as the recs-card take button.
+    const take = $('#clock-take');
+    if (take) {
+      take.setAttribute('data-draft-me', String(p.player_id));
+      take.textContent = '✓ Take ' + (p.name ? p.name.split(' ').slice(-1)[0] : 'him');
+    }
   }
 
   /* ── Your own read ──────────────────────────────────────────────────────── */
@@ -1350,18 +1394,52 @@
     // dossier's league-wide tendencies are still true and still shown; what is
     // suppressed is any claim about WHO sits where.
     const unassigned = !state.profilesMappedFromDraft;
+
+    // FEATURE C — OPPONENT POSITIONAL NEEDS. Who still needs a starter where, both
+    // among the seats before my turn (imminent runs) and league-wide (what I can
+    // wait on). Turns a generic survival number into WHO specifically wants WHAT.
+    let needsHtml = '', perTeamNeed = {};
+    try {
+      if (typeof DraftNeeds !== 'undefined' && state.rosters
+          && Object.keys(state.rosters).some(k => (state.rosters[k] || []).length)) {
+        const starters = (state.data.league || {}).starters || {};
+        const slotsBefore = t.rows.map(r => r.team_slot).filter(s => s != null);
+        const before = DraftNeeds.needsBeforePick(state.rosters, starters, slotsBefore);
+        const league = DraftNeeds.leagueNeeds(state.rosters, starters);
+        perTeamNeed = before.perTeam || {};
+        // Imminent: "3 of the 4 before you need RB" — the run about to happen.
+        const imm = DraftNeeds.pressure(before, league, (state.data.league || {}).teams || 10)
+          .filter(p => p.before > 0).slice(0, 3)
+          .map(p => '<b>' + p.before + '</b>/' + before.n + ' need ' + p.pos).join(' · ');
+        // League-wide: "QB only 2 still need one — you can wait".
+        const scarce = Object.keys(league).filter(p => p !== 'FLEX')
+          .sort((a, b) => league[a] - league[b])
+          .slice(0, 3).map(p => p + ' <b>' + league[p] + '</b>').join(' · ');
+        needsHtml = (imm ? '<div class="ts-needs">before your turn: ' + imm + '</div>' : '')
+          + (scarce ? '<div class="ts-needs ts-needs-lg">still need a starter — ' + scarce
+            + ' <span class="muted">(low = wait)</span></div>' : '');
+      }
+    } catch (e) { /* needs never block the strip */ }
+
     host.innerHTML = '<div class="ts-head">' + t.picksUntilNext + ' pick'
       + (t.picksUntilNext === 1 ? '' : 's') + ' before your turn'
       + (unassigned ? ' <span class="muted">· seats unassigned until Sleeper '
         + 'names them</span>' : '') + '</div>'
+      + needsHtml
       + t.rows.slice(0, 6).map(r => {
         const who = r.manager ? escapeHtml(r.manager) : 'Seat ' + r.team_slot;
         const names = r.likely.length
           ? r.likely.slice(0, 2).map(l => escapeHtml(l.name)).join(', ')
           : '<span class="muted">nothing stands out</span>';
         const tell = r.tells.length ? escapeHtml(r.tells[0].text) : '';
+        // Cross the dossier with need: a team that NEEDS a position it also
+        // historically reaches for is the sharpest threat — show what it needs
+        // right next to how it drafts.
+        const need = (perTeamNeed[r.team_slot] || []).filter(p => p !== 'FLEX');
+        const needStr = need.length ? '<span class="ts-need">needs ' + need.slice(0, 3).join('/') + '</span>' : '';
         return '<div class="ts-row"><span class="ts-seat"><b>' + r.pick_no + '</b> ' + who + '</span>'
           + '<span class="ts-likely">' + names + '</span>'
+          + needStr
           + (tell ? '<span class="ts-tell">' + tell + '</span>' : '') + '</div>';
       }).join('');
   }
@@ -1463,12 +1541,19 @@
           + (isGone ? '<span class="q-gone">drafted</span>' : '')
         + '</span>'
         + '<span class="q-move">'
+          // Take + Compare on every queue row (Cory): drafting a queued guy — or
+          // comparing him — is one tap from the list you read on the clock, same
+          // classes as the recs rows so B's styling picks them up.
+          + (isGone ? '' : '<button class="btn small gold" data-draft-me="' + escapeHtml(String(id))
+            + '" title="I took him">✓</button>')
+          + '<button class="btn small ghost" data-compare="' + escapeHtml(String(id))
+            + '" title="Compare — dollar gap">⚖️</button>'
           + '<button class="btn small ghost" data-qmove="-1" data-id="' + escapeHtml(String(id))
             + '"' + (i === 0 ? ' disabled' : '') + ' title="Up">▲</button>'
           + '<button class="btn small ghost" data-qmove="1" data-id="' + escapeHtml(String(id))
             + '"' + (i === q.length - 1 ? ' disabled' : '') + ' title="Down">▼</button>'
           + '<button class="btn small ghost" data-queue="' + escapeHtml(String(id))
-            + '" title="Remove">✕</button>'
+            + '" title="Remove from queue">✕</button>'
         + '</span>'
         + '</div>';
     }).join('');
@@ -1843,16 +1928,57 @@
         const sv = s.survival_to_next;
         const gone = (sv == null || !nextPick) ? null : Math.round((1 - sv) * 100);
         const hot = gone != null && gone >= 60;
-        return '<button class="ba-cell' + (hot ? ' hot' : '') + '" data-compare="' + s.player.player_id + '" '
+        // name-tap = compare (B's cell), plus a one-tap Take so drafting a
+        // best-available guy is one tap from the glance (Cory). btn classes are
+        // globally styled; .ba-take is a hook for B to tune in its pass.
+        return '<span class="ba-slot">'
+          + '<button class="ba-cell' + (hot ? ' hot' : '') + '" data-compare="' + s.player.player_id + '" '
           + 'title="tap to compare — ' + escapeHtml(s.player.name) + '">'
           + escapeHtml(s.player.name.split(' ').slice(-1)[0])
-          + (gone == null ? '' : ' <span class="ba-gone">' + gone + '%</span>') + '</button>';
+          + (gone == null ? '' : ' <span class="ba-gone">' + gone + '%</span>') + '</button>'
+          + '<button class="btn small gold ba-take" data-draft-me="' + s.player.player_id
+          + '" title="I took ' + escapeHtml(s.player.name) + '">✓</button>'
+          + '</span>';
       }).join('');
       return '<div class="ba-row"><span class="ba-pos rec-pos ' + pos + '">' + pos + '</span>' + cells + '</div>';
     }).join('');
     host.innerHTML = rows
       ? '<div class="ba-head">Best available <span class="muted">· top 3/pos · % = gone by your next pick · tap to compare</span></div>' + rows
       : '';
+  }
+
+  /* #queue-slip — the banner Cory most wanted from the queue promotion: watch a
+   * queued guy slip. Fed by the SAME survival-to-next the recommendations already
+   * compute (never re-run). A queued, still-undrafted player >=60% gone by my next
+   * pick is "about a turn from gone." Urgent when it's my #1. Hidden when nothing
+   * slips, so it never becomes furniture. In document flow — never floating. */
+  function renderQueueSlip(scored) {
+    const host = $('#queue-slip');
+    if (!host) return;
+    const q = state.lists.queue || [];
+    const svById = {};
+    (scored || []).forEach(s => { svById[String(s.player.player_id)] = s.survival_to_next; });
+    const slipping = [];
+    q.forEach((id, i) => {
+      if (state.drafted.has(String(id))) return;
+      const sv = svById[String(id)];
+      if (sv == null) return;
+      const gone = Math.round((1 - sv) * 100);
+      if (gone >= 60) {
+        const p = (state.data.players || []).find(x => String(x.player_id) === String(id));
+        slipping.push({ id: id, rank: i + 1, gone: gone, name: p ? p.name : id });
+      }
+    });
+    if (!slipping.length) { host.style.display = 'none'; host.className = 'queue-slip'; return; }
+    slipping.sort((a, b) => b.gone - a.gone);
+    const urgent = slipping.some(s => s.rank === 1);   // your #1 is slipping
+    const lead = slipping[0];
+    const more = slipping.length > 1 ? ' · +' + (slipping.length - 1) + ' more slipping' : '';
+    host.className = 'queue-slip' + (urgent ? ' urgent' : '');
+    host.innerHTML = '⚠️ <b>' + escapeHtml(lead.name) + '</b> (queue #' + lead.rank
+      + ') is ' + lead.gone + '% gone by your next pick' + escapeHtml(more)
+      + ' <button class="btn small gold" data-draft-me="' + escapeHtml(String(lead.id)) + '">I took him</button>';
+    host.style.display = '';
   }
 
   function renderPositionRecs() {
@@ -2109,11 +2235,70 @@
       + '</div>';
   }
 
+  // THE RULE ON THE BOARD (EXP-KEEPER-B0): best-ADP within startable capacity, stated
+  // in the rule's own terms, never a 4th RB, with the bye hole visible and the honest
+  // dollar tier attached. A creates its own element inside B's card (no warroom.ejs
+  // edit); classes rh-* are B's to style. Additive headline above the composite panel.
+  function renderRuleHeadline(out) {
+    if (typeof DraftNeedRule === 'undefined') return;
+    const card = document.getElementById('recs-card');
+    if (!card) return;
+    const body = card.querySelector('.body') || card;
+    let host = document.getElementById('rule-headline');
+    if (!host) {
+      host = document.createElement('div');
+      host.id = 'rule-headline';
+      host.className = 'rule-headline';
+      host.style.cssText = 'margin:0 0 .6rem;padding:.55rem .7rem;border-radius:8px;'
+        + 'background:rgba(245,196,69,.10);border:1px solid rgba(245,196,69,.45)';
+      body.insertBefore(host, document.getElementById('confidence-note') || body.firstChild);
+    }
+    const board = state.board || [], roster = state.myRoster || [];
+    if (!board.length) { host.innerHTML = ''; return; }
+    const rec = DraftNeedRule.recommend(board, roster);
+    if (!rec.pick) { host.innerHTML = ''; return; }
+    const nm = p => escapeHtml((p.name || p.player_id) + '') + ' <span class="rh-pos" style="opacity:.7">'
+      + escapeHtml(p.position || '') + '</span>';
+    const field = DraftNeedRule.fieldWithinNeed(board, roster, 4);
+    const gap = field.length > 1 ? (DraftNeedRule.adpOf(field[1]) - DraftNeedRule.adpOf(field[0])) : 99;
+    let html = '<div class="rh-pick" style="font-weight:700">🎯 ' + nm(rec.pick) + '</div>'
+      + '<div class="rh-why" style="font-size:.82rem;opacity:.9">' + escapeHtml(rec.reason) + '</div>';
+    // The FIELD when it's close — human chooses; ledger records which (already wired).
+    if (gap < 8 && field.length > 1) {
+      html += '<div class="rh-field" style="font-size:.78rem;margin-top:.35rem">Close — your call: '
+        + field.map(p => nm(p) + ' <span style="opacity:.6">(adp ' + Math.round(DraftNeedRule.adpOf(p)) + ')</span>').join(' · ')
+        + '</div>';
+    }
+    // BYE STACK — the one thing the rule does NOT price, made visible (Cory #3).
+    if (rec.bye_stack) {
+      html += '<div class="rh-bye" style="font-size:.78rem;margin-top:.35rem;color:#e6b800">'
+        + '⚠ bye stack: this would put ' + rec.bye_stack.count + ' starters on week '
+        + rec.bye_stack.week + ' — the rule does not price byes; your call.</div>';
+    }
+    // GUARD — if the composite wants a player the rule has CAPPED (e.g. a 4th RB),
+    // say so plainly rather than letting two tools disagree silently (Cory #1).
+    const comp = out && out.scored && out.scored[0] && out.scored[0].player;
+    if (comp) {
+      const capset = DraftNeedRule.withinCap(board, roster);
+      const inCap = capset.indexOf(comp) >= 0 || capset.some(p => String(p.player_id) === String(comp.player_id));
+      if (!inCap && String(comp.player_id) !== String(rec.pick.player_id)) {
+        html += '<div class="rh-warn" style="font-size:.78rem;margin-top:.35rem;color:#ff8a8a">'
+          + '↔ the composite suggests ' + nm(comp) + ' but that over-fills ' + escapeHtml(comp.position || '')
+          + ' — the rule recommends ' + nm(rec.pick) + '.</div>';
+      }
+    }
+    // HONEST TIER — the rule is confident; the dollars are MC-harness, not a projection (Cory #2).
+    html += '<div class="rh-caveat" style="font-size:.7rem;opacity:.6;margin-top:.35rem">'
+      + 'measured rule (robust across seats/rooms/keepers); dollar magnitudes are lab-tier, not a season projection</div>';
+    host.innerHTML = html;
+  }
+
   function renderRecommendations() {
     // One call so the recommendation, the confidence line and the branch
     // forecasts can never come from three different boards.
     const out = E.onTheClock(context(), state.lists);
     state.lastClock = out;
+    try { renderRuleHeadline(out); } catch (e) { console.error('[rule-headline]', e && e.message); }
     // L1 capture: the board I made a decision from, once per (pick, build).
     // Logged BEFORE the outcome is known — the whole point of decision-time
     // capture. Not on mocks. Deduped in PredLedger so re-renders don't flood.
@@ -2179,6 +2364,7 @@
     try { renderShadowProjection(); }
     catch (e) { console.error('[shadow-proj]', e && e.message); }
     renderBestAvailStrip(out.scored, (context() || {}).nextPick);
+    renderQueueSlip(out.scored);   // fill #queue-slip from the same survival math
     // Stack line runs BEFORE the rec cards below so stackBadge() can read its
     // route map. Same scored board — never a second computation.
     try { renderStackLine(out.scored); } catch (e) { console.error('[stack]', e && e.message); }
@@ -2314,7 +2500,11 @@
             + '" title="Somebody else took him">✕</button></td>' +
       '</tr>').join('');
     renderSearchTail(rows.length, takenHits);
-    $('#board-count').textContent = rows.length + ' shown of ' + state.board.length + ' available';
+    // Lead with the number that MOVES. The visible list is capped at 200, so
+    // "200 shown" holds steady as picks come off and reads as if nothing updated
+    // (reported from a mock). The available count IS decrementing every pick —
+    // make it the salient number so a take visibly ticks the board down.
+    $('#board-count').textContent = state.board.length + ' available · showing top ' + rows.length;
   }
 
   /**
@@ -2334,7 +2524,6 @@
     const host = $('#search-tail');
     if (!host) return;
     if (!state.search) { host.innerHTML = ''; host.hidden = true; return; }
-    host.hidden = false;
 
     const whoHas = id => {
       const slot = Object.keys(state.rosters).find(k =>
@@ -2368,6 +2557,10 @@
         + '</form></div>';
     }
     host.innerHTML = html;
+    // Only occupy space when there's actually something to say. When the searched
+    // player IS on the board (shown > 0, nothing taken), html is empty — an empty
+    // #search-tail box mid-draft reads as broken, so stay hidden. (mock report)
+    host.hidden = !html;
   }
 
   /**
@@ -2493,6 +2686,18 @@
     const top = state.board.slice(0, 12).map(p => ({
       p, s: E.survival(p, next, state.runMults),
     }));
+    // MOCK CALIBRATION: record the survival estimates AS DISPLAYED, only at my pick
+    // (on the clock), where `next` is genuinely my next pick and this number is the
+    // one Cory reads. Deduped per (session, pick, player) so re-renders don't inflate
+    // n. Resolved in markDrafted as the mock reaches `next`.
+    if (state.mockMode && onTheClock()) {
+      const mc = mockCalibReady();
+      if (mc) {
+        mc.record(state.mockSession || 'mock', currentPick(), next,
+          top.map(x => ({ pid: x.p.player_id, survival: x.s })));
+        mockCalibSave();
+      }
+    }
     $('#survival-head').textContent = 'Chance they last to your pick ' + next;
     $('#survival').innerHTML = top.map(x =>
       '<div class="surv-row"><span>' + escapeHtml(x.p.name) + ' <span class="muted">' + x.p.position + '</span></span>' +
@@ -2935,6 +3140,9 @@
     state.format = E.applyFormatDefaults(state.data.league);
     state.mockMode = { teams: teams, rounds: rounds, type: cfg.draft_type,
                        picks: out.order.picks.length, myPicks: out.order.my_picks };
+    // A fresh calibration session per mock, so predictions from different mocks stay
+    // separable in the store (calibration() still aggregates the curve across all).
+    state.mockSession = 'm' + (typeof Date !== 'undefined' && Date.now ? Date.now() : 0);
     // Auto-detected from the mock's own draft_order = a real resolution, not a
     // guess. Only an unnamed seat falls back to 'assumed'.
     state.roomSeatSource = mySlot ? 'sleeper' : 'assumed';
@@ -3558,8 +3766,11 @@
       // scoring exactly as it did before while the banner claimed the plan was
       // driving. Caught by the MVS plan line reading "no preference" at pick 1
       // on a board whose top pick was a WR under WR Feast.
-      doctrine: (doctrineState() && state.doctrineEnrollment
-                 && state.doctrineEnrollment.enrolled) ? state.doctrine.current : null,
+      // The tilt applies when the model's plan is enrolled OR when Cory has
+      // manually chosen a doctrine — a human override must re-tilt the board too,
+      // not just the auto-enrolled plan.
+      doctrine: (doctrineState() && ((state.doctrineEnrollment && state.doctrineEnrollment.enrolled)
+                 || (state.doctrine && state.doctrine.manual))) ? state.doctrine.current : null,
       // THE THREE THE ENGINE READ AND THE APP NEVER SENT.
       //   totalPicks   drives draft progress -> urgency curves and the ceiling
       //                term. Absent, progress was computed off undefined.
@@ -3641,7 +3852,97 @@
         : '');
 
     renderDoctrineSwitch(out, prior);
+    renderDoctrinePicker(scores, out, enr);
     captureDoctrine(out);
+  }
+
+  /* THE DOCTRINE-SWITCH UI. Tap the plan block -> the full doctrine list, each with
+   * its live dollar score and the gap to the current plan, and a one-tap switch;
+   * one-tap return to the model's recommended plan, always. A switch re-tilts the
+   * board immediately (the doctrine tilt reads state.doctrine.current) and is logged
+   * to the ledger so January can grade whether my override earned money. When the
+   * live alternative is within the band, the picker header is a visible prompt, not
+   * a passive note — a coin-flip is my call and I should be told so. A-rendered into
+   * B's #doctrine-banner host; no shell edit. */
+  function renderDoctrinePicker(scores, out, enr) {
+    const banner = document.getElementById('doctrine-banner');
+    if (!banner || typeof DraftDoctrine === 'undefined') return;
+    const st = state.doctrine;
+    if (!st) return;
+    // A-owned picker element, created once and inserted right after the banner.
+    // ALWAYS VISIBLE and compact (Cory): no display:none, no banner-tap-toggle, no
+    // auto-expanding wall. Its flex `order` (CSS) puts it BELOW the rec + take button.
+    let pick = document.getElementById('doctrine-picker');
+    if (!pick) {
+      pick = document.createElement('div');
+      pick.id = 'doctrine-picker';
+      pick.className = 'doctrine-picker';
+      banner.parentNode.insertBefore(pick, banner.nextSibling);
+    }
+    const cur = st.current;
+    const auto = st.enrolledKey;                 // the tool's recommended (auto) plan
+    const contested = /within the band/.test(out.confidence || '');
+    // Ranked by live dollars; each doctrine a RADIO — one active plan at a time. The
+    // auto pick is badged so you can see what the tool chose vs what you switched to.
+    const curScore = scores && scores[cur] != null ? scores[cur] : 0;
+    const rows = Object.keys(scores || {})
+      .map(function (k) { return { key: k, meta: DraftDoctrine.doctrineMeta(k), score: scores[k] }; })
+      .sort(function (a, b) { return b.score - a.score; })
+      .map(function (r) {
+        const gap = r.score - curScore;
+        const isCur = r.key === cur;
+        const isAuto = r.key === auto;
+        const gapTxt = isCur ? 'active' : (gap >= 0 ? '+$' + gap.toFixed(0) : '−$' + Math.abs(gap).toFixed(0));
+        return '<label class="dp-row' + (isCur ? ' dp-on' : '') + '" title="' + escapeHtml(r.meta.creed) + '">'
+          + '<input type="radio" name="doctrine-plan" class="dp-toggle" value="' + escapeHtml(r.key) + '"'
+            + (isCur ? ' checked' : '') + '>'
+          + '<span class="dp-name">' + escapeHtml(r.meta.name)
+            + (isAuto ? ' <span class="dp-auto" title="the tool’s recommended plan">auto</span>' : '')
+          + '</span>'
+          + '<span class="dp-gap' + (gap > 0 && !isCur ? ' up' : '') + '">' + escapeHtml(gapTxt) + '</span>'
+          + '</label>';
+      }).join('');
+    const head = '<div class="dp-head' + (contested ? ' dp-contested' : '') + '">'
+      + (contested && out.alternative
+          ? '⚖️ close call — ' + escapeHtml(out.alternative) + ' is within the band'
+          : 'Plan — tap to switch')
+      + '</div>';
+    pick.innerHTML = head + '<div class="dp-grid">' + rows + '</div>';
+    // A radio switches the active plan; choosing the AUTO plan while on a manual
+    // override returns to the recommended one (same logged events as before).
+    Array.prototype.forEach.call(pick.querySelectorAll('.dp-toggle'), function (inp) {
+      inp.onchange = function () {
+        if (inp.value === auto && st.manual) doctrineReturn();
+        else if (inp.value !== cur) doctrineChoose(inp.value);
+      };
+    });
+  }
+
+  /* Commit a human doctrine switch: set it, log it at decision time, re-render so
+   * the board re-tilts immediately. */
+  function doctrineChoose(key) {
+    const st = state.doctrine;
+    if (!st || !key) return;
+    const rec = st.choose(key, currentPick());
+    if (typeof PredLedger !== 'undefined' && !state.mockMode) {
+      const c = ledgerCtx();
+      PredLedger.capture('doctrine', { season: c.season, build_at: c.build_at, pick: c.pick,
+        method: 'doctrine-manual-v1',
+        payload: { doctrine: rec.doctrine, from: rec.from, manual: true, event: 'manual_switch' } });
+    }
+    renderAll();
+  }
+  function doctrineReturn() {
+    const st = state.doctrine;
+    if (!st) return;
+    const rec = st.returnToRecommended(currentPick());
+    if (typeof PredLedger !== 'undefined' && !state.mockMode) {
+      const c = ledgerCtx();
+      PredLedger.capture('doctrine', { season: c.season, build_at: c.build_at, pick: c.pick,
+        method: 'doctrine-manual-v1',
+        payload: { doctrine: rec.doctrine, from: rec.from, manual: false, event: 'return_to_recommended' } });
+    }
+    renderAll();
   }
 
   /* A switch is an EVENT: an announcement row with one plain sentence and a
@@ -3929,6 +4230,108 @@
   // do not cover, and it is exactly where the Loveland bug hid.
   const ATTR = (typeof window !== 'undefined' && window.DraftAttribution) || null;
 
+  /* REVERT + RECONCILE (feature A). A mis-marked pick corrupts every downstream
+   * number, so undo must never be locked behind a 5-second toast. Two controls:
+   *   revertLastPick()      — one tap undoes my most recent LOCAL mark (the
+   *                           sync-dead fallback), anytime, not just in the toast
+   *                           window.
+   *   reconcileWithSleeper()— the clean fix: pull Sleeper's authoritative picks
+   *                           for my seat, remove local mis-marks, add anything I
+   *                           missed. Keepers are never touched.
+   * Both write CORRECTIONS to the ledger; neither deletes history. */
+  function unmarkPickById(id) {
+    id = String(id);
+    const p = playerById(id)
+      || (state.myRoster || []).find(x => String(x.player_id) === id)
+      || { player_id: id, name: id };
+    if (ATTR) ATTR.unmarkLocal(state, p);
+    else {
+      state.drafted.delete(id);
+      Object.keys(state.rosters).forEach(s2 => {
+        state.rosters[s2] = (state.rosters[s2] || []).filter(x => String(x.player_id) !== id);
+      });
+      state.myRoster = state.myRoster.filter(x => String(x.player_id) !== id);
+    }
+    if (state.markedLocally) state.markedLocally.delete(id);
+    if (p.position && !state.board.some(x => String(x.player_id) === id)) {
+      state.board.push(p);
+      if (typeof DraftSurvival !== 'undefined') DraftSurvival.bumpBoard(state.board);
+    }
+    for (let i = state.recentPicks.length - 1; i >= 0; i--) {
+      if (String(state.recentPicks[i].player_id) === id) { state.recentPicks.splice(i, 1); break; }
+    }
+    return true;
+  }
+
+  function revertLastPick() {
+    if (typeof DraftPickReconcile === 'undefined') return;
+    const marked = state.markedLocally ? Array.from(state.markedLocally) : [];
+    const id = DraftPickReconcile.lastMark(state.recentPicks, marked);
+    if (!id) return;
+    const name = (playerById(id) || {}).name || id;
+    unmarkPickById(id);
+    if (typeof PredLedger !== 'undefined' && !state.mockMode) {
+      const c = ledgerCtx();
+      PredLedger.capture('correction', { season: c.season, build_at: c.build_at, pick: c.pick,
+        method: 'revert-v1', payload: { reverted: String(id), name: name, via: 'revert-last-pick' } });
+    }
+    recomputeRuns();
+    renderAll();
+  }
+
+  function reconcileWithSleeper() {
+    if (!state.sync || typeof DraftPickReconcile === 'undefined') return;
+    const keepers = (state.myRoster || []).filter(p => p.is_keeper).map(p => String(p.player_id));
+    const marked = state.markedLocally ? Array.from(state.markedLocally) : [];
+    const diff = DraftPickReconcile.reconcileMine(marked, state.sync.allPicks(), mySlot(), keepers);
+    diff.misMarks.forEach(id => unmarkPickById(id));
+    diff.missing.forEach(id => {
+      const p = playerById(id);
+      if (!p) return;
+      state.drafted.add(String(id));
+      const slot = mySlot();
+      if (slot) (state.rosters[slot] = state.rosters[slot] || []).push(p);
+      state.myRoster.push(p);
+      if (state.markedLocally) state.markedLocally.add(String(id));
+      state.board = state.board.filter(x => String(x.player_id) !== String(id));
+    });
+    if (typeof DraftSurvival !== 'undefined') DraftSurvival.bumpBoard(state.board);
+    if (typeof PredLedger !== 'undefined' && !state.mockMode) {
+      const c = ledgerCtx();
+      PredLedger.capture('pick_reconciled', { season: c.season, build_at: c.build_at, pick: c.pick,
+        method: 'reconcile-v1', payload: { removed: diff.misMarks, added: diff.missing,
+          note: 'pulled from Sleeper (authoritative) — local mis-marks discarded' } });
+    }
+    recomputeRuns();
+    renderAll();
+  }
+
+  /* A-created control (like the undo toast) so the fix needs no B-shell edit: a
+   * slim bar with Revert (when I have a local mark) and Reconcile (when synced). */
+  function renderPickControls() {
+    if (typeof document === 'undefined') return;
+    const wr = document.getElementById('warroom');
+    if (!wr || wr.style.display === 'none') return;
+    const hasMark = state.markedLocally && state.markedLocally.size > 0;
+    const synced = !!state.sync;
+    let bar = document.getElementById('pick-controls');
+    if (!hasMark && !synced) { if (bar) bar.style.display = 'none'; return; }
+    if (!bar) {
+      bar = document.createElement('div');
+      bar.id = 'pick-controls';
+      bar.className = 'pick-controls';
+      wr.insertBefore(bar, wr.firstChild);
+    }
+    bar.style.display = 'flex';
+    bar.innerHTML =
+      (hasMark ? '<button class="btn small ghost" id="pc-revert">↩ Revert last pick</button>' : '')
+      + (synced ? '<button class="btn small navy" id="pc-reconcile" title="Pull Sleeper as authoritative — discard any mis-marks">⟳ Reconcile with Sleeper</button>' : '');
+    const rv = document.getElementById('pc-revert');
+    if (rv) rv.onclick = revertLastPick;
+    const rc = document.getElementById('pc-reconcile');
+    if (rc) rc.onclick = reconcileWithSleeper;
+  }
+
   // ----------------------------------------------------------------- actions
 
   /* A-2 — undo everywhere a fat thumb can lie. Every one-tap state change gets
@@ -4001,6 +4404,18 @@
     if (!alreadySeen) {
       state.recentPicks.push({ position: p.position, player_id: playerId,
                                pick_no: state.recentPicks.length + 1, player: p });
+    }
+    // MOCK CALIBRATION: observe EVERY pick (mine and the room's — this is the one
+    // choke point all picks pass through) so survival predictions can be resolved
+    // against when each player actually left the board. picksMade == recentPicks
+    // length; a prediction matures when its horizon pick has been reached.
+    if (state.mockMode && !alreadySeen) {
+      const mc = mockCalibReady();
+      if (mc) {
+        mc.observePick(playerId, state.recentPicks.length);
+        mc.resolveMatured(state.recentPicks.length);
+        mockCalibSave();
+      }
     }
     // L1 capture: a pick I take is a decision — log it at decision time. Only my
     // own picks (toMe); other teams' picks are recorded by the survival/board

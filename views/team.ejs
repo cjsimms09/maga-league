@@ -10,7 +10,7 @@
   };
 %>
 
-<h1 class="page-title"><%= mine ? '🏈 My Team' : `🔎 ${viewOwner.name}'s Team` %></h1>
+<h1 class="page-title"><%= mine ? '🏈 My Team' : `🔎 ${viewOwner.name}'s Team` %><%- include('partials/_owner_badges', { name: viewOwner.name }) %></h1>
 
 <%# Two tabs, because these answer different questions. "This week" is who
     you're playing and what's riding on it; "Roster" is who you own. The week
@@ -128,7 +128,7 @@
       <div class="mu-side <%= matchup.opp.points > matchup.me.points ? 'up' : '' %>">
         <span class="mu-team"><%= matchup.opp.team %></span>
         <span class="mu-pts"><%= matchup.opp.points.toFixed(2) %></span>
-        <span class="mu-who"><%= matchup.opp.owner.name %></span>
+        <span class="mu-who"><%= matchup.opp.owner.name %><%- include('partials/_owner_badges', { name: matchup.opp.owner.name }) %></span>
       </div>
     </div>
 

@@ -37,28 +37,43 @@
 <link rel="apple-touch-startup-image" media="(device-width:375px) and (device-height:812px) and (-webkit-device-pixel-ratio:3)" href="/icons/splash-1125x2436.png">
 <link rel="apple-touch-startup-image" media="(device-width:375px) and (device-height:667px) and (-webkit-device-pixel-ratio:2)" href="/icons/splash-750x1334.png">
 </head>
-<%# The war room is a focused draft tool: mark it server-side so the site chrome
-    (masthead + announcements) collapses immediately, with no flash before app.js
-    runs. app.js also adds this class plus its sim-state classes; idempotent. %>
-<body class="<%= typeof currentPath !== 'undefined' && /^\/admin\/warroom/.test(currentPath) ? 'warroom-page' : '' %>">
+<%# Body classes UNION two independent needs: `is-champ` (main — champion styling) and
+    `warroom-page` (B — collapses masthead/announcements server-side so the draft tool's
+    recommendation is above the fold with no flash before app.js runs; app.js re-adds it +
+    sim-state classes, idempotent). Neither may drop the other. %>
+<body class="<%= [
+      (typeof viewerIsChamp !== 'undefined' && viewerIsChamp) ? 'is-champ' : '',
+      (typeof currentPath !== 'undefined' && /^\/admin\/warroom/.test(currentPath)) ? 'warroom-page' : ''
+    ].filter(Boolean).join(' ') %>">
 <%
   // Guard everything: the error page renders this header even when the
   // request died before locals were populated.
   const _owner = typeof owner !== 'undefined' ? owner : null;
   const _alerts = typeof alerts !== 'undefined' && alerts ? alerts : [];
   const _path = typeof currentPath !== 'undefined' ? currentPath : '';
+  const _isChamp = typeof viewerIsChamp !== 'undefined' && viewerIsChamp;
+  const _reign = typeof reigningYear !== 'undefined' ? reigningYear : '';
   // The full-size masthead is branding, and branding earns its 138px exactly
   // once — on the page you land on. Everywhere else it is a toll you pay to
   // reach the content you navigated to, so it collapses to a single line.
   const _home = _path === '/' || !_owner;
+  // TOOL mode (war room): a focused decision surface, not a page you land on for
+  // branding. Suppress the masthead entirely so the tool starts at the top of the
+  // phone — every pixel above the recommendation is a pixel it can't afford.
+  const _tool = typeof tool !== 'undefined' && tool;
 %>
+<%# The defending champ's own screen wears a thin, earned ribbon on the home page —
+    subtle, not a shout. Nobody else sees it; it is his year. %>
+<% if (_isChamp && _home) { %><div class="champ-ribbon">👑 Your title to defend<%= _reign ? ' · ' + _reign + ' champion' : '' %></div><% } %>
 <a class="skip-link" href="#main">Skip to content</a>
+<% if (!_tool) { %>
 <header class="masthead <%= _home ? '' : 'compact' %>">
   <div class="eagle" title="Back-to-back World War champs. Undefeated since 1776."><img src="/icons/icon.svg" alt="MFGA" width="512" height="512" loading="eager"></div>
   <h1><a href="/"><span class="flag">🇺🇸</span> Make Football <span class="gold">Great Again</span> <span class="flag">🇺🇸</span></a></h1>
   <p class="tagline">Fantasy Football League &nbsp;•&nbsp; Est. 2016 &nbsp;•&nbsp; The Greatest League in the History of Leagues, Maybe Ever</p>
   <div class="stars">★ ★ ★ ★ ★</div>
 </header>
+<% } %>
 <% if (_owner) { %>
 <%
   // One source of truth for navigation. The desktop bar renders all of it; the
@@ -149,6 +164,9 @@
     + (a.href ? ` <a href="${_e(a.href)}" style="color:inherit; font-weight:800">${_e(a.linkText || 'Open →')}</a>` : '')
     + '</span></div>';
 %>
+<%# League announcements are for the pages you browse — not the war room, a focused
+    tool where the fold belongs to the pick. Suppressed in tool mode. %>
+<% if (!_tool) { %>
 <div class="alert-region" role="region" aria-label="League announcements" aria-live="polite">
   <% for (const a of _shown) { %><%- _banner(a) %><% } %>
   <% if (_rest.length) { %>
@@ -158,5 +176,6 @@
     </details>
   <% } %>
 </div>
+<% } %>
 <% } %>
 <main class="wrap" id="main">

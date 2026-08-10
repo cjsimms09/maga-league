@@ -1,6 +1,6 @@
 {
  "meta": {
-  "git_head": "af0c57031cef519e9524f725f3cee73684d09449",
+  "git_head": "3578be1ac53d69f4049393eab7e93be3de9a348f",
   "seasons": [
    2023,
    2024,
@@ -51,25 +51,25 @@
    "vs_default": {
     "per_season": {
      "2023": {
-      "mean": -466.45,
+      "mean": -324.75,
       "n": 10,
-      "ci95": 185.49,
+      "ci95": 112,
       "beats": false
      },
      "2024": {
-      "mean": -65.36,
+      "mean": 161.01,
       "n": 10,
-      "ci95": 85.5,
-      "beats": false
+      "ci95": 111.87,
+      "beats": true
      }
     },
     "pooled": {
-     "mean": -265.91,
+     "mean": -81.87,
      "n": 20,
-     "ci95": 134.21,
+     "ci95": 133.65,
      "beats": false
     },
-    "seasons_won": 0,
+    "seasons_won": 1,
     "seasons_total": 2
    }
   },
@@ -80,25 +80,25 @@
    "vs_default": {
     "per_season": {
      "2023": {
-      "mean": 84.29,
+      "mean": -175.13,
       "n": 10,
-      "ci95": 163.75,
-      "beats": true
+      "ci95": 148.22,
+      "beats": false
      },
      "2024": {
-      "mean": 10.34,
+      "mean": 51.82,
       "n": 10,
-      "ci95": 14.37,
+      "ci95": 32.48,
       "beats": true
      }
     },
     "pooled": {
-     "mean": 47.31,
+     "mean": -61.65,
      "n": 20,
-     "ci95": 81.71,
-     "beats": true
+     "ci95": 89.76,
+     "beats": false
     },
-    "seasons_won": 2,
+    "seasons_won": 1,
     "seasons_total": 2
    }
   },
@@ -109,22 +109,22 @@
    "vs_default": {
     "per_season": {
      "2023": {
-      "mean": -194.24,
+      "mean": -83.18,
       "n": 10,
-      "ci95": 200.74,
+      "ci95": 111.37,
       "beats": false
      },
      "2024": {
-      "mean": 135.97,
+      "mean": 43.8,
       "n": 10,
-      "ci95": 121.93,
+      "ci95": 63.1,
       "beats": true
      }
     },
     "pooled": {
-     "mean": -29.14,
+     "mean": -19.69,
      "n": 20,
-     "ci95": 136.29,
+     "ci95": 68.53,
      "beats": false
     },
     "seasons_won": 1,
@@ -138,25 +138,25 @@
    "vs_default": {
     "per_season": {
      "2023": {
-      "mean": 327.16,
+      "mean": 275.72,
       "n": 10,
-      "ci95": 190.49,
+      "ci95": 196.16,
       "beats": true
      },
      "2024": {
-      "mean": -14.47,
+      "mean": 184.87,
       "n": 10,
-      "ci95": 28.36,
-      "beats": false
+      "ci95": 69.13,
+      "beats": true
      }
     },
     "pooled": {
-     "mean": 156.35,
+     "mean": 230.29,
      "n": 20,
-     "ci95": 121.18,
+     "ci95": 103.26,
      "beats": true
     },
-    "seasons_won": 1,
+    "seasons_won": 2,
     "seasons_total": 2
    }
   },
@@ -167,23 +167,23 @@
    "vs_default": {
     "per_season": {
      "2023": {
-      "mean": -108.3,
+      "mean": -33.27,
       "n": 10,
-      "ci95": 113.72,
+      "ci95": 65.21,
       "beats": false
      },
      "2024": {
-      "mean": 93.11,
+      "mean": 45.74,
       "n": 10,
-      "ci95": 109.26,
+      "ci95": 51.74,
       "beats": true
      }
     },
     "pooled": {
-     "mean": -7.59,
+     "mean": 6.24,
      "n": 20,
-     "ci95": 89.11,
-     "beats": false
+     "ci95": 44.24,
+     "beats": true
     },
     "seasons_won": 1,
     "seasons_total": 2
@@ -196,22 +196,22 @@
    "vs_default": {
     "per_season": {
      "2023": {
-      "mean": -117.25,
+      "mean": -65.34,
       "n": 10,
-      "ci95": 128.76,
+      "ci95": 87.37,
       "beats": false
      },
      "2024": {
-      "mean": 0,
+      "mean": -87.43,
       "n": 10,
-      "ci95": 0,
+      "ci95": 62.21,
       "beats": false
      }
     },
     "pooled": {
-     "mean": -58.63,
+     "mean": -76.39,
      "n": 20,
-     "ci95": 67.98,
+     "ci95": 52.43,
      "beats": false
     },
     "seasons_won": 0,
@@ -252,28 +252,28 @@
   "n_seasons": 2,
   "rule": "win-both (N<3, bar tightened by data availability)",
   "winner": {
-   "key": "tier_hunter",
-   "name": "Tier-Hunter",
-   "note": "tier cliff urgency doubled — chase the last of a tier",
+   "key": "upside_late",
+   "name": "Upside-Late",
+   "note": "ceiling ramps with the round — safe early, lottery tickets late",
    "vs_default": {
     "per_season": {
      "2023": {
-      "mean": 84.29,
+      "mean": 275.72,
       "n": 10,
-      "ci95": 163.75,
+      "ci95": 196.16,
       "beats": true
      },
      "2024": {
-      "mean": 10.34,
+      "mean": 184.87,
       "n": 10,
-      "ci95": 14.37,
+      "ci95": 69.13,
       "beats": true
      }
     },
     "pooled": {
-     "mean": 47.31,
+     "mean": 230.29,
      "n": 20,
-     "ci95": 81.71,
+     "ci95": 103.26,
      "beats": true
     },
     "seasons_won": 2,
@@ -285,13 +285,13 @@
   "ran": true,
   "samples": 40,
   "jitter": 0.25,
-  "fraction_beating_default": 0.725,
+  "fraction_beating_default": 1,
   "survive_threshold": 0.75,
-  "edge_p25": -14.56,
-  "edge_median": 49.42,
-  "edge_p75": 73.13,
-  "edge_min": -112.6,
-  "survives": false
+  "edge_p25": 196.33,
+  "edge_median": 223.77,
+  "edge_p75": 250.83,
+  "edge_min": 11.59,
+  "survives": true
  },
- "install": false
+ "install": true
 }

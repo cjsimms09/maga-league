@@ -38,6 +38,13 @@ on:
       - 'draft/tests/test_exp34_dollars.py'
       - 'draft/backtest/exp36.py'
       - 'draft/tests/test_exp36.py'
+      - 'draft/backtest/exp43_fullboard.py'
+      - 'draft/tests/test_exp43.py'
+      - 'draft/backtest/exp_source_grade.py'
+      - 'draft/tests/test_source_grade.py'
+      - 'draft/backtest/mfl_adp.py'
+      - 'draft/backtest/fantasypros_adp.py'
+      - 'draft/tests/test_fantasypros_adp.py'
       - 'draft/backtest/exp33.py'
       - 'draft/tests/test_exp33.py'
       - 'draft/backtest/exp35_regression_sweep.py'
@@ -94,6 +101,8 @@ jobs:
           python draft/backtest/frontier.py --rooms 150           # exp 21 (+ exp 2 §5 slice)
           python draft/backtest/policy_tournament.py --rooms 120  # exp 2 §5/§6
           python draft/backtest/stack_sweep.py --rooms 120        # exp 6
+          python draft/backtest/exp_keeper_nabers.py --rooms 200  # keeper decision w/ Nabers (Aug-20 lock)
+          python draft/backtest/exp_need_phase.py --rooms 300     # need-weight ramp vs the mask
           python draft/backtest/sim_validation.py --rooms 24      # simulator fidelity + limits
           python draft/opening_script.py                          # inherits any new verdict
           # The doctrine banner reads the enrolled plan off the BOARD artifact,
@@ -111,6 +120,8 @@ jobs:
                   draft/backtest/FRONTIER.md draft/backtest/frontier.json \
                   draft/backtest/POLICY-TOURNAMENT.md draft/backtest/policy-tournament.json \
                   draft/backtest/STACK-SWEEP.md draft/backtest/stack-sweep.json \
+                  draft/backtest/EXP-KEEPER-NABERS.md draft/backtest/exp_keeper_nabers.json \
+                  draft/backtest/EXP-NEED-PHASE.md draft/backtest/exp_need_phase.json \
                   draft/backtest/SIM-FIDELITY.md draft/backtest/sim-fidelity.json \
                   draft/backtest/HETEROGENEOUS-VALIDATION.md \
                   draft/backtest/PLAYOFF-MONEY-VALIDATION.md \
@@ -261,24 +272,39 @@ jobs:
         run: |
           pip install pytest -q
           python -m pytest draft/tests/test_exp36.py -q
-      - name: Fire exp 36 (FFC + nflverse egress)
+      - name: GATE — exp 43 pure core tests (no egress)
+        run: python -m pytest draft/tests/test_exp43.py -q
+      - name: Fire exp 36 (FFC + nflverse egress) — also emits exp36_picks.json for exp 43
         run: |
           pip install -r draft/requirements.txt -q
           python draft/backtest/exp36.py --out draft/backtest
-      - name: Commit the exp 36 report
+      - name: Fire exp 43 — full-board pick audit (consumes exp36_picks.json, no extra egress)
+        run: python draft/backtest/exp43_fullboard.py
+      - name: GATE — source-grade pure core (no egress)
+        run: python -m pytest draft/tests/test_source_grade.py -q
+      - name: Fire source grade — FFC vs MFL per region (consumes exp36_picks.json + MFL egress)
+        continue-on-error: true
+        run: python draft/backtest/exp_source_grade.py
+      - name: Commit the exp 36 + exp 43 + source-grade reports
         run: |
           stamp=$(date -u +%Y-%m-%dT%H:%MZ)
           git config user.name "lab-bot"; git config user.email "actions@github.com"
-          git add draft/backtest/EXP36.md draft/backtest/exp36.json
-          git commit -m "Exp 36 report $stamp" || { echo "no change"; exit 0; }
+          for f in draft/backtest/EXP36.md draft/backtest/exp36.json draft/backtest/exp43.json \
+                   draft/backtest/exp_source_grade.json; do
+            [ -f "$f" ] && git add "$f"
+          done
+          git commit -m "Exp 36 + full-board pick audit + source grade $stamp" || { echo "no change"; exit 0; }
           git pull --rebase origin "${GITHUB_REF_NAME}" && git push || echo "push skipped"
-      - name: Upload exp 36 results (artifact — inputs are egress-built)
+      - name: Upload exp 36 + exp 43 + source-grade results (artifacts — inputs are egress-built)
         uses: actions/upload-artifact@v4
         with:
           name: exp36-results
           path: |
             draft/backtest/exp36.json
             draft/backtest/EXP36.md
+            draft/backtest/exp36_picks.json
+            draft/backtest/exp43.json
+            draft/backtest/exp_source_grade.json
           retention-days: 30
 
   # EXPERIMENT 33 — projection-source bake-off (the foundational weak link).

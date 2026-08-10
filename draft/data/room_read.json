@@ -1,0 +1,340 @@
+{
+ "experiment": "room read \u2014 stable opponent tells -> draft-day counter-moves",
+ "n_opponents": 9,
+ "n_reliable": 9,
+ "run_clock": {
+  "RB": {
+   "starts_round": 1,
+   "first_mover": "Jreis",
+   "confidence": "hard",
+   "n_owners_reliable": 8,
+   "owners": [
+    "Jreis rd1",
+    "Sadbru rd3",
+    "cashworth rd3",
+    "Schmelley rd4",
+    "mhagen rd4",
+    "MarianSaar rd6",
+    "ds7mmet rd6",
+    "Richard2121 rd6"
+   ]
+  },
+  "WR": {
+   "starts_round": 3,
+   "first_mover": "Richard2121",
+   "confidence": "firm",
+   "n_owners_reliable": 9,
+   "owners": [
+    "Richard2121 rd3",
+    "cashworth rd3",
+    "Jreis rd3",
+    "Sadbru rd3",
+    "mhagen rd3",
+    "B8T3S rd4",
+    "MarianSaar rd4",
+    "ds7mmet rd4",
+    "Schmelley rd5"
+   ]
+  },
+  "QB": {
+   "starts_round": 4,
+   "first_mover": "cashworth",
+   "confidence": "firm",
+   "n_owners_reliable": 5,
+   "owners": [
+    "cashworth rd4",
+    "ds7mmet rd4",
+    "Sadbru rd5",
+    "Jreis rd6",
+    "Schmelley rd7"
+   ]
+  },
+  "TE": {
+   "starts_round": 4,
+   "first_mover": "ds7mmet",
+   "confidence": "firm",
+   "n_owners_reliable": 7,
+   "owners": [
+    "ds7mmet rd4",
+    "Richard2121 rd6",
+    "mhagen rd6",
+    "Jreis rd6",
+    "cashworth rd7",
+    "Sadbru rd8",
+    "MarianSaar rd8"
+   ]
+  },
+  "DEF": {
+   "starts_round": 11,
+   "first_mover": "Sadbru",
+   "confidence": "hard",
+   "n_owners_reliable": 8,
+   "owners": [
+    "Sadbru rd11",
+    "ds7mmet rd12",
+    "MarianSaar rd13",
+    "Schmelley rd13",
+    "mhagen rd13",
+    "Richard2121 rd14",
+    "B8T3S rd14",
+    "cashworth rd14"
+   ]
+  },
+  "K": {
+   "starts_round": 12,
+   "first_mover": "B8T3S",
+   "confidence": "hard",
+   "n_owners_reliable": 9,
+   "owners": [
+    "B8T3S rd12",
+    "MarianSaar rd12",
+    "Sadbru rd12",
+    "ds7mmet rd13",
+    "Jreis rd13",
+    "Richard2121 rd13",
+    "cashworth rd13",
+    "mhagen rd14",
+    "Schmelley rd15"
+   ]
+  }
+ },
+ "owners": [
+  {
+   "owner": "B8T3S",
+   "signature": "QB-late, WR-heavy",
+   "predictability": "medium",
+   "reliable": true,
+   "tells": [],
+   "leans": [
+    {
+     "position": "WR",
+     "lean": 0.08,
+     "move": "WR-heavy (+8% vs field): they hoover WR; fade it against them."
+    },
+    {
+     "position": "RB",
+     "lean": -0.07,
+     "move": "light RB (-7% vs field): they punt RB \u2014 it falls to you against them."
+    }
+   ],
+   "note": null
+  },
+  {
+   "owner": "Jreis",
+   "signature": "RB-early, QB-late",
+   "predictability": "high",
+   "reliable": true,
+   "tells": [
+    {
+     "position": "RB",
+     "round": 1.33,
+     "sd": 0.47,
+     "confidence": "hard",
+     "move": "takes RB EARLY (rd 1 vs field 4, hard): competes for RB ahead of you \u2014 don't wait behind them."
+    },
+    {
+     "position": "QB",
+     "round": 6.0,
+     "sd": 0.82,
+     "confidence": "hard",
+     "move": "QB run clock: reliably takes QB ~rd 6 (hard). Want the elite QB? pick the round BEFORE rd 6; else let their QB go and bank RB/WR while the room chases it."
+    },
+    {
+     "position": "TE",
+     "round": 6.33,
+     "sd": 0.47,
+     "confidence": "hard",
+     "move": "TE run clock: reliably takes TE ~rd 6 (hard). Want the elite TE? pick the round BEFORE rd 6; else let their TE go and bank RB/WR while the room chases it."
+    }
+   ],
+   "leans": [
+    {
+     "position": "WR",
+     "lean": -0.05,
+     "move": "light WR (-5% vs field): they punt WR \u2014 it falls to you against them."
+    }
+   ],
+   "note": null
+  },
+  {
+   "owner": "MarianSaar",
+   "signature": "QB-late",
+   "predictability": "high",
+   "reliable": true,
+   "tells": [
+    {
+     "position": "RB",
+     "round": 5.67,
+     "sd": 1.25,
+     "confidence": "firm",
+     "move": "WAITS on RB (rd 6 vs field 4, firm): won't fight you early, but is RB-hungry later \u2014 that run comes from them."
+    },
+    {
+     "position": "TE",
+     "round": 8.0,
+     "sd": 1.63,
+     "confidence": "firm",
+     "move": "TE run clock: reliably takes TE ~rd 8 (firm). Want the elite TE? pick the round BEFORE rd 8; else let their TE go and bank RB/WR while the room chases it."
+    }
+   ],
+   "leans": [],
+   "note": null
+  },
+  {
+   "owner": "Richard2121",
+   "signature": "QB-late, WR-heavy",
+   "predictability": "high",
+   "reliable": true,
+   "tells": [
+    {
+     "position": "RB",
+     "round": 6.0,
+     "sd": 2.45,
+     "confidence": "firm",
+     "move": "WAITS on RB (rd 6 vs field 4, firm): won't fight you early, but is RB-hungry later \u2014 that run comes from them."
+    },
+    {
+     "position": "TE",
+     "round": 6.0,
+     "sd": 1.0,
+     "confidence": "hard",
+     "move": "TE run clock: reliably takes TE ~rd 6 (hard). Want the elite TE? pick the round BEFORE rd 6; else let their TE go and bank RB/WR while the room chases it."
+    }
+   ],
+   "leans": [
+    {
+     "position": "RB",
+     "lean": -0.095,
+     "move": "light RB (-10% vs field): they punt RB \u2014 it falls to you against them."
+    },
+    {
+     "position": "WR",
+     "lean": 0.055,
+     "move": "WR-heavy (+6% vs field): they hoover WR; fade it against them."
+    }
+   ],
+   "note": null
+  },
+  {
+   "owner": "Sadbru",
+   "signature": "QB-early",
+   "predictability": "high",
+   "reliable": true,
+   "tells": [
+    {
+     "position": "QB",
+     "round": 5.0,
+     "sd": 1.63,
+     "confidence": "firm",
+     "move": "QB run clock: reliably takes QB ~rd 5 (firm). Want the elite QB? pick the round BEFORE rd 5; else let their QB go and bank RB/WR while the room chases it."
+    },
+    {
+     "position": "TE",
+     "round": 7.67,
+     "sd": 0.47,
+     "confidence": "hard",
+     "move": "TE run clock: reliably takes TE ~rd 8 (hard). Want the elite TE? pick the round BEFORE rd 8; else let their TE go and bank RB/WR while the room chases it."
+    }
+   ],
+   "leans": [],
+   "note": null
+  },
+  {
+   "owner": "Schmelley",
+   "signature": "QB-late",
+   "predictability": "high",
+   "reliable": true,
+   "tells": [
+    {
+     "position": "QB",
+     "round": 7.0,
+     "sd": 1.41,
+     "confidence": "firm",
+     "move": "QB run clock: reliably takes QB ~rd 7 (firm). Want the elite QB? pick the round BEFORE rd 7; else let their QB go and bank RB/WR while the room chases it."
+    }
+   ],
+   "leans": [],
+   "note": null
+  },
+  {
+   "owner": "cashworth",
+   "signature": "QB-early, RB-heavy",
+   "predictability": "high",
+   "reliable": true,
+   "tells": [
+    {
+     "position": "QB",
+     "round": 4.0,
+     "sd": 2.0,
+     "confidence": "firm",
+     "move": "QB run clock: reliably takes QB ~rd 4 (firm). Want the elite QB? pick the round BEFORE rd 4; else let their QB go and bank RB/WR while the room chases it."
+    },
+    {
+     "position": "TE",
+     "round": 6.67,
+     "sd": 1.25,
+     "confidence": "firm",
+     "move": "TE run clock: reliably takes TE ~rd 7 (firm). Want the elite TE? pick the round BEFORE rd 7; else let their TE go and bank RB/WR while the room chases it."
+    }
+   ],
+   "leans": [
+    {
+     "position": "RB",
+     "lean": 0.062,
+     "move": "RB-heavy (+6% vs field): they hoover RB; fade it against them."
+    }
+   ],
+   "note": null
+  },
+  {
+   "owner": "ds7mmet",
+   "signature": "QB-early, elite-TE",
+   "predictability": "high",
+   "reliable": true,
+   "tells": [
+    {
+     "position": "TE",
+     "round": 3.5,
+     "sd": 2.5,
+     "confidence": "firm",
+     "move": "TE run clock: reliably takes TE ~rd 4 (firm). Want the elite TE? pick the round BEFORE rd 4; else let their TE go and bank RB/WR while the room chases it."
+    },
+    {
+     "position": "QB",
+     "round": 4.0,
+     "sd": 0.82,
+     "confidence": "hard",
+     "move": "QB run clock: reliably takes QB ~rd 4 (hard). Want the elite QB? pick the round BEFORE rd 4; else let their QB go and bank RB/WR while the room chases it."
+    },
+    {
+     "position": "RB",
+     "round": 5.67,
+     "sd": 2.49,
+     "confidence": "firm",
+     "move": "WAITS on RB (rd 6 vs field 4, firm): won't fight you early, but is RB-hungry later \u2014 that run comes from them."
+    }
+   ],
+   "leans": [],
+   "note": null
+  },
+  {
+   "owner": "mhagen",
+   "signature": "QB-late",
+   "predictability": "high",
+   "reliable": true,
+   "tells": [
+    {
+     "position": "TE",
+     "round": 6.0,
+     "sd": 1.41,
+     "confidence": "firm",
+     "move": "TE run clock: reliably takes TE ~rd 6 (firm). Want the elite TE? pick the round BEFORE rd 6; else let their TE go and bank RB/WR while the room chases it."
+    }
+   ],
+   "leans": [],
+   "note": null
+  }
+ ],
+ "caveat": "Tells are hard/firm only (cross-season sd-filtered); owners tagged thin/low predictability show no tell rather than a fitted one. 3 seasons \u2014 a hard read is 3 consistent years, not a law. Reading aid; changes no pick math.",
+ "source_tier": "league-primary (uncopyable \u2014 their own picks)"
+}

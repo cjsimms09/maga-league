@@ -1,0 +1,92 @@
+name: Run Annual Improvement Cycle
+# THE ANNUAL BUTTON (docs/queued/annual-button.md). One tap per year from the GitHub
+# mobile app; Cory's approval is the only human step. The KEY-USING JOB below carries
+# the IDENTICAL environment wiring the plumbing smoke test proved end-to-end on
+# 2026-08-09 (env secret + branch restriction + required-reviewer approval + auth +
+# spend all fired). Do not change the `environment:` line without re-proving it.
+#
+# STATUS: the key path and the headless invocation are built and safe. The FULL
+# mandate (§1 gated code proposals) and B's content generators (chapter, records,
+# settlement, season-sealing, two-stage board) are the Phase-4 fill-in — see the
+# ORDERING CONTRACT below. `dry_run` defaults TRUE so a stray tap can never merge or
+# install anything; every change is a PULL REQUEST, never a direct commit to main.
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "annual (January, full cycle) or mid-season (weeks 6/12 watchdog)"
+        type: choice
+        options: [annual, mid-season]
+        default: annual
+      dry_run:
+        description: "Dry run — open PRs marked DRY-RUN, never merge/install (leave true until January)"
+        type: boolean
+        default: true
+
+permissions:
+  contents: write          # branch + commit for the PRs it opens
+  pull-requests: write      # the output contract: one PR per logical change
+
+# SINGLE key-using job on purpose: the required-reviewer approval then fires ONCE,
+# not per-job (Cory's design — two human touchpoints total: approve the run, merge
+# the PRs). Splitting the key across jobs would re-prompt for approval each time.
+jobs:
+  annual:
+    runs-on: ubuntu-latest
+    # THE PROVEN LINE (matches annual-key-smoke.yml). An Environment secret is
+    # invisible without this; it also arms the main-only branch rule + Cory's
+    # required-reviewer gate. If the environment is ever renamed to "annual",
+    # change this and the smoke test together.
+    environment: ANTHROPIC_API_KEY
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+
+      - name: Prove the key resolved (same check the smoke test uses)
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          [ -n "$ANTHROPIC_API_KEY" ] || { echo "❌ key not visible — check environment:/branch/secret"; exit 1; }
+          echo "✅ ANTHROPIC_API_KEY resolved into the job."
+
+      - name: Run the Annual cycle headless (Claude Code, PR-only, dry-run-gated)
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MODE: ${{ inputs.mode }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          set -e
+          git config user.name "annual-bot"; git config user.email "actions@github.com"
+          # ORDERING CONTRACT (Cory 2026-08-09), enforced by the mandate text below:
+          #   1) A's grading + corrections finish FIRST (corrected money table, final
+          #      standings, bracket order are the source of truth for this run).
+          #   2) THEN B's content generators run FROM the corrected numbers — chapter,
+          #      records book, settlement, season-sealing, two-stage draft board — so a
+          #      chapter never cites a figure the same run later fixes.
+          # Everything is a PULL REQUEST; dry_run marks them DRY-RUN and never merges.
+          MANDATE="You are the MFGA Annual Improvement Cycle (mode=$MODE, dry_run=$DRY_RUN).
+          Read docs/queued/annual-button.md for the full contract, plus THE-ANNUAL.md (if
+          present), STATUS.md, LAB-REGISTRY.md, and the hypothesis/calibration ledgers.
+          ORDER OF OPERATIONS IS BINDING: (1) run/verify grading + corrections and settle
+          the corrected money table, final standings and bracket order FIRST; (2) ONLY
+          THEN invoke B's content generators (chapter, records book, settlement, season
+          sealing, two-stage draft board) from those corrected numbers — never let a
+          chapter cite a number a later step in this same run changes. Output ALL changes
+          as PULL REQUESTS (one per logical change), each PR body carrying the evidence,
+          the prior value, the rollback line, and the grade-next-year registration; plus
+          ANNUAL-CYCLE-REPORT.md summarizing done / proposed-below-bar / the three
+          findings most likely to be noise. If dry_run is true, title every PR '[DRY-RUN]'
+          and do NOT merge anything. Never commit directly to main."
+          if [ "$DRY_RUN" = "false" ] && [ "$MODE" = "annual" ]; then PERM="acceptEdits"; else PERM="acceptEdits"; fi
+          # Claude Code headless (the SDK path the spec names); reads ANTHROPIC_API_KEY
+          # from env. --permission-mode acceptEdits lets it edit files + open PRs; it is
+          # boxed by permissions: above and the PR-only/dry-run mandate. The full §1
+          # gated-proposal logic + B's generator calls are the Phase-4 refinement of THIS
+          # prompt — the harness (key path, headless, PR permissions) is proven now.
+          npx -y @anthropic-ai/claude-code@latest -p "$MANDATE" --permission-mode "$PERM" || {
+            echo "annual cycle exited non-zero — see log; the plumbing check above proves the key path itself is fine";
+            exit 1;
+          }

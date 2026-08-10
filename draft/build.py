@@ -24,6 +24,8 @@ import keepers as keepers_mod  # noqa: E402
 import projections as proj_mod  # noqa: E402
 import vorp as vorp_mod  # noqa: E402
 import managers as managers_mod  # noqa: E402
+import keeper_slate as keeper_slate_mod  # noqa: E402
+import adp_series as adp_series_mod  # noqa: E402
 
 ARTIFACT_VERSION = 2
 
@@ -53,6 +55,11 @@ PROFILES_PATH = HERE / "config" / "manager_profiles.json"
 DOCTRINE_PATH = HERE / "backtest" / "cory-conditional.json"
 # Predicted opponent keeper slate — REHEARSAL fidelity input (not draft truth).
 PREDICTED_PATH = HERE / "data" / "predicted_keepers.json"
+# THE RETAINED ADP SERIES — the append-only dated record that makes ADP
+# rate-of-change computable. The board overwrites draft_data.json every night, so
+# without this the only series is git history (~2 days). This file is committed by
+# the nightly workflow; every un-retained day before the draft is unrecoverable.
+ADP_SERIES_PATH = HERE / "data" / "adp_series.json"
 
 # Positions the draft board cares about. IDP leagues would extend this.
 DRAFTABLE = {"QB", "RB", "WR", "TE", "K", "DEF"}
@@ -156,6 +163,51 @@ def _load_predicted_keepers() -> dict | None:
     print(f"  predicted keepers: {n} across {len(preds)} owners (rehearsal input)")
     return {"provenance": v.get("provenance"), "note": v.get("note"),
             "predictions": preds}
+
+
+def _assess_keeper_slate(cfg: dict, offline: bool) -> dict:
+    """SLATE RAILS (keeper_slate.py): stamp an honest CONFIRMED/PREDICTED status so the
+    board can never present a wrong/incomplete slate as truth. Sleeper is the source:
+    roster.keepers = DESIGNATIONS (intentions); the upcoming draft's is_keeper picks =
+    PLACEMENTS (the confirmed signal). Offline builds are always 'predicted'."""
+    teams = int(cfg.get("teams") or 10)
+    if offline:
+        return keeper_slate_mod.assess_slate(teams, {}, placements=None)
+    try:
+        import sleeper_import as si
+        lid = cfg["league_id"]
+        rosters = si.fetch_rosters(lid) or []
+        # designations: a team is present ONLY if it actually carries a keepers list;
+        # absent teams are UNKNOWN (empty!=none), never modelled as keeping zero.
+        designations = {}
+        for r in rosters:
+            ks = r.get("keepers") or (r.get("metadata") or {}).get("keepers")
+            if ks:
+                designations[str(r.get("roster_id"))] = [str(x) for x in ks]
+        # placements: the upcoming draft's keeper picks (is_keeper). None until placed.
+        placements = None
+        drafts = si.fetch_drafts(lid) or []
+        upcoming = next((d for d in drafts if d.get("status") in ("pre_draft", "drafting", "paused")), None)
+        if upcoming and upcoming.get("draft_id"):
+            picks = si.fetch_draft_picks(upcoming["draft_id"]) or []
+            kp = {}
+            for p in picks:
+                if p.get("is_keeper"):
+                    kp.setdefault(str(p.get("roster_id")), []).append(str(p.get("player_id")))
+            if kp:
+                placements = kp
+        slate = keeper_slate_mod.assess_slate(teams, designations, placements=placements)
+        print(f"  keeper slate: {slate['status']} — {slate['teams_designated']}/{teams} designated, "
+              f"placements={'yes' if slate['placements_present'] else 'no'}"
+              + (f", {len(slate['mismatches'])} MISMATCH" if slate['mismatches'] else ""))
+        return slate
+    except Exception as exc:                              # noqa: BLE001
+        # Loudly: 'could not verify' must never read as 'verified'. Unknown -> not confirmed.
+        print(f"  ! keeper-slate verification failed ({type(exc).__name__}: {exc}) — status UNKNOWN")
+        s = keeper_slate_mod.assess_slate(teams, {}, placements=None)
+        s["status"] = "unverified"; s["confirmed"] = False; s["safe_to_treat_as_truth"] = False
+        s["reason"] = f"could not reach Sleeper to verify the slate ({type(exc).__name__})"
+        return s
 
 
 def fetch_authoritative_confirmed(cfg: dict) -> dict:
@@ -322,14 +374,43 @@ def load_players(cfg: dict, offline: bool) -> list[dict]:
     # *declared* fallback — recorded per player, surfaced in the UI above a
     # threshold — never as a silent one.
     try:
+        year_n = int(cfg.get("season") or time.gmtime().tm_year)
         table = adp_mod.build_adp_table(
-            raw, fmt=_ffc_format(cfg), teams=int(cfg.get("teams") or 10),
-            year=int(cfg.get("season") or time.gmtime().tm_year))
+            raw, fmt=_ffc_format(cfg), teams=int(cfg.get("teams") or 10), year=year_n)
         teams_n = int(cfg.get("teams") or 10)
         # Draft length from the ONE source (config_schema.draft_rounds).
         rounds_n = config_schema.draft_rounds(cfg)
+
+        # PRIMARY ANCHOR = FantasyPros, FFC gap-fill, search_rank last. FP is the
+        # source-grade winner (orders realized value best AND is our exact half-PPR
+        # format, de-confounding the full-PPR handicap MFL carried); the 2026 probe
+        # confirmed 98% top-150 coverage, ρ=0.885 vs FFC. Coverage-gated: a thin or
+        # failed FP fetch keeps FFC untouched, so this can NEVER drop the board below
+        # its FFC baseline. (DECISIONS-NEEDED #1)
+        anchor_table = table["adp"]
+        try:
+            fp_table, fp_diag = adp_mod.build_fantasypros_table(raw, year=year_n)
+            if fp_table:
+                anchor_table, merge_stats = adp_mod.merge_primary_over_ffc(table["adp"], fp_table)
+                ADP_PROVENANCE["primary_source"] = "fantasypros"
+                ADP_PROVENANCE["fantasypros"] = {**fp_diag, **merge_stats}
+                print(f"  ADP anchor: FantasyPros PRIMARY — {merge_stats['primary_priced']} "
+                      f"priced by FP, {merge_stats['ffc_gap_fill']} gap-filled by FFC")
+            else:
+                ADP_PROVENANCE["primary_source"] = "ffc"
+                ADP_PROVENANCE["fantasypros"] = fp_diag
+                print(f"  ADP anchor: FFC (FantasyPros not used — {fp_diag.get('reason')})")
+        except Exception as fpx:  # noqa: BLE001 — FP is an upgrade, never a dependency
+            ADP_PROVENANCE["primary_source"] = "ffc"
+            ADP_PROVENANCE["fantasypros"] = {"error": f"{type(fpx).__name__}: {fpx}"}
+            print(f"  ! FantasyPros anchor skipped ({type(fpx).__name__}: {fpx}); FFC stands")
+
         ADP_PROVENANCE.update(adp_mod.apply_with_fallback(
-            players, table["adp"], teams=teams_n, draft_picks=teams_n * rounds_n))
+            players, anchor_table, teams=teams_n, draft_picks=teams_n * rounds_n))
+        # apply_with_fallback hardcodes adp_source='ffc' in its provenance; the per-player
+        # rows already carry the true source, so correct the top-level label to the real
+        # primary now (it drives the War Room's "priced by" banner).
+        ADP_PROVENANCE["adp_source"] = ADP_PROVENANCE.get("primary_source", "ffc")
         ADP_PROVENANCE["report"] = table["report"]
     except Exception as exc:  # noqa: BLE001 — reported loudly below, not swallowed
         print(f"  ! ADP unavailable ({exc}); the whole board falls back to search_rank")
@@ -570,6 +651,57 @@ def build_manager_profiles(cfg: dict, offline: bool, force: bool = False) -> dic
     return profiles
 
 
+def _update_adp_series(artifact: dict, *, today: str, path: Path = ADP_SERIES_PATH) -> None:
+    """Append today's board ADP to the retained series, persist it, and stamp
+    adp_velocity / adp_stale on each board player from the accumulated series.
+
+    This is the one place a clock touches the series: `today` is passed in (the
+    caller derives it from the artifact's built_at) so the pure functions in
+    adp_series stay deterministic and unit-tested. Same-day re-runs replace, not
+    double (append_snapshot dedups by date).
+
+    velocity is POSITIVE when a player is RISING (ADP number falling toward an
+    earlier pick). adp_stale is set only when the move clears the threshold AND
+    the series is deep enough to mean anything — day one it is None on everyone,
+    which is the honest state, not a bug. Non-fatal by contract: the board must
+    still ship if the series file is unreadable, so callers wrap this.
+    """
+    players = artifact.get("players", [])
+    adp_by_id = {str(p["player_id"]): p["raw_adp"]
+                 for p in players if p.get("raw_adp") is not None}
+
+    series = []
+    if path.exists():
+        try:
+            doc = json.loads(path.read_text())
+            series = doc.get("series", []) if isinstance(doc, dict) else (doc or [])
+        except (ValueError, OSError):
+            series = []      # corrupt/missing series starts fresh, loudly below
+
+    series = adp_series_mod.append_snapshot(series, today, adp_by_id)
+    span = adp_series_mod.span_days(series)
+
+    stamped = 0
+    for p in players:
+        pid = str(p.get("player_id"))
+        v = adp_series_mod.velocity(series, pid)
+        p["adp_velocity"] = v
+        flag = adp_series_mod.stale_flag(v, span)
+        p["adp_stale"] = flag
+        if flag:
+            stamped += 1
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(
+        {"_note": "Daily ADP series (append-only, deduped by date). Powers the "
+                  "staleness alarm; NOT a tested momentum edge. See draft/adp_series.py.",
+         "series": series},
+        separators=(",", ":")))
+    artifact.setdefault("notes", {})["adp_series_span_days"] = span
+    print(f"  ADP series: {len(series)} day(s) retained (span {span}); "
+          f"{stamped} player(s) flagged stale at span {span}")
+
+
 def build(cfg: dict, *, offline: bool = False, force_profiles: bool = False,
           confirmed_status: dict | None = None) -> dict:
     print("Building draft artifact ...")
@@ -669,6 +801,12 @@ def build(cfg: dict, *, offline: bool = False, force_profiles: bool = False,
         # REHEARSAL ONLY. Predicted, not confirmed — kept separate from
         # `kept_players` so a prediction can never be read as the real slate.
         "predicted_keepers": _load_predicted_keepers(),
+        # SLATE RAILS: the honest status of the keeper slate the board is built on.
+        # status 'confirmed' ONLY when Sleeper placements exist for all teams and match
+        # designations; otherwise 'predicted'/'partial'/'mismatch'/'unverified'. The
+        # War Room reads safe_to_treat_as_truth; the live-site check alarms as the draft
+        # nears an unconfirmed slate. Empty designations are UNKNOWN, never zero.
+        "keeper_slate": _assess_keeper_slate(cfg, offline),
         "notes": {
             "adp_blend_weight": cfg.get("adp_blend_weight"),
             "opportunity_cap": cfg.get("opportunity_cap"),
@@ -954,6 +1092,12 @@ def main() -> None:
               "scoring and roster slots are unverified (Commish -> War Room -> League Setup)")
     artifact = build(cfg, offline=args.offline, force_profiles=args.refresh_profiles,
                      confirmed_status=status)
+    # Retain today's ADP into the dated series and stamp velocity/staleness on the
+    # board. Non-fatal: a series hiccup must never block the board from shipping.
+    try:
+        _update_adp_series(artifact, today=artifact["built_at"][:10])
+    except Exception as exc:  # noqa: BLE001 — the board ships without the stamps
+        print(f"  ! ADP series not updated ({exc}); board ships without velocity stamps")
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(artifact, separators=(",", ":")))

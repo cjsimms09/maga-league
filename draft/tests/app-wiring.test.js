@@ -126,7 +126,11 @@ check('the app bumps the board version on in-place mutation',
 //     supplying its ctx trips this guard instead of failing silently.
 {
   const doctrineSrc = fs.readFileSync(path.join(DIR, 'doctrine.js'), 'utf8');
-  const dReads = [...new Set((doctrineSrc.match(/ctx\.[a-zA-Z_][a-zA-Z0-9_]*/g) || [])
+  // Extract ctx reads from CODE only. A `ctx.foo` inside a comment (e.g. a
+  // sentence like "ctx.doctrine reads `current`") is prose, not a runtime read;
+  // matching it would demand the app pass a field nothing actually consumes.
+  const doctrineCode = doctrineSrc.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\n]*/g, '');
+  const dReads = [...new Set((doctrineCode.match(/ctx\.[a-zA-Z_][a-zA-Z0-9_]*/g) || [])
     .map(m => m.slice(4)))].filter(f => !f.startsWith('_'));
   check('doctrine.js is a real consumer (non-vacuity)', dReads.length > 0, dReads.join(','));
   // The app feeds doctrine at the update() call site, NOT via context().
@@ -149,8 +153,13 @@ check('the app bumps the board version on in-place mutation',
 // render path forgets to call reaches production as dead code. Assert the SEAM:
 // renderRecommendations must invoke both, and each must consult its engine helper.
 {
-  const rr = appSrc.slice(appSrc.indexOf('function renderRecommendations'),
-    appSrc.indexOf('function renderRecommendations') + 3000);
+  // Slice the WHOLE renderRecommendations body, not a fixed char count: the
+  // function grows (rule headline, design passes) and a fixed window silently
+  // drops the calls off its end, failing green code. End at the next top-level
+  // `function ` decl (two-space indent inside the IIFE) or EOF.
+  const rrStart = appSrc.indexOf('function renderRecommendations');
+  const rrNext = appSrc.indexOf('\n  function ', rrStart + 1);
+  const rr = appSrc.slice(rrStart, rrNext === -1 ? undefined : rrNext);
   check('renderRecommendations calls the stack line', /renderStackLine\(/.test(rr));
   check('renderRecommendations calls the movement line', /updateMovement\(/.test(rr));
   check('the stack line consults E.liveStackRoutes', /E\.liveStackRoutes\(/.test(appSrc));
@@ -159,6 +168,45 @@ check('the app bumps the board version on in-place mutation',
     /prev\.pick !== pick/.test(appSrc),
     'without the pick-change guard, a same-pick re-render moves the comparison '
       + 'basis and every diff reads steady');
+}
+
+// ── #queue-slip: B builds the shell, A wires it. Proven here so "is it wired?"
+// is a green/red suite, not a recurring question. The slip alert is the feature
+// Cory most wanted from promoting the queue; it fires when a QUEUED player is
+// >=60% likely gone by the next pick — empty queue or nobody slipping shows
+// nothing BY DESIGN, which is not the same as unwired. ──────────────────────────
+{
+  const warroom = fs.readFileSync(path.join(DIR, '../../../views/admin/warroom.ejs'), 'utf8');
+  check('queue-slip: B\'s host div exists in warroom.ejs', /id="queue-slip"/.test(warroom));
+  check('queue-slip: renderQueueSlip is defined', /function renderQueueSlip\(/.test(appSrc));
+  check('queue-slip: the render loop CALLS it with the scored board',
+    /renderQueueSlip\(out\.scored\)/.test(appSrc));
+  check('queue-slip: it reads survival_to_next (the same math the recs use)',
+    /survival_to_next/.test(appSrc.slice(appSrc.indexOf('function renderQueueSlip'),
+      appSrc.indexOf('function renderQueueSlip') + 1200)));
+  check('queue-slip: it reads state.lists.queue (the queue is the source)',
+    /state\.lists\.queue/.test(appSrc.slice(appSrc.indexOf('function renderQueueSlip'),
+      appSrc.indexOf('function renderQueueSlip') + 1200)));
+  check('queue-slip: the alert carries the "I took him" action (data-draft-me)',
+    /data-draft-me/.test(appSrc.slice(appSrc.indexOf('function renderQueueSlip'),
+      appSrc.indexOf('function renderQueueSlip') + 1600)));
+}
+
+// ── THE TAKE BUTTON IN THE ONE-ANSWER VIEW ──────────────────────────────────
+// SEV1 from a live mock: the clock/one-answer card recommended a player with NO
+// way to draft him — the take button lived only on the full-board recs cards. It
+// lives in warroom.ejs (B's shell), so a clobber there silently re-breaks the
+// single most important control. Assert BOTH ends: the host button and the wiring.
+{
+  const warroom = fs.readFileSync(path.join(DIR, '../../../views/admin/warroom.ejs'), 'utf8');
+  check('clock take: the one-answer card has a take button (warroom.ejs #clock-take)',
+    /id="clock-take"[^>]*data-draft-me/.test(warroom),
+    'the ONE ANSWER view must carry a take control, or it recommends a player you cannot draft');
+  const rc = appSrc.slice(appSrc.indexOf('function renderClock'),
+    appSrc.indexOf('function renderClock') + 3000);
+  check('clock take: renderClock points it at the shown player',
+    /clock-take/.test(rc) && /setAttribute\('data-draft-me'/.test(rc),
+    'renderClock must set #clock-take data-draft-me to the player the view is showing');
 }
 
 // ── HONEST LIMIT, asserted so nobody mistakes this for more than it is ──────
