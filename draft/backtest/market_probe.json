@@ -109,8 +109,8 @@
       "series_listed": 12626,
       "series_prefixes_seen": {
         "KXCLAUDE": 5,
-        "KXMVECROSSCATE": 5492,
-        "KXMVESPORTSMUL": 6503
+        "KXMVECROSSCATE": 5434,
+        "KXMVESPORTSMUL": 6561
       },
       "volume_median": 0,
       "volume_total": 0,
@@ -125,9 +125,12 @@
     },
     "odds_api_io": {
       "docs": "https://odds-api.io/",
-      "error": "HTTPError: HTTP Error 404: Not Found",
       "host": "https://api.odds-api.io",
       "needs_key": false,
+      "nfl_entries": [
+        "{'name': 'American Football', 'slug': 'american-football'}"
+      ],
+      "nfl_present": true,
       "path_probe": {
         "docs_paths": [],
         "docs_reachable": true,
@@ -148,8 +151,22 @@
         }
       },
       "published_free_tier": "100 requests/hour, 500/day, NFL included, 2 recreational books, permanent, no card",
+      "rate_headers": {},
       "reachable": true,
-      "status": 404
+      "secondary": {
+        "/v3/bookmakers": {
+          "keys": "list[274]",
+          "rate_headers": {},
+          "status": 200
+        },
+        "/v3/fixtures?sport=americanfootball_nfl": {
+          "status": 404
+        },
+        "/v3/markets": {
+          "status": 404
+        }
+      },
+      "sports_listed": 34
     },
     "parlayapi": {
       "docs": "https://parlayapi.com/",
