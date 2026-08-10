@@ -1215,7 +1215,38 @@
     // B: the real fix is `.clock-name { color: var(--ink); }` in style.css.
     clockNameEl.style.color = 'var(--ink, #17263a)';
     $('#clock-meta').textContent = (p.team || '') + (p.bye ? ' · bye ' + p.bye : '')
-      + ' · ADP ' + Math.round(p.adjusted_adp) + ' · proj ' + Math.round(p.proj_mean);
+      + ' · ADP ' + Math.round(p.adjusted_adp);
+    // C3 — the RAW projection as a sanity check, next to our valuation, labelled
+    // honestly by source (Sleeper-only today, so "Sleeper proj", never "consensus").
+    // Placed prominently on the clock (the primary mobile surface), not tucked in a
+    // detail row — the point is Cory NOTICES when our pick and the raw projection
+    // disagree, which only works if both are in front of him at the moment of a pick.
+    if (typeof DraftConsensus !== 'undefined') {
+      let projEl = $('#clock-proj');
+      if (!projEl) {
+        projEl = document.createElement('div');
+        projEl.id = 'clock-proj';
+        projEl.style.cssText = 'margin:.35rem 0;font-size:.95rem';
+        const meta = $('#clock-meta');
+        if (meta && meta.parentNode) meta.parentNode.insertBefore(projEl, meta.nextSibling);
+      }
+      const prov = (state.data || {}).provenance;
+      const rp = DraftConsensus.rawProjection(p, prov);
+      const alt = DraftConsensus.higherProjectionAlt(s2, list, prov, 6);
+      let html = '<span style="opacity:.75">' + escapeHtml(rp.label) + '</span> <b>'
+        + (rp.value == null ? '—' : Math.round(rp.value)) + '</b>'
+        + '<span style="opacity:.6"> · our valuation VONA ' + (s2.components && s2.components.vona != null
+            ? Math.round(s2.components.vona) : Math.round(s2.score)) + '</span>';
+      if (alt) {
+        // the disagreement moment: we're recommending a LOWER-projection player.
+        html += '<div style="margin-top:.25rem;font-size:.85rem;color:#b45309">⚠ '
+          + escapeHtml(alt.alt.name) + ' projects higher (' + Math.round(alt.alt_proj) + ' vs '
+          + Math.round(alt.rec_proj) + ') — we prefer ' + escapeHtml(p.name ? p.name.split(' ').slice(-1)[0] : 'him')
+          + ' on ' + escapeHtml(String((s2.reasons || [])[0] || 'value').slice(0, 60))
+          + '. Both shown so you can judge.</div>';
+      }
+      projEl.innerHTML = html;
+    }
     // The star goes on the name as a badge, not into the reason line. On the
     // clock the one sentence you get has to tell you why he is GOOD — "you
     // starred him" is a restatement of your own click, not information.
@@ -2359,6 +2390,29 @@
     host.innerHTML = html;
   }
 
+  /* C3 helpers — the raw projection + the disagreement line, shared by the recs
+   * cards. Reads DraftConsensus (one derivation) and the artifact provenance so the
+   * label states the true source (Sleeper today; "Consensus (N)" only when >=2
+   * real sources land). Defensive if the module didn't load. */
+  function recRawProj(p) {
+    if (typeof DraftConsensus === 'undefined') {
+      return { value: p.proj_mean == null ? null : p.proj_mean, label: 'Sleeper proj', isConsensus: false };
+    }
+    return DraftConsensus.rawProjection(p, (state.data || {}).provenance);
+  }
+  function recDisagreementLine(s, scored) {
+    if (typeof DraftConsensus === 'undefined') return '';
+    const alt = DraftConsensus.higherProjectionAlt(s, scored, (state.data || {}).provenance, 6);
+    if (!alt) return '';
+    const rp = recRawProj(s.player);
+    return '<div class="rec-disagree" style="margin-top:.3rem;font-size:.82rem;color:#b45309">'
+      + '⚠ ' + escapeHtml(alt.alt.name) + ' projects higher ('
+      + Math.round(alt.alt_proj) + ' vs ' + Math.round(alt.rec_proj) + ' ' + escapeHtml(rp.label.replace(/ proj$/, ''))
+      + ') — we prefer ' + escapeHtml((s.player.name || '').split(' ').slice(-1)[0])
+      + ' on ' + escapeHtml(String((s.reasons || [])[0] || 'value').slice(0, 60))
+      + '. Both shown so you can judge the machinery.</div>';
+  }
+
   function renderRecommendations() {
     // One call so the recommendation, the confidence line and the branch
     // forecasts can never come from three different boards.
@@ -2479,11 +2533,20 @@
             : '') +
           '<div class="rec-stats">' +
             '<span title="Value Over Next Available — what you lose by waiting">VONA <b>' + s.components.vona.toFixed(1) + '</b></span>' +
-            '<span>Proj <b>' + Math.round(p.proj_mean) + '</b></span>' +
+            // C3 — the raw projection, labelled by its true source (Sleeper today,
+            // never "consensus" until a 2nd source lands), sat next to our VONA so a
+            // disagreement is visible on the card, not buried.
+            '<span title="Raw, unmodelled projection — the sanity check on our valuation">'
+              + escapeHtml(recRawProj(p).label.replace(/ proj$/, '')) + ' <b>'
+              + (recRawProj(p).value == null ? '—' : Math.round(recRawProj(p).value)) + '</b></span>' +
             '<span>Tier <b>' + p.tier + '</b> (' + p.tier_rank + '/' + p.tier_size + ')</span>' +
             '<span>ADP <b>' + Math.round(p.adjusted_adp) + '</b></span>' +
             (pct ? '<span class="' + (pct > 70 ? 'neg' : '') + '">' + pct + '% gone by next</span>' : '') +
           '</div>' +
+          // The disagreement line on the TOP card: if a same-position candidate
+          // projects higher than the one we're recommending, say so — that is the
+          // moment both numbers matter (machinery found something, or it's broken).
+          (i === 0 ? recDisagreementLine(s, scored) : '') +
         '</div>' +
         '<div class="rec-actions">' +
           '<div class="rec-score" title="Composite score">' + s.score.toFixed(1) + '</div>' +
