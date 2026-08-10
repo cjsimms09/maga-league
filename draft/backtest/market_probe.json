@@ -2,11 +2,16 @@
   "errors": {},
   "sources": {
     "kalshi": {
+      "any_sport_words": 0,
       "markets_scanned": 1000,
       "nfl_markets": 0,
       "player_production_markets": 0,
       "reachable": true,
       "sample_titles": [],
+      "series_prefixes_seen": {
+        "KXMVECROSSCATE": 449,
+        "KXMVESPORTSMUL": 551
+      },
       "volume_median": 0,
       "volume_total": 0,
       "zero_volume_share": null
