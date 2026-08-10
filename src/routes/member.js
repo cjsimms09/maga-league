@@ -2157,6 +2157,7 @@ router.get('/lineup', requireCommissioner, aw(async (req, res) => {
 
   res.render('lineup', {
     me, owners, tab, season, band, live, projSource, roster, matchup, weekNo, alert,
+    posture: live ? LO.weeklyPosture(live, band) : null,   // chase vs protect — the week's one real call
     proof, eff, myLeak: Math.round(myLeak), drill,
     configured: !!world.config.sleeper_league_id,
     logged: req.query.logged === '1',

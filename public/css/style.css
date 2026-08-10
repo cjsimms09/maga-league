@@ -1844,9 +1844,26 @@ button.pd-team.pick:hover { background: rgba(245,196,69,.16); transform: transla
 .sb-dispute-form input { flex: 1 1 12rem; }
 .owe-novenmo { font-size: .72rem; color: var(--red-bright); font-weight: 600; }
 
-/* ── THE SUNDAY ALERT preview ───────────────────────────────────────────────── */
+/* ── THE WEEKLY VERDICT — chase vs protect, the one real call, led like the war
+   room's recommendation: one tag, one line, one sentence. ─────────────────── */
+.lo-verdict { border-width: 2px; }
+.lo-verdict.lo-chase   { border-color: var(--gold-bright); }
+.lo-verdict.lo-protect { border-color: var(--navy); }
+.lo-verdict-head { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; margin-bottom: .45rem; }
+.lo-verdict-tag { flex: 0 0 auto; font-family: var(--font-display); font-weight: 900; font-size: .72rem;
+  letter-spacing: .08em; padding: .2rem .55rem; border-radius: 999px; }
+.lo-chase   .lo-verdict-tag { background: rgba(185,130,42,.16); color: var(--gold-bright); }
+.lo-protect .lo-verdict-tag { background: rgba(18,41,74,.10);  color: var(--navy); }
+.lo-verdict-line { font-family: var(--font-display); font-weight: 800; font-size: 1.05rem; color: var(--ink); line-height: 1.2; }
+.lo-verdict-why { font-size: .9rem; line-height: 1.5; color: var(--ink); margin: 0 0 .35rem; }
+
+/* ── THE SUNDAY ALERT preview (demoted to a <details> below the call) ────────── */
 .sa-preview { border-color: rgba(245,196,69,.3); }
-.sa-head { font-size: 1rem; font-weight: 800; color: #fff; margin-bottom: .5rem; }
+details.sa-preview > summary { cursor: pointer; font-weight: 700; color: var(--navy);
+  padding: .7rem .9rem; list-style: none; }
+details.sa-preview > summary::-webkit-details-marker { display: none; }
+details.sa-preview[open] > summary { border-bottom: 1px solid var(--line); }
+.sa-head { font-size: 1rem; font-weight: 800; color: var(--ink); margin-bottom: .5rem; }
 .sa-calls { list-style: none; margin: 0; padding: 0; }
 .sa-calls li { display: flex; align-items: baseline; gap: .6rem; flex-wrap: wrap;
   padding: .4rem 0; border-bottom: 1px solid var(--line); }

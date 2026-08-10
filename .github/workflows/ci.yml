@@ -205,6 +205,8 @@ jobs:
         # asserts nothing malformed reaches the screen (no NaN/undefined, no label
         # out of set, no probability out of [0,1], no hallucinated player).
         run: node draft/tests/in_season_sweep.test.js
+      - name: Weekly posture — chase vs protect verdict
+        run: node draft/tests/weekly_posture.test.js
       - name: Robot mock draft — the safety net
         # A full snake draft from every seat through the real engine and
         # attribution modules, plus every bug this session as a regression
