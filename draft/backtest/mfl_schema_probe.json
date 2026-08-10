@@ -1,0 +1,137 @@
+{
+  "endpoints": {
+    "draftResults": {
+      "note": "no successful response",
+      "observed": 0,
+      "shape": {}
+    },
+    "league": {
+      "note": "no successful response",
+      "observed": 0,
+      "shape": {}
+    },
+    "leagueSearch": {
+      "observed": 1,
+      "shape": {
+        "$": {
+          "always_present": true,
+          "keys": [
+            "encoding",
+            "leagues",
+            "version"
+          ],
+          "of": 1,
+          "seen_in": 1,
+          "types": [
+            "object"
+          ]
+        },
+        "$.encoding": {
+          "always_present": true,
+          "of": 1,
+          "samples": [
+            "utf-8"
+          ],
+          "seen_in": 1,
+          "types": [
+            "str"
+          ]
+        },
+        "$.leagues": {
+          "always_present": true,
+          "keys": [
+            "league"
+          ],
+          "of": 1,
+          "seen_in": 1,
+          "types": [
+            "object"
+          ]
+        },
+        "$.leagues.league": {
+          "always_present": true,
+          "len_range": [
+            65,
+            65
+          ],
+          "of": 1,
+          "seen_in": 1,
+          "types": [
+            "array"
+          ]
+        },
+        "$.leagues.league[0]": {
+          "always_present": true,
+          "keys": [
+            "homeURL",
+            "id",
+            "name",
+            "year"
+          ],
+          "of": 1,
+          "seen_in": 1,
+          "types": [
+            "object"
+          ]
+        },
+        "$.leagues.league[0].homeURL": {
+          "always_present": true,
+          "of": 1,
+          "samples": [
+            "https//www48.myfantasyleague.com/2025/ho\u2026"
+          ],
+          "seen_in": 1,
+          "types": [
+            "str"
+          ]
+        },
+        "$.leagues.league[0].id": {
+          "always_present": true,
+          "of": 1,
+          "samples": [
+            "10466"
+          ],
+          "seen_in": 1,
+          "types": [
+            "str"
+          ]
+        },
+        "$.leagues.league[0].name": {
+          "always_present": true,
+          "of": 1,
+          "samples": [
+            "z Redraft - Brent League - Bestball"
+          ],
+          "seen_in": 1,
+          "types": [
+            "str"
+          ]
+        },
+        "$.leagues.league[0].year": {
+          "always_present": true,
+          "of": 1,
+          "samples": [
+            "2025"
+          ],
+          "seen_in": 1,
+          "types": [
+            "str"
+          ]
+        },
+        "$.version": {
+          "always_present": true,
+          "of": 1,
+          "samples": [
+            "1.0"
+          ],
+          "seen_in": 1,
+          "types": [
+            "str"
+          ]
+        }
+      }
+    }
+  },
+  "errors": {},
+  "year": 2025
+}
