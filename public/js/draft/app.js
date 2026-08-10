@@ -12,6 +12,38 @@
   const $$ = sel => Array.from(document.querySelectorAll(sel));
   const WEIGHT_KEY = 'mfga.draft.weights';
 
+  // ── MOCK SURVIVAL CALIBRATION ───────────────────────────────────────────────
+  // Grade "% to last to my next pick" — the number Cory reads most, never once
+  // graded. Fires ONLY inside a mock and persists to localStorage; it NEVER posts
+  // to the real prediction ledger (mock noise must not contaminate real grading).
+  // Pure core + the two stamped caveats live in mock_calib.js. Feeds: renderSurvival
+  // records the displayed estimates at my pick; markDrafted observes every pick and
+  // resolves matured predictions as the mock proceeds.
+  const MOCK_CALIB_KEY = 'maga:mockcalib:v1';
+  let mockCalib = null;
+  function mockCalibReady() {
+    if (typeof MockCalib === 'undefined') return null;
+    if (!mockCalib) {
+      mockCalib = MockCalib.create();
+      try { mockCalib.load(JSON.parse(localStorage.getItem(MOCK_CALIB_KEY) || 'null')); }
+      catch (e) { /* corrupt store starts fresh */ }
+    }
+    return mockCalib;
+  }
+  function mockCalibSave() {
+    if (!mockCalib) return;
+    try { localStorage.setItem(MOCK_CALIB_KEY, JSON.stringify(mockCalib.toJSON())); }
+    catch (e) { /* quota/private-mode: capture stays in memory for this session */ }
+  }
+  // Readout for a handful of mocks -> a real curve. Exposed for console/export so a
+  // panel is not on the critical path to START capturing (the data is the windowed
+  // part; the readout can be prettied any time).
+  window.DraftMockCalib = {
+    report: function () { const mc = mockCalibReady(); return mc ? mc.calibration() : null; },
+    raw: function () { const mc = mockCalibReady(); return mc ? mc.toJSON() : null; },
+    reset: function () { const mc = mockCalibReady(); if (mc) { mc.reset(); mockCalibSave(); } },
+  };
+
   const state = {
     data: null,
     board: [],            // available players
@@ -2646,6 +2678,18 @@
     const top = state.board.slice(0, 12).map(p => ({
       p, s: E.survival(p, next, state.runMults),
     }));
+    // MOCK CALIBRATION: record the survival estimates AS DISPLAYED, only at my pick
+    // (on the clock), where `next` is genuinely my next pick and this number is the
+    // one Cory reads. Deduped per (session, pick, player) so re-renders don't inflate
+    // n. Resolved in markDrafted as the mock reaches `next`.
+    if (state.mockMode && onTheClock()) {
+      const mc = mockCalibReady();
+      if (mc) {
+        mc.record(state.mockSession || 'mock', currentPick(), next,
+          top.map(x => ({ pid: x.p.player_id, survival: x.s })));
+        mockCalibSave();
+      }
+    }
     $('#survival-head').textContent = 'Chance they last to your pick ' + next;
     $('#survival').innerHTML = top.map(x =>
       '<div class="surv-row"><span>' + escapeHtml(x.p.name) + ' <span class="muted">' + x.p.position + '</span></span>' +
@@ -3088,6 +3132,9 @@
     state.format = E.applyFormatDefaults(state.data.league);
     state.mockMode = { teams: teams, rounds: rounds, type: cfg.draft_type,
                        picks: out.order.picks.length, myPicks: out.order.my_picks };
+    // A fresh calibration session per mock, so predictions from different mocks stay
+    // separable in the store (calibration() still aggregates the curve across all).
+    state.mockSession = 'm' + (typeof Date !== 'undefined' && Date.now ? Date.now() : 0);
     // Auto-detected from the mock's own draft_order = a real resolution, not a
     // guess. Only an unnamed seat falls back to 'assumed'.
     state.roomSeatSource = mySlot ? 'sleeper' : 'assumed';
@@ -4361,6 +4408,18 @@
     if (!alreadySeen) {
       state.recentPicks.push({ position: p.position, player_id: playerId,
                                pick_no: state.recentPicks.length + 1, player: p });
+    }
+    // MOCK CALIBRATION: observe EVERY pick (mine and the room's — this is the one
+    // choke point all picks pass through) so survival predictions can be resolved
+    // against when each player actually left the board. picksMade == recentPicks
+    // length; a prediction matures when its horizon pick has been reached.
+    if (state.mockMode && !alreadySeen) {
+      const mc = mockCalibReady();
+      if (mc) {
+        mc.observePick(playerId, state.recentPicks.length);
+        mc.resolveMatured(state.recentPicks.length);
+        mockCalibSave();
+      }
     }
     // L1 capture: a pick I take is a decision — log it at decision time. Only my
     // own picks (toMe); other teams' picks are recorded by the survival/board
