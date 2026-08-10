@@ -52,6 +52,7 @@
     this.transport = null;     // 'direct' | 'proxy' — decided on first success
     this.timer = null;
     this.failures = 0;
+    this.lastOkAt = null;
     this.picks = [];
     this.manual = [];          // hand-entered picks, merged with the API's
     this.running = false;
@@ -110,6 +111,14 @@
     this.fetchJson('/draft/' + this.draftId + '/picks')
       .then(picks => {
         self.failures = 0;
+        // LAST-GOOD TIME, so a caller can render AGE rather than a bare "synced".
+        // On draft night a stalled sync looks identical to a working one: the
+        // status line freezes on its last message and the board keeps
+        // recommending players who went four picks ago, with full confidence and
+        // no indication. Age is the only honest signal, and it has to come from
+        // the module that knows — deriving it in each surface is how one surface
+        // ends up honest and the next does not.
+        self.lastOkAt = Date.now();
         if (Array.isArray(picks)) {
           const before = self.picks.length;
           self.picks = picks;
@@ -117,6 +126,7 @@
             state: 'live',
             message: 'Synced via ' + self.transport + ' — ' + picks.length + ' picks in',
             newPicks: picks.length - before,
+            lastOkAt: self.lastOkAt,
           });
           self.onPicks(self.allPicks());
         }
@@ -127,6 +137,9 @@
         const wait = Math.min(BACKOFF_MAX, POLL_MS * Math.pow(2, self.failures));
         self.onStatus({
           state: 'error',
+          // Carried on the ERROR path too: how long since the board was last
+          // right matters more than how long the current failure has lasted.
+          lastOkAt: self.lastOkAt || null,
           // A 4xx will not fix itself by waiting — it means the id or the path
           // is wrong. Saying "retrying" there just wastes somebody's draft.
           message: (err.status >= 400 && err.status < 500
@@ -193,6 +206,13 @@
   };
 
   /** Whose turn is it, given the true pick order? */
+  /** When the picks last came back good, or null if never. The module owns this
+   *  so every surface reports the same age instead of each deriving its own. */
+  DraftSync.prototype.lastSyncAt = function () { return this.lastOkAt || null; };
+  DraftSync.prototype.syncAgeMs = function () {
+    return this.lastOkAt ? (Date.now() - this.lastOkAt) : null;
+  };
+
   DraftSync.prototype.currentPickNumber = function () {
     return this.allPicks().length + 1;
   };

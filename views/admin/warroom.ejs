@@ -79,7 +79,8 @@
         <div class="fit" style="margin-left:auto"><button class="btn small ghost" id="hard-reset" title="Unlink sync and return to idle. Works even when sync is wedged; your picks, targets and weights are untouched.">⏻ Hard reset</button></div>
         <div class="fit"><button class="btn small ghost danger-quiet" id="end-draft" title="Clear every pick (keeps targets, weights, news overrides) — asks you to type END">⏹ End draft</button></div>
       </div>
-      <span class="sync-status" id="sync-status">Not connected — manual entry works fine.</span>
+      <span class="sync-status" id="sync-status">Not connected — manual entry works fine.</span><%# Ticks every second so a STALLED sync counts upward instead of freezing on
+          its last message. app.js renderSyncAge() fills it. %><span class="sync-age" id="sync-age"></span>
     </div>
   </div>
     </div>

@@ -80,9 +80,20 @@ function myPicks() {
 }
 
 /** One simulated draft. Opponents take by ADP with seeded noise. */
+// Set by report()/freezeBaseline() so simulate() can stay a one-arg seeded function.
+let OPTS = {};
+
 function simulate(seed) {
   const rand = rng(seed);
-  const pool = DATA.players.filter(p => p.position && p.proj_mean != null);
+  // A FROZEN POOL WHEN ONE IS SUPPLIED. Pinning this metric to a raw number
+  // against the LIVE board makes it flaky by construction: draft_data.json is
+  // rebuilt daily (the DEF-bye fix alone moved bye coverage 201 -> 773 players and
+  // shifted the rate ~18 points), so the guard would cry wolf every morning and
+  // get switched off — the exact failure this project keeps hitting. The module's
+  // own comparability note already said it: "a tree measured against a DIFFERENT
+  // board is not comparable ... or the diff measures the board rather than the
+  // tree." So the metric takes its pool from a frozen fixture when given one.
+  const pool = (OPTS.pool || DATA.players).filter(p => p.position && p.proj_mean != null);
   const gone = new Set(KEEPERS.map(k => String(k.player_id)));
   const roster = KEEPERS.map(k => Object.assign({}, k, { is_keeper: true }));
   const mine = new Set(myPicks());
@@ -106,7 +117,12 @@ function simulate(seed) {
       board: board,
       roster: roster,
       league: LEAGUE,
-      weights: E.DEFAULT_WEIGHTS,
+      // THE WEIGHTS THE TOOL ACTUALLY SHIPS. This read DEFAULT_WEIGHTS — tier,
+      // need, risk and bye all at 1.0, the terms the Lab measured as DRAG — while
+      // the tool loads MEASURED_WEIGHTS with those at zero. So "the tool deviates
+      // from the market on X% of picks" described a board the tool never shows,
+      // and that number was cited as a headline finding (B's audit, 2026-08-10).
+      weights: OPTS.weights || E.MEASURED_WEIGHTS,
       currentPick: overall,
       nextPick: nextMine,
       totalPicks: TEAMS * ROUNDS,
@@ -145,7 +161,8 @@ function simulate(seed) {
 }
 
 // ------------------------------------------------------------------ report
-function report(nDrafts) {
+function report(nDrafts, opts) {
+  OPTS = opts || {};
   const all = [];
   for (let i = 0; i < nDrafts; i++) all.push(simulate(1000 + i * 7919));
 

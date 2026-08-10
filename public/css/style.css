@@ -3932,3 +3932,11 @@ table.roll td.num, .pf, .wh-race-scale, .wh-band-note{ color: var(--ink); }
 .vault-week-head { font-family: var(--font-display); font-weight: 800; font-size: .72rem;
   letter-spacing: .08em; text-transform: uppercase; color: var(--gold-bright);
   margin-bottom: .4rem; border-bottom: 1px solid var(--line); padding-bottom: .2rem; }
+
+/* Sync freshness (war room). The board's picture of the room has an AGE, and a
+   stalled sync must look different from a live one — green is silent, amber is a
+   nudge, red means the pool may be wrong and recommendations with it. */
+.sync-age { font-size: .74rem; margin-left: .25rem; }
+.sync-age.ok   { color: var(--muted); }
+.sync-age.warn { color: #b45309; font-weight: 600; }
+.sync-age.bad  { color: var(--red, #d4242f); font-weight: 800; }

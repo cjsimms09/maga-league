@@ -4362,6 +4362,21 @@
     else if (seat.source === 'assumed') amber.push('seat assumed');
     else if (!state.mockMode && !state.slotVerified) amber.push('slot unverified');
     if (state.keeperLock && !state.keeperLock.locked && !state.mockMode) amber.push('slate unconfirmed');
+    // A STALE SYNC INVALIDATES EVERY RECOMMENDATION, so it belongs in the strip's
+    // red channel and not only in the fold-away. If the picks feed stalls, the
+    // board still confidently recommends players who are already gone — and the
+    // sync line lives inside "Details & checklist", which is collapsed. An
+    // indicator Cory cannot see without opening a panel does not protect him from
+    // the failure he said he would not notice.
+    if (state.sync && typeof state.sync.syncAgeMs === 'function') {
+      const sAge = state.sync.syncAgeMs();
+      if (sAge == null) red.push('SYNC CONNECTED BUT NEVER RETURNED PICKS');
+      else if (sAge >= SYNC_AGE_BAD_MS) {
+        red.push('SYNC STALE ' + Math.round(sAge / 1000) + 's — picks may be missing');
+      } else if (sAge >= SYNC_AGE_WARN_MS) {
+        amber.push('sync ' + Math.round(sAge / 1000) + 's old');
+      }
+    }
     // Same rule as the checklist and the staleness control: stale (≥18h) is a
     // BLOCKING red, aging (6-18h) an amber — never a green board here while the
     // gate blocks it elsewhere.
@@ -6145,10 +6160,62 @@
     }, 1000);
   }
 
+  /* HOW OLD IS THE BOARD'S PICTURE OF THE ROOM? (Cory's connectivity audit #11.)
+   *
+   * The header read a bare "Synced via polling — 34 picks in" with no time in it.
+   * A stalled sync renders identically to a working one: the status line freezes
+   * on its last message and the war room keeps making confident recommendations
+   * against a pool containing players who went four picks ago. That is the
+   * failure Cory named as the one he would not notice while it cost him picks.
+   *
+   * Age is the only honest signal, so it TICKS on its own rather than updating
+   * when a status event happens — a sync that has stopped producing events is
+   * exactly the case that must still count upward. Polling is every 4s, so ~15s
+   * is comfortably beyond a slow round-trip and ~40s means something is wrong. */
+  const SYNC_AGE_WARN_MS = 15000;
+  const SYNC_AGE_BAD_MS = 40000;
+  let _syncAgeTimer = null;
+  function renderSyncAge() {
+    const el = $('#sync-age');
+    if (!el) return;
+    const at = (state.sync && typeof state.sync.lastSyncAt === 'function')
+      ? state.sync.lastSyncAt() : null;
+    if (!state.sync) { el.textContent = ''; el.className = 'sync-age'; return; }
+    if (!at) {
+      el.textContent = ' · never synced';
+      el.className = 'sync-age bad';
+      return;
+    }
+    const age = Date.now() - at;
+    const secs = Math.round(age / 1000);
+    el.textContent = ' · last good ' + (secs < 60 ? secs + 's' : Math.floor(secs / 60) + 'm '
+      + (secs % 60) + 's') + ' ago';
+    el.className = 'sync-age ' + (age >= SYNC_AGE_BAD_MS ? 'bad'
+      : age >= SYNC_AGE_WARN_MS ? 'warn' : 'ok');
+    // Loud, not decorative: past the bad threshold the board may be lying about
+    // who is available, and that outranks tidiness on the strip.
+    if (age >= SYNC_AGE_BAD_MS) {
+      el.textContent += ' — PICKS MAY BE MISSING; verify against Sleeper before you draft';
+    }
+  }
+  function startSyncAgeTicker() {
+    if (_syncAgeTimer) return;
+    _syncAgeTimer = setInterval(function () {
+      try { renderSyncAge(); } catch (e) { /* never blocks the clock */ }
+      // The STRIP has to re-evaluate too. Without this the health dot only turns
+      // red on the next unrelated render, so a sync that stalls while Cory is
+      // staring at one screen stays green for as long as nothing else happens —
+      // which is precisely the situation this exists to catch.
+      try { renderSystemStrip(); } catch (e) { /* never blocks the clock */ }
+    }, 1000);
+  }
+
   function setStatus(s) {
     const el = $('#sync-status');
     el.textContent = s.message;
     el.className = 'sync-status ' + s.state;
+    startSyncAgeTicker();
+    renderSyncAge();
     // An error that leaves "Syncing…" disabled forever means the only way to
     // retry a typo is a page reload, mid-draft.
     const btn = $('#start-sync');
