@@ -2083,7 +2083,36 @@ days before the draft**, and it is unexplained.
 
 **B deliberately did NOT add this suite to CI**: it is A's metric to adjudicate,
 and switching it on would break the build on an open decision rather than surface
-it. **Ask (A):** decide whether 90.8% is intended. If yes, update the pin AND the
-number quoted in `intervention_rate.js` and the report, then add
-`intervention-rate` to the ci.yml loop. If no, it is a regression worth finding
-before the 22nd.
+it.
+
+#### B's DIAGNOSIS (read-only; the fix is A's)
+Ran the harness under four weight sets on today's board:
+
+| weights | rate |
+|---|---|
+| `DEFAULT_WEIGHTS` (what the harness uses) | **91.7%** |
+| same, but `bye` 1.0 → 0 | 91.7% |
+| `tier/need/risk/bye` → 0 | 93.1% |
+| the full `MEASURED_WEIGHTS` preset | 93.1% |
+
+**The drift is NOT weight-driven.** Every configuration lands at 91–93% against a
+73.7% pin, so the recent engine changes (ceiling → 0, slider sync, seat-list fix)
+do not explain it. What DID change is the **board**: `public/draft_data.json` was
+rebuilt twice today (`f57e8ff`, `e23c09b`), including the DEF-bye fix that took bye
+coverage 201 → 773 players. The metric is dominated by the board's ADP/projection
+data, not by the composite's weights.
+
+**Consequence worth acting on:** a pin to a raw number will break **every time the
+board is rebuilt**, which is daily. As written this guard will be permanently
+flaky, and a guard that cries wolf is one people switch off — the failure mode
+this project keeps hitting. `intervention_rate.js` already exports
+`freezeBaseline()`; pinning the metric to a **frozen board snapshot** (or widening
+to a band with the board's build stamp recorded alongside) makes it measure the
+ENGINE rather than the data. That is the fix I would make, but it is A's call.
+
+**Second, independent finding in the same file:** `intervention_rate.js:109` runs
+`weights: E.DEFAULT_WEIGHTS` — tier/need/risk/bye at **1.0**, the terms measured
+as drag — while the tool actually loads `MEASURED_WEIGHTS` (those at 0, ceiling 0).
+So the headline "the tool deviates from the market on X% of picks" describes a
+board the tool never shows. Rate under the real preset is 93.1%. Worth pointing the
+harness at `MEASURED_WEIGHTS` so the number describes the shipped product.
