@@ -254,3 +254,25 @@ recorded so the calls don't evaporate. My recommendations; Cory's to override.
 **Sequence (unchanged draft work first):** (1) FP-anchor wiring [active] → (2) mock survival
 grader [new, pre-22nd, windowed] → (3) betting movement-vs-outcome backtest [post-draft, no
 window] → (4) betting LEVEL [lowest, only if movement proves out].
+
+## 6. PROJECTION SOURCE — the board's projection quality is UNGRADED on clean data (2026-08-10)
+- **Trigger (Cory):** is the Sleeper projection number clean, and have we graded FantasyPros
+  projections? Answers: (1) NO — exp33's Sleeper grade (0.69 top-decile / 0.82 rank-corr) is
+  LEAKED (in-season endpoint, safe=False, disqualified). (2) NO — we've only ever graded ADP,
+  never projections from any source.
+- **Implies:** we do not actually know the best projection source. The live board uses Sleeper
+  PRESEASON projections (fine at draft time, no leak in live use) but that choice is unproven vs
+  FantasyPros projections (free, we already parse FP) or a naive/low-regression prior (which BEAT
+  our blend on clean data).
+- **The catch:** a clean projection grade needs a PRESEASON-FROZEN snapshot — any source whose
+  endpoint updates in-season can't be graded retroactively without leaking. So a clean grade of
+  past seasons is not recoverable; the honest path is to snapshot 2026 preseason projections from
+  Sleeper + FP NOW and grade after the season (same shape as the ADP archive; every un-snapshotted
+  day before the season is unrecoverable).
+- **Magnitude:** projections drive proj_mean/VORP/VONA/tiers — the entire value side. A better
+  source would beat the ADP-anchor swap in impact. But UNKNOWN until graded clean.
+- **Recommendation (pre-Aug 22, cheap):** (a) snapshot the 2026 preseason projections from Sleeper
+  AND FantasyPros now (frozen, for a clean grade after the season); (b) compare the two on the 2026
+  board — do they diverge at Cory's picks (34/41/54…)? If they largely agree, the source choice is
+  cosmetic; if they diverge, flag it. (c) Do NOT swap the projection source blind — unlike the ADP
+  anchor (which had a clean grade), there is NO clean projection grade to justify a swap yet.

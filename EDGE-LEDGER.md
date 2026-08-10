@@ -225,3 +225,23 @@ sample-ceiling breakers have much higher EVSI:
   picks (Quentin Johnston -163, Joe Burrow '25 -160, Braelon Allen -136, Keon Coleman -110) — value
   destroyed by reaching past best-available. The fix is behavioral (take best-available value), not
   a new knob. (exp_inverse_adjuster.json, 4/4 tests)
+
+## ⚠️ RETRACTION — the "Sleeper projections dominate" number is LEAKED (2026-08-10, Cory caught it)
+- **What I claimed (WRONG):** that Sleeper consensus projections grade 0.69/0.63 top-decile (rank-corr
+  0.82), far above our walk_forward model, so "the live board is already on the best projection source"
+  and lowering the regression weight is lab-only with no board upside.
+- **The contamination:** exp33 itself marks `sleeper_proj` **safe=False** — `/projections/nfl/regular/
+  {season}` is updated IN-SEASON, so a retroactive fetch for a past season carries post-draft info.
+  exp33's own words: its "~0.8 rank-corr vs the real market's ~0.4 is the leak's fingerprint," and it
+  is **DISQUALIFIED from the verdict**. I quoted the disqualified number as if it were clean. Cory
+  flagged exactly this.
+- **The CLEAN picture (decision-time-safe sources only):** naive (raw prior pts) 0.59 > our_blend
+  (walk_forward) 0.41-0.51 > FFC-ADP 0.31. We have **NO clean grade proving Sleeper-preseason is best.**
+  The live board uses Sleeper PRESEASON projections for 2026 (legitimate at draft time — no leak in
+  live use), but "it's the best source" is unproven.
+- **Unaffected:** the FP ANCHOR decision (#1) — ADP is decision-time-safe (set preseason, no leak);
+  that grade is clean and stands. Only the PROJECTION-source claim was contaminated.
+- **The deeper rule:** a clean projection grade needs a PRESEASON-FROZEN snapshot; ANY source whose
+  endpoint updates in-season (Sleeper, likely FP) can't be graded retroactively without leaking. So the
+  only honest path is to snapshot 2026 preseason projections NOW (Sleeper + FP) and grade after the
+  season — same shape as the ADP archive. → DECISIONS-NEEDED #6.
