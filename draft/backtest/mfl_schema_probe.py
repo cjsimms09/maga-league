@@ -34,7 +34,7 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 OUT = HERE / "mfl_schema_probe.json"
 
-# The three endpoints the ingest needs and has never seen. Documented here so the
+# The endpoints the ingest needs and this repo has never seen. Documented here so the
 # probe's coverage is reviewable without reading the fetch code.
 ENDPOINTS = {
     # Discovery: which public leagues exist at our format.
@@ -43,6 +43,13 @@ ENDPOINTS = {
     "league": "export?TYPE=league&L={league_id}&JSON=1",
     # The draft itself: pick sequence, timestamps, and whether picks were autopicked.
     "draftResults": "export?TYPE=draftResults&L={league_id}&JSON=1",
+    # SCORING. Added after probe run 2, which found TYPE=league carries no scoring
+    # at all — no `rec`, no PPR field, nothing. F1's half-PPR filter is the single
+    # most important format check we have (FantasyPros beat FFC as our anchor
+    # specifically because it matched our format), and without this endpoint it
+    # cannot be evaluated, so every league would have been screened on the wrong
+    # criteria or dropped for the wrong reason.
+    "rules": "export?TYPE=rules&L={league_id}&JSON=1",
 }
 
 # Values are never committed verbatim beyond this length — a probe artifact is a
@@ -201,7 +208,7 @@ def probe(league_ids: list, year: int = 2025, search: str = "") -> dict:  # prag
         except Exception as e:                                  # noqa: BLE001
             result["errors"]["leagueSearch"] = f"{type(e).__name__}: {e}"
     for lid in league_ids:
-        for name in ("league", "draftResults"):
+        for name in ("league", "draftResults", "rules"):
             try:
                 per[name].append(describe(get(base + ENDPOINTS[name].format(league_id=lid))))
             except Exception as e:                              # noqa: BLE001

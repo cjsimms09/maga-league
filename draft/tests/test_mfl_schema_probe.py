@@ -102,7 +102,7 @@ def test_keys_are_unioned_across_samples():
 def test_the_three_unseen_endpoints_are_the_ones_probed():
     """These are exactly the exports the ingest needs and this repo has never
     seen. adp/players are NOT here — they already have real fixtures."""
-    assert set(P.ENDPOINTS) == {"leagueSearch", "league", "draftResults"}
+    assert set(P.ENDPOINTS) == {"leagueSearch", "league", "draftResults", "rules"}
 
 
 # ── discovery: written against the REAL leagueSearch artifact ───────────────
