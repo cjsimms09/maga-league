@@ -152,7 +152,7 @@
       const myBoard = board.filter(p => !mine.has(String(p.player_id)));
       if (!myBoard.length) return;
       const ctx = Object.assign({}, baseCtx, {
-        board: myBoard,
+        board: myBoard, ceilingAllStages: true,   // shadows explore ceiling across all rounds
         roster: s.roster,
         weights: def.weights(round || 1),
       });
@@ -196,7 +196,7 @@
     const out = [];
     profiles().forEach(def => {
       const ctx = Object.assign({}, baseCtx, {
-        board: avail,
+        board: avail, ceilingAllStages: true,
         roster: myRoster || [],
         weights: def.weights(round || 1),
       });

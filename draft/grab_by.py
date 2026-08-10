@@ -27,7 +27,7 @@ Two guards keep it honest:
     still likely survives, so "when" is a concrete pick number, not a vibe.
 
 Pure and deterministic (survival is a closed form over ADP); unit-tested. The
-build attaches the pre-draft snapshot; the client recomputes it live as picks land.
+build attaches the pre-draft snapshot; the LIVE client is public/js/draft/grabby.js (recomputes each pick); this Python block is the pre-draft snapshot only.
 """
 from __future__ import annotations
 
