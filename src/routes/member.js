@@ -2265,10 +2265,10 @@ router.get('/watch', aw(async (req, res) => {
   const sData = await sleeper.bundle(world.config.sleeper_league_id);
   const weekNo = (sData && sData.week) || 1;
   let rows = [], source = null;
-  if (preview) { rows = WW.panelRows(pvEntries(owners), bandSamples); source = 'preview'; }
+  if (preview) { rows = WW.panelRows(pvEntries(owners), bandSamples, req.owner.id); source = 'preview'; }
   else if (inWindow && sData) {
     const anyScore = PE.anyScoreOnBoard(sData);
-    if (anyScore) { rows = WW.panelRows(liveWatchEntries(sData, world.config.sleeper_map || {}, owners), bandSamples); source = 'live'; }
+    if (anyScore) { rows = WW.panelRows(liveWatchEntries(sData, world.config.sleeper_map || {}, owners), bandSamples, req.owner.id); source = 'live'; }
   }
   res.render('watch', { me: req.owner, rows, source, inWindow, weekNo, band, preview,
     liveStale: await liveFreshness() });

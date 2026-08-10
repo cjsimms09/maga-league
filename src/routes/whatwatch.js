@@ -100,10 +100,20 @@ function needLine(s) {
   if (s.remainKnown === false) {
     // No per-player feed: say what the board says and nothing more. "Done" is a
     // claim we cannot make — the players left are exactly what we can't see.
-    if (Math.abs(s.margin) < 0.05) return 'Dead even on the board.';
-    return s.margin > 0
-      ? `Up ${r1(s.margin)} on the board.`
-      : `Down ${r1(-s.margin)} on the board.`;
+    //
+    // WHO is this about? Unqualified, "Down 6.3 on the board" reads as second
+    // person, which is right in the "Your game" row and wrong in every row under
+    // "Around the league" — there it means the first team named, and the reader
+    // has to work that out. `who` names the subject when the caller knows the row
+    // isn't the viewer's; it stays second-person when it is.
+    const dir = s.margin > 0 ? 'up' : 'down';
+    const by = r1(Math.abs(s.margin));
+    if (Math.abs(s.margin) < 0.05) {
+      return s.who ? `${s.who} is dead even on the board.` : 'Dead even on the board.';
+    }
+    return s.who
+      ? `${s.who} is ${dir} ${by} on the board.`
+      : `${dir === 'up' ? 'Up' : 'Down'} ${by} on the board.`;
   }
   if (s.playersLeft === 0) {
     if (Math.abs(s.margin) < 0.05) return 'Done — dead even, a tie.';
@@ -123,11 +133,17 @@ function needLine(s) {
  * flips and live sweats to the top, decided games to the bottom).
  * @param entries [{ owner_id, opp_id, name, oppName, live, oppLive, remain, oppRemain }]
  * @param bandSamples  the weekly-high thresholds for the $100 sweat (optional)
+ * @param viewerId     who is reading (optional) — rows that are not theirs get
+ *                     their subject named instead of an implied "you"
  * @returns rows with sweat + label + needLine + highP, sorted for watchability
  */
-function panelRows(entries, bandSamples) {
+function panelRows(entries, bandSamples, viewerId) {
   const rows = (entries || []).map(e => {
     const s = sweat(e);
+    // Name the subject on rows that are NOT the viewer's own game, so
+    // "down 6.3 on the board" can't be read as being about the reader. With no
+    // viewerId nobody is named, which is the previous behaviour.
+    if (viewerId != null && e.owner_id !== viewerId) s.who = e.name;
     return {
       owner_id: e.owner_id, opp_id: e.opp_id, name: e.name, oppName: e.oppName,
       ...s, label: sweatLabel(s.pWin), need: needLine(s),

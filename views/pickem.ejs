@@ -117,9 +117,19 @@
     <div class="card" style="margin-bottom:1.2rem">
       <h2>Your game <span class="sub">week <%= weekNo %></span></h2>
       <div class="body">
-        <p style="margin:0 0 .4rem"><b><%= forMe %></b> of the league backed you to win.
-          <% if (backers.length) { %><b class="neg"><%= backers.length %></b> took the other guy: <%= backers.join(', ') %>.<% } else { %>Nobody picked against you.<% } %></p>
-        <p class="muted" style="margin:0; font-size:.8rem">They're on record now. If you win, they'll hear about it.</p>
+        <%# NOBODY IS A CASE. With no picks either way this read "0 of the league
+            backed you to win. Nobody picked against you. They're on record now.
+            If you win, they'll hear about it." — a taunt aimed at an audience
+            that does not exist. The follow-up line assumed the two counts above
+            it were never both zero, and in a week nobody submits, they are. %>
+        <% if (!forMe && !backers.length) { %>
+          <p style="margin:0 0 .4rem">Nobody picked this one — not for you, not against you.</p>
+          <p class="muted" style="margin:0; font-size:.8rem">No record to hold anyone to this week. Get the league picking and that changes.</p>
+        <% } else { %>
+          <p style="margin:0 0 .4rem"><b><%= forMe %></b> of the league backed you to win.
+            <% if (backers.length) { %><b class="neg"><%= backers.length %></b> took the other guy: <%= backers.join(', ') %>.<% } else { %>Nobody picked against you.<% } %></p>
+          <p class="muted" style="margin:0; font-size:.8rem">They're on record now. If you win, they'll hear about it.</p>
+        <% } %>
       </div>
     </div>
   <% } %>

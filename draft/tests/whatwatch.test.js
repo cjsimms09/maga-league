@@ -91,6 +91,23 @@ const p = (proj, sd = 7) => ({ proj, sd });
       { owner_id: 2, name: 'Priced', oppName: 'y', live: 88, oppLive: 88, remain: [p(10)], oppRemain: [p(10)] },
     ]);
     ck('  a priced game outranks an unpriced one', mixed[0].name === 'Priced', mixed.map(r => r.name).join(','));
+
+    // WHOSE GAME IS IT? "Down 6.3 on the board" with no subject reads as second
+    // person. That is right in the "Your game" row and wrong in every row under
+    // "Around the league", where it means the first team named and the reader
+    // has to work that out for themselves.
+    const viewer = 1;
+    const panel = W.panelRows([
+      L({ owner_id: viewer, opp_id: 2, name: 'You', oppName: 'Them', live: 80, oppLive: 74 }),
+      L({ owner_id: 3, opp_id: 4, name: 'David', oppName: 'Michael', live: 82.6, oppLive: 88.9 }),
+    ], [], viewer);
+    const mine = panel.find(r => r.owner_id === viewer);
+    const theirs = panel.find(r => r.owner_id === 3);
+    ck('  the viewer\'s own row stays second person', /^Up 6 on the board\.$/.test(mine.need), mine.need);
+    ck('  someone else\'s row names whose game it is', /^David is down 6\.3 on the board\.$/.test(theirs.need), theirs.need);
+    ck('  and with no viewer given, nobody is named (unchanged behaviour)',
+      /^Down 6\.3 on the board\.$/.test(W.panelRows([
+        L({ owner_id: 3, name: 'David', oppName: 'Michael', live: 82.6, oppLive: 88.9 })], [])[0].need));
   }
 
   console.log(`\n${pass} passed, ${fail} failed`);

@@ -106,6 +106,23 @@ const strip = h => h.replace(/<[^>]*>/g, ' ').replace(/&#39;/g, "'").replace(/&l
       (t.match(/(Empty roster|No roster came back)[^.]*\./) || ['(absent)'])[0]);
   }
 
+  // ── 3) PICK'EM: "they" must exist before you taunt them.
+  // With nobody picking either way this read "0 of the league backed you to win.
+  // Nobody picked against you. THEY'RE ON RECORD NOW. If you win, they'll hear
+  // about it." — a taunt aimed at an audience that does not exist. The follow-up
+  // assumed the two counts above it were never both zero; in a week nobody
+  // submits, they are.
+  {
+    const t = strip(await get('/pickem'));
+    ck("the pick'em page IS the pick'em page", /PICK'EM|Pick'em/i.test(t));
+    ck('with nobody picking, it does not claim anyone is on record',
+      !/They're on record now/.test(t),
+      (t.match(/(Nobody picked this one — not|0 of the league backed)[^.]*\.[^.]*\./) || ['(absent)'])[0]);
+    ck('  it says plainly that nobody picked it',
+      /Nobody picked this one — not for you, not against you/.test(t),
+      (t.match(/Your game[\s\S]{0,220}/) || ['(absent)'])[0]);
+  }
+
   srv.close();
   console.log(`\n${pass} passed, ${fail} failed`);
   process.exit(fail ? 1 : 0);
