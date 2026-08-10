@@ -52,20 +52,20 @@ FACTS = {
             "app.js:applyDraftShape x3": "WRITE — commits the room seat with the rebuilt picks",
             "app.js:realSlot capture": "WRITE — preserves the league seat before the room seat lands",
             "app.js:setSlot": "WRITE — the one mutation point",
-            # Cited 2026-08-10. These two read the LEAGUE seat deliberately, and
-            # mySlot() is the wrong accessor for them BY DESIGN: it returns the
-            # ROOM seat, and in a mock the room seat is a stranger's chair while
-            # kept_players.team_slot is stamped in league seats. Routing them
-            # through mySlot() would look tidier and would attribute my keepers to
-            # whoever happens to sit in that mock slot — the exact seat-identity
-            # confusion this audit was created after. The two-identity split is the
-            # point; see the "Two live seat identities" comment at the use site.
-            "app.js:myLeagueSeat": "READ of the LEAGUE seat — keepers are stamped in league seats, "
-                                   "so the room seat would mis-attribute them in a mock",
-            "app.js:keepersByTeam": "READ of the LEAGUE seat — keys my keepers for forfeit at the "
-                                    "seat they were stamped against",
+            # BUDGET RESTORED TO 10 (2026-08-10, second pass). I first met this
+            # audit by RAISING the budget to 12 with two exemptions. That was the
+            # wrong move and Cory called it: the budget exists to force the
+            # duplication down, and raising it converts a guard into paperwork.
+            # The four league-seat reads now go through ONE accessor, leagueSeat(),
+            # mirroring what mySlot() does for the room seat — including two that
+            # were derived inside a SINGLE expression. The two identities stay
+            # separate (kept_players.team_slot is stamped in LEAGUE seats while a
+            # mock seats you elsewhere, and conflating them attributes my keepers
+            # to a stranger's chair) but each now has exactly one reader.
+            "app.js:leagueSeat": "the ONE derivation of the LEAGUE seat, paired with mySlot() "
+                                 "for the ROOM seat",
         },
-        "max": 12,
+        "max": 10,
     },
     "current_pick": {
         "owner": "pickState() / currentPick()",

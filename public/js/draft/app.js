@@ -624,6 +624,23 @@
     return state.seat;
   }
 
+  /* MY seat in the LEAGUE, as opposed to the room being drafted.
+   *
+   * The room seat has had one accessor (mySlot) since mock #1. The LEAGUE seat
+   * did not, so it was read straight off league.my_draft_slot in four places —
+   * and these are NOT interchangeable: kept_players.team_slot is stamped in
+   * league seats, while a mock room seats you somewhere else entirely. Reading
+   * the wrong one attributes my keepers to a stranger's chair, which is the seat
+   * bug this project has already paid for once.
+   *
+   * Two identities, two accessors, no bare reads. mySlot() answers "where am I
+   * sitting in THIS room"; leagueSeat() answers "which seat am I in the league
+   * whose data this is". */
+  function leagueSeat(league) {
+    const lg = league || (state.data && state.data.league) || {};
+    return Number(lg.my_draft_slot) || 0;
+  }
+
   /** MY seat in the room being drafted. Never read my_draft_slot directly. */
   function mySlot() {
     const s = state.seat || refreshSeat();
@@ -3743,6 +3760,11 @@
     const teams = Number(st.teams || 0);
     const rounds = Number(st.rounds || 0);
     const league = state.data.league;
+    // ONE read of the league seat for this whole function — it was derived four
+    // separate times below, twice inside a single expression. Declared AFTER the
+    // `league` binding: putting it at the top of the function was a temporal-dead-zone
+    // crash that node --check happily accepted and every mock would have thrown on.
+    const lgSeat = leagueSeat(league);
     if (!teams || !rounds) return;
 
     const sameTeams = Number(league.teams) === teams;
@@ -3759,8 +3781,7 @@
       // the LEAGUE seat is an assumption, and it is only tenable if that number
       // exists in this room at all — league seat 7 in a 6-team mock is not a
       // seat, it is a bug waiting to attribute picks to nobody.
-      my_draft_slot: mySlot || (Number(league.my_draft_slot) <= teams
-        ? Number(league.my_draft_slot) : 0) || 1,
+      my_draft_slot: mySlot || (lgSeat <= teams ? lgSeat : 0) || 1,
       adp_blend_weight: 0.7,
       // MY keepers are real in a mock. Earlier this said `count:0`, which
       // forfeited NOTHING — yet populateKeepers still seeds my 3 keepers onto
@@ -3780,7 +3801,7 @@
     };
     // My keepers, looked up by my LEAGUE seat (kept_players.team_slot is stamped
     // [league-seat]); they forfeit picks at my ROOM seat in this mock.
-    const myLeagueSeat = Number(league.my_draft_slot) || 0;
+    const myLeagueSeat = lgSeat;
     let myKeepers = [];
     if ((cfg.keepers.count || 0) > 0 && myLeagueSeat) {
       myKeepers = (state.data.kept_players || [])
@@ -3810,7 +3831,7 @@
     // and this function sets `state.mockMode` — so in a mock it could never run.
     // Two live seat identities, and every roster attribution compared the pick's
     // seat against the wrong one.
-    state.realSlot = Number(league.my_draft_slot) || state.realSlot || null;
+    state.realSlot = lgSeat || state.realSlot || null;
     state.data.league = Object.assign({}, league, {
       teams: teams,
       my_draft_slot: cfg.my_draft_slot,       // the seat the picks were built for
