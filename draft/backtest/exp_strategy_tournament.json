@@ -1,0 +1,267 @@
+{
+  "experiment": "strategy tournament \u2014 most-money draft strategy over 2023-25 (injury-neutralized)",
+  "seasons": [
+    "2023",
+    "2024",
+    "2025"
+  ],
+  "teams": 10,
+  "caps": {
+    "QB": 2,
+    "RB": 6,
+    "WR": 6,
+    "TE": 2,
+    "K": 2,
+    "DEF": 2
+  },
+  "required_starters": {
+    "QB": 1,
+    "RB": 2,
+    "WR": 2,
+    "TE": 1,
+    "K": 1,
+    "DEF": 1
+  },
+  "injury_rule": "real score in weeks played, own season PPG in weeks absent; applied to the counterfactual roster, room graded on real results; both neutralized and real $ reported. Fills byes too (~1/17, equal to all).",
+  "per_season": {
+    "2023": {
+      "market": {
+        "real": 200.0,
+        "neutralized": 800.0,
+        "fallbacks": 0,
+        "n_picks": 15
+      },
+      "need_value": {
+        "real": 900.0,
+        "neutralized": 1050.0,
+        "fallbacks": 0,
+        "n_picks": 15
+      },
+      "zero_rb": {
+        "real": 800.0,
+        "neutralized": 1050.0,
+        "fallbacks": 0,
+        "n_picks": 15
+      },
+      "robust_rb": {
+        "real": 900.0,
+        "neutralized": 1050.0,
+        "fallbacks": 0,
+        "n_picks": 15
+      },
+      "hero_rb": {
+        "real": 1000.0,
+        "neutralized": 1150.0,
+        "fallbacks": 0,
+        "n_picks": 15
+      },
+      "elite_te": {
+        "real": 500.0,
+        "neutralized": 1000.0,
+        "fallbacks": 0,
+        "n_picks": 15
+      },
+      "wr_feast": {
+        "real": 500.0,
+        "neutralized": 950.0,
+        "fallbacks": 0,
+        "n_picks": 15
+      },
+      "cory_actual": {
+        "real": 700.0,
+        "neutralized": 800.0,
+        "fallbacks": 0
+      },
+      "oracle_realized": {
+        "real": 1550.0,
+        "neutralized": 1550.0,
+        "fallbacks": 0
+      },
+      "_winner": "hero_rb"
+    },
+    "2024": {
+      "market": {
+        "real": 1275.0,
+        "neutralized": 1525.0,
+        "fallbacks": 0,
+        "n_picks": 15
+      },
+      "need_value": {
+        "real": 1250.0,
+        "neutralized": 1250.0,
+        "fallbacks": 0,
+        "n_picks": 15
+      },
+      "zero_rb": {
+        "real": 500.0,
+        "neutralized": 1275.0,
+        "fallbacks": 0,
+        "n_picks": 15
+      },
+      "robust_rb": {
+        "real": 1500.0,
+        "neutralized": 1725.0,
+        "fallbacks": 0,
+        "n_picks": 15
+      },
+      "hero_rb": {
+        "real": 500.0,
+        "neutralized": 1300.0,
+        "fallbacks": 0,
+        "n_picks": 15
+      },
+      "elite_te": {
+        "real": 1275.0,
+        "neutralized": 1525.0,
+        "fallbacks": 0,
+        "n_picks": 15
+      },
+      "wr_feast": {
+        "real": 500.0,
+        "neutralized": 1425.0,
+        "fallbacks": 0,
+        "n_picks": 15
+      },
+      "cory_actual": {
+        "real": 1300.0,
+        "neutralized": 1425.0,
+        "fallbacks": 0
+      },
+      "oracle_realized": {
+        "real": 1925.0,
+        "neutralized": 1925.0,
+        "fallbacks": 0
+      },
+      "_winner": "robust_rb"
+    },
+    "2025": {
+      "market": {
+        "real": 100.0,
+        "neutralized": 100.0,
+        "fallbacks": 0,
+        "n_picks": 15
+      },
+      "need_value": {
+        "real": 100.0,
+        "neutralized": 100.0,
+        "fallbacks": 0,
+        "n_picks": 15
+      },
+      "zero_rb": {
+        "real": 100.0,
+        "neutralized": 100.0,
+        "fallbacks": 0,
+        "n_picks": 15
+      },
+      "robust_rb": {
+        "real": 100.0,
+        "neutralized": 100.0,
+        "fallbacks": 0,
+        "n_picks": 15
+      },
+      "hero_rb": {
+        "real": 0.0,
+        "neutralized": 675.0,
+        "fallbacks": 0,
+        "n_picks": 15
+      },
+      "elite_te": {
+        "real": 100.0,
+        "neutralized": 100.0,
+        "fallbacks": 0,
+        "n_picks": 15
+      },
+      "wr_feast": {
+        "real": 100.0,
+        "neutralized": 100.0,
+        "fallbacks": 0,
+        "n_picks": 15
+      },
+      "cory_actual": {
+        "real": 100.0,
+        "neutralized": 100.0,
+        "fallbacks": 0
+      },
+      "oracle_realized": {
+        "real": 1525.0,
+        "neutralized": 1625.0,
+        "fallbacks": 0
+      },
+      "_winner": "hero_rb"
+    }
+  },
+  "totals_3yr": {
+    "market": {
+      "real": 1575.0,
+      "neutralized": 2425.0,
+      "wins": 0
+    },
+    "need_value": {
+      "real": 2250.0,
+      "neutralized": 2400.0,
+      "wins": 0
+    },
+    "zero_rb": {
+      "real": 1400.0,
+      "neutralized": 2425.0,
+      "wins": 0
+    },
+    "robust_rb": {
+      "real": 2500.0,
+      "neutralized": 2875.0,
+      "wins": 1
+    },
+    "hero_rb": {
+      "real": 1500.0,
+      "neutralized": 3125.0,
+      "wins": 2
+    },
+    "elite_te": {
+      "real": 1875.0,
+      "neutralized": 2625.0,
+      "wins": 0
+    },
+    "wr_feast": {
+      "real": 1100.0,
+      "neutralized": 2475.0,
+      "wins": 0
+    },
+    "cory_actual": {
+      "real": 2100.0,
+      "neutralized": 2325.0,
+      "wins": 0
+    },
+    "oracle_realized": {
+      "real": 5000.0,
+      "neutralized": 5100.0,
+      "wins": 0
+    }
+  },
+  "ranking_by_neutralized_total": [
+    "hero_rb",
+    "robust_rb",
+    "elite_te",
+    "wr_feast",
+    "market",
+    "zero_rb",
+    "need_value"
+  ],
+  "ranking_by_real_total": [
+    "robust_rb",
+    "need_value",
+    "elite_te",
+    "market",
+    "hero_rb",
+    "zero_rb",
+    "wr_feast"
+  ],
+  "won_all_three_seasons": false,
+  "season_winners": [
+    "hero_rb",
+    "robust_rb",
+    "hero_rb"
+  ],
+  "verdict": "NO single strategy won all three years (season winners: ['hero_rb', 'robust_rb', 'hero_rb']); the 'best' also FLIPS with the injury treatment \u2014 neutralized #1 = hero_rb, real #1 = robust_rb \u2014 which means the $725 spread across strategies over 3 years is noise-level (a weekly-high hit is ~$100-150). What IS robust: RB-early disciplines (robust_rb/hero_rb) and need_value (the measured mask+value rule) sit near the top on BOTH treatments; wr_feast/zero_rb sit at the bottom. THE DOMINANT FINDING: the oracle ceiling (perfect realized selection) is $1975 ABOVE the best strategy over 3 years \u2014 player SELECTION dwarfs positional discipline. The money is in hitting the picks (value/accuracy), not the positional script. Cory's real drafts ($2325 neut / $2100 real) land mid-pack \u2014 within noise of most strategies, ~$400 below the top real strategy.",
+  "caveat": "Strategy signal = the room's own draft order that season (market ADP, no lookahead). Positional rules are simple/fixed, not tuned. 3 seasons, one seat. oracle_realized uses lookahead and is a CEILING, not a strategy. Installs nothing \u2014 it says which discipline banked the most, to inform draft-day doctrine.",
+  "source_tier": "league-primary (our real drafts + certified money layer)"
+}

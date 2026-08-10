@@ -180,3 +180,26 @@ sample-ceiling breakers have much higher EVSI:
   structure diagnostic. Mark value_pockets' cross-position RB>WR read **provisional / 2024-driven**;
   the within-position dead-zone finding is unaffected. Pre-registered rule + test locked so a
   data refresh can't move the bar to fit a result. (exp_positional_persistence.json, test 4/4)
+
+## STRATEGY TOURNAMENT — which draft strategy won the most $ 2023-25? (2026-08-10, Cory's Q)
+- **Q:** replay Cory's seat under different strategies vs the real room, grade in $, all 3 years,
+  with an injury rule. **Signal:** the room's own draft order that year = market ADP (no lookahead).
+  **Injury rule:** real score in weeks played, own season PPG in weeks missed (credit the pick for
+  a healthy slate at its rate; keep played-week variance). Both real and neutralized $ reported.
+- **ANSWER — no single strategy won all three years**, and the "winner" FLIPS with the injury
+  treatment (neutralized #1 hero_rb, real #1 robust_rb). Season winners: hero_rb / robust_rb /
+  hero_rb. The whole strategy spread is **~$725 over 3 years ≈ noise** (a weekly-high hit is
+  $100-150). So there is no clean "draft THIS way" edge from positional discipline.
+- **What IS robust:** RB-early disciplines (robust_rb top on real $2500, hero_rb top on neut) and
+  **need_value = the measured mask+value rule** ($2250 real, 3rd) cluster at the top on BOTH
+  treatments; **wr_feast/zero_rb sit at the bottom** both ways. Reconciles with the RB/WR
+  persistence null: that null was Cory's MIDDLE picks (overall 31-70); the tournament's edge is
+  grabbing ELITE RBs at the very top (picks 5/15) — different pick range, not a contradiction.
+- **THE DOMINANT FINDING (matters more than any strategy):** the oracle ceiling (perfect realized
+  selection, lookahead) is **~$1975 ABOVE the best implementable strategy over 3 years**
+  ($5100 vs $3125). **Player SELECTION dwarfs positional discipline** — the money is in hitting
+  the picks (value/accuracy), which is exactly why the FP anchor + the regression-weight fix
+  (#1, #2) are worth more than the positional doctrine. Cory's real drafts land mid-pack (~$400
+  below the top real strategy — within noise of most).
+- **Scope:** 1 seat × 3 seasons, threshold-lumpy $, fixed (untuned) positional rules; injury
+  rule fills byes too (~1/17, equal to all). Installs nothing. (exp_strategy_tournament.json, 6/6)
