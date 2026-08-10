@@ -22,17 +22,64 @@ async function fetchJson(url) {
 
 // ---------------------------------------------------------------- live bundle
 // {state, league, users, rosters, matchups, week} or null.
+/* STALENESS, ATTACHED TO WHAT bundle() RETURNS.
+ *
+ * bundle() served the stale cache with NO SIGNAL to its callers. On a Sunday
+ * outage the matchup, scoreboard, what-to-watch and home hero would all keep
+ * showing old scores as if live. B fixed those four by deriving staleness from
+ * the cache doc directly rather than reaching into this module — correct at the
+ * time, but it means EVERY FUTURE CALLER has to remember to derive it, and the
+ * one that forgets is silently dishonest. Exposing it here makes the next surface
+ * honest by default rather than by remembering.
+ *
+ * NON-ENUMERABLE on purpose: existing callers spread, JSON.stringify and
+ * Object.keys this object all over the app, and a new visible key would leak into
+ * responses and snapshots. This is readable by anyone who asks and invisible to
+ * everyone who does not. */
+function withFreshness(data, cache, servedFrom) {
+  if (!data || typeof data !== 'object') return data;
+  const fetchedAt = (cache && cache.fetched_at) || 0;
+  const failedAt = (cache && cache.failed_at) || null;
+  const info = {
+    served_from: servedFrom,                 // 'live' | 'cache' | 'stale-after-failure'
+    fetched_at: fetchedAt || null,
+    age_ms: fetchedAt ? Date.now() - fetchedAt : null,
+    failed_at: failedAt,
+    // The one boolean a surface actually needs: is what I am about to render
+    // known to be behind the world?
+    //
+    // A within-TTL cache hit is NOT stale — that is the cache doing its job, and
+    // flagging it would put a staleness banner on every normal page load, which
+    // is the cry-wolf failure that gets banners ignored. Stale means we COULD NOT
+    // refresh (the failure path) or the data has aged past the TTL we promised.
+    is_stale: servedFrom === 'stale-after-failure'
+      || (!!fetchedAt && Date.now() - fetchedAt > TTL_MS),
+  };
+  try {
+    Object.defineProperty(data, '_freshness', { value: info, enumerable: false, configurable: true });
+  } catch (e) { /* frozen object — the caller can still use freshness() below */ }
+  return data;
+}
+
+/** Freshness for a bundle without re-fetching — for callers holding a bundle, and
+ *  the fallback when the object could not carry the property. */
+function freshness(bundleData) {
+  return (bundleData && bundleData._freshness) || null;
+}
+
 async function bundle(leagueId) {
   if (!leagueId) return null;
   const cache = await getDoc('sleeper-cache', null);
-  if (cache && cache.league_id === leagueId && Date.now() - cache.fetched_at < TTL_MS) return cache.data;
+  if (cache && cache.league_id === leagueId && Date.now() - cache.fetched_at < TTL_MS) {
+    return withFreshness(cache.data, cache, 'cache');
+  }
   // Negative cache. Without it, an outage means every page load pays five
   // eight-second timeouts before rendering — the site does not break, it just
   // becomes unusable, which is worse because it looks like our fault. One
   // failure buys a minute of serving the stale bundle instead.
   if (cache && cache.league_id === leagueId && cache.failed_at
       && Date.now() - cache.failed_at < FAIL_TTL_MS) {
-    return cache.data || null;
+    return withFreshness(cache.data || null, cache, 'stale-after-failure');
   }
   try {
     const [state, league, users, rosters] = await Promise.all([
@@ -44,8 +91,9 @@ async function bundle(leagueId) {
     const week = Math.max(1, Math.min(state.week || 1, 18));
     const matchups = await fetchJson(`/v1/league/${leagueId}/matchups/${week}`);
     const data = { state, league, users, rosters, matchups, week };
-    await setDoc('sleeper-cache', { league_id: leagueId, fetched_at: Date.now(), data, cached: now() });
-    return data;
+    const stamped = { league_id: leagueId, fetched_at: Date.now(), data, cached: now() };
+    await setDoc('sleeper-cache', stamped);
+    return withFreshness(data, stamped, 'live');
   } catch (e) {
     console.error('sleeper fetch failed:', e.message);
     const stale = cache && cache.league_id === leagueId ? cache.data : null;
@@ -55,7 +103,8 @@ async function bundle(leagueId) {
       league_id: leagueId, fetched_at: (cache && cache.fetched_at) || 0,
       failed_at: Date.now(), data: stale, cached: now(),
     });
-    return stale;
+    return withFreshness(stale, { fetched_at: (cache && cache.fetched_at) || 0, failed_at: Date.now() },
+                         'stale-after-failure');
   }
 }
 
@@ -483,6 +532,7 @@ async function rosterView(data, sleeperMap, ownerId) {
 }
 
 module.exports = {
+  freshness,
   bundle, matchupsForWeek, weekPointsByOwner, myMatchup,
   standings, scoreboard, highScorer, teamName,
   autoMap, userMap, records, players, draftInfo, trendingAdds, WAR_POSITIONS,
