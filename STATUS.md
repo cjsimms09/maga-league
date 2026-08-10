@@ -1530,3 +1530,33 @@ The A-ship Monitor already FIRED (A shipped the pre-redesign stack). If more liv
 Audit findings (rules-page drift CLASS, reset-preset SEV-1, C1 framing, thin-pool CLASS, SUS regex, spec-drift); **ceiling weight OPEN/highest-urgency** (loaded 0.65 vs ledger −4.8); board-age one-threshold; strategy-picker collapse-when-flat; take-affordance reduction; per-player projection feed (+ its blocked consumers: win-prob, projected total, sweat, hero margin).
 
 ### ▶ BLOCKED ON A (skip until delivered): adjuster help-text copy (needs slider-value fix), seat-panel presentation (needs seat math/profiles), win-prob/projected-total (projection feed), override surface (ledger shape).
+
+## ▶ SESSION B — RESUME MARKER 2026-08-10 (late): PROGRAM COMPLETE except A-blocked items
+**Branch `claude/in-season-surface-fixes-6nyayc`, rebased onto A's main. All committed/pushed/tested. A to integrate + deploy.**
+
+### THE PROGRAM (Cory's order) — final state
+1. **Phone usability / take-reachability — DONE.** Drove the war room headless at 390px: on-the-clock take button verified present, named ("✓ Take Gibbs"), 5.13 contrast, above fold, unoccluded. **Found + fixed the player NAME rendering white-on-white** (`.clock-name{color:#fff}`, a dark-theme holdover — contrast ~1 → 14.6). A contrast sweep then cleared every remaining sub-3.0 text in the war room. Re-drive after deploy when Cory runs a mock.
+2. **One-page draft-day fallback — DONE.** `/admin/draft-sheet`: server-rendered, no-JS, printable. Rule + best-available-by-position + top-180 board + manual pick log. Survives a dead front-end.
+3. **C3 breadth — DONE across all four surfaces.** Waivers had a SECOND consensus implementation with a dishonest label (and a test asserting `/consensus/` that locked the lie in) → delegated to the shared module. Lineup got the disagreement line (loud only when the tool starts the lower-projection player) + a **latent 500 fixed** (`.toFixed()` on a null projection would have killed the page on the first Sunday). **Analyzer built from scratch** (`/analyzer`) over A's standings engine.
+4. **Rules page — BLOCKED on A** (derived source from the imported Sleeper config).
+5. **Matchup gaps — bench points / bye flags / injury flags / already-placed-bet DONE.** Win-prob + projected total BLOCKED on A's per-player projection feed (wired to activate).
+6. **Human-override surface — DELIVERED from existing data.** grade-cron has been grading decisions all along (`n_decisions`/`overridden`/`scored`/`cory_beat_model`) and NOTHING rendered it. Now "Your overrides" on the accuracy page; refuses to read <8 scored as a verdict.
+7. **Calibration surfaces — DONE, and they were BROKEN.** The page read a flat `calibration:<season>` that **nothing ever writes** (grade-cron appends `calibration:<season>:<ISO>`). Proven empirically: post-grade read returned null → the loop would have been invisible all season. Fixed at the seam (ledger first, flat fallback so the older suite still passes). Added **calibration over time** (one bar per grading run).
+8. **Bank reference numbers — DONE.** All-time banked + money rank + per-season, derived from the same winningsGrid/careerTotals the history page uses; the test asserts both surfaces show the identical figure.
+
+### WAR-ROOM CRITIQUE (Cory's render review)
+- **#2 keeper banner — DONE** (lifted the sev-1 blocking banner out of the collapsed advisory stack; it now sits first and alone above the decision surface).
+- **#6a Know Your League — DONE** (moved up to the always-open Layer 2).
+- **#1 board-age contradiction, #3 strategy-picker collapse, #6b take-affordance reduction — PARKED for A** (all need A's logic/emission; the 221 take affordances measure consistent-red, the grey one didn't reproduce).
+- **#4 adjuster copy, #5 seat panel — BLOCKED on A's fixes.**
+
+### IN-SEASON DESIGN PASS — DONE (all three surfaces)
+- **What-to-Watch was rendering EVERY GAME TWICE** (10 rows for 5 games) on the page read live on Sunday → one row per game, page halved.
+- **Run-on page title** (`h1.page-title .sub` had no rule, inheriting the 1.7rem uppercase display face) → fixed site-wide, 7 pages. **Clipped tab strip** (`flex:1 0 auto`) → fixed. Verified: no horizontal scroll on any in-season page at 390px.
+- **Every email was still dark-themed** and failed UNSAFELY — clients that strip backgrounds would have left body text at **1.2:1 on white, invisible**, in the surface that arrives unprompted on Sunday. Converted to the site palette (17.5:1). My own guard caught two of my own fixes as sub-AA.
+
+### ▶ PARKED FOR A (precise, in PARKED.md)
+attribution writer (no `attribution:<season>` writer exists anywhere — panel honestly empty until one does); board-age one-threshold; strategy-picker collapse-when-flat; take-affordance reduction; per-player projection feed + its blocked consumers; rules-page derived source.
+
+### ▶ NEXT (when A lands things)
+Rules page from the derived source · win-prob + projected total when the projection feed lands · adjuster copy + seat panel after A's fixes · war-room hierarchy pass against Cory's live screenshots post-deploy.
