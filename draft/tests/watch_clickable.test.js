@@ -32,6 +32,19 @@ const ck = (n, c, d) => { c ? (pass++, console.log('PASS ' + n)) : (fail++, cons
   ck('no dead /matchup with no target', !links.some(l => l === '/matchup?a=&b=' || /=(&|$)/.test(l.replace('/matchup', ''))));
   ck('no template error', !/ReferenceError|is not defined|Cannot read/.test(html));
 
+  // ONE ROW PER GAME. The panel is built from per-OWNER entries, so each game
+  // arrived twice ("Cory vs Marian" AND "Marian vs Cory") — ten rows for five
+  // games, doubling the page. Found by driving the page; guarded here.
+  const who = [...html.matchAll(/class="wtw-who">([\s\S]*?)<\/span>\s*<span class="wtw-pct"/g)]
+    .map(m => m[1].replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim());
+  const pairs = who.map(t => {
+    const m = t.match(/^(.*?)\s*(?:you\s*)?vs\s+(.*)$/i);
+    return m ? [m[1].trim(), m[2].trim()].sort().join(' | ') : t;
+  });
+  ck('no game is listed twice (one row per game, not per owner)',
+    new Set(pairs).size === pairs.length, JSON.stringify(pairs));
+  ck('the viewer\'s own game is still pinned first', /Your game/.test(html) && /wtw-row[^>]*mine/.test(html));
+
   server.close();
   console.log(`\n${pass} passed, ${fail} failed`);
   process.exit(fail ? 1 : 0);

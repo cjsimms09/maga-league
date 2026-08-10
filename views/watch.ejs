@@ -34,8 +34,24 @@
 
   <%# Your own game first — the panel sorts by watchability, which can bury YOUR
       matchup at the bottom on a blowout. Pin it, then the rest most-watchable. %>
+  <%# ONE ROW PER GAME. The panel is built from per-OWNER entries, so every game
+      arrived twice — "Cory vs Marian 48%" and "Marian vs Cory 52%" are the same
+      game, and the page rendered ten rows for five games (found by driving it).
+      Your own game is pinned first from your side; each other game appears ONCE,
+      keeping the first (most-watchable) occurrence. %>
   <% const mineRow = rows.find(r => r.owner_id === meId);
-     const ordered = mineRow ? [mineRow, ...rows.filter(r => r.owner_id !== meId)] : rows; %>
+     const _seenGame = new Set();
+     const _gameKey = r => [Number(r.owner_id), Number(r.opp_id)].sort((a, b) => a - b).join('-');
+     if (mineRow) _seenGame.add(_gameKey(mineRow));
+     const others = rows.filter(r => {
+       if (r.owner_id === meId) return false;
+       if (r.opp_id == null) return true;            // no pair id — can't dedupe, keep it
+       const k = _gameKey(r);
+       if (_seenGame.has(k)) return false;
+       _seenGame.add(k);
+       return true;
+     });
+     const ordered = mineRow ? [mineRow, ...others] : others; %>
   <div class="wtw-list">
     <% ordered.forEach((r, i) => { const mine = r.owner_id === meId; %>
       <% if (mineRow && i === 0) { %><div class="wtw-sec">Your game</div><% } %>
