@@ -1010,9 +1010,13 @@ button.is-busy, .btn.is-busy {
   padding: .6rem .8rem; margin-bottom: .5rem;
   border-radius: 10px; font-size: .82rem; line-height: 1.45;
 }
-.prov-note.warn { background: rgba(245, 196, 69, .09); border: 1px solid rgba(245, 196, 69, .45); color: #f2e2b4; }
-.prov-note.bad  { background: rgba(255, 70, 85, .10); border: 1px solid rgba(255, 70, 85, .55); color: #ffd3d7; }
-.prov-note.ok   { background: rgba(47, 213, 118, .08); border: 1px solid rgba(47, 213, 118, .35); color: #b8e8c9; }
+/* SEV1 legibility (2026-08-10 live mock): these carried dark-theme PALE text
+   (#f2e2b4 etc.) that is invisible on the light-theme tints — and they are the
+   caveat blocks (coverage warning, dry-run/rehearsal notes) that decide whether
+   to trust the numbers. Dark semantic text keeps the colour-coding AND reads. */
+.prov-note.warn { background: rgba(245, 196, 69, .12); border: 1px solid rgba(245, 196, 69, .55); color: #6b4e12; }
+.prov-note.bad  { background: rgba(255, 70, 85, .10); border: 1px solid rgba(255, 70, 85, .55); color: #a11a12; }
+.prov-note.ok   { background: rgba(47, 213, 118, .10); border: 1px solid rgba(47, 213, 118, .45); color: #14663a; }
 
 /* ---------- roster legality + plausibility rails (War Room) ----------
    Both exist to be noticed on the clock with forty seconds left. Neither is
@@ -1020,15 +1024,15 @@ button.is-busy, .btn.is-busy {
 .forced-banner {
   padding: .7rem .9rem; margin-bottom: .7rem; border-radius: 10px;
   background: rgba(255, 70, 85, .13); border: 1px solid rgba(255, 70, 85, .6);
-  color: #ffd3d7; font-weight: 700; font-size: .88rem; line-height: 1.45;
+  color: #a11a12; font-weight: 700; font-size: .88rem; line-height: 1.45;
 }
 .forced-banner.warn {
-  background: rgba(245, 196, 69, .1); border-color: rgba(245, 196, 69, .55); color: #f2e2b4;
+  background: rgba(245, 196, 69, .12); border-color: rgba(245, 196, 69, .55); color: #6b4e12;
 }
 .rail-strip { display: flex; flex-wrap: wrap; gap: .3rem; margin-top: .35rem; }
 .rail-strip span {
-  background: rgba(245, 196, 69, .12); border: 1px solid rgba(245, 196, 69, .4);
-  color: #f2e2b4; border-radius: 6px; padding: .12rem .4rem; font-size: .68rem; line-height: 1.4;
+  background: rgba(245, 196, 69, .14); border: 1px solid rgba(245, 196, 69, .5);
+  color: #6b4e12; border-radius: 6px; padding: .12rem .4rem; font-size: .68rem; line-height: 1.4;
 }
 
 /* Rail-fire budget: the acknowledge list under the checklist when the top 15
@@ -1041,7 +1045,7 @@ button.is-busy, .btn.is-busy {
 .rail-fire.open { border-color: rgba(255, 70, 85, .5); background: rgba(255, 70, 85, .07); }
 .rail-fire.acked { opacity: .75; }
 .rail-fire-head { display: flex; align-items: center; gap: .45rem; flex-wrap: wrap; }
-.rail-fire-flags { margin-top: .3rem; font-size: .7rem; color: #f2e2b4; line-height: 1.45; }
+.rail-fire-flags { margin-top: .3rem; font-size: .7rem; color: #6b4e12; line-height: 1.45; }
 .rail-ack-note { font-size: .74rem; color: var(--muted); }
 
 /* §C override-reason toast — one tap, bottom-center, never blocks the clock. */
@@ -1087,14 +1091,14 @@ button.is-busy, .btn.is-busy {
   letter-spacing: .1em; text-transform: uppercase; line-height: 1.2;
 }
 .rehearsal-watermark {
-  background: rgba(245,196,69,.14); color: #f2e2b4;
-  border-bottom: 1px solid rgba(245,196,69,.55);
+  background: rgba(245,196,69,.16); color: #6b4e12;
+  border-bottom: 1px solid rgba(245,196,69,.6);
   box-shadow: inset 3px 0 0 rgba(245,196,69,.9);
 }
 .slot-watermark {
   z-index: 78;
-  background: rgba(255,70,85,.11); color: #ffd3d7;
-  border-bottom: 1px solid rgba(255,70,85,.45);
+  background: rgba(255,70,85,.12); color: #a11a12;
+  border-bottom: 1px solid rgba(255,70,85,.5);
   box-shadow: inset 3px 0 0 rgba(255,70,85,.85);
   font-size: .7rem;
 }
@@ -2788,6 +2792,30 @@ body.warroom-page #doctrine-banner .db-confidence { white-space: normal; overflo
   font-size: .86rem; font-weight: 700; color: var(--green);
 }
 .doctrine-switch .btn { margin-left: auto; flex: 0 0 auto; }
+
+/* THE DOCTRINE PICKER (change-the-plan list). SEV2 (2026-08-10 live mock): the
+   rows had NO layout rules, so name + creed + score + SWITCH ran together as raw
+   inline spans ("Balanced Valuebest expected dollars...+$0") with the buttons
+   jammed mid-sentence. Grid gives each row a clear structure: name and score on
+   the top line, the creed sentence on its own line below, the switch pinned right. */
+.doctrine-picker {
+  background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+  padding: .3rem .7rem .6rem; margin: 0 0 .6rem;
+}
+.dp-head { font-size: .8rem; font-weight: 700; color: var(--muted); margin: .5rem 0; line-height: 1.4; }
+.dp-head.dp-contested { color: #6b4e12; }
+.dp-row {
+  display: grid; grid-template-columns: 1fr auto auto; align-items: center;
+  column-gap: .7rem; row-gap: .15rem; padding: .55rem 0; border-top: 1px solid var(--line);
+}
+.dp-name { grid-column: 1; grid-row: 1; font-weight: 700; color: var(--ink); }
+.dp-gap  { grid-column: 2; grid-row: 1; font-variant-numeric: tabular-nums; font-weight: 800;
+           color: var(--gold-bright); white-space: nowrap; }
+.dp-switch { grid-column: 3; grid-row: 1; }
+.dp-creed { grid-column: 1 / -1; grid-row: 2; font-size: .74rem; font-weight: 400; line-height: 1.4; }
+.dp-cur { font-size: .68rem; font-weight: 700; color: var(--green); text-transform: uppercase; letter-spacing: .04em; white-space: nowrap; }
+.dp-row.dp-is-cur { opacity: .85; }
+.dp-return { margin-top: .6rem; }
 
 @media (max-width: 640px) {
   .doctrine-banner { gap: .35rem; padding: .45rem .6rem; }

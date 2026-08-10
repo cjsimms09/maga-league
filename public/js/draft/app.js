@@ -1217,6 +1217,14 @@
     $('#clock-confidence').innerHTML = i > 0
       ? '<span class="muted">Option ' + (i + 1) + ' — you skipped ' + escapeHtml(list[0].player.name) + '</span>'
       : '<span class="' + c.level + '">' + escapeHtml(c.message) + '</span>';
+    // THE TAKE BUTTON (SEV1): point it at the player THIS view is showing and name
+    // him, so "ONE ANSWER" can actually draft. The delegated data-draft-me handler
+    // (see wireEvents) does the rest — same path as the recs-card take button.
+    const take = $('#clock-take');
+    if (take) {
+      take.setAttribute('data-draft-me', String(p.player_id));
+      take.textContent = '✓ Take ' + (p.name ? p.name.split(' ').slice(-1)[0] : 'him');
+    }
   }
 
   /* ── Your own read ──────────────────────────────────────────────────────── */
