@@ -1259,3 +1259,69 @@ integrate-and-deploy: the fix exists and renders (verified — eagle at every si
 splash, maskable). Merging B's branch to main brings the icon AND everything else
 this session (war-room declutter, the whole in-season pass). Cory will need to
 delete + re-add the home-screen icon after deploy (iOS caches it hard).
+
+---
+
+## B→A HANDOFF (2026-08-10): Integrate+deploy, then connect in-season feed
+
+The full copy of this is what Cory is relaying. Two parts.
+
+### PART A — Integrate & deploy (clean fast-forward, do first)
+
+Verified: `git merge-base --is-ancestor origin/main HEAD` on B's branch is
+CLEAN — B's branch already contains all of main, so merging B→main is a
+FAST-FORWARD, zero conflicts. B head `230c0a9`; main `81d2160`; 22 commits
+ahead, 38 files, +995/-96.
+
+1. `git fetch origin`
+2. `git checkout main`
+3. `git merge --ff-only origin/claude/pickems-feature-3ksf0l`
+   - If `--ff-only` refuses (main moved), normal merge. Only files that have
+     ever conflicted between us: `PARKED.md` → union both sides;
+     `public/css/style.css` → take the more-legible / navy-on-cream version,
+     keep `#doctrine-picker`-below-`rec-to-top` order in the wr-zone1 block.
+4. Push main and DEPLOY.
+
+Goes live (all currently undeployed): real eagle `apple-touch-icon.png`
+(13,450B; prod still has the broken 1,191B navy square); slot-name legibility
+fix (invisible "RICHARD" on slot 10); full in-season pass (chase-vs-protect
+verdict, Sunday workflow, money scoreboard, What-to-Watch pins viewer's game);
+war-room declutter.
+
+Tell Cory: iOS caches home-screen icons hard — DELETE the shortcut and RE-ADD
+it (Share → Add to Home Screen) to get the eagle. Everything else shows on a
+refresh.
+
+### PART B — Connect in-season live data (sleeper.js, A's lane)
+
+Every in-season surface B built reads live data ONLY through sleeper.js, keyed
+off `world.config.sleeper_league_id` + `sleeper_map`. They render today on
+season-average fallbacks — hence the optimizer's "treat dollars as directional"
+caveat. B's code already handles all of the below the moment the fields are
+populated; no B-side changes needed.
+
+**0. Config prerequisite:** `sleeper_league_id` set for the live season;
+`sleeper_map` (roster→owner) must resolve (autoMap runs but needs the id).
+
+**1. `sleeper.rosterView(sData, map, meId).rows[]` per-player fields B reads:**
+- `proj` — live weekly projection. Sets `projSource='sleeper'`, makes dollar EV
+  precise. HIGHEST LEVERAGE — removes the "directional" caveat.
+- `inj` — injury string. `OUT/IR/PUP/SUS/NA/DNR/COV/RES/DNP` zero the player so
+  the solver never seats him. Missing → injured player can be recommended.
+- `bye` — per-player bye week. Guard zeroes a player whose `bye === weekNo`.
+  **THE ONE B COULD NOT FINISH — needs each row to expose its bye week.**
+  Missing → bye-week players get seated.
+- `seasonPts`+`gp`, `wkPts` — fallback projection inputs (missing → proj 0).
+- `sd` — per-player variance (optional; falls back to positional sigma).
+
+**2. `sleeper.myMatchup(sData, map, meId, owners)` → `{week, opp:{points}}`:**
+`opp.points > 0` sets `oppKnown` → drives CHASE-VS-PROTECT posture (live opp
+score → coin-flip / "nearly won" / "long shot"; without it → "opponent not
+set"). Verdict card is only as good as this feed.
+
+**3. `sleeper.bundle()` → `week`/`state.week`, `scoreboard()`/`anyScoreOnBoard()`:**
+Week number everywhere + live rows for What-to-Watch (Sun/Mon ET, score on
+board).
+
+**Priority:** (1) real `proj` on rosterView.rows, (2) `opp.points` on myMatchup,
+(3) per-player `bye` on rosterView.rows.
