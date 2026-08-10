@@ -24,7 +24,7 @@
               "QB": {
                 "n": 68,
                 "mae": 125.53,
-                "rank_corr": 0.541,
+                "rank_corr": 0.54,
                 "top_decile": {
                   "n": 68,
                   "k": 7,
@@ -34,7 +34,7 @@
               "RB": {
                 "n": 104,
                 "mae": 58.75,
-                "rank_corr": 0.705,
+                "rank_corr": 0.704,
                 "top_decile": {
                   "n": 104,
                   "k": 10,
@@ -54,7 +54,7 @@
               "TE": {
                 "n": 98,
                 "mae": 33.35,
-                "rank_corr": 0.62,
+                "rank_corr": 0.618,
                 "top_decile": {
                   "n": 98,
                   "k": 10,
@@ -97,7 +97,7 @@
               "QB": {
                 "n": 68,
                 "mae": 91.05,
-                "rank_corr": 0.616,
+                "rank_corr": 0.615,
                 "top_decile": {
                   "n": 68,
                   "k": 7,
@@ -127,7 +127,7 @@
               "TE": {
                 "n": 98,
                 "mae": 27.27,
-                "rank_corr": 0.683,
+                "rank_corr": 0.682,
                 "top_decile": {
                   "n": 98,
                   "k": 10,
@@ -348,7 +348,7 @@
           "our_blend": {
             "n": 455,
             "mae": 56.68,
-            "rank_corr": 0.607,
+            "rank_corr": 0.608,
             "top_decile": {
               "n": 455,
               "k": 46,
@@ -368,7 +368,7 @@
               "RB": {
                 "n": 111,
                 "mae": 59.87,
-                "rank_corr": 0.541,
+                "rank_corr": 0.542,
                 "top_decile": {
                   "n": 111,
                   "k": 11,
@@ -388,7 +388,7 @@
               "TE": {
                 "n": 92,
                 "mae": 33.66,
-                "rank_corr": 0.641,
+                "rank_corr": 0.642,
                 "top_decile": {
                   "n": 92,
                   "k": 9,
