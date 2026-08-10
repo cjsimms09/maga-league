@@ -3495,6 +3495,9 @@ html.dispatch-open { overflow: hidden; }
    watchability; the sweat meter is a single bar; colour tracks the state. */
 .wtw-band { margin: 0 0 1rem; font-size: .82rem; }
 .wtw-list { display: flex; flex-direction: column; gap: .6rem; }
+.wtw-sec { font-family: var(--font-display); font-weight: 800; font-size: .68rem;
+  letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin: .5rem 0 -.1rem; }
+.wtw-sec:first-child { margin-top: 0; }
 .wtw-row { background: var(--panel); border: 1px solid var(--line); border-left: 3px solid var(--muted);
   border-radius: var(--radius); padding: .7rem .85rem; }
 .wtw-row.flip { border-left-color: var(--gold-bright); }
@@ -3505,7 +3508,7 @@ html.dispatch-open { overflow: hidden; }
 .wtw-top { display: flex; align-items: center; gap: .5rem; }
 .wtw-icon { font-size: 1.1rem; }
 .wtw-who { flex: 1 1 auto; min-width: 0; font-size: .92rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.wtw-who b { color: #fff; font-family: var(--font-display); }
+.wtw-who b { color: var(--ink); font-family: var(--font-display); }  /* was #fff — invisible on the light theme */
 .wtw-pct { font-variant-numeric: tabular-nums; font-weight: 800; color: #4a5972; }
 .wtw-meter { margin: .5rem 0 .4rem; height: 8px; border-radius: 999px; overflow: hidden; background: rgba(255,255,255,.08); }
 .wtw-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--gold), var(--gold-bright)); }

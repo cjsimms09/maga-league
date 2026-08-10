@@ -25,8 +25,14 @@
     <p class="wtw-band muted">🎯 The $100 is out there too — it usually takes <b><%= Math.round(band.median) %></b> to win the week.</p>
   <% } %>
 
+  <%# Your own game first — the panel sorts by watchability, which can bury YOUR
+      matchup at the bottom on a blowout. Pin it, then the rest most-watchable. %>
+  <% const mineRow = rows.find(r => r.owner_id === meId);
+     const ordered = mineRow ? [mineRow, ...rows.filter(r => r.owner_id !== meId)] : rows; %>
   <div class="wtw-list">
-    <% for (const r of rows) { const mine = r.owner_id === meId; %>
+    <% ordered.forEach((r, i) => { const mine = r.owner_id === meId; %>
+      <% if (mineRow && i === 0) { %><div class="wtw-sec">Your game</div><% } %>
+      <% if (mineRow && i === 1) { %><div class="wtw-sec">Around the league — most watchable first</div><% } %>
       <div class="wtw-row <%= r.label.level %><%= mine ? ' mine' : '' %>">
         <div class="wtw-top">
           <span class="wtw-icon" aria-hidden="true"><%= r.label.icon %></span>
@@ -40,7 +46,7 @@
           <% if (r.highP != null && r.highP >= 0.05) { %> · <span class="wtw-high">🎯 <%= Math.round(r.highP * 100) %>% at the $100</span><% } %>
         </div>
       </div>
-    <% } %>
+    <% }) %>
   </div>
 
   <p class="muted" style="margin:1rem 0 0; font-size:.76rem">
