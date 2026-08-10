@@ -127,9 +127,16 @@ Given my current roster and the league's starter slots, a candidate is classed:
   on `FLEX_ALT_WEIGHT = 1.0` (weight the best alternative fully); pre-registered as
   material.
 - **bench** — every startable slot he could fill is already full. He is depth. His
-  "need" value = `(his projection − the man he'd replace) × 0.35 + insurance`.
-  The 0.35 bench discount is **[DESIGNED-GUESS]** (`BENCH_DISCOUNT`, 12-team
-  default). Insurance = `injury_rate[pos] × max(0, VORP) × 0.5`.
+  "need" value = `(his projection − the man he'd replace) × BENCH_DISCOUNT +
+  insurance`. *(Corrected 2026-08-10: this said a flat 0.35, which is only the
+  12-team baseline. `formatDefaults()` DERIVES the runtime value from league
+  shape — `clamp(0.35 × teams/12 − 0.35 × keepers/startersPerTeam, 0.15, 0.45)` —
+  because a shallower league with keepers leaves replacement level high and the
+  wire stocked, so bench depth is worth less. **For our league it computes to
+  0.175, half the number the spec was quoting.**)* The 0.35 baseline and the
+  shape of the adjustment are **[DESIGNED-GUESS]**; the derivation is at least a
+  function of what changes rather than a constant pretending league shape does
+  not matter. Insurance = `injury_rate[pos] × max(0, VORP) × 0.5`.
 - Weight: **need = 0.0 (OFF).** **[MEASURED]**, and this one needs care: the need
   *weight* is inert **not because need doesn't matter** but because the real need
   mechanism lives in a separate, always-on **startable-capacity MASK** (A5) applied
@@ -215,13 +222,18 @@ then two multiplicative/additive gates:
   already have filled, the whole assembled score is multiplied by 0.10
   (`ONESIE_KEEP`) — priced as a backup — unless a stated exception fires. Applied
   last so no slider can argue a bench QB into a starter.
-- **Doctrine tilt** (A9): a flat ±2.5 points if an enrolled draft plan prefers him,
-  **scaled by the onesie discount when one applies** (fixed 2026-08-10). The
+- **Doctrine tilt** (A9): up to ±2.5 points if an enrolled draft plan prefers him,
+  **scaled by the onesie discount when one applies** (fixed 2026-08-10). *(Corrected
+  2026-08-10: this said a FLAT ±2.5. It is not flat — `doctrine.prefers()` returns
+  a CONTINUOUS strength clamped to [−1, +1] and the tilt is `pref × DOCTRINE_TILT`,
+  so 2.5 is the maximum magnitude, not the value. A weak preference tilts weakly.)*
+  The
   earlier code added the flat tilt *after* the 0.10 multiply at full magnitude —
   which did the opposite of the intent: a +2.5 tilt on a score cut to a tenth was
   10× more influential on exactly the unstartable backups the discount was meant
   to bury (skeptical-review catch). Multiplying the tilt by the same discount
-  restores the intent. **Known remaining limit:** the tilt is still a flat ±2.5
+  restores the intent. **Known remaining limit:** the tilt is still bounded by a
+  FIXED ±2.5 ceiling
   against a score whose scale shrinks late (a bench composite tops out ~6 pts), so
   its *share* of the decision grows in the throwaway rounds — a deliberate
   flat-tiebreaker design, but its late-round weight is real and on the agenda.
@@ -263,11 +275,21 @@ VONA and tier-urgency both need P(player survives to pick N). Three layers:
   The sd is source-provided when available, else `max(3.0, 0.15 × ADP)` capped at
   15. The floor/rate/cap are **[DESIGNED-GUESS]** and explicitly labeled interim,
   not a calibration. P(survives to N) = P(his draw > N).
-- **Layer 2 — run detection.** A Bayesian update over the last 10 picks: if a
-  position is going hot, its players' hazard rises (multiplier clamped to
-  [0.6, 1.8]); a "RUN DETECTED" banner at 1.4×. Damping 0.5. All **[DESIGNED-GUESS]**.
-- **Layer 3 — dynamic / season-forward** — a post-draft build, not in the live
-  pre-draft path.
+- **Layer 2 — roster-need aware.** The near-horizon layer: who actually picks
+  between now and my next turn, what their rosters still need, and (since
+  2026-08-10) a MIXTURE over this room's ten profiled managers when a seat is not
+  yet mapped to a person.
+- **Layer 3 — run detection.** *(Corrected 2026-08-10: the spec called this
+  "Layer 2" and called the method "a Bayesian update". Both were wrong. It is
+  Layer 3 in the code, and there is no prior and no posterior anywhere in it.)*
+  What it actually does: count picks per position over the last 10, compare with
+  the number ADP expected in that window, and take a **binomial z-score**
+  `z = (observed − n·p) / sqrt(n·p·(1−p))`. The multiplier stays exactly 1.0 below
+  `RUN_Z_MIN` = 1.5σ and ramps to full effect at `RUN_Z_FULL` = 3.0σ, clamped to
+  [0.6, 1.8]; a "RUN DETECTED" banner at 1.4×. Damping 0.5. A frequentist
+  significance gate with a ramp, **[DESIGNED-GUESS]** thresholds.
+- **Dynamic / season-forward** — a post-draft build, not in the live pre-draft
+  path.
 
 The survival model is the softest measured part of the engine. It is *calibrated
 against mock-draft data where available* but the constants above are largely

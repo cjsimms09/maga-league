@@ -632,7 +632,25 @@
      * principled.
      *
      * Only a status that actually threatens availability counts. */
-    const SERIOUS = /^(out|doubtful|ir|injured[ _-]?reserve|pup|nfi|suspended)$/i;
+    /* MATCH SLEEPER'S ACTUAL VOCABULARY, not the words we assumed it used.
+     *
+     * This listed `suspended`, but Sleeper writes `Sus` — so a suspended starter
+     * never qualified for the exception and his backup stayed priced as a mere
+     * duplicate (Cory, war-room audit). Auditing the live board found two more the
+     * pattern never covered: `NA` (not active / not with the team) and `DNR` (did
+     * not report) — 9 and 2 players respectively on the current board, i.e. 11
+     * genuinely unavailable starters whose handcuff was mispriced.
+     *
+     * The full set Sleeper emits is: Questionable, Doubtful, Out, IR, PUP, Sus,
+     * NA, DNR, COV. `Questionable` is deliberately EXCLUDED and the reasoning
+     * above still governs — in August it means almost nothing and an exception
+     * that fires for everybody is not an exception. Doubtful stays IN: it is a
+     * genuine threat to availability.
+     *
+     * Written as an explicit list rather than a loose "anything not healthy" so a
+     * new Sleeper status fails CLOSED (priced as a backup, the conservative side)
+     * instead of silently promoting every duplicate. */
+    const SERIOUS = /^(out|doubtful|ir|injured[ _-]?reserve|pup|nfi|sus|susp|suspended|na|dnr|cov)$/i;
     if (starter && starter.injury_status && SERIOUS.test(String(starter.injury_status).trim())) {
       return { duplicate: true, discount: 1, exception: 'injury',
         why: pos + '2 — your starter is flagged ' + starter.injury_status
