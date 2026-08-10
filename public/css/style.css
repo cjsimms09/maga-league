@@ -723,21 +723,23 @@ details[open] > .layer-sum::before { content: '▾ '; }
 }
 .rec-card.top .rec-rank { background: var(--gold); color: var(--navy-deep); border-color: transparent; }
 .rec-main { flex: 1; min-width: 0; }
-.rec-name { font-family: var(--font-display); font-weight: 800; font-size: 1.05rem; color: #fff; display: flex; gap: .4rem; align-items: center; flex-wrap: wrap; }
-.rec-why { color: #4a5972; font-size: .82rem; margin-top: .1rem; }
+.rec-name { font-family: var(--font-display); font-weight: 800; font-size: 1.05rem; color: var(--ink); display: flex; gap: .4rem; align-items: center; flex-wrap: wrap; }  /* was #fff — invisible player names on the light theme */
+.rec-why { color: var(--muted); font-size: .82rem; margin-top: .1rem; }
 .rec-stats { display: flex; flex-wrap: wrap; gap: .7rem; margin-top: .3rem; font-size: .74rem; color: var(--muted); }
-.rec-stats b { color: #fff; font-variant-numeric: tabular-nums; }
+.rec-stats b { color: var(--ink); font-variant-numeric: tabular-nums; }  /* was #fff — invisible stat numbers */
 .rec-actions { display: flex; flex-direction: column; gap: .25rem; align-items: flex-end; }
 .rec-score { font-family: var(--font-display); font-size: 1.3rem; font-weight: 900; color: var(--gold-bright); font-variant-numeric: tabular-nums; }
 .rec-pos {
   font-family: var(--font-display); font-size: .6rem; font-weight: 800; letter-spacing: .08em;
-  padding: .1rem .4rem; border-radius: 4px; background: rgba(255,255,255,.1);
+  padding: .1rem .4rem; border-radius: 4px; background: rgba(12,26,43,.08);
 }
-.rec-pos.QB { background: rgba(255,70,85,.22); color: #ff9aa4; }
-.rec-pos.RB { background: rgba(47,213,118,.2); color: #8ef0b6; }
-.rec-pos.WR { background: rgba(76,133,255,.22); color: #a9c4ff; }
-.rec-pos.TE { background: rgba(245,196,69,.2); color: var(--gold-bright); }
-.rec-pos.K, .rec-pos.DEF { background: rgba(255,255,255,.1); color: #4a5972; }
+/* Position badges: dark, readable text on light tints (was pale dark-theme
+   pinks/greens/blues that vanished on the cream board). */
+.rec-pos.QB { background: rgba(212,36,47,.14);  color: var(--red); }
+.rec-pos.RB { background: rgba(15,138,77,.16);  color: var(--green); }
+.rec-pos.WR { background: rgba(18,41,74,.12);   color: var(--navy); }
+.rec-pos.TE { background: rgba(185,130,42,.18); color: var(--gold-bright); }
+.rec-pos.K, .rec-pos.DEF { background: rgba(12,26,43,.08); color: var(--muted); }
 
 /* roster slots */
 .slot-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: .4rem; }
@@ -750,7 +752,7 @@ details[open] > .layer-sum::before { content: '▾ '; }
   color: var(--navy-deep); background: var(--gold); border-radius: 5px; padding: .05rem .3rem;
   vertical-align: middle; white-space: nowrap;
 }
-#roster-list li.keeper { color: #f2e2b4; }
+#roster-list li.keeper { color: var(--gold-bright); }  /* was pale #f2e2b4 — low contrast on cream */
 .slot-label { display: block; font-family: var(--font-display); font-size: .55rem; letter-spacing: .12em; color: var(--muted); }
 
 /* survival bars */
@@ -776,7 +778,7 @@ input[type=range] { accent-color: var(--gold); }
 /* Know Your League */
 .mgr-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: .6rem; }
 .mgr-card { border: 1px solid var(--line); border-radius: 11px; padding: .6rem .75rem; background: rgba(255,255,255,.02); }
-.mgr-name { font-family: var(--font-display); font-weight: 800; color: #fff; display: flex; justify-content: space-between; gap: .5rem; font-size: .88rem; }
+.mgr-name { font-family: var(--font-display); font-weight: 800; color: var(--ink); display: flex; justify-content: space-between; gap: .5rem; font-size: .88rem; }  /* was #fff — invisible on the light theme */
 .mgr-name .muted { font-family: var(--font-body); font-weight: 400; font-size: .68rem; }
 .mgr-summary { font-size: .8rem; color: #4a5972; margin-top: .25rem; line-height: 1.45; }
 
