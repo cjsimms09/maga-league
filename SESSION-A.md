@@ -213,7 +213,7 @@ existence.
 
 ---
 
-## THE EIGHT BINDING RULES (constitutional — not judgment calls)
+## THE BINDING RULES (constitutional — not judgment calls)
 
 Cory, 2026-08-10, three parties converged. **These are rules, not tasks.** They are in force
 from the moment they were written, including for work already in flight; the *machinery* some
@@ -315,6 +315,24 @@ inclusion: if calibration is poor on a channel, that is the first line. This is 
 of the NARRATIVE rather than of the data, a distinct category — and it is the failure mode a
 self-reporting system is most prone to, because the model writes its own reports and Cory is
 the only one who reads them.
+
+**10. A NEW GUARD IS DELIBERATELY BROKEN ONCE BEFORE IT IS TRUSTED.** Cory, 2026-08-10.
+Every new test, guard, gate or assertion gets the thing it protects broken on purpose, and
+must be observed going RED **by name**, before it counts as protection. A guard that has only
+ever been seen passing is an untested claim about the future, and "it passes" is evidence for
+nothing until "it fails when it should" is also evidence.
+
+Adopted because it went 4-for-4 in a single day, each time on a check that looked fine:
+B's staleness test seeded a wrong `league_id` and passed on empty data; B's rules-page guard
+needed the sign error restored to prove it blocked; the project's zero-collection guard was
+itself disabled by the crash it exists to catch; and my `setSlot` source guard passed against
+a deliberately re-broken `setSlot` because the regex matched the COMMENT explaining the fix
+rather than the code implementing it. In every case the question was "does this fail when it
+should," and in every case the answer was no until someone actually tried it.
+
+*Rule 9 standing:* a **statement**, not a workstream. It costs about a minute, at the moment
+the guard is written, by whoever is already writing it — no schedule, no artifact, no human
+attention on a cadence. Nothing to maintain, so nothing to rot.
 
 ---
 

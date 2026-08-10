@@ -89,155 +89,22 @@ jobs:
           done
           if [ -n "$failed" ]; then echo "FAILED SUITES:$failed"; exit 1; fi
           echo "all JS suites passed"
-      - name: Server integration — prediction ledger over real HTTP
-        # Needs express etc.; the pure suites above do not. Guards the JSON-body
-        # parser: without it every fetch()-posted prediction 400s and draft
-        # night's data is lost. Boots the real app, logs in, posts, reads back.
-        run: |
-          npm install --no-audit --no-fund
-          node draft/tests/server-ledger.test.js
-      - name: History smoke — the pages render logged-in, WITH content
-        # "Renders locally, breaks in prod" is a known failure family here: the
-        # History engine 500'd in the deployed function (data not bundled) and the
-        # money board came back empty. Boots the app, logs in, asserts every
-        # History page is 200 AND populated (money board shows real dollar totals).
-        # Complements bundling_guard: the guard proves the files SHIP, this proves
-        # the render POPULATES.
-        run: node draft/tests/history_smoke.test.js
-      - name: Chiefs-homer counter — the Bates reputation, audited (league-visible)
-        # Locks the finding that refutes the running joke: Bates is the 3rd-biggest
-        # Chiefs drafter in his own league, out-Chiefed by the two Germans. The
-        # loyalty half is measured from real draft picks; the "overpay" half stays
-        # explicitly UNMEASURED (no archived ADP) rather than fabricated.
-        run: node draft/tests/chiefs_homer.test.js
-      - name: Standings rank-movement — week-over-week arrows, dormant until week 2
-        # Arrows are computed by subtracting the latest completed week from the
-        # cumulative standings — no snapshot to drift. Asserts dormancy pre-season
-        # and correct climbed/fell/held deltas once two weeks exist.
-        run: node draft/tests/standings_movement.test.js
-      - name: Matchup weekly-high panel — the $100 target renders (no dark slot)
-        # The panel used to sit dark waiting on A's live band; it now serves the
-        # harvested target on its own. Asserts it renders and that no per-owner
-        # efficiency analysis leaks onto this league-visible page.
-        run: node draft/tests/matchup_weekly_high.test.js
-      - name: Route smoke — every surface renders (no 500 / template ReferenceError)
-        # A view referencing a local the route forgot to pass renders fine in a
-        # page-specific test but 500s in prod. This GETs the whole surface as the
-        # commissioner (and commissioner-only routes as a member) and fails on any
-        # 500 or template error. Caught /admin?tab=votes throwing `threshold`.
-        run: node draft/tests/route_smoke.test.js
-      - name: Bye guard — the per-player bye source zeroes a bye player before the solver
-        # The 540-week sweep found the projection-driven solver would seat a bye player
-        # (season-average hands him a full projection). Proves A's bye source activates B's
-        # guard: inactive in the bye week, active otherwise, injury half intact, null-bye safe.
-        run: node draft/tests/bye_guard.test.js
-      - name: The Vault — trash + dispatch archives are actually read (de-orphaned)
-        # Both archives stored permanently but no surface called archiveForSeason/
-        # getArchive ("an archive nothing reads is the same as a deletion").
-        # Asserts /history/vault/:year renders both, groups trash by week, and the
-        # empty state is honest.
-        run: node draft/tests/vault.test.js
-      - name: Pick'em all-time freeze — completed seasons survive the rollover
-        # The "never resets" all-time board silently dropped every completed season
-        # (a new league id can't refetch a past season's points). Asserts frozen
-        # points keep a prior season scored, and the old current-season-only
-        # resolver zeroed it.
-        run: node draft/tests/pickem_alltime_freeze.test.js
-      - name: Vote → ledger sync — enacting a buy-in vote re-charges the tabs
-        # Annual-audit money hole: enacting a passed buy-in vote raised the pot in
-        # config but left every owner's tab (and the settlement) at the old buy-in.
-        # Asserts the enact path now re-charges unpaid tabs to the new amount and
-        # leaves already-settled tabs alone.
-        run: node draft/tests/vote_ledger_sync.test.js
-      - name: Model accuracy — the display half of the learning loop (reads A's grades)
-        # Pure engine (buildAccuracyView never grades — it shapes A's calibration/
-        # attribution output and degrades honestly before there's data) + the
-        # commissioner-only HTTP surface: 403s a non-commissioner, shows the honest
-        # empty state before grading, and populates from a written calibration doc.
-        run: node draft/tests/accuracy.test.js
-      - name: War-room mobile furniture — nothing fixed/sticky floats over content
-        # After the pick bar floated mid-screen and the arm button covered the nav
-        # (3rd report), the rule is: on a phone the war-room pinned strips drop to
-        # normal document flow and the arm button is in-flow. Source guard so a
-        # regression back to fixed/sticky-on-mobile fails here, not on a phone.
-        run: node draft/tests/warroom_mobile.test.js
-      - name: PWA entry point — "/" renders (never redirects) so the home-screen app launches
-        # iOS standalone sits on the navy background_color splash forever if the
-        # launch URL redirects. Asserts cold (unauthenticated) "/" returns a 200
-        # login render, not a 302; the self-contained /standalone diagnostic
-        # renders with no external deps; and authed "/" is the dashboard.
-        run: node draft/tests/pwa_entry.test.js
-      - name: Matchup spectator — opening someone else's game shows THAT pairing
-        # The scoreboard deep link used to be viewer-relative (?opp=), so tapping
-        # a game you weren't in reframed it as "you vs one of them." Asserts a
-        # non-viewer pair (?a=&b=) renders a read-only spectator view (neutral
-        # H2H, no bet, no trash post), the viewer's own game keeps the full
-        # participant matchup, and a malformed pair doesn't crash.
-        run: node draft/tests/matchup_spectator.test.js
-      - name: Season form — payout structure is variable-length (not a fixed 2+4)
-        # The admin season form was the only thing pinning payouts to 2 reg + 4
-        # playoff; the data model always handled any length. Asserts a new season
-        # can set 3+3, shrink to top-2, that legacy numbered fields still parse,
-        # and that an empty-payout edit keeps the prior shape rather than wiping
-        # it. Boots the real app and POSTs as the commissioner.
-        run: node draft/tests/season_form.test.js
-      - name: Access guard — analysis is commissioner-only, never league-visible
-        # STANDING RULE (results = league property, analysis = commissioner's):
-        # asserts /lineup + /lineup/log 403 a non-commissioner, and NO league-
-        # visible page renders per-owner efficiency, all-play, luck-gap, robbery-
-        # record, or season-bench-aggregate text. The three-season lineup
-        # archaeology is the commissioner's edge; this keeps it from leaking back
-        # in by a stray column, an open tab, or a chapter rewrite.
-        run: node draft/tests/access_guard.test.js
-      - name: Pick'em — pick every game, lock at kickoff, split + accuracy boards
-        # Pure grading/aggregation (gameId stability, weekGames pairing, isLocked
-        # by kickoff-or-score, scoreWeek, split, the eligibility-floored leaderboard
-        # and its single worst seat) plus the HTTP surface over the real app:
-        # picks save while unlocked, are REFUSED after kickoff, the split is hidden
-        # pre-lock and public after, and a finished week grades into the boards.
-        run: node draft/tests/pickem.test.js
-      - name: The Dispatch — transient popups (awards / power poll / this-week-in-history)
-        # Pure generation (mean voice, deterministic so the archive is stable),
-        # the immutable archive + per-owner seen store, and the HTTP surface: the
-        # popups render on the home page and a dismissal stays gone. Never sits on
-        # a page once dismissed; always archived for the chronicle.
-        run: node draft/tests/dispatch.test.js
-      - name: Trash talk on matchups — posts welded to a game, permanent + archived
-        # Pure engine (game-keyed like pick'em, per-post docs so concurrent
-        # posters don't clobber, trim/cap/empty-reject, season archive) + the HTTP
-        # round trip: a post redirects back to the game, renders attributed, and is
-        # league-visible to both parties who then both add to the one thread.
-        run: node draft/tests/trashtalk.test.js
-      - name: Side-bet lifecycle over HTTP — declare→confirm→dispute + Venmo handoff
-        # The two-party settling flow end to end: a result is declared, the OTHER
-        # side confirms or disputes, a dispute is recorded not adjudicated, and the
-        # loser gets the winner's Venmo link with the amount ready. Nothing settles
-        # silently. Complements sidebets_lifecycle (the pure state machine).
-        run: node draft/tests/sidebets_lifecycle_ui.test.js
-      - name: Pool draft over HTTP — franchise snake draft + order-from-standings
-        run: node draft/tests/pool_draft_ui.test.js
-      - name: Pool advisor — commissioner-only portfolio advice
-        run: node draft/tests/pool_advisor.test.js
-      - name: Instrumentation check — in-season decision-time capture (exp 37)
-        run: node draft/tests/instrumentation_check.test.js
-      - name: Sunday alert — generator + secret-gated cron fire + commissioner send
-        run: node draft/tests/sunday_alert.test.js
-      - name: Lineup sanity sweep — legal/rosterable/no-bye advice over 2023-25
-        # Runs the in-season optimizer over every real team-week and asserts it
-        # can never emit an illegal, hallucinated, or on-bye/OUT lineup. The
-        # first live Sunday must not be the first Sunday the tool has ever run.
-        run: node draft/tests/lineup_sanity.test.js
-      - name: Money scoreboard — banked $ + rank, unit + real-ledger sweep
-        # The real scoreboard (dollars, not wins). Unit arithmetic plus a sweep
-        # over every seeded season asserting pot conservation on real entries.
-        run: node draft/tests/money_position.test.js
-      - name: In-season display sweep — Sunday alert + what-to-watch over real weeks
-        # Runs both weekly-read surfaces over hundreds of real 2023-25 states and
-        # asserts nothing malformed reaches the screen (no NaN/undefined, no label
-        # out of set, no probability out of [0,1], no hallucinated player).
-        run: node draft/tests/in_season_sweep.test.js
-      - name: Weekly posture — chase vs protect verdict
-        run: node draft/tests/weekly_posture.test.js
+      # ── 28 PER-SUITE STEPS DELETED HERE (2026-08-10) ──────────────────────────
+      # Each was `node draft/tests/<x>.test.js` for a file the GLOB above already
+      # runs, so every one of those suites executed TWICE per push. They were
+      # left behind when the loop was converted from a hand-maintained list to a
+      # glob; the glob made them redundant the moment it landed.
+      #
+      # They were also the mechanism of the silent-skip failure. None carried
+      # `if: always()`, so a red step here aborted the job and SKIPPED every step
+      # below it — which is how a run once reported green with 28 steps skipped,
+      # and how the "every critical step actually ran" sentinel below could pass
+      # while most of the job never executed. Deleting them removes the cascade
+      # structurally rather than guarding against it, and halves CI wall-clock.
+      #
+      # DO NOT RE-ADD A PER-SUITE STEP. A new `draft/tests/*.test.js` is picked up
+      # by the glob the day it lands. Anything that must NOT run belongs in SKIP
+      # above, named, with a reason.
       - name: Robot mock draft — the safety net
         # A full snake draft from every seat through the real engine and
         # attribution modules, plus every bug this session as a regression
