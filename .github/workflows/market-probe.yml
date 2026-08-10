@@ -1,0 +1,63 @@
+name: Market-source probe
+
+# PROBE BEFORE DESIGNING. Kalshi's API being free says nothing about whether it
+# runs player-level markets at meaningful volume, and a thin market carries little
+# information no matter how accessible it is. This reports what EXISTS — coverage,
+# volume, and the capture cadence each free allowance actually supports — so a
+# dead end can be called plainly and dropped instead of built around.
+#
+# Read-only. Touches no projection, no board, no live path.
+#
+# The sandbox proxy blocks all of these hosts; CI has egress.
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - name: Python deps
+        run: pip install pytest -q
+
+      # The pure half FIRST, so an artifact is never written from a module whose
+      # own tests are red.
+      - name: Test the pure half before trusting the output
+        run: python -m pytest draft/tests/test_market_convert.py -q
+
+      - name: Probe the market sources
+        env:
+          # Absent is fine and is REPORTED as a setup gap, not as evidence the
+          # source is unusable. Never conflate "we have no key" with "dead end".
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+        run: python draft/backtest/market_probe.py
+
+      - name: Fail if nothing was reached
+        run: |
+          python3 - <<'PY'
+          import json, pathlib, sys
+          p = pathlib.Path('draft/backtest/market_probe.json')
+          if not p.exists():
+              print('::error::probe wrote no artifact'); sys.exit(1)
+          d = json.loads(p.read_text())
+          reached = [k for k, v in (d.get('sources') or {}).items() if v.get('reachable')]
+          print('reached:', reached)
+          for k, e in (d.get('errors') or {}).items():
+              print(f'::warning::{k}: {e}')
+          if not reached:
+              print('::error::no source was reachable — this artifact records nothing')
+              sys.exit(1)
+          PY
+
+      - name: Commit the probe result
+        run: |
+          git config user.name "lab-bot"; git config user.email "actions@github.com"
+          git add draft/backtest/market_probe.json || true
+          git commit -m "Market-source probe result" || { echo "no change"; exit 0; }
+          git pull --rebase origin main && git push || echo "push skipped"
