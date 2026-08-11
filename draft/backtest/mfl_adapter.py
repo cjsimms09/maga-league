@@ -174,21 +174,50 @@ def reception_points_by_position(rules_json) -> tuple:
         return {}, "no_scoring_rules"
 
     out: dict = {}
+    governed: set = set()          # positions this league writes ANY rule for
+    unreadable_pts = 0             # CC rules whose points expression we could not read
     for pr in listify(node):
         # `positions` is a delimited list ("QB|RB", "TE", "Def"), case-inconsistent.
         names = [p.strip().upper() for p in t(pr.get("positions")).replace(",", "|").split("|") if p.strip()]
-        for rule in listify(pr.get("rule")):
+        rules = listify(pr.get("rule"))
+        if rules:
+            governed.update(names)
+        for rule in rules:
             if t(rule.get("event")).strip().upper() != RECEPTION_EVENT:
                 continue
             pts = _points_per_event(t(rule.get("points")))
             if pts is None:
+                unreadable_pts += 1
                 continue
             for n in names:
                 # Keep the LARGEST reception value seen for a position. MFL can
                 # express scoring in banded ranges; taking the max is the
                 # conservative read for a filter that excludes TE premium.
                 out[n] = max(out.get(n, pts), pts)
-    return out, ("ok" if out else "no_reception_rule")
+    if out:
+        return out, "ok"
+
+    # A STANDARD-SCORING LEAGUE HAS NO RECEPTION RULE, AND THAT IS A READING, NOT A
+    # FAILURE TO READ. Measured 2026-08-11: `no_reception_rule` was returned for both
+    # "the rules parsed and award nothing per catch" and "we could not read this
+    # league's scoring", and `screen()` files the second as UNREADABLE — so six
+    # standard leagues in run 11 were booked as OUR pipeline's gaps rather than as
+    # facts about the pool. That shrinks the readable denominator, which is exactly
+    # the denominator F7's reachability arithmetic is computed over.
+    #
+    # Absent is still not zero, and this is not a violation of it: the zero is only
+    # returned for positions this league DOES write rules for. Rules present for RB
+    # and none of them scoring receptions means receptions are worth 0 to an RB here
+    # — measured. A position the league writes no rule for at all stays absent,
+    # because about that one we genuinely know nothing.
+    if unreadable_pts:
+        # Our parser, not their league. Kept apart so it cannot hide inside either
+        # of the two answers above.
+        return {}, "unreadable_reception_points"
+    scored = [p for p in SKILL_POSITIONS if p in governed]
+    if scored:
+        return {p: 0.0 for p in scored}, "ok"
+    return {}, "no_reception_rule"
 
 
 # `ppr_verdict` LIVED HERE AND IS GONE (2026-08-11). It made F1's reception-value

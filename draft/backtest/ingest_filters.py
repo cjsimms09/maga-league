@@ -301,6 +301,10 @@ UNOBTAINED_REASONS = (
     "F4.no_pre_draft_adp", "F5.missing_timestamps",
     "F4.unreadable_team_count", "F4.unreadable_starter_limits",
     "F4.draft_type_absent", "F4.draft_type_unrecognised", "F4.no_reception_rule",
+    # A CC rule WAS present and our points parser could not read its expression.
+    # Ours, not theirs, and kept apart from both "they score no receptions" (a
+    # reading) and "we saw no rules for these positions" (we know nothing).
+    "F4.unreadable_reception_points",
     # A league we could not FETCH is not a league that failed a filter. Declared
     # here so `ingest_run` cannot bin one nowhere — the registry caught this code
     # arriving undeclared, which is exactly what it is for.
@@ -329,7 +333,8 @@ UNOBTAINED_REASONS = (
 # D7's population is F1-passing leagues: dynasty and superflex ADP are different
 # quantities, not noisier versions of the same one.
 F1_FORMAT_UNREADABLE = (
-    "F4.no_scoring_rules", "F4.no_reception_rule", "F4.no_team_count",
+    "F4.no_scoring_rules", "F4.no_reception_rule", "F4.unreadable_reception_points",
+    "F4.no_team_count",
     "F4.unreadable_team_count", "F4.no_roster_slots", "F4.no_qb_slot_count",
     "F4.unreadable_qb_slot_count", "F4.unreadable_starting_slots",
     "F4.unreadable_starter_limits", "F4.no_draft_type", "F4.draft_type_absent",

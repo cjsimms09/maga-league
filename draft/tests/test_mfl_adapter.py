@@ -140,7 +140,11 @@ def test_an_unparseable_points_expression_is_skipped_not_zeroed():
     r = _rules([{"positions": {"$t": "WR"}, "rule": [
         {"event": {"$t": "CC"}, "points": {"$t": "??"}}]}])
     by_pos, reason = A.reception_points_by_position(r)
-    assert by_pos == {} and reason == "no_reception_rule"
+    # NOT COERCED TO ZERO — the invariant this test exists for, unchanged.
+    assert by_pos == {}
+    # And the reason is now the precise one: a CC rule WAS present and OUR parser
+    # could not read it, which is a different fact from "they score no receptions".
+    assert reason == "unreadable_reception_points"
 
 
 def test_the_reception_code_is_the_one_MFL_documents():

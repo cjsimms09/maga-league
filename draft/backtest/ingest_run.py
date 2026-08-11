@@ -888,3 +888,76 @@ def outcomes_summary(outcomes: list) -> dict:
 def _count(values) -> dict:
     from collections import Counter
     return dict(Counter(str(v) for v in values if v is not None).most_common())
+
+
+def format_census(verdicts) -> dict:
+    """WHAT THE PUBLIC POOL ACTUALLY LOOKS LIKE, over the leagues whose format we READ.
+
+    WHY THIS IS NOT FILTER-SHOPPING, said plainly because the line matters. F1 stays
+    exactly as registered and nothing here changes a screen. Run 11 measured 0 of 113
+    readable leagues passing F1, which says our format is rare and says nothing about
+    WHAT the pool is instead — and "0 matched" with no distribution beside it invites
+    exactly the post-hoc filter relaxation rule 4 exists to stop, because the only way
+    to learn anything is to start loosening clauses and watching the count.
+
+    So the distribution is reported ONCE, as a fact about the pool. It makes the COST
+    of F1 visible instead of leaving it to be discovered by fiddling. Any change to
+    F1 is a new dated registration made by the person who owns that decision, on this
+    evidence, in the open — not a clause quietly widened by whoever was looking at the
+    number.
+
+    Counted over READABLE leagues only. A league we could not fetch or parse has no
+    format to census, and folding it in as a bucket would report our pipeline's gaps
+    as facts about other people's leagues.
+    """
+    from collections import Counter
+    teams, ppr, sflex, dtype, keeper = Counter(), Counter(), Counter(), Counter(), Counter()
+    readable = 0
+    for r, _, why in verdicts or []:
+        if r.get("unfetchable") or F.is_unreadable(why):
+            continue
+        readable += 1
+        teams[r.get("teams") if r.get("teams") is not None else "(absent)"] += 1
+        sflex[bool(r.get("superflex"))] += 1
+        dtype[r.get("draft_type") or "(absent)"] += 1
+        keeper[r.get("keeper_type") or "(absent)"] += 1
+        ppr[_ppr_bucket(r)] += 1
+    return {
+        "readable_leagues": readable,
+        "teams": dict(teams.most_common()),
+        "reception_points": dict(ppr.most_common()),
+        "superflex": {str(k): v for k, v in sflex.most_common()},
+        "draft_type": dict(dtype.most_common()),
+        "keeper_type": dict(keeper.most_common()),
+        "f1_as_registered": {"teams": sorted(F.TEAMS_ALLOWED),
+                             "reception_points": "half-PPR band",
+                             "superflex": "excluded"},
+        "verdict": ("Distribution over %d READABLE leagues. F1 is unchanged and nothing "
+                    "here is a filter: this is what the pool is, so the cost of F1 is a "
+                    "measurement rather than something discovered by loosening clauses "
+                    "and watching the count. Any change to F1 is a new dated "
+                    "registration, not an edit." % readable),
+    }
+
+
+def _ppr_bucket(record) -> str:
+    """Reception points as a LABEL, and split scoring is its own bucket.
+
+    A league paying 0.5 to WR and 1.0 to TE is not "1.0 PPR with a caveat" — TE
+    premium is a different format, and averaging the positions would invent a league
+    that does not exist. `screen()` already refuses it by name; the census keeps it
+    visible instead of hiding it inside whichever number the average landed on.
+    """
+    by_pos = ((record.get("scoring") or {}).get("rec_by_position") or {})
+    vals = {v for v in by_pos.values() if v is not None}
+    if not vals:
+        return "(no reception rule)"
+    if len(vals) > 1:
+        return "split/TE-premium %s" % ",".join(
+            "%s=%s" % kv for kv in sorted(by_pos.items()))
+    v = next(iter(vals))
+    for lo, hi, label in ((0.0, 0.001, "0 (standard)"), (0.4, 0.6, "0.4-0.6 (half-PPR)"),
+                          (0.9, 1.1, "0.9-1.1 (full PPR)")):
+        if lo <= v <= hi:
+            return label
+    return "other:%s" % v

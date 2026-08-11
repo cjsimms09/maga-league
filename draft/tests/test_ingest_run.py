@@ -766,3 +766,73 @@ def test_a_league_PAST_THE_PER_LEAGUE_CAP_is_UNCHECKED_not_PASSING():
     whole = _feas(1, [{"league_id": "a", "players_with_adp": 10}])
     b = R.subset_bound(fmt, whole)
     assert b["comparable_leagues"] == 1 and b["board_size_violations"] == 0
+
+
+# ── what the pool IS, so the cost of F1 is measured rather than fiddled out ─
+def test_THE_CENSUS_COUNTS_ONLY_LEAGUES_WHOSE_FORMAT_WE_READ():
+    """A league we could not fetch or parse has no format to census. MUTATION: count
+    them anyway. Our pipeline's gaps are reported as facts about other people's
+    leagues — the same denominator lie the attrition seam exists to stop, arriving
+    in a new report."""
+    recs = [good_record("A"), R.build_record("B", {"league": {"_error": "http 500"}})]
+    v, _ = R.run_screen(recs)
+    c = R.format_census(v)
+    assert c["readable_leagues"] == 1
+    assert sum(c["teams"].values()) == 1
+
+
+def test_the_census_reports_the_DISTRIBUTION_not_a_pass_rate():
+    """0 matched with no distribution beside it invites exactly the post-hoc filter
+    relaxation rule 4 exists to stop: the only way to learn anything is to start
+    loosening clauses and watching the count. MUTATION: report only the pass rate."""
+    recs = [good_record("A", teams="10"), good_record("B", teams="12"),
+            good_record("C", teams="14"), good_record("D", teams="14")]
+    c = R.format_census(R.run_screen(recs)[0])
+    assert c["teams"] == {10: 1, 12: 1, 14: 2}
+    assert "F1 is unchanged and nothing here is a filter" in c["verdict"]
+    assert "new dated registration" in c["verdict"]
+    # F1 as registered is printed BESIDE the distribution, so the gap is legible
+    # without anyone having to remember what F1 says.
+    assert c["f1_as_registered"]["teams"] == sorted(F.TEAMS_ALLOWED)
+
+
+def test_SPLIT_SCORING_IS_ITS_OWN_BUCKET_never_averaged():
+    """A league paying 0.5 to WR and 1.0 to TE is not "1.0 PPR with a caveat" — TE
+    premium is a different format. MUTATION: average the positions. The census
+    invents a league that does not exist and files it under whichever number the
+    mean landed on, which is how a format nobody plays acquires a population."""
+    r = good_record("A")
+    r["scoring"] = {"rec_by_position": {"RB": 0.5, "WR": 0.5, "TE": 1.5}}
+    c = R.format_census([(r, False, "F1.te_premium_or_split_ppr")])
+    bucket = next(iter(c["reception_points"]))
+    assert bucket.startswith("split/TE-premium"), c["reception_points"]
+    assert "TE=1.5" in bucket
+
+
+def test_a_STANDARD_league_is_censused_as_STANDARD_not_as_unreadable():
+    """MEASURED, and it moved the F7 denominator. `no_reception_rule` was returned
+    for BOTH "the rules parsed and award nothing per catch" and "we could not read
+    this league's scoring", and `screen()` files the second as UNREADABLE — so six
+    standard leagues in run 11 were booked as OUR pipeline's gaps rather than as
+    facts about the pool. The readable count is exactly the denominator F7's
+    reachability arithmetic is computed over.
+
+    A standard league is a READING: rules present for the skill positions, none of
+    them scoring receptions, so receptions are worth 0 here. MUTATION: call it
+    unreadable again. Every standard league in the pool disappears from the census
+    and from the denominator, and the rule-of-three bound is computed over a
+    population that excludes the single most common competing format."""
+    r = good_record("A")
+    r["scoring"] = {"rec_by_position": {"RB": 0.0, "WR": 0.0, "TE": 0.0}}
+    c = R.format_census([(r, False, "F1.scoring_not_half_ppr")])
+    assert c["readable_leagues"] == 1
+    assert "0 (standard)" in c["reception_points"]
+
+
+def test_a_league_whose_scoring_we_could_NOT_read_stays_out_of_the_census():
+    """The other half of the same split. Absent is not zero: "we could not read a
+    reception rule" is not "this league pays nothing per catch"."""
+    r = good_record("A")
+    r["scoring"] = {"rec_by_position": {}}
+    c = R.format_census([(r, False, "F4.no_reception_rule")])
+    assert c["readable_leagues"] == 0, "an unreadable league has no format to census"

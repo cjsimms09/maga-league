@@ -241,7 +241,8 @@ actions. Every reason is a TRUE statement about the league.
   `F2.autopick_majority` · `F5.adp_not_strictly_pre_draft`
 - **UNREADABLE — we could not read or could not obtain it.** Evidence about THIS
   PIPELINE, and never a statement about format rarity.
-  `F4.no_scoring_rules` · `F4.no_reception_rule` · `F4.no_team_count` ·
+  `F4.no_scoring_rules` · `F4.no_reception_rule` · `F4.unreadable_reception_points` ·
+  `F4.no_team_count` ·
   `F4.unreadable_team_count` · `F4.no_roster_slots` · `F4.no_qb_slot_count` ·
   `F4.unreadable_qb_slot_count` · `F4.unreadable_starting_slots` ·
   `F4.unreadable_starter_limits` · `F4.no_draft_type` · `F4.draft_type_absent` ·
@@ -905,6 +906,44 @@ diagnosable instead of becoming an anonymous drop. This is the attrition seam at
 outermost layer — the same principle as `F4.fetch_failed`, one level further out. The
 previous behaviour meant a single malformed league could delete an entire run's evidence,
 which is the most expensive way for a sample to become invisible.
+
+## A STANDARD LEAGUE IS A READING, NOT A FAILURE TO READ (found 2026-08-11)
+
+**And it moves the denominator the F7 rule below is computed over**, which is why it is
+recorded above that rule rather than after it.
+
+`reception_points_by_position` returned `no_reception_rule` for two different worlds:
+
+- **the rules parsed and award nothing per catch** — a STANDARD-scoring league. Readable.
+  Fails F1 on the band. Evidence about the pool.
+- **we could not read this league's scoring at all** — evidence about this pipeline.
+
+`screen()` files the second as UNREADABLE, so both were leaving the readable population.
+Run 11's `F4.no_reception_rule: 6` were being booked as our gaps when standard scoring is
+the single most common competing format in public leagues — precisely the leagues an
+honest F1-rarity measurement most needs to count.
+
+**Absent is still not zero, and this does not break it.** The zero is returned only for
+positions the league writes rules for. Rules present for RB and none of them scoring
+receptions means receptions are worth 0 to an RB **here** — measured. A position the
+league writes no rule for stays absent, because about that one we know nothing. The split
+is now four-way, and each fact gets its own reason:
+
+| what happened | reason | about |
+|---|---|---|
+| rules present, CC found | `ok` | the league |
+| rules present for skill positions, no CC | `ok`, value **0.0** → `F1.scoring_not_half_ppr` | the league |
+| CC present, points expression unreadable | `F4.unreadable_reception_points` | **us** |
+| no rules for any skill position | `F4.no_reception_rule` | us |
+
+A fifth case falls out for free and is sharper than what came before: a league writing
+rules for **some** skill positions returns `F4.no_scoring_rules:RB,TE`, naming the
+positions we lack instead of blaming the reception rule.
+
+**Consequence for the F7 arithmetic.** Run 11's readable count of 113 was too low by up to
+6. The rule below is stated over *readable leagues*, so it is unaffected in form — but the
+next run's denominator will be larger for the same crawl, which brings the decision closer,
+not further away. The bound was conservative in the wrong direction.
 
 ## F7 DECISION RULE, REGISTERED BEFORE THE RUN THAT TESTS IT (2026-08-11)
 

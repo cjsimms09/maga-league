@@ -306,7 +306,8 @@ def test_an_unreadable_expression_scores_NOTHING_rather_than_zero_points():
     rules = {"rules": {"positionRules": [
         {"positions": "WR", "rule": [{"event": {"$t": "CC"}, "points": {"$t": "??"}}]}]}}
     by_pos, reason = A.reception_points_by_position(rules)
-    assert by_pos == {} and reason == "no_reception_rule"
+    assert by_pos == {}, "a rule we cannot read must never become 0.0/reception"
+    assert reason == "unreadable_reception_points"
     assert "WR" not in by_pos
 
 
