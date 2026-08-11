@@ -154,6 +154,53 @@ def _points_per_event(expr: str):
         return None
 
 
+PASS_TD_EVENT = "#P"        # "the total number of Passing TDs in a game by a player"
+
+
+def event_points_by_position(rules_json, event) -> tuple:
+    """({POS: points_per_event}, reason) for ANY event code, same walk as receptions.
+
+    ADDED for the passing-TD question, and deliberately NOT a second parser: it is
+    `reception_points_by_position`'s body with the event code as a parameter, so a
+    shape MFL changes is read one way by both. A private copy of this walk is how
+    `ppr_verdict` came to give a different answer from F1 about the same league.
+
+    NOTE ON WHAT IT MEANS FOR A DIFFERENT EVENT. The zero-return for a governed
+    position is right for receptions — rules present and none scoring a catch means
+    catches are worth nothing. It is right for passing TDs by the same argument, and
+    a caller wanting a different reading for some third event should say so rather
+    than inherit this one silently.
+    """
+    d = json.loads(rules_json) if isinstance(rules_json, str) else (rules_json or {})
+    if d.get("error"):
+        return {}, "no_scoring_rules"
+    node = (d.get("rules") or {}).get("positionRules")
+    if node is None:
+        return {}, "no_scoring_rules"
+    want = str(event).strip().upper()
+    out, governed, unreadable_pts = {}, set(), 0
+    for pr in listify(node):
+        names = [p.strip().upper() for p in t(pr.get("positions")).replace(",", "|").split("|") if p.strip()]
+        rules = listify(pr.get("rule"))
+        if rules:
+            governed.update(names)
+        for rule in rules:
+            if t(rule.get("event")).strip().upper() != want:
+                continue
+            pts = _points_per_event(t(rule.get("points")))
+            if pts is None:
+                unreadable_pts += 1
+                continue
+            for n in names:
+                out[n] = max(out.get(n, pts), pts)
+    if out:
+        return out, "ok"
+    if unreadable_pts:
+        return {}, "unreadable_points:%s" % want
+    return ({p: 0.0 for p in ("QB",) if p in governed} or {}), (
+        "ok" if "QB" in governed else "no_rule_for_event:%s" % want)
+
+
 def reception_points_by_position(rules_json) -> tuple:
     """({POS: points_per_reception}, reason).
 
@@ -718,6 +765,7 @@ def to_league_record(league_json, rules_json, draft_json, *,
     # "Error - No League Scoring Rules" or one that carried rules with no
     # reception line in them.
     by_pos, scoring_why = reception_points_by_position(rules_json)
+    pass_td, _pass_td_reason = event_points_by_position(rules_json, PASS_TD_EVENT)
     if not by_pos:
         unreadable["scoring"] = scoring_why
 
@@ -725,7 +773,13 @@ def to_league_record(league_json, rules_json, draft_json, *,
         "league_id": str(league_id or t(node.get("id")) or ""),
         "source": "mfl",
         "teams": teams,
-        "scoring": {"rec_by_position": by_pos or None},
+        # `pass_td_by_position` is CARRIED, NEVER SCREENED. F1 reads exactly six
+        # things — teams, the PPR band, TE-premium, QB slots, skill slots, draft
+        # type — and passing-TD value is not one of them. It is here because the
+        # POOL'S distribution is worth knowing (our 6-point rule against a market
+        # built on 4), not because any league is admitted or refused on it.
+        "scoring": {"rec_by_position": by_pos or None,
+                    "pass_td_by_position": pass_td or None},
         "roster_slots": slots,
         "superflex": superflex,
         "draft_type": kind,

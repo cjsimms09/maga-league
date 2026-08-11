@@ -998,3 +998,41 @@ def test_the_survival_only_gate_still_enforces_EVERY_OTHER_FILTER():
     contaminated["has_weekly_outcomes"] = False
     assert R.survival_gate(contaminated)[0] is False, \
         "ADP observed after the draft must still be refused"
+
+
+def test_PASSING_TD_VALUE_IS_CARRIED_BUT_NEVER_SCREENED():
+    """CHECKED RATHER THAN ASSUMED, which is what was asked. F1 reads exactly six
+    things — teams, the PPR band, TE-premium/split, QB slots, skill slots, draft
+    type. Passing-TD value is not one of them.
+
+    So a league that is half-PPR at every skill position and differs from us ONLY in
+    passing-TD value PASSES F1 completely. It cannot be among the leagues rejected on
+    scoring, and OUR 6-POINT RULE CANNOT BE WHY OUR FORMAT IS RARE in this pool.
+    That is arithmetic on what the filter reads, not an empirical result.
+
+    MUTATION: screen on it. Every 4-point league in the pool — which is nearly all of
+    them — is rejected for a term F1 never registered, and the format-rarity finding
+    becomes an artifact of an unregistered clause."""
+    import mfl_adapter as A
+    ex = mfl_exports()
+    ex["rules"] = {"rules": {"positionRules": [
+        {"positions": "RB|WR|TE", "rule": [{"event": {"$t": "CC"}, "points": {"$t": "*0.5"}}]},
+        {"positions": "QB", "rule": [{"event": {"$t": "#P"}, "points": {"$t": "*4"}}]}]}}
+    rows, _ = A.draft_picks(ex["draftResults"])
+    rec = R.build_record("L1", ex, rounds=3, pre_draft_adp={"1": 1.0},
+                         adp_observed_at="2025-08-20", has_weekly_outcomes=True,
+                         crosswalk=([{"overall": r["overall"]} for r in rows], {}))
+    # Four-point passing TD, half-PPR everywhere: ADMITTED.
+    assert F.screen(rec) == (True, "ok")
+    assert rec["scoring"]["pass_td_by_position"] == {"QB": 4.0}
+
+    c = R.format_census([(rec, True, "ok")])
+    assert c["pass_td_points"] == {"4 (market standard)": 1}
+    assert "cannot be why our format is rare" in c["pass_td_note"]
+
+
+def test_a_league_with_NO_passing_TD_rule_read_is_not_a_ZERO_point_league():
+    r = good_record("L1")
+    r["scoring"] = {"rec_by_position": {"RB": 0.5}, "pass_td_by_position": None}
+    c = R.format_census([(r, True, "ok")])
+    assert "(no passing-TD rule read)" in c["pass_td_points"]

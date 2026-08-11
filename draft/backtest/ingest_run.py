@@ -934,6 +934,7 @@ def format_census(verdicts) -> dict:
     """
     from collections import Counter
     teams, ppr, sflex, dtype, keeper = Counter(), Counter(), Counter(), Counter(), Counter()
+    ptd = Counter()
     readable = 0
     for r, _, why in verdicts or []:
         if r.get("unfetchable") or F.is_unreadable(why):
@@ -944,10 +945,21 @@ def format_census(verdicts) -> dict:
         dtype[r.get("draft_type") or "(absent)"] += 1
         keeper[r.get("keeper_type") or "(absent)"] += 1
         ppr[_ppr_bucket(r)] += 1
+        ptd[_pass_td_bucket(r)] += 1
     return {
         "readable_leagues": readable,
         "teams": dict(teams.most_common()),
         "reception_points": dict(ppr.most_common()),
+        # CARRIED, NEVER SCREENED — and the distinction is the finding. F1 reads six
+        # things and passing-TD value is not one of them, so no league in this pool
+        # was ever admitted or refused on it. Counted here because OUR 6-point rule
+        # against a market built on 4 is a real question about pricing, and it is a
+        # different question from format rarity.
+        "pass_td_points": dict(ptd.most_common()),
+        "pass_td_note": ("F1 does not screen this. A league that is half-PPR at every "
+                         "skill position and differs from us ONLY in passing-TD value "
+                         "PASSES F1 — so it cannot be among the leagues rejected on "
+                         "scoring, and passing-TD value cannot be why our format is rare"),
         "superflex": {str(k): v for k, v in sflex.most_common()},
         "draft_type": dict(dtype.most_common()),
         "keeper_type": dict(keeper.most_common()),
@@ -960,6 +972,19 @@ def format_census(verdicts) -> dict:
                     "and watching the count. Any change to F1 is a new dated "
                     "registration, not an edit." % readable),
     }
+
+
+def _pass_td_bucket(record) -> str:
+    """Passing-TD points as a label. Absent is its own bucket, not a zero."""
+    by_pos = ((record.get("scoring") or {}).get("pass_td_by_position") or {})
+    v = by_pos.get("QB")
+    if v is None:
+        return "(no passing-TD rule read)"
+    for lo, hi, label in ((3.5, 4.5, "4 (market standard)"), (5.5, 6.5, "6 (OURS)"),
+                          (4.5, 5.5, "5")):
+        if lo <= v <= hi:
+            return label
+    return "other:%s" % v
 
 
 def _ppr_bucket(record) -> str:
