@@ -53,6 +53,11 @@ b_owns() {
     # src/matchup.js — slot-aligned matchup starters (QB vs QB). In-season site
     # surface, imported only by src/routes/member; never by draft/**. B by substance.
     src/matchup.js) return 0 ;;
+    # src/recap.js — the WEEKLY RECAP, in the chronicle voice. B is building it,
+    # and it is one of the only three things that may ever be emailed to a member.
+    # Same substance profile as champs/rivalries/matchup: imported only by
+    # src/routes/recap-data.js, never by draft/** production code. B.
+    src/recap.js) return 0 ;;
     views/*|src/routes/*|public/css/*|public/icons/*|public/*.webmanifest) return 0 ;;
     public/js/*) case "$1" in public/js/draft/*) return 1 ;; *) return 0 ;; esac ;;
     docs/queued/league-history-page.md|docs/queued/history-chronicle-voice.md) return 0 ;;
