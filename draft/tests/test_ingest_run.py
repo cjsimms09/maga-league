@@ -250,6 +250,20 @@ def _index(*pairs):
                         for sid, nm, pos in pairs}}
 
 
+def nfl_row(pid, week=1, **stats):
+    """A weekly row in the shape the LOADERS actually serve: every mapped column
+    present (mostly zero) and `season_type` populated. A fixture carrying only the
+    columns a test cares about would let D5f's schema check and D5g's REG filter
+    pass against a shape the live path never sees — and D5f exists because a
+    loader renamed one of these columns."""
+    import grade as GR
+    row = {"player_id": pid, "season": 2025, "week": week, "season_type": "REG"}
+    for c in list(GR._WEEKLY_MAP) + list(GR._FUM_LOST_COLS):
+        row.setdefault(c, 0)
+    row.update(stats)
+    return row
+
+
 RULES = {"rules": {"positionRules": [
     {"positions": "QB", "rule": [{"event": {"$t": "PY"}, "points": {"$t": "*0.04"}}]},
     {"positions": "RB|WR|TE", "rule": [{"event": {"$t": "CC"}, "points": {"$t": "*0.5"}}]}]}}
@@ -265,7 +279,7 @@ def test_the_POSITION_comes_from_OUR_BOARD_not_from_the_crosswalk_ROW():
     300-yard passing week is 300 x 0.04 = 12.0; under the WR table it is 0.0,
     because a receiver's table has no passing term at all."""
     cw = _cw_rows(("77", "A Player", "WR"))
-    rows = [{"player_id": "G77", "season": 2025, "week": 1, "passing_yards": 300}]
+    rows = [nfl_row("G77", passing_yards=300)]
     got = R.outcomes_fields(RULES, cw, rows, 2025, {"G77": "77"},
                             _index(("77", "A Player", "QB")))
     assert got["has_weekly_outcomes"] is True
@@ -276,7 +290,7 @@ def test_a_pick_that_never_CROSSWALKED_is_not_counted_AGAIN_as_a_missing_outcome
     """F2 already counted him once. Counting him here would charge one league
     twice for one failure and make F3's coverage a function of F2's."""
     cw = _cw_rows(("77", "A Player", "QB"))          # one matched row; F2 counts the rest
-    rows = [{"player_id": "G77", "season": 2025, "week": 1, "passing_yards": 300}]
+    rows = [nfl_row("G77", passing_yards=300)]
     got = R.outcomes_fields(RULES, cw, rows, 2025, {"G77": "77"},
                             _index(("77", "A Player", "QB")))
     assert got["outcomes"]["f3"]["examined"] == 1
@@ -287,7 +301,7 @@ def test_a_player_OUR_BOARD_cannot_POSITION_is_counted_not_defaulted():
     """No fallback to the row's position, and no default table. He lands in
     `unknown_position`, which is a count, and drops out of F3 as absent."""
     cw = _cw_rows(("77", "A Player", "WR"))
-    rows = [{"player_id": "G77", "season": 2025, "week": 1, "receptions": 5}]
+    rows = [nfl_row("G77", receptions=5)]
     got = R.outcomes_fields(RULES, cw, rows, 2025, {"G77": "77"}, {"by_name": {}})
     assert got["outcomes"]["unknown_position"] == ["77"]
     assert got["outcomes"]["f3"]["drafted_without_outcomes"] == 1

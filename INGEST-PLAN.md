@@ -249,7 +249,7 @@ actions. Every reason is a TRUE statement about the league.
   `F4.crosswalk_not_run` · `F4.no_weekly_outcomes` · `F4.no_pre_draft_adp` ·
   `F4.fetch_failed` · `F5.missing_timestamps` ·
   `F4.scoring_untranslatable` · `F4.scoring_range_exceeded` · `F4.no_weekly_data` ·
-  `F4.no_gsis_crosswalk`  *(the last four are F3/D5 — see D5 at the foot of this
+  `F4.stat_columns_absent` · `F4.no_season_type` · `F4.no_gsis_crosswalk`  *(the last six are F3/D5 — see D5 at the foot of this
   document. All four are gaps in OUR vocabulary or OUR fetch, which is why they sit
   here and not above: a league whose scoring uses a term we cannot express is not a
   league that scores differently from ours, it is a league we cannot read.)*
@@ -517,3 +517,41 @@ map them, and that file is not this lane's to edit. So a non-trivial share of ot
 qualifying leagues is expected to fail D5b, and the run reports the failing EVENT CODES with
 counts. That report is the evidence for a request to widen the translator — a request with a
 number attached rather than a guess.
+
+### D5f / D5g — ADDED 2026-08-11 FROM A MEASUREMENT, same sitting as D5a–e
+
+Both come from running the translation against **real nflverse rows** and looking at
+the leaderboard, which is the check D5 built `sanity_top` for. Neither changes an
+admission rule; both add a refusal where the pipeline would otherwise have produced a
+number quietly biased in a stated direction.
+
+**D5f — a scoring key the DATA cannot serve fails the league** (`F4.stat_columns_absent`).
+
+*Measured, not hypothesised.* `nfl_data_py.import_weekly_data` **404s for 2025**;
+`nflreadpy.load_player_stats` serves it (19,421 rows) — with `interceptions` **renamed
+to `passing_interceptions`**. `grade.nflverse_weekly_to_scoring` maps the old name, so
+under the 2025 loader `pass_int` is never emitted and `score_stat_line` skips it, which
+is correct behaviour for an absent optional bonus and exactly wrong for a term the
+league scores. Cost, stated: a QB week of 300 yd / 2 TD / 1 INT scores **18.0**
+correctly and **20.0** silently — about 2 points per interception, **on QBs only**, so a
+systematic bias by position.
+
+The check runs the SHIPPED translator over the fetched rows and takes the union of keys
+it emits. That catches three failures with one measurement — a renamed column, an absent
+one, and one present but never populated — and it cannot drift from the translator,
+because it **is** the translator.
+
+**D5g — a fantasy season is the REGULAR season** (`F4.no_season_type` when undecidable).
+
+Both loaders pool REG and POST in one table (2024: 5,340 + 257; 2025: 18,539 + 882) and
+weeks run to 22. Caught by the leaderboard's `weeks` column reading **19–21** for a
+season with at most 18. Postseason rows are dropped and counted; a row with no
+`season_type` is dropped and counted separately (absent is not REG); data carrying no
+`season_type` at all refuses the league, because dropping every row would print empty
+series that read as a season in which nobody played.
+
+*Why this was not a rounding error.* Measured on 2024, half-PPR, REG-only vs pooled:
+Lamar Jackson 471.54 → **430.38**; Saquon Barkley 432.70 → **338.80** (−22%); Ja'Marr
+Chase 339.50 → **339.50** (unchanged). The inflation lands **only on players whose teams
+went deep**, i.e. it is correlated with team quality — which is correlated with what a
+draft policy is being graded on.

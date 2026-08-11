@@ -292,6 +292,8 @@ UNOBTAINED_REASONS = (
     "F4.scoring_range_exceeded",     # a rule's upper bound, checked against the data
     "F4.no_weekly_data",             # the FETCH served nothing for the season
     "F4.no_gsis_crosswalk",          # weekly is GSIS-keyed, our board is Sleeper-keyed
+    "F4.stat_columns_absent",        # the DATA cannot serve a term the league scores
+    "F4.no_season_type",             # REG and POST are indistinguishable in this data
 )
 
 

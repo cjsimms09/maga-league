@@ -112,8 +112,51 @@ EVENT_TO_KEY = {
 #                  it can be made with a number attached rather than a guess.
 
 
+# A fantasy season is the REGULAR season. Postseason rows are dropped and counted.
+REGULAR_SEASON = "REG"
+
+
 class Untranslatable(Exception):
     """Raised only by callers that want the failure loud; the API returns reasons."""
+
+
+def emittable_keys(rows) -> set:
+    """Which of our scoring keys THIS DATA can actually produce.
+
+    D5f, and it is not a hypothetical: measured 2026-08-11 against both loaders,
+    `nfl_data_py.import_weekly_data` 404s for 2025 and `nflreadpy.load_player_stats`
+    serves it — with `interceptions` RENAMED to `passing_interceptions`. The shipped
+    translator maps the old name, so under nflreadpy `pass_int` is never emitted,
+    and a league scoring -2 per interception scores every QB about two points per
+    interception TOO HIGH. Silently: `score_stat_line` skips a key the stat line
+    does not carry, which is correct behaviour for an optional bonus and is exactly
+    wrong for a term the league actually scores.
+
+    Defined by RUNNING the shipped translator rather than by comparing column
+    names, so it catches three failures with one measurement: a renamed column, an
+    absent one, and one present but never populated. And it cannot drift from the
+    translator, because it IS the translator.
+    """
+    out: set = set()
+    for row in rows or []:
+        out |= set(GR.nflverse_weekly_to_scoring(row))
+    return out
+
+
+def schema_gap(rows, tables) -> dict:
+    """{POS: [keys the league scores that this data cannot produce]}.
+
+    Empty means every term in every graded position's table is backed by a column
+    the loader actually serves. Anything else means a term would be scored as
+    absent — which `score_stat_line` treats as no contribution, i.e. as zero.
+    """
+    have = emittable_keys(rows)
+    gap = {}
+    for pos, table in (tables or {}).items():
+        missing = sorted(k for k in table if k not in have)
+        if missing:
+            gap[pos] = missing
+    return gap
 
 
 def _range(expr: str):
@@ -256,9 +299,25 @@ def weekly_points(rows, season, tables, positions, id_map=None, bounds=None) -> 
     exceeded: list = []
     unknown_pos: set = set()
     no_table: set = set()
+    postseason = unknown_type = 0
     bounds = bounds or {}
     for row in rows or []:
         if season is not None and "season" in row and int(row["season"]) != int(season):
+            continue
+        # D5g: A FANTASY SEASON IS THE REGULAR SEASON. Both loaders serve REG and
+        # POST in one table (2024: 5,340 REG + 257 POST; 2025: 18,539 + 882) and
+        # weeks run to 22. Pooling them inflates exactly the players on playoff
+        # teams — a bias correlated with team quality, which is correlated with
+        # what a draft policy is being graded on. Caught by the leaderboard's
+        # `weeks` column showing 19-21 for a season that has at most 18.
+        st = row.get("season_type")
+        if st is None:
+            # NOT assumed REG. A row we cannot place in the season is dropped and
+            # counted, the same as every other absent value in this file.
+            unknown_type += 1
+            continue
+        if str(st).upper() != REGULAR_SEASON:
+            postseason += 1
             continue
         raw = str(row.get("player_id") if "player_id" in row else row.get("gsis_id"))
         pid = str(id_map.get(raw)) if id_map is not None else raw
@@ -283,7 +342,8 @@ def weekly_points(rows, season, tables, positions, id_map=None, bounds=None) -> 
         wk = int(wk) if wk is not None else None
         bucket = series.setdefault(pid, {})
         bucket[wk] = round(bucket.get(wk, 0.0) + scoring.score_stat_line(line, table), 2)
-    return {"series": series, "exceeded": exceeded,
+    return {"series": series, "exceeded": exceeded, "postseason_rows_dropped": postseason,
+            "unknown_season_type_rows_dropped": unknown_type,
             "unknown_position": sorted(unknown_pos), "no_table": sorted(no_table)}
 
 
@@ -420,6 +480,20 @@ def league_outcomes(rules_json, drafted_ids, weekly_rows, season, positions,
         return out
     if not id_map:
         out["reason"] = "F4.no_gsis_crosswalk"
+        return out
+    if not any("season_type" in (r or {}) for r in weekly_rows):
+        # D5g. Without it we cannot tell a REG week from a playoff week, and
+        # assuming REG would pool the postseason into every season total.
+        out["reason"] = "F4.no_season_type"
+        return out
+    gap = schema_gap(weekly_rows, tables)
+    if gap:
+        # D5f. The league's rules translated fine; the DATA cannot serve a term
+        # they use. Scoring anyway would silently drop it — and the sign of the
+        # dropped term sets the direction of the error.
+        out["schema_gap"] = gap
+        out["reason"] = "F4.stat_columns_absent:" + ";".join(
+            "%s=%s" % (p, ",".join(v)) for p, v in sorted(gap.items()))
         return out
     got = weekly_points(weekly_rows, season, tables, positions, id_map, bounds)
     if got["exceeded"]:

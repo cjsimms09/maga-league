@@ -49,8 +49,21 @@ FULL = [
 
 
 def wk(pid, week, **stats):
-    """One nflverse weekly row, in nflverse's OWN column vocabulary."""
-    row = {"player_id": pid, "season": 2025, "week": week}
+    """One nflverse weekly row, in nflverse's OWN column vocabulary.
+
+    `season_type` is here because the real tables carry it and pool REG with POST
+    (2024: 5,340 + 257; 2025: 18,539 + 882, weeks running to 22). A fixture without
+    it would let the postseason filter pass untested against a shape the live path
+    never sees."""
+    row = {"player_id": pid, "season": 2025, "week": week, "season_type": "REG"}
+    # EVERY mapped column, defaulting to 0 — which is what a real nflverse row is.
+    # A fixture carrying only the columns a test cares about would let the D5f
+    # schema check pass on a shape the live path never serves, and D5f exists
+    # BECAUSE a loader renamed one of these (`interceptions` ->
+    # `passing_interceptions` in nflreadpy). Taken from the translator's own maps
+    # so a column added there appears here without an edit.
+    for c in list(GR._WEEKLY_MAP) + list(GR._FUM_LOST_COLS):
+        row.setdefault(c, 0)
     row.update(stats)
     return row
 
@@ -397,3 +410,104 @@ def test_the_leaderboard_does_not_pool_seasons():
             dict(wk("A", 1, receiving_tds=2), season=2024, player_display_name="N",
                  position="WR")]
     assert X.sanity_top(rows, 2025, S.HALF_PPR_REFERENCE)[0]["points"] == 12.0
+
+
+# ── D5f: THE COLUMN THE LOADER DOES NOT SERVE ──────────────────────────────
+# Measured 2026-08-11, not hypothesised. `nfl_data_py.import_weekly_data` 404s for
+# 2025; `nflreadpy.load_player_stats` serves it (19,421 rows) with `interceptions`
+# RENAMED to `passing_interceptions`. The shipped translator maps the old name, so
+# `pass_int` is never emitted and every QB scores ~2 points per interception too
+# high — with no error anywhere, because `score_stat_line` correctly skips a key
+# the stat line does not carry.
+def nflreadpy_shaped(row):
+    """The same row as the 2025 loader actually serves it."""
+    out = dict(row)
+    out["passing_interceptions"] = out.pop("interceptions", 0)
+    return out
+
+
+def test_a_RENAMED_column_is_caught_rather_than_scored_as_absent():
+    """MUTATION: skip the schema check. A league scoring -2 per interception would
+    be graded with no interceptions at all, and the leaderboard would look fine."""
+    tables, _b, _i, _bo = X.scoring_tables(rules(FULL))
+    rows = [nflreadpy_shaped(wk("Q1", w, passing_yards=300, passing_tds=2,
+                                interceptions=1)) for w in (1, 2)]
+    gap = X.schema_gap(rows, tables)
+    assert gap["QB"] == ["pass_int"], gap
+    out = X.league_outcomes(rules(FULL), ["Q1"], rows, 2025, {"Q1": "QB"}, {"Q1": "Q1"})
+    assert out["has_weekly_outcomes"] is False
+    assert out["reason"] == "F4.stat_columns_absent:QB=pass_int"
+
+
+def test_the_SIZE_of_the_silent_error_is_stated_not_asserted_away():
+    """THE ARITHMETIC. 300 yards x 0.04 = 12.0, 2 TD x 4 = 8.0, 1 INT x -2 = -2.0
+    -> 18.0 correct. Under the renamed column the interception term contributes
+    nothing and the same week scores 20.0. Over 17 weeks with one pick a week that
+    is 34 points of pure inflation, on QBs only — a systematic bias by position."""
+    tables, _b, _i, bounds = X.scoring_tables(rules(FULL))
+    row = wk("Q1", 1, passing_yards=300, passing_tds=2, interceptions=1)
+    ok = X.weekly_points([row], 2025, tables, {"Q1": "QB"}, {"Q1": "Q1"}, bounds)
+    silent = X.weekly_points([nflreadpy_shaped(row)], 2025, tables, {"Q1": "QB"},
+                             {"Q1": "Q1"}, bounds)
+    assert ok["series"]["Q1"][1] == 18.0
+    assert silent["series"]["Q1"][1] == 20.0
+
+
+def test_emittable_keys_is_the_TRANSLATOR_RUN_not_a_column_name_comparison():
+    """Three failures, one measurement: a renamed column, an absent one, and one
+    present but never populated. A name comparison would miss the third, and it
+    would drift from the translator the first time either changed."""
+    assert "pass_int" in X.emittable_keys([wk("A", 1, interceptions=0)])
+    assert "pass_int" not in X.emittable_keys([nflreadpy_shaped(wk("A", 1))])
+    nulled = dict(wk("A", 1)); nulled["interceptions"] = None
+    assert "pass_int" not in X.emittable_keys([nulled]), \
+        "a column present but never populated scores as absent, same as a missing one"
+
+
+def test_a_league_that_does_NOT_score_the_missing_term_is_unaffected():
+    """A check that fails every league is a check nobody can act on. A WR-only
+    league scoring receptions and yards never touches `pass_int`."""
+    r = rules([("QB", [rule("PY", "*0.04", "0-999")]),
+               ("RB|WR|TE", [rule("CC", "*0.5"), rule("CY", "*0.1", "0-999")])])
+    tables, _b, _i, _bo = X.scoring_tables(r)
+    rows = [nflreadpy_shaped(wk("W1", w, receptions=5, receiving_yards=80))
+            for w in (1, 2)]
+    assert X.schema_gap(rows, tables) == {}
+    assert X.league_outcomes(r, ["W1"], rows, 2025, {"W1": "WR"},
+                             {"W1": "W1"})["has_weekly_outcomes"] is True
+
+
+# ── D5g: A FANTASY SEASON IS THE REGULAR SEASON ────────────────────────────
+# Both loaders pool REG and POST in one table (2024: 5,340 + 257; 2025: 18,539 +
+# 882) and weeks run to 22. Caught by the leaderboard's `weeks` column showing
+# 19-21 for a season that has at most 18.
+def test_POSTSEASON_weeks_are_DROPPED_AND_COUNTED():
+    """MUTATION: score every row. Playoff production would inflate exactly the
+    players on good teams — a bias correlated with team quality, which is
+    correlated with what a draft policy is being graded on."""
+    tables, _b, _i, bounds = X.scoring_tables(rules(FULL))
+    rows = [wk("W1", 1, receiving_tds=1),
+            dict(wk("W1", 20, receiving_tds=3), season_type="POST")]
+    got = X.weekly_points(rows, 2025, tables, {"W1": "WR"}, {"W1": "W1"}, bounds)
+    assert got["series"]["W1"] == {1: 6.0}, "the playoff week was scored"
+    assert got["postseason_rows_dropped"] == 1
+
+
+def test_a_row_with_NO_season_type_is_not_ASSUMED_regular():
+    """Absent is not REG, any more than absent is zero."""
+    tables, _b, _i, bounds = X.scoring_tables(rules(FULL))
+    row = wk("W1", 1, receiving_tds=1); row.pop("season_type")
+    got = X.weekly_points([row], 2025, tables, {"W1": "WR"}, {"W1": "W1"}, bounds)
+    assert got["series"] == {} and got["unknown_season_type_rows_dropped"] == 1
+
+
+def test_data_carrying_NO_season_type_AT_ALL_refuses_the_league():
+    """If nothing in the table distinguishes REG from POST, dropping every row
+    would produce empty series that read as a season in which nobody played."""
+    rows = []
+    for w in (1, 2):
+        r = wk("W1", w, receiving_tds=1); r.pop("season_type"); rows.append(r)
+    out = X.league_outcomes(rules(FULL), ["W1"], rows, 2025, {"W1": "WR"}, {"W1": "W1"})
+    assert out["has_weekly_outcomes"] is False and out["reason"] == "F4.no_season_type"
+    import ingest_filters as F
+    assert F.is_unreadable(out["reason"])

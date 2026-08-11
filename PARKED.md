@@ -3179,3 +3179,58 @@ fixture cannot silently stop reproducing your case.
 I did not touch `src/routes/waivers.js` — territory-check confirms it is yours
 (`TRESPASS (A touched B's file)`). The route still uses the old arithmetic until
 you wire this.
+
+---
+
+## FOR A — one line in `draft/backtest/grade.py`, and it is blocking F3 for 2025+
+
+**File:** `draft/backtest/grade.py`
+**Function:** `nflverse_weekly_to_scoring`, via the module-level `_WEEKLY_MAP`
+**Ask:** add `"passing_interceptions": "pass_int"` alongside the existing
+`"interceptions": "pass_int"`.
+
+**Why, measured 2026-08-11 from this sandbox (nflverse IS reachable here — no CI
+needed to reproduce):**
+
+- `nfl_data_py.import_weekly_data([2025])` → **HTTP 404**. Same stale-URL failure
+  `cli.py` already records for other seasons.
+- `nflreadpy.load_player_stats(seasons=[2025])` → **19,421 rows**, serves fine.
+- In that schema `interceptions` is **`passing_interceptions`**. Everything else
+  `_WEEKLY_MAP` needs is present under the same name.
+
+So under the only loader that serves 2025, `pass_int` is **never emitted**, and
+`score_stat_line` skips a key the stat line does not carry — correct for an absent
+optional bonus, exactly wrong for a term the league scores. A QB week of 300 yd /
+2 TD / 1 INT scores **18.0** correctly and **20.0** silently. On QBs only, so it is
+a systematic bias by position, and nothing errors.
+
+**What I did instead of working around it.** `external_outcomes.schema_gap` now
+refuses any league whose scoring table needs a key the fetched data cannot produce
+(`F4.stat_columns_absent`, declared in `ingest_filters` and in INGEST-PLAN as D5f).
+That converts a silent bias into a loud refusal — but it means **every league
+scoring interceptions is unscoreable for 2025 and any later season nflreadpy
+serves**, which is essentially all of them. I did not add a second alias map in my
+own module: `nflverse_weekly_to_scoring` is the single translation both the backtest
+and this ingest use, and a second one would drift on exactly the tail where it
+matters.
+
+**One caution worth deciding rather than inheriting.** `nflverse_weekly_to_scoring`
+`add()`s per source key, so if a future schema ever carried BOTH names on one row,
+`pass_int` would double. Neither loader does today. If you would rather it not be
+possible at all, first-match-wins per target key is the alternative — your call, not
+mine, and I have not assumed either.
+
+**Verification once it lands:** `X.emittable_keys(rows)` over the 2025 rows should
+contain `pass_int`; `draft/tests/test_external_outcomes.py::test_a_RENAMED_column_is_caught_rather_than_scored_as_absent`
+must stay green either way (it asserts the refusal, not the loader).
+
+---
+
+## FOR A — MERGE REQUEST (routing, not a code change)
+
+**Branch:** `claude/external-ingest-program-1xfinj`
+Two commits outstanding on main: `13994c3` (crosswalk + ADP wired into the run) and
+the F3 weekly-outcomes ingest above. The workflow
+`.github/workflows/external-outcomes-probe.yml` is not dispatchable until it is on
+main — though, unlike the MFL probes, **its measurement can be reproduced locally**,
+and already has been (above).
