@@ -2785,3 +2785,78 @@ keeps it one list.
 so: *"Pure functions over (freeAgents, myRoster, league, ctx). Live wiring is the
 caller's job."* An engine awaiting a caller, documented as such. Reported here
 only because a route that 404s looks like a defect until you read the header.
+
+---
+
+## 🔍 → SESSION A — THE WAIVER TOOL PRICES A CROSS-POSITION SWAP AGAINST TWO DIFFERENT BASELINES (B, 2026-08-11)
+
+Cory asked me to walk the waiver tool the way I walked a week. It has no surface
+(that part is already parked above and is correct — the header says so), so I
+drove `evaluateClaims` through five Tuesdays. Four of them behaved. The first one
+recommended claiming a kicker who is worse than the kicker I already start, and
+priced it at **$59**.
+
+**The arithmetic.** `evaluateClaims` computes
+`netPoints = max(0, sv(newPlayer) - sv(dropCandidate))`. Both terms come from
+`V.startableValue`, which for a bench body returns
+`(proj(player) − proj(the incumbent AT HIS POSITION)) × 0.35 + insurance`.
+The two terms are measured against **different incumbents**, so the subtraction
+does not cancel and the leftover is a comparison between two of MY OWN players
+who have nothing to do with the transaction.
+
+Driven, on a roster with Nacua (WR, 210) as WR2, Butker (K, 130), and a Scrub WR
+(120) as the drop:
+
+| | value | why |
+|---|---|---|
+| `sv(Wire K, 110)` | −6.94 | measured against **Butker, 130** |
+| `sv(Scrub WR, 120)` — the drop | −30.30 | measured against **Nacua, 210** |
+| `net_value` = the difference | **+23.36 pts** | → **$59.35** at $2.54/pt |
+
+`0.35 × (210 − 130) = 28.00` of those points are the gap between my WR2 and my
+kicker. Claiming a strictly worse kicker "adds" 23 startable points because
+Nacua outprojects Butker by 80.
+
+Same-position swaps are fine — the incumbent term genuinely cancels, and the
+"nothing worth a claim" week I drove correctly returned 0 for all three same- or
+adjacent-position scrubs. It is only the cross-position case, which is most of a
+real wire.
+
+**Routed to you rather than fixed** even though the file sits under `src/routes/`
+and the territory script calls that mine: what "net startable points added"
+should mean is your valuation model, not a line of my presentation code, and
+`startableValue` itself (`public/js/draft/valuation.js`) is yours outright. The
+fix is a judgement about the model — probably valuing the roster before and after
+the swap rather than differencing two marginals — and I would rather you make it
+than have me guess and have the draft and the waiver tool disagree on a player,
+which is the one thing contract C1 exists to prevent.
+
+**Sound, and worth saying:** the C1 cross-tool agreement holds (the existing
+`waivers.test.js` checks it and it passes); the obvious add ranked first and was
+priced well clear of the field ($145 vs $92); `dropCandidate` never proposed a
+starter while a bench body existed; `whoElseNeeds` correctly found 3 of 4 rival
+teams short at the position and excluded the one with a full roster, ordered by
+posture; and the consensus label is honest ("Sleeper proj", not "Consensus", with
+one source wired) because it delegates to the shared module instead of keeping a
+second copy. The live adapter's header names the thin-pool VORP trap it avoids.
+
+**Three more gaps, reported not fixed, because they are all the same decision
+about what the tool is for** (see the separate note to Cory):
+
+1. **No "hold" verdict.** A week where nothing is worth claiming returns a ranked
+   list of three $0 claims rather than saying so. A page rendering `claims[0]`
+   would print "claim Wire scrub A" on a week the answer is "do nothing" — the
+   same shape as the optimizer manufacturing a puzzle on an 89%-nothing week.
+2. **Contested-ness is computed and never priced.** Same player, same roster,
+   `$145.45` whether three eager rivals want him or nobody does. In a PRIORITY
+   league that is backwards: contested is when spending priority is justified,
+   uncontested is when you can wait.
+3. **The stopping structure is absent entirely.** `priority` appears exactly once
+   in the file, in the header comment describing what the tool is supposed to
+   tell you. `waiverPriority` and `weeksLeft` passed through `ctx` are ignored —
+   byte-identical output with and without them. Your own
+   LEARNING-ARCHITECTURE.md §1 (2026-08-10) specifies this and says it is
+   buildable, including the coupling: take "will someone else claim him" from the
+   analyzer's postures rather than modelling it twice. `whoElseNeeds` already
+   computes that exact input. **The tool derives the one input the stopping rule
+   needs and then discards it.**

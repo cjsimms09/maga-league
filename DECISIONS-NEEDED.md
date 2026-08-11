@@ -276,3 +276,28 @@ window] → (4) betting LEVEL [lowest, only if movement proves out].
   board — do they diverge at Cory's picks (34/41/54…)? If they largely agree, the source choice is
   cosmetic; if they diverge, flag it. (c) Do NOT swap the projection source blind — unlike the ADP
   anchor (which had a clean grade), there is NO clean projection grade to justify a swap yet.
+
+## 7. THE SUNDAY ALERT FIRES BEFORE THE OFFICIAL INACTIVES (B, 2026-08-11)
+- **Trigger (Cory):** does the alert reach me when I'm not looking at the site, and does it
+  fire when it should not? The second half is fixed (it now sends only when there is something
+  to do, once per week). This is what the first half turned up that I can't decide for you.
+- **The facts.** The cron is `40 14 * * 0` — 14:40 UTC. That is **10:40am ET** while the clocks
+  are forward (Sept–early Nov) and **9:40am ET** after they go back. The NFL announces official
+  inactives **90 minutes before kickoff**, i.e. **11:30am ET** for the 1pm slate. So the alert
+  fires 50–110 minutes before the list that turns a QUESTIONABLE into an OUT.
+- **What that costs.** The "⛔ a starter cannot score this week" case now added to the alert
+  catches byes and players already ruled OUT on the Wed–Fri practice reports — most of the
+  value, and known by Saturday. It will systematically **miss game-time decisions**, which are
+  exactly the players whose status is still in question on a Sunday morning.
+- **Why I'm not just moving it.** One UTC cron cannot hold one ET time across the DST change,
+  and pushing it later trades warning time for accuracy — 11:45am ET leaves you 75 minutes,
+  which is fine if you're near your phone and useless if you're driving to a game.
+- **The options, cheapest first:**
+  1. **Leave it.** Accept that game-time decisions are yours to catch. Zero work.
+  2. **Move to `45 15 * * 0`** — 11:45am ET in the fall, 10:45am ET after the clocks change.
+     Catches most inactives during the stretch that matters, one line of YAML.
+  3. **Two runs** — keep the 10:40 planning alert, add a ~11:35am ET run that sends ONLY if a
+     starter's status changed since the first. More useful, more moving parts, and it needs the
+     first run's state stamped (the once-per-week stamp already written would need a second key).
+- **My recommendation: (2).** The alert's job is the lineup, and a lineup set at 11:45 is still
+  a lineup set. (3) is the right shape eventually but not before there is a season to test it on.
