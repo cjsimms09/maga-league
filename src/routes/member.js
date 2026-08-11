@@ -2056,7 +2056,26 @@ router.get('/matchup', aw(async (req, res) => {
     invUserMap = {};
     for (const [uid, oid] of Object.entries(um)) invUserMap[oid] = uid;
   }
-  const uidOf = (o) => (invUserMap && invUserMap[o.id]) || H2H.userIdForName(o.name, o.alias);
+  // ...but authoritative only if the ARCHIVE HAS EVER SEEN THAT ID. The live id
+  // and the harvest id are the same in production and were assumed to be so
+  // here, and when they are not the failure is silent and confident: uidOf
+  // returned a perfectly well-formed user_id that matches nothing, headToHead
+  // faithfully reported played:0, and /matchup printed "No games on record
+  // against Marian yet — this is your first meeting since the box scores begin"
+  // for a pair with FIVE meetings that /rivalry, reading the same archive by
+  // name, listed in full. An id that resolves to nothing is not a record of
+  // nothing.
+  const archiveIds = new Set(Object.values(H2H.handleUserIds() || {}));
+  const uidOf = (o) => {
+    const live = invUserMap && invUserMap[o.id];
+    if (live && archiveIds.has(live)) return live;
+    return H2H.userIdForName(o.name, o.alias) || live || null;
+  };
+  // Whether we could place BOTH owners in the archive at all. A zero record from
+  // an id the archive never knew is not the same claim as "they have never
+  // played", and the page must not make the second one on the strength of the
+  // first.
+  const inArchive = (o) => { const u = uidOf(o); return !!(u && archiveIds.has(u)); };
 
   // SPECTATOR VIEW — a game the viewer isn't in, opened from the scoreboard.
   // Read-only: the two owners' live score, their all-time head-to-head, and the
@@ -2091,6 +2110,7 @@ router.get('/matchup', aw(async (req, res) => {
   }
 
   const record = opp ? H2H.headToHead(uidOf(me), uidOf(opp)) : null;
+  const recordKnown = opp ? (inArchive(me) && inArchive(opp)) : true;
 
   // RIVALRY GAME OF THE WEEK — bill the matchup when these two have a real history.
   // The record is already computed (A-side = me), so the billing facts come free.
@@ -2191,7 +2211,7 @@ router.get('/matchup', aw(async (req, res) => {
   const liveStale = await liveFreshness();
   res.render('matchup', {
     liveStale,
-    me, owners, opp, live, weekNo, matchup: liveMatchup, betWindow, record, rivalry,
+    me, owners, opp, live, weekNo, matchup: liveMatchup, betWindow, record, recordKnown, rivalry,
     starters, bench, matchupBet, proj, highBand, whBand, whRace, pickem, stakes, trash,     // The availability badge is derived from the optimizer's INACTIVE_INJURY set
     // (src/matchup.js), not from a second ladder in the template.
     injuryFlag: MU.injuryFlag,

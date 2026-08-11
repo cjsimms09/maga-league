@@ -165,7 +165,16 @@
 <div class="card h2h-card" style="margin-bottom:1.2rem">
   <h2>📈 Head to Head <span class="sub">all-time, since the Sleeper era (2023)</span></h2>
   <div class="body">
-    <% if (!r || !r.played) { %>
+    <%# A ZERO IS ONLY A ZERO IF WE COULD LOOK. `recordKnown` is false when one
+        of these two could not be placed in the box-score archive at all — a
+        live Sleeper user_id the harvest has never seen resolves to a
+        well-formed lookup that matches nothing, and headToHead returns
+        played:0 for it exactly as it would for two people who genuinely never
+        met. Saying "your first meeting" off that is a claim about the league
+        made from a failure to read the data. %>
+    <% if (!recordKnown) { %>
+      <p class="muted" style="margin:0">Couldn't match you and <b><%= opp.name %></b> to the box-score archive, so the head-to-head isn't shown — this is a lookup problem, not a record of no meetings. The full history is in the <a href="/history">league history</a><% if (typeof opp !== 'undefined' && opp) { %>, and <a href="/rivalry?a=<%= encodeURIComponent(me.name) %>&amp;b=<%= encodeURIComponent(opp.name) %>">your rivalry page</a> reads it by name<% } %>.</p>
+    <% } else if (!r || !r.played) { %>
       <p class="muted" style="margin:0">No games on record against <b><%= opp.name %></b> yet — this is your first meeting since the box scores begin (2023). Everything before that lives in the <a href="/history">league history</a>.</p>
     <% } else { %>
       <div class="h2h-hero">
