@@ -1,3 +1,4 @@
+# TERRITORY: C
 name: D3 — daily external ADP snapshot (the 2026 curve is perishable)
 
 # WHY THIS RUNS EVERY DAY, measured rather than assumed. The as-of probe (runs
