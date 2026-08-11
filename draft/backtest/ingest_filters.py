@@ -101,6 +101,39 @@ def _unreadable(league: dict, field: str, fallback: str) -> tuple[bool, str]:
     return False, "F4." + str(detail or fallback)
 
 
+def ppr_reason(by_pos: dict, band=None) -> tuple:
+    """F1 v2's reception-value decision. (ok, reason). THE ONLY IMPLEMENTATION.
+
+    Extracted from `screen()` on 2026-08-11 because there were TWO. `mfl_adapter.
+    ppr_verdict` made the same decision with a different answer — it reported a
+    uniform full-PPR league as `F1.te_premium_or_split_ppr`, which is false: 1.0 at
+    every position is not TE premium. It had NO CALLER outside its own test, so the
+    disagreement was invisible and would have stayed invisible until someone wired
+    it up and got a reason that was wrong in a way nobody would question.
+
+    That is the multi-derivation failure rule 11 exists for, sitting in this lane's
+    own code, and the fix is not to reconcile the two — it is to have one.
+    """
+    band = band or PPR_RANGE
+    missing = [p for p in SKILL_POSITIONS if (by_pos or {}).get(p) is None]
+    if missing:
+        # ABSENT IS NOT ZERO: a position with no reception rule is not "not PPR",
+        # it is a position we could not read.
+        return False, "F4.no_scoring_rules:" + ",".join(missing)
+    vals = {p: float(by_pos[p]) for p in SKILL_POSITIONS}
+    outside = [p for p in SKILL_POSITIONS if not (band[0] <= vals[p] <= band[1])]
+    if not outside:
+        return True, "ok"
+    # TWO DIFFERENT REJECTIONS, kept apart because the attrition report is only
+    # useful if its reasons are true. A league at 1.0 everywhere is FULL PPR, not
+    # TE premium. Split scoring is the new exclusion F1 v2 adds; uniform-but-
+    # outside is v1's, and still accurate.
+    if len(set(vals.values())) == 1:
+        return False, "F1.scoring_not_half_ppr"
+    return False, "F1.te_premium_or_split_ppr:" + ",".join(
+        "%s=%s" % (p, vals[p]) for p in outside)
+
+
 def screen(league: dict) -> tuple[bool, str]:
     """Does this league-season qualify? Returns (ok, reason).
 
@@ -139,20 +172,9 @@ def screen(league: dict) -> tuple[bool, str]:
         # is the field the rule was already implemented for; the four fields
         # around it now work the same way.
         return _unreadable(league, "scoring", "no_scoring_rules")
-    missing = [p for p in SKILL_POSITIONS if by_pos.get(p) is None]
-    if missing:
-        return False, "F4.no_scoring_rules:" + ",".join(missing)
-    vals = {p: float(by_pos[p]) for p in SKILL_POSITIONS}
-    outside = [p for p in SKILL_POSITIONS if not (PPR_RANGE[0] <= vals[p] <= PPR_RANGE[1])]
-    if outside:
-        # TWO DIFFERENT REJECTIONS, kept apart because the attrition report is
-        # only useful if its reasons are true. A league that is 1.0 at every
-        # position is full PPR — not "TE premium". Split scoring is the NEW
-        # exclusion v2 adds; uniform-but-outside is v1's, and still accurate.
-        if len(set(vals.values())) == 1:
-            return False, "F1.scoring_not_half_ppr"
-        return False, "F1.te_premium_or_split_ppr:" + ",".join(
-            f"{p}={vals[p]}" for p in outside)
+    ok, why = ppr_reason(by_pos)
+    if not ok:
+        return False, why
     # Superflex changes QB scarcity so completely it would swamp every positional
     # finding, so it is excluded rather than controlled for. MFL has NO SUPER_FLEX
     # slot — it expresses superflex as a QB limit whose max exceeds its min — so
@@ -239,8 +261,6 @@ def screen(league: dict) -> tuple[bool, str]:
 
     # ---- F4 partial data ----------------------------------------------------
     # Whole-league exclusion. No partial-credit leagues.
-    if not league.get("has_weekly_outcomes"):
-        return False, "F4.no_weekly_outcomes"
     if league.get("pre_draft_adp") in (None, {}, []):
         return False, "F4.no_pre_draft_adp"
 
@@ -253,6 +273,23 @@ def screen(league: dict) -> tuple[bool, str]:
         return False, "F5.missing_timestamps"
     if str(adp_at) >= str(draft_at):
         return False, "F5.adp_not_strictly_pre_draft"
+
+    # ---- F4, the outcome half: LAST, and deliberately ------------------------
+    # The verdict is unchanged wherever it fires — this is an ordering change, not
+    # a relaxation, and no league that failed before passes now.
+    #
+    # WHY LAST. For a season that has not been played, EVERY league fails this and
+    # nothing else is ever evaluated, so the attrition table for 2026 would say
+    # "no weekly outcomes" 700 times and nothing about whether those leagues are
+    # our format, whether their drafts are complete, or whether their ADP is
+    # decision-time clean. That is the whole question worth asking a year early.
+    #
+    # Checked here, `F4.no_weekly_outcomes` becomes a PRECISE statement: this
+    # league cleared every check that can be evaluated before the season is
+    # played, and waits only on the calendar. `passed_pre_outcome` reads it that
+    # way, and could not have done so from a position in a queue.
+    if not league.get("has_weekly_outcomes"):
+        return False, "F4.no_weekly_outcomes"
 
     return True, "ok"
 
@@ -279,6 +316,10 @@ UNOBTAINED_REASONS = (
     "F4.no_pre_draft_adp", "F5.missing_timestamps",
     "F4.unreadable_team_count", "F4.unreadable_starter_limits",
     "F4.draft_type_absent", "F4.draft_type_unrecognised", "F4.no_reception_rule",
+    # A CC rule WAS present and our points parser could not read its expression.
+    # Ours, not theirs, and kept apart from both "they score no receptions" (a
+    # reading) and "we saw no rules for these positions" (we know nothing).
+    "F4.unreadable_reception_points",
     # A league we could not FETCH is not a league that failed a filter. Declared
     # here so `ingest_run` cannot bin one nowhere — the registry caught this code
     # arriving undeclared, which is exactly what it is for.
@@ -294,7 +335,53 @@ UNOBTAINED_REASONS = (
     "F4.no_gsis_crosswalk",          # weekly is GSIS-keyed, our board is Sleeper-keyed
     "F4.stat_columns_absent",        # the DATA cannot serve a term the league scores
     "F4.no_season_type",             # REG and POST are indistinguishable in this data
+    # A league whose export we could not PARSE. Its own reason, never the run's
+    # death — one malformed league took a whole 250-league run with it once.
+    "F4.parse_failed",
+    # An export carrying several draft units, none league-wide (divisional drafts,
+    # each with its own pick numbering). Merging them would manufacture an overall
+    # pick number no drafter ever saw.
+    "F4.draft_not_league_wide",
 )
+
+
+# D7's population is F1-passing leagues: dynasty and superflex ADP are different
+# quantities, not noisier versions of the same one.
+F1_FORMAT_UNREADABLE = (
+    "F4.no_scoring_rules", "F4.no_reception_rule", "F4.unreadable_reception_points",
+    "F4.no_team_count",
+    "F4.unreadable_team_count", "F4.no_roster_slots", "F4.no_qb_slot_count",
+    "F4.unreadable_qb_slot_count", "F4.unreadable_starting_slots",
+    "F4.unreadable_starter_limits", "F4.no_draft_type", "F4.draft_type_absent",
+    "F4.draft_type_unrecognised",
+)
+
+
+def passed_f1(reason: str) -> bool:
+    """Did this league clear the FORMAT filter, whatever happened afterwards?
+
+    RESTS ON `screen()`'s ORDERING, and says so: F1's clauses run first and the
+    function returns on the first failure, so a league whose reason is F2/F5 or a
+    non-format F4 necessarily got past F1. That assumption is load-bearing for D7's
+    population, so `test_screen_checks_F1_BEFORE_everything_else` asserts it
+    directly rather than leaving it to be true by accident.
+
+    A league we could not READ the format of is NOT counted as passing — absent is
+    not a pass, the same rule as everywhere else in this file.
+    """
+    code = reason_code(reason)
+    # A LEAGUE WE NEVER FETCHED HAS NOT PASSED F1 — we never read its format at
+    # all. Measured 2026-08-11: this returned True for `F4.fetch_failed`, so the
+    # nine leagues that 429'd counted as "F1-passing" and D7's format-matched pool
+    # came back as 9 leagues carrying 0 of 6,649 picks. The measurement was
+    # VACUOUS and reported itself as "no league carries a dated first pick", which
+    # reads as a fact about MFL's timestamps.
+    #
+    # Same absent-is-not-a-pass rule already applied to the format-unreadable
+    # codes, missed for the one kind of absence that means we saw nothing at all.
+    return not (code.startswith("F1.")
+                or code in F1_FORMAT_UNREADABLE
+                or code in ("F4.fetch_failed", "F4.parse_failed"))
 
 
 def reason_code(reason: str) -> str:
@@ -432,3 +519,26 @@ def may_pool(parameter: str) -> bool:
     conditioning, room behaviour and our keeper structure are local by omission AND
     by intent."""
     return parameter in POOLABLE
+
+
+def passed_pre_outcome(reason: str) -> bool:
+    """Did this league clear everything that can be judged BEFORE the season runs?
+
+    True for `ok` and for `F4.no_weekly_outcomes` alone. It rests on that check
+    being LAST in `screen()` — a league reporting it has already passed F1, F2, the
+    ADP-availability check and F5 — and that ordering is asserted by its own test
+    rather than left true by accident, the same way `passed_f1` rests on F1 being
+    first.
+
+    THIS IS THE 2026 QUESTION. 2026's ADP is being captured cleanly right now, one
+    dated snapshot a day, and it is the only season for which F5 can be satisfied
+    without an archive or a construction. Its outcomes arrive in January. So the
+    number worth having a year early is how many 2026 leagues are OUTCOME-READY:
+    everything else about them already checks out, and the only thing missing is
+    the season being played.
+
+    It is not a filter and it relaxes nothing. F4 still excludes these leagues
+    whole; this only says WHY, precisely enough to be worth counting.
+    """
+    code = reason_code(reason)
+    return code == "ok" or code == "F4.no_weekly_outcomes"

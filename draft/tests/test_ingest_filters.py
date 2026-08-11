@@ -265,3 +265,130 @@ def test_all_checks_passed():
 if __name__ == "__main__":
     print("\n%d failed" % len(fails))
     sys.exit(1 if fails else 0)
+
+
+def test_the_ppr_decision_has_EXACTLY_ONE_implementation():
+    """`mfl_adapter.ppr_verdict` made this decision a second time and gave a
+    different answer — a uniform full-PPR league came back
+    `F1.te_premium_or_split_ppr`, which is false. It had NO CALLER outside its own
+    test, so the two could disagree indefinitely with nothing going red.
+
+    MUTATION: reintroduce a second implementation anywhere. This asserts the name
+    is gone AND that `screen()` routes through the surviving one."""
+    import mfl_adapter as A
+    assert not hasattr(A, "ppr_verdict"), \
+        "a second implementation of an F1 decision is back"
+    uniform = {"RB": 1.0, "WR": 1.0, "TE": 1.0}
+    assert F.ppr_reason(uniform) == (False, "F1.scoring_not_half_ppr")
+    lg = {"teams": 10, "scoring": {"rec_by_position": uniform},
+          "roster_slots": {"QB": 1, "RB": 2, "WR": 2, "TE": 1, "FLEX": 1}}
+    assert F.screen(lg)[1] == "F1.scoring_not_half_ppr", \
+        "screen() must give the SAME answer as the function it calls"
+
+
+def test_screen_checks_F1_BEFORE_everything_else():
+    """`passed_f1` INFERS format-pass from the absence of an F1 reason, which is
+    only valid because `screen()` runs F1 first and returns on first failure. D7's
+    population rests on that ordering, so it is asserted rather than assumed.
+
+    A league that is FORMAT-BAD and also draft-bad must report the FORMAT reason:
+    if the order ever flips, this goes red here instead of silently widening D7's
+    pool to include dynasty and superflex leagues."""
+    bad_both = {"teams": 14,                      # F1: wrong size
+                "scoring": {"rec_by_position": {"RB": .5, "WR": .5, "TE": .5}},
+                "roster_slots": {"QB": 1, "RB": 2, "WR": 2, "TE": 1, "FLEX": 1},
+                "draft_type": "snake",
+                "draft": {"status": "incomplete", "picks": []}}   # F2: also bad
+    assert F.screen(bad_both)[1] == "F1.teams"
+    assert F.passed_f1("F1.teams") is False
+
+
+def test_a_league_we_could_not_READ_the_format_of_does_not_count_as_passing_F1():
+    """Absent is not a pass. A league whose scoring we could not retrieve must not
+    enter D7's format-matched pool on the strength of not having failed."""
+    assert F.passed_f1("F4.no_scoring_rules:TE") is False
+    assert F.passed_f1("F4.draft_type_unrecognised:SFIRSTFOO") is False
+    # But a league that FAILED LATER got past F1 and belongs in the pool.
+    assert F.passed_f1("F2.draft_incomplete") is True
+    assert F.passed_f1("F4.no_pre_draft_adp") is True
+    assert F.passed_f1("ok") is True
+
+
+def test_a_league_we_NEVER_FETCHED_has_not_passed_F1():
+    """MEASURED, and it made a whole measurement vacuous. `passed_f1` returned True
+    for `F4.fetch_failed`, so the nine leagues that 429'd counted as F1-passing and
+    D7's format-matched pool came back as 9 leagues carrying 0 of 6,649 picks. The
+    run then reported "NO LEAGUE CARRIES A DATED FIRST PICK", which reads as a fact
+    about MFL's timestamps and was a fact about this predicate.
+
+    Absent is not a pass. We did not read their format; we read nothing."""
+    assert F.passed_f1("F4.fetch_failed:league: http 429 Too Many Requests") is False
+    assert F.passed_f1("F4.parse_failed:AttributeError") is False
+    # And the leagues that genuinely got past F1 still do.
+    assert F.passed_f1("F2.draft_incomplete") is True
+    assert F.passed_f1("F5.adp_not_strictly_pre_draft") is True
+    assert F.passed_f1("ok") is True
+
+
+# ── the 2026 question: which leagues wait only on the calendar? ─────────────
+def _rec(**kw):
+    """A league that passes everything, so each test below removes ONE thing."""
+    from test_attrition_seam import record
+    return record(**kw)
+
+
+def _rec_teams(n, **kw):
+    """Team count lives in the LEAGUE export, not in the record kwargs — reaching
+    for it as a kwarg silently passes it to `to_league_record`, which does not take
+    it, and the test fails on a TypeError instead of on the thing it is testing."""
+    from test_attrition_seam import record, mfl_league
+    return record(league=mfl_league(teams=str(n)), **kw)
+
+
+def test_the_OUTCOMES_CHECK_RUNS_LAST_and_passed_pre_outcome_rests_on_it():
+    """`passed_pre_outcome` reads `F4.no_weekly_outcomes` as "cleared everything
+    else", and that is only true if the check is LAST. Asserted directly rather
+    than left true by accident — the same discipline `passed_f1` needs from F1
+    being first.
+
+    MUTATION: put the outcomes check back before F5. A league with contaminated ADP
+    reports `F4.no_weekly_outcomes`, `passed_pre_outcome` calls it outcome-ready,
+    and the 2026 readiness count includes leagues whose ADP was observed AFTER
+    their draft."""
+    # Contaminated ADP *and* no outcomes: F5 must win, because it is the finding.
+    r = _rec(adp_observed_at="2025-08-26", has_weekly_outcomes=False)
+    ok, why = F.screen(r)
+    assert ok is False
+    assert why == "F5.adp_not_strictly_pre_draft", why
+    assert F.passed_pre_outcome(why) is False
+
+    # Wrong format *and* no outcomes: F1 must win.
+    r2 = _rec_teams(14, has_weekly_outcomes=False)
+    assert F.screen(r2)[1] == "F1.teams"
+
+
+def test_a_league_waiting_ONLY_on_the_season_reports_exactly_that():
+    """The 2026 case, and the number worth having a year early. 2026's ADP is being
+    captured cleanly right now — it is the only season F5 can be satisfied for
+    without an archive — and its outcomes arrive in January."""
+    r = _rec(has_weekly_outcomes=False)
+    ok, why = F.screen(r)
+    assert ok is False and why == "F4.no_weekly_outcomes"
+    assert F.passed_pre_outcome(why) is True
+
+
+def test_passed_pre_outcome_is_NOT_a_filter_and_admits_nothing_else():
+    """It relaxes nothing: F4 still excludes these leagues whole. MUTATION: make it
+    true for any F4 code, and leagues with no ADP at all are counted as ready for a
+    season they could never be replayed in."""
+    assert F.passed_pre_outcome("ok") is True
+    for code in ("F4.no_pre_draft_adp", "F5.adp_not_strictly_pre_draft", "F1.teams",
+                 "F2.draft_incomplete", "F4.fetch_failed", "F4.no_weekly_data",
+                 "F4.parse_failed", "F4.no_scoring_rules"):
+        assert F.passed_pre_outcome(code) is False, code
+
+
+def test_an_admitted_league_is_still_admitted_after_the_reorder():
+    """The reorder is an ORDERING change, not a relaxation. If this fails, every
+    test above is measuring a screen that stopped accepting our own format."""
+    assert F.screen(_rec()) == (True, "ok")

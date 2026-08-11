@@ -424,3 +424,44 @@ derivation that is genuinely the better engineering choice.
 
 Applied to the two helpers already; they now derive their removals from
 `_WEEKLY_MAP` instead of listing column names.
+
+---
+
+## MAY AN F4-EXCLUDED LEAGUE BE REPLAYED FOR A FORECAST THAT NEVER TOUCHES OUTCOMES? (C, 2026-08-11) 🔴 OPEN
+
+- **WHAT WAS FOUND.** Survival — *will this player still be there when this seat picks
+  again* — resolves from the draft's **own later picks**. It uses no weekly data, no
+  nflverse, no January. A 2026 league that has drafted with clean dated ADP can therefore
+  produce a real graded observation **today**, of the same forecast type the home league
+  emits. The replay and the grader are both built and are now wired into the run.
+- **WHAT IT IMPLIES, AND WHY IT IS YOUR CALL.** F4 as registered says: *"A league missing
+  any of {complete draft, pre-draft ADP, weekly outcomes} is excluded whole. No
+  partial-credit leagues."* Every 2026 league is missing weekly outcomes by calendar, so
+  F4 excludes all of them, so `replay_league` refuses them all, so **the survival pass
+  produces nothing for 2026 until January** — even though survival needs nothing that is
+  missing.
+- **THE TWO READINGS.**
+  - **NARROW (what the code does now).** F4 is categorical. An excluded league is not
+    replayed for anything. 2026 survival waits for January.
+  - **BROAD.** F4's stated rationale is *no partial-credit leagues* — a league graded on
+    some forecast types and not others produces an aggregate whose denominator nobody can
+    state. A forecast type that **structurally cannot touch** the missing data is not
+    partial credit; it is a complete measurement of a different thing. Under this reading
+    F4 gates OUTCOME-DEPENDENT grading, and survival is admissible now.
+- **MAGNITUDE.** This is the difference between the 2026 sample producing graded
+  observations from August and producing them from January. If run 12 confirms the format
+  rate is near zero it changes little; if 2026's pool is richer than 2025's it is most of
+  the year.
+- **CONFIDENCE.** High that survival touches no outcome data — it resolves from
+  `record["draft"]["picks"]`, which the record already carries, and the F3 ingest is not
+  on its path at all. That part is mechanical, not a judgement.
+- **COST OF INACTION.** Zero today. The narrow reading is what ships, and it is the safe
+  one. The cost is five months of observations we could have been grading.
+- **RECOMMENDATION.** Broad reading, but **as a new dated registration that names the
+  restriction**, not as a reinterpretation of F4: *an F4-excluded league may be replayed
+  ONLY for forecast types whose resolution rule references no data outside the league
+  record, and every such observation carries a flag saying so, so it can never be pooled
+  with outcome-graded ones.* I have not implemented it. F4 stands until you rule.
+- **WHAT I WILL NOT DO EITHER WAY.** Relax F4 to reach a number. F7 already says a short
+  sample reports the number and changes nothing, and that case has arrived as a
+  measurement.

@@ -3839,3 +3839,168 @@ there is no JS derivation being shadowed, because there is none to reach.
 question, not a mechanical fix. Options as I see them: leave shared; derive from
 fetched routes with a URL→lane table; or rename the JS tests to name their subject
 module the way the Python ones do. I have no stake in which.
+---
+
+## BLOCKED ON A — merge `archived-adp-probe.yml` to main so Route 1 can be dispatched
+
+**One action, and it is the only thing standing between this lane and Route 1's answer.**
+
+**File:** `.github/workflows/archived-adp-probe.yml`, on
+`claude/external-ingest-program-1xfinj`. **What I need:** it on main. Nothing else in that
+branch has to land with it for this to work.
+
+**Why it is blocked and how I know it is this and not something else.** Dispatching it by
+API against my own branch returns `404 Not Found` — a workflow must exist on the DEFAULT
+branch to be dispatchable at all. That is not a guess from a failure message: minutes
+earlier, `external-ingest-run.yml` dispatched successfully **against the same branch ref**,
+and the only difference between the two files is that one is on main. Same caller, same
+ref, same API, opposite results.
+
+**Why now, when I said to hold it.** Rule 9 said not to build a CI probe for a speculative
+archive check while a cheaper answer was in flight. Route 2 was that cheaper answer and it
+has now resolved (below). Route 1 is the only remaining route to a pre-2026 clean ADP, so
+the probe is worth dispatching.
+
+**What it costs to be wrong about this.** One CI job, seven HTTP requests, no writes, no
+commits. It reads the Wayback CDX index and reports whether any capture strictly predating
+a cutoff serves a recognisable player board.
+
+---
+
+## ROUTE 2 HAS RESOLVED — 2026-08-11, run 11
+
+**It closes.** Recorded here because the routing note below was written while it was open.
+
+- **The format-matched population is EMPTY.** 0 of 113 readable leagues passed F1, so D7's
+  registered construction — format-matched leagues only — had nobody in it. Not a thin
+  board: no population.
+- **The inadmissible whole-pool figure, which bounds the admissible one from above, is
+  15 of 61 dated leagues** reaching a 100-player board, **every usable one in the later
+  half of the calendar**. That is the pre-declared failure shape, again.
+- **And the cost settles it independently of the sample.** Pricing ONE league's draft under
+  D7 needs the picks of every earlier F1-passing league. The boards that reached 100+
+  players drew on 46-60 contributing leagues; at a format-match rate of at most 2.65%,
+  assembling 46 earlier-drafting F1-passing leagues means fetching ~1,736 leagues **per
+  decision**. Run 11 measured the pace at **12.6 s per league with adaptive backoff already
+  absorbing 429s** — the whole 21,323-league pool is **~75 hours** of fetching, and MFL is
+  rate-limiting at the current rate.
+
+D7 stays registered and its code stays: the measurement is real and the bound it proved is
+worth keeping. It is not a route to a 2026 answer.
+
+## ROUTING NOTE — 2026-08-11, the 2027-timeline routes
+
+**Not a blocker right now.** Recorded so the state is accurate if someone else picks this up.
+
+- **Route 1 (archived pre-draft ADP)** is **held by decision**, not closed and not blocked.
+  `.github/workflows/archived-adp-probe.yml` exists on
+  `claude/external-ingest-program-1xfinj` and is not dispatchable until it is on main —
+  but it should stay unmerged until Route 2 resolves. Building and iterating a CI probe for
+  a speculative archive check while a cheaper answer is in flight is what rule 9 is for.
+  *If Route 2 closes, this becomes the only remaining route and the merge is worth asking for.*
+- **The sandbox cannot answer Route 1 either way.** Every `archive.org` request returns
+  `Tunnel connection failed: 403 Forbidden` — the same proxy block that stops MFL while
+  nflverse passes. That is a fact about egress, **not** evidence that no archived board
+  exists, and it must not be recorded as a negative result.
+- **Route 2 (within-pool ADP)** is registered as **D7** and its feasibility measurement runs
+  inside the existing ingest workflow, which is already on main. No merge needed.
+
+---
+
+## REQUEST TO A — `draft/adp.py`, `TEAM_ALIASES`: eight MFL abbreviations are missing
+
+**File:** `draft/adp.py`
+**Symbol:** `TEAM_ALIASES` (the dict at module scope, read by `_norm_team`)
+**What I need:** these keys added, mapping MFL's spelling to the board's:
+
+```
+"NEP": "NE",  "GBP": "GB",  "SFO": "SF",  "KCC": "KC",
+"TBB": "TB",  "NOS": "NO",
+```
+
+**Why, measured rather than supposed.** Run 11 (2026-08-11, 119 MFL leagues,
+6,798 picks) reports cross-source team disagreements on matched pairs, by value
+pair:
+
+```
+NEP -> NE  214    GBP -> GB  186    JAC -> JAX 173    SFO -> SF  168
+LVR -> LV  153    KCC -> KC  153    TBB -> TB  135    NOS -> NO  100
+```
+
+`JAC` and `LVR` are already in `TEAM_ALIASES` and normalise correctly. The other
+six are the same kind of difference — MFL writes three letters where the board
+writes two — and **956 matched pairs** are being reported as sources disagreeing
+about a player's team when the two sources agree and only the spellings differ.
+
+**Why I am not doing it in my lane.** I could add a second alias table inside
+`mfl_adapter`, and that is exactly the wrong fix: `_norm_team` is what the
+MATCHER consults, so a private table would mean the matcher and the checker
+holding different vocabularies and drifting apart — which is the defect I just
+removed (P6 in INGEST-PLAN.md, where the conflict check compared MFL's raw
+spelling against the board's normalised one and accused itself). One table,
+consulted by both, or the bug comes back wearing the other hat.
+
+**What it affects beyond my report.** `_norm_team` feeds `match_player`'s
+`+pos+team` tiebreak for players who share a name. A missing alias makes that
+tiebreak fail and drops the match to the `+pos+prominence` fallback, which
+resolves by search rank rather than by team — so this is a small correctness
+gain for the shared matcher, not only a cosmetic one for my census.
+
+**Not a blocker.** My conflict report is correct as it stands; these land in
+`team_only_disagreements`, which is the non-severe bucket and is already
+reported apart from position disagreements. Nothing of mine is waiting on this.
+
+**Two things in that same output that are NOT this request**, so they are not
+mistaken for it. `HOU -> FA` (39), `LAC -> FA` (32) and `WAS -> FA` (30) are our
+board carrying a player as a free agent while MFL's 2025 export has him on a
+roster — a real difference between two snapshot dates, not a spelling. And
+`JAC -> NO` (27) is a genuine team disagreement after normalisation, which is
+mine to look at, not yours.
+
+---
+
+## REQUEST TO A — `survival_grade.grade()` guards the wrong axis (C, 2026-08-11)
+
+**File:** `draft/backtest/survival_grade.py` · **Function:** `grade()`
+**Not a blocker.** Latent: nothing grades external observations yet, so no number today
+is wrong. It would fire the first time weights moved between replays, and silently.
+
+**THE CONTRADICTION.** This file's own header says `assert_policy_current` protects this
+path from observations minted under a different policy. **`assert_policy_current` has no
+callers anywhere in the repo** — written, documented as protecting grading, never invoked.
+And `grade()` guards a *different axis*: it refuses a mixed `policy_id` and ignores
+`policy_fingerprint` entirely.
+
+They are not the same check. `policy_id` says WHICH policy produced an observation; the
+fingerprint says which weights `engine.js` held when it was minted. Two observations can
+both say `shipped` and be measurements of two different tools — change a weight, replay
+again, and the old ones still grade, still aggregate, and still read like evidence about
+what we ship.
+
+**WHY I AM NOT MAKING THE FIX.** It changes behaviour (raises where it did not), which
+puts it past the mechanical-and-unambiguous bar. And the territory guard is right to hold
+it: `survival*` cannot be added to `c_owns()` because `draft/tests/survival-memo.test.js`
+and `survival_honesty.test.js` are yours — that prefix would hand C two of your files.
+
+**THE DIFF, ready to apply.** Refuse a mixed fingerprint set inside `grade()`, by the same
+argument that already refuses a mixed `policy_id` and in the same place:
+
+```python
+    fps = {str(o.get("policy_fingerprint")) for o in (observations or [])
+           if o.get("policy_fingerprint")}
+    if len(fps) > 1:
+        raise PolicyMixError(
+            "observations were minted under %d different policy fingerprints (%s) — "
+            "same policy NAME, different weights, so a Brier score over them measures "
+            "neither version of the tool. Re-replay under one policy; do not average"
+            % (len(fps), ", ".join(sorted(fps))))
+```
+plus `class PolicyMixError(ValueError)`. Refused *here* rather than by calling
+`assert_policy_current`, because the mixed-bag question is answerable from the
+observations alone — that function additionally parses `engine.js` to compare against the
+CURRENT policy, a different check and a dependency this one does not need.
+
+**Tests it should satisfy** (both mutation-checked before I reverted them):
+one fingerprint grades normally; two fingerprints raise `PolicyMixError`; and an
+observation with NO fingerprint does not manufacture a mix — otherwise the guard fires on
+legacy observations and gets switched off.

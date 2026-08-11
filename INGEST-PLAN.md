@@ -241,7 +241,8 @@ actions. Every reason is a TRUE statement about the league.
   `F2.autopick_majority` · `F5.adp_not_strictly_pre_draft`
 - **UNREADABLE — we could not read or could not obtain it.** Evidence about THIS
   PIPELINE, and never a statement about format rarity.
-  `F4.no_scoring_rules` · `F4.no_reception_rule` · `F4.no_team_count` ·
+  `F4.no_scoring_rules` · `F4.no_reception_rule` · `F4.unreadable_reception_points` ·
+  `F4.no_team_count` ·
   `F4.unreadable_team_count` · `F4.no_roster_slots` · `F4.no_qb_slot_count` ·
   `F4.unreadable_qb_slot_count` · `F4.unreadable_starting_slots` ·
   `F4.unreadable_starter_limits` · `F4.no_draft_type` · `F4.draft_type_absent` ·
@@ -249,7 +250,8 @@ actions. Every reason is a TRUE statement about the league.
   `F4.crosswalk_not_run` · `F4.no_weekly_outcomes` · `F4.no_pre_draft_adp` ·
   `F4.fetch_failed` · `F5.missing_timestamps` ·
   `F4.scoring_untranslatable` · `F4.scoring_range_exceeded` · `F4.no_weekly_data` ·
-  `F4.stat_columns_absent` · `F4.no_season_type` · `F4.no_gsis_crosswalk`  *(the last six are F3/D5 — see D5 at the foot of this
+  `F4.stat_columns_absent` · `F4.no_season_type` · `F4.no_gsis_crosswalk` ·
+  `F4.parse_failed` · `F4.draft_not_league_wide`  *(the last six are F3/D5 — see D5 at the foot of this
   document. All four are gaps in OUR vocabulary or OUR fetch, which is why they sit
   here and not above: a league whose scoring uses a term we cannot express is not a
   league that scores differently from ours, it is a league we cannot read.)*
@@ -637,3 +639,669 @@ The salt is fixed and **versioned**: changing it is a new sample and a new regis
 never a quiet reshuffle after seeing what the first one gave. Every run reports the pool
 size, the sampled count and the share, and states that its counts are **over the sample**
 and that scaling them to the pool assumes a representativeness this run does not test.
+
+### D5f RESOLVED (2026-08-11) — and the correction is measurable, not asserted
+
+A mapped `passing_interceptions` in `grade._WEEKLY_MAP` and split the accumulator: aliases
+now use first-writer-wins (`put`), components still sum (`add`), so a row carrying **both**
+column names scores one interception rather than two. Verified from this side against real
+data rather than taken on trust:
+
+| check | result |
+|---|---|
+| `{"interceptions": 1}` | `pass_int = 1` |
+| `{"passing_interceptions": 1}` | `pass_int = 1` |
+| **both names on one row** | `pass_int = 1` — not 2 |
+| three fumble-lost columns | `fum_lost = 3` — components still sum |
+| 2025 keys the translator cannot emit | **none** (was `pass_int`) |
+| 2024 keys the translator cannot emit | none, unchanged |
+
+**The size and shape of what was being lost, from the leaderboard rather than from a unit
+test.** 2025 half-PPR season totals, before → after:
+
+| player | before | after | delta |
+|---|---|---|---|
+| Trevor Lawrence (QB) | 362.18 | 338.18 | **−24.00** = 12 INT × 2 |
+| Josh Allen (QB) | 384.62 | 364.62 | **−20.00** = 10 INT × 2 |
+| Drake Maye (QB) | 367.46 | 351.46 | **−16.00** = 8 INT × 2 |
+| Matthew Stafford (QB) | 366.38 | 350.38 | **−16.00** = 8 INT × 2 |
+| Christian McCaffrey (RB) | 365.60 | 365.60 | **0.00** |
+| Jonathan Taylor (RB) | 339.30 | 339.30 | **0.00** |
+
+Every delta is exactly −2 × a whole number of interceptions, and exactly zero at RB. That
+is the cross-path agreement rule 11 asks for: the correction's magnitude was predicted from
+the scoring rule and confirmed by a source (the season leaderboard) independent of the
+regression test that fixed it.
+
+**And it changed the ordering.** McCaffrey was 4th in the 2025 half-PPR top six and is now
+1st, ahead of three QBs. The bias was systematic *by position*, so it did not merely inflate
+totals — it distorted **cross-positional** comparison, which is precisely the comparison a
+draft policy makes. 2024 is byte-identical before and after, which is what a correct
+alias-only change must be where the alias never appears.
+
+### D5c v2 / D5d v2 — THE BAND MUST CONTAIN THE DATA (2026-08-11). v1 RETAINED ABOVE.
+
+**Amended after the first real run, and the reason it is not post-hoc filtering is that
+v1's mechanism did not implement v1's own stated purpose.** Recorded in full because a
+rule changed after seeing data is exactly what rule 4 exists to police.
+
+**What the run measured.** 57 of 57 sampled 2025 leagues came back unscoreable, with the
+costliest codes `CY` (51), `PY` (50), `RY` (50) — receiving, passing and rushing yards,
+all of which this module MAPS. The raw expressions, which the census now keeps:
+
+| reason | measured expressions |
+|---|---|
+| `unreadable_range` | `-100-999`, `-50-999` on PY / RY / CY |
+| `threshold` | `lo = 1.0` on IN, CC, CY, RY, #P, #R, #C, C2, P2, R2, FL, FLO |
+| `banded` | 2–21 rules for one (position, event) on PY / CY / RY |
+
+**Two defects, one amendment.**
+
+1. **A BUG, not a rule change.** `_range` split on `-`, so a negative lower bound produced
+   an empty field and read as unreadable. MFL writes `-100-999` for stats that can go
+   negative. Rushing yards "untranslatable in 33 of 36 leagues" was never a fact about
+   leagues; it was a fact about that function. Fixed by pattern-matching so a leading minus
+   is a sign.
+
+2. **THE AMENDMENT.** v1 rejected any band not starting at 0 as a threshold bonus. Real
+   leagues write `1-999` for counts. On a **multiplicative** rule that is not a threshold:
+   a player with 0 receptions scores 0 whether the rule fires or not, because *p* × 0 = 0.
+   v1 rejected 11 leagues for bands **exactly equivalent** to unbounded ones.
+
+> **v2:** a multiplicative rule over band `[lo, hi]` is accepted, and the property that
+> matters is **checked against the data**: every scored player-week value must be inside
+> the band **or be zero**. A non-zero value outside it means the rule did not cover that
+> week, and the league is refused with the value named.
+
+This **subsumes** v1's threshold clause and D5d's upper-bound check into one measurement,
+and it is not a loosening toward an assumption: it still refuses `-100-999` if a week ever
+went lower, and still refuses `1-999` on rushing yards the moment a −3 yard week appears.
+*Direction of the change, stated: v2 admits strictly more leagues than v1. Every league it
+admits has had its bands verified against its own season.*
+
+3. **Also fixed, and it is a scorer/filter distinction v1 missed.** `_points_per_event`
+   strips both `*` and `=` because the F1 **filter** only needs the number. A **scorer**
+   cannot: `*0.5` is half a point per unit, `=3` is a flat three points. Using the second
+   as a rate would pay 3 points per reception. `external_outcomes` now refuses anything
+   that is not `*`.
+
+**And a rule-12 correction to the report itself.** The census verdict named the costliest
+codes and asserted each was "a term nflverse weekly carries and the translator does not
+emit". For CY/PY/RY that was **false** — the run's own data contradicted its own summary
+sentence. The cross-lane request is now made **only** for `event_untranslatable`; parse and
+shape failures are reported as evidence about this pipeline, which is what they are.
+
+**Position blocks, measured rather than assumed.** MFL writes combined blocks:
+`QB|RB|WR|TE|PK` appears 30 times, second only to `Def` (43). So kicker events (`EP`, `FG`)
+and return events (`#KT`, `#UT`) genuinely do land on graded positions. **Not yet decided,
+and deliberately not decided from a guess** — whether a term a quarterback can never accrue
+should be ignored for that position needs the same treatment everything else here got: a
+measurement first.
+
+---
+
+# D7 — WITHIN-POOL ADP (registered 2026-08-11, BEFORE any measurement of what it yields)
+
+**Registered before measuring, deliberately.** The whole legitimacy of this route depends on
+the construction being fixed before anyone knows whether it produces a usable sample. If the
+measurement below comes back thin, that is the answer, and no clause here moves to rescue it.
+
+## The construction
+
+For a decision at time **T** in league **L**, the board is the ADP computed from picks that
+satisfy **all** of:
+
+1. **The pick's OWN timestamp is strictly before T.** Not "the draft completed before T" —
+   per-pick. *This is the sharp edge and the naive framing gets it wrong:* MFL drafts are
+   email drafts spanning days, so a draft that STARTED before T can contain picks made after
+   it. Using completed drafts would import future picks under a label that says otherwise.
+2. **The league is not L.** Structural, not conventional. A league's own picks never enter the
+   board it is graded against — the same leak already caught in the replay when the actual
+   pick was popped off the decision context.
+3. **The league passes F1.** Format match, because dynasty and superflex ADP are different
+   quantities, not noisier versions of the same one — a dynasty board prices a 22-year-old
+   rookie where a redraft board prices a 29-year-old producer. The crawl measured `dynasty`
+   at 5,642 term hits, so this is not a tail concern.
+
+ADP for a player is the **mean overall pick number** over qualifying picks, carried with its
+support **n**. **A player below n = 10 has NO ADP** — he is ABSENT, not "went late". Absent is
+not zero here either, and the sensitivity of every result to n ∈ {5, 10, 25, 50} is reported
+beside the primary. **n = 10 is fixed now**, before seeing which value flatters anything.
+
+Every board built this way is labelled `adp_source: "within_pool_v1"` and a league admitted
+under D7 is **reported separately** from one admitted on a provider snapshot. The two never
+pool silently.
+
+## Is it admissible under F5 as registered? — THE ARGUMENT AGAINST, FIRST
+
+1. **F5 says "the latest SNAPSHOT strictly before the draft date".** A snapshot is a third
+   party's published observation. A within-pool board is **our own construction**, and
+   constructions have knobs — population, support threshold, averaging rule — that a published
+   board does not. That is exactly the degree of freedom F5 exists to remove, and admitting a
+   construction reopens it.
+2. **The board is derived from the population being graded.** "Beat the pool's ADP" may be
+   nearer to "beat your opponents' average" than to "beat the market" — a *different claim*
+   from the one this program set out to make.
+3. **Early drafters may differ systematically.** Then the board is not "the market before T"
+   but "the early drafters before T", and that difference is invisible in the number.
+4. **It thins from the wrong end.** The earliest drafts have almost no prior picks, so the
+   gradeable leagues are the LATE ones — the drafts closest to the season, which are the least
+   like a July decision.
+
+## THE ARGUMENT FOR
+
+1. **F5's purpose is that no post-decision information enters, and this satisfies it more
+   strictly than a provider snapshot does.** Measured, and this is the load-bearing point: the
+   MFL and FFC year aggregates **accumulate** (2025 complete = 844 drafts vs 2026 in progress
+   = 112), and we cannot decompose them — a provider "snapshot" is dated to a day and its
+   internal composition is unobservable. A per-pick construction is verifiable pick by pick.
+   **The provider route is the one with the unverifiable contamination.**
+2. **Objection 1 is answered by this document.** A construction fixed and published before any
+   measurement has no more freedom than a provider's board. That is what pre-registration is,
+   and it is why this is being written now rather than after the numbers.
+3. **Objection 2 is a labelling problem, not an admissibility one.** The quantity is
+   "format-matched public-room ADP, observed before T". It is a defect only if someone calls
+   it "the market", which the label exists to prevent.
+4. **Objection 3 is a covariate, not a stopper** — draft date, board size and format mix are
+   recorded per league, so early-vs-late is measurable rather than assumed.
+5. **Objection 4 is real and is a REPORTED LIMIT**, not a defence: the gradeable slice is
+   named, and if it is small or late-skewed, that is the finding.
+
+**DECISION: D7 is an ADDITION to F5's admissible ADP sources, not an amendment to F5's rule.**
+F5's requirement — the board must be observably frozen before the decision — is met exactly.
+F5 v1 is retained unchanged; what changes is that "snapshot" is no longer read as "a provider
+published one". A league admitted under D7 carries the label and is reported apart.
+
+## What will be measured, declared before it runs
+
+- **M1** the distribution of draft dates across the 2025 pool — are drafts spread at all?
+- **M2** per league, how many qualifying picks exist strictly before its first pick.
+- **M3** how many leagues get a board of ≥100 players at n ≥ 10.
+- **M4** the early-vs-late covariate: does the format mix of early drafters differ from late?
+
+**PRE-DECLARED EXPECTATION, so the result cannot be narrated afterwards.** I expect MFL public
+drafts to cluster heavily in the last two weeks of August. I therefore expect the early slice
+to be sparse, a minority of leagues to reach a usable board, and the usable ones to be
+**late-August drafts** — the least representative of a genuine preseason decision. If that is
+what comes back, D7 does not rescue the 2027 timeline and I will say so.
+
+## D7'S CEILING IS ALREADY MEASURED — a bound, not an estimate (2026-08-11)
+
+Stated **before** the format-matched measurement runs, because it does not need that run
+and because a result declared afterwards is a narration.
+
+Run 9's D7 numbers came in two flavours: a **format-matched** population (F1-passing
+leagues only, the admissible construction) and a **whole-pool** population that was
+computed and labelled INADMISSIBLE — every league regardless of format, dynasty and
+superflex included, which is a different quantity from the one being priced.
+
+The format-matched population's picks are a **subset** of the whole-pool population's
+picks: F1-passing is a filter, and a filter removes picks or leaves them. So for every
+league and every player, support under format-matching is **≤** support under the whole
+pool; the board at `min_support=10` can only be smaller; and the count of leagues reaching
+a 100-player board can only be lower. That is arithmetic on a subset relation, not a
+forecast.
+
+**Therefore the inadmissible measurement is an UPPER BOUND on the admissible one.** Run 9's
+whole-pool result was **13 of 62 dated leagues reaching a 100-player board, every usable one
+in the later half of the calendar**. So the admissible D7 tops out at 13 of 62 — 21% — and
+lands below it, on the leagues that drafted latest.
+
+That was the pre-declared failure shape above, arrived at from the bound rather than from
+the number. **D7 does not rescue the 2027 timeline.** Run 11 measures the admissible figure
+because a bound stated is not a bound checked, and because the bound predicts a *specific*
+relationship the run can contradict: format-matched usable ≤ 13, and never a league that
+whole-pool could not serve. If run 11 returns a format-matched league count ABOVE the
+whole-pool one, the subset relation is false and D7's implementation is wrong, not its
+ceiling.
+
+### PRE-REGISTRATION FOR RUN 11 — three predictions, before the run reports (2026-08-11)
+
+Run 10 was cancelled five minutes in and re-dispatched as run 11 with the conflict split
+added, rather than spending two 25-minute cycles to answer three questions.
+
+- **The `a/b` fix.** Every `unreadable_points` sample run 9 printed was a yardage rate —
+  `1/25`, `1/10`, `.1/1`, `0.04/1` on PY/RY/CY. I expect leagues blocked on
+  `unreadable_points` for those three terms to fall to **near zero**. If the count holds
+  steady, either the fix did not fire or there is a second unregistered shape, and the
+  samples will name it — the same way they named this one.
+- **D7 format-matched.** Non-vacuous this time, bounded above as proved directly above. I
+  expect **fewer than 13 of 62** usable leagues and expect them to be the late drafters.
+- **The conflicts.** I expect the **majority to be team-only**: MFL's team field reflects
+  their snapshot date and ours reflects ours, and every hand-check pair run 9 printed was
+  position-perfect. I expect any large position pair to be a **vocabulary** mismatch of the
+  `PK -> K` kind — our own comparison, not a wrong player. **If instead position
+  disagreements dominate and their value pairs are SCATTERED, the crosswalk has a real
+  wrong-match problem and the 85.5% pooled rate is overstated** — a bad match counts as a
+  success in that figure. That is the outcome that would make me stop and fix matching
+  before any of this is used.
+
+### P5 — `draftUnit` IS SOMETIMES A LIST (found 2026-08-11, at 250-league scale)
+
+The fifth "would have produced a confidently wrong parser", except this one did not
+produce a wrong answer — it produced an exception, 18 minutes into a 250-league run, and
+**took the other 249 leagues with it**. No report, no attrition table, nothing learned
+from any of them.
+
+`mfl_adapter`'s own docstring says MFL returns a bare dict for one element and a list for
+many, and names players, `leagueSearch` and `positionRules[].rule`. **`draftUnit` belongs
+on that list and was not on it** — `listify` was applied to `draftPick` *inside* the unit
+and not to the unit itself. Sixty leagues never hit it; 250 did.
+
+**What a multi-unit export means, and why the units are not merged.** A league with
+several draft units ran divisional or per-conference drafts, **each with its own pick
+numbering**. Concatenating them would manufacture an "overall pick number" that no drafter
+ever saw, and every ADP and survival quantity in this program is a function of that number.
+So the **LEAGUE** unit is taken when present; an export with several units and none
+league-wide is refused by name (`F4.draft_not_league_wide`) rather than merged. The unit
+count is kept as a covariate — it is a real fact about that league's setup.
+
+### AND THE STRUCTURAL FIX, which matters more than the parse
+
+> **A league we could not PARSE is that league's attrition reason, never the run's death.**
+
+`build_record` now catches per-league conversion failures and returns
+`F4.parse_failed:<ExceptionType>`, retaining the type and message so the defect stays
+diagnosable instead of becoming an anonymous drop. This is the attrition seam at the
+outermost layer — the same principle as `F4.fetch_failed`, one level further out. The
+previous behaviour meant a single malformed league could delete an entire run's evidence,
+which is the most expensive way for a sample to become invisible.
+
+## POINTING THE MACHINERY AT 2026 — the one season that works (2026-08-11)
+
+2026 is the only season for which F5 can be satisfied without an archive or a
+construction: D3 is capturing ADP cleanly right now, one dated snapshot a day. Outcomes
+arrive in January. So everything except the outcome join can be built and MEASURED now,
+and three things are added for it.
+
+**OUTCOME-READY** — every run reports how many leagues clear every check that can be
+judged before the season is played. It is only a meaningful number because `screen()` now
+checks weekly outcomes LAST: before, an unplayed season failed every league there and
+nothing after it was ever evaluated, so a 2026 attrition table would have said "no weekly
+outcomes" seven hundred times and nothing about format, draft validity or ADP cleanliness.
+The verdict is unchanged wherever it fires — an ordering change, not a relaxation. For a
+played season `outcome_ready` equals `matched`, and a test asserts it.
+
+**FORMAT CENSUS** — what the pool IS, over readable leagues: team counts, reception
+bands, superflex, draft type, keepers, with F1 printed beside it. F1 is unchanged and this
+is not a filter. "0 matched" with no distribution beside it invites exactly the post-hoc
+relaxation rule 4 exists to stop, because the only way to learn anything from it is to
+start loosening clauses and watching the count. Split/TE-premium is its own bucket and is
+never averaged into a league that does not exist.
+
+**SURVIVAL, GRADED WITH NO OUTCOME DATA** — every matched league is now replayed and its
+survival forecasts graded inside the run. Survival resolves from the draft's OWN LATER
+PICKS, so it needs no weekly data, no nflverse and no January: the moment a 2026 league
+drafts with clean dated ADP, the pipeline produces a real graded observation of the same
+forecast type the home league emits.
+
+That last one closed a **produced-and-unread gap two modules wide**. `replay_league`
+emitted forecasts, `survival_grade.grade` scored them, both were tested — and nothing
+called either. The spine fetched leagues, screened them, and stopped. Rule 14 usually
+catches a field with no reader; this was two whole modules.
+
+A league the SCREEN admits and the REPLAY refuses is reported as a **contradiction**
+rather than a skip, because two components disagreeing about whether the same league
+qualifies means one of them is wrong.
+
+## A STANDARD LEAGUE IS A READING, NOT A FAILURE TO READ (found 2026-08-11)
+
+**And it moves the denominator the F7 rule below is computed over**, which is why it is
+recorded above that rule rather than after it.
+
+`reception_points_by_position` returned `no_reception_rule` for two different worlds:
+
+- **the rules parsed and award nothing per catch** — a STANDARD-scoring league. Readable.
+  Fails F1 on the band. Evidence about the pool.
+- **we could not read this league's scoring at all** — evidence about this pipeline.
+
+`screen()` files the second as UNREADABLE, so both were leaving the readable population.
+Run 11's `F4.no_reception_rule: 6` were being booked as our gaps when standard scoring is
+the single most common competing format in public leagues — precisely the leagues an
+honest F1-rarity measurement most needs to count.
+
+**Absent is still not zero, and this does not break it.** The zero is returned only for
+positions the league writes rules for. Rules present for RB and none of them scoring
+receptions means receptions are worth 0 to an RB **here** — measured. A position the
+league writes no rule for stays absent, because about that one we know nothing. The split
+is now four-way, and each fact gets its own reason:
+
+| what happened | reason | about |
+|---|---|---|
+| rules present, CC found | `ok` | the league |
+| rules present for skill positions, no CC | `ok`, value **0.0** → `F1.scoring_not_half_ppr` | the league |
+| CC present, points expression unreadable | `F4.unreadable_reception_points` | **us** |
+| no rules for any skill position | `F4.no_reception_rule` | us |
+
+A fifth case falls out for free and is sharper than what came before: a league writing
+rules for **some** skill positions returns `F4.no_scoring_rules:RB,TE`, naming the
+positions we lack instead of blaming the reception rule.
+
+**Consequence for the F7 arithmetic.** Run 11's readable count of 113 was too low by up to
+6. The rule below is stated over *readable leagues*, so it is unaffected in form — but the
+next run's denominator will be larger for the same crawl, which brings the decision closer,
+not further away. The bound was conservative in the wrong direction.
+
+## F7 DECISION RULE, REGISTERED BEFORE THE RUN THAT TESTS IT (2026-08-11)
+
+Run 11 gave 0 matched of 113 readable leagues. Zero successes does not mean a zero rate,
+so the question is what sample size would actually DECIDE it, and that is arithmetic
+available now — before the run, which is the only time it can be stated honestly.
+
+By the rule of three, k successes of 0 in n trials puts the 95% upper bound at 3/n. F7's
+target of 200 matched league-seasons from a 21,323-league pool needs a rate of at least
+200/21,323 = **0.938%**. So:
+
+```
+  0 of 113  ->  upper bound 2.65%   target still inside   (run 11, where we are)
+  0 of 200  ->  upper bound 1.50%   target still inside
+  0 of 300  ->  upper bound 1.00%   target still inside
+  0 of 320  ->  upper bound 0.938%  TARGET RULED OUT at 95%
+  0 of 400  ->  upper bound 0.750%  ruled out with room
+```
+
+**THE REGISTERED RULE.** If the next run reads **320 or more leagues' formats and none
+passes F1**, F7's target is not reachable from MFL's 2025 public pool at 95% confidence,
+and this program says so rather than lowering the bar — which is what F7 already commits
+to. If **any** league passes, the run yields a rate estimate instead and the question
+becomes how large a crawl the target needs, not whether it is possible.
+
+Either outcome is informative, which is the point of choosing n before looking.
+
+**What it costs.** Run 11 measured **12.6 s per league** with adaptive backoff already
+absorbing MFL's 429s. 400 leagues is ~84 minutes of fetching, so the job timeout goes from
+60 to 150 minutes and the fetch budget to 5,400s. That is ~1,200 requests over 90 minutes
+— 0.24/s, gentler than the run that produced the 429s, because the pacing is adaptive and
+the budget is what grew.
+
+**What would make this run NOT decisive, declared now.** If it reads fewer than 320
+formats — deadline, 429 storm, crawl shortfall — then the interval does not close and the
+answer is "still inside", not "ruled out". `never_attempted` and the readable count are
+already reported for exactly this reason, and the verdict must be read off them rather
+than off the matched count.
+
+## CORRECTION — ROUTE 1 IS NOT OPEN. THE "BOARDS" WERE A NAVIGATION MENU (2026-08-11)
+
+**This supersedes the entry below, which is retained unedited because a result reported
+and then withdrawn is part of the record.** The entry below was written from a byte count
+and a shape count. Both were wrong about the same thing.
+
+`looks_like_a_board` counted capitalised pairs in table cells and anchors, and **a
+content-heavy site's navigation menu clears any such threshold on its own.** Two
+FantasyPros captures scored as boards at 422KB and 480KB. The hand-check sample — added
+in the same sitting, and the only reason this was caught — read:
+
+```
+Draft Wizard, NFL Draft Contest, View Contest, Game Day, My Account, My Leagues,
+Mobile Apps, FantasyPros Championship, Discord Chat, Sign Out, NFL Home,
+Waiver Central, Waiver Assistant, Free Agent Finder, Trade Analyzer
+```
+
+**Zero of fifteen are players.** Checked against our own board: 0 of 15 names appear in
+the 1,760 we hold. The pages were the site's chrome. Byte count was never evidence — 422KB
+of menu is still menu — and the live FantasyPros pages scoring `not-a-board` at ~301KB was
+the two halves AGREEING, not a discrepancy: FantasyPros renders its ADP table client-side,
+so neither the live HTML nor the capture contains a player table.
+
+**What is actually established as of now:**
+- archive.org is reachable from CI (`status 200`); the sandbox 403 was the proxy.
+- The CDX enumeration works, returns real dated captures, and the strictly-before test
+  holds.
+- **No archived board of NFL players has been found.** Route 1 is neither open nor closed:
+  the sources probed so far either render client-side (FantasyPros), are query-string URLs
+  the archive does not hold (FFC's API), or were unreached.
+
+**The test is now a KNOWN-ANSWER test and shape-counting is gone from the gate.** A page
+is a board only if the names on it are players we already hold, read from
+`public/draft_data.json` — the same file the crosswalk reads, not a hand-written list that
+would drift. Ten player hits out of forty names is a bar furniture cannot reach and a real
+board clears easily. The capture walk takes the judge as an argument so it cannot be gated
+on shape by accident: gated on shape, it stopped on the first menu it found and returned it.
+
+**The lesson is the one this program keeps relearning, now at its own expense.** Rule 11
+says verify the MATCHES, not the rate; rule 12 says the output must be sane. A count of
+things-that-look-like-rows is a completeness figure, and completeness says nothing about
+validity. The verdict line had been saying so all along — "a page that parses is not a
+page that is right" — while the code decided on a count.
+
+## ROUTE 1 IS OPEN — the archive holds dated preseason boards (measured 2026-08-11)
+
+Probed from CI, where egress reaches archive.org (`status 200`); the sandbox's blanket
+`Tunnel connection failed: 403` was the proxy, as claimed.
+
+**The hit that matters.** FantasyPros' PPR overall page, capture **`20240731003145`** —
+one day before the cutoff, squarely preseason 2024, 422KB serving a board. A Wayback
+capture is a **third party recording when it saw the content**, so the date is evidence
+rather than a label. That is what F5 asks for, and no provider had to support a date
+parameter to supply it.
+
+**Two of the three hits are the wrong dates, and the count must not be read as three:**
+
+| target | capture | what it is |
+|---|---|---|
+| FFC half-PPR page | 2023-07-06 | preseason — of **2023** |
+| FP half-PPR page | 2023-12-09 | **mid-season**; not a preseason board at all |
+| FP PPR page | **2024-07-31** | the date this route needs |
+
+So **the mechanism is proved and the coverage is not.** The one usable capture is PPR
+where F1 wants half-PPR, and the half-PPR page's newest pre-cutoff capture being December
+is currently unexplained — most likely our own `filter=statuscode:200` hiding a
+redirected path, which the probe now re-asks without.
+
+### WHAT AN OPEN ROUTE 1 DOES NOT DO — stated here so it is not overread later
+
+Route 1 answers the **ADP** blocker. It does not answer the **sample** blocker, and a
+matched league-season needs both.
+
+- **Solved, if the boards verify:** a dated pre-draft board for a completed season, which
+  is what `adp_series.json` starting 2026-08-09 could not give and what F5 forbids
+  substituting a live board for.
+- **Untouched:** run 11 measured **0 of 113 readable MFL leagues passing F1**, 95% upper
+  bound **2.65%** on the match rate against F7's required **0.938%**. Clean ADP for a
+  league that does not exist in our format grades nothing.
+
+**The 2027 timeline therefore does not collapse on this result.** One of its two supports
+is removed; the other was measured today and still stands. Saying otherwise would be
+exactly the overread this document exists to prevent.
+
+### AND IT IS NOT YET A USABLE BOARD
+
+`looks_like_a_board` counts SHAPES. It cannot tell a board of 2024 NFL players from any
+page with 200 capitalised pairs on it, and there is a specific reason to doubt: the LIVE
+FantasyPros pages scored `not-a-board` at ~301KB while their ARCHIVED captures scored
+`board` at ~422KB — same site, same path. Either the live site renders client-side now, or
+the detector is counting furniture. Nothing may be graded against these captures until the
+top of each board is read and checked against the players who actually went early.
+
+### RUN 11 — ZERO OF 113 READABLE LEAGUES MATCH OUR FORMAT (measured 2026-08-11)
+
+The single most consequential number this program has produced, and it is about **F7's
+target**, not about any of the machinery. Stated with its arithmetic because it decides
+whether the 200-league bar is reachable at all.
+
+**The funnel, and it accounts for every league.** 119 attempted (the 1,500s deadline
+stopped the run at 119 of 250 requested; the other 131 are `never_attempted`, so the
+denominator below is 119 and not 250):
+
+```
+F1 failures                                       94
+  F1.scoring_not_half_ppr        43
+  F1.teams                       41
+  F1.te_premium_or_split_ppr      6
+  F1.qb_slots                     2
+  F1.starting_skill_slots         2
+format-UNREADABLE F4                              19
+  no_scoring_rules 7 · no_reception_rule 6 · draft_type_unrecognised 4 ·
+  draft_type_absent 1 · no_qb_slot_count 1
+fetch failures (all HTTP 429)                      6
+                                                 ---
+                                                 119
+```
+
+**113 leagues whose format we could READ. Zero passed F1. Zero matched league-seasons.**
+
+**What that does and does not establish.** Zero successes does not mean the rate is zero.
+By the rule of three the 95% upper bound on the match rate is 3/113 = **2.65%**. F7's
+target of 200 matched league-seasons out of a 21,323-league pool needs a rate of at least
+200/21,323 = **0.938%** — and P(0 of 113 | p = 0.938%) = **0.345**. Seeing zero here is
+what a target-reaching rate looks like a third of the time.
+
+> So: **the target is not ruled out and it is not demonstrated.** The honest reading is
+> that our format is RARE in the public MFL pool, the rate lies somewhere in [0, 2.65%],
+> and the bar needs the upper two thirds of that interval. A larger sample is the only
+> thing that narrows it. Nothing here licenses relaxing a filter to reach the bar — F7
+> already says a short sample changes NOTHING, and this is that case, arriving as a
+> measurement rather than as a worry.
+
+**Which clause is binding, since it is not the one I would have guessed.** `F1.teams`
+rejects 41 and `F1.scoring_not_half_ppr` rejects 43 — and by `screen()`'s ordering those
+43 had already passed the team check. So **half-PPR is the scarcer property, not the
+12-team roster**: public MFL leagues are mostly full-PPR or standard. The covariate table
+from the same run agrees that team count is not the rare part — 32 of 61 dated leagues are
+12-team.
+
+**What this is NOT evidence about.** The 6 fetch failures all carry one signature (HTTP
+429), which is our request rate and not six unobtainable leagues; they are excluded from
+the 113 rather than counted as non-matching. And 131 leagues were never attempted, so this
+is a rate over 113 reads, not over the pool.
+
+### P6 — THE CONFLICT CHECK WAS COMPARING TWO VOCABULARIES (found 2026-08-11, by reading)
+
+Not from a run. Found by reading the matcher while run 11 was fetching, which is the only
+one of these six found before it produced a number.
+
+The two sides of `crosswalk_picks`'s disagreement check do not arrive by the same path.
+`theirs` comes out of `build_index`, which stores `_norm_pos(position)` and
+`_norm_team(team)` — so a Sleeper kicker is already spelled `K` and a Jacksonville player
+is already `JAX`. `meta` comes straight off MFL's players export, unnormalised — the same
+kicker is `PK`, the same player `JAC`. Comparing them raw asks whether two **different
+vocabularies** agree, and the answer is no for every kicker and for every player on the
+nine teams `TEAM_ALIASES` exists to reconcile.
+
+**Worked, on real board data.** Cam Little, K, JAX. MFL sends `PK` / `JAC`. The shipped
+matcher resolves him to the board's own `player_id` — the right player, no ambiguity. The
+check then reported `disagrees_on: ["position", "team"]`, which is the wrong-player
+signature, on the severe kind. `POS_ALIASES["PK"] == "K"` and `TEAM_ALIASES["JAC"] ==
+"JAX"`, and **both tables were consulted by the matcher that made the pair**. The report
+was accusing itself.
+
+Both sides now normalise through the matcher's own tables, imported rather than restated,
+so a vocabulary the matcher learns tomorrow is one the check learns at the same moment.
+`vocabulary_only_agreements` counts the pairs that agreed only after normalising, because
+a conflict count that quietly got smaller with no account of why is not an improvement.
+
+**This is rule 11 turned on the checker.** Every previous instance of this class was a
+consumer written against a field its author pictured; this one is a *comparison* written
+across two derivation paths without applying what one of them had already applied. The
+check built to catch cross-source disagreement was itself a cross-source disagreement.
+
+Run 11 measures with the pre-fix comparison, which makes its position value pairs the test:
+`PK -> K` and `JAC -> JAX` dominating confirms the diagnosis by measurement rather than by
+my reading of the code. The run-11 prediction above stands exactly as registered — this
+supplies the mechanism for it, and does not amend it.
+
+### D5 VERIFIED AGAINST REAL DATA WITH REAL RULE SHAPES (2026-08-11)
+
+The scorer had only ever run on fixtures its author wrote. Run against **19,421 real 2025
+weekly rows** (via `nflreadpy`, 6,160 gsis→sleeper pairs) under a rules export built from
+the shapes the 250-league run actually measured — `-100-999` on yardage, `1-999` on counts,
+and the combined `QB|RB|WR|TE|PK` block that appears in 32 of 60 leagues:
+
+- **Zero untranslatable terms.** Four graded tables built; `Def` and `PK` correctly ignored.
+- `has_weekly_outcomes: True`, reason `ok`, F3 coverage 1.0 over 200 drafted players.
+- Leaderboard recognisable: McCaffrey 365.60, Josh Allen 362.62, Stafford 350.38.
+
+**The cross-check that makes it more than a plausible list.** This league's table carries no
+two-point-conversion terms, so against the shipped half-PPR reference every difference should
+be exactly −2 per 2-pt conversion and zero for players with none. Measured: Allen **−2.00**
+(one), Maye **−4.00** (two), McCaffrey and Stafford **0.00**. The deltas are precisely the
+terms that differ, which is the agreement across derivation paths rule 11 asks for.
+
+**What this settles and what it does not.** It settles that D5's scorer handles real rule
+shapes and real weekly data — so the run's `unreadable_points` count is about *specific
+expressions*, not about the path being broken. It does **not** settle which expressions those
+are; that is what the run's `unparsed_samples` are for.
+
+### PRE-DECLARATION — what I expect the DRAFTED-PLAYER crosswalk rate to be (2026-08-11)
+
+Written while the 250-league run is in flight and before its crosswalk numbers exist, so the
+reading cannot be fitted to them afterwards.
+
+**What I have already seen, declared:** `mfl_live_probe.json` records **447 of 702 MFL rows
+crosswalked, 72% pool coverage**. That is below F2's 90% bar, and if drafted players
+crosswalked at the same rate **every league would fail F2** and the ingest would return zero
+matched leagues for a reason that is about our board, not about their leagues.
+
+**I do not expect that, and the reason is that they are different populations.** The probe's
+denominator is an ADP BOARD of ~700 — which includes deep rookies, IDP and players nobody
+drafts. The drafted set is the top ~180 picks of a real draft, which is concentrated on
+players our board certainly carries. So:
+
+> **Pre-declared: the drafted-player crosswalk rate will be materially HIGHER than 72%, and I
+> expect most leagues to clear the 90% bar. If it comes back near 72%, F2 is the binding
+> constraint and the cause is OUR BOARD's coverage, not the public pool's format.**
+
+**And the failure mode to watch, which the report is already built to separate.** A low rate
+splits two ways that support opposite actions: `unknown_mfl_id` (an id MFL gave us that is
+absent from the players export **we** fetched) versus `no_sleeper_match` (a player who exists
+in MFL and not on our board). The first is our fetch, the second is our board. Summed, they
+would read as "their leagues contain players we cannot price", which is a conclusion about
+the pool drawn from a limitation of ours.
+
+*If this pre-declaration turns out wrong, it stays here with the result beside it.*
+
+---
+
+## OPEN QUESTION FOR CORY — F6 MAY FORBID THE THING THIS INGEST WAS JUSTIFIED BY
+
+**Not a decision I am making, and not one I can make: F6 is rule 1c, constitution, not this
+lane's pre-registration.** Raised now because it bears on what the program can deliver, and
+because the D7 work makes it live rather than hypothetical.
+
+**The conflict, in the documents' own words.** This plan justifies the ingest with four
+blocked items, of which #4 is *"a true survival calibration — blocked outright: it needs each
+season's PRE-DRAFT ADP."* F6 then lists what external data may **never** touch, and the first
+three entries are *"manager tendencies, **opponent survival conditioning**, room behaviour"*,
+followed by: *"**FAIL-CLOSED DEFAULT: any parameter not explicitly classified above is
+LOCAL.**"* The permitted list is *"positional replacement curves, age/pace effects,
+market-efficiency-by-region, format-level value shapes"* — survival is not on it.
+
+### The argument that there is NO conflict, first
+
+"Opponent survival conditioning" plausibly means conditioning a survival estimate on **who
+the opponents are** — a room-specific adjustment, obviously local. "A survival calibration"
+means something else: does a stated p = 0.7 correspond to 70% observed survival? That is a
+property of the **estimator**, format-wide, and arguably sits under "format-level value
+shapes". On that reading the two clauses never meet.
+
+### The argument that the conflict IS real
+
+- The permitted entry says format-level **value** shapes. Survival is not value, and reading
+  one as the other is exactly the kind of stretch the fail-closed clause exists to stop.
+- **Fail-closed is explicit**: not listed means LOCAL. "Survival calibration" is not listed.
+- And the mechanism is the point. A survival curve fitted on external drafts encodes **how
+  those managers reached** — when they took a receiver early, how far they let a tier slide.
+  Applying it in our room imports foreign room behaviour under a different name, which is
+  precisely what the forbidden list protects.
+
+### The reading I would apply if nobody rules otherwise, and where it stops
+
+> **VALIDATION is not parameter-setting.** Measuring whether our shipped survival model is
+> calibrated in format-matched external rooms produces a Brier score and a calibration curve —
+> evidence *about the model*, not a value fitted *into* it. That is admissible under F6
+> because no parameter is informed.
+>
+> **FITTING IS NOT**, under fail-closed, until F6 is amended to name it.
+
+**And the loophole in my own reading, named rather than left for someone to find.** If we
+validate externally and then *change the model because of what we saw*, we have laundered
+parameter-setting through a human decision, and the fail-closed clause is defeated by a
+sentence in a report. Whatever is decided, that path needs closing explicitly — either the
+external calibration may move a parameter (F6 amended, with the clause naming which), or it
+may not, and then it is a **monitor** whose findings are recorded and acted on only by
+changing something local for local reasons.
+
+**What I have done in the meantime:** nothing that touches a parameter. Every external
+observation this lane emits is labelled `baseline:adp_logistic_v1` and
+`is_shipped_policy()` returns False for it, so nothing external can be mistaken for a
+measurement of the tool — let alone flow into one.

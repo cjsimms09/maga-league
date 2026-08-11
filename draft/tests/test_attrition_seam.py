@@ -370,7 +370,25 @@ def test_an_unretrievable_scoring_export_keeps_its_OWN_precise_reason():
     line' are different facts, and both are different from 'not half-PPR'."""
     why = F.screen(record(rules={"error": {"$t": "Error - No League Scoring Rules"}}))[1]
     assert why == "F4.no_scoring_rules"
+    # FOUR facts now, not three, and the split is finer than this test used to be
+    # able to say. A league writing rules for WR ONLY tells us WR scores nothing per
+    # catch — measured — and tells us NOTHING about RB and TE, so the reason names
+    # the positions we lack instead of blaming the reception rule.
     why2 = F.screen(record(rules={"rules": {"positionRules": [
         {"positions": "WR", "rule": [{"event": {"$t": "FC"}, "points": {"$t": "*2"}}]}]}}))[1]
-    assert why2 == "F4.no_reception_rule"
+    assert why2 == "F4.no_scoring_rules:RB,TE"
+    # A league writing NO rule for any skill position is the one that keeps
+    # `no_reception_rule`: we saw its scoring and none of it governs the positions
+    # this program grades.
+    why3 = F.screen(record(rules={"rules": {"positionRules": [
+        {"positions": "Def", "rule": [{"event": {"$t": "FG"}, "points": {"$t": "*3"}}]}]}}))[1]
+    assert why3 == "F4.no_reception_rule"
+    # And a league whose rules ARE present for the skill positions and award nothing
+    # per catch is STANDARD SCORING — a reading, not a failure to read. It fails F1
+    # on the band, and it is EVIDENCE ABOUT THE POOL rather than about our pipeline.
+    why4 = F.screen(record(rules={"rules": {"positionRules": [
+        {"positions": "RB|WR|TE", "rule": [{"event": {"$t": "#R"}, "points": {"$t": "*6"}}]}]}}))[1]
+    assert why4 == "F1.scoring_not_half_ppr"
+    assert F.is_unreadable(why4) is False, \
+        "a standard league is a fact about the pool, not a gap in our pipeline"
     assert not why2.startswith("F1.")

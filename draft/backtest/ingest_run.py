@@ -55,8 +55,24 @@ def build_record(league_id, exports: dict, **passthrough) -> dict:
                         + ["%s: absent" % m for m in sorted(missing)])
         return {"league_id": str(league_id), "source": "mfl", "unfetchable": why,
                 "unreadable": {"fetch": "fetch_failed:%s" % why}}
-    return A.to_league_record(exports["league"], exports["rules"], exports["draftResults"],
-                              league_id=league_id, **passthrough)
+    try:
+        return A.to_league_record(exports["league"], exports["rules"],
+                                  exports["draftResults"], league_id=league_id,
+                                  **passthrough)
+    except Exception as e:                                       # noqa: BLE001
+        # ONE LEAGUE MUST NOT KILL THE RUN. Measured 2026-08-11: a single league
+        # whose `draftUnit` was a LIST raised AttributeError 18 minutes into a
+        # 250-league run and took the other 249 with it — no report, no attrition
+        # table, nothing learned from any of them.
+        #
+        # This is the attrition seam at the outermost layer: a league we could not
+        # PARSE is that league's reason, not the run's death, and it must be
+        # UNREADABLE (about this pipeline) rather than filtered. The exception type
+        # and message are kept so the defect stays diagnosable instead of becoming
+        # an anonymous drop.
+        return {"league_id": str(league_id), "source": "mfl",
+                "unfetchable": "parse_failed:%s: %s" % (type(e).__name__, e),
+                "unreadable": {"parse": "parse_failed:%s" % type(e).__name__}}
 
 
 def run_screen(records: list) -> tuple:
@@ -115,11 +131,69 @@ def attrition_report(verdicts: list, requested: list = None) -> dict:
         # "does any of the pool cross a date boundary" from an assumption into a
         # number. `lead_days` is per-decision precisely because of this spread.
         "draft_duration_days": _distribution(durations),
+        # THE OTHER HALF OF THE SAME REGISTERED REQUIREMENT, and it was missing.
+        # INGEST-PLAN's reporting addition says every run reports the draft-duration
+        # distribution AND the per-league LEAD-DAYS SPREAD. Only the first was
+        # here — rule 6, the written rule and the running system diverging, on a
+        # requirement this lane registered itself. `test_the_run_reports_EVERY`
+        # `_quantity_the_plan_says_it_reports` now closes that gap generally.
+        "lead_days_spread": _lead_spread(verdicts),
+        # THE 2026 NUMBER, and it is worth having a year early. 2026's ADP is being
+        # captured cleanly right now — one dated snapshot a day, the only season F5
+        # can be satisfied for without an archive or a construction — and its
+        # outcomes arrive in January. So this counts the leagues that are
+        # OUTCOME-READY: F1, F2, the ADP-availability check and F5 all cleared, and
+        # the only thing missing is the season being played.
+        #
+        # Not a filter and not a relaxation: F4 still excludes every one of them
+        # whole. It only says WHY, precisely enough to be worth counting, and it is
+        # only precise because `screen()` checks outcomes LAST.
+        "outcome_ready": sum(1 for _, _, why in verdicts if F.passed_pre_outcome(why)),
+        "outcome_ready_note": ("leagues clearing every check that can be judged before "
+                               "the season runs; for a PLAYED season this equals "
+                               "`matched`, and for an unplayed one it is the sample "
+                               "that will exist once outcomes land"),
         "target": F.TARGET_MATCHED_LEAGUE_SEASONS,
         "meets_target": len(matched) >= F.TARGET_MATCHED_LEAGUE_SEASONS,
     }
     rep["verdict"] = _verdict_line(rep)
     return rep
+
+
+def _lead_spread(verdicts) -> dict:
+    """Staleness of the frozen board across each matched league's picks, pooled.
+
+    Per-DECISION, not per-league: `draft_at` is the FIRST pick, which is the right
+    scalar for F5 admission and the wrong one for staleness. A day-five pick dated
+    from day one understates the board's age by the whole length of the draft, on
+    exactly the picks where it is oldest.
+
+    UNDATED PICKS ARE COUNTED, never dated from the league — the store raises
+    rather than inventing a lead time, and that raise is what `undated` counts.
+    """
+    from external_replay import ExternalAsOfStore
+    mins, meds, maxs, spans, undated, n = [], [], [], [], 0, 0
+    for r, ok, _ in verdicts:
+        if not ok:
+            continue
+        observed = r.get("adp_observed_at")
+        picks = (r.get("draft") or {}).get("picks") or []
+        if not observed or not picks:
+            continue
+        store = ExternalAsOfStore(r.get("league_id"), r.get("draft_at"),
+                                  [{"observed_at": observed, "rows": []}], None)
+        sp = store.lead_days_spread([p.get("timestamp") for p in picks])
+        undated += sp["undated"]
+        if not sp["n"]:
+            continue
+        n += 1
+        mins.append(sp["min"]); meds.append(sp["median"])
+        maxs.append(sp["max"]); spans.append(sp["span_days"])
+    return {"leagues": n, "undated_picks": undated,
+            "min_of_min": min(mins) if mins else None,
+            "median_of_median": (sorted(meds)[len(meds) // 2] if meds else None),
+            "max_of_max": max(maxs) if maxs else None,
+            "span_days": _distribution(spans)}
 
 
 def _duration(record: dict):
@@ -175,22 +249,169 @@ def _verdict_line(rep: dict) -> str:
 EXPORTS = {"league": "TYPE=league", "rules": "TYPE=rules", "draftResults": "TYPE=draftResults"}
 
 
-def fetch_league(league_id, year):  # pragma: no cover  (egress; CI only)
-    """The three exports for one league. An error is RECORDED, never raised away."""
+# ADAPTIVE PACING. A fixed delay either wastes time when the endpoint is happy or
+# loses to the limiter when it is not, and retrying at a fixed rate FIGHTS a rate
+# limiter rather than converging to what it will serve. Measured: run 4 fetched 60
+# leagues at ~2.8s each; run 8 ran roughly 3x slower at the same settings, which is
+# retry time, not network time. So a 429 raises the floor for EVERY subsequent
+# league and a clean stretch lowers it again — the run finds the sustainable rate
+# instead of being told one.
+_PACE = {"delay": 0.34, "clean": 0}
+_PACE_MAX, _PACE_MIN = 8.0, 0.34
+
+
+def _saw_429():
+    _PACE["delay"] = min(_PACE_MAX, max(_PACE["delay"] * 2.0, 1.0))
+    _PACE["clean"] = 0
+
+
+def _saw_ok():
+    _PACE["clean"] += 1
+    # Only after a sustained clean stretch, and only part-way back: dropping
+    # straight to the floor after one success just re-earns the next 429.
+    if _PACE["clean"] >= 10:
+        _PACE["delay"] = max(_PACE_MIN, _PACE["delay"] * 0.7)
+        _PACE["clean"] = 0
+
+
+def fetch_league(league_id, year, delay=None):  # pragma: no cover  (egress; CI only)
+    """The three exports for one league. An error is RECORDED, never raised away.
+
+    `delay` is not politeness for its own sake. A sample of 150 leagues is 450
+    requests, and if MFL throttles partway through, every subsequent league comes
+    back `F4.fetch_failed` — which the attrition report would faithfully classify as
+    UNREADABLE and which a reader would take as "a third of the public pool could
+    not be obtained". The truth would be "we asked too fast", and the two are the
+    same rows. Slowing down removes most of the risk; `throttle_signal` catches
+    what is left.
+    """
+    import time
     import urllib.error
     import urllib.request
     out = {}
-    for name, q in EXPORTS.items():
+    for i, (name, q) in enumerate(EXPORTS.items()):
+        gap = _PACE["delay"] if delay is None else delay
+        if i and gap:
+            time.sleep(gap)
         url = "%s/%s/export?%s&L=%s&JSON=1" % (MFL_HOST, year, q, league_id)
         req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
-        try:
-            with urllib.request.urlopen(req, timeout=45) as r:
-                out[name] = json.loads(r.read().decode("utf-8", "replace"))
-        except urllib.error.HTTPError as e:
-            out[name] = {"_error": "http %s %s" % (e.code, e.reason)}
-        except Exception as e:
-            out[name] = {"_error": "%s: %s" % (type(e).__name__, e)}
+        # 429 IS NOT A LEAGUE THAT COULD NOT BE FETCHED. Measured: the first real
+        # 60-league run took 24 of 60 as `http 429 Too Many Requests`, 100% of its
+        # failures on one signature — `throttle_signal` caught it, which is the only
+        # reason those 24 were not written down as unobtainable leagues. Backing off
+        # and retrying is the remedy the verdict itself named. Retries are BOUNDED
+        # and a still-failing league is still recorded as failed: this removes a
+        # cause of failure, it does not hide one.
+        for attempt in range(4):
+            try:
+                with urllib.request.urlopen(req, timeout=45) as r:
+                    out[name] = json.loads(r.read().decode("utf-8", "replace"))
+                _saw_ok()
+                break
+            except urllib.error.HTTPError as e:
+                if e.code == 429:
+                    _saw_429()
+                if e.code == 429 and attempt < 3:
+                    # Honour Retry-After when the server sends one; it knows better
+                    # than any constant chosen here.
+                    wait = e.headers.get("Retry-After") if e.headers else None
+                    try:
+                        wait = float(wait)
+                    except (TypeError, ValueError):
+                        wait = 2.0 * (2 ** attempt)
+                    time.sleep(min(wait, 30.0))
+                    continue
+                out[name] = {"_error": "http %s %s" % (e.code, e.reason)}
+                break
+            except Exception as e:
+                out[name] = {"_error": "%s: %s" % (type(e).__name__, e)}
+                break
     return out
+
+
+def throttle_signal(verdicts) -> dict:
+    """Are the fetch failures about THE LEAGUES or about THE RATE WE ASKED?
+
+    THE DISCRIMINATOR IS NON-INDEPENDENCE, NOT A MAGNITUDE — deliberately, because
+    a threshold ("more than 30% failed") is a tolerance band, and a tolerance band
+    is a decision I would be making on the run's behalf with no basis for the
+    number. What can be said without one: 150 leagues are 150 independent things,
+    and independent things do not fail with the SAME ERROR STRING. A single
+    signature covering most failures is a property of the endpoint or of our
+    request rate, and those failures are not evidence that the leagues are
+    unobtainable.
+
+    Reported whenever two or more fetch failures share a dominant signature. The
+    run states it and does NOT reclassify anything: the leagues really were not
+    fetched, and a rerun is the remedy, not a relabelling.
+    """
+    from collections import Counter
+    # THE SHAPE COMES FROM `run_screen`, WHICH IS THE ONLY PRODUCER: a verdict is
+    # the TUPLE `(record, ok, reason)` that `attrition_report` already consumes.
+    # The first cut of this function read `v.get("reason")` — a dict shape that
+    # exists nowhere except in the test I wrote for it, so the unit tests passed
+    # and CI died on the real list. Third instance of that today, which is why the
+    # test now builds its verdicts BY CALLING `run_screen` instead of hand-writing
+    # them, and why an unrecognised shape RAISES here: reporting "no fetch
+    # failures" because the shape did not match is a reassuring wrong answer, and
+    # those are worse than a crash.
+    reasons = [_verdict_reason(v) for v in (verdicts or [])]
+    fails = [r for r in reasons if F.reason_code(r) == "F4.fetch_failed"]
+    n = len(verdicts or [])
+    if not fails:
+        return {"fetch_failures": 0, "examined": n, "throttled_signature": None,
+                "verdict": "no fetch failures"}
+    sigs = Counter(_signature(f) for f in fails)
+    top, count = sigs.most_common(1)[0]
+    share = count / len(fails)
+    rep = {"fetch_failures": len(fails), "examined": n,
+           "fetch_failure_share": round(len(fails) / n, 4) if n else None,
+           "signatures": dict(sigs.most_common(6)),
+           "dominant_signature": top, "dominant_share": round(share, 4),
+           "throttled_signature": top if count >= 2 else None}
+    if count >= 2:
+        rep["verdict"] = (
+            "%d of %d leagues FAILED TO FETCH and %d of those (%.0f%%) share ONE error "
+            "signature (%s). Independent leagues do not fail identically — this is the "
+            "ENDPOINT or OUR REQUEST RATE, not %d unobtainable leagues, and the counts "
+            "below must not be read as pool coverage. The remedy is a slower rerun, not "
+            "a relabelling: these leagues really were not fetched."
+            % (len(fails), n, count, 100 * share, top, len(fails)))
+    else:
+        rep["verdict"] = ("%d of %d leagues failed to fetch, with no shared signature — "
+                          "consistent with per-league failures" % (len(fails), n))
+    return rep
+
+
+def _verdict_reason(v) -> str:
+    """A verdict's reason, from the shape `run_screen` actually emits.
+
+    `(record, ok, reason)` is the contract; a dict is accepted because it is a
+    natural thing for a caller to build, and ANYTHING ELSE RAISES rather than
+    yielding "" — an empty reason bins as no-failure, and a throttle detector that
+    silently reports "no fetch failures" because it did not recognise its input is
+    worse than one that crashes.
+    """
+    if isinstance(v, (tuple, list)) and len(v) >= 3:
+        return str(v[2] or "")
+    if isinstance(v, dict):
+        return str(v.get("reason") or "")
+    raise TypeError(
+        "a verdict is `(record, ok, reason)` as produced by run_screen, got %s. "
+        "Returning no reason here would report NO FETCH FAILURES for a run that "
+        "may have been entirely throttled." % type(v).__name__)
+
+
+def _signature(reason: str) -> str:
+    """The error's KIND, with the league-specific tail removed.
+
+    `F4.fetch_failed:draftResults: http 403 Forbidden; league: http 403 Forbidden`
+    and the same for another league must collapse to one signature, or every
+    failure is its own kind and nothing is ever detected as shared.
+    """
+    detail = str(reason).split(":", 1)[1] if ":" in str(reason) else str(reason)
+    parts = sorted({p.split(":", 1)[-1].strip() for p in detail.split(";") if p.strip()})
+    return "; ".join(parts) or "unknown"
 
 
 def league_passthrough(picks, mfl_players, board_index, series, year) -> dict:
@@ -270,7 +491,8 @@ def adp_fields(store) -> dict:
 
 def run(league_ids, year, out_path=None, *, players=None, board=None,
         series=None, weekly_rows=None, gsis_to_ours=None,
-        readiness=None):  # pragma: no cover  (egress; CI only)
+        readiness=None, league_delay=1.0,
+        deadline_s=None):  # pragma: no cover  (egress; CI only)
     """THE FIRST REAL FETCH.
 
     WHAT THIS WILL REPORT, WRITTEN BEFORE IT RUNS so the result cannot be narrated
@@ -310,8 +532,32 @@ def run(league_ids, year, out_path=None, *, players=None, board=None,
     from external_replay import ExternalAsOfStore, policy_fingerprint
     from asof import TimeTravelError
 
-    records, outcomes = [], []
-    for lid in league_ids:
+    import time as _time
+    started = _time.monotonic()
+    records, outcomes, cw_reports = [], [], []
+    snap_by_league: dict = {}
+    pool_picks, league_dates = [], {}
+    stopped_early = None
+    for _i, lid in enumerate(league_ids):
+        # A RUN KILLED BY THE CLOCK PRODUCES NOTHING. Measured: a 250-league run
+        # spent 35+ minutes against a 60-minute job timeout, and a timeout would
+        # have destroyed every league's evidence — the same failure the per-league
+        # parse guard fixed one level down, at the level of the whole run.
+        #
+        # Stopping EARLY is honest and being killed is not, because the machinery
+        # for an incomplete run already exists: the ids never reached become
+        # `never_attempted`, which `attrition_report` counts and whose verdict says
+        # "the denominator below is incomplete, not a coverage figure". A partial
+        # run that says so beats a complete run that never happened.
+        if deadline_s is not None and _time.monotonic() - started > deadline_s:
+            stopped_early = ("stopped after %d of %d leagues at the %ds budget"
+                             % (_i, len(league_ids), deadline_s))
+            print("!! " + stopped_early)
+            break
+        if _i:
+            # BETWEEN LEAGUES TOO, not only between exports. The measured 429 came
+            # at roughly 1.8 requests/second; this run asks for well under one.
+            _time.sleep(max(league_delay, _PACE["delay"]))
         exports = fetch_league(lid, year)
         rec = build_record(lid, exports)
         if rec.get("unfetchable"):
@@ -328,6 +574,19 @@ def run(league_ids, year, out_path=None, *, players=None, board=None,
         except (TimeTravelError, Exception) as e:      # noqa: B014 - recorded, never raised away
             adp = {"pre_draft_adp": None, "adp_observed_at": None,
                    "_adp_note": "%s: %s" % (type(e).__name__, e)}
+        cw_reports.append((extra["crosswalk"] or (None, None))[1])
+        # Kept so the replay can run over the SAME snapshots the as-of store saw.
+        # Re-deriving them at replay time would be a second derivation path for the
+        # one thing F5 is about.
+        snap_by_league[str(lid)] = extra["snapshots"]
+        # D7's raw material, accumulated as we go: every pick with its OWN
+        # timestamp and its league. Per-pick, because an email draft that started
+        # early can contain picks made late.
+        stamps = [p.get("timestamp") for p in picks if p.get("timestamp")]
+        league_dates[str(lid)] = min(stamps) if stamps else None
+        for p in picks:
+            pool_picks.append({"league_id": str(lid), "player": str(p.get("player")),
+                               "overall": p.get("overall"), "timestamp": p.get("timestamp")})
         got = outcomes_fields(exports["rules"], extra["crosswalk"], weekly_rows or [],
                               int(year), gsis_to_ours or {}, board)
         outcomes.append(dict(got["outcomes"], league_id=str(lid)))
@@ -337,16 +596,262 @@ def run(league_ids, year, out_path=None, *, players=None, board=None,
                                     adp_observed_at=adp.get("adp_observed_at")))
     verdicts, _ = run_screen(records)
     rep = attrition_report(verdicts, requested=list(league_ids))
+    rep["stopped_early"] = stopped_early
+    # The rate the run SETTLED at, reported: it is the number that says whether a
+    # bigger sample is affordable, and guessing it is how the last two runs were
+    # budgeted.
+    rep["final_pace_seconds"] = round(_PACE["delay"], 3)
     rep["year"] = str(year)
     rep["outcomes"] = outcomes_summary(outcomes)
     rep["season_readiness"] = readiness
+    rep["throttle"] = throttle_signal(verdicts)
+    rep["crosswalk"] = crosswalk_summary(cw_reports)
+    rep["format_census"] = format_census(verdicts)
+    rep["survival"] = survival_pass(verdicts, snap_by_league)
+    rep["within_pool_adp"] = d7_feasibility(verdicts, pool_picks, league_dates)
     # PREPENDED, not appended. The existing verdict already leads with unreadable
     # attrition; this leads with whether the run could have measured anything at all.
-    rep["verdict"] = readiness_verdict(readiness, rep) + " || " + str(rep.get("verdict", ""))
+    # THROTTLE FIRST, then readiness, then the filters. Ordered by how badly each
+    # would mislead: a throttled run's counts are not about the pool at all.
+    lead = readiness_verdict(readiness, rep)
+    if rep["throttle"].get("throttled_signature"):
+        lead = rep["throttle"]["verdict"] + " || " + lead
+    rep["verdict"] = lead + " || " + str(rep.get("verdict", ""))
     if out_path:
         Path(out_path).write_text(json.dumps(rep, indent=1))
     print(json.dumps(rep, indent=1))
     return rep
+
+
+def crosswalk_summary(reports: list) -> dict:
+    """THE CROSSWALK AT SCALE — the number F2 is applied on, never yet reported.
+
+    F2 admits a league only at >=90% crosswalked, and until now the run applied
+    that bar without publishing the quantity. A filter whose input nobody sees is
+    a filter nobody can judge, and its failures are the ones that look most like
+    facts about the world: "their league has players we cannot price" and "our
+    board is built from a partial index" produce the same rejection.
+
+    Four things, because they fail for different reasons and F4 requires exclusions
+    counted BY REASON:
+
+      RATE DISTRIBUTION   min/median/max, and how many leagues clear the F2 bar.
+      TWO KINDS OF MISS   `unknown_mfl_id` is an id MFL gave us and we never
+                          fetched (our players export); `no_sleeper_match` is a
+                          player who exists in MFL and not on our board. Reporting
+                          them together would say "our board is missing players"
+                          when the truth may be "we never fetched them".
+      METHOD MIX          how matches were made, so a systematic wrong-match (say
+                          everything landing via loose initials) is visible as a
+                          distribution rather than found one player at a time.
+      CONFLICTS, IN FULL  matched pairs whose two sources DISAGREE on position or
+                          team. Never a sample: cross-source disagreement on a
+                          matched pair is the signature of the wrong player, and it
+                          passes every completeness check ever written — the rate
+                          goes UP when a bad match lands.
+    """
+    from collections import Counter
+    rates, methods = [], Counter()
+    picks = matched = unknown_id = no_match = conflicts = vocab_only = 0
+    pairs: list = []
+    conflict_rows: list = []
+    for r in reports or []:
+        if not r:
+            continue
+        if r.get("picks"):
+            rates.append(r.get("crosswalk_rate") or 0.0)
+        picks += r.get("picks") or 0
+        matched += r.get("crosswalked") or 0
+        unknown_id += r.get("unknown_mfl_id") or 0
+        no_match += r.get("no_sleeper_match") or 0
+        conflicts += r.get("conflicts") or 0
+        vocab_only += r.get("vocabulary_only_agreements") or 0
+        methods.update(r.get("methods") or {})
+        conflict_rows.extend(r.get("conflict_rows") or [])
+        for p in (r.get("matched_sample") or [])[:2]:
+            if len(pairs) < 30:
+                pairs.append(p)
+    n = len(rates)
+    clear = sum(1 for x in rates if x >= F.MIN_CROSSWALK_RATE)
+    return {
+        "leagues_with_picks": n,
+        "picks_total": picks,
+        "picks_crosswalked": matched,
+        # The POOLED rate, which is not the mean of per-league rates and is not a
+        # substitute for the distribution beside it.
+        "pooled_rate": round(matched / picks, 4) if picks else None,
+        "rate_distribution": _distribution([100.0 * x for x in rates]),
+        "leagues_clearing_F2_bar": clear,
+        "leagues_below_F2_bar": n - clear,
+        "f2_bar": F.MIN_CROSSWALK_RATE,
+        "unknown_mfl_id": unknown_id,
+        "no_sleeper_match": no_match,
+        "methods": dict(methods.most_common()),
+        "conflicts": conflicts,
+        "conflict_breakdown": conflict_breakdown(conflict_rows),
+        # Pairs the two sources agreed on once BOTH were spelled the way the
+        # matcher spells them. Reported so the conflict count's drop is
+        # attributable to our vocabulary rather than to nothing in particular.
+        "vocabulary_only_agreements": vocab_only,
+        # BOTH SIDES OF THE MATCH, for hand-checking. A bare rate cannot be
+        # audited: "447 of 702" says nothing about whether any of the 447 is the
+        # right player, and a wrong-but-plausible match produces a real player and
+        # never errors. The pair is what a human can check.
+        "matched_pairs_for_hand_check": pairs,
+        "verdict": _crosswalk_verdict(n, clear, unknown_id, no_match, conflicts, matched),
+    }
+
+
+def conflict_breakdown(rows, top=12) -> dict:
+    """Split cross-source disagreements BY FIELD, and name the values that disagree.
+
+    WHY THE SPLIT. Run 9 reported "2,147 conflicts" as one number, and that number
+    conflates two findings with opposite severity:
+
+      POSITION disagreement is the signature of the WRONG PLAYER. Two sources
+      agreeing on a name while disagreeing on what he plays is exactly how a
+      wrong-but-plausible match presents, and it RAISES the crosswalk rate.
+
+      TEAM disagreement is what two boards snapshotted on different days look like
+      when a player signs elsewhere. It is consistent with the right player. It is
+      not PROOF of the right player, and it is not counted as one — it is counted
+      apart, so a real position problem cannot hide inside a pile of trades.
+
+    A pair disagreeing on BOTH is counted with the position kind: the severe reading
+    is the one that governs. And this reports the VALUE PAIRS, not just counts,
+    because "PK -> K, 1,400 times" is a vocabulary mismatch in our comparison while
+    1,400 scattered position pairs are 1,400 wrong players, and the two are
+    indistinguishable from a total.
+    """
+    from collections import Counter
+    pos_pairs, team_pairs = Counter(), Counter()
+    position_kind = team_only = 0
+    samples: list = []
+    for r in rows or []:
+        fields = r.get("disagrees_on") or []
+        if "position" in fields:
+            position_kind += 1
+            pos_pairs["%s -> %s" % (r.get("mfl_pos"), r.get("board_pos"))] += 1
+            if len(samples) < 10:
+                samples.append({k: r.get(k) for k in
+                                ("mfl_name", "mfl_pos", "mfl_team", "board_name",
+                                 "board_pos", "board_team", "method")})
+        elif "team" in fields:
+            team_only += 1
+        if "team" in fields:
+            team_pairs["%s -> %s" % (r.get("mfl_team"), r.get("board_team"))] += 1
+    return {
+        "rows_seen": len(rows or []),
+        # The severe kind. Includes pairs that also disagree on team.
+        "position_disagreements": position_kind,
+        "team_only_disagreements": team_only,
+        "position_value_pairs": dict(pos_pairs.most_common(top)),
+        "team_value_pairs": dict(team_pairs.most_common(top)),
+        # Position conflicts are never sampled away in the count above; this is the
+        # hand-checkable evidence for the ones that are there.
+        "position_conflict_sample": samples,
+    }
+
+
+def _crosswalk_verdict(n, clear, unknown_id, no_match, conflicts, matched) -> str:
+    parts = []
+    if conflicts:
+        parts.append("%d MATCHED PAIRS DISAGREE across sources on position or team — that "
+                     "is the signature of a wrong match, and it RAISES the crosswalk rate "
+                     "rather than lowering it" % conflicts)
+    if unknown_id:
+        parts.append("%d picks carry an MFL id absent from OUR players export — that is a "
+                     "gap in what we fetched, not a player their league invented"
+                     % unknown_id)
+    head = "%d of %d leagues clear the F2 crosswalk bar; %d picks matched, %d unmatched " \
+           "against our board" % (clear, n, matched, no_match)
+    return head + "".join("; and " + p for p in parts)
+
+
+def d7_feasibility(verdicts, pool_picks, league_dates) -> dict:
+    """D7's registered measurement: can earlier picks in the pool price a later draft?
+
+    THE POPULATION IS F1-PASSING LEAGUES, as registered — dynasty and superflex ADP
+    are different quantities, and the crawl measured `dynasty` at 5,642 term hits,
+    so this is not a tail concern. `passed_f1` infers format-pass from `screen()`'s
+    ordering, and that ordering is asserted by its own test rather than assumed.
+
+    Reported for BOTH populations, because the difference between them is itself
+    the answer to "does restricting to format-matched leagues leave anything".
+    """
+    from within_pool_adp import feasibility
+    ok_ids = {str(r.get("league_id")) for r, _, why in verdicts if F.passed_f1(why)}
+    fmt_picks = [p for p in pool_picks if p["league_id"] in ok_ids]
+    meta = {str(r.get("league_id")): r for r, _, _ in verdicts}
+    def _row(lid, ts):
+        r = meta.get(lid) or {}
+        return {"league_id": lid, "first_pick_ts": ts,
+                # M4's covariates, carried from the record rather than re-derived.
+                "teams": r.get("teams"), "keeper_type": r.get("keeper_type"),
+                "draft_type": r.get("draft_type")}
+    leagues = [_row(lid, ts) for lid, ts in sorted(league_dates.items()) if lid in ok_ids]
+    out = {"population": "F1-passing leagues only (D7 as registered)",
+           "f1_passing_leagues": len(ok_ids),
+           "picks_in_format_matched_pool": len(fmt_picks),
+           "picks_in_whole_pool": len(pool_picks),
+           "format_matched": feasibility(leagues, fmt_picks)}
+    # The unrestricted number beside it, LABELLED as inadmissible under D7, so the
+    # cost of the format restriction is visible and nobody has to guess at it.
+    allx = [_row(lid, ts) for lid, ts in sorted(league_dates.items())]
+    out["whole_pool_INADMISSIBLE_under_D7"] = feasibility(allx, pool_picks)
+    out["subset_bound"] = subset_bound(out["format_matched"],
+                                       out["whole_pool_INADMISSIBLE_under_D7"])
+    return out
+
+
+def subset_bound(fmt: dict, whole: dict) -> dict:
+    """The one D7 quantity that is PROVABLE, checked against what was computed.
+
+    Format-matching is a FILTER on picks. So for any league, support under the
+    format-matched pool is <= support under the whole pool, its board at the same
+    `min_support` can only be smaller, and the count of leagues reaching a usable
+    board can only be lower. That is a subset relation, not a forecast — which
+    makes the inadmissible whole-pool figure an UPPER BOUND on the admissible one,
+    and makes D7's ceiling known before the admissible number is measured.
+
+    Rule 6, in the direction that matters: a claim written into INGEST-PLAN has to
+    be something the running system enforces, or the document is describing a
+    program that does not exist. A VIOLATION here is not a finding about the pool —
+    it means `feasibility` or the format-matched pick set is wrong, because the
+    arithmetic cannot be.
+
+    `comparable` is reported because `per_league` is capped: leagues past the cap
+    are not checked, and an unchecked league is absent, not passing.
+    """
+    w = {str(x["league_id"]): x for x in (whole or {}).get("per_league") or []}
+    checked, viol = 0, []
+    for x in (fmt or {}).get("per_league") or []:
+        other = w.get(str(x["league_id"]))
+        if not other:
+            continue
+        checked += 1
+        if (x.get("players_with_adp") or 0) > (other.get("players_with_adp") or 0):
+            viol.append({"league_id": str(x["league_id"]),
+                         "format_matched": x.get("players_with_adp"),
+                         "whole_pool": other.get("players_with_adp")})
+    agg_ok = ((fmt or {}).get("leagues_with_usable_board") or 0) <= \
+             ((whole or {}).get("leagues_with_usable_board") or 0)
+    out = {"comparable_leagues": checked,
+           "board_size_violations": len(viol),
+           "violation_sample": viol[:10],
+           "usable_count_within_bound": agg_ok,
+           "upper_bound_on_usable": (whole or {}).get("leagues_with_usable_board")}
+    out["verdict"] = (
+        "D7's admissible figure is within its proved ceiling: %s usable of the %s the "
+        "whole pool could serve, across %d leagues compared"
+        % ((fmt or {}).get("leagues_with_usable_board"),
+           (whole or {}).get("leagues_with_usable_board"), checked)
+        if not viol and agg_ok else
+        "BOUND VIOLATED — format-matching produced a LARGER board than the whole pool "
+        "for %d league(s), or more usable leagues than the pool that contains them. "
+        "Format-matched picks are a SUBSET of pool picks, so this is a defect in this "
+        "code and not a fact about the leagues" % len(viol))
+    return out
 
 
 def readiness_verdict(readiness: dict, rep: dict) -> str:
@@ -405,3 +910,156 @@ def outcomes_summary(outcomes: list) -> dict:
 def _count(values) -> dict:
     from collections import Counter
     return dict(Counter(str(v) for v in values if v is not None).most_common())
+
+
+def format_census(verdicts) -> dict:
+    """WHAT THE PUBLIC POOL ACTUALLY LOOKS LIKE, over the leagues whose format we READ.
+
+    WHY THIS IS NOT FILTER-SHOPPING, said plainly because the line matters. F1 stays
+    exactly as registered and nothing here changes a screen. Run 11 measured 0 of 113
+    readable leagues passing F1, which says our format is rare and says nothing about
+    WHAT the pool is instead — and "0 matched" with no distribution beside it invites
+    exactly the post-hoc filter relaxation rule 4 exists to stop, because the only way
+    to learn anything is to start loosening clauses and watching the count.
+
+    So the distribution is reported ONCE, as a fact about the pool. It makes the COST
+    of F1 visible instead of leaving it to be discovered by fiddling. Any change to
+    F1 is a new dated registration made by the person who owns that decision, on this
+    evidence, in the open — not a clause quietly widened by whoever was looking at the
+    number.
+
+    Counted over READABLE leagues only. A league we could not fetch or parse has no
+    format to census, and folding it in as a bucket would report our pipeline's gaps
+    as facts about other people's leagues.
+    """
+    from collections import Counter
+    teams, ppr, sflex, dtype, keeper = Counter(), Counter(), Counter(), Counter(), Counter()
+    readable = 0
+    for r, _, why in verdicts or []:
+        if r.get("unfetchable") or F.is_unreadable(why):
+            continue
+        readable += 1
+        teams[r.get("teams") if r.get("teams") is not None else "(absent)"] += 1
+        sflex[bool(r.get("superflex"))] += 1
+        dtype[r.get("draft_type") or "(absent)"] += 1
+        keeper[r.get("keeper_type") or "(absent)"] += 1
+        ppr[_ppr_bucket(r)] += 1
+    return {
+        "readable_leagues": readable,
+        "teams": dict(teams.most_common()),
+        "reception_points": dict(ppr.most_common()),
+        "superflex": {str(k): v for k, v in sflex.most_common()},
+        "draft_type": dict(dtype.most_common()),
+        "keeper_type": dict(keeper.most_common()),
+        "f1_as_registered": {"teams": sorted(F.TEAMS_ALLOWED),
+                             "reception_points": "half-PPR band",
+                             "superflex": "excluded"},
+        "verdict": ("Distribution over %d READABLE leagues. F1 is unchanged and nothing "
+                    "here is a filter: this is what the pool is, so the cost of F1 is a "
+                    "measurement rather than something discovered by loosening clauses "
+                    "and watching the count. Any change to F1 is a new dated "
+                    "registration, not an edit." % readable),
+    }
+
+
+def _ppr_bucket(record) -> str:
+    """Reception points as a LABEL, and split scoring is its own bucket.
+
+    A league paying 0.5 to WR and 1.0 to TE is not "1.0 PPR with a caveat" — TE
+    premium is a different format, and averaging the positions would invent a league
+    that does not exist. `screen()` already refuses it by name; the census keeps it
+    visible instead of hiding it inside whichever number the average landed on.
+    """
+    by_pos = ((record.get("scoring") or {}).get("rec_by_position") or {})
+    vals = {v for v in by_pos.values() if v is not None}
+    if not vals:
+        return "(no reception rule)"
+    if len(vals) > 1:
+        return "split/TE-premium %s" % ",".join(
+            "%s=%s" % kv for kv in sorted(by_pos.items()))
+    v = next(iter(vals))
+    for lo, hi, label in ((0.0, 0.001, "0 (standard)"), (0.4, 0.6, "0.4-0.6 (half-PPR)"),
+                          (0.9, 1.1, "0.9-1.1 (full PPR)")):
+        if lo <= v <= hi:
+            return label
+    return "other:%s" % v
+
+
+def survival_pass(verdicts, snapshots_by_league) -> dict:
+    """Replay every MATCHED league and grade its survival forecasts. No outcomes.
+
+    THE GAP THIS CLOSES, and it is the produced-and-unread pattern one level up
+    from where this program usually finds it. `external_replay_run.replay_league`
+    emits forecasts. `survival_grade.grade` scores them. Both are built, both are
+    tested, and NOTHING CALLED EITHER: the spine fetched leagues, screened them and
+    stopped. Rule 14, on two whole modules rather than a field.
+
+    WHY IT MATTERS FOR 2026 SPECIFICALLY. Survival — will this player still be
+    there when this seat picks again — resolves from the draft's OWN LATER PICKS.
+    It needs no weekly data, no nflverse and no January. So the moment a 2026
+    league drafts with clean dated ADP, this produces a real graded observation of
+    the same forecast type the home league emits.
+
+    THE POPULATION IS `matched` AND NOTHING ELSE. `replay_league` refuses a league
+    the filters rejected, and that refusal is kept: an excluded league's
+    observations look exactly like admitted ones and would enter an aggregate
+    unnoticed. Whether an F4-excluded league may be replayed for a forecast type
+    that never touches outcomes is a question about a REGISTERED FILTER, and it is
+    written into DECISIONS-NEEDED rather than answered here.
+    """
+    from external_replay_run import replay_league, ReplayRefused
+    from survival_grade import adp_baseline, grade
+    matched = [r for r, ok, _ in verdicts if ok]
+    out = {"leagues_matched": len(matched), "leagues_replayed": 0,
+           "observations": 0, "refused": [], "errors": [], "grades": []}
+    for rec in matched:
+        lid = str(rec.get("league_id"))
+        try:
+            res = replay_league(rec, snapshots_by_league.get(lid) or [], adp_baseline)
+        except ReplayRefused as e:
+            # A league the screen admitted and the replay refused is a CONTRADICTION
+            # between two components, not a skip. Recorded loudly.
+            out["refused"].append({"league_id": lid, "why": str(e)[:200],
+                                   "note": "screen() admitted this league and replay_league "
+                                           "refused it — the two disagree"})
+            continue
+        except Exception as e:                                   # noqa: BLE001
+            out["errors"].append({"league_id": lid, "why": "%s: %s" % (type(e).__name__, e)})
+            continue
+        obs = res.get("observations") or []
+        out["leagues_replayed"] += 1
+        out["observations"] += len(obs)
+        try:
+            g = grade(obs, (rec.get("draft") or {}).get("picks") or [])
+        except Exception as e:                                   # noqa: BLE001
+            out["errors"].append({"league_id": lid, "why": "grade: %s: %s"
+                                                           % (type(e).__name__, e)})
+            continue
+        out["grades"].append(dict(g, league_id=lid))
+    out["verdict"] = _survival_verdict(out)
+    return out
+
+
+def _survival_verdict(out) -> str:
+    if out["refused"]:
+        return ("CONTRADICTION: %d league(s) the screen ADMITTED were REFUSED by the "
+                "replay. Two components disagree about whether the same league "
+                "qualifies, and one of them is wrong" % len(out["refused"]))
+    if not out["leagues_matched"]:
+        return ("no matched leagues to replay — this says nothing about the harness, "
+                "which was never given a league")
+    if not out["leagues_replayed"]:
+        return "every matched league failed to replay; see `errors`"
+    scored = [g for g in out["grades"] if g.get("n_scored")]
+    if not scored:
+        return ("%d league(s) replayed and %d forecast(s) emitted, but NONE resolved — "
+                "a survival forecast at a seat's last pick can never resolve, and if "
+                "that is all of them the replay is emitting at the wrong picks"
+                % (out["leagues_replayed"], out["observations"]))
+    n = sum(g["n_scored"] for g in scored)
+    beat = sum(1 for g in scored if g.get("beats_base_rate"))
+    return ("%d league(s) replayed, %d forecast(s) emitted, %d resolved and graded; "
+            "%d of %d leagues beat their own base rate. NO OUTCOME DATA WAS USED — "
+            "survival resolves from the draft's own later picks, which is why this "
+            "number exists before the season is played"
+            % (out["leagues_replayed"], out["observations"], n, beat, len(scored)))

@@ -383,3 +383,562 @@ def test_a_PARTIAL_season_is_labelled_rather_than_counted_as_a_season():
                              "why": "2026 has 6 of the control season's 18 REG weeks"},
                             {"matched": 3})
     assert v.startswith("PARTIAL SEASON") and "labelled as such wherever they travel" in v
+
+
+# ── throttling: 150 leagues are 150 independent things ─────────────────────
+def _v(reason):
+    """A verdict IN THE SHAPE `run_screen` EMITS — a (record, ok, reason) tuple.
+
+    THE POINT OF THIS HELPER, and it is the third instance today of the same
+    defect: the first cut of `throttle_signal` read `v.get("reason")`, a dict
+    shape that existed nowhere except the test written beside it. Every unit test
+    passed and CI died on the real list. A test that invents its producer's output
+    tests the author's belief about the shape, not the shape.
+
+    So `_v` is checked against the real producer by
+    `test_the_verdict_shape_here_is_the_one_run_screen_ACTUALLY_emits` below, and
+    the throttle tests run through THAT."""
+    return ({}, reason == "ok", reason)
+
+
+def test_the_verdict_shape_here_is_the_one_run_screen_ACTUALLY_emits():
+    """THE GUARD ON THE FIXTURE ITSELF. If `run_screen` ever changes what a
+    verdict is, this fails here rather than in CI two steps downstream."""
+    real, _ = R.run_screen([R.build_record("L1", {"league": {"_error": "http 403"}})])
+    assert isinstance(real[0], tuple) and len(real[0]) == 3
+    assert isinstance(_v("x"), tuple) and len(_v("x")) == 3
+    assert R._verdict_reason(real[0]).startswith("F4.fetch_failed")
+    # And the detector reads the REAL verdict, not just my stand-in.
+    assert R.throttle_signal(real)["fetch_failures"] == 1
+
+
+def test_an_UNRECOGNISED_verdict_shape_RAISES_rather_than_reporting_NO_FAILURES():
+    """MUTATION: `return ""` on the unknown branch. A run that was entirely
+    throttled would report "no fetch failures" — a reassuring wrong answer, which
+    is worse than a crash because nothing anywhere contradicts it."""
+    import pytest
+    with pytest.raises(TypeError) as e:
+        R.throttle_signal(["F4.fetch_failed:league: http 403 Forbidden"])
+    assert "NO FETCH FAILURES" in str(e.value)
+
+
+def test_IDENTICAL_fetch_failures_are_reported_as_THE_RATE_not_as_the_leagues():
+    """MUTATION: count fetch failures without grouping by signature. 40 leagues
+    that all 403'd would be reported as 40 unobtainable leagues, faithfully binned
+    as UNREADABLE — and a reader would take it as pool coverage. Independent
+    leagues do not fail with the same error string."""
+    vs = [_v("F4.fetch_failed:league: http 403 Forbidden") for _ in range(9)] + \
+         [_v("ok"), _v("F1.teams")]
+    t = R.throttle_signal(vs)
+    assert t["throttled_signature"] == "http 403 Forbidden"
+    assert "not 9 unobtainable leagues" in t["verdict"]
+    assert "must not be read as pool coverage" in t["verdict"]
+    assert "not a relabelling" in t["verdict"]
+
+
+def test_the_signature_strips_the_LEAGUE_SPECIFIC_tail_or_nothing_ever_groups():
+    """Two leagues 403ing on different exports are the same KIND of failure.
+    MUTATION: use the whole reason string — every failure becomes its own
+    signature and a throttle is never detected."""
+    vs = [_v("F4.fetch_failed:league: http 403 Forbidden"),
+          _v("F4.fetch_failed:draftResults: http 403 Forbidden")]
+    assert R.throttle_signal(vs)["throttled_signature"] == "http 403 Forbidden"
+
+
+def test_SCATTERED_failures_are_NOT_called_a_throttle():
+    """A detector that always fires is one nobody can act on."""
+    t = R.throttle_signal([_v("F4.fetch_failed:league: http 404 Not Found"), _v("ok")])
+    assert t["throttled_signature"] is None
+    assert "no shared signature" in t["verdict"]
+    assert "consistent with per-league failures" in t["verdict"]
+
+
+def test_a_clean_run_says_so_without_a_warning():
+    t = R.throttle_signal([_v("ok"), _v("F1.teams")])
+    assert t["fetch_failures"] == 0 and t["verdict"] == "no fetch failures"
+
+
+def test_the_throttle_check_does_NOT_reclassify_anything():
+    """The leagues really were not fetched. `F4.fetch_failed` stays unreadable and
+    stays counted; the signal is an explanation, never a relabelling that would
+    make the denominator flattering."""
+    vs = [_v("F4.fetch_failed:league: http 403 Forbidden") for _ in range(5)]
+    R.throttle_signal(vs)
+    assert all(F.is_unreadable(R._verdict_reason(v)) for v in vs)
+    assert all(R._verdict_reason(v).startswith("F4.fetch_failed") for v in vs)
+
+
+# ── the crosswalk at scale: F2's input, never reported until now ────────────
+def _cwrep(**kw):
+    """A crosswalk report in the shape `crosswalk_picks` actually returns."""
+    base = {"picks": 100, "crosswalked": 95, "crosswalk_rate": 0.95,
+            "unknown_mfl_id": 2, "no_sleeper_match": 3, "methods": {"name": 95},
+            "conflicts": 0, "matched_sample": []}
+    base.update(kw)
+    return base
+
+
+def test_the_two_kinds_of_crosswalk_MISS_are_kept_apart():
+    """MUTATION: sum them into one `unmatched`. "Our board is missing players" and
+    "we never fetched that id" are opposite actions and identical rejections."""
+    s = R.crosswalk_summary([_cwrep(unknown_mfl_id=7, no_sleeper_match=1)])
+    assert s["unknown_mfl_id"] == 7 and s["no_sleeper_match"] == 1
+    assert "gap in what we fetched" in s["verdict"]
+
+
+def test_CONFLICTS_lead_the_verdict_because_they_RAISE_the_rate():
+    """A matched pair whose sources disagree on position is the signature of the
+    WRONG PLAYER — and it counts as a success in every completeness figure."""
+    s = R.crosswalk_summary([_cwrep(conflicts=4)])
+    assert s["conflicts"] == 4
+    assert s["verdict"].split("; and ")[1].startswith("4 MATCHED PAIRS DISAGREE")
+    assert "RAISES the crosswalk rate" in s["verdict"]
+
+
+def _conf(pos_a, pos_b, team_a="ATL", team_b="ATL", name="Bijan Robinson"):
+    """A conflict row in the shape `crosswalk_picks` actually appends."""
+    fields = ([f for f, a, b in (("position", pos_a, pos_b), ("team", team_a, team_b))
+               if a and b and str(a).upper() != str(b).upper()])
+    return {"mfl_name": name, "mfl_pos": pos_a, "mfl_team": team_a,
+            "board_name": name, "board_pos": pos_b, "board_team": team_b,
+            "method": "name", "disagrees_on": fields}
+
+
+def test_a_WRONG_PLAYER_and_a_player_who_CHANGED_TEAM_are_not_one_number():
+    """Run 9 reported "2,147 conflicts" and that total is two findings with
+    opposite severity welded together. A position disagreement is the signature of
+    the wrong player. A team disagreement is what two boards snapshotted on
+    different days look like after free agency — consistent with the RIGHT player.
+
+    MUTATION: report the total alone. 2,146 team changes and 1 wrong player reads
+    identically to 2,147 wrong players, and the action on each is opposite."""
+    rows = [_conf("RB", "WR")] + [_conf("RB", "RB", "ATL", "LAR") for _ in range(9)]
+    s = R.crosswalk_summary([_cwrep(conflicts=len(rows), conflict_rows=rows)])
+    cb = s["conflict_breakdown"]
+    assert cb["rows_seen"] == 10
+    assert cb["position_disagreements"] == 1
+    assert cb["team_only_disagreements"] == 9
+
+
+def test_a_pair_disagreeing_on_BOTH_counts_with_the_SEVERE_kind():
+    """A pair whose sources disagree on position AND team is not a team change with
+    a footnote — the position half still says wrong player. MUTATION: count it as
+    team_only, and every wrong match that also moved teams disappears."""
+    rows = [_conf("RB", "WR", "ATL", "LAR")]
+    cb = R.crosswalk_summary([_cwrep(conflicts=1, conflict_rows=rows)])["conflict_breakdown"]
+    assert cb["position_disagreements"] == 1 and cb["team_only_disagreements"] == 0
+    # ...and it is still counted among the team pairs, because it IS one.
+    assert cb["team_value_pairs"] == {"ATL -> LAR": 1}
+
+
+def test_the_VALUE_PAIRS_are_reported_so_a_VOCABULARY_mismatch_is_visible():
+    """"PK -> K, 1,400 times" is our comparison disagreeing with itself about what
+    a kicker is called. 1,400 SCATTERED position pairs are 1,400 wrong players.
+    They are indistinguishable from a count, so the values are reported.
+
+    MUTATION: drop `position_value_pairs`. The two readings stay indistinguishable
+    and the only way to tell them apart is to hand-check 1,400 players."""
+    rows = [_conf("PK", "K", name="Justin Tucker") for _ in range(7)]
+    rows += [_conf("RB", "WR", name="Some Guy")]
+    cb = R.crosswalk_summary([_cwrep(conflicts=8, conflict_rows=rows)])["conflict_breakdown"]
+    assert cb["position_value_pairs"] == {"PK -> K": 7, "RB -> WR": 1}
+    assert len(cb["position_conflict_sample"]) == 8
+
+
+def test_the_POOLED_rate_and_the_DISTRIBUTION_are_both_reported():
+    """One league at 100% of 200 picks and one at 50% of 2 pool to 99.5% — which
+    is true and hides that a league is below the F2 bar. Both, or neither."""
+    s = R.crosswalk_summary([_cwrep(picks=200, crosswalked=200, crosswalk_rate=1.0),
+                             _cwrep(picks=2, crosswalked=1, crosswalk_rate=0.5)])
+    assert s["pooled_rate"] == 0.995
+    assert s["leagues_clearing_F2_bar"] == 1 and s["leagues_below_F2_bar"] == 1
+    assert s["rate_distribution"]["min"] == 50.0 and s["rate_distribution"]["max"] == 100.0
+
+
+def test_a_league_with_NO_picks_does_not_enter_the_rate_distribution_as_zero():
+    """Absent is not zero, in the denominator too: a league whose draft we could
+    not read has no crosswalk rate, and counting it as 0% would report a parse
+    failure as a board-coverage problem."""
+    s = R.crosswalk_summary([_cwrep(), _cwrep(picks=0, crosswalked=0, crosswalk_rate=0.0)])
+    assert s["leagues_with_picks"] == 1 and s["rate_distribution"]["n"] == 1
+
+
+def test_the_hand_check_pairs_survive_into_the_report():
+    """Rule 11: a bare rate cannot be audited. 447 of 702 says nothing about
+    whether any of the 447 is the right player."""
+    pair = {"mfl_name": "Bijan Robinson", "board_name": "Bijan Robinson",
+            "mfl_pos": "RB", "board_pos": "RB", "method": "name"}
+    s = R.crosswalk_summary([_cwrep(matched_sample=[pair])])
+    assert s["matched_pairs_for_hand_check"] == [pair]
+
+
+def test_ONE_LEAGUE_THAT_CANNOT_BE_PARSED_DOES_NOT_KILL_THE_RUN():
+    """Measured: a single league whose `draftUnit` was a LIST raised 18 minutes
+    into a 250-league run and took the other 249 with it — no report, no attrition
+    table, nothing learned from any of them.
+
+    A league we could not PARSE is that league's reason, never the run's death.
+    MUTATION: remove the try/except. One malformed league deletes the evidence
+    from every other league in the run."""
+    # A shape that genuinely raises inside the adapter. NOTE the first attempt at
+    # this fixture used a string `draftUnit`, which after the P5 fix no longer
+    # raises — it comes back `draft_not_league_wide`. A test for the ISOLATION must
+    # use an input that still explodes, or it proves nothing about isolation.
+    exports = {"league": 12345, "rules": {}, "draftResults": {}}
+    rec = R.build_record("L1", exports)
+    assert rec.get("unfetchable", "").startswith("parse_failed:"), rec.get("unfetchable")
+    assert F.is_unreadable("F4.parse_failed:AttributeError")
+    # And the run keeps going: the bad league gets a verdict like any other.
+    verdicts, _ = R.run_screen([rec, good_record("L2")])
+    assert len(verdicts) == 2
+    assert R._verdict_reason(verdicts[0]).startswith("F4.fetch_failed:parse_failed")
+
+
+def test_the_parse_failure_keeps_the_EXCEPTION_TYPE_so_it_stays_diagnosable():
+    """An anonymous drop is a defect nobody can find again."""
+    exports = {"league": {"league": {"id": "L1"}}, "rules": {},
+               "draftResults": {"draftResults": {"draftUnit": 12345}}}
+    rec = R.build_record("L1", exports)
+    assert "unreadable" in rec and "parse_failed:" in rec["unreadable"]["parse"]
+
+
+# ── rule 6 for the REPORT, not just the reason codes ───────────────────────
+def test_the_run_reports_EVERY_QUANTITY_THE_PLAN_SAYS_IT_REPORTS():
+    """CAUGHT A REAL GAP. INGEST-PLAN's reporting addition says every run reports
+    the draft-duration distribution AND the per-league lead-days spread. Only the
+    first was there — a requirement this lane registered itself, quietly unmet.
+
+    The reason-code registry has had a doc-drift guard since the attrition seam;
+    the REPORT never did, which is why this one survived. A pre-registration that
+    lives only in prose drifts from the build, and nobody notices because both look
+    reasonable on their own — that is rule 6, and it does not stop at reason codes.
+    """
+    plan = (Path(__file__).resolve().parent.parent.parent / "INGEST-PLAN.md").read_text()
+    rep = R.attrition_report(R.run_screen([good_record("L1")])[0], requested=["L1"])
+    required = {
+        # phrase the plan uses            -> key the report must carry
+        "DRAFT-DURATION DISTRIBUTION": "draft_duration_days",
+        "LEAD-DAYS SPREAD": "lead_days_spread",
+        # Reported by `attrition_report` itself, so it is checked on the report.
+        "OUTCOME-READY": "outcome_ready",
+    }
+    for phrase, key in required.items():
+        if phrase in plan:
+            assert key in rep, (
+                "INGEST-PLAN promises %r and the run report has no %r" % (phrase, key))
+
+    # AND THE KEYS `run()` ATTACHES AFTER `attrition_report`, which this guard could
+    # not see and which is exactly where the next gap opened: `survival_pass` was
+    # written, tested, and dropped from the report by a one-line mutation without a
+    # single test failing. Checked against `run`'s SOURCE because run() fetches, and
+    # a guard that needs the network is a guard that gets skipped.
+    import inspect
+    src = inspect.getsource(R.run)
+    for phrase, key in {
+        "FORMAT CENSUS": "format_census",
+        "SURVIVAL": "survival",
+    }.items():
+        if phrase in plan.upper():
+            assert ('rep["%s"]' % key) in src or ('"%s":' % key) in src, (
+                "INGEST-PLAN promises %r and run() never attaches %r to the report"
+                % (phrase, key))
+
+
+def test_the_lead_days_spread_counts_UNDATED_picks_rather_than_dating_them():
+    """A pick with no timestamp has unknown staleness. Folding it in at the draft
+    date would manufacture an observation out of an absence — and it would make the
+    spread look tighter, which is the direction that flatters."""
+    rec = good_record("L1")
+    for i, p in enumerate(rec["draft"]["picks"]):
+        if i % 2:
+            p["timestamp"] = None
+    # The verdict is forced to matched, deliberately: a league with half its picks
+    # undated FAILS `screen()` on F5, which is correct and is a different check.
+    # What is under test here is the SPREAD's handling of an absent timestamp, so
+    # the record still comes from the real adapter and only the flag is set.
+    sp = R._lead_spread([(rec, True, "ok")])
+    assert sp["undated_picks"] > 0, "an undated pick was silently dated"
+    assert sp["leagues"] == 1 and sp["max_of_max"] is not None
+
+
+def test_a_run_with_NO_matched_leagues_reports_an_EMPTY_spread_not_a_zero_one():
+    rep = R.attrition_report(R.run_screen([])[0], requested=[])
+    sp = rep["lead_days_spread"]
+    assert sp["leagues"] == 0 and sp["max_of_max"] is None
+    assert sp["span_days"]["n"] == 0
+
+
+def test_a_run_that_STOPS_EARLY_reports_an_INCOMPLETE_DENOMINATOR():
+    """A run killed by the clock produces NOTHING — no report, no attrition table,
+    nothing learned from any league it did reach. Stopping early is honest and
+    being killed is not, and the machinery for it already existed: ids never
+    reached are `never_attempted`, and the verdict says the denominator is
+    incomplete rather than letting `matched / attempted` read as coverage.
+
+    MUTATION: drop `requested` so the unreached ids vanish. `matched / attempted`
+    over a silently shrunken denominator is a flattering number, not a coverage
+    one — which is the failure this whole file is shaped around."""
+    reached = [good_record("L1"), good_record("L2")]
+    rep = R.attrition_report(R.run_screen(reached)[0],
+                             requested=["L1", "L2", "L3", "L4", "L5"])
+    assert rep["requested"] == 5 and rep["attempted"] == 2
+    assert rep["never_attempted"] == 3
+    assert sorted(rep["never_attempted_ids"]) == ["L3", "L4", "L5"]
+    assert "NEVER ATTEMPTED" in rep["verdict"]
+    assert "not a coverage figure" in rep["verdict"]
+
+
+# ── adaptive pacing: converge to what the endpoint serves ──────────────────
+def test_a_429_RAISES_the_floor_for_every_subsequent_request():
+    """A fixed delay either wastes time when the endpoint is happy or loses to the
+    limiter when it is not, and retrying at a fixed rate FIGHTS a limiter rather
+    than converging to it. Measured: run 4 fetched 60 leagues at ~2.8s each; run 8
+    ran roughly 3x slower at identical settings, which is retry time.
+
+    MUTATION: make `_saw_429` a no-op. The pace never rises, every league pays the
+    full retry ladder, and a 250-league run stops fitting in its timeout."""
+    R._PACE.update({"delay": 0.34, "clean": 0})
+    R._saw_429()
+    assert R._PACE["delay"] >= 1.0
+    before = R._PACE["delay"]
+    R._saw_429()
+    assert R._PACE["delay"] > before
+
+
+def test_the_pace_is_CAPPED_so_a_bad_stretch_cannot_stall_the_run_forever():
+    R._PACE.update({"delay": 0.34, "clean": 0})
+    for _ in range(20):
+        R._saw_429()
+    assert R._PACE["delay"] == R._PACE_MAX
+
+
+def test_ONE_success_does_not_drop_the_pace_back_to_the_floor():
+    """Dropping straight back after a single clean request just re-earns the next
+    429, which is the oscillation that made the fixed delay slow in the first
+    place. Only a sustained clean stretch lowers it, and only part-way."""
+    R._PACE.update({"delay": 4.0, "clean": 0})
+    R._saw_ok()
+    assert R._PACE["delay"] == 4.0, "one success should change nothing"
+    for _ in range(9):
+        R._saw_ok()
+    assert R._PACE["delay"] < 4.0 and R._PACE["delay"] > R._PACE_MIN
+
+
+def test_the_pace_never_goes_below_the_registered_floor():
+    R._PACE.update({"delay": R._PACE_MIN, "clean": 0})
+    for _ in range(100):
+        R._saw_ok()
+    assert R._PACE["delay"] == R._PACE_MIN
+
+
+# ── D7's proved ceiling, checked against what was computed ──────────────────
+def _feas(usable, per_league):
+    return {"leagues_with_usable_board": usable, "per_league": per_league}
+
+
+def test_FORMAT_MATCHING_CANNOT_GROW_A_BOARD_and_a_violation_is_OUR_defect():
+    """Format-matched picks are a SUBSET of pool picks, so support per player can
+    only fall, the board at the same min_support can only shrink, and the usable
+    count can only drop. That makes the inadmissible whole-pool figure an UPPER
+    BOUND on the admissible one — D7's ceiling, known by arithmetic.
+
+    MUTATION: never fire the per-league check. A `feasibility` that built the
+    format-matched pool from the WRONG picks would report a board LARGER than the
+    pool containing it and be read as good news for Route 2."""
+    fmt = _feas(2, [{"league_id": "a", "players_with_adp": 140},
+                    {"league_id": "b", "players_with_adp": 30}])
+    whole = _feas(3, [{"league_id": "a", "players_with_adp": 120},
+                      {"league_id": "b", "players_with_adp": 90}])
+    b = R.subset_bound(fmt, whole)
+    assert b["board_size_violations"] == 1
+    assert b["violation_sample"][0]["league_id"] == "a"
+    assert "BOUND VIOLATED" in b["verdict"]
+    assert "defect in this code and not a fact about the leagues" in b["verdict"]
+
+
+def test_the_bound_HOLDING_says_so_with_the_ceiling_beside_the_figure():
+    fmt = _feas(4, [{"league_id": "a", "players_with_adp": 100}])
+    whole = _feas(13, [{"league_id": "a", "players_with_adp": 180}])
+    b = R.subset_bound(fmt, whole)
+    assert b["board_size_violations"] == 0 and b["usable_count_within_bound"] is True
+    assert b["upper_bound_on_usable"] == 13
+    assert "within its proved ceiling" in b["verdict"]
+
+
+def test_MORE_USABLE_LEAGUES_THAN_THE_POOL_THAT_CONTAINS_THEM_is_a_violation():
+    """The aggregate half of the same bound, and it fails independently: every
+    per-league board can be within bound while the count is not, if the league sets
+    were built from different populations. MUTATION: check only the boards."""
+    fmt = _feas(20, [{"league_id": "a", "players_with_adp": 10}])
+    whole = _feas(13, [{"league_id": "a", "players_with_adp": 10}])
+    b = R.subset_bound(fmt, whole)
+    assert b["usable_count_within_bound"] is False and "BOUND VIOLATED" in b["verdict"]
+
+
+def test_a_league_PAST_THE_PER_LEAGUE_CAP_is_UNCHECKED_not_PASSING():
+    """`per_league` is capped at 200. A league absent from the comparison was not
+    verified, and `comparable_leagues` says how many actually were — absent is not
+    a pass, in the auditing too."""
+    fmt = _feas(1, [{"league_id": "a", "players_with_adp": 10},
+                    {"league_id": "zz", "players_with_adp": 999}])
+    whole = _feas(1, [{"league_id": "a", "players_with_adp": 10}])
+    b = R.subset_bound(fmt, whole)
+    assert b["comparable_leagues"] == 1 and b["board_size_violations"] == 0
+
+
+# ── what the pool IS, so the cost of F1 is measured rather than fiddled out ─
+def test_THE_CENSUS_COUNTS_ONLY_LEAGUES_WHOSE_FORMAT_WE_READ():
+    """A league we could not fetch or parse has no format to census. MUTATION: count
+    them anyway. Our pipeline's gaps are reported as facts about other people's
+    leagues — the same denominator lie the attrition seam exists to stop, arriving
+    in a new report."""
+    recs = [good_record("A"), R.build_record("B", {"league": {"_error": "http 500"}})]
+    v, _ = R.run_screen(recs)
+    c = R.format_census(v)
+    assert c["readable_leagues"] == 1
+    assert sum(c["teams"].values()) == 1
+
+
+def test_the_census_reports_the_DISTRIBUTION_not_a_pass_rate():
+    """0 matched with no distribution beside it invites exactly the post-hoc filter
+    relaxation rule 4 exists to stop: the only way to learn anything is to start
+    loosening clauses and watching the count. MUTATION: report only the pass rate."""
+    recs = [good_record("A", teams="10"), good_record("B", teams="12"),
+            good_record("C", teams="14"), good_record("D", teams="14")]
+    c = R.format_census(R.run_screen(recs)[0])
+    assert c["teams"] == {10: 1, 12: 1, 14: 2}
+    assert "F1 is unchanged and nothing here is a filter" in c["verdict"]
+    assert "new dated registration" in c["verdict"]
+    # F1 as registered is printed BESIDE the distribution, so the gap is legible
+    # without anyone having to remember what F1 says.
+    assert c["f1_as_registered"]["teams"] == sorted(F.TEAMS_ALLOWED)
+
+
+def test_SPLIT_SCORING_IS_ITS_OWN_BUCKET_never_averaged():
+    """A league paying 0.5 to WR and 1.0 to TE is not "1.0 PPR with a caveat" — TE
+    premium is a different format. MUTATION: average the positions. The census
+    invents a league that does not exist and files it under whichever number the
+    mean landed on, which is how a format nobody plays acquires a population."""
+    r = good_record("A")
+    r["scoring"] = {"rec_by_position": {"RB": 0.5, "WR": 0.5, "TE": 1.5}}
+    c = R.format_census([(r, False, "F1.te_premium_or_split_ppr")])
+    bucket = next(iter(c["reception_points"]))
+    assert bucket.startswith("split/TE-premium"), c["reception_points"]
+    assert "TE=1.5" in bucket
+
+
+def test_a_STANDARD_league_is_censused_as_STANDARD_not_as_unreadable():
+    """MEASURED, and it moved the F7 denominator. `no_reception_rule` was returned
+    for BOTH "the rules parsed and award nothing per catch" and "we could not read
+    this league's scoring", and `screen()` files the second as UNREADABLE — so six
+    standard leagues in run 11 were booked as OUR pipeline's gaps rather than as
+    facts about the pool. The readable count is exactly the denominator F7's
+    reachability arithmetic is computed over.
+
+    A standard league is a READING: rules present for the skill positions, none of
+    them scoring receptions, so receptions are worth 0 here. MUTATION: call it
+    unreadable again. Every standard league in the pool disappears from the census
+    and from the denominator, and the rule-of-three bound is computed over a
+    population that excludes the single most common competing format."""
+    r = good_record("A")
+    r["scoring"] = {"rec_by_position": {"RB": 0.0, "WR": 0.0, "TE": 0.0}}
+    c = R.format_census([(r, False, "F1.scoring_not_half_ppr")])
+    assert c["readable_leagues"] == 1
+    assert "0 (standard)" in c["reception_points"]
+
+
+def test_a_league_whose_scoring_we_could_NOT_read_stays_out_of_the_census():
+    """The other half of the same split. Absent is not zero: "we could not read a
+    reception rule" is not "this league pays nothing per catch"."""
+    r = good_record("A")
+    r["scoring"] = {"rec_by_position": {}}
+    c = R.format_census([(r, False, "F4.no_reception_rule")])
+    assert c["readable_leagues"] == 0, "an unreadable league has no format to census"
+
+
+def test_the_run_reports_HOW_MANY_LEAGUES_WAIT_ONLY_ON_THE_SEASON():
+    """2026's ADP is being captured cleanly right now and its outcomes arrive in
+    January, so the number worth having a year early is how many leagues are
+    OUTCOME-READY. For a PLAYED season it equals `matched`; for an unplayed one it
+    is the sample that will exist once outcomes land.
+
+    MUTATION: report only `matched`. A 2026 crawl says "0 matched" — true, and
+    indistinguishable from a broken fetch, wrong filters, or a pool containing
+    nothing of our format. The one question worth asking a year early goes
+    unanswered."""
+    played = good_record("L1")
+    unplayed = good_record("L2")
+    unplayed["has_weekly_outcomes"] = False
+    wrong_format = good_record("L3", teams="14")
+    wrong_format["has_weekly_outcomes"] = False
+    v, _ = R.run_screen([played, unplayed, wrong_format])
+    rep = R.attrition_report(v, requested=["L1", "L2", "L3"])
+    assert rep["matched"] == 1
+    # The played one AND the one waiting only on the calendar. Not the 14-team one.
+    assert rep["outcome_ready"] == 2, rep["rejected_by_reason"]
+
+
+def test_outcome_ready_EQUALS_matched_for_a_season_that_HAS_been_played():
+    """If they ever diverge on a played season, one of them is wrong."""
+    v, _ = R.run_screen([good_record("A"), good_record("B", teams="14")])
+    rep = R.attrition_report(v, requested=["A", "B"])
+    assert rep["outcome_ready"] == rep["matched"] == 1
+
+
+# ── the harness the spine never called ─────────────────────────────────────
+def _pol(ctx):
+    """A trivial policy: one survival forecast on the top board player."""
+    board = ctx.get("board") or []
+    if not board:
+        return []
+    top = board[0]
+    return [{"key": "survival:%s:%s" % (ctx["overall"], top.get("player_id")),
+             "ftype": "probability", "value": 0.5,
+             "resolution_rule": "resolves from this draft's own later picks",
+             "extra": {"policy_id": "baseline:test", "player_id": top.get("player_id"),
+                       "team": ctx.get("team")}}]
+
+
+def test_the_SPINE_ACTUALLY_CALLS_the_replay_and_the_grader():
+    """RULE 14, on two whole modules rather than a field. `replay_league` emitted
+    forecasts, `survival_grade.grade` scored them, both were tested — and NOTHING
+    CALLED EITHER. The spine fetched leagues, screened them, and stopped.
+
+    MUTATION: drop `survival_pass` from the report. The harness stays built,
+    tested, and unreachable, and no external observation is ever produced by a run.
+    """
+    rec = good_record("L1")
+    v, matched = R.run_screen([rec])
+    assert matched, "the fixture must MATCH or this test proves nothing"
+    out = R.survival_pass(v, {"L1": [{"observed_at": "2025-08-20",
+                                      "rows": [{"player_id": "9000", "adp": 1.0}]}]})
+    assert out["leagues_matched"] == 1
+    assert out["leagues_replayed"] + len(out["errors"]) + len(out["refused"]) == 1
+
+
+def test_A_LEAGUE_THE_SCREEN_ADMITTED_AND_THE_REPLAY_REFUSED_IS_A_CONTRADICTION():
+    """Two components disagreeing about whether the same league qualifies is not a
+    skip — one of them is wrong. MUTATION: `continue` quietly. The population
+    shrinks for a reason nobody sees, and the disagreement never surfaces."""
+    rec = good_record("L1")
+    v, _ = R.run_screen([rec])
+    # A replay whose gate refuses everything, standing in for the two disagreeing.
+    import external_replay_run as RR
+    real = RR.replay_league
+    try:
+        RR.replay_league = lambda *a, **k: (_ for _ in ()).throw(
+            RR.ReplayRefused("league L1 was excluded as F1.teams"))
+        out = R.survival_pass(v, {"L1": []})
+    finally:
+        RR.replay_league = real
+    assert len(out["refused"]) == 1
+    assert "CONTRADICTION" in out["verdict"]
+    assert "one of them is wrong" in out["verdict"]
+
+
+def test_NO_MATCHED_LEAGUES_says_the_harness_was_never_given_one():
+    """A zero from an empty population is not a zero from a broken harness."""
+    v, _ = R.run_screen([good_record("L1", teams="14")])
+    out = R.survival_pass(v, {})
+    assert out["leagues_matched"] == 0
+    assert "never given a league" in out["verdict"]

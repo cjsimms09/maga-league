@@ -42,6 +42,7 @@ ROOT = HERE.parent.parent
 sys.path.insert(0, str(HERE.parent / "backtest"))
 sys.path.insert(0, str(HERE.parent))
 
+import ingest_filters as F  # noqa: E402
 import mfl_adapter as A  # noqa: E402
 import mfl_adp as MADP  # noqa: E402
 import scoring as SC  # noqa: E402
@@ -271,8 +272,13 @@ def test_a_FULL_ppr_league_converts_to_double_and_is_excluded_not_rescaled():
     by_pos, _ = A.reception_points_by_position(rules)
     assert by_pos["WR"] == 1.0
     assert SC.score_stat_line({"rec": 6}, {"rec": by_pos["WR"]}) == 6.0 == 2 * 3.0
-    ok, why = A.ppr_verdict(by_pos)
-    assert ok is False and why.startswith("F1.")
+    ok, why = F.ppr_reason(by_pos)
+    # PRECISE, not `startswith("F1.")`. This is exactly where the deleted
+    # `mfl_adapter.ppr_verdict` DISAGREED with `screen()`: it called a uniform
+    # full-PPR league TE-premium, which is false, and nothing caught it because it
+    # had no caller. A generic assertion here would pass under either answer and
+    # would have let the two implementations stay out of step.
+    assert ok is False and why == "F1.scoring_not_half_ppr", why
 
 
 def test_a_TE_premium_league_is_caught_by_the_PER_POSITION_read():
@@ -290,7 +296,7 @@ def test_a_TE_premium_league_is_caught_by_the_PER_POSITION_read():
     by_pos, _ = A.reception_points_by_position(rules)
     assert SC.score_stat_line({"rec": 6}, {"rec": by_pos["WR"]}) == 3.0
     assert SC.score_stat_line({"rec": 6}, {"rec": by_pos["TE"]}) == 6.0
-    assert A.ppr_verdict(by_pos)[1].startswith("F1.te_premium_or_split_ppr")
+    assert F.ppr_reason(by_pos)[1].startswith("F1.te_premium_or_split_ppr")
 
 
 def test_an_unreadable_expression_scores_NOTHING_rather_than_zero_points():
@@ -300,5 +306,94 @@ def test_an_unreadable_expression_scores_NOTHING_rather_than_zero_points():
     rules = {"rules": {"positionRules": [
         {"positions": "WR", "rule": [{"event": {"$t": "CC"}, "points": {"$t": "??"}}]}]}}
     by_pos, reason = A.reception_points_by_position(rules)
-    assert by_pos == {} and reason == "no_reception_rule"
+    assert by_pos == {}, "a rule we cannot read must never become 0.0/reception"
+    assert reason == "unreadable_reception_points"
     assert "WR" not in by_pos
+
+
+# ── the checker's OWN vocabulary, checked against the matcher's ─────────────
+def test_A_REAL_KICKER_IN_JACKSONVILLE_IS_NOT_A_CROSS_SOURCE_DISAGREEMENT():
+    """THE DEFECT, on real board data. MFL spells a kicker `PK` and Jacksonville
+    `JAC`; `build_index` already stored `_norm_pos`/`_norm_team` output, so the
+    board says `K` and `JAX`. The old check compared MFL's RAW vocabulary against
+    the board's NORMALISED one and reported `disagrees_on: ["position", "team"]` —
+    the wrong-player signature — for a player the matcher resolved perfectly.
+
+    The arithmetic, stated: `POS_ALIASES["PK"] == "K"` and `TEAM_ALIASES["JAC"] ==
+    "JAX"`, both consulted by the matcher that MADE this pair. So the two sources
+    agree; only the two spellings differed, and the difference was OURS.
+
+    MUTATION: compare raw against normalised. Every kicker and every player on the
+    nine aliased teams is accused of being the wrong player."""
+    from adp import POS_ALIASES, TEAM_ALIASES
+    assert POS_ALIASES["PK"] == "K" and TEAM_ALIASES["JAC"] == "JAX"
+
+    little = next(p for p in POOL if p.get("name") == "Cam Little")
+    assert little["position"] == "K" and little["team"] == "JAX", little
+
+    mfl_players = {"77001": {"name": MADP._norm_name(mfl_name(little["name"])),
+                             "position": "PK", "team": "JAC"}}
+    rows, rep = A.crosswalk_picks([{"overall": 1, "player": "77001"}], mfl_players, INDEX)
+    assert rows and str(rows[0]["player_id"]) == str(little["player_id"]), rep
+    assert rep["conflicts"] == 0, rep["conflict_rows"]
+    # ...and the near-miss is REPORTED, so the shrink is attributable rather than
+    # a number that quietly got better.
+    assert rep["vocabulary_only_agreements"] == 1
+
+
+def test_a_REAL_position_disagreement_SURVIVES_normalisation():
+    """The fix must not be a way to make conflicts go away. Normalisation only
+    relabels a spelling both sides already agreed on; RB against WR is untouched.
+    MUTATION: return no fields at all, and the wrong-player signature is deleted
+    along with the vocabulary noise."""
+    wr = next(p for p in POOL if p.get("position") == "WR" and p.get("player_id"))
+    mfl_players = {"77002": {"name": MADP._norm_name(mfl_name(wr["name"])),
+                             "position": "RB", "team": wr.get("team")}}
+    rows, rep = A.crosswalk_picks([{"overall": 1, "player": "77002"}], mfl_players, INDEX)
+    if rows:
+        assert rep["conflicts"] == 1, rep
+        assert rep["conflict_rows"][0]["disagrees_on"] == ["position"]
+        assert rep["vocabulary_only_agreements"] == 0
+
+
+def test_a_player_MFL_lists_with_NO_TEAM_has_not_CONTRADICTED_us():
+    """Absent is not a disagreement — the same rule as everywhere else, in the
+    checker. MUTATION: drop the presence guard and every player MFL leaves blank
+    is filed as a cross-source conflict."""
+    rb = next(p for p in POOL if p.get("position") == "RB" and p.get("team"))
+    mfl_players = {"77003": {"name": MADP._norm_name(mfl_name(rb["name"])),
+                             "position": "RB", "team": ""}}
+    _, rep = A.crosswalk_picks([{"overall": 1, "player": "77003"}], mfl_players, INDEX)
+    assert rep["conflicts"] == 0, rep["conflict_rows"]
+    assert rep["vocabulary_only_agreements"] == 0
+
+
+# ── the wrong match the conflict check found on its first real run ──────────
+def test_A_TEAM_UNIT_IS_NOT_A_PLAYER_and_must_not_match_a_team_DEFENSE():
+    """MEASURED, run 11: 103 picks whose MFL position was TMQB or TMPK matched a
+    team DEFENSE — `TMQB -> DEF` 65 times, `TMPK -> DEF` 38. MFL names a team unit
+    "Bills, Buffalo", `_norm_name` turns that into "Buffalo Bills", and Sleeper's
+    Buffalo DEF carries the same full name. So the NAME matched, the crosswalk
+    scored a success, and 103 picks were priced as a defense.
+
+    This is the failure the conflict check exists for and it caught it: the rate
+    went UP when these landed. MUTATION: match them anyway and report the conflict.
+    A pick that is not a player has no right answer to be matched to."""
+    d = next(p for p in POOL if p.get("position") == "DEF" and p.get("name"))
+    mfl_players = {"77004": {"name": d["name"], "position": "TMQB", "team": d.get("team")}}
+    rows, rep = A.crosswalk_picks([{"overall": 1, "player": "77004"}], mfl_players, INDEX)
+    assert rows == [], "a team unit matched a board entity: %r" % (rows,)
+    assert rep["team_units_refused"] == 1
+    # ...and NOT folded into no_sleeper_match, which would report a gap in our
+    # board coverage that does not exist.
+    assert rep["no_sleeper_match"] == 1 and rep["conflicts"] == 0
+    assert rep["unmatched_sample"][0]["why"] == "team_unit_not_a_player"
+
+
+def test_a_TEAM_DEFENSE_is_a_real_board_entity_and_still_matches():
+    """The refusal must be the TM-prefixed units only. `Def` is a position our
+    board really carries, and refusing it would delete every defense pick in the
+    pool. MUTATION: refuse anything team-shaped."""
+    assert A.is_team_unit("TMQB") and A.is_team_unit("TMPK") and A.is_team_unit("tmwr")
+    assert not A.is_team_unit("Def") and not A.is_team_unit("TM") and not A.is_team_unit("TE")
+    assert not A.is_team_unit(None) and not A.is_team_unit("")

@@ -52,6 +52,7 @@ tested offline, including the range-exceedance check and the coverage report.
 """
 from __future__ import annotations
 
+import re
 import sys
 from pathlib import Path
 
@@ -159,33 +160,75 @@ def schema_gap(rows, tables) -> dict:
     return gap
 
 
+_RANGE_PAIR = re.compile(r"^\s*(-?\d+(?:\.\d+)?)\s*-\s*(-?\d+(?:\.\d+)?)\s*$")
+_RANGE_OPEN = re.compile(r"^\s*(-?\d+(?:\.\d+)?)\s*\+\s*$")
+_RANGE_ONE = re.compile(r"^\s*(-?\d+(?:\.\d+)?)\s*$")
+
+
 def _range(expr: str):
     """MFL rule range -> (lo, hi). `hi` may be None for unbounded.
 
-    Returns None when the range is present but unreadable — which is NOT the same
-    as unbounded, and must not collapse into it: an unreadable band read as
-    "applies to everything" would silently score a threshold bonus on every week.
+    THE BUG THE FIRST REAL RUN FOUND, and it was mine — exactly as rule 13 says a
+    mass parse failure should be read. The first cut split on "-", so MFL's real
+    ranges for stats that CAN GO NEGATIVE (measured: `-100-999` and `-50-999` on
+    PY, RY and CY) produced an empty first field and came back unreadable. That
+    reported rushing yards as untranslatable in 33 of 36 leagues, which is not a
+    plausible fact about leagues and never was anything but a fact about this
+    function.
+
+    Parsed by pattern now, so a leading minus is a SIGN and not a separator.
+    Returns None when the range is present but genuinely unreadable — which is NOT
+    the same as unbounded and must not collapse into it.
     """
     e = (expr or "").strip()
     if not e:
         return (0.0, None)
-    parts = e.replace("+", "-").split("-")
-    try:
-        lo = float(parts[0])
-    except (ValueError, IndexError):
-        return None
-    if len(parts) == 1 or not parts[1].strip():
-        return (lo, None)
-    try:
-        return (lo, float(parts[1]))
-    except ValueError:
-        return None
+    for pat, pair in ((_RANGE_PAIR, True), (_RANGE_OPEN, False), (_RANGE_ONE, False)):
+        m = pat.match(e)
+        if m:
+            return (float(m.group(1)), float(m.group(2)) if pair else None)
+    return None
 
 
 def _points(expr: str):
-    """Shared with the adapter's reading of MFL points expressions ("*0.5", "=3")."""
+    """The PER-UNIT MULTIPLIER, or None if this rule is not one.
+
+    `mfl_adapter._points_per_event` strips both `*` and `=` because the F1 FILTER
+    only needs the number. A SCORER cannot: `*0.5` is half a point per unit and
+    `=3` is a flat three points when the rule applies. Using the second as a
+    multiplier would pay 3 points per reception. So the operator is read here, and
+    anything that is not `*` is refused by name rather than silently multiplied.
+    """
+    e = (expr or "").strip()
+    if not e:
+        return None
+    # MFL WRITES RATES AS `a/b` — "a points per b units" — and this refused all of
+    # them. MEASURED in the 250-league run, 42 occurrences and the second-largest
+    # shape reason: `1/25` on passing yards (1 point per 25 yards = 0.04/yard),
+    # `1/10` and `.1/1` on rushing and receiving yards, `0.04/1` on passing.
+    #
+    # These ARE linear per-unit multipliers — exactly what D5c admits — and
+    # refusing them was rule 13 again: a format rejected because only `*` had been
+    # registered. Division by zero is refused rather than becoming an infinity that
+    # scores.
+    if "/" in e:
+        num, _, den = e.partition("/")
+        a, b = _num(num), _num(den)
+        if a is None or b is None or b == 0:
+            return None
+        return a / b
+    if e[0] != "*":
+        # `=N` is a FLAT award, not a rate, and using it as one pays N per unit.
+        return None
     from mfl_adapter import _points_per_event
-    return _points_per_event(expr)
+    return _points_per_event(e)
+
+
+def _num(v):
+    try:
+        return float(str(v).strip())
+    except (TypeError, ValueError):
+        return None
 
 
 def scoring_tables(rules_json, positions=GRADED_POSITIONS) -> tuple:
@@ -213,15 +256,19 @@ def scoring_tables(rules_json, positions=GRADED_POSITIONS) -> tuple:
     import json as _json
     d = _json.loads(rules_json) if isinstance(rules_json, str) else (rules_json or {})
     if d.get("error") or (d.get("rules") or {}).get("positionRules") is None:
-        return {}, {p: [{"why": "no_scoring_rules"}] for p in positions}, [], {}
+        return {}, {p: [{"why": "no_scoring_rules"}] for p in positions}, [], {}, []
 
     graded = {p.upper() for p in positions}
     # (POS, EVENT) -> [(points_expr, range_expr)]
     grouped: dict = {}
     ignored: list = []
+    seen_blocks: list = []
     for pr in listify((d.get("rules") or {}).get("positionRules")):
+        raw_block = t(pr.get("positions")).strip()
+        if raw_block and raw_block not in seen_blocks:
+            seen_blocks.append(raw_block)
         names = [p.strip().upper() for p in
-                 t(pr.get("positions")).replace(",", "|").split("|") if p.strip()]
+                 raw_block.replace(",", "|").split("|") if p.strip()]
         rules = listify(pr.get("rule"))
         for n in names:
             if n not in graded:
@@ -265,12 +312,22 @@ def scoring_tables(rules_json, positions=GRADED_POSITIONS) -> tuple:
                                             "expr": rng_expr})
             continue
         lo, hi = rng
-        if lo != 0.0:
-            bad.setdefault(pos, []).append({"why": "threshold", "event": ev, "lo": lo})
-            continue
+        # D5c v2 (2026-08-11). v1 rejected any band not starting at 0 as a
+        # "threshold bonus". MEASURED: real leagues write `1-999` for receptions,
+        # TDs and interceptions, and `-100-999` for yardage. A band starting at 1
+        # is NOT a threshold on a multiplicative rule — a player with 0 receptions
+        # scores 0 whether the rule fires or not, because p x 0 = 0. v1's
+        # mechanism did not implement v1's purpose, and it rejected 11 leagues for
+        # having bands that are exactly equivalent to unbounded ones.
+        #
+        # The property that actually matters is CHECKED AGAINST THE DATA, not
+        # asserted from the band: a multiplicative rule over [lo, hi] equals an
+        # unbounded multiplier iff every observed value is inside the band OR is
+        # zero. That subsumes v1's threshold clause and D5d's upper bound in one
+        # measurement, and it still refuses `-100-999` if a week ever went lower.
         tables.setdefault(pos, {})[key] = pts
-        if hi is not None:
-            bounds.setdefault(pos, {})[key] = hi
+        if lo is not None or hi is not None:
+            bounds.setdefault(pos, {})[key] = (lo, hi)
 
     for p in graded:
         if p not in tables and p not in bad:
@@ -280,7 +337,7 @@ def scoring_tables(rules_json, positions=GRADED_POSITIONS) -> tuple:
     for p in list(bad):
         tables.pop(p, None)
         bounds.pop(p, None)
-    return tables, bad, sorted(ignored), bounds
+    return tables, bad, sorted(ignored), bounds, seen_blocks
 
 
 def weekly_points(rows, season, tables, positions, id_map=None, bounds=None) -> dict:
@@ -332,11 +389,21 @@ def weekly_points(rows, season, tables, positions, id_map=None, bounds=None) -> 
             no_table.add(pid)
             continue
         line = GR.nflverse_weekly_to_scoring(row)
-        for key, hi in (bounds.get(str(pos).upper()) or {}).items():
+        for key, band in (bounds.get(str(pos).upper()) or {}).items():
             v = line.get(key)
-            if v is not None and float(v) > float(hi):
+            if v is None:
+                continue
+            lo, hi = band
+            v = float(v)
+            # ZERO IS ALWAYS FINE: a value outside the band contributes nothing,
+            # and p x 0 is also nothing, so the two agree. Anything else outside
+            # the band is a week the rule did not cover, and scoring it as 0 would
+            # silently drop real production.
+            if v == 0.0:
+                continue
+            if (lo is not None and v < float(lo)) or (hi is not None and v > float(hi)):
                 exceeded.append({"player_id": pid, "position": str(pos).upper(),
-                                 "key": key, "value": float(v), "hi": float(hi),
+                                 "key": key, "value": v, "lo": lo, "hi": hi,
                                  "week": row.get("week")})
         wk = row.get("week")
         wk = int(wk) if wk is not None else None
@@ -466,7 +533,11 @@ def untranslatable_census(outcomes) -> dict:
     codes = Counter()
     whys = Counter()
     lost = 0
+    samples: dict = {}
+    blocks = Counter()
     for o in outcomes or []:
+        for b in ((o or {}).get("position_blocks") or []):
+            blocks[b] += 1
         bad = (o or {}).get("untranslatable") or {}
         if not bad:
             continue
@@ -477,27 +548,81 @@ def untranslatable_census(outcomes) -> dict:
                 if r.get("event"):
                     seen_codes.add(r["event"])
                 seen_whys.add(r.get("why"))
+                # THE RAW EXPRESSION, KEPT. The 2025 run reported RY/CY/PY —
+                # rushing, receiving and passing yards, all of them MAPPED codes —
+                # as untranslatable in 33 of 36 leagues, on `unreadable_range` and
+                # `unreadable_points`. A count cannot say whether that is the
+                # leagues or this parser, and 33 of 36 failing on RUSHING YARDS is
+                # not plausible as a fact about the leagues (rule 13: a failed
+                # parse against a format I invented is evidence about my parser).
+                # So the census keeps the STRING that would not parse, the same way
+                # the crosswalk keeps both sides of a match.
+                bucket = samples.setdefault(str(r.get("why")), [])
+                if len(bucket) < 12:
+                    ex = {"event": r.get("event")}
+                    for k in ("expr", "n", "lo", "key"):
+                        if r.get(k) is not None:
+                            ex[k] = r[k]
+                    if ex not in bucket:
+                        bucket.append(ex)
         codes.update(seen_codes)
         whys.update(seen_whys)
     return {"leagues_unscoreable": lost,
             "leagues_examined": len(outcomes or []),
             "by_event_code": dict(codes.most_common()),
             "by_reason": dict(whys.most_common()),
-            "verdict": _census_verdict(lost, len(outcomes or []), codes)}
+            # The evidence, not just the tally.
+            "unparsed_samples": samples,
+            # And the POSITION BLOCKS as MFL wrote them. If kicker events (EP, FG)
+            # and return events (#KT, #UT) are failing GRADED positions, the blocks
+            # must be combined ("QB|RB|WR|TE|PK|Def"), and a term a quarterback can
+            # never accrue is a different problem from one he can.
+            "position_blocks": dict(blocks.most_common(20)),
+            "verdict": _census_verdict(lost, len(outcomes or []), codes, whys)}
 
 
-def _census_verdict(lost, examined, codes) -> str:
+def _census_verdict(lost, examined, codes, whys=None) -> str:
+    """The verdict must not claim more than the reasons support.
+
+    THE SENTENCE THIS REPLACES SAID SOMETHING THE DATA CONTRADICTED. It named the
+    costliest codes and asserted each was "a term nflverse weekly CARRIES and
+    `nflverse_weekly_to_scoring` does not emit" — but the run's costliest were CY,
+    PY and RY, which this module MAPS and the translator DOES emit. They failed on
+    a range my own parser could not read. A verdict that attributes every failure
+    to one cause turns a bug in this file into a request against someone else's.
+
+    So the cross-lane claim is now made ONLY about `event_untranslatable`, and the
+    other reason kinds are named as what they are.
+    """
     if not examined:
         return "no leagues examined"
     if not lost:
         return "%d of %d leagues scoreable under their own rules" % (examined, examined)
-    top = ", ".join("%s (%d)" % kv for kv in codes.most_common(8))
-    return ("%d of %d LEAGUES ARE UNSCOREABLE under D5b — the scoring vocabulary is "
-            "the binding constraint, not the format filters. Costliest event codes: %s. "
-            "Each is a term nflverse weekly CARRIES and `grade.nflverse_weekly_to_scoring` "
-            "does not emit; widening it is a change in another lane, and this table is "
-            "what that request is worth making with"
-            % (lost, examined, top or "(none — all failures are structural, not vocabulary)"))
+    whys = dict(whys or {})
+    parts = ["%d of %d LEAGUES ARE UNSCOREABLE under D5" % (lost, examined)]
+    vocab = whys.get("event_untranslatable", 0)
+    if vocab:
+        parts.append(
+            "%d on VOCABULARY (`event_untranslatable`) — an event code this module "
+            "does not map. That is the only bucket a request to widen "
+            "`grade.nflverse_weekly_to_scoring` is warranted by, and only for codes "
+            "nflverse weekly actually carries" % vocab)
+    structural = {k: v for k, v in whys.items()
+                  if k in ("banded", "unreadable_points", "unreadable_range",
+                           "no_scoring_rules", "no_rules_for_position")}
+    if structural:
+        parts.append(
+            "%s on the RULE'S OWN SHAPE (%s) — these are leagues whose scoring is "
+            "not a per-unit multiplier, or expressions THIS PARSER could not read. "
+            "A parse failure here is evidence about this pipeline, and until the "
+            "raw expressions in `unparsed_samples` have been looked at it should "
+            "not be read as anything else"
+            % (sum(structural.values()),
+               ", ".join("%s=%d" % kv for kv in sorted(structural.items()))))
+    if codes:
+        parts.append("most frequent codes overall: %s"
+                     % ", ".join("%s (%d)" % kv for kv in codes.most_common(8)))
+    return "; ".join(parts)
 
 
 def league_outcomes(rules_json, drafted_ids, weekly_rows, season, positions,
@@ -514,9 +639,10 @@ def league_outcomes(rules_json, drafted_ids, weekly_rows, season, positions,
     season in which none of them played. An empty map is refused by name rather
     than allowed to produce a 0% coverage figure that looks like a finding.
     """
-    tables, bad, ignored, bounds = scoring_tables(rules_json)
+    tables, bad, ignored, bounds, blocks = scoring_tables(rules_json)
     out = {"season": season, "scoring_tables": tables, "untranslatable": bad,
-           "ignored_positions": ignored, "series": {}, "f3": None,
+           "ignored_positions": ignored, "position_blocks": blocks,
+           "series": {}, "f3": None,
            "has_weekly_outcomes": False, "reason": None}
     if bad:
         out["reason"] = untranslatable_reason(bad)
@@ -546,8 +672,9 @@ def league_outcomes(rules_json, drafted_ids, weekly_rows, season, positions,
     got = weekly_points(weekly_rows, season, tables, positions, id_map, bounds)
     if got["exceeded"]:
         first = got["exceeded"][0]
-        out["reason"] = ("F4.scoring_range_exceeded:%s.%s=%g>%g"
-                         % (first["position"], first["key"], first["value"], first["hi"]))
+        out["reason"] = ("F4.scoring_range_exceeded:%s.%s=%g outside [%s,%s]"
+                         % (first["position"], first["key"], first["value"],
+                            first.get("lo"), first.get("hi")))
         out["exceeded"] = got["exceeded"][:20]
         return out
     out["series"] = got["series"]

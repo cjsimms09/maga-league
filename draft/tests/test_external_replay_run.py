@@ -222,3 +222,76 @@ def test_a_SAME_DAY_draft_reports_a_zero_span():
     """The common case must stay correct while the multi-day one is served."""
     out = run(rec=record(span_hours=0))
     assert out["summary"]["draft_span_days"] == 0
+
+
+# ── the seam a hand-made fixture cannot test ────────────────────────────────
+def _real_record(n_rounds=3, teams=10, unmatched=0):
+    """A record built by the REAL adapter from a REAL export shape.
+
+    EVERY OTHER TEST IN THIS FILE HANDS `replay_league` A DICT I WROTE, and that
+    is why this defect survived: the fixtures carried `player_id` on each pick
+    because I believed picks carried it. `draft_picks` emits `player` — MFL's id —
+    and `to_league_record` marked `crosswalked: True` without attaching ours, so
+    the live path produced `actual_player_id = None` for EVERY pick and nothing
+    errored anywhere.
+    """
+    import mfl_adapter as A
+    epoch = 1756141200
+    raw = []
+    for rnd in range(1, n_rounds + 1):
+        order = range(teams) if rnd % 2 else reversed(range(teams))
+        for j, seat in enumerate(order):
+            i = len(raw)
+            raw.append({"round": "%02d" % rnd, "pick": "%02d" % (j + 1),
+                        "franchise": "%04d" % (seat + 1), "player": str(9000 + i),
+                        "timestamp": str(epoch + i * 600), "comments": ""})
+    league = {"league": {"id": "L1",
+              "franchises": {"count": str(teams),
+                             "franchise": [{"id": "%04d" % (i + 1)} for i in range(teams)]},
+              "starters": {"count": "8", "position": [
+                  {"name": "QB", "limit": "1"}, {"name": "RB", "limit": "2"},
+                  {"name": "WR", "limit": "2"}, {"name": "TE", "limit": "1"},
+                  {"name": "FLEX", "limit": "1"}]}}}
+    rules = {"rules": {"positionRules": [{"positions": "RB|WR|TE", "rule": [
+        {"event": {"$t": "CC"}, "points": {"$t": "*0.5"}}]}]}}
+    draft = {"draftResults": {"draftUnit": {
+        "unit": "LEAGUE", "draftType": "SFIRSTRANDOM", "draftPick": raw}}}
+    rows, _ = A.draft_picks(draft)
+    keep = rows if not unmatched else rows[:-unmatched]
+    cw = [dict(r, player_id="S%d" % r["overall"], matched_by="name") for r in keep]
+    return A.to_league_record(league, rules, draft, league_id="L1", crosswalk=(cw, {}),
+                              has_weekly_outcomes=True, pre_draft_adp={"S1": 1.0},
+                              adp_observed_at="2025-08-20")
+
+
+def test_the_ACTUAL_PICK_survives_the_adapter_into_the_decision_context():
+    """MUTATION: go back to setting only `crosswalked` and not `player_id`. Every
+    envelope's actual player becomes None, `survival_grade` resolves every forecast
+    against a player nobody took, and a Brier score comes out that looks exactly
+    like a result. Measured before it ran: 30 of 30 envelopes were empty."""
+    rec = _real_record()
+    envs = R.decision_contexts(rec, [{"player_id": "S%d" % i, "adp": float(i)}
+                                     for i in range(1, 31)])
+    assert len(envs) == 30
+    empty = [e for e in envs if e.get("actual_player_id") in (None, "None")]
+    assert not empty, "%d of %d envelopes carry no actual player" % (len(empty), len(envs))
+    assert envs[0]["actual_player_id"] == "S1"
+
+
+def test_MFLs_id_and_OUR_id_both_survive_rather_than_one_overwriting_the_other():
+    """The two id spaces are what the crosswalk exists to bridge. Collapsing them
+    is how a wrong match stops being traceable — the same reason the crosswalk
+    keeps BOTH sides of every matched pair."""
+    rec = _real_record()
+    p = rec["draft"]["picks"][0]
+    assert p["player"] == "9000" and p["player_id"] == "S1"
+
+
+def test_a_pick_that_did_NOT_crosswalk_carries_NO_id_of_ours():
+    """Absent, not a plausible None that scores. It keeps MFL's id, so the miss
+    stays attributable to a player rather than to a hole."""
+    rec = _real_record(unmatched=2)
+    last = rec["draft"]["picks"][-1]
+    assert last["crosswalked"] is False
+    assert "player_id" not in last
+    assert last["player"] == "9029"

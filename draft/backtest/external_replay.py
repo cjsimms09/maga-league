@@ -34,7 +34,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -43,6 +43,12 @@ HERE = Path(__file__).resolve().parent
 # it rather than declaring a second one, so a caller can catch ONE error type
 # across both samples instead of learning which store it happens to be holding.
 from asof import TimeTravelError  # noqa: E402
+
+
+# 2001-09-09 to 2096-10-02. Wide enough for any NFL season we will ever ingest and
+# narrow enough that milliseconds (13 digits) and years (4 digits) fall outside.
+EPOCH_SECONDS_MIN = 1_000_000_000
+EPOCH_SECONDS_MAX = 4_000_000_000
 
 
 def _as_date(v) -> date:
@@ -65,6 +71,26 @@ def _as_date(v) -> date:
             return date.fromisoformat(v[:10])
         except ValueError:
             pass
+    # UNIX EPOCH SECONDS, which is what `draft_picks` emits for every pick. The
+    # refusal above is right in spirit — a silently-coerced timestamp is how an
+    # off-by-one-day leak gets in — but it was refusing the ONE type the producer
+    # in this codebase actually uses, so `lead_days_spread` counted EVERY real pick
+    # as undated and the per-pick staleness this seam was built for never once ran
+    # on real data. It fell back to the league scalar and said so, which is honest
+    # and is not what it was for.
+    #
+    # ACCEPTED WITH BOUNDS, not coerced: only a value in the plausible
+    # epoch-SECONDS window is a date. A 13-digit value is milliseconds and a
+    # 4-digit value is a year, and both are refused BY NAME rather than quietly
+    # producing a date in 1970 or 53000.
+    if isinstance(v, (int, float)) and not isinstance(v, bool):
+        if EPOCH_SECONDS_MIN <= float(v) <= EPOCH_SECONDS_MAX:
+            return datetime.fromtimestamp(float(v), tz=timezone.utc).date()
+        raise TimeTravelError(
+            "numeric timestamp %r is outside the plausible epoch-SECONDS window "
+            "[%d, %d] — a 13-digit value is milliseconds and a 4-digit value is a "
+            "year, and guessing which would move the date by decades"
+            % (v, EPOCH_SECONDS_MIN, EPOCH_SECONDS_MAX))
     raise TimeTravelError(f"unusable timestamp {v!r} — refusing to guess a date")
 
 

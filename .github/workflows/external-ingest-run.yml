@@ -32,6 +32,12 @@ on:
         description: 'How many pooled leagues to fetch (D6 order)'
         required: false
         default: '150'
+      deadline_s:
+        # A run KILLED by the job timeout produces nothing. A run that stops at a
+        # budget reports `never_attempted` and says its denominator is incomplete.
+        description: 'Stop fetching after this many seconds and report what was reached'
+        required: false
+        default: '2100'
 
 permissions:
   contents: read
@@ -39,7 +45,12 @@ permissions:
 jobs:
   ingest:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    # 150, not 60. The F7 decision rule registered in INGEST-PLAN needs 320+ league
+    # formats READ to close the interval, and at run 11's measured 12.6 s/league that
+    # is ~67 minutes of fetching alone. A run killed by the job clock produces
+    # nothing; `deadline_s` is the budget that stops it gracefully, and this only has
+    # to be comfortably larger than that.
+    timeout-minutes: 150
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -53,6 +64,7 @@ jobs:
           YEAR: ${{ github.event.inputs.year || '2025' }}
           CONTROL: ${{ github.event.inputs.control_year || '2024' }}
           SAMPLE: ${{ github.event.inputs.sample || '150' }}
+          DEADLINE_S: ${{ github.event.inputs.deadline_s || '2100' }}
         run: |
           python3 - <<'PY'
           import json, os, sys, urllib.parse, urllib.request
@@ -119,16 +131,105 @@ jobs:
               players = {}
           print("MFL players indexed: %d" % len(players))
 
-          series = json.load(open("draft/data/external_adp_series.json")) \
-              if os.path.exists("draft/data/external_adp_series.json") else []
+          # THE SHIPPED READER, not a hand-rolled json.load. The archive on disk is
+          # {"_note":..., "series":[...]}; loading it raw hands the WRAPPER to
+          # as_store_snapshots, which iterates a dict's KEYS. Author stepped in
+          # exactly this on 2026-08-11.
+          import external_adp_capture as CAP
+          series = CAP.load()
+          cov = CAP.coverage(series, YEAR)
+          print("ADP ARCHIVE for %s: %s" % (YEAR, json.dumps(cov)))
+          if not cov["snapshots"]:
+              print("!! NO ADP SNAPSHOTS FOR %s — every league will report "
+                    "F4.no_pre_draft_adp. That is the ARCHIVE, not the leagues." % YEAR)
 
           rep = R.run(ids, YEAR, out_path="ingest-report.json",
                       players=players, board=index, series=series,
                       weekly_rows=(tgt.get("rows") or []), gsis_to_ours=gsis,
-                      readiness=ready)
+                      readiness=ready,
+                      # Well inside the 60-minute job timeout. A run killed by the
+                      # clock produces NOTHING; a run that stops early reports
+                      # `never_attempted` and says its denominator is incomplete.
+                      deadline_s=int(os.environ.get("DEADLINE_S", "2100")))
           rep["pool"] = pool_rep
           rep["sample"] = samp
           json.dump(rep, open("ingest-report.json", "w"), indent=1)
+
+          # DIAGNOSTICS LAST, AND COMPACT. The full report is ~700 log lines and
+          # the evidence that decides the next fix is a dozen of them in the
+          # middle. Printing it at the END means a fixed tail always reaches it —
+          # the alternative is re-reading the whole log to find twelve strings,
+          # which is what the last three iterations of this cost.
+          print("\n===== DIAGNOSTICS (read these first) =====")
+          c = (rep.get("outcomes") or {}).get("census") or {}
+          for why, ex in sorted((c.get("unparsed_samples") or {}).items()):
+              print("  %-24s %s" % (why, json.dumps(ex[:8])))
+          print("  position_blocks     %s" % json.dumps(
+              dict(list((c.get("position_blocks") or {}).items())[:8])))
+          print("  by_reason           %s" % json.dumps(c.get("by_reason")))
+          cw = rep.get("crosswalk") or {}
+          if cw:
+              print("  crosswalk           pooled=%s clearing_F2=%s/%s conflicts=%s "
+                    "unknown_mfl_id=%s no_sleeper_match=%s"
+                    % (cw.get("pooled_rate"), cw.get("leagues_clearing_F2_bar"),
+                       cw.get("leagues_with_picks"), cw.get("conflicts"),
+                       cw.get("unknown_mfl_id"), cw.get("no_sleeper_match")))
+              for x in (cw.get("matched_pairs_for_hand_check") or [])[:8]:
+                  print("    PAIR  %-24s %-3s | %-24s %-3s | %s"
+                        % (x.get("mfl_name"), x.get("mfl_pos"),
+                           x.get("board_name"), x.get("board_pos"), x.get("method")))
+              # A single conflicts= total conflates the wrong player with a player
+              # who changed team between two snapshots. Split, with the values.
+              cb = cw.get("conflict_breakdown") or {}
+              print("  conflicts           position=%s team_only=%s (of %s rows); "
+                    "%s pairs agreed once BOTH sides were spelled the matcher's way"
+                    % (cb.get("position_disagreements"), cb.get("team_only_disagreements"),
+                       cb.get("rows_seen"), cw.get("vocabulary_only_agreements")))
+              print("  position_pairs      %s" % json.dumps(cb.get("position_value_pairs")))
+              print("  team_pairs          %s" % json.dumps(cb.get("team_value_pairs")))
+              for x in (cb.get("position_conflict_sample") or []):
+                  print("    CONFLICT  %-22s %-3s %-3s | %-22s %-3s %-3s | %s"
+                        % (x.get("mfl_name"), x.get("mfl_pos"), x.get("mfl_team"),
+                           x.get("board_name"), x.get("board_pos"), x.get("board_team"),
+                           x.get("method")))
+          d7 = rep.get("within_pool_adp") or {}
+          if d7:
+              fm = d7.get("format_matched") or {}
+              wp = d7.get("whole_pool_INADMISSIBLE_under_D7") or {}
+              print("  D7 population       %s F1-passing leagues, %s of %s picks"
+                    % (d7.get("f1_passing_leagues"), d7.get("picks_in_format_matched_pool"),
+                       d7.get("picks_in_whole_pool")))
+              print("  D7 format-matched   %s" % fm.get("verdict"))
+              print("  D7 board sizes      %s ; distribution %s"
+                    % (json.dumps(fm.get("leagues_by_board_size")),
+                       json.dumps(fm.get("board_size_distribution"))))
+              print("  D7 whole-pool(N/A)  %s" % wp.get("verdict"))
+              # The whole-pool figure is an UPPER BOUND on the format-matched one:
+              # format-matching is a filter on picks, so boards can only shrink.
+              # A violation is a defect in this code, not news about the pool.
+              sb = d7.get("subset_bound") or {}
+              print("  D7 subset bound     %s" % sb.get("verdict"))
+              for v in (sb.get("violation_sample") or []):
+                  print("    VIOLATION  %s fmt=%s > whole=%s"
+                        % (v.get("league_id"), v.get("format_matched"), v.get("whole_pool")))
+              cv = (fm.get("calendar_covariates") or {})
+              print("  D7 M4 covariates    %s" % cv.get("verdict"))
+              for k, v in sorted((cv.get("by_key") or {}).items()):
+                  print("      %-12s early=%s late=%s" % (k, json.dumps(v.get("early")),
+                                                          json.dumps(v.get("late"))))
+          fc = rep.get("format_census") or {}
+          if fc:
+              print("  FORMAT CENSUS       over %s READABLE leagues (F1 unchanged; this is "
+                    "what the pool IS)" % fc.get("readable_leagues"))
+              print("    teams             %s" % json.dumps(fc.get("teams")))
+              print("    reception pts     %s" % json.dumps(fc.get("reception_points")))
+              print("    superflex         %s" % json.dumps(fc.get("superflex")))
+              print("    draft_type        %s" % json.dumps(fc.get("draft_type")))
+          print("  OUTCOME-READY       %s leagues clear every check that can be judged "
+                "before the season runs (matched=%s)"
+                % (rep.get("outcome_ready"), rep.get("matched")))
+          print("  attrition           %s" % json.dumps(rep.get("rejected_by_reason")))
+          print("  VERDICT             %s" % rep.get("verdict"))
           PY
       - name: Report where it cannot be missed
         if: always()
@@ -156,6 +257,24 @@ jobs:
           for k, v in sorted((d.get("rejected_by_reason") or {}).items(),
                              key=lambda kv: -kv[1]):
               print("| `%s` | %s |" % (k, v))
+          cw = d.get("crosswalk") or {}
+          if cw:
+              print()
+              print("### The crosswalk at scale")
+              print("- %s" % cw.get("verdict"))
+              print("- pooled rate **%s** over %s picks; per-league %s"
+                    % (cw.get("pooled_rate"), cw.get("picks_total"),
+                       json.dumps(cw.get("rate_distribution"))))
+              print("- methods: %s" % json.dumps(cw.get("methods")))
+              pairs = cw.get("matched_pairs_for_hand_check") or []
+              if pairs:
+                  print()
+                  print("| MFL name | MFL pos | board name | board pos | method |")
+                  print("|---|---|---|---|---|")
+                  for x in pairs[:20]:
+                      print("| %s | %s | %s | %s | %s |"
+                            % (x.get("mfl_name"), x.get("mfl_pos"),
+                               x.get("board_name"), x.get("board_pos"), x.get("method")))
           o = d.get("outcomes") or {}
           if o:
               print()

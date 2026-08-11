@@ -174,38 +174,58 @@ def reception_points_by_position(rules_json) -> tuple:
         return {}, "no_scoring_rules"
 
     out: dict = {}
+    governed: set = set()          # positions this league writes ANY rule for
+    unreadable_pts = 0             # CC rules whose points expression we could not read
     for pr in listify(node):
         # `positions` is a delimited list ("QB|RB", "TE", "Def"), case-inconsistent.
         names = [p.strip().upper() for p in t(pr.get("positions")).replace(",", "|").split("|") if p.strip()]
-        for rule in listify(pr.get("rule")):
+        rules = listify(pr.get("rule"))
+        if rules:
+            governed.update(names)
+        for rule in rules:
             if t(rule.get("event")).strip().upper() != RECEPTION_EVENT:
                 continue
             pts = _points_per_event(t(rule.get("points")))
             if pts is None:
+                unreadable_pts += 1
                 continue
             for n in names:
                 # Keep the LARGEST reception value seen for a position. MFL can
                 # express scoring in banded ranges; taking the max is the
                 # conservative read for a filter that excludes TE premium.
                 out[n] = max(out.get(n, pts), pts)
-    return out, ("ok" if out else "no_reception_rule")
+    if out:
+        return out, "ok"
+
+    # A STANDARD-SCORING LEAGUE HAS NO RECEPTION RULE, AND THAT IS A READING, NOT A
+    # FAILURE TO READ. Measured 2026-08-11: `no_reception_rule` was returned for both
+    # "the rules parsed and award nothing per catch" and "we could not read this
+    # league's scoring", and `screen()` files the second as UNREADABLE — so six
+    # standard leagues in run 11 were booked as OUR pipeline's gaps rather than as
+    # facts about the pool. That shrinks the readable denominator, which is exactly
+    # the denominator F7's reachability arithmetic is computed over.
+    #
+    # Absent is still not zero, and this is not a violation of it: the zero is only
+    # returned for positions this league DOES write rules for. Rules present for RB
+    # and none of them scoring receptions means receptions are worth 0 to an RB here
+    # — measured. A position the league writes no rule for at all stays absent,
+    # because about that one we genuinely know nothing.
+    if unreadable_pts:
+        # Our parser, not their league. Kept apart so it cannot hide inside either
+        # of the two answers above.
+        return {}, "unreadable_reception_points"
+    scored = [p for p in SKILL_POSITIONS if p in governed]
+    if scored:
+        return {p: 0.0 for p in scored}, "ok"
+    return {}, "no_reception_rule"
 
 
-def ppr_verdict(by_pos: dict, band=(0.4, 0.6)) -> tuple:
-    """F1 v2: EVERY skill position independently inside the band.
-
-    Returns (ok, reason). A position with no reception rule is NOT treated as 0 —
-    that is the absent-is-not-zero requirement, and a 0 would read as "not PPR"
-    when the truth is "we could not tell."
-    """
-    missing = [p for p in SKILL_POSITIONS if p not in by_pos]
-    if missing:
-        return False, "F4.no_scoring_rules:" + ",".join(missing)
-    outside = [p for p in SKILL_POSITIONS if not (band[0] <= by_pos[p] <= band[1])]
-    if outside:
-        return False, "F1.te_premium_or_split_ppr:" + ",".join(
-            f"{p}={by_pos[p]}" for p in outside)
-    return True, "ok"
+# `ppr_verdict` LIVED HERE AND IS GONE (2026-08-11). It made F1's reception-value
+# decision a second time and gave a different answer — a uniform full-PPR league
+# came back `F1.te_premium_or_split_ppr`, which is false — and it had no caller
+# outside its own test, so the two could disagree indefinitely without anything
+# going red. The decision now has exactly one implementation,
+# `ingest_filters.ppr_reason`, which `screen()` calls.
 
 
 # ── the draft ───────────────────────────────────────────────────────────────
@@ -226,7 +246,32 @@ def draft_picks(draft_json) -> tuple:
         meta says so rather than every league quietly passing it.
     """
     d = json.loads(draft_json) if isinstance(draft_json, str) else (draft_json or {})
-    unit = (d.get("draftResults") or {}).get("draftUnit") or {}
+    # P5 — `draftUnit` IS SOMETIMES A LIST. Found at 250-league scale on 2026-08-11;
+    # 60 leagues never hit it. This module's own docstring says MFL returns a bare
+    # dict for one element and a list for many, and names players, leagueSearch and
+    # positionRules[].rule — `draftUnit` belongs on that list and was not on it.
+    # `listify` was applied to `draftPick` INSIDE the unit and not to the unit.
+    #
+    # A multi-unit export is a league whose draft is not one league-wide draft —
+    # divisional or per-conference drafts, each with its OWN pick numbering. Merging
+    # them would manufacture an "overall pick number" that no drafter ever saw, so
+    # the LEAGUE unit is taken when present and anything else is refused BY NAME.
+    units = listify((d.get("draftResults") or {}).get("draftUnit"))
+    league_units = [u for u in units if isinstance(u, dict)
+                    and t(u.get("unit")).strip().upper() == "LEAGUE"]
+    unit_note = None
+    if len(units) > 1:
+        unit_note = "draft_units:%d" % len(units)
+    if league_units:
+        unit = league_units[0]
+    elif len(units) == 1 and isinstance(units[0], dict):
+        unit = units[0]
+    else:
+        # NOT an empty draft. We could not obtain a league-wide draft from an
+        # export that plainly contains drafts, and those are different facts.
+        return [], {"draft_not_league_wide": True, "draft_units": len(units),
+                    "unusable_reason": "draft_not_league_wide:%d units, none LEAGUE"
+                                       % len(units)}
     rows, invalid = [], []
     for i, p in enumerate(listify(unit.get("draftPick"))):
         rnd, pick = t(p.get("round")).strip(), t(p.get("pick")).strip()
@@ -260,6 +305,11 @@ def draft_picks(draft_json) -> tuple:
         "completeness_source": "inferred (no status field in draftResults)",
         "autopick_enforceable": False,
         "autopick_note": "F2 autopick clause UNENFORCED — no autopick flag in this export",
+        # A league whose export carried SEVERAL draft units, of which we took the
+        # LEAGUE one. Recorded as a covariate rather than dropped: it says this
+        # league also ran divisional drafts, which is a fact about their setup.
+        "draft_units": len(units),
+        "multi_unit_note": unit_note,
     }
     return rows, meta
 
@@ -344,11 +394,27 @@ def crosswalk_picks(picks: list, mfl_players, sleeper_index) -> tuple:
 
     rows, unknown_id, unmatched, conflicts = [], [], [], []
     methods = Counter()
+    vocab_only = team_units = 0
     board = _board_by_id(sleeper_index)
     for p in picks:
         meta = (mfl_players or {}).get(str(p.get("player")))
         if not meta:
             unknown_id.append(p.get("player"))
+            continue
+        if is_team_unit(meta.get("position")):
+            # MEASURED, run 11: 103 picks whose MFL position was TMQB or TMPK matched
+            # a team DEFENSE. MFL names a team-unit "Bills, Buffalo", `_norm_name`
+            # makes that "Buffalo Bills", and Sleeper's Buffalo DEF carries the same
+            # full name — so the NAME matched and the crosswalk scored a success for
+            # a pick that is not a player at all. `TMQB -> DEF` 65 times and
+            # `TMPK -> DEF` 38, found by the conflict check on its first real run.
+            #
+            # These are refused BEFORE matching rather than flagged after: a team
+            # unit has no counterpart on our board, so any id it lands on is wrong.
+            unmatched.append({"mfl_id": p.get("player"), "name": meta.get("name"),
+                              "pos": meta.get("position"), "team": meta.get("team"),
+                              "why": "team_unit_not_a_player"})
+            team_units += 1
             continue
         sid, how = match_player_shared(meta, sleeper_index)
         if not sid:
@@ -371,9 +437,9 @@ def crosswalk_picks(picks: list, mfl_players, sleeper_index) -> tuple:
         # player, and it passes every completeness check ever written — the rate
         # goes UP when a bad match lands. Counted separately and never silently.
         if theirs:
-            bad = [f for f, a, b in (("position", meta.get("position"), theirs.get("pos")),
-                                     ("team", meta.get("team"), theirs.get("team")))
-                   if a and b and str(a).upper() != str(b).upper()]
+            bad, vocab = disagreements(meta, theirs)
+            if vocab:
+                vocab_only += 1
             if bad:
                 conflicts.append(dict(pair, disagrees_on=bad))
         rows.append(dict(p, player_id=sid, matched_by=how,
@@ -399,9 +465,78 @@ def crosswalk_picks(picks: list, mfl_players, sleeper_index) -> tuple:
         "matched_sample": _sample_pairs(rows, board, mfl_players),
         "conflicts": len(conflicts),
         "conflict_rows": conflicts,
+        # Pairs that LOOKED like disagreements until both sides were spelled the
+        # way the MATCHER spells them. Reported rather than silently absorbed, so
+        # the shrink in `conflicts` is attributable instead of mysterious.
+        "vocabulary_only_agreements": vocab_only,
+        # Counted apart from `no_sleeper_match`: a team unit is not a player our
+        # board is MISSING, it is not a player. Folding it in would report a gap in
+        # our coverage that does not exist.
+        "team_units_refused": team_units,
         "board_side_resolved": sum(1 for r in rows if board.get(str(r["player_id"]))),
     }
     return rows, report
+
+
+# MFL's TEAM-UNIT positions. A league using these drafts a team's whole QB room as
+# one slot; there is no such entity on our board, so no id it matches is the right
+# one. Kept as a prefix test rather than a list because MFL forms them
+# systematically (TMQB, TMRB, TMWR, TMTE, TMPK) and a list would silently admit the
+# next one. `Def` is NOT one of these — a team defense is a real board entity.
+TEAM_UNIT_PREFIX = "TM"
+
+
+def is_team_unit(position) -> bool:
+    p = str(position or "").strip().upper()
+    return p.startswith(TEAM_UNIT_PREFIX) and len(p) > len(TEAM_UNIT_PREFIX)
+
+
+def disagreements(meta: dict, theirs: dict) -> tuple:
+    """(fields that disagree, whether any disagreement was OURS). Rule 11, applied
+    to the checker instead of only to the thing it checks.
+
+    THE DEFECT THIS FIXES, found by reading the matcher rather than from a run. The
+    two sides of this comparison do NOT arrive by the same path:
+
+      `theirs` comes out of `build_index`, which stores `_norm_pos(position)` and
+      `_norm_team(team)` — so a Sleeper kicker is already spelled `K` and a
+      Jacksonville player is already `JAX`.
+
+      `meta` comes straight off MFL's players export, unnormalised — so the same
+      kicker is `PK` and the same player is `JAC`.
+
+    Comparing them raw asks whether two DIFFERENT VOCABULARIES agree, and the answer
+    is no for every kicker and every team MFL spells differently. `POS_ALIASES` maps
+    exactly `PK -> K`, and `TEAM_ALIASES` maps `JAC -> JAX`, `WSH -> WAS`, `OAK ->
+    LV` and six more. Every one of those pairs was being reported as a CROSS-SOURCE
+    DISAGREEMENT — the signature of the wrong player — while the matcher that made
+    the pair considers them the same value. The report was accusing itself.
+
+    So both sides are normalised THROUGH THE MATCHER'S OWN TABLES. Not a second
+    table: importing `_norm_pos`/`_norm_team` means a vocabulary the matcher learns
+    tomorrow is one this check learns at the same moment, and the two cannot drift.
+
+    WHAT THIS MUST NOT DO is make disagreements disappear. Normalisation only ever
+    relabels a spelling both sides already agreed on; `RB` against `WR` survives it
+    unchanged, which is the case that matters. The count of pairs that agreed ONLY
+    after normalising is returned so the shrink is attributable — a quieter number
+    with no account of why it got quieter is the thing this program does not accept.
+    """
+    from adp import _norm_pos, _norm_team
+    fields, vocab = [], False
+    for name, ours, theirs_v, norm in (
+            ("position", meta.get("position"), theirs.get("pos"), _norm_pos),
+            ("team", meta.get("team"), theirs.get("team"), _norm_team)):
+        if not ours or not theirs_v:
+            # ABSENT IS NOT A DISAGREEMENT. A player MFL lists with no team has not
+            # contradicted us about his team.
+            continue
+        raw_differs = str(ours).upper().strip() != str(theirs_v).upper().strip()
+        if norm(ours) != norm(theirs_v):
+            fields.append(name)
+        elif raw_differs:
+            vocab = True
+    return fields, vocab
 
 
 def _board_by_id(index) -> dict:
@@ -540,9 +675,27 @@ def to_league_record(league_json, rules_json, draft_json, *,
     # is what makes `screen()` say so instead of reporting a 0% match rate.
     if crosswalk is not None:
         rows_x = crosswalk[0] if isinstance(crosswalk, tuple) else crosswalk
-        done = {r.get("overall") for r in (rows_x or [])}
+        # OUR ID, ATTACHED — not just a boolean. Measured 2026-08-11 before it ran:
+        # the pick carried MFL's id under `player`, the replay reads OUR id under
+        # `player_id`, and every decision envelope came back with
+        # `actual_player_id = None` — 30 of 30. Nothing errored. `survival_grade`
+        # would have resolved every forecast against None and produced a Brier
+        # score that looked exactly like a result.
+        #
+        # `player` (MFL's) is KEPT alongside `player_id` (ours) rather than
+        # overwritten: the two id spaces are what the crosswalk exists to bridge,
+        # and collapsing them is how a wrong match stops being traceable.
+        ours = {r.get("overall"): r.get("player_id") for r in (rows_x or [])}
         for p in picks:
-            p["crosswalked"] = p["overall"] in done
+            p["crosswalked"] = p["overall"] in ours
+            sid = ours.get(p["overall"])
+            if sid is not None:
+                p["player_id"] = str(sid)
+            else:
+                # A pick that did not crosswalk carries NO id of ours. Absent, so
+                # a consumer reading it gets nothing rather than a plausible None
+                # that scores.
+                p.pop("player_id", None)
 
     # P3/P4. `screen()` already reports F4.no_scoring_rules on an empty map; what
     # it cannot know without this is WHICH absence — an export that answered
@@ -597,6 +750,7 @@ def to_league_record(league_json, rules_json, draft_json, *,
                 "is not evidence that none was abandoned." % dmeta.get("autopick_note")],
             "draft_type_raw": dmeta.get("draft_type_raw"),
             "round1_order": dmeta.get("round1_order"),
+            "draft_units": dmeta.get("draft_units"),
         },
     }
 

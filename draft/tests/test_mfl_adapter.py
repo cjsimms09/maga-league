@@ -17,6 +17,7 @@ import pytest
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent / "backtest"))
 
+import ingest_filters as F  # noqa: E402
 import mfl_adapter as A  # noqa: E402
 
 
@@ -110,13 +111,13 @@ def test_reception_points_are_read_PER_POSITION():
 def test_TE_PREMIUM_is_EXCLUDED_which_F1_v1_would_have_admitted():
     """The P4 failure exactly: v1 read a single scalar `rec` that MFL does not
     have, so a 0.5/WR + 1.0/TE league would have passed as half-PPR."""
-    ok, reason = A.ppr_verdict({"RB": 0.5, "WR": 0.5, "TE": 1.0})
+    ok, reason = F.ppr_reason({"RB": 0.5, "WR": 0.5, "TE": 1.0})
     assert ok is False and reason.startswith("F1.te_premium_or_split_ppr")
     assert "TE=1.0" in reason
 
 
 def test_a_genuine_half_ppr_league_passes():
-    assert A.ppr_verdict({"RB": 0.5, "WR": 0.5, "TE": 0.5}) == (True, "ok")
+    assert F.ppr_reason({"RB": 0.5, "WR": 0.5, "TE": 0.5}) == (True, "ok")
 
 
 def test_an_absent_scoring_export_is_its_OWN_reason_not_a_ppr_failure():
@@ -125,13 +126,13 @@ def test_an_absent_scoring_export_is_its_OWN_reason_not_a_ppr_failure():
     tell' with 'we checked and it did not match'."""
     by_pos, reason = A.reception_points_by_position({"error": {"$t": "Error - No League Scoring Rules"}})
     assert by_pos == {} and reason == "no_scoring_rules"
-    ok, why = A.ppr_verdict(by_pos)
+    ok, why = F.ppr_reason(by_pos)
     assert ok is False and why.startswith("F4.no_scoring_rules")
 
 
 def test_a_position_with_no_reception_rule_is_UNKNOWN_not_zero():
     """A missing rule is not 0.0 PPR. Zero would read as 'checked, not PPR'."""
-    ok, why = A.ppr_verdict({"RB": 0.5, "WR": 0.5})     # TE absent
+    ok, why = F.ppr_reason({"RB": 0.5, "WR": 0.5})     # TE absent
     assert ok is False and "TE" in why and why.startswith("F4.no_scoring_rules")
 
 
@@ -139,7 +140,11 @@ def test_an_unparseable_points_expression_is_skipped_not_zeroed():
     r = _rules([{"positions": {"$t": "WR"}, "rule": [
         {"event": {"$t": "CC"}, "points": {"$t": "??"}}]}])
     by_pos, reason = A.reception_points_by_position(r)
-    assert by_pos == {} and reason == "no_reception_rule"
+    # NOT COERCED TO ZERO — the invariant this test exists for, unchanged.
+    assert by_pos == {}
+    # And the reason is now the precise one: a CC rule WAS present and OUR parser
+    # could not read it, which is a different fact from "they score no receptions".
+    assert reason == "unreadable_reception_points"
 
 
 def test_the_reception_code_is_the_one_MFL_documents():
@@ -319,3 +324,62 @@ def test_board_index_includes_kept_players():
         "search_rank": None} for p in board["players"]})
     _, bad = A.crosswalk_picks(picks, mfl, partial)
     assert bad["crosswalk_rate"] < 1.0, "the partial index should miss the keepers"
+
+
+# ── P5: draftUnit is sometimes a LIST ──────────────────────────────────────
+def _unit(picks, unit="LEAGUE", **kw):
+    d = {"unit": unit, "draftType": "SFIRSTRANDOM", "draftPick": picks}
+    d.update(kw)
+    return d
+
+
+def _raw(n=4):
+    return [{"round": "01", "pick": "%02d" % (i + 1), "franchise": "%04d" % (i + 1),
+             "player": str(9000 + i), "timestamp": "1756141200"} for i in range(n)]
+
+
+def test_a_draftUnit_that_is_a_LIST_is_parsed_rather_than_CRASHING_THE_RUN():
+    """FOUND AT 250-LEAGUE SCALE, and 60 leagues never hit it. `listify` was applied
+    to `draftPick` INSIDE the unit and not to the unit itself, so a multi-unit
+    export raised AttributeError 18 minutes into a run and took 249 other leagues
+    with it.
+
+    MUTATION: drop the listify on draftUnit. Red here, and red in CI 18 minutes
+    later at far greater cost."""
+    export = {"draftResults": {"draftUnit": [_unit(_raw())]}}
+    rows, meta = A.draft_picks(export)
+    assert len(rows) == 4 and meta["draft_units"] == 1
+
+
+def test_the_LEAGUE_unit_is_taken_and_divisional_units_are_NOT_MERGED():
+    """A multi-unit league ran divisional drafts, EACH WITH ITS OWN PICK NUMBERING.
+    Concatenating them manufactures an 'overall pick number' no drafter ever saw —
+    and every ADP and survival quantity in this program is a function of that
+    number."""
+    export = {"draftResults": {"draftUnit": [
+        _unit(_raw(2), unit="DIVISION", division="00"),
+        _unit(_raw(4), unit="LEAGUE"),
+        _unit(_raw(3), unit="DIVISION", division="01")]}}
+    rows, meta = A.draft_picks(export)
+    assert len(rows) == 4, "divisional units were merged into the league draft"
+    assert meta["draft_units"] == 3
+    assert [r["overall"] for r in rows] == [1, 2, 3, 4]
+
+
+def test_an_export_with_NO_league_wide_unit_is_refused_BY_NAME():
+    """Not an empty draft. We could not obtain a league-wide draft from an export
+    that plainly contains drafts, and those are different facts."""
+    export = {"draftResults": {"draftUnit": [
+        _unit(_raw(2), unit="DIVISION", division="00"),
+        _unit(_raw(2), unit="DIVISION", division="01")]}}
+    rows, meta = A.draft_picks(export)
+    assert rows == []
+    assert meta["draft_not_league_wide"] is True and meta["draft_units"] == 2
+    assert "draft_not_league_wide" in meta["unusable_reason"]
+
+
+def test_the_ORDINARY_single_dict_export_still_works():
+    """The shape 60 leagues did have. A fix for the list case that broke the dict
+    case would trade one crash for another."""
+    rows, meta = A.draft_picks({"draftResults": {"draftUnit": _unit(_raw(3))}})
+    assert len(rows) == 3 and meta["draft_units"] == 1

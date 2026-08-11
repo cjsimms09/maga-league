@@ -197,3 +197,79 @@ def test_the_context_supplies_the_gap_WITHOUT_supplying_the_future():
     assert first["next_turn_overall"] == 8 and first["picks_until_next_turn"] == 7
     assert seen[-1]["next_turn_overall"] is None, "the last pick has no next turn"
     assert "actual_player_id" not in first
+
+
+# ── THE WHOLE CHAIN, through every real producer ───────────────────────────
+def test_the_ENTIRE_PATH_produces_a_graded_observation_with_nothing_HAND_MADE():
+    """EVERY SEAM AT ONCE: MFL export -> draft_picks -> crosswalk -> record ->
+    append_snapshot -> as_store_snapshots -> ExternalAsOfStore -> screen ->
+    replay_league -> grade. The only synthetic thing is the league data itself;
+    every SHAPE comes from the function that really produces it.
+
+    This is the guard that would have caught, in one run, all three of today's
+    shape defects: picks carrying MFL's id where the replay reads ours, the ADP
+    archive handed over as its wrapper dict, and `draftUnit` arriving as a list.
+    Each was invisible to a test holding a dict its author wrote.
+    """
+    import external_adp_capture as CAP
+    import ingest_filters as F
+    import mfl_adapter as A
+    from external_replay import ExternalAsOfStore, policy_fingerprint
+
+    epoch = 1756141200                       # 2025-08-25T17:00:00Z
+    raw = []
+    for rnd in range(1, 7):
+        order = range(10) if rnd % 2 else reversed(range(10))
+        for j, seat in enumerate(order):
+            i = len(raw)
+            raw.append({"round": "%02d" % rnd, "pick": "%02d" % (j + 1),
+                        "franchise": "%04d" % (seat + 1), "player": str(9000 + i),
+                        "timestamp": str(epoch + i * 600), "comments": ""})
+    league = {"league": {"id": "L1",
+              "franchises": {"count": "10",
+                             "franchise": [{"id": "%04d" % (i + 1)} for i in range(10)]},
+              "starters": {"count": "8", "position": [
+                  {"name": "QB", "limit": "1"}, {"name": "RB", "limit": "2"},
+                  {"name": "WR", "limit": "2"}, {"name": "TE", "limit": "1"},
+                  {"name": "FLEX", "limit": "1"}]}}}
+    rules = {"rules": {"positionRules": [{"positions": "RB|WR|TE", "rule": [
+        {"event": {"$t": "CC"}, "points": {"$t": "*0.5"}}]}]}}
+    draft = {"draftResults": {"draftUnit": {
+        "unit": "LEAGUE", "draftType": "SFIRSTRANDOM", "draftPick": raw}}}
+
+    rows, _ = A.draft_picks(draft)
+    cw = [dict(r, player_id="S%d" % r["overall"], matched_by="name") for r in rows]
+
+    series = CAP.append_snapshot([], "2025", "2025-08-20",
+                                 {"S%d" % i: float(i) for i in range(1, 81)},
+                                 total_drafts=500)
+    snaps = CAP.as_store_snapshots(series, "2025")
+    draft_at = A.to_league_record(league, rules, draft, league_id="L1")["draft_at"]
+    store = ExternalAsOfStore("L1", draft_at, snaps, policy_fingerprint())
+
+    # F5, on the real objects: the board is the snapshot STRICTLY BEFORE the draft.
+    assert str(store.snapshot_date()) == "2025-08-20" < draft_at == "2025-08-25"
+
+    board = store.board()
+    rec = A.to_league_record(
+        league, rules, draft, league_id="L1", crosswalk=(cw, {}),
+        has_weekly_outcomes=True,
+        pre_draft_adp={str(r["player_id"]): r.get("adp") for r in board},
+        adp_observed_at=store.snapshot_date().isoformat())
+    assert F.screen(rec) == (True, "ok"), F.screen(rec)
+
+    out = R.replay_league(rec, snaps, S.adp_baseline)
+    g = S.grade(out["observations"], rec["draft"]["picks"])
+
+    # THE ARITHMETIC, STATED. 6 rounds x 10 teams = 60 picks; the baseline emits 5
+    # forecasts per decision = 300. The LAST round's 10 picks have no next turn, so
+    # 10 x 5 = 50 are UNRESOLVABLE and are dropped rather than scored as misses.
+    assert len(out["observations"]) == 300
+    assert g["n_scored"] == 250 and g["n_unresolvable"] == 50
+    # The honest floor is predicting the base rate every time: p(1-p).
+    assert g["brier_of_always_base_rate"] == round(
+        g["base_rate"] * (1 - g["base_rate"]), 4)
+    assert 0.0 <= g["brier"] <= 1.0
+    # And it is a BASELINE's number, never the shipped policy's.
+    assert g["policy_id"].startswith(S.BASELINE_PREFIX)
+    assert S.is_shipped_policy(g["policy_id"]) is False
