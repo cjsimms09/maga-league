@@ -131,11 +131,54 @@ def attrition_report(verdicts: list, requested: list = None) -> dict:
         # "does any of the pool cross a date boundary" from an assumption into a
         # number. `lead_days` is per-decision precisely because of this spread.
         "draft_duration_days": _distribution(durations),
+        # THE OTHER HALF OF THE SAME REGISTERED REQUIREMENT, and it was missing.
+        # INGEST-PLAN's reporting addition says every run reports the draft-duration
+        # distribution AND the per-league LEAD-DAYS SPREAD. Only the first was
+        # here — rule 6, the written rule and the running system diverging, on a
+        # requirement this lane registered itself. `test_the_run_reports_EVERY`
+        # `_quantity_the_plan_says_it_reports` now closes that gap generally.
+        "lead_days_spread": _lead_spread(verdicts),
         "target": F.TARGET_MATCHED_LEAGUE_SEASONS,
         "meets_target": len(matched) >= F.TARGET_MATCHED_LEAGUE_SEASONS,
     }
     rep["verdict"] = _verdict_line(rep)
     return rep
+
+
+def _lead_spread(verdicts) -> dict:
+    """Staleness of the frozen board across each matched league's picks, pooled.
+
+    Per-DECISION, not per-league: `draft_at` is the FIRST pick, which is the right
+    scalar for F5 admission and the wrong one for staleness. A day-five pick dated
+    from day one understates the board's age by the whole length of the draft, on
+    exactly the picks where it is oldest.
+
+    UNDATED PICKS ARE COUNTED, never dated from the league — the store raises
+    rather than inventing a lead time, and that raise is what `undated` counts.
+    """
+    from external_replay import ExternalAsOfStore
+    mins, meds, maxs, spans, undated, n = [], [], [], [], 0, 0
+    for r, ok, _ in verdicts:
+        if not ok:
+            continue
+        observed = r.get("adp_observed_at")
+        picks = (r.get("draft") or {}).get("picks") or []
+        if not observed or not picks:
+            continue
+        store = ExternalAsOfStore(r.get("league_id"), r.get("draft_at"),
+                                  [{"observed_at": observed, "rows": []}], None)
+        sp = store.lead_days_spread([p.get("timestamp") for p in picks])
+        undated += sp["undated"]
+        if not sp["n"]:
+            continue
+        n += 1
+        mins.append(sp["min"]); meds.append(sp["median"])
+        maxs.append(sp["max"]); spans.append(sp["span_days"])
+    return {"leagues": n, "undated_picks": undated,
+            "min_of_min": min(mins) if mins else None,
+            "median_of_median": (sorted(meds)[len(meds) // 2] if meds else None),
+            "max_of_max": max(maxs) if maxs else None,
+            "span_days": _distribution(spans)}
 
 
 def _duration(record: dict):

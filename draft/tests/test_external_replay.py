@@ -333,3 +333,46 @@ def test_every_observation_carries_its_provenance():
     assert rec["draft_date"] == "2025-08-20"
     assert rec["policy_fingerprint"] == FP
     assert rec["payload"]["resolution_rule"]
+
+
+# ── the type the PRODUCER actually emits ───────────────────────────────────
+def test_a_UNIX_EPOCH_pick_time_is_a_DATE_because_that_is_what_draft_picks_EMITS():
+    """THE PER-PICK STALENESS SEAM NEVER ONCE RAN ON REAL DATA. `_as_date` refused
+    ints — right in spirit, since a coerced timestamp is how an off-by-one-day leak
+    gets in — but `draft_picks` emits unix epoch SECONDS for every pick. So
+    `lead_days_spread` counted every real pick as UNDATED and reported n=0, which
+    reads as "this league has no timestamps" and is actually a type mismatch in
+    our own code. It fell back to the league scalar and said so, which is honest
+    and is not what the seam was built for.
+
+    MUTATION: drop the numeric branch. The spread goes back to n=0 on real picks."""
+    st = X.ExternalAsOfStore("L1", "2025-08-25",
+                             [{"observed_at": "2025-08-20", "rows": []}], None)
+    # 1756141200 == 2025-08-25T17:00:00Z, five days after the snapshot.
+    assert st.lead_days(1756141200) == 5
+    assert st.lead_days(1756141200 + 3 * 86400) == 8
+    sp = st.lead_days_spread([1756141200, None, 1756141200 + 3 * 86400])
+    assert sp["n"] == 2 and sp["undated"] == 1
+    assert sp["min"] == 5 and sp["max"] == 8 and sp["span_days"] == 3
+
+
+def test_MILLISECONDS_and_YEARS_are_refused_BY_NAME_rather_than_guessed():
+    """Accepting ints is bounded, not permissive. A 13-digit value is milliseconds
+    and a 4-digit value is a year; guessing which would move the date by decades,
+    and the whole contamination rule is a comparison between two dates."""
+    st = X.ExternalAsOfStore("L1", "2025-08-25",
+                             [{"observed_at": "2025-08-20", "rows": []}], None)
+    for bad in (1756141200000, 2025, -1, 0):
+        with pytest.raises(TimeTravelError) as e:
+            st.lead_days(bad)
+        assert "epoch-SECONDS" in str(e.value)
+
+
+def test_a_BOOL_is_not_a_timestamp_even_though_it_is_an_int():
+    """`isinstance(True, int)` is True in Python. A flag reaching a date
+    comparison would silently become 1970-01-01."""
+    st = X.ExternalAsOfStore("L1", "2025-08-25",
+                             [{"observed_at": "2025-08-20", "rows": []}], None)
+    with pytest.raises(TimeTravelError) as e:
+        st.lead_days(True)
+    assert "refusing to guess a date" in str(e.value)

@@ -550,3 +550,51 @@ def test_the_parse_failure_keeps_the_EXCEPTION_TYPE_so_it_stays_diagnosable():
                "draftResults": {"draftResults": {"draftUnit": 12345}}}
     rec = R.build_record("L1", exports)
     assert "unreadable" in rec and "parse_failed:" in rec["unreadable"]["parse"]
+
+
+# ── rule 6 for the REPORT, not just the reason codes ───────────────────────
+def test_the_run_reports_EVERY_QUANTITY_THE_PLAN_SAYS_IT_REPORTS():
+    """CAUGHT A REAL GAP. INGEST-PLAN's reporting addition says every run reports
+    the draft-duration distribution AND the per-league lead-days spread. Only the
+    first was there — a requirement this lane registered itself, quietly unmet.
+
+    The reason-code registry has had a doc-drift guard since the attrition seam;
+    the REPORT never did, which is why this one survived. A pre-registration that
+    lives only in prose drifts from the build, and nobody notices because both look
+    reasonable on their own — that is rule 6, and it does not stop at reason codes.
+    """
+    plan = (Path(__file__).resolve().parent.parent.parent / "INGEST-PLAN.md").read_text()
+    rep = R.attrition_report(R.run_screen([good_record("L1")])[0], requested=["L1"])
+    required = {
+        # phrase the plan uses            -> key the report must carry
+        "DRAFT-DURATION DISTRIBUTION": "draft_duration_days",
+        "LEAD-DAYS SPREAD": "lead_days_spread",
+    }
+    for phrase, key in required.items():
+        if phrase in plan:
+            assert key in rep, (
+                "INGEST-PLAN promises %r and the run report has no %r" % (phrase, key))
+
+
+def test_the_lead_days_spread_counts_UNDATED_picks_rather_than_dating_them():
+    """A pick with no timestamp has unknown staleness. Folding it in at the draft
+    date would manufacture an observation out of an absence — and it would make the
+    spread look tighter, which is the direction that flatters."""
+    rec = good_record("L1")
+    for i, p in enumerate(rec["draft"]["picks"]):
+        if i % 2:
+            p["timestamp"] = None
+    # The verdict is forced to matched, deliberately: a league with half its picks
+    # undated FAILS `screen()` on F5, which is correct and is a different check.
+    # What is under test here is the SPREAD's handling of an absent timestamp, so
+    # the record still comes from the real adapter and only the flag is set.
+    sp = R._lead_spread([(rec, True, "ok")])
+    assert sp["undated_picks"] > 0, "an undated pick was silently dated"
+    assert sp["leagues"] == 1 and sp["max_of_max"] is not None
+
+
+def test_a_run_with_NO_matched_leagues_reports_an_EMPTY_spread_not_a_zero_one():
+    rep = R.attrition_report(R.run_screen([])[0], requested=[])
+    sp = rep["lead_days_spread"]
+    assert sp["leagues"] == 0 and sp["max_of_max"] is None
+    assert sp["span_days"]["n"] == 0
