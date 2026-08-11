@@ -162,6 +162,24 @@ c_owns() {
     draft/backtest/adp_asof_*) return 0 ;;
     draft/backtest/ingest_*) return 0 ;;
     draft/backtest/crosswalk*|draft/backtest/nflverse*) return 0 ;;
+    # FOURTH TIME THE LIST WAS SHORT (2026-08-11). within_pool_adp.py is D7 —
+    # ADP built from the discovered pool's own earlier drafts — and its own
+    # docstring registers it in INGEST-PLAN.md, which is C's plan. Clearly C's,
+    # and blocked C's whole branch for one file.
+    #
+    # INVERTING THE DIRECTORY WAS CONSIDERED AND MEASURED, NOT ASSUMED. "A owns
+    # exp*/market*/bbm*/opponent*/override*/lab*, everything else in
+    # draft/backtest is C's" would be durable — but 23 A-owned files there match
+    # none of those prefixes (grade.py, money_grade.py, tournament.py,
+    # forecast_grade.py, roster_sim.py, …), so inverting hands C two dozen A
+    # files. The comment above that lists A's prefixes is INCOMPLETE; it is left
+    # in place but must not be relied on as exhaustive.
+    #
+    # So this stays an enumerated addition, and the durable fix is a decision for
+    # Cory and C rather than another entry: either C adopts a prefix convention,
+    # or ownership derives from a declaration inside the file. Recorded in
+    # TERRITORY.md rather than solved here.
+    draft/backtest/within_pool_adp*) return 0 ;;
     # ── A TEST FILE FOLLOWS ITS MODULE ──────────────────────────────────────
     #
     # Cory's ruling, 2026-08-11, after `draft/tests/test_external_outcomes.py`
@@ -182,7 +200,17 @@ c_owns() {
     draft/tests/test_*.py)
       _t="${1#draft/tests/test_}"; _t="${_t%.py}"
       for _m in "draft/backtest/${_t}.py" "draft/${_t}.py"; do
-        if [ -e "$_m" ] || [ -n "${TERRITORY_ASSUME_MODULE:-}" ]; then
+        # EXISTENCE IS CHECKED IN THE REF, NOT THE WORKING TREE — the same bug
+        # the JS derivation above hit, in the half that was already shipped.
+        # In --range mode the module lives on the BRANCH being judged and is not
+        # on disk here, so `[ -e ]` was false, the derivation never ran, and the
+        # test fell through to A. It blocked C's entire branch on one file:
+        # within_pool_adp.py was accepted by the entry above while its own test
+        # was refused, so a module and its test landed on opposite sides —
+        # exactly the collision this derivation was written to prevent.
+        if [ -e "$_m" ] \
+           || { [ -n "${RANGE_REF:-}" ] && git cat-file -e "$RANGE_REF:$_m" 2>/dev/null; } \
+           || [ -n "${TERRITORY_ASSUME_MODULE:-}" ]; then
           c_owns "$_m" && return 0
         fi
       done
