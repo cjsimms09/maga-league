@@ -88,12 +88,13 @@
       "why": "offseason adds, no in-season impact"
     },
     "pick_trading": {
-      "disposition": "should_import",
-      "why": "draft-pick trading is ENABLED and nothing models it; it can move pick order before the draft"
+      "disposition": "imported_unread",
+      "evidence": "reaches league_config.trade_window and nothing reads it",
+      "why": "1 (enabled), and traded_picks is EMPTY as of 2026-08-11, so the pick order derived from seat plus keepers is safe on that axis today. Imported as a watchdog: if picks start moving, every my_picks derivation is wrong and nothing would currently notice."
     },
     "playoff_round_type": {
       "disposition": "imported",
-      "evidence": "read at draft/backtest/money_grade.py (assert_one_week_rounds)",
+      "evidence": "read at draft/backtest/money_grade.py:300",
       "why": "0 = one week per playoff round, and money_grade's bracket resim plays round r in week playoff_week_start+(r-1), which is only correct for 0. It is now ASSERTED at the point that converts rounds to weeks: a league configured for two-week rounds is refused rather than graded, because every harvested bracket is round_type 0 and a two-week path would be certified by nothing. An absent value is refused too \u2014 a default that matches today is how the assumption goes invisible again."
     },
     "playoff_seed_type": {
@@ -175,12 +176,14 @@
       "why": "no taxi squad"
     },
     "trade_deadline": {
-      "disposition": "should_import",
-      "why": "week 11, and no in-season surface knows it. A buy/sell recommendation made after week 11 is not an action anyone can take."
+      "disposition": "imported_unread",
+      "evidence": "reaches league_config.trade_window and nothing reads it",
+      "why": "week 11. Imported to league_config.trade_window.deadline_week so no surface hard-codes it. SharedValuation.tradeActionability() consumes it and SUPPRESSES a buy/sell recommendation past the deadline rather than displaying the date beside one \u2014 a page that shows the deadline next to a sell recommendation still made the recommendation. Nothing calls the gate yet, so this is imported_unread and not imported."
     },
     "trade_review_days": {
-      "disposition": "should_import",
-      "why": "2 \u2014 a trade is not final for two days. Deadline arithmetic that treats an accepted trade as immediate is wrong by two days in the week that matters most."
+      "disposition": "imported_unread",
+      "evidence": "reaches league_config.trade_window and nothing reads it",
+      "why": "2. A trade is not final for two days, so deadline arithmetic that treats an accepted trade as immediate is wrong by two days in the week that matters most. Optional input to tradeActionability, which warns when the runway is shorter than the review period; passed explicitly rather than defaulted, so a caller that does not know it never gets a silent zero."
     },
     "type": {
       "disposition": "imported",

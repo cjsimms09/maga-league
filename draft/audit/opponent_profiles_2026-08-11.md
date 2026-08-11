@@ -51,34 +51,39 @@ others), so the harness reaches the model. A null from a probe that cannot move 
 failure that looks exactly like a true null — that is the `claim_stopping` mistake from
 this morning, where both arms correctly said don't-spend and the probe proved nothing.
 
-### Result — PILOT ONLY, the full run is still going
+### Result — THE FULL RUN, 12 × 8
 
-This is 4 drafts × 3 seatings, quoted as a pilot and labelled as one. The headline run
-(12 × 8) was still executing when this was committed; it is appended below when it lands,
-and **the pilot is not the answer** — 144 decisions with 2 moves cannot separate 1.4% from
-0.5% or 3%.
+The pilot (4 × 3) read 1.4% and was labelled as not-the-answer, because 144 decisions with
+2 moves cannot separate 1.4% from 0.5% or 3%. The headline run landed at **0.7%**, so the
+pilot was high — which is the reason it was not quoted as the result.
 
 ```
-4 drafts x 3 seatings · seat 8 · 10x15
-3 keepers, rounds 1-3 forfeited · 144 decisions · 9 opponents profiled
+12 drafts x 8 seatings · seat 8 · 10x15
+3 keepers, rounds 1-3 forfeited · 1152 decisions · 9 opponents profiled
 
-  shipping (room)  vs mapped profiles : 2/144  1.4%
-  league-average   vs shipping (room) : 0/144  0.0%
-  league-average   vs mapped profiles : 2/144  1.4%
+  shipping (room)  vs mapped profiles : 8/1152  0.7%
+  league-average   vs shipping (room) : 0/1152  0.0%
+  league-average   vs mapped profiles : 8/1152  0.7%
 
-  picks moved per draft (room -> mapped): mean 0.17, range 0-1  over 12 runs
+  picks moved per draft (room -> mapped): mean 0.08, range 0-1  over 96 runs
 
-  round 14 : 2/12  16.7%
-  score gap to runner-up when it moves: median 0.01, max 0.01
-  ...against ALL decisions             : median 0.59
+  round  5 : 3/96  3.1%
+  round 14 : 5/96  5.2%
+  score gap to runner-up when it moves: median 0.01, max 1.00
+  ...against ALL decisions             : median 0.66
 
-  r14 p133  Philadelphia Eagles (DEF)  ->  Cam Little (K)
+  r14 p133  Philadelphia Eagles (DEF)  ->  Cam Little (K)   x5
+  r 5 p 48  D'Andre Swift (RB)  ->  Drake Maye (QB)
+  r 5 p 48  Drake Maye (QB)  ->  D'Andre Swift (RB)
+  r 5 p 48  D'Andre Swift (RB)  ->  Drake Maye (QB)
 ```
 
-Both moves are round 14, K against DEF, on a score gap of **0.01** against a median gap of
-0.59 across all decisions. On this evidence that is a tie being broken differently, not a
-different draft — but 2 events is not a rate, and the sentence stands only if the full run
-agrees.
+Five of the eight are round 14, K against DEF, on a 0.01 gap against a median of 0.66. The
+other three are round 5 and they are the interesting ones — **and they go in BOTH
+DIRECTIONS across seatings**: Swift→Maye twice and Maye→Swift once, at the same pick, on
+the same board. What changed was which manager sat in which seat. That is seating noise,
+not an edge, and it is the clearest evidence in the run that mapping the profiles does not
+buy a systematic advantage.
 
 The `league-average vs shipping` row reading exactly 0.0% is not a rounding artifact. It is
 section 3: the room mixture never reaches the scorer, so those two arms are the same
@@ -113,18 +118,35 @@ is why the flip's `generic`-vs-`room` row reads 0.0%. Today's shipping behaviour
 league-average in the score, exactly as the panel says — just not for the reason the panel
 gives.
 
-A fix is written and measured (`scratchpad/roomfix.patch`, 32 lines): route the mixture
-through `poolSoftmax`, keeping availability weighting so a player 20% likely to still be
-on the board contributes 20% of the mixture's mass. Conservation holds (both arms sum to
-0.9900 = 1 − tail budget). **It is not committed**, because it changes live survival
-numbers eleven days before the draft and that is Cory's call, not mine.
+**GRADUATED 2026-08-11**, after the direction was settled by equation rather than by
+inspection — Cory made that the binding precondition. `poolSoftmax` now consumes the
+mixture with availability weighting, so a player 20% likely to still be on the board
+contributes 20% of its mass; conservation holds (both arms sum to 0.9900 = 1 − tail
+budget). Baseline re-frozen as **v6**, against artifact_v5's board on purpose so the diff
+is the code change and not a board rebuild. v5 went red on exactly 4 checks, all composite
+score and per-player survival.
 
-**One thing not to restate as verified.** After the fix, the mixture makes the elite RBs
-*less* likely to be taken (Gibbs −0.0118, Bijan −0.0128) and the RB4–RB6 *more* likely.
-D6's comment claims the opposite direction — that the room makes the top player more
-likely to go and survival overstated without it. On today's board the measured direction
-is the other way. Either the board moved since 2026-08-10 or the comment describes a
-different quantity. Recorded as a disagreement, not resolved.
+**AND THE DIRECTION DISAGREEMENT WAS MINE, NOT D6'S.** This section previously recorded
+that the fix makes elite RBs *less* likely to be taken, against D6's overstated-survival
+claim, and left it unresolved. That set a CONDITIONAL against a MARGINAL. Gibbs
+0.4397 → 0.4278 is P(this player | HIS POSITION IS TAKEN) — a share that sums to a constant
+across the position, so mass moving from the elite to the rest of the position necessarily
+lowers it. Survival compounds over ten picks and also depends on how often the position is
+taken at all.
+
+Measured at the survival level (`draft/tools/rb_direction.js`), the direction **agrees**
+with D6: the top AVAILABLE RB at pick 30 goes 0.9917 → 0.9857, 0.60 points DOWN. The
+invariant holds numerically — take UP ⟺ survival DOWN over 1760 players × 3 windows, zero
+violations, 5182 player-windows moved.
+
+**The magnitude does not reproduce.** D6 claims 2.6–3.4 points; the largest move among
+players in play is 0.60, four to five times smaller. D6's number must still not be quoted
+as describing this engine. And 13 RBs sit at survival ≤ 0.02 at pick 30 and cannot move at
+all — the elite-RB worry is structurally out of reach of this change.
+
+A second hypothesis was tested and failed, and is kept as a failed lead: D6 names a
+"mean-manager" baseline, but `reach_delta.mean` is centred on the LEAGUE, the room's mean is
+0.53, and the mean-manager temp (0.3394) is within a hair of generic (0.3500).
 
 ## 4. The profiles are thin, and must not be dressed up
 

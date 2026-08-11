@@ -113,6 +113,15 @@ def scan(keys, *, require_settings: bool = True) -> dict:
     read" but "is this CONFIG FIELD read". `cfg["waivers"]` is a field of our
     own config, so demanding the word `settings` on the line would report it
     unread for the wrong reason.
+
+    AND THAT MODE IS THE WEAK ONE — it has already produced a false positive.
+    Dropping the `settings` requirement leaves only the access SHAPE, so a
+    generic field name matches any dict in the repo with the same key:
+    `cfg["trades"]` was reported read by `out["trades"]` in
+    import_master_sheet.py, the master sheet's trade NOTES. There is no fix
+    inside a text scan — the answer is to name config fields distinctively
+    (that one became `trade_window`), and to spot-check any `reads` this mode
+    returns before believing it.
     """
     out = {k: {"reads": [], "nearby": []} for k in keys}
     pats = {k: re.compile(r"\b" + re.escape(k) + r"\b") for k in keys}
