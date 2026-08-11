@@ -2422,6 +2422,7 @@ async function liveOptimizeFor(world, owners, me) {
   if (roster && roster.rows && roster.rows.length) {
     const wk = (matchup && matchup.week) || (sData && sData.state && sData.state.week) || null;
     const inactive = [];   // players the guard zeroed — surfaced so an absence is explained
+    const questionable = [];  // players kept at full projection while tagged Q/DBT
     const rosterIn = roster.rows.filter(r => r.pos && r.pos !== '?').map(r => {
       let proj = null, src = null;
       if (r.proj != null) { proj = Number(r.proj); src = 'sleeper'; }
@@ -2438,17 +2439,46 @@ async function liveOptimizeFor(world, owners, me) {
       if (LO.isInactive(r, wk)) {
         const onBye = wk != null && r.bye != null && Number(r.bye) === Number(wk);
         inactive.push({ name: r.name, pos: r.pos, reason: onBye ? ('bye ' + r.bye) : (String(r.inj || 'out').trim()) });
+      } else {
+        // PLAYING THROUGH SOMETHING. The page named the players it ZEROED and
+        // said nothing about the ones it kept at full projection while carrying
+        // a Questionable or Doubtful tag — which on a Thursday is the only
+        // player whose status is actually in question. The tool that exists to
+        // tell you what to start was silent about the one uncertain starter.
+        // Same MAYBE_INJURY set the matchup card badges from, not a third list.
+        const tag = String(r.inj || '').toUpperCase().replace(/[^A-Z]/g, '');
+        if (tag && MU.MAYBE_INJURY[tag]) {
+          questionable.push({ name: r.name, pos: r.pos, tag: MU.MAYBE_INJURY[tag], raw: tag });
+        }
       }
       return { id: r.id, name: r.name, pos: r.pos, proj: guarded, sd: r.sd };
     });
-    let oppMean = 0, oppKnown = false;
+    // THE OPPONENT WE HAVE NOT SEEN YET. This used to fall back to
+    // `band.median` — the WEEKLY-HIGH band, i.e. the median of the score that
+    // WINS the week outright (148.5). A real opponent scores 110. So from
+    // Tuesday to Sunday morning, the whole window in which a lineup is actually
+    // set, the tool modelled the opponent as the week's top scorer, and that did
+    // not merely make P(win) pessimistic — it flipped the RECOMMENDATION.
+    // Measured on one ordinary roster: 148.5 gives P(win) 22%, a $1.64 edge, one
+    // start/sit call and the posture "swing for the $100, the matchup is a long
+    // shot"; 110 gives P(win) 64%, no edge, no calls, "protect the matchup". The
+    // matchup term is P(win) x value, so a crushed P(win) suppresses it and the
+    // solver over-chases the weekly high — manufacturing a puzzle on a week you
+    // are a 64% favourite. Now: a typical TEAM score, with the FIELD's spread,
+    // which is what an unknown opponent's uncertainty actually is.
+    let oppMean = 0, oppKnown = false, oppSd;
     if (matchup && matchup.opp && matchup.opp.points > 0) { oppMean = matchup.opp.points; oppKnown = true; }
-    else { oppMean = band.median; }
+    else {
+      const typical = LO.typicalTeamScore();
+      oppMean = typical.median || band.median;
+      oppSd = typical.sd || undefined;
+    }
     // matchupValue omitted -> optimize() uses its derived playoff-equity default
     // ($110, draft/backtest/matchup_value.py). NOT a side bet (Cory, 2026-08-10).
-    live = LO.optimize(rosterIn, { band, sigmaByPos, oppMean });
+    live = LO.optimize(rosterIn, { band, sigmaByPos, oppMean, oppSd });
     live.oppKnown = oppKnown;
     live.inactive = inactive;
+    live.questionable = questionable;
     // No live/season/last-week points anywhere yet (post-draft, pre-week-1): every
     // projection fell to the zero fallback, so the probabilities are meaningless.
     // Flag it so the view shows a calm "projections pending" state instead of a
@@ -2491,6 +2521,9 @@ router.get('/lineup', requireCommissioner, aw(async (req, res) => {
     configured: !!world.config.sleeper_league_id,
     logged: req.query.logged === '1',
     overrode: req.query.overrode === '1',
+    // The optimizer converts this data into a dollar recommendation, so it needs
+    // the staleness banner at least as much as the pages that only display it.
+    liveStale: await liveFreshness(),
     sent: req.query.sent === '1',
     emailOn: notify.configured(),
   });

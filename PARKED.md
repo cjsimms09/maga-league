@@ -2637,3 +2637,49 @@ has no earlier. Only the mixed case is the hole.
   to gate on; that is exactly the seam where the attrition reasons got discarded
   in audit #1, so it is worth building the check with the reader rather than
   after it.
+
+## 🚧 → SESSION A — AN ELIMINATED TEAM IS TOLD THE MATCHUP IS THE LIVE MONEY (B, 2026-08-11)
+
+**INSTANCE, found by walking a week.** Driving `/lineup` at **week 14 with a 1–12
+record**, the optimizer says:
+
+> 🛡️ PROTECT — *"the matchup is the live money; a boom-or-bust play would risk a
+> winnable game for a lottery ticket you probably won't hit. Play the floor."*
+
+For a team that cannot make the playoffs, that is exactly backwards. The whole
+objective is `E[$] = P(win) x matchup_value + P($100) x 100`, and
+`matchup_value` is **playoff equity** (`draft/backtest/matchup_value.py`, $110).
+An eliminated team's matchup is worth **zero dollars** — the weekly $100 is the
+only live money left, so the correct posture is chase, every week, to the end of
+the season. The tool advises the opposite for the last three or four weeks of a
+bad year, which is when a bad year still has money in it.
+
+`matchupValue` is a constant regardless of standing. Making it standing-aware is
+your derivation, not a display fix, so B has not touched it. The site already
+computes clinch/elimination (`src/routes/playoffs.js`), so the input exists.
+
+B has fixed the display-layer defect next to it (the phantom opponent, below);
+this one needs the value model.
+
+## ✅ FIXED IN B's LANE THIS PASS — for your awareness, not your action
+
+**The phantom opponent.** `member.js` fed `weeklyHighBand().median` as `oppMean`
+whenever the opponent's score did not exist yet — Tuesday to Sunday morning, the
+entire window in which a lineup is actually set. That band is the median of the
+score that **wins the week outright** (148.5); a real opponent scores 110. It did
+not merely make P(win) pessimistic, it changed the recommendation:
+
+| opponent modelled as | P(win) | edge | calls | posture |
+|---|---|---|---|---|
+| 148.5 — weekly-high band (before) | 22% | $1.64 | 1 | *"Swing for the $100 — the matchup is a long shot"* |
+| 110 — typical team score (after) | 64% | $0.00 | 0 | *"Protect the matchup"* |
+
+Same roster, same week. The matchup term is `P(win) x value`, so a crushed
+P(win) suppresses it and the solver over-chases the weekly high — manufacturing a
+deviation on a week you are a 64% favourite. Relevant to your ~11% figure: it is
+a measurement of the true objective, and the phantom opponent would have inflated
+what Cory actually saw, pre-Sunday, every week.
+
+New `LO.typicalTeamScore()` is built from the same `fieldWeeklyScores` +
+`regularSeasonWeeks` primitives as `weeklyHighBand`, not a second harvest walk,
+and supplies the field's own SD as the unknown opponent's spread.

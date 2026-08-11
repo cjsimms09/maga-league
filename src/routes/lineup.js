@@ -258,6 +258,56 @@ function weeklyHighBand(history, seasons) {
   };
 }
 
+// ── WHAT A TYPICAL OPPONENT SCORES ───────────────────────────────────────────
+//
+// THE PHANTOM OPPONENT. Before the opponent's own score exists — Tuesday through
+// Sunday morning, which is the ENTIRE window in which a lineup actually gets set
+// — member.js had nothing to feed `oppMean`, so it passed `weeklyHighBand().median`.
+// That band is the median of `Math.max(...)` per week: the score that WINS the
+// week outright across ten teams. 148.5. A real opponent scores 109.1.
+//
+// So all week the tool modelled your opponent as the week's top scorer, 39 points
+// of phantom, and it did not merely make P(win) pessimistic. It changed the
+// RECOMMENDATION. On one ordinary roster:
+//
+//   opp = 148.5 (the high band)  ->  P(win) 22%, edge $1.64, 1 start/sit call,
+//                                    posture "Swing for the $100 — the matchup
+//                                    is a long shot"
+//   opp = 109.1 (a real team)    ->  P(win) 64%, edge $0.00, no calls,
+//                                    posture "Protect the matchup"
+//
+// The matchup term is P(win) x matchup_value, so crushing P(win) suppresses it
+// and the solver over-weights the weekly-high chase — manufacturing a deviation
+// on a week you are a 64% favourite. That is the opposite of the honest story:
+// A measured the dual objective as deviating ~11% of weeks, and a phantom
+// opponent inflates that in exactly the window where the advice is read.
+//
+// Built from the SAME primitives as weeklyHighBand (fieldWeeklyScores +
+// regularSeasonWeeks) rather than a second harvest walk.
+function typicalTeamScore(history, seasons) {
+  history = history || harvest();
+  seasons = seasons || defaultSeasons(history);
+  const samples = [];
+  for (const season of seasons) {
+    const s = seasonOf(history, season);
+    if (!s) continue;
+    const field = fieldWeeklyScores(s);
+    for (const w of regularSeasonWeeks(s)) {
+      for (const v of Object.values(field[w] || {})) if (v > 0) samples.push(r2(v));
+    }
+  }
+  samples.sort((a, b) => a - b);
+  const n = samples.length;
+  return {
+    n, samples,
+    median: n ? samples[Math.floor(n / 2)] : 0,
+    mean: n ? r2(samples.reduce((a, b) => a + b, 0) / n) : 0,
+    // Spread of the FIELD, which is what an unknown opponent's uncertainty
+    // actually is — wider than one team's week-to-week SD.
+    sd: n ? r2(Math.sqrt(samples.reduce((a, b) => a + Math.pow(b - (samples.reduce((x, y) => x + y, 0) / n), 2), 0) / n)) : 0,
+  };
+}
+
 // The Leak analyzes COMPLETED seasons only. Exclude the current (in-progress)
 // season DYNAMICALLY — was `y !== '2026'`, a literal that at the January rollover
 // silently drops the just-finished 2026 (now analyzable) and stops excluding the
@@ -884,7 +934,7 @@ module.exports = {
   // engine
   optimize, bestLineup, inferPositions, slotsFromTemplate, DEFAULT_SLOTS, weekDrill, sundayAlert, weeklyPosture,
   activeProjection, isInactive, INACTIVE_INJURY, FLEX_ELIGIBLE, FLEX_SLOTS,
-  positionSigmas, sigmaOf, weeklyHighBand,
+  positionSigmas, sigmaOf, weeklyHighBand, typicalTeamScore,
   pWin, pClearHigh, normCdf, lineupStats,
   // data
   harvest, seasonOf, defaultSeasons, fieldWeeklyScores, regularSeasonWeeks, weeklyMatchups,

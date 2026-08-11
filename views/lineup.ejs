@@ -1,4 +1,10 @@
 <%- include('partials/header', { title: 'Lineup Optimizer' }) %>
+<%# THE ONE PAGE THAT TURNS STALE DATA INTO A DOLLAR RECOMMENDATION was the one
+    page without this banner. dashboard, matchup, watch and scoreboard all had
+    it; the optimizer did not — so when Sleeper was down, the four pages showing
+    numbers said "not live" and the page telling you what to START said nothing.
+    Found by driving a failed-fetch week. %>
+<%- include('partials/_live_stale') %>
 <%
   const money0 = n => '$' + Math.round(Number(n || 0)).toLocaleString('en-US');
   const signed = n => (n >= 0 ? '+' : '') + money0(n);
@@ -61,7 +67,7 @@
             <span class="lo-verdict-line"><%= posture.headline %></span>
           </div>
           <p class="lo-verdict-why"><%= posture.why %></p>
-          <p class="muted lo-src">Projections: <%= SRC_LABEL[projSource] || 'unknown source' %>.<% if (!live.projPending && projSource && projSource !== 'sleeper') { %> <b>Treat the dollar figures as directional, not precise, until live projections land.</b><% } %><% if (!live.projPending && !live.oppKnown) { %> Opponent modelled as a typical winning-band score (<%= Math.round(band.median) %>) until theirs lands.<% } %></p>
+          <p class="muted lo-src">Projections: <%= SRC_LABEL[projSource] || 'unknown source' %>.<% if (!live.projPending && projSource && projSource !== 'sleeper') { %> <b>Treat the dollar figures as directional, not precise, until live projections land.</b><% } %><% if (!live.projPending && !live.oppKnown) { %> Opponent modelled as a <b>typical team score (<%= Math.round((live.assumptions && live.assumptions.oppMean) || 0) %>)</b> until theirs lands — not the week's winning score, which would make every week look like a long shot.<% } %></p>
         </div>
       </div>
     <% } %>
@@ -86,6 +92,16 @@
         <% if (live.inactive && live.inactive.length) { %>
           <p class="lo-inactive muted">🚫 Not eligible this week (can't score, left out):
             <%= live.inactive.map(p => p.name + ' (' + p.reason + ')').join(' · ') %>.</p>
+        <% } %>
+        <%# ...and the ones it KEPT while they carry a tag. Naming only the
+            zeroed players left the genuinely uncertain starter unmentioned on
+            the exact day you set the lineup. The projection is used in full
+            because that is what the feed says; the doubt is stated so it is
+            your call, not a silent one. %>
+        <% if (live.questionable && live.questionable.length) { %>
+          <p class="lo-questionable">⚠️ Started at full projection but tagged:
+            <%= live.questionable.map(p => p.name + ' (' + p.tag + ')').join(' · ') %>.
+            <span class="muted">Sleeper hasn't ruled them out, so the projection stands — check the news before kickoff.</span></p>
         <% } %>
       </div>
     </div>

@@ -4071,3 +4071,8 @@ table.roll td.num, .pf, .wh-race-scale, .wh-band-note{ color: var(--ink); }
 .db-cell.pos-wr { border-left-color: #1f5fa8; }
 .db-cell.pos-te { border-left-color: #96681c; }
 .db-cell.pos-k, .db-cell.pos-def, .db-cell.pos-dst { border-left-color: #5b6b86; }
+
+/* A starter kept at full projection while carrying a Q/Doubtful tag. Amber rail:
+   not a refusal like .lo-inactive, a flag the manager has to weigh. */
+.lo-questionable { margin: .5rem 0 0; font-size: .82rem; color: var(--ink);
+  border-left: 3px solid #96681c; padding-left: .6rem; }
