@@ -59,20 +59,38 @@ ck('  and the conflict note warns that every pick number moves with the seat',
 ck('agreement still verifies — the guard must not break the good case',
   /state\.slotVerified\s*=\s*true/.test(app));
 
-/* THE REAL NUMBERS, so the fixture cannot drift away from the incident. */
+/* THE INCIDENT IS FROZEN AS A LITERAL, NOT READ FROM THE LIVE DUMP.
+ *
+ * The first version of this block asserted against draft/data/sleeper_league_
+ * settings.json — and forty minutes later that file said 8 instead of 3, because
+ * THE DRAFT ORDER WAS BEING REASSIGNED WHILE I READ IT. The assertion "it still
+ * disagrees with the confirmed seat" went red on data that had simply moved on.
+ *
+ * That is clause 10d one more time: a fixture that derives from the thing under
+ * test stops representing its case the moment the thing changes. An INCIDENT is
+ * history — 18:20 on 2026-08-11, draft_order[me] = 3 while the UI showed 8 —
+ * and history does not get re-read from a live endpoint.
+ *
+ * So the numbers are literals, and what the live file is doing NOW is printed
+ * rather than asserted: it is context, not the property being tested. */
 {
+  const INCIDENT = { at: '2026-08-11T18:20Z', entries: 4, teams: 10,
+                     draftOrderSaidSlot: 3, uiConfirmedSlot: 8 };
+  ck('the incident is recorded as a literal, not re-read from a live endpoint',
+    INCIDENT.entries < INCIDENT.teams && INCIDENT.draftOrderSaidSlot !== INCIDENT.uiConfirmedSlot);
+  ck('  and it is the case the rule exists for: partial AND disagreeing',
+    INCIDENT.entries > 0 && INCIDENT.entries < INCIDENT.teams);
+
+  // Live context, printed only. By 19:00 the same field read 8 — the order was
+  // mid-assignment, which is the argument FOR refusing a partial order, not
+  // against it.
   const p = path.join(ROOT, 'draft', 'data', 'sleeper_league_settings.json');
-  if (!fs.existsSync(p)) { console.log('SKIP  no settings dump'); }
-  else {
+  if (fs.existsSync(p)) {
     const d = JSON.parse(fs.readFileSync(p, 'utf8'));
     const order = ((d.draft || {}).draft_order) || {};
-    const teams = (d.settings || {}).num_teams;
-    ck('the recorded incident still shows a PARTIAL order (this is why the rule exists)',
-      Object.keys(order).length > 0 && Object.keys(order).length < teams,
-      Object.keys(order).length + ' of ' + teams);
-    ck('  and it still disagrees with the confirmed seat of 8',
-      Number(order['434915673219526656']) === 3,
-      'draft_order says ' + order['434915673219526656']);
+    console.log('  (live now: draft_order has ' + Object.keys(order).length + ' of '
+      + (d.settings || {}).num_teams + ' entries, mine reads '
+      + order['434915673219526656'] + ')');
   }
 }
 
