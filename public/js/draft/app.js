@@ -1892,8 +1892,8 @@
             ? 'nothing in ' + r.sample_size + ' draft' + (r.sample_size === 1 ? '' : 's')
               + ' stands out — he drafts near league average'
             : (seatsUnassigned && haveDossier
-                ? 'seat not assigned by Sleeper yet — the position mix above is '
-                  + 'league-average until the draft order names who sits here'
+                ? 'manager profiles exist, but cannot be assigned to draft seats until '
+                  + 'the draft order is available — the position mix above is league-average'
                 : 'no draft history on Sleeper — modelled as league average')) + '</div>';
       return '<div class="threat-row">'
         + '<div class="threat-head"><span class="threat-pick">' + r.pick_no + '</span>'

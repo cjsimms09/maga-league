@@ -10,8 +10,11 @@
  * That distinction is the whole reason every seat shows the same position mix:
  * positionProbabilities reads `team.profile`, profileForSlot returns null until
  * the mapping lands, so every seat gets CFG defaults BY CONSTRUCTION. "No
- * history" invites the conclusion that the dossier is worthless. "Seat not
- * assigned yet" is what is true, and says when it changes.
+ * history" invites the conclusion that the dossier is worthless. The wording is
+ * the reviewer's: MANAGER PROFILES EXIST, BUT CANNOT BE ASSIGNED TO DRAFT SEATS
+ * UNTIL THE DRAFT ORDER IS AVAILABLE. It carries both halves — the data exists,
+ * and the attachment is not yet determinable — where mine carried only the
+ * second.
  *
  * AND THE MESSAGE MUST NOT OVERCLAIM IN THE OTHER DIRECTION. The first draft of
  * it said the seat was "modelled as the room". That is true of the NAMES on this
@@ -67,17 +70,24 @@ ck('renderThreats and renderThreatStrip are both found', !!threats && !!strip,
 
 if (threats && strip) {
   // ── THE THIRD STATE IS ON THE PAGE ────────────────────────────────────────
-  ck('the seat-not-assigned message exists', /seat not assigned by Sleeper yet/.test(threats));
+  ck('the message says the profiles EXIST',
+    /manager profiles exist/i.test(threats),
+    'the old text said "no draft history", which is false — there are 468 picks');
+  ck('  and that the blocker is ASSIGNMENT TO SEATS, not missing data',
+    /cannot be assigned to draft seats/i.test(threats));
+  // The string is split across two JS lines, so the guard must not require the
+  // words to be adjacent in the SOURCE — only in what the page renders.
+  ck('  and it says what unblocks it',
+    /cannot be assigned to draft seats until[\s\S]{0,40}the draft order is available/i.test(threats));
   ck('  and it names the POSITION MIX, not the panel in general',
-    /position mix above is[\s\S]{0,40}league-average/.test(threats),
+    /position mix above is league-average/.test(threats),
     'the names on this panel ARE room-modelled; only the mix is league-average');
-  ck('  and it says what changes it', /draft order names who sits here/.test(threats));
 
   // ── WITHOUT LOSING THE GENUINE NO-HISTORY CASE ────────────────────────────
   ck('a manager who really has no history still reads that way',
     /no draft history on Sleeper/.test(threats));
   ck('  the two are distinct branches, not one message',
-    threats.indexOf('seat not assigned by Sleeper yet')
+    threats.indexOf('manager profiles exist')
       !== threats.indexOf('no draft history on Sleeper'));
   ck('  and the new branch is gated on the dossier EXISTING',
     /haveDossier/.test(threats),
