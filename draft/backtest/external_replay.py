@@ -116,9 +116,55 @@ class ExternalAsOfStore:
             raise TimeTravelError(f"league {self.league_id}: no pre-draft snapshot")
         return usable[-1]["observed_at"]
 
-    def lead_days(self) -> int:
-        """How stale the frozen board is. Reported, never used to silently drop."""
-        return (self.draft_date - self.snapshot_date()).days
+    def lead_days(self, at=None) -> int:
+        """How stale the frozen board was WHEN THE DECISION WAS MADE.
+
+        PER-DECISION, NOT PER-LEAGUE, and the distinction is not cosmetic. MFL
+        drafts are `draft_kind: email` on a `draftLimitHours` clock and routinely
+        run for days, so `draft_at` — correctly the FIRST pick, because F5's
+        admission needs a scalar lower bound that is clean for every pick — is
+        the wrong reference for staleness. A day-five pick dated from day one
+        understates the board's age by the whole length of the draft, on exactly
+        the picks where it is stalest. Dating from the last pick inverts the same
+        error onto day one. Neither scalar is right; the quantity is per-pick,
+        and the per-pick timestamps already exist (`draft_picks` keeps them) —
+        they were being collapsed at this seam, not missing.
+
+        `at=None` falls back to the league's draft date. Callers that have a pick
+        time must pass it, and `emit_forecast` records WHICH basis was used, so a
+        fallback can never be read as a per-pick measurement.
+        """
+        ref = _as_date(at) if at is not None else self.draft_date
+        return (ref - self.snapshot_date()).days
+
+    def lead_days_spread(self, pick_times) -> dict:
+        """min / median / max staleness across a draft's picks.
+
+        A single number is right for one pick and wrong for the rest, so the
+        league-level report carries the SPREAD. This is also what turns "do
+        multi-day drafts even matter" from an assumption into a reported number.
+
+        UNDATED PICKS ARE COUNTED, NEVER DATED FROM THE LEAGUE. A pick with no
+        timestamp has unknown staleness; folding it in at the draft date would
+        manufacture an observation out of an absence.
+        """
+        vals, undated = [], 0
+        for t_ in (pick_times or []):
+            if t_ is None:
+                undated += 1
+                continue
+            try:
+                vals.append(self.lead_days(t_))
+            except TimeTravelError:
+                undated += 1
+        if not vals:
+            return {"n": 0, "undated": undated, "min": None, "median": None, "max": None,
+                    "span_days": None}
+        s = sorted(vals)
+        mid = len(s) // 2
+        median = s[mid] if len(s) % 2 else (s[mid - 1] + s[mid]) / 2
+        return {"n": len(s), "undated": undated, "min": s[0], "median": median,
+                "max": s[-1], "span_days": s[-1] - s[0]}
 
 
 def _earliest_wins(rows: list) -> list:
@@ -226,7 +272,8 @@ FORECAST_TYPES = ("probability", "point", "categorical")
 
 
 def emit_forecast(store: ExternalAsOfStore, key: str, ftype: str, value,
-                  resolution_rule: str, extra: dict | None = None) -> dict:
+                  resolution_rule: str, extra: dict | None = None,
+                  decided_at=None) -> dict:
     """One committed forecast, stamped with everything needed to judge it later.
 
     Mirrors `assertForecast('forecast', ...)`: a key to join a resolution on, an
@@ -260,7 +307,11 @@ def emit_forecast(store: ExternalAsOfStore, key: str, ftype: str, value,
         "policy_fingerprint": store.policy_fingerprint,
         "board_asof": store.snapshot_date().isoformat(),
         "draft_date": store.draft_date.isoformat(),
-        "lead_days": store.lead_days(),
+        # LABELLED, because a league-level fallback and a per-pick measurement
+        # are different quantities and would otherwise be indistinguishable in
+        # an aggregate — the coerced-value failure, one field over.
+        "lead_days": store.lead_days(decided_at),
+        "lead_days_basis": "pick" if decided_at is not None else "draft_start",
     }
 
 

@@ -2290,3 +2290,43 @@ handles a comment AFTER the block, so a break there tests nothing.
 replay harness proceeds. I am flagging it before the harness starts minting real
 external observations, because after that a fingerprint change costs a re-replay of
 the whole sample rather than a commit.
+
+## 🔍 SESSION C → EVERYONE (2026-08-11): RULE 5'S DISCHARGE RESTS ON PROSE, NOT ON THE REPO
+
+**Recorded as a known weakness at Cory's instruction. NOT being built — my own rule 9
+objection is the reason: a hand-maintained mutation ledger sitting alongside the tests is
+a dual-maintenance surface, which is the exact class this project has found twelve
+instances of.**
+
+**The gap.** Rule 10 says a guard is broken once and observed RED BY NAME before it is
+trusted, and rule 5 rests on that having happened. Every break in this project — mine, and
+as far as I can tell everyone's — has been a **transient shell edit applied to a working
+file and reverted immediately**. Nothing persists. I checked: there is no mutation ledger,
+no break record, nothing in the repo that ties a guard to the mutation that was supposed
+to redden it. What persists is the GUARDS. The breaking of them exists only in transcripts.
+
+**How it surfaced, which is the honest part.** I reported "sixteen breaks, including the
+one that reddened nothing" — a remembered count, and it folded a NULL into a discharge
+tally as though it were a credit. Challenged, I "corrected" it to seventeen by recounting
+the same untrustworthy source and presented that as rigour. Both numbers were prose. The
+second was worse than the first: the first was merely wrong, the second manufactured
+confidence about a wrong thing. **I retracted the reconciliation, not just the count** —
+there was no "break that dropped out of the tally", because there was never a list.
+
+**What the repo can and cannot tell you.** `git diff 1157903~1..d7e51c8 -- draft/tests/`
+counts **45 pytest functions and 17 `ck()` assertions — 62 guards added**, and that figure
+is derived. The mapping from any one of those guards to "this was deliberately broken and
+observed red" exists nowhere outside a chat log.
+
+**Why it matters beyond bookkeeping.** Rule 5 is the rule that stops a decorative
+protection being trusted, and this project has already produced four guards that existed
+and did not guard. Its own evidence is currently the least checkable thing in the
+verification regime — and a guard that silently stops reddening (its mutation no longer
+applies, the code moved underneath it) would look identical to one still doing its job.
+
+**The shape a fix would take, if it is ever worth it:** entries of (file, exact old→new
+string, the test name expected to go red), applied by a CI step that asserts the named
+test fails and restores. Then the count is DERIVED rather than asserted and decay is a red
+build. The cost is the dual-maintenance surface above, which is why it is parked and not
+built. **Not mine, not today's problem — recorded so it is a known hole rather than a
+discovered one.**

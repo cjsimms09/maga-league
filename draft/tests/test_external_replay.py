@@ -170,6 +170,62 @@ def test_lead_days_reports_staleness_without_dropping():
     assert store().lead_days() == 2
 
 
+# ── staleness is PER-DECISION, not per-league ───────────────────────────────
+# Snapshot 2025-08-18, draft starts 2025-08-20. An email draft on a
+# `draftLimitHours` clock runs for days, so the pick on the 24th was made against
+# a board six days old while the pick on the 20th saw one two days old. One number
+# cannot be both, and `emit_forecast` stamps this onto EVERY forecast.
+def test_lead_days_measures_from_the_DECISION_not_the_draft_start():
+    s = store()
+    assert s.lead_days() == 2                      # league-level fallback, day one
+    assert s.lead_days("2025-08-20") == 2          # a day-one pick agrees
+    assert s.lead_days("2025-08-24") == 6          # a day-five pick does NOT
+    assert s.lead_days("2025-08-24") - s.lead_days("2025-08-20") == 4
+
+
+def test_the_forecast_records_WHICH_basis_its_lead_days_used():
+    """A league-level fallback and a per-pick measurement are different
+    quantities. Unlabelled, they are indistinguishable inside an aggregate —
+    the coerced-value failure wearing a different field name."""
+    per_pick = X.emit_forecast(store(), "k", "probability", 0.5, "rule",
+                               decided_at="2025-08-24")
+    fallback = X.emit_forecast(store(), "k", "probability", 0.5, "rule")
+    assert (per_pick["lead_days"], per_pick["lead_days_basis"]) == (6, "pick")
+    assert (fallback["lead_days"], fallback["lead_days_basis"]) == (2, "draft_start")
+
+
+def test_the_spread_reports_min_median_max_not_one_number():
+    """A single figure is right for one pick and wrong for the rest, so the
+    league-level report carries the spread — which is also what turns 'do
+    multi-day drafts matter' into a reported number instead of an assumption."""
+    sp = store().lead_days_spread(["2025-08-20", "2025-08-22", "2025-08-24"])
+    assert (sp["min"], sp["median"], sp["max"]) == (2, 4, 6)
+    assert sp["span_days"] == 4 and sp["n"] == 3 and sp["undated"] == 0
+
+
+def test_a_SAME_DAY_draft_has_a_zero_span_and_that_is_the_boundary():
+    """The case where the old single scalar was correct. It must stay correct —
+    a fix for multi-day drafts that perturbs same-day ones has broken the common
+    case to serve the rare one."""
+    sp = store().lead_days_spread(["2025-08-20", "2025-08-20", "2025-08-20"])
+    assert sp["span_days"] == 0 and sp["min"] == sp["max"] == 2
+
+
+def test_an_UNDATED_pick_is_counted_never_dated_from_the_league():
+    """Absent is not the draft date. Folding an undated pick in at the league's
+    date manufactures an observation out of an absence, and it would drag the
+    spread toward the first pick — flattering exactly the quantity being measured."""
+    sp = store().lead_days_spread(["2025-08-24", None, "2025-08-24"])
+    assert sp["n"] == 2 and sp["undated"] == 1
+    assert sp["min"] == sp["max"] == 6, "an undated pick must not enter the numbers"
+
+
+def test_a_spread_over_NO_datable_picks_reports_nothing_rather_than_zero():
+    sp = store().lead_days_spread([None, None])
+    assert sp["n"] == 0 and sp["undated"] == 2
+    assert sp["min"] is None and sp["median"] is None and sp["span_days"] is None
+
+
 # ── the policy drift guard ──────────────────────────────────────────────────
 def test_fingerprint_is_derived_from_the_shipped_weights():
     """Not a constant, and not a second copy of the numbers: it must move when

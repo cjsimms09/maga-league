@@ -342,8 +342,9 @@ def crosswalk_picks(picks: list, mfl_players, sleeper_index) -> tuple:
     """
     from collections import Counter
 
-    rows, unknown_id, unmatched = [], [], []
+    rows, unknown_id, unmatched, conflicts = [], [], [], []
     methods = Counter()
+    board = _board_by_id(sleeper_index)
     for p in picks:
         meta = (mfl_players or {}).get(str(p.get("player")))
         if not meta:
@@ -355,6 +356,26 @@ def crosswalk_picks(picks: list, mfl_players, sleeper_index) -> tuple:
                               "pos": meta.get("position"), "team": meta.get("team")})
             continue
         methods[how or "unknown"] += 1
+        # BOTH SIDES OF THE MATCH, RETAINED. A bare rate cannot be audited: 447 of
+        # 702 says nothing about whether any of the 447 is the right player, and a
+        # wrong-but-plausible match produces a real player and never errors. The
+        # pair is what a human can check, so the pair is what gets kept.
+        theirs = board.get(str(sid)) or {}
+        pair = {"mfl_id": str(p.get("player")), "mfl_name": meta.get("name"),
+                "mfl_pos": meta.get("position"), "mfl_team": meta.get("team"),
+                "sleeper_id": str(sid), "board_name": theirs.get("name"),
+                "board_pos": theirs.get("pos"), "board_team": theirs.get("team"),
+                "method": how}
+        # CROSS-SOURCE DISAGREEMENT ON A MATCHED PAIR. The two sources agreeing on
+        # a name while disagreeing on POSITION is the signature of the wrong
+        # player, and it passes every completeness check ever written — the rate
+        # goes UP when a bad match lands. Counted separately and never silently.
+        if theirs:
+            bad = [f for f, a, b in (("position", meta.get("position"), theirs.get("pos")),
+                                     ("team", meta.get("team"), theirs.get("team")))
+                   if a and b and str(a).upper() != str(b).upper()]
+            if bad:
+                conflicts.append(dict(pair, disagrees_on=bad))
         rows.append(dict(p, player_id=sid, matched_by=how,
                          name=meta.get("name"), position=meta.get("position")))
 
@@ -371,8 +392,55 @@ def crosswalk_picks(picks: list, mfl_players, sleeper_index) -> tuple:
         # distribution rather than discovered player by player.
         "methods": dict(methods),
         "unmatched_sample": unmatched[:10],
+        # THE EVIDENCE BEHIND THE RATE. `matched_sample` is what makes 72% an
+        # auditable claim instead of a number nobody can check; `conflicts` is
+        # the part that must never be a sample — a matched pair whose sources
+        # disagree is counted in full.
+        "matched_sample": _sample_pairs(rows, board, mfl_players),
+        "conflicts": len(conflicts),
+        "conflict_rows": conflicts,
+        "board_side_resolved": sum(1 for r in rows if board.get(str(r["player_id"]))),
     }
     return rows, report
+
+
+def _board_by_id(index) -> dict:
+    """{sleeper_id: record} derived from THE SAME index the matcher searched.
+
+    Not a second lookup into the board. A separate read could disagree with what
+    matching actually saw, and then the "both sides" evidence would be reporting
+    a pair that never existed — a second derivation path for the one quantity
+    this report exists to make checkable.
+    """
+    out = {}
+    for bucket in ("by_name", "by_initials"):
+        for recs in ((index or {}).get(bucket) or {}).values():
+            for rec in recs:
+                out.setdefault(str(rec.get("id")), rec)
+    return out
+
+
+def _sample_pairs(rows, board, mfl_players, n=10):
+    """A spread of matched pairs, both sides, for hand-checking.
+
+    Spread across the DRAFT ORDER rather than the first n: the first ten picks
+    are the ten most famous players in football and will match under any
+    implementation, so a sample of them proves nothing. The late rounds are
+    where a matcher fails.
+    """
+    if not rows:
+        return []
+    step = max(1, len(rows) // n)
+    out = []
+    for r in rows[::step][:n]:
+        meta = (mfl_players or {}).get(str(r.get("player"))) or {}
+        theirs = board.get(str(r.get("player_id"))) or {}
+        out.append({"overall": r.get("overall"), "mfl_id": str(r.get("player")),
+                    "mfl_name": meta.get("name"), "mfl_pos": meta.get("position"),
+                    "mfl_team": meta.get("team"), "sleeper_id": str(r.get("player_id")),
+                    "board_name": theirs.get("name"), "board_pos": theirs.get("pos"),
+                    "board_team": theirs.get("team"), "method": r.get("matched_by")})
+    return out
 
 
 def match_player_shared(meta: dict, sleeper_index):
