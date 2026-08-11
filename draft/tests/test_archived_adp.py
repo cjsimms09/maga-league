@@ -532,3 +532,54 @@ def test_A_RATE_LIMIT_BODY_IS_NOT_AN_EMPTY_REPOSITORY():
 def test_the_raw_url_is_built_from_a_path_the_repo_GAVE_us():
     u = X.raw_url("dynastyprocess", "data", "master", "files/db_fpecr.csv")
     assert u == "https://raw.githubusercontent.com/dynastyprocess/data/master/files/db_fpecr.csv"
+
+
+# ── the reader that was hiding the lead ────────────────────────────────────
+def test_A_CSV_IS_A_BOARD_TOO_and_reading_none_hid_the_only_real_lead():
+    """MEASURED. The mirror enumeration found exactly what Route 1 is looking for —
+    `files/archives/fantasypros/ecr_20190818.csv`, `fantasypros/adp/HALF_PPR_ADP.csv`,
+    `fantasypros/ecr/2021/9_6_2021/HALF_PPR.csv`, dated boards by filename and path —
+    and every one came back 0/0 players.
+
+    A CSV contains neither `"name":` nor `>Name<`. The extractor knew only those two
+    shapes, so it read zero and the files looked empty. That is a fact about the
+    reader, not the files, and it was hiding the only real lead in the run.
+
+    MUTATION: drop the CSV path. Every mirror reads as holding no players and the
+    enumeration that found them is wasted."""
+    csv = "player,team,pos,adp\nJa'Marr Chase,CIN,WR,1.2\nCeeDee Lamb,DAL,WR,2.1\n"
+    assert X.extract_names(csv) == ["Ja'Marr Chase", "CeeDee Lamb"]
+
+
+def test_LAST_COMMA_FIRST_IS_ONE_FIELD_not_two():
+    """MFL's own wire format, and several mirrors'. MUTATION: split on commas
+    instead of using the csv module. `"Chase, Ja'Marr",CIN,WR` becomes two fields and
+    a name that matches nothing — a real board scored as furniture."""
+    assert X.extract_names('name,team\n"Chase, Ja\'Marr",CIN\n"Lamb, CeeDee",DAL\n') \
+        == ["Ja'Marr Chase", "CeeDee Lamb"]
+
+
+def test_FIRST_AND_LAST_IN_SEPARATE_COLUMNS_are_joined():
+    assert X.extract_names("first_name,last_name,pos\nBijan,Robinson,RB\n") == ["Bijan Robinson"]
+
+
+def test_a_TAB_delimited_board_is_read_too():
+    assert X.extract_names("player_name\tteam\nPuka Nacua\tLAR\n") == ["Puka Nacua"]
+
+
+def test_a_CSV_WITH_NO_NAME_COLUMN_returns_nothing_rather_than_guessing():
+    """MUTATION: fall back to column 0. Team abbreviations and rank numbers land in
+    a hand-check sample whose only purpose is to be readable by a human."""
+    assert X.extract_names("a,b,c\n1,2,3\n4,5,6\n") == []
+    assert X.extract_names("<html><body>hello</body></html>") == []
+
+
+def test_a_CSV_BOARD_CLEARS_THE_KNOWN_ANSWER_TEST_end_to_end():
+    """The whole point: these files must now be judgeable by the same gate as a page."""
+    known = {"ja'marr chase", "bijan robinson", "ceedee lamb", "saquon barkley",
+             "amon-ra st. brown", "tyreek hill", "justin jefferson", "breece hall",
+             "garrett wilson", "puka nacua", "jahmyr gibbs", "chris olave"}
+    csv = "player,adp\n" + "".join("%s,%d\n" % (n.title(), i)
+                                   for i, n in enumerate(sorted(known), 1))
+    v = X.board_confidence(csv, known)
+    assert v["is_board"] is True and v["player_hits"] >= 10, v

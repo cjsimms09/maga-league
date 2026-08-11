@@ -263,6 +263,17 @@ def extract_names(text, limit=15) -> list:
     import re
     text = text.decode("utf-8", "replace") if isinstance(text, (bytes, bytearray)) else (text or "")
     found, seen = [], set()
+    # CSV FIRST, because a CSV contains neither of the other two shapes and would
+    # otherwise read as a page with no players at all. MEASURED: the mirror
+    # enumeration found `ecr_20190818.csv`, `HALF_PPR_ADP.csv` and
+    # `fantasypros/ecr/2021/9_6_2021/HALF_PPR.csv` — dated boards, exactly what Route
+    # 1 is looking for — and every one came back 0/0 because this function knew only
+    # JSON `"name":` and HTML `>Name<`. A reader written for the formats its author
+    # had in mind, applied to a third, returning zero: the same defect this program
+    # has now hit seven times, and this time it was hiding the lead.
+    csv_names = _csv_names(text, limit)
+    if csv_names:
+        return csv_names
     for m in re.finditer(r'"name"\s*:\s*"([^"]{3,40})"', text):
         cand = m.group(1).strip()
         if cand.lower() not in seen:
@@ -585,3 +596,66 @@ def adp_files(tree_json, hints=_ADP_HINTS, limit=25) -> list:
 def raw_url(owner: str, repo: str, branch: str, path: str) -> str:
     """A tree path -> its raw bytes. Built from a path the repo GAVE us, not typed."""
     return "https://raw.githubusercontent.com/%s/%s/%s/%s" % (owner, repo, branch, path)
+
+
+# Header labels that hold a player's name. MFL writes "Last, First"; several mirrors
+# write first and last in separate columns, so both shapes are read.
+_NAME_COLS = ("name", "player", "player_name", "playername", "full_name", "fullname",
+              "player name", "merge_name", "mergename")
+_FIRST_COLS = ("first_name", "firstname", "first")
+_LAST_COLS = ("last_name", "lastname", "last")
+
+
+def _csv_names(text, limit=15) -> list:
+    """Player names out of a delimited file, or [] if this is not one.
+
+    Uses the `csv` module rather than splitting on commas, because a board that
+    writes `"Chase, Ja'Marr",CIN,WR` — MFL's own format, and several mirrors' — is
+    exactly the row a naive split turns into two fields and a wrong name.
+
+    The name COLUMN is found by its header, and a file with no such header returns
+    nothing rather than guessing at column 0: a guess here would put team
+    abbreviations or rank numbers into a hand-check sample whose only purpose is to
+    be readable.
+    """
+    import csv as _csv
+    import io as _io
+    head = (text or "")[:200000]
+    if "," not in head and "\t" not in head and ";" not in head:
+        return []
+    try:
+        sniffed = _csv.Sniffer().sniff(head[:4096], delimiters=",\t;")
+        delim = sniffed.delimiter
+    except Exception:                                            # noqa: BLE001
+        delim = ","
+    try:
+        rows = list(_csv.reader(_io.StringIO(head), delimiter=delim))
+    except Exception:                                            # noqa: BLE001
+        return []
+    if len(rows) < 2:
+        return []
+    header = [str(h or "").strip().lower().lstrip("\ufeff") for h in rows[0]]
+    name_i = next((i for i, h in enumerate(header) if h in _NAME_COLS), None)
+    first_i = next((i for i, h in enumerate(header) if h in _FIRST_COLS), None)
+    last_i = next((i for i, h in enumerate(header) if h in _LAST_COLS), None)
+    out, seen = [], set()
+    for r in rows[1:]:
+        if name_i is not None and len(r) > name_i:
+            cand = str(r[name_i] or "").strip()
+        elif first_i is not None and last_i is not None and len(r) > max(first_i, last_i):
+            cand = ("%s %s" % (str(r[first_i] or "").strip(),
+                               str(r[last_i] or "").strip())).strip()
+        else:
+            return []
+        # MFL and several mirrors write "Last, First". Normalised HERE so the
+        # known-answer check compares names in one spelling, not two.
+        if "," in cand:
+            last, _, first = cand.partition(",")
+            cand = ("%s %s" % (first.strip(), last.strip())).strip()
+        low = cand.lower()
+        if not cand or low in seen or low in _NOT_PLAYERS:
+            continue
+        seen.add(low); out.append(cand)
+        if len(out) >= limit:
+            break
+    return out
