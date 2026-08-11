@@ -1114,19 +1114,109 @@
    * version, so repeated renders of the same state return identical numbers.
    */
   var TILT_MEMO = (typeof WeakMap !== 'undefined') ? new WeakMap() : null;
+  var CTX_FP = (typeof WeakMap !== 'undefined') ? new WeakMap() : null;
 
+  /* THE MEMO KEY MUST DESCRIBE THE ANSWER, NOT JUST THE QUESTION'S SHAPE.
+   *
+   * The first key was boardVersion + currentPick + targetPick + N. Every one of
+   * those can be identical across two contexts that produce genuinely different
+   * survival numbers — and one of the existing regression tests proved it within
+   * minutes of the tilt going live: twelve intervening picks over a twelve-pick
+   * window gives N = 12 either way, so an ADP-only context and a full Layer-2
+   * need context hashed to the SAME key and the second call was served the
+   * first's cached map. VONA stopped responding to the need model, which is the
+   * exact defect that test was written to catch in 2026-08-10.
+   *
+   * Live this would be worse than in a fixture: the board, my pick and my next
+   * pick all hold still between renders while runMultipliers, drift and the
+   * opponents' rosters change. A run detected mid-round would have moved nothing.
+   *
+   * So the fingerprint covers everything survivalProbability actually reads. It
+   * is computed ONCE PER CONTEXT OBJECT and cached on it — conservedSurvival is
+   * called ~1.7M times per board scan and almost all of those are memo hits, so
+   * rebuilding a string per call would cost more than the tilt it is caching.
+   */
+  function ctxFingerprint(ctx) {
+    if (!ctx) return 'nil';
+    if (CTX_FP) {
+      var hit = CTX_FP.get(ctx);
+      if (hit !== undefined) return hit;
+    }
+    var iv = ctx.intervening || [];
+    var parts = [];
+    for (var i = 0; i < iv.length; i++) {
+      var t = iv[i] || {};
+      var roster = t.roster || [];
+      var pos = '';
+      for (var j = 0; j < roster.length; j++) pos += (roster[j] || {}).position || '?';
+      parts.push(t.team_slot + '@' + t.pick_no + '/' + pos
+        + '/' + (t.profile ? (t.profile.manager_id || 'p') : '-')
+        + '/' + ((t.room || []).length));
+    }
+    var fp = parts.join('|')
+      + '#rm' + JSON.stringify(ctx.runMultipliers || {})
+      + '#dr' + JSON.stringify(ctx.drift == null ? null : ctx.drift)
+      + '#tp' + (ctx.totalPicks || 0)
+      + '#rl' + (ctx.roundsLeft || 0);
+    if (CTX_FP) CTX_FP.set(ctx, fp);
+    return fp;
+  }
+
+  /* TWO-SIDED, and it was not. `if (!(total > N)) return null` made the tilt fire
+   * only when the board predicted TOO MANY departures.
+   *
+   * That guard was written when the model over-predicted — v1's baseline summed
+   * to 7.279 against 6 real picks. Correcting the frozen context flipped the sign:
+   * the live model now sums to 5.258 against the same 6. So the moment the tilt
+   * was finally wired to the app it did nothing at all, on every state, and the
+   * baseline did not move. Not because the wiring failed — conservedSurvival was
+   * measured being called 1,687,612 times with N correct at 6 — but because the
+   * correction only knew how to push one way and the error had moved to the other.
+   *
+   * THE IDENTITY IS AN IDENTITY IN BOTH DIRECTIONS. Six opponent picks remove six
+   * players. A board summing to 5.26 expected departures is claiming that fewer
+   * players will be taken than there are picks to take them, which is not
+   * conservative — it is impossible, and it makes every player look safer to wait
+   * on than he is. That is the direction that costs money in a draft room.
+   *
+   * mass(L) is continuous and strictly increasing from 0 (at L=0) to the count of
+   * players with nonzero weight (as L grows), so a solution exists for any N in
+   * between and bisection finds it from either side. `hi` is now GROWN until it
+   * brackets the target rather than fixed at 50 — a fixed ceiling silently
+   * returns the ceiling when the required L sits above it, which is a wrong
+   * answer wearing the shape of a converged one. */
   function solveTilt(weights, N) {
-    // Bisection on L. Monotone increasing in L, so this always converges.
-    var total = 0, i;
-    for (i = 0; i < weights.length; i++) total += weights[i];
-    if (!(total > N)) return null;            // already conserved — do nothing
-    var lo = 0, hi = 50;
+    var i, nonzero = 0;
+    for (i = 0; i < weights.length; i++) if (weights[i] > 0) nonzero++;
+    /* DEGENERATE WHEN N >= nonzero, and `>=` is the whole point.
+     *
+     * mass(L) rises to `nonzero` only as L goes to infinity, so N = nonzero is
+     * solvable only at L = infinity — every eligible player taken with certainty.
+     * The bisection does not report that: at large L every exp(-L*w) UNDERFLOWS
+     * to zero, mass equals nonzero exactly, the bracket "succeeds", and it
+     * converges on a huge L that sets EVERY survival to ~0. Ordering information
+     * is destroyed and the numbers look confident.
+     *
+     * Caught by an existing engine test within minutes of the tilt going live: an
+     * 11-player fixture over an 11-pick window made the man going at ADP 1 and the
+     * man going at ADP 55 equally doomed, so "less likely to last" became a tie.
+     *
+     * This only arises when picks meet or exceed the tiltable board — a fixture
+     * condition, not a draft one (1729 players against 6 picks). Returning null
+     * keeps the raw numbers, which are still ordered and still honest, rather
+     * than emitting an all-zeros board that satisfies the identity and says
+     * nothing. */
+    if (!(N > 0) || nonzero === 0 || N >= nonzero) return null;
+
     function mass(L) {
       var m = 0;
       for (var j = 0; j < weights.length; j++) m += 1 - Math.exp(-L * weights[j]);
       return m;
     }
-    for (i = 0; i < 80; i++) {
+    var lo = 0, hi = 1, guard = 0;
+    while (mass(hi) < N && guard++ < 200) hi *= 2;
+    if (mass(hi) < N) return null;            // could not bracket — say so, do not clamp
+    for (i = 0; i < 120; i++) {
       var mid = (lo + hi) / 2;
       if (mass(mid) < N) lo = mid; else hi = mid;
     }
@@ -1142,9 +1232,21 @@
   function conservedSurvival(board, targetPick, rawCtx) {
     var ctx = normalizeCtx(rawCtx);
     var cur = ctx.currentPick || 0;
-    var N = Math.max(0, targetPick - cur);
+    /* N IS OPPONENT PICKS, NOT THE WINDOW. `targetPick - cur` counts my own pick
+     * among the departures, and a player I take is not a player who got away —
+     * so the tilt was solving for 7 where the identity demands 6, and would have
+     * over-thinned the board by one pick's worth of mass on every render.
+     *
+     * ctx.intervening is already the window minus my seat (app.js builds it that
+     * way, and the frozen baseline now mirrors it), so it IS the count. The
+     * window is kept only as a fallback for callers that supply no intervening
+     * list, and it is the looser of the two. */
+    var N = (ctx.intervening && ctx.intervening.length)
+      ? ctx.intervening.length
+      : Math.max(0, targetPick - cur);
     var list = board || ctx.board || [];
-    var key = boardVersion(list) + ':' + cur + ':' + targetPick;
+    var key = boardVersion(list) + ':' + cur + ':' + targetPick + ':' + N
+      + ':' + ctxFingerprint(ctx);
     if (TILT_MEMO) {
       var hit = TILT_MEMO.get(list);
       if (hit && hit.key === key) return hit.value;

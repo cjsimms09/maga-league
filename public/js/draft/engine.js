@@ -163,6 +163,17 @@
     DOCTRINE_TILT: 2.5,           // composite points, cited to exp 19b + the 4.0 band
     DOCTRINE_TILT_ON: true,
 
+    /* CONSERVATION TILT — the count identity, enforced on the live board.
+     * Gated departure, DECISIONS-NEEDED #7. Sigma P(gone) over the board must
+     * equal the OPPONENT picks between now and my next turn; the raw three-layer
+     * model does not satisfy that, and the exponential tilt solves one scalar
+     * lambda to make it hold.
+     *
+     * Flag exists so the departure is revertible in one edit on draft morning
+     * rather than by unpicking five call sites. Turning it OFF restores the
+     * v3-frozen surface exactly, which is asserted in survival_honesty. */
+    CONSERVE_SURVIVAL_ON: true,
+
     CEILING_SPREAD_SHARE: 0.15,   // fraction of theoretical upside treated as collectable
     CEILING_MAX_BONUS: 20.0,      // hard cap, in the composite's own points
     /* CEILING IS LATE-ROUNDS-ONLY (Cory's model, 2026-08-10). Projections (mean) +
@@ -389,7 +400,45 @@
   // These thin wrappers keep the pre-refactor call sites working unchanged.
   const normalCdf = S.normalCdf;
   const adpSd = S.adpSd;
-  const survival = S.survivalProbability;
+  const survivalRaw = S.survivalProbability;
+
+  /* THE ONE SURVIVAL ACCESSOR — and the reason it is one.
+   *
+   * conservedSurvival was built, exported, covered by its own test, and CALLED BY
+   * NOTHING. The app read s.survival_to_next straight off the engine, the engine
+   * read S.survivalProbability directly, and the conservation correction — a
+   * redistribution rule solved rather than chosen, three candidates tested
+   * against each other — did nothing at all. That is why the frozen ratios sat at
+   * 0.86-0.90 against an identity demanding 1.000.
+   *
+   * FIVE CALL SITES read survival: VONA's expectedBestAvailable, the tier-cliff
+   * exhaustion product, survival_to_next on the scored entry, the branch
+   * forecast, and the draft sheet. Tilting some and not others would leave the
+   * board's expected-best disagreeing with the number printed beside the player —
+   * a two-places disease with the two places on the same screen. So the accessor
+   * replaces the raw binding and every site goes through it.
+   *
+   * WHAT IT DOES NOT DO. Enforcing the identity is NOT calibration. If the
+   * model's shape is wrong, the tilt yields per-player numbers that are still
+   * wrong and now merely sum correctly. It fixes the total, not the ordering
+   * within it. Stated here as well as in the gate proposal, because the caveat is
+   * only useful where the code is read.
+   */
+  function survival(player, targetPick, ctx) {
+    if (!CFG.CONSERVE_SURVIVAL_ON || !ctx || !ctx.board) {
+      return survivalRaw(player, targetPick, ctx);
+    }
+    const c = S.conservedSurvival(ctx.board, targetPick, ctx);
+    // `applied` is false when the raw mass is already at or under the count —
+    // there is nothing to redistribute and the raw numbers stand. Falling back
+    // rather than tilting toward a target we already meet.
+    if (!c || !c.applied) return survivalRaw(player, targetPick, ctx);
+    const v = c.byId[String(player.player_id)];
+    // A player absent from the conserved map is one who is not on ctx.board —
+    // the tilt has nothing to say about him, so he keeps his raw number rather
+    // than a fabricated one.
+    return v == null ? survivalRaw(player, targetPick, ctx) : v;
+  }
   const runMultipliers = S.runMultipliers;
   const detectRuns = S.detectRuns;
 

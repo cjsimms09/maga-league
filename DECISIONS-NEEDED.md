@@ -276,3 +276,58 @@ window] → (4) betting LEVEL [lowest, only if movement proves out].
   board — do they diverge at Cory's picks (34/41/54…)? If they largely agree, the source choice is
   cosmetic; if they diverge, flag it. (c) Do NOT swap the projection source blind — unlike the ADP
   anchor (which had a clean grade), there is NO clean projection grade to justify a swap yet.
+
+## 7. CONSERVATION TILT — WIRED LIVE as a gated departure (2026-08-11), baseline v3 → v4
+
+- **Trigger (Cory):** "conservedSurvival is built, exported, and exercised only by its own test.
+  The app reads s.survival_to_next straight from the engine. So the conservation correction I
+  approved IS DOING NOTHING. Wire it through the gate, and make sure it actually reaches the app
+  this time rather than being wired to a test."
+- **What changed:** `DraftEngine` no longer binds `survival` to `S.survivalProbability`. One
+  accessor now routes all five call sites — VONA's `expectedBestAvailable`, the tier-cliff
+  exhaustion product, `survival_to_next`, the branch forecast, and the draft sheet — through
+  `S.conservedSurvival`. Tilting some and not others would leave the board's expected-best
+  disagreeing with the number printed beside the player, on the same screen.
+- **Two corrections found while wiring, neither of which was the wiring:**
+  - **N was the whole window.** `conservedSurvival` solved for `targetPick - currentPick`, which
+    counts MY OWN pick among the departures. Now `ctx.intervening.length`: 6, not 7.
+  - **The tilt was one-sided.** `solveTilt` returned null unless the raw mass EXCEEDED the count —
+    a guard written when the model over-predicted (v1: 7.279 over 6). Correcting the frozen
+    context flipped the sign to 5.258 over 6, so on first wiring the tilt fired **zero times on
+    every state** and the baseline did not trip. That was not the wiring failing:
+    `conservedSurvival` was measured being called 1,687,612 times with N correct at 6. It was a
+    correction that only knew how to push one way while the error had moved to the other.
+- **Why two-sided is right, not merely symmetric:** six opponent picks remove six players. A board
+  summing to 5.26 expected departures claims fewer players will be taken than there are picks to
+  take them. That is not conservatism; it makes every player look **safer to wait on than he is**,
+  which is the direction that costs money in a draft room.
+- **Result:** conservation ratio exactly **1.000000** on all three canonical states (was 0.876,
+  0.900, 0.862). λ 1.26–1.43. **Top-10 ranking and the rule headline are UNCHANGED on every
+  state**; composite scores moved. 8 baseline checks tripped, as a gated departure must.
+
+### The two caveats, carried into the gate rather than discovered later
+
+- **ENFORCING THE IDENTITY IS NOT CALIBRATION.** It makes the total right. If the model's *shape*
+  is wrong, the tilt yields per-player numbers that are still wrong and now merely sum correctly —
+  necessary, insufficient. Calibration needs outcome data this project does not have. Nothing here
+  should be read as "survival is now accurate"; it is "survival now stops claiming an impossible
+  total".
+- **λ IS FITTED PER BOARD STATE, which is a NEW instability.** Two adjacent windows can produce
+  different λ, so in principle a player's number could move between renders with no pick
+  occurring. The independent model did not have that property. **Mitigation, stated rather than
+  assumed:** λ is fitted ONCE per (board version, currentPick, targetPick, N) and memoised in a
+  `WeakMap` keyed on the board array, so repeated renders of the same state return byte-identical
+  numbers. The instability is real between states, contained within one.
+
+### Reversal, and what it costs
+
+`CFG.CONSERVE_SURVIVAL_ON = false` restores the pre-departure surface **exactly** — asserted in
+`survival_honesty` against v3's frozen mass to 1e-6, not assumed. One edit on draft morning. The
+app's conservation banner widens its band automatically in that mode, because a raw model that
+does not conserve should not paint the banner red on every render of a deliberate revert.
+
+### Open, and NOT resolved by this
+
+The per-player *ordering* within the tilted total is unvalidated. The tilt concentrates correction
+where the weight is, which is defensible but untested against outcomes. That is a **post-draft**
+question (mock-calibration arm), not a pre-Aug-22 one.

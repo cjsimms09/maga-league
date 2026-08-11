@@ -39,11 +39,17 @@ const ROOT = path.join(__dirname, '..', '..');
 const E = require(path.join(ROOT, 'public', 'js', 'draft', 'engine.js'));
 const BASELINE_DIR = path.join(ROOT, 'draft', 'baseline');
 
-/* CANONICAL STATES — chosen to span the regimes where the engine behaves
- * differently, not to be numerous. Early (everything empty, value dominates),
- * mid (the mask starts binding), late (onesies forced, bench pricing), and a
- * keeper-loaded roster, which is OUR actual condition and the one a generic
- * fixture would miss. */
+/* CANONICAL STATES — THREE PICK REGIMES, and the count is deliberately three.
+ *
+ * Early (everything empty, value dominates), mid (the mask starts binding), late
+ * (onesies forced, bench pricing). Chosen to span the regimes where the engine
+ * behaves differently, not to be numerous.
+ *
+ * There WAS a fourth, "keeper-loaded (our real condition)". It was removed on
+ * 2026-08-11 because it emitted a byte-identical surface to early-empty-roster —
+ * see the note where it used to sit, and the condition under which it must come
+ * back. Four states that cover three regimes is a count that flatters itself; the
+ * honest number is what is written here. */
 function canonicalStates(players, art) {
   const byPos = {};
   players.forEach(p => { (byPos[p.position] = byPos[p.position] || []).push(p); });
@@ -56,27 +62,31 @@ function canonicalStates(players, art) {
       roster: take('RB', 2).concat(take('WR', 1)) },
     { name: 'late-onesies-open', currentPick: 134, nextPick: 141,
       roster: take('RB', 3).concat(take('WR', 4), take('TE', 1)) },
-    /* OUR REAL CONDITION MEANS OUR REAL KEEPERS. This used to be "the best WR and
-     * the best two RBs on the board, flagged is_keeper" — a synthetic stand-in for
-     * a fact the artifact already carries. Our actual keepers are Ja'Marr Chase,
-     * Derrick Henry and Kenneth Walker on seat 4, so they are read from
-     * kept_players rather than invented.
+    /* THE FOURTH STATE IS GONE, AND THE COUNT IS THE HONEST ONE. Cory, 2026-08-11:
+     * "say that in the freeze rather than keeping a fourth state that makes the
+     * count look better."
      *
-     * AND IT CHANGES NOTHING, WHICH IS THE POINT WORTH RECORDING. Measured at pick
-     * 34: empty roster, the old synthetic three, and the real three all emit a
-     * byte-identical surface (mass 5.258, same top ten, same rule headline). The
-     * cause is not a bug — MEASURED_WEIGHTS carries need: 0, so the roster cannot
-     * reach the composite, and both keeper sets are 1 WR + 2 RB, which leaves
-     * needrule the same openings. A four-QB roster moves it only by 0.013, and
-     * only because two of those QBs were still on the board.
+     * There used to be a `keeper-loaded (our real condition)` state here. It
+     * emitted a BYTE-IDENTICAL surface to early-empty-roster — same mass, same top
+     * ten, same rule headline — measured three ways at pick 34: an empty roster,
+     * the old synthetic stand-in (top WR + top two RBs), and our REAL keepers
+     * (Chase, Henry, Walker, read from kept_players). All three the same.
      *
-     * So this state currently costs a slot and buys nothing, and the frozen file
-     * will show it as a duplicate of early-empty. Recorded rather than papered
-     * over: the honest coverage of this baseline is THREE distinct pick regimes,
-     * not four states. */
-    { name: 'keeper-loaded (our real condition)', currentPick: 34, nextPick: 41,
-      roster: (((art || {}).kept_players) || [])
-        .map(p => Object.assign({}, p, { is_keeper: true })) },
+     * The cause is not a bug. MEASURED_WEIGHTS carries `need: 0`, so the roster
+     * cannot reach the composite at all, and every keeper set tried is 1 WR + 2 RB,
+     * which leaves needrule the same openings. A deliberately lopsided four-QB
+     * roster moved the mass by 0.013 — and only because two of those QBs were
+     * still on the board to be removed from it.
+     *
+     * ══ THE CONDITION UNDER WHICH THIS BECOMES WRONG ══
+     * Recorded as a live condition, not a closed question. WITH need AT ZERO THE
+     * FROZEN BASELINE IS INSENSITIVE TO OUR ROSTER ENTIRELY. If `need` ever
+     * becomes nonzero — through the graduation gate, or through a shadow-strategy
+     * promotion — a keeper-loaded state starts buying real coverage immediately
+     * and this baseline needs a fourth state again. The regression suite asserts
+     * `MEASURED_WEIGHTS` including need, so that change cannot land quietly; what
+     * it cannot do is remind anyone to revisit THIS decision, which is why the
+     * condition is written down beside the thing it governs. */
   ];
 }
 

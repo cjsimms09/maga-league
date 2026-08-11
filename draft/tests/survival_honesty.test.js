@@ -104,24 +104,45 @@ ck('the residual over-prediction is small now that currentPick is passed',
   ck('the tilt enforces the count identity exactly when it binds',
      !r.applied || Math.abs(r.ratioAfter - 1) < 1e-6,
      'applied ' + r.applied + ' ratioAfter ' + (r.ratioAfter || 0).toFixed(6));
-  // FIND A WINDOW THAT IS ALREADY CONSERVED and assert the tilt leaves it alone.
-  // The first cut wrote `r.applied || r.ratioBefore <= 1.0`, which short-circuits
-  // to true whenever the tilt fired — so it could never catch OVER-firing, which
-  // is the only thing it was written to catch.
+  /* THE TILT IS TWO-SIDED, AND THIS TEST USED TO REQUIRE THAT IT WAS NOT.
+   *
+   * It asserted `applied === false` on any window whose ratio was <= 1.0 — i.e.
+   * that under-prediction should be left alone. That encoded solveTilt's
+   * one-sided guard as a REQUIREMENT, and it went red the moment the guard was
+   * removed on 2026-08-11. The test was right about the old design and wrong
+   * about the identity.
+   *
+   * Six opponent picks remove six players. A board summing to 5.7 expected
+   * departures is not being conservative, it is claiming that fewer players will
+   * be taken than there are picks to take them — which makes every player look
+   * safer to wait on than he is. That is the direction that costs money in a
+   * draft room, so it is precisely the direction that must be corrected.
+   *
+   * The idea the old test was protecting is still real and is kept in its
+   * correct form: DO NOT MOVE A BOARD THAT ALREADY SATISFIES THE IDENTITY, and
+   * never overshoot in either direction. Stated as "lands on 1.000 from wherever
+   * it starts", which is checkable without asserting a sign.
+   */
   {
-    const conserved = windows.find(x => x.ratio <= 1.0);
-    ck('a window exists that is already conserved (so this is not vacuous)',
-       !!conserved, JSON.stringify(windows.map(x => +x.ratio.toFixed(3))));
-    if (conserved) {
-      const dr = new Set(byAdp.slice(0, conserved.cur - 1).map(p => p.player_id));
+    const under = windows.find(x => x.ratio < 0.99);
+    const over = windows.find(x => x.ratio > 1.01);
+    ck('the sample contains BOTH an under- and an over-predicting window '
+       + '(so two-sidedness is not vacuously true)',
+       !!under && !!over,
+       JSON.stringify(windows.map(x => +x.ratio.toFixed(3))));
+
+    [['under', under], ['over', over]].forEach(([label, wdw]) => {
+      if (!wdw) return;
+      const dr = new Set(byAdp.slice(0, wdw.cur - 1).map(p => p.player_id));
       const cb = all.filter(p => !dr.has(p.player_id))
         .sort((a, b) => (b.vorp || 0) - (a.vorp || 0));
-      const cr = S.conservedSurvival(cb, conserved.mine,
-        { board: cb, league: lg, currentPick: conserved.cur, runMultipliers: {}, profiles: {} });
-      ck('the tilt does NOTHING when the board is already conserved',
-         cr.applied === false,
-         'applied=' + cr.applied + ' on ratioBefore ' + (cr.ratioBefore || 0).toFixed(3));
-    }
+      const cr = S.conservedSurvival(cb, wdw.mine,
+        { board: cb, league: lg, currentPick: wdw.cur, runMultipliers: {}, profiles: {} });
+      ck('the tilt corrects an ' + label + '-predicting board to exactly 1.000',
+         cr.applied === true && Math.abs(cr.ratioAfter - 1) < 1e-6,
+         'applied=' + cr.applied + ' ratioBefore ' + (cr.ratioBefore || 0).toFixed(3)
+         + ' ratioAfter ' + (cr.ratioAfter || 0).toFixed(6));
+    });
   }
   ck('the tilt reports its numbers beside its verdict',
      r.massBefore != null && r.massAfter != null && r.picks != null,
@@ -193,6 +214,209 @@ if (block) {
      /\n\s*currentPick:\s*\w/.test(near),
      'app.js builds its survival ctx without currentPick — survival reverts to '
      + 'the unconditional model and over-predicts departures by 15-57%');
+}
+
+
+/* ═══ THE TILT MUST STAY CONNECTED ═══
+ *
+ * conservedSurvival was built, exported, covered by its own test, and called by
+ * NOTHING for a week. The engine bound `survival` straight to
+ * survivalProbability and the app read s.survival_to_next off the engine, so the
+ * approved conservation correction was inert while every test about it passed.
+ * That is the produced-and-unread class: the producing side careful and correct,
+ * and no consumer.
+ *
+ * A test of conservedSurvival IN ISOLATION cannot catch that, by construction —
+ * it calls the function itself, so it is the consumer the live path lacks. These
+ * assertions are about the WIRING, which is the part that went missing.
+ */
+{
+  const eng = fs.readFileSync(path.join(ROOT, 'public', 'js', 'draft', 'engine.js'), 'utf8');
+  // Comments stripped before matching: a source guard once passed against
+  // deliberately re-broken code because the regex hit the comment explaining
+  // the fix rather than the code implementing it.
+  const code = eng.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\n]*/g, '');
+
+  ck('the engine CALLS conservedSurvival (not merely imports survival.js)',
+     /S\.conservedSurvival\s*\(/.test(code),
+     'conservedSurvival has no caller in engine.js — the tilt is built and inert');
+
+  ck('the raw model is NOT bound directly as `survival`',
+     !/\bconst\s+survival\s*=\s*S\.survivalProbability\s*;/.test(code),
+     'engine.js binds survival straight to survivalProbability, which bypasses '
+     + 'the tilt at every call site');
+
+  // ONE accessor, not five paths. Tilting some call sites and not others would
+  // leave VONA's expected-best disagreeing with the number printed beside the
+  // player — a two-places disease with both places on the same screen.
+  const rawUses = (code.match(/\bsurvivalRaw\s*\(/g) || []).length;
+  ck('survivalRaw is reached only through the accessor (3 fallbacks, no strays)',
+     rawUses === 3, 'survivalRaw called ' + rawUses + ' times; expected exactly 3 '
+     + '(gate off, tilt not applied, player absent from the map)');
+
+  ck('the departure is gated by a named flag, not hardcoded',
+     /CONSERVE_SURVIVAL_ON/.test(code),
+     'no flag — the departure cannot be reverted in one edit on draft morning');
+}
+
+/* THE IDENTITY ACTUALLY HOLDS, END TO END, through the engine rather than
+ * through a direct call to the tilt. This is the assertion that would have gone
+ * red for the whole week the tilt was disconnected. */
+{
+  const E = require(path.join(ROOT, 'public', 'js', 'draft', 'engine.js'));
+  const art = JSON.parse(fs.readFileSync(path.join(ROOT, 'public', 'draft_data.json'), 'utf8'));
+  const players = art.players.filter(p => p.vorp != null);
+  const byAdp = players.slice().sort(
+    (a, b) => (a.adjusted_adp || a.raw_adp || 9999) - (b.adjusted_adp || b.raw_adp || 9999));
+  const gone = new Set(byAdp.slice(0, 33).map(p => String(p.player_id)));
+  const board = players.filter(p => !gone.has(String(p.player_id)));
+  const mine = (art.league || {}).my_draft_slot;
+  const iv = ((art.pick_order || {}).picks || [])
+    .filter(p => p.overall >= 34 && p.overall < 41 && p.slot !== mine)
+    .map(p => ({ team_slot: p.slot, pick_no: p.overall, roster: [], profile: null, room: [] }));
+  const ctx = { board: board, roster: [], league: art.league, currentPick: 34, nextPick: 41,
+    weights: E.MEASURED_WEIGHTS, totalPicks: 150, myPicksLeft: 8, progress: 34 / 150,
+    roundsLeft: 11, intervening: iv, runMultipliers: {}, drift: null,
+    currentKeepers: [], ceilingAllStages: false };
+
+  const wasOn = E.CFG.CONSERVE_SURVIVAL_ON;
+  const massOf = () => {
+    const sc = (E.onTheClock(ctx, { targets: [], avoid: [], queue: [] }).scored) || [];
+    let m = 0;
+    sc.forEach(s => { if (s.survival_to_next != null) m += (1 - s.survival_to_next); });
+    return m;
+  };
+
+  // N IS OPPONENT PICKS. My own pick is inside [34, 41) and a player I take is
+  // not a player who got away.
+  ck('the window excludes my own seat (6 opponent picks, not 7)', iv.length === 6,
+     'intervening length ' + iv.length);
+
+  E.CFG.CONSERVE_SURVIVAL_ON = true;
+  const on = massOf();
+  ck('WITH the tilt: conservation is EXACT through the engine',
+     Math.abs(on - iv.length) < 1e-6,
+     'mass ' + on.toFixed(6) + ' vs ' + iv.length + ' opponent picks');
+
+  // REVERT PARITY. The flag exists so the departure is undoable in one edit on
+  // draft morning; that is worthless unless OFF actually restores the prior
+  // surface. v3's frozen mass for this state is 5.258499.
+  E.CFG.CONSERVE_SURVIVAL_ON = false;
+  const off = massOf();
+  const v3 = JSON.parse(fs.readFileSync(
+    path.join(ROOT, 'draft', 'baseline', 'v3.json'), 'utf8'));
+  const v3mass = (v3.surfaces.find(s => s.state === 'early-empty-roster') || {}).survival_mass;
+  ck('WITHOUT the tilt: the pre-departure surface is restored exactly (v3)',
+     Math.abs(off - v3mass) < 1e-6,
+     'tilt off mass ' + off.toFixed(6) + ' vs v3 frozen ' + v3mass);
+
+  // ...and the raw model does NOT conserve, which is why the tilt exists at all.
+  // If this ever passes, the tilt has become unnecessary rather than merely off.
+  ck('and the raw model still fails the identity (the tilt is not redundant)',
+     Math.abs(off - iv.length) > 0.1,
+     'raw mass ' + off.toFixed(3) + ' is already at ' + iv.length);
+
+  E.CFG.CONSERVE_SURVIVAL_ON = wasOn;
+}
+
+
+/* ═══ TWO DEFECTS THE TILT'S OWN WIRING INTRODUCED, both caught by existing
+ * tests within minutes of it going live, both guarded here so they cannot
+ * return quietly. ═══ */
+{
+  const mk = (id, pos, adp, proj) => ({ player_id: id, name: 'P' + id, position: pos,
+    team: 'XX', bye: 7, adjusted_adp: adp, raw_adp: adp, tier: 1, proj_mean: proj,
+    proj_sd: 20, vorp: proj / 10, tier_drop: 5, overall_rank: adp });
+  const lg2 = { teams: 10, starters: { QB: 1, RB: 2, WR: 2, TE: 1, FLEX: 1, K: 1, DEF: 1 } };
+
+  /* 1. THE MEMO KEY MUST DESCRIBE THE ANSWER.
+   * The first key was boardVersion + currentPick + targetPick + N. Twelve
+   * intervening picks over a twelve-pick window gives N = 12 either way, so an
+   * ADP-only context and a full Layer-2 need context hashed IDENTICALLY and the
+   * second was served the first's cached map. VONA stopped responding to the
+   * need model — the exact defect update.test.js was written to catch. Live it
+   * would be worse: board, my pick and my next pick hold still between renders
+   * while runMultipliers, drift and opponent rosters change. */
+  const bb = [];
+  for (let i = 0; i < 60; i++) bb.push(mk('m' + i, i % 2 ? 'RB' : 'WR', 8 + i, 250 - i * 2));
+  const base = { board: bb, league: lg2, currentPick: 20, totalPicks: 150, roundsLeft: 12,
+                 runMultipliers: {} };
+  const ivFor = pos => Array.from({ length: 12 }, (_, i) => ({
+    team_slot: i + 1, pick_no: 20 + i, profile: null,
+    roster: pos === 'RB' ? [{ position: 'WR' }, { position: 'WR' }, { position: 'TE' }]
+                         : [{ position: 'RB' }, { position: 'RB' }, { position: 'RB' }],
+  }));
+  const rbNeed = S.conservedSurvival(bb, 32, Object.assign({}, base, { intervening: ivFor('RB') }));
+  const wrNeed = S.conservedSurvival(bb, 32, Object.assign({}, base, { intervening: ivFor('WR') }));
+  ck('same board, same window, same N — but a different need model gives a '
+     + 'DIFFERENT tilt (the memo does not collide)',
+     JSON.stringify(rbNeed.byId) !== JSON.stringify(wrNeed.byId),
+     'both contexts hashed to one memo entry; N=' + rbNeed.picks);
+
+  // ...and the memo still WORKS, or the fix would just be a disabled cache.
+  const again = S.conservedSurvival(bb, 32, Object.assign({}, base, { intervening: ivFor('RB') }));
+  ck('and identical inputs still return identical numbers (lambda is stable '
+     + 'across renders of one state)',
+     Math.abs(again.lambda - rbNeed.lambda) < 1e-12,
+     'lambda ' + rbNeed.lambda + ' vs ' + again.lambda);
+
+  /* 2. THE DEGENERATE BOARD. mass(L) reaches `nonzero` only as L -> infinity, so
+   * N = nonzero is solvable only there. The bisection does not say so: at large L
+   * every exp(-L*w) underflows to zero, the bracket "succeeds", and it converges
+   * on a huge L that sets EVERY survival to ~0 — ordering destroyed, numbers
+   * confident. An 11-player fixture over an 11-pick window made ADP 1 and ADP 55
+   * equally doomed. */
+  const tiny = [mk('a', 'RB', 1, 300), mk('b', 'RB', 2, 290), mk('c', 'WR', 3, 280),
+                mk('d', 'WR', 12, 240), mk('e', 'TE', 20, 200)];
+  const degCtx = t => ({ board: tiny, league: lg2, currentPick: 5, totalPicks: 150,
+    roundsLeft: 12, runMultipliers: {}, intervening: [] });
+
+  /* BROKEN AT THE BOUNDARY, per rule 10a — and the first cut of this test was not.
+   * It used a 5-player board over an 11-pick window, where N > nonzero by six. The
+   * old strict-`>` guard refuses that case too, so restoring the defect left this
+   * assertion GREEN while an engine test caught it instead. N === nonzero is the
+   * only case that separates `>` from `>=`, so that is the case to test. */
+  const AT = S.conservedSurvival(tiny, 10, degCtx());     // N = 5, nonzero = 5
+  ck('N EXACTLY equal to the tiltable count is refused (the >= boundary)',
+     AT.applied === false && AT.picks === 5,
+     'applied=' + AT.applied + ' N=' + AT.picks + ' — solvable only at lambda=infinity, '
+     + 'where every exp(-L*w) underflows to zero and the board collapses to all-doomed');
+
+  const BELOW = S.conservedSurvival(tiny, 9, degCtx());    // N = 4, one under
+  ck('and one pick BELOW that boundary still tilts (the guard is not off by one)',
+     BELOW.applied === true && Math.abs(BELOW.ratioAfter - 1) < 1e-6,
+     'applied=' + BELOW.applied + ' N=' + BELOW.picks
+     + ' ratioAfter ' + (BELOW.ratioAfter || 0).toFixed(6));
+
+  ck('the refused board keeps its ordering (ADP 1 still likelier to go than ADP 20)',
+     AT.byId.a < AT.byId.e, 'a=' + AT.byId.a + ' e=' + AT.byId.e);
+
+  /* 3. THE FINGERPRINT MUST COVER EVERY INPUT survivalProbability READS, not just
+   * the ones that happened to be tested. Removing runMultipliers from the key was
+   * caught by NOTHING on the first pass — and that is the field most likely to
+   * change between renders while board, pick and window all hold still, because a
+   * run detected mid-round is exactly a same-board change. Live, the tilt would
+   * have gone on serving pre-run numbers. */
+  const runBase = { board: bb, league: lg2, currentPick: 20, totalPicks: 150,
+                    roundsLeft: 12, intervening: ivFor('RB') };
+  const noRun = S.conservedSurvival(bb, 32, Object.assign({}, runBase, { runMultipliers: {} }));
+  const inRun = S.conservedSurvival(bb, 32, Object.assign({}, runBase,
+    { runMultipliers: { RB: 1.6 } }));
+  ck('a detected RUN changes the tilt (runMultipliers is in the memo key)',
+     JSON.stringify(noRun.byId) !== JSON.stringify(inRun.byId),
+     'a run on the same board, same window served cached pre-run numbers');
+
+  const driftA = S.conservedSurvival(bb, 32, Object.assign({}, runBase,
+    { runMultipliers: {}, drift: null }));
+  const driftB = S.conservedSurvival(bb, 32, Object.assign({}, runBase,
+    // The REAL drift shape: effectiveAdp reads {applied, offset} and effectiveSd
+    // reads {applied, sdScale}. `{mean: 4.5}` — my first guess — is inert, and the
+    // test correctly went red on it. A fixture invented rather than read from the
+    // consumer is a fact about my guess, not about the code (rule 13).
+    { runMultipliers: {}, drift: { applied: true, offset: 6, sdScale: 1.2 } }));
+  ck('a global ADP drift changes the tilt (drift is in the memo key)',
+     JSON.stringify(driftA.byId) !== JSON.stringify(driftB.byId),
+     'drift did not reach the conserved map');
 }
 
 console.log('');

@@ -373,6 +373,45 @@ neither code review nor a coarse rule-10 break finds it.
 the guard is written, by whoever is already writing it — no schedule, no artifact, no human
 attention on a cadence. Nothing to maintain, so nothing to rot.
 
+**14. WHEN SOMETHING COMPUTES A VALUE OR A VERDICT, THE SAME UNIT OF WORK ESTABLISHES ITS
+CONSUMER.** Cory, 2026-08-11. Not a style preference — **a produced-and-unread value looks
+identical to a working system from every angle except the one where it matters.** It has tests,
+it has correct numbers, it has careful comments, and it changes nothing.
+
+This is now **the most-repeated failure in the project**, and it earns its own class alongside
+dual maintenance and guards-that-do-not-guard. Four instances, none of them a bug on the
+producing side:
+
+* **The conservation tilt.** Built, exported, covered by its own test, and called by NOTHING. The
+  engine bound `survival` straight to `survivalProbability`; the app read `survival_to_next` off
+  the engine. A session of design — a redistribution rule *solved* rather than chosen, three
+  candidates tested against each other — was inert for a week while every test about it passed.
+* **The attrition reasons.** The adapter knew a draft type was unrecognised; the seam folded it
+  into "not a snake draft."
+* **The coverage number.** Written by `write_health` one line above a staleness gate that never
+  read it. A 13-of-48 capture was recorded as a clean success.
+* **The retry advice.** `backoff_plan` had no caller, `should_retry` was passed a hardcoded
+  attempt, and `retry_advised` was stored and acted on by nothing — so a 429 recorded "back off"
+  and fired immediately.
+
+*Why a test does not discharge it.* **A unit test of the producer IS the consumer the live path
+lacks.** `conservedSurvival` had a passing test precisely because that test called it — which is
+the one thing the app never did. So the check is not "is it tested", it is **"name the caller"**;
+if the only answer is a test file, the value is not wired.
+
+*The cheap discharge, one question at the moment of writing:* **"who reads this, and what breaks
+if they stop?"** If nothing breaks, it is not connected. Building the snapshot reader alongside
+the coverage check rather than after it is this rule applied ahead of the failure instead of
+after it — same seam, caught for once before it cost anything.
+
+*A corollary worth keeping in its own words, from the re-freeze:* **A POPULATED ARRAY IS NOT A
+POPULATED CONTEXT.** `intervening: []` left Layer 2 dark and produced fifty-one green reports
+about a context that was not ours. Supplying bare pick numbers instead left it dark in exactly
+the same way — `precomputeLayer2` filters on `t.pick_no >= currentPick`, and `undefined >= 34` is
+false, so every entry was discarded and the function returned `null` just as it had with an empty
+array. Presence of data is not satisfaction of a contract, and a consumer that filters on a field
+will treat the wrong SHAPE and total ABSENCE as the same thing — silently, and identically.
+
 **13. A FAILED REQUEST AGAINST A PATH I INVENTED IS EVIDENCE ABOUT MY QUERY, NOT ABOUT THE
 PROVIDER.** A, 2026-08-11, adopted at Cory's instruction. Before recording ANY negative about
 an external source — no coverage, no markets, thin data, unusable tier — establish that the

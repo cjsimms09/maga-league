@@ -39,9 +39,16 @@ const ROOT = path.join(__dirname, '..', '..');
  * three decimals, so a conservation ceiling written as `1 + 1e-9` could not
  * resolve better than 1.7e-4 and stayed green when the live ratio was broken to
  * 1.0000001. Six decimals now, epsilon 1e-6.
- * Each version's reason is in the artifact itself under `_why`. v1 and v2 both
- * stay on the books. */
-const BASELINE = path.join(ROOT, 'draft', 'baseline', 'v3.json');
+ * v3 -> v4, same day: A GATED DEPARTURE, and the first one that moved
+ * recommendations. The conservation tilt went LIVE (it had been built, exported,
+ * tested and called by nothing), N was corrected from the whole window to
+ * opponent picks, and solveTilt was made two-sided. Conservation is now exactly
+ * 1.000000 where it was 0.862-0.900. The fourth canonical state was dropped: it
+ * emitted a byte-identical surface to the first, so the baseline honestly spans
+ * three pick regimes.
+ * Each version's reason is in the artifact itself under `_why`. v1, v2 and v3
+ * all stay on the books. */
+const BASELINE = path.join(ROOT, 'draft', 'baseline', 'v4.json');
 const { build } = require(path.join(ROOT, 'draft', 'tools', 'freeze_baseline.js'));
 
 let pass = 0, fail = 0;

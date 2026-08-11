@@ -3400,11 +3400,33 @@
         if (s.survival_to_next != null) mass += (1 - s.survival_to_next);
       });
       state.survivalMass = { expected: picksInWindow, actual: mass, to_pick: next };
-      // Tolerance is generous: the scored list is the legal board, not literally
-      // every rostered player, so a small shortfall is expected. A 25% relative
-      // error (or more expected departures than picks available) is a real fault.
+      /* THE BAND DEPENDS ON WHETHER THE TILT IS ENFORCING THE IDENTITY, because
+       * those are two different claims and one tolerance cannot serve both.
+       *
+       * The old band was 0.5-1.25 on an exact quantity, justified by "the scored
+       * list is the legal board, not literally every rostered player, so a small
+       * shortfall is expected". MEASURED 2026-08-11 at pick 34: scored is 1729 of
+       * a 1729-player board, every one carrying a survival number, and the mass
+       * comes to 6.000000 against 6 picks. The shortfall the tolerance was sized
+       * for does not exist. Rule 10b: a band justified by a plausible story rather
+       * than a measurement.
+       *
+       * TILT ON — the identity is enforced, so any deviation is a real fault:
+       * a scored player missing from the conserved map, or a stale board version.
+       * 1e-3 relative is far above float accumulation over ~1700 terms and far
+       * below anything meaningful.
+       *
+       * TILT OFF — the raw three-layer model does NOT conserve; it currently
+       * lands near 0.86-0.90. Holding it to 1e-3 there would paint the banner red
+       * on every render of a deliberate revert, which trains the eye to ignore
+       * it. So the honest band for that mode is the loose one, and the banner then
+       * means what it always meant: the raw model's total is off. */
+      const tiltOn = !!(typeof DraftEngine !== 'undefined'
+        && DraftEngine.CFG && DraftEngine.CFG.CONSERVE_SURVIVAL_ON);
+      const hi = tiltOn ? 1.001 : 1.25;
+      const lo = tiltOn ? 0.999 : 0.5;
       const bad = picksInWindow > 0
-        && (mass > picksInWindow * 1.25 || mass < picksInWindow * 0.5);
+        && (mass > picksInWindow * hi || mass < picksInWindow * lo);
       const host = $('#survival-conservation');
       if (host) {
         host.style.display = bad ? '' : 'none';
