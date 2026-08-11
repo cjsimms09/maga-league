@@ -1156,6 +1156,31 @@
       // exploration shadows set this true to explore ceiling-forward drafts.
       ceilingAllStages: false,
       drift: state.drift || null,
+      // THE QUESTION SURVIVAL IS ACTUALLY BEING ASKED.
+      //
+      // MISSING UNTIL 2026-08-11, and it was the root cause of the conservation
+      // violation. Without `currentPick`, survivalProbability falls to
+      // `layer1Taken` — "P(taken by pick N, counted from the start of the
+      // draft)" — instead of `layer1TakenGivenAvailable`, which is the only
+      // question the panel is asking: "he is on the board NOW; does he last to
+      // my pick?" The unconditional form re-charges every player for the chance
+      // he was already taken before now, on top of the chance he goes next.
+      //
+      // Measured over Cory's own windows, expected departures / picks available:
+      //      window      without         with
+      //      6 picks      1.215          1.033
+      //      6 picks      1.290          1.022
+      //     12 picks      1.164          1.080
+      //      6 picks      1.573          0.855
+      //      6 picks      1.525          0.779
+      // and per player at pick 34: DeVonta Smith 28% -> 39%, Breece Hall
+      // 22% -> 33%, Tee Higgins 53% -> 62%.
+      //
+      // Every correction runs toward LESS urgency, which matters because
+      // over-stated urgency pushes toward reaching, and reaching is Cory's
+      // measured personal leak. The engine was amplifying the behaviour it
+      // measured as costing him money.
+      currentPick: cur,
       // A2 Layer 2
       intervening: interveningPicks(),
       roundsLeft: Math.max(0, Math.ceil((totalPicks - cur) / teams)),

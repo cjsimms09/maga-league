@@ -1058,6 +1058,125 @@
     return p;
   }
 
+  /* ══ CONSERVATION: ENFORCE THE COUNT IDENTITY ACROSS THE BOARD ══════════
+   *
+   * THE DEFECT. `survivalProbability` prices each player independently, so the
+   * board's expected departures need not equal the picks that actually happen.
+   * Measured over Cory's own pick windows, with the board consumed to the
+   * current pick:
+   *
+   *     12-pick windows   ratio ~1.15
+   *      6-pick, early    1.22 - 1.29
+   *      6-pick, later    1.47 - 1.57
+   *
+   * Six picks cannot produce 9.4 departures. That is a structural impossibility,
+   * not a calibration quibble, and it is WORST in short windows and later rounds
+   * — where nearly all of Cory's picks fall. Over-prediction inflates urgency,
+   * urgency pushes toward reaching, and reaching is already measured as his
+   * single biggest personal leak. The engine was amplifying the behaviour it
+   * measured as costing him money.
+   *
+   * THE REDISTRIBUTION RULE, chosen and defended rather than fallen into.
+   * Conservation is an AGGREGATE constraint: it says the excess must go, not
+   * where. Three candidates, measured on the live board at pick 28 -> 34:
+   *
+   *     player            now   proportional   EXPONENTIAL TILT
+   *     DeVonta Smith     28%       41%              46%
+   *     Breece Hall       22%       36%              43%
+   *     Jaylen Waddle     92%       94%              92%
+   *
+   *   - competing risks (1-w/W)^N  UNDER-conserves (ratio 0.832) — wrong the
+   *     other way, because the convexity eats the high-weight players.
+   *   - proportional rescale conserves, but can push p above 1 and needs a
+   *     clamp, and the clamp breaks the conservation it just achieved. It also
+   *     moves ALREADY-SAFE players (Waddle +2pts) because the aggregate is off,
+   *     which is not where the error is.
+   *   - EXPONENTIAL TILT: find the single scalar L with
+   *         sum_i [1 - exp(-L * w_i)] = N
+   *     Chosen because it is SOLVED, not selected — one parameter determined by
+   *     the constraint rather than a rule someone picked. It is the maximum-
+   *     entropy distribution consistent with the count (least-committal given
+   *     what we know), rank-preserving, bounded in [0,1] by construction so no
+   *     clamp is needed, and it concentrates the correction where the error is:
+   *     Waddle moves -0, the contested players move +18 and +21.
+   *
+   * ══ THE CAVEAT SURVIVES THE FIX, and is stated rather than implied ══
+   * THIS IS NOT CALIBRATION. It enforces an identity. If the model's SHAPE is
+   * wrong, tilting yields per-player numbers that are still wrong and now merely
+   * sum correctly. Necessary, insufficient. Calibration needs outcome data this
+   * project does not yet have.
+   *
+   * ══ THE NEW COST, stated so it is visible rather than discovered ══
+   * L is fitted per (board state, target pick). Two adjacent windows can produce
+   * different L, so a player's number could move between renders with no pick
+   * occurring. That instability is new — the independent model did not have it.
+   * It is contained by fitting ONCE PER BOARD STATE and memoising on the board
+   * version, so repeated renders of the same state return identical numbers.
+   */
+  var TILT_MEMO = (typeof WeakMap !== 'undefined') ? new WeakMap() : null;
+
+  function solveTilt(weights, N) {
+    // Bisection on L. Monotone increasing in L, so this always converges.
+    var total = 0, i;
+    for (i = 0; i < weights.length; i++) total += weights[i];
+    if (!(total > N)) return null;            // already conserved — do nothing
+    var lo = 0, hi = 50;
+    function mass(L) {
+      var m = 0;
+      for (var j = 0; j < weights.length; j++) m += 1 - Math.exp(-L * weights[j]);
+      return m;
+    }
+    for (i = 0; i < 80; i++) {
+      var mid = (lo + hi) / 2;
+      if (mass(mid) < N) lo = mid; else hi = mid;
+    }
+    return (lo + hi) / 2;
+  }
+
+  /**
+   * Survival for a whole board, with the count identity enforced.
+   *
+   * Returns { byId, lambda, massBefore, massAfter, picks, applied } — the
+   * NUMBERS BESIDE THE VERDICT, so `applied` can be checked rather than trusted.
+   */
+  function conservedSurvival(board, targetPick, rawCtx) {
+    var ctx = normalizeCtx(rawCtx);
+    var cur = ctx.currentPick || 0;
+    var N = Math.max(0, targetPick - cur);
+    var list = board || ctx.board || [];
+    var key = boardVersion(list) + ':' + cur + ':' + targetPick;
+    if (TILT_MEMO) {
+      var hit = TILT_MEMO.get(list);
+      if (hit && hit.key === key) return hit.value;
+    }
+    var ids = [], w = [], raw = [], i, p, s;
+    for (i = 0; i < list.length; i++) {
+      p = list[i];
+      s = survivalProbability(p, targetPick, ctx);
+      if (s == null) continue;
+      ids.push(String(p.player_id));
+      raw.push(s);
+      w.push(1 - s);
+    }
+    var before = 0;
+    for (i = 0; i < w.length; i++) before += w[i];
+    var L = (N > 0) ? solveTilt(w, N) : null;
+    var byId = {}, after = 0, adj;
+    for (i = 0; i < ids.length; i++) {
+      adj = (L == null) ? raw[i] : Math.exp(-L * w[i]);
+      byId[ids[i]] = adj;
+      after += 1 - adj;
+    }
+    var out = { byId: byId, lambda: L, picks: N,
+                massBefore: before, massAfter: after,
+                ratioBefore: N ? before / N : null,
+                ratioAfter: N ? after / N : null,
+                applied: L != null, players: ids.length,
+                note: 'identity enforced, NOT calibrated — see the header' };
+    if (TILT_MEMO) TILT_MEMO.set(list, { key: key, value: out });
+    return out;
+  }
+
   const api = { expectedBestByPos, adpDrift, effectiveAdp, effectiveSd,
     CFG, URGENCY, urgency,
     normalCdf, adpSd,
@@ -1070,6 +1189,7 @@
     survivalProbability,
     positionSoftmax, poolSoftmax, memoStats, resetMemoStats,
     bumpBoard, boardVersion,
+    conservedSurvival, solveTilt,
   };
   global.DraftSurvival = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;

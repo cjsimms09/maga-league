@@ -46,11 +46,14 @@ const all = D.players.filter(p => p.proj_mean != null);
 const byAdp = all.slice().sort((a, b) => (a.adp == null ? 9999 : a.adp) - (b.adp == null ? 9999 : b.adp));
 
 /** Sum of P(gone) over the whole board for a window, with the board CONSUMED. */
-function conservation(cur, mine) {
+function conservation(cur, mine) {   // cur is the live clock
   const drafted = new Set(byAdp.slice(0, cur - 1).map(p => p.player_id));
   const board = all.filter(p => !drafted.has(p.player_id))
     .sort((a, b) => (b.vorp || 0) - (a.vorp || 0));
-  const ctx = { board: board, league: lg, runMultipliers: {},
+  // MIRROR THE LIVE CTX. Until 2026-08-11 this omitted `currentPick`, exactly as
+  // the app did — so it faithfully measured the live path's 1.15-1.57. The app
+  // now passes it, and a harness that does not is measuring a path nothing takes.
+  const ctx = { board: board, league: lg, currentPick: cur, runMultipliers: {},
                 profiles: (D.manager_profiles || {}).managers || {} };
   let mass = 0;
   board.forEach(p => { const s = S.survivalProbability(p, mine, ctx); if (s != null) mass += 1 - s; });
@@ -62,7 +65,7 @@ const MY_PICKS = (D.pick_order || {}).my_picks || [];
 const windows = [];
 MY_PICKS.slice(0, 10).forEach((m, i) => {
   const cur = i === 0 ? m - 6 : MY_PICKS[i - 1] + 1;
-  if (m - cur > 0) windows.push(conservation(cur, m));
+  if (m - cur > 0) windows.push(Object.assign(conservation(cur, m), { cur: cur, mine: m }));
 });
 
 ck('every window was measurable', windows.length >= 5, windows.length + ' windows');
@@ -71,7 +74,7 @@ ck('every window was measurable', windows.length >= 5, windows.length + ' window
 // yet, so the bar is a CEILING that documents the current state and stops it
 // getting worse. It is deliberately not 1.0 — asserting a standard the model
 // visibly fails would be a red suite nobody could act on before the draft.
-const CONSERVATION_CEILING = 1.70;
+const CONSERVATION_CEILING = 1.15;
 const worst = windows.reduce((w, x) => (x.ratio > w.ratio ? x : w), windows[0]);
 ck('no window exceeds the documented conservation ceiling (' + CONSERVATION_CEILING + ')',
    worst.ratio <= CONSERVATION_CEILING,
@@ -81,10 +84,49 @@ ck('no window exceeds the documented conservation ceiling (' + CONSERVATION_CEIL
 // And the finding itself, pinned: it DOES over-predict. If this ever starts
 // failing, survival got calibrated and this suite's headline needs rewriting —
 // which is the good outcome, and it should not pass silently.
-ck('the known over-prediction is still present (>1.0) — pinned, not fixed',
-   worst.ratio > 1.0,
-   'worst ratio ' + worst.ratio.toFixed(3) + ' — if this is now <=1, survival was '
-   + 'calibrated and this suite needs updating');
+// THE ROOT CAUSE IS FIXED, so the claim changes from "the bias is present" to
+// "the bias is bounded". The 1.15-1.57 figures were the UNCONDITIONAL path: the
+// app was not passing currentPick, so survival answered "taken by pick N from the
+// draft start" instead of "taken between now and N, given available now".
+ck('the residual over-prediction is small now that currentPick is passed',
+   worst.ratio <= CONSERVATION_CEILING,
+   'worst ratio ' + worst.ratio.toFixed(3));
+
+// AND THE TILT CLOSES THE RESIDUAL. Enforcement is checked directly, so a
+// regression in solveTilt cannot hide behind an already-small ratio.
+{
+  const w = windows[0];
+  const drafted = new Set(byAdp.slice(0, w.cur - 1).map(p => p.player_id));
+  const brd = all.filter(p => !drafted.has(p.player_id))
+    .sort((a, b) => (b.vorp || 0) - (a.vorp || 0));
+  const r = S.conservedSurvival(brd, w.mine,
+    { board: brd, league: lg, currentPick: w.cur, runMultipliers: {}, profiles: {} });
+  ck('the tilt enforces the count identity exactly when it binds',
+     !r.applied || Math.abs(r.ratioAfter - 1) < 1e-6,
+     'applied ' + r.applied + ' ratioAfter ' + (r.ratioAfter || 0).toFixed(6));
+  // FIND A WINDOW THAT IS ALREADY CONSERVED and assert the tilt leaves it alone.
+  // The first cut wrote `r.applied || r.ratioBefore <= 1.0`, which short-circuits
+  // to true whenever the tilt fired — so it could never catch OVER-firing, which
+  // is the only thing it was written to catch.
+  {
+    const conserved = windows.find(x => x.ratio <= 1.0);
+    ck('a window exists that is already conserved (so this is not vacuous)',
+       !!conserved, JSON.stringify(windows.map(x => +x.ratio.toFixed(3))));
+    if (conserved) {
+      const dr = new Set(byAdp.slice(0, conserved.cur - 1).map(p => p.player_id));
+      const cb = all.filter(p => !dr.has(p.player_id))
+        .sort((a, b) => (b.vorp || 0) - (a.vorp || 0));
+      const cr = S.conservedSurvival(cb, conserved.mine,
+        { board: cb, league: lg, currentPick: conserved.cur, runMultipliers: {}, profiles: {} });
+      ck('the tilt does NOTHING when the board is already conserved',
+         cr.applied === false,
+         'applied=' + cr.applied + ' on ratioBefore ' + (cr.ratioBefore || 0).toFixed(3));
+    }
+  }
+  ck('the tilt reports its numbers beside its verdict',
+     r.massBefore != null && r.massAfter != null && r.picks != null,
+     JSON.stringify({ b: r.massBefore, a: r.massAfter, n: r.picks }));
+}
 
 // SCOPE OF THIS MEASUREMENT, stated because it would otherwise be overclaimed.
 // It exercises `survivalProbability` — the ADP-marginal path the panel calls per
@@ -137,6 +179,20 @@ if (block) {
   ck('no surface prints a raw survival percentage outside the formatter',
      rawRenders.length === 0,
      rawRenders.map(x => 'line ' + x.n + ': ' + x.l.trim().slice(0, 70)).join(' | '));
+}
+
+/* THE LIVE CTX MUST CARRY currentPick. This suite builds its own context, so it
+ * cannot see whether app.js passes one — removing it from the app left every
+ * assertion here green while the live path reverted to the unconditional model
+ * that produced 1.15-1.57. Guard the source. */
+{
+  const app = fs.readFileSync(path.join(ROOT, 'public', 'js', 'draft', 'app.js'), 'utf8');
+  const i = app.indexOf('intervening: interveningPicks()');
+  const near = i > 0 ? app.slice(Math.max(0, i - 2500), i) : '';
+  ck('the LIVE survival context passes currentPick',
+     /\n\s*currentPick:\s*\w/.test(near),
+     'app.js builds its survival ctx without currentPick — survival reverts to '
+     + 'the unconditional model and over-predicts departures by 15-57%');
 }
 
 console.log('');
