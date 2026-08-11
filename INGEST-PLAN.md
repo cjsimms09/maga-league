@@ -247,7 +247,12 @@ actions. Every reason is a TRUE statement about the league.
   `F4.unreadable_starter_limits` · `F4.no_draft_type` · `F4.draft_type_absent` ·
   `F4.draft_type_unrecognised` · `F4.no_draft` · `F4.no_draft_status` ·
   `F4.crosswalk_not_run` · `F4.no_weekly_outcomes` · `F4.no_pre_draft_adp` ·
-  `F4.fetch_failed` · `F5.missing_timestamps`
+  `F4.fetch_failed` · `F5.missing_timestamps` ·
+  `F4.scoring_untranslatable` · `F4.scoring_range_exceeded` · `F4.no_weekly_data` ·
+  `F4.no_gsis_crosswalk`  *(the last four are F3/D5 — see D5 at the foot of this
+  document. All four are gaps in OUR vocabulary or OUR fetch, which is why they sit
+  here and not above: a league whose scoring uses a term we cannot express is not a
+  league that scores differently from ours, it is a league we cannot read.)*
 
 A reason code that is in neither list is **binned nowhere and reported loudly**,
 rather than defaulting into "filtered" — which would recreate the same defect one
@@ -458,3 +463,57 @@ even crosses a date boundary" stays an assumption — and that fraction is a fun
 returns first, this is not a tail case. Reporting it converts the assumption into a number
 at zero marginal cost, which is the only reason it belongs in the pre-registration rather
 than in someone's judgement at analysis time.
+
+---
+
+## D5 — HOW AN EXTERNAL LEAGUE'S OUTCOMES ARE SCORED (registered 2026-08-11)
+
+**Registered BEFORE any external league had been scored.** No weekly-outcomes ingest
+existed when this was written — `ingest_run.run()` pre-declared that every league would
+report `F4.no_weekly_outcomes` — so nothing below is a rule chosen after seeing what it
+would admit. It implements F3 and F4; it does not amend F1–F7 and does not change any
+verdict already recorded.
+
+**D5a — the shipped scorer, under the league's own rules.** Weekly points are computed by
+`scoring.score_stat_line` (the engine the tool ships) from stat lines translated by
+`grade.nflverse_weekly_to_scoring` (the translation the backtest ships), under a flat
+scoring table built per position from the league's own `TYPE=rules` export. MFL event codes
+are read from the committed 153-code dictionary in `mfl_schema_probe.json`, never inferred
+from the letters. *A second scorer would be the multi-derivation failure rule 11 exists for,
+and it would hide perfectly: two scorers agreeing on most players produce a plausible number
+for the rest and never error.*
+
+**D5b — the scoreable vocabulary is closed, and a term outside it fails the LEAGUE.** The
+translator emits exactly thirteen keys. A rule on a **graded** position (QB/RB/WR/TE) whose
+event is outside that set makes the league unscoreable: `F4.scoring_untranslatable`. Rules on
+positions we never draft (Def, K, Coach, …) are recorded as **ignored**, not as failures.
+*Dropping an untranslatable term is not a floor with a caveat. A league scoring −2 per
+interception, scored without it, pays every QB too much; the direction of the error is the
+sign of the term. There is no honest caveat to attach, so the league is refused instead.*
+
+**D5c — a rule is a multiplier only if it is the sole rule for its (position, event) pair
+and its range starts at 0.** Two rules for one pair is banded scoring; a range starting above
+zero is a threshold bonus. Neither is a per-unit rate over a weekly total. *This is
+deliberately stricter than `reception_points_by_position`, which flattens bands with `max()`.
+That is correct in a FILTER, where the conservative read costs sample; it is not correct in a
+SCORER, where it invents points nobody scored.*
+
+**D5d — a range's upper bound is CHECKED AGAINST THE DATA, never assumed.** If any scored
+player-week exceeds a rule's `hi`, the league is unscoreable (`F4.scoring_range_exceeded`) and
+the exceeding value is named. *MFL's common `0-99` is unbounded for receptions and is not for
+receiving yards, and nothing in the rule says which — only the season does. The check converts
+an assumption into a measurement, and it fires at the top of the distribution, where the
+expensive players are.*
+
+**D5e — absent is dropped and counted; zero is kept.** A drafted player with no weekly rows is
+dropped from F3 and counted. A player whose weeks sum to exactly 0.0 is **kept** — he played
+and scored nothing, which is an outcome. *The two produce the same total and are one `if`
+apart.*
+
+**What this is expected to cost, stated before the first run.** MFL leagues commonly score
+terms the shipped translator does not emit — pass attempts, completions, targets, first downs,
+big-play bonuses. nflverse weekly carries those columns; `nflverse_weekly_to_scoring` does not
+map them, and that file is not this lane's to edit. So a non-trivial share of otherwise
+qualifying leagues is expected to fail D5b, and the run reports the failing EVENT CODES with
+counts. That report is the evidence for a request to widen the translator — a request with a
+number attached rather than a guess.

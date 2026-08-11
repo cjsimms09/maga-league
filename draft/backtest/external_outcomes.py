@@ -1,0 +1,508 @@
+"""F3 — THE REALIZED WEEKLY SERIES for an external league, under THAT league's rules.
+
+The prerequisite `ingest_run.run()` pre-declared before it ever ran: F4 excludes a
+league missing weekly outcomes, there was no weekly-outcomes ingest, so every
+league was destined for `F4.no_weekly_outcomes`. This is that ingest.
+
+WHAT IS NEW HERE AND WHAT IS DELIBERATELY NOT
+---------------------------------------------
+Not new, and must not be: the scorer and the stat-line translation. `scoring.
+score_stat_line` is the shipped engine and `grade.nflverse_weekly_to_scoring` is
+the shipped nflverse-column translation — both are imported, neither is
+re-implemented. A second scorer would be the multi-derivation failure rule 11
+exists for, and it would hide perfectly: two scorers that agree on 95% of players
+produce a plausible number for the other 5% and never error.
+
+New: MFL's per-position scoring rules become one flat scoring table PER POSITION,
+so an external league is graded under its own rules rather than under ours.
+
+THE TRAP THIS FILE IS BUILT AROUND: A TERM WE CANNOT TRANSLATE IS NOT A TERM
+WORTH ZERO. If a league scores -2 per interception and we silently drop the term,
+every QB scores HIGH — the omission is not a floor, it is a bias with no stated
+direction. So the vocabulary is closed to what the shipped stat-line translator
+actually emits, and any scoring rule outside it makes the LEAGUE unscoreable and
+counted, never a league scored with a hole in it.
+
+D5 (registered 2026-08-11, before any external league had been scored):
+
+  D5a  Weekly outcomes are computed by the SHIPPED scorer under the league's OWN
+       per-position rules, translated from MFL event codes via the committed
+       153-code dictionary (`mfl_schema_probe.json`), never inferred from letters.
+  D5b  The scoreable vocabulary is exactly the key set
+       `grade.nflverse_weekly_to_scoring` emits. Any rule on any GRADED position
+       whose event falls outside it makes the league unscoreable:
+       `F4.scoring_untranslatable`. Rules on positions we do not grade (Def, K,
+       Coach, ...) are recorded as ignored, not as failures.
+  D5c  A rule is a linear per-unit multiplier only if it is the SOLE rule for its
+       (position, event) pair and its range starts at 0. Two rules for one pair is
+       banded scoring; a range starting above 0 is a threshold bonus. Neither is a
+       multiplier over a weekly total, and both are untranslatable.
+       (This is also where `reception_points_by_position`'s known `max()` flattening
+       of banded rules is NOT repeated — see the note in that function.)
+  D5d  A range's upper bound is CHECKED AGAINST THE DATA, not assumed. If any
+       scored player-week exceeds `hi` for a bounded rule, the league is
+       untranslatable and the exceeding value is named. An assumption about what
+       "0-99" covers becomes a measurement of what the season actually contained.
+  D5e  A drafted player with NO weekly rows is DROPPED AND COUNTED (F3), never
+       scored as zero. A player with weekly rows summing to exactly 0.0 is KEPT —
+       he played and scored nothing, which is an outcome.
+
+WHAT TOUCHES THE NETWORK: `fetch_weekly` only. Everything above it is pure and is
+tested offline, including the range-exceedance check and the coverage report.
+"""
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+HERE = Path(__file__).resolve().parent
+if str(HERE) not in sys.path:
+    sys.path.insert(0, str(HERE))
+_DRAFT = HERE.parent
+if str(_DRAFT) not in sys.path:
+    sys.path.insert(0, str(_DRAFT))
+
+import scoring  # noqa: E402  (draft/scoring.py — THE scorer, not a copy)
+
+import grade as GR  # noqa: E402  (draft/backtest/grade.py — THE stat-line translation)
+from mfl_adapter import listify, t  # noqa: E402
+
+# The positions an external draft's outcomes are graded for. A league's rules for
+# Def/K/Coach are real rules, but they price players our board does not carry and
+# our replay never drafts, so a rule we cannot translate for them costs nothing.
+GRADED_POSITIONS = ("QB", "RB", "WR", "TE")
+
+# THE CLOSED VOCABULARY, DERIVED rather than restated. `_OUR_KEYS` is the exact
+# set `nflverse_weekly_to_scoring` can emit; writing the list out again here would
+# let this file and the translator drift apart silently, which is the same defect
+# in miniature as writing a second scorer.
+SCOREABLE_KEYS = frozenset(GR._OUR_KEYS)
+
+# MFL event code -> our scoring key. Every entry is quoted from MFL's own
+# `TYPE=allRules` dictionary as captured by the committed probe (153 codes), so a
+# wrong mapping is a misreading of a sentence rather than a guess about letters.
+EVENT_TO_KEY = {
+    "PY": "pass_yd",     # "the total passing yardage in a game"
+    "#P": "pass_td",     # "the total number of Passing TDs in a game by a player"
+    "IN": "pass_int",    # "the number of pass interceptions thrown by a player"
+    "P2": "pass_2pt",    # "successful two point conversion passes in a game"
+    "RY": "rush_yd",     # "the total rushing yardage in a game"
+    "#R": "rush_td",     # "the total number of Rushing TDs in a game by a player"
+    "R2": "rush_2pt",    # "successful two point conversion rushes in a game"
+    "CC": "rec",         # "the number of receptions in a game"
+    "CY": "rec_yd",      # "the total receiving yardage in a game"
+    "#C": "rec_td",      # "the total number of Receiving TDs in a game by a player"
+    "C2": "rec_2pt",     # "successful two point conversion receptions in a game"
+    "FL": "fum_lost",    # "fumbles by a player that end up being recovered by the [opponent]"
+    "FLO": "fum_lost",   # "anytime a player fumbles (and the opposing team recovers) on offense"
+}
+
+# Codes deliberately NOT mapped even though a mapping looks available, each for a
+# reason that would otherwise produce a confidently wrong number:
+#   PS / RS / RC   per-TD YARDAGE ("evaluated for EACH passing TD") — distance
+#                  scoring, not a multiplier on a TD count.
+#   #TD            all TDs together; expanding it into three keys would double-count
+#                  against a league that ALSO scores #P/#R/#C.
+#   PRY/RCY/TY/TYS combined-yardage terms that overlap the keys above.
+#   PA/PC/RA/TGT/1C/1P/1R/C20/C40/R20/R40/P20..P50
+#                  real scoring in some leagues, and nflverse weekly DOES carry the
+#                  underlying columns — but `nflverse_weekly_to_scoring` does not
+#                  emit them, and widening it is `grade.py`, which is not this
+#                  lane's file. Measured cost is reported so the request to widen
+#                  it can be made with a number attached rather than a guess.
+
+
+class Untranslatable(Exception):
+    """Raised only by callers that want the failure loud; the API returns reasons."""
+
+
+def _range(expr: str):
+    """MFL rule range -> (lo, hi). `hi` may be None for unbounded.
+
+    Returns None when the range is present but unreadable — which is NOT the same
+    as unbounded, and must not collapse into it: an unreadable band read as
+    "applies to everything" would silently score a threshold bonus on every week.
+    """
+    e = (expr or "").strip()
+    if not e:
+        return (0.0, None)
+    parts = e.replace("+", "-").split("-")
+    try:
+        lo = float(parts[0])
+    except (ValueError, IndexError):
+        return None
+    if len(parts) == 1 or not parts[1].strip():
+        return (lo, None)
+    try:
+        return (lo, float(parts[1]))
+    except ValueError:
+        return None
+
+
+def _points(expr: str):
+    """Shared with the adapter's reading of MFL points expressions ("*0.5", "=3")."""
+    from mfl_adapter import _points_per_event
+    return _points_per_event(expr)
+
+
+def scoring_tables(rules_json, positions=GRADED_POSITIONS) -> tuple:
+    """(tables, untranslatable, ignored, bounds) for one league's TYPE=rules export.
+
+    `tables`        {POS: {our_key: points_per_unit}} — a flat scoring table per
+                    graded position, ready for `scoring.score_stat_line`.
+    `untranslatable` {POS: [reason dicts]} — why this position cannot be scored.
+                    STRUCTURED, not prose: the whole value of this report is the
+                    census of WHICH EVENT CODES cost us leagues, and re-parsing a
+                    string we formatted ourselves to recover the code would be a
+                    second derivation of a fact we already had.
+    `ignored`       [POS] — positions carrying rules we did not try to translate
+                    because we do not grade them. Reported so "no untranslatable
+                    terms" cannot mean "we never looked".
+    `bounds`        {POS: {our_key: hi}} — the upper bound of every rule this
+                    function ACCEPTED. Returned rather than recomputed by the
+                    caller so the bound checked against the data and the bound the
+                    table was built from cannot be two different numbers.
+
+    D5c is enforced by collecting rules per (pos, event) FIRST and judging the
+    group, because the defect is invisible one rule at a time: each of a banded
+    pair is a perfectly readable multiplier on its own.
+    """
+    import json as _json
+    d = _json.loads(rules_json) if isinstance(rules_json, str) else (rules_json or {})
+    if d.get("error") or (d.get("rules") or {}).get("positionRules") is None:
+        return {}, {p: [{"why": "no_scoring_rules"}] for p in positions}, [], {}
+
+    graded = {p.upper() for p in positions}
+    # (POS, EVENT) -> [(points_expr, range_expr)]
+    grouped: dict = {}
+    ignored: list = []
+    for pr in listify((d.get("rules") or {}).get("positionRules")):
+        names = [p.strip().upper() for p in
+                 t(pr.get("positions")).replace(",", "|").split("|") if p.strip()]
+        rules = listify(pr.get("rule"))
+        for n in names:
+            if n not in graded:
+                if n not in ignored and rules:
+                    ignored.append(n)
+                continue
+            for rule in rules:
+                ev = t(rule.get("event")).strip().upper()
+                grouped.setdefault((n, ev), []).append(
+                    (t(rule.get("points")), t(rule.get("range"))))
+
+    tables: dict = {}
+    bad: dict = {}
+    bounds: dict = {}
+    for (pos, ev), rules in sorted(grouped.items()):
+        key = EVENT_TO_KEY.get(ev)
+        if key is None:
+            bad.setdefault(pos, []).append({"why": "event_untranslatable", "event": ev})
+            continue
+        if key not in SCOREABLE_KEYS:       # belt and braces; EVENT_TO_KEY is closed
+            bad.setdefault(pos, []).append({"why": "key_not_emitted", "event": ev,
+                                            "key": key})
+            continue
+        if len(rules) > 1:
+            # D5c: banded scoring. NOT flattened by max() — that is the known
+            # weakness in `reception_points_by_position`, which is a FILTER (where
+            # the conservative read excludes) and not a SCORER (where it invents
+            # points nobody scored).
+            bad.setdefault(pos, []).append({"why": "banded", "event": ev,
+                                            "n": len(rules)})
+            continue
+        pts_expr, rng_expr = rules[0]
+        pts = _points(pts_expr)
+        if pts is None:
+            bad.setdefault(pos, []).append({"why": "unreadable_points", "event": ev,
+                                            "expr": pts_expr})
+            continue
+        rng = _range(rng_expr)
+        if rng is None:
+            bad.setdefault(pos, []).append({"why": "unreadable_range", "event": ev,
+                                            "expr": rng_expr})
+            continue
+        lo, hi = rng
+        if lo != 0.0:
+            bad.setdefault(pos, []).append({"why": "threshold", "event": ev, "lo": lo})
+            continue
+        tables.setdefault(pos, {})[key] = pts
+        if hi is not None:
+            bounds.setdefault(pos, {})[key] = hi
+
+    for p in graded:
+        if p not in tables and p not in bad:
+            bad.setdefault(p, []).append({"why": "no_rules_for_position"})
+    # A position with ANY untranslatable term keeps no table at all. A partial
+    # table is the exact object D5b exists to refuse.
+    for p in list(bad):
+        tables.pop(p, None)
+        bounds.pop(p, None)
+    return tables, bad, sorted(ignored), bounds
+
+
+def weekly_points(rows, season, tables, positions, id_map=None, bounds=None) -> dict:
+    """{our_player_id: {week: points}} plus the range exceedances D5d measures.
+
+    Returns {"series": ..., "exceeded": [...], "unknown_position": [...],
+             "no_table": [...]}.
+
+    `rows`      nflverse weekly records (dicts). Filtered to `season` here.
+    `tables`    {POS: flat scoring table} from `scoring_tables`.
+    `positions` {our_player_id: POS}.
+    `id_map`    {row player_id: our_player_id}; identity when None.
+    `bounds`    {POS: {key: hi}} — the upper bounds to check against the data.
+    """
+    series: dict = {}
+    exceeded: list = []
+    unknown_pos: set = set()
+    no_table: set = set()
+    bounds = bounds or {}
+    for row in rows or []:
+        if season is not None and "season" in row and int(row["season"]) != int(season):
+            continue
+        raw = str(row.get("player_id") if "player_id" in row else row.get("gsis_id"))
+        pid = str(id_map.get(raw)) if id_map is not None else raw
+        if id_map is not None and raw not in id_map:
+            continue                      # not a player this league drafted; not our business
+        pos = (positions or {}).get(pid)
+        if not pos:
+            unknown_pos.add(pid)
+            continue
+        table = tables.get(str(pos).upper())
+        if not table:
+            no_table.add(pid)
+            continue
+        line = GR.nflverse_weekly_to_scoring(row)
+        for key, hi in (bounds.get(str(pos).upper()) or {}).items():
+            v = line.get(key)
+            if v is not None and float(v) > float(hi):
+                exceeded.append({"player_id": pid, "position": str(pos).upper(),
+                                 "key": key, "value": float(v), "hi": float(hi),
+                                 "week": row.get("week")})
+        wk = row.get("week")
+        wk = int(wk) if wk is not None else None
+        bucket = series.setdefault(pid, {})
+        bucket[wk] = round(bucket.get(wk, 0.0) + scoring.score_stat_line(line, table), 2)
+    return {"series": series, "exceeded": exceeded,
+            "unknown_position": sorted(unknown_pos), "no_table": sorted(no_table)}
+
+
+def f3_report(drafted_ids, series) -> dict:
+    """F3: kept vs DROPPED AND COUNTED, with zero on the right side of the line.
+
+    A player with weekly rows summing to exactly 0.0 PLAYED AND SCORED NOTHING and
+    is KEPT. A player with no weekly rows at all is absent and is dropped. The two
+    are one `if` apart and produce the same total, which is why the boundary is
+    the thing this function is organised around rather than a detail inside it.
+    """
+    kept, dropped = [], []
+    for pid in drafted_ids or []:
+        wk = (series or {}).get(str(pid))
+        if wk is None or len(wk) == 0:
+            dropped.append(str(pid))
+        else:
+            kept.append(str(pid))
+    n = len(kept) + len(dropped)
+    return {
+        "drafted_with_outcomes": len(kept),
+        "drafted_without_outcomes": len(dropped),
+        "dropped_ids": dropped[:50],
+        "examined": n,
+        "coverage": round(len(kept) / n, 4) if n else None,
+        # Stated so a reader cannot take `coverage` for a scoring rate: a player
+        # who was never on an NFL field is missing data, not a zero.
+        "absent_policy": "a drafted player with no weekly rows is DROPPED AND "
+                         "COUNTED; a player whose weeks sum to 0.0 is KEPT",
+    }
+
+
+def _fmt(r: dict) -> str:
+    ev = r.get("event")
+    why = r.get("why")
+    if why == "banded":
+        return "%s_banded_%d_rules" % (ev, r.get("n"))
+    if why == "threshold":
+        return "%s_threshold_from_%g" % (ev, r.get("lo"))
+    if why in ("unreadable_points", "unreadable_range"):
+        return "%s_%s:%s" % (ev, why, r.get("expr"))
+    if why == "key_not_emitted":
+        return "%s_key_%s_not_emitted" % (ev, r.get("key"))
+    return "%s_%s" % (ev, why) if ev else str(why)
+
+
+def untranslatable_reason(bad: dict) -> str:
+    """The F4 detail string, formatted from the structured reasons in ONE place.
+
+    One direction only — structure to string, never back. Everything that needs to
+    COUNT event codes reads the structure (`untranslatable_census`); this exists so
+    the attrition report has something a human can read on the line.
+    """
+    return "F4.scoring_untranslatable:" + ";".join(
+        "%s=%s" % (p, ",".join(_fmt(r) for r in v)) for p, v in sorted(bad.items()))
+
+
+def untranslatable_census(outcomes) -> dict:
+    """WHICH EVENT CODES COST US LEAGUES, with counts. The number for the request.
+
+    D5b says a rule outside the shipped translator's vocabulary fails the league.
+    That is the right call and it is also, potentially, most of the pool — so the
+    run must say WHAT it cost rather than only THAT it cost something. A request to
+    widen `grade.nflverse_weekly_to_scoring` (not this lane's file) is worth making
+    only with this table attached; without it, it is a guess about a codebase
+    somebody else owns.
+
+    Counts leagues, not rules: one league scoring TGT for three positions is ONE
+    league lost to TGT, and counting the rules would triple it.
+    """
+    from collections import Counter
+    codes = Counter()
+    whys = Counter()
+    lost = 0
+    for o in outcomes or []:
+        bad = (o or {}).get("untranslatable") or {}
+        if not bad:
+            continue
+        lost += 1
+        seen_codes, seen_whys = set(), set()
+        for reasons in bad.values():
+            for r in reasons:
+                if r.get("event"):
+                    seen_codes.add(r["event"])
+                seen_whys.add(r.get("why"))
+        codes.update(seen_codes)
+        whys.update(seen_whys)
+    return {"leagues_unscoreable": lost,
+            "leagues_examined": len(outcomes or []),
+            "by_event_code": dict(codes.most_common()),
+            "by_reason": dict(whys.most_common()),
+            "verdict": _census_verdict(lost, len(outcomes or []), codes)}
+
+
+def _census_verdict(lost, examined, codes) -> str:
+    if not examined:
+        return "no leagues examined"
+    if not lost:
+        return "%d of %d leagues scoreable under their own rules" % (examined, examined)
+    top = ", ".join("%s (%d)" % kv for kv in codes.most_common(8))
+    return ("%d of %d LEAGUES ARE UNSCOREABLE under D5b — the scoring vocabulary is "
+            "the binding constraint, not the format filters. Costliest event codes: %s. "
+            "Each is a term nflverse weekly CARRIES and `grade.nflverse_weekly_to_scoring` "
+            "does not emit; widening it is a change in another lane, and this table is "
+            "what that request is worth making with"
+            % (lost, examined, top or "(none — all failures are structural, not vocabulary)"))
+
+
+def league_outcomes(rules_json, drafted_ids, weekly_rows, season, positions,
+                    id_map) -> dict:
+    """The whole F3 answer for one league, and the F4 flag `screen()` reads.
+
+    `has_weekly_outcomes` is decided HERE and nowhere else. Every path that sets
+    it False also sets `reason` to a declared code, because a False with no reason
+    is the attrition seam collapsing again one layer down.
+
+    `id_map` HAS NO DEFAULT, on purpose. Weekly rows are keyed by GSIS id and our
+    board is keyed by Sleeper id, so without the map nothing joins — and the shape
+    of "nothing joined" is every drafted player reported absent, which reads as a
+    season in which none of them played. An empty map is refused by name rather
+    than allowed to produce a 0% coverage figure that looks like a finding.
+    """
+    tables, bad, ignored, bounds = scoring_tables(rules_json)
+    out = {"season": season, "scoring_tables": tables, "untranslatable": bad,
+           "ignored_positions": ignored, "series": {}, "f3": None,
+           "has_weekly_outcomes": False, "reason": None}
+    if bad:
+        out["reason"] = untranslatable_reason(bad)
+        return out
+    if not weekly_rows:
+        # NOT "this league has no outcomes". We fetched nothing for the season, and
+        # that is a statement about the fetch.
+        out["reason"] = "F4.no_weekly_data:%s" % season
+        return out
+    if not id_map:
+        out["reason"] = "F4.no_gsis_crosswalk"
+        return out
+    got = weekly_points(weekly_rows, season, tables, positions, id_map, bounds)
+    if got["exceeded"]:
+        first = got["exceeded"][0]
+        out["reason"] = ("F4.scoring_range_exceeded:%s.%s=%g>%g"
+                         % (first["position"], first["key"], first["value"], first["hi"]))
+        out["exceeded"] = got["exceeded"][:20]
+        return out
+    out["series"] = got["series"]
+    out["unknown_position"] = got["unknown_position"]
+    out["no_table"] = got["no_table"]
+    out["f3"] = f3_report(drafted_ids, got["series"])
+    out["has_weekly_outcomes"] = True
+    out["reason"] = "ok"
+    return out
+
+
+def sanity_top(rows, season, table, n=20) -> list:
+    """Top `n` player-SEASONS under one flat table, with names. Rule 12's eyeball.
+
+    A translation that scores 5,597 rows without error and produces a leaderboard
+    of nobody is broken in a way no unit test built from my own fixtures can see —
+    my fixtures use the column names I already believe in. This scores REAL rows
+    under the shipped half-PPR reference and prints who came out on top, which is
+    the one check a human can run against knowledge the pipeline does not have.
+
+    Pure, so the ranking is tested offline; only the rows come from the network.
+    """
+    totals: dict = {}
+    for row in rows or []:
+        if season is not None and "season" in row and int(row["season"]) != int(season):
+            continue
+        pid = str(row.get("player_id") or row.get("gsis_id"))
+        rec = totals.setdefault(pid, {"player_id": pid, "points": 0.0, "weeks": 0,
+                                      "name": row.get("player_display_name")
+                                      or row.get("player_name"),
+                                      "position": row.get("position")})
+        rec["points"] = round(rec["points"] + scoring.score_stat_line(
+            GR.nflverse_weekly_to_scoring(row), table), 2)
+        rec["weeks"] += 1
+        rec["name"] = rec["name"] or row.get("player_display_name")
+        rec["position"] = rec["position"] or row.get("position")
+    return sorted(totals.values(), key=lambda r: -r["points"])[:n]
+
+
+# ── the fetch, CI only ──────────────────────────────────────────────────────
+def fetch_weekly(season, loaders=None):  # pragma: no cover  (egress; CI only)
+    """Weekly rows for one season, from whichever loader ANSWERS, and says which.
+
+    Rule 13, and it is not hypothetical here: `cli.py` records that
+    `import_weekly_data` 404s for some seasons that `import_pbp_data` serves — a
+    stale URL in the library, not missing data in the world. DATA-INVENTORY.md
+    (probed 2026-08-08 in CI) records `import_weekly_data[2024]` REACHABLE at 5,597
+    rows and `nflreadpy` INSTALLED but NEVER PROBED FOR WEEKLY. So neither is
+    assumed: both are tried, the answer names the one that worked, and a season
+    nothing serves comes back as an error rather than as an empty season.
+    """
+    tried = []
+
+    def _nfl_data_py():
+        import nfl_data_py as nfl
+        df = nfl.import_weekly_data([int(season)])
+        return df.to_dict("records")
+
+    def _nflreadpy():
+        import nflreadpy as nr
+        df = nr.load_player_stats(seasons=[int(season)])
+        return df.to_dicts() if hasattr(df, "to_dicts") else df.to_dict("records")
+
+    for name, fn in (loaders or (("nfl_data_py.import_weekly_data", _nfl_data_py),
+                                 ("nflreadpy.load_player_stats", _nflreadpy))):
+        try:
+            rows = fn()
+        except Exception as e:                                   # noqa: BLE001
+            tried.append({"loader": name, "status": "UNREACHABLE",
+                          "detail": "%s: %s" % (type(e).__name__, e)})
+            continue
+        if not rows:
+            # An empty answer is NOT a working loader. A season served as zero rows
+            # would make every drafted player "absent" and the league unscoreable
+            # for a reason that names the league instead of the fetch.
+            tried.append({"loader": name, "status": "EMPTY", "detail": "0 rows"})
+            continue
+        tried.append({"loader": name, "status": "REACHABLE", "detail": "%d rows" % len(rows)})
+        return {"rows": rows, "loader": name, "tried": tried}
+    return {"error": "no loader served weekly data for %s" % season, "tried": tried}

@@ -233,3 +233,97 @@ def test_MISSING_WEEKLY_OUTCOMES_is_reported_as_itself_not_as_a_crosswalk_failur
     rep = R.attrition_report(verdicts, requested=["L1"])
     assert rep["rejected_by_reason"]["F4.no_weekly_outcomes"] == 1
     assert rep["rejected_unreadable"] == 1, "a missing prerequisite is about our pipeline"
+
+
+# ── F3 WIRED IN: the seam between the crosswalk and the weekly series ───────
+def _cw_rows(*pairs):
+    """What `crosswalk_picks` actually returns: rows keyed on OUR id, carrying
+    MFL's position as `position` — the matcher's input, not our board's answer."""
+    return ([{"overall": i + 1, "player_id": sid, "matched_by": "name",
+              "name": nm, "position": mfl_pos}
+             for i, (sid, nm, mfl_pos) in enumerate(pairs)], {})
+
+
+def _index(*pairs):
+    """A board index in the shape `_board_by_id` reads it."""
+    return {"by_name": {nm.lower(): [{"id": sid, "name": nm, "pos": pos, "team": "X"}]
+                        for sid, nm, pos in pairs}}
+
+
+RULES = {"rules": {"positionRules": [
+    {"positions": "QB", "rule": [{"event": {"$t": "PY"}, "points": {"$t": "*0.04"}}]},
+    {"positions": "RB|WR|TE", "rule": [{"event": {"$t": "CC"}, "points": {"$t": "*0.5"}}]}]}}
+
+
+def test_the_POSITION_comes_from_OUR_BOARD_not_from_the_crosswalk_ROW():
+    """MUTATION: read `r["position"]`. The row carries MFL's opinion and OUR id,
+    so a pair the sources disagree about would be scored under the wrong table —
+    and `crosswalk_picks` counts exactly those pairs as `conflicts` because that
+    disagreement is the signature of a wrong match.
+
+    Here MFL says the player is a WR and our board says QB. Under the QB table a
+    300-yard passing week is 300 x 0.04 = 12.0; under the WR table it is 0.0,
+    because a receiver's table has no passing term at all."""
+    cw = _cw_rows(("77", "A Player", "WR"))
+    rows = [{"player_id": "G77", "season": 2025, "week": 1, "passing_yards": 300}]
+    got = R.outcomes_fields(RULES, cw, rows, 2025, {"G77": "77"},
+                            _index(("77", "A Player", "QB")))
+    assert got["has_weekly_outcomes"] is True
+    assert got["outcomes"]["series"]["77"] == {1: 12.0}
+
+
+def test_a_pick_that_never_CROSSWALKED_is_not_counted_AGAIN_as_a_missing_outcome():
+    """F2 already counted him once. Counting him here would charge one league
+    twice for one failure and make F3's coverage a function of F2's."""
+    cw = _cw_rows(("77", "A Player", "QB"))          # one matched row; F2 counts the rest
+    rows = [{"player_id": "G77", "season": 2025, "week": 1, "passing_yards": 300}]
+    got = R.outcomes_fields(RULES, cw, rows, 2025, {"G77": "77"},
+                            _index(("77", "A Player", "QB")))
+    assert got["outcomes"]["f3"]["examined"] == 1
+    assert got["outcomes"]["f3"]["drafted_without_outcomes"] == 0
+
+
+def test_a_player_OUR_BOARD_cannot_POSITION_is_counted_not_defaulted():
+    """No fallback to the row's position, and no default table. He lands in
+    `unknown_position`, which is a count, and drops out of F3 as absent."""
+    cw = _cw_rows(("77", "A Player", "WR"))
+    rows = [{"player_id": "G77", "season": 2025, "week": 1, "receptions": 5}]
+    got = R.outcomes_fields(RULES, cw, rows, 2025, {"G77": "77"}, {"by_name": {}})
+    assert got["outcomes"]["unknown_position"] == ["77"]
+    assert got["outcomes"]["f3"]["drafted_without_outcomes"] == 1
+
+
+def test_the_run_no_longer_has_to_be_TOLD_whether_a_league_has_outcomes():
+    """`has_weekly_outcomes` was a caller-supplied flag with no producer — the
+    prerequisite `run()` pre-declared would fail every league. It now comes from
+    the outcomes module, and the flag that reaches `screen()` is the one that
+    module decided."""
+    cw = _cw_rows(("77", "A Player", "QB"))
+    got = R.outcomes_fields(RULES, cw, [], 2025, {"G77": "77"},
+                            _index(("77", "A Player", "QB")))
+    assert got["has_weekly_outcomes"] is False
+    assert got["outcomes"]["reason"] == "F4.no_weekly_data:2025"
+    assert F.is_unreadable(got["outcomes"]["reason"])
+
+
+def test_MEAN_F3_COVERAGE_is_taken_over_SCORED_leagues_only():
+    """MUTATION: fold a league with no coverage figure in as 0.0. Two leagues at
+    100% and one refused for vocabulary would report 0.667 — a vocabulary gap in
+    OUR pipeline printed as a season in which a third of the drafted players never
+    took a snap. The count with no figure is printed beside the mean so the mean
+    cannot be read as covering the run."""
+    outs = [{"f3": {"coverage": 1.0}, "reason": "ok", "untranslatable": {}},
+            {"f3": {"coverage": 1.0}, "reason": "ok", "untranslatable": {}},
+            {"f3": None, "reason": "F4.scoring_untranslatable:QB=TGT_event_untranslatable",
+             "untranslatable": {"QB": [{"why": "event_untranslatable", "event": "TGT"}]}}]
+    s = R.outcomes_summary(outs)
+    assert s["mean_f3_coverage_over_SCORED_leagues"] == 1.0
+    assert s["leagues_scored"] == 2 and s["leagues_with_no_coverage_figure"] == 1
+    assert s["census"]["by_event_code"] == {"TGT": 1}
+
+
+def test_a_run_where_NOTHING_scored_reports_None_not_zero():
+    s = R.outcomes_summary([{"f3": None, "reason": "F4.no_weekly_data:2025",
+                             "untranslatable": {}}])
+    assert s["mean_f3_coverage_over_SCORED_leagues"] is None
+    assert s["reasons"] == {"F4.no_weekly_data:2025": 1}
