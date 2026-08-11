@@ -430,6 +430,7 @@ def run(league_ids, year, out_path=None, *, players=None, board=None,
 
     import time as _time
     records, outcomes, cw_reports = [], [], []
+    pool_picks, league_dates = [], {}
     for _i, lid in enumerate(league_ids):
         if _i:
             # BETWEEN LEAGUES TOO, not only between exports. The measured 429 came
@@ -452,6 +453,14 @@ def run(league_ids, year, out_path=None, *, players=None, board=None,
             adp = {"pre_draft_adp": None, "adp_observed_at": None,
                    "_adp_note": "%s: %s" % (type(e).__name__, e)}
         cw_reports.append((extra["crosswalk"] or (None, None))[1])
+        # D7's raw material, accumulated as we go: every pick with its OWN
+        # timestamp and its league. Per-pick, because an email draft that started
+        # early can contain picks made late.
+        stamps = [p.get("timestamp") for p in picks if p.get("timestamp")]
+        league_dates[str(lid)] = min(stamps) if stamps else None
+        for p in picks:
+            pool_picks.append({"league_id": str(lid), "player": str(p.get("player")),
+                               "overall": p.get("overall"), "timestamp": p.get("timestamp")})
         got = outcomes_fields(exports["rules"], extra["crosswalk"], weekly_rows or [],
                               int(year), gsis_to_ours or {}, board)
         outcomes.append(dict(got["outcomes"], league_id=str(lid)))
@@ -466,6 +475,7 @@ def run(league_ids, year, out_path=None, *, players=None, board=None,
     rep["season_readiness"] = readiness
     rep["throttle"] = throttle_signal(verdicts)
     rep["crosswalk"] = crosswalk_summary(cw_reports)
+    rep["within_pool_adp"] = d7_feasibility(verdicts, pool_picks, league_dates)
     # PREPENDED, not appended. The existing verdict already leads with unreadable
     # attrition; this leads with whether the run could have measured anything at all.
     # THROTTLE FIRST, then readiness, then the filters. Ordered by how badly each
@@ -564,6 +574,34 @@ def _crosswalk_verdict(n, clear, unknown_id, no_match, conflicts, matched) -> st
     head = "%d of %d leagues clear the F2 crosswalk bar; %d picks matched, %d unmatched " \
            "against our board" % (clear, n, matched, no_match)
     return head + "".join("; and " + p for p in parts)
+
+
+def d7_feasibility(verdicts, pool_picks, league_dates) -> dict:
+    """D7's registered measurement: can earlier picks in the pool price a later draft?
+
+    THE POPULATION IS F1-PASSING LEAGUES, as registered — dynasty and superflex ADP
+    are different quantities, and the crawl measured `dynasty` at 5,642 term hits,
+    so this is not a tail concern. `passed_f1` infers format-pass from `screen()`'s
+    ordering, and that ordering is asserted by its own test rather than assumed.
+
+    Reported for BOTH populations, because the difference between them is itself
+    the answer to "does restricting to format-matched leagues leave anything".
+    """
+    from within_pool_adp import feasibility
+    ok_ids = {str(r.get("league_id")) for r, _, why in verdicts if F.passed_f1(why)}
+    fmt_picks = [p for p in pool_picks if p["league_id"] in ok_ids]
+    leagues = [{"league_id": lid, "first_pick_ts": ts}
+               for lid, ts in sorted(league_dates.items()) if lid in ok_ids]
+    out = {"population": "F1-passing leagues only (D7 as registered)",
+           "f1_passing_leagues": len(ok_ids),
+           "picks_in_format_matched_pool": len(fmt_picks),
+           "picks_in_whole_pool": len(pool_picks),
+           "format_matched": feasibility(leagues, fmt_picks)}
+    # The unrestricted number beside it, LABELLED as inadmissible under D7, so the
+    # cost of the format restriction is visible and nobody has to guess at it.
+    allx = [{"league_id": lid, "first_pick_ts": ts} for lid, ts in sorted(league_dates.items())]
+    out["whole_pool_INADMISSIBLE_under_D7"] = feasibility(allx, pool_picks)
+    return out
 
 
 def readiness_verdict(readiness: dict, rep: dict) -> str:

@@ -284,3 +284,31 @@ def test_the_ppr_decision_has_EXACTLY_ONE_implementation():
           "roster_slots": {"QB": 1, "RB": 2, "WR": 2, "TE": 1, "FLEX": 1}}
     assert F.screen(lg)[1] == "F1.scoring_not_half_ppr", \
         "screen() must give the SAME answer as the function it calls"
+
+
+def test_screen_checks_F1_BEFORE_everything_else():
+    """`passed_f1` INFERS format-pass from the absence of an F1 reason, which is
+    only valid because `screen()` runs F1 first and returns on first failure. D7's
+    population rests on that ordering, so it is asserted rather than assumed.
+
+    A league that is FORMAT-BAD and also draft-bad must report the FORMAT reason:
+    if the order ever flips, this goes red here instead of silently widening D7's
+    pool to include dynasty and superflex leagues."""
+    bad_both = {"teams": 14,                      # F1: wrong size
+                "scoring": {"rec_by_position": {"RB": .5, "WR": .5, "TE": .5}},
+                "roster_slots": {"QB": 1, "RB": 2, "WR": 2, "TE": 1, "FLEX": 1},
+                "draft_type": "snake",
+                "draft": {"status": "incomplete", "picks": []}}   # F2: also bad
+    assert F.screen(bad_both)[1] == "F1.teams"
+    assert F.passed_f1("F1.teams") is False
+
+
+def test_a_league_we_could_not_READ_the_format_of_does_not_count_as_passing_F1():
+    """Absent is not a pass. A league whose scoring we could not retrieve must not
+    enter D7's format-matched pool on the strength of not having failed."""
+    assert F.passed_f1("F4.no_scoring_rules:TE") is False
+    assert F.passed_f1("F4.draft_type_unrecognised:SFIRSTFOO") is False
+    # But a league that FAILED LATER got past F1 and belongs in the pool.
+    assert F.passed_f1("F2.draft_incomplete") is True
+    assert F.passed_f1("F4.no_pre_draft_adp") is True
+    assert F.passed_f1("ok") is True

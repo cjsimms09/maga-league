@@ -319,6 +319,33 @@ UNOBTAINED_REASONS = (
 )
 
 
+# D7's population is F1-passing leagues: dynasty and superflex ADP are different
+# quantities, not noisier versions of the same one.
+F1_FORMAT_UNREADABLE = (
+    "F4.no_scoring_rules", "F4.no_reception_rule", "F4.no_team_count",
+    "F4.unreadable_team_count", "F4.no_roster_slots", "F4.no_qb_slot_count",
+    "F4.unreadable_qb_slot_count", "F4.unreadable_starting_slots",
+    "F4.unreadable_starter_limits", "F4.no_draft_type", "F4.draft_type_absent",
+    "F4.draft_type_unrecognised",
+)
+
+
+def passed_f1(reason: str) -> bool:
+    """Did this league clear the FORMAT filter, whatever happened afterwards?
+
+    RESTS ON `screen()`'s ORDERING, and says so: F1's clauses run first and the
+    function returns on the first failure, so a league whose reason is F2/F5 or a
+    non-format F4 necessarily got past F1. That assumption is load-bearing for D7's
+    population, so `test_screen_checks_F1_BEFORE_everything_else` asserts it
+    directly rather than leaving it to be true by accident.
+
+    A league we could not READ the format of is NOT counted as passing — absent is
+    not a pass, the same rule as everywhere else in this file.
+    """
+    code = reason_code(reason)
+    return not (code.startswith("F1.") or code in F1_FORMAT_UNREADABLE)
+
+
 def reason_code(reason: str) -> str:
     """Strip the ":detail" suffix. `F4.draft_type_unrecognised:SFIRSTFOO` -> the code."""
     return str(reason).split(":", 1)[0]

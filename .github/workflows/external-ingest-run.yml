@@ -162,6 +162,15 @@ jobs:
                   print("    PAIR  %-24s %-3s | %-24s %-3s | %s"
                         % (x.get("mfl_name"), x.get("mfl_pos"),
                            x.get("board_name"), x.get("board_pos"), x.get("method")))
+          d7 = rep.get("within_pool_adp") or {}
+          if d7:
+              fm = d7.get("format_matched") or {}
+              wp = d7.get("whole_pool_INADMISSIBLE_under_D7") or {}
+              print("  D7 population       %s F1-passing leagues, %s of %s picks"
+                    % (d7.get("f1_passing_leagues"), d7.get("picks_in_format_matched_pool"),
+                       d7.get("picks_in_whole_pool")))
+              print("  D7 format-matched   %s" % fm.get("verdict"))
+              print("  D7 whole-pool(N/A)  %s" % wp.get("verdict"))
           print("  attrition           %s" % json.dumps(rep.get("rejected_by_reason")))
           print("  VERDICT             %s" % rep.get("verdict"))
           PY
