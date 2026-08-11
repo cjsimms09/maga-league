@@ -527,7 +527,30 @@ derivation paths and determine whether those paths are actually compared.** Thre
 hit by accident — the WR replacement paths, the thin-pool recompute, and the local consensus
 implementation inside the waiver route. Three by luck suggests more.
 
-**11e — YOUR OWN QUERY IS A BOUNDARY TOO (was rule 13, folded in 2026-08-11).**
+**11e — YOUR OWN QUERY IS A BOUNDARY TOO (was rule 13, folded in 2026-08-11;
+WIDENED 2026-08-11 on C's concrete violation).**
+
+**EVERY PART OF A REQUEST CHOSEN BY THE SYSTEM IS PART OF THE QUERY AND THEREFORE CANNOT
+INDEPENDENTLY BE TREATED AS EVIDENCE ABOUT THE PROVIDER.**
+
+*The enumeration is exhaustive on purpose — a partial list invites arguing about the ones not
+named:* **path, parameters, headers, authentication, timeout, pagination, request method, error
+handling, status interpretation, response parsing.**
+
+Otherwise you manufacture a null through your own request machinery and then conclude the
+provider does not support something.
+
+*WHY THE WIDENING, and it is not hypothetical.* The rule as first written said only "a path I
+invented". C violated it TWICE inside the file that enforces it — a User-Agent it chose, and
+error handling where a "reached" flag counted any status, so a run of 404s fell through and
+returned a dict with no verdict key at all. A found three more in the market layer, including a
+`touchdown_markets_present: false` shipped as a finding from a 1,225-byte two-book payload that
+could not have contained one.
+
+*AND C's CONTROL RUN PROVES THE STAKES:* `ZZZNOTAPARAM=1` returned **200** with the baseline's
+exact composition — MFL silently accepts unknown parameters. A probe reading status codes would
+have sent `DAYS=7`, seen 200, and written down "date-bounded ADP works."
+
 **A failed request against a path I invented is evidence about MY QUERY, not about the
 provider — or about the code.** Before recording ANY negative — no coverage, no markets, thin
 data, a field that "does not exist", a fixture that "proves" a feature is dead — establish that
@@ -578,44 +601,49 @@ workstream, it has been implemented wrong.**
 DECISION.** Cory, 2026-08-11. **ADDED BY EXPLICIT AUTHORIZATION** — see the provenance note
 below; this is not a rule inferred, merged, or reconstructed during reconciliation.
 
-**No badge. No panel. No indicator. No delayed reveal.**
+**WHAT COUNTS AS AN UNVALIDATED SIGNAL:** shadow strategies, market signals, **anything not
+through the gate**.
 
-A signal may be visible only:
+**THE TIMING.** Invisible throughout the ENTIRE live decision period — any live draft, waiver or
+lineup decision. **No badge, no panel, no indicator, no delayed reveal.** Visible only after the
+entire draft concludes, in mocks, and in post-season analysis.
 
-* after the **ENTIRE draft concludes**;
-* in **mocks**;
-* in **post-season analysis**.
+**NOT AFTER EACH PICK LOCKS.** In a snake draft my next turn is often ten or more picks away, so
+a signal revealed after pick 34 is still on screen while I decide pick 41. That is not
+post-decision visibility, it is a delay, **AND A DELAYED INFLUENCE IS STILL AN INFLUENCE.**
 
-**It must NOT become visible merely because a pick has locked.** In a snake draft my next turn is
-often ten picks away, so a signal revealed after pick 34 is still on screen at pick 41 — and a
-delayed influence is an influence.
+*THE REASONING, VERBATIM — it preserves the constitutional intent rather than only the UI
+behaviour. A future session reading a bare prohibition will find a reasonable-sounding exception;
+one reading the reasoning will not:*
 
-*THE REASONING IS PART OF THE PROTECTION, not decoration on it:*
-
-> **The protection is about me, not the tool. I cannot unsee a signal once it is placed in front
-> of me. A delayed reveal during a live draft can therefore influence a later decision just as
-> surely as a signal shown before the pick.**
+> **THE PROTECTION IS ABOUT ME, NOT THE TOOL.** I cannot unsee a flag once it is on screen.
+> Eleven glances in, the flagged player looks interesting and I take him — and that override
+> enters the log as MY judgement, with nothing recording that a signal suggested it. Across a
+> draft that becomes "I followed the core except when a signal looked interesting," which is how
+> discipline erodes with nobody noticing a policy change. The cost is occasionally missing a
+> signal that would have helped. The benefit is that the measured core cannot be partially
+> overridden under time pressure.
 
 **This is NOT "do not use the signal" and NOT "do not act on the signal."** The requirement is
-**VISUAL INVISIBILITY during the live decision period.** A rule about intent is a rule I can
-satisfy while looking at the thing; a rule about rendering is one I cannot.
+**VISUAL INVISIBILITY during the live decision period.** A rule about intent is one I can satisfy
+while looking at the thing; a rule about rendering is one I cannot.
 
 *ENFORCEMENT — a TRIGGER, not a test, and recorded as such rather than filled.*
-**Trigger:** any live-draft, live-waiver, or live-lineup surface rendering an unvalidated signal.
+**Trigger:** any live-draft, live-waiver or live-lineup surface rendering an unvalidated signal.
 **Expected response:** the signal must not render.
 
 *And the honest adjacent finding, recorded because it sharpens the gap rather than closing it:*
 the one existing artifact anywhere near this is `test_market_environment.py:111`, which asserts
 every market record carries `visibility == "post_draft_only"`. **That asserts the LABEL exists.
-Nothing asserts any consumer HONOURS it** — which is rule 14's exact shape, produced-and-unread,
-applied to the strictest prohibition in the constitution. The label is not the enforcement.
+Nothing asserts any consumer HONOURS it** — rule 14's exact shape, produced-and-unread, applied
+to the strictest prohibition in the constitution. The label is not the enforcement.
 
 *PROVENANCE.* A prior audit correctly found that no standalone rule covering this existed in
 SESSION-A.md — the only occurrence of "silence" in the file was a fragment inside rule 11 ("fact;
 silence is not"). It was reported as missing rather than reconstructed from surrounding text.
-Cory then authorized its addition explicitly. **Numbered 15 because 5, 7 and 13 are tombstones
-and a retired number is never reused** — reusing one would make the audit history unreadable.
-
+Cory then authorized its addition explicitly, and on 2026-08-11 supplied the reasoning block
+above VERBATIM, replacing an earlier paraphrase of mine. **Numbered 15 because 5, 7 and 13 are
+tombstones and a retired number is never reused.**
 
 ---
 
