@@ -28,6 +28,14 @@ import scoring
 # in one place both call sites share.
 _WEEKLY_MAP = {
     "passing_yards": "pass_yd", "passing_tds": "pass_td", "interceptions": "pass_int",
+    # ALIAS, NOT A NEW STAT. nfl_data_py.import_weekly_data 404s for 2025;
+    # nflreadpy.load_player_stats serves it and RENAMES `interceptions` to
+    # `passing_interceptions` (C, measured 2026-08-11, 19,421 rows). Mapping only
+    # the old name means `pass_int` is never emitted for any 2025 row, so a league
+    # scoring interceptions scores every QB ~2 points per pick TOO HIGH — QBs only,
+    # nothing raises, because score_stat_line correctly skips a key the line does
+    # not carry. Right for an optional bonus, exactly wrong for a scored term.
+    "passing_interceptions": "pass_int",
     "passing_2pt_conversions": "pass_2pt",
     "rushing_yards": "rush_yd", "rushing_tds": "rush_td",
     "rushing_2pt_conversions": "rush_2pt",
@@ -55,15 +63,36 @@ def nflverse_weekly_to_scoring(row: dict) -> dict:
     line = {}
 
     def add(dst, v):
+        """ACCUMULATE — correct only where several columns are COMPONENTS of one
+        key, i.e. fumbles lost, which arrive split across three columns."""
         if isinstance(v, (int, float)) and v == v:
             line[dst] = line.get(dst, 0) + v
 
+    filled = set()
+
+    def put(dst, v):
+        """FIRST WRITER WINS — correct where several column names are ALIASES for
+        one stat, which accumulation would DOUBLE.
+
+        `interceptions` and `passing_interceptions` are the same number under two
+        loaders. Routing both through `add` scores a one-interception week as two
+        the moment a row carries both names, turning a fix for a silent undercount
+        into a silent OVERCOUNT — worse, because the undercount was at least
+        uniform across every QB. Our own vocabulary is applied first and wins: a
+        row already in our keys was translated deliberately.
+        """
+        if dst in filled:
+            return
+        if isinstance(v, (int, float)) and v == v:
+            line[dst] = v
+            filled.add(dst)
+
     for k in _OUR_KEYS:
         if k in row:
-            add(k, row.get(k))
+            put(k, row.get(k))
     for src, dst in _WEEKLY_MAP.items():
         if src in row:
-            add(dst, row.get(src))
+            put(dst, row.get(src))
     for c in _FUM_LOST_COLS:
         if c in row:
             add("fum_lost", row.get(c))

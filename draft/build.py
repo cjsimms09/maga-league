@@ -691,6 +691,133 @@ def load_keepers(cfg: dict) -> dict[int, list[dict]]:
     return out
 
 
+def _keeper_map_for_board(full_map: dict, slate: dict, cfg: dict):
+    """UNTIL THE SLATE CONFIRMS, THE LIVE BOARD CARRIES MY KEEPERS AND NOBODY ELSE'S.
+
+    Cory's ruling, 2026-08-11, and the reasoning is the silence rule's: a slate
+    rendered indistinguishably from a confirmed one IS a confirmed one as far as
+    behaviour is concerned. He gave it for PREDICTIONS. It applies with equal
+    force to a PARTIAL SET OF REAL DESIGNATIONS, and that is the case this gate
+    exists for — because that case looks more legitimate, not less.
+
+    THE ASYMMETRY, in his words and applied one step further. A board sitting on
+    34 and 147 is known-provisional: he checks two numbers and knows where he is.
+    A board sitting on 31 because four of ten owners have declared is
+    authoritative-looking, wrong, and — the fatal part — IT ALREADY MOVED ONCE.
+    Movement is then the expected behaviour, so the move that matters, when the
+    real slate lands, carries no signal at all.
+
+    So partial designations are WITHHELD from the live board and the count is
+    stamped. The moment `keeper_slate.status == 'confirmed'` the whole map is
+    applied — that is the switch, and it is one comparison rather than a judgment
+    anyone has to remember to make.
+
+    WITHHELD IS NOT DISCARDED. gen_keepers_json.py still places every designation
+    it can, keepers.json still holds them all, and the number held back travels
+    into the artifact. Absent-is-not-zero applies to the gate as much as to the
+    generator: the board must be able to say "I am ignoring six keepers on
+    purpose", never just be six players light.
+    """
+    my_slot = cfg.get("my_draft_slot")
+    if (slate or {}).get("status") == "confirmed":
+        return full_map, {"withheld": False, "teams": 0, "keepers": 0,
+                          "reason": "slate confirmed — every designation applied"}
+    mine = {}
+    for k in (my_slot, str(my_slot)):
+        if k in full_map:
+            mine = {my_slot: full_map[k]}
+            break
+    held_teams = [s for s in full_map if str(s) != str(my_slot)]
+    held_keepers = sum(len(full_map[s]) for s in held_teams)
+    if held_keepers:
+        print(f"  WITHHELD from the live board: {len(held_teams)} team(s), "
+              f"{held_keepers} keeper(s) — slate is "
+              f"'{(slate or {}).get('status')}', not confirmed. The board stays on "
+              f"my own keepers so its pick numbers remain known-provisional.")
+    return mine, {
+        "withheld": bool(held_keepers), "teams": len(held_teams), "keepers": held_keepers,
+        "reason": "designations exist but the slate is not confirmed; applying a "
+                  "partial slate would make the board look authoritative and move "
+                  "once BEFORE the move that matters",
+    }
+
+
+def _keeper_slate_reconciled(slate: dict, keeper_map: dict, order, cfg: dict,
+                             withheld: dict | None = None,
+                             full_map: dict | None = None) -> dict:
+    """Say, in the artifact, how many designations actually reached the board.
+
+    THE GAP THIS CLOSES. The slate stamp reads DESIGNATIONS straight from Sleeper;
+    the pick order and the pool are built from `config/keepers.json`, which needs a
+    DRAFT SLOT per owner and only has mine. `gen_keepers_json.py` drops every
+    designation it cannot place. So the two numbers disagree — 4 teams designated,
+    1 team in the pick order — and nothing compared them. The board looked entirely
+    normal while being built on a third of the slate it knew about.
+
+    That is the seat bug's shape: a filter over a real board always returns
+    something plausible. The answer is the same one that worked there — DERIVE the
+    disagreement and stamp it, rather than trusting that anyone re-reads two files.
+
+    THE ARITHMETIC IS ALSO STAMPED, because it is the one thing a human can check
+    at a glance. Every keeper costs a round in 1..3 under top_picks_flat, so with a
+    full 3-keeper slate of my own my first pick sits in round 4 and EVERY keeper in
+    the league is ahead of it:
+
+        my_first_pick == 3*teams + (teams+1-my_slot) - total_keepers
+        (a 10-team snake at slot 4: 41 - 4 - total = 37 - total)
+        total_picks   == teams * rounds - total_keepers
+
+    Verified across slots 1/4/7/10 and totals 3..30, and invariant to WHICH slots
+    hold the keepers — only the count moves my numbers. The identity holds only
+    while I keep 3 (at 2 or fewer my first pick lands in round 3, where keepers at
+    higher slots fall after me and the distribution starts to matter), so it is
+    stamped with the condition attached rather than as an unconditional law.
+    """
+    out = dict(slate)
+    total_keepers = sum(len(v) for v in keeper_map.values())
+    teams_in_order = len([s for s, v in keeper_map.items() if v])
+    designated = int(slate.get("teams_designated") or 0)
+
+    out["teams_in_pick_order"] = teams_in_order
+    out["keepers_in_pick_order"] = total_keepers
+
+    # DESIGNATIONS THE GENERATOR FAILED TO PLACE — measured against the FULL map,
+    # never against the post-gate one.
+    #
+    # THIS WAS WRONG FOR ONE COMMIT AND THE LIVE BOARD SHOWED IT. The subtraction
+    # used `teams_in_order`, which is the map AFTER the confirmation gate strips
+    # opponents out. So the moment the gate landed, this field stopped meaning
+    # "the generator dropped them" and started meaning "the gate held them back"
+    # — and the checklist duly reported BOTH "8 keepers WITHHELD on purpose" and
+    # "3 DESIGNATIONS NOT APPLIED" for the same three teams, with a fix line
+    # accusing a generator that had done its job perfectly.
+    #
+    # That is the precise failure the withheld/dropped split exists to prevent,
+    # reintroduced one layer down by the change that added the split. A field's
+    # MEANING can break while its type, its name and its tests all still pass.
+    placed = len([s for s, v in (full_map if full_map is not None else keeper_map).items() if v])
+    out["designations_not_applied"] = max(0, designated - placed)
+    out["board_built_on_full_slate"] = (
+        designated > 0 and out["designations_not_applied"] == 0)
+    # WITHHELD ON PURPOSE vs MISSING BY ACCIDENT — two different states that both
+    # produce a short board, and the checklist must not read them alike.
+    out["withheld_from_board"] = withheld or {"withheld": False, "teams": 0, "keepers": 0}
+
+    my_slot = cfg.get("my_draft_slot")
+    teams = int(cfg.get("teams") or 10)
+    mine = len(keeper_map.get(my_slot) or keeper_map.get(str(my_slot)) or [])
+    first = (order.my_picks or [None])[0]
+    check = None
+    if my_slot and first is not None and mine == 3:
+        expected = (3 * teams + (teams + 1 - int(my_slot))) - total_keepers
+        check = {"my_first_pick": first, "expected": expected,
+                 "holds": first == expected,
+                 "rule": "my_first_pick == (3*teams + (teams+1-my_slot)) - total_keepers",
+                 "condition": "holds only while I keep 3 (first pick in round 4)"}
+    out["arithmetic_check"] = check
+    return out
+
+
 def build_manager_profiles(cfg: dict, offline: bool, force: bool = False) -> dict:
     """A1 — behavioural profiles from every prior draft in league history."""
     if offline:
@@ -865,7 +992,11 @@ def build(cfg: dict, *, offline: bool = False, force_profiles: bool = False,
     profiles = build_manager_profiles(cfg, offline, force=force_profiles)
     print(f"  manager profiles: {len(profiles.get('managers', {}))} from "
           f"{profiles.get('drafts_analysed', 0)} prior draft(s)")
-    keeper_map = load_keepers(cfg)
+    slate_status = _assess_keeper_slate(cfg, offline)
+    # The FULL map is kept: `designations_not_applied` must measure what the
+    # GENERATOR failed to place, not what the GATE deliberately held back.
+    full_keeper_map = load_keepers(cfg)
+    keeper_map, withheld = _keeper_map_for_board(full_keeper_map, slate_status, cfg)
     kept_ids = {str(k["player_id"]) for ks in keeper_map.values() for k in ks if k.get("player_id")}
 
     order = keepers_mod.build_true_pick_order(cfg, keeper_map)
@@ -976,7 +1107,11 @@ def build(cfg: dict, *, offline: bool = False, force_profiles: bool = False,
         # designations; otherwise 'predicted'/'partial'/'mismatch'/'unverified'. The
         # War Room reads safe_to_treat_as_truth; the live-site check alarms as the draft
         # nears an unconfirmed slate. Empty designations are UNKNOWN, never zero.
-        "keeper_slate": _assess_keeper_slate(cfg, offline),
+        # `slate_status` was fetched ONCE, up top, because the gate that decides
+        # which keepers reach the board needs it before the board is built. A
+        # second fetch here could disagree with the one the gate used.
+        "keeper_slate": _keeper_slate_reconciled(
+            slate_status, keeper_map, order, cfg, withheld, full_keeper_map),
         "notes": {
             "adp_blend_weight": cfg.get("adp_blend_weight"),
             "opportunity_cap": cfg.get("opportunity_cap"),

@@ -85,19 +85,91 @@ function consensusProjection(player, provenance) {
   };
 }
 
+/* THE LINEUP FUNCTION, INJECTED INTO THE SHARED VALUATION.
+ *
+ * `V.claimValue` REFUSES to run without this — it throws rather than falling
+ * back to a private lineup implementation, which is A's answer to the exact
+ * disease this whole defect came from: two valuations drifting while both look
+ * right. So the optimiser that will actually be asked to start the player is the
+ * one that prices claiming him, by construction rather than by convention.
+ */
+function lineupPoints(roster, league) {
+  const pts = {}, pos = {};
+  for (const p of (roster || [])) {
+    if (!p || !p.position) continue;
+    pts[String(p.player_id)] = Number(p.proj_mean || 0);
+    pos[String(p.player_id)] = p.position;
+  }
+  const best = LO.bestLineup(pts, pos, Object.keys(pts), (league || {}).starters);
+  return (best.starters || []).reduce((sum, st) => sum + Number(st.points || 0), 0);
+}
+
 /* Evaluate the free-agent pool for MY roster. Returns ranked claims, each with the
  * player it would replace, its worth in points and dollars, the raw consensus
- * projection alongside, and (if leagueRosters given) which other teams need him. */
+ * projection alongside, and (if leagueRosters given) which other teams need him.
+ *
+ * ── net_value WAS COMPUTED AGAINST TWO DIFFERENT BASELINES (fixed 2026-08-11) ──
+ *
+ * It was `startableValue(fa) - startableValue(drop)`. I found this by driving a
+ * Tuesday and reported it as "two bench marginals measured against different
+ * incumbents". A's diagnosis is fuller and worth keeping over mine:
+ *
+ *   1. startableValue returns THREE DIFFERENT SCALES depending on `fills` —
+ *      `vorp` (against positional replacement) for a starter or flex, and
+ *      `upgrade × discount + insurance` (against YOUR OWN incumbent) for a
+ *      bench body. The route subtracted one from the other. Different zeroes,
+ *      not merely different baselines.
+ *   2. SUBTRACTING A NEGATIVE ADDS. A drop candidate worse than the man he sits
+ *      behind carries a negative value, so his deficit landed in the claim.
+ *
+ * Driven on a real roster: claiming a kicker projected 110, while already
+ * starting one projected 130, scored +23.36 net points and $59 — of which
+ * 0.35 × (my WR2 210 − my kicker 130) = 28.00 came from the gap between two
+ * players neither added nor dropped. Same-position swaps cancelled cleanly;
+ * cross-position ones, which are most of a real wire, did not.
+ *
+ * There was a UNITS error stacked on top: a position-relative bench marginal was
+ * multiplied by `dollarsPerPoint`, which is the value of one marginal point
+ * added to the STARTING LINEUP. Two different kinds of point.
+ *
+ * Now, via `V.claimValue` (A's, in the shared valuation): one baseline, no
+ * differencing —
+ *
+ *     net = bestLineup(roster − drop + claim) − bestLineup(roster)
+ *
+ * That is the quantity the docstring always claimed ("net startable points
+ * added"), it is the unit dollarsPerPoint prices, and a strictly worse kicker
+ * scores exactly zero because he never reaches the field.
+ *
+ * AND IT IS NOT CLAMPED. My first pass wrapped this in Math.max(0, …) and A was
+ * right to drop it: that turns "this claim would make your lineup worse" into
+ * "this claim is worth nothing", and on a Tuesday those are different sentences.
+ * It is also the same failure I have spent the day finding elsewhere — a clamp
+ * that makes a bad answer indistinguishable from a neutral one.
+ *
+ * WHAT IS DELIBERATELY NOT CHANGED: `startableValue` itself, which is A's, and
+ * `startable_value` on every claim, which still reports it unmodified. Contract
+ * C1 — the draft engine and the waiver tool must value the same player
+ * identically — is asserted on THAT field, so it holds by construction and
+ * waivers.test.js proves it rather than my asserting it.
+ *
+ * Depth is not lost, it is demoted: a pure bench add scores 0 lineup gain and
+ * keeps its positive `startable_value`, which breaks the tie. Ranking by "what
+ * reaches the field, then by depth" is the honest order.
+ */
 function evaluateClaims(freeAgents, myRoster, league, ctx) {
   ctx = ctx || {};
   const drop = dropCandidate(myRoster, league);
   const dropVal = drop ? drop.sv.value : 0;
   const dpp = dollarsPerPoint(ctx);
+  const roster = (myRoster || []).filter(p => p && p.position);
 
   const claims = (freeAgents || []).map(fa => {
+    // startable_value / fills / why are still fine for DISPLAY ("starts in your
+    // flex"). They are not a valuation, and are no longer used as one.
     const sv = V.startableValue(fa, myRoster, league);
-    // Net startable points added = what he brings minus what I drop to fit him.
-    const netPoints = Math.max(0, sv.value - dropVal);
+    const cv = V.claimValue(fa, drop && drop.player, roster, league, lineupPoints);
+    const netPoints = round2(cv.net_points);   // may be <= 0; deliberately not clamped
     const consensus = consensusProjection(fa);
     const rivals = ctx.leagueRosters ? whoElseNeeds(fa, ctx.leagueRosters, league, ctx.postures) : [];
     return {
@@ -116,7 +188,9 @@ function evaluateClaims(freeAgents, myRoster, league, ctx) {
       contested: rivals.length > 0,
     };
   });
-  claims.sort((a, b) => b.net_value - a.net_value);
+  // What reaches the field first, and downgrades now SINK BELOW ZERO instead of
+  // piling up at it; depth (A's marginal, untouched) breaks the tie among equals.
+  claims.sort((a, b) => (b.net_value - a.net_value) || (b.startable_value - a.startable_value));
   return { drop: claims.length ? claims[0].drop : (drop ? { player_id: drop.player.player_id, name: drop.player.name, value: round2(dropVal) } : null),
            dollars_per_point: round2(dpp.perPoint), claims };
 }

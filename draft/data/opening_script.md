@@ -1,6 +1,6 @@
 # OPENING SCRIPT — generated, never typed
 
-_board `2026-08-11T11:38:33Z` · slot **4** (site-claimed — Sleeper draft order pending (regenerates on assignment)) · doctrine: **Early-QB Strike** (19b Cory-conditional race: +$534/season vs control (CI [479.12, 586.0], 1.2 contested decisions/draft; v1 money proxy, Sept quantile re-run pre-registered); runner-up Elite-TE Anchor +$52)_
+_board `2026-08-11T15:30:04Z` · slot **4** (site-claimed — Sleeper draft order pending (regenerates on assignment)) · doctrine: **Early-QB Strike** (19b Cory-conditional race: +$534/season vs control (CI [479.12, 586.0], 1.2 contested decisions/draft; v1 money proxy, Sept quantile re-run pre-registered); runner-up Elite-TE Anchor +$52)_
 
 My live picks: **34, 41, 54, 61, 74, 81…**
 
@@ -52,4 +52,4 @@ _The elite-TE-anchor question returns: watch the TE room's panic — survival to
 - fallback 3: Tyler Warren (TE, VORP 24.2, 30% survives)
 - fallback 4: D'Andre Swift (RB, VORP 23.6, 44% survives)
 
-_Regenerates on: slot assignment · keeper designations landing (keeper-watch) · every board rebuild. A stale fingerprint announces itself — never trust a script whose board hash is old._
+_Regenerates on: slot assignment · keeper designations landing (picked up by the nightly draft-data rebuild) · every board rebuild. A stale fingerprint announces itself — never trust a script whose board hash is old._

@@ -168,6 +168,19 @@ const SQUAD = [
     ck('a WRONG lineup is called out on the page', /Your lineup isn't the recommended one/i.test(t),
       t.slice(0, 200));
     ck('  it names the swap to make', /Start Ja'Marr Chase/.test(t) && /over Garrett Wilson/.test(t));
+    // RULE 14: set.points was computed, carried and read by nothing. It is the
+    // number you can verify against Sleeper without trusting the model, so it
+    // belongs next to the dollars rather than in the payload.
+    //
+    // ASSERTED IN ITS CONTEXT, NOT AS A BARE SUBSTRING. The first version matched
+    // /\+5\.1 projected/ and stayed GREEN when the header total was deleted,
+    // because each per-change ROW already prints "+5.1 projected". Third time
+    // today I have written a page assertion that matched the right words in the
+    // wrong element — so the check now requires the header's own sequence, which
+    // nothing else on the page produces.
+    ck('  and states the projected-points gap in the header, not only per swap',
+      /change to make · \+5\.1 projected/.test(t),
+      (t.match(/.{0,80}to make.{0,60}/) || [''])[0]);
     ck('  and it no longer congratulates the lineup it never looked at',
       !/the tool agrees with you/i.test(t));
   }

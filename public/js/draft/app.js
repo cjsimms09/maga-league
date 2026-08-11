@@ -2106,6 +2106,21 @@
     host.innerHTML = html;
   }
 
+  /* Delegates to DraftKeepers so the logic is a TESTABLE module function rather
+   * than a closure inside a browser IIFE that only a source-grep can inspect
+   * (rule 11e: a prose scan cannot tell an implementation from a comment about
+   * one). Guarded, because throwing here would take the whole checklist with it
+   * — and a checklist that fails to render is worse than any line on it. */
+  function keeperSlateCheck(d) {
+    const K = window.DraftKeepers;
+    if (!K || typeof K.keeperSlateCheck !== 'function') {
+      return { ok: false, label: 'Keeper slate the pick order is built on',
+               detail: 'the keeper module did not load — this line cannot be evaluated',
+               fix: 'Hard-refresh the war room; if it persists the module include list is wrong' };
+    }
+    return K.keeperSlateCheck(d);
+  }
+
   function renderChecklist() {
     const host = $('#check-items');
     if (!host) return;
@@ -2205,22 +2220,7 @@
       // pipeline handles this correctly the moment it HAS the slates
       // (keepers.build_true_pick_order forfeits per team) — this line exists
       // because nothing else on the page looks wrong while it is missing.
-      (function () {
-        const teams = (d.league || {}).teams || 10;
-        const kept = d.kept_players || [];
-        const slotsWithKeepers = {};
-        kept.forEach(k => { if (k.team_slot != null) slotsWithKeepers[k.team_slot] = 1; });
-        const known = Object.keys(slotsWithKeepers).length;
-        return {
-          ok: known >= teams,
-          label: 'Opponent keeper slates in the pick order',
-          detail: known >= teams ? 'all ' + teams + ' seats declared'
-            : known + ' of ' + teams + ' seats — pick numbers assume the other '
-              + (teams - known) + ' draft in rounds 1-3',
-          fix: 'Rebuild the board once the commissioner locks every keeper slate; '
-            + 'until then treat overall pick numbers as provisional',
-        };
-      })(),
+      keeperSlateCheck(d),
       // SURVIVAL CALIBRATION, made READABLE. The mock harness has been recording
       // survival predictions AS DISPLAYED and resolving them for a while, and it
       // computes a binned curve plus a Brier score — but the only way to read it
@@ -6082,6 +6082,10 @@
       // way to rehearse the rehearsal, and how R-rehearsal verifies it.
       applyDraftShape: applyDraftShape,
       applyRehearsalKeepers: applyRehearsalKeepers,
+      // The keeper-slate checklist line, exposed so it can be tested as a
+      // FUNCTION. A grep over this file cannot tell an implementation from a
+      // comment describing one (rule 11e).
+      keeperSlateCheck: keeperSlateCheck,
       toggleQueue: toggleQueue,
       fillQueueFromBoard: fillQueueFromBoard,
       buildSheet: buildSheet,

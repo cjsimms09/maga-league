@@ -420,18 +420,52 @@ def test_the_leaderboard_does_not_pool_seasons():
 # high — with no error anywhere, because `score_stat_line` correctly skips a key
 # the stat line does not carry.
 def nflreadpy_shaped(row):
-    """The same row as the 2025 loader actually serves it."""
+    """The same row as the 2025 loader actually serves it.
+
+    THIS RENAME IS NOW MAPPED (A, 2026-08-11): grade._WEEKLY_MAP carries
+    `passing_interceptions` alongside `interceptions`, so this shape scores
+    correctly. The fixture is kept because it is the REGRESSION pin for the fix —
+    the shape that was silently wrong, asserted to be right now.
+    """
     out = dict(row)
     out["passing_interceptions"] = out.pop("interceptions", 0)
     return out
 
 
-def test_a_RENAMED_column_is_caught_rather_than_scored_as_absent():
+def unmapped_rename(row):
+    """A rename the translator has NOT been taught — the NEXT one, whatever it is.
+
+    The detector's whole value is catching a column it cannot emit, and once
+    `passing_interceptions` was mapped the original fixture stopped exercising
+    that. Testing the detector with a rename that is now handled would leave it
+    green while measuring nothing — the fix would have quietly disarmed the guard
+    that found it. So the detector tests use a name deliberately absent from
+    _WEEKLY_MAP, and the mapped name pins the fix instead.
+    """
+    out = dict(row)
+    # EVERY source name that maps to pass_int must go, derived from the map rather
+    # than listed. `wk()` seeds a column for each key in _WEEKLY_MAP, so the moment
+    # A mapped `passing_interceptions` this helper started leaving one behind and
+    # the "unmapped" fixture was still emitting pass_int — a fixture that quietly
+    # stopped representing the case it is named for.
+    for src, dst in GR._WEEKLY_MAP.items():
+        if dst == "pass_int":
+            out.pop(src, None)
+    out["qb_picks_thrown"] = row.get("interceptions", 0)
+    return out
+
+
+def test_AN_UNMAPPED_rename_is_caught_rather_than_scored_as_absent():
     """MUTATION: skip the schema check. A league scoring -2 per interception would
-    be graded with no interceptions at all, and the leaderboard would look fine."""
+    be graded with no interceptions at all, and the leaderboard would look fine.
+
+    Uses a rename the translator does NOT know. The nflreadpy one is mapped now,
+    and pointing this at a handled column would leave the detector green while
+    testing nothing.
+    """
     tables, _b, _i, _bo = X.scoring_tables(rules(FULL))
-    rows = [nflreadpy_shaped(wk("Q1", w, passing_yards=300, passing_tds=2,
-                                interceptions=1)) for w in (1, 2)]
+    rows = [unmapped_rename(wk("Q1", w, passing_yards=300, passing_tds=2,
+                               interceptions=1)) for w in (1, 2)]
     gap = X.schema_gap(rows, tables)
     assert gap["QB"] == ["pass_int"], gap
     out = X.league_outcomes(rules(FULL), ["Q1"], rows, 2025, {"Q1": "QB"}, {"Q1": "Q1"})
@@ -439,18 +473,41 @@ def test_a_RENAMED_column_is_caught_rather_than_scored_as_absent():
     assert out["reason"] == "F4.stat_columns_absent:QB=pass_int"
 
 
+def test_the_nflreadpy_rename_is_now_MAPPED_and_produces_no_gap():
+    """THE FIX, pinned from the consumer's side.
+
+    C found it; A mapped it in grade._WEEKLY_MAP. This asserts the 2025 loader's
+    real shape now grades — the detector must NOT report a gap for a column the
+    translator can emit, or every 2025 league would be rejected for a reason that
+    stopped being true."""
+    tables, _b, _i, _bo = X.scoring_tables(rules(FULL))
+    rows = [nflreadpy_shaped(wk("Q1", w, passing_yards=300, passing_tds=2,
+                                interceptions=1)) for w in (1, 2)]
+    assert X.schema_gap(rows, tables) == {}, "a mapped rename is still reported as a gap"
+    out = X.league_outcomes(rules(FULL), ["Q1"], rows, 2025, {"Q1": "QB"}, {"Q1": "Q1"})
+    assert out["has_weekly_outcomes"] is True
+
+
 def test_the_SIZE_of_the_silent_error_is_stated_not_asserted_away():
-    """THE ARITHMETIC. 300 yards x 0.04 = 12.0, 2 TD x 4 = 8.0, 1 INT x -2 = -2.0
-    -> 18.0 correct. Under the renamed column the interception term contributes
-    nothing and the same week scores 20.0. Over 17 weeks with one pick a week that
-    is 34 points of pure inflation, on QBs only — a systematic bias by position."""
+    """THE ARITHMETIC, and the error it measured is now CLOSED.
+
+    300 yards x 0.04 = 12.0, 2 TD x 4 = 8.0, 1 INT x -2 = -2.0 -> 18.0 correct.
+    Under the unmapped rename the interception term contributes nothing and the
+    same week scored 20.0 — over 17 weeks with a pick a week, 34 points of pure
+    inflation, on QBs only, a systematic bias BY POSITION.
+
+    That 20.0 is kept here as the measured size of what was wrong, asserted
+    against a rename the translator still cannot emit. The nflreadpy shape that
+    originally produced it now scores 18.0, which is the fix.
+    """
     tables, _b, _i, bounds = X.scoring_tables(rules(FULL))
     row = wk("Q1", 1, passing_yards=300, passing_tds=2, interceptions=1)
-    ok = X.weekly_points([row], 2025, tables, {"Q1": "QB"}, {"Q1": "Q1"}, bounds)
-    silent = X.weekly_points([nflreadpy_shaped(row)], 2025, tables, {"Q1": "QB"},
-                             {"Q1": "Q1"}, bounds)
-    assert ok["series"]["Q1"][1] == 18.0
-    assert silent["series"]["Q1"][1] == 20.0
+    pts = lambda r: X.weekly_points([r], 2025, tables, {"Q1": "QB"},
+                                    {"Q1": "Q1"}, bounds)["series"]["Q1"][1]
+    assert pts(row) == 18.0
+    assert pts(unmapped_rename(row)) == 20.0, "the size of the silent error"
+    assert pts(nflreadpy_shaped(row)) == 18.0, (
+        "the 2025 loader's real shape must now score the interception")
 
 
 def test_emittable_keys_is_the_TRANSLATOR_RUN_not_a_column_name_comparison():
@@ -458,8 +515,18 @@ def test_emittable_keys_is_the_TRANSLATOR_RUN_not_a_column_name_comparison():
     present but never populated. A name comparison would miss the third, and it
     would drift from the translator the first time either changed."""
     assert "pass_int" in X.emittable_keys([wk("A", 1, interceptions=0)])
-    assert "pass_int" not in X.emittable_keys([nflreadpy_shaped(wk("A", 1))])
-    nulled = dict(wk("A", 1)); nulled["interceptions"] = None
+    assert "pass_int" not in X.emittable_keys([unmapped_rename(wk("A", 1))])
+    # And the rename that IS mapped emits, which is what running the translator
+    # rather than comparing column names buys: the answer tracks the fix for free.
+    assert "pass_int" in X.emittable_keys([nflreadpy_shaped(wk("A", 1, interceptions=0))])
+    # NULL EVERY source for the key, not just one. With two aliases mapped, nulling
+    # `interceptions` alone left `passing_interceptions` at 0 still emitting — the
+    # third failure mode (present but never populated) silently stopped being
+    # tested the moment a second alias existed.
+    nulled = dict(wk("A", 1))
+    for _src, _dst in GR._WEEKLY_MAP.items():
+        if _dst == "pass_int":
+            nulled[_src] = None
     assert "pass_int" not in X.emittable_keys([nulled]), \
         "a column present but never populated scores as absent, same as a missing one"
 

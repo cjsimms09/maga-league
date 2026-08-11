@@ -613,10 +613,19 @@ function optimize(roster, ctx = {}) {
       });
     }
     changes.sort((a, b) => b.dollars - a.dollars);
+    // RULE 14 (2026-08-11): every field here has a named reader, checked rather
+    // than assumed. `ids` echoed the input back, and `ev` was the current
+    // lineup's own E[$] — both computed, both carried, both read by nothing.
+    // They are gone; `setEv` still does its job as a local, which is the whole
+    // point of the distinction between a value and a value nobody consumes.
     set = {
-      ids: curIds, ev: setEv, changes,
+      changes,
       matches: changes.length === 0 && drop.length === 0,
       dollars: r2(curEv.dollars - setEv.dollars),   // what the whole fix is worth
+      // POINTS, and it is not decoration. Dollars are modelled — they depend on
+      // the opponent estimate and the weekly-high band. Projected points are the
+      // number you can check against Sleeper yourself in ten seconds, which is
+      // what makes the recommendation auditable rather than merely confident.
       points: r2(curEv.mean - setEv.mean),
     };
   }
@@ -1002,7 +1011,9 @@ function sundayAlert(result, opts = {}) {
     // Did anything actually LOOK at the lineup? Callers must be able to tell
     // "your lineup is right" from "nobody checked".
     lineupKnown: !!set,
-    lineupMatches: set ? set.matches : null,
+    // `lineupMatches` was here and nothing read it: `lineupKnown` says whether a
+    // comparison happened and `changes.length` says what it found, so a third
+    // field restating both was a value with no consumer. Rule 14.
     changes,
     fixWorth: set ? set.dollars : null,
     // Is there anything to DO? The cron asks this before sending: an alert every

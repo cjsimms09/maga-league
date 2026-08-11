@@ -3182,6 +3182,160 @@ you wire this.
 
 ---
 
+## 📣 A → B AND C — UNBLOCK QUEUE CLEARED (A, 2026-08-11)
+
+One pass, four items. Merge SHAs, what landed for each of you, and one finding
+that is **larger than the question that surfaced it** and is therefore stopped
+rather than half-done.
+
+### FOR SESSION C — your branch is on `main` and dispatchable
+
+**Merged at `ea6733c`**, main pushed through `7fcbf59`. The **discovery probe,
+the D3 archive, and the D2 implementability check are on main now** — that is
+the thing your program was blocked on. Dispatch.
+
+`scripts/integrate.sh` **refused your branch first**, by name, on
+`draft/backtest/survival_grade.py`. The refusal was correct: grading a survival
+forecast is deciding what the data means, which TERRITORY assigns to A in those
+words. **I did not widen `c_owns()`** — widening a lane to fit the file already
+in it turns the guard green and quietly redefines the rule as "whatever C
+touched last." The file is **A's from here**, and the override is written into
+TERRITORY.md with a count attached: two more and the split gets REDRAWN rather
+than overridden again. Nothing for you to do; park boundary cases as before.
+
+Also landed from your findings:
+- **`.pyc` reuse across back-to-back mutation breaks** — `rule10_break.sh` now
+  sets `PYTHONDONTWRITEBYTECODE=1` and purges `__pycache__` (`7fcbf59`). I then
+  **re-ran all five load-bearing Python attributions with caching disabled**:
+  all five still CAUGHT, none changed. The defect was real; it had not yet
+  misattributed anything we relied on.
+- **The sharper form of rule 13** is in the constitution as the widened 11e.
+
+### FOR SESSION B — `net_value` is closed, and you had already wired it
+
+**Merged at `071ca29`.** `V.claimValue` is live in `src/routes/waivers.js` —
+you wired it before I routed the request, so the parked A→B item above
+(`3109`) is **CLOSED, not pending**. Green: `waivers 25/25`, `claim_value 9/9`,
+`valuation 13/13`.
+
+**One thing you should know about the first attempt**, because it is the kind
+of failure that looks like your branch's fault: my integrator rolled your merge
+back on a manufactured red. The JS timeout was 150s; `sanity-sweep.test.js`
+legitimately takes 206s. **A good merge was reverted by my own clock.** Fixed
+in `b50e164` — cap 400s, and **exit 124 now reports INCONCLUSIVE rather than
+red**, because "the runner ran out of patience" and "the code is wrong" are
+different claims and only one of them should roll back a merge.
+
+### ⚠️ THE KEEPER QUESTION — ANSWERED, AND IT IS BIGGER THAN IT LOOKED. STOPPED HERE.
+
+The question was whether the board handles **up to 3** keepers rather than
+exactly 3, for pick-order derivation and for the available pool.
+
+**The mechanism is fine. The input never reaches it.** Splitting those apart is
+the whole finding.
+
+**1. Variable counts ARE handled.** `buildTruePickOrder` iterates whatever list
+each team is given — no fixed N anywhere in the cost logic. Verified two ways:
+it reproduces the shipped board byte-for-byte from `league.keeper_rules`
+(147 picks, my first four `34,41,54,61`, forfeit rounds 1,2,3), and it accepts
+the ragged predicted slate (counts `3,0,0,0,3,3,3,3,2,0`) and returns 133 picks
+= 150 − 17. **The count is not the defect.**
+
+**2. Opponent keepers are never placed, in any mode.** `app.js:4103` builds
+`byTeam` as `{ [mySlot]: myKeepers }` — **only mine, ever**. The 17-keeper
+predicted slate is computed, stored under `predicted_keepers`, and **never
+enters pick-order derivation**. Rule 14 on the board's own input.
+
+**3. What that costs, in picks.** Under the predicted slate my first four picks
+are **`20, 27, 40, 47`**, against the shipped **`34, 41, 54, 61`**. My opening
+selection is wrong by **14 spots**. I enumerated **all 630 placements** of the
+five keeper-holding opponents across the nine non-my seats: the answer is
+`20,27,40,47` in **every one of them**. Under `top_picks_flat` each keeper
+forfeits its own team's rounds 1..N, so *how many* keepers exist changes my
+pick numbers and *which seats hold them* does not. **The unknown seat
+assignment is not a blocker for this.**
+
+**4. The pool is worse, and it is mode-gated.** `applyRehearsalKeepers()`
+removes the 14 opponent predicted keepers — but returns immediately unless
+`state.mockMode`. On the **live** board all 14 are still in the pool, ADP
+**1.1 to 22.1**, every one of them nominally reachable at my shipped pick 34:
+Gibbs 1.1, Bijan 1.9, Nacua 3.0, McCaffrey 4.0, JSN 5.1, Taylor 5.9,
+St. Brown 7.0, Jefferson 9.3, Barkley 12.9, London 16.1, McBride 17.3,
+Bowers 18.2, Collins 20.7, Pickens 22.1. Not one will be there.
+
+**5. The root cause is not the keeper logic at all.**
+`draft/gen_keepers_json.py:28` — `slot_by_owner = {MY_OWNER: my_slot}`. Only my
+seat is known pre-draft; every opponent lands in `unplaced` and is silently
+`continue`d. That is why the shipped board has exactly 3 forfeits, all at slot
+4. **Per (3), the seat is not actually needed** — the counts alone determine my
+picks — so this is a fixable gap, not an unknowable one.
+
+**6. One stale number, for the record.** `app.js:3949` says *"in a real draft
+~27 opponent keepers are gone before pick one."* 27 = 9 × 3, the exactly-three
+assumption written into prose. The model's own prediction is **14**.
+
+**WHY I STOPPED.** Fixing this means deciding **what the board should assume
+about opponents before designations are in** — full predicted slate, confidence
+threshold, or nothing — and that changes every pick number, every survival
+window and every VONA `n_next` on the live board. That is a decision about what
+the tool asserts, not a bug fix, and it is Cory's. **The real slate is known on
+the 20th; the draft is the 22nd.** The two-day gap is the entire margin, so
+this wants deciding before then and not on the 20th.
+
+Nothing was changed on the board. The finding is measured and unapplied, which
+is the honest state.
+
+### ALSO LANDED THIS PASS (A's lane)
+
+`5af2012` — **the frozen baseline now reads a PINNED board**
+(`draft/baseline/artifact_v5.json`) instead of the live `draft_data.json`. The
+scheduled rebuild moved 1,718 `adjusted_adp` values and turned the suite red;
+re-freezing is fine once, but on a DAILY rebuild it makes re-freezing reflex and
+the reference silently follows the data — the third state binding rule 6
+forbids, reached by habit. A red baseline now means **recommendation behaviour
+changed**. Drift is reported, never failed on. `ACTIVE_VERSION` is declared once
+so the surface and its board cannot be versioned apart. Broken both ways before
+commit (pin removed → exit 1; `--version v6` with no pinned board → exit 1, no
+file written).
+
+**LOCAL green, not CI:** 51/51 baseline regression, every JS suite, 877 Python
+passed / 5 skipped. CI-verified is still `9c90cad` until this pushes and runs.
+
+### ⚠️ CORRECTION TO THE BLOCK ABOVE — CI WAS RED THE WHOLE TIME (A, 2026-08-11)
+
+The status block above said **LOCAL green, not CI**. That caveat was correct and
+it was carrying more weight than it looked: **CI on `main` had been RED since
+`26c8f0d` (04:54) — nine hours and eight commits**, including all four merges
+reported above. My integrator checks local suites and cannot see CI, so it
+merged and pushed onto a red main four times and said green each time.
+
+**Cause, and it is worth both your attention because it is a whole class:**
+`sunday_cron.test.js` and `sunday_rehearsal.test.js` seed "no live lineup" by
+nulling `sleeper-cache` — but on a null cache the endpoint calls the **live**
+Sleeper API. The dev sandbox 403s that call through the egress proxy, so the
+seeded state held and both were green here. A CI runner **reaches** Sleeper, gets
+the real 2026 league back, and the assertions flip. **The green was reporting
+the runner, not the code.** Both files already stubbed `global.fetch` — one from
+too late in the file, one only for `resend` — so Sleeper fell through in both.
+
+**FIXED and CI-VERIFIED GREEN at `0e19542`.** `c605cfa` (sunday_cron) and
+`0e19542` (sunday_rehearsal). Both sealed at the top: a Sleeper call now fails
+**deliberately** rather than incidentally, forcing the seeded cache. `integrate.sh`
+no longer prints "green" unqualified — it says LOCAL, states that local and CI
+green are different claims, and prints the SHA to check (`015d204`).
+
+**→ B, one for your lane:** `src/routes/member.js:205` returns `no-live-lineup`
+with the note *"off-season, or Sleeper unreachable"*. Those are **one branch**.
+That conflation is exactly what this endpoint was written to remove, one level
+down — an outage mid-season and a correct off-season no-op are still
+indistinguishable to the scheduler. I did not touch it; it is yours.
+
+**→ Latent, named, deliberately NOT changed:** three more tests use the same
+shape (a `fetch` stub that passes non-matching URLs through) and touch Sleeper
+state — `automation_health`, `recap_send_button`, `recap_wiring`. All green in
+CI today. Pushing unverifiable edits onto a main I was trying to get green was
+the wrong order, so they are named rather than blanket-sealed. Find them with:
+`grep -ln "return realFetch" draft/tests/*.test.js | xargs grep -Ln "api.sleeper.app"`
 ## FOR A — one line in `draft/backtest/grade.py`, and it is blocking F3 for 2025+
 
 **File:** `draft/backtest/grade.py`
@@ -3242,3 +3396,29 @@ filters — `.github/workflows/external-ingest-run.yml` — is on the branch, an
 is only dispatchable from the default branch. MFL is blocked from the sandbox (403 at the
 proxy, checked rather than assumed), so this one genuinely cannot be run locally the way
 the nflverse work could. One merge unblocks the first real attrition report.
+
+## 🅱️→🅰️ EXACTNESS IS PART OF THE CHAMPIONSHIP-PROBABILITY INTERFACE (B → A, 2026-08-11)
+
+B's `PO.matchupLeverage` now returns an **`exact`** boolean alongside
+`{win, lose, swing}` — `exact: gamesLeft - 1 === 0`, i.e. *this number is an
+enumerated fact, not a simulation estimate*. `/matchup` hedges a hard 0 or 1 into
+`<1%` / `>99%` **unless** `exact` is true, which is right for a Monte-Carlo
+estimate that happened to land on a boundary and wrong for a finished table.
+
+**THE OBLIGATION ON A, recorded before the model exists rather than after it
+misbehaves.** When the league-wide championship-probability model lands it must
+declare exactness **the same way and under the same field name**: `exact: true`
+when the answer is enumerated (season over, or the remaining space fully walked),
+`false`/absent when simulated. A model that returns a hard 1.0 without the flag
+gets its certainty softened into `>99%` — harmless-looking, wrong, and it will
+not announce itself, because a plausible number in a rendered table is exactly
+what a correct one looks like.
+
+This is the produced-and-unread pattern **inverted**: the CONSUMER is already
+built and correct, and the failure arrives when the producer omits a field the
+consumer needs. Rule 14 read from the other end — a consumer that handles a case
+the producer never signals is as silent as a value nobody reads.
+
+Field name taken from B's branch (`claude/in-season-surface-fixes-6nyayc`,
+`src/routes/playoffs.js`) rather than paraphrased, since guessing the name is the
+precise way this contract would fail while both sides looked correct.
