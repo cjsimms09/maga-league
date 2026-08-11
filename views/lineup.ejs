@@ -40,9 +40,33 @@
     That's the disagreement written down at decision time, which is the only moment it can be.</span>
   </div>
 <% } %>
-<% if (typeof sent !== 'undefined' && sent) { %>
-  <div class="alert-banner" style="margin-bottom:1rem; border-color:rgba(74,222,128,.5)">
-    <span class="tag">📣</span><span>Sunday alert sent to your inbox<%= (typeof emailOn !== 'undefined' && !emailOn) ? ' (email isn\'t configured yet, so it was a dry run)' : '' %>.</span>
+<%# THE REHEARSAL RESULT, HONESTLY. This banner said "sent to your inbox" for
+    every outcome, including a provider refusal — and this button is the only way
+    to find out whether the email reaches you at all when you aren't on the site,
+    so the one thing it must never do is claim a send that didn't happen. %>
+<% if (typeof sent !== 'undefined' && sent) {
+     const sr = (typeof sendResult !== 'undefined' && sendResult) || null;
+     // NO RESULT MEANS NO CLAIM. The result is read once and cleared, so ?sent=1
+     // on a refresh has nothing behind it. The old banner defaulted to "sent to
+     // your inbox" in exactly that case, which is how a refresh could report a
+     // delivery that never happened.
+     const oc = sr ? sr.outcome : 'unknown';
+     const good = oc === 'ok';
+     const BANNER = {
+       unknown: ['⚪', 'Alert requested — but the outcome wasn\'t carried through to this page (it was probably refreshed). Press the button again to see what actually happened.'],
+       ok:      ['📣', 'Sunday alert sent to your inbox. If it isn\'t there in a minute, check spam — and tell the commissioner, because the weekly cron uses this same path.'],
+       noemail: ['⚪', 'Nothing was sent: no email provider is configured (RESEND_API_KEY). The alert was composed but had nowhere to go.'],
+       nolive:  ['⚪', 'Nothing was sent: there\'s no live lineup right now (off-season, or Sleeper is unreachable).'],
+       refused: ['⛔', 'The mailer refused to send.'],
+       failed:  ['⛔', 'The email provider rejected it — nothing arrived.'],
+     };
+     const [icon, text] = BANNER[oc] || BANNER.unknown; %>
+  <div class="alert-banner" style="margin-bottom:1rem; border-color:<%= good ? 'rgba(74,222,128,.5)' : '#d4242f' %>">
+    <span class="tag"><%= icon %></span><span><%= text %>
+      <% if (sr && sr.detail) { %><span class="muted"><%= sr.detail %></span><% } %>
+      <% if (oc === 'failed') { %>
+        <span class="muted">The default sender is Resend's shared <code>onboarding@resend.dev</code>, which only delivers to the address that owns the Resend account — set <code>NOTIFY_FROM</code> to a verified domain, or make the commissioner's email match the Resend account.</span>
+      <% } %></span>
   </div>
 <% } %>
 

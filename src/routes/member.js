@@ -2600,6 +2600,9 @@ router.get('/lineup', requireCommissioner, aw(async (req, res) => {
   const dY = req.query.replay, dW = parseInt(req.query.week, 10);
   if (tab === 'proof' && dY && dW) drill = LO.weekDrill(String(dY), dW, req.query.owner || 'coryjsimms');
 
+  let sendResult = null;
+  if (req.query.sent === '1') { sendResult = req.session.sundaySend || null; delete req.session.sundaySend; }
+
   res.render('lineup', {
     me, owners, tab, season, band, live, projSource, roster, matchup, weekNo, alert,
     posture: live ? LO.weeklyPosture(live, band) : null,   // chase vs protect — the week's one real call
@@ -2611,6 +2614,10 @@ router.get('/lineup', requireCommissioner, aw(async (req, res) => {
     // the staleness banner at least as much as the pages that only display it.
     liveStale: await liveFreshness(),
     sent: req.query.sent === '1',
+    // Read once and cleared, so a refresh doesn't re-announce an hour-old send as
+    // if it just happened. Cleared BEFORE the render — cookie-session writes its
+    // Set-Cookie on res.end, so a delete after render never reaches the browser.
+    sendResult,
     emailOn: notify.configured(),
   });
 }));
@@ -2746,13 +2753,31 @@ router.get('/analyzer', requireCommissioner, aw(async (req, res) => {
 
 // Send the Sunday alert to the commissioner now (rehearsal, and the manual fire).
 // The weekly cron hits the same logic via /api/sunday-alert with a secret.
+// THIS BUTTON IS HOW YOU FIND OUT WHETHER THE EMAIL REACHES YOU AT ALL, so it
+// has to report what actually happened. It used to `.catch(() => {})` the send
+// and redirect to a banner reading "Sunday alert sent to your inbox" — true when
+// it worked, and equally true when Resend rejected it. The default sender is
+// Resend's shared `onboarding@resend.dev`, which only delivers to the address
+// that owns the Resend account, so a provider refusal is the LIKELY first
+// outcome in production and it was the one state the rehearsal could not show.
+// The provider's own message is the useful string here, so it is carried in the
+// session rather than the URL.
 router.post('/lineup/sunday/send', requireCommissioner, aw(async (req, res) => {
   const owners = H.activeOwners(req.world.owners);
   const { live, band, weekNo } = await liveOptimizeFor(req.world, owners, req.owner);
+  let outcome = 'nolive', detail = null;
   if (live) {
     const alert = LO.sundayAlert(live, { week: weekNo, band });
-    await notify.sundayAlert(req.owner, alert).catch(() => {});
+    const r = await notify.sundayAlert(req.owner, alert)
+      .catch(e => ({ error: String((e && e.message) || e) }));
+    if (r && r.sent) outcome = 'ok';
+    else if (r && r.error) { outcome = 'failed'; detail = r.error; }
+    else if (!notify.configured()) outcome = 'noemail';
+    else { outcome = 'refused'; detail = (r && (r.note || r.reason)) || null; }
   }
+  // The session is a signed COOKIE — a long provider message would bloat it, so
+  // the detail is capped rather than trusted to be short.
+  req.session.sundaySend = { outcome, detail: detail ? String(detail).slice(0, 180) : null, week: weekNo };
   res.redirect('/lineup?sent=1');
 }));
 
