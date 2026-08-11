@@ -140,6 +140,23 @@ function simOdds(rows, gamesLeft, cut, opts = {}) {
  * Returns null when there's nothing at stake (no games left / not in the field).
  * @returns { win, lose, swing } probabilities, or null
  */
+/* HOW MANY TEAMS MAKE THE PLAYOFFS — THE ONE DEFINITION.
+ *
+ * This rule was written out SIX times across the site (`settings.playoff_teams
+ * || 4`) and, in the weekly recap, an outright hardcoded 6. Six copies that
+ * happened to agree and one that did not, with nothing comparing them: the
+ * email told nine people a playoff picture computed on a six-team cut while
+ * every page they could check it against used four.
+ *
+ * The default of 4 is not a guess — it is what every other surface has always
+ * used, so the recap was the outlier and this makes the agreement structural
+ * rather than coincidental.
+ */
+function playoffCut(leagueOrSettings) {
+  const s = (leagueOrSettings && leagueOrSettings.settings) || leagueOrSettings || {};
+  return Number(s.playoff_teams) || 4;
+}
+
 function matchupLeverage(rows, gamesLeft, cut, ownerId) {
   if (!gamesLeft || cut >= rows.length) return null;
   const seed = seedFrom(rows, gamesLeft);
@@ -172,4 +189,4 @@ function picture(rows, gamesLeft, cut, prevOdds = null) {
   return out;
 }
 
-module.exports = { CFG, gamesRemaining, winProb, clinchElim, simOdds, matchupLeverage, picture, seedFrom };
+module.exports = { CFG, gamesRemaining, playoffCut, winProb, clinchElim, simOdds, matchupLeverage, picture, seedFrom };

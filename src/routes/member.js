@@ -656,7 +656,7 @@ router.get('/', aw(async (req, res) => {
     const playersDb = await sleeper.players();
     wireRows = await sleeper.wire(world.config.sleeper_league_id, sData.week || 1, sData, playersDb);
   }
-  const playoffTeams = (sData && sData.league.settings && sData.league.settings.playoff_teams) || 4;
+  const playoffTeams = PO.playoffCut(sData && sData.league);
 
   // THE FOLDED COLUMNS — the playoff picture, folded into the standings: odds
   // with week-over-week movement + clinch/elimination markers. Derived (a seeded
@@ -2158,7 +2158,7 @@ router.get('/matchup', aw(async (req, res) => {
       const regWeeks = (sData.league.settings && sData.league.settings.playoff_week_start)
         ? sData.league.settings.playoff_week_start - 1 : 14;
       const gamesLeft = PO.gamesRemaining(sData.week, regWeeks);
-      const cut = (sData.league.settings && sData.league.settings.playoff_teams) || 4;
+      const cut = PO.playoffCut(sData.league);
       const lev = PO.matchupLeverage(rows, gamesLeft, cut, me.id);
       if (lev) stakes = lev;
     }
@@ -2463,7 +2463,7 @@ router.get('/scoreboard', aw(async (req, res) => {
   if (locked) { try { allPicks = await PE.allPicksForWeek(seasonYear, weekNo); } catch (e) {} }
 
   // playoff picture (odds + clinch/elim) + per-game leverage, when there's a race
-  let picture = null, gamesLeft = 0, cut = (sData && sData.league.settings && sData.league.settings.playoff_teams) || 4;
+  let picture = null, gamesLeft = 0, cut = PO.playoffCut(sData && sData.league);
   try {
     const sStand = sleeper.standings(sData, map, owners).filter(r => r.owner_id != null && ((r.wins || 0) + (r.losses || 0) + (r.ties || 0)) > 0);
     if (sData && sStand.length >= 4) {
