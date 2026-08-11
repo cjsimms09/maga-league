@@ -1017,6 +1017,42 @@ positions we lack instead of blaming the reception rule.
 next run's denominator will be larger for the same crawl, which brings the decision closer,
 not further away. The bound was conservative in the wrong direction.
 
+## WHAT F7's ANSWER LEAVES — the nflverse half is now the main route (2026-08-11)
+
+F7 closes the MFL-league route to 200 matched league-seasons. It does not close the
+external programme, and the distinction matters because the two halves were always
+separable:
+
+- **THE LEAGUE HALF** — other people's drafts, replayed and graded. Needs format-matched
+  leagues. **F7 says the 2025 MFL pool cannot supply 200 of them.**
+- **THE NFLVERSE HALF** — player-evaluation questions that are largely
+  format-independent: age cliffs, regression, injury and availability base rates. **These
+  need no MFL leagues at all**, and nothing measured today constrains them.
+
+Rescoring another league's outcomes under our rules to widen the first half is **ruled
+out** (Cory, 2026-08-11): the drafts happened under THEIR scoring, so their picks were
+correct for their rules, and rescoring the outcomes while keeping the draft produces a
+room where the picks and the payoff table disagree. A small sample is uncertain; a
+rescored one is confidently measuring the wrong thing. Any specific question wanting the
+wider pool is proposed individually with the format-independence argument stated.
+
+### THE NFLVERSE SURFACE, MEASURED RATHER THAN ASSUMED (2026-08-11)
+
+Probed directly, because "we can answer age questions from nflverse" is exactly the kind
+of assumption this program has been punished for:
+
+- `import_weekly_data` carries `position`, `season`, `week`, `player_id`,
+  `player_display_name` — 5,597 rows and 612 distinct players for 2024.
+- **IT DOES NOT CARRY `age`.** A consumer written against a weekly row expecting age gets
+  nothing, silently, and every age-cliff finding computed from it would be about players
+  whose age defaulted — the same defect class this lane has hit eight times.
+- `import_seasonal_rosters` DOES: `age`, `birth_date`, `entry_year`, `years_exp`,
+  `draft_number`, `position` — 3,215 rows for 2024.
+
+**So an age question requires the weekly ⋈ seasonal-roster join on (player_id, season),
+and that join is a boundary with a coverage figure, not a lookup.** Recorded here before
+anyone builds on it.
+
 ## F7 ANSWERED — THE 200-LEAGUE TARGET IS NOT REACHABLE FROM MFL's 2025 POOL (2026-08-11)
 
 **Run 12. The rule below was registered before this run and it fires.**
