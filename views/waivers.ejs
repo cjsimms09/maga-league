@@ -85,12 +85,22 @@
               surfaced with the caveat attached rather than folded into a number
               that would then be wrong. %>
           <div class="lo-note" style="grid-column:1/-1; margin-top:.35rem">
+            <%# POSTURE IS NOT KNOWN, SO IT IS NOT CLAIMED.
+                This line first read "including N contending or desperate", and
+                that was false the moment it rendered: the route computes no
+                postures, whoElseNeeds defaults a missing posture to eager (a
+                sensible CONSERVATIVE default inside the engine), and the page
+                turned that unknown into a statement about nine teams' competitive
+                state. Absent is not a value. What IS established is the count of
+                teams with an open startable slot at the position, so that is all
+                that is said. %>
+            <% const known = c.rivals.filter(r => r.posture); %>
             <% if (c.contested) { %>
               <b style="color:#d4242f">⚔ <%= c.rivals.length %> other team<%= c.rivals.length === 1 ? '' : 's' %></b>
-              <%= c.rivals.length === 1 ? 'is' : 'are' %> short at <%= c.position %><% if (c.rivals.some(r => r.eager)) { %>, including <%= c.rivals.filter(r => r.eager).length %> contending or desperate<% } %>.
-              <span class="muted">If you want him you probably have to spend the spot. <b>This is not in the dollar figure above</b> — the price is the same whether he is contested or not.</span>
+              <%= c.rivals.length === 1 ? 'has' : 'have' %> an open <%= c.position %> slot<% if (known.length) { %>, <%= known.length %> of them contending or desperate<% } %>.
+              <span class="muted">Whether they would actually spend their priority on him is <b>not modelled</b>. And it is <b>not in the dollar figure above</b> — the price is the same whether he is contested or not.</span>
             <% } else { %>
-              <span class="muted">Nobody else is short at <%= c.position %>. He may still be there next week — which is the case for holding, and again, not priced above.</span>
+              <span class="muted">No other team has an open <%= c.position %> slot. He may still be there next week — which is the case for holding, and again, not priced above.</span>
             <% } %>
           </div>
         </div>

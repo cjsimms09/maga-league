@@ -166,6 +166,19 @@ global.fetch = async (url, opts) => {
       const t = (await page()).text;
       ck('rivals short at the position are named', /other team/i.test(t),
         (t.match(/.{0,80}other team.{0,80}/i) || [''])[0]);
+      // FOUND TWENTY MINUTES AFTER SHIPPING THIS PAGE. It read "including N
+      // contending or desperate", and the route computes NO postures —
+      // whoElseNeeds defaults a missing posture to eager, a conservative default
+      // inside the engine, which the page turned into a claim about nine teams'
+      // competitive state. Absent is not a value, in a view as much as in a
+      // record.
+      ck('  it does NOT claim a posture nothing established',
+        !/contending or desperate/i.test(t),
+        (t.match(/.{0,100}contending or desperate.{0,40}/i) || [''])[0]);
+      ck('  it says only what is known — an open slot at the position',
+        /open .* slot/i.test(t), (t.match(/.{0,60}open .{0,30}slot.{0,40}/i) || [''])[0]);
+      ck('  and says outright that their willingness to spend is not modelled',
+        /not modelled/i.test(t), (t.match(/.{0,80}not modelled.{0,40}/i) || [''])[0]);
       ck('  and the page says the dollar figure does NOT include it',
         /not in the dollar figure above/i.test(t),
         (t.match(/.{0,100}dollar figure.{0,60}/i) || [''])[0]);
