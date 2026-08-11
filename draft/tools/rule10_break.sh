@@ -84,7 +84,25 @@ if (occurrences > 1) {
 fs.writeFileSync(file, before.slice(0, idx) + nw + before.slice(idx + old.length));
 ' "$FILE" "$OLD" "$NEW" || exit 2
 
-echo "-- broke $FILE, running: $CHECK (timeout ${TMO}s)"
+# ── STALE BYTECODE MISATTRIBUTES THE BREAK ──────────────────────────────────
+# C's finding, 2026-08-11: running mutation breaks back to back lets a stale
+# .pyc be reused, so pytest scores one mutation against the PREVIOUS one's
+# bytecode. It caught it because the named test did not match what the mutation
+# should logically break — i.e. the harness reported a CONFIDENT WRONG
+# ATTRIBUTION, which is worse than a failure.
+#
+# Python invalidates a .pyc by source mtime AND size, so the exposure is exactly
+# the back-to-back case this harness creates: two mutations of the same byte
+# length landing inside one mtime-second look identical to the cache. Every break
+# run here is by construction "quick succession".
+#
+# Belt and braces, because a misattribution is silent: refuse to write bytecode
+# at all, run python with -B, and purge any __pycache__ left by earlier runs.
+export PYTHONDONTWRITEBYTECODE=1
+export PYTHONPYCACHEPREFIX=""
+find draft -name '__pycache__' -type d -prune -exec rm -rf {} + 2>/dev/null
+
+echo "-- broke $FILE, running: $CHECK (timeout ${TMO}s, bytecode cache disabled)"
 START=$(date +%s)
 # </dev/null so a command that reads stdin gets EOF instead of blocking forever.
 timeout -s TERM "$TMO" bash -c "$CHECK" </dev/null >/tmp/rule10_check.log 2>&1
