@@ -39,6 +39,17 @@ const ROOT = path.join(__dirname, '..', '..');
 const E = require(path.join(ROOT, 'public', 'js', 'draft', 'engine.js'));
 const BASELINE_DIR = path.join(ROOT, 'draft', 'baseline');
 
+/* THE ACTIVE BASELINE VERSION IS DECLARED ONCE, HERE.
+ *
+ * It names two files that must agree: the frozen surface (vN.json) and the board
+ * that surface was computed against (artifact_vN.json). Declaring the version in
+ * two places is how they come apart — pin artifact_v6 while the regression test
+ * still reads v6.json against the v5 board, and the suite goes green on a
+ * comparison nobody intended. Both paths derive from this constant, and the
+ * regression test imports it rather than repeating the literal. */
+const ACTIVE_VERSION = 'v5';
+const BASELINE_PATH = path.join(BASELINE_DIR, ACTIVE_VERSION + '.json');
+
 /* CANONICAL STATES — THREE PICK REGIMES, and the count is deliberately three.
  *
  * Early (everything empty, value dominates), mid (the mask starts binding), late
@@ -277,8 +288,69 @@ function surfaceFor(state, players, league, art) {
   };
 }
 
+/* ══ THE BASELINE READS A PINNED ARTIFACT, NOT THE LIVE BOARD ══
+ *
+ * THE PROBLEM THIS SOLVES, stated as the failure it was heading for. This tool
+ * used to read the LIVE public/draft_data.json, so the frozen surface was a
+ * function of the DATA as much as of the CODE — and it could not tell the two
+ * apart. The scheduled rebuild on 2026-08-11 changed 1,718 adjusted_adp values,
+ * the baseline went red, and the honest response was to re-freeze.
+ *
+ * That is fine ONCE. With a DAILY rebuild it is fatal: the suite goes red every
+ * day, re-freezing becomes reflex, and the reference silently follows the data.
+ * That is precisely the third state binding rule 6 forbids, arrived at by habit
+ * rather than by any decision anyone would defend.
+ *
+ * SO THE BASELINE NOW ISOLATES CODE. `draft/baseline/artifact_vN.json` is the
+ * board the surface was frozen against, pinned beside it and immutable for the
+ * same reason the surface is. A red suite now means RECOMMENDATION BEHAVIOUR
+ * CHANGED — which is what the file has claimed all along.
+ *
+ * DATA DRIFT DOES NOT GO UNWATCHED, it just stops being this suite's job:
+ * `artifact_drift` below reports what moved between the pinned board and the
+ * live one, so a refresh is visible without being a failure.
+ *
+ * Override with BASELINE_ARTIFACT=<path> to freeze against a different board on
+ * purpose (a new version pins its own).
+ */
+function artifactPath() {
+  if (process.env.BASELINE_ARTIFACT) return process.env.BASELINE_ARTIFACT;
+  const pinned = path.join(BASELINE_DIR, 'artifact_' + ACTIVE_VERSION + '.json');
+  if (fs.existsSync(pinned)) return pinned;
+  // NO SILENT FALLBACK TO THE LIVE BOARD. Falling back would restore exactly the
+  // conflation this change removes, and it would do it invisibly.
+  throw new Error('freeze_baseline: no pinned artifact at ' + pinned
+    + '. The baseline must not read the live board — that is how a data refresh '
+    + 'becomes indistinguishable from a code change. Pin one, or set '
+    + 'BASELINE_ARTIFACT deliberately.');
+}
+
+/** What moved between the PINNED board and the live one. Reported, never failed on. */
+function artifactDrift() {
+  const livePath = path.join(ROOT, 'public', 'draft_data.json');
+  if (!fs.existsSync(livePath)) return { live_present: false };
+  const pinned = JSON.parse(fs.readFileSync(artifactPath(), 'utf8'));
+  const live = JSON.parse(fs.readFileSync(livePath, 'utf8'));
+  const pi = {}, li = {};
+  pinned.players.forEach(p => { pi[String(p.player_id)] = p; });
+  live.players.forEach(p => { li[String(p.player_id)] = p; });
+  const common = Object.keys(pi).filter(k => li[k]);
+  let projMoved = 0, adpMoved = 0;
+  common.forEach(k => {
+    if (Math.abs((pi[k].proj_mean || 0) - (li[k].proj_mean || 0)) > 1) projMoved++;
+    if ((pi[k].adjusted_adp || 0) !== (li[k].adjusted_adp || 0)) adpMoved++;
+  });
+  return {
+    live_present: true,
+    pinned_built_at: pinned.built_at, live_built_at: live.built_at,
+    same_board: pinned.built_at === live.built_at,
+    players_pinned: pinned.players.length, players_live: live.players.length,
+    projections_moved_gt1: projMoved, adp_changed: adpMoved, compared: common.length,
+  };
+}
+
 function build() {
-  const art = JSON.parse(fs.readFileSync(path.join(ROOT, 'public', 'draft_data.json'), 'utf8'));
+  const art = JSON.parse(fs.readFileSync(artifactPath(), 'utf8'));
   const players = art.players.filter(p => p.vorp != null);
   const league = art.league;
   const states = canonicalStates(players, art);
@@ -334,10 +406,30 @@ if (require.main === module) {
     console.error('from the reference silently following the code (binding rule 6).');
     process.exit(1);
   }
+  /* A NEW VERSION PINS ITS OWN BOARD. Without this, freezing v6 while
+   * ACTIVE_VERSION still says v5 silently computes the v6 surface against the v5
+   * board — self-consistent, green, and not the comparison anyone asked for. */
+  if (version !== ACTIVE_VERSION) {
+    const ownArtifact = path.join(BASELINE_DIR, 'artifact_' + version + '.json');
+    if (!fs.existsSync(ownArtifact)) {
+      console.error('REFUSING to freeze ' + version + ': no pinned board at ' + ownArtifact + '.');
+      console.error('cp public/draft_data.json ' + ownArtifact);
+      console.error('then set ACTIVE_VERSION = \'' + version + '\' in this file, so the frozen');
+      console.error('surface and the board it was computed against stay named by one constant.');
+      process.exit(1);
+    }
+    console.error('NOTE: ACTIVE_VERSION is still \'' + ACTIVE_VERSION + '\'. This freeze read '
+      + path.basename(artifactPath()) + '.');
+    console.error('Set ACTIVE_VERSION = \'' + version + '\' to make ' + version + ' the reference.');
+  }
+
   built._why = why || null;
   built.frozen_at = new Date().toISOString();
   fs.writeFileSync(dest, JSON.stringify(built, null, 2) + '\n');
   console.log('froze ' + dest);
 }
 
-module.exports = { build, canonicalStates, surfaceFor };
+module.exports = {
+  build, canonicalStates, surfaceFor, artifactPath, artifactDrift,
+  ACTIVE_VERSION, BASELINE_PATH,
+};
