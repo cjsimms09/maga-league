@@ -108,6 +108,32 @@ freeAgents.forEach(fa => {
     zeros.map(c => c.player_id + ':' + c.startable_value).join(' '));
 }
 
+// 1c) A DOWNGRADE MUST BE ABLE TO SAY IT IS ONE.
+//
+// My first fix wrapped this in Math.max(0, …) and A was right to drop it: that
+// turns "this claim would make your lineup worse" into "this claim is worth
+// nothing", and on a Tuesday those are different sentences. It is also the same
+// failure found all over this project — a clamp that makes a bad answer
+// indistinguishable from a neutral one.
+//
+// Nine players for nine slots, so `dropCandidate` has no bench body and must
+// give up a STARTER. Claiming a 40-point kicker costs the 175-point flex and
+// does not displace the 130 kicker, because K is not flex-eligible — the slot
+// simply empties. The arithmetic is stated rather than the sign asserted.
+{
+  const tight = [mk('myQB', 'QB', 300, 60), mk('myRB1', 'RB', 240, 95), mk('myRB2', 'RB', 220, 85),
+    mk('myWR1', 'WR', 230, 90), mk('myWR2', 'WR', 210, 80), mk('myTE', 'TE', 180, 55),
+    mk('myFlex', 'RB', 175, 45), mk('myK', 'K', 130, 10), mk('myDEF', 'DEF', 125, 8)];
+  const r = W.evaluateClaims([mk('faJunk', 'K', 40, 1)], tight, league,
+    { lineupMean: 130, lineupSd: 24, oppMean: 128 });
+  check('with no bench body the drop is a STARTER', r.drop && r.drop.player_id === 'myFlex',
+    r.drop && r.drop.player_id);
+  check('a real downgrade prices NEGATIVE, not zero', r.claims[0].net_value === -175,
+    String(r.claims[0].net_value) + ' (expected -175: the flex empties, the kicker does not displace a better one)');
+  check('  and its dollars are negative too, so the page cannot read it as neutral',
+    r.claims[0].dollars < 0, String(r.claims[0].dollars));
+}
+
 // 2) Ranking: the best startable upgrade is the top claim.
 check('the best startable FA is the #1 claim',
   res.claims[0].player_id === 'faWRgood', res.claims[0].player_id);
