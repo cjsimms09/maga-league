@@ -982,6 +982,44 @@ positions we lack instead of blaming the reception rule.
 next run's denominator will be larger for the same crawl, which brings the decision closer,
 not further away. The bound was conservative in the wrong direction.
 
+## F7 ANSWERED — THE 200-LEAGUE TARGET IS NOT REACHABLE FROM MFL's 2025 POOL (2026-08-11)
+
+**Run 12. The rule below was registered before this run and it fires.**
+
+```
+394 leagues attempted        (700 requested; 306 never reached inside the 5,400s budget)
+  9 failed to fetch          all nine HTTP 429 — our request rate, not nine unobtainable leagues
+ 74 unreadable in total      parse or fetch
+  0 MATCHED
+```
+
+| reading of "formats read" | n | 95% upper bound | vs F7's required 0.9380% |
+|---|---|---|---|
+| attempted − fetch failures (run 11's definition) | 385 | **0.7792%** | ruled out with room |
+| attempted − all unreadable (stricter) | 320 | **0.9375%** | ruled out by 0.0005 pp |
+
+**Both readings clear the pre-registered bar, and the stricter one clears it by the
+narrowest margin arithmetic allows** — 320 readable was exactly the threshold registered,
+and 3/320 = 0.9375% sits five ten-thousandths of a percentage point under the 0.9380% the
+target needs. That is stated rather than rounded away: the conclusion is robust because
+BOTH readings agree, not because the tight one is comfortable.
+
+> **F7's target of 200 matched league-seasons is not reachable from MFL's 2025 public pool
+> at 95% confidence. Per F7, this program reports the number and changes nothing.** No
+> filter is relaxed, no clause widened, no pooling attempted. That commitment was made
+> before the measurement existed and the measurement has now arrived.
+
+**The binding constraint, from the same run.** `F1.scoring_not_half_ppr` rejects 150 and
+`F1.teams` rejects 122 — and by `screen()`'s ordering those 150 had already passed the
+team check. Half-PPR is the scarce property. TE-premium and split-PPR variants account for
+a further 24 across sixteen distinct scoring shapes, which is its own finding: public MFL
+scoring is not one alternative format but a long tail of them.
+
+**What this does NOT say.** Nothing here is about 2026, whose pool has not been crawled;
+nothing is about other platforms; and nothing is about whether a smaller matched sample is
+useful — F7 sets 200 as the bar for *pooling and shadow-field expansion*, not as the
+threshold below which external data is worthless.
+
 ## F7 DECISION RULE, REGISTERED BEFORE THE RUN THAT TESTS IT (2026-08-11)
 
 Run 11 gave 0 matched of 113 readable leagues. Zero successes does not mean a zero rate,

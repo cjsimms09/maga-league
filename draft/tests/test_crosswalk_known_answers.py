@@ -397,3 +397,12 @@ def test_a_TEAM_DEFENSE_is_a_real_board_entity_and_still_matches():
     assert A.is_team_unit("TMQB") and A.is_team_unit("TMPK") and A.is_team_unit("tmwr")
     assert not A.is_team_unit("Def") and not A.is_team_unit("TM") and not A.is_team_unit("TE")
     assert not A.is_team_unit(None) and not A.is_team_unit("")
+    # AND THE ONES THAT ARE NOT TM-PREFIXED. Run 12 surfaced 57 more of exactly the
+    # same kind under names the prefix cannot reach: `ST -> DEF` 27 times and
+    # `Off -> DEF` 30, with samples reading "Buffalo Bills ST BUF | Buffalo Bills
+    # DEF BUF". Special teams and team offense are separate MFL entities sharing a
+    # name with the team DEFENSE on our board, so they match it and score as a
+    # success. MUTATION: keep only the prefix test; 57 picks are priced as defenses.
+    assert A.is_team_unit("ST") and A.is_team_unit("Off") and A.is_team_unit("off")
+    # ...and the real board entity survives, or every defense pick in the pool dies.
+    assert not A.is_team_unit("DEF") and not A.is_team_unit("D") and not A.is_team_unit("K")

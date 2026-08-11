@@ -485,9 +485,25 @@ def crosswalk_picks(picks: list, mfl_players, sleeper_index) -> tuple:
 # next one. `Def` is NOT one of these — a team defense is a real board entity.
 TEAM_UNIT_PREFIX = "TM"
 
+# AND THE ONES THAT ARE NOT TM-PREFIXED, measured in run 12. The prefix test caught
+# TMQB and TMPK; the conflict report then surfaced 57 more of exactly the same kind
+# under names the prefix does not reach —
+#
+#     Buffalo Bills      ST  BUF | Buffalo Bills      DEF BUF
+#     New England Pats   ST  NEP | New England Pats   DEF NE
+#
+# `ST` (special teams) and `Off` (team offense) are MFL team units with the same
+# name as the team DEFENSE on our board, so they match it by name and score as a
+# success. Our board has ONE team entity, the defense; these are two others.
+# Enumerated rather than pattern-matched because they share no shape with each
+# other or with TM*, and a looser pattern would start eating real positions.
+TEAM_UNIT_NAMES = frozenset({"ST", "OFF", "DST-ST", "TEAM"})
+
 
 def is_team_unit(position) -> bool:
     p = str(position or "").strip().upper()
+    if p in TEAM_UNIT_NAMES:
+        return True
     return p.startswith(TEAM_UNIT_PREFIX) and len(p) > len(TEAM_UNIT_PREFIX)
 
 
