@@ -942,3 +942,59 @@ def test_NO_MATCHED_LEAGUES_says_the_harness_was_never_given_one():
     out = R.survival_pass(v, {})
     assert out["leagues_matched"] == 0
     assert "never given a league" in out["verdict"]
+
+
+# ── F4's dated interpretation: survival needs no outcomes ──────────────────
+def test_a_SURVIVAL_ONLY_league_is_replayed_and_LABELLED_never_pooled():
+    """F4 DATED INTERPRETATION (Cory, 2026-08-11). F4 excludes a league missing
+    weekly outcomes because there is nothing to grade against. Survival does not
+    grade against outcomes — it resolves from the draft's OWN LATER PICKS, which
+    have already happened — so F4 was blocking work it was not written to block.
+
+    The second condition is structural, not commentary: a league contributing only
+    a survival observation is a DIFFERENT KIND OF EVIDENCE, and one count covering
+    both would hide that. MUTATION: report a single `leagues_matched`. Five months
+    of survival-only 2026 leagues pool with outcome-graded ones and the aggregate
+    silently describes two populations."""
+    played = good_record("L1")
+    unplayed = good_record("L2")
+    unplayed["has_weekly_outcomes"] = False
+    v, _ = R.run_screen([played, unplayed])
+    assert [w for _, _, w in v][1] == "F4.no_weekly_outcomes", v[1][2]
+    # Snapshots supplied, or the replay produces no board and no grade — and the
+    # label assertion below would pass over an empty list.
+    snaps = [{"observed_at": "2025-08-20", "rows": [{"player_id": "9000", "adp": 1.0}]}]
+    out = R.survival_pass(v, {"L1": snaps, "L2": snaps})
+    assert out["leagues_outcome_graded"] == 1
+    assert out["leagues_survival_only"] == 1
+    assert out["leagues_matched"] == 2
+    assert out["grades"], "no league graded — this assertion would be vacuous"
+    assert {g["outcome_graded"] for g in out["grades"]} == {True, False}, \
+        "both kinds must be present AND labelled: %r" % (out["grades"],)
+
+
+def test_the_survival_only_gate_still_enforces_EVERY_OTHER_FILTER():
+    """The interpretation admits leagues waiting on the CALENDAR. It does not admit
+    a league that is the wrong format, whose draft is incomplete, or whose ADP was
+    observed after its draft. MUTATION: pass a permissive gate. F4's whole purpose
+    is defeated one function past the screen — the failure `replay_league`'s own
+    docstring names."""
+    wrong = good_record("L3", teams="14")
+    wrong["has_weekly_outcomes"] = False
+    v, _ = R.run_screen([wrong])
+    assert [w for _, _, w in v][0] == "F1.teams"
+    out = R.survival_pass(v, {"L3": []})
+    assert out["leagues_survival_only"] == 0 and out["leagues_matched"] == 0
+
+    # AND THE GATE ITSELF, directly. The selection upstream already excludes this
+    # league, so a permissive gate would be invisible until the day the selection
+    # changed — which is exactly when nobody would be looking.
+    assert R.survival_gate(wrong)[0] is False, "the gate must reject the wrong format"
+    unplayed = good_record("L4"); unplayed["has_weekly_outcomes"] = False
+    assert R.survival_gate(unplayed)[0] is True, "a league waiting on the calendar passes"
+    assert R.survival_gate(good_record("L5"))[0] is True
+    contaminated = good_record("L6", )
+    contaminated["adp_observed_at"] = "2030-01-01"
+    contaminated["has_weekly_outcomes"] = False
+    assert R.survival_gate(contaminated)[0] is False, \
+        "ADP observed after the draft must still be refused"

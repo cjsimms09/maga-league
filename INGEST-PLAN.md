@@ -907,6 +907,41 @@ outermost layer — the same principle as `F4.fetch_failed`, one level further o
 previous behaviour meant a single malformed league could delete an entire run's evidence,
 which is the most expensive way for a sample to become invisible.
 
+## F4 — DATED INTERPRETATION, NOT AN AMENDMENT (Cory, 2026-08-11)
+
+**F4's text does not change.** It reads, and continues to read: *"A league missing any of
+{complete draft, pre-draft ADP, weekly outcomes} is excluded whole. No partial-credit
+leagues."* What follows is a RULING ON WHAT IT GATES, recorded with its reasoning so a
+future reader who thinks the interpretation is wrong can see exactly what was decided and
+why — rather than finding a filter that quietly says something different from what was
+registered.
+
+**THE RULING.** F4 excludes a league missing weekly outcomes *because there is nothing to
+grade against*. The survival pass does not grade against outcomes: it resolves from the
+draft's own later picks, which have already happened. A 2026 league can therefore produce
+a survival forecast AND its resolution with no outcome data existing anywhere, and F4
+blocking that is the filter blocking work it was not written to block.
+
+> **Replay and forecast emission proceed on any league passing the other filters. Only the
+> outcome-graded portion waits for January.**
+
+**THE TWO CONDITIONS, and they are part of the ruling rather than commentary.**
+
+1. **This is an interpretation, dated, with reasoning — not an amendment.** F4 v1 stands
+   verbatim. Nothing about the outcome-graded path changes.
+2. **A survival-only league is LABELLED and NEVER POOLED with an outcome-graded one.** A
+   league contributing only a survival observation is a different kind of evidence, and
+   summing them hides that. `survival_pass` carries `outcome_graded: false` on every
+   observation from a league that has no weekly outcomes, and the report keeps the two
+   populations apart with their own counts.
+
+**Why this is not the rescoring that was ruled out in the same message.** Rescoring another
+league's outcomes under our rules produces a room where the picks and the payoff table
+disagree — the drafters were correct for THEIR scoring, and grading them against ours
+measures a room nobody played in. Survival changes nothing about anyone's scoring. It asks
+whether a player was still on the board, which is a fact about the draft that is true
+regardless of what points anyone scores.
+
 ## POINTING THE MACHINERY AT 2026 — the one season that works (2026-08-11)
 
 2026 is the only season for which F5 can be satisfied without an archive or a

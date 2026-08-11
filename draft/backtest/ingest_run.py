@@ -1009,13 +1009,36 @@ def survival_pass(verdicts, snapshots_by_league) -> dict:
     """
     from external_replay_run import replay_league, ReplayRefused
     from survival_grade import adp_baseline, grade
-    matched = [r for r, ok, _ in verdicts if ok]
-    out = {"leagues_matched": len(matched), "leagues_replayed": 0,
+    # F4, DATED INTERPRETATION 2026-08-11 (Cory): F4 excludes a league missing weekly
+    # outcomes because there is nothing to grade against. Survival does not grade
+    # against outcomes — it resolves from the draft's OWN LATER PICKS, which have
+    # already happened — so F4 was blocking work it was not written to block.
+    # Replay and emission proceed for any league passing the other filters; only the
+    # outcome-graded portion waits for January. F4's TEXT is unchanged.
+    #
+    # AND THE TWO POPULATIONS ARE NEVER SUMMED. A league contributing only a
+    # survival observation is a different kind of evidence, and one count covering
+    # both would hide that. `outcome_graded` travels on every league here.
+    graded_ready = [r for r, ok, _ in verdicts if ok]
+    survival_only = [r for r, ok, why in verdicts
+                     if not ok and F.reason_code(why) == "F4.no_weekly_outcomes"]
+    matched = graded_ready + survival_only
+    outcome_graded = {str(r.get("league_id")) for r in graded_ready}
+    out = {"leagues_matched": len(matched),
+           # KEPT APART, per the F4 interpretation's second condition.
+           "leagues_outcome_graded": len(graded_ready),
+           "leagues_survival_only": len(survival_only),
+           "leagues_replayed": 0,
            "observations": 0, "refused": [], "errors": [], "grades": []}
     for rec in matched:
         lid = str(rec.get("league_id"))
         try:
-            res = replay_league(rec, snapshots_by_league.get(lid) or [], adp_baseline)
+            # A survival-only league is admitted by a gate that checks EVERY filter
+            # except the outcome clause — not by a permissive one. `passed_pre_outcome`
+            # is that gate, and it is only precise because screen() checks outcomes last.
+            gate = None if lid in outcome_graded else survival_gate
+            res = replay_league(rec, snapshots_by_league.get(lid) or [], adp_baseline,
+                                screen=gate)
         except ReplayRefused as e:
             # A league the screen admitted and the replay refused is a CONTRADICTION
             # between two components, not a skip. Recorded loudly.
@@ -1035,9 +1058,24 @@ def survival_pass(verdicts, snapshots_by_league) -> dict:
             out["errors"].append({"league_id": lid, "why": "grade: %s: %s"
                                                            % (type(e).__name__, e)})
             continue
-        out["grades"].append(dict(g, league_id=lid))
+        out["grades"].append(dict(g, league_id=lid,
+                                  outcome_graded=lid in outcome_graded))
     out["verdict"] = _survival_verdict(out)
     return out
+
+
+def survival_gate(record) -> tuple:
+    """The gate a SURVIVAL-ONLY league passes: every filter except the outcome one.
+
+    Named and tested rather than inlined, because an inline lambda cannot be
+    mutated into a permissive one and caught — the selection upstream already
+    guarantees these leagues passed, so a permissive gate here would be invisible
+    until the day the selection changed. `replay_league`'s own docstring names the
+    failure this prevents: a replay of an excluded league produces observations that
+    look exactly like admitted ones.
+    """
+    ok, why = F.screen(record)
+    return (ok or F.passed_pre_outcome(why)), why
 
 
 def _survival_verdict(out) -> str:
