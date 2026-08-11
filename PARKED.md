@@ -4004,3 +4004,59 @@ CURRENT policy, a different check and a dependency this one does not need.
 one fingerprint grades normally; two fingerprints raise `PolicyMixError`; and an
 observation with NO fingerprint does not manufacture a mix — otherwise the guard fires on
 legacy observations and gets switched off.
+
+## 🔴 ROUTE TO B — THE WAIVER TOOL WRITES NOTHING, AND SEPTEMBER IS UNRECOVERABLE (A, 2026-08-11)
+
+**Of the four tools that must emit gradeable predictions before September 1, only
+the LINEUP optimizer writes one.** Measured, not assumed — `instrumentation_check`
+says it in its own words: *"waiver/stream/trade kinds ready, await their tools."*
+
+| kind | registered | counterfactual enforced | anything writes it |
+|---|---|---|---|
+| `lineup_call` | ✅ | ✅ | ✅ `src/routes/member.js` |
+| `inseason_override` | ✅ | ✅ | ✅ `src/routes/member.js` |
+| `waiver_claim` | ✅ | ✅ | ❌ **nothing** |
+| `stream_call` | ✅ | ✅ | ❌ **nothing** |
+| `trade_eval` | ✅ | ✅ | ❌ **nothing** |
+
+`src/routes/waivers.js` does not touch the ledger at all.
+
+**THIS IS THE UNRECOVERABLE HALF.** Sleeper returns the transaction in January.
+What it cannot return is what the tool RECOMMENDED at the moment, which is the
+entire attribution question. A week of waivers uncaptured in September cannot be
+graded, ever — unlike realized outcomes, which are retrievable.
+
+**A HAS DONE THE HALF THAT WAS ACTUALLY MISSING.** The blocker was never the
+ledger call; it was the DECISION the call has to record, and specifically what a
+waiver counterfactual even is. `SharedValuation.waiverClaimRecord(opts)` now
+returns the exact payload the ledger enforces:
+
+```js
+const rec = SharedValuation.waiverClaimRecord({
+  decision: claimValueResult,      // from claimValue()
+  stopping: claimStoppingRuleResult,
+  depletes: false,                 // waiver_type 1 = reverse standings
+  week, owner_id, claim, drop,
+  consensus_claim,                 // THE COUNTERFACTUAL — required, no default
+  dollars,
+});
+// then: predledger.append(store, { kind: 'waiver_claim', method: 'waiver-v1', season, payload: rec })
+```
+
+**The counterfactual is the room's obvious move — best available by raw
+projection — NOT "do nothing".** Defaulting it to no-claim would credit the tool
+for every claim that happened to work. It throws rather than defaulting.
+
+**AND THE WAIVER REGIME IS IN THE RECORD.** `depletes` is required, not inferred:
+the first version derived it as `stop.spend_priority !== null` and got it
+backwards, because under reverse standings the rule returns `false`, not `null`.
+January grading our waivers under the wrong economics is a wrong answer nobody
+would notice.
+
+**RELATED, and B's page still says otherwise:** the league is **reverse
+standings** (`waiver_type: 1`), confirmed against Sleeper and against Cory's own
+screenshot. Priority does NOT deplete and resets weekly off record, so any
+positive-value claim is free to make — `waiverPriorityDepletes(1) === false`. The
+waiver surface currently says the stopping rule is not modelled; it is, and the
+answer for this league is "claim whenever net is positive".
+
