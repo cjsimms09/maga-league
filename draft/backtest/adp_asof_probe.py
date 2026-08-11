@@ -53,6 +53,17 @@ HERE = Path(__file__).resolve().parent
 MFL_HOST = "https://api.myfantasyleague.com"
 FFC_HOST = "https://fantasyfootballcalculator.com"
 
+# THE HEADER THE SHIPPED CLIENT SENDS. `draft/adp.py` has fetched FFC in every
+# build for weeks with this User-Agent; the probe sent Python's default and got
+# 403 Forbidden on every request — which the first read of that run recorded as
+# "FFC is unresolved". THIRD ITERATION OF THE SAME RULE-13 CHAIN on one arm:
+# "nothing was reached" was my error handling, then "403" was my request, and
+# only now is anything a fact about FFC.
+#
+# Not re-typed as a coincidence — `test_the_probe_sends_the_SHIPPED_user_agent`
+# reads the literal out of `draft/adp.py` and fails if the two drift apart.
+USER_AGENT = "mfga-league-draft-tool/1.0"
+
 # The baseline request `mfl_adp.py` documents, unchanged.
 MFL_BASE = {"TYPE": "adp", "PERIOD": "DRAFT", "IS_PPR": "1", "IS_KEEPER": "N",
             "IS_MOCK": "-1", "INJURED": "-1", "CUTOFF": "5", "FCOUNT": "12", "JSON": "1"}
@@ -216,8 +227,9 @@ def _get(url, params):  # pragma: no cover  (egress; CI only)
             return {"status": status, "payload": None, "error": "non-JSON body",
                     "body_head": body[:300]}
 
+    req = urllib.request.Request(full, headers={"User-Agent": USER_AGENT})
     try:
-        with urllib.request.urlopen(full, timeout=45) as r:
+        with urllib.request.urlopen(req, timeout=45) as r:
             return _read(r.status, r.read())
     except urllib.error.HTTPError as e:
         try:

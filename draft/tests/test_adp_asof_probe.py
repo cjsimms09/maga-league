@@ -8,6 +8,7 @@ was written for.
 
 Run: python3 -m pytest draft/tests/test_adp_asof_probe.py -q
 """
+import re
 import sys
 from pathlib import Path
 
@@ -163,3 +164,19 @@ def test_composition_reads_totalDrafts_and_tolerates_the_singleton_player_dict()
 def test_an_absent_totalDrafts_is_None_never_zero():
     """Absent is not zero: a 0 here would read as 'we checked, no drafts'."""
     assert P.composition({"adp": {"player": []}})["total_drafts"] is None
+
+
+def test_the_probe_sends_the_SHIPPED_user_agent():
+    """FFC 403s Python's default User-Agent. `draft/adp.py` has fetched it in
+    every build for weeks with its own header, so the probe reuses that string
+    rather than inventing one — and this reads the literal out of adp.py so the
+    two cannot silently drift into a second definition.
+
+    The alternative was editing adp.py to export a constant; that file is not
+    this lane's, so the coupling is enforced by a test instead of by a shared
+    symbol."""
+    src = (Path(__file__).resolve().parent.parent / "adp.py").read_text()
+    shipped = re.search(r'"User-Agent":\s*"([^"]+)"', src)
+    assert shipped, "adp.py no longer sets a User-Agent — the premise of this test is gone"
+    assert P.USER_AGENT == shipped.group(1), (
+        "probe sends %r, the shipped client sends %r" % (P.USER_AGENT, shipped.group(1)))
