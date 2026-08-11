@@ -3441,3 +3441,55 @@ precise way this contract would fail while both sides looked correct.
   exists, and it must not be recorded as a negative result.
 - **Route 2 (within-pool ADP)** is registered as **D7** and its feasibility measurement runs
   inside the existing ingest workflow, which is already on main. No merge needed.
+
+---
+
+## REQUEST TO A — `draft/adp.py`, `TEAM_ALIASES`: eight MFL abbreviations are missing
+
+**File:** `draft/adp.py`
+**Symbol:** `TEAM_ALIASES` (the dict at module scope, read by `_norm_team`)
+**What I need:** these keys added, mapping MFL's spelling to the board's:
+
+```
+"NEP": "NE",  "GBP": "GB",  "SFO": "SF",  "KCC": "KC",
+"TBB": "TB",  "NOS": "NO",
+```
+
+**Why, measured rather than supposed.** Run 11 (2026-08-11, 119 MFL leagues,
+6,798 picks) reports cross-source team disagreements on matched pairs, by value
+pair:
+
+```
+NEP -> NE  214    GBP -> GB  186    JAC -> JAX 173    SFO -> SF  168
+LVR -> LV  153    KCC -> KC  153    TBB -> TB  135    NOS -> NO  100
+```
+
+`JAC` and `LVR` are already in `TEAM_ALIASES` and normalise correctly. The other
+six are the same kind of difference — MFL writes three letters where the board
+writes two — and **956 matched pairs** are being reported as sources disagreeing
+about a player's team when the two sources agree and only the spellings differ.
+
+**Why I am not doing it in my lane.** I could add a second alias table inside
+`mfl_adapter`, and that is exactly the wrong fix: `_norm_team` is what the
+MATCHER consults, so a private table would mean the matcher and the checker
+holding different vocabularies and drifting apart — which is the defect I just
+removed (P6 in INGEST-PLAN.md, where the conflict check compared MFL's raw
+spelling against the board's normalised one and accused itself). One table,
+consulted by both, or the bug comes back wearing the other hat.
+
+**What it affects beyond my report.** `_norm_team` feeds `match_player`'s
+`+pos+team` tiebreak for players who share a name. A missing alias makes that
+tiebreak fail and drops the match to the `+pos+prominence` fallback, which
+resolves by search rank rather than by team — so this is a small correctness
+gain for the shared matcher, not only a cosmetic one for my census.
+
+**Not a blocker.** My conflict report is correct as it stands; these land in
+`team_only_disagreements`, which is the non-severe bucket and is already
+reported apart from position disagreements. Nothing of mine is waiting on this.
+
+**Two things in that same output that are NOT this request**, so they are not
+mistaken for it. `HOU -> FA` (39), `LAC -> FA` (32) and `WAS -> FA` (30) are our
+board carrying a player as a free agent while MFL's 2025 export has him on a
+roster — a real difference between two snapshot dates, not a spelling. And
+`JAC -> NO` (27) is a genuine team disagreement after normalisation, which is
+mine to look at, not yours.

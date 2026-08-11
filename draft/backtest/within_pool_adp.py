@@ -161,7 +161,7 @@ def feasibility(leagues, pool_picks, min_support=MIN_SUPPORT, need_players=100) 
         "usable_in_later_half": late_usable,
         "per_league": per_league[:200],
         "verdict": _feasibility_verdict(len(dated), usable, early_usable, late_usable,
-                                        need_players),
+                                        need_players, len(leagues or [])),
         # M4, reported beside the count rather than left for someone to ask about.
         "calendar_covariates": calendar_covariates(leagues),
     }
@@ -247,7 +247,18 @@ def _moved_line(rep: dict, moved: list) -> str:
             "on every result built from D7, not a reason to stop" % ", ".join(sorted(moved)))
 
 
-def _feasibility_verdict(dated, usable, early, late, need) -> str:
+def _feasibility_verdict(dated, usable, early, late, need, examined=None) -> str:
+    # AN EMPTY POPULATION IS NOT AN UNDATED ONE. Measured in run 11: D7's
+    # format-matched population came back with ZERO F1-passing leagues in it, and
+    # this reported "NO LEAGUE CARRIES A DATED FIRST PICK ... a statement about the
+    # timestamps we hold" — naming the wrong cause with total confidence. The
+    # timestamps were fine; there was nobody to have one. Absent is not zero, and
+    # the rule applies to this file's own verdict line before it applies to anything
+    # else.
+    if examined is not None and not examined:
+        return ("THE POPULATION IS EMPTY — no league entered this measurement at all, so "
+                "there is nothing here about dates, boards or D7. Whatever selected the "
+                "population is what this run measured")
     if not dated:
         return ("NO LEAGUE CARRIES A DATED FIRST PICK — D7 cannot be evaluated from this "
                 "sample, and that is a statement about the timestamps we hold, not about "

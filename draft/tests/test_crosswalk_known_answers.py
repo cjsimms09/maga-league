@@ -365,3 +365,34 @@ def test_a_player_MFL_lists_with_NO_TEAM_has_not_CONTRADICTED_us():
     _, rep = A.crosswalk_picks([{"overall": 1, "player": "77003"}], mfl_players, INDEX)
     assert rep["conflicts"] == 0, rep["conflict_rows"]
     assert rep["vocabulary_only_agreements"] == 0
+
+
+# ── the wrong match the conflict check found on its first real run ──────────
+def test_A_TEAM_UNIT_IS_NOT_A_PLAYER_and_must_not_match_a_team_DEFENSE():
+    """MEASURED, run 11: 103 picks whose MFL position was TMQB or TMPK matched a
+    team DEFENSE — `TMQB -> DEF` 65 times, `TMPK -> DEF` 38. MFL names a team unit
+    "Bills, Buffalo", `_norm_name` turns that into "Buffalo Bills", and Sleeper's
+    Buffalo DEF carries the same full name. So the NAME matched, the crosswalk
+    scored a success, and 103 picks were priced as a defense.
+
+    This is the failure the conflict check exists for and it caught it: the rate
+    went UP when these landed. MUTATION: match them anyway and report the conflict.
+    A pick that is not a player has no right answer to be matched to."""
+    d = next(p for p in POOL if p.get("position") == "DEF" and p.get("name"))
+    mfl_players = {"77004": {"name": d["name"], "position": "TMQB", "team": d.get("team")}}
+    rows, rep = A.crosswalk_picks([{"overall": 1, "player": "77004"}], mfl_players, INDEX)
+    assert rows == [], "a team unit matched a board entity: %r" % (rows,)
+    assert rep["team_units_refused"] == 1
+    # ...and NOT folded into no_sleeper_match, which would report a gap in our
+    # board coverage that does not exist.
+    assert rep["no_sleeper_match"] == 1 and rep["conflicts"] == 0
+    assert rep["unmatched_sample"][0]["why"] == "team_unit_not_a_player"
+
+
+def test_a_TEAM_DEFENSE_is_a_real_board_entity_and_still_matches():
+    """The refusal must be the TM-prefixed units only. `Def` is a position our
+    board really carries, and refusing it would delete every defense pick in the
+    pool. MUTATION: refuse anything team-shaped."""
+    assert A.is_team_unit("TMQB") and A.is_team_unit("TMPK") and A.is_team_unit("tmwr")
+    assert not A.is_team_unit("Def") and not A.is_team_unit("TM") and not A.is_team_unit("TE")
+    assert not A.is_team_unit(None) and not A.is_team_unit("")

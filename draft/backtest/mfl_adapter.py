@@ -365,12 +365,27 @@ def crosswalk_picks(picks: list, mfl_players, sleeper_index) -> tuple:
 
     rows, unknown_id, unmatched, conflicts = [], [], [], []
     methods = Counter()
-    vocab_only = 0
+    vocab_only = team_units = 0
     board = _board_by_id(sleeper_index)
     for p in picks:
         meta = (mfl_players or {}).get(str(p.get("player")))
         if not meta:
             unknown_id.append(p.get("player"))
+            continue
+        if is_team_unit(meta.get("position")):
+            # MEASURED, run 11: 103 picks whose MFL position was TMQB or TMPK matched
+            # a team DEFENSE. MFL names a team-unit "Bills, Buffalo", `_norm_name`
+            # makes that "Buffalo Bills", and Sleeper's Buffalo DEF carries the same
+            # full name — so the NAME matched and the crosswalk scored a success for
+            # a pick that is not a player at all. `TMQB -> DEF` 65 times and
+            # `TMPK -> DEF` 38, found by the conflict check on its first real run.
+            #
+            # These are refused BEFORE matching rather than flagged after: a team
+            # unit has no counterpart on our board, so any id it lands on is wrong.
+            unmatched.append({"mfl_id": p.get("player"), "name": meta.get("name"),
+                              "pos": meta.get("position"), "team": meta.get("team"),
+                              "why": "team_unit_not_a_player"})
+            team_units += 1
             continue
         sid, how = match_player_shared(meta, sleeper_index)
         if not sid:
@@ -425,9 +440,26 @@ def crosswalk_picks(picks: list, mfl_players, sleeper_index) -> tuple:
         # way the MATCHER spells them. Reported rather than silently absorbed, so
         # the shrink in `conflicts` is attributable instead of mysterious.
         "vocabulary_only_agreements": vocab_only,
+        # Counted apart from `no_sleeper_match`: a team unit is not a player our
+        # board is MISSING, it is not a player. Folding it in would report a gap in
+        # our coverage that does not exist.
+        "team_units_refused": team_units,
         "board_side_resolved": sum(1 for r in rows if board.get(str(r["player_id"]))),
     }
     return rows, report
+
+
+# MFL's TEAM-UNIT positions. A league using these drafts a team's whole QB room as
+# one slot; there is no such entity on our board, so no id it matches is the right
+# one. Kept as a prefix test rather than a list because MFL forms them
+# systematically (TMQB, TMRB, TMWR, TMTE, TMPK) and a list would silently admit the
+# next one. `Def` is NOT one of these — a team defense is a real board entity.
+TEAM_UNIT_PREFIX = "TM"
+
+
+def is_team_unit(position) -> bool:
+    p = str(position or "").strip().upper()
+    return p.startswith(TEAM_UNIT_PREFIX) and len(p) > len(TEAM_UNIT_PREFIX)
 
 
 def disagreements(meta: dict, theirs: dict) -> tuple:
