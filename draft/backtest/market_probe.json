@@ -108,20 +108,36 @@
       "sample_titles": [],
       "series_listed": 12630,
       "series_prefixes_seen": {
-        "KXLOLTOTALMAPS": 9,
         "KXMLBSPREAD": 1,
-        "KXMVECROSSCATE": 5646,
-        "KXMVESPORTSMUL": 6339,
-        "KXVALORANTTOTA": 5
+        "KXMVECROSSCATE": 5316,
+        "KXMVESPORTSMUL": 6683
       },
       "volume_median": 0,
       "volume_total": 0,
       "zero_volume_share": null
     },
     "odds_api_io": {
+      "auth_probe": {
+        "header_authorization": {
+          "status": 401
+        },
+        "header_x_api_key": {
+          "status": 401
+        },
+        "query_apiKey": {
+          "status": 400
+        },
+        "query_apikey": {
+          "status": 401
+        },
+        "query_key": {
+          "status": 401
+        }
+      },
+      "auth_style_working": null,
       "docs": "https://odds-api.io/",
       "host": "https://api.odds-api.io",
-      "key_configured": false,
+      "key_configured": true,
       "needs_key": false,
       "nfl_entries": [
         "{'name': 'American Football', 'slug': 'american-football'}"
