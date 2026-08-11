@@ -17,6 +17,7 @@ import pytest
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent / "backtest"))
 
+import ingest_filters as F  # noqa: E402
 import mfl_adapter as A  # noqa: E402
 
 
@@ -110,13 +111,13 @@ def test_reception_points_are_read_PER_POSITION():
 def test_TE_PREMIUM_is_EXCLUDED_which_F1_v1_would_have_admitted():
     """The P4 failure exactly: v1 read a single scalar `rec` that MFL does not
     have, so a 0.5/WR + 1.0/TE league would have passed as half-PPR."""
-    ok, reason = A.ppr_verdict({"RB": 0.5, "WR": 0.5, "TE": 1.0})
+    ok, reason = F.ppr_reason({"RB": 0.5, "WR": 0.5, "TE": 1.0})
     assert ok is False and reason.startswith("F1.te_premium_or_split_ppr")
     assert "TE=1.0" in reason
 
 
 def test_a_genuine_half_ppr_league_passes():
-    assert A.ppr_verdict({"RB": 0.5, "WR": 0.5, "TE": 0.5}) == (True, "ok")
+    assert F.ppr_reason({"RB": 0.5, "WR": 0.5, "TE": 0.5}) == (True, "ok")
 
 
 def test_an_absent_scoring_export_is_its_OWN_reason_not_a_ppr_failure():
@@ -125,13 +126,13 @@ def test_an_absent_scoring_export_is_its_OWN_reason_not_a_ppr_failure():
     tell' with 'we checked and it did not match'."""
     by_pos, reason = A.reception_points_by_position({"error": {"$t": "Error - No League Scoring Rules"}})
     assert by_pos == {} and reason == "no_scoring_rules"
-    ok, why = A.ppr_verdict(by_pos)
+    ok, why = F.ppr_reason(by_pos)
     assert ok is False and why.startswith("F4.no_scoring_rules")
 
 
 def test_a_position_with_no_reception_rule_is_UNKNOWN_not_zero():
     """A missing rule is not 0.0 PPR. Zero would read as 'checked, not PPR'."""
-    ok, why = A.ppr_verdict({"RB": 0.5, "WR": 0.5})     # TE absent
+    ok, why = F.ppr_reason({"RB": 0.5, "WR": 0.5})     # TE absent
     assert ok is False and "TE" in why and why.startswith("F4.no_scoring_rules")
 
 

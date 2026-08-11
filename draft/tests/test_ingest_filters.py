@@ -265,3 +265,22 @@ def test_all_checks_passed():
 if __name__ == "__main__":
     print("\n%d failed" % len(fails))
     sys.exit(1 if fails else 0)
+
+
+def test_the_ppr_decision_has_EXACTLY_ONE_implementation():
+    """`mfl_adapter.ppr_verdict` made this decision a second time and gave a
+    different answer — a uniform full-PPR league came back
+    `F1.te_premium_or_split_ppr`, which is false. It had NO CALLER outside its own
+    test, so the two could disagree indefinitely with nothing going red.
+
+    MUTATION: reintroduce a second implementation anywhere. This asserts the name
+    is gone AND that `screen()` routes through the surviving one."""
+    import mfl_adapter as A
+    assert not hasattr(A, "ppr_verdict"), \
+        "a second implementation of an F1 decision is back"
+    uniform = {"RB": 1.0, "WR": 1.0, "TE": 1.0}
+    assert F.ppr_reason(uniform) == (False, "F1.scoring_not_half_ppr")
+    lg = {"teams": 10, "scoring": {"rec_by_position": uniform},
+          "roster_slots": {"QB": 1, "RB": 2, "WR": 2, "TE": 1, "FLEX": 1}}
+    assert F.screen(lg)[1] == "F1.scoring_not_half_ppr", \
+        "screen() must give the SAME answer as the function it calls"

@@ -191,21 +191,12 @@ def reception_points_by_position(rules_json) -> tuple:
     return out, ("ok" if out else "no_reception_rule")
 
 
-def ppr_verdict(by_pos: dict, band=(0.4, 0.6)) -> tuple:
-    """F1 v2: EVERY skill position independently inside the band.
-
-    Returns (ok, reason). A position with no reception rule is NOT treated as 0 —
-    that is the absent-is-not-zero requirement, and a 0 would read as "not PPR"
-    when the truth is "we could not tell."
-    """
-    missing = [p for p in SKILL_POSITIONS if p not in by_pos]
-    if missing:
-        return False, "F4.no_scoring_rules:" + ",".join(missing)
-    outside = [p for p in SKILL_POSITIONS if not (band[0] <= by_pos[p] <= band[1])]
-    if outside:
-        return False, "F1.te_premium_or_split_ppr:" + ",".join(
-            f"{p}={by_pos[p]}" for p in outside)
-    return True, "ok"
+# `ppr_verdict` LIVED HERE AND IS GONE (2026-08-11). It made F1's reception-value
+# decision a second time and gave a different answer — a uniform full-PPR league
+# came back `F1.te_premium_or_split_ppr`, which is false — and it had no caller
+# outside its own test, so the two could disagree indefinitely without anything
+# going red. The decision now has exactly one implementation,
+# `ingest_filters.ppr_reason`, which `screen()` calls.
 
 
 # ── the draft ───────────────────────────────────────────────────────────────

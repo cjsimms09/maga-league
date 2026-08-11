@@ -101,6 +101,39 @@ def _unreadable(league: dict, field: str, fallback: str) -> tuple[bool, str]:
     return False, "F4." + str(detail or fallback)
 
 
+def ppr_reason(by_pos: dict, band=None) -> tuple:
+    """F1 v2's reception-value decision. (ok, reason). THE ONLY IMPLEMENTATION.
+
+    Extracted from `screen()` on 2026-08-11 because there were TWO. `mfl_adapter.
+    ppr_verdict` made the same decision with a different answer — it reported a
+    uniform full-PPR league as `F1.te_premium_or_split_ppr`, which is false: 1.0 at
+    every position is not TE premium. It had NO CALLER outside its own test, so the
+    disagreement was invisible and would have stayed invisible until someone wired
+    it up and got a reason that was wrong in a way nobody would question.
+
+    That is the multi-derivation failure rule 11 exists for, sitting in this lane's
+    own code, and the fix is not to reconcile the two — it is to have one.
+    """
+    band = band or PPR_RANGE
+    missing = [p for p in SKILL_POSITIONS if (by_pos or {}).get(p) is None]
+    if missing:
+        # ABSENT IS NOT ZERO: a position with no reception rule is not "not PPR",
+        # it is a position we could not read.
+        return False, "F4.no_scoring_rules:" + ",".join(missing)
+    vals = {p: float(by_pos[p]) for p in SKILL_POSITIONS}
+    outside = [p for p in SKILL_POSITIONS if not (band[0] <= vals[p] <= band[1])]
+    if not outside:
+        return True, "ok"
+    # TWO DIFFERENT REJECTIONS, kept apart because the attrition report is only
+    # useful if its reasons are true. A league at 1.0 everywhere is FULL PPR, not
+    # TE premium. Split scoring is the new exclusion F1 v2 adds; uniform-but-
+    # outside is v1's, and still accurate.
+    if len(set(vals.values())) == 1:
+        return False, "F1.scoring_not_half_ppr"
+    return False, "F1.te_premium_or_split_ppr:" + ",".join(
+        "%s=%s" % (p, vals[p]) for p in outside)
+
+
 def screen(league: dict) -> tuple[bool, str]:
     """Does this league-season qualify? Returns (ok, reason).
 
@@ -139,20 +172,9 @@ def screen(league: dict) -> tuple[bool, str]:
         # is the field the rule was already implemented for; the four fields
         # around it now work the same way.
         return _unreadable(league, "scoring", "no_scoring_rules")
-    missing = [p for p in SKILL_POSITIONS if by_pos.get(p) is None]
-    if missing:
-        return False, "F4.no_scoring_rules:" + ",".join(missing)
-    vals = {p: float(by_pos[p]) for p in SKILL_POSITIONS}
-    outside = [p for p in SKILL_POSITIONS if not (PPR_RANGE[0] <= vals[p] <= PPR_RANGE[1])]
-    if outside:
-        # TWO DIFFERENT REJECTIONS, kept apart because the attrition report is
-        # only useful if its reasons are true. A league that is 1.0 at every
-        # position is full PPR — not "TE premium". Split scoring is the NEW
-        # exclusion v2 adds; uniform-but-outside is v1's, and still accurate.
-        if len(set(vals.values())) == 1:
-            return False, "F1.scoring_not_half_ppr"
-        return False, "F1.te_premium_or_split_ppr:" + ",".join(
-            f"{p}={vals[p]}" for p in outside)
+    ok, why = ppr_reason(by_pos)
+    if not ok:
+        return False, why
     # Superflex changes QB scarcity so completely it would swamp every positional
     # finding, so it is excluded rather than controlled for. MFL has NO SUPER_FLEX
     # slot — it expresses superflex as a QB limit whose max exceeds its min — so

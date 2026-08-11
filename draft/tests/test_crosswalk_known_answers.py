@@ -42,6 +42,7 @@ ROOT = HERE.parent.parent
 sys.path.insert(0, str(HERE.parent / "backtest"))
 sys.path.insert(0, str(HERE.parent))
 
+import ingest_filters as F  # noqa: E402
 import mfl_adapter as A  # noqa: E402
 import mfl_adp as MADP  # noqa: E402
 import scoring as SC  # noqa: E402
@@ -271,8 +272,13 @@ def test_a_FULL_ppr_league_converts_to_double_and_is_excluded_not_rescaled():
     by_pos, _ = A.reception_points_by_position(rules)
     assert by_pos["WR"] == 1.0
     assert SC.score_stat_line({"rec": 6}, {"rec": by_pos["WR"]}) == 6.0 == 2 * 3.0
-    ok, why = A.ppr_verdict(by_pos)
-    assert ok is False and why.startswith("F1.")
+    ok, why = F.ppr_reason(by_pos)
+    # PRECISE, not `startswith("F1.")`. This is exactly where the deleted
+    # `mfl_adapter.ppr_verdict` DISAGREED with `screen()`: it called a uniform
+    # full-PPR league TE-premium, which is false, and nothing caught it because it
+    # had no caller. A generic assertion here would pass under either answer and
+    # would have let the two implementations stay out of step.
+    assert ok is False and why == "F1.scoring_not_half_ppr", why
 
 
 def test_a_TE_premium_league_is_caught_by_the_PER_POSITION_read():
@@ -290,7 +296,7 @@ def test_a_TE_premium_league_is_caught_by_the_PER_POSITION_read():
     by_pos, _ = A.reception_points_by_position(rules)
     assert SC.score_stat_line({"rec": 6}, {"rec": by_pos["WR"]}) == 3.0
     assert SC.score_stat_line({"rec": 6}, {"rec": by_pos["TE"]}) == 6.0
-    assert A.ppr_verdict(by_pos)[1].startswith("F1.te_premium_or_split_ppr")
+    assert F.ppr_reason(by_pos)[1].startswith("F1.te_premium_or_split_ppr")
 
 
 def test_an_unreadable_expression_scores_NOTHING_rather_than_zero_points():
