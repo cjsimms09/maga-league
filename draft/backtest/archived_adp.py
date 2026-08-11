@@ -149,13 +149,19 @@ def looks_like_a_board(text, min_rows=50) -> dict:
     import re
     text = text.decode("utf-8", "replace") if isinstance(text, (bytes, bytearray)) else (text or "")
     json_rows = len(re.findall(r'"name"\s*:\s*"', text))
-    html_rows = len(re.findall(r"<td[^>]*>\s*[A-Z][a-z]+ [A-Z][a-z]+", text))
+    # TWO HTML SHAPES, because the sources write the name differently. FFC puts it
+    # straight in the cell; FantasyPros wraps it in an anchor inside the cell, and a
+    # cell-only pattern scores that page as EMPTY — a false negative about a real
+    # board, which is the direction this whole probe must not fail in.
+    html_rows = max(
+        len(re.findall(r"<td[^>]*>\s*[A-Z][a-z]+ [A-Z][a-z'.-]+", text)),
+        len(re.findall(r">\s*[A-Z][a-z]+ [A-Z][a-z'.-]+\s*<", text)))
     rows = max(json_rows, html_rows)
     return {"rows_seen": rows, "json_rows": json_rows, "html_rows": html_rows,
             "is_board": rows >= min_rows, "bytes": len(text)}
 
 
-def route1_verdict(hits, probed, unreachable=0) -> str:
+def route1_verdict(hits, probed, unreachable=0, leads=0, bad_urls=0) -> str:
     """What a negative here does and does not rule out.
 
     An UNREACHABLE archive is not a closed route — it is an unanswered one, and the
@@ -174,7 +180,143 @@ def route1_verdict(hits, probed, unreachable=0) -> str:
                 "provider supporting a date parameter. It is NOT yet usable: a page that "
                 "parses is not a page that is right, and the content must be checked "
                 "against a known answer before anything is graded against it" % (len(hits), probed))
+    tail = ""
+    if leads:
+        # THE MOST DANGEROUS RESULT SHAPE. A pile of "2024 ADP" pages that all
+        # resolve today looks exactly like success and satisfies nothing.
+        tail += ("; %d target(s) are CONTENT-DATED LEADS — a board the publisher labels "
+                 "with a year and serves today. That label is a claim made now about then. "
+                 "MFL's own year aggregate ACCUMULATES over the whole season's drafts, so a "
+                 "year-labelled board is as contaminated as a live one and harder to spot. "
+                 "These are NOT counted above and must not be graded against" % leads)
+    if bad_urls:
+        tail += ("; %d URL(s) returned no board at all, which is evidence about the paths "
+                 "this probe constructed and NOT about whether those publishers offer "
+                 "historical boards" % bad_urls)
     return ("ROUTE 1 IS CLOSED ON THIS EVIDENCE: no capture strictly predating the cutoff "
             "returned a recognisable board, across %d targets. Stated precisely: this rules "
             "out THE SOURCES AND DATES PROBED. It does not rule out a paid archive, a source "
-            "not on the list, or a capture the CDX index does not hold" % probed)
+            "not on the list, or a capture the CDX index does not hold%s" % (probed, tail))
+
+
+# ── WHAT ESTABLISHES THE DATE — the distinction the whole route turns on ────
+#
+# The question is not whether an API accepts a date parameter. It is whether anyone
+# PUBLISHES A DATED PRESEASON BOARD. Two very different things can look like one:
+#
+#   ARCHIVE-DATED   a capture of a live board, stamped by the archive at the moment
+#                   it was taken. The date is EVIDENCE — a third party recorded when
+#                   it saw this content. Strictly before the drafts, this satisfies
+#                   F5.
+#
+#   CONTENT-DATED   a page that SAYS a year: "2024 ADP", MFL's `/2024/export`. The
+#                   date is a LABEL, applied by the publisher, retrievable today.
+#                   It is a claim made in the present about the past, and nothing in
+#                   it establishes what the board showed before the drafts.
+#
+# CONTENT-DATED IS NOT ENOUGH, and this is not pedantry — it is the failure already
+# measured in this program. MFL's year aggregate ACCUMULATES: `/2024/export?TYPE=adp`
+# retrieved now returns ADP over that season's drafts INCLUDING drafts that happened
+# after any date being graded. A page labelled with a year is exactly as contaminated
+# as a live board and wears a date on its face, which makes it worse than an
+# undated one: it invites the mistake.
+#
+# So content-dated candidates are probed — they are the best URLs to look for in the
+# archive — but a content-dated hit is reported as a LEAD, never as a satisfied F5.
+ARCHIVE_DATED = "archive"
+CONTENT_DATED = "content"
+
+
+def candidates(year=2024) -> list:
+    """The registered target list. Each entry names what would date it.
+
+    Registered as a LIST IN CODE rather than assembled in the workflow so the set
+    probed is reviewable, diffable, and identical between runs — a probe whose
+    targets are typed inline each time cannot have its negative trusted, because
+    nobody can tell what it actually asked.
+    """
+    y = int(year)
+    return [
+        # FFC — a JSON API and its rendered pages. No date parameter (measured), so
+        # the archive is the only thing that can date these.
+        ("FFC api half-ppr", "https://fantasyfootballcalculator.com/api/v1/adp/half-ppr?teams=12&year=%d" % y, CONTENT_DATED),
+        ("FFC api ppr", "https://fantasyfootballcalculator.com/api/v1/adp/ppr?teams=12&year=%d" % y, CONTENT_DATED),
+        ("FFC api standard", "https://fantasyfootballcalculator.com/api/v1/adp/standard?teams=12&year=%d" % y, CONTENT_DATED),
+        ("FFC page half-ppr", "https://fantasyfootballcalculator.com/adp/half-ppr/12-team/all", ARCHIVE_DATED),
+        ("FFC page ppr", "https://fantasyfootballcalculator.com/adp/ppr", ARCHIVE_DATED),
+        # FantasyPros — publishes historical ADP pages. The bare page is a live board
+        # (archive-dated only); the ?year= form is the publisher's own historical
+        # board, which is content-dated and therefore a lead, not evidence.
+        ("FP half live", "https://www.fantasypros.com/nfl/adp/half-point-ppr-overall.php", ARCHIVE_DATED),
+        ("FP ppr live", "https://www.fantasypros.com/nfl/adp/ppr-overall.php", ARCHIVE_DATED),
+        ("FP overall live", "https://www.fantasypros.com/nfl/adp/overall.php", ARCHIVE_DATED),
+        ("FP half year", "https://www.fantasypros.com/nfl/adp/half-point-ppr-overall.php?year=%d" % y, CONTENT_DATED),
+        ("FP ppr year", "https://www.fantasypros.com/nfl/adp/ppr-overall.php?year=%d" % y, CONTENT_DATED),
+        # MFL — the API by year, and its rendered ADP report, which is a DIFFERENT
+        # surface from the API and may be captured even where the API is not.
+        ("MFL api adp", "https://api.myfantasyleague.com/%d/export?TYPE=adp&JSON=1" % y, CONTENT_DATED),
+        ("MFL adp report", "https://www03.myfantasyleague.com/%d/adp" % y, CONTENT_DATED),
+        ("MFL adp page", "https://www.myfantasyleague.com/%d/adp" % y, CONTENT_DATED),
+        # Public mirrors. THESE URLS ARE GUESSES and are labelled as such in the
+        # report: a 404 here is evidence about the URL I constructed, not about
+        # whether anyone mirrors preseason boards (rule 13).
+        ("mirror dynastyprocess", "https://raw.githubusercontent.com/dynastyprocess/data/master/files/db_fpecr.csv", CONTENT_DATED),
+        ("mirror ffverse adp", "https://github.com/ffverse/ffopportunity", CONTENT_DATED),
+    ]
+
+
+def classify(name, date_basis, live, archived) -> dict:
+    """One target's outcome, with LIVE and ARCHIVED kept apart.
+
+    BOTH ARE ASKED, and they answer different questions. `live` says whether the URL
+    is real — a 404 is evidence about the URL I constructed, not about whether the
+    publisher offers historical boards, and conflating those is how a probe reports
+    "nobody publishes this" when it means "I guessed the path wrong". `archived`
+    says whether a capture predating the drafts serves a board, which is the only
+    thing that satisfies F5.
+
+    A CONTENT-DATED target that is live and unarchived is a LEAD: the board exists,
+    but nothing establishes it was frozen before the drafts.
+    """
+    out = {"target": name, "date_basis": date_basis,
+           "live": (live or {}).get("state"), "live_rows": (live or {}).get("rows"),
+           "archived": (archived or {}).get("state"),
+           "archived_timestamp": (archived or {}).get("timestamp"),
+           "archived_rows": (archived or {}).get("rows"),
+           "pre_cutoff_captures": (archived or {}).get("captures")}
+    if out["archived"] == "board":
+        # The archive stamped it, so the date is evidence whatever the page says.
+        out["verdict"] = "SATISFIES F5"
+    elif out["live"] == "board" and date_basis == CONTENT_DATED:
+        out["verdict"] = ("LEAD ONLY — publisher-labelled year, retrievable today. The "
+                          "label is a claim made now about then; MFL's year aggregate "
+                          "ACCUMULATES and this cannot be shown frozen before the drafts")
+    elif out["live"] == "board":
+        out["verdict"] = "LIVE BOARD, NO PRE-CUTOFF CAPTURE — real page, undated for our purpose"
+    elif out["live"] in ("absent", "not-a-board"):
+        out["verdict"] = "URL RETURNED NO BOARD — evidence about this URL, not about the publisher"
+    else:
+        out["verdict"] = "UNREACHED"
+    return out
+
+
+def route1_report(rows, unreachable=0) -> dict:
+    """The route's answer, with the two kinds of hit never summed.
+
+    Summing them is the one thing that would make this probe worse than useless: a
+    pile of content-dated leads reported as "12 dated boards found" is precisely the
+    contamination F5 exists to prevent, wearing the shape of a positive result.
+    """
+    satisfies = [r for r in rows if r.get("verdict") == "SATISFIES F5"]
+    leads = [r for r in rows if str(r.get("verdict", "")).startswith("LEAD ONLY")]
+    live_only = [r for r in rows if str(r.get("verdict", "")).startswith("LIVE BOARD")]
+    bad_url = [r for r in rows if str(r.get("verdict", "")).startswith("URL RETURNED")]
+    return {
+        "probed": len(rows),
+        "satisfies_f5": satisfies,
+        "content_dated_leads": leads,
+        "live_but_uncaptured": live_only,
+        "urls_that_returned_nothing": bad_url,
+        "unreachable": unreachable,
+        "verdict": route1_verdict(satisfies, len(rows), unreachable, len(leads), len(bad_url)),
+    }

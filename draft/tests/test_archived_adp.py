@@ -148,3 +148,119 @@ def test_an_OPEN_route_is_not_yet_a_USABLE_board():
     v = X.route1_verdict(hits=[{"target": "FFC"}], probed=7)
     assert "ROUTE 1 IS OPEN" in v
     assert "NOT yet usable" in v and "known answer" in v
+
+
+# ── the question is not "does an API take a date" ───────────────────────────
+def _live(state, rows=0):
+    return {"state": state, "rows": rows}
+
+
+def _arch(state, ts=None, rows=0, captures=0):
+    return {"state": state, "timestamp": ts, "rows": rows, "captures": captures}
+
+
+def test_a_YEAR_LABELLED_BOARD_SERVED_TODAY_DOES_NOT_SATISFY_F5():
+    """THE TRAP THIS PROBE IS SHAPED AROUND. "2024 ADP" retrieved in 2026 is a claim
+    made in the present about the past. Nothing in it establishes what the board
+    showed before the 2024 drafts — and MFL's year aggregate ACCUMULATES over that
+    season's whole draft calendar, which this program has already measured. A
+    year-labelled board is as contaminated as a live one and wears a date on its
+    face, which makes it worse: it invites the mistake.
+
+    MUTATION: treat a content-dated live board as a hit. Route 1 reports OPEN, the
+    2027 timeline 'collapses', and every grade built on it is contaminated by drafts
+    that happened after the decision being graded."""
+    r = X.classify("MFL api adp", X.CONTENT_DATED, _live("board", 300), _arch("none"))
+    assert r["verdict"].startswith("LEAD ONLY")
+    assert "ACCUMULATES" in r["verdict"]
+    assert r["verdict"] != "SATISFIES F5"
+
+
+def test_an_ARCHIVE_CAPTURE_satisfies_F5_whatever_the_page_says_about_itself():
+    """The archive's stamp is a third party recording WHEN it saw the content. That
+    is evidence, not a label, and it is what F5 asks for."""
+    r = X.classify("FFC page ppr", X.ARCHIVE_DATED,
+                   _live("board", 200), _arch("board", "20240715120000", 180, 3))
+    assert r["verdict"] == "SATISFIES F5"
+    assert r["archived_timestamp"] == "20240715120000"
+    # A content-dated target is upgraded by a capture too — the basis is what dated
+    # it, and a capture dates anything.
+    assert X.classify("MFL api adp", X.CONTENT_DATED, _live("board"),
+                      _arch("board", "20240715120000", 180, 1))["verdict"] == "SATISFIES F5"
+
+
+def test_a_URL_THAT_RETURNS_NOTHING_is_evidence_about_THE_URL():
+    """Rule 13, and the user named this failure directly: the FFC arm was written
+    off once on a User-Agent failure that turned out to be about our own request.
+    Some of these paths are guesses. A 404 on a guessed path says the guess was
+    wrong, not that the publisher offers no historical board."""
+    r = X.classify("mirror ffverse adp", X.CONTENT_DATED, _live("absent"), _arch("none"))
+    assert "evidence about this URL" in r["verdict"]
+    assert "not about the publisher" in r["verdict"]
+
+
+def test_the_TWO_KINDS_OF_HIT_ARE_NEVER_SUMMED():
+    """MUTATION: report `len(satisfies) + len(leads)`. Twelve content-dated leads
+    become "12 dated boards found", which is the contamination F5 exists to prevent
+    wearing the shape of a positive result."""
+    rows = [X.classify("MFL api adp", X.CONTENT_DATED, _live("board", 300), _arch("none")),
+            X.classify("FP half year", X.CONTENT_DATED, _live("board", 250), _arch("none")),
+            X.classify("mirror x", X.CONTENT_DATED, _live("absent"), _arch("none"))]
+    rep = X.route1_report(rows)
+    assert rep["satisfies_f5"] == []
+    assert len(rep["content_dated_leads"]) == 2
+    assert "CLOSED ON THIS EVIDENCE" in rep["verdict"]
+    assert "CONTENT-DATED LEADS" in rep["verdict"] and "NOT counted above" in rep["verdict"]
+    assert "evidence about the paths this probe constructed" in rep["verdict"]
+
+
+def test_ONE_REAL_CAPTURE_OPENS_THE_ROUTE_even_beside_a_pile_of_leads():
+    rows = [X.classify("FFC page ppr", X.ARCHIVE_DATED, _live("board", 200),
+                       _arch("board", "20240715120000", 180, 4)),
+            X.classify("MFL api adp", X.CONTENT_DATED, _live("board", 300), _arch("none"))]
+    rep = X.route1_report(rows)
+    assert len(rep["satisfies_f5"]) == 1 and len(rep["content_dated_leads"]) == 1
+    assert "ROUTE 1 IS OPEN" in rep["verdict"] and "NOT yet usable" in rep["verdict"]
+
+
+def test_the_CANDIDATE_LIST_lives_in_CODE_and_names_what_would_date_each():
+    """A probe whose targets are typed inline each run cannot have its negative
+    trusted — nobody can tell what it actually asked. The list is reviewable,
+    diffable, and identical between runs, and every entry declares its date basis."""
+    c = X.candidates(2024)
+    assert len(c) >= 12
+    assert all(b in (X.ARCHIVE_DATED, X.CONTENT_DATED) for _, _, b in c)
+    names = [n for n, _, _ in c]
+    assert len(set(names)) == len(names), "duplicate target names make the report ambiguous"
+    urls = [u for _, u, _ in c]
+    joined = " ".join(urls)
+    assert "2024" in joined, "the year must reach the URLs, or every target is the live board"
+
+    # THE COVERAGE THE NEGATIVE RESTS ON. "No dated board exists" is only as broad
+    # as what was asked, so a target quietly dropped from this list makes the
+    # closure over-broad without changing a single test that only counts the total.
+    # Per-publisher counts, and BOTH DATE BASES where the publisher offers both.
+    # MUTATION: delete one FantasyPros year URL. A domain check still passes.
+    # Set at the ACTUAL counts, not below them: a threshold with slack in it is a
+    # threshold that lets exactly one target vanish unnoticed. Adding targets stays
+    # free; removing one has to be a deliberate edit here.
+    for domain, least in (("fantasyfootballcalculator.com", 5),
+                          ("fantasypros.com", 5),
+                          ("myfantasyleague.com", 3)):
+        n = sum(1 for u in urls if domain in u)
+        assert n >= least, "%s probed %d times, expected >= %d" % (domain, n, least)
+    for domain in ("fantasypros.com", "fantasyfootballcalculator.com"):
+        bases = {b for _, u, b in c if domain in u}
+        assert bases == {X.ARCHIVE_DATED, X.CONTENT_DATED}, (
+            "%s must be probed BOTH as a live board the archive can date AND as the "
+            "publisher's own year-labelled page: %r" % (domain, bases))
+
+
+def test_a_FANTASYPROS_SHAPED_page_is_not_scored_as_EMPTY():
+    """FFC puts the name straight in the cell; FantasyPros wraps it in an anchor
+    inside the cell. A cell-only pattern scores a real FantasyPros board as empty —
+    a false negative about a real board, the direction this probe must not fail in.
+    MUTATION: keep only the `<td>Name` pattern."""
+    fp = "".join('<td class="player-label"><a href="/x">Player Name</a></td>' for _ in range(60))
+    assert X.looks_like_a_board(fp)["is_board"] is True
+    assert X.looks_like_a_board("<html>Page not available</html>")["is_board"] is False
