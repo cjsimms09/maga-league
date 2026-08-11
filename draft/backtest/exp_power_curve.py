@@ -104,10 +104,16 @@ def simulate_season(pool, rng, d, p_differ, rho=0.0):
                 continue                     # same man: contributes exactly 0
             a = rng.choice(pool) + d         # A's pick carries the true edge
             b = rng.choice(pool)
-            # The shock hits A's man and B's man UNEQUALLY (they are different
-            # players), so it does not cancel in the difference — which is
-            # precisely why correlated decisions are not independent samples.
-            diff = (a - b) + rho * shock * (1 if rng.random() < 0.5 else -1)
+            # THE SHOCK HITS EVERY DECISION IN THE WEEK IN THE SAME DIRECTION.
+            # That is what correlation MEANS, and the first version of this line
+            # multiplied it by a random +/-1 PER DECISION — which makes it
+            # independent noise, not a shared shock. Decisions never moved
+            # together, so the false-positive rate stayed flat at ~5% across
+            # every rho and read exactly like "correlation does not inflate
+            # anything". A probe that cannot detect the thing it was built to
+            # detect, reporting a null that was its own construction. Fifth
+            # instance of that shape today and the third that was mine.
+            diff = (a - b) + rho * shock
             wk += diff
             decisions.append(diff)
         weekly.append(wk)
