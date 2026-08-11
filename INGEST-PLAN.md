@@ -676,3 +676,62 @@ regression test that fixed it.
 totals — it distorted **cross-positional** comparison, which is precisely the comparison a
 draft policy makes. 2024 is byte-identical before and after, which is what a correct
 alias-only change must be where the alias never appears.
+
+### D5c v2 / D5d v2 — THE BAND MUST CONTAIN THE DATA (2026-08-11). v1 RETAINED ABOVE.
+
+**Amended after the first real run, and the reason it is not post-hoc filtering is that
+v1's mechanism did not implement v1's own stated purpose.** Recorded in full because a
+rule changed after seeing data is exactly what rule 4 exists to police.
+
+**What the run measured.** 57 of 57 sampled 2025 leagues came back unscoreable, with the
+costliest codes `CY` (51), `PY` (50), `RY` (50) — receiving, passing and rushing yards,
+all of which this module MAPS. The raw expressions, which the census now keeps:
+
+| reason | measured expressions |
+|---|---|
+| `unreadable_range` | `-100-999`, `-50-999` on PY / RY / CY |
+| `threshold` | `lo = 1.0` on IN, CC, CY, RY, #P, #R, #C, C2, P2, R2, FL, FLO |
+| `banded` | 2–21 rules for one (position, event) on PY / CY / RY |
+
+**Two defects, one amendment.**
+
+1. **A BUG, not a rule change.** `_range` split on `-`, so a negative lower bound produced
+   an empty field and read as unreadable. MFL writes `-100-999` for stats that can go
+   negative. Rushing yards "untranslatable in 33 of 36 leagues" was never a fact about
+   leagues; it was a fact about that function. Fixed by pattern-matching so a leading minus
+   is a sign.
+
+2. **THE AMENDMENT.** v1 rejected any band not starting at 0 as a threshold bonus. Real
+   leagues write `1-999` for counts. On a **multiplicative** rule that is not a threshold:
+   a player with 0 receptions scores 0 whether the rule fires or not, because *p* × 0 = 0.
+   v1 rejected 11 leagues for bands **exactly equivalent** to unbounded ones.
+
+> **v2:** a multiplicative rule over band `[lo, hi]` is accepted, and the property that
+> matters is **checked against the data**: every scored player-week value must be inside
+> the band **or be zero**. A non-zero value outside it means the rule did not cover that
+> week, and the league is refused with the value named.
+
+This **subsumes** v1's threshold clause and D5d's upper-bound check into one measurement,
+and it is not a loosening toward an assumption: it still refuses `-100-999` if a week ever
+went lower, and still refuses `1-999` on rushing yards the moment a −3 yard week appears.
+*Direction of the change, stated: v2 admits strictly more leagues than v1. Every league it
+admits has had its bands verified against its own season.*
+
+3. **Also fixed, and it is a scorer/filter distinction v1 missed.** `_points_per_event`
+   strips both `*` and `=` because the F1 **filter** only needs the number. A **scorer**
+   cannot: `*0.5` is half a point per unit, `=3` is a flat three points. Using the second
+   as a rate would pay 3 points per reception. `external_outcomes` now refuses anything
+   that is not `*`.
+
+**And a rule-12 correction to the report itself.** The census verdict named the costliest
+codes and asserted each was "a term nflverse weekly carries and the translator does not
+emit". For CY/PY/RY that was **false** — the run's own data contradicted its own summary
+sentence. The cross-lane request is now made **only** for `event_untranslatable`; parse and
+shape failures are reported as evidence about this pipeline, which is what they are.
+
+**Position blocks, measured rather than assumed.** MFL writes combined blocks:
+`QB|RB|WR|TE|PK` appears 30 times, second only to `Def` (43). So kicker events (`EP`, `FG`)
+and return events (`#KT`, `#UT`) genuinely do land on graded positions. **Not yet decided,
+and deliberately not decided from a guess** — whether a term a quarterback can never accrue
+should be ignored for that position needs the same treatment everything else here got: a
+measurement first.

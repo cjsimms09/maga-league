@@ -149,13 +149,60 @@ def test_TWO_rules_for_one_event_is_BANDED_and_untranslatable():
     assert any(x["why"] == "banded" and x["n"] == 2 for x in bad["QB"])
 
 
-def test_a_range_that_does_NOT_start_at_zero_is_a_THRESHOLD_bonus():
-    """"100-999" on receiving yards is +x per yard ABOVE 100, not per yard. Applied
-    as a multiplier it would pay the bonus on the first hundred as well."""
+def test_a_band_STARTING_AT_ONE_is_accepted_because_p_times_zero_is_zero():
+    """D5c v2, and v1 got this wrong on MEASURED data: real leagues write `1-999`
+    for receptions, TDs and interceptions. A band starting at 1 is NOT a threshold
+    on a MULTIPLICATIVE rule — a player with 0 receptions scores 0 whether the rule
+    fires or not. v1 rejected 11 leagues for bands exactly equivalent to unbounded
+    ones. MUTATION: restore `if lo != 0.0: reject`."""
+    r = rules([("QB", [rule("PY", "*0.04", "-100-999")]),
+               ("RB|WR|TE", [rule("CC", "*0.5", "1-999"), rule("CY", "*0.1", "-50-999")])])
+    tables, bad, _i, bounds = X.scoring_tables(r)[:4]
+    assert not bad, bad
+    assert tables["WR"]["rec"] == 0.5 and bounds["WR"]["rec"] == (1.0, 999.0)
+    # 5 receptions x 0.5 = 2.5, scored under a band that starts at 1.
+    got = X.weekly_points([wk("W1", 1, receptions=5)], 2025, tables,
+                          {"W1": "WR"}, {"W1": "W1"}, bounds)
+    assert got["series"]["W1"][1] == 2.5 and got["exceeded"] == []
+
+
+def test_a_NEGATIVE_week_outside_the_band_is_still_refused():
+    """The other side of v2: the band must contain every value that is not zero.
+    A `1-999` rule on RUSHING yards would silently drop a -3 yard week — real
+    production scored as nothing — and that is why leagues write `-100-999`."""
+    r = rules([("QB", [rule("PY", "*0.04", "-100-999")]),
+               ("RB|WR|TE", [rule("CC", "*0.5", "1-999"),
+                             rule("RY", "*0.1", "1-999")])])
+    tables, bad, _i, bounds = X.scoring_tables(r)[:4]
+    assert not bad
+    got = X.weekly_points([wk("W1", 1, receptions=2, rushing_yards=-3)], 2025,
+                          tables, {"W1": "WR"}, {"W1": "W1"}, bounds)
+    assert got["exceeded"] and got["exceeded"][0]["value"] == -3.0
+    assert got["exceeded"][0]["lo"] == 1.0
+
+
+def test_a_ZERO_outside_the_band_is_NOT_a_violation():
+    """A check that fired on every zero would refuse every league: `1-999` excludes
+    0 by construction, and 0 x p is 0 either way."""
+    r = rules([("QB", [rule("PY", "*0.04", "1-999")]),
+               ("RB|WR|TE", [rule("CC", "*0.5", "1-999")])])
+    tables, _b, _i, bounds = X.scoring_tables(r)[:4]
+    got = X.weekly_points([wk("W1", 1, receptions=0)], 2025, tables,
+                          {"W1": "WR"}, {"W1": "W1"}, bounds)
+    assert got["exceeded"] == [] and got["series"]["W1"][1] == 0.0
+
+
+def test_a_FLAT_award_is_not_a_MULTIPLIER():
+    """`*0.5` is half a point per unit; `=3` is three points when the rule applies.
+    `mfl_adapter._points_per_event` strips both because the F1 FILTER only needs
+    the number — a SCORER using `=3` as a rate would pay 3 points PER RECEPTION."""
+    assert X._points("*0.5") == 0.5
+    assert X._points("=3") is None
+    assert X._points("3") is None
     r = rules([("QB", [rule("PY", "*0.04", "0-999")]),
-               ("RB|WR|TE", [rule("CC", "*0.5"), rule("CY", "*0.1", "100-999")])])
+               ("RB|WR|TE", [rule("CC", "=3")])])
     _t, bad, _i, _b = X.scoring_tables(r)[:4]
-    assert any(x["why"] == "threshold" and x["lo"] == 100.0 for x in bad["WR"])
+    assert any(x["why"] == "unreadable_points" and x["event"] == "CC" for x in bad["WR"])
 
 
 def test_an_UNREADABLE_range_is_not_read_as_unbounded():
@@ -180,7 +227,7 @@ def test_a_week_that_EXCEEDS_a_rules_upper_bound_makes_the_league_unscoreable():
     r = rules([("QB", [rule("PY", "*0.04", "0-999")]),
                ("RB|WR|TE", [rule("CC", "*0.5"), rule("CY", "*0.1", "0-99")])])
     tables, bad, _i, bounds = X.scoring_tables(r)[:4]
-    assert not bad and bounds["WR"]["rec_yd"] == 99.0
+    assert not bad and bounds["WR"]["rec_yd"] == (0.0, 99.0)
     rows = [wk("W1", 1, receptions=5, receiving_yards=120)]
     got = X.weekly_points(rows, 2025, tables, {"W1": "WR"}, {"W1": "W1"}, bounds)
     assert got["exceeded"], "a 120-yard week under a 0-99 rule must be caught"
@@ -708,3 +755,24 @@ def test_the_census_publishes_the_POSITION_BLOCKS_as_MFL_WROTE_them():
 def test_scoring_tables_reports_the_blocks_it_saw_even_when_nothing_failed():
     _t, _b, _i, _bo, blocks = X.scoring_tables(rules(FULL))
     assert blocks == ["QB", "RB|WR|TE"]
+
+
+def test_the_census_verdict_does_not_blame_the_TRANSLATOR_for_a_PARSER_failure():
+    """THE SENTENCE THE FIRST REAL RUN FALSIFIED. It named CY/PY/RY as the costliest
+    codes and asserted each was a term the shipped translator does not emit — but
+    this module MAPS all three, and they failed on a range THIS parser could not
+    read. A verdict that attributes every failure to one cause turns my bug into a
+    request against another lane's file."""
+    outs = [{"untranslatable": {"QB": [
+        {"why": "unreadable_range", "event": "RY", "expr": "-100-999"}]}}]
+    v = X.untranslatable_census(outs)["verdict"]
+    assert "RULE'S OWN SHAPE" in v and "evidence about this pipeline" in v
+    assert "widen" not in v, "no cross-lane request is warranted by a parse failure"
+
+
+def test_a_GENUINE_vocabulary_gap_DOES_warrant_the_cross_lane_request():
+    """The other side: a code we truly do not map is exactly what that request is
+    for, and the verdict must still say so."""
+    outs = [{"untranslatable": {"QB": [{"why": "event_untranslatable", "event": "TGT"}]}}]
+    v = X.untranslatable_census(outs)["verdict"]
+    assert "VOCABULARY" in v and "widen" in v
