@@ -1,0 +1,36 @@
+name: Rule 12 — raw stat lines for the declared sample
+
+# WHY A WORKFLOW. Sleeper egress is denied at the gateway from the dev sandbox
+# (403 at the proxy — a policy denial, not a TLS problem and not something to
+# route around). The rule 12 sample verified seven transformations, every one of
+# which STARTS at proj_baseline; verifying proj_baseline itself needs the
+# provider's raw projected stat line, which only CI can fetch.
+#
+# The probe deliberately does NOT score anything. The conversion from stat line
+# to points is the thing under audit, so the file that fetches the inputs must
+# not also produce the answer.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  statlines:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - name: Fetch the raw provider rows for the predeclared sample
+        run: python draft/rule12_statline_probe.py
+      - name: Commit the raw rows
+        run: |
+          git config user.name lab-bot
+          git config user.email lab-bot@users.noreply.github.com
+          git add draft/audit/rule12_statlines.json
+          # `git commit` exits 1 with nothing staged; that is a no-op, not a
+          # failure, and must not turn a clean run red.
+          git diff --cached --quiet && echo "no change" && exit 0
+          git commit -m "rule 12: raw provider stat lines for the declared sample [skip deploy]"
+          git push
