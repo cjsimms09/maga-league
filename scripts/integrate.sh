@@ -124,6 +124,24 @@ for f in $UNION_FILES; do
 done
 echo "   append-only headings from BOTH sides verified present"
 
+# COMMIT THE MERGE. The union pass needs --no-commit, and the first version of
+# that rewrite never added the commit back — so a "successful" integration left
+# C's work STAGED WITH NO MERGE_HEAD: an unrecorded merge that looks clean in
+# `git log` and vanishes on the next checkout. Found by a checkout refusing to
+# switch branches over a modified INGEST-PLAN.md, not by the script, which had
+# already printed OK.
+if ! git diff --cached --quiet || [ "$MERGE_RC" != 0 ]; then
+  git commit -q --no-edit -m "Merge $BRANCH (side $SIDE) via integrate.sh" \
+    || { echo "REFUSED: could not commit the merge"; git merge --abort 2>/dev/null; exit 1; }
+fi
+# AND ASSERT IT LANDED, before the suites run. Green on a staged tree reads
+# exactly like green on a merged one, which is how this got as far as a push.
+if ! git merge-base --is-ancestor "$REF" HEAD; then
+  echo "REFUSED: $REF is not an ancestor of HEAD — the merge did not commit."
+  exit 1
+fi
+echo "   merge committed: $(git log --oneline -1)"
+
 echo "== python suite"
 if ! timeout 600 python -m pytest draft/tests -q </dev/null; then
   echo "REFUSED: python suite red on the merged tree. Rolling main back."
