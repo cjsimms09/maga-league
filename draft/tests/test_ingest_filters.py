@@ -328,3 +328,67 @@ def test_a_league_we_NEVER_FETCHED_has_not_passed_F1():
     assert F.passed_f1("F2.draft_incomplete") is True
     assert F.passed_f1("F5.adp_not_strictly_pre_draft") is True
     assert F.passed_f1("ok") is True
+
+
+# ── the 2026 question: which leagues wait only on the calendar? ─────────────
+def _rec(**kw):
+    """A league that passes everything, so each test below removes ONE thing."""
+    from test_attrition_seam import record
+    return record(**kw)
+
+
+def _rec_teams(n, **kw):
+    """Team count lives in the LEAGUE export, not in the record kwargs — reaching
+    for it as a kwarg silently passes it to `to_league_record`, which does not take
+    it, and the test fails on a TypeError instead of on the thing it is testing."""
+    from test_attrition_seam import record, mfl_league
+    return record(league=mfl_league(teams=str(n)), **kw)
+
+
+def test_the_OUTCOMES_CHECK_RUNS_LAST_and_passed_pre_outcome_rests_on_it():
+    """`passed_pre_outcome` reads `F4.no_weekly_outcomes` as "cleared everything
+    else", and that is only true if the check is LAST. Asserted directly rather
+    than left true by accident — the same discipline `passed_f1` needs from F1
+    being first.
+
+    MUTATION: put the outcomes check back before F5. A league with contaminated ADP
+    reports `F4.no_weekly_outcomes`, `passed_pre_outcome` calls it outcome-ready,
+    and the 2026 readiness count includes leagues whose ADP was observed AFTER
+    their draft."""
+    # Contaminated ADP *and* no outcomes: F5 must win, because it is the finding.
+    r = _rec(adp_observed_at="2025-08-26", has_weekly_outcomes=False)
+    ok, why = F.screen(r)
+    assert ok is False
+    assert why == "F5.adp_not_strictly_pre_draft", why
+    assert F.passed_pre_outcome(why) is False
+
+    # Wrong format *and* no outcomes: F1 must win.
+    r2 = _rec_teams(14, has_weekly_outcomes=False)
+    assert F.screen(r2)[1] == "F1.teams"
+
+
+def test_a_league_waiting_ONLY_on_the_season_reports_exactly_that():
+    """The 2026 case, and the number worth having a year early. 2026's ADP is being
+    captured cleanly right now — it is the only season F5 can be satisfied for
+    without an archive — and its outcomes arrive in January."""
+    r = _rec(has_weekly_outcomes=False)
+    ok, why = F.screen(r)
+    assert ok is False and why == "F4.no_weekly_outcomes"
+    assert F.passed_pre_outcome(why) is True
+
+
+def test_passed_pre_outcome_is_NOT_a_filter_and_admits_nothing_else():
+    """It relaxes nothing: F4 still excludes these leagues whole. MUTATION: make it
+    true for any F4 code, and leagues with no ADP at all are counted as ready for a
+    season they could never be replayed in."""
+    assert F.passed_pre_outcome("ok") is True
+    for code in ("F4.no_pre_draft_adp", "F5.adp_not_strictly_pre_draft", "F1.teams",
+                 "F2.draft_incomplete", "F4.fetch_failed", "F4.no_weekly_data",
+                 "F4.parse_failed", "F4.no_scoring_rules"):
+        assert F.passed_pre_outcome(code) is False, code
+
+
+def test_an_admitted_league_is_still_admitted_after_the_reorder():
+    """The reorder is an ORDERING change, not a relaxation. If this fails, every
+    test above is measuring a screen that stopped accepting our own format."""
+    assert F.screen(_rec()) == (True, "ok")

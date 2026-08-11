@@ -261,8 +261,6 @@ def screen(league: dict) -> tuple[bool, str]:
 
     # ---- F4 partial data ----------------------------------------------------
     # Whole-league exclusion. No partial-credit leagues.
-    if not league.get("has_weekly_outcomes"):
-        return False, "F4.no_weekly_outcomes"
     if league.get("pre_draft_adp") in (None, {}, []):
         return False, "F4.no_pre_draft_adp"
 
@@ -275,6 +273,23 @@ def screen(league: dict) -> tuple[bool, str]:
         return False, "F5.missing_timestamps"
     if str(adp_at) >= str(draft_at):
         return False, "F5.adp_not_strictly_pre_draft"
+
+    # ---- F4, the outcome half: LAST, and deliberately ------------------------
+    # The verdict is unchanged wherever it fires — this is an ordering change, not
+    # a relaxation, and no league that failed before passes now.
+    #
+    # WHY LAST. For a season that has not been played, EVERY league fails this and
+    # nothing else is ever evaluated, so the attrition table for 2026 would say
+    # "no weekly outcomes" 700 times and nothing about whether those leagues are
+    # our format, whether their drafts are complete, or whether their ADP is
+    # decision-time clean. That is the whole question worth asking a year early.
+    #
+    # Checked here, `F4.no_weekly_outcomes` becomes a PRECISE statement: this
+    # league cleared every check that can be evaluated before the season is
+    # played, and waits only on the calendar. `passed_pre_outcome` reads it that
+    # way, and could not have done so from a position in a queue.
+    if not league.get("has_weekly_outcomes"):
+        return False, "F4.no_weekly_outcomes"
 
     return True, "ok"
 
@@ -504,3 +519,26 @@ def may_pool(parameter: str) -> bool:
     conditioning, room behaviour and our keeper structure are local by omission AND
     by intent."""
     return parameter in POOLABLE
+
+
+def passed_pre_outcome(reason: str) -> bool:
+    """Did this league clear everything that can be judged BEFORE the season runs?
+
+    True for `ok` and for `F4.no_weekly_outcomes` alone. It rests on that check
+    being LAST in `screen()` — a league reporting it has already passed F1, F2, the
+    ADP-availability check and F5 — and that ordering is asserted by its own test
+    rather than left true by accident, the same way `passed_f1` rests on F1 being
+    first.
+
+    THIS IS THE 2026 QUESTION. 2026's ADP is being captured cleanly right now, one
+    dated snapshot a day, and it is the only season for which F5 can be satisfied
+    without an archive or a construction. Its outcomes arrive in January. So the
+    number worth having a year early is how many 2026 leagues are OUTCOME-READY:
+    everything else about them already checks out, and the only thing missing is
+    the season being played.
+
+    It is not a filter and it relaxes nothing. F4 still excludes these leagues
+    whole; this only says WHY, precisely enough to be worth counting.
+    """
+    code = reason_code(reason)
+    return code == "ok" or code == "F4.no_weekly_outcomes"

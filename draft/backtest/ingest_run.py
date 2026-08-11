@@ -138,6 +138,21 @@ def attrition_report(verdicts: list, requested: list = None) -> dict:
         # requirement this lane registered itself. `test_the_run_reports_EVERY`
         # `_quantity_the_plan_says_it_reports` now closes that gap generally.
         "lead_days_spread": _lead_spread(verdicts),
+        # THE 2026 NUMBER, and it is worth having a year early. 2026's ADP is being
+        # captured cleanly right now — one dated snapshot a day, the only season F5
+        # can be satisfied for without an archive or a construction — and its
+        # outcomes arrive in January. So this counts the leagues that are
+        # OUTCOME-READY: F1, F2, the ADP-availability check and F5 all cleared, and
+        # the only thing missing is the season being played.
+        #
+        # Not a filter and not a relaxation: F4 still excludes every one of them
+        # whole. It only says WHY, precisely enough to be worth counting, and it is
+        # only precise because `screen()` checks outcomes LAST.
+        "outcome_ready": sum(1 for _, _, why in verdicts if F.passed_pre_outcome(why)),
+        "outcome_ready_note": ("leagues clearing every check that can be judged before "
+                               "the season runs; for a PLAYED season this equals "
+                               "`matched`, and for an unplayed one it is the sample "
+                               "that will exist once outcomes land"),
         "target": F.TARGET_MATCHED_LEAGUE_SEASONS,
         "meets_target": len(matched) >= F.TARGET_MATCHED_LEAGUE_SEASONS,
     }
@@ -586,6 +601,7 @@ def run(league_ids, year, out_path=None, *, players=None, board=None,
     rep["season_readiness"] = readiness
     rep["throttle"] = throttle_signal(verdicts)
     rep["crosswalk"] = crosswalk_summary(cw_reports)
+    rep["format_census"] = format_census(verdicts)
     rep["within_pool_adp"] = d7_feasibility(verdicts, pool_picks, league_dates)
     # PREPENDED, not appended. The existing verdict already leads with unreadable
     # attrition; this leads with whether the run could have measured anything at all.

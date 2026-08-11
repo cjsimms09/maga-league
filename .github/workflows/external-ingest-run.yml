@@ -217,6 +217,17 @@ jobs:
               for k, v in sorted((cv.get("by_key") or {}).items()):
                   print("      %-12s early=%s late=%s" % (k, json.dumps(v.get("early")),
                                                           json.dumps(v.get("late"))))
+          fc = rep.get("format_census") or {}
+          if fc:
+              print("  FORMAT CENSUS       over %s READABLE leagues (F1 unchanged; this is "
+                    "what the pool IS)" % fc.get("readable_leagues"))
+              print("    teams             %s" % json.dumps(fc.get("teams")))
+              print("    reception pts     %s" % json.dumps(fc.get("reception_points")))
+              print("    superflex         %s" % json.dumps(fc.get("superflex")))
+              print("    draft_type        %s" % json.dumps(fc.get("draft_type")))
+          print("  OUTCOME-READY       %s leagues clear every check that can be judged "
+                "before the season runs (matched=%s)"
+                % (rep.get("outcome_ready"), rep.get("matched")))
           print("  attrition           %s" % json.dumps(rep.get("rejected_by_reason")))
           print("  VERDICT             %s" % rep.get("verdict"))
           PY

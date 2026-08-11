@@ -836,3 +836,32 @@ def test_a_league_whose_scoring_we_could_NOT_read_stays_out_of_the_census():
     r["scoring"] = {"rec_by_position": {}}
     c = R.format_census([(r, False, "F4.no_reception_rule")])
     assert c["readable_leagues"] == 0, "an unreadable league has no format to census"
+
+
+def test_the_run_reports_HOW_MANY_LEAGUES_WAIT_ONLY_ON_THE_SEASON():
+    """2026's ADP is being captured cleanly right now and its outcomes arrive in
+    January, so the number worth having a year early is how many leagues are
+    OUTCOME-READY. For a PLAYED season it equals `matched`; for an unplayed one it
+    is the sample that will exist once outcomes land.
+
+    MUTATION: report only `matched`. A 2026 crawl says "0 matched" — true, and
+    indistinguishable from a broken fetch, wrong filters, or a pool containing
+    nothing of our format. The one question worth asking a year early goes
+    unanswered."""
+    played = good_record("L1")
+    unplayed = good_record("L2")
+    unplayed["has_weekly_outcomes"] = False
+    wrong_format = good_record("L3", teams="14")
+    wrong_format["has_weekly_outcomes"] = False
+    v, _ = R.run_screen([played, unplayed, wrong_format])
+    rep = R.attrition_report(v, requested=["L1", "L2", "L3"])
+    assert rep["matched"] == 1
+    # The played one AND the one waiting only on the calendar. Not the 14-team one.
+    assert rep["outcome_ready"] == 2, rep["rejected_by_reason"]
+
+
+def test_outcome_ready_EQUALS_matched_for_a_season_that_HAS_been_played():
+    """If they ever diverge on a played season, one of them is wrong."""
+    v, _ = R.run_screen([good_record("A"), good_record("B", teams="14")])
+    rep = R.attrition_report(v, requested=["A", "B"])
+    assert rep["outcome_ready"] == rep["matched"] == 1
