@@ -516,6 +516,17 @@ def to_league_record(league_json, rules_json, draft_json, *,
             "completeness_source": dmeta.get("completeness_source"),
             "autopick_enforceable": dmeta.get("autopick_enforceable"),
             "autopick_note": dmeta.get("autopick_note"),
+            # A CLAUSE THAT CANNOT FIRE MUST SAY SO IN THE REPORT. `screen()`'s
+            # autopick check runs `autopick / picks > 0.5` over picks that carry
+            # no autopick flag, so it passes EVERY league — silently, which is
+            # indistinguishable from every league genuinely having no abandoned
+            # team. INGEST-PLAN pre-registered the requirement ("must be reported
+            # as unenforced rather than quietly passing every league") and the
+            # adapter has been recording it since it was written; until this it
+            # reached no report. `screen_all` surfaces it.
+            "unenforced": [] if dmeta.get("autopick_enforceable") else [
+                "F2.autopick_majority — %s. Every league passes this clause; that "
+                "is not evidence that none was abandoned." % dmeta.get("autopick_note")],
             "draft_type_raw": dmeta.get("draft_type_raw"),
             "round1_order": dmeta.get("round1_order"),
         },

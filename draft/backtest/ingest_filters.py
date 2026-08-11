@@ -344,7 +344,15 @@ def screen_all(leagues: list) -> dict:
     """
     matched, reasons = [], Counter()
     unreadable = unclassified = 0
+    unenforced: list = []
     for lg in leagues:
+        # A FILTER THAT CANNOT FIRE IS NOT A FILTER THAT FOUND NOTHING. A source
+        # adapter declares any clause it cannot enforce against its export, and
+        # that declaration travels to the report — otherwise a clause passing
+        # every league is indistinguishable from every league satisfying it.
+        for note in ((lg.get("source_meta") or {}).get("unenforced") or []):
+            if note not in unenforced:
+                unenforced.append(note)
         ok, why = screen(lg)
         reasons[why] += 1
         if ok:
@@ -366,6 +374,9 @@ def screen_all(leagues: list) -> dict:
         verdict += ("; and %d of %d rejections are UNREADABLE (we could not parse or obtain "
                     "the league) — that is evidence about this pipeline, NOT about how many "
                     "public leagues match our format" % (unreadable, rejected))
+    if unenforced:
+        verdict += ("; and %d pre-registered clause(s) could NOT be enforced against this "
+                    "source and passed every league: %s" % (len(unenforced), "; ".join(unenforced)))
     if unclassified:
         verdict += ("; and %d rejections carry an UNDECLARED reason code — they are binned "
                     "nowhere and the split above is incomplete until they are declared "
@@ -381,6 +392,7 @@ def screen_all(leagues: list) -> dict:
         "unreadable_share_of_rejections": (unreadable / rejected) if rejected else 0.0,
         "rejected_by_reason": dict(reasons),
         "unreadable_by_reason": {r: c for r, c in reasons.items() if is_unreadable(r)},
+        "unenforced_filters": unenforced,
         "target": TARGET_MATCHED_LEAGUE_SEASONS,
         "meets_target": n >= TARGET_MATCHED_LEAGUE_SEASONS,
         # F7: a short sample REPORTS THE NUMBER AND CHANGES NOTHING. It does not

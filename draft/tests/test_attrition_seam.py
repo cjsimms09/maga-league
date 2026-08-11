@@ -123,6 +123,28 @@ def test_the_draft_date_comes_from_the_first_pick_not_a_league_level_guess():
     assert r["source_meta"]["timestamp_coverage"] == 1.0
 
 
+def test_a_MULTI_DAY_draft_is_dated_by_its_FIRST_pick_not_its_last():
+    """MFL drafts are `draft_kind: email` with a `draftLimitHours` clock, so a
+    league's picks routinely span days. Dating the draft by its LAST pick would
+    widen F5's window by the whole length of the draft, and an ADP snapshot taken
+    while the room was already picking would sail through "strictly before" — the
+    contamination that looks exactly like skill.
+
+    Found by rule 10: breaking `first_pick_at` to `last_pick_at` failed NOTHING,
+    because every fixture above finishes inside one day. A break that changes
+    behaviour and reddens no test means the guard was not there."""
+    slow = mfl_draft()
+    picks = slow["draftResults"]["draftUnit"]["draftPick"]
+    for i, p in enumerate(picks):                      # ~2 picks/hour over 3 days
+        p["timestamp"] = str(DRAFT_EPOCH + i * 1800)
+    r = record(draft=slow)
+    assert r["draft_at"] == DRAFT_DATE                 # day 1, not day 4
+    # And the rule it protects actually bites: a snapshot taken on day 2 is
+    # rejected, which it would not be if the draft were dated by its last pick.
+    mid = F.screen(record(draft=slow, adp_observed_at="2025-08-26"))
+    assert mid == (False, "F5.adp_not_strictly_pre_draft")
+
+
 def test_the_covariates_survive_and_keepers_are_NOT_filtered_on():
     """F1 records the keeper count as a covariate, never as a screen."""
     r = record(league=mfl_league(keeper="dynasty"))
@@ -300,6 +322,25 @@ def test_a_clean_run_does_NOT_carry_the_unreadable_warning():
     rep = F.screen_all([record(), record(league=mfl_league(teams="14"))])
     assert "UNREADABLE" not in rep["verdict"]
     assert rep["rejected_unreadable"] == 0
+
+
+def test_a_clause_that_CANNOT_FIRE_is_reported_as_unenforced():
+    """F2 excludes a team autopicking a majority of its picks ("an abandoned team
+    is not an opponent; it is noise wearing a seat"). MFL's draftResults carries
+    no autopick flag anywhere — only free-text `comments` — so the check runs
+    over picks with no flag and passes EVERY league.
+
+    INGEST-PLAN pre-registered exactly this: it "must be reported as unenforced
+    rather than quietly passing every league". The adapter has recorded it since
+    it was written; until now nothing read it. Same defect class as the attrition
+    reasons, one clause over."""
+    rep = F.screen_all([record(), record(league=mfl_league(teams="14"))])
+    assert len(rep["unenforced_filters"]) == 1
+    assert rep["unenforced_filters"][0].startswith("F2.autopick_majority")
+    assert "could NOT be enforced" in rep["verdict"]
+    # And a clean league still passes — the report says the clause is inert, it
+    # does not reject leagues for our inability to check them.
+    assert rep["matched"] == 1
 
 
 # ── every reason this seam can emit is DECLARED ─────────────────────────────
