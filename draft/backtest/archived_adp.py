@@ -169,11 +169,23 @@ def route1_verdict(hits, probed, unreachable=0, leads=0, bad_urls=0) -> str:
     every archive.org request returned a proxy 403 that says nothing about the
     archive.
     """
+    # WHAT COUNTS AS UNANSWERED, and the first run got this wrong. `unreachable` is
+    # the number of targets whose ARCHIVE query failed — not the number where BOTH
+    # the live fetch and the archive query failed. The archive query is the one that
+    # decides F5; a target whose live page loaded fine while its CDX query timed out
+    # has told us nothing about whether a pre-draft capture exists.
+    #
+    # MEASURED 2026-08-11, first real run: 10 of 15 CDX queries came back unreached
+    # and this function printed ROUTE 1 IS CLOSED, because `unreachable` had been
+    # computed as `live_failed AND archive_failed` and the live fetches had
+    # succeeded. That is the exact false negative this whole module was written to
+    # prevent, produced by the module itself.
     if unreachable and not hits:
-        return ("ROUTE 1 UNANSWERED: the archive could not be reached for %d of %d "
-                "targets. That is a statement about egress, not about whether dated "
-                "boards exist, and it must not be recorded as a closure"
-                % (unreachable, probed))
+        return ("ROUTE 1 UNANSWERED FOR %d OF %d TARGETS: the archive index did not "
+                "answer for them, so no capture was ruled in OR out. That is a statement "
+                "about reaching the index, not about whether dated boards exist, and it "
+                "must not be recorded as a closure. %d target(s) WERE answered"
+                % (unreachable, probed, probed - unreachable))
     if hits:
         return ("ROUTE 1 IS OPEN: %d dated pre-cutoff board(s) of %d targets probed. An "
                 "archived board with a knowable observation date satisfies F5 without any "

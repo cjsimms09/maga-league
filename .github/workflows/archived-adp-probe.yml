@@ -70,25 +70,45 @@ jobs:
           YEAR: ${{ github.event.inputs.year || '2024' }}
         run: |
           python3 - <<'PY'
-          import json, os, sys, urllib.error, urllib.request
+          import json, os, sys, time, urllib.error, urllib.request
           sys.path.insert(0, "draft/backtest")
           from adp_asof_probe import USER_AGENT
           import archived_adp as AA
 
           BEFORE = os.environ["BEFORE"]
+          # archive.org rate-limits the CDX index hard, which is the most likely
+          # reason 10 of 15 queries went unanswered on the first run. Spacing them is
+          # cheaper than another inconclusive run.
+          CDX_SPACING = float(os.environ.get("CDX_SPACING", "3"))
           YEAR = os.environ["YEAR"]
 
-          def get(url, timeout=90):
+          def get(url, timeout=45, tries=1, pause=0.0):
               # HTTPError is a RESPONSE; transport failure is not. Conflating them
               # cost three iterations on the FFC arm.
+              #
+              # RETRY IS FOR THE CDX INDEX. First run: 10 of 15 index queries came
+              # back unreached inside one 90s attempt each. archive.org rate-limits
+              # CDX hard, and a single timed-out attempt is not the index saying no.
               req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
-              try:
-                  with urllib.request.urlopen(req, timeout=timeout) as r:
-                      return {"status": r.status, "body": r.read(3000000)}
-              except urllib.error.HTTPError as e:
-                  return {"status": e.code, "http_error": str(e.reason), "body": b""}
-              except Exception as e:
-                  return {"transport_error": "%s: %s" % (type(e).__name__, e)}
+              last = None
+              for attempt in range(max(1, tries)):
+                  if attempt:
+                      # BETWEEN retries only. Sleeping before the FIRST attempt buys
+                      # nothing and multiplies the run by the target count — caught
+                      # in the dry run, which hung instead of finishing.
+                      time.sleep(pause * attempt)
+                  try:
+                      with urllib.request.urlopen(req, timeout=timeout) as r:
+                          return {"status": r.status, "body": r.read(3000000)}
+                  except urllib.error.HTTPError as e:
+                      # A 4xx/5xx is an ANSWER from the server; retrying 429/5xx is
+                      # worth it, retrying a 404 is not.
+                      last = {"status": e.code, "http_error": str(e.reason), "body": b""}
+                      if e.code < 429:
+                          return last
+                  except Exception as e:
+                      last = {"transport_error": "%s: %s" % (type(e).__name__, e)}
+              return last
 
           reach = get("https://archive.org/wayback/available?url=example.com")
           print("archive.org reachable:", {k: v for k, v in reach.items() if k != "body"})
@@ -105,7 +125,11 @@ jobs:
                        "rows": v["rows_seen"], "detail": "%d bytes" % v["bytes"]}, False)
 
           def archived_state(url):
-              r = get(AA.cdx_query(url, BEFORE))
+              # Paced and retried: this is the query that decides F5, and letting it
+              # fail quietly is how the first run printed CLOSED on 10 unanswered
+              # targets.
+              time.sleep(CDX_SPACING)     # politeness between index queries
+              r = get(AA.cdx_query(url, BEFORE), timeout=60, tries=3, pause=5.0)
               if r.get("transport_error"):
                   return {"state": "unreached", "detail": r["transport_error"][:90]}, True
               try:
@@ -132,16 +156,24 @@ jobs:
 
           results, unreachable = [], 0
           for name, url, basis in AA.candidates(YEAR):
-              live, l_bad = live_state(url)
+              live, _ = live_state(url)
               arch, a_bad = archived_state(url)
-              unreachable += 1 if (l_bad and a_bad) else 0
+              # UNANSWERED IS ABOUT THE ARCHIVE QUERY ALONE. A target whose live page
+              # loaded fine while its index query timed out has told us nothing about
+              # whether a pre-draft capture exists, and counting it as answered is
+              # what made the first run print CLOSED across 10 unanswered targets.
+              unreachable += 1 if a_bad else 0
               row = AA.classify(name, basis, live, arch)
               row["url"] = url
               row["live_detail"] = live.get("detail")
               row["archived_detail"] = arch.get("detail")
               results.append(row)
-              print("  %-22s %-8s live=%-11s archived=%-11s %s"
-                    % (name, basis, live.get("state"), arch.get("state"),
+              # THE DETAIL IS PRINTED, not just stored. `not-a-board` on a page that
+              # certainly exists is either a bot-block or our own detector, and the
+              # byte count and status are what tell those apart.
+              print("  %-22s %-8s live=%-12s %-22s archived=%-10s %-28s %s"
+                    % (name, basis, live.get("state"), (live.get("detail") or "")[:22],
+                       arch.get("state"), (arch.get("detail") or "")[:28],
                        arch.get("timestamp") or ""))
 
           rep = AA.route1_report(results, unreachable)
