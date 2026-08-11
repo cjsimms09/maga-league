@@ -225,6 +225,8 @@ jobs:
               print("    reception pts     %s" % json.dumps(fc.get("reception_points")))
               print("    superflex         %s" % json.dumps(fc.get("superflex")))
               print("    draft_type        %s" % json.dumps(fc.get("draft_type")))
+          ar = rep.get("adp_readiness") or {}
+          print("  ADP READINESS       %s — %s" % (ar.get("state"), ar.get("why")))
           print("  OUTCOME-READY       %s leagues clear every check that can be judged "
                 "before the season runs (matched=%s)"
                 % (rep.get("outcome_ready"), rep.get("matched")))

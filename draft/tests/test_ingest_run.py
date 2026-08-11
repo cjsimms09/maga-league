@@ -1036,3 +1036,50 @@ def test_a_league_with_NO_passing_TD_rule_read_is_not_a_ZERO_point_league():
     r["scoring"] = {"rec_by_position": {"RB": 0.5}, "pass_td_by_position": None}
     c = R.format_census([(r, True, "ok")])
     assert "(no passing-TD rule read)" in c["pass_td_points"]
+
+
+# ── the OTHER calendar zero, and it had no verdict ─────────────────────────
+def test_AN_ARCHIVE_TOO_YOUNG_TO_SERVE_IS_NOT_A_BROKEN_CAPTURE():
+    """D5h's discipline on the ADP axis, which had none. MEASURED 2026-08-11: the D3
+    archive holds ONE snapshot for 2026, dated today. F5 wants ADP observed STRICTLY
+    BEFORE the draft, so every 2026 league that has drafted is squeezed out by the
+    snapshot date and every league that has not is squeezed out by F2.
+
+    The attrition table would say `F4.no_pre_draft_adp` for all of them — which reads
+    exactly like "our capture is broken" when the truth is "the capture started on the
+    11th and heals at one snapshot a day".
+
+    MUTATION: report only the reason counts. A calendar zero and a broken-capture zero
+    are the same table, and the one thing that would tell them apart — whether any
+    snapshot precedes any draft — is never computed."""
+    rec = good_record("L1")                       # drafts 2025-08-25
+    v, _ = R.run_screen([rec])
+    late = [{"year": "2025", "observed_at": "2026-08-11", "rows": [1]}]
+    r = R.adp_readiness(late, 2025, v)
+    assert r["state"] == "TOO_YOUNG" and r["servable"] == 0
+    assert "CALENDAR, not a broken capture" in r["why"]
+    assert "heals at one snapshot a day" in r["why"]
+
+
+def test_NO_ARCHIVE_AT_ALL_is_OUR_problem_and_says_so():
+    v, _ = R.run_screen([good_record("L1")])
+    r = R.adp_readiness([], 2025, v)
+    assert r["state"] == "NO_ARCHIVE"
+    assert "OUR capture rather than their leagues" in r["why"]
+
+
+def test_a_SERVING_archive_counts_how_many_leagues_it_can_actually_price():
+    """MUTATION: return SERVING whenever any snapshot exists. An archive whose only
+    snapshot postdates every draft reads as healthy, and the run's zero is then
+    attributed to the pool."""
+    v, _ = R.run_screen([good_record("L1")])
+    r = R.adp_readiness([{"year": "2025", "observed_at": "2025-08-01", "rows": [1]}], 2025, v)
+    assert r["state"] == "SERVING" and r["servable"] == 1
+
+    # STRICTLY BEFORE, and a same-day snapshot is where that lives. F5's whole
+    # clause is that ADP observed ON the draft day may already contain the draft.
+    # MUTATION: use <=. Every league whose capture landed the morning of its draft
+    # is priced against a board that may have watched it happen.
+    same_day = R.adp_readiness(
+        [{"year": "2025", "observed_at": "2025-08-25", "rows": [1]}], 2025, v)
+    assert same_day["state"] == "TOO_YOUNG" and same_day["servable"] == 0, same_day

@@ -607,6 +607,7 @@ def run(league_ids, year, out_path=None, *, players=None, board=None,
     rep["throttle"] = throttle_signal(verdicts)
     rep["crosswalk"] = crosswalk_summary(cw_reports)
     rep["format_census"] = format_census(verdicts)
+    rep["adp_readiness"] = adp_readiness(series, year, verdicts)
     rep["survival"] = survival_pass(verdicts, snap_by_league)
     rep["within_pool_adp"] = d7_feasibility(verdicts, pool_picks, league_dates)
     # PREPENDED, not appended. The existing verdict already leads with unreadable
@@ -1126,3 +1127,53 @@ def _survival_verdict(out) -> str:
             "survival resolves from the draft's own later picks, which is why this "
             "number exists before the season is played"
             % (out["leagues_replayed"], out["observations"], n, beat, len(scored)))
+
+
+def adp_readiness(series, year, verdicts) -> dict:
+    """Can the ADP archive serve ANY league in this run — and if not, WHY not?
+
+    D5h's discipline applied to the OTHER axis. The run already refuses to let an
+    unplayed season's zero read as a broken fetch; the ADP side had no equivalent,
+    and for 2026 it needs one badly.
+
+    MEASURED 2026-08-11: the D3 archive holds ONE snapshot for 2026, dated today.
+    F5 requires ADP observed STRICTLY BEFORE the draft, so every 2026 league that has
+    already drafted is squeezed out by the snapshot date, and every league that has
+    not drafted yet is squeezed out by F2. A 2026 run therefore reports near-zero
+    eligible leagues — and the attrition table would say `F4.no_pre_draft_adp`, which
+    reads exactly like "our capture is broken" when the truth is "the capture started
+    on the 11th".
+
+    THE FIX IS A VERDICT, NOT A FILTER CHANGE. Nothing is admitted that was not
+    admitted before. The run simply says which of three worlds it is in:
+
+      NO ARCHIVE      no snapshots for this season at all — our capture, our problem
+      TOO YOUNG       snapshots exist but none precedes any draft in this sample. The
+                      calendar, and it heals by itself at one snapshot per day
+      SERVING         at least one league has a snapshot strictly before its draft
+    """
+    snaps = sorted({str(s.get("observed_at") or s.get("date") or "")[:10]
+                    for s in (series or [])
+                    if str(s.get("year") or s.get("season") or year) == str(year)} - {""})
+    dated = [str(r.get("draft_at"))[:10] for r, _, _ in (verdicts or [])
+             if r.get("draft_at")]
+    if not snaps:
+        return {"state": "NO_ARCHIVE", "snapshots": 0, "leagues_dated": len(dated),
+                "servable": 0,
+                "why": ("no ADP snapshot exists for %s at all. Every league will report "
+                        "F4.no_pre_draft_adp, and that is OUR capture rather than their "
+                        "leagues" % year)}
+    servable = sum(1 for d in dated if any(sn < d for sn in snaps))
+    if dated and not servable:
+        return {"state": "TOO_YOUNG", "snapshots": len(snaps), "first": snaps[0],
+                "last": snaps[-1], "leagues_dated": len(dated), "servable": 0,
+                "why": ("the archive holds %d snapshot(s) for %s, %s to %s, and NONE "
+                        "precedes any of the %d dated drafts in this sample. F5 wants "
+                        "strictly-before, so this is the CALENDAR, not a broken "
+                        "capture — it heals at one snapshot a day, and every league "
+                        "drafting after %s becomes servable"
+                        % (len(snaps), year, snaps[0], snaps[-1], len(dated), snaps[-1]))}
+    return {"state": "SERVING", "snapshots": len(snaps), "first": snaps[0],
+            "last": snaps[-1], "leagues_dated": len(dated), "servable": servable,
+            "why": "%d of %d dated drafts have a snapshot strictly before them"
+                   % (servable, len(dated))}
