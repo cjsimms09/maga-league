@@ -67,11 +67,43 @@ RELEVANT_BOARD_MULTIPLE = 1.5
 # ppr, half-ppr, 2qb and dynasty; we only ever need the redraft three.
 FORMATS = {"standard": "standard", "half-ppr": "half-ppr", "ppr": "ppr"}
 
-# FFC uses its own team abbreviations for a handful of franchises.
+# THE SHARED TEAM VOCABULARY — every source's abbreviations, in ONE table.
+#
+# This used to say "FFC uses its own team abbreviations", and that framing was
+# the bug: it read as an FFC-specific quirk table, so when C brought MFL in, the
+# six abbreviations MFL uses and Sleeper does not had nowhere obvious to go. C
+# declined to keep a private table in its own lane rather than split the
+# vocabulary in two, which is right — two tables for one question is how the two
+# come to disagree without either being wrong on its own terms.
+#
+# MFL (added 2026-08-11, found by C): the full MFL abbreviation set differs from
+# Sleeper's for EIGHT franchises — GBP JAC KCC LVR NEP NOS SFO TBB. JAC and LVR
+# were already here for FFC, so the six below are the exact remainder. C measured
+# 956 pairs reporting as team disagreements where the sources agree and only the
+# spelling differs; that count is C's, from MFL responses this sandbox cannot
+# reach. What is verified here is the CAUSE — the delta is exactly these six.
+#
+# Applied to BOTH sides (build_index and match_player), so an entry can only
+# relabel a key, never break a pair that already matched. test_team_aliases.py
+# pins the two ways this table can go wrong: an alias whose target is not a real
+# team, and an alias whose target is itself an alias key (a two-hop rename that
+# silently half-applies, since _norm_team resolves exactly once).
 TEAM_ALIASES = {
     "JAC": "JAX", "WSH": "WAS", "LA": "LAR", "STL": "LAR",
     "SD": "LAC", "OAK": "LV", "LVR": "LV", "ARZ": "ARI", "BLT": "BAL",
     "CLV": "CLE", "HST": "HOU", "SL": "LAR",
+    # MFL
+    "NEP": "NE", "GBP": "GB", "SFO": "SF", "KCC": "KC", "TBB": "TB", "NOS": "NO",
+}
+
+# The 32 codes Sleeper actually emits, as literals. Not derived from the player
+# DB: a guard whose reference derives from the thing under test always agrees
+# (rule 10d). The board is checked AGAINST this, not the other way round.
+NFL_TEAMS = {
+    "ARI", "ATL", "BAL", "BUF", "CAR", "CHI", "CIN", "CLE", "DAL", "DEN",
+    "DET", "GB", "HOU", "IND", "JAX", "KC", "LAC", "LAR", "LV", "MIA",
+    "MIN", "NE", "NO", "NYG", "NYJ", "PHI", "PIT", "SEA", "SF", "TB",
+    "TEN", "WAS",
 }
 
 # Position labels that mean the same thing on both sides.
