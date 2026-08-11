@@ -33,24 +33,22 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 OUT = HERE / "market_probe.json"
 
+import sys as _sys                                    # noqa: E402
+if str(HERE) not in _sys.path:
+    _sys.path.insert(0, str(HERE))
+import market_request as _R                           # noqa: E402
+
 
 def _redact(text) -> str:
-    """Strip the API key from anything that gets RECORDED.
+    """Delegates to market_request.redact — ONE implementation, not two.
 
-    THE LEAK THIS CLOSES (2026-08-11): an InvalidURL error stringified the full
-    request URL — key included — into `feasibility_error`, and the workflow
-    committed that artifact to the repository. GitHub masks secrets in LOGS; it
-    does nothing for a file we write ourselves. Every captured error, detail and
-    sample goes through here, so the key cannot reach disk by a path nobody
-    thought about.
-    """
-    t = "" if text is None else str(text)
-    key = os.environ.get("ODDS_API_KEY", "").strip()
-    if key and len(key) >= 8:
-        t = t.replace(key, "[REDACTED_KEY]")
-    # Belt and braces: any apiKey= parameter, whatever its value.
-    import re as _re
-    return _re.sub(r"(apiKey=)[^&\s'\"]+", r"\1[REDACTED_KEY]", t)
+    This was the original fix and it lived ONLY here, so market_capture wrote
+    unredacted exception text into a COMMITTED health file by a path this never
+    covered. Found auditing history before the repo went public. Copying it
+    across would have made two redactors that drift; it moved to the request
+    layer both modules already import, and that version covers key=, token= and
+    secret= as well as apiKey=."""
+    return _R.redact(text)
 
 # Kalshi's public market list. Series/tickers are what we need to see; whether any
 # of them are player-level is the open question.

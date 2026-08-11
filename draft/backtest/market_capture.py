@@ -434,9 +434,14 @@ def main():                                                      # pragma: no co
         # reports "the capture did not run" for a run that ran and declined —
         # indistinguishable from the job never firing, which is the exact
         # silent-death failure the health file exists to prevent.
-        print(f"::warning::{e}")
+        # REDACTED ON BOTH PATHS. The log is masked only when the key came from
+        # secrets.* — a value stored under Variables is NOT masked, and on a
+        # public repo Actions logs are world-readable. The health file is never
+        # masked by anyone: we write it and the workflow commits it.
+        print(f"::warning::{R.redact(e)}")
         write_health({"finished_at": now_iso(), "league": a.league,
-                      "events_captured": 0, "coverage": 0.0, "refused": str(e)})
+                      "events_captured": 0, "coverage": 0.0,
+                      "refused": R.redact(e)})
         return 0
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     path = OUT_DIR / f"{a.league}_{snap['started_at'].replace(':', '')}.json"
