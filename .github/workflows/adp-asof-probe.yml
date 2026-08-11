@@ -1,0 +1,75 @@
+name: ADP AS-OF PROBE — can pre-draft ADP be reconstructed after the fact?
+
+# THE DECISION THIS MOVES, and it is on a clock. F5 needs the ADP a league saw
+# BEFORE its draft. If a provider serves "ADP as of <past date>", 2026 external
+# leagues can be ingested whenever we reach them. If it serves only a CURRENT
+# value or an accumulating season AGGREGATE, then the 2026 pre-draft curve is
+# observable only while it is happening — external leagues draft in August — and
+# every un-snapshotted day is unrecoverable.
+#
+# Runs in CI because the sandbox's egress to these hosts is policy-blocked. A 000
+# there is a statement about the sandbox, not the provider (rule 13), and
+# `verdict()` refuses to score a run that reached nothing.
+#
+# IT DOES NOT COMMIT. Every other probe in this repo pushes its result to `main`;
+# session A owns integration and deploys, without exception, so this one uploads
+# an artifact and writes the verdict to the run summary instead. The result is
+# committed to the ingest branch by hand after it is read.
+
+on:
+  workflow_dispatch:
+    inputs:
+      year:
+        description: 'Season to probe'
+        required: false
+        default: '2026'
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+
+      - name: Probe — bounded candidate set, with two deliberate controls
+        id: probe
+        run: python3 draft/backtest/adp_asof_probe.py "${{ github.event.inputs.year || '2026' }}"
+
+      # The run summary carries the answer whether the step passed or failed. A
+      # probe whose result is only visible by opening logs is one nobody reads,
+      # and a silent failure in an unwatched run reads exactly like success.
+      - name: Report the verdict where it cannot be missed
+        if: always()
+        run: |
+          {
+            echo "## ADP as-of probe"
+            if [ -f draft/backtest/adp_asof_probe.json ]; then
+              python3 - <<'PY'
+          import json
+          d = json.load(open('draft/backtest/adp_asof_probe.json'))
+          print('**MFL controls:** ', d['mfl']['verdict'].get('controls'))
+          print()
+          print('**MFL date-bounding:** ', d['mfl']['verdict'].get('date_bounding'))
+          print()
+          print('**Year aggregate spans the season:** ',
+                d['mfl_year_aggregate']['spans_the_season'].get('answer'), '—',
+                d['mfl_year_aggregate']['spans_the_season'].get('detail'))
+          print()
+          print('**FFC date-bounding:** ', d['ffc']['verdict'].get('date_bounding'))
+          print()
+          print('**How to read a null:** ', d['reading'])
+          PY
+            else
+              echo "NO RESULT FILE — the probe did not complete. This is a statement about"
+              echo "the run, not a negative finding about either provider."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload the raw result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: adp-asof-probe
+          path: draft/backtest/adp_asof_probe.json
+          if-no-files-found: warn
