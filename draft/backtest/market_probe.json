@@ -108,9 +108,8 @@
       "sample_titles": [],
       "series_listed": 12630,
       "series_prefixes_seen": {
-        "KXMLBSPREAD": 1,
-        "KXMVECROSSCATE": 5316,
-        "KXMVESPORTSMUL": 6683
+        "KXMVECROSSCATE": 5234,
+        "KXMVESPORTSMUL": 6766
       },
       "volume_median": 0,
       "volume_total": 0,
@@ -134,7 +133,7 @@
           "status": 401
         }
       },
-      "auth_style_working": null,
+      "auth_style_working": "query_apiKey",
       "docs": "https://odds-api.io/",
       "host": "https://api.odds-api.io",
       "key_configured": true,
@@ -195,6 +194,54 @@
         },
         "/v3/odds?sport=american-football": {
           "status": 401
+        }
+      },
+      "shape_probe": {
+        "events+league": {
+          "detail": "{\"error\":\"Sport is required\"}",
+          "status": 400
+        },
+        "events+sport": {
+          "rate_headers": {
+            "x-ratelimit-limit": "100",
+            "x-ratelimit-remaining": "97",
+            "x-ratelimit-reset": "2026-08-11T01:21:08Z"
+          },
+          "rows": 51,
+          "sample": "[{\"id\": 71548090, \"home\": \"Cincinnati Bengals\", \"away\": \"Detroit Lions\", \"homeId\": 4416, \"awayId\": 4419, \"date\": \"2026-08-13T23:00:00Z\", \"sport\": {\"name\": \"American Football\", \"slug\": \"american-football\"}, \"league\": {\"name\": \"USA - NFL Preseason\", \"slug\": \"usa-nfl-preseason\"}, \"status\": \"pending\", \"scores\": {\"home\": 0, \"away\": 0}}, {\"id\": 71548092, \"home\": \"Pittsburgh Steelers\", \"away\": \"Green Bay",
+          "status": 200
+        },
+        "events+sport+league": {
+          "detail": "{\"error\":\"League not found\"}",
+          "status": 404
+        },
+        "events+sportId": {
+          "detail": "{\"error\":\"Sport is required\"}",
+          "status": 400
+        },
+        "leagues": {
+          "detail": "{\"error\":\"Sport is required\"}",
+          "status": 400
+        },
+        "leagues+sport": {
+          "rate_headers": {
+            "x-ratelimit-limit": "100",
+            "x-ratelimit-remaining": "92",
+            "x-ratelimit-reset": "2026-08-11T01:21:08Z"
+          },
+          "rows": 6,
+          "sample": "[{\"name\": \"Canada - CFL\", \"slug\": \"canada-cfl\", \"eventsCount\": 43}, {\"name\": \"International - AFLE\", \"slug\": \"international-afle\", \"eventsCount\": 8}, {\"name\": \"International - EFA, Playoffs\", \"slug\": \"international-efa-playoffs\", \"eventsCount\": 2}, {\"name\": \"USA - College\", \"slug\": \"usa-college\", \"eventsCount\": 3206}, {\"name\": \"USA - NFL\", \"slug\": \"usa-nfl\", \"eventsCount\": 134}, {\"name\": \"USA - NF",
+          "status": 200
+        },
+        "odds+league": {
+          "detail": "{\"error\":\"Missing eventId\"}",
+          "status": 400
+        },
+        "sports": {
+          "rate_headers": {},
+          "rows": 34,
+          "sample": "[{\"name\": \"Football\", \"slug\": \"football\"}, {\"name\": \"Basketball\", \"slug\": \"basketball\"}, {\"name\": \"Tennis\", \"slug\": \"tennis\"}, {\"name\": \"Baseball\", \"slug\": \"baseball\"}, {\"name\": \"American Football\", \"slug\": \"american-football\"}, {\"name\": \"Ice Hockey\", \"slug\": \"ice-hockey\"}, {\"name\": \"Esports\", \"slug\": \"esports\"}, {\"name\": \"Darts\", \"slug\": \"darts\"}, {\"name\": \"MMA\", \"slug\": \"mixed-martial-arts\"}, {\"",
+          "status": 200
         }
       },
       "sports_listed": 34
