@@ -906,6 +906,55 @@ outermost layer — the same principle as `F4.fetch_failed`, one level further o
 previous behaviour meant a single malformed league could delete an entire run's evidence,
 which is the most expensive way for a sample to become invisible.
 
+## ROUTE 1 IS OPEN — the archive holds dated preseason boards (measured 2026-08-11)
+
+Probed from CI, where egress reaches archive.org (`status 200`); the sandbox's blanket
+`Tunnel connection failed: 403` was the proxy, as claimed.
+
+**The hit that matters.** FantasyPros' PPR overall page, capture **`20240731003145`** —
+one day before the cutoff, squarely preseason 2024, 422KB serving a board. A Wayback
+capture is a **third party recording when it saw the content**, so the date is evidence
+rather than a label. That is what F5 asks for, and no provider had to support a date
+parameter to supply it.
+
+**Two of the three hits are the wrong dates, and the count must not be read as three:**
+
+| target | capture | what it is |
+|---|---|---|
+| FFC half-PPR page | 2023-07-06 | preseason — of **2023** |
+| FP half-PPR page | 2023-12-09 | **mid-season**; not a preseason board at all |
+| FP PPR page | **2024-07-31** | the date this route needs |
+
+So **the mechanism is proved and the coverage is not.** The one usable capture is PPR
+where F1 wants half-PPR, and the half-PPR page's newest pre-cutoff capture being December
+is currently unexplained — most likely our own `filter=statuscode:200` hiding a
+redirected path, which the probe now re-asks without.
+
+### WHAT AN OPEN ROUTE 1 DOES NOT DO — stated here so it is not overread later
+
+Route 1 answers the **ADP** blocker. It does not answer the **sample** blocker, and a
+matched league-season needs both.
+
+- **Solved, if the boards verify:** a dated pre-draft board for a completed season, which
+  is what `adp_series.json` starting 2026-08-09 could not give and what F5 forbids
+  substituting a live board for.
+- **Untouched:** run 11 measured **0 of 113 readable MFL leagues passing F1**, 95% upper
+  bound **2.65%** on the match rate against F7's required **0.938%**. Clean ADP for a
+  league that does not exist in our format grades nothing.
+
+**The 2027 timeline therefore does not collapse on this result.** One of its two supports
+is removed; the other was measured today and still stands. Saying otherwise would be
+exactly the overread this document exists to prevent.
+
+### AND IT IS NOT YET A USABLE BOARD
+
+`looks_like_a_board` counts SHAPES. It cannot tell a board of 2024 NFL players from any
+page with 200 capitalised pairs on it, and there is a specific reason to doubt: the LIVE
+FantasyPros pages scored `not-a-board` at ~301KB while their ARCHIVED captures scored
+`board` at ~422KB — same site, same path. Either the live site renders client-side now, or
+the detector is counting furniture. Nothing may be graded against these captures until the
+top of each board is read and checked against the players who actually went early.
+
 ### RUN 11 — ZERO OF 113 READABLE LEAGUES MATCH OUR FORMAT (measured 2026-08-11)
 
 The single most consequential number this program has produced, and it is about **F7's
