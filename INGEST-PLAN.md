@@ -824,6 +824,57 @@ to be sparse, a minority of leagues to reach a usable board, and the usable ones
 **late-August drafts** — the least representative of a genuine preseason decision. If that is
 what comes back, D7 does not rescue the 2027 timeline and I will say so.
 
+## D7'S CEILING IS ALREADY MEASURED — a bound, not an estimate (2026-08-11)
+
+Stated **before** the format-matched measurement runs, because it does not need that run
+and because a result declared afterwards is a narration.
+
+Run 9's D7 numbers came in two flavours: a **format-matched** population (F1-passing
+leagues only, the admissible construction) and a **whole-pool** population that was
+computed and labelled INADMISSIBLE — every league regardless of format, dynasty and
+superflex included, which is a different quantity from the one being priced.
+
+The format-matched population's picks are a **subset** of the whole-pool population's
+picks: F1-passing is a filter, and a filter removes picks or leaves them. So for every
+league and every player, support under format-matching is **≤** support under the whole
+pool; the board at `min_support=10` can only be smaller; and the count of leagues reaching
+a 100-player board can only be lower. That is arithmetic on a subset relation, not a
+forecast.
+
+**Therefore the inadmissible measurement is an UPPER BOUND on the admissible one.** Run 9's
+whole-pool result was **13 of 62 dated leagues reaching a 100-player board, every usable one
+in the later half of the calendar**. So the admissible D7 tops out at 13 of 62 — 21% — and
+lands below it, on the leagues that drafted latest.
+
+That was the pre-declared failure shape above, arrived at from the bound rather than from
+the number. **D7 does not rescue the 2027 timeline.** Run 11 measures the admissible figure
+because a bound stated is not a bound checked, and because the bound predicts a *specific*
+relationship the run can contradict: format-matched usable ≤ 13, and never a league that
+whole-pool could not serve. If run 11 returns a format-matched league count ABOVE the
+whole-pool one, the subset relation is false and D7's implementation is wrong, not its
+ceiling.
+
+### PRE-REGISTRATION FOR RUN 11 — three predictions, before the run reports (2026-08-11)
+
+Run 10 was cancelled five minutes in and re-dispatched as run 11 with the conflict split
+added, rather than spending two 25-minute cycles to answer three questions.
+
+- **The `a/b` fix.** Every `unreadable_points` sample run 9 printed was a yardage rate —
+  `1/25`, `1/10`, `.1/1`, `0.04/1` on PY/RY/CY. I expect leagues blocked on
+  `unreadable_points` for those three terms to fall to **near zero**. If the count holds
+  steady, either the fix did not fire or there is a second unregistered shape, and the
+  samples will name it — the same way they named this one.
+- **D7 format-matched.** Non-vacuous this time, bounded above as proved directly above. I
+  expect **fewer than 13 of 62** usable leagues and expect them to be the late drafters.
+- **The conflicts.** I expect the **majority to be team-only**: MFL's team field reflects
+  their snapshot date and ours reflects ours, and every hand-check pair run 9 printed was
+  position-perfect. I expect any large position pair to be a **vocabulary** mismatch of the
+  `PK -> K` kind — our own comparison, not a wrong player. **If instead position
+  disagreements dominate and their value pairs are SCATTERED, the crosswalk has a real
+  wrong-match problem and the 85.5% pooled rate is overstated** — a bad match counts as a
+  success in that figure. That is the outcome that would make me stop and fix matching
+  before any of this is used.
+
 ### P5 — `draftUnit` IS SOMETIMES A LIST (found 2026-08-11, at 250-league scale)
 
 The fifth "would have produced a confidently wrong parser", except this one did not

@@ -772,6 +772,58 @@ def d7_feasibility(verdicts, pool_picks, league_dates) -> dict:
     # cost of the format restriction is visible and nobody has to guess at it.
     allx = [_row(lid, ts) for lid, ts in sorted(league_dates.items())]
     out["whole_pool_INADMISSIBLE_under_D7"] = feasibility(allx, pool_picks)
+    out["subset_bound"] = subset_bound(out["format_matched"],
+                                       out["whole_pool_INADMISSIBLE_under_D7"])
+    return out
+
+
+def subset_bound(fmt: dict, whole: dict) -> dict:
+    """The one D7 quantity that is PROVABLE, checked against what was computed.
+
+    Format-matching is a FILTER on picks. So for any league, support under the
+    format-matched pool is <= support under the whole pool, its board at the same
+    `min_support` can only be smaller, and the count of leagues reaching a usable
+    board can only be lower. That is a subset relation, not a forecast — which
+    makes the inadmissible whole-pool figure an UPPER BOUND on the admissible one,
+    and makes D7's ceiling known before the admissible number is measured.
+
+    Rule 6, in the direction that matters: a claim written into INGEST-PLAN has to
+    be something the running system enforces, or the document is describing a
+    program that does not exist. A VIOLATION here is not a finding about the pool —
+    it means `feasibility` or the format-matched pick set is wrong, because the
+    arithmetic cannot be.
+
+    `comparable` is reported because `per_league` is capped: leagues past the cap
+    are not checked, and an unchecked league is absent, not passing.
+    """
+    w = {str(x["league_id"]): x for x in (whole or {}).get("per_league") or []}
+    checked, viol = 0, []
+    for x in (fmt or {}).get("per_league") or []:
+        other = w.get(str(x["league_id"]))
+        if not other:
+            continue
+        checked += 1
+        if (x.get("players_with_adp") or 0) > (other.get("players_with_adp") or 0):
+            viol.append({"league_id": str(x["league_id"]),
+                         "format_matched": x.get("players_with_adp"),
+                         "whole_pool": other.get("players_with_adp")})
+    agg_ok = ((fmt or {}).get("leagues_with_usable_board") or 0) <= \
+             ((whole or {}).get("leagues_with_usable_board") or 0)
+    out = {"comparable_leagues": checked,
+           "board_size_violations": len(viol),
+           "violation_sample": viol[:10],
+           "usable_count_within_bound": agg_ok,
+           "upper_bound_on_usable": (whole or {}).get("leagues_with_usable_board")}
+    out["verdict"] = (
+        "D7's admissible figure is within its proved ceiling: %s usable of the %s the "
+        "whole pool could serve, across %d leagues compared"
+        % ((fmt or {}).get("leagues_with_usable_board"),
+           (whole or {}).get("leagues_with_usable_board"), checked)
+        if not viol and agg_ok else
+        "BOUND VIOLATED — format-matching produced a LARGER board than the whole pool "
+        "for %d league(s), or more usable leagues than the pool that contains them. "
+        "Format-matched picks are a SUBSET of pool picks, so this is a defect in this "
+        "code and not a fact about the leagues" % len(viol))
     return out
 
 

@@ -198,6 +198,14 @@ jobs:
                     % (json.dumps(fm.get("leagues_by_board_size")),
                        json.dumps(fm.get("board_size_distribution"))))
               print("  D7 whole-pool(N/A)  %s" % wp.get("verdict"))
+              # The whole-pool figure is an UPPER BOUND on the format-matched one:
+              # format-matching is a filter on picks, so boards can only shrink.
+              # A violation is a defect in this code, not news about the pool.
+              sb = d7.get("subset_bound") or {}
+              print("  D7 subset bound     %s" % sb.get("verdict"))
+              for v in (sb.get("violation_sample") or []):
+                  print("    VIOLATION  %s fmt=%s > whole=%s"
+                        % (v.get("league_id"), v.get("format_matched"), v.get("whole_pool")))
               cv = (fm.get("calendar_covariates") or {})
               print("  D7 M4 covariates    %s" % cv.get("verdict"))
               for k, v in sorted((cv.get("by_key") or {}).items()):

@@ -711,3 +711,58 @@ def test_the_pace_never_goes_below_the_registered_floor():
     for _ in range(100):
         R._saw_ok()
     assert R._PACE["delay"] == R._PACE_MIN
+
+
+# ── D7's proved ceiling, checked against what was computed ──────────────────
+def _feas(usable, per_league):
+    return {"leagues_with_usable_board": usable, "per_league": per_league}
+
+
+def test_FORMAT_MATCHING_CANNOT_GROW_A_BOARD_and_a_violation_is_OUR_defect():
+    """Format-matched picks are a SUBSET of pool picks, so support per player can
+    only fall, the board at the same min_support can only shrink, and the usable
+    count can only drop. That makes the inadmissible whole-pool figure an UPPER
+    BOUND on the admissible one — D7's ceiling, known by arithmetic.
+
+    MUTATION: never fire the per-league check. A `feasibility` that built the
+    format-matched pool from the WRONG picks would report a board LARGER than the
+    pool containing it and be read as good news for Route 2."""
+    fmt = _feas(2, [{"league_id": "a", "players_with_adp": 140},
+                    {"league_id": "b", "players_with_adp": 30}])
+    whole = _feas(3, [{"league_id": "a", "players_with_adp": 120},
+                      {"league_id": "b", "players_with_adp": 90}])
+    b = R.subset_bound(fmt, whole)
+    assert b["board_size_violations"] == 1
+    assert b["violation_sample"][0]["league_id"] == "a"
+    assert "BOUND VIOLATED" in b["verdict"]
+    assert "defect in this code and not a fact about the leagues" in b["verdict"]
+
+
+def test_the_bound_HOLDING_says_so_with_the_ceiling_beside_the_figure():
+    fmt = _feas(4, [{"league_id": "a", "players_with_adp": 100}])
+    whole = _feas(13, [{"league_id": "a", "players_with_adp": 180}])
+    b = R.subset_bound(fmt, whole)
+    assert b["board_size_violations"] == 0 and b["usable_count_within_bound"] is True
+    assert b["upper_bound_on_usable"] == 13
+    assert "within its proved ceiling" in b["verdict"]
+
+
+def test_MORE_USABLE_LEAGUES_THAN_THE_POOL_THAT_CONTAINS_THEM_is_a_violation():
+    """The aggregate half of the same bound, and it fails independently: every
+    per-league board can be within bound while the count is not, if the league sets
+    were built from different populations. MUTATION: check only the boards."""
+    fmt = _feas(20, [{"league_id": "a", "players_with_adp": 10}])
+    whole = _feas(13, [{"league_id": "a", "players_with_adp": 10}])
+    b = R.subset_bound(fmt, whole)
+    assert b["usable_count_within_bound"] is False and "BOUND VIOLATED" in b["verdict"]
+
+
+def test_a_league_PAST_THE_PER_LEAGUE_CAP_is_UNCHECKED_not_PASSING():
+    """`per_league` is capped at 200. A league absent from the comparison was not
+    verified, and `comparable_leagues` says how many actually were — absent is not
+    a pass, in the auditing too."""
+    fmt = _feas(1, [{"league_id": "a", "players_with_adp": 10},
+                    {"league_id": "zz", "players_with_adp": 999}])
+    whole = _feas(1, [{"league_id": "a", "players_with_adp": 10}])
+    b = R.subset_bound(fmt, whole)
+    assert b["comparable_leagues"] == 1 and b["board_size_violations"] == 0
