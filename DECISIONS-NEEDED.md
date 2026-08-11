@@ -10,6 +10,39 @@ Audit date: 2026-08-09 (swept every recorded verdict in draft/backtest/*.json + 
 
 ---
 
+## 0. DEF PROJECTIONS ARE 12 POINTS SHORT — `def_fum_td` maps to nothing (2026-08-11) 🔴 OPEN
+
+- **WHAT WAS FOUND.** Sleeper's projection row for the Rams DEF carries
+  `def_fum_td: 2.0`. The league scoring table has no such key — it has `def_td: 6.0`
+  and `fum_rec_td: 6.0`, and neither appears in any sampled row. `score_stat_line`
+  iterates the SCORING keys and skips any the stat line does not carry, so two
+  projected defensive fumble-return touchdowns score **zero**.
+- **WHAT IT IMPLIES.** Every defense's `proj_baseline` is short by 6 points per
+  projected defensive TD. Rams: `proj_baseline` 114.00 → 126.00, `vorp` 15.00 →
+  27.00 before the replacement level moves. Because DEF replacement is the 10th-best
+  DEF, correcting all 32 moves the replacement line too, so every DEF `vorp` changes.
+- **MAGNITUDE.** 12 points on the one defense measured. Unmeasured across the other
+  31 — deliberately, per rule 12's scope rule (document value eleven, do not sweep).
+- **CONFIDENCE.** High on the mechanism: verified by hand from the raw provider row
+  against the league's own scoring table, and it is structurally identical to the
+  `pass_int` defect C found (provider renames a stat, scorer skips a key it cannot
+  find, loss is silent because skipping IS correct for an optional bonus).
+- **THE FIX CARRIES C's TRAP.** Our table has BOTH `def_td` and `fum_rec_td` at 6.0.
+  Mapping `def_fum_td` to both scores 12 per touchdown — a silent undercount becomes
+  a silent overcount, which is worse. And if the provider emits `def_int_td` for
+  other teams, that is a genuine COMPONENT that must accumulate while the fumble
+  alias must not. Aliases take first-writer-wins; components sum.
+- **COST OF INACTION.** DEF is systematically underrated on the board. Low direct
+  cost — Cory takes a DEF in round 14-15 where a 12-point projection error rarely
+  changes which one — but it compounds with the separate finding that K and DEF are
+  SINGLE-SOURCE (Sleeper only, no FantasyPros second opinion), so the DEF column is
+  a one-source number with a known undercount.
+- **RECOMMENDATION: fix it AFTER the draft, not before.** It moves every DEF `vorp`
+  and the DEF replacement level eleven days out, on a position that is picked last
+  and where the ordering is unlikely to change. The evidence and the trap are
+  written down; the change is one alias plus a components-vs-aliases test.
+- Full arithmetic: `draft/audit/rule12_statline_check_2026-08-11.md`.
+
 ## 1. ANCHOR SOURCE: ✅ WIRED & VERIFIED LIVE 2026-08-09 — board anchors on FantasyPros
 > **LANDED (main @ FP-anchor commit + real egress rebuild):** the live board now ranks by
 > FantasyPros PRIMARY, FFC gap-fill, search_rank last. Verified on the rebuilt board:

@@ -2,6 +2,66 @@
 
 _Answered 2026-08-08 with evidence, not assertion._
 
+## 📋 WORKING PROTOCOL — Cory, 2026-08-11. APPLIES TO A, B AND C IDENTICALLY.
+
+**The bottleneck is Cory's attention, not our throughput.** Three sessions produce
+more findings per hour than one person can evaluate, and he is the only channel
+between us. Today he asked the same question about the board's numbers three
+separate times — not because nobody answered, but because the answer was buried.
+
+**The goal is no longer maximum information reaching him.** It is maximum useful
+work done while interrupting him only when his judgement or action is actually
+required.
+
+**KEEP WORKING AT FULL SPEED.** This is not permission to slow down. Investigate,
+test, fix, validate, find the next thing — continuously, without waiting between
+units. Fix a wrong fixture and move on. Do not report a routine audit that passed.
+Do not make him reread a validation of something we already believed. A defect in
+your own lane with an obvious correct fix: make it. Record everything in the usual
+places; he reads the record when he wants it.
+
+**ESCALATE ONLY FOR:**
+- a DECISION where his judgement or his knowledge of the league is the input
+- a MATERIAL DEFECT — changes a number he would draft on, or produces a wrong
+  answer nobody would notice
+- a CONTRADICTION between model components or between findings. Not a bug — two
+  parts of the system disagreeing about what is true. **These have been the most
+  valuable findings all week; surface them immediately.**
+- anything that could MATERIALLY ALTER DRAFT RECOMMENDATIONS — if it moves the
+  board, it goes through the gate
+- a HIGH-VALUE OPPORTUNITY — better data source, ignored signal, an architecture
+  that makes future learning easier
+- something needing REAL-WORLD VALIDATION only he can give — league rules, what a
+  screen actually shows, whether a number matches what he remembers
+- a MILESTONE THAT CHANGES CONFIDENCE in the system, in either direction
+
+Everything else: handle it, record it, keep moving.
+
+**REPORTING.** Lead with the thing that needs him, first line, no preamble. If
+nothing needs him, say so in one line and stop. Then briefly what landed — he does
+not need the reasoning behind work that went well, only that it is done so he can
+hold the state. **Keep leading with what failed.** That rule has not changed and
+he names it the single most valuable habit any of us have.
+
+**CROSS-SESSION ROUTING.** We cannot message each other and he cannot push, so he
+remains the physical channel — but the ROUTING load has to drop too, not just the
+reporting load.
+
+- **These shared files are the PRIMARY channel** — this one, PARKED.md,
+  DECISIONS-NEEDED.md, the ledgers. Assume the other sessions read them at their
+  next boundary rather than assuming Cory will relay.
+- When something genuinely CANNOT WAIT for the other session's next read — a live
+  defect in their lane, a blocker, a wrong number they are building on — put
+  **`ROUTE NOW`** at the top of your report with the session named. That is the
+  only thing he will reliably relay in real time.
+- **PULL BEFORE YOU START A UNIT.** Several times on 2026-08-11 a session was
+  blocked on something that had already landed.
+
+**HIS PRIORITY TO THE 22nd:** running a mock on the DEPLOYED board and sending
+screenshots. That has found more severe defects than any audit and it is the only
+item where he is the constraint. Anything that keeps the deploy honest and the
+mock runnable is on his critical path; everything else we grind without him.
+
 ## ⛔ THE MAIN-ONLY PROTOCOL BELOW IS VOID — the harness forces feature branches (2026-08-09)
 
 **The question, answered plainly:** direct commit to `main` is NOT available under
