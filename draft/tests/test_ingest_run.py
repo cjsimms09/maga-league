@@ -520,3 +520,33 @@ def test_the_hand_check_pairs_survive_into_the_report():
             "mfl_pos": "RB", "board_pos": "RB", "method": "name"}
     s = R.crosswalk_summary([_cwrep(matched_sample=[pair])])
     assert s["matched_pairs_for_hand_check"] == [pair]
+
+
+def test_ONE_LEAGUE_THAT_CANNOT_BE_PARSED_DOES_NOT_KILL_THE_RUN():
+    """Measured: a single league whose `draftUnit` was a LIST raised 18 minutes
+    into a 250-league run and took the other 249 with it — no report, no attrition
+    table, nothing learned from any of them.
+
+    A league we could not PARSE is that league's reason, never the run's death.
+    MUTATION: remove the try/except. One malformed league deletes the evidence
+    from every other league in the run."""
+    # A shape that genuinely raises inside the adapter. NOTE the first attempt at
+    # this fixture used a string `draftUnit`, which after the P5 fix no longer
+    # raises — it comes back `draft_not_league_wide`. A test for the ISOLATION must
+    # use an input that still explodes, or it proves nothing about isolation.
+    exports = {"league": 12345, "rules": {}, "draftResults": {}}
+    rec = R.build_record("L1", exports)
+    assert rec.get("unfetchable", "").startswith("parse_failed:"), rec.get("unfetchable")
+    assert F.is_unreadable("F4.parse_failed:AttributeError")
+    # And the run keeps going: the bad league gets a verdict like any other.
+    verdicts, _ = R.run_screen([rec, good_record("L2")])
+    assert len(verdicts) == 2
+    assert R._verdict_reason(verdicts[0]).startswith("F4.fetch_failed:parse_failed")
+
+
+def test_the_parse_failure_keeps_the_EXCEPTION_TYPE_so_it_stays_diagnosable():
+    """An anonymous drop is a defect nobody can find again."""
+    exports = {"league": {"league": {"id": "L1"}}, "rules": {},
+               "draftResults": {"draftResults": {"draftUnit": 12345}}}
+    rec = R.build_record("L1", exports)
+    assert "unreadable" in rec and "parse_failed:" in rec["unreadable"]["parse"]

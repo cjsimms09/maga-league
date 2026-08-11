@@ -316,6 +316,13 @@ UNOBTAINED_REASONS = (
     "F4.no_gsis_crosswalk",          # weekly is GSIS-keyed, our board is Sleeper-keyed
     "F4.stat_columns_absent",        # the DATA cannot serve a term the league scores
     "F4.no_season_type",             # REG and POST are indistinguishable in this data
+    # A league whose export we could not PARSE. Its own reason, never the run's
+    # death — one malformed league took a whole 250-league run with it once.
+    "F4.parse_failed",
+    # An export carrying several draft units, none league-wide (divisional drafts,
+    # each with its own pick numbering). Merging them would manufacture an overall
+    # pick number no drafter ever saw.
+    "F4.draft_not_league_wide",
 )
 
 

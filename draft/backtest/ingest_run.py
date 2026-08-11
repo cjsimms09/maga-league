@@ -55,8 +55,24 @@ def build_record(league_id, exports: dict, **passthrough) -> dict:
                         + ["%s: absent" % m for m in sorted(missing)])
         return {"league_id": str(league_id), "source": "mfl", "unfetchable": why,
                 "unreadable": {"fetch": "fetch_failed:%s" % why}}
-    return A.to_league_record(exports["league"], exports["rules"], exports["draftResults"],
-                              league_id=league_id, **passthrough)
+    try:
+        return A.to_league_record(exports["league"], exports["rules"],
+                                  exports["draftResults"], league_id=league_id,
+                                  **passthrough)
+    except Exception as e:                                       # noqa: BLE001
+        # ONE LEAGUE MUST NOT KILL THE RUN. Measured 2026-08-11: a single league
+        # whose `draftUnit` was a LIST raised AttributeError 18 minutes into a
+        # 250-league run and took the other 249 with it — no report, no attrition
+        # table, nothing learned from any of them.
+        #
+        # This is the attrition seam at the outermost layer: a league we could not
+        # PARSE is that league's reason, not the run's death, and it must be
+        # UNREADABLE (about this pipeline) rather than filtered. The exception type
+        # and message are kept so the defect stays diagnosable instead of becoming
+        # an anonymous drop.
+        return {"league_id": str(league_id), "source": "mfl",
+                "unfetchable": "parse_failed:%s: %s" % (type(e).__name__, e),
+                "unreadable": {"parse": "parse_failed:%s" % type(e).__name__}}
 
 
 def run_screen(records: list) -> tuple:

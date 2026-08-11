@@ -217,7 +217,32 @@ def draft_picks(draft_json) -> tuple:
         meta says so rather than every league quietly passing it.
     """
     d = json.loads(draft_json) if isinstance(draft_json, str) else (draft_json or {})
-    unit = (d.get("draftResults") or {}).get("draftUnit") or {}
+    # P5 — `draftUnit` IS SOMETIMES A LIST. Found at 250-league scale on 2026-08-11;
+    # 60 leagues never hit it. This module's own docstring says MFL returns a bare
+    # dict for one element and a list for many, and names players, leagueSearch and
+    # positionRules[].rule — `draftUnit` belongs on that list and was not on it.
+    # `listify` was applied to `draftPick` INSIDE the unit and not to the unit.
+    #
+    # A multi-unit export is a league whose draft is not one league-wide draft —
+    # divisional or per-conference drafts, each with its OWN pick numbering. Merging
+    # them would manufacture an "overall pick number" that no drafter ever saw, so
+    # the LEAGUE unit is taken when present and anything else is refused BY NAME.
+    units = listify((d.get("draftResults") or {}).get("draftUnit"))
+    league_units = [u for u in units if isinstance(u, dict)
+                    and t(u.get("unit")).strip().upper() == "LEAGUE"]
+    unit_note = None
+    if len(units) > 1:
+        unit_note = "draft_units:%d" % len(units)
+    if league_units:
+        unit = league_units[0]
+    elif len(units) == 1 and isinstance(units[0], dict):
+        unit = units[0]
+    else:
+        # NOT an empty draft. We could not obtain a league-wide draft from an
+        # export that plainly contains drafts, and those are different facts.
+        return [], {"draft_not_league_wide": True, "draft_units": len(units),
+                    "unusable_reason": "draft_not_league_wide:%d units, none LEAGUE"
+                                       % len(units)}
     rows, invalid = [], []
     for i, p in enumerate(listify(unit.get("draftPick"))):
         rnd, pick = t(p.get("round")).strip(), t(p.get("pick")).strip()
@@ -251,6 +276,11 @@ def draft_picks(draft_json) -> tuple:
         "completeness_source": "inferred (no status field in draftResults)",
         "autopick_enforceable": False,
         "autopick_note": "F2 autopick clause UNENFORCED — no autopick flag in this export",
+        # A league whose export carried SEVERAL draft units, of which we took the
+        # LEAGUE one. Recorded as a covariate rather than dropped: it says this
+        # league also ran divisional drafts, which is a fact about their setup.
+        "draft_units": len(units),
+        "multi_unit_note": unit_note,
     }
     return rows, meta
 
@@ -606,6 +636,7 @@ def to_league_record(league_json, rules_json, draft_json, *,
                 "is not evidence that none was abandoned." % dmeta.get("autopick_note")],
             "draft_type_raw": dmeta.get("draft_type_raw"),
             "round1_order": dmeta.get("round1_order"),
+            "draft_units": dmeta.get("draft_units"),
         },
     }
 

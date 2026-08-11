@@ -249,7 +249,8 @@ actions. Every reason is a TRUE statement about the league.
   `F4.crosswalk_not_run` · `F4.no_weekly_outcomes` · `F4.no_pre_draft_adp` ·
   `F4.fetch_failed` · `F5.missing_timestamps` ·
   `F4.scoring_untranslatable` · `F4.scoring_range_exceeded` · `F4.no_weekly_data` ·
-  `F4.stat_columns_absent` · `F4.no_season_type` · `F4.no_gsis_crosswalk`  *(the last six are F3/D5 — see D5 at the foot of this
+  `F4.stat_columns_absent` · `F4.no_season_type` · `F4.no_gsis_crosswalk` ·
+  `F4.parse_failed` · `F4.draft_not_league_wide`  *(the last six are F3/D5 — see D5 at the foot of this
   document. All four are gaps in OUR vocabulary or OUR fetch, which is why they sit
   here and not above: a league whose scoring uses a term we cannot express is not a
   league that scores differently from ours, it is a league we cannot read.)*
@@ -822,3 +823,34 @@ drafts to cluster heavily in the last two weeks of August. I therefore expect th
 to be sparse, a minority of leagues to reach a usable board, and the usable ones to be
 **late-August drafts** — the least representative of a genuine preseason decision. If that is
 what comes back, D7 does not rescue the 2027 timeline and I will say so.
+
+### P5 — `draftUnit` IS SOMETIMES A LIST (found 2026-08-11, at 250-league scale)
+
+The fifth "would have produced a confidently wrong parser", except this one did not
+produce a wrong answer — it produced an exception, 18 minutes into a 250-league run, and
+**took the other 249 leagues with it**. No report, no attrition table, nothing learned
+from any of them.
+
+`mfl_adapter`'s own docstring says MFL returns a bare dict for one element and a list for
+many, and names players, `leagueSearch` and `positionRules[].rule`. **`draftUnit` belongs
+on that list and was not on it** — `listify` was applied to `draftPick` *inside* the unit
+and not to the unit itself. Sixty leagues never hit it; 250 did.
+
+**What a multi-unit export means, and why the units are not merged.** A league with
+several draft units ran divisional or per-conference drafts, **each with its own pick
+numbering**. Concatenating them would manufacture an "overall pick number" that no drafter
+ever saw, and every ADP and survival quantity in this program is a function of that number.
+So the **LEAGUE** unit is taken when present; an export with several units and none
+league-wide is refused by name (`F4.draft_not_league_wide`) rather than merged. The unit
+count is kept as a covariate — it is a real fact about that league's setup.
+
+### AND THE STRUCTURAL FIX, which matters more than the parse
+
+> **A league we could not PARSE is that league's attrition reason, never the run's death.**
+
+`build_record` now catches per-league conversion failures and returns
+`F4.parse_failed:<ExceptionType>`, retaining the type and message so the defect stays
+diagnosable instead of becoming an anonymous drop. This is the attrition seam at the
+outermost layer — the same principle as `F4.fetch_failed`, one level further out. The
+previous behaviour meant a single malformed league could delete an entire run's evidence,
+which is the most expensive way for a sample to become invisible.
