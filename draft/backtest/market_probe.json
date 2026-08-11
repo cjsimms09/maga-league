@@ -106,21 +106,17 @@
       "player_production_series_count": 48,
       "reachable": true,
       "sample_titles": [],
-      "series_listed": 12629,
+      "series_listed": 12630,
       "series_prefixes_seen": {
-        "KXMVECROSSCATE": 5471,
-        "KXMVESPORTSMUL": 6529
+        "KXLOLTOTALMAPS": 9,
+        "KXMLBSPREAD": 1,
+        "KXMVECROSSCATE": 5646,
+        "KXMVESPORTSMUL": 6339,
+        "KXVALORANTTOTA": 5
       },
       "volume_median": 0,
       "volume_total": 0,
       "zero_volume_share": null
-    },
-    "odds_api": {
-      "docs": "https://the-odds-api.com/",
-      "host": "https://api.the-odds-api.com/v4",
-      "key_configured": false,
-      "note": "no ODDS_API_KEY secret is configured, so the free-tier allowance could not be measured. This is a SETUP gap, not evidence the source is unusable \u2014 do not record it as a dead end.",
-      "reachable": null
     },
     "odds_api_io": {
       "docs": "https://odds-api.io/",
