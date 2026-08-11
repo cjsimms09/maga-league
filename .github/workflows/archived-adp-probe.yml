@@ -1,0 +1,170 @@
+name: ROUTE 1 — does ANYONE publish a DATED preseason board?
+
+# THE QUESTION, RESTATED. It is not whether an API accepts a date parameter — both
+# as-of probes asked that and both said no. It is whether ANYONE PUBLISHES A DATED
+# PRESEASON BOARD. F5 does not require a date parameter; it requires a board whose
+# observation date is knowable and strictly earlier than the drafts being graded.
+#
+# TWO THINGS LOOK LIKE ONE, AND THE PROBE MUST NOT MERGE THEM:
+#
+#   ARCHIVE-DATED   a capture of a live board, stamped by a third party at the
+#                   moment it saw the content. The date is EVIDENCE. Strictly before
+#                   the drafts, this satisfies F5.
+#   CONTENT-DATED   a page that SAYS a year — "2024 ADP", MFL's /2024/export. The
+#                   date is a LABEL the publisher applies, retrievable today, and
+#                   nothing in it establishes what the board showed before the
+#                   drafts. MFL's year aggregate ACCUMULATES over that season's whole
+#                   draft calendar, which this program has already measured. A
+#                   year-labelled board is as contaminated as a live one and wears a
+#                   date on its face, which makes it worse: it invites the mistake.
+#
+# Content-dated targets are probed anyway — they are the best URLs to look for in the
+# archive — but a content-dated result is reported as a LEAD, never as a satisfied
+# F5, and the two counts are never summed.
+#
+# WHY THIS RUNS IN CI AND NOT LOCALLY. Attempted from the sandbox 2026-08-11: every
+# archive.org request returned `Tunnel connection failed: 403 Forbidden` — the same
+# proxy block that stops MFL while nflverse passes. That is a fact about the sandbox,
+# NOT about the Archive, and reporting it as "no archived board exists" would be the
+# premature negative that closed the FFC arm once already on a User-Agent failure
+# that turned out to be about our own request.
+#
+# THE SEARCH IS AN ENUMERATION, NOT A LOOKUP. The Wayback AVAILABILITY API returns
+# the capture CLOSEST to a timestamp — in either direction — so a closest-capture of
+# 2024-08-15 would be marked after-cutoff while a good 2024-07-20 capture sat in the
+# index unqueried. The CDX index takes a `to` bound and lists what it holds. All of
+# that logic lives in draft/backtest/archived_adp.py and is tested offline; this file
+# only fetches.
+#
+# EVERY TARGET IS ASKED TWICE. LIVE says whether the URL is real — a 404 on a path
+# this probe constructed is evidence about the path, not about whether the publisher
+# offers historical boards. ARCHIVED says whether a capture predating the drafts
+# serves a board. Conflating them is how a probe reports "nobody publishes this" when
+# it means "I guessed wrong".
+
+on:
+  workflow_dispatch:
+    inputs:
+      before:
+        description: 'Captures must be STRICTLY earlier than this YYYYMMDD to be usable'
+        required: false
+        default: '20240801'
+      year:
+        description: 'Season the year-labelled targets should ask for'
+        required: false
+        default: '2024'
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - name: Probe for a dated preseason board
+        env:
+          BEFORE: ${{ github.event.inputs.before || '20240801' }}
+          YEAR: ${{ github.event.inputs.year || '2024' }}
+        run: |
+          python3 - <<'PY'
+          import json, os, sys, urllib.error, urllib.request
+          sys.path.insert(0, "draft/backtest")
+          from adp_asof_probe import USER_AGENT
+          import archived_adp as AA
+
+          BEFORE = os.environ["BEFORE"]
+          YEAR = os.environ["YEAR"]
+
+          def get(url, timeout=90):
+              # HTTPError is a RESPONSE; transport failure is not. Conflating them
+              # cost three iterations on the FFC arm.
+              req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+              try:
+                  with urllib.request.urlopen(req, timeout=timeout) as r:
+                      return {"status": r.status, "body": r.read(3000000)}
+              except urllib.error.HTTPError as e:
+                  return {"status": e.code, "http_error": str(e.reason), "body": b""}
+              except Exception as e:
+                  return {"transport_error": "%s: %s" % (type(e).__name__, e)}
+
+          reach = get("https://archive.org/wayback/available?url=example.com")
+          print("archive.org reachable:", {k: v for k, v in reach.items() if k != "body"})
+          print()
+
+          def live_state(url):
+              r = get(url)
+              if r.get("transport_error"):
+                  return {"state": "unreached", "detail": r["transport_error"][:90]}, True
+              if r.get("http_error"):
+                  return {"state": "absent", "detail": "HTTP %s" % r.get("status")}, False
+              v = AA.looks_like_a_board(r.get("body") or b"")
+              return ({"state": "board" if v["is_board"] else "not-a-board",
+                       "rows": v["rows_seen"], "detail": "%d bytes" % v["bytes"]}, False)
+
+          def archived_state(url):
+              r = get(AA.cdx_query(url, BEFORE))
+              if r.get("transport_error"):
+                  return {"state": "unreached", "detail": r["transport_error"][:90]}, True
+              try:
+                  rows = AA.parse_cdx(r.get("body") or b"")
+              except Exception as e:                                   # noqa: BLE001
+                  # UNREADABLE is not EMPTY. An index we could not parse has not told
+                  # us there are no captures.
+                  return {"state": "unreached",
+                          "detail": "index unreadable: %s" % type(e).__name__}, True
+              usable = AA.usable_captures(rows, BEFORE)
+              if not usable:
+                  return {"state": "none", "captures": 0,
+                          "detail": "%d capture(s) in index, newest %s"
+                                    % (len(rows), rows[0]["timestamp"] if rows else "-")}, False
+              # The LATEST capture still preceding the cutoff: closest to the draft
+              # while genuinely predating it.
+              cap = usable[0]
+              body = get(AA.replay_url(cap)).get("body") or b""
+              v = AA.looks_like_a_board(body)
+              return ({"state": "board" if v["is_board"] else "not-a-board",
+                       "timestamp": cap["timestamp"], "rows": v["rows_seen"],
+                       "captures": len(usable),
+                       "detail": "%d bytes" % v["bytes"]}, False)
+
+          results, unreachable = [], 0
+          for name, url, basis in AA.candidates(YEAR):
+              live, l_bad = live_state(url)
+              arch, a_bad = archived_state(url)
+              unreachable += 1 if (l_bad and a_bad) else 0
+              row = AA.classify(name, basis, live, arch)
+              row["url"] = url
+              row["live_detail"] = live.get("detail")
+              row["archived_detail"] = arch.get("detail")
+              results.append(row)
+              print("  %-22s %-8s live=%-11s archived=%-11s %s"
+                    % (name, basis, live.get("state"), arch.get("state"),
+                       arch.get("timestamp") or ""))
+
+          rep = AA.route1_report(results, unreachable)
+
+          print()
+          print("===== ROUTE 1 =====")
+          print(rep["verdict"])
+          print()
+          for label, key in (("SATISFIES F5", "satisfies_f5"),
+                             ("CONTENT-DATED LEAD (not evidence)", "content_dated_leads"),
+                             ("LIVE, NO PRE-CUTOFF CAPTURE", "live_but_uncaptured"),
+                             ("NO BOARD AT THIS URL", "urls_that_returned_nothing")):
+              rows = rep.get(key) or []
+              print("%-34s %d" % (label, len(rows)))
+              for r in rows:
+                  print("    %-22s %s %s" % (r["target"], r.get("archived_timestamp") or "",
+                                             r["url"][:80]))
+
+          json.dump({"before": BEFORE, "year": YEAR, "rows": results, "report": rep},
+                    open("archived-adp-probe.json", "w"), indent=1, default=str)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: archived-adp-probe
+          path: archived-adp-probe.json
