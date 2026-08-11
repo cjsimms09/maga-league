@@ -23,6 +23,33 @@ BRANCH="${1:-}"; SIDE="${2:-}"; PUSH="${3:-}"
 [ -n "$BRANCH" ] && [ -n "$SIDE" ] || { echo "usage: integrate.sh <branch> <A|B|C> [--push]"; exit 2; }
 case "$SIDE" in A|B|C) ;; *) echo "side must be A, B or C"; exit 2 ;; esac
 
+# ── A ROLLBACK MUST NOT DISCARD UNCOMMITTED WORK ────────────────────────────
+#
+# `git reset --hard ORIG_HEAD` below is the rollback path, and it discards the
+# WORKING TREE along with the merge. On 2026-08-11 that ate a fix to
+# territory-check.sh mid-integration — the second destructive git operation to
+# cost work that day, after a `git checkout --` during a rule-10 break.
+#
+# rule10_break.sh already refuses a dirty target for exactly this reason, and the
+# protection belongs on ANY step that discards working-tree state, not only that
+# one. So the tree is checked ONCE, up front: an integration is a merge of
+# COMMITTED work, and there is no legitimate reason to start one with unstaged
+# edits in the way. Refusing before anything is touched is better than refusing
+# at the rollback, because by then the merge has already moved HEAD.
+#
+# It also removes a second hazard the same run hit: with a dirty tree the merge
+# could not commit, integrate.sh reported "the merge did not commit", and the
+# recovery from THAT is what ran the reset.
+DIRTY="$(git status --porcelain)"
+if [ -n "$DIRTY" ]; then
+  echo "REFUSED: the working tree is not clean, and this script's rollback path"
+  echo "  runs 'git reset --hard', which would discard these:"
+  echo "$DIRTY" | sed 's/^/     /'
+  echo "  Commit or stash first. An integration merges COMMITTED work; starting"
+  echo "  one with edits in the way is how a rollback eats a fix nobody has seen."
+  exit 2
+fi
+
 START_BRANCH="$(git branch --show-current)"
 cleanup() { git checkout -q "$START_BRANCH" 2>/dev/null || true; }
 trap cleanup EXIT INT TERM HUP
