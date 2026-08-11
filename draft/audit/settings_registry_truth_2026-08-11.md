@@ -65,9 +65,13 @@ type(e).__name__}` was cited as a read of `settings.type`, and is not one.
 Nothing yet, deliberately. The reclassification moved 15 entries and rewrote every
 `why`, but no new setting was wired in. Five entries now carry a specific consequence:
 
-- **`reserve_slots: 1` — an IR spot nothing can see.** `roster_slots_from()` counts
-  `roster_positions`, which lists no IR entry. Every slot count in the tool says 15
-  when the roster holds 16, so any "roster is full" arithmetic is off by one.
+- **`reserve_slots: 1` — a roster spot the slot count structurally cannot see.**
+  `roster_slots_from()` counts `roster_positions`, which lists no IR entry, so this
+  capacity is invisible to it whatever its size. **Inferred, not measured:** that it
+  makes the roster 16 rather than 15-with-one-IR-eligible follows from Sleeper holding
+  IR outside `roster_positions`, and is not confirmed here — no local dump carries a
+  roster's `reserve` array, and egress to Sleeper is blocked from this sandbox. It is
+  confirmed by counting a roster's `players` against 15 once someone is actually on IR.
 - **`playoff_round_type: 0`.** `money_grade.py` hard-codes one week per playoff round
   (`week = playoff_week_start + (r-1)`) without reading it. Two-week rounds would make
   the grading silently wrong for every playoff game.

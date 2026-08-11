@@ -139,7 +139,7 @@
     },
     "reserve_slots": {
       "disposition": "should_import",
-      "why": "1 \u2014 AN IR SPOT NOTHING CAN SEE. roster_slots_from() counts roster_positions, which lists no IR entry, so every slot count in the tool is 15 when the roster actually holds 16. Any 'roster is full' arithmetic is off by one."
+      "why": "1 \u2014 A ROSTER SPOT roster_slots_from() STRUCTURALLY CANNOT SEE. It counts roster_positions, which lists no IR entry, so the slot count is 15 and this capacity is invisible to it whatever its size. INFERRED, NOT MEASURED: that this makes the roster 16 rather than 15-with-one-IR-eligible follows from Sleeper holding IR outside roster_positions, and is not confirmed here \u2014 confirm by counting a roster's `players` against 15 once someone is on IR."
     },
     "squads": {
       "disposition": "ignored",
