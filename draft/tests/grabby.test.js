@@ -43,7 +43,55 @@ const at = (pos, mean, adp) => ({ player_id: pos + adp, name: pos + adp, positio
   check('QB waits when the pool is deep (low EVLW)', byPos.QB.verdict === 'WAIT', JSON.stringify(byPos.QB));
   check('the steep TE (cliff after #1) is urgent', byPos.TE.evlw > 20 && byPos.TE.verdict !== 'WAIT',
     JSON.stringify(byPos.TE));
-  check('K and DEF wait to the late rounds', byPos.K.verdict === 'WAIT' && byPos.DEF.verdict === 'WAIT');
+  /* ══ THE VERDICT BANDS, ASSERTED AT THE BOUNDARY ══
+ *
+ * B's eight-break audit found this was the one silence left: flipping
+ * BAND_URGENT from 0.8 to 0.3 per week left the ENTIRE suite green, baseline
+ * included. The reason is visible above — every existing verdict assertion is
+ * `=== 'WAIT'` or `!== 'WAIT'`, and both of those survive a moved TAKE-NOW
+ * threshold, because nothing was ever measured in the range the threshold
+ * governs.
+ *
+ * Rule 10a: break AT the boundary. A value at 10x the threshold proves only that
+ * the mechanism fires; a value one hundredth either side proves the ceiling is
+ * where it claims to be. These are expressed in EVLW (season points) converted
+ * through the same WEEK_DIVISOR the code uses, so the test cannot drift from the
+ * implementation by re-deriving the conversion.
+ */
+{
+  const B = GB.BANDS;
+  const evlwFor = perWeek => perWeek * B.WEEK_DIVISOR;
+  const eps = 0.01 * B.WEEK_DIVISOR;
+
+  check('a filled position is FILLED regardless of value',
+    GB.verdict(evlwFor(99), 0) === 'FILLED');
+
+  check('just OVER the urgent band is TAKE-NOW',
+    GB.verdict(evlwFor(B.URGENT) + eps, 1) === 'TAKE-NOW',
+    'at ' + (B.URGENT + 0.01).toFixed(2) + '/wk got ' + GB.verdict(evlwFor(B.URGENT) + eps, 1));
+  check('just UNDER the urgent band is NOT TAKE-NOW',
+    GB.verdict(evlwFor(B.URGENT) - eps, 1) === 'GRAB-SOON',
+    'at ' + (B.URGENT - 0.01).toFixed(2) + '/wk got ' + GB.verdict(evlwFor(B.URGENT) - eps, 1));
+
+  check('just OVER the negligible band is GRAB-SOON',
+    GB.verdict(evlwFor(B.NEGLIGIBLE) + eps, 1) === 'GRAB-SOON',
+    'at ' + (B.NEGLIGIBLE + 0.01).toFixed(2) + '/wk got ' + GB.verdict(evlwFor(B.NEGLIGIBLE) + eps, 1));
+  check('just UNDER the negligible band is WAIT',
+    GB.verdict(evlwFor(B.NEGLIGIBLE) - eps, 1) === 'WAIT',
+    'at ' + (B.NEGLIGIBLE - 0.01).toFixed(2) + '/wk got ' + GB.verdict(evlwFor(B.NEGLIGIBLE) - eps, 1));
+
+  /* AND THE BAND VALUES THEMSELVES ARE PINNED. The boundary tests above are
+   * written in terms of B.URGENT, so they would follow the constant if it moved
+   * — which is the shape that let this through in the first place. Pinning the
+   * numbers is what makes a change to them a deliberate, visible edit. */
+  check('the bands are the values the tool ships',
+    B.URGENT === 0.8 && B.NEGLIGIBLE === 0.3 && B.WEEK_DIVISOR === 17.0,
+    JSON.stringify(B) + ' — a band change is a recommendation change and must be deliberate');
+  check('the bands are ordered (urgent above negligible)',
+    B.URGENT > B.NEGLIGIBLE);
+}
+
+check('K and DEF wait to the late rounds', byPos.K.verdict === 'WAIT' && byPos.DEF.verdict === 'WAIT');
   check('headline names the most urgent NEEDED position', rep.headline && /TE|RB|WR/.test(rep.headline),
     rep.headline);
 }

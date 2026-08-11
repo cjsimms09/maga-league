@@ -149,9 +149,16 @@
       flex_open: need.flexOpen, positions: rows };
   }
 
+  /* verdict and its BANDS are exported so the boundaries can be asserted rather
+   * than inferred through report(). Flipping BAND_URGENT from 0.8 to 0.3 changed
+   * TAKE-NOW/GRAB-SOON for a whole range of values and NO test noticed — the
+   * suite only ever checked `verdict === 'WAIT'` and `verdict !== 'WAIT'`, which
+   * both survive a moved threshold. (B's eight-break audit, 2026-08-11: the one
+   * of the eight that was still silent.) */
   global.DraftGrabBy = { report: report, positionalNeed: positionalNeed, isLiveNeed: isLiveNeed,
     grabByPick: grabByPick, expectedBestAt: expectedBestAt, likelyGone: likelyGone,
-    bestSurvivor: bestSurvivor };
+    bestSurvivor: bestSurvivor, verdict: verdict,
+    BANDS: { NEGLIGIBLE: BAND_NEGLIGIBLE, URGENT: BAND_URGENT, WEEK_DIVISOR: WEEK_DIVISOR } };
 })(typeof window !== 'undefined' ? window : globalThis);
 
 if (typeof module !== 'undefined' && module.exports) {
