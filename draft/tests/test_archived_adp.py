@@ -132,7 +132,8 @@ def test_AN_UNREACHABLE_ARCHIVE_IS_UNANSWERED_NOT_CLOSED():
     reachable, and a network block is written down as evidence that no dated board
     exists — the premature write-off that closed the FFC arm once already."""
     v = X.route1_verdict(hits=[], probed=7, unreachable=7)
-    assert "UNANSWERED" in v and "egress" in v
+    assert "UNANSWERED FOR 7 OF 7" in v
+    assert "not about whether dated boards exist" in v
     assert "CLOSED" not in v
 
 
@@ -264,3 +265,28 @@ def test_a_FANTASYPROS_SHAPED_page_is_not_scored_as_EMPTY():
     fp = "".join('<td class="player-label"><a href="/x">Player Name</a></td>' for _ in range(60))
     assert X.looks_like_a_board(fp)["is_board"] is True
     assert X.looks_like_a_board("<html>Page not available</html>")["is_board"] is False
+
+
+def test_UNANSWERED_IS_KEYED_ON_THE_ARCHIVE_QUERY_not_on_both_halves_failing():
+    """MEASURED on the first real run: 10 of 15 CDX queries came back unreached and
+    the probe printed ROUTE 1 IS CLOSED — because `unreachable` had been computed as
+    "live failed AND archive failed", and the live fetches had succeeded. The
+    archive query is the one that decides F5. A target whose page loads fine while
+    its index query times out has told us NOTHING.
+
+    That is the exact false negative this module exists to prevent, produced by the
+    module itself. MUTATION: require both halves to fail. A working site with an
+    unreachable index reads as proof that no dated board exists."""
+    v = X.route1_verdict(hits=[], probed=15, unreachable=10)
+    assert "UNANSWERED FOR 10 OF 15" in v
+    assert "CLOSED" not in v
+    # ...and it says how many WERE answered, so a partial answer is not read as none.
+    assert "5 target(s) WERE answered" in v
+
+
+def test_a_closure_still_requires_EVERY_target_to_have_been_answered():
+    """The other side of the same rule: CLOSED is only available when nothing was
+    left unreached. MUTATION: allow a closure with one unanswered target and the
+    verdict overstates its own coverage by exactly that target."""
+    assert "CLOSED ON THIS EVIDENCE" in X.route1_verdict(hits=[], probed=15, unreachable=0)
+    assert "CLOSED" not in X.route1_verdict(hits=[], probed=15, unreachable=1)
