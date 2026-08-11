@@ -192,3 +192,59 @@ def test_the_board_says_how_much_of_the_known_slate_reached_it():
     if slate.get("arithmetic_check"):
         assert slate["arithmetic_check"]["holds"], (
             "the board's own arithmetic check fails: %r" % (slate["arithmetic_check"],))
+
+
+# ── THE GATE: PARTIAL SLATES STAY OFF THE LIVE BOARD ─────────────────────────
+# Cory's ruling, 2026-08-11. He gave it for PREDICTIONS; it applies with equal
+# force to a partial set of REAL designations, and that is the harder case
+# because it looks more legitimate. A board on 34/147 is known-provisional. A
+# board on 31 because four of ten owners have declared is authoritative-looking,
+# wrong, and has ALREADY MOVED ONCE — so the move that matters carries no signal.
+def _build_mod():
+    sys.path.insert(0, os.path.join(ROOT, "draft"))
+    import build as B
+    return B
+
+
+def test_partial_designations_are_withheld_from_the_live_board():
+    B = _build_mod()
+    full = {4: [{"player_id": "1"}, {"player_id": "2"}, {"player_id": "3"}],
+            1: [{"player_id": "9"}, {"player_id": "8"}, {"player_id": "7"}],
+            2: [{"player_id": "6"}]}
+    cfg = {"my_draft_slot": 4, "teams": 10}
+    got, held = B._keeper_map_for_board(full, {"status": "predicted"}, cfg)
+    assert list(got) == [4], "an opponent's designation reached an unconfirmed board"
+    assert len(got[4]) == 3
+    assert held["withheld"] is True and held["teams"] == 2 and held["keepers"] == 4
+    assert held["reason"], "withholding without a reason is indistinguishable from a bug"
+
+
+def test_a_confirmed_slate_applies_every_designation():
+    B = _build_mod()
+    full = {4: [{"player_id": "1"}], 1: [{"player_id": "9"}], 2: [{"player_id": "6"}]}
+    cfg = {"my_draft_slot": 4, "teams": 10}
+    got, held = B._keeper_map_for_board(full, {"status": "confirmed"}, cfg)
+    assert got == full, "confirmation is the switch; nothing may be held back after it"
+    assert held["withheld"] is False and held["keepers"] == 0
+
+
+def test_withheld_is_not_the_same_state_as_dropped():
+    """Both leave the board short. Only one is a fault, and the artifact must say which."""
+    B = _build_mod()
+    cfg = {"my_draft_slot": 4, "teams": 10}
+    full = {4: [{"player_id": "1"}], 7: [{"player_id": "5"}]}
+    _, held = B._keeper_map_for_board(full, {"status": "predicted"}, cfg)
+    slate = B._keeper_slate_reconciled(
+        {"teams_designated": 2}, {4: full[4]}, _FakeOrder([34]), cfg, held)
+    assert slate["withheld_from_board"]["keepers"] == 1
+    # designations_not_applied counts what the GENERATOR failed to place; it must
+    # not absorb what the GATE held back on purpose.
+    assert slate["designations_not_applied"] == 1
+    assert slate["withheld_from_board"]["withheld"] is True
+
+
+class _FakeOrder:
+    def __init__(self, my_picks):
+        self.my_picks = my_picks
+        self.picks = []
+        self.forfeited = []

@@ -52,4 +52,4 @@ _The elite-TE-anchor question returns: watch the TE room's panic — survival to
 - fallback 3: Tyler Warren (TE, VORP 24.2, 30% survives)
 - fallback 4: D'Andre Swift (RB, VORP 23.6, 44% survives)
 
-_Regenerates on: slot assignment · keeper designations landing (keeper-watch) · every board rebuild. A stale fingerprint announces itself — never trust a script whose board hash is old._
+_Regenerates on: slot assignment · keeper designations landing (picked up by the nightly draft-data rebuild) · every board rebuild. A stale fingerprint announces itself — never trust a script whose board hash is old._

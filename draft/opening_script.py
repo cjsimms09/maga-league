@@ -13,9 +13,18 @@ script — that IS the regeneration hook. The output stamps a PROVENANCE
 FINGERPRINT (board built_at, slot + its provenance, keeper-slate hashes); the
 staleness check compares fingerprints, so a script generated against an old
 board or a superseded slate announces itself instead of impersonating fresh
-advice. Real-event hooks per spec: slot assignment (Sleeper draft order),
-keeper designations landing via keeper-watch, and every artifact rebuild all
-change a fingerprint → regenerate (draft-data workflow runs this after build).
+advice. Real-event hooks: slot assignment (Sleeper draft order), keeper designations
+landing, and every artifact rebuild all change a fingerprint → regenerate.
+
+THE MECHANISM, NAMED CORRECTLY. This used to say designations land "via
+keeper-watch". No such process exists. It was specced, never built, and the name
+outlived the plan across five files — documentation describing a plausible
+mechanism reads exactly like documentation describing a real one, which is why
+rule 6 catches this shape last. What actually runs is the NIGHTLY draft-data
+workflow (08:00 UTC daily, plus Tue 11:00 and Sun 13:00): it re-reads live
+Sleeper designations through gen_keepers_json.py, rebuilds, and runs this
+script. Escalation is site-check.yml's draft_week_alarm — warn at 7 days out,
+alarm at 3 — not a watcher.
 
 Doctrine framing: the tournament's first CI verdicts parked every doctrine
 (edges under the null; the clear-board finding) — so the enrolled plan is
@@ -208,8 +217,9 @@ def render_md(script: dict) -> str:
            script["branches"]["contingency_bowers_available"])
 
     L.append("_Regenerates on: slot assignment · keeper designations landing "
-             "(keeper-watch) · every board rebuild. A stale fingerprint announces "
-             "itself — never trust a script whose board hash is old._")
+             "(picked up by the nightly draft-data rebuild) · every board rebuild. "
+             "A stale fingerprint announces itself — never trust a script whose "
+             "board hash is old._")
     return "\n".join(L)
 
 

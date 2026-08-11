@@ -213,7 +213,78 @@
     return { order: order, players: adjustedAdp(players, order, cfg, keptIds), kept_ids: keptIds };
   }
 
-  const api = { draftOrder, keeperCostRound, buildTruePickOrder, adjustedAdp, reapply, round2 };
+  /* THE KEEPER-SLATE CHECKLIST LINE — a pure function of the artifact, so it can
+   * be TESTED rather than asserted about by grepping this file for prose.
+   *
+   * It reads `keeper_slate` and RE-DERIVES NOTHING. The version this replaced
+   * counted distinct team_slots in `kept_players` and called that "seats
+   * declared" — a second implementation of a question the build already answers,
+   * with nothing comparing the two. That is the shape of the defect it is meant
+   * to catch: the board carried 147 picks while its own slate stamp said four
+   * teams had designated, and both numbers were sitting in the same file.
+   *
+   * The DETAIL carries the two numbers worth glancing at on draft morning —
+   * first pick and total picks on the board — because under top_picks_flat every
+   * keeper costs a round in 1..3, so while I keep three my first pick sits in
+   * round 4 with every keeper in the league ahead of it. One subtraction checks
+   * the whole slate, and it does not depend on WHICH seat holds which keepers.
+   */
+  function keeperSlateCheck(d) {
+    const s = (d || {}).keeper_slate || {};
+    const teams = ((d || {}).league || {}).teams || 10;
+    if (s.designations_not_applied == null) {
+      // NOT a silent fallback to the old count. A board built before the
+      // reconciliation landed cannot answer this, and saying so is the honest
+      // result; it clears itself on the next nightly rebuild.
+      return {
+        ok: false,
+        label: 'Keeper slate the pick order is built on',
+        detail: 'this board predates the slate reconciliation — it cannot say how '
+          + 'many designations reached its pick order',
+        fix: 'Rebuild: Actions → Build draft board',
+      };
+    }
+    const dropped = Number(s.designations_not_applied) || 0;
+    const inOrder = Number(s.teams_in_pick_order) || 0;
+    const keepers = Number(s.keepers_in_pick_order) || 0;
+    const confirmed = s.status === 'confirmed';
+    /* WITHHELD ON PURPOSE is not MISSING BY ACCIDENT. Until the slate confirms,
+     * the build deliberately keeps opponent designations OFF the live board so
+     * its numbers stay known-provisional rather than authoritative-looking. Both
+     * states leave the board short; only one is a fault, and a line that reads
+     * them alike would train the reader to dismiss the one that matters. */
+    const held = s.withheld_from_board || {};
+    const heldKeepers = Number(held.keepers) || 0;
+    const picks = (((d || {}).pick_order || {}).picks || []).length;
+    const first = (((d || {}).pick_order || {}).my_picks || [])[0];
+    const glance = 'first pick ' + (first == null ? '?' : first)
+      + ', ' + picks + ' picks on the board, ' + keepers + ' keepers applied';
+
+    return {
+      ok: confirmed && dropped === 0,
+      label: 'Keeper slate the pick order is built on',
+      detail: (confirmed ? 'CONFIRMED' : String(s.status || 'predicted').toUpperCase())
+        + ' — ' + inOrder + ' of ' + teams + ' seats, ' + glance
+        + (heldKeepers ? ' · ' + heldKeepers + ' opponent keeper(s) WITHHELD on purpose '
+            + 'until the slate confirms' : '')
+        + (dropped ? ' · ' + dropped + ' DESIGNATION(S) NOT APPLIED' : ''),
+      fix: dropped
+        ? 'Sleeper reports ' + dropped + ' more team(s) with designations than the '
+          + 'board applied — rebuild, and if it persists the generator is dropping them'
+        : confirmed ? ''
+          : heldKeepers
+            ? 'Working as intended: partial slates are held back so these numbers stay '
+              + 'known-provisional. They apply in full the moment the slate confirms — '
+              + 'watch first pick ' + (first == null ? '?' : first) + ' move then'
+          : 'Provisional until keeper lock. Every overall pick number, gap between '
+            + 'your turns and survival window moves with the league-wide COUNT — '
+            + 'so re-check first pick ' + (first == null ? '?' : first)
+            + ' after the slate confirms',
+    };
+  }
+
+
+  const api = { draftOrder, keeperCostRound, buildTruePickOrder, adjustedAdp, reapply, round2, keeperSlateCheck };
   global.DraftKeepers = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);
