@@ -1,0 +1,334 @@
+{
+  "_what": "THE MEASURED CORE, FROZEN. Immutable reference — never edited in place.",
+  "_rule": "SESSION-A binding rule 6: a change to recommendation behaviour either updates this reference deliberately or declares itself a gated departure. There is no third state where the reference silently follows the code.",
+  "_language": "SESSION-A binding rule 7: THIS object is \"the measured core\". Everything running is \"live policy under continuous measurement\".",
+  "frozen_at": "2026-08-11T12:36:56.014Z",
+  "engine_policy": {
+    "MEASURED_WEIGHTS": {
+      "value": 1,
+      "tier": 0,
+      "need": 0,
+      "risk": 0,
+      "ceiling": 0,
+      "keeper": 1,
+      "bye": 0,
+      "stack": 0.5
+    },
+    "CFG": {
+      "COIN_FLIP_GAP": 1,
+      "CLOSE_GAP": 3.5,
+      "TIE_THRESHOLD": 2,
+      "BENCH_DISCOUNT": 0.35,
+      "BENCH_SCORE_FLOOR": 0,
+      "ONESIE_KEEP": 0.1,
+      "DOCTRINE_TILT": 2.5,
+      "DOCTRINE_TILT_ON": true,
+      "THREAT_MIN_P": 0.01
+    },
+    "preset_keys": [
+      "measured",
+      "balanced",
+      "value",
+      "upside",
+      "safe"
+    ]
+  },
+  "anchor_source": "fantasypros",
+  "surfaces": [
+    {
+      "state": "early-empty-roster",
+      "current_pick": 34,
+      "next_pick": 41,
+      "board_size": 1727,
+      "top10": [
+        {
+          "player_id": "12517",
+          "name": "Colston Loveland",
+          "position": "TE",
+          "score": 14.641,
+          "survival_to_next": 0.8292
+        },
+        {
+          "player_id": "7543",
+          "name": "Travis Etienne",
+          "position": "RB",
+          "score": 8.792,
+          "survival_to_next": 0.5919
+        },
+        {
+          "player_id": "9997",
+          "name": "Zay Flowers",
+          "position": "WR",
+          "score": 7.14,
+          "survival_to_next": 0.5629
+        },
+        {
+          "player_id": "11564",
+          "name": "Drake Maye",
+          "position": "QB",
+          "score": 6.663,
+          "survival_to_next": 0.9428
+        },
+        {
+          "player_id": "11533",
+          "name": "Brandon Aubrey",
+          "position": "K",
+          "score": 3.034,
+          "survival_to_next": 0.9844
+        },
+        {
+          "player_id": "6790",
+          "name": "D'Andre Swift",
+          "position": "RB",
+          "score": 2.815,
+          "survival_to_next": 0.6203
+        },
+        {
+          "player_id": "LAR",
+          "name": "Los Angeles Rams",
+          "position": "DEF",
+          "score": 2.031,
+          "survival_to_next": 0.9808
+        },
+        {
+          "player_id": "11635",
+          "name": "Ladd McConkey",
+          "position": "WR",
+          "score": -1.133,
+          "survival_to_next": 0.6012
+        },
+        {
+          "player_id": "HOU",
+          "name": "Houston Texans",
+          "position": "DEF",
+          "score": -1.929,
+          "survival_to_next": 0.9821
+        },
+        {
+          "player_id": "11786",
+          "name": "Cam Little",
+          "position": "K",
+          "score": -2.916,
+          "survival_to_next": 0.986
+        }
+      ],
+      "rule_headline": {
+        "player_id": "6801",
+        "name": "Tee Higgins",
+        "position": "WR",
+        "reason": "best available within your remaining need (WR); QB & DEF deferred (the market prices them well later)"
+      },
+      "gap_to_second": 5.849,
+      "confidence_level": "clear",
+      "firing_rates": {
+        "contested": 0,
+        "has_reasons": 1,
+        "survival_present": 1
+      },
+      "survival_mass": 6,
+      "opponent_picks_in_window": 6,
+      "conservation_ratio": 1,
+      "survival_layers": [
+        "adp",
+        "intervening"
+      ]
+    },
+    {
+      "state": "mid-two-rb-one-wr",
+      "current_pick": 74,
+      "next_pick": 81,
+      "board_size": 1687,
+      "top10": [
+        {
+          "player_id": "1466",
+          "name": "Travis Kelce",
+          "position": "TE",
+          "score": 5.563,
+          "survival_to_next": 0.7817
+        },
+        {
+          "player_id": "5846",
+          "name": "DK Metcalf",
+          "position": "WR",
+          "score": 4.239,
+          "survival_to_next": 0.6518
+        },
+        {
+          "player_id": "3294",
+          "name": "Dak Prescott",
+          "position": "QB",
+          "score": 4.004,
+          "survival_to_next": 0.8503
+        },
+        {
+          "player_id": "5967",
+          "name": "Tony Pollard",
+          "position": "RB",
+          "score": 3.162,
+          "survival_to_next": 0.7535
+        },
+        {
+          "player_id": "8183",
+          "name": "Brock Purdy",
+          "position": "QB",
+          "score": -1.11,
+          "survival_to_next": 0.8615
+        },
+        {
+          "player_id": "8142",
+          "name": "Alec Pierce",
+          "position": "WR",
+          "score": -3.724,
+          "survival_to_next": 0.6806
+        },
+        {
+          "player_id": "4217",
+          "name": "George Kittle",
+          "position": "TE",
+          "score": -4.032,
+          "survival_to_next": 0.8094
+        },
+        {
+          "player_id": "5045",
+          "name": "Courtland Sutton",
+          "position": "WR",
+          "score": -4.883,
+          "survival_to_next": 0.6921
+        },
+        {
+          "player_id": "7594",
+          "name": "Chuba Hubbard",
+          "position": "RB",
+          "score": -5.532,
+          "survival_to_next": 0.7791
+        },
+        {
+          "player_id": "5012",
+          "name": "Mark Andrews",
+          "position": "TE",
+          "score": -5.668,
+          "survival_to_next": 0.8142
+        }
+      ],
+      "rule_headline": {
+        "player_id": "7594",
+        "name": "Chuba Hubbard",
+        "position": "RB",
+        "reason": "best flex-eligible value (RB) — taken ahead of a weaker starter slot, which is worth more than reaching to fill it; QB & DEF deferred (the market prices them well later)"
+      },
+      "gap_to_second": 1.323,
+      "confidence_level": "close",
+      "firing_rates": {
+        "contested": 0.0006,
+        "has_reasons": 1,
+        "survival_present": 1
+      },
+      "survival_mass": 6,
+      "opponent_picks_in_window": 6,
+      "conservation_ratio": 1,
+      "survival_layers": [
+        "adp",
+        "intervening"
+      ]
+    },
+    {
+      "state": "late-onesies-open",
+      "current_pick": 134,
+      "next_pick": 141,
+      "board_size": 1627,
+      "top10": [
+        {
+          "player_id": "PHI",
+          "name": "Philadelphia Eagles",
+          "position": "DEF",
+          "score": 4.242,
+          "survival_to_next": 0.6153
+        },
+        {
+          "player_id": "3451",
+          "name": "Ka'imi Fairbairn",
+          "position": "K",
+          "score": 0.685,
+          "survival_to_next": 0.5772
+        },
+        {
+          "player_id": "111",
+          "name": "Marcedes Lewis",
+          "position": "TE",
+          "score": -0.063,
+          "survival_to_next": 1
+        },
+        {
+          "player_id": "23",
+          "name": "Jason Witten",
+          "position": "TE",
+          "score": -0.162,
+          "survival_to_next": 1
+        },
+        {
+          "player_id": "11306",
+          "name": "Xavier Gipson",
+          "position": "WR",
+          "score": -0.244,
+          "survival_to_next": 1
+        },
+        {
+          "player_id": "5409",
+          "name": "Tanner Hudson",
+          "position": "TE",
+          "score": -0.256,
+          "survival_to_next": 1
+        },
+        {
+          "player_id": "4602",
+          "name": "Robert Tonyan",
+          "position": "TE",
+          "score": -0.247,
+          "survival_to_next": 1
+        },
+        {
+          "player_id": "3214",
+          "name": "Hunter Henry",
+          "position": "TE",
+          "score": -0.274,
+          "survival_to_next": 0.994
+        },
+        {
+          "player_id": "12889",
+          "name": "Beaux Collins",
+          "position": "WR",
+          "score": -0.278,
+          "survival_to_next": 1
+        },
+        {
+          "player_id": "616",
+          "name": "Jimmy Graham",
+          "position": "TE",
+          "score": -0.293,
+          "survival_to_next": 1
+        }
+      ],
+      "rule_headline": {
+        "player_id": "8161",
+        "name": "Malik Willis",
+        "position": "QB",
+        "reason": "best available within your remaining need (QB); QB & DEF deferred (the market prices them well later)"
+      },
+      "gap_to_second": 3.558,
+      "confidence_level": "clear",
+      "firing_rates": {
+        "contested": 0,
+        "has_reasons": 1,
+        "survival_present": 1
+      },
+      "survival_mass": 6,
+      "opponent_picks_in_window": 6,
+      "conservation_ratio": 1,
+      "survival_layers": [
+        "adp",
+        "intervening"
+      ]
+    }
+  ],
+  "_why": "DATA REFRESH, not a code change. The scheduled board rebuild (draft_data.json built_at 2026-08-10T09:41Z -> 2026-08-11T11:38Z) landed on main while the waiver fix was in flight and tripped the baseline, correctly. Measured before re-freezing rather than re-freezing because it went red: only 3 of 1,760 players' projections moved by more than a point, but 1,718 adjusted_adp values changed. This is an ADP refresh, and ADP drives survival, VONA and tiers, so the emitted surface legitimately moves. Board 1729 -> 1727 available; anchor unchanged (fantasypros); conservation still EXACTLY 1.000000 on all three states, so the tilt is unaffected. One top-1 changed: mid-two-rb-one-wr went Parker Washington -> Travis Kelce. STRUCTURAL PROBLEM FLAGGED, NOT FIXED HERE: this baseline derives from the LIVE public/draft_data.json, so it cannot distinguish a data refresh from a code change. With a daily rebuild it will go red daily, and re-freezing daily IS the reference silently following the data — the third state rule 6 forbids. The fix is to freeze against a PINNED artifact snapshot so the baseline isolates code, with data drift getting its own check. Not done here; it is a design change, not a re-freeze."
+}

@@ -298,17 +298,31 @@ if (block) {
      Math.abs(on - iv.length) < 1e-6,
      'mass ' + on.toFixed(6) + ' vs ' + iv.length + ' opponent picks');
 
-  // REVERT PARITY. The flag exists so the departure is undoable in one edit on
-  // draft morning; that is worthless unless OFF actually restores the prior
-  // surface. v3's frozen mass for this state is 5.258499.
+  /* REVERT PARITY — TESTED AGAINST THE MECHANISM, NOT A FROZEN CONSTANT.
+   *
+   * This used to compare the tilt-off mass against v3's frozen 5.258499. That
+   * number is a property of the BOARD DATA, not of the tilt: the scheduled
+   * rebuild on 2026-08-11 changed 1,718 adjusted_adp values and moved it to
+   * 5.260502, so the check went red for a data refresh while the thing it exists
+   * to protect was untouched. A test pinned to a stale constant reports the wrong
+   * failure and trains the reflex to re-freeze rather than to look.
+   *
+   * The property that actually matters is that turning the flag OFF reproduces
+   * the RAW three-layer model — computed live from the same board, so it holds
+   * across any data. */
   E.CFG.CONSERVE_SURVIVAL_ON = false;
   const off = massOf();
-  const v3 = JSON.parse(fs.readFileSync(
-    path.join(ROOT, 'draft', 'baseline', 'v3.json'), 'utf8'));
-  const v3mass = (v3.surfaces.find(s => s.state === 'early-empty-roster') || {}).survival_mass;
-  ck('WITHOUT the tilt: the pre-departure surface is restored exactly (v3)',
-     Math.abs(off - v3mass) < 1e-6,
-     'tilt off mass ' + off.toFixed(6) + ' vs v3 frozen ' + v3mass);
+  const rawDirect = (() => {
+    let m = 0;
+    board.forEach(p => {
+      const sv = S.survivalProbability(p, ctx.nextPick, ctx);
+      if (sv != null) m += (1 - sv);
+    });
+    return m;
+  })();
+  ck('WITHOUT the tilt: the surface is the RAW model, exactly',
+     Math.abs(off - rawDirect) < 1e-6,
+     'tilt off mass ' + off.toFixed(6) + ' vs raw model ' + rawDirect.toFixed(6));
 
   // ...and the raw model does NOT conserve, which is why the tilt exists at all.
   // If this ever passes, the tilt has become unnecessary rather than merely off.
