@@ -196,7 +196,23 @@ if [ -n "$RESIDUE" ] || [ -f .git/MERGE_HEAD ]; then
 fi
 echo "   tree clean: nothing staged, nothing modified, no merge in progress"
 
-echo "OK: $BRANCH merged into main, both suites green."
+# ── THE GREEN THIS SCRIPT PRODUCES IS LOCAL, AND IT MUST SAY SO ─────────────
+# This line used to read "both suites green", full stop. It merged onto a main
+# whose CI had been RED for 8½ hours, four times, and each time reported green —
+# because a suite can pass on this machine for reasons that have nothing to do
+# with the code. sunday_cron.test.js was the case that proved it: it passed here
+# only because the sandbox cannot reach api.sleeper.app, and failed on every CI
+# runner that could.
+#
+# This script CANNOT check CI — there is no gh in the environments it runs in.
+# So it does the one honest thing available: it refuses to call a local result a
+# verified one, and names what is still unknown. A claim the reader has to
+# downgrade themselves is the claim that gets repeated without the caveat.
+echo "OK: $BRANCH merged into main. Suites green LOCALLY."
+echo "   NOT CI-VERIFIED. Local green and CI green are different claims: a test"
+echo "   can pass here because of this machine's network, filesystem or clock."
+echo "   Check the CI run for this SHA before reporting it as verified:"
+echo "     $(git rev-parse --short HEAD)"
 if [ "$PUSH" = "--push" ]; then
   git push origin main && echo "pushed."
 else
