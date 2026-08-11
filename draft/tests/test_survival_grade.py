@@ -273,3 +273,50 @@ def test_the_ENTIRE_PATH_produces_a_graded_observation_with_nothing_HAND_MADE():
     # And it is a BASELINE's number, never the shipped policy's.
     assert g["policy_id"].startswith(S.BASELINE_PREFIX)
     assert S.is_shipped_policy(g["policy_id"]) is False
+
+
+# ── the guard this file's header claimed and its code did not have ─────────
+def test_SAME_POLICY_NAME_DIFFERENT_WEIGHTS_IS_STILL_A_MIXED_BAG():
+    """A CONTRADICTION between this file's docstring and its code. The header says
+    `assert_policy_current` protects this path from observations minted under a
+    different policy. `assert_policy_current` HAS NO CALLERS anywhere in the repo,
+    and `grade()` guarded a different axis: it refused a mixed `policy_id` and
+    ignored `policy_fingerprint` entirely.
+
+    Those are not the same check. `policy_id` says WHICH policy produced an
+    observation; the fingerprint says which weights engine.js held when it was
+    minted. Two observations can both say `shipped` and be measurements of two
+    different tools — change a weight, replay again, and the old ones still grade,
+    still aggregate, and still read like evidence about what we ship.
+
+    MUTATION: refuse only on policy_id. A Brier score is computed across two
+    weight-sets, looks exactly like a measurement, and measures neither."""
+    import survival_grade as SG
+
+    def obs(fp):
+        return {"policy_fingerprint": fp, "overall": 1,
+                "payload": {"policy_id": "shipped", "player_id": "p1",
+                            "team": "t1", "value": 0.5}}
+    picks = [{"overall": 1, "team": "t1", "player_id": "p1"},
+             {"overall": 2, "team": "t1", "player_id": "p2"}]
+
+    # One fingerprint grades, or the test below proves nothing.
+    assert SG.grade([obs("aaa"), obs("aaa")], picks)["n_scored"] == 2
+
+    with pytest.raises(SG.PolicyMixError) as e:
+        SG.grade([obs("aaa"), obs("bbb")], picks)
+    assert "different policy fingerprints" in str(e.value)
+    assert "do not average" in str(e.value)
+
+
+def test_observations_with_NO_fingerprint_do_not_manufacture_a_mix():
+    """An unstamped observation is not a second policy. MUTATION: count None as a
+    fingerprint and every legacy observation raises, which would make the guard
+    fire on the wrong thing and get switched off."""
+    import survival_grade as SG
+    picks = [{"overall": 1, "team": "t1", "player_id": "p1"},
+             {"overall": 2, "team": "t1", "player_id": "p2"}]
+    bare = {"overall": 1, "payload": {"policy_id": "shipped", "player_id": "p1",
+                                      "team": "t1", "value": 0.5}}
+    stamped = dict(bare, policy_fingerprint="aaa")
+    assert SG.grade([bare, stamped], picks)["n_scored"] == 2

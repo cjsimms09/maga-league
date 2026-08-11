@@ -103,6 +103,31 @@ def grade(observations: list, picks: list) -> dict:
             "observations mix %d policies (%s) — a Brier score averaged across "
             "policies measures neither of them" % (len(ids), ", ".join(sorted(ids))))
 
+    # AND THE OTHER AXIS, which this function guarded in its docstring and not in
+    # its code. `policy_id` says WHICH policy produced an observation; the
+    # FINGERPRINT says which weights `engine.js` held when it was minted. Two
+    # observations can both say `shipped` and be measurements of two different
+    # tools — change a weight, replay again, and the old ones still grade, still
+    # aggregate, and still read like evidence about what we ship.
+    #
+    # That is the failure this file's own header attributes to
+    # `assert_policy_current`, and `assert_policy_current` HAS NO CALLERS: the
+    # guard was written, documented as protecting this path, and never invoked.
+    # Rule 6, on a contamination guard.
+    #
+    # Refused HERE rather than by calling that function, because the mixed-bag
+    # question is answerable from the observations alone. `assert_policy_current`
+    # additionally parses engine.js to compare against the CURRENT policy, which is
+    # a different check and a dependency this one does not need.
+    fps = {str(o.get("policy_fingerprint")) for o in (observations or [])
+           if o.get("policy_fingerprint")}
+    if len(fps) > 1:
+        raise PolicyMixError(
+            "observations were minted under %d different policy fingerprints (%s) — "
+            "same policy NAME, different weights, so a Brier score over them measures "
+            "neither version of the tool. Re-replay under one policy; do not average"
+            % (len(fps), ", ".join(sorted(fps))))
+
     scored, unresolvable = [], 0
     for o in (observations or []):
         pay = o.get("payload") or {}
@@ -133,6 +158,10 @@ def grade(observations: list, picks: list) -> dict:
         "brier_of_always_base_rate": round(base * (1 - base), 4) if base is not None else None,
         "beats_base_rate": (brier < base * (1 - base)) if (brier is not None and base) else None,
     }
+
+
+class PolicyMixError(ValueError):
+    """Observations minted under different weight-sets, graded as one number."""
 
 
 def is_shipped_policy(policy_id) -> bool:
