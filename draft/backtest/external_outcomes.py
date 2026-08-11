@@ -200,10 +200,35 @@ def _points(expr: str):
     anything that is not `*` is refused by name rather than silently multiplied.
     """
     e = (expr or "").strip()
-    if not e or e[0] != "*":
+    if not e:
+        return None
+    # MFL WRITES RATES AS `a/b` — "a points per b units" — and this refused all of
+    # them. MEASURED in the 250-league run, 42 occurrences and the second-largest
+    # shape reason: `1/25` on passing yards (1 point per 25 yards = 0.04/yard),
+    # `1/10` and `.1/1` on rushing and receiving yards, `0.04/1` on passing.
+    #
+    # These ARE linear per-unit multipliers — exactly what D5c admits — and
+    # refusing them was rule 13 again: a format rejected because only `*` had been
+    # registered. Division by zero is refused rather than becoming an infinity that
+    # scores.
+    if "/" in e:
+        num, _, den = e.partition("/")
+        a, b = _num(num), _num(den)
+        if a is None or b is None or b == 0:
+            return None
+        return a / b
+    if e[0] != "*":
+        # `=N` is a FLAT award, not a rate, and using it as one pays N per unit.
         return None
     from mfl_adapter import _points_per_event
     return _points_per_event(e)
+
+
+def _num(v):
+    try:
+        return float(str(v).strip())
+    except (TypeError, ValueError):
+        return None
 
 
 def scoring_tables(rules_json, positions=GRADED_POSITIONS) -> tuple:

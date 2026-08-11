@@ -776,3 +776,45 @@ def test_a_GENUINE_vocabulary_gap_DOES_warrant_the_cross_lane_request():
     outs = [{"untranslatable": {"QB": [{"why": "event_untranslatable", "event": "TGT"}]}}]
     v = X.untranslatable_census(outs)["verdict"]
     assert "VOCABULARY" in v and "widen" in v
+
+
+# ── MFL writes rates as a/b, and this refused all of them ──────────────────
+def test_the_RATE_FORM_a_over_b_is_a_PER_UNIT_MULTIPLIER():
+    """MEASURED in the 250-league run: 42 occurrences, the second-largest shape
+    reason, every one of them a genuine linear rate this module refused.
+
+      1/25  on passing yards = 1 point per 25 yards = 0.04/yard
+      1/10  on rushing yards = 0.1/yard
+      .1/1  = 0.1/yard        0.04/1 = 0.04/yard
+
+    Rule 13 again: a format rejected because only `*` had been registered.
+    MUTATION: drop the `/` branch. 42 leagues go back to unreadable_points and the
+    census blames the leagues for our parser."""
+    assert X._points("1/25") == 0.04
+    assert X._points("1/10") == 0.1
+    assert X._points(".1/1") == 0.1
+    assert X._points("0.04/1") == 0.04
+    assert X._points(".04/1") == 0.04
+    # And it reaches the table, not just the parser.
+    r = rules([("QB", [rule("PY", "1/25", "-100-999")]),
+               ("RB|WR|TE", [rule("CC", "*0.5", "1-999"), rule("CY", "1/10", "-100-999")])])
+    tables, bad, _i, bounds = X.scoring_tables(r)[:4]
+    assert not bad, bad
+    assert tables["QB"]["pass_yd"] == 0.04 and tables["WR"]["rec_yd"] == 0.1
+    # 300 passing yards at 1 point per 25 = 12.0, stated.
+    got = X.weekly_points([wk("Q1", 1, passing_yards=300)], 2025, tables,
+                          {"Q1": "QB"}, {"Q1": "Q1"}, bounds)
+    assert got["series"]["Q1"][1] == 12.0
+
+
+def test_a_ZERO_DENOMINATOR_is_refused_rather_than_becoming_an_INFINITY():
+    """`1/0` as a rate is not a very large rate; it is not a rate. An infinity
+    reaching the scorer would make one player's week dominate every total."""
+    assert X._points("1/0") is None
+    assert X._points("/10") is None and X._points("1/") is None
+
+
+def test_a_FLAT_award_is_STILL_not_a_rate():
+    """The `/` fix must not smuggle `=N` in with it. `=3` is three points when the
+    rule applies; used as a rate it pays 3 PER RECEPTION."""
+    assert X._points("=3") is None and X._points("3") is None

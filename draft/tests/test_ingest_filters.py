@@ -312,3 +312,19 @@ def test_a_league_we_could_not_READ_the_format_of_does_not_count_as_passing_F1()
     assert F.passed_f1("F2.draft_incomplete") is True
     assert F.passed_f1("F4.no_pre_draft_adp") is True
     assert F.passed_f1("ok") is True
+
+
+def test_a_league_we_NEVER_FETCHED_has_not_passed_F1():
+    """MEASURED, and it made a whole measurement vacuous. `passed_f1` returned True
+    for `F4.fetch_failed`, so the nine leagues that 429'd counted as F1-passing and
+    D7's format-matched pool came back as 9 leagues carrying 0 of 6,649 picks. The
+    run then reported "NO LEAGUE CARRIES A DATED FIRST PICK", which reads as a fact
+    about MFL's timestamps and was a fact about this predicate.
+
+    Absent is not a pass. We did not read their format; we read nothing."""
+    assert F.passed_f1("F4.fetch_failed:league: http 429 Too Many Requests") is False
+    assert F.passed_f1("F4.parse_failed:AttributeError") is False
+    # And the leagues that genuinely got past F1 still do.
+    assert F.passed_f1("F2.draft_incomplete") is True
+    assert F.passed_f1("F5.adp_not_strictly_pre_draft") is True
+    assert F.passed_f1("ok") is True

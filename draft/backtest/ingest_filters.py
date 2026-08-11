@@ -350,7 +350,18 @@ def passed_f1(reason: str) -> bool:
     not a pass, the same rule as everywhere else in this file.
     """
     code = reason_code(reason)
-    return not (code.startswith("F1.") or code in F1_FORMAT_UNREADABLE)
+    # A LEAGUE WE NEVER FETCHED HAS NOT PASSED F1 — we never read its format at
+    # all. Measured 2026-08-11: this returned True for `F4.fetch_failed`, so the
+    # nine leagues that 429'd counted as "F1-passing" and D7's format-matched pool
+    # came back as 9 leagues carrying 0 of 6,649 picks. The measurement was
+    # VACUOUS and reported itself as "no league carries a dated first pick", which
+    # reads as a fact about MFL's timestamps.
+    #
+    # Same absent-is-not-a-pass rule already applied to the format-unreadable
+    # codes, missed for the one kind of absence that means we saw nothing at all.
+    return not (code.startswith("F1.")
+                or code in F1_FORMAT_UNREADABLE
+                or code in ("F4.fetch_failed", "F4.parse_failed"))
 
 
 def reason_code(reason: str) -> str:
