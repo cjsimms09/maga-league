@@ -174,6 +174,28 @@ const bounded = t => t === '<1%' || t === '>99%';
       scores.length > 0 && scores.every(s => /^\d+\.\d – \d+\.\d$/.test(s)), scores);
   }
 
+  // ── 3b) THE STANDINGS PO% COLUMN — the third surface, and the one where the
+  // defect argues with itself. The cell only renders for teams that are neither
+  // clinched nor eliminated, so a bare "0%" sits on a row the same function has
+  // just declined to eliminate: ALIVE and 0% on one line.
+  {
+    const RECS = [2, 2, 2, 2, 2, 6, 6, 6, 6, 6];
+    await seed(700, 120.0, RECS);
+    const html = await (await fetch(base + '/', { headers: { cookie } })).text();
+    const cells = [...html.matchAll(/class="po-odds"[^>]*>([^<]+)</g)].map(m => m[1]);
+    const badges = [...html.matchAll(/class="po-badge [^"]*"[^>]*>([^<]+)</g)].map(m => m[1]);
+    // Every team in the table gets a verdict. This cell is assembled as HTML
+    // and inserted unescaped, so a figure containing "<" is read as a tag and
+    // the column silently goes BLANK — which is how the first version of this
+    // fix rendered five of the ten rows.
+    ck('fixture check: the standings really are rendering the PO% column',
+      cells.length + badges.length === 10, { cells, badges });
+    ck('  no row is priced at a flat 0% or 100% beside a badge that says alive',
+      !cells.includes('0%') && !cells.includes('100%'), cells);
+    ck('  the long shots are still called, as bounds',
+      cells.some(c => c === '&lt;1%' || c === '<1%'), cells);
+  }
+
   // ── 4) THE WEEKLY-HIGH BAR: bar − your score = the gap it prints.
   {
     const band = LO.weeklyHighBand();
