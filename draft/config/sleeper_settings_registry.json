@@ -1,0 +1,216 @@
+{
+  "_dispositions": {
+    "ignored": "Sleeper holds it and it genuinely does not apply \u2014 reason required",
+    "imported": "read by our code",
+    "should_import": "Sleeper holds it, we do not read it, and it matters"
+  },
+  "_hand_held": {
+    "_what": "Facts Sleeper does NOT hold. These cannot be imported; the honest state is an explicit list with reasons rather than a vague sense that most things come from the API.",
+    "buy_in": "house rule \u2014 $100, in SEASONS",
+    "keeper_cost_model": "Sleeper holds max_keepers:3 but NOT what a keeper costs (top_picks_flat: keeping N forfeits rounds 1..N)",
+    "my_draft_position": "claimed by hand BY DESIGN; the war room verifies it against the draft object once the order is assigned",
+    "payout_split": "house rule \u2014 reg-season and playoff percentages, in SEASONS",
+    "pre_2023_career_records": "previous_league_id walks back only to 2023. Sleeper holds ~45 of 85 games per owner; the rest is structurally unavailable.",
+    "standings_tiebreaker": "searched every settings key for tie/seed/rank/sort/standings \u2014 only playoff_seed_type exists. Points-for is a house rule, not an unread field.",
+    "weekly_high_prize": "house rule \u2014 no Sleeper equivalent"
+  },
+  "_what": "Every key Sleeper emits in league.settings, and what we do with it. A key Sleeper starts emitting that is NOT in here fails draft/tests/sleeper_registry.test.js \u2014 so a new setting gets CLASSIFIED rather than silently ignored, which is how waiver_type sat unread while the waiver system was held by memory.",
+  "settings": {
+    "bench_lock": {
+      "disposition": "should_import",
+      "why": "bench locks at kickoff; affects lineup-edit deadlines"
+    },
+    "best_ball": {
+      "disposition": "ignored",
+      "why": "not a best-ball league"
+    },
+    "capacity_override": {
+      "disposition": "ignored",
+      "why": "roster capacity override, unused"
+    },
+    "commissioner_direct_invite": {
+      "disposition": "ignored",
+      "why": "invite mechanic, no model impact"
+    },
+    "daily_waivers": {
+      "disposition": "imported",
+      "why": "read by the import today"
+    },
+    "daily_waivers_days": {
+      "disposition": "ignored",
+      "why": "bitmask, only meaningful with daily waivers (off)"
+    },
+    "daily_waivers_hour": {
+      "disposition": "ignored",
+      "why": "only meaningful with daily waivers (off)"
+    },
+    "disable_adds": {
+      "disposition": "ignored",
+      "why": "adds enabled; flag only matters when set"
+    },
+    "disable_trades": {
+      "disposition": "imported",
+      "why": "read by the import today"
+    },
+    "draft_rounds": {
+      "disposition": "imported",
+      "why": "read by the import today"
+    },
+    "faab_suggestions": {
+      "disposition": "ignored",
+      "why": "FAAB UI hint, and this league is not FAAB"
+    },
+    "league_average_match": {
+      "disposition": "ignored",
+      "why": "no median-match game in this league"
+    },
+    "leg": {
+      "disposition": "imported",
+      "why": "read by the import today"
+    },
+    "max_keepers": {
+      "disposition": "imported",
+      "why": "read by the import today"
+    },
+    "max_subs": {
+      "disposition": "ignored",
+      "why": "in-game subs, not used"
+    },
+    "num_teams": {
+      "disposition": "imported",
+      "why": "read by the import today"
+    },
+    "offseason_adds": {
+      "disposition": "ignored",
+      "why": "offseason adds, no in-season impact"
+    },
+    "pick_trading": {
+      "disposition": "should_import",
+      "why": "draft-pick trading is ENABLED and nothing models it; it can move pick order before the draft"
+    },
+    "playoff_round_type": {
+      "disposition": "imported",
+      "why": "read by the import today"
+    },
+    "playoff_seed_type": {
+      "disposition": "imported",
+      "why": "read by the import today"
+    },
+    "playoff_teams": {
+      "disposition": "imported",
+      "why": "read by the import today"
+    },
+    "playoff_type": {
+      "disposition": "ignored",
+      "why": "bracket variant, covered by playoff_round_type for our purposes"
+    },
+    "playoff_week_start": {
+      "disposition": "imported",
+      "why": "read by the import today"
+    },
+    "reserve_allow_cov": {
+      "disposition": "ignored",
+      "why": "IR eligibility flag"
+    },
+    "reserve_allow_dnr": {
+      "disposition": "ignored",
+      "why": "IR eligibility flag"
+    },
+    "reserve_allow_doubtful": {
+      "disposition": "ignored",
+      "why": "IR eligibility flag"
+    },
+    "reserve_allow_na": {
+      "disposition": "ignored",
+      "why": "IR eligibility flag"
+    },
+    "reserve_allow_out": {
+      "disposition": "ignored",
+      "why": "IR eligibility flag"
+    },
+    "reserve_allow_sus": {
+      "disposition": "ignored",
+      "why": "IR eligibility flag"
+    },
+    "reserve_slots": {
+      "disposition": "imported",
+      "why": "read by the import today"
+    },
+    "squads": {
+      "disposition": "ignored",
+      "why": "squad play, not used"
+    },
+    "start_week": {
+      "disposition": "should_import",
+      "why": "first scoring week \u2014 currently assumed 1"
+    },
+    "sub_lock_if_starter_active": {
+      "disposition": "ignored",
+      "why": "subs unused"
+    },
+    "sub_start_time_eligibility": {
+      "disposition": "ignored",
+      "why": "subs unused"
+    },
+    "taxi_allow_vets": {
+      "disposition": "ignored",
+      "why": "no taxi squad"
+    },
+    "taxi_deadline": {
+      "disposition": "ignored",
+      "why": "no taxi squad"
+    },
+    "taxi_slots": {
+      "disposition": "imported",
+      "why": "read by the import today"
+    },
+    "taxi_years": {
+      "disposition": "ignored",
+      "why": "no taxi squad"
+    },
+    "trade_deadline": {
+      "disposition": "imported",
+      "why": "read by the import today"
+    },
+    "trade_review_days": {
+      "disposition": "imported",
+      "why": "read by the import today"
+    },
+    "type": {
+      "disposition": "imported",
+      "why": "read by the import today"
+    },
+    "veto_auto_poll": {
+      "disposition": "should_import",
+      "why": "whether a veto poll opens automatically"
+    },
+    "veto_show_votes": {
+      "disposition": "should_import",
+      "why": "whether veto votes are public \u2014 affects vote mechanics"
+    },
+    "veto_votes_needed": {
+      "disposition": "should_import",
+      "why": "trade veto threshold (5 of 10) \u2014 unmodelled in the trade/vote surfaces"
+    },
+    "waiver_bid_min": {
+      "disposition": "ignored",
+      "why": "FAAB-only, and this league is not FAAB"
+    },
+    "waiver_budget": {
+      "disposition": "imported",
+      "why": "read by the import today"
+    },
+    "waiver_clear_days": {
+      "disposition": "imported",
+      "why": "read by the import today"
+    },
+    "waiver_day_of_week": {
+      "disposition": "imported",
+      "why": "read by the import today"
+    },
+    "waiver_type": {
+      "disposition": "imported",
+      "why": "read by the import today"
+    }
+  }
+}
