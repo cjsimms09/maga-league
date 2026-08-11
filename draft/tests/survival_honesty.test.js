@@ -268,13 +268,25 @@ if (block) {
   const players = art.players.filter(p => p.vorp != null);
   const byAdp = players.slice().sort(
     (a, b) => (a.adjusted_adp || a.raw_adp || 9999) - (b.adjusted_adp || b.raw_adp || 9999));
-  const gone = new Set(byAdp.slice(0, 33).map(p => String(p.player_id)));
+  // Players already gone before my first pick — derived, not the old literal 33.
+  const gone = new Set(byAdp.slice(0, Math.max(0, (((art.pick_order||{}).my_picks)||[])[0] - 1)).map(p => String(p.player_id)));
   const board = players.filter(p => !gone.has(String(p.player_id)));
   const mine = (art.league || {}).my_draft_slot;
+  /* THE WINDOW IS DERIVED FROM MY ACTUAL PICKS, NOT HARDCODED.
+   *
+   * This read `overall >= 34 && overall < 41` — my pick numbers at slot 4. The
+   * seat moved to 8 on 2026-08-11 and the window stopped containing my own pick
+   * at all, so the count went 6 -> 7 and the test failed for a reason that had
+   * nothing to do with survival. A test pinned to one seat's numbers stops
+   * testing its property the moment the seat moves. */
+  const myPicks = ((art.pick_order || {}).my_picks) || [];
+  const CUR = myPicks[0], NEXT = myPicks[1];
   const iv = ((art.pick_order || {}).picks || [])
-    .filter(p => p.overall >= 34 && p.overall < 41 && p.slot !== mine)
+    .filter(p => p.overall >= CUR && p.overall < NEXT && p.slot !== mine)
     .map(p => ({ team_slot: p.slot, pick_no: p.overall, roster: [], profile: null, room: [] }));
-  const ctx = { board: board, roster: [], league: art.league, currentPick: 34, nextPick: 41,
+  const expectedIv = ((art.pick_order || {}).picks || [])
+    .filter(p => p.overall >= CUR && p.overall < NEXT).length - 1;   // minus my own
+  const ctx = { board: board, roster: [], league: art.league, currentPick: CUR, nextPick: NEXT,
     weights: E.MEASURED_WEIGHTS, totalPicks: 150, myPicksLeft: 8, progress: 34 / 150,
     roundsLeft: 11, intervening: iv, runMultipliers: {}, drift: null,
     currentKeepers: [], ceilingAllStages: false };
@@ -289,7 +301,8 @@ if (block) {
 
   // N IS OPPONENT PICKS. My own pick is inside [34, 41) and a player I take is
   // not a player who got away.
-  ck('the window excludes my own seat (6 opponent picks, not 7)', iv.length === 6,
+  ck('the window excludes my own seat (' + expectedIv + ' opponent picks in ['
+    + CUR + ',' + NEXT + '), not ' + (expectedIv + 1) + ')', iv.length === expectedIv,
      'intervening length ' + iv.length);
 
   E.CFG.CONSERVE_SURVIVAL_ON = true;

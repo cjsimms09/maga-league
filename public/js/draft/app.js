@@ -3791,10 +3791,43 @@
     // guess that happens to be right is still upgraded from placeholder to
     // verified, clearing the UNVERIFIED watermark. draft_order still null (order
     // not yet assigned, D4) → no verification, watermark stays.
-    if (mine && !state.mockMode && Object.keys(byUser).length > 0) {
+    /* ── A PARTIAL draft_order CANNOT VERIFY OR CHANGE A SEAT ────────────────
+     *
+     * MEASURED, NOT HYPOTHETICAL (2026-08-11). The live draft object carried
+     * FOUR entries in draft_order for a TEN team league, and my entry read 3
+     * while the Sleeper UI showed me at draft position 8. This code would have
+     * said "Sleeper says you are in slot 3 — importing" and called setSlot(3),
+     * silently moving a correct hand-claimed seat to a wrong one AND upgrading it
+     * to `verified` — the auto-detected value outranking the human's.
+     *
+     * Every downstream number moves with the seat, so that is a draft-night
+     * disaster arriving as a reassuring blue note.
+     *
+     * THE RULE: an order that is not fully assigned is not an order. Until
+     * draft_order holds an entry for every team it neither verifies nor imports,
+     * and the UNVERIFIED watermark stays up — which is the honest state, because
+     * a half-populated ordering field is exactly the case where its meaning
+     * cannot be trusted.
+     *
+     * AND A DISAGREEMENT IS A CONFLICT, NOT AN IMPORT. Even at full population,
+     * a value that contradicts the hand-claimed seat is surfaced for Cory to
+     * settle rather than applied. The seat is the one thing he claims by hand
+     * (AUTHORITY-DOCTRINE); an auto-detection may confirm it or dispute it, but
+     * it does not get to overrule it silently. */
+    const orderComplete = Object.keys(byUser).length >= (((state.data || {}).league || {}).teams || 0)
+      && Object.keys(byUser).length > 0;
+    if (mine && !state.mockMode && !orderComplete) {
+      state.seatAutoIncomplete = { saw: Object.keys(byUser).length,
+                                   need: ((state.data || {}).league || {}).teams, suggested: mine };
+      showSlotNote('Sleeper\u2019s draft order is only partly assigned ('
+        + Object.keys(byUser).length + ' of ' + (((state.data || {}).league || {}).teams || '?') + ' teams), so it cannot '
+        + 'verify your seat yet. Keeping slot ' + mySlot() + '.', true);
+    } else if (mine && !state.mockMode && orderComplete) {
       if (changed) {
-        showSlotNote('Sleeper says you are in slot ' + mine + ' — importing.', false);
-        setSlot(mine, 'sleeper');
+        state.seatConflict = { claimed: mySlot(), sleeper: Number(mine) };
+        showSlotNote('CONFLICT: you have slot ' + mySlot() + ' set and Sleeper\u2019s '
+          + 'draft order says ' + mine + '. NOT importing — check the draft board and '
+          + 'settle it, because every pick number moves with this.', true);
       } else {
         state.slotSource = 'sleeper';
         state.slotVerified = true;
