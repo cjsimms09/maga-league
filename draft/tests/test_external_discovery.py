@@ -135,3 +135,52 @@ def test_a_row_with_no_id_is_skipped_rather_than_pooled_as_None():
     f = fake({"league": [{"name": "no id here"}, lg(1)]})
     c = X.crawl(f, 2025, terms=("league",))
     assert set(c["leagues"]) == {"1"}
+
+
+# ── D6: which leagues of a 21,323-league pool actually get fetched ──────────
+def pool(n):
+    return {str(i): {"league_id": str(i)} for i in range(n)}
+
+
+def test_the_sample_is_NESTED_so_a_bigger_n_is_a_SUPERSET():
+    """THE PROPERTY THAT MAKES TWO RUNS COMPARABLE. MUTATION: shuffle, or salt with
+    n. The first 200 would stop being the first 500's prefix, an earlier result
+    would stop being a subset of a later one, and a disappointing attrition rate
+    could be re-rolled by asking for a different size."""
+    p = pool(500)
+    small, big = X.sample_pool(p, 50), X.sample_pool(p, 200)
+    assert small == big[:50]
+    assert set(small) < set(big)
+
+
+def test_the_sample_is_REPRODUCIBLE_so_a_rerun_is_a_rerun():
+    p = pool(300)
+    assert X.sample_pool(p, 40) == X.sample_pool(p, 40)
+
+
+def test_the_sample_is_BLIND_to_the_order_leagueSearch_returned():
+    """`found_by[].rank` is kept as a COVARIATE so order-correlation is measurable —
+    which only works if the sample is not itself built from that order. MUTATION:
+    `return ids[:n]`. Reversing the pool would then change the sample entirely."""
+    ids = [str(i) for i in range(400)]
+    assert X.sample_pool(ids, 60) == X.sample_pool(list(reversed(ids)), 60)
+
+
+def test_a_DIFFERENT_SALT_is_a_DIFFERENT_SAMPLE_and_that_is_the_point():
+    """The salt is versioned so a reshuffle cannot happen quietly."""
+    p = pool(400)
+    assert X.sample_pool(p, 50) != X.sample_pool(p, 50, salt="something-else")
+
+
+def test_asking_for_more_than_the_pool_returns_the_pool_not_an_error():
+    assert len(X.sample_pool(pool(7), 50)) == 7
+    assert X.sample_pool(pool(7), 0) == [] and X.sample_pool(pool(7), -3) == []
+
+
+def test_the_sample_report_states_the_DENOMINATOR_it_is_not():
+    """200 of 21,323 with no denominator invites '12 matched' to be read as a rate
+    over the pool."""
+    r = X.sample_report(pool(21323), X.sample_pool(pool(21323), 200))
+    assert r["pool"] == 21323 and r["sampled"] == 200
+    assert "over the SAMPLE" in r["verdict"]
+    assert "which this run does not test" in r["verdict"]

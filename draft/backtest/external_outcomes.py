@@ -347,26 +347,51 @@ def weekly_points(rows, season, tables, positions, id_map=None, bounds=None) -> 
             "unknown_position": sorted(unknown_pos), "no_table": sorted(no_table)}
 
 
-def f3_report(drafted_ids, series) -> dict:
-    """F3: kept vs DROPPED AND COUNTED, with zero on the right side of the line.
+def f3_report(drafted_ids, series, reachable=None) -> dict:
+    """F3: kept vs dropped — and WHICH KIND of dropped, which is the whole seam.
+
+    THREE OUTCOMES, NOT TWO, and the third was missing until the real join was
+    measured (2026-08-11). `import_ids()` yields 6,160 gsis->sleeper pairs and
+    covers **78.9% of our 1,763-player board**, so more than a fifth of it cannot
+    be looked up in weekly data AT ALL. A drafted player from that fifth has no
+    series — exactly like a player who never took a snap — and folding the two
+    together reports a gap in OUR ID MAP as a fact about the player:
+
+      drafted_with_outcomes   he played, and we have his weeks
+      drafted_no_weekly_rows  he is reachable in the id map and has no rows —
+                              he did not play. Evidence about the WORLD.
+      drafted_unmappable      no gsis id maps to him, so we never looked.
+                              Evidence about THIS PIPELINE.
+
+    `reachable` is the set of OUR ids the id map can actually reach. Passing None
+    means the caller did not supply one, and then the split cannot be made — so it
+    is reported as unknown rather than silently collapsed into "did not play".
 
     A player with weekly rows summing to exactly 0.0 PLAYED AND SCORED NOTHING and
-    is KEPT. A player with no weekly rows at all is absent and is dropped. The two
-    are one `if` apart and produce the same total, which is why the boundary is
-    the thing this function is organised around rather than a detail inside it.
+    is KEPT, in every case above.
     """
-    kept, dropped = [], []
+    kept, no_rows, unmappable = [], [], []
+    reach = None if reachable is None else {str(x) for x in reachable}
     for pid in drafted_ids or []:
-        wk = (series or {}).get(str(pid))
-        if wk is None or len(wk) == 0:
-            dropped.append(str(pid))
+        sid = str(pid)
+        wk = (series or {}).get(sid)
+        if wk:
+            kept.append(sid)
+        elif reach is not None and sid not in reach:
+            unmappable.append(sid)
         else:
-            kept.append(str(pid))
-    n = len(kept) + len(dropped)
-    return {
+            no_rows.append(sid)
+    n = len(kept) + len(no_rows) + len(unmappable)
+    rep = {
         "drafted_with_outcomes": len(kept),
-        "drafted_without_outcomes": len(dropped),
-        "dropped_ids": dropped[:50],
+        "drafted_no_weekly_rows": len(no_rows),
+        "drafted_unmappable": len(unmappable) if reach is not None else None,
+        "split_available": reach is not None,
+        # Retained under its old name so nothing downstream silently changes
+        # meaning: it is still "drafted and not scored", now with the causes beside it.
+        "drafted_without_outcomes": len(no_rows) + len(unmappable),
+        "dropped_ids": (no_rows + unmappable)[:50],
+        "unmappable_ids": unmappable[:50],
         "examined": n,
         "coverage": round(len(kept) / n, 4) if n else None,
         # Stated so a reader cannot take `coverage` for a scoring rate: a player
@@ -374,6 +399,29 @@ def f3_report(drafted_ids, series) -> dict:
         "absent_policy": "a drafted player with no weekly rows is DROPPED AND "
                          "COUNTED; a player whose weeks sum to 0.0 is KEPT",
     }
+    rep["verdict"] = _f3_verdict(rep)
+    return rep
+
+
+def _f3_verdict(rep: dict) -> str:
+    """Rule 8: the half that is OUR fault leads."""
+    if not rep["examined"]:
+        return "no drafted players examined"
+    head = ""
+    if not rep["split_available"]:
+        head = ("NO REACHABILITY SET SUPPLIED — %d drafted players have no outcomes and "
+                "it is NOT KNOWN how many of those are unmappable (our id map) versus "
+                "players who did not take a snap (the world); "
+                % rep["drafted_without_outcomes"])
+    elif rep["drafted_unmappable"]:
+        head = ("%d of %d drafted players are UNMAPPABLE — no gsis id reaches them, so we "
+                "never looked. That is evidence about THIS PIPELINE'S id map, not about "
+                "whether they played; "
+                % (rep["drafted_unmappable"], rep["examined"]))
+    return head + ("%d of %d drafted players scored (%s); %d were reachable and had no "
+                   "weekly rows"
+                   % (rep["drafted_with_outcomes"], rep["examined"],
+                      rep["coverage"], rep["drafted_no_weekly_rows"]))
 
 
 def _fmt(r: dict) -> str:
@@ -505,7 +553,10 @@ def league_outcomes(rules_json, drafted_ids, weekly_rows, season, positions,
     out["series"] = got["series"]
     out["unknown_position"] = got["unknown_position"]
     out["no_table"] = got["no_table"]
-    out["f3"] = f3_report(drafted_ids, got["series"])
+    # The reachable set is the id map's VALUES — the ids a weekly row could ever
+    # land on. Without it the F3 split cannot tell "we never looked" from "he did
+    # not play", and both look like a player with no outcomes.
+    out["f3"] = f3_report(drafted_ids, got["series"], set(map(str, id_map.values())))
     out["has_weekly_outcomes"] = True
     out["reason"] = "ok"
     return out

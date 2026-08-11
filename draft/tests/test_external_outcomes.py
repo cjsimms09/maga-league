@@ -562,3 +562,51 @@ def test_POSTSEASON_rows_do_not_make_an_UNPLAYED_season_look_played():
     r = X.season_readiness(2026, _season([20], season_type="POST"), None, 2025,
                            _season(range(1, 19)), None)
     assert r["state"] == "UNPLAYED"
+
+
+# ── F3's THIRD outcome: "we never looked" is not "he did not play" ──────────
+# Measured 2026-08-11 against the real artifacts: `import_ids()` yields 6,160
+# gsis->sleeper pairs covering 78.9% of our 1,763-player board. More than a fifth
+# of the board cannot be looked up in weekly data at all — and a drafted player
+# from that fifth has no series, exactly like a player who never took a snap.
+def test_UNMAPPABLE_and_DID_NOT_PLAY_are_split_because_they_look_identical():
+    """MUTATION: drop the `reachable` argument and bin both as no-weekly-rows. A
+    21% hole in OUR ID MAP would be reported as a fact about the players."""
+    rep = X.f3_report(["A", "B", "C"], {"A": {1: 5.0}}, reachable={"A", "B"})
+    assert rep["drafted_with_outcomes"] == 1
+    assert rep["drafted_no_weekly_rows"] == 1        # B: reachable, no rows -> did not play
+    assert rep["drafted_unmappable"] == 1            # C: no id reaches him -> we never looked
+    assert rep["drafted_without_outcomes"] == 2      # the old total, unchanged in meaning
+    assert rep["unmappable_ids"] == ["C"]
+
+
+def test_the_UNMAPPABLE_half_LEADS_the_verdict_because_it_is_OURS():
+    rep = X.f3_report(["A", "C"], {"A": {1: 5.0}}, reachable={"A"})
+    assert rep["verdict"].startswith("1 of 2 drafted players are UNMAPPABLE")
+    assert "evidence about THIS PIPELINE'S id map" in rep["verdict"]
+
+
+def test_NO_reachability_set_reports_the_split_as_UNKNOWN_not_as_did_not_play():
+    """The honest third state. A caller that supplies nothing must not have its
+    silence read as "all of these players simply did not play"."""
+    rep = X.f3_report(["A", "B"], {"A": {1: 5.0}})
+    assert rep["split_available"] is False and rep["drafted_unmappable"] is None
+    assert "NO REACHABILITY SET SUPPLIED" in rep["verdict"]
+    assert "it is NOT KNOWN how many" in rep["verdict"]
+
+
+def test_a_fully_mappable_league_carries_no_unmappable_warning():
+    rep = X.f3_report(["A", "B"], {"A": {1: 5.0}}, reachable={"A", "B"})
+    assert rep["drafted_unmappable"] == 0
+    assert "UNMAPPABLE" not in rep["verdict"] and "NOT KNOWN" not in rep["verdict"]
+
+
+def test_the_league_path_supplies_the_reachable_set_from_the_ID_MAPS_VALUES():
+    """Rule 14: the producer's only caller decides whether the split exists at all.
+    MUTATION: pass `None`. Every test above still passes and the live report
+    silently loses the distinction."""
+    out = X.league_outcomes(rules(FULL), ["W1", "Q1", "GONE"], _weekly(), 2025,
+                            {"W1": "WR", "Q1": "QB"}, {"W1": "W1", "Q1": "Q1"})
+    assert out["f3"]["split_available"] is True
+    assert out["f3"]["drafted_unmappable"] == 1, "GONE is not in the id map's values"
+    assert out["f3"]["drafted_no_weekly_rows"] == 0

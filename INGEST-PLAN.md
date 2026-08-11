@@ -609,3 +609,31 @@ Therefore:
   no filter is relaxed to convert a completed season into a matched one. The honest
   statement is that the pooled layer this ingest exists to unblock is a **2027** result,
   and everything before then is pipeline work plus a census.
+
+### D6 — WHICH LEAGUES OF THE POOL GET FETCHED (registered 2026-08-11)
+
+The 2025 crawl returned **21,323 unique leagues** across the ten D1 v2 terms, all ten
+fetched, none failed (overlap factor 1.58; 9,152 found by more than one term). Three
+exports per league is roughly **64,000 requests**, so every ingest run works from a
+sample — and how that sample is chosen is a degree of freedom exactly like a filter.
+
+> **Order the pool by `sha256("external-ingest-v1" + "|" + league_id)` and take the
+> first `n`.**
+
+Three properties, each ruling out a way the sample could flatter a result:
+
+- **Reproducible.** Same pool and `n` give the same leagues. A random draw would let a
+  disappointing attrition rate be re-rolled until it improved — optional stopping with
+  extra steps.
+- **Order-blind.** `leagueSearch` returns leagues in an order we did not choose and do
+  not understand. Provider rank is already kept per league as a **covariate**
+  (`found_by[].rank`) so order-correlation can be measured — which only works if the
+  sample is not itself built from that order. "The first `n`" would destroy exactly that.
+- **Nested.** The first 200 are the first 500's prefix. A larger `n` **adds** leagues
+  rather than replacing them, so an earlier run's result stays a subset of a later one
+  and the two are comparable. A fresh draw at each size is not.
+
+The salt is fixed and **versioned**: changing it is a new sample and a new registration,
+never a quiet reshuffle after seeing what the first one gave. Every run reports the pool
+size, the sampled count and the share, and states that its counts are **over the sample**
+and that scaling them to the pool assumes a representativeness this run does not test.

@@ -1,0 +1,185 @@
+name: THE INGEST RUN — a real pool through the pre-registered filters
+
+# The spine, end to end, against leagues nobody has looked at: crawl (D1 v2 terms)
+# -> sample (D6) -> fetch three exports per league -> canonical record -> crosswalk
+# -> ADP as-of -> F3 weekly outcomes (D5) -> attrition report by reason.
+#
+# WHY IT MUST NOT DEFAULT TO 2026. Measured 2026-08-11: fetch_weekly(2026) returns
+# HTTP 404 from BOTH nflverse loaders, so every league would come back
+# F4.no_weekly_data and the run would report ZERO MATCHED — the identical output to
+# a broken fetch and to wrong filters. A control season is fetched alongside the
+# target for exactly that reason (D5h), and the readiness state leads the verdict.
+#
+# WHY THE SAMPLE IS A RULE AND NOT A NUMBER. The 2025 crawl returned 21,323 unique
+# leagues; three exports each is ~64,000 requests. D6 fixes the sample as
+# sha256(salt|league_id) order — reproducible, blind to leagueSearch's ordering,
+# and NESTED so a larger n is a superset of a smaller one rather than a fresh draw.
+#
+# Nothing is committed. The report is an artifact and a job summary.
+
+on:
+  workflow_dispatch:
+    inputs:
+      year:
+        description: 'Season to ingest (must be a season that has been PLAYED)'
+        required: false
+        default: '2025'
+      control_year:
+        description: 'Control season — its ONLY job is to tell an unplayed season from a broken fetch'
+        required: false
+        default: '2024'
+      sample:
+        description: 'How many pooled leagues to fetch (D6 order)'
+        required: false
+        default: '150'
+
+permissions:
+  contents: read
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - name: Install loaders
+        # Installed here rather than added to draft/requirements.txt — that file is
+        # not this lane's to edit.
+        run: pip install -q pandas nfl_data_py nflreadpy || pip install -q pandas nfl_data_py
+      - name: Run the ingest
+        env:
+          YEAR: ${{ github.event.inputs.year || '2025' }}
+          CONTROL: ${{ github.event.inputs.control_year || '2024' }}
+          SAMPLE: ${{ github.event.inputs.sample || '150' }}
+        run: |
+          python3 - <<'PY'
+          import json, os, sys, urllib.parse, urllib.request
+          sys.path.insert(0, "draft"); sys.path.insert(0, "draft/backtest")
+          import external_discovery as D
+          import external_outcomes as X
+          import grade as GR
+          import ingest_run as R
+          import mfl_adapter as A
+          import mfl_adp as MADP
+          from adp_asof_probe import USER_AGENT
+
+          YEAR = int(os.environ["YEAR"]); CONTROL = int(os.environ["CONTROL"])
+          N = int(os.environ["SAMPLE"])
+
+          # 1. THE POOL, from the registered terms. A failed term is a hole, never a zero.
+          crawled = D.crawl(D.mfl_fetch, YEAR)
+          pool_rep = D.pool_report(crawled)
+          print("POOL:", pool_rep["verdict"])
+
+          # 2. THE SAMPLE, by rule (D6).
+          ids = D.sample_pool(crawled["leagues"], N)
+          samp = D.sample_report(crawled["leagues"], ids)
+          print("SAMPLE:", samp["verdict"])
+
+          # 3. WEEKLY OUTCOMES, target AND control. The control's only job is D5h.
+          tgt = X.fetch_weekly(YEAR)
+          ctl = X.fetch_weekly(CONTROL)
+          ready = X.season_readiness(YEAR, tgt.get("rows"), tgt.get("error"),
+                                     CONTROL, ctl.get("rows"), ctl.get("error"))
+          print("READINESS:", ready["state"], "—", ready["why"])
+          for t in (tgt.get("tried") or []) + (ctl.get("tried") or []):
+              print("   %(loader)s: %(status)s — %(detail)s" % t)
+
+          # 4. THE ID HOP. Weekly is GSIS-keyed; our board is Sleeper-keyed. No map
+          #    means nothing joins, and "nothing joined" looks exactly like "none of
+          #    these players played" — so it is refused by name, not defaulted.
+          try:
+              import nfl_data_py as nfl
+              gsis = GR.crosswalk_gsis_to_sleeper([], nfl.import_ids())
+          except Exception as e:                                   # noqa: BLE001
+              print("!! import_ids unavailable: %s: %s" % (type(e).__name__, e))
+              gsis = {}
+          print("gsis->sleeper pairs: %d" % len(gsis))
+
+          # 5. OUR BOARD, whole — players AND kept_players (a partial index books our
+          #    own bug as "their league has players we cannot price").
+          board = json.load(open("public/draft_data.json"))
+          index = A.board_index(board)
+
+          # 6. MFL's players export for the year, for the crosswalk's first hop.
+          def mfl_players(year):
+              url = "https://api.myfantasyleague.com/%s/export?%s" % (year, urllib.parse.urlencode(
+                  {"TYPE": "players", "DETAILS": "1", "JSON": "1"}))
+              req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+              with urllib.request.urlopen(req, timeout=180) as r:
+                  return MADP._players_index(json.loads(r.read().decode("utf-8", "replace")))
+          try:
+              players = mfl_players(YEAR)
+          except Exception as e:                                   # noqa: BLE001
+              print("!! MFL players export FAILED: %s: %s — every league will report "
+                    "unknown_mfl_id, which is OUR fetch and not their data"
+                    % (type(e).__name__, e))
+              players = {}
+          print("MFL players indexed: %d" % len(players))
+
+          series = json.load(open("draft/data/external_adp_series.json")) \
+              if os.path.exists("draft/data/external_adp_series.json") else []
+
+          rep = R.run(ids, YEAR, out_path="ingest-report.json",
+                      players=players, board=index, series=series,
+                      weekly_rows=(tgt.get("rows") or []), gsis_to_ours=gsis,
+                      readiness=ready)
+          rep["pool"] = pool_rep
+          rep["sample"] = samp
+          json.dump(rep, open("ingest-report.json", "w"), indent=1)
+          PY
+      - name: Report where it cannot be missed
+        if: always()
+        run: |
+          {
+            echo "## The ingest run"
+            if [ -f ingest-report.json ]; then
+              python3 - <<'PY'
+          import json
+          d = json.load(open("ingest-report.json"))
+          print("**Verdict:** ", d.get("verdict"))
+          print()
+          r = d.get("season_readiness") or {}
+          print("- readiness: **%s** — %s" % (r.get("state"), r.get("why")))
+          print("- pool: %s" % ((d.get("pool") or {}).get("verdict")))
+          print("- sample: %s" % ((d.get("sample") or {}).get("verdict")))
+          print()
+          print("| bucket | n |"); print("|---|---|")
+          for k in ("examined", "matched", "rejected", "rejected_filtered",
+                    "rejected_unreadable", "rejected_unclassified"):
+              if k in d:
+                  print("| %s | %s |" % (k, d[k]))
+          print()
+          print("| reason | n |"); print("|---|---|")
+          for k, v in sorted((d.get("rejected_by_reason") or {}).items(),
+                             key=lambda kv: -kv[1]):
+              print("| `%s` | %s |" % (k, v))
+          o = d.get("outcomes") or {}
+          if o:
+              print()
+              print("### F3 / D5")
+              print("- scored %s of %s leagues; %s carry no coverage figure"
+                    % (o.get("leagues_scored"), o.get("leagues_examined"),
+                       o.get("leagues_with_no_coverage_figure")))
+              print("- mean F3 coverage over SCORED leagues: %s"
+                    % o.get("mean_f3_coverage_over_SCORED_leagues"))
+              c = o.get("census") or {}
+              print("- %s" % c.get("verdict"))
+              if c.get("by_event_code"):
+                  print()
+                  print("| event code | leagues lost |"); print("|---|---|")
+                  for k, v in (c["by_event_code"] or {}).items():
+                      print("| `%s` | %s |" % (k, v))
+          PY
+            else
+              echo "NO REPORT FILE — the run did not complete. That is a statement"
+              echo "about this run, not a finding about the pool."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ingest-report
+          path: ingest-report.json
