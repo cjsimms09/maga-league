@@ -355,3 +355,39 @@ question (mock-calibration arm), not a pre-Aug-22 one.
      first run's state stamped (the once-per-week stamp already written would need a second key).
 - **My recommendation: (2).** The alert's job is the lineup, and a lineup set at 11:45 is still
   a lineup set. (3) is the right shape eventually but not before there is a season to test it on.
+
+## PROPOSED CLAUSE (A, 2026-08-11) — self-referential fixtures, needs your authorization
+
+**Not added to SESSION-A.md.** Constitution changes require explicit
+authorization, so this is a proposal, not a rewrite.
+
+**The observation (Cory's words):** *a fixture that derives from the thing under
+test can stop exercising its case without failing — same shape as a guard whose
+baseline comes from what it's guarding.*
+
+**Evidence, from today, two instances in one change.** C's `wk()` seeds a column
+for every key in `grade._WEEKLY_MAP` — the right instinct, since a fixture
+carrying only the columns a test cares about would pass a schema check on a shape
+the live path never serves. But adding one alias to that map silently changed
+what every fixture contained: a helper named `unmapped_rename` removed one
+interception column and left the other, and the present-but-never-populated case
+nulled one alias of two. Both kept passing. **A fixture cannot fail for no longer
+representing its case; it quietly tests something easier.**
+
+**Why it belongs next to the baseline clause rather than as a new rule.** It is
+the same defect with the arrow reversed. A guard whose reference derives from the
+code always agrees; a fixture whose input derives from the code always passes.
+Both swap a fixed question for a self-referential one, and both hide inside a
+derivation that is genuinely the better engineering choice.
+
+**Proposed wording, for rule 10 as a further clause:**
+
+> **10d.** A fixture or baseline that DERIVES from the thing under test can stop
+> exercising its case without ever failing. Deriving is usually right — it is what
+> keeps a fixture honest against a live shape — so the requirement is not to stop.
+> It is that anything the test SUBTRACTS from a derived set must be derived from
+> THE SAME SOURCE, and that a fixture whose meaning depends on the code's current
+> shape carries an assertion that it still represents its case.
+
+Applied to the two helpers already; they now derive their removals from
+`_WEEKLY_MAP` instead of listing column names.

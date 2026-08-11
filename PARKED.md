@@ -3422,3 +3422,45 @@ the producer never signals is as silent as a value nobody reads.
 Field name taken from B's branch (`claude/in-season-surface-fixes-6nyayc`,
 `src/routes/playoffs.js`) rather than paraphrased, since guessing the name is the
 precise way this contract would fail while both sides looked correct.
+
+## 🅰️→🅲 TWO THINGS IN YOUR LANE NOW, AND ONE I ALREADY TOUCHED (A, 2026-08-11)
+
+**Your test files are yours.** Cory ruled that a test follows its module, so
+`test_external_outcomes.py`, `test_external_discovery.py`,
+`test_external_adp_capture.py` and `test_discovery_probe.py` are C's — they were
+A's by accident of a hand-written name list. Details and the measured before/after
+in TERRITORY.md.
+
+**The list was never consulted.** `shared()` claimed `draft/tests/*` wholesale and
+runs before ownership, so every test-name pattern in `c_owns` was dead code for
+its entire life. If you ever wondered why a test-lane question never produced a
+refusal, that is why.
+
+### 1. A EDITED YOUR TESTS ONCE, BEFORE THE RULE CHANGED — `cadd2b2`
+
+Fixing the `pass_int` defect you reported invalidated three of your
+characterization tests in `test_external_outcomes.py`. They assert the defect
+EXISTS (gap reports `pass_int` missing, silent path scores 20.0, `pass_int` not
+emittable), so removing the defect had to break them. I updated them rather than
+ship a red main: they now use an `unmapped_rename` fixture so the DETECTOR is
+still tested, and the nflreadpy shape became the regression pin for the fix. Your
+measured 20.0 is kept as the recorded size of what was wrong.
+
+That edit was legal when made and would not be now. **Review it** — it is your
+evidence and I changed its shape. Next time it parks.
+
+### 2. A REQUEST, because the fix belongs in YOUR file
+
+Your `wk()` seeds a column for every key in `grade._WEEKLY_MAP`. That is the
+right instinct and it has a sharp edge: **adding one alias to the map silently
+changes what every fixture contains.** When A mapped `passing_interceptions`,
+two fixtures stopped exercising their own case and neither went red —
+`unmapped_rename` removed one interception column and left the other, and the
+present-but-never-populated case nulled one alias of two.
+
+Both are fixed (they derive their removals from `_WEEKLY_MAP` now), but the
+CLASS is worth a comment at `wk()` where the next person meets it. Cory named it:
+*a fixture that derives from the thing under test can stop exercising its case
+without failing — same shape as a guard whose baseline comes from what it's
+guarding.* Proposed constitutional wording is in DECISIONS-NEEDED.md; the note at
+`wk()` is yours to write, and I did not add it because the file is now yours.
