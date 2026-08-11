@@ -315,6 +315,13 @@ warroom.ejs names only the frozen baseline`. The check names were deliberately N
 > baseline landed (v1–v4) and `engine.js:309` now reads `key: 'measured', label: 'Live policy'`.
 > Recorded as closed with its evidence rather than deleted.
 
+**7. MERGED INTO RULE 6 AS CLAUSE 6a (2026-08-11).** Both are the map matching the territory —
+6 governs code against the written rules, 7 governs vocabulary against the frozen object. **All
+three of its assertions are preserved exactly, including their `[rule 7]` check names in
+`baseline_regression.test.js`**, which is why the number is tombstoned rather than renumbered.
+Proposed independently by A and B. (Tombstone added 2026-08-11 for consistency with 5 and 13 —
+the merge itself was applied earlier in the same authorized pass.)
+
 **8. NO HIGHLIGHTS-ONLY REPORTING.**
 **Every report leads with what is failing.**
 
@@ -567,6 +574,49 @@ check goes where the existing consistency check lives — done by whoever is alr
 that code, in the moment they write it. **If satisfying this ever starts generating its own
 workstream, it has been implemented wrong.**
 
+**15. UNVALIDATED SIGNALS ARE COMPLETELY INVISIBLE DURING ANY LIVE DRAFT, WAIVER, OR LINEUP
+DECISION.** Cory, 2026-08-11. **ADDED BY EXPLICIT AUTHORIZATION** — see the provenance note
+below; this is not a rule inferred, merged, or reconstructed during reconciliation.
+
+**No badge. No panel. No indicator. No delayed reveal.**
+
+A signal may be visible only:
+
+* after the **ENTIRE draft concludes**;
+* in **mocks**;
+* in **post-season analysis**.
+
+**It must NOT become visible merely because a pick has locked.** In a snake draft my next turn is
+often ten picks away, so a signal revealed after pick 34 is still on screen at pick 41 — and a
+delayed influence is an influence.
+
+*THE REASONING IS PART OF THE PROTECTION, not decoration on it:*
+
+> **The protection is about me, not the tool. I cannot unsee a signal once it is placed in front
+> of me. A delayed reveal during a live draft can therefore influence a later decision just as
+> surely as a signal shown before the pick.**
+
+**This is NOT "do not use the signal" and NOT "do not act on the signal."** The requirement is
+**VISUAL INVISIBILITY during the live decision period.** A rule about intent is a rule I can
+satisfy while looking at the thing; a rule about rendering is one I cannot.
+
+*ENFORCEMENT — a TRIGGER, not a test, and recorded as such rather than filled.*
+**Trigger:** any live-draft, live-waiver, or live-lineup surface rendering an unvalidated signal.
+**Expected response:** the signal must not render.
+
+*And the honest adjacent finding, recorded because it sharpens the gap rather than closing it:*
+the one existing artifact anywhere near this is `test_market_environment.py:111`, which asserts
+every market record carries `visibility == "post_draft_only"`. **That asserts the LABEL exists.
+Nothing asserts any consumer HONOURS it** — which is rule 14's exact shape, produced-and-unread,
+applied to the strictest prohibition in the constitution. The label is not the enforcement.
+
+*PROVENANCE.* A prior audit correctly found that no standalone rule covering this existed in
+SESSION-A.md — the only occurrence of "silence" in the file was a fragment inside rule 11 ("fact;
+silence is not"). It was reported as missing rather than reconstructed from surrounding text.
+Cory then authorized its addition explicitly. **Numbered 15 because 5, 7 and 13 are tombstones
+and a retired number is never reused** — reusing one would make the audit history unreadable.
+
+
 ---
 
 ### RULE 9 AUDIT OF THE EIGHT — cost, and whether it has FIRED (2026-08-10)
@@ -779,19 +829,25 @@ the vacuous-guard disease applied to the constitution itself.
 | 11e own-query boundary | a negative about a source is checked against my query | **EMPTY** — trigger: any recorded negative about an external source or a fixture |
 | 11f set/scope correctness | a boundary can keep values and lose members | `context_interface.test.js` — engine reads ⊆ app supplies |
 | 12 output sanity | the number could not be true | **EMPTY** — needs: the predeclared 10–15 value sample. Trigger exists, artifact does not |
+| 15 signal invisibility | unvalidated signals cannot be SEEN during a live decision | **TRIGGER, not a test** — any live draft/waiver/lineup surface rendering an unvalidated signal; expected response: it must not render. `test_market_environment.py` asserts the `post_draft_only` LABEL only; nothing asserts a consumer honours it |
 | 14 establish the consumer | produced-and-unread | `survival_honesty.test.js` (tilt wiring, `survivalRaw` call count), `context_interface.test.js` |
 | clause A objective alignment | better metric ⇏ better decision | **EMPTY** — requirement on the gate build |
 | clause B negative-result memory | disproven ideas do not return | **EMPTY** — Lab registry is partial; nothing prevents an offseason revival |
 | clause C decision-impact | tiebreak by impact, not novelty | **EMPTY** — trigger: any sequencing decision between competing work |
 
-**SEVEN EMPTY CELLS, reported rather than filled.** Three are blocked on something being built
+**EIGHT CELLS WITHOUT A TEST, reported rather than filled.** Three are blocked on something being built
 (3 and clause A on the gate; 12 on the sample). Three are triggers where automation is
 unreasonable (8, 9, clause C). One is a partial that C correctly identified as weaker than it
 reads (10). Clause B and 11e have neither and are the two most likely to rot.
 
+**RULE 15 is the eighth**, and it is a deliberate trigger rather than a gap: the user specified
+the trigger AS the enforcement mechanism and instructed that no test be invented to fill the
+cell. It is the one cell here whose emptiness was chosen rather than inherited.
+
 **THE ACCEPTANCE CRITERION, checked:** every rule leaving this pass has an enforcement artifact,
-a defined observable trigger, or an explicit deletion-detection test. **No new numbered rule was
-created.**
+a defined observable trigger, or an explicit deletion-detection test. **One new numbered rule was
+created — rule 15 — BY EXPLICIT AUTHORIZATION**, which supersedes this pass's earlier
+"no new numbered rule" condition for that rule alone. Nothing else was added.
 
 **AND THE DEFINITION WORTH HOLDING:** a mature constitution is not one with fewer rules. It is one
 where every remaining rule has a clear reason to exist and a clear way its violation would become
