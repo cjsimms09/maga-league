@@ -598,3 +598,23 @@ def test_a_run_with_NO_matched_leagues_reports_an_EMPTY_spread_not_a_zero_one():
     sp = rep["lead_days_spread"]
     assert sp["leagues"] == 0 and sp["max_of_max"] is None
     assert sp["span_days"]["n"] == 0
+
+
+def test_a_run_that_STOPS_EARLY_reports_an_INCOMPLETE_DENOMINATOR():
+    """A run killed by the clock produces NOTHING — no report, no attrition table,
+    nothing learned from any league it did reach. Stopping early is honest and
+    being killed is not, and the machinery for it already existed: ids never
+    reached are `never_attempted`, and the verdict says the denominator is
+    incomplete rather than letting `matched / attempted` read as coverage.
+
+    MUTATION: drop `requested` so the unreached ids vanish. `matched / attempted`
+    over a silently shrunken denominator is a flattering number, not a coverage
+    one — which is the failure this whole file is shaped around."""
+    reached = [good_record("L1"), good_record("L2")]
+    rep = R.attrition_report(R.run_screen(reached)[0],
+                             requested=["L1", "L2", "L3", "L4", "L5"])
+    assert rep["requested"] == 5 and rep["attempted"] == 2
+    assert rep["never_attempted"] == 3
+    assert sorted(rep["never_attempted_ids"]) == ["L3", "L4", "L5"]
+    assert "NEVER ATTEMPTED" in rep["verdict"]
+    assert "not a coverage figure" in rep["verdict"]

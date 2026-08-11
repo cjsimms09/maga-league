@@ -447,7 +447,8 @@ def adp_fields(store) -> dict:
 
 def run(league_ids, year, out_path=None, *, players=None, board=None,
         series=None, weekly_rows=None, gsis_to_ours=None,
-        readiness=None, league_delay=1.0):  # pragma: no cover  (egress; CI only)
+        readiness=None, league_delay=1.0,
+        deadline_s=None):  # pragma: no cover  (egress; CI only)
     """THE FIRST REAL FETCH.
 
     WHAT THIS WILL REPORT, WRITTEN BEFORE IT RUNS so the result cannot be narrated
@@ -488,9 +489,26 @@ def run(league_ids, year, out_path=None, *, players=None, board=None,
     from asof import TimeTravelError
 
     import time as _time
+    started = _time.monotonic()
     records, outcomes, cw_reports = [], [], []
     pool_picks, league_dates = [], {}
+    stopped_early = None
     for _i, lid in enumerate(league_ids):
+        # A RUN KILLED BY THE CLOCK PRODUCES NOTHING. Measured: a 250-league run
+        # spent 35+ minutes against a 60-minute job timeout, and a timeout would
+        # have destroyed every league's evidence — the same failure the per-league
+        # parse guard fixed one level down, at the level of the whole run.
+        #
+        # Stopping EARLY is honest and being killed is not, because the machinery
+        # for an incomplete run already exists: the ids never reached become
+        # `never_attempted`, which `attrition_report` counts and whose verdict says
+        # "the denominator below is incomplete, not a coverage figure". A partial
+        # run that says so beats a complete run that never happened.
+        if deadline_s is not None and _time.monotonic() - started > deadline_s:
+            stopped_early = ("stopped after %d of %d leagues at the %ds budget"
+                             % (_i, len(league_ids), deadline_s))
+            print("!! " + stopped_early)
+            break
         if _i:
             # BETWEEN LEAGUES TOO, not only between exports. The measured 429 came
             # at roughly 1.8 requests/second; this run asks for well under one.
@@ -529,6 +547,7 @@ def run(league_ids, year, out_path=None, *, players=None, board=None,
                                     adp_observed_at=adp.get("adp_observed_at")))
     verdicts, _ = run_screen(records)
     rep = attrition_report(verdicts, requested=list(league_ids))
+    rep["stopped_early"] = stopped_early
     rep["year"] = str(year)
     rep["outcomes"] = outcomes_summary(outcomes)
     rep["season_readiness"] = readiness

@@ -32,6 +32,12 @@ on:
         description: 'How many pooled leagues to fetch (D6 order)'
         required: false
         default: '150'
+      deadline_s:
+        # A run KILLED by the job timeout produces nothing. A run that stops at a
+        # budget reports `never_attempted` and says its denominator is incomplete.
+        description: 'Stop fetching after this many seconds and report what was reached'
+        required: false
+        default: '2100'
 
 permissions:
   contents: read
@@ -53,6 +59,7 @@ jobs:
           YEAR: ${{ github.event.inputs.year || '2025' }}
           CONTROL: ${{ github.event.inputs.control_year || '2024' }}
           SAMPLE: ${{ github.event.inputs.sample || '150' }}
+          DEADLINE_S: ${{ github.event.inputs.deadline_s || '2100' }}
         run: |
           python3 - <<'PY'
           import json, os, sys, urllib.parse, urllib.request
@@ -134,7 +141,11 @@ jobs:
           rep = R.run(ids, YEAR, out_path="ingest-report.json",
                       players=players, board=index, series=series,
                       weekly_rows=(tgt.get("rows") or []), gsis_to_ours=gsis,
-                      readiness=ready)
+                      readiness=ready,
+                      # Well inside the 60-minute job timeout. A run killed by the
+                      # clock produces NOTHING; a run that stops early reports
+                      # `never_attempted` and says its denominator is incomplete.
+                      deadline_s=int(os.environ.get("DEADLINE_S", "2100")))
           rep["pool"] = pool_rep
           rep["sample"] = samp
           json.dump(rep, open("ingest-report.json", "w"), indent=1)
