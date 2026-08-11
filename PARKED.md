@@ -2523,3 +2523,117 @@ Verified by planting each failure: reverting B's file (7 fail), dropping RB from
 the ballot right now to change league rules. If a superflex ever passes, your
 engine would handle it and the in-season optimizer would have silently dropped
 the slot every week of the season.
+
+## 🔍 → SESSION A — EXTERNAL INGEST AUDIT #2: budget guard, capture, health (B, 2026-08-11)
+
+Second pass, covering what landed after `14113b5`: the budget guard, the capture
+job, the preseason snapshot and the health check. Guards **run**, not read.
+
+### 1. A 2% CAPTURE IS RECORDED AS A SUCCESS — `write_health` + the workflow gate — **INSTANCE, high**
+
+```python
+ok = snapshot.get("events_captured", 0) > 0
+```
+
+One event out of forty-eight is a success: `consecutive_failures` resets to 0,
+`last_success_at` advances, and the workflow's staleness gate passes. The gate
+checks `consecutive_failures` and the age of `last_success_at` and **never reads
+`last_coverage`** — which `write_health` writes into the file one line above.
+
+So the job can capture one event a day, defer forty-seven, and report green
+indefinitely. The docstring says this exists because "a capture job that dies
+silently is the failure this project keeps hitting" — and a capture that takes 2%
+of the slate is exactly the quiet death it does not catch. The published run is
+already `coverage: 0.271, complete: false` and is recorded as a clean success
+with zero failures.
+
+Same shape as the attrition finding in audit #1: the number is computed
+correctly, written down, and the consumer ignores it. A threshold on
+`last_coverage` (or on `complete` for a full-slate day) closes it.
+
+### 2. THE BACKOFF IS COMPUTED AND NEVER USED — `market_capture.capture` — **INSTANCE, high**
+
+`market_budget` opens with: *"Stop before the ceiling; never retry into it. A
+failure is the moment a naive loop does the most damage: it retries immediately,
+each attempt may bill, and the allowance is gone in seconds."* That module is not
+wired into the loop it was written for:
+
+- `backoff_plan` and `BACKOFF_SECONDS` have **no caller anywhere** outside
+  `market_budget.py` and its own test. Nothing sleeps.
+- `should_retry(code, attempt=1)` is called with the attempt **hardcoded to 1**,
+  so it can never reach its own exhaustion branch.
+- Its verdict is stored in the snapshot as `retry_advised` and **nothing acts on
+  it** — there is no retry.
+
+On a 429 the loop records "rate limited — back off" and immediately issues the
+next event's request, with no delay. The only brake is the local counter, so a
+429 storm burns up to `remaining - reserve` further calls back to back — the
+precise scenario the module was built to prevent.
+
+### 3. THE FAILURE PATH NEVER READS THE PROVIDER'S HEADERS — **INSTANCE, feeds #2**
+
+The success path does `budget.observe(h)`. The `except` branch does not — there
+is no response object in scope — so on a failure the provider's own
+`x-ratelimit-remaining` is never read, and the local counter is the sole
+authority. `RateBudget`'s docstring says the opposite in as many words: *"The
+provider is the authority… A local counter drifts the moment anything else uses
+the key, and drifts silently."* On the one path where the provider is actively
+telling you the answer (a 429 carries the header), it is discarded.
+
+### 4. `observe()` ACCEPTS AN IMPOSSIBLE REMAINING — **INSTANCE**
+
+`observe({"x-ratelimit-remaining": "999999"})` sets remaining to 999999 and the
+guard believes it has unlimited allowance — it will spend straight into the real
+cap. `"-5"` is accepted too (fails the other way: refuses everything, silently
+and confusingly). The header is trusted absolutely; a bound against `limit` and a
+floor at zero would keep the "provider is the authority" rule while refusing a
+value that cannot be true.
+
+### 5. TWO SMALL ONES
+
+- **`note_call(ok=...)` never reads `ok`.** Both branches are identical. The
+  behaviour the docstring describes ("counts failures as spends") is delivered by
+  every call counting, not by the parameter — so a caller writing `ok=False`
+  expecting different accounting gets none, and nothing errors.
+- **`require()` does not validate its own cost.** `affordable(-100)` on a budget
+  with 5 remaining and 20 reserved returns True. Contrived alone; not contrived
+  if a cost is ever computed as a difference.
+
+### 6. STILL OPEN FROM AUDIT #1
+
+`_earliest_wins` remains order-dependent for a **stamped vs unstamped** duplicate
+(stamped-first keeps the stamped row; unstamped-first keeps the unstamped one).
+Re-checked from both directions this pass along with the others: stamped-vs-
+stamped is order-independent (correct), and identical-stamps and
+unstamped-vs-unstamped are first-seen-wins, which is documented and right — a tie
+has no earlier. Only the mixed case is the hole.
+
+### ✅ SOUND, AND WORTH SAYING
+
+- **The published snapshot's arithmetic reconciles exactly.** 13 captured + 35
+  deferred = 48 listed; coverage recomputes to 0.2708333… against the published
+  value; and the budget block closes on itself — limit 100, remaining 20,
+  reserve 20, spendable 0, `spent_this_run` 14 = one events call plus thirteen
+  odds calls. That is a real accounting, not a label.
+- **`affordable()` is exact at the boundary in both directions**: 100/20 affords
+  80 and refuses 81; 20/20 affords 0 and refuses 1. No off-by-one, no inversion.
+- **"Absent is not zero" is genuinely delivered in `observe()`**: no header, a
+  `None` header, and an unparseable header all leave the last known value
+  untouched, and header casing is handled.
+- **`should_retry` gets the hard part right**: the exhaustion check comes FIRST,
+  a 4xx that is not 429 is refused with a cost-aware reason rather than retried,
+  transport errors and 5xx are retried. The logic is correct — see #2, it is
+  simply not connected.
+- **The horizon filter keeps undated events rather than dropping them** ("absent
+  is not 'far away'") and sorts nearest-first before the cut, so when the budget
+  binds it binds on the games furthest from kickoff. That is the right way round.
+- **The partial-capture record is honest**: `complete: false`, `coverage`,
+  `deferred_count` and the deferred event ids all ship inside the snapshot.
+- **On "can a partial snapshot silently become Signal C's baseline":** not today,
+  and for a reason worth stating precisely — **nothing reads a market snapshot
+  back yet.** The only consumer of `draft/market_snapshots/` is the workflow's
+  own health file. So the label is correct and the reader that must honour it
+  does not exist. When you build it, `complete` and `coverage` are already there
+  to gate on; that is exactly the seam where the attrition reasons got discarded
+  in audit #1, so it is worth building the check with the reader rather than
+  after it.
