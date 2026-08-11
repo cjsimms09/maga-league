@@ -18,6 +18,7 @@ const RIVN = require('./rivalries');       // named rivalries (German derby, Dyl
 const MU = require('../matchup');          // slot-aligned matchup starters (QB vs QB, not row-vs-row)
 const DASH = require('../dashboard');      // dashboard model + the derived draft-day announcement
 const SET = require('./settlement');       // the settlement report — who pays whom, with Venmo
+const RD = require('./recap-data');        // the weekly recap: gather here, write in src/recap.js
 const ACC = require('./accuracy');          // model-accuracy display — reads A's calibration/attribution output
 const L = require('../ledger');
 const SB = require('../sidebets');
@@ -122,6 +123,59 @@ router.get('/api/draft-config-status', aw(async (req, res) => {
 // It only EMAILS the commissioner their start/sit calls — it never returns the
 // analysis, so the secret guards the trigger, not the content. No-ops off-season
 // (no live lineup), so a year-round schedule is harmless.
+/* The cron trigger. Tuesday morning, after Monday night is settled.
+ *
+ * Same health contract as the Sunday alert, for the same reason: a weekly job
+ * that dies silently is the failure this project keeps hitting. It records the
+ * last successful send, refuses to send twice for one week, and reports WHY it
+ * stayed quiet in a word the workflow can branch on — so "off-season" and
+ * "the recap has not gone out in three weeks" are never the same green run.
+ */
+router.get('/api/weekly-recap', aw(async (req, res) => {
+  const secret = process.env.WEEKLY_RECAP_KEY || process.env.SUNDAY_ALERT_KEY || process.env.CRON_SECRET;
+  if (!secret || req.query.key !== secret) return res.status(403).json({ ok: false, error: 'forbidden' });
+  const world = req.world;
+  const owners = H.activeOwners(world.owners);
+  const season = String(H.currentSeason(world.seasons).year || new Date().getUTCFullYear());
+  const emailConfigured = notify.configured();
+
+  const sData = await sleeper.bundle(world.config.sleeper_league_id);
+  // OFF-SEASON: no live league at all. Quiet, and correctly so.
+  if (!sData || !sData.week) {
+    return res.json({ ok: true, sent: 0, quiet: true, emailConfigured,
+      reason: 'off-season', note: 'no live league — nothing to recap' });
+  }
+  // The week to recap is the one that FINISHED, not the one in progress. Sleeper
+  // rolls `state.week` forward on Tuesday, which is exactly when this runs.
+  const weekNo = Math.max(1, Number(sData.week) - 1);
+
+  const stampKey = `weekly-recap-sent:${season}:${weekNo}`;
+  const already = await getDoc(stampKey, null);
+  if (already) {
+    return res.json({ ok: true, sent: 0, quiet: true, emailConfigured, week: weekNo,
+      reason: 'already-sent', note: `week ${weekNo}'s recap went out at ${already.at}` });
+  }
+
+  const recap = await RD.buildWeeklyRecap(world, owners, weekNo, season);
+  if (!recap.ready) {
+    // NOT a quiet success. The week happened and we could not write about it —
+    // if that repeats, the league silently stops getting an email.
+    return res.json({ ok: true, sent: 0, quiet: false, emailConfigured, week: weekNo,
+      reason: recap.reason, note: recap.note || 'the week is not final or the data is incomplete' });
+  }
+  if (!emailConfigured) {
+    return res.json({ ok: true, sent: 0, quiet: false, emailConfigured: false, week: weekNo,
+      reason: 'email-not-configured', note: 'a recap was written and there is no way to send it' });
+  }
+  const r = await notify.weeklyRecap(owners, recap).catch(e => ({ error: String((e && e.message) || e) }));
+  const sent = (r && !r.skipped && !r.error) ? 1 : 0;
+  if (sent) await setDoc(stampKey, { at: new Date().toISOString(), season, week: weekNo,
+    recipients: owners.filter(o => o.email).length, thin: !!recap.thin });
+  res.json({ ok: true, sent, quiet: false, emailConfigured, week: weekNo, thin: !!recap.thin,
+    ...(sent ? {} : { reason: r && r.error ? 'send-failed' : 'send-skipped',
+                      note: (r && (r.error || r.note)) || 'the mailer declined to send' }) });
+}));
+
 router.get('/api/sunday-alert', aw(async (req, res) => {
   const secret = process.env.SUNDAY_ALERT_KEY || process.env.CRON_SECRET;
   if (!secret || req.query.key !== secret) return res.status(403).json({ ok: false, error: 'forbidden' });
@@ -231,14 +285,14 @@ router.post('/forgot', aw(async (req, res) => {
   const owner = req.world.owners.find(o => o.active && (o.username === who || (o.email || '').toLowerCase() === who));
   // Always report the same thing — never confirm whether an account exists.
   //
-  // The site does not email members, so for nine of the ten of us this path can
-  // never deliver anything. It used to mint a token and hand it to a mailer that
-  // now refuses it: a dead reset record on disk and a page promising a link that
-  // was never going to arrive. Ask the mailer FIRST (notify.mayEmail) — the same
-  // rule the mailer enforces, not a second copy of it — and if the answer is no,
-  // do no work. The page copy covers both outcomes without revealing which one
-  // happened, so the uniform response survives.
-  if (owner && await notify.mayEmail(owner.email)) {
+  // A password reset is ONE OF THE THREE things that may reach a member
+  // (policy, 2026-08-11), so this path works for everyone again — but it asks
+  // the mailer FIRST rather than assuming, because the answer is still no when
+  // there is no provider configured or no address on file, and minting a token
+  // for a link that will not arrive leaves a dead record on disk and a page
+  // making a promise it cannot keep. One rule, asked at its source, never a
+  // second copy here that can drift from it.
+  if (owner && await notify.mayEmail(owner.email, 'password-reset')) {
     const token = crypto.randomBytes(24).toString('hex');
     await setDoc(`reset:${token}`, { owner_id: owner.id, expires: Date.now() + 60 * 60 * 1000 });
     await notify.passwordReset(owner, token);
@@ -1446,7 +1500,10 @@ router.post('/sidebets', aw(async (req, res) => {
       });
       // Nobody checks a website for a bet they do not know exists.
       const targets = owners.filter(o => ids.includes(o.id));
-      notify.sideBetProposed(targets, bet, req.owner.name, terms).catch(() => {});
+      // NO EMAIL. Not one of the three (policy, 2026-08-11) — and checked before
+      // removing rather than assumed: server-app.js already banners "N side bets
+      // waiting on you" at the top of EVERY page plus a nav badge, which is
+      // louder than the email was.
     } catch (e) {
       // Carry the reason, don't swallow it. Truncated and query-escaped; the
       // page renders it as text, never as markup.
@@ -1834,7 +1891,8 @@ router.post('/votes/propose', aw(async (req, res) => {
   const id = newId();
   const vote = { id, question, description, proposer_id: req.owner.id, status: 'open', created_at: now(), closed_at: null };
   await setDoc(`vote:${id}`, vote);
-  notify.newVote(req.world.owners, vote, req.owner.name).catch(() => {});
+  // NO EMAIL. Not one of the three (policy, 2026-08-11). The dashboard's "Needs
+  // you" strip counts the votes you have not cast, on the page you land on.
   res.redirect('/votes?proposed=1');
 }));
 

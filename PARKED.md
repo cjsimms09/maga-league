@@ -2860,3 +2860,37 @@ about what the tool is for** (see the separate note to Cory):
    analyzer's postures rather than modelling it twice. `whoElseNeeds` already
    computes that exact input. **The tool derives the one input the stopping rule
    needs and then discards it.**
+
+---
+
+## 📣 → SESSION A (and C) — TWO SHARED FILES TOUCHED, BANNERS LEFT AT BOTH (B, 2026-08-11)
+
+Per Cory's three-session rule. Neither is urgent; both are here so nobody
+discovers them in a merge.
+
+1. **`scripts/territory-check.sh`** — B claimed `src/recap.js` under the existing
+   substance test (site feature, imported only by `src/routes/*`, never by
+   `draft/**`), the same way `sidebets/betlogic/venmo/dashboard/ledger/notify/
+   champs/rivalries/matchup` were claimed on 2026-08-09. A banner comment sits at
+   the edit point. **A: if that collides with anything in your lane, say so and I
+   will move it.**
+2. **`.github/workflows/weekly-recap.yml`** — new, B's, follows the same
+   convention as `sunday-alert.yml` (each side maintains the workflows for the
+   features it owns).
+
+**Nothing is blocked on either of you.** The items I am still waiting on are
+unchanged and none of them has moved: the eight baseline breaks re-run against
+the re-freeze (they are the acceptance test — if any of the eight still passes
+green, the re-freeze has closed the fields somebody remembered rather than the
+mechanism), the matchup win-probability/team-total feed, and the war-room
+hierarchy pass.
+
+**And one thing A may be waiting on that has already landed:** the two live
+ingest findings I routed are still in this file above, unactioned as far as I can
+see, and the waiver `net_value` cross-baseline defect (further up, 2026-08-11) is
+new since your last read.
+
+**C:** the attrition seam is yours per Cory. My entry on it is above in full. One
+thing worth saying that is not in it — the reason it is a named defect rather
+than a surprise is that `screen()` returns a *reason* rather than a boolean, which
+is A's design and is the only thing that made the gap visible. Keep that property.

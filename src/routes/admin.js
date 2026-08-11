@@ -10,6 +10,7 @@ const { hashPassword, requireCommissioner, aw } = require('../auth');
 const VE = require('./voteenact');   // vote → season-config enactment
 const DO = require('./draftorder');   // selection order: reverse reg-season + reverse bracket
 const DB = require('./draftboard');   // the completed board as a grid + its raw capture
+const RD = require('./recap-data');   // the weekly recap: gather + write (preview before it goes out)
 
 router.use(requireCommissioner);
 
@@ -24,6 +25,62 @@ const back = (res, tab, extra = '') => res.redirect(`/admin?tab=${tab}${extra}`)
 const msg = m => '&msg=' + encodeURIComponent(m);
 
 // One console page; ?tab= picks the section, ?year= the season being managed.
+/* ── THE WEEKLY RECAP, BEFORE IT GOES OUT ────────────────────────────────────
+ *
+ * Nine people get this and cannot reply to it. The hard constraint on the whole
+ * feature is that nothing in it reads as a genuine dig at one person, and the
+ * only way to hold that constraint is to be able to READ IT FIRST. So the
+ * preview is not a nicety — it is the enforcement mechanism, and it renders the
+ * exact text the email would carry rather than an approximation of it.
+ *
+ * Also a manual send, for a week the cron missed. It deliberately clears the
+ * once-per-week stamp check by going through the same door with an explicit
+ * override: an explicit click is a request, not a schedule.
+ */
+router.get('/recap', aw(async (req, res) => {
+  const world = req.world;
+  const owners = H.activeOwners(world.owners);
+  const season = String(H.currentSeason(world.seasons).year || new Date().getUTCFullYear());
+  const sData = await sleeper.bundle(world.config.sleeper_league_id).catch(() => null);
+  const liveWeek = sData && sData.week ? Math.max(1, Number(sData.week) - 1) : null;
+  const week = Number(req.query.week) || liveWeek;
+  let recap = null, err = null;
+  if (week) {
+    try { recap = await RD.buildWeeklyRecap(world, owners, week, season); }
+    catch (e) { err = String(e && e.message || e); }
+  }
+  const stamp = week ? await getDoc(`weekly-recap-sent:${season}:${week}`, null) : null;
+  res.render('admin/recap', {
+    week, liveWeek, season, recap, err, stamp,
+    text: recap && recap.ready ? RD.toText(recap) : '',
+    recipients: owners.filter(o => o.email).length,
+    emailOn: notify.configured(),
+    sent: req.query.sent || null,
+  });
+}));
+
+router.post('/recap/send', aw(async (req, res) => {
+  const world = req.world;
+  const owners = H.activeOwners(world.owners);
+  const season = String(H.currentSeason(world.seasons).year || new Date().getUTCFullYear());
+  const week = Number(req.body.week) || 0;
+  let outcome = 'no-week';
+  if (week) {
+    const recap = await RD.buildWeeklyRecap(world, owners, week, season);
+    if (!recap.ready) outcome = recap.reason;
+    else {
+      const r = await notify.weeklyRecap(owners, recap).catch(e => ({ error: String(e && e.message || e) }));
+      if (r && r.sent) {
+        outcome = 'ok';
+        await setDoc(`weekly-recap-sent:${season}:${week}`,
+          { at: new Date().toISOString(), season, week, manual: true,
+            recipients: owners.filter(o => o.email).length });
+      } else outcome = (r && (r.error ? 'send-failed' : r.reason)) || 'send-skipped';
+    }
+  }
+  res.redirect(`/admin/recap?week=${week}&sent=${encodeURIComponent(outcome)}`);
+}));
+
 router.get('/', aw(async (req, res) => {
   const world = req.world;
   const tab = req.query.tab || 'alerts';
@@ -121,7 +178,10 @@ router.post('/alerts', aw(async (req, res) => {
       active: true, created_at: now(),
     });
     await setDoc('alerts', alerts);
-    notify.alertPosted(req.world.owners, message, alerts[alerts.length - 1].level).catch(() => {});
+    // NO EMAIL. An urgent alert is already pinned site-wide on every page, so
+    // the email was a second copy of something nobody can miss — and under the
+    // 2026-08-11 policy an announcement is not one of the three things that may
+    // reach a member. The capability was removed from notify.js, not gated.
   }
   back(res, 'alerts');
 }));
@@ -184,7 +244,9 @@ router.post('/ledger/:id/settle', aw(async (req, res) => {
     const updated = await L.setSettled(e.id, !e.settled, req.body.note, req.owner.name);
     if (updated && updated.settled) {
       const target = H.ownerById(req.world.owners, updated.owner_id);
-      if (target) notify.moneySettled(target, updated).catch(() => {});
+      // NO EMAIL — a settlement notice is not one of the three permitted member
+      // emails (policy, 2026-08-11). It shows on /bank. This is a deliberate
+      // reduction in signal, taken knowingly: see notify.js's closing note.
     }
   }
   if (req.body.back === 'bank') return res.redirect('/bank');

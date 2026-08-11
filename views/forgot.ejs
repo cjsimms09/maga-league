@@ -5,8 +5,8 @@
     <div class="body">
       <% if (error) { %><div class="error-note"><%= error %></div><% } %>
       <% if (sent) { %>
-        <div class="flash-note">If that account can be reset by email, a link is on its way — it expires in an hour.</div>
-        <p class="muted">The league only ever emails the commissioner, so if you're one of the other nine: <b>text Cory</b>. He can reset your password in about five seconds from the console and read you the temporary one over the phone.</p>
+        <div class="flash-note">If that account exists and has an email on file, a reset link is on its way. It expires in an hour.</div>
+        <p class="muted">No email on file, or it doesn't turn up? <b>Text Cory</b> — he can reset it in about five seconds from the console.</p>
         <p style="text-align:center"><a class="btn navy" href="/login">Back to login</a></p>
       <% } else if (!emailOn) { %>
         <p>Email isn't switched on for this league yet, so reset links can't be sent.</p>
@@ -21,7 +21,7 @@
           </div>
         </form>
         <p class="muted" style="text-align:center; margin-top:1rem">
-          Members don't get league email — text the commissioner and he'll reset it for you.
+          No email on file? Text the commissioner instead.
         </p>
       <% } %>
     </div>

@@ -113,6 +113,10 @@
     _nav.push({ href: '/analyzer',       label: '📊 Analyzer',      short: 'Analyzer', icon: '📊', commish: true, match: '/analyzer' });
     _nav.push({ href: '/admin',          label: '⭐ Commish',   short: 'Commish',  icon: '⭐', commish: true });
     _nav.push({ href: '/admin/warroom',  label: '🧠 War Room',  short: 'War Room', icon: '🧠', commish: true });
+    // The recap is the only thing that reaches the whole league, and the preview
+    // is how it gets read before it does. A page nobody can find is a check
+    // nobody performs.
+    _nav.push({ href: '/admin/recap',     label: '📰 Weekly Recap', short: 'Recap', icon: '📰', commish: true, match: '/admin/recap' });
   }
   const _isActive = n => n.match ? _path.startsWith(n.match) : _path === n.href;
   const _primary = _nav.filter(n => n.primary);

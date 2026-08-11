@@ -37,6 +37,12 @@ b_owns() {
     # src/matchup.js — slot-aligned matchup starters (QB vs QB). In-season site
     # surface, imported only by src/routes/member; never by draft/**. B by substance.
     src/matchup.js) return 0 ;;
+    # ⚠️ SHARED-FILE EDIT BY B, 2026-08-11 — banner per Cory's three-session rule.
+    # src/recap.js — the weekly recap's story generator. Pure text over a week of
+    # Sleeper data; imported only by src/routes/*, never by draft/**. Same
+    # substance test as the six above, claimed the same way. A: if this collides
+    # with anything in your lane, say so and I will move it.
+    src/recap.js) return 0 ;;
     views/*|src/routes/*|public/css/*|public/icons/*|public/*.webmanifest) return 0 ;;
     public/js/*) case "$1" in public/js/draft/*) return 1 ;; *) return 0 ;; esac ;;
     docs/queued/league-history-page.md|docs/queued/history-chronicle-voice.md) return 0 ;;

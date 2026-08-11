@@ -16,47 +16,74 @@ const SITE = process.env.SITE_URL || 'https://makefbgreatagain.netlify.app';
 
 const configured = () => !!apiKey();
 
-// ── WHO MAY BE EMAILED AT ALL ────────────────────────────────────────────────
+// ── WHAT MAY BE EMAILED TO A MEMBER ──────────────────────────────────────────
 //
-// STANDING RULE (Cory, 2026-08-11): the site never emails MEMBERS. Not a
-// preference to remember at each call site — six of them already existed
-// (alertPosted and newVote to every owner, moneySettled, draftTurn twice,
-// sideBetProposed) and the seventh would be added by whoever builds the next
-// feature. So it is enforced at the ONE door every message goes through, and a
-// new caller inherits the rule instead of having to be told it.
+// STANDING POLICY (Cory, 2026-08-11). EXACTLY THREE things may ever reach a
+// member's inbox:
 //
-// The commissioner is the only permitted recipient. Everything else is refused
-// with a named reason rather than silently dropped, so a caller can tell "the
-// mailer declined" from "the mailer is not configured".
-async function commissionerEmails() {
+//     password-reset · weekly-recap · draft-turn
+//
+// Nothing else. Not lineup alerts, not waiver reminders, not settlement notices,
+// not vote notifications, not trade offers, not anything built later. If a
+// feature's design assumes member notification, it lives on the site and they go
+// look at it. Everything in-season is the commissioner's and nobody else's.
+//
+// FOUR CAPABILITIES WERE REMOVED RATHER THAN GATED, because a gated capability is
+// one edit away from being a capability again: `moneySettled` (to the owner),
+// `newVote` (to every owner), `alertPosted` (to every owner), and
+// `sideBetProposed` (to the named parties) no longer exist in this file, and
+// their call sites no longer call them. Each already had a louder on-site signal
+// — see the note at the bottom of this file.
+//
+// THE ENFORCEMENT IS A KIND, NOT A RECIPIENT LIST. Every send declares what it
+// IS. An unrecognised or absent kind is commissioner-only, so a new feature that
+// calls sendMail without thinking about this inherits the restriction instead of
+// having to be told about it, and widening the policy means editing one set here
+// — a visible, deliberate line in a diff.
+const MEMBER_KINDS = new Set(['password-reset', 'weekly-recap', 'draft-turn']);
+
+async function ownerIndex() {
   try {
     const owners = await getDoc('owners', []);
-    return new Set((owners || [])
-      .filter(o => o && o.active && o.is_commissioner && o.email)
-      .map(o => String(o.email).trim().toLowerCase()));
-  } catch (e) { return new Set(); }
+    const commish = new Set(), active = new Set();
+    for (const o of (owners || [])) {
+      if (!o || !o.active || !o.email) continue;
+      const e = String(o.email).trim().toLowerCase();
+      active.add(e);
+      if (o.is_commissioner) commish.add(e);
+    }
+    return { commish, active };
+  } catch (e) { return { commish: new Set(), active: new Set() }; }
+}
+
+// Who may receive a message of this kind. Fails CLOSED on an unreadable roster:
+// an empty set means "email nobody", never "found nothing to object to".
+async function permitted(kind) {
+  const { commish, active } = await ownerIndex();
+  return MEMBER_KINDS.has(kind) ? active : commish;
 }
 
 // The same question, asked before doing work rather than after: "would a message
-// to this address be sent?" Callers that need to know in advance (the forgot-
-// password page, which must not promise a link it will not send) ask HERE rather
-// than re-deriving "who is a commissioner" on their own — a second copy of that
-// rule is exactly how the two drift apart.
-async function mayEmail(address) {
+// of this kind to this address be sent?" Callers that need to know in advance
+// (the forgot-password page, which must not promise a link it will not send) ask
+// HERE rather than re-deriving the policy on their own — a second copy of a rule
+// like this is exactly how the two drift apart.
+async function mayEmail(address, kind) {
   if (!configured() || !address) return false;
-  return (await commissionerEmails()).has(String(address).trim().toLowerCase());
+  return (await permitted(kind)).has(String(address).trim().toLowerCase());
 }
 
-async function sendMail({ to, subject, html }) {
+async function sendMail({ to, subject, html, kind }) {
   if (!configured() || !to || !to.length) return { skipped: true };
-  const allowed = await commissionerEmails();
+  const allowed = await permitted(kind);
   const list = [].concat(to).map(a => String(a).trim().toLowerCase()).filter(Boolean);
   const blocked = list.filter(a => !allowed.has(a));
   if (blocked.length) {
     // Refuse the WHOLE send rather than quietly trimming the recipients: a
-    // partial send is how a rule like this decays into "mostly".
-    return { skipped: true, reason: 'recipient-not-commissioner',
-      note: `the site does not email members (${blocked.length} blocked recipient${blocked.length === 1 ? '' : 's'})` };
+    // partial send is how a policy like this decays into "mostly".
+    return { skipped: true, reason: 'recipient-not-permitted',
+      note: `${blocked.length} recipient${blocked.length === 1 ? '' : 's'} may not receive `
+          + `${MEMBER_KINDS.has(kind) ? `a "${kind}"` : `"${kind || 'an unclassified message'}" (commissioner-only)`}` };
   }
   try {
     const res = await fetch('https://api.resend.com/emails', {
@@ -106,14 +133,12 @@ function wrap(title, body, cta) {
   </div>`;
 }
 
-const emailsFor = (owners, filter = () => true) =>
-  owners.filter(o => o.active && o.email && filter(o)).map(o => o.email);
-
 // --- notification events (all fire-and-forget) ---
 
 async function draftTurn(owner) {
   if (!owner.email) return;
   await sendMail({
+    kind: 'draft-turn',
     to: [owner.email],
     subject: "🎯 You're up — pick your draft spot",
     html: wrap("It's your turn to choose a draft spot",
@@ -122,71 +147,10 @@ async function draftTurn(owner) {
   });
 }
 
-async function moneySettled(owner, entry) {
-  if (!owner.email) return;
-  const paid = entry.amount > 0;
-  await sendMail({
-    to: [owner.email],
-    subject: paid ? `💵 You've been paid — ${fmt(entry.amount)}` : `✅ Payment recorded — ${fmt(-entry.amount)}`,
-    html: wrap(paid ? 'The commissioner paid you' : 'Your payment was recorded',
-      `<b>${entry.desc}</b> — ${fmt(Math.abs(entry.amount))}${entry.settle_note ? ` (${entry.settle_note})` : ''}. Your tab has been updated.`,
-      { path: '/bank', label: 'See my tab' }),
-  });
-}
-
-async function newVote(owners, vote, proposerName) {
-  const to = emailsFor(owners, o => o.id !== vote.proposer_id);
-  await sendMail({
-    to,
-    subject: `🗳 New measure on the ballot: ${vote.question}`,
-    html: wrap(vote.question,
-      `<b>${proposerName}</b> put this on the ballot.${vote.description ? ` "${vote.description}"` : ''} Six YES votes passes it. You can change your vote until it closes.`,
-      { path: '/votes', label: 'Cast my vote' }),
-  });
-}
-
-async function alertPosted(owners, message, level) {
-  if (level !== 'urgent') return;
-  await sendMail({
-    to: emailsFor(owners),
-    subject: '🚨 League announcement',
-    html: wrap('From the commissioner', message, { path: '/', label: 'Open the league office' }),
-  });
-}
-
-/**
- * Somebody put a bet in front of you.
- *
- * THIS NO LONGER REACHES A MEMBER — sendMail refuses every non-commissioner
- * recipient (see the standing rule at the top). The comment that used to live
- * here said "nobody checks a website for a bet they do not know exists", and
- * that objection is real, so it was checked rather than assumed: the signal it
- * was carrying is already on the site and is LOUDER than the email was.
- * server-app.js puts a site-wide banner at the top of EVERY page — "N side bets
- * waiting on you to accept or decline" — plus a count badge on the League
- * Finances nav, both driven by sidebets.awaiting(), both suppressed on /bank
- * itself. You cannot open the site anywhere and miss it.
- *
- * Kept rather than deleted because the commissioner is still a valid recipient
- * and a bet proposed TO him legitimately mails.
- */
-async function sideBetProposed(owners, bet, proposerName, sentence) {
-  const to = emailsFor(owners, o => o.id !== bet.proposer_id);
-  if (!to.length) return { skipped: true };
-  await sendMail({
-    to,
-    subject: `🤝 ${proposerName} wants to bet you ${fmt(bet.stake)}`,
-    html: wrap(`${proposerName} put up a side bet`,
-      `<b>${sentence}</b><br><br>${fmt(bet.stake)} each${bet.resolves ? `, settling ${bet.resolves}` : ''}.
-       It is not a bet until you accept — and accepting is a gentlemen's agreement,
-       as good as a handshake. The site keeps score; it does not hold the money.`,
-      { path: '/bank?section=sidebets', label: 'See the bet' }),
-  });
-}
-
 async function passwordReset(owner, token) {
   if (!owner.email) return { skipped: true };
   return sendMail({
+    kind: 'password-reset',
     to: [owner.email],
     subject: '🔑 Reset your league password',
     html: wrap('Password reset',
@@ -196,6 +160,51 @@ async function passwordReset(owner, token) {
 }
 
 const fmt = n => '$' + Math.abs(Math.round(n * 100) / 100).toLocaleString('en-US');
+
+/* THE WEEKLY RECAP — the only in-season email the LEAGUE receives.
+ *
+ * One of exactly three things permitted to reach a member's inbox, and the only
+ * one that is not transactional. It gets the plain shell rather than the
+ * single-paragraph `wrap()` used by the notices, because it is a piece of
+ * writing with sections and it should look like one.
+ */
+async function weeklyRecap(owners, recap) {
+  const to = (owners || []).filter(o => o && o.active && o.email).map(o => o.email);
+  if (!to.length || !recap || !recap.ready) return { skipped: true, reason: 'nothing-to-send' };
+  // **bold** is the only markup the generator emits, so it is the only markup
+  // converted here — anything else in the text is escaped rather than trusted.
+  const esc = t => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const rich = t => esc(t).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
+  const body = (recap.sections || []).map(sec => {
+    const h = sec.h
+      ? `<div style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#8a5f14;font-weight:800;margin:20px 0 8px">${esc(sec.h)}</div>`
+      : '';
+    const lines = sec.lines.map(l =>
+      `<p style="margin:0 0 10px;line-height:1.6;color:#0c1a2b">${rich(l)}</p>`).join('');
+    return h + lines;
+  }).join('');
+  return sendMail({
+    kind: 'weekly-recap',
+    to,
+    subject: recap.subject,
+    html: `<div style="font-family:Helvetica,Arial,sans-serif;background:#f7f6f2;color:#0c1a2b;padding:24px">
+      <div style="max-width:560px;margin:0 auto;background:#ffffff;border:1px solid #e5e3da;border-radius:14px;overflow:hidden">
+        <div style="padding:16px 20px;border-bottom:1px solid #e5e3da">
+          <div style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#8a5f14;font-weight:800">🦅 Make Football Great Again</div>
+        </div>
+        <div style="padding:20px">
+          <h1 style="margin:0 0 4px;font-size:20px;color:#12294a">Week ${esc(recap.week)}</h1>
+          ${body}
+          <a href="${SITE}/" style="display:inline-block;margin-top:18px;background:#d4242f;color:#ffffff;text-decoration:none;font-weight:800;font-size:13px;letter-spacing:.08em;text-transform:uppercase;padding:11px 18px;border-radius:8px">See the standings</a>
+        </div>
+        <div style="padding:12px 20px;border-top:1px solid #e5e3da;font-size:11px;color:#3c4a60">
+          You get this because you are in the league. Remove your email on the site to stop —
+          password resets and draft-turn notices are the only other things we will ever send you.
+        </div>
+      </div>
+    </div>`,
+  });
+}
 
 // THE SUNDAY ALERT — before kickoff, the specific start/sit calls and what each
 // is worth. Commissioner-only content (a recommendation tool); the caller gates.
@@ -280,6 +289,11 @@ async function sundayAlert(owner, alert) {
       (alert.projected ? ` You project ${alert.projected.toFixed(0)}.` : '') + '</span>';
   }
   return sendMail({
+    // NO `kind`, deliberately. The Sunday alert is a recommendation tool and is
+    // commissioner-only by the DEFAULT rather than by a special case — if it
+    // ever needed to reach anyone else that would be a policy change, not a
+    // parameter. This is the shape every future in-season notification should
+    // have: say nothing, get the restriction.
     to: [owner.email],
     subject: todo.length
       ? `🎯 ${week} lineup: $${Math.round(alert.lineupKnown && alert.fixWorth != null ? alert.fixWorth : alert.edge)} on the table`
@@ -292,5 +306,18 @@ async function sundayAlert(owner, alert) {
   });
 }
 
-module.exports = { configured, mayEmail, sendMail, draftTurn, moneySettled, newVote, alertPosted,
-                   sideBetProposed, passwordReset, sundayAlert, SITE };
+// WHAT REPLACED THE FOUR REMOVED NOTIFICATIONS, checked rather than assumed
+// before they were deleted:
+//   • sideBetProposed → server-app.js puts a banner at the top of EVERY page —
+//     "N side bets waiting on you to accept or decline" — plus a count badge on
+//     the League Finances nav, both from sidebets.awaiting(). Louder than the
+//     email was; you cannot open the site anywhere and miss it.
+//   • newVote      → the dashboard's "Needs you" strip counts votes you have not
+//                    cast, on the page you land on when you log in.
+//   • alertPosted  → an urgent alert is ALREADY pinned site-wide on every page.
+//                    The email was a second copy of something you cannot miss.
+//   • moneySettled → /bank. This one is a genuine reduction: if the commissioner
+//                    pays you, nothing tells you until you look. Accepted
+//                    deliberately — it is not one of the three.
+module.exports = { configured, mayEmail, sendMail, MEMBER_KINDS,
+                   draftTurn, passwordReset, sundayAlert, weeklyRecap, SITE };
