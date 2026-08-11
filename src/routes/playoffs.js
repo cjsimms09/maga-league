@@ -56,43 +56,60 @@ function winProb(row, meanPF, spreadPF) {
 
 /**
  * CLINCH / ELIMINATION — exact, schedule-agnostic bounds. A team is:
- *   • ELIMINATED if even winning out it can't reach the cut line's current wins
- *     (can't catch the team currently holding the last spot, best case),
- *   • CLINCHED if even losing out no one below can catch it (its wins exceed the
- *     best case of the team one below the cut),
- *   • otherwise ALIVE, with a magic number (wins to clinch) / tragic (losses to
- *     be out) where computable.
+ *   • ELIMINATED if even winning out it can't catch `cut` teams' current wins,
+ *   • CLINCHED if fewer than `cut` teams can reach it even losing out,
+ *   • otherwise ALIVE.
+ *
+ * THE TIEBREAK IS NOT A DETAIL. This counted only teams whose best case was
+ * STRICTLY GREATER than a team's current wins, so anyone who could merely draw
+ * LEVEL was ignored — and level is settled on points-for, which a team can
+ * lose. A 9–4 team in the final week with the worst points-for in the league,
+ * with five 8–5 teams behind it, was badged "🔒 IN — clinched a playoff spot"
+ * on a table where a perfectly ordinary set of results leaves it TENTH.
+ * "Clinched" is the one word here that claims certainty, and it was the one
+ * that wasn't.
+ *
+ * And with the season over this still worked in bounds, so a team that finished
+ * FIFTH on the points tiebreak — a real, common finish — was badged clinched
+ * while the odds column beside it, which does break ties on points, read 0%.
+ * Two derivations of the same fact, disagreeing on the page. Once there are no
+ * games left the table IS the answer, so it is read directly, ordered exactly
+ * the way simOdds orders it.
+ *
  * @param rows      [{owner_id, wins, losses, pf}]
  * @param gamesLeft games each team has remaining
  * @param cut       playoff spots (top `cut` make it)
- * @returns { [owner_id]: { status: 'clinched'|'eliminated'|'alive', magic, tragic } }
+ * @returns { [owner_id]: { status: 'clinched'|'eliminated'|'alive', rank } }
  */
 function clinchElim(rows, gamesLeft, cut) {
   const out = {};
   if (!rows.length || !cut || cut >= rows.length) {
-    for (const r of rows) out[r.owner_id] = { status: 'alive', magic: null, tragic: null };
+    for (const r of rows) out[r.owner_id] = { status: 'alive', rank: null };
     return out;
   }
+  // The same order simOdds finishes on — wins, then points-for.
   const sorted = [...rows].sort((a, b) => b.wins - a.wins || b.pf - a.pf);
+
+  // No games left: nothing is a bound any more, it is a result.
+  if (!gamesLeft) {
+    sorted.forEach((r, i) => { out[r.owner_id] = { status: i < cut ? 'clinched' : 'eliminated', rank: i + 1 }; });
+    return out;
+  }
+
   const bestCase = r => r.wins + gamesLeft;                 // wins if it wins out
   for (let i = 0; i < sorted.length; i++) {
     const r = sorted[i];
-    // How many teams are guaranteed to finish ahead: those whose CURRENT wins the
-    // team can't reach even winning out.
+    // Guaranteed to finish ahead: current wins this team cannot reach even
+    // winning out. Strict, because a team it can draw level with might lose the
+    // tiebreak — declaring someone OUT has to stay the conservative call.
     const cantCatch = sorted.filter(o => o.owner_id !== r.owner_id && o.wins > bestCase(r)).length;
-    // How many teams could still pass this team (their best case exceeds its wins).
-    const couldPass = sorted.filter(o => o.owner_id !== r.owner_id && bestCase(o) > r.wins).length;
+    // Could still finish above it: >= , not >. Drawing level is enough, because
+    // level is decided on points-for and that is not in this team's hands.
+    const couldPass = sorted.filter(o => o.owner_id !== r.owner_id && bestCase(o) >= r.wins).length;
     let status = 'alive';
     if (cantCatch >= cut) status = 'eliminated';           // cut or more locked ahead
-    else if (couldPass < cut) status = 'clinched';         // fewer than `cut` can pass → safe
-    // Magic/tragic: coarse, computable numbers to act on.
-    const aheadOrClose = sorted.filter(o => o.owner_id !== r.owner_id && o.wins >= r.wins).length;
-    out[r.owner_id] = {
-      status,
-      magic: status === 'alive' ? Math.max(1, cut - (rows.length - 1 - couldPass)) : null,
-      tragic: status === 'alive' ? Math.max(0, gamesLeft - Math.max(0, cantCatch - cut + 1)) : null,
-      rank: i + 1,
-    };
+    else if (couldPass < cut) status = 'clinched';         // fewer than `cut` can reach it → safe
+    out[r.owner_id] = { status, rank: i + 1 };
   }
   return out;
 }
@@ -179,7 +196,13 @@ function matchupLeverage(rows, gamesLeft, cut, ownerId) {
   return { win: winOdds, lose: loseOdds, swing: winOdds - loseOdds, exact: gamesLeft - 1 === 0 };
 }
 
-/** Combine odds + movement + clinch/elim into one per-owner picture for a view. */
+/** Combine odds + movement + clinch/elim into one per-owner picture for a view.
+ *
+ *  `magic` and `tragic` used to ride along here. Nothing has ever read them —
+ *  not a view, not a route, not a test — and both were computed by the same
+ *  tie-blind arithmetic that made "clinched" wrong above, so they were two more
+ *  numbers that would have been quietly false the day something rendered them.
+ *  Deleted rather than fixed: the fix would have had no consumer either. */
 function picture(rows, gamesLeft, cut, prevOdds = null) {
   const odds = simOdds(rows, gamesLeft, cut);
   const ce = clinchElim(rows, gamesLeft, cut);
@@ -191,8 +214,6 @@ function picture(rows, gamesLeft, cut, prevOdds = null) {
       odds: o,
       delta: prev == null ? null : o - prev,
       status: (ce[r.owner_id] || {}).status || 'alive',
-      magic: (ce[r.owner_id] || {}).magic ?? null,
-      tragic: (ce[r.owner_id] || {}).tragic ?? null,
     };
   }
   return out;
