@@ -2504,7 +2504,14 @@ router.get('/scoreboard', aw(async (req, res) => {
 
   // pick'em splits (public only after lock)
   let allPicks = [];
-  if (locked) { try { allPicks = await PE.allPicksForWeek(seasonYear, weekNo); } catch (e) {} }
+  // The only catch in the route layer that stated no reason, and a reason is
+  // the whole difference between a swallow you can review and one you cannot:
+  // to satisfy myself this was safe I had to trace the consumer. So, written
+  // down — an unreadable pick store leaves this empty, gameSplit then reports
+  // total 0, and the scoreboard drops the split chip rather than printing a
+  // split of nothing. That is an omission, not a wrong number, which is the
+  // only reason it is allowed to pass quietly.
+  if (locked) { try { allPicks = await PE.allPicksForWeek(seasonYear, weekNo); } catch (e) { /* see above: the chip is dropped, never faked */ } }
 
   // playoff picture (odds + clinch/elim) + per-game leverage, when there's a race
   let picture = null, gamesLeft = 0, cut = PO.playoffCut(sData && sData.league);
