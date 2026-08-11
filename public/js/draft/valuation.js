@@ -296,6 +296,77 @@
     return open;
   }
 
+  /* IS A TRADE RECOMMENDATION STILL AN ACTION ANYONE CAN TAKE?
+   *
+   * A DIFFERENT CLASS FROM A WRONG NUMBER. `trade_deadline` is 11 and correct;
+   * no surface knows whether the current week is past it. So the recommendation
+   * layer can produce a perfectly valid sell recommendation that is
+   * OPERATIONALLY IMPOSSIBLE. A valid fact plus a missing temporal gate equals
+   * an invalid recommendation.
+   *
+   * IT SUPPRESSES RATHER THAN DISPLAYS. Showing the deadline next to a sell
+   * recommendation still made the recommendation — the reader has to do the
+   * arithmetic, at exactly the moment they are least likely to. So this returns
+   * `actionable: false` and the caller must not render the recommendation at
+   * all, or must transform it into the thing that IS still available (hold,
+   * or plan for next season).
+   *
+   * NO DEFAULTS, for the reason claimStoppingRule has none: a gate that guesses
+   * the week is worse than no gate, because it answers confidently.
+   *
+   * THE BOUNDARY WEEK IS NOT VERIFIED AND SAYS SO. Sleeper's `trade_deadline:
+   * 11` could mean "week 11 is the last week trades process" or "trades stop AT
+   * week 11". Nothing we hold distinguishes them, and picking one silently is
+   * the waiver_day_of_week mistake. The permissive reading is used — the
+   * deadline week itself is still open — and `boundary_unverified` is set on
+   * that one week so a caller can require confirmation instead of trusting it.
+   *
+   * TRADE REVIEW IS PART OF THE DEADLINE, NOT AFTER IT. `trade_review_days` is
+   * 2, so a trade agreed with fewer than two days of runway may not process
+   * before the deadline. Deadline arithmetic that treats an accepted trade as
+   * immediate is wrong by two days in the week that matters most. Supplied
+   * optionally, because a caller that does not know it should not have a
+   * silently-zero review period assumed for it.
+   */
+  function tradeActionability(opts) {
+    var o = opts || {};
+    if (o.current_week == null || o.deadline_week == null) {
+      throw new Error('tradeActionability: `current_week` and `deadline_week` are '
+        + 'both required and have no defaults. Guessing either produces a '
+        + 'confident answer about whether a trade can happen at all.');
+    }
+    var wk = Number(o.current_week), dl = Number(o.deadline_week);
+    if (!isFinite(wk) || !isFinite(dl)) {
+      throw new Error('tradeActionability: week values must be finite numbers');
+    }
+    if (wk > dl) {
+      return { actionable: false, verdict: 'suppress', current_week: wk,
+        deadline_week: dl, boundary_unverified: false,
+        reason: 'week ' + wk + ' is past the league trade deadline (week ' + dl
+          + ') — no trade can be executed, so a buy or sell recommendation is '
+          + 'not an action anyone can take' };
+    }
+    var review = o.review_days == null ? null : Number(o.review_days);
+    var out = { actionable: true, verdict: 'allow', current_week: wk,
+      deadline_week: dl, review_days: review,
+      // The deadline week itself is the one week where the convention matters.
+      boundary_unverified: wk === dl,
+      reason: 'week ' + wk + ' is before the deadline (week ' + dl + ')' };
+    if (wk === dl) {
+      out.verdict = 'allow_with_warning';
+      out.reason = 'week ' + wk + ' IS the deadline week. Whether Sleeper treats '
+        + 'it as the last week trades process or as the week they stop is not '
+        + 'established — confirm before acting on a recommendation this week.';
+    }
+    if (review != null && review > 0 && (dl - wk) * 7 < review) {
+      out.verdict = 'allow_with_warning';
+      out.reason += ' — but league trade review takes ' + review + ' day(s), and '
+        + 'there may not be that much runway left before the deadline, so an '
+        + 'agreed trade may not process in time';
+    }
+    return out;
+  }
+
   /* VORP AFTER A MANUAL PROJECTION OVERRIDE (found by B, 2026-08-11).
    *
    * IT LIVES HERE RATHER THAN IN app.js FOR THE REASON keeperSlateCheck MOVED:
@@ -336,7 +407,7 @@
 
   var api = { startableValue: startableValue, claimValue: claimValue,
     claimStoppingRule: claimStoppingRule, waiverPriorityDepletes: waiverPriorityDepletes,
-    vorpAfterOverride: vorpAfterOverride,
+    vorpAfterOverride: vorpAfterOverride, tradeActionability: tradeActionability,
     bestAvailableByVorp: bestAvailableByVorp,
               openStartableSlots: openStartableSlots,
               INJURY_RATE: INJURY_RATE, BENCH_DISCOUNT: BENCH_DISCOUNT };

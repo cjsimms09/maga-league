@@ -263,6 +263,17 @@ def extract_names(text, limit=15) -> list:
     import re
     text = text.decode("utf-8", "replace") if isinstance(text, (bytes, bytearray)) else (text or "")
     found, seen = [], set()
+    # CSV FIRST, because a CSV contains neither of the other two shapes and would
+    # otherwise read as a page with no players at all. MEASURED: the mirror
+    # enumeration found `ecr_20190818.csv`, `HALF_PPR_ADP.csv` and
+    # `fantasypros/ecr/2021/9_6_2021/HALF_PPR.csv` — dated boards, exactly what Route
+    # 1 is looking for — and every one came back 0/0 because this function knew only
+    # JSON `"name":` and HTML `>Name<`. A reader written for the formats its author
+    # had in mind, applied to a third, returning zero: the same defect this program
+    # has now hit seven times, and this time it was hiding the lead.
+    csv_names = _csv_names(text, limit)
+    if csv_names:
+        return csv_names
     for m in re.finditer(r'"name"\s*:\s*"([^"]{3,40})"', text):
         cand = m.group(1).strip()
         if cand.lower() not in seen:
@@ -585,3 +596,165 @@ def adp_files(tree_json, hints=_ADP_HINTS, limit=25) -> list:
 def raw_url(owner: str, repo: str, branch: str, path: str) -> str:
     """A tree path -> its raw bytes. Built from a path the repo GAVE us, not typed."""
     return "https://raw.githubusercontent.com/%s/%s/%s/%s" % (owner, repo, branch, path)
+
+
+# Header labels that hold a player's name. MFL writes "Last, First"; several mirrors
+# write first and last in separate columns, so both shapes are read.
+_NAME_COLS = ("name", "player", "player_name", "playername", "full_name", "fullname",
+              "player name", "merge_name", "mergename")
+_FIRST_COLS = ("first_name", "firstname", "first")
+_LAST_COLS = ("last_name", "lastname", "last")
+
+
+def _csv_names(text, limit=15) -> list:
+    """Player names out of a delimited file, or [] if this is not one.
+
+    Uses the `csv` module rather than splitting on commas, because a board that
+    writes `"Chase, Ja'Marr",CIN,WR` — MFL's own format, and several mirrors' — is
+    exactly the row a naive split turns into two fields and a wrong name.
+
+    The name COLUMN is found by its header, and a file with no such header returns
+    nothing rather than guessing at column 0: a guess here would put team
+    abbreviations or rank numbers into a hand-check sample whose only purpose is to
+    be readable.
+    """
+    import csv as _csv
+    import io as _io
+    head = (text or "")[:200000]
+    if "," not in head and "\t" not in head and ";" not in head:
+        return []
+    try:
+        sniffed = _csv.Sniffer().sniff(head[:4096], delimiters=",\t;")
+        delim = sniffed.delimiter
+    except Exception:                                            # noqa: BLE001
+        delim = ","
+    try:
+        rows = list(_csv.reader(_io.StringIO(head), delimiter=delim))
+    except Exception:                                            # noqa: BLE001
+        return []
+    if len(rows) < 2:
+        return []
+    header = [str(h or "").strip().lower().lstrip("\ufeff") for h in rows[0]]
+    name_i = next((i for i, h in enumerate(header) if h in _NAME_COLS), None)
+    first_i = next((i for i, h in enumerate(header) if h in _FIRST_COLS), None)
+    last_i = next((i for i, h in enumerate(header) if h in _LAST_COLS), None)
+    out, seen = [], set()
+    for r in rows[1:]:
+        if name_i is not None and len(r) > name_i:
+            cand = str(r[name_i] or "").strip()
+        elif first_i is not None and last_i is not None and len(r) > max(first_i, last_i):
+            cand = ("%s %s" % (str(r[first_i] or "").strip(),
+                               str(r[last_i] or "").strip())).strip()
+        else:
+            return []
+        # MFL and several mirrors write "Last, First". Normalised HERE so the
+        # known-answer check compares names in one spelling, not two.
+        if "," in cand:
+            last, _, first = cand.partition(",")
+            cand = ("%s %s" % (first.strip(), last.strip())).strip()
+        low = cand.lower()
+        if not cand or low in seen or low in _NOT_PLAYERS:
+            continue
+        seen.add(low); out.append(cand)
+        if len(out) >= limit:
+            break
+    return out
+
+
+# ── WHAT THE FILE MEASURES, and WHETHER IT WAS EVER FROZEN ──────────────────
+#
+# Two more ways a mirror can look like an answer and not be one, and both are the
+# same failure this module already guards against on the live side.
+#
+# QUANTITY. `ecr_20190818.csv` is EXPERT CONSENSUS RANKINGS — what analysts said the
+# order should be. ADP is what drafters actually did. They are different quantities,
+# not a noisier and a cleaner version of one, and F1/F5 want the second: this program
+# grades decisions against a market, and substituting a ranking for a market is the
+# silent swap rule 11 exists to catch. An ECR file is reported, never counted as ADP.
+#
+# FROZEN. A file named `HALF_PPR_ADP.csv` that is rewritten every week is a LIVE board
+# wearing a filename — the same trap as a page labelled "2024 ADP". What makes a
+# mirror file usable is that its content stopped changing before the drafts it would
+# price, and git records exactly that: a file whose LAST commit precedes the cutoff
+# held that content before the cutoff, attested by a third party's history.
+QUANTITY_ADP = "adp"
+QUANTITY_ECR = "ecr"
+QUANTITY_UNKNOWN = "unknown"
+
+GITHUB_COMMITS = "https://api.github.com/repos/%s/%s/commits?path=%s&per_page=100"
+
+
+def quantity_of(path: str) -> str:
+    """Does this file hold ADP, a RANKING, or something we cannot tell?
+
+    `adp` wins over `ecr` when both appear, because a path like
+    `fantasypros/adp/HALF_PPR_ADP.csv` names its quantity in two places and a file
+    under an `adp/` directory is an ADP file whatever else the name says. UNKNOWN is
+    its own answer — a file we cannot classify is not an ADP file by default.
+    """
+    p = str(path or "").lower()
+    if "adp" in p or "average_draft" in p or "average-draft" in p:
+        return QUANTITY_ADP
+    if "ecr" in p or "rank" in p:
+        return QUANTITY_ECR
+    return QUANTITY_UNKNOWN
+
+
+def commits_query(owner: str, repo: str, path: str) -> str:
+    return GITHUB_COMMITS % (owner, repo, urllib.parse.quote(path))
+
+
+def commit_dates(body) -> dict:
+    """{first, last, n} from a commits listing, newest-first as GitHub returns it.
+
+    The shape, quoted: a LIST of {"commit": {"committer": {"date": "2019-08-19T..."}}}.
+    A rate-limit or error body is an OBJECT, and treating it as an empty history
+    would report a file as having no commits — which downstream reads as "we cannot
+    date it" when the truth is "we were throttled". Raises instead.
+    """
+    if isinstance(body, (bytes, bytearray)):
+        body = body.decode("utf-8", "replace")
+    if isinstance(body, str):
+        body = json.loads(body or "[]")
+    if not isinstance(body, list):
+        raise TypeError("commits response is %s, not a list — a throttled request is "
+                        "not an empty history" % type(body).__name__)
+    stamps = []
+    for c in body:
+        if not isinstance(c, dict):
+            continue
+        d = (((c.get("commit") or {}).get("committer") or {}).get("date")
+             or ((c.get("commit") or {}).get("author") or {}).get("date"))
+        if d:
+            stamps.append(str(d))
+    if not stamps:
+        return {"first": None, "last": None, "n": 0}
+    stamps.sort()
+    return {"first": stamps[0], "last": stamps[-1], "n": len(stamps)}
+
+
+def frozen_before(dates: dict, before: str) -> dict:
+    """Did this file stop changing before the cutoff? F5's rule, applied to git.
+
+    `before` is YYYYMMDD; commit dates are ISO. Compared on the date prefix, and
+    STRICTLY — a file last written on the cutoff day is not a file that held its
+    content before it.
+
+    A file with NO readable history is not frozen. Absent is not a pass, here as
+    everywhere: an undated board is exactly what F5 exists to refuse.
+    """
+    last = (dates or {}).get("last")
+    if not last or len(str(last)) < 10:
+        return {"frozen": False, "why": "no readable commit history — an undated file "
+                                        "is what F5 refuses, not a file we may assume"}
+    stamp = str(last)[:10].replace("-", "")
+    if not stamp.isdigit():
+        return {"frozen": False, "why": "unreadable commit date %r" % last}
+    if stamp < str(before):
+        return {"frozen": True, "last_commit": str(last),
+                "why": "last written %s, before the %s cutoff — the content it holds "
+                       "now is the content it held then" % (str(last)[:10], before)}
+    return {"frozen": False, "last_commit": str(last),
+            "why": "last written %s, ON OR AFTER the %s cutoff — this is a LIVE file "
+                   "with a filename, and its current content is not evidence about "
+                   "what it held before the drafts" % (str(last)[:10], before)}

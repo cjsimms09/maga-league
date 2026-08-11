@@ -532,3 +532,120 @@ def test_A_RATE_LIMIT_BODY_IS_NOT_AN_EMPTY_REPOSITORY():
 def test_the_raw_url_is_built_from_a_path_the_repo_GAVE_us():
     u = X.raw_url("dynastyprocess", "data", "master", "files/db_fpecr.csv")
     assert u == "https://raw.githubusercontent.com/dynastyprocess/data/master/files/db_fpecr.csv"
+
+
+# ── the reader that was hiding the lead ────────────────────────────────────
+def test_A_CSV_IS_A_BOARD_TOO_and_reading_none_hid_the_only_real_lead():
+    """MEASURED. The mirror enumeration found exactly what Route 1 is looking for —
+    `files/archives/fantasypros/ecr_20190818.csv`, `fantasypros/adp/HALF_PPR_ADP.csv`,
+    `fantasypros/ecr/2021/9_6_2021/HALF_PPR.csv`, dated boards by filename and path —
+    and every one came back 0/0 players.
+
+    A CSV contains neither `"name":` nor `>Name<`. The extractor knew only those two
+    shapes, so it read zero and the files looked empty. That is a fact about the
+    reader, not the files, and it was hiding the only real lead in the run.
+
+    MUTATION: drop the CSV path. Every mirror reads as holding no players and the
+    enumeration that found them is wasted."""
+    csv = "player,team,pos,adp\nJa'Marr Chase,CIN,WR,1.2\nCeeDee Lamb,DAL,WR,2.1\n"
+    assert X.extract_names(csv) == ["Ja'Marr Chase", "CeeDee Lamb"]
+
+
+def test_LAST_COMMA_FIRST_IS_ONE_FIELD_not_two():
+    """MFL's own wire format, and several mirrors'. MUTATION: split on commas
+    instead of using the csv module. `"Chase, Ja'Marr",CIN,WR` becomes two fields and
+    a name that matches nothing — a real board scored as furniture."""
+    assert X.extract_names('name,team\n"Chase, Ja\'Marr",CIN\n"Lamb, CeeDee",DAL\n') \
+        == ["Ja'Marr Chase", "CeeDee Lamb"]
+
+
+def test_FIRST_AND_LAST_IN_SEPARATE_COLUMNS_are_joined():
+    assert X.extract_names("first_name,last_name,pos\nBijan,Robinson,RB\n") == ["Bijan Robinson"]
+
+
+def test_a_TAB_delimited_board_is_read_too():
+    assert X.extract_names("player_name\tteam\nPuka Nacua\tLAR\n") == ["Puka Nacua"]
+
+
+def test_a_CSV_WITH_NO_NAME_COLUMN_returns_nothing_rather_than_guessing():
+    """MUTATION: fall back to column 0. Team abbreviations and rank numbers land in
+    a hand-check sample whose only purpose is to be readable by a human."""
+    assert X.extract_names("a,b,c\n1,2,3\n4,5,6\n") == []
+    assert X.extract_names("<html><body>hello</body></html>") == []
+
+
+def test_a_CSV_BOARD_CLEARS_THE_KNOWN_ANSWER_TEST_end_to_end():
+    """The whole point: these files must now be judgeable by the same gate as a page."""
+    known = {"ja'marr chase", "bijan robinson", "ceedee lamb", "saquon barkley",
+             "amon-ra st. brown", "tyreek hill", "justin jefferson", "breece hall",
+             "garrett wilson", "puka nacua", "jahmyr gibbs", "chris olave"}
+    csv = "player,adp\n" + "".join("%s,%d\n" % (n.title(), i)
+                                   for i, n in enumerate(sorted(known), 1))
+    v = X.board_confidence(csv, known)
+    assert v["is_board"] is True and v["player_hits"] >= 10, v
+
+
+# ── a ranking is not a market, and a live file is not a frozen one ─────────
+def test_ECR_IS_NOT_ADP_and_must_never_be_counted_as_it():
+    """`ecr_20190818.csv` is EXPERT CONSENSUS RANKINGS — what analysts said the order
+    should be. ADP is what drafters actually did. Different quantities, not a noisier
+    and a cleaner version of one, and this program grades decisions against a MARKET.
+
+    MUTATION: treat anything board-shaped as ADP. A ranking is substituted for a
+    market, every survival and value number downstream is computed against the wrong
+    thing, and nothing errors — the silent swap rule 11 exists to catch."""
+    assert X.quantity_of("files/archives/fantasypros/ecr_20190818.csv") == X.QUANTITY_ECR
+    assert X.quantity_of("fantasypros/ecr/2021/9_6_2021/HALF_PPR.csv") == X.QUANTITY_ECR
+    assert X.quantity_of("fantasypros/adp/HALF_PPR_ADP.csv") == X.QUANTITY_ADP
+    # UNKNOWN is its own answer: a file we cannot classify is not ADP by default.
+    assert X.quantity_of("files/values-players.csv") == X.QUANTITY_UNKNOWN
+    assert X.quantity_of("") == X.QUANTITY_UNKNOWN
+
+
+def test_ADP_WINS_when_a_path_names_both():
+    """`fantasypros/adp/HALF_PPR_ADP.csv` sits under an adp/ directory. MUTATION:
+    check ecr first and a real ADP file is filed as a ranking and discarded."""
+    assert X.quantity_of("fantasypros/adp/ecr_style_HALF_PPR_ADP.csv") == X.QUANTITY_ADP
+
+
+def test_A_FILE_STILL_BEING_REWRITTEN_IS_A_LIVE_BOARD_WITH_A_FILENAME():
+    """`HALF_PPR_ADP.csv` updated every week is exactly the trap a page labelled
+    "2024 ADP" is: a name that claims a date and content that does not have one.
+
+    What makes a mirror file usable is that it STOPPED CHANGING before the drafts it
+    would price, and git records that. MUTATION: accept any file whose path carries a
+    date. A live weekly file grades 2024 drafts against 2026 data, and the
+    contamination is invisible because the filename looks right."""
+    live = X.frozen_before({"last": "2026-08-10T12:00:00Z"}, "20240801")
+    assert live["frozen"] is False
+    assert "LIVE file with a filename" in live["why"]
+
+    frozen = X.frozen_before({"last": "2019-08-19T12:00:00Z"}, "20240801")
+    assert frozen["frozen"] is True
+    assert "the content it holds now is the content it held then" in frozen["why"]
+
+
+def test_a_file_last_written_ON_the_cutoff_day_is_NOT_frozen_before_it():
+    """Strictly-before, the same rule as the captures. MUTATION: use <=."""
+    assert X.frozen_before({"last": "2024-08-01T00:00:01Z"}, "20240801")["frozen"] is False
+    assert X.frozen_before({"last": "2024-07-31T23:59:59Z"}, "20240801")["frozen"] is True
+
+
+def test_NO_COMMIT_HISTORY_IS_NOT_FROZEN():
+    """Absent is not a pass. An undated board is precisely what F5 refuses."""
+    v = X.frozen_before({}, "20240801")
+    assert v["frozen"] is False and "undated file is what F5 refuses" in v["why"]
+    assert X.frozen_before({"last": None}, "20240801")["frozen"] is False
+
+
+def test_A_THROTTLED_COMMITS_REQUEST_IS_NOT_AN_EMPTY_HISTORY():
+    """GitHub answers a rate limit with an object. MUTATION: return an empty history
+    for it. "We were throttled" is filed as "we cannot date this file", which reads
+    as a fact about the file."""
+    assert X.commit_dates('[]') == {"first": None, "last": None, "n": 0}
+    with pytest.raises(TypeError):
+        X.commit_dates('{"message": "API rate limit exceeded"}')
+    got = X.commit_dates(json.dumps([
+        {"commit": {"committer": {"date": "2019-08-19T10:00:00Z"}}},
+        {"commit": {"committer": {"date": "2019-08-18T10:00:00Z"}}}]))
+    assert got == {"first": "2019-08-18T10:00:00Z", "last": "2019-08-19T10:00:00Z", "n": 2}
