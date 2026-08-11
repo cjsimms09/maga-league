@@ -25,6 +25,78 @@ const back = (res, tab, extra = '') => res.redirect(`/admin?tab=${tab}${extra}`)
 const msg = m => '&msg=' + encodeURIComponent(m);
 
 // One console page; ?tab= picks the section, ?year= the season being managed.
+/* ── AUTOMATION HEALTH: DID THE SCHEDULED THINGS ACTUALLY HAPPEN? ────────────
+ *
+ * Three jobs now run on their own and send mail on the league's behalf, and
+ * until this existed the ONLY place their outcome appeared was a GitHub Actions
+ * annotation. Cory does not read GitHub Actions, which means the failure this
+ * project keeps hitting — a weekly job that dies silently — had been rebuilt
+ * twice today by me, with better error reporting pointed at nobody.
+ *
+ * The line that matters is not "the last one worked". It is the ARITHMETIC: the
+ * league is on week 9 and the last recap went out for week 6, so three weeks
+ * were missed and nothing said so. A dashboard that reports the most recent
+ * success is exactly how a job that stopped three weeks ago still looks fine.
+ */
+async function automationHealth(world, season) {
+  const out = [];
+  const yr = String(season.year);
+  const latest = async prefix => {
+    let keys = [];
+    try { keys = await store.listKeys(`${prefix}:${yr}:`); } catch (e) { return null; }
+    const weeks = keys.map(k => Number(String(k).split(':').pop())).filter(n => Number.isFinite(n));
+    if (!weeks.length) return null;
+    const week = Math.max(...weeks);
+    return Object.assign({ week }, await getDoc(`${prefix}:${yr}:${week}`, {}));
+  };
+
+  let liveWeek = null, feedFailing = false;
+  try {
+    const sData = await sleeper.bundle(world.config.sleeper_league_id);
+    liveWeek = sData && sData.week ? Number(sData.week) : null;
+    const raw = await getDoc('sleeper-cache', null);
+    feedFailing = !!(raw && raw.failed_at);
+  } catch (e) { /* the panel degrades; it never breaks the console */ }
+
+  const emailOn = notify.configured();
+  out.push({ key: 'email', label: 'Email provider',
+    ok: emailOn, detail: emailOn ? 'configured' : 'RESEND_API_KEY is not set — nothing can send at all',
+    // The single most consequential unknown, and it is not knowable from here:
+    // Resend's default sender only delivers to the account owner's address.
+    note: emailOn ? 'Deliverability is only provable by pressing send — /lineup has the rehearsal button.' : null });
+
+  out.push({ key: 'sleeper', label: 'Sleeper feed',
+    ok: !feedFailing, detail: feedFailing ? 'the last fetch FAILED — every in-season page is running on stale data'
+      : (liveWeek ? `live, week ${liveWeek}` : 'no live league (off-season)') });
+
+  // THE RECAP. Missed weeks are counted, not implied.
+  const recap = await latest('weekly-recap-sent');
+  const dueWeek = liveWeek ? liveWeek - 1 : null;
+  const missedRecaps = (dueWeek && dueWeek >= 1) ? Math.max(0, dueWeek - (recap ? recap.week : 0)) : 0;
+  out.push({ key: 'recap', label: 'Weekly recap',
+    ok: missedRecaps === 0,
+    detail: !dueWeek ? 'off-season — nothing due'
+      : missedRecaps === 0 ? `week ${recap.week} sent ${String(recap.at || '').slice(0, 10)}`
+      : `${missedRecaps} week${missedRecaps === 1 ? '' : 's'} MISSED — last sent was `
+        + (recap ? `week ${recap.week}` : 'never') + `, week ${dueWeek} is due`,
+    href: '/admin/recap' });
+
+  // THE SUNDAY ALERT. It legitimately stays quiet most weeks (it only sends when
+  // there is something to do), so "not sent" is NOT a fault and must not be
+  // painted as one — a status panel that cries wolf on the expected result is
+  // the same overstatement the alert itself was fixed for.
+  const alert = await latest('sunday-alert-sent');
+  out.push({ key: 'alert', label: 'Sunday alert',
+    ok: true,
+    detail: !liveWeek ? 'off-season — nothing due'
+      : alert ? `last fired for week ${alert.week} (${alert.calls} call${alert.calls === 1 ? '' : 's'}, ${alert.dead} dead slot${alert.dead === 1 ? '' : 's'})`
+      : 'has not fired yet this season — expected until a week needs a change',
+    note: liveWeek && !alert ? 'It only sends when there is something to do, which is roughly one week in nine.' : null,
+    href: '/lineup' });
+
+  return out;
+}
+
 /* ── THE WEEKLY RECAP, BEFORE IT GOES OUT ────────────────────────────────────
  *
  * Nine people get this and cannot reply to it. The hard constraint on the whole
@@ -84,6 +156,7 @@ router.post('/recap/send', aw(async (req, res) => {
 router.get('/', aw(async (req, res) => {
   const world = req.world;
   const tab = req.query.tab || 'alerts';
+  const health = await automationHealth(world, H.currentSeason(world.seasons, req.query.year)).catch(() => []);
   const owners = world.owners;
   const active = H.activeOwners(owners);
   const season = H.currentSeason(world.seasons, req.query.year ? parseInt(req.query.year, 10) : undefined);
@@ -152,6 +225,7 @@ router.get('/', aw(async (req, res) => {
     .filter(o => o.missing.length);
 
   res.render('admin/console', {
+    health,
     tab, season, seasons, weekly, awards, draft, keepers, votes, prevStandings,
     threshold: H.voteThreshold(world.config),
     contactStatus,
