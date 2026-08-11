@@ -138,6 +138,32 @@ jobs:
           rep["pool"] = pool_rep
           rep["sample"] = samp
           json.dump(rep, open("ingest-report.json", "w"), indent=1)
+
+          # DIAGNOSTICS LAST, AND COMPACT. The full report is ~700 log lines and
+          # the evidence that decides the next fix is a dozen of them in the
+          # middle. Printing it at the END means a fixed tail always reaches it —
+          # the alternative is re-reading the whole log to find twelve strings,
+          # which is what the last three iterations of this cost.
+          print("\n===== DIAGNOSTICS (read these first) =====")
+          c = (rep.get("outcomes") or {}).get("census") or {}
+          for why, ex in sorted((c.get("unparsed_samples") or {}).items()):
+              print("  %-24s %s" % (why, json.dumps(ex[:8])))
+          print("  position_blocks     %s" % json.dumps(
+              dict(list((c.get("position_blocks") or {}).items())[:8])))
+          print("  by_reason           %s" % json.dumps(c.get("by_reason")))
+          cw = rep.get("crosswalk") or {}
+          if cw:
+              print("  crosswalk           pooled=%s clearing_F2=%s/%s conflicts=%s "
+                    "unknown_mfl_id=%s no_sleeper_match=%s"
+                    % (cw.get("pooled_rate"), cw.get("leagues_clearing_F2_bar"),
+                       cw.get("leagues_with_picks"), cw.get("conflicts"),
+                       cw.get("unknown_mfl_id"), cw.get("no_sleeper_match")))
+              for x in (cw.get("matched_pairs_for_hand_check") or [])[:8]:
+                  print("    PAIR  %-24s %-3s | %-24s %-3s | %s"
+                        % (x.get("mfl_name"), x.get("mfl_pos"),
+                           x.get("board_name"), x.get("board_pos"), x.get("method")))
+          print("  attrition           %s" % json.dumps(rep.get("rejected_by_reason")))
+          print("  VERDICT             %s" % rep.get("verdict"))
           PY
       - name: Report where it cannot be missed
         if: always()
