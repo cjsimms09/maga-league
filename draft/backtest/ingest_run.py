@@ -632,6 +632,7 @@ def crosswalk_summary(reports: list) -> dict:
     rates, methods = [], Counter()
     picks = matched = unknown_id = no_match = conflicts = 0
     pairs: list = []
+    conflict_rows: list = []
     for r in reports or []:
         if not r:
             continue
@@ -643,6 +644,7 @@ def crosswalk_summary(reports: list) -> dict:
         no_match += r.get("no_sleeper_match") or 0
         conflicts += r.get("conflicts") or 0
         methods.update(r.get("methods") or {})
+        conflict_rows.extend(r.get("conflict_rows") or [])
         for p in (r.get("matched_sample") or [])[:2]:
             if len(pairs) < 30:
                 pairs.append(p)
@@ -663,12 +665,64 @@ def crosswalk_summary(reports: list) -> dict:
         "no_sleeper_match": no_match,
         "methods": dict(methods.most_common()),
         "conflicts": conflicts,
+        "conflict_breakdown": conflict_breakdown(conflict_rows),
         # BOTH SIDES OF THE MATCH, for hand-checking. A bare rate cannot be
         # audited: "447 of 702" says nothing about whether any of the 447 is the
         # right player, and a wrong-but-plausible match produces a real player and
         # never errors. The pair is what a human can check.
         "matched_pairs_for_hand_check": pairs,
         "verdict": _crosswalk_verdict(n, clear, unknown_id, no_match, conflicts, matched),
+    }
+
+
+def conflict_breakdown(rows, top=12) -> dict:
+    """Split cross-source disagreements BY FIELD, and name the values that disagree.
+
+    WHY THE SPLIT. Run 9 reported "2,147 conflicts" as one number, and that number
+    conflates two findings with opposite severity:
+
+      POSITION disagreement is the signature of the WRONG PLAYER. Two sources
+      agreeing on a name while disagreeing on what he plays is exactly how a
+      wrong-but-plausible match presents, and it RAISES the crosswalk rate.
+
+      TEAM disagreement is what two boards snapshotted on different days look like
+      when a player signs elsewhere. It is consistent with the right player. It is
+      not PROOF of the right player, and it is not counted as one — it is counted
+      apart, so a real position problem cannot hide inside a pile of trades.
+
+    A pair disagreeing on BOTH is counted with the position kind: the severe reading
+    is the one that governs. And this reports the VALUE PAIRS, not just counts,
+    because "PK -> K, 1,400 times" is a vocabulary mismatch in our comparison while
+    1,400 scattered position pairs are 1,400 wrong players, and the two are
+    indistinguishable from a total.
+    """
+    from collections import Counter
+    pos_pairs, team_pairs = Counter(), Counter()
+    position_kind = team_only = 0
+    samples: list = []
+    for r in rows or []:
+        fields = r.get("disagrees_on") or []
+        if "position" in fields:
+            position_kind += 1
+            pos_pairs["%s -> %s" % (r.get("mfl_pos"), r.get("board_pos"))] += 1
+            if len(samples) < 10:
+                samples.append({k: r.get(k) for k in
+                                ("mfl_name", "mfl_pos", "mfl_team", "board_name",
+                                 "board_pos", "board_team", "method")})
+        elif "team" in fields:
+            team_only += 1
+        if "team" in fields:
+            team_pairs["%s -> %s" % (r.get("mfl_team"), r.get("board_team"))] += 1
+    return {
+        "rows_seen": len(rows or []),
+        # The severe kind. Includes pairs that also disagree on team.
+        "position_disagreements": position_kind,
+        "team_only_disagreements": team_only,
+        "position_value_pairs": dict(pos_pairs.most_common(top)),
+        "team_value_pairs": dict(team_pairs.most_common(top)),
+        # Position conflicts are never sampled away in the count above; this is the
+        # hand-checkable evidence for the ones that are there.
+        "position_conflict_sample": samples,
     }
 
 

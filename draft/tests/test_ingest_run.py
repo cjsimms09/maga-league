@@ -495,6 +495,56 @@ def test_CONFLICTS_lead_the_verdict_because_they_RAISE_the_rate():
     assert "RAISES the crosswalk rate" in s["verdict"]
 
 
+def _conf(pos_a, pos_b, team_a="ATL", team_b="ATL", name="Bijan Robinson"):
+    """A conflict row in the shape `crosswalk_picks` actually appends."""
+    fields = ([f for f, a, b in (("position", pos_a, pos_b), ("team", team_a, team_b))
+               if a and b and str(a).upper() != str(b).upper()])
+    return {"mfl_name": name, "mfl_pos": pos_a, "mfl_team": team_a,
+            "board_name": name, "board_pos": pos_b, "board_team": team_b,
+            "method": "name", "disagrees_on": fields}
+
+
+def test_a_WRONG_PLAYER_and_a_player_who_CHANGED_TEAM_are_not_one_number():
+    """Run 9 reported "2,147 conflicts" and that total is two findings with
+    opposite severity welded together. A position disagreement is the signature of
+    the wrong player. A team disagreement is what two boards snapshotted on
+    different days look like after free agency — consistent with the RIGHT player.
+
+    MUTATION: report the total alone. 2,146 team changes and 1 wrong player reads
+    identically to 2,147 wrong players, and the action on each is opposite."""
+    rows = [_conf("RB", "WR")] + [_conf("RB", "RB", "ATL", "LAR") for _ in range(9)]
+    s = R.crosswalk_summary([_cwrep(conflicts=len(rows), conflict_rows=rows)])
+    cb = s["conflict_breakdown"]
+    assert cb["rows_seen"] == 10
+    assert cb["position_disagreements"] == 1
+    assert cb["team_only_disagreements"] == 9
+
+
+def test_a_pair_disagreeing_on_BOTH_counts_with_the_SEVERE_kind():
+    """A pair whose sources disagree on position AND team is not a team change with
+    a footnote — the position half still says wrong player. MUTATION: count it as
+    team_only, and every wrong match that also moved teams disappears."""
+    rows = [_conf("RB", "WR", "ATL", "LAR")]
+    cb = R.crosswalk_summary([_cwrep(conflicts=1, conflict_rows=rows)])["conflict_breakdown"]
+    assert cb["position_disagreements"] == 1 and cb["team_only_disagreements"] == 0
+    # ...and it is still counted among the team pairs, because it IS one.
+    assert cb["team_value_pairs"] == {"ATL -> LAR": 1}
+
+
+def test_the_VALUE_PAIRS_are_reported_so_a_VOCABULARY_mismatch_is_visible():
+    """"PK -> K, 1,400 times" is our comparison disagreeing with itself about what
+    a kicker is called. 1,400 SCATTERED position pairs are 1,400 wrong players.
+    They are indistinguishable from a count, so the values are reported.
+
+    MUTATION: drop `position_value_pairs`. The two readings stay indistinguishable
+    and the only way to tell them apart is to hand-check 1,400 players."""
+    rows = [_conf("PK", "K", name="Justin Tucker") for _ in range(7)]
+    rows += [_conf("RB", "WR", name="Some Guy")]
+    cb = R.crosswalk_summary([_cwrep(conflicts=8, conflict_rows=rows)])["conflict_breakdown"]
+    assert cb["position_value_pairs"] == {"PK -> K": 7, "RB -> WR": 1}
+    assert len(cb["position_conflict_sample"]) == 8
+
+
 def test_the_POOLED_rate_and_the_DISTRIBUTION_are_both_reported():
     """One league at 100% of 200 picks and one at 50% of 2 pool to 99.5% — which
     is true and hides that a league is below the F2 bar. Both, or neither."""

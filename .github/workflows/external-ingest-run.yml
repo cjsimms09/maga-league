@@ -173,6 +173,19 @@ jobs:
                   print("    PAIR  %-24s %-3s | %-24s %-3s | %s"
                         % (x.get("mfl_name"), x.get("mfl_pos"),
                            x.get("board_name"), x.get("board_pos"), x.get("method")))
+              # A single conflicts= total conflates the wrong player with a player
+              # who changed team between two snapshots. Split, with the values.
+              cb = cw.get("conflict_breakdown") or {}
+              print("  conflicts           position=%s team_only=%s (of %s rows)"
+                    % (cb.get("position_disagreements"), cb.get("team_only_disagreements"),
+                       cb.get("rows_seen")))
+              print("  position_pairs      %s" % json.dumps(cb.get("position_value_pairs")))
+              print("  team_pairs          %s" % json.dumps(cb.get("team_value_pairs")))
+              for x in (cb.get("position_conflict_sample") or []):
+                  print("    CONFLICT  %-22s %-3s %-3s | %-22s %-3s %-3s | %s"
+                        % (x.get("mfl_name"), x.get("mfl_pos"), x.get("mfl_team"),
+                           x.get("board_name"), x.get("board_pos"), x.get("board_team"),
+                           x.get("method")))
           d7 = rep.get("within_pool_adp") or {}
           if d7:
               fm = d7.get("format_matched") or {}
