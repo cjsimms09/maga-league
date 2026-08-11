@@ -1,8 +1,21 @@
 #!/usr/bin/env bash
-# TERRITORY CHECK — flags a parallel session touching the other's files.
+# TERRITORY CHECK — flags a parallel session touching another session's files.
 #
-# Usage:  bash scripts/territory-check.sh A     (draft path + Lab)
+# Usage:  bash scripts/territory-check.sh A     (engine, Lab, app, integration)
 #         bash scripts/territory-check.sh B     (site)
+#         bash scripts/territory-check.sh C     (external ingest)
+#
+# ══ THIS WAS A GUARD THAT DID NOT GUARD, and the fix is structural ══
+# It used to be BINARY: `b_owns()` returned true/false and A was defined as
+# "everything not B". Passing C fell through to the A branch, so a C-side call
+# only ever asked "has C touched B's files" — it would have passed C editing
+# draft/backtest/graduation_gate.py, which is A's. C parked that request by
+# JUDGMENT, not because anything stopped it.
+#
+# A two-party predicate cannot express three parties, and bolting on a C branch
+# would have made it three special cases. So ownership is now ONE FUNCTION
+# returning the owner of a path, and the check is the same sentence for every
+# side: a file you touched must be yours or shared.
 #
 # Checks UNCOMMITTED changes against the declared split. Exits non-zero on a
 # trespass so it can gate a commit.
@@ -13,7 +26,10 @@ set -uo pipefail
 cd "$(dirname "$0")/.."
 
 SIDE="${1:-}"
-[ -n "$SIDE" ] || { echo "usage: territory-check.sh A|B"; exit 2; }
+case "$SIDE" in
+  A|B|C) ;;
+  *) echo "usage: territory-check.sh A|B|C"; exit 2 ;;
+esac
 
 # B (site) owns these. A owns everything else.
 b_owns() {
@@ -41,6 +57,36 @@ b_owns() {
     public/js/*) case "$1" in public/js/draft/*) return 1 ;; *) return 0 ;; esac ;;
     docs/queued/league-history-page.md|docs/queued/history-chronicle-voice.md) return 0 ;;
     docs/queued/contact-directory.md) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
+# ── C — THE EXTERNAL INGEST (session C, 2026-08-11) ─────────────────────────
+# C owns MFL league discovery, the ADP-snapshot fetch, the crosswalk at scale,
+# the replay harness, attrition reporting, and nflverse when it starts: the
+# ingest modules, their tests, and the workflows that run them.
+#
+# NAMED BY FILE, NOT BY DIRECTORY, and that is deliberate. draft/backtest/ also
+# holds the market layer (market_*.py) and every experiment — all A's. A
+# directory rule would have handed C two thirds of A's lane by accident.
+#
+# C DOES NOT DEPLOY and does not touch the engine, the Lab, valuation, the
+# ledger, config, the app or any view; it parks precise requests instead.
+# A still owns the ingest's CONSUMERS — anything in the Lab that eats what C
+# produces, and the graduation gate any external finding passes through.
+c_owns() {
+  case "$1" in
+    draft/backtest/mfl_adapter.py|draft/backtest/mfl_adp.py) return 0 ;;
+    draft/backtest/mfl_live_probe.py|draft/backtest/mfl_schema_probe.py) return 0 ;;
+    draft/backtest/mfl_live_probe.json|draft/backtest/mfl_schema_probe.json) return 0 ;;
+    draft/backtest/adp_asof_probe.py|draft/backtest/ingest_filters.py) return 0 ;;
+    draft/backtest/external_replay.py) return 0 ;;
+    draft/tests/test_mfl_adapter.py|draft/tests/test_mfl_schema_probe.py) return 0 ;;
+    draft/tests/test_adp_asof_probe.py|draft/tests/test_attrition_seam.py) return 0 ;;
+    draft/tests/test_external_replay.py|draft/tests/test_ingest_filters.py) return 0 ;;
+    .github/workflows/adp-asof-probe.yml) return 0 ;;
+    .github/workflows/mfl-probe.yml|.github/workflows/mfl-schema-probe.yml) return 0 ;;
+    INGEST-PLAN.md) return 0 ;;
     *) return 1 ;;
   esac
 }
@@ -80,6 +126,25 @@ matches_source() {
   git diff --quiet "$INTEG_REF" -- "$1" 2>/dev/null         # empty diff -> identical -> merged
 }
 
+# WHICH FILES ARE WE JUDGING?
+#
+# By default the WORKING TREE, which is what a pre-commit check wants.
+# With `--range BASE REF` the files a BRANCH changed, which is what integration
+# wants — and the distinction is not cosmetic. integrate.sh first tried to judge a
+# branch by checking it out and reading the working tree, but an `git checkout`
+# carries uncommitted and untracked files across, so A's own work-in-progress got
+# attributed to C and the merge was refused for files C never touched.
+RANGE_BASE=""; RANGE_REF=""
+if [ "${2:-}" = "--range" ]; then RANGE_BASE="${3:-}"; RANGE_REF="${4:-}"; fi
+file_list() {
+  if [ -n "$RANGE_BASE" ] && [ -n "$RANGE_REF" ]; then
+    git diff --name-only "$RANGE_BASE" "$RANGE_REF"
+  else
+    git diff --name-only; git diff --cached --name-only
+    git ls-files --others --exclude-standard
+  fi
+}
+
 trespass=0; shared_n=0; merged_n=0
 report_trespass() {   # $1=file $2=who
   if matches_source "$1"; then merged_n=$((merged_n+1)); return; fi
@@ -88,12 +153,14 @@ report_trespass() {   # $1=file $2=who
 while IFS= read -r f; do
   [ -n "$f" ] || continue
   if shared "$f"; then shared_n=$((shared_n+1)); continue; fi
-  if [ "$SIDE" = "B" ]; then
-    b_owns "$f" || report_trespass "$f" "B touched A's file"
-  else
-    if b_owns "$f"; then report_trespass "$f" "A touched B's file"; fi
-  fi
-done < <(git diff --name-only; git diff --cached --name-only; git ls-files --others --exclude-standard)
+  # ONE SENTENCE FOR EVERY SIDE: a file you touched must be yours or shared.
+  # The old form asked a different question per side, which is how the C case
+  # silently became "did C touch B's files".
+  if c_owns "$f"; then own="C"
+  elif b_owns "$f"; then own="B"
+  else own="A"; fi
+  [ "$own" = "$SIDE" ] || report_trespass "$f" "$SIDE touched ${own}'s file"
+done < <(file_list)
 
 [ "$shared_n" -gt 0 ] && echo "note: $shared_n shared file(s) touched — APPEND ONLY, rebase before push"
 [ "$merged_n" -gt 0 ] && echo "note: $merged_n file(s) from the other lane are byte-identical to $INTEG_REF — merged, not edited (integration-exempt)"

@@ -292,3 +292,70 @@ feature run, that's an A-side CI issue; it does not stop B pushing to main.
 
 Net: **B → main directly (works, per Cory). A → merges A's branch + deploys.** The
 territory split keeps the two disjoint, so main takes both cleanly.
+
+
+---
+
+# 🅲 SESSION C — THE EXTERNAL INGEST (Cory, 2026-08-11)
+
+A third session. Its own queue, not a higher position in someone else's — the ingest is the
+highest-value item on the program and had been displaced six or seven times in a day, every
+time by something legitimately more urgent. An item that shares a queue with urgent work
+never runs.
+
+## What C owns
+
+MFL league discovery, the ADP-snapshot fetch, the player crosswalk at scale, the replay
+harness, attrition reporting, and nflverse when it starts. Its files are **the ingest
+modules, their tests, and the CI workflows that run them** — enumerated in
+`scripts/territory-check.sh` under `c_owns()`.
+
+**Named by file, not by directory, and that is deliberate.** `draft/backtest/` also holds the
+market layer (`market_*.py`) and every experiment, all of which are A's. A directory rule
+would have handed C two thirds of A's lane by accident.
+
+## What C does not own
+
+**C does not deploy.** A owns integration and deploys, unchanged.
+
+C does not touch the engine, the Lab, valuation, the ledger, config, the app or any view. If
+its work needs a change in A's or B's lane, it parks a precise request in `PARKED.md` — file,
+function, shape needed, and a test it should satisfy — the same contract A and B use.
+
+**And A still owns the ingest's CONSUMERS**: anything in the Lab that eats what C produces,
+and the graduation gate any external finding passes through. **C produces the data; A decides
+what it means.** That division is why `draft/backtest/graduation_gate.py` is A's even though
+it is the first thing an external finding meets.
+
+## The guard was two-party and did not guard
+
+`scripts/territory-check.sh` was BINARY — `b_owns()` returned true/false and A was defined as
+"everything not B". **Passing `C` fell through to the A branch**, so a C-side call only asked
+"has C touched B's files". It would have passed C editing `graduation_gate.py`. C parked that
+by JUDGMENT; nothing stopped it.
+
+Fixed structurally rather than by adding a branch: ownership is now **one function returning
+the owner of a path**, and the check is the same sentence for every side — *a file you touched
+must be yours or shared*. Broken afterwards and confirmed red BY NAME in four directions:
+
+| break | result |
+|---|---|
+| C edits `graduation_gate.py` | `TRESPASS (C touched A's file)` |
+| A edits `mfl_adapter.py` | `TRESPASS (A touched C's file)` |
+| C edits `adp_asof_probe.py` | OK — its own lane |
+| A edits `public/css/site.css` | `TRESPASS (A touched B's file)` — A/B unchanged |
+
+## How C gets integrated, so it is never blocked for a day again
+
+C cannot merge itself, and the one thing blocking its entire program sat in `PARKED.md`
+waiting to be routed. The path is now one command for A:
+
+```
+bash scripts/integrate.sh claude/external-ingest-program-1xfinj C
+```
+
+It fetches the branch, verifies **from C's own perspective** that the branch touched nothing
+outside C's lane, runs both suites, and only then merges to `main`. A refusal names the file.
+
+**C's side of the contract:** push, then park a one-line merge request naming the branch. Do
+not wait on it silently — a parked request nobody routes is indistinguishable from no request.
