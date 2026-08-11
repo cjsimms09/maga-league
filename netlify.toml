@@ -34,6 +34,22 @@
   # smoke-test the path before its day.
   schedule = "0 12 * * 2"
 
+[functions."claims-cron"]
+  # Sunday 13:00 UTC (~9am ET, before the 1pm slate) — EMIT this week's forecasts
+  # and RESOLVE last week's, in that order and in one run. They cannot collide: by
+  # Sunday morning the prior week is final (MNF included) and this week has not
+  # started.
+  #
+  # SEPARATE FROM grade-cron ON PURPOSE. Producing a claim and grading it belong
+  # in different jobs — a run that emitted and graded in one pass could grade a
+  # forecast it had just written, which is the shape of every self-confirming
+  # finding this project has caught. grade-cron stays on Tuesday, after the week
+  # resolves.
+  #
+  # A claim committed after the games is not a prediction, which is why this is
+  # the one job whose SCHEDULE is part of its correctness.
+  schedule = "0 13 * * 0"
+
 [functions."app"]
   # EJS templates are read from disk at render time, so they must ship
   # alongside the bundled function code. STATUS.md + DECISIONS-NEEDED.md ship too

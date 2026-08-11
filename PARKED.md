@@ -4004,3 +4004,147 @@ CURRENT policy, a different check and a dependency this one does not need.
 one fingerprint grades normally; two fingerprints raise `PolicyMixError`; and an
 observation with NO fingerprint does not manufacture a mix — otherwise the guard fires on
 legacy observations and gets switched off.
+
+## 🔴 ROUTE TO B — THE WAIVER TOOL WRITES NOTHING, AND SEPTEMBER IS UNRECOVERABLE (A, 2026-08-11)
+
+**Of the four tools that must emit gradeable predictions before September 1, only
+the LINEUP optimizer writes one.** Measured, not assumed — `instrumentation_check`
+says it in its own words: *"waiver/stream/trade kinds ready, await their tools."*
+
+| kind | registered | counterfactual enforced | anything writes it |
+|---|---|---|---|
+| `lineup_call` | ✅ | ✅ | ✅ `src/routes/member.js` |
+| `inseason_override` | ✅ | ✅ | ✅ `src/routes/member.js` |
+| `waiver_claim` | ✅ | ✅ | ❌ **nothing** |
+| `stream_call` | ✅ | ✅ | ❌ **nothing** |
+| `trade_eval` | ✅ | ✅ | ❌ **nothing** |
+
+`src/routes/waivers.js` does not touch the ledger at all.
+
+**THIS IS THE UNRECOVERABLE HALF.** Sleeper returns the transaction in January.
+What it cannot return is what the tool RECOMMENDED at the moment, which is the
+entire attribution question. A week of waivers uncaptured in September cannot be
+graded, ever — unlike realized outcomes, which are retrievable.
+
+**A HAS DONE THE HALF THAT WAS ACTUALLY MISSING.** The blocker was never the
+ledger call; it was the DECISION the call has to record, and specifically what a
+waiver counterfactual even is. `SharedValuation.waiverClaimRecord(opts)` now
+returns the exact payload the ledger enforces:
+
+```js
+const rec = SharedValuation.waiverClaimRecord({
+  decision: claimValueResult,      // from claimValue()
+  stopping: claimStoppingRuleResult,
+  depletes: false,                 // waiver_type 1 = reverse standings
+  week, owner_id, claim, drop,
+  consensus_claim,                 // THE COUNTERFACTUAL — required, no default
+  dollars,
+});
+// then: predledger.append(store, { kind: 'waiver_claim', method: 'waiver-v1', season, payload: rec })
+```
+
+**The counterfactual is the room's obvious move — best available by raw
+projection — NOT "do nothing".** Defaulting it to no-claim would credit the tool
+for every claim that happened to work. It throws rather than defaulting.
+
+**AND THE WAIVER REGIME IS IN THE RECORD.** `depletes` is required, not inferred:
+the first version derived it as `stop.spend_priority !== null` and got it
+backwards, because under reverse standings the rule returns `false`, not `null`.
+January grading our waivers under the wrong economics is a wrong answer nobody
+would notice.
+
+**RELATED, and B's page still says otherwise:** the league is **reverse
+standings** (`waiver_type: 1`), confirmed against Sleeper and against Cory's own
+screenshot. Priority does NOT deplete and resets weekly off record, so any
+positive-value claim is free to make — `waiverPriorityDepletes(1) === false`. The
+waiver surface currently says the stopping rule is not modelled; it is, and the
+answer for this league is "claim whenever net is positive".
+
+## 🗓️ THE JANUARY SHADOW FIELD — candidates recorded, nothing built (A, 2026-08-11)
+
+**The field does not ship this season.** Measured from 540 team-weeks: the
+comparison is paired, so the noise is the **11.44-point SD of the slot two
+strategies disagree about**. Even disagreeing EVERY week of a season the smallest
+detectable edge is **7.8 pts/wk** — 64% of an average starter's output. At the
+realistic disagreement rate (the opponent-dossier flip moved 8 of 1,152 draft
+decisions, 0.7%) the bar is 16 points. Full working:
+`draft/audit/shadow_layer_power_2026-08-11.md`.
+
+**What DID ship is the input archive**, because a shadow strategy's choice is
+`f(roster, projections)` and only the projections disappear — providers overwrite
+weekly numbers in place. `draft/weekly_proj_snapshot.py` + the Sunday-morning
+workflow. That converts a closing window into an open one: **any** strategy is
+replayable in January, not the two or three we would have guessed at in August.
+
+**ASSEMBLE THE FIELD HERE, IN JANUARY, FROM THE SEASON'S RESIDUALS** — a field
+chosen from where the model actually failed beats one chosen from the same priors
+that built it. Two candidates recorded now so they are not lost:
+
+**1. `DEFAULT_WEIGHTS` against `MEASURED_WEIGHTS`.** `app.js:52` ships weights
+that zero four terms the Lab measured as drag:
+
+```
+MEASURED  value 1  tier 0  need 0  risk 0  ceiling 0     keeper 1  bye 0  stack 0.5
+DEFAULT   value 1  tier 1  need 1  risk 1  ceiling 0.65  keeper 1  bye 1  stack 1
+```
+
+Highest-plausibility candidate in the system: tied to a **measured** surface
+rather than an intuition, and the two arms are one object apart.
+
+**2. Opponent-blind against opponent-modelled.** The flip put the whole dossier
+at 0.7% of draft decisions. **A candidate whose likely outcome is DELETION is
+worth more than one whose likely outcome is addition** — this system has never
+been improved by adding a term.
+
+Both are recomputable from (roster, projections). **Neither needs to run live**,
+which is the same recommendation arriving from the other direction.
+
+## ✅ ROUTE TO B — PROJ_GAMES IS 17. CONFIRMED, AND YOUR THREE RED CHECKS ARE UNBLOCKED (A, 2026-08-11)
+
+**1. THE HORIZON: 17. `proj_mean` is a SEASON total and 17 is the right divisor
+for a weekly model.** Reconciled against the box-score archive rather than
+asserted:
+
+| lineup | ÷17 | ÷ per-player `games_expected` |
+|---|---|---|
+| a MID lineup | **106.0** | 119.9 |
+| an ELITE lineup | 141.4 | 160.6 |
+| *archive says a team-week is* | **109.4** (mean of 540 realized) | |
+
+**Do NOT use `games_expected`**, even though the board carries it per player
+(QB 15.5, RB 14.2, WR 15.0, TE 14.8, K 16.5, DEF 17.0). It is points **per game
+PLAYED**. The archive counts every team-week including the ones a starter missed,
+so it is points **per week of season** — and in a week he does not play he
+contributes 0. Same denominator, which is why 17 reconciles and 15-ish does not.
+Your reconciliation assertion is the right guard and it will hold.
+
+**2. THE THREE RED CHECKS ARE FIXED IN MY FILE — land your half whenever.**
+`draft/tests/waivers.test.js` is 27/27 **both with and without** your change; I
+applied `/17` locally to verify, then reverted. They no longer pin season
+magnitudes: the module's SCALE is calibrated off one known swap (205 displacing
+the 175 flex) and every other magnitude is asserted against that scale, so the
+divisor cancels. Still non-vacuous — a 1.3× scaling fails.
+
+**3. TWO THINGS I GOT WRONG WRITING THAT FIX, both worth having:**
+
+- My first version read `lineup_before` / `lineup_after` off a claim. **Those
+  fields do not exist** — it silently fell back to "is it positive" while its
+  comment described an exact derivation. Rule 11e inside a fix for a units bug.
+- My second version asserted `|x/f − x/f| < 1e-9`, which is true for every input.
+  A guard that does not guard, written by the person who spent the day finding
+  them.
+
+**4. AND A REAL CONSEQUENCE OF YOUR CHANGE.** The upgrade/downgrade scales
+disagreed under `/17` and it is **not** a non-linearity — it is 2dp rounding.
+30/17 = 1.7647 stores as 1.76; 175/17 = 10.2941 stores as 10.29. **Dividing by 17
+makes every stored magnitude 17× smaller while the 2dp quantum stays fixed, so
+relative precision drops by the same factor.** Harmless at 1.76. At a 0.05 delta
+the quantum IS the number, and `dollars` inherits it.
+
+**5. And your fingerprint finding is right, including that it was my bug.**
+Driving `waiver_type 0` with an identical wire wrote nothing, so the ledger kept
+`depletes: false` while the league had become depleting — the same failure I
+found one level up, through a different door. `depletes` belongs in the
+fingerprint. It is also a required input with no default in
+`waiverClaimRecord()`, for the same reason.
+

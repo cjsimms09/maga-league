@@ -405,9 +405,99 @@
     return (m * f) - replacement;
   }
 
+  /* THE GRADEABLE RECORD FOR A WAIVER CLAIM — the payload, not the write.
+   *
+   * THE GAP THIS EXISTS FOR. Of the four tools that must emit gradeable
+   * predictions before September 1, only the LINEUP optimizer writes one.
+   * `waiver_claim` has been a registered ledger kind with an ENFORCED
+   * counterfactual since before the draft, and nothing has ever written one —
+   * `src/routes/waivers.js` does not touch the ledger at all. Same for
+   * `stream_call` and `trade_eval`. The instrumentation suite says so in its own
+   * words: "waiver/stream/trade kinds ready, await their tools."
+   *
+   * AND THIS HALF IS THE UNRECOVERABLE HALF. Sleeper hands back the transaction
+   * in January; what it cannot hand back is what the tool RECOMMENDED at the
+   * moment, which is the entire attribution question. A week of waivers not
+   * captured in September is a week that cannot be graded, ever.
+   *
+   * WHY IT LIVES HERE RATHER THAN IN THE ROUTE. The waiver surface is B's, and
+   * the write belongs there. What was missing is not the ledger call — it is the
+   * DECISION the call has to record, which is this module's job and already
+   * exists as claimValue + claimStoppingRule. So this assembles the payload the
+   * ledger enforces from the decision the rule already made, and B's write
+   * becomes one call rather than a design exercise about what a waiver
+   * counterfactual even is.
+   *
+   * THE COUNTERFACTUAL IS THE POINT, AND IT IS NAMED RATHER THAN INVENTED. "What
+   * I would plausibly have done without the tool" on waivers is NOT "nothing" —
+   * it is the claim the room would obviously make, which is the best available
+   * player by raw projection rather than by startable value. That is the
+   * consensus move the tool is deviating from, so it is the honest comparison,
+   * and getting it wrong in the flattering direction (counterfactual = do
+   * nothing) would credit the tool for every claim that happened to work.
+   *
+   * It THROWS on a missing decision rather than emitting a hollow record: an
+   * entry with a null recommendation is worse than no entry, because it fills
+   * the ledger while making January's table read as though it were measured.
+   */
+  function waiverClaimRecord(opts) {
+    var o = opts || {};
+    if (!o.decision || typeof o.decision.net_points !== 'number') {
+      throw new Error('waiverClaimRecord: `decision` must be a claimValue() result. '
+        + 'A record with no decision fills the ledger while making January read as '
+        + 'though it were measured.');
+    }
+    if (typeof o.depletes !== 'boolean') {
+      throw new Error('waiverClaimRecord: `depletes` is required and has no default, '
+        + 'for the same reason claimStoppingRule requires it. The first version '
+        + 'INFERRED it as `stop.spend_priority !== null` and got it backwards: under '
+        + 'reverse standings the rule returns spend_priority FALSE, not null, so a '
+        + 'non-depleting league recorded depletes:true. A regime read off the shape '
+        + 'of an incidental field is not the regime.');
+    }
+    if (o.consensus_claim === undefined) {
+      throw new Error('waiverClaimRecord: `consensus_claim` is required and has no '
+        + 'default — it IS the counterfactual. Defaulting it to "do nothing" would '
+        + 'credit the tool for every claim that happened to work.');
+    }
+    var d = o.decision;
+    var stop = o.stopping || null;
+    var id = function (p) { return p && p.player_id != null ? String(p.player_id) : null; };
+    return {
+      week: o.week == null ? null : Number(o.week),
+      owner_id: o.owner_id == null ? null : o.owner_id,
+      // WHAT THE TOOL SAID.
+      recommended: {
+        claim: id(o.claim), claim_name: (o.claim || {}).name || null,
+        drop: id(o.drop), drop_name: (o.drop || {}).name || null,
+        act: stop ? !!stop.claim : d.net_points > 0,
+        spend_priority: stop ? stop.spend_priority : null,
+      },
+      // WHAT I WOULD PLAUSIBLY HAVE DONE WITHOUT IT — the room's obvious move.
+      counterfactual: {
+        claim: id(o.consensus_claim),
+        claim_name: (o.consensus_claim || {}).name || null,
+        basis: 'best available by raw projection — the claim the room makes',
+      },
+      // THE NUMBER THE DECISION TURNED ON, raw, so a threshold can be redrawn
+      // later without having thrown away what it was drawn from.
+      net_points: d.net_points,
+      lineup_before: d.lineup_before,
+      lineup_after: d.lineup_after,
+      dollars: o.dollars == null ? null : Number(o.dollars),
+      // THE WAIVER SYSTEM THIS WAS DECIDED UNDER. waiver_type is 1 (reverse
+      // standings) TODAY; if the league ever moves to rolling, an entry graded
+      // in January under the wrong economics is ungradeable in a way nobody
+      // would notice — so the regime rides with the record.
+      depletes: o.depletes,
+      confidence: String(stop ? stop.reason : d.why || '').slice(0, 600),
+    };
+  }
+
   var api = { startableValue: startableValue, claimValue: claimValue,
     claimStoppingRule: claimStoppingRule, waiverPriorityDepletes: waiverPriorityDepletes,
     vorpAfterOverride: vorpAfterOverride, tradeActionability: tradeActionability,
+    waiverClaimRecord: waiverClaimRecord,
     bestAvailableByVorp: bestAvailableByVorp,
               openStartableSlots: openStartableSlots,
               INJURY_RATE: INJURY_RATE, BENCH_DISCOUNT: BENCH_DISCOUNT };

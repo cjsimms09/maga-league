@@ -289,7 +289,15 @@ shared() {
     # there is no JS derivation being shadowed, because there is none to reach.
     # ROUTED TO A: how a JS integration test should be owned is a boundary
     # decision, not a mechanical fix, and it is A's rule to settle.
-    draft/tests/*.test.js) return 0 ;;
+    #
+    # ── SETTLED BY A, 2026-08-11: THE BLANKET ENTRY IS REMOVED ──────────────
+    # `shared()` is consulted BEFORE any ownership test and `continue`s, so this
+    # entry made the JS derivation in b_owns UNREACHABLE the moment it landed —
+    # the third instance of the exact shadowing this file documents twice below
+    # (the old blanket draft/tests entry killed every c_owns test pattern; the
+    # blanket .github/workflows entry killed C's three workflow entries). It
+    # looked like ownership was being decided. It was not.
+    # The derivation now exists, so the entry goes and the derivation is reached.
 
     # ── draft/tests/* IS NO LONGER BLANKET-SHARED ───────────────────────────
     #
@@ -362,13 +370,101 @@ file_list() {
   fi
 }
 
+# ── THE OWNER IS DECLARED IN THE FILE (Cory, 2026-08-11) ────────────────────
+#
+# THE PREFIX LIST WENT SHORT FOUR TIMES. That is not a maintenance problem, it is
+# the dual-maintenance disease inside the tool that exists to prevent collisions:
+# a central list that must be updated whenever a file is added, with nothing
+# forcing the update. Each time, a session was blocked from doing exactly its job.
+#
+# Inverting the directory was measured and rejected — 23 A-owned files in
+# draft/backtest match none of A's named prefixes, so inverting hands C two dozen
+# of them. Between a prefix convention and an in-file declaration, Cory took the
+# declaration: a header line travels WITH the file and cannot drift from it,
+# whereas a prefix convention still needs someone to name the file correctly and
+# misclassifies silently when they do not — the same failure one layer up.
+#
+# A DECLARATION BEATS EVERY PATTERN, including shared(). It is the author saying
+# whose lane this is, which is better evidence than any rule inferring it.
+#
+#     # TERRITORY: C          (python, shell)
+#     // TERRITORY: B         (js)
+#     <%# TERRITORY: B %>     (ejs)
+#
+# Read from the REF in --range mode, for the same reason the derivations are:
+# the file may exist only on the branch being judged.
+_declared_owner() {
+  _d=""
+  if [ -n "${RANGE_REF:-}" ]; then
+    _d="$(git show "$RANGE_REF:$1" 2>/dev/null | head -40)" || _d=""
+  fi
+  [ -n "$_d" ] || { [ -f "$1" ] && _d="$(head -40 "$1" 2>/dev/null)"; }
+  [ -n "$_d" ] || return 1
+  _o="$(printf '%s' "$_d" | grep -oE 'TERRITORY:[[:space:]]*[ABC]\b' | head -1 \
+        | grep -oE '[ABC]\b' | head -1)"
+  [ -n "$_o" ] || return 1
+  printf '%s' "$_o"
+}
+
+# WHERE A DECLARATION IS REQUIRED RATHER THAN OPTIONAL.
+#
+# Cory: "make a file with no declaration REFUSE rather than default. A default is
+# how 101 files ended up in the wrong lane and how the prefix list went short
+# four times without anyone noticing."
+#
+# SCOPED TO NEW FILES IN THE AMBIGUOUS ZONES, and that scope is the whole design
+# rather than a softening of it. Outside draft/backtest and draft/tests the
+# structural rules are unambiguous — views/**, src/routes/**, public/js/draft/**
+# each belong to exactly one lane by construction, and no list goes short there.
+# Inside them, ownership has always been guessed from a name. And requiring a
+# declaration on EXISTING files would refuse hundreds of them at once, blocking
+# all three sessions to fix a problem that only bites when a file is ADDED —
+# which is when every one of the four short-list incidents happened.
+_needs_declaration() {
+  case "$1" in
+    draft/backtest/*|draft/tests/*) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
+# ADDED IN THIS RANGE? Only answerable with a range; in working-tree mode an
+# untracked file is the equivalent, and both are "a file that did not exist
+# before this work".
+NEW_ONLY_DECL="${TERRITORY_REQUIRE_DECLARATION:-1}"
+is_new_in_range() {
+  # GRANDFATHERED: anything already on the integration ref existed before this
+  # rule and is not made retroactively illegal by it. Without this the very next
+  # integration refuses every file merged earlier today — a rule that starts by
+  # blocking the work it was written to unblock. The exemption is self-clearing:
+  # a file is exempt exactly once, by already being merged.
+  if [ "$has_ref" = "1" ] && git cat-file -e "$INTEG_REF:$1" 2>/dev/null; then
+    return 1
+  fi
+  if [ -n "${RANGE_BASE:-}" ] && [ -n "${RANGE_REF:-}" ]; then
+    git diff --name-status "$RANGE_BASE" "$RANGE_REF" 2>/dev/null \
+      | awk -v f="$1" '$1=="A" && $2==f {found=1} END{exit !found}'
+    return $?
+  fi
+  git ls-files --others --exclude-standard | grep -qxF "$1"
+}
+
 trespass=0; shared_n=0; merged_n=0
 report_trespass() {   # $1=file $2=who
   if matches_source "$1"; then merged_n=$((merged_n+1)); return; fi
   echo "TRESPASS ($2): $1"; trespass=$((trespass+1))
 }
+undeclared=0
 while IFS= read -r f; do
   [ -n "$f" ] || continue
+  # A DECLARATION WINS OVER EVERY PATTERN, shared() included.
+  if _dec="$(_declared_owner "$f")"; then
+    [ "$_dec" = "$SIDE" ] || report_trespass "$f" "$SIDE touched ${_dec}'s file (declared in-file)"
+    continue
+  fi
+  if [ "$NEW_ONLY_DECL" = "1" ] && _needs_declaration "$f" && is_new_in_range "$f"; then
+    echo "NO OWNER DECLARED: $f"
+    undeclared=$((undeclared+1)); continue
+  fi
   if shared "$f"; then shared_n=$((shared_n+1)); continue; fi
   # ONE SENTENCE FOR EVERY SIDE: a file you touched must be yours or shared.
   # The old form asked a different question per side, which is how the C case
@@ -381,6 +477,16 @@ done < <(file_list)
 
 [ "$shared_n" -gt 0 ] && echo "note: $shared_n shared file(s) touched — APPEND ONLY, rebase before push"
 [ "$merged_n" -gt 0 ] && echo "note: $merged_n file(s) from the other lane are byte-identical to $INTEG_REF — merged, not edited (integration-exempt)"
+if [ "$undeclared" -gt 0 ]; then
+  echo "FAIL: $undeclared NEW file(s) in draft/backtest or draft/tests with no owner declared."
+  echo "  Add a header line naming the lane — it travels with the file and cannot"
+  echo "  drift from it, which a central prefix list demonstrably does (short four"
+  echo "  times). One of:"
+  echo "      # TERRITORY: C        (python, shell)"
+  echo "      // TERRITORY: B       (js)"
+  echo "  A default is exactly how the prefix list went short without anyone noticing."
+  exit 1
+fi
 if [ "$trespass" -gt 0 ]; then
   echo "FAIL: $trespass file(s) outside side $SIDE's territory (and NOT a clean merge from $INTEG_REF). See TERRITORY.md."
   exit 1

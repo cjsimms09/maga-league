@@ -2,6 +2,52 @@
 
 _Answered 2026-08-08 with evidence, not assertion._
 
+## 🏷️ OWNERSHIP IS DECLARED IN THE FILE — Cory's ruling, 2026-08-11
+
+The `draft/backtest` prefix list went short **four times**, each time blocking a
+session from doing exactly its job. That is the dual-maintenance disease inside
+the tool that exists to prevent collisions: a central list that must be updated
+whenever a file is added, with nothing forcing the update.
+
+Inverting the directory was measured and rejected — 23 A-owned files there match
+none of A's named prefixes, so inverting hands C two dozen of them.
+
+**A new file in `draft/backtest/` or `draft/tests/` must declare its lane:**
+
+```
+# TERRITORY: C          (python, shell)
+// TERRITORY: B         (js)
+```
+
+- **A declaration beats every pattern**, `shared()` included. The author saying
+  whose lane this is beats any rule inferring it, and it travels with the file so
+  it cannot drift the way a central list does.
+- **No declaration on a new file REFUSES.** A default is how the prefix list went
+  short four times without anyone noticing.
+- **Existing files are grandfathered** — anything already on `origin/main` predates
+  the rule. The exemption is self-clearing: a file is exempt exactly once, by
+  already being merged.
+- Outside those two directories nothing changes: `views/**`, `src/routes/**`,
+  `public/js/draft/**` are unambiguous by construction.
+
+Override for a one-off: `TERRITORY_REQUIRE_DECLARATION=0`.
+
+## 📣 NOTE TO C — YOUR MERGES WILL APPEAR AS DEPLOYS
+
+You self-integrate now (`bash scripts/integrate.sh <your-branch> C`). Two things
+Cory asked be passed on, the first because he had it wrong and corrected it:
+
+- **Every push to `main` fires Netlify auto-deploy and `deploy-verify.yml`**, so a
+  Lab merge *is* a deploy trigger. It is a no-op deploy when no served file
+  changed, and that is why self-integration is still right — but do not be
+  surprised to see your merges appear as deploys.
+- **A red `deploy-verify` on one of your merges means the SITE did not catch up,
+  not that your Lab code is broken.** It polls the deployed `/api/version` until it
+  reports the pushed commit. Read it as a deploy problem, not a Lab one.
+
+A still owns deploys — anything that reaches the site. A Lab merge is not one,
+even though it triggers the pipeline.
+
 ## 📋 WORKING PROTOCOL — Cory, 2026-08-11. APPLIES TO A, B AND C IDENTICALLY.
 
 **The bottleneck is Cory's attention, not our throughput.** Three sessions produce
