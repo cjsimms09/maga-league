@@ -73,6 +73,35 @@ def append_snapshot(series: list, year, observed_at: str, rows: dict,
     return keep
 
 
+def _series_of(obj) -> list:
+    """Accept the series LIST or the ARCHIVE FILE it lives in. Refuse by name.
+
+    THE TRAP THIS CLOSES, stepped in by its own author on 2026-08-11. `load()`
+    unwraps `{"_note": ..., "series": [...]}` correctly, but a caller doing
+    `json.load(open(SERIES))` by hand gets the WRAPPER — and iterating a dict
+    yields its KEYS, so every snapshot became the string "_note" and the reader
+    died on `'str' object has no attribute 'get'`.
+
+    Loud, and it named itself, which is the only reason it cost minutes rather
+    than a run. But the wiring that did it was mine, in the ingest workflow, and a
+    reader that only works when the caller remembers to unwrap is a reader with a
+    trap in it. Anything that is neither shape RAISES rather than returning [] —
+    an empty series would report every league as `F4.no_pre_draft_adp`, which is a
+    true-looking statement about the leagues and a false one about the archive.
+    """
+    if obj is None:
+        return []
+    if isinstance(obj, dict):
+        return list(obj.get("series") or [])
+    if isinstance(obj, list):
+        return list(obj)
+    raise TypeError(
+        "external ADP series must be the series list or the archive dict, got %s. "
+        "Returning an empty series here would report every league as having no "
+        "pre-draft ADP, which is a statement about the leagues and not about this "
+        "argument." % type(obj).__name__)
+
+
 def as_store_snapshots(series: list, year) -> list:
     """The stored series -> `ExternalAsOfStore`'s input shape, for one season.
 
@@ -83,7 +112,7 @@ def as_store_snapshots(series: list, year) -> list:
     """
     return [{"observed_at": s["observed_at"],
              "rows": [{"player_id": pid, "adp": adp} for pid, adp in (s.get("rows") or {}).items()]}
-            for s in (series or []) if str(s.get("year")) == str(year)]
+            for s in _series_of(series) if str(s.get("year")) == str(year)]
 
 
 def coverage(series: list, year) -> dict:
@@ -93,8 +122,9 @@ def coverage(series: list, year) -> dict:
     replay is attempted, and the one that makes a gap in the capture visible
     rather than showing up as a league silently failing F5 months later.
     """
-    days = sorted(s["observed_at"] for s in (series or []) if str(s.get("year")) == str(year))
-    counts = [s.get("row_count") or 0 for s in (series or []) if str(s.get("year")) == str(year)]
+    ser = _series_of(series)
+    days = sorted(s["observed_at"] for s in ser if str(s.get("year")) == str(year))
+    counts = [s.get("row_count") or 0 for s in ser if str(s.get("year")) == str(year)]
     return {
         "year": str(year), "snapshots": len(days),
         "first": days[0] if days else None, "last": days[-1] if days else None,

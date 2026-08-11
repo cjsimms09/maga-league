@@ -159,3 +159,32 @@ def test_the_capture_sends_the_SHIPPED_user_agent():
     src = (HERE.parent / "adp.py").read_text()
     shipped = re.search(r'"User-Agent":\s*"([^"]+)"', src)
     assert shipped and C.USER_AGENT == shipped.group(1)
+
+
+# ── the reader must accept the ARTIFACT, not just the shape a test hands it ──
+def test_the_readers_accept_the_ARCHIVE_FILE_as_written_to_disk():
+    """RULE 14, AND ITS AUTHOR STEPPED IN IT. `save()` writes
+    {"_note":..., "series":[...]}; a caller doing json.load() by hand gets the
+    WRAPPER, and iterating a dict yields its KEYS — every snapshot became the
+    string "_note". The unit tests all passed because they hand a LIST, which is
+    the shape the live path does not have."""
+    ser = C.append_snapshot([], "2026", "2026-08-11", {"1": 2.5, "2": 3.0}, total_drafts=115)
+    archive = {"_note": "whatever this file says about itself", "series": ser}
+    assert C.as_store_snapshots(archive, "2026") == C.as_store_snapshots(ser, "2026")
+    assert C.coverage(archive, "2026") == C.coverage(ser, "2026")
+    assert C.coverage(archive, "2026")["snapshots"] == 1
+
+
+def test_a_shape_the_reader_does_not_understand_RAISES_rather_than_reading_EMPTY():
+    """MUTATION: `return []` on the unknown branch. Every league would report
+    F4.no_pre_draft_adp — a true-looking statement about the leagues and a false
+    one about the archive, and nothing anywhere would contradict it."""
+    import pytest
+    with pytest.raises(TypeError) as e:
+        C.as_store_snapshots("draft/data/external_adp_series.json", "2026")
+    assert "statement about the leagues" in str(e.value)
+
+
+def test_None_is_still_an_empty_series_because_that_is_a_real_caller():
+    assert C.as_store_snapshots(None, "2026") == []
+    assert C.coverage(None, "2026")["snapshots"] == 0
