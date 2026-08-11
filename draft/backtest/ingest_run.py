@@ -195,13 +195,34 @@ def fetch_league(league_id, year, delay=0.34):  # pragma: no cover  (egress; CI 
             time.sleep(delay)
         url = "%s/%s/export?%s&L=%s&JSON=1" % (MFL_HOST, year, q, league_id)
         req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
-        try:
-            with urllib.request.urlopen(req, timeout=45) as r:
-                out[name] = json.loads(r.read().decode("utf-8", "replace"))
-        except urllib.error.HTTPError as e:
-            out[name] = {"_error": "http %s %s" % (e.code, e.reason)}
-        except Exception as e:
-            out[name] = {"_error": "%s: %s" % (type(e).__name__, e)}
+        # 429 IS NOT A LEAGUE THAT COULD NOT BE FETCHED. Measured: the first real
+        # 60-league run took 24 of 60 as `http 429 Too Many Requests`, 100% of its
+        # failures on one signature — `throttle_signal` caught it, which is the only
+        # reason those 24 were not written down as unobtainable leagues. Backing off
+        # and retrying is the remedy the verdict itself named. Retries are BOUNDED
+        # and a still-failing league is still recorded as failed: this removes a
+        # cause of failure, it does not hide one.
+        for attempt in range(4):
+            try:
+                with urllib.request.urlopen(req, timeout=45) as r:
+                    out[name] = json.loads(r.read().decode("utf-8", "replace"))
+                break
+            except urllib.error.HTTPError as e:
+                if e.code == 429 and attempt < 3:
+                    # Honour Retry-After when the server sends one; it knows better
+                    # than any constant chosen here.
+                    wait = e.headers.get("Retry-After") if e.headers else None
+                    try:
+                        wait = float(wait)
+                    except (TypeError, ValueError):
+                        wait = 2.0 * (2 ** attempt)
+                    time.sleep(min(wait, 30.0))
+                    continue
+                out[name] = {"_error": "http %s %s" % (e.code, e.reason)}
+                break
+            except Exception as e:
+                out[name] = {"_error": "%s: %s" % (type(e).__name__, e)}
+                break
     return out
 
 
@@ -367,7 +388,7 @@ def adp_fields(store) -> dict:
 
 def run(league_ids, year, out_path=None, *, players=None, board=None,
         series=None, weekly_rows=None, gsis_to_ours=None,
-        readiness=None):  # pragma: no cover  (egress; CI only)
+        readiness=None, league_delay=1.0):  # pragma: no cover  (egress; CI only)
     """THE FIRST REAL FETCH.
 
     WHAT THIS WILL REPORT, WRITTEN BEFORE IT RUNS so the result cannot be narrated
@@ -407,8 +428,13 @@ def run(league_ids, year, out_path=None, *, players=None, board=None,
     from external_replay import ExternalAsOfStore, policy_fingerprint
     from asof import TimeTravelError
 
+    import time as _time
     records, outcomes = [], []
-    for lid in league_ids:
+    for _i, lid in enumerate(league_ids):
+        if _i:
+            # BETWEEN LEAGUES TOO, not only between exports. The measured 429 came
+            # at roughly 1.8 requests/second; this run asks for well under one.
+            _time.sleep(league_delay)
         exports = fetch_league(lid, year)
         rec = build_record(lid, exports)
         if rec.get("unfetchable"):

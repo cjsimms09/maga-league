@@ -70,7 +70,7 @@ def wk(pid, week, **stats):
 
 # ── the tables ──────────────────────────────────────────────────────────────
 def test_a_leagues_rules_become_ONE_FLAT_TABLE_PER_POSITION():
-    tables, bad, ignored, bounds = X.scoring_tables(rules(FULL))
+    tables, bad, ignored, bounds = X.scoring_tables(rules(FULL))[:4]
     assert not bad, bad
     assert tables["WR"]["rec"] == 0.5 and tables["WR"]["rec_yd"] == 0.1
     assert tables["QB"]["pass_yd"] == 0.04 and tables["QB"]["pass_int"] == -2.0
@@ -93,7 +93,7 @@ def test_an_UNTRANSLATABLE_term_makes_the_LEAGUE_unscoreable():
     be scored under a table missing that term and nothing would say so."""
     r = rules([("QB", [rule("PY", "*0.04", "0-999"), rule("TGT", "*0.5")]),
                ("RB|WR|TE", [rule("CC", "*0.5")])])
-    tables, bad, _ignored, _b = X.scoring_tables(r)
+    tables, bad, _ignored, _b = X.scoring_tables(r)[:4]
     assert "QB" in bad and any(x["event"] == "TGT" for x in bad["QB"])
     assert "QB" not in tables, "a PARTIAL table is the object D5b exists to refuse"
 
@@ -105,7 +105,7 @@ def test_dropping_a_NEGATIVE_term_would_OVERSTATE_not_understate():
     Silently dropping the interception term gives 20.0 — HIGHER. So an omitted
     term is not a floor with a caveat; it is a bias whose direction depends on the
     term's sign, which is why the league is refused rather than scored short."""
-    tables, bad, _i, bounds = X.scoring_tables(rules(FULL))
+    tables, bad, _i, bounds = X.scoring_tables(rules(FULL))[:4]
     assert not bad
     row = wk("QB1", 1, passing_yards=300, passing_tds=2, interceptions=1)
     got = X.weekly_points([row], 2025, tables, {"QB1": "QB"}, {"QB1": "QB1"}, bounds)
@@ -120,20 +120,20 @@ def test_rules_for_positions_we_do_NOT_grade_are_IGNORED_not_failures():
     league whose DEF we never draft. Reported as ignored so "no untranslatable
     terms" cannot quietly mean "we never looked"."""
     r = rules(FULL + [("DEF", [rule("SK", "*1"), rule("IC", "*2")])])
-    tables, bad, ignored, _b = X.scoring_tables(r)
+    tables, bad, ignored, _b = X.scoring_tables(r)[:4]
     assert not bad and ignored == ["DEF"]
     assert set(tables) == {"QB", "RB", "WR", "TE"}
 
 
 def test_a_league_with_NO_scoring_rules_says_so_per_position():
-    _t, bad, _i, _b = X.scoring_tables({"error": "Error - No League Scoring Rules"})
+    _t, bad, _i, _b = X.scoring_tables({"error": "Error - No League Scoring Rules"})[:4]
     assert bad["WR"] == [{"why": "no_scoring_rules"}]
 
 
 def test_a_graded_position_with_no_rules_at_all_is_NOT_a_zero_table():
     """MUTATION: leave the position out of `bad`. It would get an empty table,
     score every player 0.0, and read as a league where nobody produced."""
-    tables, bad, _i, _b = X.scoring_tables(rules([("RB|WR|TE", [rule("CC", "*0.5")])]))
+    tables, bad, _i, _b = X.scoring_tables(rules([("RB|WR|TE", [rule("CC", "*0.5")])]))[:4]
     assert "QB" in bad and bad["QB"] == [{"why": "no_rules_for_position"}]
     assert "QB" not in tables
 
@@ -145,7 +145,7 @@ def test_TWO_rules_for_one_event_is_BANDED_and_untranslatable():
     excluding conservatively costs sample; a SCORER that flattens invents points."""
     r = rules([("QB", [rule("PY", "*0.04", "0-299"), rule("PY", "*0.05", "300-999")]),
                ("RB|WR|TE", [rule("CC", "*0.5")])])
-    _t, bad, _i, _b = X.scoring_tables(r)
+    _t, bad, _i, _b = X.scoring_tables(r)[:4]
     assert any(x["why"] == "banded" and x["n"] == 2 for x in bad["QB"])
 
 
@@ -154,7 +154,7 @@ def test_a_range_that_does_NOT_start_at_zero_is_a_THRESHOLD_bonus():
     as a multiplier it would pay the bonus on the first hundred as well."""
     r = rules([("QB", [rule("PY", "*0.04", "0-999")]),
                ("RB|WR|TE", [rule("CC", "*0.5"), rule("CY", "*0.1", "100-999")])])
-    _t, bad, _i, _b = X.scoring_tables(r)
+    _t, bad, _i, _b = X.scoring_tables(r)[:4]
     assert any(x["why"] == "threshold" and x["lo"] == 100.0 for x in bad["WR"])
 
 
@@ -167,7 +167,7 @@ def test_an_UNREADABLE_range_is_not_read_as_unbounded():
     assert X._range("300+") == (300.0, None)
     assert X._range("banana") is None
     r = rules([("QB", [rule("PY", "*0.04", "banana")]), ("RB|WR|TE", [rule("CC", "*0.5")])])
-    _t, bad, _i, _b = X.scoring_tables(r)
+    _t, bad, _i, _b = X.scoring_tables(r)[:4]
     assert any(x["why"] == "unreadable_range" for x in bad["QB"])
 
 
@@ -179,7 +179,7 @@ def test_a_week_that_EXCEEDS_a_rules_upper_bound_makes_the_league_unscoreable():
     happens exactly where the expensive players are."""
     r = rules([("QB", [rule("PY", "*0.04", "0-999")]),
                ("RB|WR|TE", [rule("CC", "*0.5"), rule("CY", "*0.1", "0-99")])])
-    tables, bad, _i, bounds = X.scoring_tables(r)
+    tables, bad, _i, bounds = X.scoring_tables(r)[:4]
     assert not bad and bounds["WR"]["rec_yd"] == 99.0
     rows = [wk("W1", 1, receptions=5, receiving_yards=120)]
     got = X.weekly_points(rows, 2025, tables, {"W1": "WR"}, {"W1": "W1"}, bounds)
@@ -191,7 +191,7 @@ def test_a_week_INSIDE_the_bound_raises_nothing():
     """A check that always fires is a check nobody can act on."""
     r = rules([("QB", [rule("PY", "*0.04", "0-999")]),
                ("RB|WR|TE", [rule("CC", "*0.5"), rule("CY", "*0.1", "0-99")])])
-    tables, _b, _i, bounds = X.scoring_tables(r)
+    tables, _b, _i, bounds = X.scoring_tables(r)[:4]
     got = X.weekly_points([wk("W1", 1, receptions=5, receiving_yards=80)], 2025,
                           tables, {"W1": "WR"}, {"W1": "W1"}, bounds)
     assert got["exceeded"] == []
@@ -202,7 +202,7 @@ def test_a_week_INSIDE_the_bound_raises_nothing():
 def test_the_series_is_PER_WEEK_and_scored_by_the_SHIPPED_engine():
     """5 rec x 0.5 = 2.5, 80 yd x 0.1 = 8.0, 1 TD x 6 = 6.0 -> 16.5 in week 1;
     week 2 is a separate entry, not folded into a season total."""
-    tables, _b, _i, bounds = X.scoring_tables(rules(FULL))
+    tables, _b, _i, bounds = X.scoring_tables(rules(FULL))[:4]
     rows = [wk("W1", 1, receptions=5, receiving_yards=80, receiving_tds=1),
             wk("W1", 2, receptions=3, receiving_yards=20)]
     got = X.weekly_points(rows, 2025, tables, {"W1": "WR"}, {"W1": "W1"}, bounds)
@@ -210,7 +210,7 @@ def test_the_series_is_PER_WEEK_and_scored_by_the_SHIPPED_engine():
 
 
 def test_rows_from_ANOTHER_SEASON_are_not_pooled_into_this_one():
-    tables, _b, _i, bounds = X.scoring_tables(rules(FULL))
+    tables, _b, _i, bounds = X.scoring_tables(rules(FULL))[:4]
     rows = [wk("W1", 1, receptions=5), dict(wk("W1", 1, receptions=5), season=2024)]
     got = X.weekly_points(rows, 2025, tables, {"W1": "WR"}, {"W1": "W1"}, bounds)
     assert got["series"]["W1"] == {1: 2.5}, "2024 leaked into 2025"
@@ -219,7 +219,7 @@ def test_rows_from_ANOTHER_SEASON_are_not_pooled_into_this_one():
 def test_a_player_whose_POSITION_we_do_not_know_is_counted_not_defaulted():
     """MUTATION: fall back to a WR table. It would score a QB's passing yards at a
     receiver's rates and never error."""
-    tables, _b, _i, bounds = X.scoring_tables(rules(FULL))
+    tables, _b, _i, bounds = X.scoring_tables(rules(FULL))[:4]
     got = X.weekly_points([wk("X9", 1, receptions=5)], 2025, tables, {}, {"X9": "X9"}, bounds)
     assert got["series"] == {} and got["unknown_position"] == ["X9"]
 
@@ -228,7 +228,7 @@ def test_fumbles_arrive_SPLIT_across_columns_and_are_summed_once():
     """nflverse splits fumbles lost across rushing/receiving/sack columns; our key
     is one. The shipped translator already does this, and the point of the test is
     that this file uses IT rather than its own read of the same columns."""
-    tables, _b, _i, bounds = X.scoring_tables(rules(FULL))
+    tables, _b, _i, bounds = X.scoring_tables(rules(FULL))[:4]
     row = wk("W1", 1, receptions=2, rushing_fumbles_lost=1, receiving_fumbles_lost=1)
     got = X.weekly_points([row], 2025, tables, {"W1": "WR"}, {"W1": "W1"}, bounds)
     # 2 receptions x 0.5 = 1.0; TWO fumbles lost (one rushing, one receiving)
@@ -463,7 +463,7 @@ def test_AN_UNMAPPED_rename_is_caught_rather_than_scored_as_absent():
     and pointing this at a handled column would leave the detector green while
     testing nothing.
     """
-    tables, _b, _i, _bo = X.scoring_tables(rules(FULL))
+    tables, _b, _i, _bo = X.scoring_tables(rules(FULL))[:4]
     rows = [unmapped_rename(wk("Q1", w, passing_yards=300, passing_tds=2,
                                interceptions=1)) for w in (1, 2)]
     gap = X.schema_gap(rows, tables)
@@ -480,7 +480,7 @@ def test_the_nflreadpy_rename_is_now_MAPPED_and_produces_no_gap():
     real shape now grades — the detector must NOT report a gap for a column the
     translator can emit, or every 2025 league would be rejected for a reason that
     stopped being true."""
-    tables, _b, _i, _bo = X.scoring_tables(rules(FULL))
+    tables, _b, _i, _bo = X.scoring_tables(rules(FULL))[:4]
     rows = [nflreadpy_shaped(wk("Q1", w, passing_yards=300, passing_tds=2,
                                 interceptions=1)) for w in (1, 2)]
     assert X.schema_gap(rows, tables) == {}, "a mapped rename is still reported as a gap"
@@ -500,7 +500,7 @@ def test_the_SIZE_of_the_silent_error_is_stated_not_asserted_away():
     against a rename the translator still cannot emit. The nflreadpy shape that
     originally produced it now scores 18.0, which is the fix.
     """
-    tables, _b, _i, bounds = X.scoring_tables(rules(FULL))
+    tables, _b, _i, bounds = X.scoring_tables(rules(FULL))[:4]
     row = wk("Q1", 1, passing_yards=300, passing_tds=2, interceptions=1)
     pts = lambda r: X.weekly_points([r], 2025, tables, {"Q1": "QB"},
                                     {"Q1": "Q1"}, bounds)["series"]["Q1"][1]
@@ -536,7 +536,7 @@ def test_a_league_that_does_NOT_score_the_missing_term_is_unaffected():
     league scoring receptions and yards never touches `pass_int`."""
     r = rules([("QB", [rule("PY", "*0.04", "0-999")]),
                ("RB|WR|TE", [rule("CC", "*0.5"), rule("CY", "*0.1", "0-999")])])
-    tables, _b, _i, _bo = X.scoring_tables(r)
+    tables, _b, _i, _bo = X.scoring_tables(r)[:4]
     rows = [nflreadpy_shaped(wk("W1", w, receptions=5, receiving_yards=80))
             for w in (1, 2)]
     assert X.schema_gap(rows, tables) == {}
@@ -552,7 +552,7 @@ def test_POSTSEASON_weeks_are_DROPPED_AND_COUNTED():
     """MUTATION: score every row. Playoff production would inflate exactly the
     players on good teams — a bias correlated with team quality, which is
     correlated with what a draft policy is being graded on."""
-    tables, _b, _i, bounds = X.scoring_tables(rules(FULL))
+    tables, _b, _i, bounds = X.scoring_tables(rules(FULL))[:4]
     rows = [wk("W1", 1, receiving_tds=1),
             dict(wk("W1", 20, receiving_tds=3), season_type="POST")]
     got = X.weekly_points(rows, 2025, tables, {"W1": "WR"}, {"W1": "W1"}, bounds)
@@ -562,7 +562,7 @@ def test_POSTSEASON_weeks_are_DROPPED_AND_COUNTED():
 
 def test_a_row_with_NO_season_type_is_not_ASSUMED_regular():
     """Absent is not REG, any more than absent is zero."""
-    tables, _b, _i, bounds = X.scoring_tables(rules(FULL))
+    tables, _b, _i, bounds = X.scoring_tables(rules(FULL))[:4]
     row = wk("W1", 1, receiving_tds=1); row.pop("season_type")
     got = X.weekly_points([row], 2025, tables, {"W1": "WR"}, {"W1": "W1"}, bounds)
     assert got["series"] == {} and got["unknown_season_type_rows_dropped"] == 1
@@ -677,3 +677,34 @@ def test_the_league_path_supplies_the_reachable_set_from_the_ID_MAPS_VALUES():
     assert out["f3"]["split_available"] is True
     assert out["f3"]["drafted_unmappable"] == 1, "GONE is not in the id map's values"
     assert out["f3"]["drafted_no_weekly_rows"] == 0
+
+
+# ── the census must carry the EVIDENCE, not only the tally ─────────────────
+def test_the_census_keeps_the_RAW_EXPRESSION_that_would_not_parse():
+    """THE 2025 RUN'S LESSON. It reported RY, CY and PY — rushing, receiving and
+    passing yards, all MAPPED codes — untranslatable in 33 of 36 leagues, on
+    `unreadable_range` and `unreadable_points`. A count cannot say whether that is
+    the leagues or this parser, and 33 of 36 failing on RUSHING YARDS is not
+    plausible as a fact about the leagues. Rule 13: a failed parse against a format
+    I invented is evidence about my parser. So the string is kept."""
+    outs = [{"untranslatable": {"QB": [
+        {"why": "unreadable_range", "event": "RY", "expr": "0-9999"},
+        {"why": "unreadable_points", "event": "PY", "expr": "*.04"}]}}]
+    c = X.untranslatable_census(outs)
+    assert {"event": "RY", "expr": "0-9999"} in c["unparsed_samples"]["unreadable_range"]
+    assert {"event": "PY", "expr": "*.04"} in c["unparsed_samples"]["unreadable_points"]
+
+
+def test_the_census_publishes_the_POSITION_BLOCKS_as_MFL_WROTE_them():
+    """Kicker events (EP, FG) and return events (#KT, #UT) failed GRADED positions
+    in the real run. That can only happen if the blocks are COMBINED — and a term a
+    quarterback can never accrue is a different problem from one he can. The raw
+    block strings are what answers it."""
+    c = X.untranslatable_census([{"position_blocks": ["QB|RB|WR|TE|PK|Def"],
+                                  "untranslatable": {}}])
+    assert c["position_blocks"] == {"QB|RB|WR|TE|PK|Def": 1}
+
+
+def test_scoring_tables_reports_the_blocks_it_saw_even_when_nothing_failed():
+    _t, _b, _i, _bo, blocks = X.scoring_tables(rules(FULL))
+    assert blocks == ["QB", "RB|WR|TE"]

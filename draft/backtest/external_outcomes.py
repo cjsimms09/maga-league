@@ -213,15 +213,19 @@ def scoring_tables(rules_json, positions=GRADED_POSITIONS) -> tuple:
     import json as _json
     d = _json.loads(rules_json) if isinstance(rules_json, str) else (rules_json or {})
     if d.get("error") or (d.get("rules") or {}).get("positionRules") is None:
-        return {}, {p: [{"why": "no_scoring_rules"}] for p in positions}, [], {}
+        return {}, {p: [{"why": "no_scoring_rules"}] for p in positions}, [], {}, []
 
     graded = {p.upper() for p in positions}
     # (POS, EVENT) -> [(points_expr, range_expr)]
     grouped: dict = {}
     ignored: list = []
+    seen_blocks: list = []
     for pr in listify((d.get("rules") or {}).get("positionRules")):
+        raw_block = t(pr.get("positions")).strip()
+        if raw_block and raw_block not in seen_blocks:
+            seen_blocks.append(raw_block)
         names = [p.strip().upper() for p in
-                 t(pr.get("positions")).replace(",", "|").split("|") if p.strip()]
+                 raw_block.replace(",", "|").split("|") if p.strip()]
         rules = listify(pr.get("rule"))
         for n in names:
             if n not in graded:
@@ -280,7 +284,7 @@ def scoring_tables(rules_json, positions=GRADED_POSITIONS) -> tuple:
     for p in list(bad):
         tables.pop(p, None)
         bounds.pop(p, None)
-    return tables, bad, sorted(ignored), bounds
+    return tables, bad, sorted(ignored), bounds, seen_blocks
 
 
 def weekly_points(rows, season, tables, positions, id_map=None, bounds=None) -> dict:
@@ -466,7 +470,11 @@ def untranslatable_census(outcomes) -> dict:
     codes = Counter()
     whys = Counter()
     lost = 0
+    samples: dict = {}
+    blocks = Counter()
     for o in outcomes or []:
+        for b in ((o or {}).get("position_blocks") or []):
+            blocks[b] += 1
         bad = (o or {}).get("untranslatable") or {}
         if not bad:
             continue
@@ -477,12 +485,36 @@ def untranslatable_census(outcomes) -> dict:
                 if r.get("event"):
                     seen_codes.add(r["event"])
                 seen_whys.add(r.get("why"))
+                # THE RAW EXPRESSION, KEPT. The 2025 run reported RY/CY/PY —
+                # rushing, receiving and passing yards, all of them MAPPED codes —
+                # as untranslatable in 33 of 36 leagues, on `unreadable_range` and
+                # `unreadable_points`. A count cannot say whether that is the
+                # leagues or this parser, and 33 of 36 failing on RUSHING YARDS is
+                # not plausible as a fact about the leagues (rule 13: a failed
+                # parse against a format I invented is evidence about my parser).
+                # So the census keeps the STRING that would not parse, the same way
+                # the crosswalk keeps both sides of a match.
+                bucket = samples.setdefault(str(r.get("why")), [])
+                if len(bucket) < 12:
+                    ex = {"event": r.get("event")}
+                    for k in ("expr", "n", "lo", "key"):
+                        if r.get(k) is not None:
+                            ex[k] = r[k]
+                    if ex not in bucket:
+                        bucket.append(ex)
         codes.update(seen_codes)
         whys.update(seen_whys)
     return {"leagues_unscoreable": lost,
             "leagues_examined": len(outcomes or []),
             "by_event_code": dict(codes.most_common()),
             "by_reason": dict(whys.most_common()),
+            # The evidence, not just the tally.
+            "unparsed_samples": samples,
+            # And the POSITION BLOCKS as MFL wrote them. If kicker events (EP, FG)
+            # and return events (#KT, #UT) are failing GRADED positions, the blocks
+            # must be combined ("QB|RB|WR|TE|PK|Def"), and a term a quarterback can
+            # never accrue is a different problem from one he can.
+            "position_blocks": dict(blocks.most_common(20)),
             "verdict": _census_verdict(lost, len(outcomes or []), codes)}
 
 
@@ -514,9 +546,10 @@ def league_outcomes(rules_json, drafted_ids, weekly_rows, season, positions,
     season in which none of them played. An empty map is refused by name rather
     than allowed to produce a 0% coverage figure that looks like a finding.
     """
-    tables, bad, ignored, bounds = scoring_tables(rules_json)
+    tables, bad, ignored, bounds, blocks = scoring_tables(rules_json)
     out = {"season": season, "scoring_tables": tables, "untranslatable": bad,
-           "ignored_positions": ignored, "series": {}, "f3": None,
+           "ignored_positions": ignored, "position_blocks": blocks,
+           "series": {}, "f3": None,
            "has_weekly_outcomes": False, "reason": None}
     if bad:
         out["reason"] = untranslatable_reason(bad)
