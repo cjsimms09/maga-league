@@ -32,7 +32,10 @@
 #
 #   -f  file to perturb            -o  exact string to replace (must be unique-ish)
 #   -n  replacement                -c  command whose RED/GREEN is the evidence
+#   -m  mutation COMMAND (instead of -o/-n) — any edit to -f; no-op still refused
 #   -t  timeout seconds (default 120)
+#
+# REFUSES when -f has uncommitted changes. Commit the fix, THEN break it.
 #
 # Exit codes: 0 the check FAILED (the guard caught the break — what you want)
 #             1 the check PASSED (the guard did NOT catch it — a silence)
@@ -40,16 +43,51 @@
 #             3 the check TIMED OUT (treated as inconclusive, never as a pass)
 set -u
 
-FILE=""; OLD=""; NEW=""; CHECK=""; TMO=120
-while getopts "f:o:n:c:t:" a; do
+# -m MUTATE: an arbitrary mutation COMMAND instead of -o/-n string replacement.
+#
+# ADDED BECAUSE THE GAP IS WHY THE UNSAFE PATH GOT USED. The harness only did one
+# exact string swap in one file, and today's breaks were JSON field edits, a
+# deleted map entry and a one-token function swap. So every one of them was
+# hand-rolled, outside the trap, with git as the restore — and that is where the
+# work was lost. A tool that does not cover the real cases does not get used; it
+# gets worked around, and the workaround is what fails.
+FILE=""; OLD=""; NEW=""; CHECK=""; MUTATE=""; TMO=120
+while getopts "f:o:n:c:m:t:" a; do
   case "$a" in
     f) FILE="$OPTARG";; o) OLD="$OPTARG";; n) NEW="$OPTARG";;
-    c) CHECK="$OPTARG";; t) TMO="$OPTARG";;
+    c) CHECK="$OPTARG";; t) TMO="$OPTARG";; m) MUTATE="$OPTARG";;
     *) echo "bad flag"; exit 2;;
   esac
 done
-[ -n "$FILE" ] && [ -n "$CHECK" ] || { echo "usage: -f FILE -o OLD -n NEW -c CHECK [-t SECS]"; exit 2; }
+[ -n "$FILE" ] && [ -n "$CHECK" ] || { echo "usage: -f FILE {-o OLD -n NEW | -m MUTATE} -c CHECK [-t SECS]"; exit 2; }
 [ -f "$FILE" ] || { echo "no such file: $FILE"; exit 2; }
+
+# ── REFUSE A DIRTY TARGET ───────────────────────────────────────────────────
+#
+# THE THIRD OCCURRENCE, 2026-08-11, and it is a workflow defect rather than a
+# mistake. Twice I lost an uncommitted fix by hand-rolling a break — mutate,
+# check, `git checkout -- <file>` — where the checkout restores to HEAD and
+# therefore DELETES the very fix under test. The third time was worse than losing
+# work: the next break in the same batch then ran against the RESTORED-TO-HEAD
+# file, its mutation silently no-op'd, and the resulting red came from the missing
+# fix rather than from the mutation. That reads as a successful break. A false
+# discharge is the one outcome a break harness must never produce — it is C's
+# stale-.pyc misattribution arriving through a different door.
+#
+# This harness was never the unsafe path (it restores from a cp, not from git).
+# It refuses anyway, because the SAFE state is one where the fix is committed:
+# then `git checkout --` is harmless, the break is applied to reviewed code, and
+# a red cannot be blamed on uncommitted edits nobody has seen.
+if git -C "$(dirname "$FILE")" rev-parse --git-dir >/dev/null 2>&1; then
+  if ! git diff --quiet -- "$FILE" 2>/dev/null || ! git diff --cached --quiet -- "$FILE" 2>/dev/null; then
+    echo "REFUSED: $FILE has uncommitted changes."
+    echo "  COMMIT THE FIX, THEN BREAK IT. An uncommitted fix cannot be told apart"
+    echo "  from the break: any restore-by-git destroys it, and the next break in"
+    echo "  the batch then runs against code that no longer contains it — which"
+    echo "  produces a RED THAT LOOKS LIKE A CAUGHT BREAK and is not one."
+    exit 2
+  fi
+fi
 
 BAK="$(mktemp)"
 cp "$FILE" "$BAK"
@@ -62,9 +100,18 @@ restore() {
 }
 trap restore EXIT INT TERM HUP
 
-# Apply the break as an EXACT string replacement, and refuse a no-op. "A break
-# that cannot change behaviour tests nothing" — a mis-typed search string
-# silently produces a green run that reads as protection.
+# Apply the break: an arbitrary MUTATION COMMAND (-m) or an EXACT string
+# replacement (-o/-n). Both refuse a no-op — "a break that cannot change
+# behaviour tests nothing", and a mis-typed search string silently produces a
+# green run that reads as protection.
+if [ -n "$MUTATE" ]; then
+  # The command may do anything to $FILE; the trap still owns the restore, so a
+  # crash, a timeout or Ctrl-C cannot leave the tree mutated.
+  sh -c "$MUTATE" </dev/null || { echo "NO-OP: mutation command failed"; exit 2; }
+  if cmp -s "$FILE" "$BAK"; then
+    echo "NO-OP: the mutation left $FILE byte-identical — nothing was proven"; exit 2
+  fi
+else
 node -e '
 const fs = require("fs");
 const [file, old, nw] = process.argv.slice(1);
@@ -83,6 +130,7 @@ if (occurrences > 1) {
 }
 fs.writeFileSync(file, before.slice(0, idx) + nw + before.slice(idx + old.length));
 ' "$FILE" "$OLD" "$NEW" || exit 2
+fi
 
 # ── STALE BYTECODE MISATTRIBUTES THE BREAK ──────────────────────────────────
 # C's finding, 2026-08-11: running mutation breaks back to back lets a stale
