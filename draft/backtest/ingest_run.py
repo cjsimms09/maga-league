@@ -193,10 +193,80 @@ def fetch_league(league_id, year):  # pragma: no cover  (egress; CI only)
     return out
 
 
-def run(league_ids, year, out_path=None):  # pragma: no cover  (egress; CI only)
+def league_passthrough(picks, mfl_players, board_index, series, year) -> dict:
+    """Everything `to_league_record` needs that MFL's three exports do not supply.
+
+    THE ADP SNAPSHOT HAS EXACTLY ONE OWNER, DELIBERATELY. `ExternalAsOfStore`
+    already implements F5's "latest strictly before the draft" and raises when
+    there is none. This does NOT re-derive that: it hands over every snapshot for
+    the season and reports what the STORE chose, so `screen()`'s own F5 check
+    becomes a CROSS-PATH CONSISTENCY CHECK on one fact rather than a second
+    implementation of the rule (rule 11, requirement 4 — two paths compared).
+
+    `has_weekly_outcomes` is deliberately left to the caller and is NOT invented
+    here. We do not have a weekly-outcomes ingest yet, so the honest value is the
+    absent one, and F4 will exclude every league for it — see the note in `run`.
+    """
+    from external_adp_capture import as_store_snapshots
+    return {
+        "crosswalk": A.crosswalk_picks(picks, mfl_players, board_index),
+        "snapshots": as_store_snapshots(series, year),
+    }
+
+
+def adp_fields(store) -> dict:
+    """`pre_draft_adp` and `adp_observed_at`, taken FROM THE STORE'S CHOICE.
+
+    Reading the snapshot date off the store rather than picking one here is what
+    makes `screen()`'s F5 check a second opinion on the same fact instead of a
+    rival implementation of it.
+    """
+    board = store.board()
+    return {"pre_draft_adp": {str(r["player_id"]): r.get("adp") for r in board},
+            "adp_observed_at": store.snapshot_date().isoformat()}
+
+
+def run(league_ids, year, out_path=None, *, players=None, board=None,
+        series=None, has_weekly_outcomes=None):  # pragma: no cover  (egress; CI only)
+    """THE FIRST REAL FETCH.
+
+    A NOTE ON WHAT THIS WILL REPORT, WRITTEN BEFORE IT RUNS so the result cannot
+    be narrated afterwards. `has_weekly_outcomes` defaults to None because THERE
+    IS NO WEEKLY-OUTCOMES INGEST YET. F4 excludes whole leagues missing weekly
+    outcomes — that is the registered filter and it is not being relaxed — so
+    this run is expected to report ZERO matched leagues and `F4.no_weekly_outcomes`
+    for every league that gets that far.
+
+    That is the pipeline working, not failing. The attrition report will say
+    precisely which prerequisite is absent, which is the entire guarantee the
+    pre-registration buys, and the number it prints is the honest state of the
+    program rather than a flattering one.
+    """
+    from external_replay import ExternalAsOfStore, policy_fingerprint
+    from asof import TimeTravelError
+
     records = []
     for lid in league_ids:
-        records.append(build_record(lid, fetch_league(lid, year)))
+        exports = fetch_league(lid, year)
+        rec = build_record(lid, exports)
+        if rec.get("unfetchable"):
+            records.append(rec)
+            continue
+        picks, _ = A.draft_picks(exports["draftResults"])
+        extra = league_passthrough(picks, players or {}, board, series or [], year)
+        draft_at = A.to_league_record(exports["league"], exports["rules"],
+                                      exports["draftResults"], league_id=lid).get("draft_at")
+        adp = {}
+        try:
+            store = ExternalAsOfStore(lid, draft_at, extra["snapshots"], policy_fingerprint())
+            adp = adp_fields(store)
+        except (TimeTravelError, Exception) as e:      # noqa: B014 - recorded, never raised away
+            adp = {"pre_draft_adp": None, "adp_observed_at": None,
+                   "_adp_note": "%s: %s" % (type(e).__name__, e)}
+        records.append(build_record(lid, exports, crosswalk=extra["crosswalk"],
+                                    has_weekly_outcomes=has_weekly_outcomes,
+                                    pre_draft_adp=adp.get("pre_draft_adp"),
+                                    adp_observed_at=adp.get("adp_observed_at")))
     verdicts, _ = run_screen(records)
     rep = attrition_report(verdicts, requested=list(league_ids))
     rep["year"] = str(year)

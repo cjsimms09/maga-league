@@ -180,3 +180,56 @@ def test_the_unenforced_autopick_clause_still_reaches_this_report():
     rep = R.attrition_report(verdicts, requested=["L1"])
     assert any(u.startswith("F2.autopick_majority") for u in rep["unenforced_filters"])
     assert "could NOT be enforced" in rep["verdict"]
+
+
+# ── the wiring that turns the spine into a pipeline ─────────────────────────
+def test_the_ADP_SNAPSHOT_HAS_ONE_OWNER_and_screen_is_the_second_opinion():
+    """`ExternalAsOfStore` implements F5's strictly-before and `league_passthrough`
+    does NOT re-derive it — it hands over every snapshot and reports what the
+    store chose. So `screen()`'s F5 check is a cross-path consistency check on one
+    fact (rule 11, requirement 4) rather than a rival implementation.
+
+    MUTATION: pick the snapshot inside `league_passthrough`. Then the two paths
+    can disagree and nothing compares them."""
+    import ast
+    src = (HERE.parent / "backtest" / "ingest_run.py").read_text()
+    fn = next(n for n in ast.parse(src).body
+              if isinstance(n, ast.FunctionDef) and n.name == "league_passthrough")
+    dated = [c for c in ast.walk(fn) if isinstance(c, ast.Compare)
+             and any("observed_at" in ast.dump(p) for p in [c.left] + list(c.comparators))]
+    assert not dated, "league_passthrough is choosing a snapshot — that is the store's job"
+
+
+def test_adp_fields_reads_the_date_the_STORE_chose():
+    import external_replay as X
+    import ingest_run as IR
+    snaps = [{"observed_at": "2026-08-09", "rows": [{"player_id": "1", "adp": 3.0}]},
+             {"observed_at": "2026-08-10", "rows": [{"player_id": "1", "adp": 2.0}]}]
+    store = X.ExternalAsOfStore("L1", "2026-08-12", snaps, "fp")
+    f = IR.adp_fields(store)
+    assert f["adp_observed_at"] == "2026-08-10"        # the store's choice, not ours
+    assert f["pre_draft_adp"] == {"1": 2.0}
+
+
+def test_the_passthrough_hands_over_EVERY_snapshot_for_the_season():
+    import ingest_run as IR
+    series = [{"year": "2026", "observed_at": "2026-08-09", "rows": {"1": 3.0}, "row_count": 1},
+              {"year": "2026", "observed_at": "2026-08-20", "rows": {"1": 2.0}, "row_count": 1},
+              {"year": "2025", "observed_at": "2025-08-09", "rows": {"1": 9.0}, "row_count": 1}]
+    out = IR.league_passthrough([], {}, {}, series, 2026)
+    assert len(out["snapshots"]) == 2, "the store must see both 2026 snapshots and pick"
+
+
+def test_MISSING_WEEKLY_OUTCOMES_is_reported_as_itself_not_as_a_crosswalk_failure():
+    """WRITTEN BEFORE THE FIRST REAL RUN. There is no weekly-outcomes ingest yet,
+    so F4 will exclude every league for it — that is the registered filter working,
+    and the attrition report must name that prerequisite rather than stopping at an
+    earlier pipeline reason."""
+    rec = good_record("L1")
+    rec["has_weekly_outcomes"] = None
+    verdicts, matched = R.run_screen([rec])
+    assert matched == []
+    assert verdicts[0][2] == "F4.no_weekly_outcomes"
+    rep = R.attrition_report(verdicts, requested=["L1"])
+    assert rep["rejected_by_reason"]["F4.no_weekly_outcomes"] == 1
+    assert rep["rejected_unreadable"] == 1, "a missing prerequisite is about our pipeline"
