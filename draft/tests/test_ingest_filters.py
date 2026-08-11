@@ -246,6 +246,16 @@ ck("the doc still states keepers are a covariate, not a filter",
    re.search(r"covariate.{0,60}never used as a filter", plan, re.S | re.I) is not None)
 ck("the doc still states the fail-closed local default",
    "LOCAL" in plan and "FAIL-CLOSED" in plan.upper())
+# The attrition VOCABULARY is part of the pre-registration now, because the whole
+# guarantee F4 provides is that we know why leagues were dropped. A reason code
+# that exists in the build and not in the document is rule 6's exact failure.
+_undocumented = [r for r in F.FILTERED_REASONS + F.UNOBTAINED_REASONS if r not in plan]
+ck("every reason code the filters can emit is documented in INGEST-PLAN.md",
+   _undocumented == [], _undocumented)
+ck("the doc records that the relabelling moved no league's verdict",
+   "REPORTING fix, NOT a filter change" in plan)
+ck("the doc still names F2's autopick clause as UNENFORCED",
+   re.search(r"autopick clause is still UNENFORCED", plan) is not None)
 
 
 def test_all_checks_passed():

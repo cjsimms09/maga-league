@@ -191,3 +191,83 @@ Useful and confirmed: every pick carries a unix `timestamp`, which gives F5 a re
 per-pick draft time rather than a league-level guess; `franchises.count` gives F1's
 team count; `round1DraftOrder` gives the seat order; `keeperType` (when present) is
 the keeper covariate F1 records rather than filters on.
+
+---
+
+# THE ATTRITION SEAM — 2026-08-11
+
+**This is a REPORTING fix, NOT a filter change, so it is not a new pre-registration
+version.** Every filter boundary above stands exactly as written. What changed is the
+sentence the report gives for a rejection that was already happening — and that is
+verifiable rather than asserted: the pre-fix and post-fix `screen()` were run over a
+36-case corpus and **no league's accept/reject verdict moves**. Twelve rejection
+sentences change, and two cases that used to raise `ValueError` now reject with a
+reason. If a filter ever does need to move, that is a v3 section with v2 retained,
+never an edit in place.
+
+### What was wrong (found by session B's cross-session audit)
+
+`screen()` reported a confident, specific falsehood whenever a field failed to parse:
+
+| field absent / unparseable | it used to say | which claims |
+|---|---|---|
+| `roster_slots` | `F1.qb_slots` | "doesn't start exactly one QB" |
+| `teams` | `F1.teams` | "wrong league size" |
+| `draft_type` | `F1.draft_type` | "not a snake draft" |
+| `draft` | `F2.draft_incomplete` | "their draft wasn't finished" |
+
+Each asserts a check that never ran. F4 exists so that **exclusions are counted and
+reported by reason** — "a sample whose attrition is invisible is a sample nobody can
+judge" — and a league that fails to PARSE being indistinguishable from one that fails
+the FILTERS defeats that guarantee entirely. The two fields likeliest to break are
+`roster_slots` and `draft_type`, the two that needed the schema probe above to pin
+down, so a mass parse failure would have read as **"no public league matches our
+format"** — a conclusion someone might act on.
+
+The sharpest part was the SEAM, not the screen. The adapter already computed the
+right answer everywhere (P1's `draft_type()` returns `draft_type_unrecognised:XYZ`
+precisely so an unknown code is its own reason) and those reasons reached nothing:
+the function joining the adapter to the filters did not exist.
+
+### The attrition vocabulary, and the split that makes it judgeable
+
+Two families, and the report leads with the split because they support opposite
+actions. Every reason is a TRUE statement about the league.
+
+- **FILTERED — we read it and it does not qualify.** Evidence about the public pool.
+  `F1.teams` · `F1.scoring_not_half_ppr` · `F1.te_premium_or_split_ppr` ·
+  `F1.qb_slots` · `F1.starting_skill_slots` · `F1.draft_type` ·
+  `F2.draft_incomplete` · `F2.no_picks` · `F2.crosswalk_below_90pct` ·
+  `F2.autopick_majority` · `F5.adp_not_strictly_pre_draft`
+- **UNREADABLE — we could not read or could not obtain it.** Evidence about THIS
+  PIPELINE, and never a statement about format rarity.
+  `F4.no_scoring_rules` · `F4.no_reception_rule` · `F4.no_team_count` ·
+  `F4.unreadable_team_count` · `F4.no_roster_slots` · `F4.no_qb_slot_count` ·
+  `F4.unreadable_qb_slot_count` · `F4.unreadable_starting_slots` ·
+  `F4.unreadable_starter_limits` · `F4.no_draft_type` · `F4.draft_type_absent` ·
+  `F4.draft_type_unrecognised` · `F4.no_draft` · `F4.no_draft_status` ·
+  `F4.crosswalk_not_run` · `F4.no_weekly_outcomes` · `F4.no_pre_draft_adp` ·
+  `F5.missing_timestamps`
+
+A reason code that is in neither list is **binned nowhere and reported loudly**,
+rather than defaulting into "filtered" — which would recreate the same defect one
+level up, inside the summariser.
+
+### Three things this seam states rather than assumes
+
+- **The draft's date is its FIRST pick.** MFL drafts are `draft_kind: email` on a
+  `draftLimitHours` clock and routinely span days. Dating one by its last pick would
+  widen F5's window by the length of the draft, and an ADP snapshot taken while the
+  room was already picking would pass "strictly before".
+- **Completeness is inferred from round fullness, and its blind spot is named.** No
+  MFL export carries a round count and `rosterSize` counts the bench (so it is wrong
+  for every keeper league). What is observable is that every round received is full;
+  a draft abandoned mid-round is caught, **a draft abandoned exactly on a round
+  boundary is not** and that limit is asserted in the tests rather than left in a
+  comment. The shortfall travels with the reason, because `149/150` (a league that
+  quit) and `2/150` (a fetch that failed) are not the same fact.
+- **F2's autopick clause is still UNENFORCED, and the report says so.** There is no
+  autopick flag anywhere in `draftResults`, so the check passes every league. As
+  required above, that is now declared by the adapter and printed on the report's
+  verdict line — a clause passing every league must never look like every league
+  satisfying it.
