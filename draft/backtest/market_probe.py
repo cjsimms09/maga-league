@@ -450,10 +450,10 @@ def probe() -> dict:                                        # pragma: no cover (
                     lg, _ = get(c["host"] + f"/v3/leagues?apiKey={k}&sport=american-football")
                     try:
                         bl, _ = get(c["host"] + "/v3/bookmakers")
-                        io["_books"] = [b for b in (bl or []) if b.get("active")][:6]
-                        io["active_books_sample"] = [b.get("name") for b in (io["_books"] or [])]
+                        io["_all_books"] = [b for b in (bl or []) if b.get("active")]
+                        io["active_book_count"] = len(io["_all_books"])
                     except Exception:                        # noqa: BLE001
-                        io["_books"] = []
+                        io["_all_books"] = []
                     io["football_leagues"] = [
                         {"name": x.get("name"), "slug": x.get("slug"),
                          "events": x.get("eventsCount")} for x in (lg or [])]
@@ -474,7 +474,20 @@ def probe() -> dict:                                        # pragma: no cover (
                             # plan excludes, so the 403 was about MY choice of book and not
                             # about coverage. The error text is the finding: "your free plan
                             # includes ALL the recreational bookmakers".
-                            bm = "draftkings,fanduel"
+# EXACT NAMES ONLY. "draftkings" is rejected — the API wants the
+                            # string /v3/bookmakers returns, casing and all. So match the
+                            # known recreational books against that list and use whatever
+                            # it actually calls them. Two guesses in a row here were both
+                            # about my input, not the provider.
+                            WANT = ("draftking", "fanduel", "betmgm", "caesars",
+                                    "espn bet", "bet365", "pointsbet")
+                            names = [str(b.get("name")) for b in (io.get("_all_books") or [])]
+                            rec = [n for n in names if any(w in n.lower() for w in WANT)]
+                            io["recreational_matched"] = rec[:8]
+                            bm = ",".join(rec[:2])
+                            if not bm:
+                                raise RuntimeError("no recreational bookmaker matched: "
+                                                   + ",".join(names[:20]))
                             od, h6 = get(c["host"] + f"/v3/odds?apiKey={k}&eventId={eid}"
                                                      f"&bookmakers={bm}")
                             body = json.dumps(od)
