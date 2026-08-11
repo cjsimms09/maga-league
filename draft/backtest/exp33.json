@@ -33,8 +33,8 @@
               },
               "RB": {
                 "n": 104,
-                "mae": 58.75,
-                "rank_corr": 0.704,
+                "mae": 58.72,
+                "rank_corr": 0.705,
                 "top_decile": {
                   "n": 104,
                   "k": 10,
@@ -44,7 +44,7 @@
               "WR": {
                 "n": 172,
                 "mae": 46.73,
-                "rank_corr": 0.671,
+                "rank_corr": 0.67,
                 "top_decile": {
                   "n": 172,
                   "k": 17,
@@ -107,7 +107,7 @@
               "RB": {
                 "n": 104,
                 "mae": 46.94,
-                "rank_corr": 0.758,
+                "rank_corr": 0.757,
                 "top_decile": {
                   "n": 104,
                   "k": 10,
@@ -127,7 +127,7 @@
               "TE": {
                 "n": 98,
                 "mae": 27.27,
-                "rank_corr": 0.683,
+                "rank_corr": 0.682,
                 "top_decile": {
                   "n": 98,
                   "k": 10,
@@ -347,7 +347,7 @@
         "cards": {
           "our_blend": {
             "n": 455,
-            "mae": 56.68,
+            "mae": 56.67,
             "rank_corr": 0.608,
             "top_decile": {
               "n": 455,
@@ -367,8 +367,8 @@
               },
               "RB": {
                 "n": 111,
-                "mae": 59.87,
-                "rank_corr": 0.541,
+                "mae": 59.84,
+                "rank_corr": 0.542,
                 "top_decile": {
                   "n": 111,
                   "k": 11,
@@ -378,7 +378,7 @@
               "WR": {
                 "n": 164,
                 "mae": 46.96,
-                "rank_corr": 0.756,
+                "rank_corr": 0.755,
                 "top_decile": {
                   "n": 164,
                   "k": 16,
@@ -387,7 +387,7 @@
               },
               "TE": {
                 "n": 92,
-                "mae": 33.66,
+                "mae": 33.65,
                 "rank_corr": 0.642,
                 "top_decile": {
                   "n": 92,
@@ -441,7 +441,7 @@
               "RB": {
                 "n": 111,
                 "mae": 53.37,
-                "rank_corr": 0.586,
+                "rank_corr": 0.587,
                 "top_decile": {
                   "n": 111,
                   "k": 11,
@@ -451,7 +451,7 @@
               "WR": {
                 "n": 164,
                 "mae": 37.47,
-                "rank_corr": 0.774,
+                "rank_corr": 0.773,
                 "top_decile": {
                   "n": 164,
                   "k": 16,
