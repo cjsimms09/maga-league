@@ -650,3 +650,38 @@ def test_A_THROTTLED_COMMITS_REQUEST_IS_NOT_AN_EMPTY_HISTORY():
         {"commit": {"committer": {"date": "2019-08-19T10:00:00Z"}}},
         {"commit": {"committer": {"date": "2019-08-18T10:00:00Z"}}}]))
     assert got == {"first": "2019-08-18T10:00:00Z", "last": "2019-08-19T10:00:00Z", "n": 2}
+
+
+# ── one capture proves a board existed; a REPLAY needs a series ────────────
+def test_the_QUERY_CAN_TAKE_A_WINDOW_not_just_a_ceiling():
+    """Route 1 opening on ONE capture proves a dated board existed. It does not make
+    the route usable: a replay wants the latest snapshot before EACH draft, so the
+    number that decides usability is how many distinct days across a preseason serve
+    a board.
+
+    MUTATION: drop `since`. Every query reaches back to the dawn of the archive, the
+    negative limit returns the newest N regardless, and coverage across the window
+    cannot be counted at all."""
+    q = X.cdx_query("https://x/a", "20240831", limit=200, since="20240601")
+    assert "from=20240601" in q and "to=20240831" in q
+    # And it stays optional — the cutoff-only form is what the main pass uses.
+    assert "from=" not in X.cdx_query("https://x/a", "20240801")
+
+
+def test_the_PRESEASON_WINDOW_does_not_stop_at_the_cutoff():
+    """Drafts cluster in late August. A window ending at the cutoff would report
+    coverage only for the earliest drafters and call it the whole picture."""
+    assert X.preseason_window(2024) == ("20240601", "20240831")
+
+
+def test_TWO_CAPTURES_ON_ONE_DAY_ARE_ONE_DAY_OF_COVERAGE():
+    """A draft on the 15th is served by the latest capture before it; a second
+    capture that morning adds nothing. MUTATION: count rows. Coverage is overstated
+    by however often the crawler happened to double up, and the overstatement is
+    invisible because both numbers look like counts of captures."""
+    rows = [{"timestamp": "20240712092948"}, {"timestamp": "20240712180000"},
+            {"timestamp": "20240801000000"}]
+    assert X.capture_days(rows) == ["20240801", "20240712"]
+    assert X.capture_days([]) == []
+    # A row whose timestamp cannot be read is not a day of coverage.
+    assert X.capture_days([{"timestamp": "2024"}, {"timestamp": None}]) == []

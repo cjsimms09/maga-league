@@ -41,7 +41,8 @@ CDX = "https://web.archive.org/cdx/search/cdx"
 DEFAULT_LIMIT = 8
 
 
-def cdx_query(url: str, before: str, limit: int = DEFAULT_LIMIT, only_200=True) -> str:
+def cdx_query(url: str, before: str, limit: int = DEFAULT_LIMIT, only_200=True,
+              since=None) -> str:
     """The index URL for "captures of `url` at or before `before` (YYYYMMDD)".
 
     `to` is INCLUSIVE of its day, and F5 wants strictly-before. The query stays wide
@@ -60,9 +61,39 @@ def cdx_query(url: str, before: str, limit: int = DEFAULT_LIMIT, only_200=True) 
     """
     q = {"url": url, "to": str(before), "output": "json",
          "limit": str(-abs(int(limit))), "collapse": "timestamp:8"}
+    if since:
+        # A WINDOW, not just a ceiling. One capture proves a board existed; a REPLAY
+        # needs the latest snapshot before EACH draft, so the question that decides
+        # whether Route 1 is usable rather than merely interesting is how many
+        # distinct days across a preseason serve one. `collapse=timestamp:8` already
+        # gives at most one row per day, so the count of rows IS the count of days.
+        q["from"] = str(since)
     if only_200:
         q["filter"] = "statuscode:200"
     return CDX + "?" + urllib.parse.urlencode(q)
+
+
+def preseason_window(year) -> tuple:
+    """(from, to) for a season's PRESEASON, as YYYYMMDD.
+
+    June 1 to August 31. Stated as a rule rather than tuned per season: drafts
+    cluster in late August, so a window that stops at the cutoff would report
+    coverage only for the earliest drafters and call it the whole picture.
+    """
+    y = int(year)
+    return ("%d0601" % y, "%d0831" % y)
+
+
+def capture_days(rows) -> list:
+    """Distinct capture DAYS, newest first. The unit a replay actually consumes.
+
+    Two captures on one day are one day of coverage — a draft on the 15th is served
+    by the latest capture before it, and a second capture that morning adds nothing.
+    Counting rows instead of days would overstate coverage by however often the
+    crawler happened to double up.
+    """
+    return sorted({str(r.get("timestamp") or "")[:8] for r in rows or []
+                   if len(str(r.get("timestamp") or "")) >= 8}, reverse=True)
 
 
 def status_census(rows) -> dict:

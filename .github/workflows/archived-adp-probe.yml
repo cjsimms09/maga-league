@@ -291,7 +291,55 @@ jobs:
                               "truncated": listing["truncated"],
                               "candidates": listing["files"], "opened": found})
 
+          # ── COVERAGE: one capture is not a series ─────────────────────────────
+          # A dated board proves F5 CAN be satisfied. Replaying a draft needs the
+          # latest snapshot before THAT draft, so the number that decides whether
+          # Route 1 is usable is how many distinct preseason DAYS serve a board.
+          # Asked only for targets that already passed the known-answer gate — a
+          # window query on a URL with no board would measure nothing.
+          since, until = AA.preseason_window(YEAR)
+          coverage = []
+          for r in results:
+              if r.get("verdict") != "SATISFIES F5":
+                  continue
+              time.sleep(CDX_SPACING)
+              q = AA.cdx_query(r["url"], until, limit=200, since=since)
+              cr = get(q, timeout=60, tries=3, pause=5.0)
+              if (cr or {}).get("transport_error"):
+                  coverage.append({"target": r["target"], "state": "unreached"}); continue
+              try:
+                  days = AA.capture_days(AA.parse_cdx(cr.get("body") or b""))
+              except Exception as e:                                 # noqa: BLE001
+                  coverage.append({"target": r["target"], "state": "unreadable",
+                                   "why": type(e).__name__}); continue
+              # Sample a few across the window and check each SERVES a board — a
+              # capture in the index is not a capture with players in it, which is
+              # the whole lesson of this probe.
+              probe_days = days[:3] + days[len(days)//2:len(days)//2 + 2] + days[-2:]
+              served = []
+              for d in sorted(set(probe_days), reverse=True)[:6]:
+                  row = {"timestamp": d + "000000", "original": r["url"]}
+                  v = AA.board_confidence(get(AA.replay_url(row)).get("body") or b"", KNOWN)
+                  served.append({"day": d, "player_hits": v["player_hits"],
+                                 "is_board": v["is_board"]})
+              coverage.append({"target": r["target"], "state": "listed",
+                               "window": "%s..%s" % (since, until),
+                               "capture_days": len(days),
+                               "first": days[-1] if days else None,
+                               "last": days[0] if days else None,
+                               "sampled": served,
+                               "sampled_serving": sum(1 for x in served if x["is_board"])})
+          print()
+          print("COVERAGE — one capture proves a board existed; a replay needs a series")
+          for c in coverage:
+              print("  %-22s %s" % (c["target"], {k: v for k, v in c.items()
+                                                   if k not in ("target", "sampled")}))
+              for x in (c.get("sampled") or []):
+                  print("      %s  %s players  %s" % (x["day"], x["player_hits"],
+                                                      "BOARD" if x["is_board"] else "-"))
+
           rep = AA.route1_report(results, unreachable)
+          rep["coverage"] = coverage
           rep["mirrors"] = mirrors
 
           # THE MIRROR VERDICT, with the two kinds kept apart. A frozen ADP board is
@@ -342,7 +390,7 @@ jobs:
                                              r["url"][:80]))
 
           json.dump({"before": BEFORE, "year": YEAR, "rows": results, "report": rep,
-                     "mirrors": mirrors},
+                     "mirrors": mirrors, "coverage": coverage},
                     open("archived-adp-probe.json", "w"), indent=1, default=str)
           PY
       - uses: actions/upload-artifact@v4
