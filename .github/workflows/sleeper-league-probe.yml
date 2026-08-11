@@ -1,0 +1,36 @@
+name: Sleeper league settings probe
+
+# WHY A WORKFLOW. Sleeper egress is DENIED AT THE GATEWAY from the dev sandbox
+# (connect_rejected, policy denial — not a TLS problem and not something to route
+# around). CI has network access, which is how the nightly board builds, so the
+# probe runs here.
+#
+# Dispatch-only and read-only: one GET, no commit of anything but the dump.
+on:
+  workflow_dispatch:
+    inputs:
+      league_id:
+        description: 'Sleeper league id (blank = the configured league)'
+        required: false
+
+permissions:
+  contents: write
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - name: Dump the FULL league object and report what we ignore
+        env:
+          SLEEPER_LEAGUE_ID: ${{ github.event.inputs.league_id }}
+        run: python draft/sleeper_league_probe.py
+      - name: Commit the dump
+        run: |
+          git config user.name lab-bot
+          git config user.email actions@github.com
+          git add draft/data/sleeper_league_settings.json
+          git diff --cached --quiet || git commit -m "Sleeper league settings dump [skip deploy]"
+          git push || echo "nothing to push"
