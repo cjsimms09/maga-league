@@ -49,13 +49,80 @@ if ! bash scripts/territory-check.sh "$SIDE" --range "$BASE" "$REF"; then
 fi
 
 # ── 3. MERGE INTO main AND PROVE IT GREEN BEFORE ANYONE SEES IT ─────────────
+# ── 2b. THE GUARD, FROM *BOTH* PERSPECTIVES, AUTOMATICALLY ──────────────────
+# My own miss is why this is here rather than in a checklist: I edited B's files
+# (src/notify.js, src/routes/*) without ever running territory-check, and the
+# guard I own would have caught me. A GUARD THAT EXISTS BUT IS NOT EXECUTED IS
+# FUNCTIONALLY CLOSE TO NO GUARD, so execution is automatic rather than
+# remembered. The branch is checked as its own side above; main is checked as
+# A here, so a trespass in EITHER direction stops the merge.
+echo "== territory: has main's side stayed in ITS lane?"
+if ! bash scripts/territory-check.sh A --range "$BASE" origin/main; then
+  echo "REFUSED: main contains edits outside side A's lane. Nothing merged."
+  exit 1
+fi
+
+# ── APPEND-ONLY / UNION-MERGE FILES — A CLASS, NOT AN INSTANCE ──────────────
+# PARKED.md, DECISIONS-NEEDED.md and TERRITORY.md now cross all three sessions.
+# Both sides append at the end, so nothing conflicts in the ordinary sense — and
+# picking a side DISCARDS the other's work while the file reads as intact. It
+# silently dropped A's DECISIONS-NEEDED gate proposal once already, caught only
+# by grepping for the section afterwards.
+#
+# OURS-VS-THEIRS IS NEVER OFFERED FOR THESE. They are unioned deterministically
+# (base, then mine, then theirs) before the merge is even attempted, so the merge
+# cannot present them as a choice.
+UNION_FILES="PARKED.md DECISIONS-NEEDED.md TERRITORY.md STATUS.md TASK-AUDIT.md"
+
 echo "== merging into main"
 git checkout -q main || { echo "FAIL: cannot checkout main"; exit 1; }
-if ! git merge --no-edit -q "$REF"; then
-  echo "REFUSED: merge conflict. Resolve deliberately, do not force."
+MERGE_RC=0
+git merge --no-commit --no-edit "$REF" >/dev/null 2>&1 || MERGE_RC=1
+
+# Union the append-only files FIRST, whether or not git flagged them.
+for f in $UNION_FILES; do
+  git cat-file -e "origin/main:$f" 2>/dev/null || continue
+  git cat-file -e "$REF:$f" 2>/dev/null || continue
+  mine=$(mktemp); theirs=$(mktemp); base=$(mktemp)
+  git show "origin/main:$f" > "$mine"
+  git show "$REF:$f"        > "$theirs"
+  git show "$BASE:$f"       > "$base" 2>/dev/null || : > "$base"
+  git merge-file --union "$mine" "$base" "$theirs" >/dev/null 2>&1
+  if grep -qE '^<<<<<<<|^>>>>>>>' "$mine"; then
+    echo "REFUSED: $f could not be unioned cleanly — resolve by hand."
+    rm -f "$mine" "$theirs" "$base"; git merge --abort 2>/dev/null; exit 1
+  fi
+  cp "$mine" "$f"; git add "$f"
+  echo "   union-merged $f (append-only class — never ours-vs-theirs)"
+  rm -f "$mine" "$theirs" "$base"
+done
+
+# Anything STILL conflicted is a real semantic conflict and must be resolved
+# deliberately. The union pass above means it is never one of these five files.
+if git diff --name-only --diff-filter=U | grep -q .; then
+  echo "REFUSED: semantic conflict in:"
+  git diff --name-only --diff-filter=U | sed 's/^/     /'
+  echo "  Resolve deliberately, do not force."
   git merge --abort 2>/dev/null
   exit 1
 fi
+if [ "$MERGE_RC" != 0 ] && ! git diff --cached --quiet; then :; fi
+
+# THE APPEND-ONLY DROP IS ASSERTED, NOT ASSUMED. Every heading present on either
+# side must survive into the merged file — the check that caught the drop by hand.
+for f in $UNION_FILES; do
+  [ -f "$f" ] || continue
+  for side in "origin/main" "$REF"; do
+    git cat-file -e "$side:$f" 2>/dev/null || continue
+    missing=$(git show "$side:$f" | grep -E '^#{1,3} ' | while IFS= read -r h; do
+      grep -qxF "$h" "$f" || echo "$h"; done | head -3)
+    if [ -n "$missing" ]; then
+      echo "REFUSED: $f lost heading(s) from $side:"; echo "$missing" | sed 's/^/     /'
+      git merge --abort 2>/dev/null; exit 1
+    fi
+  done
+done
+echo "   append-only headings from BOTH sides verified present"
 
 echo "== python suite"
 if ! timeout 600 python -m pytest draft/tests -q </dev/null; then
