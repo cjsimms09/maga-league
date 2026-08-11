@@ -85,19 +85,76 @@ function consensusProjection(player, provenance) {
   };
 }
 
+/* WHAT THE OPTIMAL STARTING LINEUP PROJECTS, for a given roster.
+ *
+ * The unit `net_value` and `dollars` are supposed to be expressed in: points
+ * that actually reach the field. Built from LO.bestLineup — the same solver the
+ * lineup optimizer uses — so a claim's worth is measured by the machinery that
+ * will later be asked to start him, rather than by a second idea of value.
+ */
+function startingTotal(roster, league) {
+  const pts = {}, pos = {};
+  for (const p of (roster || [])) {
+    if (!p || !p.position) continue;
+    pts[String(p.player_id)] = Number(p.proj_mean || 0);
+    pos[String(p.player_id)] = p.position;
+  }
+  const best = LO.bestLineup(pts, pos, Object.keys(pts), (league || {}).starters);
+  return (best.starters || []).reduce((sum, st) => sum + Number(st.points || 0), 0);
+}
+
 /* Evaluate the free-agent pool for MY roster. Returns ranked claims, each with the
  * player it would replace, its worth in points and dollars, the raw consensus
- * projection alongside, and (if leagueRosters given) which other teams need him. */
+ * projection alongside, and (if leagueRosters given) which other teams need him.
+ *
+ * ── net_value WAS COMPUTED AGAINST TWO DIFFERENT BASELINES (fixed 2026-08-11) ──
+ *
+ * It was `startableValue(fa) - startableValue(drop)`, and for a BENCH player
+ * startableValue returns `(proj − proj of the incumbent AT HIS POSITION) × 0.35`.
+ * The two terms therefore measured against DIFFERENT incumbents, so the
+ * subtraction did not cancel and the remainder was a comparison between two of
+ * my own players who had nothing to do with the transaction.
+ *
+ * Driven on a real roster: claiming a kicker projected 110, while already
+ * starting one projected 130, scored +23.36 net points and $59 — of which
+ * 0.35 × (my WR2 210 − my kicker 130) = 28.00 came from the gap between two
+ * players neither added nor dropped. Same-position swaps cancelled cleanly;
+ * cross-position ones, which are most of a real wire, did not.
+ *
+ * There was a UNITS error stacked on top: a position-relative bench marginal was
+ * multiplied by `dollarsPerPoint`, which is the value of one marginal point
+ * added to the STARTING LINEUP. Two different kinds of point.
+ *
+ * Now: the change in what my optimal starting lineup projects, before and after
+ * the swap. That is the quantity the docstring always claimed ("net startable
+ * points added"), it is in the same unit dollarsPerPoint prices, and a strictly
+ * worse kicker scores exactly zero because he never reaches the field.
+ *
+ * WHAT IS DELIBERATELY NOT CHANGED: `startableValue` itself, which is A's, and
+ * `startable_value` on every claim, which still reports it unmodified. Contract
+ * C1 — the draft engine and the waiver tool must value the same player
+ * identically — is asserted on THAT field, so it holds by construction and
+ * waivers.test.js proves it rather than my asserting it.
+ *
+ * Depth is not lost, it is demoted: a pure bench add scores 0 lineup gain and
+ * keeps its positive `startable_value`, which breaks the tie. Ranking by "what
+ * reaches the field, then by depth" is the honest order.
+ */
 function evaluateClaims(freeAgents, myRoster, league, ctx) {
   ctx = ctx || {};
   const drop = dropCandidate(myRoster, league);
   const dropVal = drop ? drop.sv.value : 0;
   const dpp = dollarsPerPoint(ctx);
+  const roster = (myRoster || []).filter(p => p && p.position);
+  const before = startingTotal(roster, league);
+  const afterDrop = drop ? roster.filter(p => String(p.player_id) !== String(drop.player.player_id)) : roster;
 
   const claims = (freeAgents || []).map(fa => {
     const sv = V.startableValue(fa, myRoster, league);
-    // Net startable points added = what he brings minus what I drop to fit him.
-    const netPoints = Math.max(0, sv.value - dropVal);
+    // NET STARTABLE POINTS = what my starting lineup gains by making the swap.
+    // Both totals come from the same solver over the same slot template, so
+    // nothing about my other players leaks into the comparison.
+    const netPoints = Math.max(0, round2(startingTotal(afterDrop.concat([fa]), league) - before));
     const consensus = consensusProjection(fa);
     const rivals = ctx.leagueRosters ? whoElseNeeds(fa, ctx.leagueRosters, league, ctx.postures) : [];
     return {
@@ -116,7 +173,8 @@ function evaluateClaims(freeAgents, myRoster, league, ctx) {
       contested: rivals.length > 0,
     };
   });
-  claims.sort((a, b) => b.net_value - a.net_value);
+  // What reaches the field first; depth (A's marginal, untouched) breaks the tie.
+  claims.sort((a, b) => (b.net_value - a.net_value) || (b.startable_value - a.startable_value));
   return { drop: claims.length ? claims[0].drop : (drop ? { player_id: drop.player.player_id, name: drop.player.name, value: round2(dropVal) } : null),
            dollars_per_point: round2(dpp.perPoint), claims };
 }
