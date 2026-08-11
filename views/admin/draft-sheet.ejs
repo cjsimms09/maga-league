@@ -37,9 +37,11 @@
   .row .pos { width: 26px; font-weight: 700; flex: 0 0 auto; }
   .row .nm { flex: 1 1 auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .row .adp { width: 30px; text-align: right; color: #444; flex: 0 0 auto; font-variant-numeric: tabular-nums; }
+  /* The value tier, per player. It used to be drawn as a running header,
+     which is a claim about a value ordering this ADP-sorted list does not have. */
+  .row .tr { width: 24px; text-align: right; color: #888; flex: 0 0 auto; font-variant-numeric: tabular-nums; }
   .row.kept { color: #999; text-decoration: line-through; }
   .row .tier-brk { font-weight: 700; }
-  .tierline { break-inside: avoid; border-top: 2px solid #000; margin-top: 2px; font-size: 9.5px; color: #000; font-weight:700; padding-top:1px; }
 
   /* Manual pick entry — blank grid to track the draft by hand if the app dies. */
   .picks { column-count: 4; column-gap: 14px; }
@@ -94,14 +96,23 @@
   </div>
 
   <h2>The board — top <%= rows.length %> by ADP (cross off as they go)</h2>
+  <%# A TIER LINE IN AN ADP-ORDERED LIST IS A CLAIM ABOUT A DIFFERENT ORDERING.
+      This drew "— Tier N starts —" the first time each tier appeared, which
+      only means anything when the list is sorted by VALUE. This list is sorted
+      by ADP (the heading says so), and tiers interleave in ADP order, so the
+      markers came out 1,2,3,4,5,6,10,8,7,12,9,15,… — "Tier 52 starts" printed
+      at row 104, ahead of "Tier 20 starts" at row 123 — and 136 of the 180
+      printed rows sat beneath a tier line for a tier they are not in.
+      On the one artifact whose whole job is to be trusted at a table with no
+      wifi. The tier is a per-player fact, so it is printed per player; the
+      ordering stays ADP, which is what a draft-day sheet is for. %>
   <div class="board">
-    <% const _seenTiers = new Set(); %>
     <% for (const r of rows) { %>
-      <% if (r.tier != null && !_seenTiers.has(r.tier)) { _seenTiers.add(r.tier); %><div class="tierline">— Tier <%= r.tier %> starts —</div><% } %>
       <div class="row<%= r.kept ? ' kept' : '' %>">
         <span class="rk"><%= r.rank %></span>
         <span class="pos"><%= r.pos %></span>
         <span class="nm"><%= r.name %><% if (r.bye) { %> <span class="adp" style="width:auto;color:#888">b<%= r.bye %></span><% } %><% if (r.kept) { %> (kept)<% } %></span>
+        <span class="tr"><%= r.tier != null ? 't' + r.tier : '' %></span>
         <span class="adp"><%= r.adp != null ? r.adp : '' %></span>
       </div>
     <% } %>
