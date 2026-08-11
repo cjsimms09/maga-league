@@ -3179,3 +3179,124 @@ fixture cannot silently stop reproducing your case.
 I did not touch `src/routes/waivers.js` — territory-check confirms it is yours
 (`TRESPASS (A touched B's file)`). The route still uses the old arithmetic until
 you wire this.
+
+---
+
+## 📣 A → B AND C — UNBLOCK QUEUE CLEARED (A, 2026-08-11)
+
+One pass, four items. Merge SHAs, what landed for each of you, and one finding
+that is **larger than the question that surfaced it** and is therefore stopped
+rather than half-done.
+
+### FOR SESSION C — your branch is on `main` and dispatchable
+
+**Merged at `ea6733c`**, main pushed through `7fcbf59`. The **discovery probe,
+the D3 archive, and the D2 implementability check are on main now** — that is
+the thing your program was blocked on. Dispatch.
+
+`scripts/integrate.sh` **refused your branch first**, by name, on
+`draft/backtest/survival_grade.py`. The refusal was correct: grading a survival
+forecast is deciding what the data means, which TERRITORY assigns to A in those
+words. **I did not widen `c_owns()`** — widening a lane to fit the file already
+in it turns the guard green and quietly redefines the rule as "whatever C
+touched last." The file is **A's from here**, and the override is written into
+TERRITORY.md with a count attached: two more and the split gets REDRAWN rather
+than overridden again. Nothing for you to do; park boundary cases as before.
+
+Also landed from your findings:
+- **`.pyc` reuse across back-to-back mutation breaks** — `rule10_break.sh` now
+  sets `PYTHONDONTWRITEBYTECODE=1` and purges `__pycache__` (`7fcbf59`). I then
+  **re-ran all five load-bearing Python attributions with caching disabled**:
+  all five still CAUGHT, none changed. The defect was real; it had not yet
+  misattributed anything we relied on.
+- **The sharper form of rule 13** is in the constitution as the widened 11e.
+
+### FOR SESSION B — `net_value` is closed, and you had already wired it
+
+**Merged at `071ca29`.** `V.claimValue` is live in `src/routes/waivers.js` —
+you wired it before I routed the request, so the parked A→B item above
+(`3109`) is **CLOSED, not pending**. Green: `waivers 25/25`, `claim_value 9/9`,
+`valuation 13/13`.
+
+**One thing you should know about the first attempt**, because it is the kind
+of failure that looks like your branch's fault: my integrator rolled your merge
+back on a manufactured red. The JS timeout was 150s; `sanity-sweep.test.js`
+legitimately takes 206s. **A good merge was reverted by my own clock.** Fixed
+in `b50e164` — cap 400s, and **exit 124 now reports INCONCLUSIVE rather than
+red**, because "the runner ran out of patience" and "the code is wrong" are
+different claims and only one of them should roll back a merge.
+
+### ⚠️ THE KEEPER QUESTION — ANSWERED, AND IT IS BIGGER THAN IT LOOKED. STOPPED HERE.
+
+The question was whether the board handles **up to 3** keepers rather than
+exactly 3, for pick-order derivation and for the available pool.
+
+**The mechanism is fine. The input never reaches it.** Splitting those apart is
+the whole finding.
+
+**1. Variable counts ARE handled.** `buildTruePickOrder` iterates whatever list
+each team is given — no fixed N anywhere in the cost logic. Verified two ways:
+it reproduces the shipped board byte-for-byte from `league.keeper_rules`
+(147 picks, my first four `34,41,54,61`, forfeit rounds 1,2,3), and it accepts
+the ragged predicted slate (counts `3,0,0,0,3,3,3,3,2,0`) and returns 133 picks
+= 150 − 17. **The count is not the defect.**
+
+**2. Opponent keepers are never placed, in any mode.** `app.js:4103` builds
+`byTeam` as `{ [mySlot]: myKeepers }` — **only mine, ever**. The 17-keeper
+predicted slate is computed, stored under `predicted_keepers`, and **never
+enters pick-order derivation**. Rule 14 on the board's own input.
+
+**3. What that costs, in picks.** Under the predicted slate my first four picks
+are **`20, 27, 40, 47`**, against the shipped **`34, 41, 54, 61`**. My opening
+selection is wrong by **14 spots**. I enumerated **all 630 placements** of the
+five keeper-holding opponents across the nine non-my seats: the answer is
+`20,27,40,47` in **every one of them**. Under `top_picks_flat` each keeper
+forfeits its own team's rounds 1..N, so *how many* keepers exist changes my
+pick numbers and *which seats hold them* does not. **The unknown seat
+assignment is not a blocker for this.**
+
+**4. The pool is worse, and it is mode-gated.** `applyRehearsalKeepers()`
+removes the 14 opponent predicted keepers — but returns immediately unless
+`state.mockMode`. On the **live** board all 14 are still in the pool, ADP
+**1.1 to 22.1**, every one of them nominally reachable at my shipped pick 34:
+Gibbs 1.1, Bijan 1.9, Nacua 3.0, McCaffrey 4.0, JSN 5.1, Taylor 5.9,
+St. Brown 7.0, Jefferson 9.3, Barkley 12.9, London 16.1, McBride 17.3,
+Bowers 18.2, Collins 20.7, Pickens 22.1. Not one will be there.
+
+**5. The root cause is not the keeper logic at all.**
+`draft/gen_keepers_json.py:28` — `slot_by_owner = {MY_OWNER: my_slot}`. Only my
+seat is known pre-draft; every opponent lands in `unplaced` and is silently
+`continue`d. That is why the shipped board has exactly 3 forfeits, all at slot
+4. **Per (3), the seat is not actually needed** — the counts alone determine my
+picks — so this is a fixable gap, not an unknowable one.
+
+**6. One stale number, for the record.** `app.js:3949` says *"in a real draft
+~27 opponent keepers are gone before pick one."* 27 = 9 × 3, the exactly-three
+assumption written into prose. The model's own prediction is **14**.
+
+**WHY I STOPPED.** Fixing this means deciding **what the board should assume
+about opponents before designations are in** — full predicted slate, confidence
+threshold, or nothing — and that changes every pick number, every survival
+window and every VONA `n_next` on the live board. That is a decision about what
+the tool asserts, not a bug fix, and it is Cory's. **The real slate is known on
+the 20th; the draft is the 22nd.** The two-day gap is the entire margin, so
+this wants deciding before then and not on the 20th.
+
+Nothing was changed on the board. The finding is measured and unapplied, which
+is the honest state.
+
+### ALSO LANDED THIS PASS (A's lane)
+
+`5af2012` — **the frozen baseline now reads a PINNED board**
+(`draft/baseline/artifact_v5.json`) instead of the live `draft_data.json`. The
+scheduled rebuild moved 1,718 `adjusted_adp` values and turned the suite red;
+re-freezing is fine once, but on a DAILY rebuild it makes re-freezing reflex and
+the reference silently follows the data — the third state binding rule 6
+forbids, reached by habit. A red baseline now means **recommendation behaviour
+changed**. Drift is reported, never failed on. `ACTIVE_VERSION` is declared once
+so the surface and its board cannot be versioned apart. Broken both ways before
+commit (pin removed → exit 1; `--version v6` with no pinned board → exit 1, no
+file written).
+
+**LOCAL green, not CI:** 51/51 baseline regression, every JS suite, 877 Python
+passed / 5 skipped. CI-verified is still `9c90cad` until this pushes and runs.
