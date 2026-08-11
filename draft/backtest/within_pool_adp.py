@@ -155,7 +155,7 @@ def feasibility(leagues, pool_picks, min_support=MIN_SUPPORT, need_players=100) 
     }
 
 
-def calendar_covariates(leagues, keys=("teams", "keepers", "draft_type")) -> dict:
+def calendar_covariates(leagues, keys=("teams", "keeper_type", "draft_type")) -> dict:
     """M4 — do EARLY drafters differ from LATE ones on the covariates we hold?
 
     D7's registration named this and it is not a nicety. If the leagues that draft
@@ -174,8 +174,16 @@ def calendar_covariates(leagues, keys=("teams", "keepers", "draft_type")) -> dic
     for k in keys:
         early = _tally(dated[:half], k)
         late = _tally(dated[half:], k)
+        # A COVARIATE ABSENT FOR EVERY LEAGUE IS A KEY THAT DOES NOT EXIST, not a
+        # covariate nobody recorded — and the two are indistinguishable in the
+        # output, because both print "(absent)" and both make the halves agree.
+        # Caught before this ever ran: M4 was written reading `keepers` while the
+        # record carries `keeper_type`, so the keeper covariate would have reported
+        # NO DIFFERENCE for every run, forever, and read as a finding.
+        vacuous = (set(early) | set(late)) <= {"(absent)"} and (early or late)
         out["by_key"][k] = {"early": early, "late": late,
-                            "differs": sorted(early) != sorted(late)}
+                            "differs": sorted(early) != sorted(late),
+                            "vacuous_key": bool(vacuous)}
     out["verdict"] = _covariate_verdict(out)
     return out
 
@@ -190,12 +198,27 @@ def _tally(rows, key) -> dict:
 
 def _covariate_verdict(rep: dict) -> str:
     moved = [k for k, v in rep["by_key"].items() if v["differs"]]
+    dead = sorted(k for k, v in rep["by_key"].items() if v.get("vacuous_key"))
     if not rep["n_early"] and not rep["n_late"]:
         return "no dated leagues to split"
+    if dead:
+        return ("COVARIATE(S) %s ARE ABSENT FOR EVERY LEAGUE — that is a key this check "
+                "reads and the record does not carry, NOT a covariate on which early and "
+                "late agree. Nothing has been measured about %s"
+                % (", ".join(dead), ", ".join(dead))) + \
+               ("; the rest: " + _moved_line(rep, moved) if len(dead) < len(rep["by_key"])
+                else "")
     if not moved:
         return ("no covariate we hold distinguishes the earlier half of the draft "
                 "calendar from the later half (%d vs %d leagues)"
                 % (rep["n_early"], rep["n_late"]))
+    return _moved_line(rep, moved)
+
+
+def _moved_line(rep: dict, moved: list) -> str:
+    if not moved:
+        return ("no covariate we hold distinguishes the earlier half of the draft calendar "
+                "from the later half (%d vs %d leagues)" % (rep["n_early"], rep["n_late"]))
     return ("EARLY AND LATE DRAFTERS DIFFER on %s — a board built from earlier picks is "
             "then 'the early drafters before T' rather than 'the market before T', and "
             "that difference does not appear anywhere in an ADP number. It is a covariate "

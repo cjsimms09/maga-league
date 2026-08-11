@@ -207,3 +207,34 @@ def test_an_ABSENT_covariate_is_its_OWN_bucket_not_folded_into_the_modal_value()
     c = W.calendar_covariates(leagues, keys=("teams",))
     assert c["by_key"]["teams"]["late"] == {"(absent)": 1}
     assert c["by_key"]["teams"]["differs"] is True
+
+
+def test_a_covariate_ABSENT_FOR_EVERY_LEAGUE_is_a_WRONG_KEY_not_an_agreement():
+    """CAUGHT BEFORE IT EVER RAN, and it is the same shape as three other defects
+    today: M4 was written reading `keepers` while the league record carries
+    `keeper_type`. Every league would have reported "(absent)", the halves would
+    have "agreed", and the keeper covariate would have read as a finding — forever.
+
+    MUTATION: drop the vacuous_key check. The verdict goes back to saying no
+    covariate distinguishes early from late, which is a statement about a key that
+    does not exist."""
+    leagues = [{"league_id": str(i), "first_pick_ts": T0 + i * DAY, "teams": 10}
+               for i in range(6)]
+    c = W.calendar_covariates(leagues, keys=("teams", "a_key_no_record_carries"))
+    assert c["by_key"]["a_key_no_record_carries"]["vacuous_key"] is True
+    assert c["by_key"]["teams"]["vacuous_key"] is False
+    assert "ABSENT FOR EVERY LEAGUE" in c["verdict"]
+    assert "Nothing has been measured" in c["verdict"]
+
+
+def test_the_DEFAULT_covariate_keys_are_ones_the_RECORD_ACTUALLY_CARRIES():
+    """The guard above catches it at runtime; this catches it at test time, against
+    the real producer rather than against a fixture I wrote."""
+    import inspect
+    import re
+    import mfl_adapter as A
+    src = inspect.getsource(A.to_league_record)
+    emitted = set(re.findall(r'^\s+"(\w+)":', src, re.M))
+    defaults = inspect.signature(W.calendar_covariates).parameters["keys"].default
+    missing = [k for k in defaults if k not in emitted]
+    assert not missing, "M4 reads keys the record does not emit: %s" % missing

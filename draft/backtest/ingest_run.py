@@ -595,7 +595,7 @@ def d7_feasibility(verdicts, pool_picks, league_dates) -> dict:
         r = meta.get(lid) or {}
         return {"league_id": lid, "first_pick_ts": ts,
                 # M4's covariates, carried from the record rather than re-derived.
-                "teams": r.get("teams"), "keepers": r.get("keepers"),
+                "teams": r.get("teams"), "keeper_type": r.get("keeper_type"),
                 "draft_type": r.get("draft_type")}
     leagues = [_row(lid, ts) for lid, ts in sorted(league_dates.items()) if lid in ok_ids]
     out = {"population": "F1-passing leagues only (D7 as registered)",
