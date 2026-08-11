@@ -129,11 +129,35 @@ router.get('/api/sunday-alert', aw(async (req, res) => {
   const owners = H.activeOwners(world.owners);
   const commish = world.owners.find(o => o.is_commissioner && o.active);
   if (!commish) return res.json({ ok: true, sent: 0, note: 'no commissioner' });
+  // WHY NOTHING WENT OUT, not just that nothing did.
+  //
+  // The scheduler asserted `"ok":true` and nothing else, so THREE different
+  // Sundays were indistinguishable and all green: the off-season no-op (correct),
+  // Sleeper being down mid-season (an outage nobody hears about), and the email
+  // provider being unconfigured in production (the alert never arrives, all
+  // season, silently). `quiet` separates "there was nothing to send" from
+  // "there was something to send and it did not go", which is the only
+  // distinction the caller needs to decide whether a green run is good news.
   const { live, band, weekNo } = await liveOptimizeFor(world, owners, commish);
-  if (!live) return res.json({ ok: true, sent: 0, note: 'no live lineup (off-season / Sleeper down)' });
+  const emailConfigured = notify.configured();
+  if (!live) {
+    return res.json({ ok: true, sent: 0, quiet: true, emailConfigured,
+      reason: 'no-live-lineup',
+      note: 'no live lineup (off-season, or Sleeper unreachable) — nothing to send' });
+  }
+  if (!emailConfigured) {
+    // There WAS something to send. Not quiet — a misconfiguration.
+    return res.json({ ok: true, sent: 0, quiet: false, emailConfigured: false,
+      reason: 'email-not-configured', week: weekNo,
+      note: 'a live lineup exists but no email provider is configured — the alert cannot be delivered' });
+  }
   const alert = LO.sundayAlert(live, { week: weekNo, band });
-  const r = await notify.sundayAlert(commish, alert).catch(() => ({ skipped: true }));
-  res.json({ ok: true, sent: (r && !r.skipped) ? 1 : 0, week: weekNo, hasCalls: alert.hasCalls });
+  const r = await notify.sundayAlert(commish, alert).catch(e => ({ error: String((e && e.message) || e) }));
+  const sent = (r && !r.skipped && !r.error) ? 1 : 0;
+  res.json({ ok: true, sent, quiet: false, emailConfigured, week: weekNo,
+    hasCalls: alert.hasCalls,
+    ...(sent ? {} : { reason: r && r.error ? 'send-failed' : 'send-skipped',
+                      note: (r && r.error) || 'the mailer declined to send' }) });
 }));
 
 // ---------- auth ----------

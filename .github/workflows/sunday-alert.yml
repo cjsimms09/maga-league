@@ -14,11 +14,36 @@ jobs:
       - name: Hit the Sunday-alert endpoint
         run: |
           set -e
+          # A MISSING KEY IS NOT A PASS. It used to `exit 0` with a log line, so
+          # a never-configured secret produced a green run every Sunday forever
+          # and nothing ever said the alert had never fired. Still non-fatal —
+          # the season may not have started — but it is a visible annotation now
+          # rather than a line buried in a green log.
           if [ -z "${{ secrets.SUNDAY_ALERT_KEY }}" ]; then
-            echo "SUNDAY_ALERT_KEY not set — skipping (configure it to enable)"; exit 0
+            echo "::warning title=Sunday alert never fired::SUNDAY_ALERT_KEY is not set, so no alert was requested. Configure it before week 1."
+            exit 0
           fi
           BASE="${{ vars.SITE_URL }}"
           [ -n "$BASE" ] || BASE="https://makefbgreatagain.netlify.app"
           echo "Firing Sunday alert at $BASE"
           curl -sS -m 30 "$BASE/api/sunday-alert?key=${{ secrets.SUNDAY_ALERT_KEY }}" | tee /tmp/out.json
+          echo
+          # `"ok":true` only says the endpoint ANSWERED. It is true for the
+          # off-season no-op, for a mid-season Sleeper outage, and for a
+          # production with no email provider — three very different Sundays,
+          # all previously green. Judge on `sent` and `quiet` instead.
+          #
+          # Deliberately plain grep, not a python heredoc: a heredoc terminator
+          # inside an indented YAML block never matches at column 0, so the
+          # first version of this check would not have run at all.
           grep -q '"ok":true' /tmp/out.json
+          if grep -q '"sent":1' /tmp/out.json; then
+            echo "::notice title=Sunday alert sent::the alert went out"
+            exit 0
+          fi
+          if grep -q '"quiet":true' /tmp/out.json; then
+            echo "::warning title=No alert sent::nothing to send (off-season, or Sleeper unreachable). Correct in July; check it in October."
+            exit 0
+          fi
+          echo "::error title=Sunday alert FAILED::there was a live lineup and no alert went out — see the reason in the response above"
+          exit 1
