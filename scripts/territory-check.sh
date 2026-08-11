@@ -31,6 +31,53 @@ case "$SIDE" in
   *) echo "usage: territory-check.sh A|B|C"; exit 2 ;;
 esac
 
+# ── A JS TEST FOLLOWS WHAT IT REACHES INTO (2026-08-11) ─────────────────────
+#
+# Cory's "a test follows its module" ruling was implemented for `test_*.py` by
+# DERIVING the module name from the test name. That does not transfer to JS: B's
+# tests are named for BEHAVIOUR — waiver_surface, h2h_agreement,
+# draft_sheet_tiers, sidebet_unpaid — and not one of them has a module of the
+# same name, so a name derivation answers "unknown" for every one and they fall
+# through to A by default.
+#
+# THE RULE PRODUCED A WORSE OUTCOME THAN NO RULE. B fixed the draft sheet's tier
+# defect — its own surface — and integrate.sh REFUSED the whole branch for
+# sixteen trespasses, every one a test for a B-owned route. B could not merge
+# its own bug fix.
+#
+# TWO FALSE STARTS, both measured rather than assumed:
+#   1. Matching the string `src/` found ZERO requires in all sixteen files.
+#      These tests build paths as `require(path.join(ROOT, 'src', 'store'))`, so
+#      the quoted segments are 'src' and 'store' SEPARATELY. The match silently
+#      never fired, which reads exactly like "these are not B's". Now TOKENS.
+#   2. `require(...)` alone still missed draft_sheet_staleness, which renders
+#      B's template with readFileSync + ejs and never requires it. `path.join`
+#      counts too.
+#
+# Any A-lane token disqualifies: a test spanning both lanes is not unambiguously
+# either, and stays with A rather than being guessed.
+#
+# READ FROM THE REF, NOT THE WORKING TREE. In --range mode the file may not exist
+# locally at all, and reading the working tree would answer about a different
+# file — the same class as the checkout that attributed A's work-in-progress to C.
+_js_test_lane_is_b() {
+  _src=""
+  if [ -n "${RANGE_REF:-}" ]; then
+    _src="$(git show "$RANGE_REF:$1" 2>/dev/null)" || return 1
+  else
+    [ -f "$1" ] || return 1
+    _src="$(cat "$1" 2>/dev/null)" || return 1
+  fi
+  [ -n "$_src" ] || return 1
+  _toks="$(printf '%s' "$_src" | grep -oE "require\([^)]*\)|path\.join\([^)]*\)" \
+    | grep -oE "'[^']+'|\"[^\"]+\"" | tr -d "'\"" | tr '/' '\n' \
+    | grep -vE '^(fs|path|assert|os|child_process|vm|util|crypto|ejs)$' | sort -u)"
+  [ -n "$_toks" ] || return 1
+  printf '%s\n' "$_toks" | grep -qxE 'draft|backtest|tools' && return 1
+  printf '%s\n' "$_toks" | grep -qxE 'src|views' || return 1
+  return 0
+}
+
 # B (site) owns these. A owns everything else.
 b_owns() {
   case "$1" in
@@ -70,6 +117,8 @@ b_owns() {
     .github/workflows/annual.yml|.github/workflows/annual-key-smoke.yml) return 0 ;;
     docs/queued/league-history-page.md|docs/queued/history-chronicle-voice.md) return 0 ;;
     docs/queued/contact-directory.md) return 0 ;;
+    # A test for a B-owned surface is B's — derived from what it reaches into.
+    draft/tests/*.test.js) _js_test_lane_is_b "$1" && return 0 || return 1 ;;
     *) return 1 ;;
   esac
 }
