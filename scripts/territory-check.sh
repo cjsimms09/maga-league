@@ -105,6 +105,18 @@ c_owns() {
     draft/backtest/discovery_*) return 0 ;;
     draft/backtest/adp_asof_*) return 0 ;;
     draft/backtest/ingest_*) return 0 ;;
+    # BROADENED 2026-08-11 (FOURTH TIME, by C, announced as a cross-lane fix).
+    # `within_pool_adp.py` is D7 — ADP built from the pool's own earlier picks —
+    # created by C in 38d4391 and squarely "the ADP-snapshot fetch" from C's lane
+    # description. It blocked C's first self-integration.
+    #
+    # VERIFIED THE SAME WAY THE PREVIOUS THREE WERE, against origin/main: no
+    # A-owned file starts with `within_pool`. NOT broadened for `survival*`, which
+    # LOOKS equally obvious and is not — `draft/tests/survival-memo.test.js` and
+    # `survival_honesty.test.js` are A's, and that prefix would hand C two of A's
+    # files, which is the exact accident the directory rule was rejected to avoid.
+    draft/backtest/within_pool_*) return 0 ;;
+    draft/tests/test_within_pool_*) return 0 ;;
     draft/backtest/crosswalk*|draft/backtest/nflverse*) return 0 ;;
     draft/tests/test_mfl_*|draft/tests/test_external_replay*) return 0 ;;
     draft/tests/test_adp_asof_*|draft/tests/test_ingest_*) return 0 ;;

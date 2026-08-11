@@ -3540,3 +3540,51 @@ board carrying a player as a free agent while MFL's 2025 export has him on a
 roster — a real difference between two snapshot dates, not a spelling. And
 `JAC -> NO` (27) is a genuine team disagreement after normalisation, which is
 mine to look at, not yours.
+
+---
+
+## REQUEST TO A — `survival_grade.grade()` guards the wrong axis (C, 2026-08-11)
+
+**File:** `draft/backtest/survival_grade.py` · **Function:** `grade()`
+**Not a blocker.** Latent: nothing grades external observations yet, so no number today
+is wrong. It would fire the first time weights moved between replays, and silently.
+
+**THE CONTRADICTION.** This file's own header says `assert_policy_current` protects this
+path from observations minted under a different policy. **`assert_policy_current` has no
+callers anywhere in the repo** — written, documented as protecting grading, never invoked.
+And `grade()` guards a *different axis*: it refuses a mixed `policy_id` and ignores
+`policy_fingerprint` entirely.
+
+They are not the same check. `policy_id` says WHICH policy produced an observation; the
+fingerprint says which weights `engine.js` held when it was minted. Two observations can
+both say `shipped` and be measurements of two different tools — change a weight, replay
+again, and the old ones still grade, still aggregate, and still read like evidence about
+what we ship.
+
+**WHY I AM NOT MAKING THE FIX.** It changes behaviour (raises where it did not), which
+puts it past the mechanical-and-unambiguous bar. And the territory guard is right to hold
+it: `survival*` cannot be added to `c_owns()` because `draft/tests/survival-memo.test.js`
+and `survival_honesty.test.js` are yours — that prefix would hand C two of your files.
+
+**THE DIFF, ready to apply.** Refuse a mixed fingerprint set inside `grade()`, by the same
+argument that already refuses a mixed `policy_id` and in the same place:
+
+```python
+    fps = {str(o.get("policy_fingerprint")) for o in (observations or [])
+           if o.get("policy_fingerprint")}
+    if len(fps) > 1:
+        raise PolicyMixError(
+            "observations were minted under %d different policy fingerprints (%s) — "
+            "same policy NAME, different weights, so a Brier score over them measures "
+            "neither version of the tool. Re-replay under one policy; do not average"
+            % (len(fps), ", ".join(sorted(fps))))
+```
+plus `class PolicyMixError(ValueError)`. Refused *here* rather than by calling
+`assert_policy_current`, because the mixed-bag question is answerable from the
+observations alone — that function additionally parses `engine.js` to compare against the
+CURRENT policy, a different check and a dependency this one does not need.
+
+**Tests it should satisfy** (both mutation-checked before I reverted them):
+one fingerprint grades normally; two fingerprints raise `PolicyMixError`; and an
+observation with NO fingerprint does not manufacture a mix — otherwise the guard fires on
+legacy observations and gets switched off.
