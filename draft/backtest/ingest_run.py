@@ -222,8 +222,17 @@ def throttle_signal(verdicts) -> dict:
     fetched, and a rerun is the remedy, not a relabelling.
     """
     from collections import Counter
-    fails = [str(v.get("reason") or "") for v in (verdicts or [])
-             if F.reason_code(v.get("reason") or "") == "F4.fetch_failed"]
+    # THE SHAPE COMES FROM `run_screen`, WHICH IS THE ONLY PRODUCER: a verdict is
+    # the TUPLE `(record, ok, reason)` that `attrition_report` already consumes.
+    # The first cut of this function read `v.get("reason")` — a dict shape that
+    # exists nowhere except in the test I wrote for it, so the unit tests passed
+    # and CI died on the real list. Third instance of that today, which is why the
+    # test now builds its verdicts BY CALLING `run_screen` instead of hand-writing
+    # them, and why an unrecognised shape RAISES here: reporting "no fetch
+    # failures" because the shape did not match is a reassuring wrong answer, and
+    # those are worse than a crash.
+    reasons = [_verdict_reason(v) for v in (verdicts or [])]
+    fails = [r for r in reasons if F.reason_code(r) == "F4.fetch_failed"]
     n = len(verdicts or [])
     if not fails:
         return {"fetch_failures": 0, "examined": n, "throttled_signature": None,
@@ -248,6 +257,25 @@ def throttle_signal(verdicts) -> dict:
         rep["verdict"] = ("%d of %d leagues failed to fetch, with no shared signature — "
                           "consistent with per-league failures" % (len(fails), n))
     return rep
+
+
+def _verdict_reason(v) -> str:
+    """A verdict's reason, from the shape `run_screen` actually emits.
+
+    `(record, ok, reason)` is the contract; a dict is accepted because it is a
+    natural thing for a caller to build, and ANYTHING ELSE RAISES rather than
+    yielding "" — an empty reason bins as no-failure, and a throttle detector that
+    silently reports "no fetch failures" because it did not recognise its input is
+    worse than one that crashes.
+    """
+    if isinstance(v, (tuple, list)) and len(v) >= 3:
+        return str(v[2] or "")
+    if isinstance(v, dict):
+        return str(v.get("reason") or "")
+    raise TypeError(
+        "a verdict is `(record, ok, reason)` as produced by run_screen, got %s. "
+        "Returning no reason here would report NO FETCH FAILURES for a run that "
+        "may have been entirely throttled." % type(v).__name__)
 
 
 def _signature(reason: str) -> str:

@@ -387,7 +387,39 @@ def test_a_PARTIAL_season_is_labelled_rather_than_counted_as_a_season():
 
 # ── throttling: 150 leagues are 150 independent things ─────────────────────
 def _v(reason):
-    return {"reason": reason}
+    """A verdict IN THE SHAPE `run_screen` EMITS — a (record, ok, reason) tuple.
+
+    THE POINT OF THIS HELPER, and it is the third instance today of the same
+    defect: the first cut of `throttle_signal` read `v.get("reason")`, a dict
+    shape that existed nowhere except the test written beside it. Every unit test
+    passed and CI died on the real list. A test that invents its producer's output
+    tests the author's belief about the shape, not the shape.
+
+    So `_v` is checked against the real producer by
+    `test_the_verdict_shape_here_is_the_one_run_screen_ACTUALLY_emits` below, and
+    the throttle tests run through THAT."""
+    return ({}, reason == "ok", reason)
+
+
+def test_the_verdict_shape_here_is_the_one_run_screen_ACTUALLY_emits():
+    """THE GUARD ON THE FIXTURE ITSELF. If `run_screen` ever changes what a
+    verdict is, this fails here rather than in CI two steps downstream."""
+    real, _ = R.run_screen([R.build_record("L1", {"league": {"_error": "http 403"}})])
+    assert isinstance(real[0], tuple) and len(real[0]) == 3
+    assert isinstance(_v("x"), tuple) and len(_v("x")) == 3
+    assert R._verdict_reason(real[0]).startswith("F4.fetch_failed")
+    # And the detector reads the REAL verdict, not just my stand-in.
+    assert R.throttle_signal(real)["fetch_failures"] == 1
+
+
+def test_an_UNRECOGNISED_verdict_shape_RAISES_rather_than_reporting_NO_FAILURES():
+    """MUTATION: `return ""` on the unknown branch. A run that was entirely
+    throttled would report "no fetch failures" — a reassuring wrong answer, which
+    is worse than a crash because nothing anywhere contradicts it."""
+    import pytest
+    with pytest.raises(TypeError) as e:
+        R.throttle_signal(["F4.fetch_failed:league: http 403 Forbidden"])
+    assert "NO FETCH FAILURES" in str(e.value)
 
 
 def test_IDENTICAL_fetch_failures_are_reported_as_THE_RATE_not_as_the_leagues():
@@ -432,5 +464,5 @@ def test_the_throttle_check_does_NOT_reclassify_anything():
     make the denominator flattering."""
     vs = [_v("F4.fetch_failed:league: http 403 Forbidden") for _ in range(5)]
     R.throttle_signal(vs)
-    assert all(F.is_unreadable(v["reason"]) for v in vs)
-    assert all(v["reason"].startswith("F4.fetch_failed") for v in vs)
+    assert all(F.is_unreadable(R._verdict_reason(v)) for v in vs)
+    assert all(R._verdict_reason(v).startswith("F4.fetch_failed") for v in vs)
