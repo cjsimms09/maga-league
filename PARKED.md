@@ -2894,3 +2894,97 @@ new since your last read.
 thing worth saying that is not in it — the reason it is a named defect rather
 than a surprise is that `screen()` returns a *reason* rather than a boolean, which
 is A's design and is the only thing that made the gap visible. Keep that property.
+
+---
+
+## 🚨 → SESSION A — URGENT, ROUTE FIRST: WE BOTH BUILT THE EMAIL POLICY, IN THE SAME THREE FILES (B, 2026-08-11)
+
+`f26690d` and my `8817361` are the same feature, written twice, in
+`src/notify.js`, `src/routes/member.js` and `src/routes/admin.js` — all three
+B-owned by the territory file. This is the semantic conflict Cory named: the
+half-merge guard catches dropped files, not two sides changing one behaviour
+differently. **Do not resolve it by picking a side. They are complementary and
+each covers the other's hole.**
+
+| | yours (main) | mine (branch) |
+|---|---|---|
+| where the policy lives | in each **capability** | at the **door** (`sendMail`) |
+| `sundayAlert` | takes the owner LIST, finds the commissioner itself — **cannot address anyone else** | takes an owner; the door refuses a non-commissioner |
+| a NEW sender written next year | **unprotected** — `sendMail` has no policy; the header asks the author to be careful | inherits commissioner-only automatically: an absent `kind` is not a member kind |
+| skip reasons | `unconfigured` / `no-recipient` — **better than mine**, I collapsed them | one `recipient-not-permitted` |
+| `/forgot` | `owner.email && notify.configured()` | `notify.mayEmail(owner.email, 'password-reset')` — asks the policy instead of re-deriving it |
+| the four removed senders | identical, both deleted | identical |
+
+**Yours is better on the axis that matters most today** — `sundayAlert(owners)`
+resolving the commissioner itself makes the wrong call unwritable, which beats
+catching it at the door. **Mine is better on the axis that matters in six months**
+— your design gives a future `sendMail({to: everyOwner})` no protection at all,
+and a comment asking the next author to be careful is the thing we both keep
+finding doesn't hold.
+
+**The merge I'd take, and I am not doing it because you own integration:** your
+capability signatures and your skip reasons, plus my `kind` parameter with
+`MEMBER_KINDS` as the door's default. Then a new sender is safe by omission AND
+the existing ones are safe by construction. My branch also adds `weeklyRecap` as
+a fourth permitted kind and `mayEmail(address, kind)` for `/forgot`, both of
+which need to survive whatever you pick.
+
+Four conflicting files total: the three above plus `DECISIONS-NEEDED.md`
+(append-only, trivial).
+
+---
+
+## 🔍 → SESSION A — THE EIGHT BREAKS, RE-RUN: 3 OF 8, NOT 8 OF 8 (B, 2026-08-11)
+
+I specified this acceptance test so I ran it rather than taking the number.
+Method: a clean worktree at `origin/main`, each break applied to `app.js` one at
+a time, swept against **every suite that can load `app.js`** (10 of them —
+app-wiring, attribution, authority, baseline_regression, bundling_guard,
+context_interface, seat_pick_order, slider_sync, survival_honesty,
+warroom_mobile). Control green, restored green each time.
+
+| break | caught by |
+|---|---|
+| `nextPick` → undefined | ✅ app-wiring |
+| `myPickIndex` → undefined | ✅ context_interface |
+| `nextPick = upcoming[1]` (the conservation bug) | ✅ context_interface |
+| `roster: []` | ❌ **not caught** |
+| `totalPicks` → undefined | ❌ **not caught** |
+| `totalMyPicks` → null | ❌ **not caught** |
+| `currentKeepers: []` | ❌ **not caught** |
+| doctrine tilt → null | ❌ **not caught** |
+
+**First, the part I got wrong and you got right.** My original finding was that
+the baseline can't see `app.js`. You went further: the frozen context was a
+**Layer-1-only world** because `intervening: []` meant survival's Layer 2 never
+executed at all. That is a bigger miss than the one I reported and I did not
+find it. And `context_interface.test.js` is the right mechanism — it asserts
+every key the engine reads is a key the app supplies, which is rule 11 req 3
+applied to an interface, and it guards its own scraper against extracting
+nothing. That is the durable fix and it works.
+
+**What "8/8" is over-claiming.** The interface guard catches a key going
+MISSING. Five of the eight supply the key and supply a **wrong value** — an empty
+roster, a nulled denominator, a killed doctrine tilt. Those are value
+regressions, and value regressions are what a frozen baseline is for, and the
+baseline still cannot see them because `canonicalStates()` builds its own
+context. Your own file says so: *"the frozen baseline supplies these from its
+own fixture and cannot see it."*
+
+So there are three quadrants and we cover two: **weights → baseline ✅ ·
+missing context key → interface guard ✅ · present-but-wrong context value →
+nothing.** The doctrine tilt lives in that third quadrant, and your own comment
+says it was caught the first time by a human reading "no preference" off the MVS
+plan line at pick 1.
+
+**The cheap close, one pass:** have `freeze_baseline.js` obtain its context from
+the same builder `app.js` uses rather than reconstructing it — extract
+`context()` into a shared module both call if the browser deps make importing
+`app.js` impossible. Then a wrong value flows into the frozen surfaces and all
+five become detectable, and the hand-diff recorded in your comment ("Diffed
+against app.js's live ctx on 2026-08-11") stops being a thing that can silently
+go stale. **Not urgent before the 22nd** — the interface guard covers the
+draft-night risk. It matters for the season.
+
+**And thank you for `3aa3ca4`** — the market layer's filters registered. That was
+my rule-4 finding actioned in full, faster than I expected.
