@@ -40,17 +40,39 @@ CDX = "https://web.archive.org/cdx/search/cdx"
 DEFAULT_LIMIT = 8
 
 
-def cdx_query(url: str, before: str, limit: int = DEFAULT_LIMIT) -> str:
+def cdx_query(url: str, before: str, limit: int = DEFAULT_LIMIT, only_200=True) -> str:
     """The index URL for "captures of `url` at or before `before` (YYYYMMDD)".
 
     `to` is INCLUSIVE of its day, and F5 wants strictly-before. The query stays wide
     and `usable_captures` applies the strict test, so the strictness lives in exactly
     one place instead of being split across a URL and a comparison.
+
+    `only_200` IS A FILTER ON MY OWN QUERY, and it can manufacture a negative. A site
+    that starts 301-redirecting a URL keeps being captured — under 301, not 200 — so
+    filtering to 200 makes a live, heavily-archived page look abandoned. The suspicion
+    is measured, not invented: FantasyPros' PPR page has a 2024-07-31 capture while
+    its HALF-PPR page's newest is 2023-12-09, same site and same crawler, which is
+    what a redirect on one path and not the other looks like.
+
+    So the caller can drop the filter and SEE the statuses, rather than inferring a
+    publisher's behaviour from a list this query pre-emptied.
     """
     q = {"url": url, "to": str(before), "output": "json",
-         "filter": "statuscode:200", "limit": str(-abs(int(limit))),
-         "collapse": "timestamp:8"}
+         "limit": str(-abs(int(limit))), "collapse": "timestamp:8"}
+    if only_200:
+        q["filter"] = "statuscode:200"
     return CDX + "?" + urllib.parse.urlencode(q)
+
+
+def status_census(rows) -> dict:
+    """{statuscode: n} over captures, so a filtered-away page is visible as filtered.
+
+    "No captures" and "captures we excluded" are different findings and only one of
+    them is about the publisher.
+    """
+    from collections import Counter
+    c = Counter(str(r.get("statuscode") or "?") for r in rows or [])
+    return dict(c.most_common())
 
 
 def parse_cdx(body) -> list:
@@ -97,6 +119,11 @@ def parse_cdx(body) -> list:
             continue
         rows.append({"timestamp": str(r[idx["timestamp"]]),
                      "original": r[idx["original"]],
+                     # KEPT so an unfiltered query can report WHY a page looked
+                     # abandoned. Without it, "no 200s" and "no captures" collapse
+                     # into the same empty list.
+                     "statuscode": (r[idx["statuscode"]] if "statuscode" in idx
+                                    and len(r) > idx["statuscode"] else None),
                      "mimetype": r[idx["mimetype"]] if "mimetype" in idx
                                  and len(r) > idx["mimetype"] else None,
                      "length": r[idx["length"]] if "length" in idx
