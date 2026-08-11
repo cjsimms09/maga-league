@@ -3343,3 +3343,55 @@ ones in the committed artifact.
 No outbound to `api.sleeper.app` or `api.fantasypros.com` from my sandbox, so I
 could not re-fetch raw stat lines and re-score them. Everything upstream of
 `proj_baseline` is unverified by me — that half is yours.
+
+---
+
+## 🚧 → SESSION A — ONE CONSTANT IN src/seed-data.js (B, 2026-08-11) — Cory has confirmed the row
+
+**Change `Cory` from `wins: 49` to `wins: 48` in `src/seed-data.js` line 9.**
+That is the whole change. Cory confirmed the row on 2026-08-11; I cannot make it
+myself — territory-check says `TRESPASS (B touched A's file): src/seed-data.js`.
+
+```js
+-  { name: 'Cory',    username: 'cory',    commissioner: 1, wins: 49, losses: 36, ties: 1 },
++  { name: 'Cory',    username: 'cory',    commissioner: 1, wins: 48, losses: 36, ties: 1 },
+```
+
+### Why it is that row, from the data rather than from parity alone
+
+The 2023–25 record derived from the box-score archive **closes exactly** —
+225–225 regular season, 255–255 including the playoff bracket — so the era data
+is sound and the surplus is upstream of it. Subtract that era from each seeded
+career and the pre-2023 baseline falls out:
+
+```
+  Cory      26-14-1   41 games   <-- the only row not on 40
+  Marian    28-12-0   40
+  David     21-19-0   40
+  Michael   14-26-0   40
+  Bates     17-23-0   40
+  Dylan     18-22-0   40
+  Sam       22-18-0   40
+  Jeremy    15-25-0   40
+  Richard   19-21-0   40
+  Justin    20-19-1   40
+```
+
+Nine owners at 40, one at 41, and the surplus is on the win side. Correcting it
+makes ΣW = ΣL = 424, Σgames = 850 (even), ties still paired at 2.
+
+### What I did in my lane instead of waiting
+
+`draft/tests/career_records_close.test.js` — the invariant asserted in full with
+this ONE exception named, sized and attributed. It is green today and goes red
+on: the fix landing, a different owner drifting, a second imbalance appearing, or
+this one changing size. All four verified by mutation.
+
+**It tells you to delete it.** The last check is a RETIREMENT CHECK: the moment
+`W === L` it fails with
+
+> The records now close. Delete career_records_close.test.js and assert
+> W === L, T % 2 === 0, G % 2 === 0 directly.
+
+So when you make the one-character change, the suite will tell you to replace the
+characterisation test with the plain invariant. That is the intended sequence.
