@@ -3,13 +3,18 @@
 // every send is a silent no-op, and nothing ever throws into a page render.
 const { getDoc, setDoc, now } = require('./data');
 
-const API_KEY = process.env.RESEND_API_KEY || '';
+// Read at CALL time, not at import time. Captured in a const, a key set after
+// this module was first required could never take effect — which made the
+// "production has no email provider" state impossible to exercise in a test
+// that had already loaded the app, and would silently ignore a key rotated into
+// the process environment at runtime.
+const apiKey = () => process.env.RESEND_API_KEY || '';
 const FROM = process.env.NOTIFY_FROM || 'MFGA League <onboarding@resend.dev>';
 // The deployed site. Every notification email links here, so a wrong default
 // sends ten people to a domain that isn't ours.
 const SITE = process.env.SITE_URL || 'https://makefbgreatagain.netlify.app';
 
-const configured = () => !!API_KEY;
+const configured = () => !!apiKey();
 
 // ── WHO MAY BE EMAILED AT ALL ────────────────────────────────────────────────
 //
@@ -56,7 +61,7 @@ async function sendMail({ to, subject, html }) {
   try {
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
-      headers: { authorization: `Bearer ${API_KEY}`, 'content-type': 'application/json' },
+      headers: { authorization: `Bearer ${apiKey()}`, 'content-type': 'application/json' },
       body: JSON.stringify({ from: FROM, to, subject, html }),
     });
     if (!res.ok) throw new Error(`Resend ${res.status}: ${(await res.text()).slice(0, 200)}`);
@@ -207,7 +212,28 @@ async function sundayAlert(owner, alert) {
   const tag = MODE[mode] || MODE.protect;
   let body = '';
 
-  if (alert.hasCalls) {
+  // A DEAD SLOT LEADS. The alert now only arrives when there is something to do,
+  // and this is one of the two things — a player in the lineup who cannot score.
+  // It goes above the posture because it is not a probability judgement: he is
+  // out, and no dollar figure changes that.
+  const dead = (alert.dead || []);
+  if (dead.length) {
+    body += `<div style="font-weight:800;font-size:16px;color:#d4242f">⛔ ${dead.length} starter${dead.length === 1 ? '' : 's'} cannot score this week</div>`
+          + `<div style="margin:4px 0 14px">` + dead.map(d =>
+              `<b>${d.name}</b> (${d.pos}) — ${d.reason}`).join('<br>') + `</div>`;
+  }
+
+  // THE LIST IS WHAT YOU HAVE TO DO, not what the model deviates on.
+  //
+  // `calls` prices the recommended lineup against the PROJECTION-optimal one —
+  // the ~11%-of-weeks deviation A measured. It is a property of the model, not
+  // a to-do list, and it is empty exactly when the two optima agree, including
+  // on a week when your actual lineup is wrong. `changes` prices the
+  // recommendation against the lineup you have set. Prefer it whenever the live
+  // lineup was available; fall back to `calls` when it was not, which is what an
+  // older caller (or a rehearsal fixture) passes.
+  const todo = (alert.lineupKnown ? (alert.changes || []) : (alert.calls || []));
+  if (todo.length) {
     // THE RARE WEEK — ~11% of them. Lead with the call and the money.
     if (alert.posture) {
       body += `<div style="font-weight:800;font-size:16px">${tag} — ${alert.posture.headline}</div>`
@@ -216,9 +242,15 @@ async function sundayAlert(owner, alert) {
     body += `<b>${alert.headline}</b>`;
     // Dollar figure in the site's dark green (#0f8a4d), not the old #4ade80 —
     // the old bright green was a dark-theme value and is barely legible on white.
-    body += '<br><br>' + alert.calls.map(c =>
+    body += '<br><br>' + todo.map(c =>
       `▲ <b>Start ${c.start}</b> over ${c.sit} — <b style="color:#0d7a44">$${Math.round(c.dollars)}</b> <span style="color:#3c4a60">(${c.why})</span>`
     ).join('<br>');
+  } else if (dead.length) {
+    // A DEAD SLOT AND NO PRICED CALL. The swap is normally a call, but a call
+    // under the $0.50 print threshold is filtered out — and then the old email
+    // said "nothing to change" over a starter on bye. Say the true thing.
+    body += `<div style="color:#3c4a60">The optimizer has no other change to recommend — `
+          + `swap ${dead.length === 1 ? 'him' : 'them'} for anyone on your bench and you are done.</div>`;
   } else {
     // THE ORDINARY WEEK — the common one. It used to lead with a 16px "🎯 CHASE"
     // call to action and then say, underneath, that there was nothing to do:
@@ -234,6 +266,13 @@ async function sundayAlert(owner, alert) {
       body += '<div style="color:#3c4a60;margin:10px 0 0;font-size:13px">That\'s the normal week. '
             + 'Starting your best projections is the right call about 9 weeks in 10 — no need to open anything.</div>';
     }
+    // Say WHICH claim this is. "Your lineup is right" and "nothing checked your
+    // lineup" read identically in an inbox and mean opposite things.
+    if (alert.lineupKnown === false) {
+      body += '<div style="color:#3c4a60;margin:8px 0 0;font-size:13px">'
+            + '(Your live lineup was not readable this morning, so this compares the two model lineups '
+            + 'rather than yours — worth opening the optimizer to check.)</div>';
+    }
   }
 
   if (alert.band && alert.band.median) {
@@ -242,9 +281,13 @@ async function sundayAlert(owner, alert) {
   }
   return sendMail({
     to: [owner.email],
-    subject: alert.hasCalls
-      ? `🎯 ${week} lineup: $${Math.round(alert.edge)} on the table`
-      : `✅ ${week} lineup: nothing to change`,
+    subject: todo.length
+      ? `🎯 ${week} lineup: $${Math.round(alert.lineupKnown && alert.fixWorth != null ? alert.fixWorth : alert.edge)} on the table`
+      : dead.length
+        ? `⛔ ${week} lineup: ${dead.length} starter${dead.length === 1 ? '' : 's'} out`
+        // Only reachable from the manual "send" button now — the cron does not
+        // send a nothing-to-change week at all.
+        : `✅ ${week} lineup: nothing to change`,
     html: wrap(`${week} — set your lineup`, body, { path: '/lineup', label: 'Open the optimizer' }),
   });
 }

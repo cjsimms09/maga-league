@@ -558,10 +558,74 @@ function optimize(roster, ctx = {}) {
   }
   calls.sort((a, b) => b.dollars - a.dollars);
 
+  // ── WHAT YOU ACTUALLY HAVE SET ─────────────────────────────────────────────
+  //
+  // Everything above compares the RECOMMENDED lineup to the NAIVE one — the
+  // dual-objective deviation, which is the thing the backtest grades and the
+  // thing A measured at ~11% of weeks. It is not the thing a manager asks on a
+  // Sunday morning, which is "is MY lineup right?"
+  //
+  // The solver never saw the lineup. It starts from the projection-optimal
+  // lineup and hill-climbs, so `calls` is empty exactly when the two OPTIMA
+  // agree — and the Sunday alert then said "You're already starting the
+  // dollar-optimal lineup", a claim about a lineup nothing in this file had
+  // looked at. Bench your best receiver for a backup and the tool congratulated
+  // you: measured on one roster, a 17.8 WR swapped out for a 12.7 WR produced
+  // edge 0, zero calls, and "nothing to change".
+  //
+  // `ctx.current` closes that. Given the ids actually in the lineup, `set`
+  // reports the diff against the recommendation, priced. Absent it, `set` is
+  // null and callers must not claim anything about what is started — the
+  // difference between "no comparison was made" and "the comparison passed".
+  const curIds = [...new Set((ctx.current || []).map(String))].filter(id => posById[id]);
+  let set = null;
+  if (curIds.length) {
+    const setEv = evOf(curIds.map(pid => ({ pid })));
+    const recIds = current.map(s => s.pid);
+    const recPos = {}; current.forEach(s => { recPos[s.pid] = s.slot; });
+    const add = recIds.filter(id => !curIds.includes(id))
+      .sort((a, b) => (projById[b] || 0) - (projById[a] || 0));
+    const drop = curIds.filter(id => !recIds.includes(id));
+    const changes = [];
+    const spent = new Set();
+    for (const inPid of add) {
+      // Pair with the same position where one is available, so a change reads
+      // "start X over Y" the way a manager would make it; otherwise any
+      // remaining vacancy, largest projection first.
+      const pool = drop.filter(d => !spent.has(d));
+      const outPid = pool.find(d => posById[d] === posById[inPid])
+        || pool.sort((a, b) => (projById[b] || 0) - (projById[a] || 0))[0];
+      if (!outPid) continue;
+      spent.add(outPid);
+      // Price this single change against the lineup as it stands right now —
+      // what you gain by making THIS move, not by making all of them.
+      const trial = curIds.map(pid => ({ pid: pid === outPid ? inPid : pid }));
+      const ev = evOf(trial);
+      const dWin = (ev.pWin != null && setEv.pWin != null) ? ev.pWin - setEv.pWin : 0;
+      const dHigh = ev.pHigh - setEv.pHigh;
+      changes.push({
+        slot: recPos[inPid] || posById[inPid],
+        startId: inPid, startName: nameById[inPid], startPos: posById[inPid], startProj: projById[inPid],
+        sitId: outPid, sitName: nameById[outPid], sitPos: posById[outPid], sitProj: projById[outPid],
+        dWin: r2(dWin), dHigh: r2(dHigh),
+        dollarsWin: r2(dWin * matchupValue), dollarsHigh: r2(dHigh * weeklyHigh),
+        dollars: r2(dWin * matchupValue + dHigh * weeklyHigh),
+      });
+    }
+    changes.sort((a, b) => b.dollars - a.dollars);
+    set = {
+      ids: curIds, ev: setEv, changes,
+      matches: changes.length === 0 && drop.length === 0,
+      dollars: r2(curEv.dollars - setEv.dollars),   // what the whole fix is worth
+      points: r2(curEv.mean - setEv.mean),
+    };
+  }
+
   const recStarters = current.map(s => ({ ...s, name: nameById[s.pid], pos: posById[s.pid], proj: projById[s.pid] }));
   return {
     slots,
     lineup: recStarters,
+    set,
     naive: naiveL.starters.map(s => ({ pid: s.pid, name: nameById[s.pid], pos: posById[s.pid], proj: projById[s.pid] })),
     ev: curEv,
     naiveEv,
@@ -914,13 +978,52 @@ function sundayAlert(result, opts = {}) {
   }));
   const edge = r2(result.edge || 0);
   const posture = weeklyPosture(result, band);   // chase vs protect — the alert's lead
+  // A DEAD SLOT. A player the guard zeroed who is nonetheless in the CURRENT
+  // Sleeper lineup: he will score nothing on Sunday whatever the dollar maths
+  // says. The alert used to be silent about this — the swap normally shows up as
+  // a priced call, but a call under the $0.50 print threshold is filtered out
+  // above, and then the email said "nothing to change" over a starter on bye.
+  // It is also the one thing besides a call that makes an alert worth sending.
+  const dead = (result.inactive || []).filter(p => p.starter)
+    .map(p => ({ name: p.name, pos: p.pos, reason: p.reason }));
+  // WHAT YOU HAVE TO DO, as distinct from what the model deviates on. `calls`
+  // is recommended-vs-naive; `changes` is recommended-vs-YOUR-LINEUP, and only
+  // the second one is a to-do. `set` is null when the live lineup was not
+  // available, and then nothing here may claim your lineup is fine.
+  const set = result.set || null;
+  const changes = set ? set.changes.filter(c => c.dollars > 0.5 || c.startProj - c.sitProj > 1).slice(0, 4)
+    .map(c => ({ start: c.startName, sit: c.sitName, pos: c.startPos, dollars: r2(c.dollars),
+                 points: r2(c.startProj - c.sitProj),
+                 why: `+${r2(c.startProj - c.sitProj)} projected · ${c.dollars >= 0 ? '+' : ''}$${Math.round(c.dollars)}` })) : [];
   return {
     week: opts.week || null,
     hasCalls: calls.length > 0,
+    dead,
+    // Did anything actually LOOK at the lineup? Callers must be able to tell
+    // "your lineup is right" from "nobody checked".
+    lineupKnown: !!set,
+    lineupMatches: set ? set.matches : null,
+    changes,
+    fixWorth: set ? set.dollars : null,
+    // Is there anything to DO? The cron asks this before sending: an alert every
+    // Sunday that says "nothing to change" is the same overstatement as the
+    // optimizer manufacturing a puzzle on a week where there isn't one. When the
+    // live lineup is known, the to-do list IS the test; when it is not, fall
+    // back to the model's own deviation.
+    actionable: dead.length > 0 || (set ? changes.length > 0 : calls.length > 0),
     posture,
-    headline: calls.length
-      ? `${calls.length} start/sit call${calls.length === 1 ? '' : 's'} worth ≈ $${Math.round(edge)} this week`
-      : "You're already starting the dollar-optimal lineup — nothing to change.",
+    // THE HEADLINE ONLY CLAIMS WHAT WAS CHECKED. It used to read "You're already
+    // starting the dollar-optimal lineup" off an empty `calls` array — a
+    // statement about a lineup the solver never received. Three distinct
+    // sentences now: you have moves to make, your lineup was checked and is
+    // right, or nothing checked it.
+    headline: changes.length
+      ? `${changes.length} change${changes.length === 1 ? '' : 's'} to make${set && set.dollars > 0.5 ? ` — worth ≈ $${Math.round(set.dollars)}` : ''}`
+      : set
+        ? "Your lineup is already the dollar-optimal one — nothing to change."
+        : calls.length
+          ? `${calls.length} start/sit call${calls.length === 1 ? '' : 's'} worth ≈ $${Math.round(edge)} this week`
+          : 'Your projection-optimal lineup is also the dollar-optimal one — no start/sit call to make.',
     calls, edge,
     band: band ? { median: Math.round(band.median) } : null,
     pWin: result.ev && result.ev.pWin != null ? Math.round(result.ev.pWin * 100) : null,

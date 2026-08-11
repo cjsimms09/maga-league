@@ -41,9 +41,19 @@ jobs:
             echo "::notice title=Sunday alert sent::the alert went out"
             exit 0
           fi
-          if grep -q '"quiet":true' /tmp/out.json; then
-            echo "::warning title=No alert sent::nothing to send (off-season, or Sleeper unreachable). Correct in July; check it in October."
+          # QUIET ON PURPOSE vs QUIET BECAUSE NOTHING WORKS. The alert only emails
+          # when there is something to do — a priced start/sit call or a starter
+          # who cannot score — which on past seasons is roughly one week in nine.
+          # So most Sundays SHOULD be quiet, and a warning on every one of them is
+          # noise in the place the heartbeat is supposed to live. These reasons are
+          # the healthy result, and this run IS the heartbeat: the job answered.
+          if grep -qE '"reason":"(nothing-to-act-on|projections-pending|already-sent-this-week)"' /tmp/out.json; then
+            echo "::notice title=Nothing to send::the lineup needs no change this week — the alert correctly stayed quiet"
             exit 0
           fi
-          echo "::error title=Sunday alert FAILED::there was a live lineup and no alert went out — see the reason in the response above"
+          if grep -q '"quiet":true' /tmp/out.json; then
+            echo "::warning title=No alert sent::no live lineup at all (off-season, or Sleeper unreachable). Correct in July; check it in October."
+            exit 0
+          fi
+          echo "::error title=Sunday alert FAILED::there was something to send and no alert went out — see the reason in the response above"
           exit 1

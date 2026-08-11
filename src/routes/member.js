@@ -152,10 +152,54 @@ router.get('/api/sunday-alert', aw(async (req, res) => {
       note: 'a live lineup exists but no email provider is configured — the alert cannot be delivered' });
   }
   const alert = LO.sundayAlert(live, { week: weekNo, band });
+
+  // ── IT USED TO FIRE EVERY TIME IT WAS ASKED ────────────────────────────────
+  //
+  // Driven across eight firings, eight emails went out, all eight of them
+  // "nothing to change" — including three back-to-back firings of the identical
+  // state, week 18 with the season over, and a week with no matchup scheduled.
+  // The only condition was "a live lineup exists".
+  //
+  // A weekly email that says nothing needs changing is the same overstatement as
+  // the optimizer manufacturing a puzzle on a week where there isn't one: A
+  // measured that the dual objective deviates from "start your best projections"
+  // in about 11% of weeks. Fifteen of seventeen alerts would have been noise,
+  // and noise is what teaches you to stop opening the one that matters.
+  //
+  // So the alert now sends when there is something to DO — a priced start/sit
+  // call, or a player in the current lineup who cannot score. The RUN still
+  // happens every Sunday and still reports itself; the workflow reads `quiet`
+  // and its `reason`, so the heartbeat lives in the Actions log where a heartbeat
+  // belongs, not in the inbox.
+  if (!alert.actionable) {
+    return res.json({ ok: true, sent: 0, quiet: true, emailConfigured, week: weekNo,
+      hasCalls: false,
+      reason: live.projPending ? 'projections-pending' : 'nothing-to-act-on',
+      note: live.projPending
+        ? 'no projections have landed yet — there is nothing to recommend'
+        : 'the current lineup is already dollar-optimal and no starter is out — nothing worth an email' });
+  }
+
+  // ── AND IT FIRED AS OFTEN AS IT WAS ASKED ──────────────────────────────────
+  // The cron, a workflow_dispatch retry, and the manual "send" button on
+  // /lineup all hit this. Three firings, three identical emails. One alert per
+  // week, stamped on success only, so a failed send is retried rather than
+  // swallowed. The manual button (POST /lineup/sunday/send) deliberately does
+  // NOT check the stamp: an explicit click is a request, not a schedule.
+  const season = String(H.currentSeason(world.seasons).year || new Date().getUTCFullYear());
+  const stampKey = `sunday-alert-sent:${season}:${weekNo}`;
+  const already = await getDoc(stampKey, null);
+  if (already) {
+    return res.json({ ok: true, sent: 0, quiet: true, emailConfigured, week: weekNo,
+      reason: 'already-sent-this-week', note: `week ${weekNo}'s alert already went out at ${already.at}` });
+  }
+
   const r = await notify.sundayAlert(commish, alert).catch(e => ({ error: String((e && e.message) || e) }));
   const sent = (r && !r.skipped && !r.error) ? 1 : 0;
+  if (sent) await setDoc(stampKey, { at: new Date().toISOString(), calls: alert.calls.length, dead: alert.dead.length });
   res.json({ ok: true, sent, quiet: false, emailConfigured, week: weekNo,
-    hasCalls: alert.hasCalls,
+    hasCalls: alert.hasCalls, dead: alert.dead.length,
+    changes: alert.changes.length, lineupKnown: alert.lineupKnown,
     ...(sent ? {} : { reason: r && r.error ? 'send-failed' : 'send-skipped',
                       note: (r && r.error) || 'the mailer declined to send' }) });
 }));
@@ -2470,7 +2514,12 @@ async function liveOptimizeFor(world, owners, me) {
       const guarded = LO.activeProjection(Math.round(proj * 10) / 10, r, wk);
       if (LO.isInactive(r, wk)) {
         const onBye = wk != null && r.bye != null && Number(r.bye) === Number(wk);
-        inactive.push({ name: r.name, pos: r.pos, reason: onBye ? ('bye ' + r.bye) : (String(r.inj || 'out').trim()) });
+        // `starter` matters more than the rest of the row: a zeroed BENCH player
+        // is a note, a zeroed player who is CURRENTLY IN YOUR LINEUP is a dead
+        // slot you have to fix before kickoff. The Sunday alert fires on that
+        // distinction, so it is carried rather than re-derived downstream.
+        inactive.push({ name: r.name, pos: r.pos, starter: !!r.starter,
+          reason: onBye ? ('bye ' + r.bye) : (String(r.inj || 'out').trim()) });
       } else {
         // PLAYING THROUGH SOMETHING. The page named the players it ZEROED and
         // said nothing about the ones it kept at full projection while carrying
@@ -2480,7 +2529,8 @@ async function liveOptimizeFor(world, owners, me) {
         // Same MAYBE_INJURY set the matchup card badges from, not a third list.
         const tag = String(r.inj || '').toUpperCase().replace(/[^A-Z]/g, '');
         if (tag && MU.MAYBE_INJURY[tag]) {
-          questionable.push({ name: r.name, pos: r.pos, tag: MU.MAYBE_INJURY[tag], raw: tag });
+          questionable.push({ name: r.name, pos: r.pos, starter: !!r.starter,
+            tag: MU.MAYBE_INJURY[tag], raw: tag });
         }
       }
       return { id: r.id, name: r.name, pos: r.pos, proj: guarded, sd: r.sd };
@@ -2507,7 +2557,11 @@ async function liveOptimizeFor(world, owners, me) {
     }
     // matchupValue omitted -> optimize() uses its derived playoff-equity default
     // ($110, draft/backtest/matchup_value.py). NOT a side bet (Cory, 2026-08-10).
-    live = LO.optimize(rosterIn, { band, sigmaByPos, oppMean, oppSd });
+    // THE LINEUP YOU ACTUALLY HAVE SET. Without it the solver compares its
+    // recommendation to the projection-optimal lineup and never to yours, so
+    // "nothing to change" meant "the two optima agree", not "you are fine".
+    const currentIds = roster.rows.filter(r => r.starter && r.pos && r.pos !== '?').map(r => r.id);
+    live = LO.optimize(rosterIn, { band, sigmaByPos, oppMean, oppSd, current: currentIds });
     live.oppKnown = oppKnown;
     live.inactive = inactive;
     live.questionable = questionable;

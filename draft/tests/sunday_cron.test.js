@@ -50,17 +50,17 @@ const SQUAD = [['p1', 'QB One', 'QB', 'BUF', 21.4], ['p2', 'RB One', 'RB', 'ATL'
     const seas = {}, wk = {};
     for (const [id, , , , proj] of SQUAD) { seas[id] = { pts_half_ppr: proj * 6, gp: 6 }; wk[id] = { pts_half_ppr: proj }; }
     await store.set(`stats-cache:${SEASON}:season`, { fetched_at: Date.now(), data: seas });
-    await store.set(`stats-cache:${SEASON}:6`, { fetched_at: Date.now(), data: wk });
+    await store.set(`stats-cache:${SEASON}:8`, { fetched_at: Date.now(), data: wk });
     await store.set('sleeper-cache', {
       league_id: lid, fetched_at: Date.now(), cached: new Date().toISOString(),
-      data: { state: { week: 7, season: SEASON }, league: { name: 'MFGA', season: SEASON, total_rosters: 10 },
+      data: { state: { week: 9, season: SEASON }, league: { name: 'MFGA', season: SEASON, total_rosters: 10 },
         users: active.map((o, i) => ({ user_id: 'u' + i, display_name: o.name })),
         rosters: active.map((o, i) => ({ roster_id: i + 1, owner_id: 'u' + i,
           players: String(i + 1) === String(myRid) ? SQUAD.map(p => p[0]) : [],
           starters: String(i + 1) === String(myRid) ? SQUAD.slice(0, 9).map(p => p[0]) : [],
           settings: { wins: 4, losses: 2, fpts: 700 } })),
         matchups: active.map((o, i) => ({ roster_id: i + 1, matchup_id: Math.floor(i / 2) + 1, points: 0 })),
-        week: 7 } });
+        week: 9 } });
   };
 
   const srv = createApp().listen(0);
@@ -77,6 +77,10 @@ const SQUAD = [['p1', 'QB One', 'QB', 'BUF', 21.4], ['p2', 'RB One', 'RB', 'ATL'
     const t = JSON.stringify(b || {});
     if (!/"ok":true/.test(t)) return 'red';
     if (/"sent":1/.test(t)) return 'notice';
+    // Quiet ON PURPOSE (there was nothing to do) is the healthy majority result
+    // and must not annotate as a warning every Sunday; quiet because there was
+    // no live lineup at all is the one worth looking at in October.
+    if (/"reason":"(nothing-to-act-on|projections-pending|already-sent-this-week)"/.test(t)) return 'notice';
     if (/"quiet":true/.test(t)) return 'warning';
     return 'red';
   };
@@ -103,7 +107,7 @@ const SQUAD = [['p1', 'QB One', 'QB', 'BUF', 21.4], ['p2', 'RB One', 'RB', 'ATL'
     const { body } = await hit('test-key');
     ck('a live lineup with no mailer is NOT quiet', body && body.quiet === false, body);
     ck('  it names the misconfiguration', body.reason === 'email-not-configured', body);
-    ck('  it reports the week it would have covered', body.week === 7, body);
+    ck('  it reports the week it would have covered', body.week === 9, body);
     ck('  and the scheduler FAILS on it', verdict(body) === 'red', verdict(body));
     // The distinction that did not exist before: same `ok`, same `sent`, and now
     // the two cases are separable.
@@ -124,6 +128,63 @@ const SQUAD = [['p1', 'QB One', 'QB', 'BUF', 21.4], ['p2', 'RB One', 'RB', 'ATL'
       !/startName|sitName|"calls"|dollars|"proj"/i.test(t), t.slice(0, 200));
   }
 
+  // ── DOES IT FIRE WHEN IT SHOULD NOT? ───────────────────────────────────────
+  //
+  // Driven across eight firings before this gate existed, eight emails went out
+  // and all eight said "nothing to change" — including three back-to-back
+  // firings of the identical state and week 18 with the season over. The only
+  // condition was that a live lineup existed. A weekly email saying nothing
+  // needs changing is the same overstatement as the optimizer manufacturing a
+  // puzzle on a week where there isn't one; noise is what teaches you to stop
+  // opening the one that matters.
+  process.env.RESEND_API_KEY = 'test-key';
+  const realFetch = global.fetch;
+  const outbox = [];
+  global.fetch = async (url, opts) => {
+    if (String(url).includes('resend')) {
+      let b = {}; try { b = JSON.parse(opts.body); } catch (e) { /* raw */ }
+      outbox.push(b.subject || '');
+      return { ok: true, status: 200, text: async () => '{}' };
+    }
+    return realFetch(url, opts);
+  };
+
+  // The lineup is already optimal and no starter is out: nothing to say.
+  await seedLive(true);
+  {
+    outbox.length = 0;
+    const { body } = await hit('test-key');
+    ck('an already-optimal lineup sends NO email', outbox.length === 0 && body.sent === 0, { body, outbox });
+    ck('  and says why, in a word the scheduler can read',
+      body.quiet === true && /nothing-to-act-on|projections-pending/.test(body.reason || ''), body);
+    // Firing it three more times must not change that, and must not accumulate.
+    for (let i = 0; i < 3; i++) await hit('test-key');
+    ck('  three more firings still send nothing', outbox.length === 0, outbox);
+  }
+
+  // Now bench the best receiver — a lineup with a real move in it.
+  {
+    const cache = await store.get('sleeper-cache');
+    const mine = cache.data.rosters.find(r => String(r.roster_id) === String(myRid));
+    mine.starters = mine.starters.map(id => (id === 'p4' ? 'p10' : id));
+    await store.set('sleeper-cache', cache);
+    outbox.length = 0;
+    const { body } = await hit('test-key');
+    ck('a lineup with a change in it DOES send', outbox.length === 1 && body.sent === 1, { body, outbox });
+    ck('  and the subject prices it rather than saying nothing to change',
+      /on the table/.test(outbox[0] || '') && !/nothing to change/.test(outbox[0] || ''), outbox);
+    ck('  the scheduler logs it as a notice', verdict(body) === 'notice', verdict(body));
+
+    // ── AND IT FIRED AS OFTEN AS IT WAS ASKED ────────────────────────────────
+    // The cron, a workflow_dispatch retry and the manual send button all hit
+    // this endpoint. Three firings used to be three identical emails.
+    const again = await hit('test-key');
+    ck('the SAME week does not send twice', outbox.length === 1 && again.body.sent === 0, { again: again.body, outbox });
+    ck('  it names the reason rather than looking like a failure',
+      again.body.quiet === true && again.body.reason === 'already-sent-this-week', again.body);
+  }
+
+  global.fetch = realFetch;
   srv.close();
   console.log(`\n${pass} passed, ${fail} failed`);
   process.exit(fail ? 1 : 0);

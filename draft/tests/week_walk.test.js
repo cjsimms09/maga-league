@@ -88,7 +88,7 @@ const SQUAD = [
   await store.set('config', cfg);
   const myRid = Object.keys(cfg.sleeper_map).find(k => cfg.sleeper_map[k] === cory.id);
 
-  const seed = async ({ inj = {}, failed = false, week = 7 } = {}) => {
+  const seed = async ({ inj = {}, failed = false, week = 7, starters = null } = {}) => {
     const slim = {};
     for (const [id, name, pos, team] of SQUAD) slim[id] = { name, pos, team, rank: 1 + Number(id.slice(1)), inj: inj[id] || null };
     await store.set('players-cache', { fetched_at: Date.now(), data: { players: slim, count: SQUAD.length } });
@@ -104,7 +104,7 @@ const SQUAD = [
         users: active.map((o, i) => ({ user_id: 'u' + i, display_name: o.name })),
         rosters: active.map((o, i) => ({ roster_id: i + 1, owner_id: 'u' + i,
           players: String(i + 1) === String(myRid) ? SQUAD.map(p => p[0]) : [],
-          starters: String(i + 1) === String(myRid) ? SQUAD.slice(0, 9).map(p => p[0]) : [],
+          starters: String(i + 1) === String(myRid) ? (starters || SQUAD.slice(0, 9).map(p => p[0])) : [],
           settings: { wins: 4, losses: 2, fpts: 700 + i } })),
         matchups: active.map((o, i) => ({ roster_id: i + 1, matchup_id: Math.floor(i / 2) + 1, points: 0 })),
         week,
@@ -152,6 +152,31 @@ const SQUAD = [
   await seed({ failed: false });
   for (const r of ['/lineup', '/matchup']) {
     ck(`  ${r} is silent when the feed is healthy`, !/Sleeper isn't responding/.test(await get(r)));
+  }
+
+  // ── 5) THE LINEUP YOU ACTUALLY HAVE SET.
+  // The page compared the recommended lineup to the PROJECTION-optimal one and
+  // never to the one Sleeper has set for you, so a genuinely bad lineup drew
+  // "✅ Nothing to change this week… the tool agrees with you." Bench Ja'Marr
+  // Chase (17.8) for Garrett Wilson (12.7) and walk in on a Thursday.
+  // Week 9: nobody on this squad is on bye, so the only thing wrong with the
+  // lineup is the thing being tested.
+  const WRONG = SQUAD.slice(0, 9).map(p => p[0]).map(id => (id === 'p4' ? 'p10' : id));
+  await seed({ week: 9, starters: WRONG });
+  {
+    const t = strip(await get('/lineup'));
+    ck('a WRONG lineup is called out on the page', /Your lineup isn't the recommended one/i.test(t),
+      t.slice(0, 200));
+    ck('  it names the swap to make', /Start Ja'Marr Chase/.test(t) && /over Garrett Wilson/.test(t));
+    ck('  and it no longer congratulates the lineup it never looked at',
+      !/the tool agrees with you/i.test(t));
+  }
+  await seed({ week: 9 });
+  {
+    const t = strip(await get('/lineup'));
+    ck('a CORRECT lineup gets no to-do card', !/Your lineup isn't the recommended one/i.test(t));
+    ck('  and the quiet answer says the lineup itself was checked',
+      /The lineup you have set/i.test(t) && /checked against Sleeper/i.test(t), t.slice(0, 200));
   }
 
   srv.close();
