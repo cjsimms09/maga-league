@@ -1,11 +1,39 @@
 name: Sunday lineup alert
-# Fires the commissioner's before-kickoff start/sit alert. Sundays ~10:40am ET
-# (14:40 UTC during DST), before the 1pm ET games. The endpoint no-ops off-season
-# (no live lineup) and only emails the commissioner, so a year-round schedule is
-# harmless. Gated by the SUNDAY_ALERT_KEY secret; SITE_URL is the live base URL.
+# Fires the commissioner's before-kickoff start/sit alert. The endpoint no-ops
+# off-season (no live lineup) and only emails the commissioner, so a year-round
+# schedule is harmless. Gated by SUNDAY_ALERT_KEY; SITE_URL is the live base URL.
+#
+# ── WHY 15:45 UTC, AND WHY NOT TO MOVE IT BACK ──────────────────────────────
+#
+# It was 14:40 UTC — 10:40am ET in the fall. The NFL posts official INACTIVES 90
+# minutes before kickoff, i.e. 11:30am ET for the 1pm slate. So the alert fired
+# 50 minutes before the list that turns a QUESTIONABLE into an OUT, and its
+# "⛔ a starter cannot score this week" case — the one thing in it that is not a
+# probability judgement — systematically missed every game-time decision. Byes
+# and players already ruled out on the Wed–Fri practice reports were caught;
+# exactly the players whose status was still in question on a Sunday morning
+# were not. (Cory, 2026-08-11: "which is the half of the problem I would
+# actually want an alert for.")
+#
+# 15:45 UTC is 11:45am ET while the clocks are forward — 15 minutes after the
+# inactives, 75 minutes before kickoff.
+#
+# THE HONEST LIMITATION, stated so nobody "fixes" it later by reading only the
+# good half: after the clocks go back in early November, 15:45 UTC is 10:45am
+# ET, which is 45 minutes BEFORE the inactives again. One UTC cron cannot hold
+# one ET time across a DST change. Weeks 1-9 get the inactives; weeks 10+ do
+# not. The alternative that covers the back half (16:45 UTC = 11:45am EST) lands
+# at 12:45pm EDT in the front half — fifteen minutes before kickoff — which is
+# worse. Two schedules with a change-detector would cover both and was
+# deliberately not built: DECISIONS-NEEDED #7 option 3, declined until there is
+# a season to test it against.
+#
+# The schedule is asserted in draft/tests/sunday_cron.test.js WITH this
+# reasoning, so moving it back goes red by name rather than looking like a
+# tidy-up.
 on:
   schedule:
-    - cron: '40 14 * * 0'
+    - cron: '45 15 * * 0'
   workflow_dispatch: {}
 jobs:
   fire:

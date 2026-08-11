@@ -85,6 +85,41 @@ const SQUAD = [['p1', 'QB One', 'QB', 'BUF', 21.4], ['p2', 'RB One', 'RB', 'ATL'
     return 'red';
   };
 
+  // ── WHEN IT FIRES, AND WHY THAT IS NOT A TIDY-UP ─────────────────────────
+  //
+  // The schedule is a decision, not a formatting choice, and a decision that
+  // lives only in a YAML comment is one somebody reverts for a reason that
+  // sounds good. It was 14:40 UTC = 10:40am ET; the NFL posts INACTIVES 90
+  // minutes before kickoff (11:30am ET for the 1pm slate), so the alert fired
+  // 50 minutes before the list that turns a QUESTIONABLE into an OUT and its
+  // dead-starter case missed every game-time decision. 15:45 UTC = 11:45am ET
+  // in the fall: 15 minutes after the inactives, 75 before kickoff.
+  {
+    const yml = fs.readFileSync(path.join(ROOT, '.github', 'workflows', 'sunday-alert.yml'), 'utf8');
+    const cron = (yml.match(/cron:\s*'([^']+)'/) || [])[1];
+    ck('the Sunday alert fires at 15:45 UTC on Sundays', cron === '45 15 * * 0', cron);
+    // The arithmetic, restated here rather than trusted: 15:45 UTC in EDT
+    // (UTC-4) is 11:45 ET, which must land AFTER the 11:30 inactives and BEFORE
+    // the 13:00 kickoff. Computed, not asserted, so a future edit to the cron
+    // is checked against the actual constraint instead of against a string.
+    const [mm, hh] = cron.split(' ').map(Number);
+    const utcMin = hh * 60 + mm;
+    const edtMin = utcMin - 4 * 60;      // clocks forward: weeks 1-9
+    ck('  which is after the 11:30am ET inactives while the clocks are forward',
+      edtMin >= 11 * 60 + 30, `${Math.floor(edtMin / 60)}:${String(edtMin % 60).padStart(2, '0')} ET`);
+    ck('  and still before the 1pm ET kickoff',
+      edtMin <= 12 * 60 + 45, `${Math.floor(edtMin / 60)}:${String(edtMin % 60).padStart(2, '0')} ET`);
+    // THE LIMITATION IS ASSERTED TOO. After the clocks go back this fires
+    // BEFORE the inactives, and the workflow says so. A comment that documented
+    // only the good half is how the honest half gets edited out.
+    ck('  the workflow states the DST limitation rather than only the good half',
+      /clocks go back/.test(yml) && /Weeks 1-9 get the inactives; weeks 10\+ do\s*#?\s*not/.test(yml.replace(/\n#/g, '')),
+      (yml.match(/.{0,80}clocks go back.{0,120}/s) || [''])[0]);
+    ck('  and names the alternative it rejected, with the reason',
+      /16:45 UTC/.test(yml) && /fifteen minutes before kickoff/.test(yml.replace(/\n#\s*/g, ' ')),
+      (yml.match(/.{0,60}16:45.{0,140}/s) || [''])[0]);
+  }
+
   // ── the secret still guards the trigger
   ck('a wrong key is refused', (await hit('nope')).status === 403);
   ck('no key at all is refused', (await hit('')).status === 403);
