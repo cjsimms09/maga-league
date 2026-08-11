@@ -117,6 +117,18 @@ def test_it_refuses_to_conclude_when_a_year_is_unreadable():
     assert a["answer"].startswith("unknown")
 
 
+def test_EQUAL_draft_counts_do_not_demonstrate_accumulation():
+    """THE BOUNDARY, and it was untested until a rule-10a break found nothing to
+    redden. `>` vs `>=` is the whole difference, and only equality separates them:
+    two seasons reporting the same number of drafts is the case where the year
+    figure demonstrably did NOT grow, and calling that accumulation would assert
+    an F5 violation the data does not show. A break of `>` to `>=` reddens here
+    and nowhere else."""
+    a = P.aggregate_spans_the_season({"2025": {"total_drafts": 903},
+                                      "2026": {"total_drafts": 903}})
+    assert a["answer"].startswith("NOT DEMONSTRATED")
+
+
 def test_it_does_not_claim_accumulation_when_the_comparison_does_not_show_it():
     a = P.aggregate_spans_the_season({"2025": {"total_drafts": 400},
                                       "2026": {"total_drafts": 903}})
