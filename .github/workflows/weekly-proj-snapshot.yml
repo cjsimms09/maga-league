@@ -1,0 +1,54 @@
+name: Weekly projection snapshot
+
+# THE ONE INPUT WITH A REAL DEADLINE.
+#
+# A shadow strategy's choice is f(roster, projections). Sleeper returns the
+# roster retroactively; providers OVERWRITE weekly projections in place, so the
+# numbers a strategy would have read are gone the moment the week turns. That
+# makes this snapshot the only thing that must run live — the shadow layer
+# itself is recomputable in January and is deliberately not being built (17
+# weeks cannot separate two strategies: paired MDE is 7.8 pts/wk at best).
+#
+# SUNDAY MORNING, BEFORE KICKOFF. The decision-time projection is the one a
+# lineup would have been set from, not Tuesday's revision. 13:00 UTC is ~9am ET,
+# ahead of the 1pm ET slate.
+#
+# Egress: Sleeper is denied at the gateway from the dev sandbox, so this runs in
+# CI for the same reason every other probe does.
+on:
+  schedule:
+    - cron: '0 13 * * 0'      # Sundays 13:00 UTC — before the 1pm ET slate
+  workflow_dispatch:
+    inputs:
+      week:
+        description: 'NFL week (blank = ask Sleeper /state/nfl)'
+        required: false
+
+permissions:
+  contents: write
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - name: Snapshot this week's projections
+        run: |
+          if [ -n "${{ github.event.inputs.week }}" ]; then
+            python draft/weekly_proj_snapshot.py --week "${{ github.event.inputs.week }}"
+          else
+            python draft/weekly_proj_snapshot.py
+          fi
+      - name: Commit the snapshot
+        run: |
+          git config user.name lab-bot
+          git config user.email lab-bot@users.noreply.github.com
+          git add draft/data/proj_series.json
+          # Nothing staged is a no-op (the week was already snapshotted), not a
+          # failure — a red run here would train us to ignore the one job whose
+          # whole value is that it ran.
+          git diff --cached --quiet && echo "no change — already snapshotted" && exit 0
+          git commit -m "weekly projection snapshot [skip deploy]"
+          git push

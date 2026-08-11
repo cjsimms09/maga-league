@@ -4060,3 +4060,42 @@ positive-value claim is free to make — `waiverPriorityDepletes(1) === false`. 
 waiver surface currently says the stopping rule is not modelled; it is, and the
 answer for this league is "claim whenever net is positive".
 
+## 🗓️ THE JANUARY SHADOW FIELD — candidates recorded, nothing built (A, 2026-08-11)
+
+**The field does not ship this season.** Measured from 540 team-weeks: the
+comparison is paired, so the noise is the **11.44-point SD of the slot two
+strategies disagree about**. Even disagreeing EVERY week of a season the smallest
+detectable edge is **7.8 pts/wk** — 64% of an average starter's output. At the
+realistic disagreement rate (the opponent-dossier flip moved 8 of 1,152 draft
+decisions, 0.7%) the bar is 16 points. Full working:
+`draft/audit/shadow_layer_power_2026-08-11.md`.
+
+**What DID ship is the input archive**, because a shadow strategy's choice is
+`f(roster, projections)` and only the projections disappear — providers overwrite
+weekly numbers in place. `draft/weekly_proj_snapshot.py` + the Sunday-morning
+workflow. That converts a closing window into an open one: **any** strategy is
+replayable in January, not the two or three we would have guessed at in August.
+
+**ASSEMBLE THE FIELD HERE, IN JANUARY, FROM THE SEASON'S RESIDUALS** — a field
+chosen from where the model actually failed beats one chosen from the same priors
+that built it. Two candidates recorded now so they are not lost:
+
+**1. `DEFAULT_WEIGHTS` against `MEASURED_WEIGHTS`.** `app.js:52` ships weights
+that zero four terms the Lab measured as drag:
+
+```
+MEASURED  value 1  tier 0  need 0  risk 0  ceiling 0     keeper 1  bye 0  stack 0.5
+DEFAULT   value 1  tier 1  need 1  risk 1  ceiling 0.65  keeper 1  bye 1  stack 1
+```
+
+Highest-plausibility candidate in the system: tied to a **measured** surface
+rather than an intuition, and the two arms are one object apart.
+
+**2. Opponent-blind against opponent-modelled.** The flip put the whole dossier
+at 0.7% of draft decisions. **A candidate whose likely outcome is DELETION is
+worth more than one whose likely outcome is addition** — this system has never
+been improved by adding a term.
+
+Both are recomputable from (roster, projections). **Neither needs to run live**,
+which is the same recommendation arriving from the other direction.
+
