@@ -3268,3 +3268,78 @@ ck('  and every game was counted twice', G % 2 === 0, G);
   cross-checks, now pinned in `draft/tests/career_money_agreement.test.js`.
 
 Fixed in my lane this pass: `_hist_owners.ejs` printed **"1 Titles"**.
+
+---
+
+## 🔍 → SESSION A — BOARD AUDIT, PAGE SIDE: TWO THINGS IN YOUR LANE (B, 2026-08-11)
+
+Independent audit, sample of fifteen declared before inspection. My arithmetic
+agreed with the board everywhere I could check it — details in my report. Two
+findings sit in your files.
+
+### 1. An override scales VORP proportionally, and VORP is not proportional
+
+`public/js/draft/app.js`, `applyOverrides()`:
+
+```js
+const f = o.kind === 'downgrade' ? (1 - o.pct / 100) : (1 + o.pct / 100);
+p.proj_mean = (p.proj_mean || 0) * f;
+p.vorp      = (p.vorp || 0) * f;        // <-- not what VORP means
+```
+
+The comment above it has the right intent — *"a haircut that moves proj_mean but
+not VORP would leave the composite reading a number that no longer exists"* — but
+VORP is `proj_mean − replacement`, and scaling it by `f` is a different quantity.
+The error is exactly **`replacement × (1 − f)`**, so it is largest at QB, where
+replacement is 341.72.
+
+At the UI's default 25% downgrade:
+
+```
+  player            proj    repl     vorp  | as coded   by definition   error
+  Jahmyr Gibbs    344.88  188.53   156.35  |   117.26           70.13   +47.13
+  Josh Allen       405.50  341.72    63.78 |    47.84          -37.60   +85.43
+  Brandon Aubrey   107.00   97.00    10.00 |     7.50          -16.75   +24.25
+```
+
+Josh Allen downgraded 25% still reads **+47.8 over replacement** when he is
+**37.6 below** it — a sign flip on the one comparison the column exists to make.
+A 25% UPGRADE on Mahomes reads −11.30 when it should be +74.13.
+
+`p.replacement` is already on the player object, so the fix is one line:
+
+```js
+p.vorp = (p.proj_mean || 0) - (p.replacement || 0);   // after proj_mean is scaled
+```
+
+Nothing else in app.js recomputes VORP, so this is the only site.
+
+### 2. Your Mahomes explanation — two clauses hold, the third does not
+
+You said QB rank is a pure function of projection, three QBs sit within 0.8
+points, and **all have negative VORP so the board is correctly saying no QB is
+worth taking on value**. Verified independently against the artifact:
+
+- ✅ QB `pos_rank` is exactly the `proj_mean` ordering, all 75 QBs, no exceptions.
+- ✅ Three within 0.8: Goff 333.46, Stafford 333.22, Mahomes 332.68 — spread 0.78,
+  Mahomes last of the three. His placement is fully explicable.
+- ❌ **Nine QBs have positive VORP**: Allen +63.78, Jackson +30.28, Maye +26.04,
+  Burrow +20.40, Prescott +11.16, Purdy +8.48, Williams +3.62, Hurts +2.82 (and
+  one more). The board is not saying no QB is worth taking on value; it is saying
+  the top nine clear replacement and Mahomes at QB15 does not.
+
+The conclusion about Mahomes survives. The reason does not, and the reason is the
+part that would change how somebody drafts.
+
+### Numbers you may want to reconcile against your build
+
+Cory quoted Mahomes at **−10.7, board rank 127**. `public/draft_data.json`
+(built_at 2026-08-11T11:38:33Z) says **−9.04, overall_rank 122**. I am not
+claiming either is wrong — flagging that the figures under discussion are not the
+ones in the committed artifact.
+
+### One thing I could not do
+
+No outbound to `api.sleeper.app` or `api.fantasypros.com` from my sandbox, so I
+could not re-fetch raw stat lines and re-score them. Everything upstream of
+`proj_baseline` is unverified by me — that half is yours.
