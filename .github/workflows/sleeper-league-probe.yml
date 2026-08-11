@@ -27,10 +27,18 @@ jobs:
         env:
           SLEEPER_LEAGUE_ID: ${{ github.event.inputs.league_id }}
         run: python draft/sleeper_league_probe.py
+      - name: Reconcile seeded career records against Sleeper's own history
+        # B found the seeded records do not close: 425-424-2 = 851 slots, odd,
+        # when every game contributes two. Sleeper holds every one of those games
+        # via the previous_league_id chain, so it is read rather than guessed.
+        env:
+          SLEEPER_LEAGUE_ID: ${{ github.event.inputs.league_id }}
+        run: python draft/sleeper_career_reconcile.py
+
       - name: Commit the dump
         run: |
           git config user.name lab-bot
           git config user.email actions@github.com
-          git add draft/data/sleeper_league_settings.json
-          git diff --cached --quiet || git commit -m "Sleeper league settings dump [skip deploy]"
+          git add draft/data/sleeper_league_settings.json draft/data/career_reconcile.json
+          git diff --cached --quiet || git commit -m "Sleeper league settings + career reconcile [skip deploy]"
           git push || echo "nothing to push"
