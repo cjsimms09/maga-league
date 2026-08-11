@@ -735,3 +735,90 @@ and return events (`#KT`, `#UT`) genuinely do land on graded positions. **Not ye
 and deliberately not decided from a guess** — whether a term a quarterback can never accrue
 should be ignored for that position needs the same treatment everything else here got: a
 measurement first.
+
+---
+
+# D7 — WITHIN-POOL ADP (registered 2026-08-11, BEFORE any measurement of what it yields)
+
+**Registered before measuring, deliberately.** The whole legitimacy of this route depends on
+the construction being fixed before anyone knows whether it produces a usable sample. If the
+measurement below comes back thin, that is the answer, and no clause here moves to rescue it.
+
+## The construction
+
+For a decision at time **T** in league **L**, the board is the ADP computed from picks that
+satisfy **all** of:
+
+1. **The pick's OWN timestamp is strictly before T.** Not "the draft completed before T" —
+   per-pick. *This is the sharp edge and the naive framing gets it wrong:* MFL drafts are
+   email drafts spanning days, so a draft that STARTED before T can contain picks made after
+   it. Using completed drafts would import future picks under a label that says otherwise.
+2. **The league is not L.** Structural, not conventional. A league's own picks never enter the
+   board it is graded against — the same leak already caught in the replay when the actual
+   pick was popped off the decision context.
+3. **The league passes F1.** Format match, because dynasty and superflex ADP are different
+   quantities, not noisier versions of the same one — a dynasty board prices a 22-year-old
+   rookie where a redraft board prices a 29-year-old producer. The crawl measured `dynasty`
+   at 5,642 term hits, so this is not a tail concern.
+
+ADP for a player is the **mean overall pick number** over qualifying picks, carried with its
+support **n**. **A player below n = 10 has NO ADP** — he is ABSENT, not "went late". Absent is
+not zero here either, and the sensitivity of every result to n ∈ {5, 10, 25, 50} is reported
+beside the primary. **n = 10 is fixed now**, before seeing which value flatters anything.
+
+Every board built this way is labelled `adp_source: "within_pool_v1"` and a league admitted
+under D7 is **reported separately** from one admitted on a provider snapshot. The two never
+pool silently.
+
+## Is it admissible under F5 as registered? — THE ARGUMENT AGAINST, FIRST
+
+1. **F5 says "the latest SNAPSHOT strictly before the draft date".** A snapshot is a third
+   party's published observation. A within-pool board is **our own construction**, and
+   constructions have knobs — population, support threshold, averaging rule — that a published
+   board does not. That is exactly the degree of freedom F5 exists to remove, and admitting a
+   construction reopens it.
+2. **The board is derived from the population being graded.** "Beat the pool's ADP" may be
+   nearer to "beat your opponents' average" than to "beat the market" — a *different claim*
+   from the one this program set out to make.
+3. **Early drafters may differ systematically.** Then the board is not "the market before T"
+   but "the early drafters before T", and that difference is invisible in the number.
+4. **It thins from the wrong end.** The earliest drafts have almost no prior picks, so the
+   gradeable leagues are the LATE ones — the drafts closest to the season, which are the least
+   like a July decision.
+
+## THE ARGUMENT FOR
+
+1. **F5's purpose is that no post-decision information enters, and this satisfies it more
+   strictly than a provider snapshot does.** Measured, and this is the load-bearing point: the
+   MFL and FFC year aggregates **accumulate** (2025 complete = 844 drafts vs 2026 in progress
+   = 112), and we cannot decompose them — a provider "snapshot" is dated to a day and its
+   internal composition is unobservable. A per-pick construction is verifiable pick by pick.
+   **The provider route is the one with the unverifiable contamination.**
+2. **Objection 1 is answered by this document.** A construction fixed and published before any
+   measurement has no more freedom than a provider's board. That is what pre-registration is,
+   and it is why this is being written now rather than after the numbers.
+3. **Objection 2 is a labelling problem, not an admissibility one.** The quantity is
+   "format-matched public-room ADP, observed before T". It is a defect only if someone calls
+   it "the market", which the label exists to prevent.
+4. **Objection 3 is a covariate, not a stopper** — draft date, board size and format mix are
+   recorded per league, so early-vs-late is measurable rather than assumed.
+5. **Objection 4 is real and is a REPORTED LIMIT**, not a defence: the gradeable slice is
+   named, and if it is small or late-skewed, that is the finding.
+
+**DECISION: D7 is an ADDITION to F5's admissible ADP sources, not an amendment to F5's rule.**
+F5's requirement — the board must be observably frozen before the decision — is met exactly.
+F5 v1 is retained unchanged; what changes is that "snapshot" is no longer read as "a provider
+published one". A league admitted under D7 carries the label and is reported apart.
+
+## What will be measured, declared before it runs
+
+- **M1** the distribution of draft dates across the 2025 pool — are drafts spread at all?
+- **M2** per league, how many qualifying picks exist strictly before its first pick.
+- **M3** how many leagues get a board of ≥100 players at n ≥ 10.
+- **M4** the early-vs-late covariate: does the format mix of early drafters differ from late?
+
+**PRE-DECLARED EXPECTATION, so the result cannot be narrated afterwards.** I expect MFL public
+drafts to cluster heavily in the last two weeks of August. I therefore expect the early slice
+to be sparse, a minority of leagues to reach a usable board, and the usable ones to be
+**late-August drafts** — the least representative of a genuine preseason decision. If that is
+what comes back, D7 does not rescue the 2027 timeline and I will say so.
