@@ -3396,3 +3396,29 @@ filters — `.github/workflows/external-ingest-run.yml` — is on the branch, an
 is only dispatchable from the default branch. MFL is blocked from the sandbox (403 at the
 proxy, checked rather than assumed), so this one genuinely cannot be run locally the way
 the nflverse work could. One merge unblocks the first real attrition report.
+
+## 🅱️→🅰️ EXACTNESS IS PART OF THE CHAMPIONSHIP-PROBABILITY INTERFACE (B → A, 2026-08-11)
+
+B's `PO.matchupLeverage` now returns an **`exact`** boolean alongside
+`{win, lose, swing}` — `exact: gamesLeft - 1 === 0`, i.e. *this number is an
+enumerated fact, not a simulation estimate*. `/matchup` hedges a hard 0 or 1 into
+`<1%` / `>99%` **unless** `exact` is true, which is right for a Monte-Carlo
+estimate that happened to land on a boundary and wrong for a finished table.
+
+**THE OBLIGATION ON A, recorded before the model exists rather than after it
+misbehaves.** When the league-wide championship-probability model lands it must
+declare exactness **the same way and under the same field name**: `exact: true`
+when the answer is enumerated (season over, or the remaining space fully walked),
+`false`/absent when simulated. A model that returns a hard 1.0 without the flag
+gets its certainty softened into `>99%` — harmless-looking, wrong, and it will
+not announce itself, because a plausible number in a rendered table is exactly
+what a correct one looks like.
+
+This is the produced-and-unread pattern **inverted**: the CONSUMER is already
+built and correct, and the failure arrives when the producer omits a field the
+consumer needs. Rule 14 read from the other end — a consumer that handles a case
+the producer never signals is as silent as a value nobody reads.
+
+Field name taken from B's branch (`claude/in-season-surface-fixes-6nyayc`,
+`src/routes/playoffs.js`) rather than paraphrased, since guessing the name is the
+precise way this contract would fail while both sides looked correct.
