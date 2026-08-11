@@ -311,14 +311,24 @@ retrievable", and the second is the one F5 requires.
 on a clock the other three unregistered criteria are not, exactly as suspected — so the
 capture-side pre-registration below is dated today and precedes the first crawl.
 
-### WHAT IT DOES NOT DECIDE — the FFC arm reached nothing
+### WHAT IT DOES NOT DECIDE — the FFC arm, and a correction to this document
 
-`ffc: NO CONCLUSION — nothing was reached`. The path in that arm (`/api/v1/adp/half-ppr`)
-was **written from memory, not from a probe**, so this is a fact about my query and not
-about FantasyFootballCalculator (rule 13, the exact failure it names). FFC is recorded as
-UNRESOLVED, not as negative, and the arm needs a correct path before anything is concluded
-from it. If FFC does serve ADP by date, D3 below becomes cheaper insurance rather than the
-only route — but that is not yet known and nothing here assumes it.
+The first write-up of this section said the FFC arm reached nothing because I had
+**written its path from memory**. *That was wrong, and it is corrected here rather than
+quietly edited.* The path matches the SHIPPED client in `draft/adp.py`
+(`/api/v1/adp/{format}?teams=N&year=Y`), which is verified and in production.
+
+The real defect was in the probe: `urlopen` **raises** `HTTPError` on 4xx/5xx, and `_get`
+caught it under a bare `except Exception` and filed it as a transport error. So a plain
+404 was indistinguishable from a blocked network path, and the run reported "nothing was
+reached" — a statement about the network — when it had almost certainly reached FFC and
+been answered. **Rule 13's own confusion, committed inside the probe built to enforce
+rule 13.** Fixed: an HTTP error is now read as a response, its status and body retained,
+and the verdict separates REACHED BUT REFUSED from NO CONCLUSION.
+
+FFC therefore remains **UNRESOLVED** — but for a different and now-diagnosable reason.
+**If FFC does serve ADP by date, D4's exclusion of 2023-2025 is too strong and must be
+revisited as a new dated registration.** Nothing below assumes it either way.
 
 ---
 
