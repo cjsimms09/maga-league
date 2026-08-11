@@ -535,6 +535,7 @@ def run(league_ids, year, out_path=None, *, players=None, board=None,
     import time as _time
     started = _time.monotonic()
     records, outcomes, cw_reports = [], [], []
+    snap_by_league: dict = {}
     pool_picks, league_dates = [], {}
     stopped_early = None
     for _i, lid in enumerate(league_ids):
@@ -574,6 +575,10 @@ def run(league_ids, year, out_path=None, *, players=None, board=None,
             adp = {"pre_draft_adp": None, "adp_observed_at": None,
                    "_adp_note": "%s: %s" % (type(e).__name__, e)}
         cw_reports.append((extra["crosswalk"] or (None, None))[1])
+        # Kept so the replay can run over the SAME snapshots the as-of store saw.
+        # Re-deriving them at replay time would be a second derivation path for the
+        # one thing F5 is about.
+        snap_by_league[str(lid)] = extra["snapshots"]
         # D7's raw material, accumulated as we go: every pick with its OWN
         # timestamp and its league. Per-pick, because an email draft that started
         # early can contain picks made late.
@@ -602,6 +607,7 @@ def run(league_ids, year, out_path=None, *, players=None, board=None,
     rep["throttle"] = throttle_signal(verdicts)
     rep["crosswalk"] = crosswalk_summary(cw_reports)
     rep["format_census"] = format_census(verdicts)
+    rep["survival"] = survival_pass(verdicts, snap_by_league)
     rep["within_pool_adp"] = d7_feasibility(verdicts, pool_picks, league_dates)
     # PREPENDED, not appended. The existing verdict already leads with unreadable
     # attrition; this leads with whether the run could have measured anything at all.
@@ -977,3 +983,83 @@ def _ppr_bucket(record) -> str:
         if lo <= v <= hi:
             return label
     return "other:%s" % v
+
+
+def survival_pass(verdicts, snapshots_by_league) -> dict:
+    """Replay every MATCHED league and grade its survival forecasts. No outcomes.
+
+    THE GAP THIS CLOSES, and it is the produced-and-unread pattern one level up
+    from where this program usually finds it. `external_replay_run.replay_league`
+    emits forecasts. `survival_grade.grade` scores them. Both are built, both are
+    tested, and NOTHING CALLED EITHER: the spine fetched leagues, screened them and
+    stopped. Rule 14, on two whole modules rather than a field.
+
+    WHY IT MATTERS FOR 2026 SPECIFICALLY. Survival — will this player still be
+    there when this seat picks again — resolves from the draft's OWN LATER PICKS.
+    It needs no weekly data, no nflverse and no January. So the moment a 2026
+    league drafts with clean dated ADP, this produces a real graded observation of
+    the same forecast type the home league emits.
+
+    THE POPULATION IS `matched` AND NOTHING ELSE. `replay_league` refuses a league
+    the filters rejected, and that refusal is kept: an excluded league's
+    observations look exactly like admitted ones and would enter an aggregate
+    unnoticed. Whether an F4-excluded league may be replayed for a forecast type
+    that never touches outcomes is a question about a REGISTERED FILTER, and it is
+    written into DECISIONS-NEEDED rather than answered here.
+    """
+    from external_replay_run import replay_league, ReplayRefused
+    from survival_grade import adp_baseline, grade
+    matched = [r for r, ok, _ in verdicts if ok]
+    out = {"leagues_matched": len(matched), "leagues_replayed": 0,
+           "observations": 0, "refused": [], "errors": [], "grades": []}
+    for rec in matched:
+        lid = str(rec.get("league_id"))
+        try:
+            res = replay_league(rec, snapshots_by_league.get(lid) or [], adp_baseline)
+        except ReplayRefused as e:
+            # A league the screen admitted and the replay refused is a CONTRADICTION
+            # between two components, not a skip. Recorded loudly.
+            out["refused"].append({"league_id": lid, "why": str(e)[:200],
+                                   "note": "screen() admitted this league and replay_league "
+                                           "refused it — the two disagree"})
+            continue
+        except Exception as e:                                   # noqa: BLE001
+            out["errors"].append({"league_id": lid, "why": "%s: %s" % (type(e).__name__, e)})
+            continue
+        obs = res.get("observations") or []
+        out["leagues_replayed"] += 1
+        out["observations"] += len(obs)
+        try:
+            g = grade(obs, (rec.get("draft") or {}).get("picks") or [])
+        except Exception as e:                                   # noqa: BLE001
+            out["errors"].append({"league_id": lid, "why": "grade: %s: %s"
+                                                           % (type(e).__name__, e)})
+            continue
+        out["grades"].append(dict(g, league_id=lid))
+    out["verdict"] = _survival_verdict(out)
+    return out
+
+
+def _survival_verdict(out) -> str:
+    if out["refused"]:
+        return ("CONTRADICTION: %d league(s) the screen ADMITTED were REFUSED by the "
+                "replay. Two components disagree about whether the same league "
+                "qualifies, and one of them is wrong" % len(out["refused"]))
+    if not out["leagues_matched"]:
+        return ("no matched leagues to replay — this says nothing about the harness, "
+                "which was never given a league")
+    if not out["leagues_replayed"]:
+        return "every matched league failed to replay; see `errors`"
+    scored = [g for g in out["grades"] if g.get("n_scored")]
+    if not scored:
+        return ("%d league(s) replayed and %d forecast(s) emitted, but NONE resolved — "
+                "a survival forecast at a seat's last pick can never resolve, and if "
+                "that is all of them the replay is emitting at the wrong picks"
+                % (out["leagues_replayed"], out["observations"]))
+    n = sum(g["n_scored"] for g in scored)
+    beat = sum(1 for g in scored if g.get("beats_base_rate"))
+    return ("%d league(s) replayed, %d forecast(s) emitted, %d resolved and graded; "
+            "%d of %d leagues beat their own base rate. NO OUTCOME DATA WAS USED — "
+            "survival resolves from the draft's own later picks, which is why this "
+            "number exists before the season is played"
+            % (out["leagues_replayed"], out["observations"], n, beat, len(scored)))

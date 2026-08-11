@@ -619,11 +619,29 @@ def test_the_run_reports_EVERY_QUANTITY_THE_PLAN_SAYS_IT_REPORTS():
         # phrase the plan uses            -> key the report must carry
         "DRAFT-DURATION DISTRIBUTION": "draft_duration_days",
         "LEAD-DAYS SPREAD": "lead_days_spread",
+        # Reported by `attrition_report` itself, so it is checked on the report.
+        "OUTCOME-READY": "outcome_ready",
     }
     for phrase, key in required.items():
         if phrase in plan:
             assert key in rep, (
                 "INGEST-PLAN promises %r and the run report has no %r" % (phrase, key))
+
+    # AND THE KEYS `run()` ATTACHES AFTER `attrition_report`, which this guard could
+    # not see and which is exactly where the next gap opened: `survival_pass` was
+    # written, tested, and dropped from the report by a one-line mutation without a
+    # single test failing. Checked against `run`'s SOURCE because run() fetches, and
+    # a guard that needs the network is a guard that gets skipped.
+    import inspect
+    src = inspect.getsource(R.run)
+    for phrase, key in {
+        "FORMAT CENSUS": "format_census",
+        "SURVIVAL": "survival",
+    }.items():
+        if phrase in plan.upper():
+            assert ('rep["%s"]' % key) in src or ('"%s":' % key) in src, (
+                "INGEST-PLAN promises %r and run() never attaches %r to the report"
+                % (phrase, key))
 
 
 def test_the_lead_days_spread_counts_UNDATED_picks_rather_than_dating_them():
@@ -865,3 +883,62 @@ def test_outcome_ready_EQUALS_matched_for_a_season_that_HAS_been_played():
     v, _ = R.run_screen([good_record("A"), good_record("B", teams="14")])
     rep = R.attrition_report(v, requested=["A", "B"])
     assert rep["outcome_ready"] == rep["matched"] == 1
+
+
+# ── the harness the spine never called ─────────────────────────────────────
+def _pol(ctx):
+    """A trivial policy: one survival forecast on the top board player."""
+    board = ctx.get("board") or []
+    if not board:
+        return []
+    top = board[0]
+    return [{"key": "survival:%s:%s" % (ctx["overall"], top.get("player_id")),
+             "ftype": "probability", "value": 0.5,
+             "resolution_rule": "resolves from this draft's own later picks",
+             "extra": {"policy_id": "baseline:test", "player_id": top.get("player_id"),
+                       "team": ctx.get("team")}}]
+
+
+def test_the_SPINE_ACTUALLY_CALLS_the_replay_and_the_grader():
+    """RULE 14, on two whole modules rather than a field. `replay_league` emitted
+    forecasts, `survival_grade.grade` scored them, both were tested — and NOTHING
+    CALLED EITHER. The spine fetched leagues, screened them, and stopped.
+
+    MUTATION: drop `survival_pass` from the report. The harness stays built,
+    tested, and unreachable, and no external observation is ever produced by a run.
+    """
+    rec = good_record("L1")
+    v, matched = R.run_screen([rec])
+    assert matched, "the fixture must MATCH or this test proves nothing"
+    out = R.survival_pass(v, {"L1": [{"observed_at": "2025-08-20",
+                                      "rows": [{"player_id": "9000", "adp": 1.0}]}]})
+    assert out["leagues_matched"] == 1
+    assert out["leagues_replayed"] + len(out["errors"]) + len(out["refused"]) == 1
+
+
+def test_A_LEAGUE_THE_SCREEN_ADMITTED_AND_THE_REPLAY_REFUSED_IS_A_CONTRADICTION():
+    """Two components disagreeing about whether the same league qualifies is not a
+    skip — one of them is wrong. MUTATION: `continue` quietly. The population
+    shrinks for a reason nobody sees, and the disagreement never surfaces."""
+    rec = good_record("L1")
+    v, _ = R.run_screen([rec])
+    # A replay whose gate refuses everything, standing in for the two disagreeing.
+    import external_replay_run as RR
+    real = RR.replay_league
+    try:
+        RR.replay_league = lambda *a, **k: (_ for _ in ()).throw(
+            RR.ReplayRefused("league L1 was excluded as F1.teams"))
+        out = R.survival_pass(v, {"L1": []})
+    finally:
+        RR.replay_league = real
+    assert len(out["refused"]) == 1
+    assert "CONTRADICTION" in out["verdict"]
+    assert "one of them is wrong" in out["verdict"]
+
+
+def test_NO_MATCHED_LEAGUES_says_the_harness_was_never_given_one():
+    """A zero from an empty population is not a zero from a broken harness."""
+    v, _ = R.run_screen([good_record("L1", teams="14")])
+    out = R.survival_pass(v, {})
+    assert out["leagues_matched"] == 0
+    assert "never given a league" in out["verdict"]

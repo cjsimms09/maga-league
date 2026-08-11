@@ -907,6 +907,43 @@ outermost layer — the same principle as `F4.fetch_failed`, one level further o
 previous behaviour meant a single malformed league could delete an entire run's evidence,
 which is the most expensive way for a sample to become invisible.
 
+## POINTING THE MACHINERY AT 2026 — the one season that works (2026-08-11)
+
+2026 is the only season for which F5 can be satisfied without an archive or a
+construction: D3 is capturing ADP cleanly right now, one dated snapshot a day. Outcomes
+arrive in January. So everything except the outcome join can be built and MEASURED now,
+and three things are added for it.
+
+**OUTCOME-READY** — every run reports how many leagues clear every check that can be
+judged before the season is played. It is only a meaningful number because `screen()` now
+checks weekly outcomes LAST: before, an unplayed season failed every league there and
+nothing after it was ever evaluated, so a 2026 attrition table would have said "no weekly
+outcomes" seven hundred times and nothing about format, draft validity or ADP cleanliness.
+The verdict is unchanged wherever it fires — an ordering change, not a relaxation. For a
+played season `outcome_ready` equals `matched`, and a test asserts it.
+
+**FORMAT CENSUS** — what the pool IS, over readable leagues: team counts, reception
+bands, superflex, draft type, keepers, with F1 printed beside it. F1 is unchanged and this
+is not a filter. "0 matched" with no distribution beside it invites exactly the post-hoc
+relaxation rule 4 exists to stop, because the only way to learn anything from it is to
+start loosening clauses and watching the count. Split/TE-premium is its own bucket and is
+never averaged into a league that does not exist.
+
+**SURVIVAL, GRADED WITH NO OUTCOME DATA** — every matched league is now replayed and its
+survival forecasts graded inside the run. Survival resolves from the draft's OWN LATER
+PICKS, so it needs no weekly data, no nflverse and no January: the moment a 2026 league
+drafts with clean dated ADP, the pipeline produces a real graded observation of the same
+forecast type the home league emits.
+
+That last one closed a **produced-and-unread gap two modules wide**. `replay_league`
+emitted forecasts, `survival_grade.grade` scored them, both were tested — and nothing
+called either. The spine fetched leagues, screened them, and stopped. Rule 14 usually
+catches a field with no reader; this was two whole modules.
+
+A league the SCREEN admits and the REPLAY refuses is reported as a **contradiction**
+rather than a skip, because two components disagreeing about whether the same league
+qualifies means one of them is wrong.
+
 ## A STANDARD LEAGUE IS A READING, NOT A FAILURE TO READ (found 2026-08-11)
 
 **And it moves the denominator the F7 rule below is computed over**, which is why it is

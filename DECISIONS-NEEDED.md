@@ -10,6 +10,39 @@ Audit date: 2026-08-09 (swept every recorded verdict in draft/backtest/*.json + 
 
 ---
 
+## 0. DEF PROJECTIONS ARE 12 POINTS SHORT — `def_fum_td` maps to nothing (2026-08-11) 🔴 OPEN
+
+- **WHAT WAS FOUND.** Sleeper's projection row for the Rams DEF carries
+  `def_fum_td: 2.0`. The league scoring table has no such key — it has `def_td: 6.0`
+  and `fum_rec_td: 6.0`, and neither appears in any sampled row. `score_stat_line`
+  iterates the SCORING keys and skips any the stat line does not carry, so two
+  projected defensive fumble-return touchdowns score **zero**.
+- **WHAT IT IMPLIES.** Every defense's `proj_baseline` is short by 6 points per
+  projected defensive TD. Rams: `proj_baseline` 114.00 → 126.00, `vorp` 15.00 →
+  27.00 before the replacement level moves. Because DEF replacement is the 10th-best
+  DEF, correcting all 32 moves the replacement line too, so every DEF `vorp` changes.
+- **MAGNITUDE.** 12 points on the one defense measured. Unmeasured across the other
+  31 — deliberately, per rule 12's scope rule (document value eleven, do not sweep).
+- **CONFIDENCE.** High on the mechanism: verified by hand from the raw provider row
+  against the league's own scoring table, and it is structurally identical to the
+  `pass_int` defect C found (provider renames a stat, scorer skips a key it cannot
+  find, loss is silent because skipping IS correct for an optional bonus).
+- **THE FIX CARRIES C's TRAP.** Our table has BOTH `def_td` and `fum_rec_td` at 6.0.
+  Mapping `def_fum_td` to both scores 12 per touchdown — a silent undercount becomes
+  a silent overcount, which is worse. And if the provider emits `def_int_td` for
+  other teams, that is a genuine COMPONENT that must accumulate while the fumble
+  alias must not. Aliases take first-writer-wins; components sum.
+- **COST OF INACTION.** DEF is systematically underrated on the board. Low direct
+  cost — Cory takes a DEF in round 14-15 where a 12-point projection error rarely
+  changes which one — but it compounds with the separate finding that K and DEF are
+  SINGLE-SOURCE (Sleeper only, no FantasyPros second opinion), so the DEF column is
+  a one-source number with a known undercount.
+- **RECOMMENDATION: fix it AFTER the draft, not before.** It moves every DEF `vorp`
+  and the DEF replacement level eleven days out, on a position that is picked last
+  and where the ordering is unlikely to change. The evidence and the trap are
+  written down; the change is one alias plus a components-vs-aliases test.
+- Full arithmetic: `draft/audit/rule12_statline_check_2026-08-11.md`.
+
 ## 1. ANCHOR SOURCE: ✅ WIRED & VERIFIED LIVE 2026-08-09 — board anchors on FantasyPros
 > **LANDED (main @ FP-anchor commit + real egress rebuild):** the live board now ranks by
 > FantasyPros PRIMARY, FFC gap-fill, search_rank last. Verified on the rebuilt board:
@@ -355,3 +388,80 @@ question (mock-calibration arm), not a pre-Aug-22 one.
      first run's state stamped (the once-per-week stamp already written would need a second key).
 - **My recommendation: (2).** The alert's job is the lineup, and a lineup set at 11:45 is still
   a lineup set. (3) is the right shape eventually but not before there is a season to test it on.
+
+## PROPOSED CLAUSE (A, 2026-08-11) — self-referential fixtures, needs your authorization
+
+**Not added to SESSION-A.md.** Constitution changes require explicit
+authorization, so this is a proposal, not a rewrite.
+
+**The observation (Cory's words):** *a fixture that derives from the thing under
+test can stop exercising its case without failing — same shape as a guard whose
+baseline comes from what it's guarding.*
+
+**Evidence, from today, two instances in one change.** C's `wk()` seeds a column
+for every key in `grade._WEEKLY_MAP` — the right instinct, since a fixture
+carrying only the columns a test cares about would pass a schema check on a shape
+the live path never serves. But adding one alias to that map silently changed
+what every fixture contained: a helper named `unmapped_rename` removed one
+interception column and left the other, and the present-but-never-populated case
+nulled one alias of two. Both kept passing. **A fixture cannot fail for no longer
+representing its case; it quietly tests something easier.**
+
+**Why it belongs next to the baseline clause rather than as a new rule.** It is
+the same defect with the arrow reversed. A guard whose reference derives from the
+code always agrees; a fixture whose input derives from the code always passes.
+Both swap a fixed question for a self-referential one, and both hide inside a
+derivation that is genuinely the better engineering choice.
+
+**Proposed wording, for rule 10 as a further clause:**
+
+> **10d.** A fixture or baseline that DERIVES from the thing under test can stop
+> exercising its case without ever failing. Deriving is usually right — it is what
+> keeps a fixture honest against a live shape — so the requirement is not to stop.
+> It is that anything the test SUBTRACTS from a derived set must be derived from
+> THE SAME SOURCE, and that a fixture whose meaning depends on the code's current
+> shape carries an assertion that it still represents its case.
+
+Applied to the two helpers already; they now derive their removals from
+`_WEEKLY_MAP` instead of listing column names.
+
+---
+
+## MAY AN F4-EXCLUDED LEAGUE BE REPLAYED FOR A FORECAST THAT NEVER TOUCHES OUTCOMES? (C, 2026-08-11) 🔴 OPEN
+
+- **WHAT WAS FOUND.** Survival — *will this player still be there when this seat picks
+  again* — resolves from the draft's **own later picks**. It uses no weekly data, no
+  nflverse, no January. A 2026 league that has drafted with clean dated ADP can therefore
+  produce a real graded observation **today**, of the same forecast type the home league
+  emits. The replay and the grader are both built and are now wired into the run.
+- **WHAT IT IMPLIES, AND WHY IT IS YOUR CALL.** F4 as registered says: *"A league missing
+  any of {complete draft, pre-draft ADP, weekly outcomes} is excluded whole. No
+  partial-credit leagues."* Every 2026 league is missing weekly outcomes by calendar, so
+  F4 excludes all of them, so `replay_league` refuses them all, so **the survival pass
+  produces nothing for 2026 until January** — even though survival needs nothing that is
+  missing.
+- **THE TWO READINGS.**
+  - **NARROW (what the code does now).** F4 is categorical. An excluded league is not
+    replayed for anything. 2026 survival waits for January.
+  - **BROAD.** F4's stated rationale is *no partial-credit leagues* — a league graded on
+    some forecast types and not others produces an aggregate whose denominator nobody can
+    state. A forecast type that **structurally cannot touch** the missing data is not
+    partial credit; it is a complete measurement of a different thing. Under this reading
+    F4 gates OUTCOME-DEPENDENT grading, and survival is admissible now.
+- **MAGNITUDE.** This is the difference between the 2026 sample producing graded
+  observations from August and producing them from January. If run 12 confirms the format
+  rate is near zero it changes little; if 2026's pool is richer than 2025's it is most of
+  the year.
+- **CONFIDENCE.** High that survival touches no outcome data — it resolves from
+  `record["draft"]["picks"]`, which the record already carries, and the F3 ingest is not
+  on its path at all. That part is mechanical, not a judgement.
+- **COST OF INACTION.** Zero today. The narrow reading is what ships, and it is the safe
+  one. The cost is five months of observations we could have been grading.
+- **RECOMMENDATION.** Broad reading, but **as a new dated registration that names the
+  restriction**, not as a reinterpretation of F4: *an F4-excluded league may be replayed
+  ONLY for forecast types whose resolution rule references no data outside the league
+  record, and every such observation carries a flag saying so, so it can never be pooled
+  with outcome-graded ones.* I have not implemented it. F4 stands until you rule.
+- **WHAT I WILL NOT DO EITHER WAY.** Relax F4 to reach a number. F7 already says a short
+  sample reports the number and changes nothing, and that case has arrived as a
+  measurement.
