@@ -339,6 +339,12 @@ def probe() -> dict:                                        # pragma: no cover (
     c = CANDIDATES["odds_api_io"]
     io = {"host": c["host"], "docs": c["docs"],
           "published_free_tier": c["published_free_tier"]}
+    # THE KEY BELONGS TO odds-api.io, NOT the-odds-api.com. It was being sent to
+    # the wrong provider, which would have produced a 401 and a report that "the
+    # key does not work" — a false negative about the KEY rather than a fact about
+    # either provider. Exactly the failure the new habit names.
+    io_key = os.environ.get("ODDS_API_KEY", "").strip()
+    io["key_configured"] = bool(io_key)
     # PATH DISCOVERY, because /sports was a GUESS and returned 404. A 404 on a
     # guessed path says nothing about the provider — reporting it as a negative
     # would repeat the Kalshi mistake, where "0 NFL markets" turned out to be
@@ -363,6 +369,56 @@ def probe() -> dict:                                        # pragma: no cover (
                                 if any(w in k.lower() for w in
                                        ("limit", "remain", "quota", "reset", "credit"))})
         # Markets/props: try the documented shapes for a bookmakers/markets list.
+        # AUTHENTICATED PROBE — the questions that decide feasibility all live
+        # behind the 401. The auth SHAPE is not documented to me, so rather than
+        # guess one and report its failure as a fact, try a bounded set and record
+        # WHICH works. A 401 against an auth style I invented is evidence about my
+        # request, not about the provider.
+        if io_key:
+            auth_styles = {
+                "query_apiKey": ("/v3/events?apiKey={k}", None),
+                "query_apikey": ("/v3/events?apikey={k}", None),
+                "query_key": ("/v3/events?key={k}", None),
+                "header_x_api_key": ("/v3/events", {"x-api-key": io_key}),
+                "header_authorization": ("/v3/events", {"authorization": f"Bearer {io_key}"}),
+            }
+            io["auth_probe"] = {}
+            working = None
+            for style, (path, hdr) in auth_styles.items():
+                url = c["host"] + path.replace("{k}", io_key)
+                try:
+                    d3, h3 = get(url, headers=dict({"user-agent": "mfga-market-probe"}, **(hdr or {})))
+                    rows = (len(d3) if isinstance(d3, list)
+                            else len(d3.get("data") or d3.get("events") or []))
+                    io["auth_probe"][style] = {
+                        "status": 200, "rows": rows,
+                        # THE NUMBER THAT MATTERS: rows > 1 from ONE request means
+                        # the slate is retrievable in a single call.
+                        "rate_headers": {k: v for k, v in h3.items() if any(
+                            w in k.lower() for w in ("limit", "remain", "quota", "reset", "credit"))},
+                    }
+                    working = working or style
+                except Exception as e3:                     # noqa: BLE001
+                    io["auth_probe"][style] = {"status": getattr(e3, "code", str(type(e3).__name__))}
+            io["auth_style_working"] = working
+            # RETRY COST: does a FAILED request consume budget? Compare the
+            # remaining-quota header before and after a deliberate 404.
+            if working:
+                try:
+                    _, hb = get(c["host"] + "/v3/sports")
+                    before = {k: v for k, v in hb.items() if "remain" in k.lower()}
+                    try:
+                        get(c["host"] + "/v3/definitely-not-a-real-path")
+                    except Exception:                        # noqa: BLE001
+                        pass
+                    _, ha = get(c["host"] + "/v3/sports")
+                    after = {k: v for k, v in ha.items() if "remain" in k.lower()}
+                    io["retry_cost_probe"] = {"remaining_before": before, "remaining_after": after,
+                                              "note": "if the counter moved by more than the two "
+                                                      "successful calls, failed requests bill"}
+                except Exception as e4:                     # noqa: BLE001
+                    io["retry_cost_probe"] = {"error": f"{type(e4).__name__}: {e4}"}
+
         # THE NUMBER THAT MATTERS: does ONE request return the whole NFL slate, or
         # one game per request? That is one call a week versus sixteen, and it is
         # why "500/day is enormous" and "measure the real cost" only agree if a

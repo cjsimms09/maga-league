@@ -334,6 +334,33 @@ should," and in every case the answer was no until someone actually tried it.
 the guard is written, by whoever is already writing it — no schedule, no artifact, no human
 attention on a cadence. Nothing to maintain, so nothing to rot.
 
+**13. A FAILED REQUEST AGAINST A PATH I INVENTED IS EVIDENCE ABOUT MY QUERY, NOT ABOUT THE
+PROVIDER.** A, 2026-08-11, adopted at Cory's instruction. Before recording ANY negative about
+an external source — no coverage, no markets, thin data, unusable tier — establish that the
+query could have returned a positive. A 404 on a guessed path, a zero from one page of a
+paginated list, an empty filter, a 401 against an auth style I made up: each looks exactly
+like absence and is actually a fact about me.
+
+*The cheap discharge, and it is one question:* **"what would this have returned if the thing
+I am looking for were there?"** If the answer is "I do not know", the probe is not finished.
+Three mechanical forms cover nearly every case — make the scan report **its own composition**
+(not just its verdict), **walk the pagination** before concluding a list is empty, and when a
+path or auth shape is unknown **try a bounded candidate set and record which responded**
+rather than betting on one.
+
+*Earned the hard way.* Four of six market-probe round-trips were spent correcting my own
+guesses: an invented `/sports` that 404'd (the real path was `/v3/sports`); "0 NFL markets"
+that was pagination order, not absence — the endpoint walks 12,000 movie markets and never
+reaches football; a naive `"nfl"` substring matching i**NFL**ation, inflating a count to 478
+against a true 426; and a key routed at the WRONG PROVIDER, which would have reported "the key
+does not work" as a fact about the key. Every one produced a plausible number, and none of
+them errored. **A query that returns a plausible number is not the same as one that returns
+the right one.**
+
+*Rule 9 standing:* a **statement**, not a workstream — one question asked before writing a
+negative down, by whoever is already writing it. Its cost is a sentence; its absence cost four
+CI round-trips and nearly put two false dead ends into the record.
+
 **11. CORRECTNESS AT EVERY BOUNDARY.** Cory, 2026-08-10. **Any data or derived value crossing
 a system boundary must have its completeness, validity and unknown state established at that
 boundary.** Not correctness in the absolute sense — we cannot prove Sleeper is right that a
