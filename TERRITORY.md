@@ -359,3 +359,26 @@ outside C's lane, runs both suites, and only then merges to `main`. A refusal na
 
 **C's side of the contract:** push, then park a one-line merge request naming the branch. Do
 not wait on it silently — a parked request nobody routes is indistinguishable from no request.
+
+## A boundary ruling, recorded so the next one is made against a record
+
+On 2026-08-11 the integrator **refused C's branch by name** on
+`draft/backtest/survival_grade.py`. The refusal was CORRECT. Grading a survival
+forecast is not ingest — it is deciding what the data means, which the section
+above assigns to A in exactly these words: *C produces the data; A decides what
+it means.*
+
+**I did not widen `c_owns()` to make the refusal go away.** Widening the lane to
+fit the file already in it is how a boundary stops being a boundary: the guard
+would have gone green and the rule would have quietly become "whatever C
+touched last." Instead the file was **accepted into A's lane** with A owning it
+from here, and the merge went through as a deliberate override of a
+correctly-firing guard.
+
+**This is a one-time override, not a precedent for how boundary questions
+resolve.** The default remains: the guard fires, the work parks, the owner
+routes it. If a correctly-firing territory guard is overridden **twice more**,
+that is evidence the split itself is drawn in the wrong place — and the answer
+then is to REDRAW it deliberately, not to keep overriding it case by case. The
+count starts at one, here, so the next ruling is made against a record rather
+than a memory.
