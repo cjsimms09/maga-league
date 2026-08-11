@@ -64,18 +64,47 @@ def test_dispersion_reports_the_book_count_beside_the_spread():
 
 # ── the touchdown finding, reported not absorbed ────────────────────────────
 def test_a_touchdown_market_is_detected_and_flagged_for_recomputation():
-    f = C.scan_touchdown_markets({"markets": [{"name": "Anytime TD Scorer"}]})
-    assert f["touchdown_markets_present"] is True
-    assert f["matched_terms"] and "RE-RUN" in f["note"]
+    """A POSITIVE is always safe — the request demonstrably showed one."""
+    r = C.scan_touchdown_markets({"markets": [{"key": "player_anytime_td"}]},
+                                 books=["DraftKings"], markets=["player_td"])
+    assert r["verdict"] == "present"
+    assert "anytime_td" in r["matched_terms"]
+    assert "RE-RUN" in r["note"]
 
 
-def test_absence_of_touchdown_markets_is_also_recorded():
-    f = C.scan_touchdown_markets({"markets": [{"name": "Total Points"}]})
-    assert f["touchdown_markets_present"] is False
-    assert f["payload_bytes"] > 0          # the number behind the verdict
+def test_a_NEGATIVE_THE_REQUEST_COULD_NOT_HAVE_SHOWN_is_unknown_not_absent():
+    """THE DEFECT THIS REPLACES, and it shipped as a finding.
+
+    The published snapshot recorded `touchdown_markets_present: false` from a
+    1,225-byte payload fetched with two books I chose and no prop market
+    requested. A payload that size cannot carry a touchdown market, so the false
+    was manufactured by my own request composition — C's sharper form of rule 13
+    (clause 11e): it is not only the path you invented.
+    """
+    r = C.scan_touchdown_markets({"bookmakers": [{"key": "draftkings"}]},
+                                 books=["DraftKings", "FanDuel"])
+    assert r["verdict"] == "unknown", "a null the request could not have avoided is NOT absence"
+    assert r["could_have_shown_a_positive"] is False
+    assert "NOT about the provider" in r["why"]
 
 
-# ── verdicts ship with their numbers ────────────────────────────────────────
+def test_a_negative_the_request_COULD_have_shown_is_a_real_absence():
+    """And the verdict is not uselessly always-unknown: a genuine prop payload
+    with no TD terms IS absence."""
+    r = C.scan_touchdown_markets({"markets": [{"key": "player_rec_yds", "pad": "z" * 30000}]},
+                                 books=["DraftKings"], markets=["player_rec_yds"])
+    assert r["verdict"] == "absent"
+
+
+def test_the_scan_always_reports_its_own_composition():
+    """11e's operational diagnostic, applied literally: report the composition,
+    not just the verdict. A verdict without it cannot be checked."""
+    r = C.scan_touchdown_markets({"x": 1}, books=["DraftKings", "FanDuel"], markets=["p"])
+    for k in ("books_requested", "markets_requested", "payload_bytes",
+              "could_have_shown_a_positive", "why"):
+        assert k in r, f"composition field {k} missing"
+    assert r["books_requested"] == ["DraftKings", "FanDuel"]
+
 def test_health_counts_consecutive_failures(tmp_path, monkeypatch):
     monkeypatch.setattr(C, "OUT_DIR", tmp_path)
     monkeypatch.setattr(C, "HEALTH", tmp_path / "capture_health.json")

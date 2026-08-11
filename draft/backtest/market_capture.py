@@ -76,15 +76,56 @@ def dispersion(prices) -> dict:
             "spread": round(max(vals) - min(vals), 3), "mean": round(mean, 3)}
 
 
-def scan_touchdown_markets(payload) -> dict:
-    """Does this payload price touchdowns? Reported as a finding, with evidence."""
+def scan_touchdown_markets(payload, books=None, markets=None) -> dict:
+    """Does this payload price touchdowns? REPORTS ITS OWN COMPOSITION, not a bare verdict.
+
+    C's sharper form of the old rule 13 (now clause 11e), and this function was
+    violating it: **it is not only the PATH you invented — every part of a request
+    you chose is yours, and each one manufactures a provider-shaped null that looks
+    exactly like a finding.**
+
+    THE INSTANCE, measured rather than argued. This returned
+    `touchdown_markets_present: false` on a **1,225-byte payload** fetched with
+    `bookmakers=DraftKings,FanDuel` — two books I chose — and no player-prop market
+    type requested at all. A payload that size cannot contain a touchdown market, so
+    the `false` was manufactured by my own request composition. It went into the
+    snapshot as a finding about the PROVIDER, and I repeated it to Cory as one. The
+    docstring even said "with 263 books the picture may differ" and still emitted a
+    bare boolean.
+
+    Three-valued now, and it always ships its composition:
+      present  — TD terms found. A positive is safe: the request DID show one.
+      absent   — nothing found AND the request could plausibly have shown one.
+      unknown  — nothing found and the request could NOT have shown one. That is a
+                 fact about the query, not a finding about the provider.
+    """
     body = json.dumps(payload).lower()
     hits = sorted({w for w in TD_WORDS if w in body})
+    books = list(books or [])
+    markets = list(markets or [])
+
+    # COULD THIS REQUEST HAVE RETURNED A POSITIVE? The one question 11e asks. A
+    # payload of a few hundred bytes from two books carries game lines, not a
+    # player-prop book; the threshold only has to separate "a real prop payload"
+    # from "obviously could not have contained one".
+    could_have_shown = bool(markets) and len(body) >= 20000
+    verdict = "present" if hits else ("absent" if could_have_shown else "unknown")
+
     return {
-        "touchdown_markets_present": bool(hits),
+        "verdict": verdict,
         "matched_terms": hits,
-        # The numbers behind the verdict, so it can be checked rather than trusted.
+        # THE COMPOSITION, always — this is what makes the verdict checkable.
+        "books_requested": books,
+        "markets_requested": markets or None,
         "payload_bytes": len(body),
+        "could_have_shown_a_positive": could_have_shown,
+        "why": ("TD terms found in the payload" if verdict == "present" else
+                "no TD terms, and the request could plausibly have carried them"
+                if verdict == "absent" else
+                "NO TD TERMS, BUT THE REQUEST COULD NOT HAVE CARRIED THEM — "
+                f"{len(books)} book(s), {len(markets) or 'no'} prop market(s) requested, "
+                f"{len(body)} byte payload. A fact about the query, NOT about the "
+                "provider. Do not record it as coverage."),
         "note": ("if present, the coverage arithmetic must be RE-RUN — the "
                  "23.3/29.1/47.5% uncovered figures were measured against a "
                  "two-book, no-TD assumption"),
@@ -257,7 +298,7 @@ def capture(league: str, api_key: str, books=None, max_events=None,
             if attempts > 1:
                 retried.append({"event_id": eid, "attempts": attempts})
             if td_finding is None:
-                td_finding = scan_touchdown_markets(payload)
+                td_finding = scan_touchdown_markets(payload, books=books)
             rows.append({
                 "event_id": eid,
                 "home": ev.get("home"), "away": ev.get("away"),
@@ -270,8 +311,13 @@ def capture(league: str, api_key: str, books=None, max_events=None,
             # fetch_with_retry already spent, observed and backed off. What
             # arrives here is a decision that was TAKEN, not advice to be filed:
             # `attempts` says how many times it actually tried.
+            # RECORD WHAT IT MIGHT BE A FAILURE *OF*. A bare {status, why} reads as
+            # a provider verdict; the chosen inputs make it checkable (11e).
             failures.append({"event_id": eid, "status": e.code, "attempts": e.attempts,
-                             "why": e.why})
+                             "why": e.why,
+                             "chosen_inputs": dict(R.CHOSEN_REQUEST_INPUTS),
+                             "may_be_attributable_to":
+                                 getattr(e.__cause__, "attributable_to", None)})
             if not budget.affordable(1):
                 failures.append({"stopped": "budget reserve reached — "
                                             "stopping rather than spending into the cap"})

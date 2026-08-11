@@ -99,8 +99,45 @@ def check_books(names) -> list:
     return ok
 
 
-def fetch(url: str, timeout: int = 30):
-    """The only place a request is actually sent. Returns (payload, headers)."""
-    req = urllib.request.Request(url, headers={"user-agent": "mfga-market-capture"})
-    with urllib.request.urlopen(req, timeout=timeout) as r:
-        return json.loads(r.read().decode("utf-8")), dict(r.headers)
+# EVERY PART OF THE REQUEST I CHOSE, NAMED IN ONE PLACE so a failure is
+# attributable to it. C's sharper form of the old rule 13 (now clause 11e): it is
+# not only the PATH you invented — the error handling, the headers and the timeout
+# are yours too, and each one manufactures a PROVIDER-SHAPED NULL that looks
+# exactly like a finding.
+#
+#   USER_AGENT — invented. Providers 403 unknown agents as policy, so a 403 here
+#     may be a fact about this string and nothing about the account or the tier.
+#   TIMEOUT — chosen. A slow-but-working endpoint becomes a transport error, which
+#     `should_retry(None)` calls "may be transient" — wording that reads as the
+#     provider's fault for a limit I set.
+CHOSEN_REQUEST_INPUTS = {
+    "user_agent": "mfga-market-capture",
+    "timeout_seconds": 30,
+}
+
+
+def fetch(url: str, timeout: int = None):
+    """The only place a request is actually sent. Returns (payload, headers).
+
+    Raises with the chosen inputs ATTACHED, so a caller recording a failure records
+    what it might be a failure OF rather than a bare provider verdict.
+    """
+    if timeout is None:
+        timeout = CHOSEN_REQUEST_INPUTS["timeout_seconds"]
+    req = urllib.request.Request(
+        url, headers={"user-agent": CHOSEN_REQUEST_INPUTS["user_agent"]})
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as r:
+            return json.loads(r.read().decode("utf-8")), dict(r.headers)
+    except Exception as e:                                       # noqa: BLE001
+        # Not swallowed and not re-shaped — annotated. The exception still
+        # propagates with its code, so retry logic is unchanged.
+        setattr(e, "chosen_inputs", dict(CHOSEN_REQUEST_INPUTS))
+        code = getattr(e, "code", None)
+        if code == 403:
+            setattr(e, "attributable_to",
+                    "a 403 may be the invented user-agent, not the account tier")
+        elif code is None:
+            setattr(e, "attributable_to",
+                    f"no HTTP status: this may be MY {timeout}s timeout, not the provider")
+        raise
