@@ -1,3 +1,4 @@
+# TERRITORY: C
 """ROUTE 1 — finding a pre-draft ADP board that was OBSERVABLY FROZEN before a draft.
 
 F5 does not require a provider to support a date parameter. It requires a board whose

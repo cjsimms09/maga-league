@@ -1,3 +1,4 @@
+# TERRITORY: C
 """WHAT OUR 6-POINT PASSING TD IS ACTUALLY WORTH — against a market built on 4.
 
 THE QUESTION, AND THE ONE IT IS NOT. Our league pays 6 per passing TD. Every public

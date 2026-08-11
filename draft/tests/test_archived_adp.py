@@ -1,3 +1,4 @@
+# TERRITORY: C
 """ROUTE 1's SEARCH — every mutation below produces a FALSE NEGATIVE.
 
 That direction is the point. A probe that wrongly reports ROUTE 1 IS CLOSED does not

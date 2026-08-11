@@ -1,3 +1,4 @@
+# TERRITORY: C
 """THE 6-POINT PASSING TD, AND THE WAY THIS MEASUREMENT GOES WRONG.
 
 The naive version of this hands back the raw scoring difference wearing a VORP
