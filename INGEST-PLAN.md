@@ -1129,6 +1129,47 @@ answer is "still inside", not "ruled out". `never_attempted` and the readable co
 already reported for exactly this reason, and the verdict must be read off them rather
 than off the matched count.
 
+## ROUTE 1 IS OPEN — AND IT PASSED THE KNOWN-ANSWER GATE (2026-08-11)
+
+**This supersedes both entries below.** The first reported OPEN on a byte count and was
+withdrawn; the second recorded the withdrawal. This one is the gate passing.
+
+**FantasyPros overall ADP, Wayback capture `20240712092948`** — 12 July 2024, strictly
+before the 20240801 cutoff and before any 2024 draft. The names extracted from it:
+
+```
+Christian McCaffrey · CeeDee Lamb · Tyreek Hill · Ja'Marr Chase · Breece Hall
+Justin Jefferson · Bijan Robinson · Amon-Ra St. Brown · A.J. Brown · Puka Nacua
+Jonathan Taylor · Saquon Barkley · Garrett Wilson · Jahmyr Gibbs · Davante Adams
+```
+
+**15 of 15 are players on our own board, and that is the 2024 consensus top fifteen in
+roughly the order it actually went.** Not a shape count, not a byte count — the check the
+verdict line has been demanding since the first run.
+
+**WHY THE ARCHIVE WORKS WHERE THE LIVE PAGE DOES NOT, which is the whole point.**
+FantasyPros' pages TODAY render their table client-side: the live fetch scores 5 of 21
+names and carries no board, and the captures of those same URLs from late 2023 were
+navigation menus. The July 2024 capture is **server-rendered**. The markup changed. So the
+board that existed in 2024 is retrievable ONLY from the archive, which is exactly the
+situation Route 1 was posed for — and exactly why "the live page has no board" was never
+evidence that no board was ever published.
+
+**WHAT IS ESTABLISHED, PRECISELY.** A dated preseason board of real NFL players exists for
+a completed season, with its date stamped by a third party. F5 can be satisfied for 2024
+without any provider supporting a date parameter.
+
+**WHAT IS NOT.** This capture is FantasyPros' OVERALL board, not half-PPR — a different
+quantity from the one F1 wants, and the half-PPR URL's captures remain unresolved. One
+capture is not a series either: replaying a draft wants the latest snapshot before THAT
+draft, so per-league coverage is a further question. And Route 1 opening does not touch
+F7: clean dated ADP for leagues that do not match our format still grades nothing.
+
+**A DEFECT IN THE REPORT, NOT THE FINDING.** The hand-check block printed
+`MATCHED PLAYERS (None)` and an empty RAW SAMPLE beside the fifteen correct names —
+`classify` builds its row from a fixed key list and `player_hits`/`sample_seen` were not on
+it. The evidence was right and its own header said it was missing. Carried through now.
+
 ## CORRECTION — ROUTE 1 IS NOT OPEN. THE "BOARDS" WERE A NAVIGATION MENU (2026-08-11)
 
 **This supersedes the entry below, which is retained unedited because a result reported

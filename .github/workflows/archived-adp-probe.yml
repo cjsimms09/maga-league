@@ -214,6 +214,12 @@ jobs:
               row["live_detail"] = live.get("detail")
               row["archived_detail"] = arch.get("detail")
               row["names"] = arch.get("names")
+              # CARRIED THROUGH, and they were not. `classify` builds the row from a
+              # fixed key list, so the hand-check block printed "MATCHED PLAYERS
+              # (None)" and an empty RAW SAMPLE beside fifteen correct player names —
+              # the evidence was right and its own header said it was missing.
+              row["player_hits"] = arch.get("player_hits")
+              row["sample_seen"] = arch.get("sample_seen")
               row["captures_examined"] = arch.get("examined")
               results.append(row)
               # THE DETAIL IS PRINTED, not just stored. `not-a-board` on a page that
