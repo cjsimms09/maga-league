@@ -45,6 +45,7 @@ function readJSON(rel) {
 }
 
 // ---- constants -------------------------------------------------------------
+const PO = require('./playoffs');   // one definition of the playoff cut
 const REG_WEEKS = 15;            // weeks 1-15 count; the weekly-$100 is reg-only
 const PLAYOFF_START = 16;
 // Real first name shown everywhere on the page. The master sheet uses first
@@ -318,7 +319,10 @@ function buildSeason(s, ctx) {
     standings, weeks, weekList, games, weeklyHigh, allPlay, bracket, money,
     draft, superlatives, pay,
     playoffStart: PLAYOFF_START,
-    playoffTeams: (s.settings && s.settings.playoff_teams) || 4,
+    // The one definition of the cut (routes/playoffs.playoffCut), applied to
+    // THIS season's settings. Was a private copy of the same rule, agreeing by
+    // coincidence with six other copies until one of them did not.
+    playoffTeams: PO.playoffCut(s),
   };
 }
 

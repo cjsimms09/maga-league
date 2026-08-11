@@ -2893,19 +2893,36 @@ router.get('/analyzer', requireCommissioner, aw(async (req, res) => {
   // checkpoint. Defaulting to the final week is degenerate: with every game
   // played the simulator has nothing left to simulate and every probability
   // collapses to 100%/0% — a table that looks confident and says nothing.
-  let liveWeek = null;
+  // `world` was never declared in this route. Every call threw a ReferenceError
+  // on the line below, the catch swallowed it as "offline", and the live-week
+  // default documented directly above HAS NEVER ONCE RUN — the analyzer always
+  // fell through to the mid-season checkpoint, including during a live season.
+  // A catch whose comment names a cause it cannot distinguish will hide any
+  // other cause forever, so it is narrowed to the fetch it is there for.
+  const world = req.world;
+  let liveWeek = null, liveLeague = null;
   try {
     const sData = await sleeper.bundle(world.config.sleeper_league_id);
-    if (sData && String(sData.state && sData.state.season) === String(wanted)) liveWeek = sData.week;
-  } catch (e) { /* offline: fall through to the checkpoint */ }
+    if (sData && String(sData.state && sData.state.season) === String(wanted)) {
+      liveWeek = sData.week;
+      liveLeague = sData.league;      // only THIS season's cut applies to it
+    }
+  } catch (e) { /* Sleeper unreachable: fall through to the checkpoint */ }
   const defaultWeek = liveWeek && liveWeek <= lastWeek ? liveWeek
     : (lastWeek ? Math.max(1, Math.min(lastWeek - 1, Math.round(lastWeek * 0.6))) : 0);
   const throughWeek = Number.isFinite(qWeek) ? Math.max(1, Math.min(qWeek, lastWeek)) : defaultWeek;
 
-  let rows = [], validation = null, err = null;
+  let rows = [], validation = null, err = null, projSpots = ST.PLAYOFF_SPOTS;
   if (seasonObj) {
     try {
-      const proj = ST.projectStandings(seasonObj, { throughWeek, sims: 3000, seed: 4242 });
+      // The cut the analyzer simulates with is the league's own, from the same
+      // definition /matchup and the standings column read — not the engine's
+      // default. `proj.spots` is then what the page draws its line at, so the
+      // line and the odds beside it can never describe different playoff fields.
+      const proj = ST.projectStandings(seasonObj, { throughWeek, sims: 3000, seed: 4242,
+        // A past season is graded on the engine's default; only the live
+        // season gets the league's current cut.
+        spots: liveLeague ? PO.playoffCut(liveLeague) : ST.PLAYOFF_SPOTS });
       const owners = seasonObj.owners || {};
       // C3: the raw projection alongside every dollar/odds figure, from the ONE
       // shared derivation. Here the team-level analogue is the strength mean —
@@ -2923,13 +2940,14 @@ router.get('/analyzer', requireCommissioner, aw(async (req, res) => {
           topSeed: p.seed_dist && p.seed_dist['1'] != null ? p.seed_dist['1'] : null,
         };
       });
+      projSpots = proj.spots;
     } catch (e) { err = e.message; }
   }
   try { validation = ST.validateStandings(); } catch (e) { /* the caveat is a bonus */ }
 
   res.render('analyzer', {
     me: req.owner, rows, seasons, season: wanted, throughWeek, lastWeek,
-    validation, err, playoffSpots: ST.PLAYOFF_SPOTS,
+    validation, err, playoffSpots: projSpots,
   });
 }));
 
