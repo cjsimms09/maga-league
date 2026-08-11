@@ -59,21 +59,22 @@ const bounded = t => t === '<1%' || t === '>99%';
   // permutation of the same ten values in every state, so the only thing that
   // changes between states is where the VIEWER sits in it.
   const OTHERS = [700, 711, 722, 733, 744, 755, 766, 777, 788, 799];
-  const seed = async (minePF, minePts) => {
+  const seed = async (minePF, minePts, recs = null) => {
     const pool = OTHERS.filter(v => v !== minePF);
     const pf = [minePF, ...pool];
+    const W = i => (recs ? recs[i] : 4), L = i => (recs ? 12 - recs[i] : 2);
     const pts = active.map((o, i) => (i === 0 ? minePts : (i === 2 ? 131.0 : 70 + i * 6.3)));
     await store.set('sleeper-cache', {
       league_id: lid, fetched_at: Date.now(), cached: new Date().toISOString(),
       data: { state: { week: 7 }, league: { name: 'MFGA', season: '2026', total_rosters: 10 },
         users: active.map((o, i) => ({ user_id: 'u' + i, display_name: o.name })),
         rosters: active.map((o, i) => ({ roster_id: i + 1, owner_id: 'u' + i,
-          settings: { wins: 4, losses: 2, fpts: pf[i] } })),
+          settings: { wins: W(i), losses: L(i), fpts: pf[i] } })),
         matchups: active.map((o, i) => ({ roster_id: i + 1, matchup_id: Math.floor(i / 2) + 1, points: pts[i] })),
         week: 7 },
     });
     // The odds the page should be describing, computed here, independently.
-    const rows = active.map((o, i) => ({ owner_id: o.id, wins: 4, losses: 2, pf: pf[i] }));
+    const rows = active.map((o, i) => ({ owner_id: o.id, wins: W(i), losses: L(i), pf: pf[i] }));
     return PO.matchupLeverage(rows, PO.gamesRemaining(7, 14), PO.playoffCut({}), mem.id);
   };
 
@@ -131,7 +132,49 @@ const bounded = t => t === '<1%' || t === '>99%';
     }
   }
 
-  // ── 2) THE WEEKLY-HIGH BAR: bar − your score = the gap it prints.
+  // ── 2) A SIMULATED ZERO IS NOT ELIMINATION. simOdds is 4,000 iterations; a
+  // team that goes 0-for-4,000 scores exactly 0, and the page printed that as a
+  // flat "0%". Here the viewer is 2–10 with eight games left — bottom of the
+  // table, and mathematically able to finish 10–10.
+  {
+    const RECS = [2, 2, 2, 2, 2, 6, 6, 6, 6, 6];      // viewer is RECS[0]
+    const lev = await seed(700, 120.0, RECS);
+    ck('fixture check: the simulation really does return a bare zero',
+      !!lev && lev.win === 0 && lev.lose === 0, lev);
+    ck('  fixture check: and the season is NOT over — eight games left',
+      !!lev && lev.exact === false, lev && lev.exact);
+    // Winning out is 12–10, which beats five 6–6 teams outright. Alive.
+    ck('  fixture check: winning out would actually reach the field',
+      RECS[0] + 8 > Math.max(...RECS.slice(1)), { best: RECS[0] + 8, field: RECS });
+
+    const line = (strip(await page()).match(/What this is worth:[^.]*\./) || ['(absent)'])[0];
+    ck('a team that can still make it is never told it is at a flat 0%',
+      !/\b0% to make the playoffs/.test(line) && !/drops you to 0%/.test(line), line);
+    ck('  it says so as a bound instead', /<1%/.test(line), line);
+  }
+
+  // ── 3) THE SAME RULE ON /watch. Its sweat meter is a Normal model, never a
+  // result, and it is read WHILE THE BALL IS IN THE AIR — the one place a flat
+  // 0% is least defensible. The rehearsal is the only state that renders it in
+  // the off-season, which is exactly why the defect survived: nobody could see
+  // it any other way.
+  {
+    const t = strip(await (await fetch(base + '/watch?preview=1', { headers: { cookie } })).text());
+    ck('the rehearsal panel renders games', /Rehearsal/.test(t) && /coin flip|cooked|in control/.test(t));
+    const pcts = (t.match(/\b\d{1,3}%|<1%|>99%/g) || []);
+    ck('  fixture check: it really is printing probabilities', pcts.length >= 4, pcts);
+    ck('  no live game is priced at a flat 0% or 100%',
+      !pcts.includes('0%') && !pcts.includes('100%'), pcts);
+    ck('  and the blowouts are still called, as bounds',
+      pcts.includes('<1%') && pcts.includes('>99%'), pcts);
+    // The scores down one column are the same quantity; they printed "58" next
+    // to "88.4" before.
+    const scores = (t.match(/\b\d+(?:\.\d+)? – \d+(?:\.\d+)?/g) || []);
+    ck('  every score on the panel carries the same precision',
+      scores.length > 0 && scores.every(s => /^\d+\.\d – \d+\.\d$/.test(s)), scores);
+  }
+
+  // ── 4) THE WEEKLY-HIGH BAR: bar − your score = the gap it prints.
   {
     const band = LO.weeklyHighBand();
     ck('fixture check: there is a three-season band to quote', !!(band && band.n), band && band.n);
@@ -153,6 +196,29 @@ const bounded = t => t === '<1%' || t === '>99%';
         Math.abs((Number(m[1]) - Number(mine)) - Number(g[1])) < 0.05,
         { bar: m[1], mine, gap: g[1], subtracts_to: (Number(m[1]) - Number(mine)).toFixed(1) });
     }
+  }
+
+  // ── 5) THE FORMATTER ITSELF. The pages above exercise the inexact path; this
+  // pins the other half of the rule — a caller that CAN prove a certainty still
+  // gets to print one, so the final week says "100%" rather than hedging a
+  // finished table into ">99%".
+  {
+    const OT = require(path.join(ROOT, 'src', 'routes', 'oddstext'));
+    ck('an unproven zero prints as a bound', OT.pctText(0) === '<1%', OT.pctText(0));
+    ck('  an unproven one likewise', OT.pctText(1) === '>99%', OT.pctText(1));
+    ck('  a PROVEN zero is allowed to say so', OT.pctText(0, true) === '0%', OT.pctText(0, true));
+    ck('  and a proven one', OT.pctText(1, true) === '100%', OT.pctText(1, true));
+    ck('  exactness does not touch the ordinary middle',
+      OT.pctText(0.37) === '37%' && OT.pctText(0.37, true) === '37%', OT.pctText(0.37, true));
+    ck('  a tiny-but-nonzero value is a bound whatever the caller claims',
+      OT.pctText(0.0001, true) === '<1%', OT.pctText(0.0001, true));
+    ck('  no odds at all reads as no odds, not as zero', OT.pctText(null) === '—', OT.pctText(null));
+    // The final week is the one place matchupLeverage can prove it.
+    const rows = Array.from({ length: 10 }, (_, i) => ({ owner_id: 'o' + i, wins: 4, losses: 9, pf: 700 + i * 11 }));
+    ck('  matchupLeverage claims exactness only in the last week',
+      PO.matchupLeverage(rows, 1, 4, 'o9').exact === true
+      && PO.matchupLeverage(rows, 2, 4, 'o9').exact === false,
+      { last: PO.matchupLeverage(rows, 1, 4, 'o9'), earlier: PO.matchupLeverage(rows, 2, 4, 'o9') });
   }
 
   srv.close();

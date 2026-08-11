@@ -138,7 +138,16 @@ function simOdds(rows, gamesLeft, cut, opts = {}) {
  * What THIS week's game is worth to one owner: the swing in their playoff odds
  * between winning and losing it, holding everyone else's simulation identical.
  * Returns null when there's nothing at stake (no games left / not in the field).
- * @returns { win, lose, swing } probabilities, or null
+ *
+ * `exact` says whether a 0 or a 1 in here is a FACT or a sampling artifact, and
+ * only this function knows. With one game left the inner simOdds runs its
+ * season-over branch and the answers are the final table — exact. Any earlier
+ * week, they are counts out of CFG.ITERS, so 0 means "none of 4,000", not
+ * "eliminated": a 2–10 team with eight games left scored a true 0 here and
+ * /matchup told it "a win puts you at 0% to make the playoffs". Consumers must
+ * not print a bare 0%/100% off an inexact value — see routes/oddstext.js.
+ *
+ * @returns { win, lose, swing, exact } probabilities, or null
  */
 /* HOW MANY TEAMS MAKE THE PLAYOFFS — THE ONE DEFINITION.
  *
@@ -167,7 +176,7 @@ function matchupLeverage(rows, gamesLeft, cut, ownerId) {
   const winOdds = simOdds(bump(1), gamesLeft - 1, cut, { seed })[ownerId];
   const loseOdds = simOdds(bump(0), gamesLeft - 1, cut, { seed })[ownerId];
   if (winOdds == null || loseOdds == null) return null;
-  return { win: winOdds, lose: loseOdds, swing: winOdds - loseOdds };
+  return { win: winOdds, lose: loseOdds, swing: winOdds - loseOdds, exact: gamesLeft - 1 === 0 };
 }
 
 /** Combine odds + movement + clinch/elim into one per-owner picture for a view. */

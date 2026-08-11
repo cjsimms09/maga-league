@@ -71,6 +71,70 @@ const ck = (n, c, d) => { c ? (pass++, console.log('PASS ' + n)) : (fail++, cons
   const page2 = await get(`/matchup?opp=${rich.id}`, cc);
   ck('both sides of the thread persist on the one game', /hope you like losing/.test(page2.body) && /big words for a benchwarmer/.test(page2.body));
 
+  // ═══════════════ ORDER, ON A RECORD THAT IS PERMANENT ═══════════════
+  // "thread is oldest-first" above passed most of the time and failed under
+  // load — the two posts landed in the SAME MILLISECOND, created_at compared
+  // equal, and the order fell through to listKeys, which is directory order.
+  // A guard that is right by coincidence is not a guard, and the page sells
+  // this thread as "on the record, forever".
+  {
+    const g = TT.gameId(7, 8);
+    // Posted in one tick with no await between, so they share a millisecond by
+    // construction rather than by luck.
+    const burst = await Promise.all(['first', 'second', 'third', 'fourth', 'fifth']
+      .map((b, i) => TT.post(2026, 9, g, i + 1, b)));
+    const stamps = new Set(burst.map(p => p.created_at));
+    ck('fixture check: the burst really does collide on the timestamp',
+      stamps.size < burst.length, { distinct: stamps.size, posted: burst.length });
+
+    // The property is that the thread's order does NOT depend on the order the
+    // store hands the keys back. Calling it twice cannot show that — the local
+    // file store lists a directory the same way every time, so a broken
+    // implementation looks stable here and only reorders on a store that
+    // doesn't (Netlify Blobs makes no such promise). So: hand the keys back
+    // REVERSED and require the same thread.
+    const reversed = async fn => {
+      const real = store.listKeys;
+      store.listKeys = async (...args) => (await real.call(store, ...args)).slice().reverse();
+      try { return await fn(); } finally { store.listKeys = real; }
+    };
+    const a = await TT.forGame(2026, 9, g);
+    const b = await reversed(() => TT.forGame(2026, 9, g));
+    ck('a thread returns every post', a.length === burst.length, a.length);
+    ck('  the thread reads the same whatever order the store lists keys in',
+      a.map(p => p.id).join() === b.map(p => p.id).join(),
+      JSON.stringify({ listed: a.map(p => p.body), reversed: b.map(p => p.body) }));
+    ck('  and the order is total — no two posts tie',
+      new Set(a.map(p => p.created_at + '|' + p.id)).size === a.length);
+    // The season archive reads the same posts with NO key sort in front of it,
+    // so the tie-break is the only thing holding it together.
+    const arcA = (await TT.archiveForSeason(2026)).filter(p => p.game_id === g);
+    const arcB = (await reversed(() => TT.archiveForSeason(2026))).filter(p => p.game_id === g);
+    ck('  the season archive is ordered the same way, and just as stably',
+      arcA.map(p => p.id).join() === arcB.map(p => p.id).join()
+      && arcA.map(p => p.id).join() === a.map(p => p.id).join(),
+      JSON.stringify({ archive: arcA.map(p => p.body), reversed: arcB.map(p => p.body) }));
+
+    // Distinct timestamps must still come back in real chronological order.
+    await new Promise(r => setTimeout(r, 5));
+    const late = await TT.post(2026, 9, g, 9, 'and another thing');
+    const after = await TT.forGame(2026, 9, g);
+    ck('  a later post lands last, not wherever the store filed it',
+      after[after.length - 1].id === late.id, after.map(p => p.body));
+
+    // THE CAP. It sliced keys in store order and sorted afterwards, so an
+    // over-cap thread showed an arbitrary subset. Lowered here rather than
+    // writing 200 posts; the code path is the same one.
+    const realCap = TT.CFG.MAX_PER_GAME;
+    TT.CFG.MAX_PER_GAME = 3;
+    const capped = await TT.forGame(2026, 9, g);
+    TT.CFG.MAX_PER_GAME = realCap;
+    ck('  over the cap it keeps the NEWEST posts, still oldest-first',
+      capped.length === 3 && capped[2].id === late.id
+      && capped.map(p => p.id).join() === after.slice(-3).map(p => p.id).join(),
+      { capped: capped.map(p => p.body), tail: after.slice(-3).map(p => p.body) });
+  }
+
   server.close();
   console.log(`\n${pass} passed, ${fail} failed`);
   process.exit(fail ? 1 : 0);

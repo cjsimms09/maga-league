@@ -65,21 +65,34 @@
         <div class="wtw-top">
           <span class="wtw-icon" aria-hidden="true"><%= r.label.icon %></span>
           <span class="wtw-who"><b><%= r.name %></b><% if (mine) { %> <span class="pk-you">you</span><% } %> <span class="muted">vs <%= r.oppName %></span></span>
-          <% if (r.pWin != null) { %><span class="wtw-pct"><%= Math.round(r.pWin * 100) %>%</span><% } %>
+          <%# NEVER A FLAT 0% OR 100% WITH THE BALL IN THE AIR. This printed
+              Math.round(pWin * 100), so the rehearsal — the only place this
+              panel has ever been read — showed "0%" for a team 53 points down
+              with a player still on the field and "100%" for its opponent. The
+              sweat meter is a Normal model, not a result: 1.3e-14 is its
+              opinion about a big hole, and rounding that to a bare zero ends a
+              game the page is there to make you watch. Same formatter as the
+              /matchup stakes line, never exact, because a live probability
+              never is. %>
+          <% if (r.pWin != null) { %><span class="wtw-pct"><%= pctText(r.pWin) %></span><% } %>
           <% if (_lnk) { %><span class="wtw-cue" aria-hidden="true">→</span><% } %>
         </div>
         <%# THE SCORE. It was computed on every row and rendered on none — on a
             page called What to Watch, during the game, you could not see the
             score. It leads now, because it is the one number that is real
             whether or not the projection feed exists. %>
-        <div class="wtw-score"><b><%= r.live %></b><span class="wtw-dash">–</span><b><%= r.oppLive %></b><% if (r.remainKnown && (r.playersLeft || r.oppPlayersLeft)) { %> <span class="wtw-proj">projected <%= r.myProj %>–<%= r.oppProj %></span><% } %></div>
+        <%# One decimal on every figure. These are r1()'d numbers, so a whole
+            score printed as "58 – 118.3" next to "88.4 – 87.9" — the same
+            quantity rendered two ways down one column. %>
+        <% const sc = n => Number(n).toFixed(1); %>
+        <div class="wtw-score"><b><%= sc(r.live) %></b><span class="wtw-dash">–</span><b><%= sc(r.oppLive) %></b><% if (r.remainKnown && (r.playersLeft || r.oppPlayersLeft)) { %> <span class="wtw-proj">projected <%= sc(r.myProj) %>–<%= sc(r.oppProj) %></span><% } %></div>
         <% if (r.pWin != null) { %>
           <div class="wtw-meter"><div class="wtw-fill" style="width:<%= bar(r.pWin) %>%"></div></div>
         <% } %>
         <div class="wtw-need">
           <span class="wtw-word <%= r.label.level %>"><%= r.label.word %></span>
           · <%= r.need %>
-          <% if (r.highP != null && r.highP >= 0.05) { %> · <span class="wtw-high">🎯 <%= Math.round(r.highP * 100) %>% at the $100</span><% } %>
+          <% if (r.highP != null && r.highP >= 0.05) { %> · <span class="wtw-high">🎯 <%= pctText(r.highP) %> at the $100</span><% } %>
         </div>
       </<%= _tag %>>
     <% }) %>

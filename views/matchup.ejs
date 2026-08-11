@@ -127,6 +127,11 @@
     to a swing that rounded away to nothing. Near-zero and near-certain now say
     so as BOUNDS ("<1%", ">99%"), and the swing was reconciled with
     Math.round(p * 100).
+    ROUND THREE: "<1%" sat BELOW a `p <= 0` branch that still printed a flat
+    0%, and playoffs.simOdds returns a true 0 whenever a team goes 0-for-4,000
+    in the Monte Carlo — so a 2–10 team with EIGHT GAMES LEFT was told "a win
+    puts you at 0% to make the playoffs, a loss drops you to 0%". Certainty is
+    now a property of the derivation (stakes.exact), not of the value.
     ROUND TWO: that reconciliation was with a number the reader never sees —
     precisely in the branches round one added. A team at 99.7% / 96.7% showed
     ">99%" and "97%" and was then told "a 3-point swing"; subtract what is on
@@ -139,21 +144,19 @@
     Lossy on purpose — a number the reader can check beats a sharper one they
     can disprove. Guarded by draft/tests/matchup_arithmetic.test.js. %>
 <% if (typeof stakes !== 'undefined' && stakes) {
-     const pctText = p => p <= 0 ? '0%' : p >= 1 ? '100%'
-       : p < 0.005 ? '<1%' : p > 0.995 ? '>99%' : Math.round(p * 100) + '%';
-     // What a printed figure PROVES about the real percentage, as [lo, hi].
-     const span = t => t === '<1%' ? [0, 1] : t === '>99%' ? [99, 100]
-       : [parseFloat(t) - (/^(0|100)%$/.test(t) ? 0 : 0.5), parseFloat(t) + (/^(0|100)%$/.test(t) ? 0 : 0.5)];
-     const wT = pctText(stakes.win), lT = pctText(stakes.lose);
-     const exact = !/^[<>]/.test(wT) && !/^[<>]/.test(lT);
-     // Exact figures subtract exactly — that is the arithmetic a reader does.
-     // Bounded ones only ever support a floor on the gap.
-     const s = exact ? parseFloat(wT) - parseFloat(lT)
-       : Math.floor(Math.max(0, span(wT)[0] - span(lT)[1]));
+     // stakes.exact: a 0 or a 1 out of the simulation is only a certainty in the
+     // final week, when simOdds is reading the finished table rather than
+     // sampling. Anywhere earlier it prints as a bound.
+     const wT = pctText(stakes.win, stakes.exact), lT = pctText(stakes.lose, stakes.exact);
+     const readable = !isBound(wT) && !isBound(lT);
+     // Two exact figures subtract exactly — that is the arithmetic a reader
+     // does. Bounded ones only ever support a floor on the gap.
+     const s = readable ? parseFloat(wT) - parseFloat(lT)
+       : Math.floor(Math.max(0, pctSpan(wT)[0] - pctSpan(lT)[1]));
      const tiny = stakes.swing < 0.005 || s < 1; %>
   <div class="stakes-line">
     <span class="tag">🎟️</span>
-    <span>What this is worth: a win puts you at <b class="pos"><%= wT %></b> to make the playoffs, a loss drops you to <b class="neg"><%= lT %></b><% if (tiny) { %> — barely a swing either way<% } else { %> — <%= exact ? 'a' : 'at least a' %> <b><%= s %>-point</b> swing<% } %>.
+    <span>What this is worth: a win puts you at <b class="pos"><%= wT %></b> to make the playoffs, a loss drops you to <b class="neg"><%= lT %></b><% if (tiny) { %> — barely a swing either way<% } else { %> — <%= readable ? 'a' : 'at least a' %> <b><%= s %>-point</b> swing<% } %>.
       <span class="muted" style="font-size:.74rem">(estimate — record + points, until the model lands)</span></span>
   </div>
 <% } %>

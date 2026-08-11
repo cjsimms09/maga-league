@@ -13,6 +13,7 @@ const PO = require('./playoffs');          // folded columns — playoff odds/mo
 const DB = require('./draftboard');        // the completed draft board as a grid (history click-through)
 const TT = require('./trashtalk');         // trash talk attached to a specific game, permanent + archived
 const WW = require('./whatwatch');         // what-to-watch — the Sunday/Monday sweat meter + what each owner needs
+const OT = require('./oddstext');          // how a probability is printed — one definition for every surface
 const MK = require('./marks');             // auto badges — GOAT on Mahomes' owner, Chiefs mark on KC players
 const RIVN = require('./rivalries');       // named rivalries (German derby, Dylan-Sam, Bates-Richard)
 const MU = require('../matchup');          // slot-aligned matchup starters (QB vs QB, not row-vs-row)
@@ -47,6 +48,20 @@ const { RULES, SCORING, ROSTER } = require('../seed-data');
 // JSON /api/* routes below set 'no-store' explicitly AFTER this runs, so they
 // stay stricter — this only supplies the default the HTML pages were missing.
 router.use((req, res, next) => { res.set('Cache-Control', 'no-cache, must-revalidate'); next(); });
+
+// ---------- ONE WAY TO PRINT A PROBABILITY, on every member page ----------
+// /matchup and /watch both state odds, and they had independently decided what
+// to do at the extremes: /matchup printed bounds near zero but a flat 0% AT
+// zero, /watch printed Math.round(p * 100) and so said "0%" about a game with
+// the ball in the air. Handed to the views here so there is one answer and the
+// next surface that prints a probability inherits it. See routes/oddstext.js
+// for why a zero is only ever a fact when the caller can prove it.
+router.use((req, res, next) => {
+  res.locals.pctText = OT.pctText;
+  res.locals.pctSpan = OT.pctSpan;
+  res.locals.isBound = OT.isBound;
+  next();
+});
 
 // ---------- THE CROWN — defending champion on every league-visible page ----------
 // Derived from the champions roll (never hand-set; transfers on its own in January).

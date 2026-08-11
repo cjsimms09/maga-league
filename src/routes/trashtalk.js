@@ -32,11 +32,31 @@ async function post(season, week, gameId, ownerId, body) {
   return rec;
 }
 
+// Oldest first, and TOTALLY ordered. `created_at` is an ISO string with
+// millisecond resolution, so two posts inside the same millisecond compared
+// equal and the thread fell back to whatever order listKeys happened to return
+// — which is directory order, i.e. arbitrary and not even stable between
+// calls. On a record the page advertises as permanent and quotable, a thread
+// that renders in a different order on a refresh is not a cosmetic problem. The
+// id breaks the tie: newId() is `Date.now().toString(36)` plus random, so it is
+// both chronological to the millisecond and unique, which makes the order
+// deterministic even where the timestamp cannot separate two posts.
+const byTime = (a, b) => String(a.created_at).localeCompare(String(b.created_at))
+  || String(a.id).localeCompare(String(b.id));
+
 /** Every post on one game, oldest first (the order an argument actually happened). */
 async function forGame(season, week, gameId) {
-  const keys = await store.listKeys(`${gameKey(season, week, gameId)}:`);
-  const docs = await Promise.all(keys.slice(0, CFG.MAX_PER_GAME).map(k => store.get(k)));
-  return docs.filter(Boolean).sort((a, b) => String(a.created_at).localeCompare(String(b.created_at)));
+  // SORT THE KEYS BEFORE THE CAP. This sliced the first MAX_PER_GAME keys in
+  // listKeys order and sorted afterwards, so on a thread over the cap the page
+  // showed an ARBITRARY subset presented as the thread. Keys carry the
+  // time-prefixed id, so sorting them puts the cap on the newest posts —
+  // the ones a live argument is about — instead of on whichever the store
+  // happened to list first. No "N older posts hidden" note: the cap is 200 on
+  // one game in a ten-person league, and a banner for a state nobody can reach
+  // is a claim to maintain for nothing.
+  const keys = (await store.listKeys(`${gameKey(season, week, gameId)}:`)).sort();
+  const docs = await Promise.all(keys.slice(-CFG.MAX_PER_GAME).map(k => store.get(k)));
+  return docs.filter(Boolean).sort(byTime);
 }
 
 /** Count only — cheap enough to show a badge without loading the thread. */
@@ -52,7 +72,7 @@ async function countForGame(season, week, gameId) {
 async function archiveForSeason(season) {
   const keys = await store.listKeys(`trash:${season}:`);
   const docs = (await Promise.all(keys.map(k => store.get(k)))).filter(Boolean);
-  docs.sort((a, b) => String(a.created_at).localeCompare(String(b.created_at)));
+  docs.sort(byTime);              // same total order as the thread — see above
   return docs;
 }
 
