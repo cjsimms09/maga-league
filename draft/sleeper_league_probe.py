@@ -146,6 +146,53 @@ def main():
     else:
         print("  (no draft object)")
 
+    # ── TRADED PICKS: pick_trading is ENABLED and nothing reads this ─────────
+    #
+    # settings.pick_trading = 1. Our pick order is derived from seat + keepers and
+    # assumes nobody has traded a pick. If any have been, the derivation is wrong
+    # and NOTHING would notice — the same shape as the keeper slate and the seat.
+    traded = None
+    try:
+        traded = fetch("/league/%s/traded_picks" % LEAGUE_ID)
+    except Exception as exc:                                   # noqa: BLE001
+        print("  ! could not fetch traded_picks: %s" % exc)
+    print()
+    print("== TRADED DRAFT PICKS (pick_trading = %r) ==" % settings.get("pick_trading"))
+    if traded is None:
+        print("  UNKNOWN — the fetch failed; absence of data is NOT absence of trades")
+    elif not traded:
+        print("  none. The pick order derived from seat + keepers is safe on this axis.")
+    else:
+        print("  %d TRADED PICK(S) — the derived pick order is WRONG unless these are applied:" % len(traded))
+        for t in traded:
+            print("    season %s round %s: roster %s -> owner %s (previous %s)"
+                  % (t.get("season"), t.get("round"), t.get("roster_id"),
+                     t.get("owner_id"), t.get("previous_owner_id")))
+
+    # ── OWNER -> ROSTER, read rather than inferred ───────────────────────────
+    #
+    # The seat conflict (draft/audit/seat_conflict_2026-08-11.md) left one branch
+    # open: our roster_id mapping comes from predict_keepers.py, which is OURS.
+    # /league/{id}/rosters gives owner_id per roster_id directly.
+    rosters = None
+    try:
+        rosters = fetch("/league/%s/rosters" % LEAGUE_ID)
+    except Exception as exc:                                   # noqa: BLE001
+        print("  ! could not fetch rosters: %s" % exc)
+    print()
+    print("== OWNER -> ROSTER, from Sleeper ==")
+    owner_roster = {}
+    if rosters:
+        for r in rosters:
+            owner_roster[str(r.get("owner_id"))] = r.get("roster_id")
+        me = "434915673219526656"
+        print("  my roster_id per Sleeper: %r" % owner_roster.get(me))
+        s2r = (draft or {}).get("slot_to_roster_id") or {}
+        inv = {str(v): k for k, v in s2r.items()}
+        print("  slot_to_roster_id says my roster sits at slot: %r"
+              % inv.get(str(owner_roster.get(me))))
+        print("  (the confirmed seat, from the Sleeper UI, is 8)")
+
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     with open(OUT, "w") as fh:
         json.dump({"fetched_league_id": LEAGUE_ID, "name": lg.get("name"),
@@ -155,6 +202,8 @@ def main():
                    "waiver_type_meaning": WAIVER_TYPE.get(settings.get("waiver_type")),
                    "unreferenced_in_repo": unref,
                    "draft": draft,
+                   "traded_picks": traded,
+                   "owner_to_roster": owner_roster,
                    "roster_positions": lg.get("roster_positions"),
                    "scoring_settings": lg.get("scoring_settings")}, fh,
                   indent=2, sort_keys=True)
