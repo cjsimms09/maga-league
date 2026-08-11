@@ -106,6 +106,50 @@ def test_an_unstamped_row_never_displaces_a_stamped_one():
     assert [r["adp"] for r in s.board()] == [5.0]
 
 
+def test_a_stamped_row_displaces_an_unstamped_one_ARRIVING_FIRST_TOO():
+    """THE ORDERING THAT WAS BROKEN (session B, 2026-08-11). Both branches of a
+    stamped-vs-unstamped collision hit `continue`, so the winner was whichever
+    arrived first — and unstamped-first kept the UNSTAMPED row, the one whose
+    observation date cannot be checked against the draft. That is the exact
+    contamination this rule exists to exclude, retained by the rule meant to
+    exclude it.
+
+    The trigger is the one the docstring already named: a merge of two pulls,
+    one provider stamping rows and one not."""
+    s = store(snaps=[{"observed_at": "2025-08-18", "rows": [
+        {"player_id": "1", "adp": 2.0},                             # unstamped FIRST
+        {"player_id": "1", "adp": 5.0, "observed_at": "2025-08-17"},
+    ]}])
+    assert [r["adp"] for r in s.board()] == [5.0]
+
+
+def test_the_mixed_case_gives_the_SAME_answer_in_both_orders():
+    """The property, stated directly: arrival order must not change the board.
+    Asserting the two cases separately can pass while they disagree."""
+    rows = [{"player_id": "1", "adp": 2.0},
+            {"player_id": "1", "adp": 5.0, "observed_at": "2025-08-17"}]
+    a = store(snaps=[{"observed_at": "2025-08-18", "rows": list(rows)}]).board()
+    b = store(snaps=[{"observed_at": "2025-08-18", "rows": list(reversed(rows))}]).board()
+    assert [r["adp"] for r in a] == [r["adp"] for r in b] == [5.0]
+
+
+def test_two_unstamped_duplicates_keep_the_FIRST_SEEN_row():
+    """A tie has no earlier, so first-seen is the rule — and it must not have been
+    turned into last-seen by the fix above."""
+    s = store(snaps=[{"observed_at": "2025-08-18", "rows": [
+        {"player_id": "1", "adp": 2.0}, {"player_id": "1", "adp": 9.0},
+    ]}])
+    assert [r["adp"] for r in s.board()] == [2.0]
+
+
+def test_identical_stamps_keep_the_FIRST_SEEN_row():
+    s = store(snaps=[{"observed_at": "2025-08-18", "rows": [
+        {"player_id": "1", "adp": 2.0, "observed_at": "2025-08-17"},
+        {"player_id": "1", "adp": 9.0, "observed_at": "2025-08-17"},
+    ]}])
+    assert [r["adp"] for r in s.board()] == [2.0]
+
+
 def test_distinct_players_are_all_kept():
     s = store(snaps=[{"observed_at": "2025-08-18", "rows": [
         {"player_id": "1", "adp": 5.0}, {"player_id": "2", "adp": 7.0},

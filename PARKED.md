@@ -2229,3 +2229,64 @@ message is the right one. **Ask (A):** route the new readers through `mySlot()` 
 guards against "test files that collect ZERO tests — a file that stopped testing
 reads as green". It was itself disabled by the collector crash it exists to catch.
 It passes again now.
+## 🚧 SESSION C → A (2026-08-11): `graduation_gate.loaded_weights()` MISPARSES TWO LITERAL FORMS — and my policy fingerprint is a third consumer
+
+**Parked, not fixed: `draft/backtest/graduation_gate.py` is yours.** B reported this
+in its audit; I am re-raising it because it has a consumer B did not list — the
+external replay harness — and because it is cheap to close and I have measured it.
+
+**The defect, reproduced this session against the shipped regex** (`(\w+)\s*:\s*(-?[\d.]+)`,
+line 63) — it stops at the first non-digit:
+
+| MEASURED_WEIGHTS body | parsed as | real value |
+|---|---|---|
+| `stack: 5e-1` | `5.0` | 0.5 — **10× wrong, and the policy did not change** |
+| `ceiling: 1e-3` | `1.0` | 0.001 — **1000× wrong** |
+| `ceiling: 0.0, /* ceiling: 9.9 */ value: 1.0` | `ceiling = 9.9` | 0.0 — a **comment overrides the weight** |
+
+**THE THIRD CONSUMER, and why it matters to the ingest.** `external_replay.policy_fingerprint()`
+reuses `loaded_weights()` deliberately, precisely so there is not a second parser for
+the same numbers. Every external observation is stamped with that fingerprint and
+`assert_policy_current()` refuses to grade observations minted under a different one.
+Measured: `stack: 5e-1` read as 5.0 moves the fingerprint from `a4accdb43066385a` to
+`e3cf991a03ac03de`. So writing a weight in scientific notation — changing nothing that
+ships — invalidates the entire external sample with a drift error whose stated
+resolution is "re-replay, do not relabel". The gate's own `classify()` is the second
+consumer and would print "loaded 5.00 is a free choice" about a 0.5 weight.
+
+**Latent today** — every current `MEASURED_WEIGHTS` value is a plain decimal. It is a
+trap for the next SMALL weight, and small weights are exactly what the graduation gate
+produces.
+
+**THE EXACT SHAPE I NEED, so this is one commit and not a diagnosis:**
+
+1. Split the parse out of the file read, so it is testable without editing `engine.js`:
+   `parse_measured_weights(src: str) -> dict`, with `loaded_weights()` becoming
+   `parse_measured_weights(ENGINE.read_text())`. I need the seam anyway to test the
+   fingerprint; without it the only way to exercise this is to mutate a shipped file.
+2. Strip `//…` and `/*…*/` from the braces block before matching.
+3. Accept scientific notation and refuse a partial match:
+   `(-?\d+(?:\.\d+)?(?:[eE][-+]?\d+)?)\s*(?=[,}\n])`
+
+**THE TEST IT SHOULD SATISFY** (assertions, not a description — drop them in
+`draft/tests/test_graduation_gate.py` verbatim if useful):
+
+```python
+P = graduation_gate.parse_measured_weights
+assert P("const MEASURED_WEIGHTS = { stack: 5e-1, value: 1.0 };") == {"stack": 0.5, "value": 1.0}
+assert P("const MEASURED_WEIGHTS = { ceiling: 1e-3, value: 1.0 };")["ceiling"] == 0.001
+assert P("const MEASURED_WEIGHTS = { ceiling: 0.0, /* ceiling: 9.9 */ value: 1.0 };")["ceiling"] == 0.0
+assert P("const MEASURED_WEIGHTS = { value: 1.0, // need: 9.9\n need: 0.85 };")["need"] == 0.85
+assert P("const MEASURED_WEIGHTS = { value: -0.5 };") == {"value": -0.5}      # sign survives
+assert P("const MEASURED_WEIGHTS = { value: 1.0 };\n// ceiling: 9.9") == {"value": 1.0}  # after `};` still ignored
+```
+
+**Rule 10, for when you break it:** break at the BOUNDARY, not past it. `5e-1` → `5.0`
+is a 10× error that looks like a plausible weight; that is the break to plant, not
+`1e-99`. And plant the comment case separately — the non-greedy `};` match already
+handles a comment AFTER the block, so a break there tests nothing.
+
+**Not blocking me today.** The fingerprint is correct against the current file, so the
+replay harness proceeds. I am flagging it before the harness starts minting real
+external observations, because after that a fingerprint change costs a re-replay of
+the whole sample rather than a commit.

@@ -19,8 +19,24 @@ a sample nobody can judge, and "200 leagues matched" means nothing without "and
 1,400 were rejected, here is why". `screen()` returns the reason, never a bare
 boolean.
 
+AND THE REASON MUST BE TRUE. "We could not tell" is not "we checked and it did not
+match" — B's audit (2026-08-11) found this module telling the second lie on FOUR of
+nine fields: an absent `roster_slots` reported as `F1.qb_slots` ("doesn't start
+exactly one QB"), an absent `teams` as `F1.teams` ("wrong league size"), an absent
+`draft_type` as `F1.draft_type` ("not a snake draft"), an absent `draft` as
+`F2.draft_incomplete` ("their draft wasn't finished"). A league that fails to PARSE
+was indistinguishable from a league that fails the FILTERS, so every parse bug made
+the attrition report lie about why leagues were dropped — and a mass parse failure
+would have read as "no public league matches our format", which is a conclusion
+someone might believe. Two mechanisms now stop that (see `_unreadable` and
+`is_unreadable`): a field we could not read is its own reason, and the source
+adapter's own precise reason survives to the report rather than collapsing here.
+
 Filters v1 — see INGEST-PLAN.md for the reasoning behind each boundary. A change
-here is a NEW version there, with v1 retained; never an edit in place.
+here is a NEW version there, with v1 retained; never an edit in place. NOTE the
+2026-08-11 relabelling is NOT such a change: no league's accept/reject verdict moves
+(asserted by `test_the_matched_SET_is_unchanged_by_the_relabelling`), only the
+sentence explaining a rejection that already happened.
 """
 from __future__ import annotations
 
@@ -47,21 +63,63 @@ SKILL_SLOTS = ("RB", "WR", "TE", "FLEX", "REC_FLEX")
 SKILL_POSITIONS = ("RB", "WR", "TE")
 
 
-def _starting_skill(slots: dict) -> int:
-    return sum(int(slots.get(k) or 0) for k in SKILL_SLOTS)
+def _starting_skill(slots: dict) -> tuple[int, list]:
+    """(starting skill slots, positions we could not read).
+
+    ABSENT IS NOT ZERO, and the two absences are different: a slot key MISSING
+    means the league does not have that slot (plenty of leagues have no REC_FLEX,
+    and zero is the right count), while a slot key PRESENT with a value we cannot
+    parse means we do not know the count. The second used to raise — `int("2-3")`
+    — and before the adapter existed it would have crashed the screen; now it is
+    reported as unreadable rather than silently counted as zero, which would have
+    manufactured an `F1.starting_skill_slots` verdict out of a parse failure.
+    """
+    total, unreadable = 0, []
+    for k in SKILL_SLOTS:
+        v = slots.get(k)
+        if v is None:
+            continue
+        try:
+            total += int(v)
+        except (TypeError, ValueError):
+            unreadable.append(k)
+    return total, unreadable
+
+
+# ── "we could not read it" is not "it failed the check" ─────────────────────
+# The adapter upstream computes a PRECISE reason for every way a field can fail
+# to parse (`mfl_adapter.draft_type` returns `draft_type_unrecognised:SFIRSTFOO`
+# with a comment saying it "must never be folded into 'not a snake draft'"). That
+# detail reaches here in `league["unreadable"]` — {field: reason} — and is
+# reported verbatim. Without this key the generic fallback still tells the truth;
+# with it, the attrition report names the actual code MFL sent.
+UNREADABLE_KEY = "unreadable"
+
+
+def _unreadable(league: dict, field: str, fallback: str) -> tuple[bool, str]:
+    detail = (league.get(UNREADABLE_KEY) or {}).get(field)
+    return False, "F4." + str(detail or fallback)
 
 
 def screen(league: dict) -> tuple[bool, str]:
     """Does this league-season qualify? Returns (ok, reason).
 
     Reason is ALWAYS populated — 'ok' on acceptance — so the caller can tally
-    attrition by cause without re-deriving why anything was dropped.
+    attrition by cause without re-deriving why anything was dropped. Every reason
+    is a TRUE statement about the league: an `F1.*`/`F2.*` reason means we read
+    the field and it did not qualify, an `F4.*` reason means we could not read or
+    could not obtain it. `is_unreadable()` is the split.
     """
-    slots = league.get("roster_slots") or {}
     scoring = league.get("scoring") or {}
 
     # ---- F1 format match ----------------------------------------------------
     teams = league.get("teams")
+    if not isinstance(teams, int) or isinstance(teams, bool):
+        # "We could not read the league size" is not "this league is the wrong
+        # size". The second is a fact about MFL's public pool; the first is a fact
+        # about our parser, and reporting it as the second is how a fetch bug
+        # becomes a finding about format rarity.
+        return _unreadable(league, "teams", "no_team_count")
     if teams not in TEAMS_ALLOWED:
         return False, "F1.teams"
     # F1.scoring — v2. v1 read a single scalar `rec`, which MFL DOES NOT HAVE:
@@ -77,8 +135,10 @@ def screen(league: dict) -> tuple[bool, str]:
         by_pos = {p: float(scoring["rec"]) for p in SKILL_POSITIONS}
     if not by_pos:
         # "We could not tell" is NOT "we checked and it did not match". Conflating
-        # them makes the attrition report claim a check it never performed.
-        return False, "F4.no_scoring_rules"
+        # them makes the attrition report claim a check it never performed. This
+        # is the field the rule was already implemented for; the four fields
+        # around it now work the same way.
+        return _unreadable(league, "scoring", "no_scoring_rules")
     missing = [p for p in SKILL_POSITIONS if by_pos.get(p) is None]
     if missing:
         return False, "F4.no_scoring_rules:" + ",".join(missing)
@@ -97,13 +157,38 @@ def screen(league: dict) -> tuple[bool, str]:
     # finding, so it is excluded rather than controlled for. MFL has NO SUPER_FLEX
     # slot — it expresses superflex as a QB limit whose max exceeds its min — so
     # the adapter sets `superflex` explicitly and it is checked here too.
-    if int(slots.get("QB") or 0) != QB_SLOTS_REQUIRED or slots.get("SUPER_FLEX") \
-            or league.get("superflex"):
+    slots = league.get("roster_slots")
+    if not isinstance(slots, dict) or not slots:
+        # `{}` used to read as "0 QB slots" -> F1.qb_slots, i.e. a confident
+        # statement about a roster we never saw. Roster slots are one of the two
+        # shapes that needed a schema probe to pin down (limits are RANGE STRINGS),
+        # so they are also among the likeliest to break.
+        return _unreadable(league, "roster_slots", "no_roster_slots")
+    qb = slots.get("QB")
+    if qb is None:
+        return _unreadable(league, "roster_slots", "no_qb_slot_count")
+    try:
+        qb = int(qb)
+    except (TypeError, ValueError):
+        return _unreadable(league, "roster_slots", "unreadable_qb_slot_count:%s" % (slots["QB"],))
+    if qb != QB_SLOTS_REQUIRED or slots.get("SUPER_FLEX") or league.get("superflex"):
         return False, "F1.qb_slots"
-    skill = _starting_skill(slots)
+    skill, skill_unreadable = _starting_skill(slots)
+    if skill_unreadable:
+        return _unreadable(league, "roster_slots",
+                           "unreadable_starting_slots:" + ",".join(skill_unreadable))
     if not (STARTING_SKILL_RANGE[0] <= skill <= STARTING_SKILL_RANGE[1]):
         return False, "F1.starting_skill_slots"
-    if (league.get("draft_type") or "").lower() not in DRAFT_TYPE_ALLOWED:
+    draft_type = league.get("draft_type")
+    if not isinstance(draft_type, str) or not draft_type.strip():
+        # THE SHARPEST CASE B FOUND. `mfl_adapter.draft_type()` deliberately
+        # returns (None, "draft_type_unrecognised:XYZ") because MFL emits codes
+        # (SFIRSTRANDOM), not the word "snake" — and then this line received a
+        # bare string and folded it into "not a snake draft", throwing away the
+        # one thing the adapter had gone to trouble to preserve. An unrecognised
+        # code now arrives in `unreadable["draft_type"]` and is reported as itself.
+        return _unreadable(league, "draft_type", "no_draft_type")
+    if draft_type.strip().lower() not in DRAFT_TYPE_ALLOWED:
         return False, "F1.draft_type"
 
     # NOTE: keeper count is deliberately NOT screened. It is recorded as a
@@ -111,15 +196,34 @@ def screen(league: dict) -> tuple[bool, str]:
     # would shrink the sample to chase a similarity we can control for instead.
 
     # ---- F2 draft validity --------------------------------------------------
-    draft = league.get("draft") or {}
-    if (draft.get("status") or "") != "complete":
-        return False, "F2.draft_incomplete"
+    draft = league.get("draft")
+    if not isinstance(draft, dict) or not draft:
+        return _unreadable(league, "draft", "no_draft")
+    status = draft.get("status")
+    if status is None or not str(status).strip():
+        # A draft record with no status is not a draft we watched fail to finish.
+        return _unreadable(league, "draft", "no_draft_status")
+    if str(status) != "complete":
+        # MFL's draftResults carries NO status field, so the bridge INFERS
+        # completeness and states the basis. The detail travels — "142/150" is a
+        # partial draft, "2/180" is a fetch that failed, and an attrition table
+        # that shows only "F2.draft_incomplete" cannot tell them apart.
+        detail = draft.get("status_detail")
+        return False, "F2.draft_incomplete" + ((":%s" % detail) if detail else "")
     picks = draft.get("picks") or []
     if not picks:
         return False, "F2.no_picks"
+    # ABSENT IS NOT UNMATCHED. A pick carrying no `crosswalked` key at all means
+    # the crosswalk never ran for this league; counting it as a miss reports
+    # "we checked and under 90% of picks matched our board" about work nobody did,
+    # and F2 says that bar is what stops "the replay guessing".
+    unattempted = sum(1 for p in picks if p.get("crosswalked") is None)
+    if unattempted:
+        return _unreadable(league, "crosswalk",
+                           "crosswalk_not_run:%d/%d picks" % (unattempted, len(picks)))
     matched = sum(1 for p in picks if p.get("crosswalked"))
     if matched / len(picks) < MIN_CROSSWALK_RATE:
-        return False, "F2.crosswalk_below_90pct"
+        return False, "F2.crosswalk_below_90pct:%.3f" % (matched / len(picks))
     # An abandoned team is not an opponent; it is noise wearing a seat.
     by_team: dict = {}
     for p in picks:
@@ -153,6 +257,65 @@ def screen(league: dict) -> tuple[bool, str]:
     return True, "ok"
 
 
+# ── the split that makes the attrition report judgeable ─────────────────────
+# Every reason code `screen()` can return, declared so the report can be read as
+# a whole rather than as whatever happened to appear. A code may carry a ":detail"
+# suffix (the offending value, the rate, the picks); `reason_code()` strips it.
+FILTERED_REASONS = (
+    # WE READ IT AND IT DOES NOT QUALIFY — evidence about the public pool.
+    "F1.teams", "F1.scoring_not_half_ppr", "F1.te_premium_or_split_ppr",
+    "F1.qb_slots", "F1.starting_skill_slots", "F1.draft_type",
+    "F2.draft_incomplete", "F2.no_picks", "F2.crosswalk_below_90pct",
+    "F2.autopick_majority", "F5.adp_not_strictly_pre_draft",
+)
+UNOBTAINED_REASONS = (
+    # WE COULD NOT READ OR COULD NOT OBTAIN IT — evidence about our pipeline.
+    # The first group are `screen()`'s own fallbacks; the second are the source
+    # adapter's precise reasons, arriving through `league["unreadable"]`.
+    "F4.no_scoring_rules", "F4.no_team_count", "F4.no_roster_slots",
+    "F4.no_qb_slot_count", "F4.unreadable_qb_slot_count",
+    "F4.unreadable_starting_slots", "F4.no_draft_type", "F4.no_draft",
+    "F4.no_draft_status", "F4.crosswalk_not_run", "F4.no_weekly_outcomes",
+    "F4.no_pre_draft_adp", "F5.missing_timestamps",
+    "F4.unreadable_team_count", "F4.unreadable_starter_limits",
+    "F4.draft_type_absent", "F4.draft_type_unrecognised", "F4.no_reception_rule",
+)
+
+
+def reason_code(reason: str) -> str:
+    """Strip the ":detail" suffix. `F4.draft_type_unrecognised:SFIRSTFOO` -> the code."""
+    return str(reason).split(":", 1)[0]
+
+
+def is_classified(reason: str) -> bool:
+    """Is this reason one we declared? An UNDECLARED reason must not be binned.
+
+    A new adapter reason that nobody added to the lists above would otherwise
+    default into "filtered" and be read as evidence about the public pool — B's
+    exact finding, recreated one level up in the summariser. So it gets its own
+    loud bucket instead of a silent home.
+    """
+    code = reason_code(reason)
+    return code == "ok" or code in FILTERED_REASONS or code in UNOBTAINED_REASONS
+
+
+def is_unreadable(reason: str) -> bool:
+    """Did we FAIL TO READ this league, or did we READ it and reject it?
+
+    THE DISTINCTION THE WHOLE REPORT RESTS ON. A rejection that means "we could
+    not parse/fetch this" is evidence about OUR PIPELINE; a rejection that means
+    "we read it and it is a 14-team TE-premium auction" is evidence about the
+    PUBLIC POOL. Collapsed together, a mass parse failure reads as "no public
+    league matches our format" — a conclusion someone might act on.
+
+    Mechanically: everything in F4 (data we could not obtain or could not read)
+    plus F5's missing-timestamps, which is the same thing wearing an F5 label.
+    F5's `adp_not_strictly_pre_draft` is a real check on two dates we HAVE, so it
+    counts as filtered.
+    """
+    return reason_code(reason) in UNOBTAINED_REASONS
+
+
 def usable_player_seasons(rows: list) -> tuple[list, int]:
     """F3 — keep player-seasons with a realized weekly series; DROP AND COUNT the rest.
 
@@ -171,28 +334,70 @@ def usable_player_seasons(rows: list) -> tuple[list, int]:
 
 
 def screen_all(leagues: list) -> dict:
-    """Apply F1-F5 across a set and REPORT THE ATTRITION, by cause."""
+    """Apply F1-F5 across a set and REPORT THE ATTRITION, by cause.
+
+    THE HEADLINE SPLIT IS `rejected_filtered` vs `rejected_unreadable`, and it is
+    reported before any format conclusion because the two support opposite
+    actions. "1,400 rejected, 900 of them format mismatches" says the public pool
+    is what it is; "1,400 rejected, 900 of them unreadable" says go fix the
+    parser, and looks identical in a report that only counts rejections.
+    """
     matched, reasons = [], Counter()
+    unreadable = unclassified = 0
+    unenforced: list = []
     for lg in leagues:
+        # A FILTER THAT CANNOT FIRE IS NOT A FILTER THAT FOUND NOTHING. A source
+        # adapter declares any clause it cannot enforce against its export, and
+        # that declaration travels to the report — otherwise a clause passing
+        # every league is indistinguishable from every league satisfying it.
+        for note in ((lg.get("source_meta") or {}).get("unenforced") or []):
+            if note not in unenforced:
+                unenforced.append(note)
         ok, why = screen(lg)
         reasons[why] += 1
         if ok:
             matched.append(lg)
-    n = len(matched)
+        elif not is_classified(why):
+            unclassified += 1
+        elif is_unreadable(why):
+            unreadable += 1
+    n, rejected = len(matched), len(leagues) - len(matched)
+    filtered = rejected - unreadable - unclassified
+    verdict = ("sufficient — %d matched league-seasons" % n) if n >= TARGET_MATCHED_LEAGUE_SEASONS \
+        else ("INSUFFICIENT — %d of %d matched league-seasons; per the pre-registered stopping "
+              "rule this changes NOTHING (no pooling, no shadow-field expansion) rather than "
+              "relaxing a filter to reach the bar" % (n, TARGET_MATCHED_LEAGUE_SEASONS))
+    if unreadable:
+        # Stated on the verdict line itself, not buried in a field, because the
+        # failure this guards against is a parse break being NARRATED as format
+        # rarity — and a number nobody reads prevents nothing.
+        verdict += ("; and %d of %d rejections are UNREADABLE (we could not parse or obtain "
+                    "the league) — that is evidence about this pipeline, NOT about how many "
+                    "public leagues match our format" % (unreadable, rejected))
+    if unenforced:
+        verdict += ("; and %d pre-registered clause(s) could NOT be enforced against this "
+                    "source and passed every league: %s" % (len(unenforced), "; ".join(unenforced)))
+    if unclassified:
+        verdict += ("; and %d rejections carry an UNDECLARED reason code — they are binned "
+                    "nowhere and the split above is incomplete until they are declared "
+                    "in ingest_filters" % unclassified)
     return {
         "filter_version": FILTER_VERSION,
         "examined": len(leagues),
         "matched": n,
-        "rejected": len(leagues) - n,
+        "rejected": rejected,
+        "rejected_filtered": filtered,
+        "rejected_unreadable": unreadable,
+        "rejected_unclassified": unclassified,
+        "unreadable_share_of_rejections": (unreadable / rejected) if rejected else 0.0,
         "rejected_by_reason": dict(reasons),
+        "unreadable_by_reason": {r: c for r, c in reasons.items() if is_unreadable(r)},
+        "unenforced_filters": unenforced,
         "target": TARGET_MATCHED_LEAGUE_SEASONS,
         "meets_target": n >= TARGET_MATCHED_LEAGUE_SEASONS,
         # F7: a short sample REPORTS THE NUMBER AND CHANGES NOTHING. It does not
         # lower the bar to justify the build having happened.
-        "verdict": ("sufficient — %d matched league-seasons" % n) if n >= TARGET_MATCHED_LEAGUE_SEASONS
-        else ("INSUFFICIENT — %d of %d matched league-seasons; per the pre-registered stopping "
-              "rule this changes NOTHING (no pooling, no shadow-field expansion) rather than "
-              "relaxing a filter to reach the bar" % (n, TARGET_MATCHED_LEAGUE_SEASONS)),
+        "verdict": verdict,
     }
 
 
