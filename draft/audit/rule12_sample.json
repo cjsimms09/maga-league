@@ -1,0 +1,30 @@
+{
+  "declared_at": "2026-08-11",
+  "board": "public/draft_data.json",
+  "why_criteria_not_names": "A sample chosen by NAME after looking at the board is a sample chosen to agree. Each slot below is a SELECTOR evaluated against the board, fixed before any value was computed, so the sample cannot be steered toward transformations that happen to work. This is rule 10b's discipline applied to sampling rather than to a tolerance band.",
+  "spans": "rule 12 names the shape: a top RB, a mid-round WR, an elite QB, a streaming DEF, a kicker, a deep flier. Extended to 13 so every transformation in the chain is exercised at least twice, and so the two positions with derived starter counts (RB/WR, which absorb the FLEX allocation) are sampled above AND below replacement.",
+  "selectors": [
+    {"id": "s1",  "rule": "RB with the highest vorp"},
+    {"id": "s2",  "rule": "RB whose adjusted_adp is closest to 24 (mid-round RB)"},
+    {"id": "s3",  "rule": "RB nearest the replacement line: |proj_mean - replacement_points.RB| minimal"},
+    {"id": "s4",  "rule": "WR with the highest vorp"},
+    {"id": "s5",  "rule": "WR whose adjusted_adp is closest to 60 (mid-round WR)"},
+    {"id": "s6",  "rule": "WR nearest the replacement line: |proj_mean - replacement_points.WR| minimal"},
+    {"id": "s7",  "rule": "QB with the highest proj_mean (elite QB)"},
+    {"id": "s8",  "rule": "QB with the LOWEST positive vorp (the last QB worth starting)"},
+    {"id": "s9",  "rule": "TE with the highest vorp"},
+    {"id": "s10", "rule": "DEF with the highest vorp (streaming DEF)"},
+    {"id": "s11", "rule": "K with the highest vorp"},
+    {"id": "s12", "rule": "the player with the largest tier_drop anywhere on the board (a cliff)"},
+    {"id": "s13", "rule": "deep flier: highest vorp among players with adjusted_adp > 120"}
+  ],
+  "transformations_to_verify": [
+    "projection: proj_mean vs its authoritative sources (proj_sleeper / proj_fantasypros / proj_baseline) and the opportunity adjustment",
+    "replacement: replacement_points[pos] vs the LAST STARTER after iterative FLEX allocation",
+    "vorp: proj_mean - replacement_points[pos]",
+    "tier: tier / tier_rank / tier_size / tier_drop internal consistency",
+    "adp: adjusted_adp vs raw_adp under the keeper-shift and sequence blend",
+    "survival: P(available at my pick) from adjusted_adp and adp_sd"
+  ],
+  "applicability_must_be_ARGUED": "Any transformation marked not-applicable for a given player must state WHY in the output. Rule 12: the rule is otherwise satisfied by declaring everything inapplicable."
+}

@@ -25,6 +25,37 @@ import urllib.parse
 import urllib.request
 
 
+def redact(text) -> str:
+    """Strip the API key from anything that gets RECORDED. One implementation.
+
+    THE LEAK THIS CLOSES (2026-08-11): an InvalidURL error stringified the full
+    request URL — key included — into an artifact the workflow then COMMITTED.
+    GitHub masks secrets in LOGS; it does nothing for a file we write ourselves.
+
+    IT LIVED IN market_probe.py AND THE SIBLING NEVER GOT IT. market_capture.py
+    writes `"refused": str(e)` into capture_health.json, which is committed on
+    every run — the same path, in a module the fix never reached, found while
+    auditing history before the repo went public. So the redactor moves to the
+    layer BOTH modules already import, rather than being copied into the second
+    one and drifting from the first.
+
+    Redacts the live key AND anything key-shaped in a query string, because the
+    original leak arrived through a value nobody expected to be recorded and the
+    next one will too.
+    """
+    import os as _os
+    import re as _re
+    t = "" if text is None else str(text)
+    key = _os.environ.get("ODDS_API_KEY", "").strip()
+    if key and len(key) >= 8:
+        t = t.replace(key, "[REDACTED_KEY]")
+    # Belt and braces: a key= / apiKey= / token= parameter in any URL, even one
+    # we did not put there and even when ODDS_API_KEY is not set in this process.
+    t = _re.sub(r"(?i)\b(api[_-]?key|apikey|key|token|secret)=[^&\s\"'\]}]+",
+                r"\1=[REDACTED]", t)
+    return t
+
+
 class UnvalidatedRequest(RuntimeError):
     """Refused before sending. The failure names what was missing."""
 

@@ -31,8 +31,61 @@
     });
   }
 
+  /* THE DECISION JOIN KEY — WITHOUT IT THE GRADER PRODUCES NOTHING (2026-08-11).
+   *
+   * `forecast_grade.gradeDecisions` joins the three decision kinds on
+   * `payload.key`:
+   *
+   *     if (e.kind === 'recommendation') { if (p.key) recs[p.key] = e; }
+   *     else if (e.kind === 'pick')      { if (p.key) picks[p.key] = e; }
+   *     else if (e.kind === 'override')  { if (p.key) overrides[p.key] = e; }
+   *     ...
+   *     for (const k of Object.keys(recs)) { ... }
+   *
+   * NOT ONE CALL SITE IN app.js SUPPLIED A `key`. Every entry failed the `if`,
+   * `recs` was always empty, the loop never ran, and gradeDecisions returned
+   * zero rows for every season — so "was the tool followed or overridden",
+   * "where Cory beat the model", and `override_rate` were all structurally
+   * empty rather than wrong. Nothing errored. Nothing rendered a bad number.
+   * The capture fired, the server stored it, and the grader silently dropped
+   * every record on the floor.
+   *
+   * THAT IS THE SEPTEMBER 1 DEADLINE'S EXACT FAILURE MODE. Rule 2 depends on
+   * override outcomes, the draft on the 22nd is meant to be the first real
+   * entry, and a decision-time record cannot be reconstructed afterward. The
+   * loss would have been discovered in January, when nothing can be done.
+   *
+   * STAMPED HERE, IN ONE PLACE, rather than at each call site — a join key
+   * maintained at nineteen call sites is the two-places disease with eighteen
+   * extra places. `season|build_at|pick` identifies the decision: one board,
+   * one pick number, whatever was recommended, taken or overridden there.
+   *
+   * A CALLER-SUPPLIED KEY ALWAYS WINS. `forecast` and `forecast_resolution`
+   * carry their own `key`/`forecast_key` with a different meaning, and
+   * overwriting those would break the resolution join to fix the decision one.
+   */
+  var DECISION_KINDS = { recommendation: 1, pick: 1, override: 1 };
+
+  function decisionKey(info) {
+    if (info.pick == null || !info.build_at) return null;   // not a decision at a pick
+    return (info.season || '') + '|' + info.build_at + '|' + info.pick;
+  }
+
   function send(kind, info, opts) {
     opts = opts || {};
+    var payload = info.payload || {};
+    if (DECISION_KINDS[kind] && payload.key == null) {
+      var k = decisionKey(info);
+      // A null key is left ABSENT rather than written as null: the grader tests
+      // `if (p.key)`, so a null would be dropped just the same, and a present
+      // field that is always falsy reads like a key that exists.
+      if (k) {
+        var copy = {};
+        for (var f in payload) if (Object.prototype.hasOwnProperty.call(payload, f)) copy[f] = payload[f];
+        copy.key = k;
+        payload = copy;
+      }
+    }
     var body = {
       kind: kind,
       method: info.method || null,           // model/method version that produced it
@@ -40,7 +93,7 @@
       pick: info.pick == null ? null : info.pick,
       build_at: info.build_at || null,
       client_at: new Date().toISOString(),   // provenance only; server clock is authority
-      payload: info.payload || {},
+      payload: payload,
     };
     return post(body).catch(function (e) {
       // one retry, then make the loss loud

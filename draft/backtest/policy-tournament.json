@@ -7,28 +7,28 @@
  "rivals": [
   {
    "policy": "h1_phase",
-   "edge": -116.46,
+   "edge": -88.54,
    "ci95": [
-    -172.08,
-    -58.75
+    -137.92,
+    -42.5
    ],
    "beats_defaults": false
   },
   {
    "policy": "uniform_boom",
-   "edge": -268.33,
+   "edge": -327.29,
    "ci95": [
-    -328.96,
-    -208.33
+    -390.21,
+    -264.79
    ],
    "beats_defaults": false
   },
   {
    "policy": "floor_heavy",
-   "edge": -602.08,
+   "edge": -598.96,
    "ci95": [
-    -663.96,
-    -532.71
+    -665.42,
+    -529.17
    ],
    "beats_defaults": false
   }
@@ -37,19 +37,19 @@
   "core": [
    {
     "ceiling_w": 0.0,
-    "edge": -542.29,
+    "edge": -457.5,
     "ci95": [
-     -606.25,
-     -480.83
+     -533.96,
+     -382.29
     ],
     "straddles_default": false
    },
    {
     "ceiling_w": 0.25,
-    "edge": -339.79,
+    "edge": -424.17,
     "ci95": [
-     -405.83,
-     -267.08
+     -492.5,
+     -359.17
     ],
     "straddles_default": false
    },
@@ -64,19 +64,19 @@
    },
    {
     "ceiling_w": 1.0,
-    "edge": -289.79,
+    "edge": -215.83,
     "ci95": [
-     -354.17,
-     -228.12
+     -270.83,
+     -160.83
     ],
     "straddles_default": false
    },
    {
     "ceiling_w": 2.0,
-    "edge": -466.25,
+    "edge": -443.75,
     "ci95": [
-     -530.62,
-     -400.83
+     -505.83,
+     -378.33
     ],
     "straddles_default": false
    }
@@ -84,46 +84,46 @@
   "endgame": [
    {
     "ceiling_w": 0.0,
-    "edge": 11.46,
+    "edge": -10.0,
     "ci95": [
-     -4.79,
-     30.42
+     -38.96,
+     16.46
     ],
     "straddles_default": true
    },
    {
     "ceiling_w": 0.5,
-    "edge": 4.79,
+    "edge": -1.46,
     "ci95": [
-     -27.71,
-     38.12
+     -32.08,
+     28.75
     ],
     "straddles_default": true
    },
    {
     "ceiling_w": 1.0,
-    "edge": -146.04,
+    "edge": -191.46,
     "ci95": [
-     -203.75,
-     -88.12
+     -240.83,
+     -145.42
     ],
     "straddles_default": false
    },
    {
     "ceiling_w": 2.0,
-    "edge": -116.46,
+    "edge": -88.54,
     "ci95": [
-     -171.04,
-     -61.46
+     -134.79,
+     -40.62
     ],
     "straddles_default": false
    },
    {
     "ceiling_w": 3.0,
-    "edge": -103.33,
+    "edge": -90.21,
     "ci95": [
-     -157.92,
-     -44.17
+     -137.29,
+     -45.0
     ],
     "straddles_default": false
    }
@@ -131,85 +131,29 @@
  },
  "conditional_rules": [
   {
-   "state": "thin_board_early",
-   "setting": "h1_phase",
-   "edge": -36.48,
-   "ci95": [
-    -92.62,
-    16.8
-   ],
-   "in_minus_out": 162.67,
-   "n_rooms": 61,
-   "clears_conditional_null": false,
-   "machine_detectable": true,
-   "disposition": "LEAN \u2192 manual-override cheat sheet, never automated"
-  },
-  {
-   "state": "run_pressure",
-   "setting": "uniform_boom",
-   "edge": -229.17,
-   "ci95": [
-    -318.23,
-    -136.46
-   ],
-   "in_minus_out": 65.27,
-   "n_rooms": 48,
-   "clears_conditional_null": false,
-   "machine_detectable": true,
-   "disposition": "LEAN \u2192 manual-override cheat sheet, never automated"
-  },
-  {
    "state": "run_pressure",
    "setting": "floor_heavy",
-   "edge": -565.1,
+   "edge": -570.52,
    "ci95": [
-    -684.38,
-    -451.56
+    -656.34,
+    -487.31
    ],
-   "in_minus_out": 61.64,
-   "n_rooms": 48,
+   "in_minus_out": 64.39,
+   "n_rooms": 67,
    "clears_conditional_null": false,
    "machine_detectable": true,
    "disposition": "LEAN \u2192 manual-override cheat sheet, never automated"
   },
   {
-   "state": "run_pressure",
+   "state": "thin_board_early",
    "setting": "h1_phase",
-   "edge": -83.33,
+   "edge": -66.25,
    "ci95": [
-    -176.04,
-    3.12
+    -134.17,
+    -2.92
    ],
-   "in_minus_out": 55.21,
-   "n_rooms": 48,
-   "clears_conditional_null": false,
-   "machine_detectable": true,
-   "disposition": "LEAN \u2192 manual-override cheat sheet, never automated"
-  },
-  {
-   "state": "thin_board_early",
-   "setting": "floor_heavy",
-   "edge": -576.23,
-   "ci95": [
-    -670.08,
-    -479.51
-   ],
-   "in_minus_out": 52.58,
-   "n_rooms": 61,
-   "clears_conditional_null": false,
-   "machine_detectable": true,
-   "disposition": "LEAN \u2192 manual-override cheat sheet, never automated"
-  },
-  {
-   "state": "thin_board_early",
-   "setting": "uniform_boom",
-   "edge": -267.21,
-   "ci95": [
-    -354.51,
-    -174.18
-   ],
-   "in_minus_out": 2.28,
-   "n_rooms": 61,
+   "in_minus_out": 44.58,
+   "n_rooms": 60,
    "clears_conditional_null": false,
    "machine_detectable": true,
    "disposition": "LEAN \u2192 manual-override cheat sheet, never automated"
@@ -217,27 +161,55 @@
   {
    "state": "rb_drain_early",
    "setting": "h1_phase",
-   "edge": -124.36,
+   "edge": -71.43,
    "ci95": [
-    -215.38,
-    -34.62
+    -142.86,
+    -2.04
    ],
-   "in_minus_out": -11.71,
-   "n_rooms": 39,
+   "in_minus_out": 28.92,
+   "n_rooms": 49,
    "clears_conditional_null": false,
    "machine_detectable": true,
    "disposition": "LEAN \u2192 manual-override cheat sheet, never automated"
   },
   {
-   "state": "rb_drain_early",
-   "setting": "uniform_boom",
-   "edge": -300.0,
+   "state": "thin_board_early",
+   "setting": "floor_heavy",
+   "edge": -603.75,
    "ci95": [
-    -404.49,
-    -192.95
+    -693.33,
+    -509.17
    ],
-   "in_minus_out": -46.91,
-   "n_rooms": 39,
+   "in_minus_out": -9.58,
+   "n_rooms": 60,
+   "clears_conditional_null": false,
+   "machine_detectable": true,
+   "disposition": "LEAN \u2192 manual-override cheat sheet, never automated"
+  },
+  {
+   "state": "run_pressure",
+   "setting": "uniform_boom",
+   "edge": -332.09,
+   "ci95": [
+    -414.55,
+    -251.12
+   ],
+   "in_minus_out": -10.86,
+   "n_rooms": 67,
+   "clears_conditional_null": false,
+   "machine_detectable": true,
+   "disposition": "LEAN \u2192 manual-override cheat sheet, never automated"
+  },
+  {
+   "state": "run_pressure",
+   "setting": "h1_phase",
+   "edge": -98.13,
+   "ci95": [
+    -166.79,
+    -36.57
+   ],
+   "in_minus_out": -21.71,
+   "n_rooms": 67,
    "clears_conditional_null": false,
    "machine_detectable": true,
    "disposition": "LEAN \u2192 manual-override cheat sheet, never automated"
@@ -245,23 +217,51 @@
   {
    "state": "rb_drain_early",
    "setting": "floor_heavy",
-   "edge": -681.41,
+   "edge": -613.78,
    "ci95": [
-    -789.74,
-    -569.23
+    -715.82,
+    -505.1
    ],
-   "in_minus_out": -117.52,
-   "n_rooms": 39,
+   "in_minus_out": -25.05,
+   "n_rooms": 49,
+   "clears_conditional_null": false,
+   "machine_detectable": true,
+   "disposition": "LEAN \u2192 manual-override cheat sheet, never automated"
+  },
+  {
+   "state": "rb_drain_early",
+   "setting": "uniform_boom",
+   "edge": -380.1,
+   "ci95": [
+    -480.1,
+    -280.61
+   ],
+   "in_minus_out": -89.25,
+   "n_rooms": 49,
+   "clears_conditional_null": false,
+   "machine_detectable": true,
+   "disposition": "LEAN \u2192 manual-override cheat sheet, never automated"
+  },
+  {
+   "state": "thin_board_early",
+   "setting": "uniform_boom",
+   "edge": -388.75,
+   "ci95": [
+    -484.17,
+    -291.25
+   ],
+   "in_minus_out": -122.92,
+   "n_rooms": 60,
    "clears_conditional_null": false,
    "machine_detectable": true,
    "disposition": "LEAN \u2192 manual-override cheat sheet, never automated"
   }
  ],
- "conditional_null_p95": 161.06,
+ "conditional_null_p95": 172.08,
  "state_coverage_rooms": {
-  "run_pressure": 48,
-  "rb_drain_early": 39,
-  "thin_board_early": 61
+  "run_pressure": 67,
+  "rb_drain_early": 49,
+  "thin_board_early": 60
  },
  "rejected_states": [],
  "incidence_band": [

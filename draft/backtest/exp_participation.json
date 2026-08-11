@@ -2,62 +2,62 @@
   "experiment": "all-terms participation test \u2014 which of the 8 adjusters earn $?",
   "rooms": 400,
   "baseline": "full = mask + value anchor + every adjuster at engine default",
-  "baseline_mean_dollars": 336.9,
+  "baseline_mean_dollars": 313.4,
   "nudge": 30.0,
   "power_note": "n=400; min reliably detectable ~$25; |edge|<that with CI spanning 0 = underpowered, not zero.",
   "keeper_scoped_out": "KOV is a cross-season option value; a single-season money grade cannot price it BY CONSTRUCTION \u2014 bounded elsewhere, not proxied here.",
-  "core_mean_dollars": 805.4,
+  "core_mean_dollars": 796.1,
   "build_up_from_core": {
     "need": {
-      "edge": -59.12,
+      "edge": -46.06,
       "ci95": [
-        -78.0,
-        -40.62
+        -65.62,
+        -27.25
       ],
       "separable_from_zero": true,
-      "reading": "HURTS (-59, CI excludes 0)"
+      "reading": "HURTS (-46, CI excludes 0)"
     },
     "tier": {
-      "edge": -422.62,
+      "edge": -420.56,
       "ci95": [
-        -451.94,
-        -391.56
+        -451.31,
+        -390.25
       ],
       "separable_from_zero": true,
-      "reading": "HURTS (-423, CI excludes 0)"
+      "reading": "HURTS (-421, CI excludes 0)"
     },
     "risk": {
-      "edge": -220.44,
+      "edge": -223.62,
       "ci95": [
-        -245.38,
-        -195.56
+        -249.06,
+        -198.75
       ],
       "separable_from_zero": true,
-      "reading": "HURTS (-220, CI excludes 0)"
+      "reading": "HURTS (-224, CI excludes 0)"
     },
     "ceiling": {
-      "edge": -10.5,
+      "edge": -10.38,
       "ci95": [
-        -28.06,
-        6.38
+        -28.44,
+        6.25
       ],
       "separable_from_zero": false,
       "reading": "decoration (\u2264$25; CI tight around 0)"
     },
     "bye": {
-      "edge": -72.5,
+      "edge": -31.44,
       "ci95": [
-        -93.75,
-        -53.5
+        -50.69,
+        -11.94
       ],
       "separable_from_zero": true,
-      "reading": "HURTS (-72, CI excludes 0)"
+      "reading": "HURTS (-31, CI excludes 0)"
     },
     "stack": {
-      "edge": -67.0,
+      "edge": -41.5,
       "ci95": [
-        -86.69,
-        -47.31
+        -60.38,
+        -22.88
       ],
       "separable_from_zero": true,
       "reading": "INSTRUMENT-LIMITED \u2014 grade_room has no within-team weekly correlation \u2014 the stack mechanism is absent, so this arm can't reward it. Sound instrument = exp6/stack_sweep (WINNER +$196 @ dose 0.5).",
@@ -66,74 +66,74 @@
   },
   "ablation_from_full": {
     "value": {
-      "edge": 287.88,
+      "edge": 266.81,
       "ci95": [
-        259.25,
-        318.62
+        239.19,
+        295.38
       ],
       "separable_from_zero": true,
-      "reading": "EARNS (+288, CI excludes 0)"
+      "reading": "EARNS (+267, CI excludes 0)"
     },
     "need": {
-      "edge": -46.44,
+      "edge": -51.06,
       "ci95": [
-        -63.81,
-        -29.88
+        -72.94,
+        -30.44
       ],
       "separable_from_zero": true,
-      "reading": "HURTS (-46, CI excludes 0)"
+      "reading": "HURTS (-51, CI excludes 0)"
     },
     "tier": {
-      "edge": -321.94,
+      "edge": -361.88,
       "ci95": [
-        -352.06,
-        -292.88
+        -392.81,
+        -333.56
       ],
       "separable_from_zero": true,
-      "reading": "HURTS (-322, CI excludes 0)"
+      "reading": "HURTS (-362, CI excludes 0)"
     },
     "risk": {
-      "edge": -129.88,
+      "edge": -93.94,
       "ci95": [
-        -156.56,
-        -105.38
+        -117.56,
+        -70.0
       ],
       "separable_from_zero": true,
-      "reading": "HURTS (-130, CI excludes 0)"
+      "reading": "HURTS (-94, CI excludes 0)"
     },
     "ceiling": {
-      "edge": 119.0,
+      "edge": 94.69,
       "ci95": [
-        94.44,
-        142.94
+        70.88,
+        118.0
       ],
       "separable_from_zero": true,
-      "reading": "EARNS (+119, CI excludes 0)"
+      "reading": "EARNS (+95, CI excludes 0)"
     },
     "bye": {
-      "edge": -10.19,
+      "edge": -44.75,
       "ci95": [
-        -28.62,
-        9.88
+        -61.75,
+        -27.81
+      ],
+      "separable_from_zero": true,
+      "reading": "HURTS (-45, CI excludes 0)"
+    },
+    "stack": {
+      "edge": 9.62,
+      "ci95": [
+        -12.94,
+        31.88
       ],
       "separable_from_zero": false,
       "reading": "decoration (\u2264$25; CI tight around 0)"
-    },
-    "stack": {
-      "edge": 43.56,
-      "ci95": [
-        20.5,
-        65.0
-      ],
-      "separable_from_zero": true,
-      "reading": "EARNS (+44, CI excludes 0)"
     }
   },
   "all_adjusters_together": {
-    "edge": -468.5,
+    "edge": -482.75,
     "ci95": [
-      -498.44,
-      -437.69
+      -515.12,
+      -452.88
     ],
     "separable_from_zero": true
   },
@@ -150,46 +150,46 @@
     },
     {
       "w": 0.5,
-      "edge": -23.62,
+      "edge": -19.0,
       "ci95": [
-        -37.0,
-        -12.31
+        -32.38,
+        -6.25
       ],
       "separable_from_zero": true
     },
     {
       "w": 1.0,
-      "edge": -59.12,
+      "edge": -46.06,
       "ci95": [
-        -78.0,
-        -40.62
+        -65.62,
+        -27.25
       ],
       "separable_from_zero": true
     },
     {
       "w": 1.5,
-      "edge": -59.62,
+      "edge": -46.31,
       "ci95": [
-        -78.56,
-        -41.25
+        -65.88,
+        -27.56
       ],
       "separable_from_zero": true
     },
     {
       "w": 2.0,
-      "edge": -59.62,
+      "edge": -46.31,
       "ci95": [
-        -78.56,
-        -41.25
+        -65.88,
+        -27.56
       ],
       "separable_from_zero": true
     },
     {
       "w": 3.0,
-      "edge": -59.62,
+      "edge": -46.31,
       "ci95": [
-        -78.56,
-        -41.25
+        -65.88,
+        -27.56
       ],
       "separable_from_zero": true
     }
@@ -206,64 +206,64 @@
     },
     {
       "w": 0.5,
-      "edge": -14.0,
+      "edge": -16.38,
       "ci95": [
-        -31.19,
-        2.06
+        -34.0,
+        -0.44
       ],
-      "separable_from_zero": false
+      "separable_from_zero": true
     },
     {
       "w": 1.0,
-      "edge": -17.38,
+      "edge": -40.12,
       "ci95": [
-        -39.0,
-        2.38
+        -58.5,
+        -20.94
       ],
-      "separable_from_zero": false
+      "separable_from_zero": true
     },
     {
       "w": 1.5,
-      "edge": -45.94,
+      "edge": -47.5,
       "ci95": [
-        -65.88,
-        -28.25
+        -66.62,
+        -28.19
       ],
       "separable_from_zero": true
     },
     {
       "w": 2.0,
-      "edge": -58.19,
+      "edge": -61.31,
       "ci95": [
-        -79.56,
-        -37.5
+        -82.88,
+        -39.81
       ],
       "separable_from_zero": true
     },
     {
       "w": 3.0,
-      "edge": -59.94,
+      "edge": -66.75,
       "ci95": [
-        -81.19,
-        -38.12
+        -88.38,
+        -44.81
       ],
       "separable_from_zero": true
     }
   ],
   "ceiling_by_payout_component": {
     "weekly_high": {
-      "edge": -4.0,
+      "edge": -1.25,
       "ci95": [
-        -10.0,
-        2.25
+        -7.5,
+        4.5
       ],
       "separable_from_zero": false
     },
     "regular_season": {
-      "edge": -8.75,
+      "edge": -7.19,
       "ci95": [
-        -14.38,
-        -3.12
+        -13.75,
+        -0.94
       ],
       "separable_from_zero": true
     }
@@ -287,5 +287,5 @@
   "frame_note": "Build-up (add one term to the core) is the truth; ablation (remove one from 'full') is CONFOUNDED because 'full' carries the harmful tilts \u2014 e.g. ceiling reads +150 in ablation but \u22125 in build-up: in 'full' it looks good only by partially offsetting tier/risk damage. Read build-up.",
   "prereg_outcome": "Cory's prior (need earns, most others don't) \u2014 CONFIRMED, with one correction: even the additive need-WEIGHT is decoration; it's the MASK (always on) that earns. My prereg guess that CEILING earns via weekly-high \u2014 NOT supported on the clean core (weekly-high ~0); the apparent weekly-high gain was a confound of the ablation-from-full frame.",
   "draft_day_auto": "mask ON (earner) + value anchor 1.0 (earner) + STACK ~0.5 (exp6 winner, the one adjuster that earns \u2014 its mechanism just isn't in THIS harness); need/ceiling/bye ~0 (decoration), tier/risk 0 (measured drag). The panel collapses to mask + value + a stack tilt.",
-  "verdict": "Core (mask + value anchor) = $805. Adding to the core: EARNS nothing; HURTS need, tier, risk, bye; decoration ceiling; stack INSTRUMENT-LIMITED (defer to exp6/stack_sweep, WINNER +$196). Ceiling shows NO clean weekly-high gain on the core (wk-high -4 CI[-10.0, 2.25], RS -9 CI[-14.38, -3.12]) \u2014 my prereg guess did NOT survive de-confounding. Value anchor is decisive (removing it from full costs +288 CI[259.25, 318.62])."
+  "verdict": "Core (mask + value anchor) = $796. Adding to the core: EARNS nothing; HURTS need, tier, risk, bye; decoration ceiling; stack INSTRUMENT-LIMITED (defer to exp6/stack_sweep, WINNER +$196). Ceiling shows NO clean weekly-high gain on the core (wk-high -1 CI[-7.5, 4.5], RS -7 CI[-13.75, -0.94]) \u2014 my prereg guess did NOT survive de-confounding. Value anchor is decisive (removing it from full costs +267 CI[239.19, 295.38])."
 }

@@ -424,7 +424,6 @@ derivation that is genuinely the better engineering choice.
 
 Applied to the two helpers already; they now derive their removals from
 `_WEEKLY_MAP` instead of listing column names.
-
 ---
 
 ## MAY AN F4-EXCLUDED LEAGUE BE REPLAYED FOR A FORECAST THAT NEVER TOUCHES OUTCOMES? (C, 2026-08-11) 🔴 OPEN

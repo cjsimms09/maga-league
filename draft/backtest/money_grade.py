@@ -270,6 +270,49 @@ def playoff_dollars(placements: dict[int, int], pay: dict, roster_id: int) -> fl
 PLAYOFF_TEAMS = 4
 SEED_PAIRS = ((1, 4), (2, 3))
 
+# ONE WEEK PER ROUND IS AN ASSUMPTION, AND IT WAS AN UNDECLARED ONE.
+#
+# `simulate_bracket` plays round r in week `playoff_week_start + (r - 1)`. That
+# is only true for `playoff_round_type == 0`. Sleeper emits the setting on every
+# season object we already load, and nothing read it — so a league configured
+# for two-week rounds would have been graded one week per round, silently, and
+# the money tables would have ASSIGNED PAYOUTS INCORRECTLY WHILE BELIEVING THEY
+# FOLLOWED THE CONFIGURED FORMAT. That is a grading computation consuming an
+# undeclared assumption, not a registry gap.
+#
+# WHY THIS REFUSES RATHER THAN IMPLEMENTING TWO-WEEK ROUNDS. Every bracket we
+# hold (2023/24/25, all four seasons in league_history) is round_type 0, so a
+# two-week code path would be written against no data and certified by nothing.
+# `certify_bracket_resim` exists precisely so the resim is proved against real
+# brackets before it is allowed to grade; inventing an uncertifiable branch
+# would defeat it. Refusing names the gap and keeps the money honest.
+PLAYOFF_ROUND_TYPE_ONE_WEEK = 0
+
+
+def assert_one_week_rounds(season: dict) -> int:
+    """Raise unless this season really is one playoff week per round.
+
+    Returns the round type so a caller can record what it verified. `None` is
+    NOT treated as 0: an absent setting means we do not know the format, and a
+    default that happens to match today is how an assumption becomes invisible
+    again.
+    """
+    rt = (season.get("settings") or {}).get("playoff_round_type")
+    if rt is None:
+        raise ValueError(
+            "season %s carries no playoff_round_type; the bracket resim assumes "
+            "one week per round and cannot confirm it. Refusing to grade rather "
+            "than guessing the format." % season.get("season"))
+    if int(rt) != PLAYOFF_ROUND_TYPE_ONE_WEEK:
+        raise ValueError(
+            "season %s has playoff_round_type=%s (not one week per round). "
+            "simulate_bracket plays round r in week playoff_week_start+(r-1), "
+            "which is wrong for this format, and every harvested bracket we "
+            "could certify a two-week path against is round_type 0. Refusing to "
+            "grade rather than paying out on an unverified bracket."
+            % (season.get("season"), rt))
+    return int(rt)
+
 
 def bracket_seeds(standings: list[dict], n: int = PLAYOFF_TEAMS) -> dict[int, int]:
     """{seed: roster_id} for the top `n` by RS rank."""
@@ -306,6 +349,10 @@ def simulate_bracket(standings: list[dict], field: dict[int, dict[int, float]],
     if len(seeds) < PLAYOFF_TEAMS:
         raise ValueError(f"need {PLAYOFF_TEAMS} seeded teams, got {len(seeds)}")
     seed_of = {rid: seed for seed, rid in seeds.items()}
+    # Checked HERE, at the one place that turns rounds into weeks, rather than at
+    # a caller — a guard sited away from the arithmetic it protects is a guard a
+    # second caller walks around.
+    assert_one_week_rounds(season)
     start = int((season.get("settings") or {}).get("playoff_week_start") or 15)
 
     winners, losers = [], []

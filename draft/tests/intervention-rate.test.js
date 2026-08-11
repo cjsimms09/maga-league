@@ -66,8 +66,23 @@ check('the metric is deterministic across runs (seeded, not drifting)',
 // RE-PINNED 2026-08-10 on the frozen pool under the SHIPPED weights. The old pins
 // (73.7% / 17.1) measured DEFAULT_WEIGHTS against a board that no longer exists,
 // so they are not comparable and carrying them forward would be false continuity.
-check('intervention rate is pinned (frozen pool, shipped weights)',
-  Math.abs(r.rate - 0.842) < 0.05,
+//
+// RE-PINNED AGAIN 2026-08-11: 84.2% -> 78.3%, because THE SEAT MOVED, 4 -> 8.
+//
+// ATTRIBUTED BY MEASUREMENT, not assumed. Forcing my_draft_slot back to 4 on the
+// same frozen pool returns 83.3% — inside the old band; at 8 it is 78.3%. The
+// mean magnitude barely moves (17.8 -> 18.0), which is what a pure seat change
+// should look like. So this is not a composite change and the band is NOT
+// widened; the centre moves and the reason is on the record.
+//
+// AND A GAP THE FREEZE DOES NOT COVER, worth knowing before the next surprise:
+// intervention_pool_v1 freezes the BOARD, which is what made this metric stable
+// against daily rebuilds. It does not freeze the SEAT — `intervention_rate.js`
+// reads `my_draft_slot` from the live artifact — so a seat change moves a number
+// labelled "pinned on a frozen pool". The freeze is doing its job; its scope is
+// just narrower than the label suggests.
+check('intervention rate is pinned (frozen pool, shipped weights, seat 8)',
+  Math.abs(r.rate - 0.783) < 0.05,
   'rate=' + (r.rate * 100).toFixed(1) + '% — this now measures the ENGINE on a FIXED '
     + 'board, so a move here is a real composite change. If intended, freeze a NEW '
     + 'pool version and re-pin; do not widen the band.');

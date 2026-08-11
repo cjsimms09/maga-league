@@ -433,9 +433,97 @@
     renderAll();
   }
 
+  /* THE OVERRIDE SCALED VORP, AND THAT IS NOT WHAT VORP IS (found by B, 2026-08-11).
+   *
+   * VORP is `proj_mean − replacement`. A 25% haircut means the PROJECTION drops
+   * 25%; the replacement level does not move, because it is a property of the
+   * position's supply, not of this player. Scaling VORP itself is wrong by
+   * exactly `replacement × (1 − f)` — which is largest where replacement is
+   * largest, i.e. at QB, where it is 341.72.
+   *
+   *   Josh Allen, 25% downgrade:
+   *     correct    0.75 × 405.50 − 341.72 = −37.60   (he is BELOW replacement)
+   *     as shipped 0.75 ×  63.78          = +47.84   (a SIGN FLIP)
+   *
+   * A positive number meaning the opposite of what it says, in the column read
+   * at the table, on the position where the error is biggest.
+   *
+   * THE REPLACEMENT LEVEL IS RECOVERED FROM THE PLAYER, NOT LOOKED UP. `r =
+   * pre.proj_mean − pre.vorp` is exact by definition and cannot disagree with
+   * whatever produced the board, whereas reading a replacement table introduces
+   * a second source for one fact — the failure mode this project keeps finding.
+   *
+   * AND THE SNAPSHOT FIXES A SECOND DEFECT UNDERNEATH IT. setOverride rebuilds
+   * `state.board` from `state.data.players` "so an override can be undone
+   * cleanly rather than compounding" — but `filter`/`slice` copy REFERENCES, and
+   * `state.pristine.players` is `data.players.slice()`, also shallow. So every
+   * one of these assignments mutated the artifact itself, and the three
+   * re-apply sites (load, prefs-sync, end-of-mock) each multiplied again.
+   * Clearing an override never restored the original number either.
+   *
+   * So the pre-override values are snapshotted on first touch and EVERY apply
+   * starts from them, which makes the operation idempotent and reversible.
+   */
+  /* NOT EVERY PROJECTION ON THIS BOARD HAS THE SAME BACKING, AND THE COLUMN SAID
+   * IT DID (raised by B, corrected on the evidence, 2026-08-11).
+   *
+   * B reported that 0 of 41 kickers and 0 of 32 defences carry a source
+   * projection, and inferred their VORP is "derived from two synthesised
+   * numbers". THE FIELD IS EMPTY BUT THE INFERENCE IS WRONG, and the arithmetic
+   * says so: Aubrey's 107.00 is Sleeper's own projected line — 9 FG 40-49 × 3,
+   * 8 FG 50+ × 5, 42 XP × 1, 2 XP missed × −1 — run through this league's own
+   * scoring table. Verified by hand against the raw row. Nothing is synthesised.
+   *
+   * MEASURED, so the mark is not noise: across the whole ~1700-player pool 1324
+   * players lack a second source and a mark on 78% of rows would say nothing.
+   * In the range anyone reads it is precise — in the top 200 exactly 64 players
+   * are single-source and ALL 64 are K or DEF, with zero skill players marked.
+   * By the top 250 it correctly picks up one WR and one TE that genuinely have
+   * no second opinion, which is why it is derived from the absent source rather
+   * than hardcoded to two positions: it stays true if coverage changes.
+   *
+   * WHAT MISLED IT IS A REAL TRAP AND IT IS OURS. `proj_sleeper` is assigned
+   * only INSIDE build.py's FantasyPros attachment block, so it is populated only
+   * for players FantasyPros ALSO covers. The field named after one source is
+   * gated on a second. "Does this player have a Sleeper projection" cannot be
+   * answered by the field called proj_sleeper.
+   *
+   * THE REAL DIFFERENCE, WHICH IS STILL WORTH SHOWING. Skill positions carry a
+   * TWO-SOURCE consensus (Sleeper + FantasyPros); K and DEF carry Sleeper alone,
+   * because FantasyPros' feed does not cover them. Single-source is not
+   * synthesised, and it is not the same authority as consensus either. The mark
+   * says which, in the same spirit as survival's tilde. */
+  function projSourceMark(p) {
+    if (!p || p.proj_mean == null) return '';
+    if (p.proj_fantasypros != null) return '';
+    return '<span class="muted" title="single-source projection (Sleeper only) — '
+      + 'FantasyPros does not cover this position, so there is no second opinion '
+      + 'behind this number">¹</span>';
+  }
+
+  const OV_FIELDS = ['proj_mean', 'proj_ceiling', 'proj_floor', 'vorp'];
+
+  function overrideSnapshot(p) {
+    if (!p.__pre_override) {
+      const snap = {};
+      OV_FIELDS.forEach(k => { snap[k] = p[k]; });
+      Object.defineProperty(p, '__pre_override', { value: snap, enumerable: false });
+    }
+    return p.__pre_override;
+  }
+
+  function restoreOverride(p) {
+    if (!p.__pre_override) return;
+    OV_FIELDS.forEach(k => { p[k] = p.__pre_override[k]; });
+    delete p.override;
+  }
+
   function applyOverrides() {
     const ov = state.playerOverrides || {};
     const ids = Object.keys(ov);
+    // Restore FIRST and unconditionally, so clearing the last override puts the
+    // artifact back rather than leaving the final haircut baked in.
+    state.board.forEach(p => { if (!ov[String(p.player_id)]) restoreOverride(p); });
     if (!ids.length) { renderOverrideCount(0); return; }
     const removed = {};
     state.board.forEach(p => {
@@ -443,12 +531,22 @@
       if (!o) return;
       if (o.kind === 'remove') { removed[String(p.player_id)] = true; return; }
       const f = o.kind === 'downgrade' ? (1 - o.pct / 100) : (1 + o.pct / 100);
+      const pre = overrideSnapshot(p);
       // Scale the value chain together: a haircut that moves proj_mean but not
-      // VORP would leave the composite reading a number that no longer exists.
-      p.proj_mean = (p.proj_mean || 0) * f;
-      p.proj_ceiling = (p.proj_ceiling || 0) * f;
-      p.proj_floor = (p.proj_floor || 0) * f;
-      p.vorp = (p.vorp || 0) * f;
+      // the rest would leave the composite reading a number that no longer
+      // exists. floor and ceiling are `mean × (1 + z·variance)`, so they scale
+      // with the mean exactly; VORP does not, and is re-derived instead.
+      p.proj_mean = (pre.proj_mean || 0) * f;
+      p.proj_ceiling = (pre.proj_ceiling || 0) * f;
+      p.proj_floor = (pre.proj_floor || 0) * f;
+      // ONE IMPLEMENTATION, in a module that can be tested with real numbers.
+      // Re-deriving it here would be the second copy of an arithmetic that has
+      // already been wrong once.
+      const nv = SharedValuation.vorpAfterOverride(pre.proj_mean, pre.vorp, f);
+      // Without both inputs the replacement level cannot be recovered, so the
+      // pre-override VORP is kept: a scaled one would be wrong, and a null
+      // would silently drop the player out of every value comparison.
+      p.vorp = nv == null ? pre.vorp : nv;
       p.override = o;
     });
     state.board = state.board.filter(p => !removed[String(p.player_id)]);
@@ -1830,6 +1928,14 @@
       + (t.picksUntilNext === 1 ? '' : 's') + ' before your turn'
       + (state.profilesMappedFromDraft ? '' : ' · seats unassigned');
 
+    // Scoped HERE, not borrowed from renderThreatStrip. The first version of the
+    // seat-not-assigned message read that function's `unassigned` const from this
+    // one, which is a ReferenceError at render time — it would have taken the
+    // whole threat panel down on the clock to fix a wording problem.
+    const seatsUnassigned = !state.profilesMappedFromDraft;
+    const haveDossier = Object.keys(
+      ((state.data || {}).manager_profiles || {}).managers || {}).length > 0;
+
     // At-risk first. It is the answer; the seat-by-seat breakdown is the
     // working, and on the clock most people only ever read the answer.
     let html = '';
@@ -1858,6 +1964,24 @@
         : '<span class="muted">nothing stands out</span>';
       // No history means no tell. Saying so is better than an empty space that
       // reads as "this one is unpredictable".
+      /* THE THIRD MESSAGE, BECAUSE THERE ARE THREE STATES AND THERE WERE TWO.
+       *
+       * "no draft history on Sleeper" was FALSE and had been on the page all
+       * along. There are 468 picks across three drafts, profiled for all ten
+       * managers, sitting in the same artifact and rendered in Know Your League
+       * three inches up the page. What is missing is not the history — it is
+       * the mapping from SEAT to manager, which only exists once Sleeper assigns
+       * the draft order and importDraftOrder resolves it by uid.
+       *
+       * That distinction is the whole answer to "why is every seat identical":
+       * positionProbabilities reads team.profile, profileForSlot returns null
+       * until the mapping lands, so every seat gets CFG defaults BY
+       * CONSTRUCTION. Telling Cory "no history" invites him to conclude the
+       * dossier is worthless; telling him "the seat is not assigned yet" is what
+       * is actually true and says when it changes.
+       *
+       * Kept distinct from the genuine no-history case, which is still possible
+       * for a manager who has never drafted in this league. */
       const tells = r.tells.length
         ? r.tells.map(x => '<div class="threat-tell">' + escapeHtml(x.text)
             + (x.proxy ? ' <span class="muted" title="measured against today\'s ranks, '
@@ -1865,7 +1989,10 @@
         : '<div class="threat-tell muted">' + (r.sample_size
             ? 'nothing in ' + r.sample_size + ' draft' + (r.sample_size === 1 ? '' : 's')
               + ' stands out — he drafts near league average'
-            : 'no draft history on Sleeper — modelled as league average') + '</div>';
+            : (seatsUnassigned && haveDossier
+                ? 'manager profiles exist, but cannot be assigned to draft seats until '
+                  + 'the draft order is available — the position mix above is league-average'
+                : 'no draft history on Sleeper — modelled as league average')) + '</div>';
       return '<div class="threat-row">'
         + '<div class="threat-head"><span class="threat-pick">' + r.pick_no + '</span>'
         + '<b>' + who + '</b>' + '<span class="threat-pos">' + pos + '</span></div>'
@@ -3076,7 +3203,7 @@
         '<td><span class="rec-pos ' + p.position + '">' + p.position + '</span></td>' +
         '<td class="muted">' + escapeHtml(p.team || '') + '</td>' +
         '<td class="num">' + (p.bye || '—') + '</td>' +
-        '<td class="num">' + Math.round(p.proj_mean) + '</td>' +
+        '<td class="num">' + Math.round(p.proj_mean) + projSourceMark(p) + '</td>' +
         '<td class="num">' + p.vorp.toFixed(1) + '</td>' +
         '<td class="num tier-cell t' + ((p.tier - 1) % 6) + '">' + p.tier + '</td>' +
         '<td class="num">' + Math.round(p.adjusted_adp) + '</td>' +
@@ -3791,10 +3918,43 @@
     // guess that happens to be right is still upgraded from placeholder to
     // verified, clearing the UNVERIFIED watermark. draft_order still null (order
     // not yet assigned, D4) → no verification, watermark stays.
-    if (mine && !state.mockMode && Object.keys(byUser).length > 0) {
+    /* ── A PARTIAL draft_order CANNOT VERIFY OR CHANGE A SEAT ────────────────
+     *
+     * MEASURED, NOT HYPOTHETICAL (2026-08-11). The live draft object carried
+     * FOUR entries in draft_order for a TEN team league, and my entry read 3
+     * while the Sleeper UI showed me at draft position 8. This code would have
+     * said "Sleeper says you are in slot 3 — importing" and called setSlot(3),
+     * silently moving a correct hand-claimed seat to a wrong one AND upgrading it
+     * to `verified` — the auto-detected value outranking the human's.
+     *
+     * Every downstream number moves with the seat, so that is a draft-night
+     * disaster arriving as a reassuring blue note.
+     *
+     * THE RULE: an order that is not fully assigned is not an order. Until
+     * draft_order holds an entry for every team it neither verifies nor imports,
+     * and the UNVERIFIED watermark stays up — which is the honest state, because
+     * a half-populated ordering field is exactly the case where its meaning
+     * cannot be trusted.
+     *
+     * AND A DISAGREEMENT IS A CONFLICT, NOT AN IMPORT. Even at full population,
+     * a value that contradicts the hand-claimed seat is surfaced for Cory to
+     * settle rather than applied. The seat is the one thing he claims by hand
+     * (AUTHORITY-DOCTRINE); an auto-detection may confirm it or dispute it, but
+     * it does not get to overrule it silently. */
+    const orderComplete = Object.keys(byUser).length >= (((state.data || {}).league || {}).teams || 0)
+      && Object.keys(byUser).length > 0;
+    if (mine && !state.mockMode && !orderComplete) {
+      state.seatAutoIncomplete = { saw: Object.keys(byUser).length,
+                                   need: ((state.data || {}).league || {}).teams, suggested: mine };
+      showSlotNote('Sleeper\u2019s draft order is only partly assigned ('
+        + Object.keys(byUser).length + ' of ' + (((state.data || {}).league || {}).teams || '?') + ' teams), so it cannot '
+        + 'verify your seat yet. Keeping slot ' + mySlot() + '.', true);
+    } else if (mine && !state.mockMode && orderComplete) {
       if (changed) {
-        showSlotNote('Sleeper says you are in slot ' + mine + ' — importing.', false);
-        setSlot(mine, 'sleeper');
+        state.seatConflict = { claimed: mySlot(), sleeper: Number(mine) };
+        showSlotNote('CONFLICT: you have slot ' + mySlot() + ' set and Sleeper\u2019s '
+          + 'draft order says ' + mine + '. NOT importing — check the draft board and '
+          + 'settle it, because every pick number moves with this.', true);
       } else {
         state.slotSource = 'sleeper';
         state.slotVerified = true;

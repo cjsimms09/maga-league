@@ -7,33 +7,23 @@
  "leaderboard": [
   {
    "archetype": "early_qb",
-   "mean_edge": 533.88,
+   "mean_edge": 470.25,
    "ci95": [
-    479.12,
-    586.0
+    420.62,
+    519.12
    ],
-   "mean_divergence": 1.2,
+   "mean_divergence": 1.1,
    "verdict": "WINNER \u2014 enroll as THE PLAN"
   },
   {
    "archetype": "elite_te",
-   "mean_edge": 52.5,
+   "mean_edge": 96.62,
    "ci95": [
-    13.12,
-    90.12
+    65.62,
+    129.38
    ],
-   "mean_divergence": 1.0,
+   "mean_divergence": 0.9,
    "verdict": "WINNER \u2014 enroll as THE PLAN"
-  },
-  {
-   "archetype": "wr_anchor",
-   "mean_edge": 1.0,
-   "ci95": [
-    -1.5,
-    4.5
-   ],
-   "mean_divergence": 0.0,
-   "verdict": "parked: CI includes $0"
   },
   {
    "archetype": "robust_rb",
@@ -46,10 +36,20 @@
    "verdict": "parked: CI includes $0"
   },
   {
-   "archetype": "zero_rb",
-   "mean_edge": -5.88,
+   "archetype": "wr_anchor",
+   "mean_edge": 0.0,
    "ci95": [
-    -15.62,
+    0.0,
+    0.0
+   ],
+   "mean_divergence": 0.0,
+   "verdict": "parked: CI includes $0"
+  },
+  {
+   "archetype": "zero_rb",
+   "mean_edge": -3.88,
+   "ci95": [
+    -15.5,
     0.0
    ],
    "mean_divergence": 0.1,
@@ -57,9 +57,9 @@
   },
   {
    "archetype": "hero_rb",
-   "mean_edge": -5.88,
+   "mean_edge": -3.88,
    "ci95": [
-    -15.62,
+    -11.62,
     0.0
    ],
    "mean_divergence": 0.1,
@@ -67,22 +67,22 @@
   },
   {
    "archetype": "late_qb",
-   "mean_edge": -25.88,
+   "mean_edge": -20.5,
    "ci95": [
-    -46.0,
-    -8.75
+    -36.38,
+    -6.12
    ],
-   "mean_divergence": 0.0,
+   "mean_divergence": 0.1,
    "verdict": "parked: CI includes $0"
   }
  ],
  "head_to_head": {
   "leader": "early_qb",
   "runner_up": "elite_te",
-  "paired_mean": 481.38,
+  "paired_mean": 373.62,
   "ci95": [
-   433.0,
-   527.88
+   330.5,
+   416.5
   ],
   "separable": true,
   "resolution": "leader separates from the runner-up"

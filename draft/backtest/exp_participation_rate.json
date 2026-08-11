@@ -6,91 +6,91 @@
     {
       "term": "need",
       "weight": 0.5,
-      "flip_rate": 0.06,
-      "flips": 143,
+      "flip_rate": 0.08,
+      "flips": 191,
       "decisions": 2400,
-      "avg_vorp_cost_when_flips": 4.0
+      "avg_vorp_cost_when_flips": 5.2
     },
     {
       "term": "need",
       "weight": 1.0,
-      "flip_rate": 0.099,
-      "flips": 238,
+      "flip_rate": 0.12,
+      "flips": 288,
       "decisions": 2400,
-      "avg_vorp_cost_when_flips": 6.2
+      "avg_vorp_cost_when_flips": 6.8
     },
     {
       "term": "need",
       "weight": 3.0,
-      "flip_rate": 0.099,
-      "flips": 238,
+      "flip_rate": 0.12,
+      "flips": 288,
       "decisions": 2400,
-      "avg_vorp_cost_when_flips": 6.2
+      "avg_vorp_cost_when_flips": 6.8
     },
     {
       "term": "ceiling",
       "weight": 0.65,
-      "flip_rate": 0.602,
-      "flips": 1444,
-      "decisions": 2400,
-      "avg_vorp_cost_when_flips": 4.5
-    },
-    {
-      "term": "ceiling",
-      "weight": 1.0,
-      "flip_rate": 0.72,
-      "flips": 1727,
-      "decisions": 2400,
-      "avg_vorp_cost_when_flips": 7.8
-    },
-    {
-      "term": "ceiling",
-      "weight": 3.0,
-      "flip_rate": 0.822,
-      "flips": 1972,
-      "decisions": 2400,
-      "avg_vorp_cost_when_flips": 20.7
-    },
-    {
-      "term": "bye",
-      "weight": 1.0,
-      "flip_rate": 0.408,
-      "flips": 979,
-      "decisions": 2400,
-      "avg_vorp_cost_when_flips": 3.9
-    },
-    {
-      "term": "bye",
-      "weight": 3.0,
-      "flip_rate": 0.423,
-      "flips": 1015,
+      "flip_rate": 0.554,
+      "flips": 1330,
       "decisions": 2400,
       "avg_vorp_cost_when_flips": 5.0
     },
     {
+      "term": "ceiling",
+      "weight": 1.0,
+      "flip_rate": 0.665,
+      "flips": 1596,
+      "decisions": 2400,
+      "avg_vorp_cost_when_flips": 8.6
+    },
+    {
+      "term": "ceiling",
+      "weight": 3.0,
+      "flip_rate": 0.797,
+      "flips": 1913,
+      "decisions": 2400,
+      "avg_vorp_cost_when_flips": 21.9
+    },
+    {
+      "term": "bye",
+      "weight": 1.0,
+      "flip_rate": 0.387,
+      "flips": 928,
+      "decisions": 2400,
+      "avg_vorp_cost_when_flips": 4.2
+    },
+    {
+      "term": "bye",
+      "weight": 3.0,
+      "flip_rate": 0.425,
+      "flips": 1019,
+      "decisions": 2400,
+      "avg_vorp_cost_when_flips": 6.7
+    },
+    {
       "term": "stack",
       "weight": 0.5,
-      "flip_rate": 0.254,
-      "flips": 610,
+      "flip_rate": 0.217,
+      "flips": 521,
       "decisions": 2400,
-      "avg_vorp_cost_when_flips": 6.6
+      "avg_vorp_cost_when_flips": 7.8
     },
     {
       "term": "tier",
       "weight": 1.0,
-      "flip_rate": 0.98,
-      "flips": 2351,
+      "flip_rate": 0.951,
+      "flips": 2282,
       "decisions": 2400,
-      "avg_vorp_cost_when_flips": 46.6
+      "avg_vorp_cost_when_flips": 45.7
     },
     {
       "term": "risk",
       "weight": 1.0,
-      "flip_rate": 0.601,
-      "flips": 1442,
+      "flip_rate": 0.607,
+      "flips": 1456,
       "decisions": 2400,
-      "avg_vorp_cost_when_flips": 8.3
+      "avg_vorp_cost_when_flips": 8.8
     }
   ],
-  "reading": "need: barely moves picks even at w=3.0 (10%) \u2014 the value anchor dominates; this term is near-inert at every strength tried, so its money-flatness says little \u00b7 ceiling: participates at default (60% of picks) \u2014 its flat money is a REAL null, not a scale artifact \u00b7 bye: participates at default (41% of picks) \u2014 its flat money is a REAL null, not a scale artifact"
+  "reading": "need: barely moves picks even at w=3.0 (12%) \u2014 the value anchor dominates; this term is near-inert at every strength tried, so its money-flatness says little \u00b7 ceiling: participates at default (55% of picks) \u2014 its flat money is a REAL null, not a scale artifact \u00b7 bye: participates at default (39% of picks) \u2014 its flat money is a REAL null, not a scale artifact"
 }

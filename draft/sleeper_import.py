@@ -302,6 +302,22 @@ def import_league(league_id: str, *, keeper_rules: dict | None = None) -> dict:
             "daily_waivers": settings.get("daily_waivers"),
             "is_faab": bool(settings.get("waiver_budget")) and settings.get("waiver_type") == 2,
         },
+        # TRADE WINDOW — imported so no surface has to hard-code week 11.
+        # SharedValuation.tradeActionability() consumes exactly these two, and
+        # nothing calls it yet: the rule and its input are both built and not
+        # connected, which is why the registry files this imported_unread rather
+        # than imported. Recorded that way rather than dressed up.
+        # NAMED `trade_window`, NOT `trades`, ON PURPOSE. The first version used
+        # `trades` and settings_access reported it READ — by
+        # import_master_sheet.py's `out["trades"]`, the master sheet's trade
+        # NOTES, an unrelated dict that happens to share the word. A generic
+        # config field name collides across the repo and turns the reconciler's
+        # answer into a coincidence.
+        "trade_window": {
+            "deadline_week": settings.get("trade_deadline"),
+            "review_days": settings.get("trade_review_days"),
+            "pick_trading": settings.get("pick_trading"),
+        },
         "teams_detail": teams,
         "original_rounds": original_rounds(league_id),
         "keepers": keeper_rules or {
