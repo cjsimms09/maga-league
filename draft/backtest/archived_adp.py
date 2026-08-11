@@ -158,7 +158,99 @@ def looks_like_a_board(text, min_rows=50) -> dict:
         len(re.findall(r">\s*[A-Z][a-z]+ [A-Z][a-z'.-]+\s*<", text)))
     rows = max(json_rows, html_rows)
     return {"rows_seen": rows, "json_rows": json_rows, "html_rows": html_rows,
+            # AN EMPTY BODY IS NOT A PAGE WITHOUT A BOARD. Measured: the 2024-07-31
+            # capture of FantasyPros' overall page came back at ZERO BYTES and was
+            # filed as `not-a-board`, alongside a sibling capture 32 seconds later
+            # that served 422KB. One is a fetch that returned nothing; the other is a
+            # page whose content we read and judged. Same label, opposite meanings.
+            "empty": len(text) == 0,
             "is_board": rows >= min_rows, "bytes": len(text)}
+
+
+def first_serving_capture(captures, fetch, min_rows=50, tries=4) -> dict:
+    """Walk pre-cutoff captures NEWEST FIRST until one actually serves a board.
+
+    THE DEFECT THIS FIXES, measured on the first successful run. The probe took
+    `usable[0]` — the single latest capture before the cutoff — judged it, and gave
+    up. FantasyPros' overall page had a capture at 20240731003217 that returned ZERO
+    BYTES, so the target was reported as serving no board while earlier captures in
+    the same index sat unexamined.
+
+    A capture is a snapshot attempt, not a guarantee: the archive holds empty ones,
+    redirects and error pages under a 200. "The newest capture was a dud" and "no
+    capture serves a board" are different findings, and taking the first is how the
+    second gets reported when only the first is true.
+
+    Every capture examined is reported, so a hit is never a lucky draw from a list
+    nobody can see.
+    """
+    tried = []
+    for cap in (captures or [])[:max(1, tries)]:
+        body = fetch(replay_url(cap))
+        v = looks_like_a_board(body, min_rows)
+        tried.append({"timestamp": cap["timestamp"], "bytes": v["bytes"],
+                      "rows": v["rows_seen"], "empty": v["empty"]})
+        if v["is_board"]:
+            return {"state": "board", "timestamp": cap["timestamp"], "rows": v["rows_seen"],
+                    "bytes": v["bytes"], "body": body, "examined": tried}
+    return {"state": "empty" if (tried and all(t["empty"] for t in tried)) else "not-a-board",
+            "timestamp": tried[0]["timestamp"] if tried else None,
+            "rows": 0, "examined": tried}
+
+
+# Words that appear in these pages and are NOT players. Two capitalised words in a
+# row is a loose pattern and it will catch navigation, ad copy and section headings;
+# a sample polluted with them cannot be hand-checked, which is the only thing it is
+# for.
+_NOT_PLAYERS = frozenset((
+    "fantasy football", "draft kit", "mock draft", "start sit", "waiver wire",
+    "trade value", "my playbook", "sign in", "sign up", "expert consensus",
+    "half point", "point ppr", "best ball", "dynasty rankings", "player news",
+    "injury report", "depth charts", "free agent", "privacy policy", "terms of",
+    "contact us", "about us", "all rights", "las vegas", "new york", "green bay",
+    "kansas city", "san francisco", "tampa bay", "new england", "new orleans",
+    "los angeles", "united states",
+))
+
+
+def extract_names(text, limit=15) -> list:
+    """The first plausible player names, in document order, for a KNOWN-ANSWER check.
+
+    RULE 11, and this probe's own verdict demands it: a page that parses is not a
+    page that is right. `looks_like_a_board` counts shapes; it cannot tell a board
+    of 2024 NFL players from a board of anything else with 200 capitalised pairs on
+    it. The only check that can is a human reading the top of the list and seeing
+    whether those are the players who actually went early.
+
+    So the names come out in ORDER — an ADP board's first rows are its top picks,
+    and a list that opens with the right players in roughly the right order is
+    evidence the page is what it claims. A list that opens with "Draft Kit" and
+    "Mock Draft" is a navigation menu, and the count that called it a board was
+    counting furniture.
+    """
+    import re
+    text = text.decode("utf-8", "replace") if isinstance(text, (bytes, bytearray)) else (text or "")
+    found, seen = [], set()
+    for m in re.finditer(r'"name"\s*:\s*"([^"]{3,40})"', text):
+        cand = m.group(1).strip()
+        if cand.lower() not in seen:
+            seen.add(cand.lower()); found.append(cand)
+        if len(found) >= limit:
+            return found
+    # REAL NFL NAMES BREAK A TIDY PATTERN, and a tidy one silently returns nothing:
+    # Ja'Marr Chase (apostrophe), CeeDee Lamb (internal capital), Amon-Ra St. Brown
+    # (hyphen, period, three words), A.J. Brown (initials). A first cut required
+    # [A-Z][a-z]+ twice and matched NONE of them, which would have produced an empty
+    # hand-check sample and read as "the page has no players".
+    for m in re.finditer(r">\s*([A-Z][A-Za-z'.’-]+(?:\s+[A-Z][A-Za-z'.’-]+){1,2})\s*<", text):
+        cand = m.group(1).strip()
+        low = cand.lower()
+        if low in _NOT_PLAYERS or low in seen:
+            continue
+        seen.add(low); found.append(cand)
+        if len(found) >= limit:
+            break
+    return found
 
 
 def route1_verdict(hits, probed, unreachable=0, leads=0, bad_urls=0) -> str:

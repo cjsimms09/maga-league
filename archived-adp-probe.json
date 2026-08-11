@@ -14,7 +14,9 @@
    "verdict": "UNREACHED",
    "url": "https://fantasyfootballcalculator.com/api/v1/adp/half-ppr?teams=12&year=2024",
    "live_detail": "RuntimeError: no network \u2014 expected",
-   "archived_detail": "RuntimeError: no network \u2014 expected"
+   "archived_detail": "RuntimeError: no network \u2014 expected",
+   "names": null,
+   "captures_examined": null
   },
   {
    "target": "FFC api ppr",
@@ -28,7 +30,9 @@
    "verdict": "UNREACHED",
    "url": "https://fantasyfootballcalculator.com/api/v1/adp/ppr?teams=12&year=2024",
    "live_detail": "RuntimeError: no network \u2014 expected",
-   "archived_detail": "RuntimeError: no network \u2014 expected"
+   "archived_detail": "RuntimeError: no network \u2014 expected",
+   "names": null,
+   "captures_examined": null
   },
   {
    "target": "FFC api standard",
@@ -42,7 +46,9 @@
    "verdict": "UNREACHED",
    "url": "https://fantasyfootballcalculator.com/api/v1/adp/standard?teams=12&year=2024",
    "live_detail": "RuntimeError: no network \u2014 expected",
-   "archived_detail": "RuntimeError: no network \u2014 expected"
+   "archived_detail": "RuntimeError: no network \u2014 expected",
+   "names": null,
+   "captures_examined": null
   },
   {
    "target": "FFC page half-ppr",
@@ -56,7 +62,9 @@
    "verdict": "UNREACHED",
    "url": "https://fantasyfootballcalculator.com/adp/half-ppr/12-team/all",
    "live_detail": "RuntimeError: no network \u2014 expected",
-   "archived_detail": "RuntimeError: no network \u2014 expected"
+   "archived_detail": "RuntimeError: no network \u2014 expected",
+   "names": null,
+   "captures_examined": null
   },
   {
    "target": "FFC page ppr",
@@ -70,7 +78,9 @@
    "verdict": "UNREACHED",
    "url": "https://fantasyfootballcalculator.com/adp/ppr",
    "live_detail": "RuntimeError: no network \u2014 expected",
-   "archived_detail": "RuntimeError: no network \u2014 expected"
+   "archived_detail": "RuntimeError: no network \u2014 expected",
+   "names": null,
+   "captures_examined": null
   },
   {
    "target": "FP half live",
@@ -84,7 +94,9 @@
    "verdict": "UNREACHED",
    "url": "https://www.fantasypros.com/nfl/adp/half-point-ppr-overall.php",
    "live_detail": "RuntimeError: no network \u2014 expected",
-   "archived_detail": "RuntimeError: no network \u2014 expected"
+   "archived_detail": "RuntimeError: no network \u2014 expected",
+   "names": null,
+   "captures_examined": null
   },
   {
    "target": "FP ppr live",
@@ -98,7 +110,9 @@
    "verdict": "UNREACHED",
    "url": "https://www.fantasypros.com/nfl/adp/ppr-overall.php",
    "live_detail": "RuntimeError: no network \u2014 expected",
-   "archived_detail": "RuntimeError: no network \u2014 expected"
+   "archived_detail": "RuntimeError: no network \u2014 expected",
+   "names": null,
+   "captures_examined": null
   },
   {
    "target": "FP overall live",
@@ -112,7 +126,9 @@
    "verdict": "UNREACHED",
    "url": "https://www.fantasypros.com/nfl/adp/overall.php",
    "live_detail": "RuntimeError: no network \u2014 expected",
-   "archived_detail": "RuntimeError: no network \u2014 expected"
+   "archived_detail": "RuntimeError: no network \u2014 expected",
+   "names": null,
+   "captures_examined": null
   },
   {
    "target": "FP half year",
@@ -126,7 +142,9 @@
    "verdict": "UNREACHED",
    "url": "https://www.fantasypros.com/nfl/adp/half-point-ppr-overall.php?year=2024",
    "live_detail": "RuntimeError: no network \u2014 expected",
-   "archived_detail": "RuntimeError: no network \u2014 expected"
+   "archived_detail": "RuntimeError: no network \u2014 expected",
+   "names": null,
+   "captures_examined": null
   },
   {
    "target": "FP ppr year",
@@ -140,7 +158,9 @@
    "verdict": "UNREACHED",
    "url": "https://www.fantasypros.com/nfl/adp/ppr-overall.php?year=2024",
    "live_detail": "RuntimeError: no network \u2014 expected",
-   "archived_detail": "RuntimeError: no network \u2014 expected"
+   "archived_detail": "RuntimeError: no network \u2014 expected",
+   "names": null,
+   "captures_examined": null
   },
   {
    "target": "MFL api adp",
@@ -154,7 +174,9 @@
    "verdict": "UNREACHED",
    "url": "https://api.myfantasyleague.com/2024/export?TYPE=adp&JSON=1",
    "live_detail": "RuntimeError: no network \u2014 expected",
-   "archived_detail": "RuntimeError: no network \u2014 expected"
+   "archived_detail": "RuntimeError: no network \u2014 expected",
+   "names": null,
+   "captures_examined": null
   },
   {
    "target": "MFL adp report",
@@ -168,7 +190,9 @@
    "verdict": "UNREACHED",
    "url": "https://www03.myfantasyleague.com/2024/adp",
    "live_detail": "RuntimeError: no network \u2014 expected",
-   "archived_detail": "RuntimeError: no network \u2014 expected"
+   "archived_detail": "RuntimeError: no network \u2014 expected",
+   "names": null,
+   "captures_examined": null
   },
   {
    "target": "MFL adp page",
@@ -182,7 +206,9 @@
    "verdict": "UNREACHED",
    "url": "https://www.myfantasyleague.com/2024/adp",
    "live_detail": "RuntimeError: no network \u2014 expected",
-   "archived_detail": "RuntimeError: no network \u2014 expected"
+   "archived_detail": "RuntimeError: no network \u2014 expected",
+   "names": null,
+   "captures_examined": null
   },
   {
    "target": "mirror dynastyprocess",
@@ -196,7 +222,9 @@
    "verdict": "UNREACHED",
    "url": "https://raw.githubusercontent.com/dynastyprocess/data/master/files/db_fpecr.csv",
    "live_detail": "RuntimeError: no network \u2014 expected",
-   "archived_detail": "RuntimeError: no network \u2014 expected"
+   "archived_detail": "RuntimeError: no network \u2014 expected",
+   "names": null,
+   "captures_examined": null
   },
   {
    "target": "mirror ffverse adp",
@@ -210,7 +238,9 @@
    "verdict": "UNREACHED",
    "url": "https://github.com/ffverse/ffopportunity",
    "live_detail": "RuntimeError: no network \u2014 expected",
-   "archived_detail": "RuntimeError: no network \u2014 expected"
+   "archived_detail": "RuntimeError: no network \u2014 expected",
+   "names": null,
+   "captures_examined": null
   }
  ],
  "report": {
