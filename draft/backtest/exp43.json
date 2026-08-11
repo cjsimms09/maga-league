@@ -19,11 +19,11 @@
         "thin": false,
         "mean_residual": -3.32,
         "ci95": [
-          -54.23,
-          49.4
+          -55.42,
+          49.9
         ],
         "beats_market": false,
-        "p": 0.928,
+        "p": 0.872,
         "fdr_survive": false
       },
       "WR": {
@@ -31,11 +31,11 @@
         "thin": false,
         "mean_residual": 2.91,
         "ci95": [
-          -22.99,
-          29.35
+          -23.46,
+          30.17
         ],
         "beats_market": false,
-        "p": 0.817,
+        "p": 0.831,
         "fdr_survive": false
       },
       "TE": {
@@ -60,11 +60,11 @@
         "thin": false,
         "mean_residual": 7.25,
         "ci95": [
-          -39.82,
-          65.58
+          -43.03,
+          61.57
         ],
         "beats_market": false,
-        "p": 0.808,
+        "p": 0.817,
         "fdr_survive": false
       },
       "RB": {
@@ -72,11 +72,11 @@
         "thin": false,
         "mean_residual": 10.87,
         "ci95": [
-          -10.72,
-          33.09
+          -12.25,
+          32.26
         ],
         "beats_market": false,
-        "p": 0.354,
+        "p": 0.35,
         "fdr_survive": false
       },
       "WR": {
@@ -84,11 +84,11 @@
         "thin": false,
         "mean_residual": 1.2,
         "ci95": [
-          -19.05,
-          20.66
+          -19.08,
+          20.37
         ],
         "beats_market": false,
-        "p": 0.863,
+        "p": 0.887,
         "fdr_survive": false
       },
       "TE": {
@@ -96,11 +96,11 @@
         "thin": false,
         "mean_residual": -4.64,
         "ci95": [
-          -24.6,
-          15.54
+          -23.83,
+          14.94
         ],
         "beats_market": false,
-        "p": 0.669,
+        "p": 0.648,
         "fdr_survive": false
       },
       "K": {
@@ -125,11 +125,11 @@
         "thin": false,
         "mean_residual": 1.61,
         "ci95": [
-          -22.95,
-          26.16
+          -22.18,
+          25.18
         ],
         "beats_market": false,
-        "p": 0.89,
+        "p": 0.856,
         "fdr_survive": false
       },
       "WR": {
@@ -166,11 +166,11 @@
         "thin": false,
         "mean_residual": -10.9,
         "ci95": [
-          -93.4,
-          62.7
+          -96.54,
+          71.47
         ],
         "beats_market": false,
-        "p": 0.835,
+        "p": 0.851,
         "fdr_survive": false
       },
       "RB": {
@@ -178,11 +178,11 @@
         "thin": false,
         "mean_residual": -22.8,
         "ci95": [
-          -49.75,
-          6.67
+          -50.19,
+          7.18
         ],
         "beats_market": false,
-        "p": 0.137,
+        "p": 0.128,
         "fdr_survive": false
       },
       "WR": {
@@ -190,11 +190,11 @@
         "thin": false,
         "mean_residual": -2.75,
         "ci95": [
-          -24.71,
-          20.54
+          -25.07,
+          19.97
         ],
         "beats_market": false,
-        "p": 0.839,
+        "p": 0.774,
         "fdr_survive": false
       },
       "TE": {
@@ -220,11 +220,11 @@
       "thin": false,
       "mean_residual": 6.55,
       "ci95": [
-        -16.65,
-        32.88
+        -15.76,
+        33.89
       ],
       "beats_market": false,
-      "p": 0.622,
+      "p": 0.599,
       "fdr_survive": false
     },
     "fell": {
@@ -232,11 +232,11 @@
       "thin": false,
       "mean_residual": -3.13,
       "ci95": [
-        -30.02,
-        22.41
+        -29.91,
+        22.98
       ],
       "beats_market": false,
-      "p": 0.843,
+      "p": 0.819,
       "fdr_survive": false
     },
     "at_market": {
@@ -244,11 +244,11 @@
       "thin": false,
       "mean_residual": 4.47,
       "ci95": [
-        -10.41,
-        19.64
+        -10.27,
+        20.01
       ],
       "beats_market": false,
-      "p": 0.561,
+      "p": 0.554,
       "fdr_survive": false
     },
     "reached": {
@@ -256,11 +256,11 @@
       "thin": false,
       "mean_residual": -6.88,
       "ci95": [
-        -25.63,
-        11.95
+        -25.75,
+        10.66
       ],
       "beats_market": false,
-      "p": 0.499,
+      "p": 0.444,
       "fdr_survive": false
     },
     "big_reach": {
@@ -268,11 +268,11 @@
       "thin": false,
       "mean_residual": 4.01,
       "ci95": [
-        -17.25,
-        26.2
+        -16.99,
+        25.57
       ],
       "beats_market": false,
-      "p": 0.732,
+      "p": 0.725,
       "fdr_survive": false
     }
   },
@@ -288,11 +288,11 @@
         "thin": false,
         "mean_residual": 16.2,
         "ci95": [
-          -19.06,
-          52.23
+          -18.3,
+          49.96
         ],
         "beats_market": false,
-        "p": 0.385,
+        "p": 0.351,
         "fdr_survive": false
       },
       "at_market": {
@@ -300,11 +300,11 @@
         "thin": false,
         "mean_residual": 3.46,
         "ci95": [
-          -21.78,
-          29.91
+          -21.23,
+          28.85
         ],
         "beats_market": false,
-        "p": 0.79,
+        "p": 0.827,
         "fdr_survive": false
       },
       "reached": {
@@ -312,11 +312,11 @@
         "thin": false,
         "mean_residual": -3.57,
         "ci95": [
-          -35.24,
-          27.53
+          -35.19,
+          25.55
         ],
         "beats_market": false,
-        "p": 0.84,
+        "p": 0.826,
         "fdr_survive": false
       },
       "big_reach": {
@@ -324,11 +324,11 @@
         "thin": false,
         "mean_residual": -33.03,
         "ci95": [
-          -65.32,
-          0.54
+          -65.4,
+          2.59
         ],
         "beats_market": false,
-        "p": 0.057,
+        "p": 0.069,
         "fdr_survive": false
       }
     },
@@ -343,11 +343,11 @@
         "thin": false,
         "mean_residual": -3.08,
         "ci95": [
-          -42.35,
-          35.92
+          -39.3,
+          34.03
         ],
         "beats_market": false,
-        "p": 0.864,
+        "p": 0.863,
         "fdr_survive": false
       },
       "at_market": {
@@ -355,11 +355,11 @@
         "thin": false,
         "mean_residual": 2.47,
         "ci95": [
-          -18.8,
-          23.19
+          -19.55,
+          22.73
         ],
         "beats_market": false,
-        "p": 0.807,
+        "p": 0.826,
         "fdr_survive": false
       },
       "reached": {
@@ -367,11 +367,11 @@
         "thin": false,
         "mean_residual": -8.35,
         "ci95": [
-          -27.0,
-          10.64
+          -27.01,
+          10.83
         ],
         "beats_market": false,
-        "p": 0.365,
+        "p": 0.397,
         "fdr_survive": false
       },
       "big_reach": {
@@ -420,11 +420,11 @@
         "thin": false,
         "mean_residual": 39.81,
         "ci95": [
-          -20.64,
-          94.9
+          -18.27,
+          95.72
         ],
         "beats_market": false,
-        "p": 0.173,
+        "p": 0.195,
         "fdr_survive": false
       }
     },
@@ -434,11 +434,11 @@
         "thin": false,
         "mean_residual": 0.16,
         "ci95": [
-          -25.5,
-          24.62
+          -23.99,
+          24.43
         ],
         "beats_market": false,
-        "p": 0.954,
+        "p": 0.989,
         "fdr_survive": false
       },
       "fell": {
@@ -476,11 +476,11 @@
       "thin": false,
       "mean_residual": -1.08,
       "ci95": [
-        -34.74,
-        28.93
+        -35.02,
+        27.71
       ],
       "beats_market": false,
-      "p": 0.968,
+      "p": 0.961,
       "owner": "B8T3S",
       "fdr_survive": false
     },
@@ -489,11 +489,11 @@
       "thin": false,
       "mean_residual": -12.92,
       "ci95": [
-        -41.53,
-        17.55
+        -43.99,
+        16.77
       ],
       "beats_market": false,
-      "p": 0.392,
+      "p": 0.375,
       "owner": "Jreis",
       "fdr_survive": false
     },
@@ -502,11 +502,11 @@
       "thin": false,
       "mean_residual": 18.84,
       "ci95": [
-        -8.16,
-        48.63
+        -9.14,
+        49.75
       ],
       "beats_market": false,
-      "p": 0.191,
+      "p": 0.199,
       "owner": "MarianSaar",
       "fdr_survive": false
     },
@@ -515,8 +515,8 @@
       "thin": false,
       "mean_residual": -23.92,
       "ci95": [
-        -40.58,
-        -8.4
+        -40.09,
+        -8.63
       ],
       "beats_market": false,
       "p": 0.001,
@@ -528,11 +528,11 @@
       "thin": false,
       "mean_residual": 2.81,
       "ci95": [
-        -28.67,
-        34.73
+        -28.52,
+        33.09
       ],
       "beats_market": false,
-      "p": 0.857,
+      "p": 0.882,
       "owner": "Sadbru",
       "fdr_survive": false
     },
@@ -541,11 +541,11 @@
       "thin": false,
       "mean_residual": -2.27,
       "ci95": [
-        -32.77,
-        26.19
+        -34.32,
+        27.73
       ],
       "beats_market": false,
-      "p": 0.887,
+      "p": 0.903,
       "owner": "Schmelley",
       "fdr_survive": false
     },
@@ -554,11 +554,11 @@
       "thin": false,
       "mean_residual": -24.29,
       "ci95": [
-        -52.73,
-        2.39
+        -51.7,
+        0.28
       ],
       "beats_market": false,
-      "p": 0.071,
+      "p": 0.055,
       "owner": "cashworth",
       "fdr_survive": false
     },
@@ -567,11 +567,11 @@
       "thin": false,
       "mean_residual": 18.88,
       "ci95": [
-        -6.59,
-        45.19
+        -5.5,
+        45.04
       ],
       "beats_market": false,
-      "p": 0.149,
+      "p": 0.15,
       "owner": "coryjsimms",
       "fdr_survive": false
     },
@@ -580,11 +580,11 @@
       "thin": false,
       "mean_residual": 7.54,
       "ci95": [
-        -19.67,
-        33.18
+        -17.7,
+        33.7
       ],
       "beats_market": false,
-      "p": 0.567,
+      "p": 0.546,
       "owner": "ds7mmet",
       "fdr_survive": false
     },
@@ -593,11 +593,11 @@
       "thin": false,
       "mean_residual": 16.12,
       "ci95": [
-        -14.78,
-        47.91
+        -14.39,
+        50.34
       ],
       "beats_market": false,
-      "p": 0.324,
+      "p": 0.312,
       "owner": "mhagen",
       "fdr_survive": false
     }
@@ -608,22 +608,22 @@
       "thin": false,
       "mean_residual": 0.3,
       "ci95": [
-        -24.07,
-        24.18
+        -23.69,
+        24.16
       ],
       "beats_market": false,
-      "p": 0.986
+      "p": 0.998
     },
     "WR": {
       "n": 36,
       "thin": false,
       "mean_residual": -6.6,
       "ci95": [
-        -23.85,
-        10.74
+        -23.43,
+        10.22
       ],
       "beats_market": false,
-      "p": 0.462
+      "p": 0.43
     },
     "window": [
       51,
