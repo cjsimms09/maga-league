@@ -48,8 +48,12 @@ const ROOT = path.join(__dirname, '..', '..');
  * three pick regimes.
  * Each version's reason is in the artifact itself under `_why`. v1, v2 and v3
  * all stay on the books. */
-const BASELINE = path.join(ROOT, 'draft', 'baseline', 'v5.json');
-const { build } = require(path.join(ROOT, 'draft', 'tools', 'freeze_baseline.js'));
+/* The version is NOT repeated here. freeze_baseline.js declares it once and this
+ * test imports the path, so the frozen surface and the pinned board it was
+ * computed against cannot drift apart into a green comparison nobody intended. */
+const F = require(path.join(ROOT, 'draft', 'tools', 'freeze_baseline.js'));
+const { build } = F;
+const BASELINE = F.BASELINE_PATH;
 
 let pass = 0, fail = 0;
 const ck = (n, c, d) => { c ? (pass++, console.log('PASS ' + n))

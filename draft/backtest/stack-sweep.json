@@ -6,50 +6,50 @@
  "leaderboard": [
   {
    "dose": 0.5,
-   "edge": 179.17,
+   "edge": 470.21,
    "ci95": [
-    119.79,
-    242.92
+    400.83,
+    536.88
    ],
-   "max_same_team": 3.17,
+   "max_same_team": 3.73,
    "verdict": "WINNER \u2014 dose pays"
   },
   {
    "dose": 1.0,
-   "edge": 236.88,
+   "edge": 413.33,
    "ci95": [
-    169.79,
-    310.62
+    346.25,
+    481.04
    ],
-   "max_same_team": 4.56,
+   "max_same_team": 4.88,
    "verdict": "WINNER \u2014 dose pays"
   },
   {
    "dose": 1.5,
-   "edge": 273.75,
+   "edge": 478.12,
    "ci95": [
-    215.42,
-    335.42
+    411.04,
+    544.17
    ],
-   "max_same_team": 5.29,
+   "max_same_team": 5.65,
    "verdict": "WINNER \u2014 dose pays"
   },
   {
    "dose": 2.0,
-   "edge": 242.5,
+   "edge": 472.29,
    "ci95": [
-    182.71,
-    300.0
+    401.88,
+    541.88
    ],
-   "max_same_team": 5.64,
+   "max_same_team": 5.81,
    "verdict": "WINNER \u2014 dose pays"
   },
   {
    "dose": 3.0,
-   "edge": 246.88,
+   "edge": 462.5,
    "ci95": [
-    188.54,
-    305.42
+    394.38,
+    530.62
    ],
    "max_same_team": 5.91,
    "verdict": "WINNER \u2014 dose pays"

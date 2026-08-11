@@ -1086,11 +1086,21 @@ router.get('/draft-sheet', requireCory, aw(async (req, res) => {
     tier: p.tier != null ? p.tier : null, bye: p.bye != null ? p.bye : null,
     kept: kept.has(String(p.player_id)),
   }));
-  // Best available by position (the "within startable need" cut) — top of each.
+  // BEST AVAILABLE BY POSITION — BY VALUE, which is what the heading says.
+  // `all` is sorted by ADP, and this used to slice straight off it, so the
+  // section the sheet's RULE points at ("best available within startable need")
+  // was ordered by market instead. It printed Tucker Kraft at TE5 on a VORP of
+  // -3.82, above Sam LaPorta (+17.8) and Kyle Pitts (+8.67), and put Brock
+  // Bowers (+82.15, the best TE on the board) second behind Trey McBride
+  // (+64.22). A below-replacement player listed as best available, under a
+  // heading naming a value rule. Sorted by VORP now, and the value travels with
+  // it so the rule can actually be applied at the table.
   const byPos = {};
   for (const pos of ['QB', 'RB', 'WR', 'TE', 'K', 'DEF']) {
     byPos[pos] = all.filter(p => p.position === pos && !kept.has(String(p.player_id)))
-      .slice(0, 14).map(p => ({ name: p.name, team: p.team || '', adp: r1(adpOf(p) === 9999 ? null : adpOf(p)), bye: p.bye, tier: p.tier }));
+      .slice().sort((a, b) => (b.vorp == null ? -1e9 : b.vorp) - (a.vorp == null ? -1e9 : a.vorp))
+      .slice(0, 14).map(p => ({ name: p.name, team: p.team || '', adp: r1(adpOf(p) === 9999 ? null : adpOf(p)),
+        bye: p.bye, tier: p.tier, vorp: p.vorp != null ? Math.round(p.vorp) : null }));
   }
   const season = H.currentSeason(req.world.seasons);
   const lg = artifact.league || {};

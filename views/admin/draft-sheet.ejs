@@ -40,6 +40,13 @@
   /* The value tier, per player. It used to be drawn as a running header,
      which is a claim about a value ordering this ADP-sorted list does not have. */
   .row .tr { width: 24px; text-align: right; color: #888; flex: 0 0 auto; font-variant-numeric: tabular-nums; }
+  /* Value over replacement — the quantity the RULE at the top is about. Printed
+     black so it reads as a fact, with below-replacement players struck in grey
+     so "worth less than a waiver pickup" is visible at a glance on paper. */
+  .row .v { width: 32px; text-align: right; font-weight: 700; flex: 0 0 auto; font-variant-numeric: tabular-nums; }
+  .row .v.neg { font-weight: 400; color: #999; }
+  .pos-col .v { font-weight: 700; }
+  .pos-col .v.neg { font-weight: 400; color: #999; }
   .row.kept { color: #999; text-decoration: line-through; }
   .row .tier-brk { font-weight: 700; }
 
@@ -82,20 +89,37 @@
   <div class="noprint"><button class="btn" onclick="window.print()">🖨 Print / Save PDF</button>
     <a href="/admin/warroom" style="margin-left:10px">← War room</a></div>
 
-  <h2>Best available by position — the "within startable need" cut</h2>
+  <h2>Best available by position — by value, the "within startable need" cut</h2>
   <div class="pos-grid">
     <% for (const pos of ['QB','RB','WR','TE','K','DEF']) { const list = byPos[pos] || []; %>
       <div class="pos-col">
         <h3><%= pos %></h3>
         <ol>
-          <% for (const p of list) { %><li><%= p.name %><% if (p.bye) { %> <span class="t">·<%= p.bye %></span><% } %></li><% } %>
+          <%# The value travels with the name. Without it the RULE at the top of
+              this sheet ("best available within startable need") cannot be
+              applied to this list at all — and the list used to be in ADP
+              order, which put below-replacement players above better ones. %>
+          <% for (const p of list) { %><li><%= p.name %><% if (p.bye) { %> <span class="t">·<%= p.bye %></span><% } %><% if (p.vorp != null) { %> <span class="v<%= p.vorp < 0 ? ' neg' : '' %>"><%= p.vorp > 0 ? '+' : '' %><%= p.vorp %></span><% } %></li><% } %>
           <% if (!list.length) { %><li class="t">—</li><% } %>
         </ol>
       </div>
     <% } %>
   </div>
 
-  <h2>The board — top <%= rows.length %> by ADP (cross off as they go)</h2>
+  <%# TWO ORDERINGS, AND THE READER HAS TO KNOW WHICH ONE THIS IS. The number
+      down the left of this list is its position in ADP order — the order picks
+      roughly come in, which is what makes it a cross-off list. The war room's
+      board is numbered by VALUE, so the same player carries two different
+      numbers on two surfaces: Brandon Aubrey is 121 here and 59 there. Neither
+      is wrong; nothing said they were different questions, and this sheet
+      carried no value figure at all to reconcile them with. The value is on
+      every row now, and the heading says what the numbering is. %>
+  <%# AND THE TIER IS PER POSITION. Every position has its own tier 1, so in a
+      mixed list "t1" beside "t1" is not a comparison: Brandon Aubrey is K tier 1
+      on a VORP of +10, Jahmyr Gibbs is RB tier 1 on +156. Putting the value next
+      to the tier made that easy to read the wrong way, so the legend says which
+      scale each letter is on. %>
+  <h2>The board — top <%= rows.length %> in ADP order · <b>v</b> = points over replacement · <b>t</b> = tier within position (cross off as they go)</h2>
   <%# A TIER LINE IN AN ADP-ORDERED LIST IS A CLAIM ABOUT A DIFFERENT ORDERING.
       This drew "— Tier N starts —" the first time each tier appeared, which
       only means anything when the list is sorted by VALUE. This list is sorted
@@ -112,6 +136,7 @@
         <span class="rk"><%= r.rank %></span>
         <span class="pos"><%= r.pos %></span>
         <span class="nm"><%= r.name %><% if (r.bye) { %> <span class="adp" style="width:auto;color:#888">b<%= r.bye %></span><% } %><% if (r.kept) { %> (kept)<% } %></span>
+        <span class="v<%= r.vorp != null && r.vorp < 0 ? ' neg' : '' %>"><%= r.vorp != null ? (r.vorp > 0 ? '+' : '') + r.vorp : '' %></span>
         <span class="tr"><%= r.tier != null ? 't' + r.tier : '' %></span>
         <span class="adp"><%= r.adp != null ? r.adp : '' %></span>
       </div>

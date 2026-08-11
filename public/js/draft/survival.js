@@ -858,10 +858,35 @@
       return v;
     });
     var sum = 0;
+    /* THE ROOM MIXTURE REACHES THE SCORE, NOT ONLY THE PANEL (2026-08-11).
+     *
+     * TWO IMPLEMENTATIONS OF ONE QUESTION. "P(this player | his position is
+     * taken)" is answered in two places: withinPositionProbability, which the
+     * THREATS panel calls, and this one, which precomputeLayer2 calls and which
+     * therefore produces survival_to_next, VONA and the score. D6 taught the
+     * first about rooms and left the second on the generic softmax.
+     *
+     * Measured on the live board before the fix, top-6 RBs:
+     *   withinPositionProbability  Gibbs 0.4500 -> 0.4382 with the room
+     *   withinFromPool             Gibbs 0.4397 -> 0.4397, exactly no change
+     *
+     * So D6's stated purpose — "elite RB/WR/QB survival over an 11-pick window
+     * was OVERSTATED by 2.6-3.4 points" — was never applied to the number that
+     * says how long a player lasts. The panel and the score disagreed about the
+     * same room, and neither was wrong on its own terms.
+     *
+     * Availability still weights it: the mixture is a distribution over the pool
+     * as though every candidate were certain to be there, and a player 20%
+     * likely to still be on the board must contribute 20% of that mass. The
+     * renormalisation below is what makes the two multiply correctly. */
+    var mix = (!(team && team.profile) && team && team.room && team.room.length)
+      ? roomMixture(pool, team.room) : null;
     var exps = scores.map(function (v, i) {
       var w = avail ? Math.max(0, Math.min(1, avail[i] == null ? 1 : avail[i])) : 1;
-      var e = w * Math.exp((v - max) * temp / 10)
-        * affinityMultiplier(team && team.profile, pool[i].player_id);
+      var e = mix
+        ? w * mix[i]
+        : w * Math.exp((v - max) * temp / 10)
+          * affinityMultiplier(team && team.profile, pool[i].player_id);
       sum += e;
       return e;
     });

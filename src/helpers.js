@@ -12,11 +12,33 @@ const CATEGORY_LABELS = {
 };
 const CATEGORIES = Object.keys(CATEGORY_LABELS);
 
+/* ONE MINUS SIGN ACROSS THE WHOLE SITE.
+ *
+ * This returned an ASCII hyphen (-$400) while B's views format the sign
+ * themselves and emit a typographic MINUS SIGN (U+2212). Both appear in the SAME
+ * TABLE on /bank: `money(run)` and `money(vc.balance)` pass a negative straight
+ * in and get the hyphen, while `_side_bets.ejs` and `_hist_money.ejs` do
+ * `(n > 0 ? '+' : '−') + money(Math.abs(n))` and get the minus. Two glyphs for
+ * one concept, a column apart.
+ *
+ * ALIGNED TO B'S rather than the other way round, for two reasons: U+2212 is the
+ * correct character for a negative quantity (the hyphen is a joiner and renders
+ * shorter and higher in most faces), and B's call sites already hand this
+ * function a POSITIVE via Math.abs, so changing them would mean editing several
+ * files in another lane to make one file in mine consistent.
+ *
+ * Reported by B rather than fixed there — src/helpers.js is A's — which is the
+ * split working.
+ *
+ * Safe here: no test asserts the ASCII form, `money()` reaches no email, export
+ * or parser (admin.js passes it a positive buy-in), and every consumer is an
+ * EJS-rendered UTF-8 page.
+ */
 function money(n) {
   if (n == null) return '—';
   const v = Math.round(Math.abs(n) * 100) / 100;
   const s = '$' + v.toLocaleString('en-US', { minimumFractionDigits: v % 1 ? 2 : 0, maximumFractionDigits: 2 });
-  return n < 0 ? '-' + s : s;
+  return n < 0 ? '−' + s : s;
 }
 
 // One parallel fetch of the docs almost every page needs.

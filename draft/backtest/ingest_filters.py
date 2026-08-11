@@ -279,6 +279,21 @@ UNOBTAINED_REASONS = (
     "F4.no_pre_draft_adp", "F5.missing_timestamps",
     "F4.unreadable_team_count", "F4.unreadable_starter_limits",
     "F4.draft_type_absent", "F4.draft_type_unrecognised", "F4.no_reception_rule",
+    # A league we could not FETCH is not a league that failed a filter. Declared
+    # here so `ingest_run` cannot bin one nowhere — the registry caught this code
+    # arriving undeclared, which is exactly what it is for.
+    "F4.fetch_failed",
+    # F3/D5, from `external_outcomes`. All three are UNOBTAINED and not FILTERED,
+    # and the distinction is the whole point of the split: a league whose scoring
+    # uses a term our stat-line translator does not emit is a gap in THIS PIPELINE.
+    # Binned as "filtered" it would read as "the public pool does not score like
+    # us", which is a conclusion about the world drawn from a limitation of ours.
+    "F4.scoring_untranslatable",     # a rule we cannot express as a per-unit multiplier
+    "F4.scoring_range_exceeded",     # a rule's upper bound, checked against the data
+    "F4.no_weekly_data",             # the FETCH served nothing for the season
+    "F4.no_gsis_crosswalk",          # weekly is GSIS-keyed, our board is Sleeper-keyed
+    "F4.stat_columns_absent",        # the DATA cannot serve a term the league scores
+    "F4.no_season_type",             # REG and POST are indistinguishable in this data
 )
 
 

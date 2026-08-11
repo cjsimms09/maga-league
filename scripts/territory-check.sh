@@ -61,6 +61,13 @@ b_owns() {
     src/recap.js) return 0 ;;
     views/*|src/routes/*|public/css/*|public/icons/*|public/*.webmanifest) return 0 ;;
     public/js/*) case "$1" in public/js/draft/*) return 1 ;; *) return 0 ;; esac ;;
+    # ── B'S WORKFLOWS, by the same substance test as its src/*.js files ──────
+    # Narrowing shared() to repo-wide workflows would otherwise drop these into
+    # A's lane by default — B has never been NAMED here because the blanket
+    # `shared` entry meant nobody had to be. These run B's member-facing features
+    # (the Sunday alert, the weekly recap, the annual reset) and B maintains them.
+    .github/workflows/sunday-alert.yml|.github/workflows/weekly-recap.yml) return 0 ;;
+    .github/workflows/annual.yml|.github/workflows/annual-key-smoke.yml) return 0 ;;
     docs/queued/league-history-page.md|docs/queued/history-chronicle-voice.md) return 0 ;;
     docs/queued/contact-directory.md) return 0 ;;
     *) return 1 ;;
@@ -106,12 +113,59 @@ c_owns() {
     draft/backtest/adp_asof_*) return 0 ;;
     draft/backtest/ingest_*) return 0 ;;
     draft/backtest/crosswalk*|draft/backtest/nflverse*) return 0 ;;
-    draft/tests/test_mfl_*|draft/tests/test_external_replay*) return 0 ;;
-    draft/tests/test_adp_asof_*|draft/tests/test_ingest_*) return 0 ;;
-    draft/tests/test_attrition*|draft/tests/test_crosswalk*) return 0 ;;
-    draft/tests/test_nflverse*) return 0 ;;
-    .github/workflows/adp-asof-probe.yml) return 0 ;;
-    .github/workflows/mfl-probe.yml|.github/workflows/mfl-schema-probe.yml) return 0 ;;
+    # ── A TEST FILE FOLLOWS ITS MODULE ──────────────────────────────────────
+    #
+    # Cory's ruling, 2026-08-11, after `draft/tests/test_external_outcomes.py`
+    # landed on A's side of the line while its module
+    # `draft/backtest/external_outcomes.py` was C's. Nobody decided that; the
+    # test patterns were a hand-written list and the module patterns were
+    # prefixes, so the two drifted the moment C added a module whose test name
+    # was not already enumerated. A module and its test on opposite sides
+    # produces a real collision the first time one side changes both.
+    #
+    # DERIVED, NOT LISTED. `test_<x>.py` asks who owns `<x>.py` and answers the
+    # same. A new C module carries its test automatically, and the list cannot
+    # drift from the prefixes again because it is no longer a separate list.
+    #
+    # The explicit entries below survive ONLY for tests whose module name does
+    # not match the file they test — they are exceptions now, not the mechanism,
+    # and each is a candidate for a rename rather than a permanent entry.
+    draft/tests/test_*.py)
+      _t="${1#draft/tests/test_}"; _t="${_t%.py}"
+      for _m in "draft/backtest/${_t}.py" "draft/${_t}.py"; do
+        if [ -e "$_m" ] || [ -n "${TERRITORY_ASSUME_MODULE:-}" ]; then
+          c_owns "$_m" && return 0
+        fi
+      done
+      # EXCEPTIONS — the test is named for what it CHECKS, not for its module.
+      # Each is verified against the file's own imports, not guessed:
+      #   test_crosswalk_known_answers.py  imports mfl_adapter   (C)
+      #   test_attrition_seam.py           imports ingest_filters (C)
+      # `test_nflverse*` was dropped: no such test exists, and when C adds one the
+      # derivation above will pick it up from draft/backtest/nflverse*.py without
+      # an edit here — which is the whole point of deriving.
+      case "$1" in
+        draft/tests/test_attrition*|draft/tests/test_crosswalk*) return 0 ;;
+      esac
+      return 1 ;;
+    # ── WORKFLOWS DERIVE FROM THE SAME PREFIXES AS THE MODULES ──────────────
+    #
+    # THE SECOND DEAD LIST, found by asking Cory's question once (2026-08-11).
+    # This used to name three files — adp-asof-probe, mfl-probe, mfl-schema-probe
+    # — and it had BOTH defects at once:
+    #
+    #   · UNREACHABLE: `shared()` claimed `.github/workflows/*` and runs before
+    #     ownership, so these three lines never executed. Same disease as the
+    #     test-name list, in the same function, and it survived that fix.
+    #   · STALE: C has EIGHT ingest workflows on disk. The list named three.
+    #     external-adp-capture, external-discovery, external-ingest-run,
+    #     external-outcomes-probe and discovery-probe were never in it.
+    #
+    # Both are the hand-written-list failure. The names already carry the lane —
+    # they use the SAME prefixes as C's modules — so they are derived here
+    # instead, and cannot drift from the modules again.
+    .github/workflows/mfl-*|.github/workflows/external-*) return 0 ;;
+    .github/workflows/discovery-*|.github/workflows/adp-asof-*) return 0 ;;
     INGEST-PLAN.md) return 0 ;;
     *) return 1 ;;
   esac
@@ -124,11 +178,59 @@ shared() {
     STATUS.md|PARKED.md|DECISIONS-NEEDED.md|TASK-AUDIT.md|TERRITORY.md) return 0 ;;
     # Shared coordination infra: the split's own enforcement, maintained by both.
     scripts/territory-check.sh|scripts/branch-check.sh) return 0 ;;
-    # Shared TEST + CI infra: draft/tests holds tests for BOTH lanes, and each
-    # side maintains the WORKFLOWS for the features it owns (A: lab/self-audit/
-    # deploy-verify…; B: sunday-alert…). A test/workflow follows the substance of
-    # what it serves. Append-only, rebase before push; neither rewrites the other's.
-    draft/tests/*|.github/workflows/*) return 0 ;;
+    # ⚠️ SHARED-FILE EDIT BY B, 2026-08-11 — banner per Cory's three-session rule.
+    # ── *.test.js STAYS SHARED, BECAUSE NOTHING DERIVES ITS OWNER YET ────────
+    #
+    # Narrowing `draft/tests/*` replaced the blanket entry with a derivation for
+    # `test_*.py` only. `*.test.js` was left with no rule, fell through to the
+    # default, and every JS test silently became A's — including the fifteen
+    # written for B surfaces this week. The first edit to one of them reported
+    # `TRESPASS (B touched B's own test)`, which is how it was found.
+    #
+    # I TRIED TO DERIVE IT AND IT DOES NOT DERIVE. `test_<x>.py` works because a
+    # Python test names its module. These do not: they are named for what they
+    # CHECK (matchup_arithmetic, bank_arithmetic, pickem_copy) and most are
+    # INTEGRATION tests that drive a surface over HTTP — draft_sheet_tiers
+    # requires only store/data/auth/server-app and fetches /admin/draft-sheet,
+    # so its require list says nothing about who owns the page it tests.
+    # Deriving from fetched routes would need a second ownership model for URLs.
+    #
+    # So this restores yesterday's status for the JS half rather than inventing
+    # one: shared, append-only. It is not the shadowing the note below fixed —
+    # there is no JS derivation being shadowed, because there is none to reach.
+    # ROUTED TO A: how a JS integration test should be owned is a boundary
+    # decision, not a mechanical fix, and it is A's rule to settle.
+    draft/tests/*.test.js) return 0 ;;
+
+    # ── draft/tests/* IS NO LONGER BLANKET-SHARED ───────────────────────────
+    #
+    # A GUARD THAT EXISTED AND DID NOT GUARD. This entry claimed every test file
+    # for both lanes, which means `c_owns` was NEVER CONSULTED for any test —
+    # `shared()` short-circuits it. So the whole list of test-name patterns
+    # inside c_owns (test_mfl_*, test_ingest_*, test_crosswalk*, …) has been
+    # DEAD CODE for its entire life. It looked like ownership was being decided.
+    # It was not. Found 2026-08-11 while fixing what looked like a gap in that
+    # list, by writing the first test that actually asked the question.
+    #
+    # The old comment stated the right principle — "a test follows the substance
+    # of what it serves" — and implemented it as `shared`, which is a convention
+    # with no enforcement. Cory's ruling makes it structural: a test follows its
+    # MODULE, and c_owns derives that. So the entry is removed and the derivation
+    # becomes reachable.
+    #
+    # ── ONLY REPO-WIDE WORKFLOWS ARE SHARED ─────────────────────────────────
+    #
+    # `.github/workflows/*` was blanket-shared, which made the three C workflow
+    # entries in c_owns unreachable — the same shadowing that made every
+    # test-name pattern dead. Narrowed to the workflows that genuinely serve the
+    # WHOLE REPO rather than one lane's feature: ci.yml runs both suites and every
+    # shell guard; deploy-verify, site-check and self-audit check the deployed
+    # artifact, not a lane.
+    #
+    # Everything else follows the feature it runs, by the same prefixes that own
+    # the code. A lane-specific workflow is as much that lane's as its module is.
+    .github/workflows/ci.yml|.github/workflows/deploy-verify.yml) return 0 ;;
+    .github/workflows/site-check.yml|.github/workflows/self-audit.yml) return 0 ;;
     *) return 1 ;;
   esac
 }

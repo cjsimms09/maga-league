@@ -44,8 +44,6 @@ const ck = (n, c, d) => { c ? (pass++, console.log('PASS ' + n)) : (fail++, cons
   const html = await (await fetch(base + '/admin/draft-sheet', { headers: { cookie } })).text();
 
   ck('the sheet renders its board', /class="board"/.test(html) && /class="row/.test(html));
-  ck('  and says what the list is ordered by', /by ADP/.test(html),
-    (html.replace(/<[^>]+>/g, ' ').match(/The board[^(]*/) || [])[0]);
 
   // ── THE RUNNING HEADER. Allowed only if monotonic in the printed order.
   const markers = [...html.matchAll(/Tier (\d+) starts/g)].map(m => Number(m[1]));
@@ -78,6 +76,68 @@ const ck = (n, c, d) => { c ? (pass++, console.log('PASS ' + n)) : (fail++, cons
     });
     ck('  and every printed tier is that player\'s tier in the artifact',
       wrong.length === 0, wrong.slice(0, 6));
+  }
+
+
+  // ── THE OTHER HALF, LEFT OPEN BY A: the sheet carried no value figure at all,
+  // and its number is an ADP ordering while the war room's board is numbered by
+  // VALUE — Brandon Aubrey is 121 here and 59 there. Neither ordering is wrong;
+  // nothing said they were different questions, and with no VORP on the page
+  // there was nothing to reconcile them with.
+  {
+    const art = require(path.join(ROOT, 'public', 'draft_data.json'));
+    ck('the board says which ordering its numbering is',
+      /in ADP order/.test(html), (html.replace(/<[^>]+>/g, ' ').match(/The board[^(]*/) || [])[0]);
+    ck('  and legends the two letters it prints',
+      /points over replacement/.test(html) && /tier within position/.test(html),
+      (html.replace(/<[^>]+>/g, ' ').match(/The board[^(]*/) || [])[0]);
+
+    const rows = [...html.matchAll(/<div class="row[^"]*">([\s\S]*?)<\/div>\s*(?=<div class="row|<\/div>)/g)]
+      .map(m => ({
+        name: ((m[1].match(/<span class="nm">([^<]*)/) || [])[1] || '').trim(),
+        v: (m[1].match(/<span class="v[^"]*">([+-]?\d+)</) || [])[1],
+      })).filter(r => r.name);
+    const withV = rows.filter(r => r.v != null);
+    ck('  every row carries its value over replacement',
+      withV.length >= rows.length * 0.9, { withValue: withV.length, rows: rows.length });
+    const wrong = withV.filter(r => {
+      const p = art.players.find(x => x.name === r.name);
+      return p && p.vorp != null && Math.round(p.vorp) !== Number(r.v);
+    });
+    ck('  and it is the artifact\'s VORP, rounded', wrong.length === 0, wrong.slice(0, 5));
+  }
+
+  // ── BEST AVAILABLE BY POSITION IS BY VALUE, which is what its heading claims.
+  // It was sliced off the ADP-sorted list, so it printed Tucker Kraft at TE5 on
+  // a VORP of -3.82 above Sam LaPorta (+17.8), and Brock Bowers (+82.15, the
+  // best TE on the board) second behind Trey McBride (+64.22).
+  {
+    const art = require(path.join(ROOT, 'public', 'draft_data.json'));
+    ck('the section says it is ordered by value',
+      /Best available by position — by value/.test(html.replace(/<[^>]+>/g, m => m === '</h2>' ? '' : m).replace(/<[^>]+>/g, '')),
+      (html.replace(/<[^>]+>/g, ' ').match(/Best available[^<]{0,70}/) || [])[0]);
+    let checked = 0, unsorted = [];
+    for (const pos of ['QB', 'RB', 'WR', 'TE']) {
+      const col = html.match(new RegExp('<h3>' + pos + '</h3>[\\s\\S]*?</ol>'));
+      if (!col) continue;
+      const vals = [...col[0].matchAll(/<span class="v[^"]*">([+-]?\d+)</g)].map(m => Number(m[1]));
+      if (vals.length < 4) continue;
+      checked++;
+      for (let i = 1; i < vals.length; i++) if (vals[i] > vals[i - 1]) unsorted.push({ pos, at: i + 1, vals });
+    }
+    ck('fixture check: the position columns were parsed with their values', checked >= 3, checked);
+    ck('  each column descends by value, top to bottom', unsorted.length === 0, unsorted.slice(0, 3));
+    // And the top of each column really is the best available at that position.
+    const bad = [];
+    for (const pos of ['QB', 'RB', 'WR', 'TE']) {
+      const col = html.match(new RegExp('<h3>' + pos + '</h3>[\\s\\S]*?</ol>'));
+      if (!col) continue;
+      const first = (col[0].match(/<li>([^<]*)/) || [])[1];
+      const best = art.players.filter(p => p.position === pos)
+        .sort((a, b) => b.vorp - a.vorp)[0];
+      if (first && best && !first.trim().startsWith(best.name)) bad.push({ pos, printed: first.trim(), best: best.name });
+    }
+    ck('  and the first name in each is the best by value', bad.length === 0, bad);
   }
 
   srv.close();

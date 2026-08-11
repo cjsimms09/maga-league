@@ -56,6 +56,27 @@ const flat = h => h.replace(/<[^>]+>/g, ' ').replace(/&#39;/g, "'").replace(/&am
       }
     }
   }
+  // ── THE ARCHIVE'S OWN BOOKS CLOSE. Carried over from
+  // career_records_close.test.js, which retired itself when A corrected the
+  // seed (f71b05e). A's test_career_records_close.py now guards the seeded
+  // career totals and is stronger there — ten owners, W == L, ties even, slots
+  // even, every owner on the same game count. The ONE clause it does not have
+  // is this one: it reads seed-data, not the box scores. This is the check that
+  // localized the bad row in the first place — the era closing exactly is what
+  // proved the surplus was upstream of it — so it stays, here, where the
+  // archive is already built.
+  {
+    let w = 0, l = 0, t = 0;
+    for (const n of names) {
+      const c = (A.owners[n] || {}).career || { wins: 0, losses: 0, ties: 0 };
+      w += c.wins; l += c.losses; t += c.ties || 0;
+    }
+    ck('the box-score era closes: every game in the archive has two sides',
+      w === l, { wins: w, losses: l });
+    ck('  and its ties are paired', t % 2 === 0, t);
+    ck('  fixture check: there is a real era in there to close', w > 100, w);
+  }
+
   ck('every pair in the league is compared', compared >= 40, compared);
   // FIXTURE CHECK: if no pair differed, the invariant below would hold
   // trivially and the labelling would not matter.

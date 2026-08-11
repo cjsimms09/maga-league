@@ -1,0 +1,308 @@
+{
+  "chain": [
+    {
+      "league_id": "1374848328470102016",
+      "season": "2026",
+      "status": "pre_draft"
+    },
+    {
+      "league_id": "1248121522762027008",
+      "season": "2025",
+      "status": "complete"
+    },
+    {
+      "league_id": "1117672595379277824",
+      "season": "2024",
+      "status": "complete"
+    },
+    {
+      "league_id": "990840142107619328",
+      "season": "2023",
+      "status": "complete"
+    }
+  ],
+  "per_season": [
+    {
+      "league_id": "1248121522762027008",
+      "rows": {
+        "434915673219526656": {
+          "losses": 10,
+          "ties": 0,
+          "wins": 5
+        },
+        "434921290978029568": {
+          "losses": 6,
+          "ties": 0,
+          "wins": 9
+        },
+        "434921916734631936": {
+          "losses": 10,
+          "ties": 0,
+          "wins": 5
+        },
+        "439662843298574336": {
+          "losses": 5,
+          "ties": 0,
+          "wins": 10
+        },
+        "440723317066821632": {
+          "losses": 5,
+          "ties": 0,
+          "wins": 10
+        },
+        "458507445241638912": {
+          "losses": 3,
+          "ties": 0,
+          "wins": 12
+        },
+        "459850070410391552": {
+          "losses": 7,
+          "ties": 0,
+          "wins": 8
+        },
+        "461443264013135872": {
+          "losses": 8,
+          "ties": 0,
+          "wins": 7
+        },
+        "471160336402083840": {
+          "losses": 11,
+          "ties": 0,
+          "wins": 4
+        },
+        "739930057887334400": {
+          "losses": 10,
+          "ties": 0,
+          "wins": 5
+        }
+      },
+      "season": "2025"
+    },
+    {
+      "league_id": "1117672595379277824",
+      "rows": {
+        "434915673219526656": {
+          "losses": 6,
+          "ties": 0,
+          "wins": 9
+        },
+        "434921290978029568": {
+          "losses": 4,
+          "ties": 0,
+          "wins": 11
+        },
+        "434921916734631936": {
+          "losses": 5,
+          "ties": 0,
+          "wins": 10
+        },
+        "439662843298574336": {
+          "losses": 11,
+          "ties": 0,
+          "wins": 4
+        },
+        "440723317066821632": {
+          "losses": 5,
+          "ties": 0,
+          "wins": 10
+        },
+        "458507445241638912": {
+          "losses": 9,
+          "ties": 0,
+          "wins": 6
+        },
+        "459850070410391552": {
+          "losses": 9,
+          "ties": 0,
+          "wins": 6
+        },
+        "461443264013135872": {
+          "losses": 6,
+          "ties": 0,
+          "wins": 9
+        },
+        "471160336402083840": {
+          "losses": 8,
+          "ties": 0,
+          "wins": 7
+        },
+        "739930057887334400": {
+          "losses": 12,
+          "ties": 0,
+          "wins": 3
+        }
+      },
+      "season": "2024"
+    },
+    {
+      "league_id": "990840142107619328",
+      "rows": {
+        "434915673219526656": {
+          "losses": 6,
+          "ties": 0,
+          "wins": 9
+        },
+        "434921290978029568": {
+          "losses": 5,
+          "ties": 0,
+          "wins": 10
+        },
+        "434921916734631936": {
+          "losses": 9,
+          "ties": 0,
+          "wins": 6
+        },
+        "439662843298574336": {
+          "losses": 10,
+          "ties": 0,
+          "wins": 5
+        },
+        "440723317066821632": {
+          "losses": 10,
+          "ties": 0,
+          "wins": 5
+        },
+        "458507445241638912": {
+          "losses": 5,
+          "ties": 0,
+          "wins": 10
+        },
+        "459850070410391552": {
+          "losses": 6,
+          "ties": 0,
+          "wins": 9
+        },
+        "461443264013135872": {
+          "losses": 7,
+          "ties": 0,
+          "wins": 8
+        },
+        "471160336402083840": {
+          "losses": 9,
+          "ties": 0,
+          "wins": 6
+        },
+        "739930057887334400": {
+          "losses": 8,
+          "ties": 0,
+          "wins": 7
+        }
+      },
+      "season": "2023"
+    }
+  ],
+  "seeded": {
+    "Bates": {
+      "losses": 49,
+      "ties": 0,
+      "wins": 36
+    },
+    "Cory": {
+      "losses": 36,
+      "ties": 1,
+      "wins": 49
+    },
+    "David": {
+      "losses": 34,
+      "ties": 0,
+      "wins": 51
+    },
+    "Dylan": {
+      "losses": 44,
+      "ties": 0,
+      "wins": 41
+    },
+    "Jeremy": {
+      "losses": 45,
+      "ties": 0,
+      "wins": 40
+    },
+    "Justin": {
+      "losses": 43,
+      "ties": 1,
+      "wins": 41
+    },
+    "Marian": {
+      "losses": 33,
+      "ties": 0,
+      "wins": 52
+    },
+    "Michael": {
+      "losses": 43,
+      "ties": 0,
+      "wins": 42
+    },
+    "Richard": {
+      "losses": 49,
+      "ties": 0,
+      "wins": 36
+    },
+    "Sam": {
+      "losses": 48,
+      "ties": 0,
+      "wins": 37
+    }
+  },
+  "seeded_totals": {
+    "losses": 424,
+    "ties": 2,
+    "wins": 425
+  },
+  "sleeper_by_display_name": {
+    "B8T3S": {
+      "losses": 26,
+      "ties": 0,
+      "wins": 19
+    },
+    "Jreis": {
+      "losses": 20,
+      "ties": 0,
+      "wins": 25
+    },
+    "MarianSaar": {
+      "losses": 21,
+      "ties": 0,
+      "wins": 24
+    },
+    "Richard2121": {
+      "losses": 28,
+      "ties": 0,
+      "wins": 17
+    },
+    "Sadbru": {
+      "losses": 30,
+      "ties": 0,
+      "wins": 15
+    },
+    "Schmelley": {
+      "losses": 22,
+      "ties": 0,
+      "wins": 23
+    },
+    "cashworth": {
+      "losses": 24,
+      "ties": 0,
+      "wins": 21
+    },
+    "coryjsimms": {
+      "losses": 22,
+      "ties": 0,
+      "wins": 23
+    },
+    "ds7mmet": {
+      "losses": 15,
+      "ties": 0,
+      "wins": 30
+    },
+    "mhagen": {
+      "losses": 17,
+      "ties": 0,
+      "wins": 28
+    }
+  },
+  "sleeper_totals": {
+    "losses": 225,
+    "ties": 0,
+    "wins": 225
+  }
+}

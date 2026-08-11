@@ -135,7 +135,7 @@ def main():
         pred["source"] = "model + intel override"
 
     OUT.write_text(json.dumps({"provenance": "predicted (flat-cost surplus) + Cory intel",
-                               "note": "PREDICTED slates for mock/rehearsal — replaced one-by-one by real designations via keeper-watch. Assumes keeper-eligibility (max_years=3 not verifiable for opponents).",
+                               "note": "PREDICTED slates for MOCK/REHEARSAL ONLY — never applied to the live board (Cory, 2026-08-11: a prediction rendered indistinguishably from a fact IS a fact as far as behaviour is concerned). Real designations are read from live Sleeper by the nightly draft-data rebuild; there is no keeper-watch process. Assumes keeper-eligibility (max_years=3 not verifiable for opponents).",
                                "round_cost_vorp": thresholds,
                                "predictions": predictions}, indent=2))
 

@@ -431,6 +431,41 @@ RED BY NAME — and applies it to old guards as well as new ones.
 not fail, a CI step aborting before most of the suite ran, a test asserting the bug it should
 have caught, and a check comparing a function against itself.
 
+**10d — A DERIVED BASELINE OR FIXTURE CAN STOP ASKING ITS QUESTION WITHOUT EVER FAILING.**
+Cory, 2026-08-11, authorised as written.
+
+> A fixture or baseline that DERIVES from the thing under test can stop exercising its case
+> without ever failing. Deriving is usually right — it is what keeps a fixture honest against a
+> live shape — so the requirement is not to stop. It is that anything the test SUBTRACTS from a
+> derived set must be derived from THE SAME SOURCE, and that a fixture whose meaning depends on
+> the code's current shape carries an assertion that it still represents its case.
+
+**THE ARROW REVERSES, AND THAT IS WHY IT GENERALISES.** *A guard whose reference derives from the
+code always agrees. A fixture whose input derives from the code always passes.* Both swap a fixed
+question for a self-referential one, and **both hide inside a derivation that is genuinely the
+better engineering choice** — which is why neither announces itself. That last part is why this
+needed writing down: the failure lives inside a decision that was correct.
+
+*Evidence, two instances in one change (2026-08-11).* C's `wk()` seeds a column for every key in
+`grade._WEEKLY_MAP` — the right instinct, since a fixture carrying only the columns a test cares
+about would pass a schema check on a shape the live path never serves. Adding ONE alias to that
+map silently changed what every fixture contained: a helper named `unmapped_rename` removed one
+interception column and left the other, and the present-but-never-populated case nulled one alias
+of two. Both kept passing. **A fixture cannot fail for no longer representing its case; it
+quietly tests something easier.**
+
+*Enforcement — HALF FILLED, and the empty half is named rather than implied.* The first
+requirement (subtract from the same source) is demonstrated by both helpers in
+`draft/tests/test_external_outcomes.py`, which now derive their removals from `_WEEKLY_MAP`
+instead of listing column names. **The second requirement has NO TEST ANYWHERE**: nothing asserts
+that a derived fixture still represents its case. That cell is empty, it joins the others already
+tracked, and it is the harder half — a fixture that has quietly become trivial is exactly what an
+assertion about its own content would have to catch.
+
+*And the demonstrating file is in C's lane*, not A's. A has no instance of this pattern yet, which
+is worth stating rather than papering over: the clause is carried on evidence from another
+session's code.
+
 **14. WHEN SOMETHING COMPUTES A VALUE OR A VERDICT, THE SAME UNIT OF WORK ESTABLISHES ITS
 CONSUMER.** Cory, 2026-08-11. Not a style preference — **a produced-and-unread value looks
 identical to a working system from every angle except the one where it matters.** It has tests,

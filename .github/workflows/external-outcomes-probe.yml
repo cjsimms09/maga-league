@@ -1,0 +1,126 @@
+name: F3 weekly-outcomes reachability & translation sanity
+
+# THE PREREQUISITE `ingest_run.run()` PRE-DECLARED. F4 excludes a league missing
+# weekly outcomes, so until this path exists every external league is dropped for
+# it. This probes the path rather than assuming it, on two axes that fail
+# independently:
+#
+#   1. REACHABILITY, per season and per loader. DATA-INVENTORY.md (2026-08-08)
+#      records import_weekly_data[2024] REACHABLE and nflreadpy INSTALLED BUT
+#      NEVER PROBED FOR WEEKLY, and backtest/cli.py records that import_weekly_data
+#      404s for seasons import_pbp_data serves. So neither loader is assumed and
+#      both are tried, per season, with the answer naming which one worked.
+#
+#   2. TRANSLATION, which reachability says nothing about. 5,597 rows can score
+#      without error and produce a leaderboard of nobody — that is exactly what
+#      happened once already (nflverse calls them `receptions`, our engine calls
+#      them `rec`; every prior-season total scored near zero and ranked
+#      UNCORRELATED with ADP). The leaderboard printed below is the check a human
+#      can run against knowledge the pipeline does not have.
+#
+# Nothing is committed. No egress to MFL. Read-only.
+
+on:
+  workflow_dispatch:
+    inputs:
+      seasons:
+        description: "comma-separated seasons to probe"
+        default: "2024,2025"
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - name: Install loaders
+        # Installed HERE, not added to draft/requirements.txt — that file is not
+        # this lane's to edit. If the ingest ever needs it in the shared
+        # requirements, that is a parked request, not a quiet commit.
+        run: pip install -q pandas nfl_data_py nflreadpy || pip install -q pandas nfl_data_py
+      - name: Probe reachability and translation
+        env:
+          SEASONS: ${{ github.event.inputs.seasons || '2024,2025' }}
+        run: |
+          python3 - <<'PY'
+          import json, os, sys
+          sys.path.insert(0, "draft"); sys.path.insert(0, "draft/backtest")
+          import scoring
+          import external_outcomes as X
+
+          seasons = [int(s) for s in os.environ["SEASONS"].split(",") if s.strip()]
+          report = {"seasons": {}}
+          for yr in seasons:
+              got = X.fetch_weekly(yr)
+              entry = {"tried": got.get("tried")}
+              if got.get("error"):
+                  entry["status"] = "NO_LOADER"
+                  entry["error"] = got["error"]
+                  report["seasons"][str(yr)] = entry
+                  print("== %s: %s" % (yr, got["error"]))
+                  for t in got["tried"]:
+                      print("   %(loader)s: %(status)s — %(detail)s" % t)
+                  continue
+              rows = got["rows"]
+              entry["status"] = "REACHABLE"
+              entry["loader"] = got["loader"]
+              entry["rows"] = len(rows)
+              # THE EYEBALL TEST. Scored by the SHIPPED engine under the shipped
+              # half-PPR reference, so a leaderboard of nobody means the column
+              # translation is wrong — not that the season was strange.
+              top = X.sanity_top(rows, yr, scoring.HALF_PPR_REFERENCE, n=20)
+              entry["top20"] = top
+              cols = sorted(rows[0].keys()) if rows else []
+              entry["columns_present"] = [c for c in
+                                          ("receptions", "receiving_yards", "receiving_tds",
+                                           "passing_yards", "passing_tds", "interceptions",
+                                           "rushing_yards", "rushing_tds",
+                                           "rushing_fumbles_lost", "receiving_fumbles_lost")
+                                          if c in cols]
+              entry["columns_missing"] = [c for c in
+                                          ("receptions", "receiving_yards", "receiving_tds",
+                                           "passing_yards", "passing_tds", "interceptions",
+                                           "rushing_yards", "rushing_tds",
+                                           "rushing_fumbles_lost", "receiving_fumbles_lost")
+                                          if c not in cols]
+              print("== %s: %d rows via %s" % (yr, len(rows), got["loader"]))
+              if entry["columns_missing"]:
+                  print("   !! COLUMNS THIS LOADER DOES NOT PROVIDE: %s"
+                        % ", ".join(entry["columns_missing"]))
+                  print("   a missing column scores as ABSENT, and absent is 0 points —")
+                  print("   which is the one place this pipeline's own rule is unenforceable")
+              print("   half-PPR top 20 (name / pos / weeks / points):")
+              for r in top:
+                  print("     %-28s %-4s %2s  %7.2f"
+                        % (r["name"], r["position"], r["weeks"], r["points"]))
+              report["seasons"][str(yr)] = entry
+          # LEAD WITH WHAT FAILED.
+          bad = [y for y, e in report["seasons"].items() if e["status"] != "REACHABLE"]
+          empty = [y for y, e in report["seasons"].items()
+                   if e["status"] == "REACHABLE" and not e.get("top20")]
+          missing = {y: e["columns_missing"] for y, e in report["seasons"].items()
+                     if e.get("columns_missing")}
+          verdict = []
+          if bad:
+              verdict.append("NO LOADER SERVED WEEKLY DATA FOR %s — F3 cannot be "
+                             "computed for those seasons and every league in them is "
+                             "F4.no_weekly_data, which is a statement about the FETCH "
+                             "and not about the leagues" % ", ".join(sorted(bad)))
+          if empty:
+              verdict.append("SEASONS %s returned rows that scored NOTHING — the column "
+                             "translation is broken, not the season" % ", ".join(sorted(empty)))
+          if missing:
+              verdict.append("COLUMNS ABSENT: %s" % json.dumps(missing))
+          report["verdict"] = ("; and ".join(verdict) if verdict
+                               else "all probed seasons reachable and scoring")
+          print("\nVERDICT: " + report["verdict"])
+          open("outcomes-probe.json", "w").write(json.dumps(report, indent=1))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: outcomes-probe
+          path: outcomes-probe.json

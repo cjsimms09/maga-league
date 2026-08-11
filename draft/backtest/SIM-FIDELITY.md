@@ -10,12 +10,12 @@ Experiment 2 §6 reported `run_pressure` at **0% incidence**. That is a **MODEL 
 
 | cascade | sim run share | runs/draft | |err| vs real |
 |---|---|---|---|
-| 0.0 | 40% | 19.08 | 0.064 |
-| 1.0 | 42% | 20.04 | 0.041 |
-| 2.0 | 44% | 20.5 | 0.025 |
-| 4.0 | 46% | 21.5 | 0.005 ← fitted |
-| 8.0 | 50% | 22.88 | 0.044 |
-| 16.0 | 55% | 23.83 | 0.092 |
+| 0.0 | 40% | 18.96 | 0.065 |
+| 1.0 | 42% | 19.71 | 0.044 |
+| 2.0 | 44% | 20.33 | 0.025 |
+| 4.0 | 46% | 21.21 | 0.002 ← fitted |
+| 8.0 | 50% | 22.58 | 0.041 |
+| 16.0 | 56% | 24.42 | 0.1 |
 
 **Fitted magnitude: 4.0** — the value whose run frequency best matches the real drafts (real 46% vs fitted 46%). Fitted from OUR data, not chosen for taste.
 
@@ -23,18 +23,18 @@ Experiment 2 §6 reported `run_pressure` at **0% incidence**. That is a **MODEL 
 
 | statistic | real | sim (fitted) | tol | reproduces? |
 |---|---|---|---|---|
-| run_share | 0.46 | 0.465 | ±0.05 | ✅ |
-| runs_per_draft | 19.67 | 21.5 | ±1.5 | ❌ |
-| mean_run_len | 3.16 | 3.25 | ±0.5 | ✅ |
-| timing_q1_RB | 0.321 | 0.287 | ±0.15 | ✅ |
-| timing_q1_WR | 0.457 | 0.368 | ±0.15 | ✅ |
-| timing_q1_QB | 0.099 | 0.158 | ±0.15 | ✅ |
-| timing_q3_RB | 0.309 | 0.29 | ±0.15 | ✅ |
-| timing_q3_WR | 0.296 | 0.361 | ±0.15 | ✅ |
-| timing_q3_QB | 0.123 | 0.156 | ±0.15 | ✅ |
-| timing_q5_RB | 0.28 | 0.281 | ±0.15 | ✅ |
-| timing_q5_WR | 0.305 | 0.356 | ±0.15 | ✅ |
-| timing_q5_QB | 0.098 | 0.164 | ±0.15 | ✅ |
+| run_share | 0.46 | 0.458 | ±0.05 | ✅ |
+| runs_per_draft | 19.67 | 21.21 | ±1.5 | ❌ |
+| mean_run_len | 3.16 | 3.24 | ±0.5 | ✅ |
+| timing_q1_RB | 0.321 | 0.294 | ±0.15 | ✅ |
+| timing_q1_WR | 0.457 | 0.354 | ±0.15 | ✅ |
+| timing_q1_QB | 0.099 | 0.167 | ±0.15 | ✅ |
+| timing_q3_RB | 0.309 | 0.294 | ±0.15 | ✅ |
+| timing_q3_WR | 0.296 | 0.35 | ±0.15 | ✅ |
+| timing_q3_QB | 0.123 | 0.163 | ±0.15 | ✅ |
+| timing_q5_RB | 0.28 | 0.285 | ±0.15 | ✅ |
+| timing_q5_WR | 0.305 | 0.343 | ±0.15 | ✅ |
+| timing_q5_QB | 0.098 | 0.174 | ±0.15 | ✅ |
 
 ## ⚠️ STANDING LIMITATION — states these experiments CANNOT test
 

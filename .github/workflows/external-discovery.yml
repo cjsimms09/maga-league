@@ -1,0 +1,84 @@
+name: THE CRAWL — D1 v2's registered terms into a candidate pool
+
+# D1 v2 (2026-08-11) fixed the pool as the UNION over ten registered terms, because
+# the probe established there is no all-leagues query: an empty SEARCH returns 0 and
+# a one-letter term returns 0, so SEARCH is token-based with a minimum length.
+# D2 fixed the walk: every term, whole result set, stop only on exhaustion — which
+# the probe established is ONE REQUEST per term, since 11056/5029/3328 for three
+# unrelated terms shows no page size is applied.
+#
+# A TERM WHOSE FETCH FAILED IS NOT A TERM THAT MATCHED NOTHING. The report leads
+# with any failed term and declares the union a FLOOR rather than a count.
+#
+# Does not commit — A owns integration. Artifact plus run summary; the pool lands
+# on the ingest branch by hand after it is read.
+
+on:
+  workflow_dispatch:
+    inputs:
+      year:
+        # DEFAULT 2025, A COMPLETED SEASON, deliberately — changed 2026-08-11.
+        # A 2026 crawl exercises the crawler and then hands the ingest a season
+        # with NO OUTCOMES: measured the same day, fetch_weekly(2026) 404s from
+        # both nflverse loaders, so every league comes back F4.no_weekly_data and
+        # the run reports zero matched. That is the identical output to a broken
+        # fetch and to wrong filters — a green that means nothing wearing the
+        # clothes of one that does. Crawling a PLAYED season separates the causes:
+        # 2025 returning no_weekly_outcomes after the ingest lands is a DEFECT;
+        # 2026 doing so is the CALENDAR.
+        #
+        # 2025 leagues still cannot be MATCHED league-seasons — D4 excludes them
+        # from F5-clean replay, so they contribute format screening, crosswalk
+        # coverage and the D5 scoring-vocabulary census, and never a calibration
+        # row. See "F7 REACHABILITY" in INGEST-PLAN.md.
+        description: 'Season to crawl (default 2025 — a season that has been PLAYED)'
+        required: false
+        default: '2025'
+
+jobs:
+  crawl:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - name: Crawl the registered terms
+        run: |
+          python3 - <<'PY'
+          import sys
+          sys.path.insert(0, 'draft/backtest')
+          import external_discovery as X
+          X.run("${{ github.event.inputs.year || '2025' }}",
+                out_path="draft/backtest/discovery_pool.json")
+          PY
+      - name: Report the pool's shape where it cannot be missed
+        if: always()
+        run: |
+          {
+            echo "## The crawl — D1 v2 pool"
+            if [ -f draft/backtest/discovery_pool.json ]; then
+              python3 - <<'PY'
+          import json
+          d = json.load(open('draft/backtest/discovery_pool.json'))['report']
+          print('**Verdict:** ', d['verdict'])
+          print()
+          print('| term | leagues |'); print('|---|---|')
+          for t, c in (d['per_term_counts'] or {}).items():
+              print('| `%s` | %s |' % (t, 'FETCH FAILED' if c is None else c))
+          print()
+          print('union **%s** · sum-of-terms %s · overlap factor %s · found by >1 term %s'
+                % (d['union'], d['sum_of_terms'], d['overlap_factor'],
+                   d['found_by_multiple_terms']))
+          PY
+            else
+              echo "NO POOL FILE — the crawl did not complete. A statement about the run,"
+              echo "not a finding about the pool."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload the pool
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: discovery-pool
+          path: draft/backtest/discovery_pool.json
+          if-no-files-found: warn

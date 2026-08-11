@@ -76,7 +76,8 @@ def test_fingerprint_and_staleness_contract():
     # A board rebuild moves the fingerprint -> the script announces itself stale.
     moved = dict(fp, board_built_at="2026-08-21T00:00:00Z")
     assert "board_built_at" in OS.is_stale(s["meta"], moved)
-    # A keeper designation landing (slate change) does too — the keeper-watch hook.
+    # A keeper designation landing (slate change) does too. Picked up by the
+    # nightly draft-data rebuild reading live Sleeper — there is no keeper-watch.
     moved2 = dict(fp, predicted_slates_hash="deadbeefcafe")
     assert "predicted_slates_hash" in OS.is_stale(s["meta"], moved2)
     # And a slot assignment (Sleeper draft order) is a regeneration event.
@@ -102,3 +103,40 @@ def test_doctrine_enrollment_follows_the_19b_verdict():
     else:
         # No verdict on file -> the control, honestly.
         assert d["enrolled"].startswith("Balanced Value")
+
+
+def test_no_file_claims_a_keeper_watch_process_exists():
+    """RULE 6, in the shape that is hardest to catch: text without a mechanism.
+
+    `keeper-watch` was specced and never built, and the name outlived the plan in
+    five files — including a note embedded in the SHIPPED artifact and a doc that
+    called it "existing" two lines above saying the piece was NOT YET BUILT.
+    Documentation describing a plausible mechanism reads exactly like
+    documentation describing a real one, so nothing ever contradicted it.
+
+    A grep is the right instrument here precisely because the defect IS the
+    string. This is not the source-inspection weakness (11e) — there is no
+    implementation to distinguish from a comment; the comment WAS the claim.
+
+    What actually runs: the nightly draft-data workflow re-reads live Sleeper
+    designations through gen_keepers_json.py; site-check.yml escalates.
+    """
+    import os
+    import subprocess
+    root = str(DRAFT.parent)
+    out = subprocess.run(
+        ["grep", "-rn", "-e", "keeper-watch", "-e", "keeper_watch",
+         "--include=*.py", "--include=*.js", "--include=*.ejs", "--include=*.yml", "."],
+        cwd=root, capture_output=True, text=True).stdout
+    # This file is excluded: it must name the string in order to forbid it.
+    # And a line that DENIES the process is not a line that claims it — the
+    # offence is asserting existence, so explicit negations are allowed through.
+    me = os.path.basename(__file__)
+    NEGATIONS = ("no keeper-watch", "no such process", "does not exist",
+                 "never built", "there is no")
+    offending = [ln for ln in out.splitlines()
+                 if ln.strip() and "node_modules" not in ln and me not in ln
+                 and not any(n in ln.lower() for n in NEGATIONS)]
+    assert not offending, (
+        "a file claims keeper-watch exists; it does not. Name the nightly "
+        "draft-data rebuild instead:\n  " + "\n  ".join(offending))

@@ -19,6 +19,39 @@ const store = require(path.join(ROOT, 'src', 'store')); store.initFiles();
 const data = require(path.join(ROOT, 'src', 'data'));
 const { createApp } = require(path.join(ROOT, 'server-app'));
 
+/* ══ THE SLEEPER API IS SEALED OFF FOR THE WHOLE FILE ══
+ *
+ * THIS TEST WAS GREEN LOCALLY AND RED IN CI FOR 8½ HOURS, and the difference
+ * was not the code — it was whether the runner could reach the network.
+ *
+ * `seedLive(false)` nulls `sleeper-cache` to mean "off-season, nothing to
+ * send". But on a null cache the endpoint goes to the LIVE Sleeper API. In the
+ * dev sandbox that call 403s through the egress proxy, so there genuinely was
+ * no live lineup and `no-live-lineup` was returned — green. On a CI runner the
+ * call SUCCEEDS, returns the real 2026 league, and the endpoint correctly
+ * reports `email-not-configured` instead. Four assertions flipped.
+ *
+ * The seeded state was being overwritten by the network, so the off-season
+ * scenario was never actually exercised anywhere. Note the endpoint's own
+ * wording — "off-season, or Sleeper unreachable" — those two are ONE branch,
+ * which is why an unreachable Sleeper could stand in for an off-season and
+ * nothing noticed.
+ *
+ * So the fetch stub is hoisted to the top of the file and covers every block.
+ * A Sleeper call now fails DELIBERATELY rather than incidentally, which forces
+ * the endpoint onto the seeded cache — the state each block is actually about.
+ * Non-Sleeper calls (the mailer, the local server) pass through untouched, and
+ * the later block re-stubs on top of this to capture sends.
+ *
+ * The rule this encodes: A TEST WHOSE GREEN DEPENDS ON NETWORK REACHABILITY IS
+ * NOT A TEST. It reports the runner, not the code.
+ */
+const realFetchTop = global.fetch;
+global.fetch = async (url, opts) => {
+  if (String(url).includes('api.sleeper.app')) throw new Error('Sleeper sealed off in test');
+  return realFetchTop(url, opts);
+};
+
 let pass = 0, fail = 0;
 const ck = (n, c, d) => { c ? (pass++, console.log('PASS ' + n)) : (fail++, console.log('FAIL ' + n + (d !== undefined ? ' -> ' + JSON.stringify(d).slice(0, 200) : ''))); };
 const SEASON = '2026';

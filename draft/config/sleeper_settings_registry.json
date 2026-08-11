@@ -1,0 +1,227 @@
+{
+  "_dispositions": {
+    "ignored": "Sleeper holds it and it genuinely does not apply \u2014 reason required",
+    "imported": "something READS it \u2014 measured, not asserted. `evidence` names where.",
+    "imported_unread": "it reaches league_config.json and NOTHING reads it there. Produced-and-unread (rule 14): the import is doing work no consumer collects.",
+    "should_import": "Sleeper holds it, nothing reads it, and it matters \u2014 the `why` has to say what breaks without it"
+  },
+  "_hand_held": {
+    "_what": "Facts Sleeper does NOT hold. These cannot be imported; the honest state is an explicit list with reasons rather than a vague sense that most things come from the API.",
+    "buy_in": "house rule \u2014 $100, in SEASONS",
+    "keeper_cost_model": "Sleeper holds max_keepers:3 but NOT what a keeper costs (top_picks_flat: keeping N forfeits rounds 1..N)",
+    "my_draft_position": "claimed by hand BY DESIGN; the war room verifies it against the draft object once the order is assigned",
+    "payout_split": "house rule \u2014 reg-season and playoff percentages, in SEASONS",
+    "pre_2023_career_records": "previous_league_id walks back only to 2023. Sleeper holds ~45 of 85 games per owner; the rest is structurally unavailable.",
+    "standings_tiebreaker": "searched every settings key for tie/seed/rank/sort/standings \u2014 only playoff_seed_type exists. Points-for is a house rule, not an unread field.",
+    "weekly_high_prize": "house rule \u2014 no Sleeper equivalent"
+  },
+  "_what": "Every key Sleeper emits in league.settings, and what we do with it. A key Sleeper starts emitting that is NOT in here fails draft/tests/sleeper_registry.test.js \u2014 so a new setting gets CLASSIFIED rather than silently ignored, which is how waiver_type sat unread while the waiver system was held by memory. THE `imported` DISPOSITION IS MEASURED, NOT DECLARED. The first version of this file was hand-written from a reading of the import and claimed 19 imported; ten of those were read by nothing at all, and the test passed because it checked the key SET and the presence of a reason, never a consumer. It is now derived by two probes \u2014 draft/tools/settings_influence.py PERTURBS each setting and re-runs the import offline (path A: does it reach league_config), and draft/tools/settings_access.py looks for the shape of a read with comments stripped (path B: src/ reads Sleeper's settings straight off the season bundle, never through league_config). draft/tests/test_settings_registry_truth.py fails if this file and those probes disagree in either direction.",
+  "settings": {
+    "bench_lock": {
+      "disposition": "should_import",
+      "why": "bench locks at kickoff; affects lineup-edit deadlines"
+    },
+    "best_ball": {
+      "disposition": "ignored",
+      "why": "not a best-ball league"
+    },
+    "capacity_override": {
+      "disposition": "ignored",
+      "why": "roster capacity override, unused"
+    },
+    "commissioner_direct_invite": {
+      "disposition": "ignored",
+      "why": "invite mechanic, no model impact"
+    },
+    "daily_waivers": {
+      "disposition": "imported_unread",
+      "evidence": "reaches league_config.waivers and nothing reads it",
+      "why": "0 (off), which is why daily_waivers_days/_hour are ignored. Reaches config.waivers.daily_waivers; read by nobody."
+    },
+    "daily_waivers_days": {
+      "disposition": "ignored",
+      "why": "bitmask, only meaningful with daily waivers (off)"
+    },
+    "daily_waivers_hour": {
+      "disposition": "ignored",
+      "why": "only meaningful with daily waivers (off)"
+    },
+    "disable_adds": {
+      "disposition": "ignored",
+      "why": "adds enabled; flag only matters when set"
+    },
+    "disable_trades": {
+      "disposition": "ignored",
+      "why": "0 \u2014 trades are ENABLED, the permissive state, so a gate on this flag would be a no-op today. It becomes should_import the day it flips, not before."
+    },
+    "draft_rounds": {
+      "disposition": "ignored",
+      "why": "3 \u2014 AND IT IS WRONG FOR THE BOARD. The DRAFT object says settings.rounds = 15; the league setting is the pre-draft placeholder. config_schema.draft_rounds() exists because of this disagreement. Reading this key would build a three-round board, so ignoring it is the fix, not an oversight."
+    },
+    "faab_suggestions": {
+      "disposition": "ignored",
+      "why": "FAAB UI hint, and this league is not FAAB"
+    },
+    "league_average_match": {
+      "disposition": "ignored",
+      "why": "no median-match game in this league"
+    },
+    "leg": {
+      "disposition": "ignored",
+      "why": "1 \u2014 which week of the season the league is on. Duplicate: the site takes the week from /v1/state/nfl (src/sleeper.js), which is right even when a league object is stale."
+    },
+    "max_keepers": {
+      "disposition": "imported",
+      "evidence": "read at draft/backtest/exp_discoverability.py:68",
+      "why": "read ONLY by draft/backtest/exp_discoverability.py, which uses it to pick which PUBLIC leagues to sample \u2014 nothing that models OUR league reads it. Sleeper says 3 and sleeper_import hard-codes keepers.count=3 separately: two places for one fact, and Sleeper's is the authority."
+    },
+    "max_subs": {
+      "disposition": "ignored",
+      "why": "in-game subs, not used"
+    },
+    "num_teams": {
+      "disposition": "ignored",
+      "why": "10 \u2014 duplicate of league.total_rosters, which sleeper_import uses because it counts actual rosters rather than a declared target. Safe only while the two agree, so test_settings_registry_truth asserts they do."
+    },
+    "offseason_adds": {
+      "disposition": "ignored",
+      "why": "offseason adds, no in-season impact"
+    },
+    "pick_trading": {
+      "disposition": "should_import",
+      "why": "draft-pick trading is ENABLED and nothing models it; it can move pick order before the draft"
+    },
+    "playoff_round_type": {
+      "disposition": "imported",
+      "evidence": "read at draft/backtest/money_grade.py (assert_one_week_rounds)",
+      "why": "0 = one week per playoff round, and money_grade's bracket resim plays round r in week playoff_week_start+(r-1), which is only correct for 0. It is now ASSERTED at the point that converts rounds to weeks: a league configured for two-week rounds is refused rather than graded, because every harvested bracket is round_type 0 and a two-week path would be certified by nothing. An absent value is refused too \u2014 a default that matches today is how the assumption goes invisible again."
+    },
+    "playoff_seed_type": {
+      "disposition": "should_import",
+      "why": "0 \u2014 how the bracket seeds. The playoff cut is derived in several places and none of them consult it; it is also the only seeding-adjacent field Sleeper holds, which is why the tiebreaker sits in _hand_held."
+    },
+    "playoff_teams": {
+      "disposition": "imported",
+      "evidence": "read at src/routes/history-data.js:321, src/routes/member.js:659, src/routes/member.js:2161",
+      "why": "read by src/routes/* off the raw season bundle, NOT via league_config \u2014 sleeper_import also copies it into the config where nobody reads it."
+    },
+    "playoff_type": {
+      "disposition": "ignored",
+      "why": "bracket variant, covered by playoff_round_type for our purposes"
+    },
+    "playoff_week_start": {
+      "disposition": "imported",
+      "evidence": "read at src/routes/lineup.js:338, src/routes/recap-data.js:124, src/routes/member.js:673",
+      "why": "read by src/routes/* and draft/backtest/money_grade.py off the raw season bundle. The config copy is unread; the season-bundle read is the real one, and it is 16, not the 15 the defaults assume."
+    },
+    "reserve_allow_cov": {
+      "disposition": "ignored",
+      "why": "IR eligibility flag"
+    },
+    "reserve_allow_dnr": {
+      "disposition": "ignored",
+      "why": "IR eligibility flag"
+    },
+    "reserve_allow_doubtful": {
+      "disposition": "ignored",
+      "why": "IR eligibility flag"
+    },
+    "reserve_allow_na": {
+      "disposition": "ignored",
+      "why": "IR eligibility flag"
+    },
+    "reserve_allow_out": {
+      "disposition": "ignored",
+      "why": "IR eligibility flag"
+    },
+    "reserve_allow_sus": {
+      "disposition": "ignored",
+      "why": "IR eligibility flag"
+    },
+    "reserve_slots": {
+      "disposition": "should_import",
+      "why": "1 \u2014 A ROSTER SPOT roster_slots_from() STRUCTURALLY CANNOT SEE. It counts roster_positions, which lists no IR entry, so the slot count is 15 and this capacity is invisible to it whatever its size. INFERRED, NOT MEASURED: that this makes the roster 16 rather than 15-with-one-IR-eligible follows from Sleeper holding IR outside roster_positions, and is not confirmed here \u2014 confirm by counting a roster's `players` against 15 once someone is on IR."
+    },
+    "squads": {
+      "disposition": "ignored",
+      "why": "squad play, not used"
+    },
+    "start_week": {
+      "disposition": "should_import",
+      "why": "first scoring week \u2014 currently assumed 1"
+    },
+    "sub_lock_if_starter_active": {
+      "disposition": "ignored",
+      "why": "subs unused"
+    },
+    "sub_start_time_eligibility": {
+      "disposition": "ignored",
+      "why": "subs unused"
+    },
+    "taxi_allow_vets": {
+      "disposition": "ignored",
+      "why": "no taxi squad"
+    },
+    "taxi_deadline": {
+      "disposition": "ignored",
+      "why": "no taxi squad"
+    },
+    "taxi_slots": {
+      "disposition": "ignored",
+      "why": "0 \u2014 no taxi squad, same as the rest of the taxi_* family."
+    },
+    "taxi_years": {
+      "disposition": "ignored",
+      "why": "no taxi squad"
+    },
+    "trade_deadline": {
+      "disposition": "should_import",
+      "why": "week 11, and no in-season surface knows it. A buy/sell recommendation made after week 11 is not an action anyone can take."
+    },
+    "trade_review_days": {
+      "disposition": "should_import",
+      "why": "2 \u2014 a trade is not final for two days. Deadline arithmetic that treats an accepted trade as immediate is wrong by two days in the week that matters most."
+    },
+    "type": {
+      "disposition": "imported",
+      "evidence": "read at draft/backtest/exp_discoverability.py:68",
+      "why": "league type (1 = keeper). Same single consumer as max_keepers: the public-league sampling filter, not our pipeline."
+    },
+    "veto_auto_poll": {
+      "disposition": "should_import",
+      "why": "whether a veto poll opens automatically"
+    },
+    "veto_show_votes": {
+      "disposition": "should_import",
+      "why": "whether veto votes are public \u2014 affects vote mechanics"
+    },
+    "veto_votes_needed": {
+      "disposition": "should_import",
+      "why": "trade veto threshold (5 of 10) \u2014 unmodelled in the trade/vote surfaces"
+    },
+    "waiver_bid_min": {
+      "disposition": "ignored",
+      "why": "FAAB-only, and this league is not FAAB"
+    },
+    "waiver_budget": {
+      "disposition": "imported_unread",
+      "evidence": "reaches league_config.waivers and nothing reads it",
+      "why": "100, and meaningless: waiver_type is 1, so is_faab is correctly false. Reaches config.waivers.budget; read by nobody."
+    },
+    "waiver_clear_days": {
+      "disposition": "imported_unread",
+      "evidence": "reaches league_config.waivers and nothing reads it",
+      "why": "2. Reaches config.waivers.clear_days and is read by nobody. Needed by any in-season claim-timing surface, which does not exist yet."
+    },
+    "waiver_day_of_week": {
+      "disposition": "imported_unread",
+      "evidence": "reaches league_config.waivers and nothing reads it",
+      "why": "2, and UNRESOLVED: the UI says waivers clear 2 AM WED, which matches 2 only if Sleeper counts Monday as 0. Nothing reads it, so nothing is wrong today \u2014 but it must not be read until the convention is confirmed against a real clear."
+    },
+    "waiver_type": {
+      "disposition": "imported_unread",
+      "evidence": "reaches league_config.waivers and nothing reads it",
+      "why": "1 = reverse standings, confirmed against the UI. valuation.js's waiverPriorityDepletes() turns exactly this code into depletes:false, but nothing wires the imported value into it \u2014 the rule and its input are both built and not connected."
+    }
+  }
+}

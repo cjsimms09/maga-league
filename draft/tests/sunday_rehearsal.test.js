@@ -41,6 +41,19 @@ global.fetch = async (url, opts) => {
     }
     return { ok: true, status: 200, text: async () => '{}' };
   }
+  /* SLEEPER IS SEALED OFF, DELIBERATELY — same defect as sunday_cron.test.js.
+   *
+   * `seed(false)` nulls sleeper-cache to mean "no live lineup", but on a null
+   * cache the endpoint calls the LIVE Sleeper API. In the dev sandbox that 403s
+   * through the egress proxy, so the seeded state held and this passed; on a CI
+   * runner the call succeeds, a real lineup comes back, and the assertion flips.
+   * The stub already existed but only intercepted `resend` — everything else,
+   * Sleeper included, fell through to the network on this line.
+   *
+   * A test whose green depends on network reachability reports the runner, not
+   * the code. Failing the call on purpose forces the seeded cache, which is the
+   * state each block is actually about. */
+  if (String(url).includes('api.sleeper.app')) throw new Error('Sleeper sealed off in test');
   return realFetch(url, opts);
 };
 

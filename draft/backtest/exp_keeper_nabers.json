@@ -11,7 +11,7 @@
     "Chase": {
       "pos": "WR",
       "proj_mean": 295.1,
-      "vorp": 115.44,
+      "vorp": 122.42,
       "adp": 3.0,
       "years_exp": 5
     },
@@ -32,8 +32,8 @@
     "Nabers": {
       "pos": "WR",
       "proj_mean": 199.6,
-      "vorp": 19.99,
-      "adp": 29.4,
+      "vorp": 26.97,
+      "adp": 28.8,
       "years_exp": 2
     }
   },
@@ -45,9 +45,9 @@
         "Walker"
       ],
       "k": 3,
-      "keeper_vorp": 268.3,
+      "keeper_vorp": 275.28,
       "cost_vorp": 202.19,
-      "surplus": 66.11,
+      "surplus": 73.09,
       "has_nabers": false,
       "rb_kept": 2,
       "wr_kept": 1
@@ -58,9 +58,9 @@
         "Henry"
       ],
       "k": 2,
-      "keeper_vorp": 201.07,
+      "keeper_vorp": 208.05,
       "cost_vorp": 165.99,
-      "surplus": 35.08,
+      "surplus": 42.06,
       "has_nabers": false,
       "rb_kept": 1,
       "wr_kept": 1
@@ -72,9 +72,9 @@
         "Nabers"
       ],
       "k": 3,
-      "keeper_vorp": 221.06,
+      "keeper_vorp": 235.02,
       "cost_vorp": 202.19,
-      "surplus": 18.87,
+      "surplus": 32.83,
       "has_nabers": true,
       "rb_kept": 1,
       "wr_kept": 2
@@ -85,9 +85,9 @@
         "Walker"
       ],
       "k": 2,
-      "keeper_vorp": 182.67,
+      "keeper_vorp": 189.65,
       "cost_vorp": 165.99,
-      "surplus": 16.68,
+      "surplus": 23.66,
       "has_nabers": false,
       "rb_kept": 1,
       "wr_kept": 1
@@ -97,9 +97,9 @@
         "Chase"
       ],
       "k": 1,
-      "keeper_vorp": 115.44,
+      "keeper_vorp": 122.42,
       "cost_vorp": 103.91,
-      "surplus": 11.53,
+      "surplus": 18.51,
       "has_nabers": false,
       "rb_kept": 0,
       "wr_kept": 1
@@ -111,9 +111,9 @@
         "Nabers"
       ],
       "k": 3,
-      "keeper_vorp": 202.66,
+      "keeper_vorp": 216.62,
       "cost_vorp": 202.19,
-      "surplus": 0.47,
+      "surplus": 14.43,
       "has_nabers": true,
       "rb_kept": 1,
       "wr_kept": 2
@@ -143,6 +143,19 @@
     },
     {
       "slate": [
+        "Chase",
+        "Nabers"
+      ],
+      "k": 2,
+      "keeper_vorp": 149.39,
+      "cost_vorp": 165.99,
+      "surplus": -16.6,
+      "has_nabers": true,
+      "rb_kept": 0,
+      "wr_kept": 2
+    },
+    {
+      "slate": [
         "Henry"
       ],
       "k": 1,
@@ -160,25 +173,12 @@
         "Nabers"
       ],
       "k": 3,
-      "keeper_vorp": 172.85,
+      "keeper_vorp": 179.83,
       "cost_vorp": 202.19,
-      "surplus": -29.34,
+      "surplus": -22.36,
       "has_nabers": true,
       "rb_kept": 2,
       "wr_kept": 1
-    },
-    {
-      "slate": [
-        "Chase",
-        "Nabers"
-      ],
-      "k": 2,
-      "keeper_vorp": 135.43,
-      "cost_vorp": 165.99,
-      "surplus": -30.56,
-      "has_nabers": true,
-      "rb_kept": 0,
-      "wr_kept": 2
     },
     {
       "slate": [
@@ -198,9 +198,9 @@
         "Nabers"
       ],
       "k": 2,
-      "keeper_vorp": 105.62,
+      "keeper_vorp": 112.6,
       "cost_vorp": 165.99,
-      "surplus": -60.37,
+      "surplus": -53.39,
       "has_nabers": true,
       "rb_kept": 1,
       "wr_kept": 1
@@ -211,9 +211,9 @@
         "Nabers"
       ],
       "k": 2,
-      "keeper_vorp": 87.22,
+      "keeper_vorp": 94.2,
       "cost_vorp": 165.99,
-      "surplus": -78.77,
+      "surplus": -71.79,
       "has_nabers": true,
       "rb_kept": 1,
       "wr_kept": 1
@@ -223,9 +223,9 @@
         "Nabers"
       ],
       "k": 1,
-      "keeper_vorp": 19.99,
+      "keeper_vorp": 26.97,
       "cost_vorp": 103.91,
-      "surplus": -83.92,
+      "surplus": -76.94,
       "has_nabers": true,
       "rb_kept": 0,
       "wr_kept": 1
@@ -234,12 +234,12 @@
   "nabers_breakeven_vorp": {
     "displace_Walker": 67.23,
     "displace_Henry": 85.63,
-    "current_nabers_vorp": 19.99
+    "current_nabers_vorp": 26.97
   },
   "nabers_market_implied_vorp": {
-    "implied_vorp": 30.8,
+    "implied_vorp": 33.42,
     "adp_rank": 29,
-    "model_vorp": 19.99
+    "model_vorp": 26.97
   },
   "draft_mc": {
     "rooms": 200,
@@ -251,7 +251,7 @@
           "Henry",
           "Walker"
         ],
-        "mean_dollars": 747.88,
+        "mean_dollars": 747.75,
         "vs_current": {
           "mean": 0.0,
           "ci95": [
@@ -261,15 +261,15 @@
           "beats": false
         },
         "rb_kept": 2,
-        "rb_drafted_mean": 1.97,
-        "rb_drafted_mean_vorp": -53.6,
+        "rb_drafted_mean": 1.91,
+        "rb_drafted_mean_vorp": -38.3,
         "avg_roster_comp": {
-          "DEF": 1.3,
+          "DEF": 1.4,
           "K": 1.3,
-          "QB": 1.8,
-          "RB": 4.0,
+          "QB": 1.6,
+          "RB": 3.9,
           "TE": 2.6,
-          "WR": 4.0
+          "WR": 4.3
         }
       },
       {
@@ -278,25 +278,25 @@
           "Henry",
           "Nabers"
         ],
-        "mean_dollars": 602.38,
+        "mean_dollars": 625.88,
         "vs_current": {
-          "mean": -145.5,
+          "mean": -121.88,
           "ci95": [
-            -179.0,
-            -111.38
+            -149.88,
+            -94.38
           ],
           "beats": false
         },
         "rb_kept": 1,
-        "rb_drafted_mean": 2.96,
-        "rb_drafted_mean_vorp": -46.8,
+        "rb_drafted_mean": 2.91,
+        "rb_drafted_mean_vorp": -38.2,
         "avg_roster_comp": {
-          "DEF": 1.3,
+          "DEF": 1.4,
           "K": 1.3,
-          "QB": 1.8,
-          "RB": 4.0,
+          "QB": 1.5,
+          "RB": 3.9,
           "TE": 2.6,
-          "WR": 4.0
+          "WR": 4.3
         }
       },
       {
@@ -305,25 +305,25 @@
           "Nabers",
           "Walker"
         ],
-        "mean_dollars": 585.25,
+        "mean_dollars": 600.88,
         "vs_current": {
-          "mean": -162.62,
+          "mean": -146.88,
           "ci95": [
-            -196.88,
-            -129.0
+            -177.38,
+            -115.88
           ],
           "beats": false
         },
         "rb_kept": 1,
-        "rb_drafted_mean": 2.96,
-        "rb_drafted_mean_vorp": -47.1,
+        "rb_drafted_mean": 2.91,
+        "rb_drafted_mean_vorp": -38.7,
         "avg_roster_comp": {
-          "DEF": 1.3,
+          "DEF": 1.4,
           "K": 1.3,
-          "QB": 1.8,
-          "RB": 4.0,
+          "QB": 1.5,
+          "RB": 3.9,
           "TE": 2.6,
-          "WR": 4.0
+          "WR": 4.3
         }
       },
       {
@@ -331,25 +331,25 @@
           "Chase",
           "Henry"
         ],
-        "mean_dollars": 543.38,
+        "mean_dollars": 573.88,
         "vs_current": {
-          "mean": -204.5,
+          "mean": -173.88,
           "ci95": [
-            -245.0,
-            -161.25
+            -214.0,
+            -134.88
           ],
           "beats": false
         },
         "rb_kept": 1,
-        "rb_drafted_mean": 2.72,
-        "rb_drafted_mean_vorp": -44.7,
+        "rb_drafted_mean": 2.69,
+        "rb_drafted_mean_vorp": -36.8,
         "avg_roster_comp": {
           "DEF": 1.2,
           "K": 1.2,
-          "QB": 1.6,
+          "QB": 1.5,
           "RB": 3.7,
-          "TE": 2.6,
-          "WR": 3.6
+          "TE": 2.5,
+          "WR": 3.9
         }
       }
     ]
@@ -362,30 +362,30 @@
     },
     "Chase|Henry|Nabers": {
       "vs_current_no_oppkeepers": {
-        "mean": -99.75,
+        "mean": -75.0,
         "ci95": [
-          -138.0,
-          -64.75
+          -105.75,
+          -46.25
         ],
         "beats": false
       }
     },
     "Chase|Nabers|Walker": {
       "vs_current_no_oppkeepers": {
-        "mean": -141.0,
+        "mean": -101.25,
         "ci95": [
-          -182.75,
-          -102.5
+          -139.0,
+          -65.75
         ],
         "beats": false
       }
     },
     "Chase|Henry": {
       "vs_current_no_oppkeepers": {
-        "mean": -133.0,
+        "mean": -94.5,
         "ci95": [
-          -182.25,
-          -87.25
+          -138.5,
+          -49.5
         ],
         "beats": false
       }
@@ -394,19 +394,19 @@
   "experience_bias_probe": {
     "rookie(0)": {
       "n": 49,
-      "mean_rank_gap_vorp_minus_adp": 34.8
+      "mean_rank_gap_vorp_minus_adp": 35.2
     },
     "2nd-yr(1)": {
       "n": 60,
-      "mean_rank_gap_vorp_minus_adp": 44.8
+      "mean_rank_gap_vorp_minus_adp": 44.1
     },
     "3rd-yr(2)": {
       "n": 52,
-      "mean_rank_gap_vorp_minus_adp": 43.2
+      "mean_rank_gap_vorp_minus_adp": 42.4
     },
     "vet(3+)": {
-      "n": 237,
-      "mean_rank_gap_vorp_minus_adp": 21.6
+      "n": 236,
+      "mean_rank_gap_vorp_minus_adp": 21.7
     }
   },
   "caveats": [

@@ -247,7 +247,12 @@ actions. Every reason is a TRUE statement about the league.
   `F4.unreadable_starter_limits` · `F4.no_draft_type` · `F4.draft_type_absent` ·
   `F4.draft_type_unrecognised` · `F4.no_draft` · `F4.no_draft_status` ·
   `F4.crosswalk_not_run` · `F4.no_weekly_outcomes` · `F4.no_pre_draft_adp` ·
-  `F5.missing_timestamps`
+  `F4.fetch_failed` · `F5.missing_timestamps` ·
+  `F4.scoring_untranslatable` · `F4.scoring_range_exceeded` · `F4.no_weekly_data` ·
+  `F4.stat_columns_absent` · `F4.no_season_type` · `F4.no_gsis_crosswalk`  *(the last six are F3/D5 — see D5 at the foot of this
+  document. All four are gaps in OUR vocabulary or OUR fetch, which is why they sit
+  here and not above: a league whose scoring uses a term we cannot express is not a
+  league that scores differently from ours, it is a league we cannot read.)*
 
 A reason code that is in neither list is **binned nowhere and reported loudly**,
 rather than defaulting into "filtered" — which would recreate the same defect one
@@ -348,6 +353,57 @@ first crawl, with no league data examined.
 - **No pre-screen filtering on anything visible in the search result.** Every returned
   league goes to `screen()`, which is the only place a league may be excluded.
 
+### D1 v2 — THE POOL IS A REGISTERED TERM SET (2026-08-11). D1 v1 RETAINED ABOVE.
+
+**Measured before registering, run 31496719895 (2025), and this is reachability and
+SHAPE — counts and league ids, no league content, no outcomes.** Same category as the
+schema probe, and the same reason the amendment is legitimate rather than post-hoc: a
+count cannot produce a result.
+
+| query | leagues returned |
+|---|---|
+| `"league"` | 11,056 |
+| `"football"` | 5,029 |
+| `"the"` | 3,328 |
+| `""` (empty) | **0** |
+| `"a"` | **0** |
+| nonsense term | 0 |
+
+**THERE IS NO ALL-LEAGUES QUERY.** An empty `SEARCH` returns nothing, so the endpoint
+will not hand over the universe when asked for it. And `"a"` returning **zero** shows
+`SEARCH` is **not a substring match** — a substring search on league names would match
+nearly every league — so it is token-based with a minimum term length ("the", three
+letters, matches 3,328).
+
+**THE CONSEQUENCE D1 v1 DID NOT COVER.** v1 required the query be FORMAT-neutral, which
+stops us selecting on team count or scoring. It does not address this: the pool is a
+function of the WORD, no word is the universe, and a name search is *arbitrary*
+selection rather than *neutral* selection. So the pool must be defined explicitly:
+
+> **D1 v2.** The candidate pool is the UNION of `leagueSearch` results over a REGISTERED
+> SET OF TERMS, fixed here before any crawl. Every returned league goes to `screen()`;
+> no pre-screen filtering, exactly as v1.
+>
+> **The registered terms:** `league`, `football`, `the`, `fantasy`, `ffl`, `dynasty`,
+> `redraft`, `keeper`, `friends`, `bowl`.
+>
+> *`dynasty`, `redraft` and `keeper` are included DELIBERATELY and are NOT a format
+> selection.* F1 records keeper structure as a covariate and never filters on it, so
+> these terms widen the pool across the keeper axis rather than narrowing it — omitting
+> them would bias the pool toward whatever redraft leagues happen to be named.
+>
+> **Every league's NAME is recorded as a covariate**, alongside which term(s) found it
+> and the provider's rank, so any name-correlated bias is measurable after the fact
+> rather than invisible.
+>
+> **The run reports per-term counts and the overlap between terms**, so pool composition
+> is a published number rather than an assumption.
+
+**WHAT THIS DOES NOT CLAIM.** The union of ten terms is not the universe and this
+registration does not pretend otherwise. It fixes the pool so it cannot be adjusted
+after seeing results, and it makes the pool's shape reportable. If the matched count
+falls short, F7 already binds: report the number and change nothing.
+
 ### D2 — CRAWL ORDER AND STOPPING
 - **Walk the entire result set. Every page.** A single page of a paginated list is not the
   list (rule 13's second mechanical form).
@@ -407,3 +463,177 @@ even crosses a date boundary" stays an assumption — and that fraction is a fun
 returns first, this is not a tail case. Reporting it converts the assumption into a number
 at zero marginal cost, which is the only reason it belongs in the pre-registration rather
 than in someone's judgement at analysis time.
+
+---
+
+## D5 — HOW AN EXTERNAL LEAGUE'S OUTCOMES ARE SCORED (registered 2026-08-11)
+
+**Registered BEFORE any external league had been scored.** No weekly-outcomes ingest
+existed when this was written — `ingest_run.run()` pre-declared that every league would
+report `F4.no_weekly_outcomes` — so nothing below is a rule chosen after seeing what it
+would admit. It implements F3 and F4; it does not amend F1–F7 and does not change any
+verdict already recorded.
+
+**D5a — the shipped scorer, under the league's own rules.** Weekly points are computed by
+`scoring.score_stat_line` (the engine the tool ships) from stat lines translated by
+`grade.nflverse_weekly_to_scoring` (the translation the backtest ships), under a flat
+scoring table built per position from the league's own `TYPE=rules` export. MFL event codes
+are read from the committed 153-code dictionary in `mfl_schema_probe.json`, never inferred
+from the letters. *A second scorer would be the multi-derivation failure rule 11 exists for,
+and it would hide perfectly: two scorers agreeing on most players produce a plausible number
+for the rest and never error.*
+
+**D5b — the scoreable vocabulary is closed, and a term outside it fails the LEAGUE.** The
+translator emits exactly thirteen keys. A rule on a **graded** position (QB/RB/WR/TE) whose
+event is outside that set makes the league unscoreable: `F4.scoring_untranslatable`. Rules on
+positions we never draft (Def, K, Coach, …) are recorded as **ignored**, not as failures.
+*Dropping an untranslatable term is not a floor with a caveat. A league scoring −2 per
+interception, scored without it, pays every QB too much; the direction of the error is the
+sign of the term. There is no honest caveat to attach, so the league is refused instead.*
+
+**D5c — a rule is a multiplier only if it is the sole rule for its (position, event) pair
+and its range starts at 0.** Two rules for one pair is banded scoring; a range starting above
+zero is a threshold bonus. Neither is a per-unit rate over a weekly total. *This is
+deliberately stricter than `reception_points_by_position`, which flattens bands with `max()`.
+That is correct in a FILTER, where the conservative read costs sample; it is not correct in a
+SCORER, where it invents points nobody scored.*
+
+**D5d — a range's upper bound is CHECKED AGAINST THE DATA, never assumed.** If any scored
+player-week exceeds a rule's `hi`, the league is unscoreable (`F4.scoring_range_exceeded`) and
+the exceeding value is named. *MFL's common `0-99` is unbounded for receptions and is not for
+receiving yards, and nothing in the rule says which — only the season does. The check converts
+an assumption into a measurement, and it fires at the top of the distribution, where the
+expensive players are.*
+
+**D5e — absent is dropped and counted; zero is kept.** A drafted player with no weekly rows is
+dropped from F3 and counted. A player whose weeks sum to exactly 0.0 is **kept** — he played
+and scored nothing, which is an outcome. *The two produce the same total and are one `if`
+apart.*
+
+**What this is expected to cost, stated before the first run.** MFL leagues commonly score
+terms the shipped translator does not emit — pass attempts, completions, targets, first downs,
+big-play bonuses. nflverse weekly carries those columns; `nflverse_weekly_to_scoring` does not
+map them, and that file is not this lane's to edit. So a non-trivial share of otherwise
+qualifying leagues is expected to fail D5b, and the run reports the failing EVENT CODES with
+counts. That report is the evidence for a request to widen the translator — a request with a
+number attached rather than a guess.
+
+### D5f / D5g — ADDED 2026-08-11 FROM A MEASUREMENT, same sitting as D5a–e
+
+Both come from running the translation against **real nflverse rows** and looking at
+the leaderboard, which is the check D5 built `sanity_top` for. Neither changes an
+admission rule; both add a refusal where the pipeline would otherwise have produced a
+number quietly biased in a stated direction.
+
+**D5f — a scoring key the DATA cannot serve fails the league** (`F4.stat_columns_absent`).
+
+*Measured, not hypothesised.* `nfl_data_py.import_weekly_data` **404s for 2025**;
+`nflreadpy.load_player_stats` serves it (19,421 rows) — with `interceptions` **renamed
+to `passing_interceptions`**. `grade.nflverse_weekly_to_scoring` maps the old name, so
+under the 2025 loader `pass_int` is never emitted and `score_stat_line` skips it, which
+is correct behaviour for an absent optional bonus and exactly wrong for a term the
+league scores. Cost, stated: a QB week of 300 yd / 2 TD / 1 INT scores **18.0**
+correctly and **20.0** silently — about 2 points per interception, **on QBs only**, so a
+systematic bias by position.
+
+The check runs the SHIPPED translator over the fetched rows and takes the union of keys
+it emits. That catches three failures with one measurement — a renamed column, an absent
+one, and one present but never populated — and it cannot drift from the translator,
+because it **is** the translator.
+
+**D5g — a fantasy season is the REGULAR season** (`F4.no_season_type` when undecidable).
+
+Both loaders pool REG and POST in one table (2024: 5,340 + 257; 2025: 18,539 + 882) and
+weeks run to 22. Caught by the leaderboard's `weeks` column reading **19–21** for a
+season with at most 18. Postseason rows are dropped and counted; a row with no
+`season_type` is dropped and counted separately (absent is not REG); data carrying no
+`season_type` at all refuses the league, because dropping every row would print empty
+series that read as a season in which nobody played.
+
+*Why this was not a rounding error.* Measured on 2024, half-PPR, REG-only vs pooled:
+Lamar Jackson 471.54 → **430.38**; Saquon Barkley 432.70 → **338.80** (−22%); Ja'Marr
+Chase 339.50 → **339.50** (unchanged). The inflation lands **only on players whose teams
+went deep**, i.e. it is correlated with team quality — which is correlated with what a
+draft policy is being graded on.
+
+### D5h — A ZERO FROM THE CALENDAR AND A ZERO FROM A BROKEN FETCH (2026-08-11)
+
+*Raised by session A against the F4 pre-declaration, and it named a second sufficient
+cause I had not built against.* `screen()` rejects a league with no weekly outcomes, so a
+run against a season that has not been played reports **zero matched** — and so does a
+run whose fetch broke, and so does a run whose filters are wrong. Three states, one
+number, and the target season's own result cannot separate them: measured 2026-08-11,
+`fetch_weekly(2026)` returns HTTP 404 from **both** loaders, which is byte-for-byte what
+an unreachable season returns.
+
+> **Every ingest run fetches a CONTROL SEASON it does not otherwise need**, and reports
+> `UNPLAYED` / `UNFETCHABLE` / `PARTIAL` / `COMPLETE` **ahead of the matched count**. If
+> the control serves and the target does not, the fetch works and the season is unplayed.
+> If neither serves, the fetch is the story. An `UNPLAYED` or `UNFETCHABLE` run states in
+> its verdict that it **measured nothing about the leagues**, so its zero cannot be read
+> as evidence about format prevalence or as grounds for tuning a filter.
+
+The season's length is taken from the control's REG week count, not hardcoded: the NFL
+went 17 REG weeks → 18 in 2021, and a constant would call a full season partial the year
+it changes again.
+
+**The crawl now defaults to 2025, a completed season** (`external-discovery.yml`), for
+the same reason: it gives the ingest a real target and separates the causes. **2025
+returning `no_weekly_outcomes` after the outcomes ingest lands is a DEFECT; 2026 doing so
+is the CALENDAR.**
+
+### F7 REACHABILITY — stated now rather than discovered in December (2026-08-11)
+
+A's stopping-rule point, followed to its conclusion. It is not a filter change; it is what
+the registration **already implies**, written down before anyone plans around a number
+that cannot arrive.
+
+A **matched league-season** must pass F5, which requires ADP observed **strictly before**
+the draft. D4 established that for 2023–2025 the only retrievable ADP is a season
+aggregate that accumulates post-draft drafts, so **no league from a completed season can
+ever be a matched league-season.** Clean pre-draft ADP begins with D3's daily capture,
+i.e. **2026**. And a 2026 league has no outcomes until the 2026 season completes.
+
+Therefore:
+
+- **F7's target of ≥200 matched league-seasons is UNREACHABLE in 2026.** The first
+  gradeable matched league-seasons are 2026 drafts scored after the 2026 regular season —
+  **January 2027 at the earliest**, and capped by how many 2026 leagues the D3 archive
+  actually covered.
+- **2024/2025 are not wasted, and are not evidence.** They can carry format prevalence,
+  crosswalk coverage, draft-duration and lead-days distributions, and the D5 scoring-
+  vocabulary census — everything that exercises the pipeline non-vacuously. Under F5's
+  "simulation is labelled" clause a 2025 replay is **robustness testing, labelled, and
+  never enters a calibration table.**
+- Per F7 this **changes nothing else**. The bar is not lowered to make it reachable, and
+  no filter is relaxed to convert a completed season into a matched one. The honest
+  statement is that the pooled layer this ingest exists to unblock is a **2027** result,
+  and everything before then is pipeline work plus a census.
+
+### D6 — WHICH LEAGUES OF THE POOL GET FETCHED (registered 2026-08-11)
+
+The 2025 crawl returned **21,323 unique leagues** across the ten D1 v2 terms, all ten
+fetched, none failed (overlap factor 1.58; 9,152 found by more than one term). Three
+exports per league is roughly **64,000 requests**, so every ingest run works from a
+sample — and how that sample is chosen is a degree of freedom exactly like a filter.
+
+> **Order the pool by `sha256("external-ingest-v1" + "|" + league_id)` and take the
+> first `n`.**
+
+Three properties, each ruling out a way the sample could flatter a result:
+
+- **Reproducible.** Same pool and `n` give the same leagues. A random draw would let a
+  disappointing attrition rate be re-rolled until it improved — optional stopping with
+  extra steps.
+- **Order-blind.** `leagueSearch` returns leagues in an order we did not choose and do
+  not understand. Provider rank is already kept per league as a **covariate**
+  (`found_by[].rank`) so order-correlation can be measured — which only works if the
+  sample is not itself built from that order. "The first `n`" would destroy exactly that.
+- **Nested.** The first 200 are the first 500's prefix. A larger `n` **adds** leagues
+  rather than replacing them, so an earlier run's result stays a subset of a later one
+  and the two are comparable. A fresh draw at each size is not.
+
+The salt is fixed and **versioned**: changing it is a new sample and a new registration,
+never a quiet reshuffle after seeing what the first one gave. Every run reports the pool
+size, the sampled count and the share, and states that its counts are **over the sample**
+and that scaling them to the pool assumes a representativeness this run does not test.

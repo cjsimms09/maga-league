@@ -8,6 +8,7 @@ silently.
 
 Run: python3 -m pytest draft/tests/test_discovery_probe.py -q
 """
+import re
 import sys
 from pathlib import Path
 
@@ -123,3 +124,73 @@ def test_the_registered_queries_are_FORMAT_NEUTRAL():
         low = search.lower()
         assert not any(b in low for b in banned), \
             "%s uses a format-selecting search term %r" % (name, search)
+
+
+# ── is the set PAGED, or does it arrive whole? ──────────────────────────────
+def _ov(**kw):
+    return {k: {"returned": v[0], "new_vs_baseline": v[1], "identical_to_baseline": v[2]}
+            for k, v in kw.items()}
+
+
+def test_LARGE_VARIED_NONROUND_counts_are_direct_evidence_of_NO_PAGE_SIZE():
+    """THE INFERENCE THAT DOES NOT DEPEND ON GUESSING A PARAMETER NAME. A
+    paginated endpoint has a page size, so first pages come back at a fixed
+    number. 11056 / 5029 / 3328 are none of those things.
+
+    Measured 2026-08-11, run 31494552085, year 2025."""
+    v = D.paging_verdict(
+        _ov(page_2=(11056, 0, True), offset_65=(11056, 0, True)),
+        {"baseline": 11056, "different_query": 5029, "third_query": 3328})
+    assert v["paged"] is False
+    assert "NO PAGE SIZE IS BEING APPLIED" in v["reading"]
+    assert "satisfied by a single request" in v["reading"]
+
+
+def test_ROUND_EQUAL_counts_do_NOT_license_the_arrives_whole_conclusion():
+    """THE BOUNDARY. Three queries all returning 100 is exactly what a page size
+    looks like, and the paging params being ignored then tells us nothing about
+    whether paging exists under a name we did not try."""
+    v = D.paging_verdict(_ov(page_2=(100, 0, True)),
+                         {"baseline": 100, "different_query": 100, "third_query": 100})
+    assert v["paged"] is None
+    assert "Cannot distinguish" in v["reading"] and "rule 13" in v["reading"]
+
+
+def test_a_paging_candidate_returning_DIFFERENT_leagues_means_pagination_exists():
+    v = D.paging_verdict(_ov(page_2=(65, 65, False)), {"baseline": 65, "different_query": 40})
+    assert v["paged"] is True and "pagination exists" in v["reading"]
+
+
+def test_the_universe_query_candidates_are_registered():
+    """SEARCH filters, so the pool is a function of the WORD and no word is
+    obviously the universe. Asking for nothing is the cheapest way to find out."""
+    names = {n for n, _, _ in D.CANDIDATES}
+    assert {"empty_search", "single_letter"} <= names
+
+
+# ── D1 v2: the registered pool, and rule 6 against the document ─────────────
+def test_the_REGISTERED_TERMS_match_the_pre_registration_exactly():
+    """Rule 6: the pre-registration and the build must not diverge. The pool is a
+    degree of freedom under rule 4, so a term present in one and not the other is
+    the sample being changed without a registration."""
+    plan = (HERE.parent.parent / "INGEST-PLAN.md").read_text()
+    block = plan.split("**The registered terms:**", 1)[1].split("\n\n", 1)[0]
+    documented = set(re.findall(r"`([a-z]+)`", block))
+    assert documented == set(D.REGISTERED_TERMS), (
+        "documented %s vs code %s" % (sorted(documented), sorted(D.REGISTERED_TERMS)))
+
+
+def test_the_registered_terms_do_not_select_on_FORMAT():
+    """Keeper-axis words are deliberately IN — F1 records keeper structure as a
+    covariate and never filters on it, so they widen the pool rather than
+    narrowing it. Team count and scoring words are the ones that would bias it."""
+    banned = ("ppr", "half", "10", "12", "team", "superflex", "sf")
+    for t in D.REGISTERED_TERMS:
+        assert not any(b in t for b in banned), "term %r selects on format" % t
+
+
+def test_no_registered_term_is_below_the_MEASURED_minimum_length():
+    """`"a"` returned 0 while `"the"` returned 3,328, so SEARCH has a minimum term
+    length. A one- or two-letter term would silently contribute nothing to the
+    union and the pool would be smaller than the registration claims."""
+    assert all(len(t) >= 3 for t in D.REGISTERED_TERMS)
