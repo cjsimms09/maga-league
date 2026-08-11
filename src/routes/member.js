@@ -2636,6 +2636,84 @@ async function liveOptimizeFor(world, owners, me) {
   return { live, roster, matchup, projSource, band, weekNo };
 }
 
+/* ── THE WAIVER TOOL ─────────────────────────────────────────────────────────
+ *
+ * Commissioner-only (ACCESS-RULE.md: a recommendation surface). The engine has
+ * existed for weeks in src/routes/waivers.js with no caller — "pure functions,
+ * live wiring is the caller's job" — so this is the caller.
+ *
+ * ── WHAT THIS PAGE MUST REFUSE TO IMPLY ─────────────────────────────────────
+ *
+ * OUR LEAGUE RUNS PRIORITY WAIVERS, NOT FAAB. Priority is a DEPLETING resource:
+ * one good claim and you drop to the bottom. So the decision is never "is this
+ * player good", it is "is he worth spending my CURRENT POSITION on, or do I hold
+ * for something better" — a stopping problem, conditional on the week, the order
+ * position, and what is likely to appear later.
+ *
+ * THE ENGINE DOES NOT MODEL ANY OF THAT. It answers "what does this claim add to
+ * my starting lineup, and what is that worth", which is the numerator of the
+ * stopping rule and not the rule. `whoElseNeeds` derives the one input a stopping
+ * rule would need — who else is short at the position — and the valuation throws
+ * it away.
+ *
+ * So the page states the gap rather than papering over it. A ranked list
+ * presented as the answer would be answering a question nobody asked, and the
+ * one thing worse than a tool that cannot decide is a tool that looks like it
+ * did.
+ */
+router.get('/waivers', requireCommissioner, aw(async (req, res) => {
+  const world = req.world;
+  const owners = H.activeOwners(world.owners);
+  const me = req.owner;
+  const season = String(H.currentSeason(world.seasons).year || new Date().getUTCFullYear());
+  const W = require('./waivers');
+
+  let claims = [], drop = null, perPoint = 0, weekNo = null, err = null, live = false;
+  try {
+    const sData = await sleeper.bundle(world.config.sleeper_league_id);
+    if (sData && Array.isArray(sData.rosters) && sData.rosters.length) {
+      weekNo = sData.week || (sData.state && sData.state.week) || null;
+      const map = world.config.sleeper_map || {};
+      const myRid = Object.keys(map).find(rid => Number(map[rid]) === Number(me.id));
+      const playersDb = await sleeper.players();
+      let artifact = {};
+      try {
+        artifact = JSON.parse(fs.readFileSync(
+          path.join(__dirname, '..', '..', 'public', 'draft_data.json'), 'utf8'));
+      } catch (e) { artifact = {}; }
+      const inputs = W.waiverInputsFromBundle(sData, playersDb, artifact, myRid);
+      if (inputs && inputs.myRoster.length) {
+        live = true;
+        const band = LO.weeklyHighBand();
+        // The league's own slot template, not a default — a wrong template
+        // prices every claim against a lineup we do not play.
+        const template = (sData.league && sData.league.roster_positions) || null;
+        const league = { teams: (sData.league && sData.league.total_rosters) || owners.length,
+                         starters: template ? LO.slotsFromTemplate(template) : LO.DEFAULT_SLOTS };
+        // Rank by what reaches the field, and only look at the top of the wire —
+        // a full FA pool is thousands of names and the tail is all zeros.
+        const typical = LO.typicalTeamScore();
+        const res2 = W.evaluateClaims(inputs.freeAgents, inputs.myRoster, league, {
+          band, lineupMean: typical.median, lineupSd: typical.sd, oppMean: typical.median,
+          leagueRosters: Object.fromEntries((sData.rosters || [])
+            .filter(r => String(r.roster_id) !== String(myRid))
+            .map(r => [r.roster_id, (r.players || []).map(pid => {
+              const info = (playersDb && playersDb.players && playersDb.players[pid]) || {};
+              return { player_id: pid, position: info.pos, proj_mean: null };
+            }).filter(p => p.position)])),
+        });
+        drop = res2.drop; perPoint = res2.dollars_per_point;
+        claims = res2.claims.filter(c => c.net_value > 0).slice(0, 8);
+      }
+    }
+  } catch (e) { err = String((e && e.message) || e); }
+
+  res.render('waivers', {
+    me, season, weekNo, live, err, claims, drop, perPoint,
+    liveStale: await liveFreshness(),
+  });
+}));
+
 router.get('/lineup', requireCommissioner, aw(async (req, res) => {
   const world = req.world;
   const owners = H.activeOwners(world.owners);
