@@ -7,40 +7,30 @@
  "leaderboard": [
   {
    "archetype": "early_qb",
-   "mean_edge": 429.75,
+   "mean_edge": 533.88,
    "ci95": [
-    381.62,
-    478.5
+    479.12,
+    586.0
+   ],
+   "mean_divergence": 1.2,
+   "verdict": "WINNER \u2014 enroll as THE PLAN"
+  },
+  {
+   "archetype": "elite_te",
+   "mean_edge": 52.5,
+   "ci95": [
+    13.12,
+    90.12
    ],
    "mean_divergence": 1.0,
    "verdict": "WINNER \u2014 enroll as THE PLAN"
   },
   {
-   "archetype": "elite_te",
-   "mean_edge": 48.12,
+   "archetype": "wr_anchor",
+   "mean_edge": 1.0,
    "ci95": [
-    12.5,
-    85.75
-   ],
-   "mean_divergence": 1.1,
-   "verdict": "WINNER \u2014 enroll as THE PLAN"
-  },
-  {
-   "archetype": "zero_rb",
-   "mean_edge": 0.0,
-   "ci95": [
-    0.0,
-    0.0
-   ],
-   "mean_divergence": 0.0,
-   "verdict": "parked: CI includes $0"
-  },
-  {
-   "archetype": "hero_rb",
-   "mean_edge": 0.0,
-   "ci95": [
-    0.0,
-    0.0
+    -1.5,
+    4.5
    ],
    "mean_divergence": 0.0,
    "verdict": "parked: CI includes $0"
@@ -56,33 +46,43 @@
    "verdict": "parked: CI includes $0"
   },
   {
-   "archetype": "wr_anchor",
-   "mean_edge": 0.0,
+   "archetype": "zero_rb",
+   "mean_edge": -5.88,
    "ci95": [
-    0.0,
+    -15.62,
     0.0
    ],
-   "mean_divergence": 0.0,
+   "mean_divergence": 0.1,
+   "verdict": "parked: CI includes $0"
+  },
+  {
+   "archetype": "hero_rb",
+   "mean_edge": -5.88,
+   "ci95": [
+    -15.62,
+    0.0
+   ],
+   "mean_divergence": 0.1,
    "verdict": "parked: CI includes $0"
   },
   {
    "archetype": "late_qb",
-   "mean_edge": -31.88,
+   "mean_edge": -25.88,
    "ci95": [
-    -55.38,
-    -12.88
+    -46.0,
+    -8.75
    ],
-   "mean_divergence": 0.1,
+   "mean_divergence": 0.0,
    "verdict": "parked: CI includes $0"
   }
  ],
  "head_to_head": {
   "leader": "early_qb",
   "runner_up": "elite_te",
-  "paired_mean": 381.62,
+  "paired_mean": 481.38,
   "ci95": [
-   337.38,
-   426.75
+   433.0,
+   527.88
   ],
   "separable": true,
   "resolution": "leader separates from the runner-up"
