@@ -296,8 +296,47 @@
     return open;
   }
 
+  /* VORP AFTER A MANUAL PROJECTION OVERRIDE (found by B, 2026-08-11).
+   *
+   * IT LIVES HERE RATHER THAN IN app.js FOR THE REASON keeperSlateCheck MOVED:
+   * inside a browser IIFE with no exports the only available test is source
+   * inspection, which cannot tell an implementation from a comment describing
+   * one — and this arithmetic produced a SIGN FLIP on the column read at the
+   * table. It needs to be called with real numbers and checked.
+   *
+   * THE DEFECT. The override scaled `vorp` by the same factor as the
+   * projection. VORP is `proj_mean − replacement`, and a haircut moves the
+   * PROJECTION; the replacement level is a property of the position's supply
+   * and does not move. Scaling VORP is wrong by exactly `replacement × (1 − f)`
+   * — largest where replacement is largest, which is QB at 341.72:
+   *
+   *     Josh Allen, 25% downgrade
+   *       correct    0.75 × 405.50 − 341.72 = −37.60   (BELOW replacement)
+   *       as shipped 0.75 ×  63.78          = +47.84   (a SIGN FLIP)
+   *
+   * THE REPLACEMENT LEVEL IS RECOVERED, NOT LOOKED UP. `proj_mean − vorp` is
+   * exact by definition and cannot disagree with whatever built the board,
+   * whereas consulting a replacement table would be a second source for one
+   * fact. `null` when either input is missing, because a scaled number would be
+   * wrong and a zero would be a claim.
+   */
+  function vorpAfterOverride(preProjMean, preVorp, factor) {
+    if (preProjMean == null || preVorp == null || factor == null) return null;
+    var m = Number(preProjMean), v = Number(preVorp), f = Number(factor);
+    if (!isFinite(m) || !isFinite(v) || !isFinite(f)) return null;
+    // f === 1 SHORT-CIRCUITS so the no-op is EXACTLY the identity. Without it,
+    // 405.50 × 1 − (405.50 − 63.78) returns 63.77999999999997 — harmless once,
+    // and the caller now always recomputes from a snapshot so it cannot
+    // accumulate, but an identity that is not quite the identity is the kind of
+    // thing a later diff spends an hour on.
+    if (f === 1) return v;
+    var replacement = m - v;
+    return (m * f) - replacement;
+  }
+
   var api = { startableValue: startableValue, claimValue: claimValue,
     claimStoppingRule: claimStoppingRule, waiverPriorityDepletes: waiverPriorityDepletes,
+    vorpAfterOverride: vorpAfterOverride,
     bestAvailableByVorp: bestAvailableByVorp,
               openStartableSlots: openStartableSlots,
               INJURY_RATE: INJURY_RATE, BENCH_DISCOUNT: BENCH_DISCOUNT };
