@@ -395,3 +395,85 @@ def test_THE_STATUSES_ARE_COUNTED_so_a_filtered_page_is_visible_as_filtered():
     rows = X.parse_cdx(body)
     assert X.status_census(rows) == {"301": 2, "200": 1}
     assert all(r.get("statuscode") for r in rows)
+
+
+# ── the count that called it a board was counting furniture ────────────────
+def test_A_NAVIGATION_MENU_IS_NOT_A_BOARD_however_many_bytes_it_is():
+    """THE WRONG ANSWER, REPRODUCED. Two FantasyPros captures scored as boards at
+    422KB and 480KB and Route 1 was reported OPEN. The hand-check read:
+
+        Draft Wizard, NFL Draft Contest, View Contest, Game Day, My Account,
+        My Leagues, Mobile Apps, FantasyPros Championship, Discord Chat, Sign Out
+
+    Zero of fifteen were players. `looks_like_a_board` counts capitalised pairs, and
+    a content-heavy site's menu clears any such threshold on its own.
+
+    MUTATION: keep shape-counting as the test. A menu is reported as a dated
+    pre-draft board and the 2027 timeline 'collapses' on site chrome."""
+    menu = "".join("<a>%s</a>" % n for n in [
+        "Draft Wizard", "NFL Draft Contest", "View Contest", "Game Day", "My Account",
+        "My Leagues", "Mobile Apps", "Discord Chat", "Sign Out", "NFL Home",
+        "Waiver Central", "Waiver Assistant", "Free Agent Finder", "Trade Analyzer",
+        "Trade Central", "Start Sit", "Player News", "Depth Charts", "Injury Report",
+        "Rest Of", "Season Rankings", "Draft Kit", "Mock Draft", "Best Ball"] * 3)
+    known = {"ja'marr chase", "bijan robinson", "ceedee lamb", "saquon barkley",
+             "amon-ra st. brown", "tyreek hill", "justin jefferson", "breece hall",
+             "garrett wilson", "puka nacua", "jahmyr gibbs", "chris olave"}
+    # The OLD test says yes...
+    assert X.looks_like_a_board(menu)["is_board"] is True, "the fixture must reproduce the defect"
+    # ...the known-answer test says no.
+    v = X.board_confidence(menu, known)
+    assert v["is_board"] is False and v["player_hits"] == 0
+
+
+def test_a_REAL_board_clears_the_known_answer_test():
+    known = {"ja'marr chase", "bijan robinson", "ceedee lamb", "saquon barkley",
+             "amon-ra st. brown", "tyreek hill", "justin jefferson", "breece hall",
+             "garrett wilson", "puka nacua", "jahmyr gibbs", "chris olave"}
+    html = "<a>Draft Wizard</a><a>My Account</a>" + "".join(
+        "<td><a>%s</a></td>" % n.title().replace("St. Brown", "St. Brown") for n in known)
+    v = X.board_confidence(html, known)
+    assert v["is_board"] is True, v
+    assert v["player_hits"] >= 10
+    # The hits are RETURNED so the verdict can be read rather than trusted.
+    assert v["matched"] and all(h.lower() in known for h in v["matched"])
+
+
+def test_the_known_answer_comes_from_OUR_OWN_BOARD_not_a_hand_written_list():
+    """A list of "players I expect" would be a third derivation of something we
+    already hold, and it would drift. MUTATION: hard-code a list; it goes stale the
+    first time the board changes and nothing says so."""
+    names = X.board_names({"players": [{"name": "Bijan Robinson"}],
+                           "kept_players": [{"name": "CeeDee Lamb"}]})
+    assert names == {"bijan robinson", "ceedee lamb"}
+    assert X.board_names({}) == set() and X.board_names(None) == set()
+
+
+def test_BYTE_COUNT_IS_NOT_EVIDENCE():
+    """422KB of menu is still menu. MUTATION: admit a page on size."""
+    known = {"bijan robinson"}
+    huge = "<a>Draft Wizard</a>" * 40000
+    assert len(huge) > 400000
+    assert X.board_confidence(huge, known)["is_board"] is False
+
+
+def test_THE_CAPTURE_WALK_IS_GATED_ON_THE_JUDGE_NOT_ON_SHAPE():
+    """The walk stops at the first capture that PASSES. Gated on shape, it stopped
+    on the first navigation menu it found and returned it as the board — so the
+    injected judge is what makes the walk honest, and a walk that ignores it would
+    reproduce the wrong answer with the right test sitting unused.
+
+    MUTATION: ignore `judge` and use looks_like_a_board. The menu capture is
+    returned and the real board behind it is never examined."""
+    menu = "".join("<a>Draft Wizard</a><a>My Account</a><a>Trade Analyzer</a>" for _ in range(40))
+    real = "".join("<td><a>%s</a></td>" % n for n in
+                   ["Bijan Robinson", "CeeDee Lamb", "Saquon Barkley"] * 20)
+    caps = [{"timestamp": "20240730000000", "original": "https://x/a"},
+            {"timestamp": "20240715000000", "original": "https://x/a"}]
+    served = {X.replay_url(caps[0]): menu, X.replay_url(caps[1]): real}
+    known = {"bijan robinson", "ceedee lamb", "saquon barkley"}
+    got = X.first_serving_capture(caps, lambda u: served[u],
+                                  judge=lambda b: X.board_confidence(b, known, min_hits=3))
+    assert got["state"] == "board" and got["timestamp"] == "20240715000000", got
+    # Both captures reported, so the skip is visible.
+    assert [e["timestamp"] for e in got["examined"]] == ["20240730000000", "20240715000000"]

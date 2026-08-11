@@ -194,7 +194,7 @@ def looks_like_a_board(text, min_rows=50) -> dict:
             "is_board": rows >= min_rows, "bytes": len(text)}
 
 
-def first_serving_capture(captures, fetch, min_rows=50, tries=4) -> dict:
+def first_serving_capture(captures, fetch, min_rows=50, tries=4, judge=None) -> dict:
     """Walk pre-cutoff captures NEWEST FIRST until one actually serves a board.
 
     THE DEFECT THIS FIXES, measured on the first successful run. The probe took
@@ -214,12 +214,17 @@ def first_serving_capture(captures, fetch, min_rows=50, tries=4) -> dict:
     tried = []
     for cap in (captures or [])[:max(1, tries)]:
         body = fetch(replay_url(cap))
-        v = looks_like_a_board(body, min_rows)
-        tried.append({"timestamp": cap["timestamp"], "bytes": v["bytes"],
-                      "rows": v["rows_seen"], "empty": v["empty"]})
+        shape = looks_like_a_board(body, min_rows)
+        # THE JUDGE IS INJECTED so the walk cannot be gated on shape by accident.
+        # Shape-counting stopped this walk on the first navigation menu it found.
+        v = judge(body) if judge else shape
+        tried.append({"timestamp": cap["timestamp"], "bytes": shape["bytes"],
+                      "rows": v.get("player_hits", shape["rows_seen"]),
+                      "empty": shape["empty"]})
         if v["is_board"]:
-            return {"state": "board", "timestamp": cap["timestamp"], "rows": v["rows_seen"],
-                    "bytes": v["bytes"], "body": body, "examined": tried}
+            return {"state": "board", "timestamp": cap["timestamp"],
+                    "rows": v.get("player_hits", shape["rows_seen"]),
+                    "bytes": shape["bytes"], "body": body, "examined": tried}
     return {"state": "empty" if (tried and all(t["empty"] for t in tried)) else "not-a-board",
             "timestamp": tried[0]["timestamp"] if tried else None,
             "rows": 0, "examined": tried}
@@ -451,3 +456,54 @@ def route1_report(rows, unreachable=0) -> dict:
         "unreachable": unreachable,
         "verdict": route1_verdict(satisfies, len(rows), unreachable, len(leads), len(bad_url)),
     }
+
+
+def board_confidence(text, known_names, sample=40, min_hits=10) -> dict:
+    """Is this a board OF NFL PLAYERS? Checked against a set of real player names.
+
+    THE DEFECT THIS REPLACES, and it produced a WRONG ANSWER that was reported.
+    `looks_like_a_board` counts SHAPES: capitalised pairs in table cells and anchors.
+    A content-heavy site's navigation menu clears any such threshold on its own. So
+    two FantasyPros captures were scored as boards at 422KB and 480KB, Route 1 was
+    reported OPEN, and the hand-check sample turned out to read:
+
+        Draft Wizard, NFL Draft Contest, View Contest, Game Day, My Account,
+        My Leagues, Mobile Apps, FantasyPros Championship, Discord Chat, Sign Out...
+
+    Zero of fifteen were players. The pages were the site's chrome, and the count
+    that called them boards was counting furniture. Byte count is not evidence
+    either: 422KB of menu is still menu.
+
+    So the test is now a KNOWN-ANSWER test against names we already hold. A real ADP
+    board's top rows are the players everybody drafted early, and our own board
+    carries them; navigation carries none. This cannot be satisfied by volume.
+
+    NOT AN EXACT-ERA MATCH, and it does not need to be. A 2024 board checked against
+    a 2026 player set loses the retired and gains nothing — but the great majority of
+    any season's early picks are still on a board two years later, so ten hits out of
+    forty is a low bar that furniture cannot reach and a real board clears easily.
+    `min_hits` is stated rather than tuned, and the hits are RETURNED so the verdict
+    can be read rather than trusted.
+    """
+    known = {str(n).strip().lower() for n in (known_names or []) if n}
+    names = extract_names(text, sample)
+    hits = [n for n in names if n.strip().lower() in known]
+    return {"names_seen": len(names), "player_hits": len(hits),
+            "is_board": len(hits) >= min_hits, "matched": hits[:15],
+            "sample": names[:15], "min_hits": min_hits}
+
+
+def board_names(board_json) -> set:
+    """Player names out of OUR OWN board file — the known answer, not a second list.
+
+    Reads the same `players` + `kept_players` the crosswalk reads. A hand-written
+    list of "players I expect" would be a third derivation of a thing we already
+    hold, and it would drift.
+    """
+    d = board_json or {}
+    out = set()
+    for p in (d.get("players") or []) + (d.get("kept_players") or []):
+        n = (p or {}).get("name")
+        if n:
+            out.add(str(n).strip().lower())
+    return out
