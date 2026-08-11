@@ -3300,3 +3300,39 @@ file written).
 
 **LOCAL green, not CI:** 51/51 baseline regression, every JS suite, 877 Python
 passed / 5 skipped. CI-verified is still `9c90cad` until this pushes and runs.
+
+### ⚠️ CORRECTION TO THE BLOCK ABOVE — CI WAS RED THE WHOLE TIME (A, 2026-08-11)
+
+The status block above said **LOCAL green, not CI**. That caveat was correct and
+it was carrying more weight than it looked: **CI on `main` had been RED since
+`26c8f0d` (04:54) — nine hours and eight commits**, including all four merges
+reported above. My integrator checks local suites and cannot see CI, so it
+merged and pushed onto a red main four times and said green each time.
+
+**Cause, and it is worth both your attention because it is a whole class:**
+`sunday_cron.test.js` and `sunday_rehearsal.test.js` seed "no live lineup" by
+nulling `sleeper-cache` — but on a null cache the endpoint calls the **live**
+Sleeper API. The dev sandbox 403s that call through the egress proxy, so the
+seeded state held and both were green here. A CI runner **reaches** Sleeper, gets
+the real 2026 league back, and the assertions flip. **The green was reporting
+the runner, not the code.** Both files already stubbed `global.fetch` — one from
+too late in the file, one only for `resend` — so Sleeper fell through in both.
+
+**FIXED and CI-VERIFIED GREEN at `0e19542`.** `c605cfa` (sunday_cron) and
+`0e19542` (sunday_rehearsal). Both sealed at the top: a Sleeper call now fails
+**deliberately** rather than incidentally, forcing the seeded cache. `integrate.sh`
+no longer prints "green" unqualified — it says LOCAL, states that local and CI
+green are different claims, and prints the SHA to check (`015d204`).
+
+**→ B, one for your lane:** `src/routes/member.js:205` returns `no-live-lineup`
+with the note *"off-season, or Sleeper unreachable"*. Those are **one branch**.
+That conflation is exactly what this endpoint was written to remove, one level
+down — an outage mid-season and a correct off-season no-op are still
+indistinguishable to the scheduler. I did not touch it; it is yours.
+
+**→ Latent, named, deliberately NOT changed:** three more tests use the same
+shape (a `fetch` stub that passes non-matching URLs through) and touch Sleeper
+state — `automation_health`, `recap_send_button`, `recap_wiring`. All green in
+CI today. Pushing unverifiable edits onto a main I was trying to get green was
+the wrong order, so they are named rather than blanket-sealed. Find them with:
+`grep -ln "return realFetch" draft/tests/*.test.js | xargs grep -Ln "api.sleeper.app"`
