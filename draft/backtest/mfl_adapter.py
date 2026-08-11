@@ -531,9 +531,27 @@ def to_league_record(league_json, rules_json, draft_json, *,
     # is what makes `screen()` say so instead of reporting a 0% match rate.
     if crosswalk is not None:
         rows_x = crosswalk[0] if isinstance(crosswalk, tuple) else crosswalk
-        done = {r.get("overall") for r in (rows_x or [])}
+        # OUR ID, ATTACHED — not just a boolean. Measured 2026-08-11 before it ran:
+        # the pick carried MFL's id under `player`, the replay reads OUR id under
+        # `player_id`, and every decision envelope came back with
+        # `actual_player_id = None` — 30 of 30. Nothing errored. `survival_grade`
+        # would have resolved every forecast against None and produced a Brier
+        # score that looked exactly like a result.
+        #
+        # `player` (MFL's) is KEPT alongside `player_id` (ours) rather than
+        # overwritten: the two id spaces are what the crosswalk exists to bridge,
+        # and collapsing them is how a wrong match stops being traceable.
+        ours = {r.get("overall"): r.get("player_id") for r in (rows_x or [])}
         for p in picks:
-            p["crosswalked"] = p["overall"] in done
+            p["crosswalked"] = p["overall"] in ours
+            sid = ours.get(p["overall"])
+            if sid is not None:
+                p["player_id"] = str(sid)
+            else:
+                # A pick that did not crosswalk carries NO id of ours. Absent, so
+                # a consumer reading it gets nothing rather than a plausible None
+                # that scores.
+                p.pop("player_id", None)
 
     # P3/P4. `screen()` already reports F4.no_scoring_rules on an empty map; what
     # it cannot know without this is WHICH absence — an export that answered
