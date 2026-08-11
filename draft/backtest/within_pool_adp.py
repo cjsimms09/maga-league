@@ -35,6 +35,12 @@ from __future__ import annotations
 MIN_SUPPORT = 10
 SUPPORT_SENSITIVITY = (5, 10, 25, 50)
 
+# HOW BIG A BOARD COUNTS AS USABLE — and this was a bare default in the code while
+# `min_support` was registered, which is the same degree of freedom wearing
+# different clothes. A single threshold decides how many leagues D7 "works" for, so
+# the WHOLE CURVE is reported and no one value does the deciding.
+BOARD_SIZE_CURVE = (25, 50, 100, 200)
+
 # Every board built here carries this, so it can never be read as provider ADP in
 # a table that also contains provider ADP.
 ADP_SOURCE = "within_pool_v1"
@@ -138,8 +144,14 @@ def feasibility(leagues, pool_picks, min_support=MIN_SUPPORT, need_players=100) 
     half = len(per_league) // 2
     early_usable = sum(1 for x in per_league[:half] if x["usable"])
     late_usable = sum(1 for x in per_league[half:] if x["usable"])
+    # THE CURVE, so `need_players` cannot silently be the answer. Computed from the
+    # per-league board sizes already measured, at no extra fetching or scanning.
+    sizes = [x["players_with_adp"] for x in per_league]
+    curve = {str(k): sum(1 for v in sizes if v >= k) for k in BOARD_SIZE_CURVE}
     return {
         "leagues_examined": len(leagues or []),
+        "leagues_by_board_size": curve,
+        "board_size_distribution": _distribution(sizes),
         "leagues_dated": len(dated),
         "leagues_undated": len(leagues or []) - len(dated),
         "leagues_with_usable_board": usable,
@@ -153,6 +165,16 @@ def feasibility(leagues, pool_picks, min_support=MIN_SUPPORT, need_players=100) 
         # M4, reported beside the count rather than left for someone to ask about.
         "calendar_covariates": calendar_covariates(leagues),
     }
+
+
+def _distribution(vals) -> dict:
+    if not vals:
+        return {"n": 0, "min": None, "median": None, "max": None}
+    s = sorted(vals)
+    mid = len(s) // 2
+    return {"n": len(s), "min": s[0],
+            "median": s[mid] if len(s) % 2 else (s[mid - 1] + s[mid]) / 2,
+            "max": s[-1]}
 
 
 def calendar_covariates(leagues, keys=("teams", "keeper_type", "draft_type")) -> dict:

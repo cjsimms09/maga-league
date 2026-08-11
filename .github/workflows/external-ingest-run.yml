@@ -181,6 +181,9 @@ jobs:
                     % (d7.get("f1_passing_leagues"), d7.get("picks_in_format_matched_pool"),
                        d7.get("picks_in_whole_pool")))
               print("  D7 format-matched   %s" % fm.get("verdict"))
+              print("  D7 board sizes      %s ; distribution %s"
+                    % (json.dumps(fm.get("leagues_by_board_size")),
+                       json.dumps(fm.get("board_size_distribution"))))
               print("  D7 whole-pool(N/A)  %s" % wp.get("verdict"))
               cv = (fm.get("calendar_covariates") or {})
               print("  D7 M4 covariates    %s" % cv.get("verdict"))

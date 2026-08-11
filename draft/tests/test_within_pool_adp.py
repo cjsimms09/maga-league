@@ -238,3 +238,28 @@ def test_the_DEFAULT_covariate_keys_are_ones_the_RECORD_ACTUALLY_CARRIES():
     defaults = inspect.signature(W.calendar_covariates).parameters["keys"].default
     missing = [k for k in defaults if k not in emitted]
     assert not missing, "M4 reads keys the record does not emit: %s" % missing
+
+
+def test_the_BOARD_SIZE_CURVE_is_reported_so_one_threshold_is_not_the_answer():
+    """`need_players` was a bare default in the code while `min_support` was
+    registered — the same degree of freedom wearing different clothes. A single
+    threshold decides how many leagues D7 'works' for, so the whole curve is
+    published and no one value does the deciding.
+
+    MUTATION: report only the count at `need_players`. Whether D7 succeeds then
+    turns on a number nobody registered."""
+    leagues, pool = _spread_pool(24, picks_each=30)
+    f = W.feasibility(leagues, pool, min_support=5, need_players=100)
+    assert set(f["leagues_by_board_size"]) == {"25", "50", "100", "200"}
+    # Monotone by construction: a board of 50+ is also a board of 25+.
+    c = f["leagues_by_board_size"]
+    assert c["25"] >= c["50"] >= c["100"] >= c["200"]
+    assert f["board_size_distribution"]["n"] == 24
+
+
+def test_the_board_size_distribution_carries_the_SHAPE_not_just_a_count():
+    """'12 leagues reached 100 players' says nothing about whether the rest were
+    at 99 or at 3, and those support opposite conclusions about the route."""
+    leagues, pool = _spread_pool(10, picks_each=20)
+    d = W.feasibility(leagues, pool, min_support=2, need_players=5)["board_size_distribution"]
+    assert d["min"] is not None and d["max"] >= d["median"] >= d["min"]
