@@ -1830,6 +1830,14 @@
       + (t.picksUntilNext === 1 ? '' : 's') + ' before your turn'
       + (state.profilesMappedFromDraft ? '' : ' · seats unassigned');
 
+    // Scoped HERE, not borrowed from renderThreatStrip. The first version of the
+    // seat-not-assigned message read that function's `unassigned` const from this
+    // one, which is a ReferenceError at render time — it would have taken the
+    // whole threat panel down on the clock to fix a wording problem.
+    const seatsUnassigned = !state.profilesMappedFromDraft;
+    const haveDossier = Object.keys(
+      ((state.data || {}).manager_profiles || {}).managers || {}).length > 0;
+
     // At-risk first. It is the answer; the seat-by-seat breakdown is the
     // working, and on the clock most people only ever read the answer.
     let html = '';
@@ -1858,6 +1866,24 @@
         : '<span class="muted">nothing stands out</span>';
       // No history means no tell. Saying so is better than an empty space that
       // reads as "this one is unpredictable".
+      /* THE THIRD MESSAGE, BECAUSE THERE ARE THREE STATES AND THERE WERE TWO.
+       *
+       * "no draft history on Sleeper" was FALSE and had been on the page all
+       * along. There are 468 picks across three drafts, profiled for all ten
+       * managers, sitting in the same artifact and rendered in Know Your League
+       * three inches up the page. What is missing is not the history — it is
+       * the mapping from SEAT to manager, which only exists once Sleeper assigns
+       * the draft order and importDraftOrder resolves it by uid.
+       *
+       * That distinction is the whole answer to "why is every seat identical":
+       * positionProbabilities reads team.profile, profileForSlot returns null
+       * until the mapping lands, so every seat gets CFG defaults BY
+       * CONSTRUCTION. Telling Cory "no history" invites him to conclude the
+       * dossier is worthless; telling him "the seat is not assigned yet" is what
+       * is actually true and says when it changes.
+       *
+       * Kept distinct from the genuine no-history case, which is still possible
+       * for a manager who has never drafted in this league. */
       const tells = r.tells.length
         ? r.tells.map(x => '<div class="threat-tell">' + escapeHtml(x.text)
             + (x.proxy ? ' <span class="muted" title="measured against today\'s ranks, '
@@ -1865,7 +1891,10 @@
         : '<div class="threat-tell muted">' + (r.sample_size
             ? 'nothing in ' + r.sample_size + ' draft' + (r.sample_size === 1 ? '' : 's')
               + ' stands out — he drafts near league average'
-            : 'no draft history on Sleeper — modelled as league average') + '</div>';
+            : (seatsUnassigned && haveDossier
+                ? 'seat not assigned by Sleeper yet — the position mix above is '
+                  + 'league-average until the draft order names who sits here'
+                : 'no draft history on Sleeper — modelled as league average')) + '</div>';
       return '<div class="threat-row">'
         + '<div class="threat-head"><span class="threat-pick">' + r.pick_no + '</span>'
         + '<b>' + who + '</b>' + '<span class="threat-pos">' + pos + '</span></div>'
