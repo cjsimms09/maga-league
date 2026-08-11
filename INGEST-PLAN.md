@@ -854,3 +854,25 @@ diagnosable instead of becoming an anonymous drop. This is the attrition seam at
 outermost layer — the same principle as `F4.fetch_failed`, one level further out. The
 previous behaviour meant a single malformed league could delete an entire run's evidence,
 which is the most expensive way for a sample to become invisible.
+
+### D5 VERIFIED AGAINST REAL DATA WITH REAL RULE SHAPES (2026-08-11)
+
+The scorer had only ever run on fixtures its author wrote. Run against **19,421 real 2025
+weekly rows** (via `nflreadpy`, 6,160 gsis→sleeper pairs) under a rules export built from
+the shapes the 250-league run actually measured — `-100-999` on yardage, `1-999` on counts,
+and the combined `QB|RB|WR|TE|PK` block that appears in 32 of 60 leagues:
+
+- **Zero untranslatable terms.** Four graded tables built; `Def` and `PK` correctly ignored.
+- `has_weekly_outcomes: True`, reason `ok`, F3 coverage 1.0 over 200 drafted players.
+- Leaderboard recognisable: McCaffrey 365.60, Josh Allen 362.62, Stafford 350.38.
+
+**The cross-check that makes it more than a plausible list.** This league's table carries no
+two-point-conversion terms, so against the shipped half-PPR reference every difference should
+be exactly −2 per 2-pt conversion and zero for players with none. Measured: Allen **−2.00**
+(one), Maye **−4.00** (two), McCaffrey and Stafford **0.00**. The deltas are precisely the
+terms that differ, which is the agreement across derivation paths rule 11 asks for.
+
+**What this settles and what it does not.** It settles that D5's scorer handles real rule
+shapes and real weekly data — so the run's `unreadable_points` count is about *specific
+expressions*, not about the path being broken. It does **not** settle which expressions those
+are; that is what the run's `unparsed_samples` are for.
