@@ -234,7 +234,32 @@ def _verdict_line(rep: dict) -> str:
 EXPORTS = {"league": "TYPE=league", "rules": "TYPE=rules", "draftResults": "TYPE=draftResults"}
 
 
-def fetch_league(league_id, year, delay=0.34):  # pragma: no cover  (egress; CI only)
+# ADAPTIVE PACING. A fixed delay either wastes time when the endpoint is happy or
+# loses to the limiter when it is not, and retrying at a fixed rate FIGHTS a rate
+# limiter rather than converging to what it will serve. Measured: run 4 fetched 60
+# leagues at ~2.8s each; run 8 ran roughly 3x slower at the same settings, which is
+# retry time, not network time. So a 429 raises the floor for EVERY subsequent
+# league and a clean stretch lowers it again — the run finds the sustainable rate
+# instead of being told one.
+_PACE = {"delay": 0.34, "clean": 0}
+_PACE_MAX, _PACE_MIN = 8.0, 0.34
+
+
+def _saw_429():
+    _PACE["delay"] = min(_PACE_MAX, max(_PACE["delay"] * 2.0, 1.0))
+    _PACE["clean"] = 0
+
+
+def _saw_ok():
+    _PACE["clean"] += 1
+    # Only after a sustained clean stretch, and only part-way back: dropping
+    # straight to the floor after one success just re-earns the next 429.
+    if _PACE["clean"] >= 10:
+        _PACE["delay"] = max(_PACE_MIN, _PACE["delay"] * 0.7)
+        _PACE["clean"] = 0
+
+
+def fetch_league(league_id, year, delay=None):  # pragma: no cover  (egress; CI only)
     """The three exports for one league. An error is RECORDED, never raised away.
 
     `delay` is not politeness for its own sake. A sample of 150 leagues is 450
@@ -250,8 +275,9 @@ def fetch_league(league_id, year, delay=0.34):  # pragma: no cover  (egress; CI 
     import urllib.request
     out = {}
     for i, (name, q) in enumerate(EXPORTS.items()):
-        if i and delay:
-            time.sleep(delay)
+        gap = _PACE["delay"] if delay is None else delay
+        if i and gap:
+            time.sleep(gap)
         url = "%s/%s/export?%s&L=%s&JSON=1" % (MFL_HOST, year, q, league_id)
         req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
         # 429 IS NOT A LEAGUE THAT COULD NOT BE FETCHED. Measured: the first real
@@ -265,8 +291,11 @@ def fetch_league(league_id, year, delay=0.34):  # pragma: no cover  (egress; CI 
             try:
                 with urllib.request.urlopen(req, timeout=45) as r:
                     out[name] = json.loads(r.read().decode("utf-8", "replace"))
+                _saw_ok()
                 break
             except urllib.error.HTTPError as e:
+                if e.code == 429:
+                    _saw_429()
                 if e.code == 429 and attempt < 3:
                     # Honour Retry-After when the server sends one; it knows better
                     # than any constant chosen here.
@@ -512,7 +541,7 @@ def run(league_ids, year, out_path=None, *, players=None, board=None,
         if _i:
             # BETWEEN LEAGUES TOO, not only between exports. The measured 429 came
             # at roughly 1.8 requests/second; this run asks for well under one.
-            _time.sleep(league_delay)
+            _time.sleep(max(league_delay, _PACE["delay"]))
         exports = fetch_league(lid, year)
         rec = build_record(lid, exports)
         if rec.get("unfetchable"):
@@ -548,6 +577,10 @@ def run(league_ids, year, out_path=None, *, players=None, board=None,
     verdicts, _ = run_screen(records)
     rep = attrition_report(verdicts, requested=list(league_ids))
     rep["stopped_early"] = stopped_early
+    # The rate the run SETTLED at, reported: it is the number that says whether a
+    # bigger sample is affordable, and guessing it is how the last two runs were
+    # budgeted.
+    rep["final_pace_seconds"] = round(_PACE["delay"], 3)
     rep["year"] = str(year)
     rep["outcomes"] = outcomes_summary(outcomes)
     rep["season_readiness"] = readiness

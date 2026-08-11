@@ -618,3 +618,46 @@ def test_a_run_that_STOPS_EARLY_reports_an_INCOMPLETE_DENOMINATOR():
     assert sorted(rep["never_attempted_ids"]) == ["L3", "L4", "L5"]
     assert "NEVER ATTEMPTED" in rep["verdict"]
     assert "not a coverage figure" in rep["verdict"]
+
+
+# ── adaptive pacing: converge to what the endpoint serves ──────────────────
+def test_a_429_RAISES_the_floor_for_every_subsequent_request():
+    """A fixed delay either wastes time when the endpoint is happy or loses to the
+    limiter when it is not, and retrying at a fixed rate FIGHTS a limiter rather
+    than converging to it. Measured: run 4 fetched 60 leagues at ~2.8s each; run 8
+    ran roughly 3x slower at identical settings, which is retry time.
+
+    MUTATION: make `_saw_429` a no-op. The pace never rises, every league pays the
+    full retry ladder, and a 250-league run stops fitting in its timeout."""
+    R._PACE.update({"delay": 0.34, "clean": 0})
+    R._saw_429()
+    assert R._PACE["delay"] >= 1.0
+    before = R._PACE["delay"]
+    R._saw_429()
+    assert R._PACE["delay"] > before
+
+
+def test_the_pace_is_CAPPED_so_a_bad_stretch_cannot_stall_the_run_forever():
+    R._PACE.update({"delay": 0.34, "clean": 0})
+    for _ in range(20):
+        R._saw_429()
+    assert R._PACE["delay"] == R._PACE_MAX
+
+
+def test_ONE_success_does_not_drop_the_pace_back_to_the_floor():
+    """Dropping straight back after a single clean request just re-earns the next
+    429, which is the oscillation that made the fixed delay slow in the first
+    place. Only a sustained clean stretch lowers it, and only part-way."""
+    R._PACE.update({"delay": 4.0, "clean": 0})
+    R._saw_ok()
+    assert R._PACE["delay"] == 4.0, "one success should change nothing"
+    for _ in range(9):
+        R._saw_ok()
+    assert R._PACE["delay"] < 4.0 and R._PACE["delay"] > R._PACE_MIN
+
+
+def test_the_pace_never_goes_below_the_registered_floor():
+    R._PACE.update({"delay": R._PACE_MIN, "clean": 0})
+    for _ in range(100):
+        R._saw_ok()
+    assert R._PACE["delay"] == R._PACE_MIN
