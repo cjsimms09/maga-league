@@ -93,7 +93,11 @@ ck("an incomplete draft is rejected",
    F.screen(league(draft={"status": "in_progress", "picks": []}))[1] == "F2.draft_incomplete")
 thin = {"status": "complete",
         "picks": [{"crosswalked": i < 100, "team": i % 10} for i in range(150)]}
-ck("below 90% crosswalk is rejected", F.screen(league(draft=thin))[1] == "F2.crosswalk_below_90pct")
+ck("below 90% crosswalk is rejected",
+   F.screen(league(draft=thin))[1].startswith("F2.crosswalk_below_90pct"))
+ck("...and the reason carries the RATE, matching the adapter's own verdict string",
+   F.screen(league(draft=thin))[1] == "F2.crosswalk_below_90pct:0.667",
+   F.screen(league(draft=thin))[1])
 edge = {"status": "complete",
         "picks": [{"crosswalked": i < 135, "team": i % 10} for i in range(150)]}
 ck("exactly 90% crosswalk is accepted (the bar is inclusive)", F.screen(league(draft=edge))[0])
@@ -145,6 +149,88 @@ ck("matched count is reported", rep["matched"] == 1, rep)
 ck("a short sample is declared INSUFFICIENT", not rep["meets_target"])
 ck("and says it changes NOTHING rather than relaxing a filter",
    "changes NOTHING" in rep["verdict"], rep["verdict"])
+
+# ── "WE COULD NOT READ IT" IS NOT "IT FAILED THE CHECK" (B's audit, 2026-08-11)
+# The table below is the whole finding, as a test. Each row states the sentence
+# the report USED to produce and the one it produces now, and asserts BOTH: the
+# new reason is right AND the old lie is gone. The `ok` column is asserted too,
+# and every row is False — which is the point: this changed no league's verdict,
+# only the sentence explaining a rejection that already happened, so it is a
+# reporting fix and NOT a filter change requiring a new pre-registration.
+NO_QB = {"RB": 2, "WR": 2, "TE": 1, "FLEX": 1}
+RANGE_QB = {"QB": "1-2", "RB": 2, "WR": 2, "TE": 1, "FLEX": 1}
+BAD_RB = {"QB": 1, "RB": "two", "WR": 2, "TE": 1, "FLEX": 1}
+NO_XWALK = {"status": "complete", "picks": [{"team": i % 10} for i in range(150)]}
+RELABELLED = [
+    # (what broke,              league,          what it USED to do,   what it says now)
+    # Two rows did not lie, they RAISED: `int("1-2")` and `int("two")` threw
+    # ValueError out of the screen. Recorded as what actually happened rather
+    # than tidied into the same shape as the other eleven.
+    ("teams absent", league(teams=None), "F1.teams", "F4.no_team_count"),
+    ("teams unparseable", league(teams="10"), "F1.teams", "F4.no_team_count"),
+    ("roster_slots empty", league(roster_slots={}), "F1.qb_slots", "F4.no_roster_slots"),
+    ("roster_slots absent", league(roster_slots=None), "F1.qb_slots", "F4.no_roster_slots"),
+    ("no QB slot parsed", league(roster_slots=NO_QB), "F1.qb_slots", "F4.no_qb_slot_count"),
+    ("QB limit is a RANGE STRING", league(roster_slots=RANGE_QB), "ValueError (crash)",
+     "F4.unreadable_qb_slot_count:1-2"),
+    ("a skill limit unparseable", league(roster_slots=BAD_RB), "ValueError (crash)",
+     "F4.unreadable_starting_slots:RB"),
+    ("draft_type absent", league(draft_type=None), "F1.draft_type", "F4.no_draft_type"),
+    ("draft_type empty", league(draft_type=" "), "F1.draft_type", "F4.no_draft_type"),
+    ("draft absent", league(draft=None), "F2.draft_incomplete", "F4.no_draft"),
+    ("draft empty", league(draft={}), "F2.draft_incomplete", "F4.no_draft"),
+    ("draft has no status", league(draft={"picks": [{"crosswalked": True}]}),
+     "F2.draft_incomplete", "F4.no_draft_status"),
+    ("the crosswalk never ran", league(draft=NO_XWALK), "F2.crosswalk_below_90pct",
+     "F4.crosswalk_not_run:150/150 picks"),
+]
+for what, lg, old, new in RELABELLED:
+    got_ok, got = F.screen(lg)
+    ck("%s -> rejected as '%s' (was: %s)" % (what, new, old),
+       got_ok is False and got == new and F.reason_code(got) != old, got)
+    ck("...and '%s' is classified as UNREADABLE, not as evidence about the pool" % what,
+       F.is_unreadable(got), got)
+
+# THE ADAPTER'S OWN REASON SURVIVES. `mfl_adapter.draft_type()` returns
+# `draft_type_unrecognised:SFIRSTFOO` precisely so an unknown code is its own
+# attrition reason; the seam used to receive a bare string and discard it.
+ck("an adapter reason reaches the report VERBATIM",
+   F.screen(league(draft_type=None, unreadable={"draft_type": "draft_type_unrecognised:SFIRSTFOO"}))[1]
+   == "F4.draft_type_unrecognised:SFIRSTFOO")
+ck("...and without one the generic reason still tells the truth",
+   F.screen(league(draft_type=None))[1] == "F4.no_draft_type")
+
+# THE CONVERSE LIE. Over-reporting parse failures would hide real format rarity.
+ck("a league we DID read still reports the real filter failure",
+   F.screen(league(teams=14))[1] == "F1.teams" and not F.is_unreadable("F1.teams"))
+ck("a readable non-snake draft is still F1.draft_type",
+   F.screen(league(draft_type="auction"))[1] == "F1.draft_type")
+ck("F5's strictly-before check is a REAL check, not an unreadable",
+   not F.is_unreadable("F5.adp_not_strictly_pre_draft"))
+ck("F5's missing timestamps IS an unreadable (we lack the dates)",
+   F.is_unreadable("F5.missing_timestamps"))
+
+# ── the split, and the bucket that stops it being silently incomplete ───────
+mixed = F.screen_all([league(), league(teams=14), league(teams=None), league(draft_type=None)])
+ck("the report splits UNREADABLE from FILTERED",
+   (mixed["rejected_filtered"], mixed["rejected_unreadable"]) == (1, 2), mixed)
+ck("and says so on the VERDICT LINE, where it cannot be skimmed past",
+   "UNREADABLE" in mixed["verdict"] and "NOT about how many public leagues" in mixed["verdict"],
+   mixed["verdict"])
+ck("a clean run carries no such warning (one that always fires is never read)",
+   "UNREADABLE" not in F.screen_all([league(), league(teams=14)])["verdict"])
+
+_real_screen = F.screen
+F.screen = lambda lg: (False, "F9.a_reason_nobody_declared")
+_undeclared = F.screen_all([league()])
+F.screen = _real_screen
+ck("an UNDECLARED reason is binned nowhere rather than silently counted as filtered",
+   (_undeclared["rejected_unclassified"], _undeclared["rejected_filtered"]) == (1, 0), _undeclared)
+ck("...and the verdict says the split is incomplete until it is declared",
+   "UNDECLARED reason code" in _undeclared["verdict"], _undeclared["verdict"])
+ck("every reason the filters can emit is declared",
+   all(F.is_classified(F.screen(lg)[1]) for _, lg, _, _ in RELABELLED)
+   and all(F.is_classified(r) for r in F.FILTERED_REASONS + F.UNOBTAINED_REASONS))
 
 # ── RULE 6: the code and the pre-registration must not diverge ──────────────
 plan = (ROOT / "INGEST-PLAN.md").read_text()

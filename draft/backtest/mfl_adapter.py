@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import json
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 # `draft/adp.py` holds the authoritative matcher and lives one directory UP from
@@ -274,6 +275,50 @@ def draft_is_complete(meta: dict, franchises: int, rounds: int) -> tuple:
     return False, f"F2.draft_incomplete:{got}/{expected}"
 
 
+def infer_rounds(rows: list, franchises: int) -> tuple:
+    """(rounds, detail) — "all rounds present" when nothing states the round count.
+
+    `detail` is 'ok' or a bare human detail. It is deliberately NOT a reason code:
+    `ingest_filters.screen()` owns the vocabulary, and a code minted here as well
+    would be the same string produced in two places — the disease the crosswalk
+    and the policy fingerprint both exist to avoid.
+
+    F2 wants "the draft is complete (status complete, all rounds present)" and MFL
+    supplies neither half. There is no round-count field anywhere in the probe, and
+    the league export's only candidate is `rosterSize` — the WHOLE roster including
+    the bench, which for a keeper or dynasty league is far more than the number of
+    rounds actually drafted. Using it would reject completed keeper drafts as
+    "F2.draft_incomplete", which is exactly the lie this seam exists to stop.
+
+    So the round count is TAKEN FROM THE DATA and what gets checked is the property
+    that is genuinely observable: every round we received is FULL (`franchises`
+    picks), and the rounds run 1..N with no gaps.
+
+    THE LIMIT OF THIS INFERENCE, STATED RATHER THAN PAPERED OVER: a draft abandoned
+    exactly ON a round boundary is indistinguishable from a shorter completed one.
+    A draft abandoned mid-round — much the commoner shape, and the one an eight-hour
+    email draft dies in — leaves a short final round and IS caught. If a round-count
+    source is ever found, pass it to `to_league_record(rounds=...)` and this is not
+    used.
+    """
+    if not franchises:
+        return None, "league size unknown, so no round could be checked"
+    if not rows:
+        return None, "no picks received"
+    counts: dict = {}
+    for r in rows:
+        counts[r["round"]] = counts.get(r["round"], 0) + 1
+    rounds = max(counts)
+    if sorted(counts) != list(range(1, rounds + 1)):
+        missing = [n for n in range(1, rounds + 1) if n not in counts]
+        return None, "rounds missing %s" % (",".join(map(str, missing)),)
+    short = [(n, counts[n]) for n in sorted(counts) if counts[n] != franchises]
+    if short:
+        n, got = short[0]
+        return None, "round %d has %d of %d picks" % (n, got, franchises)
+    return rounds, "ok"
+
+
 # ── the crosswalk, at scale ─────────────────────────────────────────────────
 def crosswalk_picks(picks: list, mfl_players, sleeper_index) -> tuple:
     """MFL draft picks -> our board's sleeper ids. (rows, report).
@@ -343,6 +388,138 @@ def crosswalk_verdict(report: dict, minimum: float = 0.90) -> tuple:
     if rate >= minimum:
         return True, "ok"
     return False, f"F2.crosswalk_below_90pct:{rate:.3f}"
+
+
+# ── THE SEAM: MFL's exports -> the one record `screen()` reads ──────────────
+def to_league_record(league_json, rules_json, draft_json, *,
+                     league_id=None, rounds=None, pre_draft_adp=None,
+                     adp_observed_at=None, has_weekly_outcomes=None,
+                     crosswalk=None) -> dict:
+    """The three MFL exports, converted ONCE, into `ingest_filters.screen()`'s shape.
+
+    THIS FUNCTION IS THE POINT. Everything above computes a precise reason for
+    every way a field can fail to parse — `draft_type()` returns
+    `draft_type_unrecognised:SFIRSTFOO` rather than pretending it saw a non-snake
+    draft, `starter_slots()` accumulates per-position `invalid[]`, `draft_picks()`
+    counts malformed rows — and until this existed, every one of those reasons was
+    COMPUTED, WRITTEN DOWN, AND READ BY NOTHING. `screen()` received a bare string
+    and a bare dict and reported `F1.draft_type` / `F1.qb_slots`, so the adapter's
+    care evaporated at the one boundary where it mattered. (Rule 14: name the
+    caller. This module's only caller was its own test.)
+
+    Every unparseable field arrives as None PLUS its reason in `unreadable`, so
+    the reason survives into `screen_all()`'s attrition table verbatim.
+
+    WHAT MFL DOES NOT SUPPLY IS TAKEN AS AN ARGUMENT, NEVER INVENTED:
+      `pre_draft_adp` / `adp_observed_at` come from the ADP snapshot store,
+      `has_weekly_outcomes` from the outcomes ingest, and `crosswalk` is the
+      `(rows, report)` pair `crosswalk_picks()` returns. Omit any of them and the
+      league is rejected with a reason that says we lack that data — F4 —
+      rather than one claiming the league failed a check.
+    """
+    lg = json.loads(league_json) if isinstance(league_json, str) else (league_json or {})
+    node = lg.get("league") or {}
+    unreadable: dict = {}
+
+    # ── teams. Observed as a string ("14", "12", "8") under franchises.count.
+    raw_teams = t((node.get("franchises") or {}).get("count")).strip()
+    teams = int(raw_teams) if raw_teams.isdigit() else None
+    if teams is None:
+        unreadable["teams"] = "no_team_count" if not raw_teams \
+            else "unreadable_team_count:%s" % raw_teams
+
+    # ── roster slots. P2: limits are RANGE STRINGS and superflex has no slot.
+    # A PARTIAL parse is unreadable, not a small roster: dropping one unparseable
+    # position silently shrinks the starting-skill count and manufactures an
+    # `F1.starting_skill_slots` verdict out of a parse failure.
+    slots, superflex, invalid = starter_slots(node)
+    if invalid or not slots:
+        unreadable["roster_slots"] = "no_roster_slots" if not slots else \
+            "unreadable_starter_limits:" + ",".join(
+                sorted({i["position"] for i in invalid}))
+        slots = None
+
+    # ── the draft, and P1's draft type (it lives in draftResults, not league).
+    picks, dmeta = draft_picks(draft_json)
+    kind, why = draft_type(dmeta.get("draft_type_raw"))
+    if kind is None:
+        unreadable["draft_type"] = why
+
+    # ── completeness. INFERRED, and the basis travels with the verdict.
+    rounds_supplied = rounds is not None
+    rounds_why = "ok"
+    if not rounds_supplied:
+        rounds, rounds_why = infer_rounds(picks, teams or 0)
+    if rounds is None:
+        complete, complete_why = False, rounds_why
+    else:
+        complete, complete_why = draft_is_complete(dmeta, teams or 0, rounds)
+    # `screen()` owns the reason CODE; only the DETAIL travels, so the same
+    # string is never minted in two places.
+    status_detail = None if complete else complete_why.split(":", 1)[-1]
+
+    # ── F5's draft date, from the FIRST pick. Per-pick unix stamps are the one
+    # thing the probe confirmed outright, and the first pick is the conservative
+    # read: ADP must precede the moment the room started picking, not the moment
+    # it finished. No stamp at all is None, never epoch 0 — 1970 would silently
+    # satisfy "strictly before the draft".
+    draft_at = None
+    if dmeta.get("first_pick_at"):
+        draft_at = datetime.fromtimestamp(
+            dmeta["first_pick_at"], tz=timezone.utc).date().isoformat()
+
+    # ── the crosswalk. NOT RUN is not NOT MATCHED: leaving the key off entirely
+    # is what makes `screen()` say so instead of reporting a 0% match rate.
+    if crosswalk is not None:
+        rows_x = crosswalk[0] if isinstance(crosswalk, tuple) else crosswalk
+        done = {r.get("overall") for r in (rows_x or [])}
+        for p in picks:
+            p["crosswalked"] = p["overall"] in done
+
+    # P3/P4. `screen()` already reports F4.no_scoring_rules on an empty map; what
+    # it cannot know without this is WHICH absence — an export that answered
+    # "Error - No League Scoring Rules" or one that carried rules with no
+    # reception line in them.
+    by_pos, scoring_why = reception_points_by_position(rules_json)
+    if not by_pos:
+        unreadable["scoring"] = scoring_why
+
+    return {
+        "league_id": str(league_id or t(node.get("id")) or ""),
+        "source": "mfl",
+        "teams": teams,
+        "scoring": {"rec_by_position": by_pos or None},
+        "roster_slots": slots,
+        "superflex": superflex,
+        "draft_type": kind,
+        "draft": {
+            "status": "complete" if complete else "incomplete",
+            "status_detail": status_detail,
+            "picks": picks,
+        },
+        "draft_at": draft_at,
+        "adp_observed_at": adp_observed_at,
+        "pre_draft_adp": pre_draft_adp,
+        "has_weekly_outcomes": has_weekly_outcomes,
+        # F1 records keepers as a COVARIATE and never filters on them.
+        "keeper_type": t(node.get("keeperType")) or None,
+        "unreadable": unreadable,
+        # Rule 11 coverage travels WITH the record, not in a log nobody reads.
+        "source_meta": {
+            "rounds": rounds,
+            "rounds_source": "supplied by caller" if rounds_supplied else
+            "INFERRED — every observed round full; no round-count field exists in "
+            "any MFL export and rosterSize counts the bench",
+            "pick_coverage": dmeta.get("coverage"),
+            "timestamp_coverage": dmeta.get("timestamp_coverage"),
+            "invalid_picks": dmeta.get("invalid"),
+            "completeness_source": dmeta.get("completeness_source"),
+            "autopick_enforceable": dmeta.get("autopick_enforceable"),
+            "autopick_note": dmeta.get("autopick_note"),
+            "draft_type_raw": dmeta.get("draft_type_raw"),
+            "round1_order": dmeta.get("round1_order"),
+        },
+    }
 
 
 def board_index(board: dict):
