@@ -441,6 +441,71 @@ def probe() -> dict:                                        # pragma: no cover (
                         io["shape_probe"][name] = {
                             "status": getattr(e5, "code", str(type(e5).__name__)),
                             "detail": detail}
+
+                # FEASIBILITY, end to end. /v3/events?sport= returns the whole
+                # slate in ONE call, but /v3/odds wants an eventId — so a Signal-B
+                # capture is 1 + N, not 1. Establish N and what the odds payload
+                # actually carries.
+                try:
+                    lg, _ = get(c["host"] + f"/v3/leagues?apiKey={k}&sport=american-football")
+                    io["football_leagues"] = [
+                        {"name": x.get("name"), "slug": x.get("slug"),
+                         "events": x.get("eventsCount")} for x in (lg or [])]
+                    nfl = next((x for x in (lg or []) if "nfl" in str(x.get("slug", "")).lower()
+                                or "nfl" in str(x.get("name", "")).lower()), None)
+                    io["nfl_league"] = nfl
+                    if nfl:
+                        ev, h5 = get(c["host"] + f"/v3/events?apiKey={k}&sport=american-football"
+                                                 f"&league={nfl['slug']}")
+                        io["nfl_slate"] = {
+                            "events_in_one_request": len(ev or []),
+                            "remaining_after": h5.get("x-ratelimit-remaining"),
+                        }
+                        if ev:
+                            eid = (ev[0] or {}).get("id")
+                            od, h6 = get(c["host"] + f"/v3/odds?apiKey={k}&eventId={eid}")
+                            body = json.dumps(od)
+                            io["odds_payload"] = {
+                                "status": 200, "bytes": len(body),
+                                "has_spread": any(w in body.lower() for w in ("spread", "handicap")),
+                                "has_total": any(w in body.lower() for w in ("total", "over_under", "overunder")),
+                                "mentions_props": [w for w in ("player", "receptions", "yards")
+                                                   if w in body.lower()],
+                                "bookmakers_seen": len(od.get("bookmakers") or []) if isinstance(od, dict) else None,
+                                "top_keys": sorted(od.keys())[:14] if isinstance(od, dict) else f"list[{len(od)}]",
+                                "sample": body[:500],
+                                "remaining_after": h6.get("x-ratelimit-remaining"),
+                            }
+                except Exception as e6:                     # noqa: BLE001
+                    det = ""
+                    try:
+                        det = e6.read().decode("utf-8", "replace")[:200]
+                    except Exception:                        # noqa: BLE001
+                        pass
+                    io["feasibility_error"] = f"{type(e6).__name__}: {e6} {det}"
+
+                # RETRY COST — the operational detail least likely to be
+                # documented and most likely to bite. Read the counter, make a
+                # request that MUST fail, read it again.
+                try:
+                    _, ha = get(c["host"] + f"/v3/events?apiKey={k}&sport=american-football")
+                    before = ha.get("x-ratelimit-remaining")
+                    try:
+                        get(c["host"] + f"/v3/events?apiKey={k}")      # 400: sport required
+                    except Exception:                                   # noqa: BLE001
+                        pass
+                    _, hb2 = get(c["host"] + f"/v3/events?apiKey={k}&sport=american-football")
+                    after = hb2.get("x-ratelimit-remaining")
+                    drop = (int(before) - int(after)) if (before and after) else None
+                    io["retry_cost"] = {
+                        "remaining_before": before, "remaining_after": after,
+                        "drop_across_two_good_and_one_bad": drop,
+                        "failed_requests_bill": (drop is not None and drop > 1),
+                        "note": "two successful calls bracket one guaranteed 400; a drop of 2 "
+                                "means only the successes billed, 3 means the failure billed too",
+                    }
+                except Exception as e7:                     # noqa: BLE001
+                    io["retry_cost"] = {"error": f"{type(e7).__name__}: {e7}"}
             # RETRY COST: does a FAILED request consume budget? Compare the
             # remaining-quota header before and after a deliberate 404.
             if working:
