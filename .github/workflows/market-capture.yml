@@ -1,0 +1,85 @@
+name: Market capture (preseason)
+
+# THE UNRECOVERABLE WINDOW. usa-nfl-preseason is reachable today; a snapshot not
+# taken cannot be reconstructed, and Signal C has no baseline without an earliest
+# observation carrying a stated timestamp.
+#
+# READ-ONLY with respect to the model: writes only its own snapshot files. Nothing
+# it captures is visible during a live draft, waiver or lineup decision.
+#
+# Scheduled twice weekly so Signal C has two valid observations per week — the
+# floor below which movement is not measurable at all. Manual dispatch for tonight.
+
+on:
+  workflow_dispatch:
+    inputs:
+      league:
+        description: 'usa-nfl-preseason or usa-nfl'
+        required: false
+        default: 'usa-nfl-preseason'
+      max_events:
+        description: 'cap events (0 = all)'
+        required: false
+        default: '0'
+  schedule:
+    - cron: '0 15 * * 2,5'      # Tue/Fri 15:00 UTC
+
+permissions:
+  contents: write
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - name: Python deps
+        run: pip install pytest -q
+
+      # The guards before the spend: if these are red the capture must not run,
+      # because a bad request costs budget and may bill even when it fails.
+      - name: Test the capture guards before spending anything
+        run: python -m pytest draft/tests/test_market_capture.py draft/tests/test_market_budget.py -q
+
+      - name: Capture
+        env:
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY || vars.ODDS_API_KEY }}
+        run: |
+          python draft/backtest/market_capture.py \
+            --league "${{ github.event.inputs.league || 'usa-nfl-preseason' }}" \
+            --max-events "${{ github.event.inputs.max_events || '0' }}"
+
+      # HEALTH IS LOUD. A capture that dies quietly is the failure this project
+      # keeps hitting; a stale baseline discovered in December cannot be backfilled.
+      - name: Fail if the capture is stale or empty
+        run: |
+          python3 - <<'PY'
+          import json, pathlib, sys
+          from datetime import datetime, timezone
+          h = pathlib.Path('draft/market_snapshots/capture_health.json')
+          if not h.exists():
+              print('::error::no health file — the capture did not run'); sys.exit(1)
+          d = json.loads(h.read_text())
+          print('health:', json.dumps(d))
+          if d.get('consecutive_failures', 0) > 0:
+              print(f"::error::{d['consecutive_failures']} consecutive failed captures")
+              sys.exit(1)
+          last = d.get('last_success_at')
+          if not last:
+              print('::error::no successful capture has ever completed'); sys.exit(1)
+          age = (datetime.now(timezone.utc)
+                 - datetime.strptime(last, '%Y-%m-%dT%H:%M:%SZ').replace(tzinfo=timezone.utc)).days
+          print(f'last success {age}d ago (stale after {d.get("stale_after_days")}d)')
+          if age > int(d.get('stale_after_days', 7)):
+              print('::error::capture is stale — Signal C baseline is developing a hole')
+              sys.exit(1)
+          PY
+
+      - name: Commit the snapshot
+        run: |
+          git config user.name "lab-bot"; git config user.email "actions@github.com"
+          git add draft/market_snapshots || true
+          git commit -m "Market snapshot: ${{ github.event.inputs.league || 'usa-nfl-preseason' }}" \
+            || { echo "no change"; exit 0; }
+          git pull --rebase origin main && git push || echo "push skipped"
