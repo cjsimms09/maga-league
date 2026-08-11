@@ -3234,3 +3234,11 @@ the F3 weekly-outcomes ingest above. The workflow
 `.github/workflows/external-outcomes-probe.yml` is not dispatchable until it is on
 main — though, unlike the MFL probes, **its measurement can be reproduced locally**,
 and already has been (above).
+
+**MERGE REQUEST, UPDATED 2026-08-11 — the pool exists and the runner cannot reach it.**
+Branch `claude/external-ingest-program-1xfinj` @ `a81f63d`. The 2025 crawl ran from main
+and returned **21,323 real leagues**; the workflow that would put them through the
+filters — `.github/workflows/external-ingest-run.yml` — is on the branch, and a workflow
+is only dispatchable from the default branch. MFL is blocked from the sandbox (403 at the
+proxy, checked rather than assumed), so this one genuinely cannot be run locally the way
+the nflverse work could. One merge unblocks the first real attrition report.
