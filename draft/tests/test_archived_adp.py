@@ -685,3 +685,73 @@ def test_TWO_CAPTURES_ON_ONE_DAY_ARE_ONE_DAY_OF_COVERAGE():
     assert X.capture_days([]) == []
     # A row whose timestamp cannot be read is not a day of coverage.
     assert X.capture_days([{"timestamp": "2024"}, {"timestamp": None}]) == []
+
+
+# ── from an archived page to a snapshot the store can eat ──────────────────
+def _rowhtml(rank, name, adp=None, pos="WR"):
+    cells = "<td>%d</td><td class=p><a href=/x>%s</a></td><td>%s</td>" % (rank, name, pos)
+    if adp is not None:
+        cells += "<td>%.1f</td>" % adp
+    return "<tr>%s</tr>" % cells
+
+
+def test_RANK_IS_NOT_ADP_and_the_row_says_which_it_carries():
+    """Two quantities that look alike. Ranks are 1,2,3 by construction; ADP has gaps
+    and ties because it is the average pick the market ACTUALLY made. A replay that
+    reads one as the other prices every player at a pick nobody took him at.
+
+    MUTATION: fall back to rank silently. The board looks complete, every ADP is a
+    tidy integer, and a survival model trained on it learns a market that never
+    existed."""
+    p = X.parse_board(_rowhtml(1, "Christian McCaffrey", 1.3)
+                      + _rowhtml(2, "CeeDee Lamb", 2.4))
+    assert p["quantity"] == "adp" and p["with_parsed_adp"] == 2
+    assert [r["adp"] for r in p["rows"]] == [1.3, 2.4]
+    assert all(r["adp_source"] == "parsed" for r in p["rows"])
+
+    bare = X.parse_board("<tr><td><a>Bijan Robinson</a></td></tr>")
+    assert bare["rows"][0]["adp"] is None
+    assert bare["rows"][0]["adp_source"] == "rank"
+    assert bare["quantity"] == "rank_only"
+    assert "rank is NOT adp" in bare["note"]
+
+
+def test_the_ADP_COMES_FROM_THE_SAME_ROW_as_the_name():
+    """A page has plenty of decimals — bye weeks, projections, tier numbers — and the
+    nearest one is not the right one. MUTATION: search the whole document for the
+    next decimal after the name. Every player inherits the following row's ADP, the
+    board is off by one, and it still looks perfectly ordered."""
+    html = _rowhtml(1, "Christian McCaffrey", 1.3) + _rowhtml(2, "CeeDee Lamb", 2.4)
+    p = X.parse_board(html)
+    got = {r["name"]: r["adp"] for r in p["rows"]}
+    assert got["Christian McCaffrey"] == 1.3 and got["CeeDee Lamb"] == 2.4
+
+
+def test_the_SNAPSHOT_USES_THE_SHIPPED_MATCHER_and_reports_coverage():
+    """One matcher and one set of alias tables. A second name comparison written here
+    is how the crosswalk and the conflict checker came to disagree about the same
+    player (P6).
+
+    And coverage is REPORTED: a snapshot that matched a third of its names is a board
+    with two thirds of the market missing, and a replay against it prices the missing
+    players at nothing — which reads as a bargain rather than as a gap. MUTATION:
+    return the rows without the rate."""
+    index = {"by_name": {"christian mccaffrey": [{"id": "4034", "name": "Christian McCaffrey",
+                                                  "pos": "RB", "team": "SF", "rank": 1.0}]},
+             "by_initials": {}}
+    p = X.parse_board(_rowhtml(1, "Christian McCaffrey", 1.3)
+                      + _rowhtml(2, "Nobody Here", 2.4))
+    snap = X.to_snapshot(p, index, "2024-07-12")
+    assert snap["observed_at"] == "2024-07-12"
+    assert snap["rows"] == [{"player_id": "4034", "adp": 1.3}]
+    assert snap["names_seen"] == 2 and snap["matched"] == 1 and snap["coverage"] == 0.5
+    assert snap["unmatched_sample"] == ["Nobody Here"]
+
+
+def test_an_ARCHIVED_SNAPSHOT_IS_LABELLED_so_it_cannot_pass_as_a_live_capture():
+    """Rule 1 labelling at the boundary: a table holding both kinds must be able to
+    tell them apart. MUTATION: drop the source tag and an archived board joins a live
+    series with nothing marking the difference."""
+    snap = X.to_snapshot({"rows": []}, {"by_name": {}, "by_initials": {}}, "2024-07-12")
+    assert snap["adp_source"] == X.ADP_SOURCE_ARCHIVE
+    assert snap["coverage"] == 0.0, "an empty board is 0 coverage, not a division error"

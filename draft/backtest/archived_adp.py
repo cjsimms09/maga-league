@@ -790,3 +790,82 @@ def frozen_before(dates: dict, before: str) -> dict:
             "why": "last written %s, ON OR AFTER the %s cutoff — this is a LIVE file "
                    "with a filename, and its current content is not evidence about "
                    "what it held before the drafts" % (str(last)[:10], before)}
+
+
+# ── FROM AN ARCHIVED PAGE TO AN ADP SNAPSHOT THE STORE CAN EAT ─────────────
+def parse_board(text, limit=300) -> dict:
+    """An archived board's HTML -> [{name, adp, rank}], and WHICH quantity that is.
+
+    TWO QUANTITIES, NEVER MERGED. A board page carries a RANK (the row's position)
+    and usually an ADP (a decimal, "3.4", the average pick the market actually made).
+    They are not the same number: ranks are 1,2,3... by construction while ADP has
+    gaps and ties, and a replay that reads one as the other prices every player at a
+    pick nobody took him at. So the parsed ADP is used when present, the rank is used
+    only as a fallback, and `adp_source` says which — per row.
+
+    The ADP is taken from the SAME ROW as the name, matched inside one cell block
+    rather than by looking for the next decimal anywhere in the document: a page has
+    plenty of decimals (bye weeks, projections, tiers) and the nearest one is not the
+    right one.
+    """
+    import re
+    text = text.decode("utf-8", "replace") if isinstance(text, (bytes, bytearray)) else (text or "")
+    rows, seen = [], set()
+    # Each table row, then the name and the first standalone decimal inside IT.
+    for block in re.findall(r"<tr[^>]*>(.*?)</tr>", text, re.S | re.I):
+        names = extract_names(block, 1)
+        if not names:
+            continue
+        nm = names[0]
+        if nm.lower() in seen:
+            continue
+        m = re.search(r">\s*(\d{1,3}\.\d)\s*<", block)
+        seen.add(nm.lower())
+        rows.append({"name": nm, "rank": len(rows) + 1,
+                     "adp": float(m.group(1)) if m else None,
+                     "adp_source": "parsed" if m else "rank"})
+        if len(rows) >= limit:
+            break
+    parsed = sum(1 for r in rows if r["adp_source"] == "parsed")
+    return {"rows": rows, "n": len(rows), "with_parsed_adp": parsed,
+            "quantity": ("adp" if parsed >= max(1, len(rows) // 2) else "rank_only"),
+            "note": ("rank is NOT adp: ranks are 1,2,3 by construction while ADP has "
+                     "gaps and ties, and reading one as the other prices a player at a "
+                     "pick nobody took him at")}
+
+
+def to_snapshot(parsed, index, observed_at) -> dict:
+    """A parsed board + our board index -> the {observed_at, rows:[{player_id, adp}]}
+    shape `ExternalAsOfStore` already consumes.
+
+    THE CROSSWALK IS THE SHIPPED MATCHER, not a name comparison written here. This
+    program has one matcher and one set of alias tables; a second one is how the
+    crosswalk and the checker came to disagree about the same player (P6).
+
+    COVERAGE IS REPORTED, NEVER ASSUMED. A snapshot that matched a third of its names
+    is a board with two thirds of the market missing, and a replay against it would
+    price the missing players at nothing — which looks like a bargain rather than a
+    gap. The caller decides what rate is enough; this refuses to hide it.
+    """
+    from mfl_adapter import match_player_shared
+    out, unmatched = [], []
+    for r in (parsed or {}).get("rows") or []:
+        sid, _how = match_player_shared({"name": r["name"], "position": None, "team": None},
+                                        index)
+        if not sid:
+            unmatched.append(r["name"])
+            continue
+        out.append({"player_id": str(sid),
+                    "adp": r["adp"] if r["adp"] is not None else float(r["rank"])})
+    n = len((parsed or {}).get("rows") or [])
+    return {"observed_at": observed_at, "rows": out,
+            "adp_source": ADP_SOURCE_ARCHIVE,
+            "quantity": (parsed or {}).get("quantity"),
+            "names_seen": n, "matched": len(out),
+            "coverage": round(len(out) / n, 4) if n else 0.0,
+            "unmatched_sample": unmatched[:10]}
+
+
+# Every snapshot built this way carries it, so an archived board can never be read as
+# a live capture inside a table that holds both.
+ADP_SOURCE_ARCHIVE = "wayback_capture_v1"
