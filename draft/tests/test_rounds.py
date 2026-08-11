@@ -39,9 +39,21 @@ def test_our_league_is_15_rounds_12_live_picks():
     ]}
     order = K.build_true_pick_order(cfg, keeper_map)
     assert len(order.my_picks) == 12
-    teams = cfg["teams"]
-    my_rounds = sorted({(p - 1) // teams + 1 for p in order.my_picks})
-    assert my_rounds == list(range(4, 16))           # rounds 4..15 inclusive
+
+    # READ THE ROUND OFF THE PICK, DO NOT RE-DERIVE IT FROM THE OVERALL NUMBER.
+    #
+    # This was `(p - 1) // teams + 1`, which assumes an UNCOMPRESSED board. Keeper
+    # forfeits remove picks, so the board is 147 long, and dividing an overall
+    # number by 10 stops naming the round. It agreed at slot 4 by coincidence and
+    # broke the moment the seat moved to 8 — a second derivation of a value the
+    # pick order already carries, which is the two-places defect in miniature.
+    my_rounds = sorted({p["round"] for p in order.picks
+                        if p["team_slot"] == my_slot})
+    assert my_rounds == list(range(4, 16)), my_rounds   # rounds 4..15 inclusive
+
+    # And the two agree on the count, which is the property the old line was
+    # reaching for: twelve live picks, one per round from 4 to 15.
+    assert len(my_rounds) == 12
 
 
 def test_draft_length_never_depends_on_keeper_count():
