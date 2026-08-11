@@ -32,6 +32,25 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 OUT = HERE / "market_probe.json"
 
+
+def _redact(text) -> str:
+    """Strip the API key from anything that gets RECORDED.
+
+    THE LEAK THIS CLOSES (2026-08-11): an InvalidURL error stringified the full
+    request URL — key included — into `feasibility_error`, and the workflow
+    committed that artifact to the repository. GitHub masks secrets in LOGS; it
+    does nothing for a file we write ourselves. Every captured error, detail and
+    sample goes through here, so the key cannot reach disk by a path nobody
+    thought about.
+    """
+    t = "" if text is None else str(text)
+    key = os.environ.get("ODDS_API_KEY", "").strip()
+    if key and len(key) >= 8:
+        t = t.replace(key, "[REDACTED_KEY]")
+    # Belt and braces: any apiKey= parameter, whatever its value.
+    import re as _re
+    return _re.sub(r"(apiKey=)[^&\s'\"]+", r"\1[REDACTED_KEY]", t)
+
 # Kalshi's public market list. Series/tickers are what we need to see; whether any
 # of them are player-level is the open question.
 KALSHI_BASE = "https://api.elections.kalshi.com/trade-api/v2"
@@ -396,7 +415,7 @@ def probe() -> dict:                                        # pragma: no cover (
                     }
                     working = working or style
                 except Exception as e3:                     # noqa: BLE001
-                    io["auth_probe"][style] = {"status": getattr(e3, "code", str(type(e3).__name__))}
+                    io["auth_probe"][style] = {"status": getattr(e3, "code", str(type(e3).__name__))}  # status only, never the URL
             io["auth_style_working"] = working
 
             # FOLLOW THE 400. A 401 is auth rejected; a 400 is auth ACCEPTED and
@@ -440,7 +459,7 @@ def probe() -> dict:                                        # pragma: no cover (
                             pass
                         io["shape_probe"][name] = {
                             "status": getattr(e5, "code", str(type(e5).__name__)),
-                            "detail": detail}
+                            "detail": _redact(detail)}
 
                 # FEASIBILITY, end to end. /v3/events?sport= returns the whole
                 # slate in ONE call, but /v3/odds wants an eventId — so a Signal-B
@@ -484,7 +503,8 @@ def probe() -> dict:                                        # pragma: no cover (
                             names = [str(b.get("name")) for b in (io.get("_all_books") or [])]
                             rec = [n for n in names if any(w in n.lower() for w in WANT)]
                             io["recreational_matched"] = rec[:8]
-                            bm = ",".join(rec[:2])
+                            import urllib.parse as _up
+                            bm = _up.quote(",".join([r for r in rec if " " not in r][:2]), safe=",")
                             if not bm:
                                 raise RuntimeError("no recreational bookmaker matched: "
                                                    + ",".join(names[:20]))
@@ -508,7 +528,7 @@ def probe() -> dict:                                        # pragma: no cover (
                         det = e6.read().decode("utf-8", "replace")[:200]
                     except Exception:                        # noqa: BLE001
                         pass
-                    io["feasibility_error"] = f"{type(e6).__name__}: {e6} {det}"
+                    io["feasibility_error"] = _redact(f"{type(e6).__name__}: {e6} {det}")
 
                 # RETRY COST — the operational detail least likely to be
                 # documented and most likely to bite. Read the counter, make a
@@ -531,7 +551,7 @@ def probe() -> dict:                                        # pragma: no cover (
                                 "means only the successes billed, 3 means the failure billed too",
                     }
                 except Exception as e7:                     # noqa: BLE001
-                    io["retry_cost"] = {"error": f"{type(e7).__name__}: {e7}"}
+                    io["retry_cost"] = {"error": _redact(f"{type(e7).__name__}: {e7}")}
             # RETRY COST: does a FAILED request consume budget? Compare the
             # remaining-quota header before and after a deliberate 404.
             if working:

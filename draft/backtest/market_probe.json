@@ -1190,7 +1190,7 @@
       },
       "auth_style_working": "query_apiKey",
       "docs": "https://odds-api.io/",
-      "feasibility_error": "InvalidURL: URL can't contain control characters. '/v3/odds?apiKey=042a07dc0c8d39574a78489d16e1cd191194c1141747e688e407a4bf5eeedf84&eventId=71515752&bookmakers=Bet365,bet365 NJ' (found at least ' ') ",
+      "feasibility_error": "[REDACTED \u2014 this field leaked the API key and has been removed]",
       "football_leagues": [
         {
           "events": 43,
