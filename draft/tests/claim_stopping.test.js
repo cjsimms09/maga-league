@@ -96,5 +96,31 @@ const ck = (n, c, d) => { c ? (pass++, console.log('PASS  ' + n))
   }
 }
 
+// ── depletes IS DERIVED FROM waiver_type, NOT HAND-SET ───────────────────────
+{
+  ck('rolling (0) depletes', V.waiverPriorityDepletes(0) === true);
+  ck('reverse standings (1) does NOT deplete', V.waiverPriorityDepletes(1) === false);
+  ck('FAAB (2) returns null — a budget is a different problem, not a queue position',
+    V.waiverPriorityDepletes(2) === null);
+  ck('an unknown code is null, never a guessed boolean',
+    V.waiverPriorityDepletes(99) === null && V.waiverPriorityDepletes(undefined) === null);
+
+  /* AGAINST THE REAL LEAGUE. Confirmed from the Sleeper UI on 2026-08-11:
+   * "Reverse Standings" is the selected tile. Cory's memory said ROLLING — this
+   * is the assertion that keeps the code following the setting rather than the
+   * recollection, and it will flip on its own if the commissioner changes it. */
+  const fs2 = require('fs');
+  const dump = path.join(__dirname, '..', 'data', 'sleeper_league_settings.json');
+  if (fs2.existsSync(dump)) {
+    const wt = JSON.parse(fs2.readFileSync(dump, 'utf8')).settings.waiver_type;
+    ck('our league imports waiver_type ' + wt + ' -> depletes ' + V.waiverPriorityDepletes(wt),
+      V.waiverPriorityDepletes(wt) === false, 'waiver_type=' + wt);
+    const r = V.claimStoppingRule({ depletes: V.waiverPriorityDepletes(wt),
+      net_points: 2.4, contested: true, reserve: 9.9 });
+    ck('  so a contested claim worth LESS than the reserve is still made — there '
+      + 'is nothing to hold', r.claim === true && r.spend_priority === false, r);
+  } else { console.log('SKIP  no settings dump'); }
+}
+
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail ? 1 : 0);

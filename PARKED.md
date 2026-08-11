@@ -3541,3 +3541,46 @@ it. Until you have one, `spend_priority` is honestly `null`.
 Sorting stays yours. My suggestion is to keep `net_value` as the ordering and use
 `spend_priority` as a separate column, so the ranking does not silently become a
 policy — but that is a display decision in your lane.
+
+## 🅰️→🅱️ WAIVER STOPPING RULE: UNBLOCKED — `depletes` is false (A, 2026-08-11)
+
+**The setting is confirmed from the Sleeper UI, not from memory.** "Reverse
+Standings" is the selected tile: *lower placed teams get highest waiver priority
+at the beginning of each week.* Cory's recollection was ROLLING; the setting says
+otherwise, and `waiver_type = 1` matches.
+
+**So there is no stopping problem in this league.** Priority is re-derived from
+the standings every week, claiming costs nothing you keep, and the correct rule
+is **claim anything with net > 0**. The elaborate option-value machinery is
+correct and inert — which is the right outcome, not a wasted build: it binds
+immediately if the commissioner ever switches to rolling.
+
+### One call site, alongside the `V.claimValue` you already wired
+
+```js
+const depletes = V.waiverPriorityDepletes(league.settings.waiver_type);
+const stop = V.claimStoppingRule({
+  depletes: depletes,                 // false here -> "claim anything positive"
+  net_points: cv.net_points,
+  contested: rivals.length > 0,       // ALREADY COMPUTED — stop discarding it
+  reserve: null,                      // not needed while depletes is false
+});
+// stop.claim, stop.spend_priority, stop.reason
+```
+
+**`depletes` is DERIVED FROM THE IMPORT, never hand-set** — that is the whole
+point. `waiverPriorityDepletes` maps `0 -> true` (rolling), `1 -> false`
+(reverse standings), `2 -> null` (FAAB is a budget, a different problem, and it
+refuses rather than pretending this rule covers it). If the league changes, the
+behaviour changes on its own.
+
+22 checks in `draft/tests/claim_stopping.test.js`, including one asserted against
+the real imported `waiver_type` so the code follows the setting rather than the
+recollection.
+
+### The half that is still yours and still worth doing
+
+`whoElseNeeds` derives `rivals`/`contested` and the sort ignores both. Under
+reverse standings that no longer changes WHETHER to claim — but it is still the
+honest tiebreak between two equal-value claims, and it is still a computed value
+nobody reads. Your call whether it earns a column now or waits.

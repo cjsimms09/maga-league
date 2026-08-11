@@ -183,6 +183,34 @@
    * horizon — and it is supplied by the caller rather than invented here,
    * because A does not own the league's week-to-week free-agent distribution.
    */
+  /* waiver_type -> does claiming DEPLETE anything?
+   *
+   * CONFIRMED FROM THE SLEEPER UI, 2026-08-11: "Reverse Standings" is the
+   * selected tile — "Lower placed teams in the current standings will get
+   * highest waiver priority at the beginning of each week." Cory's memory said
+   * ROLLING; the setting says otherwise, and the setting wins.
+   *
+   * The distinction is the whole model, not a detail:
+   *   0 ROLLING          claiming sends you to the back. Priority is spent.
+   *                      There is an option value and the stopping rule binds.
+   *   1 REVERSE STANDINGS priority is re-derived from the standings every week.
+   *                      Claiming costs nothing you keep, so THERE IS NO
+   *                      STOPPING PROBLEM: take anything with net > 0.
+   *   2 FAAB             a budget, which is a different problem again — a
+   *                      continuous resource with a bid, not a queue position.
+   *                      Returns null rather than pretending this rule covers it.
+   *
+   * DERIVED FROM THE IMPORT, never hand-set. If the commissioner switches the
+   * league to rolling, `waiver_type` changes and the stopping rule starts
+   * binding on its own — which is the point of reading Sleeper rather than
+   * remembering it. */
+  function waiverPriorityDepletes(waiverType) {
+    var t = Number(waiverType);
+    if (t === 0) return true;    // rolling
+    if (t === 1) return false;   // reverse standings
+    return null;                 // FAAB (2) or unknown — NOT a boolean answer
+  }
+
   function claimStoppingRule(opts) {
     var o = opts || {};
     if (typeof o.depletes !== 'boolean') {
@@ -269,7 +297,7 @@
   }
 
   var api = { startableValue: startableValue, claimValue: claimValue,
-    claimStoppingRule: claimStoppingRule,
+    claimStoppingRule: claimStoppingRule, waiverPriorityDepletes: waiverPriorityDepletes,
     bestAvailableByVorp: bestAvailableByVorp,
               openStartableSlots: openStartableSlots,
               INJURY_RATE: INJURY_RATE, BENCH_DISCOUNT: BENCH_DISCOUNT };
