@@ -4,9 +4,42 @@
 // Sums here were re-verified against each season's total pot; the sheet's
 // all-time Total column was stale (it excluded 2025), the per-year values win.
 
+/* THE CAREER RECORDS DID NOT CLOSE, AND THE ROW WAS FOUND BY COUNTING GAMES.
+ *
+ * B's arithmetic: 425 wins against 424 losses and 2 ties — 851 slots, when every
+ * game contributes exactly two. Something is wrong with certainty; the question
+ * was which row, and guessing was not allowed.
+ *
+ * SLEEPER WAS ASKED FIRST AND CANNOT ARBITRATE THIS ONE. Walking
+ * previous_league_id back gives 2023/24/25, and those three seasons CLOSE
+ * exactly: 225-225-0 across all ten owners, 45 games each, no imbalance
+ * anywhere. The chain ends at 2023, so the ~40 games per owner before it are
+ * structurally unavailable — and the master sheet archive carries standings and
+ * money for 2016-2022 but no W-L records at all. No source we hold can state
+ * the pre-2023 record.
+ *
+ * IT DOES NOT NEED TO. Count games per owner instead of trusting any of them:
+ * nine owners have 85, and Cory has 86. Subtract Sleeper's 45 and every other
+ * owner has 40 pre-2023 games while Cory has 41. Exactly one repair makes the
+ * league close AND equalises the game counts, and it is a single cell — Cory
+ * 49 wins -> 48. Adding a loss instead gives 87 games for Cory and makes the
+ * imbalance worse.
+ *
+ * WHAT THIS IS AND IS NOT. It is an arithmetic repair, not a recovered fact. The
+ * 49th win has not been proved not to exist; what is proved is that the ten rows
+ * as written describe an impossible set of seasons, and that this is the only
+ * one-cell way out. If the master sheet is ever re-read and says 49, the error
+ * is elsewhere in the same row and this comment is the place to start.
+ * It removes a win from the commissioner's own record, which is at least the
+ * direction that cannot be self-serving.
+ *
+ * Guard: draft/tests/test_career_records_close.py, which fails on the sum rather
+ * than on this cell, so a future edit that reintroduces an imbalance anywhere is
+ * caught rather than just this one being pinned.
+ */
 const OWNERS = [
   // record = career regular-season W-L-T from the master sheet
-  { name: 'Cory',    username: 'cory',    commissioner: 1, wins: 49, losses: 36, ties: 1 },
+  { name: 'Cory',    username: 'cory',    commissioner: 1, wins: 48, losses: 36, ties: 1 },
   { name: 'Marian',  username: 'marian',  commissioner: 0, wins: 52, losses: 33, ties: 0 },
   { name: 'David',   username: 'david',   commissioner: 0, wins: 51, losses: 34, ties: 0 },
   { name: 'Michael', username: 'michael', commissioner: 0, wins: 42, losses: 43, ties: 0, alias: 'Hagen' },
