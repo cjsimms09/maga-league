@@ -117,6 +117,29 @@ const game = (w, l) => ({ winner: w, loser: l,
     /Bench Guy/.test(t) && /decided by 1\.1/.test(t), t);
   ck('  a kicker deciding a 1.1-point game is reported', /Butker/.test(t) && /kicker decided/.test(t), t);
 
+  // THE KICKER THRESHOLD, ASSERTED DIRECTLY. Driving a real week showed the
+  // original rule — "the margin was under the kicker's score" — firing on three
+  // of five matchups, because kickers score 8-14 and plenty of games are decided
+  // by less. It is only a story when the game was a coin flip.
+  //
+  // This needs its own check because the one-instance-per-kind rule ALSO hides a
+  // loose threshold: with the dedupe in place, loosening the threshold still
+  // produces exactly one kicker line and the end-to-end drive stays green. Two
+  // fixes covering one symptom means neither is independently guarded.
+  {
+    const k = (margin, kick) => R.findNotables([{
+      margin,
+      winner: side('A', 100 + margin, { kicker: { name: 'Kicker', pos: 'K', points: kick } }),
+      loser: side('B', 100),
+    }], 5).filter(n => n.kind === 'kicker');
+    ck('a kicker deciding a 1.5-point game IS a story', k(1.5, 11).length === 1, k(1.5, 11));
+    ck('  a kicker in an 8-point game is NOT — every kicker outscores 8',
+      k(8, 11).length === 0, k(8, 11));
+    ck('  nor in a 20-point game', k(20, 14).length === 0, k(20, 14));
+    ck('  and a game the kicker could not have decided is never one',
+      k(1.5, 1.0).length === 0, k(1.5, 1.0));
+  }
+
   // The inverse: a bench player who beat a K or DEF is true every week and must
   // NOT be reported, or the section becomes noise.
   const dull = build({ season: '2026', week: 9, ranked: [{ name: 'A', points: 120 }],

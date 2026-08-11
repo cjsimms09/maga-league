@@ -56,6 +56,11 @@ const pick = (arr, season, week, salt) => arr[seeded(season, week, salt) % arr.l
  * get the same sentence, and no sentence in one band can be produced by another.
  */
 const BANDS = [
+  // A TIE IS NOT A NARROW WIN. Sleeper reports ties, the writer's shape is
+  // winner/loser, and with no band of its own a 0-point margin came out as
+  // "**Sam** beat Jeremy by 0. By 0." — a sentence that is not merely awkward
+  // but false, in an email nine people cannot correct.
+  { max: 0.0,  key: 'tie' },
   { max: 1.0,  key: 'heartbreak' },
   { max: 3.0,  key: 'squeaker' },
   { max: 10.0, key: 'close' },
@@ -66,6 +71,10 @@ const BANDS = [
 const bandOf = margin => BANDS.find(b => margin <= b.max).key;
 
 const GAME_LINES = {
+  tie: [
+    '{w} and {l} tied. {ws} apiece. Two hours of football to arrive at exactly nowhere, and neither of them gets the satisfaction of blaming anyone.',
+    '{w} {ws}, {l} {ls}. A tie. Both of these men are going to spend the week explaining which one of them really won.',
+  ],
   heartbreak: [
     '{w} beat {l} by {m}. By {m}. Somewhere in that box score is a single decision {l} is going to think about until Thursday.',
     '{w} {ws}, {l} {ls}. A margin of {m} is not a win, it is a coin that landed on its edge.',
@@ -156,7 +165,7 @@ function findNotables(games, week) {
         const gap = r1(best.points - side.worstStarter.points);
         if (gap >= 8) {
           const flipped = side === g.loser && gap > g.margin;
-          out.push({ weight: flipped ? 100 + gap : gap,
+          out.push({ kind: flipped ? 'flipped' : 'bench', weight: flipped ? 100 + gap : gap,
             text: flipped
               ? `**${side.name}** left ${best.name} (${r1(best.points)}) on the bench and started ${side.worstStarter.name} (${r1(side.worstStarter.points)}). `
                 + `The gap was ${gap}. The game was decided by ${g.margin}. That one is going to sit there a while.`
@@ -167,19 +176,44 @@ function findNotables(games, week) {
       // field, so this is "the lineup was not set" as far as anyone can tell.
       const zeros = (side.starters || []).filter(p => p.points === 0);
       if (zeros.length >= 2) {
-        out.push({ weight: 60 + zeros.length,
+        out.push({ kind: 'unset', weight: 60 + zeros.length,
           text: `**${side.name}** started ${zeros.length} players who scored exactly nothing. `
               + `We are not going to say the lineup was never set. We are going to report the number and let everyone draw their own conclusion.` });
       }
     }
-    // THE KICKER DECIDED IT.
-    if (g.winner && g.winner.kicker && g.margin > 0 && g.margin < g.winner.kicker.points) {
-      out.push({ weight: 80 + (g.winner.kicker.points - g.margin),
+    // THE KICKER DECIDED IT. Tightened after driving a real week: "the margin
+    // was smaller than the kicker's score" is true in most games, because
+    // kickers score 8-14 and plenty of games are decided by less. It fired on
+    // THREE of five matchups in one email and pushed the genuinely good material
+    // out of the top three. It is only a story when the game was a coin flip, so
+    // the squeaker band is required too.
+    //
+    // `kind` matters as much as the threshold. Without it this notable had no
+    // key, the one-per-kind map collapsed every kind-less finding into a single
+    // slot, and the repeat-suppression appeared to work for the wrong reason —
+    // which is why the end-to-end drive went green while this fix was, in fact,
+    // not applied at all. Found by rule 10: the break stayed green.
+    if (g.winner && g.winner.kicker && g.margin > 0 && g.margin <= 3
+        && g.margin < g.winner.kicker.points) {
+      out.push({ kind: 'kicker', weight: 80 + (g.winner.kicker.points - g.margin),
         text: `**${g.winner.name}** won by ${g.margin}. ${g.winner.kicker.name} scored ${r1(g.winner.kicker.points)}. `
             + `A kicker decided a football game, which is the most fantasy football sentence anyone will read this week.` });
     }
   }
-  return out.sort((a, b) => b.weight - a.weight);
+  // ONE INSTANCE PER KIND. A running joke told three times in one email is not
+  // three findings, it is a mail merge — and worse, the repeats pushed the
+  // best material out of the top three. Keep the strongest example of each
+  // shape; the rest of that shape is noise once the point has been made.
+  // A notable with no `kind` would silently share one slot with every other
+  // kind-less notable, which is how a broken threshold looked fixed. Fall back to
+  // a unique key so a forgotten `kind` shows up as a repeated line — a visible
+  // bug — rather than as accidental deduplication.
+  const bestOf = new Map();
+  out.sort((a, b) => b.weight - a.weight).forEach((n, i) => {
+    const key = n.kind || `unkinded-${i}`;
+    if (!bestOf.has(key)) bestOf.set(key, n);
+  });
+  return [...bestOf.values()].sort((a, b) => b.weight - a.weight);
 }
 
 /* ── THE CRUELLEST LOSS ──────────────────────────────────────────────────────
@@ -220,7 +254,15 @@ function playoffLine(picture, cut) {
     : `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}`;
   const bits = [];
   if (safe.length) bits.push(`${list(safe)} ${safe.length === 1 ? 'is' : 'are'} effectively in`);
-  if (bubble.length) bits.push(`${list(bubble.slice(0, 4))} ${bubble.length === 1 ? 'is' : 'are'} on the bubble`);
+  // NO SILENT TRUNCATION. This used to name four and drop the rest, which reads
+  // as "these four are uniquely on the bubble" when in fact eight were. Past
+  // four, count them instead of listing them — the same rule applied to the
+  // accuracy page's "the latest 12 of 202".
+  if (bubble.length) {
+    bits.push(bubble.length <= 4
+      ? `${list(bubble)} ${bubble.length === 1 ? 'is' : 'are'} on the bubble`
+      : `${bubble.length} of the ${picture.length} are still genuinely live`);
+  }
   if (dead.length) bits.push(`${list(dead)} ${dead.length === 1 ? 'is' : 'are'} playing for pride and the draft order`);
   if (!bits.length) return null;
   return bits.join('; ') + '.';
@@ -258,7 +300,10 @@ function buildRecap(input) {
   // ── THE LEDE. Whatever was actually most remarkable, and NOT a generic
   // scene-setter. If the week's best fact is mild, the lede says so.
   let lede;
-  if (closest && closest.margin <= 1.0) {
+  const tied = games.filter(g => g.margin === 0);
+  if (tied.length) {
+    lede = `Week ${week} produced a tie, which happens roughly never and pleases absolutely nobody.`;
+  } else if (closest && closest.margin <= 1.0) {
     lede = `Week ${week} came down to ${closest.margin} points in one game, which is the whole reason we do this.`;
   } else if (notables.length && notables[0].weight >= 100) {
     lede = `Week ${week} produced one genuinely painful piece of lineup management, and we will get to it.`;
@@ -288,10 +333,16 @@ function buildRecap(input) {
       .replace(/\{ws\}/g, String(r1(g.winner.points))).replace(/\{ls\}/g, String(r1(g.loser.points)))
       .replace(/\{m\}/g, String(r1(g.margin)));
     // The rivalry carries its own billing when this is the game that has one.
-    if (rivalry && rivalry.pair
+    // THE RIVALRY BILLING. Read the fields the module actually returns:
+    // `name` (not `title`), and `notable.line` (notableFrom returns an OBJECT).
+    // The first version guessed both and shipped "(undefined — [object Object].)"
+    // into the email body — invisible until the thing was actually driven, which
+    // is the entire argument for driving it.
+    if (rivalry && rivalry.pair && rivalry.name
         && [g.winner.name, g.loser.name].includes(rivalry.pair.a)
         && [g.winner.name, g.loser.name].includes(rivalry.pair.b)) {
-      line += ` (${rivalry.title}${rivalry.notable ? ' — ' + rivalry.notable : ''}.)`;
+      const hist = rivalry.notable && typeof rivalry.notable.line === 'string' ? rivalry.notable.line : '';
+      line += ` (${rivalry.name}${hist ? ' — ' + hist : ''}.)`;
     }
     return line;
   });
@@ -323,7 +374,9 @@ function buildRecap(input) {
       + 'Some weeks are just the scoreboard, and this was one of them.'] });
   }
 
-  const subject = closest && closest.margin <= 1.0
+  const subject = tied.length
+    ? `🏈 Week ${week}: a tie. An actual tie.`
+    : closest && closest.margin <= 1.0
     ? `🏈 Week ${week}: a game decided by ${r1(closest.margin)}`
     : high ? `🏈 Week ${week}: ${high.name} takes the $100`
            : `🏈 Week ${week} recap`;
