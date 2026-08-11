@@ -108,3 +108,20 @@ def test_a_refusal_still_writes_health(tmp_path, monkeypatch):
                         "coverage": 0.0, "refused": "budget"})
     assert (tmp_path / "h.json").exists()
     assert h["consecutive_failures"] == 1
+
+
+# ── the horizon filter ──────────────────────────────────────────────────────
+def test_undated_events_are_KEPT_not_dropped(monkeypatch):
+    """Absent is not 'far away'. A game we cannot date is exactly the one not to
+    silently skip."""
+    import datetime as dt
+    events = [{"id": 1, "date": None}, {"id": 2, "date": "2099-01-01T00:00:00Z"}]
+    cutoff = dt.datetime.now(dt.timezone.utc) + dt.timedelta(days=14)
+    def starts(e):
+        t = str(e.get("date") or "")[:19]
+        try:
+            return dt.datetime.strptime(t, "%Y-%m-%dT%H:%M:%S").replace(tzinfo=dt.timezone.utc)
+        except ValueError:
+            return None
+    kept = [e for e in events if starts(e) is None or starts(e) <= cutoff]
+    assert [e["id"] for e in kept] == [1]      # undated kept, far-future dropped

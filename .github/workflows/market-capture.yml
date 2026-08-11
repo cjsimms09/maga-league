@@ -21,8 +21,23 @@ on:
         description: 'cap events (0 = all)'
         required: false
         default: '0'
+      horizon_days:
+        description: 'only capture odds for games within N days'
+        required: false
+        default: '14'
   schedule:
-    - cron: '0 15 * * 2,5'      # Tue/Fri 15:00 UTC
+    # DAILY. The argument is asymmetry, not need: a daily series resamples to
+    # weekly for any analysis, and a weekly series can never be refined to daily
+    # afterwards. Signal C's resolution is bounded by sampling frequency, and the
+    # cost is ~10% of a day's allowance, so the finer default is the cheap side of
+    # an irreversible choice.
+    #
+    # FIXED TIME, not event-driven. A fixed clock gives clean, comparable
+    # timestamps for measuring movement; event-driven capture only ever sees the
+    # moves you went looking for, which is a sampling bias dressed as efficiency.
+    # 13:00 UTC is pre-US-morning, before most line moves and after overnight ones
+    # settle.
+    - cron: '0 13 * * *' 
 
 permissions:
   contents: write
@@ -48,7 +63,8 @@ jobs:
         run: |
           python draft/backtest/market_capture.py \
             --league "${{ github.event.inputs.league || 'usa-nfl-preseason' }}" \
-            --max-events "${{ github.event.inputs.max_events || '0' }}"
+            --max-events "${{ github.event.inputs.max_events || '0' }}" \
+            --horizon-days "${{ github.event.inputs.horizon_days || '14' }}"
 
       # HEALTH IS LOUD. A capture that dies quietly is the failure this project
       # keeps hitting; a stale baseline discovered in December cannot be backfilled.

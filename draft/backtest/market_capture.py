@@ -34,7 +34,7 @@ from __future__ import annotations
 import json
 import os
 import sys
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -89,7 +89,8 @@ def scan_touchdown_markets(payload) -> dict:
     }
 
 
-def capture(league: str, api_key: str, books=None, max_events=None) -> dict:
+def capture(league: str, api_key: str, books=None, max_events=None,
+            horizon_days: int = 14) -> dict:
     """One snapshot. Refuses up front if the budget cannot cover it."""
     books = R.check_books(books or list(R.RECREATIONAL_BOOKS[:2]))
     budget = RateBudget(limit=100)
@@ -101,6 +102,30 @@ def capture(league: str, api_key: str, books=None, max_events=None) -> dict:
     budget.observe(headers)
     budget.note_call()
     events = list(events or [])
+
+    # HORIZON FILTER. `usa-nfl` returns 134 events — the WHOLE SEASON, not one
+    # week — so capturing odds for every listed event daily would be 135 calls a
+    # day and would blow straight through the 100/HOUR cap in a single burst.
+    # More importantly the far-out games carry thin or absent lines, so those
+    # calls buy nothing: Signal C wants repeated observations of a game as its
+    # date APPROACHES, which is where the movement is.
+    #
+    # Events are sorted nearest-first before the cut, so when the budget does bind
+    # the games that get captured are the ones closest to kickoff — the ones whose
+    # lines are actually moving.
+    if horizon_days:
+        cutoff = datetime.now(timezone.utc) + timedelta(days=int(horizon_days))
+        def _starts(e):
+            t = str(e.get("date") or "")[:19]
+            try:
+                return datetime.strptime(t, "%Y-%m-%dT%H:%M:%S").replace(tzinfo=timezone.utc)
+            except ValueError:
+                return None
+        dated = [(e, _starts(e)) for e in events]
+        # An UNDATED event is kept, not dropped: absent is not "far away", and a
+        # game we cannot date is exactly the one we should not silently skip.
+        events = [e for e, t in dated if t is None or t <= cutoff]
+        events.sort(key=lambda e: str(e.get("date") or "9999"))
     if max_events:
         events = events[:int(max_events)]
 
@@ -159,6 +184,7 @@ def capture(league: str, api_key: str, books=None, max_events=None) -> dict:
 
     return {
         "league": league, "started_at": started, "finished_at": now_iso(),
+        "horizon_days": horizon_days,
         "events_listed": len(events) + len(deferred),
         "events_captured": len(rows),
         # NEVER SILENTLY PARTIAL: what was left, and why, in the snapshot itself.
@@ -206,13 +232,15 @@ def main():                                                      # pragma: no co
     ap = argparse.ArgumentParser()
     ap.add_argument("--league", default=PRESEASON)
     ap.add_argument("--max-events", type=int, default=0)
+    ap.add_argument("--horizon-days", type=int, default=14)
     a = ap.parse_args()
     key = os.environ.get("ODDS_API_KEY", "").strip()
     if not key:
         print("::error::ODDS_API_KEY not visible to this job — cannot capture")
         return 1
     try:
-        snap = capture(a.league, key, max_events=a.max_events or None)
+        snap = capture(a.league, key, max_events=a.max_events or None,
+                       horizon_days=a.horizon_days)
     except BudgetExhausted as e:
         # A REFUSAL IS AN OUTCOME, NOT AN ABSENCE. Without this the health gate
         # reports "the capture did not run" for a run that ran and declined —
