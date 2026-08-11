@@ -1,4 +1,5 @@
 {
+  "_my_draft_slot_note": "Slot 8, claimed by Cory 2026-08-11 and verified by direct count: TWO teams pick before him in round 4, a reverse round, so position 3 -> slot 11-3=8. Self-checks against the board: 27 picks in rounds 1-3 (30 minus his 3 forfeits) + 2 + 1 = first pick 30. CONFLICTS WITH Sleeper draft_order, which reads 3 \u2014 see draft/audit/seat_conflict_2026-08-11.md. The count is a direct observation of who picks before him; draft_order is PARTIAL (4 of 10 users placed).",
   "adp_blend_weight": 0.7,
   "bench_size": 6,
   "confirmed": false,
@@ -35,7 +36,7 @@
   },
   "league_id": "1374848328470102016",
   "league_name": "Make Football Great Again",
-  "my_draft_slot": 4,
+  "my_draft_slot": 8,
   "opportunity_cap": 0.15,
   "original_rounds": {},
   "playoff_teams": 4,
