@@ -8,6 +8,7 @@ was written for.
 
 Run: python3 -m pytest draft/tests/test_adp_asof_probe.py -q
 """
+import re
 import sys
 from pathlib import Path
 
@@ -89,6 +90,24 @@ def test_a_NULL_is_reported_as_a_fact_about_the_CANDIDATE_SET_not_the_provider()
     assert "days_7" in v["candidates_tried"]
 
 
+def test_a_provider_that_ANSWERED_WITH_AN_ERROR_is_not_reported_as_unreachable():
+    """THE DEFECT THIS SUITE MISSED THE FIRST TIME, and it cost a real answer.
+
+    `urlopen` raises HTTPError on 4xx/5xx. The first cut caught it under a bare
+    `except Exception` and filed it as a transport error, so a plain 404 was
+    indistinguishable from a blocked network path — and the FFC arm reported
+    "nothing was reached", which I then wrote up as "my path was probably wrong".
+    The path was right. The error handling conflated two different nulls, which
+    is the exact confusion rule 13 is about, one level down.
+    """
+    rows = [{"name": "baseline", "status": 404, "http_error": "404 Not Found"},
+            {"name": "date", "status": 404, "http_error": "404 Not Found"}]
+    v = P.verdict(rows)
+    assert "REACHED BUT REFUSED" in v["verdict"]
+    assert "404" in v["verdict"]
+    assert "NO CONCLUSION" not in v["verdict"]
+
+
 def test_reaching_NOTHING_scores_NOTHING():
     """A sandbox with no egress must not produce a negative finding. Every row a
     transport error means the run is about the network path."""
@@ -145,3 +164,19 @@ def test_composition_reads_totalDrafts_and_tolerates_the_singleton_player_dict()
 def test_an_absent_totalDrafts_is_None_never_zero():
     """Absent is not zero: a 0 here would read as 'we checked, no drafts'."""
     assert P.composition({"adp": {"player": []}})["total_drafts"] is None
+
+
+def test_the_probe_sends_the_SHIPPED_user_agent():
+    """FFC 403s Python's default User-Agent. `draft/adp.py` has fetched it in
+    every build for weeks with its own header, so the probe reuses that string
+    rather than inventing one — and this reads the literal out of adp.py so the
+    two cannot silently drift into a second definition.
+
+    The alternative was editing adp.py to export a constant; that file is not
+    this lane's, so the coupling is enforced by a test instead of by a shared
+    symbol."""
+    src = (Path(__file__).resolve().parent.parent / "adp.py").read_text()
+    shipped = re.search(r'"User-Agent":\s*"([^"]+)"', src)
+    assert shipped, "adp.py no longer sets a User-Agent — the premise of this test is gone"
+    assert P.USER_AGENT == shipped.group(1), (
+        "probe sends %r, the shipped client sends %r" % (P.USER_AGENT, shipped.group(1)))
