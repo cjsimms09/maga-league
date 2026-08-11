@@ -44,7 +44,7 @@ const BASELINE_DIR = path.join(ROOT, 'draft', 'baseline');
  * mid (the mask starts binding), late (onesies forced, bench pricing), and a
  * keeper-loaded roster, which is OUR actual condition and the one a generic
  * fixture would miss. */
-function canonicalStates(players) {
+function canonicalStates(players, art) {
   const byPos = {};
   players.forEach(p => { (byPos[p.position] = byPos[p.position] || []).push(p); });
   Object.keys(byPos).forEach(k => byPos[k].sort((a, b) => (b.vorp || 0) - (a.vorp || 0)));
@@ -56,8 +56,27 @@ function canonicalStates(players) {
       roster: take('RB', 2).concat(take('WR', 1)) },
     { name: 'late-onesies-open', currentPick: 134, nextPick: 141,
       roster: take('RB', 3).concat(take('WR', 4), take('TE', 1)) },
+    /* OUR REAL CONDITION MEANS OUR REAL KEEPERS. This used to be "the best WR and
+     * the best two RBs on the board, flagged is_keeper" — a synthetic stand-in for
+     * a fact the artifact already carries. Our actual keepers are Ja'Marr Chase,
+     * Derrick Henry and Kenneth Walker on seat 4, so they are read from
+     * kept_players rather than invented.
+     *
+     * AND IT CHANGES NOTHING, WHICH IS THE POINT WORTH RECORDING. Measured at pick
+     * 34: empty roster, the old synthetic three, and the real three all emit a
+     * byte-identical surface (mass 5.258, same top ten, same rule headline). The
+     * cause is not a bug — MEASURED_WEIGHTS carries need: 0, so the roster cannot
+     * reach the composite, and both keeper sets are 1 WR + 2 RB, which leaves
+     * needrule the same openings. A four-QB roster moves it only by 0.013, and
+     * only because two of those QBs were still on the board.
+     *
+     * So this state currently costs a slot and buys nothing, and the frozen file
+     * will show it as a duplicate of early-empty. Recorded rather than papered
+     * over: the honest coverage of this baseline is THREE distinct pick regimes,
+     * not four states. */
     { name: 'keeper-loaded (our real condition)', currentPick: 34, nextPick: 41,
-      roster: take('WR', 1).concat(take('RB', 2)).map(p => Object.assign({}, p, { is_keeper: true })) },
+      roster: (((art || {}).kept_players) || [])
+        .map(p => Object.assign({}, p, { is_keeper: true })) },
   ];
 }
 
@@ -65,7 +84,18 @@ function round(x, n) {
   return x == null ? null : Math.round(x * Math.pow(10, n)) / Math.pow(10, n);
 }
 
-function surfaceFor(state, players, league) {
+function surfaceFor(state, players, league, art) {
+  art = art || {};
+  // MY SEAT, from the artifact rather than a literal. The seat-collapse defect
+  // came from a 4 that was typed somewhere instead of read from the league.
+  const mySlot = (league || {}).my_draft_slot;
+  // roomProfiles(): every profiled manager, minus me. my_manager_id is undefined
+  // in this artifact so the app's filter is a no-op there too — mirrored, not
+  // improved, because an improvement here would be a divergence.
+  const mgrs = ((art.manager_profiles || {}).managers) || {};
+  const me = (league || {}).my_manager_id || null;
+  const roomProfiles = Object.keys(mgrs).map(k => mgrs[k]).filter(Boolean)
+    .filter(m => !me || String(m.manager_id) !== String(me));
   const drafted = new Set((state.roster || []).map(p => String(p.player_id)));
   // THE BOARD AT PICK N HAS HAD N-1 PLAYERS TAKEN OFF IT. Without this the
   // canonical state is a fiction: at pick 34 the whole top of the board is still
@@ -80,14 +110,87 @@ function surfaceFor(state, players, league) {
     .map(p => String(p.player_id)));
   const board = players.filter(p => !drafted.has(String(p.player_id))
     && !gone.has(String(p.player_id)));
+  /* THE CONTEXT MUST MIRROR THE APP'S, or the baseline freezes a world the tool
+   * never runs in. Diffed against app.js's live ctx on 2026-08-11 and it was
+   * short FIVE fields, one of them decisive:
+   *
+   *   intervening: []   -> LAYER 2 NEVER RAN. survival.js gates the roster-need
+   *                        + room-mixture layer on `ctx.intervening.length`, so
+   *                        every frozen surface was a LAYER-1-ONLY world while
+   *                        the app runs Layer 2 whenever a draft is live. The
+   *                        baseline could not have detected a Layer-2 regression
+   *                        because it never executed that code.
+   *   runMultipliers    -> run detection scales the survival hazard; unexercised.
+   *   drift             -> the global ADP drift correction; unexercised.
+   *   currentKeepers    -> the keeper-option bar reads it.
+   *   ceilingAllStages  -> the app pins it false; absence was equivalent, but it
+   *                        is stated so the equivalence is deliberate.
+   *
+   * This is why the baseline stayed 51/51 green through the currentPick fix: it
+   * was not agreeing with the app, it was testing a different context. "No drift"
+   * was silence.
+   *
+   * AND A POPULATED `intervening` IS STILL NOT ENOUGH. My first attempt pushed
+   * bare pick numbers, the suite stayed 51/51 green, and Layer 2 was STILL dark:
+   * precomputeLayer2 filters on `t.pick_no >= currentPick`, and `undefined >= 34`
+   * is false, so every entry was silently discarded and the function returned
+   * null exactly as it had with an empty array. A second silence wearing the same
+   * face as the first. Layer 2 needs the app's element SHAPE —
+   * {team_slot, pick_no, roster, profile, room} — not just a count of picks.
+   *
+   * So it is built the way interveningPicks() builds it: from the REAL
+   * pick_order.picks in [currentPick, nextPick), with MY OWN SEAT REMOVED. My
+   * seat is 4 and pick 34 is mine, so leaving it in would have the survival model
+   * thin the board against a pick I am the one making.
+   */
+  const interveningPicks = (((art || {}).pick_order || {}).picks || [])
+    .filter(p => p.overall >= state.currentPick && p.overall < state.nextPick
+                 && p.slot !== mySlot)
+    .map(p => ({
+      team_slot: p.slot,
+      pick_no: p.overall,
+      // HONEST, AND NAMED AS A RESIDUAL GAP. The app reads state.rosters[slot],
+      // which is EMPTY until picks are marked live — and the artifact carries
+      // keepers for seat 4 only (3 of them, all mine), so opponent rosters are
+      // genuinely unknown pre-draft rather than merely unfetched. `[]` is what
+      // the app itself holds at load. It is not what it holds at live pick 34,
+      // and that difference is the one thing this context still does not mirror.
+      roster: [],
+      // null, exactly as profileForSlot returns until importDraftOrder resolves
+      // seats by uid — the manager profiles carry no draft_slot (0 of 10), so a
+      // name here would be a hash ordering wearing a person's identity.
+      profile: null,
+      // ...which is precisely why `room` exists: the seat is unnamed but the ROOM
+      // is known. survival.js mixes over the measured managers instead of falling
+      // back to a league-average stranger.
+      room: roomProfiles,
+    }));
+
   const ctx = {
     board: board, roster: state.roster || [], league: league,
     currentPick: state.currentPick, nextPick: state.nextPick,
     weights: E.MEASURED_WEIGHTS,
     totalPicks: 150, myPicksLeft: 8, myPickIndex: 1, totalMyPicks: 12,
     progress: state.currentPick / 150, roundsLeft: Math.max(1, 15 - Math.ceil(state.currentPick / 10)),
-    intervening: [],
+    intervening: interveningPicks,
+    runMultipliers: {},
+    drift: null,
+    currentKeepers: (state.roster || []).filter(p => p.is_keeper),
+    ceilingAllStages: false,
   };
+  /* THE GATE ON THE MIRROR ITSELF. Two attempts at this context both produced a
+   * Layer-1-only world while reporting nothing wrong, so "did Layer 2 actually
+   * run?" is now ASSERTED rather than assumed. A baseline that silently degrades
+   * to one layer is the failure this whole re-freeze exists to correct, and it
+   * has now happened twice — it does not get a third chance to be quiet. */
+  const S = require(path.join(ROOT, 'public', 'js', 'draft', 'survival.js'));
+  const probe = board[0] && S.layer2Taken(board[0], state.nextPick, ctx);
+  if (!probe) {
+    throw new Error('freeze_baseline: Layer 2 did not run for state "' + state.name
+      + '" (' + interveningPicks.length + ' intervening picks supplied). The frozen '
+      + 'surface would be a LAYER-1-ONLY world and would silently pass while the '
+      + 'app runs two layers. Refusing to freeze it.');
+  }
   const out = E.onTheClock(ctx, { targets: [], avoid: [], queue: [] });
   const scored = out.scored || [];
 
@@ -142,6 +245,19 @@ function surfaceFor(state, players, league) {
     confidence_level: out.confidence ? out.confidence.level : null,
     firing_rates: rates,
     survival_mass: round(mass, 3),
+    /* HOW MANY PICKS THE MASS IS ANSWERABLE TO. Conservation is the identity
+     * "expected departures = picks that actually happen", and the denominator is
+     * OPPONENT picks — the window minus my own slot — because a player I take is
+     * not a player who got away. Frozen alongside the mass so the ratio can be
+     * read off the file instead of recomputed from memory. */
+    opponent_picks_in_window: interveningPicks.length,
+    conservation_ratio: interveningPicks.length
+      ? round(mass / interveningPicks.length, 3) : null,
+    /* THE LAYERS THAT ACTUALLY RAN. v1 froze a Layer-1-only world and reported
+     * nothing wrong for it; two separate attempts to fix that also produced
+     * Layer-1-only worlds in silence. The count is now part of the frozen
+     * surface, so a degrade to one layer is a DIFF, not a quiet agreement. */
+    survival_layers: probe ? ['adp', 'intervening'] : ['adp'],
   };
 }
 
@@ -149,7 +265,7 @@ function build() {
   const art = JSON.parse(fs.readFileSync(path.join(ROOT, 'public', 'draft_data.json'), 'utf8'));
   const players = art.players.filter(p => p.vorp != null);
   const league = art.league;
-  const states = canonicalStates(players);
+  const states = canonicalStates(players, art);
   return {
     _what: 'THE MEASURED CORE, FROZEN. Immutable reference — never edited in place.',
     _rule: 'SESSION-A binding rule 6: a change to recommendation behaviour either updates '
@@ -170,7 +286,7 @@ function build() {
     },
     anchor_source: ((art.provenance || {}).adp || {}).primary_source
       || (art.provenance || {}).primary_source || 'unknown',
-    surfaces: states.map(s => surfaceFor(s, players, league)),
+    surfaces: states.map(s => surfaceFor(s, players, league, art)),
   };
 }
 
@@ -189,6 +305,20 @@ if (require.main === module) {
     console.error('Freeze a NEW version instead: --version v2');
     process.exit(1);
   }
+  /* A NEW VERSION MUST SAY WHY IT EXISTS. Rule 6 allows a deliberate re-freeze
+   * and forbids the reference quietly following the code — but a v2 with no
+   * stated reason is indistinguishable from the forbidden case a month later,
+   * when nobody remembers which it was. So the reason is required at freeze time
+   * and stored IN the artifact, next to the numbers it explains. */
+  const wi = args.indexOf('--why');
+  const why = wi >= 0 ? args[wi + 1] : '';
+  if (version !== 'v1' && !why) {
+    console.error('REFUSING to freeze ' + version + ' without --why "<reason>".');
+    console.error('A new baseline with no stated reason cannot later be told apart');
+    console.error('from the reference silently following the code (binding rule 6).');
+    process.exit(1);
+  }
+  built._why = why || null;
   built.frozen_at = new Date().toISOString();
   fs.writeFileSync(dest, JSON.stringify(built, null, 2) + '\n');
   console.log('froze ' + dest);

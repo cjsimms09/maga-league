@@ -27,7 +27,16 @@ const fs = require('fs');
 const path = require('path');
 
 const ROOT = path.join(__dirname, '..', '..');
-const BASELINE = path.join(ROOT, 'draft', 'baseline', 'v1.json');
+/* THE REFERENCE IS NAMED, NOT DISCOVERED. Pointing this at "the newest file in
+ * draft/baseline/" would make the reference follow the code the instant anyone
+ * freezes — the exact third state binding rule 6 forbids. Moving it is an edit
+ * someone has to make and defend in a diff.
+ *
+ * v1 -> v2 on 2026-08-11: v1 froze a Layer-1-only world (freeze_baseline.js
+ * supplied intervening: [], and survival.js gates Layer 2 on it), so it was
+ * testing a context the app never runs in. v2's stated reason is in the artifact
+ * itself under `_why`. v1 stays on the books. */
+const BASELINE = path.join(ROOT, 'draft', 'baseline', 'v2.json');
 const { build } = require(path.join(ROOT, 'draft', 'tools', 'freeze_baseline.js'));
 
 let pass = 0, fail = 0;
@@ -102,10 +111,40 @@ frozen.surfaces.forEach(f => {
   ck('[' + f.state + '] survival conservation unchanged',
      Math.abs(f.survival_mass - l.survival_mass) < 0.01,
      'frozen ' + f.survival_mass + ', live ' + l.survival_mass);
-  const picks = f.next_pick - f.current_pick;
-  ck('[' + f.state + '] and still conserves (mass ~= picks in window)',
-     l.survival_mass / picks > 0.5 && l.survival_mass / picks < 1.5,
-     'mass ' + l.survival_mass + ' over ' + picks + ' picks');
+  /* CONSERVATION AGAINST THE RIGHT DENOMINATOR, IN A BAND THAT BINDS.
+   *
+   * Two faults, both found on 2026-08-11 while re-freezing:
+   *
+   *   WRONG DENOMINATOR. It used next_pick - current_pick, the whole window. My
+   *   own pick is in that window and a player I take is not a player who got
+   *   away, so the identity's right-hand side is OPPONENT picks — 6, not 7.
+   *
+   *   A BAND THAT ACCEPTED ANYTHING. 0.5-1.5 admits 3.5 to 10.5 expected
+   *   departures against 7 real picks. It passed v1's 7.279, which is a 21%
+   *   conservation violation against the correct denominator of 6 — the guard
+   *   was present and green on the very number it exists to catch.
+   *
+   * 0.8-1.2 is a 20% tolerance either way. It is not a knife edge: the current
+   * surfaces sit at 0.862-0.900, so there is real headroom. It IS a constraint:
+   * v1's 1.213 fails it. A band chosen so that it would have caught the defect
+   * that motivated it, rather than one chosen so that today passes. */
+  const opp = l.opponent_picks_in_window
+    || (f.next_pick - f.current_pick - 1);
+  const ratio = opp ? l.survival_mass / opp : null;
+  ck('[' + f.state + '] and still conserves (mass ~= OPPONENT picks in window)',
+     ratio != null && ratio > 0.8 && ratio < 1.2,
+     'mass ' + l.survival_mass + ' over ' + opp + ' opponent picks = '
+     + (ratio == null ? 'n/a' : ratio.toFixed(3)));
+
+  /* DID BOTH LAYERS RUN? v1 froze a LAYER-1-ONLY world — the freeze tool passed
+   * intervening: [], survival.js gates Layer 2 on it, and the suite reported
+   * 51/51 for a baseline that never executed the code it claimed to protect.
+   * "No drift" was silence, not agreement. Asserted now, per surface, because
+   * the same silence recurred twice more while fixing it. */
+  const layers = l.survival_layers || [];
+  ck('[' + f.state + '] Layer 2 actually ran (not a layer-1-only baseline)',
+     layers.indexOf('intervening') >= 0,
+     'layers ' + JSON.stringify(layers) + ', opponent picks ' + opp);
 });
 
 // ── BINDING RULE 7: LANGUAGE DISCIPLINE ─────────────────────────────────────
