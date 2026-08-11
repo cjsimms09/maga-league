@@ -630,7 +630,7 @@ def crosswalk_summary(reports: list) -> dict:
     """
     from collections import Counter
     rates, methods = [], Counter()
-    picks = matched = unknown_id = no_match = conflicts = 0
+    picks = matched = unknown_id = no_match = conflicts = vocab_only = 0
     pairs: list = []
     conflict_rows: list = []
     for r in reports or []:
@@ -643,6 +643,7 @@ def crosswalk_summary(reports: list) -> dict:
         unknown_id += r.get("unknown_mfl_id") or 0
         no_match += r.get("no_sleeper_match") or 0
         conflicts += r.get("conflicts") or 0
+        vocab_only += r.get("vocabulary_only_agreements") or 0
         methods.update(r.get("methods") or {})
         conflict_rows.extend(r.get("conflict_rows") or [])
         for p in (r.get("matched_sample") or [])[:2]:
@@ -666,6 +667,10 @@ def crosswalk_summary(reports: list) -> dict:
         "methods": dict(methods.most_common()),
         "conflicts": conflicts,
         "conflict_breakdown": conflict_breakdown(conflict_rows),
+        # Pairs the two sources agreed on once BOTH were spelled the way the
+        # matcher spells them. Reported so the conflict count's drop is
+        # attributable to our vocabulary rather than to nothing in particular.
+        "vocabulary_only_agreements": vocab_only,
         # BOTH SIDES OF THE MATCH, for hand-checking. A bare rate cannot be
         # audited: "447 of 702" says nothing about whether any of the 447 is the
         # right player, and a wrong-but-plausible match produces a real player and

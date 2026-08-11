@@ -176,9 +176,10 @@ jobs:
               # A single conflicts= total conflates the wrong player with a player
               # who changed team between two snapshots. Split, with the values.
               cb = cw.get("conflict_breakdown") or {}
-              print("  conflicts           position=%s team_only=%s (of %s rows)"
+              print("  conflicts           position=%s team_only=%s (of %s rows); "
+                    "%s pairs agreed once BOTH sides were spelled the matcher's way"
                     % (cb.get("position_disagreements"), cb.get("team_only_disagreements"),
-                       cb.get("rows_seen")))
+                       cb.get("rows_seen"), cw.get("vocabulary_only_agreements")))
               print("  position_pairs      %s" % json.dumps(cb.get("position_value_pairs")))
               print("  team_pairs          %s" % json.dumps(cb.get("team_value_pairs")))
               for x in (cb.get("position_conflict_sample") or []):

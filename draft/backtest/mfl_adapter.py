@@ -365,6 +365,7 @@ def crosswalk_picks(picks: list, mfl_players, sleeper_index) -> tuple:
 
     rows, unknown_id, unmatched, conflicts = [], [], [], []
     methods = Counter()
+    vocab_only = 0
     board = _board_by_id(sleeper_index)
     for p in picks:
         meta = (mfl_players or {}).get(str(p.get("player")))
@@ -392,9 +393,9 @@ def crosswalk_picks(picks: list, mfl_players, sleeper_index) -> tuple:
         # player, and it passes every completeness check ever written — the rate
         # goes UP when a bad match lands. Counted separately and never silently.
         if theirs:
-            bad = [f for f, a, b in (("position", meta.get("position"), theirs.get("pos")),
-                                     ("team", meta.get("team"), theirs.get("team")))
-                   if a and b and str(a).upper() != str(b).upper()]
+            bad, vocab = disagreements(meta, theirs)
+            if vocab:
+                vocab_only += 1
             if bad:
                 conflicts.append(dict(pair, disagrees_on=bad))
         rows.append(dict(p, player_id=sid, matched_by=how,
@@ -420,9 +421,61 @@ def crosswalk_picks(picks: list, mfl_players, sleeper_index) -> tuple:
         "matched_sample": _sample_pairs(rows, board, mfl_players),
         "conflicts": len(conflicts),
         "conflict_rows": conflicts,
+        # Pairs that LOOKED like disagreements until both sides were spelled the
+        # way the MATCHER spells them. Reported rather than silently absorbed, so
+        # the shrink in `conflicts` is attributable instead of mysterious.
+        "vocabulary_only_agreements": vocab_only,
         "board_side_resolved": sum(1 for r in rows if board.get(str(r["player_id"]))),
     }
     return rows, report
+
+
+def disagreements(meta: dict, theirs: dict) -> tuple:
+    """(fields that disagree, whether any disagreement was OURS). Rule 11, applied
+    to the checker instead of only to the thing it checks.
+
+    THE DEFECT THIS FIXES, found by reading the matcher rather than from a run. The
+    two sides of this comparison do NOT arrive by the same path:
+
+      `theirs` comes out of `build_index`, which stores `_norm_pos(position)` and
+      `_norm_team(team)` — so a Sleeper kicker is already spelled `K` and a
+      Jacksonville player is already `JAX`.
+
+      `meta` comes straight off MFL's players export, unnormalised — so the same
+      kicker is `PK` and the same player is `JAC`.
+
+    Comparing them raw asks whether two DIFFERENT VOCABULARIES agree, and the answer
+    is no for every kicker and every team MFL spells differently. `POS_ALIASES` maps
+    exactly `PK -> K`, and `TEAM_ALIASES` maps `JAC -> JAX`, `WSH -> WAS`, `OAK ->
+    LV` and six more. Every one of those pairs was being reported as a CROSS-SOURCE
+    DISAGREEMENT — the signature of the wrong player — while the matcher that made
+    the pair considers them the same value. The report was accusing itself.
+
+    So both sides are normalised THROUGH THE MATCHER'S OWN TABLES. Not a second
+    table: importing `_norm_pos`/`_norm_team` means a vocabulary the matcher learns
+    tomorrow is one this check learns at the same moment, and the two cannot drift.
+
+    WHAT THIS MUST NOT DO is make disagreements disappear. Normalisation only ever
+    relabels a spelling both sides already agreed on; `RB` against `WR` survives it
+    unchanged, which is the case that matters. The count of pairs that agreed ONLY
+    after normalising is returned so the shrink is attributable — a quieter number
+    with no account of why it got quieter is the thing this program does not accept.
+    """
+    from adp import _norm_pos, _norm_team
+    fields, vocab = [], False
+    for name, ours, theirs_v, norm in (
+            ("position", meta.get("position"), theirs.get("pos"), _norm_pos),
+            ("team", meta.get("team"), theirs.get("team"), _norm_team)):
+        if not ours or not theirs_v:
+            # ABSENT IS NOT A DISAGREEMENT. A player MFL lists with no team has not
+            # contradicted us about his team.
+            continue
+        raw_differs = str(ours).upper().strip() != str(theirs_v).upper().strip()
+        if norm(ours) != norm(theirs_v):
+            fields.append(name)
+        elif raw_differs:
+            vocab = True
+    return fields, vocab
 
 
 def _board_by_id(index) -> dict:

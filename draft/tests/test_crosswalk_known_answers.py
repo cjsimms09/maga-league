@@ -308,3 +308,60 @@ def test_an_unreadable_expression_scores_NOTHING_rather_than_zero_points():
     by_pos, reason = A.reception_points_by_position(rules)
     assert by_pos == {} and reason == "no_reception_rule"
     assert "WR" not in by_pos
+
+
+# ── the checker's OWN vocabulary, checked against the matcher's ─────────────
+def test_A_REAL_KICKER_IN_JACKSONVILLE_IS_NOT_A_CROSS_SOURCE_DISAGREEMENT():
+    """THE DEFECT, on real board data. MFL spells a kicker `PK` and Jacksonville
+    `JAC`; `build_index` already stored `_norm_pos`/`_norm_team` output, so the
+    board says `K` and `JAX`. The old check compared MFL's RAW vocabulary against
+    the board's NORMALISED one and reported `disagrees_on: ["position", "team"]` —
+    the wrong-player signature — for a player the matcher resolved perfectly.
+
+    The arithmetic, stated: `POS_ALIASES["PK"] == "K"` and `TEAM_ALIASES["JAC"] ==
+    "JAX"`, both consulted by the matcher that MADE this pair. So the two sources
+    agree; only the two spellings differed, and the difference was OURS.
+
+    MUTATION: compare raw against normalised. Every kicker and every player on the
+    nine aliased teams is accused of being the wrong player."""
+    from adp import POS_ALIASES, TEAM_ALIASES
+    assert POS_ALIASES["PK"] == "K" and TEAM_ALIASES["JAC"] == "JAX"
+
+    little = next(p for p in POOL if p.get("name") == "Cam Little")
+    assert little["position"] == "K" and little["team"] == "JAX", little
+
+    mfl_players = {"77001": {"name": MADP._norm_name(mfl_name(little["name"])),
+                             "position": "PK", "team": "JAC"}}
+    rows, rep = A.crosswalk_picks([{"overall": 1, "player": "77001"}], mfl_players, INDEX)
+    assert rows and str(rows[0]["player_id"]) == str(little["player_id"]), rep
+    assert rep["conflicts"] == 0, rep["conflict_rows"]
+    # ...and the near-miss is REPORTED, so the shrink is attributable rather than
+    # a number that quietly got better.
+    assert rep["vocabulary_only_agreements"] == 1
+
+
+def test_a_REAL_position_disagreement_SURVIVES_normalisation():
+    """The fix must not be a way to make conflicts go away. Normalisation only
+    relabels a spelling both sides already agreed on; RB against WR is untouched.
+    MUTATION: return no fields at all, and the wrong-player signature is deleted
+    along with the vocabulary noise."""
+    wr = next(p for p in POOL if p.get("position") == "WR" and p.get("player_id"))
+    mfl_players = {"77002": {"name": MADP._norm_name(mfl_name(wr["name"])),
+                             "position": "RB", "team": wr.get("team")}}
+    rows, rep = A.crosswalk_picks([{"overall": 1, "player": "77002"}], mfl_players, INDEX)
+    if rows:
+        assert rep["conflicts"] == 1, rep
+        assert rep["conflict_rows"][0]["disagrees_on"] == ["position"]
+        assert rep["vocabulary_only_agreements"] == 0
+
+
+def test_a_player_MFL_lists_with_NO_TEAM_has_not_CONTRADICTED_us():
+    """Absent is not a disagreement — the same rule as everywhere else, in the
+    checker. MUTATION: drop the presence guard and every player MFL leaves blank
+    is filed as a cross-source conflict."""
+    rb = next(p for p in POOL if p.get("position") == "RB" and p.get("team"))
+    mfl_players = {"77003": {"name": MADP._norm_name(mfl_name(rb["name"])),
+                             "position": "RB", "team": ""}}
+    _, rep = A.crosswalk_picks([{"overall": 1, "player": "77003"}], mfl_players, INDEX)
+    assert rep["conflicts"] == 0, rep["conflict_rows"]
+    assert rep["vocabulary_only_agreements"] == 0
