@@ -271,3 +271,29 @@ level up, inside the summariser.
   required above, that is now declared by the adapter and printed on the report's
   verdict line — a clause passing every league must never look like every league
   satisfying it.
+
+### REPORTING ADDITION — draft duration and staleness spread (2026-08-11)
+
+**A reporting requirement, NOT a filter.** It admits and excludes nothing; it is recorded
+here because F4 requires attrition to be judgeable and this is the number that makes one
+of the judgements possible. No new registration version.
+
+> **Every ingest run reports the DRAFT-DURATION DISTRIBUTION** across matched leagues
+> (from `first_pick_at` / `last_pick_at`, both already carried in `draft_picks` meta),
+> **and the per-league LEAD-DAYS SPREAD** — min, median, max staleness of the frozen
+> board across that league's picks, with undated picks counted separately and never
+> dated from the league.
+
+*Why it earns its line.* MFL drafts are `draft_kind: email` on a `draftLimitHours` clock
+and routinely span days. `draft_at` is the FIRST pick — correct for F5 admission, which
+needs a scalar lower bound clean for every pick — but staleness is a per-decision
+quantity, and a day-five pick dated from day one understates the board's age by the
+whole length of the draft, on exactly the picks where it is oldest. One scalar is right
+for one pick and wrong for the rest.
+
+*And it costs nothing.* Both inputs are already parsed. Without it, "how much of the pool
+even crosses a date boundary" stays an assumption — and that fraction is a function of
+`leagueSearch` ordering, so if slow drafts are over-represented in whatever the provider
+returns first, this is not a tail case. Reporting it converts the assumption into a number
+at zero marginal cost, which is the only reason it belongs in the pre-registration rather
+than in someone's judgement at analysis time.
