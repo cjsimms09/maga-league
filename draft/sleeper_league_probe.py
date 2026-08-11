@@ -51,9 +51,18 @@ def fetch(path):
 def referenced_keys():
     """Which setting names appear ANYWHERE in our source. Upper bound, not usage."""
     try:
+        # CODE ONLY, and the exclusions are the whole correctness of this check.
+        # The first version included *.json and scanned draft/data/ — so every key
+        # matched inside league_history.json AND inside the dump THIS SCRIPT HAD
+        # JUST WRITTEN, and it reported "nothing unused". A check that reads its
+        # own output is 10d in its most literal form: the derivation made the
+        # question self-referential and the answer was always yes.
         out = subprocess.run(
-            ["grep", "-rhoE", r'"[a-z_]{3,40}"', "--include=*.py", "--include=*.js",
-             "--include=*.json", "draft/", "src/", "public/js/"],
+            ["grep", "-rhoE", r'[a-z_]{3,40}', "--include=*.py", "--include=*.js",
+             "--include=*.ejs", "--exclude-dir=data", "--exclude-dir=node_modules",
+             "--exclude-dir=market_snapshots", "--exclude-dir=baseline",
+             "--exclude-dir=fixtures",
+             "draft/", "src/", "public/js/", "views/"],
             cwd=ROOT, capture_output=True, text=True, timeout=120).stdout
     except Exception as exc:                                   # noqa: BLE001
         print("  ! grep failed (%s) — REFERENCED column unavailable" % exc)
@@ -98,8 +107,11 @@ def main():
         print("  %-28s = %-14r %s" % (k, settings[k], mark))
     print()
     print("UNREFERENCED anywhere in the repo (%d): %s" % (len(unref), ", ".join(unref) or "none"))
-    print("NOTE: 'referenced' means the string appears in source — including in a")
-    print("      comment. It is an UPPER BOUND on what we consume, not proof of use.")
+    print("NOTE: 'referenced' means the bare name appears in a CODE file — including")
+    print("      in a comment, and including a NAME COLLISION with something of ours.")
+    print("      `draft_rounds` matches our own config_schema.draft_rounds() and is")
+    print("      NOT a read of Sleeper's field. So REFERENCED is an upper bound twice")
+    print("      over; only UNREFERENCED is a hard fact.")
 
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     with open(OUT, "w") as fh:
