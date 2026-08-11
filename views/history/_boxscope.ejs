@@ -1,0 +1,24 @@
+<%#
+  HOW FAR BACK THE BOX SCORES GO — one definition, because two pages built on
+  the same partial data were making different promises about it.
+
+  The league starts in 2016; week-by-week scores only exist from the Sleeper
+  era. The Record Book said so ("Box-score records cover 2023–2025 — the seasons
+  with week-by-week scores on file"). The Bad Beats Hall of Fame, built from the
+  same archive, said "the most points EVER scored in a losing effort", "carved
+  in stone", "written here forever", and carried no scope line at all — so a
+  2019 beat could not appear and nothing on the page admitted it.
+
+  Rendering it from one partial means the two cannot drift apart, and the next
+  page built on A.records inherits the sentence instead of writing its own.
+
+  Locals: note (optional) — a page-specific clause appended to the sentence.
+%>
+<% const _bsYears = (A.seasons || []).map(x => Number(x.year)).filter(Number.isFinite).sort((a, b) => a - b);
+   const _bsFrom = _bsYears[0], _bsTo = _bsYears[_bsYears.length - 1]; %>
+<% if (_bsFrom) { %>
+  <p class="muted" style="margin:.2rem 0 .6rem; font-size:.8rem">
+    Box-score records cover <b><%= _bsFrom %><%= _bsTo && _bsTo !== _bsFrom ? '–' + _bsTo : '' %></b> —
+    the seasons with week-by-week scores on file.<% if (typeof note !== 'undefined' && note) { %> <%= note %><% } %>
+  </p>
+<% } %>

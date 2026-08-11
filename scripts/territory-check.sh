@@ -227,6 +227,30 @@ shared() {
     STATUS.md|PARKED.md|DECISIONS-NEEDED.md|TASK-AUDIT.md|TERRITORY.md) return 0 ;;
     # Shared coordination infra: the split's own enforcement, maintained by both.
     scripts/territory-check.sh|scripts/branch-check.sh) return 0 ;;
+    # ⚠️ SHARED-FILE EDIT BY B, 2026-08-11 — banner per Cory's three-session rule.
+    # ── *.test.js STAYS SHARED, BECAUSE NOTHING DERIVES ITS OWNER YET ────────
+    #
+    # Narrowing `draft/tests/*` replaced the blanket entry with a derivation for
+    # `test_*.py` only. `*.test.js` was left with no rule, fell through to the
+    # default, and every JS test silently became A's — including the fifteen
+    # written for B surfaces this week. The first edit to one of them reported
+    # `TRESPASS (B touched B's own test)`, which is how it was found.
+    #
+    # I TRIED TO DERIVE IT AND IT DOES NOT DERIVE. `test_<x>.py` works because a
+    # Python test names its module. These do not: they are named for what they
+    # CHECK (matchup_arithmetic, bank_arithmetic, pickem_copy) and most are
+    # INTEGRATION tests that drive a surface over HTTP — draft_sheet_tiers
+    # requires only store/data/auth/server-app and fetches /admin/draft-sheet,
+    # so its require list says nothing about who owns the page it tests.
+    # Deriving from fetched routes would need a second ownership model for URLs.
+    #
+    # So this restores yesterday's status for the JS half rather than inventing
+    # one: shared, append-only. It is not the shadowing the note below fixed —
+    # there is no JS derivation being shadowed, because there is none to reach.
+    # ROUTED TO A: how a JS integration test should be owned is a boundary
+    # decision, not a mechanical fix, and it is A's rule to settle.
+    draft/tests/*.test.js) return 0 ;;
+
     # ── draft/tests/* IS NO LONGER BLANKET-SHARED ───────────────────────────
     #
     # A GUARD THAT EXISTED AND DID NOT GUARD. This entry claimed every test file

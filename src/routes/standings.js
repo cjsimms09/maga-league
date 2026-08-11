@@ -28,8 +28,17 @@
  */
 'use strict';
 const LO = require('./lineup');
+const PO = require('./playoffs');   // the one definition of the playoff cut
 
-const PLAYOFF_SPOTS = 4;
+// HOW MANY MAKE THE PLAYOFFS — the DEFAULT only, and it comes from the one
+// definition the rest of the site uses (routes/playoffs.playoffCut). This file
+// kept its own 4, which is right for the 2023-25 seasons the validator grades
+// but wrong the day the league changes playoff_teams: /matchup, the standings
+// column and the recap would all move and the analyzer would still say four.
+// projectStandings takes the real cut per call and REPORTS the one it used, so
+// the page draws its cut line from the number the simulation actually ran with
+// rather than from a constant beside it.
+const PLAYOFF_SPOTS = PO.playoffCut({});
 
 // --- a tiny seeded RNG so simulation is reproducible (mulberry32) --------------
 function rng(seed) {
@@ -122,6 +131,7 @@ function projectStandings(season, opts) {
   const throughWeek = opts.throughWeek == null ? 0 : opts.throughWeek;
   const sims = opts.sims || 4000;
   const seed = opts.seed || 12345;
+  const spots = Number(opts.spots) > 0 ? Number(opts.spots) : PLAYOFF_SPOTS;
   const weeks = LO.regularSeasonWeeks(season);
   const wm = LO.weeklyMatchups(season);
   const fws = LO.fieldWeeklyScores(season);
@@ -173,13 +183,13 @@ function projectStandings(season, opts) {
     const order = seedOrder(Object.values(rec));
     order.forEach((rid, i) => {
       winSum[rid] += rec[rid].wins;
-      if (i < PLAYOFF_SPOTS) { madeCount[rid]++; seedCount[rid][i + 1] = (seedCount[rid][i + 1] || 0) + 1; }
+      if (i < spots) { madeCount[rid]++; seedCount[rid][i + 1] = (seedCount[rid][i + 1] || 0) + 1; }
     });
   }
 
   const proj = rids.map(r => {
     const seedDist = {};
-    for (let k = 1; k <= PLAYOFF_SPOTS; k++) seedDist[k] = (seedCount[r][k] || 0) / sims;
+    for (let k = 1; k <= spots; k++) seedDist[k] = (seedCount[r][k] || 0) / sims;
     return {
       rid: r,
       exp_wins: winSum[r] / sims,
@@ -197,7 +207,7 @@ function projectStandings(season, opts) {
     else if (p.playoff_prob <= 0.30) p.posture = 'desperate';    // long shot; will overpay to swing it
     else p.posture = 'contender';                                // fighting for a spot
   });
-  return { season, throughWeek, projections: proj };
+  return { season, throughWeek, spots, projections: proj };
 }
 
 // Naive baseline: predict the playoff teams as whoever leads in wins RIGHT NOW

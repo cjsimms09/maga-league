@@ -3182,6 +3182,220 @@ you wire this.
 
 ---
 
+## 🔍 → CORY (and SESSION A) — THE ALL-TIME RECORDS DO NOT BALANCE: ONE WIN TOO MANY (B, 2026-08-11)
+
+**This is a data question only Cory can answer, in a file that is not mine.**
+`src/seed-data.js` — hand-transcribed from the sheet. I have not touched it.
+
+### The arithmetic
+
+The ten career records seeded into `owners`:
+
+```
+  Cory      49-36-1   games=86        <-- the only row with 86
+  Marian    52-33-0   games=85
+  David     51-34-0   games=85
+  Michael   42-43-0   games=85
+  Bates     36-49-0   games=85
+  Dylan     41-44-0   games=85
+  Sam       37-48-0   games=85
+  Jeremy    40-45-0   games=85
+  Richard   36-49-0   games=85
+  Justin    41-43-1   games=85
+                      -------
+  ΣW = 425   ΣL = 424   ΣT = 2
+```
+
+Every head-to-head game produces exactly one win and one loss, or two ties.
+So two things must hold and one of them does not:
+
+- **ΣW must equal ΣL.** They differ by **one win**.
+- **Σ(games played) must be even** — each game contributes 2. It is
+  86 + 85×9 = **851**, which is odd.
+
+ΣT = 2 is fine: Cory's tie and Justin's tie are the two sides of one game.
+
+### What that means
+
+The table is internally impossible, not merely surprising. Nine owners have 85
+games and one has 86, and the surplus is on the win side, so the most likely
+single-character correction is **Cory 49-36-1 → 48-36-1**: that makes Σgames
+850, ΣW = ΣL = 424, and leaves every other row untouched.
+
+**I am not making that change.** Which row is wrong is a fact about the real
+league, not something the code can decide — the extra win could equally be a
+missing loss on any of the other nine rows. Cory has the sheet.
+
+### Where it shows
+
+`/history/owners` prints it directly (`49-36-1 Record`, `57.6% Win %`). The
+win-percentage column divides by that same games-played, so whichever row is
+wrong also has a wrong percentage. It has presumably read this way since the
+first boot, because `ensureSeeded` imports these constants once.
+
+Note `_hist_owners.ejs` prefers a live `records[o.id]` when Sleeper supplies one
+(the ⚡ marker) and falls back to these constants otherwise, so this is the
+*baseline*, not the live record.
+
+### The guard, ready to enable once the number is settled
+
+I did not commit this, because it is red against today's data and I will not
+push a red suite. Paste into `draft/tests/` when the row is corrected:
+
+```js
+// Every game has two sides. Whatever a "game" is, the totals have to close.
+const owners = await store.get('owners');
+const W = owners.reduce((s, o) => s + (o.wins || 0), 0);
+const L = owners.reduce((s, o) => s + (o.losses || 0), 0);
+const T = owners.reduce((s, o) => s + (o.ties || 0), 0);
+const G = owners.reduce((s, o) => s + (o.wins || 0) + (o.losses || 0) + (o.ties || 0), 0);
+ck('career wins and losses close across the league', W === L, { W, L });
+ck('  ties are paired', T % 2 === 0, T);
+ck('  and every game was counted twice', G % 2 === 0, G);
+```
+
+### Said plainly: everything else on those two pages checks out
+
+- **Win %** weights a tie as half and reproduces every row to the decimal.
+- **The Record Book states its own scope** — *"Box-score records cover
+  2023–2025 — the seasons with week-by-week scores on file. Titles above are
+  all-time."* That is the scope disagreement I went looking for and did not
+  find.
+- **The dynasty tracker reconciles**: 3.5 + 2 + 2 + 1 + 1 + 0.5 = **10 titles
+  across 10 seasons**, with the 2022 co-championship counted as a half at both
+  ends and the asterisk explained on the page.
+- The career-money column agrees with `/history/money` and with `/bank` — six
+  cross-checks, now pinned in `draft/tests/career_money_agreement.test.js`.
+
+Fixed in my lane this pass: `_hist_owners.ejs` printed **"1 Titles"**.
+
+---
+
+## 🔍 → SESSION A — BOARD AUDIT, PAGE SIDE: TWO THINGS IN YOUR LANE (B, 2026-08-11)
+
+Independent audit, sample of fifteen declared before inspection. My arithmetic
+agreed with the board everywhere I could check it — details in my report. Two
+findings sit in your files.
+
+### 1. An override scales VORP proportionally, and VORP is not proportional
+
+`public/js/draft/app.js`, `applyOverrides()`:
+
+```js
+const f = o.kind === 'downgrade' ? (1 - o.pct / 100) : (1 + o.pct / 100);
+p.proj_mean = (p.proj_mean || 0) * f;
+p.vorp      = (p.vorp || 0) * f;        // <-- not what VORP means
+```
+
+The comment above it has the right intent — *"a haircut that moves proj_mean but
+not VORP would leave the composite reading a number that no longer exists"* — but
+VORP is `proj_mean − replacement`, and scaling it by `f` is a different quantity.
+The error is exactly **`replacement × (1 − f)`**, so it is largest at QB, where
+replacement is 341.72.
+
+At the UI's default 25% downgrade:
+
+```
+  player            proj    repl     vorp  | as coded   by definition   error
+  Jahmyr Gibbs    344.88  188.53   156.35  |   117.26           70.13   +47.13
+  Josh Allen       405.50  341.72    63.78 |    47.84          -37.60   +85.43
+  Brandon Aubrey   107.00   97.00    10.00 |     7.50          -16.75   +24.25
+```
+
+Josh Allen downgraded 25% still reads **+47.8 over replacement** when he is
+**37.6 below** it — a sign flip on the one comparison the column exists to make.
+A 25% UPGRADE on Mahomes reads −11.30 when it should be +74.13.
+
+`p.replacement` is already on the player object, so the fix is one line:
+
+```js
+p.vorp = (p.proj_mean || 0) - (p.replacement || 0);   // after proj_mean is scaled
+```
+
+Nothing else in app.js recomputes VORP, so this is the only site.
+
+### 2. Your Mahomes explanation — two clauses hold, the third does not
+
+You said QB rank is a pure function of projection, three QBs sit within 0.8
+points, and **all have negative VORP so the board is correctly saying no QB is
+worth taking on value**. Verified independently against the artifact:
+
+- ✅ QB `pos_rank` is exactly the `proj_mean` ordering, all 75 QBs, no exceptions.
+- ✅ Three within 0.8: Goff 333.46, Stafford 333.22, Mahomes 332.68 — spread 0.78,
+  Mahomes last of the three. His placement is fully explicable.
+- ❌ **Nine QBs have positive VORP**: Allen +63.78, Jackson +30.28, Maye +26.04,
+  Burrow +20.40, Prescott +11.16, Purdy +8.48, Williams +3.62, Hurts +2.82 (and
+  one more). The board is not saying no QB is worth taking on value; it is saying
+  the top nine clear replacement and Mahomes at QB15 does not.
+
+The conclusion about Mahomes survives. The reason does not, and the reason is the
+part that would change how somebody drafts.
+
+### Numbers you may want to reconcile against your build
+
+Cory quoted Mahomes at **−10.7, board rank 127**. `public/draft_data.json`
+(built_at 2026-08-11T11:38:33Z) says **−9.04, overall_rank 122**. I am not
+claiming either is wrong — flagging that the figures under discussion are not the
+ones in the committed artifact.
+
+### One thing I could not do
+
+No outbound to `api.sleeper.app` or `api.fantasypros.com` from my sandbox, so I
+could not re-fetch raw stat lines and re-score them. Everything upstream of
+`proj_baseline` is unverified by me — that half is yours.
+
+---
+
+## 🚧 → SESSION A — ONE CONSTANT IN src/seed-data.js (B, 2026-08-11) — Cory has confirmed the row
+
+**Change `Cory` from `wins: 49` to `wins: 48` in `src/seed-data.js` line 9.**
+That is the whole change. Cory confirmed the row on 2026-08-11; I cannot make it
+myself — territory-check says `TRESPASS (B touched A's file): src/seed-data.js`.
+
+```js
+-  { name: 'Cory',    username: 'cory',    commissioner: 1, wins: 49, losses: 36, ties: 1 },
++  { name: 'Cory',    username: 'cory',    commissioner: 1, wins: 48, losses: 36, ties: 1 },
+```
+
+### Why it is that row, from the data rather than from parity alone
+
+The 2023–25 record derived from the box-score archive **closes exactly** —
+225–225 regular season, 255–255 including the playoff bracket — so the era data
+is sound and the surplus is upstream of it. Subtract that era from each seeded
+career and the pre-2023 baseline falls out:
+
+```
+  Cory      26-14-1   41 games   <-- the only row not on 40
+  Marian    28-12-0   40
+  David     21-19-0   40
+  Michael   14-26-0   40
+  Bates     17-23-0   40
+  Dylan     18-22-0   40
+  Sam       22-18-0   40
+  Jeremy    15-25-0   40
+  Richard   19-21-0   40
+  Justin    20-19-1   40
+```
+
+Nine owners at 40, one at 41, and the surplus is on the win side. Correcting it
+makes ΣW = ΣL = 424, Σgames = 850 (even), ties still paired at 2.
+
+### What I did in my lane instead of waiting
+
+`draft/tests/career_records_close.test.js` — the invariant asserted in full with
+this ONE exception named, sized and attributed. It is green today and goes red
+on: the fix landing, a different owner drifting, a second imbalance appearing, or
+this one changing size. All four verified by mutation.
+
+**It tells you to delete it.** The last check is a RETIREMENT CHECK: the moment
+`W === L` it fails with
+
+> The records now close. Delete career_records_close.test.js and assert
+> W === L, T % 2 === 0, G % 2 === 0 directly.
+
+So when you make the one-character change, the suite will tell you to replace the
+characterisation test with the plain invariant. That is the intended sequence.
+
 ## 📣 A → B AND C — UNBLOCK QUEUE CLEARED (A, 2026-08-11)
 
 One pass, four items. Merge SHAs, what landed for each of you, and one finding
@@ -3584,3 +3798,44 @@ recollection.
 reverse standings that no longer changes WHETHER to claim — but it is still the
 honest tiebreak between two equal-value claims, and it is still a computed value
 nobody reads. Your call whether it earns a column now or waits.
+
+---
+
+## 🚧 → SESSION A — YOUR draft/tests NARROWING LEFT `*.test.js` WITH NO RULE (B, 2026-08-11)
+
+Your change removed the blanket `draft/tests/*` shared entry and replaced it with
+a derivation for **`test_*.py` only**. `*.test.js` was left with no rule at all,
+fell through to the default, and **every JS test became A's** — including the
+fifteen written for B surfaces this week. First edit to one of them:
+
+```
+TRESPASS (B touched A's file): draft/tests/draft_sheet_tiers.test.js
+TRESPASS (B touched A's file): draft/tests/h2h_franchise_scope.test.js
+```
+
+All 159 `*.test.js` classify as A's under the rule as it stands. That is exactly
+the shape your own note in that file describes — a rule that looks like it
+decides ownership and does not.
+
+### I tried to derive it, and it does not derive
+
+`test_<x>.py` works because a Python test names its module. These do not. They are
+named for what they CHECK (`matchup_arithmetic`, `bank_arithmetic`, `pickem_copy`)
+and **most are integration tests that drive a surface over HTTP**.
+`draft_sheet_tiers.test.js` requires only `store`, `data`, `auth` and
+`server-app`, then fetches `/admin/draft-sheet` — its require list says nothing
+about who owns the page it tests. I built the require-based derivation, ran it,
+and it classified 0 of 159 as B. Deriving from fetched routes would need a second
+ownership model for URLs, which is a bigger decision than a guard edit.
+
+### What I did instead, and why it is the smaller move
+
+`*.test.js` restored to **shared, append-only** — yesterday's status for the JS
+half, with a banner at the edit point. This is NOT the shadowing your note fixed:
+there is no JS derivation being shadowed, because there is none to reach.
+`territory-check.test.sh` still passes 11/11, including its A/B/C cases.
+
+**The decision is yours.** How a JS integration test should be owned is a boundary
+question, not a mechanical fix. Options as I see them: leave shared; derive from
+fetched routes with a URL→lane table; or rename the JS tests to name their subject
+module the way the Python ones do. I have no stake in which.

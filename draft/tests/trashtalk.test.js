@@ -11,7 +11,7 @@ const { createApp } = require(path.join(ROOT, 'server-app'));
 const TT = require(path.join(ROOT, 'src', 'routes', 'trashtalk'));
 
 let pass = 0, fail = 0;
-const ck = (n, c, d) => { c ? (pass++, console.log('PASS ' + n)) : (fail++, console.log('FAIL ' + n + (d ? ' -> ' + d : ''))); };
+const ck = (n, c, d) => { c ? (pass++, console.log('PASS ' + n)) : (fail++, console.log('FAIL ' + n + (d ? ' -> ' + (typeof d === 'string' ? d : JSON.stringify(d)) : ''))); };
 
 (async function () {
   // ═══════════════ ENGINE ═══════════════
@@ -70,6 +70,106 @@ const ck = (n, c, d) => { c ? (pass++, console.log('PASS ' + n)) : (fail++, cons
   await post('/matchup/trash', rc, `opp=${cory.id}&week=1&body=${encodeURIComponent('big words for a benchwarmer')}`);
   const page2 = await get(`/matchup?opp=${rich.id}`, cc);
   ck('both sides of the thread persist on the one game', /hope you like losing/.test(page2.body) && /big words for a benchwarmer/.test(page2.body));
+
+  // ═══════════════ ORDER, ON A RECORD THAT IS PERMANENT ═══════════════
+  // "thread is oldest-first" above passed most of the time and failed under
+  // load — the two posts landed in the SAME MILLISECOND, created_at compared
+  // equal, and the order fell through to listKeys, which is directory order.
+  // A guard that is right by coincidence is not a guard, and the page sells
+  // this thread as "on the record, forever".
+  {
+    const g = TT.gameId(7, 8);
+    // Posted in one tick with no await between, so they share a millisecond by
+    // construction rather than by luck.
+    const burst = await Promise.all(['first', 'second', 'third', 'fourth', 'fifth']
+      .map((b, i) => TT.post(2026, 9, g, i + 1, b)));
+    const stamps = new Set(burst.map(p => p.created_at));
+    ck('fixture check: the burst really does collide on the timestamp',
+      stamps.size < burst.length, { distinct: stamps.size, posted: burst.length });
+
+    // The property is that the thread's order does NOT depend on the order the
+    // store hands the keys back. Calling it twice cannot show that — the local
+    // file store lists a directory the same way every time, so a broken
+    // implementation looks stable here and only reorders on a store that
+    // doesn't (Netlify Blobs makes no such promise). So: hand the keys back
+    // REVERSED and require the same thread.
+    const reversed = async fn => {
+      const real = store.listKeys;
+      store.listKeys = async (...args) => (await real.call(store, ...args)).slice().reverse();
+      try { return await fn(); } finally { store.listKeys = real; }
+    };
+    const a = await TT.forGame(2026, 9, g);
+    const b = await reversed(() => TT.forGame(2026, 9, g));
+    ck('a thread returns every post', a.length === burst.length, a.length);
+    ck('  the thread reads the same whatever order the store lists keys in',
+      a.map(p => p.id).join() === b.map(p => p.id).join(),
+      JSON.stringify({ listed: a.map(p => p.body), reversed: b.map(p => p.body) }));
+    ck('  and the order is total — no two posts tie',
+      new Set(a.map(p => p.created_at + '|' + p.id)).size === a.length);
+    // The season archive reads the same posts with NO key sort in front of it,
+    // so the tie-break is the only thing holding it together.
+    const arcA = (await TT.archiveForSeason(2026)).filter(p => p.game_id === g);
+    const arcB = (await reversed(() => TT.archiveForSeason(2026))).filter(p => p.game_id === g);
+    ck('  the season archive is ordered the same way, and just as stably',
+      arcA.map(p => p.id).join() === arcB.map(p => p.id).join()
+      && arcA.map(p => p.id).join() === a.map(p => p.id).join(),
+      JSON.stringify({ archive: arcA.map(p => p.body), reversed: arcB.map(p => p.body) }));
+
+    // Distinct timestamps must still come back in real chronological order.
+    await new Promise(r => setTimeout(r, 5));
+    const late = await TT.post(2026, 9, g, 9, 'and another thing');
+    const after = await TT.forGame(2026, 9, g);
+    ck('  a later post lands last, not wherever the store filed it',
+      after[after.length - 1].id === late.id, after.map(p => p.body));
+
+    // THE CAP. It sliced keys in store order and sorted afterwards, so an
+    // over-cap thread showed an arbitrary subset. Lowered here rather than
+    // writing 200 posts; the code path is the same one.
+    // TWO ORDERS IN ONE FUNCTION. `post` reads the clock twice — newId() via
+    // Date.now(), created_at via new Date() — so the pair can straddle a
+    // millisecond and id order can disagree with created_at order. While the
+    // cap was applied in key (id) order and the thread rendered in created_at
+    // order, the two picked different posts at the boundary; that is what made
+    // this suite fail intermittently under load. Forced here rather than waited
+    // for, on a game of its own so it disturbs nothing else: two posts with
+    // genuinely distinct timestamps, then their created_at swapped, so id order
+    // and created_at order MUST disagree.
+    {
+      const g2 = TT.gameId(5, 6);
+      const first = await TT.post(2026, 9, g2, 5, 'earlier by the clock');
+      await new Promise(r => setTimeout(r, 5));
+      const second = await TT.post(2026, 9, g2, 6, 'later by the clock');
+      const keyOf = pp => `trash:2026:9:${g2}:${pp.id}`;
+      const d1 = await store.get(keyOf(first)), d2 = await store.get(keyOf(second));
+      const t1 = d1.created_at; d1.created_at = d2.created_at; d2.created_at = t1;
+      await store.set(keyOf(first), d1); await store.set(keyOf(second), d2);
+
+      const th = await TT.forGame(2026, 9, g2);
+      ck('  fixture check: id order and created_at order now disagree',
+        String(first.id).localeCompare(String(second.id)) < 0
+        && String(d1.created_at).localeCompare(String(d2.created_at)) > 0,
+        { ids: [first.id, second.id], stamps: [d1.created_at, d2.created_at] });
+      ck('  the thread follows created_at, not the id its key is built from',
+        th.length === 2 && th[0].id === second.id && th[1].id === first.id,
+        { order: th.map(x => x.body) });
+      // And the cap, which used to be applied in the OTHER order, agrees.
+      const realCap2 = TT.CFG.MAX_PER_GAME;
+      TT.CFG.MAX_PER_GAME = 1;
+      const cap1 = await TT.forGame(2026, 9, g2);
+      TT.CFG.MAX_PER_GAME = realCap2;
+      ck('  and the cap keeps the newest by that SAME order',
+        cap1.length === 1 && cap1[0].id === first.id, { kept: cap1.map(x => x.body) });
+    }
+
+    const realCap = TT.CFG.MAX_PER_GAME;
+    TT.CFG.MAX_PER_GAME = 3;
+    const capped = await TT.forGame(2026, 9, g);
+    TT.CFG.MAX_PER_GAME = realCap;
+    ck('  over the cap it keeps the NEWEST posts, still oldest-first',
+      capped.length === 3 && capped[2].id === late.id
+      && capped.map(p => p.id).join() === after.slice(-3).map(p => p.id).join(),
+      { capped: capped.map(p => p.body), tail: after.slice(-3).map(p => p.body) });
+  }
 
   server.close();
   console.log(`\n${pass} passed, ${fail} failed`);

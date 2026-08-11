@@ -13,6 +13,7 @@ const PO = require('./playoffs');          // folded columns — playoff odds/mo
 const DB = require('./draftboard');        // the completed draft board as a grid (history click-through)
 const TT = require('./trashtalk');         // trash talk attached to a specific game, permanent + archived
 const WW = require('./whatwatch');         // what-to-watch — the Sunday/Monday sweat meter + what each owner needs
+const OT = require('./oddstext');          // how a probability is printed — one definition for every surface
 const MK = require('./marks');             // auto badges — GOAT on Mahomes' owner, Chiefs mark on KC players
 const RIVN = require('./rivalries');       // named rivalries (German derby, Dylan-Sam, Bates-Richard)
 const MU = require('../matchup');          // slot-aligned matchup starters (QB vs QB, not row-vs-row)
@@ -47,6 +48,20 @@ const { RULES, SCORING, ROSTER } = require('../seed-data');
 // JSON /api/* routes below set 'no-store' explicitly AFTER this runs, so they
 // stay stricter — this only supplies the default the HTML pages were missing.
 router.use((req, res, next) => { res.set('Cache-Control', 'no-cache, must-revalidate'); next(); });
+
+// ---------- ONE WAY TO PRINT A PROBABILITY, on every member page ----------
+// /matchup and /watch both state odds, and they had independently decided what
+// to do at the extremes: /matchup printed bounds near zero but a flat 0% AT
+// zero, /watch printed Math.round(p * 100) and so said "0%" about a game with
+// the ball in the air. Handed to the views here so there is one answer and the
+// next surface that prints a probability inherits it. See routes/oddstext.js
+// for why a zero is only ever a fact when the caller can prove it.
+router.use((req, res, next) => {
+  res.locals.pctText = OT.pctText;
+  res.locals.pctSpan = OT.pctSpan;
+  res.locals.isBound = OT.isBound;
+  next();
+});
 
 // ---------- THE CROWN — defending champion on every league-visible page ----------
 // Derived from the champions roll (never hand-set; transfers on its own in January).
@@ -656,7 +671,7 @@ router.get('/', aw(async (req, res) => {
     const playersDb = await sleeper.players();
     wireRows = await sleeper.wire(world.config.sleeper_league_id, sData.week || 1, sData, playersDb);
   }
-  const playoffTeams = (sData && sData.league.settings && sData.league.settings.playoff_teams) || 4;
+  const playoffTeams = PO.playoffCut(sData && sData.league);
 
   // THE FOLDED COLUMNS — the playoff picture, folded into the standings: odds
   // with week-over-week movement + clinch/elimination markers. Derived (a seeded
@@ -1251,11 +1266,20 @@ router.get('/bank', aw(async (req, res) => {
     let rk = 0, prev = null;
     ranked.forEach((r, i) => { if (prev === null || r.won !== prev) rk = i + 1; r.rank = rk; prev = r.won; });
     const mine = ranked.find(r => r.owner_id === req.owner.id) || null;
-    // Seasons actually played (a denominator, so "per season" is honest).
-    const seasonsPlayed = Object.keys(grid[req.owner.id] || {}).length;
+    // THE DENOMINATOR IS SEASONS IN THE MONEY, NOT SEASONS PLAYED. This was
+    // named seasonsPlayed and commented "a denominator, so per season is
+    // honest" — but winningsGrid only ever holds years where money changed
+    // hands (there is not one zero-valued key in it across ten seasons), so a
+    // year you played and won nothing is not counted. Sam has two of those keys
+    // and Justin one: Sam's average read $625 a season off a $1,250 career.
+    // Seasons actually played is not recorded ANYWHERE — history carries
+    // winnings, awards and weekly, all money-keyed, and owners carry no
+    // membership span — so it cannot be computed rather than merely being
+    // missed here. The number is kept and the label now says what it counts.
+    const seasonsInTheMoney = Object.keys(grid[req.owner.id] || {}).length;
     career = {
-      mine, ranked, of: ranked.length, seasonsPlayed,
-      perSeason: mine && seasonsPlayed ? Math.round((mine.won / seasonsPlayed) * 100) / 100 : null,
+      mine, ranked, of: ranked.length, seasonsInTheMoney,
+      perSeason: mine && seasonsInTheMoney ? Math.round((mine.won / seasonsInTheMoney) * 100) / 100 : null,
       leader: ranked[0] || null,
     };
   } catch (e) { career = null; /* reference numbers are a bonus, never break the page */ }
@@ -2032,7 +2056,26 @@ router.get('/matchup', aw(async (req, res) => {
     invUserMap = {};
     for (const [uid, oid] of Object.entries(um)) invUserMap[oid] = uid;
   }
-  const uidOf = (o) => (invUserMap && invUserMap[o.id]) || H2H.userIdForName(o.name, o.alias);
+  // ...but authoritative only if the ARCHIVE HAS EVER SEEN THAT ID. The live id
+  // and the harvest id are the same in production and were assumed to be so
+  // here, and when they are not the failure is silent and confident: uidOf
+  // returned a perfectly well-formed user_id that matches nothing, headToHead
+  // faithfully reported played:0, and /matchup printed "No games on record
+  // against Marian yet — this is your first meeting since the box scores begin"
+  // for a pair with FIVE meetings that /rivalry, reading the same archive by
+  // name, listed in full. An id that resolves to nothing is not a record of
+  // nothing.
+  const archiveIds = new Set(Object.values(H2H.handleUserIds() || {}));
+  const uidOf = (o) => {
+    const live = invUserMap && invUserMap[o.id];
+    if (live && archiveIds.has(live)) return live;
+    return H2H.userIdForName(o.name, o.alias) || live || null;
+  };
+  // Whether we could place BOTH owners in the archive at all. A zero record from
+  // an id the archive never knew is not the same claim as "they have never
+  // played", and the page must not make the second one on the strength of the
+  // first.
+  const inArchive = (o) => { const u = uidOf(o); return !!(u && archiveIds.has(u)); };
 
   // SPECTATOR VIEW — a game the viewer isn't in, opened from the scoreboard.
   // Read-only: the two owners' live score, their all-time head-to-head, and the
@@ -2067,6 +2110,7 @@ router.get('/matchup', aw(async (req, res) => {
   }
 
   const record = opp ? H2H.headToHead(uidOf(me), uidOf(opp)) : null;
+  const recordKnown = opp ? (inArchive(me) && inArchive(opp)) : true;
 
   // RIVALRY GAME OF THE WEEK — bill the matchup when these two have a real history.
   // The record is already computed (A-side = me), so the billing facts come free.
@@ -2158,7 +2202,7 @@ router.get('/matchup', aw(async (req, res) => {
       const regWeeks = (sData.league.settings && sData.league.settings.playoff_week_start)
         ? sData.league.settings.playoff_week_start - 1 : 14;
       const gamesLeft = PO.gamesRemaining(sData.week, regWeeks);
-      const cut = (sData.league.settings && sData.league.settings.playoff_teams) || 4;
+      const cut = PO.playoffCut(sData.league);
       const lev = PO.matchupLeverage(rows, gamesLeft, cut, me.id);
       if (lev) stakes = lev;
     }
@@ -2167,7 +2211,7 @@ router.get('/matchup', aw(async (req, res) => {
   const liveStale = await liveFreshness();
   res.render('matchup', {
     liveStale,
-    me, owners, opp, live, weekNo, matchup: liveMatchup, betWindow, record, rivalry,
+    me, owners, opp, live, weekNo, matchup: liveMatchup, betWindow, record, recordKnown, rivalry,
     starters, bench, matchupBet, proj, highBand, whBand, whRace, pickem, stakes, trash,     // The availability badge is derived from the optimizer's INACTIVE_INJURY set
     // (src/matchup.js), not from a second ladder in the template.
     injuryFlag: MU.injuryFlag,
@@ -2460,10 +2504,17 @@ router.get('/scoreboard', aw(async (req, res) => {
 
   // pick'em splits (public only after lock)
   let allPicks = [];
-  if (locked) { try { allPicks = await PE.allPicksForWeek(seasonYear, weekNo); } catch (e) {} }
+  // The only catch in the route layer that stated no reason, and a reason is
+  // the whole difference between a swallow you can review and one you cannot:
+  // to satisfy myself this was safe I had to trace the consumer. So, written
+  // down — an unreadable pick store leaves this empty, gameSplit then reports
+  // total 0, and the scoreboard drops the split chip rather than printing a
+  // split of nothing. That is an omission, not a wrong number, which is the
+  // only reason it is allowed to pass quietly.
+  if (locked) { try { allPicks = await PE.allPicksForWeek(seasonYear, weekNo); } catch (e) { /* see above: the chip is dropped, never faked */ } }
 
   // playoff picture (odds + clinch/elim) + per-game leverage, when there's a race
-  let picture = null, gamesLeft = 0, cut = (sData && sData.league.settings && sData.league.settings.playoff_teams) || 4;
+  let picture = null, gamesLeft = 0, cut = PO.playoffCut(sData && sData.league);
   try {
     const sStand = sleeper.standings(sData, map, owners).filter(r => r.owner_id != null && ((r.wins || 0) + (r.losses || 0) + (r.ties || 0)) > 0);
     if (sData && sStand.length >= 4) {
@@ -2636,6 +2687,84 @@ async function liveOptimizeFor(world, owners, me) {
   return { live, roster, matchup, projSource, band, weekNo };
 }
 
+/* ── THE WAIVER TOOL ─────────────────────────────────────────────────────────
+ *
+ * Commissioner-only (ACCESS-RULE.md: a recommendation surface). The engine has
+ * existed for weeks in src/routes/waivers.js with no caller — "pure functions,
+ * live wiring is the caller's job" — so this is the caller.
+ *
+ * ── WHAT THIS PAGE MUST REFUSE TO IMPLY ─────────────────────────────────────
+ *
+ * OUR LEAGUE RUNS PRIORITY WAIVERS, NOT FAAB. Priority is a DEPLETING resource:
+ * one good claim and you drop to the bottom. So the decision is never "is this
+ * player good", it is "is he worth spending my CURRENT POSITION on, or do I hold
+ * for something better" — a stopping problem, conditional on the week, the order
+ * position, and what is likely to appear later.
+ *
+ * THE ENGINE DOES NOT MODEL ANY OF THAT. It answers "what does this claim add to
+ * my starting lineup, and what is that worth", which is the numerator of the
+ * stopping rule and not the rule. `whoElseNeeds` derives the one input a stopping
+ * rule would need — who else is short at the position — and the valuation throws
+ * it away.
+ *
+ * So the page states the gap rather than papering over it. A ranked list
+ * presented as the answer would be answering a question nobody asked, and the
+ * one thing worse than a tool that cannot decide is a tool that looks like it
+ * did.
+ */
+router.get('/waivers', requireCommissioner, aw(async (req, res) => {
+  const world = req.world;
+  const owners = H.activeOwners(world.owners);
+  const me = req.owner;
+  const season = String(H.currentSeason(world.seasons).year || new Date().getUTCFullYear());
+  const W = require('./waivers');
+
+  let claims = [], drop = null, perPoint = 0, weekNo = null, err = null, live = false;
+  try {
+    const sData = await sleeper.bundle(world.config.sleeper_league_id);
+    if (sData && Array.isArray(sData.rosters) && sData.rosters.length) {
+      weekNo = sData.week || (sData.state && sData.state.week) || null;
+      const map = world.config.sleeper_map || {};
+      const myRid = Object.keys(map).find(rid => Number(map[rid]) === Number(me.id));
+      const playersDb = await sleeper.players();
+      let artifact = {};
+      try {
+        artifact = JSON.parse(fs.readFileSync(
+          path.join(__dirname, '..', '..', 'public', 'draft_data.json'), 'utf8'));
+      } catch (e) { artifact = {}; }
+      const inputs = W.waiverInputsFromBundle(sData, playersDb, artifact, myRid);
+      if (inputs && inputs.myRoster.length) {
+        live = true;
+        const band = LO.weeklyHighBand();
+        // The league's own slot template, not a default — a wrong template
+        // prices every claim against a lineup we do not play.
+        const template = (sData.league && sData.league.roster_positions) || null;
+        const league = { teams: (sData.league && sData.league.total_rosters) || owners.length,
+                         starters: template ? LO.slotsFromTemplate(template) : LO.DEFAULT_SLOTS };
+        // Rank by what reaches the field, and only look at the top of the wire —
+        // a full FA pool is thousands of names and the tail is all zeros.
+        const typical = LO.typicalTeamScore();
+        const res2 = W.evaluateClaims(inputs.freeAgents, inputs.myRoster, league, {
+          band, lineupMean: typical.median, lineupSd: typical.sd, oppMean: typical.median,
+          leagueRosters: Object.fromEntries((sData.rosters || [])
+            .filter(r => String(r.roster_id) !== String(myRid))
+            .map(r => [r.roster_id, (r.players || []).map(pid => {
+              const info = (playersDb && playersDb.players && playersDb.players[pid]) || {};
+              return { player_id: pid, position: info.pos, proj_mean: null };
+            }).filter(p => p.position)])),
+        });
+        drop = res2.drop; perPoint = res2.dollars_per_point;
+        claims = res2.claims.filter(c => c.net_value > 0).slice(0, 8);
+      }
+    }
+  } catch (e) { err = String((e && e.message) || e); }
+
+  res.render('waivers', {
+    me, season, weekNo, live, err, claims, drop, perPoint,
+    liveStale: await liveFreshness(),
+  });
+}));
+
 router.get('/lineup', requireCommissioner, aw(async (req, res) => {
   const world = req.world;
   const owners = H.activeOwners(world.owners);
@@ -2771,19 +2900,36 @@ router.get('/analyzer', requireCommissioner, aw(async (req, res) => {
   // checkpoint. Defaulting to the final week is degenerate: with every game
   // played the simulator has nothing left to simulate and every probability
   // collapses to 100%/0% — a table that looks confident and says nothing.
-  let liveWeek = null;
+  // `world` was never declared in this route. Every call threw a ReferenceError
+  // on the line below, the catch swallowed it as "offline", and the live-week
+  // default documented directly above HAS NEVER ONCE RUN — the analyzer always
+  // fell through to the mid-season checkpoint, including during a live season.
+  // A catch whose comment names a cause it cannot distinguish will hide any
+  // other cause forever, so it is narrowed to the fetch it is there for.
+  const world = req.world;
+  let liveWeek = null, liveLeague = null;
   try {
     const sData = await sleeper.bundle(world.config.sleeper_league_id);
-    if (sData && String(sData.state && sData.state.season) === String(wanted)) liveWeek = sData.week;
-  } catch (e) { /* offline: fall through to the checkpoint */ }
+    if (sData && String(sData.state && sData.state.season) === String(wanted)) {
+      liveWeek = sData.week;
+      liveLeague = sData.league;      // only THIS season's cut applies to it
+    }
+  } catch (e) { /* Sleeper unreachable: fall through to the checkpoint */ }
   const defaultWeek = liveWeek && liveWeek <= lastWeek ? liveWeek
     : (lastWeek ? Math.max(1, Math.min(lastWeek - 1, Math.round(lastWeek * 0.6))) : 0);
   const throughWeek = Number.isFinite(qWeek) ? Math.max(1, Math.min(qWeek, lastWeek)) : defaultWeek;
 
-  let rows = [], validation = null, err = null;
+  let rows = [], validation = null, err = null, projSpots = ST.PLAYOFF_SPOTS;
   if (seasonObj) {
     try {
-      const proj = ST.projectStandings(seasonObj, { throughWeek, sims: 3000, seed: 4242 });
+      // The cut the analyzer simulates with is the league's own, from the same
+      // definition /matchup and the standings column read — not the engine's
+      // default. `proj.spots` is then what the page draws its line at, so the
+      // line and the odds beside it can never describe different playoff fields.
+      const proj = ST.projectStandings(seasonObj, { throughWeek, sims: 3000, seed: 4242,
+        // A past season is graded on the engine's default; only the live
+        // season gets the league's current cut.
+        spots: liveLeague ? PO.playoffCut(liveLeague) : ST.PLAYOFF_SPOTS });
       const owners = seasonObj.owners || {};
       // C3: the raw projection alongside every dollar/odds figure, from the ONE
       // shared derivation. Here the team-level analogue is the strength mean —
@@ -2801,13 +2947,14 @@ router.get('/analyzer', requireCommissioner, aw(async (req, res) => {
           topSeed: p.seed_dist && p.seed_dist['1'] != null ? p.seed_dist['1'] : null,
         };
       });
+      projSpots = proj.spots;
     } catch (e) { err = e.message; }
   }
   try { validation = ST.validateStandings(); } catch (e) { /* the caveat is a bonus */ }
 
   res.render('analyzer', {
     me: req.owner, rows, seasons, season: wanted, throughWeek, lastWeek,
-    validation, err, playoffSpots: ST.PLAYOFF_SPOTS,
+    validation, err, playoffSpots: projSpots,
   });
 }));
 

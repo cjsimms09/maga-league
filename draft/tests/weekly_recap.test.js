@@ -210,6 +210,70 @@ const game = (w, l) => ({ winner: w, loser: l,
   ck('every bank phrase was actually scanned', banks.length >= 25, banks.length);
 }
 
+// 6b) THE LEDE MEASURES THE WEEK; IT DOES NOT ASSUME ITS SHAPE.
+//
+// Found by generating seven weeks and READING them, not by testing what I had
+// thought to test. Every one of these was a specific claim attached to a week
+// that did not fit it — the inverse of generic filler, and just as wrong.
+{
+  const s6 = (n, p) => side(n, p);
+  const wk = (week, scores, extra) => {
+    const sides = scores.map((p, i) => s6(['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'][i], p));
+    const gs = [];
+    for (let i = 0; i < sides.length; i += 2) {
+      gs.push(sides[i].points >= sides[i + 1].points ? game(sides[i], sides[i + 1]) : game(sides[i + 1], sides[i]));
+    }
+    return build(Object.assign({ season: '2026', week, games: gs,
+      ranked: [...sides].sort((a, b) => b.points - a.points).map(x => ({ name: x.name, points: x.points })) }, extra || {}));
+  };
+
+  // "came down to X in ONE GAME" — on a week where TWO games shared that margin.
+  const two = wk(7, [151.2, 150.6, 128, 67.4, 120, 119.4, 111, 100, 96, 90]);
+  ck('a week with two 0.6-point games does not call it "one game"',
+    !/in one game/.test(toText(two)), (toText(two).split('\n')[0] || ''));
+  ck('  it counts them instead', /2 games decided by 0\.6/.test(toText(two)) || /decided by inches/.test(toText(two)),
+    toText(two).split('\n')[0]);
+  ck('  and the subject makes the same count, not the old singular',
+    !/: a game decided by 0\.6/.test(two.subject), two.subject);
+
+  // "mostly normal apart from ONE RESULT" — on a week where all five were blowouts.
+  const blood = wk(8, [180, 70, 175, 80, 160, 90, 155, 95, 150, 99]);
+  const bt = toText(blood);
+  ck('a slate of five blowouts is not called "mostly normal"',
+    !/mostly normal/.test(bt), bt.split('\n')[0]);
+  ck('  it says how many, out of how many', /5 of the 5 games/.test(bt), bt.split('\n')[0]);
+  // The closing line contradicted the five above it.
+  ck('  and it is NOT signed off as a week that was just the scoreboard',
+    blood.thin === false && !/just the scoreboard/.test(bt), bt.slice(-160));
+
+  // The mirror case must still work: an ordinary week is still called ordinary.
+  const dull = wk(11, [131, 114, 122, 101, 118, 99]);
+  ck('a genuinely unremarkable week is STILL flagged thin', dull.thin === true, dull.counts);
+  ck('  and still says so out loud', /just the scoreboard/.test(toText(dull)));
+
+  // NO REPEATED JOKE. Five games in one band, three phrases for it: the walk
+  // forward wrapped and printed the same line three times. A plain scoreline is
+  // honest; a repeated joke is the mail-merge tell.
+  const lines = blood.sections.find(x => x.h === 'The games').lines;
+  // THE PLAIN SCORELINE IS ALLOWED TO REPEAT — it is the score, not a joke, and
+  // two teams both getting "X 155, Y 95." is a fact stated twice rather than a
+  // mail merge. The first version of this check forbade ALL repeats and failed
+  // on exactly that, which made it wrong rather than vacuous. What must never
+  // repeat is a PHRASE from the banks.
+  const norm = l => l.replace(/\*\*[^*]+\*\*/g, 'X').replace(/[\d.]+/g, '#').replace(/\b[A-Z]\b/g, 'X');
+  const counts = {};
+  for (const l of lines) counts[norm(l)] = (counts[norm(l)] || 0) + 1;
+  const repeated = Object.entries(counts).filter(([, n]) => n > 1).map(([k]) => k);
+  ck('no JOKE is repeated when a band has more games than phrases',
+    // The normalizer's [\d.]+ swallows the trailing period along with the
+    // score, so the plain form comes out as 'X #, X #' with no full stop.
+    // Matching the shape I expected rather than the shape it produces is how
+    // a check reports a failure that is its own.
+    repeated.every(k => /^X #, X #\.?$/.test(k)), repeated);
+  ck('  the overflow falls back to a plain scoreline rather than a repeat',
+    lines.some(l => /^\*\*[A-Z]\*\* [\d.]+, [A-Z] [\d.]+\.$/.test(l)), lines);
+}
+
 // ── 7) THE PLAYOFF LINE IS A LINE, NOT A TABLE ──────────────────────────────
 {
   const pl = R.playoffLine([{ name: 'Cory', odds: 96 }, { name: 'David', odds: 91 },

@@ -43,14 +43,7 @@
     </div>
   </div>
 
-  <% const _boxYears = (A.seasons || []).map(x => Number(x.year)).filter(Number.isFinite).sort((a, b) => a - b);
-     const _boxFrom = _boxYears[0], _boxTo = _boxYears[_boxYears.length - 1]; %>
-  <% if (_boxFrom) { %>
-    <p class="muted" style="margin:.2rem 0 .6rem; font-size:.8rem">
-      Box-score records cover <b><%= _boxFrom %><%= _boxTo && _boxTo !== _boxFrom ? '–' + _boxTo : '' %></b> —
-      the seasons with week-by-week scores on file. Titles above are all-time.
-    </p>
-  <% } %>
+  <%- include('_boxscope', { note: 'Titles above are all-time.' }) %>
   <div class="stat-grid" style="margin-bottom:1.4rem;">
     <div class="stat-card"><p class="label">Highest week ever</p><div class="big"><%= fmt(R.highestWeek[0].points) %></div><div class="sub"><span class="who"><%= R.highestWeek[0].owner %></span> · <%= R.highestWeek[0].year %> Wk <%= R.highestWeek[0].week %></div></div>
     <div class="stat-card bad"><p class="label">Lowest week ever</p><div class="big"><%= fmt(R.lowestWeek[0].points) %></div><div class="sub"><span class="who"><%= R.lowestWeek[0].owner %></span> · <%= R.lowestWeek[0].year %> Wk <%= R.lowestWeek[0].week %></div></div>

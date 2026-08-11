@@ -1,0 +1,128 @@
+<%- include('partials/header', { title: 'Waiver Wire' }) %>
+<%- include('partials/_live_stale') %>
+<%
+  const money0 = n => '$' + Math.round(Number(n || 0)).toLocaleString('en-US');
+  const top = claims && claims.length ? claims[0] : null;
+%>
+
+<h1 class="page-title">📋 Waiver Wire
+  <span class="sub" style="font-weight:600">what the wire adds — and what this tool cannot tell you</span></h1>
+
+<%# ── THE THING THIS PAGE MUST NOT PAPER OVER ──────────────────────────────────
+    Our league runs PRIORITY waivers, not FAAB. Priority is a depleting resource:
+    one good claim and you drop to the bottom. So the decision is never "is this
+    player good" — it is "is he worth spending my CURRENT POSITION on, or do I
+    hold for something better". That is a stopping problem.
+
+    The engine does not model it. It prices what a claim adds to the starting
+    lineup, which is the NUMERATOR of the stopping rule and not the rule. A
+    ranked list presented as the answer would be answering a question nobody
+    asked, and the one thing worse than a tool that cannot decide is a tool that
+    looks like it did. So the gap leads, once, and is not repeated. ────────── %>
+<div class="card" style="margin-bottom:1.1rem; border-left:3px solid var(--gold)">
+  <div class="body">
+    <p style="margin:0"><b>This tool prices the player. It does not decide the claim.</b></p>
+    <p class="muted" style="margin:.45rem 0 0; font-size:.86rem">
+      We run <b>priority waivers</b>, so a claim costs your position in the order and one good
+      claim drops you to the bottom. The real question is <i>“is he worth my current spot, or do
+      I hold for something better”</i> — which depends on how many weeks are left, where you sit
+      in the order, and what is likely to hit the wire later. <b>None of that is modelled here.</b>
+      What is below is what each claim would add to your starting lineup, in points and dollars.
+      Treat it as the number you weigh, not the answer.
+    </p>
+  </div>
+</div>
+
+<% if (err) { %>
+  <div class="card"><div class="body"><p class="error-note">Couldn't read the wire: <%= err %></p></div></div>
+<% } else if (!live) { %>
+  <div class="card"><div class="body">
+    <p style="margin:0"><b>No live roster yet.</b></p>
+    <p class="muted" style="margin:.4rem 0 0">
+      The wire lights up once Sleeper has a roster and a slate — after the draft. Nothing to
+      claim in August, and that is the correct answer rather than an empty table.
+    </p>
+  </div></div>
+<% } else if (!top) { %>
+  <%# THE NOTHING WEEK, SAID OUT LOUD. The engine returns a ranked list even when
+      every entry is worth zero or less; a page that renders that list is
+      manufacturing a recommendation. And on this one question the stopping rule
+      IS decidable: a claim worth nothing is never worth a priority position. %>
+  <div class="card lo-nochange"><div class="body">
+    <p style="margin:0"><b>✅ Nothing on the wire improves your lineup this week.</b></p>
+    <p class="muted" style="margin:.45rem 0 0">
+      Every available player scores at or below what you would have to drop, so no claim would
+      put a single point on the field. <b>Hold your priority.</b> That is the one version of the
+      stopping question this tool can answer on its own — a claim worth nothing is never worth
+      your position in the order.
+    </p>
+  </div></div>
+<% } else { %>
+  <div class="card" style="margin-bottom:1.1rem">
+    <h2>🔼 What the wire would add
+      <span class="sub"><%= claims.length %> claim<%= claims.length === 1 ? '' : 's' %> that reach your lineup<% if (drop) { %> · you would drop <b><%= drop.name %></b><% } %></span></h2>
+    <div class="body">
+      <% claims.forEach((c, i) => { %>
+        <div class="lo-call">
+          <div class="lo-call-main">
+            <span class="lo-start">▲ Claim <b><%= c.name %></b>
+              <span class="muted">(<%= c.position %><% if (c.consensus_projection != null) { %>, <%= c.consensus_label %> <%= c.consensus_projection %><% } %>)</span></span>
+            <span class="lo-sit">▼ drop <b><%= c.drop ? c.drop.name : '—' %></b>
+              <span class="muted"><%= c.why %></span></span>
+          </div>
+          <div class="lo-call-price">
+            <%# POINTS FIRST. Dollars are modelled — they run through the weekly-high
+                band and an opponent estimate. Points are the number you can check
+                against your own lineup, which is what makes this auditable. %>
+            <span class="lo-dollars money-up">+<%= c.net_value.toFixed(1) %> pts</span>
+            <span class="lo-split muted"><%= money0(c.dollars) %> at <%= perPoint.toFixed(2) %>/pt</span>
+          </div>
+          <%# CONTESTED IS SHOWN AND EXPLICITLY NOT PRICED. The engine computes who
+              else is short at the position and then values the claim identically
+              whether three teams want him or nobody does. In a PRIORITY league
+              that is backwards — contested is when spending your spot is
+              justified, uncontested is when you can wait — so the fact is
+              surfaced with the caveat attached rather than folded into a number
+              that would then be wrong. %>
+          <div class="lo-note" style="grid-column:1/-1; margin-top:.35rem">
+            <%# POSTURE IS NOT KNOWN, SO IT IS NOT CLAIMED.
+                This line first read "including N contending or desperate", and
+                that was false the moment it rendered: the route computes no
+                postures, whoElseNeeds defaults a missing posture to eager (a
+                sensible CONSERVATIVE default inside the engine), and the page
+                turned that unknown into a statement about nine teams' competitive
+                state. Absent is not a value. What IS established is the count of
+                teams with an open startable slot at the position, so that is all
+                that is said. %>
+            <% const known = c.rivals.filter(r => r.posture); %>
+            <% if (c.contested) { %>
+              <b style="color:#d4242f">⚔ <%= c.rivals.length %> other team<%= c.rivals.length === 1 ? '' : 's' %></b>
+              <%= c.rivals.length === 1 ? 'has' : 'have' %> an open <%= c.position %> slot<% if (known.length) { %>, <%= known.length %> of them contending or desperate<% } %>.
+              <span class="muted">Whether they would actually spend their priority on him is <b>not modelled</b>. And it is <b>not in the dollar figure above</b> — the price is the same whether he is contested or not.</span>
+            <% } else { %>
+              <span class="muted">No other team has an open <%= c.position %> slot. He may still be there next week — which is the case for holding, and again, not priced above.</span>
+            <% } %>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>What you would be spending</h2>
+    <div class="body">
+      <p style="margin:0">
+        The best claim is worth <b><%= top.net_value.toFixed(1) %> points</b> (<%= money0(top.dollars) %>) for one week of your lineup.
+      </p>
+      <p class="muted" style="margin:.5rem 0 0; font-size:.86rem">
+        Against that you are spending a waiver position you get back slowly, and this tool has no
+        model of what the rest of the season puts on the wire. If you want the stopping rule
+        properly — claim when the value beats what you would expect to see before your priority
+        recovers — that needs the arrival distribution of wire talent, and it is not built.
+        It is written up in <code>LEARNING-ARCHITECTURE.md</code> §1 as buildable, and until it
+        exists this page is deliberately one number short of a decision.
+      </p>
+    </div>
+  </div>
+<% } %>
+<%- include('partials/footer') %>
