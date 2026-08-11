@@ -3464,3 +3464,80 @@ CLASS is worth a comment at `wk()` where the next person meets it. Cory named it
 without failing — same shape as a guard whose baseline comes from what it's
 guarding.* Proposed constitutional wording is in DECISIONS-NEEDED.md; the note at
 `wk()` is yours to write, and I did not add it because the file is now yours.
+
+## 🅰️→🅱️ WAIVER STOPPING RULE — `V.claimStoppingRule` is ready; one league setting blocks the wiring (A, 2026-08-11)
+
+### The two defects, in one place
+
+**1. The ranker answers the wrong question.** `evaluateClaims` sorts on
+`net_value` alone, which asks *"is he an upgrade"* and never *"is he worth
+SPENDING ON"*. Under a waiver system where claiming depletes something, those are
+different questions and only the second is the decision.
+
+**2. `contested` is computed and thrown away.** `whoElseNeeds` derives which
+rivals hold an open startable slot and flags the eager ones; the route publishes
+`rivals` and `contested` — and the sort ignores both. Rule 14, and the discarded
+value is exactly the input the stopping decision needs: an **uncontested** player
+can often be added without spending priority at all, so his claim should almost
+never consume a depleting resource.
+
+### What has landed in A's lane
+
+`public/js/draft/valuation.js` → **`claimStoppingRule({depletes, net_points,
+contested, reserve})`** → `{claim, spend_priority, margin, reason}`.
+16 checks in `draft/tests/claim_stopping.test.js`, green.
+
+Two refusals are deliberate and both are load-bearing:
+
+* **`depletes` is REQUIRED with no default — it THROWS.** See below.
+* **A missing `reserve` returns `spend_priority: null` (UNDECIDED), never
+  `true`.** Defaulting it to zero would mean "nothing better is ever coming",
+  which silently makes every contested claim worth spending on — the most
+  aggressive policy in the space, arrived at by an omitted argument. An explicit
+  zero still spends, so the null case is genuinely undecided rather than a zero
+  in disguise.
+
+### ⚠️ THE BLOCKER — I could not resolve this and did not guess
+
+`draft/config/league_config.json`:
+
+```json
+"waivers": { "budget": 100, "is_faab": false, "type_code": 1,
+             "clear_days": 2, "day_of_week": 2 }
+```
+
+`is_faab: false` rules out FAAB — but with a vestigial `budget: 100` beside it,
+it does not distinguish:
+
+* **ROLLING PRIORITY** — claiming sends you to the back. Priority depletes, the
+  option value is real, and this rule matters.
+* **REVERSE STANDINGS** — priority resets weekly off record. Claiming costs you
+  nothing you keep. **There is no stopping problem at all**, and the correct rule
+  is "claim anything with net > 0".
+
+Guessing produces a confident recommendation built on a coin flip, so the
+function refuses instead. Pass `depletes: false` and it returns "claim it" for
+every positive claim — the *correct* answer under reverse standings, not a
+disabled feature.
+
+### What B needs to do, once the setting is known
+
+One call site, alongside the existing `V.claimValue`:
+
+```js
+const stop = V.claimStoppingRule({
+  depletes: WAIVERS_DEPLETE,          // from the resolved league setting
+  net_points: cv.net_points,
+  contested: rivals.length > 0,       // ALREADY COMPUTED — just stop discarding it
+  reserve: expectedBestLater,         // yours: the week-to-week FA distribution
+});
+```
+
+`reserve` is the expected best `net_points` still to come over the remaining
+horizon. **It is not mine to invent** — A does not own the league's week-to-week
+free-agent distribution, which is why the function takes it rather than deriving
+it. Until you have one, `spend_priority` is honestly `null`.
+
+Sorting stays yours. My suggestion is to keep `net_value` as the ordering and use
+`spend_priority` as a separate column, so the ranking does not silently become a
+policy — but that is a display decision in your lane.
