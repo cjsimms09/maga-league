@@ -108,8 +108,8 @@
       "sample_titles": [],
       "series_listed": 12630,
       "series_prefixes_seen": {
-        "KXMVECROSSCATE": 5234,
-        "KXMVESPORTSMUL": 6766
+        "KXMVECROSSCATE": 5249,
+        "KXMVESPORTSMUL": 6751
       },
       "volume_median": 0,
       "volume_total": 0,
@@ -135,13 +135,55 @@
       },
       "auth_style_working": "query_apiKey",
       "docs": "https://odds-api.io/",
+      "feasibility_error": "HTTPError: HTTP Error 400: Bad Request {\"error\":\"Missing bookmakers\"}",
+      "football_leagues": [
+        {
+          "events": 43,
+          "name": "Canada - CFL",
+          "slug": "canada-cfl"
+        },
+        {
+          "events": 8,
+          "name": "International - AFLE",
+          "slug": "international-afle"
+        },
+        {
+          "events": 2,
+          "name": "International - EFA, Playoffs",
+          "slug": "international-efa-playoffs"
+        },
+        {
+          "events": 3206,
+          "name": "USA - College",
+          "slug": "usa-college"
+        },
+        {
+          "events": 134,
+          "name": "USA - NFL",
+          "slug": "usa-nfl"
+        },
+        {
+          "events": 48,
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        }
+      ],
       "host": "https://api.odds-api.io",
       "key_configured": true,
       "needs_key": false,
       "nfl_entries": [
         "{'name': 'American Football', 'slug': 'american-football'}"
       ],
+      "nfl_league": {
+        "eventsCount": 134,
+        "name": "USA - NFL",
+        "slug": "usa-nfl"
+      },
       "nfl_present": true,
+      "nfl_slate": {
+        "events_in_one_request": 134,
+        "remaining_after": "81"
+      },
       "path_probe": {
         "docs_paths": [],
         "docs_reachable": true,
@@ -164,6 +206,13 @@
       "published_free_tier": "100 requests/hour, 500/day, NFL included, 2 recreational books, permanent, no card",
       "rate_headers": {},
       "reachable": true,
+      "retry_cost": {
+        "drop_across_two_good_and_one_bad": 2,
+        "failed_requests_bill": true,
+        "note": "two successful calls bracket one guaranteed 400; a drop of 2 means only the successes billed, 3 means the failure billed too",
+        "remaining_after": "77",
+        "remaining_before": "79"
+      },
       "secondary": {
         "/v3/bookmakers": {
           "keys": "list[274]",
@@ -204,7 +253,7 @@
         "events+sport": {
           "rate_headers": {
             "x-ratelimit-limit": "100",
-            "x-ratelimit-remaining": "97",
+            "x-ratelimit-remaining": "89",
             "x-ratelimit-reset": "2026-08-11T01:21:08Z"
           },
           "rows": 51,
@@ -226,7 +275,7 @@
         "leagues+sport": {
           "rate_headers": {
             "x-ratelimit-limit": "100",
-            "x-ratelimit-remaining": "92",
+            "x-ratelimit-remaining": "84",
             "x-ratelimit-reset": "2026-08-11T01:21:08Z"
           },
           "rows": 6,
