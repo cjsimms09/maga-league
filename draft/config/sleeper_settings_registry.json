@@ -92,8 +92,9 @@
       "why": "draft-pick trading is ENABLED and nothing models it; it can move pick order before the draft"
     },
     "playoff_round_type": {
-      "disposition": "should_import",
-      "why": "0 = one week per playoff round. money_grade.py hard-codes that shape (`week = playoff_week_start + (r-1)`) without ever reading this. If the league moved to two-week rounds the grading arithmetic would be silently wrong for every playoff game."
+      "disposition": "imported",
+      "evidence": "read at draft/backtest/money_grade.py (assert_one_week_rounds)",
+      "why": "0 = one week per playoff round, and money_grade's bracket resim plays round r in week playoff_week_start+(r-1), which is only correct for 0. It is now ASSERTED at the point that converts rounds to weeks: a league configured for two-week rounds is refused rather than graded, because every harvested bracket is round_type 0 and a two-week path would be certified by nothing. An absent value is refused too \u2014 a default that matches today is how the assumption goes invisible again."
     },
     "playoff_seed_type": {
       "disposition": "should_import",
