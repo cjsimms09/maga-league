@@ -51,6 +51,89 @@ freeAgents.forEach(fa => {
     Math.abs(eng - claim.startable_value) < 1e-9, eng + ' vs ' + claim.startable_value);
 });
 
+// 1b) THE ARITHMETIC net_value IS SUPPOSED TO BE DOING.
+//
+// It was `startableValue(fa) - startableValue(drop)`, two BENCH marginals each
+// measured against the incumbent AT THAT PLAYER'S POSITION — so across positions
+// the subtraction did not cancel and the remainder was a comparison between two
+// of my own players. Measured on this roster: a kicker projected 110, claimed
+// while already starting one projected 130, scored +23.36 net and $59, of which
+// 0.35 x (my WR2 210 - my kicker 130) = 28.00 was the gap between two players
+// neither added nor dropped.
+//
+// The quantity is now the change in what my optimal STARTING lineup projects,
+// which is what the docstring always claimed and the unit dollarsPerPoint prices.
+{
+  const worseK = mk('faKworse', 'K', 110, 3);      // I already start a 130 kicker
+  const benchRB = mk('faRBbench', 'RB', 150, 30);  // behind a 220 and a 240
+  // INPUT ORDER IS DELIBERATE. Array.sort is stable, so with the stronger depth
+  // claim listed first the tie-break would be unobservable and the assertion
+  // below would pass with the tie-break deleted (it did — caught by rule 10).
+  // benchRB (startable_value -24.08) goes FIRST so only a real tie-break can
+  // move worseK (-6.94) ahead of it.
+  const r = W.evaluateClaims([benchRB, worseK, mk('faWRgood2', 'WR', 205, 78)],
+    myRoster, league, { lineupMean: 130, lineupSd: 24, oppMean: 128 });
+  const of = id => r.claims.find(c => c.player_id === id);
+
+  check('a kicker WORSE than the one I start is worth exactly nothing',
+    of('faKworse').net_value === 0 && of('faKworse').dollars === 0,
+    'net ' + of('faKworse').net_value + ', $' + of('faKworse').dollars);
+  check('  and a bench RB who cannot crack the lineup is worth nothing either',
+    of('faRBbench').net_value === 0, String(of('faRBbench').net_value));
+
+  // The REAL upgrade: 205 displaces the 175 flex, so the starting lineup gains
+  // exactly 30. Stated as arithmetic rather than "it is positive" — rule 12.
+  check('a real upgrade is worth the exact lineup delta (205 over the 175 flex = 30)',
+    of('faWRgood2').net_value === 30, String(of('faWRgood2').net_value));
+  check('  and its dollars are that delta at the shared per-point rate',
+    Math.abs(of('faWRgood2').dollars - 30 * r.dollars_per_point) < 0.02,
+    of('faWRgood2').dollars + ' vs ' + (30 * r.dollars_per_point));
+
+  // THE SPECIFIC REGRESSION: nothing about players neither added nor dropped may
+  // enter the number. Widening the gap between my WR2 and my kicker moved the old
+  // answer; it must not move this one.
+  const widened = myRoster.map(p => p.player_id === 'myWR2' ? mk('myWR2', 'WR', 300, 80) : p);
+  const r2 = W.evaluateClaims([worseK], widened, league, { lineupMean: 130, lineupSd: 24, oppMean: 128 });
+  check('a claim is unaffected by two of my OWN players getting further apart',
+    r2.claims[0].net_value === of('faKworse').net_value,
+    'widened ' + r2.claims[0].net_value + ' vs ' + of('faKworse').net_value);
+
+  // Depth is demoted, not deleted: both score 0 on the field, and A's untouched
+  // marginal breaks the tie.
+  const zeros = r.claims.filter(c => c.net_value === 0);
+  check('claims that reach the field are ranked above pure depth',
+    r.claims[0].net_value > 0 && zeros.length === 2, JSON.stringify(r.claims.map(c => c.net_value)));
+  check('  and pure-depth claims are ordered by startable_value, not by input order',
+    zeros[0].player_id === 'faKworse' && zeros[0].startable_value > zeros[1].startable_value,
+    zeros.map(c => c.player_id + ':' + c.startable_value).join(' '));
+}
+
+// 1c) A DOWNGRADE MUST BE ABLE TO SAY IT IS ONE.
+//
+// My first fix wrapped this in Math.max(0, …) and A was right to drop it: that
+// turns "this claim would make your lineup worse" into "this claim is worth
+// nothing", and on a Tuesday those are different sentences. It is also the same
+// failure found all over this project — a clamp that makes a bad answer
+// indistinguishable from a neutral one.
+//
+// Nine players for nine slots, so `dropCandidate` has no bench body and must
+// give up a STARTER. Claiming a 40-point kicker costs the 175-point flex and
+// does not displace the 130 kicker, because K is not flex-eligible — the slot
+// simply empties. The arithmetic is stated rather than the sign asserted.
+{
+  const tight = [mk('myQB', 'QB', 300, 60), mk('myRB1', 'RB', 240, 95), mk('myRB2', 'RB', 220, 85),
+    mk('myWR1', 'WR', 230, 90), mk('myWR2', 'WR', 210, 80), mk('myTE', 'TE', 180, 55),
+    mk('myFlex', 'RB', 175, 45), mk('myK', 'K', 130, 10), mk('myDEF', 'DEF', 125, 8)];
+  const r = W.evaluateClaims([mk('faJunk', 'K', 40, 1)], tight, league,
+    { lineupMean: 130, lineupSd: 24, oppMean: 128 });
+  check('with no bench body the drop is a STARTER', r.drop && r.drop.player_id === 'myFlex',
+    r.drop && r.drop.player_id);
+  check('a real downgrade prices NEGATIVE, not zero', r.claims[0].net_value === -175,
+    String(r.claims[0].net_value) + ' (expected -175: the flex empties, the kicker does not displace a better one)');
+  check('  and its dollars are negative too, so the page cannot read it as neutral',
+    r.claims[0].dollars < 0, String(r.claims[0].dollars));
+}
+
 // 2) Ranking: the best startable upgrade is the top claim.
 check('the best startable FA is the #1 claim',
   res.claims[0].player_id === 'faWRgood', res.claims[0].player_id);

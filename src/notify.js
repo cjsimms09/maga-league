@@ -206,10 +206,39 @@ async function weeklyRecap(owners, recap) {
   });
 }
 
-// THE SUNDAY ALERT — before kickoff, the specific start/sit calls and what each
-// is worth. Commissioner-only content (a recommendation tool); the caller gates.
-async function sundayAlert(owner, alert) {
-  if (!owner || !owner.email || !alert) return { skipped: true };
+/* THE SUNDAY ALERT — before kickoff, the specific start/sit calls and what each
+ * is worth. Commissioner-only content.
+ *
+ * IT RESOLVES THE COMMISSIONER ITSELF. This is A's construction, restored on top
+ * of the door after the integration took B's policy wholesale and dropped it —
+ * the one part of A's design that was better, and the part a merge is most
+ * likely to lose, because the losing implementation's best idea goes with it.
+ *
+ * Two reasons it is worth carrying, neither of them belt-and-braces:
+ *
+ *   1. The old signature took an `owner` and carried the comment "the caller
+ *      gates". That put the policy in every call site, so it could only ever be
+ *      as correct as the least careful caller. Given the owner LIST it is
+ *      structurally unable to address anyone else — the wrong call cannot be
+ *      written, not merely refused.
+ *   2. It removes a THIRD derivation of "who is the commissioner".
+ *      /api/sunday-alert had its own `owners.find(o => o.is_commissioner &&
+ *      o.active)` alongside notify's ownerIndex(); two copies of one rule is how
+ *      the two drift, and rule 11's third requirement is exactly this.
+ *
+ * A bare owner object is still accepted, because the legacy shape must not
+ * silently smuggle a member through — it is wrapped and put through the same
+ * resolution rather than trusted.
+ */
+async function sundayAlert(owners, alert) {
+  const list = Array.isArray(owners) ? owners : (owners ? [owners] : []);
+  const owner = list.find(o => o && o.is_commissioner && o.active);
+  // THE POLICY REFUSAL, NAMED. Distinguishable from a config gap: with no API
+  // key every send skips, so `skipped` alone would read the same for "we
+  // declined to send this" and "email is not set up".
+  if (!owner) return { skipped: true, reason: 'not-commissioner' };
+  if (!owner.email) return { skipped: true, reason: 'commissioner-has-no-email' };
+  if (!alert) return { skipped: true, reason: 'no-alert' };
   const week = alert.week ? `Week ${alert.week}` : 'This week';
   // The badge must cover every posture the engine can return. It was a two-way
   // ternary over three modes, so `pending` came out branded 🛡️ PROTECT above its

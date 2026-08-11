@@ -59,9 +59,20 @@ function render(owner, opts = {}) {
 }
 
 /** Owners with NO handle on file — drives the nag and the commissioner list. */
-function missing(owners) {
-  return (owners || []).filter(o => !has(o));
-}
+/* `missing(owners)` STOOD HERE AND WAS DELETED, 2026-08-11, under rule 14.
+ *
+ * It was built for "the commissioner nag list". That nag list shipped — it is
+ * `contactStatus` on /admin — and it derives its own answer, because it reports
+ * a different quantity: every owner missing ANY contact field (Venmo, email or
+ * phone), named per field, rather than owners lacking a Venmo handle. So this
+ * function's only remaining callers were its own two tests.
+ *
+ * That is rule 14's stated case verbatim: "a unit test of the producer IS the
+ * consumer the live path lacks... if the only answer is a test file, the value
+ * is not wired." It had a passing test, a correct answer and a clear name, and
+ * it changed nothing. `needsNag` below it is live — the home-page banner reads
+ * it — and stays.
+ */
 
 /** Does THIS owner need the add-your-Venmo nag? (Logged-in owner, no handle.) */
 function needsNag(owner) {
@@ -91,5 +102,5 @@ function applyProfileUpdate(owner, body) {
   return owner;
 }
 
-module.exports = { FALLBACK, FIELDS, handle, has, link, render, missing, needsNag,
+module.exports = { FALLBACK, FIELDS, handle, has, link, render, needsNag,
                    applyProfileUpdate };

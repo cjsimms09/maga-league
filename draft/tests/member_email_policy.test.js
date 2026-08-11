@@ -161,6 +161,83 @@ global.fetch = async (url, opts) => {
   ck('mayEmail says yes to the commissioner with no kind at all',
     (await may(COMMISH.email)) === true);
 
+  // ── ABSORBED FROM A's DELETED notify_policy.test.js ──────────────────────
+  //
+  // A removed that file on the grounds that this one subsumes it. I checked
+  // clause by clause rather than accepting it, because a guard deleted on a
+  // wrong assumption is a protection that vanishes with nothing failing. Seven
+  // of its nine assertions were already covered here (four of them more
+  // broadly — mine also checks the CALL SITES). Two were not, and they are its
+  // two best. They are its wording and its reasoning, not a paraphrase.
+
+  /* THE EXPORT LIST IS THE POLICY SURFACE. A new sender cannot be reached
+   * without appearing here, so pinning it exactly means a new member email is a
+   * deliberate, visible act rather than an addition nobody reviewed. */
+  {
+    const ALLOWED = ['configured', 'mayEmail', 'sendMail', 'MEMBER_KINDS',
+                     'draftTurn', 'passwordReset', 'sundayAlert', 'weeklyRecap', 'SITE'];
+    const actual = Object.keys(notify).sort();
+    ck('notify.js exports exactly the permitted surface',
+      JSON.stringify(actual) === JSON.stringify(ALLOWED.slice().sort()),
+      { expected: ALLOWED.slice().sort(), got: actual,
+        note: 'a new export must be one of the three permitted member kinds, or '
+            + 'commissioner-only and structurally unable to address a member' });
+  }
+
+  /* THE BROADCAST HELPER. `emailsFor(owners)` turned the owner list into a
+   * league-wide address. It is deleted rather than left unused — an unused
+   * broadcast helper makes the next broadcast a one-line change.
+   *
+   * NARROWED FROM A's VERSION, which asserted that NOTHING addresses the whole
+   * league. That is no longer true by design: weeklyRecap does, because it is
+   * one of the three. So the property is that the only league-wide address is
+   * built inside the permitted sender, not sitting in a general-purpose helper
+   * anything can call. */
+  {
+    const src = fs.readFileSync(path.join(ROOT, 'src', 'notify.js'), 'utf8')
+      .replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\n]*/g, '');
+    ck('no general-purpose broadcast helper exists',
+      !/emailsFor\s*[=(]/.test(src),
+      'a broadcast helper is present; the capability is one call away');
+    const leagueWide = (src.match(/\.filter\([^)]*o\.active[^)]*\)\s*\.map\(o => o\.email\)/g) || []);
+    ck('  and the one league-wide address is built inside weeklyRecap, nowhere else',
+      leagueWide.length <= 1 && /async function weeklyRecap[\s\S]{0,400}o\.email\)/.test(src),
+      leagueWide);
+  }
+
+  /* SUNDAY ALERT IS COMMISSIONER-ONLY BY CONSTRUCTION, not by the caller.
+   * A's signature, restored after the integration took mine wholesale and
+   * dropped it. Fed a member it refuses BY POLICY — and the reason says so,
+   * because with no API key every send skips and `skipped` alone would read the
+   * same for "we declined" and "email is not set up". */
+  {
+    const alert = { week: 5, headline: 'x', hasCalls: false, calls: [], edge: 0 };
+    const r1 = await notify.sundayAlert([MEMBERS[0]], alert);
+    ck('a member-only owner list is refused BY POLICY, not by config',
+      r1 && r1.reason === 'not-commissioner', r1);
+    const r2 = await notify.sundayAlert([MEMBERS[0], COMMISH], alert);
+    ck('  a mixed list resolves to the commissioner, never the member',
+      r2 && r2.reason !== 'not-commissioner', r2);
+    const r3 = await notify.sundayAlert(MEMBERS[0], alert);
+    ck('  the OLD single-owner shape cannot smuggle a member through',
+      r3 && r3.reason === 'not-commissioner', r3);
+    const r4 = await notify.sundayAlert([{ ...COMMISH, email: undefined }], alert);
+    ck('  a commissioner with no address is a NAMED skip, not a policy refusal',
+      r4 && r4.reason === 'commissioner-has-no-email', r4);
+  }
+
+  /* NO CALL SITE MAY RE-INVENT THE GATE. The construction above is the durable
+   * guard; this catches a caller handing sundayAlert a person instead of the
+   * roster, which is the shape that put the policy back in the call site. */
+  for (const f of ['member.js', 'admin.js']) {
+    const fp = path.join(ROOT, 'src', 'routes', f);
+    if (!fs.existsSync(fp)) continue;
+    const src = fs.readFileSync(fp, 'utf8')
+      .replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\n]*/g, '');
+    const bad = (src.match(/notify\.sundayAlert\(([^,]+),/g) || []).filter(m => !/owners/.test(m));
+    ck(`routes/${f} hands sundayAlert the owner list, not a person`, bad.length === 0, bad);
+  }
+
   // ── the policy is stated in ONE place ────────────────────────────────────
   const kinds = notify.MEMBER_KINDS;
   ck('the permitted set is exported so it cannot be re-derived elsewhere',
