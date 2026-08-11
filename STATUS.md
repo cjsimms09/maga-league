@@ -1560,3 +1560,97 @@ attribution writer (no `attribution:<season>` writer exists anywhere — panel h
 
 ### ▶ NEXT (when A lands things)
 Rules page from the derived source · win-prob + projected total when the projection feed lands · adjuster copy + seat panel after A's fixes · war-room hierarchy pass against Cory's live screenshots post-deploy.
+
+---
+
+# ▶ SESSION C — EXTERNAL INGEST PROGRAM (2026-08-11)
+
+Third lane, running alongside A and B. Owns: MFL league discovery, the ADP-snapshot
+fetch, the crosswalk at scale, the replay harness, attrition reporting, nflverse when
+it starts, and the CI workflows that run them. **C does not deploy** — A integrates.
+
+## UNIT 1 — THE ATTRITION SEAM. Done, CI-verified.
+
+**LEADING WITH WHAT WAS WRONG.** `ingest_filters.screen()` reported a confident,
+specific falsehood whenever a field failed to parse — B's audit found it on four of
+nine fields, and I found two more. Each reason asserted a check that never ran:
+
+| field absent / unparseable | it used to say | which claims | now |
+|---|---|---|---|
+| `roster_slots` | `F1.qb_slots` | "doesn't start exactly one QB" | `F4.no_roster_slots` |
+| `teams` | `F1.teams` | "wrong league size" | `F4.no_team_count` |
+| `draft_type` | `F1.draft_type` | "not a snake draft" | `F4.no_draft_type` |
+| `draft` | `F2.draft_incomplete` | "their draft wasn't finished" | `F4.no_draft` |
+| picks with no crosswalk attempted | `F2.crosswalk_below_90pct` | "under 90% matched our board" | `F4.crosswalk_not_run` |
+| a starter limit like `"1-2"` | **ValueError — it crashed** | — | `F4.unreadable_starter_limits:QB` |
+
+The last two are mine, not B's: an unattempted crosswalk was reported as a
+measurement of our own board that nobody took, and P2's range-string limits raised
+out of the screen rather than being reported.
+
+**THE SHARPEST PART WAS THE SEAM, NOT THE SCREEN, and rule 14 names it exactly.**
+`mfl_adapter` already computed the right answer everywhere — `draft_type()` returns
+`draft_type_unrecognised:SFIRSTFOO` with a comment saying it must never be folded
+into "not a snake draft" — and those reasons were computed, written down, and read by
+nothing: the module was imported by nothing but its own test. `to_league_record()` is
+the caller that did not exist. Three MFL exports → one record, every unparseable
+field arriving as None plus its precise reason, reported verbatim.
+
+**NOT A FILTER CHANGE, so no new pre-registration — and that is verified, not
+asserted.** The pre-fix and post-fix `screen()` were run side by side over a 36-case
+corpus: **no league's accept/reject verdict moves.** Twelve rejection sentences
+change; two cases that used to raise now reject with a reason.
+
+**THE CONSUMER THAT MAKES IT MATTER.** `screen_all()` now splits rejections into
+FILTERED (evidence about the public pool) and UNREADABLE (evidence about this
+pipeline), on the verdict line rather than in a field beside it — because the failure
+guarded against is a parse break being narrated as format rarity. An undeclared
+reason code gets its own loud bucket rather than defaulting into "filtered", which
+would recreate the same defect inside the summariser.
+
+**Two more of the same class closed while in there:**
+- **F2's autopick clause was passing every league silently.** No autopick flag exists
+  anywhere in `draftResults`; `screen()` ran `autopick/picks > 0.5` over picks with no
+  flag. INGEST-PLAN pre-registered that it "must be reported as unenforced rather than
+  quietly passing every league" and `draft_picks()` had recorded it since it was
+  written — reaching no report. Adapters now declare unenforceable clauses and the
+  verdict line names them.
+- **`_earliest_wins` held in one arrival order only** (B, open across two audits).
+  Stamped-vs-unstamped kept whichever arrived FIRST, so unstamped-first retained the
+  row whose observation date cannot be checked against the draft — the contamination
+  the rule exists to exclude, kept by the rule. Both orders asserted now.
+
+**Completeness is inferred and its blind spot is asserted.** No MFL export carries a
+round count and `rosterSize` counts the bench (wrong for every keeper league), so
+"all rounds present" is checked as round fullness. A draft abandoned mid-round is
+caught; **one abandoned exactly on a round boundary is not**, and that is a test, not
+a comment. The shortfall travels with the reason because `149/150` (a league that
+quit) and `2/150` (a fetch that failed) are not the same fact.
+
+**RULE 10 — sixteen guards broken deliberately, at the boundary, each observed RED by
+name before being trusted.** One break reddened NOTHING and that was the most useful
+one: swapping the draft's date from its FIRST pick to its LAST failed no test, because
+every fixture finished inside a day. MFL drafts are `draft_kind: email` on a
+`draftLimitHours` clock and routinely span days — dating one by its last pick widens
+F5's contamination window by the whole length of the draft, so an ADP snapshot taken
+while the room was picking would pass "strictly before". The guard was absent, not
+passing. There is a multi-day fixture now.
+
+**Green:** local 739 passed / 5 skipped; **CI-VERIFIED** on `ci.yml` run 486 against
+`claude/external-ingest-program-1xfinj`.
+
+## ▶ PARKED FOR A (precise, in PARKED.md)
+`graduation_gate.loaded_weights()` misparses `5e-1` as 5.0 and `1e-3` as 1.0, and an
+inline `/* ceiling: 9.9 */` comment overrides the real weight. Third consumer beyond
+the two B named: `external_replay.policy_fingerprint()` reuses it deliberately, so a
+weight written in scientific notation — changing nothing that ships — moves the
+fingerprint (measured: `a4accdb43066385a` → `e3cf991a03ac03de`) and invalidates the
+whole external sample under `assert_policy_current`. Latent today; a trap for the next
+SMALL weight, which is exactly what the graduation gate produces. Parked with the
+exact seam (`parse_measured_weights(src)`), the regex, and six ready assertions.
+
+## ▶ NEXT
+The crosswalk at scale against real MFL players + board (the seam is built; the
+coverage number is not yet measured against a real export), then the replay harness
+connected to real leagues. Discovery and the ADP-snapshot fetch need egress and run
+in CI.
