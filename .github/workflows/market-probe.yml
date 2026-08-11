@@ -31,6 +31,26 @@ jobs:
       - name: Test the pure half before trusting the output
         run: python -m pytest draft/tests/test_market_convert.py -q
 
+      # WHERE IS THE KEY LOST? "key_configured: false" is evidence about what the
+      # probe could READ, not proof the secret is absent (rule 13). This
+      # distinguishes the three causes without printing the value: not set at all,
+      # set but empty, or set and reaching the step. GitHub masks secret values in
+      # logs; only a boolean and a coarse length bucket are emitted regardless.
+      - name: Diagnose the secret (no value printed)
+        env:
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+        run: |
+          if [ -z "${ODDS_API_KEY:-}" ]; then
+            echo "ODDS_API_KEY: NOT VISIBLE to this job (unset or empty)"
+            echo "  -> a REPOSITORY secret named exactly ODDS_API_KEY should appear here."
+            echo "  -> if it was added as an ENVIRONMENT secret, this job declares no"
+            echo "     environment: and cannot see it."
+            echo "  -> if it is an ORGANISATION secret, this repo may not be in its scope."
+          else
+            n=${#ODDS_API_KEY}
+            echo "ODDS_API_KEY: visible, length bucket $(( n < 8 ? 0 : (n < 24 ? 1 : 2) )) (0=<8, 1=8-23, 2=24+)"
+          fi
+
       - name: Probe the market sources
         env:
           # Absent is fine and is REPORTED as a setup gap, not as evidence the
