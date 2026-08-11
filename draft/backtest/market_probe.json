@@ -108,14 +108,48 @@
       "sample_titles": [],
       "series_listed": 12630,
       "series_prefixes_seen": {
-        "KXMVECROSSCATE": 5249,
-        "KXMVESPORTSMUL": 6751
+        "KXMVECROSSCATE": 5375,
+        "KXMVESPORTSMUL": 6625
       },
       "volume_median": 0,
       "volume_total": 0,
       "zero_volume_share": null
     },
     "odds_api_io": {
+      "_books": [
+        {
+          "active": true,
+          "name": "10BET"
+        },
+        {
+          "active": true,
+          "name": "12bet"
+        },
+        {
+          "active": true,
+          "name": "18bet"
+        },
+        {
+          "active": true,
+          "name": "1Bet"
+        },
+        {
+          "active": true,
+          "name": "1xbet"
+        },
+        {
+          "active": true,
+          "name": "1xBit"
+        }
+      ],
+      "active_books_sample": [
+        "10BET",
+        "12bet",
+        "18bet",
+        "1Bet",
+        "1xbet",
+        "1xBit"
+      ],
       "auth_probe": {
         "header_authorization": {
           "status": 401
@@ -135,7 +169,7 @@
       },
       "auth_style_working": "query_apiKey",
       "docs": "https://odds-api.io/",
-      "feasibility_error": "HTTPError: HTTP Error 400: Bad Request {\"error\":\"Missing bookmakers\"}",
+      "feasibility_error": "HTTPError: HTTP Error 403: Forbidden {\"error\":\"10BET is a sharp or exchange book, and those are only available on our paid plans. Your free plan includes all the recreational bookmakers. To use sharps, exchanges and prediction markets, u",
       "football_leagues": [
         {
           "events": 43,
@@ -182,7 +216,7 @@
       "nfl_present": true,
       "nfl_slate": {
         "events_in_one_request": 134,
-        "remaining_after": "81"
+        "remaining_after": "67"
       },
       "path_probe": {
         "docs_paths": [],
@@ -208,10 +242,10 @@
       "reachable": true,
       "retry_cost": {
         "drop_across_two_good_and_one_bad": 2,
-        "failed_requests_bill": true,
+        "failed_requests_bill": false,
         "note": "two successful calls bracket one guaranteed 400; a drop of 2 means only the successes billed, 3 means the failure billed too",
-        "remaining_after": "77",
-        "remaining_before": "79"
+        "remaining_after": "63",
+        "remaining_before": "65"
       },
       "secondary": {
         "/v3/bookmakers": {
@@ -253,7 +287,7 @@
         "events+sport": {
           "rate_headers": {
             "x-ratelimit-limit": "100",
-            "x-ratelimit-remaining": "89",
+            "x-ratelimit-remaining": "75",
             "x-ratelimit-reset": "2026-08-11T01:21:08Z"
           },
           "rows": 51,
@@ -275,7 +309,7 @@
         "leagues+sport": {
           "rate_headers": {
             "x-ratelimit-limit": "100",
-            "x-ratelimit-remaining": "84",
+            "x-ratelimit-remaining": "70",
             "x-ratelimit-reset": "2026-08-11T01:21:08Z"
           },
           "rows": 6,
