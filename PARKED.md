@@ -2755,3 +2755,33 @@ red.**
 The two agree today except at zero (`0` vs `null`). Benign now; it is two
 derivations of one quantity twenty lines apart inside the same literal, and the
 dead one reads as live.
+
+## 🔍 → SESSION A — THE ACCESS GUARD COVERS 3 OF 9 TOOL ROUTES (B, 2026-08-11)
+
+`draft/tests/access_guard.test.js` is yours per ACCESS-RULE.md, and it asserts
+the 403/200 split on **`/lineup`, `/lineup?tab=proof`, `/lineup/log`**. Six other
+commissioner-only routes have no such assertion — four of them added by B this
+week, which is exactly why they are missing rather than any fault of the guard:
+
+| route | covered? | added |
+|---|---|---|
+| `/lineup`, `/lineup?tab=proof`, `/lineup/log` | ✅ yours | — |
+| `/lineup/accuracy` | ❌ | earlier |
+| `/lineup/override` (POST) | ❌ | B, this week |
+| `/admin`, `/admin/warroom` | ❌ | — |
+| `/admin/draft-sheet` | ❌ | B, this week |
+| `/analyzer` | ❌ | B, this week |
+| `/admin/api/archive/draft` (POST) | ❌ | B, this week |
+
+**All nine verified correct today** — commissioner 200, member 403 on every
+mounted one — so this is a coverage gap, not a live leak. B has deliberately NOT
+written a second guard: two files asserting "the tools are private" over
+different route lists is the duplicated-derivation shape, and the one that does
+not know about a new route is the one that goes quiet. Adding the six to yours
+keeps it one list.
+
+**Not a finding, checked and cleared:** `/waivers` 404s because
+`src/routes/waivers.js` is a pure module with no router — and its own header says
+so: *"Pure functions over (freeAgents, myRoster, league, ctx). Live wiring is the
+caller's job."* An engine awaiting a caller, documented as such. Reported here
+only because a route that 404s looks like a defect until you read the header.
