@@ -590,8 +590,14 @@ def d7_feasibility(verdicts, pool_picks, league_dates) -> dict:
     from within_pool_adp import feasibility
     ok_ids = {str(r.get("league_id")) for r, _, why in verdicts if F.passed_f1(why)}
     fmt_picks = [p for p in pool_picks if p["league_id"] in ok_ids]
-    leagues = [{"league_id": lid, "first_pick_ts": ts}
-               for lid, ts in sorted(league_dates.items()) if lid in ok_ids]
+    meta = {str(r.get("league_id")): r for r, _, _ in verdicts}
+    def _row(lid, ts):
+        r = meta.get(lid) or {}
+        return {"league_id": lid, "first_pick_ts": ts,
+                # M4's covariates, carried from the record rather than re-derived.
+                "teams": r.get("teams"), "keepers": r.get("keepers"),
+                "draft_type": r.get("draft_type")}
+    leagues = [_row(lid, ts) for lid, ts in sorted(league_dates.items()) if lid in ok_ids]
     out = {"population": "F1-passing leagues only (D7 as registered)",
            "f1_passing_leagues": len(ok_ids),
            "picks_in_format_matched_pool": len(fmt_picks),
@@ -599,7 +605,7 @@ def d7_feasibility(verdicts, pool_picks, league_dates) -> dict:
            "format_matched": feasibility(leagues, fmt_picks)}
     # The unrestricted number beside it, LABELLED as inadmissible under D7, so the
     # cost of the format restriction is visible and nobody has to guess at it.
-    allx = [{"league_id": lid, "first_pick_ts": ts} for lid, ts in sorted(league_dates.items())]
+    allx = [_row(lid, ts) for lid, ts in sorted(league_dates.items())]
     out["whole_pool_INADMISSIBLE_under_D7"] = feasibility(allx, pool_picks)
     return out
 

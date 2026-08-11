@@ -150,7 +150,56 @@ def feasibility(leagues, pool_picks, min_support=MIN_SUPPORT, need_players=100) 
         "per_league": per_league[:200],
         "verdict": _feasibility_verdict(len(dated), usable, early_usable, late_usable,
                                         need_players),
+        # M4, reported beside the count rather than left for someone to ask about.
+        "calendar_covariates": calendar_covariates(leagues),
     }
+
+
+def calendar_covariates(leagues, keys=("teams", "keepers", "draft_type")) -> dict:
+    """M4 — do EARLY drafters differ from LATE ones on the covariates we hold?
+
+    D7's registration named this and it is not a nicety. If the leagues that draft
+    first are systematically different, then a board built from earlier picks is
+    not "the market before T" — it is "the early drafters before T", and the
+    difference is invisible in an ADP number.
+
+    Reported as two distributions rather than a test statistic: with a sample this
+    size a p-value would be a decoration, and the split is what someone judging the
+    result actually needs to see.
+    """
+    dated = [lg for lg in (leagues or []) if lg.get("first_pick_ts") is not None]
+    dated.sort(key=lambda lg: float(lg["first_pick_ts"]))
+    half = len(dated) // 2
+    out = {"n_early": half, "n_late": len(dated) - half, "by_key": {}}
+    for k in keys:
+        early = _tally(dated[:half], k)
+        late = _tally(dated[half:], k)
+        out["by_key"][k] = {"early": early, "late": late,
+                            "differs": sorted(early) != sorted(late)}
+    out["verdict"] = _covariate_verdict(out)
+    return out
+
+
+def _tally(rows, key) -> dict:
+    from collections import Counter
+    # ABSENT IS ITS OWN BUCKET, not folded into the modal value: a covariate we
+    # could not read is not evidence that the early and late halves agree.
+    c = Counter("(absent)" if r.get(key) is None else str(r.get(key)) for r in rows)
+    return dict(c.most_common())
+
+
+def _covariate_verdict(rep: dict) -> str:
+    moved = [k for k, v in rep["by_key"].items() if v["differs"]]
+    if not rep["n_early"] and not rep["n_late"]:
+        return "no dated leagues to split"
+    if not moved:
+        return ("no covariate we hold distinguishes the earlier half of the draft "
+                "calendar from the later half (%d vs %d leagues)"
+                % (rep["n_early"], rep["n_late"]))
+    return ("EARLY AND LATE DRAFTERS DIFFER on %s — a board built from earlier picks is "
+            "then 'the early drafters before T' rather than 'the market before T', and "
+            "that difference does not appear anywhere in an ADP number. It is a covariate "
+            "on every result built from D7, not a reason to stop" % ", ".join(sorted(moved)))
 
 
 def _feasibility_verdict(dated, usable, early, late, need) -> str:

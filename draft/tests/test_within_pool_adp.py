@@ -169,3 +169,41 @@ def test_UNDATED_leagues_are_counted_rather_than_dropped_from_the_denominator():
 def test_no_dated_league_at_all_is_a_statement_about_OUR_TIMESTAMPS():
     f = W.feasibility([{"league_id": "X", "first_pick_ts": None}], [])
     assert "about the timestamps we hold, not about the route" in f["verdict"]
+
+
+# ── M4: are the early drafters a different population? ─────────────────────
+def test_a_COVARIATE_that_MOVES_across_the_calendar_is_named_not_buried():
+    """D7 registered this and it is not a nicety: if the leagues that draft first
+    are systematically different, a board built from earlier picks is 'the early
+    drafters before T', not 'the market before T' — and that difference is
+    invisible in an ADP number.
+
+    Here every early league is 12-team and every late one is 10-team."""
+    leagues = [{"league_id": "E%d" % i, "first_pick_ts": T0 + i * DAY, "teams": 12}
+               for i in range(4)] + \
+              [{"league_id": "L%d" % i, "first_pick_ts": T0 + (10 + i) * DAY, "teams": 10}
+               for i in range(4)]
+    c = W.calendar_covariates(leagues, keys=("teams",))
+    assert c["by_key"]["teams"]["early"] == {"12": 4}
+    assert c["by_key"]["teams"]["late"] == {"10": 4}
+    assert c["by_key"]["teams"]["differs"] is True
+    assert "EARLY AND LATE DRAFTERS DIFFER" in c["verdict"]
+
+
+def test_a_covariate_that_does_NOT_move_says_so_without_a_warning():
+    """A check that always warns is one nobody reads."""
+    leagues = [{"league_id": str(i), "first_pick_ts": T0 + i * DAY, "teams": 10}
+               for i in range(8)]
+    c = W.calendar_covariates(leagues, keys=("teams",))
+    assert c["by_key"]["teams"]["differs"] is False
+    assert "no covariate we hold distinguishes" in c["verdict"]
+    assert "DIFFER" not in c["verdict"]
+
+
+def test_an_ABSENT_covariate_is_its_OWN_bucket_not_folded_into_the_modal_value():
+    """A covariate we could not read is not evidence that the halves agree."""
+    leagues = [{"league_id": "E", "first_pick_ts": T0, "teams": 10},
+               {"league_id": "L", "first_pick_ts": T0 + DAY}]
+    c = W.calendar_covariates(leagues, keys=("teams",))
+    assert c["by_key"]["teams"]["late"] == {"(absent)": 1}
+    assert c["by_key"]["teams"]["differs"] is True
