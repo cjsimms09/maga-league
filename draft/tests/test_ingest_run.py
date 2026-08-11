@@ -341,3 +341,45 @@ def test_a_run_where_NOTHING_scored_reports_None_not_zero():
                              "untranslatable": {}}])
     assert s["mean_f3_coverage_over_SCORED_leagues"] is None
     assert s["reasons"] == {"F4.no_weekly_data:2025": 1}
+
+
+# ── D5h: a run against an unplayed season must not read like a measurement ──
+def test_an_UNPLAYED_season_says_IN_THE_VERDICT_that_it_measured_nothing():
+    """`screen()` rejects a league with no weekly outcomes, so a 2026 run reports
+    zero matched — the identical output to a broken fetch and to wrong filters.
+    MUTATION: report the count without the state. Three states, one number, and
+    the reader has no way to tell which one they are looking at."""
+    ready = {"season": 2026, "state": "UNPLAYED", "why": "2026 served no weekly data "
+             "while the control season 2025 served 18 REG weeks"}
+    v = R.readiness_verdict(ready, {"matched": 0})
+    assert v.startswith("THIS RUN MEASURED NOTHING ABOUT THE LEAGUES")
+    assert "not a finding about the pool" in v
+    assert "control season 2025" in v
+
+
+def test_an_UNFETCHABLE_run_and_an_UNPLAYED_run_do_NOT_read_the_same():
+    """The distinction A asked for: 2025 returning no_weekly_outcomes after the
+    ingest lands is a DEFECT; 2026 doing so is the CALENDAR."""
+    unplayed = R.readiness_verdict({"season": 2026, "state": "UNPLAYED",
+                                    "why": "the fetch works and the season has not been played"},
+                                   {"matched": 0})
+    broken = R.readiness_verdict({"season": 2025, "state": "UNFETCHABLE",
+                                  "why": "neither 2025 NOR the control season 2024 served weekly data"},
+                                 {"matched": 0})
+    assert unplayed != broken
+    assert "has not been played" in unplayed and "neither 2025 NOR" in broken
+
+
+def test_a_COMPLETE_season_gets_a_verdict_with_no_warning_in_it():
+    """A verdict that always warns is one nobody reads."""
+    v = R.readiness_verdict({"season": 2025, "state": "COMPLETE", "reg_weeks": 18},
+                            {"matched": 37})
+    assert "MEASURED NOTHING" not in v and "PARTIAL" not in v
+    assert "COMPLETE (18 REG weeks); 37 matched" in v
+
+
+def test_a_PARTIAL_season_is_labelled_rather_than_counted_as_a_season():
+    v = R.readiness_verdict({"season": 2026, "state": "PARTIAL",
+                             "why": "2026 has 6 of the control season's 18 REG weeks"},
+                            {"matched": 3})
+    assert v.startswith("PARTIAL SEASON") and "labelled as such wherever they travel" in v

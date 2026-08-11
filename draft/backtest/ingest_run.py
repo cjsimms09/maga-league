@@ -269,7 +269,8 @@ def adp_fields(store) -> dict:
 
 
 def run(league_ids, year, out_path=None, *, players=None, board=None,
-        series=None, weekly_rows=None, gsis_to_ours=None):  # pragma: no cover  (egress; CI only)
+        series=None, weekly_rows=None, gsis_to_ours=None,
+        readiness=None):  # pragma: no cover  (egress; CI only)
     """THE FIRST REAL FETCH.
 
     WHAT THIS WILL REPORT, WRITTEN BEFORE IT RUNS so the result cannot be narrated
@@ -294,6 +295,14 @@ def run(league_ids, year, out_path=None, *, players=None, board=None,
       * 2023-2025 remain F5-ineligible under D4 regardless of any of this. A
         league that scores cleanly here can still be excluded for its ADP, and the
         attrition report says which.
+
+    AND POINT THIS AT A SEASON THAT HAS BEEN PLAYED. Measured 2026-08-11:
+    `fetch_weekly(2026)` 404s from both loaders, so a 2026 run reports zero matched
+    leagues — the identical output to a run whose fetch broke and to a run whose
+    filters are wrong. That is a green that means nothing wearing the clothes of one
+    that does. `readiness` (from `external_outcomes.season_readiness`, which needs a
+    CONTROL season because the target's own result cannot distinguish the cases)
+    leads the verdict so the three states are never one number.
 
     `weekly_rows` and `gsis_to_ours` are passed IN rather than fetched here so the
     season's data is fetched once for a whole run instead of once per league.
@@ -330,10 +339,43 @@ def run(league_ids, year, out_path=None, *, players=None, board=None,
     rep = attrition_report(verdicts, requested=list(league_ids))
     rep["year"] = str(year)
     rep["outcomes"] = outcomes_summary(outcomes)
+    rep["season_readiness"] = readiness
+    # PREPENDED, not appended. The existing verdict already leads with unreadable
+    # attrition; this leads with whether the run could have measured anything at all.
+    rep["verdict"] = readiness_verdict(readiness, rep) + " || " + str(rep.get("verdict", ""))
     if out_path:
         Path(out_path).write_text(json.dumps(rep, indent=1))
     print(json.dumps(rep, indent=1))
     return rep
+
+
+def readiness_verdict(readiness: dict, rep: dict) -> str:
+    """The line that stops a vacuous zero reading as a measurement.
+
+    D5h, and it is the whole reason `run` fetches a CONTROL season it does not
+    otherwise need. `screen()` rejects a league with no weekly outcomes, so a run
+    against a season that has not been played reports ZERO MATCHED — the identical
+    output to a run whose fetch broke, and to a run whose filters are wrong. Three
+    very different states, one number.
+
+    So the state leads, ahead of the count, and an UNPLAYED or UNFETCHABLE run says
+    IN THE VERDICT that its zero measured nothing about the leagues.
+    """
+    state = (readiness or {}).get("state")
+    n = rep.get("matched", 0)
+    if state in ("UNPLAYED", "UNFETCHABLE"):
+        return ("THIS RUN MEASURED NOTHING ABOUT THE LEAGUES: %s. Every league is "
+                "F4.no_weekly_data, `matched=%d` is a consequence of that and not a "
+                "finding about the pool, and no conclusion about format prevalence or "
+                "filter tuning may be drawn from it"
+                % ((readiness or {}).get("why", "season not ready"), n))
+    if state == "PARTIAL":
+        return ("PARTIAL SEASON: %s. Outcome totals here are partial-season totals; "
+                "they are a real number about a different question than F3 asks, and "
+                "must be labelled as such wherever they travel"
+                % (readiness or {}).get("why", ""))
+    return "season %s COMPLETE (%d REG weeks); %d matched league-seasons" % (
+        (readiness or {}).get("season"), (readiness or {}).get("reg_weeks", 0), n)
 
 
 def outcomes_summary(outcomes: list) -> dict:

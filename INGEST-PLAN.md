@@ -555,3 +555,57 @@ Lamar Jackson 471.54 → **430.38**; Saquon Barkley 432.70 → **338.80** (−22
 Chase 339.50 → **339.50** (unchanged). The inflation lands **only on players whose teams
 went deep**, i.e. it is correlated with team quality — which is correlated with what a
 draft policy is being graded on.
+
+### D5h — A ZERO FROM THE CALENDAR AND A ZERO FROM A BROKEN FETCH (2026-08-11)
+
+*Raised by session A against the F4 pre-declaration, and it named a second sufficient
+cause I had not built against.* `screen()` rejects a league with no weekly outcomes, so a
+run against a season that has not been played reports **zero matched** — and so does a
+run whose fetch broke, and so does a run whose filters are wrong. Three states, one
+number, and the target season's own result cannot separate them: measured 2026-08-11,
+`fetch_weekly(2026)` returns HTTP 404 from **both** loaders, which is byte-for-byte what
+an unreachable season returns.
+
+> **Every ingest run fetches a CONTROL SEASON it does not otherwise need**, and reports
+> `UNPLAYED` / `UNFETCHABLE` / `PARTIAL` / `COMPLETE` **ahead of the matched count**. If
+> the control serves and the target does not, the fetch works and the season is unplayed.
+> If neither serves, the fetch is the story. An `UNPLAYED` or `UNFETCHABLE` run states in
+> its verdict that it **measured nothing about the leagues**, so its zero cannot be read
+> as evidence about format prevalence or as grounds for tuning a filter.
+
+The season's length is taken from the control's REG week count, not hardcoded: the NFL
+went 17 REG weeks → 18 in 2021, and a constant would call a full season partial the year
+it changes again.
+
+**The crawl now defaults to 2025, a completed season** (`external-discovery.yml`), for
+the same reason: it gives the ingest a real target and separates the causes. **2025
+returning `no_weekly_outcomes` after the outcomes ingest lands is a DEFECT; 2026 doing so
+is the CALENDAR.**
+
+### F7 REACHABILITY — stated now rather than discovered in December (2026-08-11)
+
+A's stopping-rule point, followed to its conclusion. It is not a filter change; it is what
+the registration **already implies**, written down before anyone plans around a number
+that cannot arrive.
+
+A **matched league-season** must pass F5, which requires ADP observed **strictly before**
+the draft. D4 established that for 2023–2025 the only retrievable ADP is a season
+aggregate that accumulates post-draft drafts, so **no league from a completed season can
+ever be a matched league-season.** Clean pre-draft ADP begins with D3's daily capture,
+i.e. **2026**. And a 2026 league has no outcomes until the 2026 season completes.
+
+Therefore:
+
+- **F7's target of ≥200 matched league-seasons is UNREACHABLE in 2026.** The first
+  gradeable matched league-seasons are 2026 drafts scored after the 2026 regular season —
+  **January 2027 at the earliest**, and capped by how many 2026 leagues the D3 archive
+  actually covered.
+- **2024/2025 are not wasted, and are not evidence.** They can carry format prevalence,
+  crosswalk coverage, draft-duration and lead-days distributions, and the D5 scoring-
+  vocabulary census — everything that exercises the pipeline non-vacuously. Under F5's
+  "simulation is labelled" clause a 2025 replay is **robustness testing, labelled, and
+  never enters a calibration table.**
+- Per F7 this **changes nothing else**. The bar is not lowered to make it reachable, and
+  no filter is relaxed to convert a completed season into a matched one. The honest
+  statement is that the pooled layer this ingest exists to unblock is a **2027** result,
+  and everything before then is pipeline work plus a census.

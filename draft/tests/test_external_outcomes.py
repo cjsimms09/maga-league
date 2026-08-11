@@ -511,3 +511,54 @@ def test_data_carrying_NO_season_type_AT_ALL_refuses_the_league():
     assert out["has_weekly_outcomes"] is False and out["reason"] == "F4.no_season_type"
     import ingest_filters as F
     assert F.is_unreadable(out["reason"])
+
+
+# ── D5h: A ZERO FROM THE CALENDAR AND A ZERO FROM A BROKEN FETCH ────────────
+# Measured 2026-08-11: fetch_weekly(2026) 404s from BOTH loaders. So does a season
+# we simply cannot reach. The signal is IDENTICAL, and no amount of care inside
+# the target season's own result can separate them — only a control can.
+def _season(weeks, season_type="REG"):
+    return [wk("A", w, receptions=1) | {"season_type": season_type} for w in weeks]
+
+
+def test_UNPLAYED_and_UNFETCHABLE_are_the_SAME_signal_and_are_told_apart_by_the_CONTROL():
+    """MUTATION: drop the control and report `state` from the target alone. Both
+    cases return no rows, so both would read the same — and one of them means the
+    pipeline is broken."""
+    played = X.season_readiness(2026, [], "404", 2025, _season(range(1, 19)), None)
+    broken = X.season_readiness(2026, [], "404", 2025, [], "404")
+    assert played["state"] == "UNPLAYED" and broken["state"] == "UNFETCHABLE"
+    # Same input for the TARGET in both calls — only the control differs.
+    assert "the season has not been played" in played["why"]
+    assert "evidence about THIS PIPELINE" in broken["why"]
+    assert "measured nothing" in broken["why"]
+
+
+def test_an_IN_SEASON_year_is_PARTIAL_not_COMPLETE():
+    """Grading a draft on a third of a season is a real number about a different
+    question. MUTATION: treat any rows at all as COMPLETE."""
+    r = X.season_readiness(2026, _season(range(1, 7)), None, 2025, _season(range(1, 19)), None)
+    assert r["state"] == "PARTIAL" and r["reg_weeks"] == 6 and r["control_reg_weeks"] == 18
+
+
+def test_a_COMPLETED_season_matching_the_control_is_COMPLETE():
+    r = X.season_readiness(2025, _season(range(1, 19)), None, 2024, _season(range(1, 19)), None)
+    assert r["state"] == "COMPLETE" and r["reg_weeks"] == 18
+
+
+def test_the_SEASON_LENGTH_is_measured_from_the_control_not_hardcoded():
+    """The NFL went 17 REG weeks -> 18 in 2021 and could again. A constant would
+    call a full season partial the year it changes. MUTATION: `< 18`."""
+    r = X.season_readiness(2020, _season(range(1, 18)), None, 2019, _season(range(1, 18)), None)
+    assert r["state"] == "COMPLETE", "17 weeks against a 17-week control is complete"
+    assert X.season_readiness(2020, _season(range(1, 18)), None, 2021,
+                              _season(range(1, 19)), None)["state"] == "PARTIAL"
+
+
+def test_POSTSEASON_rows_do_not_make_an_UNPLAYED_season_look_played():
+    """`reg_weeks` counts REG only, so a table carrying nothing but playoff rows
+    is still a season with no regular season in it."""
+    assert X.reg_weeks(_season([20, 21], season_type="POST")) == []
+    r = X.season_readiness(2026, _season([20], season_type="POST"), None, 2025,
+                           _season(range(1, 19)), None)
+    assert r["state"] == "UNPLAYED"

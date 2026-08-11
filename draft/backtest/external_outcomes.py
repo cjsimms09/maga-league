@@ -511,6 +511,67 @@ def league_outcomes(rules_json, drafted_ids, weekly_rows, season, positions,
     return out
 
 
+def reg_weeks(rows) -> list:
+    """The REG weeks present in a season's rows. The season's own length, measured.
+
+    Not a constant. The NFL went from 17 REG weeks to 18 in 2021 and could again,
+    and a hardcoded slate length would silently call a full season partial.
+    """
+    return sorted({int(r["week"]) for r in (rows or [])
+                   if r.get("week") is not None
+                   and str(r.get("season_type") or "").upper() == REGULAR_SEASON})
+
+
+def season_readiness(year, rows, error, control_year, control_rows, control_error) -> dict:
+    """UNPLAYED vs UNFETCHABLE vs PARTIAL vs COMPLETE — and why they need a CONTROL.
+
+    D5h. Measured 2026-08-11: `fetch_weekly(2026)` 404s from BOTH loaders. So does
+    a season whose data we simply cannot reach. **The two produce an identical
+    signal**, and a run that reports `F4.no_weekly_data:2026` and stops has said
+    nothing about which one happened — a zero from the calendar and a zero from a
+    broken fetch are the same green.
+
+    The discriminator is a CONTROL SEASON fetched in the SAME RUN. If the control
+    serves and the target does not, the fetch works and the season has not been
+    played. If neither serves, the fetch is the story. There is no way to tell from
+    the target alone, which is exactly why the control is not optional.
+
+    PARTIAL matters separately: an in-season year serves rows for the weeks played
+    so far, and grading a draft on a third of a season is a real number about a
+    different question. It is named rather than folded into COMPLETE.
+    """
+    weeks = reg_weeks(rows)
+    ctrl_weeks = reg_weeks(control_rows)
+    ctrl_ok = not control_error and bool(ctrl_weeks)
+    if error or not weeks:
+        if not ctrl_ok:
+            state = "UNFETCHABLE"
+            why = ("neither %s NOR the control season %s served weekly data — this is "
+                   "evidence about THIS PIPELINE, not about the calendar, and a run "
+                   "reporting zero matched leagues here has measured nothing"
+                   % (year, control_year))
+        else:
+            state = "UNPLAYED"
+            why = ("%s served no weekly data while the control season %s served %d REG "
+                   "weeks — the fetch works and the season has not been played. Zero "
+                   "matched leagues here is the CALENDAR, and the same zero from a "
+                   "broken fetch would look identical without this control"
+                   % (year, control_year, len(ctrl_weeks)))
+        return {"season": year, "state": state, "reg_weeks": 0, "control_season": control_year,
+                "control_reg_weeks": len(ctrl_weeks), "control_ok": ctrl_ok, "why": why}
+    full = len(ctrl_weeks) if ctrl_ok else None
+    if full is not None and len(weeks) < full:
+        return {"season": year, "state": "PARTIAL", "reg_weeks": len(weeks),
+                "control_season": control_year, "control_reg_weeks": full, "control_ok": True,
+                "why": ("%s has %d of the control season's %d REG weeks — IN SEASON. Any "
+                        "outcome total here is a partial season, which is a real number "
+                        "about a different question than the one F3 asks"
+                        % (year, len(weeks), full))}
+    return {"season": year, "state": "COMPLETE", "reg_weeks": len(weeks),
+            "control_season": control_year, "control_reg_weeks": full, "control_ok": ctrl_ok,
+            "why": "%s served %d REG weeks" % (year, len(weeks))}
+
+
 def sanity_top(rows, season, table, n=20) -> list:
     """Top `n` player-SEASONS under one flat table, with names. Rule 12's eyeball.
 
