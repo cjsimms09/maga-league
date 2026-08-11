@@ -659,3 +659,102 @@ def _csv_names(text, limit=15) -> list:
         if len(out) >= limit:
             break
     return out
+
+
+# ── WHAT THE FILE MEASURES, and WHETHER IT WAS EVER FROZEN ──────────────────
+#
+# Two more ways a mirror can look like an answer and not be one, and both are the
+# same failure this module already guards against on the live side.
+#
+# QUANTITY. `ecr_20190818.csv` is EXPERT CONSENSUS RANKINGS — what analysts said the
+# order should be. ADP is what drafters actually did. They are different quantities,
+# not a noisier and a cleaner version of one, and F1/F5 want the second: this program
+# grades decisions against a market, and substituting a ranking for a market is the
+# silent swap rule 11 exists to catch. An ECR file is reported, never counted as ADP.
+#
+# FROZEN. A file named `HALF_PPR_ADP.csv` that is rewritten every week is a LIVE board
+# wearing a filename — the same trap as a page labelled "2024 ADP". What makes a
+# mirror file usable is that its content stopped changing before the drafts it would
+# price, and git records exactly that: a file whose LAST commit precedes the cutoff
+# held that content before the cutoff, attested by a third party's history.
+QUANTITY_ADP = "adp"
+QUANTITY_ECR = "ecr"
+QUANTITY_UNKNOWN = "unknown"
+
+GITHUB_COMMITS = "https://api.github.com/repos/%s/%s/commits?path=%s&per_page=100"
+
+
+def quantity_of(path: str) -> str:
+    """Does this file hold ADP, a RANKING, or something we cannot tell?
+
+    `adp` wins over `ecr` when both appear, because a path like
+    `fantasypros/adp/HALF_PPR_ADP.csv` names its quantity in two places and a file
+    under an `adp/` directory is an ADP file whatever else the name says. UNKNOWN is
+    its own answer — a file we cannot classify is not an ADP file by default.
+    """
+    p = str(path or "").lower()
+    if "adp" in p or "average_draft" in p or "average-draft" in p:
+        return QUANTITY_ADP
+    if "ecr" in p or "rank" in p:
+        return QUANTITY_ECR
+    return QUANTITY_UNKNOWN
+
+
+def commits_query(owner: str, repo: str, path: str) -> str:
+    return GITHUB_COMMITS % (owner, repo, urllib.parse.quote(path))
+
+
+def commit_dates(body) -> dict:
+    """{first, last, n} from a commits listing, newest-first as GitHub returns it.
+
+    The shape, quoted: a LIST of {"commit": {"committer": {"date": "2019-08-19T..."}}}.
+    A rate-limit or error body is an OBJECT, and treating it as an empty history
+    would report a file as having no commits — which downstream reads as "we cannot
+    date it" when the truth is "we were throttled". Raises instead.
+    """
+    if isinstance(body, (bytes, bytearray)):
+        body = body.decode("utf-8", "replace")
+    if isinstance(body, str):
+        body = json.loads(body or "[]")
+    if not isinstance(body, list):
+        raise TypeError("commits response is %s, not a list — a throttled request is "
+                        "not an empty history" % type(body).__name__)
+    stamps = []
+    for c in body:
+        if not isinstance(c, dict):
+            continue
+        d = (((c.get("commit") or {}).get("committer") or {}).get("date")
+             or ((c.get("commit") or {}).get("author") or {}).get("date"))
+        if d:
+            stamps.append(str(d))
+    if not stamps:
+        return {"first": None, "last": None, "n": 0}
+    stamps.sort()
+    return {"first": stamps[0], "last": stamps[-1], "n": len(stamps)}
+
+
+def frozen_before(dates: dict, before: str) -> dict:
+    """Did this file stop changing before the cutoff? F5's rule, applied to git.
+
+    `before` is YYYYMMDD; commit dates are ISO. Compared on the date prefix, and
+    STRICTLY — a file last written on the cutoff day is not a file that held its
+    content before it.
+
+    A file with NO readable history is not frozen. Absent is not a pass, here as
+    everywhere: an undated board is exactly what F5 exists to refuse.
+    """
+    last = (dates or {}).get("last")
+    if not last or len(str(last)) < 10:
+        return {"frozen": False, "why": "no readable commit history — an undated file "
+                                        "is what F5 refuses, not a file we may assume"}
+    stamp = str(last)[:10].replace("-", "")
+    if not stamp.isdigit():
+        return {"frozen": False, "why": "unreadable commit date %r" % last}
+    if stamp < str(before):
+        return {"frozen": True, "last_commit": str(last),
+                "why": "last written %s, before the %s cutoff — the content it holds "
+                       "now is the content it held then" % (str(last)[:10], before)}
+    return {"frozen": False, "last_commit": str(last),
+            "why": "last written %s, ON OR AFTER the %s cutoff — this is a LIVE file "
+                   "with a filename, and its current content is not evidence about "
+                   "what it held before the drafts" % (str(last)[:10], before)}
