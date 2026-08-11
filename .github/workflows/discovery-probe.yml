@@ -1,0 +1,61 @@
+name: DISCOVERY PROBE — is D2 implementable, or is leagueSearch capped?
+
+# D2 pre-registers "walk the entire result set, stop only on exhaustion". That
+# assumes the full set is reachable, and it has never been checked: the one
+# observation is the schema probe's single search returning exactly 65 leagues,
+# which is either a true count or a ceiling. The two have opposite consequences,
+# and a ceiling means D2 needs a NEW dated registration BEFORE the crawl rather
+# than an apology after it.
+#
+# Reads nothing into a 200: both providers were measured silently accepting
+# unknown parameters, so paging candidates are judged on whether they return
+# DIFFERENT leagues, not on whether the request succeeded.
+#
+# Does not commit — A owns integration. Artifact plus run summary.
+
+on:
+  workflow_dispatch:
+    inputs:
+      year:
+        description: 'Season to search'
+        required: false
+        default: '2026'
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - name: Probe leagueSearch — cap, paging, and whether SEARCH filters at all
+        run: python3 draft/backtest/discovery_probe.py "${{ github.event.inputs.year || '2026' }}"
+      - name: Report where it cannot be missed
+        if: always()
+        run: |
+          {
+            echo "## Discovery probe — is D2 implementable?"
+            if [ -f draft/backtest/discovery_probe.json ]; then
+              python3 - <<'PY'
+          import json
+          d = json.load(open('draft/backtest/discovery_probe.json'))
+          print('**Cap reading:** ', d['cap']['reading'])
+          print()
+          print('**Counts per query:** `%s`' % d['cap']['counts'])
+          print()
+          print('**Paging overlap vs baseline:** `%s`' % d['paging_overlap'])
+          print()
+          print('**Controls:** ', d['verdict'].get('controls'))
+          PY
+            else
+              echo "NO RESULT FILE — the probe did not complete. A statement about the run,"
+              echo "not a finding about leagueSearch."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload the raw result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: discovery-probe
+          path: draft/backtest/discovery_probe.json
+          if-no-files-found: warn

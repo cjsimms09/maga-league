@@ -1,0 +1,102 @@
+name: D3 — daily external ADP snapshot (the 2026 curve is perishable)
+
+# WHY THIS RUNS EVERY DAY, measured rather than assumed. The as-of probe (runs
+# 31458991195 / 31459812251) established that NEITHER provider serves ADP as of a
+# past date — every date-bounding candidate was accepted and ignored, on both —
+# and that the year figure ACCUMULATES: 2025 complete reported 844 drafts against
+# 2026 in progress at 112. So a finished season's ADP contains drafts later than
+# any league that drafted in August and cannot be its pre-draft board under F5.
+#
+# The 2026 curve is therefore observable ONLY while it is happening. Every day
+# not captured is unrecoverable, and no amount of later work gets it back.
+#
+# Registered as D3 in INGEST-PLAN.md: daily, FULL board, no top-N and no
+# retention window, append-only, deduped by date. NOT draft/data/adp_series.json,
+# which is A's home staleness instrument capped at 300 players / 60 days.
+#
+# IT IS INERT UNTIL A MERGES IT. `schedule:` only fires from the default branch,
+# so merging is the enabling action — this cannot start writing to main on its
+# own from a feature branch.
+
+on:
+  schedule:
+    - cron: "20 11 * * *"        # 11:20 UTC daily, after MFL's overnight recompute
+  workflow_dispatch:
+    inputs:
+      year:
+        description: 'Season to capture'
+        required: false
+        default: '2026'
+
+permissions:
+  contents: write
+
+concurrency:
+  # Two runs appending the same day would race on the file. The dedupe makes a
+  # double-append harmless in CONTENT, but not in git — the second push would
+  # reject and the day would be silently lost.
+  group: external-adp-capture
+  cancel-in-progress: false
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+
+      - name: Capture today's board
+        id: cap
+        run: |
+          python3 - <<'PY'
+          import sys, datetime
+          sys.path.insert(0, 'draft/backtest')
+          import external_adp_capture as C
+          year = "${{ github.event.inputs.year || '2026' }}"
+          # The date is the RUN's date in UTC, passed in rather than taken inside
+          # the pure functions, so the archive logic stays clock-free and testable.
+          today = datetime.datetime.now(datetime.timezone.utc).date().isoformat()
+          C.capture(year, today)
+          PY
+
+      # A CAPTURE JOB THAT DIES SILENTLY IS THE FAILURE THIS PROJECT KEEPS HITTING,
+      # and the market layer's version of it recorded a 2% capture as a clean
+      # success. `capture()` REFUSES to write an empty snapshot, so a zero-row
+      # fetch fails the step rather than writing a dated empty board — and this
+      # summary reports the coverage either way.
+      - name: Report coverage where it cannot be missed
+        if: always()
+        run: |
+          {
+            echo "## D3 external ADP capture"
+            if [ -f draft/data/external_adp_series.json ]; then
+              python3 - <<'PY'
+          import sys, json
+          sys.path.insert(0, 'draft/backtest')
+          import external_adp_capture as C
+          cov = C.coverage(C.load(), "${{ github.event.inputs.year || '2026' }}")
+          print("```")
+          print(json.dumps(cov, indent=1))
+          print("```")
+          if cov["empty_snapshots"]:
+              print("**%d EMPTY SNAPSHOT(S)** — dated rows with no board behind them."
+                    % cov["empty_snapshots"])
+          PY
+            else
+              echo "NO ARCHIVE FILE — nothing has been captured yet. This is a statement"
+              echo "about the run, not evidence that ADP is unavailable."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Commit the day's snapshot
+        if: steps.cap.outcome == 'success'
+        run: |
+          git config user.name "lab-bot"; git config user.email "actions@github.com"
+          git add draft/data/external_adp_series.json || true
+          git diff --cached --quiet && { echo "no change — same-day rerun"; exit 0; }
+          # [skip deploy]: this is a data archive under draft/, which the deploy
+          # gate already skips. The marker is belt-and-braces, not a substitute
+          # for the gate.
+          git commit -m "D3: external ADP snapshot [skip deploy]"
+          git pull --rebase origin main && git push

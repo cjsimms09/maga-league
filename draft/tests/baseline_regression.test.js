@@ -48,7 +48,7 @@ const ROOT = path.join(__dirname, '..', '..');
  * three pick regimes.
  * Each version's reason is in the artifact itself under `_why`. v1, v2 and v3
  * all stay on the books. */
-const BASELINE = path.join(ROOT, 'draft', 'baseline', 'v4.json');
+const BASELINE = path.join(ROOT, 'draft', 'baseline', 'v5.json');
 const { build } = require(path.join(ROOT, 'draft', 'tools', 'freeze_baseline.js'));
 
 let pass = 0, fail = 0;

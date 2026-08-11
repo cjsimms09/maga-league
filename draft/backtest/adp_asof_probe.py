@@ -53,6 +53,17 @@ HERE = Path(__file__).resolve().parent
 MFL_HOST = "https://api.myfantasyleague.com"
 FFC_HOST = "https://fantasyfootballcalculator.com"
 
+# THE HEADER THE SHIPPED CLIENT SENDS. `draft/adp.py` has fetched FFC in every
+# build for weeks with this User-Agent; the probe sent Python's default and got
+# 403 Forbidden on every request — which the first read of that run recorded as
+# "FFC is unresolved". THIRD ITERATION OF THE SAME RULE-13 CHAIN on one arm:
+# "nothing was reached" was my error handling, then "403" was my request, and
+# only now is anything a fact about FFC.
+#
+# Not re-typed as a coincidence — `test_the_probe_sends_the_SHIPPED_user_agent`
+# reads the literal out of `draft/adp.py` and fails if the two drift apart.
+USER_AGENT = "mfga-league-draft-tool/1.0"
+
 # The baseline request `mfl_adp.py` documents, unchanged.
 MFL_BASE = {"TYPE": "adp", "PERIOD": "DRAFT", "IS_PPR": "1", "IS_KEEPER": "N",
             "IS_MOCK": "-1", "INJURED": "-1", "CUTOFF": "5", "FCOUNT": "12", "JSON": "1"}
@@ -118,8 +129,24 @@ def classify(baseline: dict, cand: dict) -> str:
 def verdict(rows: list) -> dict:
     """The whole run's reading, INCLUDING what the controls make the rest worth."""
     by_name = {r["name"]: r for r in rows}
-    reached = [r for r in rows if r.get("status") and not r.get("transport_error")]
-    if not reached:
+    # USABLE means a 200 we could read, not merely "something came back". A run of
+    # 404s used to satisfy the old `reached` test and fall through to the control
+    # analysis, which then returned a dict with no verdict at all.
+    usable = [r for r in rows if r.get("status") == 200 and r.get("composition")]
+    if not usable:
+        # THE TWO NULLS ARE DIFFERENT FACTS. "Every request failed to leave the
+        # machine" is about the network; "the provider answered every request
+        # with an error" is about the request or the provider. Collapsing them is
+        # what turned a probable HTTP status into "FFC is unresolved".
+        answered = [r for r in rows if r.get("status")]
+        if answered:
+            codes = sorted({str(r.get("http_error") or r.get("status")) for r in answered})
+            return {"verdict": "REACHED BUT REFUSED — the provider answered every request "
+                               "with an error (%s). That is a fact about the request or the "
+                               "provider, NOT about the network; read the recorded status and "
+                               "body before concluding anything about availability."
+                               % "; ".join(codes),
+                    "controls": None, "date_bounding": None}
         return {"verdict": "NO CONCLUSION — nothing was reached. This is a statement "
                            "about the network path, not about the provider (rule 13).",
                 "controls": None, "date_bounding": None}
@@ -173,19 +200,48 @@ def aggregate_spans_the_season(by_year: dict) -> dict:
 
 # ── the fetch, CI only ──────────────────────────────────────────────────────
 def _get(url, params):  # pragma: no cover  (egress; CI only)
+    """A SERVER THAT ANSWERED IS NOT A SERVER WE NEVER REACHED.
+
+    `urlopen` raises `HTTPError` on 4xx/5xx, and the first cut caught it under a
+    bare `except Exception` and filed it as `transport_error` — so a plain 404
+    was indistinguishable from a blocked network path. That conflation cost a
+    real answer: the FFC arm reported "nothing was reached" and I wrote that up
+    as "I probably guessed the path". The path was right — it matches the shipped
+    client in `draft/adp.py`. The error handling was wrong, and it manufactured a
+    NETWORK verdict out of an HTTP one, which is rule 13's own confusion one
+    level down.
+
+    `HTTPError` IS a response: it carries a status and usually a body naming the
+    reason, and a probe that discards them has thrown away its answer.
+    """
+    import urllib.error
     import urllib.parse
     import urllib.request
     full = url + "?" + urllib.parse.urlencode(params)
+
+    def _read(status, raw):
+        body = raw.decode("utf-8", "replace") if isinstance(raw, bytes) else (raw or "")
+        try:
+            return {"status": status, "payload": json.loads(body)}
+        except json.JSONDecodeError:
+            return {"status": status, "payload": None, "error": "non-JSON body",
+                    "body_head": body[:300]}
+
+    req = urllib.request.Request(full, headers={"User-Agent": USER_AGENT})
     try:
-        with urllib.request.urlopen(full, timeout=45) as r:
-            body = r.read().decode("utf-8", "replace")
-            try:
-                return {"status": r.status, "payload": json.loads(body)}
-            except json.JSONDecodeError:
-                return {"status": r.status, "payload": None, "error": "non-JSON body",
-                        "body_head": body[:200]}
+        with urllib.request.urlopen(req, timeout=45) as r:
+            return _read(r.status, r.read())
+    except urllib.error.HTTPError as e:
+        try:
+            raw = e.read()
+        except Exception:
+            raw = b""
+        got = _read(e.code, raw)
+        got["http_error"] = "%s %s" % (e.code, e.reason)
+        return got
     except Exception as e:
-        return {"status": None, "payload": None, "transport_error": "%s: %s" % (type(e).__name__, e)}
+        return {"status": None, "payload": None,
+                "transport_error": "%s: %s" % (type(e).__name__, e)}
 
 
 def probe(year="2026"):  # pragma: no cover  (egress; CI only)
@@ -196,6 +252,7 @@ def probe(year="2026"):  # pragma: no cover  (egress; CI only)
         got = _get(url, params)
         row = {"name": name, "params": extra, "status": got.get("status"),
                "transport_error": got.get("transport_error"), "error": got.get("error"),
+               "http_error": got.get("http_error"), "body_head": got.get("body_head"),
                "composition": composition(got.get("payload")) if got.get("payload") else None}
         if name == "baseline":
             baseline = row
@@ -218,6 +275,8 @@ def probe(year="2026"):  # pragma: no cover  (egress; CI only)
                          for x in (p.get("players") or [])[:5]]}
         row = {"name": name, "params": extra, "status": got.get("status"),
                "transport_error": got.get("transport_error"),
+               "http_error": got.get("http_error"), "error": got.get("error"),
+               "body_head": got.get("body_head"),
                "composition": comp if p else None}
         if name == "baseline":
             ffc_base = row

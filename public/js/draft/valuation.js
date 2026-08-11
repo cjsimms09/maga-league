@@ -70,6 +70,80 @@
     };
   }
 
+  /* ══ THE CLAIM'S VALUE — ONE BASELINE, NOT TWO MARGINALS ══
+   *
+   * B's finding, 2026-08-11: the waiver tool priced claiming a kicker STRICTLY
+   * WORSE than the one already starting at $59, and 28 of those points were the
+   * gap between the WR2 and the kicker — nothing to do with the two kickers.
+   *
+   * TWO COMPOUNDING BUGS, and naming them separately matters because fixing one
+   * leaves the other:
+   *
+   *   1. INCOMMENSURABLE BASELINES. `startableValue` returns a number on THREE
+   *      different scales depending on `fills`: a starter or flex fit returns
+   *      `vorp` — a marginal against the POSITIONAL REPLACEMENT LEVEL — while a
+   *      bench fit returns `upgrade * benchDiscount + insurance`, a marginal
+   *      against MY OWN INCUMBENT. The waiver route computed
+   *      `netPoints = sv.value - dropVal`, subtracting one from the other. Those
+   *      two quantities are measured from different zeroes, so their difference
+   *      means nothing.
+   *
+   *   2. SUBTRACTING A NEGATIVE ADDS. A drop candidate who is worse than the man
+   *      he sits behind has a NEGATIVE startableValue. `sv.value - dropVal` then
+   *      ADDS the drop's deficit to the claim. A kicker worth ~0 minus a drop
+   *      worth -28 prices at +28, which is the WR2-to-kicker gap arriving as if
+   *      it were the claim's merit.
+   *
+   * THE FIX IS NOT A BETTER MARGINAL. It is to stop differencing marginals and
+   * ask the only question that has one baseline: **what does my starting lineup
+   * score with this move, versus without it?**
+   *
+   *     net = bestLineup(roster - drop + claim) - bestLineup(roster)
+   *
+   * That is automatically <= 0 for a strictly worse kicker, needs no
+   * `Math.max(0, ...)` clamp to look sane, and is denominated in exactly the
+   * quantity `dollarsPerPoint` prices: marginal projected points in the STARTING
+   * LINEUP.
+   *
+   * THE OPTIMISER IS INJECTED, NOT REIMPLEMENTED. `lineupPoints` is supplied by
+   * the caller so this uses the ONE real lineup optimiser rather than a second
+   * greedy copy living here — a second copy is the disease this file exists to
+   * cure. It REFUSES rather than falling back: a silent fallback to a private
+   * implementation is how two valuations drift while both look right.
+   */
+  function claimValue(claim, drop, roster, league, lineupPoints) {
+    if (typeof lineupPoints !== 'function') {
+      throw new Error('claimValue requires a lineupPoints(roster, league) function — '
+        + 'the real optimiser must be injected. Refusing to fall back to a second '
+        + 'implementation, which is how two valuations drift while both look right.');
+    }
+    roster = roster || [];
+    var dropId = drop ? String(drop.player_id) : null;
+    var after = roster.filter(function (p) {
+      return dropId == null || String(p.player_id) !== dropId;
+    }).concat([claim]);
+
+    var before = Number(lineupPoints(roster, league)) || 0;
+    var afterPts = Number(lineupPoints(after, league)) || 0;
+    var net = afterPts - before;
+
+    return {
+      // NOT CLAMPED. A claim that makes the lineup worse must be able to say so;
+      // the old Math.max(0, ...) turned "this is a downgrade" into "this is
+      // worth nothing", and those are different sentences on a Tuesday.
+      net_points: net,
+      lineup_before: before,
+      lineup_after: afterPts,
+      improves: net > 0,
+      drop_id: dropId,
+      why: net > 0
+        ? 'starting lineup improves by ' + (Math.round(net * 100) / 100)
+        : (net === 0 ? 'no change to the starting lineup'
+                     : 'DOWNGRADE — the starting lineup gets worse by '
+                       + (Math.round(-net * 100) / 100)),
+    };
+  }
+
   /* Best available at a position from a pool, BY VORP (not projection). Used by
    * the waiver tool ("best free agent at RB") and the roster-plan builder
    * ("best still-available RB at my next pick"). */
@@ -108,7 +182,8 @@
     return open;
   }
 
-  var api = { startableValue: startableValue, bestAvailableByVorp: bestAvailableByVorp,
+  var api = { startableValue: startableValue, claimValue: claimValue,
+    bestAvailableByVorp: bestAvailableByVorp,
               openStartableSlots: openStartableSlots,
               INJURY_RATE: INJURY_RATE, BENCH_DISCOUNT: BENCH_DISCOUNT };
   global.SharedValuation = api;
