@@ -46,9 +46,12 @@ MFL_HOST = "https://api.myfantasyleague.com"
 
 # D1 requires a FORMAT-NEUTRAL query: no term selecting on team count or scoring,
 # because selecting on format at discovery makes format-match prevalence
-# unmeasurable and turns the attrition report into a tautology. These are
-# structure-neutral words, and the pair exists to test the cap, not to be a
-# curated pool.
+# unmeasurable and turns the attrition report into a tautology.
+#
+# THESE ARE THE PROBE'S CANDIDATES, NOT THE CRAWL'S POOL. The registered pool is
+# D1 v2's ten terms in INGEST-PLAN.md; these exist to test the cap and the paging,
+# and `REGISTERED_TERMS` below is the crawl's, kept here so the crawler and the
+# pre-registration cannot drift apart.
 CANDIDATES = [
     ("baseline", "league", {}),
     ("CONTROL_bogus_param", "league", {"ZZZNOTAPARAM": "1"}),
@@ -66,6 +69,14 @@ CANDIDATES = [
     ("limit_500", "league", {"LIMIT": "500"}),
     ("count_500", "league", {"COUNT": "500"}),
 ]
+
+
+# D1 v2, 2026-08-11. The pool is the UNION over these, fixed before any crawl,
+# because an empty SEARCH returns 0 and "a" returns 0 — there is no all-leagues
+# query and SEARCH is token-based with a minimum length. Asserted against
+# INGEST-PLAN.md by test, so the registration and the build cannot diverge.
+REGISTERED_TERMS = ("league", "football", "the", "fantasy", "ffl",
+                    "dynasty", "redraft", "keeper", "friends", "bowl")
 
 
 def search_composition(payload) -> dict:
