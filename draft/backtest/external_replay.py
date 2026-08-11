@@ -131,6 +131,18 @@ def _earliest_wins(rows: list) -> list:
     observation with the earliest `observed_at` is authoritative and the rest are
     dropped. Rows with no per-row stamp are treated as belonging to the snapshot
     and keep first-seen order, which is the same rule.
+
+    THE RULE HELD IN ONE ARRIVAL ORDER ONLY (fixed 2026-08-11, found by session B).
+    Both branches of a stamped-vs-unstamped collision hit `continue`, so the winner
+    was whichever row ARRIVED FIRST — neither "earliest wins" nor "stamped wins".
+    Unstamped-first kept the UNSTAMPED row, which is precisely the contamination
+    this function exists to exclude: the retained observation is the one whose date
+    we cannot verify against the draft. The trigger is the one the docstring already
+    anticipated — a merge of two pulls, one provider stamping rows and one not.
+
+    Rule-10 note on how it survived: the order-independence test existed, for two
+    STAMPED rows; the mixed case was tested in one direction only. The untested
+    ordering was the broken one. Both directions are asserted now.
     """
     seen: dict = {}
     out: list = []
@@ -143,11 +155,14 @@ def _earliest_wins(rows: list) -> list:
             out.append(dict(r))
             continue
         prev_stamp, idx = seen[pid]
-        # Keep whichever was observed EARLIER. Unstamped rows never displace a
-        # stamped one, because "unknown" must not win a recency argument.
-        if prev_stamp is None or stamp is None:
+        # "Unknown" must not win a recency argument — in EITHER direction. An
+        # unstamped row never displaces anything, and a stamped row always
+        # displaces an unstamped one no matter which arrived first. Between two
+        # stamped rows the EARLIER wins; between two unstamped ones the first
+        # seen does, because a tie has no earlier.
+        if stamp is None:
             continue
-        if stamp < prev_stamp:
+        if prev_stamp is None or stamp < prev_stamp:
             out[idx] = dict(r)
             seen[pid] = (stamp, idx)
     return out
