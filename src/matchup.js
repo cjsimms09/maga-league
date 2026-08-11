@@ -145,4 +145,45 @@ function pairStarters(myRow, oppRow, rosterPositions, playersDb, proj, opts) {
   return { rows, hasProj, misaligned };
 }
 
-module.exports = { pairStarters, benchRows, byeMapFor, startingSlots, SLOT_LABEL };
+// ── THE INJURY FLAG, DERIVED FROM THE SAME SET THE OPTIMIZER USES ───────────
+//
+// A SCOPE DISAGREEMENT, which is not the dual-maintenance shape. The starters
+// card had its own ladder — OUT/IR/SUS red, DOUBTFUL/QUESTIONABLE amber, and
+// ANYTHING ELSE falling through to amber — while `lineup.js INACTIVE_INJURY`
+// treats nine statuses as "not playing" and zeroes the projection. The two sets
+// agreed EXACTLY on the members they shared (OUT, IR, SUS); the card simply did
+// not know the other six existed.
+//
+// So a player on PUP, NA, DNR, COV, RES or DNP rendered as an amber "might
+// play" on the starters card while the optimizer had already written him off.
+// Two surfaces, same player, contradictory verdicts, mid-game — and a comparator
+// asking "do these match?" would have answered yes.
+//
+// The card now asks the optimizer's set. Statuses that mean "might play" stay
+// their own short list here, because that is a genuinely different question
+// (degraded, not absent) and no other file owns it.
+const LO = require('./routes/lineup');
+const MAYBE_INJURY = { DOUBTFUL: 'DBT', D: 'DBT', QUESTIONABLE: 'Q', Q: 'Q' };
+
+/**
+ * How to badge one player's availability.
+ * @returns { level: 'bye'|'out'|'maybe'|'', text } — level drives the colour,
+ *          text is what to show. Empty level means nothing to flag.
+ */
+function injuryFlag(cell, weekNo) {
+  if (!cell || cell.empty) return { level: '', text: '' };
+  // Bye first: a player on bye scores zero, and that is the answer to "why is he
+  // at zero" before any injury tag matters.
+  if (cell.onBye) return { level: 'bye', text: 'BYE' };
+  const raw = String(cell.inj || '').toUpperCase().replace(/[^A-Z]/g, '');
+  if (!raw) return { level: '', text: '' };
+  // ONE SET, not a second list: whatever the optimizer benches, the card calls out.
+  if (LO.INACTIVE_INJURY.has(raw)) return { level: 'out', text: raw };
+  if (MAYBE_INJURY[raw]) return { level: 'maybe', text: MAYBE_INJURY[raw] };
+  // An unrecognised tag is shown verbatim rather than dropped or upgraded — we
+  // do not know what it means, and saying so beats guessing "questionable".
+  return { level: 'unknown', text: raw };
+}
+
+module.exports = { pairStarters, benchRows, byeMapFor, startingSlots, SLOT_LABEL,
+                   injuryFlag, MAYBE_INJURY };

@@ -2031,6 +2031,9 @@ router.get('/matchup', aw(async (req, res) => {
     liveStale,
     me, owners, opp, live, weekNo, matchup: liveMatchup, betWindow, record, rivalry,
     starters, bench, matchupBet, proj, highBand, whBand, whRace, pickem, stakes, trash, trashGameId,
+    // The availability badge is derived from the optimizer's INACTIVE_INJURY set
+    // (src/matchup.js), not from a second ladder in the template.
+    injuryFlag: MU.injuryFlag,
     goatId: MK.goatOwnerId(sData, world.config.sleeper_map || {}),
     configured: !!world.config.sleeper_league_id,
     late: req.query.late === '1', sent: req.query.sent === '1',

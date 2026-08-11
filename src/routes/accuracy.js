@@ -33,6 +33,16 @@
 
 // ---- prediction KINDS we group by, in display order, with human labels. The
 // keys match src/predledger.js kinds / forecast key prefixes A grades under. ----
+// TWO VOCABULARIES IN ONE LIST, and only one of them can reach this table.
+// `kindOf` derives a forecast KEY NAMESPACE (`survival:`, `room_seat:`) because
+// grading covers `kind === 'forecast'` records only. The ledger KINDS below —
+// lineup_call, waiver_claim, stream_call, trade_eval — are never a forecast key
+// prefix, so those four labels cannot currently fire. They are kept, not
+// deleted, because they go live the day A's decision join covers the in-season
+// kinds (parked). PENDING_KINDS names them so the table cannot quietly look
+// like it covers decisions it does not, and so a guard can check the claim.
+const PENDING_KINDS = ['lineup_call', 'waiver_claim', 'stream_call', 'trade_eval'];
+
 const KIND_LABELS = [
   ['survival', 'Survival calls'],
   ['lineup_call', 'Start/sit calls'],
@@ -325,4 +335,5 @@ function capturedOverrides(ledger) {
   };
 }
 
-module.exports = { buildAccuracyView, biggestMisses, gradedLine, byKindRows, capturedOverrides, KIND_LABELS };
+module.exports = { buildAccuracyView, biggestMisses, gradedLine, byKindRows, capturedOverrides,
+                   KIND_LABELS, PENDING_KINDS };
