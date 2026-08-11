@@ -382,3 +382,49 @@ that is evidence the split itself is drawn in the wrong place — and the answer
 then is to REDRAW it deliberately, not to keep overriding it case by case. The
 count starts at one, here, so the next ruling is made against a record rather
 than a memory.
+
+## Test files follow their module — and the rule that preceded it never ran
+
+**Cory's ruling, 2026-08-11:** *test files follow their module. If
+`external_outcomes.py` is C's, then `test_external_outcomes.py` is C's.*
+
+Prompted by exactly that file sitting on A's side while its module sat on C's.
+Nobody decided that: module ownership was PREFIXES, test ownership was a
+hand-written list of names, and the two drifted the moment C added a module whose
+test name was not already enumerated.
+
+**AND THE LIST WAS NEVER CONSULTED.** `shared()` claimed `draft/tests/*`
+wholesale, and `shared()` is checked before ownership — so every test-name
+pattern inside `c_owns` (`test_mfl_*`, `test_ingest_*`, `test_crosswalk*`, …) was
+**DEAD CODE for its entire life**. It read like ownership was being decided. It
+was not. Found by writing the first test that actually asked the question, while
+fixing what looked like a gap in a list that was never reached — *a guard that
+exists and does not guard*, in the sub-species where the guard is unreachable
+rather than wrong.
+
+The old comment stated the right principle — "a test follows the substance of
+what it serves" — and implemented it as `shared`, which is a convention with no
+enforcement. It is now structural: `test_<x>.py` asks who owns `<x>.py` and
+answers the same. A new C module carries its test automatically, and the two can
+no longer drift, because there is no longer a second list to drift from.
+
+**Effect, measured rather than asserted** — nothing lost, four gained:
+`test_discovery_probe.py`, `test_external_adp_capture.py`,
+`test_external_discovery.py`, `test_external_outcomes.py` are C's now. Two
+exceptions remain because the test is named for what it CHECKS rather than for
+its module, each verified against the file's own imports:
+`test_crosswalk_known_answers.py` (imports `mfl_adapter`) and
+`test_attrition_seam.py` (imports `ingest_filters`).
+
+**Still unenforced, named so it is not mistaken for settled:**
+`.github/workflows/*` remains blanket-shared. Workflow names do not map to
+modules, so the same derivation is not available and no better rule is proposed
+yet.
+
+**A retroactive trespass, recorded rather than quietly absorbed.** Earlier the
+same day, under the old ruling, A edited `draft/tests/test_external_outcomes.py`
+(commit `cadd2b2`) to update C's characterization tests after A fixed the
+`pass_int` defect C had reported. That file is C's under this rule. It was not a
+violation when made — the file was classified shared — but the edit stands and C
+should know its tests were changed by A. Not a precedent: the next such edit
+parks a request.

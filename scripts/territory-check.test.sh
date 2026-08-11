@@ -41,5 +41,50 @@ git checkout -q views/page.ejs
 echo "A edits its own engine" > public/js/draft/engine.js
 bash scripts/territory-check.sh A >/tmp/tc3.out 2>&1; ck $? 0 "A editing its own file passes"
 
+# SCENARIO 4 — A TEST FILE FOLLOWS ITS MODULE (Cory, 2026-08-11).
+#
+# The rule that replaced a hand-written list of test-name patterns. It is the
+# MECHANISM now, so it needs its own case: the previous arrangement passed every
+# test it had while `test_external_outcomes.py` sat on A's side of the line and
+# its module sat on C's, because no test asked the question.
+#
+# Built as a fresh scenario rather than bolted onto the merge cases above: this
+# is about CLASSIFICATION, not about merge-awareness, and mixing them would let a
+# pass come from the wrong half.
+git checkout -q public/js/draft/engine.js
+# UNSET THE MERGE-AWARENESS REF. Scenarios 1-3 export it, and leaving it set here
+# would make the checker compare these new files against a branch that does not
+# contain them — so every case below would pass for the wrong reason. Caught by
+# the cases failing when they were written; worth stating, because a leftover
+# export is exactly how a test stops exercising the thing it is named for.
+unset TERRITORY_INTEGRATION_REF
+mkdir -p draft/backtest draft/tests
+
+# A C-owned module (draft/backtest/external_*) and its test.
+echo "C module" > draft/backtest/external_outcomes.py
+echo "C test"   > draft/tests/test_external_outcomes.py
+# An A-owned module in the SAME directory (market_* is A's) and its test.
+echo "A module" > draft/backtest/market_capture.py
+echo "A test"   > draft/tests/test_market_capture.py
+git add -A; git commit -qm "modules and their tests"
+
+echo "A EDITED C's test" > draft/tests/test_external_outcomes.py
+bash scripts/territory-check.sh A >/tmp/tc4.out 2>&1; ck $? 1 \
+  "A editing test_external_outcomes.py fails — the test follows its C module"
+grep -q "draft/tests/test_external_outcomes.py" /tmp/tc4.out; ck $? 0 \
+  "  and the failure names it"
+
+git checkout -q draft/tests/test_external_outcomes.py
+echo "A edits its own test" > draft/tests/test_market_capture.py
+bash scripts/territory-check.sh A >/tmp/tc5.out 2>&1; ck $? 0 \
+  "A editing test_market_capture.py passes — same directory, A-owned module"
+
+# AND THE OTHER DIRECTION: C must not be handed a test whose module is A's.
+git checkout -q draft/tests/test_market_capture.py
+echo "C EDITED A's test" > draft/tests/test_market_capture.py
+bash scripts/territory-check.sh C >/tmp/tc6.out 2>&1; ck $? 1 \
+  "C editing test_market_capture.py fails — its module is A's"
+git checkout -q draft/tests/test_market_capture.py
+
 echo ""; echo "$pass passed, $fail failed"
 [ "$fail" -eq 0 ]

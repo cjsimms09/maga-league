@@ -106,10 +106,41 @@ c_owns() {
     draft/backtest/adp_asof_*) return 0 ;;
     draft/backtest/ingest_*) return 0 ;;
     draft/backtest/crosswalk*|draft/backtest/nflverse*) return 0 ;;
-    draft/tests/test_mfl_*|draft/tests/test_external_replay*) return 0 ;;
-    draft/tests/test_adp_asof_*|draft/tests/test_ingest_*) return 0 ;;
-    draft/tests/test_attrition*|draft/tests/test_crosswalk*) return 0 ;;
-    draft/tests/test_nflverse*) return 0 ;;
+    # ── A TEST FILE FOLLOWS ITS MODULE ──────────────────────────────────────
+    #
+    # Cory's ruling, 2026-08-11, after `draft/tests/test_external_outcomes.py`
+    # landed on A's side of the line while its module
+    # `draft/backtest/external_outcomes.py` was C's. Nobody decided that; the
+    # test patterns were a hand-written list and the module patterns were
+    # prefixes, so the two drifted the moment C added a module whose test name
+    # was not already enumerated. A module and its test on opposite sides
+    # produces a real collision the first time one side changes both.
+    #
+    # DERIVED, NOT LISTED. `test_<x>.py` asks who owns `<x>.py` and answers the
+    # same. A new C module carries its test automatically, and the list cannot
+    # drift from the prefixes again because it is no longer a separate list.
+    #
+    # The explicit entries below survive ONLY for tests whose module name does
+    # not match the file they test — they are exceptions now, not the mechanism,
+    # and each is a candidate for a rename rather than a permanent entry.
+    draft/tests/test_*.py)
+      _t="${1#draft/tests/test_}"; _t="${_t%.py}"
+      for _m in "draft/backtest/${_t}.py" "draft/${_t}.py"; do
+        if [ -e "$_m" ] || [ -n "${TERRITORY_ASSUME_MODULE:-}" ]; then
+          c_owns "$_m" && return 0
+        fi
+      done
+      # EXCEPTIONS — the test is named for what it CHECKS, not for its module.
+      # Each is verified against the file's own imports, not guessed:
+      #   test_crosswalk_known_answers.py  imports mfl_adapter   (C)
+      #   test_attrition_seam.py           imports ingest_filters (C)
+      # `test_nflverse*` was dropped: no such test exists, and when C adds one the
+      # derivation above will pick it up from draft/backtest/nflverse*.py without
+      # an edit here — which is the whole point of deriving.
+      case "$1" in
+        draft/tests/test_attrition*|draft/tests/test_crosswalk*) return 0 ;;
+      esac
+      return 1 ;;
     .github/workflows/adp-asof-probe.yml) return 0 ;;
     .github/workflows/mfl-probe.yml|.github/workflows/mfl-schema-probe.yml) return 0 ;;
     INGEST-PLAN.md) return 0 ;;
@@ -124,11 +155,27 @@ shared() {
     STATUS.md|PARKED.md|DECISIONS-NEEDED.md|TASK-AUDIT.md|TERRITORY.md) return 0 ;;
     # Shared coordination infra: the split's own enforcement, maintained by both.
     scripts/territory-check.sh|scripts/branch-check.sh) return 0 ;;
-    # Shared TEST + CI infra: draft/tests holds tests for BOTH lanes, and each
-    # side maintains the WORKFLOWS for the features it owns (A: lab/self-audit/
-    # deploy-verify…; B: sunday-alert…). A test/workflow follows the substance of
-    # what it serves. Append-only, rebase before push; neither rewrites the other's.
-    draft/tests/*|.github/workflows/*) return 0 ;;
+    # ── draft/tests/* IS NO LONGER BLANKET-SHARED ───────────────────────────
+    #
+    # A GUARD THAT EXISTED AND DID NOT GUARD. This entry claimed every test file
+    # for both lanes, which means `c_owns` was NEVER CONSULTED for any test —
+    # `shared()` short-circuits it. So the whole list of test-name patterns
+    # inside c_owns (test_mfl_*, test_ingest_*, test_crosswalk*, …) has been
+    # DEAD CODE for its entire life. It looked like ownership was being decided.
+    # It was not. Found 2026-08-11 while fixing what looked like a gap in that
+    # list, by writing the first test that actually asked the question.
+    #
+    # The old comment stated the right principle — "a test follows the substance
+    # of what it serves" — and implemented it as `shared`, which is a convention
+    # with no enforcement. Cory's ruling makes it structural: a test follows its
+    # MODULE, and c_owns derives that. So the entry is removed and the derivation
+    # becomes reachable.
+    #
+    # WORKFLOWS STAY SHARED for now: each side maintains the workflows for the
+    # features it owns, and their names do not map to modules the way test files
+    # do, so the same derivation is not available. Narrowed deliberately rather
+    # than dropped, and flagged as the remaining unenforced half.
+    .github/workflows/*) return 0 ;;
     *) return 1 ;;
   esac
 }
