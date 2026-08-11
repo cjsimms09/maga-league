@@ -6,6 +6,7 @@
       <% if (error) { %><div class="error-note"><%= error %></div><% } %>
       <% if (sent) { %>
         <div class="flash-note">If that account exists and has an email on file, a reset link is on its way. It expires in an hour.</div>
+        <p class="muted">No email on file, or it doesn't turn up? <b>Text Cory</b> — he can reset it in about five seconds from the console.</p>
         <p style="text-align:center"><a class="btn navy" href="/login">Back to login</a></p>
       <% } else if (!emailOn) { %>
         <p>Email isn't switched on for this league yet, so reset links can't be sent.</p>

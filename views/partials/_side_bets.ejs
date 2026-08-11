@@ -1,3 +1,13 @@
+<%# A REFUSED PROPOSAL SAYS SO. Pressing "Send it" on a bet the server won't
+    accept used to reload this page with no bet and no message — the guard
+    fell through to a bare redirect and any thrown error was swallowed. A bet
+    that silently doesn't exist is worse than an error, because you believe
+    it's live until the week it should have paid. %>
+<% if (typeof betFail !== 'undefined' && betFail) { %>
+  <div class="alert-banner" style="margin-bottom:1rem; border-color:rgba(212,36,47,.55)">
+    <span class="tag">⚠️</span><span><b>That bet wasn't created.</b> <%= betFail %></span>
+  </div>
+<% } %>
 <%
   const myId = owner.id;
   const inIt = b => (b.parties || []).some(p => p.owner_id === myId);

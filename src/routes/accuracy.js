@@ -33,6 +33,16 @@
 
 // ---- prediction KINDS we group by, in display order, with human labels. The
 // keys match src/predledger.js kinds / forecast key prefixes A grades under. ----
+// TWO VOCABULARIES IN ONE LIST, and only one of them can reach this table.
+// `kindOf` derives a forecast KEY NAMESPACE (`survival:`, `room_seat:`) because
+// grading covers `kind === 'forecast'` records only. The ledger KINDS below —
+// lineup_call, waiver_claim, stream_call, trade_eval — are never a forecast key
+// prefix, so those four labels cannot currently fire. They are kept, not
+// deleted, because they go live the day A's decision join covers the in-season
+// kinds (parked). PENDING_KINDS names them so the table cannot quietly look
+// like it covers decisions it does not, and so a guard can check the claim.
+const PENDING_KINDS = ['lineup_call', 'waiver_claim', 'stream_call', 'trade_eval'];
+
 const KIND_LABELS = [
   ['survival', 'Survival calls'],
   ['lineup_call', 'Start/sit calls'],
@@ -76,8 +86,17 @@ function biggestMisses(graded, n) {
   // not "bigger" than a 90%-sure call that flopped.
   const scored = (graded || []).map(g => {
     let mag = 0;
-    if (g.ftype === 'probability' && g.brier != null) mag = g.brier;
-    else if (g.ftype === 'point' && g.abs_error != null) {
+    if (g.ftype === 'probability' && g.brier != null) {
+      // ONLY ACTUAL MISSES. Ranking every graded call by Brier put SUCCESSES in
+      // the failure-modes list — "said 90% → happened (Brier 0.01)" was showing
+      // up under "where it was most wrong", and with a small sample the list was
+      // more right answers than wrong ones. A probability call fails when the
+      // side it favoured is not the side that happened; a 55% call that hit is a
+      // mild call, not a failure mode. p == 0.5 favours neither, so it can't miss.
+      const p = num(g.value), o = num(g.outcome);
+      const wrong = p != null && o != null && p !== 0.5 && ((p > 0.5) !== (o >= 0.5));
+      mag = wrong ? g.brier : 0;
+    } else if (g.ftype === 'point' && g.abs_error != null) {
       const scale = Math.max(Math.abs(num(g.outcome) || 0), Math.abs(num(g.value) || 0), 1);
       mag = g.abs_error / scale;
     } else if (g.ftype === 'categorical') {
@@ -90,26 +109,81 @@ function biggestMisses(graded, n) {
     return { g, mag, line: gradedLine(g) };
   }).filter(x => x.mag > 0);
   scored.sort((a, b) => b.mag - a.mag);
-  return scored.slice(0, n || 8);
+  const out = scored.slice(0, n || 8);
+  // HOW MANY WERE THERE. A top-N list that does not say what N is out of reads
+  // as "these are the misses" rather than "these are the worst of many" — the
+  // silent-truncation shape. Invisible on a small fixture, where N was never
+  // reached; at a real draft's volume the list shows 8 of dozens.
+  out.total = scored.length;
+  return out;
+}
+
+// The kind of a graded record. `by_kind` is an OPTIONAL roll-up in the interface
+// and the grader does not emit one — so the "By prediction type" table never
+// rendered, on real data as much as on none. The kind is already in the record:
+// every forecast key is namespaced (`survival:<pid>@pick12`, `room_seat:r1p4`),
+// and `method` ("survival-forecast-v1") is the fallback. Derive it here rather
+// than asking A to add a roll-up whose inputs we already hold.
+function kindOf(g) {
+  const k = String(g.key || '');
+  const i = k.indexOf(':');
+  if (i > 0) return k.slice(0, i);
+  const m = String(g.method || '');
+  if (m) return m.replace(/-v\d+$/, '').replace(/-forecast$/, '').replace(/-/g, '_');
+  return g.ftype || 'other';
+}
+
+const meanOf = xs => xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null;
+
+function deriveByKind(graded) {
+  const buckets = new Map();
+  for (const g of graded || []) {
+    const k = kindOf(g);
+    if (!buckets.has(k)) buckets.set(k, { n: 0, brier: [], hits: 0, catN: 0, abs: [] });
+    const b = buckets.get(k);
+    b.n += 1;
+    if (g.ftype === 'probability' && num(g.brier) != null) {
+      b.brier.push(g.brier);
+      // A probability call "hit" when the side it favoured is the side that happened.
+      const p = num(g.value), o = num(g.outcome);
+      if (p != null && o != null) { b.catN += 1; if ((p >= 0.5) === (o >= 0.5)) b.hits += 1; }
+    } else if (g.ftype === 'point' && num(g.abs_error) != null) {
+      b.abs.push(g.abs_error);
+    } else if (g.ftype === 'categorical') {
+      b.catN += 1;
+      if (g.hit === true || (g.hit == null && String(g.value) === String(g.outcome))) b.hits += 1;
+    }
+  }
+  const out = {};
+  for (const [k, b] of buckets) {
+    out[k] = { n: b.n, brier: meanOf(b.brier), accuracy: b.catN ? b.hits / b.catN : null, mae: meanOf(b.abs) };
+  }
+  return out;
 }
 
 function byKindRows(cal) {
-  if (!cal || !cal.by_kind) return [];
+  if (!cal) return [];
+  // A's roll-up wins when present; otherwise derive it from the graded records.
+  const src = cal.by_kind || ((cal.graded || []).length ? deriveByKind(cal.graded) : null);
+  if (!src) return [];
+  const round3 = n => n == null ? null : Math.round(n * 1000) / 1000;
   const out = [];
   for (const [key, label] of KIND_LABELS) {
-    const r = cal.by_kind[key];
+    const r = src[key];
     if (!r) continue;
     out.push({ key, label,
       n: r.n || 0,
-      brier: num(r.brier),
+      brier: round3(num(r.brier)),
       accuracy: num(r.accuracy),
-      mae: num(r.mae) });
+      mae: round3(num(r.mae)),
+      derived: !cal.by_kind });
   }
-  // include any kinds A reports that we didn't pre-label, so nothing is hidden
-  for (const key of Object.keys(cal.by_kind)) {
+  // include any kinds we didn't pre-label, so nothing is hidden
+  for (const key of Object.keys(src)) {
     if (KIND_LABELS.some(k => k[0] === key)) continue;
-    const r = cal.by_kind[key];
-    out.push({ key, label: key, n: r.n || 0, brier: num(r.brier), accuracy: num(r.accuracy), mae: num(r.mae) });
+    const r = src[key];
+    out.push({ key, label: key, n: r.n || 0, brier: round3(num(r.brier)),
+      accuracy: num(r.accuracy), mae: round3(num(r.mae)), derived: !cal.by_kind });
   }
   return out;
 }
@@ -138,6 +212,17 @@ function buildAccuracyView(calibration, attribution, rawCount, extra) {
     generatedAt: cal ? (cal.generated_at || null) : null,
     rawCount,
     everRun: !!cal,
+    // WHAT GOT GRADED IN THE LATEST RUN. "How many total" answers a different
+    // question from "what landed this week", and only the second one tells you
+    // the loop is still turning. The append-only ledger already has it: the
+    // newest run's graded count minus the previous run's. Null on the first run,
+    // where there is no "since" to measure from.
+    newlyGraded: (() => {
+      const s = (extra.series || []).filter(p => p && p.at);
+      if (s.length < 2) return null;
+      return Math.max(0, (s[s.length - 1].graded || 0) - (s[s.length - 2].graded || 0));
+    })(),
+    runs: (extra.series || []).filter(p => p && p.at).length,
   };
 
   const prob = (cal && cal.probability) || null;
@@ -177,7 +262,10 @@ function buildAccuracyView(calibration, attribution, rawCount, extra) {
     byKind: byKindRows(cal),
     byWeek: (cal && cal.by_week) || [],
     recently,
+    // Both lists are CAPPED. Ship the denominators so the page can say so.
+    recentlyTotal: graded ? (cal.graded || []).length : 0,
     biggestMisses: graded ? biggestMisses(cal.graded, 8) : [],
+    missesTotal: graded ? biggestMisses(cal.graded, 1e9).total : 0,
     attribution: attr,
 
     // CALIBRATION OVER TIME — one point per grading run, from the append-only
@@ -200,7 +288,61 @@ function buildAccuracyView(calibration, attribution, rawCount, extra) {
       rate: (extra.decisions.scored || 0) > 0
         ? Math.round(((extra.decisions.cory_beat_model || 0) / extra.decisions.scored) * 100) : null,
     } : null,
+
+    // The same question answered from the raw ledger, for the season before the
+    // grader's join covers the in-season kinds. Always shown when there is
+    // anything to show; the graded half sits alongside it when it exists.
+    captured: extra.captured || null,
   };
 }
 
-module.exports = { buildAccuracyView, biggestMisses, gradedLine, byKindRows, KIND_LABELS };
+/**
+ * The override record AS CAPTURED, straight off the prediction ledger.
+ *
+ * The grader's decision join reads the draft kinds (recommendation/pick/override)
+ * and does not yet cover the in-season ones this site writes (`lineup_call`,
+ * `inseason_override`) — that extension is A's, and is parked. Until it lands,
+ * "how often did I override and what was the gap" is answerable from the raw
+ * entries alone, and refusing to answer it would repeat exactly the failure the
+ * override card exists to fix: a number produced every week and rendered nowhere.
+ *
+ * What this CANNOT say is how the overrides turned out — that needs outcomes
+ * joined against the recommendation, which is the graded half. It says so.
+ */
+function capturedOverrides(ledger) {
+  const overrides = [], follows = [];
+  for (const e of ledger || []) {
+    if (e.kind === 'inseason_override') overrides.push(e);
+    else if (e.kind === 'lineup_call') follows.push(e);
+  }
+  const n = overrides.length + follows.length;
+  if (!n) return null;
+  const gaps = overrides.map(e => num((e.payload || {}).gap_dollars)).filter(g => g != null);
+  const reasons = {};
+  for (const e of overrides) {
+    const r = String((e.payload || {}).reason || 'unstated');
+    reasons[r] = (reasons[r] || 0) + 1;
+  }
+  return {
+    decisions: n,
+    overrides: overrides.length,
+    followed: follows.length,
+    rate: n ? Math.round((overrides.length / n) * 100) : null,
+    contested: overrides.filter(e => (e.payload || {}).contested === true).length,
+    // Total dollars the tool said were at stake in the weeks he went the other
+    // way — the size of the disagreement, NOT a claim about who was right.
+    gapTotal: gaps.length ? Math.round(gaps.reduce((a, b) => a + b, 0)) : null,
+    gapMax: gaps.length ? Math.round(Math.max(...gaps.map(Math.abs))) : null,
+    reasons: Object.entries(reasons).sort((a, b) => b[1] - a[1]).map(([reason, count]) => ({ reason, count })),
+    weeks: overrides.map(e => ({
+      week: (e.payload || {}).week != null ? (e.payload || {}).week : null,
+      gap: num((e.payload || {}).gap_dollars),
+      contested: (e.payload || {}).contested === true,
+      reason: String((e.payload || {}).reason || 'unstated'),
+      at: e.at || e.decision_at || null,
+    })).sort((a, b) => (b.week || 0) - (a.week || 0)).slice(0, 12),
+  };
+}
+
+module.exports = { buildAccuracyView, biggestMisses, gradedLine, byKindRows, capturedOverrides,
+                   KIND_LABELS, PENDING_KINDS };

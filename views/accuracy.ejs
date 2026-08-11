@@ -28,7 +28,12 @@
         Calibration, the weekly grade, the attribution table and the misses all light up here once the weekly grading runs and writes the calibration ledger — nothing is faked in the meantime.
       </p>
     <% } else { %>
-      <p class="muted" style="margin:.9rem 0 0; font-size:.8rem">
+      <% if (s.newlyGraded != null) { %>
+        <p style="margin:.9rem 0 0"><b><%= s.newlyGraded %> newly graded</b> in the latest run<% if (s.newlyGraded === 0) { %> — nothing new resolved since the run before it<% } %>.</p>
+      <% } else if (s.runs === 1) { %>
+        <p style="margin:.9rem 0 0"><b>First grading run.</b> From the next one on, this line says how many landed since the last.</p>
+      <% } %>
+      <p class="muted" style="margin:.4rem 0 0; font-size:.8rem">
         Graded through <%= s.throughWeek != null ? 'week ' + s.throughWeek : '—' %><% if (s.generatedAt) { %> · last graded <%= new Date(s.generatedAt).toLocaleString('en-US', { timeZone: 'America/New_York', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) %> ET<% } %>.
         Every forecast is graded only if it was committed strictly before it resolved — no backdating counts.
       </p>
@@ -38,10 +43,51 @@
 
 <%# ── THE OVERRIDE RECORD — am I adding value on top of the tool, or subtracting?
     The grader has been computing this since the loop closed; nothing rendered it. %>
+<% const C = v.captured; %>
+<% if (C) { %>
+  <div class="card" style="margin-bottom:1.2rem">
+    <h2>🙋 Your overrides <span class="sub">how often you went against the tool, and by how much</span></h2>
+    <div class="body">
+      <div class="acc-ov">
+        <div class="acc-ov-cell"><span class="acc-ov-num"><%= C.decisions %></span><span class="acc-ov-lbl">lineup decisions</span></div>
+        <div class="acc-ov-cell"><span class="acc-ov-num"><%= C.overrides %></span><span class="acc-ov-lbl">you overrode</span></div>
+        <div class="acc-ov-cell"><span class="acc-ov-num"><%= C.rate %>%</span><span class="acc-ov-lbl">of the time</span></div>
+        <div class="acc-ov-cell"><span class="acc-ov-num"><%= C.gapMax != null ? '$' + C.gapMax : '—' %></span><span class="acc-ov-lbl">biggest gap</span></div>
+      </div>
+      <% if (C.overrides) { %>
+        <p class="muted" style="margin:.6rem 0 .2rem; font-size:.8rem">
+          <b><%= C.contested %></b> of <%= C.overrides %> <%= C.contested === 1 ? 'was' : 'were' %> <b>contested</b> —
+          the tool was within $2 of indifferent, so going the other way cost about nothing.
+          <% if (C.gapTotal != null) { %>Across all of them the tool said <b>$<%= Math.abs(C.gapTotal) %></b> was at stake;
+          that is the size of the disagreement, not a claim about who was right.<% } %>
+        </p>
+        <div class="scroll-x"><table class="roll">
+          <tr><th>Week</th><th>Why</th><th class="num">Gap</th><th class="num">Contested</th></tr>
+          <% for (const w of C.weeks) { %>
+            <tr><td><%= w.week != null ? 'wk ' + w.week : '—' %></td>
+              <td><%= w.reason %></td>
+              <td class="num"><%= w.gap == null ? '—' : (w.gap < 0 ? '−$' : '$') + Math.abs(Math.round(w.gap)) %></td>
+              <td class="num"><%= w.contested ? 'yes' : 'no' %></td></tr>
+          <% } %>
+        </table></div>
+      <% } else { %>
+        <p class="muted" style="margin:.6rem 0 0; font-size:.8rem">
+          You've followed the tool every logged week so far. The override button on the optimizer records the other case in one tap.
+        </p>
+      <% } %>
+      <p class="acc-empty" style="margin:.7rem 0 0">
+        <b>How they turned out isn't measured yet.</b> That needs each override's outcome joined against what
+        the tool recommended, which is the grading half — it covers the draft decisions today and not these.
+        The gaps above are real; the verdict column is deliberately absent rather than guessed.
+      </p>
+    </div>
+  </div>
+<% } %>
+
 <% const D = v.decisions; %>
 <% if (D && D.n > 0) { %>
   <div class="card" style="margin-bottom:1.2rem">
-    <h2>🙋 Your overrides <span class="sub">when you went against the tool, how did it turn out?</span></h2>
+    <h2>⚖️ Graded decisions <span class="sub">where an outcome is joined to the recommendation</span></h2>
     <div class="body">
       <div class="acc-ov">
         <div class="acc-ov-cell"><span class="acc-ov-num"><%= D.n %></span><span class="acc-ov-lbl">decisions logged</span></div>
@@ -80,8 +126,13 @@
           <% } %>
         </div>
         <p class="muted" style="margin:.5rem 0 0; font-size:.78rem">
-          <%= pts.length %> grading runs. Brier is mean squared error on the probability calls
-          (0 = perfect, 0.25 = a coin flip). Falling bars mean the model is learning; flat or rising means it isn't.
+          <%= pts.length %> grading run<%= pts.length === 1 ? '' : 's' %>. Brier is mean squared error on the
+          probability calls (0 = perfect, 0.25 = a coin flip).
+          <% if (pts.length < 5) { %>
+            <b>Too few runs to read as a trend</b> — this is the record so far, not a direction. Ask it again in a month.
+          <% } else { %>
+            Falling bars mean the model is learning; flat or rising means it isn't.
+          <% } %>
         </p>
       </div>
     </div>
@@ -99,17 +150,17 @@
         <div class="acc-metric">
           <span class="acc-metric-lbl">Probability (Brier)</span>
           <span class="acc-metric-val"><%= f2(c.probability.brier) %></span>
-          <span class="acc-metric-sub"><%= c.probability.n %> calls · lower is better, .250 = a coin</span>
+          <span class="acc-metric-sub"><%= c.probability.n %> call<%= c.probability.n === 1 ? '' : 's' %> · lower is better, .250 = a coin</span>
         </div>
         <div class="acc-metric">
           <span class="acc-metric-lbl">Point (bias / MAE)</span>
           <span class="acc-metric-val"><%= c.point.bias == null ? '—' : (c.point.bias >= 0 ? '+' : '') + c.point.bias %></span>
-          <span class="acc-metric-sub"><%= c.point.n %> calls · <%= c.point.mae == null ? '—' : 'off by ' + c.point.mae %> avg<%= c.point.bias > 0 ? ' · runs high' : c.point.bias < 0 ? ' · runs low' : '' %></span>
+          <span class="acc-metric-sub"><%= c.point.n %> call<%= c.point.n === 1 ? '' : 's' %> · <%= c.point.mae == null ? '—' : 'off by ' + c.point.mae %> avg<%= c.point.bias > 0 ? ' · runs high' : c.point.bias < 0 ? ' · runs low' : '' %></span>
         </div>
         <div class="acc-metric">
           <span class="acc-metric-lbl">Categorical (accuracy)</span>
           <span class="acc-metric-val"><%= pct(c.categorical.accuracy) %></span>
-          <span class="acc-metric-sub"><%= c.categorical.n %> calls</span>
+          <span class="acc-metric-sub"><%= c.categorical.n %> call<%= c.categorical.n === 1 ? '' : 's' %></span>
         </div>
       </div>
 
@@ -160,7 +211,7 @@
 
 <%# ── WHAT GOT GRADED — readable, not a data dump ────────────────────────────── %>
 <div class="card" style="margin-bottom:1.2rem">
-  <h2>🧾 Recently graded <span class="sub">what it claimed · what happened · right?</span></h2>
+  <h2>🧾 Recently graded <span class="sub"><% if (v.recentlyTotal > (v.recently||[]).length) { %>the latest <%= (v.recently||[]).length %> of <%= v.recentlyTotal %><% } else { %>what it claimed · what happened · right?<% } %></span></h2>
   <div class="body">
     <% if (!v.recently || !v.recently.length) { %>
       <p class="acc-empty" style="margin:0">Nothing graded yet. As predictions resolve, the latest ones land here in plain language.</p>
@@ -180,7 +231,7 @@
 
 <%# ── BIGGEST MISSES — the failure modes, not just the aggregate ──────────────── %>
 <div class="card" style="margin-bottom:1.2rem">
-  <h2>💥 Where it was most wrong <span class="sub">the failure modes, ranked</span></h2>
+  <h2>💥 Where it was most wrong <span class="sub"><% if (v.missesTotal > (v.biggestMisses||[]).length) { %>the <%= (v.biggestMisses||[]).length %> worst of <%= v.missesTotal %> misses<% } else { %>the failure modes, ranked<% } %></span></h2>
   <div class="body">
     <% if (!v.biggestMisses || !v.biggestMisses.length) { %>
       <p class="acc-empty" style="margin:0">No graded misses yet — this ranks the most confident wrong calls once there are any.</p>

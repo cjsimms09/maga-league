@@ -12,6 +12,44 @@
 
 <% if (flash) { %><div class="flash-note"><%= flash %></div><% } %>
 
+<%# ── DID THE SCHEDULED THINGS ACTUALLY HAPPEN ────────────────────────────────
+    Three jobs now send mail on the league's behalf, and until this panel existed
+    the only place their outcome appeared was a GitHub Actions annotation. The
+    line that earns this its space is not "the last one worked" — it is the
+    arithmetic: the league is on week 9, the last recap went out for week 6,
+    three weeks were missed. A panel that reports the most recent SUCCESS is how
+    a job that stopped three weeks ago still looks healthy.
+
+    It renders nothing when everything is fine and nothing is off-season, on the
+    same principle as the contact-directory strip above: a green light nobody
+    needs is a green light nobody reads. %>
+<% if (typeof health !== 'undefined' && health.length) {
+     const bad = health.filter(h => !h.ok); %>
+  <% if (bad.length) { %>
+    <div class="alert-banner" style="margin:0 0 1rem; border-color:#d4242f">
+      <span class="tag">⛔</span>
+      <span><b><%= bad.length %> thing<%= bad.length === 1 ? '' : 's' %> the automation is not doing.</b>
+        <%= bad.map(h => h.label + ': ' + h.detail).join(' · ') %></span>
+    </div>
+  <% } %>
+  <details class="contact-status" style="background:var(--panel-soft); border:1px solid var(--line); border-left:3px solid <%= bad.length ? '#d4242f' : 'var(--gold)' %>; border-radius:8px; padding:.6rem .9rem; margin:0 0 1rem;">
+    <summary style="cursor:pointer; color:var(--ink)">
+      <b>Automation</b> — <%= bad.length ? bad.length + ' needing attention' : 'all clear' %>. Tap for what ran and when.
+    </summary>
+    <table class="roll" style="margin:.6rem 0 0">
+      <% for (const h of health) { %>
+        <tr>
+          <td style="width:1.6rem"><%= h.ok ? '✅' : '⛔' %></td>
+          <td><b><%= h.href ? '' : '' %><%= h.label %></b></td>
+          <td><%= h.detail %>
+            <% if (h.note) { %><br><span class="muted" style="font-size:.78rem"><%= h.note %></span><% } %></td>
+          <td style="text-align:right"><% if (h.href) { %><a href="<%= h.href %>">open →</a><% } %></td>
+        </tr>
+      <% } %>
+    </table>
+  </details>
+<% } %>
+
 <%# Contact-directory status — aggregate, and only when actionable. Nothing shows
     when everyone's complete; each owner is nagged for their own data at home. %>
 <% if (typeof contactStatus !== 'undefined' && contactStatus.length) { %>
@@ -741,6 +779,19 @@
       </p>
       <form method="post" action="/admin/sleeper/refresh-records" style="margin-top:.6rem">
         <button class="btn navy" type="submit">♻️ Rebuild Record Book Now</button>
+      </form>
+      <%# ARCHIVE THE BOARD. The war room captures picks as they land, but only
+          while that tab is open — close the laptop on the last pick and the
+          final batch may never post. This is the independent second path, and
+          it is safe to press any number of times (the archive is content-hash
+          deduped, so an unchanged board is skipped). %>
+      <form method="post" action="/admin/api/archive/draft" style="margin-top:.6rem">
+        <button class="btn navy" type="submit">🗒️ Archive the completed draft board</button>
+        <span class="muted" style="font-size:.76rem; margin-left:.5rem">
+          Pulls the finished draft from Sleeper into the permanent archive, independently of the war room.
+          Safe to press twice — an unchanged board is deduped. Shows up under
+          <a href="/history/board/<%= (season && season.year) || '' %>">the season's draft board</a>.
+        </span>
       </form>
     </div>
   </div>

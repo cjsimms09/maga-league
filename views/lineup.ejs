@@ -1,4 +1,10 @@
 <%- include('partials/header', { title: 'Lineup Optimizer' }) %>
+<%# THE ONE PAGE THAT TURNS STALE DATA INTO A DOLLAR RECOMMENDATION was the one
+    page without this banner. dashboard, matchup, watch and scoreboard all had
+    it; the optimizer did not — so when Sleeper was down, the four pages showing
+    numbers said "not live" and the page telling you what to START said nothing.
+    Found by driving a failed-fetch week. %>
+<%- include('partials/_live_stale') %>
 <%
   const money0 = n => '$' + Math.round(Number(n || 0)).toLocaleString('en-US');
   const signed = n => (n >= 0 ? '+' : '') + money0(n);
@@ -28,9 +34,39 @@
     ledger — January grades the difference in dollars.</span>
   </div>
 <% } %>
-<% if (typeof sent !== 'undefined' && sent) { %>
-  <div class="alert-banner" style="margin-bottom:1rem; border-color:rgba(74,222,128,.5)">
-    <span class="tag">📣</span><span>Sunday alert sent to your inbox<%= (typeof emailOn !== 'undefined' && !emailOn) ? ' (email isn\'t configured yet, so it was a dry run)' : '' %>.</span>
+<% if (typeof overrode !== 'undefined' && overrode) { %>
+  <div class="alert-banner" style="margin-bottom:1rem; border-color:rgba(185,130,42,.5)">
+    <span class="tag">🙋</span><span>Override recorded — the tool's call and the dollar gap are both in the ledger.
+    That's the disagreement written down at decision time, which is the only moment it can be.</span>
+  </div>
+<% } %>
+<%# THE REHEARSAL RESULT, HONESTLY. This banner said "sent to your inbox" for
+    every outcome, including a provider refusal — and this button is the only way
+    to find out whether the email reaches you at all when you aren't on the site,
+    so the one thing it must never do is claim a send that didn't happen. %>
+<% if (typeof sent !== 'undefined' && sent) {
+     const sr = (typeof sendResult !== 'undefined' && sendResult) || null;
+     // NO RESULT MEANS NO CLAIM. The result is read once and cleared, so ?sent=1
+     // on a refresh has nothing behind it. The old banner defaulted to "sent to
+     // your inbox" in exactly that case, which is how a refresh could report a
+     // delivery that never happened.
+     const oc = sr ? sr.outcome : 'unknown';
+     const good = oc === 'ok';
+     const BANNER = {
+       unknown: ['⚪', 'Alert requested — but the outcome wasn\'t carried through to this page (it was probably refreshed). Press the button again to see what actually happened.'],
+       ok:      ['📣', 'Sunday alert sent to your inbox. If it isn\'t there in a minute, check spam — and tell the commissioner, because the weekly cron uses this same path.'],
+       noemail: ['⚪', 'Nothing was sent: no email provider is configured (RESEND_API_KEY). The alert was composed but had nowhere to go.'],
+       nolive:  ['⚪', 'Nothing was sent: there\'s no live lineup right now (off-season, or Sleeper is unreachable).'],
+       refused: ['⛔', 'The mailer refused to send.'],
+       failed:  ['⛔', 'The email provider rejected it — nothing arrived.'],
+     };
+     const [icon, text] = BANNER[oc] || BANNER.unknown; %>
+  <div class="alert-banner" style="margin-bottom:1rem; border-color:<%= good ? 'rgba(74,222,128,.5)' : '#d4242f' %>">
+    <span class="tag"><%= icon %></span><span><%= text %>
+      <% if (sr && sr.detail) { %><span class="muted"><%= sr.detail %></span><% } %>
+      <% if (oc === 'failed') { %>
+        <span class="muted">The default sender is Resend's shared <code>onboarding@resend.dev</code>, which only delivers to the address that owns the Resend account — set <code>NOTIFY_FROM</code> to a verified domain, or make the commissioner's email match the Resend account.</span>
+      <% } %></span>
   </div>
 <% } %>
 
@@ -55,7 +91,7 @@
             <span class="lo-verdict-line"><%= posture.headline %></span>
           </div>
           <p class="lo-verdict-why"><%= posture.why %></p>
-          <p class="muted lo-src">Projections: <%= SRC_LABEL[projSource] || 'unknown source' %>.<% if (!live.projPending && projSource && projSource !== 'sleeper') { %> <b>Treat the dollar figures as directional, not precise, until live projections land.</b><% } %><% if (!live.projPending && !live.oppKnown) { %> Opponent modelled as a typical winning-band score (<%= Math.round(band.median) %>) until theirs lands.<% } %></p>
+          <p class="muted lo-src">Projections: <%= SRC_LABEL[projSource] || 'unknown source' %>.<% if (!live.projPending && projSource && projSource !== 'sleeper') { %> <b>Treat the dollar figures as directional, not precise, until live projections land.</b><% } %><% if (!live.projPending && !live.oppKnown) { %> Opponent modelled as a <b>typical team score (<%= Math.round((live.assumptions && live.assumptions.oppMean) || 0) %>)</b> until theirs lands — not the week's winning score, which would make every week look like a long shot.<% } %></p>
         </div>
       </div>
     <% } %>
@@ -81,13 +117,86 @@
           <p class="lo-inactive muted">🚫 Not eligible this week (can't score, left out):
             <%= live.inactive.map(p => p.name + ' (' + p.reason + ')').join(' · ') %>.</p>
         <% } %>
+        <%# ...and the ones it KEPT while they carry a tag. Naming only the
+            zeroed players left the genuinely uncertain starter unmentioned on
+            the exact day you set the lineup. The projection is used in full
+            because that is what the feed says; the doubt is stated so it is
+            your call, not a silent one. %>
+        <% if (live.questionable && live.questionable.length) { %>
+          <p class="lo-questionable">⚠️ Started at full projection but tagged:
+            <%= live.questionable.map(p => p.name + ' (' + p.tag + ')').join(' · ') %>.
+            <span class="muted">Sleeper hasn't ruled them out, so the projection stands — check the news before kickoff.</span></p>
+        <% } %>
       </div>
     </div>
 
-    <%# ── What changed vs your studs — the priced moves, secondary ──────────── %>
-    <% if (live.calls && live.calls.length) { %>
+    <%# ── YOUR LINEUP vs THE RECOMMENDATION — the actual to-do list ───────────
+        The card below this one compares the two MODEL lineups (recommended vs
+        highest-projection), which is a property of the optimizer and was being
+        read as a to-do list. It is empty exactly when the two optima agree —
+        including on a week when the lineup you have SET is wrong, because the
+        solver never received it. Bench your best receiver and the page said
+        "Nothing to change this week… the tool agrees with you."
+        `live.set` is the comparison against what is actually started. It leads,
+        because it is the only thing on this page you can act on. %>
+    <% if (live.set && !live.set.matches && live.set.changes.length) { %>
+      <div class="card lo-todo" style="margin-bottom:1.1rem; border-color:#d4242f">
+        <h2>⚠️ Your lineup isn't the recommended one
+          <span class="sub"><%= live.set.changes.length %> change<%= live.set.changes.length === 1 ? '' : 's' %> to make<% if (live.set.dollars > 0.5) { %> · worth <%= money0(live.set.dollars) %><% } %></span></h2>
+        <div class="body">
+          <% live.set.changes.forEach(c => { %>
+            <div class="lo-call">
+              <div class="lo-call-main">
+                <span class="lo-start">▲ Start <b><%= c.startName %></b> <span class="muted">(<%= c.startPos %>, proj <%= c.startProj != null ? c.startProj.toFixed(1) : '—' %>)</span></span>
+                <span class="lo-sit">▼ over <b><%= c.sitName %></b> <span class="muted">(<%= c.sitPos %>, proj <%= c.sitProj != null ? c.sitProj.toFixed(1) : '—' %>)</span></span>
+              </div>
+              <div class="lo-call-price">
+                <span class="lo-dollars <%= c.dollars >= 0 ? 'money-up' : 'money-down' %>"><%= signed(c.dollars) %></span>
+                <span class="lo-split muted"><%= (c.startProj - c.sitProj) >= 0 ? '+' : '' %><%= (c.startProj - c.sitProj).toFixed(1) %> projected</span>
+              </div>
+            </div>
+          <% }) %>
+          <p class="muted" style="margin:.6rem 0 0; font-size:.78rem">
+            Read off the lineup Sleeper currently has set for you. Make the swaps there — the site doesn't write to Sleeper.
+          </p>
+        </div>
+      </div>
+    <% } %>
+
+    <%# ── What changed vs your studs — the priced moves, secondary ────────────
+        MEASURED CONTEXT (A, 2026-08-10): the dual-objective optimizer deviates
+        from "start your highest projections" only ~11% of weeks, worth ~$9/season.
+        So the NO-CHANGE week is the normal one — nine in ten. This card used to
+        vanish on those weeks, which is the worst of both: the page silently
+        changes shape, and the rare week when it DOES speak looks like the
+        default. Say the quiet answer out loud instead, and let the loud one earn
+        its noise. %>
+    <% if (!live.calls || !live.calls.length) { %>
+      <div class="card lo-nochange" style="margin-bottom:1.1rem">
+        <div class="body">
+          <%# ONLY CLAIM WHAT WAS CHECKED. "the tool agrees with you" was said off
+              an empty `calls` array, which is a statement about the two model
+              lineups and not about yours. Three sentences for three states. %>
+          <p style="margin:0"><b>✅ Nothing to change this week.</b>
+            <% if (live.set && live.set.matches) { %>
+              The lineup you have set <i>is</i> the dollar-optimal one — checked against Sleeper, player for player.
+            <% } else if (live.set) { %>
+              Your highest-projection lineup is already the dollar-optimal one.
+            <% } else { %>
+              Your highest-projection lineup is already the dollar-optimal one.
+              <span class="muted">(Your live Sleeper lineup wasn't readable, so this compares the two model lineups — not yours.)</span>
+            <% } %></p>
+          <p class="muted" style="margin:.45rem 0 0; font-size:.78rem">
+            That's the normal week. Starting your best projections is the right call about
+            <b>9 weeks in 10</b>; the optimizer only finds a better lineup ~11% of the time
+            (worth ~$9 across a season). When it does, this card fills with the specific
+            swap and what it's worth — so a week with moves in it is worth a second look.
+          </p>
+        </div>
+      </div>
+    <% } else { %>
       <div class="card" style="margin-bottom:1.1rem">
-        <h2>🔀 What changed vs your studs <span class="sub">each move priced in dollars</span></h2>
+        <h2>🔀 What changed vs your studs <span class="sub">each move priced in dollars — a rare week</span></h2>
         <div class="body">
           <% live.calls.forEach(c => { %>
             <div class="lo-call">
@@ -140,6 +249,38 @@
       </div>
     </form>
 
+    <%# ── ...AND THE OVERRIDE. The page could only record AGREEMENT: press "Log
+        this lineup" and the call is preserved, go against it and there was no
+        button at all, so every disagreement left no trace. `inseason_override`
+        has been a registered ledger kind the whole time with nothing writing one.
+        Each chip is itself the submit button, so picking a reason IS the tap
+        rather than a step after it — an override you have to reconstruct later
+        is worth almost nothing, so the capture never costs more than one press. %>
+    <form method="post" action="/lineup/override" class="card lo-override" style="margin-bottom:1rem">
+      <div class="body">
+        <div style="margin-bottom:.55rem">
+          <b>Not playing it?</b>
+          <span class="muted" style="font-size:.82rem">One tap says why. The gap is <b><%= live.edge >= 0 ? '$' : '−$' %><%= Math.abs(Math.round(live.edge)) %></b>
+            <% if (Math.abs(live.edge) < 2) { %>— close enough that going the other way costs about nothing<% } %>.</span>
+        </div>
+        <input type="hidden" name="week" value="<%= (matchup && matchup.week) || '' %>">
+        <input type="hidden" name="dollars" value="<%= live.edge %>">
+        <input type="hidden" name="confidence" value="<%= live.confidence.replace(/"/g, '&quot;') %>">
+        <input type="hidden" name="recommended" value="<%= JSON.stringify(live.lineup.map(s => ({ id: s.pid, name: s.name, pos: s.pos, proj: s.proj }))).replace(/"/g, '&quot;') %>">
+        <div class="lo-ov-chips">
+          <button class="btn small ghost" type="submit" name="reason" value="injury news">🏥 Injury news</button>
+          <button class="btn small ghost" type="submit" name="reason" value="matchup read">🎯 Matchup read</button>
+          <button class="btn small ghost" type="submit" name="reason" value="don't buy the projection">📉 Don't buy the projection</button>
+          <button class="btn small ghost" type="submit" name="reason" value="gut">🤙 Gut</button>
+          <button class="btn small ghost" type="submit" name="reason" value="unstated">Just record it</button>
+        </div>
+        <p class="muted" style="margin:.55rem 0 0; font-size:.74rem">
+          What you actually start is readable from Sleeper afterwards. What the tool told you <i>right now</i> isn't
+          recoverable from anything, so that's what gets written down.
+        </p>
+      </div>
+    </form>
+
     <%# ── The email that fires before kickoff — a rehearsal/preview, demoted:
         on a Sunday you want the call above, not a copy of the email. ────────── %>
     <% if (typeof alert !== 'undefined' && alert) { %>
@@ -148,16 +289,34 @@
         <div class="body">
           <% if (alert.posture) { %><div class="sa-head"><%= alert.posture.mode === 'chase' ? '🎯 CHASE' : alert.posture.mode === 'pending' ? '⏳ PENDING' : '🛡️ PROTECT' %> — <%= alert.posture.headline %></div>
           <p class="muted" style="margin:0 0 .6rem; font-size:.82rem"><%= alert.posture.why %></p><% } %>
+          <%# A DEAD SLOT LEADS IN THE EMAIL, so it leads here. A preview that
+              shows a different thing than the email sends is worse than no
+              preview — it was already caught once, showing a ⏳ PENDING week
+              branded 🛡️ PROTECT. %>
+          <% if (alert.dead && alert.dead.length) { %>
+            <div class="sa-head" style="color:#d4242f">⛔ <%= alert.dead.length %> starter<%= alert.dead.length === 1 ? '' : 's' %> cannot score this week</div>
+            <p class="muted" style="margin:.2rem 0 .6rem; font-size:.82rem"><%= alert.dead.map(d => d.name + ' (' + d.pos + ') — ' + d.reason).join(' · ') %></p>
+          <% } %>
           <div class="sa-head"><%= alert.headline %></div>
-          <% if (alert.hasCalls) { %>
+          <%# SAME SOURCE THE EMAIL USES: `changes` (vs your lineup) when the live
+              lineup was readable, `calls` (vs the naive lineup) when it was not. %>
+          <% const saTodo = alert.lineupKnown ? (alert.changes || []) : (alert.calls || []); %>
+          <% if (saTodo.length) { %>
             <ul class="sa-calls">
-              <% alert.calls.forEach(c => { %>
+              <% saTodo.forEach(c => { %>
                 <li><span class="sa-move">▲ Start <b><%= c.start %></b> over <%= c.sit %></span>
                   <span class="sa-dollars money-up">+$<%= Math.round(c.dollars) %></span>
                   <span class="sa-why muted"><%= c.why %></span></li>
               <% }) %>
             </ul>
           <% } %>
+          <%# THE EMAIL DOES NOT ARRIVE EVERY SUNDAY ANY MORE. Say so where the
+              rehearsal button is, or a quiet Sunday reads as a broken cron. %>
+          <p class="muted" style="font-size:.78rem; margin:.5rem 0 0">
+            <% if (alert.actionable) { %>This week the cron <b>would</b> send this.
+            <% } else { %>This week the cron would send <b>nothing</b> — there's nothing to act on, which is most weeks.
+              The scheduled run still logs itself either way.<% } %>
+          </p>
           <% if (alert.band && alert.band.median) { %>
             <p class="muted" style="font-size:.78rem; margin:.4rem 0 0">The bar: ~<%= alert.band.median %> usually takes the week's $100<% if (alert.projected) { %> · you project <%= Math.round(alert.projected) %><% } %>.</p>
           <% } %>

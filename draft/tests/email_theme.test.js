@@ -8,8 +8,15 @@
 // client's white default and disappears — the white-on-white failure again, in
 // the surface that arrives unprompted on a Sunday morning. Every colour must
 // therefore be legible on WHITE, not merely on our own background.
+const os = require('os');
 const fs = require('fs'), path = require('path');
 const ROOT = path.join(__dirname, '..', '..');
+// The mailer now refuses any recipient who is not an active commissioner (see
+// no_member_email.test.js). This test composes REAL emails, so it needs a store
+// in which its recipient is one — otherwise every send is refused and the
+// composition checks assert against an empty object.
+process.env.DATA_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'et-'));
+const store = require(path.join(ROOT, 'src', 'store')); store.initFiles();
 let pass = 0, fail = 0;
 const ck = (n, c, d) => { c ? (pass++, console.log('PASS ' + n)) : (fail++, console.log('FAIL ' + n + (d ? ' -> ' + d : ''))); };
 
@@ -53,9 +60,93 @@ ck('the email card is white', /background:#ffffff/.test(code));
 // The CTA button keeps white-on-red (a solid background it paints itself).
 ck('the CTA button is white on the brand red', /background:#d4242f;color:#ffffff/.test(code));
 
-// Sanity: the Sunday alert still composes its dollar figure and posture.
-ck('the Sunday alert still prices its calls', /\$\$\{Math\.round\(c\.dollars\)\}/.test(code));
-ck('the Sunday alert still leads with the posture', /CHASE|PROTECT/.test(code));
+// ── THE SUNDAY ALERT, ACTUALLY COMPOSED. Grepping the source for "CHASE" only
+// proved the string exists. Build the real email instead: set a key so sendMail
+// runs, and intercept fetch to capture the exact HTML and subject that would go
+// out. That is what caught the two defects below.
+{
+  process.env.RESEND_API_KEY = 'test-key-not-a-real-key';
+  const realFetch = global.fetch;
+  let sent = null;
+  global.fetch = async (_url, opts) => { sent = JSON.parse(opts.body); return { ok: true, text: async () => '' }; };
+  delete require.cache[require.resolve(path.join(ROOT, 'src', 'notify.js'))];
+  const N = require(path.join(ROOT, 'src', 'notify.js'));
+  const to = { email: 'x@example.com', id: 1, name: 'Cory', active: true, is_commissioner: true };
+  // Fail BY NAME, not by TypeError. When the recipient allowlist landed, every
+  // send here started returning nothing, `sent` stayed null, and the first
+  // `.html.match(...)` threw a bare TypeError that killed the file and printed
+  // none of the checks after it. A composition test that cannot compose should
+  // say so once, loudly, and let the rest of the suite run.
+  const send = async alert => {
+    sent = null;
+    const r = await N.sundayAlert(to, alert);
+    if (!sent) {
+      ck(`the mailer composed an email at all (week ${alert.week})`, false,
+        JSON.stringify(r));
+      return { html: '', subject: '' };
+    }
+    return sent;
+  };
 
-console.log(`\n${pass} passed, ${fail} failed`);
-process.exit(fail ? 1 : 0);
+  (async () => {
+    await store.set('owners', [to]);
+    // The rare week (~11%): the call and the money lead.
+    const withCalls = await send({ week: 5, hasCalls: true, edge: 14,
+      posture: { mode: 'chase', headline: 'Chase the weekly $100', why: 'because reasons' },
+      calls: [{ start: 'Boom', sit: 'Safe', dollars: 9, why: '+$8 weekly-high' }], band: null });
+    ck('a week WITH calls leads with the posture badge and prices the moves',
+      /🎯 CHASE/.test(withCalls.html) && /Start Boom/.test(withCalls.html) && /\$9/.test(withCalls.html));
+    ck('  and the subject says what is on the table', /\$14 on the table/.test(withCalls.subject), withCalls.subject);
+
+    // The ORDINARY week (~89%): it used to lead with a 16px "🎯 CHASE" call to
+    // action and then say underneath that there was nothing to do — the loudest
+    // element in the email was a decision that did not exist.
+    const none = await send({ week: 5, hasCalls: false, edge: 0,
+      headline: "You're already starting the dollar-optimal lineup — nothing to change.",
+      posture: { mode: 'protect', headline: 'Start your studs — no chase this week',
+        why: 'Your highest-projection lineup is also the dollar-optimal one.' }, calls: [], band: null });
+    const leadNone = (none.html.match(/font-size:16px[^>]*>([^<]*)/) || [])[1] || '';
+    ck('an ordinary week leads with the ANSWER, not the posture call-to-action',
+      /nothing to change/i.test(leadNone) && !/no chase this week/.test(leadNone), leadNone);
+    ck('  the posture reasoning is demoted to supporting text, not the 16px lead',
+      /dollar-optimal one\./.test(none.html) && !/dollar-optimal one\./.test(leadNone));
+    // The true inversion: posture says CHASE (edge >= $1 in aggregate) but every
+    // individual swap is under the $0.50 print threshold, so there are no calls.
+    // The old email put a 16px "🎯 CHASE" above "nothing to change".
+    const chaseNoCalls = await send({ week: 7, hasCalls: false, edge: 1.2,
+      headline: "You're already starting the dollar-optimal lineup — nothing to change.",
+      posture: { mode: 'chase', headline: 'Chase the $100', why: 'some ceiling upside' },
+      calls: [], band: null });
+    const leadCNC = (chaseNoCalls.html.match(/font-size:16px[^>]*>([^<]*)/) || [])[1] || '';
+    ck('  a CHASE posture with no actual calls does not shout a decision that is not there',
+      !/CHASE/.test(leadCNC) && /nothing to change/i.test(leadCNC), leadCNC);
+    ck('  and it states the frequency, so a quiet email reads as expected not as a dud',
+      /9 weeks in 10/.test(none.html));
+    ck('  subject matches', /nothing to change/.test(none.subject), none.subject);
+
+    // PENDING was branded 🛡️ PROTECT by a two-way ternary over three modes —
+    // "PROTECT" above its own headline "nothing to optimize" — while the on-page
+    // rehearsal in lineup.ejs rendered ⏳ PENDING. The preview showed a badge the
+    // real email would never send.
+    const pending = await send({ week: 1, hasCalls: false, edge: 0,
+      headline: 'No projections yet — nothing to optimize',
+      posture: { mode: 'pending', headline: 'No projections yet — nothing to optimize',
+        why: 'Projections have not landed.' }, calls: [], band: null });
+    ck('a PENDING posture is never branded PROTECT', !/PROTECT/.test(pending.html), pending.html.slice(0, 200));
+    ck('  it uses the same ⏳ the on-page preview shows', /⏳/.test(pending.html));
+    ck('  and does not claim the normal-week frequency when nothing is measured',
+      !/9 weeks in 10/.test(pending.html));
+
+    // The badge table must cover every mode weeklyPosture can return.
+    const LOsrc = fs.readFileSync(path.join(ROOT, 'src', 'routes', 'lineup.js'), 'utf8');
+    const modes = [...new Set((LOsrc.match(/mode:\s*'(\w+)'/g) || []).map(m => m.split("'")[1]))];
+    const nsrc = fs.readFileSync(path.join(ROOT, 'src', 'notify.js'), 'utf8');
+    const missing = modes.filter(m => !new RegExp('\\b' + m + '\\b').test(nsrc));
+    ck('every posture mode the engine can emit has an email badge', missing.length === 0, missing.join(','));
+
+    global.fetch = realFetch;
+    console.log(`\n${pass} passed, ${fail} failed`);
+    process.exit(fail ? 1 : 0);
+  })();
+}
+

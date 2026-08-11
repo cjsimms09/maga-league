@@ -1,0 +1,105 @@
+<%- include('../partials/header', { title: 'Weekly Recap' }) %>
+<h1 class="page-title">📰 The Weekly Recap
+  <span class="sub" style="font-weight:600">read it before nine people do</span></h1>
+
+<%# THIS PAGE IS THE ENFORCEMENT MECHANISM, not a convenience. The recap is the
+    only thing on the site that reaches the whole league, it is one-directional,
+    and the hard constraint is that nothing in it lands as a genuine dig at one
+    person. The only way to hold that is to read it first — so this renders the
+    exact text the email carries, not an approximation. %>
+<% if (sent) { %>
+  <%
+    const OUT = {
+      ok:                ['📣', 'Sent to the league.', true],
+      'no-week':         ['⚪', 'No week to send.', false],
+      'no-games':        ['⚪', 'That week has no matchups.', false],
+      'no-live-data':    ['⚪', 'Sleeper had nothing for that week.', false],
+      'week-not-final':  ['⛔', 'That week is not finished — nothing was sent, deliberately. A half-told week is worse than no email.', false],
+      'send-failed':     ['⛔', 'The email provider rejected it. Nothing arrived.', false],
+      'send-skipped':    ['⛔', 'The mailer declined to send.', false],
+    };
+    const [icon, msg, good] = OUT[sent] || ['⚪', 'Nothing was sent (' + sent + ').', false];
+  %>
+  <div class="alert-banner" style="margin-bottom:1rem; border-color:<%= good ? 'rgba(74,222,128,.5)' : '#d4242f' %>">
+    <span class="tag"><%= icon %></span><span><%= msg %></span>
+  </div>
+<% } %>
+
+<div class="card" style="margin-bottom:1.1rem">
+  <div class="body">
+    <form method="get" action="/admin/recap" style="display:flex; gap:.6rem; align-items:center; flex-wrap:wrap">
+      <label class="field" for="week" style="margin:0">Week</label>
+      <input type="number" id="week" name="week" min="1" max="18" value="<%= week || '' %>" style="width:6rem">
+      <button class="btn small navy" type="submit">Preview</button>
+      <% if (liveWeek) { %><span class="muted" style="font-size:.8rem">Last finished week: <b><%= liveWeek %></b></span><% } %>
+    </form>
+    <p class="muted" style="margin:.6rem 0 0; font-size:.8rem">
+      Goes to <b><%= recipients %></b> owner<%= recipients === 1 ? '' : 's' %> with an email on file.
+      <% if (!emailOn) { %><b style="color:#d4242f">No email provider is configured, so nothing can actually send.</b><% } %>
+      <% if (stamp) { %><br>Week <%= week %> already went out at <%= stamp.at %><%= stamp.manual ? ' (sent by hand)' : '' %>.<% } %>
+    </p>
+  </div>
+</div>
+
+<% if (err) { %>
+  <div class="card"><div class="body"><p class="error-note">Couldn't build it: <%= err %></p></div></div>
+<% } else if (!week) { %>
+  <div class="card"><div class="body"><p class="muted" style="margin:0">Pick a week. Off-season there is nothing to recap, and that is the correct answer rather than a fault.</p></div></div>
+<% } else if (!recap || !recap.ready) { %>
+  <div class="card"><div class="body">
+    <p style="margin:0"><b>Nothing to send for week <%= week %>.</b></p>
+    <p class="muted" style="margin:.4rem 0 0">
+      Reason: <code><%= (recap && recap.reason) || 'unknown' %></code><% if (recap && recap.note) { %> — <%= recap.note %><% } %>.
+    </p>
+    <p class="muted" style="margin:.4rem 0 0; font-size:.8rem">
+      The recap refuses rather than degrades. "X beat Y" is a claim, and it is false at 4pm on Sunday
+      and stays false forever once it's in nine inboxes — so every matchup has to be final before a word gets written.
+    </p>
+  </div></div>
+<% } else { %>
+  <div class="card" style="margin-bottom:1.1rem">
+    <h2>Subject line</h2>
+    <div class="body"><p style="margin:0; font-size:1.05rem"><b><%= recap.subject %></b></p></div>
+  </div>
+
+  <div class="card" style="margin-bottom:1.1rem">
+    <h2>The email <span class="sub">exactly as it will read</span></h2>
+    <div class="body">
+      <% recap.sections.forEach(sec => { %>
+        <% if (sec.h) { %><div style="font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:#8a5f14;font-weight:800;margin:1.2rem 0 .4rem"><%= sec.h %></div><% } %>
+        <% sec.lines.forEach(l => { %>
+          <p style="margin:0 0 .6rem; line-height:1.6"><%- l.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/\*\*(.+?)\*\*/g,'<b>$1</b>') %></p>
+        <% }) %>
+      <% }) %>
+    </div>
+  </div>
+
+  <% if (recap.thin) { %>
+    <div class="card lo-nochange" style="margin-bottom:1.1rem"><div class="body">
+      <p style="margin:0"><b>This is a thin week, and the recap says so.</b></p>
+      <p class="muted" style="margin:.4rem 0 0; font-size:.82rem">
+        Nothing cleared the bar — no collapse, no heartbreak, no benched thirty-burger. A short email that
+        admits the week was boring beats a long one pretending otherwise, which is the same call already made
+        about the optimizer's nine-in-ten nothing weeks.
+      </p>
+    </div></div>
+  <% } %>
+
+  <div class="card">
+    <h2>Send it</h2>
+    <div class="body">
+      <p class="muted" style="margin:0 0 .7rem; font-size:.82rem">
+        Read it once more first. It goes to everyone, they cannot reply to it, and the one thing it must never
+        do is land as a genuine shot at one person. If a line reads wrong, say so and it gets rewritten — the
+        wording is generated from the numbers, so a bad line is a bug, not a mood.
+      </p>
+      <form method="post" action="/admin/recap/send">
+        <input type="hidden" name="week" value="<%= week %>">
+        <button class="btn gold" type="submit"<%= emailOn ? '' : ' disabled' %>>
+          📤 Send week <%= week %> to the league (<%= recipients %>)
+        </button>
+      </form>
+    </div>
+  </div>
+<% } %>
+<%- include('../partials/footer') %>

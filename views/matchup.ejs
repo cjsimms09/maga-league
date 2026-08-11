@@ -42,6 +42,14 @@
   </a>
 <% } %>
 
+<%# A bet the server refused must say so HERE too — this page used to show
+    "✅ Bet sent" regardless, so a failed proposal was confirmed rather than
+    reported. Same handler, both doors. %>
+<% if (typeof betFail !== 'undefined' && betFail) { %>
+  <div class="alert-banner" style="margin-bottom:1rem; border-color:rgba(212,36,47,.55)">
+    <span class="tag">⚠️</span><span><b>That bet wasn't created.</b> <%= betFail %></span>
+  </div>
+<% } %>
 <% if (sent) { %>
   <div class="alert-banner" style="margin-bottom:1rem; border-color:rgba(74,222,128,.5)">
     <span class="tag">✅</span><span>Bet sent<% if (opp) { %> to <b><%= opp.name %></b><% } %>. It's in the ledger as <b>OPEN</b> —
@@ -110,11 +118,23 @@
 </div>
 
 <%# ── What this matchup is worth — one folded line ──────────────────────────── %>
+<%# ROUNDING MUST NOT BECOME A CLAIM. This printed Math.round(p * 100), so a
+    4–2 team in week 7 with eight games left — real odds 0.55% and 0.05% — was
+    told "a win puts you at 1%, a loss drops you to 0%". A flat 0% asserts
+    elimination for a team that is mathematically alive, and the two numbers
+    printed as different sat next to a swing that rounded to nothing, so the
+    line didn't even reconcile with itself. Near-zero and near-certain now say
+    so as bounds, and the swing is derived from the SAME rounded figures the
+    reader can see, so it can never contradict them. %>
 <% if (typeof stakes !== 'undefined' && stakes) {
-     const w = Math.round(stakes.win * 100), l = Math.round(stakes.lose * 100), s = Math.round(stakes.swing * 100); %>
+     const pctText = p => p <= 0 ? '0%' : p >= 1 ? '100%'
+       : p < 0.005 ? '<1%' : p > 0.995 ? '>99%' : Math.round(p * 100) + '%';
+     const w = Math.round(stakes.win * 100), l = Math.round(stakes.lose * 100);
+     const s = w - l;                       // reconciles with the two shown figures
+     const tiny = stakes.swing < 0.005; %>
   <div class="stakes-line">
     <span class="tag">🎟️</span>
-    <span>What this is worth: a win puts you at <b class="pos"><%= w %>%</b> to make the playoffs, a loss drops you to <b class="neg"><%= l %>%</b><% if (s > 0) { %> — a <b><%= s %>-point</b> swing<% } %>.
+    <span>What this is worth: a win puts you at <b class="pos"><%= pctText(stakes.win) %></b> to make the playoffs, a loss drops you to <b class="neg"><%= pctText(stakes.lose) %></b><% if (tiny) { %> — barely a swing either way<% } else if (s > 0) { %> — a <b><%= s %>-point</b> swing<% } %>.
       <span class="muted" style="font-size:.74rem">(estimate — record + points, until the model lands)</span></span>
   </div>
 <% } %>
@@ -290,16 +310,16 @@
      const showProj = S && S.hasProj;
      // Slot column carries the pairing on its face: QB vs QB, FLEX vs FLEX. The
      // flag reads a bye/injury tag next to a name (what a manager checks mid-game).
+     // Derived from the optimizer's own INACTIVE_INJURY set (src/matchup.js
+     // injuryFlag) rather than a second ladder here. The old ladder knew OUT/IR/
+     // SUS and sent the optimizer's other six benched statuses — PUP, NA, DNR,
+     // COV, RES, DNP — to the amber "might play" badge, so the card and the
+     // optimizer disagreed about the same player mid-game.
      const flag = c => {
-       if (!c || c.empty) return '';
-       // Bye first — a player on bye scores 0, and that's the "why is he at zero" answer.
-       if (c.onBye) return ' <span class="mu-flag bye">BYE</span>';
-       const t = (c.inj || '').toUpperCase();
-       if (t === 'OUT' || t === 'IR' || t === 'SUS') return ' <span class="mu-flag out">' + t + '</span>';
-       if (t === 'DOUBTFUL' || t === 'D') return ' <span class="mu-flag out">DBT</span>';
-       if (t === 'QUESTIONABLE' || t === 'Q') return ' <span class="mu-flag q">Q</span>';
-       if (t) return ' <span class="mu-flag q">' + t + '</span>';
-       return '';
+       const f = (typeof injuryFlag === 'function') ? injuryFlag(c) : { level: '', text: '' };
+       if (!f.level) return '';
+       const cls = f.level === 'bye' ? 'bye' : f.level === 'out' ? 'out' : 'q';
+       return ' <span class="mu-flag ' + cls + '">' + f.text + '</span>';
      };
      const B = (typeof bench !== 'undefined' && bench) ? bench : null; %>
   <div class="card" style="margin-bottom:1.2rem">

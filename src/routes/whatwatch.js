@@ -42,31 +42,52 @@ function remainStats(starters) {
  * @param e {
  *   live, oppLive        points on the board now for each side
  *   remain, oppRemain    [{proj, sd}] starters yet to play for each side
+ *   remainKnown          false when we have no per-player feed at all (see below)
  * }
- * @returns { pWin, myProj, oppProj, margin, playersLeft, oppPlayersLeft }
+ * @returns { pWin, myProj, oppProj, margin, playersLeft, oppPlayersLeft, remainKnown }
  *   projected FINAL score = live + remaining projection; pWin over the two
  *   Normal finals; margin is projected (positive = you're favored).
+ *
+ * REMAINKNOWN — the difference between "the week is over" and "we can't see who
+ * is left". An empty `remain` used to mean both, and the live path always sends
+ * an empty one (no per-player feed yet, PARKED for A). The consequence was not
+ * coarseness, it was falsehood: zero remaining players means zero variance, so
+ * pWin collapsed to exactly 1 or 0 and a game separated by a TENTH OF A POINT
+ * rendered "🟢 in control · 100% · Done — nothing left on the field" from the
+ * opening kickoff, for every game, all Sunday. The rehearsal path supplies
+ * `remain`, which is why the preview looked right and only the real thing was
+ * broken. With remainKnown false we decline to state a probability at all and
+ * fall back to the score, which is real.
  */
 function sweat(e) {
   const me = remainStats(e.remain), op = remainStats(e.oppRemain);
   const myProj = (Number(e.live) || 0) + me.mean;
   const oppProj = (Number(e.oppLive) || 0) + op.mean;
-  const pWin = LO.pWin(myProj, me.varc, oppProj, op.varc);
+  const remainKnown = e.remainKnown !== false;
   return {
-    pWin, myProj: r1(myProj), oppProj: r1(oppProj), margin: r1(myProj - oppProj),
+    pWin: remainKnown ? LO.pWin(myProj, me.varc, oppProj, op.varc) : null,
+    live: r1(Number(e.live) || 0), oppLive: r1(Number(e.oppLive) || 0),
+    myProj: r1(myProj), oppProj: r1(oppProj), margin: r1(myProj - oppProj),
     playersLeft: (e.remain || []).length, oppPlayersLeft: (e.oppRemain || []).length,
+    remainKnown,
   };
 }
 
-/** P(this owner clears the weekly-high band) given their remaining players. */
+/** P(this owner clears the weekly-high band) given their remaining players.
+ *  Null without the per-player feed — with no variance this is a bare 0/1 and
+ *  would print "🎯 100% at the $100" for whoever happened to be leading. */
 function highSweat(e, bandSamples) {
+  if (e.remainKnown === false) return null;
   const me = remainStats(e.remain);
   const myProj = (Number(e.live) || 0) + me.mean;
   return LO.pClearHigh(myProj, me.varc, bandSamples || []);
 }
 
-/** 🟢 / 🟡 / 🔴 / 🔥 — how much this game is worth watching. */
+/** 🟢 / 🟡 / 🔴 / 🔥 — how much this game is worth watching.
+ *  Null probability (no per-player feed) gets its own neutral state rather than
+ *  borrowing one of the four confident ones. */
 function sweatLabel(p) {
+  if (p == null) return { icon: '🏈', word: 'in progress', level: 'live' };
   if (Math.abs(p - 0.5) <= CFG.COINFLIP) return { icon: '🔥', word: 'coin flip', level: 'flip' };
   if (p >= CFG.SAFE) return { icon: '🟢', word: 'in control', level: 'safe' };
   if (p <= CFG.COOKED) return { icon: '🔴', word: 'cooked', level: 'cooked' };
@@ -76,6 +97,24 @@ function sweatLabel(p) {
 /** The one line: what THIS owner needs from here. */
 function needLine(s) {
   const behind = s.oppProj - s.myProj;   // projected points behind
+  if (s.remainKnown === false) {
+    // No per-player feed: say what the board says and nothing more. "Done" is a
+    // claim we cannot make — the players left are exactly what we can't see.
+    //
+    // WHO is this about? Unqualified, "Down 6.3 on the board" reads as second
+    // person, which is right in the "Your game" row and wrong in every row under
+    // "Around the league" — there it means the first team named, and the reader
+    // has to work that out. `who` names the subject when the caller knows the row
+    // isn't the viewer's; it stays second-person when it is.
+    const dir = s.margin > 0 ? 'up' : 'down';
+    const by = r1(Math.abs(s.margin));
+    if (Math.abs(s.margin) < 0.05) {
+      return s.who ? `${s.who} is dead even on the board.` : 'Dead even on the board.';
+    }
+    return s.who
+      ? `${s.who} is ${dir} ${by} on the board.`
+      : `${dir === 'up' ? 'Up' : 'Down'} ${by} on the board.`;
+  }
   if (s.playersLeft === 0) {
     if (Math.abs(s.margin) < 0.05) return 'Done — dead even, a tie.';
     return s.margin > 0
@@ -94,11 +133,17 @@ function needLine(s) {
  * flips and live sweats to the top, decided games to the bottom).
  * @param entries [{ owner_id, opp_id, name, oppName, live, oppLive, remain, oppRemain }]
  * @param bandSamples  the weekly-high thresholds for the $100 sweat (optional)
+ * @param viewerId     who is reading (optional) — rows that are not theirs get
+ *                     their subject named instead of an implied "you"
  * @returns rows with sweat + label + needLine + highP, sorted for watchability
  */
-function panelRows(entries, bandSamples) {
+function panelRows(entries, bandSamples, viewerId) {
   const rows = (entries || []).map(e => {
     const s = sweat(e);
+    // Name the subject on rows that are NOT the viewer's own game, so
+    // "down 6.3 on the board" can't be read as being about the reader. With no
+    // viewerId nobody is named, which is the previous behaviour.
+    if (viewerId != null && e.owner_id !== viewerId) s.who = e.name;
     return {
       owner_id: e.owner_id, opp_id: e.opp_id, name: e.name, oppName: e.oppName,
       ...s, label: sweatLabel(s.pWin), need: needLine(s),
@@ -107,10 +152,18 @@ function panelRows(entries, bandSamples) {
   });
   // Most-watchable first: closeness to a coin flip, then how many players are
   // still live (more players left = more can still happen).
-  rows.sort((a, b) =>
-    (Math.abs(a.pWin - 0.5) - Math.abs(b.pWin - 0.5))
-    || ((b.playersLeft + b.oppPlayersLeft) - (a.playersLeft + a.oppPlayersLeft)));
-  return rows;
+  //
+  // Rows with no probability can't be ranked that way — |pWin - 0.5| was NaN
+  // for them, which left the "most watchable first" sort completely inert on
+  // live data (every comparison NaN → original order preserved). They rank
+  // among themselves by closeness on the board, which is the honest proxy, and
+  // sit below any game we can actually price.
+  const priced = rows.filter(r => r.pWin != null)
+    .sort((a, b) => (Math.abs(a.pWin - 0.5) - Math.abs(b.pWin - 0.5))
+      || ((b.playersLeft + b.oppPlayersLeft) - (a.playersLeft + a.oppPlayersLeft)));
+  const unpriced = rows.filter(r => r.pWin == null)
+    .sort((a, b) => Math.abs(a.margin) - Math.abs(b.margin));
+  return [...priced, ...unpriced];
 }
 
 module.exports = { CFG, remainStats, sweat, highSweat, sweatLabel, needLine, panelRows };

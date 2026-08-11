@@ -54,6 +54,62 @@ const p = (proj, sd = 7) => ({ proj, sd });
   ck('most-watchable (coin flip) sorts first', rows[0].name === 'Nailbiter', rows[0].name);
   ck('each row carries label + need', rows[0].label && typeof rows[0].need === 'string');
 
+  // ── THE LIVE PATH. member.js#liveWatchEntries has no per-player feed, so it
+  // sent `remain: []` — indistinguishable from "the week is over". Zero
+  // remaining players means zero variance, so pWin collapsed to exactly 1/0 and
+  // EVERY live game rendered a confident verdict plus "Done — nothing left on
+  // the field" while the ball was in the air. The rehearsal path supplies
+  // `remain`, so the preview looked right and only the real Sunday was broken.
+  {
+    const L = e => ({ remain: [], oppRemain: [], remainKnown: false, ...e });
+    const s = W.sweat(L({ live: 84.2, oppLive: 84.1 }));
+    ck('live w/o the per-player feed states NO probability (not a 100% certainty)',
+      s.pWin === null, s.pWin);
+    ck('  the real score survives onto the row', s.live === 84.2 && s.oppLive === 84.1);
+    ck('  the margin is still real', s.margin === 0.1, s.margin);
+    ck('  and it does not claim the game is DONE',
+      !/Done|Nothing left/.test(W.needLine(s)), W.needLine(s));
+    ck('  it says what the board says instead', /Up 0\.1 on the board/.test(W.needLine(s)), W.needLine(s));
+    ck('  a null probability gets its own neutral state, not one of the four verdicts',
+      W.sweatLabel(null).level === 'live' && !['flip', 'safe', 'cooked', 'sweat'].includes(W.sweatLabel(null).level));
+    ck('  no fake "🎯 100% at the $100" for whoever is merely leading',
+      W.highSweat(L({ live: 200 }), [120, 130, 140]) === null);
+    ck('  a genuinely finished week (feed present, nobody left) still says Done',
+      /Done — projected to win/.test(W.needLine(W.sweat({ live: 120, oppLive: 90, remain: [], oppRemain: [] }))));
+
+    // The sort ranked by |pWin - 0.5|, which is NaN when pWin is null — every
+    // comparison false, so "most watchable first" was completely inert on live
+    // data. Unpriced rows rank by closeness on the board instead.
+    const lr = W.panelRows([
+      L({ owner_id: 1, name: 'Blowout', oppName: 'x', live: 150, oppLive: 60 }),
+      L({ owner_id: 2, name: 'OnePoint', oppName: 'y', live: 84.2, oppLive: 84.1 }),
+    ], [120, 130]);
+    ck('  the closest game on the board sorts first on live data', lr[0].name === 'OnePoint', lr.map(r => r.name).join(','));
+    // Mixed: a game we can actually price outranks one we can only score.
+    const mixed = W.panelRows([
+      L({ owner_id: 1, name: 'Unpriced', oppName: 'x', live: 80, oppLive: 80 }),
+      { owner_id: 2, name: 'Priced', oppName: 'y', live: 88, oppLive: 88, remain: [p(10)], oppRemain: [p(10)] },
+    ]);
+    ck('  a priced game outranks an unpriced one', mixed[0].name === 'Priced', mixed.map(r => r.name).join(','));
+
+    // WHOSE GAME IS IT? "Down 6.3 on the board" with no subject reads as second
+    // person. That is right in the "Your game" row and wrong in every row under
+    // "Around the league", where it means the first team named and the reader
+    // has to work that out for themselves.
+    const viewer = 1;
+    const panel = W.panelRows([
+      L({ owner_id: viewer, opp_id: 2, name: 'You', oppName: 'Them', live: 80, oppLive: 74 }),
+      L({ owner_id: 3, opp_id: 4, name: 'David', oppName: 'Michael', live: 82.6, oppLive: 88.9 }),
+    ], [], viewer);
+    const mine = panel.find(r => r.owner_id === viewer);
+    const theirs = panel.find(r => r.owner_id === 3);
+    ck('  the viewer\'s own row stays second person', /^Up 6 on the board\.$/.test(mine.need), mine.need);
+    ck('  someone else\'s row names whose game it is', /^David is down 6\.3 on the board\.$/.test(theirs.need), theirs.need);
+    ck('  and with no viewer given, nobody is named (unchanged behaviour)',
+      /^Down 6\.3 on the board\.$/.test(W.panelRows([
+        L({ owner_id: 3, name: 'David', oppName: 'Michael', live: 82.6, oppLive: 88.9 })], [])[0].need));
+  }
+
   console.log(`\n${pass} passed, ${fail} failed`);
   process.exit(fail ? 1 : 0);
 })();

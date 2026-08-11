@@ -1,0 +1,57 @@
+<%- include('../partials/header', { title: year + ' Draft Board' }) %>
+
+<h1 class="page-title">🗒️ <%= year %> Draft Board
+  <span class="sub" style="font-weight:600">every pick, the way it looked on the wall</span>
+</h1>
+
+<% if (!grid.rounds) { %>
+  <%# HONEST EMPTY STATE. A season with no archived draft says so and says why,
+      rather than rendering an empty grid that looks like a board of nobody. %>
+  <div class="card"><div class="body">
+    <p class="acc-empty" style="margin:0">
+      <b>No board archived for <%= year %>.</b>
+      The board is captured two ways — live from the war room as picks land, and from Sleeper
+      once the draft finishes — and neither has a record for this season. Drafts run before the
+      archive existed aren't reconstructed here; an invented board would be worse than none.
+    </p>
+  </div></div>
+<% } else { %>
+  <p class="muted" style="margin:0 0 .8rem; font-size:.8rem">
+    <b><%= count %></b> picks · <%= grid.rounds %> rounds × <%= grid.slots %> seats ·
+    <% if (source === 'complete') { %>from the completed draft<% } else { %>from the live pick stream<% } %><% if (capturedAt) { %>,
+    archived <%= new Date(capturedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %><% } %>.
+    Columns run in draft order — whoever made the first pick is on the left. Snake order runs down them.
+  </p>
+
+  <div class="scroll-x">
+    <table class="db-board">
+      <thead>
+        <tr>
+          <th class="db-rnd"></th>
+          <% grid.columns.forEach(c => { %><th class="db-seat"><%= c.name %></th><% }) %>
+        </tr>
+      </thead>
+      <tbody>
+        <% grid.grid.forEach((row, i) => { %>
+          <tr>
+            <th class="db-rnd"><%= i + 1 %></th>
+            <% row.forEach(cell => { %>
+              <td class="db-cell<%= cell && cell.pos ? ' pos-' + cell.pos.toLowerCase() : '' %><%= cell ? '' : ' db-empty' %>">
+                <% if (cell) { %>
+                  <span class="db-name"><%= cell.name %></span>
+                  <span class="db-meta"><%= [cell.pos, cell.team].filter(Boolean).join(' · ') %><% if (cell.keeper) { %> · <b>K</b><% } %></span>
+                <% } else { %><span class="db-meta">—</span><% } %>
+              </td>
+            <% }) %>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+<% } %>
+
+<p style="text-align:center; margin-top:1.2rem">
+  <a class="btn navy" href="/history/season/<%= year %>">← <%= year %> season</a>
+  <a class="btn navy" href="/history">The archive</a>
+</p>
+<%- include('../partials/footer') %>

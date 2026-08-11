@@ -72,8 +72,13 @@ const snap = (at, nGraded, brier, decisions) => ({
   ck('the series plots a point per run', (html.match(/class="acc-bar"/g) || []).length === 2,
     (html.match(/class="acc-bar"/g) || []).length);
 
-  // THE OVERRIDE RECORD — already graded by the cron, previously rendered nowhere.
-  ck('surfaces the override record', /Your overrides/i.test(html));
+  // THE GRADED DECISION RECORD — already computed by the cron, previously
+  // rendered nowhere. Retitled "Graded decisions" when the CAPTURED override
+  // card was added beside it: two different things (what the grader has scored
+  // vs what the ledger has recorded) were both called "Your overrides", which is
+  // exactly how a reader ends up believing an ungraded count is a verdict. The
+  // numbers asserted below are unchanged and still come from this card.
+  ck('surfaces the graded decision record', /Graded decisions/i.test(html), html.match(/<h2>[^<]*/g));
   ck('  counts decisions and overrides', /\b11\b/.test(html) && /\b5\b/.test(html));
   ck('  reports the scored win rate (3 of 4 = 75%)', /75%/.test(html));
   ck('  flags a small sample honestly rather than reading it as a verdict',

@@ -10,6 +10,7 @@ const MOVE = require('./standings-movement'); // week-over-week rank arrows (dor
 const PE = require('./pickem');            // league pick'em — pick every game, tracked forever
 const DISPATCH = require('./dispatch');    // transient popups — awards / power poll / this-week-in-history
 const PO = require('./playoffs');          // folded columns — playoff odds/movement, clinch/elim, matchup leverage
+const DB = require('./draftboard');        // the completed draft board as a grid (history click-through)
 const TT = require('./trashtalk');         // trash talk attached to a specific game, permanent + archived
 const WW = require('./whatwatch');         // what-to-watch — the Sunday/Monday sweat meter + what each owner needs
 const MK = require('./marks');             // auto badges — GOAT on Mahomes' owner, Chiefs mark on KC players
@@ -17,6 +18,7 @@ const RIVN = require('./rivalries');       // named rivalries (German derby, Dyl
 const MU = require('../matchup');          // slot-aligned matchup starters (QB vs QB, not row-vs-row)
 const DASH = require('../dashboard');      // dashboard model + the derived draft-day announcement
 const SET = require('./settlement');       // the settlement report — who pays whom, with Venmo
+const RD = require('./recap-data');        // the weekly recap: gather here, write in src/recap.js
 const ACC = require('./accuracy');          // model-accuracy display — reads A's calibration/attribution output
 const L = require('../ledger');
 const SB = require('../sidebets');
@@ -121,6 +123,59 @@ router.get('/api/draft-config-status', aw(async (req, res) => {
 // It only EMAILS the commissioner their start/sit calls — it never returns the
 // analysis, so the secret guards the trigger, not the content. No-ops off-season
 // (no live lineup), so a year-round schedule is harmless.
+/* The cron trigger. Tuesday morning, after Monday night is settled.
+ *
+ * Same health contract as the Sunday alert, for the same reason: a weekly job
+ * that dies silently is the failure this project keeps hitting. It records the
+ * last successful send, refuses to send twice for one week, and reports WHY it
+ * stayed quiet in a word the workflow can branch on — so "off-season" and
+ * "the recap has not gone out in three weeks" are never the same green run.
+ */
+router.get('/api/weekly-recap', aw(async (req, res) => {
+  const secret = process.env.WEEKLY_RECAP_KEY || process.env.SUNDAY_ALERT_KEY || process.env.CRON_SECRET;
+  if (!secret || req.query.key !== secret) return res.status(403).json({ ok: false, error: 'forbidden' });
+  const world = req.world;
+  const owners = H.activeOwners(world.owners);
+  const season = String(H.currentSeason(world.seasons).year || new Date().getUTCFullYear());
+  const emailConfigured = notify.configured();
+
+  const sData = await sleeper.bundle(world.config.sleeper_league_id);
+  // OFF-SEASON: no live league at all. Quiet, and correctly so.
+  if (!sData || !sData.week) {
+    return res.json({ ok: true, sent: 0, quiet: true, emailConfigured,
+      reason: 'off-season', note: 'no live league — nothing to recap' });
+  }
+  // The week to recap is the one that FINISHED, not the one in progress. Sleeper
+  // rolls `state.week` forward on Tuesday, which is exactly when this runs.
+  const weekNo = Math.max(1, Number(sData.week) - 1);
+
+  const stampKey = `weekly-recap-sent:${season}:${weekNo}`;
+  const already = await getDoc(stampKey, null);
+  if (already) {
+    return res.json({ ok: true, sent: 0, quiet: true, emailConfigured, week: weekNo,
+      reason: 'already-sent', note: `week ${weekNo}'s recap went out at ${already.at}` });
+  }
+
+  const recap = await RD.buildWeeklyRecap(world, owners, weekNo, season);
+  if (!recap.ready) {
+    // NOT a quiet success. The week happened and we could not write about it —
+    // if that repeats, the league silently stops getting an email.
+    return res.json({ ok: true, sent: 0, quiet: false, emailConfigured, week: weekNo,
+      reason: recap.reason, note: recap.note || 'the week is not final or the data is incomplete' });
+  }
+  if (!emailConfigured) {
+    return res.json({ ok: true, sent: 0, quiet: false, emailConfigured: false, week: weekNo,
+      reason: 'email-not-configured', note: 'a recap was written and there is no way to send it' });
+  }
+  const r = await notify.weeklyRecap(owners, recap).catch(e => ({ error: String((e && e.message) || e) }));
+  const sent = (r && !r.skipped && !r.error) ? 1 : 0;
+  if (sent) await setDoc(stampKey, { at: new Date().toISOString(), season, week: weekNo,
+    recipients: owners.filter(o => o.email).length, thin: !!recap.thin });
+  res.json({ ok: true, sent, quiet: false, emailConfigured, week: weekNo, thin: !!recap.thin,
+    ...(sent ? {} : { reason: r && r.error ? 'send-failed' : 'send-skipped',
+                      note: (r && (r.error || r.note)) || 'the mailer declined to send' }) });
+}));
+
 router.get('/api/sunday-alert', aw(async (req, res) => {
   const secret = process.env.SUNDAY_ALERT_KEY || process.env.CRON_SECRET;
   if (!secret || req.query.key !== secret) return res.status(403).json({ ok: false, error: 'forbidden' });
@@ -128,12 +183,79 @@ router.get('/api/sunday-alert', aw(async (req, res) => {
   const owners = H.activeOwners(world.owners);
   const commish = world.owners.find(o => o.is_commissioner && o.active);
   if (!commish) return res.json({ ok: true, sent: 0, note: 'no commissioner' });
+  // WHY NOTHING WENT OUT, not just that nothing did.
+  //
+  // The scheduler asserted `"ok":true` and nothing else, so THREE different
+  // Sundays were indistinguishable and all green: the off-season no-op (correct),
+  // Sleeper being down mid-season (an outage nobody hears about), and the email
+  // provider being unconfigured in production (the alert never arrives, all
+  // season, silently). `quiet` separates "there was nothing to send" from
+  // "there was something to send and it did not go", which is the only
+  // distinction the caller needs to decide whether a green run is good news.
   const { live, band, weekNo } = await liveOptimizeFor(world, owners, commish);
-  if (!live) return res.json({ ok: true, sent: 0, note: 'no live lineup (off-season / Sleeper down)' });
+  const emailConfigured = notify.configured();
+  if (!live) {
+    return res.json({ ok: true, sent: 0, quiet: true, emailConfigured,
+      reason: 'no-live-lineup',
+      note: 'no live lineup (off-season, or Sleeper unreachable) — nothing to send' });
+  }
+  if (!emailConfigured) {
+    // There WAS something to send. Not quiet — a misconfiguration.
+    return res.json({ ok: true, sent: 0, quiet: false, emailConfigured: false,
+      reason: 'email-not-configured', week: weekNo,
+      note: 'a live lineup exists but no email provider is configured — the alert cannot be delivered' });
+  }
   const alert = LO.sundayAlert(live, { week: weekNo, band });
-  // Hand it the OWNER LIST; notify resolves the commissioner itself.
-  const r = await notify.sundayAlert(world.owners, alert).catch(() => ({ skipped: true }));
-  res.json({ ok: true, sent: (r && !r.skipped) ? 1 : 0, week: weekNo, hasCalls: alert.hasCalls });
+
+  // ── IT USED TO FIRE EVERY TIME IT WAS ASKED ────────────────────────────────
+  //
+  // Driven across eight firings, eight emails went out, all eight of them
+  // "nothing to change" — including three back-to-back firings of the identical
+  // state, week 18 with the season over, and a week with no matchup scheduled.
+  // The only condition was "a live lineup exists".
+  //
+  // A weekly email that says nothing needs changing is the same overstatement as
+  // the optimizer manufacturing a puzzle on a week where there isn't one: A
+  // measured that the dual objective deviates from "start your best projections"
+  // in about 11% of weeks. Fifteen of seventeen alerts would have been noise,
+  // and noise is what teaches you to stop opening the one that matters.
+  //
+  // So the alert now sends when there is something to DO — a priced start/sit
+  // call, or a player in the current lineup who cannot score. The RUN still
+  // happens every Sunday and still reports itself; the workflow reads `quiet`
+  // and its `reason`, so the heartbeat lives in the Actions log where a heartbeat
+  // belongs, not in the inbox.
+  if (!alert.actionable) {
+    return res.json({ ok: true, sent: 0, quiet: true, emailConfigured, week: weekNo,
+      hasCalls: false,
+      reason: live.projPending ? 'projections-pending' : 'nothing-to-act-on',
+      note: live.projPending
+        ? 'no projections have landed yet — there is nothing to recommend'
+        : 'the current lineup is already dollar-optimal and no starter is out — nothing worth an email' });
+  }
+
+  // ── AND IT FIRED AS OFTEN AS IT WAS ASKED ──────────────────────────────────
+  // The cron, a workflow_dispatch retry, and the manual "send" button on
+  // /lineup all hit this. Three firings, three identical emails. One alert per
+  // week, stamped on success only, so a failed send is retried rather than
+  // swallowed. The manual button (POST /lineup/sunday/send) deliberately does
+  // NOT check the stamp: an explicit click is a request, not a schedule.
+  const season = String(H.currentSeason(world.seasons).year || new Date().getUTCFullYear());
+  const stampKey = `sunday-alert-sent:${season}:${weekNo}`;
+  const already = await getDoc(stampKey, null);
+  if (already) {
+    return res.json({ ok: true, sent: 0, quiet: true, emailConfigured, week: weekNo,
+      reason: 'already-sent-this-week', note: `week ${weekNo}'s alert already went out at ${already.at}` });
+  }
+
+  const r = await notify.sundayAlert(commish, alert).catch(e => ({ error: String((e && e.message) || e) }));
+  const sent = (r && !r.skipped && !r.error) ? 1 : 0;
+  if (sent) await setDoc(stampKey, { at: new Date().toISOString(), calls: alert.calls.length, dead: alert.dead.length });
+  res.json({ ok: true, sent, quiet: false, emailConfigured, week: weekNo,
+    hasCalls: alert.hasCalls, dead: alert.dead.length,
+    changes: alert.changes.length, lineupKnown: alert.lineupKnown,
+    ...(sent ? {} : { reason: r && r.error ? 'send-failed' : 'send-skipped',
+                      note: (r && r.error) || 'the mailer declined to send' }) });
 }));
 
 // ---------- auth ----------
@@ -162,7 +284,15 @@ router.post('/forgot', aw(async (req, res) => {
   const who = String(req.body.username || '').trim().toLowerCase();
   const owner = req.world.owners.find(o => o.active && (o.username === who || (o.email || '').toLowerCase() === who));
   // Always report the same thing — never confirm whether an account exists.
-  if (owner && owner.email && notify.configured()) {
+  //
+  // A password reset is ONE OF THE THREE things that may reach a member
+  // (policy, 2026-08-11), so this path works for everyone again — but it asks
+  // the mailer FIRST rather than assuming, because the answer is still no when
+  // there is no provider configured or no address on file, and minting a token
+  // for a link that will not arrive leaves a dead record on disk and a page
+  // making a promise it cannot keep. One rule, asked at its source, never a
+  // second copy here that can drift from it.
+  if (owner && await notify.mayEmail(owner.email, 'password-reset')) {
     const token = crypto.randomBytes(24).toString('hex');
     await setDoc(`reset:${token}`, { owner_id: owner.id, expires: Date.now() + 60 * 60 * 1000 });
     await notify.passwordReset(owner, token);
@@ -378,17 +508,41 @@ router.get('/', aw(async (req, res) => {
   // The pinned alert's text was hand-typed and had gone stale ("5:00 PM", no
   // place); self-heal it to the derived line so the banner and the alert can never
   // disagree. Only writes when the stored text actually differs (no churn).
+  //
+  // AND IT RETIRES ITSELF. Both halves used to be gated on `!passed`, so the day
+  // after the draft the code simply stopped touching the alert — leaving it
+  // pinned, `active: true`, `level: 'urgent'`, at the top of EVERY page for the
+  // rest of the season, telling ten people to show up to a draft that already
+  // happened. It also stranded the stale hand-typed text, because healing was
+  // gated the same way: what stayed up was "DRAFT DAY IS SET: 08/22/26 at 5:00
+  // PM" — wrong time, no place — with nothing left to correct it. The countdown
+  // banner did hide itself, which is what made this invisible: the loud element
+  // was the one that stayed. Found by driving the front page as a member with
+  // the draft date three weeks in the past.
+  const isDraftAlert = a => a.id === 'draftday2026' || /^DRAFT DAY/i.test(a.message || '');
   const draftInfo = DASH.draftAnnouncement(world.config, new Date().toISOString(), season && season.year);
-  if (draftInfo.configured && !draftInfo.passed && draftInfo.message) {
+  if (draftInfo.configured && draftInfo.message) {
     try {
       const alerts = await getDoc('alerts', []);
-      const pinned = alerts.find(a => a.id === 'draftday2026' || /^DRAFT DAY/i.test(a.message || ''));
-      if (pinned && pinned.message !== draftInfo.message) {
+      const pinned = alerts.find(isDraftAlert);
+      if (pinned && draftInfo.passed) {
+        // The draft happened. Retire it — reversibly: the commissioner can
+        // re-activate it from the alerts admin, and the text is left intact so
+        // there is something to re-activate.
+        if (pinned.active) {
+          pinned.active = false;
+          await setDoc('alerts', alerts);
+        }
+        // Drop it from this request too, so it goes the moment the day turns.
+        if (Array.isArray(res.locals.alerts)) {
+          res.locals.alerts = res.locals.alerts.filter(a => !isDraftAlert(a));
+        }
+      } else if (pinned && pinned.message !== draftInfo.message) {
         pinned.message = draftInfo.message; pinned.level = 'urgent'; pinned.active = true;
         await setDoc('alerts', alerts);
         // Patch this request's already-computed alert region so the fix shows now.
         for (const a of (res.locals.alerts || [])) {
-          if (a.id === 'draftday2026' || /^DRAFT DAY/i.test(a.message || '')) a.message = draftInfo.message;
+          if (isDraftAlert(a)) a.message = draftInfo.message;
         }
       }
     } catch (e) { /* the banner still renders even if the alert heal fails */ }
@@ -783,8 +937,60 @@ router.get('/history/season/:year', aw(async (req, res) => {
     ]);
     hasVault = (tk && tk.length > 0) || (di && di.length > 0);
   } catch (e) { /* the link is a bonus */ }
-  res.render('history/season', { A, season, chapterInclude, cast, chapters: chapterYears(), hasVault });
+  // Same cheap existence check for the draft board — offer the click-through
+  // only for years that actually have one archived.
+  let hasBoard = false;
+  try { hasBoard = (await draftBoardSnapshots(year)).picks.length > 0; } catch (e) { /* bonus */ }
+  res.render('history/season', { A, season, chapterInclude, cast, chapters: chapterYears(), hasVault, hasBoard });
 }));
+
+// THE DRAFT BOARD — that year's completed board as a grid, owners across the
+// top and rounds down the side, the way it looked on the wall.
+//
+// Behind a click-through from the season page rather than on it: a 10×16 grid is
+// the largest single object in the archive and would crowd out everything else
+// on the year page, but it is also the artifact people actually want to look
+// back at. Reads the raw-forever archive — `draft_complete` first (the
+// server-side capture of the finished draft), falling back to the war room's
+// live `draft_picks` stream, so a year captured by only one path still renders.
+router.get('/history/board/:year', aw(async (req, res) => {
+  const year = Number(req.params.year);
+  if (!Number.isFinite(year)) {
+    return res.status(404).render('error', { title: 'No such season', message: 'That year is not a season.' });
+  }
+  const owners = req.world.owners;
+  const snaps = await draftBoardSnapshots(year);
+  const grid = snaps.picks.length
+    ? DB.buildGrid(snaps.picks, snaps.map || req.world.config.sleeper_map || {}, owners)
+    : { rounds: 0, slots: 0, columns: [], grid: [] };
+  res.render('history/board', { year, grid, source: snaps.source, capturedAt: snaps.capturedAt,
+    count: snaps.picks.length });
+}));
+
+// Newest snapshot of the completed draft, preferring the server-side capture.
+// The sleeper_map is read from the snapshot when it carries one — roster ids
+// only mean anything against the mapping in force at the time, so resolving them
+// against today's map would silently reattribute every pick of an old draft.
+async function draftBoardSnapshots(year) {
+  const rawarchive = require('../rawarchive');
+  const pick = async kind => {
+    try {
+      const rows = await rawarchive.readAll(store, String(year), kind);
+      return (rows && rows.length) ? rows[rows.length - 1] : null;
+    } catch (e) { return null; }
+  };
+  const complete = await pick('draft_complete');
+  if (complete && complete.payload && (complete.payload.picks || []).length) {
+    return { picks: complete.payload.picks, map: complete.payload.sleeper_map,
+      source: 'complete', capturedAt: complete.archived_at || null };
+  }
+  const stream = await pick('draft_picks');
+  if (stream && stream.payload && (stream.payload.picks || []).length) {
+    return { picks: stream.payload.picks, map: null,
+      source: 'stream', capturedAt: stream.archived_at || null };
+  }
+  return { picks: [], map: null, source: null, capturedAt: null };
+}
 
 // THE VAULT — a season's trash talk + dispatches, the permanent record that
 // nothing read until now (the archive functions existed but no surface called
@@ -1060,6 +1266,7 @@ router.get('/bank', aw(async (req, res) => {
     section, bets, tallies, owners, betNames, sbLedger, sbOwed, sbOwedMine, verdicts, liveOrder,
     sbGrid, sbView, sbDrill,
     deadlines, late: req.query.late === '1',
+    betFail: betFailMessage(req.query.betfail),
     currentWeek: (await sleeper.bundle(world.config.sleeper_league_id) || {}).week || 1,
     BL, payDirectory: owners.filter(o => o.venmo || o.paypal || o.cashapp || o.zelle),
     V, ownerById: id => owners.find(o => o.id === Number(id)),
@@ -1224,6 +1431,20 @@ function poolDraftOrder(world, owners, aId, bId) {
   return { order: [first, second], why };
 }
 
+// Turn a refusal code into the sentence the proposer needs. Anything we don't
+// recognise still says SOMETHING — "no reason given" is the failure being fixed,
+// so the default must never be silence.
+function betFailMessage(code) {
+  const c = String(code || '');
+  if (!c) return null;
+  if (c === 'terms') return "That bet has no terms. Pick a bet type and fill it in, or write the terms yourself — otherwise there's nothing to settle later.";
+  if (c === 'stake-missing') return 'That bet has no stake. Put a dollar amount on it.';
+  if (c === 'stake-zero') return 'A stake has to be more than $0.';
+  if (c === 'nobody') return "Nobody's on the other side. Name at least one opponent, or post it to the board with open slots so someone can take it.";
+  if (c.startsWith('rejected:')) return 'The bet was refused: ' + c.slice(9) + '. Nothing was written — fix it and send again.';
+  return 'That bet was not created (' + c + '). Nothing was written — fix it and send again.';
+}
+
 router.post('/sidebets', aw(async (req, res) => {
   const ids = [].concat(req.body.party || []).map(Number).filter(Boolean);
   const stake = parseFloat(req.body.stake);
@@ -1239,7 +1460,23 @@ router.post('/sidebets', aw(async (req, res) => {
     terms = BL.betText({ format, conditions, logic: req.body.logic,
       pool_outcome: req.body.pool_outcome, terms: '' }, nameOf);
   }
-  if (terms && Number.isFinite(stake) && stake > 0 && (ids.length || openSlots)) {
+  // WHY THIS SAYS WHY IT REFUSED.
+  //
+  // This used to be one silent `if`: fail the guard and control fell straight
+  // through to the redirect at the bottom, so pressing "Send it" reloaded the
+  // page with no bet, no error, and no reason. The catch below did the same for
+  // anything SB.propose threw, on the reasoning that "the form enforces it too"
+  // — which is the whole problem, because a client-side `required` is not a
+  // guarantee and the one time it doesn't hold is the one time you need to be
+  // told. Found by driving the builder as a member: the bet was never written
+  // and the page said nothing about it.
+  const why = !terms ? 'terms'
+    : !Number.isFinite(stake) ? 'stake-missing'
+    : stake <= 0 ? 'stake-zero'
+    : !(ids.length || openSlots) ? 'nobody'
+    : null;
+  let failed = why;
+  if (!why) {
     try {
       // A pool bet is a DRAFT: every league franchise is in play and NOBODY
       // picks at propose time — the alternating draft opens on accept. So the
@@ -1261,19 +1498,30 @@ router.post('/sidebets', aw(async (req, res) => {
         open_slots: openSlots,
         pool_teams: poolTeams, pool_wins: poolWins,
       });
-      // NO MEMBER EMAIL. This used to build a recipient list and mail every
-      // counterparty, under the comment "Nobody checks a website for a bet they
-      // do not know exists." That is the assumption the policy forbids: the bet
-      // lives at /bank?section=sidebets and they go look at it. The recipient
-      // list is deleted too, not merely unused.
-    } catch (e) { /* needs someone on the other side; the form enforces it too */ }
+      // Nobody checks a website for a bet they do not know exists.
+      const targets = owners.filter(o => ids.includes(o.id));
+      // NO EMAIL. Not one of the three (policy, 2026-08-11) — and checked before
+      // removing rather than assumed: server-app.js already banners "N side bets
+      // waiting on you" at the top of EVERY page plus a nav badge, which is
+      // louder than the email was.
+    } catch (e) {
+      // Carry the reason, don't swallow it. Truncated and query-escaped; the
+      // page renders it as text, never as markup.
+      failed = 'rejected:' + String(e && e.message || 'unknown').slice(0, 120);
+    }
   }
   // The matchup page sends people back to it, not the finance page — the bet was
   // made in the flow of "who am I playing", so that is where the confirmation lands.
   if (req.body.back === 'matchup') {
-    return res.redirect('/matchup?sent=1' + (req.body.party ? '&opp=' + Number(req.body.party) : ''));
+    // NEVER `sent=1` on a failure. This path used to redirect to "✅ Bet sent"
+    // whether or not a bet existed — a confirmation for something that never
+    // happened, which is worse than saying nothing at all.
+    const opp = req.body.party ? '&opp=' + Number(req.body.party) : '';
+    return res.redirect(failed
+      ? '/matchup?betfail=' + encodeURIComponent(failed) + opp
+      : '/matchup?sent=1' + opp);
   }
-  res.redirect('/bank?section=sidebets');
+  res.redirect('/bank?section=sidebets' + (failed ? '&betfail=' + encodeURIComponent(failed) : ''));
 }));
 
 /**
@@ -1643,7 +1891,8 @@ router.post('/votes/propose', aw(async (req, res) => {
   const id = newId();
   const vote = { id, question, description, proposer_id: req.owner.id, status: 'open', created_at: now(), closed_at: null };
   await setDoc(`vote:${id}`, vote);
-  // NO MEMBER EMAIL. The ballot is at /votes.
+  // NO EMAIL. Not one of the three (policy, 2026-08-11). The dashboard's "Needs
+  // you" strip counts the votes you have not cast, on the page you land on.
   res.redirect('/votes?proposed=1');
 }));
 
@@ -1916,9 +2165,13 @@ router.get('/matchup', aw(async (req, res) => {
     liveStale,
     me, owners, opp, live, weekNo, matchup: liveMatchup, betWindow, record, rivalry,
     starters, bench, matchupBet, proj, highBand, whBand, whRace, pickem, stakes, trash, trashGameId,
+    // The availability badge is derived from the optimizer's INACTIVE_INJURY set
+    // (src/matchup.js), not from a second ladder in the template.
+    injuryFlag: MU.injuryFlag,
     goatId: MK.goatOwnerId(sData, world.config.sleeper_map || {}),
     configured: !!world.config.sleeper_league_id,
     late: req.query.late === '1', sent: req.query.sent === '1',
+    betFail: betFailMessage(req.query.betfail),
     nameOf,
   });
 }));
@@ -2112,8 +2365,13 @@ function pvEntries(owners) {
 }
 // Live entries from the scoreboard. Live scores are real; the "remaining
 // players + projections" that sharpen the sweat come from A's per-player data
-// when present (flagged in PARKED) — until then the meter runs off the live
-// scores, which is honest, just coarser, and improves automatically.
+// when present (flagged in PARKED) — until then we have NO view of who is still
+// to play, and `remainKnown: false` says so. It used to send a bare `remain: []`,
+// which the engine could not tell apart from "the week is finished": zero
+// variance, so every live game rendered a 100%/0% certainty and "Done — nothing
+// left on the field" while the ball was in the air. Declaring the gap makes the
+// panel fall back to the score, and it upgrades to the real sweat meter by
+// itself the moment the feed exists.
 function liveWatchEntries(sData, map, owners) {
   if (!sData || !Array.isArray(sData.matchups)) return [];
   const nameOf = id => (H.ownerById(owners, id) || {}).name || '?';
@@ -2128,8 +2386,8 @@ function liveWatchEntries(sData, map, owners) {
   for (const pair of Object.values(byMatch)) {
     if (pair.length !== 2) continue;
     const [a, b] = pair;
-    entries.push({ owner_id: a.oid, opp_id: b.oid, name: nameOf(a.oid), oppName: nameOf(b.oid), live: a.pts, oppLive: b.pts, remain: [], oppRemain: [] });
-    entries.push({ owner_id: b.oid, opp_id: a.oid, name: nameOf(b.oid), oppName: nameOf(a.oid), live: b.pts, oppLive: a.pts, remain: [], oppRemain: [] });
+    entries.push({ owner_id: a.oid, opp_id: b.oid, name: nameOf(a.oid), oppName: nameOf(b.oid), live: a.pts, oppLive: b.pts, remain: [], oppRemain: [], remainKnown: false });
+    entries.push({ owner_id: b.oid, opp_id: a.oid, name: nameOf(b.oid), oppName: nameOf(a.oid), live: b.pts, oppLive: a.pts, remain: [], oppRemain: [], remainKnown: false });
   }
   return entries;
 }
@@ -2144,10 +2402,10 @@ router.get('/watch', aw(async (req, res) => {
   const sData = await sleeper.bundle(world.config.sleeper_league_id);
   const weekNo = (sData && sData.week) || 1;
   let rows = [], source = null;
-  if (preview) { rows = WW.panelRows(pvEntries(owners), bandSamples); source = 'preview'; }
+  if (preview) { rows = WW.panelRows(pvEntries(owners), bandSamples, req.owner.id); source = 'preview'; }
   else if (inWindow && sData) {
     const anyScore = PE.anyScoreOnBoard(sData);
-    if (anyScore) { rows = WW.panelRows(liveWatchEntries(sData, world.config.sleeper_map || {}, owners), bandSamples); source = 'live'; }
+    if (anyScore) { rows = WW.panelRows(liveWatchEntries(sData, world.config.sleeper_map || {}, owners), bandSamples, req.owner.id); source = 'live'; }
   }
   res.render('watch', { me: req.owner, rows, source, inWindow, weekNo, band, preview,
     liveStale: await liveFreshness() });
@@ -2246,10 +2504,13 @@ router.get('/scoreboard', aw(async (req, res) => {
       const lev = PO.matchupLeverage(picture._rows, gamesLeft, cut, g.a.id);
       if (lev && lev.swing > 0.005) worth = { name: g.a.name, swing: Math.round(lev.swing * 100) };
     }
-    // the live sweat line (Sun/Mon, undecided) — basic from live margin
+    // the live sweat line (Sun/Mon, undecided) — basic from live margin.
+    // remainKnown:false for the same reason as the /watch panel: without the
+    // per-player feed we cannot see who is still to play, so the icon must be
+    // the neutral 🏈 rather than a 🟢/🔴 verdict on a one-point game.
     let sweat = null;
     if (primetime && hasScore && aPts != null && bPts != null) {
-      const s = WW.sweat({ live: aPts, oppLive: bPts, remain: [], oppRemain: [] });
+      const s = WW.sweat({ live: aPts, oppLive: bPts, remain: [], oppRemain: [], remainKnown: false });
       sweat = { ...WW.sweatLabel(s.pWin), leader: leader ? leader.name : null, margin: Math.abs(Math.round((aPts - bPts) * 10) / 10) };
     }
     return { g, aPts, bPts, hasScore, leader, split, riv, inWHRace, po, worth, sweat };
@@ -2295,6 +2556,7 @@ async function liveOptimizeFor(world, owners, me) {
   if (roster && roster.rows && roster.rows.length) {
     const wk = (matchup && matchup.week) || (sData && sData.state && sData.state.week) || null;
     const inactive = [];   // players the guard zeroed — surfaced so an absence is explained
+    const questionable = [];  // players kept at full projection while tagged Q/DBT
     const rosterIn = roster.rows.filter(r => r.pos && r.pos !== '?').map(r => {
       let proj = null, src = null;
       if (r.proj != null) { proj = Number(r.proj); src = 'sleeper'; }
@@ -2310,18 +2572,57 @@ async function liveOptimizeFor(world, owners, me) {
       const guarded = LO.activeProjection(Math.round(proj * 10) / 10, r, wk);
       if (LO.isInactive(r, wk)) {
         const onBye = wk != null && r.bye != null && Number(r.bye) === Number(wk);
-        inactive.push({ name: r.name, pos: r.pos, reason: onBye ? ('bye ' + r.bye) : (String(r.inj || 'out').trim()) });
+        // `starter` matters more than the rest of the row: a zeroed BENCH player
+        // is a note, a zeroed player who is CURRENTLY IN YOUR LINEUP is a dead
+        // slot you have to fix before kickoff. The Sunday alert fires on that
+        // distinction, so it is carried rather than re-derived downstream.
+        inactive.push({ name: r.name, pos: r.pos, starter: !!r.starter,
+          reason: onBye ? ('bye ' + r.bye) : (String(r.inj || 'out').trim()) });
+      } else {
+        // PLAYING THROUGH SOMETHING. The page named the players it ZEROED and
+        // said nothing about the ones it kept at full projection while carrying
+        // a Questionable or Doubtful tag — which on a Thursday is the only
+        // player whose status is actually in question. The tool that exists to
+        // tell you what to start was silent about the one uncertain starter.
+        // Same MAYBE_INJURY set the matchup card badges from, not a third list.
+        const tag = String(r.inj || '').toUpperCase().replace(/[^A-Z]/g, '');
+        if (tag && MU.MAYBE_INJURY[tag]) {
+          questionable.push({ name: r.name, pos: r.pos, starter: !!r.starter,
+            tag: MU.MAYBE_INJURY[tag], raw: tag });
+        }
       }
       return { id: r.id, name: r.name, pos: r.pos, proj: guarded, sd: r.sd };
     });
-    let oppMean = 0, oppKnown = false;
+    // THE OPPONENT WE HAVE NOT SEEN YET. This used to fall back to
+    // `band.median` — the WEEKLY-HIGH band, i.e. the median of the score that
+    // WINS the week outright (148.5). A real opponent scores 110. So from
+    // Tuesday to Sunday morning, the whole window in which a lineup is actually
+    // set, the tool modelled the opponent as the week's top scorer, and that did
+    // not merely make P(win) pessimistic — it flipped the RECOMMENDATION.
+    // Measured on one ordinary roster: 148.5 gives P(win) 22%, a $1.64 edge, one
+    // start/sit call and the posture "swing for the $100, the matchup is a long
+    // shot"; 110 gives P(win) 64%, no edge, no calls, "protect the matchup". The
+    // matchup term is P(win) x value, so a crushed P(win) suppresses it and the
+    // solver over-chases the weekly high — manufacturing a puzzle on a week you
+    // are a 64% favourite. Now: a typical TEAM score, with the FIELD's spread,
+    // which is what an unknown opponent's uncertainty actually is.
+    let oppMean = 0, oppKnown = false, oppSd;
     if (matchup && matchup.opp && matchup.opp.points > 0) { oppMean = matchup.opp.points; oppKnown = true; }
-    else { oppMean = band.median; }
+    else {
+      const typical = LO.typicalTeamScore();
+      oppMean = typical.median || band.median;
+      oppSd = typical.sd || undefined;
+    }
     // matchupValue omitted -> optimize() uses its derived playoff-equity default
     // ($110, draft/backtest/matchup_value.py). NOT a side bet (Cory, 2026-08-10).
-    live = LO.optimize(rosterIn, { band, sigmaByPos, oppMean });
+    // THE LINEUP YOU ACTUALLY HAVE SET. Without it the solver compares its
+    // recommendation to the projection-optimal lineup and never to yours, so
+    // "nothing to change" meant "the two optima agree", not "you are fine".
+    const currentIds = roster.rows.filter(r => r.starter && r.pos && r.pos !== '?').map(r => r.id);
+    live = LO.optimize(rosterIn, { band, sigmaByPos, oppMean, oppSd, current: currentIds });
     live.oppKnown = oppKnown;
     live.inactive = inactive;
+    live.questionable = questionable;
     // No live/season/last-week points anywhere yet (post-draft, pre-week-1): every
     // projection fell to the zero fallback, so the probabilities are meaningless.
     // Flag it so the view shows a calm "projections pending" state instead of a
@@ -2357,13 +2658,24 @@ router.get('/lineup', requireCommissioner, aw(async (req, res) => {
   const dY = req.query.replay, dW = parseInt(req.query.week, 10);
   if (tab === 'proof' && dY && dW) drill = LO.weekDrill(String(dY), dW, req.query.owner || 'coryjsimms');
 
+  let sendResult = null;
+  if (req.query.sent === '1') { sendResult = req.session.sundaySend || null; delete req.session.sundaySend; }
+
   res.render('lineup', {
     me, owners, tab, season, band, live, projSource, roster, matchup, weekNo, alert,
     posture: live ? LO.weeklyPosture(live, band) : null,   // chase vs protect — the week's one real call
     proof, eff, myLeak: Math.round(myLeak), drill,
     configured: !!world.config.sleeper_league_id,
     logged: req.query.logged === '1',
+    overrode: req.query.overrode === '1',
+    // The optimizer converts this data into a dollar recommendation, so it needs
+    // the staleness banner at least as much as the pages that only display it.
+    liveStale: await liveFreshness(),
     sent: req.query.sent === '1',
+    // Read once and cleared, so a refresh doesn't re-announce an hour-old send as
+    // if it just happened. Cleared BEFORE the render — cookie-session writes its
+    // Set-Cookie on res.end, so a delete after render never reaches the browser.
+    sendResult,
     emailOn: notify.configured(),
   });
 }));
@@ -2416,8 +2728,21 @@ router.get('/lineup/accuracy', requireCommissioner, aw(async (req, res) => {
   // the view renders an honest "not yet" rather than an empty table.
   const attribution = await getDoc(`attribution:${season}`, null);
   let rawCount = 0;
-  try { rawCount = (await store.listKeys(`pred:${season}:`)).length; } catch (e) { /* count is a bonus */ }
-  const view = ACC.buildAccuracyView(calibration, attribution, rawCount, { series, decisions });
+  const ledger = [];
+  try {
+    const keys = (await store.listKeys(`pred:${season}:`)).sort();
+    rawCount = keys.length;
+    for (const k of keys) { const e = await store.get(k); if (e) ledger.push(e); }
+  } catch (e) { /* count is a bonus */ }
+  // THE OVERRIDES AS CAPTURED, not as graded. The grader's decision join reads
+  // the DRAFT kinds (recommendation/pick/override); the in-season kinds this site
+  // writes — lineup_call and inseason_override — aren't in that join yet (parked
+  // for A). Without this the page would show nothing all season while the ledger
+  // filled up, which is the same "measured but never surfaced" failure the
+  // override card was built to fix. Read straight off the ledger and label it
+  // honestly as awaiting grading.
+  const captured = ACC.capturedOverrides(ledger);
+  const view = ACC.buildAccuracyView(calibration, attribution, rawCount, { series, decisions, captured });
   res.render('accuracy', { me: req.owner, season, view });
 }));
 
@@ -2486,13 +2811,31 @@ router.get('/analyzer', requireCommissioner, aw(async (req, res) => {
 
 // Send the Sunday alert to the commissioner now (rehearsal, and the manual fire).
 // The weekly cron hits the same logic via /api/sunday-alert with a secret.
+// THIS BUTTON IS HOW YOU FIND OUT WHETHER THE EMAIL REACHES YOU AT ALL, so it
+// has to report what actually happened. It used to `.catch(() => {})` the send
+// and redirect to a banner reading "Sunday alert sent to your inbox" — true when
+// it worked, and equally true when Resend rejected it. The default sender is
+// Resend's shared `onboarding@resend.dev`, which only delivers to the address
+// that owns the Resend account, so a provider refusal is the LIKELY first
+// outcome in production and it was the one state the rehearsal could not show.
+// The provider's own message is the useful string here, so it is carried in the
+// session rather than the URL.
 router.post('/lineup/sunday/send', requireCommissioner, aw(async (req, res) => {
   const owners = H.activeOwners(req.world.owners);
   const { live, band, weekNo } = await liveOptimizeFor(req.world, owners, req.owner);
+  let outcome = 'nolive', detail = null;
   if (live) {
     const alert = LO.sundayAlert(live, { week: weekNo, band });
-    await notify.sundayAlert(req.world.owners, alert).catch(() => {});
+    const r = await notify.sundayAlert(req.owner, alert)
+      .catch(e => ({ error: String((e && e.message) || e) }));
+    if (r && r.sent) outcome = 'ok';
+    else if (r && r.error) { outcome = 'failed'; detail = r.error; }
+    else if (!notify.configured()) outcome = 'noemail';
+    else { outcome = 'refused'; detail = (r && (r.note || r.reason)) || null; }
   }
+  // The session is a signed COOKIE — a long provider message would bloat it, so
+  // the detail is capped rather than trusted to be short.
+  req.session.sundaySend = { outcome, detail: detail ? String(detail).slice(0, 180) : null, week: weekNo };
   res.redirect('/lineup?sent=1');
 }));
 
@@ -2522,6 +2865,59 @@ router.post('/lineup/log', requireCommissioner, aw(async (req, res) => {
   res.redirect('/lineup?logged=1');
 }));
 
+// THE OVERRIDE CAPTURE — the other half, and the half that was missing.
+//
+// `inseason_override` has been a registered ledger kind with an enforced
+// counterfactual since before the draft, and NOTHING EVER WROTE ONE. The page
+// could only record agreement: press "Log this lineup" and the tool's call is
+// preserved; go against it and there is no button, so the disagreement leaves no
+// trace at all. That is the exact record the attribution question needs — "how
+// often did the human override, and did it pay" is unanswerable from a ledger
+// that only stores the weeks he agreed.
+//
+// ONE TAP, IN THE FLOW. Every field below is already on the page at the moment
+// of the decision; nothing is asked of the user but the tap itself. The reason
+// chips are submit buttons, so choosing a reason IS the tap rather than a step
+// after it. Reconstructing an override afterwards loses most of its value, so
+// the capture is never allowed to cost more than one press.
+//
+// WHAT IT DOES NOT CAPTURE, deliberately: the lineup actually played. That is
+// recoverable from Sleeper after the fact. The tool's recommendation AT THE
+// MOMENT is not recoverable from anything, which is why it is what gets written.
+router.post('/lineup/override', requireCommissioner, aw(async (req, res) => {
+  const season = String(H.currentSeason(req.world.seasons).year || new Date().getUTCFullYear());
+  const predledger = require('../predledger');
+  const gap = req.body.dollars != null ? Number(req.body.dollars) : null;
+  try {
+    await predledger.append(store, {
+      kind: 'inseason_override',
+      method: 'lineup-override-v1',
+      season,
+      payload: {
+        owner_id: req.owner.id,
+        week: req.body.week ? Number(req.body.week) : null,
+        // What I went against. For an override the tool's lineup is BOTH the
+        // thing overridden and the counterfactual — "what I would plausibly have
+        // done otherwise" is precisely what the tool told me to do.
+        recommended: safeJson(req.body.recommended),
+        counterfactual: safeJson(req.body.recommended),
+        // THE GAP, raw. Stored as the dollar figure rather than only as a
+        // contested/not flag, so a threshold can be re-drawn later without
+        // having thrown away the number it was drawn from.
+        gap_dollars: gap,
+        // CONTESTED = the model was close to indifferent, so going the other way
+        // costs almost nothing and should not be scored against the human. The
+        // threshold is stated here rather than implied: under $2 of edge is
+        // inside the week-to-week noise of the projections it is computed from.
+        contested: gap != null ? Math.abs(gap) < 2 : null,
+        reason: String(req.body.reason || 'unstated').slice(0, 60),
+        confidence: String(req.body.confidence || '').slice(0, 600),
+      },
+    });
+  } catch (e) { /* fail soft on the redirect; the API path surfaces errors */ }
+  res.redirect('/lineup?overrode=1');
+}));
+
 // ---------- the locker room ----------
 router.get('/chat', aw(async (req, res) => {
   const owners = H.activeOwners(req.world.owners);
@@ -2541,7 +2937,23 @@ router.post('/chat', aw(async (req, res) => {
 
 router.get('/rules', aw(async (req, res) => {
   const season = H.currentSeason(req.world.seasons);
-  res.render('rules', { RULES, SCORING, ROSTER, season, payouts: H.payoutTable(season) });
+  // THE CONSTITUTION MUST NOT DISAGREE WITH THE BALLOT.
+  //
+  // The vote threshold is live-settable (Commish → Season, 1–20), and /votes
+  // renders it from `H.voteThreshold(config)` — but this page hardcoded "6", in
+  // its subtitle and in the stored rules list. Change the threshold and the two
+  // surfaces disagree about the rule that governs changing the rules, with the
+  // wrong number on the page people actually cite in an argument.
+  //
+  // The stored list lives in seed-data (A's lane), so the substitution happens
+  // here at the render seam. It is anchored on the exact sentence: if that rule
+  // is ever reworded, this becomes a no-op rather than corrupting the text.
+  const threshold = H.voteThreshold(req.world.config);
+  const rules = RULES.map(r =>
+    r.replace(/^All rule changes approved by \d+ votes$/i,
+      `All rule changes approved by ${threshold} votes`));
+  res.render('rules', { RULES: rules, SCORING, ROSTER, season, threshold,
+    payouts: H.payoutTable(season) });
 }));
 
 module.exports = router;

@@ -2344,3 +2344,762 @@ only that C had not touched B's files. My branch is clean under it.
 
 **And your integration already unblocked me:** `adp-asof-probe.yml` is on main, so
 the as-of probe is dispatchable and has been fired. That was my only egress path.
+
+## ✅ RESOLVED AT INTEGRATION (B, 2026-08-10)
+
+The CI-collision notice that stood here is spent — A merged all of it:
+`ff7f66d` took B's ci.yml structure (glob + deps-first), `03e250b` collapsed the
+`seat` derivations and restored the budget to 10, and `f5829ed` made
+deploy-verify call the deploy gate instead of restating it. Recorded as closed
+rather than deleted, so the thread is readable from either side.
+Cory says you're fixing the CI ordering bug (npm install running after the JS
+suites). **It is already fixed on B's branch** `claude/in-season-surface-fixes-6nyayc`
+(commit `12180fe`): `npm install` is its own step immediately BEFORE "JS suites".
+Take B's at integration rather than writing a second one — otherwise `ci.yml`
+conflicts and one of the two fixes gets dropped, which is the half-merge shape
+that has already bitten this repo.
+
+**⚠️ B ALSO REWROTE THE SAME BLOCK**, so an edit there WILL conflict: the JS suite
+loop was a hand-written list of 56 names and is now a **glob** over
+`draft/tests/*.test.js` with an explicit `SKIP` list. Reason: 23 suites existed and
+were executed by NO workflow — including **`valuation`, the C1 shared-valuation
+guard**, plus `waivers`, `coherence` and `accounting`. The Python side already
+globbed, which is why it never drifted; JS now matches. `intervention-rate` is the
+single SKIP, named with its reason (RED, drifted 73.7% → 90.8%, board-driven not
+weight-driven — full diagnosis above; yours to adjudicate).
+
+A copy of this notice is in `ci.yml` itself, immediately above the step, so it is
+visible at the point of edit rather than only here.
+
+**Also yours, and more urgent than the ordering bug** (details in the sections
+above): your tip-of-main `8391604` broke the **entire python suite** — pytest
+aborted at collection and ran ZERO of 77 files, including the merge-completeness
+and deploy-drift guards. B fixed it (no assertion changed; 562 pass where zero
+ran). That fix surfaced two live items for you: **`seat` derived 12 times against a
+budget of 10**, and **deploy-verify skipping every non-`[deploy]` push while the
+gate deploys them anyway**.
+
+## 🚧 → SESSION A — THE DECISION JOIN DOESN'T COVER THE IN-SEASON KINDS (B, 2026-08-10)
+
+**CLASS, not instance.** `gradeDecisions()` in `src/forecast_grade.js` joins the
+DRAFT vocabulary — `recommendation` / `pick` / `override`, keyed on
+`payload.key`. The in-season rail writes a different one: `lineup_call` and
+`inseason_override`, keyed on `owner_id` + `week`, with the counterfactual in
+`payload.counterfactual`. Nothing in the join reads either kind, so
+`snapshot.decisions` will report `n_decisions: 0` for the whole season no matter
+how many lineup decisions are captured.
+
+**What B did on its side and what it deliberately did NOT do.** The capture was
+missing entirely — `inseason_override` has been a registered kind with an
+enforced counterfactual since before the draft and nothing ever wrote one, so
+the optimizer could only ever record agreement. That is now a one-tap capture on
+`/lineup` (`POST /lineup/override`, reason chips that are themselves the submit
+buttons), and the accuracy page reads the raw entries directly so "how often,
+what was the gap, was it contested" is answerable this season. **It does not, and
+will not, say how the overrides turned out** — that needs outcomes joined against
+the recommendation, which is grading, which is yours. The card says so in those
+words rather than showing a blank column.
+
+**What the join needs, when you take it:**
+- `lineup_call` payload: `{ owner_id, week, recommended, counterfactual, dollars, opp_mean, confidence }`
+- `inseason_override` payload: `{ owner_id, week, recommended, counterfactual, gap_dollars, contested, reason }`
+- The natural key is `owner_id:week` — there is one lineup decision per owner per
+  week, and B did not invent a synthetic `key` field because guessing your join
+  key is how the two halves end up disagreeing.
+- `contested` is B's flag with a **stated** threshold (|gap| < $2, inside the
+  projections' own noise). The RAW `gap_dollars` is stored alongside it precisely
+  so you can redraw that line later without having lost the number it came from.
+  If you'd rather own the threshold, take it — the data supports either.
+
+**Related, already flagged above and still open:** `attribution:<season>` has no
+writer, so the attribution table renders its honest "nothing measured yet" state
+indefinitely. The reader has been ready since it was built.
+
+## 🚧 → SESSION A — PLAYOFF ODDS ARE OVERCONFIDENT ON A POINTS TIEBREAK (B, 2026-08-10)
+
+**INSTANCE, possibly a class.** `PO.matchupLeverage` gives a **4–2 team in week 7
+with eight games left** playoff odds of **win 0.55% / lose 0.05%**.
+
+Repro (ten teams, all 4–2, separated only on points-for; viewer ninth on points):
+
+```js
+const rows = Array.from({length:10},(_,i)=>({owner_id:i+1,wins:4,losses:2,pf:700+i*6}));
+PO.matchupLeverage(rows, 8, 4, 2)   // -> {win:0.0055, lose:0.0005, swing:0.005}
+```
+
+With identical records, points-for becomes the entire signal and the model treats
+it as nearly decisive — but eight unplayed games is a lot of variance to assign
+~0. The same call on a normal spread of records looks right (a 3–3 team returns
+33% / 13%), so this is specifically the tied-records case. Worth a look at how
+much weight `pf` carries when records don't separate the field.
+
+**Not blocking, and B has stopped it printing as a falsehood** either way: the
+matchup page now renders `<1%` rather than a rounded `0%`, because a flat 0%
+asserts elimination for a team that is mathematically alive, and derives the
+swing from the two figures the reader can see so the line cannot contradict
+itself. That is a display fix; the estimate underneath is yours.
+
+## 🔍 → SESSION A — EXTERNAL INGEST AUDIT (B, 2026-08-11)
+
+Cross-session review of the ingest, at Cory's request. Every guard below was
+**run**, not read — broken deliberately and observed. Findings first, then the
+parts I checked and found genuinely sound, because an audit that finds something
+everywhere is an audit nobody believes.
+
+### 1. ATTRITION LIES ON 4 OF 9 FIELDS — `ingest_filters.screen()` — **CLASS**
+
+Your own comment states the rule exactly: *"'We could not tell' is NOT 'we
+checked and it did not match'. Conflating them makes the attrition report claim a
+check it never performed."* You implemented it for `scoring`. It is not
+implemented for four other fields, and a field that failed to parse is reported
+as a confident, specific, false statement about the league:
+
+| field absent / unparseable | reported reason | what that reason claims |
+|---|---|---|
+| `roster_slots` (missing, `None`, or `{}`) | `F1.qb_slots` | "doesn't start exactly one QB" |
+| `teams` (missing or `None`) | `F1.teams` | "wrong league size" |
+| `draft_type` (missing, `None`, or `""`) | `F1.draft_type` | "not a snake draft" |
+| `draft` (missing, `None`, or `{}`) | `F2.draft_incomplete` | "their draft wasn't finished" |
+
+Honest today: `scoring` → `F4.no_scoring_rules`, `has_weekly_outcomes`,
+`pre_draft_adp`, and both F5 timestamps. So the guarantee holds exactly where you
+anticipated the failure mode and nowhere else — which is what F4's
+pre-registration exists to prevent.
+
+**The sharpest part: your adapter already knows the right answer and the seam
+throws it away.** `mfl_adapter.draft_type()` deliberately returns
+`(None, "draft_type_unrecognised:XYZ")` with a comment saying an unknown code
+"must be counted as its own attrition reason, never folded into 'not a snake
+draft'". `starter_slots()` accumulates `invalid[]` with per-position reasons. Then
+`screen()` sees only a bare `draft_type` string and a `roster_slots` dict, and
+reports `F1.draft_type` / `F1.qb_slots`. The bridge does not exist yet —
+`mfl_adapter` is imported by nothing but its own test — so this is a seam to
+build correctly rather than a shipped bug. When you build it, either pass the
+adapter's reasons through, or make `screen()` distinguish absent from mismatched
+on those four fields. `roster_slots` and `draft_type` are the two MFL shapes you
+needed a schema probe to pin down, so they are also the likeliest to break.
+
+### 2. THE NaN CLASS — market layer, all three modules — **CLASS**
+
+Every numeric guard in the market layer validates *presence*, *mapping* and
+*sign*. None validates *finiteness*, and `json.loads` accepts bare `NaN` and
+`Infinity` by default, so this arrives from a provider without anything erroring.
+
+- `market_environment.environment_gap(nan, 22)` → **`direction: "level"`**.
+  `gap > 0` and `gap < 0` are both False for NaN, so it falls through to the
+  else. The layer reports that the model and the market **agree exactly** when
+  the model value is not a number. That is the worst shape available: a
+  confident, plausible verdict manufactured out of a non-value.
+- `implied_team_totals(nan, 3)` → `ok: True`, `favourite: nan`. Your own
+  `conserves()` **does** catch it (returns False) — but `ok` already said yes, and
+  nothing forces a caller to run the conservation check.
+- `market_convert.gap_vs_model` with a NaN prop → `comparable: True`,
+  `gap_points: nan`, `gap_pct: nan`. The refusal machinery is right there and
+  well built; it just never asks whether the number is a number. A NaN in an
+  aggregate is worse than a wrong number — it silently poisons the mean.
+- Same function, `{"player_pass_yds": true}` → `True` becomes a 1-yard line and
+  the result is **`gap_pct: -100.0`**. A -100% market-vs-model gap is exactly what
+  a finding looks like.
+- `implied_team_totals(41, 60)` → `ok: True`, underdog **−5.75** implied points,
+  and `conserves()` says True. Arithmetically consistent, physically impossible.
+
+Suggested shape: one `_finite(v, what)` used by all three, refusing non-finite
+with a named reason, plus a floor on implied totals.
+
+### 3. `_earliest_wins` — the unstamped rule holds in one arrival order only — **INSTANCE**
+
+`external_replay._earliest_wins`. Docstring: *"Unstamped rows never displace a
+stamped one, because 'unknown' must not win a recency argument."*
+
+```
+stamped first, unstamped second  -> stamped survives   ✔ matches the docstring
+unstamped first, stamped second  -> UNSTAMPED survives ✘ stamped row discarded
+```
+
+Both branches hit `if prev_stamp is None or stamp is None: continue`, so when a
+stamped and an unstamped duplicate collide the winner is **whichever arrived
+first** — neither "earliest wins" nor "stamped wins". The retained row is the one
+whose observation date is unknown, which is precisely the contamination the rule
+exists to exclude. Your docstring anticipates the trigger ("a merge of two
+pulls"), and a merge of a stamped provider with an unstamped one produces exactly
+this.
+
+Rule-10 note: you wrote `test_earliest_wins_regardless_of_row_order` for two
+*stamped* rows — both orderings — and
+`test_an_unstamped_row_never_displaces_a_stamped_one` for **only the
+stamped-first ordering**. The order-sensitivity you tested for in one case is the
+untested case in the other.
+
+### 4. `graduation_gate.loaded_weights()` misparses two literal forms — **INSTANCE, two consumers**
+
+The regex `(\w+)\s*:\s*(-?[\d.]+)` stops at a non-digit:
+
+- `stack: 5e-1` (= 0.5, **policy unchanged**) parses as **5.0** → fingerprint
+  moves, i.e. a false drift alarm, and the recorded weight is 10× wrong.
+- `ceiling: 1e-3` (a **real** change from 0.0) parses as **1.0** — a 1000× error.
+- An inline `/* ceiling: 9.9 */` comment inside the braces is read as a weight
+  and **overrides** the real one. (A comment *after* `};` is correctly ignored —
+  the non-greedy match handles that.)
+
+Blast radius is two consumers, not one: the policy fingerprint **and**
+`graduation_gate.run()`, which passes `loaded.get(term)` into `classify()` and
+prints "loaded %.2f is a free choice". The gate would be reasoning about a weight
+a thousand times larger than what ships. Latent today — every current
+`MEASURED_WEIGHTS` value is a plain decimal — so this is a trap for the next
+small weight, not a live break.
+
+### ✅ WHAT I CHECKED AND FOUND SOUND
+
+- **The policy-drift guard works, including the part that is easy to get wrong.**
+  A mismatch, a missing key, `None`, `""`, and a mixed batch all raise
+  `PolicyDriftError`. More importantly the fingerprint **moves** on a real weight
+  change (both a value edit and a term going from 0.0 to non-zero) and **does not
+  move** on whitespace. Parsing from `engine.js` rather than re-implementing is
+  the right call and it holds.
+- **F5 strictly-before is strictly before.** A snapshot the day before returns a
+  board; the same day raises; after raises; none raises. All with the F4/F5
+  reason named.
+- **`_as_date` refuses everything it should** — `'not-a-date'`, `''`, `None`,
+  `12345`, `'2025-13-45'`, `[]`, `{}`, `nan` all raise `TimeTravelError` rather
+  than being coerced.
+- **Earliest-wins is order-independent for two stamped rows**, which is the case
+  that matters most.
+- **The market converter's arithmetic reconciles independently.** I recomputed
+  your known-answer case from scratch: 4200×0.04 + 30×6 + 10×(−2) + 350×0.1 +
+  4×6 = **387.0** full, **203.0** prop-covered, and both reproduce through the
+  *shipped* `scoring.score_stat_line` rather than by hand. WR1 231.5/177.5 and
+  the three uncovered shares (23.3% / 29.1% / 47.5%) all reconcile too.
+  Component-matching is real: `model_component` restricted to the covered keys
+  returns exactly the market side's basis, and both refusal paths
+  (`no prop mapped`, `projection lacks the stats the market priced`) fire with
+  named reasons.
+- **`implied_team_totals` conserves** (favourite + underdog = total) on every
+  finite case, and rejects a negative spread rather than flipping it — the sign
+  error that would produce two plausible numbers and no error.
+- **F6 pooling fails closed**; `may_pool` on an unclassified parameter is False.
+
+**One correction against myself:** my first pass computed QB1 as 427.0 and I
+nearly reported a 40-point discrepancy in your docstring. The config carries
+`pass_int: -2.0` (a QB throwing one) *and* `int: +2.0` (a defence catching one);
+I had built the fixture with the defensive key. Your number is right and mine was
+wrong. Worth knowing that `score_stat_line` accepts the wrong key silently and
+returns a plausible total — `strict=True` exists for exactly that, and the ingest
+path does not use it.
+
+## 🔍 → SESSION A — FLEX ELIGIBILITY IS DEFINED SIX TIMES; THERE IS NOW A COMPARATOR (B, 2026-08-11)
+
+**CLASS — rule 11, requirement 3.** Flex eligibility is derived in six places
+across both lanes, and nothing compared them:
+
+| file | shape | slots covered | lane |
+|---|---|---|---|
+| `src/routes/lineup.js` | `Set` → now a map | FLEX **+ SUPER_FLEX + REC_FLEX** (was FLEX only) | B |
+| `public/js/draft/value.js` | object of arrays | FLEX, SUPER_FLEX, REC_FLEX | A |
+| `public/js/draft/mcts.js` | object of arrays | FLEX, SUPER_FLEX, REC_FLEX | A |
+| `public/js/draft/valuation.js` | object of arrays | FLEX, SUPER_FLEX, REC_FLEX | A |
+| `public/js/draft/grabby.js` | flat array | FLEX only | A |
+| `draft/tests/sanity-sweep.test.js` | flat array | FLEX only | A |
+
+They agree on FLEX today. They did **not** all agree on scope, and the narrow one
+was not merely narrower — it was wrong.
+
+**What B fixed, in B's file only.** `src/routes/lineup.js` checked
+`slot === 'FLEX' ? eligible.has(pos) : pos === slot`. A `SUPER_FLEX` or
+`REC_FLEX` slot therefore matched no player and **vanished from the lineup**: the
+optimizer returned **six starters for a seven-slot roster** and priced that as
+optimal, so the projected mean, P(win), P($100) and the dollar edge over your
+studs were all computed on a lineup with a starter missing — silently, while your
+draft engine had supported both slot types the whole time. Fixed: the map covers
+all three, `bestLineup` fills narrowest-flex-first (a wide slot filled first can
+strand a narrow one on an empty pool), and the old `FLEX_ELIGIBLE` export is now
+`FLEX_SLOTS.FLEX` — a view, not a seventh literal.
+
+**Not touched, deliberately:** your four files. Consolidating them is your call,
+and three of them are inside browser IIFEs that export nothing, so a shared
+constant is a real refactor rather than a rename.
+
+**What exists now instead: `draft/tests/flex_eligibility.test.js` (22 checks).**
+It reads the six **sources** (not imports — three never export the constant, and
+importing would have quietly compared two definitions and called it six), and
+fails when:
+- any two disagree on FLEX, printing all six values;
+- any two disagree on `SUPER_FLEX` / `REC_FLEX`, or a file that covers the wide
+  slots stops carrying one;
+- a **seventh** definition appears anywhere in the repo that the test does not
+  know about — named by path;
+- the optimizer stops filling any flex slot, or returns a short lineup, or lets a
+  QB into `REC_FLEX`.
+
+Verified by planting each failure: reverting B's file (7 fail), dropping RB from
+`value.js`'s FLEX (fails, all six printed), and adding a seventh copy in
+`src/dashboard.js` (fails, path named).
+
+**Why this matters now rather than in the abstract:** there is an open measure on
+the ballot right now to change league rules. If a superflex ever passes, your
+engine would handle it and the in-season optimizer would have silently dropped
+the slot every week of the season.
+
+## 🔍 → SESSION A — EXTERNAL INGEST AUDIT #2: budget guard, capture, health (B, 2026-08-11)
+
+Second pass, covering what landed after `14113b5`: the budget guard, the capture
+job, the preseason snapshot and the health check. Guards **run**, not read.
+
+### 1. A 2% CAPTURE IS RECORDED AS A SUCCESS — `write_health` + the workflow gate — **INSTANCE, high**
+
+```python
+ok = snapshot.get("events_captured", 0) > 0
+```
+
+One event out of forty-eight is a success: `consecutive_failures` resets to 0,
+`last_success_at` advances, and the workflow's staleness gate passes. The gate
+checks `consecutive_failures` and the age of `last_success_at` and **never reads
+`last_coverage`** — which `write_health` writes into the file one line above.
+
+So the job can capture one event a day, defer forty-seven, and report green
+indefinitely. The docstring says this exists because "a capture job that dies
+silently is the failure this project keeps hitting" — and a capture that takes 2%
+of the slate is exactly the quiet death it does not catch. The published run is
+already `coverage: 0.271, complete: false` and is recorded as a clean success
+with zero failures.
+
+Same shape as the attrition finding in audit #1: the number is computed
+correctly, written down, and the consumer ignores it. A threshold on
+`last_coverage` (or on `complete` for a full-slate day) closes it.
+
+### 2. THE BACKOFF IS COMPUTED AND NEVER USED — `market_capture.capture` — **INSTANCE, high**
+
+`market_budget` opens with: *"Stop before the ceiling; never retry into it. A
+failure is the moment a naive loop does the most damage: it retries immediately,
+each attempt may bill, and the allowance is gone in seconds."* That module is not
+wired into the loop it was written for:
+
+- `backoff_plan` and `BACKOFF_SECONDS` have **no caller anywhere** outside
+  `market_budget.py` and its own test. Nothing sleeps.
+- `should_retry(code, attempt=1)` is called with the attempt **hardcoded to 1**,
+  so it can never reach its own exhaustion branch.
+- Its verdict is stored in the snapshot as `retry_advised` and **nothing acts on
+  it** — there is no retry.
+
+On a 429 the loop records "rate limited — back off" and immediately issues the
+next event's request, with no delay. The only brake is the local counter, so a
+429 storm burns up to `remaining - reserve` further calls back to back — the
+precise scenario the module was built to prevent.
+
+### 3. THE FAILURE PATH NEVER READS THE PROVIDER'S HEADERS — **INSTANCE, feeds #2**
+
+The success path does `budget.observe(h)`. The `except` branch does not — there
+is no response object in scope — so on a failure the provider's own
+`x-ratelimit-remaining` is never read, and the local counter is the sole
+authority. `RateBudget`'s docstring says the opposite in as many words: *"The
+provider is the authority… A local counter drifts the moment anything else uses
+the key, and drifts silently."* On the one path where the provider is actively
+telling you the answer (a 429 carries the header), it is discarded.
+
+### 4. `observe()` ACCEPTS AN IMPOSSIBLE REMAINING — **INSTANCE**
+
+`observe({"x-ratelimit-remaining": "999999"})` sets remaining to 999999 and the
+guard believes it has unlimited allowance — it will spend straight into the real
+cap. `"-5"` is accepted too (fails the other way: refuses everything, silently
+and confusingly). The header is trusted absolutely; a bound against `limit` and a
+floor at zero would keep the "provider is the authority" rule while refusing a
+value that cannot be true.
+
+### 5. TWO SMALL ONES
+
+- **`note_call(ok=...)` never reads `ok`.** Both branches are identical. The
+  behaviour the docstring describes ("counts failures as spends") is delivered by
+  every call counting, not by the parameter — so a caller writing `ok=False`
+  expecting different accounting gets none, and nothing errors.
+- **`require()` does not validate its own cost.** `affordable(-100)` on a budget
+  with 5 remaining and 20 reserved returns True. Contrived alone; not contrived
+  if a cost is ever computed as a difference.
+
+### 6. STILL OPEN FROM AUDIT #1
+
+`_earliest_wins` remains order-dependent for a **stamped vs unstamped** duplicate
+(stamped-first keeps the stamped row; unstamped-first keeps the unstamped one).
+Re-checked from both directions this pass along with the others: stamped-vs-
+stamped is order-independent (correct), and identical-stamps and
+unstamped-vs-unstamped are first-seen-wins, which is documented and right — a tie
+has no earlier. Only the mixed case is the hole.
+
+### ✅ SOUND, AND WORTH SAYING
+
+- **The published snapshot's arithmetic reconciles exactly.** 13 captured + 35
+  deferred = 48 listed; coverage recomputes to 0.2708333… against the published
+  value; and the budget block closes on itself — limit 100, remaining 20,
+  reserve 20, spendable 0, `spent_this_run` 14 = one events call plus thirteen
+  odds calls. That is a real accounting, not a label.
+- **`affordable()` is exact at the boundary in both directions**: 100/20 affords
+  80 and refuses 81; 20/20 affords 0 and refuses 1. No off-by-one, no inversion.
+- **"Absent is not zero" is genuinely delivered in `observe()`**: no header, a
+  `None` header, and an unparseable header all leave the last known value
+  untouched, and header casing is handled.
+- **`should_retry` gets the hard part right**: the exhaustion check comes FIRST,
+  a 4xx that is not 429 is refused with a cost-aware reason rather than retried,
+  transport errors and 5xx are retried. The logic is correct — see #2, it is
+  simply not connected.
+- **The horizon filter keeps undated events rather than dropping them** ("absent
+  is not 'far away'") and sorts nearest-first before the cut, so when the budget
+  binds it binds on the games furthest from kickoff. That is the right way round.
+- **The partial-capture record is honest**: `complete: false`, `coverage`,
+  `deferred_count` and the deferred event ids all ship inside the snapshot.
+- **On "can a partial snapshot silently become Signal C's baseline":** not today,
+  and for a reason worth stating precisely — **nothing reads a market snapshot
+  back yet.** The only consumer of `draft/market_snapshots/` is the workflow's
+  own health file. So the label is correct and the reader that must honour it
+  does not exist. When you build it, `complete` and `coverage` are already there
+  to gate on; that is exactly the seam where the attrition reasons got discarded
+  in audit #1, so it is worth building the check with the reader rather than
+  after it.
+
+## 🚧 → SESSION A — AN ELIMINATED TEAM IS TOLD THE MATCHUP IS THE LIVE MONEY (B, 2026-08-11)
+
+**INSTANCE, found by walking a week.** Driving `/lineup` at **week 14 with a 1–12
+record**, the optimizer says:
+
+> 🛡️ PROTECT — *"the matchup is the live money; a boom-or-bust play would risk a
+> winnable game for a lottery ticket you probably won't hit. Play the floor."*
+
+For a team that cannot make the playoffs, that is exactly backwards. The whole
+objective is `E[$] = P(win) x matchup_value + P($100) x 100`, and
+`matchup_value` is **playoff equity** (`draft/backtest/matchup_value.py`, $110).
+An eliminated team's matchup is worth **zero dollars** — the weekly $100 is the
+only live money left, so the correct posture is chase, every week, to the end of
+the season. The tool advises the opposite for the last three or four weeks of a
+bad year, which is when a bad year still has money in it.
+
+`matchupValue` is a constant regardless of standing. Making it standing-aware is
+your derivation, not a display fix, so B has not touched it. The site already
+computes clinch/elimination (`src/routes/playoffs.js`), so the input exists.
+
+B has fixed the display-layer defect next to it (the phantom opponent, below);
+this one needs the value model.
+
+## ✅ FIXED IN B's LANE THIS PASS — for your awareness, not your action
+
+**The phantom opponent.** `member.js` fed `weeklyHighBand().median` as `oppMean`
+whenever the opponent's score did not exist yet — Tuesday to Sunday morning, the
+entire window in which a lineup is actually set. That band is the median of the
+score that **wins the week outright** (148.5); a real opponent scores 110. It did
+not merely make P(win) pessimistic, it changed the recommendation:
+
+| opponent modelled as | P(win) | edge | calls | posture |
+|---|---|---|---|---|
+| 148.5 — weekly-high band (before) | 22% | $1.64 | 1 | *"Swing for the $100 — the matchup is a long shot"* |
+| 110 — typical team score (after) | 64% | $0.00 | 0 | *"Protect the matchup"* |
+
+Same roster, same week. The matchup term is `P(win) x value`, so a crushed
+P(win) suppresses it and the solver over-chases the weekly high — manufacturing a
+deviation on a week you are a 64% favourite. Relevant to your ~11% figure: it is
+a measurement of the true objective, and the phantom opponent would have inflated
+what Cory actually saw, pre-Sunday, every week.
+
+New `LO.typicalTeamScore()` is built from the same `fieldWeeklyScores` +
+`regularSeasonWeeks` primitives as `weeklyHighBand`, not a second harvest walk,
+and supplies the field's own SD as the unknown opponent's spread.
+
+## 🔍 → SESSION A — THE FROZEN BASELINE IS SILENT ON THE WHOLE LIVE CONTEXT (B, 2026-08-11)
+
+Your read was right and it is **wider than the survival case**. Measured with
+rule 10 against tip-of-main, not inferred.
+
+**The probe is trustworthy first.** Control: changing `MEASURED_WEIGHTS.value`
+from 1.0 to 0.5 takes the suite from 51/51 green to **7 failures**, and restoring
+it returns to 0. So the harness genuinely re-reads the files below; every green
+that follows is a real silence, not a broken probe.
+
+### What it catches
+
+| break | result |
+|---|---|
+| `value` 1.0 → 0.6 | **RED** (7) |
+| `keeper` 1.0 → 0.0 | **RED** (6) |
+| `stack` 0.5 → 0.9 | **RED** (1) |
+
+Composite weights are genuinely protected. That is real and worth keeping.
+
+### What it does not — every one of these stays 51/51 GREEN
+
+Deleting a field from `app.js`'s live `context()`:
+
+| break | result |
+|---|---|
+| delete `currentPick` | **green** |
+| delete `nextPick` | **green** |
+| delete `roster` | **green** |
+| delete `myPickIndex` | **green** |
+| delete the `doctrine:` tilt wiring | **green** |
+| **restore `nextPick = upcoming[1]` — the original conservation bug** | **green** |
+
+Plus two engine-side ones:
+
+| break | result |
+|---|---|
+| remove survival's `currentPick == null \|\| <= 0` guard (`survival.js`) | **green** |
+| flip `need.flexOpen > 0` → `>= 0` (`grabby.js`) | **green** |
+
+The last of the context ones is the sharpest: reintroducing `upcoming[1]` is the
+exact bug your own comment blames for *"the conservation violation — P(gone)
+summed to far more than the picks that will actually happen, and Best Available
+disagreed with Survival Odds about the same player on the same screen."* The
+baseline does not notice. And the `doctrine:` line carries a comment saying
+*"Without this line the tilt is wired in the engine and live only in tests"* —
+you found that class by hand once, and the guard still cannot see it.
+
+**Why.** `freeze_baseline.js` contains **zero** references to `app.js`. Its
+`canonicalStates()` hand-builds `{ currentPick, nextPick, roster }` and passes
+them straight to the scorer, so a context field that the app fails to supply is
+always supplied by the fixture. The only `app.js` mention in the whole regression
+suite is the rule-7 *string* check ("measured core" names only the frozen
+baseline) — a grep, not an exercise.
+
+**So the scope for the re-freeze is not just `currentPick`.** If it mirrors the
+app by hand it will close whichever fields someone remembers. The durable version
+is to call `context()` itself — or to assert that every key the engine reads is a
+key the app supplies, which is the rule-11 requirement-3 form of the same
+question and would have caught all six at once.
+
+**When it lands I will re-run exactly these eight breaks and report which flip to
+red.**
+
+### Small, adjacent: `context()` returns `totalPicks` TWICE
+
+`app.js` lines ~1116 and ~1137, in one object literal. JS keeps the last, so the
+`const totalPicks` computed at the top is dead and the `|| null` variant wins.
+The two agree today except at zero (`0` vs `null`). Benign now; it is two
+derivations of one quantity twenty lines apart inside the same literal, and the
+dead one reads as live.
+
+## 🔍 → SESSION A — THE ACCESS GUARD COVERS 3 OF 9 TOOL ROUTES (B, 2026-08-11)
+
+`draft/tests/access_guard.test.js` is yours per ACCESS-RULE.md, and it asserts
+the 403/200 split on **`/lineup`, `/lineup?tab=proof`, `/lineup/log`**. Six other
+commissioner-only routes have no such assertion — four of them added by B this
+week, which is exactly why they are missing rather than any fault of the guard:
+
+| route | covered? | added |
+|---|---|---|
+| `/lineup`, `/lineup?tab=proof`, `/lineup/log` | ✅ yours | — |
+| `/lineup/accuracy` | ❌ | earlier |
+| `/lineup/override` (POST) | ❌ | B, this week |
+| `/admin`, `/admin/warroom` | ❌ | — |
+| `/admin/draft-sheet` | ❌ | B, this week |
+| `/analyzer` | ❌ | B, this week |
+| `/admin/api/archive/draft` (POST) | ❌ | B, this week |
+
+**All nine verified correct today** — commissioner 200, member 403 on every
+mounted one — so this is a coverage gap, not a live leak. B has deliberately NOT
+written a second guard: two files asserting "the tools are private" over
+different route lists is the duplicated-derivation shape, and the one that does
+not know about a new route is the one that goes quiet. Adding the six to yours
+keeps it one list.
+
+**Not a finding, checked and cleared:** `/waivers` 404s because
+`src/routes/waivers.js` is a pure module with no router — and its own header says
+so: *"Pure functions over (freeAgents, myRoster, league, ctx). Live wiring is the
+caller's job."* An engine awaiting a caller, documented as such. Reported here
+only because a route that 404s looks like a defect until you read the header.
+
+---
+
+## 🔍 → SESSION A — THE WAIVER TOOL PRICES A CROSS-POSITION SWAP AGAINST TWO DIFFERENT BASELINES (B, 2026-08-11)
+
+Cory asked me to walk the waiver tool the way I walked a week. It has no surface
+(that part is already parked above and is correct — the header says so), so I
+drove `evaluateClaims` through five Tuesdays. Four of them behaved. The first one
+recommended claiming a kicker who is worse than the kicker I already start, and
+priced it at **$59**.
+
+**The arithmetic.** `evaluateClaims` computes
+`netPoints = max(0, sv(newPlayer) - sv(dropCandidate))`. Both terms come from
+`V.startableValue`, which for a bench body returns
+`(proj(player) − proj(the incumbent AT HIS POSITION)) × 0.35 + insurance`.
+The two terms are measured against **different incumbents**, so the subtraction
+does not cancel and the leftover is a comparison between two of MY OWN players
+who have nothing to do with the transaction.
+
+Driven, on a roster with Nacua (WR, 210) as WR2, Butker (K, 130), and a Scrub WR
+(120) as the drop:
+
+| | value | why |
+|---|---|---|
+| `sv(Wire K, 110)` | −6.94 | measured against **Butker, 130** |
+| `sv(Scrub WR, 120)` — the drop | −30.30 | measured against **Nacua, 210** |
+| `net_value` = the difference | **+23.36 pts** | → **$59.35** at $2.54/pt |
+
+`0.35 × (210 − 130) = 28.00` of those points are the gap between my WR2 and my
+kicker. Claiming a strictly worse kicker "adds" 23 startable points because
+Nacua outprojects Butker by 80.
+
+Same-position swaps are fine — the incumbent term genuinely cancels, and the
+"nothing worth a claim" week I drove correctly returned 0 for all three same- or
+adjacent-position scrubs. It is only the cross-position case, which is most of a
+real wire.
+
+**Routed to you rather than fixed** even though the file sits under `src/routes/`
+and the territory script calls that mine: what "net startable points added"
+should mean is your valuation model, not a line of my presentation code, and
+`startableValue` itself (`public/js/draft/valuation.js`) is yours outright. The
+fix is a judgement about the model — probably valuing the roster before and after
+the swap rather than differencing two marginals — and I would rather you make it
+than have me guess and have the draft and the waiver tool disagree on a player,
+which is the one thing contract C1 exists to prevent.
+
+**Sound, and worth saying:** the C1 cross-tool agreement holds (the existing
+`waivers.test.js` checks it and it passes); the obvious add ranked first and was
+priced well clear of the field ($145 vs $92); `dropCandidate` never proposed a
+starter while a bench body existed; `whoElseNeeds` correctly found 3 of 4 rival
+teams short at the position and excluded the one with a full roster, ordered by
+posture; and the consensus label is honest ("Sleeper proj", not "Consensus", with
+one source wired) because it delegates to the shared module instead of keeping a
+second copy. The live adapter's header names the thin-pool VORP trap it avoids.
+
+**Three more gaps, reported not fixed, because they are all the same decision
+about what the tool is for** (see the separate note to Cory):
+
+1. **No "hold" verdict.** A week where nothing is worth claiming returns a ranked
+   list of three $0 claims rather than saying so. A page rendering `claims[0]`
+   would print "claim Wire scrub A" on a week the answer is "do nothing" — the
+   same shape as the optimizer manufacturing a puzzle on an 89%-nothing week.
+2. **Contested-ness is computed and never priced.** Same player, same roster,
+   `$145.45` whether three eager rivals want him or nobody does. In a PRIORITY
+   league that is backwards: contested is when spending priority is justified,
+   uncontested is when you can wait.
+3. **The stopping structure is absent entirely.** `priority` appears exactly once
+   in the file, in the header comment describing what the tool is supposed to
+   tell you. `waiverPriority` and `weeksLeft` passed through `ctx` are ignored —
+   byte-identical output with and without them. Your own
+   LEARNING-ARCHITECTURE.md §1 (2026-08-10) specifies this and says it is
+   buildable, including the coupling: take "will someone else claim him" from the
+   analyzer's postures rather than modelling it twice. `whoElseNeeds` already
+   computes that exact input. **The tool derives the one input the stopping rule
+   needs and then discards it.**
+
+---
+
+## 📣 → SESSION A (and C) — TWO SHARED FILES TOUCHED, BANNERS LEFT AT BOTH (B, 2026-08-11)
+
+Per Cory's three-session rule. Neither is urgent; both are here so nobody
+discovers them in a merge.
+
+1. **`scripts/territory-check.sh`** — B claimed `src/recap.js` under the existing
+   substance test (site feature, imported only by `src/routes/*`, never by
+   `draft/**`), the same way `sidebets/betlogic/venmo/dashboard/ledger/notify/
+   champs/rivalries/matchup` were claimed on 2026-08-09. A banner comment sits at
+   the edit point. **A: if that collides with anything in your lane, say so and I
+   will move it.**
+2. **`.github/workflows/weekly-recap.yml`** — new, B's, follows the same
+   convention as `sunday-alert.yml` (each side maintains the workflows for the
+   features it owns).
+
+**Nothing is blocked on either of you.** The items I am still waiting on are
+unchanged and none of them has moved: the eight baseline breaks re-run against
+the re-freeze (they are the acceptance test — if any of the eight still passes
+green, the re-freeze has closed the fields somebody remembered rather than the
+mechanism), the matchup win-probability/team-total feed, and the war-room
+hierarchy pass.
+
+**And one thing A may be waiting on that has already landed:** the two live
+ingest findings I routed are still in this file above, unactioned as far as I can
+see, and the waiver `net_value` cross-baseline defect (further up, 2026-08-11) is
+new since your last read.
+
+**C:** the attrition seam is yours per Cory. My entry on it is above in full. One
+thing worth saying that is not in it — the reason it is a named defect rather
+than a surprise is that `screen()` returns a *reason* rather than a boolean, which
+is A's design and is the only thing that made the gap visible. Keep that property.
+
+---
+
+## 🚨 → SESSION A — URGENT, ROUTE FIRST: WE BOTH BUILT THE EMAIL POLICY, IN THE SAME THREE FILES (B, 2026-08-11)
+
+`f26690d` and my `8817361` are the same feature, written twice, in
+`src/notify.js`, `src/routes/member.js` and `src/routes/admin.js` — all three
+B-owned by the territory file. This is the semantic conflict Cory named: the
+half-merge guard catches dropped files, not two sides changing one behaviour
+differently. **Do not resolve it by picking a side. They are complementary and
+each covers the other's hole.**
+
+| | yours (main) | mine (branch) |
+|---|---|---|
+| where the policy lives | in each **capability** | at the **door** (`sendMail`) |
+| `sundayAlert` | takes the owner LIST, finds the commissioner itself — **cannot address anyone else** | takes an owner; the door refuses a non-commissioner |
+| a NEW sender written next year | **unprotected** — `sendMail` has no policy; the header asks the author to be careful | inherits commissioner-only automatically: an absent `kind` is not a member kind |
+| skip reasons | `unconfigured` / `no-recipient` — **better than mine**, I collapsed them | one `recipient-not-permitted` |
+| `/forgot` | `owner.email && notify.configured()` | `notify.mayEmail(owner.email, 'password-reset')` — asks the policy instead of re-deriving it |
+| the four removed senders | identical, both deleted | identical |
+
+**Yours is better on the axis that matters most today** — `sundayAlert(owners)`
+resolving the commissioner itself makes the wrong call unwritable, which beats
+catching it at the door. **Mine is better on the axis that matters in six months**
+— your design gives a future `sendMail({to: everyOwner})` no protection at all,
+and a comment asking the next author to be careful is the thing we both keep
+finding doesn't hold.
+
+**The merge I'd take, and I am not doing it because you own integration:** your
+capability signatures and your skip reasons, plus my `kind` parameter with
+`MEMBER_KINDS` as the door's default. Then a new sender is safe by omission AND
+the existing ones are safe by construction. My branch also adds `weeklyRecap` as
+a fourth permitted kind and `mayEmail(address, kind)` for `/forgot`, both of
+which need to survive whatever you pick.
+
+Four conflicting files total: the three above plus `DECISIONS-NEEDED.md`
+(append-only, trivial).
+
+---
+
+## 🔍 → SESSION A — THE EIGHT BREAKS, RE-RUN: 3 OF 8, NOT 8 OF 8 (B, 2026-08-11)
+
+I specified this acceptance test so I ran it rather than taking the number.
+Method: a clean worktree at `origin/main`, each break applied to `app.js` one at
+a time, swept against **every suite that can load `app.js`** (10 of them —
+app-wiring, attribution, authority, baseline_regression, bundling_guard,
+context_interface, seat_pick_order, slider_sync, survival_honesty,
+warroom_mobile). Control green, restored green each time.
+
+| break | caught by |
+|---|---|
+| `nextPick` → undefined | ✅ app-wiring |
+| `myPickIndex` → undefined | ✅ context_interface |
+| `nextPick = upcoming[1]` (the conservation bug) | ✅ context_interface |
+| `roster: []` | ❌ **not caught** |
+| `totalPicks` → undefined | ❌ **not caught** |
+| `totalMyPicks` → null | ❌ **not caught** |
+| `currentKeepers: []` | ❌ **not caught** |
+| doctrine tilt → null | ❌ **not caught** |
+
+**First, the part I got wrong and you got right.** My original finding was that
+the baseline can't see `app.js`. You went further: the frozen context was a
+**Layer-1-only world** because `intervening: []` meant survival's Layer 2 never
+executed at all. That is a bigger miss than the one I reported and I did not
+find it. And `context_interface.test.js` is the right mechanism — it asserts
+every key the engine reads is a key the app supplies, which is rule 11 req 3
+applied to an interface, and it guards its own scraper against extracting
+nothing. That is the durable fix and it works.
+
+**What "8/8" is over-claiming.** The interface guard catches a key going
+MISSING. Five of the eight supply the key and supply a **wrong value** — an empty
+roster, a nulled denominator, a killed doctrine tilt. Those are value
+regressions, and value regressions are what a frozen baseline is for, and the
+baseline still cannot see them because `canonicalStates()` builds its own
+context. Your own file says so: *"the frozen baseline supplies these from its
+own fixture and cannot see it."*
+
+So there are three quadrants and we cover two: **weights → baseline ✅ ·
+missing context key → interface guard ✅ · present-but-wrong context value →
+nothing.** The doctrine tilt lives in that third quadrant, and your own comment
+says it was caught the first time by a human reading "no preference" off the MVS
+plan line at pick 1.
+
+**The cheap close, one pass:** have `freeze_baseline.js` obtain its context from
+the same builder `app.js` uses rather than reconstructing it — extract
+`context()` into a shared module both call if the browser deps make importing
+`app.js` impossible. Then a wrong value flows into the frozen surfaces and all
+five become detectable, and the hand-diff recorded in your comment ("Diffed
+against app.js's live ctx on 2026-08-11") stops being a thing that can silently
+go stale. **Not urgent before the 22nd** — the interface guard covers the
+draft-night risk. It matters for the season.
+
+**And thank you for `3aa3ca4`** — the market layer's filters registered. That was
+my rule-4 finding actioned in full, faster than I expected.

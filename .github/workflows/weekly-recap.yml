@@ -1,0 +1,50 @@
+name: Weekly recap
+# The league's Tuesday-morning email. 13:30 UTC Tuesday = 8:30am ET (9:30 during
+# DST), which is after Monday night is final and after Sleeper has rolled its
+# state.week forward — the endpoint recaps week-1, not the week in progress.
+#
+# TIMING WAS CONFIRMED AGAINST THE DATA, NOT GUESSED. The recap refuses outright
+# unless every matchup has a non-zero score on both sides, so an early run cannot
+# produce a half-told week — it produces a `week-not-final` failure, which this
+# workflow reports as an ERROR rather than a quiet green. If that fires, the
+# schedule is wrong and the run says so.
+#
+# Off-season is a no-op (no live league). Gated by WEEKLY_RECAP_KEY, falling back
+# to SUNDAY_ALERT_KEY so one secret can run both.
+on:
+  schedule:
+    - cron: '30 13 * * 2'
+  workflow_dispatch: {}
+jobs:
+  fire:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Hit the weekly-recap endpoint
+        run: |
+          set -e
+          KEY="${{ secrets.WEEKLY_RECAP_KEY }}"
+          [ -n "$KEY" ] || KEY="${{ secrets.SUNDAY_ALERT_KEY }}"
+          if [ -z "$KEY" ]; then
+            echo "::warning title=Weekly recap never fired::neither WEEKLY_RECAP_KEY nor SUNDAY_ALERT_KEY is set, so no recap was requested. Configure one before week 1."
+            exit 0
+          fi
+          BASE="${{ vars.SITE_URL }}"
+          [ -n "$BASE" ] || BASE="https://makefbgreatagain.netlify.app"
+          curl -sS -m 60 "$BASE/api/weekly-recap?key=$KEY" | tee /tmp/recap.json
+          echo
+          grep -q '"ok":true' /tmp/recap.json
+          if grep -q '"sent":1' /tmp/recap.json; then
+            echo "::notice title=Recap sent::the league got its week"
+            exit 0
+          fi
+          # QUIET ON PURPOSE. Off-season, or a week already covered — both are the
+          # healthy result and neither should annotate as a problem.
+          if grep -qE '"reason":"(off-season|already-sent)"' /tmp/recap.json; then
+            echo "::notice title=Nothing to send::off-season, or this week's recap already went out"
+            exit 0
+          fi
+          # EVERYTHING ELSE IS A MISSED WEEK. A recap that silently stops is the
+          # failure this project keeps hitting, so an unwritten or undelivered
+          # week is red — not a warning somebody scrolls past.
+          echo "::error title=Weekly recap MISSED::the week was not recapped — see the reason in the response above"
+          exit 1

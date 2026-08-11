@@ -9,6 +9,8 @@ const { getDoc, setDoc, store, newId, now } = require('../data');
 const { hashPassword, requireCommissioner, aw } = require('../auth');
 const VE = require('./voteenact');   // vote → season-config enactment
 const DO = require('./draftorder');   // selection order: reverse reg-season + reverse bracket
+const DB = require('./draftboard');   // the completed board as a grid + its raw capture
+const RD = require('./recap-data');   // the weekly recap: gather + write (preview before it goes out)
 
 router.use(requireCommissioner);
 
@@ -23,9 +25,138 @@ const back = (res, tab, extra = '') => res.redirect(`/admin?tab=${tab}${extra}`)
 const msg = m => '&msg=' + encodeURIComponent(m);
 
 // One console page; ?tab= picks the section, ?year= the season being managed.
+/* ── AUTOMATION HEALTH: DID THE SCHEDULED THINGS ACTUALLY HAPPEN? ────────────
+ *
+ * Three jobs now run on their own and send mail on the league's behalf, and
+ * until this existed the ONLY place their outcome appeared was a GitHub Actions
+ * annotation. Cory does not read GitHub Actions, which means the failure this
+ * project keeps hitting — a weekly job that dies silently — had been rebuilt
+ * twice today by me, with better error reporting pointed at nobody.
+ *
+ * The line that matters is not "the last one worked". It is the ARITHMETIC: the
+ * league is on week 9 and the last recap went out for week 6, so three weeks
+ * were missed and nothing said so. A dashboard that reports the most recent
+ * success is exactly how a job that stopped three weeks ago still looks fine.
+ */
+async function automationHealth(world, season) {
+  const out = [];
+  const yr = String(season.year);
+  const latest = async prefix => {
+    let keys = [];
+    try { keys = await store.listKeys(`${prefix}:${yr}:`); } catch (e) { return null; }
+    const weeks = keys.map(k => Number(String(k).split(':').pop())).filter(n => Number.isFinite(n));
+    if (!weeks.length) return null;
+    const week = Math.max(...weeks);
+    return Object.assign({ week }, await getDoc(`${prefix}:${yr}:${week}`, {}));
+  };
+
+  let liveWeek = null, feedFailing = false;
+  try {
+    const sData = await sleeper.bundle(world.config.sleeper_league_id);
+    liveWeek = sData && sData.week ? Number(sData.week) : null;
+    const raw = await getDoc('sleeper-cache', null);
+    feedFailing = !!(raw && raw.failed_at);
+  } catch (e) { /* the panel degrades; it never breaks the console */ }
+
+  const emailOn = notify.configured();
+  out.push({ key: 'email', label: 'Email provider',
+    ok: emailOn, detail: emailOn ? 'configured' : 'RESEND_API_KEY is not set — nothing can send at all',
+    // The single most consequential unknown, and it is not knowable from here:
+    // Resend's default sender only delivers to the account owner's address.
+    note: emailOn ? 'Deliverability is only provable by pressing send — /lineup has the rehearsal button.' : null });
+
+  out.push({ key: 'sleeper', label: 'Sleeper feed',
+    ok: !feedFailing, detail: feedFailing ? 'the last fetch FAILED — every in-season page is running on stale data'
+      : (liveWeek ? `live, week ${liveWeek}` : 'no live league (off-season)') });
+
+  // THE RECAP. Missed weeks are counted, not implied.
+  const recap = await latest('weekly-recap-sent');
+  const dueWeek = liveWeek ? liveWeek - 1 : null;
+  const missedRecaps = (dueWeek && dueWeek >= 1) ? Math.max(0, dueWeek - (recap ? recap.week : 0)) : 0;
+  out.push({ key: 'recap', label: 'Weekly recap',
+    ok: missedRecaps === 0,
+    detail: !dueWeek ? 'off-season — nothing due'
+      : missedRecaps === 0 ? `week ${recap.week} sent ${String(recap.at || '').slice(0, 10)}`
+      : `${missedRecaps} week${missedRecaps === 1 ? '' : 's'} MISSED — last sent was `
+        + (recap ? `week ${recap.week}` : 'never') + `, week ${dueWeek} is due`,
+    href: '/admin/recap' });
+
+  // THE SUNDAY ALERT. It legitimately stays quiet most weeks (it only sends when
+  // there is something to do), so "not sent" is NOT a fault and must not be
+  // painted as one — a status panel that cries wolf on the expected result is
+  // the same overstatement the alert itself was fixed for.
+  const alert = await latest('sunday-alert-sent');
+  out.push({ key: 'alert', label: 'Sunday alert',
+    ok: true,
+    detail: !liveWeek ? 'off-season — nothing due'
+      : alert ? `last fired for week ${alert.week} (${alert.calls} call${alert.calls === 1 ? '' : 's'}, ${alert.dead} dead slot${alert.dead === 1 ? '' : 's'})`
+      : 'has not fired yet this season — expected until a week needs a change',
+    note: liveWeek && !alert ? 'It only sends when there is something to do, which is roughly one week in nine.' : null,
+    href: '/lineup' });
+
+  return out;
+}
+
+/* ── THE WEEKLY RECAP, BEFORE IT GOES OUT ────────────────────────────────────
+ *
+ * Nine people get this and cannot reply to it. The hard constraint on the whole
+ * feature is that nothing in it reads as a genuine dig at one person, and the
+ * only way to hold that constraint is to be able to READ IT FIRST. So the
+ * preview is not a nicety — it is the enforcement mechanism, and it renders the
+ * exact text the email would carry rather than an approximation of it.
+ *
+ * Also a manual send, for a week the cron missed. It deliberately clears the
+ * once-per-week stamp check by going through the same door with an explicit
+ * override: an explicit click is a request, not a schedule.
+ */
+router.get('/recap', aw(async (req, res) => {
+  const world = req.world;
+  const owners = H.activeOwners(world.owners);
+  const season = String(H.currentSeason(world.seasons).year || new Date().getUTCFullYear());
+  const sData = await sleeper.bundle(world.config.sleeper_league_id).catch(() => null);
+  const liveWeek = sData && sData.week ? Math.max(1, Number(sData.week) - 1) : null;
+  const week = Number(req.query.week) || liveWeek;
+  let recap = null, err = null;
+  if (week) {
+    try { recap = await RD.buildWeeklyRecap(world, owners, week, season); }
+    catch (e) { err = String(e && e.message || e); }
+  }
+  const stamp = week ? await getDoc(`weekly-recap-sent:${season}:${week}`, null) : null;
+  res.render('admin/recap', {
+    week, liveWeek, season, recap, err, stamp,
+    text: recap && recap.ready ? RD.toText(recap) : '',
+    recipients: owners.filter(o => o.email).length,
+    emailOn: notify.configured(),
+    sent: req.query.sent || null,
+  });
+}));
+
+router.post('/recap/send', aw(async (req, res) => {
+  const world = req.world;
+  const owners = H.activeOwners(world.owners);
+  const season = String(H.currentSeason(world.seasons).year || new Date().getUTCFullYear());
+  const week = Number(req.body.week) || 0;
+  let outcome = 'no-week';
+  if (week) {
+    const recap = await RD.buildWeeklyRecap(world, owners, week, season);
+    if (!recap.ready) outcome = recap.reason;
+    else {
+      const r = await notify.weeklyRecap(owners, recap).catch(e => ({ error: String(e && e.message || e) }));
+      if (r && r.sent) {
+        outcome = 'ok';
+        await setDoc(`weekly-recap-sent:${season}:${week}`,
+          { at: new Date().toISOString(), season, week, manual: true,
+            recipients: owners.filter(o => o.email).length });
+      } else outcome = (r && (r.error ? 'send-failed' : r.reason)) || 'send-skipped';
+    }
+  }
+  res.redirect(`/admin/recap?week=${week}&sent=${encodeURIComponent(outcome)}`);
+}));
+
 router.get('/', aw(async (req, res) => {
   const world = req.world;
   const tab = req.query.tab || 'alerts';
+  const health = await automationHealth(world, H.currentSeason(world.seasons, req.query.year)).catch(() => []);
   const owners = world.owners;
   const active = H.activeOwners(owners);
   const season = H.currentSeason(world.seasons, req.query.year ? parseInt(req.query.year, 10) : undefined);
@@ -94,6 +225,7 @@ router.get('/', aw(async (req, res) => {
     .filter(o => o.missing.length);
 
   res.render('admin/console', {
+    health,
     tab, season, seasons, weekly, awards, draft, keepers, votes, prevStandings,
     threshold: H.voteThreshold(world.config),
     contactStatus,
@@ -120,8 +252,10 @@ router.post('/alerts', aw(async (req, res) => {
       active: true, created_at: now(),
     });
     await setDoc('alerts', alerts);
-    // NO MEMBER EMAIL. An urgent league announcement used to mail every owner.
-    // Policy 2026-08-11: it lives on the site and they go look at it.
+    // NO EMAIL. An urgent alert is already pinned site-wide on every page, so
+    // the email was a second copy of something nobody can miss — and under the
+    // 2026-08-11 policy an announcement is not one of the three things that may
+    // reach a member. The capability was removed from notify.js, not gated.
   }
   back(res, 'alerts');
 }));
@@ -184,8 +318,9 @@ router.post('/ledger/:id/settle', aw(async (req, res) => {
     const updated = await L.setSettled(e.id, !e.settled, req.body.note, req.owner.name);
     if (updated && updated.settled) {
       const target = H.ownerById(req.world.owners, updated.owner_id);
-      // NO MEMBER EMAIL. A settlement notice is not one of the permitted three;
-      // the member sees it on their tab at /bank.
+      // NO EMAIL — a settlement notice is not one of the three permitted member
+      // emails (policy, 2026-08-11). It shows on /bank. This is a deliberate
+      // reduction in signal, taken knowingly: see notify.js's closing note.
     }
   }
   if (req.body.back === 'bank') return res.redirect('/bank');
@@ -1148,6 +1283,42 @@ router.post('/api/archive', aw(async (req, res) => {
     res.json({ ok: true, deduped: result.deduped, seq: result.seq,
       snapshot: result.snapshot ? { id: result.snapshot.id, seq: result.snapshot.seq,
         kind: result.snapshot.kind, archived_at: result.snapshot.archived_at, hash: result.snapshot.hash } : null });
+  } catch (e) {
+    res.status(400).json({ ok: false, error: String(e.message || e) });
+  }
+}));
+
+// ARCHIVE THE COMPLETED DRAFT, SERVER-SIDE.
+//
+// The pick stream is already captured from the war room as picks land — the
+// right primary, and it stays. But that path runs only while that tab is open:
+// close the laptop when the last pick is in and the final batch may never post,
+// leaving no server-side record at all. This is the independent second path.
+// It fetches the finished draft from Sleeper and writes kind `draft_complete`,
+// which was a registered raw kind with no writer. Content-hash deduped by the
+// archive itself, so pressing it twice is free and pressing it mid-draft and
+// again at the end keeps both distinct states.
+router.post('/api/archive/draft', aw(async (req, res) => {
+  const world = req.world;
+  const season = String(H.currentSeason(world.seasons).year);
+  const leagueId = world.config.sleeper_league_id;
+  if (!leagueId) return res.status(400).json({ ok: false, error: 'no Sleeper league configured' });
+  const info = await sleeper.draftInfo(leagueId);
+  if (!info || !Array.isArray(info.picks) || !info.picks.length) {
+    return res.status(409).json({ ok: false, error: 'Sleeper has no picks for this draft yet' });
+  }
+  const owners = H.activeOwners(world.owners);
+  const expected = owners.length * Number((info.draft && info.draft.settings && info.draft.settings.rounds) || 0);
+  const complete = DB.isComplete(info, expected);
+  const payload = DB.completePayload(info, world.config.sleeper_map || {}, now());
+  try {
+    const result = await rawarchive.snapshot(store, {
+      kind: 'draft_complete', season,
+      source_at: (info.draft && info.draft.last_picked) ? new Date(info.draft.last_picked).toISOString() : null,
+      payload,
+    });
+    res.json({ ok: true, complete, deduped: result.deduped, seq: result.seq,
+      picks: info.picks.length, expected });
   } catch (e) {
     res.status(400).json({ ok: false, error: String(e.message || e) });
   }

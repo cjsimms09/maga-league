@@ -87,7 +87,30 @@ function seasonOf(history, season) {
   return (history.seasons || []).find(s => String(s.season) === String(season)) || null;
 }
 
-const FLEX_ELIGIBLE = new Set(['RB', 'WR', 'TE']);
+// EVERY FLEX-TYPE SLOT AND WHAT MAY FILL IT.
+//
+// This is the SIXTH place flex eligibility is defined — the draft engine carries
+// it in value.js, mcts.js and valuation.js (all three with these same three slot
+// types), grabby.js carries the FLEX case as a flat array, and sanity-sweep does
+// too. Nothing compared them, and they did not all say the same thing: this file
+// defined ONLY `FLEX`, and the eligibility check fell through to `candPos ===
+// slot` for anything else. A SUPER_FLEX or REC_FLEX slot therefore matched no
+// player and DISAPPEARED FROM THE LINEUP ENTIRELY — the optimizer returned six
+// starters for a seven-slot roster and priced that as optimal, so the projected
+// mean, P(win), P($100) and the dollar edge were all computed on a lineup with a
+// starter missing. Silent, and the draft engine has supported both slot types
+// the whole time.
+//
+// `draft/tests/flex_eligibility.test.js` now compares all six definitions.
+const FLEX_SLOTS = {
+  FLEX: new Set(['RB', 'WR', 'TE']),
+  SUPER_FLEX: new Set(['QB', 'RB', 'WR', 'TE']),
+  REC_FLEX: new Set(['WR', 'TE']),
+};
+// The old name, kept for existing consumers but DERIVED rather than restated —
+// a second literal here would be the very thing this comment is about.
+const FLEX_ELIGIBLE = FLEX_SLOTS.FLEX;
+const isFlexSlot = slot => Object.prototype.hasOwnProperty.call(FLEX_SLOTS, slot);
 const r2 = n => Math.round(n * 100) / 100;
 const r4 = n => Math.round(n * 10000) / 10000;   // efficiency wants finer than 2dp
 
@@ -139,8 +162,11 @@ function bestLineup(playerPts, posById, rosterIds, slots) {
 
   const used = new Set();
   const starters = [];
+  // Fixed positions first, then every flex-type slot — not just FLEX. A roster
+  // template carrying SUPER_FLEX or REC_FLEX used to skip the second loop
+  // entirely and lose the slot.
   for (const [pos, n] of Object.entries(slots)) {
-    if (pos === 'FLEX') continue;
+    if (isFlexSlot(pos)) continue;
     let taken = 0;
     for (const [pid, pt] of (byPos[pos] || [])) {
       if (taken >= n) break;
@@ -148,16 +174,24 @@ function bestLineup(playerPts, posById, rosterIds, slots) {
       used.add(pid); starters.push({ pid, slot: pos, points: pt }); taken++;
     }
   }
-  for (let k = 0; k < (slots.FLEX || 0); k++) {
-    let best = null;
-    for (const pos of FLEX_ELIGIBLE) {
-      for (const [pid, pt] of (byPos[pos] || [])) {
-        if (used.has(pid)) continue;
-        if (best === null || pt > best.points) best = { pid, points: pt };
-        break;   // each list sorted; first unused is its best
+  // Narrowest flex first (REC_FLEX before FLEX before SUPER_FLEX): a slot with
+  // fewer eligible positions has fewer ways to be filled, so filling the wide
+  // one first can strand the narrow one on an empty pool.
+  const flexOrder = Object.keys(FLEX_SLOTS)
+    .filter(sl => (slots[sl] || 0) > 0)
+    .sort((a, b) => FLEX_SLOTS[a].size - FLEX_SLOTS[b].size);
+  for (const slotName of flexOrder) {
+    for (let k = 0; k < (slots[slotName] || 0); k++) {
+      let best = null;
+      for (const pos of FLEX_SLOTS[slotName]) {
+        for (const [pid, pt] of (byPos[pos] || [])) {
+          if (used.has(pid)) continue;
+          if (best === null || pt > best.points) best = { pid, points: pt };
+          break;   // each list sorted; first unused is its best
+        }
       }
+      if (best) { used.add(best.pid); starters.push({ pid: best.pid, slot: slotName, points: best.points }); }
     }
-    if (best) { used.add(best.pid); starters.push({ pid: best.pid, slot: 'FLEX', points: best.points }); }
   }
   return { points: r2(starters.reduce((a, s) => a + s.points, 0)), starters };
 }
@@ -221,6 +255,56 @@ function weeklyHighBand(history, seasons) {
     median: n ? samples[Math.floor(n / 2)] : 0,
     max: n ? samples[n - 1] : 0,
     mean: n ? r2(samples.reduce((a, b) => a + b, 0) / n) : 0,
+  };
+}
+
+// ── WHAT A TYPICAL OPPONENT SCORES ───────────────────────────────────────────
+//
+// THE PHANTOM OPPONENT. Before the opponent's own score exists — Tuesday through
+// Sunday morning, which is the ENTIRE window in which a lineup actually gets set
+// — member.js had nothing to feed `oppMean`, so it passed `weeklyHighBand().median`.
+// That band is the median of `Math.max(...)` per week: the score that WINS the
+// week outright across ten teams. 148.5. A real opponent scores 109.1.
+//
+// So all week the tool modelled your opponent as the week's top scorer, 39 points
+// of phantom, and it did not merely make P(win) pessimistic. It changed the
+// RECOMMENDATION. On one ordinary roster:
+//
+//   opp = 148.5 (the high band)  ->  P(win) 22%, edge $1.64, 1 start/sit call,
+//                                    posture "Swing for the $100 — the matchup
+//                                    is a long shot"
+//   opp = 109.1 (a real team)    ->  P(win) 64%, edge $0.00, no calls,
+//                                    posture "Protect the matchup"
+//
+// The matchup term is P(win) x matchup_value, so crushing P(win) suppresses it
+// and the solver over-weights the weekly-high chase — manufacturing a deviation
+// on a week you are a 64% favourite. That is the opposite of the honest story:
+// A measured the dual objective as deviating ~11% of weeks, and a phantom
+// opponent inflates that in exactly the window where the advice is read.
+//
+// Built from the SAME primitives as weeklyHighBand (fieldWeeklyScores +
+// regularSeasonWeeks) rather than a second harvest walk.
+function typicalTeamScore(history, seasons) {
+  history = history || harvest();
+  seasons = seasons || defaultSeasons(history);
+  const samples = [];
+  for (const season of seasons) {
+    const s = seasonOf(history, season);
+    if (!s) continue;
+    const field = fieldWeeklyScores(s);
+    for (const w of regularSeasonWeeks(s)) {
+      for (const v of Object.values(field[w] || {})) if (v > 0) samples.push(r2(v));
+    }
+  }
+  samples.sort((a, b) => a - b);
+  const n = samples.length;
+  return {
+    n, samples,
+    median: n ? samples[Math.floor(n / 2)] : 0,
+    mean: n ? r2(samples.reduce((a, b) => a + b, 0) / n) : 0,
+    // Spread of the FIELD, which is what an unknown opponent's uncertainty
+    // actually is — wider than one team's week-to-week SD.
+    sd: n ? r2(Math.sqrt(samples.reduce((a, b) => a + Math.pow(b - (samples.reduce((x, y) => x + y, 0) / n), 2), 0) / n)) : 0,
   };
 }
 
@@ -430,7 +514,7 @@ function optimize(roster, ctx = {}) {
       const slot = current[i].slot;
       for (const cand of bench) {
         const candPos = posById[cand];
-        const eligible = slot === 'FLEX' ? FLEX_ELIGIBLE.has(candPos) : candPos === slot;
+        const eligible = isFlexSlot(slot) ? FLEX_SLOTS[slot].has(candPos) : candPos === slot;
         if (!eligible) continue;
         const trial = current.map(s => ({ ...s }));
         trial[i] = { pid: cand, slot, points: 0 };
@@ -474,10 +558,74 @@ function optimize(roster, ctx = {}) {
   }
   calls.sort((a, b) => b.dollars - a.dollars);
 
+  // ── WHAT YOU ACTUALLY HAVE SET ─────────────────────────────────────────────
+  //
+  // Everything above compares the RECOMMENDED lineup to the NAIVE one — the
+  // dual-objective deviation, which is the thing the backtest grades and the
+  // thing A measured at ~11% of weeks. It is not the thing a manager asks on a
+  // Sunday morning, which is "is MY lineup right?"
+  //
+  // The solver never saw the lineup. It starts from the projection-optimal
+  // lineup and hill-climbs, so `calls` is empty exactly when the two OPTIMA
+  // agree — and the Sunday alert then said "You're already starting the
+  // dollar-optimal lineup", a claim about a lineup nothing in this file had
+  // looked at. Bench your best receiver for a backup and the tool congratulated
+  // you: measured on one roster, a 17.8 WR swapped out for a 12.7 WR produced
+  // edge 0, zero calls, and "nothing to change".
+  //
+  // `ctx.current` closes that. Given the ids actually in the lineup, `set`
+  // reports the diff against the recommendation, priced. Absent it, `set` is
+  // null and callers must not claim anything about what is started — the
+  // difference between "no comparison was made" and "the comparison passed".
+  const curIds = [...new Set((ctx.current || []).map(String))].filter(id => posById[id]);
+  let set = null;
+  if (curIds.length) {
+    const setEv = evOf(curIds.map(pid => ({ pid })));
+    const recIds = current.map(s => s.pid);
+    const recPos = {}; current.forEach(s => { recPos[s.pid] = s.slot; });
+    const add = recIds.filter(id => !curIds.includes(id))
+      .sort((a, b) => (projById[b] || 0) - (projById[a] || 0));
+    const drop = curIds.filter(id => !recIds.includes(id));
+    const changes = [];
+    const spent = new Set();
+    for (const inPid of add) {
+      // Pair with the same position where one is available, so a change reads
+      // "start X over Y" the way a manager would make it; otherwise any
+      // remaining vacancy, largest projection first.
+      const pool = drop.filter(d => !spent.has(d));
+      const outPid = pool.find(d => posById[d] === posById[inPid])
+        || pool.sort((a, b) => (projById[b] || 0) - (projById[a] || 0))[0];
+      if (!outPid) continue;
+      spent.add(outPid);
+      // Price this single change against the lineup as it stands right now —
+      // what you gain by making THIS move, not by making all of them.
+      const trial = curIds.map(pid => ({ pid: pid === outPid ? inPid : pid }));
+      const ev = evOf(trial);
+      const dWin = (ev.pWin != null && setEv.pWin != null) ? ev.pWin - setEv.pWin : 0;
+      const dHigh = ev.pHigh - setEv.pHigh;
+      changes.push({
+        slot: recPos[inPid] || posById[inPid],
+        startId: inPid, startName: nameById[inPid], startPos: posById[inPid], startProj: projById[inPid],
+        sitId: outPid, sitName: nameById[outPid], sitPos: posById[outPid], sitProj: projById[outPid],
+        dWin: r2(dWin), dHigh: r2(dHigh),
+        dollarsWin: r2(dWin * matchupValue), dollarsHigh: r2(dHigh * weeklyHigh),
+        dollars: r2(dWin * matchupValue + dHigh * weeklyHigh),
+      });
+    }
+    changes.sort((a, b) => b.dollars - a.dollars);
+    set = {
+      ids: curIds, ev: setEv, changes,
+      matches: changes.length === 0 && drop.length === 0,
+      dollars: r2(curEv.dollars - setEv.dollars),   // what the whole fix is worth
+      points: r2(curEv.mean - setEv.mean),
+    };
+  }
+
   const recStarters = current.map(s => ({ ...s, name: nameById[s.pid], pos: posById[s.pid], proj: projById[s.pid] }));
   return {
     slots,
     lineup: recStarters,
+    set,
     naive: naiveL.starters.map(s => ({ pid: s.pid, name: nameById[s.pid], pos: posById[s.pid], proj: projById[s.pid] })),
     ev: curEv,
     naiveEv,
@@ -830,13 +978,52 @@ function sundayAlert(result, opts = {}) {
   }));
   const edge = r2(result.edge || 0);
   const posture = weeklyPosture(result, band);   // chase vs protect — the alert's lead
+  // A DEAD SLOT. A player the guard zeroed who is nonetheless in the CURRENT
+  // Sleeper lineup: he will score nothing on Sunday whatever the dollar maths
+  // says. The alert used to be silent about this — the swap normally shows up as
+  // a priced call, but a call under the $0.50 print threshold is filtered out
+  // above, and then the email said "nothing to change" over a starter on bye.
+  // It is also the one thing besides a call that makes an alert worth sending.
+  const dead = (result.inactive || []).filter(p => p.starter)
+    .map(p => ({ name: p.name, pos: p.pos, reason: p.reason }));
+  // WHAT YOU HAVE TO DO, as distinct from what the model deviates on. `calls`
+  // is recommended-vs-naive; `changes` is recommended-vs-YOUR-LINEUP, and only
+  // the second one is a to-do. `set` is null when the live lineup was not
+  // available, and then nothing here may claim your lineup is fine.
+  const set = result.set || null;
+  const changes = set ? set.changes.filter(c => c.dollars > 0.5 || c.startProj - c.sitProj > 1).slice(0, 4)
+    .map(c => ({ start: c.startName, sit: c.sitName, pos: c.startPos, dollars: r2(c.dollars),
+                 points: r2(c.startProj - c.sitProj),
+                 why: `+${r2(c.startProj - c.sitProj)} projected · ${c.dollars >= 0 ? '+' : ''}$${Math.round(c.dollars)}` })) : [];
   return {
     week: opts.week || null,
     hasCalls: calls.length > 0,
+    dead,
+    // Did anything actually LOOK at the lineup? Callers must be able to tell
+    // "your lineup is right" from "nobody checked".
+    lineupKnown: !!set,
+    lineupMatches: set ? set.matches : null,
+    changes,
+    fixWorth: set ? set.dollars : null,
+    // Is there anything to DO? The cron asks this before sending: an alert every
+    // Sunday that says "nothing to change" is the same overstatement as the
+    // optimizer manufacturing a puzzle on a week where there isn't one. When the
+    // live lineup is known, the to-do list IS the test; when it is not, fall
+    // back to the model's own deviation.
+    actionable: dead.length > 0 || (set ? changes.length > 0 : calls.length > 0),
     posture,
-    headline: calls.length
-      ? `${calls.length} start/sit call${calls.length === 1 ? '' : 's'} worth ≈ $${Math.round(edge)} this week`
-      : "You're already starting the dollar-optimal lineup — nothing to change.",
+    // THE HEADLINE ONLY CLAIMS WHAT WAS CHECKED. It used to read "You're already
+    // starting the dollar-optimal lineup" off an empty `calls` array — a
+    // statement about a lineup the solver never received. Three distinct
+    // sentences now: you have moves to make, your lineup was checked and is
+    // right, or nothing checked it.
+    headline: changes.length
+      ? `${changes.length} change${changes.length === 1 ? '' : 's'} to make${set && set.dollars > 0.5 ? ` — worth ≈ $${Math.round(set.dollars)}` : ''}`
+      : set
+        ? "Your lineup is already the dollar-optimal one — nothing to change."
+        : calls.length
+          ? `${calls.length} start/sit call${calls.length === 1 ? '' : 's'} worth ≈ $${Math.round(edge)} this week`
+          : 'Your projection-optimal lineup is also the dollar-optimal one — no start/sit call to make.',
     calls, edge,
     band: band ? { median: Math.round(band.median) } : null,
     pWin: result.ev && result.ev.pWin != null ? Math.round(result.ev.pWin * 100) : null,
@@ -849,8 +1036,8 @@ function sundayAlert(result, opts = {}) {
 module.exports = {
   // engine
   optimize, bestLineup, inferPositions, slotsFromTemplate, DEFAULT_SLOTS, weekDrill, sundayAlert, weeklyPosture,
-  activeProjection, isInactive, INACTIVE_INJURY, FLEX_ELIGIBLE,
-  positionSigmas, sigmaOf, weeklyHighBand,
+  activeProjection, isInactive, INACTIVE_INJURY, FLEX_ELIGIBLE, FLEX_SLOTS,
+  positionSigmas, sigmaOf, weeklyHighBand, typicalTeamScore,
   pWin, pClearHigh, normCdf, lineupStats,
   // data
   harvest, seasonOf, defaultSeasons, fieldWeeklyScores, regularSeasonWeeks, weeklyMatchups,

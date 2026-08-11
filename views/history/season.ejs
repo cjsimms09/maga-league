@@ -18,8 +18,14 @@
     <p class="chron-sub">Champion: <b style="color:var(--gold-bright)"><%= cast.champion.name %></b>
       · Wooden spoon: <b style="color:var(--red-bright)"><%= cast.last.name %></b></p>
   <% } %>
-  <% if (typeof hasVault !== 'undefined' && hasVault) { %>
-    <p style="text-align:center; margin:.2rem 0 0"><a class="btn navy small" href="/history/vault/<%= S.year %>">🗄️ The Vault — trash talk &amp; dispatches →</a></p>
+  <%# Click-throughs, not inline: a 10×16 draft grid would crowd out the whole
+      year page, and the vault is a whole season of threads. Each link only
+      appears when that year actually has one. %>
+  <% if ((typeof hasVault !== 'undefined' && hasVault) || (typeof hasBoard !== 'undefined' && hasBoard)) { %>
+    <p style="text-align:center; margin:.2rem 0 0">
+      <% if (typeof hasBoard !== 'undefined' && hasBoard) { %><a class="btn navy small" href="/history/board/<%= S.year %>">🗒️ The Draft Board — every pick →</a><% } %>
+      <% if (typeof hasVault !== 'undefined' && hasVault) { %><a class="btn navy small" href="/history/vault/<%= S.year %>">🗄️ The Vault — trash talk &amp; dispatches →</a><% } %>
+    </p>
   <% } %>
 
   <!-- THE CHAPTER (prose) --------------------------------------------------->

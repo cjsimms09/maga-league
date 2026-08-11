@@ -14,7 +14,14 @@
   <a class="back-link" href="/history">← The Chronicle</a>
   <p class="chron-eyebrow">The Crown Jewel</p>
   <h1 class="chron-title">The <span class="gold">Record Book</span></h1>
-  <p class="chron-sub">All-time highs, lows, and the numbers that settle arguments — 2023 to present.</p>
+  <%# The scope note used to blanket the whole page with "2023 to present" — and
+      the very first card below it, the dynasty tracker, is genuinely all-time
+      and visibly shows a 2022 crown. The page has two different scopes: titles
+      come from the full chronicle, box-score records only from the seasons
+      Sleeper has weeks for. Each now states its own, and the box-score range is
+      DERIVED from the harvested seasons rather than typed, so it advances by
+      itself instead of going stale the first year nobody remembers to edit it. %>
+  <p class="chron-sub">All-time highs, lows, and the numbers that settle arguments.</p>
   <%- include('_subnav', { active: 'records' }) %>
 
   <div class="card">
@@ -36,6 +43,14 @@
     </div>
   </div>
 
+  <% const _boxYears = (A.seasons || []).map(x => Number(x.year)).filter(Number.isFinite).sort((a, b) => a - b);
+     const _boxFrom = _boxYears[0], _boxTo = _boxYears[_boxYears.length - 1]; %>
+  <% if (_boxFrom) { %>
+    <p class="muted" style="margin:.2rem 0 .6rem; font-size:.8rem">
+      Box-score records cover <b><%= _boxFrom %><%= _boxTo && _boxTo !== _boxFrom ? '–' + _boxTo : '' %></b> —
+      the seasons with week-by-week scores on file. Titles above are all-time.
+    </p>
+  <% } %>
   <div class="stat-grid" style="margin-bottom:1.4rem;">
     <div class="stat-card"><p class="label">Highest week ever</p><div class="big"><%= fmt(R.highestWeek[0].points) %></div><div class="sub"><span class="who"><%= R.highestWeek[0].owner %></span> · <%= R.highestWeek[0].year %> Wk <%= R.highestWeek[0].week %></div></div>
     <div class="stat-card bad"><p class="label">Lowest week ever</p><div class="big"><%= fmt(R.lowestWeek[0].points) %></div><div class="sub"><span class="who"><%= R.lowestWeek[0].owner %></span> · <%= R.lowestWeek[0].year %> Wk <%= R.lowestWeek[0].week %></div></div>
