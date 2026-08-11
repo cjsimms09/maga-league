@@ -89,6 +89,24 @@ def test_a_NULL_is_reported_as_a_fact_about_the_CANDIDATE_SET_not_the_provider()
     assert "days_7" in v["candidates_tried"]
 
 
+def test_a_provider_that_ANSWERED_WITH_AN_ERROR_is_not_reported_as_unreachable():
+    """THE DEFECT THIS SUITE MISSED THE FIRST TIME, and it cost a real answer.
+
+    `urlopen` raises HTTPError on 4xx/5xx. The first cut caught it under a bare
+    `except Exception` and filed it as a transport error, so a plain 404 was
+    indistinguishable from a blocked network path — and the FFC arm reported
+    "nothing was reached", which I then wrote up as "my path was probably wrong".
+    The path was right. The error handling conflated two different nulls, which
+    is the exact confusion rule 13 is about, one level down.
+    """
+    rows = [{"name": "baseline", "status": 404, "http_error": "404 Not Found"},
+            {"name": "date", "status": 404, "http_error": "404 Not Found"}]
+    v = P.verdict(rows)
+    assert "REACHED BUT REFUSED" in v["verdict"]
+    assert "404" in v["verdict"]
+    assert "NO CONCLUSION" not in v["verdict"]
+
+
 def test_reaching_NOTHING_scores_NOTHING():
     """A sandbox with no egress must not produce a negative finding. Every row a
     transport error means the run is about the network path."""
