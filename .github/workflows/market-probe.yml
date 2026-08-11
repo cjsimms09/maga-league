@@ -54,6 +54,11 @@ jobs:
             echo "  -> if it was added as an ENVIRONMENT secret, this job declares no"
             echo "     environment: and cannot see it."
             echo "  -> if it is an ORGANISATION secret, this repo may not be in its scope."
+            echo "  -> MOST LIKELY: GitHub keeps THREE separate secret stores under"
+            echo "     Settings > Secrets and variables — ACTIONS, Codespaces, and"
+            echo "     Dependabot. Only the ACTIONS tab is visible to a workflow, and"
+            echo "     a key added to Codespaces or Dependabot resolves to empty here"
+            echo "     with no error anywhere."
           else
             n=${#ODDS_API_KEY}
             echo "ODDS_API_KEY: visible, length bucket $(( n < 8 ? 0 : (n < 24 ? 1 : 2) )) (0=<8, 1=8-23, 2=24+)"
