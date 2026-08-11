@@ -52,6 +52,17 @@ def _as_iso_day(unix_ts):
         return None
 
 
+def _next_turn_for(picks: list, overall, team):
+    """This seat's next pick after `overall`, from the SEAT SEQUENCE only.
+
+    None at the end of the draft, which is the honest answer and is what makes a
+    survival forecast there unresolvable rather than wrong.
+    """
+    later = [p.get("overall") for p in picks
+             if p.get("team") == team and (p.get("overall") or 0) > (overall or 0)]
+    return min(later) if later else None
+
+
 def decision_contexts(record: dict, board: list) -> list:
     """One ENVELOPE per pick: {"context": ..., "actual_player_id": ...}.
 
@@ -88,6 +99,19 @@ def decision_contexts(record: dict, board: list) -> list:
             # This seat's roster AS IT STOOD, not as it finished.
             "roster": list(roster.get(team) or []),
             "picks_made": len(taken),
+            # THE SEAT ORDER IS PUBLIC BEFORE THE DRAFT; THE SELECTIONS ARE NOT.
+            # Knowing WHEN this seat picks again is something every manager in the
+            # room knows at the moment of the pick — it comes from the draft order,
+            # which MFL publishes as `round1DraftOrder` and which snake determines
+            # thereafter. Knowing WHAT anyone picks in between is the future, and
+            # is not here. Derived from the pick list's TEAM sequence rather than
+            # recomputed from the snake rule, because a keeper league genuinely
+            # skips seats that forfeited a pick and the observed sequence is the
+            # accurate one.
+            "next_turn_overall": _next_turn_for(picks, p.get("overall"), team),
+            "picks_until_next_turn": (
+                (_next_turn_for(picks, p.get("overall"), team) or 0) - (p.get("overall") or 0)
+                if _next_turn_for(picks, p.get("overall"), team) else None),
         }
         out.append({"context": ctx, "actual_player_id": pid})
         if pid is not None:
