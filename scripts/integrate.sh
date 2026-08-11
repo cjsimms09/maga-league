@@ -147,11 +147,31 @@ if ! timeout 600 python -m pytest draft/tests -q </dev/null; then
   echo "REFUSED: python suite red on the merged tree. Rolling main back."
   git reset --hard -q ORIG_HEAD; exit 1
 fi
-echo "== js suites"
-red=""
+# ── JS SUITES: A TIMEOUT IS NOT A FAILURE ───────────────────────────────────
+# The cap was 150s and sanity-sweep.test.js legitimately takes ~206s since the
+# conservation tilt went live. So MY OWN CHOSEN TIMEOUT manufactured a red and
+# rolled back a good merge of B's branch — the same class as a chosen header or
+# timeout manufacturing a provider-shaped null (clause 11e), applied to my own
+# tooling.
+#
+# Two changes: the cap is 400s, and exit 124 is reported as INCONCLUSIVE rather
+# than folded into "red". A bounded run that proved nothing must never read as a
+# suite that failed.
+JS_TMO="${INTEGRATE_JS_TIMEOUT:-400}"
+echo "== js suites (per-suite timeout ${JS_TMO}s)"
+red=""; slow=""
 for f in draft/tests/*.test.js; do
-  timeout 150 node "$f" >/dev/null 2>&1 </dev/null || red="$red $(basename "$f" .test.js)"
+  timeout "$JS_TMO" node "$f" >/dev/null 2>&1 </dev/null
+  rc=$?
+  if [ "$rc" = 124 ]; then slow="$slow $(basename "$f" .test.js)"
+  elif [ "$rc" != 0 ]; then red="$red $(basename "$f" .test.js)"; fi
 done
+if [ -n "$slow" ]; then
+  echo "REFUSED: JS suite(s) TIMED OUT at ${JS_TMO}s:$slow"
+  echo "  INCONCLUSIVE, not a failure — raise INTEGRATE_JS_TIMEOUT or fix the suite."
+  echo "  Rolling main back rather than merging on evidence that does not exist."
+  git reset --hard -q ORIG_HEAD; exit 1
+fi
 if [ -n "$red" ]; then
   echo "REFUSED: JS suites red on the merged tree:$red. Rolling main back."
   git reset --hard -q ORIG_HEAD; exit 1
