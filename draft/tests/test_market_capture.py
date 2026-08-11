@@ -125,3 +125,42 @@ def test_undated_events_are_KEPT_not_dropped(monkeypatch):
             return None
     kept = [e for e in events if starts(e) is None or starts(e) <= cutoff]
     assert [e["id"] for e in kept] == [1]      # undated kept, far-future dropped
+
+
+# ── RULE 4: the filters are REGISTERED, and their effect is recorded ────────
+def test_the_horizon_is_not_a_literal_in_the_capture():
+    """It defaulted to 14 — a number chosen AFTER seeing that usa-nfl returns 134
+    events, which is post-hoc filtering on the axis Signal C runs along."""
+    import inspect
+    import market_filters as F
+    src = inspect.getsource(C.capture)
+    assert "horizon_days: int = 14" not in src, "the un-registered literal is back"
+    assert "F.HORIZON_DAYS" in src, "the horizon must come from the registered filters"
+    assert F.HORIZON_DAYS == 7
+
+
+def test_the_registration_declares_what_had_already_been_seen():
+    """A pre-registration written after first contact is only honest if it says
+    what contact had already happened."""
+    import market_filters as F
+    assert F.MARKET_FILTER_VERSION.startswith("v1")
+    assert "UNREGISTERED" in F.MARKET_FILTER_VERSION, \
+        "the superseded filter must be named, not quietly replaced"
+    assert len(F.ALREADY_SEEN) >= 5
+    assert any("134" in s for s in F.ALREADY_SEEN), \
+        "the event count that drove the bad boundary must be declared as seen"
+
+
+def test_the_horizon_records_what_it_dropped():
+    """A filter whose attrition is invisible cannot be audited. The first horizon
+    dropped events and recorded nothing, so a cut slate and a small slate looked
+    identical in the artifact."""
+    import market_filters as F
+    events = [{"id": 1}, {"id": 2}, {"id": 3}]
+    kept = [{"id": 1}]
+    r = F.horizon_report(events, kept, "2026-08-18T00:00:00Z")
+    assert r["events_before_horizon"] == 3
+    assert r["events_after_horizon"] == 1
+    assert r["dropped_beyond_horizon"] == 2
+    assert r["filter_version"].startswith("v1")
+    assert r["horizon_days"] == 7

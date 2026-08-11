@@ -304,3 +304,61 @@ the three signals need. Signal A needs props; whether props are on odds-api.io's
 free tier is **unestablished** (the odds endpoints are 401). If props are paid, the
 capture scope is Signal B only, and Signal A waits on a source the stopping rule has
 closed.
+
+## 13. PRE-REGISTERED FILTERS — binding rule 4 (added 2026-08-11)
+
+**This section existed nowhere until B's audit, and the layer was already shipped,
+external, and capturing daily.** The MFL ingest — which has fetched nothing — had a
+dated pre-registration with a declared "what I have already seen" and a versioned
+filter set. The market layer, which is live, had none.
+
+`market_capture.py` carried `horizon_days = 14` with its own comment saying the
+boundary was chosen **after** seeing that `usa-nfl` returns 134 events. That is
+post-hoc filtering, and it is not incidental: **Signal C is line movement as a game
+approaches, so the horizon decides which games are observed at all.** A boundary
+chosen after seeing the data, on the axis the signal runs along, is exactly what
+rule 4 exists to prevent.
+
+### What was already captured under the unregistered filter
+
+**Nothing.** Established from git, not memory: the only snapshot on disk was
+committed in `ca79af4`; the horizon landed afterwards in `6d67382`, and the
+snapshot carries no `horizon_days` field — the artifact of a capture that ran
+before the filter existed. No capture has run since (`capture_health`
+`last_attempt 2026-08-11T00:47:51Z`).
+
+So the 13 captured preseason events **are usable**: no horizon applied, every listed
+event eligible, and the 35 missing were deferred for BUDGET with the reason recorded
+per event. The violation was armed for the next daily run and had not reached data.
+
+### The horizon, re-chosen on grounds that are not the data
+
+Registered in `draft/backtest/market_filters.py` as `MARKET_FILTER_VERSION = v1`,
+with `ALREADY_SEEN` declaring every observation that preceded the choice.
+
+**`HORIZON_DAYS = 7`**, from market structure rather than our captures:
+
+* An NFL week is 7 days, and a game's side and total are posted and actively traded
+  through the week before it — that is the window in which the movement Signal C
+  measures actually happens.
+* Signal C needs **at least two** observations of one event to measure movement.
+  Daily capture over 7 days yields up to 7, comfortably above the floor.
+* A 7-day slate is ~16 games, so 1 + 16 = 17 calls against 100/hour with 20
+  reserved. **The budget does not bind at this width** — which matters, because
+  budget pressure is what produced the 14 in the first place.
+
+### The open question, named rather than answered by adjustment
+
+Whether usable lines exist **earlier** than 7 days out, and how thin they are. A
+longer horizon would give Signal C an earlier baseline, which it wants. That must be
+settled by a **registered probe whose result is recorded before the horizon changes**
+— never by widening the horizon after noticing the captures looked sparse. Any change
+is a NEW version with v1 retained.
+
+### And the filter's effect is now recorded
+
+Every snapshot carries a `filters` block: the version, the cutoff, events before and
+after, and the dropped ids. The first horizon dropped events and recorded nothing, so
+a cut slate and a small slate were indistinguishable in the artifact. A filter whose
+attrition is invisible cannot be audited — the same discipline the MFL ingest already
+applies by attributing every rejection.

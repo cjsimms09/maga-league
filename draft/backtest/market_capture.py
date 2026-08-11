@@ -43,6 +43,7 @@ sys.path.insert(0, str(HERE))
 import market_request as R          # noqa: E402
 from market_budget import (BudgetExhausted, RateBudget, backoff_plan,  # noqa: E402
                            should_retry)
+import market_filters as F          # noqa: E402  — rule 4: the registered filters
 
 HOST = "https://api.odds-api.io"
 PRESEASON = "usa-nfl-preseason"
@@ -168,9 +169,18 @@ class CaptureFailure(RuntimeError):
 
 
 def capture(league: str, api_key: str, books=None, max_events=None,
-            horizon_days: int = 14) -> dict:
-    """One snapshot. Refuses up front if the budget cannot cover it."""
-    books = R.check_books(books or list(R.RECREATIONAL_BOOKS[:2]))
+            horizon_days: int = None) -> dict:
+    """One snapshot. Refuses up front if the budget cannot cover it.
+
+    THE HORIZON COMES FROM THE REGISTERED FILTERS, not from a literal here. It
+    used to default to 14 — a number chosen after seeing that usa-nfl returns 134
+    events, i.e. post-hoc filtering on the axis Signal C runs along. See
+    market_filters.py for the registration, the re-derivation on market-structure
+    grounds, and the declaration of what had already been seen.
+    """
+    if horizon_days is None:
+        horizon_days = F.HORIZON_DAYS
+    books = R.check_books(books or list(F.BOOKS))
     budget = RateBudget(limit=100)
     started = now_iso()
 
@@ -200,7 +210,13 @@ def capture(league: str, api_key: str, books=None, max_events=None,
         dated = [(e, _starts(e)) for e in events]
         # An UNDATED event is kept, not dropped: absent is not "far away", and a
         # game we cannot date is exactly the one we should not silently skip.
-        events = [e for e, t in dated if t is None or t <= cutoff]
+        before = list(events)
+        events = [e for e, t in dated if t is None or (F.KEEP_UNDATED and t <= cutoff)]
+        # THE FILTER'S EFFECT IS RECORDED. Without this the horizon's influence on
+        # the sample is invisible in the artifact — a cut slate and a small slate
+        # look identical, and an unauditable filter is exactly what rule 4 is
+        # about. Same discipline the MFL ingest already applies to every rejection.
+        horizon_note = F.horizon_report(before, events, cutoff.strftime("%Y-%m-%dT%H:%M:%SZ"))
         events.sort(key=lambda e: str(e.get("date") or "9999"))
     if max_events:
         events = events[:int(max_events)]
@@ -227,6 +243,8 @@ def capture(league: str, api_key: str, books=None, max_events=None,
             + (f" (resets {budget.reset_at})" if budget.reset_at else ""))
     events = planned
 
+    if not horizon_days:
+        horizon_note = F.horizon_report(events, events, None)
     rows, failures, retried = [], [], []
     td_finding = None
     for ev in events:
@@ -262,6 +280,10 @@ def capture(league: str, api_key: str, books=None, max_events=None,
     return {
         "league": league, "started_at": started, "finished_at": now_iso(),
         "horizon_days": horizon_days,
+        # RULE 4: which registered filter version produced this sample, and what
+        # that filter removed. A snapshot that cannot name its filters is a
+        # sample nobody can judge.
+        "filters": horizon_note,
         "events_listed": len(events) + len(deferred),
         "events_captured": len(rows),
         # NEVER SILENTLY PARTIAL: what was left, and why, in the snapshot itself.
