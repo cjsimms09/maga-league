@@ -61,6 +61,13 @@ b_owns() {
     src/recap.js) return 0 ;;
     views/*|src/routes/*|public/css/*|public/icons/*|public/*.webmanifest) return 0 ;;
     public/js/*) case "$1" in public/js/draft/*) return 1 ;; *) return 0 ;; esac ;;
+    # ── B'S WORKFLOWS, by the same substance test as its src/*.js files ──────
+    # Narrowing shared() to repo-wide workflows would otherwise drop these into
+    # A's lane by default — B has never been NAMED here because the blanket
+    # `shared` entry meant nobody had to be. These run B's member-facing features
+    # (the Sunday alert, the weekly recap, the annual reset) and B maintains them.
+    .github/workflows/sunday-alert.yml|.github/workflows/weekly-recap.yml) return 0 ;;
+    .github/workflows/annual.yml|.github/workflows/annual-key-smoke.yml) return 0 ;;
     docs/queued/league-history-page.md|docs/queued/history-chronicle-voice.md) return 0 ;;
     docs/queued/contact-directory.md) return 0 ;;
     *) return 1 ;;
@@ -141,8 +148,24 @@ c_owns() {
         draft/tests/test_attrition*|draft/tests/test_crosswalk*) return 0 ;;
       esac
       return 1 ;;
-    .github/workflows/adp-asof-probe.yml) return 0 ;;
-    .github/workflows/mfl-probe.yml|.github/workflows/mfl-schema-probe.yml) return 0 ;;
+    # ── WORKFLOWS DERIVE FROM THE SAME PREFIXES AS THE MODULES ──────────────
+    #
+    # THE SECOND DEAD LIST, found by asking Cory's question once (2026-08-11).
+    # This used to name three files — adp-asof-probe, mfl-probe, mfl-schema-probe
+    # — and it had BOTH defects at once:
+    #
+    #   · UNREACHABLE: `shared()` claimed `.github/workflows/*` and runs before
+    #     ownership, so these three lines never executed. Same disease as the
+    #     test-name list, in the same function, and it survived that fix.
+    #   · STALE: C has EIGHT ingest workflows on disk. The list named three.
+    #     external-adp-capture, external-discovery, external-ingest-run,
+    #     external-outcomes-probe and discovery-probe were never in it.
+    #
+    # Both are the hand-written-list failure. The names already carry the lane —
+    # they use the SAME prefixes as C's modules — so they are derived here
+    # instead, and cannot drift from the modules again.
+    .github/workflows/mfl-*|.github/workflows/external-*) return 0 ;;
+    .github/workflows/discovery-*|.github/workflows/adp-asof-*) return 0 ;;
     INGEST-PLAN.md) return 0 ;;
     *) return 1 ;;
   esac
@@ -171,11 +194,19 @@ shared() {
     # MODULE, and c_owns derives that. So the entry is removed and the derivation
     # becomes reachable.
     #
-    # WORKFLOWS STAY SHARED for now: each side maintains the workflows for the
-    # features it owns, and their names do not map to modules the way test files
-    # do, so the same derivation is not available. Narrowed deliberately rather
-    # than dropped, and flagged as the remaining unenforced half.
-    .github/workflows/*) return 0 ;;
+    # ── ONLY REPO-WIDE WORKFLOWS ARE SHARED ─────────────────────────────────
+    #
+    # `.github/workflows/*` was blanket-shared, which made the three C workflow
+    # entries in c_owns unreachable — the same shadowing that made every
+    # test-name pattern dead. Narrowed to the workflows that genuinely serve the
+    # WHOLE REPO rather than one lane's feature: ci.yml runs both suites and every
+    # shell guard; deploy-verify, site-check and self-audit check the deployed
+    # artifact, not a lane.
+    #
+    # Everything else follows the feature it runs, by the same prefixes that own
+    # the code. A lane-specific workflow is as much that lane's as its module is.
+    .github/workflows/ci.yml|.github/workflows/deploy-verify.yml) return 0 ;;
+    .github/workflows/site-check.yml|.github/workflows/self-audit.yml) return 0 ;;
     *) return 1 ;;
   esac
 }

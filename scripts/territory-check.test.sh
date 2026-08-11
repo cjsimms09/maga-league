@@ -86,5 +86,33 @@ bash scripts/territory-check.sh C >/tmp/tc6.out 2>&1; ck $? 1 \
   "C editing test_market_capture.py fails — its module is A's"
 git checkout -q draft/tests/test_market_capture.py
 
+# SCENARIO 5 — WORKFLOWS FOLLOW THE FEATURE THEY RUN (2026-08-11).
+#
+# `.github/workflows/*` was blanket-shared, which made three C workflow entries
+# in c_owns unreachable AND let the list go stale by five files. Both defects at
+# once, in the same function that held the dead test list. These cases exist so
+# the narrowing cannot be silently widened back.
+mkdir -p .github/workflows
+echo "C ingest job" > .github/workflows/external-ingest-run.yml
+echo "B member job" > .github/workflows/sunday-alert.yml
+echo "repo-wide"    > .github/workflows/ci.yml
+git add -A; git commit -qm "workflows"
+
+echo "A EDITED C's ingest workflow" > .github/workflows/external-ingest-run.yml
+bash scripts/territory-check.sh A >/tmp/tc7.out 2>&1; ck $? 1 \
+  "A editing external-ingest-run.yml fails — C's ingest job"
+git checkout -q .github/workflows/external-ingest-run.yml
+
+echo "A EDITED B's alert workflow" > .github/workflows/sunday-alert.yml
+bash scripts/territory-check.sh A >/tmp/tc8.out 2>&1; ck $? 1 \
+  "A editing sunday-alert.yml fails — B's member job"
+git checkout -q .github/workflows/sunday-alert.yml
+
+# ci.yml is genuinely repo-wide: it runs both suites and every shell guard.
+echo "A adds a CI step" > .github/workflows/ci.yml
+bash scripts/territory-check.sh A >/tmp/tc9.out 2>&1; ck $? 0 \
+  "ci.yml stays shared — repo-wide, not one lane's feature"
+git checkout -q .github/workflows/ci.yml
+
 echo ""; echo "$pass passed, $fail failed"
 [ "$fail" -eq 0 ]
