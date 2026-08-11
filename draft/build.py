@@ -743,7 +743,8 @@ def _keeper_map_for_board(full_map: dict, slate: dict, cfg: dict):
 
 
 def _keeper_slate_reconciled(slate: dict, keeper_map: dict, order, cfg: dict,
-                             withheld: dict | None = None) -> dict:
+                             withheld: dict | None = None,
+                             full_map: dict | None = None) -> dict:
     """Say, in the artifact, how many designations actually reached the board.
 
     THE GAP THIS CLOSES. The slate stamp reads DESIGNATIONS straight from Sleeper;
@@ -779,9 +780,23 @@ def _keeper_slate_reconciled(slate: dict, keeper_map: dict, order, cfg: dict,
 
     out["teams_in_pick_order"] = teams_in_order
     out["keepers_in_pick_order"] = total_keepers
-    # The number that was invisible: designations Sleeper reported that never
-    # reached the board, because no draft slot could be resolved for them.
-    out["designations_not_applied"] = max(0, designated - teams_in_order)
+
+    # DESIGNATIONS THE GENERATOR FAILED TO PLACE — measured against the FULL map,
+    # never against the post-gate one.
+    #
+    # THIS WAS WRONG FOR ONE COMMIT AND THE LIVE BOARD SHOWED IT. The subtraction
+    # used `teams_in_order`, which is the map AFTER the confirmation gate strips
+    # opponents out. So the moment the gate landed, this field stopped meaning
+    # "the generator dropped them" and started meaning "the gate held them back"
+    # — and the checklist duly reported BOTH "8 keepers WITHHELD on purpose" and
+    # "3 DESIGNATIONS NOT APPLIED" for the same three teams, with a fix line
+    # accusing a generator that had done its job perfectly.
+    #
+    # That is the precise failure the withheld/dropped split exists to prevent,
+    # reintroduced one layer down by the change that added the split. A field's
+    # MEANING can break while its type, its name and its tests all still pass.
+    placed = len([s for s, v in (full_map if full_map is not None else keeper_map).items() if v])
+    out["designations_not_applied"] = max(0, designated - placed)
     out["board_built_on_full_slate"] = (
         designated > 0 and out["designations_not_applied"] == 0)
     # WITHHELD ON PURPOSE vs MISSING BY ACCIDENT — two different states that both
@@ -978,7 +993,10 @@ def build(cfg: dict, *, offline: bool = False, force_profiles: bool = False,
     print(f"  manager profiles: {len(profiles.get('managers', {}))} from "
           f"{profiles.get('drafts_analysed', 0)} prior draft(s)")
     slate_status = _assess_keeper_slate(cfg, offline)
-    keeper_map, withheld = _keeper_map_for_board(load_keepers(cfg), slate_status, cfg)
+    # The FULL map is kept: `designations_not_applied` must measure what the
+    # GENERATOR failed to place, not what the GATE deliberately held back.
+    full_keeper_map = load_keepers(cfg)
+    keeper_map, withheld = _keeper_map_for_board(full_keeper_map, slate_status, cfg)
     kept_ids = {str(k["player_id"]) for ks in keeper_map.values() for k in ks if k.get("player_id")}
 
     order = keepers_mod.build_true_pick_order(cfg, keeper_map)
@@ -1093,7 +1111,7 @@ def build(cfg: dict, *, offline: bool = False, force_profiles: bool = False,
         # which keepers reach the board needs it before the board is built. A
         # second fetch here could disagree with the one the gate used.
         "keeper_slate": _keeper_slate_reconciled(
-            slate_status, keeper_map, order, cfg, withheld),
+            slate_status, keeper_map, order, cfg, withheld, full_keeper_map),
         "notes": {
             "adp_blend_weight": cfg.get("adp_blend_weight"),
             "opportunity_cap": cfg.get("opportunity_cap"),

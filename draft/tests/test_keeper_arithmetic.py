@@ -229,17 +229,43 @@ def test_a_confirmed_slate_applies_every_designation():
 
 
 def test_withheld_is_not_the_same_state_as_dropped():
-    """Both leave the board short. Only one is a fault, and the artifact must say which."""
+    """Both leave the board short. Only one is a fault, and the artifact must say which.
+
+    THIS TEST ASSERTED THE BUG FOR ONE COMMIT. It checked
+    `designations_not_applied == 1` while the gate was withholding exactly that
+    one team — so it read as a passing distinction test while the two states were
+    in fact fused. The live board then rendered both messages at once, with the
+    fix line blaming a generator that had done its job. A test can name the right
+    property and assert the value produced by the defect; the name is not the
+    check. It now pins the SEPARATION explicitly: withheld > 0 and dropped == 0.
+    """
     B = _build_mod()
     cfg = {"my_draft_slot": 4, "teams": 10}
     full = {4: [{"player_id": "1"}], 7: [{"player_id": "5"}]}
-    _, held = B._keeper_map_for_board(full, {"status": "predicted"}, cfg)
+    post, held = B._keeper_map_for_board(full, {"status": "predicted"}, cfg)
     slate = B._keeper_slate_reconciled(
-        {"teams_designated": 2}, {4: full[4]}, _FakeOrder([34]), cfg, held)
+        {"teams_designated": 2}, post, _FakeOrder([34]), cfg, held, full)
+    assert slate["withheld_from_board"]["withheld"] is True
     assert slate["withheld_from_board"]["keepers"] == 1
-    # designations_not_applied counts what the GENERATOR failed to place; it must
-    # not absorb what the GATE held back on purpose.
-    assert slate["designations_not_applied"] == 1
+    assert slate["designations_not_applied"] == 0, (
+        "the gate's deliberate withholding is being counted as a generator failure")
+
+
+def test_a_real_generator_drop_still_counts_even_while_the_gate_withholds():
+    """The other side of the same seam: withholding must not MASK a real drop.
+
+    Fixing the double-count by measuring against the full map would be worthless
+    if it also swallowed genuine losses. Sleeper says three teams designated; the
+    generator placed two; the gate then withholds the one opponent it did place.
+    Exactly one drop must survive that.
+    """
+    B = _build_mod()
+    cfg = {"my_draft_slot": 4, "teams": 10}
+    full = {4: [{"player_id": "1"}], 7: [{"player_id": "5"}]}   # generator placed 2 of 3
+    post, held = B._keeper_map_for_board(full, {"status": "predicted"}, cfg)
+    slate = B._keeper_slate_reconciled(
+        {"teams_designated": 3}, post, _FakeOrder([34]), cfg, held, full)
+    assert slate["designations_not_applied"] == 1, "a real drop was masked by the gate"
     assert slate["withheld_from_board"]["withheld"] is True
 
 
