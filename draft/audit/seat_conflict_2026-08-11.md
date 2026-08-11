@@ -52,3 +52,60 @@ roster_id mapping is the suspect, and `/league/{id}/rosters` gives `owner_id` pe
 **Until then the board runs on 8 and the disagreement is recorded rather than
 resolved.** A board silently built on either number while the other is live is
 the failure this file exists to prevent.
+
+---
+
+# CORRECTION (same day, ~19:00) — the API was right and I was wrong
+
+**The draft order was being reassigned while I was reading it.** Two fetches,
+about forty minutes apart:
+
+| | `draft_order[me]` | `slot_to_roster_id` |
+|---|---|---|
+| 18:20 | 3 | slot 3 → roster 1 |
+| 19:00 | **8** | slot 8 → roster 1 |
+
+**Both snapshots are internally consistent.** `draft_order` and
+`slot_to_roster_id` agreed with each other *on both occasions*; my roster (1)
+genuinely moved from slot 3 to slot 8 between them — almost certainly while the
+Draft Settings screen was open, since that screen has a SAVE button.
+
+## What I got wrong, stated plainly
+
+1. **"`draft_order` is NOT the draft position."** It is. It was mid-edit. I
+   reached that conclusion by comparing a stale snapshot against a live
+   screenshot and treating the disagreement as a property of the field rather
+   than as a property of the clock.
+
+2. **"The likeliest suspect is our `roster_id` mapping."** It is not. Sleeper's
+   `/league/{id}/rosters` gives my `roster_id` as **1**, and
+   `predict_keepers.py` says **1**. They agree. The mapping I named as the
+   probable defect was correct the whole time, and I inferred otherwise from
+   `slot_to_roster_id[8] = 7` in the STALE object.
+
+The reasoning that produced both was sound in shape — corroborate, name the
+branch where a value we produce stands in for one Sleeper holds — and it was
+applied to data whose freshness I never questioned. **A snapshot compared
+against a live observation is not a disagreement between two sources; it is one
+source at two times.**
+
+## What survives, and why the guard is still right
+
+* **The seat is 8** — now confirmed four ways: the count, the UI screenshot,
+  `draft_order`, and `slot_to_roster_id`. The board is correct.
+* **The guard stands on its own merits.** `draft_order` is still only 4 of 10
+  populated, so it still cannot verify a seat — and this episode is the argument
+  FOR that rule rather than against it: a field that changes under you is exactly
+  one you must not import silently. Had the guard existed at 18:20 it would have
+  refused slot 3, which was the right answer for the wrong reason and would
+  still have been the right action.
+* **No traded picks.** `pick_trading` is enabled but `traded_picks` is empty, so
+  the pick order derived from seat + keepers is safe on that axis. Checked
+  rather than assumed, and a failed fetch reports UNKNOWN rather than none.
+
+## The lesson worth keeping
+
+Every value I checked today was checked against a source. This one was checked
+against a source **I had already read and cached**, and staleness is invisible in
+exactly the way a wrong value is: it is well-formed, internally consistent, and
+answers the question you asked. Re-fetching cost one workflow run.
