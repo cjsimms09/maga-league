@@ -38,8 +38,16 @@ jobs:
       # logs; only a boolean and a coarse length bucket are emitted regardless.
       - name: Diagnose the secret (no value printed)
         env:
-          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+          FROM_SECRET: ${{ secrets.ODDS_API_KEY }}
+          FROM_VAR: ${{ vars.ODDS_API_KEY }}
         run: |
+          # WHICH STORE HOLDS IT? A value added under Variables instead of Secrets
+          # leaves secrets.* empty with no error anywhere — an invisible setup
+          # error, and one of only two real places it can live. Checking both is
+          # not guessing at names; it is covering the actual storage options.
+          echo "secrets.ODDS_API_KEY present: $([ -n "${FROM_SECRET:-}" ] && echo YES || echo no)"
+          echo "vars.ODDS_API_KEY    present: $([ -n "${FROM_VAR:-}" ] && echo YES || echo no)"
+          ODDS_API_KEY="${FROM_SECRET:-$FROM_VAR}"
           if [ -z "${ODDS_API_KEY:-}" ]; then
             echo "ODDS_API_KEY: NOT VISIBLE to this job (unset or empty)"
             echo "  -> a REPOSITORY secret named exactly ODDS_API_KEY should appear here."
@@ -55,7 +63,10 @@ jobs:
         env:
           # Absent is fine and is REPORTED as a setup gap, not as evidence the
           # source is unusable. Never conflate "we have no key" with "dead end".
-          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+          # Falls back to the repository VARIABLE of the same name, because a value
+          # added under Variables rather than Secrets is invisible to secrets.* and
+          # produces no error at all.
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY || vars.ODDS_API_KEY }}
         run: python draft/backtest/market_probe.py
 
       - name: Fail if nothing was reached
