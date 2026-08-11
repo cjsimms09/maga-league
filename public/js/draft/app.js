@@ -4661,42 +4661,33 @@
     const st = doctrineState();
     if (!st || !scored || !scored.length) { host.style.display = 'none'; return; }
 
+    /* WHAT scoreBoard ACTUALLY READS — and it is three fields, not eight.
+     *
+     * This literal used to carry doctrine, totalPicks, myPickIndex, totalMyPicks
+     * and currentKeepers as well, copy-pasted out of context() along with their
+     * comments. DraftDoctrine.scoreBoard reads `liveIndex`, `roster`, `dollarsOf`
+     * and an optional `keys` — and NOTHING ELSE. All five were produced and never
+     * read (rule 14), in the live file, on the board that runs on 22 August.
+     *
+     * The inherited comments made it worse than dead weight: "THE THREE THE ENGINE
+     * READ AND THE APP NEVER SENT" describes the ENGINE's context, and scoreBoard
+     * is not the engine. A future reader deleting a field here would have been
+     * warned off by a paragraph about a different consumer.
+     *
+     * Found because three rule-10 breaks were REFUSED as ambiguous: myPickIndex,
+     * the doctrine wiring and `const next = myNextTurn()` each appeared twice in
+     * this file. Two near-identical blocks with nothing forcing them to agree
+     * looked like dual maintenance; it was worse and simpler — a copy that
+     * outlived its cause.
+     *
+     * `liveIndex` IS load-bearing and was the one nothing guarded: absent, it
+     * defaults to 1 (`opts.liveIndex == null ? 1 : opts.liveIndex`), so every
+     * doctrine would be scored as if this were my first pick. At pick 34 that is
+     * a silently wrong plan, which is exactly the failure this block's own
+     * comment claimed to have fixed. */
     const scores = DraftDoctrine.scoreBoard(scored, {
       liveIndex: myLivePickIndex(),
       roster: state.myRoster,
-      // STAGE 3: the enrolled doctrine reaches the SCORER. Without this line the
-      // tilt is wired in the engine and live only in tests — the app would keep
-      // scoring exactly as it did before while the banner claimed the plan was
-      // driving. Caught by the MVS plan line reading "no preference" at pick 1
-      // on a board whose top pick was a WR under WR Feast.
-      // The tilt applies when the model's plan is enrolled OR when Cory has
-      // manually chosen a doctrine — a human override must re-tilt the board too,
-      // not just the auto-enrolled plan.
-      doctrine: (doctrineState() && ((state.doctrineEnrollment && state.doctrineEnrollment.enrolled)
-                 || (state.doctrine && state.doctrine.manual))) ? state.doctrine.current : null,
-      // THE THREE THE ENGINE READ AND THE APP NEVER SENT.
-      //   totalPicks   drives draft progress -> urgency curves and the ceiling
-      //                term. Absent, progress was computed off undefined.
-      //   myPickIndex  which of MY picks this is. The doctrine tilt needs it,
-      //                and without it pickIndexOf fell back to a GUESS
-      //                (13 - myPicksLeft), so every roster-relative weight was
-      //                evaluated at an estimated position in the plan.
-      //   totalMyPicks the denominator that fallback was standing in for.
-      totalPicks: ((state.data.pick_order || {}).picks || []).length || null,
-      myPickIndex: myLivePickIndex(),
-      totalMyPicks: ((state.data.pick_order || {}).my_picks || []).length || null,
-      // SUPPLIED DEFENSIVELY, not to fix a live bug. composite.js reads it when
-      // computing the keeper-option bar, and today it is REDUNDANT because
-      // populateKeepers pushes keepers onto state.myRoster with is_keeper:true,
-      // so ctx.roster already carries them as incumbents. The seam sweep is what
-      // established that — the field looked missing and was merely doubled.
-      //
-      // It is wired anyway because the redundancy is an accident of one
-      // function's behaviour: if the roster ever stops carrying keepers (a
-      // rehearsal-mode change would do it), the KOV bar would silently lose its
-      // incumbents and every keeper-target badge would inflate, with nothing
-      // failing.
-      currentKeepers: (state.myRoster || []).filter(function (p) { return p.is_keeper; }),
       dollarsOf: function (p) { return E.playerDollars(p).total; },
     });
     // A run is the causal story a switch needs — "the QB run erased its edge"

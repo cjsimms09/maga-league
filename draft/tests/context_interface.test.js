@@ -198,34 +198,56 @@ ck('EVERY key the engine reads is a key the live context() supplies',
   }
 }
 
-/* ═══ THE DOCTRINE SCORER TAKES A SECOND COPY OF THIS INTERFACE ═══
+/* ═══ THE DOCTRINE SCORER'S INPUTS — DERIVED, NOT LISTED ═══
  *
- * NAMED CORRECTLY AFTER CHECKING. I first wrote this as "the shadow context
- * builder", assuming a second context(). It is not: it is the options object
- * passed to DraftDoctrine.scoreBoard(), which carries its OWN roster,
- * totalPicks, myPickIndex and totalMyPicks — down to the same copy-pasted
- * comment block. A guess about what a second occurrence was would have put a
- * confident wrong name on a real check.
+ * THE FIRST VERSION OF THIS CHECK WAS BACKWARDS, and breaking it is how that was
+ * found. It asserted that the scoreBoard call supplied totalPicks, totalMyPicks,
+ * myPickIndex and roster — a list copied from context(). Measured against
+ * doctrine.js, scoreBoard reads `liveIndex`, `roster`, `dollarsOf` and an
+ * optional `keys`, and NOTHING ELSE. So the guard was defending FOUR fields
+ * nobody reads and saying nothing about the one that matters: deleting
+ * `myPickIndex` went red, and deleting `liveIndex` was SILENT.
  *
- * It is still worth checking, and for the reason the duplication itself gives:
- * the doctrine scorer reads the same fields off a SEPARATE literal, so the two
- * can drift. A break aimed at one of them landed on the other during this very
- * session, because the two blocks are textually near-identical. */
+ * `liveIndex` is the load-bearing one. Absent it defaults to 1
+ * (`opts.liveIndex == null ? 1 : opts.liveIndex`), so every doctrine is scored as
+ * if this were my first pick — at pick 34 a silently wrong plan.
+ *
+ * So the required set is now SCRAPED FROM THE CONSUMER instead of transcribed.
+ * A hand-copied list is the same two-places disease as the code it audits, and it
+ * failed the same way: it drifted to describe a different function. */
 {
-  const second = app.indexOf('myPickIndex: myLivePickIndex()',
-    app.indexOf('myPickIndex: myLivePickIndex()') + 1);
-  ck('the doctrine scorer\'s own context copy exists and is checked', second > 0,
-     'only one myPickIndex site found — if the doctrine scorer stopped taking its '
-     + 'own copy, drop this check rather than leaving it vacuous');
-  if (second > 0) {
-    const near = app.slice(second - 4000, second + 2000);
-    const missing = ['totalPicks', 'totalMyPicks', 'myPickIndex', 'roster']
-      .filter(k => !new RegExp('\\b' + k + '\\s*[:,]').test(near));
-    ck('the doctrine scorer is handed the same load-bearing fields as the engine',
-       missing.length === 0,
-       'the doctrine copy is missing: ' + missing.join(', ') + ' — the plan would '
-       + 'be scored against a different world than the board is');
-  }
+  const doc = read('doctrine.js');
+  const sb = doc.slice(doc.indexOf('function scoreBoard('));
+  const body = sb.slice(0, sb.indexOf('\n  function ', 1));
+  // Fields read WITHOUT a default are required of the caller; ones with a
+  // `|| x` / `== null ? x :` fallback are optional by construction.
+  const readNames = [...new Set([...body.matchAll(/opts\.([A-Za-z_$][\w$]*)/g)].map(m => m[1]))];
+  ck('scoreBoard\'s inputs were scraped from doctrine.js (non-vacuity)',
+     readNames.length >= 3 && readNames.includes('liveIndex'),
+     'scraped ' + JSON.stringify(readNames));
+
+  const callAt = app.indexOf('DraftDoctrine.scoreBoard(scored, {');
+  ck('the scoreBoard call site was located', callAt > 0);
+  const lit = app.slice(callAt, app.indexOf('});', callAt));
+  const supplies = n => new RegExp('\\b' + n + '\\s*:').test(lit);
+
+  // REQUIRED: the ones whose absence changes behaviour silently.
+  ['liveIndex', 'roster', 'dollarsOf'].forEach(n => {
+    ck('the scoreBoard call supplies ctx.' + n + ' (read by doctrine.js)',
+       supplies(n),
+       n + ' is read by scoreBoard and not supplied — it will take its default '
+       + 'silently, which for liveIndex means every doctrine scored at pick 1');
+  });
+
+  // AND NOTHING scoreBoard DOES NOT READ. A field here is produced-and-unread
+  // (rule 14) and, worse, arrives with comments describing a different consumer.
+  const suppliedHere = [...new Set([...lit.matchAll(/\n\s{6}([A-Za-z_$][\w$]*)\s*:/g)]
+    .map(m => m[1]))];
+  const unread = suppliedHere.filter(n => !readNames.includes(n));
+  ck('the scoreBoard call supplies NOTHING scoreBoard does not read',
+     unread.length === 0,
+     'produced and never read: ' + unread.join(', ')
+     + ' — scoreBoard reads only ' + readNames.join(', '));
 }
 
 console.log('');

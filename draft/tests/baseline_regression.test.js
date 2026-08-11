@@ -241,6 +241,27 @@ frozen.surfaces.forEach(f => {
   });
 }
 
+/* A GREEN THAT STATES ITS OWN SCOPE CANNOT BE MISREAD by a reader who was not in
+ * the conversation that produced it — which includes me in a fortnight. I read a
+ * green from this suite as evidence the conservation tilt had changed behaviour;
+ * it was not, and could not have been.
+ *
+ * MEASURED, NOT ARGUED: this suite reports 51/51 while the live context() has
+ * currentPick, nextPick, roster, myPickIndex or the doctrine wiring DELETED, and
+ * while nextPick is reverted to the exact bug that caused the conservation
+ * violation. All eight of B's breaks, every one green here.
+ *
+ * The cause is structural rather than a coverage gap: freeze_baseline.js has no
+ * reference to app.js. It HAND-BUILDS the context it scores, so a field the app
+ * fails to supply is always supplied by the fixture. Rules 6 and 7 both bear on
+ * it — the artifact must say what it covers AT THE POINT IT REPORTS, or the
+ * number gets read as a warrant it never was. */
+console.log('\nSCOPE — what this green does and does not mean:');
+console.log('  COVERS   weights, policy constants, and the emitted surface, from a');
+console.log('           HAND-BUILT context.');
+console.log('  DOES NOT read app.js. It cannot detect a live-context defect, and');
+console.log('           reads 51/51 through all eight known context breaks.');
+console.log('  ELSEWHERE context wiring: context_interface.test.js, app-wiring.test.js');
 console.log('\n' + pass + '/' + (pass + fail) + ' baseline-regression checks passed');
 if (fail) {
   console.log('\nA FAILURE HERE MEANS RECOMMENDATION BEHAVIOUR CHANGED.');
