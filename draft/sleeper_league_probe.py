@@ -113,6 +113,39 @@ def main():
     print("      NOT a read of Sleeper's field. So REFERENCED is an upper bound twice")
     print("      over; only UNREFERENCED is a hard fact.")
 
+    # ── THE DRAFT OBJECT IS AUTHORITATIVE FOR ROUNDS ────────────────────────
+    #
+    # `settings.draft_rounds` on the LEAGUE object reads 3 against our configured
+    # 15, and 3 also equals max_keepers — a coincidence worth explaining rather
+    # than assuming. Rounds feeds the pick order, which feeds every pick number,
+    # so this is not a curiosity. The draft object holds the real value.
+    draft = None
+    if lg.get("draft_id"):
+        try:
+            draft = fetch("/draft/%s" % lg["draft_id"])
+        except Exception as exc:                               # noqa: BLE001
+            print("  ! could not fetch the draft object: %s" % exc)
+    print()
+    print("== THE DRAFT OBJECT (authoritative for rounds) ==")
+    if draft:
+        ds = draft.get("settings") or {}
+        print("  status=%r type=%r start_time=%r" % (draft.get("status"), draft.get("type"),
+                                                     draft.get("start_time")))
+        print("  draft.settings.rounds        = %r   <- AUTHORITATIVE" % ds.get("rounds"))
+        print("  draft.settings.teams         = %r" % ds.get("teams"))
+        print("  league.settings.draft_rounds = %r   <- the one that read 3" % settings.get("draft_rounds"))
+        print("  slots_* (roster shape the draft enforces):")
+        for k in sorted(ds):
+            if k.startswith("slots_"):
+                print("      %-18s %r" % (k, ds[k]))
+        print("  every draft setting:")
+        for k in sorted(ds):
+            print("      %-24s %r" % (k, ds[k]))
+        print("  draft_order set: %s   slot_to_roster_id set: %s"
+              % (bool(draft.get("draft_order")), bool(draft.get("slot_to_roster_id"))))
+    else:
+        print("  (no draft object)")
+
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     with open(OUT, "w") as fh:
         json.dump({"fetched_league_id": LEAGUE_ID, "name": lg.get("name"),
@@ -121,6 +154,7 @@ def main():
                    "settings": settings,
                    "waiver_type_meaning": WAIVER_TYPE.get(settings.get("waiver_type")),
                    "unreferenced_in_repo": unref,
+                   "draft": draft,
                    "roster_positions": lg.get("roster_positions"),
                    "scoring_settings": lg.get("scoring_settings")}, fh,
                   indent=2, sort_keys=True)
