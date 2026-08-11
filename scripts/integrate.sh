@@ -157,6 +157,25 @@ if [ -n "$red" ]; then
   git reset --hard -q ORIG_HEAD; exit 1
 fi
 
+# ── THE TREE MUST BE CLEAN BEFORE THIS DECLARES SUCCESS ─────────────────────
+# Cory's requirement, and it is the right generalisation of the bug rather than a
+# patch on it. The missing-commit fault was caught by a CHECKOUT refusing to
+# switch branches, not by this script, which had already printed OK and pushed.
+# A merge tool that can exit with staged changes will do it again, in some other
+# way I have not anticipated. So the exit condition is the STATE, not the steps:
+# nothing staged, nothing modified, no merge in progress. Any residue is a
+# failure regardless of which step left it.
+RESIDUE="$(git status --porcelain)"
+if [ -n "$RESIDUE" ] || [ -f .git/MERGE_HEAD ]; then
+  echo "REFUSED: integration finished with an UNCLEAN TREE — this is the state that"
+  echo "  loses work on the next checkout, and it is a failure even though every"
+  echo "  earlier step passed."
+  [ -f .git/MERGE_HEAD ] && echo "  a merge is still in progress (MERGE_HEAD present)"
+  echo "$RESIDUE" | sed 's/^/     /'
+  exit 1
+fi
+echo "   tree clean: nothing staged, nothing modified, no merge in progress"
+
 echo "OK: $BRANCH merged into main, both suites green."
 if [ "$PUSH" = "--push" ]; then
   git push origin main && echo "pushed."
