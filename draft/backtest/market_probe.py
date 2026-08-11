@@ -469,7 +469,12 @@ def probe() -> dict:                                        # pragma: no cover (
                         }
                         if ev:
                             eid = (ev[0] or {}).get("id")
-                            bm = ",".join([str(b.get("name")) for b in (io.get("_books") or [])][:2]) or "draftkings,fanduel"
+                            # NAMED RECREATIONAL BOOKS. Taking the first active entries alphabetically
+                            # picked 10BET/12bet — all sharp or exchange books, which the free
+                            # plan excludes, so the 403 was about MY choice of book and not
+                            # about coverage. The error text is the finding: "your free plan
+                            # includes ALL the recreational bookmakers".
+                            bm = "draftkings,fanduel"
                             od, h6 = get(c["host"] + f"/v3/odds?apiKey={k}&eventId={eid}"
                                                      f"&bookmakers={bm}")
                             body = json.dumps(od)
