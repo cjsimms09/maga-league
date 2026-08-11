@@ -131,7 +131,8 @@ router.get('/api/sunday-alert', aw(async (req, res) => {
   const { live, band, weekNo } = await liveOptimizeFor(world, owners, commish);
   if (!live) return res.json({ ok: true, sent: 0, note: 'no live lineup (off-season / Sleeper down)' });
   const alert = LO.sundayAlert(live, { week: weekNo, band });
-  const r = await notify.sundayAlert(commish, alert).catch(() => ({ skipped: true }));
+  // Hand it the OWNER LIST; notify resolves the commissioner itself.
+  const r = await notify.sundayAlert(world.owners, alert).catch(() => ({ skipped: true }));
   res.json({ ok: true, sent: (r && !r.skipped) ? 1 : 0, week: weekNo, hasCalls: alert.hasCalls });
 }));
 
@@ -1260,9 +1261,11 @@ router.post('/sidebets', aw(async (req, res) => {
         open_slots: openSlots,
         pool_teams: poolTeams, pool_wins: poolWins,
       });
-      // Nobody checks a website for a bet they do not know exists.
-      const targets = owners.filter(o => ids.includes(o.id));
-      notify.sideBetProposed(targets, bet, req.owner.name, terms).catch(() => {});
+      // NO MEMBER EMAIL. This used to build a recipient list and mail every
+      // counterparty, under the comment "Nobody checks a website for a bet they
+      // do not know exists." That is the assumption the policy forbids: the bet
+      // lives at /bank?section=sidebets and they go look at it. The recipient
+      // list is deleted too, not merely unused.
     } catch (e) { /* needs someone on the other side; the form enforces it too */ }
   }
   // The matchup page sends people back to it, not the finance page — the bet was
@@ -1640,7 +1643,7 @@ router.post('/votes/propose', aw(async (req, res) => {
   const id = newId();
   const vote = { id, question, description, proposer_id: req.owner.id, status: 'open', created_at: now(), closed_at: null };
   await setDoc(`vote:${id}`, vote);
-  notify.newVote(req.world.owners, vote, req.owner.name).catch(() => {});
+  // NO MEMBER EMAIL. The ballot is at /votes.
   res.redirect('/votes?proposed=1');
 }));
 
@@ -2488,7 +2491,7 @@ router.post('/lineup/sunday/send', requireCommissioner, aw(async (req, res) => {
   const { live, band, weekNo } = await liveOptimizeFor(req.world, owners, req.owner);
   if (live) {
     const alert = LO.sundayAlert(live, { week: weekNo, band });
-    await notify.sundayAlert(req.owner, alert).catch(() => {});
+    await notify.sundayAlert(req.world.owners, alert).catch(() => {});
   }
   res.redirect('/lineup?sent=1');
 }));

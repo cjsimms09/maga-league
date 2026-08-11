@@ -120,7 +120,8 @@ router.post('/alerts', aw(async (req, res) => {
       active: true, created_at: now(),
     });
     await setDoc('alerts', alerts);
-    notify.alertPosted(req.world.owners, message, alerts[alerts.length - 1].level).catch(() => {});
+    // NO MEMBER EMAIL. An urgent league announcement used to mail every owner.
+    // Policy 2026-08-11: it lives on the site and they go look at it.
   }
   back(res, 'alerts');
 }));
@@ -183,7 +184,8 @@ router.post('/ledger/:id/settle', aw(async (req, res) => {
     const updated = await L.setSettled(e.id, !e.settled, req.body.note, req.owner.name);
     if (updated && updated.settled) {
       const target = H.ownerById(req.world.owners, updated.owner_id);
-      if (target) notify.moneySettled(target, updated).catch(() => {});
+      // NO MEMBER EMAIL. A settlement notice is not one of the permitted three;
+      // the member sees it on their tab at /bank.
     }
   }
   if (req.body.back === 'bank') return res.redirect('/bank');

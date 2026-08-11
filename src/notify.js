@@ -1,6 +1,41 @@
 // Email notifications via Resend (https://resend.com — free tier, 3k/month).
 // Entirely optional: with no RESEND_API_KEY the site behaves exactly as before,
 // every send is a silent no-op, and nothing ever throws into a page render.
+//
+// ══════════════════════════════════════════════════════════════════════════════
+// WHAT MAY BE EMAILED TO A LEAGUE MEMBER — EXACTLY THREE THINGS. Cory, 2026-08-11.
+//
+//   1. Password resets.
+//   2. The weekly recap (B is building it — the chronicle voice: who beat who,
+//      close games, streaks, the weekly high and its $100, playoff odds, the
+//      funny things).
+//   3. "You're up to pick your draft spot."
+//
+// NOTHING ELSE. Not lineup alerts, not waiver reminders, not settlement notices,
+// not vote notifications, not trade offers — not anything that exists now or
+// gets built later. If a feature's design assumes member notification, THE
+// INFORMATION LIVES ON THE SITE AND THEY GO LOOK AT IT.
+//
+// The Sunday alert and every other in-season notification is COMMISSIONER-ONLY.
+//
+// REMOVED 2026-08-11 RATHER THAN GATED, by instruction — four senders that could
+// each reach a member outside the three:
+//   moneySettled      "You've been paid $X"          (settlement notice)
+//   newVote           "New measure on the ballot"     (to EVERY member)
+//   alertPosted       "League announcement"           (to EVERY member)
+//   sideBetProposed   "X wants to bet you $Y"         (to every other member)
+//
+// sideBetProposed is worth naming twice, because its own comment argued FOR
+// itself: "Nobody checks a website for a bet they do not know exists." That is
+// exactly the assumption the policy forbids — the answer is that the bet lives
+// on the site and they go look at it.
+//
+// A GATE IS NOT A REMOVAL. sundayAlert used to take any `owner` and carried the
+// comment "Commissioner-only content; the caller gates." That put the policy in
+// every call site instead of in the capability, so it could only ever be as
+// correct as the least careful caller. It now resolves the commissioner ITSELF
+// and physically cannot address anyone else.
+// ══════════════════════════════════════════════════════════════════════════════
 const { getDoc, setDoc, now } = require('./data');
 
 const API_KEY = process.env.RESEND_API_KEY || '';
@@ -12,7 +47,12 @@ const SITE = process.env.SITE_URL || 'https://makefbgreatagain.netlify.app';
 const configured = () => !!API_KEY;
 
 async function sendMail({ to, subject, html }) {
-  if (!configured() || !to || !to.length) return { skipped: true };
+  /* A SKIP CARRIES ITS REASON. "skipped" used to mean three different things —
+   * no API key, no recipient, or a policy refusal upstream — and a caller (or a
+   * test) could not tell them apart. Conflating "we declined to send this" with
+   * "email is not configured" is how a policy refusal reads as infrastructure. */
+  if (!configured()) return { skipped: true, reason: 'unconfigured' };
+  if (!to || !to.length) return { skipped: true, reason: 'no-recipient' };
   try {
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
@@ -61,8 +101,10 @@ function wrap(title, body, cta) {
   </div>`;
 }
 
-const emailsFor = (owners, filter = () => true) =>
-  owners.filter(o => o.active && o.email && filter(o)).map(o => o.email);
+/* `emailsFor(owners)` — the helper that turned the owner list into a broadcast
+ * address — is DELETED, not left unused. Its only purpose was addressing the
+ * whole league, which nothing may now do; leaving it in place would leave the
+ * capability one call away and make the next broadcast a one-line change. */
 
 // --- notification events (all fire-and-forget) ---
 
@@ -74,59 +116,6 @@ async function draftTurn(owner) {
     html: wrap("It's your turn to choose a draft spot",
       `Everyone behind you is waiting. No timer, but the group chat has opinions. Check the cheat sheet to see where your first real pick lands based on how many keepers you're holding.`,
       { path: '/draft', label: 'Choose my spot' }),
-  });
-}
-
-async function moneySettled(owner, entry) {
-  if (!owner.email) return;
-  const paid = entry.amount > 0;
-  await sendMail({
-    to: [owner.email],
-    subject: paid ? `💵 You've been paid — ${fmt(entry.amount)}` : `✅ Payment recorded — ${fmt(-entry.amount)}`,
-    html: wrap(paid ? 'The commissioner paid you' : 'Your payment was recorded',
-      `<b>${entry.desc}</b> — ${fmt(Math.abs(entry.amount))}${entry.settle_note ? ` (${entry.settle_note})` : ''}. Your tab has been updated.`,
-      { path: '/bank', label: 'See my tab' }),
-  });
-}
-
-async function newVote(owners, vote, proposerName) {
-  const to = emailsFor(owners, o => o.id !== vote.proposer_id);
-  await sendMail({
-    to,
-    subject: `🗳 New measure on the ballot: ${vote.question}`,
-    html: wrap(vote.question,
-      `<b>${proposerName}</b> put this on the ballot.${vote.description ? ` "${vote.description}"` : ''} Six YES votes passes it. You can change your vote until it closes.`,
-      { path: '/votes', label: 'Cast my vote' }),
-  });
-}
-
-async function alertPosted(owners, message, level) {
-  if (level !== 'urgent') return;
-  await sendMail({
-    to: emailsFor(owners),
-    subject: '🚨 League announcement',
-    html: wrap('From the commissioner', message, { path: '/', label: 'Open the league office' }),
-  });
-}
-
-/**
- * Somebody put a bet in front of you.
- *
- * This one matters more than the other notifications: an unanswered side bet
- * sits at "proposed" doing nothing, and the person who offered it is waiting.
- * Nobody checks a website for a bet they do not know exists.
- */
-async function sideBetProposed(owners, bet, proposerName, sentence) {
-  const to = emailsFor(owners, o => o.id !== bet.proposer_id);
-  if (!to.length) return { skipped: true };
-  await sendMail({
-    to,
-    subject: `🤝 ${proposerName} wants to bet you ${fmt(bet.stake)}`,
-    html: wrap(`${proposerName} put up a side bet`,
-      `<b>${sentence}</b><br><br>${fmt(bet.stake)} each${bet.resolves ? `, settling ${bet.resolves}` : ''}.
-       It is not a bet until you accept — and accepting is a gentlemen's agreement,
-       as good as a handshake. The site keeps score; it does not hold the money.`,
-      { path: '/bank?section=sidebets', label: 'See the bet' }),
   });
 }
 
@@ -143,10 +132,25 @@ async function passwordReset(owner, token) {
 
 const fmt = n => '$' + Math.abs(Math.round(n * 100) / 100).toLocaleString('en-US');
 
-// THE SUNDAY ALERT — before kickoff, the specific start/sit calls and what each
-// is worth. Commissioner-only content (a recommendation tool); the caller gates.
-async function sundayAlert(owner, alert) {
-  if (!owner || !owner.email || !alert) return { skipped: true };
+/* THE SUNDAY ALERT — before kickoff, the specific start/sit calls and what each
+ * is worth. COMMISSIONER-ONLY, and now structurally so.
+ *
+ * It used to be `sundayAlert(owner, alert)` with the comment "the caller gates".
+ * Both call sites happened to be correct — one resolves the commissioner from the
+ * world, the other sits behind requireCommissioner — but the policy lived in the
+ * call sites, so it could only ever be as correct as the least careful one, and a
+ * third caller written in a hurry would have had nothing stopping it.
+ *
+ * It now takes the OWNER LIST and finds the commissioner itself. There is no
+ * parameter through which a member can be addressed. */
+async function sundayAlert(owners, alert) {
+  const list = Array.isArray(owners) ? owners : (owners ? [owners] : []);
+  const owner = list.find(o => o && o.is_commissioner && o.active);
+  // THE POLICY REFUSAL, named. Anyone who is not the active commissioner is not
+  // addressable here, and the reason says so rather than looking like a config gap.
+  if (!owner) return { skipped: true, reason: 'not-commissioner' };
+  if (!owner.email) return { skipped: true, reason: 'commissioner-has-no-email' };
+  if (!alert) return { skipped: true, reason: 'no-alert' };
   const week = alert.week ? `Week ${alert.week}` : 'This week';
   // Lead with the one real call — chase the $100 or protect the matchup — the same
   // verdict the on-page optimizer now leads with, so the email and the site agree.
@@ -175,5 +179,8 @@ async function sundayAlert(owner, alert) {
   });
 }
 
-module.exports = { configured, sendMail, draftTurn, moneySettled, newVote, alertPosted,
-                   sideBetProposed, passwordReset, sundayAlert, SITE };
+/* THE EXPORT LIST IS THE POLICY SURFACE. Only these may exist. A new sender
+ * added here must be one of the three permitted member emails, or be
+ * commissioner-only and structurally unable to address a member.
+ * notify_policy.test.js asserts this list. */
+module.exports = { configured, sendMail, draftTurn, passwordReset, sundayAlert, SITE };
