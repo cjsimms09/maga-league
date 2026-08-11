@@ -753,12 +753,10 @@ router.get('/', aw(async (req, res) => {
     // Venmo nag (venmo-handles.md §2): fires for a logged-in owner with no
     // handle; the commissioner also sees who is still missing theirs.
     venmoNag: V.needsNag(req.owner && world.owners.find(o => o.id === req.owner.id)),
-    venmoMissing: (req.owner && req.owner.is_commissioner) ? V.missing(world.owners) : [],
     // Contact directory: the shared card's data source (login-gated), this
     // owner's own record + what's missing, and the commissioner's at-a-glance
     // incomplete list. Superset of the Venmo nag — covers email and phone too.
     contacts: owners.map(contactOf),
-    myContact: contactOf(world.owners.find(o => o.id === req.owner.id) || req.owner),
     // Each owner is nagged for their OWN data only. The commissioner's aggregate
     // view lives in the Commissioner Console, not on the home page.
     contactNag: contactMissingFields(world.owners.find(o => o.id === req.owner.id)),
@@ -2170,8 +2168,7 @@ router.get('/matchup', aw(async (req, res) => {
   res.render('matchup', {
     liveStale,
     me, owners, opp, live, weekNo, matchup: liveMatchup, betWindow, record, rivalry,
-    starters, bench, matchupBet, proj, highBand, whBand, whRace, pickem, stakes, trash, trashGameId,
-    // The availability badge is derived from the optimizer's INACTIVE_INJURY set
+    starters, bench, matchupBet, proj, highBand, whBand, whRace, pickem, stakes, trash,     // The availability badge is derived from the optimizer's INACTIVE_INJURY set
     // (src/matchup.js), not from a second ladder in the template.
     injuryFlag: MU.injuryFlag,
     goatId: MK.goatOwnerId(sData, world.config.sleeper_map || {}),
@@ -2528,7 +2525,7 @@ router.get('/scoreboard', aw(async (req, res) => {
     me, owners, weekNo, cards, locked, whRace, whBand,
     moneyBoard: L.moneyStandings(world.ledger, owners, season), meId: me.id,
     live: !!(livePts && Object.values(livePts).some(p => p > 0)),
-    configured: !!world.config.sleeper_league_id, primetime,
+    configured: !!world.config.sleeper_league_id,
     goatId: MK.goatOwnerId(sData, map), nameOf,
   });
 }));
@@ -2682,7 +2679,6 @@ router.get('/lineup', requireCommissioner, aw(async (req, res) => {
     // if it just happened. Cleared BEFORE the render — cookie-session writes its
     // Set-Cookie on res.end, so a delete after render never reaches the browser.
     sendResult,
-    emailOn: notify.configured(),
   });
 }));
 

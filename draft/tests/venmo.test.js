@@ -45,9 +45,10 @@ check('a missing handle has no link (null, never a broken url)', V.link(noHandle
 // --- nag + commissioner list ------------------------------------------------
 {
   const owners = [withHandle, withAt, noHandle, blankHandle];
-  const miss = V.missing(owners);
-  check('missing() lists exactly the handle-less owners', miss.length === 2
-    && miss.every(o => [3, 4].includes(o.id)), JSON.stringify(miss.map(o => o.id)));
+  // `missing()` was deleted 2026-08-11 under rule 14 — its only callers were
+  // these two assertions. See the note in src/venmo.js. The live nag is
+  // `needsNag`, checked below, and the commissioner's list is /admin's
+  // contactStatus, which reports a different quantity.
   check('needsNag fires for a handle-less logged-in owner', V.needsNag(noHandle) === true);
   check('needsNag suppresses once a handle is filled', V.needsNag(withHandle) === false);
   check('needsNag is false for no owner (logged out)', V.needsNag(null) === false);
@@ -76,8 +77,6 @@ check('a missing handle has no link (null, never a broken url)', V.link(noHandle
     V.render(me).label === '@cory-simms');
   check('wiring: the settlement deep link works from the same record',
     V.link(me, { amount: 25 }).indexOf('venmo.com/u/cory-simms') > 0);
-  check('wiring: the commissioner nag list no longer includes me',
-    V.missing(owners).every(o => o.id !== 1));
   check('wiring: the nag suppresses for me', V.needsNag(me) === false);
 
   // The clobber bug, locked out: the venmo-only save left the OTHER fields alone.
