@@ -906,6 +906,44 @@ outermost layer — the same principle as `F4.fetch_failed`, one level further o
 previous behaviour meant a single malformed league could delete an entire run's evidence,
 which is the most expensive way for a sample to become invisible.
 
+## F7 DECISION RULE, REGISTERED BEFORE THE RUN THAT TESTS IT (2026-08-11)
+
+Run 11 gave 0 matched of 113 readable leagues. Zero successes does not mean a zero rate,
+so the question is what sample size would actually DECIDE it, and that is arithmetic
+available now — before the run, which is the only time it can be stated honestly.
+
+By the rule of three, k successes of 0 in n trials puts the 95% upper bound at 3/n. F7's
+target of 200 matched league-seasons from a 21,323-league pool needs a rate of at least
+200/21,323 = **0.938%**. So:
+
+```
+  0 of 113  ->  upper bound 2.65%   target still inside   (run 11, where we are)
+  0 of 200  ->  upper bound 1.50%   target still inside
+  0 of 300  ->  upper bound 1.00%   target still inside
+  0 of 320  ->  upper bound 0.938%  TARGET RULED OUT at 95%
+  0 of 400  ->  upper bound 0.750%  ruled out with room
+```
+
+**THE REGISTERED RULE.** If the next run reads **320 or more leagues' formats and none
+passes F1**, F7's target is not reachable from MFL's 2025 public pool at 95% confidence,
+and this program says so rather than lowering the bar — which is what F7 already commits
+to. If **any** league passes, the run yields a rate estimate instead and the question
+becomes how large a crawl the target needs, not whether it is possible.
+
+Either outcome is informative, which is the point of choosing n before looking.
+
+**What it costs.** Run 11 measured **12.6 s per league** with adaptive backoff already
+absorbing MFL's 429s. 400 leagues is ~84 minutes of fetching, so the job timeout goes from
+60 to 150 minutes and the fetch budget to 5,400s. That is ~1,200 requests over 90 minutes
+— 0.24/s, gentler than the run that produced the 429s, because the pacing is adaptive and
+the budget is what grew.
+
+**What would make this run NOT decisive, declared now.** If it reads fewer than 320
+formats — deadline, 429 storm, crawl shortfall — then the interval does not close and the
+answer is "still inside", not "ruled out". `never_attempted` and the readable count are
+already reported for exactly this reason, and the verdict must be read off them rather
+than off the matched count.
+
 ## CORRECTION — ROUTE 1 IS NOT OPEN. THE "BOARDS" WERE A NAVIGATION MENU (2026-08-11)
 
 **This supersedes the entry below, which is retained unedited because a result reported
