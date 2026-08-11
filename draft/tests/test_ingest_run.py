@@ -1083,3 +1083,93 @@ def test_a_SERVING_archive_counts_how_many_leagues_it_can_actually_price():
     same_day = R.adp_readiness(
         [{"year": "2025", "observed_at": "2025-08-25", "rows": [1]}], 2025, v)
     assert same_day["state"] == "TOO_YOUNG" and same_day["servable"] == 0, same_day
+
+
+def test_A_SATURATED_BASE_RATE_IS_NOT_A_VERDICT_ON_THE_MODEL():
+    """MEASURED on a synthetic 2026-shaped league: base_rate 1.0, every survival
+    forecast resolved TRUE, `beats_base_rate` False. That is correct arithmetic — the
+    reference is base*(1-base), which is ZERO when everything resolved the same way,
+    and nothing beats a perfect reference — but it means the field is forced whatever
+    the policy did.
+
+    "0 of N leagues beat their own base rate" then reads as a verdict on the model
+    when it is a statement about the sample. MUTATION: report the count anyway. A
+    policy that was never tested is recorded as having failed."""
+    grades = [{"league_id": "L1", "n_scored": 40, "base_rate": 1.0,
+               "brier": 0.77, "beats_base_rate": False}]
+    v = R._survival_verdict({"leagues_matched": 1, "leagues_replayed": 1,
+                             "observations": 60, "refused": [], "errors": [],
+                             "grades": grades})
+    assert "saturated" in v and "cannot discriminate" in v
+    assert "not a verdict on the model" in v
+
+    # ...and a sample that CAN discriminate still reports the comparison.
+    ok = [{"league_id": "L1", "n_scored": 40, "base_rate": 0.6,
+           "brier": 0.2, "beats_base_rate": True}]
+    v2 = R._survival_verdict({"leagues_matched": 1, "leagues_replayed": 1,
+                              "observations": 60, "refused": [], "errors": [],
+                              "grades": ok})
+    assert "beat their own base rate" in v2 and "saturated" not in v2
+
+
+def test_a_base_rate_of_ZERO_saturates_exactly_as_HARD_as_one():
+    """base*(1-base) is zero at BOTH ends. A league where nothing survived is as
+    untestable as one where everything did.
+
+    MUTATION: treat only 1.0 as saturated. A league that resolved uniformly FALSE is
+    reported as a policy that failed to beat its base rate."""
+    grades = [{"league_id": "L1", "n_scored": 40, "base_rate": 0.0,
+               "brier": 0.31, "beats_base_rate": False}]
+    v = R._survival_verdict({"leagues_matched": 1, "leagues_replayed": 1,
+                             "observations": 60, "refused": [], "errors": [],
+                             "grades": grades})
+    assert "saturated" in v and "cannot discriminate" in v
+    assert "0.0" in v
+
+
+def test_ONE_saturated_league_in_a_MIXED_sample_leaves_the_denominator():
+    """The forcing error does not need the whole sample. In a mixed sample a
+    saturated league is a guaranteed-False entry in a denominator that reads as
+    "leagues where the policy was tested" — it wasn't.
+
+    MUTATION: count every scored league in the denominator. Two leagues, one of them
+    untestable, and the run reports "1 of 2" — an accuracy figure diluted by a league
+    that never had the chance to contribute to it."""
+    grades = [{"league_id": "SAT", "n_scored": 40, "base_rate": 1.0,
+               "brier": 0.77, "beats_base_rate": False},
+              {"league_id": "REAL", "n_scored": 30, "base_rate": 0.6,
+               "brier": 0.2, "beats_base_rate": True}]
+    v = R._survival_verdict({"leagues_matched": 2, "leagues_replayed": 2,
+                             "observations": 120, "refused": [], "errors": [],
+                             "grades": grades})
+    # NOT the whole-sample message — one league can still discriminate.
+    assert "cannot discriminate" not in v
+    # 1 of 1, not 1 of 2.
+    assert "1 of 1 leagues that could discriminate" in v
+    # ...and the excluded one is named rather than silently dropped.
+    assert "1 league(s) are EXCLUDED" in v and "1.0" in v
+    # The graded-forecast total still counts EVERY resolved forecast: 40 + 30.
+    assert "70 resolved and graded" in v
+
+
+def test_a_saturated_league_cannot_reach_the_NUMERATOR_either():
+    """The exclusion must not lean on an invariant another component maintains.
+
+    TODAY a saturated league can only report `beats_base_rate` False: the reference
+    Brier is 0, and "beats" is a strict `<`, which nothing satisfies. So summing the
+    numerator over ALL scored leagues happens to give the right answer. That is luck,
+    and it is A's luck, not mine — `survival_grade` owns that comparison, and a
+    tie-break loosened to `<=` would make a saturated league with a perfect Brier
+    report True. This function must not change its answer when that happens.
+
+    MUTATION: sum the numerator over every scored league. A league that was never
+    tested is counted as one the policy won."""
+    grades = [{"league_id": "SAT", "n_scored": 40, "base_rate": 1.0,
+               "brier": 0.0, "beats_base_rate": True},   # what `<=` would emit
+              {"league_id": "REAL", "n_scored": 30, "base_rate": 0.6,
+               "brier": 0.3, "beats_base_rate": False}]
+    v = R._survival_verdict({"leagues_matched": 2, "leagues_replayed": 2,
+                             "observations": 120, "refused": [], "errors": [],
+                             "grades": grades})
+    assert "0 of 1 leagues that could discriminate" in v
+    assert "1 league(s) are EXCLUDED" in v

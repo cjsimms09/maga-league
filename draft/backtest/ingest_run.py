@@ -1104,6 +1104,19 @@ def survival_gate(record) -> tuple:
     return (ok or F.passed_pre_outcome(why)), why
 
 
+def _saturated(grade) -> bool:
+    """A grade whose base rate leaves `beats_base_rate` no room to be anything.
+
+    The reference Brier is base*(1-base). At 0.0 and at 1.0 that is exactly zero, so
+    the comparison is decided before the policy is consulted. Both ends, not just 1.0.
+    """
+    return grade.get("base_rate") in (0.0, 1.0)
+
+
+def _rates(grades) -> str:
+    return ", ".join(sorted({str(g.get("base_rate")) for g in grades}))
+
+
 def _survival_verdict(out) -> str:
     if out["refused"]:
         return ("CONTRADICTION: %d league(s) the screen ADMITTED were REFUSED by the "
@@ -1121,12 +1134,43 @@ def _survival_verdict(out) -> str:
                 "that is all of them the replay is emitting at the wrong picks"
                 % (out["leagues_replayed"], out["observations"]))
     n = sum(g["n_scored"] for g in scored)
-    beat = sum(1 for g in scored if g.get("beats_base_rate"))
+    # A SATURATED BASE RATE MAKES `beats_base_rate` MEANINGLESS, and it is False.
+    # The reference is the Brier of always predicting the base rate, base*(1-base),
+    # which is ZERO when every forecast resolved the same way. Nothing can beat a
+    # perfect reference, so the field is arithmetically forced regardless of the
+    # policy — and "0 of N leagues beat their own base rate" then reads as a verdict
+    # on the model when it is a statement about the sample.
+    #
+    # Measured on a synthetic 2026-shaped league: base_rate 1.0, every forecast
+    # resolved TRUE, beats_base_rate False for a policy that was never tested.
+    #
+    # BOTH saturating values do it. base_rate 0.0 gives the same zero reference as
+    # 1.0; a league where NOTHING survived is exactly as untestable as one where
+    # everything did. And the error does not need the whole sample to be degenerate
+    # — one saturated league in a mixed sample is a guaranteed-False entry in a
+    # denominator that reads as "leagues where the policy was tested". It is not, so
+    # it is excluded from that count and named separately.
+    degenerate = [g for g in scored if _saturated(g)]
+    discriminating = [g for g in scored if not _saturated(g)]
+    if not discriminating:
+        return ("%d league(s) replayed and %d forecast(s) graded, but EVERY league's base "
+                "rate saturated (%s) — every survival forecast resolved the same way, so "
+                "the base-rate reference is 0 and `beats_base_rate` is forced False "
+                "whatever the policy did. This sample cannot discriminate; it is not a "
+                "verdict on the model. NO OUTCOME DATA WAS USED"
+                % (out["leagues_replayed"], n, _rates(degenerate)))
+    beat = sum(1 for g in discriminating if g.get("beats_base_rate"))
+    excluded = ""
+    if degenerate:
+        excluded = ("; a further %d league(s) are EXCLUDED from that count because their "
+                    "base rate saturated (%s), which forces `beats_base_rate` False "
+                    "whatever the policy did" % (len(degenerate), _rates(degenerate)))
     return ("%d league(s) replayed, %d forecast(s) emitted, %d resolved and graded; "
-            "%d of %d leagues beat their own base rate. NO OUTCOME DATA WAS USED — "
-            "survival resolves from the draft's own later picks, which is why this "
-            "number exists before the season is played"
-            % (out["leagues_replayed"], out["observations"], n, beat, len(scored)))
+            "%d of %d leagues that could discriminate beat their own base rate%s. "
+            "NO OUTCOME DATA WAS USED — survival resolves from the draft's own later "
+            "picks, which is why this number exists before the season is played"
+            % (out["leagues_replayed"], out["observations"], n, beat,
+               len(discriminating), excluded))
 
 
 def adp_readiness(series, year, verdicts) -> dict:
