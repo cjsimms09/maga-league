@@ -743,7 +743,8 @@ def test_the_SNAPSHOT_USES_THE_SHIPPED_MATCHER_and_reports_coverage():
                       + _rowhtml(2, "Nobody Here", 2.4))
     snap = X.to_snapshot(p, index, "2024-07-12")
     assert snap["observed_at"] == "2024-07-12"
-    assert snap["rows"] == [{"player_id": "4034", "adp": 1.3}]
+    assert len(snap["rows"]) == 1
+    assert snap["rows"][0]["player_id"] == "4034" and snap["rows"][0]["adp"] == 1.3
     assert snap["names_seen"] == 2 and snap["matched"] == 1 and snap["coverage"] == 0.5
     assert snap["unmatched_sample"] == ["Nobody Here"]
 
@@ -755,3 +756,27 @@ def test_an_ARCHIVED_SNAPSHOT_IS_LABELLED_so_it_cannot_pass_as_a_live_capture():
     snap = X.to_snapshot({"rows": []}, {"by_name": {}, "by_initials": {}}, "2024-07-12")
     assert snap["adp_source"] == X.ADP_SOURCE_ARCHIVE
     assert snap["coverage"] == 0.0, "an empty board is 0 coverage, not a division error"
+
+
+def test_ADP_SOURCE_TRAVELS_ON_THE_ROW_not_only_beside_it():
+    """`draft/adp.py` and `build_bundle.py` both put `adp_source` on EACH PLAYER.
+    A consumer written against that shape, handed a snapshot that carries the label
+    only at the envelope level, gets None — and None reads as "no source" rather than
+    "an archived capture". Three levels already carry this field name across the repo
+    (per-player, snapshot, and provenance.adp.adp_source, which keeper_optimize
+    reads), so mine matches the one a row consumer expects.
+
+    MUTATION: label the envelope only. Archived rows merged into a board become
+    indistinguishable from rows with no provenance at all."""
+    index = {"by_name": {"christian mccaffrey": [{"id": "4034", "name": "Christian McCaffrey",
+                                                  "pos": "RB", "team": "SF", "rank": 1.0}]},
+             "by_initials": {}}
+    p = X.parse_board(_rowhtml(1, "Christian McCaffrey", 1.3))
+    snap = X.to_snapshot(p, index, "2024-07-12")
+    assert snap["adp_source"] == X.ADP_SOURCE_ARCHIVE
+    assert snap["rows"][0]["adp_source"] == X.ADP_SOURCE_ARCHIVE
+    # ...and WHICH QUANTITY the row is, since a board can mix parsed ADP and rank.
+    assert snap["rows"][0]["adp_kind"] == "parsed"
+    bare = X.to_snapshot(X.parse_board("<tr><td><a>Christian McCaffrey</a></td></tr>"),
+                         index, "2024-07-12")
+    assert bare["rows"][0]["adp_kind"] == "rank"

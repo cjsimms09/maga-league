@@ -856,7 +856,21 @@ def to_snapshot(parsed, index, observed_at) -> dict:
             unmatched.append(r["name"])
             continue
         out.append({"player_id": str(sid),
-                    "adp": r["adp"] if r["adp"] is not None else float(r["rank"])})
+                    "adp": r["adp"] if r["adp"] is not None else float(r["rank"]),
+                    # ON THE ROW, not only beside it. `draft/adp.py` and
+                    # `build_bundle.py` both put `adp_source` on EACH PLAYER, and a
+                    # consumer written against that shape reading a snapshot-level
+                    # label gets None — which reads as "no source" rather than "an
+                    # archived capture". Three levels already carry this field name
+                    # (per-player, snapshot, and `provenance.adp.adp_source`, which
+                    # `keeper_optimize` reads); mine now matches the one a row
+                    # consumer expects, and the snapshot keeps its copy for a
+                    # consumer that reads the envelope.
+                    "adp_source": ADP_SOURCE_ARCHIVE,
+                    # WHICH QUANTITY THIS ROW ACTUALLY IS, travelling with it. A
+                    # board where some rows are parsed ADP and some are rank order
+                    # is two quantities in one list, and only the row can say which.
+                    "adp_kind": r["adp_source"]})
     n = len((parsed or {}).get("rows") or [])
     return {"observed_at": observed_at, "rows": out,
             "adp_source": ADP_SOURCE_ARCHIVE,
