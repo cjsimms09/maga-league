@@ -87,7 +87,30 @@ function seasonOf(history, season) {
   return (history.seasons || []).find(s => String(s.season) === String(season)) || null;
 }
 
-const FLEX_ELIGIBLE = new Set(['RB', 'WR', 'TE']);
+// EVERY FLEX-TYPE SLOT AND WHAT MAY FILL IT.
+//
+// This is the SIXTH place flex eligibility is defined — the draft engine carries
+// it in value.js, mcts.js and valuation.js (all three with these same three slot
+// types), grabby.js carries the FLEX case as a flat array, and sanity-sweep does
+// too. Nothing compared them, and they did not all say the same thing: this file
+// defined ONLY `FLEX`, and the eligibility check fell through to `candPos ===
+// slot` for anything else. A SUPER_FLEX or REC_FLEX slot therefore matched no
+// player and DISAPPEARED FROM THE LINEUP ENTIRELY — the optimizer returned six
+// starters for a seven-slot roster and priced that as optimal, so the projected
+// mean, P(win), P($100) and the dollar edge were all computed on a lineup with a
+// starter missing. Silent, and the draft engine has supported both slot types
+// the whole time.
+//
+// `draft/tests/flex_eligibility.test.js` now compares all six definitions.
+const FLEX_SLOTS = {
+  FLEX: new Set(['RB', 'WR', 'TE']),
+  SUPER_FLEX: new Set(['QB', 'RB', 'WR', 'TE']),
+  REC_FLEX: new Set(['WR', 'TE']),
+};
+// The old name, kept for existing consumers but DERIVED rather than restated —
+// a second literal here would be the very thing this comment is about.
+const FLEX_ELIGIBLE = FLEX_SLOTS.FLEX;
+const isFlexSlot = slot => Object.prototype.hasOwnProperty.call(FLEX_SLOTS, slot);
 const r2 = n => Math.round(n * 100) / 100;
 const r4 = n => Math.round(n * 10000) / 10000;   // efficiency wants finer than 2dp
 
@@ -139,8 +162,11 @@ function bestLineup(playerPts, posById, rosterIds, slots) {
 
   const used = new Set();
   const starters = [];
+  // Fixed positions first, then every flex-type slot — not just FLEX. A roster
+  // template carrying SUPER_FLEX or REC_FLEX used to skip the second loop
+  // entirely and lose the slot.
   for (const [pos, n] of Object.entries(slots)) {
-    if (pos === 'FLEX') continue;
+    if (isFlexSlot(pos)) continue;
     let taken = 0;
     for (const [pid, pt] of (byPos[pos] || [])) {
       if (taken >= n) break;
@@ -148,16 +174,24 @@ function bestLineup(playerPts, posById, rosterIds, slots) {
       used.add(pid); starters.push({ pid, slot: pos, points: pt }); taken++;
     }
   }
-  for (let k = 0; k < (slots.FLEX || 0); k++) {
-    let best = null;
-    for (const pos of FLEX_ELIGIBLE) {
-      for (const [pid, pt] of (byPos[pos] || [])) {
-        if (used.has(pid)) continue;
-        if (best === null || pt > best.points) best = { pid, points: pt };
-        break;   // each list sorted; first unused is its best
+  // Narrowest flex first (REC_FLEX before FLEX before SUPER_FLEX): a slot with
+  // fewer eligible positions has fewer ways to be filled, so filling the wide
+  // one first can strand the narrow one on an empty pool.
+  const flexOrder = Object.keys(FLEX_SLOTS)
+    .filter(sl => (slots[sl] || 0) > 0)
+    .sort((a, b) => FLEX_SLOTS[a].size - FLEX_SLOTS[b].size);
+  for (const slotName of flexOrder) {
+    for (let k = 0; k < (slots[slotName] || 0); k++) {
+      let best = null;
+      for (const pos of FLEX_SLOTS[slotName]) {
+        for (const [pid, pt] of (byPos[pos] || [])) {
+          if (used.has(pid)) continue;
+          if (best === null || pt > best.points) best = { pid, points: pt };
+          break;   // each list sorted; first unused is its best
+        }
       }
+      if (best) { used.add(best.pid); starters.push({ pid: best.pid, slot: slotName, points: best.points }); }
     }
-    if (best) { used.add(best.pid); starters.push({ pid: best.pid, slot: 'FLEX', points: best.points }); }
   }
   return { points: r2(starters.reduce((a, s) => a + s.points, 0)), starters };
 }
@@ -430,7 +464,7 @@ function optimize(roster, ctx = {}) {
       const slot = current[i].slot;
       for (const cand of bench) {
         const candPos = posById[cand];
-        const eligible = slot === 'FLEX' ? FLEX_ELIGIBLE.has(candPos) : candPos === slot;
+        const eligible = isFlexSlot(slot) ? FLEX_SLOTS[slot].has(candPos) : candPos === slot;
         if (!eligible) continue;
         const trial = current.map(s => ({ ...s }));
         trial[i] = { pid: cand, slot, points: 0 };
@@ -849,7 +883,7 @@ function sundayAlert(result, opts = {}) {
 module.exports = {
   // engine
   optimize, bestLineup, inferPositions, slotsFromTemplate, DEFAULT_SLOTS, weekDrill, sundayAlert, weeklyPosture,
-  activeProjection, isInactive, INACTIVE_INJURY, FLEX_ELIGIBLE,
+  activeProjection, isInactive, INACTIVE_INJURY, FLEX_ELIGIBLE, FLEX_SLOTS,
   positionSigmas, sigmaOf, weeklyHighBand,
   pWin, pClearHigh, normCdf, lineupStats,
   // data

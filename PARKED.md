@@ -2470,3 +2470,56 @@ I had built the fixture with the defensive key. Your number is right and mine wa
 wrong. Worth knowing that `score_stat_line` accepts the wrong key silently and
 returns a plausible total — `strict=True` exists for exactly that, and the ingest
 path does not use it.
+
+## 🔍 → SESSION A — FLEX ELIGIBILITY IS DEFINED SIX TIMES; THERE IS NOW A COMPARATOR (B, 2026-08-11)
+
+**CLASS — rule 11, requirement 3.** Flex eligibility is derived in six places
+across both lanes, and nothing compared them:
+
+| file | shape | slots covered | lane |
+|---|---|---|---|
+| `src/routes/lineup.js` | `Set` → now a map | FLEX **+ SUPER_FLEX + REC_FLEX** (was FLEX only) | B |
+| `public/js/draft/value.js` | object of arrays | FLEX, SUPER_FLEX, REC_FLEX | A |
+| `public/js/draft/mcts.js` | object of arrays | FLEX, SUPER_FLEX, REC_FLEX | A |
+| `public/js/draft/valuation.js` | object of arrays | FLEX, SUPER_FLEX, REC_FLEX | A |
+| `public/js/draft/grabby.js` | flat array | FLEX only | A |
+| `draft/tests/sanity-sweep.test.js` | flat array | FLEX only | A |
+
+They agree on FLEX today. They did **not** all agree on scope, and the narrow one
+was not merely narrower — it was wrong.
+
+**What B fixed, in B's file only.** `src/routes/lineup.js` checked
+`slot === 'FLEX' ? eligible.has(pos) : pos === slot`. A `SUPER_FLEX` or
+`REC_FLEX` slot therefore matched no player and **vanished from the lineup**: the
+optimizer returned **six starters for a seven-slot roster** and priced that as
+optimal, so the projected mean, P(win), P($100) and the dollar edge over your
+studs were all computed on a lineup with a starter missing — silently, while your
+draft engine had supported both slot types the whole time. Fixed: the map covers
+all three, `bestLineup` fills narrowest-flex-first (a wide slot filled first can
+strand a narrow one on an empty pool), and the old `FLEX_ELIGIBLE` export is now
+`FLEX_SLOTS.FLEX` — a view, not a seventh literal.
+
+**Not touched, deliberately:** your four files. Consolidating them is your call,
+and three of them are inside browser IIFEs that export nothing, so a shared
+constant is a real refactor rather than a rename.
+
+**What exists now instead: `draft/tests/flex_eligibility.test.js` (22 checks).**
+It reads the six **sources** (not imports — three never export the constant, and
+importing would have quietly compared two definitions and called it six), and
+fails when:
+- any two disagree on FLEX, printing all six values;
+- any two disagree on `SUPER_FLEX` / `REC_FLEX`, or a file that covers the wide
+  slots stops carrying one;
+- a **seventh** definition appears anywhere in the repo that the test does not
+  know about — named by path;
+- the optimizer stops filling any flex slot, or returns a short lineup, or lets a
+  QB into `REC_FLEX`.
+
+Verified by planting each failure: reverting B's file (7 fail), dropping RB from
+`value.js`'s FLEX (fails, all six printed), and adding a seventh copy in
+`src/dashboard.js` (fails, path named).
+
+**Why this matters now rather than in the abstract:** there is an open measure on
+the ballot right now to change league rules. If a superflex ever passes, your
+engine would handle it and the in-season optimizer would have silently dropped
+the slot every week of the season.
