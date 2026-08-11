@@ -224,7 +224,46 @@ jobs:
                        arch.get("state"), (arch.get("detail") or "")[:28],
                        arch.get("timestamp") or ""))
 
+          # ── MIRRORS: enumerate the repository, then open what it names ────────
+          print()
+          print("MIRRORS — enumerated, not guessed")
+          mirrors = []
+          for owner, repo, branch in AA.MIRROR_REPOS:
+              r = get(AA.github_tree_query(owner, repo, branch), timeout=45, tries=2, pause=3.0)
+              if (r or {}).get("transport_error"):
+                  print("  %-28s UNREACHED %s" % ("%s/%s" % (owner, repo),
+                                                  r["transport_error"][:60]))
+                  mirrors.append({"repo": "%s/%s" % (owner, repo), "state": "unreached"})
+                  continue
+              try:
+                  listing = AA.adp_files(r.get("body") or b"")
+              except Exception as e:                                 # noqa: BLE001
+                  # A rate-limit or 404 body is an object too. "We were throttled"
+                  # is not "this mirror holds no board".
+                  print("  %-28s NOT LISTED %s: %s" % ("%s/%s" % (owner, repo),
+                                                       type(e).__name__, str(e)[:60]))
+                  mirrors.append({"repo": "%s/%s" % (owner, repo), "state": "not-listed",
+                                  "why": "%s: %s" % (type(e).__name__, e)})
+                  continue
+              print("  %-28s %d blobs listed%s; %d look like a board"
+                    % ("%s/%s" % (owner, repo), listing["listed"],
+                       " (TRUNCATED — not a full search)" if listing["truncated"] else "",
+                       len(listing["files"])))
+              found = []
+              for f in listing["files"][:4]:
+                  body = get(AA.raw_url(owner, repo, branch, f["path"]), timeout=60).get("body") or b""
+                  v = AA.board_confidence(body, KNOWN)
+                  print("      %-52s %d/%d players %s"
+                        % (f["path"][:52], v["player_hits"], v["names_seen"],
+                           "BOARD" if v["is_board"] else ""))
+                  found.append({"path": f["path"], "player_hits": v["player_hits"],
+                                "is_board": v["is_board"], "matched": v["matched"]})
+              mirrors.append({"repo": "%s/%s" % (owner, repo), "state": "listed",
+                              "truncated": listing["truncated"],
+                              "candidates": listing["files"], "opened": found})
+
           rep = AA.route1_report(results, unreachable)
+          rep["mirrors"] = mirrors
 
           print()
           print("===== ROUTE 1 =====")
@@ -250,7 +289,8 @@ jobs:
                   print("    %-22s %s %s" % (r["target"], r.get("archived_timestamp") or "",
                                              r["url"][:80]))
 
-          json.dump({"before": BEFORE, "year": YEAR, "rows": results, "report": rep},
+          json.dump({"before": BEFORE, "year": YEAR, "rows": results, "report": rep,
+                     "mirrors": mirrors},
                     open("archived-adp-probe.json", "w"), indent=1, default=str)
           PY
       - uses: actions/upload-artifact@v4

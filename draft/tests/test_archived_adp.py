@@ -230,6 +230,11 @@ def test_the_CANDIDATE_LIST_lives_in_CODE_and_names_what_would_date_each():
     diffable, and identical between runs, and every entry declares its date basis."""
     c = X.candidates(2024)
     assert len(c) >= 12
+    # Mirrors are no longer in the URL list at all: they are ENUMERATED from
+    # MIRROR_REPOS, so no guessed filename can reach this probe as a target.
+    assert not any("raw.githubusercontent" in u for _, u, _ in c), \
+        "a guessed raw-file URL is back in the candidate list"
+    assert len(X.MIRROR_REPOS) >= 2 and all(len(r) == 3 for r in X.MIRROR_REPOS)
     assert all(b in (X.ARCHIVE_DATED, X.CONTENT_DATED) for _, _, b in c)
     names = [n for n, _, _ in c]
     assert len(set(names)) == len(names), "duplicate target names make the report ambiguous"
@@ -245,7 +250,7 @@ def test_the_CANDIDATE_LIST_lives_in_CODE_and_names_what_would_date_each():
     # Set at the ACTUAL counts, not below them: a threshold with slack in it is a
     # threshold that lets exactly one target vanish unnoticed. Adding targets stays
     # free; removing one has to be a deliberate edit here.
-    for domain, least in (("fantasyfootballcalculator.com", 5),
+    for domain, least in (("fantasyfootballcalculator.com", 6),
                           ("fantasypros.com", 5),
                           ("myfantasyleague.com", 3)):
         n = sum(1 for u in urls if domain in u)
@@ -477,3 +482,53 @@ def test_THE_CAPTURE_WALK_IS_GATED_ON_THE_JUDGE_NOT_ON_SHAPE():
     assert got["state"] == "board" and got["timestamp"] == "20240715000000", got
     # Both captures reported, so the skip is visible.
     assert [e["timestamp"] for e in got["examined"]] == ["20240730000000", "20240715000000"]
+
+
+# ── mirrors: a 404 on a path I invented is about my invention ──────────────
+def test_THE_REPOSITORY_IS_ENUMERATED_not_guessed():
+    """The first probe listed guessed raw-file URLs and got 404s. Reporting that as
+    "this mirror has no ADP data" is rule 13 exactly: evidence about my spelling
+    presented as evidence about the world. Listing the tree replaces the guess with
+    a question the repository answers."""
+    q = X.github_tree_query("dynastyprocess", "data", "master")
+    assert q == "https://api.github.com/repos/dynastyprocess/data/git/trees/master?recursive=1"
+    assert "recursive=1" in q
+
+
+def test_ADP_FILES_come_back_with_their_REAL_paths():
+    tree = json.dumps({"tree": [
+        {"path": "files/db_fpecr.csv", "type": "blob", "size": 100},
+        {"path": "files/values-players.csv", "type": "blob", "size": 50},
+        {"path": "scripts/build_adp.R", "type": "blob", "size": 10},
+        {"path": "files", "type": "tree"},
+    ], "truncated": False})
+    got = X.adp_files(tree)
+    paths = [f["path"] for f in got["files"]]
+    assert "files/db_fpecr.csv" in paths          # ecr
+    assert "scripts/build_adp.R" in paths         # adp
+    assert "files/values-players.csv" not in paths
+    assert got["truncated"] is False and got["listed"] == 4
+
+
+def test_A_TRUNCATED_TREE_THAT_FOUND_NOTHING_HAS_NOT_SEARCHED_THE_REPO():
+    """GitHub caps the recursive listing. MUTATION: drop `truncated`. A partial
+    listing with no hits reads identically to a complete one, and the repository is
+    written off on a page of results nobody knew was a page."""
+    tree = json.dumps({"tree": [{"path": "a.txt", "type": "blob"}], "truncated": True})
+    assert X.adp_files(tree)["truncated"] is True
+
+
+def test_A_RATE_LIMIT_BODY_IS_NOT_AN_EMPTY_REPOSITORY():
+    """GitHub answers a rate limit with a JSON object too. MUTATION: return [] when
+    `tree` is missing, and "we were throttled" is filed as "this mirror holds no
+    board" — the same absent-is-not-zero rule, at the last place it can still be
+    broken."""
+    with pytest.raises(ValueError):
+        X.adp_files('{"message": "API rate limit exceeded"}')
+    with pytest.raises(TypeError):
+        X.adp_files('["not", "an", "object"]')
+
+
+def test_the_raw_url_is_built_from_a_path_the_repo_GAVE_us():
+    u = X.raw_url("dynastyprocess", "data", "master", "files/db_fpecr.csv")
+    assert u == "https://raw.githubusercontent.com/dynastyprocess/data/master/files/db_fpecr.csv"

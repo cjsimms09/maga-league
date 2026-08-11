@@ -393,12 +393,28 @@ def candidates(year=2024) -> list:
         ("MFL api adp", "https://api.myfantasyleague.com/%d/export?TYPE=adp&JSON=1" % y, CONTENT_DATED),
         ("MFL adp report", "https://www03.myfantasyleague.com/%d/adp" % y, CONTENT_DATED),
         ("MFL adp page", "https://www.myfantasyleague.com/%d/adp" % y, CONTENT_DATED),
-        # Public mirrors. THESE URLS ARE GUESSES and are labelled as such in the
-        # report: a 404 here is evidence about the URL I constructed, not about
-        # whether anyone mirrors preseason boards (rule 13).
-        ("mirror dynastyprocess", "https://raw.githubusercontent.com/dynastyprocess/data/master/files/db_fpecr.csv", CONTENT_DATED),
-        ("mirror ffverse adp", "https://github.com/ffverse/ffopportunity", CONTENT_DATED),
+        # SERVER-RENDERED CANDIDATES. Measured 2026-08-11: FantasyPros renders its
+        # ADP table client-side, so neither its live HTML nor any capture of it
+        # carries a player table — the captures that scored as boards were the site's
+        # navigation. A source is only useful to Route 1 if the PLAYERS ARE IN THE
+        # HTML, so these are here to be tested for exactly that by the known-answer
+        # check, not because they are known to work.
+        ("FantasyData adp", "https://fantasydata.com/nfl/adp", ARCHIVE_DATED),
+        ("NFL.com adp", "https://fantasy.nfl.com/research/draftrankings", ARCHIVE_DATED),
+        ("ESPN adp", "https://www.espn.com/fantasy/football/story/_/id/40000000/adp", ARCHIVE_DATED),
+        ("FFToday adp", "https://www.fftoday.com/nfl/draft/adp.php", ARCHIVE_DATED),
+        ("FFC page std", "https://fantasyfootballcalculator.com/adp/standard/12-team/all", ARCHIVE_DATED),
     ]
+
+
+# Mirrors are ENUMERATED, not guessed: `github_tree_query` lists the repository and
+# the paths come back from it. The first probe typed raw-file URLs and collected
+# 404s, which is evidence about the typing. Repo + branch only — no filenames.
+MIRROR_REPOS = (
+    ("dynastyprocess", "data", "master"),
+    ("ffverse", "ffopportunity", "main"),
+    ("fantasydatapros", "data", "master"),
+)
 
 
 def classify(name, date_basis, live, archived) -> dict:
@@ -507,3 +523,65 @@ def board_names(board_json) -> set:
         if n:
             out.add(str(n).strip().lower())
     return out
+
+
+# ── mirrors: ENUMERATE the repository, do not guess filenames ───────────────
+GITHUB_TREE = "https://api.github.com/repos/%s/%s/git/trees/%s?recursive=1"
+
+# Filename fragments that would make a file worth opening. Deliberately loose: this
+# decides what to LOOK at, not what to believe, and a narrow list here is another way
+# of guessing.
+_ADP_HINTS = ("adp", "average_draft", "average-draft", "ecr", "rankings", "draft_pick")
+
+
+def github_tree_query(owner: str, repo: str, branch: str = "master") -> str:
+    """The recursive tree listing for a repo.
+
+    WHY THIS EXISTS. The first probe listed guessed raw-file URLs like
+    `.../data/master/files/db_fpecr.csv`, and got 404s. A 404 on a path I invented is
+    evidence about my invention — rule 13 — and reporting it as "this mirror has no
+    ADP data" would be the write-off this whole module keeps guarding against.
+
+    Listing the tree replaces the guess with a QUESTION the repository answers. If it
+    holds a preseason board under any name, the name comes back; if it holds none,
+    that is a fact about the repository rather than about my spelling.
+    """
+    return GITHUB_TREE % (owner, repo, branch)
+
+
+def adp_files(tree_json, hints=_ADP_HINTS, limit=25) -> list:
+    """Paths in a GitHub tree listing that might carry a draft board.
+
+    The shape, quoted: {"sha":..., "tree":[{"path":..., "type":"blob", "size":...}],
+    "truncated": bool}. TRUNCATION IS REPORTED rather than ignored — GitHub caps the
+    recursive listing, and a truncated tree that found nothing has not searched the
+    repository, which is a different finding from one that has.
+    """
+    if isinstance(tree_json, (bytes, bytearray)):
+        tree_json = tree_json.decode("utf-8", "replace")
+    if isinstance(tree_json, str):
+        tree_json = json.loads(tree_json or "{}")
+    if not isinstance(tree_json, dict):
+        raise TypeError("GitHub tree response is %s, not an object" % type(tree_json).__name__)
+    nodes = tree_json.get("tree")
+    if nodes is None:
+        # A rate-limit or 404 body is an object too, and returning [] for it would
+        # report "no ADP files" for a repository we never listed.
+        raise ValueError("no `tree` in the response: %r" % (list(tree_json)[:5],))
+    out = []
+    for n in nodes:
+        if not isinstance(n, dict) or n.get("type") != "blob":
+            continue
+        path = str(n.get("path") or "")
+        low = path.lower()
+        if any(h in low for h in hints):
+            out.append({"path": path, "size": n.get("size")})
+        if len(out) >= limit:
+            break
+    return {"files": out, "truncated": bool(tree_json.get("truncated")),
+            "listed": len(nodes)}
+
+
+def raw_url(owner: str, repo: str, branch: str, path: str) -> str:
+    """A tree path -> its raw bytes. Built from a path the repo GAVE us, not typed."""
+    return "https://raw.githubusercontent.com/%s/%s/%s/%s" % (owner, repo, branch, path)
