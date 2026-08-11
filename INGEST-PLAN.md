@@ -904,3 +904,59 @@ would read as "their leagues contain players we cannot price", which is a conclu
 the pool drawn from a limitation of ours.
 
 *If this pre-declaration turns out wrong, it stays here with the result beside it.*
+
+---
+
+## OPEN QUESTION FOR CORY — F6 MAY FORBID THE THING THIS INGEST WAS JUSTIFIED BY
+
+**Not a decision I am making, and not one I can make: F6 is rule 1c, constitution, not this
+lane's pre-registration.** Raised now because it bears on what the program can deliver, and
+because the D7 work makes it live rather than hypothetical.
+
+**The conflict, in the documents' own words.** This plan justifies the ingest with four
+blocked items, of which #4 is *"a true survival calibration — blocked outright: it needs each
+season's PRE-DRAFT ADP."* F6 then lists what external data may **never** touch, and the first
+three entries are *"manager tendencies, **opponent survival conditioning**, room behaviour"*,
+followed by: *"**FAIL-CLOSED DEFAULT: any parameter not explicitly classified above is
+LOCAL.**"* The permitted list is *"positional replacement curves, age/pace effects,
+market-efficiency-by-region, format-level value shapes"* — survival is not on it.
+
+### The argument that there is NO conflict, first
+
+"Opponent survival conditioning" plausibly means conditioning a survival estimate on **who
+the opponents are** — a room-specific adjustment, obviously local. "A survival calibration"
+means something else: does a stated p = 0.7 correspond to 70% observed survival? That is a
+property of the **estimator**, format-wide, and arguably sits under "format-level value
+shapes". On that reading the two clauses never meet.
+
+### The argument that the conflict IS real
+
+- The permitted entry says format-level **value** shapes. Survival is not value, and reading
+  one as the other is exactly the kind of stretch the fail-closed clause exists to stop.
+- **Fail-closed is explicit**: not listed means LOCAL. "Survival calibration" is not listed.
+- And the mechanism is the point. A survival curve fitted on external drafts encodes **how
+  those managers reached** — when they took a receiver early, how far they let a tier slide.
+  Applying it in our room imports foreign room behaviour under a different name, which is
+  precisely what the forbidden list protects.
+
+### The reading I would apply if nobody rules otherwise, and where it stops
+
+> **VALIDATION is not parameter-setting.** Measuring whether our shipped survival model is
+> calibrated in format-matched external rooms produces a Brier score and a calibration curve —
+> evidence *about the model*, not a value fitted *into* it. That is admissible under F6
+> because no parameter is informed.
+>
+> **FITTING IS NOT**, under fail-closed, until F6 is amended to name it.
+
+**And the loophole in my own reading, named rather than left for someone to find.** If we
+validate externally and then *change the model because of what we saw*, we have laundered
+parameter-setting through a human decision, and the fail-closed clause is defeated by a
+sentence in a report. Whatever is decided, that path needs closing explicitly — either the
+external calibration may move a parameter (F6 amended, with the clause naming which), or it
+may not, and then it is a **monitor** whose findings are recorded and acted on only by
+changing something local for local reasons.
+
+**What I have done in the meantime:** nothing that touches a parameter. Every external
+observation this lane emits is labelled `baseline:adp_logistic_v1` and
+`is_shipped_policy()` returns False for it, so nothing external can be mistaken for a
+measurement of the tool — let alone flow into one.
