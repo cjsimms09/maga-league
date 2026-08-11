@@ -906,6 +906,58 @@ outermost layer — the same principle as `F4.fetch_failed`, one level further o
 previous behaviour meant a single malformed league could delete an entire run's evidence,
 which is the most expensive way for a sample to become invisible.
 
+### RUN 11 — ZERO OF 113 READABLE LEAGUES MATCH OUR FORMAT (measured 2026-08-11)
+
+The single most consequential number this program has produced, and it is about **F7's
+target**, not about any of the machinery. Stated with its arithmetic because it decides
+whether the 200-league bar is reachable at all.
+
+**The funnel, and it accounts for every league.** 119 attempted (the 1,500s deadline
+stopped the run at 119 of 250 requested; the other 131 are `never_attempted`, so the
+denominator below is 119 and not 250):
+
+```
+F1 failures                                       94
+  F1.scoring_not_half_ppr        43
+  F1.teams                       41
+  F1.te_premium_or_split_ppr      6
+  F1.qb_slots                     2
+  F1.starting_skill_slots         2
+format-UNREADABLE F4                              19
+  no_scoring_rules 7 · no_reception_rule 6 · draft_type_unrecognised 4 ·
+  draft_type_absent 1 · no_qb_slot_count 1
+fetch failures (all HTTP 429)                      6
+                                                 ---
+                                                 119
+```
+
+**113 leagues whose format we could READ. Zero passed F1. Zero matched league-seasons.**
+
+**What that does and does not establish.** Zero successes does not mean the rate is zero.
+By the rule of three the 95% upper bound on the match rate is 3/113 = **2.65%**. F7's
+target of 200 matched league-seasons out of a 21,323-league pool needs a rate of at least
+200/21,323 = **0.938%** — and P(0 of 113 | p = 0.938%) = **0.345**. Seeing zero here is
+what a target-reaching rate looks like a third of the time.
+
+> So: **the target is not ruled out and it is not demonstrated.** The honest reading is
+> that our format is RARE in the public MFL pool, the rate lies somewhere in [0, 2.65%],
+> and the bar needs the upper two thirds of that interval. A larger sample is the only
+> thing that narrows it. Nothing here licenses relaxing a filter to reach the bar — F7
+> already says a short sample changes NOTHING, and this is that case, arriving as a
+> measurement rather than as a worry.
+
+**Which clause is binding, since it is not the one I would have guessed.** `F1.teams`
+rejects 41 and `F1.scoring_not_half_ppr` rejects 43 — and by `screen()`'s ordering those
+43 had already passed the team check. So **half-PPR is the scarcer property, not the
+12-team roster**: public MFL leagues are mostly full-PPR or standard. The covariate table
+from the same run agrees that team count is not the rare part — 32 of 61 dated leagues are
+12-team.
+
+**What this is NOT evidence about.** The 6 fetch failures all carry one signature (HTTP
+429), which is our request rate and not six unobtainable leagues; they are excluded from
+the 113 rather than counted as non-matching. And 131 leagues were never attempted, so this
+is a rate over 113 reads, not over the pool.
+
 ### P6 — THE CONFLICT CHECK WAS COMPARING TWO VOCABULARIES (found 2026-08-11, by reading)
 
 Not from a run. Found by reading the matcher while run 11 was fetching, which is the only
