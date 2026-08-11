@@ -142,7 +142,13 @@
     <% if (live.set && !live.set.matches && live.set.changes.length) { %>
       <div class="card lo-todo" style="margin-bottom:1.1rem; border-color:#d4242f">
         <h2>⚠️ Your lineup isn't the recommended one
-          <span class="sub"><%= live.set.changes.length %> change<%= live.set.changes.length === 1 ? '' : 's' %> to make<% if (live.set.dollars > 0.5) { %> · worth <%= money0(live.set.dollars) %><% } %></span></h2>
+          <%# BOTH NUMBERS, and the points one is not decoration. Dollars are
+              MODELLED — they depend on the opponent estimate and the weekly-high
+              band, both of which are inferences. Projected points are the number
+              you can check against Sleeper yourself in ten seconds, which is what
+              makes this auditable instead of merely confident. (It was computed
+              and carried and displayed nowhere — rule 14.) %>
+          <span class="sub"><%= live.set.changes.length %> change<%= live.set.changes.length === 1 ? '' : 's' %> to make<% if (live.set.points > 0.05) { %> · <b>+<%= live.set.points.toFixed(1) %> projected</b><% } %><% if (live.set.dollars > 0.5) { %> · worth <%= money0(live.set.dollars) %><% } %></span></h2>
         <div class="body">
           <% live.set.changes.forEach(c => { %>
             <div class="lo-call">

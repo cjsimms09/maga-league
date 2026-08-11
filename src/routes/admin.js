@@ -59,13 +59,13 @@ async function automationHealth(world, season) {
   } catch (e) { /* the panel degrades; it never breaks the console */ }
 
   const emailOn = notify.configured();
-  out.push({ key: 'email', label: 'Email provider',
+  out.push({ label: 'Email provider',
     ok: emailOn, detail: emailOn ? 'configured' : 'RESEND_API_KEY is not set — nothing can send at all',
     // The single most consequential unknown, and it is not knowable from here:
     // Resend's default sender only delivers to the account owner's address.
     note: emailOn ? 'Deliverability is only provable by pressing send — /lineup has the rehearsal button.' : null });
 
-  out.push({ key: 'sleeper', label: 'Sleeper feed',
+  out.push({ label: 'Sleeper feed',
     ok: !feedFailing, detail: feedFailing ? 'the last fetch FAILED — every in-season page is running on stale data'
       : (liveWeek ? `live, week ${liveWeek}` : 'no live league (off-season)') });
 
@@ -73,7 +73,7 @@ async function automationHealth(world, season) {
   const recap = await latest('weekly-recap-sent');
   const dueWeek = liveWeek ? liveWeek - 1 : null;
   const missedRecaps = (dueWeek && dueWeek >= 1) ? Math.max(0, dueWeek - (recap ? recap.week : 0)) : 0;
-  out.push({ key: 'recap', label: 'Weekly recap',
+  out.push({ label: 'Weekly recap',
     ok: missedRecaps === 0,
     detail: !dueWeek ? 'off-season — nothing due'
       : missedRecaps === 0 ? `week ${recap.week} sent ${String(recap.at || '').slice(0, 10)}`
@@ -86,7 +86,7 @@ async function automationHealth(world, season) {
   // painted as one — a status panel that cries wolf on the expected result is
   // the same overstatement the alert itself was fixed for.
   const alert = await latest('sunday-alert-sent');
-  out.push({ key: 'alert', label: 'Sunday alert',
+  out.push({ label: 'Sunday alert',
     ok: true,
     detail: !liveWeek ? 'off-season — nothing due'
       : alert ? `last fired for week ${alert.week} (${alert.calls} call${alert.calls === 1 ? '' : 's'}, ${alert.dead} dead slot${alert.dead === 1 ? '' : 's'})`

@@ -40,7 +40,6 @@
 'use strict';
 
 const r1 = n => Math.round(Number(n || 0) * 10) / 10;
-const money0 = n => '$' + Math.round(Number(n || 0));
 
 // Deterministic pick — same week, same wording; different week, different.
 function seeded(season, week, salt) {
