@@ -49,14 +49,12 @@ CANDIDATES = {
                                "2 recreational books, permanent, no card",
         "priority": 1,
     },
-    "the_odds_api_com": {
-        "host": "https://api.the-odds-api.com/v4",
-        "docs": "https://the-odds-api.com/",
-        "note": "the host the existing ODDS_API_KEY is assumed to belong to; the "
-                "site carries an explicit impersonator warning, which is why the "
-                "hostname is recorded rather than the brand name",
-        "priority": 2,
-    },
+    # the-odds-api.com REMOVED 2026-08-11. Cory confirmed the site is odds-api.io,
+    # the source question is closed on it, and keeping a second similarly-named
+    # host in the table is what caused the key to be sent to the WRONG PROVIDER —
+    # which would have reported "the key does not work" as a fact about the key.
+    # One odds source, unambiguous. The name collision is recorded in
+    # MARKET-LAYER.md so the history is not lost with the code.
     "parlayapi": {
         "host": "https://api.parlayapi.com",
         "docs": "https://parlayapi.com/",
@@ -66,7 +64,6 @@ CANDIDATES = {
     },
 }
 
-ODDS_BASE = CANDIDATES["the_odds_api_com"]["host"]
 SLEEPER_TRENDING = "https://api.sleeper.app/v1/players/nfl/trending/add?lookback_hours=48&limit=25"
 
 # The ONLY props that map to our scoring. Not hundreds of markets — four, plus the
@@ -470,32 +467,6 @@ def probe() -> dict:                                        # pragma: no cover (
     except Exception as e:                                  # noqa: BLE001
         pa.update(reachable=False, llms_txt=False, error=f"{type(e).__name__}: {e}")
     out["sources"]["parlayapi"] = pa
-
-    # ── THE ODDS API — needs a key; ABSENCE IS A FINDING, not a failure ─────
-    key = os.environ.get("ODDS_API_KEY", "").strip()
-    if not key:
-        out["sources"]["odds_api"] = {
-            "host": CANDIDATES["the_odds_api_com"]["host"],
-            "docs": CANDIDATES["the_odds_api_com"]["docs"],
-            "reachable": None, "key_configured": False,
-            "note": "no ODDS_API_KEY secret is configured, so the free-tier allowance "
-                    "could not be measured. This is a SETUP gap, not evidence the "
-                    "source is unusable — do not record it as a dead end.",
-        }
-    else:
-        try:
-            sports, hdrs = get(f"{ODDS_BASE}/sports/?apiKey={key}")
-            rem = hdrs.get("x-requests-remaining")
-            used = hdrs.get("x-requests-used")
-            # One pull = one request per market group we want, per event batch.
-            per_pull = len(GAME_MARKETS) + len(PROPS_WE_CARE_ABOUT)
-            out["sources"]["odds_api"] = dict(
-                summarise_odds_markets(sports), reachable=True, key_configured=True,
-                allowance=cadence_from_allowance(rem, used, per_pull),
-                props_of_interest=list(PROPS_WE_CARE_ABOUT),
-                game_markets=list(GAME_MARKETS))
-        except Exception as e:                              # noqa: BLE001
-            out["errors"]["odds_api"] = f"{type(e).__name__}: {e}"
 
     return out
 

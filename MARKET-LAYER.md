@@ -55,9 +55,26 @@ without it**. Season-feasible: **UNRESOLVED, pending one secret.**
 trying a bounded candidate set. A 404 on an invented path is not evidence about a
 provider.
 
-**THE ONE ACTION: add `ODDS_API_KEY` as a repo secret.** The probe already reads
-it and will answer granularity, allowance, reset schedule, preseason, and
+**THE ONE ACTION: make `ODDS_API_KEY` visible to Actions.** The probe already
+reads it and will answer granularity, allowance, reset schedule, preseason and
 retry-cost in a single run.
+
+**Status 2026-08-11:** the secret was added but does **not** reach the job. The
+step env renders as `ODDS_API_KEY:` with nothing after it — a real secret renders
+masked as `***`, so it is resolving to empty. Checked and ruled out: the variable
+name (workflow and probe agree on `ODDS_API_KEY`), the step wiring, and the
+repository **Variables** store (also empty). Remaining causes, all outside CI:
+GitHub keeps **three separate stores** under Settings → Secrets and variables —
+**Actions**, Codespaces, Dependabot — and only **Actions** is visible to a
+workflow; or an Environment secret against a job declaring no `environment:`; or
+an org secret whose scope excludes this repo; or a name differing by a character.
+
+**Second provider removed.** `the-odds-api.com` is deleted from the probe. Cory
+confirmed the site is odds-api.io, the source question is closed on it, and
+carrying a second similarly-named host is exactly what caused the key to be sent
+to the wrong provider — which would have reported "the key does not work" as a
+fact about the key. The name collision stays recorded here so the history
+survives the code.
 
 ---
 
