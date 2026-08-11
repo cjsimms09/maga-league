@@ -203,9 +203,15 @@ season until settled.</p>
           <span class="bk-career-num"><%= CR.mine.rank %><span class="bk-career-of">of <%= CR.of %></span></span>
           <span class="bk-career-lbl">money rank</span>
         </div>
-        <div class="bk-career-cell">
+        <%# "per season (7)" read as seasons PLAYED, which is not what the 7
+            counts — the winnings grid only holds years money changed hands, so
+            a season you played and won nothing never appears. Sam has two such
+            years against a ten-season grid and was shown $625 a season on a
+            $1,250 career. Seasons played is recorded nowhere in the league's
+            data, so the label names the denominator it actually has. %>
+        <div class="bk-career-cell" title="Average across the seasons you finished in the money. Seasons where you won nothing aren't counted — the league's books only record the years money changed hands.">
           <span class="bk-career-num"><%= CR.perSeason != null ? money(CR.perSeason) : '—' %></span>
-          <span class="bk-career-lbl">per season (<%= CR.seasonsPlayed %>)</span>
+          <span class="bk-career-lbl">per season in the money (<%= CR.seasonsInTheMoney %>)</span>
         </div>
       </div>
       <p class="muted" style="margin:.6rem 0 0; font-size:.78rem">

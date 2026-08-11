@@ -1266,11 +1266,20 @@ router.get('/bank', aw(async (req, res) => {
     let rk = 0, prev = null;
     ranked.forEach((r, i) => { if (prev === null || r.won !== prev) rk = i + 1; r.rank = rk; prev = r.won; });
     const mine = ranked.find(r => r.owner_id === req.owner.id) || null;
-    // Seasons actually played (a denominator, so "per season" is honest).
-    const seasonsPlayed = Object.keys(grid[req.owner.id] || {}).length;
+    // THE DENOMINATOR IS SEASONS IN THE MONEY, NOT SEASONS PLAYED. This was
+    // named seasonsPlayed and commented "a denominator, so per season is
+    // honest" — but winningsGrid only ever holds years where money changed
+    // hands (there is not one zero-valued key in it across ten seasons), so a
+    // year you played and won nothing is not counted. Sam has two of those keys
+    // and Justin one: Sam's average read $625 a season off a $1,250 career.
+    // Seasons actually played is not recorded ANYWHERE — history carries
+    // winnings, awards and weekly, all money-keyed, and owners carry no
+    // membership span — so it cannot be computed rather than merely being
+    // missed here. The number is kept and the label now says what it counts.
+    const seasonsInTheMoney = Object.keys(grid[req.owner.id] || {}).length;
     career = {
-      mine, ranked, of: ranked.length, seasonsPlayed,
-      perSeason: mine && seasonsPlayed ? Math.round((mine.won / seasonsPlayed) * 100) / 100 : null,
+      mine, ranked, of: ranked.length, seasonsInTheMoney,
+      perSeason: mine && seasonsInTheMoney ? Math.round((mine.won / seasonsInTheMoney) * 100) / 100 : null,
       leader: ranked[0] || null,
     };
   } catch (e) { career = null; /* reference numbers are a bonus, never break the page */ }

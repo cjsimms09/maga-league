@@ -11,7 +11,7 @@ const { createApp } = require(path.join(ROOT, 'server-app'));
 const TT = require(path.join(ROOT, 'src', 'routes', 'trashtalk'));
 
 let pass = 0, fail = 0;
-const ck = (n, c, d) => { c ? (pass++, console.log('PASS ' + n)) : (fail++, console.log('FAIL ' + n + (d ? ' -> ' + d : ''))); };
+const ck = (n, c, d) => { c ? (pass++, console.log('PASS ' + n)) : (fail++, console.log('FAIL ' + n + (d ? ' -> ' + (typeof d === 'string' ? d : JSON.stringify(d)) : ''))); };
 
 (async function () {
   // ═══════════════ ENGINE ═══════════════
@@ -125,6 +125,42 @@ const ck = (n, c, d) => { c ? (pass++, console.log('PASS ' + n)) : (fail++, cons
     // THE CAP. It sliced keys in store order and sorted afterwards, so an
     // over-cap thread showed an arbitrary subset. Lowered here rather than
     // writing 200 posts; the code path is the same one.
+    // TWO ORDERS IN ONE FUNCTION. `post` reads the clock twice — newId() via
+    // Date.now(), created_at via new Date() — so the pair can straddle a
+    // millisecond and id order can disagree with created_at order. While the
+    // cap was applied in key (id) order and the thread rendered in created_at
+    // order, the two picked different posts at the boundary; that is what made
+    // this suite fail intermittently under load. Forced here rather than waited
+    // for, on a game of its own so it disturbs nothing else: two posts with
+    // genuinely distinct timestamps, then their created_at swapped, so id order
+    // and created_at order MUST disagree.
+    {
+      const g2 = TT.gameId(5, 6);
+      const first = await TT.post(2026, 9, g2, 5, 'earlier by the clock');
+      await new Promise(r => setTimeout(r, 5));
+      const second = await TT.post(2026, 9, g2, 6, 'later by the clock');
+      const keyOf = pp => `trash:2026:9:${g2}:${pp.id}`;
+      const d1 = await store.get(keyOf(first)), d2 = await store.get(keyOf(second));
+      const t1 = d1.created_at; d1.created_at = d2.created_at; d2.created_at = t1;
+      await store.set(keyOf(first), d1); await store.set(keyOf(second), d2);
+
+      const th = await TT.forGame(2026, 9, g2);
+      ck('  fixture check: id order and created_at order now disagree',
+        String(first.id).localeCompare(String(second.id)) < 0
+        && String(d1.created_at).localeCompare(String(d2.created_at)) > 0,
+        { ids: [first.id, second.id], stamps: [d1.created_at, d2.created_at] });
+      ck('  the thread follows created_at, not the id its key is built from',
+        th.length === 2 && th[0].id === second.id && th[1].id === first.id,
+        { order: th.map(x => x.body) });
+      // And the cap, which used to be applied in the OTHER order, agrees.
+      const realCap2 = TT.CFG.MAX_PER_GAME;
+      TT.CFG.MAX_PER_GAME = 1;
+      const cap1 = await TT.forGame(2026, 9, g2);
+      TT.CFG.MAX_PER_GAME = realCap2;
+      ck('  and the cap keeps the newest by that SAME order',
+        cap1.length === 1 && cap1[0].id === first.id, { kept: cap1.map(x => x.body) });
+    }
+
     const realCap = TT.CFG.MAX_PER_GAME;
     TT.CFG.MAX_PER_GAME = 3;
     const capped = await TT.forGame(2026, 9, g);

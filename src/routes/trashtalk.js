@@ -46,17 +46,25 @@ const byTime = (a, b) => String(a.created_at).localeCompare(String(b.created_at)
 
 /** Every post on one game, oldest first (the order an argument actually happened). */
 async function forGame(season, week, gameId) {
-  // SORT THE KEYS BEFORE THE CAP. This sliced the first MAX_PER_GAME keys in
-  // listKeys order and sorted afterwards, so on a thread over the cap the page
-  // showed an ARBITRARY subset presented as the thread. Keys carry the
-  // time-prefixed id, so sorting them puts the cap on the newest posts —
-  // the ones a live argument is about — instead of on whichever the store
-  // happened to list first. No "N older posts hidden" note: the cap is 200 on
-  // one game in a ten-person league, and a banner for a state nobody can reach
-  // is a claim to maintain for nothing.
-  const keys = (await store.listKeys(`${gameKey(season, week, gameId)}:`)).sort();
-  const docs = await Promise.all(keys.slice(-CFG.MAX_PER_GAME).map(k => store.get(k)));
-  return docs.filter(Boolean).sort(byTime);
+  // ONE ORDER DECIDES BOTH THE THREAD AND THE CAP.
+  //
+  // This sliced MAX_PER_GAME keys in listKeys order and sorted afterwards, so
+  // an over-cap thread showed an ARBITRARY subset presented as the thread.
+  // Sorting the keys first fixed the subset but left TWO orders in one
+  // function: the cap was applied in key (id) order, the thread rendered in
+  // (created_at, id) order. Those can disagree — `post` reads the clock twice,
+  // newId() via Date.now() and created_at via new Date(), and the pair can
+  // straddle a millisecond — so at the cap boundary the two disagreed and the
+  // test caught it as an intermittent failure.
+  //
+  // So: sort the documents once, cap the sorted list. Loading every post to
+  // drop some is only wasteful at a scale this cannot reach — the cap is 200
+  // on one game in a ten-person league, and it exists as a backstop, not as a
+  // paging strategy. No "N older posts hidden" note for the same reason: a
+  // banner for a state nobody can get to is a claim to maintain for nothing.
+  const keys = await store.listKeys(`${gameKey(season, week, gameId)}:`);
+  const docs = (await Promise.all(keys.map(k => store.get(k)))).filter(Boolean).sort(byTime);
+  return docs.slice(-CFG.MAX_PER_GAME);
 }
 
 /** Count only — cheap enough to show a badge without loading the thread. */
