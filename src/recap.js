@@ -298,12 +298,39 @@ function buildRecap(input) {
 
   // ── THE LEDE. Whatever was actually most remarkable, and NOT a generic
   // scene-setter. If the week's best fact is mild, the lede says so.
-  let lede;
+  // ── THE LEDE MEASURES THE WEEK. IT DOES NOT ASSUME ITS SHAPE ──────────────
+  //
+  // Every one of these sentences was wrong on some week when it was written by
+  // assumption instead of by count, and reading seven weeks of output found them:
+  //
+  //   • "came down to X points in ONE GAME" — on a week where TWO games were
+  //     decided by 0.6, which the number was right about and the noun was not.
+  //   • "mostly normal apart from ONE RESULT that should be investigated" — on a
+  //     week where all five games were blowouts. There was no normal background
+  //     for the outlier to stand against; the outlier WAS the week.
+  //
+  // Both are the same failure and it is the one this module exists to prevent,
+  // inverted: not filler attached to a specific week, but a specific claim
+  // attached to a week that does not fit it. So the lede now counts.
   const tied = games.filter(g => g.margin === 0);
+  const bands = games.map(g => bandOf(g.margin));
+  const n = games.length;
+  const nTight = bands.filter(b => b === 'heartbreak' || b === 'squeaker').length;
+  const nBlowout = bands.filter(b => b === 'massacre').length;
+  const tightest = closest ? games.filter(g => g.margin === closest.margin).length : 0;
+  let lede;
   if (tied.length) {
     lede = `Week ${week} produced a tie, which happens roughly never and pleases absolutely nobody.`;
+  } else if (nBlowout >= Math.ceil(n / 2)) {
+    lede = `Week ${week} was a bloodbath — ${nBlowout} of the ${n} games were over before Sunday afternoon. `
+         + 'There is not much to narrate about a massacre, so this will be short.';
+  } else if (nTight >= Math.ceil(n / 2)) {
+    lede = `Week ${week} was decided by inches — ${nTight} of the ${n} games came down to three points or fewer. `
+         + 'Everybody watched the whole slate whether they wanted to or not.';
   } else if (closest && closest.margin <= 1.0) {
-    lede = `Week ${week} came down to ${closest.margin} points in one game, which is the whole reason we do this.`;
+    lede = tightest > 1
+      ? `Week ${week} produced ${tightest} games decided by ${closest.margin} points, which is the whole reason we do this.`
+      : `Week ${week} came down to ${closest.margin} points in one game, which is the whole reason we do this.`;
   } else if (notables.length && notables[0].weight >= 100) {
     lede = `Week ${week} produced one genuinely painful piece of lineup management, and we will get to it.`;
   } else if (widest && widest.margin >= 60) {
@@ -319,6 +346,14 @@ function buildRecap(input) {
   // pick is deterministic per (week, index), so without this a three-game band
   // reads like a mail merge — which is exactly the tell this whole module exists
   // to avoid. Walk forward from the seeded choice until an unused line is found.
+  //
+  // AND WHEN A BAND RUNS OUT, IT SAYS THE SCORE. With more games in a band than
+  // there are phrases for it, the walk-forward wrapped around and printed the
+  // same joke three times in one email — five blowouts, three massacre lines,
+  // "we are contractually obliged to report this" twice over. A plain scoreline
+  // is honest; a repeated joke is a mail merge, which is the exact tell this
+  // whole module was built to avoid.
+  const PLAIN = '{w} {ws}, {l} {ls}.';
   const usedLines = new Set();
   const gameLines = games.map((g, i) => {
     const pool = GAME_LINES[bandOf(g.margin)];
@@ -326,6 +361,7 @@ function buildRecap(input) {
     for (let k = 0; k < pool.length && usedLines.has(tpl); k++) {
       tpl = pool[(pool.indexOf(tpl) + 1) % pool.length];
     }
+    if (usedLines.has(tpl)) tpl = PLAIN;
     usedLines.add(tpl);
     let line = tpl
       .replace(/\{w\}/g, `**${g.winner.name}**`).replace(/\{l\}/g, g.loser.name)
@@ -366,7 +402,14 @@ function buildRecap(input) {
 
   // ── THE HONEST SHORT WEEK. If the only thing the week produced was the
   // scoreboard and the hundred dollars, say that, rather than inflating it.
-  const thin = !oddities.length && !st.length && (!closest || closest.margin > 12);
+  // A WEEK WITH A 110-POINT MARGIN IN IT IS NOT "JUST THE SCOREBOARD". This
+  // checked only the oddities, the streaks and the CLOSEST game, so a slate of
+  // five blowouts — nothing closer than 51 — came out flagged thin and signed off
+  // with "no collapses, no miracles". The games themselves have to be
+  // unremarkable too, or the closing line contradicts the five lines above it.
+  const thin = !oddities.length && !st.length
+    && (!closest || closest.margin > 12)
+    && !bands.includes('massacre') && !bands.includes('tie');
   if (thin) {
     sections.push({ h: null, lines: [
       "That's the whole week. No collapses, no miracles, nobody left thirty points on the bench. "
@@ -375,8 +418,10 @@ function buildRecap(input) {
 
   const subject = tied.length
     ? `🏈 Week ${week}: a tie. An actual tie.`
+    // Same count the lede uses, for the same reason: "a game decided by 0.6" on
+    // a week where TWO were is the subject line making the lede's old mistake.
     : closest && closest.margin <= 1.0
-    ? `🏈 Week ${week}: a game decided by ${r1(closest.margin)}`
+    ? `🏈 Week ${week}: ${tightest > 1 ? tightest + ' games' : 'a game'} decided by ${r1(closest.margin)}`
     : high ? `🏈 Week ${week}: ${high.name} takes the $100`
            : `🏈 Week ${week} recap`;
 
