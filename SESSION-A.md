@@ -330,6 +330,33 @@ a deliberately re-broken `setSlot` because the regex matched the COMMENT explain
 rather than the code implementing it. In every case the question was "does this fail when it
 should," and in every case the answer was no until someone actually tried it.
 
+**KNOWN WEAKNESS IN RULE 5's AND RULE 10's EVIDENCE — recorded, deliberately not fixed.**
+C, 2026-08-11, and it is the sharpest observation any session has made about this constitution.
+
+**The breaks are not in the repo and never were.** Every rule-10 break in this project — A's,
+B's, C's — has been a transient shell edit applied to a working file and reverted immediately.
+What persists is the guards; the *breaking* of them persists nowhere. So when any of us reports
+"sixteen breaks, sixteen named failures", **that number is a remembered count**, and there is no
+mapping from any guard in the tree to "this one was deliberately broken and observed red".
+
+The strongest rule in the constitution therefore has evidence that exists only in conversation.
+A future session inherits the guards and the claim, and can verify the first but not the second.
+
+*Why it is not being fixed.* C proposed a mutation ledger — file, exact old-to-new string, and
+the test expected to go red, with a CI step that applies each, asserts the named test fails, and
+restores. Cory declined it **on C's own rule 9 objection**: a hand-maintained ledger alongside
+the tests is a dual-maintenance surface, and this project has found twelve instances of that
+class. The cure would be an instance of the disease.
+
+*What is true instead, and it is weaker.* `draft/tools/rule10_break.sh` makes a break bounded,
+stdin-safe, restored from a trap, and refused when it is a no-op or ambiguous — so a break that
+happens is honest about what it did. It does not make the break durable. **Rule 10's discharge
+is per-session, not per-repository.**
+
+*C's note, carried:* this is the second time in two days that rule 5's EVIDENCE rather than its
+GUARDS has been the weak link. That pattern is itself the finding — the guards keep holding and
+the record of why we trust them keeps not existing.
+
 **10a — BREAK AT THE BOUNDARY, NOT IN THE OBVIOUS ZONE.** Cory, 2026-08-11. A clause, not a
 fourteenth rule: it is a refinement of a rule that has earned its place. **Where a guard has a
 threshold, the break must land JUST PAST that threshold.** A break that is too large proves
