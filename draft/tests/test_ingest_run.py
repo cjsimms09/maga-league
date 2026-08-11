@@ -383,3 +383,54 @@ def test_a_PARTIAL_season_is_labelled_rather_than_counted_as_a_season():
                              "why": "2026 has 6 of the control season's 18 REG weeks"},
                             {"matched": 3})
     assert v.startswith("PARTIAL SEASON") and "labelled as such wherever they travel" in v
+
+
+# ── throttling: 150 leagues are 150 independent things ─────────────────────
+def _v(reason):
+    return {"reason": reason}
+
+
+def test_IDENTICAL_fetch_failures_are_reported_as_THE_RATE_not_as_the_leagues():
+    """MUTATION: count fetch failures without grouping by signature. 40 leagues
+    that all 403'd would be reported as 40 unobtainable leagues, faithfully binned
+    as UNREADABLE — and a reader would take it as pool coverage. Independent
+    leagues do not fail with the same error string."""
+    vs = [_v("F4.fetch_failed:league: http 403 Forbidden") for _ in range(9)] + \
+         [_v("ok"), _v("F1.teams")]
+    t = R.throttle_signal(vs)
+    assert t["throttled_signature"] == "http 403 Forbidden"
+    assert "not 9 unobtainable leagues" in t["verdict"]
+    assert "must not be read as pool coverage" in t["verdict"]
+    assert "not a relabelling" in t["verdict"]
+
+
+def test_the_signature_strips_the_LEAGUE_SPECIFIC_tail_or_nothing_ever_groups():
+    """Two leagues 403ing on different exports are the same KIND of failure.
+    MUTATION: use the whole reason string — every failure becomes its own
+    signature and a throttle is never detected."""
+    vs = [_v("F4.fetch_failed:league: http 403 Forbidden"),
+          _v("F4.fetch_failed:draftResults: http 403 Forbidden")]
+    assert R.throttle_signal(vs)["throttled_signature"] == "http 403 Forbidden"
+
+
+def test_SCATTERED_failures_are_NOT_called_a_throttle():
+    """A detector that always fires is one nobody can act on."""
+    t = R.throttle_signal([_v("F4.fetch_failed:league: http 404 Not Found"), _v("ok")])
+    assert t["throttled_signature"] is None
+    assert "no shared signature" in t["verdict"]
+    assert "consistent with per-league failures" in t["verdict"]
+
+
+def test_a_clean_run_says_so_without_a_warning():
+    t = R.throttle_signal([_v("ok"), _v("F1.teams")])
+    assert t["fetch_failures"] == 0 and t["verdict"] == "no fetch failures"
+
+
+def test_the_throttle_check_does_NOT_reclassify_anything():
+    """The leagues really were not fetched. `F4.fetch_failed` stays unreadable and
+    stays counted; the signal is an explanation, never a relabelling that would
+    make the denominator flattering."""
+    vs = [_v("F4.fetch_failed:league: http 403 Forbidden") for _ in range(5)]
+    R.throttle_signal(vs)
+    assert all(F.is_unreadable(v["reason"]) for v in vs)
+    assert all(v["reason"].startswith("F4.fetch_failed") for v in vs)

@@ -175,12 +175,24 @@ def _verdict_line(rep: dict) -> str:
 EXPORTS = {"league": "TYPE=league", "rules": "TYPE=rules", "draftResults": "TYPE=draftResults"}
 
 
-def fetch_league(league_id, year):  # pragma: no cover  (egress; CI only)
-    """The three exports for one league. An error is RECORDED, never raised away."""
+def fetch_league(league_id, year, delay=0.34):  # pragma: no cover  (egress; CI only)
+    """The three exports for one league. An error is RECORDED, never raised away.
+
+    `delay` is not politeness for its own sake. A sample of 150 leagues is 450
+    requests, and if MFL throttles partway through, every subsequent league comes
+    back `F4.fetch_failed` — which the attrition report would faithfully classify as
+    UNREADABLE and which a reader would take as "a third of the public pool could
+    not be obtained". The truth would be "we asked too fast", and the two are the
+    same rows. Slowing down removes most of the risk; `throttle_signal` catches
+    what is left.
+    """
+    import time
     import urllib.error
     import urllib.request
     out = {}
-    for name, q in EXPORTS.items():
+    for i, (name, q) in enumerate(EXPORTS.items()):
+        if i and delay:
+            time.sleep(delay)
         url = "%s/%s/export?%s&L=%s&JSON=1" % (MFL_HOST, year, q, league_id)
         req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
         try:
@@ -191,6 +203,63 @@ def fetch_league(league_id, year):  # pragma: no cover  (egress; CI only)
         except Exception as e:
             out[name] = {"_error": "%s: %s" % (type(e).__name__, e)}
     return out
+
+
+def throttle_signal(verdicts) -> dict:
+    """Are the fetch failures about THE LEAGUES or about THE RATE WE ASKED?
+
+    THE DISCRIMINATOR IS NON-INDEPENDENCE, NOT A MAGNITUDE — deliberately, because
+    a threshold ("more than 30% failed") is a tolerance band, and a tolerance band
+    is a decision I would be making on the run's behalf with no basis for the
+    number. What can be said without one: 150 leagues are 150 independent things,
+    and independent things do not fail with the SAME ERROR STRING. A single
+    signature covering most failures is a property of the endpoint or of our
+    request rate, and those failures are not evidence that the leagues are
+    unobtainable.
+
+    Reported whenever two or more fetch failures share a dominant signature. The
+    run states it and does NOT reclassify anything: the leagues really were not
+    fetched, and a rerun is the remedy, not a relabelling.
+    """
+    from collections import Counter
+    fails = [str(v.get("reason") or "") for v in (verdicts or [])
+             if F.reason_code(v.get("reason") or "") == "F4.fetch_failed"]
+    n = len(verdicts or [])
+    if not fails:
+        return {"fetch_failures": 0, "examined": n, "throttled_signature": None,
+                "verdict": "no fetch failures"}
+    sigs = Counter(_signature(f) for f in fails)
+    top, count = sigs.most_common(1)[0]
+    share = count / len(fails)
+    rep = {"fetch_failures": len(fails), "examined": n,
+           "fetch_failure_share": round(len(fails) / n, 4) if n else None,
+           "signatures": dict(sigs.most_common(6)),
+           "dominant_signature": top, "dominant_share": round(share, 4),
+           "throttled_signature": top if count >= 2 else None}
+    if count >= 2:
+        rep["verdict"] = (
+            "%d of %d leagues FAILED TO FETCH and %d of those (%.0f%%) share ONE error "
+            "signature (%s). Independent leagues do not fail identically — this is the "
+            "ENDPOINT or OUR REQUEST RATE, not %d unobtainable leagues, and the counts "
+            "below must not be read as pool coverage. The remedy is a slower rerun, not "
+            "a relabelling: these leagues really were not fetched."
+            % (len(fails), n, count, 100 * share, top, len(fails)))
+    else:
+        rep["verdict"] = ("%d of %d leagues failed to fetch, with no shared signature — "
+                          "consistent with per-league failures" % (len(fails), n))
+    return rep
+
+
+def _signature(reason: str) -> str:
+    """The error's KIND, with the league-specific tail removed.
+
+    `F4.fetch_failed:draftResults: http 403 Forbidden; league: http 403 Forbidden`
+    and the same for another league must collapse to one signature, or every
+    failure is its own kind and nothing is ever detected as shared.
+    """
+    detail = str(reason).split(":", 1)[1] if ":" in str(reason) else str(reason)
+    parts = sorted({p.split(":", 1)[-1].strip() for p in detail.split(";") if p.strip()})
+    return "; ".join(parts) or "unknown"
 
 
 def league_passthrough(picks, mfl_players, board_index, series, year) -> dict:
@@ -340,9 +409,15 @@ def run(league_ids, year, out_path=None, *, players=None, board=None,
     rep["year"] = str(year)
     rep["outcomes"] = outcomes_summary(outcomes)
     rep["season_readiness"] = readiness
+    rep["throttle"] = throttle_signal(verdicts)
     # PREPENDED, not appended. The existing verdict already leads with unreadable
     # attrition; this leads with whether the run could have measured anything at all.
-    rep["verdict"] = readiness_verdict(readiness, rep) + " || " + str(rep.get("verdict", ""))
+    # THROTTLE FIRST, then readiness, then the filters. Ordered by how badly each
+    # would mislead: a throttled run's counts are not about the pool at all.
+    lead = readiness_verdict(readiness, rep)
+    if rep["throttle"].get("throttled_signature"):
+        lead = rep["throttle"]["verdict"] + " || " + lead
+    rep["verdict"] = lead + " || " + str(rep.get("verdict", ""))
     if out_path:
         Path(out_path).write_text(json.dumps(rep, indent=1))
     print(json.dumps(rep, indent=1))
