@@ -279,6 +279,10 @@ UNOBTAINED_REASONS = (
     "F4.no_pre_draft_adp", "F5.missing_timestamps",
     "F4.unreadable_team_count", "F4.unreadable_starter_limits",
     "F4.draft_type_absent", "F4.draft_type_unrecognised", "F4.no_reception_rule",
+    # A league we could not FETCH is not a league that failed a filter. Declared
+    # here so `ingest_run` cannot bin one nowhere — the registry caught this code
+    # arriving undeclared, which is exactly what it is for.
+    "F4.fetch_failed",
 )
 
 

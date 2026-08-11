@@ -247,7 +247,7 @@ actions. Every reason is a TRUE statement about the league.
   `F4.unreadable_starter_limits` · `F4.no_draft_type` · `F4.draft_type_absent` ·
   `F4.draft_type_unrecognised` · `F4.no_draft` · `F4.no_draft_status` ·
   `F4.crosswalk_not_run` · `F4.no_weekly_outcomes` · `F4.no_pre_draft_adp` ·
-  `F5.missing_timestamps`
+  `F4.fetch_failed` · `F5.missing_timestamps`
 
 A reason code that is in neither list is **binned nowhere and reported loudly**,
 rather than defaulting into "filtered" — which would recreate the same defect one
