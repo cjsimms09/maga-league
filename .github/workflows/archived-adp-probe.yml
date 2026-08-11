@@ -250,20 +250,66 @@ jobs:
                        " (TRUNCATED — not a full search)" if listing["truncated"] else "",
                        len(listing["files"])))
               found = []
-              for f in listing["files"][:4]:
+              for f in listing["files"][:8]:
                   body = get(AA.raw_url(owner, repo, branch, f["path"]), timeout=60).get("body") or b""
                   v = AA.board_confidence(body, KNOWN)
-                  print("      %-52s %d/%d players %s"
-                        % (f["path"][:52], v["player_hits"], v["names_seen"],
-                           "BOARD" if v["is_board"] else ""))
-                  found.append({"path": f["path"], "player_hits": v["player_hits"],
-                                "is_board": v["is_board"], "matched": v["matched"]})
+                  quantity = AA.quantity_of(f["path"])
+                  frozen = {"frozen": None, "why": "not asked — not a board"}
+                  if v["is_board"]:
+                      # ONLY ASKED FOR ACTUAL BOARDS: the commit history costs a
+                      # request each and says nothing about a file that holds no
+                      # players.
+                      cr = get(AA.commits_query(owner, repo, f["path"]), timeout=45, tries=2, pause=3.0)
+                      if (cr or {}).get("transport_error"):
+                          frozen = {"frozen": False, "why": "commit history UNREACHED — "
+                                    "not evidence that the file is live, and not evidence "
+                                    "that it is frozen"}
+                      else:
+                          try:
+                              frozen = AA.frozen_before(AA.commit_dates(cr.get("body") or b""), BEFORE)
+                          except Exception as e:                     # noqa: BLE001
+                              frozen = {"frozen": False,
+                                        "why": "history unreadable (%s) — throttled is not "
+                                               "empty" % type(e).__name__}
+                  print("      %-46s %-7s %2d/%-2d players  %s"
+                        % (f["path"][:46], quantity, v["player_hits"], v["names_seen"],
+                           ("FROZEN" if frozen.get("frozen") else
+                            ("NOT FROZEN" if v["is_board"] else ""))))
+                  if v["is_board"]:
+                      print("          %s" % frozen["why"])
+                      print("          sample: %s" % ", ".join(v["matched"][:8]))
+                  found.append({"path": f["path"], "quantity": quantity,
+                                "player_hits": v["player_hits"], "is_board": v["is_board"],
+                                "matched": v["matched"], "frozen": frozen})
               mirrors.append({"repo": "%s/%s" % (owner, repo), "state": "listed",
                               "truncated": listing["truncated"],
                               "candidates": listing["files"], "opened": found})
 
           rep = AA.route1_report(results, unreachable)
           rep["mirrors"] = mirrors
+
+          # THE MIRROR VERDICT, with the two kinds kept apart. A frozen ADP board is
+          # what Route 1 needs; a frozen RANKING is a different quantity and is
+          # reported beside it, never inside it.
+          opened = [f for m in mirrors for f in (m.get("opened") or [])]
+          usable = [f for f in opened if f["is_board"] and f["quantity"] == AA.QUANTITY_ADP
+                    and (f.get("frozen") or {}).get("frozen")]
+          rankings = [f for f in opened if f["is_board"] and f["quantity"] == AA.QUANTITY_ECR
+                      and (f.get("frozen") or {}).get("frozen")]
+          live_named = [f for f in opened if f["is_board"] and not (f.get("frozen") or {}).get("frozen")]
+          print()
+          print("MIRROR VERDICT")
+          print("  FROZEN ADP BOARDS (what Route 1 needs):  %d" % len(usable))
+          for f in usable:
+              print("      %s  %s" % (f["path"], (f.get("frozen") or {}).get("last_commit")))
+          print("  frozen RANKINGS (a different quantity):  %d" % len(rankings))
+          for f in rankings:
+              print("      %s" % f["path"])
+          print("  boards still being rewritten (LIVE):     %d" % len(live_named))
+          for f in live_named:
+              print("      %s" % f["path"])
+          rep["mirror_verdict"] = {"frozen_adp": usable, "frozen_rankings": rankings,
+                                   "live": live_named}
 
           print()
           print("===== ROUTE 1 =====")

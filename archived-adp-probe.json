@@ -312,7 +312,12 @@
     "repo": "fantasydatapros/data",
     "state": "unreached"
    }
-  ]
+  ],
+  "mirror_verdict": {
+   "frozen_adp": [],
+   "frozen_rankings": [],
+   "live": []
+  }
  },
  "mirrors": [
   {
