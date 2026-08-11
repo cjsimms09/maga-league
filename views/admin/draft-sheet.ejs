@@ -63,9 +63,17 @@
   <div class="rule">RULE: <%= rule %></div>
   <div class="meta">
     <%= teams %>-team · <%= rounds %> rounds ·
-    <% if (builtAt) { const d = new Date(builtAt); const hrs = Math.round((Date.now() - d.getTime()) / 3.6e6); %>
+    <%# A ROUNDED AGE MUST NOT DECIDE THE THRESHOLD. This computed
+        Math.round(age) and warned when that was > 6, so a board 6.2 hours old
+        rounded to 6, and 6 > 6 is false: no warning. The stale flag only
+        actually fired past SIX AND A HALF hours, and in the half-hour between
+        the real threshold and the rounded one the sheet printed "6h ago" with
+        nothing to say the board was stale — on the one artifact whose whole
+        job is to be trusted at a table with no wifi. The exact age decides;
+        the rounded one is only ever shown. %>
+    <% if (builtAt) { const d = new Date(builtAt); const ageH = (Date.now() - d.getTime()) / 3.6e6; const hrs = Math.round(ageH); %>
       board built <b><%= d.toLocaleString('en-US', { timeZone: 'America/New_York', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) %> ET</b>
-      (<%= hrs %>h ago)<% if (hrs > 6) { %> <span class="stale">— rebuild before you draft off it</span><% } %>
+      (<%= hrs %>h ago)<% if (ageH > 6) { %> <span class="stale">— rebuild before you draft off it</span><% } %>
     <% } else { %><span class="stale">board age unknown — verify it's current</span><% } %>
     · <b>Print the night before.</b> If the wifi dies at the table, paper still works.
   </div>

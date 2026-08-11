@@ -3179,3 +3179,92 @@ fixture cannot silently stop reproducing your case.
 I did not touch `src/routes/waivers.js` — territory-check confirms it is yours
 (`TRESPASS (A touched B's file)`). The route still uses the old arithmetic until
 you wire this.
+
+---
+
+## 🔍 → CORY (and SESSION A) — THE ALL-TIME RECORDS DO NOT BALANCE: ONE WIN TOO MANY (B, 2026-08-11)
+
+**This is a data question only Cory can answer, in a file that is not mine.**
+`src/seed-data.js` — hand-transcribed from the sheet. I have not touched it.
+
+### The arithmetic
+
+The ten career records seeded into `owners`:
+
+```
+  Cory      49-36-1   games=86        <-- the only row with 86
+  Marian    52-33-0   games=85
+  David     51-34-0   games=85
+  Michael   42-43-0   games=85
+  Bates     36-49-0   games=85
+  Dylan     41-44-0   games=85
+  Sam       37-48-0   games=85
+  Jeremy    40-45-0   games=85
+  Richard   36-49-0   games=85
+  Justin    41-43-1   games=85
+                      -------
+  ΣW = 425   ΣL = 424   ΣT = 2
+```
+
+Every head-to-head game produces exactly one win and one loss, or two ties.
+So two things must hold and one of them does not:
+
+- **ΣW must equal ΣL.** They differ by **one win**.
+- **Σ(games played) must be even** — each game contributes 2. It is
+  86 + 85×9 = **851**, which is odd.
+
+ΣT = 2 is fine: Cory's tie and Justin's tie are the two sides of one game.
+
+### What that means
+
+The table is internally impossible, not merely surprising. Nine owners have 85
+games and one has 86, and the surplus is on the win side, so the most likely
+single-character correction is **Cory 49-36-1 → 48-36-1**: that makes Σgames
+850, ΣW = ΣL = 424, and leaves every other row untouched.
+
+**I am not making that change.** Which row is wrong is a fact about the real
+league, not something the code can decide — the extra win could equally be a
+missing loss on any of the other nine rows. Cory has the sheet.
+
+### Where it shows
+
+`/history/owners` prints it directly (`49-36-1 Record`, `57.6% Win %`). The
+win-percentage column divides by that same games-played, so whichever row is
+wrong also has a wrong percentage. It has presumably read this way since the
+first boot, because `ensureSeeded` imports these constants once.
+
+Note `_hist_owners.ejs` prefers a live `records[o.id]` when Sleeper supplies one
+(the ⚡ marker) and falls back to these constants otherwise, so this is the
+*baseline*, not the live record.
+
+### The guard, ready to enable once the number is settled
+
+I did not commit this, because it is red against today's data and I will not
+push a red suite. Paste into `draft/tests/` when the row is corrected:
+
+```js
+// Every game has two sides. Whatever a "game" is, the totals have to close.
+const owners = await store.get('owners');
+const W = owners.reduce((s, o) => s + (o.wins || 0), 0);
+const L = owners.reduce((s, o) => s + (o.losses || 0), 0);
+const T = owners.reduce((s, o) => s + (o.ties || 0), 0);
+const G = owners.reduce((s, o) => s + (o.wins || 0) + (o.losses || 0) + (o.ties || 0), 0);
+ck('career wins and losses close across the league', W === L, { W, L });
+ck('  ties are paired', T % 2 === 0, T);
+ck('  and every game was counted twice', G % 2 === 0, G);
+```
+
+### Said plainly: everything else on those two pages checks out
+
+- **Win %** weights a tie as half and reproduces every row to the decimal.
+- **The Record Book states its own scope** — *"Box-score records cover
+  2023–2025 — the seasons with week-by-week scores on file. Titles above are
+  all-time."* That is the scope disagreement I went looking for and did not
+  find.
+- **The dynasty tracker reconciles**: 3.5 + 2 + 2 + 1 + 1 + 0.5 = **10 titles
+  across 10 seasons**, with the 2022 co-championship counted as a half at both
+  ends and the asterisk explained on the page.
+- The career-money column agrees with `/history/money` and with `/bank` — six
+  cross-checks, now pinned in `draft/tests/career_money_agreement.test.js`.
+
+Fixed in my lane this pass: `_hist_owners.ejs` printed **"1 Titles"**.
