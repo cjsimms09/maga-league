@@ -906,6 +906,41 @@ outermost layer — the same principle as `F4.fetch_failed`, one level further o
 previous behaviour meant a single malformed league could delete an entire run's evidence,
 which is the most expensive way for a sample to become invisible.
 
+### P6 — THE CONFLICT CHECK WAS COMPARING TWO VOCABULARIES (found 2026-08-11, by reading)
+
+Not from a run. Found by reading the matcher while run 11 was fetching, which is the only
+one of these six found before it produced a number.
+
+The two sides of `crosswalk_picks`'s disagreement check do not arrive by the same path.
+`theirs` comes out of `build_index`, which stores `_norm_pos(position)` and
+`_norm_team(team)` — so a Sleeper kicker is already spelled `K` and a Jacksonville player
+is already `JAX`. `meta` comes straight off MFL's players export, unnormalised — the same
+kicker is `PK`, the same player `JAC`. Comparing them raw asks whether two **different
+vocabularies** agree, and the answer is no for every kicker and for every player on the
+nine teams `TEAM_ALIASES` exists to reconcile.
+
+**Worked, on real board data.** Cam Little, K, JAX. MFL sends `PK` / `JAC`. The shipped
+matcher resolves him to the board's own `player_id` — the right player, no ambiguity. The
+check then reported `disagrees_on: ["position", "team"]`, which is the wrong-player
+signature, on the severe kind. `POS_ALIASES["PK"] == "K"` and `TEAM_ALIASES["JAC"] ==
+"JAX"`, and **both tables were consulted by the matcher that made the pair**. The report
+was accusing itself.
+
+Both sides now normalise through the matcher's own tables, imported rather than restated,
+so a vocabulary the matcher learns tomorrow is one the check learns at the same moment.
+`vocabulary_only_agreements` counts the pairs that agreed only after normalising, because
+a conflict count that quietly got smaller with no account of why is not an improvement.
+
+**This is rule 11 turned on the checker.** Every previous instance of this class was a
+consumer written against a field its author pictured; this one is a *comparison* written
+across two derivation paths without applying what one of them had already applied. The
+check built to catch cross-source disagreement was itself a cross-source disagreement.
+
+Run 11 measures with the pre-fix comparison, which makes its position value pairs the test:
+`PK -> K` and `JAC -> JAX` dominating confirms the diagnosis by measurement rather than by
+my reading of the code. The run-11 prediction above stands exactly as registered — this
+supplies the mechanism for it, and does not amend it.
+
 ### D5 VERIFIED AGAINST REAL DATA WITH REAL RULE SHAPES (2026-08-11)
 
 The scorer had only ever run on fixtures its author wrote. Run against **19,421 real 2025
