@@ -102,6 +102,27 @@ frozen.surfaces.forEach(f => {
     !l.top10[i] || Math.abs((p.score || 0) - (l.top10[i].score || 0)) > 0.01);
   ck('[' + f.state + '] composite scores unchanged', !scoreDrift);
 
+  /* PER-PLAYER SURVIVAL WAS FROZEN AND NEVER COMPARED. It has sat in every
+   * baseline file since v1, in the top-10 rows, read by nothing — so removing
+   * survival's currentPick guard (which reverts the model to the unconditional
+   * form and moves every player's number) left the suite green. The aggregate
+   * mass could not catch it either once the tilt was live, because the tilt
+   * re-normalises the TOTAL to the pick count no matter how the shape moves.
+   *
+   * That is rule 14 inside the guard that exists to catch rule 14: a value
+   * computed, written down, and read by no consumer.
+   *
+   * 0.005 is half the coarsening the UI applies (survival renders in 5% buckets
+   * with a tilde), so anything this tolerates cannot change what is displayed. */
+  const survDrift = f.top10.filter((p, i) => {
+    const lv = l.top10[i] && l.top10[i].survival_to_next;
+    if (p.survival_to_next == null || lv == null) return p.survival_to_next != lv;
+    return Math.abs(p.survival_to_next - lv) > 0.005;
+  });
+  ck('[' + f.state + '] per-player survival unchanged', survDrift.length === 0,
+     survDrift.slice(0, 3).map((p, i) => p.name + ' frozen ' + p.survival_to_next
+       + ' live ' + (l.top10[f.top10.indexOf(p)] || {}).survival_to_next).join('; '));
+
   // THE HEADLINE THE WAR ROOM ACTUALLY SHOWS.
   ck('[' + f.state + '] rule headline unchanged',
      JSON.stringify(f.rule_headline) === JSON.stringify(l.rule_headline),

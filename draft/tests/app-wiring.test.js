@@ -32,45 +32,29 @@ const check = (n, c, d) => { if (c) { pass++; console.log('PASS  ' + n); }
   else { fail++; console.log('FAIL  ' + n + (d ? '  -> ' + d : '')); } };
 
 const DIR = path.join(__dirname, '..', '..', 'public', 'js', 'draft');
-// EVERY MODULE THE APP FEEDS, not just the engine. The first version of this
-// suite read engine.js alone — and the seam sweep immediately found ctx fields
-// read by survival.js and composite.js that engine.js never mentions. A wiring
-// guard scoped to one consumer is a wiring guard with a hole the exact size of
-// every other consumer.
-const CONSUMERS = ['engine.js', 'survival.js', 'composite.js'];
-const engineSrc = CONSUMERS
-  .map(f => fs.readFileSync(path.join(DIR, f), 'utf8')).join('\n');
+
+/* ONE EXTRACTOR, SHARED. This suite and context_interface.test.js both need to
+ * know what the scoring side reads and what context() supplies, and they used to
+ * scrape it separately. The two scrapers disagreed the moment a key was written
+ * in ES6 shorthand: this one required a colon, so `totalPicks,` was invisible and
+ * it raised a FALSE gap on a field that was supplied. A guard that misreads valid
+ * JavaScript manufactures alarms, and manufactured alarms are how a guard gets
+ * muted. Dual maintenance of the guard is the same disease as dual maintenance of
+ * the value. */
+const CI = require(path.join(__dirname, '..', 'tools', 'ctx_interface.js'));
+
 const appSrc = fs.readFileSync(path.join(DIR, 'app.js'), 'utf8');
-
-// Every ctx.<field> the engine reads.
-const reads = new Set();
-(engineSrc.match(/ctx\.[a-zA-Z_][a-zA-Z0-9_]*/g) || [])
-  .forEach(m => reads.add(m.slice(4)));
-// Internal caches the engine sets on ctx itself are not the caller's job.
-// Fields a consumer sets on ctx itself, or derives internally — not the
-// caller's job. Each is named with WHY, so the exemption list cannot quietly
-// become a place to hide real gaps.
-const INTERNAL = new Set([
-  '_flexAltSorted',   // engine's own sort cache
-  '__l2cache',        // survival's layer-2 memo
-  '__l',              // same, prefix-matched below
-  'bestByPos',        // survival computes it inside precomputeLayer2
-  'progress',         // survival DERIVES it from ctx.totalPicks (see note)
-]);
-
-// What context() supplies.
-const ctxBlock = (appSrc.match(/function context\(\)[\s\S]*?\n  \}/) || [''])[0];
-const supplies = new Set(
-  (ctxBlock.match(/^\s{4,8}([a-zA-Z_][a-zA-Z0-9_]*)\s*:/gm) || [])
-    .map(m => m.trim().replace(/:$/, '')));
+const reads = CI.ctxReads();
+const supplied = CI.suppliedKeys() || [];
+const supplies = new Set(supplied);
 
 check('the engine actually reads ctx fields (non-vacuity)',
   reads.size >= 10, 'found ' + reads.size);
 check('context() was located and parsed (non-vacuity)',
-  supplies.size >= 8, 'parsed ' + supplies.size + ' supplied fields');
+  supplies.size >= 12, 'parsed ' + supplies.size + ' supplied fields');
 
-const missing = [...reads]
-  .filter(f => !INTERNAL.has(f) && !f.startsWith('__') && !supplies.has(f)).sort();
+const missing = [...reads.keys()]
+  .filter(f => !CI.isInternalName(f) && !supplies.has(f)).sort();
 check('EVERY ctx field the engine reads is supplied by the app',
   !missing.length,
   'the app never passes: ' + JSON.stringify(missing)

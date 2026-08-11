@@ -1107,12 +1107,19 @@
     // far more than the picks that will actually happen, and Best Available
     // disagreed with Survival Odds about the same player on the same screen).
     const next = myNextTurn();
-    const totalPicks = (state.data.pick_order.picks || []).length;
+    /* ONE DERIVATION. This object used to carry `totalPicks` TWICE and
+     * `currentPick` TWICE — JavaScript keeps the last, so the first of each pair
+     * was dead code that read as live. The two totalPicks expressions even
+     * DISAGREED: `.length` yields 0 for an empty board, `.length || null` yields
+     * null. Every consumer tests them as falsy so they agree today, and they
+     * disagree the moment one is used arithmetically. Dual maintenance inside a
+     * single object literal, found by the interface guard rather than by reading.
+     * `null` is kept because it is the honest "unknown"; 0 is a claim. */
+    const totalPicks = ((state.data.pick_order || {}).picks || []).length || null;
     const teams = state.data.league.teams || 10;
     return {
       board: state.board,
       nextPick: next,
-      currentPick: cur,
       totalPicks,
       myPicksLeft: upcoming.length,
       roster: state.myRoster,
@@ -1134,7 +1141,6 @@
       //                (13 - myPicksLeft), so every roster-relative weight was
       //                evaluated at an estimated position in the plan.
       //   totalMyPicks the denominator that fallback was standing in for.
-      totalPicks: ((state.data.pick_order || {}).picks || []).length || null,
       myPickIndex: myLivePickIndex(),
       totalMyPicks: ((state.data.pick_order || {}).my_picks || []).length || null,
       // SUPPLIED DEFENSIVELY, not to fix a live bug. composite.js reads it when
