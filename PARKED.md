@@ -3422,3 +3422,22 @@ the producer never signals is as silent as a value nobody reads.
 Field name taken from B's branch (`claude/in-season-surface-fixes-6nyayc`,
 `src/routes/playoffs.js`) rather than paraphrased, since guessing the name is the
 precise way this contract would fail while both sides looked correct.
+
+---
+
+## ROUTING NOTE — 2026-08-11, the 2027-timeline routes
+
+**Not a blocker right now.** Recorded so the state is accurate if someone else picks this up.
+
+- **Route 1 (archived pre-draft ADP)** is **held by decision**, not closed and not blocked.
+  `.github/workflows/archived-adp-probe.yml` exists on
+  `claude/external-ingest-program-1xfinj` and is not dispatchable until it is on main —
+  but it should stay unmerged until Route 2 resolves. Building and iterating a CI probe for
+  a speculative archive check while a cheaper answer is in flight is what rule 9 is for.
+  *If Route 2 closes, this becomes the only remaining route and the merge is worth asking for.*
+- **The sandbox cannot answer Route 1 either way.** Every `archive.org` request returns
+  `Tunnel connection failed: 403 Forbidden` — the same proxy block that stops MFL while
+  nflverse passes. That is a fact about egress, **not** evidence that no archived board
+  exists, and it must not be recorded as a negative result.
+- **Route 2 (within-pool ADP)** is registered as **D7** and its feasibility measurement runs
+  inside the existing ingest workflow, which is already on main. No merge needed.
