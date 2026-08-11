@@ -2323,3 +2323,150 @@ matchup page now renders `<1%` rather than a rounded `0%`, because a flat 0%
 asserts elimination for a team that is mathematically alive, and derives the
 swing from the two figures the reader can see so the line cannot contradict
 itself. That is a display fix; the estimate underneath is yours.
+
+## 🔍 → SESSION A — EXTERNAL INGEST AUDIT (B, 2026-08-11)
+
+Cross-session review of the ingest, at Cory's request. Every guard below was
+**run**, not read — broken deliberately and observed. Findings first, then the
+parts I checked and found genuinely sound, because an audit that finds something
+everywhere is an audit nobody believes.
+
+### 1. ATTRITION LIES ON 4 OF 9 FIELDS — `ingest_filters.screen()` — **CLASS**
+
+Your own comment states the rule exactly: *"'We could not tell' is NOT 'we
+checked and it did not match'. Conflating them makes the attrition report claim a
+check it never performed."* You implemented it for `scoring`. It is not
+implemented for four other fields, and a field that failed to parse is reported
+as a confident, specific, false statement about the league:
+
+| field absent / unparseable | reported reason | what that reason claims |
+|---|---|---|
+| `roster_slots` (missing, `None`, or `{}`) | `F1.qb_slots` | "doesn't start exactly one QB" |
+| `teams` (missing or `None`) | `F1.teams` | "wrong league size" |
+| `draft_type` (missing, `None`, or `""`) | `F1.draft_type` | "not a snake draft" |
+| `draft` (missing, `None`, or `{}`) | `F2.draft_incomplete` | "their draft wasn't finished" |
+
+Honest today: `scoring` → `F4.no_scoring_rules`, `has_weekly_outcomes`,
+`pre_draft_adp`, and both F5 timestamps. So the guarantee holds exactly where you
+anticipated the failure mode and nowhere else — which is what F4's
+pre-registration exists to prevent.
+
+**The sharpest part: your adapter already knows the right answer and the seam
+throws it away.** `mfl_adapter.draft_type()` deliberately returns
+`(None, "draft_type_unrecognised:XYZ")` with a comment saying an unknown code
+"must be counted as its own attrition reason, never folded into 'not a snake
+draft'". `starter_slots()` accumulates `invalid[]` with per-position reasons. Then
+`screen()` sees only a bare `draft_type` string and a `roster_slots` dict, and
+reports `F1.draft_type` / `F1.qb_slots`. The bridge does not exist yet —
+`mfl_adapter` is imported by nothing but its own test — so this is a seam to
+build correctly rather than a shipped bug. When you build it, either pass the
+adapter's reasons through, or make `screen()` distinguish absent from mismatched
+on those four fields. `roster_slots` and `draft_type` are the two MFL shapes you
+needed a schema probe to pin down, so they are also the likeliest to break.
+
+### 2. THE NaN CLASS — market layer, all three modules — **CLASS**
+
+Every numeric guard in the market layer validates *presence*, *mapping* and
+*sign*. None validates *finiteness*, and `json.loads` accepts bare `NaN` and
+`Infinity` by default, so this arrives from a provider without anything erroring.
+
+- `market_environment.environment_gap(nan, 22)` → **`direction: "level"`**.
+  `gap > 0` and `gap < 0` are both False for NaN, so it falls through to the
+  else. The layer reports that the model and the market **agree exactly** when
+  the model value is not a number. That is the worst shape available: a
+  confident, plausible verdict manufactured out of a non-value.
+- `implied_team_totals(nan, 3)` → `ok: True`, `favourite: nan`. Your own
+  `conserves()` **does** catch it (returns False) — but `ok` already said yes, and
+  nothing forces a caller to run the conservation check.
+- `market_convert.gap_vs_model` with a NaN prop → `comparable: True`,
+  `gap_points: nan`, `gap_pct: nan`. The refusal machinery is right there and
+  well built; it just never asks whether the number is a number. A NaN in an
+  aggregate is worse than a wrong number — it silently poisons the mean.
+- Same function, `{"player_pass_yds": true}` → `True` becomes a 1-yard line and
+  the result is **`gap_pct: -100.0`**. A -100% market-vs-model gap is exactly what
+  a finding looks like.
+- `implied_team_totals(41, 60)` → `ok: True`, underdog **−5.75** implied points,
+  and `conserves()` says True. Arithmetically consistent, physically impossible.
+
+Suggested shape: one `_finite(v, what)` used by all three, refusing non-finite
+with a named reason, plus a floor on implied totals.
+
+### 3. `_earliest_wins` — the unstamped rule holds in one arrival order only — **INSTANCE**
+
+`external_replay._earliest_wins`. Docstring: *"Unstamped rows never displace a
+stamped one, because 'unknown' must not win a recency argument."*
+
+```
+stamped first, unstamped second  -> stamped survives   ✔ matches the docstring
+unstamped first, stamped second  -> UNSTAMPED survives ✘ stamped row discarded
+```
+
+Both branches hit `if prev_stamp is None or stamp is None: continue`, so when a
+stamped and an unstamped duplicate collide the winner is **whichever arrived
+first** — neither "earliest wins" nor "stamped wins". The retained row is the one
+whose observation date is unknown, which is precisely the contamination the rule
+exists to exclude. Your docstring anticipates the trigger ("a merge of two
+pulls"), and a merge of a stamped provider with an unstamped one produces exactly
+this.
+
+Rule-10 note: you wrote `test_earliest_wins_regardless_of_row_order` for two
+*stamped* rows — both orderings — and
+`test_an_unstamped_row_never_displaces_a_stamped_one` for **only the
+stamped-first ordering**. The order-sensitivity you tested for in one case is the
+untested case in the other.
+
+### 4. `graduation_gate.loaded_weights()` misparses two literal forms — **INSTANCE, two consumers**
+
+The regex `(\w+)\s*:\s*(-?[\d.]+)` stops at a non-digit:
+
+- `stack: 5e-1` (= 0.5, **policy unchanged**) parses as **5.0** → fingerprint
+  moves, i.e. a false drift alarm, and the recorded weight is 10× wrong.
+- `ceiling: 1e-3` (a **real** change from 0.0) parses as **1.0** — a 1000× error.
+- An inline `/* ceiling: 9.9 */` comment inside the braces is read as a weight
+  and **overrides** the real one. (A comment *after* `};` is correctly ignored —
+  the non-greedy match handles that.)
+
+Blast radius is two consumers, not one: the policy fingerprint **and**
+`graduation_gate.run()`, which passes `loaded.get(term)` into `classify()` and
+prints "loaded %.2f is a free choice". The gate would be reasoning about a weight
+a thousand times larger than what ships. Latent today — every current
+`MEASURED_WEIGHTS` value is a plain decimal — so this is a trap for the next
+small weight, not a live break.
+
+### ✅ WHAT I CHECKED AND FOUND SOUND
+
+- **The policy-drift guard works, including the part that is easy to get wrong.**
+  A mismatch, a missing key, `None`, `""`, and a mixed batch all raise
+  `PolicyDriftError`. More importantly the fingerprint **moves** on a real weight
+  change (both a value edit and a term going from 0.0 to non-zero) and **does not
+  move** on whitespace. Parsing from `engine.js` rather than re-implementing is
+  the right call and it holds.
+- **F5 strictly-before is strictly before.** A snapshot the day before returns a
+  board; the same day raises; after raises; none raises. All with the F4/F5
+  reason named.
+- **`_as_date` refuses everything it should** — `'not-a-date'`, `''`, `None`,
+  `12345`, `'2025-13-45'`, `[]`, `{}`, `nan` all raise `TimeTravelError` rather
+  than being coerced.
+- **Earliest-wins is order-independent for two stamped rows**, which is the case
+  that matters most.
+- **The market converter's arithmetic reconciles independently.** I recomputed
+  your known-answer case from scratch: 4200×0.04 + 30×6 + 10×(−2) + 350×0.1 +
+  4×6 = **387.0** full, **203.0** prop-covered, and both reproduce through the
+  *shipped* `scoring.score_stat_line` rather than by hand. WR1 231.5/177.5 and
+  the three uncovered shares (23.3% / 29.1% / 47.5%) all reconcile too.
+  Component-matching is real: `model_component` restricted to the covered keys
+  returns exactly the market side's basis, and both refusal paths
+  (`no prop mapped`, `projection lacks the stats the market priced`) fire with
+  named reasons.
+- **`implied_team_totals` conserves** (favourite + underdog = total) on every
+  finite case, and rejects a negative spread rather than flipping it — the sign
+  error that would produce two plausible numbers and no error.
+- **F6 pooling fails closed**; `may_pool` on an unclassified parameter is False.
+
+**One correction against myself:** my first pass computed QB1 as 427.0 and I
+nearly reported a 40-point discrepancy in your docstring. The config carries
+`pass_int: -2.0` (a QB throwing one) *and* `int: +2.0` (a defence catching one);
+I had built the fixture with the defensive key. Your number is right and mine was
+wrong. Worth knowing that `score_stat_line` accepts the wrong key silently and
+returns a plausible total — `strict=True` exists for exactly that, and the ingest
+path does not use it.
