@@ -76,14 +76,26 @@ b_owns() {
 # produces, and the graduation gate any external finding passes through.
 c_owns() {
   case "$1" in
-    draft/backtest/mfl_adapter.py|draft/backtest/mfl_adp.py) return 0 ;;
-    draft/backtest/mfl_live_probe.py|draft/backtest/mfl_schema_probe.py) return 0 ;;
-    draft/backtest/mfl_live_probe.json|draft/backtest/mfl_schema_probe.json) return 0 ;;
-    draft/backtest/adp_asof_probe.py|draft/backtest/ingest_filters.py) return 0 ;;
-    draft/backtest/external_replay.py) return 0 ;;
-    draft/tests/test_mfl_adapter.py|draft/tests/test_mfl_schema_probe.py) return 0 ;;
-    draft/tests/test_adp_asof_probe.py|draft/tests/test_attrition_seam.py) return 0 ;;
-    draft/tests/test_external_replay.py|draft/tests/test_ingest_filters.py) return 0 ;;
+    # PREFIXES, NOT A FILE LIST — and still NOT the directory.
+    #
+    # The first version enumerated files, and C's next two commits trespassed
+    # immediately: external_replay_run.py and its test are obviously the replay
+    # harness, obviously C's, and obviously not on a list written before they
+    # existed. A guard that blocks a session for doing exactly its job is friction
+    # that gets the guard switched off, which is worse than no guard.
+    #
+    # draft/backtest/ ALSO holds the market layer (market_*) and every experiment
+    # (exp*), all A's — so this matches ingest-specific PREFIXES rather than the
+    # directory. A directory rule would hand C two thirds of A's lane by accident.
+    draft/backtest/mfl_*) return 0 ;;
+    draft/backtest/external_replay*) return 0 ;;
+    draft/backtest/adp_asof_*) return 0 ;;
+    draft/backtest/ingest_*) return 0 ;;
+    draft/backtest/crosswalk*|draft/backtest/nflverse*) return 0 ;;
+    draft/tests/test_mfl_*|draft/tests/test_external_replay*) return 0 ;;
+    draft/tests/test_adp_asof_*|draft/tests/test_ingest_*) return 0 ;;
+    draft/tests/test_attrition*|draft/tests/test_crosswalk*) return 0 ;;
+    draft/tests/test_nflverse*) return 0 ;;
     .github/workflows/adp-asof-probe.yml) return 0 ;;
     .github/workflows/mfl-probe.yml|.github/workflows/mfl-schema-probe.yml) return 0 ;;
     INGEST-PLAN.md) return 0 ;;
