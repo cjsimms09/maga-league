@@ -348,6 +348,57 @@ first crawl, with no league data examined.
 - **No pre-screen filtering on anything visible in the search result.** Every returned
   league goes to `screen()`, which is the only place a league may be excluded.
 
+### D1 v2 — THE POOL IS A REGISTERED TERM SET (2026-08-11). D1 v1 RETAINED ABOVE.
+
+**Measured before registering, run 31496719895 (2025), and this is reachability and
+SHAPE — counts and league ids, no league content, no outcomes.** Same category as the
+schema probe, and the same reason the amendment is legitimate rather than post-hoc: a
+count cannot produce a result.
+
+| query | leagues returned |
+|---|---|
+| `"league"` | 11,056 |
+| `"football"` | 5,029 |
+| `"the"` | 3,328 |
+| `""` (empty) | **0** |
+| `"a"` | **0** |
+| nonsense term | 0 |
+
+**THERE IS NO ALL-LEAGUES QUERY.** An empty `SEARCH` returns nothing, so the endpoint
+will not hand over the universe when asked for it. And `"a"` returning **zero** shows
+`SEARCH` is **not a substring match** — a substring search on league names would match
+nearly every league — so it is token-based with a minimum term length ("the", three
+letters, matches 3,328).
+
+**THE CONSEQUENCE D1 v1 DID NOT COVER.** v1 required the query be FORMAT-neutral, which
+stops us selecting on team count or scoring. It does not address this: the pool is a
+function of the WORD, no word is the universe, and a name search is *arbitrary*
+selection rather than *neutral* selection. So the pool must be defined explicitly:
+
+> **D1 v2.** The candidate pool is the UNION of `leagueSearch` results over a REGISTERED
+> SET OF TERMS, fixed here before any crawl. Every returned league goes to `screen()`;
+> no pre-screen filtering, exactly as v1.
+>
+> **The registered terms:** `league`, `football`, `the`, `fantasy`, `ffl`, `dynasty`,
+> `redraft`, `keeper`, `friends`, `bowl`.
+>
+> *`dynasty`, `redraft` and `keeper` are included DELIBERATELY and are NOT a format
+> selection.* F1 records keeper structure as a covariate and never filters on it, so
+> these terms widen the pool across the keeper axis rather than narrowing it — omitting
+> them would bias the pool toward whatever redraft leagues happen to be named.
+>
+> **Every league's NAME is recorded as a covariate**, alongside which term(s) found it
+> and the provider's rank, so any name-correlated bias is measurable after the fact
+> rather than invisible.
+>
+> **The run reports per-term counts and the overlap between terms**, so pool composition
+> is a published number rather than an assumption.
+
+**WHAT THIS DOES NOT CLAIM.** The union of ten terms is not the universe and this
+registration does not pretend otherwise. It fixes the pool so it cannot be adjusted
+after seeing results, and it makes the pool's shape reportable. If the matched count
+falls short, F7 already binds: report the number and change nothing.
+
 ### D2 — CRAWL ORDER AND STOPPING
 - **Walk the entire result set. Every page.** A single page of a paginated list is not the
   list (rule 13's second mechanical form).

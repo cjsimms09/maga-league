@@ -46,12 +46,21 @@ MFL_HOST = "https://api.myfantasyleague.com"
 
 # D1 requires a FORMAT-NEUTRAL query: no term selecting on team count or scoring,
 # because selecting on format at discovery makes format-match prevalence
-# unmeasurable and turns the attrition report into a tautology. These are
-# structure-neutral words, and the pair exists to test the cap, not to be a
-# curated pool.
+# unmeasurable and turns the attrition report into a tautology.
+#
+# THESE ARE THE PROBE'S CANDIDATES, NOT THE CRAWL'S POOL. The registered pool is
+# D1 v2's ten terms in INGEST-PLAN.md; these exist to test the cap and the paging,
+# and `REGISTERED_TERMS` below is the crawl's, kept here so the crawler and the
+# pre-registration cannot drift apart.
 CANDIDATES = [
     ("baseline", "league", {}),
     ("CONTROL_bogus_param", "league", {"ZZZNOTAPARAM": "1"}),
+    # IS THERE AN "ALL LEAGUES" QUERY? The first run established that SEARCH does
+    # filter (three terms, three different counts), which means the pool is a
+    # function of the WORD — and no word is the universe. These two ask whether
+    # the endpoint will hand over everything when asked for nothing.
+    ("empty_search", "", {}),
+    ("single_letter", "a", {}),
     ("CONTROL_nonsense_query", "zzqqxnonsenseterm", {}),
     ("different_query", "football", {}),
     ("third_query", "the", {}),
@@ -60,6 +69,14 @@ CANDIDATES = [
     ("limit_500", "league", {"LIMIT": "500"}),
     ("count_500", "league", {"COUNT": "500"}),
 ]
+
+
+# D1 v2, 2026-08-11. The pool is the UNION over these, fixed before any crawl,
+# because an empty SEARCH returns 0 and "a" returns 0 — there is no all-leagues
+# query and SEARCH is token-based with a minimum length. Asserted against
+# INGEST-PLAN.md by test, so the registration and the build cannot diverge.
+REGISTERED_TERMS = ("league", "football", "the", "fantasy", "ffl",
+                    "dynasty", "redraft", "keeper", "friends", "bowl")
 
 
 def search_composition(payload) -> dict:
@@ -116,6 +133,41 @@ def cap_verdict(rows: list) -> dict:
     return out
 
 
+def paging_verdict(overlap: dict, counts: dict) -> dict:
+    """Is the result set PAGED, or does it arrive whole?
+
+    D2 says walk every page. If every paging candidate returns the baseline's
+    exact ids, either the whole set arrives at once or paging lives under a name
+    not in the candidate set — and those are different facts.
+
+    THE DISCRIMINATOR IS THE COUNTS, NOT THE PARAMETERS. A paginated endpoint has
+    a PAGE SIZE, so first pages come back at a fixed number. Three unrelated
+    queries returning three large, different, non-round counts is direct evidence
+    that no page size is being applied — which is a stronger statement than any
+    parameter test, because it does not depend on guessing a parameter name.
+    """
+    ignored = [k for k, v in (overlap or {}).items() if v.get("identical_to_baseline")]
+    vals = [c for c in (counts or {}).values() if isinstance(c, int) and c > 0]
+    distinct = len(set(vals)) > 1
+    roundish = any(v in (10, 20, 25, 50, 100, 200, 250, 500, 1000) for v in vals)
+    if ignored and distinct and not roundish:
+        return {"paged": False, "ignored_candidates": sorted(ignored),
+                "reading": ("NO PAGE SIZE IS BEING APPLIED — %d queries returned different, "
+                            "large, non-round counts (%s), so first pages are not being cut to "
+                            "a fixed size. Every paging candidate also returned the baseline's "
+                            "exact ids. The result set arrives WHOLE, and D2's 'walk every "
+                            "page, stop on exhaustion' is satisfied by a single request."
+                            % (len(vals), ", ".join(str(v) for v in sorted(vals, reverse=True))))}
+    if ignored:
+        return {"paged": None, "ignored_candidates": sorted(ignored),
+                "reading": ("Every paging candidate was ignored, but the counts do not rule out "
+                            "a page size (%s). Cannot distinguish 'arrives whole' from 'paging "
+                            "lives under a name not in the candidate set' — rule 13, and the "
+                            "set is recorded so it can be extended." % sorted(vals))}
+    return {"paged": True, "ignored_candidates": [],
+            "reading": "A paging candidate returned DIFFERENT leagues — pagination exists."}
+
+
 def probe(year="2026"):  # pragma: no cover  (egress; CI only)
     import urllib.error
     import urllib.parse
@@ -157,11 +209,13 @@ def probe(year="2026"):  # pragma: no cover  (egress; CI only)
                 "returned": len(ids), "new_vs_baseline": len(ids - base_ids),
                 "identical_to_baseline": ids == base_ids and bool(ids)}
 
+    cap = cap_verdict(rows)
     out = {"question": "can leagueSearch be walked to exhaustion, as D2 assumes?",
            "year": year, "rows": rows, "verdict": verdict(rows),
-           "cap": cap_verdict(rows), "paging_overlap": overlap}
+           "cap": cap, "paging_overlap": overlap,
+           "paging": paging_verdict(overlap, cap.get("counts") or {})}
     (HERE / "discovery_probe.json").write_text(json.dumps(out, indent=1))
-    print(json.dumps({"cap": out["cap"], "paging_overlap": overlap,
+    print(json.dumps({"cap": out["cap"], "paging": out["paging"],
                       "controls": out["verdict"].get("controls")}, indent=1))
     return out
 
