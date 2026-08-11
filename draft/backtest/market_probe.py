@@ -448,6 +448,12 @@ def probe() -> dict:                                        # pragma: no cover (
                 # actually carries.
                 try:
                     lg, _ = get(c["host"] + f"/v3/leagues?apiKey={k}&sport=american-football")
+                    try:
+                        bl, _ = get(c["host"] + "/v3/bookmakers")
+                        io["_books"] = [b for b in (bl or []) if b.get("active")][:6]
+                        io["active_books_sample"] = [b.get("name") for b in (io["_books"] or [])]
+                    except Exception:                        # noqa: BLE001
+                        io["_books"] = []
                     io["football_leagues"] = [
                         {"name": x.get("name"), "slug": x.get("slug"),
                          "events": x.get("eventsCount")} for x in (lg or [])]
@@ -463,7 +469,9 @@ def probe() -> dict:                                        # pragma: no cover (
                         }
                         if ev:
                             eid = (ev[0] or {}).get("id")
-                            od, h6 = get(c["host"] + f"/v3/odds?apiKey={k}&eventId={eid}")
+                            bm = ",".join([str(b.get("name")) for b in (io.get("_books") or [])][:2]) or "draftkings,fanduel"
+                            od, h6 = get(c["host"] + f"/v3/odds?apiKey={k}&eventId={eid}"
+                                                     f"&bookmakers={bm}")
                             body = json.dumps(od)
                             io["odds_payload"] = {
                                 "status": 200, "bytes": len(body),
@@ -500,7 +508,7 @@ def probe() -> dict:                                        # pragma: no cover (
                     io["retry_cost"] = {
                         "remaining_before": before, "remaining_after": after,
                         "drop_across_two_good_and_one_bad": drop,
-                        "failed_requests_bill": (drop is not None and drop > 1),
+                        "failed_requests_bill": (drop is not None and drop > 2),
                         "note": "two successful calls bracket one guaranteed 400; a drop of 2 "
                                 "means only the successes billed, 3 means the failure billed too",
                     }
