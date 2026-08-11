@@ -193,14 +193,215 @@ def fetch_league(league_id, year):  # pragma: no cover  (egress; CI only)
     return out
 
 
-def run(league_ids, year, out_path=None):  # pragma: no cover  (egress; CI only)
-    records = []
+def league_passthrough(picks, mfl_players, board_index, series, year) -> dict:
+    """Everything `to_league_record` needs that MFL's three exports do not supply.
+
+    THE ADP SNAPSHOT HAS EXACTLY ONE OWNER, DELIBERATELY. `ExternalAsOfStore`
+    already implements F5's "latest strictly before the draft" and raises when
+    there is none. This does NOT re-derive that: it hands over every snapshot for
+    the season and reports what the STORE chose, so `screen()`'s own F5 check
+    becomes a CROSS-PATH CONSISTENCY CHECK on one fact rather than a second
+    implementation of the rule (rule 11, requirement 4 — two paths compared).
+
+    `has_weekly_outcomes` is decided by `external_outcomes.league_outcomes` and is
+    still not invented here — see `outcomes_fields` below, which reads that
+    module's answer and never manufactures one of its own.
+    """
+    from external_adp_capture import as_store_snapshots
+    return {
+        "crosswalk": A.crosswalk_picks(picks, mfl_players, board_index),
+        "snapshots": as_store_snapshots(series, year),
+    }
+
+
+def outcomes_fields(rules_json, crosswalk, weekly_rows, season, gsis_to_ours,
+                    board_index) -> dict:
+    """F3 for one league: `has_weekly_outcomes`, plus the outcome record itself.
+
+    THE CALLER RULE 14 ASKS FOR. `external_outcomes.league_outcomes` had exactly
+    one consumer — its own test — until this function, and a producer whose only
+    consumer is a unit test has never met the shapes the live path hands it. Two of
+    those shapes are handled here and nowhere else, and the second one was wrong in
+    the first draft of this function:
+
+      * the DRAFTED SET is the crosswalk's MATCHED rows. A pick that never
+        crosswalked is already counted, once, as a crosswalk miss; counting him
+        again as "drafted with no outcomes" would charge one league twice for one
+        failure and make F3's coverage a function of F2's.
+      * POSITIONS COME FROM OUR BOARD, not from `row["position"]`. The crosswalk
+        row carries MFL's position (it is the matcher's INPUT), and the id it
+        carries is ours — so reading position off the row would join one source's
+        opinion to another source's key. `crosswalk_picks` already counts the pairs
+        where the two disagree, under `conflicts`, precisely because that
+        disagreement is the signature of a wrong match; taking the board's own
+        answer keeps the position and the id from the same place.
+    """
+    from external_outcomes import league_outcomes
+    rows = (crosswalk or (None, None))[0] or []
+    board = A._board_by_id(board_index) if board_index is not None else {}
+    drafted, positions = [], {}
+    for r in rows:
+        sid = str(r.get("player_id") or "")
+        if not sid:
+            continue
+        drafted.append(sid)
+        pos = (board.get(sid) or {}).get("pos")
+        if pos:
+            positions[sid] = str(pos).upper()
+        # NO FALLBACK to r["position"]. A player our board cannot position is
+        # counted by `weekly_points` as unknown_position rather than scored under
+        # a table chosen from the other source.
+    out = league_outcomes(rules_json, drafted, weekly_rows, season, positions,
+                          gsis_to_ours)
+    return {"has_weekly_outcomes": out["has_weekly_outcomes"], "outcomes": out}
+
+
+def adp_fields(store) -> dict:
+    """`pre_draft_adp` and `adp_observed_at`, taken FROM THE STORE'S CHOICE.
+
+    Reading the snapshot date off the store rather than picking one here is what
+    makes `screen()`'s F5 check a second opinion on the same fact instead of a
+    rival implementation of it.
+    """
+    board = store.board()
+    return {"pre_draft_adp": {str(r["player_id"]): r.get("adp") for r in board},
+            "adp_observed_at": store.snapshot_date().isoformat()}
+
+
+def run(league_ids, year, out_path=None, *, players=None, board=None,
+        series=None, weekly_rows=None, gsis_to_ours=None,
+        readiness=None):  # pragma: no cover  (egress; CI only)
+    """THE FIRST REAL FETCH.
+
+    WHAT THIS WILL REPORT, WRITTEN BEFORE IT RUNS so the result cannot be narrated
+    afterwards. The earlier version of this docstring pre-declared ZERO matched
+    leagues and `F4.no_weekly_outcomes` for every league that got that far, because
+    `has_weekly_outcomes` was a caller-supplied flag with no producer. That
+    prerequisite now exists (`external_outcomes`, registered as D5), so the
+    pre-declaration is REPLACED rather than quietly dropped, and the new one is:
+
+      * The binding constraint is expected to MOVE from "no outcomes ingest" to
+        D5b — the scoring vocabulary. MFL leagues commonly score pass attempts,
+        completions, targets and first downs; nflverse weekly carries those
+        columns and `grade.nflverse_weekly_to_scoring` does not emit them, so
+        those leagues come back `F4.scoring_untranslatable` with the event codes
+        named. `untranslatable_census` is printed for exactly that reason: the
+        remedy is a change in another lane and it should be asked for with a
+        number attached.
+      * Every one of those is UNREADABLE, not FILTERED. It is a gap in this
+        pipeline's vocabulary, not evidence that public leagues do not score like
+        ours, and `screen_all`'s split already keeps the two apart on the verdict
+        line.
+      * 2023-2025 remain F5-ineligible under D4 regardless of any of this. A
+        league that scores cleanly here can still be excluded for its ADP, and the
+        attrition report says which.
+
+    AND POINT THIS AT A SEASON THAT HAS BEEN PLAYED. Measured 2026-08-11:
+    `fetch_weekly(2026)` 404s from both loaders, so a 2026 run reports zero matched
+    leagues — the identical output to a run whose fetch broke and to a run whose
+    filters are wrong. That is a green that means nothing wearing the clothes of one
+    that does. `readiness` (from `external_outcomes.season_readiness`, which needs a
+    CONTROL season because the target's own result cannot distinguish the cases)
+    leads the verdict so the three states are never one number.
+
+    `weekly_rows` and `gsis_to_ours` are passed IN rather than fetched here so the
+    season's data is fetched once for a whole run instead of once per league.
+    """
+    from external_replay import ExternalAsOfStore, policy_fingerprint
+    from asof import TimeTravelError
+
+    records, outcomes = [], []
     for lid in league_ids:
-        records.append(build_record(lid, fetch_league(lid, year)))
+        exports = fetch_league(lid, year)
+        rec = build_record(lid, exports)
+        if rec.get("unfetchable"):
+            records.append(rec)
+            continue
+        picks, _ = A.draft_picks(exports["draftResults"])
+        extra = league_passthrough(picks, players or {}, board, series or [], year)
+        draft_at = A.to_league_record(exports["league"], exports["rules"],
+                                      exports["draftResults"], league_id=lid).get("draft_at")
+        adp = {}
+        try:
+            store = ExternalAsOfStore(lid, draft_at, extra["snapshots"], policy_fingerprint())
+            adp = adp_fields(store)
+        except (TimeTravelError, Exception) as e:      # noqa: B014 - recorded, never raised away
+            adp = {"pre_draft_adp": None, "adp_observed_at": None,
+                   "_adp_note": "%s: %s" % (type(e).__name__, e)}
+        got = outcomes_fields(exports["rules"], extra["crosswalk"], weekly_rows or [],
+                              int(year), gsis_to_ours or {}, board)
+        outcomes.append(dict(got["outcomes"], league_id=str(lid)))
+        records.append(build_record(lid, exports, crosswalk=extra["crosswalk"],
+                                    has_weekly_outcomes=got["has_weekly_outcomes"],
+                                    pre_draft_adp=adp.get("pre_draft_adp"),
+                                    adp_observed_at=adp.get("adp_observed_at")))
     verdicts, _ = run_screen(records)
     rep = attrition_report(verdicts, requested=list(league_ids))
     rep["year"] = str(year)
+    rep["outcomes"] = outcomes_summary(outcomes)
+    rep["season_readiness"] = readiness
+    # PREPENDED, not appended. The existing verdict already leads with unreadable
+    # attrition; this leads with whether the run could have measured anything at all.
+    rep["verdict"] = readiness_verdict(readiness, rep) + " || " + str(rep.get("verdict", ""))
     if out_path:
         Path(out_path).write_text(json.dumps(rep, indent=1))
     print(json.dumps(rep, indent=1))
     return rep
+
+
+def readiness_verdict(readiness: dict, rep: dict) -> str:
+    """The line that stops a vacuous zero reading as a measurement.
+
+    D5h, and it is the whole reason `run` fetches a CONTROL season it does not
+    otherwise need. `screen()` rejects a league with no weekly outcomes, so a run
+    against a season that has not been played reports ZERO MATCHED — the identical
+    output to a run whose fetch broke, and to a run whose filters are wrong. Three
+    very different states, one number.
+
+    So the state leads, ahead of the count, and an UNPLAYED or UNFETCHABLE run says
+    IN THE VERDICT that its zero measured nothing about the leagues.
+    """
+    state = (readiness or {}).get("state")
+    n = rep.get("matched", 0)
+    if state in ("UNPLAYED", "UNFETCHABLE"):
+        return ("THIS RUN MEASURED NOTHING ABOUT THE LEAGUES: %s. Every league is "
+                "F4.no_weekly_data, `matched=%d` is a consequence of that and not a "
+                "finding about the pool, and no conclusion about format prevalence or "
+                "filter tuning may be drawn from it"
+                % ((readiness or {}).get("why", "season not ready"), n))
+    if state == "PARTIAL":
+        return ("PARTIAL SEASON: %s. Outcome totals here are partial-season totals; "
+                "they are a real number about a different question than F3 asks, and "
+                "must be labelled as such wherever they travel"
+                % (readiness or {}).get("why", ""))
+    return "season %s COMPLETE (%d REG weeks); %d matched league-seasons" % (
+        (readiness or {}).get("season"), (readiness or {}).get("reg_weeks", 0), n)
+
+
+def outcomes_summary(outcomes: list) -> dict:
+    """F3 across the run: the census, and coverage over the leagues that SCORED.
+
+    TWO DENOMINATORS, KEPT APART. Mean F3 coverage is computed over leagues that
+    produced a series at all — a league refused at D5b has no coverage figure, and
+    folding its absent one in as 0.0 would report a vocabulary gap as a season in
+    which nobody played. The count of leagues with no figure is printed beside the
+    mean so the mean cannot be read as covering the run.
+    """
+    from external_outcomes import untranslatable_census
+    scored = [o for o in outcomes if (o or {}).get("f3")]
+    covs = [o["f3"]["coverage"] for o in scored if o["f3"].get("coverage") is not None]
+    census = untranslatable_census(outcomes)
+    return {
+        "leagues_examined": len(outcomes),
+        "leagues_scored": len(scored),
+        "leagues_with_no_coverage_figure": len(outcomes) - len(scored),
+        "mean_f3_coverage_over_SCORED_leagues":
+            round(sum(covs) / len(covs), 4) if covs else None,
+        "reasons": _count([o.get("reason") for o in outcomes]),
+        "census": census,
+    }
+
+
+def _count(values) -> dict:
+    from collections import Counter
+    return dict(Counter(str(v) for v in values if v is not None).most_common())

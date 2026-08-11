@@ -180,3 +180,206 @@ def test_the_unenforced_autopick_clause_still_reaches_this_report():
     rep = R.attrition_report(verdicts, requested=["L1"])
     assert any(u.startswith("F2.autopick_majority") for u in rep["unenforced_filters"])
     assert "could NOT be enforced" in rep["verdict"]
+
+
+# ── the wiring that turns the spine into a pipeline ─────────────────────────
+def test_the_ADP_SNAPSHOT_HAS_ONE_OWNER_and_screen_is_the_second_opinion():
+    """`ExternalAsOfStore` implements F5's strictly-before and `league_passthrough`
+    does NOT re-derive it — it hands over every snapshot and reports what the
+    store chose. So `screen()`'s F5 check is a cross-path consistency check on one
+    fact (rule 11, requirement 4) rather than a rival implementation.
+
+    MUTATION: pick the snapshot inside `league_passthrough`. Then the two paths
+    can disagree and nothing compares them."""
+    import ast
+    src = (HERE.parent / "backtest" / "ingest_run.py").read_text()
+    fn = next(n for n in ast.parse(src).body
+              if isinstance(n, ast.FunctionDef) and n.name == "league_passthrough")
+    dated = [c for c in ast.walk(fn) if isinstance(c, ast.Compare)
+             and any("observed_at" in ast.dump(p) for p in [c.left] + list(c.comparators))]
+    assert not dated, "league_passthrough is choosing a snapshot — that is the store's job"
+
+
+def test_adp_fields_reads_the_date_the_STORE_chose():
+    import external_replay as X
+    import ingest_run as IR
+    snaps = [{"observed_at": "2026-08-09", "rows": [{"player_id": "1", "adp": 3.0}]},
+             {"observed_at": "2026-08-10", "rows": [{"player_id": "1", "adp": 2.0}]}]
+    store = X.ExternalAsOfStore("L1", "2026-08-12", snaps, "fp")
+    f = IR.adp_fields(store)
+    assert f["adp_observed_at"] == "2026-08-10"        # the store's choice, not ours
+    assert f["pre_draft_adp"] == {"1": 2.0}
+
+
+def test_the_passthrough_hands_over_EVERY_snapshot_for_the_season():
+    import ingest_run as IR
+    series = [{"year": "2026", "observed_at": "2026-08-09", "rows": {"1": 3.0}, "row_count": 1},
+              {"year": "2026", "observed_at": "2026-08-20", "rows": {"1": 2.0}, "row_count": 1},
+              {"year": "2025", "observed_at": "2025-08-09", "rows": {"1": 9.0}, "row_count": 1}]
+    out = IR.league_passthrough([], {}, {}, series, 2026)
+    assert len(out["snapshots"]) == 2, "the store must see both 2026 snapshots and pick"
+
+
+def test_MISSING_WEEKLY_OUTCOMES_is_reported_as_itself_not_as_a_crosswalk_failure():
+    """WRITTEN BEFORE THE FIRST REAL RUN. There is no weekly-outcomes ingest yet,
+    so F4 will exclude every league for it — that is the registered filter working,
+    and the attrition report must name that prerequisite rather than stopping at an
+    earlier pipeline reason."""
+    rec = good_record("L1")
+    rec["has_weekly_outcomes"] = None
+    verdicts, matched = R.run_screen([rec])
+    assert matched == []
+    assert verdicts[0][2] == "F4.no_weekly_outcomes"
+    rep = R.attrition_report(verdicts, requested=["L1"])
+    assert rep["rejected_by_reason"]["F4.no_weekly_outcomes"] == 1
+    assert rep["rejected_unreadable"] == 1, "a missing prerequisite is about our pipeline"
+
+
+# ── F3 WIRED IN: the seam between the crosswalk and the weekly series ───────
+def _cw_rows(*pairs):
+    """What `crosswalk_picks` actually returns: rows keyed on OUR id, carrying
+    MFL's position as `position` — the matcher's input, not our board's answer."""
+    return ([{"overall": i + 1, "player_id": sid, "matched_by": "name",
+              "name": nm, "position": mfl_pos}
+             for i, (sid, nm, mfl_pos) in enumerate(pairs)], {})
+
+
+def _index(*pairs):
+    """A board index in the shape `_board_by_id` reads it."""
+    return {"by_name": {nm.lower(): [{"id": sid, "name": nm, "pos": pos, "team": "X"}]
+                        for sid, nm, pos in pairs}}
+
+
+def nfl_row(pid, week=1, **stats):
+    """A weekly row in the shape the LOADERS actually serve: every mapped column
+    present (mostly zero) and `season_type` populated. A fixture carrying only the
+    columns a test cares about would let D5f's schema check and D5g's REG filter
+    pass against a shape the live path never sees — and D5f exists because a
+    loader renamed one of these columns."""
+    import grade as GR
+    row = {"player_id": pid, "season": 2025, "week": week, "season_type": "REG"}
+    for c in list(GR._WEEKLY_MAP) + list(GR._FUM_LOST_COLS):
+        row.setdefault(c, 0)
+    row.update(stats)
+    return row
+
+
+RULES = {"rules": {"positionRules": [
+    {"positions": "QB", "rule": [{"event": {"$t": "PY"}, "points": {"$t": "*0.04"}}]},
+    {"positions": "RB|WR|TE", "rule": [{"event": {"$t": "CC"}, "points": {"$t": "*0.5"}}]}]}}
+
+
+def test_the_POSITION_comes_from_OUR_BOARD_not_from_the_crosswalk_ROW():
+    """MUTATION: read `r["position"]`. The row carries MFL's opinion and OUR id,
+    so a pair the sources disagree about would be scored under the wrong table —
+    and `crosswalk_picks` counts exactly those pairs as `conflicts` because that
+    disagreement is the signature of a wrong match.
+
+    Here MFL says the player is a WR and our board says QB. Under the QB table a
+    300-yard passing week is 300 x 0.04 = 12.0; under the WR table it is 0.0,
+    because a receiver's table has no passing term at all."""
+    cw = _cw_rows(("77", "A Player", "WR"))
+    rows = [nfl_row("G77", passing_yards=300)]
+    got = R.outcomes_fields(RULES, cw, rows, 2025, {"G77": "77"},
+                            _index(("77", "A Player", "QB")))
+    assert got["has_weekly_outcomes"] is True
+    assert got["outcomes"]["series"]["77"] == {1: 12.0}
+
+
+def test_a_pick_that_never_CROSSWALKED_is_not_counted_AGAIN_as_a_missing_outcome():
+    """F2 already counted him once. Counting him here would charge one league
+    twice for one failure and make F3's coverage a function of F2's."""
+    cw = _cw_rows(("77", "A Player", "QB"))          # one matched row; F2 counts the rest
+    rows = [nfl_row("G77", passing_yards=300)]
+    got = R.outcomes_fields(RULES, cw, rows, 2025, {"G77": "77"},
+                            _index(("77", "A Player", "QB")))
+    assert got["outcomes"]["f3"]["examined"] == 1
+    assert got["outcomes"]["f3"]["drafted_without_outcomes"] == 0
+
+
+def test_a_player_OUR_BOARD_cannot_POSITION_is_counted_not_defaulted():
+    """No fallback to the row's position, and no default table. He lands in
+    `unknown_position`, which is a count, and drops out of F3 as absent."""
+    cw = _cw_rows(("77", "A Player", "WR"))
+    rows = [nfl_row("G77", receptions=5)]
+    got = R.outcomes_fields(RULES, cw, rows, 2025, {"G77": "77"}, {"by_name": {}})
+    assert got["outcomes"]["unknown_position"] == ["77"]
+    assert got["outcomes"]["f3"]["drafted_without_outcomes"] == 1
+
+
+def test_the_run_no_longer_has_to_be_TOLD_whether_a_league_has_outcomes():
+    """`has_weekly_outcomes` was a caller-supplied flag with no producer — the
+    prerequisite `run()` pre-declared would fail every league. It now comes from
+    the outcomes module, and the flag that reaches `screen()` is the one that
+    module decided."""
+    cw = _cw_rows(("77", "A Player", "QB"))
+    got = R.outcomes_fields(RULES, cw, [], 2025, {"G77": "77"},
+                            _index(("77", "A Player", "QB")))
+    assert got["has_weekly_outcomes"] is False
+    assert got["outcomes"]["reason"] == "F4.no_weekly_data:2025"
+    assert F.is_unreadable(got["outcomes"]["reason"])
+
+
+def test_MEAN_F3_COVERAGE_is_taken_over_SCORED_leagues_only():
+    """MUTATION: fold a league with no coverage figure in as 0.0. Two leagues at
+    100% and one refused for vocabulary would report 0.667 — a vocabulary gap in
+    OUR pipeline printed as a season in which a third of the drafted players never
+    took a snap. The count with no figure is printed beside the mean so the mean
+    cannot be read as covering the run."""
+    outs = [{"f3": {"coverage": 1.0}, "reason": "ok", "untranslatable": {}},
+            {"f3": {"coverage": 1.0}, "reason": "ok", "untranslatable": {}},
+            {"f3": None, "reason": "F4.scoring_untranslatable:QB=TGT_event_untranslatable",
+             "untranslatable": {"QB": [{"why": "event_untranslatable", "event": "TGT"}]}}]
+    s = R.outcomes_summary(outs)
+    assert s["mean_f3_coverage_over_SCORED_leagues"] == 1.0
+    assert s["leagues_scored"] == 2 and s["leagues_with_no_coverage_figure"] == 1
+    assert s["census"]["by_event_code"] == {"TGT": 1}
+
+
+def test_a_run_where_NOTHING_scored_reports_None_not_zero():
+    s = R.outcomes_summary([{"f3": None, "reason": "F4.no_weekly_data:2025",
+                             "untranslatable": {}}])
+    assert s["mean_f3_coverage_over_SCORED_leagues"] is None
+    assert s["reasons"] == {"F4.no_weekly_data:2025": 1}
+
+
+# ── D5h: a run against an unplayed season must not read like a measurement ──
+def test_an_UNPLAYED_season_says_IN_THE_VERDICT_that_it_measured_nothing():
+    """`screen()` rejects a league with no weekly outcomes, so a 2026 run reports
+    zero matched — the identical output to a broken fetch and to wrong filters.
+    MUTATION: report the count without the state. Three states, one number, and
+    the reader has no way to tell which one they are looking at."""
+    ready = {"season": 2026, "state": "UNPLAYED", "why": "2026 served no weekly data "
+             "while the control season 2025 served 18 REG weeks"}
+    v = R.readiness_verdict(ready, {"matched": 0})
+    assert v.startswith("THIS RUN MEASURED NOTHING ABOUT THE LEAGUES")
+    assert "not a finding about the pool" in v
+    assert "control season 2025" in v
+
+
+def test_an_UNFETCHABLE_run_and_an_UNPLAYED_run_do_NOT_read_the_same():
+    """The distinction A asked for: 2025 returning no_weekly_outcomes after the
+    ingest lands is a DEFECT; 2026 doing so is the CALENDAR."""
+    unplayed = R.readiness_verdict({"season": 2026, "state": "UNPLAYED",
+                                    "why": "the fetch works and the season has not been played"},
+                                   {"matched": 0})
+    broken = R.readiness_verdict({"season": 2025, "state": "UNFETCHABLE",
+                                  "why": "neither 2025 NOR the control season 2024 served weekly data"},
+                                 {"matched": 0})
+    assert unplayed != broken
+    assert "has not been played" in unplayed and "neither 2025 NOR" in broken
+
+
+def test_a_COMPLETE_season_gets_a_verdict_with_no_warning_in_it():
+    """A verdict that always warns is one nobody reads."""
+    v = R.readiness_verdict({"season": 2025, "state": "COMPLETE", "reg_weeks": 18},
+                            {"matched": 37})
+    assert "MEASURED NOTHING" not in v and "PARTIAL" not in v
+    assert "COMPLETE (18 REG weeks); 37 matched" in v
+
+
+def test_a_PARTIAL_season_is_labelled_rather_than_counted_as_a_season():
+    v = R.readiness_verdict({"season": 2026, "state": "PARTIAL",
+                             "why": "2026 has 6 of the control season's 18 REG weeks"},
+                            {"matched": 3})
+    assert v.startswith("PARTIAL SEASON") and "labelled as such wherever they travel" in v

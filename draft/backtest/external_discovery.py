@@ -121,6 +121,61 @@ def _verdict(rep: dict) -> str:
     return head + "".join("; and " + p for p in parts)
 
 
+def sample_pool(leagues, n, salt="external-ingest-v1") -> list:
+    """D6 — WHICH leagues of the pool get fetched, decided by a rule, not by order.
+
+    The 2025 crawl returned **21,323 unique leagues** (measured 2026-08-11). Three
+    exports each is ~64,000 requests, so every run works from a SAMPLE, and how that
+    sample is chosen is a degree of freedom exactly like a filter. Registered as D6
+    before any league was fetched from this pool:
+
+      Order by `sha256(salt + league_id)` and take the first `n`.
+
+    THREE PROPERTIES, and each rules out a way the sample could flatter the result:
+
+      REPRODUCIBLE.  The same pool and n give the same leagues, so a rerun is a
+                     rerun and not a fresh draw. A random sample would let a
+                     disappointing attrition rate be re-rolled until it improved,
+                     which is optional stopping with extra steps.
+      ORDER-BLIND.   `leagueSearch` returns leagues in an order we did not choose
+                     and do not understand; taking "the first n" would make the
+                     sample a function of that order. Provider rank is already kept
+                     per league as a COVARIATE (`found_by[].rank`) so any
+                     order-correlation can be measured — which only works if the
+                     sample itself is not built from it.
+      NESTED.        The first 200 are the first 500's prefix. Enlarging the sample
+                     ADDS leagues rather than replacing them, so an earlier run's
+                     result stays a subset of a later one and the two can be
+                     compared. A fresh draw at each size cannot be.
+
+    The salt is fixed and versioned. Changing it is a NEW sample and a new
+    registration, never a quiet reshuffle after seeing what the first one gave.
+    """
+    import hashlib
+    ids = list(leagues.keys()) if isinstance(leagues, dict) else [str(x) for x in leagues]
+    keyed = sorted(ids, key=lambda i: hashlib.sha256(
+        (salt + "|" + str(i)).encode("utf-8")).hexdigest())
+    return keyed[:max(0, int(n))]
+
+
+def sample_report(leagues, taken) -> dict:
+    """What the sample left behind, said out loud.
+
+    A run over 200 of 21,323 leagues that reports "12 matched" without its
+    denominator invites the number to be read as a rate over the pool.
+    """
+    total = len(leagues or {})
+    k = len(taken or [])
+    return {"pool": total, "sampled": k,
+            "share_of_pool": round(k / total, 5) if total else None,
+            "rule": "D6: sha256(salt|league_id) order, first n — reproducible, "
+                    "order-blind, and NESTED so a larger n is a superset",
+            "verdict": ("%d of %d pooled leagues fetched (%.2f%%) — every count below is "
+                        "over the SAMPLE, and scaling it to the pool assumes the sample is "
+                        "representative, which this run does not test"
+                        % (k, total, 100.0 * k / total) if total else "empty pool")}
+
+
 # ── the fetch, CI only ──────────────────────────────────────────────────────
 def mfl_fetch(term, year):  # pragma: no cover  (egress; CI only)
     """One term's whole result set. An error is RETURNED, never raised away."""

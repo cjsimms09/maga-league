@@ -17,9 +17,23 @@ on:
   workflow_dispatch:
     inputs:
       year:
-        description: 'Season to crawl'
+        # DEFAULT 2025, A COMPLETED SEASON, deliberately — changed 2026-08-11.
+        # A 2026 crawl exercises the crawler and then hands the ingest a season
+        # with NO OUTCOMES: measured the same day, fetch_weekly(2026) 404s from
+        # both nflverse loaders, so every league comes back F4.no_weekly_data and
+        # the run reports zero matched. That is the identical output to a broken
+        # fetch and to wrong filters — a green that means nothing wearing the
+        # clothes of one that does. Crawling a PLAYED season separates the causes:
+        # 2025 returning no_weekly_outcomes after the ingest lands is a DEFECT;
+        # 2026 doing so is the CALENDAR.
+        #
+        # 2025 leagues still cannot be MATCHED league-seasons — D4 excludes them
+        # from F5-clean replay, so they contribute format screening, crosswalk
+        # coverage and the D5 scoring-vocabulary census, and never a calibration
+        # row. See "F7 REACHABILITY" in INGEST-PLAN.md.
+        description: 'Season to crawl (default 2025 — a season that has been PLAYED)'
         required: false
-        default: '2026'
+        default: '2025'
 
 jobs:
   crawl:
@@ -34,7 +48,7 @@ jobs:
           import sys
           sys.path.insert(0, 'draft/backtest')
           import external_discovery as X
-          X.run("${{ github.event.inputs.year || '2026' }}",
+          X.run("${{ github.event.inputs.year || '2025' }}",
                 out_path="draft/backtest/discovery_pool.json")
           PY
       - name: Report the pool's shape where it cannot be missed
