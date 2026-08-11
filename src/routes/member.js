@@ -181,8 +181,15 @@ router.get('/api/sunday-alert', aw(async (req, res) => {
   if (!secret || req.query.key !== secret) return res.status(403).json({ ok: false, error: 'forbidden' });
   const world = req.world;
   const owners = H.activeOwners(world.owners);
+  // THE COMMISSIONER IS RESOLVED ONCE, BY THE MAILER. This used to re-derive
+  // `o.is_commissioner && o.active` here, a second copy of a rule notify.js
+  // already owns — rule 11's third requirement, in two files that agreed today
+  // and had nothing comparing them. The lookup that remains is only to decide
+  // WHOSE lineup to optimize, and the send is handed the whole list.
+  const emailConfigured = notify.configured();
   const commish = world.owners.find(o => o.is_commissioner && o.active);
-  if (!commish) return res.json({ ok: true, sent: 0, note: 'no commissioner' });
+  if (!commish) return res.json({ ok: true, sent: 0, quiet: true, emailConfigured,
+    reason: 'no-commissioner', note: 'no active commissioner on the roster' });
   // WHY NOTHING WENT OUT, not just that nothing did.
   //
   // The scheduler asserted `"ok":true` and nothing else, so THREE different
@@ -193,7 +200,6 @@ router.get('/api/sunday-alert', aw(async (req, res) => {
   // "there was something to send and it did not go", which is the only
   // distinction the caller needs to decide whether a green run is good news.
   const { live, band, weekNo } = await liveOptimizeFor(world, owners, commish);
-  const emailConfigured = notify.configured();
   if (!live) {
     return res.json({ ok: true, sent: 0, quiet: true, emailConfigured,
       reason: 'no-live-lineup',
@@ -248,7 +254,7 @@ router.get('/api/sunday-alert', aw(async (req, res) => {
       reason: 'already-sent-this-week', note: `week ${weekNo}'s alert already went out at ${already.at}` });
   }
 
-  const r = await notify.sundayAlert(commish, alert).catch(e => ({ error: String((e && e.message) || e) }));
+  const r = await notify.sundayAlert(world.owners, alert).catch(e => ({ error: String((e && e.message) || e) }));
   const sent = (r && !r.skipped && !r.error) ? 1 : 0;
   if (sent) await setDoc(stampKey, { at: new Date().toISOString(), calls: alert.calls.length, dead: alert.dead.length });
   res.json({ ok: true, sent, quiet: false, emailConfigured, week: weekNo,
@@ -2826,7 +2832,11 @@ router.post('/lineup/sunday/send', requireCommissioner, aw(async (req, res) => {
   let outcome = 'nolive', detail = null;
   if (live) {
     const alert = LO.sundayAlert(live, { week: weekNo, band });
-    const r = await notify.sundayAlert(req.owner, alert)
+    // The owner LIST, not req.owner. requireCommissioner already gates this
+    // route, so passing the logged-in user is correct TODAY — and that is
+    // precisely the kind of correctness that stops being true when a guard is
+    // relaxed. The mailer resolves it either way.
+    const r = await notify.sundayAlert(req.world.owners, alert)
       .catch(e => ({ error: String((e && e.message) || e) }));
     if (r && r.sent) outcome = 'ok';
     else if (r && r.error) { outcome = 'failed'; detail = r.error; }
