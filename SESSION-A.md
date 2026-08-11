@@ -915,3 +915,30 @@ created — rule 15 — BY EXPLICIT AUTHORIZATION**, which supersedes this pass'
 **AND THE DEFINITION WORTH HOLDING:** a mature constitution is not one with fewer rules. It is one
 where every remaining rule has a clear reason to exist and a clear way its violation would become
 observable.
+
+### 13f — WHEN A NULL CONFIRMS WHAT YOU EXPECTED, ASK WHETHER THE INSTRUMENT COULD HAVE SAID ANYTHING ELSE
+
+Cory's clause, 2026-08-11, after five instances in one day. **Every one was a null
+that matched the hypothesis its author was already entertaining:**
+
+- C's manufactured touchdown-market false
+- the census that was really the parser
+- the throttle read as pool unavailability
+- the archive read as absence
+- and three of mine: `src/` matching zero requires in sixteen files (read as
+  "these are not B's"); the correlation experiment whose shared shock carried a
+  random sign per decision (read as "correlation does not inflate anything");
+  and `claim_stopping` probed where both arms correctly said don't-spend.
+
+In each case **the wrong answer was the expected one**, which is why nobody
+looked twice.
+
+So the check is specific and mechanical rather than a caution: **before believing
+a null, demonstrate the probe can produce a non-null.** Move the input past the
+threshold, break the thing deliberately, or show the arms differ somewhere. A
+probe that cannot fail reports a null that is its own construction, and it reads
+identically to a real one.
+
+Sixth instance, same day, in the component grader: the test asserted "clustering
+gives a larger floor than iid" — false on independent data, where the two
+coincide by construction. Also the expected answer.
