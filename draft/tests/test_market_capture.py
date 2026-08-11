@@ -95,3 +95,16 @@ def test_health_declares_its_staleness_threshold(tmp_path, monkeypatch):
     h = C.write_health({"finished_at": "t", "league": "x", "events_captured": 1,
                         "coverage": 1.0})
     assert h["stale_after_days"] == 7
+
+
+# ── partial capture: allowed, but never silent ──────────────────────────────
+def test_a_refusal_still_writes_health(tmp_path, monkeypatch):
+    """A refusal is an OUTCOME, not an absence. Without this the health gate
+    reports 'the capture did not run' for a run that ran and declined —
+    indistinguishable from the job never firing."""
+    monkeypatch.setattr(C, "OUT_DIR", tmp_path)
+    monkeypatch.setattr(C, "HEALTH", tmp_path / "h.json")
+    h = C.write_health({"finished_at": "t", "league": "x", "events_captured": 0,
+                        "coverage": 0.0, "refused": "budget"})
+    assert (tmp_path / "h.json").exists()
+    assert h["consecutive_failures"] == 1

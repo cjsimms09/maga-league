@@ -104,10 +104,27 @@ def capture(league: str, api_key: str, books=None, max_events=None) -> dict:
     if max_events:
         events = events[:int(max_events)]
 
-    # 1 + N. Refuse the whole capture rather than produce a PARTIAL slate: for
-    # Signal C a half-captured snapshot silently becomes the baseline that later
-    # movement is measured from, which is worse than no snapshot.
-    budget.require(len(events), f"{league} odds for {len(events)} events")
+    # 1 + N, CAPTURED AS FAR AS THE BUDGET ALLOWS — and this corrects my own
+    # earlier reasoning, which cost a night of the unrecoverable window.
+    #
+    # I refused the WHOLE capture unless every event fitted, on the grounds that a
+    # half-captured slate silently becomes Signal C's baseline. The premise is
+    # wrong: SIGNAL C BASELINES ARE PER EVENT. Event A's opening line does not
+    # depend on event B being captured. A partial slate does not corrupt anything
+    # — it simply means the uncaptured events have no baseline yet, and the next
+    # run can take them while the window is still open.
+    #
+    # The real requirement was never "all or nothing", it was NEVER SILENTLY
+    # PARTIAL. So: take what fits, and record exactly what was left and why.
+    spendable = max(0, budget.remaining - budget.reserve)
+    planned = events[:spendable]
+    deferred = events[spendable:]
+    if not planned:
+        raise BudgetExhausted(
+            f"{league}: {len(events)} events to capture, {budget.remaining} calls remain "
+            f"and {budget.reserve} are reserved, so none can be taken now"
+            + (f" (resets {budget.reset_at})" if budget.reset_at else ""))
+    events = planned
 
     rows, failures = [], []
     td_finding = None
@@ -142,11 +159,16 @@ def capture(league: str, api_key: str, books=None, max_events=None) -> dict:
 
     return {
         "league": league, "started_at": started, "finished_at": now_iso(),
-        "events_listed": len(events), "events_captured": len(rows),
+        "events_listed": len(events) + len(deferred),
+        "events_captured": len(rows),
+        # NEVER SILENTLY PARTIAL: what was left, and why, in the snapshot itself.
+        "events_deferred_for_budget": [e.get("id") for e in deferred],
+        "deferred_count": len(deferred),
         "failures": failures,
         # THE VERDICT SHIPS WITH ITS NUMBERS.
-        "complete": len(rows) == len(events) and not failures,
-        "coverage": (len(rows) / len(events)) if events else 0.0,
+        "complete": len(rows) == (len(events) + len(deferred)) and not failures,
+        "coverage": (len(rows) / (len(events) + len(deferred)))
+                    if (events or deferred) else 0.0,
         "budget": budget.snapshot(),
         "touchdown_finding": td_finding,
         "read_only": True, "visibility": "post_draft_only",
@@ -192,7 +214,13 @@ def main():                                                      # pragma: no co
     try:
         snap = capture(a.league, key, max_events=a.max_events or None)
     except BudgetExhausted as e:
+        # A REFUSAL IS AN OUTCOME, NOT AN ABSENCE. Without this the health gate
+        # reports "the capture did not run" for a run that ran and declined —
+        # indistinguishable from the job never firing, which is the exact
+        # silent-death failure the health file exists to prevent.
         print(f"::warning::{e}")
+        write_health({"finished_at": now_iso(), "league": a.league,
+                      "events_captured": 0, "coverage": 0.0, "refused": str(e)})
         return 0
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     path = OUT_DIR / f"{a.league}_{snap['started_at'].replace(':', '')}.json"
