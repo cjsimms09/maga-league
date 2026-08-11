@@ -55,7 +55,11 @@ jobs:
       # The guards before the spend: if these are red the capture must not run,
       # because a bad request costs budget and may bill even when it fails.
       - name: Test the capture guards before spending anything
-        run: python -m pytest draft/tests/test_market_capture.py draft/tests/test_market_budget.py -q
+        run: |
+          python -m pytest draft/tests/test_market_capture.py \
+                           draft/tests/test_market_budget.py \
+                           draft/tests/test_market_retry.py \
+                           draft/tests/test_market_read.py -q
 
       - name: Capture
         env:
@@ -77,19 +81,78 @@ jobs:
           if not h.exists():
               print('::error::no health file — the capture did not run'); sys.exit(1)
           d = json.loads(h.read_text())
-          print('health:', json.dumps(d))
+          print('health:', json.dumps(d, indent=2, sort_keys=True))
           if d.get('consecutive_failures', 0) > 0:
               print(f"::error::{d['consecutive_failures']} consecutive failed captures")
               sys.exit(1)
           last = d.get('last_success_at')
           if not last:
               print('::error::no successful capture has ever completed'); sys.exit(1)
+
+          # COVERAGE IS READ. It was written by write_health one line above the
+          # verdict and consulted by nothing here, so a 13-of-48 run (coverage
+          # 0.271, complete false) passed this gate as a clean success. The gate
+          # would have reported healthy while the capture was effectively broken,
+          # and the hole would have surfaced in December when Signal C's baseline
+          # turned out to be full of gaps — far past the point of backfilling.
+          cov = d.get('last_coverage')
+          if cov is None:
+              print('::error::health carries no coverage — cannot tell a full capture'
+                    ' from a 2% one, which is the exact state this gate exists to end')
+              sys.exit(1)
+          print(f"coverage {cov:.1%} of {d.get('last_events_listed')} listed"
+                f" ({d.get('last_deferred')} deferred), complete={d.get('last_complete')}")
+
+          # A PERSISTENT HOLE FAILS; A SINGLE PARTIAL WARNS. One incomplete run is
+          # recoverable — tomorrow's capture can still take the deferred events
+          # while the window is open. A RUN of them is a hole being written into an
+          # unrecoverable window, and the bar is declared in the health file so the
+          # gate cannot quietly apply a looser one than the producer intended.
+          ci = int(d.get('consecutive_incomplete', 0))
+          bar = int(d.get('max_consecutive_incomplete', 3))
+          if ci >= bar:
+              print(f'::error::{ci} consecutive incomplete captures (bar {bar}) —'
+                    ' Signal C is accumulating holes that cannot be backfilled')
+              sys.exit(1)
+          if ci > 0:
+              print(f'::warning::capture incomplete {ci} run(s) in a row'
+                    f' (coverage {cov:.1%}); fails at {bar}')
+
           age = (datetime.now(timezone.utc)
                  - datetime.strptime(last, '%Y-%m-%dT%H:%M:%SZ').replace(tzinfo=timezone.utc)).days
           print(f'last success {age}d ago (stale after {d.get("stale_after_days")}d)')
           if age > int(d.get('stale_after_days', 7)):
               print('::error::capture is stale — Signal C baseline is developing a hole')
               sys.exit(1)
+
+          # STALENESS OF COMPLETENESS, separately. "We captured something recently"
+          # is not "we have a whole slate recently", and only the second one means
+          # Signal C has an intact baseline set.
+          lc = d.get('last_complete_at')
+          if not lc:
+              print('::warning::no COMPLETE capture has ever run — every baseline set'
+                    ' so far has known gaps')
+          PY
+
+      # THE READER RUNS EVERY TIME, so the completeness label has a consumer that
+      # actually consults it rather than a correct flag nobody reads. Reported
+      # across ALL snapshots on disk, not just tonight's: Signal C's baseline set
+      # is cumulative, so the question is "which events still have no baseline",
+      # not "how did this one run do".
+      - name: What the baseline set actually covers
+        run: |
+          python draft/backtest/market_read.py | tee /tmp/mr.json
+          python3 - <<'PY'
+          import json
+          d = json.load(open('/tmp/mr.json'))
+          miss = d['events_without_baseline']
+          if miss:
+              print(f"::warning::{len(miss)} of {d['events_listed']} events have NO"
+                    f" baseline yet — the next run can still take them while the"
+                    f" window is open: {miss[:8]}{' ...' if len(miss) > 8 else ''}")
+          if d['events_with_movement'] == 0 and d['snapshots'] > 1:
+              print('::warning::more than one snapshot exists but no event has two'
+                    ' observations — Signal C has points, not series')
           PY
 
       - name: Commit the snapshot

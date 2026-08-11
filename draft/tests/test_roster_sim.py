@@ -68,7 +68,15 @@ def test_realized_starters_sum_to_the_recorded_score(hist, season):
             sp = e.get("starters_points")
             if not sp:
                 continue
-            assert sum(sp) == pytest.approx(e["points"], abs=0.2), \
+            # EXACT IDENTITY, not an estimate: the recorded score IS the sum of
+            # the starters' points. abs=0.2 was a fifth of a fantasy point of
+            # slack on a quantity with no noise in it — wide enough to hide a
+            # genuinely mis-summed lineup. Rule 10b, 2026-08-11: re-ran this
+            # against all three seasons (100+ entries) at 0.2, 0.01, 1e-4 and
+            # 1e-9, and it passes at every one. Nothing needed the slack, so the
+            # band was chosen for comfort. 1e-9 leaves ~4 orders over the ~1e-13
+            # float accumulation of summing nine ~150-point values.
+            assert sum(sp) == pytest.approx(e["points"], abs=1e-9), \
                 f"{season} r{e['roster_id']}: starters sum {sum(sp)} != {e['points']}"
             checked += 1
     assert checked > 100

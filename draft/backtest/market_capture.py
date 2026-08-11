@@ -41,7 +41,8 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 
 import market_request as R          # noqa: E402
-from market_budget import BudgetExhausted, RateBudget, should_retry  # noqa: E402
+from market_budget import (BudgetExhausted, RateBudget, backoff_plan,  # noqa: E402
+                           should_retry)
 
 HOST = "https://api.odds-api.io"
 PRESEASON = "usa-nfl-preseason"
@@ -89,6 +90,83 @@ def scan_touchdown_markets(payload) -> dict:
     }
 
 
+def fetch_with_retry(url: str, budget, sleep=None):
+    """THE BACKOFF, ACTUALLY CONNECTED. Returns (payload, headers, attempts).
+
+    `backoff_plan` had NO CALLER anywhere in the codebase, and `should_retry` was
+    invoked with `attempt=1` hardcoded, so it could never reach its own exhaustion
+    branch. `retry_advised` was written into the snapshot and acted on by nothing.
+    The consequence was exact: a 429 recorded "back off" and then fired the next
+    request immediately — the naive retry loop the module's docstring says it
+    exists to prevent, wearing the docstring as a disguise.
+
+    TWO THINGS THIS FIXES, and the second is the one that mattered more:
+
+      1. The plan is executed. `should_retry(code, attempt)` receives the REAL
+         attempt number, so exhaustion is reachable, and the returned wait is
+         actually waited.
+
+      2. `observe()` RUNS ON THE FAILURE PATH. It used to run only after a
+         success, so a 429 — the single response most likely to carry a fresh
+         `x-ratelimit-remaining` — was discarded, and the local counter that
+         market_budget's own docstring calls unreliable became the sole authority
+         on remaining budget at precisely the moment the budget mattered.
+         urllib's HTTPError IS a response: it carries .code and .headers.
+
+    The budget is re-checked BEFORE each retry, so backing off can never walk
+    into the reserve.
+    """
+    import time
+    import urllib.error
+    if sleep is None:
+        sleep = time.sleep
+    attempt = 1
+    last = None
+    while True:
+        try:
+            payload, headers = R.fetch(url)
+            budget.observe(headers)
+            budget.note_call()
+            return payload, headers, attempt
+        except urllib.error.HTTPError as e:
+            # THE RATE HEADER LIVES ON THE ERROR TOO. Reading it here is the whole
+            # point: a 429 tells us what remains more reliably than our counter.
+            budget.observe(getattr(e, "headers", None) or {})
+            budget.note_call(ok=False)
+            last = e
+            code = e.code
+        except Exception as e:                                   # noqa: BLE001
+            budget.note_call(ok=False)
+            last = e
+            code = getattr(e, "code", None)
+
+        retry, why = should_retry(code, attempt)
+        if not retry:
+            raise CaptureFailure(code, why, attempt) from last
+        # A RETRY IS A SPEND. Backing off into the reserve would defeat the
+        # reserve, so affordability is re-checked with the fresher number
+        # observe() just gave us.
+        if not budget.affordable(1):
+            raise CaptureFailure(code, "budget reserve reached while backing off — "
+                                       "stopping rather than spending into the cap",
+                                 attempt) from last
+        wait = backoff_plan(attempt)
+        if wait is None:
+            raise CaptureFailure(code, "attempts exhausted", attempt) from last
+        sleep(wait)
+        attempt += 1
+
+
+class CaptureFailure(RuntimeError):
+    """A request that will not be retried, carrying WHY and after how many tries."""
+
+    def __init__(self, code, why, attempts):
+        super().__init__(f"HTTP {code} after {attempts} attempt(s): {why}")
+        self.code = code
+        self.why = why
+        self.attempts = attempts
+
+
 def capture(league: str, api_key: str, books=None, max_events=None,
             horizon_days: int = 14) -> dict:
     """One snapshot. Refuses up front if the budget cannot cover it."""
@@ -98,9 +176,7 @@ def capture(league: str, api_key: str, books=None, max_events=None,
 
     url = R.build(HOST, "events", {"apiKey": api_key, "sport": "american-football",
                                    "league": league})
-    events, headers = R.fetch(url)
-    budget.observe(headers)
-    budget.note_call()
+    events, headers, _ = fetch_with_retry(url, budget)
     events = list(events or [])
 
     # HORIZON FILTER. `usa-nfl` returns 134 events — the WHOLE SEASON, not one
@@ -151,16 +227,17 @@ def capture(league: str, api_key: str, books=None, max_events=None,
             + (f" (resets {budget.reset_at})" if budget.reset_at else ""))
     events = planned
 
-    rows, failures = [], []
+    rows, failures, retried = [], [], []
     td_finding = None
     for ev in events:
         eid = ev.get("id")
         try:
             odds_url = R.build(HOST, "odds", {"apiKey": api_key, "eventId": eid,
                                               "bookmakers": ",".join(books)})
-            payload, h = R.fetch(odds_url)
-            budget.observe(h)
-            budget.note_call()
+            # THE BACKOFF IS IN THE CALL NOW, not advice recorded beside it.
+            payload, h, attempts = fetch_with_retry(odds_url, budget)
+            if attempts > 1:
+                retried.append({"event_id": eid, "attempts": attempts})
             if td_finding is None:
                 td_finding = scan_touchdown_markets(payload)
             rows.append({
@@ -171,12 +248,12 @@ def capture(league: str, api_key: str, books=None, max_events=None,
                 "source": f"odds-api.io/{','.join(books)}",
                 "odds": payload,
             })
-        except Exception as e:                                  # noqa: BLE001
-            code = getattr(e, "code", None)
-            budget.note_call(ok=False)             # failures count as spend
-            retry, why = should_retry(code, attempt=1)
-            failures.append({"event_id": eid, "status": code, "retry_advised": retry,
-                             "why": why})
+        except CaptureFailure as e:
+            # fetch_with_retry already spent, observed and backed off. What
+            # arrives here is a decision that was TAKEN, not advice to be filed:
+            # `attempts` says how many times it actually tried.
+            failures.append({"event_id": eid, "status": e.code, "attempts": e.attempts,
+                             "why": e.why})
             if not budget.affordable(1):
                 failures.append({"stopped": "budget reserve reached — "
                                             "stopping rather than spending into the cap"})
@@ -191,6 +268,9 @@ def capture(league: str, api_key: str, books=None, max_events=None,
         "events_deferred_for_budget": [e.get("id") for e in deferred],
         "deferred_count": len(deferred),
         "failures": failures,
+        # Retries that ACTUALLY HAPPENED, so "the backoff is wired" is a claim
+        # with evidence rather than a comment. Empty is the healthy case.
+        "retried": retried,
         # THE VERDICT SHIPS WITH ITS NUMBERS.
         "complete": len(rows) == (len(events) + len(deferred)) and not failures,
         "coverage": (len(rows) / (len(events) + len(deferred)))
@@ -213,15 +293,55 @@ def write_health(snapshot: dict) -> dict:
             prior = json.loads(HEALTH.read_text())
         except Exception:                                        # noqa: BLE001
             prior = {}
-    ok = snapshot.get("events_captured", 0) > 0
+    # COVERAGE REACHES THE VERDICT. It used to be `events_captured > 0`, so ONE
+    # event out of forty-eight reset consecutive_failures, advanced
+    # last_success_at and passed the staleness gate — and `last_coverage` was
+    # written one line above the verdict and read by nobody. The published run is
+    # coverage 0.271 with complete false, recorded as a clean success.
+    #
+    # That is the third instance of one pattern in this ingest: computed
+    # correctly, written down, ignored by the consumer (the attrition reasons,
+    # the retry advice, and this).
+    #
+    # TWO COUNTERS, because they are two different failures needing two different
+    # responses. A run that captured NOTHING is broken. A run that captured some
+    # is working but leaving holes, and a hole in an unrecoverable window is only
+    # a problem if it PERSISTS — the next run can still take the deferred events
+    # while the window is open. Collapsing both into one boolean is what let a 2%
+    # capture read as healthy.
+    captured = int(snapshot.get("events_captured", 0) or 0)
+    cov = snapshot.get("coverage")
+    ok = captured > 0
+    # COMPLETE means the whole listed slate, not "we got something". Derived from
+    # coverage rather than trusting the snapshot's own flag, because a consumer
+    # that re-derives the verdict cannot inherit a producer's mislabel.
+    complete = cov is not None and cov >= 0.999
     health = {
         "last_attempt_at": snapshot.get("finished_at"),
         "last_success_at": snapshot.get("finished_at") if ok else prior.get("last_success_at"),
+        # A DISTINCT CLOCK FOR COMPLETENESS. "when did we last capture anything"
+        # and "when did we last capture EVERYTHING" are different questions, and
+        # the staleness gate needs the second one.
+        "last_complete_at": snapshot.get("finished_at") if complete
+                            else prior.get("last_complete_at"),
         "last_league": snapshot.get("league"),
-        "last_events_captured": snapshot.get("events_captured"),
-        "last_coverage": snapshot.get("coverage"),
+        "last_events_captured": captured,
+        "last_events_listed": snapshot.get("events_listed"),
+        "last_deferred": snapshot.get("deferred_count"),
+        "last_coverage": cov,
+        "last_complete": complete,
         "consecutive_failures": 0 if ok else int(prior.get("consecutive_failures", 0)) + 1,
+        "consecutive_incomplete": 0 if complete
+                                  else int(prior.get("consecutive_incomplete", 0)) + 1,
         "stale_after_days": 7,
+        # THE BAR, STATED IN THE FILE the gate reads, so the gate cannot quietly
+        # apply a different one. 3 is not a taste: the preseason window runs from
+        # today to roughly Sep 1, about 21 daily captures, so three consecutive
+        # incomplete runs is ~14% of an unrecoverable window spent accumulating
+        # holes. A full 48-event slate IS affordable on a fresh hour (100 limit,
+        # 20 reserved, 1 events call => 78 odds calls available), so incomplete is
+        # not the expected steady state — it is a signal.
+        "max_consecutive_incomplete": 3,
     }
     HEALTH.write_text(json.dumps(health, indent=2, sort_keys=True) + "\n")
     return health

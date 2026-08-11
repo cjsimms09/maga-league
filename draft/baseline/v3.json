@@ -1,0 +1,432 @@
+{
+  "_what": "THE MEASURED CORE, FROZEN. Immutable reference — never edited in place.",
+  "_rule": "SESSION-A binding rule 6: a change to recommendation behaviour either updates this reference deliberately or declares itself a gated departure. There is no third state where the reference silently follows the code.",
+  "_language": "SESSION-A binding rule 7: THIS object is \"the measured core\". Everything running is \"live policy under continuous measurement\".",
+  "frozen_at": "2026-08-11T01:39:58.479Z",
+  "engine_policy": {
+    "MEASURED_WEIGHTS": {
+      "value": 1,
+      "tier": 0,
+      "need": 0,
+      "risk": 0,
+      "ceiling": 0,
+      "keeper": 1,
+      "bye": 0,
+      "stack": 0.5
+    },
+    "CFG": {
+      "COIN_FLIP_GAP": 1,
+      "CLOSE_GAP": 3.5,
+      "TIE_THRESHOLD": 2,
+      "BENCH_DISCOUNT": 0.35,
+      "BENCH_SCORE_FLOOR": 0,
+      "ONESIE_KEEP": 0.1,
+      "DOCTRINE_TILT": 2.5,
+      "DOCTRINE_TILT_ON": true,
+      "THREAT_MIN_P": 0.01
+    },
+    "preset_keys": [
+      "measured",
+      "balanced",
+      "value",
+      "upside",
+      "safe"
+    ]
+  },
+  "anchor_source": "fantasypros",
+  "surfaces": [
+    {
+      "state": "early-empty-roster",
+      "current_pick": 34,
+      "next_pick": 41,
+      "board_size": 1729,
+      "top10": [
+        {
+          "player_id": "12517",
+          "name": "Colston Loveland",
+          "position": "TE",
+          "score": 14.381,
+          "survival_to_next": 0.8615
+        },
+        {
+          "player_id": "7543",
+          "name": "Travis Etienne",
+          "position": "RB",
+          "score": 8.964,
+          "survival_to_next": 0.6125
+        },
+        {
+          "player_id": "9997",
+          "name": "Zay Flowers",
+          "position": "WR",
+          "score": 7.57,
+          "survival_to_next": 0.5753
+        },
+        {
+          "player_id": "11564",
+          "name": "Drake Maye",
+          "position": "QB",
+          "score": 6.235,
+          "survival_to_next": 0.9596
+        },
+        {
+          "player_id": "11533",
+          "name": "Brandon Aubrey",
+          "position": "K",
+          "score": 3.021,
+          "survival_to_next": 0.9884
+        },
+        {
+          "player_id": "6790",
+          "name": "D'Andre Swift",
+          "position": "RB",
+          "score": 2.206,
+          "survival_to_next": 0.647
+        },
+        {
+          "player_id": "LAR",
+          "name": "Los Angeles Rams",
+          "position": "DEF",
+          "score": 2.02,
+          "survival_to_next": 0.9856
+        },
+        {
+          "player_id": "11635",
+          "name": "Ladd McConkey",
+          "position": "WR",
+          "score": -1.467,
+          "survival_to_next": 0.6239
+        },
+        {
+          "player_id": "HOU",
+          "name": "Houston Texans",
+          "position": "DEF",
+          "score": -1.949,
+          "survival_to_next": 0.9866
+        },
+        {
+          "player_id": "11786",
+          "name": "Cam Little",
+          "position": "K",
+          "score": -2.942,
+          "survival_to_next": 0.9896
+        }
+      ],
+      "rule_headline": {
+        "player_id": "6801",
+        "name": "Tee Higgins",
+        "position": "WR",
+        "reason": "best available within your remaining need (WR); QB & DEF deferred (the market prices them well later)"
+      },
+      "gap_to_second": 5.418,
+      "confidence_level": "clear",
+      "firing_rates": {
+        "contested": 0,
+        "has_reasons": 1,
+        "survival_present": 1
+      },
+      "survival_mass": 5.258499,
+      "opponent_picks_in_window": 6,
+      "conservation_ratio": 0.876417,
+      "survival_layers": [
+        "adp",
+        "intervening"
+      ]
+    },
+    {
+      "state": "mid-two-rb-one-wr",
+      "current_pick": 74,
+      "next_pick": 81,
+      "board_size": 1689,
+      "top10": [
+        {
+          "player_id": "9487",
+          "name": "Parker Washington",
+          "position": "WR",
+          "score": 20.596,
+          "survival_to_next": 0.4829
+        },
+        {
+          "player_id": "1466",
+          "name": "Travis Kelce",
+          "position": "TE",
+          "score": 5.658,
+          "survival_to_next": 0.8248
+        },
+        {
+          "player_id": "5967",
+          "name": "Tony Pollard",
+          "position": "RB",
+          "score": 4.673,
+          "survival_to_next": 0.7716
+        },
+        {
+          "player_id": "3294",
+          "name": "Dak Prescott",
+          "position": "QB",
+          "score": 3.303,
+          "survival_to_next": 0.8907
+        },
+        {
+          "player_id": "8183",
+          "name": "Brock Purdy",
+          "position": "QB",
+          "score": -2.052,
+          "survival_to_next": 0.8996
+        },
+        {
+          "player_id": "4217",
+          "name": "George Kittle",
+          "position": "TE",
+          "score": -4.131,
+          "survival_to_next": 0.8502
+        },
+        {
+          "player_id": "5012",
+          "name": "Mark Andrews",
+          "position": "TE",
+          "score": -5.734,
+          "survival_to_next": 0.8545
+        },
+        {
+          "player_id": "7021",
+          "name": "Rico Dowdle",
+          "position": "RB",
+          "score": -5.924,
+          "survival_to_next": 0.8056
+        },
+        {
+          "player_id": "5846",
+          "name": "DK Metcalf",
+          "position": "WR",
+          "score": -8.064,
+          "survival_to_next": 0.6561
+        },
+        {
+          "player_id": "7523",
+          "name": "Trevor Lawrence",
+          "position": "QB",
+          "score": -10.111,
+          "survival_to_next": 0.9194
+        }
+      ],
+      "rule_headline": {
+        "player_id": "11628",
+        "name": "Marvin Harrison",
+        "position": "WR",
+        "reason": "best available within your remaining need (WR); QB & DEF deferred (the market prices them well later)"
+      },
+      "gap_to_second": 14.938,
+      "confidence_level": "clear",
+      "firing_rates": {
+        "contested": 0,
+        "has_reasons": 1,
+        "survival_present": 1
+      },
+      "survival_mass": 5.401317,
+      "opponent_picks_in_window": 6,
+      "conservation_ratio": 0.900219,
+      "survival_layers": [
+        "adp",
+        "intervening"
+      ]
+    },
+    {
+      "state": "late-onesies-open",
+      "current_pick": 134,
+      "next_pick": 141,
+      "board_size": 1629,
+      "top10": [
+        {
+          "player_id": "PHI",
+          "name": "Philadelphia Eagles",
+          "position": "DEF",
+          "score": 4.016,
+          "survival_to_next": 0.6609
+        },
+        {
+          "player_id": "3451",
+          "name": "Ka'imi Fairbairn",
+          "position": "K",
+          "score": 0.33,
+          "survival_to_next": 0.6163
+        },
+        {
+          "player_id": "111",
+          "name": "Marcedes Lewis",
+          "position": "TE",
+          "score": -0.063,
+          "survival_to_next": 1
+        },
+        {
+          "player_id": "23",
+          "name": "Jason Witten",
+          "position": "TE",
+          "score": -0.162,
+          "survival_to_next": 1
+        },
+        {
+          "player_id": "11306",
+          "name": "Xavier Gipson",
+          "position": "WR",
+          "score": -0.244,
+          "survival_to_next": 1
+        },
+        {
+          "player_id": "5409",
+          "name": "Tanner Hudson",
+          "position": "TE",
+          "score": -0.256,
+          "survival_to_next": 1
+        },
+        {
+          "player_id": "4602",
+          "name": "Robert Tonyan",
+          "position": "TE",
+          "score": -0.247,
+          "survival_to_next": 1
+        },
+        {
+          "player_id": "3214",
+          "name": "Hunter Henry",
+          "position": "TE",
+          "score": -0.274,
+          "survival_to_next": 0.9958
+        },
+        {
+          "player_id": "616",
+          "name": "Jimmy Graham",
+          "position": "TE",
+          "score": -0.293,
+          "survival_to_next": 1
+        },
+        {
+          "player_id": "11304",
+          "name": "E.J. Jenkins",
+          "position": "TE",
+          "score": -0.295,
+          "survival_to_next": 1
+        }
+      ],
+      "rule_headline": {
+        "player_id": "8161",
+        "name": "Malik Willis",
+        "position": "QB",
+        "reason": "best available within your remaining need (QB); QB & DEF deferred (the market prices them well later)"
+      },
+      "gap_to_second": 3.686,
+      "confidence_level": "clear",
+      "firing_rates": {
+        "contested": 0,
+        "has_reasons": 1,
+        "survival_present": 1
+      },
+      "survival_mass": 5.173667,
+      "opponent_picks_in_window": 6,
+      "conservation_ratio": 0.862278,
+      "survival_layers": [
+        "adp",
+        "intervening"
+      ]
+    },
+    {
+      "state": "keeper-loaded (our real condition)",
+      "current_pick": 34,
+      "next_pick": 41,
+      "board_size": 1729,
+      "top10": [
+        {
+          "player_id": "12517",
+          "name": "Colston Loveland",
+          "position": "TE",
+          "score": 14.381,
+          "survival_to_next": 0.8615
+        },
+        {
+          "player_id": "7543",
+          "name": "Travis Etienne",
+          "position": "RB",
+          "score": 8.964,
+          "survival_to_next": 0.6125
+        },
+        {
+          "player_id": "9997",
+          "name": "Zay Flowers",
+          "position": "WR",
+          "score": 7.57,
+          "survival_to_next": 0.5753
+        },
+        {
+          "player_id": "11564",
+          "name": "Drake Maye",
+          "position": "QB",
+          "score": 6.235,
+          "survival_to_next": 0.9596
+        },
+        {
+          "player_id": "6790",
+          "name": "D'Andre Swift",
+          "position": "RB",
+          "score": 2.206,
+          "survival_to_next": 0.647
+        },
+        {
+          "player_id": "11635",
+          "name": "Ladd McConkey",
+          "position": "WR",
+          "score": -1.467,
+          "survival_to_next": 0.6239
+        },
+        {
+          "player_id": "6770",
+          "name": "Joe Burrow",
+          "position": "QB",
+          "score": -1.692,
+          "survival_to_next": 0.9666
+        },
+        {
+          "player_id": "7526",
+          "name": "Jaylen Waddle",
+          "position": "WR",
+          "score": -4.251,
+          "survival_to_next": 0.6432
+        },
+        {
+          "player_id": "12526",
+          "name": "Tetairoa McMillan",
+          "position": "WR",
+          "score": -7.217,
+          "survival_to_next": 0.6662
+        },
+        {
+          "player_id": "6801",
+          "name": "Tee Higgins",
+          "position": "WR",
+          "score": -8.579,
+          "survival_to_next": 0.6611
+        }
+      ],
+      "rule_headline": {
+        "player_id": "6801",
+        "name": "Tee Higgins",
+        "position": "WR",
+        "reason": "best available within your remaining need (WR); QB & DEF deferred (the market prices them well later)"
+      },
+      "gap_to_second": 5.418,
+      "confidence_level": "clear",
+      "firing_rates": {
+        "contested": 0,
+        "has_reasons": 1,
+        "survival_present": 1
+      },
+      "survival_mass": 5.258499,
+      "opponent_picks_in_window": 6,
+      "conservation_ratio": 0.876417,
+      "survival_layers": [
+        "adp",
+        "intervening"
+      ]
+    }
+  ],
+  "_why": "PRECISION FIX ONLY — no behaviour change. v2 froze survival_mass at 3 decimals, so the conservation CEILING written as 'ratio <= 1 + 1e-9' could not resolve better than 1.7e-4 of ratio: breaking the live ratio to 1.0000001 left the guard green. A check cannot be finer than the number it reads. survival_mass and conservation_ratio are now frozen at 6 decimals and the ceiling epsilon is 1e-6, which sits above the 8e-8 rounding granularity and far below any real violation. This is rule 10b applied to the fix for rule 10b: the first ceiling claimed a precision its input did not carry. Numbers are otherwise identical to v2 to 3dp. v1 and v2 both stay on the books."
+}

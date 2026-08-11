@@ -34,9 +34,14 @@ const ROOT = path.join(__dirname, '..', '..');
  *
  * v1 -> v2 on 2026-08-11: v1 froze a Layer-1-only world (freeze_baseline.js
  * supplied intervening: [], and survival.js gates Layer 2 on it), so it was
- * testing a context the app never runs in. v2's stated reason is in the artifact
- * itself under `_why`. v1 stays on the books. */
-const BASELINE = path.join(ROOT, 'draft', 'baseline', 'v2.json');
+ * testing a context the app never runs in.
+ * v2 -> v3, same day: PRECISION ONLY, no behaviour change. v2 stored the mass at
+ * three decimals, so a conservation ceiling written as `1 + 1e-9` could not
+ * resolve better than 1.7e-4 and stayed green when the live ratio was broken to
+ * 1.0000001. Six decimals now, epsilon 1e-6.
+ * Each version's reason is in the artifact itself under `_why`. v1 and v2 both
+ * stay on the books. */
+const BASELINE = path.join(ROOT, 'draft', 'baseline', 'v3.json');
 const { build } = require(path.join(ROOT, 'draft', 'tools', 'freeze_baseline.js'));
 
 let pass = 0, fail = 0;
@@ -44,7 +49,7 @@ const ck = (n, c, d) => { c ? (pass++, console.log('PASS ' + n))
   : (fail++, console.log('FAIL ' + n + (d ? '\n        -> ' + d : ''))); };
 
 if (!fs.existsSync(BASELINE)) {
-  console.log('FAIL no frozen baseline at draft/baseline/v1.json — run freeze_baseline.js --freeze');
+  console.log('FAIL no frozen baseline at ' + BASELINE + '  — run freeze_baseline.js --freeze');
   process.exit(1);
 }
 const frozen = JSON.parse(fs.readFileSync(BASELINE, 'utf8'));
@@ -124,17 +129,46 @@ frozen.surfaces.forEach(f => {
    *   conservation violation against the correct denominator of 6 — the guard
    *   was present and green on the very number it exists to catch.
    *
-   * 0.8-1.2 is a 20% tolerance either way. It is not a knife edge: the current
-   * surfaces sit at 0.862-0.900, so there is real headroom. It IS a constraint:
-   * v1's 1.213 fails it. A band chosen so that it would have caught the defect
-   * that motivated it, rather than one chosen so that today passes. */
+   * AND 0.8-1.2 WAS ALSO CHOSEN TO PASS. That was my first replacement band, and
+   * rule 10b applied to it says so plainly: CONSERVATION IS AN EXACT IDENTITY.
+   * Every opponent pick removes exactly one player from the board, so the sum of
+   * P(gone) over the board must EQUAL the number of opponent picks. A 20%
+   * tolerance on an exact quantity is not noise allowance, it is a window sized
+   * to admit the current numbers. So it is split into the two halves it always
+   * was, which have completely different justifications:
+   *
+   *   CEILING — EXACT, to an epsilon. Expected departures cannot exceed available
+   *   picks; there is no measurement noise that makes 1.05 acceptable. This is
+   *   what would have caught v1 (7.279 / 6 = 1.213), and it is the half that can
+   *   be stated with no judgement at all.
+   *
+   *   FLOOR — A RATCHET OVER A DECLARED, OPEN VIOLATION. The live model
+   *   under-predicts: 0.862-0.900 against an identity that demands 1.000. That is
+   *   a REAL DEFECT, currently ~10-14%, and no honest band accepts it as passing.
+   *   Pretending otherwise is the thing 10b forbids. So the deficit is frozen per
+   *   surface and only allowed to shrink. It fails the moment it grows, and it
+   *   stays visible as an open violation rather than being absorbed into a
+   *   tolerance and forgotten. */
   const opp = l.opponent_picks_in_window
     || (f.next_pick - f.current_pick - 1);
   const ratio = opp ? l.survival_mass / opp : null;
-  ck('[' + f.state + '] and still conserves (mass ~= OPPONENT picks in window)',
-     ratio != null && ratio > 0.8 && ratio < 1.2,
+  /* 1e-6, NOT 1e-9. The mass is frozen at six decimals, so its rounding
+   * granularity is 5e-7 of mass — about 8e-8 of ratio over six picks. An epsilon
+   * of 1e-6 sits safely above that and far below any real violation. Writing 1e-9
+   * would be claiming a precision the stored number does not carry, which is how
+   * the first version of this ceiling silently admitted 1.00017. */
+  ck('[' + f.state + '] conservation CEILING is exact (mass <= opponent picks)',
+     ratio != null && ratio <= 1 + 1e-6,
      'mass ' + l.survival_mass + ' over ' + opp + ' opponent picks = '
-     + (ratio == null ? 'n/a' : ratio.toFixed(3)));
+     + (ratio == null ? 'n/a' : ratio.toFixed(4))
+     + ' — expected departures cannot exceed the picks that happen');
+  const frozenRatio = f.conservation_ratio;
+  ck('[' + f.state + '] conservation deficit has not WIDENED (open violation, ratcheted)',
+     ratio != null && frozenRatio != null && ratio >= frozenRatio - 1e-3,
+     'frozen ratio ' + frozenRatio + ', live ' + (ratio == null ? 'n/a' : ratio.toFixed(4))
+     + ' — the model under-predicts departures by '
+     + (ratio == null ? '?' : ((1 - ratio) * 100).toFixed(1)) + '%, which is a KNOWN '
+     + 'OPEN DEFECT, not a passing tolerance');
 
   /* DID BOTH LAYERS RUN? v1 froze a LAYER-1-ONLY world — the freeze tool passed
    * intervening: [], survival.js gates Layer 2 on it, and the suite reported

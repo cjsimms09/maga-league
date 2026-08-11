@@ -330,6 +330,45 @@ a deliberately re-broken `setSlot` because the regex matched the COMMENT explain
 rather than the code implementing it. In every case the question was "does this fail when it
 should," and in every case the answer was no until someone actually tried it.
 
+**10a — BREAK AT THE BOUNDARY, NOT IN THE OBVIOUS ZONE.** Cory, 2026-08-11. A clause, not a
+fourteenth rule: it is a refinement of a rule that has earned its place. **Where a guard has a
+threshold, the break must land JUST PAST that threshold.** A break that is too large proves
+only that the mechanism fires; it says nothing about whether the ceiling is in the right
+place.
+
+Earned by the conservation guard. It ran a 0.5–1.5 band against a denominator that included
+my own pick, and it sat green over v1's 21% overshoot. Break conservation by 3× and that guard
+goes red every time and passes rule 10 cleanly — while the real 1.21 violation sails through.
+The guard worked. Its ceiling was in the wrong place, and an obvious break could not tell.
+
+Same family as the no-op discards, and now stated as a pair:
+* **A break that cannot change behaviour tests nothing.**
+* **A break that is too big tests only the extreme.**
+
+It has already paid twice in the hour it was written. Re-introducing `should_retry(code, 1)` —
+B's exact finding, verbatim — left a fresh nine-test retry suite fully GREEN, because a second
+stop condition masked the dead one; the fix was to assert the ARGUMENT rather than the
+outcome. And an earliest-observation test passed against an "always overwrite" implementation
+because it was only ever run with one input ordering. Neither was found by reading.
+
+**10b — A TOLERANCE BAND IS A DECISION, AND MUST BE MADE DELIBERATELY.** Cory, 2026-08-11.
+**Is the band justified by the measurement's actual noise, or was it chosen to make the test
+pass?** Asked at the moment the band is CHOSEN, not discovered later when something slips
+through it. A tolerance wide enough to feel safe is usually wide enough to be useless.
+
+**Where the quantity is an exact identity, the only defensible band is a floating-point
+epsilon.** Conservation is exact — expected departures cannot exceed available picks, full
+stop. A 50% window on that is not a tolerance; it is a window wide enough to accept the
+failure, and the wrong denominator made the effective ceiling looser still. Two errors
+compounding, each individually explicable.
+
+*Why this one is different from the earlier guards-that-do-not-guard.* Those were BROKEN — a
+fixture that could not fail, a suite that collected nothing, a regex matching a comment, a null
+coercion collapsing a band to zero, a check comparing a function against itself. **This one was
+built to a specification that could not detect the failure.** The code is correct; the
+specification is the error. Reading it shows a check doing exactly what it claims, which is why
+neither code review nor a coarse rule-10 break finds it.
+
 *Rule 9 standing:* a **statement**, not a workstream. It costs about a minute, at the moment
 the guard is written, by whoever is already writing it — no schedule, no artifact, no human
 attention on a cadence. Nothing to maintain, so nothing to rot.

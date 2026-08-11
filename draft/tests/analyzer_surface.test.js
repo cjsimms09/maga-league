@@ -72,15 +72,38 @@ const ck = (n, c, d) => { c ? (pass++, console.log('PASS ' + n)) : (fail++, cons
     const sObj = LO.seasonOf(hist, yr);
     if (sObj) {
       const proj = ST.projectStandings(sObj, { throughWeek: 9, sims: 2000, seed: 4242 }).projections;
+      /* BOTH OF THESE ARE EXACT IDENTITIES, AND BOTH CARRIED BANDS SIZED FOR NOISE
+       * THEY DO NOT HAVE. Rule 10b, applied 2026-08-11 in the bounded look the
+       * rule asks for.
+       *
+       * Neither is a statistical estimate despite arriving out of a Monte Carlo.
+       * In EVERY simulation exactly one team wins each game, so the across-team
+       * sum of wins is `games` in every single draw and therefore in the mean —
+       * the sim count cannot move it. Same for playoff probability: every draw
+       * seats exactly PLAYOFF_SPOTS teams.
+       *
+       * MEASURED rather than assumed: across 2023/2024/2025 at (seed, sims) of
+       * (4242, 2000), (7, 500), (99, 3000) and (1234, 100), the largest deviation
+       * of either quantity was 1.42e-14 — pure float accumulation.
+       *
+       * So 0.51 was ~3.6e13 times the actual noise, and 0.01 ~7e11 times. A band
+       * that wide is not a tolerance, it is a window that would accept a whole
+       * missing game (or, on the playoff line, a team seated in 1% of universes
+       * for no reason). 1e-9 sits far above the measured 1.42e-14 and far below
+       * anything that could be a real defect.
+       *
+       * The 0.51 is the tell worth remembering: a band written as 0.5 and then
+       * nudged up by one hundredth is a band chosen to make the test pass. It
+       * turned out nothing needed the nudge. */
       const sumP = proj.reduce((a, r) => a + r.playoff_prob, 0);
-      ck(`Σ playoff probability == playoff spots (${ST.PLAYOFF_SPOTS})`,
-        Math.abs(sumP - ST.PLAYOFF_SPOTS) < 0.01, sumP.toFixed(3));
+      ck(`Σ playoff probability == playoff spots (${ST.PLAYOFF_SPOTS}) — EXACT`,
+        Math.abs(sumP - ST.PLAYOFF_SPOTS) < 1e-9, sumP.toFixed(12));
 
       const weeks = LO.regularSeasonWeeks(sObj).length;
       const expectedWins = (proj.length * weeks) / 2;   // one winner per game
       const sumW = proj.reduce((a, r) => a + r.exp_wins, 0);
-      ck(`Σ expected wins == games played (${expectedWins})`,
-        Math.abs(sumW - expectedWins) < 0.51, sumW.toFixed(1));
+      ck(`Σ expected wins == games played (${expectedWins}) — EXACT`,
+        Math.abs(sumW - expectedWins) < 1e-9, sumW.toFixed(12));
 
       const seedErr = Math.max(...proj.map(r =>
         Math.abs(Object.values(r.seed_dist || {}).reduce((a, b) => a + b, 0) - r.playoff_prob)));

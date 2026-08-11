@@ -244,7 +244,13 @@ function surfaceFor(state, players, league, art) {
     gap_to_second: round(scored[0] && scored[0].gap_to_second, 3),
     confidence_level: out.confidence ? out.confidence.level : null,
     firing_rates: rates,
-    survival_mass: round(mass, 3),
+    /* SIX DECIMALS, BECAUSE A GUARD CANNOT BE FINER THAN WHAT IT READS. At three
+     * this was rounded to 0.001 of mass, which over 6 opponent picks is 1.7e-4 of
+     * ratio — so a conservation ceiling written as `<= 1 + 1e-9` actually admitted
+     * anything up to ~1.00017. Breaking the live ratio to 1.0000001 left it GREEN.
+     * The check claimed a precision the number it reads does not carry, which is
+     * rule 10b inside the fix for rule 10b. */
+    survival_mass: round(mass, 6),
     /* HOW MANY PICKS THE MASS IS ANSWERABLE TO. Conservation is the identity
      * "expected departures = picks that actually happen", and the denominator is
      * OPPONENT picks — the window minus my own slot — because a player I take is
@@ -252,7 +258,7 @@ function surfaceFor(state, players, league, art) {
      * read off the file instead of recomputed from memory. */
     opponent_picks_in_window: interveningPicks.length,
     conservation_ratio: interveningPicks.length
-      ? round(mass / interveningPicks.length, 3) : null,
+      ? round(mass / interveningPicks.length, 6) : null,
     /* THE LAYERS THAT ACTUALLY RAN. v1 froze a Layer-1-only world and reported
      * nothing wrong for it; two separate attempts to fix that also produced
      * Layer-1-only worlds in silence. The count is now part of the frozen

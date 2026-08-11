@@ -81,7 +81,14 @@ def test_rebuilt_standings_match_harvested_records(hp, season):
         rb = by_rid[rid]
         assert rb["wins"] == hs["wins"], f"{season} r{rid}: wins {rb['wins']} != {hs['wins']}"
         assert rb["losses"] == hs["losses"], f"{season} r{rid}: losses {rb['losses']} != {hs['losses']}"
-        assert rb["points_for"] == pytest.approx(hs["points_for"], abs=0.5)
+        # Same shape as the starters-sum band, same verdict. points_for
+        # reconstructed from weekly scores and points_for as Sleeper reports it
+        # are the SAME quantity by two routes — an identity, not a measurement.
+        # abs=0.5 would swallow half a point of real disagreement between the two
+        # paths, which is exactly the two-places disease this test exists to
+        # detect. Measured 2026-08-11 at 0.5, 0.01, 1e-4 and 1e-9 across all
+        # seasons: green at every one.
+        assert rb["points_for"] == pytest.approx(hs["points_for"], abs=1e-9)
 
 
 @pytest.mark.parametrize("season", SEASONS)
