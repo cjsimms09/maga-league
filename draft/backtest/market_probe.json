@@ -106,11 +106,10 @@
       "player_production_series_count": 48,
       "reachable": true,
       "sample_titles": [],
-      "series_listed": 12628,
+      "series_listed": 12629,
       "series_prefixes_seen": {
-        "KXMLBTOTAL": 1,
-        "KXMVECROSSCATE": 5517,
-        "KXMVESPORTSMUL": 6482
+        "KXMVECROSSCATE": 5432,
+        "KXMVESPORTSMUL": 6568
       },
       "volume_median": 0,
       "volume_total": 0,
