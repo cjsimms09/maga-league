@@ -365,3 +365,33 @@ def test_the_names_come_out_IN_DOCUMENT_ORDER():
     # JSON boards are read in order too, and take precedence when both are present.
     j = '{"players":[{"name":"Alpha One"},{"name":"Beta Two"}]}'
     assert X.extract_names(j) == ["Alpha One", "Beta Two"]
+
+
+# ── a filter on my own query can manufacture a negative ────────────────────
+def test_FILTERING_TO_200_CAN_MAKE_A_LIVE_PAGE_LOOK_ABANDONED():
+    """A site that starts 301-redirecting a URL keeps being captured — under 301,
+    not 200 — so `filter=statuscode:200` makes a heavily-archived page look like one
+    nobody saved. That is a fact about my query, not the publisher.
+
+    Measured suspicion, not invented: FantasyPros' PPR page has a 2024-07-31 capture
+    while its HALF-PPR page's newest is 2023-12-09 — same site, same crawler, which
+    is what a redirect on one path and not the other looks like.
+
+    MUTATION: hard-code the filter. The redirected page reports zero captures and
+    Route 1 closes on a URL the archive holds hundreds of copies of."""
+    assert "filter=statuscode%3A200" in X.cdx_query("https://x.example/a", "20240801")
+    assert "filter" not in X.cdx_query("https://x.example/a", "20240801", only_200=False)
+
+
+def test_THE_STATUSES_ARE_COUNTED_so_a_filtered_page_is_visible_as_filtered():
+    """"No captures" and "captures we excluded" are different findings, and only one
+    of them is about the publisher. MUTATION: drop statuscode from the parsed rows.
+    The two collapse into the same empty list and the distinction is unrecoverable."""
+    head = ["urlkey", "timestamp", "original", "mimetype", "statuscode", "digest", "length"]
+    body = json.dumps([head,
+                       ["k", "20240715120000", "https://x/a", "text/html", "301", "D", "0"],
+                       ["k", "20240716120000", "https://x/a", "text/html", "301", "D", "0"],
+                       ["k", "20231209010000", "https://x/a", "text/html", "200", "D", "9"]])
+    rows = X.parse_cdx(body)
+    assert X.status_census(rows) == {"301": 2, "200": 1}
+    assert all(r.get("statuscode") for r in rows)

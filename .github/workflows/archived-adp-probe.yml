@@ -140,10 +140,30 @@ jobs:
                   return {"state": "unreached",
                           "detail": "index unreadable: %s" % type(e).__name__}, True
               usable = AA.usable_captures(rows, BEFORE)
+              statuses = {}
               if not usable:
-                  return {"state": "none", "captures": 0,
-                          "detail": "%d capture(s) in index, newest %s"
-                                    % (len(rows), rows[0]["timestamp"] if rows else "-")}, False
+                  # FILTERING TO 200 IS A FILTER ON OUR OWN QUERY. A site that starts
+                  # 301-redirecting a URL keeps being captured, under 301, and the
+                  # filtered query then reports a heavily-archived page as one nobody
+                  # saved. Ask again without the filter before concluding anything
+                  # about the publisher, and REPORT the statuses either way.
+                  time.sleep(CDX_SPACING)
+                  r2 = get(AA.cdx_query(url, BEFORE, only_200=False),
+                           timeout=60, tries=3, pause=5.0)
+                  if not (r2 or {}).get("transport_error"):
+                      try:
+                          all_rows = AA.parse_cdx(r2.get("body") or b"")
+                      except Exception:                            # noqa: BLE001
+                          all_rows = []
+                      statuses = AA.status_census(all_rows)
+                      # A redirect is not a board, but it says the page LIVES. The
+                      # captures still usable are the 200s among them.
+                      usable = [c for c in AA.usable_captures(all_rows, BEFORE)
+                                if str(c.get("statuscode")) == "200"]
+              if not usable:
+                  return {"state": "none", "captures": 0, "statuses": statuses,
+                          "detail": "%d in filtered index; unfiltered statuses %s"
+                                    % (len(rows), statuses or "{}")}, False
               # WALK the pre-cutoff captures newest-first until one actually serves a
               # board. The newest is the best DATE, but the archive holds empty
               # captures, redirects and error pages under a 200 — measured: a 0-byte
@@ -153,7 +173,7 @@ jobs:
               got = AA.first_serving_capture(usable, lambda u: get(u).get("body") or b"")
               out = {"state": got["state"], "timestamp": got.get("timestamp"),
                      "rows": got.get("rows"), "captures": len(usable),
-                     "examined": got.get("examined"),
+                     "examined": got.get("examined"), "statuses": statuses,
                      "detail": "%d capture(s) tried, newest %s"
                                % (len(got.get("examined") or []), got.get("timestamp"))}
               if got["state"] == "board":
