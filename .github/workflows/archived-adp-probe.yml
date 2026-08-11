@@ -144,15 +144,23 @@ jobs:
                   return {"state": "none", "captures": 0,
                           "detail": "%d capture(s) in index, newest %s"
                                     % (len(rows), rows[0]["timestamp"] if rows else "-")}, False
-              # The LATEST capture still preceding the cutoff: closest to the draft
-              # while genuinely predating it.
-              cap = usable[0]
-              body = get(AA.replay_url(cap)).get("body") or b""
-              v = AA.looks_like_a_board(body)
-              return ({"state": "board" if v["is_board"] else "not-a-board",
-                       "timestamp": cap["timestamp"], "rows": v["rows_seen"],
-                       "captures": len(usable),
-                       "detail": "%d bytes" % v["bytes"]}, False)
+              # WALK the pre-cutoff captures newest-first until one actually serves a
+              # board. The newest is the best DATE, but the archive holds empty
+              # captures, redirects and error pages under a 200 — measured: a 0-byte
+              # capture 32 seconds after a sibling that served 422KB. Stopping at the
+              # first would report "no capture serves a board" when only the newest
+              # was a dud.
+              got = AA.first_serving_capture(usable, lambda u: get(u).get("body") or b"")
+              out = {"state": got["state"], "timestamp": got.get("timestamp"),
+                     "rows": got.get("rows"), "captures": len(usable),
+                     "examined": got.get("examined"),
+                     "detail": "%d capture(s) tried, newest %s"
+                               % (len(got.get("examined") or []), got.get("timestamp"))}
+              if got["state"] == "board":
+                  # THE KNOWN-ANSWER SAMPLE. A page that parses is not a page that is
+                  # right, and nothing but reading the top of the board can tell.
+                  out["names"] = AA.extract_names(got.get("body") or b"", 15)
+              return out, False
 
           results, unreachable = [], 0
           for name, url, basis in AA.candidates(YEAR):
@@ -167,6 +175,8 @@ jobs:
               row["url"] = url
               row["live_detail"] = live.get("detail")
               row["archived_detail"] = arch.get("detail")
+              row["names"] = arch.get("names")
+              row["captures_examined"] = arch.get("examined")
               results.append(row)
               # THE DETAIL IS PRINTED, not just stored. `not-a-board` on a page that
               # certainly exists is either a bot-block or our own detector, and the
@@ -181,6 +191,17 @@ jobs:
           print()
           print("===== ROUTE 1 =====")
           print(rep["verdict"])
+          print()
+          print()
+          print("THE HAND-CHECK — are these the players who actually went early?")
+          for r in results:
+              if r.get("verdict") == "SATISFIES F5":
+                  names = (r.get("names") or [])
+                  print("  %-18s %s" % (r["target"], r.get("archived_timestamp")))
+                  print("      %s" % (", ".join(names) if names
+                                      else "NO NAMES EXTRACTED — the row count called it a "
+                                           "board and nothing readable came out. Treat the "
+                                           "hit as UNVERIFIED."))
           print()
           for label, key in (("SATISFIES F5", "satisfies_f5"),
                              ("CONTENT-DATED LEAD (not evidence)", "content_dated_leads"),

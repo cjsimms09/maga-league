@@ -290,3 +290,78 @@ def test_a_closure_still_requires_EVERY_target_to_have_been_answered():
     verdict overstates its own coverage by exactly that target."""
     assert "CLOSED ON THIS EVIDENCE" in X.route1_verdict(hits=[], probed=15, unreachable=0)
     assert "CLOSED" not in X.route1_verdict(hits=[], probed=15, unreachable=1)
+
+
+# ── a capture is a snapshot ATTEMPT, not a guarantee ───────────────────────
+def test_A_DUD_NEWEST_CAPTURE_DOES_NOT_HIDE_THE_ONES_BEHIND_IT():
+    """MEASURED on the first successful run: FantasyPros' overall page had a capture
+    at 20240731003217 that returned ZERO BYTES — 32 seconds after a sibling capture
+    that served 422KB. The probe took the newest capture, judged it, and gave up, so
+    the target was reported as serving no board while earlier captures sat
+    unexamined in the same index.
+
+    "The newest capture was a dud" and "no capture serves a board" are different
+    findings. MUTATION: take captures[0] and stop. The second gets reported when
+    only the first is true, and Route 1 closes on an empty HTTP response."""
+    caps = [{"timestamp": "20240731003217", "original": "https://fp.example/adp"},
+            {"timestamp": "20240731003145", "original": "https://fp.example/adp"}]
+    # No digits in the fixture names: the detector rejects "Name0" for the same
+    # reason it rejects "Week 3", and a fixture the code is right to refuse
+    # proves nothing about the code.
+    board = "<td><a>Player Name</a></td>" * 60
+    served = {"https://web.archive.org/web/20240731003145id_/https://fp.example/adp": board}
+    got = X.first_serving_capture(caps, lambda u: served.get(u, ""))
+    assert got["state"] == "board" and got["timestamp"] == "20240731003145"
+    # Every capture examined is reported, so a hit is never a lucky draw from a
+    # list nobody can see.
+    assert [e["timestamp"] for e in got["examined"]] == ["20240731003217", "20240731003145"]
+    assert got["examined"][0]["empty"] is True
+
+
+def test_AN_EMPTY_BODY_AND_A_PAGE_WITHOUT_A_BOARD_ARE_DIFFERENT_FINDINGS():
+    """One is a fetch that returned nothing; the other is content we read and
+    judged. The first run gave both the same label, `not-a-board`."""
+    assert X.looks_like_a_board("")["empty"] is True
+    assert X.looks_like_a_board("<html>a real page, no players</html>")["empty"] is False
+    caps = [{"timestamp": "20240731000000", "original": "https://x.example/a"}]
+    assert X.first_serving_capture(caps, lambda u: "")["state"] == "empty"
+    assert X.first_serving_capture(caps, lambda u: "<html>hi</html>")["state"] == "not-a-board"
+
+
+# ── the known-answer check the probe's own verdict demands ──────────────────
+def test_REAL_NFL_NAMES_SURVIVE_THE_EXTRACTOR():
+    """A page that parses is not a page that is right, and the only check that can
+    tell is a human reading the top of the board. So the sample has to contain
+    PLAYERS.
+
+    Real names break a tidy pattern, and a tidy one returns nothing silently:
+    Ja'Marr Chase (apostrophe), CeeDee Lamb (internal capital), Amon-Ra St. Brown
+    (hyphen, period, three words), A.J. Brown (initials), Kenneth Walker III.
+    MUTATION: require [A-Z][a-z]+ twice. It matches NONE of these, the hand-check
+    sample comes back empty, and an empty sample reads as a page with no players."""
+    real = ["Ja'Marr Chase", "CeeDee Lamb", "Amon-Ra St. Brown", "A.J. Brown",
+            "D'Andre Swift", "Bijan Robinson", "Kenneth Walker III"]
+    html = "".join("<td class=p><a href=/x>%s</a></td>" % n for n in real)
+    got = X.extract_names(html)
+    assert got == real, "lost: %r" % [n for n in real if n not in got]
+
+
+def test_THE_SAMPLE_IS_NOT_POLLUTED_WITH_NAVIGATION():
+    """Two capitalised words in a row is a loose pattern and it catches menus, ad
+    copy and city names. A sample full of "Draft Kit" and "Green Bay" cannot be
+    hand-checked, which is the only thing it is for. MUTATION: drop the filter, and
+    the count that called it a board was counting furniture."""
+    nav = "<a>Fantasy Football</a><a>Draft Kit</a><a>Mock Draft</a><a>Green Bay</a>"
+    got = X.extract_names(nav + "<td><a>Bijan Robinson</a></td>")
+    assert got == ["Bijan Robinson"], got
+
+
+def test_the_names_come_out_IN_DOCUMENT_ORDER():
+    """An ADP board's first rows are its top picks. Order is what makes the sample
+    checkable: the right players in roughly the right order is the evidence."""
+    names = ["First Player", "Second Player", "Third Player"]
+    html = "".join("<td><a>%s</a></td>" % n for n in names)
+    assert X.extract_names(html, limit=2) == names[:2]
+    # JSON boards are read in order too, and take precedence when both are present.
+    j = '{"players":[{"name":"Alpha One"},{"name":"Beta Two"}]}'
+    assert X.extract_names(j) == ["Alpha One", "Beta Two"]
