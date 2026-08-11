@@ -118,23 +118,42 @@
 </div>
 
 <%# ── What this matchup is worth — one folded line ──────────────────────────── %>
-<%# ROUNDING MUST NOT BECOME A CLAIM. This printed Math.round(p * 100), so a
-    4–2 team in week 7 with eight games left — real odds 0.55% and 0.05% — was
-    told "a win puts you at 1%, a loss drops you to 0%". A flat 0% asserts
-    elimination for a team that is mathematically alive, and the two numbers
-    printed as different sat next to a swing that rounded to nothing, so the
-    line didn't even reconcile with itself. Near-zero and near-certain now say
-    so as bounds, and the swing is derived from the SAME rounded figures the
-    reader can see, so it can never contradict them. %>
+<%# ROUNDING MUST NOT BECOME A CLAIM, and the claim must be one the reader can
+    check against the two figures printed right beside it.
+    ROUND ONE: this printed Math.round(p * 100), so a 4–2 team in week 7 with
+    eight games left — real odds 0.55% and 0.05% — was told "a win puts you at
+    1%, a loss drops you to 0%". A flat 0% asserts elimination for a team that
+    is mathematically alive, and the two figures printed as different sat next
+    to a swing that rounded away to nothing. Near-zero and near-certain now say
+    so as BOUNDS ("<1%", ">99%"), and the swing was reconciled with
+    Math.round(p * 100).
+    ROUND TWO: that reconciliation was with a number the reader never sees —
+    precisely in the branches round one added. A team at 99.7% / 96.7% showed
+    ">99%" and "97%" and was then told "a 3-point swing"; subtract what is on
+    the page and you get 2. The bound branch had quietly re-opened the hole the
+    fix above it closed.
+    So each shown figure is read back as the INTERVAL it stands for, and the
+    sentence says only what those intervals prove: an exact difference when
+    both figures are exact, a floor ("at least a 1-point swing") when either is
+    a bound, and the qualitative reading when even that is under a point.
+    Lossy on purpose — a number the reader can check beats a sharper one they
+    can disprove. Guarded by draft/tests/matchup_arithmetic.test.js. %>
 <% if (typeof stakes !== 'undefined' && stakes) {
      const pctText = p => p <= 0 ? '0%' : p >= 1 ? '100%'
        : p < 0.005 ? '<1%' : p > 0.995 ? '>99%' : Math.round(p * 100) + '%';
-     const w = Math.round(stakes.win * 100), l = Math.round(stakes.lose * 100);
-     const s = w - l;                       // reconciles with the two shown figures
-     const tiny = stakes.swing < 0.005; %>
+     // What a printed figure PROVES about the real percentage, as [lo, hi].
+     const span = t => t === '<1%' ? [0, 1] : t === '>99%' ? [99, 100]
+       : [parseFloat(t) - (/^(0|100)%$/.test(t) ? 0 : 0.5), parseFloat(t) + (/^(0|100)%$/.test(t) ? 0 : 0.5)];
+     const wT = pctText(stakes.win), lT = pctText(stakes.lose);
+     const exact = !/^[<>]/.test(wT) && !/^[<>]/.test(lT);
+     // Exact figures subtract exactly — that is the arithmetic a reader does.
+     // Bounded ones only ever support a floor on the gap.
+     const s = exact ? parseFloat(wT) - parseFloat(lT)
+       : Math.floor(Math.max(0, span(wT)[0] - span(lT)[1]));
+     const tiny = stakes.swing < 0.005 || s < 1; %>
   <div class="stakes-line">
     <span class="tag">🎟️</span>
-    <span>What this is worth: a win puts you at <b class="pos"><%= pctText(stakes.win) %></b> to make the playoffs, a loss drops you to <b class="neg"><%= pctText(stakes.lose) %></b><% if (tiny) { %> — barely a swing either way<% } else if (s > 0) { %> — a <b><%= s %>-point</b> swing<% } %>.
+    <span>What this is worth: a win puts you at <b class="pos"><%= wT %></b> to make the playoffs, a loss drops you to <b class="neg"><%= lT %></b><% if (tiny) { %> — barely a swing either way<% } else { %> — <%= exact ? 'a' : 'at least a' %> <b><%= s %>-point</b> swing<% } %>.
       <span class="muted" style="font-size:.74rem">(estimate — record + points, until the model lands)</span></span>
   </div>
 <% } %>
@@ -284,9 +303,16 @@
   <div class="card" style="margin-bottom:1.2rem">
     <h2>🎯 The Weekly High <span class="sub">the $100 you can also win this week</span></h2>
     <div class="body">
+      <%# ONE BAR, ROUNDED ONCE. The bar printed as Math.round(median) while the
+          gap was measured off the UNROUNDED median: "typically 148 wins the
+          week ... you're 28.5 short of that bar" for a team on 120.0, where
+          148 − 120 = 28. Two figures on the same line that do not subtract to
+          the third is the same defect as the stakes swing above. Round the
+          median once, then say the bar and the gap off that one number. %>
+      <% const bar = Math.round(whBand.median); %>
       <% if (whRace) {
            const pct = whRace.top ? Math.max(4, Math.min(100, Math.round((whRace.mine || 0) / whRace.top * 100))) : 0;
-           const toBar = whRace.mine != null ? (whBand.median - whRace.mine) : null; %>
+           const toBar = whRace.mine != null ? (bar - whRace.mine) : null; %>
         <div class="wh-race">
           <div class="wh-race-top">
             <span class="wh-race-lead"><%= whRace.iLead ? '🟢 You lead week ' + whRace.week : '🏈 ' + whRace.leaderName + ' leads week ' + whRace.week %> · <b><%= whRace.top.toFixed(1) %></b></span>
@@ -296,11 +322,11 @@
           <div class="wh-race-scale muted"><span>you: <%= whRace.mine != null ? whRace.mine.toFixed(1) : '—' %></span><span>$100 at the top</span></div>
         </div>
         <p class="wh-band-note" style="margin:.7rem 0 0">
-          Typically <b><%= Math.round(whBand.median) %></b> wins the week (three-season range <%= Math.round(whBand.min) %>–<%= Math.round(whBand.max) %>).
+          Typically <b><%= bar %></b> wins the week (three-season range <%= Math.round(whBand.min) %>–<%= Math.round(whBand.max) %>).
           <% if (toBar != null && toBar > 0) { %>You're <b><%= toBar.toFixed(1) %></b> short of that bar.<% } else if (toBar != null) { %>You're <b>already past</b> the typical winning score — hold on.<% } %>
         </p>
       <% } else { %>
-        <p class="wh-band-note" style="margin:0">🎯 <b>$100</b> to the week's top score, on top of this matchup. The bar, from three seasons: typically <b><%= Math.round(whBand.median) %></b> wins it — range <%= Math.round(whBand.min) %>–<%= Math.round(whBand.max) %>. It comes alive here once games are on.</p>
+        <p class="wh-band-note" style="margin:0">🎯 <b>$100</b> to the week's top score, on top of this matchup. The bar, from three seasons: typically <b><%= bar %></b> wins it — range <%= Math.round(whBand.min) %>–<%= Math.round(whBand.max) %>. It comes alive here once games are on.</p>
       <% } %>
     </div>
   </div>
