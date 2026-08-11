@@ -11,8 +11,48 @@ const SITE = process.env.SITE_URL || 'https://makefbgreatagain.netlify.app';
 
 const configured = () => !!API_KEY;
 
+// ── WHO MAY BE EMAILED AT ALL ────────────────────────────────────────────────
+//
+// STANDING RULE (Cory, 2026-08-11): the site never emails MEMBERS. Not a
+// preference to remember at each call site — six of them already existed
+// (alertPosted and newVote to every owner, moneySettled, draftTurn twice,
+// sideBetProposed) and the seventh would be added by whoever builds the next
+// feature. So it is enforced at the ONE door every message goes through, and a
+// new caller inherits the rule instead of having to be told it.
+//
+// The commissioner is the only permitted recipient. Everything else is refused
+// with a named reason rather than silently dropped, so a caller can tell "the
+// mailer declined" from "the mailer is not configured".
+async function commissionerEmails() {
+  try {
+    const owners = await getDoc('owners', []);
+    return new Set((owners || [])
+      .filter(o => o && o.active && o.is_commissioner && o.email)
+      .map(o => String(o.email).trim().toLowerCase()));
+  } catch (e) { return new Set(); }
+}
+
+// The same question, asked before doing work rather than after: "would a message
+// to this address be sent?" Callers that need to know in advance (the forgot-
+// password page, which must not promise a link it will not send) ask HERE rather
+// than re-deriving "who is a commissioner" on their own — a second copy of that
+// rule is exactly how the two drift apart.
+async function mayEmail(address) {
+  if (!configured() || !address) return false;
+  return (await commissionerEmails()).has(String(address).trim().toLowerCase());
+}
+
 async function sendMail({ to, subject, html }) {
   if (!configured() || !to || !to.length) return { skipped: true };
+  const allowed = await commissionerEmails();
+  const list = [].concat(to).map(a => String(a).trim().toLowerCase()).filter(Boolean);
+  const blocked = list.filter(a => !allowed.has(a));
+  if (blocked.length) {
+    // Refuse the WHOLE send rather than quietly trimming the recipients: a
+    // partial send is how a rule like this decays into "mostly".
+    return { skipped: true, reason: 'recipient-not-commissioner',
+      note: `the site does not email members (${blocked.length} blocked recipient${blocked.length === 1 ? '' : 's'})` };
+  }
   try {
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
@@ -112,9 +152,18 @@ async function alertPosted(owners, message, level) {
 /**
  * Somebody put a bet in front of you.
  *
- * This one matters more than the other notifications: an unanswered side bet
- * sits at "proposed" doing nothing, and the person who offered it is waiting.
- * Nobody checks a website for a bet they do not know exists.
+ * THIS NO LONGER REACHES A MEMBER — sendMail refuses every non-commissioner
+ * recipient (see the standing rule at the top). The comment that used to live
+ * here said "nobody checks a website for a bet they do not know exists", and
+ * that objection is real, so it was checked rather than assumed: the signal it
+ * was carrying is already on the site and is LOUDER than the email was.
+ * server-app.js puts a site-wide banner at the top of EVERY page — "N side bets
+ * waiting on you to accept or decline" — plus a count badge on the League
+ * Finances nav, both driven by sidebets.awaiting(), both suppressed on /bank
+ * itself. You cannot open the site anywhere and miss it.
+ *
+ * Kept rather than deleted because the commissioner is still a valid recipient
+ * and a bet proposed TO him legitimately mails.
  */
 async function sideBetProposed(owners, bet, proposerName, sentence) {
   const to = emailsFor(owners, o => o.id !== bet.proposer_id);
@@ -200,5 +249,5 @@ async function sundayAlert(owner, alert) {
   });
 }
 
-module.exports = { configured, sendMail, draftTurn, moneySettled, newVote, alertPosted,
+module.exports = { configured, mayEmail, sendMail, draftTurn, moneySettled, newVote, alertPosted,
                    sideBetProposed, passwordReset, sundayAlert, SITE };

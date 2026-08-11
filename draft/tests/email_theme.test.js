@@ -8,8 +8,15 @@
 // client's white default and disappears — the white-on-white failure again, in
 // the surface that arrives unprompted on a Sunday morning. Every colour must
 // therefore be legible on WHITE, not merely on our own background.
+const os = require('os');
 const fs = require('fs'), path = require('path');
 const ROOT = path.join(__dirname, '..', '..');
+// The mailer now refuses any recipient who is not an active commissioner (see
+// no_member_email.test.js). This test composes REAL emails, so it needs a store
+// in which its recipient is one — otherwise every send is refused and the
+// composition checks assert against an empty object.
+process.env.DATA_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'et-'));
+const store = require(path.join(ROOT, 'src', 'store')); store.initFiles();
 let pass = 0, fail = 0;
 const ck = (n, c, d) => { c ? (pass++, console.log('PASS ' + n)) : (fail++, console.log('FAIL ' + n + (d ? ' -> ' + d : ''))); };
 
@@ -64,10 +71,25 @@ ck('the CTA button is white on the brand red', /background:#d4242f;color:#ffffff
   global.fetch = async (_url, opts) => { sent = JSON.parse(opts.body); return { ok: true, text: async () => '' }; };
   delete require.cache[require.resolve(path.join(ROOT, 'src', 'notify.js'))];
   const N = require(path.join(ROOT, 'src', 'notify.js'));
-  const to = { email: 'x@example.com' };
-  const send = async alert => { sent = null; await N.sundayAlert(to, alert); return sent || {}; };
+  const to = { email: 'x@example.com', id: 1, name: 'Cory', active: true, is_commissioner: true };
+  // Fail BY NAME, not by TypeError. When the recipient allowlist landed, every
+  // send here started returning nothing, `sent` stayed null, and the first
+  // `.html.match(...)` threw a bare TypeError that killed the file and printed
+  // none of the checks after it. A composition test that cannot compose should
+  // say so once, loudly, and let the rest of the suite run.
+  const send = async alert => {
+    sent = null;
+    const r = await N.sundayAlert(to, alert);
+    if (!sent) {
+      ck(`the mailer composed an email at all (week ${alert.week})`, false,
+        JSON.stringify(r));
+      return { html: '', subject: '' };
+    }
+    return sent;
+  };
 
   (async () => {
+    await store.set('owners', [to]);
     // The rare week (~11%): the call and the money lead.
     const withCalls = await send({ week: 5, hasCalls: true, edge: 14,
       posture: { mode: 'chase', headline: 'Chase the weekly $100', why: 'because reasons' },

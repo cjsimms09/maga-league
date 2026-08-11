@@ -186,7 +186,15 @@ router.post('/forgot', aw(async (req, res) => {
   const who = String(req.body.username || '').trim().toLowerCase();
   const owner = req.world.owners.find(o => o.active && (o.username === who || (o.email || '').toLowerCase() === who));
   // Always report the same thing — never confirm whether an account exists.
-  if (owner && owner.email && notify.configured()) {
+  //
+  // The site does not email members, so for nine of the ten of us this path can
+  // never deliver anything. It used to mint a token and hand it to a mailer that
+  // now refuses it: a dead reset record on disk and a page promising a link that
+  // was never going to arrive. Ask the mailer FIRST (notify.mayEmail) — the same
+  // rule the mailer enforces, not a second copy of it — and if the answer is no,
+  // do no work. The page copy covers both outcomes without revealing which one
+  // happened, so the uniform response survives.
+  if (owner && await notify.mayEmail(owner.email)) {
     const token = crypto.randomBytes(24).toString('hex');
     await setDoc(`reset:${token}`, { owner_id: owner.id, expires: Date.now() + 60 * 60 * 1000 });
     await notify.passwordReset(owner, token);
