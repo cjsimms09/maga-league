@@ -906,6 +906,50 @@ outermost layer — the same principle as `F4.fetch_failed`, one level further o
 previous behaviour meant a single malformed league could delete an entire run's evidence,
 which is the most expensive way for a sample to become invisible.
 
+## CORRECTION — ROUTE 1 IS NOT OPEN. THE "BOARDS" WERE A NAVIGATION MENU (2026-08-11)
+
+**This supersedes the entry below, which is retained unedited because a result reported
+and then withdrawn is part of the record.** The entry below was written from a byte count
+and a shape count. Both were wrong about the same thing.
+
+`looks_like_a_board` counted capitalised pairs in table cells and anchors, and **a
+content-heavy site's navigation menu clears any such threshold on its own.** Two
+FantasyPros captures scored as boards at 422KB and 480KB. The hand-check sample — added
+in the same sitting, and the only reason this was caught — read:
+
+```
+Draft Wizard, NFL Draft Contest, View Contest, Game Day, My Account, My Leagues,
+Mobile Apps, FantasyPros Championship, Discord Chat, Sign Out, NFL Home,
+Waiver Central, Waiver Assistant, Free Agent Finder, Trade Analyzer
+```
+
+**Zero of fifteen are players.** Checked against our own board: 0 of 15 names appear in
+the 1,760 we hold. The pages were the site's chrome. Byte count was never evidence — 422KB
+of menu is still menu — and the live FantasyPros pages scoring `not-a-board` at ~301KB was
+the two halves AGREEING, not a discrepancy: FantasyPros renders its ADP table client-side,
+so neither the live HTML nor the capture contains a player table.
+
+**What is actually established as of now:**
+- archive.org is reachable from CI (`status 200`); the sandbox 403 was the proxy.
+- The CDX enumeration works, returns real dated captures, and the strictly-before test
+  holds.
+- **No archived board of NFL players has been found.** Route 1 is neither open nor closed:
+  the sources probed so far either render client-side (FantasyPros), are query-string URLs
+  the archive does not hold (FFC's API), or were unreached.
+
+**The test is now a KNOWN-ANSWER test and shape-counting is gone from the gate.** A page
+is a board only if the names on it are players we already hold, read from
+`public/draft_data.json` — the same file the crosswalk reads, not a hand-written list that
+would drift. Ten player hits out of forty names is a bar furniture cannot reach and a real
+board clears easily. The capture walk takes the judge as an argument so it cannot be gated
+on shape by accident: gated on shape, it stopped on the first menu it found and returned it.
+
+**The lesson is the one this program keeps relearning, now at its own expense.** Rule 11
+says verify the MATCHES, not the rate; rule 12 says the output must be sane. A count of
+things-that-look-like-rows is a completeness figure, and completeness says nothing about
+validity. The verdict line had been saying so all along — "a page that parses is not a
+page that is right" — while the code decided on a count.
+
 ## ROUTE 1 IS OPEN — the archive holds dated preseason boards (measured 2026-08-11)
 
 Probed from CI, where egress reaches archive.org (`status 200`); the sandbox's blanket

@@ -76,6 +76,12 @@ jobs:
           import archived_adp as AA
 
           BEFORE = os.environ["BEFORE"]
+          # THE KNOWN ANSWER, read from our own board rather than hand-written. A
+          # page is a board only if its names are ACTUAL PLAYERS: shape-counting
+          # scored FantasyPros' navigation menu as a 422KB board and Route 1 was
+          # reported OPEN on site chrome.
+          KNOWN = AA.board_names(json.load(open("public/draft_data.json")))
+          print("known-answer player names loaded: %d" % len(KNOWN))
           # archive.org rate-limits the CDX index hard, which is the most likely
           # reason 10 of 15 queries went unanswered on the first run. Spacing them is
           # cheaper than another inconclusive run.
@@ -120,9 +126,13 @@ jobs:
                   return {"state": "unreached", "detail": r["transport_error"][:90]}, True
               if r.get("http_error"):
                   return {"state": "absent", "detail": "HTTP %s" % r.get("status")}, False
-              v = AA.looks_like_a_board(r.get("body") or b"")
+              body = r.get("body") or b""
+              shape = AA.looks_like_a_board(body)
+              v = AA.board_confidence(body, KNOWN)
               return ({"state": "board" if v["is_board"] else "not-a-board",
-                       "rows": v["rows_seen"], "detail": "%d bytes" % v["bytes"]}, False)
+                       "rows": v["player_hits"],
+                       "detail": "%d bytes, %d/%d player names"
+                                 % (shape["bytes"], v["player_hits"], v["names_seen"])}, False)
 
           def archived_state(url):
               # Paced and retried: this is the query that decides F5, and letting it
@@ -170,7 +180,12 @@ jobs:
               # capture 32 seconds after a sibling that served 422KB. Stopping at the
               # first would report "no capture serves a board" when only the newest
               # was a dud.
-              got = AA.first_serving_capture(usable, lambda u: get(u).get("body") or b"")
+              got = AA.first_serving_capture(
+                  usable, lambda u: get(u).get("body") or b"",
+                  # THE GATE IS THE KNOWN-ANSWER TEST. Passing the shape count here
+                  # is what let a menu through, and the capture walk would then stop
+                  # on the first piece of furniture it found.
+                  judge=lambda b: AA.board_confidence(b, KNOWN))
               out = {"state": got["state"], "timestamp": got.get("timestamp"),
                      "rows": got.get("rows"), "captures": len(usable),
                      "examined": got.get("examined"), "statuses": statuses,
@@ -179,7 +194,10 @@ jobs:
               if got["state"] == "board":
                   # THE KNOWN-ANSWER SAMPLE. A page that parses is not a page that is
                   # right, and nothing but reading the top of the board can tell.
-                  out["names"] = AA.extract_names(got.get("body") or b"", 15)
+                  v = AA.board_confidence(got.get("body") or b"", KNOWN)
+                  out["names"] = v["matched"]
+                  out["sample_seen"] = v["sample"]
+                  out["player_hits"] = v["player_hits"]
               return out, False
 
           results, unreachable = [], 0
@@ -218,10 +236,9 @@ jobs:
               if r.get("verdict") == "SATISFIES F5":
                   names = (r.get("names") or [])
                   print("  %-18s %s" % (r["target"], r.get("archived_timestamp")))
-                  print("      %s" % (", ".join(names) if names
-                                      else "NO NAMES EXTRACTED — the row count called it a "
-                                           "board and nothing readable came out. Treat the "
-                                           "hit as UNVERIFIED."))
+                  print("      MATCHED PLAYERS (%s): %s"
+                        % (r.get("player_hits"), ", ".join(names) if names else "NONE"))
+                  print("      RAW SAMPLE: %s" % ", ".join(r.get("sample_seen") or []))
           print()
           for label, key in (("SATISFIES F5", "satisfies_f5"),
                              ("CONTENT-DATED LEAD (not evidence)", "content_dated_leads"),
