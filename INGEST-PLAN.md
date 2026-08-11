@@ -637,3 +637,42 @@ The salt is fixed and **versioned**: changing it is a new sample and a new regis
 never a quiet reshuffle after seeing what the first one gave. Every run reports the pool
 size, the sampled count and the share, and states that its counts are **over the sample**
 and that scaling them to the pool assumes a representativeness this run does not test.
+
+### D5f RESOLVED (2026-08-11) — and the correction is measurable, not asserted
+
+A mapped `passing_interceptions` in `grade._WEEKLY_MAP` and split the accumulator: aliases
+now use first-writer-wins (`put`), components still sum (`add`), so a row carrying **both**
+column names scores one interception rather than two. Verified from this side against real
+data rather than taken on trust:
+
+| check | result |
+|---|---|
+| `{"interceptions": 1}` | `pass_int = 1` |
+| `{"passing_interceptions": 1}` | `pass_int = 1` |
+| **both names on one row** | `pass_int = 1` — not 2 |
+| three fumble-lost columns | `fum_lost = 3` — components still sum |
+| 2025 keys the translator cannot emit | **none** (was `pass_int`) |
+| 2024 keys the translator cannot emit | none, unchanged |
+
+**The size and shape of what was being lost, from the leaderboard rather than from a unit
+test.** 2025 half-PPR season totals, before → after:
+
+| player | before | after | delta |
+|---|---|---|---|
+| Trevor Lawrence (QB) | 362.18 | 338.18 | **−24.00** = 12 INT × 2 |
+| Josh Allen (QB) | 384.62 | 364.62 | **−20.00** = 10 INT × 2 |
+| Drake Maye (QB) | 367.46 | 351.46 | **−16.00** = 8 INT × 2 |
+| Matthew Stafford (QB) | 366.38 | 350.38 | **−16.00** = 8 INT × 2 |
+| Christian McCaffrey (RB) | 365.60 | 365.60 | **0.00** |
+| Jonathan Taylor (RB) | 339.30 | 339.30 | **0.00** |
+
+Every delta is exactly −2 × a whole number of interceptions, and exactly zero at RB. That
+is the cross-path agreement rule 11 asks for: the correction's magnitude was predicted from
+the scoring rule and confirmed by a source (the season leaderboard) independent of the
+regression test that fixed it.
+
+**And it changed the ordering.** McCaffrey was 4th in the 2025 half-PPR top six and is now
+1st, ahead of three QBs. The bias was systematic *by position*, so it did not merely inflate
+totals — it distorted **cross-positional** comparison, which is precisely the comparison a
+draft policy makes. 2024 is byte-identical before and after, which is what a correct
+alias-only change must be where the alias never appears.
