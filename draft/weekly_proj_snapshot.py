@@ -49,8 +49,8 @@ import sleeper_import as SI       # noqa: E402
 OUT = HERE / "data" / "proj_series.json"
 
 
-def current_week(default=None):
-    """The live NFL week from Sleeper's own state endpoint.
+def nfl_state():
+    """Sleeper's own state: season, season_type, week.
 
     NOT derived from the calendar. Week boundaries move (bye structure, a
     Thursday season opener, a flexed game), and a week number computed from a
@@ -58,11 +58,9 @@ def current_week(default=None):
     December — which is when it would matter and when nobody would check.
     """
     try:
-        st = SI._get("/state/nfl", ttl=60 * 30)  # noqa: SLF001
-        w = (st or {}).get("week")
-        return int(w) if w else default
+        return SI._get("/state/nfl", ttl=60 * 30) or {}  # noqa: SLF001
     except Exception:  # noqa: BLE001
-        return default
+        return {}
 
 
 def main() -> int:
@@ -77,8 +75,31 @@ def main() -> int:
     if date is None:
         import time
         date = time.strftime("%Y-%m-%d", time.gmtime())
+    st = nfl_state()
+
+    # ── PRESEASON IS A CLEAN SKIP, NOT A FAILURE ────────────────────────────
+    #
+    # The schedule starts firing immediately and the season does not begin for
+    # weeks. Exiting 1 every Sunday until week 1 would make this job RED BY
+    # DESIGN for a month — and a job that is expected to be red is a job nobody
+    # reads, which is the deploy-verify failure mode this repo already names.
+    # Then the first genuine failure looks exactly like the twenty expected ones.
+    #
+    # So the two states are distinguished rather than collapsed: "the regular
+    # season has not started" exits 0 and says so; "the regular season IS running
+    # and I cannot tell which week" still refuses, because that is the case where
+    # a guess would mislabel real data.
+    season_type = str(st.get("season_type") or "").lower()
+    if week is None and season_type and season_type != "regular":
+        print(f"season_type is '{season_type}', not 'regular' — nothing to snapshot yet. "
+              "Exiting CLEAN: a job that is red by design for a month is a job "
+              "nobody reads, and then the first real failure looks like the "
+              "twenty expected ones.")
+        return 0
+
     if week is None:
-        week = current_week()
+        w = st.get("week")
+        week = int(w) if w else None
     if not week:
         # REFUSE rather than snapshot under an unknown week. A snapshot filed
         # under the wrong week is worse than a missing one: January would grade a
@@ -91,10 +112,7 @@ def main() -> int:
 
     season = str(os.environ.get("SEASON") or "").strip()
     if not season:
-        try:
-            season = str((SI._get("/state/nfl", ttl=60 * 30) or {}).get("season") or "")  # noqa: SLF001
-        except Exception:  # noqa: BLE001
-            season = ""
+        season = str(st.get("season") or "")
     if not season:
         print("! no season; refusing")
         return 1

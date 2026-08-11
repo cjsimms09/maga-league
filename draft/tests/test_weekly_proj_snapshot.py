@@ -97,3 +97,48 @@ def test_the_live_series_still_parses_and_its_preseason_rows_are_intact():
     pre = [s for s in series if s.get("week") is None]
     assert pre, "every preseason snapshot vanished"
     assert all("proj" in s and s["proj"] for s in pre)
+
+
+# ── THE SCHEDULER'S FAILURE MODE, WHICH THE FIRST VERSION SHIPPED ───────────
+
+def _load_snapshot_module():
+    import importlib
+    sys.path.insert(0, os.path.join(ROOT, "draft"))
+    return importlib.import_module("weekly_proj_snapshot")
+
+
+def test_preseason_is_a_clean_skip_not_a_failure(monkeypatch, capsys):
+    """The cron fires from the day it lands and the season starts weeks later.
+
+    The first version exited 1 whenever the week was unknown, which would have
+    made this job RED BY DESIGN every Sunday until week 1 — and a job expected to
+    be red is a job nobody reads, so the first genuine failure would look like
+    the twentieth expected one. That is the deploy-verify failure mode this repo
+    already names, shipped fresh.
+    """
+    M = _load_snapshot_module()
+    monkeypatch.setattr(M, "nfl_state", lambda: {"season": "2026", "season_type": "pre", "week": 0})
+    monkeypatch.setattr(sys, "argv", ["weekly_proj_snapshot.py"])
+    assert M.main() == 0
+    assert "nothing to snapshot yet" in capsys.readouterr().out
+
+
+def test_but_an_unknown_week_DURING_the_regular_season_still_refuses(monkeypatch, capsys):
+    """The case where a guess would mislabel real data keeps refusing. A snapshot
+    filed under the wrong week grades a strategy against inputs it never saw."""
+    M = _load_snapshot_module()
+    monkeypatch.setattr(M, "nfl_state", lambda: {"season": "2026", "season_type": "regular", "week": None})
+    monkeypatch.setattr(sys, "argv", ["weekly_proj_snapshot.py"])
+    assert M.main() == 1
+    assert "REFUSING" in capsys.readouterr().out
+
+
+def test_an_explicit_week_overrides_the_preseason_skip(monkeypatch):
+    """A manual dispatch with --week must not be silently skipped; the operator
+    asking for a specific week has more information than the state endpoint."""
+    M = _load_snapshot_module()
+    monkeypatch.setattr(M, "nfl_state", lambda: {"season": "2026", "season_type": "pre", "week": 0})
+    monkeypatch.setattr(sys, "argv", ["weekly_proj_snapshot.py", "--week", "1"])
+    monkeypatch.setattr(M.SI, "fetch_projections", lambda season, week=None: {})
+    # Reaches the fetch (and refuses on empty rows) rather than skipping at the gate.
+    assert M.main() == 1
