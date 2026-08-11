@@ -3425,6 +3425,53 @@ precise way this contract would fail while both sides looked correct.
 
 ---
 
+## BLOCKED ON A — merge `archived-adp-probe.yml` to main so Route 1 can be dispatched
+
+**One action, and it is the only thing standing between this lane and Route 1's answer.**
+
+**File:** `.github/workflows/archived-adp-probe.yml`, on
+`claude/external-ingest-program-1xfinj`. **What I need:** it on main. Nothing else in that
+branch has to land with it for this to work.
+
+**Why it is blocked and how I know it is this and not something else.** Dispatching it by
+API against my own branch returns `404 Not Found` — a workflow must exist on the DEFAULT
+branch to be dispatchable at all. That is not a guess from a failure message: minutes
+earlier, `external-ingest-run.yml` dispatched successfully **against the same branch ref**,
+and the only difference between the two files is that one is on main. Same caller, same
+ref, same API, opposite results.
+
+**Why now, when I said to hold it.** Rule 9 said not to build a CI probe for a speculative
+archive check while a cheaper answer was in flight. Route 2 was that cheaper answer and it
+has now resolved (below). Route 1 is the only remaining route to a pre-2026 clean ADP, so
+the probe is worth dispatching.
+
+**What it costs to be wrong about this.** One CI job, seven HTTP requests, no writes, no
+commits. It reads the Wayback CDX index and reports whether any capture strictly predating
+a cutoff serves a recognisable player board.
+
+---
+
+## ROUTE 2 HAS RESOLVED — 2026-08-11, run 11
+
+**It closes.** Recorded here because the routing note below was written while it was open.
+
+- **The format-matched population is EMPTY.** 0 of 113 readable leagues passed F1, so D7's
+  registered construction — format-matched leagues only — had nobody in it. Not a thin
+  board: no population.
+- **The inadmissible whole-pool figure, which bounds the admissible one from above, is
+  15 of 61 dated leagues** reaching a 100-player board, **every usable one in the later
+  half of the calendar**. That is the pre-declared failure shape, again.
+- **And the cost settles it independently of the sample.** Pricing ONE league's draft under
+  D7 needs the picks of every earlier F1-passing league. The boards that reached 100+
+  players drew on 46-60 contributing leagues; at a format-match rate of at most 2.65%,
+  assembling 46 earlier-drafting F1-passing leagues means fetching ~1,736 leagues **per
+  decision**. Run 11 measured the pace at **12.6 s per league with adaptive backoff already
+  absorbing 429s** — the whole 21,323-league pool is **~75 hours** of fetching, and MFL is
+  rate-limiting at the current rate.
+
+D7 stays registered and its code stays: the measurement is real and the bound it proved is
+worth keeping. It is not a route to a 2026 answer.
+
 ## ROUTING NOTE — 2026-08-11, the 2027-timeline routes
 
 **Not a blocker right now.** Recorded so the state is accurate if someone else picks this up.
