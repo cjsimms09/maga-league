@@ -466,3 +466,57 @@ def test_the_throttle_check_does_NOT_reclassify_anything():
     R.throttle_signal(vs)
     assert all(F.is_unreadable(R._verdict_reason(v)) for v in vs)
     assert all(R._verdict_reason(v).startswith("F4.fetch_failed") for v in vs)
+
+
+# ── the crosswalk at scale: F2's input, never reported until now ────────────
+def _cwrep(**kw):
+    """A crosswalk report in the shape `crosswalk_picks` actually returns."""
+    base = {"picks": 100, "crosswalked": 95, "crosswalk_rate": 0.95,
+            "unknown_mfl_id": 2, "no_sleeper_match": 3, "methods": {"name": 95},
+            "conflicts": 0, "matched_sample": []}
+    base.update(kw)
+    return base
+
+
+def test_the_two_kinds_of_crosswalk_MISS_are_kept_apart():
+    """MUTATION: sum them into one `unmatched`. "Our board is missing players" and
+    "we never fetched that id" are opposite actions and identical rejections."""
+    s = R.crosswalk_summary([_cwrep(unknown_mfl_id=7, no_sleeper_match=1)])
+    assert s["unknown_mfl_id"] == 7 and s["no_sleeper_match"] == 1
+    assert "gap in what we fetched" in s["verdict"]
+
+
+def test_CONFLICTS_lead_the_verdict_because_they_RAISE_the_rate():
+    """A matched pair whose sources disagree on position is the signature of the
+    WRONG PLAYER — and it counts as a success in every completeness figure."""
+    s = R.crosswalk_summary([_cwrep(conflicts=4)])
+    assert s["conflicts"] == 4
+    assert s["verdict"].split("; and ")[1].startswith("4 MATCHED PAIRS DISAGREE")
+    assert "RAISES the crosswalk rate" in s["verdict"]
+
+
+def test_the_POOLED_rate_and_the_DISTRIBUTION_are_both_reported():
+    """One league at 100% of 200 picks and one at 50% of 2 pool to 99.5% — which
+    is true and hides that a league is below the F2 bar. Both, or neither."""
+    s = R.crosswalk_summary([_cwrep(picks=200, crosswalked=200, crosswalk_rate=1.0),
+                             _cwrep(picks=2, crosswalked=1, crosswalk_rate=0.5)])
+    assert s["pooled_rate"] == 0.995
+    assert s["leagues_clearing_F2_bar"] == 1 and s["leagues_below_F2_bar"] == 1
+    assert s["rate_distribution"]["min"] == 50.0 and s["rate_distribution"]["max"] == 100.0
+
+
+def test_a_league_with_NO_picks_does_not_enter_the_rate_distribution_as_zero():
+    """Absent is not zero, in the denominator too: a league whose draft we could
+    not read has no crosswalk rate, and counting it as 0% would report a parse
+    failure as a board-coverage problem."""
+    s = R.crosswalk_summary([_cwrep(), _cwrep(picks=0, crosswalked=0, crosswalk_rate=0.0)])
+    assert s["leagues_with_picks"] == 1 and s["rate_distribution"]["n"] == 1
+
+
+def test_the_hand_check_pairs_survive_into_the_report():
+    """Rule 11: a bare rate cannot be audited. 447 of 702 says nothing about
+    whether any of the 447 is the right player."""
+    pair = {"mfl_name": "Bijan Robinson", "board_name": "Bijan Robinson",
+            "mfl_pos": "RB", "board_pos": "RB", "method": "name"}
+    s = R.crosswalk_summary([_cwrep(matched_sample=[pair])])
+    assert s["matched_pairs_for_hand_check"] == [pair]

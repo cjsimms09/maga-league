@@ -429,7 +429,7 @@ def run(league_ids, year, out_path=None, *, players=None, board=None,
     from asof import TimeTravelError
 
     import time as _time
-    records, outcomes = [], []
+    records, outcomes, cw_reports = [], [], []
     for _i, lid in enumerate(league_ids):
         if _i:
             # BETWEEN LEAGUES TOO, not only between exports. The measured 429 came
@@ -451,6 +451,7 @@ def run(league_ids, year, out_path=None, *, players=None, board=None,
         except (TimeTravelError, Exception) as e:      # noqa: B014 - recorded, never raised away
             adp = {"pre_draft_adp": None, "adp_observed_at": None,
                    "_adp_note": "%s: %s" % (type(e).__name__, e)}
+        cw_reports.append((extra["crosswalk"] or (None, None))[1])
         got = outcomes_fields(exports["rules"], extra["crosswalk"], weekly_rows or [],
                               int(year), gsis_to_ours or {}, board)
         outcomes.append(dict(got["outcomes"], league_id=str(lid)))
@@ -464,6 +465,7 @@ def run(league_ids, year, out_path=None, *, players=None, board=None,
     rep["outcomes"] = outcomes_summary(outcomes)
     rep["season_readiness"] = readiness
     rep["throttle"] = throttle_signal(verdicts)
+    rep["crosswalk"] = crosswalk_summary(cw_reports)
     # PREPENDED, not appended. The existing verdict already leads with unreadable
     # attrition; this leads with whether the run could have measured anything at all.
     # THROTTLE FIRST, then readiness, then the filters. Ordered by how badly each
@@ -476,6 +478,92 @@ def run(league_ids, year, out_path=None, *, players=None, board=None,
         Path(out_path).write_text(json.dumps(rep, indent=1))
     print(json.dumps(rep, indent=1))
     return rep
+
+
+def crosswalk_summary(reports: list) -> dict:
+    """THE CROSSWALK AT SCALE — the number F2 is applied on, never yet reported.
+
+    F2 admits a league only at >=90% crosswalked, and until now the run applied
+    that bar without publishing the quantity. A filter whose input nobody sees is
+    a filter nobody can judge, and its failures are the ones that look most like
+    facts about the world: "their league has players we cannot price" and "our
+    board is built from a partial index" produce the same rejection.
+
+    Four things, because they fail for different reasons and F4 requires exclusions
+    counted BY REASON:
+
+      RATE DISTRIBUTION   min/median/max, and how many leagues clear the F2 bar.
+      TWO KINDS OF MISS   `unknown_mfl_id` is an id MFL gave us and we never
+                          fetched (our players export); `no_sleeper_match` is a
+                          player who exists in MFL and not on our board. Reporting
+                          them together would say "our board is missing players"
+                          when the truth may be "we never fetched them".
+      METHOD MIX          how matches were made, so a systematic wrong-match (say
+                          everything landing via loose initials) is visible as a
+                          distribution rather than found one player at a time.
+      CONFLICTS, IN FULL  matched pairs whose two sources DISAGREE on position or
+                          team. Never a sample: cross-source disagreement on a
+                          matched pair is the signature of the wrong player, and it
+                          passes every completeness check ever written — the rate
+                          goes UP when a bad match lands.
+    """
+    from collections import Counter
+    rates, methods = [], Counter()
+    picks = matched = unknown_id = no_match = conflicts = 0
+    pairs: list = []
+    for r in reports or []:
+        if not r:
+            continue
+        if r.get("picks"):
+            rates.append(r.get("crosswalk_rate") or 0.0)
+        picks += r.get("picks") or 0
+        matched += r.get("crosswalked") or 0
+        unknown_id += r.get("unknown_mfl_id") or 0
+        no_match += r.get("no_sleeper_match") or 0
+        conflicts += r.get("conflicts") or 0
+        methods.update(r.get("methods") or {})
+        for p in (r.get("matched_sample") or [])[:2]:
+            if len(pairs) < 30:
+                pairs.append(p)
+    n = len(rates)
+    clear = sum(1 for x in rates if x >= F.MIN_CROSSWALK_RATE)
+    return {
+        "leagues_with_picks": n,
+        "picks_total": picks,
+        "picks_crosswalked": matched,
+        # The POOLED rate, which is not the mean of per-league rates and is not a
+        # substitute for the distribution beside it.
+        "pooled_rate": round(matched / picks, 4) if picks else None,
+        "rate_distribution": _distribution([100.0 * x for x in rates]),
+        "leagues_clearing_F2_bar": clear,
+        "leagues_below_F2_bar": n - clear,
+        "f2_bar": F.MIN_CROSSWALK_RATE,
+        "unknown_mfl_id": unknown_id,
+        "no_sleeper_match": no_match,
+        "methods": dict(methods.most_common()),
+        "conflicts": conflicts,
+        # BOTH SIDES OF THE MATCH, for hand-checking. A bare rate cannot be
+        # audited: "447 of 702" says nothing about whether any of the 447 is the
+        # right player, and a wrong-but-plausible match produces a real player and
+        # never errors. The pair is what a human can check.
+        "matched_pairs_for_hand_check": pairs,
+        "verdict": _crosswalk_verdict(n, clear, unknown_id, no_match, conflicts, matched),
+    }
+
+
+def _crosswalk_verdict(n, clear, unknown_id, no_match, conflicts, matched) -> str:
+    parts = []
+    if conflicts:
+        parts.append("%d MATCHED PAIRS DISAGREE across sources on position or team — that "
+                     "is the signature of a wrong match, and it RAISES the crosswalk rate "
+                     "rather than lowering it" % conflicts)
+    if unknown_id:
+        parts.append("%d picks carry an MFL id absent from OUR players export — that is a "
+                     "gap in what we fetched, not a player their league invented"
+                     % unknown_id)
+    head = "%d of %d leagues clear the F2 crosswalk bar; %d picks matched, %d unmatched " \
+           "against our board" % (clear, n, matched, no_match)
+    return head + "".join("; and " + p for p in parts)
 
 
 def readiness_verdict(readiness: dict, rep: dict) -> str:

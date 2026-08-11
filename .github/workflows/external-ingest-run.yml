@@ -165,6 +165,24 @@ jobs:
           for k, v in sorted((d.get("rejected_by_reason") or {}).items(),
                              key=lambda kv: -kv[1]):
               print("| `%s` | %s |" % (k, v))
+          cw = d.get("crosswalk") or {}
+          if cw:
+              print()
+              print("### The crosswalk at scale")
+              print("- %s" % cw.get("verdict"))
+              print("- pooled rate **%s** over %s picks; per-league %s"
+                    % (cw.get("pooled_rate"), cw.get("picks_total"),
+                       json.dumps(cw.get("rate_distribution"))))
+              print("- methods: %s" % json.dumps(cw.get("methods")))
+              pairs = cw.get("matched_pairs_for_hand_check") or []
+              if pairs:
+                  print()
+                  print("| MFL name | MFL pos | board name | board pos | method |")
+                  print("|---|---|---|---|---|")
+                  for x in pairs[:20]:
+                      print("| %s | %s | %s | %s | %s |"
+                            % (x.get("mfl_name"), x.get("mfl_pos"),
+                               x.get("board_name"), x.get("board_pos"), x.get("method")))
           o = d.get("outcomes") or {}
           if o:
               print()
