@@ -876,3 +876,31 @@ terms that differ, which is the agreement across derivation paths rule 11 asks f
 shapes and real weekly data — so the run's `unreadable_points` count is about *specific
 expressions*, not about the path being broken. It does **not** settle which expressions those
 are; that is what the run's `unparsed_samples` are for.
+
+### PRE-DECLARATION — what I expect the DRAFTED-PLAYER crosswalk rate to be (2026-08-11)
+
+Written while the 250-league run is in flight and before its crosswalk numbers exist, so the
+reading cannot be fitted to them afterwards.
+
+**What I have already seen, declared:** `mfl_live_probe.json` records **447 of 702 MFL rows
+crosswalked, 72% pool coverage**. That is below F2's 90% bar, and if drafted players
+crosswalked at the same rate **every league would fail F2** and the ingest would return zero
+matched leagues for a reason that is about our board, not about their leagues.
+
+**I do not expect that, and the reason is that they are different populations.** The probe's
+denominator is an ADP BOARD of ~700 — which includes deep rookies, IDP and players nobody
+drafts. The drafted set is the top ~180 picks of a real draft, which is concentrated on
+players our board certainly carries. So:
+
+> **Pre-declared: the drafted-player crosswalk rate will be materially HIGHER than 72%, and I
+> expect most leagues to clear the 90% bar. If it comes back near 72%, F2 is the binding
+> constraint and the cause is OUR BOARD's coverage, not the public pool's format.**
+
+**And the failure mode to watch, which the report is already built to separate.** A low rate
+splits two ways that support opposite actions: `unknown_mfl_id` (an id MFL gave us that is
+absent from the players export **we** fetched) versus `no_sleeper_match` (a player who exists
+in MFL and not on our board). The first is our fetch, the second is our board. Summed, they
+would read as "their leagues contain players we cannot price", which is a conclusion about
+the pool drawn from a limitation of ours.
+
+*If this pre-declaration turns out wrong, it stays here with the result beside it.*
