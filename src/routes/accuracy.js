@@ -109,7 +109,13 @@ function biggestMisses(graded, n) {
     return { g, mag, line: gradedLine(g) };
   }).filter(x => x.mag > 0);
   scored.sort((a, b) => b.mag - a.mag);
-  return scored.slice(0, n || 8);
+  const out = scored.slice(0, n || 8);
+  // HOW MANY WERE THERE. A top-N list that does not say what N is out of reads
+  // as "these are the misses" rather than "these are the worst of many" — the
+  // silent-truncation shape. Invisible on a small fixture, where N was never
+  // reached; at a real draft's volume the list shows 8 of dozens.
+  out.total = scored.length;
+  return out;
 }
 
 // The kind of a graded record. `by_kind` is an OPTIONAL roll-up in the interface
@@ -256,7 +262,10 @@ function buildAccuracyView(calibration, attribution, rawCount, extra) {
     byKind: byKindRows(cal),
     byWeek: (cal && cal.by_week) || [],
     recently,
+    // Both lists are CAPPED. Ship the denominators so the page can say so.
+    recentlyTotal: graded ? (cal.graded || []).length : 0,
     biggestMisses: graded ? biggestMisses(cal.graded, 8) : [],
+    missesTotal: graded ? biggestMisses(cal.graded, 1e9).total : 0,
     attribution: attr,
 
     // CALIBRATION OVER TIME — one point per grading run, from the append-only

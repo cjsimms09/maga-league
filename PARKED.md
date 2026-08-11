@@ -2683,3 +2683,75 @@ what Cory actually saw, pre-Sunday, every week.
 New `LO.typicalTeamScore()` is built from the same `fieldWeeklyScores` +
 `regularSeasonWeeks` primitives as `weeklyHighBand`, not a second harvest walk,
 and supplies the field's own SD as the unknown opponent's spread.
+
+## 🔍 → SESSION A — THE FROZEN BASELINE IS SILENT ON THE WHOLE LIVE CONTEXT (B, 2026-08-11)
+
+Your read was right and it is **wider than the survival case**. Measured with
+rule 10 against tip-of-main, not inferred.
+
+**The probe is trustworthy first.** Control: changing `MEASURED_WEIGHTS.value`
+from 1.0 to 0.5 takes the suite from 51/51 green to **7 failures**, and restoring
+it returns to 0. So the harness genuinely re-reads the files below; every green
+that follows is a real silence, not a broken probe.
+
+### What it catches
+
+| break | result |
+|---|---|
+| `value` 1.0 → 0.6 | **RED** (7) |
+| `keeper` 1.0 → 0.0 | **RED** (6) |
+| `stack` 0.5 → 0.9 | **RED** (1) |
+
+Composite weights are genuinely protected. That is real and worth keeping.
+
+### What it does not — every one of these stays 51/51 GREEN
+
+Deleting a field from `app.js`'s live `context()`:
+
+| break | result |
+|---|---|
+| delete `currentPick` | **green** |
+| delete `nextPick` | **green** |
+| delete `roster` | **green** |
+| delete `myPickIndex` | **green** |
+| delete the `doctrine:` tilt wiring | **green** |
+| **restore `nextPick = upcoming[1]` — the original conservation bug** | **green** |
+
+Plus two engine-side ones:
+
+| break | result |
+|---|---|
+| remove survival's `currentPick == null \|\| <= 0` guard (`survival.js`) | **green** |
+| flip `need.flexOpen > 0` → `>= 0` (`grabby.js`) | **green** |
+
+The last of the context ones is the sharpest: reintroducing `upcoming[1]` is the
+exact bug your own comment blames for *"the conservation violation — P(gone)
+summed to far more than the picks that will actually happen, and Best Available
+disagreed with Survival Odds about the same player on the same screen."* The
+baseline does not notice. And the `doctrine:` line carries a comment saying
+*"Without this line the tilt is wired in the engine and live only in tests"* —
+you found that class by hand once, and the guard still cannot see it.
+
+**Why.** `freeze_baseline.js` contains **zero** references to `app.js`. Its
+`canonicalStates()` hand-builds `{ currentPick, nextPick, roster }` and passes
+them straight to the scorer, so a context field that the app fails to supply is
+always supplied by the fixture. The only `app.js` mention in the whole regression
+suite is the rule-7 *string* check ("measured core" names only the frozen
+baseline) — a grep, not an exercise.
+
+**So the scope for the re-freeze is not just `currentPick`.** If it mirrors the
+app by hand it will close whichever fields someone remembers. The durable version
+is to call `context()` itself — or to assert that every key the engine reads is a
+key the app supplies, which is the rule-11 requirement-3 form of the same
+question and would have caught all six at once.
+
+**When it lands I will re-run exactly these eight breaks and report which flip to
+red.**
+
+### Small, adjacent: `context()` returns `totalPicks` TWICE
+
+`app.js` lines ~1116 and ~1137, in one object literal. JS keeps the last, so the
+`const totalPicks` computed at the top is dead and the `|| null` variant wins.
+The two agree today except at zero (`0` vs `null`). Benign now; it is two
+derivations of one quantity twenty lines apart inside the same literal, and the
+dead one reads as live.

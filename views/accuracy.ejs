@@ -211,7 +211,7 @@
 
 <%# ── WHAT GOT GRADED — readable, not a data dump ────────────────────────────── %>
 <div class="card" style="margin-bottom:1.2rem">
-  <h2>🧾 Recently graded <span class="sub">what it claimed · what happened · right?</span></h2>
+  <h2>🧾 Recently graded <span class="sub"><% if (v.recentlyTotal > (v.recently||[]).length) { %>the latest <%= (v.recently||[]).length %> of <%= v.recentlyTotal %><% } else { %>what it claimed · what happened · right?<% } %></span></h2>
   <div class="body">
     <% if (!v.recently || !v.recently.length) { %>
       <p class="acc-empty" style="margin:0">Nothing graded yet. As predictions resolve, the latest ones land here in plain language.</p>
@@ -231,7 +231,7 @@
 
 <%# ── BIGGEST MISSES — the failure modes, not just the aggregate ──────────────── %>
 <div class="card" style="margin-bottom:1.2rem">
-  <h2>💥 Where it was most wrong <span class="sub">the failure modes, ranked</span></h2>
+  <h2>💥 Where it was most wrong <span class="sub"><% if (v.missesTotal > (v.biggestMisses||[]).length) { %>the <%= (v.biggestMisses||[]).length %> worst of <%= v.missesTotal %> misses<% } else { %>the failure modes, ranked<% } %></span></h2>
   <div class="body">
     <% if (!v.biggestMisses || !v.biggestMisses.length) { %>
       <p class="acc-empty" style="margin:0">No graded misses yet — this ranks the most confident wrong calls once there are any.</p>

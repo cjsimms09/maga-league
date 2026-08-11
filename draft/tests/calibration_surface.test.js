@@ -157,6 +157,31 @@ const entry = (kind, payload, at, method) => ({
   ck('attribution states honestly that nothing is measured yet',
     /Nothing measured yet/.test(html));
 
+  // ── AT VOLUME, THE CAPS MUST NAME THEMSELVES.
+  // A real draft commits hundreds of survival forecasts and resolves them in a
+  // burst. Both lists are top-N: "recently graded" shows 12 and the misses list
+  // shows 8. On a small fixture N is never reached, so the truncation is
+  // invisible — and a capped list that does not say what it is capped from reads
+  // as "these are the misses" rather than "these are the worst of many".
+  {
+    const many = Array.from({ length: 60 }, (_, i) => ({
+      key: `survival:v${i}@pick10`, ftype: 'probability',
+      value: i % 2 ? 0.9 : 0.1, outcome: i % 2 ? 0 : 1,      // every one a real miss
+      brier: 0.81, claim: `Volume call ${i}`, forecast_at: `2026-08-22T${String(10 + (i % 12)).padStart(2, '0')}:00:00Z`,
+    }));
+    const v = ACC.buildAccuracyView({ n_graded: many.length, graded: many,
+      probability: { n: many.length, brier: 0.5, reliability: [] } }, null, many.length, {});
+    ck('the recently-graded list is capped', v.recently.length === 12, v.recently.length);
+    ck('  and reports the total it was capped from', v.recentlyTotal === 60, v.recentlyTotal);
+    ck('the misses list is capped', v.biggestMisses.length === 8, v.biggestMisses.length);
+    ck('  and reports how many misses there really were', v.missesTotal === 60, v.missesTotal);
+    // Below the cap, no denominator is needed and none should be claimed.
+    const few = ACC.buildAccuracyView({ n_graded: 3, graded: many.slice(0, 3),
+      probability: { n: 3, brier: 0.5, reliability: [] } }, null, 3, {});
+    ck('  under the cap the totals equal the list lengths', few.recentlyTotal === 3 && few.missesTotal === 3,
+      { recentlyTotal: few.recentlyTotal, missesTotal: few.missesTotal });
+  }
+
   srv.close();
 
   // ── UNIT: the kind derivation itself, including the fallbacks.
