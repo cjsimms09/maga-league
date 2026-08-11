@@ -200,6 +200,13 @@ assertion in a suite that already runs, NOT a new recurring obligation. Most of 
 is already the cheap kind, and that is why the constitution is affordable — not because it is
 small.
 
+**DO NOT ADD A RULE WHEN THE REAL PROBLEM IS THAT AN EXISTING RULE LACKS AN ENFORCEMENT
+MECHANISM.** B's structural finding, 2026-08-11, and it is rule 9's sharpest form. The
+constitution's real length is the number of rules that have to be REMEMBERED — a rule held by a
+test costs nothing, a rule living entirely in memory is expensive no matter how short it is. So
+the first question about a proposed rule is whether an existing one already covers it and merely
+has an empty enforcement cell.
+
 **THE STANDING CHECK.** At every review cycle, apply rule 9 to the constitution: report which
 rules have actually FIRED — caught something, prevented something, changed a decision — and
 which have only been complied with. A rule that has never fired is redundant, too abstract to
@@ -250,13 +257,21 @@ Set the persistent-and-material bar so a single disagreement is data and only a 
 pattern with measured value becomes a proposal. He would rather be told he is costing himself
 money than have his habits quietly become the model.
 
-**3. THE PROXY IS DIAGNOSTIC AND MAY NEVER BECOME THE OBJECTIVE.** The continuous proxy may
-never be a promotion or demotion criterion on its own; a dollar-negative or dollar-flat result
-cannot be promoted on proxy strength. The proxy exists to reveal that a dollar-zero result was
-measured by a blind instrument — not to replace the dollar grade. Once a secondary metric
-appears in every report, the thing being optimised drifts from the payout table to the
-measurement instrument, and that drift is cultural rather than technical, so it needs a bright
-line rather than judgment.
+**3. THE PROXY IS DIAGNOSTIC AND MAY NEVER BECOME THE OBJECTIVE.**
+**The continuous proxy is diagnostic. Money is the objective. Never optimise the proxy.**
+
+*The Goodhart reasoning, kept because the bare prohibition invites a reasonable-sounding
+exception and the reasoning does not:* once a secondary metric appears in every report, the
+thing being optimised drifts from the payout table to the measurement instrument. That drift is
+cultural rather than technical, so it needs a bright line rather than judgment. A dollar-flat
+result cannot be promoted on proxy strength; the proxy exists to reveal that a dollar-zero
+result was measured by a blind instrument, not to replace the dollar grade.
+
+*NOT CUT, and the reason is a correction to my own audit (Cory, 2026-08-11).* I cited the
+graduation gate's dollar requirement as partial grounds for removing this. **A protection cannot
+be removed because a FUTURE protection will cover it** — the gate is still being built. If the
+gate eventually subsumes this rule, cut it then: after the gate exists, is tested, and
+demonstrably covers the same failure. The sentence costs nothing until then.
 
 **4. EXTERNAL-INGEST FILTERS ARE PRE-REGISTERED.** All inclusion/exclusion criteria for
 external data are fixed **before the data is examined**. Post-hoc filtering of an external
@@ -267,23 +282,11 @@ data turns a clean sample into a confirmation machine. **Escape hatch:** some fi
 become obvious on first contact (data quality, incomplete drafts, extreme format mismatch).
 Changing one is a NEW pre-registration with the old recorded, never a quiet adjustment.
 
-**5. PROTECTIONS MUST BE DEMONSTRATED TO FIRE, NOT ASSUMED TO.** A protection that exists in
-code but is unreachable or ignorable under real conditions is decorative — this week produced
-four guards that existed and did not guard: a fixture that could not fail, a CI step aborting
-before most of the suite ran, a test asserting the bug it should have caught, and a
-materiality gate collapsed by a null coercion.
-> **CUT DOWN UNDER RULE 9 (2026-08-10).** As first written this said "re-demonstrated
-> periodically" — a recurring calendar obligation with no natural trigger, which is exactly
-> the shape rule 9 forbids. It is now **trigger-based and mostly free**:
-> - **When you build or change a guard, break it once** and watch it fail. ~2 minutes, done at
->   the moment you already have the context. This is already habit (C1, the baseline, rule 7)
->   and it has FIRED — breaking the rule-7 guard revealed it was whitelisting one exact phrase
->   rather than the actual rule.
-> - **Anything automatable belongs in the suite that already runs**, not in a drill. Zero
->   marginal attention.
-> - **The ONE thing that cannot be automated is the phone test of the revert**, and that is
->   Cory's action, once, before the 22nd — not a standing workstream.
-> No calendar. No periodic re-demonstration ritual.
+**5. MERGED INTO RULE 10 (2026-08-11).** Its surviving clause was rule 10's claim at lower
+strictness, so the merged text takes RULE 10's BAR, not rule 5's. Proposed independently by A
+and B with the same reasoning. **The number is retained as a tombstone rather than renumbered:**
+renumbering would break the `[rule 7]` assertion names in `baseline_regression.test.js`, and the
+governing principle here is *merge the rule, do not merge away the test*.
 
 **6. THE WRITTEN RULES AND THE RUNNING SYSTEM MUST NOT DIVERGE.** Any change affecting
 **recommendation behaviour** either updates the frozen baseline reference or explicitly
@@ -294,27 +297,38 @@ three reviewers reached a wrong conclusion about the ceiling weight from a stale
 test was found asserting a label that locked a lie in place. Staleness is the mechanism by
 which the core erodes without anyone deciding to erode it.
 
-**7. LANGUAGE DISCIPLINE — what may be called "the core".** **The frozen baseline is the ONLY
-object that may be called "the measured core."** Everything running is **"live policy under
-continuous measurement."** Any report saying "the core says X" is either citing the frozen
-reference or it is wrong — which makes drift detectable in the language itself, not only in
-the code.
-> **KNOWN VIOLATION, recorded rather than quietly fixed (2026-08-10):** the war room currently
-> ships a preset labelled **"Measured core"** and a button reading **"Reset to Measured core"**,
-> and those name the LIVE weights. Under this rule that language belongs to the frozen
-> baseline, which does not exist yet (Part 1 of the shadow-layer brief). **When the baseline
-> lands, the live preset is renamed** (to "Live policy" or similar) and "Measured core" is
-> reserved for the frozen object. Flagged now so the rename is a deliberate step rather than
-> something discovered later.
+**6a — LANGUAGE DISCIPLINE (was rule 7, folded in 2026-08-11).** Same principle, narrower
+target: rule 6 governs code against the written rules, this governs VOCABULARY against the
+frozen object. **The frozen baseline is the ONLY object that may be called "the measured core."**
+Everything running is **"live policy under continuous measurement."** Any report saying "the core
+says X" is either citing the frozen reference or it is wrong.
 
-**8. NO HIGHLIGHTS-ONLY REPORTING.** Every periodic review — seasonal, half-seasonal, or any
-major promotion cycle — presents the FULL reliability and calibration picture including the
-channels and terms that are failing, and **leads with what is failing**. Buried-but-present is
-how selective attention survives a completeness rule, so the requirement is ordering, not
-inclusion: if calibration is poor on a channel, that is the first line. This is contamination
-of the NARRATIVE rather than of the data, a distinct category — and it is the failure mode a
-self-reporting system is most prone to, because the model writes its own reports and Cory is
-the only one who reads them.
+*Why it earns its place inside 6 rather than being cut:* **drift happens in the mental model
+before it happens in the code.** Policing the words makes that drift visible in a diff.
+
+*Enforcement is UNCHANGED — the three assertions are the rule and they are preserved exactly:*
+`baseline_regression.test.js` asserts `[rule 7] "measured core" in engine.js / app.js /
+warroom.ejs names only the frozen baseline`. The check names were deliberately NOT renumbered.
+
+> **THE RECORDED KNOWN VIOLATION IS RESOLVED (verified 2026-08-11).** The war room shipped a
+> preset labelled "Measured core" naming the LIVE weights, flagged pending the baseline. The
+> baseline landed (v1–v4) and `engine.js:309` now reads `key: 'measured', label: 'Live policy'`.
+> Recorded as closed with its evidence rather than deleted.
+
+**8. NO HIGHLIGHTS-ONLY REPORTING.**
+**Every report leads with what is failing.**
+
+*The requirement is ORDERING, not inclusion.* Buried-but-present is how selective attention
+survives a completeness rule: if calibration is poor on a channel, that is the first line. This
+is contamination of the NARRATIVE rather than of the data — a distinct category, and the failure
+mode a self-reporting system is most prone to, because the model writes its own reports and Cory
+is the only one who reads them.
+
+*SCOPE CHANGED DELIBERATELY, 2026-08-11 — not reinterpreted retroactively.* The old text was
+scoped to "every periodic review — seasonal, half-seasonal, or any major promotion cycle." None
+has occurred, so under the audit this was category 3 (no opportunity), not category 2. **The
+scope is widened because the intended behaviour is CONTINUOUS — not because the old scope
+secretly meant this all along.** The old wording is superseded, and this note is why.
 
 **10. A NEW GUARD IS DELIBERATELY BROKEN ONCE BEFORE IT IS TRUSTED.** Cory, 2026-08-10.
 Every new test, guard, gate or assertion gets the thing it protects broken on purpose, and
@@ -400,6 +414,16 @@ neither code review nor a coarse rule-10 break finds it.
 the guard is written, by whoever is already writing it — no schedule, no artifact, no human
 attention on a cadence. Nothing to maintain, so nothing to rot.
 
+**10c — AND AN EXISTING PROTECTION IS HELD TO THE SAME BAR (was rule 5, folded in 2026-08-11).**
+A protection that exists in code but is unreachable or ignorable under real conditions is
+**decorative**. Rule 5 said such a protection must be *demonstrated to fire*; that is rule 10's
+claim at lower strictness, so the merged text takes RULE 10's BAR — broken on purpose, observed
+RED BY NAME — and applies it to old guards as well as new ones.
+
+*Rule 5's evidence, carried:* four guards that existed and did not guard — a fixture that could
+not fail, a CI step aborting before most of the suite ran, a test asserting the bug it should
+have caught, and a check comparing a function against itself.
+
 **14. WHEN SOMETHING COMPUTES A VALUE OR A VERDICT, THE SAME UNIT OF WORK ESTABLISHES ITS
 CONSUMER.** Cory, 2026-08-11. Not a style preference — **a produced-and-unread value looks
 identical to a working system from every angle except the one where it matters.** It has tests,
@@ -439,32 +463,13 @@ false, so every entry was discarded and the function returned `null` just as it 
 array. Presence of data is not satisfaction of a contract, and a consumer that filters on a field
 will treat the wrong SHAPE and total ABSENCE as the same thing — silently, and identically.
 
-**13. A FAILED REQUEST AGAINST A PATH I INVENTED IS EVIDENCE ABOUT MY QUERY, NOT ABOUT THE
-PROVIDER.** A, 2026-08-11, adopted at Cory's instruction. Before recording ANY negative about
-an external source — no coverage, no markets, thin data, unusable tier — establish that the
-query could have returned a positive. A 404 on a guessed path, a zero from one page of a
-paginated list, an empty filter, a 401 against an auth style I made up: each looks exactly
-like absence and is actually a fact about me.
-
-*The cheap discharge, and it is one question:* **"what would this have returned if the thing
-I am looking for were there?"** If the answer is "I do not know", the probe is not finished.
-Three mechanical forms cover nearly every case — make the scan report **its own composition**
-(not just its verdict), **walk the pagination** before concluding a list is empty, and when a
-path or auth shape is unknown **try a bounded candidate set and record which responded**
-rather than betting on one.
-
-*Earned the hard way.* Four of six market-probe round-trips were spent correcting my own
-guesses: an invented `/sports` that 404'd (the real path was `/v3/sports`); "0 NFL markets"
-that was pagination order, not absence — the endpoint walks 12,000 movie markets and never
-reaches football; a naive `"nfl"` substring matching i**NFL**ation, inflating a count to 478
-against a true 426; and a key routed at the WRONG PROVIDER, which would have reported "the key
-does not work" as a fact about the key. Every one produced a plausible number, and none of
-them errored. **A query that returns a plausible number is not the same as one that returns
-the right one.**
-
-*Rule 9 standing:* a **statement**, not a workstream — one question asked before writing a
-negative down, by whoever is already writing it. Its cost is a sentence; its absence cost four
-CI round-trips and nearly put two false dead ends into the record.
+**13. MERGED INTO RULE 11 AS ITS FIFTH REQUIREMENT (2026-08-11).** B's finding, which A's
+audit missed: **rule 13 was written about PROVIDERS and bites on FIXTURES.** All three of its
+firings on B's work were internal — a `fetched_at`/`failed_at` mixup, a probe where a 404 passed
+silently, a wrong scoring key. A's most recent firing was the same shape: a `{mean: 4.5}` drift
+fixture that was inert because the real shape is `{applied, offset, sdScale}`. That is a real
+mismatch between a rule's stated scope and where it actually operates, and folding it into 11
+widens it correctly: **your own query is a boundary too.** Number retained as a tombstone.
 
 **11. CORRECTNESS AT EVERY BOUNDARY.** Cory, 2026-08-10. **Any data or derived value crossing
 a system boundary must have its completeness, validity and unknown state established at that
@@ -514,6 +519,28 @@ rule is first applied to an existing area, **identify the quantities that have m
 derivation paths and determine whether those paths are actually compared.** Three have been
 hit by accident — the WR replacement paths, the thin-pool recompute, and the local consensus
 implementation inside the waiver route. Three by luck suggests more.
+
+**11e — YOUR OWN QUERY IS A BOUNDARY TOO (was rule 13, folded in 2026-08-11).**
+**A failed request against a path I invented is evidence about MY QUERY, not about the
+provider — or about the code.** Before recording ANY negative — no coverage, no markets, thin
+data, a field that "does not exist", a fixture that "proves" a feature is dead — establish that
+the query could have returned a positive. A 404 on a guessed path, a zero from one page of a
+paginated list, an empty filter, an auth style I made up, a test fixture whose shape I assumed:
+each looks exactly like absence and is actually a fact about me.
+
+*THE OPERATIONAL DIAGNOSTIC SURVIVES AS A NAMED CLAUSE — it is the part that does the work:*
+**make the scan report its OWN COMPOSITION** (not just its verdict), **walk the pagination**
+before concluding a list is empty, and when a path, shape or auth is unknown **try a bounded
+candidate set and record which responded** rather than betting on one. The cheap discharge is
+one question: *"what would this have returned if the thing I am looking for were there?"* If the
+answer is "I do not know", the probe is not finished.
+
+**11f — BOTH DIMENSIONS: VALUE CORRECTNESS *AND* SET/SCOPE/COMPOSITION CORRECTNESS.**
+The condition attached to folding 13 in, and it is not a formality. **A boundary can preserve
+every value it carries and still lose members.** B's FLEX finding is the case: three definitions
+agreed EXACTLY on what they shared, and one of them did not know two entries existed. Equality on
+the intersection does not establish equality of the sets. So a boundary check must establish, for
+every crossing: the values, AND the membership — *does either side have members the other lacks?*
 
 **12. THE OUTPUT MUST BE SANE, NOT ONLY THE PLUMBING.** Cory, 2026-08-10. Rule 11 asks
 whether the pipe leaks; **rule 12 asks whether what came out is water.** A system can be
@@ -680,3 +707,92 @@ don't trust it). Run the FULL suite before shipping.
 **Read first, in order:** STATUS.md (running log + newest resume marker) → TERRITORY.md →
 PARKED.md → DECISIONS-NEEDED.md → EDGE-LEDGER.md. The plain-English queue is **TODO.md**;
 registered experiments are in **LAB-REGISTRY.md**.
+
+
+---
+
+## CLAUSES ON EXISTING PRINCIPLES — NOT NUMBERED RULES (Cory, 2026-08-11)
+
+**Deliberately unnumbered.** Numbering these would undo the lesson this audit produced: the
+constitution's real length is the number of rules that must be REMEMBERED, and rule 9 now says
+plainly not to add a rule when an existing one merely lacks enforcement.
+
+### A. OBJECTIVE ALIGNMENT — a clause on THE GRADUATION GATE
+**The largest gap either audit found.**
+
+**A metric, signal, adjustment or strategy is not valuable merely because it predicts or measures
+its immediate target better. It must demonstrate that improvement in that quantity IMPROVES THE
+DECISION OBJECTIVE before it is allowed to influence the core system.**
+
+*The failure this prevents is realistic and currently unguarded:* survival gets 12% more accurate
+and draft decisions get worse. Market signals predict yardage better and change no pick. **Both
+would pass every existing check** — the conservation identity, the boundary guards, the frozen
+baseline, all of it. Every one of those asks whether the number is right, and none asks whether a
+better number moves a decision.
+
+*Host:* the graduation gate. Enforcement: **EMPTY** — the gate is still being built, and this
+clause is a requirement ON that build, not a claim that it exists.
+
+### B. NEGATIVE-RESULT MEMORY — a clause on THE LEDGER AND LEARNING-LOOP PRINCIPLE
+
+**Rejected hypotheses and failed experiments are retained as first-class evidence — with their
+scope, their evidence, and the reason for rejection — so the system does not repeatedly
+rediscover disproven ideas.**
+
+*What exists and what does not:* the Lab registry partly does this. What it does NOT do is prevent
+a dead idea returning next offseason, **which is exactly when it would** — the memory that would
+stop it is the conversation, and the conversation will be gone.
+
+*And a failed experiment must CLOSE a question, not create a workstream* (rule 9).
+
+### C. DECISION-IMPACT PRIORITISATION — a clause on THE SEQUENCING PRINCIPLE
+
+**When competing work is proposed, prioritise by EXPECTED DECISION IMPACT AND INFORMATION GAINED
+— not by technical interest, ease of implementation, or novelty.**
+
+*Not a per-task estimate — a TIEBREAK when two things compete.* It does not forbid small work; it
+requires the small work to have a reason to outrank the large. The live case: the external ingest
+was displaced six or seven times in one day, every time by something legitimately more urgent,
+which is how an item that shares a queue with urgent work never runs.
+
+---
+
+## ENFORCEMENT TABLE — metadata, not a rule
+
+**An empty cell is not a neutral state.** A rule with no test and no trigger is either
+unenforceable or unnecessary, and this table only helps if an empty cell demands an answer rather
+than sitting there. **Nothing below is invented to fill a cell** — a fabricated test name would be
+the vacuous-guard disease applied to the constitution itself.
+
+| rule | protection | enforcement |
+|---|---|---|
+| 1 evidence purity | leaked/in-season data cannot grade | `draft/tests/test_asof.py` (as-of correctness) — PARTIAL: covers as-of, not the re-bucketing or pooling clauses |
+| 2 overrides | an override is logged with reasoning and graded | `draft/tests/predledger.test.js` — "override-reason logs with its method, reason, and off-top-rec flag" |
+| 3 proxy ≠ objective | no promotion on proxy strength | **EMPTY** — needs: the gate asserting a dollar-positive result before promotion. Blocked on the gate existing |
+| 4 pre-registered filters | filters fixed before data is seen | `draft/tests/test_market_capture.py` — version, ALREADY_SEEN, attrition recorded |
+| 6 rules vs system | no silent divergence | `draft/tests/baseline_regression.test.js` — the v1→v4 chain, `--why` required |
+| 6a language discipline | "measured core" names the frozen object | `baseline_regression.test.js` ×3 — `[rule 7]` engine.js / app.js / warroom.ejs |
+| 8 lead with failures | narrative contamination | **EMPTY** — trigger: every report. Automation unreasonable; deletion-detection is Cory noticing a report that buries a failure |
+| 9 process earns keep | the constitution cannot only grow | **EMPTY by design** — trigger: the standing check at each review cycle |
+| 10 break before trusting | no guard trusted unbroken | `draft/tools/rule10_break.sh` — **PARTIAL, and this is C's finding: the breaks are not in the repo. Discharge is per-session, not per-repository** |
+| 11 boundary correctness | completeness, validity, unknown state | `context_interface.test.js`, `survival_honesty.test.js`, `app-wiring.test.js` |
+| 11e own-query boundary | a negative about a source is checked against my query | **EMPTY** — trigger: any recorded negative about an external source or a fixture |
+| 11f set/scope correctness | a boundary can keep values and lose members | `context_interface.test.js` — engine reads ⊆ app supplies |
+| 12 output sanity | the number could not be true | **EMPTY** — needs: the predeclared 10–15 value sample. Trigger exists, artifact does not |
+| 14 establish the consumer | produced-and-unread | `survival_honesty.test.js` (tilt wiring, `survivalRaw` call count), `context_interface.test.js` |
+| clause A objective alignment | better metric ⇏ better decision | **EMPTY** — requirement on the gate build |
+| clause B negative-result memory | disproven ideas do not return | **EMPTY** — Lab registry is partial; nothing prevents an offseason revival |
+| clause C decision-impact | tiebreak by impact, not novelty | **EMPTY** — trigger: any sequencing decision between competing work |
+
+**SEVEN EMPTY CELLS, reported rather than filled.** Three are blocked on something being built
+(3 and clause A on the gate; 12 on the sample). Three are triggers where automation is
+unreasonable (8, 9, clause C). One is a partial that C correctly identified as weaker than it
+reads (10). Clause B and 11e have neither and are the two most likely to rot.
+
+**THE ACCEPTANCE CRITERION, checked:** every rule leaving this pass has an enforcement artifact,
+a defined observable trigger, or an explicit deletion-detection test. **No new numbered rule was
+created.**
+
+**AND THE DEFINITION WORTH HOLDING:** a mature constitution is not one with fewer rules. It is one
+where every remaining rule has a clear reason to exist and a clear way its violation would become
+observable.
