@@ -68,8 +68,18 @@ ck('  and the pre-2023 gap is recorded, since Sleeper stops at 2023',
 
 const should = regKeys.filter(k => reg.settings[k].disposition === 'should_import');
 console.log('\n  should_import (' + should.length + '): ' + should.join(', '));
-console.log('  ignored: ' + regKeys.filter(k => reg.settings[k].disposition === 'ignored').length
-  + '   imported: ' + regKeys.filter(k => reg.settings[k].disposition === 'imported').length);
+const n = d => regKeys.filter(k => reg.settings[k].disposition === d).length;
+console.log('  ignored: ' + n('ignored') + '   imported: ' + n('imported')
+  + '   imported_unread: ' + n('imported_unread'));
+
+/* THIS SUITE DOES NOT CHECK WHETHER `imported` IS TRUE. It checks the key set
+ * and the presence of a reason — and it passed while ten keys were labelled
+ * `imported` with no consumer anywhere. The disposition is measured by
+ * draft/tests/test_settings_registry_truth.py, which perturbs the import and
+ * scans for read SHAPES rather than for the name. Saying so here so the next
+ * reader does not take this file's green as an answer to that question. */
+ck('the disposition vocabulary includes the produced-and-unread case',
+  Object.prototype.hasOwnProperty.call(reg._dispositions, 'imported_unread'));
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail ? 1 : 0);
