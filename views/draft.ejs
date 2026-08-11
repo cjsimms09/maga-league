@@ -51,7 +51,31 @@
 %>
 
 <div class="grid cols-2">
-  <% if (draft.picks.length) { %>
+  <%# ONCE THE ORDER IS SET THERE IS NOTHING TO CHOOSE. This card was gated on
+      draft.picks.length alone, so after the last owner claimed a spot it kept
+      asking "Which Spot Should You Take?", kept explaining the trade-off, and
+      kept closing with "Tap one to jump to that spot on the board" — with every
+      button gone, because bestFor() correctly returns nothing when no slot is
+      open. A question with no answers, sitting under a banner that already says
+      the order is set, permanently. It answers the question a reader has at
+      that point instead: where they are picking, and from which round. Same
+      firstPick() the board uses, so it cannot disagree with it. %>
+  <% const mySlot = ((draft.picks.find(p => p.owner_id === owner.id)) || {}).slot; %>
+  <% if (draft.picks.length && !openSlots.length && mySlot) { %>
+  <div class="card col-span-2">
+    <h2>🧭 Where You're Picking <span class="sub">the order is set — <%= myKeepCount %> keeper<%= myKeepCount === 1 ? '' : 's' %> on your card</span></h2>
+    <div class="body">
+      <p style="margin:.1rem 0 0">You have <b>Spot #<%= mySlot %></b>. Keeping <b><%= myKeepCount %></b>
+        costs you <%= myKeepCount === 0 ? 'no rounds' : (myKeepCount === 1 ? 'round 1' : 'rounds 1–' + myKeepCount) %>,
+        so your first live selection is <b>#<%= firstPick(mySlot, myKeepCount) %></b> overall —
+        <%= ordinal(posInRound(mySlot, myKeepCount + 1)) %> of Round <%= myKeepCount + 1 %>.</p>
+      <p class="muted" style="margin:.6rem 0 0; font-size:.78rem">
+        Keeping one more would move it to <b>#<%= firstPick(mySlot, myKeepCount + 1) %></b><% if (myKeepCount > 0) { %>;
+        one fewer, to <b>#<%= firstPick(mySlot, myKeepCount - 1) %></b><% } %>. The board below is the full order.
+      </p>
+    </div>
+  </div>
+  <% } else if (draft.picks.length && openSlots.length) { %>
   <div class="card col-span-2">
     <h2>🧭 Which Spot Should You Take? <span class="sub">it depends entirely on how many you keep</span></h2>
     <div class="body">

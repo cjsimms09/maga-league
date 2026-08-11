@@ -38,7 +38,14 @@ const ck = (n, c, d) => { c ? (pass++, console.log('PASS ' + n)) : (fail++, cons
   ck('it shows a money rank out of the field', !!rankM && Number(rankM[1]) >= 1 && Number(rankM[2]) >= 2,
     rankM && rankM.slice(1).join('/'));
 
-  ck('it shows a per-season figure with its denominator', /per season \(\d+\)/.test(bank));
+  // The denominator counts seasons IN THE MONEY, not seasons played — the
+  // winnings grid has no zero-valued keys, so a season you played and won
+  // nothing never appears in it. The label has to say so; what it counts and
+  // why is pinned in career_money_agreement.test.js, which also replaces the
+  // bare-substring agreement check below with a real cross-surface one.
+  ck('it shows a per-season figure with its denominator named',
+    /per season in the money \(\d+\)/.test(bank),
+    (bank.replace(/<[^>]+>/g, ' ').match(/per season[^<]{0,40}/) || [])[0]);
   ck('it names the all-time leader (or says you are it)',
     /leads all-time with/.test(bank) || /You lead the all-time money board/.test(bank));
   ck('it distinguishes winnings from this season\'s cash position',

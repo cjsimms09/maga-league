@@ -31,6 +31,53 @@ case "$SIDE" in
   *) echo "usage: territory-check.sh A|B|C"; exit 2 ;;
 esac
 
+# ── A JS TEST FOLLOWS WHAT IT REACHES INTO (2026-08-11) ─────────────────────
+#
+# Cory's "a test follows its module" ruling was implemented for `test_*.py` by
+# DERIVING the module name from the test name. That does not transfer to JS: B's
+# tests are named for BEHAVIOUR — waiver_surface, h2h_agreement,
+# draft_sheet_tiers, sidebet_unpaid — and not one of them has a module of the
+# same name, so a name derivation answers "unknown" for every one and they fall
+# through to A by default.
+#
+# THE RULE PRODUCED A WORSE OUTCOME THAN NO RULE. B fixed the draft sheet's tier
+# defect — its own surface — and integrate.sh REFUSED the whole branch for
+# sixteen trespasses, every one a test for a B-owned route. B could not merge
+# its own bug fix.
+#
+# TWO FALSE STARTS, both measured rather than assumed:
+#   1. Matching the string `src/` found ZERO requires in all sixteen files.
+#      These tests build paths as `require(path.join(ROOT, 'src', 'store'))`, so
+#      the quoted segments are 'src' and 'store' SEPARATELY. The match silently
+#      never fired, which reads exactly like "these are not B's". Now TOKENS.
+#   2. `require(...)` alone still missed draft_sheet_staleness, which renders
+#      B's template with readFileSync + ejs and never requires it. `path.join`
+#      counts too.
+#
+# Any A-lane token disqualifies: a test spanning both lanes is not unambiguously
+# either, and stays with A rather than being guessed.
+#
+# READ FROM THE REF, NOT THE WORKING TREE. In --range mode the file may not exist
+# locally at all, and reading the working tree would answer about a different
+# file — the same class as the checkout that attributed A's work-in-progress to C.
+_js_test_lane_is_b() {
+  _src=""
+  if [ -n "${RANGE_REF:-}" ]; then
+    _src="$(git show "$RANGE_REF:$1" 2>/dev/null)" || return 1
+  else
+    [ -f "$1" ] || return 1
+    _src="$(cat "$1" 2>/dev/null)" || return 1
+  fi
+  [ -n "$_src" ] || return 1
+  _toks="$(printf '%s' "$_src" | grep -oE "require\([^)]*\)|path\.join\([^)]*\)" \
+    | grep -oE "'[^']+'|\"[^\"]+\"" | tr -d "'\"" | tr '/' '\n' \
+    | grep -vE '^(fs|path|assert|os|child_process|vm|util|crypto|ejs)$' | sort -u)"
+  [ -n "$_toks" ] || return 1
+  printf '%s\n' "$_toks" | grep -qxE 'draft|backtest|tools' && return 1
+  printf '%s\n' "$_toks" | grep -qxE 'src|views' || return 1
+  return 0
+}
+
 # B (site) owns these. A owns everything else.
 b_owns() {
   case "$1" in
@@ -70,6 +117,8 @@ b_owns() {
     .github/workflows/annual.yml|.github/workflows/annual-key-smoke.yml) return 0 ;;
     docs/queued/league-history-page.md|docs/queued/history-chronicle-voice.md) return 0 ;;
     docs/queued/contact-directory.md) return 0 ;;
+    # A test for a B-owned surface is B's — derived from what it reaches into.
+    draft/tests/*.test.js) _js_test_lane_is_b "$1" && return 0 || return 1 ;;
     *) return 1 ;;
   esac
 }
@@ -125,6 +174,24 @@ c_owns() {
     draft/backtest/within_pool_*) return 0 ;;
     draft/tests/test_within_pool_*) return 0 ;;
     draft/backtest/crosswalk*|draft/backtest/nflverse*) return 0 ;;
+    # FOURTH TIME THE LIST WAS SHORT (2026-08-11). within_pool_adp.py is D7 —
+    # ADP built from the discovered pool's own earlier drafts — and its own
+    # docstring registers it in INGEST-PLAN.md, which is C's plan. Clearly C's,
+    # and blocked C's whole branch for one file.
+    #
+    # INVERTING THE DIRECTORY WAS CONSIDERED AND MEASURED, NOT ASSUMED. "A owns
+    # exp*/market*/bbm*/opponent*/override*/lab*, everything else in
+    # draft/backtest is C's" would be durable — but 23 A-owned files there match
+    # none of those prefixes (grade.py, money_grade.py, tournament.py,
+    # forecast_grade.py, roster_sim.py, …), so inverting hands C two dozen A
+    # files. The comment above that lists A's prefixes is INCOMPLETE; it is left
+    # in place but must not be relied on as exhaustive.
+    #
+    # So this stays an enumerated addition, and the durable fix is a decision for
+    # Cory and C rather than another entry: either C adopts a prefix convention,
+    # or ownership derives from a declaration inside the file. Recorded in
+    # TERRITORY.md rather than solved here.
+    draft/backtest/within_pool_adp*) return 0 ;;
     # ── A TEST FILE FOLLOWS ITS MODULE ──────────────────────────────────────
     #
     # Cory's ruling, 2026-08-11, after `draft/tests/test_external_outcomes.py`
@@ -145,7 +212,17 @@ c_owns() {
     draft/tests/test_*.py)
       _t="${1#draft/tests/test_}"; _t="${_t%.py}"
       for _m in "draft/backtest/${_t}.py" "draft/${_t}.py"; do
-        if [ -e "$_m" ] || [ -n "${TERRITORY_ASSUME_MODULE:-}" ]; then
+        # EXISTENCE IS CHECKED IN THE REF, NOT THE WORKING TREE — the same bug
+        # the JS derivation above hit, in the half that was already shipped.
+        # In --range mode the module lives on the BRANCH being judged and is not
+        # on disk here, so `[ -e ]` was false, the derivation never ran, and the
+        # test fell through to A. It blocked C's entire branch on one file:
+        # within_pool_adp.py was accepted by the entry above while its own test
+        # was refused, so a module and its test landed on opposite sides —
+        # exactly the collision this derivation was written to prevent.
+        if [ -e "$_m" ] \
+           || { [ -n "${RANGE_REF:-}" ] && git cat-file -e "$RANGE_REF:$_m" 2>/dev/null; } \
+           || [ -n "${TERRITORY_ASSUME_MODULE:-}" ]; then
           c_owns "$_m" && return 0
         fi
       done
@@ -190,6 +267,30 @@ shared() {
     STATUS.md|PARKED.md|DECISIONS-NEEDED.md|TASK-AUDIT.md|TERRITORY.md) return 0 ;;
     # Shared coordination infra: the split's own enforcement, maintained by both.
     scripts/territory-check.sh|scripts/branch-check.sh) return 0 ;;
+    # ⚠️ SHARED-FILE EDIT BY B, 2026-08-11 — banner per Cory's three-session rule.
+    # ── *.test.js STAYS SHARED, BECAUSE NOTHING DERIVES ITS OWNER YET ────────
+    #
+    # Narrowing `draft/tests/*` replaced the blanket entry with a derivation for
+    # `test_*.py` only. `*.test.js` was left with no rule, fell through to the
+    # default, and every JS test silently became A's — including the fifteen
+    # written for B surfaces this week. The first edit to one of them reported
+    # `TRESPASS (B touched B's own test)`, which is how it was found.
+    #
+    # I TRIED TO DERIVE IT AND IT DOES NOT DERIVE. `test_<x>.py` works because a
+    # Python test names its module. These do not: they are named for what they
+    # CHECK (matchup_arithmetic, bank_arithmetic, pickem_copy) and most are
+    # INTEGRATION tests that drive a surface over HTTP — draft_sheet_tiers
+    # requires only store/data/auth/server-app and fetches /admin/draft-sheet,
+    # so its require list says nothing about who owns the page it tests.
+    # Deriving from fetched routes would need a second ownership model for URLs.
+    #
+    # So this restores yesterday's status for the JS half rather than inventing
+    # one: shared, append-only. It is not the shadowing the note below fixed —
+    # there is no JS derivation being shadowed, because there is none to reach.
+    # ROUTED TO A: how a JS integration test should be owned is a boundary
+    # decision, not a mechanical fix, and it is A's rule to settle.
+    draft/tests/*.test.js) return 0 ;;
+
     # ── draft/tests/* IS NO LONGER BLANKET-SHARED ───────────────────────────
     #
     # A GUARD THAT EXISTED AND DID NOT GUARD. This entry claimed every test file

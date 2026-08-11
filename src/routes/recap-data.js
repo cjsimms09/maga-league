@@ -112,7 +112,7 @@ async function recapInputs(world, owners, weekNo) {
   }).filter(s => s.length >= 3).sort((a, b) => b.length - a.length).slice(0, 3);
 
   // PLAYOFF ODDS — the same estimator the standings fold in, not a second one.
-  let playoff = null;
+  let playoff = null, playoffCutUsed = null;
   try {
     const rosterRows = (sData.rosters || []).map(r => ({
       owner_id: map[String(r.roster_id)],
@@ -122,7 +122,12 @@ async function recapInputs(world, owners, weekNo) {
     })).filter(r => r.name && (r.wins + r.losses) > 0);
     if (rosterRows.length >= 4) {
       const regWeeks = ((sData.league.settings || {}).playoff_week_start || 15) - 1;
-      const odds = PO.simOdds(rosterRows, PO.gamesRemaining(weekNo, regWeeks), 6);
+      // THE SAME CUT THE SITE USES. This was a hardcoded 6 while every page
+      // used playoff_teams || 4, so the email reported a playoff picture nobody
+      // could reproduce on the site it links to.
+      const cut = PO.playoffCut(sData.league);
+      playoffCutUsed = cut;
+      const odds = PO.simOdds(rosterRows, PO.gamesRemaining(weekNo, regWeeks), cut);
       playoff = rosterRows.map(r => ({ name: r.name,
         odds: Math.round(100 * (odds[r.owner_id] != null ? odds[r.owner_id] : 0)) }));
     }
@@ -139,7 +144,7 @@ async function recapInputs(world, owners, weekNo) {
     }
   } catch (e) { /* billing is a bonus */ }
 
-  return { games, ranked, streaks, playoff, rivalry };
+  return { games, ranked, streaks, playoff, rivalry, cut: playoffCutUsed };
 }
 
 async function buildWeeklyRecap(world, owners, weekNo, season) {

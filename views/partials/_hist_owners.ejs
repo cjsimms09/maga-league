@@ -13,7 +13,7 @@
     <div class="stat-row">
       <div class="stat"><b><%= rec.wins %>-<%= rec.losses %><%= rec.ties ? '-' + rec.ties : '' %></b><span>Record<%= rec.auto ? ' ⚡' : '' %></span></div>
       <div class="stat"><b><%= gp ? Math.round(((rec.wins + rec.ties * 0.5) / gp) * 1000) / 10 : 0 %>%</b><span>Win %</span></div>
-      <div class="stat"><b><%= c.length %></b><span>Titles</span></div>
+      <div class="stat"><b><%= c.length %></b><span>Title<%= c.length === 1 ? '' : 's' %></span></div>
     </div>
     <div class="money-line">💰 <%= money(totals[o.id]) %> career</div>
   </div>

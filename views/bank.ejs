@@ -203,9 +203,15 @@ season until settled.</p>
           <span class="bk-career-num"><%= CR.mine.rank %><span class="bk-career-of">of <%= CR.of %></span></span>
           <span class="bk-career-lbl">money rank</span>
         </div>
-        <div class="bk-career-cell">
+        <%# "per season (7)" read as seasons PLAYED, which is not what the 7
+            counts — the winnings grid only holds years money changed hands, so
+            a season you played and won nothing never appears. Sam has two such
+            years against a ten-season grid and was shown $625 a season on a
+            $1,250 career. Seasons played is recorded nowhere in the league's
+            data, so the label names the denominator it actually has. %>
+        <div class="bk-career-cell" title="Average across the seasons you finished in the money. Seasons where you won nothing aren't counted — the league's books only record the years money changed hands.">
           <span class="bk-career-num"><%= CR.perSeason != null ? money(CR.perSeason) : '—' %></span>
-          <span class="bk-career-lbl">per season (<%= CR.seasonsPlayed %>)</span>
+          <span class="bk-career-lbl">per season in the money (<%= CR.seasonsInTheMoney %>)</span>
         </div>
       </div>
       <p class="muted" style="margin:.6rem 0 0; font-size:.78rem">
@@ -294,15 +300,28 @@ season until settled.</p>
     </ul>
     <p class="muted" style="margin:.6rem 0 0; font-size:.78rem">
       <b><%= money(_st.total) %></b> moves in <%= _st.transfers.length %> payment<%= _st.transfers.length === 1 ? '' : 's' %> and everyone's square.
-      <%# A NEGATIVE imbalance in BANK mode is not a bookkeeping error — it is the
-          POT. Everyone has been charged the buy-in and the prizes have not been
-          paid out yet, so the bank ends up holding exactly that difference. The
-          old copy called it "unaccounted", which reads as "your books are broken"
-          on a page whose whole job is to tell you they aren't. Only a POSITIVE
-          imbalance (the league owes more than it holds) is a genuine discrepancy. %>
+      <%# A NEGATIVE imbalance in BANK mode is not a bookkeeping error: everyone
+          has been charged the buy-in and the prizes have not gone out yet, so
+          more is owed in than out. Calling it "unaccounted" read as "your books
+          are broken" on a page whose whole job is to say they aren't. Only a
+          POSITIVE imbalance (more owed out than in) is a real discrepancy.
+
+          BUT IT IS NOT THE POT, and it used to say it was. `imbalance` is the
+          sum of the OUTSTANDING positions, so every dollar somebody has already
+          paid leaves it — while that same dollar is sitting in the bank. On the
+          seeded 2026 books, with three owners paid up, the page told the
+          commissioner the pot was $2,425 when $3,625 ends up in his hands: it
+          understated the money by exactly the $1,200 already collected.
+
+          There is no honest pot figure to swap in from here. `paid_in` counts
+          settled charges as well as payments, so summing it is only cash if no
+          ledger ever records a buy-in both ways — an assumption, and this is
+          the one page that must not run on those. So the sentence now says what
+          the number IS, which the reader can check against the two totals in
+          the table directly above it: 2,800 owed in less 375 owed out. %>
       <% if (!_st.balanced) { %>
         <% if (_st.hub != null && _st.imbalance < 0) { %>
-          <span> After these, <b><%= _st.hubName %></b> is holding <b><%= money(Math.abs(_st.imbalance)) %></b> — that's the pot, not yet paid out.</span>
+          <span> After these, <b><%= money(Math.abs(_st.imbalance)) %></b> more has come in to <b><%= _st.hubName %></b> than has gone out — the <%= money(Math.abs(totalOwedToLeague)) %> owed in, less the <%= money(totalLeagueOwes) %> owed out. Anything already paid in is on top of that, so this is not the size of the pot.</span>
         <% } else { %>
           <span class="neg"> Note: the books don't fully close — <%= money(Math.abs(_st.imbalance)) %> <%= _st.imbalance > 0 ? 'more is owed out than is held' : 'unaccounted' %>.</span>
         <% } %>

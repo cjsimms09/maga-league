@@ -254,6 +254,46 @@ global.fetch = async (url, opts) => {
     }
   }
 
+  // ── THE EMAIL AND THE SITE MUST AGREE ON THE PLAYOFF PICTURE ─────────────
+  //
+  // The recap hardcoded a SIX-team playoff cut while every page on the site used
+  // `playoff_teams || 4` — six copies of one rule that happened to agree, plus
+  // mine that did not. Nine people would have been emailed a playoff picture
+  // they could not reproduce anywhere on the site the email links to.
+  //
+  // This is rule 11's third requirement applied across surfaces rather than
+  // within one: the same quantity derived twice, with nothing comparing them.
+  // So this compares them.
+  {
+    const PO = require(path.join(ROOT, 'src', 'routes', 'playoffs'));
+    const RD = require(path.join(ROOT, 'src', 'routes', 'recap-data'));
+    const cutOf = need(PO, 'playoffCut', 'the one playoff-cut definition');
+    ck('the cut has ONE definition, exported', typeof PO.playoffCut === 'function');
+    ck('  it defaults to 4, which is what every page has always used',
+      cutOf({ settings: {} }) === 4 && cutOf(null) === 4, [cutOf({ settings: {} }), cutOf(null)]);
+    ck('  and it honours the league setting when Sleeper supplies one',
+      cutOf({ settings: { playoff_teams: 6 } }) === 6, cutOf({ settings: { playoff_teams: 6 } }));
+
+    // The real check: no surface re-derives it. A second literal is how the two
+    // drifted in the first place.
+    for (const f of ['src/routes/member.js', 'src/routes/recap-data.js']) {
+      const src = fs.readFileSync(path.join(ROOT, f), 'utf8')
+        .replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
+      ck(`  ${f} reads the cut from playoffCut, never from settings directly`,
+        !/playoff_teams/.test(src), (src.match(/.{0,60}playoff_teams.{0,40}/) || [''])[0]);
+    }
+
+    // And end to end: the gatherer reports the cut it actually used, and it is
+    // the same number the site would compute for the same league.
+    await seedWeek(10, mkWeek(9, FINAL));
+    const world = { config: await store.get('config'), seasons: await store.get('seasons') };
+    const inputs = await RD.recapInputs(world, (await store.get('owners')).filter(o => o.active), 9);
+    const sData = await require(path.join(ROOT, 'src', 'sleeper')).bundle(lid);
+    ck('the recap used the SAME cut the site would',
+      inputs && inputs.cut === PO.playoffCut(sData && sData.league),
+      { recap: inputs && inputs.cut, site: PO.playoffCut(sData && sData.league) });
+  }
+
   // ── THE PREVIEW SHOWS THE SAME THING THE EMAIL SENDS ──────────────────────
   // A preview that diverges from the email is worse than no preview — it was
   // already caught once on the Sunday alert, showing a badge the real email

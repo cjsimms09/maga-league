@@ -186,13 +186,28 @@
       if (!p) return '<span class="muted">—</span>';
       if (p.status === 'clinched') return '<span class="po-badge in" title="clinched a playoff spot">🔒 IN</span>';
       if (p.status === 'eliminated') return '<span class="po-badge out" title="mathematically eliminated">❌ OUT</span>';
-      const pctv = Math.round(p.odds * 100);
+      // THE THIRD SURFACE WITH THIS DEFECT, and the one where it argues with
+      // itself. simOdds is a 4,000-iteration Monte Carlo, so a long shot scores
+      // a true 0 and Math.round printed "0%" — on a row the two branches above
+      // just declined to eliminate. A 2–10 team with eight games left came out
+      // ALIVE and 0% on the same line. Only teams that are neither clinched nor
+      // eliminated ever reach here, so a bare 0% or 100% is never right in this
+      // cell: the badge is where certainty is allowed to be stated, because it
+      // is proved from bounds rather than sampled. Same formatter as /matchup
+      // and /watch (src/routes/oddstext.js).
       let arrow = '';
       if (p.delta != null && Math.abs(p.delta) >= 0.005) {
         const d = Math.round(Math.abs(p.delta) * 100);
-        arrow = p.delta > 0 ? ` <span class="po-arrow up">▲${d}</span>` : ` <span class="po-arrow down">▼${d}</span>`;
+        arrow = p.delta > 0 ? ` <span class="po-arrow up" title="up ${d} since last week">▲${d}</span>`
+          : ` <span class="po-arrow down" title="down ${d} since last week">▼${d}</span>`;
       }
-      return `<span class="po-odds" title="playoff odds (estimate)">${pctv}%</span>${arrow}`;
+      // This cell is built as an HTML string and inserted UNESCAPED, so the
+      // figure has to be escaped here: pctText returns "<1%", and a raw "<1%"
+      // is read as the start of a TAG. Five rows went BLANK the first time —
+      // worse than the "0%" being fixed here, and invisible unless you look at
+      // the page rather than at the diff.
+      const _e = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      return `<span class="po-odds" title="playoff odds (estimate)">${_e(pctText(p.odds))}</span>${arrow}`;
     };
   %>
   <div class="card">

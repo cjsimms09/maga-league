@@ -199,12 +199,22 @@
     <span class="hero-value"><%= money(t.at_stake) %></span>
     <span class="hero-sub"><%= t.open %> bet<%= t.open === 1 ? '' : 's' %> live</span>
   </div>
-  <%# The number that actually gets money to move. %>
+  <%# The number that actually gets money to move — so it has to be the money
+      that moves. This printed owed_to_me MINUS i_owe, which is a signed net,
+      under a label that names a quantity: three unpaid bets — $50 in from
+      Marian, $75 and $25 out to David and Michael — summarised as "-$50".
+      SIDE BETS SETTLE PERSON TO PERSON. Those three cannot be netted against
+      each other at all; $150 has to change hands across three people before
+      anyone is square, and the list directly below says exactly that. League
+      money nets because every dollar routes through the bank — this is the one
+      tab where that reasoning does not carry, and it had been carried over.
+      The headline is the money still to move; the sub-line keeps the
+      direction, which is what the net was really being used for. %>
   <div class="hero-item <%= sbOwedMine.owed_to_me > sbOwedMine.i_owe ? 'good' : sbOwedMine.i_owe > 0 ? 'bad' : '' %>">
     <span class="hero-label">Still Unpaid</span>
-    <span class="hero-value"><%= sbOwedMine.owed_to_me || sbOwedMine.i_owe ? money(sbOwedMine.owed_to_me - sbOwedMine.i_owe) : '✓' %></span>
-    <span class="hero-sub"><%= sbOwedMine.owed_to_me || sbOwedMine.i_owe
-        ? `owed you ${money(sbOwedMine.owed_to_me)} · you owe ${money(sbOwedMine.i_owe)}`
+    <span class="hero-value"><%= sbOwedMine.owed_to_me || sbOwedMine.i_owe ? money(sbOwedMine.owed_to_me + sbOwedMine.i_owe) : '✓' %></span>
+    <span class="hero-sub"><% const _wth = sbOwedMine.rows.filter(r => r.net !== 0).length; %><%= sbOwedMine.owed_to_me || sbOwedMine.i_owe
+        ? `owed you ${money(sbOwedMine.owed_to_me)} · you owe ${money(sbOwedMine.i_owe)} · across ${_wth} ${_wth === 1 ? 'person' : 'people'}`
         : 'everything squared up' %></span>
   </div>
 </div>

@@ -2,7 +2,10 @@
 <%
   const fmt = n => (n == null ? '—' : Number(n).toFixed(2));
   const beats = A.badBeats;
-  const monument = A.records.mostInLoss[0];      // most points in a loss, all time
+  // Most points in a loss IN THE SEASONS WITH BOX SCORES — not all time. The
+  // league starts in 2016 and week-by-week scores start in the Sleeper era, so
+  // every superlative on this page is bounded by _boxscope below.
+  const monument = A.records.mostInLoss[0];
   const groups = [
     ['top3_loss',      '🥉 Top-3 Score, Still Lost', 'A top-three score in the league that week — and a loss anyway.'],
     ['near_high',      '💵 Missed the Weekly High by Under 2', 'A hundred dollars lost to a rounding error.'],
@@ -18,13 +21,15 @@
   <h1 class="chron-title">Bad Beats <span class="gold">Hall of Fame</span></h1>
   <p class="chron-sub">Auto-detected heartbreak. If the schedule robbed you, it's written here forever.</p>
   <%- include('_subnav', { active: 'badbeats' }) %>
+  <%- include('_boxscope', { note: 'A beat from before that cannot appear here.' }) %>
 
   <!-- THE MONUMENT -->
   <div class="beat monument">
     <div class="hdr"><span class="who">🏛️ The Monument — <%= monument.owner %>, <%= monument.year %></span><span class="pts"><%= fmt(monument.points) %></span></div>
     <div class="when">Week <%= monument.week %> · lost to <%= monument.winner_name %> (<%= fmt(monument.winner_points) %>)</div>
-    <div class="note">The most points ever scored in a losing effort. You can do everything
-      right and still lose in this league — <%= monument.owner %> is the proof, carved in stone.</div>
+    <div class="note">The most points ever scored in a losing effort, in every season the box
+      scores reach. You can do everything right and still lose in this league —
+      <%= monument.owner %> is the proof, carved in stone.</div>
   </div>
 
   <% for (const [kind, title, blurb] of groups) { const rows = byKind(kind); if (!rows.length) continue; %>

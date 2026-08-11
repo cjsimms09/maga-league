@@ -104,8 +104,14 @@ const css = fs.readFileSync(path.join(ROOT, 'public', 'css', 'style.css'), 'utf8
     oppLive: 84.1, myProj: 84.2, oppProj: 84.1, margin: 0.1, playersLeft: 0, oppPlayersLeft: 0,
     remainKnown: true, pWin: 0.5, highP: null, label: { icon: '🔥', word: 'coin flip', level: 'flip' },
     need: 'Up 0.1 projected.', ...o });
+  // pctText is supplied to every member view by a router middleware (one
+  // definition of how a probability is printed — src/routes/oddstext.js). A
+  // direct render bypasses the router, so this fixture has to hand over what
+  // the route hands over, or it is rendering a different page than the one
+  // that ships.
   const render = rows => ejs.render(tpl, { me: { id: 1 }, rows, source: 'live', inWindow: true,
-    weekNo: 3, band: { median: 141 }, preview: false }, { filename: tp });
+    weekNo: 3, band: { median: 141 }, preview: false,
+    pctText: require(path.join(ROOT, 'src', 'routes', 'oddstext')).pctText }, { filename: tp });
 
   const priced = render([row({})]);
   ck('the live score is on the row (it was computed and never rendered)',

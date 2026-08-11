@@ -184,7 +184,21 @@
           </tr>
         <% } %>
       </table>
-      <p class="muted" style="padding:.6rem 1rem 0; font-size:.76rem">This is what the chronicle quotes years from now — "he went <%= worst && worst.graded ? rec(worst) : '4–11' %> picking games the year he finished last, which tells you everything."</p>
+      <%# TWO INVENTED FACTS IN ONE SENTENCE, BOTH ABOUT A NAMED PERSON.
+          It read: "he went <rec> picking games THE YEAR HE FINISHED LAST".
+          Nothing on this page knows where anybody finished — a pick'em record
+          and a league standing are unrelated, and the worst picker in the
+          league is routinely mid-table. And with no eligible worst picker it
+          filled in "4–11": a fabricated record, printed inside quotation marks,
+          as the thing the chronicle will quote years from now. A made-up
+          statistic about a real person is the one kind of copy this site
+          cannot carry.
+          Now it quotes only the record it actually has, and renders nothing at
+          all when there isn't one. "They", because the site does not record
+          anyone's pronouns and a name is not a pronoun. %>
+      <% if (worst && worst.graded) { %>
+        <p class="muted" style="padding:.6rem 1rem 0; font-size:.76rem">This is what the chronicle quotes years from now — "they went <%= rec(worst) %> picking games that season, which tells you everything."</p>
+      <% } %>
     </div>
   </div>
 <% } %>

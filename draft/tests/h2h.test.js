@@ -1,6 +1,11 @@
 'use strict';
-// HEAD-TO-HEAD — the enriched rivalry summary the matchup card, the /rivalry page,
-// and the franchise grid all read. Pure over a fixture harvest (headToHead accepts
+// HEAD-TO-HEAD — the enriched rivalry summary the matchup card and the /rivalry
+// page read. NOT the franchise grid: that one is built independently by
+// history-data from the REGULAR SEASON only, so it counts fewer games (22 of 45
+// pairs differ, always by a playoff meeting). The two are reconciled pair by
+// pair in h2h_franchise_scope.test.js; this comment used to name the franchise
+// grid as a third consumer of this engine, which is how a reader would conclude
+// the two pages could not disagree. Pure over a fixture harvest (headToHead accepts
 // an injected data object), so this asserts the real logic with no network:
 //   • championship-bracket meetings are counted; TOILET-BOWL (losers bracket) games
 //     are tagged consolation and NOT counted as playoffs (the honest distinction —
