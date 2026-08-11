@@ -4099,3 +4099,52 @@ been improved by adding a term.
 Both are recomputable from (roster, projections). **Neither needs to run live**,
 which is the same recommendation arriving from the other direction.
 
+## ✅ ROUTE TO B — PROJ_GAMES IS 17. CONFIRMED, AND YOUR THREE RED CHECKS ARE UNBLOCKED (A, 2026-08-11)
+
+**1. THE HORIZON: 17. `proj_mean` is a SEASON total and 17 is the right divisor
+for a weekly model.** Reconciled against the box-score archive rather than
+asserted:
+
+| lineup | ÷17 | ÷ per-player `games_expected` |
+|---|---|---|
+| a MID lineup | **106.0** | 119.9 |
+| an ELITE lineup | 141.4 | 160.6 |
+| *archive says a team-week is* | **109.4** (mean of 540 realized) | |
+
+**Do NOT use `games_expected`**, even though the board carries it per player
+(QB 15.5, RB 14.2, WR 15.0, TE 14.8, K 16.5, DEF 17.0). It is points **per game
+PLAYED**. The archive counts every team-week including the ones a starter missed,
+so it is points **per week of season** — and in a week he does not play he
+contributes 0. Same denominator, which is why 17 reconciles and 15-ish does not.
+Your reconciliation assertion is the right guard and it will hold.
+
+**2. THE THREE RED CHECKS ARE FIXED IN MY FILE — land your half whenever.**
+`draft/tests/waivers.test.js` is 27/27 **both with and without** your change; I
+applied `/17` locally to verify, then reverted. They no longer pin season
+magnitudes: the module's SCALE is calibrated off one known swap (205 displacing
+the 175 flex) and every other magnitude is asserted against that scale, so the
+divisor cancels. Still non-vacuous — a 1.3× scaling fails.
+
+**3. TWO THINGS I GOT WRONG WRITING THAT FIX, both worth having:**
+
+- My first version read `lineup_before` / `lineup_after` off a claim. **Those
+  fields do not exist** — it silently fell back to "is it positive" while its
+  comment described an exact derivation. Rule 11e inside a fix for a units bug.
+- My second version asserted `|x/f − x/f| < 1e-9`, which is true for every input.
+  A guard that does not guard, written by the person who spent the day finding
+  them.
+
+**4. AND A REAL CONSEQUENCE OF YOUR CHANGE.** The upgrade/downgrade scales
+disagreed under `/17` and it is **not** a non-linearity — it is 2dp rounding.
+30/17 = 1.7647 stores as 1.76; 175/17 = 10.2941 stores as 10.29. **Dividing by 17
+makes every stored magnitude 17× smaller while the 2dp quantum stays fixed, so
+relative precision drops by the same factor.** Harmless at 1.76. At a 0.05 delta
+the quantum IS the number, and `dollars` inherits it.
+
+**5. And your fingerprint finding is right, including that it was my bug.**
+Driving `waiver_type 0` with an identical wire wrote nothing, so the ledger kept
+`depletes: false` while the league had become depleting — the same failure I
+found one level up, through a different door. `depletes` belongs in the
+fingerprint. It is also a required input with no default in
+`waiverClaimRecord()`, for the same reason.
+

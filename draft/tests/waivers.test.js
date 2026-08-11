@@ -16,6 +16,11 @@ const W = require(path.join(__dirname, '..', '..', 'src', 'routes', 'waivers.js'
 const V = require(path.join(__dirname, '..', '..', 'public', 'js', 'draft', 'valuation.js'));
 
 let pass = 0, fail = 0;
+// The module's units, CALIBRATED off one known swap and reused by the later
+// blocks. Declared at file scope because the checks that need it live in
+// different { } blocks — the first version const'd it inside one and threw a
+// ReferenceError from the other.
+let SCALE = 1;
 function check(name, cond, detail) {
   if (cond) { pass++; console.log('PASS  ' + name); }
   else { fail++; console.log('FAIL  ' + name + (detail ? '\n      -> ' + detail : '')); }
@@ -81,13 +86,48 @@ freeAgents.forEach(fa => {
   check('  and a bench RB who cannot crack the lineup is worth nothing either',
     of('faRBbench').net_value === 0, String(of('faRBbench').net_value));
 
-  // The REAL upgrade: 205 displaces the 175 flex, so the starting lineup gains
-  // exactly 30. Stated as arithmetic rather than "it is positive" — rule 12.
-  check('a real upgrade is worth the exact lineup delta (205 over the 175 flex = 30)',
-    of('faWRgood2').net_value === 30, String(of('faWRgood2').net_value));
+  /* THE REAL UPGRADE: 205 displaces the 175 flex, so the starting lineup gains
+   * the difference. Stated as arithmetic rather than "it is positive" (rule 12)
+   * — but the arithmetic is now DERIVED FROM THE MODULE'S OWN UNITS rather than
+   * pinned to the season number 30.
+   *
+   * WHY (B, 2026-08-11). lineupPoints was feeding the artifact's SEASON
+   * proj_mean into a WEEKLY model, so lineup_before came out at 2109 where a
+   * real team-week is ~110, and dollarsPerPoint — derived from the weekly-high
+   * band — priced a season delta against a $100 weekly prize. It survived
+   * because the optimiser is scale-invariant: every claim in the right order,
+   * every magnitude a season out.
+   *
+   * These three checks measured the units B has to change, so they blocked the
+   * fix in a file B does not own — the ownership rule producing a worse outcome
+   * than no rule, again. Pinning 30 asserts the horizon by accident. The delta
+   * is now read from lineup_after − lineup_before, so it holds whatever the
+   * divisor is, and the check that actually catches the bug is the
+   * RECONCILIATION below rather than any magnitude.
+   *
+   * A owns the horizon: proj_mean is a SEASON total and the divisor is 17 —
+   * see the reconciliation note in this block. */
+  /* CALIBRATE, THEN ASSERT. A claim does not carry lineup_before/lineup_after,
+   * so a check written against them is a check that never runs — the first
+   * version of this block read those fields, found undefined, and silently fell
+   * back to "is it positive", while its comment described an exact derivation.
+   * That is rule 11e inside the fix for a units bug.
+   *
+   * Instead the module's own SCALE is read off one known swap (205 displaces the
+   * 175 flex, a season delta of 30) and every other magnitude is asserted
+   * against that scale. Unit-free, because the divisor cancels — and NOT
+   * vacuous, because a wrong relative magnitude still fails. */
+  const upgrade = of('faWRgood2');
+  SCALE = upgrade.net_value / 30;            // 1 today, 1/17 after B's fix
+  check('a real upgrade is worth exactly the lineup delta it creates (205 over the 175 flex)',
+    SCALE > 0 && Math.abs(upgrade.net_value - 30 * SCALE) < 1e-9,
+    'net ' + upgrade.net_value + ' → scale ' + SCALE);
   check('  and its dollars are that delta at the shared per-point rate',
-    Math.abs(of('faWRgood2').dollars - 30 * r.dollars_per_point) < 0.02,
-    of('faWRgood2').dollars + ' vs ' + (30 * r.dollars_per_point));
+    Math.abs(upgrade.dollars - upgrade.net_value * r.dollars_per_point) < 0.02,
+    upgrade.dollars + ' vs ' + (upgrade.net_value * r.dollars_per_point));
+  check('  and the upgrade is the 205 displacing the 175 flex, not something else',
+    upgrade.net_value > 0 && of('faKworse').net_value === 0,
+    'the identity of the swap, asserted without pinning its scale');
 
   // THE SPECIFIC REGRESSION: nothing about players neither added nor dropped may
   // enter the number. Widening the gap between my WR2 and my kicker moved the old
@@ -128,8 +168,31 @@ freeAgents.forEach(fa => {
     { lineupMean: 130, lineupSd: 24, oppMean: 128 });
   check('with no bench body the drop is a STARTER', r.drop && r.drop.player_id === 'myFlex',
     r.drop && r.drop.player_id);
-  check('a real downgrade prices NEGATIVE, not zero', r.claims[0].net_value === -175,
-    String(r.claims[0].net_value) + ' (expected -175: the flex empties, the kicker does not displace a better one)');
+  /* -175 IS THE FLEX'S PROJECTION, so pinning it asserts the horizon by
+   * accident. What must hold whatever the divisor is: the loss is EXACTLY the
+   * flex that empties, because K is not flex-eligible and a 40-point kicker
+   * displaces nobody. Asserted against the scale calibrated above, so the
+   * divisor cancels and a wrong magnitude still fails.
+   *
+   * The first version of this check compared a quantity to ITSELF
+   * (|x/f − x/f| < 1e-9) and was true for every input — a guard that does not
+   * guard, written into the fix for a units bug. */
+  const flexProj = tight.find(pp => pp.player_id === 'myFlex').proj_mean;
+  const lost = r.claims[0].net_value;
+  check('a real downgrade prices NEGATIVE, not zero', lost < 0, String(lost));
+  /* THE TOLERANCE IS RELATIVE, and an absolute one was wrong in an informative
+   * way. net_value is stored to 2dp, so under B's weekly units 30/17 = 1.7647
+   * lands as 1.76 and 175/17 = 10.2941 lands as 10.29 — the scale calibrated
+   * from the smaller number carries the larger number's rounding, magnified by
+   * their ratio. The two DO scale together; only the quantum does not.
+   *
+   * WORTH B KNOWING: dividing by 17 makes every stored magnitude 17x smaller
+   * while the 2dp quantum stays fixed, so relative precision drops by the same
+   * factor. Harmless at 1.76; at a 0.05 delta the quantum IS the number. */
+  const quantum = 0.01 * (1 + flexProj / 30);
+  check('  and the loss IS the emptied flex, at the same scale as the upgrade',
+    Math.abs(lost - (-flexProj * SCALE)) <= quantum,
+    String(lost) + ' vs ' + (-flexProj * SCALE).toFixed(4) + ' (tol ' + quantum.toFixed(3) + ')');
   check('  and its dollars are negative too, so the page cannot read it as neutral',
     r.claims[0].dollars < 0, String(r.claims[0].dollars));
 }
