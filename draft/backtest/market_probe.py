@@ -398,6 +398,49 @@ def probe() -> dict:                                        # pragma: no cover (
                 except Exception as e3:                     # noqa: BLE001
                     io["auth_probe"][style] = {"status": getattr(e3, "code", str(type(e3).__name__))}
             io["auth_style_working"] = working
+
+            # FOLLOW THE 400. A 401 is auth rejected; a 400 is auth ACCEPTED and
+            # the request malformed — so `apiKey` is the right parameter and
+            # /v3/events simply needs more of them. Reading that 400 as "the key
+            # does not work" would be rule 13 exactly: evidence about my request
+            # reported as a fact about the provider. Bounded sweep of the shapes a
+            # fixtures endpoint plausibly requires, recording what each returns.
+            if not working and io["auth_probe"].get("query_apiKey", {}).get("status") == 400:
+                k = io_key
+                shapes = {
+                    "events+sport": f"/v3/events?apiKey={k}&sport=american-football",
+                    "events+sport+league": f"/v3/events?apiKey={k}&sport=american-football&league=NFL",
+                    "events+league": f"/v3/events?apiKey={k}&league=NFL",
+                    "events+sportId": f"/v3/events?apiKey={k}&sportId=american-football",
+                    "leagues": f"/v3/leagues?apiKey={k}",
+                    "leagues+sport": f"/v3/leagues?apiKey={k}&sport=american-football",
+                    "sports": f"/v3/sports?apiKey={k}",
+                    "odds+league": f"/v3/odds?apiKey={k}&league=NFL",
+                }
+                io["shape_probe"] = {}
+                for name, path in shapes.items():
+                    try:
+                        d4, h4 = get(c["host"] + path)
+                        rows = (len(d4) if isinstance(d4, list)
+                                else len(d4.get("data") or d4.get("events") or d4.get("leagues") or []))
+                        body = json.dumps(d4)[:400]
+                        io["shape_probe"][name] = {
+                            "status": 200, "rows": rows,
+                            "rate_headers": {kk: vv for kk, vv in h4.items() if any(
+                                w in kk.lower() for w in ("limit", "remain", "quota", "reset", "credit"))},
+                            "sample": body,
+                        }
+                        io["auth_style_working"] = io["auth_style_working"] or "query_apiKey"
+                    except Exception as e5:                 # noqa: BLE001
+                        # The BODY of a 400 usually names the missing parameter.
+                        detail = ""
+                        try:
+                            detail = e5.read().decode("utf-8", "replace")[:200]
+                        except Exception:                    # noqa: BLE001
+                            pass
+                        io["shape_probe"][name] = {
+                            "status": getattr(e5, "code", str(type(e5).__name__)),
+                            "detail": detail}
             # RETRY COST: does a FAILED request consume budget? Compare the
             # remaining-quota header before and after a deliberate 404.
             if working:
