@@ -279,6 +279,63 @@ def save(series: list, path=None) -> None:
 
 
 # ── the fetch, CI only ──────────────────────────────────────────────────────
+#: One HTTP request stood between us and a day of the curve. A transient 5xx or a
+#: reset at 11:20 UTC raised, failed the step, and lost an observation that cannot
+#: be refetched — the same unrecoverable-day exposure as the push race, on the side
+#: far more likely to fail, because it depends on a third party being up at a fixed
+#: minute. Four attempts over ~18s, nowhere near the job timeout.
+RETRY_ATTEMPTS = 4
+RETRY_BACKOFF_S = 3
+
+
+def retryable(exc) -> bool:
+    """Is this error worth another attempt, or is it the server's ANSWER.
+
+    PURE AND TESTED ON PURPOSE. `fetch_mfl` is `pragma: no cover` — it needs
+    egress — so retry logic written inside it would be untested logic in the path
+    that guards a perishable day. Today already produced one instance of that
+    exact mistake (the escalation condition written inline in the workflow YAML,
+    where two defects sat that no test could reach), so the decision lives here
+    and only the socket call stays uncovered.
+
+    A 429 or 5xx is the server saying "not now". A 404 or 403 is the server
+    saying "no", and repeating the question does not change the answer — it just
+    spends the window. Same distinction `archived-adp-probe.yml` already draws.
+    """
+    import urllib.error
+    if isinstance(exc, urllib.error.HTTPError):
+        return exc.code == 429 or 500 <= exc.code < 600
+    # URLError covers DNS, connection reset and TLS; socket.timeout arrives as
+    # TimeoutError. All are "the network did not answer", not "the server said no".
+    return isinstance(exc, (urllib.error.URLError, TimeoutError, ConnectionError))
+
+
+def with_retry(call, attempts=RETRY_ATTEMPTS, backoff=RETRY_BACKOFF_S,
+               sleep=None, note=None):
+    """Call `call()`, retrying only what `retryable` allows. Re-raises the last error.
+
+    `sleep` is injected so the tests exercise the real loop without waiting, and
+    the BACKOFF IS BETWEEN ATTEMPTS ONLY — pausing before the first buys nothing
+    and delays every healthy run.
+    """
+    import time
+    sleep = sleep or time.sleep
+    last = None
+    for i in range(max(1, attempts)):
+        if i:
+            sleep(backoff * i)
+        try:
+            return call()
+        except Exception as e:          # noqa: BLE001 — re-raised below if final
+            if not retryable(e) or i == attempts - 1:
+                raise
+            last = e
+            if note:
+                note("attempt %d/%d failed (%s: %s) — retrying"
+                     % (i + 1, attempts, type(e).__name__, e))
+    raise last                          # pragma: no cover  (loop always returns or raises)
+
+
 def fetch_mfl(year):  # pragma: no cover  (egress; CI only)
     """One day's MFL ADP board. Returns (rows, total_drafts, note)."""
     import urllib.parse
@@ -287,8 +344,12 @@ def fetch_mfl(year):  # pragma: no cover  (egress; CI only)
               "IS_MOCK": "-1", "INJURED": "-1", "CUTOFF": "5", "FCOUNT": "12", "JSON": "1"}
     url = ("https://api.myfantasyleague.com/%s/export?" % year) + urllib.parse.urlencode(params)
     req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
-    with urllib.request.urlopen(req, timeout=60) as r:
-        payload = json.loads(r.read().decode("utf-8", "replace"))
+
+    def once():
+        with urllib.request.urlopen(req, timeout=60) as r:
+            return r.read().decode("utf-8", "replace")
+
+    payload = json.loads(with_retry(once, note=lambda m: print("fetch_mfl: " + m)))
     node = (payload.get("adp") or {})
     players = node.get("player") or []
     if isinstance(players, dict):

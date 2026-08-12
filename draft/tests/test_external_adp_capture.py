@@ -423,3 +423,159 @@ def test_a_snapshot_field_that_disappears_entirely_is_still_named(tmp_path):
     pop = _json.loads(p.read_text())["population"]
     assert pop["fields"]["total_drafts"]["missing"] == 1
     assert "total_drafts" in pop["empty"]
+
+
+# ── the fetch retry: one HTTP request stood between us and a day of the curve ──
+#
+# Break-first, on the shipped function: a single transient 503 raised out of
+# `fetch_mfl`, aborted `capture()`, failed the step and lost the day. Tomorrow's
+# run fetches tomorrow's board, so the missed day never returns.
+#
+# The DECISION lives in `retryable`/`with_retry` rather than inside `fetch_mfl`,
+# which is `pragma: no cover` because it needs egress. Retry logic written in
+# there would be untested logic guarding a perishable observation — which is the
+# mistake this lane already made once today, in a workflow YAML.
+import urllib.error  # noqa: E402
+
+
+def _http(code):
+    return urllib.error.HTTPError("http://x", code, "boom", {}, None)
+
+
+def test_a_5xx_is_RETRIED_because_it_means_not_now():
+    assert C.retryable(_http(503)) is True
+    assert C.retryable(_http(500)) is True
+
+
+def test_a_429_is_RETRIED():
+    """Rate limiting is the one 4xx that is a 'not now' rather than a 'no'."""
+    assert C.retryable(_http(429)) is True
+
+
+def test_a_404_is_NOT_retried_because_it_is_the_servers_ANSWER():
+    """MUTATION: retry every HTTPError. Repeating a question the server already
+    answered spends the window and turns a clear failure into a slow one."""
+    assert C.retryable(_http(404)) is False
+    assert C.retryable(_http(403)) is False
+
+
+def test_a_network_failure_is_RETRIED():
+    """DNS, reset, TLS and timeout are 'the network did not answer', not 'no'.
+    MUTATION: only retry HTTPError — the most common transient failure at a fixed
+    minute each day is precisely the one that never reaches an HTTP status."""
+    assert C.retryable(urllib.error.URLError("reset")) is True
+    assert C.retryable(TimeoutError()) is True
+    assert C.retryable(ConnectionError()) is True
+
+
+def test_a_PROGRAMMING_error_is_not_retried_as_if_it_were_weather():
+    """MUTATION: return True by default. A KeyError in the parser would be
+    attempted four times and reported as a network problem."""
+    assert C.retryable(ValueError("bad json")) is False
+    assert C.retryable(KeyError("adp")) is False
+
+
+def test_a_transient_failure_is_SURVIVED_and_the_day_is_captured():
+    """THE ONE THIS EXISTS FOR — the exact shape demonstrated against the shipped
+    function: one 503, then success. MUTATION: the shipped `fetch_mfl`, a single
+    urlopen. The day is lost and cannot be refetched."""
+    n = {"i": 0}
+
+    def call():
+        n["i"] += 1
+        if n["i"] == 1:
+            raise _http(503)
+        return "the board"
+    assert C.with_retry(call, sleep=lambda s: None) == "the board"
+    assert n["i"] == 2
+
+
+def test_a_PERMANENT_failure_raises_IMMEDIATELY_rather_than_burning_the_window():
+    """MUTATION: retry regardless. A 404 would take the full backoff before
+    failing, for an answer available on the first attempt."""
+    n = {"i": 0}
+
+    def call():
+        n["i"] += 1
+        raise _http(404)
+    try:
+        C.with_retry(call, sleep=lambda s: None)
+        raise AssertionError("a 404 must not be retried")
+    except urllib.error.HTTPError:
+        pass
+    assert n["i"] == 1
+
+
+def test_the_LAST_error_is_RAISED_rather_than_swallowed_into_an_empty_board():
+    """MUTATION: return None after the last attempt. `capture()` would then get
+    no rows and — because it refuses an empty snapshot — report a MISLEADING
+    'zero rows' failure instead of the transport error that actually happened."""
+    def call():
+        raise _http(502)
+    try:
+        C.with_retry(call, attempts=3, sleep=lambda s: None)
+        raise AssertionError("exhausted retries must re-raise")
+    except urllib.error.HTTPError as e:
+        assert e.code == 502
+
+
+def test_the_backoff_is_BETWEEN_attempts_and_never_before_the_first():
+    """MUTATION: sleep at the top of every iteration. Every healthy daily run
+    would pay the delay for nothing."""
+    slept = []
+    n = {"i": 0}
+
+    def call():
+        n["i"] += 1
+        if n["i"] < 3:
+            raise _http(503)
+        return "ok"
+    C.with_retry(call, backoff=3, sleep=slept.append)
+    assert slept == [3, 6], slept
+
+
+def test_a_SINGLE_attempt_setting_still_makes_one_call():
+    """MUTATION: `range(attempts - 1)`. attempts=1 would make zero calls and
+    report success having never asked."""
+    n = {"i": 0}
+
+    def call():
+        n["i"] += 1
+        return "ok"
+    assert C.with_retry(call, attempts=1, sleep=lambda s: None) == "ok"
+    assert n["i"] == 1
+
+
+def test_the_DECLARED_attempt_budget_is_the_number_of_calls_ACTUALLY_made():
+    """FOUND BY A SURVIVING MUTATION: `range(attempts - 1)`. Every other test here
+    passed under it, because `max(1, ...)` rescues the attempts=1 case and the
+    others fail early enough that one fewer try still reaches the same outcome.
+
+    So the off-by-one would have shipped silently, and `RETRY_ATTEMPTS = 4` would
+    have bought three tries — a resilience budget that reads correct in the
+    constant and is wrong in the loop, guarding a day that cannot be refetched."""
+    for budget in (1, 2, 4, 5):
+        n = {"i": 0}
+
+        def call():
+            n["i"] += 1
+            raise _http(503)
+        try:
+            C.with_retry(call, attempts=budget, sleep=lambda s: None)
+        except urllib.error.HTTPError:
+            pass
+        assert n["i"] == budget, "attempts=%d made %d calls" % (budget, n["i"])
+
+
+def test_the_shipped_default_is_the_budget_the_constant_declares():
+    """MUTATION: change RETRY_ATTEMPTS without changing the loop, or vice versa."""
+    n = {"i": 0}
+
+    def call():
+        n["i"] += 1
+        raise _http(503)
+    try:
+        C.with_retry(call, sleep=lambda s: None)
+    except urllib.error.HTTPError:
+        pass
+    assert n["i"] == C.RETRY_ATTEMPTS
