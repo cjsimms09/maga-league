@@ -88,6 +88,30 @@ jobs:
           # cheaper than another inconclusive run.
           CDX_SPACING = float(os.environ.get("CDX_SPACING", "3"))
           YEAR = os.environ["YEAR"]
+          # THE WALK BUDGET, AND WHY IT IS NOT 4.
+          #
+          # Run 31547459102 reported SATISFIES F5 = 0 and a coverage section with
+          # NOTHING UNDER ITS HEADER. Both came from this pair of numbers.
+          #
+          # The CDX query is day-collapsed, so its rows are DAYS. The hand-check asked
+          # for DEFAULT_LIMIT=8 of them and walked `tries=4` — the newest four days
+          # before the cutoff. FantasyPros' overall page was walked across 28-31 July,
+          # none served, and the target was booked "NO BOARD AT THIS URL" while the
+          # capture at 20240712092948 — same URL, nineteen days earlier, 15 of 15 real
+          # 2024 players IN ORDER against the known-answer gate — sat unexamined.
+          #
+          # Then the coverage pass, which only runs on targets that satisfied F5, had
+          # no targets. So the run that existed to ask "how many distinct preseason
+          # days serve a board" asked it of nothing.
+          #
+          # The window is the one already registered: preseason_window(), June 1 to
+          # August 31, day-collapsed, so INDEX_DAYS is a count of days and the walk
+          # budget is a number of days actually fetched. Both are env-tunable so a
+          # follow-up can widen without a code change, and both are REPORTED — a
+          # truncated walk now says so instead of reading as a negative.
+          INDEX_DAYS = int(os.environ.get("INDEX_DAYS", "60"))
+          WALK_BUDGET = int(os.environ.get("WALK_BUDGET", "12"))
+          SINCE = AA.preseason_window(int(YEAR))[0]
 
           def get(url, timeout=45, tries=1, pause=0.0):
               # HTTPError is a RESPONSE; transport failure is not. Conflating them
@@ -140,7 +164,8 @@ jobs:
               # fail quietly is how the first run printed CLOSED on 10 unanswered
               # targets.
               time.sleep(CDX_SPACING)     # politeness between index queries
-              r = get(AA.cdx_query(url, BEFORE), timeout=60, tries=3, pause=5.0)
+              r = get(AA.cdx_query(url, BEFORE, limit=INDEX_DAYS, since=SINCE),
+                      timeout=60, tries=3, pause=5.0)
               if r.get("transport_error"):
                   return {"state": "unreached", "detail": r["transport_error"][:90]}, True
               try:
@@ -159,7 +184,8 @@ jobs:
                   # saved. Ask again without the filter before concluding anything
                   # about the publisher, and REPORT the statuses either way.
                   time.sleep(CDX_SPACING)
-                  r2 = get(AA.cdx_query(url, BEFORE, only_200=False),
+                  r2 = get(AA.cdx_query(url, BEFORE, limit=INDEX_DAYS, since=SINCE,
+                                        only_200=False),
                            timeout=60, tries=3, pause=5.0)
                   if not (r2 or {}).get("transport_error"):
                       try:
@@ -186,7 +212,11 @@ jobs:
                   # THE GATE IS THE KNOWN-ANSWER TEST. Passing the shape count here
                   # is what let a menu through, and the capture walk would then stop
                   # on the first piece of furniture it found.
-                  judge=lambda b: AA.board_confidence(b, KNOWN))
+                  judge=lambda b: AA.board_confidence(b, KNOWN),
+                  # DAYS, not captures: the index is day-collapsed. Four was the old
+                  # value and it walked one week of late July across an entire
+                  # preseason.
+                  tries=WALK_BUDGET)
               out = {"state": got["state"], "timestamp": got.get("timestamp"),
                      "rows": got.get("rows"), "captures": len(usable),
                      "examined": got.get("examined"), "statuses": statuses,

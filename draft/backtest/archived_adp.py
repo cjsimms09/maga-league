@@ -257,9 +257,28 @@ def first_serving_capture(captures, fetch, min_rows=50, tries=4, judge=None) -> 
             return {"state": "board", "timestamp": cap["timestamp"],
                     "rows": v.get("player_hits", shape["rows_seen"]),
                     "bytes": shape["bytes"], "body": body, "examined": tried}
+    # A WALK THAT RAN OUT OF BUDGET HAS NOT SEARCHED THE INDEX.
+    #
+    # MEASURED 2026-08-12, run 31547459102. The CDX query is day-collapsed, so this
+    # list is one row per DAY and `tries=4` means the newest FOUR DAYS before the
+    # cutoff. FantasyPros' overall page was walked across 28-31 July, none served,
+    # and the target was booked "NO BOARD AT THIS URL" — while the capture at
+    # 20240712092948, nineteen days earlier at that same URL, passes the known-answer
+    # gate 15 of 15 with the real 2024 top fifteen IN ORDER. It was never examined.
+    #
+    # "The days I looked at were duds" and "this URL serves no board" are different
+    # findings, and reporting the second from the first is how a route gets closed on
+    # its own walker. It is the same defect this function was written to fix, one
+    # level up: the fix stopped the walk taking capture[0], and left it taking [:4].
+    #
+    # `budget_exhausted` travels so a caller can never read a truncated walk as a
+    # completed one. It is TRUE only when captures were left unexamined.
+    n = len(captures or [])
     return {"state": "empty" if (tried and all(t["empty"] for t in tried)) else "not-a-board",
             "timestamp": tried[0]["timestamp"] if tried else None,
-            "rows": 0, "examined": tried}
+            "rows": 0, "examined": tried,
+            "captures_available": n, "captures_examined": len(tried),
+            "budget_exhausted": len(tried) < n}
 
 
 # Words that appear in these pages and are NOT players. Two capitalised words in a
@@ -479,9 +498,22 @@ def classify(name, date_basis, live, archived) -> dict:
            "archived_timestamp": (archived or {}).get("timestamp"),
            "archived_rows": (archived or {}).get("rows"),
            "pre_cutoff_captures": (archived or {}).get("captures")}
+    out["captures_examined"] = (archived or {}).get("captures_examined")
+    out["budget_exhausted"] = bool((archived or {}).get("budget_exhausted"))
     if out["archived"] == "board":
         # The archive stamped it, so the date is evidence whatever the page says.
         out["verdict"] = "SATISFIES F5"
+    elif out["budget_exhausted"]:
+        # A TRUNCATED WALK IS NOT A NEGATIVE, and it must not fall through to a
+        # verdict keyed on the LIVE page. FantasyPros renders client-side today, so
+        # its live state is `not-a-board` — which is the very reason the archive is
+        # the instrument here — and the fall-through booked a target with an
+        # unexamined, gate-passing capture as "URL RETURNED NO BOARD".
+        out["verdict"] = ("INCONCLUSIVE — the capture walk stopped at its budget after "
+                          "%s of %s available day(s); the days examined served no board "
+                          "and the rest were never fetched. This says nothing about "
+                          "whether this URL has a pre-draft board"
+                          % (out["captures_examined"], out["pre_cutoff_captures"]))
     elif out["live"] == "board" and date_basis == CONTENT_DATED:
         out["verdict"] = ("LEAD ONLY — publisher-labelled year, retrievable today. The "
                           "label is a claim made now about then; MFL's year aggregate "

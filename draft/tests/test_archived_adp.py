@@ -878,3 +878,73 @@ def test_an_UNREADABLE_date_is_NOT_frozen():
     about what a file held before the drafts."""
     v = X.frozen_before({"last": "not-a-date"}, "20240801")
     assert v["frozen"] is False and "unreadable" in v["why"], v
+
+
+# ── A TRUNCATED WALK IS NOT A NEGATIVE (run 31547459102, 2026-08-12) ────────
+def _caps(n, start=20240731):
+    return [{"timestamp": "%d003217" % (start - i), "statuscode": "200",
+             "original": "https://www.fantasypros.com/nfl/adp/overall.php"}
+            for i in range(n)]
+
+
+def test_a_walk_that_ran_out_of_BUDGET_says_so_instead_of_reporting_no_board():
+    """MEASURED. The CDX query is day-collapsed, so the capture list is one row per
+    DAY and `tries=4` walked the newest FOUR DAYS before the cutoff. FantasyPros'
+    overall page was walked across 28-31 July, none served, and the target was booked
+    "NO BOARD AT THIS URL" — while the capture at 20240712092948, nineteen days
+    earlier at the SAME URL, passes the known-answer gate 15 of 15 with the real 2024
+    top fifteen IN ORDER. It was never fetched.
+
+    "The days I looked at were duds" and "this URL serves no board" are different
+    findings. MUTATION: report the truncated walk as a completed one. Route 1 closes
+    on its own walker's bound, which is the same defect `first_serving_capture` was
+    written to fix, one level up — it stopped the walk taking capture[0] and left it
+    taking [:4]."""
+    got = X.first_serving_capture(_caps(30), lambda u: b"<html>nav menu</html>",
+                                  tries=4, judge=lambda b: {"is_board": False})
+    assert got["state"] != "board"
+    assert got["captures_examined"] == 4 and got["captures_available"] == 30
+    assert got["budget_exhausted"] is True
+
+
+def test_a_walk_that_examined_EVERYTHING_is_a_real_negative():
+    """The other half, and it must stay usable: when the walk covered every available
+    capture, "no board" IS the finding. MUTATION: mark every walk exhausted, and a
+    genuine negative becomes permanently inconclusive — the route can then never be
+    closed by evidence, only abandoned."""
+    got = X.first_serving_capture(_caps(3), lambda u: b"<html>nav menu</html>",
+                                  tries=10, judge=lambda b: {"is_board": False})
+    assert got["captures_examined"] == 3 and got["captures_available"] == 3
+    assert got["budget_exhausted"] is False
+
+
+def test_an_INCONCLUSIVE_walk_never_falls_through_to_the_LIVE_page_verdict():
+    """FantasyPros renders client-side TODAY, so its live state is `not-a-board` —
+    which is the very reason the archive is the instrument for this question. The
+    fall-through booked a target with an unexamined, gate-passing capture as
+    "URL RETURNED NO BOARD", a claim about the publisher drawn from our own budget.
+
+    MUTATION: keep the live-keyed fall-through ahead of the budget check."""
+    row = X.classify("FP overall", X.ARCHIVE_DATED,
+                     {"state": "not-a-board", "rows": 0},
+                     {"state": "not-a-board", "captures": 30,
+                      "captures_examined": 4, "budget_exhausted": True})
+    assert row["verdict"].startswith("INCONCLUSIVE")
+    assert "4 of 30" in row["verdict"], row["verdict"]
+    assert "NO BOARD" not in row["verdict"]
+
+
+def test_but_a_COMPLETE_walk_with_a_dead_url_still_reports_the_url():
+    """The budget branch must not swallow the real negative it sits in front of."""
+    row = X.classify("dead", X.ARCHIVE_DATED, {"state": "absent"},
+                     {"state": "none", "captures": 0,
+                      "captures_examined": 0, "budget_exhausted": False})
+    assert "URL RETURNED NO BOARD" in row["verdict"]
+
+
+def test_a_board_found_within_budget_is_still_SATISFIES_F5():
+    """The happy path is unchanged by any of this."""
+    row = X.classify("hit", X.ARCHIVE_DATED, {"state": "not-a-board"},
+                     {"state": "board", "timestamp": "20240712092948", "rows": 15,
+                      "captures": 30, "captures_examined": 3, "budget_exhausted": True})
+    assert row["verdict"] == "SATISFIES F5"
