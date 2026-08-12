@@ -7357,3 +7357,205 @@ under a second on the shipped board.** I have not written them into your tree.
 team, a duplicated starter, a corrupted roster merge. **They cannot catch a wrong individual
 transaction**, which is the one thing still open and still needs the one-line Sleeper team
 check from an egress-capable job.
+
+---
+
+## 🎯 ITEM 12 — CROSS-SEASON PERSISTENCE, MEASURED. THE ANSWER SPLITS BY LAYER. (C, 2026-08-12)
+
+Cory: *"IT DECIDES WHETHER THE ROOM LAYER IS DEAD ON EVIDENCE OR BLOCKED ON ARCHITECTURE, and
+we are planning as though it is the second without having checked."*
+
+**IT IS BOTH, AND WHICH ONE DEPENDS ON THE LAYER.** Ten owners, three seasons (2023-25),
+pooled as Cory directed, `persistence/v1` (ICC + joint permutation null + Bonferroni).
+
+### IN-SEASON BEHAVIOUR PERSISTS — STRONGLY
+
+    metric           ICC      p        Bonferroni 0.0167
+    txn_count       0.603  0.01230     clears
+    waiver_share    0.760  0.00005     clears
+    median_hour     0.684  0.00200     clears
+    POOLED          0.682  0.00005     clears
+    completed-only arm replicates:  pooled ICC 0.669, p 0.00005
+
+### DRAFT-TIME BEHAVIOUR DOES NOT
+
+    metric           ICC      p        Bonferroni 0.0083
+    QB1             0.249  0.7320      no
+    TE1             0.330  0.4890      no
+    K1              0.469  0.1020      no
+    DEF1            0.594  0.0239      no      <- closest, and still 3x the bar
+    RB_share5       0.390  0.2500      no
+    WR_share5       0.167  0.8960      no
+    POOLED          0.367  0.1698      NO
+
+**Not one draft metric clears.** Keepers excluded, because a keeper is settled before the draft
+starts and including them measures roster composition rather than drafting.
+
+### WHY THIS NULL IS INFORMATIVE RATHER THAN UNDERPOWERED — AND IT IS THE WHOLE POINT
+
+**The in-season arm is the positive control for the draft arm.** Same ten owners, same three
+seasons, same ICC estimator, same permutation null, same correction. **It found 0.682 at
+p=0.00005.** So the design demonstrably detects persistence of that size in this sample.
+
+**A null from an instrument that has just proved it can see is a different object from a null
+out of an untested one.** This is the read-a-negative clause applied to my own result: I am not
+claiming drafting tendencies are proven unstable — I am claiming that a design powered to find
+ICC 0.68 found 0.37 and could not distinguish it from zero.
+
+### WHAT IT MEANS FOR THE THING EIGHT DAYS AWAY
+
+**The in-season room layer is BLOCKED ON ARCHITECTURE.** The signal is there, it is strong, and
+it replicates on the conservative arm. Planning as though it is architecture is correct.
+
+**THE DRAFT-TIME ROOM LAYER IS NOT.** Anything that models how an opponent will DRAFT from how
+they drafted in prior seasons has **no measured basis in our own three seasons** —
+`manager_profiles` built from prior drafts, and any opponent-prediction that leans on them.
+
+**THE NARROW LIMIT, STATED:** this measures CROSS-SEASON stability of drafting tendencies. It
+does NOT say within-draft prediction is impossible — an arm using live signals from the room in
+progress (who has gone, what is left, roster holes) is untouched by this result and is a
+different question. **It says only that last year's draft does not predict this year's.**
+
+### THE RECOMMENDATION
+
+**Do not delete the draft-side room work; STOP CITING PRIOR DRAFTS AS ITS BASIS.** The honest
+line for anything shipping on the 22nd is *"opponent modelling from prior drafts is unmeasured
+and our own data does not support it"* — which is a defensible thing to ship behind a
+disclosure, and an indefensible thing to ship silently.
+
+---
+
+## 📊 THE COMPLETE TASK LIST — DISPOSITION AND EVIDENCE FOR ALL NINETEEN (C, 2026-08-12)
+
+Nothing marked complete without evidence for its specific completion condition.
+
+### PART ONE — closes on a measurement against something OUTSIDE our pipeline
+
+**1. DOES THE BOARD DESCRIBE 2026? — CLOSED. YES, WITH ONE SLIVER OPEN.**
+Measured against facts no artifact of ours can influence: **32 teams; 32 byes, zero teams with
+two; 32 DEF; 32 teams with exactly one `dc==1` QB, zero duplicates, zero gaps** — in a
+configuration 2025 cannot produce (Murray→MIN, Tua→ATL, Smith→NYJ), with 2025's rookie QBs in
+their correct 2025 destinations and a 2026 rookie starting at LV. Ages arithmetically correct
+for 2026 (Rodgers 42/21, Stafford 38/17) against Lynch frozen at 35/15.
+**WAS IT EVER VALIDATED: NO — and that is the finding.** No test anywhere compares a player to
+anything outside the pipeline. The board is right by construction, not by verification.
+**CORY'S EXPECTATION WAS NOT MET AND I SAY SO: no category is wholesale stale.** Three defects,
+none of them his two. **All three of my own predictions were wrong.**
+**OPEN SLIVER:** the specific 2026 transactions. **One line, `draft-data.yml`, already fetches
+Sleeper daily:** `print({p["full_name"]: p.get("team") for p in raw.values() if ... in SAMPLE})`
+
+**2. PROJECTION SOURCE — CLOSED.** `proj_mean == proj_baseline * (1 + opportunity_adj)`, 1757
+of 1759; `proj_baseline` differs from `proj_sleeper` for zero players. **There is no blend and
+FantasyPros never enters the value.** Worst case is the harmless reading. Single-source IS
+distinguished (a `¹` caveat) but **its stated reason is false for 1185 of 1324**. **Card shows
+`(sleeper+fp)/2` while the model ranks `proj_mean` — apart by >=10 pts for 46% of two-source
+players, up to 58.**
+
+### PART TWO — closes on the qualification stated plainly
+
+**3. ADP REFERENCE — CLOSED, SOUND.** Format-matched (FP 2026 `scoring=HALF`, FFC half-ppr
+10-team, our league half-PPR 10-team). Never reaches the fallback tail (max ADP consumed 171.7
+of a 340 priced range, zero contaminated). It is a drafter, not a comparison. **Self-comparison
+control: identical in every cell to the decimal.**
+**4. REAL-WORLD FLOOR — CLOSED.** 30 team-drafts: **no team has ever taken 3+ QB or 3+ TE.**
+Market arm is itself at the 83rd/97th percentile on QB/TE timing and cannot field a legal
+lineup on DEF/K. **BBM directional and it cuts against its own import** — 49% took 3+ QB.
+**5. A's OBJECTIVE CORRECTION — PARTIALLY DONE, OPEN. DISPOSITION: DO IT.** Stages 1-3 audited
+(the tautology, DEF/K, the reference as outlier). `ac64216` not yet read for shape.
+**6. COMPONENT GRADING + SHAPE FILES — NOT LANDED. OPEN, waiting on A.**
+
+### PART THREE — my own lane
+
+**7. D3 FIRST LIVE RUN — OPEN, fires 11:20Z.** Verified ready on `origin/main`: 101 tests green,
+archive complete, `resumed=False` so no false alarm on a healthy day.
+**8. FIELD POPULATION ON DURABLE RECORDS — CLOSED.** `field_population.py` + `census_archive`
+(CENSUS_FIELDS) + `board_pin` (PIN_FIELDS) + `external_adp_capture` (population AND coverage).
+**9. POSITIVE-CONTROL SCAFFOLD — OPEN. DISPOSITION: BUILD.** It has a real consumer (every
+probe I write) and a measured case (four false results in one day). Not a dashboard.
+**10. BBM ROUND-1 ARCHIVE — BLOCKED, routed to A.** Guard refused; I reverted rather than work
+around. Unchanged.
+**11. SLEEPER `active` CI CHECK — ROUTED, needs egress.** Cannot be run from this container.
+
+### PART FOUR — build / research first / reject with reason
+
+**12. CROSS-SEASON PERSISTENCE — DONE THIS SESSION. See the entry above.** In-season persists
+(pooled ICC 0.682, p 5e-5); **drafting does not (0.367, p 0.17, nothing clears)**, with the
+in-season arm as the positive control that makes the null informative.
+**13. B's TRANSACTIONS / STANDINGS / MONEY — OPEN. DISPOSITION: RESEARCH FIRST.** I hold the
+data (`league_history.json`, 3 seasons). Bounded pass, not a programme.
+**14. A's LAB REGISTRY READ ACROSS — OPEN. DISPOSITION: DO IT.** Cory expects something and I
+agree: four things measured at ~zero this week for the same architectural reason.
+**15. ROTATION PRINCIPLE — DISPOSITION: ALREADY OPERATING, formalise in one line.** Every pass
+this week honoured it; it needs recording, not building.
+**16. 2026 CAPTURE CONTINUES — RUNNING.** Clean daily from 2026-08-11, gap-detected,
+retry-hardened. Nothing to do but not break it.
+**17. F7 AGAINST SLEEPER — REJECT, and it is already Cory's ruling.** 191 of 12,000 (1.59%)
+against a 200-league bar. **If revisited, the verdict line must say it buys a pool gradeable in
+2027 and NOT evidence for the 22nd.**
+**18. IS ANY OTHER FILTER READ TIGHTER THAN IT IS WRITTEN — OPEN. DISPOSITION: BOUNDED LOOK,
+DOING IT NEXT.** F5 opened the forward direction by being read tighter than written; the same
+class may sit in F1-F4, F6, F7. Cheap, my lane, and the highest-value thing left I own.
+**19. DISCOVERY LAYER — DEFERRED ON ITS STATED PRECONDITION**, not silently: it opens when
+component grading can absorb a preregistered test per cycle. The bottleneck is validation
+capacity and that argument stands.
+
+---
+
+## 🔎 ITEM 18 — ONE OTHER FILTER IS READ TIGHTER THAN IT IS WRITTEN. DISPOSITION: RECORD, DO NOT BUILD. (C, 2026-08-12)
+
+Bounded look, as declared. **F5's shape was specific: a registration that says WHAT is needed,
+read as constraining WHERE it comes from.** F5 says *"the latest snapshot strictly before the
+draft"*; that was read as *"a provider that serves historical ADP"*, which is a dead end, when
+a snapshot WE capture forward satisfies it exactly. That reading cost Route 1 and opened D3.
+
+### THE THREE THAT ARE CLEAN — checked, not assumed
+
+    F1 keepers   "recorded as a covariate, never used as a filter"
+                 -> ingest_filters.py:216 has an explicit comment saying keeper count is
+                    deliberately NOT screened. Registration and code agree.
+    F2 bar       ">=90% of picks crosswalk"  ->  MIN_CROSSWALK_RATE = 0.90. Exact.
+    F3 zeroes    "DROPPED and counted, never scored as zero"
+                 -> totals are built only from rows that EXIST; a player with no rows never
+                    enters the dict. The promise holds.
+
+### THE ONE THAT IS NOT — F3's SOURCE
+
+**Registered:** *"The player has a **realized weekly outcome series** for that season."*
+
+**Implemented as:** nflverse weekly, GSIS-keyed, crosswalked to Sleeper, translated through our
+own scoring engine. **Zero files implement any other route** — the platform's own weekly
+results appear exactly once in the whole repo, in a probe docstring
+(`exp_route_probe.py:11`, `TYPE=results/weeklyResults`), and were never built.
+
+**The cost of that reading is visible in the rejection vocabulary.** Five distinct F4 reasons
+are properties of the ROUTE, not of the league:
+
+    F4.no_gsis_crosswalk        weekly is GSIS-keyed and our board is Sleeper-keyed
+    F4.stat_columns_absent      the DATA cannot serve a term the league scores
+    F4.scoring_untranslatable   a rule we cannot express as a per-unit multiplier
+    F4.scoring_range_exceeded   a rule's upper bound, checked against the data
+    F4.no_season_type           REG and POST indistinguishable in this data
+
+**An MFL league's own `weeklyResults` would dissolve all five at once**: it is the league's
+realized outcomes under the league's own rules, in MFL ids, joining directly to MFL picks —
+no crosswalk, no stat translation, no scoring vocabulary, no season-type inference. F1 already
+screens the format to half-PPR ±0.1, so those scores are already in our format by construction.
+
+### AND WHY I AM NOT ACTING ON IT — THIS IS THE HONEST HALF
+
+**F7 closed the MFL-league route on VOLUME, for an unrelated reason: 191 matched of 12,000
+screened (1.59%) against a 200 bar, and Cory ruled "do not do crawl."** Loosening F3's source
+does not move that number — it changes which leagues fail and why, not how many exist. **A
+fix that dissolves five rejection reasons on a route that is closed for a sixth is not a fix
+worth building.**
+
+**DISPOSITION: RECORDED, NOT BUILT. Revisit only if the route reopens** — if a Sleeper-side
+pool ever clears F7, the same question arises there (Sleeper serves its own weekly scores too)
+and the answer would then be worth money rather than worth noting.
+
+### THE GENERAL LESSON, WHICH IS THE ACTUAL VALUE HERE
+
+**Two of seven filters have now been read as constraining their SOURCE when they only
+constrain their CONTENT.** That is a rate worth knowing. The check is one question asked of a
+registration: *does this sentence say what we need, or where we get it?* **F5 cost a route and
+was recoverable. The next one might not be.**
