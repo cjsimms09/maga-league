@@ -54,9 +54,20 @@ const rankOfPos = (res, pos) => res.findIndex(r => r.player.position === pos) + 
 {
   const roster = build(['QB', 'QB', 'TE', 'TE', 'RB', 'RB', 'WR', 'WR']);
   const res = rec(roster);
-  ck('with 2 QB and 2 TE carried, a third of either is sunk to the bottom',
-    rankOfPos(res, 'QB') > res.length / 2 && rankOfPos(res, 'TE') > res.length / 2,
-    { first_QB: rankOfPos(res, 'QB'), first_TE: rankOfPos(res, 'TE'), of: res.length });
+  /* TARGETED AT THE CAPPED PLAYER, NOT THE FIRST ONE AT THE POSITION.
+   * My first version asserted "the first QB is sunk" and failed once the elite
+   * fall-through exception was restored — correctly, because at this state a
+   * top-three quarterback has fallen far enough to earn the exception and
+   * surfaces at rank 44. That is the cap working as a ceiling rather than a
+   * prohibition, so the assertion has to name the CAPPED man. */
+  const firstCappedRank = pos => {
+    const i = res.findIndex(r => r.player.position === pos && r.onesie && r.onesie.capped);
+    return i + 1;
+  };
+  ck('with 2 QB and 2 TE carried, a CAPPED third of either is sunk to the bottom',
+    firstCappedRank('QB') > res.length / 2 && firstCappedRank('TE') > res.length / 2,
+    { first_capped_QB: firstCappedRank('QB'), first_capped_TE: firstCappedRank('TE'),
+      of: res.length });
   ck('  and the top of the board is a startable position instead',
     ['RB', 'WR', 'K', 'DEF'].indexOf(res[0].player.position) >= 0, res[0].player.position);
   const capped = res.find(r => r.onesie && r.onesie.capped);
@@ -127,17 +138,97 @@ const rankOfPos = (res, pos) => res.findIndex(r => r.player.position === pos) + 
    * receiver is already best, so the cap cannot move the #1 and the control
    * failed while the cap worked. The cap's effect is on the RANK of the capped
    * player — and, over twelve picks, on the shape. Rank is what to assert. */
-  const cappedRankOn = rankOfPos(rec(roster), 'QB');
+  /* Track ONE SPECIFIC ordinary quarterback across both settings, rather than
+   * "the first QB at the position" — with the exception restored, the first QB
+   * is the elite fall-through in one arm and somebody else in the other, so the
+   * comparison would be between two different players. */
+  const on = rec(roster);
+  const target = on.find(r => r.player.position === 'QB' && r.onesie && r.onesie.capped);
+  const rankOfPlayer = (list, id) =>
+    list.findIndex(r => String(r.player.player_id) === String(id)) + 1;
+  const cappedRankOn = rankOfPlayer(on, target.player.player_id);
   const saved = E.CFG.ONESIE_HARD_CAP;
   E.CFG.ONESIE_HARD_CAP = false;
   let cappedRankOff;
-  try { cappedRankOff = rankOfPos(rec(roster), 'QB'); }
+  try { cappedRankOff = rankOfPlayer(rec(roster), target.player.player_id); }
   finally { E.CFG.ONESIE_HARD_CAP = saved; }
-  ck('CONTROL: with the cap OFF, a third QB ranks far higher on the same board',
+  ck('CONTROL: with the cap OFF, THE SAME ordinary QB ranks far higher',
     cappedRankOff < cappedRankOn / 10,
-    { rank_with_cap: cappedRankOn, rank_without: cappedRankOff });
+    { player: target.player.name, rank_with_cap: cappedRankOn, rank_without: cappedRankOff });
   ck('  so the CAP moved him, not the board or the weights', cappedRankOn > cappedRankOff);
   ck('  and the flag was restored', E.CFG.ONESIE_HARD_CAP === saved);
+}
+
+
+// ── A GENUINE FALL-THROUGH SURVIVES THE CAP ────────────────────────────────
+{
+  /* THE CORRECTION, and it was a real defect in the first version. The cap was
+   * checked BEFORE the exceptions, on my argument that a man who cannot reach
+   * the lineup gains nothing from having fallen far. Cory: a top-three player
+   * handed to me eighty picks past his price is a TRADE ASSET in a room where
+   * somebody will need one, and insurance at the one position where a bye
+   * leaves me starting NOBODY. Refusing him is a worse error than the one the
+   * cap fixes. Measured before the correction: rank 1401 of 1753. */
+  const roster = build(['QB', 'QB', 'TE', 'RB', 'RB', 'WR', 'WR']);
+  const qbs = pool.filter(p => p.position === 'QB')
+    .sort((a, b) => (b.proj_mean || 0) - (a.proj_mean || 0));
+  const elite = qbs.find(p => roster.indexOf(p) < 0);          // top-3 at the position
+  const res = rec(roster, { pick: 140, left: 4 });
+  const at = res.findIndex(r => String(r.player.player_id) === String(elite.player_id));
+  const row = res[at];
+  ck('a TOP-3 player at a capped position, fallen far past ADP, is NOT capped',
+    row && row.onesie && row.onesie.capped === false,
+    { player: elite.name, rank: at + 1, of: res.length, onesie: row && row.onesie });
+  ck('  and he surfaces near the top rather than being sunk',
+    at >= 0 && at < 25, { rank: at + 1, of: res.length });
+  ck('  tagged as a VALUE exception, so the card can say why',
+    row.onesie.exception === 'value', row.onesie);
+  ck('  and STILL DISCOUNTED — priced low because he cannot start, not forbidden',
+    row.onesie.discounted === true, row.onesie);
+
+  // AND THE ORDINARY THIRD QUARTERBACK STILL SINKS, which is what makes the
+  // exception an exception rather than a hole in the cap.
+  const dull = qbs.filter(p => roster.indexOf(p) < 0)[8];
+  const dj = res.findIndex(r => String(r.player.player_id) === String(dull.player_id));
+  ck('  while an ORDINARY third quarterback is still capped',
+    res[dj].onesie && res[dj].onesie.capped === true,
+    { player: dull.name, rank: dj + 1 });
+  ck('  so the cap is a ceiling on habitual behaviour, not a prohibition',
+    at < dj / 10, { elite_rank: at + 1, ordinary_rank: dj + 1 });
+}
+
+// ── RETIREMENT: THIS CAP IS A BANDAGE AND SHOULD SAY SO ────────────────────
+{
+  /* THE CAP IS TEMPORARY AND ITS REPLACEMENT IS NAMED: position-normalised
+   * ceiling. The bench branch ranks on `proj_ceiling − proj_mean` in RAW SEASON
+   * POINTS, which measures SCALE, not upside — a quarterback scores 350-400 a
+   * season so his spread is the largest absolute number on the board almost by
+   * construction. The cap is a constraint standing in for a valuation that does
+   * not work.
+   *
+   * THIS CHECK IS THE RETIREMENT TRIGGER. It asserts the underlying units
+   * defect is STILL PRESENT — that with the cap off, an ordinary third
+   * quarterback still floats. The day somebody lands the normalisation, this
+   * check FAILS, and that failure is the instruction: the cap is now redundant,
+   * delete CFG.ONESIE_HARD_CAP and this file's cap sections with it. */
+  const roster = build(['QB', 'QB', 'TE', 'TE', 'RB', 'RB', 'WR', 'WR']);
+  const saved = E.CFG.ONESIE_HARD_CAP;
+  E.CFG.ONESIE_HARD_CAP = false;
+  let rankOff;
+  try { rankOff = rankOfPos(rec(roster), 'QB'); }
+  finally { E.CFG.ONESIE_HARD_CAP = saved; }
+  const stillBroken = rankOff <= 40;
+  ck('RETIREMENT TRIGGER: the units defect the cap covers is still present',
+    stillBroken, { third_QB_rank_with_cap_off: rankOff });
+  if (!stillBroken) {
+    console.log('\n' + '='.repeat(70));
+    console.log('RETIRE THE CAP. With ONESIE_HARD_CAP off, a third quarterback no');
+    console.log('longer floats (rank ' + rankOff + '), which means the ceiling term was');
+    console.log('normalised and the cap is now a constraint with nothing to constrain.');
+    console.log('Delete CFG.ONESIE_HARD_CAP, ONESIE_MAX_SPARE, the `wouldCap` branch in');
+    console.log('onesieState, the capped clause in demoteFlaggedOnesies, and this file.');
+    console.log('='.repeat(70));
+  }
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
