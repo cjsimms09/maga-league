@@ -192,3 +192,37 @@ tendencies did not.**
 **And a boundary declared with it:** if it holds, that is a *second* archive supporting
 manager modelling — it is **not** a second reason to build the room layer, which is a draft
 mechanism. In-season persistence bears on the waiver and lineup tools, not on the draft.
+
+### C-003 RESOLVED — in-season behaviour persists MORE strongly than draft behaviour
+
+**Pre-declared at `1f04e6b` before the run. `persistence/v1`, unchanged.**
+
+| metric | ICC | p (permutation) | |
+|---|---|---|---|
+| **waiver_share** | **0.754** | **0.0001** | **survives Bonferroni (0.0167)** |
+| **txn_count** | **0.603** | **0.0120** | **survives Bonferroni** |
+| median_hour | 0.535 | 0.0409 | crosses 0.05, not correction |
+
+**3 of 3 metrics cross. Expected at 5%: 0.15.**
+
+**The prediction holds, and by the margin predicted.** Draft-side: 2 of 6 crossed, best ICC
+0.641. In-season: **3 of 3 crossed, best ICC 0.754.** A draft is twelve decisions a year
+under time pressure; transaction behaviour is a season-long habit with a hundred chances to
+express itself, and it is measurably less noisy.
+
+**`waiver_share` at ICC 0.754 is the strongest persistent signal measured anywhere in this
+project** — draft-side or in-season. *How much of a manager's activity runs through waivers
+versus free agency* is close to a fixed trait.
+
+**The boundary I declared before running holds and matters.** This is a second archive
+supporting **manager modelling**; it is **not** a second reason to build the room layer,
+which is a draft mechanism. **It bears on the waiver and lineup tools** — where 37.5% of
+the pot is decided, and where B is building.
+
+**And it is measured on the half of the archive that survived the export.** The bid was
+discarded (see PARKED, the `waiver_bid` path finding); `type`, `created` and `roster_ids`
+were not. **Every number above comes from the fields that happened to be kept**, which is
+an argument for the capture principle rather than a limitation of this result.
+
+**REVISIT:** none needed — this is resolved, not parked. It becomes stale if the league's
+membership turns over; the counter is `owner_seasons`, already tracked.
