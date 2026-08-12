@@ -2069,3 +2069,57 @@ the difference between a closed question and a closed search.*
 
 **The BBM file does NOT unlock F7** — twelve-team, best-ball, no keepers, failing F1 on
 three clauses at once. **It serves F6's pooled parameters and that is what it serves.**
+
+---
+
+## THE ROUND-1 BOARD IS ARCHIVED (2026-08-12) — and the round selects the fields
+
+**Cory's ruling:** *"Our durable record is currently the one round where the dated board is
+absent, which is worse than having no durable record at all — it will be read as
+authoritative by whoever comes next."* **Done.**
+
+    draft/data/bbm/bbm_iv_2023_r1_dated_adp_board.csv.gz
+    44,671 rows · 131 draft dates · 2023-04-30 .. 2023-09-07 · 579 players
+    all five columns 100.0% populated
+    sha256 abd5d6f6d317050b8208e94bfb62e218a6933e0e2146f1867335085f15ad99a5
+
+Streamed from the 4.8 GB dump in one pass, projected to `(draft_date, player_id,
+player_name, position, projection_adp)`, **never landed on disk**.
+
+### The defect, measured on both rounds instead of assumed
+
+**Underdog emits the SAME 24 columns for every round.** Five of them are **0.0% populated
+in round 4 and ~100% in round 1**: `draft_time`, `projection_adp`, `draft_filled_time`,
+`draft_completed_time`, `pick_order`.
+
+**The absence is Underdog's, not our exporter's.** I re-fetched the raw round-4 CSV rather
+than infer it from our subset — the fields are empty in the file as published. Our subset
+declined to carry `draft_time`, which was 0% anyway; it **did** carry `projection_adp`,
+which is 7,938 empty cells.
+
+**So a consumer inspecting column NAMES concludes both rounds carry dated ADP. One does.**
+That is the ninth-plus instance of the same defect class in this project — *a consumer
+trusting a field name rather than what the producer emits* — and this time it cost a week
+of Route 1.
+
+### Completeness was checked, because a truncated stream is the same failure again
+
+A stream cut at 99% would produce a durable record that **looks authoritative**, which is
+precisely what the round-4 file already did once.
+
+| check | result |
+|---|---|
+| rows read | **12,192,768** |
+| implied by pooled row length (4,053 rows sampled at head/25%/50%/75%) | 12,186,145 |
+| **read ÷ implied** | **1.0005** |
+| row-length spread across the file | 393.48 – 395.14 bytes (**0.4%**) |
+| terminal row | fetched by byte range; **complete and well-formed** |
+
+**And a hand-check against external fact.** 2023-04-30: Jefferson 1.32, McCaffrey 2.00,
+Chase 3.00, Kelce 4.91, Hill 5.23. 2023-09-07: Jefferson 1.10, Chase 2.25, McCaffrey 3.28,
+Hill 3.99, Ekeler 6.29. **The board moves across the preseason in the direction the 2023
+market actually moved** — which a stale or duplicated series would not.
+
+**The warning travels with the file.** `MANIFEST.json` states in the archive entry itself
+that 131 dated boards are **a price series, not 131 gradeable league-seasons**, so the next
+reader cannot make the F7 mistake from the file alone.
