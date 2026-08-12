@@ -241,5 +241,28 @@ const mk = (id, score, weighted, extra) => Object.assign({
     /if \(w\.stack !== 0\) stack\.reasons/.test(src));
 }
 
+// ── AND THE DEMOTED FACTS MUST STILL REACH A SURFACE ───────────────────────
+/* ⚠️ I EMITTED `context` FROM THE ENGINE AND WIRED NO CONSUMER — rule 14,
+ * committed by the person who spent the week catching it. Rule 16 correctly
+ * moved 24 board facts out of `reasons`; with no reader they would simply have
+ * vanished from the board, which is a worse outcome than the false causality it
+ * replaced. Pinned here so the demotion can never again be a deletion. */
+{
+  const fs = require('fs'), path = require('path');
+  const app = fs.readFileSync(path.join(__dirname, '..', '..',
+    'public', 'js', 'draft', 'app.js'), 'utf8');
+
+  check('the rec list RENDERS context', /s\.context && s\.context\.length/.test(app));
+  check('the one-answer card renders it too', /s2\.context && s2\.context\.length/.test(app));
+
+  /* SEPARATE ELEMENTS. The whole point of the split is that a roster fact must
+   * not be readable AS the reason; putting both in one line would restore the
+   * confusion with extra steps. */
+  check('context has its OWN element, never appended to the reason line',
+    /class="rec-context"/.test(app) && /id = 'clock-context'/.test(app));
+  check('  and the reason line still renders reasons only',
+    /class="rec-why">' \+ escapeHtml\(s\.reasons\[0\]\)/.test(app));
+}
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

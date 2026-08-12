@@ -1699,6 +1699,29 @@
     // starred him" is a restatement of your own click, not information.
     const reasons = (s2.reasons || []).filter(r => !/target list/.test(r));
     $('#clock-why').textContent = reasons[0] || (s2.reasons && s2.reasons[0]) || '';
+    /* THE CONTEXT LINE ON THE ONE-ANSWER CARD. Same reasoning as `.rec-context`:
+     * the board facts rule 16 demoted are still worth reading at pick 41, and
+     * they must not sit in `#clock-why`, which is the REASON.
+     *
+     * Injected if the shell has no slot, the same pattern `#clock-take` already
+     * uses — `views/admin/warroom.ejs` is B's and this is A's markup. */
+    if (s2.context && s2.context.length) {
+      let cx = $('#clock-context');
+      if (!cx) {
+        cx = document.createElement('div');
+        cx.id = 'clock-context';
+        cx.className = 'clock-context';
+        const why = $('#clock-why');
+        if (why && why.parentNode) why.parentNode.insertBefore(cx, why.nextSibling);
+      }
+      if (cx) {
+        cx.textContent = s2.context.join(' · ');
+        cx.style.display = '';
+      }
+    } else {
+      const cx = $('#clock-context');
+      if (cx) cx.style.display = 'none';
+    }
     if (s2.targeted) {
       $('#clock-name').innerHTML += '<span class="clock-star" title="On your target list">\u2b50</span>';
     }
@@ -3259,6 +3282,23 @@
           '</div>' +
           '<div class="rec-why">' + escapeHtml(s.reasons[0]) +
             (s.reasons.length > 1 ? ' · ' + escapeHtml(s.reasons[1]) : '') + '</div>' +
+          /* ⚠️ CONTEXT IS RENDERED SEPARATELY, AND IT HAD TO BE.
+           *
+           * Rule 16 moved 24 board facts out of `reasons` and into `context` —
+           * "fills your empty QB slot", "Tier 1 TE is thinning". Correct: they
+           * did not drive the pick. But I emitted `context` from the engine and
+           * wired NO consumer, which is rule 14 committed by the person who has
+           * spent the week catching it: the information Cory said is worth
+           * knowing at pick 41 would simply have vanished from the board.
+           *
+           * A DISTINCT ELEMENT, not appended to `.rec-why`. The whole point of
+           * the split is that a fact about the roster must not be readable as
+           * the reason for the pick, and putting them in the same line would
+           * restore exactly that confusion with extra steps. B styles
+           * `.rec-context`; A only guarantees it is separate. */
+          ((s.context && s.context.length)
+            ? '<div class="rec-context">' + s.context.map(escapeHtml).join(' · ') + '</div>'
+            : '') +
           stackBadge(p) +
           ((s.rails && s.rails.length)
             ? '<div class="rail-strip">' + s.rails.map(f =>
