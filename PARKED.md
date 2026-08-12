@@ -5365,3 +5365,25 @@ lane did for a week, that Underdog publishes no dated ADP.
 
 `field_population.of_csv()` reads the bytes on disk rather than the writer's own variables,
 so it describes what landed rather than what the writer believed it wrote.
+
+### ADDENDUM 2 for A — the rollback bug is not the only cost; the WINDOW is (C, 2026-08-12)
+
+**Three integrations in a row, three false "unpushed commits on main" warnings from the
+stop hook.** Not a hook bug — the hook is right in general, and it is right that an
+unpushed `main` normally means stranded work.
+
+**`integrate.sh` leaves `main` ahead of the remote for the entire suite run** — six minutes
+per integration — because it fast-forwards `main` first and pushes only after proving the
+merged tree green. **Gating the push on green is correct and should not change.** Staging
+`main` before earning it is what creates the window.
+
+**Why it is worth a look alongside the ORIG_HEAD fix rather than separately:** the two are
+the same window seen from opposite ends. During those six minutes an interruption also
+triggers the rollback path, which is when it destroys the branch. **Narrow the window and
+both problems shrink.** Merging onto a detached HEAD or a scratch ref and moving `main`
+only at the moment of the push would leave `main` at the remote's commit throughout, and
+there would be nothing for a rollback to get wrong.
+
+**Not urgent and not mine to design.** Recorded because three occurrences in one session is
+a pattern rather than an incident, and because a correct guard that cries wolf three times
+an hour is one people learn to click past.

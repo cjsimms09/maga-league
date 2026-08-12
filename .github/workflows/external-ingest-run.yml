@@ -19,6 +19,25 @@ name: THE INGEST RUN — a real pool through the pre-registered filters
 # Nothing is committed. The report is an artifact and a job summary.
 
 on:
+  # ── THE CENSUS ARCHIVE HAD NO TRIGGER (2026-08-12) ──────────────────────────
+  # `census_archive.py` exists because MFL's public pool is a MOVING POPULATION and
+  # a census of it "cannot be reconstructed next year from any source". That is its
+  # own docstring. The append ran only when a human dispatched this workflow, so the
+  # archive whose entire justification is unrecoverability was saving nothing on its
+  # own — the intention-with-no-trigger failure this lane keeps documenting, in the
+  # lane that documents it. Found by checking which of my workflows carry a cron,
+  # after wiring two new measurements into this one and realising neither would ever
+  # fire unattended.
+  #
+  # MONTHLY, not daily. The module asks whether the pool's composition is "worth a
+  # row a year"; twelve rows a year answers that generously and a full MFL crawl is
+  # not a thing to run nightly. `data-inventory.yml` already uses `0 8 1 * *`, so
+  # this sits an hour later to avoid contending with it.
+  #
+  # Reversible in one line: delete the two `schedule` lines and it is dispatch-only
+  # again.
+  schedule:
+    - cron: '0 9 1 * *'
   workflow_dispatch:
     inputs:
       year:

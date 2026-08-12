@@ -2315,3 +2315,51 @@ suffix totals across leagues, now fails.
 on the next scheduled run. **Reporting the instrument as though it were the finding is the
 error this lane keeps writing audits about**, so: no claim about rookies, DSTs or suffixes
 is made here, and none should be read into it.
+
+---
+
+## THE CENSUS ARCHIVE HAD NO TRIGGER, AND I FOUND IT BY WIRING TWO MORE THINGS INTO IT (2026-08-12)
+
+**`external-ingest-run.yml` carried no schedule. Nothing else invoked it — no cron, no
+`workflow_call`.** It ran when a human dispatched it and at no other time.
+
+**Which makes `census_archive.py`'s own justification false in practice.** Its docstring:
+
+> *"MFL's public pool is a MOVING POPULATION... A census of the 2026 pool taken today
+> cannot be reconstructed next year from any source."*
+
+**An archive whose entire argument is unrecoverability was saving nothing unattended.** That
+is the intention-with-no-trigger failure this lane has documented repeatedly — committed in
+the lane that documents it, by me.
+
+**And I only found it because I had just wired two more measurements into the same
+workflow** — the field-population line and the crosswalk composition — and stopped to ask
+whether either would ever fire on its own. **Neither would.** Three instruments, all inert.
+
+    schedule:
+      - cron: '0 9 1 * *'      # monthly, an hour after data-inventory.yml's 0 8 1 * *
+
+**Monthly, and the module's own words set the cadence** — it asks whether the pool's
+composition is *"worth a row a year"*, so twelve answers that generously, and a full MFL
+crawl is not a thing to run nightly. **Reversible in one line.**
+
+**Checked before calling it done, because a cron that fires into a broken run is worse than
+no cron:** all four dispatch inputs carry `|| default` fallbacks (`year` defaults to 2025, a
+played season, which the input's own description requires), `permissions: contents: write`
+is present, and the commit step pushes with `[skip deploy]` after a `pull --rebase`. **A
+scheduled run is well-formed, not merely scheduled.**
+
+### The generalisation, since this is now three for three
+
+**Every instrument I built today reported into somewhere nobody reads unattended:**
+
+| instrument | where it landed | reachable? |
+|---|---|---|
+| P8 selection skew | uploaded CI artifact | **no** — host egress-blocked |
+| crosswalk composition | per-league report only | **no** — died before pooling |
+| field population + census | a workflow with no cron | **no** — dispatch only |
+
+**All three are fixed, and the pattern is the finding:** *building the measurement is the
+easy half.* The question that catches these is not "does it compute the right number" —
+each did — but **"who reads it, and what makes them read it?"** A number with no reader is
+the same defect as a field with no value, one level up.
