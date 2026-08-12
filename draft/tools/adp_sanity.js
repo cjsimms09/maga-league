@@ -200,3 +200,27 @@ mr.forEach(r => console.log('  pick ' + String(r.pick).padStart(3) + '  ' + r.po
 console.log('\nEVERY MARKET PICK, WITH ITS SIGNED REACH');
 kr.forEach(r => console.log('  pick ' + String(r.pick).padStart(3) + '  ' + r.pos.padEnd(4)
   + ' ' + r.name.padEnd(24) + ' adp ' + String(r.adp).padStart(7) + '   reach ' + fmt(r.reach)));
+
+/* ── THE REFERENCE'S OWN REACH IS A TAUTOLOGY. PRINTED SO NOBODY QUOTES IT. ──
+ *
+ * Added 2026-08-13, after I used "the model's median reach is 3.5x the
+ * reference's" as this report's headline. The reference takes argmin(adp); with
+ * ADP-drafting opponents the best player left at pick N is the Nth-lowest ADP,
+ * so its reach is the ADP-rank-minus-pick offset and NOTHING ELSE. It cannot
+ * reach. A ratio against it measures the selection rule, not the model.
+ *
+ * The check below recomputes that offset straight off the sorted board, with no
+ * simulation involved, and asserts it matches the arm. If it ever stops
+ * matching, the reference has started doing something and the ratio becomes
+ * meaningful — until then the positional distribution and the model's ABSOLUTE
+ * reaches are the diagnostic parts of this report. */
+const sortedByAdp = ALL.filter(p => p.adp != null).sort((a, b) => adpOf(a) - adpOf(b));
+const predicted = MY.map(n => (sortedByAdp[n - 1] ? adpOf(sortedByAdp[n - 1]) - n : null));
+const actual = kr.map(r => r.reach);
+const same = predicted.every((v, i) => v == null || Math.abs(v - actual[i]) < 0.01);
+console.log('\nTAUTOLOGY CHECK — the reference arm\'s reach, recomputed from the sorted');
+console.log('board with no simulation: ' + predicted.map(v => v == null ? '-' : v.toFixed(1)).join(', '));
+console.log('  matches the simulated market arm exactly: ' + same);
+console.log('  => the reference CANNOT reach. Do not quote a ratio against it. The');
+console.log('     positional distribution and the model\'s ABSOLUTE reaches are what');
+console.log('     this report can support.');

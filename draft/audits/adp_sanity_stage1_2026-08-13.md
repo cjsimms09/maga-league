@@ -11,6 +11,36 @@ numbers; its only selection rule is "highest-ranked available by ADP". Its own s
 reach distribution is therefore the control for whatever the keeper slate does to the
 pick numbering — that shift applies to both arms.
 
+> ## ⚠️ CORRECTION, 2026-08-13 — THE REACH COMPARISON IN THIS REPORT IS NOT DIAGNOSTIC
+>
+> **The reference drafter's signed reach is a tautology and I reported a ratio against it
+> as if it were a behavioural baseline.**
+>
+> The reference takes `argmin(adp)` from the pool. If every other seat also drafts by ADP,
+> then at pick N the N−1 lowest-ADP players are gone and the best remaining is the Nth —
+> so its reach is *exactly* the offset between ADP rank and pick number, which the keeper
+> slate creates and nothing else. Computed independently of the simulation, that offset at
+> my twelve picks is +3.7, +3.3, +2.0, +4.7, +6.7, +1.7, +3.0, +4.7, +2.7, +9.0, +10.3,
+> +4.0 — **identical to the "market" row below**. The arm could not have produced any
+> other number.
+>
+> So "the model's median reach is 3.5× the reference's" says nothing about the model. It
+> says the ADP drafter drafts by ADP. Rule 10d, on my own instrument, on the headline
+> figure.
+>
+> **WHAT IN THIS REPORT SURVIVES:**
+> * The **positional distribution** — model RB 1 against market RB 6, and the model taking
+>   a DEF and a K the market never reaches in twelve picks. Not tautological.
+> * The **model's absolute reaches**, which stand alone without any reference: Romeo Doubs
+>   taken at pick 70 with an ADP of 143.7, Deebo Samuel at 105 with an ADP of 142.3.
+> * The **first-occurrence gaps**: TE at 45 against market 130, QB at 50 against 85.
+>
+> **WHAT DOES NOT:** every statement of the form "N times the reference", and the p75/p90/max
+> comparison between the two arms.
+>
+> The VONA-rank-against-ADP-rank measurement in Stage 3 is unaffected — it compares two
+> rankings of the same pool and neither is pinned by construction.
+
 Reproduce: `node draft/tools/adp_sanity.js`
 
 ```
