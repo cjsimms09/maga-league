@@ -1946,7 +1946,11 @@
         name = c.pos + ' for the flex — ' + lastName(lead.player);
         mechanism = 'flex';
       } else {
-        name = 'Best ' + c.pos + ' value — ' + lastName(lead.player);
+        /* "OUR MODEL", not "value" — needrule renders a card on the same screen
+         * whose lead used to read "best flex-eligible VALUE", and that one ranks
+         * by ADP. One word for a market price and a model estimate, on two cards
+         * that disagree 11 times in 12. */
+        name = 'Best ' + c.pos + ' by OUR MODEL — ' + lastName(lead.player);
         mechanism = 'value';
       }
 

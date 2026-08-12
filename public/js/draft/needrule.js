@@ -113,13 +113,25 @@
     var deferred = ['QB', 'DEF'].filter(function (p) {
       return open[p] && (c[p] || 0) < STARTERS[p];   // still-empty onesie starter we're passing on
     });
+    /* ── THE WORD "VALUE" DOES NOT BELONG TO THIS RULE ────────────────────
+     *
+     * This rule ranks by ADP — `mask.forEach(p => adpOf(p) < adpOf(pick))`. It
+     * computes no value quantity of any kind. The composite, rendered as a card
+     * on the SAME SCREEN, ranks by VONA and titles itself "Best TE value".
+     * Both said "value", for a market price and a model estimate, and the two
+     * disagree on 11 of 12 picks — measured, draft/tools/mock_walk.js.
+     *
+     * Cory, 2026-08-13: "If they legitimately answer different questions, THE
+     * LABELS MUST SAY SO — and if I cannot tell them apart while reading, they
+     * do not." They do answer different questions, so each label now names its
+     * own quantity and the collision is gone. */
     if (capped) {
-      return 'bench — every starter + flex slot is filled; best value on the board ('
+      return 'bench — every starter + flex slot is filled; earliest by MARKET PRICE on the board ('
         + pos + ')';
     }
-    var lead = 'best available within your remaining need (' + pos + ')';
-    if (isFlexDepth) lead = 'best flex-eligible value (' + pos + ') — taken ahead of a weaker '
-      + 'starter slot, which is worth more than reaching to fill it';
+    var lead = 'earliest by MARKET PRICE within your remaining need (' + pos + ')';
+    if (isFlexDepth) lead = 'earliest flex-eligible by MARKET PRICE (' + pos + ') — taken ahead of a '
+      + 'weaker starter slot, which is worth more than reaching to fill it';
     var tail = deferred.length
       ? '; ' + deferred.join(' & ') + ' deferred (the market prices ' + (deferred.length > 1 ? 'them' : 'it')
         + ' well later)' : '';

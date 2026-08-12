@@ -32,7 +32,12 @@ const KEEPERS = [P('WR', 3, { name: 'Chase' }), P('RB', 1, { name: 'Henry' }), P
   const rec = NR.recommend(board, roster);
   check('value-depth: best flex WR is taken ahead of filling a weak TE', rec.pick.position === 'WR',
     JSON.stringify(rec.pick));
-  check('...and the reason states it in the rule\'s terms', /flex-eligible value/.test(rec.reason), rec.reason);
+  /* The rule ranks by ADP and computed no "value" of any kind; the composite
+   * renders "Best TE value" on the same screen from a different quantity. Each
+   * label now names what it actually is. */
+  check('...and the reason states it in the rule\'s terms — MARKET PRICE, not "value"',
+    /flex-eligible by MARKET PRICE/.test(rec.reason) && !/\bvalue\b/.test(rec.reason),
+    rec.reason);
 }
 
 // --- QB deferral is stated when passing an empty QB for better value ----------
