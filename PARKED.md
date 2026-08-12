@@ -5422,3 +5422,33 @@ one, and note that it bears on the waiver and lineup tools rather than on a draf
 
 **The fix is in `persistence.tendencies(..., exclude_keepers=True)`**, now the default, with
 the before/after in the docstring and three mutations covering it.
+
+### FOR A — one two-field repair in `draft/data/format_census_series.json` (C, 2026-08-12)
+
+**Small, but it is a capture argument and those expire.** The census archive's first-ever
+row was written by CI run 31575310090 with `season`, `observed_at` and `examined` all null
+— the producer/consumer mismatch described in INGEST-PLAN, now fixed at the writer.
+
+**The fix stops new rows being broken. It does not repair the existing one**, because
+dedup removes only rows matching the *new* key, so the `("None","None")` row persists
+beside every real row from here on.
+
+**Its content is a genuine observation and should not be deleted** — 114 readable leagues,
+the full teams/scoring/keeper census, `crosswalk_pooled_rate` 0.8493. **Only its identity
+is missing, and I know it because I dispatched the run:**
+
+    "season":      2025            (currently null)
+    "observed_at": "2026-08-12"    (currently null)
+    "examined":    150             (currently null)
+
+**Why it is worth doing rather than tolerating:** this archive is designed to accumulate
+one row a year and exists because *"a census of the 2026 pool taken today cannot be
+reconstructed next year from any source."* **An undated first row is that failure in
+miniature** — in 2027 nobody can say when it was taken, and today I can. The information is
+recoverable for exactly as long as someone remembers the run.
+
+**The file is in your territory** (`territory-check` refuses a C edit — I checked rather
+than assumed, after doing exactly this with the BBM manifest this morning), which is the
+only reason it is a request instead of a commit. **My CI workflow writes it, but that runs
+with `contents: write` rather than through the territory gate** — a split worth knowing
+about independently of this row.
