@@ -5486,3 +5486,97 @@ window shrinks to the push itself, and **there is nothing for a rollback to get 
 
 **One fix, three symptoms.** Not mine to design, and the measurement is now on the record
 rather than the impression.
+
+---
+
+## DIRECTED PASS 1a — A's LAB REGISTRY READ AS A RECORD OF WHAT FAILS (C, 2026-08-12)
+
+**Cory's question: is there a shape to the failures? Do additive terms fail more than
+structural ones? Do terms measured in one branch and applied in another fail
+systematically?**
+
+**This is a RE-READING of A's own record. No new measurement, no new data.** The
+classification below is my judgment and someone could cut it differently; the numbers are
+A's.
+
+### FIRST — HALF OF THIS QUESTION IS ALREADY ANSWERED, BY A, AND WELL
+
+`LAB-REGISTRY.md` carries a **STANDING META-FINDING: every dose-response so far is
+inverted-U at moderate dose** — three sweeps, three knobs, one shape, and it is
+**pre-registered forward** with a scrutiny rule ("an edge of the grid is not an optimum, it
+is an unfinished sweep"). **That is exactly the meta-question being asked, already asked and
+already acted on.** I am not redoing it.
+
+### THE HALF THAT IS NOT ANSWERED: what KIND of term earns
+
+**"Additive vs structural" turns out to be the wrong cut, and the counterexample is
+decisive.** The value term is `w.value * vorp`, `vorp = proj_mean − replacement`
+(`exp_participation.py:142`, `draft/vorp.py:94`) — **an additive weighted term, and it is
+half the edge.** So additivity is not what predicts failure.
+
+**The cut that survives it:**
+
+| | earns | |
+|---|---|---|
+| **the objective itself** | `value = w × vorp` — points above replacement | half the edge |
+| **a hard constraint** | keeper-need **MASK** (startable capacity) | **~$443** vs no-mask |
+| **the input board** | market read — MFL ρ 0.40 vs FFC 0.28 | touches every pick |
+
+| | fails | |
+|---|---|---|
+| tier | heuristic tilt | **−235** |
+| risk | heuristic tilt | **−143** |
+| need-**weight ramp** | heuristic tilt | +4.9, CI [−13,+23] |
+| ceiling | heuristic tilt | −4.8, CI [−26,+17] |
+| bye | heuristic tilt | ~0 |
+| stack | heuristic tilt | +196 in the sound instrument — **stood down, see below** |
+
+**Six of six adjusters fail to earn on the clean core, and two actively harm.** The
+participation test's own headline: **core $704 → core + all six adjusters $407.** Adding the
+six cost **$297**.
+
+**So the shape is not additive-vs-structural. It is: TERMS THAT ESTIMATE THE OBJECTIVE, OR
+CONSTRAIN THE FEASIBLE SET, EARN. HEURISTIC TILTS LAYERED ON TOP OF THE OBJECTIVE DO NOT.**
+
+### AND THERE IS A WITHIN-EXPERIMENT CONTROL FOR IT, WHICH IS WHY I BELIEVE IT
+
+**The same underlying idea — startable need — was implemented both ways:**
+
+    as a MASK (constrains the candidate set)     ~$443
+    as a WEIGHT ramp (tilts the score)           +4.9, CI [-13,+23], beaten by a flat 0.5
+
+**Same concept, same harness, same seasons. The constraint earns; the tilt does not.** That
+is not a comparison across experiments with different instruments — it is one idea, two
+implementations, and a ~90× gap.
+
+### THE SECOND QUESTION — measured in one branch, applied in another: YES, TWICE
+
+**Both instances are already caught and recorded by A, which is the encouraging part.**
+
+- **exp 6's stack peak is priced against a MODELED rho (0.35), not a measured correlation.**
+  A stood it down under D10 rather than install: *"installing on a modeled parameter would
+  break D9's own conservatism standard."*
+- **The same stack reads −63 in `exp_participation` and that is an INSTRUMENT ARTIFACT** —
+  `grade_room` draws weekly scores independently, so **that harness structurally cannot
+  reward a stack.** A named it rather than reporting the −63.
+
+**Both are the same failure in different clothes: a term evaluated somewhere that cannot
+express the thing it depends on.** One borrowed its key input from a model; the other was
+graded by a harness with no within-team correlation. **Neither is a fact about stacking.**
+
+### A THIRD SHAPE THE RECORD SHOWS, WHICH NOBODY ASKED FOR
+
+**Pooled results carried by a single season.** RB>WR "dominance" pooled to +1.7 (≈zero) and
+split **2023 −8.7 · 2024 +69.3 · 2025 −41.3** — true for 2024, false either side, and the
+pooled read looked like corroboration. A caught it and marked `value_pockets`' cross-position
+read provisional.
+
+**This is the same shape as the keeper contamination I found in C-001 today**: an aggregate
+that looks like a finding until it is split by the dimension that generates it.
+
+### WHAT I WOULD DO WITH IT — one line, and it is A's call
+
+**The registry has no field for "what kind of thing is this".** Adding one — *objective /
+constraint / input-source / heuristic tilt* — at registration time would let the next
+"should we build this?" be answered against a base rate instead of an intuition. **On the
+current record the base rate for a heuristic tilt is 0 for 6, with 2 actively harmful.**
