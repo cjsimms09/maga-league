@@ -1900,3 +1900,43 @@ rows (~2027-08), the census needs runs across at least two seasons (~2027).
 already watches `external_adp_series`, and already reports BLIND rather than quiet when it
 cannot look. **Rule 9 says the trigger belongs there, not in a parallel job of mine** — the
 request to A is one row in its check list, not a new mechanism. Routed in PARKED.
+
+---
+
+## THE THIRD DIRECTED PASS CLOSES ON A CAPTURE GAP, NOT A FINDING (2026-08-12)
+
+**I proposed three directed passes over rich unqueried history. Two produced findings.
+The third cannot run, and the reason is worth more than the pass would have been.**
+
+My discovery audit said: *"F1 is a PRODUCTION filter and I have let it bound DISCOVERY. The
+120 leagues F1 rejects are still real drafting behaviour, and owner persistence, crosswalk
+error structure and sequence effects are all answerable on them."*
+
+**They are not answerable, because nothing about those leagues was retained.**
+
+`run_screen` screens a league, records its rejection **reason**, and discards the record.
+The census row carries `rejected_by_reason` — **counts by cause, not league ids and not
+picks**. So for every one of the ~1,300 leagues this programme has screened across three
+runs, what survives is a tally. The drafting behaviour is gone.
+
+**That is the capture principle failing in the one place I audited FOR it.** I wrote the
+capture audit, wired the census, and the census captures the *summary* of the thing rather
+than the thing. Free at the time, unrecoverable now: MFL's pool is a moving population and
+those leagues' 2025 states cannot be re-fetched as they were.
+
+**What it would have cost to keep:** league ids alone — a few hundred bytes a run — would
+have made the pass possible, because MFL still serves current state and the ids are the
+handle. **Not the picks; just the ids.**
+
+**Not proposing a change to the MFL path.** F7 closed it, the ingest programme is closed,
+and re-opening a crawl to capture ids for a pass I can no longer justify would be the
+research burden rule 9 forbids.
+
+**But it changes what the Sleeper probe should retain.** Sleeper screens at **0.084s per
+league** against MFL's 12.6 — 150× cheaper — so keeping the id of every screened league,
+matched or not, costs nothing and makes exactly this pass possible there. **The F7 run
+writes its rows with `league_id` and `why` for every league screened, matched or rejected,
+for that reason.**
+
+**Two of three passes produced findings. This one produced the reason the third could not,
+and that is a better outcome than a thin analysis would have been.**
