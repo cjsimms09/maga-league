@@ -361,3 +361,31 @@ disagreeing.
 **One number in that control disagrees with the ledger and the test pins the MEASURED
 value:** 2024's floor reads **19** against a recorded **20**. A test asserting 20 would be
 asserting a number this archive does not contain.
+
+### `median_hour` — the timezone hypothesis is FALSIFIED, and the gap is unexplained
+
+The obvious explanation for `median_hour` reading 0.684 against a recorded 0.535 was a
+timezone. **It is not.** Eight a-priori-plausible derivations, all reported rather than the
+one that fit best:
+
+| derivation | UTC | US/E (EDT) | US/E (EST) | US/P (PDT) |
+|---|---|---|---|---|
+| hour-of-**week** (`weekday*24 + hour`) | **0.684** | 0.693 | 0.694 | 0.672 |
+| hour-of-**day** (0–23) | 0.836 | 0.710 | 0.810 | 0.731 |
+
+Plus the completed-only arm at **0.626**. **Nine reconstructions, spanning 0.626–0.836, and
+not one lands near 0.535.**
+
+**The gap runs in the CONSERVATIVE direction, which is the one saving grace.** The ledger
+recorded `p = 0.0409` — *"crosses 0.05, not correction"*. **Every reconstruction here crosses
+Bonferroni** (p = 0.0007–0.0078). So the recorded entry **understates** this metric rather
+than overstating it, and no conclusion drawn from C-003 is at risk from it.
+
+**But it cannot be reconciled, and the honest word is UNEXPLAINED, not "close enough".**
+Further guessing at what an uncommitted script did is archaeology, not measurement, and it
+would be the same mistake as the analysis it is trying to check.
+
+**`owner_persistence.py` is the authority from here.** The recorded 0.535 is retained above
+as what was reported, marked as not reproducible. **The two metrics that carry C-003's
+weight — `txn_count` (replicated exactly) and `waiver_share` (within 0.006) — are
+unaffected.**
