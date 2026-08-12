@@ -8518,3 +8518,123 @@ reach-ratio headline, the VONA comment) — **but I do not assume its rulings ar
 either, and if my evidence contradicts one I will say so.** And no folklore: "quarterbacks
 should go later" is not a finding. The question is whether OUR numbers are right for OUR
 league.
+
+---
+
+## 🎯 THE QB/TE SYMPTOM — THE DATA SIDE. **THE DEFECT IS NOT IN THE DATA.** (C, 2026-08-12)
+
+**Cory asked for this answer plainly if it is the true one, so: the projections are applied
+once, the replacement baselines are right at every position, the roster capacity and flex
+are represented correctly, and the VORP shape is the one his own arithmetic predicts. THE
+DATA HANDS THE ENGINE A CORRECT ORDERING.** Independent of A; I have not read its current
+work.
+
+### THE ONE MEASUREMENT THAT SETTLES IT
+
+Our own board, our own numbers, ranked three ways. Draftable pool, top ten:
+
+```
+ranked by VORP  (what the data says)          QB 0  TE 1   ->  QB+TE  10%
+the engine's output (Cory's measurement)                   ->  QB+TE  50%
+ranked by RAW proj_mean                       QB 9  TE 0   ->  QB+TE  90%
+```
+
+**The data produces a healthy board. Raw points produce the symptom in its pure form. The
+engine sits between them.** So the expected relationship survives every boundary up to and
+including VORP, and breaks after it. **That is the answer to "find the first boundary where
+it breaks": it is not in my lane, and it is downstream of VORP.**
+
+I tested whether a simple raw-points leak reproduces it — `score = VORP + α·proj_mean`
+across α ∈ [0,1]. **It does not**: QB+TE reaches only 4/10 even at α=1. So the engine is not
+merely adding raw points, and I am not going to guess further into A's mechanism.
+
+### THE HAND-WALK, EVERY BOUNDARY, ARITHMETIC STATED
+
+```
+JOSH ALLEN (QB)                          JAHMYR GIBBS (RB)
+  Sleeper          405.5                   Sleeper          299.9
+  FantasyPros      415.88  NOT USED        FantasyPros      301.68  NOT USED
+  proj_baseline    405.5                   proj_baseline    299.9
+  opportunity_adj    0.0                   opportunity_adj    0.15
+  proj_mean        405.5  = 405.5x1.00     proj_mean        344.9  = 299.9x1.15
+  replacement      341.72 (QB10)           replacement      188.53 (RB21)
+  VORP              63.78                  VORP             156.37
+```
+
+Both reconcile to the artifact exactly. **Cory's predicted shape — three times the value
+from the lower raw number — comes out at 2.45× (156.3 / 63.8). It holds.**
+
+### EACH PRE-DECLARED ITEM, ANSWERED
+
+1. **Scoring applied ONCE.** `pass_td: 6.0`, `rec: 0.5` confirmed in the imported config.
+   Allen at 405.5 is a 6-point number; applied twice he would be near 600, at 4 points near
+   345. **Not double-applied.**
+2. **Replacement at the right depth per position** — and this is the pre-registered
+   expectation, met: **QB 10, TE 10, RB 21, WR 29, K 8, DEF 10.** One QB slot × 10 teams
+   lands replacement on the 10th QB. `starters_at` reads the config directly; nothing treats
+   a one-start position as having more.
+3. **VORP shape favours RB/WR by construction.** Top VORP: RB 156.3, WR 125.2, TE 82.2,
+   QB 63.8. At the 5th-best: RB 93.6 against QB 11.2 — **eight to one.**
+4. **FLEX eligibility.** `FLEX: [RB,WR,TE]` — correct. **There are EIGHT separate copies of
+   that mapping** (`config_schema.py`, `engine.js` ×2, `value.js`, `valuation.js`,
+   `mcts.js`, `survival.js`, `app.js:3653`) and **all eight agree today**, so it is not the
+   cause. Eight copies of one fact is still eight chances to diverge silently.
+5. **Single-source is positional, and I found it** — see below.
+
+### TWO REAL DATA DEFECTS. **NEITHER CAUSES THE SYMPTOM, AND ONE RUNS AGAINST IT.**
+
+**(A) `opportunity_adj` IS BLIND TO THE FACT THAT ITS INPUT HAS A DIFFERENT SCALE PER
+POSITION.** `proj_mean = proj_baseline × (1 + opportunity_adj)` — verified **576 of 576** —
+with the multiplier capped at +15%.
+
+```
+              adj = 0   adj at cap   mean opportunity_share   max share
+  QB   75/75    ALL 75       0                0.021             0.085
+  WR            31/195      12                0.004             0.028
+  TE            19/101       5                0.002             0.035
+```
+
+**Josh Allen carries `opportunity_share` 0.085 and receives an adjustment of 0.0. Trey
+McBride carries 0.005 — seventeen times smaller — and receives the full 0.15 cap.** The
+adjustment is computed from a quantity that means different things at different positions
+and is not normalised for it. K and DEF are also flat zero.
+
+**Effect on top VORP: RB +35.7, WR +28.8, TE +16.1, QB +0.0.** So it inflates the positions
+Cory says are *under*-recommended and does nothing for the ones over-recommended. **It runs
+against the symptom.** It is still a silent, unmeasured, position-dependent ±15% on the
+central projection, and nobody has ever measured whether it earns its place.
+
+**(B) FANTASYPROS IS FETCHED, STORED FOR 435 PLAYERS, AND NEVER ENTERS `proj_mean`.**
+`proj_baseline == proj_sleeper` for **435 of 435**. The blend is single-source by
+construction — a producer with no consumer, on the number the whole tool ranks on.
+
+**And it is positional, exactly as Cory suspected.** Relative disagreement between the two
+sources: QB 3.6%, RB 7%, **WR 13%, TE 13%** — and at the top of TE the direction is
+consistent and large:
+
+```
+  Brock Bowers   sleeper 202.5   fantasypros 147.3   we publish 232.9  (+58% over fpros)
+  Travis Kelce   sleeper 136.4   fantasypros 106.9   we publish 156.9
+  Mark Andrews   sleeper 132.5   fantasypros 104.1   we publish 150.7
+```
+
+**We take the higher of two sources at the position where they disagree most, then multiply
+it by 1.15.** Bowers is published **33% above the two-source consensus**.
+
+**BUT IT STILL DOES NOT PRODUCE THE SYMPTOM, AND I CHECKED RATHER THAN ASSUMED.** Running
+the same replacement/VORP pipeline on a two-source consensus with no boost: Bowers' VORP
+falls 82.2 → 53.2, and **the top ten goes from 10% QB+TE to 20%** — the wrong direction,
+because a QB enters. **No variation of the projection inputs I can construct produces 50%.**
+
+### WHAT THIS RULES OUT FOR A
+
+Projections, scoring application, replacement level per position, VORP arithmetic, roster
+capacity, flex eligibility, and one-start slot counts. **The QB half of the symptom cannot
+come from the data at all** — the data ranks zero quarterbacks in its top ten. **Whatever
+turns a 10% board into a 50% one happens after VORP.**
+
+### WHERE I MIGHT BE WRONG
+
+FantasyPros is not ground truth either — I am reporting that we use one source, not that
+the other is right. And `opportunity_adj` may be deliberate and correct; what I can say is
+that it is position-dependent, uncapped in justification, and unmeasured.
