@@ -8275,3 +8275,131 @@ order — so its verdict (*"prices every one"*) is an artifact of how I built th
 says nothing whatever about the board. Recorded as a performance and coherence check only.
 
 **It runs for real when the archive carries names.** Nothing else is needed from anyone.
+
+---
+
+## ▶️ THE ONE COMMAND, FOR WHOEVER IS RUNNING AFTER 11:20Z (C, 2026-08-12)
+
+```bash
+git fetch origin main && git checkout origin/main -- draft/data/external_adp_series.json
+python3 -c "import sys,json;sys.path.insert(0,'draft/backtest');sys.path.insert(0,'draft');\
+import board_vs_market as BM;from pathlib import Path;\
+r=BM.report(json.loads(Path('draft/data/external_adp_series.json').read_text()),'public/draft_data.json');\
+print(json.dumps(r,indent=1));print();print(BM.verdict(r))"
+```
+
+**CHECK THE ARCHIVE CARRIES `players` FIRST.** The capture can succeed while the players
+export 403s — `fetch_mfl` deliberately keeps the day's ADP in that case rather than losing
+an observation that cannot be refetched, and says so loudly in the step summary. **If the
+key is absent or a control fails, report THAT and do not report a board finding.** The
+probe already refuses correctly; the risk is a human reading past it.
+
+**The sample is registered and must not be widened to reach a number.** If the fallback
+tail holds nobody the market takes inside 150, the answer is *the board's pricing is sound
+where it matters* — say it and stop.
+
+*(I tried to schedule this as a self check-in; the scheduling tool needs an approval I did
+not want to spend Cory's attention on. Hence a command rather than a mechanism.)*
+
+## 🚫 AND ONE THING I DECIDED NOT TO BUILD
+
+`fetch_mfl` now hits two MFL endpoints daily instead of one. The obvious optimisation is to
+skip the players export when today's ADP contains no unknown ids — usually every day after
+the first.
+
+**I am not doing it, and the reason is the direction of the risk.** Names are not static in
+preseason: **players change teams, and `team` is one of the matcher's tiebreaks**
+(`name+pos+team` resolved 2 of the 5 ambiguous cases in the round-trip control). Caching the
+key would quietly hold a stale team and produce a wrong-but-plausible match — the failure
+mode this lane has spent the week removing. The cost avoided is ten requests to a public
+endpoint over the ten days that matter. **Ten requests is not a problem; a stale crosswalk
+is.** Recorded so it is not re-proposed as an obvious win.
+## 🔴 FOR A AND B — MAIN'S CI IS RED AND HAS BEEN FOR AT LEAST 30 CONSECUTIVE RUNS. PYTHON IS GREEN; THE JS STEP FAILS. (C, 2026-08-12)
+
+I have been ending every integration today with *"Suites green LOCALLY. NOT CI-VERIFIED."*
+because `integrate.sh` prints exactly that and tells you to go and check. **I finally
+checked. The answer is that CI has not passed on `main` once in the last 30 runs**, from
+`48bdaae6` at 18:09 through `6307487d` at 22:16 — spanning A's commits and mine equally.
+**Nobody introduced this today and nobody has been reading the warning, including me.**
+
+```
+step  8  JS suites          FAILURE
+step 10  Python suites      success
+step  9  Robot mock         success
+step 11  Baseline regression success      51/51
+step 13  Shell guards       success      13/13 deploy-gate, 11/11 territory
+```
+
+### IT DOES NOT REPRODUCE LOCALLY, AND I TRIED FOUR WAYS
+
+| hypothesis | test | result |
+|---|---|---|
+| Node version — CI pins `node-version: "20"`, my shell had v22 | installed Node 20.20.2 and re-ran the whole glob | **all pass** — refuted |
+| the untracked `data/` dir (gitignored, present here, absent in a fresh checkout; two suites reference `data/`) | moved it aside and re-ran | **all pass** — refuted |
+| Playwright — a devDependency, and `npm install` never downloads browsers | no suite imports it; `ci.yml` never mentions it | refuted |
+| stale `node_modules` vs CI's fresh install | **fresh clone + `npm install --no-audit --no-fund` + Node 20**, CI's loop verbatim | **all pass** — refuted |
+
+**THE REMAINING DIFFERENCE INVERTS THE USUAL DIRECTION: CI HAS NETWORK EGRESS AND THIS
+SANDBOX DOES NOT.** Every outbound call from here dies instantly on a proxy 403. In CI the
+same call reaches the internet and can hang, or succeed and fail an assertion against live
+data. **A suite that passes here because the network is unavailable would fail there** —
+and that is the one condition I cannot test from inside this container.
+
+### WHAT I COULD NOT GET, AND EXACTLY HOW TO GET IT IN ONE STEP
+
+The loop prints `FAILED SUITES:<names>` immediately before it exits 1. **That line names
+the culprit.** I could not reach it: the GitHub API's job-log endpoint returns a fixed
+~5,000-character tail that stops short of it, and the full-log ZIP download is blocked by
+this sandbox's proxy (`CONNECT tunnel failed, 403`).
+
+**Open the "JS suites" step of run `31646250669` in the browser and search for `FAILED
+SUITES:`.** One line, and it names every broken suite in that run — the collected-failure
+design in `ci.yml` was built for exactly this.
+
+### THE STRUCTURAL POINT, WHICH OUTLASTS WHICHEVER SUITE IT IS
+
+**`integrate.sh` certifies the merge by running the suites HERE, and the gate runs them
+THERE.** Today that gap swallowed seven merges: every one printed *"Suites green LOCALLY"*
+and every one landed on a red `main`. The script's own warning — *"local green and CI green
+are different claims: a test can pass here because of this machine's network, filesystem or
+clock"* — turned out to be precisely, literally true, and it is printed at the moment
+everybody has stopped reading.
+
+**A guard that can only be checked by remembering to check it is the failure this project
+keeps naming.** Two directions worth considering, both A's call since `integrate.sh` is
+A's: have it poll the CI conclusion for the SHA it just pushed and say so, or have it refuse
+to report OK while `main`'s last CI run is red. **I am not touching it.**
+
+**This is not my lane** — the JS suites are A's and B's, and I have no business guessing
+which one. What I can say is what is above: it is real, it is old, it is not Python, and it
+is not any of the four local causes I could think of.
+
+### ⚠️ AMENDING MY OWN HYPOTHESIS ABOVE, BEFORE ANYONE ACTS ON IT
+
+I led that entry with *"CI has network egress and this sandbox does not"* as the leading
+explanation. **I then checked what the suites actually do with the network, and it does not
+hold up.** Every external host any JS suite mentions:
+
+```
+sleeper.com / sleeper.app   string-parsing fixtures in sync.test.js — no fetch at all
+api.sleeper.app             sunday_cron.test.js:51, sunday_rehearsal.test.js:56, and both
+                            do:  throw new Error('Sleeper sealed off in test')
+venmo.com                   a link assertion
+```
+
+**The suites seal the network off deliberately.** So "CI can reach the internet and we
+cannot" is a much weaker explanation than I made it sound, and I am withdrawing it as the
+leading candidate rather than leaving A to chase it.
+
+**What remains, and I am not going to guess between them:**
+
+* **Environment.** CI sets variables this container does not. A suite that reads one — or
+  branches on its absence — behaves differently there.
+* **Runner speed.** The JS step took **167 seconds** in CI. My faithful reproduction is far
+  quicker on this machine. Any suite with a timing assumption fails on the slower box and
+  nowhere else.
+
+**This is exactly the check Cory named an hour ago** — *read the caller before you report
+the callee* — and I nearly shipped a confident wrong diagnosis into someone else's lane by
+reasoning about the environment instead of reading the tests. **The `FAILED SUITES:` line
+in run `31646250669` settles it in one look and no hypothesis of mine can.**
