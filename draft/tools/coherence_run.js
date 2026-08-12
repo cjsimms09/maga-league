@@ -148,6 +148,43 @@ console.log(`  WORST divergence across all checkpoints: ${(worstProb * 100).toFi
   + `${worstWins.toFixed(2)} expected wins`);
 console.log(`  VERDICT: ${anyDiverge ? 'THE TWO SURFACES DISAGREE' : 'coherent at the declared tolerance'}`);
 
+/* ── THE ARTIFACT, so this is WATCHED rather than run by hand ───────────────
+ *
+ * A finding that lives in a tool nobody schedules is a finding with a half-life.
+ * `standing_check.check_coherence` reads this and escalates when the divergence
+ * exceeds the envelope RECORDED HERE — the same treatment the survival model's
+ * known 15-57% bias gets.
+ *
+ * ⚠️ RECORDING AN ENVELOPE IS NOT BLESSING THE DIVERGENCE. The two surfaces
+ * genuinely disagree and that is an open defect, not an accepted tolerance. The
+ * envelope exists so the defect cannot quietly get WORSE while the season's
+ * Brier decides which side is right. If it is ever resolved, this file's
+ * envelope should shrink to the resolved value rather than being left wide.
+ */
+const fs = require('fs');
+const OUT = path.join(ROOT, 'draft', 'data', 'coherence.json');
+fs.mkdirSync(path.dirname(OUT), { recursive: true });
+fs.writeFileSync(OUT, JSON.stringify({
+  artifact: 'cross-tool coherence — analyzer vs lineup-implied playoff odds',
+  written_by: 'draft/tools/coherence_run.js',
+  tol_prob: TOL_PROB, tol_wins: TOL_WINS,
+  checkpoints: years.length * CHECKPOINTS.length,
+  identity_holds_everywhere: allIdentity,
+  worst_d_playoff_prob: Number(worstProb.toFixed(4)),
+  worst_d_exp_wins: Number(worstWins.toFixed(3)),
+  diverges: anyDiverge,
+  status: 'KNOWN OPEN DIVERGENCE — not an accepted tolerance',
+  why: 'the two surfaces model the same games differently: the claims side treats '
+    + 'team strength as a known constant (season points-for, frozen) so outcomes '
+    + 'compound toward certainty, while the analyzer carries score variance '
+    + 'explicitly. Both now emit gradeable forecasts of the same quantity, so a '
+    + 'season of Brier settles which is right rather than an argument.',
+  do_not: 'resolve this by making one side copy the other before the grading '
+    + 'exists — that would pick a winner by fiat and destroy the only evidence '
+    + 'that could have chosen one.',
+}, null, 2) + '\n');
+console.log(`\n  artifact → draft/data/coherence.json`);
+
 // A worked example from the widest checkpoint, so the shape of the disagreement
 // is readable rather than only its size.
 const season = LO.seasonOf(history, years[years.length - 1]);
