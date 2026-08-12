@@ -5,11 +5,11 @@
 > measured in the ADP room. Re-run in the profiled room, on identical paired
 > seeds:
 >
-> - **`greedy_end_state`'s +7.9 becomes −11.0 ± 7.3** — a sign change. The
+> - **`greedy_end_state`'s +7.9 becomes −9.4 ± 4.6 (n=200 both)** — a sign change. The
 >   "rewrite buys 0.4%" figure is **room-conditional**, not a property of the
 >   composite. *(The recommendation is unchanged and better supported: the
 >   shipped composite is the best arm in the tail-bearing room.)*
-> - **`lookahead_2`'s −0.1 becomes −80 to −100.** The prescribed version is not
+> - **`lookahead_2`'s −0.1 becomes −87.7 ± 8.4.** The prescribed version is not
 >   merely useless; where its "board drains by ADP" forecast is wrong it is
 >   destructive. **A lookahead is only as good as its survival forecast.**
 > - **The "survival is not paying for itself" finding in §"AND ONE THING FELL OUT"
@@ -93,7 +93,7 @@ number on the board.**
 ### ~~AND ONE THING FELL OUT THAT I DID NOT EXPECT~~ — 🔴 REVERSED BY THE ROOM
 
 > **This finding does not survive the room model.** In the profiled room the
-> survival-free arm **loses by 11.0 ± 7.3**. C had already named the reason in
+> survival-free arm **loses by 9.4 ± 4.6**. C had already named the reason in
 > PARKED.md before the measurement: *"the harness cannot measure survival's
 > value, because its room model is the one case in which survival has no value to
 > measure."* A room that drafts strictly by ADP makes the risk of losing a player
@@ -168,7 +168,7 @@ be deleted rather than rewritten.
 3. ~~**The survival finding is the one to chase.** A rule with no survival model
    beat the one with it.~~ **🔴 CHASED, AND IT REVERSED.** The survival-free arm
    wins only in the room where survival has nothing to predict, and loses by
-   11.0 ± 7.3 in the tail-bearing one. **This now points the opposite way: it is
+   9.4 ± 4.6 in the tail-bearing one. **This now points the opposite way: it is
    the first evidence FOR the survival machinery, and it strengthens rather than
    undercuts the winter room-through-survival design.** Treat it as discovery,
    not promotion — the profiled room is an overshoot and neither room is real.

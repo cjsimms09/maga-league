@@ -15,7 +15,7 @@
 >    `manager_profiles.json` and generalised from one file to the repository.
 >    Corrected by C.
 > 3. **"The construction-order results stand" is false.** Measured: greedy beats
->    the composite by **+7.9 ± 1.5** in the ADP room and **loses by 11.0 ± 7.3**
+>    the composite by **+7.9 ± 1.5** in the ADP room and **loses by 9.4 ± 4.6**
 >    in the profiled one. The margin changes sign, so pairing does not cancel the
 >    blind spot for differences.
 >
@@ -53,9 +53,16 @@ in zero of forty drafts. Every simulation this project has run, including the
 roster-construction validation and the construction-order arms, has been blind to
 the entire class of event by construction.
 
-That is the strongest possible confirmation of the limit I recorded this morning:
+~~That is the strongest possible confirmation of the limit I recorded this morning:
 *a simulation validates behaviour inside its own room model and is silent about
-everything outside it.* It is now a measured statement rather than a caution.
+everything outside it.* It is now a measured statement rather than a caution.~~
+
+> 🟠 **THE CONCLUSION IS RIGHT AND THE EVIDENCE FOR IT WAS EMPTY.** The ADP room
+> genuinely cannot surface that defect class — but "0 of 40" was never evidence of
+> that, because the room is incapable of the event at any sample size. **A
+> tautology is not "the strongest possible confirmation" of anything; it is not
+> confirmation at all.** The limit itself stands, established by inspecting the
+> room's selection rule rather than by counting drafts.
 
 ---
 
@@ -74,14 +81,23 @@ for twenty consecutive picks, which is what leaves an elite quarterback on the
 board at pick 130. Real rooms correct that because a human sees the position
 still sitting there.
 
-**So neither model is right, and the honest conclusion is the review's own —
-MIX them — for a sharper reason than it gave:**
+~~**So neither model is right, and the honest conclusion is the review's own —
+MIX them — for a sharper reason than it gave:**~~
 
-- **ADP-with-jitter has NO tail** (0%), so it cannot surface the defect class.
-- **The measured marginal has an UNBOUNDED tail** (100%, 130 picks), so
-  everything it surfaces is suspect.
-- A mixture is not a compromise between two approximations; it is the only
-  configuration where the tail exists and is bounded.
+- ~~**ADP-with-jitter has NO tail** (0%), so it cannot surface the defect class.~~
+- ~~**The measured marginal has an UNBOUNDED tail** (100%, 130 picks), so
+  everything it surfaces is suspect.~~
+- ~~A mixture is not a compromise between two approximations; it is the only
+  configuration where the tail exists and is bounded.~~
+
+> 🔴 **DO NOT BUILD THIS MIXTURE.** Both bullets it rests on are the circular
+> measurement above. Calibrated against the three real drafts on a statistic that
+> needs no ADP, the two endpoints are **not** opposite errors — they are the same
+> error: **every room, including both of these, is FLAT on wide receiver** (real
+> 4.70–7.09× the mean gap, no room above 3.79). **A mixture of two models that
+> fail the same way in the same direction fixes nothing.** The TE and QB
+> discrepancies that looked like the other half of the story do not survive
+> removing pre-assigned keeper picks. See `pairing_claim_result_2026-08-12.md` §3.
 
 ---
 
@@ -133,8 +149,9 @@ tail, because both arms face the identical board.~~
 
 **MEASURED, AND IT DOES NOT.** `--room profiled` ran the identical five arms on
 identical paired seeds. `greedy_end_state` scores **+7.9 ± 1.5** against the
-composite in the ADP room and **−11.0 ± 7.3** in the profiled room — a sign
-change, with non-overlapping intervals, reproduced at n = 25, 30 and 60. A
+composite in the ADP room and **−9.4 ± 4.6** in the profiled room — a sign
+change, with non-overlapping intervals, at matched n = 200 and reproduced at
+n = 25, 30 and 60. A
 reproduction control re-derives **+7.9 ± 3.0** in the ADP room from the same
 code, so the flip is the room and not the edit.
 

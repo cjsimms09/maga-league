@@ -462,9 +462,32 @@ that a derived fixture still represents its case. That cell is empty, it joins t
 tracked, and it is the harder half — a fixture that has quietly become trivial is exactly what an
 assertion about its own content would have to catch.
 
-*And the demonstrating file is in C's lane*, not A's. A has no instance of this pattern yet, which
+*And the demonstrating file is in C's lane*, not A's. ~~A has no instance of this pattern yet, which
 is worth stating rather than papering over: the clause is carried on evidence from another
-session's code.
+session's code.~~ **A NOW HAS ONE — 2026-08-12, and it is A's own, in a place the rule's wording
+does not reach.**
+
+**⚠️ 10d's SCOPE IS WIDER THAN "FIXTURE OR BASELINE": IT COVERS ANY MEASURING INSTRUMENT.**
+*Proposed extension, flagged for authorisation because 10d was authorised as written and this
+widens it.*
+
+`room_model_tails_2026-08-12.md` reported that the ADP room model produces an elite fall-through
+in **0 of 40 drafts**, called that "the strongest possible confirmation" of a limit, and built a
+design recommendation on it. **An elite fall-through was defined as a player still available 40+
+picks past his ADP. The ADP room selects each pick from the eight best-ADP players available.**
+Measured afterwards over 30,000 picks: the deepest overrun that room can produce is **22.8**.
+
+**The metric derived from the same quantity the simulation ordered by, so it could not have
+returned anything else at any sample size.** No fixture and no baseline was involved — the
+self-reference was between a MEASUREMENT and the THING BEING MEASURED, which is 10d's disease in
+a limb the rule does not name. And it hid exactly where 10d says it hides: **inside a decision
+that was correct**, because defining a fall-through against ADP is the obviously right definition.
+
+*Why 13g did not catch it either.* 13g says to read a negative as closely as a positive, and the
+same document applied it — to the **100%** in the other arm, which it correctly refused to report
+as a fix. **It was applied to the suspicious number and not to the convenient one.** The 0% was
+the result that supported the argument being made, and it went unexamined for that reason. The
+trigger is not "an absence"; it is **an absence, INCLUDING the one you were hoping for.**
 
 **14. WHEN SOMETHING COMPUTES A VALUE OR A VERDICT, THE SAME UNIT OF WORK ESTABLISHES ITS
 CONSUMER.** Cory, 2026-08-11. Not a style preference — **a produced-and-unread value looks

@@ -22,9 +22,16 @@ defect I had just found in the room model:
 |---|---|---|---|
 | **adp** (n=200) | 1989.9 | **+7.9 ± 1.5** | −0.1 ± 1.8 |
 | **adp** (n=60, reproduction control) | 1989.4 | **+7.9 ± 3.0** | −0.2 ± 3.3 |
-| **profiled** (n=25) | 2208.2 | **−13.6 ± 11.4** | −99.6 ± 26.2 |
-| **profiled** (n=30) | 2212.2 | **−11.3 ± 9.7** | −92.9 ± 24.0 |
-| **profiled** (n=60) | 2219.3 | **−11.0 ± 7.3** | −80.4 ± 15.2 |
+| **profiled** (n=25) | 2208.2 | −13.6 ± 11.4 | −99.6 ± 26.2 |
+| **profiled** (n=30) | 2212.2 | −11.3 ± 9.7 | −92.9 ± 24.0 |
+| **profiled** (n=60) | 2219.3 | −11.0 ± 7.3 | −80.4 ± 15.2 |
+| **profiled** (n=200, matched to the ADP run) | 2225.6 | **−9.4 ± 4.6** | **−87.7 ± 8.4** |
+
+**At matched n = 200 the two rooms give +7.9 ± 1.5 and −9.4 ± 4.6.** The
+preregistration set the resolution at roughly ±2.7 for n = 60 and the observed
+shift is six times that, so this is not a sampling artifact and it is not read as
+one. The margin declines slightly in magnitude as n grows (−13.6 → −9.4) — the
+small-n runs overstated it, which is the direction to expect and worth saying.
 
 **The margin does not survive the room change — it changes SIGN.** Greedy wins by
 7.9 in one room and loses by ~11 in the other, and the two intervals do not come
