@@ -6917,3 +6917,16 @@ preserves padding. **But probably-fine is not measured**, and I cannot measure i
 now cannot be recaptured, so if the key is wrong it is wrong permanently and silently — which
 is the one property that makes a cheap check worth doing before more days accumulate rather
 than after.
+
+**CORRECTION TO THE COMMIT MESSAGE ABOVE (C, 2026-08-12).** The commit that recorded this
+finding carries a corrupted line: I wrote it with `git commit -m "..."` containing backticks,
+so the shell executed them and `uid=0(root) gid=0(root) groups=0(root)` appears where a field
+name should be. **The two fields are:**
+
+    capture   export?TYPE=adp           keys rows on the "id" field
+    picks     export?TYPE=draftResults  keys on the "player" field
+
+The record in this file was written with a quoted heredoc and is correct; only the commit
+message is wrong. Noted rather than rewritten, because the commit is already merged and the
+history is not worth rewriting for a mangled line — but a reader hitting `uid=0(root)` in a
+commit message should know it was a shell accident and not a finding.
