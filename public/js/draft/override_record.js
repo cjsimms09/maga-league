@@ -43,7 +43,14 @@
 /* The closed reason vocabulary. `no_reason_given` is FIRST-CLASS, not a failure
  * mode: a required modal at draft speed poisons the ledger worse than a missing
  * reason, and an override with no stated reason is still an override. */
-const REASONS = ['target', 'gut', 'news', 'plan', 'no_reason_given'];
+const REASONS = ['target', 'gut', 'news', 'plan', 'coin_flip', 'no_reason_given'];
+/* `coin_flip` WAS MISSING AND app.js WAS ALREADY EMITTING IT. The board flags a
+ * pick contested when the top two are within a hair; taking the other one is
+ * logged as `coin_flip` with no interrogation. That reason was not in this list,
+ * so `pickOverride` threw, and the caller's catch returned silently — SO THE
+ * ENTIRE COIN-FLIP CLASS OF OVERRIDE WAS BEING DROPPED, on the surface whose
+ * first real entry is draft night. Found by verifying the path rather than by
+ * trusting that it worked. */
 
 /* The two event types, which is the fix for the `method`-string ambiguity. */
 const TYPES = ['pick_override', 'value_override'];
@@ -126,10 +133,24 @@ function pickOverride(opts) {
       + 'this pick, recorded before the outcome. Not a model of what I would '
       + 'have done.',
     reason: reason,
+    /* THE RESOLUTION RULE, STATED BEFORE THE OUTCOME — the discipline every
+     * forecast on the rail already carries and this record did not. Without it
+     * January decides what "the override was right" means AFTER seeing the
+     * season, which is the freedom a forward prediction exists to remove. */
+    resolution_rule: 'Resolved from realized FANTASY POINTS in our scoring over '
+      + 'the rest of the season, from the pick onward: the override SUCCEEDED if '
+      + 'the player I took outscored the player the tool recommended. A player '
+      + 'who never plays scores zero rather than being excluded. Games before '
+      + 'this pick do not count. An exact tie resolves as NOT a success, so the '
+      + 'tool keeps the benefit of the doubt.',
     // The score gap the tool itself reported. A disagreement on a hair-thin gap
     // is a different event from one on a clear gap, and January cannot
     // reconstruct either.
     score_gap: o.score_gap == null ? null : Number(o.score_gap),
+    /* WAS THE BOARD ITSELF UNSURE? `contested` means the tool flagged the top two
+     * as effectively tied. Overriding a confident recommendation and overriding a
+     * coin flip are different acts and must not aggregate into one rate. */
+    contested: o.contested == null ? null : !!o.contested,
     // Deliberate or recovered. A pick I forgot to mark and reconciled from
     // Sleeper is weaker evidence than one I tapped, and merging them would
     // credit or blame me for a decision I may not have made consciously.

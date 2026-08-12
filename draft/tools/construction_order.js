@@ -124,6 +124,50 @@ const ARMS = {
     return best;
   },
 
+  /* THE DEPTH-LIMITED LOOKAHEAD — the version the external review named as
+   * tractable, and the arm that tests a REAL LIMIT IN MY OWN ITEM-11 ANSWER.
+   *
+   * I reported "the sequential rewrite buys 0.4%" from the greedy arm. But
+   * GREEDY IS NOT OPTIMAL — it is depth-0 on the end state, so its +7.9 is a
+   * LOWER BOUND on the headroom, not the headroom. A lookahead can beat it, and
+   * if it does, my 0.4% understated the case for the rewrite.
+   *
+   * Depth 2 of MY OWN picks: for each candidate now, assume the board drains by
+   * ADP to my next turn, then take the best end-state addition there, and score
+   * the pair. Opponents modelled as ADP order, which is what the review
+   * prescribed and what the room model already does.
+   */
+  lookahead_2: (ctx) => {
+    const base = startingStrength(ctx.roster).points;
+    const gap = ctx.nextPick ? (ctx.nextPick - ctx.currentPick) : 0;
+    const byAdp = ctx.board.slice().sort((a, b) => adpOf(a) - adpOf(b));
+    // Who the room is expected to have taken by my next turn.
+    const drained = new Set(byAdp.slice(0, Math.max(0, gap - 1)).map(p => String(p.player_id)));
+    const cand = ctx.board.slice().sort((a, b) => projOf(b) - projOf(a)).slice(0, 40);
+    const later = ctx.board.filter(p => !drained.has(String(p.player_id)))
+      .sort((a, b) => projOf(b) - projOf(a)).slice(0, 40);
+    let best = null, bestVal = -Infinity;
+    cand.forEach(p => {
+      const r1 = ctx.roster.concat([p]);
+      const now = startingStrength(r1).points - base;
+      // The best I could add at my NEXT pick, given this one.
+      let then = 0;
+      if (gap > 0) {
+        const b1 = startingStrength(r1).points;
+        later.forEach(q => {
+          if (String(q.player_id) === String(p.player_id)) return;
+          const g = startingStrength(r1.concat([q])).points - b1;
+          if (g > then) then = g;
+        });
+      }
+      const val = now + then;
+      if (val > bestVal || (val === bestVal && best && projOf(p) > projOf(best))) {
+        bestVal = val; best = p;
+      }
+    });
+    return best;
+  },
+
   /* SCARCITY PER TURN — the only arm that routes through TIMING rather than
    * value: take the position where (viable players above replacement) divided by
    * (picks until my next turn) is smallest, then the best player there. */

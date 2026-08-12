@@ -5590,9 +5590,11 @@
           || null;
         const path = takenPath ? takenPath.name : null;
         if (contested && second && String(playerId) === second) {
-          logOverrideReason(p, topRec.player, 'coin_flip', path);
+          logOverrideReason(p, topRec.player, 'coin_flip', path, false,
+            topRec.gap_to_second, contested);
         } else {
-          promptOverrideReason(p, topRec.player, { contested: contested, path: path });
+          promptOverrideReason(p, topRec.player, { contested: contested, path: path,
+            score_gap: topRec.gap_to_second });
         }
       }
     }
@@ -5615,7 +5617,7 @@
    * and logs 'no_reason_given' — a REQUIRED modal at draft speed poisons the
    * ledger worse than a missing reason, so every off-top pick still produces one
    * override entry, tagged, with the path it came from (null until Part 2). */
-  function logOverrideReason(picked, overTop, reason, path, reconciled, scoreGap) {
+  function logOverrideReason(picked, overTop, reason, path, reconciled, scoreGap, contested) {
     if (typeof PredLedger === 'undefined' || state.mockMode) return;
     const c = ledgerCtx();
     // Scoped LOCALLY. `unassigned` was borrowed from another function once and
@@ -5637,14 +5639,29 @@
         chosen: picked, recommended: overTop,
         reason: reason || 'no_reason_given', path: path == null ? null : path,
         reconciled_from_sync: !!reconciled,
-        score_gap: opts_score_gap });
-    } catch (e) { return; }   // an ungradeable entry is worse than none
+        score_gap: opts_score_gap,
+        contested: contested == null ? null : !!contested });
+    } catch (e) {
+      /* DO NOT SWALLOW THIS. The first version returned silently, and because
+       * `coin_flip` was missing from the reason vocabulary that catch was
+       * DROPPING AN ENTIRE CLASS OF OVERRIDE on the one night that cannot be
+       * recaptured. An ungradeable entry is worse than none; an entry lost in
+       * silence is worse than both, because nothing says it happened. */
+      if (typeof console !== 'undefined' && console.error) {
+        console.error('OVERRIDE NOT RECORDED — ' + (e && e.message), picked && picked.name);
+      }
+      return;
+    }
     PredLedger.override({ season: c.season, build_at: c.build_at, pick: c.pick,
       method: 'override-record-v2', payload: _rec });
   }
   function promptOverrideReason(picked, overTop, opts) {
     opts = opts || {};
-    if (typeof document === 'undefined') { logOverrideReason(picked, overTop, 'no_reason_given', opts.path, opts.reconciled); return; }
+    if (typeof document === 'undefined') {
+      logOverrideReason(picked, overTop, 'no_reason_given', opts.path,
+        opts.reconciled, opts.score_gap, opts.contested);
+      return;
+    }
     const old = document.getElementById('override-reason'); if (old) old.remove();
     const host = document.createElement('div');
     host.id = 'override-reason';
@@ -5664,7 +5681,8 @@
     document.body.appendChild(host);
     const finish = (reason) => {
       if (host.parentNode) host.remove();
-      logOverrideReason(picked, overTop, reason === 'skip' ? 'no_reason_given' : reason, opts.path, opts.reconciled);
+      logOverrideReason(picked, overTop, reason === 'skip' ? 'no_reason_given' : reason,
+        opts.path, opts.reconciled, opts.score_gap, opts.contested);
     };
     host.addEventListener('click', ev => {
       const b = ev.target.closest('[data-orr]');
