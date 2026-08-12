@@ -119,7 +119,7 @@ def _series_of(obj) -> list:
         "argument." % type(obj).__name__)
 
 
-def as_store_snapshots(series: list, year) -> list:
+def as_store_snapshots(series: list, year, ids) -> list:
     """The stored series -> `ExternalAsOfStore`'s input shape, for one season.
 
     THE READER, BUILT WITH THE WRITER (rule 14). It deliberately does NOT
@@ -127,14 +127,9 @@ def as_store_snapshots(series: list, year) -> list:
     owns that rule, and a second implementation here is how two derivation paths
     for one F5 decision would come to disagree.
 
-    ⚠️ KNOWN DEFECT, PARKED FOR A — THIS PASSES FOREIGN IDS THROUGH. ⚠️
-    The fix is written and tested on `claude/external-ingest-program-1xfinj`
-    (commit `c35d0f2`): a REQUIRED `ids` argument, `crosswalk_map` to build it,
-    and `ingest_run.adp_id_map` to raise rather than translate to nothing. It is
-    NOT here because the change breaks `draft/tests/test_survival_grade.py`,
-    which TERRITORY.md rules is A's, and a correctly-firing territory guard is
-    not something to override for a two-line fixture. See PARKED, "THE ADP
-    ARCHIVE'S IDS ARE NOT OUR IDS". Nothing consumes this before the draft.
+    `ids` MAPS THE SOURCE'S PLAYER ID TO OURS, AND IT IS REQUIRED. There is no
+    default and deliberately no pass-through, because the pass-through is the
+    defect this argument exists to end:
 
     THE ARCHIVE STORES MFL'S OWN IDS — that is correct for an archive, which
     should record what the source said and not what our crosswalk believed on the
@@ -152,12 +147,22 @@ def as_store_snapshots(series: list, year) -> list:
     ever picked. Reproduced: available goes 80 -> 66 -> 51 across 30 picks when the
     namespaces agree, and 80 -> 80 -> 80 when they do not.
 
-    `crosswalk_map` below already builds the id map this needs, offline, and is
-    tested — so the missing half is the call site, not the machinery.
+    An id with no entry in `ids` is DROPPED, because a row our board cannot read
+    is worse than an absent one. The count of those drops belongs to
+    `crosswalk_map`, which is where the misses are actually known and reported —
+    putting a number here would mean two places counting one thing.
     """
+    if ids is None:
+        raise ValueError(
+            "as_store_snapshots needs an id map: the archive holds the SOURCE's "
+            "player ids and every consumer reads `player_id` as OURS. Handing them "
+            "over untranslated does not fail loudly — it produces a replay where no "
+            "drafted player is ever removed from the board. Build one with "
+            "crosswalk_map(archive, sleeper_index).")
+    xw = dict(ids)
     return [{"observed_at": s["observed_at"],
-             "rows": [{"player_id": pid, "adp": adp}
-                      for pid, adp in (s.get("rows") or {}).items()]}
+             "rows": [{"player_id": xw[pid], "adp": adp}
+                      for pid, adp in (s.get("rows") or {}).items() if pid in xw]}
             for s in _series_of(series) if str(s.get("year")) == str(year)]
 
 

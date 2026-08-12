@@ -818,3 +818,36 @@ exist.** It was specified and never wired — the fourth instance of that shape.
 season's first Sunday. That is deliberate: the thing that has failed four times is
 work with a plan and no trigger, so this one has a date and a red rather than a
 memory.
+
+---
+
+## 🔀 BOUNDARY REDRAW — `survival_grade.py` MOVES TO C. Cory, 2026-08-12, BY EXACT FILENAME.
+
+**This SUPERSEDES the ruling recorded above under "A boundary ruling, recorded so the next
+one is made against a record."** That entry put `draft/backtest/survival_grade.py` in A's
+lane, reasoning that grading a survival forecast is *"deciding what the data means"*. Cory
+has redrawn it: **the file and its test are C's.**
+
+**IT IS A REDRAW, NOT AN OVERRIDE, AND THE DISTINCTION IS THE ONE THAT RULING DREW.** It
+said plainly: if a correctly-firing guard is overridden repeatedly, *"that is evidence the
+split itself is drawn in the wrong place — and the answer then is to REDRAW it
+deliberately, not to keep overriding it case by case."* The guard fired correctly a second
+time on this same file today. So the answer is the redraw, taken **instead of** spending a
+second override.
+
+**THE OVERRIDE COUNT STAYS AT ONE.**
+
+**BY EXACT FILENAME, NOT BY `survival*` PREFIX** — Cory's words and the guard's own comment
+agree. `draft/tests/survival-memo.test.js` and `survival_honesty.test.js` are A's, so a
+prefix here would hand C files in A's lane. A pattern that looks like ownership and catches
+the wrong lane is the defect class this project has spent the week removing; it does not
+get introduced into the guard that exists to prevent it.
+
+**`test_survival_grade.py` needed no entry.** The derivation already asks who owns
+`survival_grade.py` and now answers C — Cory's 2026-08-11 rule that *test files follow
+their module*, doing its job without a second list to drift.
+
+**WHAT THIS DOES NOT CHANGE.** *C produces the data; A decides what it means* still governs
+everything else. This moves one file whose content is the external replay harness — *"the
+first external forecast that can be graded end to end with no outcome data, no nflverse and
+no egress"* — and moves nothing else.
