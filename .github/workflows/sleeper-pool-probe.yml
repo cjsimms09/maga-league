@@ -267,6 +267,30 @@ jobs:
           print("   " + "  ".join("%.2f%%" % (100.0 * sum(1 for r in c if r["match"])
                                               / max(1, len(c))) for c in chunks))
           print()
+          # THE MATCHED IDS GO IN THE LOG, NOT ONLY THE ARTIFACT.
+          #
+          # They already travel in `rows` inside sleeper-pool-probe.json — and that
+          # artifact lives on a host the sandbox cannot reach (gateway 403 on CONNECT
+          # to productionresultssa7.blob.core.windows.net). So the one output that
+          # makes this pool REUSABLE was, in practice, write-only: recovering the ids
+          # meant re-running the whole ~30-minute crawl to rediscover them.
+          #
+          # That is the third time today a number was computed correctly into a place
+          # nobody could read it. The ids are what any follow-up question needs — and
+          # at least one such question exists: stack conversion (EDGE-LEDGER D3) is a
+          # WITHIN-ROSTER comparison that needs weekly rosters and NO ADP, so the
+          # "unpriceable backward" finding that closed F7 does not bind it.
+          #
+          # A few hundred ids is a handful of log lines. Chunked so the log stays
+          # readable and a copy-paste recovers the whole set.
+          if matched:
+              ids = [str(r["league_id"]) for r in matched]
+              print()
+              print("MATCHED LEAGUE IDS (%d) — reusable pool, logged because the "
+                    "artifact host is egress-blocked:" % len(ids))
+              for i in range(0, len(ids), 20):
+                  print("   " + ",".join(ids[i:i + 20]))
+          print()
           print(SP.f7_verdict(len(matched), len(rows), len(seen)))
           json.dump({"q1_edge_open": True, "controls": ctrl, "rows": rows,
                      "reasons": reasons, "discovered": len(seen),
