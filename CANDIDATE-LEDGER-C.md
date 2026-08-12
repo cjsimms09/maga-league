@@ -389,3 +389,73 @@ would be the same mistake as the analysis it is trying to check.
 as what was reported, marked as not reproducible. **The two metrics that carry C-003's
 weight — `txn_count` (replicated exactly) and `waiver_share` (within 0.006) — are
 unaffected.**
+
+---
+
+## C-004 — NEGATIVE SPACE, DESCRIBED NOT TESTED (2026-08-12). **It deflates rather than reveals.**
+
+**Cory's call: normalise by position and describe it. No hypothesis test, and none is
+implied by what follows.**
+
+### THE CONTAMINATION, DECLARED FIRST
+
+**I saw the pattern before I declared anything.** A feasibility check — *is this question
+worth pursuing at all* — printed the top undrafted scorers per season, and they were
+overwhelmingly QBs. **Any test I designed on that would have been post-hoc**, chosen after
+seeing the signs, which is the exact trap C-001 was retired for. So this entry describes
+and stops.
+
+### THE ANSWERABLE HALF, AND THE HALF THAT IS NOT
+
+`roster_sim.global_player_points()` reads `players_points` off weekly ROSTER entries, so it
+can only see players who were **rostered at some point**. Splitting the question:
+
+- **answerable here** — never drafted, later rostered, scored well = **waiver-wire value**;
+- **NOT answerable from disk** — never drafted, never rostered, scored well = what the whole
+  league missed. **Needs nflverse, which is egress-blocked from the sandbox.** Recorded as
+  open rather than answered.
+
+### The aggregate looks dramatic and is misleading
+
+    2025   107 rostered-but-undrafted players   23% of all points scored
+    2024   105                                  19%
+    2023   101                                  23%
+
+**A fifth of all scoring came from players nobody drafted.** Position resolution was checked
+first — 98–100% of players, 100% of points — because an unresolved position would have
+invalidated everything below.
+
+### Normalised by position, it says something much duller and more useful
+
+| position | undrafted share of that position's points | startable slots |
+|---|---|---|
+| **DEF** | **60% / 59% / 41%** | 10 |
+| K | 37% / 32% / 26% | 10 |
+| TE | 31% / 27% / 31% | 10 |
+| QB | 31% / 22% / 26% | 10 |
+| RB | 14% / 12% / 21% | 20 |
+| WR | 13% / 10% / 16% | 20 |
+
+**The undrafted value concentrates in DEF and K — the streamed onesies, where the draft is
+not the allocating mechanism at all.** Twenty different defences get rostered across a
+season against ten startable slots; nobody drafts a second one.
+
+**And my own raw-list observation was an artifact.** QBs dominated the top of the undrafted
+list because QBs score more raw points per game than anything else, in a **1-QB league**
+where most of them go undrafted and are streamed. **Normalised, QB is mid-pack.** The
+position-relative view was the deflation, which is why it was the right instrument.
+
+### What it actually says, stated as the negative it is
+
+**At RB and WR — the positions the draft genuinely allocates — only 10–21% of scoring came
+from undrafted players.** On this description **the draft is not leaving large value on the
+table at the skill positions**, and the striking aggregate was driven by positions nobody
+drafts for.
+
+**NOT A FINDING. NOT VALIDATED. NOT A PRODUCTION INPUT.** Three seasons, one league, one
+format, described post-hoc after a contaminating glance. **It cannot be validated before
+2027** and nothing in the draft on 2026-08-22 should move because of it. **RB 2023 at 21%
+against 12–14% in the other two years is noise-sized and is not read as a trend.**
+
+**REVISIT:** the never-rostered half becomes answerable if season-level nflverse scoring is
+ever archived locally. Counter: none — no archive on disk can fire for it.
