@@ -421,10 +421,19 @@
     if (typeof PredLedger !== 'undefined' && !state.mockMode) {
       var op = playerById(playerId);
       var c = ledgerCtx();
-      PredLedger.override({ season: c.season, build_at: c.build_at, pick: c.pick,
-        method: 'override-v1',
-        payload: { player_id: String(playerId), name: op ? op.name : null,
-          kind: kind || 'clear', pct: kind ? (pct == null ? 25 : Number(pct)) : null } });
+      var _vrec = null;
+      if (typeof OverrideRecord !== 'undefined' && op) {
+        try {
+          _vrec = OverrideRecord.valueOverride({
+            season: c.season, build_at: c.build_at, pick: c.pick, player: op,
+            direction: kind || 'clear',
+            pct: kind ? (pct == null ? 25 : Number(pct)) : 0 });
+        } catch (e) { _vrec = null; }
+      }
+      if (_vrec) {
+        PredLedger.override({ season: c.season, build_at: c.build_at, pick: c.pick,
+          method: 'override-record-v2', payload: _vrec });
+      }
     }
     // Rebuild the board from the artifact so an override can be undone cleanly
     // rather than compounding on an already-adjusted number.
@@ -5606,20 +5615,32 @@
    * and logs 'no_reason_given' — a REQUIRED modal at draft speed poisons the
    * ledger worse than a missing reason, so every off-top pick still produces one
    * override entry, tagged, with the path it came from (null until Part 2). */
-  function logOverrideReason(picked, overTop, reason, path, reconciled) {
+  function logOverrideReason(picked, overTop, reason, path, reconciled, scoreGap) {
     if (typeof PredLedger === 'undefined' || state.mockMode) return;
     const c = ledgerCtx();
-    PredLedger.override({ season: c.season, build_at: c.build_at, pick: c.pick,
-      method: 'override-reason-v1',
-      payload: { player_id: String(picked.player_id), name: picked.name,
-        over_player_id: overTop ? String(overTop.player_id) : null,
-        over_name: overTop ? overTop.name : null,
+    // Scoped LOCALLY. `unassigned` was borrowed from another function once and
+    // took a whole panel down with a ReferenceError; a value read from an
+    // enclosing scope that may not have it is the same defect.
+    var opts_score_gap = scoreGap == null ? null : Number(scoreGap);
+    // THE SHAPE IS BUILT IN ONE PLACE (OverrideRecord), not assembled inline.
+    // Two emitters used to write two incompatible payloads under the same
+    // ledger kind, distinguished only by an undeclared `method` string, and
+    // NEITHER froze the board values the grade needs — those move nightly, so
+    // January would have graded the override against numbers I never saw.
+    // Agreeing with the tool is refused by the builder: that is a `pick`.
+    if (typeof OverrideRecord === 'undefined' || !overTop
+        || String(overTop.player_id) === String(picked.player_id)) return;
+    var _rec;
+    try {
+      _rec = OverrideRecord.pickOverride({
+        season: c.season, build_at: c.build_at, pick: c.pick,
+        chosen: picked, recommended: overTop,
         reason: reason || 'no_reason_given', path: path == null ? null : path,
-        // The ledger must know I did not tap this live — a reconciled override
-        // is a different kind of evidence from a deliberate one, and January
-        // grades them differently.
         reconciled_from_sync: !!reconciled,
-        off_top_rec: true } });
+        score_gap: opts_score_gap });
+    } catch (e) { return; }   // an ungradeable entry is worse than none
+    PredLedger.override({ season: c.season, build_at: c.build_at, pick: c.pick,
+      method: 'override-record-v2', payload: _rec });
   }
   function promptOverrideReason(picked, overTop, opts) {
     opts = opts || {};

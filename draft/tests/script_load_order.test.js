@@ -105,5 +105,24 @@ ck('  valuation.js is loaded in the war room', loaded.indexOf('valuation.js') !=
 ck('  and app.js calls it unguarded, so loading it is not optional',
   /SharedValuation\.\w+\s*\(/.test(appCode));
 
+
+// ── THE OVERRIDE RECORD, AND WHY ITS GUARD IS NOT ENOUGH ───────────────────
+{
+  /* app.js calls OverrideRecord behind `typeof OverrideRecord === 'undefined'`,
+   * which is correct defensively and DANGEROUS on its own: if the script tag is
+   * missing, override capture silently stops and draft night — the one entry
+   * that cannot be recaptured — produces nothing, with no error anywhere. The
+   * silent-never-fired pattern. So the tag itself is asserted. */
+  const ejs = fs.readFileSync(path.join(ROOT, 'views', 'admin', '_warroom_scripts.ejs'), 'utf8');
+  ck('override_record.js is loaded in the war room',
+    /src="\/js\/draft\/override_record\.js"/.test(ejs));
+  const app = fs.readFileSync(path.join(ROOT, 'public', 'js', 'draft', 'app.js'), 'utf8');
+  ck('  and app.js actually calls it, so the tag is not decoration',
+    /OverrideRecord\.pickOverride/.test(app) && /OverrideRecord\.valueOverride/.test(app));
+  ck('  it loads BEFORE app.js',
+    ejs.indexOf('override_record.js') < ejs.indexOf('/js/draft/app.js')
+    || ejs.indexOf('/js/draft/app.js') === -1);
+}
+
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail ? 1 : 0);

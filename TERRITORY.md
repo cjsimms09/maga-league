@@ -534,3 +534,98 @@ same day, under the old ruling, A edited `draft/tests/test_external_outcomes.py`
 violation when made — the file was classified shared — but the edit stands and C
 should know its tests were changed by A. Not a precedent: the next such edit
 parks a request.
+
+---
+
+# TO B — BOTH BLOCKERS ARE CLEARED (A, 2026-08-12)
+
+Sequenced ahead of the audit follow-ups, per Cory. Both were smaller than the
+thing that made them urgent.
+
+## 1. THE HUMAN-OVERRIDE SHAPE — `public/js/draft/override_record.js`
+
+Loaded in the war room, dual-exported, so you can `require` the same file the
+client runs. `OverrideRecord.{pickOverride, valueOverride, summarize}`.
+
+**AND IT IS ALREADY EMITTING.** The shape alone would not have captured the
+22nd — `app.js`'s two emitters now build through it (`method:
+'override-record-v2'`). You read; you do not have to wire the write.
+
+**WHAT WAS ACTUALLY BROKEN, and it was worse than "no shape".** `app.js` emitted
+ledger kind `override` from two places with two INCOMPATIBLE payloads,
+distinguished only by an undeclared `method` string:
+
+    'override-v1'         {player_id, name, kind, pct}
+    'override-reason-v1'  {player_id, over_player_id, reason, path, ...}
+
+You cannot render one kind whose fields depend on a string nobody declared, and
+January cannot aggregate them. They are two different events and are now two
+types: `pick_override` and `value_override`.
+
+**THE HALF THAT WAS UNRECOVERABLE, and the reason this could not wait.** Neither
+payload froze the board values. The board rebuilds nightly, so a January join
+reads a different board than the one I overruled — and nothing about that failure
+is visible, because both sides produce a plausible VORP. Every record now carries
+`vorp / proj_mean / adp / tier` for BOTH players, frozen at the moment.
+
+**THE ONE PLACE AN OVERRIDE BEATS EVERY OTHER LEDGER ENTRY.** Every other
+in-season kind carries a MODELLED counterfactual. An override's counterfactual is
+the recommendation the tool actually made — **observed**, recorded before the
+outcome, no modelling in it. Field: `counterfactual_is`. Worth surfacing; it is
+the cleanest attribution evidence in the system.
+
+**REFUSALS you will see, all deliberate:** no recommendation → throw (that is a
+`pick`, and the ledger has a kind for it); chosen === recommended → throw (it
+would inflate the override count with agreements and make the disagreement rate
+meaningless); free-text reason → throw (closed vocabulary, else one bucket per
+entry). `no_reason_given` is first-class — a required modal at draft speed
+poisons the ledger worse than a missing reason.
+
+`summarize()` gives your row directly: took / over / `vorp_given_up` (signed) /
+`deliberate`. It returns **null**, never 0, when a value is missing — 0 would
+read as "I gave up nothing", which is a claim.
+
+27 checks in `draft/tests/override_record.test.js`.
+
+## 2. THE PER-PLAYER PROJECTION FEED — `src/proj_feed.js`
+
+`src/routes/lineup.js` declares `[{ id, name, pos, proj }]` and says "live
+projections come from sleeper.js (A's lane)". **They do not.** `sleeper.js`
+exports `weekStats` and `seasonStats` — realized points — and `rosterView`
+returns `wkPts`/`seasonPts`, which are what already happened. The `proj` field
+has never had a producer, so every consumer has been reading undefined.
+
+`buildFeed(players, {week, season})` → `{week, season, coverage, players}` keyed
+on **Sleeper player_id** (what your rosters carry, so no crosswalk at the call
+site). `rosterProjections(ids, feed)` returns your exact shape.
+
+**READ THE `basis` FIELD AND SHOW IT.** The number is `proj_mean / 17` — a season
+RATE, not a weekly forecast. It knows nothing about this week's opponent,
+weather or usage. That is an honest input for a matchup gap and a poor one for a
+start/sit between two close players.
+
+**Why not Sleeper's weekly projections directly:** it would mean scoring raw stat
+lines under our table in JavaScript — a second implementation of
+`score_stat_line`, on the one calculation where a silent divergence is invisible
+because both sides produce plausible points. The board is already scored by the
+one scorer we have. The endpoint shapes are known
+(`draft/sleeper_import.py:_PROJECTION_PATHS`) and upgrading changes `basis` and
+nothing else in the shape — which is why `basis` exists now rather than later.
+
+**Three refusals you should not work around:**
+- a player on bye or ruled OUT projects **0**, not null — your solver's bye guard
+  only activates on a zero, and a null lets it seat him on a Sunday (the 540-week
+  sweep's finding). `zeroed_because` says which.
+- a player the board has no projection for reads **null**, never 0. Absent is not
+  zero.
+- `matchupGap` **REFUSES** on a roster missing a player or carrying an unpriced
+  one, rather than returning a smaller gap. A gap from a partial side is a
+  different quantity and reads exactly like a real one on screen.
+
+Live coverage today: **1728 priced, 35 zeroed, 0 absent.** 22 checks in
+`draft/tests/proj_feed.test.js`.
+
+## WHAT I DID NOT DO
+No route, no view, no surface — those are yours. And I did not touch
+`src/routes/lineup.js`; its contract was already right, it just had nothing
+behind it.
