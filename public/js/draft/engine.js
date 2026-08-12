@@ -1445,6 +1445,67 @@
     if (onesie.duplicate && onesie.why) reasons.unshift(onesie.why);
     if (!reasons.length) reasons.push(`best value on the board at ${player.position}`);
 
+    /* ── A NON-FINITE SCORE IS REFUSED, NOT RANKED (item 13, 2026-08-14) ─────
+     *
+     * WHY THIS EXISTS. Commit 39f1a92 reported "EVERY PLAYER AT A FILLED
+     * POSITION SCORES NaN" — 219/219 QBs at pick 41 with one QB rostered — and
+     * it was never reproduced afterwards. Non-reproduction is not a fix: a
+     * defect that disappears without an identified cause is DORMANT.
+     *
+     * The cause is now identified (draft/tools/nan_provenance.js). It is not in
+     * the engine and never was: every engine revision back to 2026-08-11 is
+     * clean on those states, and the board is byte-identical to the one the
+     * report ran on. It is a ROSTER ENTRY WITHOUT A PROJECTION. starterSlot-
+     * Marginal computes `player.proj_mean - incumbent.proj_mean`; when the
+     * incumbent came from a hand-built object carrying only {name, position} —
+     * which is how the reporting session built its sample screens — that
+     * subtraction is `x - undefined` = NaN, and it reaches the score intact.
+     * Reproduced exactly: 219/219 QBs and 391/391 RBs, the reported shape.
+     *
+     * Note `proj_mean: null` does NOT produce it, because `x - null` is `x`.
+     * So a missing projection silently scores as replacement level and an
+     * undefined one poisons the board — two different wrong answers for the
+     * same missing fact, neither of them an error.
+     *
+     * WHY IT IS REFUSED RATHER THAN THROWN. Array.sort with NaN is undefined
+     * behaviour, so ONE poisoned entry makes the whole ordering arbitrary —
+     * that is what "I could not tell what the tool was recommending" was. But
+     * throwing on draft night takes the war room down at the one moment it
+     * cannot be down. So the entry survives with score null, carries a NAMED
+     * failure, and sorts last; the pick stays makeable and the failure is loud
+     * instead of silent. Same principle as module_check.js: convert a silent
+     * degradation into a visible one.
+     *
+     * THIS DOES NOT CLOSE ITEM 13. The cause above is consistent with every
+     * measurement I have and the reporting session's actual context was never
+     * captured, so it is a reconstruction, not a confession. What the guard
+     * closes is PROPAGATION: this state can no longer reach a ranking. */
+    const rawComponents = { vona: v, tier_urgency: tier, need: need.value,
+      risk: risk.value, ceiling: ceiling, keeper: kov.value, bye: -bye.value,
+      stack: stack.value };
+    if (!isFinite(Number(score))) {
+      const culprits = Object.keys(rawComponents)
+        .filter(k => !isFinite(Number(rawComponents[k])));
+      return {
+        player,
+        score: null,
+        score_error: {
+          reason: 'non-finite score refused',
+          terms: culprits,
+          likely_cause: 'a roster entry without a numeric proj_mean — '
+            + 'starterSlotMarginal subtracts the incumbent\'s projection',
+          roster_without_projection: (ctx.roster || [])
+            .filter(p => !isFinite(Number(p && p.proj_mean)))
+            .map(p => (p && p.name) || '<unnamed>'),
+        },
+        onesie: null,
+        components: rawComponents,
+        reasons: ['SCORE REFUSED — this player could not be scored ('
+          + (culprits.join(', ') || 'unknown term') + '). Not a recommendation.'],
+        context: [],
+      };
+    }
+
     return {
       player,
       score,
@@ -1682,13 +1743,23 @@
       // rather than scoring is the point — a multiplicative discount could not
       // express never, which is why the cap exists at all.
       || (s.onesie && s.onesie.capped && !s.forced);
-    let anySunk = false;
+    /* THREE BUCKETS, NOT TWO. `keep.concat(sink)` put demoted-but-SCOREABLE
+     * players after REFUSED ones, so the bottom of the list read
+     * [scoreable, refused, sunk] — measured, the refused block began at index
+     * 970 with 139 sunk entries beneath it. A sunk kicker is a real player the
+     * tool declined to recommend; a refused entry is a player it could not
+     * score at all. The second is strictly worse and must sit below the first,
+     * or "last" stops meaning anything. */
+    let anySunk = false, anyRefused = false;
     const keep = [];
     const sink = [];
+    const refused = [];
     scored.forEach(s => {
-      if (isFlaggedOnesie(s)) { s.demoted = true; sink.push(s); anySunk = true; } else { keep.push(s); }
+      if (!scoreable(s)) { refused.push(s); anyRefused = true; }
+      else if (isFlaggedOnesie(s)) { s.demoted = true; sink.push(s); anySunk = true; }
+      else keep.push(s);
     });
-    return anySunk ? keep.concat(sink) : scored;
+    return (anySunk || anyRefused) ? keep.concat(sink, refused) : scored;
   }
 
   /**
@@ -1770,6 +1841,13 @@
     for (let pass = 0; pass < 3; pass++) {
       let swapped = false;
       for (let i = 0; i < list.length - 1; i++) {
+        /* A REFUSED ENTRY IS NOT IN A TIE WITH ANYTHING. Without this test,
+         * `Math.abs(null - (-3))` is 3, which reads as a 3-point gap and passes
+         * the tie threshold, so refused entries bubbled up through the negative
+         * scores — measured: the first refusal climbed from index 1,109 to 970
+         * after the comparator was fixed, because this loop undid it. A guard
+         * at the sort is not a guard if the next pass re-orders around it. */
+        if (!scoreable(list[i]) || !scoreable(list[i + 1])) continue;
         const a = list[i].player, b = list[i + 1].player;
         if (a.position === b.position && (a.tier || 0) === (b.tier || 0)
             && Math.abs(list[i].score - list[i + 1].score) < CFG.TIE_THRESHOLD
@@ -1782,11 +1860,42 @@
     return list;
   }
 
+  /* SCORE ORDER, WITH REFUSED ENTRIES LAST.
+   *
+   * `(a, b) => b.score - a.score` is wrong the moment a score can be null: JS
+   * coerces null to 0, so a REFUSED entry would sort as if it scored zero and
+   * outrank every player with a negative score — which late in a draft is most
+   * of the board. Refusing to rank a poisoned entry and then ranking it 40th is
+   * not a guard, it is a guard-shaped hole, and it is the same class as
+   * `undefined >= 8` silently never firing.
+   *
+   * So refusal is tested explicitly and sorts after everything scoreable,
+   * regardless of sign. */
+  /* `isFinite(Number(score))` IS THE WRONG TEST AND MY FIRST VERSION USED IT.
+   * Number(null) is 0 and isFinite(0) is true, so a REFUSED entry read as a
+   * finite score of zero and landed exactly where zero sorts: after the four
+   * positive scores and ahead of all 1,105 negative ones. Measured, not
+   * reasoned — the refused block sat at indices 4..613 with Mike Evans at
+   * -0.66 beneath it. The guard against a coercion defect, written with a
+   * coercion defect. `typeof x === 'number'` is the test that does not coerce;
+   * NaN still fails isFinite, so both refusal shapes sort last. */
+  function scoreable(e) {
+    return e != null && typeof e.score === 'number' && isFinite(e.score);
+  }
+
+  function byScoreRefusedLast(a, b) {
+    const aok = scoreable(a), bok = scoreable(b);
+    if (aok && bok) return b.score - a.score;
+    if (aok) return -1;
+    if (bok) return 1;
+    return 0;
+  }
+
   function recommend(ctx) {
     // Position scales BEFORE anything is scored — upsideBonus reads them.
     _ceilingScales = computeCeilingScales(ctx.board);
     const all = ctx.board.map(p => scorePlayer(p, ctx));
-    all.sort((a, b) => b.score - a.score);
+    all.sort(byScoreRefusedLast);
     applyCeilingTiebreak(all);   // same-tier/same-position near-ties lean to higher ceiling
     // Stage 2 anchor (crude, pre-registered, OFF by default) reorders BEFORE
     // legality/rails so those still apply to the anchored order.
@@ -1801,10 +1910,32 @@
     // Flag when the top candidates are close enough that Monte Carlo should break the tie.
     // Computed AFTER demotion so "contested" compares the two real players a
     // human would actually weigh, never a real player against a sunk kicker.
+    /* ── gap_to_second IS A PROPERTY OF THE LIST, NOT OF AN ENTRY ────────────
+     *
+     * A observed it live on 2026-08-14: populated on entry #1 (10.97 on Burrow),
+     * null on #2 and #3. That is the intended shape — it is the leader's margin
+     * over the runner-up, so only the leader can carry it — but the shape was
+     * never SAID anywhere, and the field name reads like a per-player attribute.
+     * A renderer iterating entries gets `undefined` on every row but the first
+     * and has nothing to distinguish "this pick has no gap" from "this field is
+     * not for you".
+     *
+     * So it is now DECLARED absent rather than merely missing, which is the same
+     * present/null/missing distinction field_population.py exists for: null on
+     * an entry means "asked and answered, not applicable here"; undefined meant
+     * "nobody knows". Consumers already guard (override_record.js:147,
+     * shadows.js:261, decision_contract.js:344) and are unaffected.
+     *
+     * NOT REPLACED WITH A PER-ENTRY DISTANCE. That would be a new quantity, and
+     * the entries below the leader are not competing with second — each one's
+     * meaningful distance is to the LEADER, which any renderer can compute from
+     * the scores it already has. Adding a field to say something the data
+     * already says is how the board got 48 fields for 28 reads. */
     if (scored.length > 1) {
       const gap = scored[0].score - scored[1].score;
       scored[0].contested = gap < CFG.TIE_THRESHOLD;
       scored[0].gap_to_second = gap;
+      for (let i = 1; i < scored.length; i++) scored[i].gap_to_second = null;
     }
     if (scored.length) {
       scored[0].legality = legality.forced || null;
@@ -2771,7 +2902,7 @@
       s.targeted = true;
       s.reasons = ['⭐ On your target list'].concat(s.reasons || []);
     }
-    kept.sort((a, b) => b.score - a.score);
+    kept.sort(byScoreRefusedLast);
     return kept;
   }
 
@@ -2987,6 +3118,10 @@
     cheatSheet, sheetText, managerTells, threatBoard,
     WEIGHT_PRESETS, matchPreset, rankDiff, autoWeights, MEASURED_WEIGHTS,
     WEIGHT_PROVENANCE,
+    // Exported so its test sorts with the SHIPPED comparator. A test that
+    // reimplements the function it is checking always agrees with itself
+    // (rule 10d) — and this one would have agreed with the coercion bug.
+    byScoreRefusedLast, scoreable,
     formatDefaults, applyFormatDefaults,
     // A2/A3 surfaces, re-exported so callers need only one handle.
     survivalModel: S, compositeTerms: C,

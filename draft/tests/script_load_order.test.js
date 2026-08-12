@@ -54,7 +54,38 @@ const loaded = [];
 includeCode.replace(/src="\/js\/draft\/([\w.-]+\.js)"/g, (_, f) => { loaded.push(f); return _; });
 
 ck('the war-room include lists scripts at all', loaded.length > 5, loaded.length);
-ck('app.js is last', loaded[loaded.length - 1] === 'app.js', loaded.slice(-3));
+/* APP.JS IS LAST AMONG MODULES THAT WIRE BEHAVIOUR.
+ *
+ * The rule exists because app.js reads every other module's globals, so anything
+ * it depends on must already be defined. A PURE OBSERVER — a module that defines
+ * nothing anyone reads and only inspects what is already there — can legitimately
+ * follow it, and module_check.js does: it runs last precisely so every global it
+ * asks about has had its chance to appear.
+ *
+ * THE ALLOWLIST IS EXPLICIT AND SHORT, rather than relaxing this to "last or
+ * nearly last". A weakened invariant stops catching the thing it was written for
+ * (valuation.js and decision_contract.js both went missing under it), so the
+ * rule keeps its force and each exception is named with its reason. Anything
+ * added here must define no global that app.js consumes — asserted below. */
+const POST_APP_OBSERVERS = {
+  'module_check.js': 'pure observer — reports which required globals are absent '
+    + 'from the SERVED page, which no source-level check can establish',
+};
+{
+  const tail = loaded.slice(loaded.indexOf('app.js') + 1);
+  ck('app.js is last among behaviour modules',
+    loaded.indexOf('app.js') >= 0 && tail.every(f => POST_APP_OBSERVERS[f]),
+    { after_app: tail, allowed: Object.keys(POST_APP_OBSERVERS) });
+  tail.forEach(f => {
+    /* NON-VACUITY: an "observer" that app.js actually calls is not an observer,
+     * and allowing it here would be exactly the silent relaxation this block
+     * exists to prevent. */
+    const g = f.replace(/\.js$/, '').replace(/(^|_)(\w)/g, (m, a, b) => b.toUpperCase());
+    ck('  ' + f + ' is genuinely an observer — app.js does not call ' + g,
+      !new RegExp('\\b' + g + '\\s*\\.').test(fs.readFileSync(APP, 'utf8')),
+      POST_APP_OBSERVERS[f]);
+  });
+}
 
 const appCode = strip(fs.readFileSync(APP, 'utf8'));
 
