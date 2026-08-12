@@ -1,51 +1,56 @@
-/* WHAT DID D10's CORRECTION ACTUALLY DO TO THE BOARD? stack 0.5 vs 1.0,
- * real keepers, real board. The earlier answer ("nothing in the top 10") was
- * measured with a keeper lookup that silently resolved to an empty roster. */
+/* WHAT DID D10's CORRECTION DO TO THE BOARD? stack 0.5 vs 1.0, real keepers.
+ *
+ * THIS TOOL HAS GIVEN THREE DIFFERENT ANSWERS AND TWO WERE INSTRUMENT FAILURES:
+ * an empty roster (no stack term can apply to anyone), then a hand-built context
+ * missing eleven of production's seventeen keys (scores compressed near zero, so
+ * a +-6 constant dominated and every rank consequence was fiction). It now
+ * builds its context through live_context.js, which REFUSES a partial or
+ * invented one, and it aborts if its own control fails.
+ *
+ * Findings: draft/audits/stack_weight_effect_2026-08-13.md
+ * Run: node draft/tools/stack_effect.js
+ */
 'use strict';
-const fs=require('fs'), path=require('path');
-const ROOT=path.resolve(__dirname,'..','..');
-const board=JSON.parse(fs.readFileSync(path.join(ROOT,'public','draft_data.json'),'utf8'));
-const players=board.players||[];
-global.window=global;
-require(path.join(ROOT,'public','js','draft','survival.js'));
-require(path.join(ROOT,'public','js','draft','engine.js'));
-const E=global.DraftEngine;
-// KEPT PLAYERS ARE A SEPARATE ARRAY, removed from the draftable pool. Reading
-// them out of `players` resolves to nothing and every stack term is zero — the
-// dead instrument that produced this question's first two (wrong) answers.
-const keepers=board.kept_players||[];
-if(!keepers.length){console.error('no kept_players — every stack term would be 0; refusing');process.exit(1);}
+const path = require('path');
+const ROOT = path.join(__dirname, '..', '..');
+global.window = global;
+require(path.join(ROOT, 'public', 'js', 'draft', 'survival.js'));
+require(path.join(ROOT, 'public', 'js', 'draft', 'engine.js'));
+const E = global.DraftEngine;
+const LC = require(path.join(ROOT, 'draft', 'tools', 'live_context.js'));
 
-function run(pick,next,stackW){
-  const w={...E.MEASURED_WEIGHTS, stack:stackW};
-  const recs=E.recommend({board:players,available:players,players:players,drafted:[],
-    roster:keepers,currentPick:pick,nextPick:next,myPicks:[pick,next],teams:10,
-    round:Math.ceil(pick/10),weights:w});
-  const list=Array.isArray(recs)?recs:(recs.recommendations||recs.list||[]);
-  return list;
-}
-// GUARD: prove the weight override is actually reaching the engine, or this
-// whole comparison is two identical runs agreeing with each other (rule 10d).
-const probeA=run(33,48,0.0), probeB=run(33,48,3.0);
-const sameScores=probeA.slice(0,50).every((r,i)=>Number(r.score)===Number(probeB[50>i?i:i].score));
-console.log('INSTRUMENT CHECK — stack 0.0 vs 3.0 produce identical top-50 scores?', sameScores,
-  sameScores?'  <<< THE OVERRIDE IS NOT REACHING THE ENGINE — comparison is void':'  (override works)');
-if (sameScores) process.exit(1);
+const run = (pick, next, stackW) => E.recommend(LC.liveContext({
+  currentPick: pick, nextPick: next,
+  weights: Object.assign({}, E.MEASURED_WEIGHTS, { stack: stackW }),
+}));
+const nm = r => r.player.name;
 
-for(const [pick,next] of [[33,48],[68,73],[108,113]]){
-  const a=run(pick,next,0.5), b=run(pick,next,1.0);
-  const nameOf=r=>r.name||(r.player&&r.player.name)||r.player_id;
-  const ta=a.slice(0,10).map(nameOf), tb=b.slice(0,10).map(nameOf);
-  const diff=ta.filter((n,i)=>n!==tb[i]).length;
-  console.log(`\nPICK ${pick}`);
-  console.log(`  top-1: ${ta[0]}  ->  ${tb[0]}${ta[0]!==tb[0]?'   *** TOP PICK CHANGED':''}`);
-  console.log(`  top-10 positions differing: ${diff}`);
-  if(diff){ for(let i=0;i<10;i++) if(ta[i]!==tb[i]) console.log(`    #${i+1}: ${ta[i]}  ->  ${tb[i]}`); }
-  // How far down does ANY change reach?
-  const ra={},rb={}; a.forEach((r,i)=>ra[nameOf(r)]=i); b.forEach((r,i)=>rb[nameOf(r)]=i);
-  const movers=Object.keys(ra).filter(n=>rb[n]!=null&&ra[n]!==rb[n]);
-  const biggest=movers.map(n=>({n,d:ra[n]-rb[n],from:ra[n],to:rb[n]}))
-    .sort((x,y)=>Math.abs(y.d)-Math.abs(x.d)).slice(0,4);
-  console.log(`  players changing rank anywhere on the board: ${movers.length}`);
-  biggest.forEach(m=>console.log(`    ${m.n}: #${m.from+1} -> #${m.to+1}`));
+/* THE CONTROL. If stack 0.0 and stack 3.0 score identically the override is not
+ * reaching the engine and every comparison below is two identical runs agreeing
+ * with each other — which is what a broken probe looks like from the outside. */
+const lo = run(33, 48, 0.0), hi = run(33, 48, 3.0);
+if (lo.slice(0, 50).every((r, i) => Number(r.score) === Number(hi[i].score))) {
+  console.error('CONTROL FAILED: stack 0.0 and 3.0 produce identical top-50 scores.');
+  console.error('The weight override is not reaching the engine. Refusing to report.');
+  process.exit(1);
 }
+const carrying = hi.filter(r => Math.abs(Number(r.components.weighted.stack) || 0) > 1e-9);
+console.log('STACK WEIGHT EFFECT — production context, real keepers\n');
+console.log('  keepers: ' + LC.loadBoard().kept_players.map(k => k.name).join(', '));
+console.log('  draftable players carrying a non-zero stack term: ' + carrying.length + '\n');
+
+for (const [pick, next] of [[4, 17], [33, 48], [68, 73], [108, 113]]) {
+  const a = run(pick, next, 0.5), b = run(pick, next, 1.0);
+  const ta = a.slice(0, 10).map(nm), tb = b.slice(0, 10).map(nm);
+  const diff = ta.filter((n, i) => n !== tb[i]).length;
+  const ra = {}, rb = {};
+  a.forEach((r, i) => { ra[nm(r)] = i; }); b.forEach((r, i) => { rb[nm(r)] = i; });
+  const movers = Object.keys(ra).filter(n => rb[n] != null && ra[n] !== rb[n]);
+  console.log(`  PICK ${String(pick).padStart(3)}  top-1 ${ta[0] === tb[0] ? 'unchanged' : ta[0] + ' -> ' + tb[0]}`
+    + `   top-10 differing: ${diff}   board movers: ${movers.length}`);
+}
+console.log('\n  READING: the correction moves players in the deep tail, where scores are');
+console.log('  close enough for a flat +-6 to matter, and changes nothing at the top of the');
+console.log('  board. NOTE the states score a board on which NOBODY has been drafted — the');
+console.log('  A/B is robust to that (both arms see the same state) but the absolute ranks');
+console.log('  are not a forecast of draft night.');
