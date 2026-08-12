@@ -9,25 +9,50 @@ verification boundary that compared the two. THE FIX IS NOT MORE MACHINERY."*
 
 ---
 
-## THE ONE THING THAT DECIDES SIX OF THESE
+## THE BOARD FIX — DONE, AND IT IS SMALLER THAN IT LOOKED
 
-Item 10 established that **the Lab's board is not the board we ship**.
-`build_bundle.py` writes 12 player fields; production writes 48. On a bundle
-board the `risk` term takes exactly ONE value (0.0) and `proj_ceiling` is a fixed
-1.35× of `proj_mean`, making the ceiling term rank-identical to value
-(Spearman 1.0000).
+Item 10 established that **the Lab's board is not the board we ship**, and five
+items (22, 25, 26, 27, 30) were blocked on it. **Landed 2026-08-14, and the
+result reduces what the other items can hope for rather than unblocking them.**
 
-**Items 22, 25, 26, 27 and 30 all run on that board.** They are not eleven
-independent questions; they are five questions waiting on one fix and six that
-are not. Fixing `build_bundle.py` to carry the real fields is ONE change that
-unblocks five items — which is the opposite of more machinery, and it is why the
-dispositions below cluster rather than scatter.
+**`age` is emitted.** `build_bundle.py` had computed it correctly all along —
+with the as-of-season adjustment, so a 2023 replay does not age everyone by
+three years — and simply never wrote it to the player. Measured effect on the
+`risk` term over 400 candidates at four picks:
 
-> **THE BOARD FIX IS THE PREREQUISITE, NOT AN ITEM.** It is not on Cory's list
-> because nobody knew it was needed until yesterday. Every "RESEARCH FIRST —
-> BLOCKED" below resolves to BUILD the moment it lands.
+| board | distinct values | non-zero | range |
+|---|---|---|---|
+| bundle, before | **1** | 0 | [0.0, 0.0] |
+| bundle, + age | 6 | 132 | [−25.0, 0.0] |
+| bundle, + all four inputs | 11 | 726 | [−60.0, +6.0] |
+| **production** | **11** | **726** | **[−60.0, +6.0]** |
 
----
+**THE OTHER THREE CANNOT BE SUPPLIED, AND THAT IS PERMANENT.** `injury_status`
+and `depth_chart_order` come from Sleeper's LIVE payload (`draft/build.py:442`)
+and nothing archives them; `opportunity_z` is derived point-in-time. **Writing
+today's values into a 2023 replay is lookahead contamination** — a 2026 injury
+flag deciding a 2023 pick — and that is strictly worse than absence, because
+absence trips a guard and contamination does not.
+
+So the Lab risk term is now **PARTIAL, not restored: 6 of production's 11
+distinct values, an AGE-ONLY risk term.** `bundle["field_limits"]` declares this
+on the artifact, so a consumer learns it from the board rather than from a sweep
+a year later.
+
+**AND CEILING WOULD NOT BE FIXED BY FIXING IT.** Synthetic `1.35 × proj_mean`
+gives Spearman **1.0000** against proj_mean; a *real* per-player ceiling gives
+**0.9745**. Better, and still nearly collinear — the same 0.98 production
+carries. A ceiling re-grade on a repaired board would still be measuring a term
+that barely separates from value.
+
+> **Two guards fired on this change and both were mine from the day before.**
+> `weight_provenance.test.js` went red on "build_bundle still writes none of
+> risk's five inputs" — exactly as its note instructed: *re-derive the
+> provenance, do not edit it to taste.* And `lab_term_degeneracy.js` printed
+> "No term collapses — THE PREMISE IS WRONG, withdraw any finding resting on
+> it", because it had two states where the quantity has three. It could not tell
+> *never was degenerate* from *no longer degenerate*, and would have invited the
+> withdrawal of a correct finding. PARTIAL is now a state.
 
 ## 31. CALIBRATION DRIFT — **BUILD, AND CORY FILED IT CORRECTLY. I DID NOT.**
 

@@ -418,15 +418,24 @@
    * writes forty-eight. Two weights were set from experiments that could not
    * have produced any other answer:
    *
-   *   risk: 0     ALL FIVE risk inputs — age, injury_status, games_missed_3yr,
-   *               depth_chart_order, opportunity_z — are absent from a bundle
-   *               board. Measured (draft/tools/lab_term_degeneracy.js): the risk
-   *               component takes exactly ONE distinct value, 0.0, across 400
-   *               candidates at four picks. On the production board the same
-   *               term takes 11 distinct values in [-60, +6] and is non-zero for
-   *               half the board. A term with no variance cannot influence a
-   *               result at ANY weight, so every experiment reporting "risk
-   *               contributes nothing" was reporting a fact about the fixture.
+   *   risk: 0     UPDATED 2026-08-14, and the update is a partial repair rather
+   *               than a fix. ALL FIVE risk inputs were absent from a bundle
+   *               board and the term took exactly ONE distinct value (0.0)
+   *               across 400 candidates at four picks, against 11 in [-60, +6]
+   *               on production. build_bundle.py now emits `age` — which it had
+   *               computed correctly, with the as-of-season adjustment, since it
+   *               was written, and simply never wrote — taking the Lab term to
+   *               6 distinct values in [-25, 0]. PARTIAL, not restored.
+   *
+   *               THE OTHER THREE ARE PERMANENTLY UNAVAILABLE THERE, and that is
+   *               a limit rather than a to-do: injury_status and
+   *               depth_chart_order come from Sleeper's LIVE payload with no
+   *               historical archive, and opportunity_z is derived point-in-time.
+   *               Writing today's values into a 2023 replay would be LOOKAHEAD
+   *               CONTAMINATION, which is strictly worse than absence because
+   *               absence trips a guard and contamination does not. So any future
+   *               experiment grading risk is grading an AGE-ONLY risk term and
+   *               has to say so.
    *
    *   ceiling: 0  build_bundle.py writes proj_ceiling = 1.35 * proj_mean, so the
    *               ceiling spread (engine.js: proj_ceiling - proj_mean) is
@@ -458,7 +467,8 @@
     value: 'measured', keeper: 'measured', stack: 'measured (D10 ruling)',
     tier: 'measured', need: 'measured (redundant with the lineup mask)',
     bye: 'measured (null)',
-    risk: 'UNMEASURED — term is degenerate on the backtest board',
+    risk: 'UNMEASURED — term is PARTIAL on the backtest board (age only, '
+      + '6 of production\'s 11 distinct values)',
     ceiling: 'UNMEASURED — collinear with value on the backtest board',
   };
 

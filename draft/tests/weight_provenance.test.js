@@ -97,11 +97,35 @@ ck('WEIGHT_PROVENANCE is exported at all', P && typeof P === 'object');
   const src = fs.readFileSync(path.join(__dirname, '..', 'backtest', 'build_bundle.py'), 'utf8');
   const RISK_INPUTS = ['age', 'injury_status', 'games_missed_3yr', 'depth_chart_order',
     'opportunity_z'];
-  const written = RISK_INPUTS.filter(f => new RegExp('"' + f + '"\\s*:').test(src));
-  ck('build_bundle.py still writes NONE of risk\'s five inputs',
-    written.length === 0,
-    { now_written: written, note: 'if this fails the risk term is no longer degenerate '
-      + 'in the Lab and WEIGHT_PROVENANCE.risk must be re-derived, not edited to taste' });
+
+  /* SCOPED TO THE PLAYER DICT, and the first version was not. It searched the
+   * whole file for `"<field>":` and, the moment build_bundle grew a
+   * `field_limits` block DECLARING those fields absent, matched the declaration
+   * of their absence and reported all five as written. A check that reads a NAME
+   * and infers BEHAVIOUR — the exact class this suite exists for, landing on the
+   * suite itself. */
+  const appendAt = src.indexOf('players.append({');
+  const dict = appendAt >= 0 ? src.slice(appendAt, src.indexOf('})', appendAt)) : '';
+  ck('CONTROL: the player dict was located in build_bundle.py',
+    dict.length > 100 && /"player_id"/.test(dict), dict.length);
+
+  const written = RISK_INPUTS.filter(f => new RegExp('"' + f + '"\\s*:').test(dict));
+  /* THE ASSERTION INVERTED ON 2026-08-14 AND THAT IS THE IMPROVEMENT. It used to
+   * require that NONE of risk's inputs were written — pinning the degeneracy.
+   * build_bundle now emits `age`, which it had computed all along and never
+   * wrote. What must stay true is that the other three are NOT written: they are
+   * point-in-time facts with no historical archive, so writing them would be
+   * lookahead contamination rather than a repair. */
+  const CONTAMINATING = ['injury_status', 'depth_chart_order', 'opportunity_z'];
+  ck('build_bundle.py writes `age` — the one risk input it can honestly supply',
+    written.indexOf('age') >= 0, written);
+  ck('  and writes NONE of the point-in-time three (that would be lookahead)',
+    CONTAMINATING.every(f => written.indexOf(f) < 0),
+    { contaminating_written: CONTAMINATING.filter(f => written.indexOf(f) >= 0),
+      note: 'these come from Sleeper\'s LIVE payload with no historical archive; '
+        + 'today\'s value in a past replay decides a past pick with future facts' });
+  ck('  so the Lab risk term is PARTIAL, and the provenance says so',
+    /PARTIAL/.test(E.WEIGHT_PROVENANCE.risk), E.WEIGHT_PROVENANCE.risk);
 
   ck('  and still manufactures proj_ceiling from proj_mean',
     /"proj_ceiling"\s*:\s*round\(\(pm[^)]*\)\s*\*\s*1\.35/.test(src),

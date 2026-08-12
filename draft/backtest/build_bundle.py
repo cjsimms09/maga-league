@@ -132,6 +132,19 @@ def build(store, *, players_meta, weekly_df, crosswalk, prior_seasons,
             "proj_ceiling": round((pm or 0.0) * 1.35, 2),
             "raw_adp": a, "adjusted_adp": a, "adp_sd": None,
             "adp_source": "ffc" if a else ("drafted" if pid in drafted_ids else "none"),
+            # ── AGE, AS OF THE REPLAYED SEASON (2026-08-14) ──────────────────
+            #
+            # `ages` has been computed correctly above since this file was
+            # written — with the as-of-season adjustment, so a 2023 replay does
+            # not make everyone two years older than he was — AND IT WAS NEVER
+            # WRITTEN TO THE PLAYER. So `riskAdjustment`'s age clause could not
+            # fire on any bundle board, ever.
+            #
+            # MEASURED CONSEQUENCE, not asserted: with no age the risk term takes
+            # ONE distinct value (0.0) across 400 candidates at four picks. With
+            # age it takes 6, spanning [-25, 0]. All four of its live inputs give
+            # 11 and [-60, +6], which is production exactly.
+            "age": ages.get(pid),
         })
 
     # Fallback ADP mirrors the production pipeline: everyone without an FFC price
@@ -171,4 +184,48 @@ def build(store, *, players_meta, weekly_df, crosswalk, prior_seasons,
     }
     notes["players_on_board"] = len(players)
     notes["picks"] = len(picks)
+
+    # ── WHAT THIS BOARD CANNOT CARRY, DECLARED ON THE ARTIFACT ───────────────
+    #
+    # The engine reads 28 player fields. A bundle board carries a fraction of
+    # them, and until 2026-08-14 nothing said so — which is how `risk` came to be
+    # identically zero in every backtest this project has ever run while the
+    # result tables read "risk contributes nothing" and everyone believed it was
+    # a fact about football.
+    #
+    # THREE OF RISK'S FIVE INPUTS ARE PERMANENTLY UNAVAILABLE HERE, and that is a
+    # LIMIT rather than a to-do. `injury_status` and `depth_chart_order` come from
+    # Sleeper's LIVE player payload (draft/build.py) and nothing archives them;
+    # `opportunity_z` is derived point-in-time by the production pipeline. Writing
+    # today's values into a 2023 replay would be LOOKAHEAD CONTAMINATION — a
+    # player's 2026 injury flag deciding a 2023 pick — and that is strictly worse
+    # than absence, because absence trips a guard and contamination does not.
+    #
+    # So the bundle DECLARES the gap instead of filling it. A consumer that needs
+    # a field this board lacks can now find out from the board rather than from a
+    # sweep a year later.
+    bundle["field_limits"] = {
+        "engine_reads": 28,
+        "carried_here": sorted(players[0].keys()) if players else [],
+        "absent_and_unrecoverable": {
+            "injury_status": "Sleeper live payload; no historical archive. Today's "
+                             "flag in a past replay is lookahead contamination.",
+            "depth_chart_order": "same source, same reason.",
+            "opportunity_z": "derived point-in-time by the production pipeline.",
+            "games_missed_3yr": "read by the engine, written by NO board, "
+                                "production included (declared optional there).",
+        },
+        "synthetic_not_sourced": {
+            "proj_ceiling": "1.35 x proj_mean, so the ceiling term is RANK-IDENTICAL "
+                            "to value here (Spearman 1.0000). A real per-player "
+                            "ceiling measures 0.9745 against proj_mean, so fixing "
+                            "this would reduce the collinearity WITHOUT removing it.",
+            "proj_sd": "0.25 x proj_mean. Carries no information beyond proj_mean.",
+            "adp_sd": "None for every FFC-priced player.",
+        },
+        "consequence": "the risk term is DEGENERATE on this board without `age` "
+                       "and PARTIAL with it: 6 distinct values against production's "
+                       "11. Any experiment grading risk here is grading an "
+                       "age-only risk term and must say so.",
+    }
     return bundle, notes
