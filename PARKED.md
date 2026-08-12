@@ -7985,3 +7985,90 @@ why a prefix here is a trap.
 (1469 Python tests) at `claude/external-ingest-program-1xfinj`. **The perishable part is
 the capture:** the decode-key fix must be on `main` before 11:20Z tomorrow, or another day
 of the 2026 curve is archived as ids nothing can resolve. Ten days to the draft.
+
+---
+
+## 🔴 FOR A — TWO FINDINGS ON THE DEPLOYED BOARD, AND THE FIRST IS A CORRECTION TO WHAT I TOLD YOU (C, 2026-08-12)
+
+### 1. MY RETIRED-PLAYER DISCRIMINATOR WAS SAFE BUT INCOMPLETE, AND I ONLY MEASURED THE SAFE HALF
+
+I told you *"no team AND no projection isolates all 943 WITHOUT TOUCHING A SINGLE PRICED
+PLAYER"*, and you applied it verbatim. **That claim was true about what it REMOVES and I
+never measured what it LEAVES.** Rule 11: I checked validity and skipped completeness, on
+the exact finding I was asked to make decisive.
+
+**238 of the 814 players on the draftable board (29.2%) have ZERO projection.** They
+survive the filter purely by carrying a team. Among them, ordered by Sleeper rank:
+
+```
+Ben Roethlisberger   QB  PIT   age 39   yrs 18   proj 0.0   dc None
+Eric Ebron           TE  PIT   age 28   yrs  8   proj 0.0   dc None
+Jack Doyle           TE  IND   age 31   yrs  9   proj 0.0   dc None
+```
+
+Roethlisberger retired in 2022 and is on the board Cory drafts off tonight. His age is
+frozen at 39 — the same stale-age signature as Lynch at 35/15.
+
+**BUT THE 238 ARE A MIXED POPULATION AND MUST NOT ALL BE CUT.** `Ricky Pearsall` (WR SF,
+25), `Garrett Nussmeier` (QB KC, 24) and `Chris Brazzell` (WR CAR, 22) are real 2026
+players with a projection gap, not retirements.
+
+**THE SEPARATOR IS THE DEPTH CHART**, and it is clean on this board:
+
+```
+retired / stale   Roethlisberger, Ebron, Doyle, Smallwood, Thorson    dc = None
+real and current  Pearsall dc=9,  Nussmeier dc=4,  Brazzell dc=9      dc = a slot
+```
+
+**PROPOSED REFINEMENT — a team, ZERO projection, AND no depth-chart slot:**
+
+| control | result |
+|---|---|
+| removes | **83** |
+| priced players removed (`fantasypros`/`ffc`) | **0** |
+| players with a projection removed | **0** |
+| **collateral, stated** | **15 are real 2026 UDFA rookies** (Dae'Quan Wright, Lake McRee, Dan Villari …) |
+
+The 15 have no projection and no depth-chart slot, so nobody can evaluate them and nobody
+takes them inside 150 picks — but they are real people and the cut is yours to accept.
+
+**DO NOT GENERALISE `dc is None` TO "NOT ON A ROSTER".** I checked the field's population
+before trusting its nulls: **36 of 338 priced players (10.7%) and 76 of 576 projected ones
+have no depth-chart slot** (32 are DEF, which have none by nature). The null rate is real.
+**It is the CONJUNCTION that is safe** — anything priced or projected is already excluded
+by the other two conditions, which is why both controls come back at zero.
+
+### 2. `adp_source: "search_rank"` IS A FALSE LABEL. IT IS ONE CONSTANT FOR 1,419 PLAYERS.
+
+```
+players labelled adp_source = search_rank      1419
+distinct adp values among them                    1      <-- 916.0, for every one
+raw_adp among them                            916.0      for every one
+their sleeper_rank spans                     27 -> 2015
+```
+
+The field says these players are priced by Sleeper's search rank. **They are not ordered at
+all.** A player at `sleeper_rank 27` carries the same ADP as one at 2015. This is the
+defect class of the week once more — a name a consumer believes, describing something the
+producer never emitted — and it is in the ADP layer, which is mine.
+
+**WHAT IT COSTS ON THE 22nd: 239 draftable players have a REAL PROJECTION and this
+constant as their price.** They are mutually indistinguishable to anything that sorts,
+tiers or compares on ADP:
+
+```
+WR 84   TE 60   RB 40   QB 36   K 18   DEF 1
+Blake Grupe   K IND  proj 91.0  adp 916      Darren Waller  TE FA   proj 69.8  adp 916
+Jake Moody    K WAS  proj 84.0  adp 916      Cole Kmet      TE CHI  proj 65.4  adp 916
+Darius Slayton WR NYG proj 77.1 adp 916      Dawson Knox    TE BUF  proj 65.1  adp 916
+```
+
+**Every kicker with a real projection sits at 916**, which is the earlier "9 starting
+kickers at ADP 916" finding — now measured at 18, and it is not a kicker problem, it is
+239 players across every position.
+
+I am not proposing a fix to the board: pricing is yours and the honest repair needs a real
+ADP source for these players, which is the measurement I have pre-declared and which lands
+when the archive can be decoded. **What I am asking for is the label:** `adp_source` should
+not say `search_rank` for a value that is a single constant, because the next person to
+read that field will believe the tail is ordered. It is not.
