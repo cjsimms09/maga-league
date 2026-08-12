@@ -151,6 +151,54 @@ function resolveScoreGap(opts) {
   return { score_gap: Number(top.gap_to_second), score_gap_source: 'derived_from_clock' };
 }
 
+/* ── THE LOCKED RECOMMENDATION FOR A PICK ──────────────────────────────────
+ *
+ * WHAT THIS FIXES. The architecture is meant to be: recommendation COMMITTED
+ * before the pick → Sleeper reports the actual pick → the system compares →
+ * override recorded if they differ. The first, second and fourth steps exist.
+ * **The third compares against the wrong object.**
+ *
+ * `noteReconciledPick` reads `state.lastClock` — an in-memory value rewritten on
+ * EVERY render by `renderRecommendations`. That is the floating "if your turn
+ * came now" recommendation, computed at whatever pick was current at the last
+ * render. Between my turns that is an opponent's pick number, and `currentPick`,
+ * `myPicksLeft` and `roundsLeft` all feed the score — so it is a materially
+ * different calculation from the one for my pick.
+ *
+ * It currently produces the right answer BY ACCIDENT: the sync handler removes
+ * my player from the board before calling `noteReconciledPick`, and `lastClock`
+ * only refreshes on render, so the stale value happens to predate the batch. One
+ * added render inside the poll loop inverts that silently.
+ *
+ * So the app now LOCKS the recommendation per pick number at the moment it
+ * commits it to the ledger, and this resolves which lock applies.
+ *
+ * ── EXACT, OR NEAREST-EARLIER AND SAID SO ─────────────────────────────────
+ *
+ * If I pick fast in Sleeper, my pick can arrive in the same 4-second batch as
+ * the ones before it and NO render ever happens with `currentPick` equal to
+ * mine. Then there is no exact lock. Falling back silently to a neighbouring
+ * pick's recommendation would be the `score_gap` defect again — a plausible
+ * value quietly about a different question — so the fallback is labelled and the
+ * distance is recorded.
+ */
+function lockedRecommendationFor(locked, pick) {
+  const L = locked || {};
+  const want = Number(pick);
+  if (!isFinite(want)) {
+    return { rec: null, source: 'unavailable: no pick number to look up' };
+  }
+  if (L[want]) return { rec: L[want], source: 'locked_at_pick', distance: 0 };
+  // Nearest EARLIER only. A later pick's board has already lost players I could
+  // have taken, so it cannot stand in for the decision I actually faced.
+  const earlier = Object.keys(L).map(Number).filter(k => k < want).sort((a, b) => b - a);
+  if (!earlier.length) {
+    return { rec: null, source: 'unavailable: no recommendation was locked at or before this pick' };
+  }
+  const k = earlier[0];
+  return { rec: L[k], source: 'nearest_earlier_lock', distance: want - k, locked_at: k };
+}
+
 function pickOverride(opts) {
   const o = opts || {};
   req(o, ['season', 'build_at', 'pick', 'chosen', 'recommended', 'reconciled_from_sync'],
@@ -204,6 +252,13 @@ function pickOverride(opts) {
      * A missing REASON is now itself a defect: an emitter that supplies neither
      * a gap nor a source is recorded as `unstated`, which is greppable, rather
      * than as a null that looks deliberate. */
+    /* WHICH RECOMMENDATION THE OVERRIDE WAS MEASURED AGAINST. `locked_at_pick`
+     * is the recommendation committed for THIS pick; `nearest_earlier_lock` is a
+     * neighbour standing in because no render happened while it was my turn;
+     * `live_clock` is the old floating value. They are different evidence and
+     * January must be able to separate them. */
+    rec_source: o.rec_source == null ? 'unstated' : String(o.rec_source),
+    rec_lock_distance: o.rec_lock_distance == null ? null : Number(o.rec_lock_distance),
     score_gap_source: o.score_gap_source == null
       ? (o.score_gap == null ? 'unstated — the emitter passed neither a gap nor a reason' : 'passed')
       : String(o.score_gap_source),
@@ -280,7 +335,8 @@ function summarize(rec) {
     valueOverride: valueOverride, summarize: summarize, decisionKey: decisionKey,
     // Exported so the gap resolution can be exercised at RUNTIME in Node —
     // app.js is a browser IIFE and can only ever be source-inspected.
-    resolveScoreGap: resolveScoreGap };
+    resolveScoreGap: resolveScoreGap,
+    lockedRecommendationFor: lockedRecommendationFor };
   global.OverrideRecord = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);
