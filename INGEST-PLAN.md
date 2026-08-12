@@ -1940,3 +1940,59 @@ for that reason.**
 
 **Two of three passes produced findings. This one produced the reason the third could not,
 and that is a better outcome than a thin analysis would have been.**
+
+---
+
+## A DATED 2023 BOARD EXISTS, IS PUBLIC, AND PREDATES THE REPOSITORY (found 2026-08-12)
+
+**Cory asked whether any board artifact goes back further than the repo's first commit
+(2026-08-08). It does, and we already had the URL.**
+
+`draft/data/bbm/MANIFEST.json` names two Underdog Best Ball Mania IV files. Both are
+reachable from this sandbox — HTTP 200, no proxy block, unlike MFL, Sleeper and
+archive.org. **The full-field regular-season file carries, at 100% population:**
+
+```
+projection_adp        10.12, 10.28, ...          <- ADP as of the draft
+draft_time            2023-05-17T06:39:42Z       <- PER-DRAFT timestamp
+draft_created_time    2023-04-25T03:39:31Z
+draft_completed_time  2023-05-17T07:36:50Z
+```
+
+**That is a dated 2023 ADP board with per-draft timestamps — F5's exact requirement —
+three years older than the repository, publicly served, and free.**
+
+### AND THE FILE WE DURABLY ARCHIVED IS THE ONE WITHOUT IT
+
+We committed `best_ball_mania_iv_2023_r4_finals.subset.csv.gz` as the *"raw-forever
+record so a re-run does not"* re-fetch. **In that file `projection_adp` and `draft_time`
+are 0% populated** — round 4 is the finals slice and carries neither. The **round 1**
+file, which has both at 100%, **was not archived.**
+
+**So the durable record we kept is the one round where the dated board is absent**, and
+anyone reading our archive would conclude Underdog does not publish ADP. I concluded
+exactly that thirty minutes ago, from exactly that file.
+
+**Capture finding, and the sharpest one yet: we archived the wrong round.**
+
+### WHAT IT DOES AND DOES NOT UNLOCK
+
+**It does NOT serve F7.** Best Ball Mania is **12-team, best-ball, no keepers** — it fails
+F1 on three clauses at once. It cannot produce matched league-seasons for our format, and
+nothing here reopens that.
+
+**It DOES serve F6's pooled parameters**, which is what `exp24_bbm_shape.py` already uses it
+for — positional replacement curves and format-level effects are explicitly permitted
+external inputs, each naming its source at the point of use.
+
+**And it settles a question that has been open all week:** a dated, per-draft-timestamped
+ADP board for a past season **exists and is obtainable.** Route 1 concluded no such artifact
+is retrievable *from the web archive, for the publishers on its registered target list*.
+That conclusion stands as scoped and was too narrow as a belief — **the artifact was never
+in the archive because it never needed to be. Underdog still serves it.**
+
+### THE HONEST LIMIT
+
+**Underdog's ADP is Underdog's market**, not ours and not MFL's. It prices best-ball drafts
+under best-ball incentives. **It is a dated board, not our dated board**, and any use of it
+must name that at the point of use — which F6 already requires.
