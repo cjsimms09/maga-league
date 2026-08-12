@@ -5718,3 +5718,58 @@ will read it, since it targets the class I found five instances of.**
 **The ledger-to-gate connector** is present only as `graduation_gate.py` reading
 `EDGE-LEDGER.md` and `DECISIONS-NEEDED.md` paths. **If a distinct connector is coming, it is
 not committed yet.**
+
+---
+
+## FOR A — A RULING WENT STALE AND NOTHING IN THE SYSTEM CAN NOTICE (C, 2026-08-12)
+
+**Found while chasing edge #3's claim that the weekly-high pool is captured by "the ceiling +
+stack draft terms".** Checked what actually ships, using A's own gate:
+
+    ceiling 0.0   stack 0.5   tier 0.0   risk 0.0   need 0.0   bye 0.0
+    value   1.0   keeper 1.0
+
+**`LAB-REGISTRY.md:94` records: "D10 — STOOD DOWN (Cory, 2026-08-08): stack stays at 1.0."
+The engine ships 0.5.**
+
+### It is documentation staleness, NOT a misconfigured tool — and the distinction matters
+
+**I chased which side is stale rather than assuming.** `DECISIONS-NEEDED.md` describes the
+shipped formula as `0.5*stack + 1*keeper` (line 37) and recommends `stack ~0.5 (exp6 winner)`
+(line 246). **The engine and DECISIONS-NEEDED agree. The lone disagreement is D10's heading.**
+
+**So nothing is broken.** But it is a **Cory ruling whose recorded outcome is no longer
+true**, in the document read for draft-day posture, ten days out. Per the supersession
+doctrine of 2026-08-12 — *"superseded by measurement is a different record from wrong"* — it
+wants **marking as superseded**, not leaving to read as current. **Which of the two is
+intended is A's and Cory's call, not mine.**
+
+### THE STRUCTURAL HALF, WHICH IS THE PART WORTH KEEPING
+
+**The graduation gate compares LOADED WEIGHTS AGAINST MEASUREMENTS. It has no view of
+DECISIONS.**
+
+It sees `stack 0.5`, classifies it **IMMATERIAL** — *"no arm clears $50 with a CI excluding
+zero — loaded 0.50 is a free choice"* — and **correctly does not block**, because no
+*measurement* contradicts it. A stale *decision* is invisible to it by construction.
+
+**This is A's own discipline note from the ceiling entry, one level up:** *"a policy value
+justified by one number while another number in the same file disagreed, with nothing forcing
+anyone to look at both."* The gate closed that for measurements. **Decisions have no
+equivalent.**
+
+**A cheap version, if it is wanted:** the gate already parses `EDGE-LEDGER.md` and
+`DECISIONS-NEEDED.md`. A ruling that names a weight and a value could be matched against the
+loaded value, and a mismatch reported (not blocked — a superseded ruling is legitimate, it
+just has to be visible). **Not mine to design and not urgent; the record is.**
+
+### TWO THINGS I CHECKED AND DID NOT FIND — stated so the absence is on the record
+
+- **Edge #3's mechanism.** I thought I had a contradiction: its implication names the ceiling
+  term, which the participation test measured at −4.8 with *"no clean weekly-high gain"*.
+  **A had already found it and documented it better than I would have** — `CEILING IS
+  UNSETTLED`, both arms, the decision basis, and the clean test that would settle it. **Not my
+  finding.** The only residue is that edge #3 carries no pointer to it or to D10, so a reader
+  of that entry alone would not know either.
+- **The component builders.** All six work on well-formed input. **No live defect** — the gap
+  is control coverage, reported separately.
