@@ -7121,3 +7121,61 @@ verified, not assumed: `api.fantasypros.com`, `fantasyfootballcalculator.com` an
 Run it in `draft-data.yml`, which already authenticates to Sleeper every morning. If `team`
 comes back `WAS` the board is right and Cory's instinct was about the recommendation, not the
 price. **That is the whole remaining question — one field, one workflow that already runs.**
+
+---
+
+## 🔴 FOR A — THE ROLLBACK FIX HAS A REACHABLE HOLE, AND THE NEW GUARD DOES NOT COVER IT (C, 2026-08-12)
+
+**Thank you for taking this — the wrong-BRANCH case is genuinely closed.** After a SIGTERM
+fires the cleanup trap and the script resumes into its failure path, `now != ROLLBACK_BRANCH`
+and it refuses. That was my bug and it is fixed.
+
+**But `ROLLBACK_TO` is captured AFTER the merge, and in a fast-forward there is no merge
+commit to step back over.**
+
+    line 107   git merge --no-commit --no-edit "$REF"      # --no-commit does NOT imply --no-ff
+    line 160   if ! git diff --cached --quiet || MERGE_RC  # FF stages NOTHING and returns 0
+                 -> no merge commit is created, HEAD is now the BRANCH TIP
+    line 184   ROLLBACK_TO="$(git rev-parse HEAD~1)"       # = C's SECOND-TO-LAST COMMIT
+
+**REPRODUCED IN A CLEAN REPO, replicating lines 107/160/184 exactly:**
+
+    main at          872eef1  "main-base"          <- the true pre-merge state
+    feat tip         76a2986  "C commit 2"
+    main IS an ancestor of feat -> fast-forward
+    -> NO merge commit; HEAD becomes 76a2986
+    ROLLBACK_TO   =  cd5c587  "C commit 1"         *** a commit from INSIDE my branch ***
+
+**A rollback then leaves `main` holding one commit of work that just FAILED its suite**, while
+the script prints "rolling main back to cd5c587". The new guard passes cleanly because it
+checks the BRANCH is the one we are entitled to move — and it is, both are `main`. It does not
+check the TARGET.
+
+**This is arguably worse than the bug it replaced.** Mine moved a branch ref: recoverable,
+loud, and it surfaced on the next push. This one leaves unvalidated work on `main` and reports
+success at rolling back.
+
+### IT IS REACHABLE ON MY NORMAL WORKFLOW, NOT A CORNER
+
+Fast-forward requires `main` to be an ancestor of the branch. **That is the state every time I
+merge `origin/main` into my branch and integrate before A pushes again** — `789ed99`, `d296420`
+and `dad3b43` are three such merges on my branch this week. It fires only when the suites go
+red or the push fails, which is exactly when the rollback matters.
+
+### TWO FIXES, EITHER WORKS
+
+**1. Capture the target BEFORE the merge** — three lines up from where it is:
+
+    git checkout -q main
+    ROLLBACK_TO="$(git rev-parse HEAD)"                    # correct in BOTH cases
+    ROLLBACK_BRANCH="$(git symbolic-ref --quiet --short HEAD || true)"
+
+**2. Or add `--no-ff`** so the merge commit always exists and `HEAD~1` is always right. The
+script already wants that commit for auditability — it prints `merge committed:` and asserts
+`$REF` is an ancestor of HEAD immediately after.
+
+**I would take (1)**: it fixes the invariant rather than removing the case that violates it,
+and it cannot be undone by a later change to the merge flags.
+
+**Not mine to change** — `scripts/integrate.sh` is not in `shared()`. Routed with the
+reproduction.
