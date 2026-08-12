@@ -2468,3 +2468,43 @@ capture runs daily.
 **The one link not testable from here** is the MFL id → board crosswalk, which needs MFL's
 players export and is egress-blocked from the sandbox. **It is exercised in CI**: the ingest
 run this morning reported `pooled_rate 0.8493` over 70 leagues.
+
+---
+
+## `pin_before()` WILL SELECT THE WRONG BOARD ON DRAFT DAY — recorded, not fixed (2026-08-12)
+
+**Found by verifying a specific claim about my own code rather than by scanning.** The tool
+arm of the oracle-capture series exists only if *the board the tool used* is recoverable.
+On 2026-08-22 it will not be.
+
+    draft-data.yml          board rebuilt   08:00 UTC daily
+    external-adp-capture    pin taken       11:20 UTC daily
+    our draft               2026-08-22, later that day
+
+`pin_before()` takes the last pin **strictly before the draft DATE**, comparing dates only.
+So the 08-22 pin — **taken at 11:20 UTC, hours before picks begin, and genuinely the board
+the tool will show** — is discarded, and **08-21's is returned instead.** A board one day
+stale, on the day boards move most.
+
+**The docstring's reasoning is sound in general and wrong for this schedule:** *"A board
+pinned ON draft day may have been rebuilt after picks began."* Ours is pinned before them.
+
+### WHY THIS IS RECORDED RATHER THAN FIXED — and I checked before deciding
+
+**I expected the pin to store a date only. It stores `built_at`:**
+
+    observed_at   2026-08-12                 <- what pin_before compares
+    built_at      2026-08-12T09:19:29Z       <- the full timestamp, already captured
+
+**So the information that resolves same-day ambiguity is ALREADY IN THE RECORD.** This is a
+**reader-side logic gap, not a capture gap** — and that distinction is the whole decision.
+**Nothing is unrecoverable:** a 2027 reader holding `built_at` and a draft start time can
+select correctly even though today's function cannot. **The half that would have been lost
+forever is already safe.**
+
+**The fix, when wanted:** `pin_before(doc, draft_date, draft_started_at=None)` — use
+`built_at < draft_started_at` when a draft timestamp is supplied, fall back to the current
+strictly-before-date rule otherwise. ~15 lines with tests and a mutation check.
+
+**Not built.** The lane is closed, nothing is being lost meanwhile, and **I have been wrong
+four times today about a defect being urgent.** Routed for a decision rather than acted on.

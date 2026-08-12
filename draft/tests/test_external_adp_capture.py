@@ -8,6 +8,7 @@ the damage only surfaces months later as a league quietly failing F5.
 
 Run: python3 -m pytest draft/tests/test_external_adp_capture.py -q
 """
+import json
 import re
 import sys
 from pathlib import Path
@@ -146,6 +147,206 @@ def test_coverage_of_a_season_we_hold_NOTHING_for_is_zero_not_an_error():
     assert cov["snapshots"] == 0 and cov["first"] is None and cov["empty_snapshots"] == 0
 
 
+# ── A DAY WITH NO ROW AT ALL, which is the loss that could not be seen ──────
+#
+# `empty_snapshots` catches a dated row with no board behind it. Until these
+# tests there was nothing that caught a day with NO ROW, and the difference is
+# not cosmetic: MFL serves no as-of-date board — the measured finding this whole
+# archive exists because of — so a day not captured is gone for good.
+#
+# The mutation was applied to the shipped function before any of this was
+# written. A twelve-day window with 08-14..08-16 dropped reported `snapshots: 9,
+# first: 08-11, last: 08-22, empty_snapshots: 0`, which is arithmetically
+# identical to a complete capture.
+
+def _days(ds, year=2026):
+    s = []
+    for d in ds:
+        s = C.append_snapshot(s, year, d, rows(700))
+    return s
+
+
+def test_a_capture_that_STOPPED_AND_RESUMED_names_the_days_it_lost():
+    """THE ONE THIS EXISTS FOR. MUTATION: the shipped function, before the fix.
+
+    An outage in the middle of the archive leaves `first`, `last`, `snapshots`
+    and `empty_snapshots` all looking healthy — the row count simply goes up by
+    less than the calendar did, and nobody is subtracting."""
+    cov = C.coverage(_days(["2026-08-11", "2026-08-12", "2026-08-13",
+                            "2026-08-17", "2026-08-18"]), 2026)
+    assert cov["snapshots"] == 5          # the number that looked fine
+    assert cov["empty_snapshots"] == 0    # ...and the check that could not see it
+    assert cov["expected_days"] == 8
+    assert cov["missing"] == 3
+    assert cov["complete"] is False
+
+
+def test_the_lost_days_are_NAMED_and_not_merely_counted():
+    """MUTATION: report `missing: 3` and drop `missing_days`. A count says the
+    archive is holed; only the dates say WHICH market days are unrecoverable, and
+    that is the difference between a number and something actionable. Same
+    principle as naming empty fields rather than counting them."""
+    cov = C.coverage(_days(["2026-08-11", "2026-08-12", "2026-08-13",
+                            "2026-08-17", "2026-08-18"]), 2026)
+    assert cov["missing_days"] == ["2026-08-14", "2026-08-15", "2026-08-16"]
+
+
+def test_an_UNBROKEN_capture_reports_complete():
+    """The negative control. MUTATION: return `complete: False` unconditionally —
+    without this, an always-firing gap report is indistinguishable from a working
+    one, and a check that always fires gets muted exactly like a check that never
+    does."""
+    cov = C.coverage(_days(["2026-08-11", "2026-08-12", "2026-08-13"]), 2026)
+    assert cov["complete"] is True
+    assert cov["missing"] == 0 and cov["missing_days"] == []
+    assert cov["expected_days"] == 3
+
+
+def test_a_SINGLE_day_archive_is_complete_rather_than_an_error():
+    """The state the real archive was in on its first day. MUTATION: compute the
+    span as `last - first` and a one-day archive reports `expected_days: 0`
+    against one snapshot — a brand-new capture reading as over-full."""
+    cov = C.coverage(_days(["2026-08-11"]), 2026)
+    assert cov["expected_days"] == 1 and cov["missing"] == 0
+    assert cov["complete"] is True
+
+
+def test_an_UNPARSEABLE_date_reports_UNCOUNTED_rather_than_ZERO_MISSING():
+    """MUTATION: wrap the parse in `except: return {'missing': 0}`. A malformed
+    date would then certify the archive as gap-free ON THE STRENGTH OF THE
+    MALFORMED DATE — a broken capture reporting a clean one, which is the precise
+    inversion this module exists to prevent. Rule 13f: 'I could not look' must
+    never render as 'nothing there'."""
+    s = _days(["2026-08-11", "2026-08-12"])
+    s[1]["observed_at"] = "not-a-date"
+    cov = C.coverage(s, 2026)
+    assert cov["missing"] is None and cov["complete"] is None
+    assert "UNCOUNTED" in cov["gap_note"]
+
+
+def test_nothing_captured_is_UNCOUNTED_and_specifically_NOT_complete():
+    """MUTATION: let the empty case fall through to `complete: True`. An archive
+    holding nothing would certify itself as a complete capture — 'no gaps found'
+    where the truth is 'no days found'."""
+    cov = C.coverage([], 2026)
+    assert cov["complete"] is None and "UNCOUNTED" in cov["gap_note"]
+
+
+def test_a_LONG_outage_lists_a_capped_sample_but_counts_every_day():
+    """MUTATION: truncate `missing_days` and let the count follow the list. The
+    report would then say 14 days lost when 40 were, and a silent cap reads as
+    'that was all of them'. The cap is declared in the row that carries it."""
+    cov = C.coverage(_days(["2026-06-01", "2026-08-11"]), 2026)
+    assert cov["missing"] == 70                      # exact, not the cap
+    assert len(cov["missing_days"]) == C.MISSING_DAYS_LISTED
+    assert cov["missing_listed_truncated"] is True
+
+
+def test_the_saved_archive_carries_its_own_COVERAGE_not_just_its_population(tmp_path):
+    """Cory's ruling one step along: a durable record states what it does not hold.
+
+    MUTATION: write only `population`. It reports 100% on every field of a holed
+    archive and is RIGHT to — a day never captured contributes no row to be
+    counted empty. The two records catch different holes and neither substitutes
+    for the other, which is why both are written."""
+    p = tmp_path / "arch.json"
+    C.save(_days(["2026-08-11", "2026-08-12", "2026-08-16"]), path=str(p))
+    doc = json.loads(p.read_text())
+    assert doc["population"]["fields"]["observed_at"]["pct"] == 100.0   # and yet
+    assert doc["coverage"]["2026"]["missing"] == 3
+    assert doc["coverage"]["2026"]["missing_days"] == ["2026-08-13", "2026-08-14",
+                                                       "2026-08-15"]
+
+
+def test_the_saved_coverage_is_keyed_PER_SEASON():
+    """MUTATION: compute one coverage over every row. Two seasons captured on
+    overlapping calendars would report the union as one span and invent gaps that
+    do not exist in either."""
+    s = C.append_snapshot([], 2025, "2026-08-11", rows(9))
+    s = C.append_snapshot(s, 2026, "2026-08-11", rows(9))
+    s = C.append_snapshot(s, 2026, "2026-08-12", rows(9))
+    import tempfile
+    with tempfile.TemporaryDirectory() as d:
+        p = Path(d) / "a.json"
+        C.save(s, path=str(p))
+        cov = json.loads(p.read_text())["coverage"]
+    assert set(cov) == {"2025", "2026"}
+    assert cov["2025"]["snapshots"] == 1 and cov["2025"]["complete"] is True
+    assert cov["2026"]["snapshots"] == 2 and cov["2026"]["complete"] is True
+
+
+# ── the escalation condition, tested because it is no longer in YAML ────────
+_D = __import__("datetime").date
+
+
+def test_a_run_that_RESUMED_after_a_skipped_day_escalates():
+    """The alarm. MUTATION: return False always — an outage passes in silence and
+    the days are gone before anyone knows the schedule stopped."""
+    s = _days(["2026-08-11", "2026-08-12"])
+    assert C.missed_yesterday(s, 2026, _D(2026, 8, 16)) is True
+
+
+def test_an_UNBROKEN_daily_capture_stays_quiet():
+    """The negative control. MUTATION: return True always — a job that escalates
+    every morning gets muted, and a muted alarm is worse than none because it is
+    believed to be working."""
+    s = _days(["2026-08-11", "2026-08-12"])
+    assert C.missed_yesterday(s, 2026, _D(2026, 8, 13)) is False
+
+
+def test_the_alarm_SELF_CLEARS_once_the_gap_is_historical():
+    """MUTATION: escalate whenever `coverage()['missing']` is non-zero. A gap can
+    never be repaired — no provider serves an as-of-date board — so that version
+    is red every morning for ever, which is how a real alarm gets switched off."""
+    s = _days(["2026-08-11", "2026-08-12", "2026-08-16"])
+    assert C.missed_yesterday(s, 2026, _D(2026, 8, 17)) is False
+
+
+def test_a_BRAND_NEW_archive_does_not_escalate_about_the_day_before_it_existed():
+    """MUTATION: drop the `min(days) < yday` guard. The very first capture would
+    report a missed day on its first morning — a false alarm on day one, which is
+    the fastest way to teach everyone to ignore this."""
+    s = _days(["2026-08-11"])
+    assert C.missed_yesterday(s, 2026, _D(2026, 8, 11)) is False
+
+
+def test_a_LONG_historical_gap_does_NOT_mute_the_alarm_for_yesterday():
+    """THE DEFECT THE MOVE OUT OF YAML FOUND, pinned so it cannot come back.
+
+    MUTATION: ask `coverage()['missing_days']` whether yesterday is absent. That
+    list is capped at 14; with 70 earlier days lost, yesterday falls off the end
+    and the alarm silently stops firing — the cap becoming a mute."""
+    s = _days(["2026-06-01", "2026-08-11"])
+    assert "2026-08-12" not in C.coverage(s, 2026)["missing_days"]   # off the cap
+    assert C.missed_yesterday(s, 2026, _D(2026, 8, 13)) is True      # fires anyway
+
+
+def test_the_alarm_is_scoped_to_the_SEASON_being_captured():
+    """MUTATION: ignore `year`. A 2025 row dated yesterday would satisfy the 2026
+    check, and a dead 2026 capture would read as healthy off another season."""
+    s = C.append_snapshot([], 2025, "2026-08-12", rows(3))
+    s = C.append_snapshot(s, 2026, "2026-08-09", rows(3))
+    assert C.missed_yesterday(s, 2026, _D(2026, 8, 13)) is True
+
+
+def test_an_EMPTY_archive_does_not_escalate():
+    """Nothing captured is a statement about the run, not a missed day."""
+    assert C.missed_yesterday([], 2026, _D(2026, 8, 13)) is False
+
+
+def test_a_DEAD_capture_is_NOT_claimed_to_be_caught_here():
+    """The honest limit, pinned so a later reader cannot infer more than is true.
+
+    A capture that stops and never resumes leaves NO interior gap — `last` simply
+    stops advancing. This function takes no clock and cannot see that. Pinning it
+    keeps the next person from routing the dead-capture case here and believing
+    it covered; that instrument has to run on a different schedule than the job
+    it is watching."""
+    cov = C.coverage(_days(["2026-08-11", "2026-08-12"]), 2026)
+    assert cov["complete"] is True        # contiguous...
+    assert "age_days" not in cov          # ...and silent about how old it is
+
+
 # ── the archive must not be confused with the HOME instrument ───────────────
 def test_the_archive_is_a_DIFFERENT_FILE_from_the_home_staleness_series():
     """`draft/data/adp_series.json` is A's home instrument at TOP_N=300 /
@@ -222,3 +423,235 @@ def test_a_snapshot_field_that_disappears_entirely_is_still_named(tmp_path):
     pop = _json.loads(p.read_text())["population"]
     assert pop["fields"]["total_drafts"]["missing"] == 1
     assert "total_drafts" in pop["empty"]
+
+
+# ── the fetch retry: one HTTP request stood between us and a day of the curve ──
+#
+# Break-first, on the shipped function: a single transient 503 raised out of
+# `fetch_mfl`, aborted `capture()`, failed the step and lost the day. Tomorrow's
+# run fetches tomorrow's board, so the missed day never returns.
+#
+# The DECISION lives in `retryable`/`with_retry` rather than inside `fetch_mfl`,
+# which is `pragma: no cover` because it needs egress. Retry logic written in
+# there would be untested logic guarding a perishable observation — which is the
+# mistake this lane already made once today, in a workflow YAML.
+import urllib.error  # noqa: E402
+
+
+def _http(code):
+    return urllib.error.HTTPError("http://x", code, "boom", {}, None)
+
+
+def test_a_5xx_is_RETRIED_because_it_means_not_now():
+    assert C.retryable(_http(503)) is True
+    assert C.retryable(_http(500)) is True
+
+
+def test_a_429_is_RETRIED():
+    """Rate limiting is the one 4xx that is a 'not now' rather than a 'no'."""
+    assert C.retryable(_http(429)) is True
+
+
+def test_a_404_is_NOT_retried_because_it_is_the_servers_ANSWER():
+    """MUTATION: retry every HTTPError. Repeating a question the server already
+    answered spends the window and turns a clear failure into a slow one."""
+    assert C.retryable(_http(404)) is False
+    assert C.retryable(_http(403)) is False
+
+
+def test_a_network_failure_is_RETRIED():
+    """DNS, reset, TLS and timeout are 'the network did not answer', not 'no'.
+    MUTATION: only retry HTTPError — the most common transient failure at a fixed
+    minute each day is precisely the one that never reaches an HTTP status."""
+    assert C.retryable(urllib.error.URLError("reset")) is True
+    assert C.retryable(TimeoutError()) is True
+    assert C.retryable(ConnectionError()) is True
+
+
+def test_a_PROGRAMMING_error_is_not_retried_as_if_it_were_weather():
+    """MUTATION: return True by default. A KeyError in the parser would be
+    attempted four times and reported as a network problem."""
+    assert C.retryable(ValueError("bad json")) is False
+    assert C.retryable(KeyError("adp")) is False
+
+
+def test_a_transient_failure_is_SURVIVED_and_the_day_is_captured():
+    """THE ONE THIS EXISTS FOR — the exact shape demonstrated against the shipped
+    function: one 503, then success. MUTATION: the shipped `fetch_mfl`, a single
+    urlopen. The day is lost and cannot be refetched."""
+    n = {"i": 0}
+
+    def call():
+        n["i"] += 1
+        if n["i"] == 1:
+            raise _http(503)
+        return "the board"
+    assert C.with_retry(call, sleep=lambda s: None) == "the board"
+    assert n["i"] == 2
+
+
+def test_a_PERMANENT_failure_raises_IMMEDIATELY_rather_than_burning_the_window():
+    """MUTATION: retry regardless. A 404 would take the full backoff before
+    failing, for an answer available on the first attempt."""
+    n = {"i": 0}
+
+    def call():
+        n["i"] += 1
+        raise _http(404)
+    try:
+        C.with_retry(call, sleep=lambda s: None)
+        raise AssertionError("a 404 must not be retried")
+    except urllib.error.HTTPError:
+        pass
+    assert n["i"] == 1
+
+
+def test_the_LAST_error_is_RAISED_rather_than_swallowed_into_an_empty_board():
+    """MUTATION: return None after the last attempt. `capture()` would then get
+    no rows and — because it refuses an empty snapshot — report a MISLEADING
+    'zero rows' failure instead of the transport error that actually happened."""
+    def call():
+        raise _http(502)
+    try:
+        C.with_retry(call, attempts=3, sleep=lambda s: None)
+        raise AssertionError("exhausted retries must re-raise")
+    except urllib.error.HTTPError as e:
+        assert e.code == 502
+
+
+def test_the_backoff_is_BETWEEN_attempts_and_never_before_the_first():
+    """MUTATION: sleep at the top of every iteration. Every healthy daily run
+    would pay the delay for nothing."""
+    slept = []
+    n = {"i": 0}
+
+    def call():
+        n["i"] += 1
+        if n["i"] < 3:
+            raise _http(503)
+        return "ok"
+    C.with_retry(call, backoff=3, sleep=slept.append)
+    assert slept == [3, 6], slept
+
+
+def test_a_SINGLE_attempt_setting_still_makes_one_call():
+    """MUTATION: `range(attempts - 1)`. attempts=1 would make zero calls and
+    report success having never asked."""
+    n = {"i": 0}
+
+    def call():
+        n["i"] += 1
+        return "ok"
+    assert C.with_retry(call, attempts=1, sleep=lambda s: None) == "ok"
+    assert n["i"] == 1
+
+
+def test_the_DECLARED_attempt_budget_is_the_number_of_calls_ACTUALLY_made():
+    """FOUND BY A SURVIVING MUTATION: `range(attempts - 1)`. Every other test here
+    passed under it, because `max(1, ...)` rescues the attempts=1 case and the
+    others fail early enough that one fewer try still reaches the same outcome.
+
+    So the off-by-one would have shipped silently, and `RETRY_ATTEMPTS = 4` would
+    have bought three tries — a resilience budget that reads correct in the
+    constant and is wrong in the loop, guarding a day that cannot be refetched."""
+    for budget in (1, 2, 4, 5):
+        n = {"i": 0}
+
+        def call():
+            n["i"] += 1
+            raise _http(503)
+        try:
+            C.with_retry(call, attempts=budget, sleep=lambda s: None)
+        except urllib.error.HTTPError:
+            pass
+        assert n["i"] == budget, "attempts=%d made %d calls" % (budget, n["i"])
+
+
+def test_the_shipped_default_is_the_budget_the_constant_declares():
+    """MUTATION: change RETRY_ATTEMPTS without changing the loop, or vice versa."""
+    n = {"i": 0}
+
+    def call():
+        n["i"] += 1
+        raise _http(503)
+    try:
+        C.with_retry(call, sleep=lambda s: None)
+    except urllib.error.HTTPError:
+        pass
+    assert n["i"] == C.RETRY_ATTEMPTS
+
+
+# ── how far behind, which is NOT the interior-gap count ─────────────────────
+#
+# Found by rehearsing the workflow end to end against a dead MFL: the resume
+# alarm printed "0 uncaptured day(s)" while firing correctly. `missing` counts
+# gaps INSIDE the span held, and a capture that has stopped has none yet — the
+# hole only becomes interior once a later row lands on the far side of it.
+
+def test_days_since_last_reports_how_far_behind_the_archive_is():
+    """MUTATION: quote `coverage()['missing']` in the alarm, as shipped. On the
+    run that matters most — the capture is dead and has not resumed — that number
+    is 0, and an alarm about an unrecoverable loss that reports zero reads as a
+    bug and gets ignored."""
+    s = _days(["2026-08-05"])
+    assert C.coverage(s, 2026)["missing"] == 0          # the wrong number...
+    assert C.days_since_last(s, 2026, _D(2026, 8, 12)) == 7   # ...and the right one
+
+
+def test_the_two_numbers_are_DIFFERENT_questions_and_both_are_reported():
+    """A resumed capture has both: days lost inside the span, and how far behind
+    the newest row is. MUTATION: report only one — either alone understates."""
+    s = _days(["2026-08-05", "2026-08-09"])
+    assert C.coverage(s, 2026)["missing"] == 3                 # 08-06..08-08
+    assert C.days_since_last(s, 2026, _D(2026, 8, 12)) == 3    # 08-09 -> 08-12
+
+
+def test_a_capture_that_ran_today_is_ZERO_days_behind():
+    """The negative control. MUTATION: off-by-one — a healthy daily capture would
+    report 1 day stale every morning."""
+    s = _days(["2026-08-11", "2026-08-12"])
+    assert C.days_since_last(s, 2026, _D(2026, 8, 12)) == 0
+
+
+def test_an_EMPTY_archive_reports_None_rather_than_zero_days_behind():
+    """MUTATION: return 0. 'Nothing captured' would render as 'perfectly current',
+    which is absent-as-zero in the instrument built to end absent-as-zero."""
+    assert C.days_since_last([], 2026, _D(2026, 8, 12)) is None
+
+
+def test_an_unparseable_date_reports_None_rather_than_a_wrong_number():
+    s = _days(["2026-08-11"]); s[0]["observed_at"] = "not-a-date"
+    assert C.days_since_last(s, 2026, _D(2026, 8, 12)) is None
+
+
+def test_days_since_last_is_scoped_to_the_SEASON():
+    """MUTATION: ignore `year`. A 2025 row dated today would make a dead 2026
+    capture look current."""
+    s = C.append_snapshot([], 2025, "2026-08-12", rows(3))
+    s = C.append_snapshot(s, 2026, "2026-08-05", rows(3))
+    assert C.days_since_last(s, 2026, _D(2026, 8, 12)) == 7
+
+
+def test_the_alarm_names_only_the_number_that_is_NON_ZERO():
+    """MUTATION: a fixed two-clause template, as first shipped. Exactly one of the
+    numbers is zero in each real case, so it always printed a stray nought — and
+    an alarm for an unrecoverable loss containing a 0 gets skimmed."""
+    # capture succeeded and resumed: 0 days behind, 6 lost inside the span
+    m = C.resume_alarm(6, 0)
+    assert "6 day(s) are already lost" in m and "0 day" not in m
+    # capture is dead and never resumed: 7 days behind, no interior gap yet
+    m = C.resume_alarm(0, 7)
+    assert "7 day(s) old" in m and "0 day" not in m
+
+
+def test_the_alarm_reports_BOTH_when_both_are_real():
+    m = C.resume_alarm(3, 2)
+    assert "2 day(s) old" in m and "3 day(s) are already lost" in m
+
+
+def test_an_UNCOUNTABLE_archive_says_so_rather_than_inventing_a_figure():
+    """MUTATION: fall through to '0 days'. `missing` is None when a date could not
+    be parsed; printing zero would report a clean archive off a broken one, in the
+    alarm built to announce the opposite."""
+    m = C.resume_alarm(None, None)
+    assert "cannot say how many days" in m and "0" not in m

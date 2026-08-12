@@ -67,13 +67,14 @@ jobs:
       # fetch fails the step rather than writing a dated empty board — and this
       # summary reports the coverage either way.
       - name: Report coverage where it cannot be missed
+        id: cov
         if: always()
         run: |
           {
             echo "## D3 external ADP capture"
             if [ -f draft/data/external_adp_series.json ]; then
               python3 - <<'PY'
-          import sys, json
+          import sys, json, os, datetime
           sys.path.insert(0, 'draft/backtest')
           import external_adp_capture as C
           cov = C.coverage(C.load(), "${{ github.event.inputs.year || '2026' }}")
@@ -83,6 +84,50 @@ jobs:
           if cov["empty_snapshots"]:
               print("**%d EMPTY SNAPSHOT(S)** — dated rows with no board behind them."
                     % cov["empty_snapshots"])
+
+          # ── DAYS WITH NO ROW AT ALL ────────────────────────────────────────
+          # A different hole from an empty snapshot and, until now, an invisible
+          # one: `snapshots`, `first`, `last` and `empty_snapshots` all read
+          # healthy across an outage, because the row count simply rises by less
+          # than the calendar did and nothing was subtracting.
+          if cov["missing"] is None:
+              print("**COVERAGE UNCOUNTED** — %s. Treat this archive's span as "
+                    "unknown rather than complete." % cov["gap_note"])
+          elif cov["missing"]:
+              print("**%d DAY(S) NEVER CAPTURED** across %s..%s. MFL serves no "
+                    "as-of-date board, so these are gone permanently:"
+                    % (cov["missing"], cov["first"], cov["last"]))
+              print("`%s`" % "`, `".join(cov["missing_days"]))
+              if cov["missing_listed_truncated"]:
+                  print("...and more — %d total, first %d listed."
+                        % (cov["missing"], len(cov["missing_days"])))
+
+          # DID *THIS* RUN RESUME FROM AN OUTAGE. Escalates on the day the gap
+          # becomes detectable and self-clears afterwards, so a permanent
+          # historical hole never makes this job red every morning for ever —
+          # red-by-design is how a real alarm gets muted.
+          # THE CONDITION LIVES IN THE MODULE, NOT HERE. Written inline in this
+          # YAML it had two defects no test could reach — the runner's local
+          # clock instead of UTC, and asking a list capped at 14 whether
+          # yesterday was absent, which turned the cap into a mute. Both are
+          # pinned by tests now. UTC is still stated explicitly at the call.
+          today = datetime.datetime.now(datetime.timezone.utc).date()
+          resumed = C.missed_yesterday(C.load(),
+                                       "${{ github.event.inputs.year || '2026' }}", today)
+          # `stale_days`, NOT `missing`. A rehearsal against a dead MFL had this
+          # alarm print "0 uncaptured day(s)" while firing correctly: `missing`
+          # counts INTERIOR gaps, and a capture that has stopped has none yet.
+          # The two answer different questions and this one quotes how far behind
+          # the archive is, which is what a resume is about.
+          stale = C.days_since_last(C.load(), "${{ github.event.inputs.year || '2026' }}", today)
+          with open(os.environ["GITHUB_OUTPUT"], "a") as fh:
+              fh.write("resumed=%s\n" % ("1" if resumed else "0"))
+              fh.write("missing=%s\n" % (cov["missing"] if cov["missing"] is not None else "?"))
+              fh.write("stale_days=%s\n" % ("?" if stale is None else stale))
+              # THE SENTENCE IS BUILT IN THE MODULE, where both numbers are and
+              # where it is tested. Exactly one of them is zero in each case, so
+              # a fixed template always printed a stray nought.
+              fh.write("alarm=%s\n" % C.resume_alarm(cov["missing"], stale))
           PY
             else
               echo "NO ARCHIVE FILE — nothing has been captured yet. This is a statement"
@@ -127,4 +172,58 @@ jobs:
           # gate already skips. The marker is belt-and-braces, not a substitute
           # for the gate.
           git commit -m "D3: external ADP snapshot [skip deploy]"
-          git pull --rebase origin main && git push
+          # RETRY THE RACE. A single `pull --rebase && push` loses the whole day
+          # if anything lands in the gap, and the day cannot be refetched — no
+          # provider serves a board as of a past date, so a lost push is a
+          # permanently lost observation rather than a deferred one.
+          #
+          # THE COLLISION IS NOT HYPOTHETICAL: draft-data.yml runs `0 11 * * 2`
+          # and this runs `20 11 * * *`, twenty minutes behind it every Tuesday.
+          # Same shape and same reasoning as backtest.yml, which already retries
+          # for a report that IS regenerable.
+          for i in 1 2 3 4 5; do
+            git fetch origin main
+            # SAY WHAT GIT ACTUALLY SAID. This read "REBASE CONFLICT" for ANY
+            # rebase failure — a workflow rehearsal hit it with a dirty tree and
+            # was sent looking for a conflict that did not exist. A wrong
+            # diagnosis at 11:20 UTC, on a day that cannot be refetched, costs
+            # more than the extra three lines.
+            if ! _out="$(git rebase origin/main 2>&1)"; then
+              echo "REBASE FAILED — reporting, not forcing. git said:"
+              echo "$_out" | sed 's/^/    /'
+              git rebase --abort 2>/dev/null || true
+              exit 1
+            fi
+            if git push origin HEAD:main; then echo "snapshot pushed"; exit 0; fi
+            echo "push race, retry $i"; sleep 3
+          done
+          echo "SNAPSHOT COULD NOT BE PUSHED after retries — TODAY'S BOARD IS LOST"
+          echo "and cannot be refetched. Rerun today, not tomorrow."
+          exit 1
+      # A GREEN RUN'S STEP SUMMARY IS READ BY NOBODY, which is the whole reason
+      # the standing check escalates by failing. Losing a day of a perishable
+      # curve deserves the same channel — but only ONCE, on the run that can
+      # first see it.
+      #
+      # ⚠ THIS STEP MUST STAY LAST. DO NOT MOVE IT ABOVE THE COMMIT.
+      #
+      # It was written above the commit step first, and that was catastrophic in
+      # a way worth spelling out rather than quietly reordering. A failed step
+      # aborts the job, and the commit step's `if:` is `steps.cap.outcome ==
+      # 'success'` — no `always()` — so it would have been SKIPPED. On the exact
+      # run that recovers from an outage, the alarm about lost days would have
+      # discarded that day's snapshot too; the next run would then find yesterday
+      # missing, fire again, discard again, and the "outage" would sustain itself
+      # for ever, one lost day at a time, with a red job every morning saying so.
+      #
+      # An alarm that destroys what it is watching is worse than no alarm. The
+      # day lands FIRST; the run goes red afterwards.
+      - name: Escalate if this run resumed from a gap
+        if: always() && steps.cov.outputs.resumed == '1'
+        run: |
+          echo "::error::${{ steps.cov.outputs.alarm }}."
+          echo "::error::The 2026 ADP curve is"
+          echo "::error::observable only while it is happening: no provider serves a board"
+          echo "::error::as of a past date, so these days cannot be refetched by any means."
+          echo "::error::Fix the schedule before more days go. See the step summary for dates."
+          exit 1

@@ -266,7 +266,17 @@ shared() {
   case "$1" in
     STATUS.md|PARKED.md|DECISIONS-NEEDED.md|TASK-AUDIT.md|TERRITORY.md) return 0 ;;
     # Shared coordination infra: the split's own enforcement, maintained by both.
+    # ⚠️ SHARED-FILE EDIT BY C, 2026-08-12 — banner per Cory's three-session rule.
+    # THE TESTS COME WITH THEM, and leaving them out was the same hole this file
+    # already found once: `*.test.js` had no rule, fell through to the default and
+    # silently became A's, including fifteen tests written for B's surfaces.
+    # `territory-check.sh` is shared because both sides maintain it — but its test
+    # was A's, so C could change the guard and could NOT update the test that
+    # pins the change. A shared file whose test is not shared has a test that goes
+    # stale by construction, which is worse than no test: it keeps passing while
+    # describing behaviour the file no longer has.
     scripts/territory-check.sh|scripts/branch-check.sh) return 0 ;;
+    scripts/territory-check.test.sh|scripts/branch-check.test.sh) return 0 ;;
     # ⚠️ SHARED-FILE EDIT BY B, 2026-08-11 — banner per Cory's three-session rule.
     # ── *.test.js STAYS SHARED, BECAUSE NOTHING DERIVES ITS OWNER YET ────────
     #

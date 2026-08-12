@@ -36,6 +36,8 @@ in ONE place rather than being re-derived here.
 from __future__ import annotations
 
 import json
+from datetime import date as _date
+from datetime import timedelta as _timedelta
 from pathlib import Path
 
 import field_population as FP
@@ -123,17 +125,79 @@ def as_store_snapshots(series: list, year) -> list:
             for s in _series_of(series) if str(s.get("year")) == str(year)]
 
 
+#: How many absent dates to NAME. The count is always exact; only the list is
+#: capped, and `missing_listed_truncated` says so when it bites. A cap that
+#: silently shortens a list reads as "that was all of them".
+MISSING_DAYS_LISTED = 14
+
+
+def _gaps(days: list) -> dict:
+    """Which calendar days between the first and the last were never captured.
+
+    SEPARATE FROM `coverage` so it can be tested on dates alone, and because the
+    parse failure has to be handled somewhere it cannot be mistaken for zero.
+    """
+    try:
+        got = sorted({_date.fromisoformat(d) for d in days})
+    except (TypeError, ValueError):
+        # A DATE THIS FUNCTION CANNOT PARSE IS NOT A DAY WITH NO GAP. Returning
+        # `missing: 0` here would report a clean capture off the back of a broken
+        # one — the exact inversion this module exists to prevent. Rule 13f.
+        return {"expected_days": None, "missing": None, "missing_days": [],
+                "missing_listed_truncated": False, "complete": None,
+                "gap_note": "UNCOUNTED — a date in this series is unparseable"}
+    if not got:
+        return {"expected_days": 0, "missing": 0, "missing_days": [],
+                "missing_listed_truncated": False, "complete": None,
+                "gap_note": "UNCOUNTED — nothing captured, so there is no span to check"}
+    span = (got[-1] - got[0]).days + 1
+    have = set(got)
+    absent = [got[0] + _timedelta(days=i) for i in range(span)]
+    absent = [d for d in absent if d not in have]
+    return {
+        "expected_days": span,
+        "missing": len(absent),
+        "missing_days": [d.isoformat() for d in absent[:MISSING_DAYS_LISTED]],
+        "missing_listed_truncated": len(absent) > MISSING_DAYS_LISTED,
+        "complete": not absent,
+        "gap_note": None,
+    }
+
+
 def coverage(series: list, year) -> dict:
     """What we actually hold for a season — reported, never assumed.
 
-    The number that answers "can this league be replayed at all" before any
-    replay is attempted, and the one that makes a gap in the capture visible
-    rather than showing up as a league silently failing F5 months later.
+    THE CLAIM THIS DOCSTRING USED TO MAKE WAS FALSE, and it is worth recording
+    rather than quietly deleting. It said this was "the one that makes a gap in
+    the capture visible". It did not. A twelve-day window with three consecutive
+    days lost reported `snapshots: 9, first: 08-11, last: 08-22,
+    empty_snapshots: 0` — arithmetically indistinguishable from a complete
+    capture, in the function whose stated job was making the gap visible.
+
+    That matters more here than almost anywhere else in this project, because
+    the days are PERISHABLE. `empty_snapshots` already catches a dated row with
+    no board behind it. Nothing caught a day with no row at all, and a day with
+    no row at all can never be refetched — MFL serves no as-of-date board, which
+    is the measured finding this whole archive exists because of.
+
+    ── WHAT IT CATCHES AND WHAT IT CANNOT, STATED RATHER THAN IMPLIED ────────
+
+    `missing_days` finds INTERIOR gaps: the capture stopped and STARTED AGAIN.
+    That is detectable here at the first moment it is detectable at all — the
+    resumed run sees the hole its own outage made and names the dates.
+
+    It CANNOT see a capture that stopped and stayed stopped. There is no
+    interior gap in that case; `last` simply stops advancing, and a job that is
+    not running cannot report that it is not running. Detecting THAT needs an
+    instrument on a different clock, comparing `last` to today. This function
+    deliberately does not take a clock — the module keeps date logic passed in
+    so the archive stays testable — and it would be an overclaim to imply the
+    dead-capture case is covered by anything below.
     """
     ser = _series_of(series)
     days = sorted(s["observed_at"] for s in ser if str(s.get("year")) == str(year))
     counts = [s.get("row_count") or 0 for s in ser if str(s.get("year")) == str(year)]
-    return {
+    out = {
         "year": str(year), "snapshots": len(days),
         "first": days[0] if days else None, "last": days[-1] if days else None,
         "min_rows": min(counts) if counts else 0,
@@ -142,6 +206,92 @@ def coverage(series: list, year) -> dict:
         # a date, and counting it would make a broken run look like coverage.
         "empty_snapshots": sum(1 for c in counts if c == 0),
     }
+    out.update(_gaps(days))
+    return out
+
+
+def missed_yesterday(series: list, year, today: _date) -> bool:
+    """Did the daily capture skip the run before this one — i.e. is TODAY a resume.
+
+    THE ESCALATION CONDITION, AND IT LIVES HERE RATHER THAN IN THE WORKFLOW
+    because the first draft of it lived in the workflow and had two defects that
+    no test in this project could have reached: it read the runner's local clock
+    instead of UTC, and it asked `missing_days` — a list capped at 14 — whether
+    yesterday was absent, so a long enough historical gap would push yesterday
+    off the end and silently stop the alarm firing. A cap turning into a mute is
+    the exact failure this module keeps finding in other people's code, and it
+    got written here the moment the logic was somewhere untestable.
+
+    WHY THIS CONDITION AND NOT "the archive has a gap". A permanent historical
+    hole cannot be repaired — MFL serves no as-of-date board — so escalating on
+    it would make this job red every morning for ever, and a permanently red job
+    gets muted and then ignored. This fires on the run that can FIRST see the
+    loss and goes quiet by itself the next day.
+
+    AND THE LIMIT, AGAIN, because it is the same one: a capture that stops and
+    never resumes never reaches this function, because the job that would call
+    it is the job that is not running.
+    """
+    days = {s.get("observed_at") for s in _series_of(series)
+            if str(s.get("year")) == str(year)}
+    days.discard(None)
+    if not days:
+        return False
+    yday = (today - _timedelta(days=1)).isoformat()
+    # A BRAND-NEW ARCHIVE HAS NOT MISSED ANYTHING. Without this, the first run
+    # would escalate about the day before the archive existed.
+    return min(days) < yday and yday not in days
+
+
+def days_since_last(series: list, year, today: _date):
+    """How far behind the archive's newest row is. None when nothing is captured.
+
+    THE NUMBER THE RESUME ALARM SHOULD QUOTE, and it is not `coverage()['missing']`.
+    Found by rehearsing the workflow end to end against a dead MFL: the alarm
+    printed **"0 uncaptured day(s)"** while correctly firing, because `missing`
+    counts INTERIOR gaps and a capture that has stopped has none yet — the hole
+    only becomes interior once a later row lands on the far side of it.
+
+    So the two numbers answer different questions and the alarm was quoting the
+    wrong one: `missing` is "days lost inside the span I hold", this is "how far
+    behind I am right now". A message about an unrecoverable loss that reports
+    zero is worse than no message; it reads as a bug and gets ignored.
+    """
+    days = {s.get("observed_at") for s in _series_of(series)
+            if str(s.get("year")) == str(year)}
+    days.discard(None)
+    if not days:
+        return None
+    try:
+        return (today - _date.fromisoformat(max(days))).days
+    except (TypeError, ValueError):
+        return None
+
+
+def resume_alarm(missing, stale_days) -> str:
+    """The one sentence the escalation prints. Built here because it is CONDITIONAL.
+
+    The two numbers describe different halves of the same outage and exactly one
+    of them is zero in each case, so a fixed template always prints a nought:
+
+        capture succeeded and resumed   stale_days 0, missing 6
+        capture is dead, never resumed  stale_days 7, missing 0
+
+    Both templates were accurate and both read as broken. An alarm for an
+    unrecoverable loss that contains a stray zero gets skimmed, and a skimmed
+    alarm is a missed one — so it says only what is true and non-zero.
+    """
+    parts = []
+    if stale_days not in (None, "?", 0):
+        parts.append("its newest row is %s day(s) old" % stale_days)
+    if missing not in (None, "?", 0):
+        parts.append("%s day(s) are already lost inside the span it holds" % missing)
+    if not parts:
+        # Neither number is positive, yet `missed_yesterday` fired. Say exactly
+        # that rather than inventing a figure — the run still deserves to be red.
+        return ("D3 capture MISSED AT LEAST YESTERDAY (the archive cannot say how "
+                "many days — treat its span as unknown)")
+    return "D3 capture MISSED AT LEAST YESTERDAY — " + ", and ".join(parts)
 
 
 def load(path=None) -> list:
@@ -164,10 +314,79 @@ def save(series: list, path=None) -> None:
         # starts coming back empty has to be visible HERE, in the file, rather than
         # discovered by whoever next tries to weight the series.
         "population": FP.of_records(series or [], fields=SNAPSHOT_FIELDS),
+        # AND SO DOES COVERAGE, for the same reason one step along. Population
+        # answers "which FIELDS of a row are empty". On an append-only DAILY
+        # series there is a second hole shaped exactly like it and just as
+        # invisible: a day with no row. `population` cannot see it — a day that
+        # was never captured contributes no row to be counted as empty, so a
+        # holed archive scores 100% on every field.
+        #
+        # Recorded per year, beside the rows, so the reader who picks this file
+        # up as F5 evidence learns what it does NOT contain without having to
+        # difference the dates themselves.
+        "coverage": {y: coverage(series or [], y)
+                     for y in sorted({str(s.get("year")) for s in (series or [])})},
         "series": series}, indent=1))
 
 
 # ── the fetch, CI only ──────────────────────────────────────────────────────
+#: One HTTP request stood between us and a day of the curve. A transient 5xx or a
+#: reset at 11:20 UTC raised, failed the step, and lost an observation that cannot
+#: be refetched — the same unrecoverable-day exposure as the push race, on the side
+#: far more likely to fail, because it depends on a third party being up at a fixed
+#: minute. Four attempts over ~18s, nowhere near the job timeout.
+RETRY_ATTEMPTS = 4
+RETRY_BACKOFF_S = 3
+
+
+def retryable(exc) -> bool:
+    """Is this error worth another attempt, or is it the server's ANSWER.
+
+    PURE AND TESTED ON PURPOSE. `fetch_mfl` is `pragma: no cover` — it needs
+    egress — so retry logic written inside it would be untested logic in the path
+    that guards a perishable day. Today already produced one instance of that
+    exact mistake (the escalation condition written inline in the workflow YAML,
+    where two defects sat that no test could reach), so the decision lives here
+    and only the socket call stays uncovered.
+
+    A 429 or 5xx is the server saying "not now". A 404 or 403 is the server
+    saying "no", and repeating the question does not change the answer — it just
+    spends the window. Same distinction `archived-adp-probe.yml` already draws.
+    """
+    import urllib.error
+    if isinstance(exc, urllib.error.HTTPError):
+        return exc.code == 429 or 500 <= exc.code < 600
+    # URLError covers DNS, connection reset and TLS; socket.timeout arrives as
+    # TimeoutError. All are "the network did not answer", not "the server said no".
+    return isinstance(exc, (urllib.error.URLError, TimeoutError, ConnectionError))
+
+
+def with_retry(call, attempts=RETRY_ATTEMPTS, backoff=RETRY_BACKOFF_S,
+               sleep=None, note=None):
+    """Call `call()`, retrying only what `retryable` allows. Re-raises the last error.
+
+    `sleep` is injected so the tests exercise the real loop without waiting, and
+    the BACKOFF IS BETWEEN ATTEMPTS ONLY — pausing before the first buys nothing
+    and delays every healthy run.
+    """
+    import time
+    sleep = sleep or time.sleep
+    last = None
+    for i in range(max(1, attempts)):
+        if i:
+            sleep(backoff * i)
+        try:
+            return call()
+        except Exception as e:          # noqa: BLE001 — re-raised below if final
+            if not retryable(e) or i == attempts - 1:
+                raise
+            last = e
+            if note:
+                note("attempt %d/%d failed (%s: %s) — retrying"
+                     % (i + 1, attempts, type(e).__name__, e))
+    raise last                          # pragma: no cover  (loop always returns or raises)
+
+
 def fetch_mfl(year):  # pragma: no cover  (egress; CI only)
     """One day's MFL ADP board. Returns (rows, total_drafts, note)."""
     import urllib.parse
@@ -176,8 +395,12 @@ def fetch_mfl(year):  # pragma: no cover  (egress; CI only)
               "IS_MOCK": "-1", "INJURED": "-1", "CUTOFF": "5", "FCOUNT": "12", "JSON": "1"}
     url = ("https://api.myfantasyleague.com/%s/export?" % year) + urllib.parse.urlencode(params)
     req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
-    with urllib.request.urlopen(req, timeout=60) as r:
-        payload = json.loads(r.read().decode("utf-8", "replace"))
+
+    def once():
+        with urllib.request.urlopen(req, timeout=60) as r:
+            return r.read().decode("utf-8", "replace")
+
+    payload = json.loads(with_retry(once, note=lambda m: print("fetch_mfl: " + m)))
     node = (payload.get("adp") or {})
     players = node.get("player") or []
     if isinstance(players, dict):
