@@ -21,9 +21,28 @@ _Last updated 2026-08-09 (all-terms participation test + FP SSR discovery)._
   their source. This is why it's the biggest verified edge — breadth + moat.
 - **Why it's #1, now CONFIRMED by the participation test (2026-08-09):** the all-terms test
   found our whole measured edge is **the mask + the VALUE ANCHOR** (removing the anchor costs
-  $362; every adjuster is decoration or a drag). The value anchor = *ranking off the ADP
-  board*. So board quality directly sets the value of our single biggest term — the source
-  question isn't a side control, it's the input to the largest earner. This elevates it.
+  **$267**; every adjuster is decoration or a drag).
+  - **⚠️ THIS FIGURE IS BOARD-DEPENDENT AND DRIFTS. It was $362 when this line was written and
+    nobody moved it for two re-runs** (2026-08-12 audit). `exp_participation.py` reads the LIVE
+    board and the Lab re-runs it, so the number tracks whatever the board is that day:
+    **$362 → $288 → $267** across three runs, with the first and last CIs *entirely
+    non-overlapping* — and tier moved the other way over the same runs, **−$263 → −$322 → −$362**.
+    The reported CI is a room-sampling interval at a FIXED board and **does not cover board
+    variability, which is empirically the larger term.** Pinned to the artifact by
+    `draft/tests/test_participation_figures.py`; every other document cites this line rather
+    than transcribing the number.
+  - **AND THE MECHANISM NAMED HERE WAS WRONG.** ~~The value anchor = *ranking off the ADP
+    board*.~~ It is not. The participation test's value term is `w.value * vorp`
+    (`exp_participation.py:142`) and `vorp = proj_mean − replacement` (`draft/vorp.py:94`) —
+    **no ADP anywhere.** `_rank_fallback` is the only path by which ADP could reach a
+    projection, and it fires for none of the top-150 board players.
+  - **The conclusion survives by a different route, and the gap is worth keeping.** FantasyPros
+    feeds BOTH the ADP table (`build_fantasypros_table`) and the projections
+    (`build_fantasypros_projections`), so source quality does reach the largest term — through
+    **proj_mean**, not through ADP. But the source grade measured **ADP-vs-outcome correlation**.
+    **So the source was graded on one channel and elevated for its effect on another**, and the
+    projection channel — the one that actually feeds the anchor — has not been graded the same
+    way. That is the open piece.
 - **THREE-WAY LANDED (2026-08-09): FantasyPros beats FFC in BOTH seasons → the edge is REAL
   and FORMAT-INDEPENDENT.** n-weighted ρ: 2023 FFC 0.281 / MFL 0.397 / FP 0.307; 2024 FFC −0.03
   / MFL 0.070 / FP 0.075. FP (half-PPR, OUR format) > FFC (half-PPR) both years, so the

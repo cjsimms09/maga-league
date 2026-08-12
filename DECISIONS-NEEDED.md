@@ -210,7 +210,9 @@ The record below is the evidence that drove the fix.
   anchor toward a mechanism no payout rewards). **stack reads −63 but that is an INSTRUMENT
   ARTIFACT** — grade_room draws weekly scores independently (no within-team correlation), so
   this harness can't reward a stack; exp6/stack_sweep (rho=0.35) is the sound instrument and
-  found stack a **WINNER (+$196 @ dose 0.5)** — kept ON. Value anchor removal costs $362 — it
+  found stack a **WINNER (+$196 @ dose 0.5)** — kept ON. Value anchor removal costs a BOARD-DEPENDENT figure that has moved $362 -> $288 -> $267
+  across three Lab runs; see EDGE-LEDGER (the one place it is written out) rather than
+  quoting a number here. It
   and the mask are the earners.
 - **Implies:** Auto collapses to **mask + value anchor + a STACK tilt (~0.5)**; drop tier/risk
   (measured drag) and need-weight/ceiling/bye (decoration). The slider panel should say which

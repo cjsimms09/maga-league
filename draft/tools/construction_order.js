@@ -204,6 +204,46 @@ const ARMS = {
     return at[0] || ctx.board.slice().sort((a, b) => projOf(b) - projOf(a))[0];
   },
 
+  /* ── THE VALUE ANCHOR, TESTED FROM OUTSIDE THE EXPERIMENT THAT SET IT ──────
+   *
+   * Cory's item 12, and the asymmetry he named: THE MASK HAS INDEPENDENT
+   * CONFIRMATION AND THE VALUE ANCHOR DOES NOT. The anchor's entire evidence is
+   * one participation-test arm — the second-largest term in the system, and
+   * nothing outside that experiment has ever tested it.
+   *
+   * This is the independent direction. Rank on PURE VORP within the startable
+   * mask, against the shipping composite, on the same paired seeds and the same
+   * board, graded on projected starting-lineup strength rather than in dollars.
+   * The participation test cannot make this comparison: it grades through the
+   * money layer, so a rule that builds a better lineup but never cashes reads
+   * the same as one that does not.
+   *
+   * ⚠️ AND WHAT I FOUND WHILE DEFINING THE ARM CHANGES WHAT IT TESTS. The ledger
+   * glosses the anchor as "ranking off the ADP board". It is not: the
+   * participation test's value term is `w.value * vorp`, and `vorp` is
+   * `proj_mean − replacement` (draft/vorp.py:94) with NO ADP anywhere — all 150
+   * of the top-VORP board players carry a real projection, so `_rank_fallback`,
+   * the one path where ADP could enter a projection, never fires for a
+   * draftable player. So this arm isolates what the COMPOSITE adds over raw
+   * cross-position VORP, which is the honest version of the question.
+   */
+  vorp_only: (ctx) => {
+    const have = {};
+    ctx.roster.forEach(p => { have[p.position] = (have[p.position] || 0) + 1; });
+    // The startable mask: a player who can still fill an unfilled starting slot.
+    // Once every slot is filled the mask stops constraining and the arm ranks
+    // the whole board — the same point at which the OBJECTIVE stops being able
+    // to see the pick at all.
+    const openDirect = ctx.board.filter(p => (have[p.position] || 0) < (STARTERS[p.position] || 0));
+    const flexOpen = (have.FLEX_USED || 0) < (STARTERS.FLEX || 0);
+    const pool = openDirect.length ? openDirect
+      : (flexOpen ? ctx.board.filter(p => FLEX_OK[p.position]) : ctx.board);
+    const use = pool.length ? pool : ctx.board;
+    // PURE VORP — the board's own points-over-positional-replacement, which is
+    // exactly the quantity the value anchor weights.
+    return use.slice().sort((a, b) => (Number(b.vorp) || 0) - (Number(a.vorp) || 0))[0];
+  },
+
   /* THE CALIBRATION ARM — strict fill-first, which the Lab already measured
    * losing to the startable-cap mask. If it wins here the HARNESS is wrong, and
    * that is the point of including it. */
