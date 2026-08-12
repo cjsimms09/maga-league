@@ -163,6 +163,28 @@ const CHECKS = {
       : { code: 1, why: 'roleOf under UNKNOWN returns "' + role + '" — a renderer can '
           + 'reach a role while the decision is UNKNOWN' };
   },
+
+  /* Item 32, BUILD half. The claim surface is rejected; the CALLER is a dated
+   * commitment. MET when something scheduled actually invokes analyzerClaims —
+   * a rail with no caller is rule 14 on a weekly cadence. */
+  'analyzer-claims-caller': () => {
+    const dir = R('.github/workflows');
+    let files = [];
+    try { files = fs.readdirSync(dir).filter(f => /\.ya?ml$/.test(f)); }
+    catch (e) { return { code: 2, why: 'cannot read .github/workflows' }; }
+    const callers = files.filter(f => /analyzerClaims|analyzer_claims|analyzer-claims/
+      .test(fs.readFileSync(path.join(dir, f), 'utf8')));
+    if (!callers.length) {
+      return { code: 1, why: 'no workflow invokes analyzerClaims — the rail has no caller' };
+    }
+    const scheduled = callers.filter(f =>
+      /cron:/.test(fs.readFileSync(path.join(dir, f), 'utf8')));
+    return scheduled.length
+      ? { code: 0, why: 'scheduled caller(s): ' + scheduled.join(', ') }
+      : { code: 1, why: 'analyzerClaims is invoked by ' + callers.join(', ')
+          + ' but none of them is scheduled — a caller that only runs when somebody '
+          + 'pushes is not a weekly caller' };
+  },
 };
 
 if (require.main === module) {
