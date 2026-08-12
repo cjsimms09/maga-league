@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# TERRITORY: A
 """IS THERE ANYTHING HERE YET — the standing pass over everything we accumulate.
 
 WHY THIS EXISTS. We have built several accumulating archives and scheduled

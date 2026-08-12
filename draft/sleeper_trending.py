@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# TERRITORY: A
 """SLEEPER TRENDING ADDS AND DROPS — the series that cannot be reconstructed later.
 
 WHY, AND THE TEST IT PASSES. Cory's rule, 2026-08-12: capture where it is free

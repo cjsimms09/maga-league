@@ -1,3 +1,4 @@
+# TERRITORY: A
 """THE STANDING CHECK CAN FIRE — which is the only property that matters.
 
 A periodic pass that stays silent is indistinguishable from a periodic pass that

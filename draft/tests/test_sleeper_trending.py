@@ -1,3 +1,4 @@
+# TERRITORY: A
 """The trending capture, tested without egress — including its refusals.
 
 Every failure here is one that would produce a series that LOOKS captured while
