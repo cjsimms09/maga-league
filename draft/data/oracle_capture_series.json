@@ -1,0 +1,36 @@
+{
+ "_note": "Machine-readable counterpart to ORACLE-CAPTURE-SERIES.md. The prose holds the reasoning and the caveats; this holds the counters the candidate ledger reads. ONE source per number -- the prose cites this file rather than restating a figure that could drift from it.",
+ "version": "oracle-capture/v1",
+ "series": [
+  {
+   "season": 2023,
+   "method": "oracle-capture/v1",
+   "decision_slots": 15,
+   "qb_decision_slots": 1,
+   "floor_start": 1710.8,
+   "actual_start": 1882.7,
+   "ceiling_start": 2928.4,
+   "capture": 14.1
+  },
+  {
+   "season": 2024,
+   "method": "oracle-capture/v1",
+   "decision_slots": 14,
+   "qb_decision_slots": 2,
+   "floor_start": 2162.6,
+   "actual_start": 2323.7,
+   "ceiling_start": 2901.7,
+   "capture": 21.8
+  },
+  {
+   "season": 2025,
+   "method": "oracle-capture/v1",
+   "decision_slots": 12,
+   "qb_decision_slots": 2,
+   "floor_start": 1560.4,
+   "actual_start": 1673.1,
+   "ceiling_start": 2703.7,
+   "capture": 9.9
+  }
+ ]
+}
