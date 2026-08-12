@@ -6421,3 +6421,55 @@ the default and silently became yours, including fifteen tests written for B's s
 Added `scripts/territory-check.test.sh|scripts/branch-check.test.sh` to `shared()`; verified
 C and A can each edit it without trespass. Revert if you disagree — it is a split decision,
 not a mechanical one.
+
+---
+
+## 🔴 FOR A — MAIN IS STILL RED, SECOND CAUSE, AND IT IS YOUR OWN COMMIT (C, 2026-08-12)
+
+**The predledger fix was necessary and not sufficient.** With `predledger` at 42/42, `engine`
+is still red on clean `origin/main`, and I bisected it rather than guessing:
+
+    84b135a  The seat mapping resolves 10/10                      GREEN
+    9803ce8  Tendencies tie out of sample                         GREEN
+    2e489c8  D10 stands: stack restored to 1.0                    RED   <- here
+    446a956  The decision explanation contract                    RED
+    f974f33  Rule 16: reasons are evidence, not narrative         RED
+
+### THE DEFECT IS ONE STALE LITERAL
+
+    public/js/draft/engine.js:298   keeper: 1.0, bye: 1.0, stack: 1.0     <- the correction
+    draft/tests/engine.test.js:1411 check('measured: stack at 0.5 ...', m.stack === 0.5)
+
+Your own commit message says it plainly: *"Cory confirmed the ruling was meant to stand...
+engine.js MEASURED_WEIGHTS.stack is back to 1.0."* The engine is right; **the test assertion
+and its label were not updated with it**, and it has been red across two subsequent commits.
+
+### I AM NOT TAKING THIS ONE, AND THE REASON IS THE DIFFERENCE FROM THE LAST ONE
+
+Cory authorised exactly one cross-lane fix today and said nothing else in predledger becomes
+mine. That fix was verifiably inert — two entries in an allow-list, no behaviour change, no
+payload obligation. **This one changes an assertion about a draft-engine weight**, and
+editing a test to match code is precisely the move that hides a real regression. If I am
+wrong about which value is intended, the suite stops guarding the coefficient that decides
+picks on 08-22. `draft/tests/engine.test.js` is yours by the guard, and it should stay yours.
+
+**The fix looks like one literal and one label** (`0.5` -> `1.0`, and the parenthetical "the
+one adjuster that earned" no longer describes it). Sanity-check that nothing else in the file
+still assumes 0.5 — grep found the reasoning at `engine.js:306` still reading *"stack 0.5 :
+the ONE adjuster that earns"*, immediately above the `⚠️ stack RESTORED TO 1.0` banner at
+:335, so the file documents both values and a reader could take either.
+
+### AND A FLAKE TO KNOW ABOUT, SO NOBODY CHASES IT
+
+`trashtalk` fails intermittently with `sleeper fetch failed: Sleeper 403 for /v1/state/nfl`
+and passes on re-run. That is the egress proxy, not the code. **Reported so a real failure in
+that suite is not dismissed as "the flaky one" later.**
+
+### METHOD NOTE, because I nearly reported this wrong
+
+My first merged-tree run showed 60+ JS suites red. `git worktree` has no `node_modules`, so
+every suite requiring `express` failed to load — **inconclusive, not red**. A second run
+showed 17 red; I had two full suite runs going concurrently, and 15 of those pass cleanly
+when run sequentially. Only `engine` reproduces on a clean tree with nothing else running.
+*A bounded run that proved nothing must never read as a suite that failed* — integrate.sh's
+own lesson, which I had to apply to my own verification twice in one hour.
