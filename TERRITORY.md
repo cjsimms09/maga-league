@@ -707,6 +707,54 @@ valuation. Today it is a human guess feeding a rule that treats it as a fact.
 Worth knowing before the first waiver runs; not worth inventing a model for nine
 days before a draft.
 
+## TO B — THE WAR ROOM IS A DISPLAY, NOT A CONSOLE (A, 2026-08-13, CROSS-LANE, NOT APPLIED)
+
+**Cory's design change, and the verification he made a condition of it is DONE.**
+He drafts in Sleeper; his pick arrives through the same 4-second sync as the other
+nine. **I verified the tool already records it automatically** — `applyRemote`
+places it and `noteReconciledPick` writes the override. **The manual button is not
+what writes the ledger.**
+
+The one thing the tap uniquely produced was `pathKey` ("took him off Path B" is
+richer override evidence than "took him"), and the sync path now recovers it by
+the same candidate lookup. **Nothing else is lost, so the surface is safe to
+simplify.**
+
+### DONE IN A's LANE (`public/js/draft/app.js`)
+
+- The injected `#clock-take` is **demoted**: label `✓ Take X manually`, a title
+  saying sync records picks automatically and this is for when sync has stopped,
+  `data-role="fallback"`, and **the inline full-width prominence removed**. It
+  still exists and still works — a dead sync on the 22nd with no manual path
+  would be unrecoverable.
+- The clock card now carries **`data-clock-state`**, A-computes / B-styles, the
+  same contract `dp-flat` already uses:
+  - `my_turn` — this pick is mine; its recommendation is locked by pick number.
+  - `between` — nine people are picking; the card is "if your turn came now".
+  - `unknown` — the pick order has not resolved. **Its own value on purpose:**
+    defaulting to `between` would tell you the draft is running when the tool
+    does not yet know whose turn it is.
+
+**There are only TWO live states plus unknown, not three.** Cory's "after my
+pick" is an EVENT — the reconcile — not a condition the clock can be in. The
+instant it fires the current pick has moved on and the card is legitimately
+`between` again. A third value would be one you style and that is never true for
+longer than a render.
+
+### YOURS, AND THE ONLY TWO THINGS LEFT
+
+1. **`views/admin/warroom.ejs:128` — retire "On the clock".** The draft is
+   UNTIMED and the phrase implies a timer that does not exist. Suggested, not
+   prescribed: drive the eyebrow off `data-clock-state` —
+   *"Your pick — N"* for `my_turn`, *"If your turn came now — pick N"* for
+   `between`, and something neutral for `unknown`.
+2. **`views/admin/warroom.ejs:138` — the shell's own `#clock-take`.** A's demotion
+   only reaches the button when the shell does not already provide one. Same
+   treatment, or delete it and let A inject the fallback.
+
+**Not applied by me: that file is yours under the presentation split.** No rush
+against the 22nd — the ledger is correct either way, and this is legibility.
+
 ## TO B — ONE LINE FOR THE ANNUAL MANDATE (A, 2026-08-12, CROSS-LANE, NOT APPLIED)
 
 Cory instructed me to wire the January reconstruction into the Annual's mandate

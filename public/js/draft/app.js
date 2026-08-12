@@ -1725,8 +1725,67 @@
       else if (actions) actions.appendChild(take);
     }
     take.setAttribute('data-draft-me', String(p.player_id));
-    take.textContent = '✓ Take ' + (p.name || 'him');
+
+    /* ── THE MANUAL TAKE IS A DEAD-SYNC FALLBACK, NOT THE PRIMARY PATH ────────
+     *
+     * Cory drafts in Sleeper. His pick arrives through the same 4-second sync as
+     * the other nine, `applyRemote` places it, and `noteReconciledPick` records
+     * the override — so the tool already records his pick automatically and
+     * depletes the board. **The button is not what writes the ledger.**
+     *
+     * VERIFIED BEFORE DEMOTING, which was the condition: the one thing the tap
+     * uniquely produced was `pathKey`, and the sync path now recovers it by the
+     * same candidate lookup. Nothing else is lost.
+     *
+     * SO IT STAYS — sync can die, and on that night a dead sync with no manual
+     * path would be unrecoverable — but it stops being the loud full-width
+     * primary action. B owns the treatment; this stops asserting one.
+     */
+    take.textContent = '✓ Take ' + (p.name || 'him') + ' manually';
+    take.title = 'Sleeper sync records your pick automatically. Use this only if '
+      + 'sync has stopped.';
+    take.setAttribute('data-role', 'fallback');
+    take.style.cssText = 'display:block;margin:.5rem 0';
     take.style.display = 'block';
+
+    /* ── THE THREE STATES, AS A CONTRACT RATHER THAN A LABEL ──────────────────
+     *
+     * "On the clock" implies a timer this untimed draft does not have, and the
+     * eyebrow that renders it lives in `views/admin/warroom.ejs` — B's shell. So
+     * A publishes the STATE and B renders the words:
+     *
+     *   between   nine people are picking; "if your turn came now, it is X",
+     *             live, because that is what says what is slipping away.
+     *   my_turn   this pick is mine, and its recommendation is locked
+     *             (`state.lockedRecs`, keyed by pick number).
+     *
+     * ⚠️ ONLY TWO, AND THE THIRD IS NOT A RENDER STATE. "After my pick" is an
+     * EVENT — the reconcile that records what I took and compares it against the
+     * lock — not a condition the clock can be in. The instant it fires, the
+     * current pick has moved on and the card is legitimately `between` again.
+     * Emitting a third value would give B a state to style that is never true
+     * for longer than one render, and a UI that flickers through it would be
+     * lying about what the tool knows.
+     *
+     * (My first version of this line had a ternary whose two branches were the
+     * SAME STRING — a three-state contract that could only ever emit one of two
+     * values, one of them by accident. Fixed here rather than shipped.)
+     *
+     * Emitted as `data-clock-state` on the clock card, the same A-computes /
+     * B-styles contract `dp-flat` already uses. */
+    // `card` is already `$('#clock-card')` from the top of this function — reuse
+    // it rather than re-querying, which is also what caught my duplicate `const`.
+    if (card) {
+      const mine = mySlot();
+      const cur = currentPick();
+      const order = (state.data.pick_order || {}).picks || [];
+      const row = cur == null ? null : order.find(x => x.overall === cur);
+      // UNKNOWN IS ITS OWN VALUE. Before the pick order resolves there is no
+      // honest answer, and defaulting to `between` would tell B the draft is
+      // running when the tool does not yet know whose turn it is.
+      card.setAttribute('data-clock-state',
+        !row || mine == null ? 'unknown' : (row.slot === mine ? 'my_turn' : 'between'));
+    }
   }
 
   /* ── Your own read ──────────────────────────────────────────────────────── */
