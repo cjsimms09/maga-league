@@ -7179,3 +7179,51 @@ and it cannot be undone by a later change to the merge flags.
 
 **Not mine to change** — `scripts/integrate.sh` is not in `shared()`. Routed with the
 reproduction.
+
+---
+
+## 📋 PRE-DECLARATION — DOES THIS BOARD DESCRIBE THE 2026 NFL SEASON? (C, 2026-08-12)
+
+Cory's reframing, accepted: the five findings are one finding — **the data layer has never been
+checked against the outside world.** Declared before inspecting anything.
+
+### THE CONSTRAINT, AND HOW I WORK AROUND IT HONESTLY
+
+**All three providers are egress-blocked** (verified by request earlier: `api.sleeper.app`,
+`api.fantasypros.com`, `fantasyfootballcalculator.com` all fail at CONNECT). So I cannot fetch
+external truth. **Two things are still genuinely outside the pipeline:**
+
+1. **STRUCTURAL FACTS ABOUT THE NFL that I hold independently of any artifact** — there are 32
+   teams; each has exactly one bye; byes fall in a known window; a draft board eight days
+   before a draft must contain the incoming rookie class; a team fields one starting QB. **A
+   board can be perfectly self-consistent and still fail these.** These are external checks
+   that need no network.
+2. **My own knowledge to May 2026**, used only where I can state the basis, never to assert a
+   2026 transaction I cannot source.
+
+### THE SAMPLING RULE, FIXED NOW SO IT CANNOT BE FITTED
+
+Not hand-picked. **Deterministic by ADP rank**, weighted where Cory said the failures live:
+
+    every 20th player from rank 100 to 340   -> 13 players (the thin-coverage band)
+    every 150th player from rank 341 to end  -> the fallback-priced tail
+    plus ALL players with years_exp == 0     -> the 2026 rookie class, however many
+
+### THE CATEGORIES I WILL TEST — and I am adding four Cory did not list
+
+    players       does the pool contain 2026's incoming rookie class at all
+    teams         32 present, plausible roster counts, no orphan codes
+    byes          one per team, inside the real bye window, distribution plausible
+    positions     32 DEF, plausible K count, one starting QB per team
+    depth chart   populated, and does it describe a real depth chart
+    injury        populated at all, or wholesale absent
+    age/exp       arithmetic consistent with a 2026 season (the frozen-record signal)
+    ADP           spread and shape consistent with a live market
+
+**MY PREDICTION, RECORDED BEFORE MEASURING** so the result cannot be narrated afterwards: I
+expect `injury_status` and `depth_chart_order` to be wholesale sparse rather than wrong,
+because that is what Sleeper's preseason dump does — and I expect the **2026 rookie class to be
+the real finding**, because nothing in the pipeline fetches a rookie who has never played and
+the `search_rank` filter would drop anyone the market has not yet priced.
+
+**IF THE BOARD IS SOUND EXCEPT FOR THE TWO CORY NOTICED, I WILL SAY SO PLAINLY.**
