@@ -779,6 +779,41 @@ and 2 have no rush against the 22nd — the ledger is correct either way. **Item
 does**: it is a false statement about a live coefficient, on the war room, nine
 days out.
 
+## TO B — THE ~11% / ~$9 FIGURE IS QUOTED IN SIX PLACES YOU OWN (A, 2026-08-12)
+
+Your `sd` finding is confirmed mechanically: same 450 team-weeks, same $110,
+`sd` stripped at the `optimize()` boundary and nothing else changed —
+**10.9% → 0.0%, $8.94 → $0.00.** Full working in
+`draft/audits/boundary_completeness_2026-08-12.md`.
+
+Cory's instruction was to *correct the record where those numbers appear rather
+than leaving them to be re-quoted*. **I corrected the four in my territory**:
+the harness header AND its printed output (so the caveat travels with a pasted
+number, not just with the source), `EDGE-LEDGER.md`, and `SYSTEM-BUILD-PLAN.md`.
+
+**Six are yours and I have not touched them:**
+
+| file:line | what it says |
+|---|---|
+| `views/lineup.ejs:174` | "only ~11% of weeks, worth ~$9/season" — **user-facing** |
+| `views/lineup.ejs:197` | "the optimizer only finds a better lineup ~11% of the time" — **user-facing** |
+| `src/routes/lineup.js:282` | "A measured the dual objective as deviating ~11% of weeks" |
+| `src/routes/lineup.js:565` | "the thing A measured at ~11% of weeks" |
+| `src/routes/member.js:240–241, 620` | the ~11% figure gating alert narrowness |
+| `src/notify.js:267, 275` | "~11%-of-weeks deviation A measured" / "THE RARE WEEK — ~11% of them" |
+
+The two `views/lineup.ejs` lines are the ones that matter — they state the
+figure **to Cory as the tool's measured value**, and it is currently 0.0% for
+the tool he is actually running. The `src/` ones are comments, so they mislead
+the next reader rather than the user, but `member.js:620` and `notify.js:275`
+are load-bearing for *how often an alert fires*, which is worth a look while
+you are in there.
+
+**Suggested, not prescribed:** rather than swapping 11% for 0%, say what is
+true — the mechanism is not wired, and the figure will be re-measured once
+measured SD lands. A number replaced with a different number goes stale the
+same way; a sentence naming the missing producer does not.
+
 ## TO B — ONE LINE FOR THE ANNUAL MANDATE (A, 2026-08-12, CROSS-LANE, NOT APPLIED)
 
 Cory instructed me to wire the January reconstruction into the Annual's mandate

@@ -2114,8 +2114,17 @@
             ? 'nothing in ' + r.sample_size + ' draft' + (r.sample_size === 1 ? '' : 's')
               + ' stands out — he drafts near league average'
             : (seatsUnassigned && haveDossier
-                ? 'manager profiles exist, but cannot be assigned to draft seats until '
-                  + 'the draft order is available — the position mix above is league-average'
+                // THE 29x REPEAT B MEASURED. This sentence rendered once PER
+                // THREAT ROW — the same caveat, in full, down a whole column,
+                // on the surface Cory reads under time pressure. The mechanism
+                // to collapse it already existed four hundred lines above and
+                // this string simply never went through it. A caveat repeated
+                // twenty-nine times is not twenty-nine warnings, it is one
+                // warning and twenty-eight lines of noise burying the numbers
+                // the rows exist to show.
+                ? 'seat mapping unavailable' + caveatOnce('seats_unassigned', '²',
+                    'manager profiles exist, but cannot be assigned to draft seats until '
+                    + 'the draft order is available — the position mix shown is league-average')
                 : 'no draft history on Sleeper — modelled as league average')) + '</div>';
       return '<div class="threat-row">'
         + '<div class="threat-head"><span class="threat-pick">' + r.pick_no + '</span>'
@@ -3415,7 +3424,14 @@
         '</td>' +
         '<td class="num" style="white-space:nowrap">' +
           '<button class="btn small ' + (state.lists.queue.indexOf(p.player_id) >= 0 ? 'navy' : 'ghost')
-            + '" data-queue="' + p.player_id + '" title="Queue — the list you read when the clock is at 8 seconds">'
+            // THE SAME FICTION WE RETIRED FROM THE VISIBLE COPY, sitting in two
+            // hundred title attributes. The draft is UNTIMED; there is no clock
+            // and no eight seconds. B found it because a page-text scan CANNOT
+            // SEE ATTRIBUTES — the same structural blindness as the twenty
+            // visibility-hidden elements that read as unlabelled buttons.
+            // Anything auditing rendered output has channels it cannot reach,
+            // so "the scan came back clean" is a statement about the scan.
+            + '" data-queue="' + p.player_id + '" title="Queue — the short list you read first when it is your turn">'
             + (state.lists.queue.indexOf(p.player_id) >= 0 ? '✓' : '➕') + '</button>' +
           '<button class="btn small ' + (state.lists.targets.indexOf(p.player_id) >= 0 ? 'gold' : 'ghost')
             + '" data-list="targets" data-id="' + p.player_id + '" title="Target — nudge him up a close call">\u2b50</button>' +
