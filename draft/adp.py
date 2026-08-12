@@ -416,20 +416,68 @@ def build_fantasypros_table(sleeper_players: dict, *, year: int, half_ppr: bool 
         diag["reason"] = f"only {len(parsed)} FP rows parsed (< {min_rows}); keeping FFC anchor"
         return None, diag
 
+    # ── A DICT KEYED BY SLEEPER ID CAN LOSE A ROW WITHOUT SAYING SO ─────────
+    #
+    # C's finding, 2026-08-12. Two parsed FP entries that crosswalk to the SAME
+    # Sleeper id used to overwrite silently, and `fp_matched` counted the
+    # SURVIVORS — so the count reported success on a table that had quietly
+    # dropped a player's ADP and replaced it with someone else's. Clean today
+    # (343 of 343, zero collisions, verified) and UNCHECKABLE tomorrow, on the
+    # table that feeds the value anchor. Nothing would have told us when it
+    # changed, which is the whole defect: the numbers that would prove it sat
+    # unread in the artifact (rule 14).
+    #
+    # BOTH CLAIMANTS ARE DROPPED, not arbitrated. A collision means the
+    # crosswalk cannot say which player this ADP belongs to, and keeping either
+    # one is a guess written into the anchor. A dropped row is a row we do not
+    # have, counted as such — which makes the accounting identity below exact,
+    # and lets the existing `min_rows` gate handle the volume question: a
+    # handful of collisions costs a handful of players, a flood falls back to
+    # the FFC anchor on its own. No new threshold, no hair trigger.
     index = build_index(sleeper_players)
     rows, unmatched = {}, 0
+    claims: dict[str, list[str]] = {}
     for i, entry in enumerate(parsed):
         pid, method = match_player(entry, index)
         if not pid:
             unmatched += 1
             continue
+        claims.setdefault(str(pid), []).append(str(entry.get("name") or f"row {i + 1}"))
         adp = float(entry.get("adp") or (i + 1))
         sd, sd_src = fitted_sd(adp, None)          # FP publishes no sd -> fit from the mean
         rows[str(pid)] = {
             "adp": adp, "adp_sd": sd, "adp_sd_source": sd_src,
             "adp_source": "fantasypros", "match_method": "fp:" + method, "fp_rank": i + 1,
         }
-    diag.update({"fp_matched": len(rows), "fp_unmatched": unmatched})
+    contested = {pid: names for pid, names in claims.items() if len(names) > 1}
+    dropped = 0
+    for pid, names in contested.items():
+        rows.pop(pid, None)
+        dropped += len(names)
+    diag.update({
+        "fp_matched": len(rows), "fp_unmatched": unmatched,
+        # THE THREE NUMBERS, WITH A CONSUMER. `fp_collisions` is the count of
+        # Sleeper ids two or more FP rows both claimed; `fp_dropped_to_collision`
+        # is how many parsed rows that cost. The identity below is asserted, not
+        # merely reported — see test_fp_anchor.py.
+        "fp_collisions": len(contested),
+        "fp_dropped_to_collision": dropped,
+        "fp_collision_names": {pid: names for pid, names in list(contested.items())[:10]},
+    })
+    # THE ACCOUNTING IDENTITY. Every parsed row is now in exactly one bucket, so
+    # a silent loss cannot hide in the difference. app.js renders
+    # `fp_matched + fp_unmatched` as the denominator of its coverage line, and
+    # under a collision that denominator was quietly short — a wrong number on
+    # a live surface, not just a wrong number in a file.
+    accounted = len(rows) + unmatched + dropped
+    if accounted != len(parsed):
+        diag["reason"] = (f"FP crosswalk does not account for its own rows: "
+                          f"{len(rows)} matched + {unmatched} unmatched + {dropped} "
+                          f"collided = {accounted}, but {len(parsed)} were parsed. "
+                          f"A row went missing between the parse and the table; "
+                          f"keeping the FFC anchor rather than a table that cannot "
+                          f"count itself")
+        return None, diag
     if len(rows) < min_rows:
         diag["reason"] = f"only {len(rows)} FP rows crosswalked (< {min_rows}); keeping FFC anchor"
         return None, diag
@@ -468,7 +516,12 @@ def build_fantasypros_projections(sleeper_players: dict, *, year: int, scoring: 
         return None, diag
 
     index = build_index(sleeper_players)
+    # Same silent-overwrite hazard as the ADP table above, same treatment: a
+    # projection we cannot attribute to one player is a projection we do not
+    # have. This one feeds the projection source grade, so a swapped row would
+    # show up as a mis-graded SOURCE rather than as a missing player.
     out, unmatched, zero = {}, 0, 0
+    claims: dict[str, list[str]] = {}
     for i, entry in enumerate(parsed):
         pid, method = match_player(entry, index)
         if not pid:
@@ -478,8 +531,24 @@ def build_fantasypros_projections(sleeper_players: dict, *, year: int, scoring: 
         if not pts:            # a crosswalked player with no scorable stats adds no signal
             zero += 1
             continue
+        claims.setdefault(str(pid), []).append(str(entry.get("name") or f"row {i + 1}"))
         out[str(pid)] = round(float(pts), 2)
-    diag.update({"fp_proj_matched": len(out), "fp_proj_unmatched": unmatched, "fp_proj_zero": zero})
+    contested = {pid: names for pid, names in claims.items() if len(names) > 1}
+    dropped = 0
+    for pid, names in contested.items():
+        out.pop(pid, None)
+        dropped += len(names)
+    diag.update({"fp_proj_matched": len(out), "fp_proj_unmatched": unmatched,
+                 "fp_proj_zero": zero, "fp_proj_collisions": len(contested),
+                 "fp_proj_dropped_to_collision": dropped,
+                 "fp_proj_collision_names": {p: n for p, n in list(contested.items())[:10]}})
+    accounted = len(out) + unmatched + zero + dropped
+    if accounted != len(parsed):
+        diag["reason"] = (f"FP projection crosswalk does not account for its own rows: "
+                          f"{len(out)} + {unmatched} unmatched + {zero} zero + {dropped} "
+                          f"collided = {accounted}, but {len(parsed)} were parsed; "
+                          f"single-source rather than a table that cannot count itself")
+        return None, diag
     if len(out) < min_rows:
         diag["reason"] = f"only {len(out)} FP projections crosswalked (< {min_rows}); single-source"
         return None, diag

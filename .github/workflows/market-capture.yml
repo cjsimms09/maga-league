@@ -70,9 +70,39 @@ jobs:
             --max-events "${{ github.event.inputs.max_events || '0' }}" \
             --horizon-days "${{ github.event.inputs.horizon_days || '14' }}"
 
+      # ── PRESERVE BEFORE YOU ALARM ────────────────────────────────────────
+      #
+      # THIS STEP USED TO SIT AT THE BOTTOM, AFTER THE HEALTH GATE, WITH NO
+      # `always()`. A failed step aborts the job, so on the exact run that
+      # RECOVERS from a bad patch — capture succeeds, writes today's real
+      # snapshot, but `consecutive_incomplete` has reached its bar of 3 — the
+      # gate exits 1 and today's snapshot is never committed. And because the
+      # counter lives in the same uncommitted file, the next run recomputes
+      # the same 3, fails the same way, and discards that day too. FOREVER.
+      # An alarm that destroys the thing it is watching, on precisely the days
+      # it is watching for. (The step below even warns that "the next run can
+      # still take the deferred events while the window is open" — while the
+      # ordering guaranteed the next run's result would be thrown away.)
+      #
+      # `always()` is correct here and is not a way of ignoring failure: the
+      # pre-capture pytest guard already refuses a BROKEN WRITER, so anything
+      # on disk at this point is real captured data plus the health counters
+      # that make the next run's arithmetic right. The alarm still fires — it
+      # just fires after the day is safe, and the gate's exit code is still
+      # the job's verdict because it is now the last thing that runs.
+      - name: Commit the snapshot (BEFORE the gate — see above)
+        if: always()
+        run: |
+          git config user.name "lab-bot"; git config user.email "actions@github.com"
+          git add draft/market_snapshots || true
+          git commit -m "Market snapshot: ${{ github.event.inputs.league || 'usa-nfl-preseason' }}" \
+            || { echo "no change"; exit 0; }
+          git pull --rebase origin main && git push || echo "push skipped"
+
       # HEALTH IS LOUD. A capture that dies quietly is the failure this project
       # keeps hitting; a stale baseline discovered in December cannot be backfilled.
       - name: Fail if the capture is stale or empty
+        if: always()
         run: |
           python3 - <<'PY'
           import json, pathlib, sys
@@ -140,6 +170,7 @@ jobs:
       # is cumulative, so the question is "which events still have no baseline",
       # not "how did this one run do".
       - name: What the baseline set actually covers
+        if: always()
         run: |
           python draft/backtest/market_read.py | tee /tmp/mr.json
           python3 - <<'PY'
@@ -155,10 +186,3 @@ jobs:
                     ' observations — Signal C has points, not series')
           PY
 
-      - name: Commit the snapshot
-        run: |
-          git config user.name "lab-bot"; git config user.email "actions@github.com"
-          git add draft/market_snapshots || true
-          git commit -m "Market snapshot: ${{ github.event.inputs.league || 'usa-nfl-preseason' }}" \
-            || { echo "no change"; exit 0; }
-          git pull --rebase origin main && git push || echo "push skipped"

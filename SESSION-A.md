@@ -516,6 +516,75 @@ have shown if the thing were present. Here the instrument shows *the same empty 
 the thing is absent or merely invisible — so the honest response is not a better assertion, it is
 a SECOND channel (computed style) that can tell the two apart.
 
+**16. A RECOMMENDATION EXPLANATION IS AN EVIDENCE SURFACE, NOT A NARRATIVE SURFACE.**
+Cory, 2026-08-13, authorised as written.
+
+> It may state ONLY causal information supported by the decision's actual score decomposition.
+> NON-CAUSAL BOARD FACTS BELONG IN CONTEXT. UNSUPPORTED CAUSAL CLAIMS ARE DELETED.
+
+**THE SHORT FORM: CONTEXT MAY EXPLAIN THE STATE OF THE BOARD. REASON MUST EXPLAIN THE
+DECISION.** It governs the draft board, the lineup optimiser and the waiver tool.
+
+**THE MEASUREMENT THAT PRODUCED IT, kept here rather than in a report, because a rule about
+explanation surfaces reads as fastidiousness without the number.**
+
+*2026-08-13, top 20 at pick 33, on the live board:*
+
+    24 of 47 reason strings — 51% — cited a term whose DELTA was ZERO.
+    need 20 times, tier 4.
+
+    "last of Tier 1 TE — 30% gone by your next pick"   tier weighted 0.0
+    "fills an empty WR slot"                            need weighted 0.0
+
+**FIVE OF EIGHT TERMS ARE WEIGHTED TO ZERO AND ARE STRUCTURALLY INCAPABLE OF MOVING ANY
+DECISION.** That is not an occasional bad sentence. It establishes that the explanation layer
+was systematically selecting *plausible board facts* rather than *causal decision evidence* —
+and it is worse than a dead field because it is PERSUASIVE. A number nobody can interpret does
+not move a decision. A sentence naming a reason does.
+
+*The mechanism was inconsistent gating, not bad writing.* Some lines gated on the WEIGHTED
+contribution (`w.ceiling * ceiling`), others on the RAW term (`tier > 5`, `need.value > 0`) or
+on nothing at all (`risk.reasons`). Every raw-gated line published a cause for a term that
+could not move anything. **After the fix: 0 of 20.**
+
+**THE THREE-WAY SORT.** Truth of the sentence is not sufficient — "your TE slot is empty" can
+be perfectly true and still be an invalid answer to *why did the engine select this player*.
+
+* **KEEP AS REASON** — only where the term was DECISIVE.
+* **DEMOTE TO CONTEXT** — defensibly factual, not causal. Rendered where facts about the
+  roster live, not where the reason lives.
+* **DELETE** — anything presenting a zeroed term as causal. **AND NO SALVAGE THROUGH VAGUER
+  WORDING:** turning "last of Tier 1 TE" into "there is a tier consideration here" launders
+  the same false causality and makes it unfalsifiable. There is no rephrasing that keeps a
+  sentence whose subject contributed nothing.
+
+**16a — MOVED IS NOT DECISIVE, AND THIS IS WHERE THE BUG COMES BACK.** A reason citing a
+NON-zero term is not automatically valid. Value +8.0, survival +0.1, gap 4.2: survival
+technically moved the decision and "we took him because of survival" is still misleading.
+Three states — **ABSENT** (may not be cited), **MOVED** (may be cited as secondary, never as
+the reason), **DECISIVE** (the only state an explanation may name as WHY). Without this the
+zero-delta detector passes while every tiny contribution is promoted into a reason: the same
+failure at a lower threshold.
+
+**16b — FOLLOW THE ACCOUNTING STRUCTURE, NOT THE VOCABULARY.** *"Scarcity priced in value
+(VONA), not double-counted"* is the standard. Scarcity genuinely affects the pick but enters
+THROUGH value rather than as its own term, so "scarcity drove the pick" would be conceptually
+true and structurally misleading — it implies a term that does not exist in the accounting.
+**No term-name detector can catch that**, which is why the contract carries PROVENANCE rather
+than a flat list of terms, and why survival's calibration rides on the contributor. Pinned as
+a formal test case in `decision_contract.test.js`.
+
+**16c — CLASSIFICATION IS UPSTREAM OF WRITING.** The pipeline is *score evidence → classify
+contribution → identify decisive terms → identify losing mechanism → apply calibration →
+render*. **NOT** *score evidence → hand surviving facts to a writer*. A prose layer that has
+been shown not to respect causality will reproduce the bug at smaller scale if it is allowed
+to write around filtered inputs.
+
+*Enforcement:* `public/js/draft/decision_contract.js` — `citesZeroContribution` and
+`citesNonDecisive`, both non-vacuous (each has a control that passes when the term genuinely
+decided). The engine emits `context` alongside `reasons` so a consumer literally cannot render
+a board fact where a cause belongs.
+
 **14. WHEN SOMETHING COMPUTES A VALUE OR A VERDICT, THE SAME UNIT OF WORK ESTABLISHES ITS
 CONSUMER.** Cory, 2026-08-11. Not a style preference — **a produced-and-unread value looks
 identical to a working system from every angle except the one where it matters.** It has tests,
@@ -554,6 +623,87 @@ the same way — `precomputeLayer2` filters on `t.pick_no >= currentPick`, and `
 false, so every entry was discarded and the function returned `null` just as it had with an empty
 array. Presence of data is not satisfaction of a contract, and a consumer that filters on a field
 will treat the wrong SHAPE and total ABSENCE as the same thing — silently, and identically.
+
+**17. A COMPONENT PASSING ITS LOCAL TESTS DOES NOT ESTABLISH THAT THE PRODUCTION SYSTEM IS
+EXERCISING THAT COMPONENT'S INTENDED BEHAVIOUR. BOUNDARY COMPLETENESS MUST BE TESTED, NOT
+INFERRED.** Cory, 2026-08-12, on B's finding. **This is the converse of rule 14 and they are a
+matched pair: rule 14 asks whether anything READS WHAT YOU PRODUCE; rule 17 asks whether what you
+CONSUME IS ACTUALLY BEING SUPPLIED.** Both are answered by naming the party on the other side of
+the boundary, and neither is answered by a green test — a unit test supplies its own inputs, so
+it is the producer the live path lacks in exactly the way a producer's test is the consumer the
+live path lacks.
+
+*The failure class has a name because it is now five instances in a week and it is not an
+ordinary bug:* **SILENT SEMANTIC DEGRADATION.** A missing producer, so the consumer receives
+defaults. Dead weighted terms that explanations cite anyway. A wrong configuration that still
+produces a plausible number. Missing fields that still produce plausible recommendations.
+**NONE OF THEM CRASH. NONE LOOK BROKEN. THEY CAUSE THE SYSTEM TO ANSWER A SIMPLER OR DIFFERENT
+QUESTION THAN THE ONE THE DESIGN SAYS IT ANSWERS** — which is considerably more dangerous than a
+visible failure, because a visible failure recruits attention and this recruits confidence.
+**Every one of the five was found by accident rather than by a guard.** That is the part to fix.
+
+The instances, and what each degraded into:
+
+* **`optimize()`'s second objective.** Variance enters only through `p.sd`. `member.js` reads
+  `sd` off a `rosterView` row and **`rosterView` never builds that field**, so every player gets
+  the position-typical sigma, no same-position swap can change variance, and the expected-dollars
+  optimum collapses onto the expected-points optimum. The weekly-high chase has never fired in
+  production. *Measured, 2026-08-12: the historical claim rests on the harness supplying exactly
+  the field production omits — 10.9% intervention and $8.94/season with per-player sd, **0.0% and
+  $0.00 without it**, same 450 team-weeks, nothing else changed.*
+* **The intervention-rate harness running `DEFAULT_WEIGHTS`** where production runs
+  `MEASURED_WEIGHTS`.
+* **The baseline built on a context the app does not use.**
+* **The dead weighted terms** the explanation still cited as reasons (rule 16).
+* **The unregistered ledger kinds.** Six kinds emitted by the client and absent from `KINDS`, so
+  every capture 400'd at the boundary and the decision-time record was lost. Two of them were
+  mine, nine days out, on a MEASUREMENT arm — which is the worst place for it: a silent write
+  failure in an instrument does not degrade a recommendation, it deletes the evidence that would
+  have said whether the recommendation was any good.
+
+*The cheap discharge, and it mirrors rule 14's:* at the moment of consuming a field, **"who
+writes this, and what would I see if nobody did?"** If the answer to the second half is "a
+plausible number", the boundary needs a test, not a comment. **A harness that supplies a field
+production leaves empty is not a harness, it is a different system** — and every quantity measured
+on it describes a configuration that has never shipped.
+
+**17a — A MONITOR SHARING A JOB WITH THE THING IT MONITORS MUST NOT BE ABLE TO DISCARD ITS
+SUBJECT.** C, 2026-08-12, in C's words.
+A monitor placed in the same job as its subject, ahead of the step that PERSISTS that subject,
+destroys the evidence it exists to protect: a failed step aborts the job, so **on the exact run
+that recovers from an outage, the alarm discards that day too, then fires again tomorrow,
+forever.** Found in `market-capture.yml`, where the health gate's `sys.exit(1)` preceded an
+uncommitted snapshot — and the counter driving the gate lived in the same uncommitted file, so
+the arithmetic could never move. The gate's own reasoning inverts on it: it calls a run of
+incompletes "a hole being written into an unrecoverable window", then discards the thirteen real
+snapshots that run just wrote. **PRESERVE BEFORE YOU ALARM:** the persisting step runs first
+and unconditionally; the gate runs last, where its exit code is still the job's verdict.
+
+*And the discriminator, which is the useful half of C's sweep of all thirty-seven workflows —
+three hits, only one real.* A skipped save is **correct** where the job failed because there is
+nothing worth saving (`market-probe`, `mfl-schema-probe`: "there is no data"). The hazard needs
+a failure condition **ORTHOGONAL to whether there is something worth saving** — which is exactly
+what a staleness or completeness counter is. So the question to ask of any gate-before-save is
+not "could this abort" but **"can this abort on a run that produced good data?"**
+
+**17b — A BAR IS ONLY A MONITOR IF IT CAN FIRE INSIDE THE WINDOW IT PROTECTS.** C, 2026-08-12.
+The standing check watched the perishable daily ADP capture with a **10-day** staleness bar,
+examined **Mondays only**. The sole pre-draft Monday was 08-17, when the archive's age could not
+exceed ~5 days — so **for every death date from 08-12 forward the monitor was structurally
+incapable of firing before the draft**, across the one stretch where each lost day is
+unrebuildable. The check existed, ran, and reported *clean*. This is the enforcement-table defect
+in live form, and note which way it fails: **"quiet" is indistinguishable from "healthy", which
+is the entire problem.** The invariant, held by a test rather than a reader:
+
+> `bar_days + worst_case_examination_lag  ≤  tolerable_loss_days`
+
+Both levers are named because both were wrong — a short bar examined weekly is still a weekly
+monitor, and a daily examination against a 10-day bar is still a 10-day monitor. A corollary
+learned while fixing it: **a row that mixes a fast failure with a slow one can only be SCHEDULED
+for one of them.** `market_snapshots` answered both "has the job died" (days, unrecoverable) and
+"is Signal C askable yet" (weeks, still true tomorrow), so moving it to a daily cadence would
+have made it red every day on a finding needing no action — which is how a real alarm gets muted
+and then ignored. Split the row, not the schedule.
 
 **13. MERGED INTO RULE 11 AS ITS FIFTH REQUIREMENT (2026-08-11).** B's finding, which A's
 audit missed: **rule 13 was written about PROVIDERS and bites on FIXTURES.** All three of its

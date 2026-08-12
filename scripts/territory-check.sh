@@ -478,44 +478,9 @@ is_new_in_range() {
   git ls-files --others --exclude-standard | grep -qxF "$1"
 }
 
-# ── AUTHORISED CROSS-LANE EXCEPTIONS ────────────────────────────────────────
-#
-# ⚠️ SHARED-FILE EDIT BY C, 2026-08-12 — banner per Cory's three-session rule.
-#
-# NOT A GENERAL ESCAPE HATCH, and it is deliberately shaped so it cannot become
-# one. Each entry is ONE side and ONE exact path, granted by Cory in writing for
-# a NAMED edit, and every entry PRINTS on every run — an exception nobody can
-# see is a hole, and this is meant to be an audit line.
-#
-# EACH ENTRY IS MEANT TO BE DELETED once the owning side has reviewed the edit at
-# its next boundary. If you are reading this and the referenced edit is long since
-# reviewed, removing the entry is the correct action, not a cleanup someone should
-# ask permission for.
-#
-# WHY IT EXISTS AT ALL. Cory authorised C to register two kinds in A's
-# `src/predledger.js` on 2026-08-12: main was red on the contract test, which
-# refuses integration, and it blocked eleven commits of D3 capture hardening nine
-# days before the draft. The guard then refused the authorised edit, so the
-# authorisation could not be executed. The choice was to bypass the guard silently
-# or to record the exception inside it. This is the second one.
-authorised_exception() {   # $1=file, $2=side
-  case "$2:$1" in
-    # C in A's file. Two entries in KINDS registering `opponent_prediction` and
-    # `opponent_prediction_resolved`, both emitted by public/js/draft/app.js and
-    # registered nowhere, so both 400 and the draft-night record is lost. A
-    # reviews at its next boundary and reverts if wrong. REMOVE AFTER THAT REVIEW.
-    "C:src/predledger.js") return 0 ;;
-    *) return 1 ;;
-  esac
-}
-
-trespass=0; shared_n=0; merged_n=0; exception_n=0
+trespass=0; shared_n=0; merged_n=0
 report_trespass() {   # $1=file $2=who
   if matches_source "$1"; then merged_n=$((merged_n+1)); return; fi
-  if authorised_exception "$1" "$SIDE"; then
-    echo "AUTHORISED CROSS-LANE EXCEPTION (see authorised_exception in this file): $1"
-    exception_n=$((exception_n+1)); return
-  fi
   echo "TRESPASS ($2): $1"; trespass=$((trespass+1))
 }
 undeclared=0
@@ -542,7 +507,6 @@ done < <(file_list)
 
 [ "$shared_n" -gt 0 ] && echo "note: $shared_n shared file(s) touched — APPEND ONLY, rebase before push"
 [ "$merged_n" -gt 0 ] && echo "note: $merged_n file(s) from the other lane are byte-identical to $INTEG_REF — merged, not edited (integration-exempt)"
-[ "$exception_n" -gt 0 ] && echo "note: $exception_n AUTHORISED cross-lane exception(s) applied — each is a named, dated grant meant to be REMOVED after the owning side reviews"
 if [ "$undeclared" -gt 0 ]; then
   echo "FAIL: $undeclared NEW file(s) in draft/backtest or draft/tests with no owner declared."
   echo "  Add a header line naming the lane — it travels with the file and cannot"

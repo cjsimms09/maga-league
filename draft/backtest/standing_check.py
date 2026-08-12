@@ -70,6 +70,8 @@ T = {
     # per-position bias stops being anecdote. Still thin; still worth a look.
     "proj_weeks_realized": 6,
     # Any series that has not grown in this many days has probably stopped.
+    # RETAINED AS THE DEFAULT FOR A SERIES WITH NO DECLARED CADENCE. It is the
+    # wrong bar for every series we actually hold — see SERIES_WATCH below.
     "series_stale_days": 10,
     # A ledger kind becomes gradeable at this many RESOLVED entries. Below it,
     # a Brier score is a number with no interval worth printing.
@@ -79,6 +81,53 @@ T = {
     # No fixed n: the floor already carries the sample size.
     "component_needs_mde": True,
 }
+
+
+# ── A BAR IS ONLY A MONITOR IF IT CAN FIRE INSIDE THE WINDOW IT PROTECTS ────
+#
+# C measured the defect and it is structural, not a tuning miss: the series
+# staleness bar was 10 days and the examination was gated to Mondays. The only
+# Monday between now and the 2026 draft is 08-17, on which the archive's age
+# cannot exceed ~5 days. SO FOR EVERY DEATH DATE FROM TODAY ONWARD, THE MONITOR
+# WATCHING THE DAILY ADP CAPTURE COULD NOT FIRE BEFORE THE DRAFT — during the
+# one stretch where each lost day is permanently unrebuildable, because MFL
+# serves no as-of-date board.
+#
+# That is the enforcement-table failure in live form: a check that exists, runs,
+# reports clean, and is CONFIGURED SO THAT IT CANNOT DETECT THE FAILURE IT
+# WATCHES FOR. Reporting "quiet" is the worst possible output for it, because
+# "quiet" is indistinguishable from "healthy" and that is the whole point.
+#
+# THE INVARIANT, stated so a test can hold it rather than a reader:
+#
+#     bar_days + worst_case_examination_lag  <=  tolerable_loss_days
+#
+# Both levers are named because both were wrong. A short bar examined weekly is
+# still a weekly monitor; a daily examination against a 10-day bar is still a
+# 10-day monitor. `tolerable_loss_days` is a DECLARED editorial judgement about
+# how much of an unrebuildable series we are willing to lose before somebody is
+# told — not a derived quantity, and it belongs in the file with the other
+# thresholds rather than in a workflow's cron.
+#
+# The bars below are NOT chosen from what the data currently shows. They are
+# chosen from each series' capture cadence, on the same reasoning already used
+# for `market_stale_days`: for a daily job, two missed runs is a pattern rather
+# than a blip. test_standing_check.py asserts the invariant for every row.
+LIVENESS_LAG_DAYS = 1        # the liveness pass runs daily (see standing-check.yml)
+EXAMINATION_LAG_DAYS = 7     # the full examination is still Monday-gated
+
+SERIES_WATCH = {
+    # archive              path                                   bar  tolerable
+    "adp_series":          ("draft/data/adp_series.json",          3,   5),
+    "external_adp_series": ("draft/data/external_adp_series.json", 3,   5),
+    "sleeper_trending":    ("draft/data/sleeper_trending.json",    3,   5),
+}
+
+# The rows whose failure mode is "the capture died". These are examined DAILY —
+# they are the reason the cadence argument at the top of this file was written,
+# and gating them behind the weekly analysis pass buried the fast failure inside
+# the slow one. The rest stay weekly: nothing they watch changes in a day.
+LIVENESS_ROWS = ("market_capture_alive", *SERIES_WATCH)
 
 
 # ── KNOWN BLINDNESS, PARKED WITH A DEADLINE ─────────────────────────────────
@@ -154,11 +203,8 @@ def check_market_snapshots():
 
     age = _age_days(h.get("last_success_at"))
     if age is None:
-        return _row("market_snapshots", "ESCALATE", "no successful capture has ever completed")
-    if age > T["market_stale_days"]:
-        return _row("market_snapshots", "ESCALATE",
-                    f"last successful capture {age:.1f}d ago (bar {T['market_stale_days']}d) — "
-                    "the daily job has stopped and the window is unrecoverable")
+        return _row("market_snapshots", "quiet",
+                    "no successful capture yet — reported by market_capture_alive")
 
     # Signal C's readiness. Read from the snapshots themselves rather than from
     # a counter somebody has to remember to update.
@@ -183,6 +229,36 @@ def check_market_snapshots():
     return _row("market_snapshots", "quiet",
                 f"{len(snaps)} snapshots, {paired}/{len(seen)} events paired, "
                 f"last capture {age:.1f}d ago", n=paired)
+
+
+def check_market_capture_alive():
+    """IS THE DAILY ODDS CAPTURE ALIVE — and nothing else.
+
+    Split out of check_market_snapshots, which answered two questions with one
+    row: "has the job died" (hours to days, unrecoverable) and "is Signal C
+    askable yet" (weeks, and still true tomorrow). A row that mixes a fast
+    failure with a slow one can only be SCHEDULED for one of them, and the
+    daily liveness pass inherited the analysis escalation — so it would have
+    gone red every single day on a finding nobody needs to act on today, which
+    is precisely how a monitor gets muted and then ignored.
+    """
+    health = ROOT / "draft" / "market_snapshots" / "capture_health.json"
+    if not health.exists():
+        return _row("market_capture_alive", "BLIND",
+                    "no capture_health.json — cannot tell a dead job from an absent one")
+    try:
+        h = json.loads(health.read_text())
+    except (ValueError, OSError) as e:
+        return _row("market_capture_alive", "BLIND", f"health unreadable: {type(e).__name__}")
+    age = _age_days(h.get("last_success_at"))
+    if age is None:
+        return _row("market_capture_alive", "ESCALATE",
+                    "no successful capture has ever completed")
+    if age > T["market_stale_days"]:
+        return _row("market_capture_alive", "ESCALATE",
+                    f"last successful capture {age:.1f}d ago (bar {T['market_stale_days']}d) — "
+                    "the daily job has stopped and the window is unrecoverable")
+    return _row("market_capture_alive", "quiet", f"last capture {age:.1f}d ago")
 
 
 def check_signal_b():
@@ -215,8 +291,9 @@ def check_signal_b():
 DATE_KEYS = ("date", "observed_at", "captured_at", "as_of")
 
 
-def check_series(name, path):
+def check_series(name, path, bar_days=None):
     """Any append-only dated series: has it stopped growing."""
+    bar = T["series_stale_days"] if bar_days is None else bar_days
     p = ROOT / path
     if not p.exists():
         return _row(name, "BLIND", f"{path} absent — cannot tell 'not started' from 'lost'")
@@ -236,10 +313,10 @@ def check_series(name, path):
                     n=len(series))
     last = max((s.get(key) or "") for s in series)
     age = _age_days(last)
-    if age is not None and age > T["series_stale_days"]:
+    if age is not None and age > bar:
         return _row(name, "ESCALATE",
                     f"{len(series)} entries, newest {last} ({age:.0f}d old, bar "
-                    f"{T['series_stale_days']}d) — this series has stopped updating",
+                    f"{bar}d) — this series has stopped updating",
                     n=len(series))
     return _row(name, "quiet", f"{len(series)} entries, newest {last}", n=len(series))
 
@@ -397,12 +474,16 @@ def check_coherence():
                 f"for widening, it does not accept the gap", n=int(d.get("checkpoints") or 0))
 
 
+def _series_check(name):
+    path, bar, _tolerable = SERIES_WATCH[name]
+    return lambda: check_series(name, path, bar_days=bar)
+
+
 CHECKS = [
+    check_market_capture_alive,
     check_market_snapshots,
     check_signal_b,
-    lambda: check_series("adp_series", "draft/data/adp_series.json"),
-    lambda: check_series("external_adp_series", "draft/data/external_adp_series.json"),
-    lambda: check_series("sleeper_trending", "draft/data/sleeper_trending.json"),
+    *[_series_check(n) for n in SERIES_WATCH],
     check_proj_archive,
     check_pred_ledger,
     check_calibration_drift,
@@ -446,6 +527,20 @@ def render(rows, verbose=False):
 if __name__ == "__main__":
     verbose = "--verbose" in sys.argv
     rows = run()
+    # --liveness: the DAILY pass. Only the rows whose failure mode is "the
+    # capture died", which is the failure that has to be caught in days rather
+    # than weeks. Everything else stays on the weekly examination, unchanged.
+    # A row named in LIVENESS_ROWS that produced no result at all would make
+    # this pass silently narrower than it claims, so that is an error, not a
+    # smaller report — the same class of defect this flag exists to fix.
+    if "--liveness" in sys.argv:
+        by_name = {r["archive"]: r for r in rows}
+        missing = [n for n in LIVENESS_ROWS if n not in by_name]
+        if missing:
+            print(f"::error::liveness rows produced no result: {missing} — the "
+                  "daily pass is watching fewer archives than it claims to")
+            sys.exit(1)
+        rows = [by_name[n] for n in LIVENESS_ROWS]
     print(render(rows, verbose))
     hot = [r for r in rows if r["state"] != "quiet"]
     if hot:

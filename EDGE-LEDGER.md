@@ -194,8 +194,19 @@ pts/week** — the instrument is roughly 3× too coarse to see it. So "spans zer
 **CANNOT RESOLVE**, not "stacking does not convert". Recording it as a null would be the
 threshold-artifact mistake in a new costume.
 
-- **Stack stays at 0.5**, still justified only by the circular sweep. Honestly: *unconfirmed*,
-  not *confirmed*.
+- ~~**Stack stays at 0.5**, still justified only by the circular sweep. Honestly: *unconfirmed*,
+  not *confirmed*.~~
+  **🔴 CORRECTED 2026-08-13 — THE ENGINE SHIPS `stack: 1.0` AND ALWAYS SHOULD HAVE.**
+  This line described a value that reached the engine by accident: D10 (Cory,
+  2026-08-08) stood the 0.5 install down because it was priced on a MODELLED rho,
+  and `stack` rode along at 0.5 in the next day's wholesale adoption of the measured
+  config without anyone deciding it should. Cory confirmed on 2026-08-13 that D10 was
+  meant to stand; the engine is corrected and the ruling is un-superseded with the
+  governance history recorded in `LAB-REGISTRY.md`.
+  **The sentence's own point survives and now cuts harder:** 0.5 was *unconfirmed*,
+  which is precisely why it should never have shipped. **Found by the graduation
+  gate's rulings check within a minute of the engine being fixed** — a third document
+  carrying the wrong value that nobody had looked for.
 - **What would give it power:** more roster-weeks with both states — i.e. the MFL/nflverse
   ingest, which is the same binding constraint as everywhere else. The authoritative
   `--teams=nflverse` arm (per-season historical teams) is wired and should run in CI; the

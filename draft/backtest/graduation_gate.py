@@ -347,6 +347,15 @@ def ruling_rows(loaded: dict) -> list:
             # A single line can also mark itself, for rulings that are one line.
             if re.search(r"supersede", line, re.I):
                 continue
+            # STRUCK THROUGH = RETAINED AS HISTORY, NOT CURRENT. This repo's
+            # convention all the way through: a wrong claim is struck rather than
+            # deleted, so the shape of the error stays visible. A scan that read
+            # `~~stack stays at 0.5~~` as a live ruling would make it impossible
+            # to correct a document without either deleting the record or
+            # leaving the check permanently red -- and "delete the evidence to
+            # get CI green" is the exact pressure this file exists to resist.
+            if line.lstrip().startswith("~~") or "~~**" in line:
+                continue
             for m in _RULING_RE.finditer(line):
                 term, val = m.group(1).lower(), float(m.group(2))
                 cur = loaded.get(term)

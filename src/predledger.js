@@ -47,33 +47,23 @@ const KINDS = ['recommendation', 'pick', 'survival', 'override', 'lrm', 'run',
                                    // invented — the audit trail for the fix
                'correction',       // a recorded pick corrected after the fact
 
-               /* ─────────────────────────────────────────────────────────────
-                * ⚠ CROSS-LANE FIX BY C — src/predledger.js is A's. Two list
-                * entries, authorised by Cory 2026-08-12 because main was red on
-                * this and it blocked eleven commits of D3 capture hardening
-                * nine days before the draft. A reviews at its next boundary and
-                * reverts if wrong. NOTHING ELSE IN THIS FILE IS C's.
-                *
-                * The contract test caught a RECURRENCE of the sweep recorded
-                * twenty lines above: two more kinds emitted by the client and
-                * registered nowhere, so both 400 at the boundary and the record
-                * is dropped.
-                *
-                *   producer  public/js/draft/app.js:6262  opponent_prediction
-                *             public/js/draft/app.js:6290  opponent_prediction_resolved
-                *
-                * DRAFT-TIME CAPTURES, which is why this could not wait: the
-                * in-season note below says a decision-time record cannot be
-                * reconstructed after the decision, and draft night is the
-                * densest decision event of the year. If these 400 on 08-22 the
-                * opponent-prediction arm has NO record of the night at all.
-                *
-                * NO PAYLOAD OBLIGATION IS CREATED. Checked rather than assumed:
-                * COUNTERFACTUAL_KINDS is the five in-season kinds and excludes
-                * both, so `assertCounterfactual` returns early for them.
-                * ───────────────────────────────────────────────────────────── */
-               'opponent_prediction',           // forecast: who an opponent takes
-               'opponent_prediction_resolved',  // ...and how it actually resolved
+               // ...and it happened a THIRD time, to me, nine days out. The
+               // opponent-prediction shadow arm emits both of these from
+               // app.js and neither was registered, so the arm that exists to
+               // MEASURE whether room profiles beat ADP would have written
+               // nothing on draft night: every capture 400s at the boundary
+               // and the decision-time record is gone. Same shape as the
+               // shadow_pick omission logged above, found the same way — by
+               // the test that asserts emitted ⊆ registered, not by reading
+               // the code that emits them.
+               //
+               // The shadow arm is a MEASUREMENT arm, which makes this the
+               // worst place for it: a silent write failure in an instrument
+               // does not degrade a recommendation, it deletes the evidence
+               // that would have told us whether the recommendation was any
+               // good — and only after the one night it could be collected.
+               'opponent_prediction',            // predicted before the pick
+               'opponent_prediction_resolved',   // graded against the actual
 
                /* ── IN-SEASON KINDS (experiment 37's rail) ──────────────────
                 *

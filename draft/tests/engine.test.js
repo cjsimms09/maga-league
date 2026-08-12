@@ -1408,7 +1408,13 @@ check('weight sliders change the ranking', heavyCeiling[0].score !== scored[0].s
   check('measured: value anchor at 1.0', m.value === 1.0, String(m.value));
   check('measured: tier and risk OFF (measured drag)', m.tier === 0 && m.risk === 0,
     `tier=${m.tier} risk=${m.risk}`);
-  check('measured: stack at 0.5 (the one adjuster that earned)', m.stack === 0.5, String(m.stack));
+  // D10, corrected 2026-08-13. The engine carried 0.5; Cory ruled that 1.0 was
+  // what D10 meant to stand and that the SUPERSEDED marking had been applied
+  // backwards — the engine was wrong, not the ruling. Both state changes are
+  // recorded in the decision record rather than one quietly overwriting the
+  // other. This assertion is the reason the correction could not be silent.
+  check('measured: stack at 1.0 (the one adjuster that earned — D10 as ruled)',
+    m.stack === 1.0, String(m.stack));
   check('measured: need at 0 (inert by mask redundancy — settled)', m.need === 0, String(m.need));
   check('measured: ceiling SETTLED TO ZERO — the ledger measured -4.8 [-26,+17], a sign we '
     + 'cannot distinguish from zero, yet at 0.65 it decided a third of late #1s (flip diag). '
