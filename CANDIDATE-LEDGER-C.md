@@ -84,3 +84,27 @@ had asked.
 It also shows the machinery works in both directions at once: the per-test negative is
 reported with its denominator, the aggregate is reported with its post-hoc contamination
 named, and neither is allowed near a production decision.
+
+---
+
+## THE COUNTERS ARE IN CODE, NOT IN THIS DOCUMENT
+
+**A defect in my own proposal, fixed.** I told A that each retired hypothesis should carry
+`revisit_when` and `revisit_n` so the standing check fires when the sample crosses rather
+than when someone remembers — then wrote both of my first two candidates into a **markdown
+table**. `C-001`'s counter is derivable from `league_history.json`; **`C-002`'s lived only
+in prose**, so the mechanism I had just proposed could not read its own second row.
+
+That is an intention with no trigger, committed one message after describing it.
+
+**`draft/backtest/candidate_ledger.py` now holds the countable half.** Counters are
+**derived from the archives**, never written down — a stored count drifts from the thing it
+counts, which is how a trigger comes to fire late or never. Current state:
+
+    owner_seasons              30 / 43      (C-001)
+    oracle_capture_qb_slots     5 / 15      (C-002)
+
+**And an uncountable candidate is REPORTED, not dropped.** `R-F7` and `R-ROUTE1` have no
+archive that can ever fire for them, so they appear under `untriggerable()` with their
+conditions in prose. *"No trigger"* and *"not yet"* are different states, and collapsing
+them is exactly how a hypothesis gets retired permanently by accident.
