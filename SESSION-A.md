@@ -489,6 +489,33 @@ as a fix. **It was applied to the suspicious number and not to the convenient on
 the result that supported the argument being made, and it went unexamined for that reason. The
 trigger is not "an absence"; it is **an absence, INCLUDING the one you were hoping for.**
 
+**⚠️ 13g's SIBLING, FROM B, 2026-08-12: A HIDDEN ELEMENT IS PRESENT IN THE DOM AND ABSENT
+FROM EVERY TEXT-BASED CHECK.** *Recorded because it arrived as a NON-finding and is worth more
+than most findings.*
+
+B's sweep flagged twenty unlabelled buttons on A's markup — no text, no title, no aria-label. **It
+did not report them**, because it checked first: they are `visibility: hidden`, which keeps the
+layout box and returns an EMPTY `innerText`. A probe artifact, caught before it became a bug
+report.
+
+**The class generalises past B's sweep to anything reading rendered output, including A's own
+harnesses**, and the asymmetry is the part to remember:
+
+* a check asserting text is **PRESENT** fails loudly when the element is hidden — **safe**;
+* a check asserting text is **ABSENT** passes wrongly — **silent**, and indistinguishable from
+  the thing genuinely not being there;
+* and a `shown` flag read off `element.style.display` calls a **class-hidden** element visible,
+  because the inline style is empty.
+
+*Fixed where A had it:* `rehearsal-mock3.js` read `e.style.display !== 'none'` beside an
+`innerText` grab. It now reads `getComputedStyle` and reports `hidden_but_present` as its own
+field rather than letting empty text stand for absence.
+
+**AND IT IS THE SAME SHAPE AS 13g ONE LAYER DOWN.** 13g says to state what the instrument would
+have shown if the thing were present. Here the instrument shows *the same empty string* whether
+the thing is absent or merely invisible — so the honest response is not a better assertion, it is
+a SECOND channel (computed style) that can tell the two apart.
+
 **14. WHEN SOMETHING COMPUTES A VALUE OR A VERDICT, THE SAME UNIT OF WORK ESTABLISHES ITS
 CONSUMER.** Cory, 2026-08-11. Not a style preference — **a produced-and-unread value looks
 identical to a working system from every angle except the one where it matters.** It has tests,
