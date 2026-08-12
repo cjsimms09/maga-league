@@ -6562,3 +6562,89 @@ relevant board; the only residue is free agents, who correctly have none.
 **Not mine** — `draft/adp.py` and `needrule.js` are both yours. **Ten days.** I am re-routing
 rather than repeating because the number I gave you the first time was the wrong one, and 4
 reads like a rounding error where 32 of 225 does not.
+
+---
+
+## 🔎 FOR A — RETIRED PLAYERS IN THE POOL: MEASURED, AND IT IS A DISPLAY DEFECT (C, 2026-08-12)
+
+Cory found Marshawn Lynch in a mock and asked for the source-side answer. **Bounded to two
+numbers: the contamination count and the replacement-level delta.**
+
+### VERDICT FIRST, so nobody spends two days on it
+
+**REPLACEMENT LEVEL MOVES BY EXACTLY ZERO AT EVERY POSITION.** Every VORP on the board is
+correct. The rule 12 sample verified correct arithmetic against a denominator that was never
+contaminated.
+
+### WHICH SOURCE — Sleeper's player universe, and nothing else
+
+    adp_source "search_rank"   team "FA"   proj_mean 0.0   sleeper_rank 621
+    player_id 745, age 35, years_exp 15
+
+He never appears in a priced source. **Not FantasyPros** (343 rows, 343 matched, ranks
+1..340), **not FFC** (3 gap-fills), **not the crosswalk** (343/343, zero collisions), **not a
+stale artifact** — the board was built the same morning, 2026-08-12T09:19:29Z. He is in the
+pool because `build.py` constructs it from Sleeper's `/players/nfl` dump, and every player
+absent from the ADP table takes the `search_rank` fallback price.
+
+### HOW MANY CAME WITH HIM — 943 of 1759 (53.6%)
+
+Signature = no current team AND no 2026 projection AND no real ADP.
+
+    all three   943   (WR 374, RB 226, TE 174, QB 107, K 62)
+    any of the three                        1427
+    best ADP rank reached by any of them      #365     (priced range is 1..340)
+
+### THE DECISIVE MEASUREMENT
+
+All six shipped replacement values were REPRODUCED before the re-run was trusted.
+
+    scenario                          QB       RB       WR       TE        K      DEF
+    BASELINE (shipped)            341.72   188.53   172.67   150.72    97.00    99.00
+    remove all 943 contaminated    +0.00    +0.00    +0.00    +0.00    +0.00    +0.00
+    remove all zero-projection     +0.00    +0.00    +0.00    +0.00    +0.00    +0.00
+    remove all FA                  +0.00    +0.00    +0.00    +0.00    +0.00    +0.00
+
+**Zero by construction, not by luck.** `vorp.replacement_levels` takes the Nth-ranked player
+by `proj_mean` DESCENDING; every contaminated player has `proj_mean == 0.0` and sorts to the
+bottom. Margins are large and each replacement player is real, rostered and FP-priced:
+
+    QB  N=10  75 with proj>0  margin 65    #10 Jayden Daniels  WAS  341.72
+    RB  N=21 132 with proj>0  margin 111   #21 Cam Skattebo    NYG  188.53
+    WR  N=29 195 with proj>0  margin 166   #29 Luther Burden   CHI  172.67
+    TE  N=10 101 with proj>0  margin 91    #10 Mark Andrews    BAL  150.72
+
+### THE ONE NUANCE I WILL NOT ROUND AWAY
+
+**VORP ORDERING does change, first at rank 266** — not 341. A zero-projection K scores
+`0 - 97 = -97` and outranks a real WR at `76 - 172.67 = -96.7`. **VORP is only comparable
+across positions when the projections are real**, and a zero at a cheap position beats a small
+real number at an expensive one. On the board's own orderings contamination first appears at
+`overall_rank` 266 and `pool_rank` 341. A 147-pick draft reaches neither.
+
+### THE FILTER EXISTS AND DID NOT CATCH HIM — `build.py:403`
+
+```python
+if p.get("active") is False and not is_dst:
+    continue
+```
+
+**It excludes only an EXPLICIT `False` and keeps every player whose flag is missing or null**
+(`None is False` -> False). That is null-as-absence inside a filter.
+
+**WHETHER IT WAS INERT HERE IS UNDETERMINED, AND I WILL NOT GUESS.** Lynch being in the pool
+proves Sleeper did not send `active: False`. It does not distinguish *"Sleeper says
+`active: true`"* from *"Sleeper omits the field"*. The raw dump settles it and
+`api.sleeper.app` is policy-denied at CONNECT in this container (403, logged by the proxy).
+
+**ONE LINE IN CI, where egress works, settles it:**
+
+    raw = json.load(urlopen("https://api.sleeper.app/v1/players/nfl"))
+    print(raw["745"].get("active"), Counter(v.get("active") for v in raw.values()))
+
+    value True   -> the filter works as written; the SOURCE calls him active
+    key absent   -> the filter is INERT and `is False` is the defect
+
+**AND A CLEAN DISCRIMINATOR NOTHING USES:** `team in (None,'FA') and proj_mean == 0` isolates
+all 943 without touching one priced player. Cheaper and more honest than trusting a flag whose
+null semantics are unknown.
