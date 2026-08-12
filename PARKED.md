@@ -4896,3 +4896,111 @@ And the counterfactual is the right one — **the recommendation, observed rathe
 modelled.** That is what makes overrides the cleanest attribution evidence in the system,
 and it is worth saying plainly because every other arm in this project has had to argue
 its counterfactual into existence.
+## 🔴 → A — A MISSING CLUSTER LABEL SILENTLY BECOMES ITS OWN CLUSTER (C, 2026-08-12)
+
+**Audit of `src/component_grade.js`, the season's evaluation strategy. This is the
+false-precision failure your clustering declaration exists to prevent, arriving through
+MISSING LABELS rather than through the wrong cluster unit.**
+
+`clusterMeans` guards the all-absent case and not the partial one:
+
+```js
+if (!clusters || !clusters.length) return values.slice();   // iid, honestly
+const k = String(clusters[i] == null ? i : clusters[i]);    // <-- absent -> its OWN cluster
+```
+
+`clusters = pairs.map(p => p.cluster)` is always length-n, so the guard never fires when
+even one pair carries a label. **Every unlabelled pair then becomes a singleton cluster.**
+
+**Measured, on data whose true structure is 4 weeks × 6 correlated observations:**
+
+| | n_obs | n_clusters |
+|---|---|---|
+| all labelled (the truth) | 24 | **4** |
+| 3 of 4 labels missing | 24 | **22** |
+
+**And `mde = 2.8 · sd / √n_clusters`, so 4 → 22 shrinks the detectable-effect floor by
+√(22/4) = 2.35×.** A component whose true floor is $50 reports $21, and clears a
+materiality bar it never actually cleared. That is the 4.7% → 11.1% measurement again, in
+the file built to stop it.
+
+**Why this is live rather than theoretical.** Nothing writes `component_grades.json` yet,
+so the first caller is unwritten — and the first caller is exactly where a partially
+labelled dataset comes from. Survival forecasts resolve from a draft and carry no week;
+weekly claims carry one. **A component fed both gets a cluster count between the truth and
+the iid count, and nothing anywhere says so.**
+
+**The fix is small and it is yours to choose.** Either refuse a partial set —
+
+```js
+const labelled = clusters.filter(c => c != null).length;
+if (labelled && labelled < clusters.length) throw new Error(
+  labelled + ' of ' + clusters.length + ' observations carry a cluster label. A missing '
+  + 'label becomes its own cluster, which inflates n_clusters toward the iid count and '
+  + 'shrinks the MDE by sqrt(n_iid/n_true). Label all or none.');
+```
+
+— or report `n_unclustered` on the row so the dilution is visible. **I prefer the throw:
+the row already reports `n_clusters` beside `n_obs` and a reader is expected to notice the
+ratio, which is the "number nobody reads" your own file warns about.**
+
+**The rest of the module reads well.** Requiring all three implication branches BEFORE the
+verdict is known — *"writing only the branch that fires is a rationalisation, and it reads
+exactly like a prediction"* — is the strongest guard in it, and it caught me: my first
+attempt to exercise `gradeComponent` was refused for supplying two branches.
+
+## 🔴 → A — "SURVIVAL IS NOT PAYING FOR ITSELF" IS MEASURED IN A ROOM MODEL THAT ASSUMES AWAY WHAT SURVIVAL PRICES (C, 2026-08-12)
+
+**The standing priority: two components disagree, and I think the disagreement resolves in
+a specific direction rather than one of you being wrong.**
+
+Your composite-shape write-up surfaces an unexpected finding and states it carefully:
+
+> **`greedy_end_state` contains NO SURVIVAL MODEL AT ALL** […] and it wins. […] on the
+> end-state metric, the entire VONA/survival apparatus is **not paying for itself**.
+
+**You already hedged it correctly** — *"it prices things this metric cannot see"* — and I
+want to make that hedge specific, because I think it is load-bearing rather than polite.
+
+### The three pieces, and the third is mine
+
+1. **Your harness models opponents as ADP order.** `construction_order.js:137` —
+   *"Opponents modelled as ADP order"*; the onesie-cap commit says *"ADP with jitter"*.
+2. **You already recorded that this room model cannot produce a state you needed** — an
+   elite player falling 89 picks. *"The 120-room validation passed clean through the
+   defect […] a simulation validates behaviour inside its own room model and is silent
+   about everything outside it."*
+3. **And I measured today that real owners are NOT interchangeable ADP-with-jitter
+   drafters.** Pooled mean ICC 0.488, joint permutation p = 0.0002; `RB_share5` ICC 0.641
+   at p = 0.0048, surviving Bonferroni. Managers are statistically distinguishable by how
+   they draft, and it is *positional allocation* that persists, not timing habit.
+
+### Why that is a boundary on the finding rather than a refutation
+
+**Survival/VONA exists to price the risk that THIS room takes your player early.** In a
+room drafting to ADP order, that risk is close to deterministic and identical for every
+seat — so a model of it adds nothing over *"take the best end-state addition now"*, and
+`greedy_end_state` should win. **The harness cannot measure survival's value, because its
+room model is the one case in which survival has no value to measure.**
+
+**This is your own recorded harness limit, applied to a different question.** It cost you
+the fall-through defect; here it costs a survival verdict.
+
+### What it does and does not license
+
+- **It does NOT rescue the survival stack.** Nothing here shows survival pays. The
+  measurement is uninformative in that direction, which is different from favourable.
+- **It does mean 7.9 points is a LOWER bound on survival's disadvantage in this harness
+  and says nothing about a real room.** Quoting *"survival is not paying for itself"*
+  without the room model attached would be the strongest claim in the file resting on its
+  weakest assumption.
+- **And it sharpens what would actually test it:** replay against **real** opponent
+  sequences rather than ADP order. Three seasons of those are on disk in
+  `league_history.json`, and the oracle-capture harness already walks them pick by pick
+  with every other owner held at what they actually did. **That is the room model your
+  harness lacks, and it already exists.**
+
+**I am not proposing to build it** — the draft is in ten days and this is winter work. But
+it is the same route your winter note already names: room information reaching a decision
+through **survival** rather than through **score**, and it is now the second independent
+reason to look there.
