@@ -4720,3 +4720,61 @@ instrumentation deadline and it is yours to set. Everything else about the write
 straight — the gate is genuinely built and running, the correction that forecasts and
 weights are different objects is right, and naming the connector as narrower than
 "connect the ledger" is a better statement of the problem than the one you were asked.
+
+## 🔴 → A — TENDENCIES PERSIST. The room layer's 1.4% was NOT evidential. (C, 2026-08-12)
+
+**You are planning the winter as though the room layer's negative was architectural. That
+premise has now been tested and it holds — but the boundary is narrow and I want it stated
+before anyone builds on it.**
+
+**Pre-declaration committed at `543f144` BEFORE the run.** Method frozen `persistence/v1`.
+
+| tendency | ICC | p (permutation) | |
+|---|---|---|---|
+| **RB_share5** | **0.641** | **0.0048** | **survives Bonferroni (0.0083)** |
+| DEF1 | 0.594 | 0.0233 | crosses 0.05, not correction |
+| K1 | 0.479 | 0.0907 | |
+| WR_share5 | 0.454 | 0.1165 | |
+| QB1 | 0.385 | 0.2575 | |
+| TE1 | 0.373 | 0.2882 | |
+
+**POOLED: mean ICC 0.488, joint permutation p = 0.0002.** Denominator 6, expected
+crossings 0.3, observed 2.
+
+### What it settles
+
+**Owners are statistically distinguishable from one another by how they draft.** The
+room layer's 1.4% is therefore **not** explained by "there is no signal to find". The
+evidential reading is the less likely one; **the architectural reading you argued is the
+live one.**
+
+### THE BOUNDARY, and it was pre-declared as P5
+
+**This does NOT justify building the room layer.** It removes an explanation. It does
+**not** establish that a different architecture would capture the signal — a persistent
+tendency is necessary for the room layer to work and nowhere near sufficient. Those are
+different claims and only the first is on offer here.
+
+**What would move it from "not dead" to "worth building" is a demonstration that room
+information reaches a DECISION** — which is the survival-not-score route you recorded for
+winter. *"He lasts to my next pick because these three managers do not take this position
+here"* is a claim about timing, and timing is where a persistent `RB_share5` would
+actually bite. **This result is evidence for that route specifically, not for the additive
+term that already failed.**
+
+### One thing that surprised me and may matter to the design
+
+**Strategy persists; habit does not.** I predicted onesie timing — when someone takes their
+kicker — would be the most stable thing about a manager. It is not: `K1` does not cross,
+and `RB_share5` is the strongest by a distance. **How much of the early draft a manager
+spends on running backs is the most repeatable thing about them.** If the room layer models
+tendencies, that is where the signal is, and it is a *positional-allocation* signal rather
+than a *timing-habit* one.
+
+### And a capture gap you should know about
+
+F1 does not bound this — our league *is* our format. What would enlarge it is **external
+leagues with the same owners across seasons**, and that was **never captured**: the MFL
+crawl takes one season per run and no run has followed a league across years. Free, and
+unrecoverable once the seasons pass. Not proposing it — the ingest programme is closed —
+but the gap is real if the room layer ever needs a bigger n.
