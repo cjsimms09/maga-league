@@ -1001,3 +1001,59 @@ def test_a_clean_partition_leaves_the_real_verdict_intact():
     assert not rep["unbinned"]
     assert not rep["verdict"].startswith("BUCKETS DO NOT ACCOUNT")
     assert "ROUTE 1 IS OPEN" in rep["verdict"]
+
+
+# ── the mirror's COVERAGE question, and its weaker date basis ───────────────
+def commits(*dates):
+    return json.dumps([{"commit": {"committer": {"date": d}}} for d in dates])
+
+
+def test_the_commit_HISTORY_is_a_SERIES_not_just_a_last_write():
+    """Cory's item 3 had two halves and only one was answered. `frozen_before` reads
+    the LAST commit; the history is the coverage question — one dated board proves a
+    board existed, a replay needs the latest snapshot before EACH draft.
+
+    The data was already being fetched: `commit_dates` pulls up to 100 commits with
+    their timestamps and keeps three numbers. MUTATION: report n and call it coverage.
+    A file rewritten five times in one day counts as five days of coverage."""
+    body = commits("2024-06-15T10:00:00Z", "2024-06-15T18:00:00Z",   # SAME day, twice
+                   "2024-07-02T09:00:00Z", "2024-07-20T09:00:00Z",
+                   "2024-09-14T09:00:00Z")                           # after the window
+    v = X.commit_series(body, since="20240601", until="20240801")
+    assert v["n_days"] == 4, v["days"]          # 5 commits, 4 distinct DAYS
+    assert v["n_in_window"] == 3, v["in_window"]
+    assert v["in_window"] == ["2024-06-15", "2024-07-02", "2024-07-20"]
+
+
+def test_the_window_end_is_STRICTLY_before_like_F5():
+    """A board committed ON the draft day is not a board observed before it. MUTATION:
+    make `until` inclusive, and a same-day commit becomes pre-draft evidence — the
+    exact loosening F5 forbids, arriving through a different door."""
+    v = X.commit_series(commits("2024-08-01T00:00:01Z", "2024-07-31T23:59:59Z"),
+                        since="20240601", until="20240801")
+    assert v["in_window"] == ["2024-07-31"], v["in_window"]
+
+
+def test_a_commit_series_is_labelled_COMMIT_DATED_not_archive_dated():
+    """The date is the COMMITTER'S, not a third party's. The Archive stamps a capture
+    at the moment it saw the content; a git commit date is written by whoever made the
+    commit and can be set to anything. Admissible on F5's own reasoning, but carrying
+    one named assumption a Wayback capture does not.
+
+    MUTATION: label it ARCHIVE_DATED. A mirror count becomes summable with the archive
+    count, and the distinction this whole file is built on quietly disappears."""
+    v = X.commit_series(commits("2024-07-02T09:00:00Z"), since="20240601", until="20240801")
+    assert v["basis"] == X.COMMIT_DATED
+    assert v["basis"] != X.ARCHIVE_DATED and v["basis"] != X.CONTENT_DATED
+    assert "committer's" in v["why"] and "never summed" in v["why"]
+
+
+def test_a_THROTTLED_commits_response_still_raises_through_the_shared_walk():
+    """`commit_dates` and `commit_series` share ONE parse, so neither can drift into
+    treating an error object as an empty history. MUTATION: give commit_series its own
+    lenient walk, and a rate-limited request reports a file with no commits — which
+    reads downstream as 'undated' rather than 'we were throttled'."""
+    with pytest.raises(TypeError):
+        X.commit_series('{"message": "API rate limit exceeded"}')
+    with pytest.raises(TypeError):
+        X.commit_dates('{"message": "API rate limit exceeded"}')

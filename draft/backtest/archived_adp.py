@@ -423,6 +423,29 @@ def route1_verdict(hits, probed, unreachable=0, leads=0, bad_urls=0) -> str:
 # archive — but a content-dated hit is reported as a LEAD, never as a satisfied F5.
 ARCHIVE_DATED = "archive"
 CONTENT_DATED = "content"
+# A THIRD BASIS, and it belongs BETWEEN the two above rather than folded into either.
+#
+# A file in a public git repository carries commit timestamps, and each commit is a
+# retrievable snapshot: raw.githubusercontent.com/<owner>/<repo>/<sha>/<path> serves
+# the file AS OF that commit. So a mirror with N commits across a preseason holds N
+# dated boards, not one — which is the coverage question, answered from a source that
+# is not archive.org.
+#
+# BUT THE DATE IS THE COMMITTER'S, NOT A THIRD PARTY'S. The Archive stamps a capture
+# at the moment IT saw the content; nobody with a stake in our question controls that.
+# A git commit's date is written by whoever made the commit and can be set to any
+# value at all (`GIT_COMMITTER_DATE`). So this is not a label the publisher put on the
+# page — which is what makes CONTENT_DATED inadmissible — but it is not independent of
+# the publisher either.
+#
+# Admissible on the same reasoning F5 rests on: the observation date is knowable and
+# precedes the draft. It carries ONE NAMED ASSUMPTION a Wayback capture does not —
+# that the repository owner did not backdate — and that assumption is checkable in one
+# direction only. A commit dated before the repository existed is provably wrong; a
+# plausible date is not thereby provably right. Nothing here checks it.
+#
+# NEVER SUMMED WITH THE ARCHIVE-DATED COUNT.
+COMMIT_DATED = "commit"
 
 
 def candidates(year=2024) -> list:
@@ -825,13 +848,17 @@ def commits_query(owner: str, repo: str, path: str) -> str:
     return GITHUB_COMMITS % (owner, repo, urllib.parse.quote(path))
 
 
-def commit_dates(body) -> dict:
-    """{first, last, n} from a commits listing, newest-first as GitHub returns it.
+def _stamps(body) -> list:
+    """Commit timestamps out of a GitHub commits listing. ONE parse, two callers.
+
+    `commit_dates` and `commit_series` both need this walk, and a second copy is
+    exactly how two functions come to disagree about what counts as a commit date —
+    the defect class this program has hit ten times. Extracted rather than duplicated.
 
     The shape, quoted: a LIST of {"commit": {"committer": {"date": "2019-08-19T..."}}}.
-    A rate-limit or error body is an OBJECT, and treating it as an empty history
-    would report a file as having no commits — which downstream reads as "we cannot
-    date it" when the truth is "we were throttled". Raises instead.
+    A rate-limit or error body is an OBJECT, and treating it as an empty history would
+    report a file as having no commits — which downstream reads as "we cannot date it"
+    when the truth is "we were throttled". Raises instead.
     """
     if isinstance(body, (bytes, bytearray)):
         body = body.decode("utf-8", "replace")
@@ -840,18 +867,60 @@ def commit_dates(body) -> dict:
     if not isinstance(body, list):
         raise TypeError("commits response is %s, not a list — a throttled request is "
                         "not an empty history" % type(body).__name__)
-    stamps = []
+    out = []
     for c in body:
         if not isinstance(c, dict):
             continue
         d = (((c.get("commit") or {}).get("committer") or {}).get("date")
              or ((c.get("commit") or {}).get("author") or {}).get("date"))
         if d:
-            stamps.append(str(d))
+            out.append(str(d))
+    return out
+
+
+def commit_dates(body) -> dict:
+    """{first, last, n} from a commits listing, newest-first as GitHub returns it.
+
+    The shape, quoted: a LIST of {"commit": {"committer": {"date": "2019-08-19T..."}}}.
+    A rate-limit or error body is an OBJECT, and treating it as an empty history
+    would report a file as having no commits — which downstream reads as "we cannot
+    date it" when the truth is "we were throttled". Raises instead.
+    """
+    stamps = _stamps(body)
     if not stamps:
         return {"first": None, "last": None, "n": 0}
     stamps.sort()
     return {"first": stamps[0], "last": stamps[-1], "n": len(stamps)}
+
+
+def commit_series(body, since=None, until=None) -> dict:
+    """Every dated commit DAY for a path, not just the first and the last.
+
+    THE MIRROR'S COVERAGE QUESTION, and it is the same one the Wayback pass asks: one
+    dated board proves a board EXISTED; a replay needs the latest snapshot before EACH
+    draft. `commit_dates` already fetches up to 100 commits with their timestamps and
+    keeps three numbers out of them — the days were being fetched and discarded.
+
+    Each commit is retrievable, so N commit days across a preseason is N dated boards.
+
+    THE DATE IS THE COMMITTER'S. See COMMIT_DATED above for why that is weaker evidence
+    than a Wayback capture and why the two counts are never summed. This function
+    returns the basis ON the result so a caller cannot lose that distinction by
+    reading only the number.
+
+    `since`/`until` are YYYYMMDD. `until` is EXCLUSIVE, matching F5's strictly-before:
+    a board committed ON the draft day is not a board observed before it.
+    """
+    days = sorted({str(d)[:10] for d in _stamps(body) if len(str(d)) >= 10})
+    win = [d for d in days
+           if (not since or d.replace("-", "") >= str(since))
+           and (not until or d.replace("-", "") < str(until))]
+    return {"days": days, "n_days": len(days), "in_window": win, "n_in_window": len(win),
+            "basis": COMMIT_DATED,
+            "why": ("%d commit day(s) for this path, %d strictly inside the window. Each "
+                    "is a retrievable snapshot. COMMIT-DATED, NOT archive-dated: the "
+                    "timestamp is the committer's, not a third party's, and this count "
+                    "is never summed with the archive one" % (len(days), len(win)))}
 
 
 def frozen_before(dates: dict, before: str) -> dict:
