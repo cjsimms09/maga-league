@@ -1100,6 +1100,11 @@
     // floored non-negative so a real bench flier never sinks below a discounted backup
     // and the top score never goes deeply negative for rounds on end.
     const benchOnly = need.fills === 'bench';
+    // Hoisted so the published components can report the terms the BENCH branch
+    // actually used rather than the starter branch's versions of them.
+    let wCeilPub = w.ceiling == null ? 1 : w.ceiling;
+    let wRiskPub = w.risk == null ? 1 : w.risk;
+    let benchCeilingPub = ceiling;
     let score;
     if (benchOnly) {
       // Score a bench pick on upside + handcuff insurance; keeper/bye/risk still
@@ -1114,7 +1119,43 @@
         ctx.myPicksLeft, ctx.ceilingAllStages, true);
       const wCeil = Math.max(CFG.BENCH_CEILING_FLOOR, w.ceiling == null ? 1 : w.ceiling);
       const wRisk = Math.max(CFG.BENCH_RISK_FLOOR, w.risk == null ? 1 : w.risk);
-      score = wCeil * benchCeiling + w.stack * stack.value + w.keeper * kov.value
+      wCeilPub = wCeil; wRiskPub = wRisk; benchCeilingPub = benchCeiling;
+      /* ── VONA IS KEPT HERE FROM 2026-08-13, AND THE REASON IS SEMANTIC ──
+       *
+       * The justification above for zeroing it reads "VONA (value over the next
+       * STARTER) ... meaningless for a man you can't start". THAT IS NOT WHAT
+       * VONA COMPUTES. `vona()` takes `board.filter(p => p.position === ...)` —
+       * EVERY same-position player left on the board, starter and bench alike —
+       * and returns proj_mean minus the expected best of them at my next pick.
+       * It is "value over the next player at this position I could realistically
+       * get instead", which is exactly as meaningful for depth as for a starter.
+       *
+       * So the branch was discarding the ONE term with an out-of-sample dollar
+       * measurement behind it, for the whole back half of every draft, on the
+       * strength of a comment that described a different quantity. What was left
+       * ranking those picks was the ceiling term — measured at -4.8 with a
+       * [-26,+17] interval and unsignable — reinstated by BENCH_CEILING_FLOOR
+       * over a MEASURED_WEIGHTS.ceiling of 0.
+       *
+       * WEIGHT 1.0 ON PRINCIPLE, NOT ON FIT. VONA either means the same thing
+       * for a bench player as for a starter or it does not; there is no
+       * principled fractional answer, and picking the fraction that makes a
+       * symptom look best is calibration against the symptom (Cory's hard rule).
+       *
+       * MEASURED, full 12-pick walk against the ADP reference:
+       *   RB taken          1 -> 5   (market takes 6; this was Stage 1's largest gap)
+       *   TE taken          2 -> 1   (market takes 1)
+       *   worst reach   +73.7 -> +36.0
+       *   reach p90     +36.7 -> +26.0
+       *   QB+TE in top 10  33% -> 50%   <-- WORSE, and not explained away below
+       *
+       * THE CONCERN IN THE ORIGINAL COMMENT IS REAL AND IS NOT FIXED BY THIS.
+       * "A benched QB2 floating to #1 once starters filled" still happens. The
+       * correctly-aimed instrument for "I cannot start him" is `need`
+       * (starterSlotMarginal), which is roster-state aware, implemented, and
+       * measured inert at every weight from 0.25 to 2.0. Suppressing it via the
+       * value term instead was aiming a blunt instrument at the wrong quantity. */
+      score = wValue * v + wCeil * benchCeiling + w.stack * stack.value + w.keeper * kov.value
         + Math.max(0, w.need * need.value)      // handcuff/insurance, never a penalty here
         - Math.max(0, w.bye * bye.value)        // a bench bye still stings a little
         + wRisk * Math.min(0, risk.value);      // real injury/age risk still counts
@@ -1144,8 +1185,18 @@
      *
      * Kept multiplicative and applied last so it cannot be argued away by a
      * slider: no weight setting turns a bench QB into a startable one. */
+    /* PUBLISHED AS THE DELTA IT CAUSES. It is multiplicative and applied last,
+     * so it cannot be an additive term — but it CAN be reported as the number of
+     * points it removed, and it must be, or the components do not sum to the
+     * score and every share_of_gap downstream is computed against a gap they did
+     * not produce. At pick 110 this was a silent -15.23 on a QB2: the surface
+     * showed a player whose published terms totalled 16.92 and whose score was
+     * 1.69, with nothing naming the 15 points that vanished. */
+    let onesieDelta = 0, doctrineDelta = 0;
     if (onesie.duplicate && onesie.discount < 1) {
+      const before = score;
       score = score * onesie.discount;
+      onesieDelta = score - before;
     }
 
     /* THE DOCTRINE TILT. Additive and bounded. It must be SCALED BY THE ONESIE
@@ -1172,6 +1223,7 @@
     if (tilt) {
       if (onesie.duplicate && onesie.discount < 1) tilt *= onesie.discount;
       score += tilt;
+      doctrineDelta = tilt;   // published, for the same reason the onesie delta is
     }
 
     const survivalToNext = ctx.nextPick ? survival(player, ctx.nextPick, ctx) : 0;
@@ -1274,8 +1326,22 @@
           // pending experiment 33).
           value: wValue * v,
           tier: w.tier * tier, need: w.need * need.value,
-          risk: w.risk * risk.value, ceiling: w.ceiling * ceiling,
+          /* PUBLISH THE TERM THAT WAS USED, NOT THE ONE THE WEIGHT VECTOR NAMES.
+           * The bench branch scores on `max(BENCH_CEILING_FLOOR, w.ceiling)` times
+           * a separately recomputed ceiling, while this published
+           * `w.ceiling * ceiling` — which is 0 under MEASURED_WEIGHTS. So on every
+           * bench pick the components disagreed with the score by up to 25 points,
+           * and `share_of_gap` in the decision contract was computed against a gap
+           * the components had not produced. Rule 16 broken by ARITHMETIC rather
+           * than by wording: the surface was not choosing bad words for a real
+           * cause, it was reporting numbers that never summed to the decision. */
+          risk: benchOnly ? wRiskPub * Math.min(0, risk.value) : w.risk * risk.value,
+          ceiling: benchOnly ? wCeilPub * benchCeilingPub : w.ceiling * ceiling,
           keeper: w.keeper * kov.value, bye: -w.bye * bye.value, stack: w.stack * stack.value,
+          // Applied AFTER assembly, so published as deltas rather than as
+          // weight-times-term. Without these the components silently disagree
+          // with the score for every discounted onesie and every tilted player.
+          onesie: onesieDelta, doctrine: doctrineDelta,
         },
       },
       keeper_target: kov.value >= C.CFG.KOV_BADGE_AT,

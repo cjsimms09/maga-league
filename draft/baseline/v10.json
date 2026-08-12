@@ -1,0 +1,334 @@
+{
+  "_what": "THE MEASURED CORE, FROZEN. Immutable reference — never edited in place.",
+  "_rule": "SESSION-A binding rule 6: a change to recommendation behaviour either updates this reference deliberately or declares itself a gated departure. There is no third state where the reference silently follows the code.",
+  "_language": "SESSION-A binding rule 7: THIS object is \"the measured core\". Everything running is \"live policy under continuous measurement\".",
+  "frozen_at": "2026-08-12T18:47:22.341Z",
+  "engine_policy": {
+    "MEASURED_WEIGHTS": {
+      "value": 1,
+      "tier": 0,
+      "need": 0,
+      "risk": 0,
+      "ceiling": 0,
+      "keeper": 1,
+      "bye": 0,
+      "stack": 1
+    },
+    "CFG": {
+      "COIN_FLIP_GAP": 1,
+      "CLOSE_GAP": 3.5,
+      "TIE_THRESHOLD": 2,
+      "BENCH_DISCOUNT": 0.35,
+      "BENCH_SCORE_FLOOR": 0,
+      "ONESIE_KEEP": 0.1,
+      "DOCTRINE_TILT": 2.5,
+      "DOCTRINE_TILT_ON": true,
+      "THREAT_MIN_P": 0.01
+    },
+    "preset_keys": [
+      "measured",
+      "balanced",
+      "value",
+      "upside",
+      "safe"
+    ]
+  },
+  "anchor_source": "fantasypros",
+  "surfaces": [
+    {
+      "state": "early-empty-roster",
+      "current_pick": 34,
+      "next_pick": 41,
+      "board_size": 1727,
+      "top10": [
+        {
+          "player_id": "12517",
+          "name": "Colston Loveland",
+          "position": "TE",
+          "score": 14.619,
+          "survival_to_next": 0.8298
+        },
+        {
+          "player_id": "7543",
+          "name": "Travis Etienne",
+          "position": "RB",
+          "score": 8.734,
+          "survival_to_next": 0.5945
+        },
+        {
+          "player_id": "9997",
+          "name": "Zay Flowers",
+          "position": "WR",
+          "score": 7.122,
+          "survival_to_next": 0.5652
+        },
+        {
+          "player_id": "11564",
+          "name": "Drake Maye",
+          "position": "QB",
+          "score": 6.665,
+          "survival_to_next": 0.9433
+        },
+        {
+          "player_id": "11533",
+          "name": "Brandon Aubrey",
+          "position": "K",
+          "score": 3.033,
+          "survival_to_next": 0.9845
+        },
+        {
+          "player_id": "6790",
+          "name": "D'Andre Swift",
+          "position": "RB",
+          "score": 2.76,
+          "survival_to_next": 0.6239
+        },
+        {
+          "player_id": "LAR",
+          "name": "Los Angeles Rams",
+          "position": "DEF",
+          "score": 2.03,
+          "survival_to_next": 0.981
+        },
+        {
+          "player_id": "11635",
+          "name": "Ladd McConkey",
+          "position": "WR",
+          "score": -1.162,
+          "survival_to_next": 0.6039
+        },
+        {
+          "player_id": "HOU",
+          "name": "Houston Texans",
+          "position": "DEF",
+          "score": -1.93,
+          "survival_to_next": 0.9822
+        },
+        {
+          "player_id": "11786",
+          "name": "Cam Little",
+          "position": "K",
+          "score": -2.916,
+          "survival_to_next": 0.986
+        }
+      ],
+      "rule_headline": {
+        "player_id": "6801",
+        "name": "Tee Higgins",
+        "position": "WR",
+        "reason": "best available within your remaining need (WR); QB & DEF deferred (the market prices them well later)"
+      },
+      "gap_to_second": 5.885,
+      "confidence_level": "clear",
+      "firing_rates": {
+        "contested": 0,
+        "has_reasons": 1,
+        "survival_present": 1
+      },
+      "survival_mass": 6,
+      "opponent_picks_in_window": 6,
+      "conservation_ratio": 1,
+      "survival_layers": [
+        "adp",
+        "intervening"
+      ]
+    },
+    {
+      "state": "mid-two-rb-one-wr",
+      "current_pick": 74,
+      "next_pick": 81,
+      "board_size": 1687,
+      "top10": [
+        {
+          "player_id": "1466",
+          "name": "Travis Kelce",
+          "position": "TE",
+          "score": 5.558,
+          "survival_to_next": 0.7789
+        },
+        {
+          "player_id": "5846",
+          "name": "DK Metcalf",
+          "position": "WR",
+          "score": 4.222,
+          "survival_to_next": 0.6459
+        },
+        {
+          "player_id": "3294",
+          "name": "Dak Prescott",
+          "position": "QB",
+          "score": 3.965,
+          "survival_to_next": 0.8467
+        },
+        {
+          "player_id": "5967",
+          "name": "Tony Pollard",
+          "position": "RB",
+          "score": 3.155,
+          "survival_to_next": 0.754
+        },
+        {
+          "player_id": "8183",
+          "name": "Brock Purdy",
+          "position": "QB",
+          "score": -1.077,
+          "survival_to_next": 0.8636
+        },
+        {
+          "player_id": "8142",
+          "name": "Alec Pierce",
+          "position": "WR",
+          "score": -3.685,
+          "survival_to_next": 0.6825
+        },
+        {
+          "player_id": "4217",
+          "name": "George Kittle",
+          "position": "TE",
+          "score": -4.002,
+          "survival_to_next": 0.8129
+        },
+        {
+          "player_id": "5045",
+          "name": "Courtland Sutton",
+          "position": "WR",
+          "score": -4.852,
+          "survival_to_next": 0.6942
+        },
+        {
+          "player_id": "7594",
+          "name": "Chuba Hubbard",
+          "position": "RB",
+          "score": -5.54,
+          "survival_to_next": 0.78
+        },
+        {
+          "player_id": "5012",
+          "name": "Mark Andrews",
+          "position": "TE",
+          "score": -5.655,
+          "survival_to_next": 0.8116
+        }
+      ],
+      "rule_headline": {
+        "player_id": "7594",
+        "name": "Chuba Hubbard",
+        "position": "RB",
+        "reason": "best flex-eligible value (RB) — taken ahead of a weaker starter slot, which is worth more than reaching to fill it; QB & DEF deferred (the market prices them well later)"
+      },
+      "gap_to_second": 1.336,
+      "confidence_level": "close",
+      "firing_rates": {
+        "contested": 0.0006,
+        "has_reasons": 1,
+        "survival_present": 1
+      },
+      "survival_mass": 6,
+      "opponent_picks_in_window": 6,
+      "conservation_ratio": 1,
+      "survival_layers": [
+        "adp",
+        "intervening"
+      ]
+    },
+    {
+      "state": "late-onesies-open",
+      "current_pick": 134,
+      "next_pick": 141,
+      "board_size": 1627,
+      "top10": [
+        {
+          "player_id": "10219",
+          "name": "Chris Rodriguez",
+          "position": "RB",
+          "score": 9.839,
+          "survival_to_next": 0.9952
+        },
+        {
+          "player_id": "3451",
+          "name": "Ka'imi Fairbairn",
+          "position": "K",
+          "score": 0.685,
+          "survival_to_next": 0.5773
+        },
+        {
+          "player_id": "3214",
+          "name": "Hunter Henry",
+          "position": "TE",
+          "score": 0.647,
+          "survival_to_next": 0.994
+        },
+        {
+          "player_id": "9480",
+          "name": "Brenton Strange",
+          "position": "TE",
+          "score": -1.058,
+          "survival_to_next": 0.9952
+        },
+        {
+          "player_id": "5844",
+          "name": "T.J. Hockenson",
+          "position": "TE",
+          "score": -1.435,
+          "survival_to_next": 0.9959
+        },
+        {
+          "player_id": "7002",
+          "name": "Juwan Johnson",
+          "position": "TE",
+          "score": -2.521,
+          "survival_to_next": 0.9969
+        },
+        {
+          "player_id": "8121",
+          "name": "Romeo Doubs",
+          "position": "WR",
+          "score": -2.735,
+          "survival_to_next": 0.9964
+        },
+        {
+          "player_id": "8210",
+          "name": "Chig Okonkwo",
+          "position": "TE",
+          "score": -2.833,
+          "survival_to_next": 0.9969
+        },
+        {
+          "player_id": "5001",
+          "name": "Dalton Schultz",
+          "position": "TE",
+          "score": -2.881,
+          "survival_to_next": 0.9973
+        },
+        {
+          "player_id": "11603",
+          "name": "AJ Barner",
+          "position": "TE",
+          "score": -4.19,
+          "survival_to_next": 0.9978
+        }
+      ],
+      "rule_headline": {
+        "player_id": "8161",
+        "name": "Malik Willis",
+        "position": "QB",
+        "reason": "best available within your remaining need (QB); QB & DEF deferred (the market prices them well later)"
+      },
+      "gap_to_second": 9.154,
+      "confidence_level": "clear",
+      "firing_rates": {
+        "contested": 0,
+        "has_reasons": 1,
+        "survival_present": 1
+      },
+      "survival_mass": 6,
+      "opponent_picks_in_window": 6,
+      "conservation_ratio": 1,
+      "survival_layers": [
+        "adp",
+        "intervening"
+      ]
+    }
+  ],
+  "_why": "THE BENCH BRANCH KEEPS VONA, and the components now sum to the score. The branch discarded VONA for every bench pick on the strength of a comment describing it as 'value over the next STARTER' — vona() actually computes value over EVERY same-position player left on the board, which is exactly as meaningful for depth as for a starter. So the one term with an out-of-sample dollar measurement behind it was dropped for the whole back half of every draft, leaving the ranking to a ceiling term measured at -4.8 [-26,+17] and reinstated by BENCH_CEILING_FLOOR over a measured weight of 0. Also: components.weighted now publishes the terms the bench branch ACTUALLY used, plus the onesie and doctrine deltas applied after assembly, so published terms sum to score at all 12 picks (previously off by up to 25). Pinned board byte-identical to v9."
+}

@@ -137,11 +137,31 @@ const mTop = rec(E.MEASURED_WEIGHTS)[0];
   let noFloor;
   try { noFloor = rec(E.MEASURED_WEIGHTS)[0]; }
   finally { E.CFG.BENCH_CEILING_FLOOR = savedC; E.CFG.BENCH_RISK_FLOOR = savedR; }
-  ck('  and with the floors REMOVED the same board still reaches for one',
-    adpOf(noFloor.player) > REACH_ADP,
-    { would_have_picked: noFloor.player.name, adp: adpOf(noFloor.player) });
-  ck('  so the FLOORS are what changed the answer, not the board or the weights',
-    String(noFloor.player.player_id) !== String(mTop.player.player_id));
+  /* ── THIS ASSERTION INVERTED ON 2026-08-13, AND THAT IS THE IMPROVEMENT ────
+   *
+   * It used to read "with the floors REMOVED the same board still reaches for
+   * one" — i.e. the floors were the ONLY thing standing between the bench branch
+   * and a replacement-level player, so removing them had to reproduce the
+   * defect. That was true, and it was a thin place for the whole back half of a
+   * draft to rest: the anchor was a term measured at -4.8 with a [-26,+17]
+   * interval, held up by a constant that overrode its own measured weight of 0.
+   *
+   * The bench branch now keeps VONA (see engine.js — the branch was discarding
+   * it on the strength of a comment calling it "value over the next STARTER",
+   * which is not what vona() computes). So the anchor is the one term with an
+   * out-of-sample dollar measurement behind it, and the floors are no longer
+   * load-bearing for this property.
+   *
+   * THE INVARIANT IS THEREFORE STRONGER, AND IT IS WHAT IS ASSERTED NOW: with
+   * the floors removed the branch must STILL refuse the junk. If this ever flips
+   * back, the ceiling floor has silently become the anchor again. */
+  ck('  with the floors REMOVED the branch STILL refuses replacement-level junk',
+    adpOf(noFloor.player) <= REACH_ADP,
+    { would_have_picked: noFloor.player.name, adp: adpOf(noFloor.player),
+      note: 'VONA is the anchor now, not BENCH_CEILING_FLOOR' });
+  ck('  and the no-floor pick is a REAL player, not a projection-zero body',
+    Number(noFloor.player.proj_mean) > 0 && (noFloor.player.team || 'FA') !== 'FA',
+    { name: noFloor.player.name, proj: noFloor.player.proj_mean, team: noFloor.player.team });
   ck('  and the floors were restored afterwards',
     E.CFG.BENCH_CEILING_FLOOR === savedC && E.CFG.BENCH_RISK_FLOOR === savedR);
 }
