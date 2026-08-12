@@ -7928,3 +7928,25 @@ retroactively**. Nothing is lost, provided the fix lands before the board churns
 computed today: decoding the archive needs names, and names arrive with the next capture.
 It is not abandoned and it is not a negative result — it is a measurement whose input
 lands at 11:20Z tomorrow. I will run it exactly as declared.
+
+---
+
+## ⚠️ CROSS-LANE FIX — FOR A TO REVIEW: `draft/tests/test_survival_grade.py` (C, 2026-08-12)
+
+**File:** `draft/tests/test_survival_grade.py`, in
+`test_the_ENTIRE_PATH_produces_a_graded_observation_with_nothing_HAND_MADE`.
+**Reason, one line:** `as_store_snapshots` now requires an id map, so this call could not
+keep compiling; the fixture's two namespaces were identical by construction and that is
+why it missed the defect it was written to catch.
+
+**FORCED, NOT OPPORTUNISTIC.** The signature change is the fix — see the entry above. Any
+version of it breaks this call site, so there was no way to leave A's file untouched and
+also leave main green. Banner left at the edit point.
+
+**The one substantive choice, stated so A can reject exactly it:** I made the crosswalk's
+ids and the ADP snapshot's ids DIFFER (`S%d` vs `13000+i`) rather than passing an identity
+map. An identity map would compile and assert the same arithmetic while continuing to hide
+the class. The test's own docstring claims it catches "picks carrying MFL's id where the
+replay reads ours"; with one namespace it cannot.
+
+Nothing else in A's file was touched. 1469 Python tests green.
