@@ -147,6 +147,19 @@ function pickOverride(opts) {
     // is a different event from one on a clear gap, and January cannot
     // reconstruct either.
     score_gap: o.score_gap == null ? null : Number(o.score_gap),
+    /* ⚠️ WHY A NULL GAP IS NULL, and this field exists because its absence cost
+     * ten days. `score_gap` was wired at three call sites and missed at the
+     * fourth — the Sleeper sync path, which carries most of draft night — and
+     * every record came out null. NOTHING COULD TELL "the tool did not report a
+     * gap" from "nobody passed the one it reported", because both render as
+     * `null`.
+     *
+     * A missing REASON is now itself a defect: an emitter that supplies neither
+     * a gap nor a source is recorded as `unstated`, which is greppable, rather
+     * than as a null that looks deliberate. */
+    score_gap_source: o.score_gap_source == null
+      ? (o.score_gap == null ? 'unstated — the emitter passed neither a gap nor a reason' : 'passed')
+      : String(o.score_gap_source),
     /* WAS THE BOARD ITSELF UNSURE? `contested` means the tool flagged the top two
      * as effectively tied. Overriding a confident recommendation and overriding a
      * coin flip are different acts and must not aggregate into one rate. */

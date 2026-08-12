@@ -502,12 +502,45 @@
    * because FantasyPros' feed does not cover them. Single-source is not
    * synthesised, and it is not the same authority as consensus either. The mark
    * says which, in the same spirit as survival's tilde. */
+  /* ── SAY IT ONCE ───────────────────────────────────────────────────────────
+   *
+   * THE UNPRIORITISED-HONESTY PROBLEM, and it is not the honesty problem. A
+   * caveat repeated on every row is true every time and still wrong as a
+   * design: it trains the reader to skip the panel, and the panels that carry
+   * caveats are the ones needed on the twelfth reading rather than the first.
+   *
+   * MEASURED on the real board rather than asserted: the single-source caveat
+   * below rides `title` on every K and DEF row — **64 of the top 200**, 0 of the
+   * top 50. So it is invisible where a first-time reader needs it and dense
+   * exactly where the reader is scanning.
+   *
+   * The rule: FIRST occurrence in a render pass carries the full text; the rest
+   * carry the marker alone and point at it. `resetCaveats()` runs at the top of
+   * a render so the "first" is per-pass, not per-session — a caveat that
+   * appeared once on page load and never again would be worse than repetition.
+   *
+   * ⚠️ ROUTED TO B: the marker's TREATMENT (footnote, tooltip, inline dagger,
+   * or a panel-level note) is a page decision and B owns it. This provides the
+   * one place to change and a stable `data-caveat` hook; it does not pick the
+   * visual. */
+  const _caveatSeen = Object.create(null);
+  function resetCaveats() {
+    Object.keys(_caveatSeen).forEach(k => { delete _caveatSeen[k]; });
+  }
+  function caveatOnce(id, marker, text) {
+    const first = !_caveatSeen[id];
+    _caveatSeen[id] = true;
+    return '<span class="cav" data-caveat="' + id + '"'
+      + (first ? ' data-caveat-first="1" title="' + escapeHtml(text) + '"' : '')
+      + '>' + marker + '</span>';
+  }
+
   function projSourceMark(p) {
     if (!p || p.proj_mean == null) return '';
     if (p.proj_fantasypros != null) return '';
-    return '<span class="muted" title="single-source projection (Sleeper only) — '
-      + 'FantasyPros does not cover this position, so there is no second opinion '
-      + 'behind this number">¹</span>';
+    return caveatOnce('single_source', '¹',
+      'single-source projection (Sleeper only) — FantasyPros does not cover this '
+      + 'position, so there is no second opinion behind this number');
   }
 
   const OV_FIELDS = ['proj_mean', 'proj_ceiling', 'proj_floor', 'vorp'];
@@ -3186,15 +3219,46 @@
       // personal-list pick sits below the board's own top — an override, not a
       // coin flip (2026-08-10 critique: "within -1.9 pts").
       const g = top.gap_to_second;
-      $('#tiebreak').textContent = g < 0
-        ? 'Your pinned pick scores ' + Math.abs(g).toFixed(1) + ' pts below the board top — '
-          + 'a deliberate override, not a coin flip.'
-        : 'Top two are within ' + g.toFixed(1) + ' pts — effectively a coin flip. '
-          + 'Monte Carlo tiebreaker lands in the next build.';
+      /* ⚠️ THE ALTERNATIVE IS NOW A CONTROL, NOT A SENTENCE.
+       *
+       * This line named the coin flip and gave no way to act on it, so taking
+       * the OTHER player cost more taps than taking the recommendation —
+       * highest friction exactly where the tool is least sure. That biases the
+       * sample in the worst possible direction: coin-flip overrides are the most
+       * informative class in the ledger (the tool has no opinion, so the record
+       * is pure human signal), and they would have been recorded LESS often than
+       * they were made.
+       *
+       * It reuses `data-draft-me`, the ONE take mechanism the whole app is bound
+       * to at the document level — not a second take path, which is how two
+       * surfaces come to disagree about what "taking a player" means.
+       *
+       * ROUTED TO B: the affordance is here and the RUNG is not mine to pick. B
+       * has the four take-affordance treatments mapped; this ships as a plain
+       * button so it is tappable today, and B decides where on the ladder it
+       * belongs. */
+      const alt = scored[1] && scored[1].player;
+      const tb = $('#tiebreak');
+      if (g < 0) {
+        tb.textContent = 'Your pinned pick scores ' + Math.abs(g).toFixed(1)
+          + ' pts below the board top — a deliberate override, not a coin flip.';
+      } else {
+        tb.innerHTML = 'Top two are within <b>' + g.toFixed(1)
+          + '</b> pts — effectively a coin flip.'
+          + (alt
+              ? ' <button class="btn small gold tb-alt" data-draft-me="'
+                + escapeHtml(String(alt.player_id)) + '">Take '
+                + escapeHtml(alt.name || 'the other') + ' instead</button>'
+              : '');
+      }
     }
   }
 
   function renderBoard() {
+    // PER-PASS, not per-session: a caveat shown once on page load and never
+    // again would be worse than repeating it, because a filter change rebuilds
+    // the table and the reader would then see none at all.
+    resetCaveats();
     const match = p => (state.filterPos === 'ALL' || p.position === state.filterPos)
       && (!state.search || (p.name || '').toLowerCase().indexOf(state.search) !== -1);
     const rows = state.board.filter(match).slice(0, 200);
@@ -5171,7 +5235,17 @@
     try {
       const top = (state.lastClock && state.lastClock.scored || [])[0];
       if (top && String(top.player.player_id) !== String(player.player_id)) {
-        promptOverrideReason(player, top.player, { reconciled: true });
+        /* ⚠️ THIS CALL PASSED ONLY `{reconciled: true}` AND IT IS THE PATH THAT
+         * MATTERS MOST. B verified score_gap null in every record end to end;
+         * the two tap-path call sites were wired this morning and THIS ONE WAS
+         * NOT. On draft night with Sleeper sync running, most of my picks
+         * arrive here rather than through a tap — so the one unwired site was
+         * the one carrying the traffic.
+         *
+         * The gap was sitting on `top` the whole time. It is not a missing
+         * value, it was a missing argument. */
+        promptOverrideReason(player, top.player, { reconciled: true,
+          score_gap: top.gap_to_second, contested: top.contested });
       }
     } catch (e) { /* the roster is already correct; the prompt is a bonus */ }
     if (typeof PredLedger !== 'undefined' && !state.mockMode) {
@@ -5623,7 +5697,30 @@
     // Scoped LOCALLY. `unassigned` was borrowed from another function once and
     // took a whole panel down with a ReferenceError; a value read from an
     // enclosing scope that may not have it is the same defect.
-    var opts_score_gap = scoreGap == null ? null : Number(scoreGap);
+    /* ⚠️ THE ARGUMENT IS NO LONGER THE ONLY SOURCE, because relying on four call
+     * sites to remember it is what produced a season-critical field that was
+     * null in every record. THREE of them passed it and the fourth — the Sleeper
+     * sync path, which carries most of draft night — did not.
+     *
+     * So the gap is DERIVED from the same clock the recommendation came from
+     * when a caller omits it. A future call site that forgets now gets the right
+     * number instead of a silent null, and the record says which route it took
+     * so "derived" can never be mistaken for "the caller was careful". */
+    var _gapSource = 'passed';
+    var _gap = scoreGap;
+    if (_gap == null) {
+      var _clockTop = (state.lastClock && state.lastClock.scored || [])[0];
+      if (_clockTop && overTop && _clockTop.player
+          && String(_clockTop.player.player_id) === String(overTop.player_id)
+          && _clockTop.gap_to_second != null) {
+        _gap = _clockTop.gap_to_second;
+        _gapSource = 'derived_from_clock';
+      } else {
+        _gapSource = _clockTop ? 'unavailable: the clock top is not the player '
+          + 'this override was measured against' : 'unavailable: no live clock';
+      }
+    }
+    var opts_score_gap = _gap == null ? null : Number(_gap);
     // THE SHAPE IS BUILT IN ONE PLACE (OverrideRecord), not assembled inline.
     // Two emitters used to write two incompatible payloads under the same
     // ledger kind, distinguished only by an undeclared `method` string, and
@@ -5640,6 +5737,11 @@
         reason: reason || 'no_reason_given', path: path == null ? null : path,
         reconciled_from_sync: !!reconciled,
         score_gap: opts_score_gap,
+        // A NULL GAP IS NEVER AMBIGUOUS AGAIN. Every record says whether the
+        // number was passed, recovered, or genuinely unavailable and why —
+        // because "null" and "null because nobody wired it" read identically in
+        // January, which is exactly how this survived ten days.
+        score_gap_source: _gapSource,
         contested: contested == null ? null : !!contested });
     } catch (e) {
       /* DO NOT SWALLOW THIS. The first version returned silently, and because
