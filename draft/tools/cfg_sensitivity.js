@@ -45,13 +45,7 @@ const CFG = E.CFG;
 const DATA = JSON.parse(fs.readFileSync(path.join(ROOT, 'public', 'draft_data.json'), 'utf8'));
 const L = DATA.league;
 
-const KEEPER_NAMES = ["Ja'Marr Chase", 'Derrick Henry', 'Kenneth Walker'];
-const keepers = KEEPER_NAMES.map(n => DATA.players.find(p => p.name === n)
-  || (DATA.kept_players || []).find(p => p.name === n)).filter(Boolean);
-if (keepers.length !== KEEPER_NAMES.length) {
-  console.log('CANNOT RUN — ' + keepers.length + '/' + KEEPER_NAMES.length + ' keepers found.');
-  process.exit(2);
-}
+const keepers = require(path.join(__dirname, 'keepers_of.js')).keepersFrom(DATA);
 
 /* FOUR PICKS, NOT TWELVE, AND A SLICED BOARD.
  *

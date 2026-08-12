@@ -66,7 +66,16 @@ console.log('  The board carries `replacement` per player. Recover the depth it'
 console.log('  implies by finding which rank at that position has that projection.\n');
 console.log('  pos   shipped baseline   implied rank   dedicated slots   plausible range');
 
-const FLEX_ELIGIBLE = { RB: true, WR: true, TE: true };
+/* NO FLEX-ELIGIBILITY MAP HERE, DELIBERATELY. My first version wrote
+ * `{ RB: true, WR: true, TE: true }` and flex_eligibility.test.js failed on the
+ * spot: "no SEVENTH definition has appeared". That suite exists because six
+ * copies of the map already drifted once and a slot silently matched no player,
+ * and it is exactly the two-places disease this file is meant to be hunting.
+ *
+ * This tool only needs to widen ONE COLUMN's plausible range for positions that
+ * can absorb a flex slot, so it asks the flex allocation itself rather than
+ * restating who is eligible. `canTakeFlex` is answered by the board: a position
+ * whose implied baseline rank exceeds its dedicated slots HAS taken flex. */
 const flexSlots = (L.starters.FLEX || 0) * L.teams;
 const impliedRank = {};
 POS.forEach(pos => {
@@ -80,13 +89,14 @@ POS.forEach(pos => {
   }
   impliedRank[pos] = rank;
   const dedicated = (L.starters[pos] || 0) * L.teams;
-  const range = FLEX_ELIGIBLE[pos]
+  const canTakeFlex = rank != null && rank > dedicated;
+  const range = flexSlots && canTakeFlex
     ? dedicated + ' to ' + (dedicated + flexSlots)
-    : String(dedicated);
+    : String(dedicated) + (flexSlots ? ' (+flex if eligible)' : '');
   console.log('  ' + pos.padEnd(6) + String(rep == null ? 'n/a' : rep.toFixed(1)).padEnd(18)
     + String(rank == null ? '?' : pos + rank).padEnd(15)
     + String(dedicated).padEnd(18) + range
-    + (rank != null && (rank < dedicated || rank > dedicated + (FLEX_ELIGIBLE[pos] ? flexSlots : 0))
+    + (rank != null && (rank < dedicated || rank > dedicated + flexSlots)
       ? '   *** OUTSIDE THE RANGE THE ROSTER IMPLIES' : ''));
 });
 
@@ -110,16 +120,63 @@ POS.forEach(pos => {
 const adpOf = p => (p.adjusted_adp != null ? p.adjusted_adp : (p.raw_adp != null ? p.raw_adp : 9999));
 const pool = DATA.players.filter(p => p.position && p.proj_mean != null && p.vorp != null);
 const byAdp = pool.slice().sort((a, b) => adpOf(a) - adpOf(b));
-const K = ["Ja'Marr Chase", 'Derrick Henry', 'Kenneth Walker']
-  .map(n => DATA.players.find(p => p.name === n)).filter(Boolean);
+/* THIS LINE USED TO BE `.map(n => DATA.players.find(...)).filter(Boolean)`.
+ * The keepers are in `kept_players`, which is DISJOINT from `players`, so it
+ * found zero and the walk ran on an EMPTY ROSTER — and I reported the VONA,
+ * score and rank columns from it. `.filter(Boolean)` turned a total lookup
+ * failure into a quietly smaller experiment. Rungs 2-4 are roster-independent
+ * and stood; rungs 5-6 did not. One shared lookup now, and it throws. */
+const K = require(path.join(__dirname, 'keepers_of.js')).keepersFrom(DATA);
+
+/* ── THE ROSTER HAS TO ADVANCE, AND IN THE FIRST VERSION IT DID NOT ─────────
+ *
+ * Every walk used the same three keepers as the roster, at pick 30 and at pick
+ * 145 alike. So by pick 110 the context claimed Cory had drafted NOTHING in
+ * eighty picks — and applyRosterLegality correctly concluded he had 4 picks left
+ * against 5 unfilled mandatory slots and FORCED the list to QB/WR/TE/K/DEF,
+ * dropping running backs out of the recommendation entirely. The RB rows read
+ * as missing data when they were the engine being right about a roster that was
+ * wrong.
+ *
+ * Second harness fault in this file after the hardcoded nextPick, and the same
+ * shape: a context that does not track the pick. So the walk now SIMULATES
+ * FORWARD — opponents take the market, Cory takes the model's own top pick — and
+ * reads the roster the model actually built by the time it arrives. */
+const MY_PICKS_ALL = [30, 45, 50, 65, 70, 85, 90, 105, 110, 125, 130, 145];
+const bestAdp = list => list.reduce((b, p) => (!b || adpOf(p) < adpOf(b) ? p : b), null);
+const STATE = {};
+(function simulateForward() {
+  const drafted = new Set(K.map(k => String(k.player_id)));
+  const roster = K.slice();
+  let cursor = 1;
+  MY_PICKS_ALL.forEach((pick, i) => {
+    let avail = pool.filter(p => !drafted.has(String(p.player_id)));
+    for (; cursor < pick; cursor++) {
+      const o = bestAdp(avail);
+      if (!o) break;
+      drafted.add(String(o.player_id));
+      avail = avail.filter(x => x !== o);
+    }
+    STATE[pick] = { board: avail, roster: roster.slice() };
+    const later = MY_PICKS_ALL.filter(x => x > pick);
+    const r = E.recommend({
+      board: avail, roster: roster, league: L, currentPick: pick,
+      nextPick: later.length ? later[0] : 147, totalPicks: 147,
+      myPicksLeft: later.length + 1, roundsLeft: later.length + 1,
+      runMultipliers: {}, intervening: [], weights: E.MEASURED_WEIGHTS,
+    });
+    const taken = r && r.length && E.scoreable(r[0]) ? r[0].player : null;
+    if (taken) { drafted.add(String(taken.player_id)); roster.push(taken); cursor = pick + 1; }
+  });
+})();
 
 const PICKS = (process.argv.find(a => /^--picks=/.test(a)) || '--picks=30,50,70,90,110,130,145')
   .split('=')[1].split(',').map(Number);
 PICKS.forEach(runWalk);
 function runWalk(PICK) {
-const taken = new Set(byAdp.slice(0, PICK - 1).map(p => String(p.player_id)));
-K.forEach(k => taken.add(String(k.player_id)));
-const board = pool.filter(p => !taken.has(String(p.player_id)));
+const st = STATE[PICK];
+if (!st) { console.log('\n  (pick ' + PICK + ' is not one of Cory\'s — skipped)'); return; }
+const board = st.board;
 /* nextPick AND myPicksLeft MUST TRACK THE PICK. The first version hardcoded
  * `nextPick: 45, myPicksLeft: 12` for every walk, so at pick 145 the context
  * claimed the next pick was a hundred picks in the PAST and that twelve picks
@@ -132,15 +189,16 @@ const MY_PICKS = [30, 45, 50, 65, 70, 85, 90, 105, 110, 125, 130, 145];
 const later = MY_PICKS.filter(x => x > PICK);
 const nextPick = later.length ? later[0] : 147;
 const picksLeft = later.length + 1;
-const ctx = { board: board, roster: K, league: L, currentPick: PICK, nextPick: nextPick,
+const ctx = { board: board, roster: st.roster, league: L, currentPick: PICK, nextPick: nextPick,
   totalPicks: 147, myPicksLeft: picksLeft, roundsLeft: picksLeft, runMultipliers: {},
   intervening: [], weights: E.MEASURED_WEIGHTS };
 const recs = E.recommend(ctx);
 const rankOf = {};
 recs.forEach((r, i) => { rankOf[String(r.player.player_id)] = i + 1; });
 
-console.log('\n  RUNGS 4-6 — THE WALK, at pick ' + PICK + ' (next pick ' + nextPick
-  + ', ' + picksLeft + ' left) with Cory\'s three keepers');
+console.log('\n  RUNGS 4-6 — THE WALK, at pick ' + PICK + ' (next ' + nextPick
+  + ', ' + picksLeft + ' left, roster ' + st.roster.length + ': '
+  + st.roster.map(p => p.position).join(' ') + ')');
 console.log('  The best AVAILABLE player at each position, every step shown.\n');
 console.log('  pos   player                proj    repl    VORP    check     VONA     score    rank');
 POS.forEach(pos => {
@@ -166,9 +224,19 @@ console.log('  correction. If the order is the same, the baseline is not separat
 console.log('  positions and the inflation is upstream of VONA.\n');
 const cands = POS.map(pos => board.filter(p => p.position === pos)
   .sort((a, b) => Number(b.vorp) - Number(a.vorp))[0]).filter(Boolean);
+/* A -999 HERE MEANS THE CANDIDATE IS NOT IN THE RECOMMENDATION LIST AT ALL,
+ * which late in a draft is applyRosterLegality FORCING the list down to the
+ * mandatory slots still unfilled. That is the engine being right about a
+ * constrained roster, not missing data, and printing a sentinel invited exactly
+ * the misreading. Say it instead. */
+const forced = recs.length && recs[0].legality;
+if (forced) {
+  console.log('  LIST FORCED by roster legality: ' + forced.message);
+  console.log('  (positions outside the forced set are absent from the list by design)');
+}
 const order = (key, fn) => console.log('  by ' + key.padEnd(10)
   + cands.slice().sort((a, b) => fn(b) - fn(a))
-    .map(p => p.position + ' ' + fn(p).toFixed(1)).join('   '));
+    .map(p => p.position + ' ' + (fn(p) <= -999 ? 'not listed' : fn(p).toFixed(1))).join('   '));
 order('raw proj', p => Number(p.proj_mean));
 order('replacement', p => Number(p.replacement));
 order('VORP', p => Number(p.vorp));

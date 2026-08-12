@@ -58,17 +58,7 @@ const labBoard = prodBoard.map(asBundlePlayer);
  *
  * So: Cory's real keepers on the roster, and four states spanning the draft. A
  * term counts as moving if it moves in ANY of them. */
-const KEEPER_NAMES = ["Ja'Marr Chase", 'Derrick Henry', 'Kenneth Walker'];
-const roster = KEEPER_NAMES.map(n =>
-  DATA.players.find(p => p.name === n)
-  || (DATA.kept_players || []).find(p => p.name === n)).filter(Boolean);
-if (roster.length !== KEEPER_NAMES.length) {
-  console.log('CANNOT RUN — found ' + roster.length + ' of ' + KEEPER_NAMES.length
-    + ' keepers on the board: ' + roster.map(p => p.name).join(', '));
-  console.log('An empty or partial roster makes keeper/stack/bye trivially zero and');
-  console.log('the probe blind to exactly the terms it is meant to check.');
-  process.exit(2);
-}
+const roster = require(path.join(__dirname, 'keepers_of.js')).keepersFrom(DATA);
 
 const STATES = [
   { currentPick: 30, nextPick: 45, myPicksLeft: 12, roundsLeft: 12 },
