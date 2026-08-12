@@ -108,3 +108,60 @@ counts, which is how a trigger comes to fire late or never. Current state:
 archive that can ever fire for them, so they appear under `untriggerable()` with their
 conditions in prose. *"No trigger"* and *"not yet"* are different states, and collapsing
 them is exactly how a hypothesis gets retired permanently by accident.
+
+---
+
+## C-001 — RESOLVED: TENDENCIES PERSIST. The room layer's negative was NOT evidential.
+
+**Pre-declaration committed at `543f144` BEFORE the run.** Method frozen as
+`persistence/v1`.
+
+**The first cut of this analysis answered nothing** — 18 pairwise Spearman correlations at
+n=10, power only for |ρ| ≥ 0.648, zero crossings. The instrument could detect persistence
+only if it were strong enough not to need measuring. **Replaced with a variance
+decomposition and a permutation null**, which is what the dependence structure demanded:
+30 owner-seasons, but only **two independent transitions per owner** and six
+non-independent tendencies.
+
+| tendency | ICC | p (permutation) | |
+|---|---|---|---|
+| **RB_share5** | **0.641** | **0.0048** | **survives Bonferroni (0.0083)** |
+| DEF1 | 0.594 | 0.0233 | crosses 0.05, not correction |
+| K1 | 0.479 | 0.0907 | |
+| WR_share5 | 0.454 | 0.1165 | |
+| QB1 | 0.385 | 0.2575 | |
+| TE1 | 0.373 | 0.2882 | |
+
+**POOLED: mean ICC 0.488, joint permutation p = 0.0002.** One permutation per replicate
+applied across all six tendencies — permuting each independently would break the
+within-owner correlation and make the null tighter than reality.
+
+Denominator **6**; expected crossings **0.3**; observed **2**.
+
+### What it settles, and the boundary
+
+**Owners are statistically distinguishable from one another by how they draft.** So the
+room layer's 1.4% is **not** explained by "there is no signal" — the evidential reading is
+the less likely one and the architectural reading is live.
+
+**P5 was pre-declared and holds: this does NOT justify building the room layer.** It
+removes an explanation; it does not establish that another architecture would capture the
+signal. Different claims, and only the first is on offer.
+
+### The prediction whose REASONING was wrong
+
+P1 predicted onesie **habit** (K/DEF timing) would persist most. `RB_share5` — how much of
+the early draft goes to running backs — is the strongest, and `K1` does not cross.
+**Strategy persists more than habit**, which is the opposite of the mechanism I argued.
+
+### Predictions scored
+
+P1 ✅ (two crossed) · P2 ✅ (`RB_share5` strongest) · P3 ✅ (`TE1` flat) · P4 ✅ (pooled
+positive) · P5 holds by construction.
+
+### A CAPTURE finding, not a filter finding
+
+F1 does not bound this: our league **is** our format. What would enlarge it is external
+leagues with the **same owners across seasons** — **never captured**, because the MFL
+crawl takes one season per run and no run has followed a league across years. **Free, and
+unrecoverable once the seasons pass.**

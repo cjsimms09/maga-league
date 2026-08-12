@@ -30,7 +30,12 @@ LEDGER_VERSION = "candidate-ledger/v1"
 CANDIDATES = [
     {"id": "C-001",
      "claim": "owner drafting tendencies persist across seasons",
-     "status": "candidate",
+     # RESOLVED 2026-08-12 against a PRE-DECLARATION committed at 543f144.
+     # Pooled mean ICC 0.488, joint permutation p=0.0002; RB_share5 p=0.0048 survives
+     # Bonferroni. Owners ARE distinguishable by how they draft, so the room layer's
+     # 1.4% is not explained by absence of signal. It does NOT follow that another
+     # architecture captures it — that claim was pre-declared as unavailable.
+     "status": "replicated",
      "discovery_n": 10,
      "searched": 18,                       # 6 tendencies x 3 season pairs
      "revisit_when": "owner-seasons available >= 43, from any source with repeat owners",

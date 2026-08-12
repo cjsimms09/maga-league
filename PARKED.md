@@ -4696,3 +4696,156 @@ not let an elite player fall that far, so the room model never produces the
 state. **Cory caught it from knowing the game.** Worth recording as a limit of
 the harness rather than as a one-off: a simulation validates behaviour inside its
 own room model and is silent about everything outside it.
+
+## 🔴 → A — TENDENCIES PERSIST. THE ROOM LAYER'S NEGATIVE WAS NOT EVIDENTIAL (C, 2026-08-12)
+
+**Pre-declared at `543f144`, run afterwards, method frozen as `persistence/v1`.**
+
+**Pooled mean ICC 0.488, joint permutation p = 0.0002.** `RB_share5` alone reaches
+ICC 0.641, p = 0.0048 — **surviving Bonferroni** across six tendencies. `DEF1` 0.594,
+p = 0.0233. Denominator 6, expected crossings 0.3, observed 2.
+
+**Owners are statistically distinguishable from one another by how they draft.**
+
+**What that does to your 1.4%.** It removes the *evidential* explanation. The room mixture
+at 0.0% and opponent tendencies at 1.4% are **not** explained by "there is no signal in
+manager behaviour" — there is, and it is measurable at n=10 owners over three seasons.
+The architectural reading in the discovery audit is now the live one: a real signal
+arriving as an additive term against a dominant quantity.
+
+**What it does NOT do, and this was pre-declared as unavailable rather than conceded
+afterwards:** it does not establish that a different architecture would capture it.
+Persistence is a precondition, not a payoff. **Do not read this as a green light to build
+the room layer** — read it as removing the reason not to investigate the mechanism.
+
+**The one that surprised me** is worth your attention because it points at *what* to model:
+I predicted onesie **habit** — when someone takes their kicker — would be the most stable
+thing about a manager. It is not. **`RB_share5`, how much of the early draft goes to
+running backs, is the strongest, and `K1` does not cross at all.** Strategy persists;
+habit does not. A room model built on "this manager always takes a kicker in round 12"
+would be modelling the least stable thing measured.
+
+**And it connects to your construction finding.** You measured the engine taking 0.9 RBs
+against a modal QB3/TE3. Early-round RB share is simultaneously the most persistent
+manager trait and the axis your own simulation is furthest from the room on.
+
+*Nothing needed from you. Recorded because the winter plan was assuming this without
+having checked, and now it is checked.*
+
+## 🔴 → A — `check_components` BREAKS THE RULE WRITTEN AT THE TOP OF ITS OWN FILE (C, 2026-08-12)
+
+**Cory asked me to read the ledger-to-gate work for a producer with no consumer, a verdict
+computed and never read, or a null that reads as absence. It is the third one, and it is
+on the highest-stakes rail in the file.**
+
+`standing_check.py` states its own doctrine six lines in:
+
+> **BLIND IS NOT QUIET.** An archive this process cannot read reports BLIND and escalates,
+> because *"I could not look"* rendered as *"nothing yet"* is precisely the failure this
+> check exists to end — and it is the shape that would let this very file become another
+> silent no-op.
+
+**Every archive in the file obeys it:**
+
+```python
+def check_series(name, path):
+    if not p.exists():
+        return _row(name, "BLIND", f"{path} absent — cannot tell 'not started' from 'lost'")
+```
+
+**One does not:**
+
+```python
+def check_components():
+    if not p.exists():
+        return _row("components", "quiet",          # <-- QUIET
+                    "no grades written yet — the rail exists (src/component_grade.js), "
+                    "nothing calls it until weekly realized data lands", n=0)
+```
+
+**`quiet` is the successful state that produces no output.** So component grading — *"the
+season's entire evaluation strategy"*, your words — is the one archive that can report
+success forever while nothing ever writes it. And your own write-up says exactly why that
+is a live risk rather than a theoretical one: **`component_grade.js` HAS NO CALLER.**
+Nothing writes `component_grades.json`. This check is its only reader.
+
+**A consumer with no producer, whose reader reports the absence as fine.**
+
+### You already built the fix and applied it twice
+
+`PARKED` with a self-firing unpark date is the mechanism — `pred_ledger` → 2026-09-01,
+`sleeper_trending` → 2026-08-20. **Both are absences you decided were expected, and both
+carry a date on which "expected" expires.** `components` is the same kind of absence and
+is the only one without one.
+
+    "components": ("2026-09-08",
+                   "week 1 realized data; if nothing writes component_grades.json by "
+                   "then, the season's evaluation strategy is unobservable at exactly "
+                   "the point it starts mattering"),
+
+...and `check_components` returns **BLIND** for an absent file, so parking is what makes it
+quiet until the date rather than the code making it quiet forever.
+
+**I did not make this change.** It is mechanical, but the *date* is a judgement about your
+instrumentation deadline and it is yours to set. Everything else about the write-up reads
+straight — the gate is genuinely built and running, the correction that forecasts and
+weights are different objects is right, and naming the connector as narrower than
+"connect the ledger" is a better statement of the problem than the one you were asked.
+
+## 🔴 → A — TENDENCIES PERSIST. The room layer's 1.4% was NOT evidential. (C, 2026-08-12)
+
+**You are planning the winter as though the room layer's negative was architectural. That
+premise has now been tested and it holds — but the boundary is narrow and I want it stated
+before anyone builds on it.**
+
+**Pre-declaration committed at `543f144` BEFORE the run.** Method frozen `persistence/v1`.
+
+| tendency | ICC | p (permutation) | |
+|---|---|---|---|
+| **RB_share5** | **0.641** | **0.0048** | **survives Bonferroni (0.0083)** |
+| DEF1 | 0.594 | 0.0233 | crosses 0.05, not correction |
+| K1 | 0.479 | 0.0907 | |
+| WR_share5 | 0.454 | 0.1165 | |
+| QB1 | 0.385 | 0.2575 | |
+| TE1 | 0.373 | 0.2882 | |
+
+**POOLED: mean ICC 0.488, joint permutation p = 0.0002.** Denominator 6, expected
+crossings 0.3, observed 2.
+
+### What it settles
+
+**Owners are statistically distinguishable from one another by how they draft.** The
+room layer's 1.4% is therefore **not** explained by "there is no signal to find". The
+evidential reading is the less likely one; **the architectural reading you argued is the
+live one.**
+
+### THE BOUNDARY, and it was pre-declared as P5
+
+**This does NOT justify building the room layer.** It removes an explanation. It does
+**not** establish that a different architecture would capture the signal — a persistent
+tendency is necessary for the room layer to work and nowhere near sufficient. Those are
+different claims and only the first is on offer here.
+
+**What would move it from "not dead" to "worth building" is a demonstration that room
+information reaches a DECISION** — which is the survival-not-score route you recorded for
+winter. *"He lasts to my next pick because these three managers do not take this position
+here"* is a claim about timing, and timing is where a persistent `RB_share5` would
+actually bite. **This result is evidence for that route specifically, not for the additive
+term that already failed.**
+
+### One thing that surprised me and may matter to the design
+
+**Strategy persists; habit does not.** I predicted onesie timing — when someone takes their
+kicker — would be the most stable thing about a manager. It is not: `K1` does not cross,
+and `RB_share5` is the strongest by a distance. **How much of the early draft a manager
+spends on running backs is the most repeatable thing about them.** If the room layer models
+tendencies, that is where the signal is, and it is a *positional-allocation* signal rather
+than a *timing-habit* one.
+
+### And a capture gap you should know about
+
+F1 does not bound this — our league *is* our format. What would enlarge it is **external
+leagues with the same owners across seasons**, and that was **never captured**: the MFL
+crawl takes one season per run and no run has followed a league across years. Free, and
+unrecoverable once the seasons pass. Not proposing it — the ingest programme is closed —
+but the gap is real if the room layer ever needs a bigger n.

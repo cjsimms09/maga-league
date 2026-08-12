@@ -1057,3 +1057,61 @@ def to_snapshot(parsed, index, observed_at) -> dict:
 # Every snapshot built this way carries it, so an archived board can never be read as
 # a live capture inside a table that holds both.
 ADP_SOURCE_ARCHIVE = "wayback_capture_v1"
+
+
+# ── THE PROBE'S OWN POSITIVE CONTROLS ───────────────────────────────────────
+#
+# Each control is an input KNOWN to produce a specific answer, run through THE
+# FUNCTION THE PROBE ACTUALLY CALLS. They are declared here, beside the code they
+# check, so a future probe inherits them instead of remembering to write them.
+#
+# EVERY ONE OF THESE CORRESPONDS TO A FALSE RESULT THIS WEEK. That is the selection
+# rule: a control earns its place by having already failed once in production.
+
+def controls(known_names=None) -> list:
+    """[(name, fn, expect, why)] for `positive_control.run()`.
+
+    `known_names` is the real known-answer set when available; the board-gate control
+    is skipped rather than faked when it is not, because a control run against invented
+    names checks nothing and would report PASSED.
+    """
+    header = ["urlkey", "timestamp", "original", "mimetype", "statuscode", "digest", "length"]
+    two = ('[%s, ["c,x)/", "20240720090000", "http://x/", "text/html", "200", "D", "9"],'
+           ' ["c,x)/", "20240815120000", "http://x/", "text/html", "200", "D", "9"]]'
+           % _json_row(header))
+    out = [
+        ("parse_cdx reads a real index shape",
+         lambda: len(parse_cdx(two)), 2,
+         "the header row is not a capture; parsing it as one silently drops a real one"),
+        ("usable_captures keeps the PRE-cutoff one",
+         lambda: [r["timestamp"] for r in usable_captures(parse_cdx(two), "20240801")],
+         ["20240720090000"],
+         "a later capture must not hide an earlier usable one — the availability-API defect"),
+        ("looks_like_a_board refuses an empty 200",
+         lambda: looks_like_a_board("<html>Sorry, not available</html>")["is_board"], False,
+         "the archive serves error pages under a 200"),
+        ("the walk goes PAST a dud to reach a serving capture",
+         lambda: first_serving_capture(
+             [{"timestamp": "2", "original": "u"}, {"timestamp": "1", "original": "u"}],
+             lambda u: b"" if u.endswith("2id_/u") else b"BOARD",
+             tries=4, judge=lambda b: {"is_board": b == b"BOARD"})["timestamp"],
+         "1",
+         "tries=4 walked four days and reported NO BOARD while day 19 passed 15/15"),
+    ]
+    if known_names:
+        # THE NAME-EXTRACTION CONTROL, and it is the one that matters most: a CSV of real
+        # players must read as a board. `extract_names` had no CSV path, so every dated
+        # CSV in the mirror read 0/0 and the only real lead was invisible.
+        sample = sorted(known_names)[:3]
+        csv = "Rank,Player\n" + "\n".join("%d,%s" % (i + 1, n.title())
+                                          for i, n in enumerate(sample))
+        out.append(
+            ("extract_names reads a CSV of REAL players",
+             lambda: len(set(n.lower() for n in extract_names(csv)) & set(known_names)) >= 2,
+             True,
+             "no CSV path meant every dated mirror CSV read 0/0"))
+    return out
+
+
+def _json_row(cols) -> str:
+    return json.dumps(cols)
