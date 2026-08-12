@@ -208,6 +208,39 @@ const base = { season: '2026', build_at: '2026-08-22T23:00:00Z', pick: 34,
     e2e.score_gap === 7.25 && e2e.score_gap_source === 'derived_from_clock',
     e2e.score_gap + '/' + e2e.score_gap_source);
 
+  /* ── THE LOCKED RECOMMENDATION ────────────────────────────────────────────
+   *
+   * The architecture is meant to be commit-then-compare. The commit existed and
+   * the comparison read `state.lastClock` instead — a value rewritten on every
+   * render, for whatever pick was current then. These assert the resolver that
+   * replaces it. */
+  const LOCKS = { 33: { player: { player_id: 'a' } }, 48: { player: { player_id: 'b' } } };
+
+  ck('an EXACT per-pick lock is used and labelled',
+    O.lockedRecommendationFor(LOCKS, 48).source === 'locked_at_pick'
+    && O.lockedRecommendationFor(LOCKS, 48).rec.player.player_id === 'b');
+
+  const near = O.lockedRecommendationFor(LOCKS, 50);
+  ck('no exact lock falls back to the NEAREST EARLIER, and says so',
+    near.source === 'nearest_earlier_lock' && near.rec.player.player_id === 'b');
+  ck('  and records the distance, so a neighbour is never read as an exact match',
+    near.distance === 2 && near.locked_at === 48);
+
+  /* ⚠️ EARLIER ONLY. A LATER pick's board has already lost players I could have
+   * taken, so it cannot stand in for the decision I actually faced. */
+  ck('a LATER lock is REFUSED rather than used as the nearest one',
+    O.lockedRecommendationFor(LOCKS, 20).rec === null);
+  ck('  and says why',
+    /no recommendation was locked at or before/.test(O.lockedRecommendationFor(LOCKS, 20).source));
+  ck('no locks at all yields null with a reason',
+    O.lockedRecommendationFor({}, 48).rec === null);
+
+  ck('the record carries WHICH recommendation it was measured against',
+    O.pickOverride(Object.assign({}, base, { rec_source: 'locked_at_pick' })).rec_source
+      === 'locked_at_pick');
+  ck('  an emitter that says nothing is recorded as `unstated`, not as exact',
+    O.pickOverride(base).rec_source === 'unstated');
+
   /* ── THE SOURCE-LEVEL CHECK THAT WOULD HAVE CAUGHT IT TEN DAYS AGO ─────────
    *
    * Every emitter of an override must supply a gap or a reason. This reads the

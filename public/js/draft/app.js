@@ -3081,6 +3081,27 @@
           contested: !!(out.scored[0] && out.scored[0].contested),
           confidence: out.confidence ? out.confidence.level : null,
         } });
+
+      /* ⚠️ LOCK IT LOCALLY AT THE SAME MOMENT IT IS COMMITTED.
+       *
+       * PredLedger is write-only — there is no read-back — so the committed
+       * recommendation existed in the ledger and nowhere the app could consult.
+       * That is why the reconcile path compared against `state.lastClock`, which
+       * is rewritten on every render and is the recommendation for whatever pick
+       * was current at the LAST render rather than for mine.
+       *
+       * Keyed by PICK NUMBER, written once per pick (PredLedger dedupes, and so
+       * does this — first write wins, because the first render at a pick is the
+       * one made against the board as it stood when the pick opened). */
+      state.lockedRecs = state.lockedRecs || {};
+      if (c.pick != null && !state.lockedRecs[c.pick]) {
+        var _t0 = out.scored[0];
+        state.lockedRecs[c.pick] = {
+          player: _t0.player,
+          gap_to_second: _t0.gap_to_second == null ? null : _t0.gap_to_second,
+          contested: !!_t0.contested,
+        };
+      }
     }
 
     // FORWARD PREDICTION — commit the model's timestamped claims about what has NOT
@@ -5233,8 +5254,19 @@
     // still needs its reason — tagged so the grading data knows the difference
     // between "chose otherwise" and "did not tap".
     try {
-      const top = (state.lastClock && state.lastClock.scored || [])[0];
-      if (top && String(top.player.player_id) !== String(player.player_id)) {
+      /* ⚠️ COMPARE AGAINST THE LOCKED RECOMMENDATION FOR *THIS* PICK, not
+       * against `state.lastClock`. lastClock is rewritten on every render and is
+       * the "if your turn came now" value for whatever pick was current then —
+       * between my turns that is an opponent's pick number, and currentPick,
+       * myPicksLeft and roundsLeft all feed the score.
+       *
+       * It used to produce the right answer by luck: the sync handler removes my
+       * player from the board BEFORE calling this, and lastClock only refreshes
+       * on render, so the stale value happened to predate the batch. One added
+       * render inside the poll loop would have inverted it silently. */
+      const _lk = OverrideRecord.lockedRecommendationFor(state.lockedRecs, pickNo);
+      const top = _lk.rec || (state.lastClock && state.lastClock.scored || [])[0];
+      if (top && top.player && String(top.player.player_id) !== String(player.player_id)) {
         /* ⚠️ THIS CALL PASSED ONLY `{reconciled: true}` AND IT IS THE PATH THAT
          * MATTERS MOST. B verified score_gap null in every record end to end;
          * the two tap-path call sites were wired this morning and THIS ONE WAS
@@ -5244,8 +5276,22 @@
          *
          * The gap was sitting on `top` the whole time. It is not a missing
          * value, it was a missing argument. */
+        /* THE PATH, RECOVERED ON THE SYNC ROUTE. `capturePick(p, pathKey)` is
+         * the ONE field the manual tap uniquely produces — "took him off Path B"
+         * is richer override evidence than "took him" — and a sync-recovered
+         * pick has no pathKey. It is recoverable: the tap path already resolves
+         * a path by matching the player against each path's candidates, so the
+         * same lookup works here. Without this, retiring the manual take from
+         * the primary UI would silently drop the field. */
+        const _paths = state.lastPaths || [];
+        const _tp = _paths.find(x => x.candidates
+          && x.candidates.some(cd => String(cd.player.player_id) === String(player.player_id)));
         promptOverrideReason(player, top.player, { reconciled: true,
-          score_gap: top.gap_to_second, contested: top.contested });
+          score_gap: top.gap_to_second, contested: top.contested,
+          path: _tp ? _tp.name : null,
+          // WHICH LOCK ANSWERED, so an exact match and a nearest-earlier
+          // fallback are never read as the same evidence.
+          rec_source: _lk.source, rec_lock_distance: _lk.distance == null ? null : _lk.distance });
       }
     } catch (e) { /* the roster is already correct; the prompt is a bonus */ }
     if (typeof PredLedger !== 'undefined' && !state.mockMode) {
@@ -5691,7 +5737,7 @@
    * and logs 'no_reason_given' — a REQUIRED modal at draft speed poisons the
    * ledger worse than a missing reason, so every off-top pick still produces one
    * override entry, tagged, with the path it came from (null until Part 2). */
-  function logOverrideReason(picked, overTop, reason, path, reconciled, scoreGap, contested) {
+  function logOverrideReason(picked, overTop, reason, path, reconciled, scoreGap, contested, extra) {
     if (typeof PredLedger === 'undefined' || state.mockMode) return;
     const c = ledgerCtx();
     // Scoped LOCALLY. `unassigned` was borrowed from another function once and
@@ -5742,6 +5788,14 @@
         // because "null" and "null because nobody wired it" read identically in
         // January, which is exactly how this survived ten days.
         score_gap_source: _gapSource,
+        /* WHICH RECOMMENDATION THIS WAS MEASURED AGAINST. An exact per-pick lock
+         * and a nearest-earlier fallback are different evidence and must never
+         * aggregate — the same discipline as score_gap_source, for the same
+         * reason: a null or a substitute that does not say so is indistinguish-
+         * able from a careful one. */
+        rec_source: (extra && extra.rec_source) || 'live_clock',
+        rec_lock_distance: extra && extra.rec_lock_distance != null
+          ? Number(extra.rec_lock_distance) : null,
         contested: contested == null ? null : !!contested });
     } catch (e) {
       /* DO NOT SWALLOW THIS. The first version returned silently, and because
@@ -5761,7 +5815,7 @@
     opts = opts || {};
     if (typeof document === 'undefined') {
       logOverrideReason(picked, overTop, 'no_reason_given', opts.path,
-        opts.reconciled, opts.score_gap, opts.contested);
+        opts.reconciled, opts.score_gap, opts.contested, opts);
       return;
     }
     const old = document.getElementById('override-reason'); if (old) old.remove();
@@ -5784,7 +5838,7 @@
     const finish = (reason) => {
       if (host.parentNode) host.remove();
       logOverrideReason(picked, overTop, reason === 'skip' ? 'no_reason_given' : reason,
-        opts.path, opts.reconciled, opts.score_gap, opts.contested);
+        opts.path, opts.reconciled, opts.score_gap, opts.contested, opts);
     };
     host.addEventListener('click', ev => {
       const b = ev.target.closest('[data-orr]');
