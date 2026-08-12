@@ -15,8 +15,18 @@
  * which is the honest forward test — predict the rest of the season from what was
  * known so far, never from the weeks being predicted. Locked (already-played)
  * weeks keep their real results; remaining weeks are simulated on the ACTUAL
- * schedule many times to build each team's win distribution, playoff odds, seed
- * distribution and expected payoff.
+ * schedule many times to build each team's win distribution, playoff odds and
+ * seed distribution.
+ *
+ * ⚠️ THIS SENTENCE USED TO END "...seed distribution and expected payoff", AND
+ * NOTHING HERE COMPUTES A PAYOFF. `payoff` appeared exactly once in this file:
+ * in that sentence. A comment describing an implementation reads exactly like
+ * the implementation (rule 11e), and this one was read as a feature for weeks.
+ * Expected dollars would need a CHAMPIONSHIP probability first — the playoff pot
+ * is 53% of the money — and this simulation stops at the SEED. It counts who
+ * finishes in the top `spots` and never plays the bracket, so there is no
+ * championship probability here either. Both absences are recorded as data in
+ * `src/analyzer_claims.js` NOT_EMITTED, with what each would need.
  *
  * DONE STANDARD: this runs over the real 2023-25 seasons (draft/tests/
  * standings.test.js), and is graded two ways — did the predicted top-4 match the
