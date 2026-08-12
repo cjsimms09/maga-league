@@ -2201,3 +2201,60 @@ are in `test_the_declared_field_list_cannot_drift_from_the_row`** — verified b
 deleting `keeper_type` from the row literal fails three tests. *The constant is the schema;
 the drift test is the enforcement.* Saying "declared, so a dropped field is caught" would
 have been the same overclaim a second time, so it is not said.
+
+### THE FIRST SWEEP, AND WHAT IT FOUND — including in this module itself
+
+**17 durable artifacts on disk; 7 carried a record-list the sweep could measure.** Stated
+that way deliberately: *"17 swept, 2 findings"* would claim a coverage the sweep did not
+have. **The other 10 were not measured** — a key-name heuristic (`series`/`rows`/`records`/
+`entries`/`pins`) missed them, which is the argument for the write-time call rather than a
+discovery pass. **A sweep that guesses at structure will always under-cover.**
+
+| artifact | population |
+|---|---|
+| `external_adp_series.json` | all 5 fields 100% |
+| `oracle_capture_series.json` | all 8 fields 100% |
+| `board_pins.json` | all 7 fields 100% |
+| `adp_series.json`, `proj_series.json` | 100% |
+| `bbm/..._r4_finals.subset.csv.gz` | **8/9 full — EMPTY: `projection_adp`** (known; parked) |
+| `component_grades.json` | 9/14 full — empty: `bias`, `effect`, `implication`, `mae`, `mde` |
+
+**The component-grades flag is NOT a finding, and I checked before routing it.** All six rows
+read `verdict: "no_data"`, `n_obs: 0`, `graded: 0 of 6 declared`, with a prose `why` and an
+`implication_why` naming the absence explicitly. **The emptiness is declared, not silent** —
+the opposite of the BBM case.
+
+**Which is the instrument's real boundary, and it is worth stating: `line()` cannot tell
+"empty and unexplained" from "empty and accounted for".** Both print the same string. That
+is acceptable *because the design is to make a reader ask why* — in one case the artifact
+answers in one step and in the other it answers nothing. **The record prompts the question;
+it does not answer it.** Building machinery to tell them apart would be the dashboard rule 9
+forbids.
+
+### AND THE ONE THAT MATTERS — measured on the archive C-001 and C-003 rest on
+
+`league_history.json` was among the ten the heuristic missed, so it was measured by hand:
+
+    DRAFT PICKS   480 rows | partial: is_keeper 15.2%   (73 present, 407 null, 0 missing)
+    TRANSACTIONS 1091 rows | 6/7 fields full | EMPTY: waiver_bid
+                             waiver_bid  0 present, 1091 null, 0 MISSING
+
+**`waiver_bid` is present on every one of 1,091 transactions and empty on every one.** That
+is the round-4 shape exactly: *a field the producer declares and never fills.* It confirms
+the parked finding — *"this league has no bids may be a null read from the wrong path"* —
+with a number, and the three-way partition is what makes it legible: **0 missing** means our
+exporter IS emitting the key, so this is not a field we forgot to carry.
+
+**It does not yet prove Sleeper serves bids at another path.** That is still the live check
+in `sleeper_pool.bid_path()`. What it establishes is that the strongest persistent signal
+this project has measured — `waiver_share`, ICC 0.754 — was computed from `type` and
+`created` **beside a field that has been empty 1,091 times without anyone noticing.**
+
+### THE MODULE'S OWN DEFECT, FOUND BY POINTING IT AT REAL DATA
+
+Calling it on `league_history.json` raised `AttributeError: 'str' object has no attribute
+'get'` from three frames inside the counting loop. **This runs at write time inside archive
+writers, so an opaque crash here can take down the append that was supposed to save the
+row — a measuring instrument must never be the reason the thing it measures is lost.** It
+now refuses by name (`row 1 is str, not a record`), with the assertion written before the
+fix and confirmed failing against the shipped code.

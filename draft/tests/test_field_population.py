@@ -7,6 +7,8 @@ whether the column is full or empty, and that is the whole bug.
 """
 import gzip
 import sys
+
+import pytest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "backtest"))
@@ -161,3 +163,24 @@ def test_the_partition_holds_on_ragged_rows():
     pop = FP.population(rows, fields=["a", "b", "c"])
     for name, f in pop["fields"].items():
         assert f["present"] + f["null"] + f["missing"] == pop["rows"], name
+
+
+def test_a_non_dict_row_is_REFUSED_with_a_useful_message():
+    """Found by calling it on a real archive: a list of strings crashed with
+
+        AttributeError: 'str' object has no attribute 'get'
+
+    from inside the counting loop. This module is called AT WRITE TIME by archive
+    writers, so an opaque crash inside a writer is worse than a bad report — it can
+    take down the append that was supposed to save the row. It must say what it got.
+    """
+    import pytest
+    with pytest.raises(TypeError) as e:
+        FP.population(["not-a-record", "also-not"])
+    assert "row 0" in str(e.value) and "str" in str(e.value)
+
+
+def test_a_non_dict_row_is_refused_even_when_it_is_not_the_first():
+    with pytest.raises(TypeError) as e:
+        FP.population([{"a": 1}, "oops"])
+    assert "row 1" in str(e.value)

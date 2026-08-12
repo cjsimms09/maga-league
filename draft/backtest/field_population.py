@@ -76,6 +76,19 @@ def population(rows, fields=None):
     rows = list(rows or [])
     n = len(rows)
 
+    # REFUSE A NON-RECORD BY NAME, rather than crashing inside the counting loop.
+    # Found by pointing this at a real archive: a list of strings raised
+    # `AttributeError: 'str' object has no attribute 'get'` from three frames down.
+    # This runs AT WRITE TIME inside archive writers, so an opaque crash here can
+    # take down the append that was supposed to save the row — a measuring
+    # instrument must never be the reason the thing it measures is lost.
+    for i, r in enumerate(rows):
+        if not isinstance(r, dict):
+            raise TypeError(
+                "field_population: row %d is %s, not a record: %r. Pass the LIST OF "
+                "RECORDS, not the container that holds it."
+                % (i, type(r).__name__, r if len(repr(r)) < 60 else repr(r)[:57] + "..."))
+
     declared = list(fields) if fields is not None else []
     seen = []
     for r in rows:
