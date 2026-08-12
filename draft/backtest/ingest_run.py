@@ -414,7 +414,7 @@ def _signature(reason: str) -> str:
     return "; ".join(parts) or "unknown"
 
 
-def league_passthrough(picks, mfl_players, board_index, series, year, adp_ids=None) -> dict:
+def league_passthrough(picks, mfl_players, board_index, series, year) -> dict:
     """Everything `to_league_record` needs that MFL's three exports do not supply.
 
     THE ADP SNAPSHOT HAS EXACTLY ONE OWNER, DELIBERATELY. `ExternalAsOfStore`
@@ -427,50 +427,12 @@ def league_passthrough(picks, mfl_players, board_index, series, year, adp_ids=No
     `has_weekly_outcomes` is decided by `external_outcomes.league_outcomes` and is
     still not invented here — see `outcomes_fields` below, which reads that
     module's answer and never manufactures one of its own.
-
-    THE SNAPSHOTS ARE TRANSLATED INTO OUR IDS HERE, and that is not cosmetic. The
-    archive stores MFL's own player ids — correct for an archive — and this function
-    used to hand them straight to the store under the key `player_id`, which every
-    consumer reads as OUR sleeper id. It did not raise and it did not come back
-    empty: `decision_contexts` fills `taken` from the PICKS (our ids) and keys the
-    board from the snapshot (MFL's), so `i not in taken` was always true and THE
-    AVAILABLE SET NEVER SHRANK. The replay graded its baseline against a draft in
-    which no player was ever taken. Note the shape of the seam — the crosswalk on
-    the line below has always emitted OUR ids, so the two halves of this one return
-    value disagreed about what `player_id` meant.
-
-    `adp_ids` is computed once per RUN rather than per league (the map is a property
-    of the archive and the board, not of a league) and passed in; the default exists
-    so a single-league caller cannot get a silently untranslated board.
     """
     from external_adp_capture import as_store_snapshots
-    if adp_ids is None:
-        adp_ids, _ = adp_id_map(series, mfl_players, board_index)
     return {
         "crosswalk": A.crosswalk_picks(picks, mfl_players, board_index),
-        "snapshots": as_store_snapshots(series, year, adp_ids),
+        "snapshots": as_store_snapshots(series, year),
     }
-
-
-def adp_id_map(series, mfl_players, board_index) -> tuple:
-    """The archive's MFL ids -> our board's ids, with the crosswalk report.
-
-    THE DECODE KEY IS THE ARCHIVE'S OWN, UNIONED WITH THE LIVE EXPORT. Preferring
-    the archive is what makes an old season readable at all; unioning the live
-    export is what covers the two days captured before the archive stored names.
-    Neither alone is enough and picking one would make the run silently wrong in
-    one direction or the other.
-    """
-    from external_adp_capture import crosswalk_map, merge_players, players_of
-    key = merge_players(players_of(series), mfl_players or {})
-    if not key:
-        raise RuntimeError(
-            "no decode key for the ADP archive: it holds MFL's player ids and "
-            "neither the archive nor this run's players export can say who they "
-            "are. Translating nothing would report every league as "
-            "F4.no_pre_draft_adp — a true-looking statement about the leagues and "
-            "a false one about our capture.")
-    return crosswalk_map(key, board_index)
 
 
 def outcomes_fields(rules_json, crosswalk, weekly_rows, season, gsis_to_ours,
@@ -576,16 +538,6 @@ def run(league_ids, year, out_path=None, *, players=None, board=None,
     snap_by_league: dict = {}
     pool_picks, league_dates = [], {}
     stopped_early = None
-    # ONCE, BEFORE THE LOOP. The archive's ids -> ours is a property of the archive
-    # and the board, not of any league, and computing it per league would run the
-    # matcher over the whole ADP board several hundred times. It is also the right
-    # place to fail: if the archive cannot be decoded at all, that is a fact about
-    # this run and it should stop here rather than surface as every league quietly
-    # reporting F4.no_pre_draft_adp.
-    adp_ids, adp_cw = adp_id_map(series or [], players or {}, board)
-    print("adp crosswalk: %d of %d archive ids resolved to our board (%s)"
-          % (adp_cw.get("crosswalked", 0), adp_cw.get("picks", 0),
-             adp_cw.get("methods", {})))
     for _i, lid in enumerate(league_ids):
         # A RUN KILLED BY THE CLOCK PRODUCES NOTHING. Measured: a 250-league run
         # spent 35+ minutes against a 60-minute job timeout, and a timeout would
@@ -612,8 +564,7 @@ def run(league_ids, year, out_path=None, *, players=None, board=None,
             records.append(rec)
             continue
         picks, _ = A.draft_picks(exports["draftResults"])
-        extra = league_passthrough(picks, players or {}, board, series or [], year,
-                                   adp_ids=adp_ids)
+        extra = league_passthrough(picks, players or {}, board, series or [], year)
         draft_at = A.to_league_record(exports["league"], exports["rules"],
                                       exports["draftResults"], league_id=lid).get("draft_at")
         adp = {}

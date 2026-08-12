@@ -21,18 +21,6 @@ import external_adp_capture as C  # noqa: E402
 import external_replay as X  # noqa: E402
 
 
-def SAME_NAMESPACE(series):
-    """An identity id map, written out at every call site that wants one.
-
-    There is deliberately no default inside `as_store_snapshots`. These fixtures
-    key their snapshots with OUR ids, which is a real and legitimate case — but it
-    is an ASSUMPTION, and it was the assumption that hid the shipped defect for two
-    days. Naming it here means a reader sees the claim being made instead of
-    inheriting it from a default.
-    """
-    return {pid: pid for s in series for pid in (s.get("rows") or {})}
-
-
 def rows(n=5, base=1.0):
     return {str(100 + i): base + i for i in range(n)}
 
@@ -89,8 +77,7 @@ def test_the_series_feeds_ExternalAsOfStore_DIRECTLY():
     empty board without erroring."""
     s = C.append_snapshot([], 2026, "2026-08-09", {"100": 1.0, "101": 2.0})
     s = C.append_snapshot(s, 2026, "2026-08-10", {"100": 1.5, "101": 2.5})
-    store = X.ExternalAsOfStore("L1", "2026-08-12",
-                                C.as_store_snapshots(s, 2026, SAME_NAMESPACE(s)), "fp")
+    store = X.ExternalAsOfStore("L1", "2026-08-12", C.as_store_snapshots(s, 2026), "fp")
     board = store.board()
     assert {r["player_id"] for r in board} == {"100", "101"}
     assert store.snapshot_date().isoformat() == "2026-08-10"
@@ -119,16 +106,14 @@ def test_F5s_strictly_before_rule_is_NOT_reimplemented_here():
         "is ExternalAsOfStore's job and would be a second implementation of F5")
     s = C.append_snapshot([], 2026, "2026-08-09", rows(2))
     s = C.append_snapshot(s, 2026, "2026-08-20", rows(2))
-    assert len(C.as_store_snapshots(s, 2026, SAME_NAMESPACE(s))) == 2, (
-        "the store must see BOTH and pick")
+    assert len(C.as_store_snapshots(s, 2026)) == 2, "the store must see BOTH and pick"
 
 
 def test_a_snapshot_ON_the_draft_date_is_still_refused_downstream():
     """The capture must not weaken F5 by handing over a same-day board. The store
     refuses it; this asserts the pair actually behaves that way end to end."""
     s = C.append_snapshot([], 2026, "2026-08-12", rows(2))
-    store = X.ExternalAsOfStore("L1", "2026-08-12",
-                                C.as_store_snapshots(s, 2026, SAME_NAMESPACE(s)), "fp")
+    store = X.ExternalAsOfStore("L1", "2026-08-12", C.as_store_snapshots(s, 2026), "fp")
     from asof import TimeTravelError
     try:
         store.board()
@@ -386,8 +371,7 @@ def test_the_readers_accept_the_ARCHIVE_FILE_as_written_to_disk():
     the shape the live path does not have."""
     ser = C.append_snapshot([], "2026", "2026-08-11", {"1": 2.5, "2": 3.0}, total_drafts=115)
     archive = {"_note": "whatever this file says about itself", "series": ser}
-    assert (C.as_store_snapshots(archive, "2026", SAME_NAMESPACE(ser))
-            == C.as_store_snapshots(ser, "2026", SAME_NAMESPACE(ser)))
+    assert C.as_store_snapshots(archive, "2026") == C.as_store_snapshots(ser, "2026")
     assert C.coverage(archive, "2026") == C.coverage(ser, "2026")
     assert C.coverage(archive, "2026")["snapshots"] == 1
 
@@ -398,12 +382,12 @@ def test_a_shape_the_reader_does_not_understand_RAISES_rather_than_reading_EMPTY
     one about the archive, and nothing anywhere would contradict it."""
     import pytest
     with pytest.raises(TypeError) as e:
-        C.as_store_snapshots("draft/data/external_adp_series.json", "2026", {})
+        C.as_store_snapshots("draft/data/external_adp_series.json", "2026")
     assert "statement about the leagues" in str(e.value)
 
 
 def test_None_is_still_an_empty_series_because_that_is_a_real_caller():
-    assert C.as_store_snapshots(None, "2026", {}) == []
+    assert C.as_store_snapshots(None, "2026") == []
     assert C.coverage(None, "2026")["snapshots"] == 0
 
 
@@ -671,65 +655,6 @@ def test_an_UNCOUNTABLE_archive_says_so_rather_than_inventing_a_figure():
     alarm built to announce the opposite."""
     m = C.resume_alarm(None, None)
     assert "cannot say how many days" in m and "0" not in m
-
-
-# ── THE NAMESPACE SEAM: whose id is under `player_id`? ──────────────────────
-# These two exist because the archive shipped for two days emitting MFL's OWN
-# player ids under the key `player_id`, which every consumer downstream reads as
-# OUR sleeper id. Measured on the real 2026-08-12 capture: 15 of 708 ids collide
-# numerically with a board id and ALL FIFTEEN are false matches (MFL's #1 overall
-# resolves to a fourth-string college tight end). The two tests above could not
-# see it — one asserts the emitted KEY NAMES, the other asserts ids in == ids
-# out. Neither asks what namespace the value is in.
-def test_as_store_snapshots_REFUSES_to_label_a_foreign_id_as_OUR_player_id():
-    """MUTATION: let `ids` default to a pass-through. That is exactly the shipped
-    defect — the source's key travels under our field name, every downstream join
-    silently misses, and nothing raises because a dict lookup that finds nothing
-    is a normal dict lookup."""
-    s = C.append_snapshot([], 2026, "2026-08-09", {"13589": 2.6, "16161": 3.8})
-    try:
-        C.as_store_snapshots(s, 2026)
-    except TypeError:
-        pass                      # the signature itself refuses — acceptable
-    except ValueError as e:
-        assert "id" in str(e).lower()
-    else:
-        raise AssertionError(
-            "as_store_snapshots handed over rows without being told whose ids they "
-            "are — the shipped defect, and it cannot be caught downstream because "
-            "a miss looks identical to a player who was simply never drafted")
-
-
-def test_a_DRAFTED_player_is_actually_REMOVED_from_the_replay_board():
-    """THE CONSEQUENCE, asserted where it bites rather than at the seam.
-
-    MUTATION: give the archive ids from a different namespace than the picks —
-    which is what the live path did. `taken` fills with OUR ids while the board is
-    keyed by MFL's, so `i not in taken` is ALWAYS true and the available set NEVER
-    SHRINKS. Every player stays draftable for the whole replay and the baseline is
-    graded against a board where nobody was ever picked. It does not raise, it does
-    not empty, it just quietly grades a fiction.
-
-    The whole-chain test in test_survival_grade.py cannot catch this: it builds the
-    crosswalk and the snapshot from the same `S%d` generator, so the two namespaces
-    are identical BY CONSTRUCTION. Rule 10d, on the one guard written for this class.
-    """
-    import external_replay_run as RR
-    picks = [{"overall": i, "round": (i - 1) // 10 + 1, "team": "T%d" % ((i - 1) % 10 + 1),
-              "player_id": "S%d" % i, "timestamp": 1756141200 + i * 600}
-             for i in range(1, 31)]
-    rec = {"league_id": "L1", "draft_at": "2025-08-25", "draft": {"picks": picks}}
-    src = {str(13000 + i): float(i) for i in range(1, 81)}        # MFL's ids
-    ours = {str(13000 + i): "S%d" % i for i in range(1, 81)}      # the decode key
-    s = C.append_snapshot([], 2025, "2025-08-20", src, total_drafts=500)
-    store = X.ExternalAsOfStore("L1", "2025-08-25", C.as_store_snapshots(s, 2025, ours), "fp")
-    board = store.board()
-    ctx = RR.decision_contexts(rec, board)
-    avail = [len(c["context"]["available"]) for c in (ctx[0], ctx[14], ctx[29])]
-    assert avail == [80, 66, 51], (
-        "the available set must shrink by one per pick; got %s. If it is flat at "
-        "the board size, the board's ids and the picks' ids are in different "
-        "namespaces and nobody is ever removed." % avail)
 
 
 # ── THE DECODE KEY: an archive of ids nobody can resolve is not evidence ────

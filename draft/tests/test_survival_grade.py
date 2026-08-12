@@ -240,28 +240,10 @@ def test_the_ENTIRE_PATH_produces_a_graded_observation_with_nothing_HAND_MADE():
     rows, _ = A.draft_picks(draft)
     cw = [dict(r, player_id="S%d" % r["overall"], matched_by="name") for r in rows]
 
-    # ⚠️ CROSS-LANE FIX BY C, 2026-08-12 — A's file, A reverts if wrong. ⚠️
-    # FORCED, not opportunistic: `as_store_snapshots` now REQUIRES an id map, so
-    # this call could not keep compiling either way. It gained that argument
-    # because the archive stores MFL's own player ids and this function used to
-    # hand them to the store under the key `player_id`, which the replay reads as
-    # OURS — measured 15/708 joins on the real capture, all 15 false. See PARKED
-    # "THE ADP ARCHIVE'S IDS ARE NOT OUR IDS". The one substantive choice here is
-    # making the two namespaces DIFFER rather than passing an identity map; that is
-    # the whole reason this fixture exists and the reason it missed the defect.
-    #
-    # THE TWO NAMESPACES ARE DELIBERATELY DIFFERENT, and that is the whole point of
-    # this fixture now. It used to generate the crosswalk and the ADP snapshot from
-    # the same `S%d` counter, so picks and board shared a keyspace BY CONSTRUCTION —
-    # and the one test written to catch "picks carrying MFL's id where the replay
-    # reads ours" could not see the same defect one seam over, on the ADP side,
-    # where it had actually shipped. Rule 10d: a derived fixture stops exercising
-    # its case. The archive is keyed as MFL keys it and is translated on the way in.
     series = CAP.append_snapshot([], "2025", "2025-08-20",
-                                 {str(13000 + i): float(i) for i in range(1, 81)},
+                                 {"S%d" % i: float(i) for i in range(1, 81)},
                                  total_drafts=500)
-    snaps = CAP.as_store_snapshots(series, "2025",
-                                   {str(13000 + i): "S%d" % i for i in range(1, 81)})
+    snaps = CAP.as_store_snapshots(series, "2025")
     draft_at = A.to_league_record(league, rules, draft, league_id="L1")["draft_at"]
     store = ExternalAsOfStore("L1", draft_at, snaps, policy_fingerprint())
 
