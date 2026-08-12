@@ -66,15 +66,37 @@ const pool = DATA.players.filter(p => p.position && p.proj_mean != null && p.vor
 const byAdp = pool.slice().sort((a, b) => adpOf(a) - adpOf(b));
 const K = KEEP.keepersFrom(DATA);
 
-/* eba, recomputed at a survival scaling. `scale < 1` models survival having
- * been OVER-predicted by (1-scale): the corrected probability is LOWER. */
-function ebaAt(playersAtPos, nextPick, ctx, scale) {
+/* ── I HAD THE DIRECTION BACKWARDS, AND IT INVERTED THE FINDING ─────────────
+ *
+ * Cory's item 31 reads "survival over-predicts by 15 to 57 percent" and I built
+ * the first version on that sentence. THE REPO'S OWN WORDS ARE THE OPPOSITE:
+ * src/calibration_drift.js — "the survival model over-predicts DEPARTURES —
+ * players are taken LESS often than it says". Over-predicting departures is
+ * UNDER-predicting survival. The correction raises survival; my first table
+ * lowered it, and every sign in it was wrong.
+ *
+ * The compression happened in a summary and I propagated it without reading the
+ * source. Exactly the class this week has been about: a quantity described one
+ * way, behaving another, and nobody comparing the two.
+ *
+ * SO THE CORRECTION IS APPLIED TO THE DEPARTURE PROBABILITY, WHICH IS WHAT WAS
+ * ACTUALLY MEASURED, rather than by scaling survival:
+ *
+ *     d_pred = 1 - surv_pred          the model's departure probability
+ *     d_true = d_pred / (1 + bias)    departures over-predicted by `bias`
+ *     surv   = 1 - d_true
+ *
+ * This is faithful to the claim AND stays inside [0,1] with no clipping — a
+ * scale-up on survival would have hit the 1.0 ceiling hardest at K and DEF
+ * (0.986 and 0.970), silently flattening exactly the comparison being made. */
+function ebaAt(playersAtPos, nextPick, ctx, bias) {
   const sorted = playersAtPos.slice().sort((a, b) => b.proj_mean - a.proj_mean);
   let expected = 0, allBetterGone = 1, massUsed = 0;
   for (const p of sorted) {
     let sv = S.survivalProbability(p, nextPick, ctx);
     if (typeof sv !== 'number' || !isFinite(sv)) sv = 1;
-    const surv = Math.max(0, Math.min(1, sv * scale));
+    const d = Math.max(0, Math.min(1, 1 - sv));
+    const surv = Math.max(0, Math.min(1, 1 - d / (1 + bias)));
     const pBest = surv * allBetterGone;
     expected += p.proj_mean * pBest;
     massUsed += pBest;
@@ -115,15 +137,15 @@ console.log('  VONA = proj_mean - expectedBestAvailable(samePos, nextPick),');
 console.log('  and eba is a survival-weighted sum. MEASURED_WEIGHTS.value = '
   + E.MEASURED_WEIGHTS.value + ' — this is the term that decides picks.\n');
 console.log('  Change in VONA for the best available player at each position,');
-console.log('  averaged over Cory\'s twelve picks. POSITIVE = VONA rises when the');
-console.log('  over-prediction is corrected.\n');
+console.log('  averaged over Cory\'s twelve picks. NEGATIVE = VONA FALLS when the');
+console.log('  bias is corrected, i.e. the shipped model OVER-states what waiting costs.\n');
 console.log('  scale  meaning                               ' + POS.map(p => p.padEnd(8)).join(''));
 console.log('  ' + '-'.repeat(94));
 
 const SCALES = [
-  [0.85, 'over-predicted by 15%'],
-  [0.60, 'over-predicted by 40%'],
-  [0.43, 'over-predicted by 57% (worst)'],
+  [0.15, 'departures over-predicted by 15% (best case)'],
+  [0.36, 'by 36% (the pinned midpoint)'],
+  [0.57, 'by 57% (worst window)'],
 ];
 
 const rows = [];
@@ -136,7 +158,7 @@ SCALES.forEach(([sc, label]) => {
       if (at.length < 2) return;
       const best = at.slice().sort((a, b) => b.proj_mean - a.proj_mean)[0];
       const rest = at.filter(p => p.player_id !== best.player_id);
-      const base = Number(best.proj_mean) - ebaAt(rest, ctx.nextPick, ctx, 1);
+      const base = Number(best.proj_mean) - ebaAt(rest, ctx.nextPick, ctx, 0);
       const scaled = Number(best.proj_mean) - ebaAt(rest, ctx.nextPick, ctx, sc);
       acc[pos].push(scaled - base);
     });
@@ -153,10 +175,10 @@ const ctx0 = stateAt(70);
 const at0 = ctx0.board.filter(p => p.position === 'RB');
 const best0 = at0.slice().sort((a, b) => b.proj_mean - a.proj_mean)[0];
 const rest0 = at0.filter(p => p.player_id !== best0.player_id);
-const e1 = ebaAt(rest0, ctx0.nextPick, ctx0, 1);
-const e0 = ebaAt(rest0, ctx0.nextPick, ctx0, 0);
-console.log('\n  CONTROL: eba at RB, pick 70 — scale 1.00 -> ' + e1.toFixed(1)
-  + ', scale 0.00 -> ' + e0.toFixed(1)
+const e1 = ebaAt(rest0, ctx0.nextPick, ctx0, 0);
+const e0 = ebaAt(rest0, ctx0.nextPick, ctx0, 99);
+console.log('\n  CONTROL: eba at RB, pick 70 — bias 0 -> ' + e1.toFixed(1)
+  + ', bias 99 (departures ~impossible) -> ' + e0.toFixed(1)
   + (Math.abs(e1 - e0) > 0.01 ? '   the scaling reaches the arithmetic'
     : '   *** NOTHING MOVED — this table is void'));
 

@@ -29,77 +29,83 @@ dispositions below cluster rather than scatter.
 
 ---
 
-## 31. CALIBRATION DRIFT — **BUILD, AND IT IS MISFILED**
+## 31. CALIBRATION DRIFT — **BUILD, AND CORY FILED IT CORRECTLY. I DID NOT.**
 
-**This is not a Part Four monitoring item. Survival is an input to the only term
-that carries weight.**
+**RETRACTION. An earlier version of this section claimed item 31 was misfiled and
+belonged in Part One as a draft-critical defect, on the strength of a table whose
+sign was backwards and whose magnitude was inflated about fivefold. Both errors
+came from one place: I built on the sentence in the task list instead of reading
+the source.**
+
+Item 31 reads *"survival over-predicts by 15 to 57 percent"*. The repo's own
+words, `src/calibration_drift.js`:
+
+> the survival model over-predicts **DEPARTURES** — players are taken **less**
+> often than it says
+
+Over-predicting departures is UNDER-predicting survival. The correction RAISES
+survival; my first table lowered it. And the magnitude error followed from the
+same mistake — scaling survival by 0.43 moves RB survival from 0.775 to 0.33,
+which is an enormous perturbation and is not what the measurement claims. The
+correction actually claimed operates on the departure probability:
 
 ```
-VONA = proj_mean − expectedBestAvailable(samePos, nextPick)
-expectedBestAvailable = Σ proj_j × surv_j × Π(1 − surv_i)
+d_pred = 1 − surv_pred                 the model's departure probability
+d_true = d_pred / (1 + bias)           departures over-predicted by `bias`
+surv   = 1 − d_true
 ```
 
-VONA is a survival-weighted expectation and `MEASURED_WEIGHTS.value = 1.0`.
+Faithful to the claim, and it stays inside [0,1] with no clipping — a scale-up on
+survival would have hit the 1.0 ceiling hardest at K (0.986) and DEF (0.970),
+silently flattening exactly the comparison being made.
 
-Measured (`draft/tools/survival_sensitivity.js`), mean ΔVONA for the best
-available player at each position across Cory's twelve picks:
+**MEASURED AGAIN, CORRECTLY** (`draft/tools/survival_sensitivity.js`). Mean ΔVONA
+for the best available player at each position across Cory's twelve picks.
+NEGATIVE means VONA falls when the bias is corrected — the shipped model
+OVER-states what waiting costs:
 
-| survival over-predicted by | QB | RB | WR | TE | K | DEF | **spread** |
+| departures over-predicted by | QB | RB | WR | TE | K | DEF | **spread** |
 |---|---|---|---|---|---|---|---|
-| 15% | +1.5 | +2.0 | +1.0 | +0.9 | +0.5 | +0.4 | **1.6** |
-| 40% | +4.8 | +6.4 | +3.1 | +3.2 | +1.1 | +1.5 | **5.3** |
-| 57% (worst window) | +9.1 | +11.3 | +5.7 | +5.8 | +1.8 | +2.8 | **9.5** |
+| 15% (best case) | −0.2 | −0.7 | −0.4 | −0.1 | −0.0 | −0.0 | **0.7** |
+| 36% (the pinned midpoint) | −0.7 | −1.5 | −0.7 | −0.3 | −0.0 | −0.0 | **1.5** |
+| 57% (worst window) | −1.0 | −2.0 | −1.0 | −0.4 | −0.0 | −0.1 | **2.0** |
 
-Against `COIN_FLIP_GAP` 1.0, `TIE_THRESHOLD` 2.0, `CLOSE_GAP` 3.5. **Even the
-mild end exceeds coin-flip; the worst end is 2.7x close-gap.**
+Against `COIN_FLIP_GAP` 1.0, `TIE_THRESHOLD` 2.0, `CLOSE_GAP` 3.5.
 
-*The first version of this table measured four positions and reported the worst
-spread as 5.6. Cory asked what it did for the others. K and DEF are mandatory
-starting slots that get drafted, and they sit at the BOTTOM of the range — so
-leaving them out did not just omit two rows, it understated the spread by 70%.
-Measuring four of six and calling it a positional table is the same shape as a
-signature that never called the surfaces it was scoring.*
+**SO THE EFFECT IS REAL AND SMALL.** At the pinned midpoint the largest positional
+spread is 1.5 points — enough to flip a coin-flip, not enough to reach
+`TIE_THRESHOLD`. At the worst window it reaches 2.0, still well inside
+`CLOSE_GAP`. It does not reorder the board.
 
-**WHY K AND DEF BARELY MOVE, measured rather than assumed:**
+The bound is tighter still: the CONTROL sets departures to nearly impossible and
+`eba` at RB moves 159.6 → 163.4. **Under 4 points is the entire possible range of
+this correction at the most sensitive position**, so no calibration figure in the
+15–57% range can produce a large effect.
 
-| pos | proj of best | drop to 5th | drop to 10th | mean survival to next pick |
-|---|---|---|---|---|
-| QB | 406 | 26.4 | 61.4 | 0.841 |
-| RB | 345 | 33.3 | 57.4 | 0.775 |
-| WR | 298 | 15.6 | 29.7 | 0.751 |
-| TE | 233 | 19.5 | 35.0 | 0.878 |
-| K | 107 | 6.5 | **9.3** | **0.986** |
-| DEF | 114 | 9.3 | **14.3** | **0.970** |
+**DISPOSITION: BUILD, as a monitoring rail, in Part Four — which is where Cory
+put it.** `src/calibration_drift.js` already exists and proposes rather than
+applies, for the right reason (*"a self-correcting survival model would be
+fitting itself to its own residuals, which is how a model stops being able to be
+wrong"*). What it lacks is a caller and enough graded observations to propose on.
 
-Sensitivity is the product of positional SPREAD and survival UNCERTAINTY, and
-K/DEF are near the floor on both: everybody survives, and the tenth-best is 9-14
-points off the best. `eba` is close to the best player's projection whatever the
-scaling, so it barely moves. **The model is right that waiting costs nothing at
-K and DEF.**
+**AND THE OBSERVATIONS ARE NOT AVAILABLE YET, WHICH IS ALSO ALREADY DECLARED.**
+`src/component_write.js`: *"3 real drafts are on disk (league_history.json)
+against a declared minimum of 20 clusters, so this row reads too_thin even once
+replay is wired."* The calibration cannot be re-established from our own drafts
+before the 22nd. Mock calibration (`mock_calib.js`) is the only pre-draft source
+and it grades within a session.
 
-**AND THAT ROBUSTNESS HAS A COROLLARY THAT IS NOT GOOD.** Because correcting the
-over-prediction lifts RB/QB by 9-11 points and K/DEF by 2-3, the CURRENT
-uncorrected state over-values K and DEF by roughly **9 points relative to RB** —
-2.6x `CLOSE_GAP`. That is a measured, quantitative CANDIDATE for item 3, the
-magnitude complaint: *"a defence with a 15-point winnable surplus and a kicker
-with 10 pulled forward 140 rank positions."* It is a candidate and not a
-conclusion, because it is contingent on survival actually over-predicting by
-something near that range — which is C's measurement from a different window and
-has not been re-established on this board.
+**AND THE ITEM-3 CANDIDATE IS WITHDRAWN.** The earlier version offered "K and DEF
+are over-valued by ~9 points relative to RB" as a quantitative candidate for the
+magnitude complaint. With the direction and magnitude corrected the K/DEF effect
+is −0.0 to −0.1 points. **Survival calibration does not explain a kicker moving
+140 rank positions.** Item 3 needs a different mechanism and this was not it.
 
-VONA is compared *across* positions to pick, so an uneven shift does not cancel
-— it reorders the board.
-
-**AND IT DOES NOT EXPLAIN THE QB/TE SYMPTOM — say so plainly.** Correcting the
-over-prediction raises RB most (+11.3) and QB second (+9.1). It would widen RB
-*and* QB against WR/TE. It is a real defect in the value term; it is not the
-cure for the thing that started this, and claiming it was would be the
-symptom-matching this project keeps rejecting.
-
-*Three probes died before this number was believable: two monkeypatch attempts
-that could not reach `survival.js`'s internal binding, both reporting a
-confident "0 of 12 top picks change". The control — survival scaled to ZERO must
-move something — caught both.*
+*Three probes died before any of these numbers were believable: two monkeypatch
+attempts that could not reach `survival.js`'s internal binding, both reporting a
+confident "0 of 12 top picks change". The control — a perturbation must move
+`eba` — caught both. It did not catch the sign error, because a sign error moves
+things too; only reading the source did.*
 
 ## 24. THE FOUNDATIONAL RE-EXAMINATION — **BUILD. Highest value on the list.**
 
@@ -132,9 +138,10 @@ a second look at the same null.
 
 *Across all three arms including DEFAULT_WEIGHTS* means it is **weight-independent
 and therefore board-driven** — the same diagnosis B reached for the
-intervention-rate drift, where the fix was to stop measuring the board. Item 31
-supplies a specific candidate: RB is the position most sensitive to survival
-scaling (+11.3, the largest of the six). One measurement decides it; no build.
+intervention-rate drift, where the fix was to stop measuring the board. Item 31 supplied a candidate and it is WITHDRAWN — corrected, the survival
+effect at RB is -2.0 points at the worst window, not the +11.3 the inverted table
+claimed. RB is still the most survival-sensitive position, but 2 points cannot
+produce a 0.8-to-0.9 shift. One measurement decides it; no build.
 
 ## 27. TE AT 3.6, UNEXPLAINED — **RESEARCH FIRST, and the ground has moved**
 
@@ -200,7 +207,10 @@ that failed.
 
 **11 items, 11 dispositions, 0 deferred without one.**
 
-And the ordering that falls out, which is not the list's order: **31 first**
-(it is a Part One defect wearing a Part Four label), **then the board fix**
-(one change, five items), **then 24** (the anchor everything rests on). Nothing
-else moves money before the 22nd.
+**The ordering, revised after the item-31 retraction:** the board fix first (one
+change, five items), **then 24** — the value anchor everything rests on and the
+only item with no blocker. 31 stays in Part Four where Cory filed it: real,
+small, and un-measurable before the 22nd on 3 drafts against a minimum of 20.
+
+I moved 31 to the front on a table whose sign was backwards. Correcting it moved
+it back to exactly where the list already had it.
