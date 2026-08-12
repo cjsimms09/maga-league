@@ -134,3 +134,59 @@ def test_a_clean_fp_table_reports_zero_collisions(monkeypatch):
     table, diag = ADP.build_fantasypros_table(_sleeper_pool(), year=2026, min_rows=3)
     assert diag["fp_collisions"] == 0 and diag["fp_dropped_to_collision"] == 0
     assert set(table) == {"1", "2", "3"}
+
+
+# ── THE SAME TWO GUARDS ON THE PRIMARY (FFC) CROSSWALK ─────────────────────
+#
+# The FP table was hardened against silent overwrite on 2026-08-12 and the FFC
+# table — the PRIMARY anchor, the one carrying every bye week — was left without
+# it for another day. These pin both guards there too.
+
+def _stub_ffc(monkeypatch, players):
+    """fetch_adp(fmt, teams, year) -> payload. describe_payload reads it."""
+    monkeypatch.setattr(ADP, "fetch_adp", lambda *a, **kw: {"players": players})
+    monkeypatch.setattr(ADP, "_print_report", lambda *a, **kw: None)
+
+
+def test_ffc_collision_drops_both_claimants(monkeypatch):
+    """Two FFC rows crosswalking to one Sleeper id must not overwrite silently."""
+    players = [
+        {"name": "Ja'Marr Chase", "position": "WR", "team": "CIN", "adp": 1.2, "adp_rank": 1},
+        {"name": "Jamarr Chase", "position": "WR", "team": "CIN", "adp": 55.0, "adp_rank": 55},
+        {"name": "Bijan Robinson", "position": "RB", "team": "ATL", "adp": 2.4, "adp_rank": 2},
+    ]
+    _stub_ffc(monkeypatch, players)
+    out = ADP.build_adp_table(_sleeper_pool(), fmt="half", teams=10, year=2026)
+    table, report = out["adp"], out["report"]
+    assert report["collisions"] == 1, report
+    assert report["dropped_to_collision"] == 2, report
+    assert "1" not in table, "neither claimant may survive — the crosswalk cannot say whose ADP it is"
+    assert all(r["adp"] != 55.0 for r in table.values())
+
+
+def test_ffc_accounting_identity_holds(monkeypatch):
+    players = [
+        {"name": "Ja'Marr Chase", "position": "WR", "team": "CIN", "adp": 1.2, "adp_rank": 1},
+        {"name": "Jamarr Chase", "position": "WR", "team": "CIN", "adp": 55.0, "adp_rank": 55},
+        {"name": "Bijan Robinson", "position": "RB", "team": "ATL", "adp": 2.4, "adp_rank": 2},
+        {"name": "Nobody At All", "position": "WR", "team": "XXX", "adp": 999.0, "adp_rank": 999},
+    ]
+    _stub_ffc(monkeypatch, players)
+    report = ADP.build_adp_table(_sleeper_pool(), fmt="half", teams=10, year=2026)["report"]
+    assert (report["matched"] + report["unmatched_count"]
+            + report["dropped_to_collision"]) == report["parsed"], report
+
+
+def test_a_clean_ffc_crosswalk_reports_zero_collisions(monkeypatch):
+    """The control. If this fires on healthy data it costs real players off the
+    primary anchor, which is the one carrying every bye week."""
+    players = [
+        {"name": "Ja'Marr Chase", "position": "WR", "team": "CIN", "adp": 1.2, "adp_rank": 1},
+        {"name": "Bijan Robinson", "position": "RB", "team": "ATL", "adp": 2.4, "adp_rank": 2},
+        {"name": "Jahmyr Gibbs", "position": "RB", "team": "DET", "adp": 3.1, "adp_rank": 3},
+    ]
+    _stub_ffc(monkeypatch, players)
+    out = ADP.build_adp_table(_sleeper_pool(), fmt="half", teams=10, year=2026)
+    table, report = out["adp"], out["report"]
+    assert report["collisions"] == 0 and report["dropped_to_collision"] == 0
+    assert set(table) == {"1", "2", "3"}

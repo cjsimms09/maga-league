@@ -343,8 +343,21 @@ def build_adp_table(sleeper_players: dict, *, fmt: str, teams: int, year: int,
     sd_field = desc["stdev_field"]
     index = build_index(sleeper_players)
 
+    # ── THE SAME SILENT-OVERWRITE THE FP TABLE HAD, ON THE PRIMARY CROSSWALK ──
+    #
+    # `rows[pid] = ...` keyed by Sleeper id. Two FFC entries crosswalking to one
+    # id overwrite silently while `matched` counts the SURVIVORS, so the report
+    # says success on a table that lost a row. The FP builder was hardened for
+    # exactly this on 2026-08-12 and THIS ONE — the primary anchor, the table
+    # that carries every bye week — was left without it.
+    #
+    # BOTH CLAIMANTS ARE DROPPED, not arbitrated: a collision means the crosswalk
+    # cannot say whose ADP this is, and keeping either is a guess written into
+    # the anchor. Counted as their own bucket so the identity below is exact.
+    entries = payload.get("players") or []
     rows, unmatched = {}, []
-    for i, entry in enumerate(payload.get("players") or []):
+    claims: dict = {}
+    for i, entry in enumerate(entries):
         rank = int(entry.get("adp_rank") or entry.get("rank") or (i + 1))
         pid, method = match_player(entry, index)
         if not pid:
@@ -356,6 +369,7 @@ def build_adp_table(sleeper_players: dict, *, fmt: str, teams: int, year: int,
                 "adp": entry.get("adp"),
             })
             continue
+        claims.setdefault(pid, []).append(str(entry.get("name") or f"rank {rank}"))
         adp = float(entry.get("adp") or rank)
         sd, sd_src = fitted_sd(adp, entry.get(sd_field) if sd_field else None)
         rows[pid] = {
@@ -368,6 +382,25 @@ def build_adp_table(sleeper_players: dict, *, fmt: str, teams: int, year: int,
             "bye": entry.get("bye"),
         }
 
+    contested = {pid: names for pid, names in claims.items() if len(names) > 1}
+    dropped = 0
+    for pid, names in contested.items():
+        rows.pop(pid, None)
+        dropped += len(names)
+
+    # THE ACCOUNTING IDENTITY, ASSERTED RATHER THAN REPORTED. Every parsed entry
+    # now lands in exactly one bucket, so a row that goes missing between the
+    # payload and the table cannot hide in the difference. Clean today is not the
+    # point — uncheckable tomorrow is.
+    accounted = len(rows) + len(unmatched) + dropped
+    if accounted != len(entries):
+        raise SystemExit(
+            f"REFUSING the ADP anchor: the crosswalk does not account for its own "
+            f"rows. {len(rows)} matched + {len(unmatched)} unmatched + {dropped} "
+            f"collided = {accounted}, but {len(entries)} were parsed. A row went "
+            f"missing between the payload and the table; a board built on a table "
+            f"that cannot count itself is worse than no board.")
+
     report = {
         "format": fmt, "teams": teams, "year": year,
         "payload": {k: desc[k] for k in ("meta_keys", "player_fields", "player_count", "stdev_field")},
@@ -375,6 +408,10 @@ def build_adp_table(sleeper_players: dict, *, fmt: str, teams: int, year: int,
         "unmatched": unmatched,
         "unmatched_count": len(unmatched),
         "unmatched_in_top_n": [u for u in unmatched if u["rank"] <= strict_top_n],
+        "parsed": len(entries),
+        "collisions": len(contested),
+        "dropped_to_collision": dropped,
+        "collision_names": {p: n for p, n in list(contested.items())[:10]},
     }
     _print_report(report, strict_top_n)
 
