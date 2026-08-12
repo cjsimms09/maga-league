@@ -126,10 +126,14 @@ be deleted rather than rewritten.
 1. **Do not rewrite the composite.** 0.4% at best, and the tractable form of the
    rewrite measures **0.0%**. The rewrite re-opens every number on the board to
    buy a difference the design cannot reliably produce.
-2. **Take the 7.9 points a cheaper way if at all.** The gap is greedy-vs-composite
-   at the ORDERING margin; a lookahead of one or two picks inside the existing
-   scorer would capture most of it without changing the shape. Worth a candidate,
-   not a project.
+2. **AND NOT BY LOOKING AHEAD — I WROTE THAT BEFORE MEASURING IT AND IT IS WRONG.**
+   The first version of this line said "a lookahead of one or two picks inside the
+   existing scorer would capture most of it". The lookahead arm then measured
+   **−0.1 ± 1.8, eight points below depth-0 greedy**. The 7.9 points are available
+   only to a rule that maximises the end state *at this pick*, which is what
+   `greedy_end_state` does and what a lookahead stops doing. If the gap is worth
+   chasing at all it is by scoring the immediate end-state gain, not by extending
+   the horizon.
 3. **The survival finding is the one to chase.** A rule with no survival model
    beat the one with it. That is measurable again, cheaply, and it bears directly
    on whether the winter room-through-survival design is worth starting at all —
