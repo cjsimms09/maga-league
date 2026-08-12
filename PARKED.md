@@ -6864,3 +6864,56 @@ for different fixes and only the second is visible to Cory at the table.
 pass found the model's TE timing at the 11th percentile of real teams while the MARKET arm's
 sits at the 97th. Two different instruments, same conclusion — the Stage 1 TE gap was mostly
 the reference being late.
+
+---
+
+## 🔎 C's OWN LANE — THE D3 ARCHIVE WORKS END TO END, AND ONE ASSUMPTION UNDER IT IS UNVERIFIED (C, 2026-08-12)
+
+**Exercised the real committed archive through the real reader for the real draft date** — not
+a fixture. This had only ever been tested on synthetic snapshots.
+
+    archive              2 snapshots, 2026-08-11 .. 2026-08-12
+    draft 2026-08-22  -> selects 2026-08-12, 708 rows
+    draft 2026-08-12  -> selects 2026-08-11, 705 rows   (strictly-before holds)
+    draft 2026-08-11  -> TimeTravelError                (correct: nothing before it)
+
+**F5's rule is confirmed on the artifact itself.** Capture, read and screen all work.
+
+### AND A HONEST STATEMENT OF WHAT IT IS NOT YET DOING
+
+`pre_draft_adp` is carried into each league record and screened for PRESENCE
+(`F4.no_pre_draft_adp`), but **nothing joins an ADP value to a pick.** That is by design, not
+a defect: F7 closed negative, so the pooling that would consume it was never built. The
+archive is evidence-for-later, which is exactly what its docstring claims. Recording it so
+nobody later reads "the ingest uses the ADP archive" into a pipeline that only checks it
+exists.
+
+### THE UNVERIFIED ASSUMPTION, AND IT IS CHEAP TO CLOSE
+
+Two MFL exports, two id fields, and **no normalisation on either side**:
+
+    capture     export?TYPE=adp           rows[str(p.get("id"))]        external_adp_capture:414
+    picks       export?TYPE=draftResults  str(p.get("player"))          mfl_adapter:476
+
+**34 of the 708 archive rows are zero-padded four-digit ids** — `0501`, `0502`, `0504` — with
+ADPs from 137 to 282. That is the team defenses. Neither side calls `zfill`, `lstrip('0')` or
+anything else, so the join is a bare string compare.
+
+**If the two exports differ in padding, the archive silently loses every defense** — 4.8% of
+each captured day, and a defense-less ADP board looks exactly like a complete one. It is the
+shape this lane has hit repeatedly: two producers, one consumer, and an assumed-identical key.
+
+**IT IS PROBABLY FINE** — both are MFL player ids and MFL returns them as JSON strings, which
+preserves padding. **But probably-fine is not measured**, and I cannot measure it here:
+`api.myfantasyleague.com` is policy-denied at CONNECT in this container.
+
+**ONE LINE IN CI, where the D3 capture already runs with egress:**
+
+    adp  = set(fetch adp export ids)
+    pl   = set(fetch players export ids)
+    print(len(adp - pl), sorted(adp - pl)[:10])     # 0 -> the namespaces agree
+
+**NOT URGENT AND NOT BLOCKING.** Nothing consumes the join today. But the days being captured
+now cannot be recaptured, so if the key is wrong it is wrong permanently and silently — which
+is the one property that makes a cheap check worth doing before more days accumulate rather
+than after.
