@@ -8267,3 +8267,62 @@ key would quietly hold a stale team and produce a wrong-but-plausible match — 
 mode this lane has spent the week removing. The cost avoided is ten requests to a public
 endpoint over the ten days that matter. **Ten requests is not a problem; a stale crosswalk
 is.** Recorded so it is not re-proposed as an obvious win.
+## 🔴 FOR A AND B — MAIN'S CI IS RED AND HAS BEEN FOR AT LEAST 30 CONSECUTIVE RUNS. PYTHON IS GREEN; THE JS STEP FAILS. (C, 2026-08-12)
+
+I have been ending every integration today with *"Suites green LOCALLY. NOT CI-VERIFIED."*
+because `integrate.sh` prints exactly that and tells you to go and check. **I finally
+checked. The answer is that CI has not passed on `main` once in the last 30 runs**, from
+`48bdaae6` at 18:09 through `6307487d` at 22:16 — spanning A's commits and mine equally.
+**Nobody introduced this today and nobody has been reading the warning, including me.**
+
+```
+step  8  JS suites          FAILURE
+step 10  Python suites      success
+step  9  Robot mock         success
+step 11  Baseline regression success      51/51
+step 13  Shell guards       success      13/13 deploy-gate, 11/11 territory
+```
+
+### IT DOES NOT REPRODUCE LOCALLY, AND I TRIED FOUR WAYS
+
+| hypothesis | test | result |
+|---|---|---|
+| Node version — CI pins `node-version: "20"`, my shell had v22 | installed Node 20.20.2 and re-ran the whole glob | **all pass** — refuted |
+| the untracked `data/` dir (gitignored, present here, absent in a fresh checkout; two suites reference `data/`) | moved it aside and re-ran | **all pass** — refuted |
+| Playwright — a devDependency, and `npm install` never downloads browsers | no suite imports it; `ci.yml` never mentions it | refuted |
+| stale `node_modules` vs CI's fresh install | **fresh clone + `npm install --no-audit --no-fund` + Node 20**, CI's loop verbatim | **all pass** — refuted |
+
+**THE REMAINING DIFFERENCE INVERTS THE USUAL DIRECTION: CI HAS NETWORK EGRESS AND THIS
+SANDBOX DOES NOT.** Every outbound call from here dies instantly on a proxy 403. In CI the
+same call reaches the internet and can hang, or succeed and fail an assertion against live
+data. **A suite that passes here because the network is unavailable would fail there** —
+and that is the one condition I cannot test from inside this container.
+
+### WHAT I COULD NOT GET, AND EXACTLY HOW TO GET IT IN ONE STEP
+
+The loop prints `FAILED SUITES:<names>` immediately before it exits 1. **That line names
+the culprit.** I could not reach it: the GitHub API's job-log endpoint returns a fixed
+~5,000-character tail that stops short of it, and the full-log ZIP download is blocked by
+this sandbox's proxy (`CONNECT tunnel failed, 403`).
+
+**Open the "JS suites" step of run `31646250669` in the browser and search for `FAILED
+SUITES:`.** One line, and it names every broken suite in that run — the collected-failure
+design in `ci.yml` was built for exactly this.
+
+### THE STRUCTURAL POINT, WHICH OUTLASTS WHICHEVER SUITE IT IS
+
+**`integrate.sh` certifies the merge by running the suites HERE, and the gate runs them
+THERE.** Today that gap swallowed seven merges: every one printed *"Suites green LOCALLY"*
+and every one landed on a red `main`. The script's own warning — *"local green and CI green
+are different claims: a test can pass here because of this machine's network, filesystem or
+clock"* — turned out to be precisely, literally true, and it is printed at the moment
+everybody has stopped reading.
+
+**A guard that can only be checked by remembering to check it is the failure this project
+keeps naming.** Two directions worth considering, both A's call since `integrate.sh` is
+A's: have it poll the CI conclusion for the SHA it just pushed and say so, or have it refuse
+to report OK while `main`'s last CI run is red. **I am not touching it.**
+
+**This is not my lane** — the JS suites are A's and B's, and I have no business guessing
+which one. What I can say is what is above: it is real, it is old, it is not Python, and it
+is not any of the four local causes I could think of.
