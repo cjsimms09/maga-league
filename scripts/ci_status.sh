@@ -79,7 +79,14 @@ case "$cmd" in
     short="${want:0:8}"
     waited=0
     while :; do
-      out="$(_fetch "$API?per_page=20")"
+      # QUERY BY head_sha, DO NOT SCAN A WINDOW. The first version fetched the
+      # latest 20 runs and searched them, so a SHA that had scrolled out
+      # reported CANNOT DETERMINE — which is safe but useless, and on a busy
+      # repo it would be the normal answer rather than the exception. Validating
+      # the gate against the actual historical failure (0e17b182) is what
+      # exposed it: the answer exists, the query was just looking in the wrong
+      # place.
+      out="$(_fetch "$API?head_sha=$want&per_page=5")"
       line="$(printf '%s' "$out" | python3 -c '
 import sys, json
 want = sys.argv[1]

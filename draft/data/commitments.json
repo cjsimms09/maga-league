@@ -1,0 +1,70 @@
+{
+  "version": "commitments/v1",
+  "why": "PART THREE CLOSES ON A DATE AND A CHECK THAT FIRES IF THE DATE PASSES. Every row here carries both. A row with a date and no mechanical verification is an intention with no trigger — the failure this program has now found in the January reconstruction, the enforcement table's empty cells, the grading cron that existed and never ran, and the standing check that could not fire inside the window it protected. The `verify` field is a COMMAND, not a claim: the check runs it and reads the exit code. Nobody can mark a row done by asserting it.",
+  "not_a_todo_list": "A commitment is something that becomes WRONG if the date passes unmet. Ordinary work goes in the task list. If a row here would be fine to slip, it does not belong here.",
+  "commitments": [
+    {
+      "id": "component-grading-live",
+      "item": 15,
+      "what": "At least one component carries a real grade rather than no_data. Six components (survival, projection, opportunity_adj, consensus, replacement, weekly_claims) currently report no_data against their own declared bars; the rail exists and nothing calls it until weekly realized data lands.",
+      "due": "2026-09-22",
+      "why_that_date": "Three NFL weeks after the season opens is the earliest any weekly-realized series is thick enough to grade against the declared bars. Earlier is a bar chosen to fire; later and the first month of the season is ungraded.",
+      "verify": "node draft/tools/commit_verify.js component-grading-live",
+      "owner": "A"
+    },
+    {
+      "id": "ledger-to-gate-path",
+      "item": 16,
+      "what": "The prediction ledger reaches the graduation gate: a ledger entry can change a gate verdict, and the path is exercised end to end rather than existing as two halves.",
+      "due": "2026-09-22",
+      "why_that_date": "Same gate as component grading — the ledger is unobservable until graded weeks exist, and pairing the dates means one re-check rather than two.",
+      "verify": "node draft/tools/commit_verify.js ledger-to-gate-path",
+      "owner": "A"
+    },
+    {
+      "id": "january-reconstruction-mandate",
+      "item": 17,
+      "what": "The January reconstruction is written into the Annual mandate with a trigger, not left as an intention. This is the ORIGINAL instance of the intention-with-no-trigger class and it is still open.",
+      "due": "2026-12-01",
+      "why_that_date": "A January task needs its trigger installed before December ends, and December 1 leaves a month of slack rather than depending on somebody remembering in the last week.",
+      "verify": "node draft/tools/commit_verify.js january-reconstruction-mandate",
+      "owner": "A"
+    },
+    {
+      "id": "shape-files",
+      "item": 18,
+      "what": "Every cross-lane contract has a declared SHAPE that a consumer can test against, so a producer changing a field breaks a check rather than a renderer.",
+      "due": "2026-09-01",
+      "why_that_date": "The in-season instrumentation deadline. After the draft the surfaces start carrying live data every week, and a shape drift found then costs a week of grading.",
+      "verify": "node draft/tools/commit_verify.js shape-files",
+      "owner": "A"
+    },
+    {
+      "id": "caveat-collapse",
+      "item": 19,
+      "what": "The 29x-rendered caveat stays collapsed to one instance. ALREADY DONE — this row exists so a regression fires rather than being noticed in a mock.",
+      "due": "2026-08-22",
+      "why_that_date": "Draft day. A caveat that re-multiplies between now and then is a war-room defect on the one day it cannot be fixed.",
+      "verify": "node draft/tools/commit_verify.js caveat-collapse",
+      "owner": "A"
+    },
+    {
+      "id": "queue-title",
+      "item": 20,
+      "what": "The queue card's title says what the queue IS. ALREADY DONE — registered so the wording cannot drift back.",
+      "due": "2026-08-22",
+      "why_that_date": "Draft day, same reasoning as the caveat.",
+      "verify": "node draft/tools/commit_verify.js queue-title",
+      "owner": "A"
+    },
+    {
+      "id": "contract-unknown-role",
+      "item": 21,
+      "what": "UNKNOWN has no role: the renderer must not be able to reach a role at all when resolution is UNKNOWN. ALREADY DONE — registered because it is a contract defect that a future refactor would silently reintroduce.",
+      "due": "2026-08-22",
+      "why_that_date": "Draft day. The explanation surface is what Cory reads to decide whether to override.",
+      "verify": "node draft/tools/commit_verify.js contract-unknown-role",
+      "owner": "A"
+    }
+  ]
+}

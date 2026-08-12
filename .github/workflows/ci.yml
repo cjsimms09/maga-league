@@ -191,6 +191,23 @@ jobs:
       # A silently-SKIPPED step reads as success. This sentinel runs last, always,
       # and fails if any critical suite step did not actually run (skipped/cancelled)
       # — the guard Cory asked for against a step vanishing rather than failing.
+      - name: Commitments — a date, and a check that FIRES if the date passes
+        # PART THREE'S CLOSURE CONDITION, made mechanical. Every row in
+        # draft/data/commitments.json carries a due date AND a verification that
+        # reads repository state — not a status field somebody can edit. A row
+        # that is unmet after its date fails this step.
+        #
+        # WHY IT IS A GATE AND NOT A REPORTER. standing_check.py exits 0 always,
+        # by design: it watches accumulating archives and escalates through a
+        # marker. This is the opposite case. A commitment that slips silently is
+        # indistinguishable from one that was never made, and this repo has now
+        # produced that failure four times — the January reconstruction, the
+        # enforcement table's empty cells, a grading cron that existed and never
+        # ran, and a staleness bar that could not fire inside the window it
+        # protected. CANNOT DETERMINE counts as unmet, always.
+        if: always()
+        run: node draft/tools/commitments_check.js
+
       - name: Guard — every critical step actually ran (no silent skips)
         if: always()
         # Outcomes are success/failure/skipped/cancelled. A real failure is reported by
