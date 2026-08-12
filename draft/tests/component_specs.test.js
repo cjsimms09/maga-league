@@ -109,5 +109,24 @@ const NAMES = Object.keys(S.SPECS);
     S.SPECS.projection.split_by === 'position' && S.SPECS.consensus.split_by === 'position');
 }
 
+
+// ── A ROW WITH A DECLARED MINIMUM ENFORCES IT ──────────────────────────────
+{
+  /* The survival row's floor was MEASURED (draft/backtest/survival_power.py):
+   * 20 drafts puts it at 0.0109 Brier against a declared bar of 0.02; 10 drafts
+   * puts it at 0.0199, which IS the bar. So `min_clusters` is part of the spec
+   * rather than a note, and a row below it must read too_thin — otherwise a
+   * null at twelve drafts reads exactly like a null at two hundred, which is
+   * the one distinction the whole surface exists to make. */
+  ck('survival declares the cluster count below which it cannot speak',
+    S.SPECS.survival.min_clusters === 20, S.SPECS.survival.min_clusters);
+  ck('  and it is stated in the units the row is clustered in (drafts)',
+    S.SPECS.survival.cluster_is === 'draft');
+  ck('  the declared floor at that count is below the declared material bar',
+    0.0109 < S.SPECS.survival.material, S.SPECS.survival.material);
+  ck('  and the count is NOT the number the row was originally written for',
+    S.SPECS.survival.min_clusters < 100);
+}
+
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail ? 1 : 0);

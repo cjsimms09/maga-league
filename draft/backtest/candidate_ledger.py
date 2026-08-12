@@ -72,7 +72,13 @@ def counters(history: dict = None, capture_series: dict = None) -> dict:
     the thing it counts — which is how a revisit trigger comes to fire late, or never.
     """
     out = {}
-    seasons = ((history or {}).get("seasons") or [])
+    # ONLY SEASONS THAT ACTUALLY DRAFTED. `league_history.json` carries 2026, which
+    # has a draft record and ZERO picks, so counting bare seasons read 40 against
+    # C-001's threshold of 43 — three short of firing a persistence test on a season
+    # with no drafting behaviour in it. A counter that overcounts fires EARLY, which
+    # is worse than one that is written down, because it still looks derived.
+    seasons = [s for s in ((history or {}).get("seasons") or [])
+               if any((d.get("picks") or []) for d in (s.get("drafts") or []))]
     out["owner_seasons"] = sum(len(s.get("owners") or {}) for s in seasons)
     rows = ((capture_series or {}).get("series") or [])
     out["oracle_capture_qb_slots"] = sum(int(r.get("qb_decision_slots") or 0) for r in rows)

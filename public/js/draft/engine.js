@@ -151,6 +151,29 @@
     ONESIE_DISCOUNT: true,
     ONESIE_KEEP: 0.10,            // fraction of standalone value a backup retains
     ONESIE_ENDGAME_PICKS: 2,      // last N picks: nothing else matters, rule relaxes
+    /* THE STRUCTURAL CAP, added 2026-08-12 after the roster-construction run.
+     *
+     * THE DISCOUNT WAS NOT ENOUGH, and the measurement says so: across 120
+     * simulated rooms the MODAL draft was QB3 RB1 WR3 TE3 K1 DEF1 — six of my
+     * twelve picks on two positions that start one each, against 0.9 running
+     * backs. ONESIE_KEEP = 0.10 is MULTIPLICATIVE, and a tenth of a small
+     * positive bench score is still positive when every alternative sits near
+     * zero. A discount cannot express "never", so it did not.
+     *
+     * This is a ROSTER-LEGALITY rule, not a valuation one: past this count the
+     * player cannot reach the starting lineup at all, whatever he is worth.
+     * Counted against the STRICT starting slots, deliberately excluding FLEX —
+     * the flex is contested by RB/WR/TE and must not be pre-reserved for the
+     * position that happens to be scoring well. So TE1 + TE2 (who may take the
+     * flex) are allowed and TE3 is not.
+     *
+     * K and DEF get ZERO spare bodies: both are streamed, and a second one has
+     * never been worth a pick in any measured run (both sit at exactly 1.0).
+     *
+     * RELAXED IN THE ENDGAME, like every other clause here — with two picks
+     * left a legal lineup outranks a tidy one. */
+    ONESIE_HARD_CAP: true,
+    ONESIE_MAX_SPARE: { QB: 1, TE: 1, K: 0, DEF: 0 },
     // THE EXPLICIT EXCEPTIONS. A onesie duplicate may still surface, but only
     // for a stated reason, and the card must SAY it rather than presenting him
     // as a normal recommendation.
@@ -690,6 +713,24 @@
     const left = Number(ctx.myPicksLeft);
     if (Number.isFinite(left) && left <= CFG.ONESIE_ENDGAME_PICKS) return none;
 
+    /* THE HARD CAP, CHECKED BEFORE THE EXCEPTIONS.
+     *
+     * Deliberately ahead of them: the value and injury exceptions exist to let a
+     * FIRST spare body through when he has fallen absurdly far or the starter is
+     * hurt. Neither argument applies to a man who cannot reach the lineup even
+     * if the starter goes down, because the previous spare is already there.
+     * `spare` counts bodies beyond the STRICT slots, so QB1+QB2 and TE1+TE2 pass
+     * and the third of either does not. */
+    if (CFG.ONESIE_HARD_CAP) {
+      const allowed = (CFG.ONESIE_MAX_SPARE || {})[pos];
+      const spare = have - slots;
+      if (allowed != null && spare >= allowed) {
+        return { duplicate: true, discount: CFG.ONESIE_KEEP, capped: true, exception: null,
+          why: pos + (have + 1) + ' — you already carry ' + have + ' at ' + pos
+            + ' and start ' + slots + '. He cannot reach the lineup even if one goes down.' };
+      }
+    }
+
     // ---- the exceptions, each of which must be SAYABLE ----------------------
     const adp = player.adjusted_adp != null ? player.adjusted_adp : player.raw_adp;
     const here = Number(ctx.currentPick);
@@ -1032,7 +1073,12 @@
     return {
       player,
       score,
+      // `capped` MUST travel with the entry. The demotion reads s.onesie.capped,
+      // and the first version of this object did not carry the field — the sink
+      // would have been a guard that exists and does not guard, which is the
+      // failure class this codebase keeps producing. Caught before it shipped.
       onesie: onesie.duplicate ? { discounted: onesie.discount < 1,
+        capped: !!onesie.capped,
         exception: onesie.exception, why: onesie.why } : null,
       components: {
         vona: v,
@@ -1236,8 +1282,13 @@
    */
   function demoteFlaggedOnesies(scored) {
     const isFlaggedOnesie = s =>
-      (s.player.position === 'K' || s.player.position === 'DEF')
-      && !s.forced && s.rails && s.rails.length > 0;
+      ((s.player.position === 'K' || s.player.position === 'DEF')
+        && !s.forced && s.rails && s.rails.length > 0)
+      // A CAPPED ONESIE SINKS TOO, and for a stronger reason than a rail: the
+      // rail says "this looks wrong", the cap says "he cannot start". Sinking
+      // rather than scoring is the point — a multiplicative discount could not
+      // express never, which is why the cap exists at all.
+      || (s.onesie && s.onesie.capped && !s.forced);
     let anySunk = false;
     const keep = [];
     const sink = [];
