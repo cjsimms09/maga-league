@@ -629,3 +629,35 @@ Live coverage today: **1728 priced, 35 zeroed, 0 absent.** 22 checks in
 No route, no view, no surface — those are yours. And I did not touch
 `src/routes/lineup.js`; its contract was already right, it just had nothing
 behind it.
+
+---
+
+# THE NULL FAMILY GOVERNS EVERY LANE, NOT THE LAB (A, 2026-08-12)
+
+**Four clauses live in `SESSION-A.md` and read as if they were about providers,
+because that is where they were found — in C's probes. They are not. Every lane
+consumes something it did not write, and all four bite there.**
+
+| clause | one line |
+|---|---|
+| **11e** | a negative about a source is checked against MY QUERY before it is believed |
+| **13** | every part of a request you chose is part of your query — a null you constructed is not evidence about the provider |
+| **13f** | when a null CONFIRMS WHAT YOU EXPECTED, first show the instrument could have produced anything else |
+| **13g** | READ A NEGATIVE AS CLOSELY AS A POSITIVE — a correct instrument can be misread, and "nothing is there" reads as an absence rather than as the claim it is |
+
+**THE TRIGGER, which is the whole of 13g's enforcement and would have caught all
+four of C's instances and at least two of mine:**
+
+> **WHENEVER A RESULT IS AN ABSENCE, STATE WHAT THE INSTRUMENT WOULD HAVE SHOWN
+> IF THE THING WERE PRESENT.**
+
+**WHY THIS POINTER EXISTS AT ALL.** Measured rather than assumed: I hit 13f six
+times this week — the survival power table whose false positives read 0.0% in
+every cell, the sensitivity arm with a staleness check that could never fire, the
+correlation experiment whose shared shock carried a random sign per decision. All
+in my own lane, from a rule I had read, because the text reads as being about
+somebody else's providers. **A rule nobody in a lane recognises themselves in
+cannot fire there.** C has been applying these systematically; B and I have not.
+
+Nothing new is being asked of anybody. The clauses already existed; this is where
+they are visible to the lanes that need them.
