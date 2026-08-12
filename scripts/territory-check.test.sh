@@ -114,5 +114,42 @@ bash scripts/territory-check.sh A >/tmp/tc9.out 2>&1; ck $? 0 \
   "ci.yml stays shared — repo-wide, not one lane's feature"
 git checkout -q .github/workflows/ci.yml
 
+
+# ── THE AUTHORISED CROSS-LANE EXCEPTION MUST STAY NARROW ────────────────────
+#
+# An exception mechanism with no test that it stays narrow is how an escape
+# hatch is born. Added with the exception itself (C, 2026-08-12): one entry,
+# one side, one exact path — and every NEIGHBOURING file in the same directory
+# owned by the same side must still fail.
+mkdir -p src
+echo "A predledger" > src/predledger.js
+echo "A sleeper"    > src/sleeper.js
+echo "A prefs"      > src/prefs.js
+git add -A; git commit -qm "src files"
+
+echo "C REGISTERS TWO KINDS" > src/predledger.js
+bash scripts/territory-check.sh C >/tmp/tcx1.out 2>&1; ck $? 0 \
+  "C editing src/predledger.js PASSES — the authorised exception"
+grep -q "AUTHORISED CROSS-LANE EXCEPTION" /tmp/tcx1.out; ck $? 0 \
+  "...and it PRINTS, because an exception nobody can see is a hole"
+git checkout -q src/predledger.js
+
+echo "C edits a NEIGHBOUR" > src/sleeper.js
+bash scripts/territory-check.sh C >/tmp/tcx2.out 2>&1; ck $? 1 \
+  "C editing src/sleeper.js still FAILS — the exception is not a directory"
+git checkout -q src/sleeper.js
+
+echo "C edits another" > src/prefs.js
+bash scripts/territory-check.sh C >/tmp/tcx3.out 2>&1; ck $? 1 \
+  "C editing src/prefs.js still FAILS"
+git checkout -q src/prefs.js
+
+# THE SIDE IS PART OF THE KEY. B has no grant on this file and must not inherit
+# one — the entry is "C:src/predledger.js", not "src/predledger.js".
+echo "B edits predledger" > src/predledger.js
+bash scripts/territory-check.sh B >/tmp/tcx4.out 2>&1; ck $? 1 \
+  "B editing src/predledger.js still FAILS — the grant is scoped to C"
+git checkout -q src/predledger.js
+
 echo ""; echo "$pass passed, $fail failed"
 [ "$fail" -eq 0 ]
