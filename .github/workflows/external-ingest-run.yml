@@ -196,6 +196,22 @@ jobs:
                   print("    PAIR  %-24s %-3s | %-24s %-3s | %s"
                         % (x.get("mfl_name"), x.get("mfl_pos"),
                            x.get("board_name"), x.get("board_pos"), x.get("method")))
+              # DOES THE SHORTFALL HAVE A SHAPE? Printed beside the rate because the
+              # rate cannot show it: 0.94 says how many missed, never WHICH KIND. If
+              # the misses concentrate in one position, or in suffixed names, every
+              # downstream number is biased in a direction nobody has characterised.
+              # Both sides, because the question is a comparison.
+              _uc = cw.get("unmatched_composition") or {}
+              _mc = cw.get("matched_composition") or {}
+              if _uc.get("by_pos") or _mc.get("by_pos"):
+                  print("  MISSED by pos       %s   suffixed=%s"
+                        % (json.dumps(dict(list((_uc.get("by_pos") or {}).items())[:8])),
+                           _uc.get("with_name_suffix")))
+                  print("  MATCHED by pos      %s   suffixed=%s"
+                        % (json.dumps(dict(list((_mc.get("by_pos") or {}).items())[:8])),
+                           _mc.get("with_name_suffix")))
+                  if _uc.get("by_why"):
+                      print("  missed by reason    %s" % json.dumps(_uc["by_why"]))
               # A single conflicts= total conflates the wrong player with a player
               # who changed team between two snapshots. Split, with the values.
               cb = cw.get("conflict_breakdown") or {}

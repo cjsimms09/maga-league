@@ -417,6 +417,35 @@ def infer_rounds(rows: list, franchises: int) -> tuple:
 
 
 # ── the crosswalk, at scale ─────────────────────────────────────────────────
+#: Name endings that a crosswalk historically trips on. Named rather than inferred:
+#: these are the three hypotheses the discovery audit put forward for WHY the misses
+#: might be structured, so the report answers the question that was actually asked.
+_SUFFIXES = (" jr", " sr", " ii", " iii", " iv", " v")
+
+
+def _composition(recs, pos_key):
+    """Counts by position, by reason, and by name-suffix. Every row, never a sample.
+
+    Reported for BOTH the matched and unmatched sets, because "differ systematically"
+    is a COMPARISON — one distribution on its own answers nothing. A reader can only
+    see structure by holding the two side by side.
+    """
+    from collections import Counter
+    by_pos, by_why = Counter(), Counter()
+    suffixed = 0
+    for r in recs or []:
+        by_pos[str(r.get(pos_key) or "unknown")] += 1
+        if r.get("why"):
+            by_why[str(r["why"])] += 1
+        nm = str(r.get("name") or "").lower().rstrip(".")
+        if nm.endswith(_SUFFIXES):
+            suffixed += 1
+    out = {"n": len(recs or []), "by_pos": dict(by_pos), "with_name_suffix": suffixed}
+    if by_why:
+        out["by_why"] = dict(by_why)
+    return out
+
+
 def crosswalk_picks(picks: list, mfl_players, sleeper_index) -> tuple:
     """MFL draft picks -> our board's sleeper ids. (rows, report).
 
@@ -505,6 +534,21 @@ def crosswalk_picks(picks: list, mfl_players, sleeper_index) -> tuple:
         # distribution rather than discovered player by player.
         "methods": dict(methods),
         "unmatched_sample": unmatched[:10],
+        # THE SHORTFALL'S SHAPE, NOT TEN EXAMPLES OF IT.
+        #
+        # `unmatched_sample` is right for what the note above claims — counting a
+        # shortfall — and it cannot answer the question the discovery audit named as
+        # an absent class: do unmatched players DIFFER SYSTEMATICALLY from matched
+        # ones? Ten rows cannot say, the full set is discarded when the run ends, and
+        # the CI artifact holding it is egress-blocked from the sandbox. So the
+        # question was permanently unanswerable from the record.
+        #
+        # If the misses ARE structured — rookies, team defences, suffixed names —
+        # every downstream number carries a bias in a direction nobody has
+        # characterised, and the crosswalk RATE cannot see it: a rate is one number
+        # and this is a shape. A dozen integers, computed where the data already is.
+        "unmatched_composition": _composition(unmatched, "pos"),
+        "matched_composition": _composition(rows, "position"),
         # THE EVIDENCE BEHIND THE RATE. `matched_sample` is what makes 72% an
         # auditable claim instead of a number nobody can check; `conflicts` is
         # the part that must never be a sample — a matched pair whose sources

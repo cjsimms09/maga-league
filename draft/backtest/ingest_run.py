@@ -653,6 +653,8 @@ def crosswalk_summary(reports: list) -> dict:
     """
     from collections import Counter
     rates, methods = [], Counter()
+    miss_pos, hit_pos, miss_why = Counter(), Counter(), Counter()
+    miss_suffix, hit_suffix = [0], [0]
     picks = matched = unknown_id = no_match = conflicts = vocab_only = 0
     pairs: list = []
     conflict_rows: list = []
@@ -669,6 +671,17 @@ def crosswalk_summary(reports: list) -> dict:
         vocab_only += r.get("vocabulary_only_agreements") or 0
         methods.update(r.get("methods") or {})
         conflict_rows.extend(r.get("conflict_rows") or [])
+        # THE SHORTFALL'S SHAPE, POOLED. A per-league composition that stops at the
+        # per-league report answers nothing at pool scale, and the run-level dict is
+        # the only crosswalk record anything downstream reads.
+        for key, acc in (("unmatched_composition", miss_pos), ("matched_composition", hit_pos)):
+            comp = r.get(key) or {}
+            acc.update(comp.get("by_pos") or {})
+            if key == "unmatched_composition":
+                miss_suffix[0] += comp.get("with_name_suffix") or 0
+                miss_why.update(comp.get("by_why") or {})
+            else:
+                hit_suffix[0] += comp.get("with_name_suffix") or 0
         for p in (r.get("matched_sample") or [])[:2]:
             if len(pairs) < 30:
                 pairs.append(p)
@@ -699,6 +712,16 @@ def crosswalk_summary(reports: list) -> dict:
         # right player, and a wrong-but-plausible match produces a real player and
         # never errors. The pair is what a human can check.
         "matched_pairs_for_hand_check": pairs,
+        # DO UNMATCHED PLAYERS DIFFER SYSTEMATICALLY FROM MATCHED ONES? The
+        # discovery audit named this as an absent class and the record could not
+        # answer it: the run kept ten example rows and discarded the rest. Both
+        # sides are reported because the question is a COMPARISON — one
+        # distribution on its own says nothing about structure.
+        "unmatched_composition": {"by_pos": dict(miss_pos.most_common()),
+                                  "by_why": dict(miss_why.most_common()),
+                                  "with_name_suffix": miss_suffix[0]},
+        "matched_composition": {"by_pos": dict(hit_pos.most_common()),
+                                "with_name_suffix": hit_suffix[0]},
         "verdict": _crosswalk_verdict(n, clear, unknown_id, no_match, conflicts, matched),
     }
 

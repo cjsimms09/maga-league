@@ -2258,3 +2258,60 @@ writers, so an opaque crash here can take down the append that was supposed to s
 row — a measuring instrument must never be the reason the thing it measures is lost.** It
 now refuses by name (`row 1 is str, not a record`), with the assertion written before the
 fix and confirmed failing against the shipped code.
+
+---
+
+## THE SHORTFALL NOW HAS A SHAPE — the crosswalk's absent class, closed (2026-08-12)
+
+**My own discovery audit named this and nothing acted on it:**
+
+> *"I split conflicts by field but never asked whether unmatched players DIFFER
+> SYSTEMATICALLY from matched ones (rookies? DSTs? suffixes?). If they do, every
+> downstream number is biased in a direction nobody has characterised."*
+
+**It was unanswerable from the record, not merely unanswered.** The crosswalk kept
+`unmatched_sample = unmatched[:10]` and discarded the rest when the run ended, and the CI
+artifact holding even that is on an egress-blocked host. **Ten rows cannot show structure,
+and there were never more than ten.**
+
+**The rate is the wrong instrument for it, permanently.** `pooled_rate = 0.94` says how many
+missed. It cannot say *which kind*, and it never will — a rate is one number and this is a
+shape.
+
+### What is reported now, per league and pooled
+
+    unmatched_composition   by_pos, by_why, with_name_suffix, n
+    matched_composition     by_pos, with_name_suffix, n
+
+**Both sides, because the question is a COMPARISON.** One distribution answers nothing: RB
+being 30% of the misses means nothing until you know RB is 12% of the hits. Reported at the
+pooled level too — one league's ten misses cannot show structure, and **the run-level dict
+is the only crosswalk record anything downstream reads.**
+
+**And it is PRINTED**, next to the rate, in the run's diagnostics. A record nobody reads is
+the hole in a different place, and this lane has now hit that twice in one day — the field
+population and the P8 skew both lived in artifacts nobody in the sandbox can fetch.
+
+### The batteries
+
+**Crosswalk-level: 5 mutations, 2 killed first pass.** The three survivors each named a
+missing assertion, and all three were real:
+
+- **an unmatched row with NO POSITION** folded away silently — the totals then disagree with
+  the count beside them, and a whole class of miss becomes invisible in the one report meant
+  to characterise it;
+- **`Jr` versus `Jr.`** — the suffix hypothesis was one of the three this exists to answer,
+  and *nothing tested it at all*;
+- and `n` from `by_pos` rather than `len(recs)` — **an EQUIVALENT mutant**, since every
+  record contributes exactly one `by_pos` entry. **Recorded as equivalent rather than
+  contorting a test to kill it.**
+
+**Pooling: 3 mutations, 3 killed.** Dropping either side, or failing to accumulate the
+suffix totals across leagues, now fails.
+
+### One thing this does NOT do
+
+**It does not tell us whether the misses are structured.** It makes the question answerable
+on the next scheduled run. **Reporting the instrument as though it were the finding is the
+error this lane keeps writing audits about**, so: no claim about rookies, DSTs or suffixes
+is made here, and none should be read into it.
