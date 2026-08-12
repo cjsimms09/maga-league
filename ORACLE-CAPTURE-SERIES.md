@@ -62,11 +62,29 @@ have had the conversation that produced them.**
    on the points question and none is claimed. **The detectable-effect floor for a trend
    is not met and will not be met before ~2028.** A series that cannot yet distinguish
    improvement from noise says so on its own face rather than being read as flat.
-4. **THE POINTS SOURCE UNDERSTATES THE CEILING.** League `players_points` covers only
+4. **THE POSITION-COVERAGE GAP IS SYSTEMATIC, AND MEASURED RATHER THAN LEFT AS A
+   WORRY.** Position is inferred from the starting slot a player occupied, so a drafted
+   player who NEVER started has no position and cannot be considered by the slot-aware
+   ceiling. That is 13% / 11% / 19% of drafted players. **Measured, they are not a random
+   sample — they are late and they are bad:**
+
+   | | unknown | known |
+   |---|---|---|
+   | mean draft round | 10.2–11.5 | 6.3–7.6 |
+   | mean realized points | 34.7–40.1 | 162.1–169.3 |
+   | **best single unknown** | **138.9 / 199.9 / 171.4** | 12th-best known: **326.9–328.4** |
+
+   **The best invisible player in any season scored less than the TWELFTH-best visible
+   one.** So no excluded player was ever a candidate the ceiling would have chosen, and
+   the direction is knowable: a ceiling that cannot see them is understated by ~nothing,
+   which makes capture over-stated by ~nothing. **This is a characterised gap, not an
+   unknown one**, and it is the reason the ceiling can be trusted despite the inference.
+
+5. **THE POINTS SOURCE UNDERSTATES THE CEILING.** League `players_points` covers only
    weeks a player was ON a roster, so a mid-season cut keeps partial weeks and a player
    nobody rostered scores nothing. Conservative: it can only shrink the measured
    opportunity.
-5. **THE CEILING IS GREEDY, SO IT IS A LOWER BOUND ON THE TRUE CEILING.** Capture is
+6. **THE CEILING IS GREEDY, SO IT IS A LOWER BOUND ON THE TRUE CEILING.** Capture is
    therefore an OVER-estimate of skill, which is the direction that cannot flatter us.
    Cory beats the greedy ceiling at individual picks (2024 R13, −241), which is expected
    and is the proof it is not optimal.
