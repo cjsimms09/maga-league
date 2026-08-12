@@ -6057,3 +6057,57 @@ the same shape as the 37.5%/42.9% era-dependence I found an hour ago in the same
 each one caught only because I went back and counted. **Worth flagging to whoever takes the
 pass: this file rewards counting and punishes estimating, and I have now demonstrated that
 twice.**
+
+---
+
+## THE DRAFT-DAY BOARD, MEASURED — it is in good shape, and one 4-player gap (C, 2026-08-12)
+
+**Cory asked for the most critical thing in my lane for the accuracy of tools and data. This
+is it, and I had never asked it:** everything I verified today was research-side. **What does
+the tool actually show on 2026-08-22, and is it right?**
+
+Measured `public/draft_data.json` (1,759 players, built 2026-08-12T09:19:29Z) with
+`field_population`.
+
+### THE RANKING INPUT IS COMPLETE — the reassuring half, and it is the half that matters
+
+    adp · raw_adp · adp_sd · adp_source · consensus_rank · sleeper_rank
+    name · position · team                          ALL 100% of 1,759
+
+**Nothing the engine ranks on is missing, null, or defaulted.** That is the claim I most
+wanted to check and it holds.
+
+### THE BYE GAP LOOKED LIKE A CRISIS AND IS A FOUR-PLAYER FIX
+
+`bye` reads **11.9%** — 209 of 1,759 — nine days out, with the 2026 schedule long published.
+**I nearly filed that as critical. The denominator is wrong: 986 of the 1,759 are free agents
+(`team: FA`) and correctly have no bye.**
+
+    TOP 150 BY ADP — the players actually drafted
+        with a bye today   146 of 150
+        after a team join  150 of 150
+
+**The bye-conflict warning works for 97.3% of the draftable board, not 12%.**
+
+### The fix is real, small, and PROVEN against the live board rather than proposed
+
+`draft/adp.py:553` fills `bye` from FFC only where Sleeper left a hole, and its comment is
+right to be careful: *"this cannot overwrite good data with a provider's guess."* **But a bye
+is not a guess — it is a property of the TEAM.** Verified on the live board:
+
+    32 teams carry an unambiguous bye        CONFLICTS: 0
+    join team -> bye onto every player       209 -> 773 (all 564 gained are real NFL teams)
+    the 986 still unknown are ALL "FA"       correctly byeless
+
+**`draft/adp.py` is A's file — the guard confirms `TRESPASS (C touched A's file)` — so this is
+routed, not edited.** The change is: build `{team: bye}` from players that have one, apply to
+players on that team that do not. No new fetch, no precedence change, no conflicts to resolve.
+
+### AND THE LESSON IS MINE, FOR THE THIRD TIME TODAY
+
+**"No money record" — wrong. "~100 owner-seasons" — 43% high. "88% of the board has no bye" —
+would have been alarmist.** All three are the same failure: **a magnitude asserted before the
+denominator was checked.** Twice today that cost Cory a wrong report; this time I caught it
+before sending. **The instrument that found the gap did not protect me from misreading it** —
+`field_population` correctly reported 11.9%, and 11.9% of the wrong population is not a
+finding.
