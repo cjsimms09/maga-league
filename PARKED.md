@@ -8767,3 +8767,100 @@ consistent and externally wrong, which is this project's whole failure mode, and
 them against our own config instead of against a market. **The engine is still amplifying
 something — but it is being handed a board that already pulls K and DEF forward by 90 to 140
 positions.**
+
+---
+
+## 🔧 K AND DEF, FINISHED — AND A CORRECTION TO MY OWN NUMBER. **DEEPENING THE BASELINE MAKES IT WORSE.** (C, 2026-08-12)
+
+### ⚠️ FIRST, THE CORRECTION
+
+I wrote: *"That is the ~140-position advancement, and it is in the DATA, before the engine
+touches anything."* **That was overstated and I had not measured it against the board's own
+rank field.** The board carries two:
+
+```
+                       overall_rank   pool_rank    market ADP
+   Brandon Aubrey  K         59          121        127.0
+   LA Rams        DEF        52          120        124.0
+```
+
+**`overall_rank` IS the VORP ordering** (59/52, matching my independent computation exactly).
+**`pool_rank` tracks ADP** and is sane. So the data-side pull-forward is **68 positions for
+K and 72 for DEF — roughly HALF of the ~140 A measured on the surface, not all of it.**
+The rest is downstream. My earlier sentence claimed the whole thing.
+
+### TWO INDEPENDENT MARKETS AGREE, AND ON THE SAME PLAYER
+
+```
+                     MFL (119 drafts)   FantasyPros ADP    our overall_rank
+   first kicker      Aubrey   151.7     Aubrey   127.0           59
+   first defence     Houston  137.2     Houston  123.3           52
+```
+
+Different sources, different formats, **same player first in each.** The K/DEF finding does
+not rest on the MFL capture I flagged as superflex-contaminated — that contamination is
+QB-only, and FantasyPros corroborates independently.
+
+### WHY IT HAPPENS — TWO THINGS COMPOUNDING, BOTH ARITHMETIC
+
+**The kicker and defence curves are nearly flat.**
+
+```
+   proj_mean at position rank    1      5     10     15     20    spread 1->20
+                        K     107.0  100.0   97.0   92.0   87.0      20.0
+                        DEF   114.0  104.0   99.0   94.0   92.0      22.0
+                        RB    344.9  282.1  224.5  213.2  193.4     151.4
+```
+
+**Twenty points across twenty kickers, against 151 across twenty running backs.**
+
+**And only 82 players on the entire board have positive VORP.** So *any* positive VORP puts
+a player inside the top 82. Aubrey's +10.0 → 58 players exceed it → **rank 59.** The Rams'
++15.0 → 51 exceed it → **rank 52.** The arithmetic reproduces the artifact exactly.
+
+### THE PART THAT KILLS HALF OF CORY'S PROPOSED DIRECTION
+
+**For K and DEF, a DEEPER baseline makes it WORSE, not better:**
+
+```
+   K/DEF baseline = 10th (as shipped)        first K rank 59, VORP 10.0
+   K/DEF baseline = 11th (first non-starter) first K rank 59, VORP 10.0
+   K/DEF baseline = 15th (DEEPER)            first K rank 55, VORP 15.0   <-- worse
+   K/DEF baseline = best available (streamed) first K rank 68, VORP  0.0   <-- best
+```
+
+**The one-start hypothesis says these baselines are too shallow. For K and DEF the truth is
+the opposite** — they are too DEEP. Only one kicker goes in 150 market picks, so at any pick
+you can have a near-equivalent kicker: **replacement for a streamed position is the best
+player still available, not the tenth-best.** That is the correct baseline and it drives
+their VORP to zero.
+
+### AND THE PART THE BASELINE CANNOT FIX AT ALL
+
+**Even at the correct baseline, the first kicker still ranks 68 against a market of 127.**
+With VORP 0 he sorts immediately behind the last positive-VORP player. **The baseline can
+buy about nine of the seventy positions. The other sixty are structural:**
+
+**VORP CANNOT EXPRESS "REPLACEABLE AT ANY TIME."** A kicker at VORP 0 is not the 68th most
+valuable pick — he is a pick you should never make before the last round, because an
+equivalent kicker is there in round 15. That is a fact about *supply over time*, and nothing
+in a replacement-level calculation encodes it. **So K/DEF cannot be fixed by any choice of
+baseline, and A should not spend the effort trying.**
+
+### WHAT STANDS FOR THE ONE-START HYPOTHESIS
+
+**It splits.** QB and TE are suppressed by the last-starter off-by-one (RB loses 19.2 points
+of VORP to it, QB 4.2 — correcting it alone takes QB+TE from 10% to 0% of the top ten). **K
+and DEF are a different defect wearing the same clothes**: not a shallow baseline but a
+baseline that should not exist, on a position VORP was never able to rank.
+
+### ON B's LOG, WHEN IT LANDS
+
+I will audit before citing. Three checks first, all on the instrument: **does every row's
+board stamp match a commit that was actually deployed** (I can verify against git and
+against `built_at`); **are absent fields recorded as absent rather than omitted** —
+`field-population/v1` on the log itself, three-way present/null/missing; and **does the
+captured recommendation reconcile to the artifact** — pick a row, recompute VORP and
+`overall_rank` from `public/draft_data.json` at that stamp, and see whether the logged score
+and rank fall out. If they do not reconcile, the log is measuring something other than what
+rendered, and the positional distribution in it is not evidence.
