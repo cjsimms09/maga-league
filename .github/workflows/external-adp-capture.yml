@@ -124,20 +124,6 @@ jobs:
             fi
           } >> "$GITHUB_STEP_SUMMARY"
 
-      # A GREEN RUN'S STEP SUMMARY IS READ BY NOBODY, which is the whole reason
-      # the standing check escalates by failing. Losing a day of a perishable
-      # curve deserves the same channel — but only ONCE, on the run that can
-      # first see it.
-      - name: Escalate if this run resumed from a gap
-        if: always() && steps.cov.outputs.resumed == '1'
-        run: |
-          echo "::error::D3 capture MISSED AT LEAST YESTERDAY — the archive now has"
-          echo "::error::${{ steps.cov.outputs.missing }} uncaptured day(s). The 2026 ADP curve is"
-          echo "::error::observable only while it is happening: no provider serves a board"
-          echo "::error::as of a past date, so these days cannot be refetched by any means."
-          echo "::error::Fix the schedule before more days go. See the step summary for dates."
-          exit 1
-
       - name: Commit the day's snapshot
         if: steps.cap.outcome == 'success'
         run: |
@@ -192,4 +178,31 @@ jobs:
           done
           echo "SNAPSHOT COULD NOT BE PUSHED after retries — TODAY'S BOARD IS LOST"
           echo "and cannot be refetched. Rerun today, not tomorrow."
+          exit 1
+      # A GREEN RUN'S STEP SUMMARY IS READ BY NOBODY, which is the whole reason
+      # the standing check escalates by failing. Losing a day of a perishable
+      # curve deserves the same channel — but only ONCE, on the run that can
+      # first see it.
+      #
+      # ⚠ THIS STEP MUST STAY LAST. DO NOT MOVE IT ABOVE THE COMMIT.
+      #
+      # It was written above the commit step first, and that was catastrophic in
+      # a way worth spelling out rather than quietly reordering. A failed step
+      # aborts the job, and the commit step's `if:` is `steps.cap.outcome ==
+      # 'success'` — no `always()` — so it would have been SKIPPED. On the exact
+      # run that recovers from an outage, the alarm about lost days would have
+      # discarded that day's snapshot too; the next run would then find yesterday
+      # missing, fire again, discard again, and the "outage" would sustain itself
+      # for ever, one lost day at a time, with a red job every morning saying so.
+      #
+      # An alarm that destroys what it is watching is worse than no alarm. The
+      # day lands FIRST; the run goes red afterwards.
+      - name: Escalate if this run resumed from a gap
+        if: always() && steps.cov.outputs.resumed == '1'
+        run: |
+          echo "::error::D3 capture MISSED AT LEAST YESTERDAY — the archive now has"
+          echo "::error::${{ steps.cov.outputs.missing }} uncaptured day(s). The 2026 ADP curve is"
+          echo "::error::observable only while it is happening: no provider serves a board"
+          echo "::error::as of a past date, so these days cannot be refetched by any means."
+          echo "::error::Fix the schedule before more days go. See the step summary for dates."
           exit 1
