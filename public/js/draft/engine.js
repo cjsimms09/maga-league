@@ -411,8 +411,56 @@
    * The 0.5 finding is not discarded — it remains pre-registered for the
    * September quantile re-run, when a MEASURED correlation replaces the modelled
    * one and the install can be judged on the standard D10 asked for. */
+  /* ── TWO OF THESE ZEROS ARE NOT MEASUREMENTS (2026-08-14) ─────────────────
+   *
+   * Item 10's harness-vs-production sweep found that the Lab's board is not the
+   * board we ship. build_bundle.py writes twelve player fields; production
+   * writes forty-eight. Two weights were set from experiments that could not
+   * have produced any other answer:
+   *
+   *   risk: 0     ALL FIVE risk inputs — age, injury_status, games_missed_3yr,
+   *               depth_chart_order, opportunity_z — are absent from a bundle
+   *               board. Measured (draft/tools/lab_term_degeneracy.js): the risk
+   *               component takes exactly ONE distinct value, 0.0, across 400
+   *               candidates at four picks. On the production board the same
+   *               term takes 11 distinct values in [-60, +6] and is non-zero for
+   *               half the board. A term with no variance cannot influence a
+   *               result at ANY weight, so every experiment reporting "risk
+   *               contributes nothing" was reporting a fact about the fixture.
+   *
+   *   ceiling: 0  build_bundle.py writes proj_ceiling = 1.35 * proj_mean, so the
+   *               ceiling spread (engine.js: proj_ceiling - proj_mean) is
+   *               0.35 * proj_mean — rank-identical to the value term. Measured
+   *               (draft/tools/lab_ceiling_degeneracy.js): Spearman 1.0000 on a
+   *               harness board, 0.9848 on production. Raising the ceiling
+   *               weight was arithmetically the same as raising the value
+   *               weight, so THE -4.8 [-26,+17] RESULT WAS COLLINEAR, NOT WEAK.
+   *               It is not evidence that ceiling is worthless. It is not
+   *               evidence of anything.
+   *
+   * THE VALUES ARE UNCHANGED AND THAT IS DELIBERATE. A null measurement is not a
+   * licence to move a weight in the other direction — discovering that we do not
+   * know what risk is worth is not discovering that it is worth something. Zero
+   * stays until an experiment on a board carrying the real fields says otherwise.
+   * What changes is the LABEL: these are UNMEASURED settings sitting at a
+   * default, not measured ones, and the panel copy below no longer claims they
+   * "did nothing".
+   *
+   * The other six are unaffected: vona, tier_urgency, need, ceiling, keeper, bye
+   * and stack all vary on a bundle board (lab_term_degeneracy.js prints the
+   * spread for each), so their experiments had something to measure. */
   const MEASURED_WEIGHTS = { value: 1.0, tier: 0.0, need: 0.0, risk: 0.0, ceiling: 0.0,
     keeper: 1.0, bye: 0.0, stack: 1.0 };
+
+  /* Which zeros are measured and which are merely defaults, as data rather than
+   * as prose, so the panel and any future gate read the same answer. */
+  const WEIGHT_PROVENANCE = {
+    value: 'measured', keeper: 'measured', stack: 'measured (D10 ruling)',
+    tier: 'measured', need: 'measured (redundant with the lineup mask)',
+    bye: 'measured (null)',
+    risk: 'UNMEASURED — term is degenerate on the backtest board',
+    ceiling: 'UNMEASURED — collinear with value on the backtest board',
+  };
 
   /* Named strategies, as weight sets.
    *
@@ -428,12 +476,22 @@
   const WEIGHT_PRESETS = [
     {
       key: 'measured', label: 'Live policy',
-      why: 'What the tool loads on, and what the Lab could actually MEASURE earning money: '
-        + 'rank off the board (value) and a stack tilt (the one adjuster that earned). Tier, '
-        + 'risk, need, bye AND ceiling are OFF — tier/risk measured as a drag, need is redundant '
-        + 'with the always-on lineup MASK, bye is a null, and ceiling could not be signed '
-        + '(-4.8 [-26,+17]) so it no longer decides late picks. This is the honest panel: the '
-        + 'sliders at zero are at zero because they did nothing.',
+      /* THIS SENTENCE USED TO END "the sliders at zero are at zero because they
+       * did nothing", and cited ceiling's -4.8 [-26,+17] as the reason it was
+       * off. Both claims were wrong for two of the five zeros: risk cannot vary
+       * at all on a backtest board (all five of its inputs are missing from it)
+       * and ceiling is rank-identical to value there, so neither experiment
+       * could have returned anything else. Rule 16 — the explanation is an
+       * evidence surface, and this one was showing Cory a measurement that was
+       * not one. The weights have NOT changed; the account of them has. */
+      why: 'What the tool loads on: rank off the board (value), keeper value, and a stack '
+        + 'tilt. Tier, need and bye were measured and are off — tier measured as a drag, '
+        + 'need is redundant with the always-on lineup MASK, bye came back a null. '
+        + 'RISK AND CEILING ARE OFF BUT WERE NEVER MEASURED: the backtest board carries '
+        + 'none of risk\'s five inputs, and its ceiling is a fixed 1.35x of the projection, '
+        + 'so both experiments were incapable of returning anything but zero. They stay at '
+        + 'zero as a default, not as a finding — a null measurement is no reason to turn '
+        + 'something on either.',
       // ONE SOURCE OF TRUTH: reference MEASURED_WEIGHTS, never a second literal. A
       // duplicated copy here is exactly how ceiling stayed 0.65 in one place after
       // it was zeroed in the other (the two-places disease); matchPreset now compares
@@ -2928,6 +2986,7 @@
     confidence, branchForecast, computePaths, dollarGap, playerDollars, applyPersonalLists, onTheClock, rosterPlan, byeGrid,
     cheatSheet, sheetText, managerTells, threatBoard,
     WEIGHT_PRESETS, matchPreset, rankDiff, autoWeights, MEASURED_WEIGHTS,
+    WEIGHT_PROVENANCE,
     formatDefaults, applyFormatDefaults,
     // A2/A3 surfaces, re-exported so callers need only one handle.
     survivalModel: S, compositeTerms: C,
