@@ -1593,3 +1593,81 @@ changing something local for local reasons.
 observation this lane emits is labelled `baseline:adp_logistic_v1` and
 `is_shipped_policy()` returns False for it, so nothing external can be mistaken for a
 measurement of the tool — let alone flow into one.
+
+---
+
+## SIGNAL B — COSTED, PICKED, AND SCHEDULED POST-DRAFT (Cory asked 2026-08-12)
+
+**The question.** A's standing check reports signal_b as *"market half captured; model
+half has no source (needs projected NFL TEAM points, not fantasy points). Not
+computable."* Cory's proposal: the model half is reconstructable, because team points
+are roughly `pass_td×6 + rush_td×6 + fg×3 + xp`, and those components sit inside player
+projections since `score_stat_line` works from raw stat lines. Plus a simpler
+alternative — the market's implied team total is information about a player's
+environment **on its own**, with no model half to compare against. Cost each and pick.
+
+### What I verified before costing anything
+
+**`score_stat_line` is a dot product over raw stat keys.** `pass_td`, `rush_td`,
+`rec_td` and the rest, scored against the league's own table. The mechanism is exactly
+as described.
+
+**But our projections do NOT carry components.** `draft/data/proj_series.json` holds
+`{player_id: 415.88}` — one fantasy-point SCALAR per player, source FantasyPros, 400
+players across 5 dated snapshots. So "your player projections already contain the
+components" does not hold for what we store. Option A does not start from what we have;
+it starts with a new ingest.
+
+**Sleeper's shape is UNVERIFIED.** No egress to `api.sleeper.app` from this sandbox —
+the same proxy block that stops MFL and archive.org. Settling it costs one CI run.
+
+**The market half is richer than A's note suggests, and thinner than it looks.** Each
+event carries **Totals AND Spread** from DraftKings and FanDuel, so an implied team
+total is direct arithmetic: `total/2 ± spread/2`. A 37.5 total with a −7 spread gives
+22.25 and 15.25. **But both captured snapshots are `usa-nfl-preseason`.** Preseason
+implied totals say nothing about a player's season environment.
+
+### Option A — reconstruct the model half
+
+- **New component-level projection ingest** (my lane), preceded by one CI run to verify
+  Sleeper's shape.
+- **A unit mismatch that bites immediately.** Our projections are SEASON totals; an
+  implied team total is PER GAME. This needs weekly projections, not what we archive.
+- **The double-count trap, avoided in Cory's phrasing and not obvious.** A passing TD
+  and its receiving TD are THE SAME six points. "Sum the scoring components across a
+  team's players" double-counts every passing TD unless you take passing and rushing
+  only — which the proposal does.
+- **What the formula then omits, and why it is the expensive part.** Defensive and
+  special-teams TDs, two-point conversions and safeties: roughly 3–5% of team points,
+  omitted **in one direction**. The signal is `market − model`, so a systematic bias
+  does not cancel — it makes every team look under-projected. Calibrating it out
+  requires realized team points, so **Option A cannot be validated until the season
+  produces them.**
+
+### Option B — implied team total as environment, no model half
+
+- Arithmetic on data already captured. No second source, no calibration.
+- **Not free:** the capture must be repointed at regular-season events. That is a filter
+  change on a working capture, not a new ingest.
+- Gives a real statement about a player's scoring environment. Does **not** give an edge
+  on its own — it is a covariate, and ADP already prices some of it.
+
+### THE PICK — B, and not mainly because it is cheaper
+
+**B is the cheap test of A's premise.** Option A's entire value rests on team-scoring
+information mattering at the player level *after ADP*. Option B measures precisely
+that, with data in hand. If implied team total has no residual predictive power once
+ADP is controlled for, **A is dead too** — and we would have spent a new ingest, a
+calibration and a full season to learn it.
+
+So: **B as a measured covariate with a residual test against ADP; A only if that
+residual is non-zero.** POST-DRAFT, per Cory — the draft is 2026-08-22.
+
+**Split by lane.** The capture repoint and the feature attachment are A's. The residual
+measurement is a backtest question and mine. The component-level projection ingest is
+mine, and only if we reach A.
+
+**The trap this must not fall into** is the one already registered for D7: do not
+compare a model number against a market number and call the gap an edge. Here it has a
+second face — the omitted def/ST points would manufacture exactly that gap, in a
+consistent direction, out of nothing but an incomplete sum.

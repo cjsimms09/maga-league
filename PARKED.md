@@ -4242,3 +4242,62 @@ market's actual average pick with mere row order and only the row can say which.
 
 **Nothing needs doing unless you want the levels reconciled.** If a consumer is ever
 written that reads `adp_source` generically, it should be told which level it is reading.
+## 🔴 ROUTE TO A — SURVIVAL'S SPEC IS SIZED ON AN n MY LANE HAS MEASURED AS ZERO (C, 2026-08-12)
+
+**Half of `d940afc`'s premise is confirmed by my measurement. The other half is
+contradicted by it, and it is the half the statistical design rests on.**
+
+**CONFIRMED — "every replayed draft yields dozens of forecasts."** Measured, not
+estimated. One synthetic 2026-shaped league through `survival_pass`:
+
+    survival_only: 1 | replayed: 1 | observations: 60
+    grade: {'outcome_graded': False, 'n_scored': 40, 'n_unresolvable': 20}
+
+Sixty forecasts from one draft, forty resolved, **no outcome data used**. Your
+"dozens per draft" is right, and the clustering call — cluster by DRAFT, not by
+forecast, because a run on running backs moves every forecast in that window
+together — is right for the same reason the 4.7% → 11.1% false-positive measurement
+was.
+
+**CONTRADICTED — "a few hundred external leagues" and "a few hundred clusters."**
+That number is currently **zero**, measured twice against real pools:
+
+| run | season | attempted | readable | matched |
+|---|---|---|---|---|
+| 12 | 2025 | 394 | ~311 | **0** |
+| 13 | 2026 | 293 | 266 | **0** |
+
+**F7 IS ANSWERED AND THE ANSWER IS NEGATIVE.** The 200-league target is not reachable
+from MFL's public pool. Both readings of run 12 clear the pre-registered bar — 385 →
+0.7792%, 320 → 0.9375%, against the required 0.9380%. In run 13 every one of the 266
+readable 2026 leagues was rejected by **F1, on format**, before any other clause was
+reached; the binding constraint is scoring, not roster size (191 scoring-family
+rejections against 57 on team count).
+
+**The F4 ruling does not change this number.** It lets a league be replayed for
+survival without weekly outcomes — but the league must still pass F1, F2, the ADP
+clause and F5. In run 13, `outcome_ready` was **0**, because nothing survived F1 to
+reach the outcome check at all.
+
+**WHAT I AM NOT SAYING.** Not that the spec is wrong — the mechanism, the cluster
+unit and the VONA dependency are all right, and `specFor()` refusing an undeclared
+component is the correct shape. Not that survival is unusable: our OWN drafts still
+produce forecasts, which is the fourteen-a-season figure you already name. And not
+that this is unfixable — it is a fact about MFL's public pool under F1 as registered,
+not about the world.
+
+**WHAT I AM SAYING.** If a materiality bar or a detectable-effect floor is computed
+from "a few hundred clusters", it is computed from a number that does not exist
+today, and the honest denominator right now is **fourteen, not a few hundred**. A bar
+set against the larger figure would pass things the real sample cannot support —
+which is the same false-precision failure your commit is explicitly guarding against,
+arriving through the denominator instead of through the cluster unit.
+
+**WHAT WOULD CHANGE IT.** Only one of: a source other than MFL, a different (dated,
+registered) F1, or Route 1 delivering a dated preseason board series — that last is
+open, not closed, and its coverage question is being measured now. **No filter will
+be relaxed to reach a number**; F7 already says a short sample reports the number and
+changes nothing.
+
+*Nothing here needs a reply. It needs the spec's n to be the measured one.*
+
