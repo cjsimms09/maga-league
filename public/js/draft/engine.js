@@ -1195,7 +1195,31 @@
     let onesieDelta = 0, doctrineDelta = 0;
     if (onesie.duplicate && onesie.discount < 1) {
       const before = score;
-      score = score * onesie.discount;
+      /* ── A DISCOUNT MUST NEVER BE ABLE TO RAISE A SCORE ──────────────────
+       *
+       * This was `score = score * onesie.discount`, MULTIPLICATIVE ON A SIGNED
+       * QUANTITY. For a positive score that buries an unstartable duplicate,
+       * which is the intent. FOR A NEGATIVE SCORE IT MOVES TOWARD ZERO — so the
+       * mechanism built to bury duplicates was RESCUING THE WORST ONES, and
+       * compressing them all into a tight band just below the legitimate picks.
+       *
+       * Measured at pick 105 before this line changed: SEVEN OF THE TOP TEN were
+       * there because the discount lifted them. Juwan Johnson -29.93 -> -2.99
+       * (+26.94). Baker Mayfield -23.02 -> -2.30. Every one a duplicate at a
+       * position already full, several with VONA below -20 — the board saying
+       * plainly that the expected best available at his position next turn is
+       * twenty points better, and the discount overriding it.
+       *
+       * This is why restoring VONA to the bench branch made the QB/TE top-ten
+       * share WORSE (33% -> 50%). The two are coupled: while the branch scored
+       * on ceiling alone its outputs were mostly positive and the discount
+       * worked; once real value entered, duplicates went strongly negative and
+       * the sign defect had something to rescue. The regression was not a cost
+       * of the VONA fix, it was a latent defect the VONA fix exposed.
+       *
+       * `Math.min` rather than a sign test: it says the thing itself — the
+       * discounted score is taken only when it is genuinely worse. */
+      score = Math.min(score, score * onesie.discount);
       onesieDelta = score - before;
     }
 

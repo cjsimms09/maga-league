@@ -400,6 +400,15 @@ def load_players(cfg: dict, offline: bool) -> list[dict]:
         # that real DEF ADP/projections refine below. (Fix 2026-08-08; the
         # exclusion carried no citation, so it read as intentional.)
         is_dst = pos == "DEF"
+        # ⚠️ THIS TEST IS `is False`, SO A MISSING OR NULL FLAG PASSES IT.
+        # Sleeper leaves `active` unset for a great many players it still lists,
+        # and there is no rank ceiling below either — which is how Marshawn
+        # Lynch, retired since 2019 at search_rank 621, reached the 2026 board.
+        # (src/sleeper.js's players() drops rank > 600; this path does not.)
+        # The one line that settles whether the flag is usable at all needs
+        # egress this session does not have: fetch /players/nfl and print
+        # Counter(v.get("active") for v in raw.values()). Until then the
+        # projection guard below does not depend on the flag.
         if p.get("active") is False and not is_dst:
             continue
         rank = p.get("search_rank")

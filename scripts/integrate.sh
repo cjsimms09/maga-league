@@ -25,7 +25,7 @@ case "$SIDE" in A|B|C) ;; *) echo "side must be A, B or C"; exit 2 ;; esac
 
 # ── A ROLLBACK MUST NOT DISCARD UNCOMMITTED WORK ────────────────────────────
 #
-# `git reset --hard ORIG_HEAD` below is the rollback path, and it discards the
+# The `rollback()` path below discards the
 # WORKING TREE along with the merge. On 2026-08-11 that ate a fix to
 # territory-check.sh mid-integration — the second destructive git operation to
 # cost work that day, after a `git checkout --` during a rule-10 break.
@@ -169,10 +169,41 @@ if ! git merge-base --is-ancestor "$REF" HEAD; then
 fi
 echo "   merge committed: $(git log --oneline -1)"
 
+# ── THE ROLLBACK TARGET IS EXPLICIT, NOT HEAD-RELATIVE ──────────────────────
+#
+# The rollbacks below were `git reset --hard ORIG_HEAD`. ORIG_HEAD is whatever
+# the last ref-moving command left behind, and `reset` moves WHATEVER BRANCH IS
+# CHECKED OUT — so a rollback fired from an unexpected checkout moves the wrong
+# ref. IT ATE C's BRANCH REF TWICE IN ONE DAY. C lost ten of fifteen races to
+# this and now pays "run it, check the ref, restore it" instead of just running
+# it, which is a throughput tax on the lane doing the integrations.
+#
+# ROLLBACK_TO is the commit main was on BEFORE this script touched anything, and
+# ROLLBACK_BRANCH is the branch we are entitled to move. Both are captured here,
+# once, while the tree is known-good.
+ROLLBACK_TO="$(git rev-parse HEAD~1 2>/dev/null || git rev-parse HEAD)"
+ROLLBACK_BRANCH="$(git symbolic-ref --quiet --short HEAD || true)"
+
+# Same protection rule10_break.sh already carries: a destructive step REFUSES on
+# a surprise rather than proceeding. It is the third destructive git operation to
+# cost work this week.
+rollback() {
+  local now
+  now="$(git symbolic-ref --quiet --short HEAD || true)"
+  if [ -z "$ROLLBACK_BRANCH" ] || [ "$now" != "$ROLLBACK_BRANCH" ]; then
+    echo "REFUSED TO ROLL BACK: started on '${ROLLBACK_BRANCH:-(detached)}' and HEAD is"
+    echo "  now '${now:-(detached)}'. Rolling back would move a branch this script"
+    echo "  never merged into. Reset by hand:  git reset --hard $ROLLBACK_TO"
+    return 1
+  fi
+  echo "  rolling $ROLLBACK_BRANCH back to $ROLLBACK_TO"
+  git reset --hard -q "$ROLLBACK_TO"
+}
+
 echo "== python suite"
 if ! timeout 600 python -m pytest draft/tests -q </dev/null; then
   echo "REFUSED: python suite red on the merged tree. Rolling main back."
-  git reset --hard -q ORIG_HEAD; exit 1
+  rollback; exit 1
 fi
 # ── JS SUITES: A TIMEOUT IS NOT A FAILURE ───────────────────────────────────
 # The cap was 150s and sanity-sweep.test.js legitimately takes ~206s since the
@@ -197,11 +228,11 @@ if [ -n "$slow" ]; then
   echo "REFUSED: JS suite(s) TIMED OUT at ${JS_TMO}s:$slow"
   echo "  INCONCLUSIVE, not a failure — raise INTEGRATE_JS_TIMEOUT or fix the suite."
   echo "  Rolling main back rather than merging on evidence that does not exist."
-  git reset --hard -q ORIG_HEAD; exit 1
+  rollback; exit 1
 fi
 if [ -n "$red" ]; then
   echo "REFUSED: JS suites red on the merged tree:$red. Rolling main back."
-  git reset --hard -q ORIG_HEAD; exit 1
+  rollback; exit 1
 fi
 
 # ── THE TREE MUST BE CLEAN BEFORE THIS DECLARES SUCCESS ─────────────────────

@@ -333,6 +333,49 @@
     } catch (e) { return null; }
   }
 
+  /* ── UNPLAYABLE PLAYERS DO NOT BELONG ON A DRAFT BOARD ──────────────────
+   *
+   * Cory found Marshawn Lynch — retired since 2019 — in the pool during a mock.
+   * 943 of 1759 players (53.6%) carry the full signature: NO 2026 TEAM, NO
+   * PROJECTION, and an ADP that is Sleeper's `search_rank` fallback rather than
+   * a real one. draft/build.py admits them because its filter excludes only an
+   * explicit `active === false` and applies no rank ceiling.
+   *
+   * C measured that REPLACEMENT LEVEL MOVES BY EXACTLY ZERO when they are
+   * removed — replacement is the Nth-ranked player BY PROJECTION and they all
+   * project 0.0, so they sort into the tail and cannot reach a cut of 10-29.
+   * VORP is not contaminated and never was.
+   *
+   * BUT THEY REACH THE TOP TEN IN THE LATE ROUNDS. Measured on the mock walk:
+   * Marcedes Lewis and Jason Witten at pick 105, Frank Gore at 110, Frank Gore
+   * and Larry Fitzgerald at 125 — inside the ten players Cory reads when
+   * deciding what to take. So it is not a valuation defect and it is not
+   * cosmetic either; it is the recommendation surface offering men who retired
+   * half a decade ago.
+   *
+   * C's DISCRIMINATOR, used verbatim because it was verified against this exact
+   * board: no team AND no projection isolates all 943 WITHOUT TOUCHING A SINGLE
+   * PRICED PLAYER. It does not depend on Sleeper's `active` flag being reliable,
+   * which is the thing nobody can currently check.
+   *
+   * APPLIED HERE RATHER THAN ONLY IN build.py because the board is rebuilt
+   * nightly behind an egress path this session cannot reach, and Cory drafts off
+   * whatever is deployed. build.py needs the same guard at source; this one
+   * means the surface is right tonight regardless. */
+  function draftablePlayers(players) {
+    const all = players || [];
+    const playable = all.filter(p => (p.team || 'FA') !== 'FA' || Number(p.proj_mean) > 0);
+    // FAIL LOUD RATHER THAN SILENTLY EMPTY. A discriminator that matched
+    // everything would leave an empty board and no error — the exact shape of
+    // defect this file keeps finding.
+    if (all.length && playable.length < all.length * 0.25) {
+      console.error('[board] draftable filter removed ' + (all.length - playable.length)
+        + ' of ' + all.length + ' — refusing, this cannot be right');
+      return all;
+    }
+    return playable;
+  }
+
   function bootFrom(data) {
     state.data = data;
     // Confirmation-screen overrides win over the imported config, so a
@@ -372,7 +415,7 @@
       league: JSON.parse(JSON.stringify(data.league || {})),
       pick_order: JSON.parse(JSON.stringify(data.pick_order || {})),
     };
-    state.board = data.players.slice();
+    state.board = draftablePlayers(data.players);
     populateKeepers(data);
     applyOverrides();
     // AFTER populateKeepers/applyOverrides so a restored roster lands on the
@@ -6718,7 +6761,7 @@
       state.format = E.applyFormatDefaults(state.data.league);
       state.profiles = indexProfilesBySlot(state.data);
     }
-    state.board = (state.data.players || []).slice();
+    state.board = draftablePlayers(state.data.players);
     applyOverrides();          // news overrides are prep, so they go back on
 
     ['#mock-note', '#reconcile-note', '#run-banner'].forEach(sel => {
