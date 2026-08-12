@@ -48,13 +48,33 @@
     // one pick it got loudly wrong.
     COIN_FLIP_GAP: 1.0,
     CLOSE_GAP: 3.5,
-    // --- Paths panel (Part 2 §1) ---
-    // How many top candidates the path clustering considers, how far below the
-    // top score a direction may sit and still count as "solid" (the qualifying
-    // band; default max(12, COIN_FLIP_GAP*4) = 12), and the hard 2–4 cap on how
-    // many directions render (more than four is a ranking, not a decision).
+    /* --- Paths panel (Part 2 §1) ---
+     * How many top candidates the path clustering considers, how far below the
+     * top score a direction may sit and still count as "solid", and the hard
+     * 2-4 cap on how many directions render (more than four is a ranking, not a
+     * decision).
+     *
+     * ── THE BAND WAS A FLOOR OVERRIDING ITS OWN DERIVATION (2026-08-13) ──────
+     *
+     * It read `PATHS_BAND: 12.0` and the comment described the design as
+     * "max(12, COIN_FLIP_GAP*4) = 12". COIN_FLIP_GAP is 1.0, so the intended
+     * derivation is 4.0 and A HARDCODED 12 SILENTLY DOMINATED IT — the third
+     * instance of this exact pattern, after BENCH_CEILING_FLOOR overriding a
+     * measured ceiling weight of 0 and VALUE_WEIGHT_FLOOR over w.value.
+     *
+     * IT MATTERS BECAUSE THE COMPOSITE'S SPREAD IS NOT CONSTANT. Measured over
+     * Cory's twelve picks, the top-ten spread runs from 7.7 points to 40.8 — so
+     * a fixed 12 admits nearly everything late and almost nothing early. At pick
+     * 110 it rendered four directions whose leaders sat 0.0, 0.5, 0.7 and 3.6
+     * behind the top: four options at equal visual weight, separated by less
+     * than a point. That is the menu Cory could not read.
+     *
+     * Deriving it from COIN_FLIP_GAP is not a tuned constant — it says a
+     * direction is an ALTERNATIVE only if choosing it costs about what the board
+     * already calls indistinguishable, which is the one place this engine
+     * defines "close". */
     PATHS_POOL: 10,
-    PATHS_BAND: 12.0,
+    get PATHS_BAND() { return (this.COIN_FLIP_GAP == null ? 1 : this.COIN_FLIP_GAP) * 4; },
     PATHS_MAX: 4,
     // Tier-urgency at/above this makes a path a "cliff — take it now" direction
     // rather than a "value" one; it drives both the name and the when-it's-right.

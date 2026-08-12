@@ -376,6 +376,57 @@
     return playable;
   }
 
+  /* ── A BYE THAT CANNOT FIRE LOOKS EXACTLY LIKE A BYE THAT FOUND NOTHING ──
+   *
+   * 564 players carry a TEAM and no bye week — 37% of the top-225 tight ends,
+   * 19% of the quarterbacks, 17% of the running backs. Sleeper populates
+   * `metadata.bye_week` sparsely, so build.py derives a team->bye map from
+   * whichever players happen to carry one, and everyone it misses gets null.
+   *
+   * THE DANGER IS NOT THE MISSING NUMBER, IT IS THE SILENCE. `byeStack` warns
+   * when three starters share a bye. A player with a null bye can never
+   * contribute to that count, so the warning stays quiet — and a quiet warning
+   * is indistinguishable from one that looked and found no conflict. Cory would
+   * read that on the 22nd as "no bye problem".
+   *
+   * A BYE IS A PROPERTY OF THE TEAM, so it is fully derivable: measured on this
+   * board, all 32 teams show EXACTLY ONE bye value among their known players and
+   * ZERO conflicts, and all 564 gaps fill from the player's own team.
+   *
+   * UNANIMITY IS ASSERTED RATHER THAN ASSUMED. If a team ever shows two byes the
+   * map refuses that team instead of picking a mode — a wrong bye is worse than
+   * a missing one, because it manufactures a conflict warning about a week the
+   * player actually plays. */
+  function fillTeamByes(players) {
+    const seen = {};
+    (players || []).forEach(p => {
+      const t = p && p.team;
+      if (!t || t === 'FA' || p.bye == null) return;
+      (seen[t] = seen[t] || {})[Number(p.bye)] = true;
+    });
+    const map = {}, conflicted = [];
+    Object.keys(seen).forEach(t => {
+      const vals = Object.keys(seen[t]);
+      if (vals.length === 1) map[t] = Number(vals[0]);
+      else conflicted.push(t + '(' + vals.join('/') + ')');
+    });
+    let filled = 0, stillBlind = 0;
+    const out = (players || []).map(p => {
+      if (!p || p.bye != null) return p;
+      const b = p.team && p.team !== 'FA' ? map[p.team] : undefined;
+      if (b == null) { stillBlind++; return p; }
+      filled++;
+      return Object.assign({}, p, { bye: b, bye_source: 'team-derived' });
+    });
+    if (conflicted.length) {
+      console.error('[bye] teams reporting more than one bye week, REFUSED rather than '
+        + 'guessed: ' + conflicted.join(', '));
+    }
+    state.byeCoverage = { filled: filled, stillBlind: stillBlind,
+      conflicted: conflicted, teams: Object.keys(map).length };
+    return out;
+  }
+
   function bootFrom(data) {
     state.data = data;
     // Confirmation-screen overrides win over the imported config, so a
@@ -415,6 +466,7 @@
       league: JSON.parse(JSON.stringify(data.league || {})),
       pick_order: JSON.parse(JSON.stringify(data.pick_order || {})),
     };
+    data.players = fillTeamByes(data.players);
     state.board = draftablePlayers(data.players);
     populateKeepers(data);
     applyOverrides();
