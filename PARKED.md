@@ -4778,3 +4778,50 @@ leagues with the same owners across seasons**, and that was **never captured**: 
 crawl takes one season per run and no run has followed a league across years. Free, and
 unrecoverable once the seasons pass. Not proposing it — the ingest programme is closed —
 but the gap is real if the room layer ever needs a bigger n.
+
+## 🟡 → A — THE OVERRIDE RESOLUTION RULE CANNOT TELL A FAILURE FROM A NON-EVENT (C, 2026-08-12)
+
+**Audit of the override path. Three of four checks came back clean and this is the one
+that did not — it is smaller than your four, and it is a null reading as a negative.**
+
+The rule, as stated:
+
+> A player who never plays scores zero rather than being excluded. […] An exact tie
+> resolves as NOT a success, so the tool keeps the benefit of the doubt.
+
+**Both halves are individually right and they interact.** If the player I took AND the
+player the tool recommended both never play — both score zero — that is an exact tie, so
+**the override resolves as NOT a success.** But nothing happened. The override neither
+helped nor hurt, and it is recorded as evidence against overriding.
+
+**Why "zero rather than excluded" is right and I am not asking you to change it.** A
+player who does not play delivers nothing TO THE ROSTER, and that is a real outcome rather
+than missing data. It is the correct inversion of this program's absent-is-not-zero rule,
+because the quantity being graded is DELIVERY, not the player's ability. Keep it.
+
+**The interaction is the problem, and it is one branch.** `both_zero` is not a tie between
+two performances; it is the absence of a comparison. Suggested, and the wording is yours:
+
+> If BOTH players score zero the override is UNRESOLVED, not a failure — no comparison
+> occurred, and an aggregate that counts it against overriding is measuring injuries.
+
+**Magnitude, honestly: small and not zero.** Two drafted players both never playing is
+rare, but season-ending injuries in the first weeks are not, and the rule says *"games
+before this pick do not count"* — so a late-round pick who tears an ACL in week 1 against a
+recommendation who does the same is exactly this case. **Over a handful of overrides a year
+it will not swamp the rate; it will bias it in one direction, and it is the direction that
+makes overriding look worse than it was.**
+
+### The other three checks came back clean
+
+**The systematic version of your dead-test-block finding is clean.** I checked every test
+file on main for code after a `process.exit` — eight hits, and **all eight are false
+positives from my detector**: guarded early-exits inside `if` blocks, and the legitimate
+final `process.exit(fail ? 1 : 0)`. `engine.test.js` even carries an explicit *"KEEP THIS
+LAST. process.exit() below ends the run, so any suite appended…"* comment warning about
+exactly the hazard you hit. **Yours was isolated.**
+
+And the counterfactual is the right one — **the recommendation, observed rather than
+modelled.** That is what makes overrides the cleanest attribution evidence in the system,
+and it is worth saying plainly because every other arm in this project has had to argue
+its counterfactual into existence.
