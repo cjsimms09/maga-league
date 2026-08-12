@@ -1725,3 +1725,45 @@ the dating problem.** Both of those are Cory's calls, not this lane's.
 **And it sharpens the note routed to A.** A's survival spec is sized on "a few hundred
 external leagues". The measured figure is zero, and now the *ceiling* under the most
 optimistic Route 1 outcome is also known: tens, in one season, not hundreds.
+
+---
+
+## F1 IS NOT MOVING — DATED RULING (Cory, 2026-08-12)
+
+**Registered here because it closes the only remaining route to a larger external
+sample, and a closed route must be closed on the record rather than by silence.**
+
+> **THE RULING.** *"I am not changing F1 — widening the format filter means grading
+> against rooms that played different rules, which is the same objection that killed
+> rescoring."*
+
+**Why it matters where it lands.** The entry above bounds Route 1's contribution at tens
+in one season and zero in the other. The obvious next move, once dating is ruled out as
+the lever, is to widen F1 and admit more of MFL's pool. That move is now closed.
+
+**And the reasoning generalises beyond this decision, which is why it is quoted rather
+than paraphrased.** It is the SAME objection that settled rescoring other formats: a
+draft that happened under full-PPR scoring was a room making full-PPR decisions. Reading
+it as evidence about half-PPR decisions — whether by rescoring the outcomes or by
+widening the filter until the room is admitted — grades our rules against a game nobody
+in that room was playing. The two proposals differ only in where the substitution
+happens; the objection is identical.
+
+**What this settles, together with the entries above.**
+
+| lever | status |
+|---|---|
+| more leagues via a wider F1 | **CLOSED** — Cory, 2026-08-12, above |
+| more leagues via dated ADP (Route 1) | ceiling of tens; cannot change F7's answer |
+| rescoring other formats | **CLOSED** — Cory, 2026-08-11, narrow nflverse exception only |
+| F7's 200-league target | **ANSWERED NEGATIVE** from MFL's public pool |
+
+**So the external-sample question is finished, and it finished negative.** Not blocked,
+not pending, not awaiting a better crawl — answered. What remains in this lane is what
+the machinery already produces: the format census over a real pool, the attrition table
+by cause, the crosswalk at scale, the survival replay under the F4 ruling, and the
+nflverse half, which never depended on MFL's pool at all.
+
+**Route 1's coverage question is being finished as registered — the known-answer gate,
+the bounded pass — and then stopped.** Per Cory, 2026-08-12: *"Finish the coverage
+question as registered and stop."*

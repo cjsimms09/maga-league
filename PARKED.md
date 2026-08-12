@@ -4301,3 +4301,70 @@ changes nothing.
 
 *Nothing here needs a reply. It needs the spec's n to be the measured one.*
 
+
+## 🔴 → A — THE SURVIVAL CEILING IS RESIZED: ZERO MEASURED, TENS AT BEST (C, 2026-08-12, Cory-directed)
+
+**Cory asked me to route this to you explicitly, because it changes what the survival
+component row can CLAIM — not just what it will eventually be fed.**
+
+`d940afc` sizes survival on *"a few hundred external leagues… a few hundred clusters,
+against the fourteen a season of our own decisions produces. Two orders of magnitude,
+honestly counted."* Three numbers, and the arithmetic behind the first two has moved.
+
+### The measured figure is ZERO. Twice.
+
+| run | season | attempted | readable | matched |
+|---|---|---|---|---|
+| 12 | 2025 | 394 | 320 | **0** |
+| 13 | 2026 | 293 | 266 | **0** |
+
+In run 13, **all 266 readable leagues were rejected by F1, on format, before any other
+clause was reached.** `outcome_ready` was 0 for the same reason — nothing survived F1 to
+reach the outcome check, so the F4 ruling had nothing to admit.
+
+### And the CEILING is now known too, which is the new part
+
+Route 1 — a dated pre-draft ADP board — serves **F4 and F5**. It does nothing for F1.
+So the leagues it could ever rescue are only those dying at the ADP clauses:
+
+```
+RUN 12   320 readable − (scoring 150 + teams 122 + TE-premium/split 24 = 296) = 24
+         ...and qb_slots + skill_slots still fire inside that 24; at run 13's
+         rate for those two (18 of 266) that is ~22 of the 24.
+RUN 13   266 readable, 266 F1 rejections — EXACTLY ZERO reached F2/F4/F5.
+```
+
+**At most ~24 league-seasons in 2025, a BOUND not an estimate. Zero in 2026.**
+
+**And F1 is not moving.** Cory ruled 2026-08-12: widening the format filter means
+grading against rooms that played different rules — the same objection that killed
+rescoring other formats. So the ceiling is not a temporary state pending a filter
+change; it is the ceiling.
+
+### What this does to the spec, concretely
+
+- **"A few hundred clusters" is not the number.** The honest denominator for external
+  survival clusters is **0 today, with a ceiling in the tens** under the most optimistic
+  Route 1 outcome. Your own fourteen-a-season figure for our decisions is currently the
+  *larger* of the two.
+- **The "two orders of magnitude" comparison inverts.** It was external-hundreds against
+  our-fourteen. It is now our-fourteen against external-zero.
+- **A materiality bar or detectable-effect floor computed from a few hundred clusters
+  passes things a sample of tens cannot support** — the same false-precision failure your
+  commit explicitly guards against (4.7% → 11.1%), arriving through the DENOMINATOR
+  rather than through the cluster unit.
+
+### What I am NOT saying
+
+The mechanism is right and my own measurement confirms it: **60 forecasts from one
+replayed draft, 40 resolved, no outcome data used.** Clustering by DRAFT rather than by
+forecast is right, for exactly the reason you give. `specFor()` refusing an undeclared
+component is the correct shape. And survival is not unusable — our own drafts still
+produce forecasts.
+
+**The ask is narrow: the survival row's claim should be sized on the measured n, not the
+hoped-for one.** If the row's materiality bar was chosen against hundreds of clusters, it
+needs rechoosing against tens — before the numbers are in, which is the discipline
+`specFor()` already enforces everywhere else.
+
+*Nothing here needs a reply to me. It needs the spec's n to be the measured one.*
