@@ -4148,3 +4148,69 @@ found one level up, through a different door. `depletes` belongs in the
 fingerprint. It is also a required input with no default in
 `waiverClaimRecord()`, for the same reason.
 
+
+---
+
+# KALSHI — PARKED WITH A REASON AND AN UNPARK CONDITION (A, 2026-08-12)
+
+Cory: *"it was never closed — it was displaced. I want it either resolved or
+explicitly parked with a reason, not left ambiguous."* Parked, and here is why.
+
+**WHAT WAS ESTABLISHED AND STANDS.** 12,623 series, **426 genuinely football**
+(478 was the `"nfl"` substring matching i*NFL*ation), of which **48 are player
+production** — `KXNFLANYTD`, `KXNFLMOSTRECYDS`, `KXNFLMOSTRSHYDS`,
+`KXNFLPASSATT/COMP/INT`. That is a real finding and it is not being discarded:
+**Kalshi carries the anytime-touchdown market that Signal A is missing**, i.e.
+the 23.3% / 29.1% / 47.5% of WR1 / RB1 / QB1 scoring that yardage props cannot
+reach.
+
+**WHY IT IS PARKED ANYWAY, and the reason is not "we got busy".** Kalshi's value
+is entirely as an input to **Signal A**, and Signal A is blocked on something
+Kalshi does not fix: the props side of the comparison sits behind a paid tier on
+the closed source, and the component-matching rule refuses a partial comparison
+rather than returning a confident zero. So Kalshi would close half of a gap whose
+other half is shut. Building the integration now buys an input to an experiment
+that cannot run.
+
+**AND THE CHEAP MEASUREMENT THAT DECIDES IT WAS NEVER DONE.** Volume on those 48
+series is unmeasured. A thin market is not a wise one — a touchdown series with
+four contracts open is not evidence about anything, and every downstream design
+choice depends on which case we are in. **That measurement is the unpark
+condition**, it costs one probe, and it is worth more than any further scanning.
+
+**THE UNPARK CONDITION, stated so it is a trigger rather than an intention:**
+run the volume probe on the 48 player-production series when the market layer
+next becomes live work — which is **post-draft**, because the whole layer is
+read-only and invisible during any live decision (rule 15) and cannot pay for
+attention before August 22. If volume carries, Kalshi becomes the Signal A source
+and the coverage arithmetic gets re-run rather than quietly adjusted. If it does
+not, Kalshi closes for good and Signal A closes with it.
+
+**WHAT IS NOT PARKED:** the finding itself, which is recorded in MARKET-LAYER.md
+§11 and is the answer to Part 5's *"if touchdown markets turn out to be
+available, that changes the calculus and should be reported as a finding."*
+
+---
+
+# SIGNAL B — BUILT, CORRECT, AND UNREADABLE BY ANYTHING (A, 2026-08-12)
+
+`draft/backtest/market_environment.py` implements the environment gap properly —
+implied totals from total+spread, negative spreads refused rather than flipped,
+`captured_at` required, conservation checkable. **Its only caller is its own
+test.** Rule 14, and I did not notice until Cory asked.
+
+**But wiring it is not the blocker, and this is the part worth recording.**
+`observation()` requires **`model_team_points`** — our projection of an NFL
+team's REAL points. The board does not produce that. It produces fantasy points
+per player, which is a different quantity: you cannot sum nine fantasy
+projections and get a team's expected 24.25. Signal B's market half is captured
+daily and its model half **has no source at all**.
+
+So Signal B is not "unwired", it is **half-built**, and the missing half is a
+model nobody has scoped. Building it means projecting team points from projected
+touchdowns and field goals — components the board does not store.
+
+**This is now a standing row in `draft/backtest/standing_check.py`**, reported
+every Monday, precisely so it cannot go back to being an intention with no
+trigger. That is the only change made here: no wiring, no half-measure that
+reads a number the model cannot supply.

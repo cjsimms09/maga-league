@@ -1,0 +1,75 @@
+name: Standing check + trending capture
+
+# THE TRIGGER FOR AN INTENTION THAT HAD NONE.
+#
+# We accumulate several archives and had scheduled nothing to examine any of
+# them; the only thing that ever looked was Cory asking a question. This runs on
+# its own and stays silent unless something crosses a threshold stated in
+# draft/backtest/standing_check.py BEFORE the data arrived.
+#
+# WEEKLY, and the cadence is set by the FAILURE MODE rather than by the analysis.
+# Nothing we hold will be analysable before roughly week 6 of the season. But the
+# fastest way to lose is a daily capture that dies quietly, and a monthly pass
+# would let three weeks of that go by.
+#
+# It also takes the daily trending snapshot, because Sleeper serves only the
+# current window and an un-captured day cannot be rebuilt. That half runs DAILY;
+# the examination runs weekly. Both live here so a single failed run is visible
+# in one place rather than split across two jobs that can rot independently.
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Daily at 12:00 UTC — the trending capture. The standing check runs on
+    # Mondays only (guarded in the step below), so six days a week this job is
+    # a capture and nothing else.
+    - cron: '0 12 * * *'
+
+permissions:
+  contents: write
+
+jobs:
+  look:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - run: pip install pytest -q
+
+      # The guards before the capture, same order as market-capture: a broken
+      # writer must not be allowed to append a hollow day.
+      - name: Test the capture and the check before trusting either
+        run: python -m pytest draft/tests/test_sleeper_trending.py
+                              draft/tests/test_standing_check.py -q
+
+      - name: Capture Sleeper trending (daily — the window is unrecoverable)
+        run: python draft/sleeper_trending.py
+
+      - name: Commit the snapshot
+        run: |
+          git config user.name "lab-bot"; git config user.email "actions@github.com"
+          git add draft/data/sleeper_trending.json || true
+          git commit -m "Trending snapshot" || { echo "no change"; exit 0; }
+          git pull --rebase origin main && git push || echo "push skipped"
+
+      # THE EXAMINATION. Monday only. Silent unless something crossed.
+      - name: Is there anything here yet
+        id: look
+        run: |
+          if [ "$(date -u +%u)" != "1" ] && [ "${{ github.event_name }}" != "workflow_dispatch" ]; then
+            echo "not Monday — capture only"; exit 0
+          fi
+          python draft/backtest/standing_check.py --verbose | tee /tmp/sc.txt
+
+      # ESCALATION IS LOUD AND EVERYTHING ELSE IS SILENT. A crossed threshold
+      # fails the run, which is the only notification channel that reaches Cory
+      # without him going to look — which is the entire point of the file.
+      - name: Escalate only if something crossed
+        run: |
+          if [ -f /tmp/sc.txt ] && grep -q '::standing-check-escalate::' /tmp/sc.txt; then
+            echo '::error::the standing check found something worth attention:'
+            grep -v '::standing-check-escalate::' /tmp/sc.txt
+            exit 1
+          fi
+          echo "nothing crossed"
