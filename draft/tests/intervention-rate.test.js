@@ -162,7 +162,14 @@ const deadSet = r.dead.slice().sort();
  * So the honest statement is: a zero-weighted term is dead UNLESS A NAMED FLOOR
  * REINSTATES IT, and the floors are enumerated so that adding a third one to the
  * engine fails here rather than quietly widening the exception. */
-const FLOOR_REINSTATED = { ceiling: 'CFG.BENCH_CEILING_FLOOR', risk: 'CFG.BENCH_RISK_FLOOR' };
+/* EMPTY SINCE 2026-08-14, AND THE CONVERSE CHECK BELOW IS WHY. This map held
+ * ceiling and risk, reinstated by BENCH_CEILING_FLOOR and BENCH_RISK_FLOOR over
+ * measured weights of zero. Both floors are now zero, so both terms are dead
+ * again — and the converse assertion fired exactly as written: "delete the
+ * exception or delete the floor". The floor was deleted, so the exception goes.
+ * An empty map means every zero-weighted term is genuinely dead, which is the
+ * state this file always claimed and could not honestly assert. */
+const FLOOR_REINSTATED = {};
 const unexplainedAlive = ZERO_WEIGHTED
   .filter(t => deadSet.indexOf(t) === -1)
   .filter(t => !FLOOR_REINSTATED[t]);

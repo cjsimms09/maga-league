@@ -126,8 +126,38 @@
      * about it. RISK is floored too, as the safety net: it is what silently
      * kept DEFAULT_WEIGHTS from reaching (-42.00 on the worst offender), and it
      * was doing that job by accident rather than by design. */
-    BENCH_CEILING_FLOOR: 0.25,
-    BENCH_RISK_FLOOR: 0.25,
+    /* ── BOTH FLOORS RETIRED TO ZERO, 2026-08-14 ────────────────────────────
+     *
+     * These read 0.25 and were applied as `Math.max(FLOOR, w.ceiling)` and
+     * `Math.max(FLOOR, w.risk)`, over a MEASURED_WEIGHTS.ceiling and .risk of
+     * ZERO. The ceiling effect measured -4.8 with a [-26,+17] interval and could
+     * not be signed; risk measured as a drag. Both were deliberately switched
+     * off — AND A CONSTANT SWITCHED THEM BACK ON for every bench pick, which
+     * after the starters fill is every pick. THE WEIGHT VECTOR IS THE SYSTEM'S
+     * DESCRIPTION OF WHAT IT BELIEVES; A FLOOR IS THE BEHAVIOUR. They disagreed,
+     * and the description lost silently.
+     *
+     * THEY COULD NOT BE REMOVED BEFORE. Tested on 2026-08-13, setting the
+     * ceiling floor to 0 made the QB/TE symptom WORSE (33% -> 50%), because the
+     * bench branch had nothing else in it — VONA had been discarded there on the
+     * strength of a comment mischaracterising it. With VONA restored and the
+     * onesie sign defect fixed, the branch ranks on a term that has an
+     * out-of-sample dollar measurement behind it, and the floors are no longer
+     * load-bearing for anything.
+     *
+     * MEASURED, full twelve-pick walk, floors 0.25 -> 0:
+     *   roster shape   QB2 RB5 WR2 TE1 DEF1 K1  ->  QB1 RB6 WR2 TE1 DEF1 K1
+     *   QB now MATCHES the market reference exactly (1 against 1)
+     *   reach median / p90 / max   11.0 / 26.0 / 36.0   IDENTICAL
+     *   replacement-level players in the top ten   0  ->  0
+     *
+     * Kept as named zeros rather than deleted: `Math.max(0, w)` still guards a
+     * negative weight from a slider, and bench_branch_anchor.test.js drives
+     * these to prove the branch refuses junk WITHOUT them. A knob at zero that a
+     * test exercises is honest; a knob at 0.25 overriding a measurement was not.
+     */
+    BENCH_CEILING_FLOOR: 0,
+    BENCH_RISK_FLOOR: 0,
     // D3 flex-discount (approved 2026-08-08). A player who only "starts in your
     // flex" is priced at his MARGINAL value over the best flex-eligible
     // alternative realistically available — never full VORP. FLEX_ALT_WEIGHT is

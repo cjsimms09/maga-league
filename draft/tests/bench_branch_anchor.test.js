@@ -111,12 +111,35 @@ const mTop = rec(E.MEASURED_WEIGHTS)[0];
     Math.abs(early) < 1e-9, early);
 }
 
-// ── AND THE FLOORS CANNOT BE SWITCHED OFF ──────────────────────────────────
+/* ── AND THE FLOORS ARE NOW ZERO, WHICH IS THE POINT ────────────────────────
+ *
+ * This asserted the OPPOSITE until 2026-08-14: that both bench floors were
+ * ABOVE zero, "like the starter branch's value anchor". That was true and it was
+ * the defect — `Math.max(0.25, w.ceiling)` over a MEASURED_WEIGHTS.ceiling of
+ * ZERO, set there because the effect measured -4.8 with a [-26,+17] interval and
+ * could not be signed. A constant was switching a measurement back on for every
+ * bench pick, and this test was pinning it in place.
+ *
+ * THE FLOORS COULD NOT BE REMOVED WHILE THE BRANCH HAD NOTHING ELSE IN IT.
+ * Tested 2026-08-13: zeroing the ceiling floor made the QB/TE symptom worse,
+ * because VONA had been discarded in that branch. With VONA restored the branch
+ * ranks on the one term with an out-of-sample dollar measurement behind it, and
+ * the floors stopped being load-bearing — QB then matched the market reference
+ * exactly, with an identical reach distribution and zero junk either way.
+ *
+ * The assertion now pins the honest state: the measured weight is what runs.
+ * The VALUE floor stays above zero and is checked separately — it floors a
+ * weight the measurement put at 1.0, so it cannot override anything. */
 {
-  ck('the bench anchor is floored, like the starter branch\'s value anchor',
-    E.CFG.BENCH_CEILING_FLOOR > 0 && E.CFG.BENCH_RISK_FLOOR > 0,
-    { ceiling: E.CFG.BENCH_CEILING_FLOOR, risk: E.CFG.BENCH_RISK_FLOOR,
-      value: E.CFG.VALUE_WEIGHT_FLOOR });
+  ck('the bench floors are ZERO — the measured weights are what run',
+    E.CFG.BENCH_CEILING_FLOOR === 0 && E.CFG.BENCH_RISK_FLOOR === 0,
+    { ceiling: E.CFG.BENCH_CEILING_FLOOR, risk: E.CFG.BENCH_RISK_FLOOR });
+  ck('  and no floor anywhere exceeds the weight it floors',
+    E.CFG.VALUE_WEIGHT_FLOOR <= E.MEASURED_WEIGHTS.value
+    && E.CFG.BENCH_CEILING_FLOOR <= E.MEASURED_WEIGHTS.ceiling
+    && E.CFG.BENCH_RISK_FLOOR <= E.MEASURED_WEIGHTS.risk,
+    'a floor above its own weight silently overrides a deliberate setting — '
+    + 'that is the defect class, not a safety net');
 
   /* NON-VACUITY, and it is the check that makes every assertion above mean
    * something. An inverted test passes trivially if the branch stopped being
