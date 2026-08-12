@@ -41,7 +41,7 @@ on:
         default: '2100'
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   ingest:
@@ -155,6 +155,16 @@ jobs:
           rep["pool"] = pool_rep
           rep["sample"] = samp
           json.dump(rep, open("ingest-report.json", "w"), indent=1)
+          # CAPTURE, NOT MODELLING (Cory's standing distinction, 2026-08-12). The
+          # census was computed on every run, written to an artifact with a 90-day
+          # retention, and DISCARDED — this run committed nothing. MFL's public pool
+          # is a MOVING POPULATION, so a census taken today is not reconstructable
+          # later from any source, which is exactly what Route 1 closed on.
+          # F7's negative answer is a verdict about POOLING, not about whether the
+          # pool's composition is worth a row a year.
+          import census_archive as CA
+          json.dump(CA.append(rep), open(CA.SERIES, "w"), indent=1)
+          print("census row appended -> %s" % CA.SERIES)
 
           # DIAGNOSTICS LAST, AND COMPACT. The full report is ~700 log lines and
           # the evidence that decides the next fix is a dozen of them in the
@@ -310,6 +320,14 @@ jobs:
               echo "about this run, not a finding about the pool."
             fi
           } >> "$GITHUB_STEP_SUMMARY"
+      - name: Commit the census row (CAPTURE — the pool is not reconstructable later)
+        run: |
+          git config user.name "lab-bot"; git config user.email "actions@github.com"
+          git add draft/data/format_census_series.json || true
+          git diff --cached --quiet && { echo "no change"; exit 0; }
+          # [skip deploy]: a data archive under draft/, which the deploy gate skips.
+          git commit -m "C: format census row [skip deploy]"
+          git pull --rebase origin main && git push
       - uses: actions/upload-artifact@v4
         if: always()
         with:

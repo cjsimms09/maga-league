@@ -1843,3 +1843,60 @@ CDX index does not hold. It was never going to rule those out, and it is not the
 the sample is small.
 
 **STOPPING HERE, as instructed.**
+
+---
+
+## CAPTURE-POLICY AUDIT — SESSION C (Cory's standing distinction, 2026-08-12)
+
+**CAPTURE, MODEL and SCAN are three decisions. A failed hypothesis is not a failed data
+source.** Audited across this lane; no parked analysis restarted.
+
+### 1. What C accumulates that nobody examines
+
+| archive | state | examined by |
+|---|---|---|
+| `external_adp_series.json` | **1 row**, started 2026-08-11, daily 11:20 UTC | A's standing check, for STALENESS only — never for structure |
+| the format census | **computed every run and DISCARDED** | nothing |
+| the attrition table by cause | **computed every run and DISCARDED** | nothing |
+| the crosswalk rate at scale | **computed every run and DISCARDED** | nothing |
+
+**The finding: the ingest run committed NOTHING.** Every census went to a CI artifact
+with a 90-day retention and was lost. Fixed this commit.
+
+### 2. Parked for a MODELLING reason, still passes the CAPTURE test
+
+| item | modelling verdict | capture verdict |
+|---|---|---|
+| **passing-TD prevalence** | negligible value effect — crossover moves 0–2 picks. **No value term.** | **CAPTURE.** Named by Cory. Lives inside the census; now archived |
+| **the format census** | F7 negative — no pooling, no shadow-field expansion | **CAPTURE.** That verdict is about POOLING, not about whether the pool's composition is worth a row a year |
+| **the attrition table** | the evidence *for* F7's negative | **CAPTURE.** It is the only record of why the answer was negative |
+| **the crosswalk rate** | not a decision input | **CAPTURE.** Measures OUR matcher against a large external pool; the pool moves |
+
+**Why all four are unrecoverable, which is the clause that decides it:** MFL's public pool
+is a **moving population** — leagues change scoring, change size, are deleted and created.
+A census of the 2026 pool cannot be reconstructed next year from any source. This program
+spent a session establishing that historical league states are not retrievable; that is
+what Route 1 closed on.
+
+### 3. Neither modelled nor captured — fails the test, and this is the honest half
+
+| item | why not |
+|---|---|
+| **Route 1 probe results as a series** | **Recoverable.** The Wayback CDX index is itself a durable archive; a future re-query returns the same or better. Fails "unrecoverable" |
+| **raw per-league MFL exports** | **Recoverable and large.** MFL serves them on request. Fails "unrecoverable" and strains rule 9 |
+| **D7 board-size distributions** | Derived from the census — capturing the census captures them. A second copy is how two numbers come to disagree |
+
+### 4. The scan — my archives are too thin, said plainly as invited
+
+**A scan of this lane today would examine ZERO relationships.** The ADP series holds one
+row; the census series holds one after this commit. There is nothing to relate.
+
+**So the cadence is set to natural boundaries, not monthly**, and the honest first output
+is `N=0 relationships examinable — archive too thin` rather than silence. Earliest point
+either series could support a bounded scan: the ADP series needs a preseason of daily
+rows (~2027-08), the census needs runs across at least two seasons (~2027).
+
+**AND I AM NOT BUILDING A SECOND CHECKER.** A's `standing_check.py` already runs daily,
+already watches `external_adp_series`, and already reports BLIND rather than quiet when it
+cannot look. **Rule 9 says the trigger belongs there, not in a parallel job of mine** — the
+request to A is one row in its check list, not a new mechanism. Routed in PARKED.
