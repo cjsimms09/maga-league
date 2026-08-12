@@ -74,6 +74,17 @@ function myPicks() {
   for (let r = 1; r <= ROUNDS; r++) out.push((r - 1) * TEAMS + ((r % 2 === 1) ? MY : (TEAMS - MY + 1)));
   return out.slice(KR);
 }
+/* Manager profiles keyed by SEAT. The mapping of manager to seat is unknown
+ * until the draft order is assigned, so a stable arbitrary seating is used and
+ * the arm is a DISTRIBUTION over seatings rather than a claim about who sits
+ * where — same discipline profile_flip.js established. */
+const MGRS = ((DATA.manager_profiles || {}).managers) || {};
+const ME = L.my_manager_id || null;
+const ROOM_PROFILES = Object.keys(MGRS).map(k => MGRS[k])
+  .filter(m => m && (!ME || String(m.manager_id) !== String(ME)));
+const PROFILE_BY_SEAT = {};
+{ let i = 0; for (let s = 1; s <= TEAMS; s++) if (s !== MY) PROFILE_BY_SEAT[s] = ROOM_PROFILES[i++ % (ROOM_PROFILES.length || 1)] || null; }
+
 const REPL = {};
 DATA.players.forEach(p => {
   if (p.position && p.replacement != null && REPL[p.position] == null) REPL[p.position] = Number(p.replacement);
@@ -228,6 +239,50 @@ const ROOMS = {
     }
     return ROOMS.adp(board, rand);
   },
+  /* THE MEASURED ROOM — the review's item 4, built from what we actually hold.
+   *
+   * ⚠️ AND THE THING THE REVIEW ASSUMED IS NOT TRUE: THE RAW TRACES ARE NOT
+   * RETAINED. `manager_profiles.json` holds the DERIVED profiles — positional
+   * mix by round bucket, positional timing, reach delta, softmax dials — built
+   * from 450 picks across 3 drafts, and the picks themselves were consumed at
+   * build time. The three `draft_ids` are recorded, so Sleeper could serve them
+   * again, but nothing in this repo can replay a trace today.
+   *
+   * So this is the closest honest thing: draw each opponent's POSITION from that
+   * seat's measured by-round-bucket mix, then apply their measured REACH DELTA
+   * to how far down the ADP list they take it. That mixes measured room
+   * behaviour with the parametric model, which is what was asked for, using data
+   * that exists.
+   *
+   * WHAT IT STILL CANNOT DO: reproduce a specific person's specific run. A mix
+   * is a marginal; the elite-fall-through defect was found in a TAIL that no
+   * marginal contains. Recorded rather than glossed — this narrows the gap the
+   * ADP room leaves and does not close it.
+   *
+   * SILENCE RULE (15): this is a SIMULATION room model. It never renders and is
+   * never visible during a live decision.
+   */
+  profiled: (board, rand, seat) => {
+    const prof = PROFILE_BY_SEAT[seat];
+    if (!prof) return ROOMS.adp(board, rand);
+    const bucket = rand() < 0.25 ? 'early' : (rand() < 0.6 ? 'mid' : 'late');
+    const mix = ((prof.draft_patterns || {}).by_round_bucket || {})[bucket];
+    const m = mix && mix.mix;
+    let pos = null;
+    if (m) {
+      let r = rand(), acc = 0;
+      Object.keys(m).forEach(k => { if (pos === null) { acc += m[k]; if (r <= acc) pos = k; } });
+    }
+    const at = (pos ? board.filter(p => p.position === pos) : board)
+      .sort((a, b) => adpOf(a) - adpOf(b));
+    if (!at.length) return ROOMS.adp(board, rand);
+    // reach_delta.mean is picks AHEAD of ADP (negative = reaches). sd is theirs.
+    const rd = prof.reach_delta || {};
+    const jitter = Math.max(0, Math.round(
+      (Number(rd.mean) || 0) * -0.1 + Math.abs(rand() - rand()) * (Number(rd.sd) || 10) * 0.3));
+    return at[Math.min(at.length - 1, jitter)];
+  },
+
   // A RUN: once someone takes an RB, the next few opponents pile in.
   rb_run: (board, rand) => {
     if (rand() < 0.45) {
@@ -258,7 +313,7 @@ function simulate(seed, armName, roomName, seat) {
     const board = pool.filter(p => !gone.has(String(p.player_id)));
     if (!board.length) break;
     if (!mine.has(o)) {
-      const pick = (ROOMS[roomName] || ROOMS.adp)(board, rand);
+      const pick = (ROOMS[roomName] || ROOMS.adp)(board, rand, slotOf(o));
       if (!pick) break;
       gone.add(String(pick.player_id)); opp[slotOf(o)].push(pick); continue;
     }
