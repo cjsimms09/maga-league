@@ -89,6 +89,25 @@
     // was entering a points-over-replacement sum at face value.
     // The value term never switches off entirely; see scorePlayer.
     VALUE_WEIGHT_FLOOR: 0.25,
+    /* THE SAME PROTECTION FOR THE BENCH BRANCH, added 2026-08-12 after it was
+     * measured recommending Tom Brady.
+     *
+     * The bench branch does not contain `value` at all — deliberately, VONA is
+     * meaningless for a man you cannot start — so VALUE_WEIGHT_FLOOR does not
+     * reach it. Its intended anchor is CEILING, and MEASURED_WEIGHTS sets
+     * ceiling to 0, which left `0.5*stack + 1*keeper` deciding 120 of 240
+     * simulated picks. A flat same-NFL-team bonus was choosing my round-8
+     * through round-13 picks.
+     *
+     * Floored for exactly the reason `value` is: a branch's ANCHOR is not a
+     * preference, and no slider setting may switch it off. The zeroing of
+     * ceiling in the STARTER branch stands untouched — that decision was made
+     * on the starter branch's arithmetic (2026-08-10) and this changes nothing
+     * about it. RISK is floored too, as the safety net: it is what silently
+     * kept DEFAULT_WEIGHTS from reaching (-42.00 on the worst offender), and it
+     * was doing that job by accident rather than by design. */
+    BENCH_CEILING_FLOOR: 0.25,
+    BENCH_RISK_FLOOR: 0.25,
     // D3 flex-discount (approved 2026-08-08). A player who only "starts in your
     // flex" is priced at his MARGINAL value over the best flex-eligible
     // alternative realistically available — never full VORP. FLEX_ALT_WEIGHT is
@@ -579,7 +598,7 @@
     return { value: risk, reasons };
   }
 
-  function upsideBonus(player, pickNumber, totalPicks, myPicksLeft, allStages) {
+  function upsideBonus(player, pickNumber, totalPicks, myPicksLeft, allStages, gateOpen) {
     // UNIT MISMATCH — the bug this fixes.
     //
     // `raw` is proj_ceiling minus proj_mean, which is a SPREAD: it tracks
@@ -615,7 +634,20 @@
     // ceiling-forward drafts (ctx.ceilingAllStages); it never touches the live board.
     const lateness = totalPicks ? Math.min(1, pickNumber / totalPicks) : 0.5;
     const from = CFG.CEILING_LATE_FROM != null ? CFG.CEILING_LATE_FROM : 0.6;
-    const gate = allStages ? (0.3 + 0.7 * lateness)
+    /* `gateOpen` REPLACES THE PROXY WITH THE REAL CONDITION.
+     *
+     * CEILING_LATE_FROM = 0.6 is a PROXY for "the throwaway rounds" — pick 90 of
+     * 150. The bench branch fires on the actual condition it is proxying for:
+     * every starting slot is full, so from here on every pick IS a lottery
+     * ticket. Measured, that happens near pick 70, so through rounds 8 and 9 the
+     * proxy said "not late yet" while the real condition had already arrived and
+     * the branch's only anchor read 0.00 for every player on the board.
+     *
+     * So the bench branch passes gateOpen and uses the condition instead of the
+     * proxy. THE STARTER BRANCH IS UNTOUCHED — it still ramps from 0.6, because
+     * that is the arithmetic the 2026-08-10 ceiling decision was made on. */
+    const gate = gateOpen ? 1
+      : allStages ? (0.3 + 0.7 * lateness)
       : Math.max(0, (lateness - from)) / Math.max(1e-6, 1 - from);
     const endgame = myPicksLeft != null && myPicksLeft <= 5 ? 1.6 : 1.0;
     const scaled = raw * CFG.CEILING_SPREAD_SHARE * gate * endgame;
@@ -908,10 +940,17 @@
       // flattened the ordering; the reprice alone already keeps the TOP pick positive
       // (it is the highest-ceiling player left), which is what "no negative #1 while
       // upside remains" requires. CFG.BENCH_SCORE_FLOOR only catches pathological lows.
-      score = w.ceiling * ceiling + w.stack * stack.value + w.keeper * kov.value
+      // THE ANCHOR, FLOORED — see CFG.BENCH_CEILING_FLOOR. Recomputed with the
+      // gate open because the branch itself is the lateness condition the
+      // global ramp only approximates.
+      const benchCeiling = upsideBonus(player, ctx.currentPick, ctx.totalPicks,
+        ctx.myPicksLeft, ctx.ceilingAllStages, true);
+      const wCeil = Math.max(CFG.BENCH_CEILING_FLOOR, w.ceiling == null ? 1 : w.ceiling);
+      const wRisk = Math.max(CFG.BENCH_RISK_FLOOR, w.risk == null ? 1 : w.risk);
+      score = wCeil * benchCeiling + w.stack * stack.value + w.keeper * kov.value
         + Math.max(0, w.need * need.value)      // handcuff/insurance, never a penalty here
         - Math.max(0, w.bye * bye.value)        // a bench bye still stings a little
-        + w.risk * Math.min(0, risk.value);     // real injury/age risk still counts
+        + wRisk * Math.min(0, risk.value);      // real injury/age risk still counts
       // No hard clamp to zero: the top bench pick is the highest-ceiling player
       // left, so scored[0] stays positive on its own (that is all OPEN-1 requires),
       // while keeper/bye/risk keep modulating the depth ranking below it. A clamp

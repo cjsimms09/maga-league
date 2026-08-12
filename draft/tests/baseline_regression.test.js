@@ -118,8 +118,22 @@ frozen.surfaces.forEach(f => {
    *
    * 0.005 is half the coarsening the UI applies (survival renders in 5% buckets
    * with a tilde), so anything this tolerates cannot change what is displayed. */
-  const survDrift = f.top10.filter((p, i) => {
-    const lv = l.top10[i] && l.top10[i].survival_to_next;
+  /* JOINED BY PLAYER, NOT BY INDEX — corrected 2026-08-12 while reading a real
+   * departure. The old version compared slot i to slot i, so the moment the
+   * top-10 MEMBERSHIP changed it paired two different players and reported
+   * "Marcedes Lewis frozen 1 live 0.994" when Lewis had simply been replaced in
+   * that slot by Hunter Henry. Survival had not moved at all.
+   *
+   * The DETECTION was never wrong — a ranking change is caught by the top-10
+   * check directly above. The MESSAGE was, and a guard whose message asserts
+   * something it did not measure is how a re-ordering gets investigated as a
+   * survival regression. Players who left the top-10 are not compared here;
+   * their departure is the other check's business. */
+  const liveById = new Map(l.top10.map(x => [String(x.player_id), x]));
+  const survDrift = f.top10.filter(p => {
+    const live = liveById.get(String(p.player_id));
+    if (!live) return false;                  // not a survival question
+    const lv = live.survival_to_next;
     if (p.survival_to_next == null || lv == null) return p.survival_to_next != lv;
     return Math.abs(p.survival_to_next - lv) > 0.005;
   });
