@@ -24,9 +24,13 @@ on:
         required: false
         default: '900'
       max_leagues:
-        description: 'Hard cap on leagues examined'
+        description: 'Hard cap on leagues SCREENED (phase 2)'
         required: false
         default: '400'
+      pool_target:
+        description: 'Discover at least this many leagues before screening (phase 1)'
+        required: false
+        default: '0'
 
 permissions:
   contents: read
@@ -43,6 +47,7 @@ jobs:
           SEASON: ${{ github.event.inputs.season || '2025' }}
           BUDGET_S: ${{ github.event.inputs.budget_s || '900' }}
           MAX_LEAGUES: ${{ github.event.inputs.max_leagues || '400' }}
+          POOL_TARGET: ${{ github.event.inputs.pool_target || '0' }}
         run: |
           python3 - <<'PY'
           import json, os, sys, time, urllib.error, urllib.request
@@ -53,6 +58,7 @@ jobs:
           SEASON = os.environ["SEASON"]
           BUDGET = float(os.environ["BUDGET_S"])
           CAP = int(os.environ["MAX_LEAGUES"])
+          POOL_TARGET = int(os.environ.get("POOL_TARGET") or 0)
           UA = "maga-league-probe/1.0 (+github actions)"
           t0 = time.time()
           timings = []
@@ -122,11 +128,44 @@ jobs:
                         open("sleeper-pool-probe.json", "w"), indent=1, default=str)
               raise SystemExit(0)
 
-          # ── Q2/Q3/Q4: crawl the connected component, bounded twice.
-          seen, queue, rows = set(SP.OUR_LEAGUES), list(SP.OUR_LEAGUES), []
-          reasons, ts_seen, checked_drafts = {}, {}, 0
-          while queue and len(rows) < CAP and (time.time() - t0) < BUDGET:
+          # ── PHASE 1: EXPAND ONLY, until the discovered pool is big enough.
+          #
+          # MEASURED in the first run: 400 leagues examined cost 5,897 requests --
+          # ~14.7 each -- because every examined league ALSO fetched its users and
+          # each user's league list. Screening costs ONE request. A run that expands
+          # while it screens pays 14.7x for a number that needs 1x.
+          seen, queue = set(SP.OUR_LEAGUES), list(SP.OUR_LEAGUES)
+          expanded = 0
+          while POOL_TARGET and len(seen) < POOL_TARGET and queue \
+                  and (time.time() - t0) < BUDGET * 0.45:
               lid = queue.pop(0)
+              expanded += 1
+              us = get(SP.users_url(lid))
+              if not us["ok"]:
+                  continue
+              try:
+                  for uid in SP.user_ids(us["body"]):
+                      ul = get(SP.user_leagues_url(uid, SEASON))
+                      if not ul["ok"]:
+                          continue
+                      for nxt in SP.league_ids(ul["body"]):
+                          if nxt not in seen:
+                              seen.add(nxt); queue.append(nxt)
+                  if len(seen) >= POOL_TARGET:
+                      break
+              except TypeError:
+                  continue
+          if POOL_TARGET:
+              print("PHASE 1: expanded %d league(s) -> discovered %d in %.0fs"
+                    % (expanded, len(seen), time.time() - t0))
+
+          # ── PHASE 2: SCREEN from the discovered set, WITHOUT expanding.
+          rows = []
+          reasons, ts_seen, checked_drafts = {}, {}, 0
+          incomplete = 0
+          screen_queue = list(seen) if POOL_TARGET else list(queue)
+          while screen_queue and len(rows) < CAP and (time.time() - t0) < BUDGET:
+              lid = screen_queue.pop(0)
               lg = get(SP.league_url(lid))
               if not lg["ok"]:
                   reasons["fetch_failed:%s" % lg.get("why")] = \
@@ -148,7 +187,14 @@ jobs:
                       if pk["ok"] and isinstance(pk["body"], list) and pk["body"]:
                           has, key = SP.pick_has_timestamp(pk["body"][0])
                           ts_seen[str(has) + ":" + key] = ts_seen.get(str(has) + ":" + key, 0) + 1
-              # expand
+              # F2's clause, free — it is on the league object already fetched.
+              dc, dwhy = SP.draft_complete(lg["body"] or {})
+              if dc is False:
+                  incomplete += 1
+              # EXPAND ONLY IN SINGLE-PHASE MODE. With a pool target, phase 1 already
+              # did the discovery and paying 14.7x per screened league would defeat it.
+              if POOL_TARGET:
+                  continue
               us = get(SP.users_url(lid))
               if us["ok"]:
                   try:
@@ -168,7 +214,10 @@ jobs:
           print()
           print("Q2 FORMAT MATCH   %d of %d examined  (%.2f%%)  | reachable pool seen: %d"
                 % (len(matched), len(rows), 100.0 * len(matched) / max(1, len(rows)), len(seen)))
-          print("   MFL comparison: 0 of 394")
+          # PRINTED AS HISTORY, NOT AS A MEASUREMENT. The first cut of this probe
+          # printed this as though the run produced it. It is the MFL result from
+          # run 12, quoted, and it is labelled so nobody reads it as this run's.
+          print("   [historical, not measured here] MFL run 12: 0 matched of 394")
           print("   UNREADABLE (not a mismatch): %d" % unread)
           for k, v in sorted(reasons.items(), key=lambda kv: -kv[1])[:12]:
               print("     %-44s %d" % (k[:44], v))
@@ -177,8 +226,11 @@ jobs:
           print("Q4 FETCH COST     mean %.3fs over %d requests   (MFL: 12.6s)"
                 % (avg or -1, len(timings)))
           print()
-          print("BOUNDS: %d leagues examined of %d discovered; %.0fs of %.0fs budget used."
+          print("BOUNDS: %d leagues screened of %d discovered; %.0fs of %.0fs budget used."
                 % (len(rows), len(seen), time.time() - t0, BUDGET))
+          print("F2 (draft not complete): %d of %d screened" % (incomplete, len(rows)))
+          print()
+          print(SP.f7_verdict(len(matched), len(rows), len(seen)))
           json.dump({"q1_edge_open": True, "controls": ctrl, "rows": rows,
                      "reasons": reasons, "discovered": len(seen),
                      "timestamps": ts_seen, "mean_fetch_s": avg},

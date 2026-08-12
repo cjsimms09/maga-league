@@ -218,3 +218,53 @@ def bid_path(txn) -> tuple:
         if cur is not None:
             return ".".join(path), cur
     return None, "no bid at any of: %s" % ", ".join(".".join(p) for p in BID_PATHS)
+
+
+# ── F7 AT SCALE: two phases, because expansion and screening cost differently ──
+#
+# MEASURED in the first probe: 400 leagues examined cost 5,897 requests — roughly
+# 14.7 each — because every examined league also fetched its users AND each user's
+# league list. SCREENING a league costs ONE request. So a run that expands while it
+# screens pays 14.7x for a number that needs 1x.
+#
+# Phase 1 EXPANDS until the discovered set is large enough. Phase 2 SCREENS from
+# that set WITHOUT expanding. At 0.084s per request, 10,000 screens is ~14 minutes
+# rather than ~3.4 hours.
+#
+# F7 NEEDS 200 MATCHED LEAGUE-SEASONS. At the measured 2.00% format rate that is
+# ~10,000 leagues screened, which phase 2 reaches inside one job.
+
+def draft_complete(lg) -> tuple:
+    """F2's clause, on Sleeper's shape. `status` is the league's, not the draft's."""
+    st = (lg or {}).get("status")
+    if st is None:
+        return None, "no status"
+    # Sleeper: pre_draft / drafting / in_season / complete
+    return (st in ("in_season", "complete")), st
+
+
+def f7_verdict(matched: int, screened: int, discovered: int, target: int = 200) -> str:
+    """F7's registered rule, applied to whatever this run actually reached.
+
+    THE RULE IS UNCHANGED AND IS NOT BEING RELAXED: >=200 matched league-seasons, and
+    a short sample REPORTS THE NUMBER AND CHANGES NOTHING. What changes is the pool it
+    is asked of — MFL's was measured unreachable, and this asks the same question of a
+    second source.
+    """
+    rate = (matched / screened) if screened else 0.0
+    if matched >= target:
+        return ("F7 MET ON SLEEPER: %d matched of %d screened (%.2f%%), from a discovered "
+                "pool of %d. The pre-registered target of %d is reached. This says the "
+                "FORMAT constraint that closed MFL does not close Sleeper; it does NOT by "
+                "itself deliver a graded observation, which still needs F2, F4 and F5"
+                % (matched, screened, 100 * rate, discovered, target))
+    need = int(target / rate) if rate else None
+    return ("F7 NOT YET MET IN THIS RUN: %d matched of %d screened (%.2f%%), discovered "
+            "pool %d. Per the pre-registered rule a short sample REPORTS THE NUMBER AND "
+            "CHANGES NOTHING. %s"
+            % (matched, screened, 100 * rate, discovered,
+               ("At this rate %d screens would reach %d — the pool holds %d, so the target "
+                "is %s" % (need, target, discovered,
+                           "REACHABLE" if need and need <= discovered else
+                           "not reachable from the pool discovered so far"))
+               if rate else "No matches, so no rate can be projected."))

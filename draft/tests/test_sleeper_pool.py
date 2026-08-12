@@ -114,3 +114,37 @@ def test_NO_BID_ANYWHERE_reports_the_paths_tried_rather_than_asserting_no_FAAB()
     path, why = S.bid_path({"type": "waiver", "adds": {}})
     assert path is None
     assert "no bid at any of" in why and "settings.waiver_bid" in why
+
+
+def test_f7_verdict_REPORTS_THE_NUMBER_and_never_relaxes_the_target():
+    """F7's registered rule: >=200 matched league-seasons, and a short sample reports
+    the number and changes NOTHING. MUTATION: lower the target when the run falls
+    short — the exact move F7 exists to forbid."""
+    v = S.f7_verdict(matched=8, screened=400, discovered=11988)
+    assert "NOT YET MET" in v and "CHANGES NOTHING" in v
+    assert "200" in v
+    hit = S.f7_verdict(matched=214, screened=10000, discovered=40000)
+    assert hit.startswith("F7 MET ON SLEEPER")
+    # ...and a met target still does not claim a graded observation
+    assert "does NOT by itself deliver a graded observation" in hit
+
+
+def test_the_projection_says_REACHABLE_only_when_the_POOL_can_supply_it():
+    """MUTATION: call it reachable from the rate alone. A 2% rate 'reaches' 200 at
+    10,000 screens whether or not 10,000 leagues have been discovered, which turns an
+    arithmetic extrapolation into a claim about a pool nobody enumerated."""
+    ok = S.f7_verdict(matched=8, screened=400, discovered=50000)
+    assert "REACHABLE" in ok
+    short = S.f7_verdict(matched=8, screened=400, discovered=900)
+    assert "not reachable from the pool discovered so far" in short
+
+
+def test_a_ZERO_rate_projects_NOTHING_rather_than_dividing_by_it():
+    v = S.f7_verdict(matched=0, screened=500, discovered=9000)
+    assert "No matches, so no rate can be projected" in v
+
+
+def test_draft_complete_reads_the_league_status_and_names_it():
+    assert S.draft_complete({"status": "in_season"})[0] is True
+    assert S.draft_complete({"status": "pre_draft"}) == (False, "pre_draft")
+    assert S.draft_complete({})[0] is None
