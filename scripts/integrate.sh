@@ -262,17 +262,61 @@ echo "   tree clean: nothing staged, nothing modified, no merge in progress"
 # only because the sandbox cannot reach api.sleeper.app, and failed on every CI
 # runner that could.
 #
-# This script CANNOT check CI — there is no gh in the environments it runs in.
-# So it does the one honest thing available: it refuses to call a local result a
-# verified one, and names what is still unknown. A claim the reader has to
-# downgrade themselves is the claim that gets repeated without the caveat.
+# ── THE CAVEAT ABOVE USED TO BE THE WHOLE ANSWER, AND IT COST THIRTY MERGES ──
+#
+# This block used to read: "This script CANNOT check CI — there is no gh in the
+# environments it runs in. So it does the one honest thing available: it refuses
+# to call a local result a verified one." IT THEN PRINTED A WARNING AND EXITED 0.
+#
+# THE IMPOSSIBILITY WAS ASSERTED AND NEVER TESTED. `gh` is absent; the GitHub
+# REST API is not — `curl https://api.github.com/...` answers 200 from this
+# container, unauthenticated, on a public repo. So the gate was buildable the
+# whole time and a caveat was printed instead.
+#
+# WHAT THAT COST: CI was red on main from 2026-08-11 through 2026-08-12 — more
+# than thirty consecutive runs — and every merge in that window printed "green
+# LOCALLY" and exited 0. Seven landed on 08-12 alone. A WARNING THAT IS ALWAYS
+# PRINTED IS A WARNING NOBODY READS, which is the same class as the caveat
+# rendered twenty-nine times and the empty state that looked identical to a
+# working one. The fix for that class is never a louder warning.
+#
+# And the mechanism was ALREADY DOCUMENTED three lines above this one:
+# sunday_cron.test.js "passed here only because the sandbox cannot reach
+# api.sleeper.app, and failed on every CI runner that could." h2h_agreement is a
+# second instance of the identical mechanism, and nobody connected them because
+# nothing was reading the result.
+CI_BUDGET="${CI_WAIT_SECONDS:-600}"
+echo
+echo "== CI: is main green BEFORE this merge is called done?"
+bash "$(dirname "$0")/ci_status.sh" latest main
+prior=$?
+if [ "$prior" = "1" ]; then
+  echo "   *** MAIN'S LAST COMPLETED RUN IS RED, and it was red before this merge."
+  echo "   This merge is NOT the cause, and it is NOT verified either: a red main"
+  echo "   means the gate has not confirmed anything for anybody. Fix main first."
+elif [ "$prior" = "2" ]; then
+  echo "   *** COULD NOT REACH CI. Treat this as UNVERIFIED, not as fine."
+fi
+
 echo "OK: $BRANCH merged into main. Suites green LOCALLY."
-echo "   NOT CI-VERIFIED. Local green and CI green are different claims: a test"
-echo "   can pass here because of this machine's network, filesystem or clock."
-echo "   Check the CI run for this SHA before reporting it as verified:"
-echo "     $(git rev-parse --short HEAD)"
 if [ "$PUSH" = "--push" ]; then
   git push origin main && echo "pushed."
+  SHA="$(git rev-parse HEAD)"
+  echo
+  echo "== CI: waiting for the run on the SHA just pushed (${CI_BUDGET}s budget)"
+  bash "$(dirname "$0")/ci_status.sh" sha "$SHA" "$CI_BUDGET"
+  ci=$?
+  case "$ci" in
+    0) echo "VERIFIED: $BRANCH merged into main and CI IS GREEN for $(git rev-parse --short HEAD)." ;;
+    1) echo "*** NOT VERIFIED: CI is RED for $(git rev-parse --short HEAD)."
+       echo "    The merge is pushed. Do not report this as green."
+       exit 1 ;;
+    *) echo "*** NOT VERIFIED: CI could not be read for $(git rev-parse --short HEAD)."
+       echo "    A timeout or an unreachable API is NOT a pass."
+       exit 1 ;;
+  esac
 else
   echo "NOT PUSHED — run: git push origin main"
+  echo "   NOT CI-VERIFIED: nothing was pushed, so there is no run to check."
+  exit "$( [ "$prior" = "0" ] && echo 0 || echo 1 )"
 fi
