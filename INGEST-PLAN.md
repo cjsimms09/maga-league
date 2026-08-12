@@ -2072,16 +2072,24 @@ three clauses at once. **It serves F6's pooled parameters and that is what it se
 
 ---
 
-## THE ROUND-1 BOARD IS ARCHIVED (2026-08-12) — and the round selects the fields
+## THE ROUND-1 BOARD IS BUILT AND VERIFIED — and PARKED FOR A, because I trespassed (2026-08-12)
 
 **Cory's ruling:** *"Our durable record is currently the one round where the dated board is
 absent, which is worse than having no durable record at all — it will be read as
-authoritative by whoever comes next."* **Done.**
+authoritative by whoever comes next."*
 
-    draft/data/bbm/bbm_iv_2023_r1_dated_adp_board.csv.gz
+**Built, verified, and NOT landed by me.** `draft/data/bbm/` is **A's territory** and I
+committed into it. `integrate.sh` refused on both files, correctly, and **I reverted rather
+than working around the guard.** The request is in PARKED.md with everything A needs; it is
+a `git checkout` and a manifest paragraph.
+
+    board  blob 48b427460ac8ca52fd8e23696b3ad479334f0e2d  in commit 759b9d6
     44,671 rows · 131 draft dates · 2023-04-30 .. 2023-09-07 · 579 players
     all five columns 100.0% populated
     sha256 abd5d6f6d317050b8208e94bfb62e218a6933e0e2146f1867335085f15ad99a5
+
+**Until A lands it the harm Cory named is still live** — the manifest on `main` presents the
+round with no dated board as the BBM record.
 
 Streamed from the 4.8 GB dump in one pass, projected to `(draft_date, player_id,
 player_name, position, projection_adp)`, **never landed on disk**.
@@ -2120,6 +2128,8 @@ Chase 3.00, Kelce 4.91, Hill 5.23. 2023-09-07: Jefferson 1.10, Chase 2.25, McCaf
 Hill 3.99, Ekeler 6.29. **The board moves across the preseason in the direction the 2023
 market actually moved** — which a stale or duplicated series would not.
 
-**The warning travels with the file.** `MANIFEST.json` states in the archive entry itself
-that 131 dated boards are **a price series, not 131 gradeable league-seasons**, so the next
-reader cannot make the F7 mistake from the file alone.
+**The warning must travel with the file.** The manifest entry I wrote states in the archive
+record itself that 131 dated boards are **a price series, not 131 gradeable
+league-seasons**, so the next reader cannot make the F7 mistake from the file alone. **That
+warning is the part of the parked request that matters most** — A may rewrite the wording,
+but the file must not land without it.

@@ -1,98 +1,49 @@
 {
-  "note": "BBM raw pick-by-pick archive — provenance manifest. Raw CSVs are gitignored (raw-forever L2 lives outside the repo per the founding rule); this manifest is the content-hashed record so any re-pull is provably the same bytes. The GCS host (storage.googleapis.com/underdog-inc) is reachable from the sandbox AND CI; the underdognetwork.com landing pages are egress-blocked (BBM V's exact URL must be discovered in CI).",
+  "note": "BBM raw pick-by-pick archive \u2014 provenance manifest. Raw CSVs are gitignored (raw-forever L2 lives outside the repo per the founding rule); this manifest is the content-hashed record so any re-pull is provably the same bytes. The GCS host (storage.googleapis.com/underdog-inc) is reachable from the sandbox AND CI; the underdognetwork.com landing pages are egress-blocked (BBM V's exact URL must be discovered in CI).",
   "reachability_finding_2026-08-09": "storage.googleapis.com/underdog-inc/underblog/... returns HTTP 200 text/csv from the sandbox. Small per-round FINALS dumps (2-3 MB) ingest here; the full-field regular-season dumps (_r1_..., ~4.8 GB) are CI-stream-only (memory-safe via bbm_ingest.stream_positional_by_round).",
-
-  "READ_THIS_BEFORE_USING_ANY_BBM_FILE_2026-08-12": {
-    "finding": "THE ROUND SELECTS THE FIELDS, AND THE SCHEMA DOES NOT SAY SO. Underdog emits the SAME 24 columns for every round. In the FINALS dump (round 4) five of them are 100% empty at source; in the REGULAR-SEASON dump (round 1) the same five are ~100% populated. A consumer that inspects column NAMES concludes both rounds carry dated ADP. Only one does.",
-    "measured": {
-      "draft_time":           {"round_4": "0.0% of 7938", "round_1": "100.0% of 4053 sampled"},
-      "projection_adp":       {"round_4": "0.0% of 7938", "round_1": "100.0% of 4053 sampled"},
-      "draft_filled_time":    {"round_4": "0.0% of 7938", "round_1": "100.0% of 4053 sampled"},
-      "draft_completed_time": {"round_4": "0.0% of 7938", "round_1": "100.0% of 4053 sampled"},
-      "pick_order":           {"round_4": "0.0% of 7938", "round_1": "100.0% of 4053 sampled"}
-    },
-    "round_1_sample": "4053 rows read from four regions of the 4.8 GB file (head, 25%, 50%, 75%). projection_adp 4051/4053 = 99.95%; the two exceptions are deep bench picks carrying NA.",
-    "whose_absence_this_is": "UNDERDOG'S, NOT OURS. The raw round-4 CSV was re-fetched and measured on 2026-08-12: the five fields are empty in the file as published. Our round-4 subset did not drop them — it declined to carry draft_time, which was 0% anyway. It DID carry projection_adp, which is a column of 7938 empty cells.",
-    "how_this_bit_us": "This lane concluded 'Underdog publishes no ADP' from the round-4 file, and held that for thirty minutes before anyone opened round 1. The column was present and the column was empty, and absence-of-value was read as absence-of-field. Same defect class as every other instance in this project: a consumer trusting a field NAME rather than what the producer EMITS.",
-    "standing_instruction": "Before probing anything external again, read what is already on disk. Two for two."
-  },
-
   "files": [
     {
-      "tournament": "BBM IV (2023) — Round 4 (Finals)",
+      "tournament": "BBM IV (2023) \u2014 Round 4 (Finals)",
       "url": "https://storage.googleapis.com/underdog-inc/underblog/BBM_IV_Rosters/best_ball_mania_iv_2023_r4_results_pick_by_pick.csv",
       "local": "best_ball_mania_iv_2023_r4_finals.csv",
       "bytes": 2659503,
       "sha256": "ab30ca6104230c018ac4116b1aea31d775e162d0b72269b8d6bfd3484705c208",
       "rosters": 441,
       "ingested": "2026-08-09",
-      "used_by": "exp24_bbm_shape.py (winning ceiling shape)",
-      "CARRIES_NO_DATED_ADP": "projection_adp and draft_time are 0.0% populated at source. See READ_THIS_BEFORE_USING_ANY_BBM_FILE_2026-08-12."
+      "used_by": "exp24_bbm_shape.py (winning ceiling shape)"
     },
     {
-      "tournament": "BBM IV (2023) — Round 1 (full-field regular season)",
+      "tournament": "BBM IV (2023) \u2014 Round 1 (full-field regular season)",
       "url": "https://storage.googleapis.com/underdog-inc/underblog/BBM_IV_Rosters/best_ball_mania_iv_2023_r1_results_pick_by_pick.csv",
       "bytes": 4805397501,
-      "status": "reachable (HTTP 200). Streamed end-to-end on 2026-08-12; never landed on disk.",
-      "sha256": "NOT COMPUTED — the stream is projected to the dated board in one pass and discarded. Completeness was established arithmetically instead, see stream_completeness_check.",
-      "stream_completeness_check": {
-        "rows_read": 12192768,
-        "pooled_bytes_per_row": 394.33,
-        "sampled_rows_for_estimate": 4053,
-        "implied_total_rows": 12186145,
-        "read_over_implied": 1.0005,
-        "row_length_spread_across_file": "393.48 – 395.14 bytes (0.4%)",
-        "terminal_row_verified": "Last 8 KB fetched by byte range; the file's final record is complete and well-formed (Jashaun Corbin, projection_adp = NA, correctly excluded from the board).",
-        "why_this_check_exists": "A stream truncated at 99% would produce a durable record that looks authoritative. That is the failure the round-4 file already caused once."
-      },
-      "used_by": "dated ADP board (below); dead-zone at full N + full-field winning shape (CI)"
+      "sha256": "PENDING \u2014 CI stream only (4.8 GB); hash recorded by bbm-probe.yml",
+      "status": "reachable (HTTP 200); NOT downloaded to sandbox (exceeds disk allowance)",
+      "used_by": "dead-zone at full N + full-field winning shape (CI)"
     },
     {
       "tournament": "BBM V (2024)",
-      "url": "PENDING — landing page egress-blocked from sandbox; CI (bbm-probe.yml) scrapes underdognetwork.com for the exact GCS CSV URL",
+      "url": "PENDING \u2014 landing page egress-blocked from sandbox; CI (bbm-probe.yml) scrapes underdognetwork.com for the exact GCS CSV URL",
       "status": "URL discovery deferred to CI"
     }
   ],
-
-  "durable_archives": [
-    {
-      "file": "best_ball_mania_iv_2023_r4_finals.subset.csv.gz",
-      "note": "Gzipped column-subset of the FINALS dump — committed as the raw-forever record so a re-run does not depend on Underdog still hosting the CSV. Reproduces exp24 exactly (441 rosters). Full raw stays gitignored.",
-      "bytes": 121829,
-      "raw_bytes": 2659503,
-      "rows": 7938,
-      "sha256": "a2b00ff923056a1eb1cf3260914c0bc033d8f2d9f366ac13369a99ab8bace8f3",
-      "columns": [
-        "tournament_round_draft_entry_id",
-        "player_id",
-        "position_name",
-        "team_pick_number",
-        "overall_pick_number",
-        "projection_adp",
-        "pick_points",
-        "roster_points",
-        "made_playoffs"
-      ],
-      "WARNING": "projection_adp in THIS file is 7938 empty cells. It is retained only so the column list matches the source; do not read it as a price.",
-      "reader": "bbm_archive.read_archive"
-    },
-    {
-      "file": "bbm_iv_2023_r1_dated_adp_board.csv.gz",
-      "note": "THE DATED 2023 ADP BOARD. Derived in one streaming pass over the 4.8 GB round-1 dump, keeping the first observation of each (draft_date, player_id). This is the durable record: the raw file cannot be committed and does not need to be — what makes it valuable is projection_adp observed on a dated draft, and that projects to 44,671 rows.",
-      "ingested": "2026-08-12",
-      "bytes": 323250,
-      "sha256": "abd5d6f6d317050b8208e94bfb62e218a6933e0e2146f1867335085f15ad99a5",
-      "rows": 44671,
-      "columns": ["draft_date", "player_id", "player_name", "position", "projection_adp"],
-      "population": "all five columns 100.0% of 44671 rows",
-      "date_range": "2023-04-30 .. 2023-09-07",
-      "distinct_draft_dates": 131,
-      "distinct_players": 579,
-      "players_priced_per_date": {"min": 315, "median": 340, "max": 375},
-      "hand_check_against_external_fact": "2023-04-30 top five: Justin Jefferson 1.32, Christian McCaffrey 2.00, Ja'Marr Chase 3.00, Travis Kelce 4.91, Tyreek Hill 5.23. 2023-09-07 top five: Jefferson 1.10, Chase 2.25, McCaffrey 3.28, Hill 3.99, Austin Ekeler 6.29. The board MOVES across the preseason in the direction the 2023 market actually moved, which is what a real dated series looks like and what a stale or duplicated one would not.",
-      "recover_by": "re-stream the round-1 URL; the projection is deterministic (first observation per (date, player_id), input order preserved).",
-
-      "WHAT_THIS_FILE_DOES_NOT_DO": "IT DOES NOT UNLOCK F7. BBM is twelve-team, best-ball, and keeperless — it fails F1 on three separate clauses, and F1 is not being widened. These 44,671 rows are a PRICE SERIES, not a pool of gradeable league-seasons. Anyone who finds this file and reads 131 dated boards as 131 usable observations has made the mistake this manifest exists to prevent."
-    }
-  ]
+  "durable_archive": {
+    "note": "Gzipped column-subset of the finals dump \u2014 committed as the raw-forever record so a re-run does not depend on Underdog still hosting the CSV. Reproduces exp24 exactly (441 rosters). Full raw stays gitignored; the 4.8 GB full-field durable record is the derived aggregate, re-stream to recover.",
+    "file": "best_ball_mania_iv_2023_r4_finals.subset.csv.gz",
+    "bytes": 121829,
+    "raw_bytes": 2659503,
+    "rows": 7938,
+    "sha256": "a2b00ff923056a1eb1cf3260914c0bc033d8f2d9f366ac13369a99ab8bace8f3",
+    "columns": [
+      "tournament_round_draft_entry_id",
+      "player_id",
+      "position_name",
+      "team_pick_number",
+      "overall_pick_number",
+      "projection_adp",
+      "pick_points",
+      "roster_points",
+      "made_playoffs"
+    ],
+    "reader": "bbm_archive.read_archive"
+  }
 }
