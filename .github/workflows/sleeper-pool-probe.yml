@@ -210,6 +210,19 @@ jobs:
 
           matched = [r for r in rows if r["match"]]
           unread = sum(v for k, v in reasons.items() if k.startswith("unreadable:"))
+          # A FETCH THAT FAILED IS NOT A LEAGUE THAT READ AS ZERO — and the headline
+          # below used to imply it was. `unreadable:` is a league we FETCHED and could
+          # not parse; `fetch_failed:` never arrived at all. Both are correctly kept
+          # OUT of `rows`, so the match rate is not deflated by either — but the line a
+          # reader checks said "UNREADABLE ... 0" while any number of fetches had
+          # failed under the other key.
+          #
+          # My own pre-declaration named rate-limiting as a not-decisive condition and
+          # promised failures would be "counted and reported, never silently skipped".
+          # They were counted. The summary did not report them. Same class as the
+          # defect I filed against integrate.sh an hour ago, at lower severity: there a
+          # conflation changed a DECISION, here it only understated a headline.
+          fetch_failed = sum(v for k, v in reasons.items() if k.startswith("fetch_failed:"))
           avg = sum(timings) / len(timings) if timings else None
           print()
           print("Q2 FORMAT MATCH   %d of %d examined  (%.2f%%)  | reachable pool seen: %d"
@@ -218,7 +231,14 @@ jobs:
           # printed this as though the run produced it. It is the MFL result from
           # run 12, quoted, and it is labelled so nobody reads it as this run's.
           print("   [historical, not measured here] MFL run 12: 0 matched of 394")
-          print("   UNREADABLE (not a mismatch): %d" % unread)
+          print("   UNREADABLE (fetched, unparseable — not a mismatch): %d" % unread)
+          print("   FETCH FAILED (never arrived — not a mismatch, not in the "
+                "denominator): %d" % fetch_failed)
+          if fetch_failed:
+              print("   !! %d league(s) could not be fetched. The %.2f%% above is a rate "
+                    "over what ARRIVED, and a truncated crawl correlates with depth — "
+                    "read it with the depth split below." % (fetch_failed,
+                    100.0 * len(matched) / max(1, len(rows))))
           for k, v in sorted(reasons.items(), key=lambda kv: -kv[1])[:12]:
               print("     %-44s %d" % (k[:44], v))
           print()
