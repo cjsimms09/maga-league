@@ -53,6 +53,35 @@ jobs:
           git commit -m "Trending snapshot" || { echo "no change"; exit 0; }
           git pull --rebase origin main && git push || echo "push skipped"
 
+      # ── THE COMPONENT GRADES, written BEFORE anything reads them ───────────
+      #
+      # The rail (component_grade.js / component_run.js) has existed for weeks
+      # and NOTHING CALLED IT, so standing_check.check_components reported
+      # "quiet — nothing calls it" and the graduation gate had never seen a
+      # component grade at all. This is the invocation.
+      #
+      # IT RUNS NOW, IN THE OFF-SEASON, and writes an artifact of `no_data` rows
+      # that each name the input they await. A writer first executed in week 1
+      # is a writer nobody has ever executed.
+      - uses: actions/setup-node@v4
+        with: { node-version: "20" }
+
+      - name: Test the writer before trusting what it writes
+        run: node draft/tests/component_write.test.js
+
+      # Exits non-zero if the grading path fails its own self-check or the feed
+      # is unreadable — an artifact of nulls from a BROKEN writer looks identical
+      # to one from a healthy writer, and that is the failure this catches.
+      - name: Write the component grades
+        run: node src/component_write.js
+
+      - name: Commit the component grades
+        run: |
+          git config user.name "lab-bot"; git config user.email "actions@github.com"
+          git add draft/data/component_grades.json || true
+          git commit -m "Component grades" || { echo "no change"; exit 0; }
+          git pull --rebase origin main && git push || echo "push skipped"
+
       # THE EXAMINATION. Monday only. Silent unless something crossed.
       - name: Is there anything here yet
         id: look

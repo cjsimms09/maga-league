@@ -1,0 +1,132 @@
+{
+  "artifact": "component grades",
+  "written_by": "src/component_write.js",
+  "rows": [
+    {
+      "name": "survival",
+      "n_obs": 0,
+      "n_clusters": 0,
+      "bias": null,
+      "mae": null,
+      "material": 0.02,
+      "effect": null,
+      "mde": null,
+      "verdict": "no_data",
+      "why": "nothing resolved yet",
+      "implication": null,
+      "implication_why": "no behavioural implication — this design could not have detected an effect worth acting on, so the result constrains nothing",
+      "awaiting": "replayed drafts with the board state at each pick. 3 real drafts are on disk (draft/data/league_history.json) against a declared minimum of 20 clusters, so this row reads too_thin even once replay is wired",
+      "units": {
+        "material": 0.02,
+        "cluster_is": "draft"
+      }
+    },
+    {
+      "name": "projection",
+      "n_obs": 0,
+      "n_clusters": 0,
+      "bias": null,
+      "mae": null,
+      "material": 1,
+      "effect": null,
+      "mde": null,
+      "verdict": "no_data",
+      "why": "nothing resolved yet",
+      "implication": null,
+      "implication_why": "no behavioural implication — this design could not have detected an effect worth acting on, so the result constrains nothing",
+      "awaiting": "weekly realized box scores joined to the frozen proj_mean and to last season's per-game average (prior_ppg)",
+      "units": {
+        "material": 1,
+        "cluster_is": "week"
+      }
+    },
+    {
+      "name": "opportunity_adj",
+      "n_obs": 0,
+      "n_clusters": 0,
+      "bias": null,
+      "mae": null,
+      "material": 1,
+      "effect": null,
+      "mde": null,
+      "verdict": "no_data",
+      "why": "nothing resolved yet",
+      "implication": null,
+      "implication_why": "no behavioural implication — this design could not have detected an effect worth acting on, so the result constrains nothing",
+      "awaiting": "weekly realized box scores joined to BOTH proj_mean and proj_baseline — the same projection without the ±15% adjustment",
+      "units": {
+        "material": 1,
+        "cluster_is": "week"
+      }
+    },
+    {
+      "name": "consensus",
+      "n_obs": 0,
+      "n_clusters": 0,
+      "bias": null,
+      "mae": null,
+      "material": 1,
+      "effect": null,
+      "mde": null,
+      "verdict": "no_data",
+      "why": "nothing resolved yet",
+      "implication": null,
+      "implication_why": "no behavioural implication — this design could not have detected an effect worth acting on, so the result constrains nothing",
+      "awaiting": "weekly realized box scores joined to the FantasyPros-only and Sleeper-only projections, not just the blend",
+      "units": {
+        "material": 1,
+        "cluster_is": "week"
+      }
+    },
+    {
+      "name": "replacement",
+      "n_obs": 0,
+      "n_clusters": 0,
+      "bias": null,
+      "mae": null,
+      "material": 2,
+      "effect": null,
+      "mde": null,
+      "verdict": "no_data",
+      "why": "nothing resolved yet",
+      "implication": null,
+      "implication_why": "no behavioural implication — this design could not have detected an effect worth acting on, so the result constrains nothing",
+      "awaiting": "realized weekly STARTS across the league, to locate the actual startable boundary against the shipped subtrahend",
+      "units": {
+        "material": 2,
+        "cluster_is": "week"
+      }
+    },
+    {
+      "name": "weekly_claims",
+      "n_obs": 0,
+      "n_clusters": 0,
+      "bias": null,
+      "mae": null,
+      "material": 0.02,
+      "effect": null,
+      "mde": null,
+      "verdict": "no_data",
+      "why": "nothing resolved yet",
+      "implication": null,
+      "implication_why": "no behavioural implication — this design could not have detected an effect worth acting on, so the result constrains nothing",
+      "awaiting": "the emitted per-matchup win probabilities paired with final weekly scores",
+      "units": {
+        "material": 0.02,
+        "cluster_is": "week"
+      }
+    }
+  ],
+  "declared": 6,
+  "graded": 0,
+  "feed_error": null,
+  "self_check": {
+    "ok": true,
+    "expected": "earning",
+    "got": "earning",
+    "detail": "a fixture of confident-and-correct forecasts graded `earning` against a flat-50% baseline, so the grading path computes",
+    "is_evidence_about_the_league": false,
+    "what_it_is": "a connectivity check on the grading path, not a measurement. It derives from the code under test and therefore proves only that the code runs (rule 10d)."
+  },
+  "note": "PROPOSES NOTHING. This artifact is evidence; the graduation gate reads it and reports, and a human decides. Rows reading no_data name the input they await rather than reporting an empty season."
+}

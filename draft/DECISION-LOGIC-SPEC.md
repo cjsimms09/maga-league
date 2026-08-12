@@ -98,7 +98,9 @@ difference (~0-30). Harmless in practice (it only affects the final pick, where
 the choice barely matters), but a reviewer should know the metric is not
 continuous at the boundary.
 - Weight: **value = 1.0**, floored at 0.25 so the slider can never fully unanchor
-  the board. **[MEASURED]**: removing the value anchor costs ~$362 in backtest —
+  the board. **[MEASURED]**: removing the value anchor is the largest single loss in the
+  participation test. The dollar figure is board-dependent and drifts every Lab run
+  ($362 -> $288 -> $267 across three) — see EDGE-LEDGER for the current one —
   roughly half the entire edge. This is the most confidently-positive term we have.
 
 **2. Tier-cliff urgency.**
@@ -628,7 +630,7 @@ scaled by it (A3/A9). Both were the review's top actionable catches; both fixed.
 The claims we would defend hardest, because they were measured against realized
 dollars:
 
-- **Value anchor is ~half the edge** (removing it −$362).
+- **Value anchor is ~half the edge** (the dollar figure drifts with the board; see EDGE-LEDGER).
 - **The startable-capacity mask earns ~+$443/season** — the roster-construction win.
 - **Stacking earns ~+$196/season at weight 0.5, on a measured QB↔WR ρ = 0.357** —
   the one constructive adjuster.

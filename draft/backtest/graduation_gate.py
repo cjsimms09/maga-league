@@ -40,6 +40,7 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent.parent
 ENGINE = ROOT / "public" / "js" / "draft" / "engine.js"
 PARTICIPATION = HERE / "exp_participation.json"
+COMPONENTS = ROOT / "draft" / "data" / "component_grades.json"
 DECISIONS = ROOT / "DECISIONS-NEEDED.md"
 LEDGER = ROOT / "EDGE-LEDGER.md"
 
@@ -159,6 +160,135 @@ def classify(term: str, loaded: float, arms: dict) -> dict:
                       % (MATERIAL_DOLLARS, loaded)}
 
 
+# ── THE SECOND EVIDENCE SOURCE: COMPONENT GRADES ────────────────────────────
+#
+# WHY THIS IS A SEPARATE SECTION AND NOT MORE ROWS. Until now the gate's only
+# evidence was the Lab's retrospective money Monte Carlo, in dollars. A season of
+# live component grades had NOWHERE TO ARRIVE — everything the season measured
+# would sit in a file until somebody happened to read it. This is that arrival.
+#
+# ⚠️ AND NO UNITS CONVERSION IS INVENTED HERE. Cory's condition, and it is the
+# whole reason this section is structured the way it is: MATERIAL_DOLLARS is
+# $50 and component grades are points-per-player-week and Brier. Where a
+# component has no defensible dollar conversion, this map SAYS SO and that
+# component proposes nothing in dollars.
+#
+# THE HONEST ANSWER TODAY IS THAT NONE OF THEM HAVE ONE — and the reason is
+# sharper than "the units differ". A conversion from points to dollars needs a
+# points→wins→payout chain, and the only machine in this project that has one is
+# the Lab's retrospective money MC. **That is the instrument established to be
+# THRESHOLD-BLIND on our data**: this seat missed the playoffs all three seasons,
+# so two payout channels worth $2,500 never activated and a fifth-place roster
+# graded identically to a tenth-place one. Routing component grades through it
+# would inherit exactly that blindness, one layer deeper and harder to see.
+#
+# So components are judged against THEIR OWN declared materiality bars, in their
+# own units, and their proposal is the BEHAVIOURAL IMPLICATION the spec declared
+# before any number existed. That is a better instrument than a dollar figure
+# would be, not a weaker one.
+COMPONENT_DOLLARS = {
+    name: {
+        "dollars_per_unit": None,
+        "why": "no defensible conversion: the only points→wins→payout machine "
+               "available is the Lab's retrospective money MC, which is "
+               "threshold-blind on our data (no playoff appearance in three "
+               "seasons, so $2,500 of payout channels never activated). A "
+               "conversion built on it would propose in dollars it cannot see.",
+    }
+    for name in ("survival", "projection", "opportunity_adj", "consensus",
+                 "replacement", "weekly_claims")
+}
+
+
+def component_rows() -> tuple:
+    """(rows, problems). Reads the component-grade artifact if it exists.
+
+    Absent is NOT an error — before the writer's first run there is nothing to
+    read. UNREADABLE is, and so is a failed self-check, because a gate that
+    reports 'all quiet' off a broken artifact is a guard that does not guard.
+    """
+    if not COMPONENTS.exists():
+        return [], [{"what": "component_grades.json absent",
+                     "detail": "run `node src/component_write.js` — before its "
+                               "first run there is nothing to read, which is not "
+                               "yet a failure",
+                     "blocking": False}]
+    try:
+        doc = json.loads(COMPONENTS.read_text())
+    except (ValueError, OSError) as e:
+        return [], [{"what": "component_grades.json unreadable",
+                     "detail": f"{type(e).__name__}: {e}", "blocking": True}]
+
+    problems = []
+    sc = doc.get("self_check") or {}
+    # THE PIPE-CONNECTED CHECK. An artifact of all-nulls from a working writer
+    # and one from a broken writer look identical; this is the only thing that
+    # tells them apart, so a failure here blocks rather than annotates.
+    if not sc.get("ok"):
+        problems.append({
+            "what": "component grading path FAILED its own self-check",
+            "detail": str(sc.get("detail") or "no detail")
+                      + " — the null rows below are NOT evidence of a quiet season",
+            "blocking": True})
+    if doc.get("feed_error"):
+        problems.append({"what": "component feed unreadable",
+                         "detail": str(doc["feed_error"]), "blocking": True})
+
+    rows = []
+    for r in doc.get("rows") or []:
+        rows.append(classify_component(r))
+    return rows, problems
+
+
+def classify_component(r: dict) -> dict:
+    """One component's verdict, in ITS OWN UNITS. Never converts to dollars.
+
+    The mapping onto the gate's existing vocabulary is deliberate and exact:
+
+        hurting  -> PROPOSAL      the tool ships a thing measured to be harmful
+        earning  -> AGREES        measured to earn, and shipped
+        noise    -> IMMATERIAL    below its own declared bar; loaded is a free choice
+        too_thin -> UNMEASURED    the design cannot resolve it at this n
+        no_data  -> UNMEASURED    nothing has resolved yet
+    """
+    name = str(r.get("name") or "?")
+    verdict = str(r.get("verdict") or "?")
+    conv = COMPONENT_DOLLARS.get(name) or {}
+    base = {
+        "term": name,
+        "kind": "component",
+        "verdict": verdict,
+        "n_obs": r.get("n_obs"),
+        "n_clusters": r.get("n_clusters"),
+        "units": (r.get("units") or {}),
+        "dollars": conv.get("dollars_per_unit"),
+        "no_dollar_conversion_because": conv.get("why"),
+        "documented": documented(name),
+    }
+    if verdict == "hurting":
+        base.update({"status": "PROPOSAL",
+                     "detail": "graded HURTING against its declared baseline — the "
+                               "spec's declared implication is the proposal: "
+                               + str(r.get("implication") or "none recorded")})
+    elif verdict == "earning":
+        base.update({"status": "AGREES",
+                     "detail": "graded EARNING against its declared baseline — "
+                               + str(r.get("implication") or "")})
+    elif verdict == "noise":
+        base.update({"status": "IMMATERIAL",
+                     "detail": "below its own declared materiality bar of "
+                               f"{base['units'].get('material')} — "
+                               + str(r.get("implication") or "")})
+    elif verdict in ("too_thin", "no_data", "no_builder"):
+        base.update({"status": "UNMEASURED",
+                     "detail": str(r.get("awaiting") or r.get("why")
+                                   or "no observations yet")})
+    else:
+        base.update({"status": "UNMEASURED",
+                     "detail": f"unrecognised verdict {verdict!r}"})
+    return base
+
+
 def run() -> dict:
     loaded = loaded_weights()
     verdicts = measured_verdicts()
@@ -173,13 +303,32 @@ def run() -> dict:
     # built around.
     blocking = [r for r in rows
                 if r["status"] in ("PROPOSAL", "ARMS-DISAGREE") and not r["documented"]]
+
+    comp_rows, comp_problems = component_rows()
+    # SAME RULE, SECOND SOURCE: an undocumented PROPOSAL blocks, a documented one
+    # does not. Applied to component rows without collapsing them into the dollar
+    # rows, because the two are in different units and averaging them would be
+    # the units conversion this file refuses to invent.
+    comp_blocking = [r["term"] for r in comp_rows
+                     if r["status"] == "PROPOSAL" and not r["documented"]]
+    comp_blocking += [p["what"] for p in comp_problems if p.get("blocking")]
+
     return {
         "gate": "graduation gate — loaded policy vs measured verdict",
         "policy_source": "public/js/draft/engine.js MEASURED_WEIGHTS",
         "evidence_source": "draft/backtest/exp_participation.json (both arms)",
+        "component_source": "draft/data/component_grades.json (own units, never dollars)",
         "material_dollars": MATERIAL_DOLLARS,
         "rows": rows,
-        "blocking": [r["term"] for r in blocking],
+        "component_rows": comp_rows,
+        "component_problems": comp_problems,
+        "component_units_note": (
+            "NO DOLLAR CONVERSION IS APPLIED TO ANY COMPONENT. The only "
+            "points->wins->payout machine available is the Lab's retrospective "
+            "money MC, which is threshold-blind on this league's data. Components "
+            "are judged against their own declared materiality bars and propose "
+            "the behavioural implication their spec declared in advance."),
+        "blocking": [r["term"] for r in blocking] + comp_blocking,
         "note": ("PROPOSES, NEVER FLIPS. Resolve a row by changing the loaded value OR by "
                  "recording the decision in DECISIONS-NEEDED.md / EDGE-LEDGER.md. This is "
                  "instrumentation, not self-tuning."),
@@ -199,6 +348,21 @@ if __name__ == "__main__":
             doc = "" if r["documented"] else "   [UNDOCUMENTED]"
             print("  %-9s %-8s loaded %-5s %s%s"
                   % (mark, r["term"], r["loaded"], r["detail"], doc))
+        print("\nCOMPONENT GRADES — own units, never converted to dollars")
+        if not out["component_rows"]:
+            print("  (no component artifact yet)")
+        for r in out["component_rows"]:
+            mark = {"AGREES": "  ok  ", "IMMATERIAL": " free ",
+                    "UNMEASURED": "  ??  ", "PROPOSAL": "PROPOSE"}.get(r["status"], "  ?  ")
+            doc = "" if r["documented"] else "   [UNDOCUMENTED]"
+            bar = r["units"].get("material")
+            print("  %-9s %-16s %-9s bar %-6s %s%s"
+                  % (mark, r["term"], r["verdict"], bar, str(r["detail"])[:88], doc))
+        for p in out["component_problems"]:
+            print("  %s %s — %s" % ("!!" if p.get("blocking") else "..",
+                                    p["what"], p["detail"][:100]))
+        print("\n  " + out["component_units_note"])
+
         print("\n" + out["note"])
         if out["blocking"]:
             print("\nBLOCKING (undocumented disagreement): " + ", ".join(out["blocking"]))
