@@ -7227,3 +7227,82 @@ the real finding**, because nothing in the pipeline fetches a rookie who has nev
 the `search_rank` filter would drop anyone the market has not yet priced.
 
 **IF THE BOARD IS SOUND EXCEPT FOR THE TWO CORY NOTICED, I WILL SAY SO PLAINLY.**
+
+### RESULT — THE BOARD DOES DESCRIBE THE 2026 SEASON. THE LAYER IS UNVERIFIED BUT NOT WRONG. (C, 2026-08-12)
+
+**Cory's hypothesis is not supported, and I would rather report that than find problems to
+match it. ALL THREE OF MY OWN PREDICTIONS WERE WRONG.**
+
+### THE ANSWER TO "WAS IT EVER VALIDATED": NO. AND THAT IS STILL THE FINDING.
+
+**No test anywhere compares a player to anything outside the pipeline.** The suite checks name
+normalisation, crosswalk matching, payload shape, rank contiguity and source-vs-source. The
+three audit tools compare the model to the market, one source to another, and lore to harvested
+data. **Not one asks whether a row describes a real 2026 NFL player.** The board is correct by
+construction, not by verification — and nothing in the repo would tell us the day it drifted.
+
+### BUT IT IS CORRECT. THE DECISIVE EVIDENCE IS THE QUARTERBACK DEPTH CHART
+
+    32 of 32 teams have exactly ONE depth_chart_order == 1 quarterback.
+    Zero teams with two. Zero teams with none.
+
+**And it is a DIFFERENT configuration from 2025, not a stale copy.** A 2025 board would show
+Murray at ARI, Tagovailoa at MIA, Geno Smith at LV. This board shows Murray→MIN, Tagovailoa→ATL,
+Smith→NYJ, Brissett→ARI, Willis→MIA — **a self-consistent set of moves that a stale artifact
+cannot produce.** Meanwhile 2025's rookie quarterbacks sit in their correct 2025 destinations at
+`exp 1` (Ward→TEN, Dart→NYG, Shough→NO) and a 2026 rookie starts at LV (Mendoza, `exp 0`).
+
+### EVERY STRUCTURAL CHECK PASSES
+
+    32 distinct teams, roster sizes 18-33, no orphans
+    32 teams carry a bye, ZERO with more than one, weeks 5-14
+    DEF exactly 32
+    ages/experience arithmetically correct for 2026 —
+      Rodgers 42/21, Stafford 38/17, Folk 41/19, Lynch 35/15 (FROZEN, and that contrast
+      is what proves the live ones are live)
+
+### MY THREE PREDICTIONS, ALL WRONG
+
+    predicted: the 2026 rookie class is missing        ACTUAL: 109 present, 37 REAL-priced,
+                                                       top rookie at board rank 23
+    predicted: depth_chart_order wholesale sparse      ACTUAL: 37% overall but 95% of the top 225
+    predicted: injury_status stale in-season junk      ACTUAL: live and COHERENT — Pearsall IR
+                                                       carries proj 0.0, Aiyuk DNR, Kittle PUP
+
+**The injury field responding to reality (IR -> projection 0) is the single strongest piece of
+evidence that this pipeline tracks the season rather than a snapshot of one.**
+
+### THREE REAL DEFECTS FOUND, NONE OF THEM THE ONES CORY SAW
+
+**1. NINE OF THIRTY-TWO STARTING KICKERS ARE STRANDED AT ADP 916.** Real `depth_chart_order 1`
+kickers with real projections, priced at the fallback:
+
+    Grupe(IND, proj 91)  Fitzgerald(CAR, 84)  Moody(WAS, 84)  Sanders(NYJ, 83)
+    Ryland(ARI, 81)  Szmyt(CLE, 77)  Slye(TEN, 77)  Smack(GB, 62)  Zvada(NYG, 50)
+
+**28% of the league's starting kickers are priced as the 916th player.** A backup kicker with a
+market ADP is priced ahead of them. The board can still fill a roster (23 priced K for 10 teams)
+and the model ranks K by VORP so it is largely insulated — but the ADP for that position does
+not describe reality.
+
+**2. A ZERO-PROJECTION IR PLAYER SITS AT BOARD RANK 107.** Ricky Pearsall, IR, `proj_mean 0.0`,
+ADP 107. The projection is right and the price has not caught up. The model is safe (vorp
+-172.67) but anyone scanning by ADP sees him in the top tenth of the board.
+
+**3. `injury_status` CARRIES THE LITERAL STRING "NA" ON 9 PLAYERS** — the exact absent-sentinel
+this lane defined. Trivial, and it is the shape that has cost this project repeatedly.
+
+### WHAT I CANNOT CHECK, AND THE ONE LINE THAT SETTLES IT
+
+**The specific 2026 transactions.** Murray→MIN, Tagovailoa→ATL, Smith→NYJ, Likely→NYG,
+Diggs→WAS all postdate my May 2026 knowledge. **All three providers are egress-blocked** —
+verified by request, not assumed.
+
+**They are all one field from one endpoint the build already calls every morning:**
+
+    print({p["full_name"]: p.get("team") for p in raw.values()
+           if p["full_name"] in SAMPLE})     # in draft-data.yml, which fetches Sleeper daily
+
+If those teams come back as the board has them, **the data layer is sound and the answer to
+Cory's question is "unverified, but right"** — which is a good result and a different problem
+from the one he feared.
