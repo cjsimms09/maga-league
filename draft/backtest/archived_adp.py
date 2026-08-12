@@ -347,7 +347,7 @@ def extract_names(text, limit=15) -> list:
     return found
 
 
-def route1_verdict(hits, probed, unreachable=0, leads=0, bad_urls=0) -> str:
+def route1_verdict(hits, probed, unreachable=0, leads=0, bad_urls=0, inconclusive=0) -> str:
     """What a negative here does and does not rule out.
 
     An UNREACHABLE archive is not a closed route — it is an unanswered one, and the
@@ -391,6 +391,21 @@ def route1_verdict(hits, probed, unreachable=0, leads=0, bad_urls=0) -> str:
         tail += ("; %d URL(s) returned no board at all, which is evidence about the paths "
                  "this probe constructed and NOT about whether those publishers offer "
                  "historical boards" % bad_urls)
+    # A TRUNCATED WALK CANNOT CLOSE A ROUTE, for the same reason an unreachable index
+    # cannot. Both mean the target was NOT FULLY EXAMINED, and this function's whole
+    # job is to keep "we did not look" out of the sentence that says "there is nothing
+    # there". `classify` gained the INCONCLUSIVE verdict, `route1_report` gained the
+    # bucket, and this — the place the word CLOSED is actually written — was the third
+    # step neither of them reached. Adding a bucket without threading it here would
+    # have produced a report whose own detail lines said "walk truncated" under a
+    # headline that said CLOSED.
+    if inconclusive:
+        return ("ROUTE 1 IS NOT CLOSED: %d of %d target(s) had their capture walk stop at "
+                "its BUDGET with captures still unexamined, so those targets were never "
+                "ruled in OR out. No board was found among the days actually fetched, "
+                "which is a different and much weaker statement than no board exists. "
+                "Raise WALK_BUDGET or narrow the target list before reading this as a "
+                "closure%s" % (inconclusive, probed, tail))
     return ("ROUTE 1 IS CLOSED ON THIS EVIDENCE: no capture strictly predating the cutoff "
             "returned a recognisable board, across %d targets. Stated precisely: this rules "
             "out THE SOURCES AND DATES PROBED. It does not rule out a paid archive, a source "
@@ -584,7 +599,8 @@ def route1_report(rows, unreachable=0) -> dict:
         "inconclusive_truncated_walk": inconclusive,
         "unbinned": unbinned,
         "unreachable": unreachable,
-        "verdict": route1_verdict(satisfies, len(rows), unreachable, len(leads), len(bad_url)),
+        "verdict": route1_verdict(satisfies, len(rows), unreachable, len(leads),
+                                  len(bad_url), len(inconclusive)),
     }
     if binned != len(rows):
         out["verdict"] = ("BUCKETS DO NOT ACCOUNT FOR EVERY TARGET — %d of %d binned, so "

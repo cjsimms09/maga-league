@@ -1057,3 +1057,47 @@ def test_a_THROTTLED_commits_response_still_raises_through_the_shared_walk():
         X.commit_series('{"message": "API rate limit exceeded"}')
     with pytest.raises(TypeError):
         X.commit_dates('{"message": "API rate limit exceeded"}')
+
+
+def test_a_TRUNCATED_WALK_cannot_close_the_route():
+    """THE THIRD STEP the previous two commits did not reach. `classify` gained the
+    INCONCLUSIVE verdict; `route1_report` gained the bucket; `route1_verdict` — the
+    one place the word CLOSED is actually written — knew nothing about either.
+
+    A report whose detail lines say "walk truncated" under a headline that says
+    ROUTE 1 IS CLOSED is the false negative this entire module exists to prevent,
+    reassembled from three correct-looking pieces.
+
+    MUTATION: close the route with inconclusive targets present. Adding a bucket
+    without threading it here makes the headline contradict the rows beneath it."""
+    v = X.route1_verdict(hits=[], probed=18, inconclusive=3)
+    assert "NOT CLOSED" in v
+    assert "3 of 18" in v and "BUDGET" in v
+    assert "much weaker statement than no board exists" in v
+    assert not v.startswith("ROUTE 1 IS CLOSED")
+
+
+def test_a_route_with_NOTHING_truncated_can_still_be_closed():
+    """The guard must not make closure impossible. A route that can only ever be
+    'not closed' can never be settled by evidence, only abandoned — which is the
+    failure mode on the other side, and the same one the completed-walk test pins."""
+    v = X.route1_verdict(hits=[], probed=18, inconclusive=0)
+    assert v.startswith("ROUTE 1 IS CLOSED ON THIS EVIDENCE")
+    assert "SOURCES AND DATES PROBED" in v
+
+
+def test_a_HIT_still_reports_OPEN_even_if_some_walks_were_truncated():
+    """A truncated walk elsewhere does not un-find a board that WAS found. MUTATION:
+    let the inconclusive branch win over hits, and a real capture that passed the
+    known-answer gate gets buried under a budget complaint."""
+    v = X.route1_verdict(hits=[{"target": "FP overall"}], probed=18, inconclusive=5)
+    assert "ROUTE 1 IS OPEN" in v and "NOT yet usable" in v
+
+
+def test_the_report_passes_its_INCONCLUSIVE_count_through_to_the_verdict():
+    """End to end: an inconclusive row must reach the headline, not just its bucket."""
+    rows = [_row("INCONCLUSIVE — the capture walk stopped at its budget"),
+            _row("URL RETURNED NO BOARD — evidence about this URL")]
+    rep = X.route1_report(rows)
+    assert "NOT CLOSED" in rep["verdict"], rep["verdict"]
+    assert "1 of 2" in rep["verdict"]
