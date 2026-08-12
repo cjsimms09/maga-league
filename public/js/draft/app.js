@@ -5706,29 +5706,29 @@
      * when a caller omits it. A future call site that forgets now gets the right
      * number instead of a silent null, and the record says which route it took
      * so "derived" can never be mistaken for "the caller was careful". */
-    var _gapSource = 'passed';
-    var _gap = scoreGap;
-    if (_gap == null) {
-      var _clockTop = (state.lastClock && state.lastClock.scored || [])[0];
-      if (_clockTop && overTop && _clockTop.player
-          && String(_clockTop.player.player_id) === String(overTop.player_id)
-          && _clockTop.gap_to_second != null) {
-        _gap = _clockTop.gap_to_second;
-        _gapSource = 'derived_from_clock';
-      } else {
-        _gapSource = _clockTop ? 'unavailable: the clock top is not the player '
-          + 'this override was measured against' : 'unavailable: no live clock';
-      }
-    }
-    var opts_score_gap = _gap == null ? null : Number(_gap);
     // THE SHAPE IS BUILT IN ONE PLACE (OverrideRecord), not assembled inline.
     // Two emitters used to write two incompatible payloads under the same
     // ledger kind, distinguished only by an undeclared `method` string, and
     // NEITHER froze the board values the grade needs — those move nightly, so
     // January would have graded the override against numbers I never saw.
     // Agreeing with the tool is refused by the builder: that is a `pick`.
+    //
+    // ⚠️ THIS GUARD MUST STAY ABOVE THE RESOLVE CALL. My first version placed
+    // `OverrideRecord.resolveScoreGap(...)` before it, so a missing module would
+    // throw a ReferenceError out of the pick handler and take the panel down —
+    // the exact defect the comment above this block already records having been
+    // caused once by `unassigned`. Reintroducing it two lines below its own
+    // warning is the kind of thing that only shows up on draft night.
     if (typeof OverrideRecord === 'undefined' || !overTop
         || String(overTop.player_id) === String(picked.player_id)) return;
+
+    var _resolved = OverrideRecord.resolveScoreGap({
+      passed: scoreGap,
+      clockTop: (state.lastClock && state.lastClock.scored || [])[0],
+      recommended: overTop,
+    });
+    var opts_score_gap = _resolved.score_gap;
+    var _gapSource = _resolved.score_gap_source;
     var _rec;
     try {
       _rec = OverrideRecord.pickOverride({

@@ -104,6 +104,53 @@ function snapshot(p, what) {
  * here is what stops the override stream filling with entries that have nothing
  * to be measured against.
  */
+/* ── WHERE THE SCORE GAP COMES FROM, AS A PURE FUNCTION ────────────────────
+ *
+ * THIS LIVES HERE RATHER THAN IN app.js BECAUSE app.js CANNOT BE TESTED AT
+ * RUNTIME. It is a browser IIFE with no exports, so `app-wiring.test.js` checks
+ * it by SOURCE INSPECTION — and says so in its own header: that catches "the app
+ * never mentions it", not "the app mentions it but computes it wrong."
+ *
+ * The second failure mode is the one that just cost ten days. `score_gap` was
+ * wired at three call sites, missed at a fourth, and every record came out null.
+ * A source scan of the three that WERE wired would have looked healthy, and the
+ * scan I added yesterday catches THIS instance while still being unable to catch
+ * a wiring bug that computes the wrong number.
+ *
+ * So the resolution moves into a module Node can call directly, app.js keeps one
+ * line, and the behaviour is asserted against the real function rather than
+ * against the shape of its source.
+ *
+ * `passed` is what the caller supplied. `clockTop` is the live recommendation
+ * entry — the engine puts `gap_to_second` on `scored[0]`. `recommended` is the
+ * player the override was measured against, and the two must be THE SAME PLAYER
+ * or the gap describes a different comparison.
+ */
+function resolveScoreGap(opts) {
+  const o = opts || {};
+  if (o.passed != null && isFinite(Number(o.passed))) {
+    return { score_gap: Number(o.passed), score_gap_source: 'passed' };
+  }
+  const top = o.clockTop, rec = o.recommended;
+  if (!top || !top.player) {
+    return { score_gap: null, score_gap_source: 'unavailable: no live clock' };
+  }
+  if (!rec || String(top.player.player_id) !== String(rec.player_id)) {
+    /* NOT A FALLBACK — A REFUSAL. Using the clock's gap when its top is a
+     * DIFFERENT player would attach a number measured on one comparison to a
+     * record about another: a plausible value quietly about the wrong pair,
+     * which is worse than a null because nothing downstream could detect it. */
+    return { score_gap: null,
+      score_gap_source: 'unavailable: the clock top is not the player this '
+        + 'override was measured against' };
+  }
+  if (top.gap_to_second == null || !isFinite(Number(top.gap_to_second))) {
+    return { score_gap: null,
+      score_gap_source: 'unavailable: the clock reported no gap_to_second' };
+  }
+  return { score_gap: Number(top.gap_to_second), score_gap_source: 'derived_from_clock' };
+}
+
 function pickOverride(opts) {
   const o = opts || {};
   req(o, ['season', 'build_at', 'pick', 'chosen', 'recommended', 'reconciled_from_sync'],
@@ -230,7 +277,10 @@ function summarize(rec) {
 }
 
   var api = { REASONS: REASONS, TYPES: TYPES, pickOverride: pickOverride,
-    valueOverride: valueOverride, summarize: summarize, decisionKey: decisionKey };
+    valueOverride: valueOverride, summarize: summarize, decisionKey: decisionKey,
+    // Exported so the gap resolution can be exercised at RUNTIME in Node —
+    // app.js is a browser IIFE and can only ever be source-inspected.
+    resolveScoreGap: resolveScoreGap };
   global.OverrideRecord = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);
