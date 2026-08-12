@@ -1,5 +1,24 @@
 # Is the additive composite the right shape for the draft-side score?
 
+> ## 🟠 THE CONCLUSION HOLDS. THE ARGUMENT BEHIND IT DOES NOT.
+> **See `pairing_claim_result_2026-08-12.md`.** Every number in this file was
+> measured in the ADP room. Re-run in the profiled room, on identical paired
+> seeds:
+>
+> - **`greedy_end_state`'s +7.9 becomes −11.0 ± 7.3** — a sign change. The
+>   "rewrite buys 0.4%" figure is **room-conditional**, not a property of the
+>   composite. *(The recommendation is unchanged and better supported: the
+>   shipped composite is the best arm in the tail-bearing room.)*
+> - **`lookahead_2`'s −0.1 becomes −80 to −100.** The prescribed version is not
+>   merely useless; where its "board drains by ADP" forecast is wrong it is
+>   destructive. **A lookahead is only as good as its survival forecast.**
+> - **The "survival is not paying for itself" finding in §"AND ONE THING FELL OUT"
+>   is reversed by this.** The rule with no survival model wins only in the room
+>   where survival has nothing to predict — which is the objection C recorded in
+>   PARKED.md before the measurement existed.
+> - **~48% of every arm's twelve picks move this objective by zero**, so all
+>   margins below are decided by about six picks and are silent on the other six.
+
 **Item 11, and the answer is measured rather than argued.** Two answers, because
 the question contains two claims and only one of them is about shape.
 
@@ -71,7 +90,19 @@ reasonable approximation and the sequential version buys little. **It is, and it
 does — 0.4%, about four points a season, against a rewrite that re-opens every
 number on the board.**
 
-### AND ONE THING FELL OUT THAT I DID NOT EXPECT
+### ~~AND ONE THING FELL OUT THAT I DID NOT EXPECT~~ — 🔴 REVERSED BY THE ROOM
+
+> **This finding does not survive the room model.** In the profiled room the
+> survival-free arm **loses by 11.0 ± 7.3**. C had already named the reason in
+> PARKED.md before the measurement: *"the harness cannot measure survival's
+> value, because its room model is the one case in which survival has no value to
+> measure."* A room that drafts strictly by ADP makes the risk of losing a player
+> near-deterministic and identical for every seat, so a model of that risk adds
+> nothing over "take the best end-state addition now" — and `greedy_end_state`
+> **should** win there. It does, and it means nothing.
+>
+> The claim below is retained unedited because it was the headline of this file
+> and striking it silently would hide how the error was made.
 
 **`greedy_end_state` contains NO SURVIVAL MODEL AT ALL.** It looks only at the
 current roster and the available player; it has no VONA, no survival curve, no
@@ -134,11 +165,13 @@ be deleted rather than rewritten.
    `greedy_end_state` does and what a lookahead stops doing. If the gap is worth
    chasing at all it is by scoring the immediate end-state gain, not by extending
    the horizon.
-3. **The survival finding is the one to chase.** A rule with no survival model
-   beat the one with it. That is measurable again, cheaply, and it bears directly
-   on whether the winter room-through-survival design is worth starting at all —
-   because if survival is not paying for itself on end-state strength, routing the
-   room through it inherits that.
+3. ~~**The survival finding is the one to chase.** A rule with no survival model
+   beat the one with it.~~ **🔴 CHASED, AND IT REVERSED.** The survival-free arm
+   wins only in the room where survival has nothing to predict, and loses by
+   11.0 ± 7.3 in the tail-bearing one. **This now points the opposite way: it is
+   the first evidence FOR the survival machinery, and it strengthens rather than
+   undercuts the winter room-through-survival design.** Treat it as discovery,
+   not promotion — the profiled room is an overshoot and neither room is real.
 4. **This is discovery.** Under the three filters it earns a preregistration, not
    a promotion. The metric is projected points from public consensus, and a
    construction order tuned to it is optimising against a number we did not
