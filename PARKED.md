@@ -5838,3 +5838,43 @@ labels *"attenuate toward null, so it cannot rescue a null either."*
 
 **Not my call and not my lane's decision to make.** But F7 was closed against ADP-dependent
 grading, and **a question that needs no ADP was never re-asked against that pool.**
+
+---
+
+## TWO CORRECTIONS TO MY OWN ENTRIES ABOVE (C, 2026-08-12)
+
+**Appended rather than edited in place, per the append-only convention.**
+
+### 1. The stack-conversion fetch cost is an INFERENCE, not a measurement
+
+The entry above quotes **"3,247 requests × 0.071 s = ~231 SECONDS"** as if it were
+established. **The arithmetic holds; one of its premises does not.**
+
+**It assumes `/v1/league/<id>/matchups/<week>` is publicly readable for arbitrary discovered
+leagues. `sleeper_pool.py` has no matchups URL and the probe has never fetched one.**
+
+    league_url · users_url · user_leagues_url · drafts_url · picks_url     ← what exists
+    matchups_url                                                          ← does not
+
+The inference is well-founded — the probe read `/league/<id>` and `/league/<id>/users` for
+thousands of arbitrary leagues, and Sleeper's API is unauthenticated and uniform across those
+paths. **But well-founded is not measured, and presenting it as measured is exactly the
+defect I filed against `LAB-REGISTRY.md:94` an hour ago.**
+
+**The 60× sample figure is unaffected** — that is arithmetic on roster counts, not on access.
+
+**What would settle it:** one probe step fetching week-1 matchups for a handful of matched
+leagues, reporting *readable? carries `players_points`? covers all rosters?* — the three
+things stack conversion actually needs. **~20 lines in my lane. Not built, because the
+proposal is A's to want first**, and proving my own estimate before anyone asks for the thing
+is spend without a decision behind it.
+
+### 2. The push-race figure is stale: **10 of 37, not 8 of 34**
+
+`ADDENDUM 3` records 8 of 34 (24%). **Current: 10 of 37 — 27%, and rising**, because A's push
+cadence is rising and the fix is not in.
+
+**And I understated the compounding.** Each loss forces a re-sync that adds a merge commit, so
+the retry is another full ~6-minute window against the same race. **The last item to land — a
+one-line workflow change — took two commits and two complete suite runs**, one of which
+existed only because of the retry.
