@@ -1,0 +1,188 @@
+# TERRITORY: C
+name: SLEEPER'S PUBLIC POOL — discoverable? and does it match our format?
+
+# THE SECOND SOURCE. F7 and Route 1 were both answered against MyFantasyLeague and
+# archive.org. Sleeper — the source we already use, the one our own league is on —
+# was never probed, and its two differences might matter: leagues are created
+# through presets rather than a free-form scoring editor, and the API is
+# unauthenticated and fast.
+#
+# FOUR QUESTIONS, THEN STOP. Rule 9. Discoverable at all / format match rate /
+# per-pick timestamps / per-league fetch cost.
+#
+# WHY CI: api.sleeper.app returns 000 from the sandbox, the same proxy block as MFL.
+
+on:
+  workflow_dispatch:
+    inputs:
+      season:
+        description: 'Season to crawl'
+        required: false
+        default: '2025'
+      budget_s:
+        description: 'Stop crawling after this many seconds and report what was reached'
+        required: false
+        default: '900'
+      max_leagues:
+        description: 'Hard cap on leagues examined'
+        required: false
+        default: '400'
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - name: Probe the pool
+        env:
+          SEASON: ${{ github.event.inputs.season || '2025' }}
+          BUDGET_S: ${{ github.event.inputs.budget_s || '900' }}
+          MAX_LEAGUES: ${{ github.event.inputs.max_leagues || '400' }}
+        run: |
+          python3 - <<'PY'
+          import json, os, sys, time, urllib.error, urllib.request
+          sys.path.insert(0, "draft/backtest")
+          import sleeper_pool as SP
+          import positive_control as PC
+
+          SEASON = os.environ["SEASON"]
+          BUDGET = float(os.environ["BUDGET_S"])
+          CAP = int(os.environ["MAX_LEAGUES"])
+          UA = "maga-league-probe/1.0 (+github actions)"
+          t0 = time.time()
+          timings = []
+
+          def get(url, timeout=20):
+              req = urllib.request.Request(url, headers={"User-Agent": UA})
+              t = time.time()
+              try:
+                  with urllib.request.urlopen(req, timeout=timeout) as r:
+                      body = json.loads(r.read().decode("utf-8", "replace") or "null")
+                      timings.append(time.time() - t)
+                      return {"ok": True, "body": body, "status": r.status}
+              except urllib.error.HTTPError as e:
+                  timings.append(time.time() - t)
+                  return {"ok": False, "status": e.code, "why": "http %d" % e.code}
+              except Exception as e:                                  # noqa: BLE001
+                  return {"ok": False, "status": None,
+                          "why": "%s: %s" % (type(e).__name__, e)}
+
+          # ── Q1: IS THE REFERRAL EDGE PUBLIC? Asked first; it can close everything.
+          seed = SP.OUR_LEAGUES[1]          # our 2025 league
+          seed_lg = get(SP.league_url(seed))
+          users = get(SP.users_url(seed))
+          edge_open, edge_why, sample_user = False, "not reached", None
+          if users["ok"]:
+              try:
+                  uids = SP.user_ids(users["body"])
+                  sample_user = uids[0] if uids else None
+              except TypeError as e:
+                  uids, edge_why = [], str(e)[:120]
+              if sample_user:
+                  r = get(SP.user_leagues_url(sample_user, SEASON))
+                  if r["ok"]:
+                      try:
+                          SP.league_ids(r["body"])
+                          edge_open, edge_why = True, "user league list is PUBLIC"
+                      except TypeError as e:
+                          edge_why = "not a list: %s" % str(e)[:90]
+                  else:
+                      edge_why = "user leagues %s" % r.get("why")
+          else:
+              edge_why = "league users %s" % users.get("why")
+
+          # ── THE POSITIVE CONTROL: can the probe recognise OUR OWN league?
+          ctrl = PC.run([
+              ("our league is fetchable", lambda: bool(seed_lg["ok"]), True,
+               "if this fails nothing below means anything"),
+              ("our league SCREENS AS A MATCH",
+               lambda: SP.screen(seed_lg.get("body") or {})[0], True,
+               "known 10-team half-PPR with keepers; a zero elsewhere is about the probe"),
+          ])
+          print("=" * 72)
+          print(PC.guard("Q1 REFERRAL EDGE: %s — %s"
+                         % ("OPEN" if edge_open else "CLOSED", edge_why), ctrl))
+          for c in ctrl["controls"]:
+              print("   control %-34s %s" % (c["name"][:34],
+                    "PASS" if c["ok"] else "FAIL got=%r" % (c["got"],)))
+          if seed_lg["ok"]:
+              print("   our league screens: %s" % (SP.screen(seed_lg["body"]),))
+          print("=" * 72)
+
+          if not edge_open:
+              print("ROUTE CLOSED AT Q1: the referral edge is not public, so the pool "
+                    "cannot be enumerated from a known league. That is a clean answer "
+                    "and the remaining three questions are moot.")
+              json.dump({"q1_edge_open": False, "why": edge_why, "controls": ctrl},
+                        open("sleeper-pool-probe.json", "w"), indent=1, default=str)
+              raise SystemExit(0)
+
+          # ── Q2/Q3/Q4: crawl the connected component, bounded twice.
+          seen, queue, rows = set(SP.OUR_LEAGUES), list(SP.OUR_LEAGUES), []
+          reasons, ts_seen, checked_drafts = {}, {}, 0
+          while queue and len(rows) < CAP and (time.time() - t0) < BUDGET:
+              lid = queue.pop(0)
+              lg = get(SP.league_url(lid))
+              if not lg["ok"]:
+                  reasons["fetch_failed:%s" % lg.get("why")] = \
+                      reasons.get("fetch_failed:%s" % lg.get("why"), 0) + 1
+                  continue
+              ok, why = SP.screen(lg["body"] or {})
+              rows.append({"league_id": lid, "match": ok, "why": why})
+              reasons[why] = reasons.get(why, 0) + 1
+              # Q3, on the FIRST FEW MATCHES ONLY — a draft fetch per league is a cost
+              # this probe does not need to pay to answer a yes/no question.
+              if ok and checked_drafts < 3:
+                  checked_drafts += 1
+                  d = get(SP.drafts_url(lid))
+                  did = None
+                  if d["ok"] and isinstance(d["body"], list) and d["body"]:
+                      did = (d["body"][0] or {}).get("draft_id")
+                  if did:
+                      pk = get(SP.picks_url(did))
+                      if pk["ok"] and isinstance(pk["body"], list) and pk["body"]:
+                          has, key = SP.pick_has_timestamp(pk["body"][0])
+                          ts_seen[str(has) + ":" + key] = ts_seen.get(str(has) + ":" + key, 0) + 1
+              # expand
+              us = get(SP.users_url(lid))
+              if us["ok"]:
+                  try:
+                      for uid in SP.user_ids(us["body"]):
+                          ul = get(SP.user_leagues_url(uid, SEASON))
+                          if not ul["ok"]:
+                              continue
+                          for nxt in SP.league_ids(ul["body"]):
+                              if nxt not in seen:
+                                  seen.add(nxt); queue.append(nxt)
+                  except TypeError:
+                      pass
+
+          matched = [r for r in rows if r["match"]]
+          unread = sum(v for k, v in reasons.items() if k.startswith("unreadable:"))
+          avg = sum(timings) / len(timings) if timings else None
+          print()
+          print("Q2 FORMAT MATCH   %d of %d examined  (%.2f%%)  | reachable pool seen: %d"
+                % (len(matched), len(rows), 100.0 * len(matched) / max(1, len(rows)), len(seen)))
+          print("   MFL comparison: 0 of 394")
+          print("   UNREADABLE (not a mismatch): %d" % unread)
+          for k, v in sorted(reasons.items(), key=lambda kv: -kv[1])[:12]:
+              print("     %-44s %d" % (k[:44], v))
+          print()
+          print("Q3 PER-PICK TIMESTAMPS  %s" % (ts_seen or "no matched league's draft examined"))
+          print("Q4 FETCH COST     mean %.3fs over %d requests   (MFL: 12.6s)"
+                % (avg or -1, len(timings)))
+          print()
+          print("BOUNDS: %d leagues examined of %d discovered; %.0fs of %.0fs budget used."
+                % (len(rows), len(seen), time.time() - t0, BUDGET))
+          json.dump({"q1_edge_open": True, "controls": ctrl, "rows": rows,
+                     "reasons": reasons, "discovered": len(seen),
+                     "timestamps": ts_seen, "mean_fetch_s": avg},
+                    open("sleeper-pool-probe.json", "w"), indent=1, default=str)
+          PY
+      - uses: actions/upload-artifact@v4
+        with: { name: sleeper-pool-probe, path: sleeper-pool-probe.json, if-no-files-found: warn }
