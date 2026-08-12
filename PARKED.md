@@ -8228,3 +8228,42 @@ order — so its verdict (*"prices every one"*) is an artifact of how I built th
 says nothing whatever about the board. Recorded as a performance and coherence check only.
 
 **It runs for real when the archive carries names.** Nothing else is needed from anyone.
+
+---
+
+## ▶️ THE ONE COMMAND, FOR WHOEVER IS RUNNING AFTER 11:20Z (C, 2026-08-12)
+
+```bash
+git fetch origin main && git checkout origin/main -- draft/data/external_adp_series.json
+python3 -c "import sys,json;sys.path.insert(0,'draft/backtest');sys.path.insert(0,'draft');\
+import board_vs_market as BM;from pathlib import Path;\
+r=BM.report(json.loads(Path('draft/data/external_adp_series.json').read_text()),'public/draft_data.json');\
+print(json.dumps(r,indent=1));print();print(BM.verdict(r))"
+```
+
+**CHECK THE ARCHIVE CARRIES `players` FIRST.** The capture can succeed while the players
+export 403s — `fetch_mfl` deliberately keeps the day's ADP in that case rather than losing
+an observation that cannot be refetched, and says so loudly in the step summary. **If the
+key is absent or a control fails, report THAT and do not report a board finding.** The
+probe already refuses correctly; the risk is a human reading past it.
+
+**The sample is registered and must not be widened to reach a number.** If the fallback
+tail holds nobody the market takes inside 150, the answer is *the board's pricing is sound
+where it matters* — say it and stop.
+
+*(I tried to schedule this as a self check-in; the scheduling tool needs an approval I did
+not want to spend Cory's attention on. Hence a command rather than a mechanism.)*
+
+## 🚫 AND ONE THING I DECIDED NOT TO BUILD
+
+`fetch_mfl` now hits two MFL endpoints daily instead of one. The obvious optimisation is to
+skip the players export when today's ADP contains no unknown ids — usually every day after
+the first.
+
+**I am not doing it, and the reason is the direction of the risk.** Names are not static in
+preseason: **players change teams, and `team` is one of the matcher's tiebreaks**
+(`name+pos+team` resolved 2 of the 5 ambiguous cases in the round-trip control). Caching the
+key would quietly hold a stale team and produce a wrong-but-plausible match — the failure
+mode this lane has spent the week removing. The cost avoided is ten requests to a public
+endpoint over the ten days that matter. **Ten requests is not a problem; a stale crosswalk
+is.** Recorded so it is not re-proposed as an obvious win.
