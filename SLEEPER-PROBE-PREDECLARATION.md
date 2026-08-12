@@ -230,3 +230,64 @@ old leagues differ in ways nobody has enumerated. **The artifact carries `rows` 
 `league_id` and `match`, so the id skew and the depth-homogeneity check are both computable
 from the run's own output** — no additional fetching, and I will report both whether or not
 they show anything.
+
+---
+
+## RESULT — run 31569112689, 2026-08-12. **F7 IS NOT MET.**
+
+    controls 2/2 PASS  (our league fetchable; our league screens as a match)
+    PHASE 1  expanded 976 leagues -> discovered 20,419 in 900s
+    Q2       191 matched of 12,000 screened  = 1.59%
+    Q3       no per-pick timestamps (3 more drafts checked)
+    Q4       mean 0.071s over 25,252 requests
+    BOUNDS   12,000 screened of 20,419 discovered; 1,814s of 3,300s used
+    F2       4 of 12,000 drafts not complete
+
+**The positive control passed, so the run is not void.** 191 < 200. **F7 remains unmet.**
+
+### The predictions, scored
+
+| | prediction | outcome |
+|---|---|---|
+| **P6** | rate holds 1.5–2.5%, and **falls** as the crawl reaches strangers | **HOLDS.** 1.59%, and it fell from the pilot's 2.00% — the direction was right |
+| **P7** | **"F7's 200 clears."** ≥180 at 1.5%, 240 at 2.0% | **FAILS. 191.** The arithmetic bracket held; the claim did not |
+| **P8** | matched leagues skew toward older ids | **NOT MEASURED** — see below |
+| **P9** | F2 rejects a large minority | **UNSCORED** — declared before dispatch; written for a 2026 crawl |
+| Cory's | rate near 2%; 200 reachable; matched may be unusual | 1.59% (below); reachable; **unmeasured** |
+
+**P7 is a failed prediction and is recorded as one.** *"At this rate 12,565 screens would
+reach 200"* is a projection, not a result, and the run did not clear the bar it was
+dispatched to clear.
+
+### P8 could not be answered, and the reason is worth more than the answer
+
+**The ids live in the uploaded artifact, and the artifact host is egress-blocked by
+policy** (`productionresultssa7.blob.core.windows.net` → gateway 403 on CONNECT). I had
+pre-declared I would report the skew *whether or not it appeared*, and I could not compute
+it at all.
+
+**That is a check whose answer required a download nobody in this sandbox can perform —
+rule 13f, in a new dress.** The fix is landed rather than noted: the probe now computes
+**P8 and the depth-homogeneity split in the run itself** and prints them with everything
+else. Next run answers both without an artifact.
+
+### What would make this run not decisive — measured against my own list
+
+- **The pool is 20,419 against 12,000 screened — 1.7×.** I declared that a rate measured
+  on a pool *"barely larger than the screen"* is uninformative. **1.7× is not comfortable**,
+  and it is the live caveat on the 1.59%.
+- **Rate swinging with depth: not measured this run.** Same artifact block; fixed above.
+- **Rate-limiting: clean.** 0 unreadable, no fetch failures, 25,252 requests at 0.071s.
+  **Sleeper did not throttle at 25k requests** — a capture fact worth keeping.
+- **Positive control: 2/2.** Not void.
+
+### And what it changes before 2026-08-22: NOTHING, exactly as pre-declared
+
+**F7 being reachable is not F7 being met, and neither is evidence for the 22nd.** A cleared
+F7 in August 2026 is a pool that becomes gradeable in **2027**. **I am not dispatching
+another crawl to reach 200** — it would change no decision before the draft, and chasing a
+threshold because it is nearly in reach is how a number stops meaning what it was
+registered to mean.
+
+**Team size remains the whole filter**, and at scale it is starker than the pilot: **6,097
+of 12,000 rejected as twelve-team**, against 2,615 on receptions.

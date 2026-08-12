@@ -229,6 +229,43 @@ jobs:
           print("BOUNDS: %d leagues screened of %d discovered; %.0fs of %.0fs budget used."
                 % (len(rows), len(seen), time.time() - t0, BUDGET))
           print("F2 (draft not complete): %d of %d screened" % (incomplete, len(rows)))
+
+          # ── P8 AND THE DEPTH CHECK, COMPUTED HERE RATHER THAN FROM THE ARTIFACT.
+          # Both were pre-declared as reportable "whether or not they appear", and the
+          # first run at scale could not report either: the ids live in the uploaded
+          # JSON and the artifact host is egress-blocked from the sandbox by policy.
+          # A check whose answer requires a download nobody can perform is a check that
+          # does not run (rule 13f), so it prints in the log with everything else.
+          def _num(x):
+              try:
+                  return int(str(x))
+              except (TypeError, ValueError):
+                  return None
+          ids = [(_num(r["league_id"]), r["match"]) for r in rows]
+          ids = [(i, m) for i, m in ids if i is not None]
+          if ids:
+              srt = sorted(i for i, _ in ids)
+              med = srt[len(srt) // 2]
+              mt = [i for i, m in ids if m]
+              older = sum(1 for i in mt if i < med)
+              print()
+              print("P8 SELECTION (Sleeper ids are time-ordered, so a lower id is an "
+                    "OLDER league)")
+              print("   matched below the pool's median id: %d of %d (%.1f%%) — "
+                    "50%% is no skew" % (older, len(mt), 100.0 * older / max(1, len(mt))))
+              if mt:
+                  print("   median id  matched %d  |  whole pool %d"
+                        % (sorted(mt)[len(mt) // 2], med))
+              print("   NOTE: this is the SCREENED set, which the crawl ordered — it is "
+                    "not a random sample of Sleeper.")
+          # Depth homogeneity: the rate by fifth of the screen, in screen order. A rate
+          # that swings with depth means no single number describes the pool.
+          k = max(1, len(rows) // 5)
+          chunks = [rows[i:i + k] for i in range(0, len(rows), k)][:5]
+          print()
+          print("DEPTH HOMOGENEITY (match rate by fifth of the screen, in order)")
+          print("   " + "  ".join("%.2f%%" % (100.0 * sum(1 for r in c if r["match"])
+                                              / max(1, len(c))) for c in chunks))
           print()
           print(SP.f7_verdict(len(matched), len(rows), len(seen)))
           json.dump({"q1_edge_open": True, "controls": ctrl, "rows": rows,
