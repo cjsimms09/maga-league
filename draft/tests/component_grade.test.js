@@ -23,6 +23,14 @@ const ck = (n, c, d) => { c ? (pass++, console.log('PASS  ' + n))
   : (fail++, console.log('FAIL  ' + n + (d !== undefined ? '\n        -> ' + JSON.stringify(d) : ''))); };
 const threw = f => { try { f(); return null; } catch (e) { return e.message; } };
 
+/* Every call needs one. Stated once here so the suite reads like a caller. */
+const IMP = {
+  earning: 'keep the term and lean on it harder in close calls',
+  hurting: 'zero the term, the way MEASURED_WEIGHTS already zeroed four',
+  noise: 'stop paying attention to it — it is not moving outcomes at a size worth acting on',
+};
+const g = o => G.gradeComponent(Object.assign({ implication: IMP }, o));
+
 let seed = 7;
 const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
 function build(weeks, per, errA, errB) {
@@ -40,17 +48,17 @@ function build(weeks, per, errA, errB) {
 // ── THE THREE VERDICTS, AND THE THIRD IS THE POINT ─────────────────────────
 {
   const big = build(14, 90, 6, 12);           // a large, real improvement
-  const r = G.gradeComponent({ name: 'x', pairs: big.pairs, baseline: big.base, material: 0.2 });
+  const r = g({ name: 'x', pairs: big.pairs, baseline: big.base, material: 0.2 });
   ck('a real, material improvement reads EARNING', r.verdict === 'earning', r);
 
   const none = build(14, 90, 8, 8);           // identical error: no skill
-  const r2 = G.gradeComponent({ name: 'x', pairs: none.pairs, baseline: none.base, material: 0.5 });
+  const r2 = g({ name: 'x', pairs: none.pairs, baseline: none.base, material: 0.5 });
   ck('a genuine null with power reads NOISE, not "no effect"', r2.verdict === 'noise', r2);
   ck('  and it SAYS the design could have seen one',
     /COULD have detected/.test(r2.why), r2.why);
 
   const thin = build(2, 3, 8, 8);             // two weeks, three players
-  const r3 = G.gradeComponent({ name: 'x', pairs: thin.pairs, baseline: thin.base, material: 0.05 });
+  const r3 = g({ name: 'x', pairs: thin.pairs, baseline: thin.base, material: 0.05 });
   ck('the SAME null on a thin sample reads TOO_THIN, not noise', r3.verdict === 'too_thin', r3);
   ck('  which is the distinction the surface exists to make',
     r2.verdict !== r3.verdict);
@@ -59,7 +67,7 @@ function build(weeks, per, errA, errB) {
 // ── THE WEEK IS THE UNIT ───────────────────────────────────────────────────
 {
   const d = build(14, 90, 8, 8);
-  const r = G.gradeComponent({ name: 'x', pairs: d.pairs, baseline: d.base, material: 0.5 });
+  const r = g({ name: 'x', pairs: d.pairs, baseline: d.base, material: 0.5 });
   ck('n_obs and n_clusters are BOTH reported', r.n_obs === 1260 && r.n_clusters === 14, r);
   /* THE CLAIM I FIRST WROTE HERE WAS FALSE, and it was the one I expected.
    * "Clustering gives a larger floor than iid" is NOT a general property — it
@@ -72,7 +80,7 @@ function build(weeks, per, errA, errB) {
    * where it exists — against data carrying a shared weekly shock, which is
    * what a real slate does. */
   const flat = d.pairs.map(p => Object.assign({}, p, { cluster: null }));
-  const rIid = G.gradeComponent({ name: 'x', pairs: flat, baseline: d.base, material: 0.5 });
+  const rIid = g({ name: 'x', pairs: flat, baseline: d.base, material: 0.5 });
   ck('  with INDEPENDENT rows, clustered and iid floors agree',
     Math.abs(r.mde - rIid.mde) / rIid.mde < 0.35,
     { clustered: r.mde, iid: rIid.mde });
@@ -87,8 +95,8 @@ function build(weeks, per, errA, errB) {
       corrBase.push({ predicted: real });
     }
   }
-  const rC = G.gradeComponent({ name: 'x', pairs: corr, baseline: corrBase, material: 0.5 });
-  const rCiid = G.gradeComponent({ name: 'x',
+  const rC = g({ name: 'x', pairs: corr, baseline: corrBase, material: 0.5 });
+  const rCiid = g({ name: 'x',
     pairs: corr.map(p => Object.assign({}, p, { cluster: null })),
     baseline: corrBase, material: 0.5 });
   ck('  with a SHARED WEEKLY SHOCK, the clustered floor is far larger than iid',
@@ -101,16 +109,56 @@ function build(weeks, per, errA, errB) {
 // ── NO INVENTED THRESHOLD ──────────────────────────────────────────────────
 {
   const d = build(4, 10, 8, 8);
-  const msg = threw(() => G.gradeComponent({ name: 'x', pairs: d.pairs }));
+  const msg = threw(() => g({ name: 'x', pairs: d.pairs }));
   ck('a missing materiality bar throws', !!msg, msg);
   ck('  and says why an invented one decides the verdict by accident',
     /decided by an invented threshold/.test(msg || ''), msg);
 }
 
+// ── EVERY ROW THAT RESOLVES CARRIES WHAT IT WOULD CHANGE ───────────────────
+{
+  const d = build(4, 10, 8, 8);
+  const msg = threw(() => G.gradeComponent({ name: 'x', pairs: d.pairs, material: 0.5 }));
+  ck('a component with no behavioural implication throws', !!msg, msg);
+  ck('  and says a finding nobody can act on is a number, not a finding',
+    /not a finding/.test(msg || ''), msg);
+
+  // ALL THREE BRANCHES, BEFORE THE VERDICT IS KNOWN. Supplying only the one
+  // that ends up firing is the same defect `resolution_rule` prevents on the
+  // forecast rail: a consequence written after the outcome is a rationalisation
+  // and reads exactly like a prediction.
+  const partial = threw(() => G.gradeComponent({ name: 'x', pairs: d.pairs, material: 0.5,
+    implication: { earning: 'keep it' } }));
+  ck('  a flattering branch alone is refused', !!partial, partial);
+  ck('  and the missing branches are NAMED',
+    /hurting/.test(partial || '') && /noise/.test(partial || ''), partial);
+
+  const big = build(14, 90, 6, 12);
+  const r = g({ name: 'x', pairs: big.pairs, baseline: big.base, material: 0.2 });
+  ck('an EARNING row carries the earning line', r.verdict === 'earning'
+    && r.implication === IMP.earning, r.implication);
+  const none = build(14, 90, 8, 8);
+  const rn = g({ name: 'x', pairs: none.pairs, baseline: none.base, material: 0.5 });
+  ck('  a NOISE row carries the noise line, which is the one that changes behaviour',
+    rn.verdict === 'noise' && rn.implication === IMP.noise, rn.implication);
+
+  // AND THE UNINFORMATIVE ROWS CARRY NOTHING. A design that could not have seen
+  // the effect implies nothing about how to draft; a "what to do" line beside
+  // it is how an underpowered null turns into a decision.
+  const thin = build(2, 3, 8, 8);
+  const rt = g({ name: 'x', pairs: thin.pairs, baseline: thin.base, material: 0.05 });
+  ck('a TOO_THIN row carries NO implication', rt.verdict === 'too_thin'
+    && rt.implication === null, rt);
+  ck('  and says why, rather than leaving the field blank',
+    /constrains nothing/.test(rt.implication_why || ''), rt.implication_why);
+  const rz = g({ name: 'empty', pairs: [], material: 1 });
+  ck('  same for no_data', rz.implication === null, rz);
+}
+
 // ── A COMPONENT WITH NO BASELINE MEASURES A WEAKER THING, AND SAYS SO ──────
 {
   const d = build(14, 90, 8, 8);
-  const r = G.gradeComponent({ name: 'x', pairs: d.pairs, material: 0.5 });
+  const r = g({ name: 'x', pairs: d.pairs, material: 0.5 });
   ck('without a baseline the effect is labelled BIAS, not skill',
     r.effect_is === 'bias', r.effect_is);
   ck('  because grading against nothing measures error, not whether it earns its place',
@@ -119,7 +167,7 @@ function build(weeks, per, errA, errB) {
 
 // ── DEGENERATE INPUT ───────────────────────────────────────────────────────
 {
-  const r = G.gradeComponent({ name: 'empty', pairs: [], material: 1 });
+  const r = g({ name: 'empty', pairs: [], material: 1 });
   ck('nothing resolved yet reads no_data, never a verdict', r.verdict === 'no_data', r);
 }
 

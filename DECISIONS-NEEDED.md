@@ -10,6 +10,65 @@ Audit date: 2026-08-09 (swept every recorded verdict in draft/backtest/*.json + 
 
 ---
 
+## 00. THE SHIPPED WEIGHTS RECOMMEND NON-PLAYERS FROM ROUND 8 (2026-08-12) 🔴 OPEN — TOP OF THE LIST
+
+- **WHAT WAS FOUND.** Once every starting slot is filled, `scorePlayer` takes its
+  bench branch. `MEASURED_WEIGHTS` — what `app.js:52` ships — zeroes four of that
+  branch's six terms, and the two weights it does not zero (`value`, `tier`) do
+  not appear in the branch at all. The shipped bench score is therefore
+  `0.5*stack + 1*keeper`, and `stack` is a flat bonus for sharing an NFL team with
+  somebody already on my roster, regardless of whether the player can play.
+- **MAGNITUDE, measured.** 20 simulated drafts, `draft/tools/bench_branch_probe.js`:
+  **MEASURED reaches (ADP > 250) on 111/240 picks = 46.3%. DEFAULT reaches on 0/240.**
+  Concentrated rounds 8–13; 20 of 20 drafts reach in rounds 8, 11, 12 and 13.
+  Actual recommendations: Denzel Mims (ADP 696) over Sam LaPorta, then Josh
+  Johnson, Joe Flacco, **Tom Brady**, Marcedes Lewis, Jason Witten.
+- **AND THE ANCHOR THE COMMENT CREDITS WAS NEVER RUNNING.** The branch says its top
+  pick "is the highest-ceiling player left". `upsideBonus` is gated to zero until
+  pick 90 of 150; the branch starts firing near pick 70. At pick 73 the ceiling
+  term is 0.00 for **every** player on the board. Rule 11e — and it is the second
+  defect that makes the first one reachable.
+- **WHY DEFAULT SURVIVES, which is diagnostic not reassuring.** What saves it is the
+  `risk` term (−42.00 on Mims at weight 1), not the ceiling. MEASURED zeroed risk
+  because the Lab measured it as drag **in the starter branch**, where `value`
+  anchors everything. In the bench branch it was the only thing holding the floor.
+  A weight measured on one composition, applied to another.
+- **CONFIDENCE.** High and mechanical. Isolated term by term through the engine's
+  own scorer; pinned by `draft/tests/bench_branch_anchor.test.js` (10 checks).
+- **COST OF INACTION.** Six of my fifteen picks, on draft day, ten days out.
+- **RECOMMENDATION — YOUR CALL, because it changes a weights policy the week of the
+  draft and re-opens the frozen baseline (`draft/baseline/v6.json`).** Floor the
+  bench branch's ceiling weight the way `wValue` is already floored by
+  `CFG.VALUE_WEIGHT_FLOOR = 0.25`, **and** start the ceiling ramp where the bench
+  branch starts rather than at 0.6 of the draft, with a risk-weight floor as the
+  safety net. Two alternatives and their trade-offs are in the audit. I have not
+  applied any of them.
+- Full diagnosis: `draft/audit/bench_branch_2026-08-12.md`.
+
+## 000. THE TWO PROJECTION SOURCES DISAGREE BY POSITION, SYSTEMATICALLY (2026-08-12) 🔴 OPEN
+
+- **WHAT WAS FOUND.** Median per-player ratio of `proj_fantasypros` to
+  `proj_sleeper`, by position: **QB 1.019 · RB 1.002 · WR 0.807 · TE 0.784.**
+  QB and RB agree within 2%. WR and TE are off by ~20% across every player.
+- **WHAT IT IMPLIES.** That is not two opinions about players; it is two different
+  assumptions. Our consensus averages them, which moves WR/TE value roughly 10%
+  down relative to Sleeper alone and **changes cross-position ordering on the live
+  board**, ten days before the draft.
+- **WHAT IT IS NOT.** Not a dropped receptions column — `_FP_STAT_MAP` maps `rec`,
+  and RBs catch ~50 balls a year while showing no gap at all. Beyond that it is
+  undiagnosed.
+- **MAGNITUDE.** Unknown until diagnosed. Bounded by the fact that the anchor
+  decision (#1) already put FantasyPros in the primary seat for ADP, so a scale
+  error here would compound with it.
+- **COST OF INACTION.** If FP's WR/TE numbers are on a different footing than
+  Sleeper's, the consensus is averaging apples and oranges on two of four skill
+  positions, and every WR/TE VORP on the draft board carries it.
+- **RECOMMENDATION.** Diagnose before the draft — it is a couple of hours against a
+  provider row — but **do not "correct" it by rescaling.** If the two sources
+  genuinely disagree about WR/TE volume, averaging them is the right thing and the
+  finding is only that we should know. Surfaced by
+  `draft/audit/high_contrast_candidates_2026-08-12.md` §D.
+
 ## 0. DEF PROJECTIONS ARE 12 POINTS SHORT — `def_fum_td` maps to nothing (2026-08-11) 🔴 OPEN
 
 - **WHAT WAS FOUND.** Sleeper's projection row for the Rams DEF carries

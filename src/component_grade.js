@@ -33,6 +33,24 @@
  *
  * That is the false precision this project has spent weeks eliminating, and it
  * would arrive here wearing the costume of a breakthrough.
+ *
+ * ── AND EVERY ROW THAT RESOLVES CARRIES WHAT IT WOULD CHANGE ────────────────
+ *
+ * A component finding is worth nothing until it composes into behaviour. So a
+ * row does not just report `earning` — it reports what `earning` MEANS for how
+ * to draft or set a lineup. That line is a REQUIRED INPUT, not an output.
+ *
+ * AND ALL THREE BRANCHES MUST BE WRITTEN BEFORE THE VERDICT IS KNOWN. Stating
+ * only the flattering one and filling the rest in afterwards is the same defect
+ * `resolution_rule` exists to prevent on the forecast rail: a consequence
+ * written after the outcome is a rationalisation, and it reads identically to a
+ * prediction. Requiring `earning`, `hurting` AND `noise` up front costs the
+ * caller two extra sentences and removes the freedom entirely.
+ *
+ * `too_thin` and `no_data` get NO implication line, deliberately. A design that
+ * could not have seen the effect implies nothing about behaviour, and printing
+ * a "what to do" line beside an uninformative row is how an underpowered null
+ * turns into a decision.
  */
 'use strict';
 
@@ -79,6 +97,9 @@ function mde(clusterVals) {
  *           units, stated by the caller. There is no default: a threshold
  *           invented here would decide "noise vs too thin" by accident, and that
  *           verdict is the whole point of the surface.
+ * implication: REQUIRED, {earning, hurting, noise} — what each outcome would
+ *           mean for how to draft or set a lineup. All three, stated before the
+ *           verdict is known, for the reason in the header.
  */
 function gradeComponent(opts) {
   const o = opts || {};
@@ -88,6 +109,16 @@ function gradeComponent(opts) {
       + 'smallest effect worth acting on, in this metric\'s units. Without it the '
       + '"noise" / "too_thin" verdict is decided by an invented threshold, which is '
       + 'the one distinction this surface exists to make.');
+  }
+  const imp = o.implication || {};
+  const missing = ['earning', 'hurting', 'noise'].filter(k => !imp[k] || !String(imp[k]).trim());
+  if (missing.length) {
+    throw new Error('gradeComponent: `implication` is required and needs all three '
+      + 'branches (missing: ' + missing.join(', ') + '). Each is one line saying what '
+      + 'that outcome would mean for how to draft or set a lineup. All three are '
+      + 'required BEFORE the verdict is known: writing only the branch that fires is '
+      + 'a rationalisation, and it reads exactly like a prediction. A component '
+      + 'finding nobody can act on is a number, not a finding.');
   }
   const material = Number(o.material);
   const errs = pairs.map(p => Number(p.predicted) - Number(p.realized));
@@ -104,7 +135,7 @@ function gradeComponent(opts) {
   };
   if (!pairs.length) {
     return Object.assign(row, { effect: null, mde: null, verdict: 'no_data',
-      why: 'nothing resolved yet' });
+      why: 'nothing resolved yet' }, implicationFor('no_data', imp));
   }
 
   // The effect under test. With a baseline it is the SKILL — how much less
@@ -155,7 +186,34 @@ function gradeComponent(opts) {
     row.why = 'the design COULD have detected a material effect (floor ' + row.mde
       + ' < material ' + material + ') and did not';
   }
-  return row;
+  return Object.assign(row, implicationFor(row.verdict, imp));
+}
+
+/* THE STEP FROM A COMPONENT FINDING TO A BEHAVIOUR, made structural.
+ *
+ * Three of the five verdicts carry the caller's own stated line. The other two
+ * carry NOTHING, and that is the point:
+ *
+ *   real_but_immaterial — derived, not invented. The caller set the materiality
+ *     bar themselves; an effect below their own bar means change nothing, and
+ *     saying so is arithmetic rather than a judgement made here.
+ *   too_thin / no_data  — no line at all. The design could not have seen the
+ *     effect that matters, so it implies nothing about behaviour. Printing a
+ *     "what to do" line beside an uninformative row is precisely how an
+ *     underpowered null becomes a decision.
+ */
+function implicationFor(verdict, imp) {
+  if (verdict === 'earning') return { implication: String(imp.earning) };
+  if (verdict === 'hurting') return { implication: String(imp.hurting) };
+  if (verdict === 'noise') return { implication: String(imp.noise) };
+  if (verdict === 'real_but_immaterial') {
+    return { implication: 'Change nothing. The effect is real and smaller than the '
+      + 'materiality bar you set for this component, so acting on it costs attention '
+      + 'and buys nothing.' };
+  }
+  return { implication: null,
+    implication_why: 'no behavioural implication — this design could not have '
+      + 'detected an effect worth acting on, so the result constrains nothing' };
 }
 
 /* THE CLAMP, graded as its own question. proj_mean = proj_baseline x (1 +
