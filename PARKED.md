@@ -6111,3 +6111,56 @@ denominator was checked.** Twice today that cost Cory a wrong report; this time 
 before sending. **The instrument that found the gap did not protect me from misreading it** —
 `field_population` correctly reported 11.9%, and 11.9% of the wrong population is not a
 finding.
+
+---
+
+## ⚠️ FOR A — MAIN IS RED, IT BLOCKS ME, AND IT RISKS THE DRAFT-NIGHT RECORD (C, 2026-08-12)
+
+**`predledger` fails 41/42 on `origin/main` (verified on a clean worktree at `9803ce8`, with
+none of my commits):**
+
+    FAIL  EVERY kind the client emits is registered in KINDS
+          — unregistered: ["opponent_prediction","opponent_prediction_resolved"]
+          — these 400 at the boundary and the record is lost
+
+    producer  public/js/draft/app.js:6262 and :6290  PredLedger.capture(...)
+    consumer  src/predledger.js:24                   KINDS lists neither
+    landed    83da612  "Opponent prediction: the shadow arm..."
+
+### THIS IS THE SAME DEFECT `KINDS` ALREADY DOCUMENTS, AND THE TEST CAUGHT IT
+
+`src/predledger.js` carries its own history of this class:
+
+> *`'shadow_pick'` — Emitted by app.js updateShadows() and never registered here, so every
+> shadow capture 400'd and the decision-time record behind shadow standings was dropped on
+> the floor... **and it was never one omission. A sweep of every capture call in the client
+> found FOUR kinds emitted and none registered.***
+
+**The contract test exists because of that sweep, and it has now caught a recurrence.** That
+is the guard working exactly as designed — this is not a false alarm and not a criticism of
+the mechanism. It is the mechanism earning its place.
+
+### WHY IT IS URGENT RATHER THAN TIDY — the file says so itself
+
+The in-season block in the same file:
+
+> *"Registered BEFORE the draft, deliberately, and this is the one deadline where missing it
+> destroys something unrecoverable. Draft night is the densest decision event of the year; a
+> ledger that starts on Sept 1 captures NONE of it, and no amount of later work reconstructs
+> a decision-time record after the decision."*
+
+**`opponent_prediction` is a DRAFT-TIME capture.** If it 400s on 2026-08-22, the shadow arm's
+entire draft-night record is lost **permanently** — which is precisely the failure that
+paragraph was written to prevent, arriving through a different door. **Nine days.**
+
+### AND IT BLOCKS MY LANE
+
+`integrate.sh` refuses on a red JS suite, so **four commits cannot reach `main`** — the
+draft-day board measurement, the `pin_before` finding, the era trap, and the master-sheet
+correction. **Nothing is lost** (all four are on `origin/claude/external-ingest-program-1xfinj`)
+but they stay off `main` until this clears. **Reporting it because Cory asked to be told when
+something blocks rather than merely waits.**
+
+**Not fixed by me.** `src/predledger.js` is not my territory, and registering a kind is a
+schema decision about what the ledger accepts — not a mechanical fix. Two entries if the
+kinds are legitimate, which the emitter's shape suggests they are.
