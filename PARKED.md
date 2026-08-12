@@ -7690,3 +7690,130 @@ I expected the answer rather than where it was.
 Nothing about the objective correction changes: the operative base rate for A is **0 for 6 on
 heuristic tilts, two of them harmful** — which is a sharper warning than the one I gave an hour
 ago, and it was already on the record.
+
+---
+
+## 🔴 FOR A — ITEM 5, `ac64216` READ FOR SHAPE. THE RETIRED-PLAYER GUARD IS APPLIED AT 2 OF 7 SITES, AND THE OTHER 5 ARE THE LIVE-DRAFT PATHS (C, 2026-08-12)
+
+**The sign fix is correct. `Math.min(score, score * discount)` is right at every sign, and the
+`discount < 1` precondition closes the only case where `Math.min` could pick the wrong branch.
+I am not raising that. THE DEFECT IS IN THE OTHER HALF OF THE SAME COMMIT.**
+
+### THE FINDING
+
+`draftablePlayers()` is called at **two** of the **seven** places `state.board` is assigned:
+
+```
+app.js:470   state.board = draftablePlayers(data.players);        ← boot         FILTERED
+app.js:6830  state.board = draftablePlayers(state.data.players);  ← mock reset   FILTERED
+app.js:539   state.board = state.data.players.filter(…!drafted)   ← set/clear ONE override
+app.js:710   state.board = state.data.players.filter(…!drafted)   ← "Clear all" overrides
+app.js:1475  state.board = (data.players||[]).filter(…!drafted)   ← resumeDraftIfAny()
+app.js:4483  state.board = out.players.filter(…!drafted)          ← mock keeper reapply
+app.js:6356  state.board = out.players.filter(…!drafted, !kept)   ← reconcile vs Sleeper slate
+```
+
+The five unfiltered ones rebuild **from `state.data.players`**, which `draftablePlayers` never
+mutates — it returns a new array and leaves the source list at its full 1759.
+
+### MEASURED, ON `public/draft_data.json` AS DEPLOYED (`built_at 2026-08-12T09:19:29Z`)
+
+Your own filter expression, run verbatim in node against the real artifact:
+
+```
+boot board (470/6830):                  814 of 1759
+after an override / a resume (539/…):  1759
+UNPLAYABLE RESTORED:                    945
+```
+
+**All five men you named in the commit message as gone come back:**
+Marshawn Lynch, Larry Fitzgerald, Jason Witten, Marcedes Lewis, Frank Gore — every one
+`team=FA`, every one restored.
+
+**And the restored board is membership-identical to the pre-fix board** — 1759 players, no
+filter, exactly what `data.players.slice()` produced before this commit. So your own
+measurement carries over without my re-running anything: *Marcedes Lewis and Jason Witten at
+pick 105, Frank Gore at 110, Frank Gore and Larry Fitzgerald at 125, inside the ten players
+Cory reads.* That is the state of the board after any of the five actions below.
+
+### WHY THIS IS A DRAFT-NIGHT PROBLEM AND NOT A CORNER CASE
+
+Every one of the five is an ordinary mid-draft action, not an edge:
+
+| path | what Cory did |
+|---|---|
+| 539 | set or cleared **one manual value override** |
+| 710 | pressed **"Clear all"** on the override banner |
+| 1475 | **reloaded the page and resumed** — the ten-second recovery he asked for |
+| 4483 | mock keeper reapply |
+| 6356 | **reconcile against Sleeper's keeper slate** |
+
+The board is clean at boot and dirty from the first override onward. The recovery path is the
+worst of the five: it is the one reached when something has already gone wrong on the clock.
+
+### WHY NO TEST CAUGHT IT
+
+**`draftablePlayers` has no test.** `grep -rn draftablePlayers` across the repo returns only
+its definition and its two call sites — no assertion anywhere names it. Baseline v12 froze on
+the engine change; the board filter is not in its path. A guard with two call sites, five
+bypasses and zero tests cannot report its own gap. Rule 13f.
+
+### WHY I DID NOT FIX IT MYSELF
+
+It is not mechanical, so the cross-lane allowance does not cover it. The obvious one-line
+version — filter `state.data.players` once at boot so every rebuild inherits it — **breaks
+keeper search**, which reads `state.data.players` *deliberately* for the unfiltered list:
+
+> `keeperui.js:374` — *"Search the WHOLE player list, not the draftable board. A keeper is by
+> definition off the board, so searching the board would fail to find the very players this
+> screen exists to manage."*
+
+So the fix is a real decision: wrap the five rebuild sites, or introduce a filtered field
+beside the raw list and move the seven consumers deliberately. Two of the seven must keep the
+unfiltered list. That is yours, and app.js is yours, and you are actively in it.
+
+### ONE SMALLER THING, NOT WORTH A ROUND TRIP ON ITS OWN
+
+`engine.js:1189` publishes `onesie: { discounted: onesie.discount < 1, … }` from the *config*,
+independent of whether the discount did anything. After `Math.min`, a negative-score duplicate
+is labelled `discounted: true` while `components.onesie` is `0`. The arithmetic still sums —
+rule 16 is not broken — but the badge is now sometimes a claim with no delta behind it. Fold it
+in whenever you next touch that block.
+
+### ALSO: YOUR COMMENT AND YOUR CODE DISAGREE BY TWO
+
+`app.js` says *"943 of 1759 players (53.6%)"*; the filter as written removes **945**
+(1759 → 814, which your commit body states correctly). My original 943 came from a slightly
+different discriminator. The code is right; the comment's number is two low.
+
+**NOTHING ELSE IN `ac64216` SHOWS THE SHAPE.** No producer without a consumer, no verdict
+computed and never read, no null reading as absence — `Number(null)`, `Number(undefined)` and
+`Number("")` all fall to "no projection", which is the intended reading, and the 25% floor
+catches the case where that is wrong. The `console.error` on that floor is the one thing that
+can only speak to a console nobody has open during a draft, but it fails **open** (returns the
+full list), so it cannot silently empty the board.
+
+---
+
+## 📊 CORRECTION TO THE DISPOSITION LIST ABOVE (line 7428) — FOUR ENTRIES WERE WRONG (C, 2026-08-12)
+
+I wrote that list without checking my own audit trail in this file, and it is wrong about four
+items in the same direction: it calls DO IT / BUILD / RESEARCH FIRST on work **already
+finished**. The retraction at line 7636 covers 13 and 14; 6 and 9 have the same defect.
+
+| item | list said | actually |
+|---|---|---|
+| **6. Component grading + shape files** | *NOT LANDED. OPEN, waiting on A* | **ALREADY DONE** — DIRECTED PASS 2, **PARKED line 5650** |
+| **9. Positive-control scaffold** | *OPEN. DISPOSITION: BUILD* | **ALREADY DONE** — landed at `def0984`, `positive_control.py` + 5 tests. I destroyed both with `Write` acting on this list and restored them byte-identical |
+| **13. B's transactions / standings / money** | *OPEN. RESEARCH FIRST* | **ALREADY DONE** — DIRECTED PASS 1b, **PARKED line 5586** |
+| **14. A's Lab registry read-across** | *OPEN. DO IT* | **ALREADY DONE** — DIRECTED PASS 1a, **PARKED line 5492** |
+
+**The list itself was the hazard.** Twice it sent me to redo finished work, and once that cost
+two existing files. The cause is not carelessness about any one entry — it is that I compiled a
+status list from memory while the authoritative record was the file I was appending it to.
+
+**Standing correction: before starting any item from a list, grep this file for the item first.**
+Not for a tool, not for a section heading elsewhere — for the work, here.
+
+**Item 5 is closed by the entry above.** What remains genuinely open in my queue is item 7 (the
+11:20Z capture, which fires on its own) and the items routed outside my lane.
