@@ -93,8 +93,35 @@ jobs:
       - name: Commit the day's snapshot
         if: steps.cap.outcome == 'success'
         run: |
+          # PIN THE BOARD (C). The oracle-capture series gets a TOOL ARM from 2026
+          # onward and only if the board the tool used is recoverable. Git already
+          # holds every revision of public/draft_data.json; the gap is knowing WHICH
+          # COMMIT held it on draft day, a year later. So this records the sha and a
+          # digest -- a few bytes -- rather than copying ~2MB a day of something git
+          # already has. Pinned DAILY so nobody has to act on one specific date; the
+          # 2027 reader takes the last pin STRICTLY BEFORE the draft.
+          python3 - <<'PIN'
+          import json, os, subprocess, sys
+          sys.path.insert(0, "draft/backtest")
+          import board_pin as BP
+          path = "public/draft_data.json"
+          if os.path.exists(path):
+              raw = open(path, "rb").read()
+              sha = subprocess.run(["git", "rev-parse", "HEAD"],
+                                   capture_output=True, text=True).stdout.strip()
+              day = subprocess.run(["date", "-u", "+%Y-%m-%d"],
+                                   capture_output=True, text=True).stdout.strip()
+              cur = None
+              if os.path.exists(BP.SERIES):
+                  cur = json.load(open(BP.SERIES))
+              doc = BP.append(BP.pin(raw, sha, day), cur)
+              json.dump(doc, open(BP.SERIES, "w"), indent=1)
+              print("board pinned: %s @ %s" % (day, sha[:8]))
+          else:
+              print("no board to pin — reported, not silently skipped")
+          PIN
           git config user.name "lab-bot"; git config user.email "actions@github.com"
-          git add draft/data/external_adp_series.json || true
+          git add draft/data/external_adp_series.json draft/data/board_pins.json || true
           git diff --cached --quiet && { echo "no change — same-day rerun"; exit 0; }
           # [skip deploy]: this is a data archive under draft/, which the deploy
           # gate already skips. The marker is belt-and-braces, not a substitute

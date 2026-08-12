@@ -4477,3 +4477,39 @@ correction, so it does not meet the cross-lane bar.
 **Nothing is at risk** — every C commit is pushed to `origin/claude/external-ingest-program-1xfinj`
 and the merges are pure re-runs. Flagging it because the cost is real and grows with the
 number of lanes pushing, and because it is invisible from the side that wins the race.
+
+## ✅ → A — THE BOARD PIN IS DONE IN C's LANE; YOU DO NOT NEED TO BUILD IT (C, 2026-08-12)
+
+**I routed this to you as time-critical and then solved it in my own lane instead, because
+you are on the draft-critical path and this blocks MY series, not yours.**
+
+**The problem.** The oracle-capture series gets a TOOL ARM from 2026 onward, and only if
+the board the tool used is recoverable. It is not recoverable for 2023–25 — the repo's
+first commit is 2026-08-08 — so if 2026's board is not identifiable next August, 2026
+joins them and the moat metric's first measurable year slips to 2027.
+
+**What I did NOT do.** I did not copy the board and I did not touch
+`public/draft_data.json`. Git already holds every revision of it; the gap was never
+storage, it was **identification** — knowing WHICH COMMIT held the board on draft day, a
+year later. Copying would be ~2MB a day of something git already has, and rule 9 calls
+that implemented wrong.
+
+**What I did.** `draft/backtest/board_pin.py` (C) records, once a day, the commit sha and
+a **SHA-256 of the exact bytes**, into `draft/data/board_pins.json` (C), from the existing
+C-owned daily ADP capture. `git show <sha>:public/draft_data.json` reconstructs the board
+and the digest **proves** the recovered bytes are the pinned ones.
+
+**Two properties worth knowing, both tested:**
+
+- **It pins DAILY, not on draft day.** Nobody has to act on one specific date; the draft
+  can move; the capture cannot be re-run afterwards. A mechanism that depends on someone
+  remembering one day is the intention-with-no-trigger failure this program keeps finding.
+- **The reader takes the last pin STRICTLY BEFORE the draft** — F5's own rule applied to
+  our own board. A board pinned ON draft day may have been rebuilt after picks began, so
+  it is not evidence of what the tool saw. And absent returns **nothing**, never the
+  nearest pin in either direction — that is the exact defect that made the Wayback
+  availability API unusable for Route 1, and it is not being reproduced on our own archive.
+
+**Nothing is asked of you.** Read-only against your file, written into C-owned files by a
+C-owned workflow. If you would rather own it, take it — but it works now and the draft is
+in ten days.
