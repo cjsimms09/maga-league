@@ -216,8 +216,27 @@ def test_the_passthrough_hands_over_EVERY_snapshot_for_the_season():
     series = [{"year": "2026", "observed_at": "2026-08-09", "rows": {"1": 3.0}, "row_count": 1},
               {"year": "2026", "observed_at": "2026-08-20", "rows": {"1": 2.0}, "row_count": 1},
               {"year": "2025", "observed_at": "2025-08-09", "rows": {"1": 9.0}, "row_count": 1}]
-    out = IR.league_passthrough([], {}, {}, series, 2026)
+    # The id map is passed EXPLICITLY. This fixture keys its snapshots with a
+    # board id, which is a legitimate case but an ASSUMPTION — and it is the
+    # assumption that hid the shipped defect, where the archive's MFL ids went to
+    # the store under `player_id` and the replay's available set never shrank.
+    out = IR.league_passthrough([], {}, {}, series, 2026, adp_ids={"1": "1"})
     assert len(out["snapshots"]) == 2, "the store must see both 2026 snapshots and pick"
+
+
+def test_the_passthrough_REFUSES_a_run_whose_ADP_ARCHIVE_CANNOT_BE_DECODED():
+    """MUTATION: translate with an empty map instead of raising. Every league then
+    comes back `F4.no_pre_draft_adp` — a true-looking statement about the leagues
+    and a false one about our own capture, and the attrition table would send the
+    next person looking for public leagues that do not exist."""
+    import ingest_run as IR
+    series = [{"year": "2026", "observed_at": "2026-08-09", "rows": {"13589": 3.0}}]
+    try:
+        IR.adp_id_map(series, {}, {})
+    except RuntimeError as e:
+        assert "decode key" in str(e) and "F4.no_pre_draft_adp" in str(e)
+    else:
+        raise AssertionError("an undecodable archive was translated to nothing, silently")
 
 
 def test_MISSING_WEEKLY_OUTCOMES_is_reported_as_itself_not_as_a_crosswalk_failure():
