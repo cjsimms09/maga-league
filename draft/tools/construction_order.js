@@ -363,14 +363,16 @@ const rooms = Number(process.argv[2] || 200);
 const varyRooms = process.argv.includes('--rooms-vary');
 const armNames = Object.keys(ARMS);
 
-console.log('='.repeat(78));
-console.log('CONSTRUCTION ORDER — does the sequence change the starting lineup?');
-console.log('='.repeat(78));
-console.log(`${rooms} PAIRED rooms (same seed across arms), seat ${MY}, valuation FIXED.`);
-console.log('Objective: projected points of the STARTING lineup. Bench is worth zero.');
-console.log('PRIOR from published work (12-team, 4th slot): ~86 pts between naive');
-console.log('slot-filling and optimal, about 4.6% of the total.');
-console.log('');
+function banner() {
+  console.log('='.repeat(78));
+  console.log('CONSTRUCTION ORDER — does the sequence change the starting lineup?');
+  console.log('='.repeat(78));
+  console.log(`${rooms} PAIRED rooms (same seed across arms), seat ${MY}, valuation FIXED.`);
+  console.log('Objective: projected points of the STARTING lineup. Bench is worth zero.');
+  console.log('PRIOR from published work (12-team, 4th slot): ~86 pts between naive');
+  console.log('slot-filling and optimal, about 4.6% of the total.');
+  console.log('');
+}
 
 function runSet(roomName, seat, label) {
   const res = {}; armNames.forEach(a => { res[a] = []; });
@@ -441,9 +443,19 @@ const roomArg = (() => {
   const i = process.argv.indexOf('--room');
   return i > 0 && process.argv[i + 1] ? process.argv[i + 1] : 'adp';
 })();
-runSet(roomArg, MY, `ROOM: ${roomArg} · SEAT ${MY}`);
 
-if (varyRooms) {
-  ['reachy', 'qb_early', 'rb_run', 'profiled'].forEach(r => runSet(r, MY, `ROOM: ${r} · SEAT ${MY}`));
-  [2, 5].forEach(s => runSet('adp', s, `ROOM: adp · SEAT ${s}`));
+/* CLI-GUARDED so the ROOM MODELS can be required by another tool instead of
+ * copied into it. `room_tail_calibration.js` scores these same functions against
+ * the real drafts, and a second copy of them would be a harness that could
+ * disagree with the one whose results are being defended. */
+if (require.main === module) {
+  banner();
+  runSet(roomArg, MY, `ROOM: ${roomArg} · SEAT ${MY}`);
+
+  if (varyRooms) {
+    ['reachy', 'qb_early', 'rb_run', 'profiled'].forEach(r => runSet(r, MY, `ROOM: ${r} · SEAT ${MY}`));
+    [2, 5].forEach(s => runSet('adp', s, `ROOM: adp · SEAT ${s}`));
+  }
 }
+
+module.exports = { ROOMS, DATA, TEAMS, ROUNDS, MY, rng, adpOf, projOf };
