@@ -1,0 +1,14 @@
+{
+  "artifact": "cross-tool coherence — analyzer vs lineup-implied playoff odds",
+  "written_by": "draft/tools/coherence_run.js",
+  "tol_prob": 0.15,
+  "tol_wins": 1,
+  "checkpoints": 9,
+  "identity_holds_everywhere": true,
+  "worst_d_playoff_prob": 0.2247,
+  "worst_d_exp_wins": 1.821,
+  "diverges": true,
+  "status": "KNOWN OPEN DIVERGENCE — not an accepted tolerance",
+  "why": "the two surfaces model the same games differently: the claims side treats team strength as a known constant (season points-for, frozen) so outcomes compound toward certainty, while the analyzer carries score variance explicitly. Both now emit gradeable forecasts of the same quantity, so a season of Brier settles which is right rather than an argument.",
+  "do_not": "resolve this by making one side copy the other before the grading exists — that would pick a winner by fiat and destroy the only evidence that could have chosen one."
+}

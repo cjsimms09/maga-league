@@ -344,6 +344,59 @@ def check_components():
                 n=len(rows or []))
 
 
+def check_coherence():
+    """CROSS-TOOL COHERENCE — the analyzer's playoff odds vs the lineup tool's.
+
+    THE FINDING THIS WATCHES. Measured 2026-08-12 across nine season-checkpoints:
+    eight of nine diverge beyond the declared tolerance, worst 22pp of playoff
+    probability and 1.82 expected wins. The exact identity (win probabilities
+    across a week sum to the game count) holds in all 74 week-checks, so this is
+    not arithmetic in either surface -- it is two different beliefs about the
+    same games, and nothing compared them until now.
+
+    WHY AN ENVELOPE RATHER THAN A HARD FAIL. The divergence is real and OPEN. A
+    check that went red on day one and stayed red would be ignored inside a
+    month, and the resolution is not a code change -- both surfaces now emit
+    gradeable forecasts of the same quantity, so a season of Brier decides which
+    is right. This escalates when the disagreement gets WORSE than what was
+    measured, which is the thing that would mean something new is wrong.
+
+    RECORDING AN ENVELOPE IS NOT BLESSING THE DIVERGENCE, and the artifact says
+    so in its own `status` field.
+    """
+    p = ROOT / "draft" / "data" / "coherence.json"
+    if not p.exists():
+        return _row("coherence", "quiet",
+                    "not measured yet — run `node draft/tools/coherence_run.js`", n=0)
+    try:
+        d = json.loads(p.read_text())
+    except (ValueError, OSError) as e:
+        return _row("coherence", "BLIND", f"unreadable: {type(e).__name__}")
+
+    # The measured worst case on 2026-08-12, recorded so a WIDENING is visible.
+    ENVELOPE_PROB, ENVELOPE_WINS = 0.25, 2.0
+    wp = float(d.get("worst_d_playoff_prob") or 0.0)
+    ww = float(d.get("worst_d_exp_wins") or 0.0)
+
+    # THE IDENTITY IS NOT NEGOTIABLE. It is exact by construction, so a failure
+    # there is a bug rather than a disagreement and escalates on its own.
+    if not d.get("identity_holds_everywhere"):
+        return _row("coherence", "ESCALATE",
+                    "the win-probability identity FAILED — probabilities across a "
+                    "week no longer sum to the number of games, which is exact by "
+                    "construction and therefore a bug, not a model disagreement")
+    if wp > ENVELOPE_PROB or ww > ENVELOPE_WINS:
+        return _row("coherence", "ESCALATE",
+                    f"the analyzer and the lineup tool now disagree by {wp*100:.0f}pp "
+                    f"and {ww:.2f} wins, beyond the {ENVELOPE_PROB*100:.0f}pp / "
+                    f"{ENVELOPE_WINS} recorded on 2026-08-12 — the divergence is "
+                    "WIDENING")
+    return _row("coherence", "quiet",
+                f"worst divergence {wp*100:.0f}pp / {ww:.2f} wins, within the "
+                f"recorded envelope. STILL AN OPEN DEFECT — the envelope watches "
+                f"for widening, it does not accept the gap", n=int(d.get("checkpoints") or 0))
+
+
 CHECKS = [
     check_market_snapshots,
     check_signal_b,
@@ -354,6 +407,7 @@ CHECKS = [
     check_pred_ledger,
     check_calibration_drift,
     check_components,
+    check_coherence,
 ]
 
 

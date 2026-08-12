@@ -50,6 +50,25 @@
   # the one job whose SCHEDULE is part of its correctness.
   schedule = "0 13 * * 0"
 
+[functions."analyzer-cron"]
+  # Sunday 13:05 UTC — five minutes behind claims-cron, on the same reasoning:
+  # a belief committed after the games is not a prediction.
+  #
+  # WHAT IT RECORDS AND WHY IT CANNOT WAIT. The analyzer computes a playoff
+  # probability and an expected win total for every team on every render and
+  # writes none of it — routes/standings.js requires `lineup` and `playoffs` and
+  # nothing else, so its beliefs live for one HTTP response. Its only grading is
+  # validateStandings(), which re-derives 2023-25 predictions today: a backtest,
+  # not a forward record. A WEEK-4 CHECKPOINT CANNOT BE RECORDED IN WEEK 12.
+  #
+  # It projects through liveWeek-1, not liveWeek: teamStrength reads weeks
+  # 1..throughWeek, so the week in progress would feed it a week of zeros.
+  #
+  # It EMITS ONLY. Resolution of a checkpoint is a separate pass over forecasts
+  # written on earlier runs, once the regular season is final — a job that
+  # emitted and resolved in one pass could settle a forecast it had just made.
+  schedule = "5 13 * * 0"
+
 [functions."app"]
   # EJS templates are read from disk at render time, so they must ship
   # alongside the bundled function code. STATUS.md + DECISIONS-NEEDED.md ship too
