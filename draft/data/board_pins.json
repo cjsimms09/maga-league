@@ -4,12 +4,64 @@
  "series": [
   {
    "observed_at": "2026-08-12",
-   "commit": "3d2c39429d1a87681e83f495536c5f8e47d87acb",
+   "commit": "12c187e0bb8bd05e3e6d3c66b8e6aa9a826a7ae0",
    "path": "public/draft_data.json",
-   "sha256": "8f1f4549a7ab1c5bd6c0d95c261476f7132b847105e5b16fa7f18f247ab39c71",
-   "n_players": 1760,
-   "built_at": "2026-08-11T18:33:45Z",
-   "recover_with": "git show 3d2c39429d1a87681e83f495536c5f8e47d87acb:public/draft_data.json"
+   "sha256": "dfbfa7e31ea8535e4a57066a48246547af1df3f4ad143d522b11fdeaca078423",
+   "n_players": 1759,
+   "built_at": "2026-08-12T09:19:29Z",
+   "recover_with": "git show 12c187e0bb8bd05e3e6d3c66b8e6aa9a826a7ae0:public/draft_data.json"
   }
- ]
+ ],
+ "population": {
+  "version": "field-population/v1",
+  "rows": 1,
+  "fields": {
+   "observed_at": {
+    "present": 1,
+    "null": 0,
+    "missing": 0,
+    "pct": 100.0
+   },
+   "commit": {
+    "present": 1,
+    "null": 0,
+    "missing": 0,
+    "pct": 100.0
+   },
+   "path": {
+    "present": 1,
+    "null": 0,
+    "missing": 0,
+    "pct": 100.0
+   },
+   "sha256": {
+    "present": 1,
+    "null": 0,
+    "missing": 0,
+    "pct": 100.0
+   },
+   "n_players": {
+    "present": 1,
+    "null": 0,
+    "missing": 0,
+    "pct": 100.0
+   },
+   "built_at": {
+    "present": 1,
+    "null": 0,
+    "missing": 0,
+    "pct": 100.0
+   },
+   "recover_with": {
+    "present": 1,
+    "null": 0,
+    "missing": 0,
+    "pct": 100.0
+   }
+  },
+  "empty": [],
+  "partial": [],
+  "absent_fields": [],
+  "note": "Field population measured at write time from the bytes actually committed. `empty` fields are DECLARED BY THE PRODUCER AND NEVER DELIVERED \u2014 ask why before concluding the source has no such data."
+ }
 }
