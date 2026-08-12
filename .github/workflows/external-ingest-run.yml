@@ -378,7 +378,20 @@ jobs:
           git diff --cached --quiet && { echo "no change"; exit 0; }
           # [skip deploy]: a data archive under draft/, which the deploy gate skips.
           git commit -m "C: format census row [skip deploy]"
-          git pull --rebase origin main && git push
+          # RETRY THE RACE, for the reason this step's own name gives. MFL's
+          # public pool is a moving population — leagues change scoring, change
+          # size, are deleted and created — so a census row lost to a push race
+          # is a lost observation, not a deferred one. This runs monthly, so a
+          # dropped row is a twelfth of the series.
+          for i in 1 2 3 4 5; do
+            git fetch origin main
+            git rebase origin/main || { echo "REBASE CONFLICT — reporting, not forcing"; exit 1; }
+            if git push origin HEAD:main; then echo "census row pushed"; exit 0; fi
+            echo "push race, retry $i"; sleep 3
+          done
+          echo "CENSUS ROW COULD NOT BE PUSHED after retries — this month's"
+          echo "observation of the pool is lost and cannot be reconstructed."
+          exit 1
       - uses: actions/upload-artifact@v4
         if: always()
         with:

@@ -175,4 +175,21 @@ jobs:
           # gate already skips. The marker is belt-and-braces, not a substitute
           # for the gate.
           git commit -m "D3: external ADP snapshot [skip deploy]"
-          git pull --rebase origin main && git push
+          # RETRY THE RACE. A single `pull --rebase && push` loses the whole day
+          # if anything lands in the gap, and the day cannot be refetched — no
+          # provider serves a board as of a past date, so a lost push is a
+          # permanently lost observation rather than a deferred one.
+          #
+          # THE COLLISION IS NOT HYPOTHETICAL: draft-data.yml runs `0 11 * * 2`
+          # and this runs `20 11 * * *`, twenty minutes behind it every Tuesday.
+          # Same shape and same reasoning as backtest.yml, which already retries
+          # for a report that IS regenerable.
+          for i in 1 2 3 4 5; do
+            git fetch origin main
+            git rebase origin/main || { echo "REBASE CONFLICT — reporting, not forcing"; exit 1; }
+            if git push origin HEAD:main; then echo "snapshot pushed"; exit 0; fi
+            echo "push race, retry $i"; sleep 3
+          done
+          echo "SNAPSHOT COULD NOT BE PUSHED after retries — TODAY'S BOARD IS LOST"
+          echo "and cannot be refetched. Rerun today, not tomorrow."
+          exit 1
