@@ -351,10 +351,27 @@ def test_an_UNPLAYED_season_says_IN_THE_VERDICT_that_it_measured_nothing():
     the reader has no way to tell which one they are looking at."""
     ready = {"season": 2026, "state": "UNPLAYED", "why": "2026 served no weekly data "
              "while the control season 2025 served 18 REG weeks"}
-    v = R.readiness_verdict(ready, {"matched": 0})
-    assert v.startswith("THIS RUN MEASURED NOTHING ABOUT THE LEAGUES")
+    # The attrition table is what says WHICH leagues the calendar blocked, and this
+    # fixture now supplies one — every real run has it. Passing `{"matched": 0}`
+    # alone left the cause unevidenced, which is its own verdict now (below).
+    v = R.readiness_verdict(ready, {"matched": 0,
+                                    "rejected_by_reason": {"F4.no_weekly_outcomes": 40}})
+    assert "MEASURED NOTHING ABOUT THE LEAGUES FOR 40 OF THEM" in v, v
     assert "not a finding about the pool" in v
     assert "control season 2025" in v
+
+
+def test_an_unplayed_run_with_NO_ATTRITION_TABLE_claims_neither_cause():
+    """A third state, and it must not silently pick a branch. With no attrition table
+    there is no evidence that the calendar blocked anything OR that format did, and
+    asserting either is the exact failure this function was corrected for.
+
+    MUTATION: fall back to the calendar sentence. A run with no table reports a cause
+    it never measured."""
+    v = R.readiness_verdict({"season": 2026, "state": "UNPLAYED", "why": "not played"},
+                            {"matched": 0})
+    assert "NO ATTRITION TABLE" in v and "cannot be stated here" in v, v
+    assert "Do not read this zero as either one" in v, v
 
 
 def test_an_UNFETCHABLE_run_and_an_UNPLAYED_run_do_NOT_read_the_same():
@@ -1173,3 +1190,77 @@ def test_a_saturated_league_cannot_reach_the_NUMERATOR_either():
                              "grades": grades})
     assert "0 of 1 leagues that could discriminate" in v
     assert "1 league(s) are EXCLUDED" in v
+
+
+# ── THE CALENDAR VERDICT CONTRADICTED THE ATTRITION TABLE (run 13, 2026-08-12) ──
+def _rejected(reasons: dict) -> dict:
+    return {"matched": 0, "rejected_by_reason": dict(reasons)}
+
+
+_UNPLAYED = {"state": "UNPLAYED", "season": 2026,
+             "why": "2026 served no weekly data while 2025 served 18 REG weeks"}
+
+
+def test_an_unplayed_season_does_NOT_claim_the_calendar_when_nothing_reached_it():
+    """RUN 13, MEASURED: 293 leagues attempted against 2026. The attrition table
+    carried ZERO leagues under `F4.no_weekly_outcomes` — all 266 readable ones were
+    rejected by F1, on format, before the calendar was ever consulted. The verdict
+    nonetheless announced "Every league is F4.no_weekly_data" and that NO CONCLUSION
+    ABOUT FORMAT PREVALENCE MAY BE DRAWN.
+
+    Two components of one run disagreeing about the same leagues, and the wrong one
+    suppressed the finding the outcomes-last reorder exists to produce.
+
+    The sentence was true while `screen()` checked outcomes FIRST. The reorder made
+    it false and nothing re-read it — a consumer written against the behaviour its
+    author believed in, not the one the producer emits.
+
+    MUTATION: assert the calendar unconditionally on any UNPLAYED season. A run that
+    measured format across 266 leagues reports that it measured nothing."""
+    rep = _rejected({"F1.scoring_not_half_ppr": 163, "F1.teams": 57})
+    v = R.readiness_verdict(_UNPLAYED, rep)
+    assert "NOT ONE LEAGUE REACHED THE OUTCOME CHECK" in v, v
+    assert "IS a measurement" in v, v
+    assert "220 rejection(s) happened EARLIER" in v, v
+    # ...and it must NOT repeat the claim that was wrong.
+    assert "MEASURED NOTHING ABOUT THE LEAGUES" not in v, v
+    assert "no conclusion about format prevalence" not in v, v
+
+
+def test_but_when_leagues_DO_reach_the_calendar_it_still_says_so_and_counts_them():
+    """The guard this replaces is real and must survive: a league that cleared every
+    pre-season check and waits only on January produces a zero that is NOT a finding
+    about the pool. The fix is to COUNT those leagues from the attrition table rather
+    than assert them.
+
+    MUTATION: drop the calendar branch entirely. A genuinely unplayed-season zero
+    reads as a format verdict, which is D5h's original failure restored."""
+    rep = _rejected({"F4.no_weekly_outcomes": 30, "F1.teams": 5})
+    v = R.readiness_verdict(_UNPLAYED, rep)
+    assert "FOR 30 OF THEM" in v and "CALENDAR alone" in v, v
+    assert "OTHER 5 rejection(s)" in v, v
+
+
+def test_the_calendar_count_survives_a_reason_code_carrying_a_SUFFIX():
+    """Reason codes travel with detail attached — `F4.fetch_failed:http 429`. The
+    count must go through `reason_code`, not through equality on the raw key.
+
+    MUTATION: compare the raw key. Suffixed codes fall out of the count and a
+    calendar-blocked run reports that nothing reached the calendar.
+
+    NOT hypothetical: `outcomes_summary` already handles `F4.no_weekly_data:2025`, so
+    an outcome code carrying the season is a shape this codebase emits. The fixture
+    below suffixes the outcome code itself — an unsuffixed one would leave this test
+    passing under the mutation it names, which is how it was first written."""
+    rep = _rejected({"F4.no_weekly_outcomes:2026": 12,
+                     "F4.fetch_failed:draftResults: http 429 Too Many Requests": 10})
+    v = R.readiness_verdict(_UNPLAYED, rep)
+    assert "FOR 12 OF THEM" in v and "OTHER 10 rejection(s)" in v, v
+
+
+def test_a_PLAYED_season_verdict_is_untouched_by_any_of_this():
+    """If this fails, the correction changed the ordinary path — the one that reports
+    a real measurement — while fixing the exceptional one."""
+    v = R.readiness_verdict({"state": "COMPLETE", "season": 2025, "reg_weeks": 18},
+                            {"matched": 7, "rejected_by_reason": {"F1.teams": 3}})
+    assert v == "season 2025 COMPLETE (18 REG weeks); 7 matched league-seasons"
