@@ -667,14 +667,24 @@ plausible number", the boundary needs a test, not a comment. **A harness that su
 production leaves empty is not a harness, it is a different system** — and every quantity measured
 on it describes a configuration that has never shipped.
 
-**17a — AN ALARM MUST NOT SHARE A FAILURE PATH WITH THE THING IT WATCHES.** C, 2026-08-12.
+**17a — A MONITOR SHARING A JOB WITH THE THING IT MONITORS MUST NOT BE ABLE TO DISCARD ITS
+SUBJECT.** C, 2026-08-12, in C's words.
 A monitor placed in the same job as its subject, ahead of the step that PERSISTS that subject,
 destroys the evidence it exists to protect: a failed step aborts the job, so **on the exact run
 that recovers from an outage, the alarm discards that day too, then fires again tomorrow,
 forever.** Found in `market-capture.yml`, where the health gate's `sys.exit(1)` preceded an
 uncommitted snapshot — and the counter driving the gate lived in the same uncommitted file, so
-the arithmetic could never move. **PRESERVE BEFORE YOU ALARM:** the persisting step runs first
+the arithmetic could never move. The gate's own reasoning inverts on it: it calls a run of
+incompletes "a hole being written into an unrecoverable window", then discards the thirteen real
+snapshots that run just wrote. **PRESERVE BEFORE YOU ALARM:** the persisting step runs first
 and unconditionally; the gate runs last, where its exit code is still the job's verdict.
+
+*And the discriminator, which is the useful half of C's sweep of all thirty-seven workflows —
+three hits, only one real.* A skipped save is **correct** where the job failed because there is
+nothing worth saving (`market-probe`, `mfl-schema-probe`: "there is no data"). The hazard needs
+a failure condition **ORTHOGONAL to whether there is something worth saving** — which is exactly
+what a staleness or completeness counter is. So the question to ask of any gate-before-save is
+not "could this abort" but **"can this abort on a run that produced good data?"**
 
 **17b — A BAR IS ONLY A MONITOR IF IT CAN FIRE INSIDE THE WINDOW IT PROTECTS.** C, 2026-08-12.
 The standing check watched the perishable daily ADP capture with a **10-day** staleness bar,
