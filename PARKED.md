@@ -7051,3 +7051,73 @@ ADP that describe THIS season?
 the 2025 season and only part of the 2026 offseason. **I will not assert a team change or a
 retirement from memory.** Where the answer needs a fact I cannot source, I will say so and name
 the check that settles it rather than guess — the same as the Sleeper `active` flag.
+
+### RESULT OF THE PRE-DECLARED SAMPLE — THE BOARD IS A 2026 BOARD (C, 2026-08-12)
+
+**15 of 15 check out.** I would rather report this than find a problem to match the complaint.
+
+    name                pos team rank    adp  proj_mn  age exp   verdict
+    Ja'Marr Chase       WR  CIN  kept   3.00   295.09   26   5   ok
+    Bijan Robinson      RB  ATL     2   1.67   336.83   24   3   ok
+    Puka Nacua          WR  LAR     3   4.00   297.85   25   3   ok
+    Christian McCaffrey RB  SF      4   5.00   294.40   30   9   ok
+    Justin Jefferson    WR  MIN     9  11.00   236.21   27   6   ok
+    Derrick Henry       RB  BAL  kept  21.67   274.16   32  10   ok
+    Cam Skattebo        RB  NYG    32  37.67   188.53   24   1   ok (2025 rookie)
+    Luther Burden       WR  CHI    45  48.33   172.67   22   1   ok (2025 rookie)
+    Davante Adams       WR  LAR    55  57.00   180.18   33  12   ok (2025 FA move)
+    Jayden Daniels      QB  WAS    57  59.33   341.72   25   2   ok
+    Mark Andrews        TE  BAL   112 115.67   150.72   30   8   ok
+    Stefon Diggs        WR  WAS   123 131.67   134.82   32  11   see below
+    Oronde Gadsden      TE  LAC   130 140.33   118.54   23   1   ok (2025 rookie)
+    Aaron Rodgers       QB  PIT   140 147.00   206.00   42  21   ok (2025 FA move)
+    Cooper Kupp         WR  SEA   284 264.00    75.95   33   9   ok (2025 FA move)
+
+**EVERY AGE AND EXPERIENCE VALUE IS CORRECT FOR 2026.** Rodgers reads 42 / exp 21 — right for a
+1983-born 2005 draftee. Three 2025 rookies carry `exp 1`. Three 2025 free-agency moves are
+reflected (Kupp→SEA, Adams→LAR, Rodgers→PIT). **Contrast Marshawn Lynch at age 35 / exp 15 —
+frozen at roughly his last active season.** Sleeper freezes a retired player's record and keeps
+updating an active one, so *the age field is itself a usable staleness discriminator* and it
+says these players are live.
+
+**AND THE PROJECTIONS ARE RE-FETCHED, NOT CACHED.** `proj_series.json` holds 7 snapshots across
+2026-08-09..08-12 from BOTH providers, 400 players each. Between the first and last:
+
+    fantasypros   86 of 372 players changed (23%)   max move 28.07
+    sleeper        4 of 400 changed  (1%)           max move  7.80
+
+Both are live. Worth noting which is which: **the value the model uses is built on the source
+that moves least.** Not a defect — season-long projections should be stable in August — but it
+is the opposite of what "consensus" implies.
+
+### STEFON DIGGS IS NOT MISPRICED, AND THE NUMBERS SAY SO PLAINLY
+
+    adp 131.67  = ROUND 14 in a 10-team draft, not round 9.  WR50 of 665.
+    vorp -37.85 = overall VORP rank 188 of 1759.
+    depth_chart_order 2, bye 7, injury_status None, age 32, exp 11.
+
+**Neither the market number nor the model number puts him anywhere near the ninth round.** So
+whatever surfaced him there is neither his ADP nor his VORP, and it is in the recommendation
+path — A's, not the data.
+
+**BUT HE IS A GOOD CATCH FOR A DIFFERENT REASON, and it lands on the finding above.** His two
+sources disagree by 26.1 points — sleeper 125.3, fantasypros 99.22, the 74th percentile of
+spread. So the CARD shows `(125.3 + 99.22) / 2 = 112.3` while the MODEL ranks him on 134.82.
+**A 22.5-point gap, on the exact player whose price looked wrong.** If the number on screen felt
+inconsistent with where the tool placed him, that gap is the first thing I would look at.
+
+### WHAT I CANNOT CHECK, AND THE CHECK THAT SETTLES IT
+
+**Diggs on WAS.** My training runs to May 2026; a 2026 free-agency move is past it and I will
+not assert one from memory. **All three providers are egress-blocked from this container** —
+verified, not assumed: `api.fantasypros.com`, `fantasyfootballcalculator.com` and
+`api.sleeper.app` all fail at CONNECT.
+
+**ONE LINE IN CI, where the board build already fetches all three:**
+
+    print({p["full_name"]: (p.get("team"), p.get("active"), p.get("status"))
+           for p in raw.values() if p["full_name"] in SAMPLE})
+
+Run it in `draft-data.yml`, which already authenticates to Sleeper every morning. If `team`
+comes back `WAS` the board is right and Cory's instinct was about the recommendation, not the
+price. **That is the whole remaining question — one field, one workflow that already runs.**
