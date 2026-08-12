@@ -44,14 +44,48 @@ VONA is a survival-weighted expectation and `MEASURED_WEIGHTS.value = 1.0`.
 Measured (`draft/tools/survival_sensitivity.js`), mean ΔVONA for the best
 available player at each position across Cory's twelve picks:
 
-| survival over-predicted by | QB | RB | WR | TE | **spread** |
-|---|---|---|---|---|---|
-| 15% | +1.5 | +2.0 | +1.0 | +0.9 | **1.1** |
-| 40% | +4.8 | +6.4 | +3.1 | +3.2 | **3.3** |
-| 57% (worst window) | +9.1 | +11.3 | +5.7 | +5.8 | **5.6** |
+| survival over-predicted by | QB | RB | WR | TE | K | DEF | **spread** |
+|---|---|---|---|---|---|---|---|
+| 15% | +1.5 | +2.0 | +1.0 | +0.9 | +0.5 | +0.4 | **1.6** |
+| 40% | +4.8 | +6.4 | +3.1 | +3.2 | +1.1 | +1.5 | **5.3** |
+| 57% (worst window) | +9.1 | +11.3 | +5.7 | +5.8 | +1.8 | +2.8 | **9.5** |
 
 Against `COIN_FLIP_GAP` 1.0, `TIE_THRESHOLD` 2.0, `CLOSE_GAP` 3.5. **Even the
-mild end exceeds coin-flip; the worst end exceeds close-gap by 60%.** VONA is
+mild end exceeds coin-flip; the worst end is 2.7x close-gap.**
+
+*The first version of this table measured four positions and reported the worst
+spread as 5.6. Cory asked what it did for the others. K and DEF are mandatory
+starting slots that get drafted, and they sit at the BOTTOM of the range — so
+leaving them out did not just omit two rows, it understated the spread by 70%.
+Measuring four of six and calling it a positional table is the same shape as a
+signature that never called the surfaces it was scoring.*
+
+**WHY K AND DEF BARELY MOVE, measured rather than assumed:**
+
+| pos | proj of best | drop to 5th | drop to 10th | mean survival to next pick |
+|---|---|---|---|---|
+| QB | 406 | 26.4 | 61.4 | 0.841 |
+| RB | 345 | 33.3 | 57.4 | 0.775 |
+| WR | 298 | 15.6 | 29.7 | 0.751 |
+| TE | 233 | 19.5 | 35.0 | 0.878 |
+| K | 107 | 6.5 | **9.3** | **0.986** |
+| DEF | 114 | 9.3 | **14.3** | **0.970** |
+
+Sensitivity is the product of positional SPREAD and survival UNCERTAINTY, and
+K/DEF are near the floor on both: everybody survives, and the tenth-best is 9-14
+points off the best. `eba` is close to the best player's projection whatever the
+scaling, so it barely moves. **The model is right that waiting costs nothing at
+K and DEF.**
+
+**AND THAT ROBUSTNESS HAS A COROLLARY THAT IS NOT GOOD.** Because correcting the
+over-prediction lifts RB/QB by 9-11 points and K/DEF by 2-3, the CURRENT
+uncorrected state over-values K and DEF by roughly **9 points relative to RB** —
+2.6x `CLOSE_GAP`. That is a measured, quantitative CANDIDATE for item 3, the
+magnitude complaint: *"a defence with a 15-point winnable surplus and a kicker
+with 10 pulled forward 140 rank positions."* It is a candidate and not a
+conclusion, because it is contingent on survival actually over-predicting by
+something near that range — which is C's measurement from a different window and
+has not been re-established on this board. VONA is
 compared *across* positions to pick, so an uneven shift does not cancel — it
 reorders the board.
 

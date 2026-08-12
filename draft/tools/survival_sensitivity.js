@@ -88,7 +88,14 @@ function ebaAt(playersAtPos, nextPick, ctx, scale) {
 }
 
 const MY = [30, 45, 50, 65, 70, 85, 90, 105, 110, 125, 130, 145];
-const POS = ['QB', 'RB', 'WR', 'TE'];
+/* K AND DEF ARE IN THE TABLE, AND THE FIRST VERSION LEFT THEM OUT.
+ * Cory asked what it did for the other positions and the answer was that I had
+ * not looked. They are mandatory starting slots, they get drafted, and they are
+ * the positions the magnitude complaint is ABOUT — "a defence with a 15-point
+ * winnable surplus and a kicker with 10 pulled forward 140 rank positions".
+ * Measuring four of six and calling it a positional table is the same shape as
+ * a signature that never called the surfaces it was scoring. */
+const POS = ['QB', 'RB', 'WR', 'TE', 'K', 'DEF'];
 
 function stateAt(pick) {
   const taken = new Set(byAdp.slice(0, pick - 1).map(p => String(p.player_id)));
@@ -110,8 +117,8 @@ console.log('  and eba is a survival-weighted sum. MEASURED_WEIGHTS.value = '
 console.log('  Change in VONA for the best available player at each position,');
 console.log('  averaged over Cory\'s twelve picks. POSITIVE = VONA rises when the');
 console.log('  over-prediction is corrected.\n');
-console.log('  scale  meaning                               ' + POS.map(p => p.padEnd(9)).join(''));
-console.log('  ' + '-'.repeat(84));
+console.log('  scale  meaning                               ' + POS.map(p => p.padEnd(8)).join(''));
+console.log('  ' + '-'.repeat(94));
 
 const SCALES = [
   [0.85, 'over-predicted by 15%'],
@@ -138,7 +145,7 @@ SCALES.forEach(([sc, label]) => {
     ? acc[p].reduce((s, v) => s + v, 0) / acc[p].length : NaN);
   rows.push({ sc, label, by: Object.fromEntries(POS.map(p => [p, mean(p)])) });
   console.log('  ' + sc.toFixed(2).padEnd(7) + label.padEnd(38)
-    + POS.map(p => (mean(p) >= 0 ? '+' : '') + mean(p).toFixed(1)).map(x => x.padEnd(9)).join(''));
+    + POS.map(p => (isFinite(mean(p)) ? ((mean(p) >= 0 ? '+' : '') + mean(p).toFixed(1)) : 'n/a')).map(x => x.padEnd(8)).join(''));
 });
 
 /* CONTROL — the one that caught two dead probes before this one. */
