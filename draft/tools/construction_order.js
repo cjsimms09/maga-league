@@ -294,6 +294,12 @@ const ROOMS = {
   },
 };
 
+/* Counters for the two ways a draft can end SHORT — an arm throwing, and an arm
+ * returning nothing. Both produce holes, and neither is a strategy result. */
+const ARM_ERRORS = {};
+const ARM_ERR_SEEN = {};
+const ARM_EMPTY = {};
+
 function simulate(seed, armName, roomName, seat) {
   const rand = rng(seed);
   const mySeat = seat || MY;
@@ -324,9 +330,27 @@ function simulate(seed, armName, roomName, seat) {
       currentPick: o, nextPick: nx, totalPicks: TEAMS * ROUNDS,
       myPicksLeft: [...mine].filter(x => x >= o).length,
       roundsLeft: ROUNDS - Math.ceil(o / TEAMS) + 1, runMultipliers: {}, intervening: win };
+    /* ⚠️ THIS CATCH USED TO BE SILENT, AND A SILENT ONE HERE MANUFACTURES THE
+     * EXACT DEFECT THE TABLE REPORTS. An arm that throws mid-draft breaks the
+     * loop, the roster ends SHORT, and `startingStrength` scores the missing
+     * slots as HOLES. So "lookahead_2 left 44 starting slots empty" and
+     * "lookahead_2 crashed in 44 drafts" would print identically, and I would
+     * have read a stack trace as a strategy finding. Same swallowed-error
+     * pattern this project has now hit six times — this one was mine, in the
+     * instrument I was about to draw a conclusion from.
+     *
+     * Control flow is UNCHANGED (still breaks) so the numbers stay comparable
+     * with the runs already taken; only the silence is removed. */
     let p;
-    try { p = ARMS[armName](ctx); } catch (e) { break; }
-    if (!p) break;
+    try { p = ARMS[armName](ctx); } catch (e) {
+      ARM_ERRORS[armName] = (ARM_ERRORS[armName] || 0) + 1;
+      if (!ARM_ERR_SEEN[armName]) {
+        ARM_ERR_SEEN[armName] = true;
+        console.error(`   !! ARM THREW — ${armName} @ pick ${o} in room ${roomName}: ${e && e.message}`);
+      }
+      break;
+    }
+    if (!p) { ARM_EMPTY[armName] = (ARM_EMPTY[armName] || 0) + 1; break; }
     order.push(p.position);
     gone.add(String(p.player_id)); roster.push(p); opp[mySeat].push(p);
   }
@@ -380,6 +404,27 @@ function runSet(roomName, seat, label) {
   });
   console.log(`   shipped mean ${base.toFixed(1)} — the 86-pt published gap would be `
     + `${(86 / base * 100).toFixed(1)}% of it`);
+
+  /* THE PICK SHAPES WERE COLLECTED AND NEVER PRINTED — rule 14 in my own tool,
+   * and the omission mattered: the shape is the only thing in this harness that
+   * says WHY an arm won. A mean says an arm is better; the modal position order
+   * says what it did differently. */
+  console.log('   modal 12-pick shape (position order, most common of ' + rooms + '):');
+  armNames.forEach(a => {
+    const top = Object.keys(shapes[a]).sort((x, y) => shapes[a][y] - shapes[a][x])[0];
+    const n = top ? shapes[a][top] : 0;
+    console.log(`     ${a.padEnd(18)} ${String(top || '—').padEnd(16)} ${n}/${rooms}`
+      + `   distinct shapes: ${Object.keys(shapes[a]).length}`);
+  });
+
+  /* AND THE HOLES COLUMN IS ONLY READABLE NEXT TO THIS. A draft that ends short
+   * because the arm threw scores identically to one that ends short because the
+   * arm chose badly. Stated every run, including when it is zero. */
+  const errLines = armNames
+    .filter(a => ARM_ERRORS[a] || ARM_EMPTY[a])
+    .map(a => `${a}: ${ARM_ERRORS[a] || 0} threw, ${ARM_EMPTY[a] || 0} returned nothing`);
+  console.log('   short-draft causes: ' + (errLines.length ? errLines.join('; ')
+    : 'NONE — no arm threw and no arm returned nothing, so every hole above is a CHOICE'));
   console.log('');
   return res;
 }
