@@ -8201,3 +8201,77 @@ wrong**. Leaving a function named `as_store_snapshots` that silently emits forei
 under `player_id` re-arms the exact trap I spent today removing, and the next person to
 reach for the obvious name gets the defect back. A correct design waiting on one answer
 beats a shipped trap. **Holding.**
+
+---
+
+## 📏 A NAMED CHECK — READ THE CALLER BEFORE YOU REPORT THE CALLEE (Cory, 2026-08-12)
+
+**Cory's wording:** *before reporting that a function behaves wrongly, read what actually
+calls it. A function misbehaving outside its precondition, or a field absent under a name
+nothing uses, is not a defect — it is a report about your own reading.*
+
+**It fired three times in one day, and only one of the three was a real defect:**
+
+| what I saw | what the caller said | verdict |
+|---|---|---|
+| `resume_alarm` returns "MISSED AT LEAST YESTERDAY" on a healthy archive | the workflow gates escalation on `resumed == '1'`, so it never prints on a healthy day | **not a defect** |
+| the home ADP series has `observed_at: None` on every snapshot | it stamps `date`, and every real consumer reads `date` | **my error** |
+| `crosswalk_map` should just call `adp.match_player` — it is the authoritative matcher | the authoritative CALLER refuses MFL team units first; "Bills, Buffalo" normalises onto our Buffalo DEF and matches by name. Measured without that guard: **TMQB → DEF 65×, TMPK → DEF 38×** | **a real defect, in my own fix** |
+
+**The third is why the check matters more than the first two.** The first two would have
+been confident wrong reports about someone else's code — embarrassing, cheap to retract.
+The third was a defect I was actively writing, and reaching for the *authoritative function*
+felt like exactly the right instinct. It was not enough. **The guard lived in the caller.**
+
+**So the check is not "be careful before criticising others."** It is: *a function's
+contract includes its preconditions and its callers' guards, and neither is visible from
+the function body.* Reading the definition tells you what it does. Reading the call site
+tells you what it is FOR.
+
+---
+
+## 🔧 THE PRE-DECLARED MEASUREMENT IS BUILT AND WAITING ON ITS INPUT (C, 2026-08-12)
+
+`draft/backtest/board_vs_market.py` + 9 tests. It implements the sample registered above
+**before** it was inspected — 10×15 = 150 picks, the 200 shoulder beside it, `fantasypros`
+and `ffc` as the only real prices, the latest snapshot rather than a blend. It reports and
+stops: no board adjustment, no blend, no score anything consumes (rule 9).
+
+**EGRESS CONFIRMED CLOSED RATHER THAN ASSUMED.** I tested it instead of repeating what the
+routing note said: `api.myfantasyleague.com:443` returns *"gateway answered 403 to CONNECT
+(policy denial)"*, and the proxy's own status endpoint records the rejection. So the names
+arrive with the 11:20Z capture in CI, not from here.
+
+**RUN AGAINST TODAY'S REAL ARCHIVE, IT REFUSES CORRECTLY:**
+
+```
+controls: 2/2 passed || NO MARKET ROW INSIDE THE RANGE CROSSWALKED —
+this is a statement about the crosswalk, not about the board's pricing.
+```
+
+Which is the whole point: with no decode key it does **not** report a clean board.
+
+### TWO DEFECTS THE BREAK-FIRST TESTS CAUGHT IN MY OWN PROBE
+
+**1. A CONTROL THAT COULD PASS ON AN EMPTY SET.** The round-trip control expected
+`crosswalked == len(named)`. Handed a board with no usable names, it returned `0 == 0` and
+went **green** — so a dead crosswalk certified itself and the verdict read *"THE BOARD'S
+PRICING IS SOUND"*. That is the absent-is-not-zero failure one level below where
+`positive_control.run` already refuses it: it guards an empty control LIST, and this was an
+empty control INPUT. The control now refuses outright when there is nothing to check.
+
+**2. THE RANGE WAS A LIST SLICE, NOT A PICK NUMBER.** `ranked[:150]` takes the market's
+first 150 ROWS, so the comparison depended on how many players the provider returned that
+day rather than on the pick Cory can reach. The pre-declaration registered *"the market
+takes them inside 150 picks"* — an ADP threshold. **On a full board the two nearly
+coincide, which is exactly why it would have survived review.** Measured: 708 market rows,
+and **170** have ADP ≤ 150, not 150.
+
+### SCALE REHEARSED, AND THE NUMBER IT PRODUCED IS NOT A FINDING
+
+708 market ids × 1,759 board rows, **0.2s**, controls green, 708/708 crosswalked. The
+decode key was **SYNTHETIC** — our own board's names pinned to the real market ids in ADP
+order — so its verdict (*"prices every one"*) is an artifact of how I built the key and
+says nothing whatever about the board. Recorded as a performance and coherence check only.
+
+**It runs for real when the archive carries names.** Nothing else is needed from anyone.
