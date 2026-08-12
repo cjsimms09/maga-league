@@ -24,19 +24,76 @@
  *     times too small, which is the exact false precision this project has spent
  *     weeks removing.
  *
- * ── AND SURVIVAL IS THE ROW MOST LIKELY TO CARRY REAL POWER ─────────────────
+ * ── SURVIVAL, RESIZED 2026-08-12 AGAINST THE SAMPLE THAT WILL ACTUALLY EXIST ─
  *
- * It looks like the softest component and is probably the best-measured one.
- * Every replayed draft yields dozens of forecasts RESOLVABLE FROM ITS OWN LATER
- * PICKS — no weekly data, no outcomes, no January. A few hundred external
- * leagues gives a few hundred CLUSTERS and thousands of observations, against
- * the fourteen clusters a season of our own decisions produces.
+ * THIS ROW WAS WRITTEN ASSUMING "a few hundred external leagues". That was wrong
+ * and it was my number, not a measured one. C's Route 1 ceiling is TENS of
+ * qualifying drafts in one season, and the figure today is ZERO. An order of
+ * magnitude in the sample is not a caveat on a spec — it decides what the row is
+ * allowed to say.
  *
- * That is two orders of magnitude, and it lands on the component the draft-side
- * valuation rests on: VONA is computed FROM survival, and survival was ranked
- * third among the things most likely to be wrong. So if external replay
- * calibrates survival, VONA firms up, and the whole draft-side valuation firms
- * up with it — WITHOUT ANY STRATEGY COMPARISON EVER RUNNING.
+ * MEASURED, not argued (draft/backtest/survival_power.py, cluster = draft,
+ * 30 forecasts per draft, a shared per-draft shock because a positional run
+ * moves every forecast in the window together):
+ *
+ *     clusters │ detectable-effect floor (Brier)
+ *           10 │ 0.0199   — at the materiality bar. Not enough.
+ *           20 │ 0.0109   — roughly half the bar. ENOUGH.
+ *           40 │ 0.0071
+ *          100 │ 0.0051
+ *
+ * So against the declared bar of 0.02 Brier, **twenty replayed drafts is
+ * sufficient and ten is not**. That is inside C's ceiling rather than outside
+ * it, which is the opposite of what "resize down" implied — and it is only true
+ * because the bar was declared before the numbers arrived.
+ *
+ * `min_clusters` is therefore part of the spec. Below it the row reports
+ * `too_thin` and carries NO implication, which is the whole point of the
+ * distinction: a null at twelve drafts would otherwise read exactly like a null
+ * at two hundred.
+ *
+ * AND THE CLUSTERING DECLARATION MATTERS MORE AT THIS SIZE, NOT LESS. Treating
+ * each forecast as independent turns 20 drafts into ~600 "observations" and
+ * shrinks the floor by about sqrt(30) — a factor of five and a half of pure
+ * fiction. At three hundred clusters that error is embarrassing; at twenty it is
+ * the difference between measuring something and reporting that you did.
+ *
+ * THE FLOOR ABOVE IS OPTIMISTIC AT THE SMALL END, stated rather than buried: the
+ * test uses 1.96 rather than a t critical value, and its false-positive rate at
+ * 10 clusters measures 6.7% against a nominal 5%. That pushes the k=10 row
+ * further below the bar, not closer to it.
+ *
+ * ── AND C's MEASURED SUPPLY, WHICH DECIDES WHETHER 20 IS EVER REACHED ───────
+ *
+ * C routed the numbers (PARKED, 2026-08-12) and they are better than the relay
+ * on one axis and worse on the other:
+ *
+ *   · CONFIRMED, and generous: ONE replayed draft yields **60 forecasts, 40
+ *     resolved**, with no outcome data used. This file's floor was computed at
+ *     30 per draft, so it is CONSERVATIVE on that axis.
+ *   · CONTRADICTED: external qualifying drafts measured **0** — twice, against
+ *     real pools (394 attempted / 0 matched in 2025; 293 / 0 in 2026, every one
+ *     of the 266 readable leagues rejected by F1 on FORMAT before any other
+ *     clause was reached). F7 is answered and the answer is negative.
+ *
+ * SO THE HONEST SUPPLY TODAY IS ONE CLUSTER PER SEASON — our own draft — and
+ * zero from replay. Against `min_clusters: 20` that means **the survival row
+ * reads `too_thin` for the foreseeable future, and that is the correct output
+ * rather than a disappointment.** It is exactly the distinction this surface was
+ * built to make: "we cannot detect a difference" reported as itself, instead of
+ * a null at n=1 wearing the clothes of a null at n=200.
+ *
+ * The floor table is not wasted by that. It converts an open-ended "we need more
+ * drafts" into a STATED, FALSIFIABLE THRESHOLD — twenty — which is what any
+ * future source (non-MFL, or a dated re-registered F1, or Route 1's board
+ * series) now has to clear to make this row speak. Cory is not changing F1, so
+ * the threshold is a bar on the source, not an invitation to relax a filter.
+ *
+ * WHY IT STILL MATTERS AT ALL, WHICH IS THE COMPOSITION POINT: VONA is computed
+ * FROM survival, and survival was ranked third among the things most likely to
+ * be wrong. If external replay calibrates survival, VONA firms up and the whole
+ * draft-side valuation firms up with it — WITHOUT ANY STRATEGY COMPARISON EVER
+ * RUNNING.
  *
  * That is the composition mechanism, stated concretely rather than as a
  * principle: a component finding, followed to its implication, moves a
@@ -60,6 +117,10 @@ const SPECS = {
     // Resolvable from the draft's own later picks. No outcomes, no January.
     resolves_from: 'the replayed draft\'s own subsequent picks',
     cluster_is: 'draft',
+    // MEASURED, see the header. Below this the row is `too_thin` and carries no
+    // implication — 20 drafts puts the floor at 0.0109 Brier against a declared
+    // bar of 0.02; 10 drafts puts it at 0.0199, which is the bar itself.
+    min_clusters: 20,
     // A probability, so the metric is Brier and the bar is in Brier units.
     // 0.02 is roughly the difference between a curve that is useful for a
     // wait-or-take call and one that is decoration.

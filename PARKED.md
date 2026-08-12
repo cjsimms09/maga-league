@@ -4407,3 +4407,77 @@ so the next one is appended rather than renamed, since the next one blocks B as 
 **And I read the entry while I was there.** "The shipped weights recommend non-players
 from round 8" being OPEN and top-of-list ten days before a draft was worth knowing about;
 it is fixed, and this note is not asking you to revisit it.
+
+---
+
+# WINTER, NOT NOW — DOES THE ROOM REACH THE DECISION THROUGH SURVIVAL? (A, 2026-08-12)
+
+**Recorded on Cory's instruction, explicitly not started.**
+
+**THE FINDING THAT MAKES IT THE ONLY REMAINING ROUTE.** Three separate attempts
+to give the room a path to a decision measured **1.4% (manager profiles), 0.0%
+(room mixture) and 0.7% (the whole dossier)**. All three entered the composite as
+an additive or multiplicative adjustment to a VORP-dominated score, and all three
+arrived with roughly a thousandth of the weight a decision needs. That is one
+architectural fact discovered three times, not three failed features, and more
+seasons do not fix it.
+
+**THE SHAPE OF THE ALTERNATIVE.** *"He lasts to my next pick because these three
+managers do not take this position here"* is a claim about **TIMING**, not about
+value. Survival already sits in a structurally different place: it does not
+compete with VORP, it multiplies the window VONA is computed over. A room signal
+entering there is not a small term against a large one — it changes *which
+players are still on the board when I pick again*, which is the quantity the
+whole draft-side valuation is built on.
+
+**WHY IT IS NOT MERELY THE SAME IDEA AGAIN.** `withinFromPool` was supposed to be
+this and is room-blind at the decision — measured: it moves all 60 per-player
+pick probabilities by at most **0.00128**. The reason is visible in the
+arithmetic: it blends the room mixture against a *value* softmax whose scores
+span hundreds of VORP points, so the mixture is swamped before it reaches the
+window. The design question is whether the room can enter the **timing** layer
+without passing back through a value comparison — not whether to weight it
+higher, which is the thing that has now failed three times.
+
+**AND THE EVIDENCE QUESTION IS SEPARATE FROM THE ARCHITECTURE QUESTION**, which
+is why this is a winter design problem rather than a data problem. Today it is
+architecture-lacking AND evidence-lacking, and only one of those is fixed by
+waiting. Per-manager positional timing at n≈3 drafts is thin; the survival
+component row now declares `min_clusters: 20` against a measured floor, so the
+sample needed to *validate* such a model is at least stated.
+
+**Do not start it now.**
+
+---
+
+# THE DRAFT GEOMETRY MY HARNESSES ASSUME IS WRONG (A, 2026-08-12)
+
+**Found while checking Cory's pick formula, and it touches every number I
+produced today.**
+
+`public/draft_data.json` carries **3 kept_players, all of them mine**. The other
+nine teams' keepers are not in the artifact — they cannot be, until the slate
+confirms on the 20th. So every simulation harness computes my picks as
+`myPicks().slice(keeper_rules.count)` on a **150-pick** board: first pick 33,
+then 48, 53, 68, 73, 88, 93, 108, 113, 128, 133, 148.
+
+Cory's formula is `first pick = 41 − my slot − total league keepers`. With slot 8
+and only my 3 known, that is **30**. With a full slate (~30 keepers) it is far
+earlier in the live sequence, and the drafted board is ~120 picks, not 150.
+
+**WHAT THIS DOES AND DOES NOT INVALIDATE.**
+- **Pick NUMBERS and round labels in today's findings are nominal**, not live.
+  The count of my picks (12) is right either way.
+- **The bench-branch defect and its fix are not affected**, and the geometry
+  error made the defect look *milder* than it is. The ceiling gate reads
+  `pick / totalPicks` against `CEILING_LATE_FROM = 0.6`. At my round-8 pick the
+  harness computes 73/150 = 0.487; on a ~120-pick live board the same decision
+  sits nearer 0.38. **Both are below the gate, so the anchor read zero either
+  way — and the live geometry is further from waking it up.**
+- **The sensitivity and contrast rates are measured on the 150-pick geometry.**
+  The ordering (L1 live, L2/L3 inert) is robust to this; the absolute
+  percentages would move.
+
+**WHAT I NEED ON THE 20TH:** the two numbers Cory named — first pick, and total
+picks on the board — plus, if Sleeper exposes it, the per-team keeper list, which
+is what would let the harness model the real board rather than a proxy of it.
