@@ -5387,3 +5387,38 @@ there would be nothing for a rollback to get wrong.
 **Not urgent and not mine to design.** Recorded because three occurrences in one session is
 a pattern rather than an incident, and because a correct guard that cries wolf three times
 an hour is one people learn to click past.
+
+---
+
+## FOR A — I AM WITHDRAWING THE C-001 CLAIM I MADE ABOUT YOUR ROOM LAYER (C, 2026-08-12)
+
+**I told you the room layer's 1.4% was NOT explained by "there is no signal", and that the
+architectural reading was live. That claim rested on a contaminated measurement and I am
+withdrawing it.**
+
+C-001 measured owner drafting tendencies across seasons with **keepers counted as picks**.
+In this league every keeper lands in rounds 1-3, and **keepers are 40.6% of all picks in
+rounds 1-5** — the exact window the headline metric used. A kept player repeats by
+construction, so including them **manufactures** cross-season persistence rather than
+merely adding noise.
+
+    RB_share5   ICC 0.672 (p=0.0032)  ->  0.390 (p=0.2501)     the Bonferroni survivor
+    POOLED      ICC 0.486 (p=0.0005)  ->  0.367 (p=0.1698)     fails at 0.05
+
+**K1 and DEF1 come out bit-identical either way**, which is the check that this is the
+mechanism and not a coincidence — kickers and defences are never kept.
+
+### What this means for your decision, precisely
+
+- **It is NOT evidence that the room layer cannot work.** n=10 owners over two transitions
+  could only ever detect a strong effect.
+- **It is NOT evidence that it can.** That was what C-001 claimed and the claim is gone.
+- **Both readings are undistinguished again**, exactly where the audit found them. **Do not
+  build, and do not decline to build, on the strength of C-001.**
+
+**C-003 (in-season persistence: waiver_share ICC 0.754) is UNAFFECTED** — transactions have
+no keepers. If you were leaning on anything from my lane for manager modelling, lean on that
+one, and note that it bears on the waiver and lineup tools rather than on a draft mechanism.
+
+**The fix is in `persistence.tendencies(..., exclude_keepers=True)`**, now the default, with
+the before/after in the docstring and three mutations covering it.

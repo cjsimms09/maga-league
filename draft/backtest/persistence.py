@@ -38,16 +38,41 @@ METRICS = ("QB1", "TE1", "K1", "DEF1", "RB_share5", "WR_share5")
 VERSION = "persistence/v1"
 
 
-def tendencies(picks, positions) -> dict:
+def tendencies(picks, positions, exclude_keepers=True) -> dict:
     """{roster_id: {metric: value}} for one season's picks.
 
     Round-of-first-X is a TIMING habit; share-of-early-rounds is a STRATEGY. Both are
     computed from picks alone with no hindsight — nothing here reads realized points.
+
+    KEEPERS ARE EXCLUDED BY DEFAULT, and C-001 is the reason.
+    ---------------------------------------------------------
+    The first cut of this counted every pick, and the result it produced was an
+    artifact. In this league **every keeper lands in rounds 1-3, and keepers are 40.6%
+    of all picks in rounds 1-5** — precisely the window `RB_share5` and `WR_share5`
+    measure. **A kept player repeats BY CONSTRUCTION**: keeping the same running back
+    two years running makes a manager's early-RB share similar across seasons for a
+    reason that has nothing to do with how they draft.
+
+    So including keepers does not add noise — it manufactures the very persistence the
+    metric exists to detect, in the direction of the finding. Measured:
+
+        RB_share5   ICC 0.672 (p=0.0032)  ->  0.390 (p=0.2501)
+        POOLED      ICC 0.486 (p=0.0005)  ->  0.367 (p=0.1698)
+
+    `K1` and `DEF1` are unchanged, which is the check that this is the mechanism and
+    not a coincidence: kickers and defences are never kept.
+
+    `exp_divergence.py` already encoded this rule — *"a keeper isn't a market
+    decision"* — and this module did not. Pass `exclude_keepers=False` for the
+    different question *"how much of your early ROSTER is RB"*, which is legitimate
+    and is not what C-001 asked.
     """
     per = collections.defaultdict(lambda: {"first": {}, "n5": 0, "rb5": 0, "wr5": 0})
     for p in picks:
         r = p.get("roster_id")
         if r is None:
+            continue
+        if exclude_keepers and p.get("is_keeper"):
             continue
         d = per[r]
         pos = positions.get(str(p.get("player_id")))

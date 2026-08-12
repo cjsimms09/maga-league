@@ -226,3 +226,73 @@ an argument for the capture principle rather than a limitation of this result.
 
 **REVISIT:** none needed — this is resolved, not parked. It becomes stale if the league's
 membership turns over; the counter is `owner_seasons`, already tracked.
+
+---
+
+## C-001 — SUPERSEDED BY MEASUREMENT (2026-08-12). **The draft-side persistence does not survive.**
+
+**The earlier entry is retained above, not deleted.** *"This was superseded by measurement"*
+is a different record from *"this was wrong"*, and the reasoning that produced it — the
+variance decomposition, the joint permutation, the refusal to let the sign test count — was
+sound. **The input was contaminated.**
+
+### What was wrong
+
+`persistence.tendencies()` counted **every** pick. In this league:
+
+    keepers                       73 of 480 picks   (15.2%)
+    keepers in ROUNDS 1-5         73 of 180 picks   (40.6%)   <- the RB_share5 window
+    keepers by round              R1: 28   R2: 25   R3: 20    (none after round 3)
+
+**Two of every five picks in the measured window are not draft decisions**, and a kept
+player **repeats by construction** — keeping the same running back two years running makes
+a manager's early-RB share similar across seasons for a reason that has nothing to do with
+how they draft. **It does not add noise. It manufactures the persistence the metric exists
+to detect, in the direction of the finding.**
+
+### Re-measured, same method, `persistence/v1` unchanged
+
+| tendency | as published | keepers excluded | |
+|---|---|---|---|
+| **RB_share5** | **0.672** (p=0.0032) | **0.390** (p=0.2501) | **the Bonferroni survivor collapses** |
+| WR_share5 | 0.423 (p=0.1738) | 0.167 (p=0.8960) | |
+| QB1 | 0.385 (p=0.2530) | 0.249 (p=0.7319) | |
+| TE1 | 0.373 (p=0.2944) | 0.330 (p=0.4893) | |
+| K1 | 0.469 (p=0.1021) | **0.469** (p=0.1021) | unchanged |
+| DEF1 | 0.594 (p=0.0239) | **0.594** (p=0.0239) | unchanged |
+| **POOLED** | **0.486, p=0.0005** | **0.367, p=0.1698** | **fails at 0.05** |
+
+**K1 and DEF1 being bit-identical is the check that this is the mechanism and not a
+coincidence** — kickers and defences are never kept, so a keeper-driven artifact must leave
+them untouched, and it does.
+
+### What C-001 now says
+
+**With keepers excluded, 0 of 6 tendencies survive Bonferroni and 1 of 6 crosses uncorrected
+(DEF1, p=0.024) against 0.3 expected by chance. The pooled test does not cross.** There is
+**no evidence here that drafting tendencies persist across seasons.**
+
+**This is not "tendencies do not persist" either.** n=10 owners over two transitions could
+only ever detect a strong effect. **The honest state is the one the FIRST cut of this
+analysis reported and the second talked itself out of: the instrument cannot distinguish
+the two worlds.**
+
+### THE CLAIM TO A IS WITHDRAWN
+
+I told A that the room layer's 1.4% was **not** explained by *"there is no signal"*, and
+that the architectural reading was live. **That claim rested on this measurement and it no
+longer stands.** The evidential and architectural readings are **both undistinguished
+again**, which is exactly where the audit found them. *Nobody should build or decline to
+build the room layer on the strength of C-001.*
+
+### Why it went unchecked for a day
+
+**The analysis was ad-hoc.** No runner was committed, so the number could not be
+re-derived by anyone — including me — without rewriting the script. **The fix is in the
+module**: `tendencies(..., exclude_keepers=True)` by default, with the measured before/after
+in its docstring and three mutations covering it. **C-003 is unaffected** — transactions
+have no keepers.
+
+**And it was found by an instrument built for something else.** The population sweep printed
+`is_keeper 15.2%` beside 480 picks; that number had no bearing on the sweep's purpose and it
+is the reason this was caught at all.

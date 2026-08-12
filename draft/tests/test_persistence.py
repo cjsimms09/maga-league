@@ -73,3 +73,33 @@ def test_tendencies_use_NO_hindsight():
         assert t[1][m] is None, m
     t2 = P.tendencies([{"roster_id": 1, "player_id": "y", "round": 1}], {"y": "RB"})
     assert t2[1]["QB1"] is None
+
+
+def test_KEEPERS_ARE_EXCLUDED_because_a_keeper_is_not_a_draft_decision():
+    """C-001 was measured with keepers in, and that is what broke it.
+
+    In this league every keeper lands in rounds 1-3 and keepers are 40.6% of all
+    picks in rounds 1-5 — the exact window RB_share5 and WR_share5 measure. A kept
+    player REPEATS BY CONSTRUCTION, so including them manufactures the cross-season
+    persistence the metric is trying to detect. Excluding them moved RB_share5 from
+    ICC 0.672 (p=0.0032) to 0.390 (p=0.2501).
+
+    `exp_divergence.py` already encodes the same rule in this codebase — "a keeper
+    isn't a market decision" — and this module did not.
+    """
+    picks = [{"roster_id": 1, "player_id": "k", "round": 1, "is_keeper": True},
+             {"roster_id": 1, "player_id": "d", "round": 2}]
+    t = P.tendencies(picks, {"k": "RB", "d": "WR"})
+    assert t[1]["RB_share5"] == 0.0, "the kept RB must not count as a draft decision"
+    assert t[1]["WR_share5"] == 1.0
+    # the kept RB must also not set "round of first RB"-style timing
+    assert t[1]["QB1"] is None
+
+
+def test_keepers_can_be_INCLUDED_but_only_on_purpose():
+    """Available for a different question — 'how much of your early ROSTER is RB' is
+    a real property — but never the default, and never silently."""
+    picks = [{"roster_id": 1, "player_id": "k", "round": 1, "is_keeper": True},
+             {"roster_id": 1, "player_id": "d", "round": 2}]
+    t = P.tendencies(picks, {"k": "RB", "d": "WR"}, exclude_keepers=False)
+    assert t[1]["RB_share5"] == 0.5 and t[1]["WR_share5"] == 0.5
