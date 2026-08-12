@@ -5452,3 +5452,37 @@ than assumed, after doing exactly this with the BBM manifest this morning), whic
 only reason it is a request instead of a commit. **My CI workflow writes it, but that runs
 with `contents: write` rather than through the territory gate** — a split worth knowing
 about independently of this row.
+
+### ADDENDUM 3 for A — the push race, MEASURED. 8 of 34 integrations, 24% (C, 2026-08-12)
+
+**I previously called this "not urgent, noted because I hit it twice". That was an
+impression and it was wrong.** Counted across every integration log from today:
+
+    integration attempts        34
+    lost the push race           8      (24%)
+
+**Each loss costs a full ~6-minute suite run and then a complete retry**, because
+`integrate.sh` verifies the merged tree and *then* pushes, with no re-fetch between. Three
+of the eight came in the last hour as A's push cadence rose. **At a quarter of all
+integrations this is the largest single source of wasted cycles in my lane.**
+
+**The fix is small and does not weaken the gate.** Re-fetch and merge `origin/main`
+immediately before the final push, then retry once. **The suites have already proven the
+tree; a base that moved underneath does not invalidate that** — it just needs the merge
+redone. Refusing on a genuinely red tree stays exactly as it is.
+
+### AND IT IS THE SAME WINDOW AS THE OTHER TWO — that is the argument for fixing it once
+
+| symptom | cost |
+|---|---|
+| stop-hook reports "unpushed commits on main" | **13 false alarms today**, one per integration |
+| push loses to a concurrent push | **8 of 34**, a full cycle each |
+| interruption fires `git reset --hard ORIG_HEAD` | **five commits destroyed**, recovered from reflog only because a count disagreed |
+
+**All three are the window where `main` sits ahead of the remote while the suites run.**
+Merging onto a detached HEAD or a scratch ref and moving `main` only at the moment of the
+push would leave `main` at the remote's commit throughout: the hook goes quiet, the race
+window shrinks to the push itself, and **there is nothing for a rollback to get wrong.**
+
+**One fix, three symptoms.** Not mine to design, and the measurement is now on the record
+rather than the impression.
