@@ -185,3 +185,48 @@ select for other things too.
   the whole run is void rather than caveated.
 
 **A short run reports the number and changes nothing.** F7's rule is unchanged.
+
+---
+
+## DISPATCHED — the parameters, and the season choice, recorded BEFORE the result
+
+    workflow   sleeper-pool-probe.yml   ref main
+    season     2025
+    pool_target 20000      max_leagues 12000      budget_s 3300
+
+**Season 2025, and the reason is comparability rather than usefulness.** The pilot ran
+`SEASON: 2025` — 8 of 400 matched (2.00%), 11,988 discovered, 0.084s mean over 5,897
+requests. **P6's band (1.5–2.5%) and P7's arithmetic are calibrated on that run.** Crawling
+2026 instead would confound the headline rate with a change of season, and the headline rate
+is the only thing F7 turns on.
+
+**The cost of that choice, stated plainly: P9 IS NOT SCORED BY THIS RUN.** P9 predicted F2
+would reject a large minority because most 2026 drafts have not happened — that prediction
+was written for a 2026 crawl and a 2025 crawl cannot test it. **It is unscored, not passed.**
+
+**And the budget arithmetic, from the pilot's measured 0.084s/request:** phase 1 gets 45% of
+3,300s = 1,485s ≈ 17,700 requests, against ~14.7 requests per expanded league — enough to
+reach 20,000 discovered. Phase 2 screens at one request each: 12,000 × 0.084s ≈ 1,008s.
+**Total ≈ 2,000s of a 3,300s budget.** If either phase runs long the run reports what it
+reached, and a short run reports the number and changes nothing.
+
+### WHAT THE PILOT ALREADY TELLS US, AND IT SHARPENS CORY'S POINT
+
+**Team size is the binding constraint, overwhelmingly.** Of 400 screened, the rejections:
+
+    teams:12   304        teams:8     9        teams:32    3
+    rec:1.0     22        teams:18    7        superflex   3
+    teams:14    20        teams:4     4        teams:6     2
+    teams:16    16        ok          8        teams:20    1
+
+**366 of 400 — 91.5% — were rejected on team count alone, and 304 of those were
+twelve-team.** Cory's *"half-PPR is common, ten-team rooms are the scarce thing"* is exactly
+what the pilot measured. **Scoring is nearly free (only 22 rejections on receptions); the
+room size is the whole filter.**
+
+**This is also why P8 matters more than it looked.** If ten-team is a legacy default, the
+8 matches are not a random 2% of Sleeper — they are disproportionately *old* leagues, and
+old leagues differ in ways nobody has enumerated. **The artifact carries `rows` with
+`league_id` and `match`, so the id skew and the depth-homogeneity check are both computable
+from the run's own output** — no additional fetching, and I will report both whether or not
+they show anything.

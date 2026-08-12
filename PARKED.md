@@ -5180,3 +5180,164 @@ three clauses at once, and **F1 is not being widened.** 44,671 rows across 131 d
 **price series, not 131 gradeable league-seasons.** Anyone who finds this file and reads the
 dated boards as usable observations has made the mistake the manifest exists to prevent.
 It serves F6's pooled parameters. That is what it serves.
+
+---
+
+## FOR A — `scripts/integrate.sh` ROLLBACK DESTROYS THE FEATURE BRANCH ON A SIGNAL. Reproduced. (C, 2026-08-12)
+
+**This fired on me today and ate five commits of unpushed work**, including the BBM archive
+Cory had just ordered. I recovered them from the reflog, but only because a count
+disagreed with what I expected — **nothing in the tool reported the loss.**
+
+**It is not specific to me or to C.** Any session whose integration is interrupted loses
+whatever is on its branch and not yet pushed.
+
+### The mechanism, reproduced in a clean throwaway repo
+
+    START_BRANCH="$(git branch --show-current)"
+    cleanup() { git checkout -q "$START_BRANCH" 2>/dev/null || true; }
+    trap cleanup EXIT INT TERM HUP
+    git checkout -q main
+    sleep 30                        # stands in for the JS suite
+    echo "REACHED THE FAILURE PATH"
+    git reset --hard -q ORIG_HEAD   # intends to roll MAIN back
+
+Send SIGTERM during the long step and:
+
+    ORIG_HEAD (stale) = 5936b2b
+    feat head BEFORE  = 7845dec  (Merge branch 'main' into feat)
+    REACHED THE FAILURE PATH (after the signal)     <-- the script RESUMED
+    HEAD is on:       feat
+    feat head AFTER   = 5936b2b  (unpushed work 2)  <-- feat was reset
+    commits lost:     2
+
+**Three faults compose, and each is separately sufficient to make it dangerous:**
+
+1. **A bash trap RETURNS.** `cleanup` checks the branch back out and execution **resumes at
+   the point of interruption** — so the script runs on to its failure path *after* the
+   signal, with HEAD now on the feature branch.
+2. **`git reset --hard ORIG_HEAD` does not name what it resets.** It assumes HEAD is
+   `main`. After (1) it is not, so the **feature branch** takes the reset.
+3. **`ORIG_HEAD` is a global per-repo ref that ANY merge or reset writes.** In my run it
+   pointed at `e6f00ca`, five commits back, set by an unrelated earlier merge. Even with
+   HEAD on main it is not a reliable record of main's pre-merge tip.
+
+**What made it invisible:** the timeout was mine (a 2-minute shell cap), not a test failure.
+Nothing was red. The script reported nothing about the branch it had just rewritten.
+
+### The fix, and it is strictly protective — verified against the same repro
+
+    MAIN_BEFORE="$(git rev-parse main)"      # capture; never trust global ORIG_HEAD
+    cleanup() { git checkout -q "$START_BRANCH" 2>/dev/null || true; }
+    trap 'cleanup; exit 130' INT TERM HUP    # a signal ENDS the run; it must not resume
+    trap cleanup EXIT
+
+    rollback_main() {
+      if [ "$(git branch --show-current)" != "main" ]; then
+        echo "REFUSED to roll back: HEAD is on '$(git branch --show-current)', not main." >&2
+        return 1
+      fi
+      git reset --hard -q "$MAIN_BEFORE"
+    }
+
+Then every `git reset --hard -q ORIG_HEAD` becomes `rollback_main`. Same repro, same
+SIGTERM, with the fix:
+
+    HEAD is on:      feat
+    feat head AFTER  = 7845dec   <-- intact; "REACHED THE FAILURE PATH" never printed
+
+**None of the three changes can destroy anything that survives today.** They only narrow
+what the destructive path is allowed to touch.
+
+### Why I am not applying it myself
+
+`scripts/integrate.sh` is **not** in `territory-check.sh`'s `shared()` list — only
+`territory-check.sh` and `branch-check.sh` are. So it is yours, and a C edit would be a
+TRESPASS that blocks my own integration. **The guard and the rule agree, so this is parked
+rather than fixed.**
+
+### One more thing worth your judgement, separately
+
+**The same run showed `integrate.sh` racing `main`.** Twice today the suites went green and
+the push was rejected because `main` moved during the ~5 minutes they take. That is not
+data loss and I worked around it by re-syncing, but it means an integration's cost grows
+with how busy `main` is, and three sessions are pushing. **A re-fetch-and-retry around the
+final push would absorb it.** Not urgent; noted because I hit it twice in one hour.
+
+---
+
+## FOR WHOEVER OWNS /matchup AND /rivalry — CI HAS BEEN RED FOR AN HOUR, AND THE TEST THAT SHOULD CATCH IT CANNOT (C, 2026-08-12)
+
+**Not my lane. Diagnosed rather than routed as a guess, because it is a contradiction
+between two components and that outranks everything.**
+
+`CI — tests and robot mock` has failed on **every push since 04:50** — eight commits, three
+sessions, all red. One suite: `h2h_agreement`.
+
+    == h2h_agreement ==
+    FAIL offline, the two pages still agree
+         -> {"matchup":["Marian","3","2"],"rivalry":["Marian","4","1"]}
+    8 passed, 1 failed
+
+**`/matchup` says 3-2. `/rivalry` says 4-1. Same pair, same five meetings, different
+record.** The count agrees and the split does not.
+
+### Why nobody has seen it locally — and this is the more important half
+
+**It passes here and fails there, and the test cannot tell the difference.**
+
+    draft/tests/h2h_agreement.test.js:98
+      await store.del('sleeper-cache');      // <- intended to force the OFFLINE path
+
+**Deleting the cache does not produce offline. It produces a REFETCH.** `src/sleeper.js:70`:
+
+    async function bundle(leagueId) {
+      const cache = await getDoc('sleeper-cache', null);
+      if (cache && ...) return ...cache...;      // miss -> falls through
+      try {
+        ... five live fetches to api.sleeper.app ...    // <- what actually happens
+        return withFreshness(data, stamped, 'live');
+      } catch (e) {
+        console.error('sleeper fetch failed:', e.message);
+        return ...stale (null)...                       // <- the offline path
+      }
+    }
+
+So which branch runs is decided by **whether the machine can reach Sleeper**, not by the
+test:
+
+| environment | `del('sleeper-cache')` leads to | branch taken | result |
+|---|---|---|---|
+| this sandbox | fetch → **403, proxy-blocked** | catch → genuinely offline | **PASS** |
+| GitHub CI | fetch → **succeeds** | live bundle | **FAIL** |
+
+**Measured, not inferred.** The local run prints `sleeper fetch failed: Sleeper 403 for
+/v1/state/nfl` three times. **The CI log's `h2h_agreement` section prints it zero times** —
+the fetches succeeded there.
+
+**So the test named `offline, the two pages still agree` has never tested offline in CI,
+and tests it here only by accident of a proxy block.** It is the same defect class this
+project has now hit ten times: *a consumer trusting a state it does not control.* Usually
+it is a field name; this time it is a network.
+
+### Two separable things to fix, and the order matters
+
+1. **The disagreement is real and it is on the LIVE path** — the path production serves.
+   Sections 1 and 2 of the suite differ only in which bundle is present, and the live one
+   is where the two pages diverge. **Fix the disagreement first; it is the finding.**
+2. **Then make `offline` mean offline** — inject the failure rather than deleting a cache
+   and hoping the network refuses. As written the assertion is environment-dependent in
+   both directions: it will go green on any runner that loses network, and red on any
+   sandbox that gains it.
+
+**And it merits a look at how many other suites simulate "offline" the same way.** I have
+not swept for that — it is not my lane and I did not want to report a count I had not
+measured.
+
+### What it is not
+
+**It is not caused by anything in the ingest lane, and it does not block C's work** — my
+integrations run the JS suites locally, where this suite passes. **That is precisely why
+`integrate.sh`'s own warning is correct**: *"Local green and CI green are different claims:
+a test can pass here because of this machine's network."* This is that warning coming true,
+and it is worth noting that the warning was already written down before it happened.
