@@ -4,12 +4,12 @@
  "series": [
   {
    "observed_at": "2026-08-12",
-   "commit": "12c187e0bb8bd05e3e6d3c66b8e6aa9a826a7ae0",
+   "commit": "c7f0fbeef755e83499e6a4b615381668efca742e",
    "path": "public/draft_data.json",
    "sha256": "dfbfa7e31ea8535e4a57066a48246547af1df3f4ad143d522b11fdeaca078423",
    "n_players": 1759,
    "built_at": "2026-08-12T09:19:29Z",
-   "recover_with": "git show 12c187e0bb8bd05e3e6d3c66b8e6aa9a826a7ae0:public/draft_data.json"
+   "recover_with": "git show c7f0fbeef755e83499e6a4b615381668efca742e:public/draft_data.json"
   }
  ],
  "population": {
