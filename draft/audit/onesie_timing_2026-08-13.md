@@ -110,8 +110,27 @@ open onesie **only when its DoD is positive**, and otherwise falls through to
 signal rather than to a different ranking rule.
 
 **Your bar, declared before the run: under one projected starting-lineup point it
-closes as arithmetic.** Given the DoD magnitudes above I expect it to close, and
-I would rather record that expectation now than after the number arrives.
+closes as arithmetic.**
+
+### 🔴 IT CLOSES. IT DOES NOT EVEN GAIN.
+
+| room | onesie_timing vs shipped | holes |
+|---|---|---|
+| **adp** (n=100 paired) | **−2.2 ± 3.3** | 0 |
+| **profiled** (n=100 paired) | **−4.2 ± 4.5** | 0 |
+
+**Negative in both rooms, with both intervals spanning zero.** The policy does
+not beat the shipped rule; the best that can be said is that it is not measurably
+worse. Under a bar of *"gains under one point closes it"*, a policy that gains
+nothing closes with room to spare.
+
+**And I recorded the expectation before the number arrived** — *"given the DoD
+magnitudes above I expect it to close as arithmetic"* — which is the only reason
+that sentence is worth anything now.
+
+**So item 4b resolves as: the shipped deferral rule is not leaving measurable
+points on the table.** The timing signal is real, it is small, it oscillates, and
+routing it into a policy does not produce a better roster.
 
 ---
 
