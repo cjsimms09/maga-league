@@ -15,8 +15,33 @@ projected points of the **starting** lineup. Bench is worth zero.
 |---|---|---|---|---|---|---|
 | **shipped** (the additive composite) | 1989.9 | — | 1980 | 1990 | 1997 | 0 |
 | **greedy_end_state** (maximises the metric directly) | 1997.8 | **+7.9 ± 1.5** | 1996 | 2000 | 2000 | 0 |
+| **lookahead_2** (the review's prescribed version) | 1989.8 | **−0.1 ± 1.8** | 1979 | 1989 | 2002 | 0 |
 | scarcity_per_turn | 1953.3 | −36.5 ± 1.8 | 1941 | 1955 | 1962 | 0 |
 | need_filter (calibration) | 1957.4 | −32.5 ± 1.6 | 1952 | 1956 | 1963 | 0 |
+
+### THE DEPTH-LIMITED LOOKAHEAD BUYS NOTHING, AND IS WORSE THAN GREEDY
+
+The external review named a **depth-limited lookahead of two to three of my own
+picks** as "a large upgrade over pure greedy" and as the version to cost.
+**Measured: −0.1 ± 1.8 against the shipping composite, and 8.0 points BELOW
+depth-0 greedy.** At n = 200 paired that interval excludes any upgrade at all.
+
+**AND THE REASON IS WORTH MORE THAN THE NUMBER.** A truncated horizon is not a
+partial view of the full one — **it optimises a different objective.** Scoring
+`this pick's gain + the best gain available at my next turn` rewards a candidate
+that LEAVES a big gain on the table, so it systematically defers filling a slot
+to keep a larger two-step total. Over twelve picks that compounds into a worse
+end state than never looking ahead at all.
+
+**So "more lookahead is better" is false here in the direction nobody expected.**
+It is not that depth-2 helps a little; depth-2 helps less than depth-0. Any
+sequential rewrite would have to go to a horizon long enough to stop being a
+different objective, which is the full dynamic program the review explicitly set
+aside as intractable.
+
+**This is the measurement Cory's caveat asked for.** Three reviewers converged on
+an intuition; the intuition's own tractable form is now measured, and it does not
+hold.
 
 **THE CALIBRATION ARM BEHAVED**, which is what licenses reading the rest:
 `need_filter` is strict fill-first, the rule the Lab already measured losing to
@@ -98,7 +123,9 @@ be deleted rather than rewritten.
 
 ## WHAT I WOULD DO WITH THIS
 
-1. **Do not rewrite the composite.** 0.4%, and the rewrite re-opens every number.
+1. **Do not rewrite the composite.** 0.4% at best, and the tractable form of the
+   rewrite measures **0.0%**. The rewrite re-opens every number on the board to
+   buy a difference the design cannot reliably produce.
 2. **Take the 7.9 points a cheaper way if at all.** The gap is greedy-vs-composite
    at the ORDERING margin; a lookahead of one or two picks inside the existing
    scorer would capture most of it without changing the shape. Worth a candidate,
