@@ -292,6 +292,14 @@ jobs:
                   v = AA.board_confidence(body, KNOWN)
                   quantity = AA.quantity_of(f["path"])
                   frozen = {"frozen": None, "why": "not asked — not a board"}
+                  # HOISTED BESIDE `frozen`, and not for tidiness. Python does not
+                  # scope to blocks, so a `series` assigned inside the is_board branch
+                  # would still be bound on the NEXT iteration — a file that is not a
+                  # board would silently inherit the PREVIOUS file's commit series and
+                  # be reported with coverage belonging to something else. The first
+                  # iteration would raise NameError; every one after that would be
+                  # quietly wrong, which is the worse half.
+                  series = None
                   if v["is_board"]:
                       # ONLY ASKED FOR ACTUAL BOARDS: the commit history costs a
                       # request each and says nothing about a file that holds no
@@ -315,9 +323,34 @@ jobs:
                   if v["is_board"]:
                       print("          %s" % frozen["why"])
                       print("          sample: %s" % ", ".join(v["matched"][:8]))
+                      # THE MIRROR'S COVERAGE QUESTION, from the SAME response the
+                      # frozen check already paid for. `frozen_before` reads the LAST
+                      # commit; the history says how many distinct DAYS this path was
+                      # written across the preseason, and each commit is retrievable at
+                      # its sha. One dated board proves a board existed; a replay needs
+                      # the latest snapshot before EACH draft.
+                      #
+                      # COMMIT-DATED, NEVER SUMMED WITH THE ARCHIVE COUNT — printed on
+                      # the line so the basis cannot be lost by reading the number.
+                      if not (cr or {}).get("transport_error"):
+                          try:
+                              ser = AA.commit_series(cr.get("body") or b"",
+                                                     since=SINCE, until=BEFORE)
+                              print("          series: %d commit day(s), %d in the "
+                                    "preseason window [COMMIT-DATED, not archive-dated]"
+                                    % (ser["n_days"], ser["n_in_window"]))
+                              if ser["in_window"]:
+                                  print("          dates:  %s"
+                                        % ", ".join(ser["in_window"][:10]))
+                              series = ser
+                          except Exception as e:                     # noqa: BLE001
+                              series = {"error": type(e).__name__}
+                              print("          series: UNREADABLE (%s) — throttled is "
+                                    "not an empty history" % type(e).__name__)
                   found.append({"path": f["path"], "quantity": quantity,
                                 "player_hits": v["player_hits"], "is_board": v["is_board"],
-                                "matched": v["matched"], "frozen": frozen})
+                                "matched": v["matched"], "frozen": frozen,
+                                "commit_series": series})
               mirrors.append({"repo": "%s/%s" % (owner, repo), "state": "listed",
                               "truncated": listing["truncated"],
                               "candidates": listing["files"], "opened": found})
