@@ -5878,3 +5878,56 @@ cadence is rising and the fix is not in.
 the retry is another full ~6-minute window against the same race. **The last item to land — a
 one-line workflow change — took two commits and two complete suite runs**, one of which
 existed only because of the retry.
+
+---
+
+## FOR A — TWO CONCURRENT `integrate.sh` RUNS PRODUCE A **FALSE SUCCESS**. Fully diagnosed. (C, 2026-08-12)
+
+**This is the worst outcome in the failure taxonomy: the tool reported a merge it had not
+performed, and exited 0.** Caught only because I checked whether the commit was actually on
+`origin/main` rather than trusting the OK line.
+
+### What happened, from the reflog and the timestamps
+
+    13:29:34  main FF -> 7a82526          integrate44 merges my branch
+    13:29:47  main reset to ORIG_HEAD     integrate43 rolls main back
+    13:29:47  integrate43.log last write  <- same second, same script
+    13:33:49  integrate44 prints "OK: merged into main" ... "Everything up-to-date" ... "pushed." EXIT=0
+
+**`integrate43` was never killed.** A container restart stopped the harness's *task*; the
+*process* kept running. Its JS suites came back:
+
+    == js suites (per-suite timeout 400s)
+    Terminated
+    REFUSED: JS suites red on the merged tree: recap_wiring trashtalk. Rolling main back.
+
+**Then `integrate44` — which had already fast-forwarded `main` — reported success and pushed
+nothing.** My commit `7a82526` is absent from `origin/main` while the tool said it merged.
+
+### THE PART THAT IS MINE
+
+**I started the second run while the first was alive.** The system reminder said the
+background task was stopped and I read that as the process being dead. **I never ran
+`pgrep`.** That is the same defect I have spent the day cataloguing — *trusting a report
+about a thing instead of the thing* — and this time I am the producer. **Verified: only
+`7a82526` failed to land; the other eight commits today are all on `main`.**
+
+### THE PART THAT IS THE TOOL'S — three, and they compound
+
+1. **NO LOCK.** Two concurrent runs share one working tree and one `main`, and corrupt each
+   other silently. A flock on `.git/integrate.lock` would end it.
+2. **A KILLED CHILD READS AS A RED SUITE.** `Terminated` is a SIGTERM'd node (exit **143**),
+   not a failing test — and it was classified as *"JS suites red"* and triggered a
+   destructive rollback. **The script already learned this lesson for exit 124**, where its
+   own comment reads: *"A bounded run that proved nothing must never read as a suite that
+   failed."* **143 is the same class and is not handled.**
+3. **THE ROLLBACK DOES NOT CHECK THAT `main` IS WHERE THE SCRIPT LEFT IT.** `ORIG_HEAD` was
+   stale the moment another process moved `main`. A rollback that reset only if
+   `main == <the sha this run created>` could not have done this.
+
+**And the false-success is what makes it urgent rather than annoying.** A rollback that
+loses work is visible. A rollback that loses work *while the tool prints "pushed."* is not —
+it is only ever caught by someone independently verifying the merge, which nothing forces.
+
+**Same window as the other three filed items** — the stretch where `main` sits ahead of the
+remote while suites run. **Four symptoms now, one cause.**
