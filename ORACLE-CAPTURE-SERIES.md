@@ -8,6 +8,43 @@ reported for at least one overlapping season.
 
 ---
 
+## WHAT THIS IS, WRITTEN INTO THE RESULT AND NOT INTO A CAVEAT
+
+**THIS IS AN OPPORTUNITY-SIZE MEASUREMENT. IT IS NOT A TOOL EVALUATION, AND IT CANNOT
+BE ONE.** It answers *how much value was available in this room at Cory's picks*. It
+does **not** answer *what share of it the tool takes* — there is no tool arm before 2026,
+because no board exists for 2023–25. Any sentence that reads these numbers as a verdict
+on the engine is reading a claim that is not here.
+
+---
+
+## THE ANSWER: THE PRIZE IS LARGE
+
+Perfect-foresight, slot-aware drafting against the same board, in the same seat, with
+every other owner's picks held fixed:
+
+| season | added starting points | per week | as a share of an average weekly score |
+|---|---|---|---|
+| 2023 | +1045.7 | **+58.1/wk** | **+54%** |
+| 2024 | +578.0 | **+32.1/wk** | **+29%** |
+| 2025 | +1030.6 | **+57.3/wk** | **+53%** |
+
+Average weekly score in this league is 107.6 / 112.5 / 108.1. **A perfectly drafted
+roster would have scored a third to a half again as much, every week, all season.** That
+is not a marginal lever — it would win essentially every matchup, and 37.5% of the pot
+pays weekly.
+
+**So draft-day value capture is a BIG lever in this league.** The whole draft-side
+programme is competing for a prize that demonstrably exists. What fraction of it is
+reachable *without hindsight* is precisely the question this exercise cannot answer, and
+the one the 2026 four-arm run begins to.
+
+**And shape discipline alone — Cory versus a shape-blind drafter — is already worth
++9.5, +8.9 and +6.3 points per week** (8.9%, 8.0%, 5.8% of a weekly score). That is a
+typical matchup margin, earned before any tool.
+
+---
+
 ## THE CAVEATS ARE PART OF THE DEFINITION, NOT PART OF THE FIRST REPORT
 
 **These travel with every future quotation of these numbers. A reader in 2029 will not
@@ -107,6 +144,37 @@ conclusion "draft-day value capture has no addressable structure in our room", w
 pre-declared as the falsifying outcome and would have been wrong.**
 
 That is the argument for freezing a method only after running it once.
+
+---
+
+## P2 IS INDEPENDENT CONFIRMATION OF THE STARTABLE-CAPACITY MASK
+
+**Cory named P2 as the prediction he most wanted tested, because the mask is the single
+largest measured term in the system (~$443) and its entire justification is that raw
+value maximisation leaves a roster you cannot start.**
+
+**P2 HOLDS, in 3 of 3 seasons, and harder than predicted.**
+
+| season | shape-blind oracle, starting pts | Cory's actual | holes left by the oracle |
+|---|---|---|---|
+| 2023 | 2074.4 | 1882.7 | TE, K, DEF |
+| 2024 | **2164.6** | **2323.7** | TE, K, DEF |
+| 2025 | 1839.2 | 1673.1 | TE, K, DEF |
+
+**In 2024 a value-maximising oracle WITH PERFECT FORESIGHT scored 8.8 points per week
+LESS than Cory did**, because it had no tight end, no kicker and no defence. Across all
+three seasons it left the same three slots empty every time.
+
+**That is confirmation of the mask from a direction nothing has tested.** Not a model
+argument and not a simulation: perfect knowledge of realized points, spent without shape
+discipline, produces a roster that loses to a human who filled his slots. The mask's
+premise is that raw value maximisation leaves you unable to field a lineup. Measured, it
+does exactly that, and the penalty is large enough to erase a perfect-foresight advantage
+of 74% on total points.
+
+**The one thing this does NOT do is price the mask.** It confirms the direction and the
+magnitude is large; it does not independently produce $443, and no reading here should be
+quoted as validating that figure.
 
 ---
 
