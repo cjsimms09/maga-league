@@ -146,6 +146,42 @@ const base = { season: '2026', build_at: '2026-08-22T23:00:00Z', pick: 34,
   ck('  (overriding a confident call and overriding a coin flip must not aggregate)',
     O.pickOverride(base).contested === null);
 
+  /* ⚠️ THE FIELD THAT COST TEN DAYS. score_gap was wired at three call sites and
+   * missed at the fourth — the Sleeper sync path, which carries most of draft
+   * night — so every record came out null and NOTHING COULD SAY WHY. "The tool
+   * reported no gap" and "nobody passed the gap it reported" both render as
+   * `null`, which is how a null survives a fix that was reported as landed. */
+  ck('a null gap now SAYS WHY, so an unwired emitter is greppable rather than silent',
+    /unstated/.test(O.pickOverride(Object.assign({}, base, { score_gap: null })).score_gap_source));
+  ck('  a supplied gap records that it was passed',
+    O.pickOverride(base).score_gap_source === 'passed');
+  ck('  and a recovered one says it was DERIVED, never passing as careful wiring',
+    O.pickOverride(Object.assign({}, base,
+      { score_gap: 4.6, score_gap_source: 'derived_from_clock' })).score_gap_source
+      === 'derived_from_clock');
+
+  /* ── THE SOURCE-LEVEL CHECK THAT WOULD HAVE CAUGHT IT TEN DAYS AGO ─────────
+   *
+   * Every emitter of an override must supply a gap or a reason. This reads the
+   * app's own call sites rather than trusting that they were wired — the exact
+   * check whose absence let three-of-four pass as done.
+   *
+   * Rule 11e cuts the other way here: a source scan cannot tell an
+   * implementation from a comment describing one, but THIS question IS about
+   * the source — whether the argument appears at the call site — so scanning is
+   * the right instrument rather than a proxy for one. */
+  const fs = require('fs');
+  const appSrc = fs.readFileSync(require('path').join(__dirname, '..', '..',
+    'public', 'js', 'draft', 'app.js'), 'utf8');
+  // Call sites only — `function promptOverrideReason(...)` is the DEFINITION and
+  // matching it would make this assertion fail on a correctly wired app.
+  const calls = (appSrc.match(/(?<!function\s)promptOverrideReason\([^;]*?\{[^}]*\}/gs) || [])
+    .filter(c => !/^promptOverrideReason\(picked, overTop, opts\)/.test(c));
+  ck('every promptOverrideReason call site is found by the scan', calls.length >= 2, calls.length);
+  const unwired = calls.filter(c => !/score_gap/.test(c));
+  ck('EVERY override emitter passes score_gap — the sync path did not, for ten days',
+    unwired.length === 0, unwired.length + ' unwired: ' + unwired.join(' || ').slice(0, 200));
+
   // (d) a resolution rule stated BEFORE the outcome
   ck('the record states its resolution rule before any outcome exists',
     typeof g.resolution_rule === 'string' && g.resolution_rule.length > 60,

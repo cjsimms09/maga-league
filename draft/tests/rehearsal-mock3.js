@@ -125,10 +125,35 @@ const check = (name, cond, detail) => R.push({ name, ok: !!cond, detail });
         mine1 === mine0 + 1, `${mine0} -> ${mine1}`);
 
   // ---- LEGALITY (mock #2 severity-1: exited with no DEF) -------------------
+  /* ⚠️ `e.style.display` READS THE INLINE STYLE ONLY, and that is the trap B
+   * surfaced from its own sweep: it flagged twenty unlabelled buttons on this
+   * markup and correctly did NOT report them, because they were
+   * visibility-hidden — elements that keep their layout box and return an EMPTY
+   * innerText.
+   *
+   * The class generalises past B's sweep to any harness reading rendered output,
+   * including this one. A hidden element is PRESENT in the DOM and ABSENT from
+   * every text-based check, so:
+   *   · a check asserting text is PRESENT fails loudly (safe),
+   *   · a check asserting text is ABSENT passes wrongly (silent), and
+   *   · a `shown` flag read off the inline style calls a class-hidden element
+   *     visible.
+   *
+   * So visibility is read from getComputedStyle and reported as its own field
+   * rather than inferred from empty text. */
   const leg = await page.evaluate(() => {
     const e = document.getElementById('legality-strip');
-    return e ? { shown: e.style.display !== 'none', text: (e.innerText || '').slice(0, 240) } : null;
+    if (!e) return null;
+    const cs = window.getComputedStyle(e);
+    return {
+      shown: cs.display !== 'none' && cs.visibility !== 'hidden' && cs.opacity !== '0',
+      hidden_but_present: cs.display !== 'none'
+        && (cs.visibility === 'hidden' || cs.opacity === '0'),
+      text: (e.innerText || '').slice(0, 240),
+    };
   });
+  check('the legality strip is not PRESENT-BUT-INVISIBLE (empty text would read as absent)',
+        leg === null || !leg.hidden_but_present, JSON.stringify(leg));
   check('the legality strip exists and is wired', leg !== null, JSON.stringify(leg));
 
   const exitWarn = await page.evaluate(() => {
