@@ -1105,11 +1105,53 @@
     }
 
     const survivalToNext = ctx.nextPick ? survival(player, ctx.nextPick, ctx) : 0;
+    /* ── REASON vs CONTEXT — the split that fixes a 51% false-causality rate ───
+     *
+     * MEASURED 2026-08-13, top 20 at pick 33: **24 of 47 reason strings cited a
+     * term whose contribution was ZERO.** need 20 times, tier 4.
+     *
+     * THE MECHANISM WAS RIGHT HERE AND IT WAS INCONSISTENT GATING. Some lines
+     * gated on the WEIGHTED contribution (`w.ceiling * ceiling`, `w.bye *
+     * bye.value`) and some gated on the RAW term (`tier > 5`, `need.value > 0`)
+     * or on nothing at all (`risk.reasons`). Five of eight terms are weighted to
+     * zero, so every raw-gated line published a cause for a term that could not
+     * move any decision.
+     *
+     * THE RULE (SESSION-A): **CONTEXT MAY EXPLAIN THE STATE OF THE BOARD.
+     * REASON MUST EXPLAIN THE DECISION.**
+     *
+     *   KEEP AS REASON   only where the WEIGHTED contribution is non-trivial.
+     *   DEMOTE TO CONTEXT  true board facts that did not drive the pick —
+     *                      "your TE slot is empty" is worth knowing at pick 41
+     *                      and is not why the tool chose him.
+     *   DELETE           anything presenting a zeroed term as causal. No
+     *                    rephrasing: vaguer wording ("there is a tier
+     *                    consideration here") launders the same false causality
+     *                    and makes it unfalsifiable.
+     */
     const reasons = [];
-    if (v > 8) reasons.push(`${v.toFixed(0)} pts better than what's left at ${player.position} by pick ${ctx.nextPick}`);
-    if (tier > 5) reasons.push(`last of Tier ${player.tier} ${player.position} — ${Math.round((1 - survivalToNext) * 100)}% gone by your next pick`);
-    if (need.value > 0) reasons.push(need.why);
-    risk.reasons.forEach(r => reasons.push(r));
+    const context = [];
+    if (w.value * v > 8) reasons.push(`${v.toFixed(0)} pts better than what's left at ${player.position} by pick ${ctx.nextPick}`);
+    /* TIER — DELETED as a reason. "last of Tier 1 TE" presented tier position as
+     * the cause while `tier` is weighted 0. It survives only where tier actually
+     * carries weight; the SURVIVAL half is genuine board context either way. */
+    if (w.tier * tier > 5) {
+      reasons.push(`last of Tier ${player.tier} ${player.position} — ${Math.round((1 - survivalToNext) * 100)}% gone by your next pick`);
+    } else if (tier > 5) {
+      context.push(`Tier ${player.tier} ${player.position} is thinning — ${Math.round((1 - survivalToNext) * 100)}% gone by your next pick`);
+    }
+    /* NEED — DEMOTED. `need.why` is factually true and its best form is the
+     * standard this whole rule is modelled on: "fills your empty TE slot —
+     * scarcity priced in value (VONA), not double-counted" is honest precisely
+     * because it says where the effect actually lives. It is context, not cause,
+     * whenever the need term itself is weighted to zero. */
+    if (need.value > 0) {
+      if (w.need * need.value > 0) reasons.push(need.why);
+      else context.push(need.why);
+    }
+    /* RISK — was pushed UNGATED. Weighted 0 today, so every one of these was a
+     * cause for a term contributing nothing. */
+    if (w.risk !== 0) risk.reasons.forEach(r => reasons.push(r));
     if (w.ceiling * ceiling > 6) reasons.push(`ceiling ${Math.round(player.proj_ceiling)} — worth the swing here`);
     if (w.keeper * kov.value >= C.CFG.KOV_BADGE_AT) {
       reasons.push(`KEEPER TARGET — ${Math.round(kov.p_keep * 100)}% likely worth keeping next year at this cost`
@@ -1119,7 +1161,10 @@
               + `${Math.round(kov.value)} pts (raw ${Math.round(kov.raw_value)})`));
     }
     if (w.bye * bye.value > 3) reasons.push(`bye collision: ${bye.detail}`);
-    stack.reasons.forEach(r => reasons.push(r));
+    // STACK — was also ungated. It carries weight 1.0 today so it genuinely
+    // contributes, but gating on the weight is what stops this line becoming the
+    // next false cause the day the weight moves.
+    if (w.stack !== 0) stack.reasons.forEach(r => reasons.push(r));
     // A onesie duplicate NEVER appears without saying what it is — whether it
     // was discounted or waved through on an exception. This is the difference
     // between a bug and a judgement call the human can overrule.
@@ -1166,6 +1211,10 @@
       keeper_target: kov.value >= C.CFG.KOV_BADGE_AT,
       survival_to_next: survivalToNext,
       reasons,
+      /* CONTEXT — true board facts that did NOT drive the pick. Emitted beside
+       * `reasons` rather than mixed into it, so a consumer literally cannot
+       * render a board fact where a cause belongs. */
+      context,
     };
   }
 

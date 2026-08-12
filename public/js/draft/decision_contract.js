@@ -218,6 +218,40 @@ const TERM_WORDS = {
   stack: /\bstack\w*\b/i,
   keeper: /\bkeeper\b/i,
 };
+/* ── THE CONVERSE INVARIANT: MOVED IS NOT DECISIVE ─────────────────────────
+ *
+ * The zero-delta detector alone leaves the SAME BUG at a lower threshold: every
+ * tiny non-zero contribution gets promoted into a reason and the detector
+ * passes. Cory's case — value +8.0, survival +0.1, gap 4.2 — survival technically
+ * moved the decision, and "we took him because of survival" is still misleading.
+ *
+ * So there are three states, not two:
+ *   ABSENT   delta 0            — may not be cited at all.
+ *   MOVED    non-zero, |delta| < |gap| — may be cited as a SECONDARY
+ *                                 consideration, never as the reason.
+ *   DECISIVE |delta| >= |gap|   — removing it alone flips the pick. This is the
+ *                                 only state an explanation may name as WHY.
+ */
+function roleOf(contrib) {
+  if (!contrib || Math.abs(contrib.delta) < 1e-9) return 'absent';
+  return contrib.decision_significant ? 'decisive' : 'moved';
+}
+
+/* Terms a sentence names that MOVED but were not DECISIVE. Empty = compliant as
+ * a causal claim. A renderer may still mention these as secondary, which is why
+ * this is a separate detector rather than folded into the zero check. */
+function citesNonDecisive(sentence, contribs) {
+  const s = String(sentence || '');
+  const byTerm = {};
+  (contribs || []).forEach(c => { byTerm[c.term] = c; });
+  const weak = [];
+  Object.keys(TERM_WORDS).forEach(term => {
+    if (!TERM_WORDS[term].test(s)) return;
+    if (roleOf(byTerm[term]) === 'moved') weak.push(term);
+  });
+  return weak;
+}
+
 function citesZeroContribution(sentence, contribs) {
   const s = String(sentence || '');
   const byTerm = {};
@@ -290,7 +324,8 @@ function explain(opts) {
 }
 
 const api = { explain, contributions, resolution, causes, deferral,
-  citesZeroContribution, TERM_WORDS, CALIBRATION, SURVIVAL_CALIBRATION };
+  citesZeroContribution, citesNonDecisive, roleOf,
+  TERM_WORDS, CALIBRATION, SURVIVAL_CALIBRATION };
 global.DecisionContract = api;
 if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -516,6 +516,75 @@ have shown if the thing were present. Here the instrument shows *the same empty 
 the thing is absent or merely invisible — so the honest response is not a better assertion, it is
 a SECOND channel (computed style) that can tell the two apart.
 
+**16. A RECOMMENDATION EXPLANATION IS AN EVIDENCE SURFACE, NOT A NARRATIVE SURFACE.**
+Cory, 2026-08-13, authorised as written.
+
+> It may state ONLY causal information supported by the decision's actual score decomposition.
+> NON-CAUSAL BOARD FACTS BELONG IN CONTEXT. UNSUPPORTED CAUSAL CLAIMS ARE DELETED.
+
+**THE SHORT FORM: CONTEXT MAY EXPLAIN THE STATE OF THE BOARD. REASON MUST EXPLAIN THE
+DECISION.** It governs the draft board, the lineup optimiser and the waiver tool.
+
+**THE MEASUREMENT THAT PRODUCED IT, kept here rather than in a report, because a rule about
+explanation surfaces reads as fastidiousness without the number.**
+
+*2026-08-13, top 20 at pick 33, on the live board:*
+
+    24 of 47 reason strings — 51% — cited a term whose DELTA was ZERO.
+    need 20 times, tier 4.
+
+    "last of Tier 1 TE — 30% gone by your next pick"   tier weighted 0.0
+    "fills an empty WR slot"                            need weighted 0.0
+
+**FIVE OF EIGHT TERMS ARE WEIGHTED TO ZERO AND ARE STRUCTURALLY INCAPABLE OF MOVING ANY
+DECISION.** That is not an occasional bad sentence. It establishes that the explanation layer
+was systematically selecting *plausible board facts* rather than *causal decision evidence* —
+and it is worse than a dead field because it is PERSUASIVE. A number nobody can interpret does
+not move a decision. A sentence naming a reason does.
+
+*The mechanism was inconsistent gating, not bad writing.* Some lines gated on the WEIGHTED
+contribution (`w.ceiling * ceiling`), others on the RAW term (`tier > 5`, `need.value > 0`) or
+on nothing at all (`risk.reasons`). Every raw-gated line published a cause for a term that
+could not move anything. **After the fix: 0 of 20.**
+
+**THE THREE-WAY SORT.** Truth of the sentence is not sufficient — "your TE slot is empty" can
+be perfectly true and still be an invalid answer to *why did the engine select this player*.
+
+* **KEEP AS REASON** — only where the term was DECISIVE.
+* **DEMOTE TO CONTEXT** — defensibly factual, not causal. Rendered where facts about the
+  roster live, not where the reason lives.
+* **DELETE** — anything presenting a zeroed term as causal. **AND NO SALVAGE THROUGH VAGUER
+  WORDING:** turning "last of Tier 1 TE" into "there is a tier consideration here" launders
+  the same false causality and makes it unfalsifiable. There is no rephrasing that keeps a
+  sentence whose subject contributed nothing.
+
+**16a — MOVED IS NOT DECISIVE, AND THIS IS WHERE THE BUG COMES BACK.** A reason citing a
+NON-zero term is not automatically valid. Value +8.0, survival +0.1, gap 4.2: survival
+technically moved the decision and "we took him because of survival" is still misleading.
+Three states — **ABSENT** (may not be cited), **MOVED** (may be cited as secondary, never as
+the reason), **DECISIVE** (the only state an explanation may name as WHY). Without this the
+zero-delta detector passes while every tiny contribution is promoted into a reason: the same
+failure at a lower threshold.
+
+**16b — FOLLOW THE ACCOUNTING STRUCTURE, NOT THE VOCABULARY.** *"Scarcity priced in value
+(VONA), not double-counted"* is the standard. Scarcity genuinely affects the pick but enters
+THROUGH value rather than as its own term, so "scarcity drove the pick" would be conceptually
+true and structurally misleading — it implies a term that does not exist in the accounting.
+**No term-name detector can catch that**, which is why the contract carries PROVENANCE rather
+than a flat list of terms, and why survival's calibration rides on the contributor. Pinned as
+a formal test case in `decision_contract.test.js`.
+
+**16c — CLASSIFICATION IS UPSTREAM OF WRITING.** The pipeline is *score evidence → classify
+contribution → identify decisive terms → identify losing mechanism → apply calibration →
+render*. **NOT** *score evidence → hand surviving facts to a writer*. A prose layer that has
+been shown not to respect causality will reproduce the bug at smaller scale if it is allowed
+to write around filtered inputs.
+
+*Enforcement:* `public/js/draft/decision_contract.js` — `citesZeroContribution` and
+`citesNonDecisive`, both non-vacuous (each has a control that passes when the term genuinely
+decided). The engine emits `context` alongside `reasons` so a consumer literally cannot render
+a board fact where a cause belongs.
+
 **14. WHEN SOMETHING COMPUTES A VALUE OR A VERDICT, THE SAME UNIT OF WORK ESTABLISHES ITS
 CONSUMER.** Cory, 2026-08-11. Not a style preference — **a produced-and-unread value looks
 identical to a working system from every angle except the one where it matters.** It has tests,

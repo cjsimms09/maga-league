@@ -170,5 +170,76 @@ const mk = (id, score, weighted, extra) => Object.assign({
     DC.deferral(null).length === 0);
 }
 
+// ── THE CONVERSE INVARIANT: MOVED IS NOT DECISIVE ──────────────────────────
+/* Without this the SAME BUG returns at a lower threshold: the zero-delta check
+ * passes while every tiny non-zero contribution is promoted into a reason. */
+{
+  // Cory's case: value +8.0, survival-ish +0.1, gap 4.2.
+  const win = mk('a', 12.3, { value: 8.0, stack: 0.1 });
+  const alt = mk('b', 8.1, { value: 0, stack: 0 });
+  const c = DC.contributions(win, alt, 4.2);
+  const value = c.find(x => x.term === 'value');
+  const tiny = c.find(x => x.term === 'stack');
+
+  check('THREE STATES: absent / moved / decisive, not two',
+    DC.roleOf(value) === 'decisive' && DC.roleOf(tiny) === 'moved'
+    && DC.roleOf({ delta: 0 }) === 'absent');
+  check('a term that MOVED but did not decide is caught as a causal claim',
+    DC.citesNonDecisive('we took him for the stack', c).join(',') === 'stack');
+  check('  it passes the zero-delta check — which is exactly why the converse is needed',
+    DC.citesZeroContribution('we took him for the stack', c).length === 0);
+  check('naming the DECISIVE term is compliant under both detectors',
+    DC.citesNonDecisive('best value on the board', c).length === 0
+    && DC.citesZeroContribution('best value on the board', c).length === 0);
+}
+
+// ── THE VONA STRING IS THE STANDARD, PINNED AS A FORMAL TEST CASE ──────────
+/* "Scarcity priced in value (VONA), not double-counted" is the only shipped
+ * string that was already doing the right thing, and it is subtler than the
+ * non-zero rule: scarcity GENUINELY affects the pick, but it enters THROUGH
+ * value rather than as its own term. "Scarcity drove the pick" would be
+ * conceptually true and structurally misleading — it implies a term that does
+ * not exist in the accounting.
+ *
+ * THE GENERAL FORM: the explanation must follow the actual causal ACCOUNTING
+ * STRUCTURE, not the vocabulary humans use to describe the model. */
+{
+  const VONA_STRING = 'fills your empty TE slot — scarcity priced in value (VONA), not double-counted';
+  const win = mk('a', 5, { value: 4, need: 0 });
+  const alt = mk('b', 1, { value: 0, need: 0 });
+  const c = DC.contributions(win, alt, 4);
+
+  check('THE STANDARD: the VONA string names `need` and need contributed nothing',
+    DC.citesZeroContribution(VONA_STRING, c).indexOf('need') >= 0);
+  check('  so it is CONTEXT, not a reason — which is where the engine now puts it',
+    true);
+  check('  and its saving grace is that it says WHERE the effect actually lives',
+    /priced in value \(VONA\), not double-counted/.test(VONA_STRING));
+
+  /* The failure mode it protects against, stated as its own case. */
+  check('"scarcity drove the pick" would be conceptually true and structurally false',
+    DC.citesZeroContribution('scarcity drove the pick', c).length === 0);
+  check('  (no `scarcity` TERM exists, so no term detector can catch it —',
+    !('scarcity' in DC.TERM_WORDS));
+  check('   which is why the contract carries PROVENANCE, not a flat term list)',
+    DC.SURVIVAL_CALIBRATION.status === 'soft');
+}
+
+// ── THE ENGINE NOW SEPARATES REASON FROM CONTEXT ───────────────────────────
+{
+  const src = require('fs').readFileSync(
+    require('path').join(__dirname, '..', '..', 'public', 'js', 'draft', 'engine.js'), 'utf8');
+  check('the engine emits a CONTEXT array alongside reasons',
+    /\n\s+context,\n/.test(src));
+  check('tier is gated on its WEIGHTED contribution, not the raw term',
+    /if \(w\.tier \* tier > 5\)/.test(src));
+  check('need is DEMOTED to context when its weight is zero',
+    /if \(w\.need \* need\.value > 0\) reasons\.push\(need\.why\);\s*\n\s*else context\.push\(need\.why\);/.test(src));
+  check('risk reasons are gated rather than pushed unconditionally',
+    /if \(w\.risk !== 0\) risk\.reasons/.test(src));
+  check('stack reasons are gated too — the next false cause if the weight moves',
+    /if \(w\.stack !== 0\) stack\.reasons/.test(src));
+}
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
