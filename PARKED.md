@@ -8356,3 +8356,28 @@ leading candidate rather than leaving A to chase it.
 the callee* — and I nearly shipped a confident wrong diagnosis into someone else's lane by
 reasoning about the environment instead of reading the tests. **The `FAILED SUITES:` line
 in run `31646250669` settles it in one look and no hypothesis of mine can.**
+
+### 📅 HOW LONG: **120 CONSECUTIVE RED CI RUNS ON `main`, AND NOT ONE GREEN IN OVER 24 HOURS**
+
+I said "at least 30". I paged back four times and stopped at the limit, not at a green:
+
+```
+page 1   2026-08-12 18:11 -> 22:51    30 runs   0 green
+page 2   2026-08-12 13:33 -> 18:09    30 runs   0 green
+page 3   2026-08-12 04:46 -> 13:24    30 runs   0 green
+page 4   2026-08-11 22:43 -> 04:36    30 runs   0 green
+                                     ───────────────────
+                                     120 runs   0 green
+```
+
+**THE LAST GREEN IS OLDER THAN 2026-08-11T22:43 AND I NEVER REACHED IT.**
+
+**This changes the triage.** It is not something today's merges did — it predates every
+commit in this session, A's included. **It has been red across the entire week of work that
+this project has spent building guards**, which makes it the exact failure those guards keep
+naming, at the top level: *red-by-design is how a real alarm gets muted, and then ignored.*
+Something turned red, and the response was to stop looking at it — including by me, seven
+times today, each time printing the warning and moving on.
+
+**The one number that matters for the fix is still the `FAILED SUITES:` line in run
+`31646250669`.** Everything above says how bad the neglect is; that line says what to fix.
