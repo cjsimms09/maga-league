@@ -6917,3 +6917,207 @@ preserves padding. **But probably-fine is not measured**, and I cannot measure i
 now cannot be recaptured, so if the key is wrong it is wrong permanently and silently — which
 is the one property that makes a cheap check worth doing before more days accumulate rather
 than after.
+
+**CORRECTION TO THE COMMIT MESSAGE ABOVE (C, 2026-08-12).** The commit that recorded this
+finding carries a corrupted line: I wrote it with `git commit -m "..."` containing backticks,
+so the shell executed them and `uid=0(root) gid=0(root) groups=0(root)` appears where a field
+name should be. **The two fields are:**
+
+    capture   export?TYPE=adp           keys rows on the "id" field
+    picks     export?TYPE=draftResults  keys on the "player" field
+
+The record in this file was written with a quoted heredoc and is correct; only the commit
+message is wrong. Noted rather than rewritten, because the commit is already merged and the
+history is not worth rewriting for a mangled line — but a reader hitting `uid=0(root)` in a
+commit message should know it was a shell accident and not a finding.
+
+---
+
+## 🔎 THE PROJECTION-SOURCE QUESTION, SETTLED (C, 2026-08-12)
+
+Cory's worst case: *"does any part of the priced board carry a projection that neither source
+actually supplied?"* **The answer is yes and it is the harmless reading, not the serious one.
+There is no corrupted blend. There is no blend at all.**
+
+### 1. WHAT `proj_mean` ACTUALLY IS — verified, not inferred
+
+    proj_mean == proj_baseline * (1 + opportunity_adj)     holds for 1757 of 1759 players
+                                                           (2 fail by <=0.012, floating point)
+    proj_baseline != proj_sleeper                          for 0 players
+
+**`proj_baseline` IS Sleeper's number, exactly.** FantasyPros never enters `proj_mean` —
+grepped the whole value path: `proj_fantasypros` appears only where `build.py` attaches it,
+in two of A's audit tools, and in the CLIENT. **So "half the projections sit outside their own
+two sources" is arithmetically inevitable and is not evidence of a blending fault: nothing is
+being blended.** A's own commit says as much and explicitly declines to claim the adjustment is
+wrong. A's finding — that `opportunity_adj` is derived from receiving metrics so it reaches
+RB/TE/WR and never QB, while `proj_mean` is ranked ACROSS positions — stands and I would not
+weaken it.
+
+### 2. AND HERE IS THE THING NOBODY HAS REPORTED
+
+**Two different numbers are called "the projection", and the one the user reads is not the one
+the model ranks on.**
+
+    the CARD shows    (proj_sleeper + proj_fantasypros) / 2      consensus.js rawProjection()
+                      labelled "Consensus (2 src)"
+    the MODEL ranks   proj_mean = proj_sleeper * (1 + opportunity_adj)
+
+Across the 435 two-source players:
+
+    model minus displayed:  min -40.7   median +3.9   max +58.0
+    |gap| >= 10 pts:  201 of 435 (46%)      >= 25 pts: 73      >= 40 pts: 21
+
+    Brock Bowers   card 174.9   model 232.9   +58.0
+    Puka Nacua     card 240.9   model 297.9   +57.0
+    CeeDee Lamb    card 199.1   model 251.3   +52.3
+
+**IT IS DEFENSIBLE AND I WILL SAY SO**: `rawProjection`'s docstring says it returns "the raw
+projection... with an HONEST source label", and showing the raw market consensus is a
+legitimate choice. **The problem is what it is used FOR.** `recDisagreementLine` exists to let
+Cory *"judge the machinery"* — it renders *"X projects higher (N vs M Consensus) — we prefer
+Y on value"*. That comparison is raw-vs-raw, so **the number offered as the tool's reasoning
+is one the recommendation never used.** A reader checking why the model preferred someone is
+shown a projection that played no part in it.
+
+### 3. THE SINGLE-SOURCE CAVEAT GIVES A FALSE REASON — 1185 of 1324 marked players
+
+`projSourceMark` marks single-source rows with `¹` and this text:
+
+> *"single-source projection (Sleeper only) — FantasyPros does not cover this position, so
+> there is no second opinion behind this number"*
+
+**FantasyPros covers QB, RB, TE and WR.** It publishes ~525 rows and simply does not go deep.
+
+    single-source players:                          1324 of 1759 (75.3%)
+    of those, at a position FP DOES cover:          1185 (90%)
+    by position:  WR 507   RB 299   TE 237   QB 142
+
+So for 90% of the players carrying that mark the stated reason is false. The mark is right;
+the explanation is wrong, and it is the explanation a reader acts on. One string, and it is
+`app.js` so it is not mine.
+
+### 4. COVERAGE — MY NUMBERS DIFFER FROM THE ONES QUOTED TO ME
+
+Measured on the shipped board, banded by ADP rank, single-source = `proj_fantasypros is None`:
+
+    rank      1-150    143 of 150 have a 2nd opinion   95%
+    rank    151-250     67 of 100                      67%
+    rank    251-450     86 of 200                      43%
+    rank   451-1759    139 of 1309                     11%
+
+Cory quoted 100 / 41 / 77 / 7. **Mine are monotonic, which is what a depth-limited 525-row
+feed must produce; 41 then 77 is not.** A's `projection_blend_audit.py` computes no coverage
+bands at all and A's commit contains no such figures, so I cannot reconcile against a source —
+flagging it rather than assuming either of us is right.
+
+### WHAT I DID NOT BUILD
+
+No provenance mechanism. Cory said not to unless the measurement demanded it. **It does not:**
+source identity is already carried per-player (`proj_sleeper`, `proj_fantasypros`), already
+labelled (`Consensus (N src)` vs `Sleeper proj`), and already marked (`¹`). The defects are a
+wrong caveat string and a display/model mismatch — both are decisions about which number is
+authoritative, not missing plumbing. **Adding a provenance record would not fix either and
+would be the dashboard rule 9 forbids.**
+
+---
+
+## 📋 PRE-DECLARATION — the board-currency sample (C, 2026-08-12)
+
+**WRITTEN AND COMMITTED BEFORE LOOKING AT A SINGLE ONE OF THESE ROWS.** Rule 12 applied to the
+board's players rather than its arithmetic. Fifteen names, declared with their reason.
+
+**DISCLOSURE FIRST, because selection-on-the-answer is the failure this guards against.** Four
+of these I had already seen incidentally in earlier work and cannot un-see: **Aaron Rodgers**
+and **Marshawn Lynch** (surfaced in the contamination sweep — Rodgers showed `team: FA`,
+`age: 35`), **Cooper Kupp** (appeared in the VORP-266 mechanism at `proj 76.0`), and **Oronde
+Gadsden** (the model's TE pick at 45). **Stefon Diggs was named by Cory**, not chosen by me.
+The remaining ten are picked blind.
+
+    TOP OF BOARD — if these are wrong, everything is
+      Ja'Marr Chase, Justin Jefferson, Christian McCaffrey, Bijan Robinson, Puka Nacua
+
+    SITUATION CHANGED — where a stale record shows up first
+      Stefon Diggs (Cory), Aaron Rodgers (seen), Cooper Kupp (seen), Derrick Henry,
+      Davante Adams
+
+    RANKS ~150-340 — where the second source thins out
+      Mark Andrews, Cam Skattebo, Luther Burden, Jayden Daniels, Oronde Gadsden (seen)
+
+**FOR EACH:** is this a real 2026 player, on the team the board says, with a projection and an
+ADP that describe THIS season?
+
+**AND THE HONEST LIMIT, DECLARED UP FRONT:** my training knowledge runs to May 2026, so I know
+the 2025 season and only part of the 2026 offseason. **I will not assert a team change or a
+retirement from memory.** Where the answer needs a fact I cannot source, I will say so and name
+the check that settles it rather than guess — the same as the Sleeper `active` flag.
+
+### RESULT OF THE PRE-DECLARED SAMPLE — THE BOARD IS A 2026 BOARD (C, 2026-08-12)
+
+**15 of 15 check out.** I would rather report this than find a problem to match the complaint.
+
+    name                pos team rank    adp  proj_mn  age exp   verdict
+    Ja'Marr Chase       WR  CIN  kept   3.00   295.09   26   5   ok
+    Bijan Robinson      RB  ATL     2   1.67   336.83   24   3   ok
+    Puka Nacua          WR  LAR     3   4.00   297.85   25   3   ok
+    Christian McCaffrey RB  SF      4   5.00   294.40   30   9   ok
+    Justin Jefferson    WR  MIN     9  11.00   236.21   27   6   ok
+    Derrick Henry       RB  BAL  kept  21.67   274.16   32  10   ok
+    Cam Skattebo        RB  NYG    32  37.67   188.53   24   1   ok (2025 rookie)
+    Luther Burden       WR  CHI    45  48.33   172.67   22   1   ok (2025 rookie)
+    Davante Adams       WR  LAR    55  57.00   180.18   33  12   ok (2025 FA move)
+    Jayden Daniels      QB  WAS    57  59.33   341.72   25   2   ok
+    Mark Andrews        TE  BAL   112 115.67   150.72   30   8   ok
+    Stefon Diggs        WR  WAS   123 131.67   134.82   32  11   see below
+    Oronde Gadsden      TE  LAC   130 140.33   118.54   23   1   ok (2025 rookie)
+    Aaron Rodgers       QB  PIT   140 147.00   206.00   42  21   ok (2025 FA move)
+    Cooper Kupp         WR  SEA   284 264.00    75.95   33   9   ok (2025 FA move)
+
+**EVERY AGE AND EXPERIENCE VALUE IS CORRECT FOR 2026.** Rodgers reads 42 / exp 21 — right for a
+1983-born 2005 draftee. Three 2025 rookies carry `exp 1`. Three 2025 free-agency moves are
+reflected (Kupp→SEA, Adams→LAR, Rodgers→PIT). **Contrast Marshawn Lynch at age 35 / exp 15 —
+frozen at roughly his last active season.** Sleeper freezes a retired player's record and keeps
+updating an active one, so *the age field is itself a usable staleness discriminator* and it
+says these players are live.
+
+**AND THE PROJECTIONS ARE RE-FETCHED, NOT CACHED.** `proj_series.json` holds 7 snapshots across
+2026-08-09..08-12 from BOTH providers, 400 players each. Between the first and last:
+
+    fantasypros   86 of 372 players changed (23%)   max move 28.07
+    sleeper        4 of 400 changed  (1%)           max move  7.80
+
+Both are live. Worth noting which is which: **the value the model uses is built on the source
+that moves least.** Not a defect — season-long projections should be stable in August — but it
+is the opposite of what "consensus" implies.
+
+### STEFON DIGGS IS NOT MISPRICED, AND THE NUMBERS SAY SO PLAINLY
+
+    adp 131.67  = ROUND 14 in a 10-team draft, not round 9.  WR50 of 665.
+    vorp -37.85 = overall VORP rank 188 of 1759.
+    depth_chart_order 2, bye 7, injury_status None, age 32, exp 11.
+
+**Neither the market number nor the model number puts him anywhere near the ninth round.** So
+whatever surfaced him there is neither his ADP nor his VORP, and it is in the recommendation
+path — A's, not the data.
+
+**BUT HE IS A GOOD CATCH FOR A DIFFERENT REASON, and it lands on the finding above.** His two
+sources disagree by 26.1 points — sleeper 125.3, fantasypros 99.22, the 74th percentile of
+spread. So the CARD shows `(125.3 + 99.22) / 2 = 112.3` while the MODEL ranks him on 134.82.
+**A 22.5-point gap, on the exact player whose price looked wrong.** If the number on screen felt
+inconsistent with where the tool placed him, that gap is the first thing I would look at.
+
+### WHAT I CANNOT CHECK, AND THE CHECK THAT SETTLES IT
+
+**Diggs on WAS.** My training runs to May 2026; a 2026 free-agency move is past it and I will
+not assert one from memory. **All three providers are egress-blocked from this container** —
+verified, not assumed: `api.fantasypros.com`, `fantasyfootballcalculator.com` and
+`api.sleeper.app` all fail at CONNECT.
+
+**ONE LINE IN CI, where the board build already fetches all three:**
+
+    print({p["full_name"]: (p.get("team"), p.get("active"), p.get("status"))
+           for p in raw.values() if p["full_name"] in SAMPLE})
+
+Run it in `draft-data.yml`, which already authenticates to Sleeper every morning. If `team`
+comes back `WAS` the board is right and Cory's instinct was about the recommendation, not the
+price. **That is the whole remaining question — one field, one workflow that already runs.**
