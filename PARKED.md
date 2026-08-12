@@ -7559,3 +7559,74 @@ and the answer would then be worth money rather than worth noting.
 constrain their CONTENT.** That is a rate worth knowing. The check is one question asked of a
 registration: *does this sentence say what we need, or where we get it?* **F5 cost a route and
 was recoverable. The next one might not be.**
+
+---
+
+## 🔬 ITEM 14 — THE LAB REGISTRY READ ACROSS. ADDITIVE TERMS FAIL; STRUCTURAL RULES DO NOT. (C, 2026-08-12)
+
+Cory: *"a record of WHAT KIND OF HYPOTHESIS FAILS IN THIS SYSTEM, never read as one. Do
+additive terms fail more than structural ones?"* **Read down, it is twelve verdicts. Read
+across, it is one sentence.**
+
+**CHECKED FIRST WHETHER THIS ALREADY EXISTED** (the lesson from the hour before): there is a
+standing meta-finding at line 86, but it reads across DOSE-RESPONSE only — three sweeps, one
+shape. Nothing reads across by KIND OF HYPOTHESIS. Item 14 was genuinely open.
+
+### THE CLASSIFICATION, AND THE COUNT IS THE FINDING
+
+**ADDITIVE / COEFFICIENT hypotheses — tune a weight inside a score:**
+
+    2 §5   phase shapes (H1 vs 3 rivals)      FIRED — **H1 REFUTED**
+    6      stack/correlation dose-response    peaks 0.5x -> **D10 STOOD IT DOWN to 1.0**
+    21     ceiling tilt (mean-variance)       inverted-U, **NEGATIVE by lambda=2-3**
+    1      weight profiles (6 of them)        **ALL PARKED under the null p95**
+    25c    composite Stage-2 washout          **weight profiles wash out**
+
+    -> FIVE registered. **ZERO installed.**
+
+**STRUCTURAL hypotheses — change the selection procedure or add a constraint:**
+
+    19     archetype constraint-overlays      **ALL PARKED** (edges $0/±5)
+    2 §6   conditional policy mining          **0 rules clear**
+    B0-keeper  best-ADP among UNFILLED        **FIRED — the draft-day rule**
+               starter needs                  **+$258/season, CI [206, 309]**
+
+    -> THREE registered. **ONE installed — and it is the largest effect in the registry
+       by an order of magnitude.** Everything else lands at $0/±5.
+
+**DESCRIPTIVE hypotheses — measure a property of the board, install nothing:** 25 (RB dead
+zone), 25b (value pockets), 25d (across three eras) — all confirmed, and 25d honestly qualified
+as *"real but NOT universal"*. These do not compete; they describe.
+
+### THE ANSWER: YES, AND THE ASYMMETRY IS STARK
+
+**Nought for five on additive terms. One for three on structural ones, and that one is worth
+$258 a season against a field of $0.** The mechanism is even stated in B0-keeper's own row:
+`avg_RB` 4.55 under pure ADP versus 3.48 under need — **it removed a systematic over-draft.
+It did not re-weight anything; it changed which players were eligible.**
+
+### AND CORY'S SECOND QUESTION — measured in one branch, applied in another
+
+**Yes, systematically, and the registry caught it once by name.** B0 scored +$50 pooled and the
+registry refuses to read it as a strategy edge:
+
+> *"B3 drafts on our crude walk-forward projection while B0 drafts on the real contemporaneous
+> market, so this is THE PROJECTION GAP PRICED IN DOLLARS (~$25-50/team/season), NOT 'raw ADP
+> beats the composite'."*
+
+**A term measured in one frame and applied in another manufactured a $50 edge that looked like
+a finding.** That is the same shape as A's Stage 1 headline this week — *"a comparison against
+a tautology"* — and the same shape as my own four false results. **Three independent instances
+of one defect: the frame differs and the number does not say so.**
+
+### WHAT IT MEANS FOR THE OBJECTIVE CORRECTION A IS SHIPPING
+
+**A is tuning coefficients under time pressure, and this registry says coefficient tuning has
+never once installed in this system.** Five attempts, five failures, and the one success
+changed a RULE. That is not a reason to stop — it is a reason to **pre-register the expected
+effect size against the $0/±5 field before the run**, because a coefficient result that lands
+in that band is the modal outcome here rather than a surprise.
+
+**LIMIT, STATED:** twelve verdicts is a small n and the classification is mine, not the
+registry's — someone could file exp 21 as structural. **I am reporting the split I applied so
+it can be disagreed with**, not claiming the categories are given.
