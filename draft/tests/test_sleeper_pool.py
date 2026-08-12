@@ -91,3 +91,60 @@ def test_a_pick_with_NO_time_field_says_so_rather_than_defaulting():
     assert ok is False and "no time field" in k
     assert S.pick_has_timestamp({"pick_no": 1, "pick_time": 172})[0] is True
     assert S.pick_has_timestamp({"metadata": {"pick_time": 172}}) == (True, "metadata.pick_time")
+
+
+def test_the_bid_is_looked_for_at_EVERY_path_before_concluding_there_is_none():
+    """`history_export.py` reads t["settings"]["waiver_bid"], gets null for all 648
+    waiver transactions across three seasons, and records "this league has no bids".
+    THE LEAGUE SETTINGS DISAGREE: waiver_budget 100, waiver_type 1.
+
+    Both cannot be right, and the failure is SELF-CONFIRMING — a reader pointed at
+    the wrong path gets null, null reads as absence, and absence becomes a recorded
+    fact. MUTATION: check one path. The wrong path returns 'no bids' forever and the
+    conclusion is supported by data never consulted."""
+    assert S.bid_path({"waiver_bid": 17}) == ("waiver_bid", 17)
+    assert S.bid_path({"settings": {"waiver_bid": 5}}) == ("settings.waiver_bid", 5)
+    assert S.bid_path({"metadata": {"waiver_bid": 3}}) == ("metadata.waiver_bid", 3)
+
+
+def test_NO_BID_ANYWHERE_reports_the_paths_tried_rather_than_asserting_no_FAAB():
+    """Absent is not zero and it is not 'no FAAB' either. A transaction with no bid
+    means THIS transaction had no bid — a different claim from a statement about the
+    league. MUTATION: return 0, or return 'no faab'."""
+    path, why = S.bid_path({"type": "waiver", "adds": {}})
+    assert path is None
+    assert "no bid at any of" in why and "settings.waiver_bid" in why
+
+
+def test_f7_verdict_REPORTS_THE_NUMBER_and_never_relaxes_the_target():
+    """F7's registered rule: >=200 matched league-seasons, and a short sample reports
+    the number and changes NOTHING. MUTATION: lower the target when the run falls
+    short — the exact move F7 exists to forbid."""
+    v = S.f7_verdict(matched=8, screened=400, discovered=11988)
+    assert "NOT YET MET" in v and "CHANGES NOTHING" in v
+    assert "200" in v
+    hit = S.f7_verdict(matched=214, screened=10000, discovered=40000)
+    assert hit.startswith("F7 MET ON SLEEPER")
+    # ...and a met target still does not claim a graded observation
+    assert "does NOT by itself deliver a graded observation" in hit
+
+
+def test_the_projection_says_REACHABLE_only_when_the_POOL_can_supply_it():
+    """MUTATION: call it reachable from the rate alone. A 2% rate 'reaches' 200 at
+    10,000 screens whether or not 10,000 leagues have been discovered, which turns an
+    arithmetic extrapolation into a claim about a pool nobody enumerated."""
+    ok = S.f7_verdict(matched=8, screened=400, discovered=50000)
+    assert "REACHABLE" in ok
+    short = S.f7_verdict(matched=8, screened=400, discovered=900)
+    assert "not reachable from the pool discovered so far" in short
+
+
+def test_a_ZERO_rate_projects_NOTHING_rather_than_dividing_by_it():
+    v = S.f7_verdict(matched=0, screened=500, discovered=9000)
+    assert "No matches, so no rate can be projected" in v
+
+
+def test_draft_complete_reads_the_league_status_and_names_it():
+    assert S.draft_complete({"status": "in_season"})[0] is True
+    assert S.draft_complete({"status": "pre_draft"}) == (False, "pre_draft")
+    assert S.draft_complete({})[0] is None

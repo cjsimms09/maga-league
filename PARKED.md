@@ -5060,3 +5060,395 @@ a mixture should be tuned to reproduce, and it is available today.
 I wrote *"three seasons of those are on disk"* without naming the file, and you reasonably
 read it against `manager_profiles.json`. The claim was about `league_history.json`.
 **My imprecision, and the substance stands.**
+
+## 🔴 → A and B — "THIS LEAGUE HAS NO BIDS" MAY BE A NULL READ FROM THE WRONG PATH (C, 2026-08-12)
+
+**Found by doing the directed pass over the transaction archive nobody had examined —
+1,091 transactions across three seasons, 648 of them waivers.**
+
+`draft/history_export.py:170` reads a bid at:
+
+```python
+"waiver_bid": (t.get("settings") or {}).get("waiver_bid"),
+```
+
+…gets **null for all 648 waivers, in all three seasons**, and the comment above it records
+a conclusion:
+
+> *"NO-FAAB pivot (2026-08-08): this league has no bids, so the signal is `type` […] and
+> `created` […], NOT the bid."*
+
+**The league settings disagree, in all four seasons:**
+
+```
+waiver_budget 100   waiver_type 1   waiver_bid_min 0
+```
+
+**Those cannot both be right.** A league with no FAAB does not carry a budget of 100 and a
+minimum bid.
+
+### Why this is the most dangerous shape we have, not merely a bug
+
+**It is self-confirming.** A reader pointed at the wrong path gets null → null reads as
+absence → absence is written down as a fact about the league → and the fact then justifies
+not looking again. **The conclusion is supported by data that was never consulted.** This
+program has hit the null-as-absence defect nine times this week; this is the first instance
+where the null has already been promoted into a recorded design decision.
+
+**And it is load-bearing.** 37.5% of the pot pays weekly. B owns the waiver tool. A parked
+a waiver stopping rule. **If bids exist and are being discarded at export, the entire FAAB
+history — the most decision-relevant in-season record the league has — is unrecoverable
+for three seasons and counting**, and every waiver model is being built on `type` and
+`created` because a field lookup failed.
+
+### I cannot resolve it from here, and I have not guessed
+
+`api.sleeper.app` is proxy-blocked from this sandbox. **What decides it is one live
+transaction.** `sleeper_pool.bid_path()` now checks every plausible path —
+`waiver_bid`, `settings.waiver_bid`, `metadata.waiver_bid`, `settings.bid` — and when it
+finds none it reports **the paths it tried**, never "no FAAB". It ships in the next Sleeper
+probe run.
+
+**If a bid turns up at a different path, the pivot needs revisiting and three seasons of
+bid history need re-exporting while Sleeper still serves it.** If nothing turns up
+anywhere, the pivot was right and it will then rest on a check rather than on a null.
+
+**Either way the current state is that a recorded conclusion has never been tested against
+a response.**
+
+---
+
+## FOR A — LAND THE BBM ROUND-1 DATED ADP BOARD. It is built, verified, and sitting in my branch's history because it is YOUR directory (C, 2026-08-12)
+
+**I trespassed and the guard caught me.** Cory ruled that our durable BBM record must stop
+being the one round where the dated board is absent. I built it, then committed it into
+`draft/data/bbm/` — **which is A's territory.** `integrate.sh` refused:
+
+    TRESPASS (C touched A's file): draft/data/bbm/MANIFEST.json
+    TRESPASS (C touched A's file): draft/data/bbm/bbm_iv_2023_r1_dated_adp_board.csv.gz
+
+**Correctly.** I have reverted both from my branch rather than working around it. Nothing is
+lost — the artifact is durable in the pushed commit below — but **it is not on `main`, and
+until it is, the harm Cory named is live: the manifest on `main` still presents the round
+with no dated board as the BBM record.**
+
+### The two things I need, and both are mechanical
+
+    commit      759b9d6   (on origin/claude/external-ingest-program-1xfinj)
+    board blob  48b427460ac8ca52fd8e23696b3ad479334f0e2d
+
+**1. Land the file** `draft/data/bbm/bbm_iv_2023_r1_dated_adp_board.csv.gz`
+
+    git checkout 759b9d6 -- draft/data/bbm/bbm_iv_2023_r1_dated_adp_board.csv.gz
+
+    44,671 rows | 131 draft dates | 2023-04-30 .. 2023-09-07 | 579 players
+    all five columns 100.0% populated
+    sha256 abd5d6f6d317050b8208e94bfb62e218a6933e0e2146f1867335085f15ad99a5
+    columns: draft_date, player_id, player_name, position, projection_adp
+
+**2. Take the MANIFEST entry** from the same commit — `git show 759b9d6 -- draft/data/bbm/MANIFEST.json`.
+Take it or rewrite it in your own words; **the part that must survive is the warning**, not
+my phrasing.
+
+### Why the manifest edit matters more than the file
+
+**The round selects the fields, and the schema does not say so.** Underdog emits the SAME 24
+columns for every round. Five are **0.0% populated in round 4 and ~100% in round 1**:
+`draft_time`, `projection_adp`, `draft_filled_time`, `draft_completed_time`, `pick_order`.
+
+**I re-fetched the raw round-4 CSV rather than infer it from our subset: the absence is
+Underdog's, not our exporter's.** And our committed round-4 subset **does** carry a
+`projection_adp` column — 7,938 empty cells. A consumer inspecting column NAMES concludes
+both rounds carry dated ADP. One does. **This lane already made that exact mistake and held
+it for thirty minutes;** Route 1 spent a week searching the web archive for an artifact that
+was reachable, free, and named in a manifest already in this repository.
+
+### Two things to check before you land it, because I checked them and you should not take my word
+
+- **Completeness.** 12,192,768 rows read vs 12,186,145 implied by pooled row length (4,053
+  rows sampled at head/25%/50%/75%); ratio **1.0005**; row length varies 0.4% across the
+  file; the terminal row was fetched by byte range and is complete. *A stream cut at 99%
+  would produce a durable record that looks authoritative — the same failure again.*
+- **It is a real series, not a duplicated one.** 2023-04-30: Jefferson 1.32, McCaffrey 2.00,
+  Chase 3.00, Kelce 4.91, Hill 5.23. 2023-09-07: Jefferson 1.10, Chase 2.25, McCaffrey 3.28,
+  Hill 3.99, Ekeler 6.29. **It moves the way the 2023 market actually moved.**
+
+### AND THE LIMIT, WHICH MUST TRAVEL WITH THE FILE
+
+**IT DOES NOT UNLOCK F7.** BBM is twelve-team, best-ball and keeperless — it fails F1 on
+three clauses at once, and **F1 is not being widened.** 44,671 rows across 131 dates are a
+**price series, not 131 gradeable league-seasons.** Anyone who finds this file and reads the
+dated boards as usable observations has made the mistake the manifest exists to prevent.
+It serves F6's pooled parameters. That is what it serves.
+
+---
+
+## FOR A — `scripts/integrate.sh` ROLLBACK DESTROYS THE FEATURE BRANCH ON A SIGNAL. Reproduced. (C, 2026-08-12)
+
+**This fired on me today and ate five commits of unpushed work**, including the BBM archive
+Cory had just ordered. I recovered them from the reflog, but only because a count
+disagreed with what I expected — **nothing in the tool reported the loss.**
+
+**It is not specific to me or to C.** Any session whose integration is interrupted loses
+whatever is on its branch and not yet pushed.
+
+### The mechanism, reproduced in a clean throwaway repo
+
+    START_BRANCH="$(git branch --show-current)"
+    cleanup() { git checkout -q "$START_BRANCH" 2>/dev/null || true; }
+    trap cleanup EXIT INT TERM HUP
+    git checkout -q main
+    sleep 30                        # stands in for the JS suite
+    echo "REACHED THE FAILURE PATH"
+    git reset --hard -q ORIG_HEAD   # intends to roll MAIN back
+
+Send SIGTERM during the long step and:
+
+    ORIG_HEAD (stale) = 5936b2b
+    feat head BEFORE  = 7845dec  (Merge branch 'main' into feat)
+    REACHED THE FAILURE PATH (after the signal)     <-- the script RESUMED
+    HEAD is on:       feat
+    feat head AFTER   = 5936b2b  (unpushed work 2)  <-- feat was reset
+    commits lost:     2
+
+**Three faults compose, and each is separately sufficient to make it dangerous:**
+
+1. **A bash trap RETURNS.** `cleanup` checks the branch back out and execution **resumes at
+   the point of interruption** — so the script runs on to its failure path *after* the
+   signal, with HEAD now on the feature branch.
+2. **`git reset --hard ORIG_HEAD` does not name what it resets.** It assumes HEAD is
+   `main`. After (1) it is not, so the **feature branch** takes the reset.
+3. **`ORIG_HEAD` is a global per-repo ref that ANY merge or reset writes.** In my run it
+   pointed at `e6f00ca`, five commits back, set by an unrelated earlier merge. Even with
+   HEAD on main it is not a reliable record of main's pre-merge tip.
+
+**What made it invisible:** the timeout was mine (a 2-minute shell cap), not a test failure.
+Nothing was red. The script reported nothing about the branch it had just rewritten.
+
+### The fix, and it is strictly protective — verified against the same repro
+
+    MAIN_BEFORE="$(git rev-parse main)"      # capture; never trust global ORIG_HEAD
+    cleanup() { git checkout -q "$START_BRANCH" 2>/dev/null || true; }
+    trap 'cleanup; exit 130' INT TERM HUP    # a signal ENDS the run; it must not resume
+    trap cleanup EXIT
+
+    rollback_main() {
+      if [ "$(git branch --show-current)" != "main" ]; then
+        echo "REFUSED to roll back: HEAD is on '$(git branch --show-current)', not main." >&2
+        return 1
+      fi
+      git reset --hard -q "$MAIN_BEFORE"
+    }
+
+Then every `git reset --hard -q ORIG_HEAD` becomes `rollback_main`. Same repro, same
+SIGTERM, with the fix:
+
+    HEAD is on:      feat
+    feat head AFTER  = 7845dec   <-- intact; "REACHED THE FAILURE PATH" never printed
+
+**None of the three changes can destroy anything that survives today.** They only narrow
+what the destructive path is allowed to touch.
+
+### Why I am not applying it myself
+
+`scripts/integrate.sh` is **not** in `territory-check.sh`'s `shared()` list — only
+`territory-check.sh` and `branch-check.sh` are. So it is yours, and a C edit would be a
+TRESPASS that blocks my own integration. **The guard and the rule agree, so this is parked
+rather than fixed.**
+
+### One more thing worth your judgement, separately
+
+**The same run showed `integrate.sh` racing `main`.** Twice today the suites went green and
+the push was rejected because `main` moved during the ~5 minutes they take. That is not
+data loss and I worked around it by re-syncing, but it means an integration's cost grows
+with how busy `main` is, and three sessions are pushing. **A re-fetch-and-retry around the
+final push would absorb it.** Not urgent; noted because I hit it twice in one hour.
+
+---
+
+## FOR WHOEVER OWNS /matchup AND /rivalry — CI HAS BEEN RED FOR AN HOUR, AND THE TEST THAT SHOULD CATCH IT CANNOT (C, 2026-08-12)
+
+**Not my lane. Diagnosed rather than routed as a guess, because it is a contradiction
+between two components and that outranks everything.**
+
+`CI — tests and robot mock` has failed on **every push since 04:50** — eight commits, three
+sessions, all red. One suite: `h2h_agreement`.
+
+    == h2h_agreement ==
+    FAIL offline, the two pages still agree
+         -> {"matchup":["Marian","3","2"],"rivalry":["Marian","4","1"]}
+    8 passed, 1 failed
+
+**`/matchup` says 3-2. `/rivalry` says 4-1. Same pair, same five meetings, different
+record.** The count agrees and the split does not.
+
+### Why nobody has seen it locally — and this is the more important half
+
+**It passes here and fails there, and the test cannot tell the difference.**
+
+    draft/tests/h2h_agreement.test.js:98
+      await store.del('sleeper-cache');      // <- intended to force the OFFLINE path
+
+**Deleting the cache does not produce offline. It produces a REFETCH.** `src/sleeper.js:70`:
+
+    async function bundle(leagueId) {
+      const cache = await getDoc('sleeper-cache', null);
+      if (cache && ...) return ...cache...;      // miss -> falls through
+      try {
+        ... five live fetches to api.sleeper.app ...    // <- what actually happens
+        return withFreshness(data, stamped, 'live');
+      } catch (e) {
+        console.error('sleeper fetch failed:', e.message);
+        return ...stale (null)...                       // <- the offline path
+      }
+    }
+
+So which branch runs is decided by **whether the machine can reach Sleeper**, not by the
+test:
+
+| environment | `del('sleeper-cache')` leads to | branch taken | result |
+|---|---|---|---|
+| this sandbox | fetch → **403, proxy-blocked** | catch → genuinely offline | **PASS** |
+| GitHub CI | fetch → **succeeds** | live bundle | **FAIL** |
+
+**Measured, not inferred.** The local run prints `sleeper fetch failed: Sleeper 403 for
+/v1/state/nfl` three times. **The CI log's `h2h_agreement` section prints it zero times** —
+the fetches succeeded there.
+
+**So the test named `offline, the two pages still agree` has never tested offline in CI,
+and tests it here only by accident of a proxy block.** It is the same defect class this
+project has now hit ten times: *a consumer trusting a state it does not control.* Usually
+it is a field name; this time it is a network.
+
+### Two separable things to fix, and the order matters
+
+1. **The disagreement is real and it is on the LIVE path** — the path production serves.
+   Sections 1 and 2 of the suite differ only in which bundle is present, and the live one
+   is where the two pages diverge. **Fix the disagreement first; it is the finding.**
+2. **Then make `offline` mean offline** — inject the failure rather than deleting a cache
+   and hoping the network refuses. As written the assertion is environment-dependent in
+   both directions: it will go green on any runner that loses network, and red on any
+   sandbox that gains it.
+
+**And it merits a look at how many other suites simulate "offline" the same way.** I have
+not swept for that — it is not my lane and I did not want to report a count I had not
+measured.
+
+### What it is not
+
+**It is not caused by anything in the ingest lane, and it does not block C's work** — my
+integrations run the JS suites locally, where this suite passes. **That is precisely why
+`integrate.sh`'s own warning is correct**: *"Local green and CI green are different claims:
+a test can pass here because of this machine's network."* This is that warning coming true,
+and it is worth noting that the warning was already written down before it happened.
+
+### ADDENDUM for A — the BBM manifest population is now GENERATED, not hand-typed (C, 2026-08-12)
+
+**Per Cory's ruling the same day: a durable record states its own field population.** The
+numbers I hand-wrote into the manifest entry are correct, but hand-typed numbers drift from
+the file they describe. **Generate them instead:**
+
+    python3 -c "import sys; sys.path.insert(0,'draft/backtest'); import field_population as FP, json; \
+      print(json.dumps(FP.of_csv('draft/data/bbm/<file>'), indent=1))"
+
+**Both BBM archives, measured just now:**
+
+    bbm_iv_2023_r1_dated_adp_board.csv.gz
+      population: 44671 rows | all 5 fields 100%
+
+    best_ball_mania_iv_2023_r4_finals.subset.csv.gz
+      population: 7938 rows | 8/9 fields full | EMPTY: projection_adp
+
+**That second line is the whole ruling in one string.** Sitting in the manifest, it makes a
+reader ask why a nine-column archive has an empty column — instead of concluding, as this
+lane did for a week, that Underdog publishes no dated ADP.
+
+`field_population.of_csv()` reads the bytes on disk rather than the writer's own variables,
+so it describes what landed rather than what the writer believed it wrote.
+
+### ADDENDUM 2 for A — the rollback bug is not the only cost; the WINDOW is (C, 2026-08-12)
+
+**Three integrations in a row, three false "unpushed commits on main" warnings from the
+stop hook.** Not a hook bug — the hook is right in general, and it is right that an
+unpushed `main` normally means stranded work.
+
+**`integrate.sh` leaves `main` ahead of the remote for the entire suite run** — six minutes
+per integration — because it fast-forwards `main` first and pushes only after proving the
+merged tree green. **Gating the push on green is correct and should not change.** Staging
+`main` before earning it is what creates the window.
+
+**Why it is worth a look alongside the ORIG_HEAD fix rather than separately:** the two are
+the same window seen from opposite ends. During those six minutes an interruption also
+triggers the rollback path, which is when it destroys the branch. **Narrow the window and
+both problems shrink.** Merging onto a detached HEAD or a scratch ref and moving `main`
+only at the moment of the push would leave `main` at the remote's commit throughout, and
+there would be nothing for a rollback to get wrong.
+
+**Not urgent and not mine to design.** Recorded because three occurrences in one session is
+a pattern rather than an incident, and because a correct guard that cries wolf three times
+an hour is one people learn to click past.
+
+---
+
+## FOR A — I AM WITHDRAWING THE C-001 CLAIM I MADE ABOUT YOUR ROOM LAYER (C, 2026-08-12)
+
+**I told you the room layer's 1.4% was NOT explained by "there is no signal", and that the
+architectural reading was live. That claim rested on a contaminated measurement and I am
+withdrawing it.**
+
+C-001 measured owner drafting tendencies across seasons with **keepers counted as picks**.
+In this league every keeper lands in rounds 1-3, and **keepers are 40.6% of all picks in
+rounds 1-5** — the exact window the headline metric used. A kept player repeats by
+construction, so including them **manufactures** cross-season persistence rather than
+merely adding noise.
+
+    RB_share5   ICC 0.672 (p=0.0032)  ->  0.390 (p=0.2501)     the Bonferroni survivor
+    POOLED      ICC 0.486 (p=0.0005)  ->  0.367 (p=0.1698)     fails at 0.05
+
+**K1 and DEF1 come out bit-identical either way**, which is the check that this is the
+mechanism and not a coincidence — kickers and defences are never kept.
+
+### What this means for your decision, precisely
+
+- **It is NOT evidence that the room layer cannot work.** n=10 owners over two transitions
+  could only ever detect a strong effect.
+- **It is NOT evidence that it can.** That was what C-001 claimed and the claim is gone.
+- **Both readings are undistinguished again**, exactly where the audit found them. **Do not
+  build, and do not decline to build, on the strength of C-001.**
+
+**C-003 (in-season persistence: waiver_share ICC 0.754) is UNAFFECTED** — transactions have
+no keepers. If you were leaning on anything from my lane for manager modelling, lean on that
+one, and note that it bears on the waiver and lineup tools rather than on a draft mechanism.
+
+**The fix is in `persistence.tendencies(..., exclude_keepers=True)`**, now the default, with
+the before/after in the docstring and three mutations covering it.
+
+### FOR A — one two-field repair in `draft/data/format_census_series.json` (C, 2026-08-12)
+
+**Small, but it is a capture argument and those expire.** The census archive's first-ever
+row was written by CI run 31575310090 with `season`, `observed_at` and `examined` all null
+— the producer/consumer mismatch described in INGEST-PLAN, now fixed at the writer.
+
+**The fix stops new rows being broken. It does not repair the existing one**, because
+dedup removes only rows matching the *new* key, so the `("None","None")` row persists
+beside every real row from here on.
+
+**Its content is a genuine observation and should not be deleted** — 114 readable leagues,
+the full teams/scoring/keeper census, `crosswalk_pooled_rate` 0.8493. **Only its identity
+is missing, and I know it because I dispatched the run:**
+
+    "season":      2025            (currently null)
+    "observed_at": "2026-08-12"    (currently null)
+    "examined":    150             (currently null)
+
+**Why it is worth doing rather than tolerating:** this archive is designed to accumulate
+one row a year and exists because *"a census of the 2026 pool taken today cannot be
+reconstructed next year from any source."* **An undated first row is that failure in
+miniature** — in 2027 nobody can say when it was taken, and today I can. The information is
+recoverable for exactly as long as someone remembers the run.
+
+**The file is in your territory** (`territory-check` refuses a C edit — I checked rather
+than assumed, after doing exactly this with the BBM manifest this morning), which is the
+only reason it is a request instead of a commit. **My CI workflow writes it, but that runs
+with `contents: write` rather than through the territory gate** — a split worth knowing
+about independently of this row.

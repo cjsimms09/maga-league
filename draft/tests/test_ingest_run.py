@@ -1264,3 +1264,38 @@ def test_a_PLAYED_season_verdict_is_untouched_by_any_of_this():
     v = R.readiness_verdict({"state": "COMPLETE", "season": 2025, "reg_weeks": 18},
                             {"matched": 7, "rejected_by_reason": {"F1.teams": 3}})
     assert v == "season 2025 COMPLETE (18 REG weeks); 7 matched league-seasons"
+
+
+def test_the_pooled_crosswalk_carries_the_shortfalls_SHAPE_not_just_its_size():
+    """The per-league composition must survive pooling, or it answers nothing.
+
+    A composition that stops at the per-league report is invisible: the run-level
+    dict is the only crosswalk record anything downstream reads, and it is what
+    reaches the census, the log and the artifact. Pooling is where the question
+    "do unmatched players differ systematically from matched ones" is actually
+    asked, because one league of ten misses cannot show structure.
+    """
+    reports = [
+        {"picks": 10, "crosswalked": 7, "crosswalk_rate": 0.7,
+         "no_sleeper_match": 3,
+         "unmatched_composition": {"n": 3, "by_pos": {"RB": 2, "unknown": 1},
+                                   "by_why": {"team_unit_not_a_player": 1},
+                                   "with_name_suffix": 1},
+         "matched_composition": {"n": 7, "by_pos": {"WR": 5, "RB": 2},
+                                 "with_name_suffix": 0}},
+        {"picks": 10, "crosswalked": 8, "crosswalk_rate": 0.8,
+         "no_sleeper_match": 2,
+         "unmatched_composition": {"n": 2, "by_pos": {"RB": 2}, "by_why": {},
+                                   "with_name_suffix": 2},
+         "matched_composition": {"n": 8, "by_pos": {"WR": 8}, "with_name_suffix": 0}},
+    ]
+    s = R.crosswalk_summary(reports)
+    uc, mc = s["unmatched_composition"], s["matched_composition"]
+    assert uc["by_pos"] == {"RB": 4, "unknown": 1}, uc
+    assert uc["with_name_suffix"] == 3, uc
+    assert uc["by_why"] == {"team_unit_not_a_player": 1}, uc
+    assert mc["by_pos"] == {"WR": 13, "RB": 2}, mc
+    # and the comparison the whole thing exists for is now computable
+    miss_rb = uc["by_pos"]["RB"] / sum(uc["by_pos"].values())
+    hit_rb = mc["by_pos"]["RB"] / sum(mc["by_pos"].values())
+    assert miss_rb > hit_rb, (miss_rb, hit_rb)

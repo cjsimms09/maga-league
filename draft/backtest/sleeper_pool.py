@@ -177,3 +177,94 @@ def pick_has_timestamp(pick) -> tuple:
             if md.get(k) is not None:
                 return True, "metadata.%s" % k
     return False, "no time field (tried pick_time, created, timestamp, updated_at)"
+
+
+# ── THE WAIVER-BID PATH, and why this is a question rather than a lookup ────
+#
+# `history_export.py` reads a bid at `t["settings"]["waiver_bid"]`, gets null for
+# every one of 648 waiver transactions across three seasons, and records a
+# "NO-FAAB pivot (2026-08-08): this league has no bids".
+#
+# THE LEAGUE SETTINGS DISAGREE: waiver_budget 100, waiver_type 1, waiver_bid_min 0.
+#
+# Those cannot both be right, and the failure mode is SELF-CONFIRMING: a reader
+# pointed at the wrong path gets null, and null reads as absence, and absence
+# becomes a recorded fact about the league. That is this program's most-repeated
+# defect wearing its most convincing disguise — a conclusion supported by data
+# that was never consulted.
+#
+# So this does not decide it. It reports WHERE A BID ACTUALLY LIVES in a real
+# response, and refuses to answer from a field that may never have been populated.
+
+BID_PATHS = (("waiver_bid",), ("settings", "waiver_bid"), ("metadata", "waiver_bid"),
+             ("settings", "bid"), ("waiver_budget",))
+
+
+def bid_path(txn) -> tuple:
+    """(path, value) for the first path that carries a bid, or (None, why).
+
+    ABSENT IS NOT ZERO and it is not "no FAAB" either: a transaction with no bid
+    anywhere means this transaction had no bid, which is a different claim from
+    "this league does not use them".
+    """
+    if not isinstance(txn, dict):
+        return None, "transaction is %s" % type(txn).__name__
+    for path in BID_PATHS:
+        cur = txn
+        for k in path:
+            cur = cur.get(k) if isinstance(cur, dict) else None
+            if cur is None:
+                break
+        if cur is not None:
+            return ".".join(path), cur
+    return None, "no bid at any of: %s" % ", ".join(".".join(p) for p in BID_PATHS)
+
+
+# ── F7 AT SCALE: two phases, because expansion and screening cost differently ──
+#
+# MEASURED in the first probe: 400 leagues examined cost 5,897 requests — roughly
+# 14.7 each — because every examined league also fetched its users AND each user's
+# league list. SCREENING a league costs ONE request. So a run that expands while it
+# screens pays 14.7x for a number that needs 1x.
+#
+# Phase 1 EXPANDS until the discovered set is large enough. Phase 2 SCREENS from
+# that set WITHOUT expanding. At 0.084s per request, 10,000 screens is ~14 minutes
+# rather than ~3.4 hours.
+#
+# F7 NEEDS 200 MATCHED LEAGUE-SEASONS. At the measured 2.00% format rate that is
+# ~10,000 leagues screened, which phase 2 reaches inside one job.
+
+def draft_complete(lg) -> tuple:
+    """F2's clause, on Sleeper's shape. `status` is the league's, not the draft's."""
+    st = (lg or {}).get("status")
+    if st is None:
+        return None, "no status"
+    # Sleeper: pre_draft / drafting / in_season / complete
+    return (st in ("in_season", "complete")), st
+
+
+def f7_verdict(matched: int, screened: int, discovered: int, target: int = 200) -> str:
+    """F7's registered rule, applied to whatever this run actually reached.
+
+    THE RULE IS UNCHANGED AND IS NOT BEING RELAXED: >=200 matched league-seasons, and
+    a short sample REPORTS THE NUMBER AND CHANGES NOTHING. What changes is the pool it
+    is asked of — MFL's was measured unreachable, and this asks the same question of a
+    second source.
+    """
+    rate = (matched / screened) if screened else 0.0
+    if matched >= target:
+        return ("F7 MET ON SLEEPER: %d matched of %d screened (%.2f%%), from a discovered "
+                "pool of %d. The pre-registered target of %d is reached. This says the "
+                "FORMAT constraint that closed MFL does not close Sleeper; it does NOT by "
+                "itself deliver a graded observation, which still needs F2, F4 and F5"
+                % (matched, screened, 100 * rate, discovered, target))
+    need = int(target / rate) if rate else None
+    return ("F7 NOT YET MET IN THIS RUN: %d matched of %d screened (%.2f%%), discovered "
+            "pool %d. Per the pre-registered rule a short sample REPORTS THE NUMBER AND "
+            "CHANGES NOTHING. %s"
+            % (matched, screened, 100 * rate, discovered,
+               ("At this rate %d screens would reach %d — the pool holds %d, so the target "
+                "is %s" % (need, target, discovered,
+                           "REACHABLE" if need and need <= discovered else
+                           "not reachable from the pool discovered so far"))
+               if rate else "No matches, so no rate can be projected."))

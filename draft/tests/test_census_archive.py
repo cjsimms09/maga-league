@@ -55,3 +55,95 @@ def test_an_UNREADABLE_series_RAISES_rather_than_starting_fresh():
     with pytest.raises(ValueError):
         CA.append(REP, path=str(tmp))
     tmp.unlink()
+
+
+def test_the_archive_carries_its_own_field_population():
+    """Cory's ruling, 2026-08-12: a durable record states which fields are populated.
+
+    The concrete failure this closes IN THIS FILE: `keeper_type` was absent from the
+    census row for a week and nothing said so. A field that stops being emitted now
+    drops off 100% in a number sitting beside the rows.
+    """
+    doc = CA.append({"season": 2026, "observed_at": "2026-08-12", "examined": 10,
+                  "matched": 0,
+                  "format_census": {"readable_leagues": 9, "teams": {"12": 9},
+                                    "keeper_type": {"none": 9}}},
+                 path="/nonexistent/census.json")
+    pop = doc["population"]
+    assert pop["rows"] == 1
+    assert pop["fields"]["keeper_type"]["pct"] == 100.0
+    # and the fields this run could not fill are NAMED, not silently dropped
+    assert "pass_td_points" in pop["fields"]
+    assert "pass_td_points" in pop["empty"]
+
+
+def test_a_field_the_writer_STOPS_emitting_is_still_named():
+    """The case the declared list exists for, and the one that actually happened.
+
+    Found by a surviving mutation. `keeper_type` was absent from the census row for a
+    week. If the declared field list is derived from the row being written, dropping a
+    field also drops it from the record — the archive then looks complete because the
+    only witness to the missing field was the missing field.
+    """
+    # A census file written BEFORE `keeper_type` existed on the row.
+    tmp = Path("/tmp/claude-census-legacy.json")
+    tmp.write_text(json.dumps({
+        "version": "format-census-series/v1",
+        "series": [{"observed_at": "2026-08-01", "season": 2026, "examined": 5}]}))
+    doc = CA.append({"season": 2026, "observed_at": "2026-08-12"}, path=str(tmp))
+    kt = doc["population"]["fields"]["keeper_type"]
+    assert kt["missing"] == 1                 # the legacy row never had the key
+    assert "keeper_type" in doc["population"]["empty"]
+    tmp.unlink()
+
+
+def test_the_declared_field_list_cannot_drift_from_the_row():
+    """Forces an update rather than letting a new field slip in unrecorded."""
+    doc = CA.append({"season": 2026, "observed_at": "2026-08-12"},
+                    path="/nonexistent/census.json")
+    assert list(doc["series"][0]) == CA.CENSUS_FIELDS
+
+
+# ── THE SHAPE THE REAL INGEST REPORT HAS, taken from the run that exposed this ──
+# Deliberately NOT the convenient fixture above: `REP` supplies season/observed_at at
+# the top level and the actual report does not, which is why seven green tests sat
+# beside a broken archive. A fixture that asserts the author's belief about a producer
+# tests the author.
+REAL_SHAPED = {
+    "format_census": {"readable_leagues": 114, "teams": {"12": 51}},
+    "crosswalk": {"pooled_rate": 0.8493},
+    "rejected_by_reason": {"F1.scoring_not_half_ppr": 58},
+    "pool": {"examined": 150, "fetch_failures": 0},
+    # no top-level season, observed_at or examined — this is the point
+}
+
+
+def test_a_report_with_NO_KEY_raises_instead_of_writing_an_unkeyable_row():
+    """The CI defect, reproduced. Null season+observed_at makes the dedup key
+    ("None","None"), so the NEXT run deletes this row on its way in — a time series
+    permanently capped at one observation that looks exactly like a working archive."""
+    with pytest.raises(ValueError) as e:
+        CA.append(REAL_SHAPED, path="/nonexistent/census.json")
+    assert "season" in str(e.value) and "observed_at" in str(e.value)
+
+
+def test_the_caller_supplies_the_key_and_it_lands_in_the_row():
+    doc = CA.append(REAL_SHAPED, path="/nonexistent/census.json",
+                    observed_at="2026-08-12", season=2025)
+    row = doc["series"][0]
+    assert (row["season"], row["observed_at"]) == (2025, "2026-08-12")
+    assert doc["population"]["empty"] == [] or "season" not in doc["population"]["empty"]
+
+
+def test_examined_is_read_from_where_the_report_ACTUALLY_keeps_it():
+    """`examined` lives under `pool`, not at the top level. Checked against a real
+    report rather than assumed a second time."""
+    doc = CA.append(REAL_SHAPED, path="/nonexistent/census.json",
+                    observed_at="2026-08-12", season=2025)
+    assert doc["series"][0]["examined"] == 150
+
+
+def test_an_explicit_examined_beats_the_report():
+    doc = CA.append(REAL_SHAPED, path="/nonexistent/census.json",
+                    observed_at="2026-08-12", season=2025, examined=7)
+    assert doc["series"][0]["examined"] == 7

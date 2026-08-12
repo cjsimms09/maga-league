@@ -19,6 +19,25 @@ name: THE INGEST RUN — a real pool through the pre-registered filters
 # Nothing is committed. The report is an artifact and a job summary.
 
 on:
+  # ── THE CENSUS ARCHIVE HAD NO TRIGGER (2026-08-12) ──────────────────────────
+  # `census_archive.py` exists because MFL's public pool is a MOVING POPULATION and
+  # a census of it "cannot be reconstructed next year from any source". That is its
+  # own docstring. The append ran only when a human dispatched this workflow, so the
+  # archive whose entire justification is unrecoverability was saving nothing on its
+  # own — the intention-with-no-trigger failure this lane keeps documenting, in the
+  # lane that documents it. Found by checking which of my workflows carry a cron,
+  # after wiring two new measurements into this one and realising neither would ever
+  # fire unattended.
+  #
+  # MONTHLY, not daily. The module asks whether the pool's composition is "worth a
+  # row a year"; twelve rows a year answers that generously and a full MFL crawl is
+  # not a thing to run nightly. `data-inventory.yml` already uses `0 8 1 * *`, so
+  # this sits an hour later to avoid contending with it.
+  #
+  # Reversible in one line: delete the two `schedule` lines and it is dispatch-only
+  # again.
+  schedule:
+    - cron: '0 9 1 * *'
   workflow_dispatch:
     inputs:
       year:
@@ -68,6 +87,7 @@ jobs:
           DEADLINE_S: ${{ github.event.inputs.deadline_s || '2100' }}
         run: |
           python3 - <<'PY'
+          import datetime as _dt
           import json, os, sys, urllib.parse, urllib.request
           sys.path.insert(0, "draft"); sys.path.insert(0, "draft/backtest")
           import external_discovery as D
@@ -163,8 +183,23 @@ jobs:
           # F7's negative answer is a verdict about POOLING, not about whether the
           # pool's composition is worth a row a year.
           import census_archive as CA
-          json.dump(CA.append(rep), open(CA.SERIES, "w"), indent=1)
+          import field_population as FP
+          # THE KEY IS PASSED, NOT FISHED OUT OF THE REPORT. The first CI run wrote a
+          # row with season/observed_at/examined all null, because this module read
+          # them off the top level of a report that keeps them elsewhere. The dedup
+          # key became ("None","None") and the next run would have REPLACED the row
+          # rather than appending — a series capped at one observation, silently.
+          # `append()` now refuses a keyless row, so this call is what keeps it green.
+          _doc = CA.append(rep, observed_at=_dt.datetime.now(_dt.timezone.utc)
+                                             .date().isoformat(),
+                           season=YEAR, examined=(pool_rep or {}).get("examined"))
+          json.dump(_doc, open(CA.SERIES, "w"), indent=1)
           print("census row appended -> %s" % CA.SERIES)
+          # POPULATION, PRINTED AT WRITE TIME (Cory, 2026-08-12). The archive already
+          # carries this dict; printing the one line puts a field that has gone empty
+          # in front of whoever reads the run, instead of waiting for someone to open
+          # the JSON. A record nobody reads is the hole in a different place.
+          print("   %s" % FP.line(_doc["population"]))
 
           # DIAGNOSTICS LAST, AND COMPACT. The full report is ~700 log lines and
           # the evidence that decides the next fix is a dozen of them in the
@@ -189,6 +224,22 @@ jobs:
                   print("    PAIR  %-24s %-3s | %-24s %-3s | %s"
                         % (x.get("mfl_name"), x.get("mfl_pos"),
                            x.get("board_name"), x.get("board_pos"), x.get("method")))
+              # DOES THE SHORTFALL HAVE A SHAPE? Printed beside the rate because the
+              # rate cannot show it: 0.94 says how many missed, never WHICH KIND. If
+              # the misses concentrate in one position, or in suffixed names, every
+              # downstream number is biased in a direction nobody has characterised.
+              # Both sides, because the question is a comparison.
+              _uc = cw.get("unmatched_composition") or {}
+              _mc = cw.get("matched_composition") or {}
+              if _uc.get("by_pos") or _mc.get("by_pos"):
+                  print("  MISSED by pos       %s   suffixed=%s"
+                        % (json.dumps(dict(list((_uc.get("by_pos") or {}).items())[:8])),
+                           _uc.get("with_name_suffix")))
+                  print("  MATCHED by pos      %s   suffixed=%s"
+                        % (json.dumps(dict(list((_mc.get("by_pos") or {}).items())[:8])),
+                           _mc.get("with_name_suffix")))
+                  if _uc.get("by_why"):
+                      print("  missed by reason    %s" % json.dumps(_uc["by_why"]))
               # A single conflicts= total conflates the wrong player with a player
               # who changed team between two snapshots. Split, with the values.
               cb = cw.get("conflict_breakdown") or {}

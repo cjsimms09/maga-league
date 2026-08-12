@@ -2,7 +2,7 @@
  "meta": {
   "generated_from": "opening_script.py \u2014 derives from board + predicted slates; regenerate on any input change",
   "fingerprint": {
-   "board_built_at": "2026-08-11T18:33:45Z",
+   "board_built_at": "2026-08-12T09:19:29Z",
    "my_slot": 8,
    "my_keepers_hash": "bbd8bddb8d18",
    "predicted_slates_hash": "441f77aeb9ba"
@@ -10,7 +10,7 @@
   "slot_provenance": "site-claimed \u2014 Sleeper draft order pending (regenerates on assignment)",
   "doctrine": {
    "enrolled": "Early-QB Strike",
-   "why": "19b Cory-conditional race: +$470/season vs control (CI [420.62, 519.12], 1.1 contested decisions/draft; v1 money proxy, Sept quantile re-run pre-registered); runner-up Elite-TE Anchor +$97"
+   "why": "19b Cory-conditional race: +$446/season vs control (CI [399.75, 492.88], 1.1 contested decisions/draft; v1 money proxy, Sept quantile re-run pre-registered); runner-up Elite-TE Anchor +$71"
   }
  },
  "my_picks": [
@@ -44,7 +44,7 @@
       "name": "Zay Flowers",
       "position": "WR",
       "vorp": 43.2,
-      "survival": 0.75
+      "survival": 0.72
      },
      {
       "player_id": "12517",
@@ -58,7 +58,7 @@
       "name": "Ladd McConkey",
       "position": "WR",
       "vorp": 37.8,
-      "survival": 0.89
+      "survival": 0.9
      },
      {
       "player_id": "8155",
@@ -77,14 +77,14 @@
       "name": "Ladd McConkey",
       "position": "WR",
       "vorp": 37.8,
-      "survival": 0.33
+      "survival": 0.36
      },
      {
       "player_id": "7526",
       "name": "Jaylen Waddle",
       "position": "WR",
       "vorp": 35.5,
-      "survival": 0.5
+      "survival": 0.48
      },
      {
       "player_id": "2216",
@@ -117,7 +117,7 @@
       "name": "Jaylen Waddle",
       "position": "WR",
       "vorp": 35.5,
-      "survival": 0.31
+      "survival": 0.28
      },
      {
       "player_id": "2216",
@@ -166,7 +166,7 @@
       "name": "Zay Flowers",
       "position": "WR",
       "vorp": 43.2,
-      "survival": 0.75
+      "survival": 0.72
      },
      {
       "player_id": "12517",
@@ -180,7 +180,7 @@
       "name": "Ladd McConkey",
       "position": "WR",
       "vorp": 37.8,
-      "survival": 0.89
+      "survival": 0.9
      },
      {
       "player_id": "8155",
@@ -199,14 +199,14 @@
       "name": "Ladd McConkey",
       "position": "WR",
       "vorp": 37.8,
-      "survival": 0.33
+      "survival": 0.36
      },
      {
       "player_id": "7526",
       "name": "Jaylen Waddle",
       "position": "WR",
       "vorp": 35.5,
-      "survival": 0.5
+      "survival": 0.48
      },
      {
       "player_id": "2216",
@@ -239,7 +239,7 @@
       "name": "Jaylen Waddle",
       "position": "WR",
       "vorp": 35.5,
-      "survival": 0.31
+      "survival": 0.28
      },
      {
       "player_id": "2216",

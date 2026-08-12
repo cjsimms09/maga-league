@@ -406,3 +406,90 @@ def test_a_TEAM_DEFENSE_is_a_real_board_entity_and_still_matches():
     assert A.is_team_unit("ST") and A.is_team_unit("Off") and A.is_team_unit("off")
     # ...and the real board entity survives, or every defense pick in the pool dies.
     assert not A.is_team_unit("DEF") and not A.is_team_unit("D") and not A.is_team_unit("K")
+
+
+def test_the_unmatched_set_is_reported_as_a_COMPOSITION_not_ten_examples():
+    """`unmatched_sample` is fine for counting a shortfall and useless for asking
+    whether the shortfall is STRUCTURED — which is the question my own discovery
+    audit named as an absent class:
+
+        "I split conflicts by field but never asked whether unmatched players
+         DIFFER SYSTEMATICALLY from matched ones (rookies? DSTs? suffixes?). If
+         they do, every downstream number is biased in a direction nobody has
+         characterised."
+
+    Ten examples cannot answer it, and the full set is discarded at the end of the
+    run — so the question was permanently unanswerable from the record. The
+    composition is a dozen integers and makes it answerable on every run.
+
+    The fixture is deliberately skewed: everything that matches is a real board
+    player, everything that misses is a fabricated name. A reader must be able to
+    see that the misses are not a random draw from the same population.
+    """
+    good = pick_players(4)
+    mfl_players = {str(90000 + i): {"name": MADP._norm_name(mfl_name(p["name"])),
+                                    "position": p["position"], "team": p.get("team")}
+                   for i, p in enumerate(good)}
+    for i in range(3):                       # names no board carries
+        mfl_players[str(95000 + i)] = {"name": "Zzzz Nobodyson%d" % i,
+                                       "position": "RB", "team": "FA"}
+    picks = [{"overall": i + 1, "player": k} for i, k in enumerate(mfl_players)]
+    _, rep = A.crosswalk_picks(picks, mfl_players, INDEX)
+
+    assert "unmatched_composition" in rep, "the shortfall's shape is not reported"
+    uc = rep["unmatched_composition"]
+    assert uc["by_pos"].get("RB") == 3, uc
+    # every unmatched row is counted, and the total ties back to the reported count
+    assert sum(uc["by_pos"].values()) == uc["n"] == len(rep["unmatched_sample"]) + 0, uc
+    assert uc["n"] == rep["no_sleeper_match"], (uc["n"], rep["no_sleeper_match"])
+    # and the COMPARISON is what makes "systematically different" answerable.
+    # NOT "RB is absent from the matches" — pick_players() draws real board players
+    # and may well include RBs, which is what this assertion got wrong first time.
+    # The answerable claim is that the two SHARES differ.
+    mc = rep["matched_composition"]
+    assert mc["n"] == rep["crosswalked"] == 4, mc
+    assert sum(mc["by_pos"].values()) == mc["n"], mc
+    miss_rb = uc["by_pos"].get("RB", 0) / uc["n"]
+    hit_rb = mc["by_pos"].get("RB", 0) / mc["n"]
+    assert miss_rb == 1.0 and miss_rb > hit_rb, (uc["by_pos"], mc["by_pos"])
+
+
+def test_the_composition_counts_EVERY_unmatched_row_not_the_sample():
+    """The whole point: the sample is capped at 10 and the composition is not."""
+    mfl_players = {str(95000 + i): {"name": "Zzzz Nobodyson%d" % i,
+                                    "position": "WR", "team": "FA"}
+                   for i in range(25)}
+    picks = [{"overall": i + 1, "player": k} for i, k in enumerate(mfl_players)]
+    _, rep = A.crosswalk_picks(picks, mfl_players, INDEX)
+    assert len(rep["unmatched_sample"]) == 10          # unchanged, still a sample
+    assert sum(rep["unmatched_composition"]["by_pos"].values()) == 25
+
+
+def test_an_unmatched_row_with_NO_POSITION_is_named_unknown_not_dropped():
+    """Absent is never zero, applied to the composition itself.
+
+    Found by a surviving mutation: folding a missing position away makes the
+    composition's totals disagree with the count it sits beside, and a whole class
+    of miss — the ones MFL gave us no position for — becomes invisible in the one
+    report meant to characterise them.
+    """
+    mfl_players = {"96001": {"name": "Zzzz Nopositionson", "team": "FA"}}   # no position
+    picks = [{"overall": 1, "player": "96001"}]
+    _, rep = A.crosswalk_picks(picks, mfl_players, INDEX)
+    uc = rep["unmatched_composition"]
+    assert uc["by_pos"].get("unknown") == 1, uc
+    assert uc["n"] == 1 == sum(uc["by_pos"].values()), uc
+
+
+def test_the_suffix_count_catches_BOTH_spellings():
+    """Suffixed names are one of the three hypotheses this composition exists to
+    answer, and nothing tested them. `Jr` and `Jr.` are the same player and must
+    count the same — a matcher that trips on one trips on the other."""
+    names = ["Zzzz Aaaason Jr", "Zzzz Bbbbson Jr.", "Zzzz Cccc III", "Zzzz Dddd"]
+    mfl_players = {str(97000 + i): {"name": n, "position": "WR", "team": "FA"}
+                   for i, n in enumerate(names)}
+    picks = [{"overall": i + 1, "player": k} for i, k in enumerate(mfl_players)]
+    _, rep = A.crosswalk_picks(picks, mfl_players, INDEX)
+    uc = rep["unmatched_composition"]
+    assert uc["n"] == 4, uc
+    assert uc["with_name_suffix"] == 3, uc      # Jr, Jr. and III — not the plain name

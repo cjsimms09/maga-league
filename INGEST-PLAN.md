@@ -1900,3 +1900,522 @@ rows (~2027-08), the census needs runs across at least two seasons (~2027).
 already watches `external_adp_series`, and already reports BLIND rather than quiet when it
 cannot look. **Rule 9 says the trigger belongs there, not in a parallel job of mine** — the
 request to A is one row in its check list, not a new mechanism. Routed in PARKED.
+
+---
+
+## THE THIRD DIRECTED PASS CLOSES ON A CAPTURE GAP, NOT A FINDING (2026-08-12)
+
+**I proposed three directed passes over rich unqueried history. Two produced findings.
+The third cannot run, and the reason is worth more than the pass would have been.**
+
+My discovery audit said: *"F1 is a PRODUCTION filter and I have let it bound DISCOVERY. The
+120 leagues F1 rejects are still real drafting behaviour, and owner persistence, crosswalk
+error structure and sequence effects are all answerable on them."*
+
+**They are not answerable, because nothing about those leagues was retained.**
+
+`run_screen` screens a league, records its rejection **reason**, and discards the record.
+The census row carries `rejected_by_reason` — **counts by cause, not league ids and not
+picks**. So for every one of the ~1,300 leagues this programme has screened across three
+runs, what survives is a tally. The drafting behaviour is gone.
+
+**That is the capture principle failing in the one place I audited FOR it.** I wrote the
+capture audit, wired the census, and the census captures the *summary* of the thing rather
+than the thing. Free at the time, unrecoverable now: MFL's pool is a moving population and
+those leagues' 2025 states cannot be re-fetched as they were.
+
+**What it would have cost to keep:** league ids alone — a few hundred bytes a run — would
+have made the pass possible, because MFL still serves current state and the ids are the
+handle. **Not the picks; just the ids.**
+
+**Not proposing a change to the MFL path.** F7 closed it, the ingest programme is closed,
+and re-opening a crawl to capture ids for a pass I can no longer justify would be the
+research burden rule 9 forbids.
+
+**But it changes what the Sleeper probe should retain.** Sleeper screens at **0.084s per
+league** against MFL's 12.6 — 150× cheaper — so keeping the id of every screened league,
+matched or not, costs nothing and makes exactly this pass possible there. **The F7 run
+writes its rows with `league_id` and `why` for every league screened, matched or rejected,
+for that reason.**
+
+**Two of three passes produced findings. This one produced the reason the third could not,
+and that is a better outcome than a thin analysis would have been.**
+
+---
+
+## A DATED 2023 BOARD EXISTS, IS PUBLIC, AND PREDATES THE REPOSITORY (found 2026-08-12)
+
+**Cory asked whether any board artifact goes back further than the repo's first commit
+(2026-08-08). It does, and we already had the URL.**
+
+`draft/data/bbm/MANIFEST.json` names two Underdog Best Ball Mania IV files. Both are
+reachable from this sandbox — HTTP 200, no proxy block, unlike MFL, Sleeper and
+archive.org. **The full-field regular-season file carries, at 100% population:**
+
+```
+projection_adp        10.12, 10.28, ...          <- ADP as of the draft
+draft_time            2023-05-17T06:39:42Z       <- PER-DRAFT timestamp
+draft_created_time    2023-04-25T03:39:31Z
+draft_completed_time  2023-05-17T07:36:50Z
+```
+
+**That is a dated 2023 ADP board with per-draft timestamps — F5's exact requirement —
+three years older than the repository, publicly served, and free.**
+
+### AND THE FILE WE DURABLY ARCHIVED IS THE ONE WITHOUT IT
+
+We committed `best_ball_mania_iv_2023_r4_finals.subset.csv.gz` as the *"raw-forever
+record so a re-run does not"* re-fetch. **In that file `projection_adp` and `draft_time`
+are 0% populated** — round 4 is the finals slice and carries neither. The **round 1**
+file, which has both at 100%, **was not archived.**
+
+**So the durable record we kept is the one round where the dated board is absent**, and
+anyone reading our archive would conclude Underdog does not publish ADP. I concluded
+exactly that thirty minutes ago, from exactly that file.
+
+**Capture finding, and the sharpest one yet: we archived the wrong round.**
+
+### WHAT IT DOES AND DOES NOT UNLOCK
+
+**It does NOT serve F7.** Best Ball Mania is **12-team, best-ball, no keepers** — it fails
+F1 on three clauses at once. It cannot produce matched league-seasons for our format, and
+nothing here reopens that.
+
+**It DOES serve F6's pooled parameters**, which is what `exp24_bbm_shape.py` already uses it
+for — positional replacement curves and format-level effects are explicitly permitted
+external inputs, each naming its source at the point of use.
+
+**And it settles a question that has been open all week:** a dated, per-draft-timestamped
+ADP board for a past season **exists and is obtainable.** Route 1 concluded no such artifact
+is retrievable *from the web archive, for the publishers on its registered target list*.
+That conclusion stands as scoped and was too narrow as a belief — **the artifact was never
+in the archive because it never needed to be. Underdog still serves it.**
+
+### THE HONEST LIMIT
+
+**Underdog's ADP is Underdog's market**, not ours and not MFL's. It prices best-ball drafts
+under best-ball incentives. **It is a dated board, not our dated board**, and any use of it
+must name that at the point of use — which F6 already requires.
+
+---
+
+## SUPERSEDED BY MEASUREMENT, NOT WRONG — the BBM registry entry (Cory's ruling, 2026-08-12)
+
+**The two entries describe DIFFERENT ARTIFACTS, and Cory ruled that the record should say
+so rather than have one quietly overwrite the other.**
+
+| | what it described |
+|---|---|
+| **the earlier entry** | a draft file whose **ADP window could not be established** — "contaminated" was a statement about a file we could not date |
+| **the measurement** | the **round-1 regular-season** file: an explicit dated window, `draft_time` at **100%** population, `projection_adp` at **100%**, hash-verifiable |
+
+**A belief and a measurement, and the belief was formed before the artifact could be
+measured.** The earlier entry is **retained, not deleted**, and it was **not wrong about
+what it described**.
+
+> **"This was superseded by measurement" is a different record from "this was wrong."**
+
+**And I did not touch it myself.** Quietly reinterpreting one's own prior record is the
+failure the amendment discipline exists to prevent, and the answer being obvious is not a
+reason to skip asking.
+
+---
+
+## RANKINGS INSTEAD OF ADP — REFUSED, WITH A REVISIT CONDITION (Cory's ruling, 2026-08-12)
+
+**Refused on the QUANTITY, not on the dating.**
+
+> **ADP is what drafters DID. ECR is what experts SAID.** Survival asks *"will he last to my
+> next pick"* — a question about **drafter behaviour**. Substituting an expert ordering
+> measures a different quantity and calls it the same one, which is the objection that
+> killed rescoring other formats: it produces a room nobody played in.
+
+**And the dating was never the hard part.** F5 names ADP because ADP is the thing that
+answers the question, not because ADP happens to be dated.
+
+**REFUSED NOW, RE-OPENABLE IF THE ERROR IS QUANTIFIED AND SMALL.** Recorded in the
+candidate ledger as `R-ECR-FOR-ADP` with that trigger attached, because *a retired
+hypothesis without a revisit condition is a deleted one*.
+
+**The trigger is cheap and specific, and both halves now exist:**
+
+- a **dated ECR series** — six files across the 2019 preseason, in the FantasyPros mirror
+- a **dated ADP board** — BBM IV 2023, **131 distinct draft dates**
+
+**The error is measurable rather than assumed.** Nobody is measuring it now; the entry says
+what would reopen it.
+
+---
+
+## READ WHAT WE ALREADY HAVE, BEFORE PROBING ANYTHING EXTERNAL (standing, 2026-08-12)
+
+**Two for two, and that is enough to make it a habit rather than a coincidence.**
+
+| archive | held | answered |
+|---|---|---|
+| `league_history.json` | three seasons of every owner's picks | **persistence**, in an afternoon — C-001 and C-003 |
+| `draft/data/bbm/MANIFEST.json` | a URL to a dated 2023 ADP board with per-draft timestamps | **the question Route 1 spent a week on** |
+
+**Route 1 searched the web archive for an artifact that was reachable, unblocked, free, and
+named in a manifest already in this repository.**
+
+**So: before probing anything external, read what we already have — not as a sweep, as the
+first step of any question about whether an artifact exists.**
+
+**And Route 1's standing, stated precisely:** the conclusion **holds as scoped** — no dated
+board retrievable from the web archive, for its registered targets. It was **too narrow as
+a belief** — the artifact was never in the archive because it never needed to be. *That is
+the difference between a closed question and a closed search.*
+
+**The BBM file does NOT unlock F7** — twelve-team, best-ball, no keepers, failing F1 on
+three clauses at once. **It serves F6's pooled parameters and that is what it serves.**
+
+---
+
+## THE ROUND-1 BOARD IS BUILT AND VERIFIED — and PARKED FOR A, because I trespassed (2026-08-12)
+
+**Cory's ruling:** *"Our durable record is currently the one round where the dated board is
+absent, which is worse than having no durable record at all — it will be read as
+authoritative by whoever comes next."*
+
+**Built, verified, and NOT landed by me.** `draft/data/bbm/` is **A's territory** and I
+committed into it. `integrate.sh` refused on both files, correctly, and **I reverted rather
+than working around the guard.** The request is in PARKED.md with everything A needs; it is
+a `git checkout` and a manifest paragraph.
+
+    board  blob 48b427460ac8ca52fd8e23696b3ad479334f0e2d  in commit 759b9d6
+    44,671 rows · 131 draft dates · 2023-04-30 .. 2023-09-07 · 579 players
+    all five columns 100.0% populated
+    sha256 abd5d6f6d317050b8208e94bfb62e218a6933e0e2146f1867335085f15ad99a5
+
+**Until A lands it the harm Cory named is still live** — the manifest on `main` presents the
+round with no dated board as the BBM record.
+
+Streamed from the 4.8 GB dump in one pass, projected to `(draft_date, player_id,
+player_name, position, projection_adp)`, **never landed on disk**.
+
+### The defect, measured on both rounds instead of assumed
+
+**Underdog emits the SAME 24 columns for every round.** Five of them are **0.0% populated
+in round 4 and ~100% in round 1**: `draft_time`, `projection_adp`, `draft_filled_time`,
+`draft_completed_time`, `pick_order`.
+
+**The absence is Underdog's, not our exporter's.** I re-fetched the raw round-4 CSV rather
+than infer it from our subset — the fields are empty in the file as published. Our subset
+declined to carry `draft_time`, which was 0% anyway; it **did** carry `projection_adp`,
+which is 7,938 empty cells.
+
+**So a consumer inspecting column NAMES concludes both rounds carry dated ADP. One does.**
+That is the ninth-plus instance of the same defect class in this project — *a consumer
+trusting a field name rather than what the producer emits* — and this time it cost a week
+of Route 1.
+
+### Completeness was checked, because a truncated stream is the same failure again
+
+A stream cut at 99% would produce a durable record that **looks authoritative**, which is
+precisely what the round-4 file already did once.
+
+| check | result |
+|---|---|
+| rows read | **12,192,768** |
+| implied by pooled row length (4,053 rows sampled at head/25%/50%/75%) | 12,186,145 |
+| **read ÷ implied** | **1.0005** |
+| row-length spread across the file | 393.48 – 395.14 bytes (**0.4%**) |
+| terminal row | fetched by byte range; **complete and well-formed** |
+
+**And a hand-check against external fact.** 2023-04-30: Jefferson 1.32, McCaffrey 2.00,
+Chase 3.00, Kelce 4.91, Hill 5.23. 2023-09-07: Jefferson 1.10, Chase 2.25, McCaffrey 3.28,
+Hill 3.99, Ekeler 6.29. **The board moves across the preseason in the direction the 2023
+market actually moved** — which a stale or duplicated series would not.
+
+**The warning must travel with the file.** The manifest entry I wrote states in the archive
+record itself that 131 dated boards are **a price series, not 131 gradeable
+league-seasons**, so the next reader cannot make the F7 mistake from the file alone. **That
+warning is the part of the parked request that matters most** — A may rewrite the wording,
+but the file must not land without it.
+
+---
+
+## RECORD THE FIELD POPULATION BESIDE ANY DURABLE ARTIFACT (Cory's ruling, 2026-08-12)
+
+> *"The positive control catches a bad query; it wouldn't have caught this, because the
+> query was fine and the file was wrong. WHEN AN ARTIFACT IS COMMITTED AS A DURABLE
+> RECORD, RECORD ITS FIELD POPULATION ALONGSIDE IT."*
+
+**This is the fix for the instance, and it is the one the control could never have made.**
+The positive control asks *did my query work* — and the BBM query worked perfectly. It
+fetched the file it asked for, parsed every row, and wrote down a correct column list. The
+file was the wrong file. **No control fires on that. A rate does.**
+
+    draft/backtest/field_population.py        field-population/v1
+
+### What it would have printed, on the record we actually committed
+
+    population: 7938 rows | 8/9 fields full | EMPTY: projection_adp
+
+**One line, and nobody reads that and concludes Underdog publishes no ADP.** They ask why
+one column of a nine-column archive is empty — which is the question that was never asked,
+and the answer was one round away, free, for a week.
+
+### THE THREE-WAY PARTITION IS THE DESIGN, not a detail
+
+Two different failures were hiding under one word:
+
+    present   the key is there and carries a value
+    null      the key is there and the value is empty   <- round 4's projection_adp
+    missing   the key is not there at all               <- our subset's draft_time
+
+**A column of empty cells is the producer claiming it HAS this field. An absent key is the
+producer claiming it does not.** Collapsing them is the null-as-absence defect in its
+purest form, and it is the tenth instance in this program.
+
+**And zero rows reports UNCOUNTED, never 0% and never 100%.** A denominator of zero cannot
+produce a rate, and a check that can only say *nothing yet* has not looked (rule 13f).
+
+### Wired into every durable writer in this lane — one line each, at write time
+
+| writer | what a dropped field now looks like |
+|---|---|
+| `census_archive.append()` | `keeper_type` — absent from the row for a week, and nothing said so |
+| `board_pin.append()` | a pin whose `sha256` went empty proves nothing about the board it names |
+| `external_adp_capture.save()` | `total_drafts` — this module already says a snapshot without it *"cannot be judged later"* |
+| `external-ingest-run.yml` | prints `FP.line(...)` at write time, so the run surfaces it without anyone opening the JSON |
+
+### THE MUTATION BATTERY FOUND ME OVERCLAIMING, INSIDE THE FIX ITSELF
+
+**Nine mutations, eight killed on the first pass.** The survivor was `of_csv` dropping its
+declared header — invisible with data rows present, because `DictReader` fills every
+declared key on every row. **The header only matters when there are no rows at all**, which
+is the empty-artifact case, and that assertion was missing. Written, and it dies now.
+
+**Then a second, worse one.** The wiring first passed `fields=list(row)` — **derived from
+the very dict being written.** If the writer stops emitting `keeper_type`, `list(row)` stops
+containing it too, and the field vanishes from the population record exactly as silently as
+it vanishes from the data. **I had written a comment claiming that line caught a dropped
+field. It could not.** That is this module's own defect class, committed inside the fix for
+it, and only a mutation test found it.
+
+**And the honest residue: the replacement mutation ALSO survives.** `append()` always writes
+every key, so the declared list is today redundant with the union of the rows. **Its teeth
+are in `test_the_declared_field_list_cannot_drift_from_the_row`** — verified by mutation:
+deleting `keeper_type` from the row literal fails three tests. *The constant is the schema;
+the drift test is the enforcement.* Saying "declared, so a dropped field is caught" would
+have been the same overclaim a second time, so it is not said.
+
+### THE FIRST SWEEP, AND WHAT IT FOUND — including in this module itself
+
+**17 durable artifacts on disk; 7 carried a record-list the sweep could measure.** Stated
+that way deliberately: *"17 swept, 2 findings"* would claim a coverage the sweep did not
+have. **The other 10 were not measured** — a key-name heuristic (`series`/`rows`/`records`/
+`entries`/`pins`) missed them, which is the argument for the write-time call rather than a
+discovery pass. **A sweep that guesses at structure will always under-cover.**
+
+| artifact | population |
+|---|---|
+| `external_adp_series.json` | all 5 fields 100% |
+| `oracle_capture_series.json` | all 8 fields 100% |
+| `board_pins.json` | all 7 fields 100% |
+| `adp_series.json`, `proj_series.json` | 100% |
+| `bbm/..._r4_finals.subset.csv.gz` | **8/9 full — EMPTY: `projection_adp`** (known; parked) |
+| `component_grades.json` | 9/14 full — empty: `bias`, `effect`, `implication`, `mae`, `mde` |
+
+**The component-grades flag is NOT a finding, and I checked before routing it.** All six rows
+read `verdict: "no_data"`, `n_obs: 0`, `graded: 0 of 6 declared`, with a prose `why` and an
+`implication_why` naming the absence explicitly. **The emptiness is declared, not silent** —
+the opposite of the BBM case.
+
+**Which is the instrument's real boundary, and it is worth stating: `line()` cannot tell
+"empty and unexplained" from "empty and accounted for".** Both print the same string. That
+is acceptable *because the design is to make a reader ask why* — in one case the artifact
+answers in one step and in the other it answers nothing. **The record prompts the question;
+it does not answer it.** Building machinery to tell them apart would be the dashboard rule 9
+forbids.
+
+### AND THE ONE THAT MATTERS — measured on the archive C-001 and C-003 rest on
+
+`league_history.json` was among the ten the heuristic missed, so it was measured by hand:
+
+    DRAFT PICKS   480 rows | partial: is_keeper 15.2%   (73 present, 407 null, 0 missing)
+    TRANSACTIONS 1091 rows | 6/7 fields full | EMPTY: waiver_bid
+                             waiver_bid  0 present, 1091 null, 0 MISSING
+
+**`waiver_bid` is present on every one of 1,091 transactions and empty on every one.** That
+is the round-4 shape exactly: *a field the producer declares and never fills.* It confirms
+the parked finding — *"this league has no bids may be a null read from the wrong path"* —
+with a number, and the three-way partition is what makes it legible: **0 missing** means our
+exporter IS emitting the key, so this is not a field we forgot to carry.
+
+**It does not yet prove Sleeper serves bids at another path.** That is still the live check
+in `sleeper_pool.bid_path()`. What it establishes is that the strongest persistent signal
+this project has measured — `waiver_share`, ICC 0.754 — was computed from `type` and
+`created` **beside a field that has been empty 1,091 times without anyone noticing.**
+
+### THE MODULE'S OWN DEFECT, FOUND BY POINTING IT AT REAL DATA
+
+Calling it on `league_history.json` raised `AttributeError: 'str' object has no attribute
+'get'` from three frames inside the counting loop. **This runs at write time inside archive
+writers, so an opaque crash here can take down the append that was supposed to save the
+row — a measuring instrument must never be the reason the thing it measures is lost.** It
+now refuses by name (`row 1 is str, not a record`), with the assertion written before the
+fix and confirmed failing against the shipped code.
+
+---
+
+## THE SHORTFALL NOW HAS A SHAPE — the crosswalk's absent class, closed (2026-08-12)
+
+**My own discovery audit named this and nothing acted on it:**
+
+> *"I split conflicts by field but never asked whether unmatched players DIFFER
+> SYSTEMATICALLY from matched ones (rookies? DSTs? suffixes?). If they do, every
+> downstream number is biased in a direction nobody has characterised."*
+
+**It was unanswerable from the record, not merely unanswered.** The crosswalk kept
+`unmatched_sample = unmatched[:10]` and discarded the rest when the run ended, and the CI
+artifact holding even that is on an egress-blocked host. **Ten rows cannot show structure,
+and there were never more than ten.**
+
+**The rate is the wrong instrument for it, permanently.** `pooled_rate = 0.94` says how many
+missed. It cannot say *which kind*, and it never will — a rate is one number and this is a
+shape.
+
+### What is reported now, per league and pooled
+
+    unmatched_composition   by_pos, by_why, with_name_suffix, n
+    matched_composition     by_pos, with_name_suffix, n
+
+**Both sides, because the question is a COMPARISON.** One distribution answers nothing: RB
+being 30% of the misses means nothing until you know RB is 12% of the hits. Reported at the
+pooled level too — one league's ten misses cannot show structure, and **the run-level dict
+is the only crosswalk record anything downstream reads.**
+
+**And it is PRINTED**, next to the rate, in the run's diagnostics. A record nobody reads is
+the hole in a different place, and this lane has now hit that twice in one day — the field
+population and the P8 skew both lived in artifacts nobody in the sandbox can fetch.
+
+### The batteries
+
+**Crosswalk-level: 5 mutations, 2 killed first pass.** The three survivors each named a
+missing assertion, and all three were real:
+
+- **an unmatched row with NO POSITION** folded away silently — the totals then disagree with
+  the count beside them, and a whole class of miss becomes invisible in the one report meant
+  to characterise it;
+- **`Jr` versus `Jr.`** — the suffix hypothesis was one of the three this exists to answer,
+  and *nothing tested it at all*;
+- and `n` from `by_pos` rather than `len(recs)` — **an EQUIVALENT mutant**, since every
+  record contributes exactly one `by_pos` entry. **Recorded as equivalent rather than
+  contorting a test to kill it.**
+
+**Pooling: 3 mutations, 3 killed.** Dropping either side, or failing to accumulate the
+suffix totals across leagues, now fails.
+
+### One thing this does NOT do
+
+**It does not tell us whether the misses are structured.** It makes the question answerable
+on the next scheduled run. **Reporting the instrument as though it were the finding is the
+error this lane keeps writing audits about**, so: no claim about rookies, DSTs or suffixes
+is made here, and none should be read into it.
+
+---
+
+## THE CENSUS ARCHIVE HAD NO TRIGGER, AND I FOUND IT BY WIRING TWO MORE THINGS INTO IT (2026-08-12)
+
+**`external-ingest-run.yml` carried no schedule. Nothing else invoked it — no cron, no
+`workflow_call`.** It ran when a human dispatched it and at no other time.
+
+**Which makes `census_archive.py`'s own justification false in practice.** Its docstring:
+
+> *"MFL's public pool is a MOVING POPULATION... A census of the 2026 pool taken today
+> cannot be reconstructed next year from any source."*
+
+**An archive whose entire argument is unrecoverability was saving nothing unattended.** That
+is the intention-with-no-trigger failure this lane has documented repeatedly — committed in
+the lane that documents it, by me.
+
+**And I only found it because I had just wired two more measurements into the same
+workflow** — the field-population line and the crosswalk composition — and stopped to ask
+whether either would ever fire on its own. **Neither would.** Three instruments, all inert.
+
+    schedule:
+      - cron: '0 9 1 * *'      # monthly, an hour after data-inventory.yml's 0 8 1 * *
+
+**Monthly, and the module's own words set the cadence** — it asks whether the pool's
+composition is *"worth a row a year"*, so twelve answers that generously, and a full MFL
+crawl is not a thing to run nightly. **Reversible in one line.**
+
+**Checked before calling it done, because a cron that fires into a broken run is worse than
+no cron:** all four dispatch inputs carry `|| default` fallbacks (`year` defaults to 2025, a
+played season, which the input's own description requires), `permissions: contents: write`
+is present, and the commit step pushes with `[skip deploy]` after a `pull --rebase`. **A
+scheduled run is well-formed, not merely scheduled.**
+
+### The generalisation, since this is now three for three
+
+**Every instrument I built today reported into somewhere nobody reads unattended:**
+
+| instrument | where it landed | reachable? |
+|---|---|---|
+| P8 selection skew | uploaded CI artifact | **no** — host egress-blocked |
+| crosswalk composition | per-league report only | **no** — died before pooling |
+| field population + census | a workflow with no cron | **no** — dispatch only |
+
+**All three are fixed, and the pattern is the finding:** *building the measurement is the
+easy half.* The question that catches these is not "does it compute the right number" —
+each did — but **"who reads it, and what makes them read it?"** A number with no reader is
+the same defect as a field with no value, one level up.
+
+---
+
+## THE VALIDATION RUN FOUND TWO THINGS, AND THAT IS WHY IT WAS RUN (2026-08-12)
+
+**I had changed a workflow and shipped three code paths into it that had never executed
+in CI, with the next scheduled fire twenty days out.** Run 31575310090, normal parameters
+so the census row it wrote would be a real observation rather than a smoke test.
+
+### 1. The census archive had NEVER SAVED A ROW, and the first one was unkeyable
+
+    [main fbcc009] C: format census row [skip deploy]
+     create mode 100644 draft/data/format_census_series.json
+
+**`create mode`.** The file did not exist. The archive whose docstring argues from
+unrecoverability had, up to this morning, saved nothing at all — and the first row it ever
+wrote came out like this:
+
+    population: 1 rows | 10/13 fields full | EMPTY: examined, observed_at, season
+
+**`census_archive.append()` read `season`, `observed_at` and `examined` off the top level
+of the ingest report. The report does not put them there.** A consumer trusting field
+names the producer never emits — **the eleventh instance in this program, committed inside
+the module whose docstring is about capture.**
+
+**And it was not cosmetic.** The dedup key is `(season, observed_at)`, which became
+`("None","None")`, so **the next run would have REPLACED the row rather than appending
+one.** A time series permanently capped at one observation, failing silently and looking
+exactly like a working archive.
+
+**Seven green tests sat beside it.** Their fixture supplied `season` and `observed_at` at
+the top level, so they asserted my belief about the producer rather than the producer's
+output. `REAL_SHAPED` now exists in the test file, taken from the run that exposed this,
+and a keyless row **raises** — a crash costs one run, a silent overwrite costs every run
+before it.
+
+### 2. The crosswalk composition answered its question on its first firing
+
+    MISSED by pos    {"LB":181,"DE":134,"S":114,"TMQB":112,"TMPK":82,"WR":67,"DT":32,"ST":24}
+    MATCHED by pos   {"RB":2239,"WR":2216,"TE":839,"QB":751,"Def":363,"PK":242}
+    missed by reason {"team_unit_not_a_player": 218}
+
+**YES, the misses are systematically different — and the structure is benign.** They are
+overwhelmingly **IDP positions (LB, DE, S, DT) and team units (TMQB, TMPK, ST)** — things
+our board does not carry by design. **`WR` at 67 is the only skill-position miss in the top
+eight.**
+
+**This changes how `pooled_rate = 0.8493` should be read.** The crosswalk is not failing on
+players we would draft; it is failing on defensive players and team units in IDP leagues,
+and **`leagues_clearing_F2_bar = 50/70` is measuring IDP prevalence as much as it is
+measuring our matcher.** The rate alone could never have shown that — *a rate is one number
+and this is a shape*, which is the argument the composition was built on, now demonstrated
+rather than asserted.
+
+**No filter is being relaxed on the strength of it.** F2's 0.90 bar stands as registered.
+What changed is that the number beside it is now interpretable.

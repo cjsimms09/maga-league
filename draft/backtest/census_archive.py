@@ -29,16 +29,58 @@ and returns. Rule 9.
 import json
 from pathlib import Path
 
+import field_population as FP
+
 SERIES = "draft/data/format_census_series.json"
 SERIES_VERSION = "format-census-series/v1"
 
+#: What a census row is SUPPOSED to carry. A CONSTANT, and the reason is worth stating
+#: precisely, because the first version of this comment overclaimed.
+#:
+#: The first cut passed `fields=list(row)` — derived from the very dict being written.
+#: A mutation test showed it caught nothing: if the writer stops emitting `keeper_type`,
+#: `list(row)` stops containing it too, and the field vanishes from the population
+#: record exactly as silently as it vanishes from the data. The comment claimed a
+#: protection the code did not provide, which is the defect this module exists to catch,
+#: committed inside the fix for it.
+#:
+#: AND THE HONEST LIMIT, because the replacement mutation ALSO survives. `append()`
+#: always writes every key, so the union of the rows always contains every field and
+#: the declared list is, today, redundant with it. Its teeth are in
+#: `test_the_declared_field_list_cannot_drift_from_the_row`: edit the row literal and
+#: that test fails, forcing a deliberate update here rather than a silent one there.
+#: The constant is the schema; the drift test is the enforcement. Neither alone is the
+#: mechanism, and saying "declared, so a dropped field is caught" would be the same
+#: overclaim a second time.
+CENSUS_FIELDS = [
+    "observed_at", "season", "examined", "readable_leagues", "matched", "teams",
+    "reception_points", "pass_td_points", "superflex", "draft_type", "keeper_type",
+    "rejected_by_reason", "crosswalk_pooled_rate",
+]
 
-def append(report: dict, path: str = SERIES, observed_at: str = None) -> dict:
+
+def append(report: dict, path: str = SERIES, observed_at: str = None,
+           season=None, examined=None) -> dict:
     """Append this run's census to the series, deduped by (season, observed_at).
 
     DEDUPED RATHER THAN OVERWRITTEN: two runs on one day against the same season
     describe the same pool, and keeping both would let a re-run silently double the
     weight of whichever day someone happened to re-run.
+
+    THE KEY IS NOW EXPLICIT, AND A KEYLESS ROW IS REFUSED. First real CI run,
+    2026-08-12: `observed_at`, `season` and `examined` all came back null, because
+    this function read them off the top level of the ingest report and the report
+    does not put them there. **The consumer trusted field names the producer never
+    emits** — the same defect this lane has now hit eleven times, committed inside the
+    module whose docstring is about capture.
+
+    It was not a cosmetic null. The dedup key became `("None", "None")`, so **every
+    subsequent run would have replaced the single row instead of appending one** — a
+    time series permanently capped at one observation, failing silently and looking
+    exactly like a working archive.
+
+    So the caller passes the key, and a row that cannot be keyed RAISES rather than
+    landing. A crash costs one run; a silent overwrite costs every run before it.
     """
     p = Path(path)
     doc = {"_note": ("One row per ingest run. CAPTURE, not modelling: F7's negative "
@@ -56,10 +98,14 @@ def append(report: dict, path: str = SERIES, observed_at: str = None) -> dict:
             raise
     doc.setdefault("series", [])
     census = (report or {}).get("format_census") or {}
+    # Explicit argument first, then the report, then the places the report ACTUALLY
+    # keeps them — checked against a real ingest-report rather than assumed.
+    pool = (report or {}).get("pool") or {}
     row = {
         "observed_at": observed_at or (report or {}).get("observed_at"),
-        "season": (report or {}).get("season"),
-        "examined": (report or {}).get("examined"),
+        "season": season if season is not None else (report or {}).get("season"),
+        "examined": (examined if examined is not None
+                     else (report or {}).get("examined") or pool.get("examined")),
         "readable_leagues": census.get("readable_leagues"),
         "matched": (report or {}).get("matched"),
         "teams": census.get("teams"),
@@ -71,9 +117,23 @@ def append(report: dict, path: str = SERIES, observed_at: str = None) -> dict:
         "rejected_by_reason": (report or {}).get("rejected_by_reason"),
         "crosswalk_pooled_rate": ((report or {}).get("crosswalk") or {}).get("pooled_rate"),
     }
+    # A ROW THAT CANNOT BE KEYED MUST NOT LAND. With both halves null the key is
+    # ("None","None") and the next append deletes this row on its way in.
+    if row["season"] is None or row["observed_at"] is None:
+        raise ValueError(
+            "census_archive: refusing to write a row with no key — season=%r "
+            "observed_at=%r. Both are required: they are the dedup key, and a "
+            "keyless row silently REPLACES the previous one instead of appending."
+            % (row["season"], row["observed_at"]))
     key = (str(row["season"]), str(row["observed_at"]))
     doc["series"] = [r for r in doc["series"]
                      if (str(r.get("season")), str(r.get("observed_at"))) != key]
     doc["series"].append(row)
     doc["series"].sort(key=lambda r: (str(r.get("season")), str(r.get("observed_at"))))
+    # POPULATION TRAVELS WITH THE ARCHIVE (Cory, 2026-08-12). One line at write time.
+    # If a future ingest run stops emitting `pass_td_points` or `keeper_type`, the field
+    # does not silently become absent from the record — it drops off 100% in a number
+    # sitting beside the rows. `keeper_type` was missing from this row for a week and
+    # nothing said so, which is the same hole in this lane's own archive.
+    doc["population"] = FP.of_records(doc["series"], fields=CENSUS_FIELDS)
     return doc

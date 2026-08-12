@@ -56,7 +56,12 @@ def test_an_UNCOUNTABLE_candidate_is_reported_not_silently_dropped():
     no counter. F7 and Route 1 vanish from the ledger entirely and are retired
     permanently by accident, which is the thing a revisit condition exists to prevent."""
     u = {x["id"] for x in L.untriggerable()}
-    assert u == {"R-F7", "R-ROUTE1"}
+    # PINNED AS A SET, deliberately: a new uncountable entry must force this test to be
+    # updated rather than slipping in unnoticed. R-ECR-FOR-ADP joined 2026-08-12 —
+    # refused by Cory on the QUANTITY, re-openable if the ECR-to-ADP error is measured
+    # and small, and its trigger is a MEASUREMENT rather than a sample size, which is
+    # exactly why it belongs here rather than in the counted set.
+    assert u == {"R-F7", "R-ROUTE1", "R-ECR-FOR-ADP"}
     for c in L.CANDIDATES:
         if c["id"] in u:
             assert c["revisit_when"], "an untriggerable candidate must still say WHEN"
