@@ -6014,3 +6014,46 @@ Cory as a criticism.
 **The archive itself is unexamined and now clearly worth a pass** — 12 seasons, 7 of them
 unique, bearing directly on the power problem that killed C-001. **Not taken: that is Cory's
 call, not a gap I get to fill on my own initiative.**
+
+### CORRECTION TO THE CORRECTION — the exact counts, and an era trap for whoever takes the pass (C, 2026-08-12)
+
+**I wrote "~100 owner-seasons of OUTCOME data". Counted, it is not one number, it is three —
+and the round figure overstated the strongest one by 43%.**
+
+    finish rank (standings)    70 owner-seasons   2019-2025 only (7 x 10)
+    winnings (by_year)        110 owner-years     2016-2026, every cell populated
+    W/L record                 10 owners          CAREER AGGREGATE, not per-season
+
+**2016, 2017 and 2018 carry NO standings** — money winners and pot only. So of the seven
+seasons that "exist nowhere else", **four (2019-2022) have full finish order and three
+(2016-2018) have money alone.**
+
+**Still far deeper than what C-001 and C-003 ran on** — 70 owner-seasons of rank against 30
+owner-seasons of behaviour — but "~100" was a guess wearing a number's clothes.
+
+**The zeros are values, not absences, and this is checked rather than assumed:** every owner
+has **85 games** (Cory 86). Identical tenure across all ten means a `0` in `by_year` is *"won
+nothing that year"*, not *"was not in the league"*.
+
+### THE ERA TRAP — anyone summing this money is summing incomparable dollars
+
+    year   2016  2017  2018  2019  2020  2021  2022  2023  2024  2025
+    buy_in  100   125   150   200   250   300   350   350   400   400
+    pot    1000  1250  1500  2000  2500  3000  3500  3500  4000  4000
+
+**The stakes QUADRUPLED across the archive.** `career_from_years` sums `by_year` straight
+across, so **a career total mixes $100-era and $400-era dollars** — a 2017 win is worth 3.2×
+a 2016 win in nominal terms and the sum treats them as equal.
+
+**This is not a defect in the archive** — it records what happened, and the per-season `pot`
+and `buy_in` are right there to normalise with. **It is a trap for the analysis**, and it is
+the same shape as the 37.5%/42.9% era-dependence I found an hour ago in the same file.
+**Any money pass should normalise by that season's pot before comparing across eras.**
+
+### AND THE PATTERN IN MY OWN ERRORS TODAY IS ONE SHAPE
+
+**"No money record" → wrong. "~100 owner-seasons" → 43% high.** Both are the same failure:
+**asserting a magnitude before counting it.** Three corrections in this archive in one hour,
+each one caught only because I went back and counted. **Worth flagging to whoever takes the
+pass: this file rewards counting and punishes estimating, and I have now demonstrated that
+twice.**
