@@ -427,7 +427,7 @@ Applied to the two helpers already; they now derive their removals from
 
 ---
 
-## MAY AN F4-EXCLUDED LEAGUE BE REPLAYED FOR A FORECAST THAT NEVER TOUCHES OUTCOMES? (C, 2026-08-11) ✅ RULED — BROAD READING, WITH TWO CONDITIONS
+## ✅ RULED — F4 GATES OUTCOME-DEPENDENT GRADING ONLY (Cory, 2026-08-11)
 
 > **CORY'S RULING, 2026-08-11.** F4 gates **outcome-dependent grading only**. Replay and
 > forecast emission proceed on any league passing the other filters; only the
@@ -458,9 +458,14 @@ Applied to the two helpers already; they now derive their removals from
 > so instead, and in a mixed sample the saturated leagues leave the denominator and are
 > named. Nothing is admitted or excluded that was not before.
 
-*Original entry, kept unedited below.*
+*Original entry, kept unedited below, under its own heading.*
 
-## (original) MAY AN F4-EXCLUDED LEAGUE BE REPLAYED FOR A FORECAST THAT NEVER TOUCHES OUTCOMES? (C, 2026-08-11)
+## MAY AN F4-EXCLUDED LEAGUE BE REPLAYED FOR A FORECAST THAT NEVER TOUCHES OUTCOMES? (C, 2026-08-11) 🔴 OPEN
+
+> **SUPERSEDED — ruled above, 2026-08-11.** The heading is kept VERBATIM rather than
+> rewritten: a decision log whose headings can be edited after the fact cannot be
+> audited, and `integrate.sh` refuses a merge that loses one. The question below is
+> exactly as it was asked.
 
 - **WHAT WAS FOUND.** Survival — *will this player still be there when this seat picks
   again* — resolves from the draft's **own later picks**. It uses no weekly data, no
