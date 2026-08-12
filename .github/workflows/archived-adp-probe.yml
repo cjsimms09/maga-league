@@ -413,12 +413,22 @@ jobs:
           for label, key in (("SATISFIES F5", "satisfies_f5"),
                              ("CONTENT-DATED LEAD (not evidence)", "content_dated_leads"),
                              ("LIVE, NO PRE-CUTOFF CAPTURE", "live_but_uncaptured"),
-                             ("NO BOARD AT THIS URL", "urls_that_returned_nothing")):
+                             ("INCONCLUSIVE — WALK TRUNCATED", "inconclusive_truncated_walk"),
+                             ("NO BOARD AT THIS URL", "urls_that_returned_nothing"),
+                             ("UNBINNED — REPORT IS INCOMPLETE", "unbinned")):
               rows = rep.get(key) or []
               print("%-34s %d" % (label, len(rows)))
               for r in rows:
-                  print("    %-22s %s %s" % (r["target"], r.get("archived_timestamp") or "",
-                                             r["url"][:80]))
+                  # THE CAPTURE COUNTS TRAVEL WITH EVERY ROW, and this is the whole
+                  # reason the previous run's zero could not be read. "0 satisfy F5"
+                  # after walking 4 of 30 available days and "0" after walking all 30
+                  # are opposite findings printed as the same character. `x/y days`
+                  # makes them different on the page.
+                  ex, av = r.get("captures_examined"), r.get("pre_cutoff_captures")
+                  walk = ("%s/%s days" % (ex, av)) if av not in (None, "") else "no index"
+                  print("    %-22s %-15s %-13s %s"
+                        % (r["target"], r.get("archived_timestamp") or "-", walk,
+                           r["url"][:70]))
 
           json.dump({"before": BEFORE, "year": YEAR, "rows": results, "report": rep,
                      "mirrors": mirrors, "coverage": coverage},

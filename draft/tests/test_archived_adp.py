@@ -948,3 +948,56 @@ def test_a_board_found_within_budget_is_still_SATISFIES_F5():
                      {"state": "board", "timestamp": "20240712092948", "rows": 15,
                       "captures": 30, "captures_examined": 3, "budget_exhausted": True})
     assert row["verdict"] == "SATISFIES F5"
+
+
+# ── A VERDICT THAT BELONGS TO NO BUCKET MUST NOT VANISH (found 2026-08-12) ──
+def _row(verdict):
+    return {"target": "t", "verdict": verdict}
+
+
+def test_an_INCONCLUSIVE_row_is_bucketed_rather_than_dropped():
+    """FOUND BY READING run 31549530399's output, not by anything failing. `classify`
+    gained an INCONCLUSIVE verdict for a truncated capture walk; `route1_report`
+    bucketed on four prefixes and INCONCLUSIVE matched none, so the row belonged to no
+    list and disappeared from the report entirely.
+
+    Nothing was actually dropped in that run — the counts summed to 18, which is how I
+    know the walks completed — but a probe that can silently lose a target is the same
+    failure as one that reports a truncated walk as a negative, arriving one step
+    later. I introduced it in the commit that fixed the earlier half.
+
+    MUTATION: drop the inconclusive bucket. The row vanishes and the printed counts
+    silently describe fewer targets than were probed."""
+    rows = [_row("SATISFIES F5"), _row("INCONCLUSIVE — the capture walk stopped at its budget"),
+            _row("URL RETURNED NO BOARD — evidence about this URL")]
+    rep = X.route1_report(rows)
+    assert len(rep["inconclusive_truncated_walk"]) == 1
+    assert rep["probed"] == 3
+    assert not rep["unbinned"]
+
+
+def test_a_verdict_in_NO_bucket_is_reported_as_a_DEFECT_not_silently_lost():
+    """The partition assertion. Any future verdict string that no bucket claims must
+    make the report SAY its counts are incomplete — because the failure mode is that
+    the numbers still look like numbers.
+
+    MUTATION: bin what you recognise and return. The report reads as a complete census
+    of the targets while describing a subset of them, which is exactly how "0 satisfy
+    F5" became a sentence about our own walk budget."""
+    rows = [_row("SATISFIES F5"), _row("SOMETHING NOBODY BUCKETED")]
+    rep = X.route1_report(rows)
+    assert len(rep["unbinned"]) == 1
+    assert rep["verdict"].startswith("BUCKETS DO NOT ACCOUNT FOR EVERY TARGET")
+    assert "1 of 2 binned" in rep["verdict"], rep["verdict"]
+    assert "INCOMPLETE" in rep["verdict"]
+
+
+def test_a_clean_partition_leaves_the_real_verdict_intact():
+    """The guard must not fire on a well-formed report, or every run reads as broken
+    and the signal is worthless."""
+    rows = [_row("SATISFIES F5"), _row("LEAD ONLY — publisher-labelled year"),
+            _row("LIVE BOARD, NO PRE-CUTOFF CAPTURE"), _row("URL RETURNED NO BOARD")]
+    rep = X.route1_report(rows)
+    assert not rep["unbinned"]
+    assert not rep["verdict"].startswith("BUCKETS DO NOT ACCOUNT")
+    assert "ROUTE 1 IS OPEN" in rep["verdict"]

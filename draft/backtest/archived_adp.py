@@ -538,15 +538,40 @@ def route1_report(rows, unreachable=0) -> dict:
     leads = [r for r in rows if str(r.get("verdict", "")).startswith("LEAD ONLY")]
     live_only = [r for r in rows if str(r.get("verdict", "")).startswith("LIVE BOARD")]
     bad_url = [r for r in rows if str(r.get("verdict", "")).startswith("URL RETURNED")]
-    return {
+    # THE BUCKET I ADDED AND DID NOT WIRE, found by reading run 31549530399's output
+    # rather than by anything failing. `classify` gained an INCONCLUSIVE verdict for a
+    # truncated capture walk; this function bucketed on four prefixes and INCONCLUSIVE
+    # matched none of them, so such a row belonged to NO list and VANISHED from the
+    # report. Nothing was dropped in that run — the counts summed to 18, which is how
+    # I know every walk completed — but a probe that can silently lose a target is the
+    # same failure as one that reports a truncated walk as a negative, arriving one
+    # step later.
+    inconclusive = [r for r in rows if str(r.get("verdict", "")).startswith("INCONCLUSIVE")]
+    # AND THE PARTITION IS ASSERTED, so no future verdict can go missing quietly. A
+    # count that does not add up is reported IN the verdict rather than left for
+    # someone to notice by summing the printed lists themselves.
+    binned = len(satisfies) + len(leads) + len(live_only) + len(bad_url) + len(inconclusive)
+    unbinned = [r for r in rows if r not in satisfies + leads + live_only + bad_url + inconclusive]
+    out = {
         "probed": len(rows),
         "satisfies_f5": satisfies,
         "content_dated_leads": leads,
         "live_but_uncaptured": live_only,
         "urls_that_returned_nothing": bad_url,
+        "inconclusive_truncated_walk": inconclusive,
+        "unbinned": unbinned,
         "unreachable": unreachable,
         "verdict": route1_verdict(satisfies, len(rows), unreachable, len(leads), len(bad_url)),
     }
+    if binned != len(rows):
+        out["verdict"] = ("BUCKETS DO NOT ACCOUNT FOR EVERY TARGET — %d of %d binned, so "
+                          "%d verdict(s) belong to no category and the counts below are "
+                          "INCOMPLETE. Fix the bucketing before reading any number here: "
+                          "%s || %s"
+                          % (binned, len(rows), len(rows) - binned,
+                             "; ".join(str(r.get("verdict"))[:60] for r in unbinned[:3]),
+                             out["verdict"]))
+    return out
 
 
 def board_confidence(text, known_names, sample=40, min_hits=10) -> dict:
