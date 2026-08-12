@@ -1671,3 +1671,57 @@ mine, and only if we reach A.
 compare a model number against a market number and call the gap an edge. Here it has a
 second face — the omitted def/ST points would manufacture exactly that gap, in a
 consistent direction, out of nothing but an incomplete sum.
+
+---
+
+## ROUTE 1 SOLVES A CONSTRAINT THAT IS NOT BINDING (derived 2026-08-12)
+
+**Arithmetic on numbers already in this file, not a new measurement.** Recorded because
+it bounds how much Route 1 can be worth *before* its coverage question resolves, and the
+answer changes where effort belongs.
+
+**What Route 1 supplies is a dated pre-draft ADP board.** In `screen()`'s order that
+serves **F4** (`no_pre_draft_adp`) and **F5** (`adp_not_strictly_pre_draft`). It does
+nothing for F1, which screens teams, PPR band, TE-premium/split, QB slots, skill slots
+and draft type.
+
+**How many leagues actually die where Route 1 would help?**
+
+```
+RUN 12 (2025)
+  394 attempted − 74 unreadable            = 320 readable
+  F1.scoring_not_half_ppr   150
+  F1.teams                  122
+  F1.te_premium_or_split     24
+                            ───
+                            296
+  UPPER BOUND past those three clauses      =  24
+  ...and F1.qb_slots + F1.starting_skill_slots still fire inside that 24.
+  At run 13's rate for those two (18 of 266 readable, 6.8%) that is ~22 of the 24.
+
+RUN 13 (2026)
+  293 attempted, 266 readable, F1 rejections 266
+  EXACTLY ZERO leagues reached F2, F4 or F5.
+```
+
+**So the leagues Route 1 could rescue number AT MOST 24 in 2025 — a bound, not an
+estimate, and most of it consumed by the two F1 clauses not itemised in run 12's
+record — and EXACTLY ZERO in 2026.** Against F7's bar of 200.
+
+**The conclusion, stated carefully.** Route 1 opening at full coverage **cannot change
+F7's answer.** The binding constraint is F1, and no quantity of dated ADP creates
+half-PPR leagues. This is not an argument that Route 1 is worthless — a dated board is
+the only thing that makes an F5-clean external observation possible *at all*, and the
+F4 ruling means such a league can be replayed for survival today rather than in
+January. It is an argument about MAGNITUDE: the ceiling is tens, not hundreds.
+
+**What this changes.** Route 1's coverage question stays bounded and stays answered by
+the known-answer gate, exactly as registered — but it is no longer a candidate for
+rescuing the sample size, and no further effort should be spent on it in that hope.
+**If a larger external sample is wanted, the constraint to attack is F1's scarcity in
+MFL's public pool — a different source, or a dated and registered change to F1 — not
+the dating problem.** Both of those are Cory's calls, not this lane's.
+
+**And it sharpens the note routed to A.** A's survival spec is sized on "a few hundred
+external leagues". The measured figure is zero, and now the *ceiling* under the most
+optimistic Route 1 outcome is also known: tens, in one season, not hundreds.
