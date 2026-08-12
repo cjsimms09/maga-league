@@ -7179,3 +7179,130 @@ and it cannot be undone by a later change to the merge flags.
 
 **Not mine to change** — `scripts/integrate.sh` is not in `shared()`. Routed with the
 reproduction.
+
+---
+
+## 📋 PRE-DECLARATION — DOES THIS BOARD DESCRIBE THE 2026 NFL SEASON? (C, 2026-08-12)
+
+Cory's reframing, accepted: the five findings are one finding — **the data layer has never been
+checked against the outside world.** Declared before inspecting anything.
+
+### THE CONSTRAINT, AND HOW I WORK AROUND IT HONESTLY
+
+**All three providers are egress-blocked** (verified by request earlier: `api.sleeper.app`,
+`api.fantasypros.com`, `fantasyfootballcalculator.com` all fail at CONNECT). So I cannot fetch
+external truth. **Two things are still genuinely outside the pipeline:**
+
+1. **STRUCTURAL FACTS ABOUT THE NFL that I hold independently of any artifact** — there are 32
+   teams; each has exactly one bye; byes fall in a known window; a draft board eight days
+   before a draft must contain the incoming rookie class; a team fields one starting QB. **A
+   board can be perfectly self-consistent and still fail these.** These are external checks
+   that need no network.
+2. **My own knowledge to May 2026**, used only where I can state the basis, never to assert a
+   2026 transaction I cannot source.
+
+### THE SAMPLING RULE, FIXED NOW SO IT CANNOT BE FITTED
+
+Not hand-picked. **Deterministic by ADP rank**, weighted where Cory said the failures live:
+
+    every 20th player from rank 100 to 340   -> 13 players (the thin-coverage band)
+    every 150th player from rank 341 to end  -> the fallback-priced tail
+    plus ALL players with years_exp == 0     -> the 2026 rookie class, however many
+
+### THE CATEGORIES I WILL TEST — and I am adding four Cory did not list
+
+    players       does the pool contain 2026's incoming rookie class at all
+    teams         32 present, plausible roster counts, no orphan codes
+    byes          one per team, inside the real bye window, distribution plausible
+    positions     32 DEF, plausible K count, one starting QB per team
+    depth chart   populated, and does it describe a real depth chart
+    injury        populated at all, or wholesale absent
+    age/exp       arithmetic consistent with a 2026 season (the frozen-record signal)
+    ADP           spread and shape consistent with a live market
+
+**MY PREDICTION, RECORDED BEFORE MEASURING** so the result cannot be narrated afterwards: I
+expect `injury_status` and `depth_chart_order` to be wholesale sparse rather than wrong,
+because that is what Sleeper's preseason dump does — and I expect the **2026 rookie class to be
+the real finding**, because nothing in the pipeline fetches a rookie who has never played and
+the `search_rank` filter would drop anyone the market has not yet priced.
+
+**IF THE BOARD IS SOUND EXCEPT FOR THE TWO CORY NOTICED, I WILL SAY SO PLAINLY.**
+
+### RESULT — THE BOARD DOES DESCRIBE THE 2026 SEASON. THE LAYER IS UNVERIFIED BUT NOT WRONG. (C, 2026-08-12)
+
+**Cory's hypothesis is not supported, and I would rather report that than find problems to
+match it. ALL THREE OF MY OWN PREDICTIONS WERE WRONG.**
+
+### THE ANSWER TO "WAS IT EVER VALIDATED": NO. AND THAT IS STILL THE FINDING.
+
+**No test anywhere compares a player to anything outside the pipeline.** The suite checks name
+normalisation, crosswalk matching, payload shape, rank contiguity and source-vs-source. The
+three audit tools compare the model to the market, one source to another, and lore to harvested
+data. **Not one asks whether a row describes a real 2026 NFL player.** The board is correct by
+construction, not by verification — and nothing in the repo would tell us the day it drifted.
+
+### BUT IT IS CORRECT. THE DECISIVE EVIDENCE IS THE QUARTERBACK DEPTH CHART
+
+    32 of 32 teams have exactly ONE depth_chart_order == 1 quarterback.
+    Zero teams with two. Zero teams with none.
+
+**And it is a DIFFERENT configuration from 2025, not a stale copy.** A 2025 board would show
+Murray at ARI, Tagovailoa at MIA, Geno Smith at LV. This board shows Murray→MIN, Tagovailoa→ATL,
+Smith→NYJ, Brissett→ARI, Willis→MIA — **a self-consistent set of moves that a stale artifact
+cannot produce.** Meanwhile 2025's rookie quarterbacks sit in their correct 2025 destinations at
+`exp 1` (Ward→TEN, Dart→NYG, Shough→NO) and a 2026 rookie starts at LV (Mendoza, `exp 0`).
+
+### EVERY STRUCTURAL CHECK PASSES
+
+    32 distinct teams, roster sizes 18-33, no orphans
+    32 teams carry a bye, ZERO with more than one, weeks 5-14
+    DEF exactly 32
+    ages/experience arithmetically correct for 2026 —
+      Rodgers 42/21, Stafford 38/17, Folk 41/19, Lynch 35/15 (FROZEN, and that contrast
+      is what proves the live ones are live)
+
+### MY THREE PREDICTIONS, ALL WRONG
+
+    predicted: the 2026 rookie class is missing        ACTUAL: 109 present, 37 REAL-priced,
+                                                       top rookie at board rank 23
+    predicted: depth_chart_order wholesale sparse      ACTUAL: 37% overall but 95% of the top 225
+    predicted: injury_status stale in-season junk      ACTUAL: live and COHERENT — Pearsall IR
+                                                       carries proj 0.0, Aiyuk DNR, Kittle PUP
+
+**The injury field responding to reality (IR -> projection 0) is the single strongest piece of
+evidence that this pipeline tracks the season rather than a snapshot of one.**
+
+### THREE REAL DEFECTS FOUND, NONE OF THEM THE ONES CORY SAW
+
+**1. NINE OF THIRTY-TWO STARTING KICKERS ARE STRANDED AT ADP 916.** Real `depth_chart_order 1`
+kickers with real projections, priced at the fallback:
+
+    Grupe(IND, proj 91)  Fitzgerald(CAR, 84)  Moody(WAS, 84)  Sanders(NYJ, 83)
+    Ryland(ARI, 81)  Szmyt(CLE, 77)  Slye(TEN, 77)  Smack(GB, 62)  Zvada(NYG, 50)
+
+**28% of the league's starting kickers are priced as the 916th player.** A backup kicker with a
+market ADP is priced ahead of them. The board can still fill a roster (23 priced K for 10 teams)
+and the model ranks K by VORP so it is largely insulated — but the ADP for that position does
+not describe reality.
+
+**2. A ZERO-PROJECTION IR PLAYER SITS AT BOARD RANK 107.** Ricky Pearsall, IR, `proj_mean 0.0`,
+ADP 107. The projection is right and the price has not caught up. The model is safe (vorp
+-172.67) but anyone scanning by ADP sees him in the top tenth of the board.
+
+**3. `injury_status` CARRIES THE LITERAL STRING "NA" ON 9 PLAYERS** — the exact absent-sentinel
+this lane defined. Trivial, and it is the shape that has cost this project repeatedly.
+
+### WHAT I CANNOT CHECK, AND THE ONE LINE THAT SETTLES IT
+
+**The specific 2026 transactions.** Murray→MIN, Tagovailoa→ATL, Smith→NYJ, Likely→NYG,
+Diggs→WAS all postdate my May 2026 knowledge. **All three providers are egress-blocked** —
+verified by request, not assumed.
+
+**They are all one field from one endpoint the build already calls every morning:**
+
+    print({p["full_name"]: p.get("team") for p in raw.values()
+           if p["full_name"] in SAMPLE})     # in draft-data.yml, which fetches Sleeper daily
+
+If those teams come back as the board has them, **the data layer is sound and the answer to
+Cory's question is "unverified, but right"** — which is a good result and a different problem
+from the one he feared.
