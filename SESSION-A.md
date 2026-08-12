@@ -918,6 +918,27 @@ created — rule 15 — BY EXPLICIT AUTHORIZATION**, which supersedes this pass'
 where every remaining rule has a clear reason to exist and a clear way its violation would become
 observable.
 
+### THE NULL FAMILY — 11e, 13, 13f, 13g — AND WHAT "SOMETHING YOU DID NOT WRITE" MEANS
+
+**Added 2026-08-12 because the scope was the whole problem.** These four clauses
+were all found in C's probes, so they read as being about EXTERNAL PROVIDERS, and
+B and I both failed to recognise ourselves in them for weeks.
+
+**"SOMETHING YOU DID NOT WRITE" INCLUDES ANOTHER PART OF THIS SYSTEM.** Your own
+probe. Another lane's producer. A fixture you built last week. The artifact your
+harness reads. A test's own scaffolding.
+
+**THE EVIDENCE IS MINE.** Six instances of 13f in one week, in my own lane, from a
+rule I had read — and **three of the six were my own instruments**, which is as
+far from "somebody else's provider" as it is possible to get: the survival power
+table whose false positives read 0.0% in every cell, the sensitivity arm whose
+staleness check could never fire, and the correlation experiment whose shared
+shock carried a random sign per decision.
+
+**A RULE NOBODY IN A LANE RECOGNISES THEMSELVES IN CANNOT FIRE THERE.** That is
+the reason this paragraph exists rather than a fifth clause. The content was
+already right; the scope was implicitly narrowed by where the examples came from.
+
 ### 13f — WHEN A NULL CONFIRMS WHAT YOU EXPECTED, ASK WHETHER THE INSTRUMENT COULD HAVE SAID ANYTHING ELSE
 
 Cory's clause, 2026-08-11, after five instances in one day. **Every one was a null
