@@ -384,9 +384,21 @@ function runSet(roomName, seat, label) {
   return res;
 }
 
-runSet('adp', MY, `ROOM: adp-with-jitter · SEAT ${MY}`);
+/* WHICH ROOM. Default adp-with-jitter; `--room X` runs one alternative.
+ *
+ * ⚠️ AND THE REASON THE PROFILED ROOM MATTERS HERE. Measured today: the ADP room
+ * produces an elite fall-through in 0 of 40 drafts and the profiled room in 40 of
+ * 40. So every arm comparison above was made inside a room model that is blind to
+ * a whole class of event. I ARGUED that pairing cancels a shared blind spot for
+ * DIFFERENCES even though it biases LEVELS — this flag is what turns that
+ * argument into a measurement. */
+const roomArg = (() => {
+  const i = process.argv.indexOf('--room');
+  return i > 0 && process.argv[i + 1] ? process.argv[i + 1] : 'adp';
+})();
+runSet(roomArg, MY, `ROOM: ${roomArg} · SEAT ${MY}`);
 
 if (varyRooms) {
-  ['reachy', 'qb_early', 'rb_run'].forEach(r => runSet(r, MY, `ROOM: ${r} · SEAT ${MY}`));
+  ['reachy', 'qb_early', 'rb_run', 'profiled'].forEach(r => runSet(r, MY, `ROOM: ${r} · SEAT ${MY}`));
   [2, 5].forEach(s => runSet('adp', s, `ROOM: adp · SEAT ${s}`));
 }
