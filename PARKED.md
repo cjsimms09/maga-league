@@ -8154,3 +8154,29 @@ wrong**. Leaving a function named `as_store_snapshots` that silently emits forei
 under `player_id` re-arms the exact trap I spent today removing, and the next person to
 reach for the obvious name gets the defect back. A correct design waiting on one answer
 beats a shipped trap. **Holding.**
+
+---
+
+## 📏 A NAMED CHECK — READ THE CALLER BEFORE YOU REPORT THE CALLEE (Cory, 2026-08-12)
+
+**Cory's wording:** *before reporting that a function behaves wrongly, read what actually
+calls it. A function misbehaving outside its precondition, or a field absent under a name
+nothing uses, is not a defect — it is a report about your own reading.*
+
+**It fired three times in one day, and only one of the three was a real defect:**
+
+| what I saw | what the caller said | verdict |
+|---|---|---|
+| `resume_alarm` returns "MISSED AT LEAST YESTERDAY" on a healthy archive | the workflow gates escalation on `resumed == '1'`, so it never prints on a healthy day | **not a defect** |
+| the home ADP series has `observed_at: None` on every snapshot | it stamps `date`, and every real consumer reads `date` | **my error** |
+| `crosswalk_map` should just call `adp.match_player` — it is the authoritative matcher | the authoritative CALLER refuses MFL team units first; "Bills, Buffalo" normalises onto our Buffalo DEF and matches by name. Measured without that guard: **TMQB → DEF 65×, TMPK → DEF 38×** | **a real defect, in my own fix** |
+
+**The third is why the check matters more than the first two.** The first two would have
+been confident wrong reports about someone else's code — embarrassing, cheap to retract.
+The third was a defect I was actively writing, and reaching for the *authoritative function*
+felt like exactly the right instinct. It was not enough. **The guard lived in the caller.**
+
+**So the check is not "be careful before criticising others."** It is: *a function's
+contract includes its preconditions and its callers' guards, and neither is visible from
+the function body.* Reading the definition tells you what it does. Reading the call site
+tells you what it is FOR.
