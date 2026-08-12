@@ -5773,3 +5773,68 @@ just has to be visible). **Not mine to design and not urgent; the record is.**
   of that entry alone would not know either.
 - **The component builders.** All six work on well-formed input. **No live defect** — the gap
   is control coverage, reported separately.
+
+---
+
+## THE ZEROS ARE THREE DIFFERENT ZEROS — and one of them is unblocked by MY lane (C, 2026-08-12)
+
+**Cory's question: four things measured at effectively zero this week, same architectural
+reason?** **Nearly — but they are THREE kinds, and only one kind is evidence.** Every
+diagnosis below is A's own, quoted; what is new is putting them beside each other.
+
+| kind | what the zero means | instances |
+|---|---|---|
+| **1. the instrument cannot EXPRESS it** | **inconclusive** — fix the design, the zero says nothing about the world | stack in `exp_participation` (−63); conditional mining §6 (0 rules); opponent model vs strangers |
+| **2. the instrument is too COARSE** | **cannot resolve** — needs n, not a redesign | stack conversion D3 (all 5 channels span zero) |
+| **3. the INPUT carries no signal** | **evidential**, for that input | lineup deviation (~$9/season); construction objective (NULL) |
+
+**In A's words, each:** *"grade_room draws weekly scores independently... so this harness
+can't reward a stack."* · *"Ran before heterogeneous rooms and before the within-position
+confound fix — instrument since corrected."* · *"a NULL is INCONCLUSIVE... a mock null doesn't
+convict the mechanism."* · *"the instrument is roughly 3× too coarse to see it... 'spans zero'
+here means CANNOT RESOLVE."* · *"The optimizer's ceiling is capped by the projection INPUT,
+not the weights."* · *"Prior-year boom ≠ this-year boom."*
+
+**A diagnosed all six correctly and in place. The cost is that they are never collected**, so
+a reader counting "what have we ruled out" counts six zeros where **at most two are
+evidence** and four are pending.
+
+### STACK IS THE CASE STUDY: measured four times, never once decisively — and it SHIPS
+
+    exp6/stack_sweep      +$196 @ 0.5     rho=0.35 ASSUMED — "prices a benefit it simulates"
+    exp_participation     -63             harness structurally cannot reward a stack
+    stack_conversion D3   spans zero      14 roster-seasons — CANNOT RESOLVE
+    D10 (Cory)            stood down      "installing on a modeled parameter would break D9"
+
+    engine ships          stack = 0.5     A's own words: "unconfirmed, not confirmed"
+
+**Four measurements, four different reasons for not counting, and the parameter is live on
+the board for a draft in ten days.** *(And `LAB-REGISTRY.md:94` still records "stack stays at
+1.0" — filed separately.)*
+
+### AND THE PART THAT IS MINE: D3's power problem does NOT need ADP
+
+**D3 names its own unblocker:** *"more roster-weeks with both states — i.e. the MFL/nflverse
+ingest, which is the same binding constraint as everywhere else."*
+
+**It is NOT the same binding constraint.** Stack conversion is a **within-roster** comparison
+of a roster's own stacked weeks against its own unstacked weeks. **It needs rosters and weekly
+points. It needs no ADP at all** — so *"the pool is unpriceable backward"*, the finding that
+governs F7 and Route 1, **does not apply to this question.**
+
+    stack conversion today          540 roster-weeks · 14 roster-seasons with both states
+    191 matched Sleeper leagues     191 x 10 x 17 = 32,470 roster-weeks   (~60x)
+    power needed to see 2.34/wk     ~21x            the pool gives ~60x
+    fetch cost                      3,247 requests x 0.071 s = ~231 SECONDS
+
+**Under four minutes of egress would take the one shipped adjuster from "unconfirmed" to
+resolved**, on a pool my lane already measured.
+
+**The honest costs, stated:** the 191 matched league ids live in the run's uploaded artifact,
+and **that host is egress-blocked from the sandbox** — so recovering them means re-running the
+~30-minute crawl, or having the probe emit the ids into the log next time. And identifying a
+"stacked" week needs **per-season** player→team labels; D3 already warns that current-team
+labels *"attenuate toward null, so it cannot rescue a null either."*
+
+**Not my call and not my lane's decision to make.** But F7 was closed against ADP-dependent
+grading, and **a question that needs no ADP was never re-asked against that pool.**
