@@ -1402,6 +1402,68 @@ the pool drawn from a limitation of ours.
 
 ---
 
+## THE COVERAGE PROBE MEASURED NOTHING ABOUT COVERAGE (run 31547459102, 2026-08-12)
+
+**`SATISFIES F5: 0`, and a COVERAGE section that printed its header with nothing under
+it. Neither is a finding about the archive.** Recorded here because a reader coming to
+this file later would otherwise find a run that looks like a closure, and Route 1's
+whole standing rests on the difference.
+
+**The chain, all three links ours.**
+
+The CDX query is day-collapsed (`collapse=timestamp:8`), so its rows are **days**, not
+captures. The hand-check asked for `DEFAULT_LIMIT=8` of them and walked `tries=4` — the
+newest **four days** before the cutoff. FantasyPros' overall page was walked across
+28–31 July, none served, and the target was booked `NO BOARD AT THIS URL`.
+
+The capture at **`20240712092948`** — same URL, nineteen days earlier, the one that
+passes the known-answer gate **15 of 15 with the real 2024 top fifteen in order** — was
+never fetched.
+
+`classify` then compounded it. FantasyPros renders client-side *today*, which is exactly
+why the archive is the instrument for this question, so its live state is `not-a-board`
+— and a target whose archive walk was truncated **fell through to a verdict keyed on the
+LIVE page.** "URL RETURNED NO BOARD" is a claim about a publisher drawn from our own
+budget.
+
+Then the coverage pass, which only runs on targets that satisfied F5, had no targets.
+**The run that existed to ask "how many distinct preseason days serve a board" asked it
+of nothing**, and its empty header read as an answer.
+
+**This is the same defect `first_serving_capture` was written to fix, one level up.**
+That fix stopped the walk taking `capture[0]`; it left it taking `[:4]`. "The days I
+looked at were duds" and "this URL serves no board" are different findings, and
+reporting the second from the first is how a route gets closed on its own walker — the
+exact symmetric error to reporting ROUTE 1 IS OPEN on shape-counting, which happened
+once already in this file and was withdrawn two entries above.
+
+**What changed, and nothing relaxes the gate.** `budget_exhausted` travels with every
+walk, true only when captures were left unexamined, with the counts examined and
+available beside it. A truncated walk classifies **INCONCLUSIVE** ahead of every
+live-keyed verdict and names its numbers. A walk that examined *everything* still
+reports a real negative — marking every walk inconclusive would mean the route could
+never be closed by evidence, only abandoned, and that mutation is tested. The hand-check
+now queries the window already registered here, `preseason_window()`, June 1 to
+August 31.
+
+**THE KNOWN-ANSWER GATE IS UNCHANGED AND REMAINS THE ONLY INSTRUMENT.** This lets it see
+the captures; it does not lower it.
+
+**What the same run DID establish, and it stands.** The mirror enumeration found **three
+frozen ADP boards** — `fantasypros/adp/{HALF_PPR,PPR,STANDARD}_ADP.csv`, 37–38 of 40
+names known, sample reading *Christian McCaffrey, Saquon Barkley, Ezekiel Elliott,
+Michael Thomas, Alvin Kamara, Derrick Henry…*, which is the real 2020 top eight in
+order — last written 2020-09-03, before the cutoff. Eleven frozen **ECR** files were
+binned separately, correctly: rankings are a different quantity and must never be summed
+with ADP. **Two caveats, not glossed:** these are 2020–2021 vintage, not the seasons we
+grade; and 2020-09-03 is late enough that whether it precedes a given draft needs
+checking per-draft rather than assuming.
+
+**Route 1 remains NEITHER OPEN NOR CLOSED on coverage.** One capture is proved; a series
+is not. The corrected probe is the thing that answers it.
+
+---
+
 ## THE MUTATION BATTERY WAS READING STALE BYTECODE (found 2026-08-11)
 
 **This is a defect in how every measurement in this lane was verified, not in any one of
