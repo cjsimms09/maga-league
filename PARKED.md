@@ -6831,3 +6831,36 @@ Three seasons, 30 team-drafts, one league — n=28 for the non-keeper ordinal. P
 shifts year to year and this sample cannot separate that from behaviour. It is a floor, not a
 model. **It is drawn from drafts that actually happened, which is the one property a ranking
 cannot have.**
+
+### ADDENDUM — THE REFERENCE CANNOT BE A STANDARD FOR DEF AND K (C, 2026-08-12)
+
+A's Stage 3 moved the finding to DEF/K. **The reference has a structural limit on exactly
+those two positions**, and it should be known before DEF/K is treated as selection pathology.
+
+    market arm, 12 picks + 3 keepers   QB 1, RB 8, TE 1, WR 5
+                                       UNFILLED STARTER SLOTS: DEF, K
+    model arm,  12 picks + 3 keepers   QB 2, RB 3, TE 2, WR 6, DEF 1, K 1
+                                       UNFILLED STARTER SLOTS: none
+
+**A pure highest-ADP-available drafter never reaches a DEF or a K, so it cannot field a legal
+lineup.** Our required starters include 1 DEF and 1 K. Against the real floor that is
+unprecedented: **30 of 30 real teams took a kicker; 29 of 30 took a defense**, each at roughly
+their 13th pick. So DEF/K divergence measured against this reference is measured against
+ZERO, and the reference will always show the model over-drafting positions it never drafts.
+
+**AND THE MODEL'S ACTUAL DEF/K SELECTION IS NORMAL-TO-LATE:**
+
+    pos   real teams (30 team-drafts)        model arm
+    DEF   median pick 130, its #13 pick      pick 130, its #11   — exactly the real median
+    K     median pick 126, its #13 pick      pick 145, its #12   — later than 27 of 30
+
+**So the +140 / +152 is a RANKING bias measured at every pick, and the SELECTION it produces
+is inside normal drafting.** Both can be true at once, and if they are, something downstream —
+the need rule, the mask, roster legality — is absorbing the ranking skew before it reaches a
+pick. Worth establishing which, because "the ranking is skewed" and "the picks are wrong" call
+for different fixes and only the second is visible to Cory at the table.
+
+**CONVERGENCE WORTH NOTING:** Stage 3 found TE is not the outlier on VONA rank-agreement; this
+pass found the model's TE timing at the 11th percentile of real teams while the MARKET arm's
+sits at the 97th. Two different instruments, same conclusion — the Stage 1 TE gap was mostly
+the reference being late.
