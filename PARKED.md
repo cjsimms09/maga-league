@@ -8180,3 +8180,51 @@ felt like exactly the right instinct. It was not enough. **The guard lived in th
 contract includes its preconditions and its callers' guards, and neither is visible from
 the function body.* Reading the definition tells you what it does. Reading the call site
 tells you what it is FOR.
+
+---
+
+## 🔧 THE PRE-DECLARED MEASUREMENT IS BUILT AND WAITING ON ITS INPUT (C, 2026-08-12)
+
+`draft/backtest/board_vs_market.py` + 9 tests. It implements the sample registered above
+**before** it was inspected — 10×15 = 150 picks, the 200 shoulder beside it, `fantasypros`
+and `ffc` as the only real prices, the latest snapshot rather than a blend. It reports and
+stops: no board adjustment, no blend, no score anything consumes (rule 9).
+
+**EGRESS CONFIRMED CLOSED RATHER THAN ASSUMED.** I tested it instead of repeating what the
+routing note said: `api.myfantasyleague.com:443` returns *"gateway answered 403 to CONNECT
+(policy denial)"*, and the proxy's own status endpoint records the rejection. So the names
+arrive with the 11:20Z capture in CI, not from here.
+
+**RUN AGAINST TODAY'S REAL ARCHIVE, IT REFUSES CORRECTLY:**
+
+```
+controls: 2/2 passed || NO MARKET ROW INSIDE THE RANGE CROSSWALKED —
+this is a statement about the crosswalk, not about the board's pricing.
+```
+
+Which is the whole point: with no decode key it does **not** report a clean board.
+
+### TWO DEFECTS THE BREAK-FIRST TESTS CAUGHT IN MY OWN PROBE
+
+**1. A CONTROL THAT COULD PASS ON AN EMPTY SET.** The round-trip control expected
+`crosswalked == len(named)`. Handed a board with no usable names, it returned `0 == 0` and
+went **green** — so a dead crosswalk certified itself and the verdict read *"THE BOARD'S
+PRICING IS SOUND"*. That is the absent-is-not-zero failure one level below where
+`positive_control.run` already refuses it: it guards an empty control LIST, and this was an
+empty control INPUT. The control now refuses outright when there is nothing to check.
+
+**2. THE RANGE WAS A LIST SLICE, NOT A PICK NUMBER.** `ranked[:150]` takes the market's
+first 150 ROWS, so the comparison depended on how many players the provider returned that
+day rather than on the pick Cory can reach. The pre-declaration registered *"the market
+takes them inside 150 picks"* — an ADP threshold. **On a full board the two nearly
+coincide, which is exactly why it would have survived review.** Measured: 708 market rows,
+and **170** have ADP ≤ 150, not 150.
+
+### SCALE REHEARSED, AND THE NUMBER IT PRODUCED IS NOT A FINDING
+
+708 market ids × 1,759 board rows, **0.2s**, controls green, 708/708 crosswalked. The
+decode key was **SYNTHETIC** — our own board's names pinned to the real market ids in ADP
+order — so its verdict (*"prices every one"*) is an artifact of how I built the key and
+says nothing whatever about the board. Recorded as a performance and coherence check only.
+
+**It runs for real when the archive carries names.** Nothing else is needed from anyone.
