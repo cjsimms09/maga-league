@@ -8456,3 +8456,65 @@ correctly; only the MFL join misses them. Recorded, not built: adding fuzzy firs
 matching to the authoritative matcher is a change with a wrong-match failure mode, and this
 lane has spent the week removing exactly that. **It needs a measurement of its own before
 anyone touches `match_player`.**
+
+---
+
+## 📋 PRE-DECLARATION — THE QB/TE SYMPTOM, FROM THE DATA SIDE (C, 2026-08-12)
+
+**Written before inspecting a single value. Cory's assignment: investigate independently of
+A, do not read A's latest, diagnose rather than fix.** I have not looked at A's current
+work and will not until this is written.
+
+### THE SAMPLE, FIXED NOW
+
+* `public/draft_data.json` as deployed — the artifact the war room boots from — including
+  its `league` block (`scoring`, `roster_slots`, `starters`, `teams`) and every player's
+  `proj_mean`, `proj_baseline`, `proj_fantasypros`, `proj_sleeper`, `replacement`, `vorp`.
+* The importer that produces the scoring table, and `draft/build.py` where replacement and
+  VORP are computed. Read only — I touch neither.
+* **Outside the pipeline:** the 2026-08-12 MFL market (708 players, 119 drafts) already in
+  `draft/data/external_adp_series.json`, now decodable; and published NFL scoring
+  arithmetic, which I can compute by hand and is not ours.
+
+### WHAT I EXPECT TO FIND IF THE DATA IS RIGHT — STATED BEFORE LOOKING
+
+1. **Scoring applied ONCE.** Our format is 6-point passing TDs; public sources assume 4. A
+   QB throwing ~30 TDs should therefore sit **~60 points above** a 4-point-source number
+   (2 extra × 30). If I find ~120 points of gap, the table has been applied twice, or
+   applied to a source that had already scored them.
+2. **Replacement at the position's own startable depth.** 10 teams × 1 QB → replacement
+   near **QB10–13**. 1 TE → **TE10–13**. 2 RB + a share of FLEX → **RB25–30**. 2 WR + a
+   share → **WR25–30**. K and DEF at **10–12**.
+3. **VORP shape favouring RB/WR, by construction.** Cory's own published arithmetic: a QB
+   at 350 over a QB15 at 300 is **+50**; an RB at 280 over an RB25 at 120 is **+160**.
+   **Three times the value from the lower raw number.** If our numbers do not show that
+   shape, the boundary where it stops holding is the defect.
+4. **FLEX is RB/WR/TE only** — verified from the imported config, not from anyone's memory,
+   and represented identically by every consumer that reads it.
+5. **Single-source rate roughly flat across positions.** If QB and TE are markedly more (or
+   less) single-source than RB/WR, they are priced by a different mechanism than the
+   positions they are being ranked against.
+
+### WHAT WOULD FALSIFY THE WHOLE DATA HYPOTHESIS
+
+**If scoring is applied once, replacement sits at the expected rank at every position, the
+VORP shape holds, and roster capacity is represented correctly — then the data is not the
+defect and I will say exactly that.** Cory has asked for that answer explicitly if it is
+the true one, because it tells A where not to look. I will not manufacture a smaller
+finding to avoid a null.
+
+### METHOD
+
+**One QB and one RB walked by hand across every boundary** — raw source number, scored
+under our table, blended, adjusted, replacement, VORP, contribution, final rank — with the
+arithmetic stated at each step. **The first boundary where the expected relationship breaks
+is the answer.**
+
+### WHAT I WILL NOT DO
+
+Not touch the engine, `build.py`, or the config. Not re-run A's six dead hypotheses (bench
+floor, need re-enabling, the `expectedBestAvailable` tail, VORP-vs-market ranking, its
+reach-ratio headline, the VONA comment) — **but I do not assume its rulings are correct
+either, and if my evidence contradicts one I will say so.** And no folklore: "quarterbacks
+should go later" is not a finding. The question is whether OUR numbers are right for OUR
+league.
