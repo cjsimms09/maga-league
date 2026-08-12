@@ -6245,3 +6245,60 @@ enforces one-owner-per-rule (`test_F5s_strictly_before_rule_is_NOT_reimplemented
 **Blocks me?** No. **Risks data?** Yes, and unrecoverably: MFL serves no as-of-date board —
 the measured finding D3 exists because of — so every silent day is gone permanently, across
 exactly the ten days when the board moves most.
+
+---
+
+## FOR A — the FantasyPros crosswalk is clean today and cannot report the day it stops (C, 2026-08-12)
+
+**NOT URGENT AND NOT BLOCKING.** The board is correct right now; I checked before writing
+this. What is missing is the check that would say so tomorrow.
+
+### THE MEASUREMENT FIRST — the reassuring half, and it is the bigger half
+
+    fp_rows_parsed 343   fp_matched 343   fp_unmatched 0     -> 343 == 343 + 0, holds
+    FantasyPros + FFC price ranks 1..340 with NO gaps; `search_rank` first appears
+    at overall rank 341 (Blake Grupe, K, adp 916). Every pick that will actually
+    happen on 08-22 is priced off real ADP, not the popularity proxy.
+    Largest adp-rank vs consensus_rank disagreement anywhere on the board: 33
+    places, at ranks 324-333, and it is a constant tail offset (the two rankings
+    cover different pools) rather than a scatter. A mis-joined player shows up as a
+    gap of hundreds. There are none.
+
+### THE LATENT GAP — `adp.py:429`
+
+`rows[str(pid)] = {...}` keys the table by Sleeper id. **Two FP rows matching the same id
+silently overwrite**, and `adp.py:432` then sets `fp_matched = len(rows)` — the count AFTER
+the overwrite. So a collision reads:
+
+    fp_rows_parsed 343   fp_matched 342   fp_unmatched 0
+
+**Nothing computes `parsed == matched + unmatched`**, so the discrepancy sits unread in a
+diagnostic block. The consequence is the one `adp.py` already names 100 lines further down:
+the real player behind that id gets the other row's price — *"not 'missing data' but
+confident wrong data, sitting among genuinely elite players"* — and the player who lost the
+overwrite drops to the `search_rank` fallback. Three numbers already in the artifact; the
+identity between them is never asserted.
+
+### AND THE PROVENANCE THAT WOULD TRACE IT IS DROPPED — `adp.py:540`
+
+`match_player()` says in its own docstring:
+
+> *"`method` is recorded in the artifact so a later mismatch can be traced to how it was
+> matched, not just that it was."*
+
+It is recorded into the merged row as `match_method` — and then `p.update({k: row[k] for k in
+("adp", "adp_sd", "adp_source")})` copies a hardcoded three-key list. **`match_method` is on
+0 of 1759 shipped players.** The matcher's riskiest paths are the ones it flags itself —
+`+pos+prominence` carries the comment *"record that we did, so a wrong match is traceable"* —
+and in the artifact anyone actually reads, it is not traceable at all. Nor does the
+provenance block break the 343 down by method, so a 100% match rate is reported with no way
+to tell how many used a fallback the code itself calls possibly-wrong.
+
+**Two small things, your call, and neither is a fire:** assert the three-number identity, and
+add `match_method` to the copied key list (or count methods into `provenance.adp`).
+
+**MY OWN LANE, CHECKED FOR THE SAME DEFECT:** `ingest_run.py` accumulates crosswalk counts
+additively (`matched += r.get("crosswalked")`) and tracks `conflicts` as its own field. It has
+no keyed table that can silently collapse, so this shape does not exist there. Reported
+because whoever scans an archive should not have produced it, and the reverse holds too — I
+looked at mine before writing about yours.

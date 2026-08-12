@@ -51,6 +51,108 @@ def test_the_tool_arm_reads_the_last_pin_STRICTLY_BEFORE_the_draft():
     assert got["commit"] == "b", got
 
 
+# ── OUR ACTUAL SCHEDULE, on which the date-only rule picks the wrong board ──
+#
+# These exist because the shipped function was run against the real timetable
+# before any of them was written, and it returned 08-21's pin for an 08-22 draft:
+#
+#     draft-data.yml        board rebuilt   08:00 UTC daily
+#     external-adp-capture  pin taken       11:20 UTC daily
+#     our draft             2026-08-22, picks that evening
+#
+# The pin is taken HOURS BEFORE the first pick and is genuinely the board the
+# tool displayed. `built_at` was in every record all along; only the reader could
+# not use it, so pins taken before the fix are selected correctly by it.
+
+def _sched(days, built_h="08:00:00"):
+    """Pins on our real schedule: each day's board built at `built_h` UTC."""
+    doc = None
+    for d in days:
+        raw = json.dumps({"built_at": "%sT%sZ" % (d, built_h),
+                          "players": [{"player_id": "1"}]}).encode()
+        doc = B.append(B.pin(raw, "sha-" + d, d), doc)
+    return doc
+
+
+def test_a_SAME_DAY_pin_built_BEFORE_the_first_pick_IS_the_evidence():
+    """THE ONE THIS FIX EXISTS FOR. MUTATION: the shipped function — compare dates
+    only. It discards the 08-22 pin and returns 08-21's: a board one day stale, on
+    the day boards move most, in the record whose whole purpose is knowing which
+    board the tool used."""
+    doc = _sched(["2026-08-20", "2026-08-21", "2026-08-22"])
+    got = B.pin_before(doc, "2026-08-22", draft_started_at="2026-08-22T23:00:00Z")
+    assert got["commit"] == "sha-2026-08-22", got
+
+
+def test_a_SAME_DAY_pin_built_AFTER_the_first_pick_is_still_REFUSED():
+    """The original reasoning, preserved rather than discarded — it was sound in
+    general and wrong only for our schedule. MUTATION: admit any same-day pin. A
+    board rebuilt mid-draft becomes 'what the tool showed', and the 2026 tool arm
+    is graded against a board that did not exist when the picks were made."""
+    doc = _sched(["2026-08-21", "2026-08-22"], built_h="23:30:00")
+    got = B.pin_before(doc, "2026-08-22", draft_started_at="2026-08-22T23:00:00Z")
+    assert got["commit"] == "sha-2026-08-21", got
+
+
+def test_a_same_day_pin_with_NO_built_at_is_refused_even_WITH_a_start_time():
+    """MUTATION: treat a missing `built_at` as qualifying. An undated board cannot
+    be shown to precede the picks, and admitting it assumes exactly the thing the
+    argument was added to establish."""
+    doc = B.append({"observed_at": "2026-08-21", "commit": "day-before"})
+    doc = B.append({"observed_at": "2026-08-22", "commit": "undated"}, doc)
+    got = B.pin_before(doc, "2026-08-22", draft_started_at="2026-08-22T23:00:00Z")
+    assert got["commit"] == "day-before", got
+
+
+def test_WITHOUT_a_start_time_the_date_only_rule_is_UNCHANGED():
+    """A caller who cannot say when the draft began cannot tell an 11:20 pin from a
+    23:00 one, and excluding the day is right then. MUTATION: apply the same-day
+    rule regardless — every existing caller silently changes answer."""
+    doc = _sched(["2026-08-21", "2026-08-22"])
+    assert B.pin_before(doc, "2026-08-22")["commit"] == "sha-2026-08-21"
+
+
+def test_a_pin_from_AFTER_the_draft_day_never_qualifies():
+    """The plain case. Note it does NOT reach the date guard — see below."""
+    doc = _sched(["2026-08-21", "2026-08-23", "2026-08-25"])
+    got = B.pin_before(doc, "2026-08-22", draft_started_at="2026-08-22T23:00:00Z")
+    assert got["commit"] == "sha-2026-08-21", got
+
+
+def test_a_pin_TAKEN_AFTER_the_draft_of_an_OLD_board_is_still_refused():
+    """FOUND BY A SURVIVING MUTATION. The test above claimed to cover the date
+    guard and did not: `built_at` carries its own date, so a later pin of a later
+    board is rejected by the timestamp compare alone and the guard is never
+    reached. It took a record where the two DISAGREE to reach it.
+
+    The scenario is real and is the one this lane just built detection for: the
+    capture goes down over the draft and resumes on 08-25, pinning a board that
+    was never rebuilt in between. Its `built_at` (08-20) precedes the first pick,
+    so on the timestamp alone it qualifies — and being last in the series it would
+    be RETURNED, reporting a pin taken three days after the draft as evidence of
+    what the tool showed during it.
+
+    MUTATION: drop `if day > draft_date: return False`."""
+    doc = B.append({"observed_at": "2026-08-21", "commit": "during",
+                    "built_at": "2026-08-21T08:00:00Z"})
+    doc = B.append({"observed_at": "2026-08-25", "commit": "after-the-fact",
+                    "built_at": "2026-08-20T08:00:00Z"}, doc)
+    got = B.pin_before(doc, "2026-08-22", draft_started_at="2026-08-22T23:00:00Z")
+    assert got["commit"] == "during", got
+
+
+def test_the_fix_selects_correctly_for_pins_taken_BEFORE_it_existed():
+    """Why this is a fix and not a loss. Every pin already carried `built_at`, so
+    the record needs no repair — the 08-12 pin sitting in the real series today is
+    read correctly by the new rule."""
+    real = json.loads((HERE.parent / "data" / "board_pins.json").read_text())
+    row = real["series"][0]
+    assert row["built_at"], "the real record must carry built_at for this to hold"
+    got = B.pin_before(real, row["observed_at"],
+                       draft_started_at=row["built_at"][:11] + "23:00:00Z")
+    assert got is not None and got["observed_at"] == row["observed_at"]
+
+
 def test_NO_pin_before_the_draft_returns_NOTHING_rather_than_the_nearest():
     """Absent is not 'close enough'. MUTATION: fall back to the nearest pin in either
     direction — the same defect that made the Wayback availability API unusable for

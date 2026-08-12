@@ -81,12 +81,71 @@ def append(record: dict, existing: dict = None) -> dict:
     return doc
 
 
-def pin_before(doc: dict, draft_date: str):
-    """The last pin STRICTLY BEFORE a draft date. F5's rule, on our own board.
+def pin_before(doc: dict, draft_date: str, draft_started_at: str = None):
+    """The last pin that is EVIDENCE of what the tool showed when it recommended.
 
-    A board pinned ON draft day may have been rebuilt after picks began, so it is not
-    evidence of what the tool saw when it recommended. Strictly before, or nothing.
+    F5's rule, applied to our own board. The date-only form was wrong for our
+    actual schedule and would have discarded the right pin on 2026-08-22:
+
+        draft-data.yml        board rebuilt   08:00 UTC daily
+        external-adp-capture  pin taken       11:20 UTC daily
+        our draft             2026-08-22, picks that evening
+
+    Comparing dates alone, the 08-22 pin — taken at 11:20 UTC, hours BEFORE any
+    pick, and genuinely the board the tool displayed — is discarded, and 08-21's
+    is returned instead. A board one day stale, on the day boards move most, in
+    the record whose entire purpose is knowing which board the tool used.
+
+    THE OLD REASONING WAS SOUND IN GENERAL AND WRONG FOR THIS SCHEDULE: "a board
+    pinned ON draft day may have been rebuilt after picks began". MAY have been.
+    Date-only comparison cannot tell, so it excluded the whole day to be safe —
+    and being safe cost the correct answer every time the pin precedes the draft.
+
+    `built_at` was already in every pin record, so the information that resolves
+    the ambiguity was captured all along; only the reader could not use it. That
+    is why this is a fix and not a loss: pins taken before this change are
+    selected correctly by it.
+
+    ── THE RULE ────────────────────────────────────────────────────────────────
+
+    With `draft_started_at`, a pin qualifies when the BOARD IT PINS was built
+    strictly before the first pick — which is the question actually being asked.
+    Without it, the date-only rule is kept unchanged, because a caller who cannot
+    say when the draft began cannot distinguish a same-day pin taken at 11:20
+    from one taken at 23:00, and excluding the day is the right answer then.
+
+    A same-day pin with NO `built_at` is excluded even when `draft_started_at` is
+    supplied: an undated board cannot be shown to precede the picks, and
+    admitting it would be assuming the thing the argument exists to establish.
+
+    ── WHERE `draft_started_at` COMES FROM, because a parameter with no named ───
+    ── source is how a correct function stays unused ───────────────────────────
+
+        draft/data/sleeper_league_settings.json  ->  .draft.start_time
+
+    Sleeper populates it when the draft starts; it is null while `.draft.status`
+    is "pre_draft", which is what it reads today. It is an epoch in MILLISECONDS
+    — convert before passing, this function compares ISO-8601 strings.
+
+    It is also recoverable from Sleeper's draft endpoint long after the fact
+    (that is how prior seasons reached `league_history.json`), so a reader in
+    2027 who finds it null in our archive is not stuck. NOTHING HERE IS
+    PERISHABLE, which is why this was a fix to make and not a capture to rush.
     """
-    usable = [r for r in ((doc or {}).get("series") or [])
-              if str(r.get("observed_at")) < str(draft_date)]
+    series = (doc or {}).get("series") or []
+    if not draft_started_at:
+        usable = [r for r in series if str(r.get("observed_at")) < str(draft_date)]
+        return usable[-1] if usable else None
+
+    def qualifies(r):
+        day = str(r.get("observed_at"))
+        if day < str(draft_date):
+            return True
+        if day > str(draft_date):
+            return False
+        # SAME DAY: admit it only on evidence, never by default.
+        built = r.get("built_at")
+        return bool(built) and str(built) < str(draft_started_at)
+
+    usable = [r for r in series if qualifies(r)]
     return usable[-1] if usable else None
