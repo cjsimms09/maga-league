@@ -650,6 +650,39 @@
     return { value: risk, reasons };
   }
 
+  /* Per-position typical ceiling spread, recomputed from the LIVE board at the
+   * top of every recommend(). Derived from the board rather than hardcoded so it
+   * tracks the actual projection source: a hardcoded table would be a second
+   * derivation of the projections, free to go stale against them. */
+  let _ceilingScales = null;
+  function computeCeilingScales(board) {
+    /* THE NORMALISER IS REPLACEMENT LEVEL, NOT THE SPREAD DISTRIBUTION.
+     *
+     * The first version of this divided by each position's MEDIAN SPREAD and was
+     * wrong in the amplifying direction: QB's median spread is the SMALLEST on
+     * the board (9.7 against WR's 22.8), because the QB pool is mostly backups
+     * with tiny projections. Dividing by it would have handed quarterbacks a
+     * 2.35x boost — the exact defect, inverted and made worse. The p90 of 66.5
+     * that names the problem and the median of 9.7 are the same distribution,
+     * heavily right-skewed, and picking the wrong statistic flips the fix.
+     *
+     * The defect is that A QUARTERBACK SCORES 350-400 A SEASON AND A TIGHT END
+     * 150, so the normaliser has to be the position's SCORING MAGNITUDE.
+     * Replacement level already is exactly that and is already on every row
+     * (QB 341.7, RB 188.5, WR 172.7, TE 150.7). Dividing by it turns a spread
+     * into a FRACTION OF WHAT THE POSITION SCORES: QB 66.5/341.7 = 0.195 and
+     * TE 30.8/150.7 = 0.204 — near-identical, which is what "the same upside"
+     * ought to mean and what the raw points never did. */
+    const by = {};
+    (board || []).forEach(p => {
+      if (!p || !p.position) return;
+      const rep = Number(p.replacement);
+      if (isFinite(rep) && rep > 0) by[p.position] = rep;
+    });
+    const vals = Object.keys(by).map(k => by[k]).sort((a, b) => a - b);
+    return { scales: by, ref: vals.length ? vals[Math.floor(vals.length / 2)] : 0 };
+  }
+
   function upsideBonus(player, pickNumber, totalPicks, myPicksLeft, allStages, gateOpen) {
     // UNIT MISMATCH — the bug this fixes.
     //
@@ -678,7 +711,36 @@
     // Deliberately NOT capped at the player's own VORP: a round-12 flier has a
     // VORP near zero and upside is the entire reason to take him. Capping there
     // would delete the lottery-ticket behaviour the next line exists to create.
-    const raw = (player.proj_ceiling || player.proj_mean) - player.proj_mean;
+    /* ── POSITION-NORMALISED, 2026-08-13. THE UNITS DEFECT, FIXED AT SOURCE ──
+     *
+     * `proj_ceiling - proj_mean` is a SPREAD IN RAW SEASON POINTS. A quarterback
+     * scores 350-400 a season and a tight end 150, so the QB's spread is the
+     * biggest number on the board BY CONSTRUCTION — p90 of 66.5 at QB against
+     * 30.8 at TE. Ranking bench picks on it MEASURES SCALE AND CALLS IT UPSIDE,
+     * and it is why the board kept handing Cory a second quarterback and a
+     * second tight end he could not start.
+     *
+     * WHY THE ONESIE CAP DID NOT FIX IT, and this is the part that matters: the
+     * cap treats the OUTPUT while this drives the INPUT. And the term was
+     * supposed to be OFF — MEASURED_WEIGHTS.ceiling is 0, because the ceiling
+     * effect measured -4.8 with a [-26,+17] interval and could not be signed.
+     * But the bench branch floors it: `Math.max(BENCH_CEILING_FLOOR, w.ceiling)`
+     * with BENCH_CEILING_FLOOR = 0.25 SILENTLY RE-ENABLES A WEIGHT THE
+     * MEASUREMENT SET TO ZERO, for every bench pick. So the deliberately-
+     * disabled, unsignable, unnormalised term is the primary ranker of the whole
+     * back half of the draft.
+     *
+     * THE FIX IS A RATIO, NOT A CAP. Divide each spread by the TYPICAL SPREAD AT
+     * ITS OWN POSITION, then re-scale by the board-wide typical spread so the
+     * term keeps its magnitude on the composite's scale. What survives is "how
+     * much more upside than a normal player at this position" — dimensionless,
+     * and therefore comparable across positions, which is the one thing the raw
+     * spread never was. Median rather than mean: a handful of extreme boom
+     * projections at one position would otherwise set that position's scale. */
+    const rawSpread = (player.proj_ceiling || player.proj_mean) - player.proj_mean;
+    const cs = _ceilingScales;
+    const posScale = cs && cs.scales[player.position];
+    const raw = (posScale > 0 && cs.ref > 0) ? rawSpread * (cs.ref / posScale) : rawSpread;
     // Ceiling is LATE-ONLY for the LIVE recommendation: zero until CEILING_LATE_FROM
     // of the draft, then ramps to full (Cory's model — mean+VONA+tiers decide early/mid;
     // throwaway rounds get the lottery). `allStages` restores the old full-draft ramp
@@ -1503,6 +1565,8 @@
   }
 
   function recommend(ctx) {
+    // Position scales BEFORE anything is scored — upsideBonus reads them.
+    _ceilingScales = computeCeilingScales(ctx.board);
     const all = ctx.board.map(p => scorePlayer(p, ctx));
     all.sort((a, b) => b.score - a.score);
     applyCeilingTiebreak(all);   // same-tier/same-position near-ties lean to higher ceiling
