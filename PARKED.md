@@ -8381,3 +8381,78 @@ times today, each time printing the warning and moving on.
 
 **The one number that matters for the fix is still the `FAILED SUITES:` line in run
 `31646250669`.** Everything above says how bad the neglect is; that line says what to fix.
+
+---
+
+## ✅ THE PRE-DECLARED MEASUREMENT, RUN AND ANSWERED: THE BOARD'S PRICING IS SOUND WHERE IT MATTERS (C, 2026-08-12)
+
+**And it ran tonight, not tomorrow.** I dispatched the D3 capture manually to test the new
+two-endpoint `fetch_mfl` against real MFL before it runs unattended at 11:20Z — it
+succeeded in 13 seconds and committed the decode key: **708 ids, name/position/team 100%
+populated.** So the archive is decodable and the measurement no longer had to wait.
+
+**It also proved the namespace defect with a real name.** MFL id `13589`, ADP 2.57, the #1
+overall pick, is **Josh Allen** — not the fourth-string college tight end our board's
+`player_id` 13589 points at. That was the false collision, named.
+
+### THE ANSWER, AS REGISTERED
+
+```
+controls                    2/2 passed
+market rows                 708      inside 150 picks: 170
+crosswalked inside 150      139
+  our board prices them     139
+  in our FALLBACK TAIL        0
+```
+
+**Zero. The falsification condition I declared before inspecting the sample is met**, so I
+report it plainly and stop: **of every player an independent market of 119 real drafts
+takes inside our 150 picks and that we can place, our board prices every single one.**
+Same at the 200 shoulder: 195 matched, 195 priced, none in the tail.
+
+### ONE DEVIATION FROM THE REGISTERED METHOD, DECLARED RATHER THAN QUIET
+
+**MFL's ADP is IDP-INCLUSIVE and my pre-declaration did not anticipate that.** 27 of the
+170 rows inside 150 are linebackers, ends and tackles — players our format never drafts —
+so MFL's "pick 150" is not our pick 150. I re-ran it **format-matched**: rank only the
+players our format drafts, take the top 150 of those.
+
+```
+priced by our board                145
+in our FALLBACK TAIL                 0
+Cory's keepers (correctly absent)    3
+name-variant or absent               2
+```
+
+**Both versions agree, so the deviation does not move the verdict** — which is the only
+reason it is reported as a refinement rather than a re-registration.
+
+### ⚠️ AND A SEVERITY-1 I ALMOST REPORTED THAT WAS THE SYSTEM WORKING CORRECTLY
+
+Three players the market takes early — **Ja'Marr Chase (4.7), Kenneth Walker III (40.0),
+Derrick Henry (55.7)** — are absent from `players` in the deployed artifact. I confirmed
+there was no spelling variant and was about to route it as *the board is missing a top-five
+pick ten days before the draft.*
+
+**They are Cory's keepers.** `kept_players` holds all three at `team_slot: 8`, with the
+forfeited rounds recorded. They are off the draftable board **because they cannot be
+drafted**, which is what the code says in a comment I read and quoted MYSELF today:
+
+> `app.js:1462` — *"kept_players is disjoint from players — keepers are off the draftable
+> board because they cannot be drafted."*
+
+**FIFTH FIRING OF THE CHECK CORY NAMED TODAY**, and the worst one: I read one field, drew a
+conclusion, and never read the field the codebase explicitly documents as its complement —
+having quoted that exact documentation hours earlier in my own item-5 audit. *A field
+absent under one name is not missing data until you have read what else holds it.*
+
+### THE ONE REAL DEFECT THE MEASUREMENT FOUND, AND IT IS MINE
+
+**The crosswalk misses FIRST-NAME VARIANTS.** `Kenneth Gainwell` (market ADP 135.1, inside
+the range) is on our board as **`Kenny Gainwell`**; `Matthew Hibner` is `Matt Hibner`.
+`adp.match_player` matches on the full name and these never meet. Small — 2 inside the
+format-matched 150 — and **not urgent for the 22nd**, because the board prices both players
+correctly; only the MFL join misses them. Recorded, not built: adding fuzzy first-name
+matching to the authoritative matcher is a change with a wrong-match failure mode, and this
+lane has spent the week removing exactly that. **It needs a measurement of its own before
+anyone touches `match_player`.**
