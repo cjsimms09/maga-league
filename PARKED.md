@@ -5947,3 +5947,70 @@ never interrupt a running integration.** Killing it is the graceful-termination 
 one that fires the `ORIG_HEAD` rollback, and the one that cost a commit at 13:29 today. **A
 wasted six-minute cycle is strictly cheaper than the interruption**, so a doomed run is
 allowed to finish.
+
+---
+
+## CORRECTION TO DIRECTED PASS 1b — I said B had no money record. **It has the deepest archive in the project.** (C, 2026-08-12)
+
+**I reported B's pass as "one finding, then empty", and closed the money question with:**
+*"`waiver_budget_used` is the only money-adjacent field in the archive and it is zero
+everywhere. There is no payment record here to find patterns in."*
+
+**That was wrong.** `draft/data/master_sheet_archive.json` — which I never opened — is, in its
+own words:
+
+> *"The league's founding document — Est. 2016. **Pre-Sleeper seasons (2016-2022) exist
+> NOWHERE else.** Career money derives from by_year, never sheet_total."*
+
+    seasons              2016 .. 2027  (12)
+    per-owner            career wins/loss/tie/win_pct + winnings BY YEAR across 11 years
+    per-season           full 10-owner standings, payout channels, pot, buy_in, draft_order
+    depth                ~100 owner-seasons of OUTCOME data
+
+**Against the 30 owner-seasons of behaviour C-001 and C-003 were built on.** And **seven of
+those seasons exist in no other source** — if that file were lost, they are gone.
+
+### The failure was mine and it has a name I used three times today
+
+**I answered from `league_history.json` alone and never surveyed `draft/data/`.** My "empty"
+was a statement about **where I looked**, presented as a statement about **what is there** —
+*coverage reported as completeness*, which is the exact defect `field_population` was built
+for this morning.
+
+**And the instrument would not have caught it.** `field_population` measures whether an
+artifact's FIELDS are populated. It has no view of whether the SET OF ARTIFACTS examined is
+the set that exists. **That is a real limit of the thing I built, worth knowing before anyone
+leans on it as a completeness check.**
+
+### While chasing it I thought I had a contradiction with edge #3. I did not.
+
+Every season 2023–2026 in the archive reads `regular_season 15% + playoffs 85% = 100%`, with
+**no weekly-high channel** — against edge #3's *"37.5% of the pot pays on weekly-high"*,
+confidence *"an accounting fact"*.
+
+**Checked before saying it. Edge #3 is right.** The percentages sum to 100% of
+`rs_po_distributed`, **not** of `pot`, and the remainder is the weekly-high pool:
+
+    year   pot    rs_po_distributed   remainder   share
+    2024   4000   2500                1500        37.5%
+    2025   4000   2500                1500        37.5%
+    2026   4000   2500                1500        37.5%
+    2023   3500   2000                1500        42.9%   <- same pool, smaller pot
+
+`$100 x 15 regular-season weeks = $1,500`, and `1500/4000 = 37.5%`. **The founding document
+corroborates the edge independently.**
+
+**One nuance worth carrying: 2023 was 42.9%, not 37.5%.** The share is era-dependent —
+`payouts.json` already handles this (*"the structure CHANGED across eras"*) — so "37.5%" is a
+**2024-onward** fact, not a constant.
+
+### THE PATTERN, THIRD TIME TODAY
+
+**Ceiling-unsettled, edge #3's mechanism, and now this: three times I expected a finding
+against A's work and three times the check said A was right.** My prior going in has been too
+strong. The check has paid every time, and it is the only reason none of the three reached
+Cory as a criticism.
+
+**The archive itself is unexamined and now clearly worth a pass** — 12 seasons, 7 of them
+unique, bearing directly on the power problem that killed C-001. **Not taken: that is Cory's
+call, not a gap I get to fill on my own initiative.**
