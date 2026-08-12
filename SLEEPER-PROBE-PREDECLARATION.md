@@ -107,3 +107,81 @@ that was never going to contain them.
 
 **This is the ninth instance this week of a consumer's shape being mistaken for a
 producer's**, and the first where I caught myself doing it inside a pre-declaration.
+
+---
+
+# F7 AT SCALE — PRE-DECLARATION, before dispatch
+
+## THE QUESTION CORY ASKED ME TO ANSWER BEFORE CELEBRATING A NUMBER
+
+> *"If F7 clears, the ADP problem is still unsolved. Say plainly whether a cleared F7
+> gives us a pool we cannot price."*
+
+**Partly true, and the split is the whole answer.**
+
+**BACKWARD — yes, unpriceable, and permanently.** A 2023/24/25 Sleeper league-season needs
+ADP dated before *that* draft. Sleeper publishes none. D7 is dead here (Q3: no per-pick
+timestamps). Route 1 is capped at tens. **Those seasons are a pool we cannot price and
+never will be able to.**
+
+**FORWARD — NO, and this is the part that changes the conclusion.** We began capturing
+dated ADP on **2026-08-11**, and the archives hold it:
+
+```
+D3 external ADP      2026-08-11, 2026-08-12   (daily, 11:20 UTC)
+FantasyPros ADP      2026-08-09 .. 2026-08-11 (daily)
+```
+
+**F5 requires ADP observed strictly before the draft. It does not require league-specific
+ADP** — that was never the registered clause, and a dated public board is exactly what
+Route 1 spent a week trying to find in an archive. **We now produce one ourselves, daily.**
+
+**Most 2026 drafts have not happened yet.** Ours is 2026-08-22. Any Sleeper league drafting
+after 2026-08-11 is servable by a snapshot that already exists, and the coverage widens by
+one day every day — the same "TOO_YOUNG heals at one snapshot a day" the 2026 ingest run
+reported.
+
+**So the honest statement, and it is Cory's own framing:** the constraint moves from *"the
+leagues do not exist"* to *"the leagues exist, we cannot price the past, and we can price
+everything from 2026-08-11 forward."* **That is a different problem and a smaller one** —
+one artifact rather than a population, and the artifact is already being captured.
+
+**What it does NOT give us:** a graded observation this season. F2 needs a completed draft;
+the outcome half needs January. **A cleared F7 in August 2026 is a pool that becomes
+gradeable in 2027, not evidence available for the 22nd.**
+
+## PREDICTIONS
+
+**Cory's, recorded as his:** the match rate holds near 2%, F7's 200 is reachable, **and the
+surviving 2% may be systematically unusual leagues rather than representative ten-team
+ones** — a twelve-team room's dynamics are not ours, and whatever selects for ten-team may
+select for other things too.
+
+**Mine:**
+
+- **P6. The rate holds between 1.5% and 2.5%** at 10,000+ screens. The first 400 were the
+  leagues nearest ours in the referral graph, so if anything I expect the rate to **fall**
+  as the crawl reaches strangers — our neighbours are more like us.
+- **P7. F7's 200 clears.** At ≥1.5% and 12,000 screens that is ≥180; at 2.0% it is 240.
+- **P8. Cory's selection worry is REAL and I expect to see it** — matched leagues skewing
+  toward older `league_id`s (Sleeper ids are time-ordered), because ten-team is the legacy
+  default and twelve-team the modern one. **This is checkable from the ids alone and I will
+  report it whether or not it appears.**
+- **P9. F2 rejects a large minority.** Many discovered leagues will be `pre_draft` for 2026,
+  since most drafts have not happened.
+
+## WHAT WOULD MAKE THE RUN NOT DECISIVE
+
+- **The crawl staying inside our own neighbourhood.** If 12,000 screens come from a
+  referral graph only two or three hops from our league, the rate is a fact about our
+  social circle rather than about Sleeper. **Mitigation: report the discovered-pool size
+  against the screened count**, and treat a rate measured on a pool barely larger than the
+  screen as uninformative.
+- **A rate that swings with depth.** If the first 2,000 and the last 2,000 screens differ
+  materially, the pool is not homogeneous and no single rate describes it.
+- **Sleeper rate-limiting mid-run**, which would truncate the crawl in a way that
+  correlates with depth. **Fetch failures are counted and reported, never silently skipped.**
+- **And the positive control failing** — our own league must fetch and screen as a match, or
+  the whole run is void rather than caveated.
+
+**A short run reports the number and changes nothing.** F7's rule is unchanged.
