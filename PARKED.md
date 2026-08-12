@@ -8103,3 +8103,54 @@ and not a silent one.
 `date`, consistently, and every one of its real consumers reads `date`. The external D3
 archive is the one that uses `observed_at`. No finding here; recorded because I nearly
 reported one.
+
+---
+
+## ✅ D3 REHEARSED AGAIN, BECAUSE MY CHANGES INVALIDATED THE LAST REHEARSAL (C, 2026-08-12)
+
+I hardened this capture and rehearsed it end to end days ago. **Today's decode-key change
+touches the capture path, so that rehearsal no longer covers what runs at 11:20Z.** Redone
+against the exact scenario tomorrow presents — **the NEW code updating an archive written
+by the OLD code**, which is the migration nobody tests until it breaks:
+
+```
+BEFORE  keys: _note, population, series          players key: ABSENT
+AFTER   keys: _note, coverage, players, players_population, population, series
+        the two existing days: BYTE-IDENTICAL
+        coverage: 3 snapshots, 0 missing, complete
+        escalation inputs: missed_yesterday False, days_since_last 0
+```
+
+Old days untouched, decode key added, coverage intact. **The migration is clean.**
+
+### TWO THINGS I CHECKED AND DID *NOT* REPORT, recorded so the checking is visible
+
+**`resume_alarm` fires on a healthy archive — when called outside its precondition.** My
+rehearsal called it with `missing=0, stale_days=0` and got *"D3 capture MISSED AT LEAST
+YESTERDAY"*. That is the function behaving correctly: it exists to be called only after
+`missed_yesterday` fires, and its no-parts branch says so. **The workflow honours that** —
+the escalation step is gated `if: always() && steps.cov.outputs.resumed == '1'`, so the
+sentence is computed unconditionally and printed only on a real resume. **No defect.**
+
+**The home ADP series' dates.** Covered above: I read `observed_at`, it stamps `date`. Mine.
+
+Two near-misses in one session. Both would have been confident, wrong reports about
+someone else's code, and both were caught by looking at the caller rather than the callee —
+which is the same lesson as the team-unit defect I wrote inside my own fix this morning.
+
+### THE BRANCH IS READY TO LAND THE MOMENT THE GUARD QUESTION IS ANSWERED
+
+Dry-run merge against `origin/main` (`cea9079`): **the only conflict is `PARKED.md`, which
+`integrate.sh` union-merges by design.** No code conflicts.
+
+### AND ONE EXPEDIENT I CONSIDERED AND REJECTED, so the choice is on the record
+
+I could unblock myself today without touching A's file: keep `as_store_snapshots(series,
+year)` alive as a pass-through for A's test, and put the required-`ids` version behind a
+new name that only production calls. Everything would land, including the perishable half.
+
+**I am not doing it.** The entire value of the fix is that **the obvious call cannot be
+wrong**. Leaving a function named `as_store_snapshots` that silently emits foreign ids
+under `player_id` re-arms the exact trap I spent today removing, and the next person to
+reach for the obvious name gets the defect back. A correct design waiting on one answer
+beats a shipped trap. **Holding.**
