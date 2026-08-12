@@ -6717,3 +6717,117 @@ Four of six integrations lost the push race this afternoon while A was working t
 findings. My earlier figure was 12 of 44 (27%); under active work it is far higher. **Not a
 complaint — a retry loop that resets onto the new head handles it, and I now run one.** But it
 means the rollback path is exercised often, which is exactly why the ref bug matters.
+
+---
+
+## ✅ FOR CORY AND A — THE ADP REFERENCE IS SOUND. THE STANDARD IT IMPLIES NEEDS A FLOOR BESIDE IT. (C, 2026-08-12)
+
+Independent verification of A's stage-1 triage, requested because A built the reference it is
+being judged against. **I did not write a line of A's code; I ran it, controlled it, and
+measured a real-world floor from drafts that actually happened.**
+
+### PART 1 — THE REFERENCE PASSES ALL FOUR CHECKS
+
+**1. Current and format-matched.**
+
+    FantasyPros  .../nfl/2026/consensus-rankings?type=adp&scoring=HALF&week=0
+                 343 parsed, 343 matched, 0 unmatched
+    FFC          half-ppr, 10 teams, 2026
+    our league   scoring.rec = 0.5 (half-PPR), 10 teams
+    board built  2026-08-12T09:19:29Z (same morning)
+
+Both providers match our format on scoring AND team count. Not a stale artifact.
+
+**2. Neither arm reaches the fallback-priced tail.** Measured by instrumenting the real
+`simulate()` and recording every player consumed:
+
+    market arm  145 consumed | max adp 149.0 | fallback-priced 0 | contaminated 0
+    model arm   145 consumed | max adp 171.7 | fallback-priced 0 | contaminated 0
+
+The priced range runs to ADP rank 340; `search_rank` starts at 341. **Neither arm gets within
+170 ranks of the 943 unplayable players.** `fallback_count_in_play` is 0 of a 225 relevant board.
+
+**3. It is a DRAFTER, not a comparison — the thing Cory was right to worry about.**
+`simulate(chooser)` seeds the drafted set with the keepers, fills each inter-pick gap with
+`bestByAdp` opponents, and calls the chooser with the same pool, roster, pick and next-pick.
+**Only the chooser differs.** There is no "compare our pick to a raw ADP" anywhere in it, so
+the 99-pick phantom reach from the keeper structure cannot occur.
+
+**4. THE POSITIVE CONTROL PASSES.** I patched A's own file so both arms are the market
+drafter, and ran the real reporting path:
+
+    positional distribution   identical in every cell
+    exact pick numbers        identical
+    signed reach (all)        median +3.8  p75 +5.2  p90 +8.8  max +10.3  — BOTH arms
+    every pick, every reach   identical to the decimal
+
+**A market drafter compared to a market drafter shows zero divergence.** The instrument cannot
+manufacture a false alarm. Note also that the market arm's OWN reach is +1.7..+10.3, never
+zero — that is the keeper shift, correctly absorbed by the reference, which is exactly what
+makes only the model's EXCESS a property of the model.
+
+### PART 2 — THE REAL-WORLD FLOOR, from 3 completed drafts of our own league
+
+450 picks, 30 team-drafts, 10-team half-PPR with keepers. Player positions joined against the
+2026 board at **99.8% (479 of 480)**; the unresolved rows are named, not dropped. A 2023
+30-pick false-start draft is excluded rather than pooled.
+
+**THE GROSS-PATHOLOGY FLOOR IS REAL AND TIGHTER THAN THE THEORY.**
+
+    across 30 team-drafts:  0 teams took 3+ QB.  0 teams took 3+ TE.
+    max observed: QB 2, TE 2.  QB+TE combined: median 3, max 4.
+
+So "a consensus of real drafts does not take three quarterbacks and five tight ends" is
+**confirmed on our own data**, and more strongly than stated: it has never once happened.
+
+### PART 3 — AND HERE IS THE PART THAT CHANGES HOW THE TRIAGE READS
+
+Controlled for the keeper shift by asking **which of its OWN picks** is a team's first QB/TE
+(the model cannot pick before #30, so raw pick numbers are biased in its favour):
+
+    pos   real teams, non-keeper      model    market
+    QB    median #4  (p25 2, p75 7)   #3       #6
+    TE    median #6  (p25 2, p75 7)   #2       #11
+
+    real teams earlier than the MODEL:   QB 7 of 28 (25%)   TE 3 of 28 (11%)
+
+**QB: the model is normal.** Third pick against a median of fourth; a quarter of real teams
+went earlier. **TE: the model is early** — second pick against a median of sixth, at roughly
+the 11th percentile. Real, but not "a tool that has never seen a fantasy draft": three of
+twenty-eight real teams did the same.
+
+**AND THE MARKET-ADP DRAFTER IS ITSELF AN OUTLIER.** Against the same floor it takes its first
+QB at the 83rd percentile and its first TE at the **97th** — later than 29 of 30 real teams.
+Normalised as % through the draft:
+
+    our league (30 team-drafts)   QB 33%   TE 37%
+    A's MODEL arm                 QB 34%   TE 31%
+    A's MARKET-ADP arm            QB 58%   TE 88%
+    BBM IV 2023 (directional)     QB 44%   TE 50%
+
+**A pure highest-ADP-available drafter defers QB and TE far longer than any real drafter
+does**, because ADP ordering front-loads RB/WR and real drafters price positional scarcity.
+So divergence measured against it will read as "the model reaches for QB and TE" **even where
+the model matches real behaviour** — which is precisely what the QB row shows.
+
+### THE BBM CHECK IS DIRECTIONAL AND CUTS AGAINST ITSELF
+
+BBM IV 2023 finals, 441 entries, 18 picks each, 12-team BEST-BALL, no keepers. **49% of
+entries took 3+ QB and 59% took 3+ TE.** Best-ball auto-selects lineups, so depth at QB/TE is
+rational there and irrational for us. **Used as directional only, and it argues for NOT
+importing an outside format's positional norms** — it would overstate the acceptable QB/TE
+count for our league by a wide margin.
+
+### WHAT THIS MEANS FOR STAGE 2 — one sentence
+
+**The instrument is trustworthy; the model-minus-market gap is real arithmetic. But part of
+that gap is the reference being abnormally late rather than the model being early, and the two
+positions behave differently: on QB the model is inside normal drafting and the gap is mostly
+the reference; on TE the model is genuinely early against real drafts as well.**
+
+### LIMITS, STATED
+
+Three seasons, 30 team-drafts, one league — n=28 for the non-keeper ordinal. Positional value
+shifts year to year and this sample cannot separate that from behaviour. It is a floor, not a
+model. **It is drawn from drafts that actually happened, which is the one property a ranking
+cannot have.**
