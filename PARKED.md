@@ -6930,3 +6930,124 @@ The record in this file was written with a quoted heredoc and is correct; only t
 message is wrong. Noted rather than rewritten, because the commit is already merged and the
 history is not worth rewriting for a mangled line — but a reader hitting `uid=0(root)` in a
 commit message should know it was a shell accident and not a finding.
+
+---
+
+## 🔎 THE PROJECTION-SOURCE QUESTION, SETTLED (C, 2026-08-12)
+
+Cory's worst case: *"does any part of the priced board carry a projection that neither source
+actually supplied?"* **The answer is yes and it is the harmless reading, not the serious one.
+There is no corrupted blend. There is no blend at all.**
+
+### 1. WHAT `proj_mean` ACTUALLY IS — verified, not inferred
+
+    proj_mean == proj_baseline * (1 + opportunity_adj)     holds for 1757 of 1759 players
+                                                           (2 fail by <=0.012, floating point)
+    proj_baseline != proj_sleeper                          for 0 players
+
+**`proj_baseline` IS Sleeper's number, exactly.** FantasyPros never enters `proj_mean` —
+grepped the whole value path: `proj_fantasypros` appears only where `build.py` attaches it,
+in two of A's audit tools, and in the CLIENT. **So "half the projections sit outside their own
+two sources" is arithmetically inevitable and is not evidence of a blending fault: nothing is
+being blended.** A's own commit says as much and explicitly declines to claim the adjustment is
+wrong. A's finding — that `opportunity_adj` is derived from receiving metrics so it reaches
+RB/TE/WR and never QB, while `proj_mean` is ranked ACROSS positions — stands and I would not
+weaken it.
+
+### 2. AND HERE IS THE THING NOBODY HAS REPORTED
+
+**Two different numbers are called "the projection", and the one the user reads is not the one
+the model ranks on.**
+
+    the CARD shows    (proj_sleeper + proj_fantasypros) / 2      consensus.js rawProjection()
+                      labelled "Consensus (2 src)"
+    the MODEL ranks   proj_mean = proj_sleeper * (1 + opportunity_adj)
+
+Across the 435 two-source players:
+
+    model minus displayed:  min -40.7   median +3.9   max +58.0
+    |gap| >= 10 pts:  201 of 435 (46%)      >= 25 pts: 73      >= 40 pts: 21
+
+    Brock Bowers   card 174.9   model 232.9   +58.0
+    Puka Nacua     card 240.9   model 297.9   +57.0
+    CeeDee Lamb    card 199.1   model 251.3   +52.3
+
+**IT IS DEFENSIBLE AND I WILL SAY SO**: `rawProjection`'s docstring says it returns "the raw
+projection... with an HONEST source label", and showing the raw market consensus is a
+legitimate choice. **The problem is what it is used FOR.** `recDisagreementLine` exists to let
+Cory *"judge the machinery"* — it renders *"X projects higher (N vs M Consensus) — we prefer
+Y on value"*. That comparison is raw-vs-raw, so **the number offered as the tool's reasoning
+is one the recommendation never used.** A reader checking why the model preferred someone is
+shown a projection that played no part in it.
+
+### 3. THE SINGLE-SOURCE CAVEAT GIVES A FALSE REASON — 1185 of 1324 marked players
+
+`projSourceMark` marks single-source rows with `¹` and this text:
+
+> *"single-source projection (Sleeper only) — FantasyPros does not cover this position, so
+> there is no second opinion behind this number"*
+
+**FantasyPros covers QB, RB, TE and WR.** It publishes ~525 rows and simply does not go deep.
+
+    single-source players:                          1324 of 1759 (75.3%)
+    of those, at a position FP DOES cover:          1185 (90%)
+    by position:  WR 507   RB 299   TE 237   QB 142
+
+So for 90% of the players carrying that mark the stated reason is false. The mark is right;
+the explanation is wrong, and it is the explanation a reader acts on. One string, and it is
+`app.js` so it is not mine.
+
+### 4. COVERAGE — MY NUMBERS DIFFER FROM THE ONES QUOTED TO ME
+
+Measured on the shipped board, banded by ADP rank, single-source = `proj_fantasypros is None`:
+
+    rank      1-150    143 of 150 have a 2nd opinion   95%
+    rank    151-250     67 of 100                      67%
+    rank    251-450     86 of 200                      43%
+    rank   451-1759    139 of 1309                     11%
+
+Cory quoted 100 / 41 / 77 / 7. **Mine are monotonic, which is what a depth-limited 525-row
+feed must produce; 41 then 77 is not.** A's `projection_blend_audit.py` computes no coverage
+bands at all and A's commit contains no such figures, so I cannot reconcile against a source —
+flagging it rather than assuming either of us is right.
+
+### WHAT I DID NOT BUILD
+
+No provenance mechanism. Cory said not to unless the measurement demanded it. **It does not:**
+source identity is already carried per-player (`proj_sleeper`, `proj_fantasypros`), already
+labelled (`Consensus (N src)` vs `Sleeper proj`), and already marked (`¹`). The defects are a
+wrong caveat string and a display/model mismatch — both are decisions about which number is
+authoritative, not missing plumbing. **Adding a provenance record would not fix either and
+would be the dashboard rule 9 forbids.**
+
+---
+
+## 📋 PRE-DECLARATION — the board-currency sample (C, 2026-08-12)
+
+**WRITTEN AND COMMITTED BEFORE LOOKING AT A SINGLE ONE OF THESE ROWS.** Rule 12 applied to the
+board's players rather than its arithmetic. Fifteen names, declared with their reason.
+
+**DISCLOSURE FIRST, because selection-on-the-answer is the failure this guards against.** Four
+of these I had already seen incidentally in earlier work and cannot un-see: **Aaron Rodgers**
+and **Marshawn Lynch** (surfaced in the contamination sweep — Rodgers showed `team: FA`,
+`age: 35`), **Cooper Kupp** (appeared in the VORP-266 mechanism at `proj 76.0`), and **Oronde
+Gadsden** (the model's TE pick at 45). **Stefon Diggs was named by Cory**, not chosen by me.
+The remaining ten are picked blind.
+
+    TOP OF BOARD — if these are wrong, everything is
+      Ja'Marr Chase, Justin Jefferson, Christian McCaffrey, Bijan Robinson, Puka Nacua
+
+    SITUATION CHANGED — where a stale record shows up first
+      Stefon Diggs (Cory), Aaron Rodgers (seen), Cooper Kupp (seen), Derrick Henry,
+      Davante Adams
+
+    RANKS ~150-340 — where the second source thins out
+      Mark Andrews, Cam Skattebo, Luther Burden, Jayden Daniels, Oronde Gadsden (seen)
+
+**FOR EACH:** is this a real 2026 player, on the team the board says, with a projection and an
+ADP that describe THIS season?
+
+**AND THE HONEST LIMIT, DECLARED UP FRONT:** my training knowledge runs to May 2026, so I know
+the 2025 season and only part of the 2026 offseason. **I will not assert a team change or a
+retirement from memory.** Where the answer needs a fact I cannot source, I will say so and name
+the check that settles it rather than guess — the same as the Sleeper `active` flag.
