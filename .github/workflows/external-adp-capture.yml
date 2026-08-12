@@ -145,7 +145,24 @@ jobs:
           # digest -- a few bytes -- rather than copying ~2MB a day of something git
           # already has. Pinned DAILY so nobody has to act on one specific date; the
           # 2027 reader takes the last pin STRICTLY BEFORE the draft.
-          python3 - <<'PIN'
+          #
+          # ⚠ THE PIN MUST NOT BE ABLE TO KILL THE SNAPSHOT. Rule 17a's sibling,
+          # and demonstrated rather than argued: with the pin raising, the day's
+          # ADP snapshot did not reach the remote at all, because `run:` executes
+          # under `bash -e` and the `git add` below never ran.
+          #
+          # The two artifacts are NOT equally valuable. The pin is RECOVERABLE —
+          # git already holds every revision of the board, and a 2027 reader can
+          # reconstruct which commit held it on any date. The ADP snapshot is NOT:
+          # MFL serves no as-of-date board, which is the measured finding this
+          # whole archive exists because of. So a failure in the recoverable thing
+          # was destroying the unrecoverable one.
+          #
+          # PRESERVE BEFORE YOU ALARM. The pin's failure is caught, the snapshot is
+          # committed and pushed, and THEN the run goes red — same shape as moving
+          # the gap alarm after the commit, for the same reason.
+          pinfail=0
+          python3 - <<'PIN' || pinfail=1
           import json, os, subprocess, sys
           sys.path.insert(0, "draft/backtest")
           import board_pin as BP
@@ -165,9 +182,13 @@ jobs:
           else:
               print("no board to pin — reported, not silently skipped")
           PIN
+          if [ "$pinfail" = 1 ]; then
+            echo "::error::BOARD PIN FAILED — the 2026 tool arm loses today's pin."
+            echo "::error::Committing the ADP snapshot FIRST; this run goes red below."
+          fi
           git config user.name "lab-bot"; git config user.email "actions@github.com"
           git add draft/data/external_adp_series.json draft/data/board_pins.json || true
-          git diff --cached --quiet && { echo "no change — same-day rerun"; exit 0; }
+          git diff --cached --quiet && { echo "no change — same-day rerun"; exit "$pinfail"; }
           # [skip deploy]: this is a data archive under draft/, which the deploy
           # gate already skips. The marker is belt-and-braces, not a substitute
           # for the gate.
@@ -194,7 +215,11 @@ jobs:
               git rebase --abort 2>/dev/null || true
               exit 1
             fi
-            if git push origin HEAD:main; then echo "snapshot pushed"; exit 0; fi
+            if git push origin HEAD:main; then
+              echo "snapshot pushed"
+              # THE SNAPSHOT IS SAFE. Only now may a pin failure fail the run.
+              exit "$pinfail"
+            fi
             echo "push race, retry $i"; sleep 3
           done
           echo "SNAPSHOT COULD NOT BE PUSHED after retries — TODAY'S BOARD IS LOST"
