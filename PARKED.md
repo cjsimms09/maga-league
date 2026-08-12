@@ -6505,3 +6505,60 @@ driving the gate lives in the same uncommitted file, **so `consecutive_incomplet
 increment past 1 and the bar of 3 was unreachable.** The gate could not have fired on the
 condition it was written for. Verified the fix landed: `Commit the snapshot` now precedes the
 gate and carries `always()`.
+
+---
+
+## ⚠️ FOR A — THE BYE GAP IS STILL OPEN, AND I UNDERSTATED IT BY 8× (C, 2026-08-12)
+
+**CORRECTION TO MY OWN EARLIER REPORT FIRST.** I called this "a four-player fix". That was the
+top 150. **The board's own declared `relevant_board` is 225**, and there the gap is **32**, not
+4. Same error I have now made four times today: a magnitude quoted against a denominator I
+chose rather than the one the system uses. The four-player number was true and not the number
+that matters.
+
+    top 150   4 missing    ->  4 fixed by a team join,   0 left
+    top 225  33 missing    -> 32 fixed by a team join,   1 left (a free agent — correct)
+    top 340 131 missing    -> 124 fixed by a team join,  7 left (all free agents)
+
+    32 teams carry an unambiguous bye. ZERO conflicting. Measured on today's board
+    (built 2026-08-12T09:19:29Z), the one the war room is serving right now.
+
+### WHAT IT COSTS ON DRAFT NIGHT — `public/js/draft/needrule.js:88`
+
+```js
+function byeStack(pick, roster) {
+  if (!pick || byeOf(pick) == null) return null;      // (1)
+  ...
+  _starters(proj).forEach(function (p) {
+    var b = byeOf(p);
+    if (b != null) byes[b] = (byes[b] || 0) + 1;      // (2)
+  });
+  if (byes[wk] >= 3) return { week: wk, count: byes[wk] };
+```
+
+**Two separate silences, and neither is visible on the page:**
+
+1. **A candidate with no bye NEVER warns**, whatever the roster holds. Line 89 returns `null`
+   before looking. That is 32 of the 225 players actually in play.
+2. **A rostered player with no bye is not counted**, so a real three-starter stack reads as two
+   and the warning is suppressed. **The threshold is `>= 3`, so ONE missing bye is enough to
+   silence a genuine conflict.**
+
+`bye == null` is being read as "no bye problem" rather than "unknown" — the null-as-absence
+defect this project has now hit a dozen times, sitting on the path of a draft-night warning.
+
+**The grid is honest about this and the warning is not.** `adp.py`'s own comment says a player
+with no bye "renders as unknown rather than as clear" in the grid. That is true of the GRID. The
+`bye_stack` warning has no unknown state at all — it either fires or says nothing, and saying
+nothing is what it does when it cannot tell.
+
+### THE FIX IS UPSTREAM, ONE JOIN, AND VERIFIED AGAINST THE LIVE BOARD
+
+`draft/adp.py` already fills `bye` from FFC where Sleeper left a hole. It does not fall back to
+the team's bye, and the team's bye is unambiguous for all 32 teams with zero conflicts. Filling
+`bye` from the player's own team where both Sleeper and FFC are empty closes 32 of 32 on the
+relevant board; the only residue is free agents, who correctly have none.
+
+**Not mine** — `draft/adp.py` and `needrule.js` are both yours. **Ten days.** I am re-routing
+rather than repeating because the number I gave you the first time was the wrong one, and 4
+reads like a rounding error where 32 of 225 does not.
