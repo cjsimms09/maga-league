@@ -7630,3 +7630,63 @@ in that band is the modal outcome here rather than a surprise.
 **LIMIT, STATED:** twelve verdicts is a small n and the classification is mine, not the
 registry's — someone could file exp 21 as structural. **I am reporting the split I applied so
 it can be disagreed with**, not claiming the categories are given.
+
+---
+
+## ⛔ RETRACTION — MY ITEM 14 READ-ACROSS TODAY WAS A DUPLICATE, AND IT WAS WRONG (C, 2026-08-12)
+
+**Items 13 and 14 were BOTH already complete**, as DIRECTED PASS 1a and 1b, earlier today, by
+me. I redid 14 and reached a **worse answer that contradicts my own earlier one.** Retracting
+the whole thing rather than leaving two incompatible readings in the same file.
+
+### WHAT I CLAIMED TODAY (WITHDRAWN)
+
+> *"Nought for five on additive terms. One for three on structural ones. Additive terms fail;
+> structural rules do not."*
+
+**That is refuted by a counterexample I had already found and written down.**
+
+### WHAT DIRECTED PASS 1a ESTABLISHED, WHICH STANDS
+
+**"Additive vs structural" is the WRONG CUT.** The value term is `w.value * vorp`,
+`vorp = proj_mean − replacement` — **an additive weighted term, and it is half the edge.**
+Additivity does not predict failure. The cut that survives:
+
+    EARNS   the objective itself      value = w x vorp                half the edge
+            a hard constraint         keeper-need MASK                ~$443 vs no-mask
+            the input board           market read, MFL rho 0.40       every pick
+
+    FAILS   tier (heuristic tilt)     -235
+            risk (heuristic tilt)     -143
+            need-WEIGHT ramp          +4.9, CI [-13,+23]
+            ceiling                   -4.8, CI [-26,+17]
+            bye                       ~0
+            stack                     stood down under D10
+
+**Six of six adjusters fail on the clean core; two actively harm. Core $704 → core + all six
+adjusters $407.** Adding them cost $297.
+
+### AND THE EVIDENCE I OMITTED TODAY, WHICH IS THE STRONGEST IN THE WHOLE PASS
+
+**The same concept was implemented BOTH WAYS, in the same harness, on the same seasons:**
+
+    startable need as a MASK (constrains the candidate set)    ~$443
+    startable need as a WEIGHT ramp (tilts the score)          +4.9, CI [-13,+23]
+
+**One idea, two implementations, a ~90x gap.** That is a within-experiment control, not a
+comparison across experiments with different instruments — and it is why the objective /
+constraint / input **vs** heuristic-tilt cut is believable where my additive/structural cut is
+not. **I had this and did not use it.**
+
+### THE ERROR, NAMED ONCE
+
+I said I would check whether the item existed before building it. **I checked for a TOOL, and
+for a section inside `LAB-REGISTRY.md`. I did not check `PARKED.md` — the file I was appending
+to, containing my own pass from this morning.** Twice in one session I rebuilt something that
+existed; the second time I had explicitly resolved not to, and still scoped the check to where
+I expected the answer rather than where it was.
+
+**The correct disposition for items 13 and 14 is ALREADY DONE (DIRECTED PASS 1a and 1b).**
+Nothing about the objective correction changes: the operative base rate for A is **0 for 6 on
+heuristic tilts, two of them harmful** — which is a sharper warning than the one I gave an hour
+ago, and it was already on the record.
