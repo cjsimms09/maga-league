@@ -5341,3 +5341,27 @@ integrations run the JS suites locally, where this suite passes. **That is preci
 `integrate.sh`'s own warning is correct**: *"Local green and CI green are different claims:
 a test can pass here because of this machine's network."* This is that warning coming true,
 and it is worth noting that the warning was already written down before it happened.
+
+### ADDENDUM for A — the BBM manifest population is now GENERATED, not hand-typed (C, 2026-08-12)
+
+**Per Cory's ruling the same day: a durable record states its own field population.** The
+numbers I hand-wrote into the manifest entry are correct, but hand-typed numbers drift from
+the file they describe. **Generate them instead:**
+
+    python3 -c "import sys; sys.path.insert(0,'draft/backtest'); import field_population as FP, json; \
+      print(json.dumps(FP.of_csv('draft/data/bbm/<file>'), indent=1))"
+
+**Both BBM archives, measured just now:**
+
+    bbm_iv_2023_r1_dated_adp_board.csv.gz
+      population: 44671 rows | all 5 fields 100%
+
+    best_ball_mania_iv_2023_r4_finals.subset.csv.gz
+      population: 7938 rows | 8/9 fields full | EMPTY: projection_adp
+
+**That second line is the whole ruling in one string.** Sitting in the manifest, it makes a
+reader ask why a nine-column archive has an empty column — instead of concluding, as this
+lane did for a week, that Underdog publishes no dated ADP.
+
+`field_population.of_csv()` reads the bytes on disk rather than the writer's own variables,
+so it describes what landed rather than what the writer believed it wrote.

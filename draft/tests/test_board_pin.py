@@ -91,3 +91,14 @@ def test_THE_RECOVERY_PATH_ACTUALLY_REPRODUCES_THE_PINNED_BYTES():
     assert hashlib.sha256(rec.stdout).hexdigest() == pinned["sha256"], (
         "the pin's own recover_with does not reproduce the pinned bytes")
     assert len(rec.stdout) == len(raw)
+
+
+def test_the_pin_series_carries_its_own_field_population():
+    """A pin without `sha256` proves nothing about the board it names."""
+    rec = {"observed_at": "2026-08-12", "commit": "abc", "path": "public/draft_data.json",
+           "sha256": "d" * 64, "n_players": 3, "built_at": None, "recover_with": "git show"}
+    doc = B.append(rec)
+    pop = doc["population"]
+    assert pop["rows"] == 1
+    assert pop["fields"]["sha256"]["pct"] == 100.0
+    assert "built_at" in pop["empty"]        # null is reported, not hidden

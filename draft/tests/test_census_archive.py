@@ -55,3 +55,50 @@ def test_an_UNREADABLE_series_RAISES_rather_than_starting_fresh():
     with pytest.raises(ValueError):
         CA.append(REP, path=str(tmp))
     tmp.unlink()
+
+
+def test_the_archive_carries_its_own_field_population():
+    """Cory's ruling, 2026-08-12: a durable record states which fields are populated.
+
+    The concrete failure this closes IN THIS FILE: `keeper_type` was absent from the
+    census row for a week and nothing said so. A field that stops being emitted now
+    drops off 100% in a number sitting beside the rows.
+    """
+    doc = CA.append({"season": 2026, "observed_at": "2026-08-12", "examined": 10,
+                  "matched": 0,
+                  "format_census": {"readable_leagues": 9, "teams": {"12": 9},
+                                    "keeper_type": {"none": 9}}},
+                 path="/nonexistent/census.json")
+    pop = doc["population"]
+    assert pop["rows"] == 1
+    assert pop["fields"]["keeper_type"]["pct"] == 100.0
+    # and the fields this run could not fill are NAMED, not silently dropped
+    assert "pass_td_points" in pop["fields"]
+    assert "pass_td_points" in pop["empty"]
+
+
+def test_a_field_the_writer_STOPS_emitting_is_still_named():
+    """The case the declared list exists for, and the one that actually happened.
+
+    Found by a surviving mutation. `keeper_type` was absent from the census row for a
+    week. If the declared field list is derived from the row being written, dropping a
+    field also drops it from the record — the archive then looks complete because the
+    only witness to the missing field was the missing field.
+    """
+    # A census file written BEFORE `keeper_type` existed on the row.
+    tmp = Path("/tmp/claude-census-legacy.json")
+    tmp.write_text(json.dumps({
+        "version": "format-census-series/v1",
+        "series": [{"observed_at": "2026-08-01", "season": 2026, "examined": 5}]}))
+    doc = CA.append({"season": 2026, "observed_at": "2026-08-12"}, path=str(tmp))
+    kt = doc["population"]["fields"]["keeper_type"]
+    assert kt["missing"] == 1                 # the legacy row never had the key
+    assert "keeper_type" in doc["population"]["empty"]
+    tmp.unlink()
+
+
+def test_the_declared_field_list_cannot_drift_from_the_row():
+    """Forces an update rather than letting a new field slip in unrecorded."""
+    doc = CA.append({"season": 2026, "observed_at": "2026-08-12"},
+                    path="/nonexistent/census.json")
+    assert list(doc["series"][0]) == CA.CENSUS_FIELDS

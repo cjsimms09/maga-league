@@ -2133,3 +2133,71 @@ record itself that 131 dated boards are **a price series, not 131 gradeable
 league-seasons**, so the next reader cannot make the F7 mistake from the file alone. **That
 warning is the part of the parked request that matters most** — A may rewrite the wording,
 but the file must not land without it.
+
+---
+
+## RECORD THE FIELD POPULATION BESIDE ANY DURABLE ARTIFACT (Cory's ruling, 2026-08-12)
+
+> *"The positive control catches a bad query; it wouldn't have caught this, because the
+> query was fine and the file was wrong. WHEN AN ARTIFACT IS COMMITTED AS A DURABLE
+> RECORD, RECORD ITS FIELD POPULATION ALONGSIDE IT."*
+
+**This is the fix for the instance, and it is the one the control could never have made.**
+The positive control asks *did my query work* — and the BBM query worked perfectly. It
+fetched the file it asked for, parsed every row, and wrote down a correct column list. The
+file was the wrong file. **No control fires on that. A rate does.**
+
+    draft/backtest/field_population.py        field-population/v1
+
+### What it would have printed, on the record we actually committed
+
+    population: 7938 rows | 8/9 fields full | EMPTY: projection_adp
+
+**One line, and nobody reads that and concludes Underdog publishes no ADP.** They ask why
+one column of a nine-column archive is empty — which is the question that was never asked,
+and the answer was one round away, free, for a week.
+
+### THE THREE-WAY PARTITION IS THE DESIGN, not a detail
+
+Two different failures were hiding under one word:
+
+    present   the key is there and carries a value
+    null      the key is there and the value is empty   <- round 4's projection_adp
+    missing   the key is not there at all               <- our subset's draft_time
+
+**A column of empty cells is the producer claiming it HAS this field. An absent key is the
+producer claiming it does not.** Collapsing them is the null-as-absence defect in its
+purest form, and it is the tenth instance in this program.
+
+**And zero rows reports UNCOUNTED, never 0% and never 100%.** A denominator of zero cannot
+produce a rate, and a check that can only say *nothing yet* has not looked (rule 13f).
+
+### Wired into every durable writer in this lane — one line each, at write time
+
+| writer | what a dropped field now looks like |
+|---|---|
+| `census_archive.append()` | `keeper_type` — absent from the row for a week, and nothing said so |
+| `board_pin.append()` | a pin whose `sha256` went empty proves nothing about the board it names |
+| `external_adp_capture.save()` | `total_drafts` — this module already says a snapshot without it *"cannot be judged later"* |
+| `external-ingest-run.yml` | prints `FP.line(...)` at write time, so the run surfaces it without anyone opening the JSON |
+
+### THE MUTATION BATTERY FOUND ME OVERCLAIMING, INSIDE THE FIX ITSELF
+
+**Nine mutations, eight killed on the first pass.** The survivor was `of_csv` dropping its
+declared header — invisible with data rows present, because `DictReader` fills every
+declared key on every row. **The header only matters when there are no rows at all**, which
+is the empty-artifact case, and that assertion was missing. Written, and it dies now.
+
+**Then a second, worse one.** The wiring first passed `fields=list(row)` — **derived from
+the very dict being written.** If the writer stops emitting `keeper_type`, `list(row)` stops
+containing it too, and the field vanishes from the population record exactly as silently as
+it vanishes from the data. **I had written a comment claiming that line caught a dropped
+field. It could not.** That is this module's own defect class, committed inside the fix for
+it, and only a mutation test found it.
+
+**And the honest residue: the replacement mutation ALSO survives.** `append()` always writes
+every key, so the declared list is today redundant with the union of the rows. **Its teeth
+are in `test_the_declared_field_list_cannot_drift_from_the_row`** — verified by mutation:
+deleting `keeper_type` from the row literal fails three tests. *The constant is the schema;
+the drift test is the enforcement.* Saying "declared, so a dropped field is caught" would
+have been the same overclaim a second time, so it is not said.

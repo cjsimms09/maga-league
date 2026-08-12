@@ -27,6 +27,8 @@ import hashlib
 import json
 from pathlib import Path
 
+import field_population as FP
+
 SERIES = "draft/data/board_pins.json"
 PIN_VERSION = "board-pin/v1"
 
@@ -71,6 +73,11 @@ def append(record: dict, existing: dict = None) -> dict:
                      if str(r.get("observed_at")) != str(record.get("observed_at"))]
     doc["series"].append(record)
     doc["series"].sort(key=lambda r: str(r.get("observed_at")))
+    # POPULATION TRAVELS WITH THE ARCHIVE (Cory, 2026-08-12). The pin that matters is
+    # `sha256` — a pin without it proves nothing about the board it names — so a day
+    # where the digest went empty must be visible in the record, not inferable only by
+    # someone who tries to verify a recovery a year later.
+    doc["population"] = FP.of_records(doc["series"], fields=list(record))
     return doc
 
 

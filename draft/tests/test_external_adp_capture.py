@@ -188,3 +188,37 @@ def test_a_shape_the_reader_does_not_understand_RAISES_rather_than_reading_EMPTY
 def test_None_is_still_an_empty_series_because_that_is_a_real_caller():
     assert C.as_store_snapshots(None, "2026") == []
     assert C.coverage(None, "2026")["snapshots"] == 0
+
+
+def test_the_saved_series_carries_its_own_field_population(tmp_path):
+    """`total_drafts` going empty must be visible in the FILE, not inferred later.
+
+    This module already states a snapshot without it "cannot be judged later"; the
+    population record is what makes the day it disappears legible to whoever next
+    tries to weight the series.
+    """
+    import json as _json
+    series = [
+        {"year": "2026", "observed_at": "2026-08-11", "rows": {"1": 2.0},
+         "total_drafts": 500, "row_count": 1},
+        {"year": "2026", "observed_at": "2026-08-12", "rows": {"1": 2.1},
+         "total_drafts": None, "row_count": 1},
+    ]
+    p = tmp_path / "series.json"
+    C.save(series, path=str(p))
+    pop = _json.loads(p.read_text())["population"]
+    assert pop["rows"] == 2
+    assert pop["fields"]["total_drafts"]["pct"] == 50.0
+    assert "total_drafts" in pop["partial"]
+
+
+def test_a_snapshot_field_that_disappears_entirely_is_still_named(tmp_path):
+    """Declared, not derived: a key absent from EVERY row must not vanish silently."""
+    import json as _json
+    series = [{"year": "2026", "observed_at": "2026-08-11", "rows": {"1": 2.0},
+               "row_count": 1}]                      # total_drafts never written
+    p = tmp_path / "s.json"
+    C.save(series, path=str(p))
+    pop = _json.loads(p.read_text())["population"]
+    assert pop["fields"]["total_drafts"]["missing"] == 1
+    assert "total_drafts" in pop["empty"]

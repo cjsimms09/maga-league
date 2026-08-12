@@ -163,8 +163,15 @@ jobs:
           # F7's negative answer is a verdict about POOLING, not about whether the
           # pool's composition is worth a row a year.
           import census_archive as CA
-          json.dump(CA.append(rep), open(CA.SERIES, "w"), indent=1)
+          import field_population as FP
+          _doc = CA.append(rep)
+          json.dump(_doc, open(CA.SERIES, "w"), indent=1)
           print("census row appended -> %s" % CA.SERIES)
+          # POPULATION, PRINTED AT WRITE TIME (Cory, 2026-08-12). The archive already
+          # carries this dict; printing the one line puts a field that has gone empty
+          # in front of whoever reads the run, instead of waiting for someone to open
+          # the JSON. A record nobody reads is the hole in a different place.
+          print("   %s" % FP.line(_doc["population"]))
 
           # DIAGNOSTICS LAST, AND COMPACT. The full report is ~700 log lines and
           # the evidence that decides the next fix is a dozen of them in the

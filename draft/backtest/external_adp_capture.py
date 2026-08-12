@@ -38,7 +38,15 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import field_population as FP
+
 SERIES = Path(__file__).resolve().parent.parent / "data" / "external_adp_series.json"
+
+#: The fields a snapshot is SUPPOSED to carry, declared rather than derived. Derived
+#: from the rows, a field that stops being written simply stops existing and the
+#: population record cannot tell you it is gone — which is the failure mode, not a
+#: detail of it.
+SNAPSHOT_FIELDS = ["year", "observed_at", "rows", "total_drafts", "row_count"]
 
 # The header the shipped client sends; FFC 403s Python's default. Kept in step
 # with `draft/adp.py` by test, not by trust.
@@ -150,6 +158,12 @@ def save(series: list, path=None) -> None:
         "_note": "D3 external ADP archive. Daily, FULL board, append-only, no retention "
                  "window. Not draft/data/adp_series.json (that is the HOME staleness "
                  "instrument, capped at 300 players / 60 days). See INGEST-PLAN.md D3.",
+        # POPULATION TRAVELS WITH THE ARCHIVE (Cory, 2026-08-12). One line at write
+        # time. `total_drafts` is the provider's composition figure and this module
+        # already says a snapshot without it "cannot be judged later" — so the day it
+        # starts coming back empty has to be visible HERE, in the file, rather than
+        # discovered by whoever next tries to weight the series.
+        "population": FP.of_records(series or [], fields=SNAPSHOT_FIELDS),
         "series": series}, indent=1))
 
 

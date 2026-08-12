@@ -29,8 +29,34 @@ and returns. Rule 9.
 import json
 from pathlib import Path
 
+import field_population as FP
+
 SERIES = "draft/data/format_census_series.json"
 SERIES_VERSION = "format-census-series/v1"
+
+#: What a census row is SUPPOSED to carry. A CONSTANT, and the reason is worth stating
+#: precisely, because the first version of this comment overclaimed.
+#:
+#: The first cut passed `fields=list(row)` — derived from the very dict being written.
+#: A mutation test showed it caught nothing: if the writer stops emitting `keeper_type`,
+#: `list(row)` stops containing it too, and the field vanishes from the population
+#: record exactly as silently as it vanishes from the data. The comment claimed a
+#: protection the code did not provide, which is the defect this module exists to catch,
+#: committed inside the fix for it.
+#:
+#: AND THE HONEST LIMIT, because the replacement mutation ALSO survives. `append()`
+#: always writes every key, so the union of the rows always contains every field and
+#: the declared list is, today, redundant with it. Its teeth are in
+#: `test_the_declared_field_list_cannot_drift_from_the_row`: edit the row literal and
+#: that test fails, forcing a deliberate update here rather than a silent one there.
+#: The constant is the schema; the drift test is the enforcement. Neither alone is the
+#: mechanism, and saying "declared, so a dropped field is caught" would be the same
+#: overclaim a second time.
+CENSUS_FIELDS = [
+    "observed_at", "season", "examined", "readable_leagues", "matched", "teams",
+    "reception_points", "pass_td_points", "superflex", "draft_type", "keeper_type",
+    "rejected_by_reason", "crosswalk_pooled_rate",
+]
 
 
 def append(report: dict, path: str = SERIES, observed_at: str = None) -> dict:
@@ -76,4 +102,10 @@ def append(report: dict, path: str = SERIES, observed_at: str = None) -> dict:
                      if (str(r.get("season")), str(r.get("observed_at"))) != key]
     doc["series"].append(row)
     doc["series"].sort(key=lambda r: (str(r.get("season")), str(r.get("observed_at"))))
+    # POPULATION TRAVELS WITH THE ARCHIVE (Cory, 2026-08-12). One line at write time.
+    # If a future ingest run stops emitting `pass_td_points` or `keeper_type`, the field
+    # does not silently become absent from the record — it drops off 100% in a number
+    # sitting beside the rows. `keeper_type` was missing from this row for a week and
+    # nothing said so, which is the same hole in this lane's own archive.
+    doc["population"] = FP.of_records(doc["series"], fields=CENSUS_FIELDS)
     return doc
