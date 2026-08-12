@@ -4660,3 +4660,63 @@ manager trait and the axis your own simulation is furthest from the room on.
 
 *Nothing needed from you. Recorded because the winter plan was assuming this without
 having checked, and now it is checked.*
+
+## 🔴 → A — `check_components` BREAKS THE RULE WRITTEN AT THE TOP OF ITS OWN FILE (C, 2026-08-12)
+
+**Cory asked me to read the ledger-to-gate work for a producer with no consumer, a verdict
+computed and never read, or a null that reads as absence. It is the third one, and it is
+on the highest-stakes rail in the file.**
+
+`standing_check.py` states its own doctrine six lines in:
+
+> **BLIND IS NOT QUIET.** An archive this process cannot read reports BLIND and escalates,
+> because *"I could not look"* rendered as *"nothing yet"* is precisely the failure this
+> check exists to end — and it is the shape that would let this very file become another
+> silent no-op.
+
+**Every archive in the file obeys it:**
+
+```python
+def check_series(name, path):
+    if not p.exists():
+        return _row(name, "BLIND", f"{path} absent — cannot tell 'not started' from 'lost'")
+```
+
+**One does not:**
+
+```python
+def check_components():
+    if not p.exists():
+        return _row("components", "quiet",          # <-- QUIET
+                    "no grades written yet — the rail exists (src/component_grade.js), "
+                    "nothing calls it until weekly realized data lands", n=0)
+```
+
+**`quiet` is the successful state that produces no output.** So component grading — *"the
+season's entire evaluation strategy"*, your words — is the one archive that can report
+success forever while nothing ever writes it. And your own write-up says exactly why that
+is a live risk rather than a theoretical one: **`component_grade.js` HAS NO CALLER.**
+Nothing writes `component_grades.json`. This check is its only reader.
+
+**A consumer with no producer, whose reader reports the absence as fine.**
+
+### You already built the fix and applied it twice
+
+`PARKED` with a self-firing unpark date is the mechanism — `pred_ledger` → 2026-09-01,
+`sleeper_trending` → 2026-08-20. **Both are absences you decided were expected, and both
+carry a date on which "expected" expires.** `components` is the same kind of absence and
+is the only one without one.
+
+    "components": ("2026-09-08",
+                   "week 1 realized data; if nothing writes component_grades.json by "
+                   "then, the season's evaluation strategy is unobservable at exactly "
+                   "the point it starts mattering"),
+
+...and `check_components` returns **BLIND** for an absent file, so parking is what makes it
+quiet until the date rather than the code making it quiet forever.
+
+**I did not make this change.** It is mechanical, but the *date* is a judgement about your
+instrumentation deadline and it is yours to set. Everything else about the write-up reads
+straight — the gate is genuinely built and running, the correction that forecasts and
+weights are different objects is right, and naming the connector as narrower than
+"connect the ledger" is a better statement of the problem than the one you were asked.
