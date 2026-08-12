@@ -7357,3 +7357,68 @@ under a second on the shipped board.** I have not written them into your tree.
 team, a duplicated starter, a corrupted roster merge. **They cannot catch a wrong individual
 transaction**, which is the one thing still open and still needs the one-line Sleeper team
 check from an egress-capable job.
+
+---
+
+## 🎯 ITEM 12 — CROSS-SEASON PERSISTENCE, MEASURED. THE ANSWER SPLITS BY LAYER. (C, 2026-08-12)
+
+Cory: *"IT DECIDES WHETHER THE ROOM LAYER IS DEAD ON EVIDENCE OR BLOCKED ON ARCHITECTURE, and
+we are planning as though it is the second without having checked."*
+
+**IT IS BOTH, AND WHICH ONE DEPENDS ON THE LAYER.** Ten owners, three seasons (2023-25),
+pooled as Cory directed, `persistence/v1` (ICC + joint permutation null + Bonferroni).
+
+### IN-SEASON BEHAVIOUR PERSISTS — STRONGLY
+
+    metric           ICC      p        Bonferroni 0.0167
+    txn_count       0.603  0.01230     clears
+    waiver_share    0.760  0.00005     clears
+    median_hour     0.684  0.00200     clears
+    POOLED          0.682  0.00005     clears
+    completed-only arm replicates:  pooled ICC 0.669, p 0.00005
+
+### DRAFT-TIME BEHAVIOUR DOES NOT
+
+    metric           ICC      p        Bonferroni 0.0083
+    QB1             0.249  0.7320      no
+    TE1             0.330  0.4890      no
+    K1              0.469  0.1020      no
+    DEF1            0.594  0.0239      no      <- closest, and still 3x the bar
+    RB_share5       0.390  0.2500      no
+    WR_share5       0.167  0.8960      no
+    POOLED          0.367  0.1698      NO
+
+**Not one draft metric clears.** Keepers excluded, because a keeper is settled before the draft
+starts and including them measures roster composition rather than drafting.
+
+### WHY THIS NULL IS INFORMATIVE RATHER THAN UNDERPOWERED — AND IT IS THE WHOLE POINT
+
+**The in-season arm is the positive control for the draft arm.** Same ten owners, same three
+seasons, same ICC estimator, same permutation null, same correction. **It found 0.682 at
+p=0.00005.** So the design demonstrably detects persistence of that size in this sample.
+
+**A null from an instrument that has just proved it can see is a different object from a null
+out of an untested one.** This is the read-a-negative clause applied to my own result: I am not
+claiming drafting tendencies are proven unstable — I am claiming that a design powered to find
+ICC 0.68 found 0.37 and could not distinguish it from zero.
+
+### WHAT IT MEANS FOR THE THING EIGHT DAYS AWAY
+
+**The in-season room layer is BLOCKED ON ARCHITECTURE.** The signal is there, it is strong, and
+it replicates on the conservative arm. Planning as though it is architecture is correct.
+
+**THE DRAFT-TIME ROOM LAYER IS NOT.** Anything that models how an opponent will DRAFT from how
+they drafted in prior seasons has **no measured basis in our own three seasons** —
+`manager_profiles` built from prior drafts, and any opponent-prediction that leans on them.
+
+**THE NARROW LIMIT, STATED:** this measures CROSS-SEASON stability of drafting tendencies. It
+does NOT say within-draft prediction is impossible — an arm using live signals from the room in
+progress (who has gone, what is left, roster holes) is untouched by this result and is a
+different question. **It says only that last year's draft does not predict this year's.**
+
+### THE RECOMMENDATION
+
+**Do not delete the draft-side room work; STOP CITING PRIOR DRAFTS AS ITS BASIS.** The honest
+line for anything shipping on the 22nd is *"opponent modelling from prior drafts is unmeasured
+and our own data does not support it"* — which is a defensible thing to ship behind a
+disclosure, and an indefensible thing to ship silently.
