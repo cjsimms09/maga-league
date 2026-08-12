@@ -1,15 +1,15 @@
 {
   "consecutive_failures": 0,
   "consecutive_incomplete": 0,
-  "last_attempt_at": "2026-08-11T14:18:31Z",
+  "last_attempt_at": "2026-08-12T14:19:17Z",
   "last_complete": true,
-  "last_complete_at": "2026-08-11T14:18:31Z",
+  "last_complete_at": "2026-08-12T14:19:17Z",
   "last_coverage": 1.0,
   "last_deferred": 0,
   "last_events_captured": 32,
   "last_events_listed": 32,
   "last_league": "usa-nfl-preseason",
-  "last_success_at": "2026-08-11T14:18:31Z",
+  "last_success_at": "2026-08-12T14:19:17Z",
   "max_consecutive_incomplete": 3,
   "stale_after_days": 7
 }
