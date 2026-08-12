@@ -55,6 +55,20 @@
 const fs = require('fs');
 const path = require('path');
 const E = require('../../public/js/draft/engine.js');
+/* THE ROOM MODELS, from the one place they are defined and graded. */
+const CO = require('./construction_order.js');
+const ROOM_NAME = (() => {
+  const i = process.argv.indexOf('--room');
+  return i > 0 && process.argv[i + 1] ? process.argv[i + 1] : 'adp';
+})();
+const ROOM_FN = CO.ROOMS[ROOM_NAME];
+if (!ROOM_FN) {
+  // FAIL LOUD. A typo silently falling back to adp would run the mis-calibrated
+  // room while the header claimed otherwise, which is the whole defect this flag
+  // exists to fix.
+  throw new Error(`roster_construction: no such room "${ROOM_NAME}". `
+    + `Known: ${Object.keys(CO.ROOMS).join(', ')}`);
+}
 
 const ROOT = path.join(__dirname, '..', '..');
 const DATA = JSON.parse(fs.readFileSync(path.join(ROOT, 'public', 'draft_data.json'), 'utf8'));
@@ -151,8 +165,24 @@ function simulate(seed, thin) {
     const board = pool.filter(p => !gone.has(String(p.player_id)));
     if (!board.length) break;
     if (!mine.has(o)) {
-      const top = board.slice().sort((a, b) => adpOf(a) - adpOf(b)).slice(0, 8);
-      const pick = top[Math.min(top.length - 1, Math.floor(rand() * rand() * top.length))];
+      /* ⚠️ THE OPPONENT MODEL IS NOW SELECTABLE, AND THE DEFAULT IS MIS-CALIBRATED
+       * ON EXACTLY THE TWO POSITIONS THE ONESIE CAP GOVERNS.
+       *
+       * This validator hardcoded adp-with-jitter. Measured against the three real
+       * drafts on disk (`room_tail_calibration.js`): that room drafts a median of
+       * **23 quarterbacks where real drafts took 15-17**, and **20 tight ends
+       * where they took 13-15** — 40% and 33% too many. It makes QB and TE look
+       * SCARCER than they are, which is the direction that flatters a cap.
+       *
+       * So the cap was validated clean in a room that overstates the pressure it
+       * exists to manage. `--room profiled` runs the same validation in the room
+       * whose QB and TE counts match reality (17 and 17).
+       *
+       * The room functions are REQUIRED from construction_order.js rather than
+       * copied — a second opponent model here could drift from the one the
+       * calibration graded, and then this flag would be validating a room nobody
+       * scored. */
+      const pick = ROOM_FN(board, rand, slotOf(o));
       if (!pick) break;
       gone.add(String(pick.player_id)); opp[slotOf(o)].push(pick); continue;
     }
