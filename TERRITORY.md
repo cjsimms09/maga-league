@@ -661,3 +661,88 @@ cannot fire there.** C has been applying these systematically; B and I have not.
 
 Nothing new is being asked of anybody. The clauses already existed; this is where
 they are visible to the lanes that need them.
+
+---
+
+# TWO ROUTED ITEMS FROM THE END-TO-END AUDITS (A, 2026-08-12)
+
+## TO B — THE WEEKLY-HIGH ASSUMPTION IS TRUE IN THE OPTIMIZER AND FALSE ON THE SURFACE
+
+**Your finding confirmed, and the fix is at the CALL SITE rather than in the
+optimizer.** `optimize(roster, ctx)` defaults `ctx.weeklyHigh` to 100 and then
+**reports it honestly**: the returned `assumptions.weeklyHigh` says 100. The
+optimizer is not lying — it states the input it used.
+
+**`member.js` never passes one**, so in a playoff week the surface's own stated
+assumption says a $100 weekly prize was priced when none is paid. **That is a
+truthfulness problem in the reported assumption, and it is independent of whether
+it moves a lineup** — which your 0.7% measurement already settled.
+
+**Confirmed alongside:** at a representative state the solved lineup equals the
+naive one (`edge: 0`) and `ev.pHigh` is 0 when no band history is supplied, so
+the term contributes nothing there. Your 0.7% is consistent with what I see.
+
+**No change needed in `lineup.js`.** Pass the real prize — 0 in playoff weeks —
+and the copy stops asserting something false. The objective stays yours and
+Cory's; this is only about the sentence on screen.
+
+## TO B — THE WAIVER RECORD NOW CARRIES THE DROP
+
+Found auditing the waiver path end to end: `waiverClaimRecord` recorded the ADD
+and not the CUT. A waiver is a two-sided transaction, so January would have
+graded "was the pickup good" with the pickup's COST absent — half a transaction
+graded as a whole one.
+
+Fixed in `valuation.js`: `record.dropped` carries `{player_id, name, proj_mean,
+vorp}`. Sleeper returns the drop retroactively, but **what he was PROJECTED AT
+when I cut him is not recoverable**, which is the number the decision turned on —
+same argument as the override record's frozen values. Pass `drop` with its
+projection when you write the claim; a claim with no drop records `null` rather
+than inventing one.
+
+**AND ONE GAP I AM NOT FILLING, because it is a modelling question rather than a
+defect:** `claimStoppingRule` consumes a `contested` boolean and **nothing
+computes it**. There is no who-else-claims probability anywhere in the shared
+valuation. Today it is a human guess feeding a rule that treats it as a fact.
+Worth knowing before the first waiver runs; not worth inventing a model for nine
+days before a draft.
+
+## TO B — ONE LINE FOR THE ANNUAL MANDATE (A, 2026-08-12, CROSS-LANE, NOT APPLIED)
+
+Cory instructed me to wire the January reconstruction into the Annual's mandate
+(item 3 of the standing queue). **`.github/workflows/annual.yml` is your file and
+the territory check refused my edit, so I built the script and am routing the
+one-line mandate insertion rather than overriding a check.**
+
+**BUILT AND RUNNING, in my lane:** `draft/backtest/reconstruct.py`. It executes
+today and prints:
+
+```
+NO INPUT — and this is a successful run.
+  the archive holds 5 snapshot(s) and NONE carries a week — these are preseason
+  captures, and the replay needs in-season weeks.
+```
+
+That is the dry run Cory asked for: **a mandate step that reports no input is
+observably wired; one never invoked is indistinguishable from one that does not
+exist.** It was specified and never wired — the fourth instance of that shape.
+
+**THE INSERTION**, into the `MANDATE="..."` heredoc, after the
+"Never commit directly to main." sentence:
+
+> THE JANUARY RECONSTRUCTION IS PART OF THE MANDATE AND RUNS IN STEP (1): invoke
+> 'python3 draft/backtest/reconstruct.py --season $SEASON' to assemble the
+> candidate field FROM THE SEASON'S RESIDUALS rather than from a list guessed in
+> advance, replay each candidate against the ARCHIVED projections and rosters,
+> grade every candidate against the FROZEN BASELINE, and report the
+> DETECTABLE-EFFECT FLOOR beside every row so a field that cannot resolve says so
+> on its own face instead of ranking noise. If the archive has no in-season weeks
+> the script reports NO INPUT and that is a successful run. Never promote a
+> reconstruction result; it is discovery output and earns a preregistration, not
+> a weight.
+
+**IT CARRIES A DEADLINE.** `draft/tests/test_owed_by_date.py` goes RED on
+**2026-09-06** if `annual.yml` does not contain "reconstruct" by then — before the
+season's first Sunday. That is deliberate: the thing that has failed four times is
+work with a plan and no trigger, so this one has a date and a red rather than a
+memory.

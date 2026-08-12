@@ -484,6 +484,21 @@
       net_points: d.net_points,
       lineup_before: d.lineup_before,
       lineup_after: d.lineup_after,
+      /* THE DROP TRAVELS WITH THE CLAIM. A waiver is a TWO-SIDED transaction and
+       * the first version recorded only the add — so January would have graded
+       * "was the pickup good" while the cost of the pickup, the man I cut, was
+       * nowhere in the record. Half a transaction graded as a whole one.
+       *
+       * Sleeper returns the transaction retroactively, so the DROP itself is
+       * recoverable — but what he was PROJECTED AT when I cut him is not, and
+       * that is the number the decision actually turned on. Frozen here for the
+       * same reason the override record freezes both players' values. */
+      dropped: o.drop ? {
+        player_id: String(o.drop.player_id),
+        name: o.drop.name == null ? null : String(o.drop.name),
+        proj_mean: o.drop.proj_mean == null ? null : Number(o.drop.proj_mean),
+        vorp: o.drop.vorp == null ? null : Number(o.drop.vorp),
+      } : null,
       dollars: o.dollars == null ? null : Number(o.dollars),
       // THE WAIVER SYSTEM THIS WAS DECIDED UNDER. waiver_type is 1 (reverse
       // standings) TODAY; if the league ever moves to rolling, an entry graded

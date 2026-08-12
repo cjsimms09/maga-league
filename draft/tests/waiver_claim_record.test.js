@@ -101,3 +101,23 @@ const base = {
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail ? 1 : 0);
+
+// ── THE DROP IS HALF THE TRANSACTION ───────────────────────────────────────
+{
+  /* FOUND BY THE END-TO-END AUDIT, 2026-08-12. The record carried the add and
+   * not the cut, so January would have graded "was the pickup good" with the
+   * COST of the pickup absent — half a transaction graded as a whole one.
+   *
+   * Sleeper returns the drop retroactively; what it cannot return is what the
+   * dropped man was PROJECTED AT when I cut him, which is the number the
+   * decision turned on. Same argument as the override record's frozen values. */
+  const r = V.waiverClaimRecord(Object.assign({}, base, {
+    drop: { player_id: '2', name: 'Old', proj_mean: 88.5, vorp: -12.1 } }));
+  ck('the record carries the DROP, not just the add',
+    r.dropped && r.dropped.player_id === '2', r.dropped);
+  ck('  with what he was projected at WHEN I CUT HIM — the unrecoverable half',
+    r.dropped.proj_mean === 88.5 && r.dropped.vorp === -12.1, r.dropped);
+  const none = V.waiverClaimRecord(Object.assign({}, base, { drop: null }));
+  ck('  and an add with no drop records null rather than inventing one',
+    none.dropped === null, none.dropped);
+}
