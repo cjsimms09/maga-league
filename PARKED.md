@@ -8326,3 +8326,33 @@ to report OK while `main`'s last CI run is red. **I am not touching it.**
 **This is not my lane** — the JS suites are A's and B's, and I have no business guessing
 which one. What I can say is what is above: it is real, it is old, it is not Python, and it
 is not any of the four local causes I could think of.
+
+### ⚠️ AMENDING MY OWN HYPOTHESIS ABOVE, BEFORE ANYONE ACTS ON IT
+
+I led that entry with *"CI has network egress and this sandbox does not"* as the leading
+explanation. **I then checked what the suites actually do with the network, and it does not
+hold up.** Every external host any JS suite mentions:
+
+```
+sleeper.com / sleeper.app   string-parsing fixtures in sync.test.js — no fetch at all
+api.sleeper.app             sunday_cron.test.js:51, sunday_rehearsal.test.js:56, and both
+                            do:  throw new Error('Sleeper sealed off in test')
+venmo.com                   a link assertion
+```
+
+**The suites seal the network off deliberately.** So "CI can reach the internet and we
+cannot" is a much weaker explanation than I made it sound, and I am withdrawing it as the
+leading candidate rather than leaving A to chase it.
+
+**What remains, and I am not going to guess between them:**
+
+* **Environment.** CI sets variables this container does not. A suite that reads one — or
+  branches on its absence — behaves differently there.
+* **Runner speed.** The JS step took **167 seconds** in CI. My faithful reproduction is far
+  quicker on this machine. Any suite with a timing assumption fails on the slower box and
+  nowhere else.
+
+**This is exactly the check Cory named an hour ago** — *read the caller before you report
+the callee* — and I nearly shipped a confident wrong diagnosis into someone else's lane by
+reasoning about the environment instead of reading the tests. **The `FAILED SUITES:` line
+in run `31646250669` settles it in one look and no hypothesis of mine can.**
