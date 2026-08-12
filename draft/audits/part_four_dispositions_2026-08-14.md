@@ -85,9 +85,10 @@ magnitude complaint: *"a defence with a 15-point winnable surplus and a kicker
 with 10 pulled forward 140 rank positions."* It is a candidate and not a
 conclusion, because it is contingent on survival actually over-predicting by
 something near that range — which is C's measurement from a different window and
-has not been re-established on this board. VONA is
-compared *across* positions to pick, so an uneven shift does not cancel — it
-reorders the board.
+has not been re-established on this board.
+
+VONA is compared *across* positions to pick, so an uneven shift does not cancel
+— it reorders the board.
 
 **AND IT DOES NOT EXPLAIN THE QB/TE SYMPTOM — say so plainly.** Correcting the
 over-prediction raises RB most (+11.3) and QB second (+9.1). It would widen RB
@@ -133,7 +134,7 @@ a second look at the same null.
 and therefore board-driven** — the same diagnosis B reached for the
 intervention-rate drift, where the fix was to stop measuring the board. Item 31
 supplies a specific candidate: RB is the position most sensitive to survival
-scaling (+11.3, the largest of the four). One measurement decides it; no build.
+scaling (+11.3, the largest of the six). One measurement decides it; no build.
 
 ## 27. TE AT 3.6, UNEXPLAINED — **RESEARCH FIRST, and the ground has moved**
 
