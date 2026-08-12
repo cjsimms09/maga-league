@@ -165,3 +165,30 @@ F1 does not bound this: our league **is** our format. What would enlarge it is e
 leagues with the **same owners across seasons** — **never captured**, because the MFL
 crawl takes one season per run and no run has followed a league across years. **Free, and
 unrecoverable once the seasons pass.**
+
+---
+
+## C-003 — PRE-DECLARED BEFORE RUNNING: does IN-SEASON activity persist too? (2026-08-12)
+
+**`persistence/v1` applied to a second behaviour, declared before the run.**
+
+C-001 showed draft tendencies persist (pooled ICC 0.488, p = 0.0002). **Nothing has asked
+whether in-season behaviour does.** The transaction archive holds **1,091 transactions
+across three seasons** — more than twice the 480 draft picks — and has never been examined.
+
+**The spread is wide enough to be worth testing:** per-roster transaction counts run 11–70
+in 2025, 20–52 in 2024, 18–54 in 2023.
+
+**Metrics, declared now:** transactions per roster per season; the waiver share of them
+(waiver vs free-agent, which is priority-usage versus camping the wire); and the median
+`created` hour-of-week, as an add-speed proxy.
+
+**Prediction, blind: activity persists MORE strongly than draft tendencies.** A draft is
+twelve decisions a year under time pressure; transaction volume is a season-long habit with
+a hundred opportunities to express itself, so it should be less noisy per season.
+**Specifically I expect transaction count to clear p < 0.05 where four of six draft
+tendencies did not.**
+
+**And a boundary declared with it:** if it holds, that is a *second* archive supporting
+manager modelling — it is **not** a second reason to build the room layer, which is a draft
+mechanism. In-season persistence bears on the waiver and lineup tools, not on the draft.
