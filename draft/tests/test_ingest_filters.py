@@ -121,6 +121,92 @@ ck("ADP observed ON the draft date is rejected (STRICTLY before)",
 ck("missing timestamps are rejected, never assumed",
    F.screen(league(adp_observed_at=None))[1] == "F5.missing_timestamps")
 
+# ── THE BOOLEAN AND THE REASON MUST NEVER DISAGREE ──────────────────────────
+# Every rejection check above reads `screen(...)[1]` — the reason string. NOT ONE
+# of them reads [0], and [0] is the half that decides admission: `screen_all`
+# builds `matched` from it, and `ingest_run.run_screen` and `external_replay_run`
+# unpack it the same way.
+#
+# MEASURED 2026-08-11 by mutation sweep: TEN separate `return False, "<reason>"`
+# lines in `screen()` could each be flipped to `return True` and this entire suite
+# stayed green. The league would then be ADMITTED to `matched` while the attrition
+# table counted it under its own rejection reason — F7's numerator and denominator
+# disagreeing about the same league, with nothing anywhere to notice. That is the
+# consumer-reads-a-field-its-author-believed-in defect again, and this time it was
+# in the tests rather than in the code they were guarding.
+#
+# `screen()` has ONE accept path and it returns (True, "ok"); every other return
+# is (False, <reason>). So the invariant is exact, and one assertion over the
+# fixtures kills all ten mutations: ok IFF why == "ok".
+sf = {"QB": 1, "RB": 2, "WR": 2, "TE": 1, "SUPERFLEX": 1}
+REJECTED = [
+    ("14 teams", league(teams=14)),
+    ("full PPR", league(scoring={"rec": 1.0})),
+    ("standard", league(scoring={"rec": 0.0})),
+    ("TE premium", league(scoring={"rec_by_position": {"RB": 0.5, "WR": 0.5, "TE": 1.0}})),
+    ("scoring unreadable", league(scoring={})),
+    ("superflex", league(superflex=True, scoring={"rec": 0.5})),
+    ("superflex slot", league(roster_slots=sf)),
+    ("2QB", league(roster_slots={"QB": 2, "RB": 2, "WR": 2, "TE": 1, "FLEX": 1})),
+    ("auction", league(draft_type="auction")),
+    ("draft_type absent", league(draft_type=None)),
+    ("draft incomplete", league(draft={"status": "in_progress", "picks": []})),
+    # DISTINCT from the row above, and the reason it needs its own fixture: an
+    # empty-picks league that is also in_progress never reaches the picks check.
+    # `F2.no_picks` was the one reject path with no fixture at all, and it was the
+    # last survivor of the sweep after the ok-IFF-ok invariant killed the other nine.
+    ("complete draft with NO picks", league(draft={"status": "complete", "picks": []})),
+    ("crosswalk short", league(draft=thin)),
+    ("autopick majority", league(draft=auto)),
+    ("no weekly outcomes", league(has_weekly_outcomes=False)),
+    ("no pre-draft ADP", league(pre_draft_adp=None)),
+    ("ADP after the draft", league(adp_observed_at="2025-08-26")),
+    ("ADP on the draft date", league(adp_observed_at="2025-08-25")),
+    ("timestamps missing", league(adp_observed_at=None)),
+]
+_disagree = [(n, F.screen(lg)) for n, lg in REJECTED if F.screen(lg)[0] is not False]
+ck("EVERY rejected league returns ok=False, not just a reason string",
+   not _disagree, _disagree)
+ck("a complete draft with no picks is F2.no_picks, not F2.draft_incomplete",
+   F.screen(league(draft={"status": "complete", "picks": []}))[1] == "F2.no_picks",
+   F.screen(league(draft={"status": "complete", "picks": []})))
+ck("the reason and the boolean agree on every fixture, both directions",
+   all(F.screen(lg)[0] == (F.screen(lg)[1] == "ok")
+       for _, lg in REJECTED + [("accepted", league())]))
+
+# ── the pre-registered EDGES, which are where a band is actually decided ────
+# The sweep survived three boundary mutations because no fixture sat ON a bound.
+# PPR_RANGE, MAX_AUTOPICK_SHARE and the F7 target are all pre-registered numbers,
+# and an off-by-one in any of them changes who is admitted while every interior
+# fixture keeps passing.
+ck("PPR at the band's LOWER edge (0.4) is accepted — the bound is inclusive",
+   F.screen(league(scoring={"rec_by_position": {p: F.PPR_RANGE[0] for p in F.SKILL_POSITIONS}}))[0])
+ck("PPR at the band's UPPER edge (0.6) is accepted — the bound is inclusive",
+   F.screen(league(scoring={"rec_by_position": {p: F.PPR_RANGE[1] for p in F.SKILL_POSITIONS}}))[0])
+ck("PPR just BELOW the lower edge is rejected",
+   F.screen(league(scoring={"rec_by_position": {p: 0.39 for p in F.SKILL_POSITIONS}}))[1]
+   == "F1.scoring_not_half_ppr")
+
+# EXACTLY half autopicked is not a MAJORITY. `> MAX_AUTOPICK_SHARE`, not `>=`.
+# 16 picks per team, alternating by ROUND so the share is 8/16 for every team —
+# alternating by pick index instead correlates with `i % 10` and hands the even
+# teams a share of 1.0, which is a different test wearing this one's name.
+_half = {"status": "complete",
+         "picks": [{"crosswalked": True, "team": i % 10, "autopick": (i // 10) % 2 == 0}
+                   for i in range(160)]}
+ck("a team exactly at the autopick share is ACCEPTED (majority is strict)",
+   F.screen(league(draft=_half))[0], F.screen(league(draft=_half)))
+# ...and ONE more pick tips it. Team 0 gets 9 of 16 — the flip has to land in an
+# ODD round, because every even round is autopicked already and `or i < 10` would
+# have added nothing at all.
+_over = {"status": "complete",
+         "picks": [{"crosswalked": True, "team": i % 10,
+                    "autopick": (i // 10) % 2 == 0 or i == 10}
+                   for i in range(160)]}
+ck("one pick PAST half is a majority and is rejected",
+   F.screen(league(draft=_over))[1] == "F2.autopick_majority",
+   F.screen(league(draft=_over)))
+
 # ── F3 player-seasons: absent is DROPPED AND COUNTED, never zero ────────────
 keep, dropped = F.usable_player_seasons([
     {"pid": "a", "weekly": {1: 10.0}},
@@ -149,6 +235,28 @@ ck("matched count is reported", rep["matched"] == 1, rep)
 ck("a short sample is declared INSUFFICIENT", not rep["meets_target"])
 ck("and says it changes NOTHING rather than relaxing a filter",
    "changes NOTHING" in rep["verdict"], rep["verdict"])
+
+# F7's bar is EXACTLY 200 and it is INCLUSIVE. Every fixture above sits far below
+# it, so `>=` could be narrowed to `>` with the whole suite green — and a run that
+# matched exactly 200 leagues would then report INSUFFICIENT against a target it
+# had met. The bound is pre-registered; assert the bound, not the interior.
+_at = F.screen_all([league()] * F.TARGET_MATCHED_LEAGUE_SEASONS)
+ck("EXACTLY the target is sufficient — the pre-registered bar is inclusive",
+   _at["meets_target"] and "sufficient" in _at["verdict"], _at["verdict"])
+_under = F.screen_all([league()] * (F.TARGET_MATCHED_LEAGUE_SEASONS - 1))
+ck("one short of the target is INSUFFICIENT", not _under["meets_target"])
+
+# A CLAUSE THAT CANNOT FIRE IS NOT A CLAUSE THAT FOUND NOTHING, and the note
+# saying so is deduplicated across leagues. Inverting that `not in` reported the
+# note only when it was already present — i.e. never — and the verdict lost the
+# sentence entirely while every count stayed identical.
+_un = {"source_meta": {"unenforced": ["F2.keeper_count unreadable in this export"]}}
+_rep2 = F.screen_all([league(**_un), league(**_un), league(teams=14, **_un)])
+ck("an unenforceable clause is reported ONCE, not per league",
+   _rep2["unenforced_filters"] == ["F2.keeper_count unreadable in this export"],
+   _rep2["unenforced_filters"])
+ck("and it reaches the verdict line where it cannot be missed",
+   "could NOT be enforced" in _rep2["verdict"], _rep2["verdict"])
 
 # ── "WE COULD NOT READ IT" IS NOT "IT FAILED THE CHECK" (B's audit, 2026-08-11)
 # The table below is the whole finding, as a test. Each row states the sentence

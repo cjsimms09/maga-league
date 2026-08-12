@@ -486,7 +486,45 @@ Applied to the two helpers already; they now derive their removals from
 
 ---
 
+## ✅ RULED — F4 GATES OUTCOME-DEPENDENT GRADING ONLY (Cory, 2026-08-11)
+
+> **CORY'S RULING, 2026-08-11.** F4 gates **outcome-dependent grading only**. Replay and
+> forecast emission proceed on any league passing the other filters; only the
+> outcome-graded portion waits for January. **Two conditions:** it is recorded as a
+> **dated interpretation with the reasoning, not as an amendment** to F4; and
+> **survival-only leagues are labelled and never pooled** with outcome-graded ones.
+>
+> **Recorded** in `INGEST-PLAN.md` → *"F4 — DATED INTERPRETATION, NOT AN AMENDMENT"*.
+> **Implemented** as `ingest_filters.passed_pre_outcome()` (precise only because `screen()`
+> checks outcomes last — an ordering change that altered no league's verdict) and
+> `ingest_run.survival_gate()`. Every grade carries `outcome_graded`, and
+> `survival_pass()` counts `graded_ready` and `survival_only` apart rather than summing them.
+>
+> **Verified end to end** on a synthetic 2026-shaped league — `has_weekly_outcomes=False`,
+> everything else clean, verdict `F4.no_weekly_outcomes`:
+>
+>     survival_only: 1 | replayed: 1 | observations: 60
+>     grade: {'outcome_graded': False, 'n_scored': 40, 'n_unresolvable': 20,
+>             'brier': 0.7697, 'base_rate': 1.0, 'beats_base_rate': False}
+>
+> Sixty forecasts from a league F4 would have excluded whole, forty of them resolved, and
+> **no outcome data used**. That is the ruling working.
+>
+> **ONE THING THE VERIFICATION ITSELF SURFACED, now fixed.** `base_rate: 1.0` makes the
+> reference Brier `base*(1-base)` exactly **zero**, so `beats_base_rate` is arithmetically
+> forced False whatever the policy did — and "0 of 1 leagues beat their own base rate" then
+> reads as a verdict on the model when it is a statement about the sample. The run now says
+> so instead, and in a mixed sample the saturated leagues leave the denominator and are
+> named. Nothing is admitted or excluded that was not before.
+
+*Original entry, kept unedited below, under its own heading.*
+
 ## MAY AN F4-EXCLUDED LEAGUE BE REPLAYED FOR A FORECAST THAT NEVER TOUCHES OUTCOMES? (C, 2026-08-11) 🔴 OPEN
+
+> **SUPERSEDED — ruled above, 2026-08-11.** The heading is kept VERBATIM rather than
+> rewritten: a decision log whose headings can be edited after the fact cannot be
+> audited, and `integrate.sh` refuses a merge that loses one. The question below is
+> exactly as it was asked.
 
 - **WHAT WAS FOUND.** Survival — *will this player still be there when this seat picks
   again* — resolves from the draft's **own later picks**. It uses no weekly data, no

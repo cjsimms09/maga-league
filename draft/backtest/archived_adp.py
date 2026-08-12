@@ -257,9 +257,28 @@ def first_serving_capture(captures, fetch, min_rows=50, tries=4, judge=None) -> 
             return {"state": "board", "timestamp": cap["timestamp"],
                     "rows": v.get("player_hits", shape["rows_seen"]),
                     "bytes": shape["bytes"], "body": body, "examined": tried}
+    # A WALK THAT RAN OUT OF BUDGET HAS NOT SEARCHED THE INDEX.
+    #
+    # MEASURED 2026-08-12, run 31547459102. The CDX query is day-collapsed, so this
+    # list is one row per DAY and `tries=4` means the newest FOUR DAYS before the
+    # cutoff. FantasyPros' overall page was walked across 28-31 July, none served,
+    # and the target was booked "NO BOARD AT THIS URL" — while the capture at
+    # 20240712092948, nineteen days earlier at that same URL, passes the known-answer
+    # gate 15 of 15 with the real 2024 top fifteen IN ORDER. It was never examined.
+    #
+    # "The days I looked at were duds" and "this URL serves no board" are different
+    # findings, and reporting the second from the first is how a route gets closed on
+    # its own walker. It is the same defect this function was written to fix, one
+    # level up: the fix stopped the walk taking capture[0], and left it taking [:4].
+    #
+    # `budget_exhausted` travels so a caller can never read a truncated walk as a
+    # completed one. It is TRUE only when captures were left unexamined.
+    n = len(captures or [])
     return {"state": "empty" if (tried and all(t["empty"] for t in tried)) else "not-a-board",
             "timestamp": tried[0]["timestamp"] if tried else None,
-            "rows": 0, "examined": tried}
+            "rows": 0, "examined": tried,
+            "captures_available": n, "captures_examined": len(tried),
+            "budget_exhausted": len(tried) < n}
 
 
 # Words that appear in these pages and are NOT players. Two capitalised words in a
@@ -479,9 +498,22 @@ def classify(name, date_basis, live, archived) -> dict:
            "archived_timestamp": (archived or {}).get("timestamp"),
            "archived_rows": (archived or {}).get("rows"),
            "pre_cutoff_captures": (archived or {}).get("captures")}
+    out["captures_examined"] = (archived or {}).get("captures_examined")
+    out["budget_exhausted"] = bool((archived or {}).get("budget_exhausted"))
     if out["archived"] == "board":
         # The archive stamped it, so the date is evidence whatever the page says.
         out["verdict"] = "SATISFIES F5"
+    elif out["budget_exhausted"]:
+        # A TRUNCATED WALK IS NOT A NEGATIVE, and it must not fall through to a
+        # verdict keyed on the LIVE page. FantasyPros renders client-side today, so
+        # its live state is `not-a-board` — which is the very reason the archive is
+        # the instrument here — and the fall-through booked a target with an
+        # unexamined, gate-passing capture as "URL RETURNED NO BOARD".
+        out["verdict"] = ("INCONCLUSIVE — the capture walk stopped at its budget after "
+                          "%s of %s available day(s); the days examined served no board "
+                          "and the rest were never fetched. This says nothing about "
+                          "whether this URL has a pre-draft board"
+                          % (out["captures_examined"], out["pre_cutoff_captures"]))
     elif out["live"] == "board" and date_basis == CONTENT_DATED:
         out["verdict"] = ("LEAD ONLY — publisher-labelled year, retrievable today. The "
                           "label is a claim made now about then; MFL's year aggregate "
@@ -666,10 +698,42 @@ def _csv_names(text, limit=15) -> list:
         return []
     if len(rows) < 2:
         return []
+    # IF WE TRUNCATED IT, THE LAST ROW IS CUT MID-LINE BY CONSTRUCTION. Keeping it
+    # yields a half-name — "Brian Tho" — which the known-answer gate scores as a MISS
+    # against a player who is really there, i.e. evidence against a good board
+    # manufactured by our own read buffer.
+    if len(text or "") > len(head):
+        rows = rows[:-1]
     header = [str(h or "").strip().lower().lstrip("\ufeff") for h in rows[0]]
     name_i = next((i for i, h in enumerate(header) if h in _NAME_COLS), None)
     first_i = next((i for i, h in enumerate(header) if h in _FIRST_COLS), None)
     last_i = next((i for i, h in enumerate(header) if h in _LAST_COLS), None)
+    # TWO DIFFERENT FACTS, AND THEY USED TO SHARE A BRANCH.
+    #
+    # "This file has no name column" is a fact about the FILE and returns nothing —
+    # guessing at column 0 would put team abbreviations into a hand-check sample
+    # whose only purpose is to be readable. "This ROW is too short to reach the name
+    # column" is a fact about one row. Both landed in the same `else: return []`, so
+    # ONE short row abandoned the whole file — discarding the names already collected
+    # ahead of it.
+    #
+    # MEASURED 2026-08-11: a trailing blank line — which almost every CSV has, and
+    # which `csv.reader` yields as `[]` — turned a clean three-player board into
+    # zero names. A blank line in the MIDDLE did the same, losing the rows before it.
+    # `head` is also a hard 200KB truncation, so a large file's final row is cut
+    # mid-line by construction.
+    #
+    # THIS IS THE SECOND TIME THE CSV PATH HAS READ 0/0 ON A GOOD FILE. The first
+    # was having no CSV path at all, and it hid the only real Route 1 lead behind a
+    # column of zeroes that looked exactly like an answer.
+    # AN EARLY-OUT, NOT A GUARD, and the difference is worth stating: with no name
+    # column every row falls to the `continue` below and the function returns []
+    # anyway. Deleting this line changes no answer — mutation-checked, it survives —
+    # so it earns its place by naming the file-level rule and by not walking 30,000
+    # rows to reach a conclusion available from the header. The rule itself is
+    # enforced by the loop.
+    if name_i is None and (first_i is None or last_i is None):
+        return []
     out, seen = [], set()
     for r in rows[1:]:
         if name_i is not None and len(r) > name_i:
@@ -678,7 +742,7 @@ def _csv_names(text, limit=15) -> list:
             cand = ("%s %s" % (str(r[first_i] or "").strip(),
                                str(r[last_i] or "").strip())).strip()
         else:
-            return []
+            continue    # a short row is a short ROW, not a verdict on the file
         # MFL and several mirrors write "Last, First". Normalised HERE so the
         # known-answer check compares names in one spelling, not two.
         if "," in cand:
@@ -790,3 +854,96 @@ def frozen_before(dates: dict, before: str) -> dict:
             "why": "last written %s, ON OR AFTER the %s cutoff — this is a LIVE file "
                    "with a filename, and its current content is not evidence about "
                    "what it held before the drafts" % (str(last)[:10], before)}
+
+
+# ── FROM AN ARCHIVED PAGE TO AN ADP SNAPSHOT THE STORE CAN EAT ─────────────
+def parse_board(text, limit=300) -> dict:
+    """An archived board's HTML -> [{name, adp, rank}], and WHICH quantity that is.
+
+    TWO QUANTITIES, NEVER MERGED. A board page carries a RANK (the row's position)
+    and usually an ADP (a decimal, "3.4", the average pick the market actually made).
+    They are not the same number: ranks are 1,2,3... by construction while ADP has
+    gaps and ties, and a replay that reads one as the other prices every player at a
+    pick nobody took him at. So the parsed ADP is used when present, the rank is used
+    only as a fallback, and `adp_source` says which — per row.
+
+    The ADP is taken from the SAME ROW as the name, matched inside one cell block
+    rather than by looking for the next decimal anywhere in the document: a page has
+    plenty of decimals (bye weeks, projections, tiers) and the nearest one is not the
+    right one.
+    """
+    import re
+    text = text.decode("utf-8", "replace") if isinstance(text, (bytes, bytearray)) else (text or "")
+    rows, seen = [], set()
+    # Each table row, then the name and the first standalone decimal inside IT.
+    for block in re.findall(r"<tr[^>]*>(.*?)</tr>", text, re.S | re.I):
+        names = extract_names(block, 1)
+        if not names:
+            continue
+        nm = names[0]
+        if nm.lower() in seen:
+            continue
+        m = re.search(r">\s*(\d{1,3}\.\d)\s*<", block)
+        seen.add(nm.lower())
+        rows.append({"name": nm, "rank": len(rows) + 1,
+                     "adp": float(m.group(1)) if m else None,
+                     "adp_source": "parsed" if m else "rank"})
+        if len(rows) >= limit:
+            break
+    parsed = sum(1 for r in rows if r["adp_source"] == "parsed")
+    return {"rows": rows, "n": len(rows), "with_parsed_adp": parsed,
+            "quantity": ("adp" if parsed >= max(1, len(rows) // 2) else "rank_only"),
+            "note": ("rank is NOT adp: ranks are 1,2,3 by construction while ADP has "
+                     "gaps and ties, and reading one as the other prices a player at a "
+                     "pick nobody took him at")}
+
+
+def to_snapshot(parsed, index, observed_at) -> dict:
+    """A parsed board + our board index -> the {observed_at, rows:[{player_id, adp}]}
+    shape `ExternalAsOfStore` already consumes.
+
+    THE CROSSWALK IS THE SHIPPED MATCHER, not a name comparison written here. This
+    program has one matcher and one set of alias tables; a second one is how the
+    crosswalk and the checker came to disagree about the same player (P6).
+
+    COVERAGE IS REPORTED, NEVER ASSUMED. A snapshot that matched a third of its names
+    is a board with two thirds of the market missing, and a replay against it would
+    price the missing players at nothing — which looks like a bargain rather than a
+    gap. The caller decides what rate is enough; this refuses to hide it.
+    """
+    from mfl_adapter import match_player_shared
+    out, unmatched = [], []
+    for r in (parsed or {}).get("rows") or []:
+        sid, _how = match_player_shared({"name": r["name"], "position": None, "team": None},
+                                        index)
+        if not sid:
+            unmatched.append(r["name"])
+            continue
+        out.append({"player_id": str(sid),
+                    "adp": r["adp"] if r["adp"] is not None else float(r["rank"]),
+                    # ON THE ROW, not only beside it. `draft/adp.py` and
+                    # `build_bundle.py` both put `adp_source` on EACH PLAYER, and a
+                    # consumer written against that shape reading a snapshot-level
+                    # label gets None — which reads as "no source" rather than "an
+                    # archived capture". Three levels already carry this field name
+                    # (per-player, snapshot, and `provenance.adp.adp_source`, which
+                    # `keeper_optimize` reads); mine now matches the one a row
+                    # consumer expects, and the snapshot keeps its copy for a
+                    # consumer that reads the envelope.
+                    "adp_source": ADP_SOURCE_ARCHIVE,
+                    # WHICH QUANTITY THIS ROW ACTUALLY IS, travelling with it. A
+                    # board where some rows are parsed ADP and some are rank order
+                    # is two quantities in one list, and only the row can say which.
+                    "adp_kind": r["adp_source"]})
+    n = len((parsed or {}).get("rows") or [])
+    return {"observed_at": observed_at, "rows": out,
+            "adp_source": ADP_SOURCE_ARCHIVE,
+            "quantity": (parsed or {}).get("quantity"),
+            "names_seen": n, "matched": len(out),
+            "coverage": round(len(out) / n, 4) if n else 0.0,
+            "unmatched_sample": unmatched[:10]}
+
+
+# Every snapshot built this way carries it, so an archived board can never be read as
+# a live capture inside a table that holds both.
+ADP_SOURCE_ARCHIVE = "wayback_capture_v1"

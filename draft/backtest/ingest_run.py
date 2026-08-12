@@ -866,15 +866,66 @@ def readiness_verdict(readiness: dict, rep: dict) -> str:
 
     So the state leads, ahead of the count, and an UNPLAYED or UNFETCHABLE run says
     IN THE VERDICT that its zero measured nothing about the leagues.
+
+    CORRECTED 2026-08-12, AFTER IT CONTRADICTED THE ATTRITION TABLE IN RUN 13.
+
+    This sentence used to assert, flatly, "Every league is F4.no_weekly_data". That
+    was TRUE while `screen()` checked outcomes FIRST: an unplayed season really did
+    stop every league at that clause, and nothing else was ever evaluated.
+
+    THE REORDER MADE IT FALSE, and the reorder is the whole basis of
+    `passed_pre_outcome`. Outcomes are checked LAST now, so a league rejected on
+    format never reaches the outcome clause at all. Run 13 measured 2026: 293
+    attempted, and the attrition table carried **zero** leagues under
+    `F4.no_weekly_outcomes` — all 266 readable leagues were rejected by F1, on
+    format, before the calendar was ever consulted. The verdict nonetheless announced
+    that every league was blocked by the calendar and that NO CONCLUSION ABOUT FORMAT
+    PREVALENCE MAY BE DRAWN — suppressing precisely the finding the reorder exists to
+    produce.
+
+    It also named `F4.no_weekly_data`, which is a DIFFERENT declared code meaning the
+    FETCH served nothing. `screen()` emits `F4.no_weekly_outcomes`. A hardcoded string
+    cannot go stale quietly enough to be worth it.
+
+    THE DEFECT CLASS IS THE FAMILIAR ONE: a consumer written against the behaviour its
+    author believed in rather than the one the producer emits. The fix is the same one
+    every time — READ the producer's output instead of asserting it. The calendar
+    count now comes from the attrition table.
     """
     state = (readiness or {}).get("state")
     n = rep.get("matched", 0)
+    reasons = rep.get("rejected_by_reason") or {}
+    calendar = sum(v for k, v in reasons.items()
+                   if F.reason_code(k) == "F4.no_weekly_outcomes")
+    earlier = sum(reasons.values()) - calendar
     if state in ("UNPLAYED", "UNFETCHABLE"):
-        return ("THIS RUN MEASURED NOTHING ABOUT THE LEAGUES: %s. Every league is "
-                "F4.no_weekly_data, `matched=%d` is a consequence of that and not a "
-                "finding about the pool, and no conclusion about format prevalence or "
-                "filter tuning may be drawn from it"
-                % ((readiness or {}).get("why", "season not ready"), n))
+        if not reasons:
+            # A THIRD STATE, and it gets its own sentence rather than a default.
+            # With no attrition table there is no evidence for EITHER branch, and
+            # picking one would assert an unmeasured cause — which is the precise
+            # failure this function was just corrected for. The season fact is still
+            # true and still leads; the cause of the zero is simply not available.
+            return ("SEASON NOT READY (%s), and this run carries NO ATTRITION TABLE, so "
+                    "WHY `matched=%d` cannot be stated here — whether the leagues were "
+                    "blocked by the calendar or rejected earlier on format is not "
+                    "evidenced either way. Do not read this zero as either one"
+                    % ((readiness or {}).get("why", "season not ready"), n))
+        if not calendar:
+            return ("SEASON NOT READY (%s) — BUT NOT ONE LEAGUE REACHED THE OUTCOME "
+                    "CHECK. All %d rejection(s) happened EARLIER, on format or on "
+                    "readability, so `matched=%d` here is NOT the calendar and the "
+                    "format census over the readable leagues IS a measurement. "
+                    "`screen()` tests outcomes LAST so that this run can tell the two "
+                    "apart; read the attrition table, which is where the causes are"
+                    % ((readiness or {}).get("why", "season not ready"), earlier, n))
+        return ("THIS RUN MEASURED NOTHING ABOUT THE LEAGUES FOR %d OF THEM: %s. Those "
+                "%d league(s) cleared every check that can be judged before the season "
+                "runs and are blocked by the CALENDAR alone (`F4.no_weekly_outcomes`), "
+                "so their zero is not a finding about the pool. The OTHER %d "
+                "rejection(s) never reached that clause and are about format or "
+                "readability — those are a measurement, and `matched=%d`"
+                % (calendar, (readiness or {}).get("why", "season not ready"),
+                   calendar, earlier, n))
     if state == "PARTIAL":
         return ("PARTIAL SEASON: %s. Outcome totals here are partial-season totals; "
                 "they are a real number about a different question than F3 asks, and "
@@ -1104,6 +1155,19 @@ def survival_gate(record) -> tuple:
     return (ok or F.passed_pre_outcome(why)), why
 
 
+def _saturated(grade) -> bool:
+    """A grade whose base rate leaves `beats_base_rate` no room to be anything.
+
+    The reference Brier is base*(1-base). At 0.0 and at 1.0 that is exactly zero, so
+    the comparison is decided before the policy is consulted. Both ends, not just 1.0.
+    """
+    return grade.get("base_rate") in (0.0, 1.0)
+
+
+def _rates(grades) -> str:
+    return ", ".join(sorted({str(g.get("base_rate")) for g in grades}))
+
+
 def _survival_verdict(out) -> str:
     if out["refused"]:
         return ("CONTRADICTION: %d league(s) the screen ADMITTED were REFUSED by the "
@@ -1121,12 +1185,43 @@ def _survival_verdict(out) -> str:
                 "that is all of them the replay is emitting at the wrong picks"
                 % (out["leagues_replayed"], out["observations"]))
     n = sum(g["n_scored"] for g in scored)
-    beat = sum(1 for g in scored if g.get("beats_base_rate"))
+    # A SATURATED BASE RATE MAKES `beats_base_rate` MEANINGLESS, and it is False.
+    # The reference is the Brier of always predicting the base rate, base*(1-base),
+    # which is ZERO when every forecast resolved the same way. Nothing can beat a
+    # perfect reference, so the field is arithmetically forced regardless of the
+    # policy — and "0 of N leagues beat their own base rate" then reads as a verdict
+    # on the model when it is a statement about the sample.
+    #
+    # Measured on a synthetic 2026-shaped league: base_rate 1.0, every forecast
+    # resolved TRUE, beats_base_rate False for a policy that was never tested.
+    #
+    # BOTH saturating values do it. base_rate 0.0 gives the same zero reference as
+    # 1.0; a league where NOTHING survived is exactly as untestable as one where
+    # everything did. And the error does not need the whole sample to be degenerate
+    # — one saturated league in a mixed sample is a guaranteed-False entry in a
+    # denominator that reads as "leagues where the policy was tested". It is not, so
+    # it is excluded from that count and named separately.
+    degenerate = [g for g in scored if _saturated(g)]
+    discriminating = [g for g in scored if not _saturated(g)]
+    if not discriminating:
+        return ("%d league(s) replayed and %d forecast(s) graded, but EVERY league's base "
+                "rate saturated (%s) — every survival forecast resolved the same way, so "
+                "the base-rate reference is 0 and `beats_base_rate` is forced False "
+                "whatever the policy did. This sample cannot discriminate; it is not a "
+                "verdict on the model. NO OUTCOME DATA WAS USED"
+                % (out["leagues_replayed"], n, _rates(degenerate)))
+    beat = sum(1 for g in discriminating if g.get("beats_base_rate"))
+    excluded = ""
+    if degenerate:
+        excluded = ("; a further %d league(s) are EXCLUDED from that count because their "
+                    "base rate saturated (%s), which forces `beats_base_rate` False "
+                    "whatever the policy did" % (len(degenerate), _rates(degenerate)))
     return ("%d league(s) replayed, %d forecast(s) emitted, %d resolved and graded; "
-            "%d of %d leagues beat their own base rate. NO OUTCOME DATA WAS USED — "
-            "survival resolves from the draft's own later picks, which is why this "
-            "number exists before the season is played"
-            % (out["leagues_replayed"], out["observations"], n, beat, len(scored)))
+            "%d of %d leagues that could discriminate beat their own base rate%s. "
+            "NO OUTCOME DATA WAS USED — survival resolves from the draft's own later "
+            "picks, which is why this number exists before the season is played"
+            % (out["leagues_replayed"], out["observations"], n, beat,
+               len(discriminating), excluded))
 
 
 def adp_readiness(series, year, verdicts) -> dict:

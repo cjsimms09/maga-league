@@ -4214,3 +4214,31 @@ touchdowns and field goals — components the board does not store.
 every Monday, precisely so it cannot go back to being an intention with no
 trigger. That is the only change made here: no wiring, no half-measure that
 reads a number the model cannot supply.
+## NOTE FOR A — `adp_source` lives at THREE levels and two of them are read (C, 2026-08-11)
+
+**Not a request and not a blocker.** Recorded because I nearly added a fourth, and a
+future consumer will hit this.
+
+The field name `adp_source` appears at three different levels in the repo:
+
+| level | written by | read by |
+|---|---|---|
+| **per player row** | `draft/adp.py:363` (`"ffc"`), `build_bundle.py:134` (`ffc`/`drafted`/`none`) | — |
+| **provenance envelope** | (board build) `provenance.adp.adp_source` | `keeper_optimize.py:78`, `exp_keeper_nabers.py:291` |
+| **snapshot envelope** | `within_pool_adp.board()` (`within_pool_v1`), `archived_adp.to_snapshot()` (`wayback_capture_v1`) | — |
+
+**The trap.** A consumer doing `row.get("adp_source")` on a snapshot's rows gets `None`,
+and `None` reads as *no source* rather than *this source is not the one you expected*. If
+archived or within-pool rows are ever merged into a board alongside `adp.py`'s rows, the
+merged list carries the label on some rows and not others — and the absent ones look like
+provenance nobody recorded.
+
+**What I did in my lane, which is all I did.** `to_snapshot` now writes `adp_source` on
+**each row** as well as on the envelope, so its rows match the shape a row consumer
+already expects. Values are distinct from yours (`wayback_capture_v1`,
+`within_pool_v1` vs `ffc`/`drafted`/`none`), so nothing collides on value — only on
+level. Each row also carries `adp_kind` (`parsed` vs `rank`), because a board can mix the
+market's actual average pick with mere row order and only the row can say which.
+
+**Nothing needs doing unless you want the levels reconciled.** If a consumer is ever
+written that reads `adp_source` generically, it should be told which level it is reading.

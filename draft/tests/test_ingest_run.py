@@ -351,10 +351,27 @@ def test_an_UNPLAYED_season_says_IN_THE_VERDICT_that_it_measured_nothing():
     the reader has no way to tell which one they are looking at."""
     ready = {"season": 2026, "state": "UNPLAYED", "why": "2026 served no weekly data "
              "while the control season 2025 served 18 REG weeks"}
-    v = R.readiness_verdict(ready, {"matched": 0})
-    assert v.startswith("THIS RUN MEASURED NOTHING ABOUT THE LEAGUES")
+    # The attrition table is what says WHICH leagues the calendar blocked, and this
+    # fixture now supplies one — every real run has it. Passing `{"matched": 0}`
+    # alone left the cause unevidenced, which is its own verdict now (below).
+    v = R.readiness_verdict(ready, {"matched": 0,
+                                    "rejected_by_reason": {"F4.no_weekly_outcomes": 40}})
+    assert "MEASURED NOTHING ABOUT THE LEAGUES FOR 40 OF THEM" in v, v
     assert "not a finding about the pool" in v
     assert "control season 2025" in v
+
+
+def test_an_unplayed_run_with_NO_ATTRITION_TABLE_claims_neither_cause():
+    """A third state, and it must not silently pick a branch. With no attrition table
+    there is no evidence that the calendar blocked anything OR that format did, and
+    asserting either is the exact failure this function was corrected for.
+
+    MUTATION: fall back to the calendar sentence. A run with no table reports a cause
+    it never measured."""
+    v = R.readiness_verdict({"season": 2026, "state": "UNPLAYED", "why": "not played"},
+                            {"matched": 0})
+    assert "NO ATTRITION TABLE" in v and "cannot be stated here" in v, v
+    assert "Do not read this zero as either one" in v, v
 
 
 def test_an_UNFETCHABLE_run_and_an_UNPLAYED_run_do_NOT_read_the_same():
@@ -1083,3 +1100,167 @@ def test_a_SERVING_archive_counts_how_many_leagues_it_can_actually_price():
     same_day = R.adp_readiness(
         [{"year": "2025", "observed_at": "2025-08-25", "rows": [1]}], 2025, v)
     assert same_day["state"] == "TOO_YOUNG" and same_day["servable"] == 0, same_day
+
+
+def test_A_SATURATED_BASE_RATE_IS_NOT_A_VERDICT_ON_THE_MODEL():
+    """MEASURED on a synthetic 2026-shaped league: base_rate 1.0, every survival
+    forecast resolved TRUE, `beats_base_rate` False. That is correct arithmetic — the
+    reference is base*(1-base), which is ZERO when everything resolved the same way,
+    and nothing beats a perfect reference — but it means the field is forced whatever
+    the policy did.
+
+    "0 of N leagues beat their own base rate" then reads as a verdict on the model
+    when it is a statement about the sample. MUTATION: report the count anyway. A
+    policy that was never tested is recorded as having failed."""
+    grades = [{"league_id": "L1", "n_scored": 40, "base_rate": 1.0,
+               "brier": 0.77, "beats_base_rate": False}]
+    v = R._survival_verdict({"leagues_matched": 1, "leagues_replayed": 1,
+                             "observations": 60, "refused": [], "errors": [],
+                             "grades": grades})
+    assert "saturated" in v and "cannot discriminate" in v
+    assert "not a verdict on the model" in v
+
+    # ...and a sample that CAN discriminate still reports the comparison.
+    ok = [{"league_id": "L1", "n_scored": 40, "base_rate": 0.6,
+           "brier": 0.2, "beats_base_rate": True}]
+    v2 = R._survival_verdict({"leagues_matched": 1, "leagues_replayed": 1,
+                              "observations": 60, "refused": [], "errors": [],
+                              "grades": ok})
+    assert "beat their own base rate" in v2 and "saturated" not in v2
+
+
+def test_a_base_rate_of_ZERO_saturates_exactly_as_HARD_as_one():
+    """base*(1-base) is zero at BOTH ends. A league where nothing survived is as
+    untestable as one where everything did.
+
+    MUTATION: treat only 1.0 as saturated. A league that resolved uniformly FALSE is
+    reported as a policy that failed to beat its base rate."""
+    grades = [{"league_id": "L1", "n_scored": 40, "base_rate": 0.0,
+               "brier": 0.31, "beats_base_rate": False}]
+    v = R._survival_verdict({"leagues_matched": 1, "leagues_replayed": 1,
+                             "observations": 60, "refused": [], "errors": [],
+                             "grades": grades})
+    assert "saturated" in v and "cannot discriminate" in v
+    assert "0.0" in v
+
+
+def test_ONE_saturated_league_in_a_MIXED_sample_leaves_the_denominator():
+    """The forcing error does not need the whole sample. In a mixed sample a
+    saturated league is a guaranteed-False entry in a denominator that reads as
+    "leagues where the policy was tested" — it wasn't.
+
+    MUTATION: count every scored league in the denominator. Two leagues, one of them
+    untestable, and the run reports "1 of 2" — an accuracy figure diluted by a league
+    that never had the chance to contribute to it."""
+    grades = [{"league_id": "SAT", "n_scored": 40, "base_rate": 1.0,
+               "brier": 0.77, "beats_base_rate": False},
+              {"league_id": "REAL", "n_scored": 30, "base_rate": 0.6,
+               "brier": 0.2, "beats_base_rate": True}]
+    v = R._survival_verdict({"leagues_matched": 2, "leagues_replayed": 2,
+                             "observations": 120, "refused": [], "errors": [],
+                             "grades": grades})
+    # NOT the whole-sample message — one league can still discriminate.
+    assert "cannot discriminate" not in v
+    # 1 of 1, not 1 of 2.
+    assert "1 of 1 leagues that could discriminate" in v
+    # ...and the excluded one is named rather than silently dropped.
+    assert "1 league(s) are EXCLUDED" in v and "1.0" in v
+    # The graded-forecast total still counts EVERY resolved forecast: 40 + 30.
+    assert "70 resolved and graded" in v
+
+
+def test_a_saturated_league_cannot_reach_the_NUMERATOR_either():
+    """The exclusion must not lean on an invariant another component maintains.
+
+    TODAY a saturated league can only report `beats_base_rate` False: the reference
+    Brier is 0, and "beats" is a strict `<`, which nothing satisfies. So summing the
+    numerator over ALL scored leagues happens to give the right answer. That is luck,
+    and it is A's luck, not mine — `survival_grade` owns that comparison, and a
+    tie-break loosened to `<=` would make a saturated league with a perfect Brier
+    report True. This function must not change its answer when that happens.
+
+    MUTATION: sum the numerator over every scored league. A league that was never
+    tested is counted as one the policy won."""
+    grades = [{"league_id": "SAT", "n_scored": 40, "base_rate": 1.0,
+               "brier": 0.0, "beats_base_rate": True},   # what `<=` would emit
+              {"league_id": "REAL", "n_scored": 30, "base_rate": 0.6,
+               "brier": 0.3, "beats_base_rate": False}]
+    v = R._survival_verdict({"leagues_matched": 2, "leagues_replayed": 2,
+                             "observations": 120, "refused": [], "errors": [],
+                             "grades": grades})
+    assert "0 of 1 leagues that could discriminate" in v
+    assert "1 league(s) are EXCLUDED" in v
+
+
+# ── THE CALENDAR VERDICT CONTRADICTED THE ATTRITION TABLE (run 13, 2026-08-12) ──
+def _rejected(reasons: dict) -> dict:
+    return {"matched": 0, "rejected_by_reason": dict(reasons)}
+
+
+_UNPLAYED = {"state": "UNPLAYED", "season": 2026,
+             "why": "2026 served no weekly data while 2025 served 18 REG weeks"}
+
+
+def test_an_unplayed_season_does_NOT_claim_the_calendar_when_nothing_reached_it():
+    """RUN 13, MEASURED: 293 leagues attempted against 2026. The attrition table
+    carried ZERO leagues under `F4.no_weekly_outcomes` — all 266 readable ones were
+    rejected by F1, on format, before the calendar was ever consulted. The verdict
+    nonetheless announced "Every league is F4.no_weekly_data" and that NO CONCLUSION
+    ABOUT FORMAT PREVALENCE MAY BE DRAWN.
+
+    Two components of one run disagreeing about the same leagues, and the wrong one
+    suppressed the finding the outcomes-last reorder exists to produce.
+
+    The sentence was true while `screen()` checked outcomes FIRST. The reorder made
+    it false and nothing re-read it — a consumer written against the behaviour its
+    author believed in, not the one the producer emits.
+
+    MUTATION: assert the calendar unconditionally on any UNPLAYED season. A run that
+    measured format across 266 leagues reports that it measured nothing."""
+    rep = _rejected({"F1.scoring_not_half_ppr": 163, "F1.teams": 57})
+    v = R.readiness_verdict(_UNPLAYED, rep)
+    assert "NOT ONE LEAGUE REACHED THE OUTCOME CHECK" in v, v
+    assert "IS a measurement" in v, v
+    assert "220 rejection(s) happened EARLIER" in v, v
+    # ...and it must NOT repeat the claim that was wrong.
+    assert "MEASURED NOTHING ABOUT THE LEAGUES" not in v, v
+    assert "no conclusion about format prevalence" not in v, v
+
+
+def test_but_when_leagues_DO_reach_the_calendar_it_still_says_so_and_counts_them():
+    """The guard this replaces is real and must survive: a league that cleared every
+    pre-season check and waits only on January produces a zero that is NOT a finding
+    about the pool. The fix is to COUNT those leagues from the attrition table rather
+    than assert them.
+
+    MUTATION: drop the calendar branch entirely. A genuinely unplayed-season zero
+    reads as a format verdict, which is D5h's original failure restored."""
+    rep = _rejected({"F4.no_weekly_outcomes": 30, "F1.teams": 5})
+    v = R.readiness_verdict(_UNPLAYED, rep)
+    assert "FOR 30 OF THEM" in v and "CALENDAR alone" in v, v
+    assert "OTHER 5 rejection(s)" in v, v
+
+
+def test_the_calendar_count_survives_a_reason_code_carrying_a_SUFFIX():
+    """Reason codes travel with detail attached — `F4.fetch_failed:http 429`. The
+    count must go through `reason_code`, not through equality on the raw key.
+
+    MUTATION: compare the raw key. Suffixed codes fall out of the count and a
+    calendar-blocked run reports that nothing reached the calendar.
+
+    NOT hypothetical: `outcomes_summary` already handles `F4.no_weekly_data:2025`, so
+    an outcome code carrying the season is a shape this codebase emits. The fixture
+    below suffixes the outcome code itself — an unsuffixed one would leave this test
+    passing under the mutation it names, which is how it was first written."""
+    rep = _rejected({"F4.no_weekly_outcomes:2026": 12,
+                     "F4.fetch_failed:draftResults: http 429 Too Many Requests": 10})
+    v = R.readiness_verdict(_UNPLAYED, rep)
+    assert "FOR 12 OF THEM" in v and "OTHER 10 rejection(s)" in v, v
+
+
+def test_a_PLAYED_season_verdict_is_untouched_by_any_of_this():
+    """If this fails, the correction changed the ordinary path — the one that reports
+    a real measurement — while fixing the exceptional one."""
+    v = R.readiness_verdict({"state": "COMPLETE", "season": 2025, "reg_weeks": 18},
+                            {"matched": 7, "rejected_by_reason": {"F1.teams": 3}})
+    assert v == "season 2025 COMPLETE (18 REG weeks); 7 matched league-seasons"

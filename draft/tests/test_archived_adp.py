@@ -685,3 +685,266 @@ def test_TWO_CAPTURES_ON_ONE_DAY_ARE_ONE_DAY_OF_COVERAGE():
     assert X.capture_days([]) == []
     # A row whose timestamp cannot be read is not a day of coverage.
     assert X.capture_days([{"timestamp": "2024"}, {"timestamp": None}]) == []
+
+
+# ── from an archived page to a snapshot the store can eat ──────────────────
+def _rowhtml(rank, name, adp=None, pos="WR"):
+    cells = "<td>%d</td><td class=p><a href=/x>%s</a></td><td>%s</td>" % (rank, name, pos)
+    if adp is not None:
+        cells += "<td>%.1f</td>" % adp
+    return "<tr>%s</tr>" % cells
+
+
+def test_RANK_IS_NOT_ADP_and_the_row_says_which_it_carries():
+    """Two quantities that look alike. Ranks are 1,2,3 by construction; ADP has gaps
+    and ties because it is the average pick the market ACTUALLY made. A replay that
+    reads one as the other prices every player at a pick nobody took him at.
+
+    MUTATION: fall back to rank silently. The board looks complete, every ADP is a
+    tidy integer, and a survival model trained on it learns a market that never
+    existed."""
+    p = X.parse_board(_rowhtml(1, "Christian McCaffrey", 1.3)
+                      + _rowhtml(2, "CeeDee Lamb", 2.4))
+    assert p["quantity"] == "adp" and p["with_parsed_adp"] == 2
+    assert [r["adp"] for r in p["rows"]] == [1.3, 2.4]
+    assert all(r["adp_source"] == "parsed" for r in p["rows"])
+
+    bare = X.parse_board("<tr><td><a>Bijan Robinson</a></td></tr>")
+    assert bare["rows"][0]["adp"] is None
+    assert bare["rows"][0]["adp_source"] == "rank"
+    assert bare["quantity"] == "rank_only"
+    assert "rank is NOT adp" in bare["note"]
+
+
+def test_the_ADP_COMES_FROM_THE_SAME_ROW_as_the_name():
+    """A page has plenty of decimals — bye weeks, projections, tier numbers — and the
+    nearest one is not the right one. MUTATION: search the whole document for the
+    next decimal after the name. Every player inherits the following row's ADP, the
+    board is off by one, and it still looks perfectly ordered."""
+    html = _rowhtml(1, "Christian McCaffrey", 1.3) + _rowhtml(2, "CeeDee Lamb", 2.4)
+    p = X.parse_board(html)
+    got = {r["name"]: r["adp"] for r in p["rows"]}
+    assert got["Christian McCaffrey"] == 1.3 and got["CeeDee Lamb"] == 2.4
+
+
+def test_the_SNAPSHOT_USES_THE_SHIPPED_MATCHER_and_reports_coverage():
+    """One matcher and one set of alias tables. A second name comparison written here
+    is how the crosswalk and the conflict checker came to disagree about the same
+    player (P6).
+
+    And coverage is REPORTED: a snapshot that matched a third of its names is a board
+    with two thirds of the market missing, and a replay against it prices the missing
+    players at nothing — which reads as a bargain rather than as a gap. MUTATION:
+    return the rows without the rate."""
+    index = {"by_name": {"christian mccaffrey": [{"id": "4034", "name": "Christian McCaffrey",
+                                                  "pos": "RB", "team": "SF", "rank": 1.0}]},
+             "by_initials": {}}
+    p = X.parse_board(_rowhtml(1, "Christian McCaffrey", 1.3)
+                      + _rowhtml(2, "Nobody Here", 2.4))
+    snap = X.to_snapshot(p, index, "2024-07-12")
+    assert snap["observed_at"] == "2024-07-12"
+    assert len(snap["rows"]) == 1
+    assert snap["rows"][0]["player_id"] == "4034" and snap["rows"][0]["adp"] == 1.3
+    assert snap["names_seen"] == 2 and snap["matched"] == 1 and snap["coverage"] == 0.5
+    assert snap["unmatched_sample"] == ["Nobody Here"]
+
+
+def test_an_ARCHIVED_SNAPSHOT_IS_LABELLED_so_it_cannot_pass_as_a_live_capture():
+    """Rule 1 labelling at the boundary: a table holding both kinds must be able to
+    tell them apart. MUTATION: drop the source tag and an archived board joins a live
+    series with nothing marking the difference."""
+    snap = X.to_snapshot({"rows": []}, {"by_name": {}, "by_initials": {}}, "2024-07-12")
+    assert snap["adp_source"] == X.ADP_SOURCE_ARCHIVE
+    assert snap["coverage"] == 0.0, "an empty board is 0 coverage, not a division error"
+
+
+def test_ADP_SOURCE_TRAVELS_ON_THE_ROW_not_only_beside_it():
+    """`draft/adp.py` and `build_bundle.py` both put `adp_source` on EACH PLAYER.
+    A consumer written against that shape, handed a snapshot that carries the label
+    only at the envelope level, gets None — and None reads as "no source" rather than
+    "an archived capture". Three levels already carry this field name across the repo
+    (per-player, snapshot, and provenance.adp.adp_source, which keeper_optimize
+    reads), so mine matches the one a row consumer expects.
+
+    MUTATION: label the envelope only. Archived rows merged into a board become
+    indistinguishable from rows with no provenance at all."""
+    index = {"by_name": {"christian mccaffrey": [{"id": "4034", "name": "Christian McCaffrey",
+                                                  "pos": "RB", "team": "SF", "rank": 1.0}]},
+             "by_initials": {}}
+    p = X.parse_board(_rowhtml(1, "Christian McCaffrey", 1.3))
+    snap = X.to_snapshot(p, index, "2024-07-12")
+    assert snap["adp_source"] == X.ADP_SOURCE_ARCHIVE
+    assert snap["rows"][0]["adp_source"] == X.ADP_SOURCE_ARCHIVE
+    # ...and WHICH QUANTITY the row is, since a board can mix parsed ADP and rank.
+    assert snap["rows"][0]["adp_kind"] == "parsed"
+    bare = X.to_snapshot(X.parse_board("<tr><td><a>Christian McCaffrey</a></td></tr>"),
+                         index, "2024-07-12")
+    assert bare["rows"][0]["adp_kind"] == "rank"
+
+
+# ── THE CSV PATH ABORTED THE WHOLE FILE ON ONE SHORT ROW (found 2026-08-11) ──
+def test_a_BLANK_LINE_does_not_erase_the_whole_board():
+    """MEASURED: a trailing blank line — which almost every CSV has, and which
+    `csv.reader` yields as `[]` — turned a clean three-player board into ZERO names.
+    A blank line in the middle did the same, discarding the rows collected before it.
+
+    The cause was two different facts sharing one branch. "This file has no name
+    column" is about the FILE and correctly returns nothing; "this ROW is too short
+    to reach the name column" is about one row. Both hit `else: return []`.
+
+    THIS IS THE SECOND TIME THE CSV PATH READ 0/0 ON A GOOD FILE, and the first time
+    it hid the only real Route 1 lead behind a column of zeroes that looked exactly
+    like an answer. MUTATION: abort the file on a short row. Every dated CSV in the
+    mirror enumeration reads zero and the lead closes on our own parser."""
+    good = ("Rank,Player,Team\n1,Ja'Marr Chase,CIN\n"
+            "2,Bijan Robinson,ATL\n3,Justin Jefferson,MIN\n")
+    assert X._csv_names(good) == ["Ja'Marr Chase", "Bijan Robinson", "Justin Jefferson"]
+    assert X._csv_names(good + "\n") == ["Ja'Marr Chase", "Bijan Robinson",
+                                         "Justin Jefferson"], "trailing blank line"
+    mid = "Rank,Player,Team\n1,Ja'Marr Chase,CIN\n\n2,Bijan Robinson,ATL\n"
+    assert X._csv_names(mid) == ["Ja'Marr Chase", "Bijan Robinson"], "blank line mid-file"
+    # ...and the same for the first/last-name shape, which reads two columns.
+    fl = "first,last,team\nJa'Marr,Chase,CIN\n\nBijan,Robinson,ATL\n"
+    assert X._csv_names(fl) == ["Ja'Marr Chase", "Bijan Robinson"]
+
+
+def test_but_a_file_with_NO_NAME_COLUMN_still_refuses():
+    """The file-level refusal is the half that must SURVIVE the fix. Guessing at
+    column 0 would put team abbreviations and rank numbers into a hand-check sample
+    whose only purpose is to be readable by a human.
+
+    MUTATION: skip the row instead of refusing the file, and a rank column becomes
+    a list of 'players' named 1, 2, 3 that the confidence gate then scores.
+
+    NOTE, honestly: the explicit header check is an EARLY-OUT and deleting it
+    survives this test — with no name column every row falls to `continue` and the
+    answer is [] either way. What this test pins is the OUTCOME, which is the thing
+    that matters and which the loop enforces. The early-out is not load-bearing and
+    the source says so rather than wearing an assertion it does not have."""
+    assert X._csv_names("rank,team,bye\n1,CIN,10\n2,ATL,5\n") == []
+    assert X._csv_names("<html><body>not delimited at all</body></html>") == []
+    assert X._csv_names("") == []
+    assert X._csv_names("Rank,Player,Team\n") == []      # header with no rows
+
+
+def test_a_TRUNCATED_read_drops_its_cut_final_row():
+    """`head` is a hard 200KB slice, so a larger file's last row is cut mid-line by
+    construction. Keeping it yields a half-name — 'Brian Tho' — which the
+    known-answer gate scores as a MISS against a player who is really there.
+
+    That is evidence against a good board manufactured by our own read buffer, which
+    is the exact failure the gate exists to prevent. MUTATION: keep the cut row."""
+    big = "Rank,Player,Team\n" + "".join("%d,Player %d,XXX\n" % (i, i)
+                                         for i in range(1, 30000))
+    assert len(big) > 200000
+    names = X._csv_names(big, limit=100000)
+    # every surviving name is WHOLE — no "Player 96" where "Player 9628" was meant
+    assert all(n == "Player %d" % (i + 1) for i, n in enumerate(names)), names[-3:]
+    # ...and a file we did NOT truncate keeps its last row.
+    small = "Rank,Player,Team\n1,Ja'Marr Chase,CIN\n2,Bijan Robinson,ATL\n"
+    assert X._csv_names(small)[-1] == "Bijan Robinson"
+
+
+# ── frozen_before: the CSV route's F5 guard, at its edges ───────────────────
+def test_a_BARE_ISO_DATE_is_readable_history():
+    """An ISO date is EXACTLY ten characters. The guard is `< 10`, and narrowing it
+    to `<= 10` rejects every plain `YYYY-MM-DD` commit date — every such file then
+    reads "no readable commit history" and no CSV is ever frozen.
+
+    MUTATION: `len(str(last)) <= 10`. The whole CSV route reports unfrozen and the
+    lead closes on a boundary."""
+    v = X.frozen_before({"last": "2019-08-19"}, "20240801")
+    assert v["frozen"] is True, v
+    assert v["last_commit"] == "2019-08-19"
+
+
+def test_a_SHORT_date_is_unreadable_and_therefore_NOT_frozen():
+    """Absent is not a pass, here as everywhere. A four-character `2024` is not a
+    commit date, and string-comparing '2024' against '20240801' says True — so a
+    file with no real history would be certified frozen before a cutoff it was never
+    checked against.
+
+    MUTATION: `if not last and len(str(last)) < 10`. `2024` slips past the guard,
+    reaches the prefix comparison, and comes back FROZEN."""
+    for bad in ("2024", "24-08-19", "x"):
+        v = X.frozen_before({"last": bad}, "20240801")
+        assert v["frozen"] is False, (bad, v)
+        assert "undated" in v["why"] or "unreadable" in v["why"], (bad, v)
+
+
+def test_an_UNREADABLE_date_is_NOT_frozen():
+    """Ten characters is not the same as ten DIGITS. MUTATION: return frozen True
+    for a date we could not parse — an unparseable stamp is treated as evidence
+    about what a file held before the drafts."""
+    v = X.frozen_before({"last": "not-a-date"}, "20240801")
+    assert v["frozen"] is False and "unreadable" in v["why"], v
+
+
+# ── A TRUNCATED WALK IS NOT A NEGATIVE (run 31547459102, 2026-08-12) ────────
+def _caps(n, start=20240731):
+    return [{"timestamp": "%d003217" % (start - i), "statuscode": "200",
+             "original": "https://www.fantasypros.com/nfl/adp/overall.php"}
+            for i in range(n)]
+
+
+def test_a_walk_that_ran_out_of_BUDGET_says_so_instead_of_reporting_no_board():
+    """MEASURED. The CDX query is day-collapsed, so the capture list is one row per
+    DAY and `tries=4` walked the newest FOUR DAYS before the cutoff. FantasyPros'
+    overall page was walked across 28-31 July, none served, and the target was booked
+    "NO BOARD AT THIS URL" — while the capture at 20240712092948, nineteen days
+    earlier at the SAME URL, passes the known-answer gate 15 of 15 with the real 2024
+    top fifteen IN ORDER. It was never fetched.
+
+    "The days I looked at were duds" and "this URL serves no board" are different
+    findings. MUTATION: report the truncated walk as a completed one. Route 1 closes
+    on its own walker's bound, which is the same defect `first_serving_capture` was
+    written to fix, one level up — it stopped the walk taking capture[0] and left it
+    taking [:4]."""
+    got = X.first_serving_capture(_caps(30), lambda u: b"<html>nav menu</html>",
+                                  tries=4, judge=lambda b: {"is_board": False})
+    assert got["state"] != "board"
+    assert got["captures_examined"] == 4 and got["captures_available"] == 30
+    assert got["budget_exhausted"] is True
+
+
+def test_a_walk_that_examined_EVERYTHING_is_a_real_negative():
+    """The other half, and it must stay usable: when the walk covered every available
+    capture, "no board" IS the finding. MUTATION: mark every walk exhausted, and a
+    genuine negative becomes permanently inconclusive — the route can then never be
+    closed by evidence, only abandoned."""
+    got = X.first_serving_capture(_caps(3), lambda u: b"<html>nav menu</html>",
+                                  tries=10, judge=lambda b: {"is_board": False})
+    assert got["captures_examined"] == 3 and got["captures_available"] == 3
+    assert got["budget_exhausted"] is False
+
+
+def test_an_INCONCLUSIVE_walk_never_falls_through_to_the_LIVE_page_verdict():
+    """FantasyPros renders client-side TODAY, so its live state is `not-a-board` —
+    which is the very reason the archive is the instrument for this question. The
+    fall-through booked a target with an unexamined, gate-passing capture as
+    "URL RETURNED NO BOARD", a claim about the publisher drawn from our own budget.
+
+    MUTATION: keep the live-keyed fall-through ahead of the budget check."""
+    row = X.classify("FP overall", X.ARCHIVE_DATED,
+                     {"state": "not-a-board", "rows": 0},
+                     {"state": "not-a-board", "captures": 30,
+                      "captures_examined": 4, "budget_exhausted": True})
+    assert row["verdict"].startswith("INCONCLUSIVE")
+    assert "4 of 30" in row["verdict"], row["verdict"]
+    assert "NO BOARD" not in row["verdict"]
+
+
+def test_but_a_COMPLETE_walk_with_a_dead_url_still_reports_the_url():
+    """The budget branch must not swallow the real negative it sits in front of."""
+    row = X.classify("dead", X.ARCHIVE_DATED, {"state": "absent"},
+                     {"state": "none", "captures": 0,
+                      "captures_examined": 0, "budget_exhausted": False})
+    assert "URL RETURNED NO BOARD" in row["verdict"]
+
+
+def test_a_board_found_within_budget_is_still_SATISFIES_F5():
+    """The happy path is unchanged by any of this."""
+    row = X.classify("hit", X.ARCHIVE_DATED, {"state": "not-a-board"},
+                     {"state": "board", "timestamp": "20240712092948", "rows": 15,
+                      "captures": 30, "captures_examined": 3, "budget_exhausted": True})
+    assert row["verdict"] == "SATISFIES F5"

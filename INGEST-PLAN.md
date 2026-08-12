@@ -1402,6 +1402,144 @@ the pool drawn from a limitation of ours.
 
 ---
 
+## THE COVERAGE PROBE MEASURED NOTHING ABOUT COVERAGE (run 31547459102, 2026-08-12)
+
+**`SATISFIES F5: 0`, and a COVERAGE section that printed its header with nothing under
+it. Neither is a finding about the archive.** Recorded here because a reader coming to
+this file later would otherwise find a run that looks like a closure, and Route 1's
+whole standing rests on the difference.
+
+**The chain, all three links ours.**
+
+The CDX query is day-collapsed (`collapse=timestamp:8`), so its rows are **days**, not
+captures. The hand-check asked for `DEFAULT_LIMIT=8` of them and walked `tries=4` — the
+newest **four days** before the cutoff. FantasyPros' overall page was walked across
+28–31 July, none served, and the target was booked `NO BOARD AT THIS URL`.
+
+The capture at **`20240712092948`** — same URL, nineteen days earlier, the one that
+passes the known-answer gate **15 of 15 with the real 2024 top fifteen in order** — was
+never fetched.
+
+`classify` then compounded it. FantasyPros renders client-side *today*, which is exactly
+why the archive is the instrument for this question, so its live state is `not-a-board`
+— and a target whose archive walk was truncated **fell through to a verdict keyed on the
+LIVE page.** "URL RETURNED NO BOARD" is a claim about a publisher drawn from our own
+budget.
+
+Then the coverage pass, which only runs on targets that satisfied F5, had no targets.
+**The run that existed to ask "how many distinct preseason days serve a board" asked it
+of nothing**, and its empty header read as an answer.
+
+**This is the same defect `first_serving_capture` was written to fix, one level up.**
+That fix stopped the walk taking `capture[0]`; it left it taking `[:4]`. "The days I
+looked at were duds" and "this URL serves no board" are different findings, and
+reporting the second from the first is how a route gets closed on its own walker — the
+exact symmetric error to reporting ROUTE 1 IS OPEN on shape-counting, which happened
+once already in this file and was withdrawn two entries above.
+
+**What changed, and nothing relaxes the gate.** `budget_exhausted` travels with every
+walk, true only when captures were left unexamined, with the counts examined and
+available beside it. A truncated walk classifies **INCONCLUSIVE** ahead of every
+live-keyed verdict and names its numbers. A walk that examined *everything* still
+reports a real negative — marking every walk inconclusive would mean the route could
+never be closed by evidence, only abandoned, and that mutation is tested. The hand-check
+now queries the window already registered here, `preseason_window()`, June 1 to
+August 31.
+
+**THE KNOWN-ANSWER GATE IS UNCHANGED AND REMAINS THE ONLY INSTRUMENT.** This lets it see
+the captures; it does not lower it.
+
+**What the same run DID establish, and it stands.** The mirror enumeration found **three
+frozen ADP boards** — `fantasypros/adp/{HALF_PPR,PPR,STANDARD}_ADP.csv`, 37–38 of 40
+names known, sample reading *Christian McCaffrey, Saquon Barkley, Ezekiel Elliott,
+Michael Thomas, Alvin Kamara, Derrick Henry…*, which is the real 2020 top eight in
+order — last written 2020-09-03, before the cutoff. Eleven frozen **ECR** files were
+binned separately, correctly: rankings are a different quantity and must never be summed
+with ADP. **Two caveats, not glossed:** these are 2020–2021 vintage, not the seasons we
+grade; and 2020-09-03 is late enough that whether it precedes a given draft needs
+checking per-draft rather than assuming.
+
+**Route 1 remains NEITHER OPEN NOR CLOSED on coverage.** One capture is proved; a series
+is not. The corrected probe is the thing that answers it.
+
+---
+
+## THE MUTATION BATTERY WAS READING STALE BYTECODE (found 2026-08-11)
+
+**This is a defect in how every measurement in this lane was verified, not in any one of
+them.** Recording it here because the verification method is what all the other entries in
+this file rest on, and because the failure is silent by construction.
+
+**The mechanism.** Every battery I have run shells out to `pytest` in a subprocess after
+rewriting the source file in place. CPython validates a cached `.pyc` against two things:
+the source's size in bytes, and its mtime **in whole seconds**. Two mutations that leave the
+file the same size, written within the same second, are indistinguishable to that check — so
+the second one runs the *first one's* bytecode.
+
+**Measured.** In the saturated-base-rate battery, M4 (`sum over discriminating` → `sum over
+scored`) and M5 (`len(discriminating)` → `len(scored)`) both shrink the file by exactly 9
+bytes and ran back to back. M5 was reported SURVIVED. Run alone with the cache cleared, it
+fails immediately:
+
+    assert '1 of 1 leagues that could discriminate' in v
+    E   assert ... in "...; 1 of 2 leagues that could discriminate beat th..."
+
+**Both directions are wrong, and one of them is dangerous.** A false SURVIVED costs an extra
+test I did not need. A false KILLED is the one that matters: it records a test as strong when
+it never ran against the mutation at all, and that is precisely the reading a battery exists
+to prevent. The pattern requires a same-size mutation in the same second as the previous one,
+so it is rare — but it is undetectable from the inside, and it always favours the comfortable
+answer.
+
+**The fix.** `PYTHONDONTWRITEBYTECODE=1` plus `-p no:cacheprovider` in the harness. No `.pyc`
+is written, so none can be read. The harness lives in the scratchpad, not the repo, and now
+carries the finding in its own docstring.
+
+**What it cost, once re-run properly.** The full sweep over `ingest_filters.py` — every
+comparison operator, boolean constant and `and`/`or`, one at a time, 82 mutations — found
+**25 survivors**, and the largest class was serious:
+
+> Ten separate `return False, "<reason>"` lines in `screen()` could each be flipped to
+> `return True` with the entire suite green.
+
+Every rejection assertion in `test_ingest_filters.py` reads `F.screen(...)[1]` — the reason
+string. Not one read `[0]`, and `[0]` is the half that decides admission: `screen_all` builds
+`matched` from it, and `ingest_run.run_screen` and `external_replay_run` both unpack it. A
+league would have been **admitted to `matched` while the attrition table counted it under its
+own rejection reason** — F7's numerator and denominator disagreeing about the same league,
+with nothing anywhere to notice. F7's answer is the most consequential number this lane has
+produced, and this is the hole it was measured through.
+
+**That is the recurring defect class again** — a consumer reading the field its author
+believed in rather than the one that decides — and this time it was in the tests rather than
+in the code they were guarding. The tests were the last thing still checking.
+
+The fix is one invariant rather than ten assertions, because `screen()` has a single accept
+path returning `(True, "ok")` and every other return is `(False, <reason>)`:
+
+    ok IFF why == "ok"
+
+asserted over eighteen rejection fixtures and the accepting one. All ten mutations die on it,
+and so does the reverse — a reason of `"ok"` returned with `False`.
+
+**Three boundary survivors, all on pre-registered numbers**, each surviving because no fixture
+sat *on* the bound: `PPR_RANGE`'s inclusive edges (0.4 and 0.6), `MAX_AUTOPICK_SHARE` at
+exactly half (the check is `>`, so exactly half is not a majority), and **F7's target at
+exactly 200** — `>=` narrowed to `>` would report INSUFFICIENT for a run that had met the bar.
+Pre-registered numbers are decided at their edges; the interior was all that was tested.
+
+**And the fixtures for those edges were themselves wrong twice before they were right**, which
+is the same lesson at one more remove. The exactly-half autopick fixture first used
+`autopick = i % 2 == 0` alongside `team = i % 10` — the two correlate, so the even teams got a
+share of 1.0 and the test passed while measuring something else. The one-past-half fixture then
+used `or i < 10`, which adds nothing, because round 0 was already autopicked. Neither error was
+visible from the assertion; both were visible from the arithmetic.
+
+**Nothing in this entry changes a filter, a threshold, or any league's verdict.** F7's answer
+stands as reported. What changed is that it is now measured through tests that would notice.
+
+---
+
 ## OPEN QUESTION FOR CORY — F6 MAY FORBID THE THING THIS INGEST WAS JUSTIFIED BY
 
 **Not a decision I am making, and not one I can make: F6 is rule 1c, constitution, not this
