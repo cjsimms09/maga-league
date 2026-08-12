@@ -57,3 +57,37 @@ def test_NO_pin_before_the_draft_returns_NOTHING_rather_than_the_nearest():
     Route 1, reproduced on our own archive."""
     doc = B.append(B.pin(RAW, "late", "2026-08-25"))
     assert B.pin_before(doc, "2026-08-22") is None
+
+
+def test_THE_RECOVERY_PATH_ACTUALLY_REPRODUCES_THE_PINNED_BYTES():
+    """THE ONLY PROPERTY THAT MATTERS, and the one I nearly shipped untested.
+
+    Every other test here checks that `pin()` PRODUCES a digest. None checked that
+    following the pin's own `recover_with` instruction REPRODUCES it. A pin whose
+    recovery path does not work is worthless in exactly the way that is invisible until
+    the year someone needs it — which is 2027, when nothing can be done about it.
+
+    So this runs `git show <sha>:<path>` for real, against the live repository, and
+    hashes what comes back.
+
+    MEASURED 2026-08-12: 1,410,454 bytes, digest 8f1f4549… both ways.
+
+    MUTATION: hash anything other than the exact bytes git returns — the parsed object,
+    a re-serialisation, the file on disk instead of the blob — and this passes locally
+    while the 2027 recovery silently fails to verify."""
+    import hashlib
+    import subprocess
+    root = Path(__file__).resolve().parent.parent.parent
+    path = "public/draft_data.json"
+    if not (root / path).exists():
+        return                                    # nothing to pin in this checkout
+    sha = subprocess.run(["git", "rev-parse", "HEAD"], cwd=root,
+                         capture_output=True, text=True).stdout.strip()
+    raw = (root / path).read_bytes()
+    pinned = B.pin(raw, sha, "2026-08-12", path=path)
+    rec = subprocess.run(["git", "show", "%s:%s" % (sha, path)], cwd=root,
+                         capture_output=True)
+    assert rec.returncode == 0, rec.stderr[:200]
+    assert hashlib.sha256(rec.stdout).hexdigest() == pinned["sha256"], (
+        "the pin's own recover_with does not reproduce the pinned bytes")
+    assert len(rec.stdout) == len(raw)

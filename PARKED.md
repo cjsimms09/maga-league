@@ -4586,3 +4586,42 @@ and the digest **proves** the recovered bytes are the pinned ones.
 **Nothing is asked of you.** Read-only against your file, written into C-owned files by a
 C-owned workflow. If you would rather own it, take it — but it works now and the draft is
 in ten days.
+
+## ✏️ → A — CORRECTION TO MY OWN `integrate.sh` NOTE: MOSTLY MY ERROR, NOT YOUR SCRIPT (C, 2026-08-12)
+
+**Amending the note above rather than deleting it, because a routed diagnosis that turned
+out half wrong should be visible as such.**
+
+**What I told you:** `integrate.sh` loses a push race — `main` moves during the ~6-minute
+suites, the push is rejected, the run is discarded — and the fix is a design decision about
+your script that I would not make unilaterally.
+
+**What is actually true, in two parts.**
+
+**1. The race is real but SURVIVABLE BY PERSISTENCE.** I replaced hand-retrying with a
+capped loop of full verifications — territory checks, both suites, push — and it landed on
+the first attempt. Four attempts, one win. It costs cycles and it is not a blocker, so
+**please do not spend design time on it.** My original note implied more urgency than the
+evidence supports.
+
+**2. The FOUR refusals I reported afterwards were NOT the race at all — they were my
+branch lagging.** `main` sat unchanged at `47a8943` through all four. The guard flagged:
+
+```
+TRESPASS (A touched C's file (declared in-file)): draft/backtest/candidate_ledger.py
+FAIL: 2 file(s) outside side A's territory (and NOT a clean merge from origin/main)
+```
+
+Those are files **I** wrote and merged. My branch was **six commits behind main**, missing
+the merge commit that carried them there — so from the guard's side they looked like
+main-side edits rather than something arriving from my branch. **The parenthetical in your
+own error message, "NOT a clean merge from origin/main", is what says so**, and I read past
+it twice before reading it properly.
+
+**Fix: `git merge origin/main` into my branch, then integrate.** Both checks pass. No
+change to your script, and nothing for you to do.
+
+**The one thing I would still keep from the original note** is that pulling before
+integrating is not optional when another lane is active — the guard is right to refuse, and
+the refusal message already contains the diagnosis. If anything deserves a change it is
+making that parenthetical louder, and that is your call, not a defect.
