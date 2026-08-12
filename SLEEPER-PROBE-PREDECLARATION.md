@@ -65,3 +65,45 @@ zero. Either is a plain answer and I will report it as one.
 - **No egress from this sandbox** — `api.sleeper.app` returns 000 here, the same proxy
   block as MFL. The probe is pure logic plus a CI workflow, as every probe in this lane is.
 - **BOUNDED.** Four questions, then stop. Rule 9.
+
+---
+
+## CORRECTION TO P5's REASONING, made BEFORE the probe runs
+
+**The prediction stands; the evidence I gave against it was wrong, and it was wrong in a
+way that is itself a finding.**
+
+I hedged P5 with: *"our own captured picks carry `round, pick_no, roster_id, player_id,
+is_keeper` and no timestamp, which is evidence against."*
+
+**That is a fact about OUR EXPORTER, not about Sleeper.** `draft/history_export.py:194`:
+
+```python
+"picks": [{
+    "round": p.get("round"), "pick_no": p.get("pick_no"),
+    "roster_id": p.get("roster_id"), "player_id": p.get("player_id"),
+    "is_keeper": p.get("is_keeper"),
+} for p in picks],
+```
+
+**Five fields, hand-listed.** Whatever else `/v1/draft/<id>/picks` returns — a pick time,
+`metadata`, `draft_slot` — is discarded at export. `sleeper_import.py:242` stores the raw
+list; `history_export.py` is where the narrowing happens.
+
+**So P5 has no evidence against it after all, and the probe reads the LIVE response rather
+than our archive** — which it already does, and which is the only reason this correction
+does not change the probe.
+
+### And it is a capture finding in its own right
+
+**We fetch full pick objects on every import and keep five fields.** Under the standing
+capture principle — free, already accessible, unrecoverable later — a per-pick timestamp
+is *exactly* what D7's construction needs, and past drafts cannot be re-exported with it
+if Sleeper ever stops serving them.
+
+**Not proposing a change to A's exporter ten days out.** Recording it so the question
+"does Sleeper give us per-pick times" is answered from Sleeper rather than from a file
+that was never going to contain them.
+
+**This is the ninth instance this week of a consumer's shape being mistaken for a
+producer's**, and the first where I caught myself doing it inside a pre-declaration.
