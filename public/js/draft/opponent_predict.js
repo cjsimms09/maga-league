@@ -180,6 +180,58 @@ function resolvePick(forecast, actualPlayerId) {
   };
 }
 
+/* ── THE HEADLINE, COMPUTED SO NOBODY HAS TO REMEMBER TO FILTER ────────────
+ *
+ * ⚠️ A DEFECT IN MY OWN SCORING, FOUND BY CHECKING THE MAPPING RATHER THAN
+ * ASSERTING IT. `profile_edge` scores −1 when the profile arm never ran and the
+ * baseline was right. That is correct as a PER-ROW fact — the arm produced
+ * nothing usable — and it is the right guard against a silent fallback grading
+ * as a tie.
+ *
+ * **But averaged into a headline it penalises the profile arm for rows where it
+ * did not exist**, which is a different claim from "the profile was wrong". The
+ * seat→uid mapping resolves from the live draft object, so the EARLIEST picks of
+ * the night can legitimately have no profile at all, and a naive mean over every
+ * row would report tendencies losing when they were never asked.
+ *
+ * So the paired comparison is computed over rows where BOTH ARMS RAN, and the
+ * excluded rows are reported as their own number rather than dropped quietly.
+ * Filtering is not left to whoever opens this in January.
+ */
+function summarize(resolutions) {
+  const rows = (resolutions || []).filter(Boolean);
+  const ran = rows.filter(r => r.profile_ran);
+  const n = ran.length;
+  const profileHits = ran.filter(r => r.profile_correct).length;
+  const adpHits = ran.filter(r => r.adp_correct).length;
+  return {
+    /* THE COMPARISON, on comparable rows only. */
+    n_compared: n,
+    profile_accuracy: n ? profileHits / n : null,
+    adp_accuracy: n ? adpHits / n : null,
+    /* THE FINDING: the profile's accuracy MINUS the baseline's, on the same
+     * picks. Never the profile's raw accuracy, which is what a naive read
+     * reports and what would make agreement look like skill. */
+    profile_minus_adp: n ? (profileHits - adpHits) / n : null,
+    agreed: ran.filter(r => r.arms_agreed).length,
+    /* EXCLUDED, AND WHY — never silently dropped. */
+    n_excluded_no_profile: rows.length - n,
+    excluded_because: 'the profile arm never ran for these picks — the seat→uid '
+      + 'mapping resolves from the live draft object, so early picks can have no '
+      + 'profile. Scoring them would measure the mapping, not the tendencies.',
+    /* THE INDEPENDENT UNIT, carried so an interval is never computed on picks. */
+    cluster_is: 'draft',
+    do_not: 'compute a confidence interval treating these picks as independent. '
+      + 'They share a board, a keeper slate and a run structure; the unit is the '
+      + 'DRAFT. One draft supports a difference, not an interval on it.',
+    /* THE ASYMMETRY, DECLARED BEFORE ANY RESULT. */
+    reading_rule: 'A WIN for the profile arm is evidence that tendencies persist. '
+      + 'A TIE IS NOT EVIDENCE THAT THEY DO NOT — it is equally consistent with '
+      + 'tendencies persisting and our profiles failing to capture them. Only a '
+      + 'win resolves cleanly.',
+  };
+}
+
 /* A whole round, with the budget enforced rather than trusted. */
 function predictRound(opts) {
   const o = opts || {};
@@ -208,7 +260,7 @@ function predictRound(opts) {
 }
 
 const api = { BUDGET_MS, adpPrediction, profilePrediction, predictPick,
-  resolvePick, predictRound, key };
+  resolvePick, predictRound, summarize, key };
 global.OpponentPredict = api;
 if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);

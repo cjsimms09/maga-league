@@ -138,6 +138,41 @@ const WR_OWNER = { draft_patterns: { by_round_bucket: { mid: { mix: { WR: 0.9, R
     typeof OP.BUDGET_MS === 'number' && OP.BUDGET_MS > 0);
 }
 
+// ── THE HEADLINE MUST NOT PENALISE AN ARM THAT NEVER RAN ────────────────────
+/* Found by checking the seat->uid mapping rather than asserting it: the mapping
+ * resolves from the LIVE draft object, so the earliest picks of the night can
+ * legitimately have no profile. profile_edge scores those -1, which is right per
+ * row and WRONG in a mean -- it would report tendencies losing when they were
+ * never asked. */
+{
+  const withProfile = { profile_ran: true, profile_correct: true, adp_correct: false, arms_agreed: false };
+  const baselineWon = { profile_ran: true, profile_correct: false, adp_correct: true, arms_agreed: false };
+  const neverRan   = { profile_ran: false, profile_correct: false, adp_correct: true, arms_agreed: false };
+
+  const s = OP.summarize([withProfile, baselineWon, neverRan, neverRan]);
+  check('the comparison uses ONLY rows where both arms ran', s.n_compared === 2);
+  check('  and the excluded rows are counted, never dropped quietly',
+    s.n_excluded_no_profile === 2 && /never ran/.test(s.excluded_because));
+  check('a profile that never ran does NOT drag the headline down',
+    s.profile_minus_adp === 0);
+  check('  (a naive mean over all four rows would have reported -0.5)',
+    ((1 - 0) + (0 - 1) + (0 - 1) + (0 - 1)) / 4 === -0.5);
+
+  check('the finding is profile MINUS baseline, not the profile\'s raw accuracy',
+    s.profile_accuracy === 0.5 && s.adp_accuracy === 0.5 && s.profile_minus_adp === 0);
+
+  const win = OP.summarize([withProfile, withProfile]);
+  check('a genuine win shows as a positive difference', win.profile_minus_adp === 1);
+
+  check('the summary carries the clustering unit and refuses a per-pick interval',
+    win.cluster_is === 'draft' && /the unit is the\s+DRAFT/.test(win.do_not));
+  check('AND the asymmetry is declared: a tie is not evidence tendencies fail',
+    /A TIE IS NOT EVIDENCE THAT THEY DO NOT/.test(win.reading_rule));
+
+  check('an empty set yields nulls rather than a fabricated 0-0 tie',
+    OP.summarize([]).profile_minus_adp === null);
+}
+
 // ── IS IT ACTUALLY WIRED? ───────────────────────────────────────────────────
 /* THE CHECK WHOSE ABSENCE LET score_gap SIT UNWIRED FOR TEN DAYS. A payload
  * builder nobody calls is the produced-and-unread failure, and this project has
