@@ -102,3 +102,48 @@ def test_the_declared_field_list_cannot_drift_from_the_row():
     doc = CA.append({"season": 2026, "observed_at": "2026-08-12"},
                     path="/nonexistent/census.json")
     assert list(doc["series"][0]) == CA.CENSUS_FIELDS
+
+
+# ── THE SHAPE THE REAL INGEST REPORT HAS, taken from the run that exposed this ──
+# Deliberately NOT the convenient fixture above: `REP` supplies season/observed_at at
+# the top level and the actual report does not, which is why seven green tests sat
+# beside a broken archive. A fixture that asserts the author's belief about a producer
+# tests the author.
+REAL_SHAPED = {
+    "format_census": {"readable_leagues": 114, "teams": {"12": 51}},
+    "crosswalk": {"pooled_rate": 0.8493},
+    "rejected_by_reason": {"F1.scoring_not_half_ppr": 58},
+    "pool": {"examined": 150, "fetch_failures": 0},
+    # no top-level season, observed_at or examined — this is the point
+}
+
+
+def test_a_report_with_NO_KEY_raises_instead_of_writing_an_unkeyable_row():
+    """The CI defect, reproduced. Null season+observed_at makes the dedup key
+    ("None","None"), so the NEXT run deletes this row on its way in — a time series
+    permanently capped at one observation that looks exactly like a working archive."""
+    with pytest.raises(ValueError) as e:
+        CA.append(REAL_SHAPED, path="/nonexistent/census.json")
+    assert "season" in str(e.value) and "observed_at" in str(e.value)
+
+
+def test_the_caller_supplies_the_key_and_it_lands_in_the_row():
+    doc = CA.append(REAL_SHAPED, path="/nonexistent/census.json",
+                    observed_at="2026-08-12", season=2025)
+    row = doc["series"][0]
+    assert (row["season"], row["observed_at"]) == (2025, "2026-08-12")
+    assert doc["population"]["empty"] == [] or "season" not in doc["population"]["empty"]
+
+
+def test_examined_is_read_from_where_the_report_ACTUALLY_keeps_it():
+    """`examined` lives under `pool`, not at the top level. Checked against a real
+    report rather than assumed a second time."""
+    doc = CA.append(REAL_SHAPED, path="/nonexistent/census.json",
+                    observed_at="2026-08-12", season=2025)
+    assert doc["series"][0]["examined"] == 150
+
+
+def test_an_explicit_examined_beats_the_report():
+    doc = CA.append(REAL_SHAPED, path="/nonexistent/census.json",
+                    observed_at="2026-08-12", season=2025, examined=7)
+    assert doc["series"][0]["examined"] == 7

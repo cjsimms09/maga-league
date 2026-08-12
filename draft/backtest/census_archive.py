@@ -59,12 +59,28 @@ CENSUS_FIELDS = [
 ]
 
 
-def append(report: dict, path: str = SERIES, observed_at: str = None) -> dict:
+def append(report: dict, path: str = SERIES, observed_at: str = None,
+           season=None, examined=None) -> dict:
     """Append this run's census to the series, deduped by (season, observed_at).
 
     DEDUPED RATHER THAN OVERWRITTEN: two runs on one day against the same season
     describe the same pool, and keeping both would let a re-run silently double the
     weight of whichever day someone happened to re-run.
+
+    THE KEY IS NOW EXPLICIT, AND A KEYLESS ROW IS REFUSED. First real CI run,
+    2026-08-12: `observed_at`, `season` and `examined` all came back null, because
+    this function read them off the top level of the ingest report and the report
+    does not put them there. **The consumer trusted field names the producer never
+    emits** — the same defect this lane has now hit eleven times, committed inside the
+    module whose docstring is about capture.
+
+    It was not a cosmetic null. The dedup key became `("None", "None")`, so **every
+    subsequent run would have replaced the single row instead of appending one** — a
+    time series permanently capped at one observation, failing silently and looking
+    exactly like a working archive.
+
+    So the caller passes the key, and a row that cannot be keyed RAISES rather than
+    landing. A crash costs one run; a silent overwrite costs every run before it.
     """
     p = Path(path)
     doc = {"_note": ("One row per ingest run. CAPTURE, not modelling: F7's negative "
@@ -82,10 +98,14 @@ def append(report: dict, path: str = SERIES, observed_at: str = None) -> dict:
             raise
     doc.setdefault("series", [])
     census = (report or {}).get("format_census") or {}
+    # Explicit argument first, then the report, then the places the report ACTUALLY
+    # keeps them — checked against a real ingest-report rather than assumed.
+    pool = (report or {}).get("pool") or {}
     row = {
         "observed_at": observed_at or (report or {}).get("observed_at"),
-        "season": (report or {}).get("season"),
-        "examined": (report or {}).get("examined"),
+        "season": season if season is not None else (report or {}).get("season"),
+        "examined": (examined if examined is not None
+                     else (report or {}).get("examined") or pool.get("examined")),
         "readable_leagues": census.get("readable_leagues"),
         "matched": (report or {}).get("matched"),
         "teams": census.get("teams"),
@@ -97,6 +117,14 @@ def append(report: dict, path: str = SERIES, observed_at: str = None) -> dict:
         "rejected_by_reason": (report or {}).get("rejected_by_reason"),
         "crosswalk_pooled_rate": ((report or {}).get("crosswalk") or {}).get("pooled_rate"),
     }
+    # A ROW THAT CANNOT BE KEYED MUST NOT LAND. With both halves null the key is
+    # ("None","None") and the next append deletes this row on its way in.
+    if row["season"] is None or row["observed_at"] is None:
+        raise ValueError(
+            "census_archive: refusing to write a row with no key — season=%r "
+            "observed_at=%r. Both are required: they are the dedup key, and a "
+            "keyless row silently REPLACES the previous one instead of appending."
+            % (row["season"], row["observed_at"]))
     key = (str(row["season"]), str(row["observed_at"]))
     doc["series"] = [r for r in doc["series"]
                      if (str(r.get("season")), str(r.get("observed_at"))) != key]

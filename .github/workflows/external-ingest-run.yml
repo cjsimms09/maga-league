@@ -87,6 +87,7 @@ jobs:
           DEADLINE_S: ${{ github.event.inputs.deadline_s || '2100' }}
         run: |
           python3 - <<'PY'
+          import datetime as _dt
           import json, os, sys, urllib.parse, urllib.request
           sys.path.insert(0, "draft"); sys.path.insert(0, "draft/backtest")
           import external_discovery as D
@@ -183,7 +184,15 @@ jobs:
           # pool's composition is worth a row a year.
           import census_archive as CA
           import field_population as FP
-          _doc = CA.append(rep)
+          # THE KEY IS PASSED, NOT FISHED OUT OF THE REPORT. The first CI run wrote a
+          # row with season/observed_at/examined all null, because this module read
+          # them off the top level of a report that keeps them elsewhere. The dedup
+          # key became ("None","None") and the next run would have REPLACED the row
+          # rather than appending — a series capped at one observation, silently.
+          # `append()` now refuses a keyless row, so this call is what keeps it green.
+          _doc = CA.append(rep, observed_at=_dt.datetime.now(_dt.timezone.utc)
+                                             .date().isoformat(),
+                           season=YEAR, examined=(pool_rep or {}).get("examined"))
           json.dump(_doc, open(CA.SERIES, "w"), indent=1)
           print("census row appended -> %s" % CA.SERIES)
           # POPULATION, PRINTED AT WRITE TIME (Cory, 2026-08-12). The archive already

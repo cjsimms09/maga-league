@@ -2363,3 +2363,59 @@ scheduled run is well-formed, not merely scheduled.**
 easy half.* The question that catches these is not "does it compute the right number" —
 each did — but **"who reads it, and what makes them read it?"** A number with no reader is
 the same defect as a field with no value, one level up.
+
+---
+
+## THE VALIDATION RUN FOUND TWO THINGS, AND THAT IS WHY IT WAS RUN (2026-08-12)
+
+**I had changed a workflow and shipped three code paths into it that had never executed
+in CI, with the next scheduled fire twenty days out.** Run 31575310090, normal parameters
+so the census row it wrote would be a real observation rather than a smoke test.
+
+### 1. The census archive had NEVER SAVED A ROW, and the first one was unkeyable
+
+    [main fbcc009] C: format census row [skip deploy]
+     create mode 100644 draft/data/format_census_series.json
+
+**`create mode`.** The file did not exist. The archive whose docstring argues from
+unrecoverability had, up to this morning, saved nothing at all — and the first row it ever
+wrote came out like this:
+
+    population: 1 rows | 10/13 fields full | EMPTY: examined, observed_at, season
+
+**`census_archive.append()` read `season`, `observed_at` and `examined` off the top level
+of the ingest report. The report does not put them there.** A consumer trusting field
+names the producer never emits — **the eleventh instance in this program, committed inside
+the module whose docstring is about capture.**
+
+**And it was not cosmetic.** The dedup key is `(season, observed_at)`, which became
+`("None","None")`, so **the next run would have REPLACED the row rather than appending
+one.** A time series permanently capped at one observation, failing silently and looking
+exactly like a working archive.
+
+**Seven green tests sat beside it.** Their fixture supplied `season` and `observed_at` at
+the top level, so they asserted my belief about the producer rather than the producer's
+output. `REAL_SHAPED` now exists in the test file, taken from the run that exposed this,
+and a keyless row **raises** — a crash costs one run, a silent overwrite costs every run
+before it.
+
+### 2. The crosswalk composition answered its question on its first firing
+
+    MISSED by pos    {"LB":181,"DE":134,"S":114,"TMQB":112,"TMPK":82,"WR":67,"DT":32,"ST":24}
+    MATCHED by pos   {"RB":2239,"WR":2216,"TE":839,"QB":751,"Def":363,"PK":242}
+    missed by reason {"team_unit_not_a_player": 218}
+
+**YES, the misses are systematically different — and the structure is benign.** They are
+overwhelmingly **IDP positions (LB, DE, S, DT) and team units (TMQB, TMPK, ST)** — things
+our board does not carry by design. **`WR` at 67 is the only skill-position miss in the top
+eight.**
+
+**This changes how `pooled_rate = 0.8493` should be read.** The crosswalk is not failing on
+players we would draft; it is failing on defensive players and team units in IDP leagues,
+and **`leagues_clearing_F2_bar = 50/70` is measuring IDP prevalence as much as it is
+measuring our matcher.** The rate alone could never have shown that — *a rate is one number
+and this is a shape*, which is the argument the composition was built on, now demonstrated
+rather than asserted.
+
+**No filter is being relaxed on the strength of it.** F2's 0.90 bar stands as registered.
+What changed is that the number beside it is now interpretable.
