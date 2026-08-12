@@ -314,6 +314,7 @@ function simulate(seed, armName, roomName, seat) {
   const mine = new Set(picks.slice(KR));
   const opp = {}; for (let s = 1; s <= TEAMS; s++) opp[s] = [];
   const order = [];
+  let moved = 0, beforePts = startingStrength(roster).points;
 
   for (let o = 1; o <= TEAMS * ROUNDS; o++) {
     const board = pool.filter(p => !gone.has(String(p.player_id)));
@@ -351,11 +352,27 @@ function simulate(seed, armName, roomName, seat) {
       break;
     }
     if (!p) { ARM_EMPTY[armName] = (ARM_EMPTY[armName] || 0) + 1; break; }
+    /* ⚠️ HOW MANY OF MY PICKS THE OBJECTIVE CAN EVEN SEE.
+     *
+     * The metric is STARTING-lineup points and the bench is worth zero, so once
+     * every starting slot is filled EVERY remaining pick scores exactly the
+     * same: nothing. Those picks are not "close" under this objective, they are
+     * INVISIBLE to it, and each arm then falls through to its own tie-break.
+     * greedy_end_state's tie-break is highest raw projection, which is why its
+     * modal shape ends in a wall of quarterbacks — a roster no human would build
+     * and that this metric cannot distinguish from a good one.
+     *
+     * Counting it makes the harness state its own blind spot on every run,
+     * instead of me discovering it by reading a modal pick shape. */
+    const after = startingStrength(roster.concat([p])).points;
+    if (after > beforePts + 1e-9) moved++;
+    beforePts = after;
     order.push(p.position);
     gone.add(String(p.player_id)); roster.push(p); opp[mySeat].push(p);
   }
   const s = startingStrength(roster);
-  return { points: s.points, holes: s.holes, order: order.join('') };
+  return { points: s.points, holes: s.holes, order: order.join(''),
+    moved: moved, picks: order.length };
 }
 
 // ─────────────────────────────────────────────────────────────── report
@@ -378,12 +395,15 @@ function runSet(roomName, seat, label) {
   const res = {}; armNames.forEach(a => { res[a] = []; });
   const holes = {}; armNames.forEach(a => { holes[a] = 0; });
   const shapes = {}; armNames.forEach(a => { shapes[a] = {}; });
+  const moved = {}; armNames.forEach(a => { moved[a] = []; });
+  const picksN = {}; armNames.forEach(a => { picksN[a] = []; });
   for (let i = 0; i < rooms; i++) {
     const seed = 60000 + i * 104729;                 // SAME SEED across arms
     armNames.forEach(a => {
       const r = simulate(seed, a, roomName, seat);
       res[a].push(r.points);
       if (r.holes) holes[a]++;
+      moved[a].push(r.moved); picksN[a].push(r.picks);
       shapes[a][r.order] = (shapes[a][r.order] || 0) + 1;
     });
   }
@@ -411,6 +431,15 @@ function runSet(roomName, seat, label) {
    * and the omission mattered: the shape is the only thing in this harness that
    * says WHY an arm won. A mean says an arm is better; the modal position order
    * says what it did differently. */
+  /* THE HARNESS'S OWN BLIND SPOT, printed before the shapes that reveal it. */
+  const mm = a => moved[a].reduce((s, x) => s + x, 0) / Math.max(1, moved[a].length);
+  const pp = a => picksN[a].reduce((s, x) => s + x, 0) / Math.max(1, picksN[a].length);
+  console.log('   picks the OBJECTIVE CAN SEE (moved the starting lineup) / picks made:');
+  armNames.forEach(a => {
+    console.log(`     ${a.padEnd(18)} ${mm(a).toFixed(1)} of ${pp(a).toFixed(1)}`
+      + `   — ${(100 * (1 - mm(a) / Math.max(1e-9, pp(a)))).toFixed(0)}% of this arm's picks scored ZERO either way`);
+  });
+
   console.log('   modal 12-pick shape (position order, most common of ' + rooms + '):');
   armNames.forEach(a => {
     const top = Object.keys(shapes[a]).sort((x, y) => shapes[a][y] - shapes[a][x])[0];
