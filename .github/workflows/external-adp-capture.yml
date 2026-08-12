@@ -114,9 +114,20 @@ jobs:
           today = datetime.datetime.now(datetime.timezone.utc).date()
           resumed = C.missed_yesterday(C.load(),
                                        "${{ github.event.inputs.year || '2026' }}", today)
+          # `stale_days`, NOT `missing`. A rehearsal against a dead MFL had this
+          # alarm print "0 uncaptured day(s)" while firing correctly: `missing`
+          # counts INTERIOR gaps, and a capture that has stopped has none yet.
+          # The two answer different questions and this one quotes how far behind
+          # the archive is, which is what a resume is about.
+          stale = C.days_since_last(C.load(), "${{ github.event.inputs.year || '2026' }}", today)
           with open(os.environ["GITHUB_OUTPUT"], "a") as fh:
               fh.write("resumed=%s\n" % ("1" if resumed else "0"))
               fh.write("missing=%s\n" % (cov["missing"] if cov["missing"] is not None else "?"))
+              fh.write("stale_days=%s\n" % ("?" if stale is None else stale))
+              # THE SENTENCE IS BUILT IN THE MODULE, where both numbers are and
+              # where it is tested. Exactly one of them is zero in each case, so
+              # a fixed template always printed a stray nought.
+              fh.write("alarm=%s\n" % C.resume_alarm(cov["missing"], stale))
           PY
             else
               echo "NO ARCHIVE FILE — nothing has been captured yet. This is a statement"
@@ -200,8 +211,8 @@ jobs:
       - name: Escalate if this run resumed from a gap
         if: always() && steps.cov.outputs.resumed == '1'
         run: |
-          echo "::error::D3 capture MISSED AT LEAST YESTERDAY — the archive now has"
-          echo "::error::${{ steps.cov.outputs.missing }} uncaptured day(s). The 2026 ADP curve is"
+          echo "::error::${{ steps.cov.outputs.alarm }}."
+          echo "::error::The 2026 ADP curve is"
           echo "::error::observable only while it is happening: no provider serves a board"
           echo "::error::as of a past date, so these days cannot be refetched by any means."
           echo "::error::Fix the schedule before more days go. See the step summary for dates."

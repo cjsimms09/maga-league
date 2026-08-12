@@ -243,6 +243,57 @@ def missed_yesterday(series: list, year, today: _date) -> bool:
     return min(days) < yday and yday not in days
 
 
+def days_since_last(series: list, year, today: _date):
+    """How far behind the archive's newest row is. None when nothing is captured.
+
+    THE NUMBER THE RESUME ALARM SHOULD QUOTE, and it is not `coverage()['missing']`.
+    Found by rehearsing the workflow end to end against a dead MFL: the alarm
+    printed **"0 uncaptured day(s)"** while correctly firing, because `missing`
+    counts INTERIOR gaps and a capture that has stopped has none yet — the hole
+    only becomes interior once a later row lands on the far side of it.
+
+    So the two numbers answer different questions and the alarm was quoting the
+    wrong one: `missing` is "days lost inside the span I hold", this is "how far
+    behind I am right now". A message about an unrecoverable loss that reports
+    zero is worse than no message; it reads as a bug and gets ignored.
+    """
+    days = {s.get("observed_at") for s in _series_of(series)
+            if str(s.get("year")) == str(year)}
+    days.discard(None)
+    if not days:
+        return None
+    try:
+        return (today - _date.fromisoformat(max(days))).days
+    except (TypeError, ValueError):
+        return None
+
+
+def resume_alarm(missing, stale_days) -> str:
+    """The one sentence the escalation prints. Built here because it is CONDITIONAL.
+
+    The two numbers describe different halves of the same outage and exactly one
+    of them is zero in each case, so a fixed template always prints a nought:
+
+        capture succeeded and resumed   stale_days 0, missing 6
+        capture is dead, never resumed  stale_days 7, missing 0
+
+    Both templates were accurate and both read as broken. An alarm for an
+    unrecoverable loss that contains a stray zero gets skimmed, and a skimmed
+    alarm is a missed one — so it says only what is true and non-zero.
+    """
+    parts = []
+    if stale_days not in (None, "?", 0):
+        parts.append("its newest row is %s day(s) old" % stale_days)
+    if missing not in (None, "?", 0):
+        parts.append("%s day(s) are already lost inside the span it holds" % missing)
+    if not parts:
+        # Neither number is positive, yet `missed_yesterday` fired. Say exactly
+        # that rather than inventing a figure — the run still deserves to be red.
+        return ("D3 capture MISSED AT LEAST YESTERDAY (the archive cannot say how "
+                "many days — treat its span as unknown)")
+    return "D3 capture MISSED AT LEAST YESTERDAY — " + ", and ".join(parts)
+
+
 def load(path=None) -> list:
     p = Path(path or SERIES)
     if not p.exists():

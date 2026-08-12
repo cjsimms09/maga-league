@@ -579,3 +579,79 @@ def test_the_shipped_default_is_the_budget_the_constant_declares():
     except urllib.error.HTTPError:
         pass
     assert n["i"] == C.RETRY_ATTEMPTS
+
+
+# ── how far behind, which is NOT the interior-gap count ─────────────────────
+#
+# Found by rehearsing the workflow end to end against a dead MFL: the resume
+# alarm printed "0 uncaptured day(s)" while firing correctly. `missing` counts
+# gaps INSIDE the span held, and a capture that has stopped has none yet — the
+# hole only becomes interior once a later row lands on the far side of it.
+
+def test_days_since_last_reports_how_far_behind_the_archive_is():
+    """MUTATION: quote `coverage()['missing']` in the alarm, as shipped. On the
+    run that matters most — the capture is dead and has not resumed — that number
+    is 0, and an alarm about an unrecoverable loss that reports zero reads as a
+    bug and gets ignored."""
+    s = _days(["2026-08-05"])
+    assert C.coverage(s, 2026)["missing"] == 0          # the wrong number...
+    assert C.days_since_last(s, 2026, _D(2026, 8, 12)) == 7   # ...and the right one
+
+
+def test_the_two_numbers_are_DIFFERENT_questions_and_both_are_reported():
+    """A resumed capture has both: days lost inside the span, and how far behind
+    the newest row is. MUTATION: report only one — either alone understates."""
+    s = _days(["2026-08-05", "2026-08-09"])
+    assert C.coverage(s, 2026)["missing"] == 3                 # 08-06..08-08
+    assert C.days_since_last(s, 2026, _D(2026, 8, 12)) == 3    # 08-09 -> 08-12
+
+
+def test_a_capture_that_ran_today_is_ZERO_days_behind():
+    """The negative control. MUTATION: off-by-one — a healthy daily capture would
+    report 1 day stale every morning."""
+    s = _days(["2026-08-11", "2026-08-12"])
+    assert C.days_since_last(s, 2026, _D(2026, 8, 12)) == 0
+
+
+def test_an_EMPTY_archive_reports_None_rather_than_zero_days_behind():
+    """MUTATION: return 0. 'Nothing captured' would render as 'perfectly current',
+    which is absent-as-zero in the instrument built to end absent-as-zero."""
+    assert C.days_since_last([], 2026, _D(2026, 8, 12)) is None
+
+
+def test_an_unparseable_date_reports_None_rather_than_a_wrong_number():
+    s = _days(["2026-08-11"]); s[0]["observed_at"] = "not-a-date"
+    assert C.days_since_last(s, 2026, _D(2026, 8, 12)) is None
+
+
+def test_days_since_last_is_scoped_to_the_SEASON():
+    """MUTATION: ignore `year`. A 2025 row dated today would make a dead 2026
+    capture look current."""
+    s = C.append_snapshot([], 2025, "2026-08-12", rows(3))
+    s = C.append_snapshot(s, 2026, "2026-08-05", rows(3))
+    assert C.days_since_last(s, 2026, _D(2026, 8, 12)) == 7
+
+
+def test_the_alarm_names_only_the_number_that_is_NON_ZERO():
+    """MUTATION: a fixed two-clause template, as first shipped. Exactly one of the
+    numbers is zero in each real case, so it always printed a stray nought — and
+    an alarm for an unrecoverable loss containing a 0 gets skimmed."""
+    # capture succeeded and resumed: 0 days behind, 6 lost inside the span
+    m = C.resume_alarm(6, 0)
+    assert "6 day(s) are already lost" in m and "0 day" not in m
+    # capture is dead and never resumed: 7 days behind, no interior gap yet
+    m = C.resume_alarm(0, 7)
+    assert "7 day(s) old" in m and "0 day" not in m
+
+
+def test_the_alarm_reports_BOTH_when_both_are_real():
+    m = C.resume_alarm(3, 2)
+    assert "2 day(s) old" in m and "3 day(s) are already lost" in m
+
+
+def test_an_UNCOUNTABLE_archive_says_so_rather_than_inventing_a_figure():
+    """MUTATION: fall through to '0 days'. `missing` is None when a date could not
+    be parsed; printing zero would report a clean archive off a broken one, in the
+    alarm built to announce the opposite."""
+    m = C.resume_alarm(None, None)
+    assert "cannot say how many days" in m and "0" not in m
