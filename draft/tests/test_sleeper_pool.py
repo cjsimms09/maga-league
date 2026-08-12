@@ -91,3 +91,26 @@ def test_a_pick_with_NO_time_field_says_so_rather_than_defaulting():
     assert ok is False and "no time field" in k
     assert S.pick_has_timestamp({"pick_no": 1, "pick_time": 172})[0] is True
     assert S.pick_has_timestamp({"metadata": {"pick_time": 172}}) == (True, "metadata.pick_time")
+
+
+def test_the_bid_is_looked_for_at_EVERY_path_before_concluding_there_is_none():
+    """`history_export.py` reads t["settings"]["waiver_bid"], gets null for all 648
+    waiver transactions across three seasons, and records "this league has no bids".
+    THE LEAGUE SETTINGS DISAGREE: waiver_budget 100, waiver_type 1.
+
+    Both cannot be right, and the failure is SELF-CONFIRMING — a reader pointed at
+    the wrong path gets null, null reads as absence, and absence becomes a recorded
+    fact. MUTATION: check one path. The wrong path returns 'no bids' forever and the
+    conclusion is supported by data never consulted."""
+    assert S.bid_path({"waiver_bid": 17}) == ("waiver_bid", 17)
+    assert S.bid_path({"settings": {"waiver_bid": 5}}) == ("settings.waiver_bid", 5)
+    assert S.bid_path({"metadata": {"waiver_bid": 3}}) == ("metadata.waiver_bid", 3)
+
+
+def test_NO_BID_ANYWHERE_reports_the_paths_tried_rather_than_asserting_no_FAAB():
+    """Absent is not zero and it is not 'no FAAB' either. A transaction with no bid
+    means THIS transaction had no bid — a different claim from a statement about the
+    league. MUTATION: return 0, or return 'no faab'."""
+    path, why = S.bid_path({"type": "waiver", "adds": {}})
+    assert path is None
+    assert "no bid at any of" in why and "settings.waiver_bid" in why

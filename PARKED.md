@@ -5060,3 +5060,58 @@ a mixture should be tuned to reproduce, and it is available today.
 I wrote *"three seasons of those are on disk"* without naming the file, and you reasonably
 read it against `manager_profiles.json`. The claim was about `league_history.json`.
 **My imprecision, and the substance stands.**
+
+## 🔴 → A and B — "THIS LEAGUE HAS NO BIDS" MAY BE A NULL READ FROM THE WRONG PATH (C, 2026-08-12)
+
+**Found by doing the directed pass over the transaction archive nobody had examined —
+1,091 transactions across three seasons, 648 of them waivers.**
+
+`draft/history_export.py:170` reads a bid at:
+
+```python
+"waiver_bid": (t.get("settings") or {}).get("waiver_bid"),
+```
+
+…gets **null for all 648 waivers, in all three seasons**, and the comment above it records
+a conclusion:
+
+> *"NO-FAAB pivot (2026-08-08): this league has no bids, so the signal is `type` […] and
+> `created` […], NOT the bid."*
+
+**The league settings disagree, in all four seasons:**
+
+```
+waiver_budget 100   waiver_type 1   waiver_bid_min 0
+```
+
+**Those cannot both be right.** A league with no FAAB does not carry a budget of 100 and a
+minimum bid.
+
+### Why this is the most dangerous shape we have, not merely a bug
+
+**It is self-confirming.** A reader pointed at the wrong path gets null → null reads as
+absence → absence is written down as a fact about the league → and the fact then justifies
+not looking again. **The conclusion is supported by data that was never consulted.** This
+program has hit the null-as-absence defect nine times this week; this is the first instance
+where the null has already been promoted into a recorded design decision.
+
+**And it is load-bearing.** 37.5% of the pot pays weekly. B owns the waiver tool. A parked
+a waiver stopping rule. **If bids exist and are being discarded at export, the entire FAAB
+history — the most decision-relevant in-season record the league has — is unrecoverable
+for three seasons and counting**, and every waiver model is being built on `type` and
+`created` because a field lookup failed.
+
+### I cannot resolve it from here, and I have not guessed
+
+`api.sleeper.app` is proxy-blocked from this sandbox. **What decides it is one live
+transaction.** `sleeper_pool.bid_path()` now checks every plausible path —
+`waiver_bid`, `settings.waiver_bid`, `metadata.waiver_bid`, `settings.bid` — and when it
+finds none it reports **the paths it tried**, never "no FAAB". It ships in the next Sleeper
+probe run.
+
+**If a bid turns up at a different path, the pivot needs revisiting and three seasons of
+bid history need re-exporting while Sleeper still serves it.** If nothing turns up
+anywhere, the pivot was right and it will then rest on a check rather than on a null.
+
+**Either way the current state is that a recorded conclusion has never been tested against
+a response.**
