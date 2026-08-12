@@ -247,6 +247,54 @@ const ARMS = {
     return pool.slice().sort((a, b) => (Number(b.vorp) || 0) - (Number(a.vorp) || 0))[0];
   },
 
+  /* ── ITEM 4b's DECISION GATE — the crossover policy as an ARM ──────────────
+   *
+   * `onesie_timing.js` measures the difference of differences. This is the only
+   * thing that decides whether it is worth anything: run the policy it implies
+   * against the shipped rule on the SAME paired harness and the SAME objective.
+   *
+   * THE POLICY: at each of my picks, compute each open onesie's LOSS FROM
+   * WAITING against the FLEX alternative's. If any onesie's loss exceeds the
+   * flex loss, take the best player at the most urgent one. Otherwise fall
+   * through to the shipped composite — so this arm differs from `shipped` ONLY
+   * where the timing signal actually fires, which is what makes the paired
+   * difference attributable to the timing signal rather than to a whole
+   * different ranking rule.
+   *
+   * Cory's bar, declared before the run: under ONE projected starting-lineup
+   * point it closes as arithmetic. */
+  onesie_timing: (ctx) => {
+    const have = {};
+    ctx.roster.forEach(p => { have[p.position] = (have[p.position] || 0) + 1; });
+    const openOnesies = ['QB', 'TE', 'K', 'DEF']
+      .filter(pos => (have[pos] || 0) < (STARTERS[pos] || 0));
+    if (openOnesies.length && ctx.nextPick != null) {
+      const sctx = { board: ctx.board, currentPick: ctx.currentPick,
+        runMultipliers: {}, intervening: ctx.intervening || [] };
+      const lossAt = test => {
+        const at = ctx.board.filter(test);
+        if (!at.length) return -Infinity;
+        const now = at.slice().sort((a, b) => projOf(b) - projOf(a))[0];
+        return projOf(now) - E.expectedBestAvailable(at, ctx.nextPick, sctx);
+      };
+      const flexLoss = lossAt(p => FLEX_OK[p.position]);
+      let bestPos = null, bestDod = 0;
+      openOnesies.forEach(pos => {
+        const d = lossAt(p => p.position === pos) - flexLoss;
+        if (d > bestDod) { bestDod = d; bestPos = pos; }
+      });
+      if (bestPos) {
+        const pick = ctx.board.filter(p => p.position === bestPos)
+          .sort((a, b) => projOf(b) - projOf(a))[0];
+        if (pick) return pick;
+      }
+    }
+    // NO TIMING SIGNAL -> the shipped rule, unchanged. The arm is the composite
+    // plus a timing override, not a replacement for it.
+    const r = E.recommend(ctx);
+    return r && r.length ? r[0].player : null;
+  },
+
   /* ⚠️ THE TWO ARMS `vorp_only` NEEDED AND DID NOT HAVE.
    *
    * `vorp_only` measures MASK + ANCHOR. On its own it says what the COMPOSITE
