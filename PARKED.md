@@ -7817,3 +7817,114 @@ Not for a tool, not for a section heading elsewhere — for the work, here.
 
 **Item 5 is closed by the entry above.** What remains genuinely open in my queue is item 7 (the
 11:20Z capture, which fires on its own) and the items routed outside my lane.
+
+---
+
+## 🔴 C's OWN LANE, AND IT IS THE WORST THING I HAVE FOUND IN IT — THE ADP ARCHIVE'S IDS ARE NOT OUR IDS (C, 2026-08-12)
+
+**Not routed. Mine, found by me, fixed by me, and recorded here because the defect
+class is the one this whole week has been about and I wrote a textbook instance of it.**
+
+I went looking for the pre-declared measurement above — does the deployed board's ADP
+agree with an independent market — and could not even start it, because the join does
+not work. That is the finding.
+
+### WHAT THE ARCHIVE ACTUALLY CONTAINED
+
+`fetch_mfl` requested `TYPE=adp` only and stored `{mfl_id: averagePick}`. **No name, no
+position, no team, ever.** MFL's own internal ids and nothing else.
+
+`as_store_snapshots` — the function whose docstring claims rule 14, the reader built with
+the writer — then handed those ids to `ExternalAsOfStore` **under the key `player_id`**,
+which every consumer downstream reads as our sleeper id.
+
+Measured on the real 2026-08-12 capture against `public/draft_data.json`:
+
+```
+MFL rows                                      708
+join directly to a board player_id             15   (2.1%)
+of those 15, correct                            0
+```
+
+MFL's #1 overall pick (`13589`, ADP 2.57) resolves to a fourth-string college tight end.
+Every one of the fifteen is a numeric collision.
+
+### THE CONSEQUENCE, WHICH IS NOT A SMALL BOARD BUT A FICTIONAL ONE
+
+`external_replay_run.decision_contexts` fills `taken` from the PICKS — our ids, via the
+crosswalk — and keys the board from the snapshot — MFL's ids. So `i not in taken` is
+**always true and the available set never shrinks.** Reproduced on the real functions,
+30 picks over an 80-player board:
+
+```
+archive keyed by OUR ids (what the fixture builds)   available: 80 -> 66 -> 51   correct
+archive keyed by MFL ids (what fetch_mfl writes)     available: 80 -> 80 -> 80   FICTION
+```
+
+Every drafted player stays draftable for the whole replay. The baseline is graded against
+a draft in which nobody was ever picked. **Nothing raises, nothing empties, no filter
+fires** — `adp_baseline` sorts a full board, takes the top five, and forecasts.
+
+### WHY NO TEST CAUGHT IT — AND THIS IS THE PART WORTH KEEPING
+
+`test_survival_grade.py::test_the_ENTIRE_PATH_produces_a_graded_observation_with_nothing_HAND_MADE`
+exists **for this exact class**. Its docstring says so: *"would have caught, in one run,
+all three of today's shape defects: picks carrying MFL's id where the replay reads ours…"*
+
+It built the crosswalk and the ADP snapshot from **the same `S%d` counter**:
+
+```python
+cw     = [dict(r, player_id="S%d" % r["overall"], ...) for r in rows]
+series = CAP.append_snapshot([], "2025", "2025-08-20", {"S%d" % i: float(i) ...})
+```
+
+The two namespaces were **identical by construction**. The one guard written to catch
+"whose id is this" could not see the same defect one seam over. **Rule 10d, on the test
+that was the answer to rule 10d.** The two seam tests were no better: one asserts the
+emitted KEY NAMES, the other asserts ids in == ids out. Neither asks what namespace the
+value is in.
+
+### AND THE ARCHIVE COULD NOT BE REPAIRED AFTER THE FACT
+
+The decode key was obtainable only from MFL's live `TYPE=players` export. So the archive
+decoded **only while MFL was up and still serving that season** — precisely the window an
+archive of perishable days exists to outlive. An archive whose keys can only be read by
+asking the source is not an archive of the source, it is a pointer to it.
+
+### WHAT I CHANGED
+
+| | |
+|---|---|
+| `fetch_mfl` | fetches **both** exports and parses with `mfl_adp.parse` — which already joins them and is unit-tested. My hand-rolled row extraction was a **second derivation of one read** (rule 11) and it differed by dropping the join. A failed players fetch no longer costs the day: the ADP is still captured, loudly noted. |
+| archive | now carries `players` — `{mfl_id: {name, position, team}}` — plus `players_population` beside it |
+| `merge_players` | UNION, field by field. A player who falls off MFL's board keeps his name; a day of `name: ""` never erases one we hold. Absent is not zero. |
+| `save` | unions the key with what is **on disk**. It has more than one caller and the first that did not hold the map would have deleted it for every archived day, leaving a file that still looked complete. |
+| `as_store_snapshots(series, year, ids)` | `ids` **required, no default, no pass-through**. The pass-through was the defect. |
+| `crosswalk_map(players, board)` | archive's own key -> our ids, **offline**, delegating to `mfl_adapter.crosswalk_picks` |
+| `ingest_run.adp_id_map` | archive key ∪ live export; **raises** if neither can decode, rather than translating to nothing and reporting every league `F4.no_pre_draft_adp` |
+| the whole-chain fixture | two **deliberately different** namespaces |
+
+### A DEFECT I WROTE AND CAUGHT INSIDE THE FIX, RECORDED BECAUSE IT IS THE SAME LESSON
+
+My first `crosswalk_map` called `adp.match_player` directly — reasoning that reusing the
+authoritative matcher was enough. **It is not.** The team-unit refusal lives in the
+authoritative CALLER. MFL prints a team unit as `"Bills, Buffalo"`, which normalises to
+`"Buffalo Bills"`, which is exactly what our Buffalo DEF is called — the name matches, a
+real board id comes back, nothing errors. Measured on the real run when that guard was
+missing: **TMQB → DEF 65 times, TMPK → DEF 38.** Reaching for the right function was not
+the same as reaching for the right caller. Now delegated whole, and pinned by a test.
+
+### STATE
+
+**1469 Python tests green.** Rehearsed end to end against a stubbed MFL over two days,
+including the case where a player falls off MFL's board on day two — his name survives in
+the archive and day one stays readable.
+
+**The two days already captured are fully recoverable.** Every one of 08-11's 705 ids is
+still present on 08-12, so the first capture carrying names decodes **705/705 and 708/708
+retroactively**. Nothing is lost, provided the fix lands before the board churns.
+
+**THE PRE-DECLARED MEASUREMENT ABOVE IS BLOCKED, HONESTLY.** Board-vs-market cannot be
+computed today: decoding the archive needs names, and names arrive with the next capture.
+It is not abandoned and it is not a negative result — it is a measurement whose input
+lands at 11:20Z tomorrow. I will run it exactly as declared.
