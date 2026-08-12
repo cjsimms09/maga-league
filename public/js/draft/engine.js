@@ -682,7 +682,27 @@
       risk -= 12;
       reasons.push(`listed ${player.injury_status}`);
     }
-    if (player.games_missed_3yr >= 8) {
+    /* ── DECLARED OPTIONAL, BECAUSE NOTHING WRITES IT ──────────────────────
+     *
+     * `games_missed_3yr` is read here and WRITTEN BY NOTHING — not the board
+     * builder, not any harness, not any fixture. It was tested bare
+     * (`player.games_missed_3yr >= 8`), and `undefined >= 8` is false, so this
+     * durability clause has never fired for any player in any run. Three risk
+     * clauses fire and the fourth silently does not.
+     *
+     * That is the self-description class: the code reads as though it prices
+     * durability. It does not, and nothing said so.
+     *
+     * NOT DELETED — the signal is real and wanted, and deleting it would lose
+     * the record of what this term is supposed to do. Instead it is now guarded
+     * and declared the way `playoff_sos` and `proj_ffc` already are: an explicit
+     * null test, so the code says out loud that the field is optional and the
+     * clause is inert without it. Supplying it needs a new data source, which is
+     * a build change and not a scoring one.
+     *
+     * orphan_field_sweep.js pins this: every board field read by these modules
+     * that the board does not supply must sit behind an explicit `!= null`. */
+    if (player.games_missed_3yr != null && player.games_missed_3yr >= 8) {
       risk -= 8;
       reasons.push(`${player.games_missed_3yr} games missed in 3 seasons`);
     }
