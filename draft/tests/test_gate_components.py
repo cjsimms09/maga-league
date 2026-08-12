@@ -190,3 +190,83 @@ def test_verdicts_map_onto_the_gates_existing_vocabulary(tmp_path, monkeypatch):
                    "survival": "UNMEASURED"}
     assert not [b for b in out["blocking"] if b in got], (
         "none of earning/noise/too_thin is a proposal, so none may block")
+
+
+# ── THE THIRD SOURCE: RULINGS ───────────────────────────────────────────────
+#
+# C's finding: the gate compares loaded weights against MEASUREMENTS and has no
+# view of DECISIONS. `LAB-REGISTRY.md` recorded "stack stays at 1.0" while the
+# engine shipped 0.5, and the gate classified that value IMMATERIAL and correctly
+# did not block, because no measurement contradicted it. A stale ruling was
+# invisible by construction.
+
+def _doc(tmp_path, name, text):
+    p = tmp_path / name
+    p.write_text(text)
+    return p
+
+
+def test_a_ruling_that_contradicts_the_shipped_value_is_reported(tmp_path, monkeypatch):
+    g = _gate()
+    d = _doc(tmp_path, "RULES.md", "## D10 — STOOD DOWN: stack stays at 1.0\nbody\n")
+    monkeypatch.setattr(g, "RULING_DOCS", ("RULES.md",))
+    monkeypatch.setattr(g, "ROOT", tmp_path)
+    rows = g.ruling_rows({"stack": 0.5})
+    assert rows and rows[0]["term"] == "stack"
+    assert rows[0]["ruling_value"] == 1.0 and rows[0]["loaded"] == 0.5
+    assert rows[0]["agrees"] is False
+
+
+def test_marking_the_HEADING_superseded_clears_the_whole_SECTION(tmp_path, monkeypatch):
+    """THE BUG MY FIRST VERSION HAD, pinned so it cannot come back.
+
+    A ruling is a SECTION, not a line. The first implementation skipped
+    superseded LINES, so marking D10's heading left its BODY still firing --
+    the marker cleared the sentence nobody was reading and not the one the scan
+    actually matched.
+    """
+    g = _gate()
+    _doc(tmp_path, "RULES.md",
+         "## D10 — SUPERSEDED 2026-08-09\n"
+         "Nothing installed. The stack weight remains 1.0.\n")
+    monkeypatch.setattr(g, "RULING_DOCS", ("RULES.md",))
+    monkeypatch.setattr(g, "ROOT", tmp_path)
+    assert g.ruling_rows({"stack": 0.5}) == [], (
+        "the body of a superseded ruling still fired -- marking the heading must "
+        "resolve everything under it")
+
+
+def test_the_supersession_ends_at_the_next_heading(tmp_path, monkeypatch):
+    """A superseded section must not silence the rulings that FOLLOW it."""
+    g = _gate()
+    _doc(tmp_path, "RULES.md",
+         "## D10 — SUPERSEDED\nThe stack weight remains 1.0.\n"
+         "## D11 — LIVE\nrisk stays at 1.0\n")
+    monkeypatch.setattr(g, "RULING_DOCS", ("RULES.md",))
+    monkeypatch.setattr(g, "ROOT", tmp_path)
+    rows = g.ruling_rows({"stack": 0.5, "risk": 0.0})
+    assert [r["term"] for r in rows] == ["risk"], (
+        "a superseded section swallowed the next ruling")
+
+
+def test_rulings_never_block(tmp_path, monkeypatch):
+    """A superseded ruling is LEGITIMATE. A blocking check would demand that
+    history be rewritten to get CI green; what must change is visibility."""
+    g = _gate()
+    out = g.run()
+    for b in out["blocking"]:
+        assert "ruled" not in str(b), "a ruling mismatch must never block"
+    assert "REPORTED, NEVER BLOCKING" in out["rulings_note"]
+
+
+def test_the_real_repo_has_no_unmarked_stale_ruling():
+    """The live check, on the real documents. Non-vacuous: it asserts the scan
+    found something to check, so deleting every ruling would not make it pass."""
+    g = _gate()
+    out = g.run()
+    assert out["ruling_rows"], (
+        "no ruling in the doctrine docs names a weight and a value -- the scan "
+        "has nothing to check and would pass trivially")
+    assert not out["stale_rulings"], (
+        "a recorded ruling disagrees with what ships and is not marked "
+        "SUPERSEDED: " + "; ".join(out["stale_rulings"]))

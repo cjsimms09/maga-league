@@ -289,6 +289,78 @@ def classify_component(r: dict) -> dict:
     return base
 
 
+# ── THE THIRD SOURCE: RULINGS ───────────────────────────────────────────────
+#
+# C's finding, 2026-08-12, and it is a real hole in this file rather than a
+# nice-to-have. THE GATE COMPARES LOADED WEIGHTS AGAINST MEASUREMENTS AND HAS NO
+# VIEW OF DECISIONS.
+#
+# `LAB-REGISTRY.md` recorded "D10 — STOOD DOWN (Cory, 2026-08-08): stack stays at
+# 1.0". The engine ships `stack: 0.5`. The gate saw that value, classified it
+# IMMATERIAL — "no arm clears $50 with a CI excluding zero, loaded 0.50 is a free
+# choice" — and CORRECTLY did not block, because no MEASUREMENT contradicts it.
+# A stale DECISION is invisible here by construction.
+#
+# That is this project's own discipline note one level up: a policy value
+# justified by one number while another number in the same file disagreed, with
+# nothing forcing anyone to look at both. The gate closed that for measurements.
+# This closes it for rulings.
+#
+# ⚠️ IT REPORTS AND NEVER BLOCKS, and that is not timidity. A superseded ruling is
+# a LEGITIMATE state — Cory overtook D10 the next day by adopting the measured
+# config wholesale — so a blocking check would demand that history be rewritten
+# to get CI green. What is not legitimate is a superseded ruling that reads as
+# current. Marking it SUPERSEDED clears the row; changing the past does not.
+RULING_DOCS = ("LAB-REGISTRY.md", "DECISIONS-NEEDED.md", "EDGE-LEDGER.md")
+
+# "stack stays at 1.0", "the stack weight remains 1.0", "risk is set to 0".
+_RULING_RE = re.compile(
+    r"\b(value|tier|need|risk|ceiling|keeper|bye|stack)\b[^.\n]{0,40}?"
+    r"\b(?:stays at|remains|is set to|set to|stays)\s+([0-9]*\.?[0-9]+)",
+    re.I)
+
+
+def ruling_rows(loaded: dict) -> list:
+    """Rulings that name a weight and a value, checked against what ships."""
+    rows = []
+    for rel in RULING_DOCS:
+        p = ROOT / rel
+        if not p.exists():
+            continue
+        # SECTION-AWARE, because a ruling is a SECTION and not a line. My first
+        # version skipped superseded LINES, so marking D10's heading left its
+        # body still firing — the marker cleared the sentence nobody was reading
+        # and not the one the scan actually matched. A heading marked SUPERSEDED
+        # now resolves everything under it until the next heading of the same or
+        # higher level.
+        superseded_depth = None
+        for line in p.read_text().split("\n"):
+            h = re.match(r"^(#+)\s", line)
+            if h:
+                depth = len(h.group(1))
+                if superseded_depth is not None and depth <= superseded_depth:
+                    superseded_depth = None
+                if re.search(r"supersede", line, re.I):
+                    superseded_depth = depth
+            if superseded_depth is not None:
+                continue
+            # A single line can also mark itself, for rulings that are one line.
+            if re.search(r"supersede", line, re.I):
+                continue
+            for m in _RULING_RE.finditer(line):
+                term, val = m.group(1).lower(), float(m.group(2))
+                cur = loaded.get(term)
+                if cur is None:
+                    continue
+                rows.append({
+                    "term": term, "ruling_value": val, "loaded": cur,
+                    "agrees": abs(cur - val) < 1e-9,
+                    "where": rel,
+                    "quote": line.strip()[:120],
+                })
+    return rows
+
+
 def run() -> dict:
     loaded = loaded_weights()
     verdicts = measured_verdicts()
@@ -304,6 +376,7 @@ def run() -> dict:
     blocking = [r for r in rows
                 if r["status"] in ("PROPOSAL", "ARMS-DISAGREE") and not r["documented"]]
 
+    rulings = ruling_rows(loaded)
     comp_rows, comp_problems = component_rows()
     # SAME RULE, SECOND SOURCE: an undocumented PROPOSAL blocks, a documented one
     # does not. Applied to component rows without collapsing them into the dollar
@@ -322,6 +395,13 @@ def run() -> dict:
         "rows": rows,
         "component_rows": comp_rows,
         "component_problems": comp_problems,
+        "ruling_rows": rulings,
+        "stale_rulings": [f"{r['where']}: {r['term']} ruled {r['ruling_value']}, "
+                          f"ships {r['loaded']}" for r in rulings if not r["agrees"]],
+        "rulings_note": (
+            "REPORTED, NEVER BLOCKING. A superseded ruling is legitimate; a "
+            "superseded ruling that READS AS CURRENT is not. Mark the heading "
+            "SUPERSEDED to clear a row — do not change what was decided."),
         "component_units_note": (
             "NO DOLLAR CONVERSION IS APPLIED TO ANY COMPONENT. The only "
             "points->wins->payout machine available is the Lab's retrospective "
@@ -348,6 +428,18 @@ if __name__ == "__main__":
             doc = "" if r["documented"] else "   [UNDOCUMENTED]"
             print("  %-9s %-8s loaded %-5s %s%s"
                   % (mark, r["term"], r["loaded"], r["detail"], doc))
+        stale = [r for r in out["ruling_rows"] if not r["agrees"]]
+        print("\nRULINGS — recorded decisions vs what actually ships")
+        if not out["ruling_rows"]:
+            print("  (no ruling in the doctrine docs names a weight and a value)")
+        for r in stale:
+            print("  !! %-7s ruled %-5s ships %-5s  %s\n       %s"
+                  % (r["term"], r["ruling_value"], r["loaded"], r["where"], r["quote"]))
+        if out["ruling_rows"] and not stale:
+            print("  ok    every ruling that names a weight agrees with the loaded value"
+                  " (%d checked)" % len(out["ruling_rows"]))
+        print("  " + out["rulings_note"])
+
         print("\nCOMPONENT GRADES — own units, never converted to dollars")
         if not out["component_rows"]:
             print("  (no component artifact yet)")
