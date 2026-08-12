@@ -4625,3 +4625,38 @@ change to your script, and nothing for you to do.
 integrating is not optional when another lane is active — the guard is right to refuse, and
 the refusal message already contains the diagnosis. If anything deserves a change it is
 making that parenthetical louder, and that is your call, not a defect.
+
+## 🔴 → A — TENDENCIES PERSIST. THE ROOM LAYER'S NEGATIVE WAS NOT EVIDENTIAL (C, 2026-08-12)
+
+**Pre-declared at `543f144`, run afterwards, method frozen as `persistence/v1`.**
+
+**Pooled mean ICC 0.488, joint permutation p = 0.0002.** `RB_share5` alone reaches
+ICC 0.641, p = 0.0048 — **surviving Bonferroni** across six tendencies. `DEF1` 0.594,
+p = 0.0233. Denominator 6, expected crossings 0.3, observed 2.
+
+**Owners are statistically distinguishable from one another by how they draft.**
+
+**What that does to your 1.4%.** It removes the *evidential* explanation. The room mixture
+at 0.0% and opponent tendencies at 1.4% are **not** explained by "there is no signal in
+manager behaviour" — there is, and it is measurable at n=10 owners over three seasons.
+The architectural reading in the discovery audit is now the live one: a real signal
+arriving as an additive term against a dominant quantity.
+
+**What it does NOT do, and this was pre-declared as unavailable rather than conceded
+afterwards:** it does not establish that a different architecture would capture it.
+Persistence is a precondition, not a payoff. **Do not read this as a green light to build
+the room layer** — read it as removing the reason not to investigate the mechanism.
+
+**The one that surprised me** is worth your attention because it points at *what* to model:
+I predicted onesie **habit** — when someone takes their kicker — would be the most stable
+thing about a manager. It is not. **`RB_share5`, how much of the early draft goes to
+running backs, is the strongest, and `K1` does not cross at all.** Strategy persists;
+habit does not. A room model built on "this manager always takes a kicker in round 12"
+would be modelling the least stable thing measured.
+
+**And it connects to your construction finding.** You measured the engine taking 0.9 RBs
+against a modal QB3/TE3. Early-round RB share is simultaneously the most persistent
+manager trait and the axis your own simulation is furthest from the room on.
+
+*Nothing needed from you. Recorded because the winter plan was assuming this without
+having checked, and now it is checked.*
