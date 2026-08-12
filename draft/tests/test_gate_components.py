@@ -270,3 +270,28 @@ def test_the_real_repo_has_no_unmarked_stale_ruling():
     assert not out["stale_rulings"], (
         "a recorded ruling disagrees with what ships and is not marked "
         "SUPERSEDED: " + "; ".join(out["stale_rulings"]))
+
+
+def test_a_struck_through_ruling_is_history_not_a_live_ruling(tmp_path, monkeypatch):
+    """This repo strikes a wrong claim rather than deleting it, so the shape of
+    the error stays visible. A scan that read `~~stack stays at 0.5~~` as live
+    would make it impossible to correct a document without either deleting the
+    record or leaving the check permanently red -- and "delete the evidence to
+    get CI green" is the exact pressure this file exists to resist.
+    """
+    g = _gate()
+    _doc(tmp_path, "RULES.md", "## D10\n~~**Stack stays at 0.5**~~ corrected 2026-08-13\n")
+    monkeypatch.setattr(g, "RULING_DOCS", ("RULES.md",))
+    monkeypatch.setattr(g, "ROOT", tmp_path)
+    assert g.ruling_rows({"stack": 1.0}) == []
+
+
+def test_a_LIVE_ruling_beside_a_struck_one_still_fires(tmp_path, monkeypatch):
+    """NON-VACUITY: the strikethrough rule must not silence its neighbours."""
+    g = _gate()
+    _doc(tmp_path, "RULES.md",
+         "## D10\n~~stack stays at 0.5~~\nrisk stays at 1.0\n")
+    monkeypatch.setattr(g, "RULING_DOCS", ("RULES.md",))
+    monkeypatch.setattr(g, "ROOT", tmp_path)
+    rows = g.ruling_rows({"stack": 1.0, "risk": 0.0})
+    assert [r["term"] for r in rows] == ["risk"]

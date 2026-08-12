@@ -91,30 +91,40 @@ Three independent sweeps, three different knobs, one shape:
 
 **PRE-REGISTERED for every remaining sweep (written before those sweeps run):** the expected shape is **inverted-U with the optimum at a MODERATE dose**. Therefore **a full-throttle "winner" — a sweep whose best value sits at the top of its tested range — gets EXTRA SCRUTINY before any install**: extend the grid past the apparent optimum (an edge of the grid is not an optimum, it is an unfinished sweep), check whether the CI at the extreme is genuinely separated from the moderate values, and treat "more is always better" as a likely artifact of a mis-specified cost until proven otherwise. Cited whenever a dose-response result is reported.
 
-## 🛑 D10 — ~~STOOD DOWN (Cory, 2026-08-08): stack stays at 1.0~~ · **SUPERSEDED 2026-08-09**
+## 🛑 D10 — STOOD DOWN (Cory, 2026-08-08): stack stays at 1.0 · **STANDS**
 
-> **SUPERSEDED BY A LATER CORY DECISION, NOT BY DRIFT — and the engine is right.**
-> Found by C, 2026-08-12, chasing edge #3. The ruling below says *"Nothing installed. The stack
-> weight remains 1.0."* **The engine ships `stack: 0.5`.**
+> ## ⚠️ GOVERNANCE CORRECTION — 2026-08-13. THIS RULING STANDS; IT WAS NEVER SUPERSEDED.
 >
-> **Which side was stale, chased rather than assumed:** commit `d7da8d3`, dated **2026-08-09** —
-> one day after this ruling — titled *"#3: the measured config is the tool's default
-> (Cory-confirmed 2026-08-09)"*, installed `MEASURED_WEIGHTS` with `stack: 0.5`.
-> `DECISIONS-NEEDED.md` agrees on both counts (line 37 describes the shipped formula as
-> `0.5*stack + 1*keeper`; line 246 recommends `stack ~0.5`, the exp6 winner).
+> **The supersession state on this ruling changed twice, and both changes are recorded
+> here rather than either being applied silently. A governance record that changes
+> without saying why is worse than one that is wrong, because the next reader cannot
+> tell which state was deliberate.**
 >
-> **So this is a ruling overtaken by the next day's decision, which nobody came back to mark** —
-> *superseded by measurement is a different record from wrong* (doctrine, 2026-08-12). The text
-> below is preserved unedited because its REASONING still stands on its own terms: installing on
-> a modeled rho would have broken D9's conservatism standard, and that objection was overtaken
-> by Cory adopting the measured config wholesale, not answered.
+> **2026-08-12 — I MARKED IT SUPERSEDED. THAT WAS WRONG.** C found that the engine
+> shipped `stack: 0.5` against this ruling's "Nothing installed. The stack weight
+> remains 1.0." I traced the discrepancy to commit `d7da8d3` (2026-08-09, *"the
+> measured config is the tool's default (Cory-confirmed)"*), inferred that the next
+> day's wholesale adoption had deliberately overtaken this ruling, and marked it
+> superseded on that inference. **The evidence was real; the inference was mine.**
 >
-> **The September quantile re-run it pre-registers is still owed** — that is the part of this
-> ruling which is live rather than superseded.
+> **2026-08-13 — CORY CONFIRMED THE RULING WAS MEANT TO STAND.** `stack` rode along
+> in the wholesale adoption without anyone deciding it should. **So the ENGINE was
+> wrong, not the ruling**, and the marking was backwards.
 >
-> ⚠️ **IF CORY INTENDED 1.0 TO STAND, THEN THE ENGINE IS WRONG AND THIS MARKING IS BACKWARDS.**
-> Flagged rather than assumed: the evidence says the Aug-9 confirmation was deliberate and
-> covered every term at once, but only Cory can say whether `stack` was meant to ride along.
+> **RESOLVED IN THE ENGINE, NOT IN THE RECORD.** `MEASURED_WEIGHTS.stack` is back to
+> **1.0** (`public/js/draft/engine.js`), which is what this ruling always said. The
+> graduation gate's rulings check — added on 2026-08-12 for exactly this class — now
+> reports agreement instead of a stale ruling.
+>
+> **AND THE LESSON IS ABOUT THE INFERENCE, NOT THE VALUE.** "The engine and one other
+> document agree, so the third document is stale" is a plausible rule and it picked
+> the wrong document here. Two files agreeing does not make them right; it can just
+> mean the same mistake propagated. **A ruling is superseded when someone says so,
+> not when the code drifts away from it.**
+>
+> **What is genuinely still live:** the September quantile re-run this ruling
+> pre-registers, when a MEASURED correlation replaces the modelled rho (0.35) and the
+> 0.5 install can be judged on the conservatism standard D10 actually asked for.
 
 ### The ruling as issued (2026-08-08)
 Exp 6's peak-at-0.5 finding is a **LEAN priced against a MODELED rho (0.35)**, not a measured correlation — and **installing on a modeled parameter would break D9's own conservatism standard** (D9 installed on a measured dose-response with the environment caveat stated; this one's key input is an assumption). **Nothing installed. The stack weight remains 1.0.** The peak-at-0.5 finding is **pre-registered for September's quantile re-run**, when the quantile model supplies real correlation structure. **The DISPLAY correction ships now** (Stack Routes: single-partner ranks first, double-stack marginal shown as ~$0) because that is a faithful presentation of the measurement, not an engine change.

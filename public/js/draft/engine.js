@@ -332,8 +332,29 @@
    * Magnitudes are MC-harness-tier; the SIGN/ordering is the robust claim. See
    * DECISIONS-NEEDED #3. Auto mode still carries its own (older, grid-guarded) phase
    * ramp — this is the DEFAULT the tool loads on, not a change to Auto. */
+  /* ⚠️ stack RESTORED TO 1.0, 2026-08-13 — A GOVERNANCE CORRECTION, NOT A TUNE.
+   *
+   * D10 (Cory, 2026-08-08) stood the stack change down: exp6's peak-at-0.5 is a
+   * LEAN priced against a MODELLED rho (0.35), not a measured correlation, and
+   * installing on a modelled parameter would have broken D9's own conservatism
+   * standard. Its words were "Nothing installed. The stack weight remains 1.0."
+   *
+   * The next day, `d7da8d3` adopted the measured config wholesale and `stack`
+   * rode along at 0.5. Nobody noticed the ruling it contradicted, because the
+   * graduation gate compares loaded weights against MEASUREMENTS and had no view
+   * of DECISIONS — C found the discrepancy on 2026-08-12 and the gate now checks
+   * rulings too.
+   *
+   * I marked D10 superseded. **Cory has confirmed the ruling was meant to stand,
+   * so the ENGINE was wrong and the marking was backwards.** Restored here; the
+   * supersession is reversed in LAB-REGISTRY with the correction recorded rather
+   * than the state quietly flipped back.
+   *
+   * The 0.5 finding is not discarded — it remains pre-registered for the
+   * September quantile re-run, when a MEASURED correlation replaces the modelled
+   * one and the install can be judged on the standard D10 asked for. */
   const MEASURED_WEIGHTS = { value: 1.0, tier: 0.0, need: 0.0, risk: 0.0, ceiling: 0.0,
-    keeper: 1.0, bye: 0.0, stack: 0.5 };
+    keeper: 1.0, bye: 0.0, stack: 1.0 };
 
   /* Named strategies, as weight sets.
    *
