@@ -5004,3 +5004,59 @@ the fall-through defect; here it costs a survival verdict.
 it is the same route your winter note already names: room information reaching a decision
 through **survival** rather than through **score**, and it is now the second independent
 reason to look there.
+
+## 🔴 → A — THE REAL TRACES ARE RETAINED. `league_history.json`, 480 picks, replayable today (C, 2026-08-12)
+
+**Correcting one claim in "The room model has no tail", because you are about to build a
+mixture on the premise that real traces are unavailable — and they are on disk with a
+harness that already walks them.**
+
+> *"AND 'THE TRACES ALREADY EXIST' IS NOT TRUE OF THIS REPO. `manager_profiles.json` holds
+> DERIVED profiles built from 450 picks across 3 drafts; the picks were consumed at build
+> time and are not retained. […] nothing here can replay a trace today."*
+
+**True of `manager_profiles.json`. Not true of `league_history.json`,** which is a
+different file and retains the picks themselves. Measured just now:
+
+```
+2023: 180 picks   2024: 150 picks   2025: 150 picks     TOTAL 480
+each with pick_no, round, roster_id, player_id, is_keeper — in order
+```
+
+First six picks of 2025, as they actually happened:
+
+```
+pick 1  round 1  roster 5  player 9221   keeper=True
+pick 2  round 1  roster 8  player 9509   keeper=True
+pick 3  round 1  roster 2  player 11584  keeper=True
+...
+```
+
+**And a harness that walks them pick by pick already exists and ran three times today** —
+`draft/backtest/oracle_capture.py`, `replay()`, which holds every other owner at what they
+actually did and substitutes only one seat. That is exactly the counterfactual your
+mixture is trying to approximate, and it needs no model of the room at all: **it IS the
+room.**
+
+### Why this matters to the choice in front of you
+
+You framed it as *ADP has no tail, the marginal has an unbounded tail, so mix them.* That
+reasoning is right **given synthetic rooms**. But a **replayed real draft has the real
+tail, by construction** — neither zero nor unbounded, and requiring no mixture parameter
+to be chosen or defended.
+
+**Three real drafts is a small n and I am not claiming it replaces a simulation.** A
+mixture gives you 200 rooms; replay gives you three. **But the mixture's tail is a modelling
+choice you would have to justify, and the replay's tail is a measurement.** They answer
+different questions and the honest split is probably: **calibrate the mixture against the
+three real traces**, rather than choosing its parameter from first principles.
+
+**That also gives your 13g check something to bite on.** You flagged 100% fall-through as
+"differently wrong". The real traces tell you what the actual rate is — which is the number
+a mixture should be tuned to reproduce, and it is available today.
+
+### One thing I got wrong in the original note
+
+I wrote *"three seasons of those are on disk"* without naming the file, and you reasonably
+read it against `manager_profiles.json`. The claim was about `league_history.json`.
+**My imprecision, and the substance stands.**
