@@ -214,9 +214,62 @@ projections."*
 > **Which means the gap does not need a new experiment; it needs the component
 > writer that shipped today to accumulate a season.**
 
-*(The independent arm — pure VORP within the startable mask, against the shipping
-composite, on paired seeds in both room models — is running. Results appended
-below when it lands.)*
+### THE RESULT — THE ANCHOR IS CONFIRMED, AND THE LEDGER'S VERSION OF IT IS REFUTED
+
+150 paired rooms per room model, same seeds across every arm, valuation fixed.
+
+| arm | ADP room, vs shipped | profiled room, vs shipped |
+|---|---|---|
+| greedy_end_state | **+7.6 ± 1.7** | −9.0 ± 5.3 |
+| **shipped** (composite) | — | — |
+| `vorp_only` — mask + VORP anchor | **−33.4 ± 1.6** | **−22.9 ± 7.4** |
+| `adp_only` — mask + ADP anchor | **−62.4 ± 3.8** | **−25.9 ± 7.2** |
+| need_filter | −32.6 ± 1.8 | −30.1 ± 7.1 |
+| `mask_only` — **no anchor at all** | **−966.0 ± 1.7** | **−1202.6 ± 8.5** |
+
+**1. THE ASYMMETRY IS CLOSED. The anchor is independently confirmed and it is
+enormous.** Strip it and keep only the mask and the roster rules: **1024 points
+against ~1990 and ~2225.** The anchor is worth roughly **half the starting
+lineup** — 49% in the ADP room, 54% in the profiled one.
+
+That is a completely different instrument from the one that set the number:
+projected starting-lineup points from paired simulations, versus Monte-Carlo
+dollars through the payout structure. **The participation test's central finding
+survives contact with a measurement that shares none of its machinery.** This is
+the confirmation the mask had and the anchor did not.
+
+**2. BUT "THE VALUE ANCHOR = RANKING OFF THE ADP BOARD" IS REFUTED, DIRECTLY.**
+`adp_only` is the ledger's claim implemented literally, and it **loses to
+`vorp_only` by 29.0 points in the ADP room** with non-overlapping intervals. In
+the profiled room the two are **indistinguishable** (3.0 points, intervals
+overlapping almost entirely).
+
+> **The anchor's value is in VORP, not in ADP** — which is what the code said
+> (`vorp = proj_mean − replacement`, no ADP) and what the ledger's prose denied.
+> Two independent routes to the same correction.
+
+*A mechanism, offered as hypothesis rather than finding:* in a room that drafts
+strictly by ADP, the board is depleted in ADP order, so by my turn ADP has
+little discriminating power left among the survivors while VORP still does. In a
+room that does not deplete by ADP, ADP retains its information — which is exactly
+where the gap closes. **Testable, not tested.**
+
+**3. AND THE COMPOSITE EARNS OVER ITS OWN ANCHOR** — by 33.4 in the ADP room and
+22.9 in the profiled one, both intervals excluding zero. **This is the first
+measurement showing the shipped composite beating the bare anchor it is built
+on**, and unlike the greedy comparison it holds in both room models.
+
+#### ⚠️ THE NO-ANCHOR CONTROL'S INTERVAL IS NOT WHAT IT LOOKS LIKE
+
+`mask_only` reports p10 = p50 = p90 = **1024** — zero spread across 150 rooms.
+That is not a suspiciously tidy result, it is the arm working as designed and it
+must not be read as precision. It orders the masked pool by a hash of the player
+id, which is **uncorrelated with ADP**, so the room's picks almost never touch
+its choices and it drafts nearly the identical twelve players every time.
+
+**So its ±1.7 is the variability of one fixed bad roster, not the average over
+random bad rosters.** The LEVEL is a fair no-anchor floor; the INTERVAL is
+meaningless and is not used for anything above.
 
 ---
 
@@ -255,6 +308,14 @@ hold you would stop wondering.** They very nearly do:
   them does not.
 - **Q1 (boundary-break): two hold outright, one is half-covered** by an identity
   that passes, with the missing half named and costed.
+
+**And the asymmetry you named is now closed, in your favour.** The value anchor
+has independent confirmation: stripping it costs **half the starting lineup**
+(1024 against ~1990 and ~2225) in a harness that shares none of the participation
+test's machinery. **The claim that survived is the anchor's SIZE. The claim that
+died is what the ledger said the anchor WAS** — ranking by ADP loses to ranking
+by VORP by 29 points, so the anchor's value is in the projection channel, not the
+market one. Same correction the code reading reached, from the other end.
 
 **The thing that actually failed was none of the four.** It was that the anchor's
 headline moved 26% across three re-runs and four documents kept the first
