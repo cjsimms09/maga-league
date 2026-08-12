@@ -284,6 +284,41 @@ def check_pred_ledger():
                 f"{T['ledger_resolved']} resolved entries in a kind.")
 
 
+def check_calibration_drift():
+    """The survival model's known 15-57% over-prediction, watched rather than remembered.
+
+    IT HAS BEEN KNOWN FOR WEEKS AND NOTHING WATCHED IT. The figure lives in a test
+    assertion, so it fires only when somebody runs the suite and only says it is
+    still true — nothing notices if it gets WORSE, and nothing proposes a
+    correction when enough graded observations exist to support one.
+
+    The detector (`src/calibration_drift.js`) PROPOSES and never applies, for a
+    sharper reason than the graduation gate's: a survival model corrected against
+    its own residuals is fitting itself and can no longer be wrong.
+    """
+    p = ROOT / "draft" / "data" / "calibration_readings.json"
+    if not p.exists():
+        return _row("calibration_drift", "quiet",
+                    "no graded survival readings yet — the detector exists "
+                    "(src/calibration_drift.js) and has nothing to read. The known "
+                    "bias is 15-57% over-prediction of departures, recorded in "
+                    "draft/tests/survival_honesty.test.js", n=0)
+    try:
+        d = json.loads(p.read_text())
+    except (ValueError, OSError) as e:
+        return _row("calibration_drift", "BLIND", f"unreadable: {type(e).__name__}")
+    rows = d.get("readings") or []
+    drifted = [r for r in rows if r.get("status", "").startswith("drifted")]
+    if drifted:
+        names = ", ".join(str(r.get("component")) for r in drifted[:3])
+        return _row("calibration_drift", "ESCALATE",
+                    f"{len(drifted)} calibration(s) drifted beyond their own floor: "
+                    f"{names} — a RE-CALIBRATION PROPOSAL is waiting for review, and "
+                    "nothing has applied it", n=len(drifted))
+    return _row("calibration_drift", "quiet",
+                f"{len(rows)} reading(s), none beyond its floor", n=len(rows))
+
+
 def check_components():
     """The component-grading surface. Escalates on MEASURABILITY, not interest."""
     p = ROOT / "draft" / "data" / "component_grades.json"
@@ -317,6 +352,7 @@ CHECKS = [
     lambda: check_series("sleeper_trending", "draft/data/sleeper_trending.json"),
     check_proj_archive,
     check_pred_ledger,
+    check_calibration_drift,
     check_components,
 ]
 

@@ -187,6 +187,42 @@ def test_a_crossed_threshold_names_the_archive():
     assert "1 of 2" in out
 
 
+
+# ── THE CALIBRATION-DRIFT ROW ───────────────────────────────────────────────
+
+def test_a_drifted_calibration_escalates(tmp_path, monkeypatch):
+    """The survival bias has been known for weeks in a test assertion, where
+    nothing could read it and nothing noticed if it got worse. This row is the
+    watcher; it must be able to fire."""
+    monkeypatch.setattr(SC, "ROOT", tmp_path)
+    d = tmp_path / "draft" / "data"
+    d.mkdir(parents=True)
+    (d / "calibration_readings.json").write_text(json.dumps({"readings": [
+        {"component": "survival", "status": "drifted_worse", "drift_pp": 26},
+    ]}))
+    row = SC.check_calibration_drift()
+    assert row["state"] == "ESCALATE", row
+    assert "nothing has applied it" in row["detail"]
+
+
+def test_a_calibration_within_its_floor_stays_quiet(tmp_path, monkeypatch):
+    monkeypatch.setattr(SC, "ROOT", tmp_path)
+    d = tmp_path / "draft" / "data"
+    d.mkdir(parents=True)
+    (d / "calibration_readings.json").write_text(json.dumps({"readings": [
+        {"component": "survival", "status": "within_floor"},
+    ]}))
+    assert SC.check_calibration_drift()["state"] == "quiet"
+
+
+def test_no_readings_names_the_known_bias_rather_than_going_silent(tmp_path, monkeypatch):
+    """A row that says only 'nothing yet' loses the fact that a KNOWN,
+    UNCORRECTED bias is sitting under VONA. It names it every week instead."""
+    monkeypatch.setattr(SC, "ROOT", tmp_path)
+    row = SC.check_calibration_drift()
+    assert row["state"] == "quiet"
+    assert "15-57%" in row["detail"]
+
 # ── PARKING IS A DEADLINE, NOT A MUTE ───────────────────────────────────────
 
 def test_a_parked_row_is_quiet_before_its_date(monkeypatch):
