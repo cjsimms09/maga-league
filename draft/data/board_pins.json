@@ -1,0 +1,15 @@
+{
+ "_note": "Pins for `public/draft_data.json`, one per day. The board itself lives in git; this says WHICH COMMIT held the board on each day, and proves it with a digest. The tool arm of the oracle-capture series reads the last pin STRICTLY BEFORE a draft \u2014 F5's rule, applied to our own board.",
+ "version": "board-pin/v1",
+ "series": [
+  {
+   "observed_at": "2026-08-12",
+   "commit": "3d2c39429d1a87681e83f495536c5f8e47d87acb",
+   "path": "public/draft_data.json",
+   "sha256": "8f1f4549a7ab1c5bd6c0d95c261476f7132b847105e5b16fa7f18f247ab39c71",
+   "n_players": 1760,
+   "built_at": "2026-08-11T18:33:45Z",
+   "recover_with": "git show 3d2c39429d1a87681e83f495536c5f8e47d87acb:public/draft_data.json"
+  }
+ ]
+}

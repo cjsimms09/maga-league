@@ -713,23 +713,24 @@
     const left = Number(ctx.myPicksLeft);
     if (Number.isFinite(left) && left <= CFG.ONESIE_ENDGAME_PICKS) return none;
 
-    /* THE HARD CAP, CHECKED BEFORE THE EXCEPTIONS.
+    /* THE HARD CAP — A CEILING ON HABITUAL BEHAVIOUR, NOT A PROHIBITION.
      *
-     * Deliberately ahead of them: the value and injury exceptions exist to let a
-     * FIRST spare body through when he has fallen absurdly far or the starter is
-     * hurt. Neither argument applies to a man who cannot reach the lineup even
-     * if the starter goes down, because the previous spare is already there.
-     * `spare` counts bodies beyond the STRICT slots, so QB1+QB2 and TE1+TE2 pass
-     * and the third of either does not. */
-    if (CFG.ONESIE_HARD_CAP) {
-      const allowed = (CFG.ONESIE_MAX_SPARE || {})[pos];
-      const spare = have - slots;
-      if (allowed != null && spare >= allowed) {
-        return { duplicate: true, discount: CFG.ONESIE_KEEP, capped: true, exception: null,
-          why: pos + (have + 1) + ' — you already carry ' + have + ' at ' + pos
-            + ' and start ' + slots + '. He cannot reach the lineup even if one goes down.' };
-      }
-    }
+     * ⚠️ TEMPORARY. This is a constraint standing in for a valuation that does
+     * not work. The bench branch ranks on `proj_ceiling − proj_mean` in RAW
+     * SEASON POINTS, and a quarterback scores 350–400 a season, so his spread is
+     * the largest absolute number on the board almost by construction (measured
+     * p90: QB 66.5, RB 44.9, WR 34.7, TE 30.8, K 28.1). THAT MEASURES SCALE, NOT
+     * UPSIDE — and scale is something the model already knows and should not
+     * count twice. A second quarterback should be PRICED LOW BECAUSE HE CANNOT
+     * START, not forbidden because somebody counted.
+     * ITS REPLACEMENT IS NAMED: position-normalised ceiling. See the retirement
+     * check in draft/tests/onesie_cap.test.js and the trigger in PARKED.md.
+     *
+     * `spare` counts bodies beyond the STRICT slots — FLEX excluded, because the
+     * flex is contested by RB/WR/TE and must not be pre-reserved for whichever
+     * position happens to be scoring well. */
+    const capAllowed = CFG.ONESIE_HARD_CAP ? (CFG.ONESIE_MAX_SPARE || {})[pos] : null;
+    const wouldCap = capAllowed != null && (have - slots) >= capAllowed;
 
     // ---- the exceptions, each of which must be SAYABLE ----------------------
     const adp = player.adjusted_adp != null ? player.adjusted_adp : player.raw_adp;
@@ -737,9 +738,28 @@
     const fell = (adp != null && Number.isFinite(here)) ? (here - adp) : 0;
     const rank = positionRank(player, ctx);
     if (fell >= CFG.ONESIE_EXTREME_ADP && rank > 0 && rank <= CFG.ONESIE_ELITE_RANK) {
-      return { duplicate: true, discount: 1, exception: 'value',
-        why: pos + '2 — ' + (player.name || 'he') + ' at +' + Math.round(fell)
-          + ' vs ADP, insurance/trade value; YOU CANNOT START HIM' };
+      /* THE FALL-THROUGH SURVIVES THE CAP, and this ordering is the correction.
+       *
+       * My first version checked the cap BEFORE the exceptions, on the argument
+       * that a man who cannot reach the lineup gains nothing from having fallen
+       * far. THAT WAS WRONG (Cory, 2026-08-12): a top-three player at the
+       * position, handed to me eighty picks past his price, is a trade asset in
+       * a room where somebody will need one, and insurance at the one position
+       * where a bye leaves me starting NOBODY. Refusing him is a worse error
+       * than the one the cap fixes. Measured before the correction: an elite QB3
+       * fallen 89 picks sank to rank 1401 of 1753.
+       *
+       * BUT HE IS STILL DISCOUNTED RATHER THAN PRICED AT FULL VALUE when the cap
+       * would otherwise bind — priced low because he cannot start, which is the
+       * principle the cap is a stand-in for. He surfaces if he is genuinely
+       * better than the alternatives; he does not surface because the arithmetic
+       * favours his position. */
+      return { duplicate: true, discount: wouldCap ? CFG.ONESIE_KEEP : 1,
+        capped: false, exception: 'value',
+        why: pos + (have + 1) + ' — ' + (player.name || 'he') + ' at +' + Math.round(fell)
+          + ' vs ADP, top-' + CFG.ONESIE_ELITE_RANK + ' at the position; insurance and '
+          + 'trade value. YOU CANNOT START HIM'
+          + (wouldCap ? ', and you already carry ' + have + ' — priced as a spare.' : '.') };
     }
     const starter = roster.filter(p => p.position === pos)
       .sort((a, b) => (b.proj_mean || 0) - (a.proj_mean || 0))[0];
@@ -779,8 +799,23 @@
           + '; this is insurance, not a starter' };
     }
 
-    return { duplicate: true, discount: CFG.ONESIE_KEEP, exception: null,
-      why: pos + '2 — you cannot start him; priced as a backup' };
+    /* THE CAP LANDS HERE, AFTER EVERY EXCEPTION HAS HAD ITS SAY.
+     *
+     * So it stops the branch REACHING for a third quarterback because the
+     * arithmetic favours him, and does not stop the board handing me a top-three
+     * player eighty picks past his price, or a handcuff to a starter who is
+     * flagged OUT. That is the difference between a ceiling on habitual
+     * behaviour and a prohibition, and getting the order wrong is what made the
+     * first version refuse the pick it should most want. */
+    if (wouldCap) {
+      return { duplicate: true, discount: CFG.ONESIE_KEEP, capped: true, exception: null,
+        why: pos + (have + 1) + ' — you already carry ' + have + ' at ' + pos
+          + ' and start ' + slots + '. He cannot reach the lineup even if one goes '
+          + 'down, and he is not an exceptional fall-through.' };
+    }
+
+    return { duplicate: true, discount: CFG.ONESIE_KEEP, capped: false, exception: null,
+      why: pos + (have + 1) + ' — you cannot start him; priced as a backup' };
   }
 
   /** Where he ranks at his own position on the CURRENT board. */

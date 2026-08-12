@@ -119,5 +119,43 @@ const base = { season: '2026', build_at: '2026-08-22T23:00:00Z', pick: 34,
   ck('  (0 would read as "I gave up nothing", which is a claim)', true);
 }
 
+// ── THE FOUR THINGS THE EXTERNAL REVIEW ASKED FOR ──────────────────────────
+{
+  /* VERIFIED RATHER THAN ASSERTED, 2026-08-12, and all four had a defect on the
+   * item with the ten-day deadline. */
+
+  // (a) coin_flip WAS BEING EMITTED AND WAS NOT IN THE VOCABULARY. pickOverride
+  //     threw, the caller's catch returned silently, and the whole coin-flip
+  //     class of override was dropped.
+  const cf = O.pickOverride(Object.assign({}, base, { reason: 'coin_flip' }));
+  ck('coin_flip is a recorded reason — app.js emits it and it used to THROW',
+    cf.reason === 'coin_flip', cf.reason);
+  ck('  (the catch that hid it dropped an entire class on the one unrepeatable night)',
+    O.REASONS.indexOf('coin_flip') >= 0);
+
+  // (b) the counterfactual is THE RECOMMENDATION, not "no override"
+  ck('the counterfactual is the tool\'s recommendation, not a do-nothing arm',
+    cf.counterfactual.player_id === '4' && /observed/.test(cf.counterfactual_is));
+
+  // (c) the gap at the time, and whether the board itself was unsure
+  const g = O.pickOverride(Object.assign({}, base, { score_gap: 4.6, contested: true }));
+  ck('the record carries the SCORE GAP the tool reported at the moment',
+    g.score_gap === 4.6, g.score_gap);
+  ck('  and whether the pick was flagged CONTESTED',
+    g.contested === true, g.contested);
+  ck('  (overriding a confident call and overriding a coin flip must not aggregate)',
+    O.pickOverride(base).contested === null);
+
+  // (d) a resolution rule stated BEFORE the outcome
+  ck('the record states its resolution rule before any outcome exists',
+    typeof g.resolution_rule === 'string' && g.resolution_rule.length > 60,
+    g.resolution_rule);
+  ck('  naming the metric, the window, the zero case and the tie',
+    /realized FANTASY POINTS/.test(g.resolution_rule)
+    && /rest of the season/.test(g.resolution_rule)
+    && /never plays scores zero/.test(g.resolution_rule)
+    && /tie resolves as NOT a success/.test(g.resolution_rule), g.resolution_rule);
+}
+
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail ? 1 : 0);

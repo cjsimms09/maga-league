@@ -891,6 +891,8 @@ the vacuous-guard disease applied to the constitution itself.
 | 11 boundary correctness | completeness, validity, unknown state | `context_interface.test.js`, `survival_honesty.test.js`, `app-wiring.test.js` |
 | 11e own-query boundary | a negative about a source is checked against my query | **EMPTY** — trigger: any recorded negative about an external source or a fixture |
 | 11f set/scope correctness | a boundary can keep values and lose members | `context_interface.test.js` — engine reads ⊆ app supplies |
+| 13f manufactured null | a null that is the probe's own construction | **EMPTY** — trigger: any null that matches the hypothesis its author held. Response: demonstrate the probe can produce a non-null |
+| 13g misread null | a correct instrument read wrongly | **TRIGGER, not a test** — any reported absence. Response: state what the instrument WOULD have shown if the thing were present |
 | 12 output sanity | the number could not be true | **EMPTY** — needs: the predeclared 10–15 value sample. Trigger exists, artifact does not |
 | 15 signal invisibility | unvalidated signals cannot be SEEN during a live decision | **TRIGGER, not a test** — any live draft/waiver/lineup surface rendering an unvalidated signal; expected response: it must not render. `test_market_environment.py` asserts the `post_draft_only` LABEL only; nothing asserts a consumer honours it |
 | 14 establish the consumer | produced-and-unread | `survival_honesty.test.js` (tilt wiring, `survivalRaw` call count), `context_interface.test.js` |
@@ -915,6 +917,27 @@ created — rule 15 — BY EXPLICIT AUTHORIZATION**, which supersedes this pass'
 **AND THE DEFINITION WORTH HOLDING:** a mature constitution is not one with fewer rules. It is one
 where every remaining rule has a clear reason to exist and a clear way its violation would become
 observable.
+
+### THE NULL FAMILY — 11e, 13, 13f, 13g — AND WHAT "SOMETHING YOU DID NOT WRITE" MEANS
+
+**Added 2026-08-12 because the scope was the whole problem.** These four clauses
+were all found in C's probes, so they read as being about EXTERNAL PROVIDERS, and
+B and I both failed to recognise ourselves in them for weeks.
+
+**"SOMETHING YOU DID NOT WRITE" INCLUDES ANOTHER PART OF THIS SYSTEM.** Your own
+probe. Another lane's producer. A fixture you built last week. The artifact your
+harness reads. A test's own scaffolding.
+
+**THE EVIDENCE IS MINE.** Six instances of 13f in one week, in my own lane, from a
+rule I had read — and **three of the six were my own instruments**, which is as
+far from "somebody else's provider" as it is possible to get: the survival power
+table whose false positives read 0.0% in every cell, the sensitivity arm whose
+staleness check could never fire, and the correlation experiment whose shared
+shock carried a random sign per decision.
+
+**A RULE NOBODY IN A LANE RECOGNISES THEMSELVES IN CANNOT FIRE THERE.** That is
+the reason this paragraph exists rather than a fifth clause. The content was
+already right; the scope was implicitly narrowed by where the examples came from.
 
 ### 13f — WHEN A NULL CONFIRMS WHAT YOU EXPECTED, ASK WHETHER THE INSTRUMENT COULD HAVE SAID ANYTHING ELSE
 
@@ -942,3 +965,43 @@ identically to a real one.
 Sixth instance, same day, in the component grader: the test asserted "clustering
 gives a larger floor than iid" — false on independent data, where the two
 coincide by construction. Also the expected answer.
+
+### 13g — READ A NEGATIVE AS CLOSELY AS A POSITIVE
+
+**Cory's clause, 2026-08-12, from C's four instances in one session.** Kept
+adjacent to 13f deliberately: they are one family, not two cautions.
+
+**A NULL IS A CLAIM AND IT DESERVES THE SAME SCRUTINY AS A FINDING.**
+
+**13f COVERS THE CONSTRUCTING HALF. THIS IS THE READING HALF.** Rule 13 says
+every part of a request you chose is part of your query, so a null produced by
+your own construction is not evidence about the provider. 13f says a null that
+matches the hypothesis you were entertaining needs its instrument checked. Both
+are about the query being wrong.
+
+**Here the instrument was CORRECT, the output was CORRECT, and the reading was
+wrong.** C's four: a self-matching `pgrep`, stale bytecode, a wrong working
+directory, and a guard's parenthetical. Nothing about any query was flawed.
+Each produced something that looked like a finding about the system and was **a
+fact about its own check**.
+
+**AND THE MECHANISM BELONGS IN THE TEXT, because "be careful" is not a rule.**
+*"Nothing is there" reads as an ABSENCE rather than an ASSERTION.* A result
+saying something is broken invites verification — somebody goes and looks. A
+result saying nothing is there reads as an absence of work rather than a claim,
+so nobody checks it. **That asymmetry is why four survived in one session**, and
+it is the reason the clause names it rather than instructing care.
+
+**THE TRIGGER, which is the enforcement and is a habit rather than a mechanism:**
+
+> **WHENEVER A RESULT IS AN ABSENCE, STATE WHAT THE INSTRUMENT WOULD HAVE SHOWN
+> IF THE THING WERE PRESENT.**
+
+One sentence, written down beside the null. It would have caught all four of C's
+instances and at least two of mine — the survival power table whose false
+positives read 0.0% in every cell, and the sensitivity arm that reported a
+staleness check which could never fire.
+
+**NOT A TEST, and no test is invented for it.** It fires when somebody reports a
+negative, which is exactly where a trigger belongs.
+

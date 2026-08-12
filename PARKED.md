@@ -4625,6 +4625,77 @@ change to your script, and nothing for you to do.
 integrating is not optional when another lane is active — the guard is right to refuse, and
 the refusal message already contains the diagnosis. If anything deserves a change it is
 making that parenthetical louder, and that is your call, not a defect.
+---
+
+# THE ONESIE CAP IS TEMPORARY, AND HERE IS ITS TRIGGER (A, 2026-08-12)
+
+**Cory: "after the draft is not a schedule, and we have found four things this
+week that were specified and never wired because they had no trigger."** Correct.
+This is the trigger.
+
+**WHAT THE CAP IS STANDING IN FOR.** The bench branch ranks on
+`proj_ceiling − proj_mean` in RAW SEASON POINTS. A quarterback scores 350–400 a
+season, so his spread is the largest absolute number on the board almost by
+construction. Measured p90 of that spread:
+
+| pos | p90 |
+|---|---|
+| **QB** | **66.5** |
+| RB | 44.9 |
+| DEF | 41.7 |
+| WR | 34.7 |
+| TE | 30.8 |
+| K | 28.1 |
+
+**That measures SCALE, not upside — and scale is something the model already
+knows and must not count twice.** A second quarterback should be priced low
+because he cannot start, not forbidden because somebody counted.
+
+**THE REPLACEMENT IS NAMED: position-normalised ceiling.** Express the spread in
+replacement-relative or position-median units so a quarterback's upside is
+compared against quarterbacks. ~2h code, ~2h baseline cycle. It re-opens the
+ceiling arithmetic Cory decided on 2026-08-10 — the same surface the bench
+anchor fix re-opened, which is why it needs a cycle it cannot have this week.
+
+**THE TRIGGER, in three parts so it cannot become an intention:**
+
+1. **The date.** First post-draft working session, i.e. on or after **2026-08-23**.
+   Not "after the draft" — the 23rd.
+2. **The retirement check, already committed.** `draft/tests/onesie_cap.test.js`
+   carries a check that asserts the units defect is STILL PRESENT: with
+   `ONESIE_HARD_CAP` off, an ordinary third quarterback still floats to the top
+   40. **The day the normalisation lands, that check FAILS**, and the failure
+   prints the instruction to delete `CFG.ONESIE_HARD_CAP`, `ONESIE_MAX_SPARE`,
+   the `wouldCap` branch, the `capped` clause in `demoteFlaggedOnesies`, and the
+   file itself. The cap cannot outlive its reason without a red test.
+3. **The standing check** already escalates on archives; this one is pinned to a
+   date rather than a threshold, which is why it lives here and not there.
+
+**THE EVIDENCE, attached so a future reader does not find a structural
+constraint with no memory of why it exists** — 120 rooms, before → after:
+
+```
+modal shape   QB3 RB1 WR3 TE3 K1 DEF1  (45.8%, 10 shapes)
+           -> QB2 RB1 WR5 TE2 K1 DEF1  (96.7%,  2 shapes)
+unfilled starting slots   0/120 -> 0/120
+```
+
+and the three-arm table showing the shape is not a weight artifact:
+
+| arm | QB | RB | WR | TE |
+|---|---|---|---|---|
+| MEASURED + bench floors | 3.0 | 0.9 | 2.5 | 3.6 |
+| MEASURED, floors removed | 4.7 | 0.9 | 2.3 | 2.1 |
+| DEFAULT_WEIGHTS | 3.7 | 0.8 | 3.2 | 2.3 |
+
+**AND THE SIMULATION COULD NOT HAVE FOUND THE FALL-THROUGH DEFECT.** The first
+version of the cap sank a top-three quarterback who had fallen 89 picks to rank
+1401 of 1753 — refusing exactly the pick worth making. The 120-room validation
+did not catch it and never would have: opponents drafting to ADP with jitter do
+not let an elite player fall that far, so the room model never produces the
+state. **Cory caught it from knowing the game.** Worth recording as a limit of
+the harness rather than as a one-off: a simulation validates behaviour inside its
+own room model and is silent about everything outside it.
 
 ## 🔴 → A — TENDENCIES PERSIST. THE ROOM LAYER'S NEGATIVE WAS NOT EVIDENTIAL (C, 2026-08-12)
 

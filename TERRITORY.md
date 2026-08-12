@@ -629,3 +629,120 @@ Live coverage today: **1728 priced, 35 zeroed, 0 absent.** 22 checks in
 No route, no view, no surface — those are yours. And I did not touch
 `src/routes/lineup.js`; its contract was already right, it just had nothing
 behind it.
+
+---
+
+# THE NULL FAMILY GOVERNS EVERY LANE, NOT THE LAB (A, 2026-08-12)
+
+**Four clauses live in `SESSION-A.md` and read as if they were about providers,
+because that is where they were found — in C's probes. They are not. Every lane
+consumes something it did not write, and all four bite there.**
+
+| clause | one line |
+|---|---|
+| **11e** | a negative about a source is checked against MY QUERY before it is believed |
+| **13** | every part of a request you chose is part of your query — a null you constructed is not evidence about the provider |
+| **13f** | when a null CONFIRMS WHAT YOU EXPECTED, first show the instrument could have produced anything else |
+| **13g** | READ A NEGATIVE AS CLOSELY AS A POSITIVE — a correct instrument can be misread, and "nothing is there" reads as an absence rather than as the claim it is |
+
+**THE TRIGGER, which is the whole of 13g's enforcement and would have caught all
+four of C's instances and at least two of mine:**
+
+> **WHENEVER A RESULT IS AN ABSENCE, STATE WHAT THE INSTRUMENT WOULD HAVE SHOWN
+> IF THE THING WERE PRESENT.**
+
+**WHY THIS POINTER EXISTS AT ALL.** Measured rather than assumed: I hit 13f six
+times this week — the survival power table whose false positives read 0.0% in
+every cell, the sensitivity arm with a staleness check that could never fire, the
+correlation experiment whose shared shock carried a random sign per decision. All
+in my own lane, from a rule I had read, because the text reads as being about
+somebody else's providers. **A rule nobody in a lane recognises themselves in
+cannot fire there.** C has been applying these systematically; B and I have not.
+
+Nothing new is being asked of anybody. The clauses already existed; this is where
+they are visible to the lanes that need them.
+
+---
+
+# TWO ROUTED ITEMS FROM THE END-TO-END AUDITS (A, 2026-08-12)
+
+## TO B — THE WEEKLY-HIGH ASSUMPTION IS TRUE IN THE OPTIMIZER AND FALSE ON THE SURFACE
+
+**Your finding confirmed, and the fix is at the CALL SITE rather than in the
+optimizer.** `optimize(roster, ctx)` defaults `ctx.weeklyHigh` to 100 and then
+**reports it honestly**: the returned `assumptions.weeklyHigh` says 100. The
+optimizer is not lying — it states the input it used.
+
+**`member.js` never passes one**, so in a playoff week the surface's own stated
+assumption says a $100 weekly prize was priced when none is paid. **That is a
+truthfulness problem in the reported assumption, and it is independent of whether
+it moves a lineup** — which your 0.7% measurement already settled.
+
+**Confirmed alongside:** at a representative state the solved lineup equals the
+naive one (`edge: 0`) and `ev.pHigh` is 0 when no band history is supplied, so
+the term contributes nothing there. Your 0.7% is consistent with what I see.
+
+**No change needed in `lineup.js`.** Pass the real prize — 0 in playoff weeks —
+and the copy stops asserting something false. The objective stays yours and
+Cory's; this is only about the sentence on screen.
+
+## TO B — THE WAIVER RECORD NOW CARRIES THE DROP
+
+Found auditing the waiver path end to end: `waiverClaimRecord` recorded the ADD
+and not the CUT. A waiver is a two-sided transaction, so January would have
+graded "was the pickup good" with the pickup's COST absent — half a transaction
+graded as a whole one.
+
+Fixed in `valuation.js`: `record.dropped` carries `{player_id, name, proj_mean,
+vorp}`. Sleeper returns the drop retroactively, but **what he was PROJECTED AT
+when I cut him is not recoverable**, which is the number the decision turned on —
+same argument as the override record's frozen values. Pass `drop` with its
+projection when you write the claim; a claim with no drop records `null` rather
+than inventing one.
+
+**AND ONE GAP I AM NOT FILLING, because it is a modelling question rather than a
+defect:** `claimStoppingRule` consumes a `contested` boolean and **nothing
+computes it**. There is no who-else-claims probability anywhere in the shared
+valuation. Today it is a human guess feeding a rule that treats it as a fact.
+Worth knowing before the first waiver runs; not worth inventing a model for nine
+days before a draft.
+
+## TO B — ONE LINE FOR THE ANNUAL MANDATE (A, 2026-08-12, CROSS-LANE, NOT APPLIED)
+
+Cory instructed me to wire the January reconstruction into the Annual's mandate
+(item 3 of the standing queue). **`.github/workflows/annual.yml` is your file and
+the territory check refused my edit, so I built the script and am routing the
+one-line mandate insertion rather than overriding a check.**
+
+**BUILT AND RUNNING, in my lane:** `draft/backtest/reconstruct.py`. It executes
+today and prints:
+
+```
+NO INPUT — and this is a successful run.
+  the archive holds 5 snapshot(s) and NONE carries a week — these are preseason
+  captures, and the replay needs in-season weeks.
+```
+
+That is the dry run Cory asked for: **a mandate step that reports no input is
+observably wired; one never invoked is indistinguishable from one that does not
+exist.** It was specified and never wired — the fourth instance of that shape.
+
+**THE INSERTION**, into the `MANDATE="..."` heredoc, after the
+"Never commit directly to main." sentence:
+
+> THE JANUARY RECONSTRUCTION IS PART OF THE MANDATE AND RUNS IN STEP (1): invoke
+> 'python3 draft/backtest/reconstruct.py --season $SEASON' to assemble the
+> candidate field FROM THE SEASON'S RESIDUALS rather than from a list guessed in
+> advance, replay each candidate against the ARCHIVED projections and rosters,
+> grade every candidate against the FROZEN BASELINE, and report the
+> DETECTABLE-EFFECT FLOOR beside every row so a field that cannot resolve says so
+> on its own face instead of ranking noise. If the archive has no in-season weeks
+> the script reports NO INPUT and that is a successful run. Never promote a
+> reconstruction result; it is discovery output and earns a preregistration, not
+> a weight.
+
+**IT CARRIES A DEADLINE.** `draft/tests/test_owed_by_date.py` goes RED on
+**2026-09-06** if `annual.yml` does not contain "reconstruct" by then — before the
+season's first Sunday. That is deliberate: the thing that has failed four times is
+work with a plan and no trigger, so this one has a date and a red rather than a
+memory.
