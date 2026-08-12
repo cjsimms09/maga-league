@@ -5486,3 +5486,290 @@ window shrinks to the push itself, and **there is nothing for a rollback to get 
 
 **One fix, three symptoms.** Not mine to design, and the measurement is now on the record
 rather than the impression.
+
+---
+
+## DIRECTED PASS 1a — A's LAB REGISTRY READ AS A RECORD OF WHAT FAILS (C, 2026-08-12)
+
+**Cory's question: is there a shape to the failures? Do additive terms fail more than
+structural ones? Do terms measured in one branch and applied in another fail
+systematically?**
+
+**This is a RE-READING of A's own record. No new measurement, no new data.** The
+classification below is my judgment and someone could cut it differently; the numbers are
+A's.
+
+### FIRST — HALF OF THIS QUESTION IS ALREADY ANSWERED, BY A, AND WELL
+
+`LAB-REGISTRY.md` carries a **STANDING META-FINDING: every dose-response so far is
+inverted-U at moderate dose** — three sweeps, three knobs, one shape, and it is
+**pre-registered forward** with a scrutiny rule ("an edge of the grid is not an optimum, it
+is an unfinished sweep"). **That is exactly the meta-question being asked, already asked and
+already acted on.** I am not redoing it.
+
+### THE HALF THAT IS NOT ANSWERED: what KIND of term earns
+
+**"Additive vs structural" turns out to be the wrong cut, and the counterexample is
+decisive.** The value term is `w.value * vorp`, `vorp = proj_mean − replacement`
+(`exp_participation.py:142`, `draft/vorp.py:94`) — **an additive weighted term, and it is
+half the edge.** So additivity is not what predicts failure.
+
+**The cut that survives it:**
+
+| | earns | |
+|---|---|---|
+| **the objective itself** | `value = w × vorp` — points above replacement | half the edge |
+| **a hard constraint** | keeper-need **MASK** (startable capacity) | **~$443** vs no-mask |
+| **the input board** | market read — MFL ρ 0.40 vs FFC 0.28 | touches every pick |
+
+| | fails | |
+|---|---|---|
+| tier | heuristic tilt | **−235** |
+| risk | heuristic tilt | **−143** |
+| need-**weight ramp** | heuristic tilt | +4.9, CI [−13,+23] |
+| ceiling | heuristic tilt | −4.8, CI [−26,+17] |
+| bye | heuristic tilt | ~0 |
+| stack | heuristic tilt | +196 in the sound instrument — **stood down, see below** |
+
+**Six of six adjusters fail to earn on the clean core, and two actively harm.** The
+participation test's own headline: **core $704 → core + all six adjusters $407.** Adding the
+six cost **$297**.
+
+**So the shape is not additive-vs-structural. It is: TERMS THAT ESTIMATE THE OBJECTIVE, OR
+CONSTRAIN THE FEASIBLE SET, EARN. HEURISTIC TILTS LAYERED ON TOP OF THE OBJECTIVE DO NOT.**
+
+### AND THERE IS A WITHIN-EXPERIMENT CONTROL FOR IT, WHICH IS WHY I BELIEVE IT
+
+**The same underlying idea — startable need — was implemented both ways:**
+
+    as a MASK (constrains the candidate set)     ~$443
+    as a WEIGHT ramp (tilts the score)           +4.9, CI [-13,+23], beaten by a flat 0.5
+
+**Same concept, same harness, same seasons. The constraint earns; the tilt does not.** That
+is not a comparison across experiments with different instruments — it is one idea, two
+implementations, and a ~90× gap.
+
+### THE SECOND QUESTION — measured in one branch, applied in another: YES, TWICE
+
+**Both instances are already caught and recorded by A, which is the encouraging part.**
+
+- **exp 6's stack peak is priced against a MODELED rho (0.35), not a measured correlation.**
+  A stood it down under D10 rather than install: *"installing on a modeled parameter would
+  break D9's own conservatism standard."*
+- **The same stack reads −63 in `exp_participation` and that is an INSTRUMENT ARTIFACT** —
+  `grade_room` draws weekly scores independently, so **that harness structurally cannot
+  reward a stack.** A named it rather than reporting the −63.
+
+**Both are the same failure in different clothes: a term evaluated somewhere that cannot
+express the thing it depends on.** One borrowed its key input from a model; the other was
+graded by a harness with no within-team correlation. **Neither is a fact about stacking.**
+
+### A THIRD SHAPE THE RECORD SHOWS, WHICH NOBODY ASKED FOR
+
+**Pooled results carried by a single season.** RB>WR "dominance" pooled to +1.7 (≈zero) and
+split **2023 −8.7 · 2024 +69.3 · 2025 −41.3** — true for 2024, false either side, and the
+pooled read looked like corroboration. A caught it and marked `value_pockets`' cross-position
+read provisional.
+
+**This is the same shape as the keeper contamination I found in C-001 today**: an aggregate
+that looks like a finding until it is split by the dimension that generates it.
+
+### WHAT I WOULD DO WITH IT — one line, and it is A's call
+
+**The registry has no field for "what kind of thing is this".** Adding one — *objective /
+constraint / input-source / heuristic tilt* — at registration time would let the next
+"should we build this?" be answered against a base rate instead of an intuition. **On the
+current record the base rate for a heuristic tilt is 0 for 6, with 2 actively harmful.**
+
+---
+
+## DIRECTED PASS 1b — B's TRANSACTIONS, STANDINGS AND MONEY. **One finding; the rest is empty, plainly.** (C, 2026-08-12)
+
+### THE FINDING: the FAAB question is RESOLVED, and it closes a parked item
+
+**`waiver_bid` is null on all 1,091 transactions because THIS LEAGUE DOES NOT USE FAAB.**
+
+    settings.waiver_type = 1        all four seasons
+    waiver_budget_used   = 0        all 40 roster-seasons
+    B's own annotation:  "reverse standings (priority resets weekly off record — NO depletion)"
+
+**Three independent corroborations, all on disk.** `waiver_budget: 100` is an inert default —
+it is only consumed when `waiver_type` is 2.
+
+**So the parked "this league has no bids may be a null read from the wrong path" is answered
+NEGATIVELY: the null is real absence, and the pivot made on it was correct.** The queued live
+probe (`sleeper_pool.bid_path()`) is **not needed** — it would have spent a run confirming a
+setting we already store.
+
+**And the claim in that parked entry that "the entire FAAB history is unrecoverable for
+three seasons" was wrong in a way worth correcting**: there is no FAAB history to lose.
+
+**THIRD INSTANCE OF THE STANDING HABIT.** `league_history.json` answered persistence in an
+afternoon; `MANIFEST.json` held the dated 2023 board Route 1 hunted for a week;
+`sleeper_league_settings.json` held the answer to a question a CI probe was queued to ask.
+**Three for three.**
+
+### THE REST IS EMPTY, AND THAT IS THE REPORT
+
+**Does activity predict anything?** No, not demonstrably.
+
+| relationship | per-owner ρ (n=10 independent owners) | needed at n=10 |
+|---|---|---|
+| activity ~ wins | +0.27 | 0.648 |
+| activity ~ points_for | +0.42 | 0.648 |
+| activity ~ weekly highs | +0.27 | 0.648 |
+
+**Nothing crosses. Directionally positive, uniformly underpowered.**
+
+**Who trades with whom?** **There is no trade network.** Six trades in 1,091 transactions
+(**0.5%**), six distinct pairs, **no pair traded twice**, and the count runs **4 → 2 → 0**
+across 2023/24/25. The question is not unanswered, it is structurally unanswerable on this
+league.
+
+**Who pays late / weekly-high patterns?** `waiver_budget_used` is the only money-adjacent
+field in the archive and it is zero everywhere. **There is no payment record here to find
+patterns in.**
+
+### THE METHODOLOGICAL CATCH, WHICH IS THE PART WORTH KEEPING
+
+**Pooled as 30 owner-seasons, `activity ~ wins` reads +0.37 against a 0.362 threshold — it
+"crosses".** Per-owner, respecting that the 30 are 10 owners measured three times and that
+`txn_count` is a persistent trait (ICC 0.603), it reads **+0.27 and does not.**
+
+**And `activity ~ weekly highs` runs +0.41 · +0.64 · −0.77 by season**, pooling to a tidy
++0.19 that hides a hard sign flip.
+
+**That is the third time this exact shape has appeared today** — A's RB>WR pooled read
+carried entirely by 2024, my own C-001 keeper contamination, and now this. **A pooled
+statistic over non-independent units, hiding instability that the split exposes immediately.**
+It is the most reliable failure mode in this project's record and it is worth naming as a
+standing check rather than rediscovering a fourth time.
+
+---
+
+## DIRECTED PASS 2 — AUDIT OF A's COMPONENT-GRADING BUILD (C, 2026-08-12)
+
+**Read for the shape I spent a week finding: a producer with no consumer, a verdict computed
+and never read, a null that reads as absence.**
+
+### FIRST, AND IT MATTERS: this build already defends that class, deliberately and well
+
+- **`component_rows()` distinguishes the two nulls by name.** *"An artifact of all-nulls from
+  a working writer and one from a broken writer look identical; this is the only thing that
+  tells them apart, so a failure here blocks rather than annotates."* Absent is non-blocking,
+  **unreadable and failed-self-check are blocking.**
+- **`selfCheck()` calls `RUN.runAll` — the SAME entry point as `build()`.** Not a parallel
+  implementation, which is the usual way a positive control stops proving anything.
+- **It labels itself in the artifact**: `is_evidence_about_the_league: false`, and *"it derives
+  from the code under test and therefore proves only that the code runs (rule 10d)."*
+- **`runAll` emits `no_data` and `too_thin` as DIFFERENT verdicts**, with a comment recording
+  that the first version collapsed them and the empty-input test caught it.
+- **`COMPONENT_DOLLARS` refuses a dollar conversion** with the reason stated rather than
+  shipping a number the machine cannot see.
+
+**I went looking for the defect class and found the defence already built. That is worth
+saying as plainly as a finding would be.**
+
+### THE GAP: the connectivity control covers ONE of SIX components
+
+`runAll` dispatches to a **distinct `BUILDERS[name]` per component**. `selfCheck()` exercises
+**`weekly_claims` only** — so it proves that builder plus the shared grader, and says nothing
+about the other five.
+
+**Verified, not assumed — I fed every builder a well-formed fixture:**
+
+    survival         earning              40 obs / 25 clusters
+    projection       earning              40 / 17
+    opportunity_adj  real_but_immaterial  40 / 17
+    consensus        real_but_immaterial  40 / 17
+    replacement      noise                40 / 17
+    weekly_claims    earning              40 / 40      graded 6 of 6
+
+**There is NO live defect. All six builders work today.**
+
+**The exposure is forward.** Each builder reads named upstream fields —
+`proj_mean`, `proj_baseline`, `proj_fantasypros`, `realized_replacement`, `p_survive`,
+`base_rate`. **If any of those is renamed or reshaped upstream, that builder silently yields
+no pairs, its row reads `no_data`, and `self_check.ok` stays TRUE** — because the one
+component the check exercises is unaffected.
+
+**And that is worse here than it would normally be, because all six read `no_data` RIGHT NOW**
+(`graded: 0 of 6 declared`). **The artifact after five builders break is byte-identical in its
+verdict column to the artifact today.** The self-check is the only thing that could tell them
+apart, and it is watching one sixth of the surface.
+
+### The fix is small, and I demonstrated it before proposing it
+
+Run the fixture through **every registered builder**, not one — I did exactly that in a
+ten-line node call to produce the table above. `selfCheck()` becomes: for each name in
+`SPECS`, feed a shaped fixture, assert the row grades to something other than `no_data`.
+**Then a broken builder fails the check instead of impersonating a quiet season.**
+
+**Minor, same file:** `no_builder` can never fire — all six builders are registered — so it
+guards a state that cannot occur while the registry is complete. Harmless, worth knowing.
+
+### The other two items are NOT auditable yet
+
+**The shape files do not exist.** I searched for committed shape samples per producer at each
+cross-lane seam and found only `exp24_bbm_shape.py` (BBM winning shape, unrelated) and
+`draft/audit/composite_shape_2026-08-12.md`. **Nothing to read yet — say when it lands and I
+will read it, since it targets the class I found five instances of.**
+
+**The ledger-to-gate connector** is present only as `graduation_gate.py` reading
+`EDGE-LEDGER.md` and `DECISIONS-NEEDED.md` paths. **If a distinct connector is coming, it is
+not committed yet.**
+
+---
+
+## FOR A — A RULING WENT STALE AND NOTHING IN THE SYSTEM CAN NOTICE (C, 2026-08-12)
+
+**Found while chasing edge #3's claim that the weekly-high pool is captured by "the ceiling +
+stack draft terms".** Checked what actually ships, using A's own gate:
+
+    ceiling 0.0   stack 0.5   tier 0.0   risk 0.0   need 0.0   bye 0.0
+    value   1.0   keeper 1.0
+
+**`LAB-REGISTRY.md:94` records: "D10 — STOOD DOWN (Cory, 2026-08-08): stack stays at 1.0."
+The engine ships 0.5.**
+
+### It is documentation staleness, NOT a misconfigured tool — and the distinction matters
+
+**I chased which side is stale rather than assuming.** `DECISIONS-NEEDED.md` describes the
+shipped formula as `0.5*stack + 1*keeper` (line 37) and recommends `stack ~0.5 (exp6 winner)`
+(line 246). **The engine and DECISIONS-NEEDED agree. The lone disagreement is D10's heading.**
+
+**So nothing is broken.** But it is a **Cory ruling whose recorded outcome is no longer
+true**, in the document read for draft-day posture, ten days out. Per the supersession
+doctrine of 2026-08-12 — *"superseded by measurement is a different record from wrong"* — it
+wants **marking as superseded**, not leaving to read as current. **Which of the two is
+intended is A's and Cory's call, not mine.**
+
+### THE STRUCTURAL HALF, WHICH IS THE PART WORTH KEEPING
+
+**The graduation gate compares LOADED WEIGHTS AGAINST MEASUREMENTS. It has no view of
+DECISIONS.**
+
+It sees `stack 0.5`, classifies it **IMMATERIAL** — *"no arm clears $50 with a CI excluding
+zero — loaded 0.50 is a free choice"* — and **correctly does not block**, because no
+*measurement* contradicts it. A stale *decision* is invisible to it by construction.
+
+**This is A's own discipline note from the ceiling entry, one level up:** *"a policy value
+justified by one number while another number in the same file disagreed, with nothing forcing
+anyone to look at both."* The gate closed that for measurements. **Decisions have no
+equivalent.**
+
+**A cheap version, if it is wanted:** the gate already parses `EDGE-LEDGER.md` and
+`DECISIONS-NEEDED.md`. A ruling that names a weight and a value could be matched against the
+loaded value, and a mismatch reported (not blocked — a superseded ruling is legitimate, it
+just has to be visible). **Not mine to design and not urgent; the record is.**
+
+### TWO THINGS I CHECKED AND DID NOT FIND — stated so the absence is on the record
+
+- **Edge #3's mechanism.** I thought I had a contradiction: its implication names the ceiling
+  term, which the participation test measured at −4.8 with *"no clean weekly-high gain"*.
+  **A had already found it and documented it better than I would have** — `CEILING IS
+  UNSETTLED`, both arms, the decision basis, and the clean test that would settle it. **Not my
+  finding.** The only residue is that edge #3 carries no pointer to it or to D10, so a reader
+  of that entry alone would not know either.
+- **The component builders.** All six work on well-formed input. **No live defect** — the gap
+  is control coverage, reported separately.
