@@ -94,7 +94,42 @@ const modelPicks = simulate((pool, roster, pick, next, i) => {
   }));
   return r && r.length ? r[0].player : null;
 });
-const marketPicks = simulate(pool => bestByAdp(pool));
+/* ── THE REFERENCE MUST FIELD A LEGAL TEAM ──────────────────────────────────
+ *
+ * The first version took argmin(adp) at every pick and finished with NO DEFENCE
+ * AND NO KICKER, because both price late enough that pure ADP never reaches
+ * them in twelve picks. That roster cannot field a lineup — so it was spending
+ * twelve picks on skill positions while the model spent ten, and every
+ * positional count below was compared across different denominators. "Model WR
+ * 2 against market WR 4" was partly the reference not having to buy a kicker.
+ *
+ * A real ADP drafter fills its mandatory slots. So does this one, by the same
+ * rule the engine uses (applyRosterLegality): once the picks remaining equal the
+ * mandatory slots still unfilled, take the best ADP AT A NEEDED POSITION. It
+ * changes nothing until the endgame and makes the comparison honest.
+ *
+ * Fifth artifact of mine this investigation, and the same shape as the others:
+ * an instrument that could only produce one answer. */
+const MANDATORY = ['QB', 'RB', 'WR', 'TE', 'DEF', 'K'];
+function unfilledSlots(roster, starters) {
+  const held = {};
+  roster.forEach(p => { held[p.position] = (held[p.position] || 0) + 1; });
+  let gaps = [];
+  MANDATORY.forEach(pos => {
+    const need = (starters[pos] || 0) - (held[pos] || 0);
+    for (let i = 0; i < need; i++) gaps.push(pos);
+  });
+  return gaps;
+}
+const marketPicks = simulate((pool, roster, pick, next, i) => {
+  const gaps = unfilledSlots(roster, BOARD.league.starters || {});
+  const picksLeft = MY.length - i;
+  if (gaps.length && picksLeft <= gaps.length) {
+    const needed = pool.filter(p => gaps.indexOf(p.position) >= 0);
+    if (needed.length) return bestByAdp(needed);
+  }
+  return bestByAdp(pool);
+});
 
 // ── REPORT ────────────────────────────────────────────────────────────────
 function posCounts(picks) {

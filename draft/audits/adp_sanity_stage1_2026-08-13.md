@@ -131,3 +131,87 @@ EVERY MARKET PICK, WITH ITS SIGNED REACH
   pick 130  TE   Oronde Gadsden           adp  140.33   reach +10.3
   pick 145  RB   Alvin Kamara             adp     149   reach +4.0
 ```
+
+---
+
+## RE-RUN, 2026-08-14 — AFTER THE REPAIRS, AND WITH A REFERENCE THAT FIELDS A LEGAL TEAM
+
+**A SIXTH ARTIFACT OF MINE, CORRECTED HERE.** The reference above took `argmin(adp)`
+at every pick and finished with **no defence and no kicker** — a roster that cannot field
+a lineup. So it spent twelve picks on skill positions while the model spent ten, and every
+positional count in the original table was compared across different denominators.
+"Model WR 2 against market WR 4" was partly the reference not having to buy a kicker.
+
+The reference now fills its mandatory slots by the same rule the engine uses: once picks
+remaining equal mandatory slots unfilled, take the best ADP **at a needed position**. It
+changes nothing until the endgame.
+
+Repairs landed between the two runs: VONA restored to the bench branch, the onesie
+discount stopped raising negative scores, retired players off the draftable board, byes
+derived from the team, `PATHS_BAND` derived rather than floored.
+
+```
+pos   model   market
+  DEF      1        1
+  K        1        1
+  QB       2        1
+  RB       5        5
+  TE       1        1
+  WR       2        3
+
+EXACT PICK NUMBERS BY POSITION
+  DEF   model: 130                            market: 125
+  K     model: 145                            market: 145
+  QB    model: 85, 110                        market: 85
+  RB    model: 30, 45, 50, 90, 125            market: 30, 65, 90, 105, 110
+  TE    model: 70                             market: 130
+  WR    model: 65, 105                        market: 45, 50, 70
+
+FIRST / SECOND / THIRD OCCURRENCE
+  pos   model 1st  2nd  3rd    market 1st  2nd  3rd
+  DEF       130   -    -         125   -    - 
+  K         145   -    -         145   -    - 
+  QB         85  110   -          85   -    - 
+  RB         30   45   50         30   65   90
+  TE         70   -    -         130   -    - 
+  WR         65  105   -          45   50   70
+
+POSITION BY ROUND (round = ceil(pick / 10))
+  round   model   market
+      3   RB     RB
+      5   RB     WR
+      7   TE     WR
+      9   RB     RB
+     11   QB     RB
+     13   DEF    TE
+     15   K      K
+
+SIGNED REACH (adp - pick; positive = taken EARLIER than market prices him)
+           n   median    p75     p90     max     min
+  model   12    +11.0   +19.8   +26.0   +36.0    +2.0
+  market  12     +4.2    +7.3   +10.2   +10.3    +1.7
+
+SIGNED REACH BY POSITION
+  pos        arm     n   median     p75     p90     max
+  DEF    model     1    +17.7   +17.7   +17.7   +17.7
+  DEF    market    1    +10.3   +10.3   +10.3   +10.3
+  K      model     1    +26.7   +26.7   +26.7   +26.7
+  K      market    1     +9.0    +9.0    +9.0    +9.0
+  QB     model     2    +13.0   +16.5   +18.6   +20.0
+  QB     market    1     +1.7    +1.7    +1.7    +1.7
+  RB     model     5     +9.0   +19.7   +29.5   +36.0
+  RB     market    5     +3.7    +4.7    +4.7    +4.7
+  TE     model     1     +7.3    +7.3    +7.3    +7.3
+  TE     market    1    +10.3   +10.3   +10.3   +10.3
+  WR     model     2    +11.0   +11.3   +11.5   +11.7
+  WR     market    3     +3.3    +5.0    +6.0    +6.7
+```
+
+**Five of six positions now match or sit within one.** RB was the largest gap in the
+original run — model 1 against market 6 — and is now **5 against 5**. QB first occurrence
+is identical at pick 85. The model remains **+1 QB, −1 WR**, and takes its TE at 70 against
+the market's 130.
+
+**Reach is still wider than the reference at every position**, and the reference's own
+reach remains a tautology (see the correction above), so the honest reading is the
+absolute figures: the model's worst reach is now +36.0, down from +73.7.
