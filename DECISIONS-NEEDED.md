@@ -580,3 +580,59 @@ Applied to the two helpers already; they now derive their removals from
 - **WHAT I WILL NOT DO EITHER WAY.** Relax F4 to reach a number. F7 already says a short
   sample reports the number and changes nothing, and that case has arrived as a
   measurement.
+
+---
+
+## 0000. THE TOOL DRAFTS 0.9 RUNNING BACKS IN EVERY ARM (2026-08-12) 🔴 OPEN — NOT FIXED, NOT DISAPPEARING
+
+- **WHAT WAS FOUND.** The roster-construction run measured position mix across
+  three weight vectors, same seeds. RB is essentially constant:
+
+  | arm | QB | **RB** | WR | TE |
+  |---|---|---|---|---|
+  | MEASURED + bench floors (shipped) | 3.0 | **0.9** | 2.5 | 3.6 |
+  | MEASURED, floors removed (pre-fix) | 4.7 | **0.9** | 2.3 | 2.1 |
+  | DEFAULT_WEIGHTS | 3.7 | **0.8** | 3.2 | 2.3 |
+
+  **Three different weight vectors, three different QB/TE shapes, the same 0.8–0.9
+  running backs.** And after the onesie cap landed, the freed picks went to
+  **WR (3 → 5), not RB** — RB stayed at 1.
+- **WHAT IT IMPLIES.** This is a property of the RULE, not of a coefficient. No
+  weight setting reachable from the panel changes it, and the onesie cap — which
+  moved everything else — did not touch it.
+- **THE RISK, and it is not a valuation error.** With Henry and Walker kept, the
+  mask is doing its job: RB2 is filled, so RB depth reads as bench and the FLEX
+  is genuinely position-agnostic. But twelve picks ending with Henry, Walker and
+  one other means **a single injury puts a replacement-level back in a FLEX that
+  could have held anyone**. Nothing in the system prices that. `riskAdjustment`
+  scores a player's own injury probability; nothing scores the roster's
+  concentration.
+- **MAGNITUDE.** Unpriced. The arm table is the evidence that it is structural;
+  what it costs in points or dollars has not been measured and I am not going to
+  estimate it.
+- **COST OF INACTION.** One injury away from a hole the draft cannot fix,
+  every season, until something prices roster concentration.
+- **RECOMMENDATION: do not fix this week.** It is not a defect with a one-hour
+  patch — it needs a concentration/insurance term that does not exist, and
+  inventing one nine days before a draft is how the bench branch got its anchor
+  removed in the first place. Recorded here so it survives the fix that capped
+  the visible half.
+- Evidence: `draft/audit/roster_construction_2026-08-12.md`,
+  `draft/tools/roster_construction.js`.
+
+## 00000. TIGHT END AT 3.6 PICKS IS UNDIAGNOSED (2026-08-12) 🟡 OPEN QUESTION, NOT A HYPOTHESIS
+
+- **THE NUMBER.** Before the onesie cap, the tool took a mean **3.6 tight ends**
+  in twelve picks — more than any other position, in a league that starts one.
+- **WHAT IT IS NOT.** It is not explained by the ceiling-spread mechanism that
+  explains the quarterbacks. Measured p90 of `proj_ceiling − proj_mean`:
+  QB 66.5, RB 44.9, DEF 41.7, WR 34.7, **TE 30.8**, K 28.1. **TE has the
+  smallest skill-position spread on the board**, so the units argument that
+  accounts for QB predicts the opposite of what TE does.
+- **STATUS.** Recorded with the number attached and NO hypothesis, deliberately.
+  The onesie cap has since bounded it at 2, so the visible cost is gone — but
+  the reason a term over-selected the position with the *smallest* upside spread
+  is unknown, and an unexplained mechanism that happened to be capped is still
+  unexplained.
+- **WHAT WOULD ANSWER IT.** A term-isolation pass at a state with two tight ends
+  carried, the same way the bench branch was decomposed — an hour, post-draft.

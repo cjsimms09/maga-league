@@ -98,14 +98,35 @@ check('the metric is deterministic across runs (seeded, not drifting)',
 // ONE of its three canonical states — late-onesies-open — and left the early and
 // mid states byte-identical. So the change is confined to the rounds where the
 // bench branch fires, which is what the fix touched and nothing else.
+// RE-PINNED AGAIN 2026-08-12 (second time today): 85.8% -> 93.3%, magnitude
+// 15.0 -> 15.9. THE ONESIE HARD CAP (Cory's option 2), a SEPARATE change from
+// the bench anchor above and re-pinned separately so the two are not conflated.
+//
+// AND THE SIGNATURE IS NOT THE SAME AS THE FIX ABOVE — I wrote that it was, from
+// misreading the summary line: `93.3% · 11.2/draft · 15.9 picks` is rate,
+// DEVIATIONS PER DRAFT, then magnitude. 11.2 is a count, not a distance.
+//
+// The honest reading: the cap makes the tool depart from ADP order MORE OFTEN
+// (85.8% -> 93.3%) and by SLIGHTLY MORE when it does (15.0 -> 15.9). That is a
+// different shape from the anchor fix, which departed more often and by far
+// less, and it makes sense: sinking a third QB/TE below every startable player
+// pushes the pick further down the ADP list rather than pulling it back toward
+// the market. A roster-legality rule DEVIATES; it does not tidy.
+//
+// MEASURED ALONGSIDE: the roster-construction run over 120 rooms went from a
+// modal QB3 RB1 WR3 TE3 to QB2 RB1 WR5 TE2 at 96.7%, with unfilled starting
+// slots staying at 0/120. The rate moved because the SHAPE moved.
+//
+// The pool is NOT re-frozen, same reasoning as above: the board did not change,
+// the engine did, and re-freezing would confound them.
 check('intervention rate is pinned (frozen pool, shipped weights, seat 8)',
-  Math.abs(r.rate - 0.858) < 0.05,
+  Math.abs(r.rate - 0.933) < 0.05,
   'rate=' + (r.rate * 100).toFixed(1) + '% — this now measures the ENGINE on a FIXED '
     + 'board, so a move here is a real composite change. If intended, freeze a NEW '
     + 'pool version and re-pin; do not widen the band.');
 
 check('mean deviation magnitude is pinned (frozen pool)',
-  Math.abs(r.meanMagnitude - 15.0) < 3,
+  Math.abs(r.meanMagnitude - 15.9) < 3,
   'magnitude=' + r.meanMagnitude.toFixed(1));
 
 // A SCOPE NOTE ADDED 2026-08-12, so "ceiling: dead" is not read as a global
