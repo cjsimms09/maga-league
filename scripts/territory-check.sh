@@ -393,12 +393,32 @@ file_list() {
 #
 # Read from the REF in --range mode, for the same reason the derivations are:
 # the file may exist only on the branch being judged.
+# A DECLARATION IS A HEADER, AND THE SCAN DEPTH SAYS SO.
+#
+# This read `head -40`, and TERRITORY.md documents the convention with a fenced
+# example at lines 18-19:
+#
+#     # TERRITORY: C          (python, shell)
+#     // TERRITORY: B         (js)
+#
+# so the file that DEFINES the convention was captured BY it — read as C-owned,
+# which made every A edit to it a trespass and blocked BOTH lanes from
+# integrating. A self-referential guard: the doc block is not a claim of
+# ownership, it is a picture of one.
+#
+# MEASURED across every declaration in the repo before choosing the depth:
+# 24 markers on line 1, 4 on line 2 (after a shebang), and NOTHING legitimate
+# below line 2. TERRITORY.md's example at 18 is the only thing down there.
+# 5 leaves room for a shebang and an encoding line and stays far above it.
+#
+# The failure direction is safe either way: a marker placed too low is not
+# silently mis-assigned, it reports NO OWNER DECLARED and someone moves it up.
 _declared_owner() {
   _d=""
   if [ -n "${RANGE_REF:-}" ]; then
-    _d="$(git show "$RANGE_REF:$1" 2>/dev/null | head -40)" || _d=""
+    _d="$(git show "$RANGE_REF:$1" 2>/dev/null | head -5)" || _d=""
   fi
-  [ -n "$_d" ] || { [ -f "$1" ] && _d="$(head -40 "$1" 2>/dev/null)"; }
+  [ -n "$_d" ] || { [ -f "$1" ] && _d="$(head -5 "$1" 2>/dev/null)"; }
   [ -n "$_d" ] || return 1
   _o="$(printf '%s' "$_d" | grep -oE 'TERRITORY:[[:space:]]*[ABC]\b' | head -1 \
         | grep -oE '[ABC]\b' | head -1)"
