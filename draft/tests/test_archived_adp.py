@@ -780,3 +780,101 @@ def test_ADP_SOURCE_TRAVELS_ON_THE_ROW_not_only_beside_it():
     bare = X.to_snapshot(X.parse_board("<tr><td><a>Christian McCaffrey</a></td></tr>"),
                          index, "2024-07-12")
     assert bare["rows"][0]["adp_kind"] == "rank"
+
+
+# ── THE CSV PATH ABORTED THE WHOLE FILE ON ONE SHORT ROW (found 2026-08-11) ──
+def test_a_BLANK_LINE_does_not_erase_the_whole_board():
+    """MEASURED: a trailing blank line — which almost every CSV has, and which
+    `csv.reader` yields as `[]` — turned a clean three-player board into ZERO names.
+    A blank line in the middle did the same, discarding the rows collected before it.
+
+    The cause was two different facts sharing one branch. "This file has no name
+    column" is about the FILE and correctly returns nothing; "this ROW is too short
+    to reach the name column" is about one row. Both hit `else: return []`.
+
+    THIS IS THE SECOND TIME THE CSV PATH READ 0/0 ON A GOOD FILE, and the first time
+    it hid the only real Route 1 lead behind a column of zeroes that looked exactly
+    like an answer. MUTATION: abort the file on a short row. Every dated CSV in the
+    mirror enumeration reads zero and the lead closes on our own parser."""
+    good = ("Rank,Player,Team\n1,Ja'Marr Chase,CIN\n"
+            "2,Bijan Robinson,ATL\n3,Justin Jefferson,MIN\n")
+    assert X._csv_names(good) == ["Ja'Marr Chase", "Bijan Robinson", "Justin Jefferson"]
+    assert X._csv_names(good + "\n") == ["Ja'Marr Chase", "Bijan Robinson",
+                                         "Justin Jefferson"], "trailing blank line"
+    mid = "Rank,Player,Team\n1,Ja'Marr Chase,CIN\n\n2,Bijan Robinson,ATL\n"
+    assert X._csv_names(mid) == ["Ja'Marr Chase", "Bijan Robinson"], "blank line mid-file"
+    # ...and the same for the first/last-name shape, which reads two columns.
+    fl = "first,last,team\nJa'Marr,Chase,CIN\n\nBijan,Robinson,ATL\n"
+    assert X._csv_names(fl) == ["Ja'Marr Chase", "Bijan Robinson"]
+
+
+def test_but_a_file_with_NO_NAME_COLUMN_still_refuses():
+    """The file-level refusal is the half that must SURVIVE the fix. Guessing at
+    column 0 would put team abbreviations and rank numbers into a hand-check sample
+    whose only purpose is to be readable by a human.
+
+    MUTATION: skip the row instead of refusing the file, and a rank column becomes
+    a list of 'players' named 1, 2, 3 that the confidence gate then scores.
+
+    NOTE, honestly: the explicit header check is an EARLY-OUT and deleting it
+    survives this test — with no name column every row falls to `continue` and the
+    answer is [] either way. What this test pins is the OUTCOME, which is the thing
+    that matters and which the loop enforces. The early-out is not load-bearing and
+    the source says so rather than wearing an assertion it does not have."""
+    assert X._csv_names("rank,team,bye\n1,CIN,10\n2,ATL,5\n") == []
+    assert X._csv_names("<html><body>not delimited at all</body></html>") == []
+    assert X._csv_names("") == []
+    assert X._csv_names("Rank,Player,Team\n") == []      # header with no rows
+
+
+def test_a_TRUNCATED_read_drops_its_cut_final_row():
+    """`head` is a hard 200KB slice, so a larger file's last row is cut mid-line by
+    construction. Keeping it yields a half-name — 'Brian Tho' — which the
+    known-answer gate scores as a MISS against a player who is really there.
+
+    That is evidence against a good board manufactured by our own read buffer, which
+    is the exact failure the gate exists to prevent. MUTATION: keep the cut row."""
+    big = "Rank,Player,Team\n" + "".join("%d,Player %d,XXX\n" % (i, i)
+                                         for i in range(1, 30000))
+    assert len(big) > 200000
+    names = X._csv_names(big, limit=100000)
+    # every surviving name is WHOLE — no "Player 96" where "Player 9628" was meant
+    assert all(n == "Player %d" % (i + 1) for i, n in enumerate(names)), names[-3:]
+    # ...and a file we did NOT truncate keeps its last row.
+    small = "Rank,Player,Team\n1,Ja'Marr Chase,CIN\n2,Bijan Robinson,ATL\n"
+    assert X._csv_names(small)[-1] == "Bijan Robinson"
+
+
+# ── frozen_before: the CSV route's F5 guard, at its edges ───────────────────
+def test_a_BARE_ISO_DATE_is_readable_history():
+    """An ISO date is EXACTLY ten characters. The guard is `< 10`, and narrowing it
+    to `<= 10` rejects every plain `YYYY-MM-DD` commit date — every such file then
+    reads "no readable commit history" and no CSV is ever frozen.
+
+    MUTATION: `len(str(last)) <= 10`. The whole CSV route reports unfrozen and the
+    lead closes on a boundary."""
+    v = X.frozen_before({"last": "2019-08-19"}, "20240801")
+    assert v["frozen"] is True, v
+    assert v["last_commit"] == "2019-08-19"
+
+
+def test_a_SHORT_date_is_unreadable_and_therefore_NOT_frozen():
+    """Absent is not a pass, here as everywhere. A four-character `2024` is not a
+    commit date, and string-comparing '2024' against '20240801' says True — so a
+    file with no real history would be certified frozen before a cutoff it was never
+    checked against.
+
+    MUTATION: `if not last and len(str(last)) < 10`. `2024` slips past the guard,
+    reaches the prefix comparison, and comes back FROZEN."""
+    for bad in ("2024", "24-08-19", "x"):
+        v = X.frozen_before({"last": bad}, "20240801")
+        assert v["frozen"] is False, (bad, v)
+        assert "undated" in v["why"] or "unreadable" in v["why"], (bad, v)
+
+
+def test_an_UNREADABLE_date_is_NOT_frozen():
+    """Ten characters is not the same as ten DIGITS. MUTATION: return frozen True
+    for a date we could not parse — an unparseable stamp is treated as evidence
+    about what a file held before the drafts."""
+    v = X.frozen_before({"last": "not-a-date"}, "20240801")
+    assert v["frozen"] is False and "unreadable" in v["why"], v

@@ -666,10 +666,42 @@ def _csv_names(text, limit=15) -> list:
         return []
     if len(rows) < 2:
         return []
+    # IF WE TRUNCATED IT, THE LAST ROW IS CUT MID-LINE BY CONSTRUCTION. Keeping it
+    # yields a half-name — "Brian Tho" — which the known-answer gate scores as a MISS
+    # against a player who is really there, i.e. evidence against a good board
+    # manufactured by our own read buffer.
+    if len(text or "") > len(head):
+        rows = rows[:-1]
     header = [str(h or "").strip().lower().lstrip("\ufeff") for h in rows[0]]
     name_i = next((i for i, h in enumerate(header) if h in _NAME_COLS), None)
     first_i = next((i for i, h in enumerate(header) if h in _FIRST_COLS), None)
     last_i = next((i for i, h in enumerate(header) if h in _LAST_COLS), None)
+    # TWO DIFFERENT FACTS, AND THEY USED TO SHARE A BRANCH.
+    #
+    # "This file has no name column" is a fact about the FILE and returns nothing —
+    # guessing at column 0 would put team abbreviations into a hand-check sample
+    # whose only purpose is to be readable. "This ROW is too short to reach the name
+    # column" is a fact about one row. Both landed in the same `else: return []`, so
+    # ONE short row abandoned the whole file — discarding the names already collected
+    # ahead of it.
+    #
+    # MEASURED 2026-08-11: a trailing blank line — which almost every CSV has, and
+    # which `csv.reader` yields as `[]` — turned a clean three-player board into
+    # zero names. A blank line in the MIDDLE did the same, losing the rows before it.
+    # `head` is also a hard 200KB truncation, so a large file's final row is cut
+    # mid-line by construction.
+    #
+    # THIS IS THE SECOND TIME THE CSV PATH HAS READ 0/0 ON A GOOD FILE. The first
+    # was having no CSV path at all, and it hid the only real Route 1 lead behind a
+    # column of zeroes that looked exactly like an answer.
+    # AN EARLY-OUT, NOT A GUARD, and the difference is worth stating: with no name
+    # column every row falls to the `continue` below and the function returns []
+    # anyway. Deleting this line changes no answer — mutation-checked, it survives —
+    # so it earns its place by naming the file-level rule and by not walking 30,000
+    # rows to reach a conclusion available from the header. The rule itself is
+    # enforced by the loop.
+    if name_i is None and (first_i is None or last_i is None):
+        return []
     out, seen = [], set()
     for r in rows[1:]:
         if name_i is not None and len(r) > name_i:
@@ -678,7 +710,7 @@ def _csv_names(text, limit=15) -> list:
             cand = ("%s %s" % (str(r[first_i] or "").strip(),
                                str(r[last_i] or "").strip())).strip()
         else:
-            return []
+            continue    # a short row is a short ROW, not a verdict on the file
         # MFL and several mirrors write "Last, First". Normalised HERE so the
         # known-answer check compares names in one spelling, not two.
         if "," in cand:
