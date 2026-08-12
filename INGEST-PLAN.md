@@ -1996,3 +1996,76 @@ in the archive because it never needed to be. Underdog still serves it.**
 **Underdog's ADP is Underdog's market**, not ours and not MFL's. It prices best-ball drafts
 under best-ball incentives. **It is a dated board, not our dated board**, and any use of it
 must name that at the point of use — which F6 already requires.
+
+---
+
+## SUPERSEDED BY MEASUREMENT, NOT WRONG — the BBM registry entry (Cory's ruling, 2026-08-12)
+
+**The two entries describe DIFFERENT ARTIFACTS, and Cory ruled that the record should say
+so rather than have one quietly overwrite the other.**
+
+| | what it described |
+|---|---|
+| **the earlier entry** | a draft file whose **ADP window could not be established** — "contaminated" was a statement about a file we could not date |
+| **the measurement** | the **round-1 regular-season** file: an explicit dated window, `draft_time` at **100%** population, `projection_adp` at **100%**, hash-verifiable |
+
+**A belief and a measurement, and the belief was formed before the artifact could be
+measured.** The earlier entry is **retained, not deleted**, and it was **not wrong about
+what it described**.
+
+> **"This was superseded by measurement" is a different record from "this was wrong."**
+
+**And I did not touch it myself.** Quietly reinterpreting one's own prior record is the
+failure the amendment discipline exists to prevent, and the answer being obvious is not a
+reason to skip asking.
+
+---
+
+## RANKINGS INSTEAD OF ADP — REFUSED, WITH A REVISIT CONDITION (Cory's ruling, 2026-08-12)
+
+**Refused on the QUANTITY, not on the dating.**
+
+> **ADP is what drafters DID. ECR is what experts SAID.** Survival asks *"will he last to my
+> next pick"* — a question about **drafter behaviour**. Substituting an expert ordering
+> measures a different quantity and calls it the same one, which is the objection that
+> killed rescoring other formats: it produces a room nobody played in.
+
+**And the dating was never the hard part.** F5 names ADP because ADP is the thing that
+answers the question, not because ADP happens to be dated.
+
+**REFUSED NOW, RE-OPENABLE IF THE ERROR IS QUANTIFIED AND SMALL.** Recorded in the
+candidate ledger as `R-ECR-FOR-ADP` with that trigger attached, because *a retired
+hypothesis without a revisit condition is a deleted one*.
+
+**The trigger is cheap and specific, and both halves now exist:**
+
+- a **dated ECR series** — six files across the 2019 preseason, in the FantasyPros mirror
+- a **dated ADP board** — BBM IV 2023, **131 distinct draft dates**
+
+**The error is measurable rather than assumed.** Nobody is measuring it now; the entry says
+what would reopen it.
+
+---
+
+## READ WHAT WE ALREADY HAVE, BEFORE PROBING ANYTHING EXTERNAL (standing, 2026-08-12)
+
+**Two for two, and that is enough to make it a habit rather than a coincidence.**
+
+| archive | held | answered |
+|---|---|---|
+| `league_history.json` | three seasons of every owner's picks | **persistence**, in an afternoon — C-001 and C-003 |
+| `draft/data/bbm/MANIFEST.json` | a URL to a dated 2023 ADP board with per-draft timestamps | **the question Route 1 spent a week on** |
+
+**Route 1 searched the web archive for an artifact that was reachable, unblocked, free, and
+named in a manifest already in this repository.**
+
+**So: before probing anything external, read what we already have — not as a sweep, as the
+first step of any question about whether an artifact exists.**
+
+**And Route 1's standing, stated precisely:** the conclusion **holds as scoped** — no dated
+board retrievable from the web archive, for its registered targets. It was **too narrow as
+a belief** — the artifact was never in the archive because it never needed to be. *That is
+the difference between a closed question and a closed search.*
+
+**The BBM file does NOT unlock F7** — twelve-team, best-ball, no keepers, failing F1 on
+three clauses at once. **It serves F6's pooled parameters and that is what it serves.**

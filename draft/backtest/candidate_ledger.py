@@ -49,6 +49,20 @@ CANDIDATES = [
      "revisit_when": "QB decision slots in the oracle-capture series >= 15",
      "counter": "oracle_capture_qb_slots",
      "revisit_n": 15},
+    {"id": "R-ECR-FOR-ADP",
+     "claim": ("a dated EXPERT RANKING series may substitute for dated ADP under F5"),
+     "status": "refused",
+     "discovery_n": 0,
+     "searched": 1,
+     "revisit_when": ("REFUSED by Cory 2026-08-12 on the quantity, not the dating: ADP is "
+                      "what drafters DID, ECR is what experts SAID, and survival asks a "
+                      "question about drafter behaviour. RE-OPENABLE IF the ECR-to-ADP "
+                      "error is QUANTIFIED AND SMALL — measurable now that a dated ECR "
+                      "series (6 files, 2019 preseason, in the fantasypros mirror) and a "
+                      "dated ADP board (BBM IV 2023, 131 draft dates) both exist for "
+                      "overlapping-methodology years. Cheap, specific, checkable."),
+     "counter": None,          # the trigger is a MEASUREMENT, not a sample size
+     "revisit_n": None},
     {"id": "R-F7",
      "claim": "200 matched external league-seasons are reachable",
      "status": "retired",
