@@ -181,9 +181,38 @@ route, and the difference is the open piece.** FantasyPros feeds *both* the ADP
 table (`build_fantasypros_table`) and the projections
 (`build_fantasypros_projections`), so source quality does reach the largest term
 — **through `proj_mean`, not through ADP.** But the source grade measured
-**ADP-versus-outcome correlation**. **The source was graded on one channel and
-elevated for its effect on another.** The projection channel — the one that
-actually feeds the anchor — has never been graded the same way.
+**ADP-versus-outcome correlation** — its own title is *"which ADP board the
+keeper-need rule should rank by"*, and its statistic is
+`Spearman(-adp, realized)`. **The source was graded on one channel and elevated
+for its effect on another.**
+
+### 🟠 AND I OVERSTATED THE GAP — CORRECTED HERE RATHER THAN LEFT STANDING
+
+My first version of this section said the projection channel "has never been
+graded the same way" and called it the largest gap the audit found. **I then
+checked, and `exp_proj_source.py` exists** — it is Cory's own Q2, opening with
+the same observation: *"we grade ADP from three sources but have NEVER graded
+projections."*
+
+**The claim survives, narrowed. The size does not.**
+
+- **Still true:** that probe measures **agreement between sources, not accuracy
+  against outcomes.** Its docstring is explicit — *"the winner is graded against
+  realized AFTER the season; this pre-draft half only answers
+  agreement/divergence, never which is better."* So the projection channel has
+  no outcome-graded verdict, and the ADP channel does.
+- **But the lever is small, and measured:** Sleeper versus FantasyPros on the
+  same players, **ρ = 0.9327 overall and ρ = 0.9273 across the top 150** — the
+  range where the draft happens.
+
+> **So "we may have picked the wrong projection source" is bounded at
+> ρ ≈ 0.93 and is a small worry, not the largest gap in the audit.** The
+> different and untouched worry is **"both sources may be wrong together"** —
+> agreement is not accuracy, and two sources that share a method share its
+> errors. That one is genuinely ungraded, and it is exactly what the
+> `projection` component row was declared to answer once weekly outcomes land.
+> **Which means the gap does not need a new experiment; it needs the component
+> writer that shipped today to accumulate a season.**
 
 *(The independent arm — pure VORP within the startable mask, against the shipping
 composite, on paired seeds in both room models — is running. Results appended
@@ -196,9 +225,14 @@ below when it lands.)*
 1. **Stop quoting "the gate is green" as evidence about the weights.** It is
    evidence about drift. The component rows added today are the gate's first
    independent source; that is the part worth watching.
-2. **Grade the PROJECTION source the way the ADP source was graded.** It is the
-   channel that actually feeds the anchor and it has never been tested. This is
-   the largest gap the audit found.
+2. **Do NOT build a projection-source grade.** ~~It is the channel that actually
+   feeds the anchor and it has never been tested.~~ I wrote that before checking,
+   and `exp_proj_source.py` already measures the sensitivity: the two sources
+   agree at **ρ = 0.93 across the top 150**, so the source *choice* on that
+   channel is a small lever. **The real question — are both sources wrong
+   together — is the `projection` component row**, which was declared with a
+   1.0-point materiality bar and a per-position split, and which now has a writer
+   and somewhere to arrive. It needs a season, not an experiment.
 3. **Add the placebo arm to the participation harness (~1h, post-draft).**
 4. **Per-channel decomposition for tier/risk/bye/need (~1h, post-draft)** — the
    honest version of the batch re-grade, which the proxy cannot provide.
@@ -226,3 +260,12 @@ hold you would stop wondering.** They very nearly do:
 headline moved 26% across three re-runs and four documents kept the first
 number — a stale value with nothing watching it, which is the defect class this
 project has spent weeks closing everywhere except in its own prose.
+
+**And one correction inside this audit, made after committing it.** I called the
+ungraded projection channel "the largest gap the audit found" before checking
+whether it had been looked at. It had — `exp_proj_source.py`, your own Q2 —
+and the two sources agree at ρ = 0.93 where you draft. **The claim narrowed to
+something true and much smaller.** Recorded because an audit that overstates one
+finding is worth less on all the others, and because it is the same failure mode
+the audit is about: asserting an absence without asking whether the instrument
+had already answered.
