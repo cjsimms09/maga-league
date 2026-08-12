@@ -6302,3 +6302,64 @@ additively (`matched += r.get("crosswalked")`) and tracks `conflicts` as its own
 no keyed table that can silently collapse, so this shape does not exist there. Reported
 because whoever scans an archive should not have produced it, and the reverse holds too — I
 looked at mine before writing about yours.
+
+---
+
+## ⚠️ FOR WHOEVER OWNS THE MARKET LAYER — the same hazard I just shipped and caught, in a capture whose window is unrecoverable (C, 2026-08-12)
+
+**Generalised from my own mistake, at Cory's prompting, and then checked rather than
+asserted.** I put an escalation step ahead of a commit step in D3's capture workflow today.
+A failed step aborts the job, so the commit — whose `if` lacked `always()` — would have been
+SKIPPED, and the alarm about lost days would have discarded that day's board. **An alarm
+that destroys what it watches.** I swept all 37 workflows for the shape.
+
+### THE SWEEP: 3 hits, and 2 of them are benign
+
+    market-probe.yml      "Fail if nothing was reached"  -> "Commit the probe result"
+    mfl-schema-probe.yml  "Fail if no endpoint returned" -> "Commit the observed schema"
+
+**Both are fine and I am not routing them.** Their failure condition IS "there is no data",
+so skipping the save is correct. The hazard needs a failure condition ORTHOGONAL to whether
+there is something worth saving — which is what mine was, and what this one is:
+
+### THE REAL ONE — `.github/workflows/market-capture.yml`
+
+    4. Capture                                   <- writes draft/market_snapshots/
+    5. Fail if the capture is stale or empty     <- exit 1 on a PERSISTENT hole
+    6. What the baseline set actually covers     (if: none)  -> SKIPPED
+    7. Commit the snapshot                       (if: none)  -> SKIPPED
+
+**The gate's own reasoning is right and its consequence inverts it.** It says:
+
+> *"A PERSISTENT HOLE FAILS; A SINGLE PARTIAL WARNS. One incomplete run is recoverable —
+> tomorrow's capture can still take the deferred events while the window is open. A RUN of
+> them is a hole being written into an unrecoverable window."*
+
+On the third consecutive incomplete run it exits 1 — **and thereby discards the partial
+snapshots step 4 just captured.** The check that exists because holes cannot be backfilled
+responds to a hole by adding another one. A 13-of-48 run is 13 real snapshots; they are
+written to the runner's disk, never committed, and go with the container. **I checked for a
+fallback: there is no `upload-artifact` in this workflow, so nothing else saves them.**
+`market_capture.py`'s own first line is *"PRESEASON CAPTURE — the unrecoverable window,
+taken now."*
+
+Step 6 is skipped too, so the diagnostic that would explain the hole is lost with it.
+
+### THE FIX IS THE ONE I APPLIED TO MINE
+
+Move the gate AFTER the commit, or give the commit `if: always() && ...`. **The data lands
+first; the run goes red afterwards.** Failing the run is the right alarm — it is the only
+channel that reaches Cory without him going to look. It just must not be paid for with the
+observation.
+
+**Not mine to change** — `market-capture.yml` and `market_capture.py` are outside C. Routed
+with the sweep so the next person does not have to redo it.
+
+### AND THE GENERAL FORM, since Cory asked for it somewhere permanent
+
+**A MONITOR THAT SHARES A JOB WITH THE THING IT MONITORS CAN DESTROY WHAT IT WATCHES.** In
+GitHub Actions the mechanism is exact: a failed step aborts the job, and every later step
+whose `if` lacks `always()`/`failure()` is skipped. So the question to ask of any workflow
+that both CAPTURES and JUDGES is: *if the judgment fails, does the capture still get saved?*
+It is a checkable property, not a maxim — the sweep above is eleven lines of YAML parsing
+and it found the one real instance among 37 workflows.
