@@ -7306,3 +7306,54 @@ verified by request, not assumed.
 If those teams come back as the board has them, **the data layer is sound and the answer to
 Cory's question is "unverified, but right"** — which is a good result and a different problem
 from the one he feared.
+
+---
+
+## 🔧 FOR A — FOUR DROP-IN ASSERTIONS THAT WOULD HAVE CAUGHT THE DRIFT NOBODY WATCHES FOR (C, 2026-08-12)
+
+I reported that **the board is correct by construction, not by verification, and nothing would
+report the day it drifted.** Then I ran the checks that would — once, by hand. **A check that
+runs once is the intention-with-no-trigger failure this project keeps naming**, so here they
+are as assertions, with today's values, verified passing on `origin/main`.
+
+**These test against facts about the NFL that no artifact of ours can influence.** That is the
+point: they cannot be satisfied by our pipeline being self-consistent, which is the whole class
+`build.py`'s existing tests cannot reach.
+
+    1. distinct NFL teams on the board        == 32     today: 32   PASS
+    2. teams carrying MORE THAN ONE bye       ==  0     today:  0   PASS
+    3. DEF entities                           == 32     today: 32   PASS
+    4. teams with exactly one dc==1 QB        == 32     today: 32   PASS
+
+**(4) IS THE STRONG ONE AND IT IS WHY I BOTHERED.** A stale or half-merged roster shows up
+there first: a team with two starting quarterbacks, or none. It is also what proved this board
+is a 2026 board rather than a 2025 copy — 32 unique starters in a configuration 2025 cannot
+produce. **If a future build silently reverts to a cached players dump, this is the assertion
+that fails, and none of the current tests would.**
+
+### AND A FIFTH ONE I BUILT, TESTED, AND AM THROWING AWAY
+
+I wrote an `age - years_exp` band check (a 2026 draftee should be ~19-26 at entry) expecting it
+to catch frozen records. **It produces false positives on real players and I am not shipping
+it:**
+
+    Brandon Aubrey    age 31 exp 3   (soccer convert, entered the NFL at 28)
+    Devon Allen       age 29 exp 2   (Olympic hurdler)
+    Lirim Hajrullahu  age 32 exp 2   (CFL kicker)
+    Andy Phillips, Paul Quessenberry — same shape
+
+**Six today, and every one is legitimate.** A check that fires on real players every build is a
+check that gets muted, and a muted check is worse than none because it is believed to be
+working. **Reporting the one I discarded alongside the four I kept, because "I tried five and
+four worked" is the useful sentence, not "here are four assertions".**
+
+### WHERE THEY BELONG
+
+`draft/tests/` beside the other build assertions — they are yours, not mine: they validate
+`build.py`'s artifact and a test follows its module. **Roughly fifteen lines and they run in
+under a second on the shipped board.** I have not written them into your tree.
+
+**IMPORTANT LIMIT, STATED SO THEY ARE NOT OVERSOLD:** these catch STRUCTURAL drift — a lost
+team, a duplicated starter, a corrupted roster merge. **They cannot catch a wrong individual
+transaction**, which is the one thing still open and still needs the one-line Sleeper team
+check from an egress-capable job.
