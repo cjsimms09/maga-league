@@ -296,3 +296,68 @@ have no keepers.
 **And it was found by an instrument built for something else.** The population sweep printed
 `is_keeper 15.2%` beside 480 picks; that number had no bearing on the sweep's purpose and it
 is the reason this was caught at all.
+
+---
+
+## C-003 — AUDITED THE SAME WAY C-001 WAS, AND IT SURVIVES (2026-08-12)
+
+**C-003 is now the only persistence result this lane has, so it was worth attacking
+rather than leaving as the last one standing.**
+
+### The candidate contamination, and it is a real one
+
+**289 of 1,091 transactions are `status: failed` — 26.5%, and EVERY ONE IS A WAIVER.**
+A free-agent add cannot lose to another bid. The per-owner failure rate runs **10% to
+46%**, so this is a live component of `waiver_share`, not a rounding detail.
+
+**The argument that it contaminates:** whether a claim fails depends on *other managers'
+bids*, which makes the metric partly a property of the room rather than of the owner.
+
+**The argument that it does not:** a failed claim IS an action the manager took. Unlike a
+keeper — which repeats mechanically — a losing bid is a real, distinct decision.
+
+**Both are arguable, so it was measured rather than argued.**
+
+| metric | as published | completed only | |
+|---|---|---|---|
+| txn_count | 0.603 (p=0.0123) | **0.661** (p=0.0021) | *stronger* |
+| waiver_share | 0.760 (p=0.0000) | **0.718** (p=0.0003) | |
+| median_hour | 0.684 (p=0.0020) | **0.626** (p=0.0078) | |
+| POOLED | 0.682, p=0.00005 | 0.669, p=0.00005 | unchanged |
+
+**All three clear Bonferroni (0.0167) on both arms.** The finding does not depend on the
+framing, which is the opposite of C-001, where the headline collapsed from p=0.003 to
+p=0.250 on a single filter.
+
+### WHAT DID NOT REPLICATE, and it is recorded rather than smoothed over
+
+| metric | ledger | this reconstruction |
+|---|---|---|
+| txn_count | 0.603 | **0.603** — exact |
+| waiver_share | 0.754 | **0.760** — within 0.006 |
+| **median_hour** | **0.535** | **0.684** — does not match |
+
+**`median_hour` is not replicated.** The other two agree closely, so the disagreement is
+specific to the hour-of-week derivation — most likely a timezone or bucketing choice in
+the original that was never written down. **It is reported as unreplicated, not
+overwritten**, and it is exactly the cost of the ad-hoc script.
+
+**So C-003's standing is: two of three metrics replicated and robust to the failed-claim
+filter; the third is robust in this reconstruction but cannot be checked against the
+original.** `waiver_share` at ICC ~0.72–0.76 is the claim that survives everything.
+
+### THE ACTUAL DEFECT WAS NEVER THE STATISTICS
+
+**Neither C-001 nor C-003 had a committed runner.** C-001 stood for a day with a
+contamination that took ten minutes to find *once anyone looked* — and nobody could look,
+because reproducing the number meant rewriting the analysis first.
+
+**`draft/backtest/owner_persistence.py` now holds both**, with `load()`, `draft_side()`,
+`in_season(completed_only=...)`, `score()` and `run()`. Nine tests, five mutations, all
+killed. The replication control — the per-roster transaction ranges the ledger recorded —
+is a test, so a future change that breaks the reconstruction fails rather than quietly
+disagreeing.
+
+**One number in that control disagrees with the ledger and the test pins the MEASURED
+value:** 2024's floor reads **19** against a recorded **20**. A test asserting 20 would be
+asserting a number this archive does not contain.
