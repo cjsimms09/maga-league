@@ -10,7 +10,25 @@ Audit date: 2026-08-09 (swept every recorded verdict in draft/backtest/*.json + 
 
 ---
 
-## 00. THE SHIPPED WEIGHTS RECOMMEND NON-PLAYERS FROM ROUND 8 (2026-08-12) 🔴 OPEN — TOP OF THE LIST
+## 00. THE SHIPPED WEIGHTS RECOMMEND NON-PLAYERS FROM ROUND 8 — ✅ FIXED 2026-08-12 (option 1)
+
+> **CLOSED.** Cory chose option 1. `CFG.BENCH_CEILING_FLOOR` and
+> `CFG.BENCH_RISK_FLOOR` floor the bench branch's anchor the way
+> `VALUE_WEIGHT_FLOOR` floors the starter branch's, and the branch recomputes
+> `upsideBonus` with the gate OPEN — `CEILING_LATE_FROM = 0.6` is a *proxy* for
+> the throwaway rounds and the bench branch is the actual condition.
+> **Reaches (ADP > 250): 111/240 → 0/240**, with the branch still firing on
+> 120/240 picks, so it is not that the branch stopped running.
+> Baseline re-frozen **v6 → v7** against the SAME board, departure confined to
+> the `late-onesies-open` state (ranking + composite scores; per-player survival
+> did not move). Intervention rate re-pinned 78.3% → 85.8%, magnitude 19.8 →
+> 15.0 — opposite directions, which is the fix's signature: it now departs from
+> ADP more often and by far less. The starter branch and the 2026-08-10
+> ceiling-zero decision are untouched. Guard:
+> `draft/tests/bench_branch_anchor.test.js` (14 checks, inverted from the
+> characterisation test it retired).
+
+The record below is the evidence that drove the fix.
 
 - **WHAT WAS FOUND.** Once every starting slot is filled, `scorePlayer` takes its
   bench branch. `MEASURED_WEIGHTS` — what `app.js:52` ships — zeroes four of that

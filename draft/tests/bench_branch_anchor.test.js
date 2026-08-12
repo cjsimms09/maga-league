@@ -1,20 +1,32 @@
 // TERRITORY: A
-/* CHARACTERISATION — THE BENCH BRANCH HAS NO ANCHOR UNDER THE SHIPPED WEIGHTS.
+/* THE BENCH BRANCH HAS AN ANCHOR — regression guard.
  *
- * THIS TEST ASSERTS BEHAVIOUR THAT IS WRONG. It is green today because the
- * defect is live, and it is written this way on purpose: a test that fails
- * turns the suite red and gets muted, and a defect with no test gets forgotten.
- * So this one NAMES the defect, SIZES it, and carries a RETIREMENT CHECK that
- * fires the moment somebody fixes it — with instructions to delete this file.
+ * THIS FILE USED TO ASSERT THE OPPOSITE. It was a characterisation test written
+ * on 2026-08-12 that pinned a live defect: with every starting slot filled,
+ * `scorePlayer` takes its bench branch, and MEASURED_WEIGHTS zeroed four of that
+ * branch's six terms. What was left was `0.5*stack + 1*keeper`, so the war room's
+ * top recommendation from round 8 onward was whichever replacement-level player
+ * happened to share an NFL team with somebody on my roster. Measured: reaches
+ * (ADP > 250) on 111/240 simulated picks. Denzel Mims over Sam LaPorta, then
+ * Josh Johnson, Joe Flacco, Tom Brady, Marcedes Lewis.
  *
- * THE DEFECT, in one line: once every starting slot is filled, `scorePlayer`
- * takes its bench branch, and MEASURED_WEIGHTS (what app.js:52 ships) zeroes
- * four of that branch's six terms. What is left is `0.5*stack + 1*keeper`, so
- * the war room's top recommendation from roughly round 8 onward is whichever
- * replacement-level player happens to share a team with somebody on my roster.
+ * The old file carried a retirement check instructing its own deletion the
+ * moment the fix landed. The fix landed (Cory's option 1, 2026-08-12) and this
+ * is that retirement: the same states, the assertions inverted, plus the two
+ * controls that make an inverted assertion mean anything.
  *
- * Full diagnosis and the measured reach rate: draft/tools/bench_branch_probe.js
- * and draft/audit/bench_branch_2026-08-11.md.
+ * THE FIX, so a reader does not have to go find it:
+ *   · CFG.BENCH_CEILING_FLOOR floors the branch's anchor the way
+ *     VALUE_WEIGHT_FLOOR floors the starter branch's. A branch's anchor is not a
+ *     preference and no slider may switch it off.
+ *   · the branch recomputes `upsideBonus` with the gate OPEN, because
+ *     CEILING_LATE_FROM = 0.6 is a proxy for "the throwaway rounds" and the
+ *     bench branch is the actual condition. The proxy said "not late" through
+ *     rounds 8-9 while the real condition had already arrived.
+ *   · CFG.BENCH_RISK_FLOOR is the safety net — risk is what was silently keeping
+ *     DEFAULT_WEIGHTS from reaching, by accident rather than by design.
+ *   · THE STARTER BRANCH IS UNTOUCHED. Cory's 2026-08-10 decision to zero
+ *     ceiling was made on the starter branch's arithmetic and still stands.
  *
  * Run: node draft/tests/bench_branch_anchor.test.js
  */
@@ -32,20 +44,17 @@ const L = DATA.league;
 const adpOf = p => (p.adjusted_adp != null ? p.adjusted_adp : (p.raw_adp != null ? p.raw_adp : 9999));
 const REACH_ADP = 250;
 
-/* A BOARD STATE WITH EVERY STARTING SLOT FILLED. Built from the live board by
- * VORP rather than by hand, so the state is the one a competent draft actually
- * reaches rather than one chosen to produce the result. K and DEF are left open
- * because that is where a real roster is at pick 73. */
+/* The same board state the characterisation test used: every starting slot
+ * filled, K and DEF still open, built from the live board by VORP rather than
+ * by hand so it is the state a competent draft actually reaches. */
 const pool = DATA.players.filter(p => p.position && p.proj_mean != null && p.vorp != null);
 const byVorp = pool.slice().sort((a, b) => b.vorp - a.vorp);
 const roster = [];
-const want = { QB: 1, RB: 3, WR: 2, TE: 1 };   // RB3 is the flex
+const want = { QB: 1, RB: 3, WR: 2, TE: 1 };
 Object.keys(want).forEach(pos => {
   byVorp.filter(p => p.position === pos).slice(0, want[pos]).forEach(p => roster.push(p));
 });
 const taken = new Set(roster.map(p => String(p.player_id)));
-// Everything a competent room would have taken by pick 73 is gone, so the
-// board under test is the real remainder rather than the whole universe.
 pool.slice().sort((a, b) => adpOf(a) - adpOf(b)).slice(0, 72)
   .forEach(p => taken.add(String(p.player_id)));
 const board = pool.filter(p => !taken.has(String(p.player_id)));
@@ -56,86 +65,86 @@ const baseCtx = {
 };
 const rec = w => E.recommend(Object.assign({}, baseCtx, { weights: w }));
 
-// ── THE BRANCH FIRES AT ALL ────────────────────────────────────────────────
+// ── THE BRANCH STILL FIRES — otherwise this suite tests nothing ────────────
 {
-  // K and DEF are deliberately still open, so they read `starter` and are the
-  // wrong probe. The branch under test is the one every skill player takes.
   const skill = board.filter(p => ['QB', 'RB', 'WR', 'TE'].indexOf(p.position) >= 0).slice(0, 30);
   const fills = skill.map(p => E.starterSlotMarginal(p, roster, L).fills);
-  ck('with every starter filled, every skill player left reads BENCH or FLEX',
+  ck('with every starter filled, the skill players left still read BENCH or FLEX',
     fills.every(f => f === 'bench' || f === 'flex'),
     fills.filter(f => f !== 'bench' && f !== 'flex').slice(0, 3));
+  ck('  (if this ever passes vacuously the rest of the file proves nothing)', true);
 }
 
-// ── THE DEFECT ITSELF ──────────────────────────────────────────────────────
+// ── THE DEFECT IS GONE ─────────────────────────────────────────────────────
 const mTop = rec(E.MEASURED_WEIGHTS)[0];
-const dTop = rec(E.DEFAULT_WEIGHTS)[0];
 {
-  ck('SHIPPED (MEASURED) recommends a player the room has never heard of',
-    adpOf(mTop.player) > REACH_ADP,
+  ck('SHIPPED (MEASURED) no longer recommends a player the room has never heard of',
+    adpOf(mTop.player) <= REACH_ADP,
     { pick: mTop.player.name, adp: adpOf(mTop.player), vorp: mTop.player.vorp });
-
-  // The comparison that makes it undeniable: a far better player, by our OWN
-  // valuation, is sitting on the board being outranked.
-  const better = board.filter(p => adpOf(p) < 150)
-    .sort((a, b) => b.vorp - a.vorp)[0];
-  ck('  while a real player with far higher VORP sits available',
-    better && Number(better.vorp) > Number(mTop.player.vorp) + 50,
-    better ? { available: better.name, vorp: better.vorp, vs: mTop.player.vorp } : null);
-
-  ck('DEFAULT_WEIGHTS does NOT reach at the same state',
-    adpOf(dTop.player) <= REACH_ADP,
-    { pick: dTop.player.name, adp: adpOf(dTop.player) });
+  const better = board.filter(p => adpOf(p) < 150).sort((a, b) => b.vorp - a.vorp)[0];
+  ck('  and it is not being outranked by a far better player on the same board',
+    !better || Number(mTop.player.vorp) >= Number(better.vorp) - 50,
+    better ? { available: better.name, vorp: better.vorp, picked: mTop.player.vorp } : null);
+  ck('  DEFAULT_WEIGHTS still does not reach either',
+    adpOf(rec(E.DEFAULT_WEIGHTS)[0].player) <= REACH_ADP);
 }
 
-// ── AND THE ANCHOR THE COMMENT CREDITS IS NOT RUNNING ──────────────────────
+// ── THE ANCHOR IS RUNNING NOW ──────────────────────────────────────────────
 {
-  /* The bench branch says the top pick "is the highest-ceiling player left".
-   * `upsideBonus` is gated to zero until CEILING_LATE_FROM (0.6) of the draft
-   * — pick 90 of 150 — and the branch starts firing near pick 70. So through
-   * the rounds where it decides everything, the term it is supposed to rank on
-   * is identically zero for every player. Rule 11e: the comment describes an
-   * implementation that does not run, and that is what makes the first defect
-   * reachable rather than merely theoretical. */
-  const ceilings = board.slice(0, 40).map(p => E.upsideBonus(p, 73, 150, 6));
-  ck('the ceiling term is ZERO for every player at the pick the branch decides',
-    ceilings.every(c => Math.abs(c) < 1e-9), ceilings.slice(0, 5));
-  const late = E.upsideBonus(board[0], 120, 150, 4);
-  ck('  it only wakes up after pick 90, by which point the damage is done',
-    Math.abs(late) > 0, late);
+  /* The old file's second finding: the branch's comment credited an anchor that
+   * was identically zero at the pick the branch decides, because upsideBonus was
+   * gated to 0.6 of the draft and the branch starts near 0.47. */
+  const gated = E.upsideBonus(board[0], 73, 150, 6);
+  const open = E.upsideBonus(board[0], 73, 150, 6, false, true);
+  ck('the OLD gate still reads zero at pick 73 — the proxy has not been moved',
+    Math.abs(gated) < 1e-9, gated);
+  ck('  but the bench branch\'s own gate is open, so the anchor has a value',
+    Math.abs(open) > 0, open);
+  ck('  which is the point: the branch uses the CONDITION, not the proxy',
+    Math.abs(open) > Math.abs(gated));
+
+  // THE STARTER BRANCH MUST NOT HAVE MOVED. Cory's ceiling-zero decision was
+  // made on its arithmetic; silently changing it would re-open far more than
+  // this fix costed.
+  const early = E.upsideBonus(board[0], 30, 150, 12);
+  ck('the STARTER branch\'s early ceiling is still zero — that decision stands',
+    Math.abs(early) < 1e-9, early);
 }
 
-// ── WHAT IS ACTUALLY DECIDING THE PICK ─────────────────────────────────────
+// ── AND THE FLOORS CANNOT BE SWITCHED OFF ──────────────────────────────────
 {
-  const only = t => { const w = { value: 0, tier: 0, need: 0, risk: 0, ceiling: 0, keeper: 0, bye: 0, stack: 0 }; w[t] = 1; return w; };
-  const scoreOf = (w, id) => {
-    const hit = rec(w).find(r => String(r.player.player_id) === String(id));
-    return hit ? Number(hit.score) : null;
-  };
-  const id = mTop.player.player_id;
-  const stack = scoreOf(only('stack'), id);
-  const risk = scoreOf(only('risk'), id);
-  ck('the whole pick is a STACK bonus — same team as somebody already on my roster',
-    stack != null && stack > 1, { stack: stack });
-  ck('  and the term that WOULD have buried him is risk, which MEASURED zeroes',
-    risk != null && risk < -5, { risk_at_weight_1: risk, measured_risk_weight: E.MEASURED_WEIGHTS.risk });
-  ck('  MEASURED zeroes four of the six bench terms: need, risk, ceiling, bye',
-    E.MEASURED_WEIGHTS.need === 0 && E.MEASURED_WEIGHTS.risk === 0
-    && E.MEASURED_WEIGHTS.ceiling === 0 && E.MEASURED_WEIGHTS.bye === 0, E.MEASURED_WEIGHTS);
-  ck('  and the two it does NOT zero — value and tier — do not appear in this branch',
-    E.MEASURED_WEIGHTS.value === 1 && E.MEASURED_WEIGHTS.tier === 0);
-}
+  ck('the bench anchor is floored, like the starter branch\'s value anchor',
+    E.CFG.BENCH_CEILING_FLOOR > 0 && E.CFG.BENCH_RISK_FLOOR > 0,
+    { ceiling: E.CFG.BENCH_CEILING_FLOOR, risk: E.CFG.BENCH_RISK_FLOOR,
+      value: E.CFG.VALUE_WEIGHT_FLOOR });
 
-// ── RETIREMENT ─────────────────────────────────────────────────────────────
-if (adpOf(mTop.player) <= REACH_ADP) {
-  console.log('\n' + '='.repeat(70));
-  console.log('RETIRE THIS FILE. The shipped weights no longer reach at this state,');
-  console.log('which means the bench-branch anchor was fixed. This test asserts the');
-  console.log('BROKEN behaviour and is now asserting a lie. Delete it, delete');
-  console.log('draft/tools/bench_branch_probe.js, and close the DECISIONS-NEEDED entry.');
-  console.log('='.repeat(70));
+  /* NON-VACUITY, and it is the check that makes every assertion above mean
+   * something. An inverted test passes trivially if the branch stopped being
+   * reachable, or if the board no longer contains anything to reach for. So:
+   * the junk that USED to win must still be on the board and must still be
+   * winnable by a scorer with no anchor. */
+  const junk = board.filter(p => Number(p.vorp) < -100);
+  ck('CONTROL: replacement-level players are still on this board',
+    junk.length > 10, junk.length);
+  /* MY FIRST VERSION OF THIS CONTROL DID NOT WORK, and it is worth keeping the
+   * reason. It passed `ceiling: 0` and called that "without the floors" — but
+   * `Math.max(CFG.BENCH_CEILING_FLOOR, w.ceiling)` is exactly what a floor
+   * means, so the arm still got 0.25 and picked a real player. A control that
+   * cannot reproduce the defect proves nothing about the fix. The floors have
+   * to be genuinely removed, which means reaching past the weights. */
+  const savedC = E.CFG.BENCH_CEILING_FLOOR, savedR = E.CFG.BENCH_RISK_FLOOR;
+  E.CFG.BENCH_CEILING_FLOOR = 0; E.CFG.BENCH_RISK_FLOOR = 0;
+  let noFloor;
+  try { noFloor = rec(E.MEASURED_WEIGHTS)[0]; }
+  finally { E.CFG.BENCH_CEILING_FLOOR = savedC; E.CFG.BENCH_RISK_FLOOR = savedR; }
+  ck('  and with the floors REMOVED the same board still reaches for one',
+    adpOf(noFloor.player) > REACH_ADP,
+    { would_have_picked: noFloor.player.name, adp: adpOf(noFloor.player) });
+  ck('  so the FLOORS are what changed the answer, not the board or the weights',
+    String(noFloor.player.player_id) !== String(mTop.player.player_id));
+  ck('  and the floors were restored afterwards',
+    E.CFG.BENCH_CEILING_FLOOR === savedC && E.CFG.BENCH_RISK_FLOOR === savedR);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
-console.log('NOTE: green here means the DEFECT IS STILL LIVE. See the header.');
 process.exit(fail ? 1 : 0);

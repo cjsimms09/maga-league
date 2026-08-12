@@ -81,16 +81,41 @@ check('the metric is deterministic across runs (seeded, not drifting)',
 // reads `my_draft_slot` from the live artifact — so a seat change moves a number
 // labelled "pinned on a frozen pool". The freeze is doing its job; its scope is
 // just narrower than the label suggests.
+// RE-PINNED AGAIN 2026-08-12: 78.3% -> 85.8%, magnitude 19.8 -> 15.0. The
+// BENCH-BRANCH ANCHOR FIX (Cory's option 1). The pool is NOT re-frozen: the
+// board did not change, the engine did, and re-freezing the pool would confound
+// the two. Same call the seat-change re-pin made.
+//
+// THE TWO NUMBERS MOVED IN OPPOSITE DIRECTIONS, and that is the fix's signature
+// rather than a puzzle. Before, the branch had no anchor and picked whoever
+// shared an NFL team with my roster — a handful of ENORMOUS deviations (ADP 696,
+// 982, 1111). Now it picks real bench players: it deviates from ADP order MORE
+// OFTEN (85.8%) and by MUCH LESS when it does (15.0 against 19.8). A tool that
+// reaches wildly a few times scores a lower rate and a higher magnitude than one
+// that departs sensibly and often.
+//
+// ATTRIBUTED BY MEASUREMENT, not assumed: the baseline freeze moved on exactly
+// ONE of its three canonical states — late-onesies-open — and left the early and
+// mid states byte-identical. So the change is confined to the rounds where the
+// bench branch fires, which is what the fix touched and nothing else.
 check('intervention rate is pinned (frozen pool, shipped weights, seat 8)',
-  Math.abs(r.rate - 0.783) < 0.05,
+  Math.abs(r.rate - 0.858) < 0.05,
   'rate=' + (r.rate * 100).toFixed(1) + '% — this now measures the ENGINE on a FIXED '
     + 'board, so a move here is a real composite change. If intended, freeze a NEW '
     + 'pool version and re-pin; do not widen the band.');
 
 check('mean deviation magnitude is pinned (frozen pool)',
-  Math.abs(r.meanMagnitude - 19.8) < 3,
+  Math.abs(r.meanMagnitude - 15.0) < 3,
   'magnitude=' + r.meanMagnitude.toFixed(1));
 
+// A SCOPE NOTE ADDED 2026-08-12, so "ceiling: dead" is not read as a global
+// truth: ceiling is dead in the STARTER branch by arithmetic (its weight is 0),
+// and it is NOT dead in the bench branch any more — CFG.BENCH_CEILING_FLOOR
+// gives it 0.25 there regardless of the slider. This metric still reports it
+// dead because on THIS frozen pool the perturbation does not reach a
+// bench-branch decision. The label is accurate for the pool and narrower than
+// it sounds, which is the same caveat the seat-freeze note makes.
+//
 // THE DEAD-WEIGHT FINDING, split into the two things it was conflating.
 //
 // Under the SHIPPED weights, tier/need/risk/ceiling/bye are weighted ZERO, so
