@@ -107,6 +107,19 @@ function startingStrength(roster) {
   return { points: total, holes: holes };
 }
 
+/* THE STARTABLE MASK, in ONE place so the three anchor arms differ ONLY in what
+ * they rank the masked pool by. Three copies of this would let the arms drift
+ * apart and turn an anchor comparison into a mask comparison. */
+function maskPool(ctx) {
+  const have = {};
+  ctx.roster.forEach(p => { have[p.position] = (have[p.position] || 0) + 1; });
+  const openDirect = ctx.board.filter(p => (have[p.position] || 0) < (STARTERS[p.position] || 0));
+  // Once every slot is filled the mask stops constraining and the arm ranks the
+  // whole board — the same point at which the OBJECTIVE stops seeing the pick.
+  const pool = openDirect.length ? openDirect : ctx.board.filter(p => FLEX_OK[p.position]);
+  return pool.length ? pool : ctx.board;
+}
+
 /* ── THE ARMS. Valuation is FIXED across all of them; only ORDER varies. ───── */
 const ARMS = {
   /* The shipping rule, unchanged. */
@@ -228,20 +241,47 @@ const ARMS = {
    * cross-position VORP, which is the honest version of the question.
    */
   vorp_only: (ctx) => {
-    const have = {};
-    ctx.roster.forEach(p => { have[p.position] = (have[p.position] || 0) + 1; });
-    // The startable mask: a player who can still fill an unfilled starting slot.
-    // Once every slot is filled the mask stops constraining and the arm ranks
-    // the whole board — the same point at which the OBJECTIVE stops being able
-    // to see the pick at all.
-    const openDirect = ctx.board.filter(p => (have[p.position] || 0) < (STARTERS[p.position] || 0));
-    const flexOpen = (have.FLEX_USED || 0) < (STARTERS.FLEX || 0);
-    const pool = openDirect.length ? openDirect
-      : (flexOpen ? ctx.board.filter(p => FLEX_OK[p.position]) : ctx.board);
-    const use = pool.length ? pool : ctx.board;
+    const pool = maskPool(ctx);
     // PURE VORP — the board's own points-over-positional-replacement, which is
     // exactly the quantity the value anchor weights.
-    return use.slice().sort((a, b) => (Number(b.vorp) || 0) - (Number(a.vorp) || 0))[0];
+    return pool.slice().sort((a, b) => (Number(b.vorp) || 0) - (Number(a.vorp) || 0))[0];
+  },
+
+  /* ⚠️ THE TWO ARMS `vorp_only` NEEDED AND DID NOT HAVE.
+   *
+   * `vorp_only` measures MASK + ANCHOR. On its own it says what the COMPOSITE
+   * adds on top of the anchor — it does not say what the ANCHOR is worth,
+   * because nothing in the set lacks one. Cory asked for "pure VORP within the
+   * mask" and I built exactly that, which turns out not to be the contrast that
+   * answers the question. Both halves are needed:
+   *
+   *   adp_only    — mask + a DIFFERENT anchor (ADP). This is the arm the ledger
+   *                 thought it was describing when it called the value anchor
+   *                 "ranking off the ADP board". vorp_only vs adp_only is
+   *                 therefore the direct test of that claim: does ranking by
+   *                 points-over-replacement beat ranking by market order?
+   *   mask_only   — mask + NO anchor, ordered arbitrarily but DETERMINISTICALLY
+   *                 within the mask. This is the no-anchor control, and it is
+   *                 the only arm here that can say what the anchor is worth at
+   *                 all rather than what one anchor is worth against another.
+   */
+  adp_only: (ctx) => {
+    const pool = maskPool(ctx);
+    return pool.slice().sort((a, b) => adpOf(a) - adpOf(b))[0];
+  },
+
+  mask_only: (ctx) => {
+    const pool = maskPool(ctx);
+    /* NOT Math.random(): the harness is PAIRED on a seed, and an arm with its
+     * own entropy would break the pairing that every interval here depends on.
+     * Hashing the id gives an arbitrary-but-fixed order — no value information,
+     * fully reproducible. */
+    const key = p => {
+      const s = String(p.player_id); let h = 2166136261;
+      for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+      return h >>> 0;
+    };
+    return pool.slice().sort((a, b) => key(a) - key(b))[0];
   },
 
   /* THE CALIBRATION ARM — strict fill-first, which the Lab already measured
