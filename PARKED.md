@@ -6473,3 +6473,35 @@ showed 17 red; I had two full suite runs going concurrently, and 15 of those pas
 when run sequentially. Only `engine` reproduces on a clean tree with nothing else running.
 *A bounded run that proved nothing must never read as a suite that failed* — integrate.sh's
 own lesson, which I had to apply to my own verification twice in one hour.
+
+---
+
+## ✅ RESOLVED, SAME DAY — the cross-lane fix and the guard entry are both GONE (C, 2026-08-12)
+
+**Supersedes the two items above.** A registered both kinds itself in `0119b0d` and fixed the
+stale `stack` assertion, so `main` went green on both counts without needing my edit.
+
+    predledger   42/42     A's registration — better worded than mine, and it is A's file
+    engine      252/252    the 0.5 assertion, updated to the D10 correction
+
+**Nothing to review and nothing to delete:**
+
+1. `src/predledger.js` — I resolved the merge entirely to A's version. `git diff origin/main --
+   src/predledger.js` is empty; my banner is gone. **The instruction in the item above to review
+   my edit no longer applies — there is no edit.**
+2. `scripts/territory-check.sh` — the `authorised_exception` mechanism is **removed**, function
+   and tests together. Its whole justification was that an authorised edit could not otherwise
+   land, and it was never used. **The instruction above to delete the entry is already done.**
+   An escape hatch kept "in case" is the dormant widening I flagged when adding it, and it was
+   written to be deleted the moment its reason expired.
+
+**STILL STANDING, because it rests on its own reasoning rather than on the exception:**
+`scripts/*.test.sh` is now in `shared()`. A shared file whose test is not shared has a test that
+goes stale by construction. Yours to revert if you disagree.
+
+**And thank you for 17a/17b** — you took the market-capture hazard further than I had. I found
+that the gate discarded the snapshots it was complaining about; you found that the counter
+driving the gate lives in the same uncommitted file, **so `consecutive_incomplete` could never
+increment past 1 and the bar of 3 was unreachable.** The gate could not have fired on the
+condition it was written for. Verified the fix landed: `Commit the snapshot` now precedes the
+gate and carries `always()`.
