@@ -6125,6 +6125,118 @@
    * calibration read) that does not reopen. Real draft only; deduped by key in
    * PredLedger, so firing on every sync resolves each claim exactly once, the moment
    * its pick arrives. */
+  /* ── OPPONENT PREDICTION — the shadow arm, emitted and resolved ────────────
+   *
+   * Predicts the picks between now and my next turn, BEFORE they happen, in two
+   * arms (profile and ADP baseline) resolved against the same outcome. Turns
+   * 468 picks of description into ~135 graded predictions a draft.
+   *
+   * WHY THE WINDOW AND NOT "ALL REMAINING": the intervening picks are bounded
+   * (<= 9), they are the seats that actually matter, and over a whole draft the
+   * window advances across every opponent pick exactly once. Predicting the
+   * whole remainder on every four-second poll would re-predict the same picks
+   * from a board that keeps changing, and the ledger would fill with entries
+   * whose "prediction timestamp" meant nothing.
+   *
+   * SILENCE (rule 15) IS THE POINT HERE, more than anywhere else on this
+   * surface: nothing below renders. A prediction about what the next owner takes
+   * is exactly the thing I would act on and must not.
+   *
+   * FREE OR DROPPED. `predictRound` enforces its own budget and refuses rather
+   * than slows; if it ever refuses, this stops asking for the rest of the draft
+   * rather than retrying into a board that is evidently struggling.
+   */
+  function emitOpponentPredictions() {
+    if (state.mockMode) return;                   // a mock is not forward evidence
+    if (typeof OpponentPredict === 'undefined' || typeof PredLedger === 'undefined') return;
+    if (state.opponentPredictOff) return;         // budget blew once — stay off
+    try {
+      const cur = currentPick();
+      if (cur == null) return;
+      /* THE WINDOW COMES FROM `interveningPicks()`, THE APP'S OWN DEFINITION,
+       * not from a snake formula written here. It already reads the authoritative
+       * `pick_order`, already excludes my seat, and already handles the two things
+       * a hand-rolled slot calculation gets wrong: seats that forfeited a keeper
+       * round genuinely do not pick (real gaps), and snake repeats like
+       * …9,10,10,9… are real. A second derivation would disagree with the
+       * survival window on exactly those picks. */
+      const win = interveningPicks();
+      if (!win.length) return;
+      state.opponentPredicted = state.opponentPredicted || {};
+      const seats = win
+        .filter(w => w.pick_no != null && !state.opponentPredicted[w.pick_no])
+        .map(w => ({ pick_no: w.pick_no, owner: String(w.team_slot) }));
+      if (!seats.length) return;
+      /* ⚠️ THE PROFILE COMES OFF THE WINDOW, WHICH MEANS IT INHERITS THE HONEST
+       * BLANK — and that is an operational risk worth naming rather than a
+       * detail. `profileForSlot` returns NULL until the live draft object maps
+       * uids to seats, deliberately: a confident wrong name would put a real
+       * manager's tendencies on a stranger's seat.
+       *
+       * SO IF THAT MAPPING DOES NOT LAND ON THE 22nd, EVERY PROFILE IS NULL, the
+       * profile arm never runs, and the experiment produces only baseline rows.
+       * That degrades honestly — `profile_ran: false`, and an arm that never ran
+       * scores −1 against a correct baseline rather than a tie — but it produces
+       * no evidence about owners either way, which is the thing to check on the
+       * night rather than discover in January. */
+      const profiles = {};
+      const byPick = {};
+      win.forEach(w => { byPick[w.pick_no] = w; });
+      seats.forEach(st => {
+        const w = byPick[st.pick_no];
+        profiles[st.owner] = w ? w.profile : null;
+      });
+      const c = ledgerCtx();
+      const out = OpponentPredict.predictRound({
+        season: c.season, draft_id: state.draftId || null,
+        round: Math.ceil(cur / ((state.data.league || {}).teams || 12)),
+        seats: seats, board: state.board, profiles: profiles,
+      });
+      if (out.over_budget) {
+        state.opponentPredictOff = true;
+        console.warn('[opponent-predict] ' + out.why);
+        return;
+      }
+      out.picks.forEach(f => {
+        state.opponentPredicted[f.subject.pick_no] = true;
+        (state.opponentForecasts = state.opponentForecasts || []).push(f);
+        PredLedger.capture('opponent_prediction', { season: c.season,
+          build_at: c.build_at, pick: f.subject.pick_no,
+          method: 'opponent-predict-v1', payload: f });
+      });
+    } catch (e) {
+      /* NEVER BLOCK THE CLOCK. A shadow measurement that breaks the board costs
+       * more than it is worth, which is the standing condition on this whole
+       * experiment. Loud in the console, invisible on the page. */
+      console.error('[opponent-predict] emit failed —', e && e.message);
+    }
+  }
+
+  function resolveOpponentPredictions(picks) {
+    if (state.mockMode) return;
+    if (typeof OpponentPredict === 'undefined' || typeof PredLedger === 'undefined') return;
+    const fc = state.opponentForecasts || [];
+    if (!fc.length || !picks || !picks.length) return;
+    const byPick = {};
+    picks.forEach(pk => {
+      if (pk && pk.pick_no != null && pk.player_id != null) byPick[Number(pk.pick_no)] = String(pk.player_id);
+    });
+    const c = ledgerCtx();
+    state.opponentForecasts = fc.filter(f => {
+      const actual = byPick[f.subject.pick_no];
+      if (actual == null) return true;            // not taken yet — NOT a miss
+      try {
+        const r = OpponentPredict.resolvePick(f, actual);
+        if (r) {
+          PredLedger.capture('opponent_prediction_resolved', { season: c.season,
+            build_at: c.build_at, pick: f.subject.pick_no,
+            method: 'opponent-predict-v1', payload: r });
+        }
+      } catch (e) { console.error('[opponent-predict] resolve failed —', e && e.message); }
+      return false;                               // resolved: drop from the queue
+    });
+  }
+
   function resolveCommittedForecasts(picks) {
     if (state.mockMode) return;                       // a mock is not forward evidence
     if (typeof DraftForecast === 'undefined' || typeof PredLedger === 'undefined') return;
@@ -6237,6 +6349,11 @@
     if (!state.mockMode && picks && picks.length) captureRawPicks(picks);
     // FORWARD LOOP: let reality answer the committed forecasts the new picks resolve.
     resolveCommittedForecasts(picks);
+    // SHADOW ARM: let reality answer the opponent predictions these picks
+    // resolve, THEN commit predictions for the next window. Resolve before emit
+    // so a pick can never resolve a forecast made after it was already known.
+    resolveOpponentPredictions(picks);
+    emitOpponentPredictions();
     recomputeRuns();
     alertTick();               // A-3: did that batch put me on the clock?
     renderAll();

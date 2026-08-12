@@ -138,5 +138,40 @@ const WR_OWNER = { draft_patterns: { by_round_bucket: { mid: { mix: { WR: 0.9, R
     typeof OP.BUDGET_MS === 'number' && OP.BUDGET_MS > 0);
 }
 
+// ── IS IT ACTUALLY WIRED? ───────────────────────────────────────────────────
+/* THE CHECK WHOSE ABSENCE LET score_gap SIT UNWIRED FOR TEN DAYS. A payload
+ * builder nobody calls is the produced-and-unread failure, and this project has
+ * now hit it six times. Source inspection is the right instrument here because
+ * the question IS about the source: does the call site exist, and is the module
+ * loaded on the page at all. */
+{
+  const fs = require('fs'), path = require('path');
+  const R = path.join(__dirname, '..', '..');
+  const app = fs.readFileSync(path.join(R, 'public', 'js', 'draft', 'app.js'), 'utf8');
+  const tags = fs.readFileSync(path.join(R, 'views', 'admin', '_warroom_scripts.ejs'), 'utf8');
+
+  check('THE MODULE IS LOADED ON THE WAR-ROOM PAGE',
+    /opponent_predict\.js/.test(tags));
+  check('  and BEFORE app.js, or OpponentPredict is undefined when the sync fires',
+    tags.indexOf('opponent_predict.js') < tags.indexOf('draft/app.js'));
+  check('the sync loop EMITS predictions', /emitOpponentPredictions\(\)/.test(app));
+  check('the sync loop RESOLVES them', /resolveOpponentPredictions\(picks\)/.test(app));
+
+  /* ORDER MATTERS AND IS ASSERTED. Resolve must run BEFORE emit, or a pick could
+   * resolve a forecast that was made after that pick was already known — a
+   * prediction of the past, scored as a prediction. */
+  /* ⚠️ MY FIRST VERSION OF THIS COMPARED indexOf ON BOTH NAMES AND FAILED ON A
+   * CORRECTLY WIRED APP: `function emitOpponentPredictions() {` contains the
+   * string `emitOpponentPredictions()`, so it was measuring the order the two
+   * functions are DEFINED in, not the order they are CALLED in. Matched at the
+   * call site instead, which also pins that they stay adjacent. */
+  check('RESOLVE RUNS BEFORE EMIT at the call site, so a pick cannot resolve a '
+    + 'forecast made after it was already known',
+    /resolveOpponentPredictions\(picks\);\s*\n\s*emitOpponentPredictions\(\);/.test(app));
+
+  check('the emitter refuses to run in mock mode — a mock is not forward evidence',
+    /function emitOpponentPredictions\(\)[\s\S]{0,200}state\.mockMode/.test(app));
+}
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
