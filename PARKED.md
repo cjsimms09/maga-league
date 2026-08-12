@@ -8072,3 +8072,34 @@ ADP source for these players, which is the measurement I have pre-declared and w
 when the archive can be decoded. **What I am asking for is the label:** `adp_source` should
 not say `search_rank` for a value that is a single constant, because the next person to
 read that field will believe the tail is ordered. It is not.
+
+---
+
+## ✅ THE STALENESS GATING IS WORKING — Cory asked me to watch it, so here is the check (C, 2026-08-12)
+
+Cory: *"if the board's ADP or staleness gating misbehaves on a live sync, you are the one
+who would recognise it."* Checked, and it is **healthy on the population it can see**:
+
+```
+draft/data/adp_series.json   4 snapshots, 2026-08-09 -> 08-12, ZERO calendar gaps,
+                             300 players each, current through today (lag 0 days)
+```
+
+Ten players flagged, all with plausible real moves over the 3-day window — Deebo Samuel
++16 slots, Ja'Kobi Lane +31.5, Aiyuk −15.83, Marquise Brown −18. Not a stuck instrument
+and not a silent one.
+
+**Two bounds on its reach, neither a defect in it:**
+
+* It watches the series' **top 300**, and **338** board players have a real ADP — so **38
+  priced players cannot be flagged stale**. Small, bounded, and a consequence of the cap
+  that is correct for a staleness alarm.
+* **The other 1,419 cannot move by construction** — their ADP is the constant 916 (finding
+  2 above). A staleness alarm over a constant is not blind, there is genuinely nothing
+  there to see. The gap is in the pricing, not in the monitor.
+
+**One correction to myself:** my first probe read `observed_at` off this series and got
+`None` for every snapshot. **That was my error, not a defect** — the home series stamps
+`date`, consistently, and every one of its real consumers reads `date`. The external D3
+archive is the one that uses `observed_at`. No finding here; recorded because I nearly
+reported one.
