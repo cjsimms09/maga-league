@@ -375,6 +375,10 @@
     state.board = data.players.slice();
     populateKeepers(data);
     applyOverrides();
+    // AFTER populateKeepers/applyOverrides so a restored roster lands on the
+    // finished board, and BEFORE renderAll so the first paint is the restored
+    // draft rather than an empty one Cory has to watch being replaced.
+    resumeDraftIfAny(data);
     renderAll();
     wireControls();
     $('#loading').style.display = 'none';
@@ -1334,10 +1338,86 @@
   }
 
   // ------------------------------------------------------------------ render
+  /* THE DRAFT SURVIVES THE PAGE (Cory, 2026-08-13, lost a mock at pick ~80).
+   *
+   * ONE CALL SITE, IN renderAll, DELIBERATELY. Six separate places mutate
+   * `drafted`/`rosters`/`myRoster`, and instrumenting six is six chances to
+   * forget the seventh — which is exactly how the picks ended up being the ONE
+   * thing not persisted while weights, lists, rail acks, the pinned board and
+   * even the mock calibration all were. Every pick path already ends in
+   * renderAll, so saving here cannot be bypassed by a new pick path.
+   *
+   * Cost is a JSON.stringify of ~100 ids on each render, which is far below the
+   * render itself. It never throws: DraftSession.save reports instead, because
+   * a lost recovery point is bad and an exception on the clock is worse. */
+  function saveDraftSession() {
+    if (typeof DraftSession === 'undefined') return;
+    DraftSession.save(state, { built_at: (state.data || {}).built_at || null,
+      mySlot: mySlot() });
+  }
+
+  /* COMING BACK FROM A DEAD PAGE.
+   *
+   * Auto-resume rather than a confirmation dialog: Cory asked for "a recovery
+   * path I can reach in ten seconds", and a modal on the clock is a decision to
+   * make while a room waits. The banner says what was restored and offers the
+   * discard, so the reversible action is the one that needs a tap.
+   *
+   * The keeper pool is passed EXPLICITLY. kept_players is disjoint from
+   * players — keepers are off the draftable board because they cannot be
+   * drafted — so a restore that looks only at the board comes back three
+   * players short and then scores need and stack against that short roster.
+   * Caught by draft_session.test.js, not by review. */
+  function resumeDraftIfAny(data) {
+    if (typeof DraftSession === 'undefined') return;
+    var saved = DraftSession.load();
+    if (!DraftSession.isResumable(saved)) return;
+    var r = DraftSession.restore(saved, data.players || [], {
+      built_at: data.built_at || null, alsoLookIn: data.kept_players || [] });
+    if (!r.ok) { showResumeBanner(null, [r.reason]); return; }
+    Object.keys(r.state).forEach(function (k) { state[k] = r.state[k]; });
+    if (r.mySlot != null && Number(r.mySlot) !== mySlot()) setSlot(r.mySlot, 'resumed');
+    state.board = (data.players || []).filter(function (p) {
+      return !state.drafted.has(String(p.player_id));
+    });
+    showResumeBanner(r.stats, r.warnings);
+  }
+
+  function showResumeBanner(stats, warnings) {
+    var host = document.getElementById('resume-banner')
+      || (function () {
+        var d = document.createElement('div');
+        d.id = 'resume-banner';
+        var anchor = document.querySelector('.wrap') || document.body;
+        anchor.insertBefore(d, anchor.firstChild);
+        return d;
+      })();
+    if (!stats) {
+      host.innerHTML = '<div class="resume-note"><b>Could not restore the saved draft.</b> '
+        + escapeHtml((warnings || []).join(' ')) + '</div>';
+      return;
+    }
+    host.innerHTML = '<div class="resume-note"><b>Resumed your draft.</b> '
+      + stats.drafted + ' players off the board, ' + stats.myRoster
+      + ' on your roster, saved ' + escapeHtml(String(stats.savedAt || '')) + '.'
+      + (warnings && warnings.length
+        ? ' <span class="resume-warn">' + escapeHtml(warnings.join(' ')) + '</span>' : '')
+      + ' <button class="btn small ghost" id="resume-discard">Start over</button></div>';
+    var b = document.getElementById('resume-discard');
+    if (b) b.addEventListener('click', function () {
+      // A DELIBERATE discard clears the record. An accidental one cannot: this
+      // is the only path that erases it, and it is a tap the user chose.
+      DraftSession.clear();
+      host.innerHTML = '';
+      location.reload();
+    });
+  }
+
   function renderAll() {
     // Before anything is scored: if Auto is on, the weights for THIS pick have
     // to be in place, or every panel below renders last pick's opinion.
     applyAutoWeights();
+    saveDraftSession();
     checkKeeperLock();
     renderHeader();
     renderRecommendations();
@@ -6615,6 +6695,9 @@
     state.sync = null;
     state.mode = 'pre';
     state.mockMode = null;
+    // ENDING THE DRAFT IS THE ONE CLEAR THAT IS NOT A LOSS. Without this the
+    // next page load would resume the draft that was just deliberately ended.
+    if (typeof DraftSession !== 'undefined') DraftSession.clear();
     state.drafted = new Set();
     state.myRoster = [];
     state.rosters = {};

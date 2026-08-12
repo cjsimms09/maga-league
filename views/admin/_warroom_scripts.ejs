@@ -16,6 +16,13 @@
     table. Every unit test passed: they require the module directly and never see
     the page's script list. script_load_order.test.js now checks this seam. %>
 <script src="/js/draft/valuation.js"></script>
+<%# draft_session.js — THE DRAFT SURVIVES THE PAGE. Cory lost a mock at ~pick 80
+    on 2026-08-13: the site reset and the draft started over. Nothing in our own
+    code reloads the page, so it came from outside it — a phone discarding a
+    backgrounded tab is the likeliest — and every cause lands on the same defect:
+    picks were the ONE thing not persisted, while weights, lists, rail acks, the
+    pinned board and even the mock calibration all were. %>
+<script src="/js/draft/draft_session.js"></script>
 <script src="/js/draft/override_record.js"></script>
 <script src="/js/draft/opponent_predict.js"></script>
 <script src="/js/draft/playerref.js"></script>

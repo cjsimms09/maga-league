@@ -144,6 +144,14 @@ ck('  and app.js calls it unguarded, so loading it is not optional',
   const CROSS_LANE = [
     ['decision_contract.js', 'B\'s explanation renderer reads DecisionContract'],
     ['opponent_predict.js', 'the shadow prediction arm, emitted from app.js'],
+    // GUARDED, THEREFORE OPTIONAL TO THE DERIVATION, THEREFORE ASSERTED HERE.
+    // app.js calls DraftSession behind `typeof DraftSession === 'undefined'`,
+    // which is correct defensively and dangerous alone: if the tag goes missing
+    // the draft silently stops being persisted and the ONE event that cannot be
+    // replayed is unrecoverable again, with no error anywhere. Same reasoning as
+    // override_record.js below.
+    ['draft_session.js', 'draft state persistence — a missing tag silently '
+      + 'restores nothing after a reset'],
   ];
   CROSS_LANE.forEach(([file, why]) => {
     ck(file + ' is loaded in the war room (' + why + ')',
