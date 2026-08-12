@@ -30,6 +30,25 @@
 <script src="/js/draft/survival.js"></script>
 <script src="/js/draft/composite.js"></script>
 <script src="/js/draft/engine.js"></script>
+<%# decision_contract.js — THE EXPLANATION CONTRACT, and it was NOT ON THE PAGE
+    until 2026-08-13. I built it, tested it, corrected the UNKNOWN-role defect in
+    it, and told Cory it was "landed and unblocking B" — while the browser had
+    never loaded it once. `DecisionContract` was undefined in production, so the
+    renderer B is blocked on could not have been written against it.
+
+    THE LOAD-ORDER GUARD DID NOT AND COULD NOT CATCH THIS. It derives its
+    requirement from globals APP.JS CALLS, and app.js calls nothing here by
+    design — the consumer is B's renderer, in another lane. So a module built FOR
+    ANOTHER LANE has no caller to derive from and falls straight through the
+    automatic check. Rule 14 in its purest form, on the file whose entire purpose
+    is to be the thing a renderer can trust, committed by me the same week the
+    rule's converse was written.
+
+    Loaded AFTER engine.js by convention rather than by need: resolution() takes
+    the engine's CFG as an ARGUMENT rather than reaching for a global, so there
+    is no ordering dependency to get wrong. script_load_order.test.js now asserts
+    this line explicitly, because derivation cannot. %>
+<script src="/js/draft/decision_contract.js"></script>
 <script src="/js/draft/attribution.js"></script>
 <script src="/js/draft/shadows.js"></script>
 <script src="/js/draft/seat.js"></script>
