@@ -5580,3 +5580,67 @@ that looks like a finding until it is split by the dimension that generates it.
 constraint / input-source / heuristic tilt* — at registration time would let the next
 "should we build this?" be answered against a base rate instead of an intuition. **On the
 current record the base rate for a heuristic tilt is 0 for 6, with 2 actively harmful.**
+
+---
+
+## DIRECTED PASS 1b — B's TRANSACTIONS, STANDINGS AND MONEY. **One finding; the rest is empty, plainly.** (C, 2026-08-12)
+
+### THE FINDING: the FAAB question is RESOLVED, and it closes a parked item
+
+**`waiver_bid` is null on all 1,091 transactions because THIS LEAGUE DOES NOT USE FAAB.**
+
+    settings.waiver_type = 1        all four seasons
+    waiver_budget_used   = 0        all 40 roster-seasons
+    B's own annotation:  "reverse standings (priority resets weekly off record — NO depletion)"
+
+**Three independent corroborations, all on disk.** `waiver_budget: 100` is an inert default —
+it is only consumed when `waiver_type` is 2.
+
+**So the parked "this league has no bids may be a null read from the wrong path" is answered
+NEGATIVELY: the null is real absence, and the pivot made on it was correct.** The queued live
+probe (`sleeper_pool.bid_path()`) is **not needed** — it would have spent a run confirming a
+setting we already store.
+
+**And the claim in that parked entry that "the entire FAAB history is unrecoverable for
+three seasons" was wrong in a way worth correcting**: there is no FAAB history to lose.
+
+**THIRD INSTANCE OF THE STANDING HABIT.** `league_history.json` answered persistence in an
+afternoon; `MANIFEST.json` held the dated 2023 board Route 1 hunted for a week;
+`sleeper_league_settings.json` held the answer to a question a CI probe was queued to ask.
+**Three for three.**
+
+### THE REST IS EMPTY, AND THAT IS THE REPORT
+
+**Does activity predict anything?** No, not demonstrably.
+
+| relationship | per-owner ρ (n=10 independent owners) | needed at n=10 |
+|---|---|---|
+| activity ~ wins | +0.27 | 0.648 |
+| activity ~ points_for | +0.42 | 0.648 |
+| activity ~ weekly highs | +0.27 | 0.648 |
+
+**Nothing crosses. Directionally positive, uniformly underpowered.**
+
+**Who trades with whom?** **There is no trade network.** Six trades in 1,091 transactions
+(**0.5%**), six distinct pairs, **no pair traded twice**, and the count runs **4 → 2 → 0**
+across 2023/24/25. The question is not unanswered, it is structurally unanswerable on this
+league.
+
+**Who pays late / weekly-high patterns?** `waiver_budget_used` is the only money-adjacent
+field in the archive and it is zero everywhere. **There is no payment record here to find
+patterns in.**
+
+### THE METHODOLOGICAL CATCH, WHICH IS THE PART WORTH KEEPING
+
+**Pooled as 30 owner-seasons, `activity ~ wins` reads +0.37 against a 0.362 threshold — it
+"crosses".** Per-owner, respecting that the 30 are 10 owners measured three times and that
+`txn_count` is a persistent trait (ICC 0.603), it reads **+0.27 and does not.**
+
+**And `activity ~ weekly highs` runs +0.41 · +0.64 · −0.77 by season**, pooling to a tidy
++0.19 that hides a hard sign flip.
+
+**That is the third time this exact shape has appeared today** — A's RB>WR pooled read
+carried entirely by 2024, my own C-001 keeper contamination, and now this. **A pooled
+statistic over non-independent units, hiding instability that the split exposes immediately.**
+It is the most reliable failure mode in this project's record and it is worth naming as a
+standing check rather than rediscovering a fourth time.
