@@ -204,3 +204,35 @@ def test_the_pin_series_carries_its_own_field_population():
     assert pop["rows"] == 1
     assert pop["fields"]["sha256"]["pct"] == 100.0
     assert "built_at" in pop["empty"]        # null is reported, not hidden
+
+
+def test_the_declared_pin_fields_cannot_drift_from_pin():
+    """The enforcement half. The constant alone is redundant with what `population()`
+    already unions from the rows; this is what gives it teeth.
+
+    MUTATION: add or rename a key in `pin()` without touching `PIN_FIELDS`. A new
+    field would enter the archive unrecorded, and a renamed one would leave the
+    declared list pointing at something the writer no longer emits."""
+    assert list(B.pin(RAW, "abc", "2026-08-12")) == B.PIN_FIELDS
+
+
+def test_a_pin_field_that_NEVER_ARRIVES_is_still_named():
+    """The case the declared list exists for, and the only one the derived list
+    could not see. A field that DROPS OUT is caught by the union over rows; a field
+    no row ever carried is invisible unless it is declared.
+
+    `built_at` is the one that matters: `pin_before()` refuses a same-day pin
+    without it, so if `pin()` quietly stopped emitting it, the tool arm would go
+    back to selecting the previous day's board and the archive would report a clean
+    100% on everything it happened to contain.
+
+    MUTATION: `fields=list(record)`, the shipped version before this test."""
+    def pin_without_built_at(sha, day):
+        r = B.pin(RAW, sha, day)
+        r.pop("built_at")
+        return r
+    doc = B.append(pin_without_built_at("s1", "2026-08-11"))
+    doc = B.append(pin_without_built_at("s2", "2026-08-12"), doc)
+    assert "built_at" in doc["population"]["fields"]
+    assert doc["population"]["fields"]["built_at"]["missing"] == 2
+    assert "built_at" in doc["population"]["empty"]

@@ -32,6 +32,32 @@ import field_population as FP
 SERIES = "draft/data/board_pins.json"
 PIN_VERSION = "board-pin/v1"
 
+#: What a pin is SUPPOSED to carry. A CONSTANT, for the reason already written out
+#: in `census_archive.CENSUS_FIELDS` and not applied here until now.
+#:
+#: `append()` passed `fields=list(record)` — derived from the very dict being written.
+#: `population()` unions the declared list with every key it observes, so a field that
+#: DROPS OUT is still caught (it falls to 50%, then lower), and a board that stops
+#: carrying `built_at` yields an explicit null and reads 0%. Both of those are the
+#: realistic failures and both were already visible.
+#:
+#: THE NARROW CASE THE DERIVED LIST CANNOT SEE is a field that never arrives at all —
+#: which is what a refactor of `pin()` does. `population()`'s own docstring says the
+#: declared list is "the only way to see a field that is declared and never delivered",
+#: and a list derived from the record cannot do that by construction.
+#:
+#: IT MATTERS MORE SINCE `pin_before()` STARTED DEPENDING ON `built_at`: without it a
+#: same-day pin no longer qualifies, and the tool arm silently goes back to selecting
+#: the previous day's board — the exact defect that function was just fixed for.
+#:
+#: AND THE HONEST LIMIT, same as the census: `pin()` always writes every key, so the
+#: union already contains them all today and this constant is redundant with it. Its
+#: teeth are in `test_the_declared_pin_fields_cannot_drift_from_pin`: change `pin()`'s
+#: shape and that test fails, forcing a deliberate update here rather than a silent
+#: one there. The constant is the schema; the drift test is the enforcement.
+PIN_FIELDS = ["observed_at", "commit", "path", "sha256", "n_players", "built_at",
+              "recover_with"]
+
 
 def digest(raw: bytes) -> str:
     """SHA-256 of the exact bytes, so a recovered board can be PROVED identical.
@@ -77,7 +103,7 @@ def append(record: dict, existing: dict = None) -> dict:
     # `sha256` — a pin without it proves nothing about the board it names — so a day
     # where the digest went empty must be visible in the record, not inferable only by
     # someone who tries to verify a recovery a year later.
-    doc["population"] = FP.of_records(doc["series"], fields=list(record))
+    doc["population"] = FP.of_records(doc["series"], fields=PIN_FIELDS)
     return doc
 
 
