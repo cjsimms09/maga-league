@@ -67,13 +67,14 @@ jobs:
       # fetch fails the step rather than writing a dated empty board — and this
       # summary reports the coverage either way.
       - name: Report coverage where it cannot be missed
+        id: cov
         if: always()
         run: |
           {
             echo "## D3 external ADP capture"
             if [ -f draft/data/external_adp_series.json ]; then
               python3 - <<'PY'
-          import sys, json
+          import sys, json, os, datetime
           sys.path.insert(0, 'draft/backtest')
           import external_adp_capture as C
           cov = C.coverage(C.load(), "${{ github.event.inputs.year || '2026' }}")
@@ -83,12 +84,59 @@ jobs:
           if cov["empty_snapshots"]:
               print("**%d EMPTY SNAPSHOT(S)** — dated rows with no board behind them."
                     % cov["empty_snapshots"])
+
+          # ── DAYS WITH NO ROW AT ALL ────────────────────────────────────────
+          # A different hole from an empty snapshot and, until now, an invisible
+          # one: `snapshots`, `first`, `last` and `empty_snapshots` all read
+          # healthy across an outage, because the row count simply rises by less
+          # than the calendar did and nothing was subtracting.
+          if cov["missing"] is None:
+              print("**COVERAGE UNCOUNTED** — %s. Treat this archive's span as "
+                    "unknown rather than complete." % cov["gap_note"])
+          elif cov["missing"]:
+              print("**%d DAY(S) NEVER CAPTURED** across %s..%s. MFL serves no "
+                    "as-of-date board, so these are gone permanently:"
+                    % (cov["missing"], cov["first"], cov["last"]))
+              print("`%s`" % "`, `".join(cov["missing_days"]))
+              if cov["missing_listed_truncated"]:
+                  print("...and more — %d total, first %d listed."
+                        % (cov["missing"], len(cov["missing_days"])))
+
+          # DID *THIS* RUN RESUME FROM AN OUTAGE. Escalates on the day the gap
+          # becomes detectable and self-clears afterwards, so a permanent
+          # historical hole never makes this job red every morning for ever —
+          # red-by-design is how a real alarm gets muted.
+          # THE CONDITION LIVES IN THE MODULE, NOT HERE. Written inline in this
+          # YAML it had two defects no test could reach — the runner's local
+          # clock instead of UTC, and asking a list capped at 14 whether
+          # yesterday was absent, which turned the cap into a mute. Both are
+          # pinned by tests now. UTC is still stated explicitly at the call.
+          today = datetime.datetime.now(datetime.timezone.utc).date()
+          resumed = C.missed_yesterday(C.load(),
+                                       "${{ github.event.inputs.year || '2026' }}", today)
+          with open(os.environ["GITHUB_OUTPUT"], "a") as fh:
+              fh.write("resumed=%s\n" % ("1" if resumed else "0"))
+              fh.write("missing=%s\n" % (cov["missing"] if cov["missing"] is not None else "?"))
           PY
             else
               echo "NO ARCHIVE FILE — nothing has been captured yet. This is a statement"
               echo "about the run, not evidence that ADP is unavailable."
             fi
           } >> "$GITHUB_STEP_SUMMARY"
+
+      # A GREEN RUN'S STEP SUMMARY IS READ BY NOBODY, which is the whole reason
+      # the standing check escalates by failing. Losing a day of a perishable
+      # curve deserves the same channel — but only ONCE, on the run that can
+      # first see it.
+      - name: Escalate if this run resumed from a gap
+        if: always() && steps.cov.outputs.resumed == '1'
+        run: |
+          echo "::error::D3 capture MISSED AT LEAST YESTERDAY — the archive now has"
+          echo "::error::${{ steps.cov.outputs.missing }} uncaptured day(s). The 2026 ADP curve is"
+          echo "::error::observable only while it is happening: no provider serves a board"
+          echo "::error::as of a past date, so these days cannot be refetched by any means."
+          echo "::error::Fix the schedule before more days go. See the step summary for dates."
+          exit 1
 
       - name: Commit the day's snapshot
         if: steps.cap.outcome == 'success'

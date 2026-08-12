@@ -36,6 +36,8 @@ in ONE place rather than being re-derived here.
 from __future__ import annotations
 
 import json
+from datetime import date as _date
+from datetime import timedelta as _timedelta
 from pathlib import Path
 
 import field_population as FP
@@ -123,17 +125,79 @@ def as_store_snapshots(series: list, year) -> list:
             for s in _series_of(series) if str(s.get("year")) == str(year)]
 
 
+#: How many absent dates to NAME. The count is always exact; only the list is
+#: capped, and `missing_listed_truncated` says so when it bites. A cap that
+#: silently shortens a list reads as "that was all of them".
+MISSING_DAYS_LISTED = 14
+
+
+def _gaps(days: list) -> dict:
+    """Which calendar days between the first and the last were never captured.
+
+    SEPARATE FROM `coverage` so it can be tested on dates alone, and because the
+    parse failure has to be handled somewhere it cannot be mistaken for zero.
+    """
+    try:
+        got = sorted({_date.fromisoformat(d) for d in days})
+    except (TypeError, ValueError):
+        # A DATE THIS FUNCTION CANNOT PARSE IS NOT A DAY WITH NO GAP. Returning
+        # `missing: 0` here would report a clean capture off the back of a broken
+        # one — the exact inversion this module exists to prevent. Rule 13f.
+        return {"expected_days": None, "missing": None, "missing_days": [],
+                "missing_listed_truncated": False, "complete": None,
+                "gap_note": "UNCOUNTED — a date in this series is unparseable"}
+    if not got:
+        return {"expected_days": 0, "missing": 0, "missing_days": [],
+                "missing_listed_truncated": False, "complete": None,
+                "gap_note": "UNCOUNTED — nothing captured, so there is no span to check"}
+    span = (got[-1] - got[0]).days + 1
+    have = set(got)
+    absent = [got[0] + _timedelta(days=i) for i in range(span)]
+    absent = [d for d in absent if d not in have]
+    return {
+        "expected_days": span,
+        "missing": len(absent),
+        "missing_days": [d.isoformat() for d in absent[:MISSING_DAYS_LISTED]],
+        "missing_listed_truncated": len(absent) > MISSING_DAYS_LISTED,
+        "complete": not absent,
+        "gap_note": None,
+    }
+
+
 def coverage(series: list, year) -> dict:
     """What we actually hold for a season — reported, never assumed.
 
-    The number that answers "can this league be replayed at all" before any
-    replay is attempted, and the one that makes a gap in the capture visible
-    rather than showing up as a league silently failing F5 months later.
+    THE CLAIM THIS DOCSTRING USED TO MAKE WAS FALSE, and it is worth recording
+    rather than quietly deleting. It said this was "the one that makes a gap in
+    the capture visible". It did not. A twelve-day window with three consecutive
+    days lost reported `snapshots: 9, first: 08-11, last: 08-22,
+    empty_snapshots: 0` — arithmetically indistinguishable from a complete
+    capture, in the function whose stated job was making the gap visible.
+
+    That matters more here than almost anywhere else in this project, because
+    the days are PERISHABLE. `empty_snapshots` already catches a dated row with
+    no board behind it. Nothing caught a day with no row at all, and a day with
+    no row at all can never be refetched — MFL serves no as-of-date board, which
+    is the measured finding this whole archive exists because of.
+
+    ── WHAT IT CATCHES AND WHAT IT CANNOT, STATED RATHER THAN IMPLIED ────────
+
+    `missing_days` finds INTERIOR gaps: the capture stopped and STARTED AGAIN.
+    That is detectable here at the first moment it is detectable at all — the
+    resumed run sees the hole its own outage made and names the dates.
+
+    It CANNOT see a capture that stopped and stayed stopped. There is no
+    interior gap in that case; `last` simply stops advancing, and a job that is
+    not running cannot report that it is not running. Detecting THAT needs an
+    instrument on a different clock, comparing `last` to today. This function
+    deliberately does not take a clock — the module keeps date logic passed in
+    so the archive stays testable — and it would be an overclaim to imply the
+    dead-capture case is covered by anything below.
     """
     ser = _series_of(series)
     days = sorted(s["observed_at"] for s in ser if str(s.get("year")) == str(year))
     counts = [s.get("row_count") or 0 for s in ser if str(s.get("year")) == str(year)]
-    return {
+    out = {
         "year": str(year), "snapshots": len(days),
         "first": days[0] if days else None, "last": days[-1] if days else None,
         "min_rows": min(counts) if counts else 0,
@@ -142,6 +206,41 @@ def coverage(series: list, year) -> dict:
         # a date, and counting it would make a broken run look like coverage.
         "empty_snapshots": sum(1 for c in counts if c == 0),
     }
+    out.update(_gaps(days))
+    return out
+
+
+def missed_yesterday(series: list, year, today: _date) -> bool:
+    """Did the daily capture skip the run before this one — i.e. is TODAY a resume.
+
+    THE ESCALATION CONDITION, AND IT LIVES HERE RATHER THAN IN THE WORKFLOW
+    because the first draft of it lived in the workflow and had two defects that
+    no test in this project could have reached: it read the runner's local clock
+    instead of UTC, and it asked `missing_days` — a list capped at 14 — whether
+    yesterday was absent, so a long enough historical gap would push yesterday
+    off the end and silently stop the alarm firing. A cap turning into a mute is
+    the exact failure this module keeps finding in other people's code, and it
+    got written here the moment the logic was somewhere untestable.
+
+    WHY THIS CONDITION AND NOT "the archive has a gap". A permanent historical
+    hole cannot be repaired — MFL serves no as-of-date board — so escalating on
+    it would make this job red every morning for ever, and a permanently red job
+    gets muted and then ignored. This fires on the run that can FIRST see the
+    loss and goes quiet by itself the next day.
+
+    AND THE LIMIT, AGAIN, because it is the same one: a capture that stops and
+    never resumes never reaches this function, because the job that would call
+    it is the job that is not running.
+    """
+    days = {s.get("observed_at") for s in _series_of(series)
+            if str(s.get("year")) == str(year)}
+    days.discard(None)
+    if not days:
+        return False
+    yday = (today - _timedelta(days=1)).isoformat()
+    # A BRAND-NEW ARCHIVE HAS NOT MISSED ANYTHING. Without this, the first run
+    # would escalate about the day before the archive existed.
+    return min(days) < yday and yday not in days
 
 
 def load(path=None) -> list:
@@ -164,6 +263,18 @@ def save(series: list, path=None) -> None:
         # starts coming back empty has to be visible HERE, in the file, rather than
         # discovered by whoever next tries to weight the series.
         "population": FP.of_records(series or [], fields=SNAPSHOT_FIELDS),
+        # AND SO DOES COVERAGE, for the same reason one step along. Population
+        # answers "which FIELDS of a row are empty". On an append-only DAILY
+        # series there is a second hole shaped exactly like it and just as
+        # invisible: a day with no row. `population` cannot see it — a day that
+        # was never captured contributes no row to be counted as empty, so a
+        # holed archive scores 100% on every field.
+        #
+        # Recorded per year, beside the rows, so the reader who picks this file
+        # up as F5 evidence learns what it does NOT contain without having to
+        # difference the dates themselves.
+        "coverage": {y: coverage(series or [], y)
+                     for y in sorted({str(s.get("year")) for s in (series or [])})},
         "series": series}, indent=1))
 
 

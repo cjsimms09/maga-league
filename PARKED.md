@@ -6164,3 +6164,84 @@ something blocks rather than merely waits.**
 **Not fixed by me.** `src/predledger.js` is not my territory, and registering a kind is a
 schema decision about what the ledger accepts — not a mechanical fix. Two entries if the
 kinds are legitimate, which the emitter's shape suggests they are.
+
+---
+
+## ⚠️ FOR A — A DEAD DAILY CAPTURE CANNOT BE NOTICED BEFORE THE DRAFT. Measured, not estimated. (C, 2026-08-12)
+
+**`standing_check.py` is the only instrument in this project that can detect a capture that
+has stopped. Under its current configuration it cannot fire on any daily series before
+2026-08-22, no matter when the capture dies.** Not "is unlikely to" — cannot.
+
+### THE ARITHMETIC, exact
+
+    T["series_stale_days"] = 10                  standing_check.py:73
+    examination gated to Mondays                 standing-check.yml:89  ( date -u +%u != 1 )
+    the only Monday before the draft             2026-08-17
+    the next one                                 2026-08-24   (two days AFTER the draft)
+
+`check_series` escalates when `age > 10`. For the 08-17 examination to fire, the newest row
+must predate **2026-08-07**. The D3 archive's oldest row is **2026-08-11** (the workflow
+merged that day), so on 08-17 the maximum achievable age is **6 days**. The bar is 10.
+
+**Every possible death date in the remaining window escalates after the draft:**
+
+    capture dies 08-12 -> first escalation 08-24   (10 pre-draft days lost in silence)
+    capture dies 08-13 -> first escalation 08-24   ( 9)
+    capture dies 08-14 -> first escalation 08-31   ( 8)
+    ...                                            ...
+    capture dies 08-21 -> first escalation 09-07   ( 1)
+
+### IT IS THE FAILURE THE FILE'S OWN DOCSTRING REJECTS
+
+> *"the fastest failure mode is not 'the data got interesting', it is 'the daily capture
+> died', and that needs catching in days. A monthly pass would let three weeks of a dead
+> daily job go by. So: weekly, because of the failure mode, not because of the analysis."*
+
+The reasoning is right. The configuration does not implement it: **10-day threshold + up to
+7 days to the next Monday = up to 17 days to notice a dead daily job** — 81% of the 21 days
+the docstring rejects monthly for. The cadence was chosen against this failure mode and the
+threshold was not.
+
+### THIS IS NOT ONLY MY ARCHIVE
+
+`check_series` runs over three series and the threshold is global:
+
+    adp_series            draft/data/adp_series.json            DAILY   — A's home staleness instrument
+    external_adp_series   draft/data/external_adp_series.json   DAILY   — D3, mine
+    sleeper_trending      draft/data/sleeper_trending.json      DAILY
+
+**A 10-day bar on a daily capture is wrong for all three**, and `adp_series.json` is the one
+feeding the board's own staleness alarm. I am reporting it rather than changing it because
+`standing_check.py` is `# TERRITORY: A` and the threshold is a declared parameter — changing
+a pre-registered threshold is your call, not a mechanical fix, and it is the one class of
+edit where quietly doing it would be worst.
+
+### THE DECISION IS ONE OF TWO LINES
+
+1. **`series_stale_days: 10 -> 2`** for daily series. Two missed runs is a pattern — the same
+   reasoning already written into `market_stale_days: 3` eleven lines above it, for a capture
+   on the same cadence. This alone still leaves up to 7 days of Monday latency.
+2. **Drop the Monday gate on `check_series` only** (leave the analysis rows weekly). The
+   workflow already runs `0 12 * * *` daily; only the examination is gated. The machinery to
+   catch this daily exists and is switched off six days in seven.
+
+Doing (1) and (2) puts worst-case detection at **3 days**. Doing neither leaves the pre-draft
+window uncovered, which is the state today.
+
+### WHAT I DID IN MY OWN LANE INSTEAD — and what it does NOT cover
+
+D3's capture workflow now escalates when it **resumes** after a skipped day
+(`missed_yesterday()`, `external_adp_capture.py`, seven tests, six mutations killed). That
+catches *stopped-and-restarted* at the first moment it is detectable and self-clears the next
+day, so it never becomes red-by-design.
+
+**It does not catch stopped-and-stayed-stopped, and it cannot.** A job that is not running
+cannot report that it is not running; that detection has to come from an instrument on a
+different clock, which is `standing_check` and nothing else. I did not build a second one in
+my lane — that would be a duplicate implementation of one rule, and this codebase already
+enforces one-owner-per-rule (`test_F5s_strictly_before_rule_is_NOT_reimplemented_here`).
+
+**Blocks me?** No. **Risks data?** Yes, and unrecoverably: MFL serves no as-of-date board —
+the measured finding D3 exists because of — so every silent day is gone permanently, across
+exactly the ten days when the board moves most.
