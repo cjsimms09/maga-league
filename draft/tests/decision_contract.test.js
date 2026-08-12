@@ -181,9 +181,16 @@ const mk = (id, score, weighted, extra) => Object.assign({
   const value = c.find(x => x.term === 'value');
   const tiny = c.find(x => x.term === 'stack');
 
-  check('THREE STATES: absent / moved / decisive, not two',
+  // FOUR states since 2026-08-13 — see the UNKNOWN block at the foot of this
+  // file. The stub below now carries `decision_significant` explicitly: a
+  // contrib WITHOUT that field is malformed, and roleOf deliberately answers
+  // 'unknown' for it rather than guessing 'absent'. That is the safe direction
+  // (refuse, don't assert) and it is the same call the NaN fix makes — so the
+  // stub is corrected rather than the rule being loosened to accept it.
+  check('FOUR STATES: absent / moved / decisive / unknown, not two',
     DC.roleOf(value) === 'decisive' && DC.roleOf(tiny) === 'moved'
-    && DC.roleOf({ delta: 0 }) === 'absent');
+    && DC.roleOf({ delta: 0, decision_significant: false }) === 'absent'
+    && DC.roleOf({ delta: 0 }) === 'unknown');
   check('a term that MOVED but did not decide is caught as a causal claim',
     DC.citesNonDecisive('we took him for the stack', c).join(',') === 'stack');
   check('  it passes the zero-delta check — which is exactly why the converse is needed',
@@ -266,3 +273,51 @@ const mk = (id, score, weighted, extra) => Object.assign({
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
+
+/* ── UNKNOWN IS ITS OWN ROLE (B, 2026-08-13) ───────────────────────────────
+ *
+ * At pick 108 the engine returned NaN scores. resolution() correctly said
+ * UNKNOWN and decision_significant was correctly null — and roleOf's ternary
+ * then coerced that null to false and reported MOVED for every non-zero term.
+ * A renderer trusting it would cite value +62.4 as a supporting factor behind a
+ * decision the contract had just declared indescribable.
+ */
+{
+  const nanWinner = { name: 'W', components: { weighted:
+    { value: 62.4, keeper: 12.9, tier: 0, need: 0 } } };
+  const nanAlt = { name: 'A', components: { weighted:
+    { value: 0, keeper: 0, tier: 0, need: 0 } } };
+  const contribs = DC.contributions(nanWinner, nanAlt, NaN);
+  const byTerm = {}; contribs.forEach(c => { byTerm[c.term] = c; });
+
+  ck('an unusable gap resolves UNKNOWN', DC.resolution(NaN).status === 'UNKNOWN');
+  ck('...and decision_significant is null, not false',
+    byTerm.value.decision_significant === null, String(byTerm.value.decision_significant));
+  ck('a non-zero term under an unusable gap is UNKNOWN, never MOVED',
+    DC.roleOf(byTerm.value) === 'unknown', DC.roleOf(byTerm.value));
+  ck('...and so is a smaller one — the whole state is unexplainable, not just the big term',
+    DC.roleOf(byTerm.keeper) === 'unknown', DC.roleOf(byTerm.keeper));
+  // Ordering matters: under a NaN gap even "this contributed nothing" is a claim
+  // we cannot support, so a zero-delta term is unknown too rather than absent.
+  ck('a ZERO-delta term under an unusable gap is also unknown, not absent',
+    DC.roleOf(byTerm.tier) === 'unknown', DC.roleOf(byTerm.tier));
+
+  // THE HOLE THE FIX COULD HAVE OPENED. Naming the state without a detector for
+  // it would have made the sentence pass BOTH existing checks — a quieter bug.
+  const s = 'took him on value, with the keeper stack behind it';
+  ck('the sentence escapes citesZeroContribution (deltas are non-zero)',
+    DC.citesZeroContribution(s, contribs).length === 0);
+  ck('...and escapes citesNonDecisive (nothing is "moved" any more)',
+    DC.citesNonDecisive(s, contribs).length === 0);
+  ck('...so citesUnexplainable is the detector that must catch it',
+    DC.citesUnexplainable(s, contribs).sort().join(',') === 'keeper,value',
+    DC.citesUnexplainable(s, contribs).join(','));
+
+  // THE CONTROL. On a healthy gap the new role must never appear, or it would
+  // suppress every real explanation on the board (rule 10).
+  const okContribs = DC.contributions(nanWinner, nanAlt, 62.4);
+  ck('a usable gap yields no unknown roles at all',
+    okContribs.every(c => DC.roleOf(c) !== 'unknown'));
+  ck('...and citesUnexplainable stays silent there',
+    DC.citesUnexplainable(s, okContribs).length === 0);
+}

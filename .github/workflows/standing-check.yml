@@ -82,9 +82,38 @@ jobs:
           git commit -m "Component grades" || { echo "no change"; exit 0; }
           git pull --rebase origin main && git push || echo "push skipped"
 
+      # ── THE LIVENESS PASS. DAILY, AND DELIBERATELY NOT MONDAY-GATED ──────
+      #
+      # C measured the hole: with a 10-day bar and a Monday-only examination,
+      # the only pre-draft Monday is 08-17, on which the archive's age cannot
+      # exceed ~5 days. So for every death date from today forward, THE CHECK
+      # WATCHING THE PERISHABLE DAILY CAPTURES COULD NOT FIRE BEFORE THE
+      # DRAFT — across the one stretch where each lost day is gone for good.
+      #
+      # Both levers were wrong, so both are fixed: the bars moved to 3 days
+      # (standing_check.SERIES_WATCH) and the examination of those rows moved
+      # to daily. Fixing only one would have left a weekly monitor with a
+      # short bar, or a daily monitor with a 10-day bar. The full analytical
+      # examination stays Monday-only below — nothing it watches moves in a
+      # day, and running it daily is how a real alarm gets buried in noise.
+      #
+      # It runs AFTER the commits above, not before. An escalation step that
+      # precedes a commit aborts the job and discards the very snapshot the
+      # alarm is complaining about — see market-capture.yml.
+      - name: Is the perishable capture still alive (daily)
+        if: always()
+        run: |
+          python draft/backtest/standing_check.py --liveness --verbose | tee /tmp/lv.txt
+          if grep -q '::standing-check-escalate::' /tmp/lv.txt; then
+            echo '::error::a perishable daily capture has stopped — every day lost here is unrebuildable'
+            grep -v '::standing-check-escalate::' /tmp/lv.txt
+            exit 1
+          fi
+
       # THE EXAMINATION. Monday only. Silent unless something crossed.
       - name: Is there anything here yet
         id: look
+        if: always()
         run: |
           if [ "$(date -u +%u)" != "1" ] && [ "${{ github.event_name }}" != "workflow_dispatch" ]; then
             echo "not Monday — capture only"; exit 0
@@ -95,6 +124,7 @@ jobs:
       # fails the run, which is the only notification channel that reaches Cory
       # without him going to look — which is the entire point of the file.
       - name: Escalate only if something crossed
+        if: always()
         run: |
           if [ -f /tmp/sc.txt ] && grep -q '::standing-check-escalate::' /tmp/sc.txt; then
             echo '::error::the standing check found something worth attention:'

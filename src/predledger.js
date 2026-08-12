@@ -47,6 +47,24 @@ const KINDS = ['recommendation', 'pick', 'survival', 'override', 'lrm', 'run',
                                    // invented — the audit trail for the fix
                'correction',       // a recorded pick corrected after the fact
 
+               // ...and it happened a THIRD time, to me, nine days out. The
+               // opponent-prediction shadow arm emits both of these from
+               // app.js and neither was registered, so the arm that exists to
+               // MEASURE whether room profiles beat ADP would have written
+               // nothing on draft night: every capture 400s at the boundary
+               // and the decision-time record is gone. Same shape as the
+               // shadow_pick omission logged above, found the same way — by
+               // the test that asserts emitted ⊆ registered, not by reading
+               // the code that emits them.
+               //
+               // The shadow arm is a MEASUREMENT arm, which makes this the
+               // worst place for it: a silent write failure in an instrument
+               // does not degrade a recommendation, it deletes the evidence
+               // that would have told us whether the recommendation was any
+               // good — and only after the one night it could be collected.
+               'opponent_prediction',            // predicted before the pick
+               'opponent_prediction_resolved',   // graded against the actual
+
                /* ── IN-SEASON KINDS (experiment 37's rail) ──────────────────
                 *
                 * Registered BEFORE the draft, deliberately, and this is the

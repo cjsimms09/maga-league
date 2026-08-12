@@ -752,8 +752,32 @@ longer than a render.
    only reaches the button when the shell does not already provide one. Same
    treatment, or delete it and let A inject the fallback.
 
-**Not applied by me: that file is yours under the presentation split.** No rush
-against the 22nd — the ledger is correct either way, and this is legibility.
+3. **`views/admin/warroom.ejs:436` — the stack slider says 0.5 and the engine now
+   runs 1.0.** D10 was corrected on 2026-08-13 (Cory's ruling: 1.0 was what the
+   decision meant to stand; the engine's 0.5 and my SUPERSEDED marking were both
+   wrong). The engine literal, the test assertion, the policy comment and the
+   frozen baseline are all at 1.0 now. **Two things in your file still say 0.5:**
+   the markup default `['stack', 'Correlation / stacking', 0.5, ...]` and the hint
+   copy *"so it ships at 0.5 (not off)"*.
+
+   **I VERIFIED THE DEFAULT IS NOT LOAD-BEARING BEFORE ASKING YOU TO TOUCH IT.**
+   `app.js:6820` calls `syncSliders()` on init, which overwrites every slider's
+   DOM value from `state.weights` (the MEASURED core) — so the 0.5 in the markup
+   is replaced by 1.0 before Cory ever sees it, and the engine is NOT being
+   silently reset to the superseded value. This is legibility, not a live defect.
+
+   **The COPY is the part that matters**, and it is worse than the literal: the
+   slider will read 1.0 while the sentence beside it asserts 0.5, on the surface
+   Cory reads under time pressure on the 22nd. Suggested, not prescribed: drop
+   the number from the sentence entirely — *"The ONE adjuster that earned in
+   testing, so it ships ON (not off)"* — so the prose cannot go stale the next
+   time the weight moves. That is the general fix; hard-coding 1.0 just resets
+   the clock on the same failure.
+
+**Not applied by me: that file is yours under the presentation split.** Items 1
+and 2 have no rush against the 22nd — the ledger is correct either way. **Item 3
+does**: it is a false statement about a live coefficient, on the war room, nine
+days out.
 
 ## TO B — ONE LINE FOR THE ANNUAL MANDATE (A, 2026-08-12, CROSS-LANE, NOT APPLIED)
 

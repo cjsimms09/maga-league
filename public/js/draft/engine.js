@@ -303,8 +303,16 @@
    * follow-ups measured which adjusters actually earn on top of the defensible core
    * (the startable-cap MASK — always on, in needrule.js — plus the VALUE anchor):
    *   - value 1.0   : the anchor; removing it costs ~$362. Half the whole edge.
-   *   - stack 0.5   : the ONE adjuster that earns (exp6/stack_sweep, +$196 @ 0.5); its
+   *   - stack 1.0   : the ONE adjuster that earns (exp6/stack_sweep, +$196); its
    *                   correlation mechanism isn't in the money-MC, so trust stack_sweep.
+   *                   THE LITERAL HERE READ 0.5 UNTIL 2026-08-13 while the live weight
+   *                   below read 1.0 — so this block and the code disagreed, and the
+   *                   file supported both readings of D10 at once. Cory ruled that 1.0
+   *                   was what D10 meant to stand and that the SUPERSEDED marking had
+   *                   been applied backwards: the engine was right, the record was
+   *                   wrong. Corrected here, in the test assertion, and in the frozen
+   *                   baseline (v8) rather than in one place — a coefficient that
+   *                   decides picks cannot be documented one way and executed another.
    *   - need 0     : INERT by mask redundancy — the additive weight flips only ~5% of picks
    *                   at 0.5 and still 8% at 3.0, because the need signal is ~uniform inside
    *                   the startable-cap MASK (which IS the need mechanism). Not "untested" —

@@ -231,9 +231,33 @@ const TERM_WORDS = {
  *                                 consideration, never as the reason.
  *   DECISIVE |delta| >= |gap|   — removing it alone flips the pick. This is the
  *                                 only state an explanation may name as WHY.
+ *
+ * ── AND A FOURTH, WHICH THIS FUNCTION USED TO COERCE AWAY (B, 2026-08-13) ──
+ *
+ *   UNKNOWN  the gap itself is unusable — NaN, infinite, or zero.
+ *
+ * At pick 108 the engine returned NaN scores. `resolution()` correctly reported
+ * UNKNOWN and `decision_significant` was correctly null: with no gap there is no
+ * counterfactual to evaluate. But `contrib.decision_significant ? ... : 'moved'`
+ * turned that null into `false` and then into MOVED, so EVERY non-zero term
+ * reported itself a secondary consideration for a decision the contract had
+ * just said it could not describe. A renderer trusting roleOf would have cited
+ * value +62.4 and keeper +12.9 as "supporting factors" behind a NaN.
+ *
+ * That is the week's recurring shape — A NULL COERCING INTO A VALID-LOOKING
+ * VALUE RATHER THAN REFUSING — and it is worse here than elsewhere, because the
+ * contract's whole purpose is to be the thing a renderer can trust.
+ *
+ * UNKNOWN IS ITS OWN ROLE, not a variant of MOVED, and the ordering below is
+ * deliberate: it is checked BEFORE the absent test, because under a NaN gap
+ * even "this term contributed nothing" is a claim we cannot support. The
+ * renderer contract is: UNKNOWN may be cited as neither reason nor secondary —
+ * it may only be reported as unexplainable.
  */
 function roleOf(contrib) {
-  if (!contrib || Math.abs(contrib.delta) < 1e-9) return 'absent';
+  if (!contrib) return 'absent';
+  if (contrib.decision_significant == null) return 'unknown';
+  if (Math.abs(contrib.delta) < 1e-9) return 'absent';
   return contrib.decision_significant ? 'decisive' : 'moved';
 }
 
@@ -250,6 +274,34 @@ function citesNonDecisive(sentence, contribs) {
     if (roleOf(byTerm[term]) === 'moved') weak.push(term);
   });
   return weak;
+}
+
+/* Terms a sentence names while the gap is UNUSABLE. Empty = compliant.
+ *
+ * WITHOUT THIS THE UNKNOWN ROLE WOULD BE A HOLE RATHER THAN A FIX. Adding
+ * 'unknown' to roleOf stops UNKNOWN masquerading as MOVED — but it also drops
+ * those terms out of citesNonDecisive (they are no longer 'moved') while
+ * citesZeroContribution never saw them either (their delta is non-zero). So a
+ * sentence citing value under a NaN gap would have passed BOTH detectors, and
+ * the contract would have certified as compliant the exact sentence it exists
+ * to forbid. Naming the state without a detector for it is how a fix becomes a
+ * quieter version of the bug.
+ *
+ * A term here may be cited as NEITHER reason NOR secondary consideration. The
+ * only honest rendering under an unusable gap is that the decision cannot be
+ * explained — which is a real thing to say, and a far better one than a
+ * confident sentence about a NaN.
+ */
+function citesUnexplainable(sentence, contribs) {
+  const s = String(sentence || '');
+  const byTerm = {};
+  (contribs || []).forEach(c => { byTerm[c.term] = c; });
+  const bad = [];
+  Object.keys(TERM_WORDS).forEach(term => {
+    if (!TERM_WORDS[term].test(s)) return;
+    if (roleOf(byTerm[term]) === 'unknown') bad.push(term);
+  });
+  return bad;
 }
 
 function citesZeroContribution(sentence, contribs) {
@@ -324,7 +376,7 @@ function explain(opts) {
 }
 
 const api = { explain, contributions, resolution, causes, deferral,
-  citesZeroContribution, citesNonDecisive, roleOf,
+  citesZeroContribution, citesNonDecisive, citesUnexplainable, roleOf,
   TERM_WORDS, CALIBRATION, SURVIVAL_CALIBRATION };
 global.DecisionContract = api;
 if (typeof module !== 'undefined' && module.exports) module.exports = api;

@@ -78,9 +78,29 @@ def test_a_dead_market_capture_escalates(tmp_path, monkeypatch):
     d.mkdir(parents=True)
     (d / "capture_health.json").write_text(json.dumps(
         {"last_success_at": _stamp(SC.T["market_stale_days"] + 2)}))
-    row = SC.check_market_snapshots()
+    row = SC.check_market_capture_alive()
     assert row["state"] == "ESCALATE", row
     assert "unrecoverable" in row["detail"]
+
+
+def test_the_liveness_row_ignores_the_analysis_threshold(tmp_path, monkeypatch):
+    """A LIVE capture with Signal C ready must NOT make the daily pass red.
+
+    The two questions used to share one row, so the daily liveness pass would
+    have escalated every day on "Signal C is askable" — a finding that is still
+    true tomorrow and needs no action today. A daily alarm that is red every day
+    is not a monitor, and it is how the real one gets muted.
+    """
+    monkeypatch.setattr(SC, "ROOT", tmp_path)
+    d = tmp_path / "draft" / "market_snapshots"
+    d.mkdir(parents=True)
+    (d / "capture_health.json").write_text(json.dumps({"last_success_at": _stamp(0)}))
+    # Enough paired events that the ANALYSIS row escalates.
+    for i in range(2):
+        (d / f"2026-08-0{i+1}T12:00:00Z.json").write_text(json.dumps(
+            {"events": [{"event_id": f"e{j}"} for j in range(SC.T["market_movement_events"])]}))
+    assert SC.check_market_snapshots()["state"] == "ESCALATE"
+    assert SC.check_market_capture_alive()["state"] == "quiet"
 
 
 def test_enough_paired_events_escalates_signal_c(tmp_path, monkeypatch):
@@ -261,3 +281,54 @@ def test_every_parked_archive_is_one_a_check_actually_reports():
     """A park for an archive nobody checks is a note that will never expire."""
     names = {r["archive"] for r in SC.run()}
     assert set(SC.PARKED).issubset(names), set(SC.PARKED) - names
+
+
+# ── THE BAR MUST FIT INSIDE THE WINDOW IT PROTECTS ──────────────────────────
+#
+# C's question, asked once about one row and then turned into a guard so it
+# never has to be asked again: does any staleness bar exceed the window it is
+# supposed to protect? The answer for `series_stale_days` was yes — a 10-day
+# bar examined weekly could not fire before the 2026 draft for ANY death date,
+# across the exact stretch where each lost day is unrebuildable.
+#
+# This is the failure class named in SESSION-A.md: the check existed, ran, and
+# reported clean, while its CONFIGURATION made it incapable of detecting the
+# failure it watches for. Nothing about that is visible from reading the check —
+# it emerges only from the bar, the cadence, and the deadline together, which is
+# why it needs a test rather than a comment.
+
+def test_every_watched_series_can_fire_inside_the_window_it_protects():
+    for name, (path, bar, tolerable) in SC.SERIES_WATCH.items():
+        worst = bar + SC.LIVENESS_LAG_DAYS
+        assert worst <= tolerable, (
+            f"{name}: bar {bar}d + daily-pass lag {SC.LIVENESS_LAG_DAYS}d = {worst}d "
+            f"before anyone is told, but only {tolerable}d of this series is "
+            f"considered tolerable to lose. Lower the bar or raise the cadence — "
+            f"a monitor that cannot fire in time is a monitor that reports 'quiet' "
+            f"while the thing it watches is already dead.")
+
+
+def test_the_weekly_examination_alone_would_not_have_caught_it():
+    """The instrument must be able to show the defect it was built for.
+
+    If this ever passes trivially — because the weekly lag happens to fit — the
+    test above is proving nothing, and the whole guard is a fixture agreeing
+    with itself (rule 10d).
+    """
+    offenders = [n for n, (_p, bar, tol) in SC.SERIES_WATCH.items()
+                 if bar + SC.EXAMINATION_LAG_DAYS > tol]
+    assert offenders, ("no watched series would fail under the WEEKLY lag, so "
+                       "the invariant above is not actually being exercised by "
+                       "the cadence split it exists to justify")
+
+
+def test_every_liveness_row_is_produced_by_a_real_check():
+    """A liveness row nobody reports is a daily pass watching less than it says."""
+    names = {r["archive"] for r in SC.run()}
+    assert set(SC.LIVENESS_ROWS).issubset(names), set(SC.LIVENESS_ROWS) - names
+
+
+def test_the_liveness_subset_is_strictly_smaller_than_the_full_pass():
+    """If the two ever coincide, the daily pass IS the weekly examination and
+    the noise argument for splitting them has quietly stopped holding."""
+    assert 0 < len(SC.LIVENESS_ROWS) < len(SC.CHECKS)

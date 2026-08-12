@@ -624,6 +624,77 @@ false, so every entry was discarded and the function returned `null` just as it 
 array. Presence of data is not satisfaction of a contract, and a consumer that filters on a field
 will treat the wrong SHAPE and total ABSENCE as the same thing — silently, and identically.
 
+**17. A COMPONENT PASSING ITS LOCAL TESTS DOES NOT ESTABLISH THAT THE PRODUCTION SYSTEM IS
+EXERCISING THAT COMPONENT'S INTENDED BEHAVIOUR. BOUNDARY COMPLETENESS MUST BE TESTED, NOT
+INFERRED.** Cory, 2026-08-12, on B's finding. **This is the converse of rule 14 and they are a
+matched pair: rule 14 asks whether anything READS WHAT YOU PRODUCE; rule 17 asks whether what you
+CONSUME IS ACTUALLY BEING SUPPLIED.** Both are answered by naming the party on the other side of
+the boundary, and neither is answered by a green test — a unit test supplies its own inputs, so
+it is the producer the live path lacks in exactly the way a producer's test is the consumer the
+live path lacks.
+
+*The failure class has a name because it is now five instances in a week and it is not an
+ordinary bug:* **SILENT SEMANTIC DEGRADATION.** A missing producer, so the consumer receives
+defaults. Dead weighted terms that explanations cite anyway. A wrong configuration that still
+produces a plausible number. Missing fields that still produce plausible recommendations.
+**NONE OF THEM CRASH. NONE LOOK BROKEN. THEY CAUSE THE SYSTEM TO ANSWER A SIMPLER OR DIFFERENT
+QUESTION THAN THE ONE THE DESIGN SAYS IT ANSWERS** — which is considerably more dangerous than a
+visible failure, because a visible failure recruits attention and this recruits confidence.
+**Every one of the five was found by accident rather than by a guard.** That is the part to fix.
+
+The instances, and what each degraded into:
+
+* **`optimize()`'s second objective.** Variance enters only through `p.sd`. `member.js` reads
+  `sd` off a `rosterView` row and **`rosterView` never builds that field**, so every player gets
+  the position-typical sigma, no same-position swap can change variance, and the expected-dollars
+  optimum collapses onto the expected-points optimum. The weekly-high chase has never fired in
+  production. *Measured, 2026-08-12: the historical claim rests on the harness supplying exactly
+  the field production omits — 10.9% intervention and $8.94/season with per-player sd, **0.0% and
+  $0.00 without it**, same 450 team-weeks, nothing else changed.*
+* **The intervention-rate harness running `DEFAULT_WEIGHTS`** where production runs
+  `MEASURED_WEIGHTS`.
+* **The baseline built on a context the app does not use.**
+* **The dead weighted terms** the explanation still cited as reasons (rule 16).
+* **The unregistered ledger kinds.** Six kinds emitted by the client and absent from `KINDS`, so
+  every capture 400'd at the boundary and the decision-time record was lost. Two of them were
+  mine, nine days out, on a MEASUREMENT arm — which is the worst place for it: a silent write
+  failure in an instrument does not degrade a recommendation, it deletes the evidence that would
+  have said whether the recommendation was any good.
+
+*The cheap discharge, and it mirrors rule 14's:* at the moment of consuming a field, **"who
+writes this, and what would I see if nobody did?"** If the answer to the second half is "a
+plausible number", the boundary needs a test, not a comment. **A harness that supplies a field
+production leaves empty is not a harness, it is a different system** — and every quantity measured
+on it describes a configuration that has never shipped.
+
+**17a — AN ALARM MUST NOT SHARE A FAILURE PATH WITH THE THING IT WATCHES.** C, 2026-08-12.
+A monitor placed in the same job as its subject, ahead of the step that PERSISTS that subject,
+destroys the evidence it exists to protect: a failed step aborts the job, so **on the exact run
+that recovers from an outage, the alarm discards that day too, then fires again tomorrow,
+forever.** Found in `market-capture.yml`, where the health gate's `sys.exit(1)` preceded an
+uncommitted snapshot — and the counter driving the gate lived in the same uncommitted file, so
+the arithmetic could never move. **PRESERVE BEFORE YOU ALARM:** the persisting step runs first
+and unconditionally; the gate runs last, where its exit code is still the job's verdict.
+
+**17b — A BAR IS ONLY A MONITOR IF IT CAN FIRE INSIDE THE WINDOW IT PROTECTS.** C, 2026-08-12.
+The standing check watched the perishable daily ADP capture with a **10-day** staleness bar,
+examined **Mondays only**. The sole pre-draft Monday was 08-17, when the archive's age could not
+exceed ~5 days — so **for every death date from 08-12 forward the monitor was structurally
+incapable of firing before the draft**, across the one stretch where each lost day is
+unrebuildable. The check existed, ran, and reported *clean*. This is the enforcement-table defect
+in live form, and note which way it fails: **"quiet" is indistinguishable from "healthy", which
+is the entire problem.** The invariant, held by a test rather than a reader:
+
+> `bar_days + worst_case_examination_lag  ≤  tolerable_loss_days`
+
+Both levers are named because both were wrong — a short bar examined weekly is still a weekly
+monitor, and a daily examination against a 10-day bar is still a 10-day monitor. A corollary
+learned while fixing it: **a row that mixes a fast failure with a slow one can only be SCHEDULED
+for one of them.** `market_snapshots` answered both "has the job died" (days, unrecoverable) and
+"is Signal C askable yet" (weeks, still true tomorrow), so moving it to a daily cadence would
+have made it red every day on a finding needing no action — which is how a real alarm gets muted
+and then ignored. Split the row, not the schedule.
+
 **13. MERGED INTO RULE 11 AS ITS FIFTH REQUIREMENT (2026-08-11).** B's finding, which A's
 audit missed: **rule 13 was written about PROVIDERS and bites on FIXTURES.** All three of its
 firings on B's work were internal — a `fetched_at`/`failed_at` mixup, a probe where a 404 passed

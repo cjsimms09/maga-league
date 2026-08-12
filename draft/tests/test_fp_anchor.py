@@ -72,3 +72,65 @@ def test_build_fp_table_none_when_fetch_empty(monkeypatch):
     table, diag = ADP.build_fantasypros_table(_sleeper_pool(), year=2026, min_rows=3)
     assert table is None
     assert diag["fp_rows_parsed"] == 0
+
+
+# ── THE COLLISION C FOUND, AND THE IDENTITY THAT MAKES IT VISIBLE ───────────
+#
+# Rule 10: break the guard once before trusting it. These two tests exist
+# because the OLD code passed a "343 of 343 matched" check while the table it
+# built had silently lost a row — the count measured survivors, not inputs.
+
+def test_two_fp_rows_claiming_one_sleeper_id_do_not_overwrite_silently(monkeypatch):
+    """The failure mode: two parsed rows crosswalk to the same id. Before this,
+    the second overwrote the first and `fp_matched` counted the result — so a
+    player's ADP became someone else's and every number reported success."""
+    parsed = [
+        {"name": "Ja'Marr Chase", "position": "WR", "team": "CIN", "adp": 1.2},
+        {"name": "Jamarr Chase", "position": "WR", "team": "CIN", "adp": 55.0},   # same player, second listing
+        {"name": "Bijan Robinson", "position": "RB", "team": "ATL", "adp": 2.4},
+        {"name": "Jahmyr Gibbs", "position": "RB", "team": "DET", "adp": 3.1},
+    ]
+    monkeypatch.setattr(FP, "fetch", lambda year, half_ppr=True: ("<stub>", "http://fp", {}))
+    monkeypatch.setattr(FP, "parse", lambda text: parsed)
+    table, diag = ADP.build_fantasypros_table(_sleeper_pool(), year=2026, min_rows=2)
+    assert diag["fp_collisions"] == 1, diag
+    assert diag["fp_dropped_to_collision"] == 2, diag
+    # NEITHER claimant survives: the crosswalk cannot say which player this ADP
+    # belongs to, and keeping either is a guess written into the value anchor.
+    assert table is not None and "1" not in table, table
+    assert set(table) == {"2", "3"}
+    # And the corrupted 55.0 never reaches the board under the good name.
+    assert all(r["adp"] != 55.0 for r in table.values())
+
+
+def test_the_fp_row_accounting_identity_holds(monkeypatch):
+    """Every parsed row lands in exactly one bucket. app.js renders
+    `fp_matched + fp_unmatched` as its coverage denominator, so a row that is
+    in none of the buckets is a wrong number on a live surface."""
+    parsed = [
+        {"name": "Ja'Marr Chase", "position": "WR", "team": "CIN", "adp": 1.2},
+        {"name": "Jamarr Chase", "position": "WR", "team": "CIN", "adp": 55.0},
+        {"name": "Bijan Robinson", "position": "RB", "team": "ATL", "adp": 2.4},
+        {"name": "Jahmyr Gibbs", "position": "RB", "team": "DET", "adp": 3.1},
+        {"name": "Nobody At All", "position": "WR", "team": "XXX", "adp": 99.0},   # unmatchable
+    ]
+    monkeypatch.setattr(FP, "fetch", lambda year, half_ppr=True: ("<stub>", "http://fp", {}))
+    monkeypatch.setattr(FP, "parse", lambda text: parsed)
+    _table, diag = ADP.build_fantasypros_table(_sleeper_pool(), year=2026, min_rows=2)
+    assert (diag["fp_matched"] + diag["fp_unmatched"]
+            + diag["fp_dropped_to_collision"]) == diag["fp_rows_parsed"], diag
+
+
+def test_a_clean_fp_table_reports_zero_collisions(monkeypatch):
+    """The control. If this ever fails the guard is firing on healthy data,
+    which would cost real players off the anchor ten days before a draft."""
+    parsed = [
+        {"name": "Ja'Marr Chase", "position": "WR", "team": "CIN", "adp": 1.2},
+        {"name": "Bijan Robinson", "position": "RB", "team": "ATL", "adp": 2.4},
+        {"name": "Jahmyr Gibbs", "position": "RB", "team": "DET", "adp": 3.1},
+    ]
+    monkeypatch.setattr(FP, "fetch", lambda year, half_ppr=True: ("<stub>", "http://fp", {}))
+    monkeypatch.setattr(FP, "parse", lambda text: parsed)
+    table, diag = ADP.build_fantasypros_table(_sleeper_pool(), year=2026, min_rows=3)
+    assert diag["fp_collisions"] == 0 and diag["fp_dropped_to_collision"] == 0
+    assert set(table) == {"1", "2", "3"}
