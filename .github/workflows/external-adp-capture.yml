@@ -183,7 +183,17 @@ jobs:
           # for a report that IS regenerable.
           for i in 1 2 3 4 5; do
             git fetch origin main
-            git rebase origin/main || { echo "REBASE CONFLICT — reporting, not forcing"; exit 1; }
+            # SAY WHAT GIT ACTUALLY SAID. This read "REBASE CONFLICT" for ANY
+            # rebase failure — a workflow rehearsal hit it with a dirty tree and
+            # was sent looking for a conflict that did not exist. A wrong
+            # diagnosis at 11:20 UTC, on a day that cannot be refetched, costs
+            # more than the extra three lines.
+            if ! _out="$(git rebase origin/main 2>&1)"; then
+              echo "REBASE FAILED — reporting, not forcing. git said:"
+              echo "$_out" | sed 's/^/    /'
+              git rebase --abort 2>/dev/null || true
+              exit 1
+            fi
             if git push origin HEAD:main; then echo "snapshot pushed"; exit 0; fi
             echo "push race, retry $i"; sleep 3
           done
