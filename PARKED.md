@@ -8638,3 +8638,132 @@ turns a 10% board into a 50% one happens after VORP.**
 FantasyPros is not ground truth either — I am reporting that we use one source, not that
 the other is right. And `opportunity_adj` may be deliberate and correct; what I can say is
 that it is position-dependent, uncapped in justification, and unmeasured.
+
+---
+
+## 🔴 THE ONE-START HYPOTHESIS — **CONFIRMED, WITH THE FRAMING CORRECTED.** THE BASELINE IS WRONG AND IT IS BASELINE-LEVEL. (C, 2026-08-12)
+
+**Cory's hypothesis survives the test. It is not "one-start positions are too shallow" — the
+mechanism is sharper than that, and it lands on the same four positions for two different
+reasons.** Numbers first.
+
+### THE ANSWER TO THE QUESTION AS ASKED: THE RANK, PER POSITION
+
+```
+              our replacement RANK      derived how
+   QB   TE            10                teams x starting_slots = 10 x 1
+   K    DEF           10                teams x starting_slots = 10 x 1
+   RB                 21                10x2 dedicated + 1 of 10 FLEX slots
+   WR                 29                10x2 dedicated + 9 of 10 FLEX slots
+```
+
+**Derivation, read from `draft/vorp.py`, not inferred:** `counts[pos] = starters_at(cfg,
+pos) × teams`, then the 10 FLEX slots are allocated one at a time to whichever eligible
+position has the best next-man-up. **Not hardcoded, not a percentile, not a threshold.**
+Team count and slot count are read from the imported config and are correct. **The flex
+share is NOT misallocated** — no share reaches QB, TE, K or DEF, and RB+WR receive all ten.
+*(Correcting myself: my previous report said K=8. That was a tie artifact in my own
+rank-finder. The real count is 10. The rank-finder was wrong, not the pipeline.)*
+
+### DEFECT 1 — REPLACEMENT IS THE **LAST STARTER**, NOT THE FIRST NON-STARTER
+
+`_replacement_from_counts` takes `ranked[n-1]` with `n = 10` at QB — **the 10th quarterback,
+who is a starter.** Cory's definition, and the standard one, is *the best player who will
+not start* — the 11th.
+
+**This is not a slip. The module's own docstring defines it that way:** *"Replacement level
+is the last-starter baseline: the worst player at a position who still starts somewhere in
+the league every week."* **A definitional choice nobody has measured.**
+
+**The off-by-one is uniform; ITS EFFECT IS NOT**, because it depends on the local slope of
+the projection curve where it lands:
+
+```
+   RB   188.53 -> 169.30    19.23 points of VORP suppressed
+   QB   341.72 -> 337.48     4.24
+   TE   150.72 -> 146.90     3.82
+   DEF   99.00 ->  96.00     3.00
+   WR   172.67 -> 172.60     0.07
+   K     97.00 ->  97.00     0.00
+```
+
+**RB loses 4.5× more than QB.** So a uniform off-by-one silently suppresses exactly the
+position that should dominate.
+
+**Correcting it alone — nothing else — empties the top ten of one-start positions:**
+
+```
+   as shipped                    RB 5  WR 4  TE 1        QB+TE 10%
+   first non-starter (fixed)     RB 8  WR 2              QB+TE  0%
+```
+
+### DEFECT 2 — K AND DEF, AND THIS IS THE ~140 POSITIONS
+
+`teams × starters` says the 10th kicker is replacement level. **Measured against a real
+market of 119 drafts (MFL, IDP excluded, format-matched): the first 150 picks contain ONE
+kicker and TWO defences.**
+
+```
+             our repl rank    market depth @150 picks
+   K              10                    1
+   DEF            10                    2
+```
+
+Because we treat K10/DEF10 as the baseline, the nine kickers above it all carry positive
+VORP. **On our own board, ranked by VORP alone, the best DEF sits at overall rank 52 and the
+best K at 59** — against a market that takes the first defence around 150 and the first
+kicker past 200. **That is the ~140-position advancement, and it is in the DATA, before the
+engine touches anything.** Repricing K/DEF at market depth moves the first one from **rank
+52 to rank 144.**
+
+**This is Cory's fourth guess — "K and DEF inheriting a default" — and it is nearly right.
+There is no default: it is the same `teams × starters` formula, correct for positions people
+draft and wrong for positions they stream.**
+
+### DEFECT 3 — BENCH ROSTERING IS NOT MODELLED AT ALL, AND IT IS ASYMMETRIC
+
+The count is starters-only; there is no bench term. Real depth at 150 picks:
+
+```
+        ours    market    understated by
+   RB     21      41          +20
+   WR     29      55          +26
+   TE     10      21          +11
+   QB     10      30          +20   <-- CONTAMINATED, see below
+```
+
+**Ignoring the bench understates RB and WR far more than TE**, because a real roster carries
+handcuffs and fliers at RB/WR and rarely a third TE. That suppresses RB/WR VORP relative to
+the one-start positions — **the same direction as defect 1, by a second route.**
+
+### ⚠️ AND A CAVEAT ON MY OWN EXTERNAL REFERENCE, BECAUSE IT WOULD MISLEAD
+
+**MFL's ADP pool is not format-matched for QB.** 30 quarterbacks inside 150 picks is a
+superflex/2QB signature — a 1-QB league takes 12-15. **`fetch_mfl` requests `IS_PPR=1` and
+`FCOUNT=12` and there is no superflex exclusion**, so QB market depth from this source is
+unusable and I am not using it. **That is a defect in MY capture parameters and I am
+recording it against myself.** K, DEF, RB, WR and TE depths are unaffected — superflex adds
+quarterbacks, not kickers.
+
+Substituting a defensible QB depth of 15 rather than the contaminated 30:
+
+```
+   market depth, QB de-contaminated    RB 9  WR 1     QB+TE 0%   first K/DEF at rank 102
+```
+
+### WHAT I AM NOT DOING
+
+**Not adjusting anything.** Cory's instruction is exact and I agree with it: a baseline
+tuned until the board looks sane is the same error as a QB penalty. The numbers above are
+what the baselines ARE and what an external market says they SHOULD be. **The fix is A's,
+and the right fix is the definitional one — first non-starter, plus a bench term, plus a
+K/DEF baseline that reflects that nobody drafts them — not a number chosen to make the top
+ten look right.**
+
+**And this does not overturn my earlier report, it locates it.** I said the data hands the
+engine a 10% QB+TE board while the engine emits 50%, so the break is downstream. **That
+still holds.** What I had wrong was calling the baselines correct: they are internally
+consistent and externally wrong, which is this project's whole failure mode, and I checked
+them against our own config instead of against a market. **The engine is still amplifying
+something — but it is being handed a board that already pulls K and DEF forward by 90 to 140
+positions.**
