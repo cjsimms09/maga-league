@@ -2419,3 +2419,52 @@ rather than asserted.
 
 **No filter is being relaxed on the strength of it.** F2's 0.90 bar stands as registered.
 What changed is that the number beside it is now interpretable.
+
+---
+
+## F7 IS CLOSED ON CORY'S RULING — no further crawls (2026-08-12)
+
+**"Do not do crawl."** F7 stands at **191 matched of 12,000 screened (1.59%)** against a
+registered 200, and it stays there. **Reachable is not met, and the run that would close the
+gap buys nothing before 2026-08-22** — a cleared F7 in August 2026 is a pool gradeable in
+2027. **The number is not chased.**
+
+`R-F7` remains in the candidate ledger under `untriggerable()`: no archive can ever fire for
+it, and its condition stays in prose — *a non-MFL source with ≥200 accessible half-PPR
+league-seasons*. **Sleeper is now measured rather than unknown: 1.59% of a 20,419-league
+pool, which is ~325 matched leagues in principle and 191 in hand.**
+
+---
+
+## THE FORWARD-PRICING CLAIM IS NOW VERIFIED END TO END, NOT ARGUED (2026-08-12)
+
+**The pre-declaration made a load-bearing claim:** *"we can price everything from
+2026-08-11 forward"*, because D3 captures dated ADP daily and F5 only needs a snapshot
+strictly before the draft. **That claim had never been tested by reading the archive back.**
+Capture had been verified; the READ had not, which is this session's recurring shape.
+
+**Exercised against the real archive on `main`, for our real draft date:**
+
+| step | result |
+|---|---|
+| daily capture actually running | **yes** — scheduled runs 08-11 and 08-12, both green |
+| archive accumulating | **yes** — 705 → 708 rows, 115 → 119 drafts |
+| population record in production | **clean** — `empty: []`, `partial: []` |
+| `board()` for draft **2026-08-22** | **708 rows**, and it is the **08-12** snapshot |
+| F5 boundary: draft **on** 08-12 | returns the **08-11** snapshot — **strictly before holds** |
+| draft before any snapshot | **raises `TimeTravelError`** — excluded under F4/F5, not silently empty |
+| id keying | 2.1% overlap with our board — **MFL-keyed as designed**, resolved by the crosswalk at replay |
+
+**The boundary case is the one that mattered.** A snapshot stamped the same day as the draft
+may have been taken after picks were in, and ADP that has seen the draft it is predicting is
+worthless *in the specific way that looks like skill*. `board()` refuses it, measured rather
+than assumed.
+
+**What this does NOT establish:** coverage. **There are two snapshots.** By draft day there
+will be roughly eleven, and the mechanism is what was tested — not the depth of the archive.
+Coverage grows one day at a time and cannot be back-filled, which is the whole reason the
+capture runs daily.
+
+**The one link not testable from here** is the MFL id → board crosswalk, which needs MFL's
+players export and is egress-blocked from the sandbox. **It is exercised in CI**: the ingest
+run this morning reported `pooled_rate 0.8493` over 70 leagues.
