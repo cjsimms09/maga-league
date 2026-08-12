@@ -640,6 +640,41 @@ def apply_with_fallback(players: list, adp_table: dict, *, teams: int,
     ffc_max = max((r["adp"] for r in adp_table.values()), default=0.0)
 
     used_fallback = []
+    # ── THE TEAM FALLBACK, BECAUSE A BYE IS A PROPERTY OF THE TEAM ──────────
+    #
+    # Sleeper leaves bye_week empty in the preseason and FFC only publishes it
+    # for players it prices. Everyone else kept bye=None — 564 players carrying a
+    # TEAM and no bye, including 37% of the top-225 tight ends.
+    #
+    # THE DANGER IS THE SILENCE, NOT THE GAP. `byeStack` warns when three
+    # starters share a bye; a null bye can never contribute to that count, so the
+    # warning stays quiet, and a quiet warning is indistinguishable from one that
+    # looked and found no conflict.
+    #
+    # A bye is a property of the TEAM, so it is fully derivable from any teammate
+    # who has one. Measured on the 2026 board: all 32 teams show EXACTLY ONE bye
+    # value among their known players and ZERO conflicts, and all 564 gaps fill.
+    #
+    # UNANIMITY IS REQUIRED RATHER THAN ASSUMED. A team showing two byes is
+    # refused rather than resolved by a mode — a WRONG bye manufactures a
+    # conflict warning about a week the player actually plays, which is worse
+    # than a missing one.
+    team_bye, team_conflict = {}, {}
+    for p in players:
+        t, b = p.get("team"), p.get("bye")
+        if not t or t == "FA" or b in (None, "", 0):
+            continue
+        prev = team_bye.get(t)
+        if prev is None:
+            team_bye[t] = int(b)
+        elif prev != int(b):
+            team_conflict[t] = True
+    for t in team_conflict:
+        team_bye.pop(t, None)
+    if team_conflict:
+        print(f"  ! {len(team_conflict)} team(s) report more than one bye week — "
+              f"REFUSED rather than guessed: {sorted(team_conflict)}")
+
     for p in players:
         row = adp_table.get(str(p.get("player_id")))
         if row:
@@ -667,6 +702,20 @@ def apply_with_fallback(players: list, adp_table: dict, *, teams: int,
         p["adp_sd"] = max(8.0, min(0.25 * p["adp"], 30.0))
         p["adp_source"] = "search_rank"
         used_fallback.append(p.get("player_id"))
+
+    # THE TEAM BYE FALLBACK RUNS LAST, so Sleeper and FFC both win wherever they
+    # actually have a value and this only ever fills a hole neither could.
+    filled = 0
+    for q in players:
+        if q.get("bye") in (None, "", 0):
+            b = team_bye.get(q.get("team"))
+            if b is not None:
+                q["bye"] = b
+                q["bye_source"] = "team-derived"
+                filled += 1
+    if filled:
+        print(f"  bye: filled {filled} from the player's own team "
+              f"({len(team_bye)} teams with a unanimous bye)")
 
     # Rank by the ADP we just assigned and judge only the part of the board that
     # is genuinely in play. A deep-bench tight end with no FFC entry is not a

@@ -85,16 +85,46 @@
   }
 
   /* Would adding `pick` put >=3 STARTERS on one bye week? (Rule doesn't price byes.) */
+  /* ── A BYE WARNING THAT CANNOT FIRE MUST NOT LOOK LIKE ONE THAT FOUND
+   *    NOTHING ─────────────────────────────────────────────────────────────
+   *
+   * This returned a bare `null` in two completely different situations: the
+   * starters genuinely do not stack on one week, and THE DATA CANNOT ANSWER THE
+   * QUESTION. A null bye can never contribute to the count, so a roster with
+   * three unknown byes returned exactly what a clean roster returns.
+   *
+   * 564 players carried a team and no bye week — 37% of the top-225 tight ends —
+   * so this was not a corner case. The gaps are now filled from the player's own
+   * team (adp.py, and app.js for boards already built), but FILLING THEM IS NOT
+   * THE SAME AS BEING ABLE TO SAY SO: a future source change reopens the hole
+   * silently unless the blindness is reported rather than inferred.
+   *
+   * So the shape is now three-valued. `{blind: n}` says the tool looked and could
+   * not see; `null` means it looked and there was nothing there. A caller that
+   * ignores `blind` is no worse off than before; one that reads it can tell Cory
+   * the difference on the 22nd. */
   function byeStack(pick, roster) {
-    if (!pick || byeOf(pick) == null) return null;
+    if (!pick) return null;
     var proj = (roster || []).concat([pick]);
+    var starters = _starters(proj);
+    var unknown = starters.filter(function (p) { return byeOf(p) == null; }).length;
+    if (byeOf(pick) == null) {
+      return { blind: unknown || 1, week: null, count: 0,
+        why: 'this player has no bye week on the board, so a conflict cannot be '
+          + 'ruled out — silence here is not the same as "no conflict"' };
+    }
     var byes = {};
-    _starters(proj).forEach(function (p) {
+    starters.forEach(function (p) {
       var b = byeOf(p);
       if (b != null) byes[b] = (byes[b] || 0) + 1;
     });
     var wk = byeOf(pick);
-    if (byes[wk] >= 3) return { week: wk, count: byes[wk] };
+    if (byes[wk] >= 3) return { week: wk, count: byes[wk], blind: unknown || 0 };
+    if (unknown) {
+      return { blind: unknown, week: wk, count: byes[wk] || 0,
+        why: unknown + ' of your starters have no bye week on the board, so the '
+          + 'count above is a floor rather than the answer' };
+    }
     return null;
   }
 

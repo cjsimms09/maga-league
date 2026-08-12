@@ -3210,10 +3210,24 @@
         + '</div>';
     }
     // BYE STACK — the one thing the rule does NOT price, made visible (Cory #3).
-    if (rec.bye_stack) {
+    /* THREE STATES, NOT TWO. byeStack used to return a bare null both when the
+     * starters do not stack AND when it could not tell — a null bye can never
+     * contribute to the count, so a roster with three unknown byes returned
+     * exactly what a clean one returns. It now reports blindness, and this is
+     * the consumer: a warning the tool COULD NOT MAKE must not render as a
+     * warning it declined to make. */
+    if (rec.bye_stack && rec.bye_stack.week != null && rec.bye_stack.count >= 3) {
       html += '<div class="rh-bye" style="font-size:.78rem;margin-top:.35rem;color:#e6b800">'
         + '⚠ bye stack: this would put ' + rec.bye_stack.count + ' starters on week '
-        + rec.bye_stack.week + ' — the rule does not price byes; your call.</div>';
+        + rec.bye_stack.week + ' — the rule does not price byes; your call.'
+        + (rec.bye_stack.blind ? ' (' + rec.bye_stack.blind + ' more starter'
+            + (rec.bye_stack.blind === 1 ? '' : 's') + ' have no bye on the board, '
+            + 'so this count is a floor.)' : '')
+        + '</div>';
+    } else if (rec.bye_stack && rec.bye_stack.blind) {
+      html += '<div class="rh-bye" style="font-size:.78rem;margin-top:.35rem;color:#8a8a8a">'
+        + '◦ bye check incomplete: ' + escapeHtml(rec.bye_stack.why || '')
+        + '</div>';
     }
     // GUARD — if the composite wants a player the rule has CAPPED (e.g. a 4th RB),
     // say so plainly rather than letting two tools disagree silently (Cory #1).
