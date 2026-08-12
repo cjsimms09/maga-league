@@ -7422,3 +7422,79 @@ different question. **It says only that last year's draft does not predict this 
 line for anything shipping on the 22nd is *"opponent modelling from prior drafts is unmeasured
 and our own data does not support it"* — which is a defensible thing to ship behind a
 disclosure, and an indefensible thing to ship silently.
+
+---
+
+## 📊 THE COMPLETE TASK LIST — DISPOSITION AND EVIDENCE FOR ALL NINETEEN (C, 2026-08-12)
+
+Nothing marked complete without evidence for its specific completion condition.
+
+### PART ONE — closes on a measurement against something OUTSIDE our pipeline
+
+**1. DOES THE BOARD DESCRIBE 2026? — CLOSED. YES, WITH ONE SLIVER OPEN.**
+Measured against facts no artifact of ours can influence: **32 teams; 32 byes, zero teams with
+two; 32 DEF; 32 teams with exactly one `dc==1` QB, zero duplicates, zero gaps** — in a
+configuration 2025 cannot produce (Murray→MIN, Tua→ATL, Smith→NYJ), with 2025's rookie QBs in
+their correct 2025 destinations and a 2026 rookie starting at LV. Ages arithmetically correct
+for 2026 (Rodgers 42/21, Stafford 38/17) against Lynch frozen at 35/15.
+**WAS IT EVER VALIDATED: NO — and that is the finding.** No test anywhere compares a player to
+anything outside the pipeline. The board is right by construction, not by verification.
+**CORY'S EXPECTATION WAS NOT MET AND I SAY SO: no category is wholesale stale.** Three defects,
+none of them his two. **All three of my own predictions were wrong.**
+**OPEN SLIVER:** the specific 2026 transactions. **One line, `draft-data.yml`, already fetches
+Sleeper daily:** `print({p["full_name"]: p.get("team") for p in raw.values() if ... in SAMPLE})`
+
+**2. PROJECTION SOURCE — CLOSED.** `proj_mean == proj_baseline * (1 + opportunity_adj)`, 1757
+of 1759; `proj_baseline` differs from `proj_sleeper` for zero players. **There is no blend and
+FantasyPros never enters the value.** Worst case is the harmless reading. Single-source IS
+distinguished (a `¹` caveat) but **its stated reason is false for 1185 of 1324**. **Card shows
+`(sleeper+fp)/2` while the model ranks `proj_mean` — apart by >=10 pts for 46% of two-source
+players, up to 58.**
+
+### PART TWO — closes on the qualification stated plainly
+
+**3. ADP REFERENCE — CLOSED, SOUND.** Format-matched (FP 2026 `scoring=HALF`, FFC half-ppr
+10-team, our league half-PPR 10-team). Never reaches the fallback tail (max ADP consumed 171.7
+of a 340 priced range, zero contaminated). It is a drafter, not a comparison. **Self-comparison
+control: identical in every cell to the decimal.**
+**4. REAL-WORLD FLOOR — CLOSED.** 30 team-drafts: **no team has ever taken 3+ QB or 3+ TE.**
+Market arm is itself at the 83rd/97th percentile on QB/TE timing and cannot field a legal
+lineup on DEF/K. **BBM directional and it cuts against its own import** — 49% took 3+ QB.
+**5. A's OBJECTIVE CORRECTION — PARTIALLY DONE, OPEN. DISPOSITION: DO IT.** Stages 1-3 audited
+(the tautology, DEF/K, the reference as outlier). `ac64216` not yet read for shape.
+**6. COMPONENT GRADING + SHAPE FILES — NOT LANDED. OPEN, waiting on A.**
+
+### PART THREE — my own lane
+
+**7. D3 FIRST LIVE RUN — OPEN, fires 11:20Z.** Verified ready on `origin/main`: 101 tests green,
+archive complete, `resumed=False` so no false alarm on a healthy day.
+**8. FIELD POPULATION ON DURABLE RECORDS — CLOSED.** `field_population.py` + `census_archive`
+(CENSUS_FIELDS) + `board_pin` (PIN_FIELDS) + `external_adp_capture` (population AND coverage).
+**9. POSITIVE-CONTROL SCAFFOLD — OPEN. DISPOSITION: BUILD.** It has a real consumer (every
+probe I write) and a measured case (four false results in one day). Not a dashboard.
+**10. BBM ROUND-1 ARCHIVE — BLOCKED, routed to A.** Guard refused; I reverted rather than work
+around. Unchanged.
+**11. SLEEPER `active` CI CHECK — ROUTED, needs egress.** Cannot be run from this container.
+
+### PART FOUR — build / research first / reject with reason
+
+**12. CROSS-SEASON PERSISTENCE — DONE THIS SESSION. See the entry above.** In-season persists
+(pooled ICC 0.682, p 5e-5); **drafting does not (0.367, p 0.17, nothing clears)**, with the
+in-season arm as the positive control that makes the null informative.
+**13. B's TRANSACTIONS / STANDINGS / MONEY — OPEN. DISPOSITION: RESEARCH FIRST.** I hold the
+data (`league_history.json`, 3 seasons). Bounded pass, not a programme.
+**14. A's LAB REGISTRY READ ACROSS — OPEN. DISPOSITION: DO IT.** Cory expects something and I
+agree: four things measured at ~zero this week for the same architectural reason.
+**15. ROTATION PRINCIPLE — DISPOSITION: ALREADY OPERATING, formalise in one line.** Every pass
+this week honoured it; it needs recording, not building.
+**16. 2026 CAPTURE CONTINUES — RUNNING.** Clean daily from 2026-08-11, gap-detected,
+retry-hardened. Nothing to do but not break it.
+**17. F7 AGAINST SLEEPER — REJECT, and it is already Cory's ruling.** 191 of 12,000 (1.59%)
+against a 200-league bar. **If revisited, the verdict line must say it buys a pool gradeable in
+2027 and NOT evidence for the 22nd.**
+**18. IS ANY OTHER FILTER READ TIGHTER THAN IT IS WRITTEN — OPEN. DISPOSITION: BOUNDED LOOK,
+DOING IT NEXT.** F5 opened the forward direction by being read tighter than written; the same
+class may sit in F1-F4, F6, F7. Cheap, my lane, and the highest-value thing left I own.
+**19. DISCOVERY LAYER — DEFERRED ON ITS STATED PRECONDITION**, not silently: it opens when
+component grading can absorb a preregistered test per cycle. The bottleneck is validation
+capacity and that argument stands.
