@@ -160,6 +160,54 @@ const base = { season: '2026', build_at: '2026-08-22T23:00:00Z', pick: 34,
       { score_gap: 4.6, score_gap_source: 'derived_from_clock' })).score_gap_source
       === 'derived_from_clock');
 
+  /* ── AND THE RUNTIME CHECK THE SOURCE SCAN CANNOT GIVE ────────────────────
+   *
+   * app-wiring.test.js states the limit in its own header: source inspection
+   * catches "the app never mentions it", NOT "the app mentions it but computes
+   * it wrong". The scan below is the first kind. These are the second — the
+   * resolution now lives in this module so Node can call the REAL function
+   * instead of reading the shape of its source. */
+  const CLOCK_TOP = { player: { player_id: 'rec1' }, gap_to_second: 7.25 };
+  const REC1 = { player_id: 'rec1' };
+
+  ck('RUNTIME: a passed gap wins and is labelled `passed`',
+    O.resolveScoreGap({ passed: 3.1, clockTop: CLOCK_TOP, recommended: REC1 })
+      .score_gap === 3.1);
+  ck('RUNTIME: an OMITTED gap is recovered from the live clock — the sync-path case',
+    O.resolveScoreGap({ passed: null, clockTop: CLOCK_TOP, recommended: REC1 })
+      .score_gap === 7.25);
+  ck('  and it is labelled derived, never passing as careful wiring',
+    O.resolveScoreGap({ passed: null, clockTop: CLOCK_TOP, recommended: REC1 })
+      .score_gap_source === 'derived_from_clock');
+
+  /* ⚠️ THE REFUSAL THAT MATTERS MORE THAN THE RECOVERY. If the clock's top is a
+   * DIFFERENT player, its gap describes a different comparison. Attaching it
+   * would produce a plausible number quietly about the wrong pair — worse than a
+   * null, because nothing downstream could ever detect it. */
+  const wrongPair = O.resolveScoreGap({ passed: null, clockTop: CLOCK_TOP,
+    recommended: { player_id: 'someone_else' } });
+  ck('RUNTIME: a clock about a DIFFERENT player is REFUSED, not used as a fallback',
+    wrongPair.score_gap === null);
+  ck('  and it says why, so the refusal is not mistaken for missing data',
+    /not the player this override was measured against/.test(wrongPair.score_gap_source));
+
+  ck('RUNTIME: no clock at all yields null with a reason',
+    /no live clock/.test(O.resolveScoreGap({ passed: null }).score_gap_source));
+  ck('RUNTIME: a clock with no gap_to_second yields null with a reason',
+    /reported no gap_to_second/.test(O.resolveScoreGap({ passed: null,
+      clockTop: { player: { player_id: 'rec1' } }, recommended: REC1 }).score_gap_source));
+  ck('RUNTIME: a zero gap is a REAL gap, not a missing one',
+    O.resolveScoreGap({ passed: 0, clockTop: CLOCK_TOP, recommended: REC1 })
+      .score_gap === 0);
+
+  /* END TO END: the resolution feeds the record, which is what B reads. */
+  const e2e = O.pickOverride(Object.assign({}, base,
+    Object.assign({ score_gap: null }, O.resolveScoreGap(
+      { passed: null, clockTop: CLOCK_TOP, recommended: REC1 }))));
+  ck('END TO END: an emitter that passes NOTHING still lands a real gap in the record',
+    e2e.score_gap === 7.25 && e2e.score_gap_source === 'derived_from_clock',
+    e2e.score_gap + '/' + e2e.score_gap_source);
+
   /* ── THE SOURCE-LEVEL CHECK THAT WOULD HAVE CAUGHT IT TEN DAYS AGO ─────────
    *
    * Every emitter of an override must supply a gap or a reason. This reads the
