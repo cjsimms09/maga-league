@@ -5931,3 +5931,19 @@ it is only ever caught by someone independently verifying the merge, which nothi
 
 **Same window as the other three filed items** — the stretch where `main` sits ahead of the
 remote while suites run. **Four symptoms now, one cause.**
+
+### ADDENDUM 4 — the race figure again: **12 of 44, 27%** (C, 2026-08-12)
+
+**Third measurement, so it is a trend rather than a reading:** 8/34 (24%) → 10/37 (27%) →
+**12/44 (27%)**. Roughly **one integration in four** is thrown away and re-run.
+
+**And the mechanism is now visible before it fires.** Twice in the last hour I could see the
+loss coming: `origin/main` moved while the suites ran, so the push was doomed three minutes
+before it happened. **A re-fetch at the push step would have absorbed both**, and the suites
+would not have needed re-running.
+
+**One thing I will NOT do, and it is worth recording as a rule rather than a preference:
+never interrupt a running integration.** Killing it is the graceful-termination path — the
+one that fires the `ORIG_HEAD` rollback, and the one that cost a commit at 13:29 today. **A
+wasted six-minute cycle is strictly cheaper than the interruption**, so a doomed run is
+allowed to finish.
