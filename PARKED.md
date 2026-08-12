@@ -7867,3 +7867,337 @@ is also a real answer and gets reported as one — I am not going to grow this i
 
 Not touch the board, not touch `build.py`, not change the crosswalk, not relax a filter to
 reach a number. This is a measurement. If it finds something, it routes to A.
+## 🔴 C's OWN LANE, AND IT IS THE WORST THING I HAVE FOUND IN IT — THE ADP ARCHIVE'S IDS ARE NOT OUR IDS (C, 2026-08-12)
+
+**Not routed. Mine, found by me, fixed by me, and recorded here because the defect
+class is the one this whole week has been about and I wrote a textbook instance of it.**
+
+I went looking for the pre-declared measurement above — does the deployed board's ADP
+agree with an independent market — and could not even start it, because the join does
+not work. That is the finding.
+
+### WHAT THE ARCHIVE ACTUALLY CONTAINED
+
+`fetch_mfl` requested `TYPE=adp` only and stored `{mfl_id: averagePick}`. **No name, no
+position, no team, ever.** MFL's own internal ids and nothing else.
+
+`as_store_snapshots` — the function whose docstring claims rule 14, the reader built with
+the writer — then handed those ids to `ExternalAsOfStore` **under the key `player_id`**,
+which every consumer downstream reads as our sleeper id.
+
+Measured on the real 2026-08-12 capture against `public/draft_data.json`:
+
+```
+MFL rows                                      708
+join directly to a board player_id             15   (2.1%)
+of those 15, correct                            0
+```
+
+MFL's #1 overall pick (`13589`, ADP 2.57) resolves to a fourth-string college tight end.
+Every one of the fifteen is a numeric collision.
+
+### THE CONSEQUENCE, WHICH IS NOT A SMALL BOARD BUT A FICTIONAL ONE
+
+`external_replay_run.decision_contexts` fills `taken` from the PICKS — our ids, via the
+crosswalk — and keys the board from the snapshot — MFL's ids. So `i not in taken` is
+**always true and the available set never shrinks.** Reproduced on the real functions,
+30 picks over an 80-player board:
+
+```
+archive keyed by OUR ids (what the fixture builds)   available: 80 -> 66 -> 51   correct
+archive keyed by MFL ids (what fetch_mfl writes)     available: 80 -> 80 -> 80   FICTION
+```
+
+Every drafted player stays draftable for the whole replay. The baseline is graded against
+a draft in which nobody was ever picked. **Nothing raises, nothing empties, no filter
+fires** — `adp_baseline` sorts a full board, takes the top five, and forecasts.
+
+### WHY NO TEST CAUGHT IT — AND THIS IS THE PART WORTH KEEPING
+
+`test_survival_grade.py::test_the_ENTIRE_PATH_produces_a_graded_observation_with_nothing_HAND_MADE`
+exists **for this exact class**. Its docstring says so: *"would have caught, in one run,
+all three of today's shape defects: picks carrying MFL's id where the replay reads ours…"*
+
+It built the crosswalk and the ADP snapshot from **the same `S%d` counter**:
+
+```python
+cw     = [dict(r, player_id="S%d" % r["overall"], ...) for r in rows]
+series = CAP.append_snapshot([], "2025", "2025-08-20", {"S%d" % i: float(i) ...})
+```
+
+The two namespaces were **identical by construction**. The one guard written to catch
+"whose id is this" could not see the same defect one seam over. **Rule 10d, on the test
+that was the answer to rule 10d.** The two seam tests were no better: one asserts the
+emitted KEY NAMES, the other asserts ids in == ids out. Neither asks what namespace the
+value is in.
+
+### AND THE ARCHIVE COULD NOT BE REPAIRED AFTER THE FACT
+
+The decode key was obtainable only from MFL's live `TYPE=players` export. So the archive
+decoded **only while MFL was up and still serving that season** — precisely the window an
+archive of perishable days exists to outlive. An archive whose keys can only be read by
+asking the source is not an archive of the source, it is a pointer to it.
+
+### WHAT I CHANGED
+
+| | |
+|---|---|
+| `fetch_mfl` | fetches **both** exports and parses with `mfl_adp.parse` — which already joins them and is unit-tested. My hand-rolled row extraction was a **second derivation of one read** (rule 11) and it differed by dropping the join. A failed players fetch no longer costs the day: the ADP is still captured, loudly noted. |
+| archive | now carries `players` — `{mfl_id: {name, position, team}}` — plus `players_population` beside it |
+| `merge_players` | UNION, field by field. A player who falls off MFL's board keeps his name; a day of `name: ""` never erases one we hold. Absent is not zero. |
+| `save` | unions the key with what is **on disk**. It has more than one caller and the first that did not hold the map would have deleted it for every archived day, leaving a file that still looked complete. |
+| `as_store_snapshots(series, year, ids)` | `ids` **required, no default, no pass-through**. The pass-through was the defect. |
+| `crosswalk_map(players, board)` | archive's own key -> our ids, **offline**, delegating to `mfl_adapter.crosswalk_picks` |
+| `ingest_run.adp_id_map` | archive key ∪ live export; **raises** if neither can decode, rather than translating to nothing and reporting every league `F4.no_pre_draft_adp` |
+| the whole-chain fixture | two **deliberately different** namespaces |
+
+### A DEFECT I WROTE AND CAUGHT INSIDE THE FIX, RECORDED BECAUSE IT IS THE SAME LESSON
+
+My first `crosswalk_map` called `adp.match_player` directly — reasoning that reusing the
+authoritative matcher was enough. **It is not.** The team-unit refusal lives in the
+authoritative CALLER. MFL prints a team unit as `"Bills, Buffalo"`, which normalises to
+`"Buffalo Bills"`, which is exactly what our Buffalo DEF is called — the name matches, a
+real board id comes back, nothing errors. Measured on the real run when that guard was
+missing: **TMQB → DEF 65 times, TMPK → DEF 38.** Reaching for the right function was not
+the same as reaching for the right caller. Now delegated whole, and pinned by a test.
+
+### STATE
+
+**1469 Python tests green.** Rehearsed end to end against a stubbed MFL over two days,
+including the case where a player falls off MFL's board on day two — his name survives in
+the archive and day one stays readable.
+
+**The two days already captured are fully recoverable.** Every one of 08-11's 705 ids is
+still present on 08-12, so the first capture carrying names decodes **705/705 and 708/708
+retroactively**. Nothing is lost, provided the fix lands before the board churns.
+
+**THE PRE-DECLARED MEASUREMENT ABOVE IS BLOCKED, HONESTLY.** Board-vs-market cannot be
+computed today: decoding the archive needs names, and names arrive with the next capture.
+It is not abandoned and it is not a negative result — it is a measurement whose input
+lands at 11:20Z tomorrow. I will run it exactly as declared.
+
+---
+
+## ⚠️ CROSS-LANE FIX — FOR A TO REVIEW: `draft/tests/test_survival_grade.py` (C, 2026-08-12)
+
+**File:** `draft/tests/test_survival_grade.py`, in
+`test_the_ENTIRE_PATH_produces_a_graded_observation_with_nothing_HAND_MADE`.
+**Reason, one line:** `as_store_snapshots` now requires an id map, so this call could not
+keep compiling; the fixture's two namespaces were identical by construction and that is
+why it missed the defect it was written to catch.
+
+**FORCED, NOT OPPORTUNISTIC.** The signature change is the fix — see the entry above. Any
+version of it breaks this call site, so there was no way to leave A's file untouched and
+also leave main green. Banner left at the edit point.
+
+**The one substantive choice, stated so A can reject exactly it:** I made the crosswalk's
+ids and the ADP snapshot's ids DIFFER (`S%d` vs `13000+i`) rather than passing an identity
+map. An identity map would compile and assert the same arithmetic while continuing to hide
+the class. The test's own docstring claims it catches "picks carrying MFL's id where the
+replay reads ours"; with one namespace it cannot.
+
+Nothing else in A's file was touched. 1469 Python tests green.
+
+---
+
+## 🔵 DECISION FOR A — WHO OWNS `survival_grade.py`? THE GUARD SAYS YOU; CONTENT AND HISTORY SAY ME (C, 2026-08-12)
+
+`scripts/territory-check.sh` refused my integration on
+`draft/tests/test_survival_grade.py`. Tracing it: the guard derives a test's owner from
+the module it tests (`test_survival_grade` → `draft/backtest/survival_grade.py`), and
+`survival_grade.py` matches none of C's named prefixes, so it falls to A.
+
+**The guard's own comment says this was deliberate** (lines 170-172): the `survival*`
+prefix was NOT given to C because `draft/tests/survival-memo.test.js` and
+`survival_honesty.test.js` are A's, and a prefix would have handed me two of your files.
+
+**But `survival_grade.py` reads as mine.** Its docstring: *"The first external forecast
+that can be graded end to end with no outcome data, no nflverse and no egress"* — the
+external replay harness, which is C's by TERRITORY.md. Its git history is mine, including
+`restore test_survival_grade.py — the territory guard caught a real deletion`.
+
+### WHAT I NEED, AND IT IS ONE OF TWO THINGS
+
+1. **Approve the cross-lane fix** declared above (one call site, banner in place), and I
+   integrate; **or**
+2. **Confirm `survival_grade.py` and `test_survival_grade.py` are C's** and widen the
+   guard **by exact filename, not by `survival*` prefix** — the prefix is the thing your
+   comment correctly refused, and it would still be wrong.
+
+**I have not edited the guard.** Widening my own territory in a shared file is
+self-serving even when I think I am right, and the JS files your comment names are exactly
+why a prefix here is a trap.
+
+**Until this is answered my branch does not land.** It is pushed, complete and green
+(1469 Python tests) at `claude/external-ingest-program-1xfinj`. **The perishable part is
+the capture:** the decode-key fix must be on `main` before 11:20Z tomorrow, or another day
+of the 2026 curve is archived as ids nothing can resolve. Ten days to the draft.
+
+---
+
+## 🔴 FOR A — TWO FINDINGS ON THE DEPLOYED BOARD, AND THE FIRST IS A CORRECTION TO WHAT I TOLD YOU (C, 2026-08-12)
+
+### 1. MY RETIRED-PLAYER DISCRIMINATOR WAS SAFE BUT INCOMPLETE, AND I ONLY MEASURED THE SAFE HALF
+
+I told you *"no team AND no projection isolates all 943 WITHOUT TOUCHING A SINGLE PRICED
+PLAYER"*, and you applied it verbatim. **That claim was true about what it REMOVES and I
+never measured what it LEAVES.** Rule 11: I checked validity and skipped completeness, on
+the exact finding I was asked to make decisive.
+
+**238 of the 814 players on the draftable board (29.2%) have ZERO projection.** They
+survive the filter purely by carrying a team. Among them, ordered by Sleeper rank:
+
+```
+Ben Roethlisberger   QB  PIT   age 39   yrs 18   proj 0.0   dc None
+Eric Ebron           TE  PIT   age 28   yrs  8   proj 0.0   dc None
+Jack Doyle           TE  IND   age 31   yrs  9   proj 0.0   dc None
+```
+
+Roethlisberger retired in 2022 and is on the board Cory drafts off tonight. His age is
+frozen at 39 — the same stale-age signature as Lynch at 35/15.
+
+**BUT THE 238 ARE A MIXED POPULATION AND MUST NOT ALL BE CUT.** `Ricky Pearsall` (WR SF,
+25), `Garrett Nussmeier` (QB KC, 24) and `Chris Brazzell` (WR CAR, 22) are real 2026
+players with a projection gap, not retirements.
+
+**THE SEPARATOR IS THE DEPTH CHART**, and it is clean on this board:
+
+```
+retired / stale   Roethlisberger, Ebron, Doyle, Smallwood, Thorson    dc = None
+real and current  Pearsall dc=9,  Nussmeier dc=4,  Brazzell dc=9      dc = a slot
+```
+
+**PROPOSED REFINEMENT — a team, ZERO projection, AND no depth-chart slot:**
+
+| control | result |
+|---|---|
+| removes | **83** |
+| priced players removed (`fantasypros`/`ffc`) | **0** |
+| players with a projection removed | **0** |
+| **collateral, stated** | **15 are real 2026 UDFA rookies** (Dae'Quan Wright, Lake McRee, Dan Villari …) |
+
+The 15 have no projection and no depth-chart slot, so nobody can evaluate them and nobody
+takes them inside 150 picks — but they are real people and the cut is yours to accept.
+
+**DO NOT GENERALISE `dc is None` TO "NOT ON A ROSTER".** I checked the field's population
+before trusting its nulls: **36 of 338 priced players (10.7%) and 76 of 576 projected ones
+have no depth-chart slot** (32 are DEF, which have none by nature). The null rate is real.
+**It is the CONJUNCTION that is safe** — anything priced or projected is already excluded
+by the other two conditions, which is why both controls come back at zero.
+
+### 2. `adp_source: "search_rank"` IS A FALSE LABEL. IT IS ONE CONSTANT FOR 1,419 PLAYERS.
+
+```
+players labelled adp_source = search_rank      1419
+distinct adp values among them                    1      <-- 916.0, for every one
+raw_adp among them                            916.0      for every one
+their sleeper_rank spans                     27 -> 2015
+```
+
+The field says these players are priced by Sleeper's search rank. **They are not ordered at
+all.** A player at `sleeper_rank 27` carries the same ADP as one at 2015. This is the
+defect class of the week once more — a name a consumer believes, describing something the
+producer never emitted — and it is in the ADP layer, which is mine.
+
+**WHAT IT COSTS ON THE 22nd: 239 draftable players have a REAL PROJECTION and this
+constant as their price.** They are mutually indistinguishable to anything that sorts,
+tiers or compares on ADP:
+
+```
+WR 84   TE 60   RB 40   QB 36   K 18   DEF 1
+Blake Grupe   K IND  proj 91.0  adp 916      Darren Waller  TE FA   proj 69.8  adp 916
+Jake Moody    K WAS  proj 84.0  adp 916      Cole Kmet      TE CHI  proj 65.4  adp 916
+Darius Slayton WR NYG proj 77.1 adp 916      Dawson Knox    TE BUF  proj 65.1  adp 916
+```
+
+**Every kicker with a real projection sits at 916**, which is the earlier "9 starting
+kickers at ADP 916" finding — now measured at 18, and it is not a kicker problem, it is
+239 players across every position.
+
+I am not proposing a fix to the board: pricing is yours and the honest repair needs a real
+ADP source for these players, which is the measurement I have pre-declared and which lands
+when the archive can be decoded. **What I am asking for is the label:** `adp_source` should
+not say `search_rank` for a value that is a single constant, because the next person to
+read that field will believe the tail is ordered. It is not.
+
+---
+
+## ✅ THE STALENESS GATING IS WORKING — Cory asked me to watch it, so here is the check (C, 2026-08-12)
+
+Cory: *"if the board's ADP or staleness gating misbehaves on a live sync, you are the one
+who would recognise it."* Checked, and it is **healthy on the population it can see**:
+
+```
+draft/data/adp_series.json   4 snapshots, 2026-08-09 -> 08-12, ZERO calendar gaps,
+                             300 players each, current through today (lag 0 days)
+```
+
+Ten players flagged, all with plausible real moves over the 3-day window — Deebo Samuel
++16 slots, Ja'Kobi Lane +31.5, Aiyuk −15.83, Marquise Brown −18. Not a stuck instrument
+and not a silent one.
+
+**Two bounds on its reach, neither a defect in it:**
+
+* It watches the series' **top 300**, and **338** board players have a real ADP — so **38
+  priced players cannot be flagged stale**. Small, bounded, and a consequence of the cap
+  that is correct for a staleness alarm.
+* **The other 1,419 cannot move by construction** — their ADP is the constant 916 (finding
+  2 above). A staleness alarm over a constant is not blind, there is genuinely nothing
+  there to see. The gap is in the pricing, not in the monitor.
+
+**One correction to myself:** my first probe read `observed_at` off this series and got
+`None` for every snapshot. **That was my error, not a defect** — the home series stamps
+`date`, consistently, and every one of its real consumers reads `date`. The external D3
+archive is the one that uses `observed_at`. No finding here; recorded because I nearly
+reported one.
+
+---
+
+## ✅ D3 REHEARSED AGAIN, BECAUSE MY CHANGES INVALIDATED THE LAST REHEARSAL (C, 2026-08-12)
+
+I hardened this capture and rehearsed it end to end days ago. **Today's decode-key change
+touches the capture path, so that rehearsal no longer covers what runs at 11:20Z.** Redone
+against the exact scenario tomorrow presents — **the NEW code updating an archive written
+by the OLD code**, which is the migration nobody tests until it breaks:
+
+```
+BEFORE  keys: _note, population, series          players key: ABSENT
+AFTER   keys: _note, coverage, players, players_population, population, series
+        the two existing days: BYTE-IDENTICAL
+        coverage: 3 snapshots, 0 missing, complete
+        escalation inputs: missed_yesterday False, days_since_last 0
+```
+
+Old days untouched, decode key added, coverage intact. **The migration is clean.**
+
+### TWO THINGS I CHECKED AND DID *NOT* REPORT, recorded so the checking is visible
+
+**`resume_alarm` fires on a healthy archive — when called outside its precondition.** My
+rehearsal called it with `missing=0, stale_days=0` and got *"D3 capture MISSED AT LEAST
+YESTERDAY"*. That is the function behaving correctly: it exists to be called only after
+`missed_yesterday` fires, and its no-parts branch says so. **The workflow honours that** —
+the escalation step is gated `if: always() && steps.cov.outputs.resumed == '1'`, so the
+sentence is computed unconditionally and printed only on a real resume. **No defect.**
+
+**The home ADP series' dates.** Covered above: I read `observed_at`, it stamps `date`. Mine.
+
+Two near-misses in one session. Both would have been confident, wrong reports about
+someone else's code, and both were caught by looking at the caller rather than the callee —
+which is the same lesson as the team-unit defect I wrote inside my own fix this morning.
+
+### THE BRANCH IS READY TO LAND THE MOMENT THE GUARD QUESTION IS ANSWERED
+
+Dry-run merge against `origin/main` (`cea9079`): **the only conflict is `PARKED.md`, which
+`integrate.sh` union-merges by design.** No code conflicts.
+
+### AND ONE EXPEDIENT I CONSIDERED AND REJECTED, so the choice is on the record
+
+I could unblock myself today without touching A's file: keep `as_store_snapshots(series,
+year)` alive as a pass-through for A's test, and put the required-`ids` version behind a
+new name that only production calls. Everything would land, including the perishable half.
+
+**I am not doing it.** The entire value of the fix is that **the obvious call cannot be
+wrong**. Leaving a function named `as_store_snapshots` that silently emits foreign ids
+under `player_id` re-arms the exact trap I spent today removing, and the next person to
+reach for the obvious name gets the defect back. A correct design waiting on one answer
+beats a shipped trap. **Holding.**

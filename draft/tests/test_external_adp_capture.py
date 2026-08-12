@@ -655,3 +655,76 @@ def test_an_UNCOUNTABLE_archive_says_so_rather_than_inventing_a_figure():
     alarm built to announce the opposite."""
     m = C.resume_alarm(None, None)
     assert "cannot say how many days" in m and "0" not in m
+
+
+# ── THE DECODE KEY: an archive of ids nobody can resolve is not evidence ────
+def test_the_players_map_KEEPS_an_id_that_todays_fetch_no_longer_returns():
+    """The archive is append-only because the days are perishable; the DECODE KEY
+    for those days is perishable in exactly the same way and was not being kept at
+    all. MUTATION: let today's fetch replace the map. A player who falls off MFL's
+    ADP board takes his own name with him, and every earlier day that priced him
+    becomes a number against an id nothing can resolve."""
+    old = {"13589": {"name": "Ja'Marr Chase", "position": "WR", "team": "CIN"}}
+    new = {"16161": {"name": "Bijan Robinson", "position": "RB", "team": "ATL"}}
+    m = C.merge_players(old, new)
+    assert set(m) == {"13589", "16161"}
+    assert m["13589"]["name"] == "Ja'Marr Chase"
+
+
+def test_a_BLANK_incoming_row_does_not_ERASE_a_name_we_already_hold():
+    """MUTATION: let the incoming record win unconditionally. One day of MFL
+    serving `name: ""` blanks the archive's only copy of who these ids are, and
+    `population` would still report the field 100% PRESENT because the key is
+    there. Absent is not zero, and neither is empty."""
+    old = {"1": {"name": "Bijan Robinson", "position": "RB", "team": "ATL"}}
+    new = {"1": {"name": "", "position": None, "team": "ATL"}}
+    m = C.merge_players(old, new)
+    assert m["1"]["name"] == "Bijan Robinson"
+    assert m["1"]["position"] == "RB"
+    assert m["1"]["team"] == "ATL"
+
+
+def test_save_WITHOUT_a_players_map_does_not_wipe_the_one_on_disk(tmp_path):
+    """MUTATION: write the file from the arguments alone. `save(series)` is called
+    from more than one place, and the first caller that does not happen to hold the
+    decode key silently deletes it for every day already archived. The file still
+    looks complete — dates, rows, coverage all present."""
+    p = tmp_path / "a.json"
+    C.save(C.append_snapshot([], 2026, "2026-08-11", {"13589": 2.6}),
+           path=str(p), players={"13589": {"name": "Ja'Marr Chase",
+                                           "position": "WR", "team": "CIN"}})
+    C.save(C.append_snapshot(C.load(str(p)), 2026, "2026-08-12", {"13589": 2.5}),
+           path=str(p))                       # no players argument at all
+    d = json.loads(p.read_text())
+    assert d["players"]["13589"]["name"] == "Ja'Marr Chase", (
+        "the decode key was dropped by a save that simply did not mention it")
+    assert len(d["series"]) == 2
+
+
+def test_the_archive_can_be_CROSSWALKED_without_asking_the_source_again():
+    """THE POINT OF STORING NAMES AT ALL. MUTATION: build the id map from a live
+    fetch instead of from the archive. The archive then decodes only while MFL is
+    up and still serving 2026 — which is precisely the window the archive exists
+    to outlive."""
+    p_map = {"13589": {"name": "Ja'Marr Chase", "position": "WR", "team": "CIN"},
+             "99999": {"name": "Nobody At All", "position": "WR", "team": "FA"}}
+    board = [{"player_id": "4034", "name": "Ja'Marr Chase", "position": "WR", "team": "CIN"}]
+    ids, report = C.crosswalk_map(p_map, board)
+    assert ids == {"13589": "4034"}
+    assert report["crosswalked"] == 1 and report["no_sleeper_match"] == 1
+    assert "Nobody At All" in str(report["unmatched_sample"])
+
+
+def test_an_MFL_TEAM_UNIT_never_crosswalks_onto_our_team_DEFENCE():
+    """MUTATION — AND I WROTE IT BEFORE I CAUGHT IT. The first cut of
+    `crosswalk_map` called `adp.match_player` directly, reasoning that reusing the
+    authoritative matcher was enough. It is not: the team-unit refusal lives in the
+    authoritative CALLER. MFL prints a team unit as "Bills, Buffalo", which
+    normalizes to "Buffalo Bills", which is exactly what our Buffalo DEF is called —
+    so the name matches, a real board id comes back, and nothing errors. Measured on
+    the real run before this guard existed: TMQB -> DEF 65 times, TMPK -> DEF 38."""
+    p_map = {"0518": {"name": "Bills, Buffalo", "position": "TMQB", "team": "BUF"}}
+    board = [{"player_id": "BUF", "name": "Buffalo Bills", "position": "DEF", "team": "BUF"}]
+    ids, report = C.crosswalk_map(p_map, board)
+    assert ids == {}, "an MFL team unit matched our DEF on name — it is not a player"
+    assert "team_unit_not_a_player" in str(report["unmatched_sample"])
