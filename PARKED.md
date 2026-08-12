@@ -5644,3 +5644,77 @@ carried entirely by 2024, my own C-001 keeper contamination, and now this. **A p
 statistic over non-independent units, hiding instability that the split exposes immediately.**
 It is the most reliable failure mode in this project's record and it is worth naming as a
 standing check rather than rediscovering a fourth time.
+
+---
+
+## DIRECTED PASS 2 — AUDIT OF A's COMPONENT-GRADING BUILD (C, 2026-08-12)
+
+**Read for the shape I spent a week finding: a producer with no consumer, a verdict computed
+and never read, a null that reads as absence.**
+
+### FIRST, AND IT MATTERS: this build already defends that class, deliberately and well
+
+- **`component_rows()` distinguishes the two nulls by name.** *"An artifact of all-nulls from
+  a working writer and one from a broken writer look identical; this is the only thing that
+  tells them apart, so a failure here blocks rather than annotates."* Absent is non-blocking,
+  **unreadable and failed-self-check are blocking.**
+- **`selfCheck()` calls `RUN.runAll` — the SAME entry point as `build()`.** Not a parallel
+  implementation, which is the usual way a positive control stops proving anything.
+- **It labels itself in the artifact**: `is_evidence_about_the_league: false`, and *"it derives
+  from the code under test and therefore proves only that the code runs (rule 10d)."*
+- **`runAll` emits `no_data` and `too_thin` as DIFFERENT verdicts**, with a comment recording
+  that the first version collapsed them and the empty-input test caught it.
+- **`COMPONENT_DOLLARS` refuses a dollar conversion** with the reason stated rather than
+  shipping a number the machine cannot see.
+
+**I went looking for the defect class and found the defence already built. That is worth
+saying as plainly as a finding would be.**
+
+### THE GAP: the connectivity control covers ONE of SIX components
+
+`runAll` dispatches to a **distinct `BUILDERS[name]` per component**. `selfCheck()` exercises
+**`weekly_claims` only** — so it proves that builder plus the shared grader, and says nothing
+about the other five.
+
+**Verified, not assumed — I fed every builder a well-formed fixture:**
+
+    survival         earning              40 obs / 25 clusters
+    projection       earning              40 / 17
+    opportunity_adj  real_but_immaterial  40 / 17
+    consensus        real_but_immaterial  40 / 17
+    replacement      noise                40 / 17
+    weekly_claims    earning              40 / 40      graded 6 of 6
+
+**There is NO live defect. All six builders work today.**
+
+**The exposure is forward.** Each builder reads named upstream fields —
+`proj_mean`, `proj_baseline`, `proj_fantasypros`, `realized_replacement`, `p_survive`,
+`base_rate`. **If any of those is renamed or reshaped upstream, that builder silently yields
+no pairs, its row reads `no_data`, and `self_check.ok` stays TRUE** — because the one
+component the check exercises is unaffected.
+
+**And that is worse here than it would normally be, because all six read `no_data` RIGHT NOW**
+(`graded: 0 of 6 declared`). **The artifact after five builders break is byte-identical in its
+verdict column to the artifact today.** The self-check is the only thing that could tell them
+apart, and it is watching one sixth of the surface.
+
+### The fix is small, and I demonstrated it before proposing it
+
+Run the fixture through **every registered builder**, not one — I did exactly that in a
+ten-line node call to produce the table above. `selfCheck()` becomes: for each name in
+`SPECS`, feed a shaped fixture, assert the row grades to something other than `no_data`.
+**Then a broken builder fails the check instead of impersonating a quiet season.**
+
+**Minor, same file:** `no_builder` can never fire — all six builders are registered — so it
+guards a state that cannot occur while the registry is complete. Harmless, worth knowing.
+
+### The other two items are NOT auditable yet
+
+**The shape files do not exist.** I searched for committed shape samples per producer at each
+cross-lane seam and found only `exp24_bbm_shape.py` (BBM winning shape, unrelated) and
+`draft/audit/composite_shape_2026-08-12.md`. **Nothing to read yet — say when it lands and I
+will read it, since it targets the class I found five instances of.**
+
+**The ledger-to-gate connector** is present only as `graduation_gate.py` reading
+`EDGE-LEDGER.md` and `DECISIONS-NEEDED.md` paths. **If a distinct connector is coming, it is
+not committed yet.**
