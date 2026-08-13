@@ -14,15 +14,22 @@ sessions nine days out. The counts are named. They may not grow, and when the
 fix lands these tighten to zero.
 
   35  actionable rows with NO BYE whose own team's bye is known and unambiguous
-      on the same board. Not a source gap — 32 teams show a bye and none
-      conflicts. `bye_source` is `ffc` or absent for every row on the board and
-      NEVER `team-derived`, so the fallback built to close exactly this has not
-      once fired. Cause: `adp.py:676` builds the team map from `p.get("bye")`
-      BEFORE the FFC merge that supplies the only bye data — Sleeper's
-      `metadata.bye_week` is empty for all 1,737, as that file's own comment
-      records. The map is therefore empty when it is built.
-  1   row where an ABSENT projection became a ZERO: Ricky Pearsall, ADP 111.5,
-      both sources null, proj_mean 0.0, rank 823, VORP −173.
+      on the same board. The CAUSE IS FIXED — `adp.py` built its team map before
+      the FFC merge that supplies the only bye data, so the map was empty and the
+      fill loop had nothing to apply. The map now builds after the merge, and the
+      fix executes at the next nightly rebuild. THE RATCHET STAYS AT 35 UNTIL
+      THEN, because the artifact on disk is still the one built before it. It
+      should read 0 after the rebuild, and this ceiling comes down with it.
+  1   row the MARKET prices and our projection zeroes: Ricky Pearsall, ADP 111.5,
+      proj 0.00 with sd 0.00, rank 823, VORP −173.
+
+      ⚠ I FIRST CALLED THIS "an absent projection written as a zero" AND THAT WAS
+      WRONG. Sleeper PUBLISHES 8,778 explicit zeros in 9,411 rows, so the value
+      is real and faithfully read. What is wrong is downstream: `season_sd =
+      mean * variance` forces a zero spread from a zero mean, so the board claims
+      CERTAINTY about a player on IR that real drafters are spending an
+      eleventh-round pick on. The variance model ran, produced 0.384, named its
+      reasons — and the multiplication erased them.
 
 THE FIELD CHECKS ARE HARD ASSERTIONS because they are clean today, and each is a
 field a tool indexes by, where an absence would read as a value.

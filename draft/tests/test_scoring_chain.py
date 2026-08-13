@@ -1,5 +1,12 @@
 # TERRITORY: C
-"""EVERY POINT IN THIS SYSTEM IS SCORED WITH THE SAME TABLE, OR NONE OF IT MEANS
+"""THE LEAGUE'S OWN TERMS, HELD IN FOUR PLACES, MUST BE THE SAME TERMS.
+
+Two facts define what this league IS: how a point is scored, and what a legal
+lineup looks like. Each is copied into several files, and a copy that drifts is
+invisible — every consumer stays internally consistent while quietly answering a
+different league's question.
+
+EVERY POINT IN THIS SYSTEM IS SCORED WITH THE SAME TABLE, OR NONE OF IT MEANS
 ANYTHING.
 
 Four places hold a scoring table and all four must be the same one:
@@ -168,3 +175,90 @@ def test_THE_WHOLE_CHAIN_AGREES_WITH_THE_LEAGUE():
         "the scoring tables in this system disagree — every projection, "
         "replacement level and backtest is priced in different units until this "
         "is resolved:\n%s" % "\n".join("  %-18s %s vs %s" % d for d in bad[:12]))
+
+
+# ── THE OTHER LEAGUE FACT: WHAT A LEGAL LINEUP IS ──────────────────────────
+#
+# `roster_positions` decides which slots exist, therefore what the optimizer may
+# fill, what VORP's replacement level is computed against, and — 15 slots x 10
+# teams — that the draft is 150 picks deep. A drift here does not look like an
+# error: it looks like a different league, answered confidently.
+#
+# Sleeper states it as a LIST with repeats (['QB','RB','RB',...]); we store it
+# as counts. Comparing them means counting the list, not eyeballing it.
+
+def roster_slots() -> dict:
+    """The slot counts as each source states them, normalised to a count map."""
+    out = {}
+    sl = _load(SLEEPER)
+    if sl is not None and sl.get("roster_positions"):
+        counts = {}
+        for slot in sl["roster_positions"]:
+            counts[slot] = counts.get(slot, 0) + 1
+        out["sleeper (authority)"] = counts
+    cfg = _load(CONFIG)
+    if cfg is not None and cfg.get("roster_slots"):
+        out["league_config"] = dict(cfg["roster_slots"])
+    board = _load(BOARD)
+    if board is not None:
+        rs = (board.get("league") or {}).get("roster_slots")
+        if rs:
+            out["board artifact"] = dict(rs)
+    return out
+
+
+def test_the_ROSTER_SLOT_COMPARISON_FIRES_on_a_planted_drift():
+    """Proved before the real ones are called clean. An extra FLEX, or a missing
+    one, is a different league — and both directions matter, because a slot we
+    do not know about is one the optimizer will never fill.
+
+    MUTATION: compare only the keys, not the counts — RB 2 against RB 3 passes,
+    which is the exact drift most likely to happen and least likely to be seen."""
+    ref = {"QB": 1, "RB": 2, "WR": 2, "FLEX": 1}
+    assert [d[0] for d in disagreements(
+        {"sleeper (authority)": ref, "x": dict(ref, RB=3)})] == ["RB"]
+    assert [d[0] for d in disagreements(
+        {"sleeper (authority)": ref, "x": {k: v for k, v in ref.items() if k != "FLEX"}})] == ["FLEX"]
+
+
+def test_WHAT_A_LEGAL_LINEUP_IS_agrees_with_the_league():
+    """QB 1, RB 2, WR 2, TE 1, FLEX 1, K 1, DEF 1, BN 6 — nine starters and
+    fifteen slots, which is also why the draft runs fifteen rounds and 150 picks
+    deep. If this disagrees, the optimizer, replacement level and the board's own
+    depth are each answering a different league."""
+    rs = roster_slots()
+    if not rs.get("sleeper (authority)"):
+        pytest.skip("UNCHECKED: no captured Sleeper roster_positions")
+    assert "league_config" in rs and "board artifact" in rs, sorted(rs)
+    bad = disagreements(rs)
+    assert not bad, ("the roster slots disagree — the optimizer and the board are "
+                     "built for different leagues:\n%s"
+                     % "\n".join("  %-10s %s vs %s" % d for d in bad))
+    total = sum(rs["sleeper (authority)"].values())
+    starters = sum(v for k, v in rs["sleeper (authority)"].items() if k != "BN")
+    assert (total, starters) == (15, 9), (total, starters)
+
+
+def test_THE_DRAFT_IS_AS_DEEP_AS_THE_ROSTERS_ARE_WIDE():
+    """The two facts have to multiply out. 15 slots x 10 teams = 150 picks, which
+    is the board depth `draft_last_pick` reads and the number A's replay of three
+    real drafts confirmed. A roster change that did not move the draft length —
+    or the reverse — means one of them is stale."""
+    rs = roster_slots()
+    board = _load(BOARD)
+    if not rs.get("sleeper (authority)") or board is None:
+        pytest.skip("UNCHECKED: no authority or no board")
+    lg = board.get("league") or {}
+    teams, rounds = lg.get("teams"), lg.get("rounds")
+    if teams is None or rounds is None:
+        pytest.skip("UNCHECKED: the board does not state teams/rounds")
+    slots = sum(rs["sleeper (authority)"].values())
+    assert int(rounds) == slots, (
+        "the draft runs %s rounds but a roster holds %d slots — one of them is "
+        "stale, and the board's depth is wrong either way" % (rounds, slots))
+    picks = int(teams) * int(rounds)
+    po = (board.get("pick_order") or {}).get("picks") or []
+    if po:
+        assert len(po) == picks, (
+            "pick_order carries %d rows; %s teams x %s rounds is %d"
+            % (len(po), teams, rounds, picks))

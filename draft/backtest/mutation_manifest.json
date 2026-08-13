@@ -777,6 +777,14 @@
       "test_the_COMPARISON_FIRES_on_a_planted_drift"
      ],
      "verdict": "KILLED"
+    },
+    {
+     "old": "        for slot in sl[\"roster_positions\"]:\n            counts[slot] = counts.get(slot, 0) + 1",
+     "new": "        for slot in sl[\"roster_positions\"]:\n            counts[slot] = 1",
+     "must_fail": [
+      "test_WHAT_A_LEGAL_LINEUP_IS_agrees_with_the_league"
+     ],
+     "verdict": "KILLED"
     }
    ]
   }
