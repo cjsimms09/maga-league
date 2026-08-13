@@ -134,5 +134,24 @@ git checkout -q ROUTES.md 2>/dev/null || rm -f ROUTES.md
 git checkout -q .github/workflows/ci.yml
 
 
+# ── AN ARGUMENT IT DOES NOT READ MUST BE A REFUSAL, NOT AN OK ───────────────
+# `territory-check.sh C some/file.js` used to IGNORE the path and print
+# "OK: side C stayed in its territory" — an answer to a question it had not been
+# asked. C ran exactly that on a file that turned out to be B's, read the OK as
+# clearance, edited it, and had the merge refused by integrate.sh. A false OK is
+# worse than no answer because it is evidence. Pinned here because this file is
+# shared and a shared script whose test does not pin its change gets a test that
+# quietly goes stale.
+for lane in A B C; do
+  bash scripts/territory-check.sh "$lane" some/path.js >/tmp/tcX.out 2>&1; ck $? 2 \
+    "lane $lane: a path argument is REFUSED, not silently ignored"
+  grep -q "REFUSING" /tmp/tcX.out; ck $? 0 \
+    "lane $lane: and it says so in those words"
+done
+# AND THE ONE-ARGUMENT FORM STILL WORKS — the refusal above must not have been
+# bought by breaking the only invocation anybody should use.
+bash scripts/territory-check.sh C >/tmp/tcY.out 2>&1; ck $? 0 \
+  "the correct one-argument invocation still passes on a clean tree"
+
 echo ""; echo "$pass passed, $fail failed"
 [ "$fail" -eq 0 ]

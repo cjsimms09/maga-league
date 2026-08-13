@@ -31,6 +31,41 @@ case "$SIDE" in
   *) echo "usage: territory-check.sh A|B|C"; exit 2 ;;
 esac
 
+# ⚠️ SHARED-FILE EDIT BY C, 2026-08-13 — banner per Cory's three-session rule.
+#
+# IT ACCEPTED AN ARGUMENT IT NEVER READ, AND ANSWERED A QUESTION NOBODY ASKED.
+#
+# This checks the WORKING TREE. It does not take a path, and it never did — but
+# `$2` was silently ignored, so `territory-check.sh C draft/tests/foo.test.js`
+# printed "OK: side C stayed in its territory" while looking at something else
+# entirely. I ran exactly that, on a file that turned out to be B's, read the OK
+# as clearance for that file, and edited it. `integrate.sh` refused the merge and
+# was right to; the work had to be reverted and handed over as a patch.
+#
+# The mistaken invocation is the OBVIOUS one to try — you have a file, you want
+# to know whose it is — and the tool's answer to it was a confident green. That
+# is the same defect this whole guard exists to prevent, one level up: a consumer
+# reading a name its author believed in. Silence would have been better; a false
+# OK is worse than no answer, because it is evidence.
+#
+# So an unexpected argument is now a REFUSAL that says what the tool does check
+# and points at the thing that does answer "whose file is this".
+if [ "$#" -gt 1 ]; then
+  shift
+  cat >&2 <<EOF
+REFUSING: territory-check.sh takes ONE argument (the side) and got extra: $*
+
+It checks the WORKING TREE — every uncommitted change — against the split. It
+does NOT take a file path, and passing one used to be IGNORED, which made this
+print OK about a file it had never looked at.
+
+  whose file is this?   grep the path in TERRITORY.md, or run this with the file
+                        actually edited in your tree
+  will my branch merge?  bash scripts/integrate.sh <branch> <side>
+EOF
+  exit 2
+fi
+
 # ── A JS TEST FOLLOWS WHAT IT REACHES INTO (2026-08-11) ─────────────────────
 #
 # Cory's "a test follows its module" ruling was implemented for `test_*.py` by
