@@ -320,6 +320,14 @@ def test_the_LIVE_BOARD_carries_NO_experiment_data():
     the build that does it. MUTATION: check only the first row."""
     import json
     board = json.load(open("public/draft_data.json"))["players"]
+
+    # PLANT FIRST, on a REAL row, and on the LAST one so a board[0] scan cannot
+    # satisfy it. The gate proved this test vacuous without it.
+    probe = list(board[:-1]) + [dict(board[-1], exp36_efficiency=0.4)]
+    planted = sorted({f for r in probe for f in SS.purpose_violations(r)})
+    assert planted == ["exp36_efficiency"], (
+        "the detector cannot FIND an experiment field on a real board row")
+
     bad = sorted({f for r in board for f in SS.purpose_violations(r)})
     assert bad == [], "EXPERIMENT-PURPOSE FIELDS ON THE LIVE BOARD: %s" % bad
     assert len(board) > 1

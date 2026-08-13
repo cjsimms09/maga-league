@@ -1876,10 +1876,40 @@ def test_an_EMPTY_ARCHIVE_is_UNMEASURED_not_ok():
 def test_the_COMMITTED_ARCHIVE_IS_CLEAN():
     """Standing check against the real file, so corruption fails CI rather than
     waiting for someone to look. MUTATION: check series[0] only."""
+    import copy as _copy
     import json as _json
     from pathlib import Path
     p = Path(__file__).resolve().parent.parent / "data" / "external_adp_series.json"
-    r = C.integrity(_json.loads(p.read_text()))
+    real = _json.loads(p.read_text())
+
+    # PLANT FIRST. Asserting only that the real archive is clean passes for a
+    # checker that can never find anything — the gate proved exactly that against
+    # this test, twice, before this plant existed.
+    # ONE PLANT PER FATAL KIND. My first plant only broke `row_count`, so
+    # disabling the `bad_adp` detector still passed — the test proved ONE of four
+    # detectors fires and read as though it proved the checker. Each kind is
+    # planted into a real archive shape and required to be found by name.
+    def _sick(fn):
+        d = _copy.deepcopy(real)
+        fn(d["series"][0])
+        return {f["kind"] for f in C.integrity(d)["fatal"]}
+
+    def _dup(d):
+        d["series"].insert(0, _copy.deepcopy(d["series"][0]))
+
+    assert "row_count_mismatch" in _sick(
+        lambda s: s.__setitem__("row_count", 999999))
+    assert "bad_adp" in _sick(
+        lambda s: s["rows"].__setitem__(next(iter(s["rows"])), -1.0))
+    assert "dispersion_orphan" in _sick(
+        lambda s: s.__setitem__("dispersion", {"no_such_player": {"min_pick": 1}}))
+    planted = _copy.deepcopy(real)
+    _dup(planted)
+    assert "duplicate_day" in {f["kind"] for f in C.integrity(planted)["fatal"]}, (
+        "integrity cannot FIND a duplicated day in a real archive shape, so the "
+        "assertion below is satisfied by a check that never fires")
+
+    r = C.integrity(real)
     assert r["ok"] is True, r["fatal"]
     assert r["snapshots"] >= 3, "and it must actually have looked at every day"
 
