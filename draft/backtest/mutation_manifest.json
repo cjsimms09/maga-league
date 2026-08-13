@@ -238,6 +238,29 @@
      "verdict": "KILLED"
     }
    ]
+  },
+  "draft/backtest/projection_error.py": {
+   "tests": [
+    "draft/tests/test_projection_error.py"
+   ],
+   "mutations": [
+    {
+     "old": "BAND_EDGES = (3, 8, 16, 32)",
+     "new": "BAND_EDGES = (3, 8, 16, 64)",
+     "must_fail": [
+      "test_BAND_EDGES_produce_the_boundaries_the_calibration_is_reported_in"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "MIN_N = 8",
+     "new": "MIN_N = 1",
+     "must_fail": [
+      "test_the_DEFAULT_min_n_is_the_declared_one_and_actually_bites"
+     ],
+     "verdict": "KILLED"
+    }
+   ]
   }
  }
 }

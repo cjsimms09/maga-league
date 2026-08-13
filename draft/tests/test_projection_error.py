@@ -249,3 +249,63 @@ def test_the_APPLIER_ships_with_the_calibration_and_returns_None_off_a_gap():
     assert status == "measured" and sd > 0
     sd2, status2 = PE.proj_sd_for(cal, "K", 1, 100.0)
     assert sd2 is None and status2 == "unmeasurable"
+
+
+# ── THE DECLARED CONSTANTS, WHICH NOTHING PINNED ───────────────────────────
+#
+# Found by pointing the mutation gate at this module because A is weighing the
+# 1.28x proj_sd finding RIGHT NOW, and that finding is organised entirely by
+# these constants: "17 of 20 cells", "QB33+ 0.617 against a board 0.268". Every
+# one of those numbers is a statement about a BAND.
+#
+# `BAND_EDGES` could be changed to anything and no test noticed — the band test
+# above checks `proj_rank` (1, 2, 1, 2) and never calls `band_of`. And the
+# thin-cell test passes `min_n=10` explicitly, so the DEFAULT `MIN_N = 8` was
+# equally unguarded. Both mutations I aimed at these constants survived, and both
+# were mis-aimed at tests that were fine — the gap was that nothing aimed at the
+# constants at all.
+
+def test_BAND_EDGES_produce_the_boundaries_the_calibration_is_reported_in():
+    """Every cell label in projection_error_calibration.json — and every number I
+    routed to A — is a claim about one of these boundaries. MUTATION: move an edge;
+    the artifact's cells silently re-partition and 'QB33+' means something else
+    while reading identically."""
+    assert PE.BAND_EDGES == (3, 8, 16, 32)
+    assert [PE.band_of(r) for r in (1, 3)] == ["1-3", "1-3"]
+    assert [PE.band_of(r) for r in (4, 8)] == ["4-8", "4-8"]
+    assert [PE.band_of(r) for r in (9, 16)] == ["9-16", "9-16"]
+    assert [PE.band_of(r) for r in (17, 32)] == ["17-32", "17-32"]
+    assert [PE.band_of(r) for r in (33, 400)] == ["33+", "33+"]
+
+
+def test_the_BOUNDARY_RANKS_land_on_the_side_the_labels_claim():
+    """Off-by-one at an edge moves a player between cells and changes both. The
+    labels say 1-3 and 4-8, so 3 and 4 must straddle. MUTATION: use `<` where the
+    label says inclusive — rank 3 becomes a 4-8 player and every reader trusts the
+    label."""
+    assert PE.band_of(3) != PE.band_of(4)
+    assert PE.band_of(8) != PE.band_of(9)
+    assert PE.band_of(16) != PE.band_of(17)
+    assert PE.band_of(32) != PE.band_of(33)
+
+
+def test_an_UNRANKED_player_is_not_quietly_filed_in_the_deepest_band():
+    """`33+` is a measurement about deep players; an unknown rank is not one of
+    them. MUTATION: return '33+' for None — unranked players silently join the
+    band whose calibration is already the least reliable."""
+    assert PE.band_of(None) == "unranked"
+
+
+def test_the_DEFAULT_min_n_is_the_declared_one_and_actually_bites():
+    """The thin-cell test above passes min_n=10 explicitly, so the default was
+    never exercised. A default of 1 would let `calibrate` emit a one-player cell as
+    a measurement, and the artifact A is reading would gain cells that are noise.
+
+    MUTATION: MIN_N = 1 — six players in a band become six measured cells."""
+    assert PE.MIN_N == 8
+    b = board(*[p("q%d" % i, "QB", 200.0) for i in range(6)])
+    cal = PE.calibrate([b], [{"q%d" % i: 100.0 + i for i in range(6)}])
+    cell = cal["cells"][("QB", "1-3")]
+    assert cell["status"] == "unmeasurable", (
+        "three players in the 1-3 band passed the DEFAULT min_n — the default does "
+        "not bite and thin cells reach the artifact as measurements")
