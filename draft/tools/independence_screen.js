@@ -229,6 +229,74 @@ pool.forEach(p => { p._games = p.weekly_sd > 0 ? Math.pow(p.proj_sd / p.weekly_s
   console.log('    board has no player-level durability estimate. Not unimplemented: ABSENT.');
 }
 
+/* ── 2b. CLAMPED LOCKS — THE CLASS §1 CANNOT SEE ───────────────────────────
+ *
+ * ADDED 2026-08-13 after C found one this screen had cleared. `adp_sd` is a
+ * deterministic function of `adp` for 98% of the DRAFTABLE board, and §1 rated
+ * it INDEPENDENT, because:
+ *
+ *     R^2(adp_sd ~ raw_adp) over all players = 0.9726, under the 0.9999 lock.
+ *
+ * A CLAMPED AFFINE FUNCTION IS NOT AFFINE. The clamp bends both tails, a
+ * whole-population fit sees the bend as scatter, and an exact identity hides
+ * behind its own lid. The screen tested for identities and this is an identity
+ * WITH A LID ON IT.
+ *
+ * So: find fields with a large mass sitting on a single extreme value, strip
+ * that mass, and re-test the interior. A field whose interior is a lookup and
+ * whose tail is a constant carries no information either side of the boundary. */
+console.log('\n  CLAMPED LOCKS — mass pinned at an extreme, plus a lookup inside it');
+console.log('    a whole-population fit rates these INDEPENDENT. They are not.');
+console.log('    ' + '-'.repeat(74));
+{
+  function fit(y, x) {
+    const n = y.length;
+    if (n < 8) return NaN;
+    const mx = x.reduce((a, b) => a + b, 0) / n, my = y.reduce((a, b) => a + b, 0) / n;
+    let sxy = 0, sxx = 0, syy = 0;
+    for (let i = 0; i < n; i++) { const a = x[i] - mx, b = y[i] - my; sxy += a * b; sxx += a * a; syy += b * b; }
+    return (sxx > 0 && syy > 0) ? (sxy * sxy) / (sxx * syy) : NaN;
+  }
+  /* TWO SCOPING FIXES MY FIRST PASS NEEDED, both of which made it useless:
+   *   - it ran over all 576 including the ADP-917 SENTINEL, which is not a
+   *     draft position at all. C's claim is about the DRAFTABLE board and that
+   *     is where decisions happen, so the cut is ADP <= 150.
+   *   - it compared adp to itself and duly reported "distinct adp/adp: 1,
+   *     LOOKUP" — a flag that fires on an identity by construction is the
+   *     vacuous-check pattern inside the vacuous-check finder, again. */
+  const ADP_SELF = { adp: 1, raw_adp: 1, adjusted_adp: 1, consensus_rank: 1, pool_rank: 1, overall_rank: 1 };
+  const draftable = pool.filter(p => Number.isFinite(p.raw_adp) && p.raw_adp <= 150);
+  console.log('    scope: the DRAFTABLE board, ADP <= 150 — ' + draftable.length + ' players');
+  let found = 0;
+  FIELDS.concat(['adp_sd']).filter((v, i, a) => a.indexOf(v) === i).forEach(f => {
+    if (ADP_SELF[f]) return;                      // an identity is not a finding
+    const rows = draftable.filter(p => Number.isFinite(p[f]));
+    if (rows.length < 30) return;
+    const vals = rows.map(p => p[f]);
+    const lo = Math.min.apply(null, vals), hi = Math.max.apply(null, vals);
+    const atHi = vals.filter(v => v === hi).length, atLo = vals.filter(v => v === lo).length;
+    const pinned = Math.max(atHi, atLo);
+    if (pinned / rows.length < 0.05) return;              // no meaningful clamp
+    const interior = rows.filter(p => p[f] !== hi && p[f] !== lo);
+    if (interior.length < 8) return;
+    const ratios = new Set(interior.map(p =>
+      (p.raw_adp ? (p[f] / p.raw_adp).toFixed(4) : 'x')));
+    console.log('    ' + f.padEnd(15) + String(pinned).padStart(5) + ' of ' + rows.length
+      + ' pinned at ' + (atHi >= atLo ? hi : lo)
+      + '   interior n=' + interior.length
+      + '   distinct ' + f + '/adp: ' + ratios.size
+      + (ratios.size <= 8 ? '   LOOKUP, NOT A MEASUREMENT' : ''));
+    if (ratios.size <= 8) found++;
+  });
+  if (!found) console.log('    none');
+  console.log('\n    THE ONE THAT MATTERS: adp_sd feeds SURVIVAL, survival drives VONA, and');
+  console.log('    VONA is the score. If adp_sd carries no player-specific information then');
+  console.log('    survival is a function of (adp, gap) alone — the same player-blindness');
+  console.log('    the composite already has, one layer further down. Measured by C:');
+  console.log('    at a 20-pick gap, sd 8 -> 0.6% survival, sd 15 -> 9.1%, sd 30 -> 25.2%.');
+  console.log('    A factor of two in a field that is 98% computed moves survival threefold.');
+}
+
 /* ── 3b. THE PARTIALLY-POPULATED FIELDS — TESTED, NOT MERELY EXCLUDED ──────
  *
  * These were excluded above because comparing on a subset risks a selection
